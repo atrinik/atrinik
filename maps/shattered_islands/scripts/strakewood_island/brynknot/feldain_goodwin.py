@@ -66,7 +66,7 @@ def main():
 
         from Language import pluralize
 
-        inf.add_msg("<title>Profession: " + pc.get_class_name_gender(name) + "</title>")
+        inf.add_msg("[title]Profession: " + pc.get_class_name_gender(name) + "[/title]")
         inf.add_msg("If you wish, I will instruct you in the ways of {}.".format(pluralize(name)))
         class_ob = pc.get_class()
 
@@ -91,7 +91,7 @@ def main():
 
         from Language import pluralize
 
-        inf.add_msg("<title>Profession: " + pc.get_class_name_gender(name) + "</title>")
+        inf.add_msg("[title]Profession: " + pc.get_class_name_gender(name) + "[/title]")
         class_ob = pc.get_class()
 
         if class_ob:

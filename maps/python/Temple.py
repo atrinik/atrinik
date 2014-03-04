@@ -86,7 +86,7 @@ class Temple(InterfaceBuilder):
                 else:
                     self.add_msg("You don't look very hungry to me...")
             else:
-                self.add_msg("<title>{service[1]}</title>", service = service)
+                self.add_msg("[title]{service[1]}[/title]", service = service)
 
                 if not is_buy:
                     self.add_msg(service[2])

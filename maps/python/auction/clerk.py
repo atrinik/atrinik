@@ -610,7 +610,7 @@ def main():
         if not obj:
             inf.add_msg("That item is not available anymore.")
         else:
-            inf.add_msg("<title>{}</title>".format(obj.GetName()))
+            inf.add_msg("[title]{}[/title]".format(obj.GetName()))
             inf.add_msg(activator.Controller().Examine(obj, True).strip())
             inf.add_msg("[green]Price:[/green] {} (each)\n[green]Seller:[/green] {}".format(CostString(int(obj.ReadKey("auction_house_value"))), obj.ReadKey("auction_house_seller")))
 
@@ -693,7 +693,7 @@ def main():
             inf.add_msg("Please mark the item that you want to sell first.")
             return
 
-        inf.add_msg("<title>{}</title>".format(marked.GetName()))
+        inf.add_msg("[title]{}[/title]".format(marked.GetName()))
         inf.add_msg(activator.Controller().Examine(marked, True).strip())
         inf.add_msg("How much do you want to sell that for? Example: [green]10 gold, 50 silver[/green]".format(marked.GetName()))
         inf.set_text_input(prepend = "sell2 ")

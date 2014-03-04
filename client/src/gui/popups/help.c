@@ -156,7 +156,7 @@ void help_show(const char *name)
     if (!hfile) {
         char buf[HUGE_BUF];
 
-        snprintf(buf, sizeof(buf), "<book=Help not found><title>\n[center]The specified help file could not be found.[/center]</title>");
+        snprintf(buf, sizeof(buf), "<book=Help not found>[title]\n[center]The specified help file could not be found.[/center][/title]");
         book_load(buf, strlen(buf));
     }
     else {

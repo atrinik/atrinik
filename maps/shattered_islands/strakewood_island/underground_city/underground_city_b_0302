@@ -2816,7 +2816,7 @@ x 12
 y 9
 arch note
 msg
-<title>Day 6:</title>
+[title]Day 6:[/title]
 We found stairs leading to yet another level.
 
 Using the knowledge we learned from the ancient library, we figured out that a ---ic bul--- was needed. It must be cast northwest from a special location.
@@ -2827,7 +2827,7 @@ Unfortunately we have no way to test this, our last magician died today.
 
 The number of wounded is growing every day. We will stay here and rest tonight.
 
-<title>Day 7:</title>
+[title]Day 7:[/title]
 The bridge looks harmless; We are hoping the information about a death trap is to just to scare people away.
 
 After breakfast, we will attempt to cross the bridge.
@@ -2852,19 +2852,19 @@ name note: Day 6 - 7
 end
 arch note
 msg
-<title>Day 1:</title>
+[title]Day 1:[/title]
 We have penetrated the first defenses of Underground City easily. The orcs were no match for us, as our race was used to fighting them. Many orcs died that day, but more kept coming still. We hid in an empty room to catch some sleep, with one of us watching as guard. That night went without any trouble.
 
-<title>Day 2:</title>
+[title]Day 2:[/title]
 More orcs were slain. We found some undead ghosts and ghouls, but they didn't see us, so we didn't attempt a fight. Finally, we reached the first drows, and the first challenge. There were many, and they weren't happy to see us.
 
-<title>Day 3:</title>
+[title]Day 3:[/title]
 We found a powerful drow magician guarding a secret passage to lower level. We fought our way, only to find many skeletons and ghosts living there. We slashed our way through. We found more drows and a dead end, so we decided to rest there.
 
-<title>Day 4:</title>
+[title]Day 4:[/title]
 We returned to the stairs we found earlier and tried the other way, fighting many undead. Eventually we found an ancient library with valuable information and a ghost guarding some key. We decided to rest there.
 
-<title>Day 5:</title>
+[title]Day 5:[/title]
 Undead as far as the eye could see, but we eventually found something that looked like a temple. This was a very gruesome fight, and our last magicians fell, but we managed to win. We found a human guard prisoner in a hidden room there, but he was in no state to talk to us. We decided to rest again.
 endmsg
 exp 0

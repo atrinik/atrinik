@@ -1161,13 +1161,13 @@ void socket_command_quest_list(socket_struct *ns, player *pl, uint8 *data, size_
 
     if (!quest_container || !quest_container->inv) {
         packet = packet_new(CLIENT_CMD_BOOK, 0, 0);
-        packet_append_string_terminated(packet, "<title>No quests to speak of.</title>");
+        packet_append_string_terminated(packet, "[title]No quests to speak of.[/title]");
         socket_send_packet(&pl->socket, packet);
         return;
     }
 
     sb = stringbuffer_new();
-    stringbuffer_append_string(sb, "<book=Quest List><title>Incomplete quests:</title>\n");
+    stringbuffer_append_string(sb, "<book=Quest List>[title]Incomplete quests:[/title]\n");
 
     /* First show incomplete quests */
     for (tmp = quest_container->inv; tmp; tmp = tmp->below) {
@@ -1175,7 +1175,7 @@ void socket_command_quest_list(socket_struct *ns, player *pl, uint8 *data, size_
             continue;
         }
 
-        stringbuffer_append_printf(sb, "\n<title>%s</title>", tmp->race);
+        stringbuffer_append_printf(sb, "\n[title]%s[/title]", tmp->race);
 
         /* Find the last entry. */
         for (last = tmp->inv; last && last->below; last = last->below) {
@@ -1203,7 +1203,7 @@ void socket_command_quest_list(socket_struct *ns, player *pl, uint8 *data, size_
         stringbuffer_append_string(sb, "\n");
     }
 
-    stringbuffer_append_string(sb, "[p]\n<title>Completed quests:</title>\n");
+    stringbuffer_append_string(sb, "[p]\n[title]Completed quests:[/title]\n");
 
     /* Now show completed quests */
     for (tmp = quest_container->inv; tmp; tmp = tmp->below) {
@@ -1211,7 +1211,7 @@ void socket_command_quest_list(socket_struct *ns, player *pl, uint8 *data, size_
             continue;
         }
 
-        stringbuffer_append_printf(sb, "\n<title>%s</title>", tmp->race);
+        stringbuffer_append_printf(sb, "\n[title]%s[/title]", tmp->race);
     }
 
     cp_len = stringbuffer_length(sb);

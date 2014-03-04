@@ -22,7 +22,7 @@ def main():
     else:
         for obj in me.inv:
             if obj.type == Type.BOOK and obj.arch.name == msg:
-                inf.add_msg("<title>" + obj.name + "</title>")
+                inf.add_msg("[title]" + obj.name + "[/title]")
                 inf.add_msg(obj.msg)
                 break
 
