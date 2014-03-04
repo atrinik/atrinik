@@ -1431,6 +1431,13 @@ int text_show_character(int *font, int orig_font, SDL_Surface *surface, SDL_Rect
                 info->flip = 0;
             }
         }
+        else {
+            char *cp2;
+
+            cp2 = text_escape_markup(cp);
+            draw_info_format(COLOR_RED, "Unknown tag found in message: %.100s", cp2);
+            free(cp2);
+        }
 
         return ret;
     }
