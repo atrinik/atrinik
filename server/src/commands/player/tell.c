@@ -69,20 +69,20 @@ void command_tell(object *op, const char *command, char *params)
 
     logger_print(LOG(CHAT), "[TELL] [%s] [%s] %s", op->name, name, msg);
 
-    snprintf(buf, sizeof(buf), "<a=#charname>%s</a> tells you: %s", op->name, msg);
+    snprintf(buf, sizeof(buf), "[a=#charname]%s[/a] tells you: %s", op->name, msg);
     draw_info_type(CHAT_TYPE_PRIVATE, NULL, COLOR_NAVY, pl->ob, buf);
 
-    snprintf(buf, sizeof(buf), "You tell <a=#charname>%s</a>: %s", pl->ob->name, msg);
+    snprintf(buf, sizeof(buf), "You tell [a=#charname]%s[/a]: %s", pl->ob->name, msg);
     draw_info_type(CHAT_TYPE_PRIVATE, NULL, COLOR_NAVY, op, buf);
 
     /* Auto-reply message available */
     if (CONTR(pl->ob)->afk_auto_reply[0] != '\0') {
-        snprintf(buf, sizeof(buf), "<a=#charname>%s</a> auto-replies: %s", pl->ob->name, CONTR(pl->ob)->afk_auto_reply);
+        snprintf(buf, sizeof(buf), "[a=#charname]%s[/a] auto-replies: %s", pl->ob->name, CONTR(pl->ob)->afk_auto_reply);
         draw_info_type(CHAT_TYPE_PRIVATE, NULL, COLOR_NAVY, op, buf);
     }
     /* Player is AFK */
     else if (CONTR(pl->ob)->afk) {
-        snprintf(buf, sizeof(buf), "<a=#charname>%s</a> is currently [AFK].", pl->ob->name);
+        snprintf(buf, sizeof(buf), "[a=#charname]%s[/a] is currently [AFK].", pl->ob->name);
         draw_info_type(CHAT_TYPE_PRIVATE, NULL, COLOR_NAVY, op, buf);
     }
 }
