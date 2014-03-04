@@ -65,7 +65,7 @@ static void widget_draw(widgetdata *widget)
     tooltip_text = NULL;
     widget->redraw++;
 
-    text_show(widget->surface, FONT_SANS12, "<b>Ranged</b>", 20, 188, COLOR_HGOLD, TEXT_MARKUP, NULL);
+    text_show(widget->surface, FONT_SANS12, "[b]Ranged[/b]", 20, 188, COLOR_HGOLD, TEXT_MARKUP, NULL);
     text_show(widget->surface, FONT_ARIAL10, "DMG", 9, 205, COLOR_HGOLD, 0, NULL);
     text_show_format(widget->surface, FONT_MONO10, 40, 205, COLOR_WHITE, 0, NULL, "%02d", cpl.stats.ranged_dam);
     text_show(widget->surface, FONT_ARIAL10, "WC", 10, 215, COLOR_HGOLD, 0, NULL);
@@ -73,7 +73,7 @@ static void widget_draw(widgetdata *widget)
     text_show(widget->surface, FONT_ARIAL10, "WS", 10, 225, COLOR_HGOLD, 0, NULL);
     text_show_format(widget->surface, FONT_MONO10, 40, 225, COLOR_WHITE, 0, NULL, "%3.2fs", cpl.stats.ranged_ws / 1000.0);
 
-    text_show(widget->surface, FONT_SANS12, "<b>Melee</b>", 155, 188, COLOR_HGOLD, TEXT_MARKUP, NULL);
+    text_show(widget->surface, FONT_SANS12, "[b]Melee[/b]", 155, 188, COLOR_HGOLD, TEXT_MARKUP, NULL);
     text_show(widget->surface, FONT_ARIAL10, "DMG", 139, 205, COLOR_HGOLD, 0, NULL);
     text_show_format(widget->surface, FONT_MONO10, 170, 205, COLOR_WHITE, 0, NULL, "%02d", cpl.stats.dam);
     text_show(widget->surface, FONT_ARIAL10, "WC", 140, 215, COLOR_HGOLD, 0, NULL);

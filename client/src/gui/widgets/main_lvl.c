@@ -42,7 +42,7 @@ static void widget_draw(widgetdata *widget)
 
         text_show(widget->surface, FONT_ARIAL10, "Level / Exp", 5, 5, COLOR_HGOLD, TEXT_OUTLINE, NULL);
 
-        snprintf(buf, sizeof(buf), "<b>%d</b>", cpl.stats.level);
+        snprintf(buf, sizeof(buf), "[b]%d[/b]", cpl.stats.level);
         text_show(widget->surface, FONT_SERIF14, buf, widget->w - 4 - text_get_width(FONT_SERIF14, buf, TEXT_MARKUP), 4, cpl.stats.level == s_settings->max_level ? COLOR_HGOLD : COLOR_WHITE, TEXT_MARKUP, NULL);
 
         text_show_format(widget->surface, FONT_ARIAL10, 5, 20, COLOR_WHITE, 0, NULL, "%"FMT64, cpl.stats.exp);

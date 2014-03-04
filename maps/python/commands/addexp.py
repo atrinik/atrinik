@@ -11,9 +11,9 @@ def main():
         activator.Controller().DrawInfo(
             markup_escape("Usage: /addexp <[\"]player name[\"]> &lt;skill number|skill name&gt; <experience|levels> ['levels']\n") +
             "Examples:\n"
-            "<b>/addexp Dummy slash weapons 125</b> - adds 125 exp to slash weapons of 'Dummy'\n"
-            "<b>/addexp Dummy wizardry spells 100 levels</b> - adds 100 levels to wizardry spells of 'Dummy'\n"
-            "<b>/addexp \"Some Player\" 1 50 levels</b> - adds 50 levels to literacy of 'Some Player'",
+            "[b]/addexp Dummy slash weapons 125[/b] - adds 125 exp to slash weapons of 'Dummy'\n"
+            "[b]/addexp Dummy wizardry spells 100 levels[/b] - adds 100 levels to wizardry spells of 'Dummy'\n"
+            "[b]/addexp \"Some Player\" 1 50 levels[/b] - adds 50 levels to literacy of 'Some Player'",
             color = COLOR_WHITE
         )
         return

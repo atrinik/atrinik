@@ -81,7 +81,7 @@ def py_console_thread():
                 matches.append(match + "<i>" + entry[len(match):] + "</i>")
 
         if len(matches) > 1:
-            console.matches.append("<b>Possible matches</b>: {}".format(", ".join(matches)))
+            console.matches.append("[b]Possible matches[/b]: {}".format(", ".join(matches)))
 
         return match
 

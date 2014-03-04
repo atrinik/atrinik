@@ -218,7 +218,7 @@ static int popup_draw(popup_struct *popup)
     box.w = 220;
     box.h = 80;
     strftime(timebuf, sizeof(timebuf), "%a %b %d %H:%M:%S %Y", localtime(&cpl.last_time));
-    text_show_shadow_format(popup->surface, FONT_ARIAL11, 265, 190, COLOR_WHITE, COLOR_BLACK, TEXT_MARKUP | TEXT_WORD_WRAP, &box, "Your IP: <b>%s</b>\nYou last logged in from <b>%s</b> at %s.", cpl.host, cpl.last_host, timebuf);
+    text_show_shadow_format(popup->surface, FONT_ARIAL11, 265, 190, COLOR_WHITE, COLOR_BLACK, TEXT_MARKUP | TEXT_WORD_WRAP, &box, "Your IP: [b]%s[/b]\nYou last logged in from [b]%s[/b] at %s.", cpl.host, cpl.last_host, timebuf);
 
     button_set_parent(&button_tab_characters, popup->x, popup->y);
     button_set_parent(&button_tab_new, popup->x, popup->y);
@@ -250,7 +250,7 @@ static int popup_draw(popup_struct *popup)
 
         button_login.x = list_characters->x + LIST_WIDTH_FULL(list_characters) / 2 - texture_surface(button_login.texture)->w / 2;
         button_login.y = list_characters->y + LIST_HEIGHT_FULL(list_characters) + 8;
-        button_show(&button_login, "<b>Login</b>");
+        button_show(&button_login, "[b]Login[/b]");
     }
     else if (button_tab_new.pressed_forced) {
         int max_width, width;

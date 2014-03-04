@@ -1064,7 +1064,7 @@ end
 help object_id
 title Object ID
 msg
-When a help page mentions <b>object_id</b> in syntax parameters, it means you have to specify object name (often without spaces) or its ID (which can be found by using examine on the object, near the top saying 'count xxxxx': the xxxxx is the ID).
+When a help page mentions [b]object_id[/b] in syntax parameters, it means you have to specify object name (often without spaces) or its ID (which can be found by using examine on the object, near the top saying 'count xxxxx': the xxxxx is the ID).
 
 If you use the object's ID, you have to put a hash symbol in front of it, for example:
 
@@ -1089,8 +1089,8 @@ You can ignore another player's chat from various chat types using the ignore co
 /ignore &lt;player name&gt; &lt;chat type&gt;
 
 Where:<padding=4>
-<b>player name</b>: Name of the player to ignore (or <b>*</b> to ignore all players)
-<b>chat type</b>: Chat type to ignore the player from, one of: <b>say</b>, <b>shout</b>, <b>tell</b>, <b>emote</b> or <b>*</b> (all the chat types)
+[b]player name[/b]: Name of the player to ignore (or [b]*[/b] to ignore all players)
+[b]chat type[/b]: Chat type to ignore the player from, one of: [b]say[/b], [b]shout[/b], [b]tell[/b], [b]emote[/b] or [b]*[/b] (all the chat types)
 </padding>
 endmsg
 end
@@ -1099,13 +1099,13 @@ help use_skill
 autocomplete 1
 title Use Skill Command
 msg
-The <b>/use_skill</b> command can be used to use a skill, for example, the <b>construction</b> skill. Note that many skills cannot be used in this way, for example, melee, archery, etc.
+The [b]/use_skill[/b] command can be used to use a skill, for example, the [b]construction[/b] skill. Note that many skills cannot be used in this way, for example, melee, archery, etc.
 
 <title>Syntax:</title>
 /use_skill &lt;skill name&gt;
 
 Where:<padding=4>
-<b>skill name</b>: Full name of the skill to use, for example, <b>construction</b>
+[b]skill name[/b]: Full name of the skill to use, for example, [b]construction[/b]
 </padding>
 endmsg
 end
@@ -1114,13 +1114,13 @@ help ready_spell
 autocomplete 1
 title Ready Spell Command
 msg
-The </b>/ready_spell</b> command can be used to ready a spell into the range box.
+The [/b]/ready_spell[/b] command can be used to ready a spell into the range box.
 
 <title>Syntax:</title>
 /ready_spell &lt;spell name&gt;
 
 Where:<padding=4>
-<b>spell name</b>: Full name of the spell to ready, for example, <b>magic bullet</b>
+[b]spell name[/b]: Full name of the spell to ready, for example, [b]magic bullet[/b]
 </padding>
 endmsg
 end
@@ -1129,13 +1129,13 @@ help ready_skill
 autocomplete 1
 title Ready Skill Command
 msg
-The </b>/ready_skill</b> command can be used to ready a skill.
+The [/b]/ready_skill[/b] command can be used to ready a skill.
 
 <title>Syntax:</title>
 /ready_skill &lt;skill name&gt;
 
 Where:<padding=4>
-<b>skill name</b>: Full name of the skill to ready, for example, <b>construction</b>
+[b]skill name[/b]: Full name of the skill to ready, for example, [b]construction[/b]
 </padding>
 endmsg
 end
@@ -1152,26 +1152,26 @@ end
 help contributors
 title Atrinik Contributors
 msg
-<font=sans 14><b><o=#000000><c=#cf6900>Programming:</c></o></b></font><padding=4>
-Alex "<b>Cleo</b>" Tokar (+maps)
-Daniel "<b>Lippy</b>" Liptrot
+<font=sans 14>[b]<o=#000000><c=#cf6900>Programming:</c></o>[/b]</font><padding=4>
+Alex "[b]Cleo[/b]" Tokar (+maps)
+Daniel "[b]Lippy[/b]" Liptrot
 Dantee
 </padding>
-<font=sans 14><b><o=#000000><c=#cf6900>Maps:</c></o></b></font><padding=4>
-Asa "<b>Evilasa</b>" Hurren
-Brian "<b>Gramlath</b>" Angeletti (+graphics)
-Edwin "<b>Mamoru</b>" Miltenburg (+music)
-Matthew "<b>Idicus</b>" Bostick
+<font=sans 14>[b]<o=#000000><c=#cf6900>Maps:</c></o>[/b]</font><padding=4>
+Asa "[b]Evilasa[/b]" Hurren
+Brian "[b]Gramlath[/b]" Angeletti (+graphics)
+Edwin "[b]Mamoru[/b]" Miltenburg (+music)
+Matthew "[b]Idicus[/b]" Bostick
 </padding>
-<font=sans 14><b><o=#000000><c=#cf6900>Graphics:</c></o></b></font><padding=4>
-James "<b>Jlittle</b>" Little (+programming)
+<font=sans 14>[b]<o=#000000><c=#cf6900>Graphics:</c></o>[/b]</font><padding=4>
+James "[b]Jlittle[/b]" Little (+programming)
 Glenn Hanna
 
 <a=url:http://rephial.org>Angband</a>, <a=url:http://crossmagi.sourceforge.net>Crossmagi</a>, <a=url:http://www.freedink.org>GNU FreeDink</a>, <a=url:http://reinerstileset.4players.de/englisch.html>Reiner's Tilesets</a>, <a=url:http://rltiles.sf.net>RLTiles</a>, <a=url:http://wesnoth.org/>Wesnoth</a>
 </padding>
-<font=sans 14><b><o=#000000><c=#cf6900>Other:</c></o></b></font><padding=4>
-David "<b>Ddhanna</b>" Hanna
-Pete "<b>Arantor</b>" Spicer
+<font=sans 14>[b]<o=#000000><c=#cf6900>Other:</c></o>[/b]</font><padding=4>
+David "[b]Ddhanna[/b]" Hanna
+Pete "[b]Arantor[/b]" Spicer
 </padding>
 endmsg
 end
@@ -1181,25 +1181,25 @@ title Music Player Widget
 msg
 You can use the music player to play your favorite tunes from the game, or play them all one-by-one in random order (shuffle).
 
-Note that if you use the music player, in-game areas won't change your music until you click <b>Stop</b>.
+Note that if you use the music player, in-game areas won't change your music until you click [b]Stop[/b].
 
-The <b>Currently playing</b> field will show you name of the current music file being played, either by the music player or in-game area.
+The [b]Currently playing[/b] field will show you name of the current music file being played, either by the music player or in-game area.
 
 <title>Controls</title>
 
-Use mouse wheel or drag the slider to scroll the list of music files. To play a music file, either double-click it, or select it by left-clicking it once and click on <b>Play</b>. The selected music file will loop infinitely, or until the <b>Stop</b> button is pressed (which replaces the <b>Play</b> button if the music player is playing something).
+Use mouse wheel or drag the slider to scroll the list of music files. To play a music file, either double-click it, or select it by left-clicking it once and click on [b]Play[/b]. The selected music file will loop infinitely, or until the [b]Stop[/b] button is pressed (which replaces the [b]Play[/b] button if the music player is playing something).
 
-Click the <b>Shuffle</b> button to play music files at random. When one songs ends in the shuffle mode, no looping is done, but instead next one is chosen at random.
+Click the [b]Shuffle[/b] button to play music files at random. When one songs ends in the shuffle mode, no looping is done, but instead next one is chosen at random.
 
-In order to stop all background music for the current client session, you can double-click <b>Disable music</b> at the end of the music list.
+In order to stop all background music for the current client session, you can double-click [b]Disable music[/b] at the end of the music list.
 
 If you stop the music player and you want the in-game area music to return, you will have to re-enter the area.
 
 <title>Playlist</title>
 
-You can construct your own playlist using the music player by <b>blacklisting</b> songs you don't want on the playlist. In order to blacklist a song, select it in the music list and press the <b>-</b> button. Blacklisted entries will appear in red color on the music list, and will never play in the shuffle mode. You can remove a song from the blacklist by selecting it and clicking the <b>+</b> button (which will appear instead of the <b>-</b> one).
+You can construct your own playlist using the music player by [b]blacklisting[/b] songs you don't want on the playlist. In order to blacklist a song, select it in the music list and press the [b]-[/b] button. Blacklisted entries will appear in red color on the music list, and will never play in the shuffle mode. You can remove a song from the blacklist by selecting it and clicking the [b]+[/b] button (which will appear instead of the [b]-[/b] one).
 
-In order to mass-change blacklist status of all the songs, select a song, and hold down the <b>-</b>/<b>+</b> button (depending on whether you want to blacklist the song or remove it from the blacklist, respectively).
+In order to mass-change blacklist status of all the songs, select a song, and hold down the [b]-[/b]/[b]+[/b] button (depending on whether you want to blacklist the song or remove it from the blacklist, respectively).
 endmsg
 end
 
@@ -1208,17 +1208,17 @@ title Spell List Widget
 msg
 The spells widget allows you to browse all in-game spells sorted by their path.
 
-Right of the spells list, you can see the currently selected spell's description (if any). If you know the selected spell, you will be able to see the mana/grace cost below the description, near the bottom. You will also see the spell's icon, and path <b>Status</b>. Usually, this will be <b>Normal</b>, but if you apply an object that is attuned to a certain path, or repelled/denied from it, you will see that in the <b>Status</b>.
+Right of the spells list, you can see the currently selected spell's description (if any). If you know the selected spell, you will be able to see the mana/grace cost below the description, near the bottom. You will also see the spell's icon, and path [b]Status[/b]. Usually, this will be [b]Normal[/b], but if you apply an object that is attuned to a certain path, or repelled/denied from it, you will see that in the [b]Status[/b].
 
 <title>Controls</title>
 
-Use mouse wheel or drag the slider to scroll the list of spells (if applicable). Switch between spell paths by clicking the <b>&lt;</b> and <b>&gt;</b> buttons below the list of spells. If you keep holding those buttons, the spell paths will continue changing. The last spell path will show you all the spells, from all spell paths.
+Use mouse wheel or drag the slider to scroll the list of spells (if applicable). Switch between spell paths by clicking the [b]&lt;[/b] and [b]&gt;[/b] buttons below the list of spells. If you keep holding those buttons, the spell paths will continue changing. The last spell path will show you all the spells, from all spell paths.
 
 In order to ready a spell, double-click its name in the spells list. You can also drag the currently selected spell's icon in the bottom right corner, and drop it into your quickslots for fast access.
 
-You can filter the list of spells using the buttons above the currently selected spell's description. If you press <b>Known</b>, only spells that you know will be shown - otherwise, both known and unknown are shown. The <b>&lt;</b> and <b>&gt;</b> buttons allow you to switch between types of spells shown: wizardry <b>spells</b>, divine <b>prayers</b>, or <b>all</b>.
+You can filter the list of spells using the buttons above the currently selected spell's description. If you press [b]Known[/b], only spells that you know will be shown - otherwise, both known and unknown are shown. The [b]&lt;[/b] and [b]&gt;[/b] buttons allow you to switch between types of spells shown: wizardry [b]spells[/b], divine [b]prayers[/b], or [b]all[/b].
 
-The <b>F9</b> key (default) can be used to open/close the widget.
+The [b]F9[/b] key (default) can be used to open/close the widget.
 endmsg
 end
 
@@ -1231,13 +1231,13 @@ Right of the skills list, you can see the currently selected skill's description
 
 <title>Controls</title>
 
-Use mouse wheel or drag the slider to scroll the list of skills (if applicable). Switch between skill categories by clicking the <b>&lt;</b> and <b>&gt;</b> buttons below the list of skills. If you keep holding those buttons, the skill categories will continue changing. The last skill category will show you all the skills, from all the categories.
+Use mouse wheel or drag the slider to scroll the list of skills (if applicable). Switch between skill categories by clicking the [b]&lt;[/b] and [b]&gt;[/b] buttons below the list of skills. If you keep holding those buttons, the skill categories will continue changing. The last skill category will show you all the skills, from all the categories.
 
 In order to ready a skill, double-click its name in the skills list.
 
-By default, both known and unknown skills are shown in the skills list, with the unknown ones grayed out. You can change the list to only show known skills by pressing the <b>Known</b> button.
+By default, both known and unknown skills are shown in the skills list, with the unknown ones grayed out. You can change the list to only show known skills by pressing the [b]Known[/b] button.
 
-The <b>F10</b> key (default) can be used to open/close the widget.
+The [b]F10[/b] key (default) can be used to open/close the widget.
 endmsg
 end
 
@@ -1248,11 +1248,11 @@ The party widget allows you to form and join parties. While in a party, you can 
 
 <title>Controls</title>
 
-In order to join a party, double-click the party name in the list. If no party is available, you will have to form a party yourself; this can be done by pressing the <b>Form</b> button, and entering the new party name in the text input that pops up.
+In order to join a party, double-click the party name in the list. If no party is available, you will have to form a party yourself; this can be done by pressing the [b]Form[/b] button, and entering the new party name in the text input that pops up.
 
-After joining/forming a party, the list will switch to show you the party members, including their HP, mana and grace bars. You can switch back to the list of parties using the <b>Parties</b> button, and back to members using <b>Members</b> button.
+After joining/forming a party, the list will switch to show you the party members, including their HP, mana and grace bars. You can switch back to the list of parties using the [b]Parties[/b] button, and back to members using [b]Members[/b] button.
 
-If you are currently a member of a party, additional buttons will be available, including the <b>Leave</b> button, using which you can leave the party at any time. There is also a <b>Password</b> button, with which you can change the party password, but only if you are the party leader. The <b>Chat</b> button will pop up the regular text input, with <a=help:gsay>/gsay</a> prefixed, so you can immediately type in your party chat message.
+If you are currently a member of a party, additional buttons will be available, including the [b]Leave[/b] button, using which you can leave the party at any time. There is also a [b]Password[/b] button, with which you can change the party password, but only if you are the party leader. The [b]Chat[/b] button will pop up the regular text input, with <a=help:gsay>/gsay</a> prefixed, so you can immediately type in your party chat message.
 
 For more advanced controls, see the documentation for the <a=help:party>/party command</a>.
 endmsg
@@ -1267,11 +1267,11 @@ If you hover the mouse over buildings and some other locations, you will see a t
 
 <title>Controls</title>
 
-The <b>R</b> key (default) may be used to bring up the region map - alternatively you can click its icon (a map piece) in the buttons panel at top right.
+The [b]R[/b] key (default) may be used to bring up the region map - alternatively you can click its icon (a map piece) in the buttons panel at top right.
 
 In order to scroll the map, hold down the left mouse button over the visible map - the closer you are to the center of the visible map, the slower it will scroll. You can also use the arrow keys to scroll the map, and hold down shift in order to scroll faster with the arrow keys.
 
-Zooming the map can be done using <b>Page Up</b> key to zoom the map in, or <b>Page Down</b> key to zoom it out. Using the mouse wheel is also possible.
+Zooming the map can be done using [b]Page Up[/b] key to zoom the map in, or [b]Page Down[/b] key to zoom it out. Using the mouse wheel is also possible.
 endmsg
 end
 
@@ -1280,7 +1280,7 @@ title Settings
 msg
 Inside this popup, you can change various settings - for example, your keybindings (macros), your character's password (if you're currently in-game), or client-related settings.
 
-When you open this popup, you will see <a=help:client settings>Client Settings</a> and <a=help:keybinding settings>Key Settings</a>. If you are currently in-game, you will also see <b>Logout</b> (which logs you out of the game) and <b>Back to Play</b> (which closes the popup). Also if you're in-game, you will see a <a=help:password change>Password</a> button on the top left.
+When you open this popup, you will see <a=help:client settings>Client Settings</a> and <a=help:keybinding settings>Key Settings</a>. If you are currently in-game, you will also see [b]Logout[/b] (which logs you out of the game) and [b]Back to Play[/b] (which closes the popup). Also if you're in-game, you will see a <a=help:password change>Password</a> button on the top left.
 
 <title>Controls</title>
 
@@ -1291,15 +1291,15 @@ end
 help client settings
 title Client Settings
 msg
-Allows you to change client-related settings. The <b>&lt;</b> and <b>&gt;</b> buttons above the list can be used to change the settings category.
+Allows you to change client-related settings. The [b]&lt;[/b] and [b]&gt;[/b] buttons above the list can be used to change the settings category.
 
 <title>Controls</title>
 
 Regular list controls apply - such as using the mouse wheel or dragging the slider to scroll, up and down arrow keys to move, etc.
 
-Left and right arrow keys can be used instead of <b>&lt;</b> and <b>&gt;</b> setting buttons. If you hold down shift, the settings category buttons will be affected instead.
+Left and right arrow keys can be used instead of [b]&lt;[/b] and [b]&gt;[/b] setting buttons. If you hold down shift, the settings category buttons will be affected instead.
 
-Clicking <b>Apply</b> button will immediately apply the new settings - which is useful if you are checking out the different resolutions, for example. The <b>Done</b> button will do the same as <b>Apply</b>, but will also exit the popup.
+Clicking [b]Apply[/b] button will immediately apply the new settings - which is useful if you are checking out the different resolutions, for example. The [b]Done[/b] button will do the same as [b]Apply[/b], but will also exit the popup.
 endmsg
 end
 
@@ -1308,15 +1308,15 @@ title Key Settings
 msg
 Allows you to change keybindings (macros).
 
-Whenever you press a key, the keybindings are checked for a matching key. This process is first done for keys with keyboard modifiers, and after that, for keys without any keyboard modifiers, which will also work even if the current keyboard modifier state does not match. This is done so, for example, firing still works when you hold the <b>CTRL</b> key (default) and a direction key - otherwise, the keybindings would only match on CTRL+direction keybindings. Keys with keyboard modifiers are done first so that it is possible to override this behavior with your own keybindings.
+Whenever you press a key, the keybindings are checked for a matching key. This process is first done for keys with keyboard modifiers, and after that, for keys without any keyboard modifiers, which will also work even if the current keyboard modifier state does not match. This is done so, for example, firing still works when you hold the [b]CTRL[/b] key (default) and a direction key - otherwise, the keybindings would only match on CTRL+direction keybindings. Keys with keyboard modifiers are done first so that it is possible to override this behavior with your own keybindings.
 
 <title>Controls</title>
 
-In order to change a keybinding, you double-click it in the list of keybindings (or press enter on the selected one). The editing text inputs appear, and the command text input will be focused. When you are done changing it (if applicable), press enter and the focus will switch to the keyboard shortcut, and you will be prompted to press the key combination for the keybinding. You can use modifiers such as shift, ctrl, alt, etc. After entering the shortcut, press enter again and the change will be applied. If you do not want to change the shortcut, you can just click the <b>Apply</b> button after you have entered the keybinding command.
+In order to change a keybinding, you double-click it in the list of keybindings (or press enter on the selected one). The editing text inputs appear, and the command text input will be focused. When you are done changing it (if applicable), press enter and the focus will switch to the keyboard shortcut, and you will be prompted to press the key combination for the keybinding. You can use modifiers such as shift, ctrl, alt, etc. After entering the shortcut, press enter again and the change will be applied. If you do not want to change the shortcut, you can just click the [b]Apply[/b] button after you have entered the keybinding command.
 
-The <b>Add</b> button can be used to add a new keybinding - the process is the same as editing (explained above), but both text inputs do not have any input to edit (obviously).
+The [b]Add[/b] button can be used to add a new keybinding - the process is the same as editing (explained above), but both text inputs do not have any input to edit (obviously).
 
-<b>Remove</b> button will remove the selected keybinding, and <b>Repeat</b> button will turn the repeat flag on/off. If the repeat flag for a keybinding is on, the shortcut will repeat after a short delay while it's still being held down.
+[b]Remove[/b] button will remove the selected keybinding, and [b]Repeat[/b] button will turn the repeat flag on/off. If the repeat flag for a keybinding is on, the shortcut will repeat after a short delay while it's still being held down.
 endmsg
 end
 
@@ -1325,30 +1325,30 @@ title Main Screen
 msg
 The main screen contains the list of servers (on the left), and list of latest game news (on the right).
 
-The list of servers allows you to choose the server to play on - the <b>Main Server</b> is the recommended one to play on.
+The list of servers allows you to choose the server to play on - the [b]Main Server[/b] is the recommended one to play on.
 
-The list of latest game news keeps you updated about game updates on the <b>Main Server</b>. You can read more about any of the updates in the list by double-clicking the name of the update in the list, or using enter after switching to the list (see further down for list controls).
+The list of latest game news keeps you updated about game updates on the [b]Main Server[/b]. You can read more about any of the updates in the list by double-clicking the name of the update in the list, or using enter after switching to the list (see further down for list controls).
 
 <title>Controls</title>
 
-By default, the servers list is focused. Focus is a keyboard-only concept, which means that only the focused list will receive keyboard events, such as using the arrow keys to move in the list. If there is more than one active list on the screen, such as the main screen, you can use the <b>Tab</b> key to cycle between them.
+By default, the servers list is focused. Focus is a keyboard-only concept, which means that only the focused list will receive keyboard events, such as using the arrow keys to move in the list. If there is more than one active list on the screen, such as the main screen, you can use the [b]Tab[/b] key to cycle between them.
 
 Lists use standard GUI behavior - that is, up and down arrow keys to scroll, page up/down to scroll several lines at once, enter to trigger an action, etc. The mouse may also be used to use the lists, such as dragging the list slider (if any) and dragging it to scroll the list quickly, or using the mouse wheel. Clicking an entry in the list once will select it (which is otherwise accomplied with arrow keys), while double-click triggers an action (like enter).
 
-The <b>Play</b> button will connect you to the selected game server - same as using enter in the servers list. <b>Refresh</b> will re-download the list of servers, if you want to see updated player counts, for example.
+The [b]Play[/b] button will connect you to the selected game server - same as using enter in the servers list. [b]Refresh[/b] will re-download the list of servers, if you want to see updated player counts, for example.
 
-The <b>Settings</b> button may be used to open the settings popup, which allows you to edit client and key settings.
+The [b]Settings[/b] button may be used to open the settings popup, which allows you to edit client and key settings.
 
-The <b>Update</b> button will check for client updates - if you see in the game news that there is a new client available, this is the button you want. After clicking it, a popup will open - please wait patiently until all the progress dots turn green, then follow the instructions.
+The [b]Update[/b] button will check for client updates - if you see in the game news that there is a new client available, this is the button you want. After clicking it, a popup will open - please wait patiently until all the progress dots turn green, then follow the instructions.
 
-The <b>Quit</b> button will exit the client, but the <b>ESC</b> key can also be used instead of that.
+The [b]Quit[/b] button will exit the client, but the [b]ESC[/b] key can also be used instead of that.
 endmsg
 end
 
 help password change
 title Password Change
 msg
-If you are logged in, you can change your character's password by clicking the <b>Password</b> button in the <a=help:esc menu>settings</a> popup ("ESC menu").
+If you are logged in, you can change your character's password by clicking the [b]Password[/b] button in the <a=help:esc menu>settings</a> popup ("ESC menu").
 
 You will need to provide the current password of your character, and the new one.
 endmsg

@@ -98,8 +98,8 @@ static void list_post_column(list_struct *list, uint32 row, uint32 col)
         box.w = 170;
         text_show(list->surface, FONT_SERIF12, buf, 147, 25, COLOR_HGOLD, TEXT_ALIGN_CENTER, &box);
 
-        text_show_format(list->surface, FONT_ARIAL11, 165, 45, COLOR_WHITE, TEXT_MARKUP, NULL, "<b>Current level</b>: %d", skill_list[skill_id]->level);
-        text_show(list->surface, FONT_ARIAL11, "<b>Skill progress</b>:", 165, 60, COLOR_WHITE, TEXT_MARKUP, NULL);
+        text_show_format(list->surface, FONT_ARIAL11, 165, 45, COLOR_WHITE, TEXT_MARKUP, NULL, "[b]Current level[/b]: %d", skill_list[skill_id]->level);
+        text_show(list->surface, FONT_ARIAL11, "[b]Skill progress[/b]:", 165, 60, COLOR_WHITE, TEXT_MARKUP, NULL);
 
         player_draw_exp_progress(list->surface, 165, 80, skill_list[skill_id]->exp, skill_list[skill_id]->level);
     }

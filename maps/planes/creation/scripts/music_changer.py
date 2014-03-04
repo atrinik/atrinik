@@ -17,7 +17,7 @@ def main():
         info.slaying = "no_music" if msg == "none" else msg.strip()
         # Construct new map name from old one.
         info.race = re.sub(r"\([a-zA-Z0-9_\-\.]+\)", "({})".format(info.slaying), info.race)
-        map_name = "<b><o=0,0,0>{}</o></b>".format(info.race)
+        map_name = "[b]<o=0,0,0>{}</o>[/b]".format(info.race)
 
         for player in me.map.GetPlayers():
             if player.x >= info.x and player.x <= info.x + info.hp and player.y >= info.y and player.y <= info.y + info.sp:

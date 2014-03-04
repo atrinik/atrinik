@@ -49,8 +49,8 @@ static int popup_draw(popup_struct *popup)
 
     text_show(popup->surface, FONT_ARIAL11, "Here you can add a server to the list of available servers if you know the server's hostname and port.\n\nBe careful about connecting to unlisted servers, since they could be dangerous.", 10, 45, COLOR_WHITE, TEXT_WORD_WRAP, &box);
 
-    text_show(popup->surface, FONT_ARIAL11, "<b>Hostname:</b>", 10, 130, COLOR_WHITE, TEXT_MARKUP, NULL);
-    text_show(popup->surface, FONT_ARIAL11, "<b>Port:</b>", 10, 150, COLOR_WHITE, TEXT_MARKUP, NULL);
+    text_show(popup->surface, FONT_ARIAL11, "[b]Hostname:[/b]", 10, 130, COLOR_WHITE, TEXT_MARKUP, NULL);
+    text_show(popup->surface, FONT_ARIAL11, "[b]Port:[/b]", 10, 150, COLOR_WHITE, TEXT_MARKUP, NULL);
 
     text_input_set_parent(&text_input_server_host, popup->x, popup->y);
     text_input_set_parent(&text_input_server_port, popup->x, popup->y);

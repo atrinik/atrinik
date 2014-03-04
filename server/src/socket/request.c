@@ -580,9 +580,9 @@ static const char *get_playername_color(object *pl, object *op)
 
 void packet_append_map_name(packet_struct *packet, object *op, object *map_info)
 {
-    packet_append_string(packet, "<b><o=0,0,0>");
+    packet_append_string(packet, "[b]<o=0,0,0>");
     packet_append_string(packet, map_info && map_info->race ? map_info->race : op->map->name);
-    packet_append_string_terminated(packet, "</o></b>");
+    packet_append_string_terminated(packet, "</o>[/b]");
 }
 
 void packet_append_map_music(packet_struct *packet, object *op, object *map_info)
@@ -1183,7 +1183,7 @@ void socket_command_quest_list(socket_struct *ns, player *pl, uint8 *data, size_
 
         /* Show the quest parts. */
         for (tmp2 = last; tmp2; tmp2 = tmp2->above) {
-            stringbuffer_append_printf(sb, "\n<b>%s</b>", tmp2->race);
+            stringbuffer_append_printf(sb, "\n[b]%s[/b]", tmp2->race);
 
             if (tmp2->msg) {
                 stringbuffer_append_printf(sb, ": %s", tmp2->msg);

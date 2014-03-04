@@ -94,13 +94,13 @@ msg
 <book>The Abandoned Mine</book><title>Entrance</title>
 The entrance has an inscription written on the gate:
 
-<b>Pedo mellon a minno!</b>
+[b]Pedo mellon a minno![/b]
 
 Which translates to:
 
-<b>Speak friend and enter!</b>
+[b]Speak friend and enter![/b]
 
-The riddle, as I figured out, is that you need to say <b>Mellon</b> for the gate to open.
+The riddle, as I figured out, is that you need to say [b]Mellon[/b] for the gate to open.
 
 <p>
 <title>Moroch Temple</title>
@@ -123,7 +123,7 @@ face book_light_blue.101
 level 5
 exp 60
 msg
-<b>About the Brynknot Lake Portal...</b>
+[b]About the Brynknot Lake Portal...[/b]
 
 <title>Facts:</title>
 
