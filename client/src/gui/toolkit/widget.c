@@ -438,7 +438,7 @@ static void widget_texture_create(widgetdata *widget)
     char buf[MAX_BUF];
 
     if (widget->texture_type == WIDGET_TEXTURE_TYPE_NORMAL) {
-        snprintf(buf, sizeof(buf), "rectangle:%d,%d;<bar=%s>", widget->w, widget->h, widget->bg[0] != '\0' ? widget->bg : "widget_bg");
+        snprintf(buf, sizeof(buf), "rectangle:%d,%d;[bar=%s]", widget->w, widget->h, widget->bg[0] != '\0' ? widget->bg : "widget_bg");
     }
 
     texture_delete(widget->texture);
@@ -1550,7 +1550,7 @@ static void process_widgets_rec(int draw, widgetdata *widget)
                 if (redraw && widget->texture_type == WIDGET_TEXTURE_TYPE_NORMAL) {
                     box.w = widget->w;
                     box.h = widget->h;
-                    text_show_format(widget->surface, FONT_ARIAL10, 0, 0, COLOR_BLACK, TEXT_MARKUP, &box, "<border=widget_border -1 -1 %d>", WIDGET_BORDER_SIZE);
+                    text_show_format(widget->surface, FONT_ARIAL10, 0, 0, COLOR_BLACK, TEXT_MARKUP, &box, "[border=widget_border -1 -1 %d]", WIDGET_BORDER_SIZE);
                 }
 
                 box.x = widget->x;

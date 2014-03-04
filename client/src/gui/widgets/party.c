@@ -35,7 +35,7 @@
 
 /** Macro to create the stat bar markup. */
 #define PARTY_STAT_BAR() \
-    snprintf(bars, sizeof(bars), "<x=5><bar=#000000 %d 6><bar=#cb0202 %d 6><border=#909090 60 6><y=6><bar=#000000 %d 6><bar=#1818a4 %d 6><y=-1><border=#909090 60 7>", STAT_BAR_WIDTH, (int) (STAT_BAR_WIDTH * (hp / 100.0)), STAT_BAR_WIDTH, (int) (STAT_BAR_WIDTH * (sp / 100.0)));
+    snprintf(bars, sizeof(bars), "[x=5][bar=#000000 %d 6][bar=#cb0202 %d 6][border=#909090 60 6][y=6][bar=#000000 %d 6][bar=#1818a4 %d 6][y=-1][border=#909090 60 7]", STAT_BAR_WIDTH, (int) (STAT_BAR_WIDTH * (hp / 100.0)), STAT_BAR_WIDTH, (int) (STAT_BAR_WIDTH * (sp / 100.0)));
 
 enum
 {

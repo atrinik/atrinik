@@ -147,7 +147,7 @@ void tooltip_show(void)
     }
 
     boxRGBA(ScreenSurface, box.x, box.y, box.x + box.w, box.y + box.h, 255, 255, 255, tooltip_opacity);
-    text_show_format(ScreenSurface, tooltip_font, box.x + 3, box.y, COLOR_BLACK, TEXT_MARKUP | TEXT_WORD_WRAP, &text_box, "<alpha=%d>%s</alpha>", tooltip_opacity, tooltip_text);
+    text_show_format(ScreenSurface, tooltip_font, box.x + 3, box.y, COLOR_BLACK, TEXT_MARKUP | TEXT_WORD_WRAP, &text_box, "[alpha=%d]%s[/alpha]", tooltip_opacity, tooltip_text);
 
     if (tooltip_delay) {
         tooltip_opacity = MIN(255, tooltip_opacity + 25);

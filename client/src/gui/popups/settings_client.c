@@ -282,7 +282,7 @@ static void list_post_column(list_struct *list, uint32 row, uint32 col)
         button_checkbox->color = "8c7a7a";
         button_checkbox->color_over = "b09a9a";
         button_set_parent(button_checkbox, list->px, list->py);
-        button_show(button_checkbox, setting_get_int(setting_category_selected, row) ? "<x=1><y=1><c=#"COLOR_HGOLD "><line=0,0,12,12><line=12,0,0,12></c>" : NULL);
+        button_show(button_checkbox, setting_get_int(setting_category_selected, row) ? "[x=1][y=1][c=#"COLOR_HGOLD "][line=0,0,12,12][line=12,0,0,12][/c]" : NULL);
 
         box.x = button_checkbox->x;
         box.y = button_checkbox->y;
@@ -363,7 +363,7 @@ static void list_post_column(list_struct *list, uint32 row, uint32 col)
 
             box.w = texture_surface(button->texture)->w;
             box.h = texture_surface(button->texture)->h;
-            text_show_format(list->surface, FONT_ARIAL11, button->x, button->y, COLOR_BLACK, TEXT_MARKUP, NULL, "<bar=#%.2X%.2X%.2X %d %d>", color.r, color.g, color.b, box.w, box.h);
+            text_show_format(list->surface, FONT_ARIAL11, button->x, button->y, COLOR_BLACK, TEXT_MARKUP, NULL, "[bar=#%.2X%.2X%.2X %d %d]", color.r, color.g, color.b, box.w, box.h);
             text_show(list->surface, FONT_ARIAL11, "Pick", button->x, button->y, color_notation, TEXT_ALIGN_CENTER | TEXT_VALIGN_CENTER, &box);
 
             dst.x -= 5;

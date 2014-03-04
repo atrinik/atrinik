@@ -91,7 +91,7 @@ static void widget_draw(widgetdata *widget)
             text = NULL;
 
             if (i == BUTTON_HELP) {
-                text = "<y=2>?";
+                text = "[y=2]?";
             }
             else if (i == BUTTON_SPELLS) {
                 buttons[i].pressed_forced = cur_widget[SPELLS_ID]->show;

@@ -363,7 +363,7 @@ static int popup_draw_post(popup_struct *popup)
 #else
             text_show_shadow(ScreenSurface, FONT_ARIAL11, "Updates are available; please use your distribution's package/update", box.x, box.y, COLOR_WHITE, COLOR_BLACK, TEXT_ALIGN_CENTER, &box);
             box.y += 20;
-            text_show_shadow(ScreenSurface, FONT_ARIAL11, "manager to update, or visit <a=url:http://www.atrinik.org/>www.atrinik.org</a> for help.", box.x, box.y, COLOR_WHITE, COLOR_BLACK, TEXT_ALIGN_CENTER | TEXT_MARKUP, &box);
+            text_show_shadow(ScreenSurface, FONT_ARIAL11, "manager to update, or visit [a=url:http://www.atrinik.org/]www.atrinik.org[/a] for help.", box.x, box.y, COLOR_WHITE, COLOR_BLACK, TEXT_ALIGN_CENTER | TEXT_MARKUP, &box);
 #endif
         }
     }

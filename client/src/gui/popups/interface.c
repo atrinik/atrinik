@@ -130,7 +130,7 @@ static int popup_draw_func(popup_struct *popup)
         surface_show(popup->surface, 0, 0, NULL, texture_surface(popup->texture));
 
         if (interface_data->icon) {
-            text_show_format(popup->surface, FONT_ARIAL10, INTERFACE_ICON_STARTX, INTERFACE_ICON_STARTY, COLOR_WHITE, TEXT_MARKUP, NULL, "<icon=%s %d %d>", interface_data->icon, INTERFACE_ICON_WIDTH, INTERFACE_ICON_HEIGHT);
+            text_show_format(popup->surface, FONT_ARIAL10, INTERFACE_ICON_STARTX, INTERFACE_ICON_STARTY, COLOR_WHITE, TEXT_MARKUP, NULL, "[icon=%s %d %d]", interface_data->icon, INTERFACE_ICON_WIDTH, INTERFACE_ICON_HEIGHT);
         }
 
         box.w = INTERFACE_TITLE_WIDTH;
@@ -527,7 +527,7 @@ void socket_command_interface(uint8 *data, size_t len, size_t pos)
             stringbuffer_append_string(sb_message, "\n");
 
             if (i < char_shortcuts_len) {
-                stringbuffer_append_printf(sb_message, "<c=#AF7817>&lsqb;%c&rsqb;</c> ", character_shortcuts[i]);
+                stringbuffer_append_printf(sb_message, "[c=#AF7817]&lsqb;%c&rsqb;[/c] ", character_shortcuts[i]);
             }
 
             stringbuffer_append_string(sb_message, *((char **) utarray_eltptr(interface_data->links, i)));
