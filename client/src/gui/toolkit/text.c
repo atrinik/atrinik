@@ -998,7 +998,7 @@ int text_show_character(int *font, int orig_font, SDL_Surface *surface, SDL_Rect
             }
 
             if (tag2 && flags & TEXT_LINES_CALC) {
-                book_name_change(cp + tag_len, tag2 - cp - 7);
+                book_name_change(tag + tag_len + 1, tag2 - cp - 7);
             }
         }
         else if (tag_len == 1 && strncmp(tag, "p", tag_len) == 0) {
@@ -1131,9 +1131,9 @@ int text_show_character(int *font, int orig_font, SDL_Surface *surface, SDL_Rect
                     char *tmpbuf;
                     SDL_Rect hcenter_box;
 
-                    len = tag2 - (tag + tag_len);
+                    len = tag2 - (tag + tag_len + 1);
                     tmpbuf = malloc(len + 1);
-                    memcpy(tmpbuf, tag + tag_len, len);
+                    memcpy(tmpbuf, tag + tag_len + 1, len);
                     tmpbuf[len] = '\0';
 
                     hcenter_box.w = box ? (box->w - (dest->w - box->w)) : 0;
