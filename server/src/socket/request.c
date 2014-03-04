@@ -1203,7 +1203,7 @@ void socket_command_quest_list(socket_struct *ns, player *pl, uint8 *data, size_
         stringbuffer_append_string(sb, "\n");
     }
 
-    stringbuffer_append_string(sb, "<p>\n<title>Completed quests:</title>\n");
+    stringbuffer_append_string(sb, "[p]\n<title>Completed quests:</title>\n");
 
     /* Now show completed quests */
     for (tmp = quest_container->inv; tmp; tmp = tmp->below) {

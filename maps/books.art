@@ -19,15 +19,15 @@ To become a follower, find a holy altar of your cult, step onto the altar and ap
 Beware though, if you already have a deity and you touch an altar of a different deity, you will be punished most severely.
 
 Return to the temple of your cult regularly and apply the altar. This will please your deity... And rest assured, the gods do know how to reward a worthy disciple!
-<p>
+[p]
 <title>Prayers</title>
 Next you must learn prayers. Priests, churches and various others will teach you prayers. There are also rumors about Prayer books lost in ancient tombs ages ago...
 
 Some prayers will have different effects for every cult. Good starting prayers are, for example, "cause light wounds" and "minor healing".
-<p>
+[p]
 <title>Grace</title>
 Casting prayers will drain your grace, which can only be replenished by praying. If your maximum grace is too low you should try to increase your Divine Prayers skill or your Wisdom stat.
-<p>
+[p]
 Never lose faith! Rumors abound of divine prayers of incredible power, and of old and wise priests who have nearly reached immortality...
 endmsg
 no_pick 1
@@ -102,11 +102,11 @@ Which translates to:
 
 The riddle, as I figured out, is that you need to say [b]Mellon[/b] for the gate to open.
 
-<p>
+[p]
 <title>Moroch Temple</title>
 Not much is known about this temple, which is rumored to be hidden somewhere in the mine. It is said to be an entrance with an altar devoted to Moroch, with several portals leading to the same dimension in which Moroch Temple is, and as the rumor says, Moroch himself.
 
-<p>
+[p]
 <title>One-way exits</title>
 The mine is supposed to have one-way exits to both Fort Ghzal and Giant Mountains. There may be other exits from the mine, and, quite possibly, other entrances apart from the main one.
 endmsg
