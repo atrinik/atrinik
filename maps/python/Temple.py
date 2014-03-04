@@ -97,7 +97,7 @@ class Temple(InterfaceBuilder):
                         if service[0]:
                             self.add_msg("You pay {cost}.", cost = CostString(service[0]), color = COLOR_YELLOW)
 
-                        self.add_msg("Okay, I will cast <green>{origmsg}</green> on you now.", origmsg = msg)
+                        self.add_msg("Okay, I will cast [green]{origmsg}[/green] on you now.", origmsg = msg)
                         self._npc.Cast(GetArchetype("spell_" + msg.replace(" ", "_")).clone.sp, self._activator)
                     else:
                         self.add_msg("You do not have enough money...")

@@ -9,7 +9,7 @@ inf = Interface(activator, me)
 
 def main():
     if msg == "hello":
-        inf.add_msg("Welcome. I am the music changer -- just tell me which background music file to play and I will change this map to play it. You can find a list of media files <a=url:http://www.atrinik.org/page/client_media_files>here</a>. Use <green>none</green> to stop any music on the map.")
+        inf.add_msg("Welcome. I am the music changer -- just tell me which background music file to play and I will change this map to play it. You can find a list of media files <a=url:http://www.atrinik.org/page/client_media_files>here</a>. Use [green]none[/green] to stop any music on the map.")
         inf.set_text_input()
     else:
         inf.dialog_close()

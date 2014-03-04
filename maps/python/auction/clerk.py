@@ -612,7 +612,7 @@ def main():
         else:
             inf.add_msg("<title>{}</title>".format(obj.GetName()))
             inf.add_msg(activator.Controller().Examine(obj, True).strip())
-            inf.add_msg("<green>Price:</green> {} (each)\n<green>Seller:</green> {}".format(CostString(int(obj.ReadKey("auction_house_value"))), obj.ReadKey("auction_house_seller")))
+            inf.add_msg("[green]Price:[/green] {} (each)\n[green]Seller:[/green] {}".format(CostString(int(obj.ReadKey("auction_house_value"))), obj.ReadKey("auction_house_seller")))
 
         inf.add_link("I'd like to go back to my search.", dest = back)
 
@@ -695,7 +695,7 @@ def main():
 
         inf.add_msg("<title>{}</title>".format(marked.GetName()))
         inf.add_msg(activator.Controller().Examine(marked, True).strip())
-        inf.add_msg("How much do you want to sell that for? Example: <green>10 gold, 50 silver</green>".format(marked.GetName()))
+        inf.add_msg("How much do you want to sell that for? Example: [green]10 gold, 50 silver[/green]".format(marked.GetName()))
         inf.set_text_input(prepend = "sell2 ")
 
     elif msg.startswith("sell2 "):
@@ -708,7 +708,7 @@ def main():
         val = Auction.string_to_cost(msg[6:])
 
         if not val:
-            inf.add_msg("Invalid value to sell for, please try again. Example: <green>10 gold, 50 silver</green>")
+            inf.add_msg("Invalid value to sell for, please try again. Example: [green]10 gold, 50 silver[/green]")
             inf.set_text_input(prepend = "sell2 ")
             return
 

@@ -385,7 +385,7 @@ class Guild:
             limit = "unlimited"
 
         # Construct the actual string.
-        return "<green>{}</green>\nLimit: {} [reset: {} hour(s)] \nMembers: {}".format(rank, limit, self._ranks[rank]["value_reset"], ", ".join(self.rank_get_members(rank)))
+        return "[green]{}[/green]\nLimit: {} [reset: {} hour(s)] \nMembers: {}".format(rank, limit, self._ranks[rank]["value_reset"], ", ".join(self.rank_get_members(rank)))
 
     ## Get all the ranks.
     ## @return A dictionary of the currently configured ranks.

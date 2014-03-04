@@ -1120,9 +1120,9 @@ y 6
 end
 arch marker0
 msg
-<green>East</green>
+[green]East[/green]
 To Everlink
-<green>West</green>
+[green]West[/green]
 Back to your Luxury House
 endmsg
 direction 7

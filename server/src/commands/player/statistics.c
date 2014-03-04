@@ -47,7 +47,7 @@ void command_statistics(object *op, const char *command, char *params)
     draw_info(COLOR_WHITE, op, "\nStat: Natural (Real)");
 
     for (i = 0; i < NUM_STATS; i++) {
-        draw_info_format(COLOR_WHITE, op, "<green>%s:</green> %d (%d)", short_stat_name[i], get_attr_value(&op->arch->clone.stats, i), get_attr_value(&op->stats, i));
+        draw_info_format(COLOR_WHITE, op, "[green]%s:[/green] %d (%d)", short_stat_name[i], get_attr_value(&op->arch->clone.stats, i), get_attr_value(&op->stats, i));
     }
 
     draw_info_format(COLOR_WHITE, op, "\nYour equipped item power is %d out of %d.", CONTR(op)->item_power, op->level);

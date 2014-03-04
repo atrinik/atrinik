@@ -22,10 +22,10 @@ def main():
         inf.add_link("Tell me about the fees.", dest = "fees")
 
     elif msg == "buildable":
-        inf.add_msg("Buildable areas of your house allow you to customize the house to your liking with things like chests, altars, walls, and so on. Of course, this all costs a price, but construction and materials are available at the secret island called <green>Everlink</green> which can be accessed from your house.")
+        inf.add_msg("Buildable areas of your house allow you to customize the house to your liking with things like chests, altars, walls, and so on. Of course, this all costs a price, but construction and materials are available at the secret island called [green]Everlink[/green] which can be accessed from your house.")
 
     elif msg == "fees":
-        inf.add_msg("The {} requires {} as daily fee to operate, and comes with {} days of prepaid fees. Fees are paid automatically whenever you enter the house (either from hand or bank acount). If you don't have enough money to pay, you won't be able to enter the house, but will be able to leave it and enter the <green>Everlink</green> area.".format(house.get(house.name), CostString(house.get(house.fee)), house.get(house.fees_prepaid)))
+        inf.add_msg("The {} requires {} as daily fee to operate, and comes with {} days of prepaid fees. Fees are paid automatically whenever you enter the house (either from hand or bank acount). If you don't have enough money to pay, you won't be able to enter the house, but will be able to leave it and enter the [green]Everlink[/green] area.".format(house.get(house.name), CostString(house.get(house.fee)), house.get(house.fees_prepaid)))
         inf.add_msg("Note that if you don't pay, for, say, 20 days, you won't have to pay for all those days that you did not use your house.")
 
     elif not house.has_house():
