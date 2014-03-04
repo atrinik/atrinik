@@ -1566,7 +1566,7 @@ Containers are useful for sorting items in your inventory, for example, a contai
 
 In order to open a container <a=help:basics_object_interaction>below your feet</a>, simply interact with it once, and it will open, revealing the items it holds, and giving you the ability to pick up items from it, or drop items from your inventory into it. Second interaction will close the container again.
 
-Containers in your <a=help:basics_inventory_interaction>inventory</a> behave slighty differently. If you interact with them once, they will become <i>readied</i>, and any items you pick up will automatically go into the container, if the container can hold them. A second interaction will open it, and you can take out items it holds into your inventory, or drop items from your inventory into it. Note that while open, picked up items will still go into it. Third interaction will close the container.
+Containers in your <a=help:basics_inventory_interaction>inventory</a> behave slighty differently. If you interact with them once, they will become [i]readied[/i], and any items you pick up will automatically go into the container, if the container can hold them. A second interaction will open it, and you can take out items it holds into your inventory, or drop items from your inventory into it. Note that while open, picked up items will still go into it. Third interaction will close the container.
 
 You can only have one container open at any time (be it in your inventory, or below your feet).
 endmsg

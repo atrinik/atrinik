@@ -78,7 +78,7 @@ def py_console_thread():
                     match_new = ""
 
             if entry.startswith(match):
-                matches.append(match + "<i>" + entry[len(match):] + "</i>")
+                matches.append(match + "[i]" + entry[len(match):] + "[/i]")
 
         if len(matches) > 1:
             console.matches.append("[b]Possible matches[/b]: {}".format(", ".join(matches)))

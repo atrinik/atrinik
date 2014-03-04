@@ -3398,7 +3398,7 @@ y 10
 end
 arch magic_mouth
 msg
-The orange force field prevents you from reaching the door. <i>Xuhrexal, the stone giant</i> is engraved on the door.
+The orange force field prevents you from reaching the door. [i]Xuhrexal, the stone giant[/i] is engraved on the door.
 endmsg
 slaying orange stone giant key
 last_sp 1
@@ -3448,7 +3448,7 @@ y 15
 end
 arch magic_mouth
 msg
-The blue force field prevents you from reaching the door. <i>Ksha'sha, the troll</i> is engraved on the door.
+The blue force field prevents you from reaching the door. [i]Ksha'sha, the troll[/i] is engraved on the door.
 endmsg
 slaying blue stone giant key
 last_sp 1
