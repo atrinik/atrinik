@@ -317,6 +317,8 @@ def _make_interface(file, parent, npcs, part_uid = None):
                         npcs[npc]["import"].append("Packet.Notification")
 
                     class_code += " " * 4 * 2 + "Notification(self._activator.Controller(), {}, {}, {}, {})\n".format(repr(elem.get("message")), repr(elem.get("action", None)), repr(elem.get("shortcut", None)), repr(int(elem.get("delay", 0))))
+                elif elem.tag == "close":
+                    class_code += " " * 4 * 2 + "self.dialog_close()\n"
 
         matchers_code = ""
 
