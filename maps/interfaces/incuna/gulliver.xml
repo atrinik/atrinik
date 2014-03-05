@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<root>
+    <interface state="have_map">
+        <precond region_map="incuna" />
+        <dialog name="hello">
+            <message>Ah, you're back! I'd love to chat a bit more, but I've got paperwork to fix... Perhaps some other time?</message>
+        </dialog>
+    </interface>
+
+    <interface state="need_map">
+        <precond />
+        <dialog name="hello">
+            <message>Hello there! I'm {npc.name}, the dockmaster. You must be new around here, for I do not recognize you. Are you the adventurer Sam Goodberry spoke of?</message>
+            <response message="Yes..." destination="yes" />
+        </dialog>
+        <dialog name="yes">
+            <message>Hmm! Sam is a good friend of mine, and a great captain. Shame about what happened to you - from what I gather, you hit your head while on the sea in that storm?</message>
+            <response message="Er... Yes..." destination="eryes" />
+            <response message="&lt;no comment&gt;" destination="nocomment" />
+        </dialog>
+        <dialog name="eryes">
+            <message>Must have been painful, that! How's your memory doing?</message>
+            <response message="Not so good..." destination="nocomment" />
+            <response message="&lt;no comment&gt;" destination="nocomment" />
+        </dialog>
+        <dialog name="nocomment">
+            <message>Hmm... well... at any rate, what is the reason behind your visit?</message>
+            <response message="Sam mentioned you might have a spare map of Incuna?" destination="map" />
+            <response message="Just looking around..." destination="lookingaround" />
+        </dialog>
+        <dialog name="lookingaround">
+            <message>I see...</message>
+            <response message="Sam mentioned you might have a spare map of Incuna?" destination="map" />
+        </dialog>
+        <dialog name="map">
+            <message>I do indeed - I have several spare maps here in fact. Since you're new around here, it is only proper I should give you one. Here you go...</message>
+            <message color="yellow">{npc.name} gives you a map of Incuna.</message>
+            <response message="Thanks." action="close" />
+            <action region_map="incuna" />
+            <notification message="Tutorial Available: Region Map" action="/help basics_region_map" shortcut="?HELP" delay="90000" />
+        </dialog>
+    </interface>
+</root>
