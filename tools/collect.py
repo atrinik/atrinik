@@ -295,7 +295,7 @@ def _make_interface(file, parent, npcs, part_uid = None):
                         for line in elem.text.split("\n"):
                             class_code += " " * 4 * 2 + line.rstrip() + "\n"
 
-                    for attr in ["start", "complete", "region_map"]:
+                    for attr in ["start", "complete", "region_map", "enemy"]:
                         val = elem.get(attr)
 
                         if not val:
@@ -303,6 +303,8 @@ def _make_interface(file, parent, npcs, part_uid = None):
 
                         if attr == "region_map":
                             class_code += " " * 4 * 2 + "self._activator.Controller().region_maps.append(\"{}\")\n".format(val)
+                        elif attr == "enemy":
+                            class_code += " " * 4 * 2 + "self._npc.enemy = {}\n".format("self._activator" if val == "player" else "None")
                         else:
                             split = val.split("::")
 
