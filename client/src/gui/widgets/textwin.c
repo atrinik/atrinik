@@ -136,12 +136,14 @@ static void textwin_tab_append(widgetdata *widget, uint8 id, uint8 type, const c
         timelen = strftime(tmptimebuf, sizeof(tmptimebuf), format, tm);
 
         if (timelen != 0) {
-            snprintf(timebuf, sizeof(timebuf), "[%s] ", tmptimebuf);
+            snprintf(timebuf, sizeof(timebuf), "&lsqb;%s&rsqb; ", tmptimebuf);
         }
     }
 
     if (textwin->tabs[id].type == CHAT_TYPE_ALL) {
-        snprintf(tabname, sizeof(tabname), "%s ", textwin_tab_names[type - 1]);
+        cp = text_escape_markup(textwin_tab_names[type - 1]);
+        snprintf(tabname, sizeof(tabname), "%s ", cp);
+        free(cp);
     }
 
     cp = string_join("", "[c=#", color, " 1]", timebuf, tabname, str, "\n", NULL);
