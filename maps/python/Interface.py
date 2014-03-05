@@ -166,6 +166,7 @@ class Interface:
 class InterfaceBuilder(Interface):
     qm = None
     matchers = []
+    preconds = None
 
     def _part_dialog(self, part, checks):
         for check in checks:
@@ -220,6 +221,9 @@ class InterfaceBuilder(Interface):
 
         if dialog and self.dialog + "_" + dialog in self.locals:
             self.dialog += "_" + dialog
+
+        if self.preconds:
+            self.preconds(self)
 
         c = self.locals[self.dialog](self._activator, self._npc)
         c.set_quest(self.qm)
