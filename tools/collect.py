@@ -447,6 +447,14 @@ def collect_quests():
 
                         if "region_map" in elem.attrib:
                             fh.write("{} in self._activator.Controller().region_maps".format(repr(elem.attrib["region_map"])))
+                        elif "enemy" in elem.attrib:
+                            fh.write("self._npc.enemy")
+
+                            if elem.attrib["enemy"]:
+                                fh.write(" == ")
+
+                                if elem.attrib["enemy"] == "player":
+                                    fh.write("self._activator")
                         else:
                             fh.write("True")
 
