@@ -600,7 +600,7 @@ int text_show_character(int *font, int orig_font, SDL_Surface *surface, SDL_Rect
     uint8 remove_bold = 0;
 
     /* Doing markup? */
-    if (flags & TEXT_MARKUP && c == '[')) {
+    if (flags & TEXT_MARKUP && c == '[') {
         const char *pos, *tag, *tag2;
         size_t tag_len;
 
