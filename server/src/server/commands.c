@@ -336,7 +336,7 @@ void commands_handle(object *op, char *cmd)
             }
 
             if (params && !(command->flags & COMMAND_ALLOW_MARKUP)) {
-                string_replace_char(params, "<>[]", ' ');
+                string_replace_char(params, "[]", ' ');
             }
 
             op->speed_left -= command->delay;

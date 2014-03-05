@@ -349,15 +349,7 @@ char *text_strip_markup(char *buf, size_t *buf_len, uint8 do_free)
             in_tag = 0;
         }
         else if (!in_tag) {
-            if (!strncmp(buf + pos, "&lt;", 4)) {
-                cp[cp_pos++] = '<';
-                pos += 3;
-            }
-            else if (!strncmp(buf + pos, "&gt;", 4)) {
-                cp[cp_pos++] = '>';
-                pos += 3;
-            }
-            else if (!strncmp(buf + pos, "&lsqb;", 6)) {
+            if (!strncmp(buf + pos, "&lsqb;", 6)) {
                 cp[cp_pos++] = '[';
                 pos += 5;
             }
@@ -410,12 +402,6 @@ char *text_escape_markup(const char *buf)
         }
         else if (*buf == ']') {
             stringbuffer_append_string(sb, "&rsqb;");
-        }
-        else if (*buf == '<') {
-            stringbuffer_append_string(sb, "&lt;");
-        }
-        else if (*buf == '>') {
-            stringbuffer_append_string(sb, "&gt;");
         }
         else {
             stringbuffer_append_char(sb, *buf);
@@ -520,17 +506,13 @@ void text_anchor_execute(text_info_struct *info, void *custom_data)
         tag = strstr(info->anchor_tag, "[/a]");
 
         if (tag == NULL) {
-            tag = strstr(info->anchor_tag, "</a>");
-
-            if (tag == NULL) {
-                return;
-            }
+            return;
         }
 
-        /* Get the length of the text until the ending </a>. */
+        /* Get the length of the text until the ending [/a]. */
         len = tag - info->anchor_tag;
         /* Allocate a temporary buffer and copy the text until the
-         * ending </a>, so we have the text between the anchor tags. */
+         * ending [/a], so we have the text between the anchor tags. */
         buf = malloc(len + 1);
         memcpy(buf, info->anchor_tag, len);
         buf[len] = '\0';
@@ -618,12 +600,12 @@ int text_show_character(int *font, int orig_font, SDL_Surface *surface, SDL_Rect
     uint8 remove_bold = 0;
 
     /* Doing markup? */
-    if (flags & TEXT_MARKUP && (c == '[' || c == '<')) {
+    if (flags & TEXT_MARKUP && c == '[')) {
         const char *pos, *tag, *tag2;
         size_t tag_len;
 
         /* Get the position of the ending ']'. */
-        pos = strchr(cp, c == '[' ? ']' : '>');
+        pos = strchr(cp, ']');
 
         if (pos == NULL) {
             return ret;
@@ -814,12 +796,7 @@ int text_show_character(int *font, int orig_font, SDL_Surface *surface, SDL_Rect
         /* Make text centered. */
         else if (tag_len == 6 && strncmp(tag, "center", tag_len) == 0) {
             /* Find the ending tag. */
-            if (c == '[') {
-                tag2 = strstr(tag + tag_len, "[/center]");
-            }
-            else {
-                tag2 = strstr(tag + tag_len, "</center>");
-            }
+            tag2 = strstr(tag + tag_len, "[/center]");
 
             if (tag2 && box && box->w) {
                 char *buf = malloc(tag2 - cp - 8 + 1);
@@ -985,12 +962,7 @@ int text_show_character(int *font, int orig_font, SDL_Surface *surface, SDL_Rect
             info->used_alpha = 255;
         }
         else if (tag_len == 4 && strncmp(tag, "book", tag_len) == 0) {
-            if (c == '[') {
-                tag2 = strstr(tag + tag_len, "[/book]");
-            }
-            else {
-                tag2 = strstr(tag + tag_len, "</book>");
-            }
+            tag2 = strstr(tag + tag_len, "[/book]");
 
             if (tag2 && flags & TEXT_LINES_CALC) {
                 book_name_change(tag + tag_len + 1, tag2 - cp - 7);
@@ -1114,12 +1086,7 @@ int text_show_character(int *font, int orig_font, SDL_Surface *surface, SDL_Rect
             if (surface) {
                 int ht;
 
-                if (c == '[') {
-                    tag2 = strstr(tag + tag_len, "[/hcenter]");
-                }
-                else {
-                    tag2 = strstr(tag + tag_len, "</hcenter>");
-                }
+                tag2 = strstr(tag + tag_len, "[/hcenter]");
 
                 if (tag2 && sscanf(tag + 8, "%d", &ht) == 1) {
                     size_t len;
@@ -1361,12 +1328,7 @@ int text_show_character(int *font, int orig_font, SDL_Surface *surface, SDL_Rect
 
             if ((surface || info->obscured) && sscanf(tag + 3, "%2X%2X%2X", &r, &g, &b) == 3) {
                 /* Find the ending tag. */
-                if (c == '[') {
-                    tag2 = strstr(tag + tag_len, "[/h]");
-                }
-                else {
-                    tag2 = strstr(tag + tag_len, "</h>");
-                }
+                tag2 = strstr(tag + tag_len, "[/h]");
 
                 if (tag2) {
                     char *buf;
@@ -1439,15 +1401,7 @@ int text_show_character(int *font, int orig_font, SDL_Surface *surface, SDL_Rect
 
     /* Parse entities. */
     if (flags & TEXT_MARKUP && c == '&') {
-        if (!strncmp(cp, "&lt;", 4)) {
-            c = '<';
-            ret = 4;
-        }
-        else if (!strncmp(cp, "&gt;", 4)) {
-            c = '>';
-            ret = 4;
-        }
-        else if (!strncmp(cp, "&lsqb;", 6)) {
+        if (!strncmp(cp, "&lsqb;", 6)) {
             c = '[';
             ret = 6;
         }
@@ -1884,7 +1838,7 @@ void text_show(SDL_Surface *surface, int font, const char *text, int x, int y, c
 
         /* Is this a newline, or word wrap was set and we are over
          * maximum width? */
-        if (is_lf || (flags & TEXT_WORD_WRAP && box && box->w && dest.w + (flags & TEXT_MARKUP && (cp[pos] == '[' || cp[pos] == '<') ? 0 : glyph_get_width(FONT_TRY_INFO(font, info, surface), cp[pos])) > box->w)) {
+        if (is_lf || (flags & TEXT_WORD_WRAP && box && box->w && dest.w + (flags & TEXT_MARKUP && cp[pos] == '[' ? 0 : glyph_get_width(FONT_TRY_INFO(font, info, surface), cp[pos])) > box->w)) {
             /* Store the last space. */
             if (is_lf || last_space == 0) {
                 last_space = pos;
