@@ -321,6 +321,8 @@ def _make_interface(file, parent, npcs, part_uid = None):
                     class_code += " " * 4 * 2 + "Notification(self._activator.Controller(), {}, {}, {}, {})\n".format(repr(elem.get("message")), repr(elem.get("action", None)), repr(elem.get("shortcut", None)), repr(int(elem.get("delay", 0))))
                 elif elem.tag == "close":
                     class_code += " " * 4 * 2 + "self.dialog_close()\n"
+                elif elem.tag == "say":
+                    class_code += " " * 4 * 2 + "self._npc.Say({})\n".format(repr(elem.text))
 
         matchers_code = ""
 
