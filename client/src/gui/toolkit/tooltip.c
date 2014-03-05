@@ -63,7 +63,7 @@ void tooltip_create(int mx, int my, int font, const char *text)
 
 /**
  * Adds a delay before the tooltip is shown.
- * @param Delay in milliseconds. */
+ * @param delay Delay in milliseconds. */
 void tooltip_enable_delay(uint32 delay)
 {
     tooltip_delay = delay;
