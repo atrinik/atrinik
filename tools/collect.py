@@ -165,6 +165,7 @@ def _make_interface(file, parent, npcs, part_uid = None):
                 "code": "",
                 "quest_uid": None,
                 "import": [],
+                "preconds": OrderedDict(),
             }
 
         if parent.tag == "quest":
@@ -198,9 +199,20 @@ def _make_interface(file, parent, npcs, part_uid = None):
 
         class_code = ""
 
-        for action in interface.findall("action"):
-            for line in action.text.split("\n"):
-                class_code += " " * 4 + line.rstrip() + "\n"
+        for elem in interface:
+            if elem.tag in ("action", "precond"):
+                if elem.tag == "precond":
+                    if not elem.text:
+                        if not dialog_uid in npcs[npc]["preconds"]:
+                            npcs[npc]["preconds"][dialog_uid] = []
+
+                        npcs[npc]["preconds"][dialog_uid].append(elem)
+                        continue
+
+                    class_code += " " * 4 + "def precond(self):\n"
+
+                for line in elem.text.split("\n"):
+                    class_code += " " * 4 * (2 if elem.tag == "precond" else 1) + line.rstrip() + "\n"
 
         regex_matchers = []
 
@@ -368,7 +380,12 @@ def collect_quests():
     quests.write("from collections import OrderedDict\n")
 
     for file in find_files(paths["maps"], ".xml"):
-        tree = ET.parse(file)
+        try:
+            tree = ET.parse(file)
+        except ET.ParseError as e:
+            print("Error parsing {}: {}".format(file, e))
+            continue
+
         root = tree.getroot()
 
         npcs = {}
@@ -411,6 +428,26 @@ def collect_quests():
 
             if npcs[npc]["quest_uid"]:
                 fh.write("ib.set_quest(QuestManager(activator, {}))\n".format(npcs[npc]["quest_uid"]))
+
+            if npcs[npc]["preconds"]:
+                fh.write("def preconds(self):\n")
+
+                for i, dialog in enumerate(npcs[npc]["preconds"]):
+                    fh.write(" " * 4 + ("if " if i == 0 else "elif "))
+
+                    for i, elem in enumerate(npcs[npc]["preconds"][dialog]):
+                        if i != 0:
+                            fh.write(" " + elem.get("operator", "and") + " ")
+
+                        if "region_map" in elem.attrib:
+                            fh.write("{} in self._activator.Controller().region_maps".format(repr(elem.attrib["region_map"])))
+                        else:
+                            fh.write("True")
+
+                    fh.write(":\n")
+                    fh.write(" " * 4 * 2 + "self.dialog = \"InterfaceDialog{dialog}\"\n".format(**locals()))
+
+                fh.write("ib.preconds = preconds\n");
 
             fh.write("ib.finish(locals(), msg)\n")
 
