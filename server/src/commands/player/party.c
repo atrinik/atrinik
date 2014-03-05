@@ -45,18 +45,18 @@ void command_party(object *op, const char *command, char *params)
         }
     }
     else if (!strcmp(params, "help")) {
-        draw_info(COLOR_WHITE, op, "To form a party type: /party form &lt;partyname&gt;");
-        draw_info(COLOR_WHITE, op, "To join a party type: /party join &lt;partyname&gt;");
+        draw_info(COLOR_WHITE, op, "To form a party type: /party form <partyname>");
+        draw_info(COLOR_WHITE, op, "To join a party type: /party join <partyname>");
         draw_info(COLOR_WHITE, op, "If the party has a password, it will prompt you for it.");
         draw_info(COLOR_WHITE, op, "For a list of current parties type: /party list");
         draw_info(COLOR_WHITE, op, "To leave a party type: /party leave");
-        draw_info(COLOR_WHITE, op, "To change a password for a party type: /party password &lt;password&gt;");
+        draw_info(COLOR_WHITE, op, "To change a password for a party type: /party password <password>");
         draw_info(COLOR_WHITE, op, "There is a 8 character max for password.");
-        draw_info(COLOR_WHITE, op, "To talk to party members type: /party say &lt;msg&gt; or /gsay &lt;msg&gt;");
+        draw_info(COLOR_WHITE, op, "To talk to party members type: /party say <msg> or /gsay <msg>");
         draw_info(COLOR_WHITE, op, "To see who is in your party: /party who");
         draw_info(COLOR_WHITE, op, "To change the party's looting mode: /party loot mode");
-        draw_info(COLOR_WHITE, op, "To kick another player from your party: /party kick &lt;name&gt;");
-        draw_info(COLOR_WHITE, op, "To change party leader: /party leader &lt;name&gt;");
+        draw_info(COLOR_WHITE, op, "To kick another player from your party: /party kick <name>");
+        draw_info(COLOR_WHITE, op, "To change party leader: /party leader <name>");
     }
     else if (!strncmp(params, "say ", 4)) {
         if (!CONTR(op)->party) {

@@ -447,7 +447,7 @@ def check_obj_msg(msg):
 
     test_msg = re.sub(r"<(\/?[a-z_]+)([^>]*)>", r"\1\2", msg)
 
-    if test_msg.find("<") != -1 or test_msg.find(">") != -1:
+    if test_msg.find("[") != -1 or test_msg.find("]") != -1:
         errors.append("unescaped-markup")
 
     for line in msg.split("\n"):

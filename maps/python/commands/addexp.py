@@ -9,7 +9,7 @@ def main():
 
     if not match:
         activator.Controller().DrawInfo(
-            markup_escape("Usage: /addexp <[\"]player name[\"]> &lt;skill number|skill name&gt; <experience|levels> ['levels']\n") +
+            markup_escape("Usage: /addexp <[\"]player name[\"]> <skill number|skill name> <experience|levels> ['levels']\n") +
             "Examples:\n"
             "[b]/addexp Dummy slash weapons 125[/b] - adds 125 exp to slash weapons of 'Dummy'\n"
             "[b]/addexp Dummy wizardry spells 100 levels[/b] - adds 100 levels to wizardry spells of 'Dummy'\n"

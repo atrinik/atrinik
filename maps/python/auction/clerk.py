@@ -542,17 +542,17 @@ def main():
 
             # Previous button
             if page > 1:
-                paging += "[a=:search2_name " + str(page - 1) + " \"" + ",".join([str(i) for i in filters]) + "\" " + name + "]&lt; Previous[/a]"
+                paging += "[a=:search2_name " + str(page - 1) + " \"" + ",".join([str(i) for i in filters]) + "\" " + name + "]< Previous[/a]"
             else:
-                paging += "&lt; Previous"
+                paging += "< Previous"
 
             paging += " | "
 
             # Next button
             if len(l) > page * Auction.PER_PAGE:
-                paging += "[a=:search2_name " + str(page + 1) + " \"" + ",".join([str(i) for i in filters]) + "\" " + name + "]Next &gt;[/a]"
+                paging += "[a=:search2_name " + str(page + 1) + " \"" + ",".join([str(i) for i in filters]) + "\" " + name + "]Next >[/a]"
             else:
-                paging += "Next &gt;"
+                paging += "Next >"
 
             # Add the paging and the objects list.
             s += paging
@@ -586,7 +586,7 @@ def main():
     # Show help about the search interface.
     elif msg.startswith("helpsearch "):
         back = msg[11:]
-        inf.add_msg("Several searching methods exist; you can filter by item types (weapons, slash 1h weapons, girdles, etc), item name, etc. When you search for something, all these filtering methods appear at the top of a window similar to this one. Here is what it may look like:\n\n[yellow]Types:[/yellow] [u]weapons[/u] [size=8][a=:]X[/a][/size] [[a=:]slash[/a], [u]pierce[/u] [size=8][a=:]X[/a][/size], ...] [[a=:]1h[/a]], [a=:]armour[/a], ...\n\nThe above are item type filters; only one can be active at any time, but more sub-filters can be active along with it. In the above example, the active filter is [b]weapons[/b], so only weapons will appear in your search results, but the [b]pierce[/b] sub-filter is also active, so only [b]pierce weapons[/b] will appear. Clicking the [b]1h[/b] sub-filter would only show [b]1h pierce weapons[/b], but clicking the [b]slash[/b] sub-filter would switch from [b]pierce[/b] weapons to [b]slash[/b] weapons. Clicking the [b]armour[/b] filter would deactivate the weapons filter. You can also click the [b]X[/b] at top right of the filter name to deactivate that filter.\n\n[yellow]Filters:[/yellow] [a=:]magical[/a], [a=:]identified[/a]\n\nThe above are item filters, and any number of those can be active. Upon clicking [b]identified[/b], only [b]identified items[/b] would appear in your search results.\n\nBelow filtering and sorting is pagination and below that, items list:\n\n&lt; Previous | [a=:]Next &gt;[/a]\n[[a=:]buy[/a], [a=:]examine[/a]] 10 beer: [u]1 silver coin[/u] (each) [[a=:]1[/a]; [a=:]5[/a]]\n\nIf the [b]Next[/b] button is active, it means there is another page of items and you can click it to see them. [b]Previous[/b] button would take you to the previous page, if any. Clicking [b]buy[/b] would buy the whole stock of the items (price is the shown price multiplied by number of items). You can examine the item by clicking [b]examine[/b]. If there is a stock of items and you don't want to buy them all, the numbers like [b]1[/b] and [b]5[/b] after the item name and cost allow you to buy a smaller quantity.")
+        inf.add_msg("Several searching methods exist; you can filter by item types (weapons, slash 1h weapons, girdles, etc), item name, etc. When you search for something, all these filtering methods appear at the top of a window similar to this one. Here is what it may look like:\n\n[yellow]Types:[/yellow] [u]weapons[/u] [size=8][a=:]X[/a][/size] [[a=:]slash[/a], [u]pierce[/u] [size=8][a=:]X[/a][/size], ...] [[a=:]1h[/a]], [a=:]armour[/a], ...\n\nThe above are item type filters; only one can be active at any time, but more sub-filters can be active along with it. In the above example, the active filter is [b]weapons[/b], so only weapons will appear in your search results, but the [b]pierce[/b] sub-filter is also active, so only [b]pierce weapons[/b] will appear. Clicking the [b]1h[/b] sub-filter would only show [b]1h pierce weapons[/b], but clicking the [b]slash[/b] sub-filter would switch from [b]pierce[/b] weapons to [b]slash[/b] weapons. Clicking the [b]armour[/b] filter would deactivate the weapons filter. You can also click the [b]X[/b] at top right of the filter name to deactivate that filter.\n\n[yellow]Filters:[/yellow] [a=:]magical[/a], [a=:]identified[/a]\n\nThe above are item filters, and any number of those can be active. Upon clicking [b]identified[/b], only [b]identified items[/b] would appear in your search results.\n\nBelow filtering and sorting is pagination and below that, items list:\n\n< Previous | [a=:]Next >[/a]\n[[a=:]buy[/a], [a=:]examine[/a]] 10 beer: [u]1 silver coin[/u] (each) [[a=:]1[/a]; [a=:]5[/a]]\n\nIf the [b]Next[/b] button is active, it means there is another page of items and you can click it to see them. [b]Previous[/b] button would take you to the previous page, if any. Clicking [b]buy[/b] would buy the whole stock of the items (price is the shown price multiplied by number of items). You can examine the item by clicking [b]examine[/b]. If there is a stock of items and you don't want to buy them all, the numbers like [b]1[/b] and [b]5[/b] after the item name and cost allow you to buy a smaller quantity.")
         inf.add_link("I'd like to go back to my search.", dest = back)
 
     # Examine an object.

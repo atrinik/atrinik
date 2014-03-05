@@ -97,7 +97,7 @@ static int popup_draw(popup_struct *popup)
         }
 
         if (button_selected == i) {
-            text_show_shadow_format(popup->surface, FONT_SERIF40, 0, 60 + i * FONT_HEIGHT(FONT_SERIF40), COLOR_HGOLD, COLOR_BLACK, TEXT_ALIGN_CENTER | TEXT_MARKUP, &box, "[c=#9f0408]&gt;[/c] %s [c=#9f0408]&lt;[/c]", button_names[i]);
+            text_show_shadow_format(popup->surface, FONT_SERIF40, 0, 60 + i * FONT_HEIGHT(FONT_SERIF40), COLOR_HGOLD, COLOR_BLACK, TEXT_ALIGN_CENTER | TEXT_MARKUP, &box, "[c=#9f0408]>[/c] %s [c=#9f0408]<[/c]", button_names[i]);
         }
         else {
             text_show_shadow(popup->surface, FONT_SERIF40, button_names[i], 0, 60 + i * FONT_HEIGHT(FONT_SERIF40), COLOR_WHITE, COLOR_BLACK, TEXT_ALIGN_CENTER, &box);

@@ -7,8 +7,6 @@ from Atrinik import *
 _markup_escape_table = {
     "]": "&rsqb;",
     "[": "&lsqb;",
-    ">": "&gt;",
-    "<": "&lt;",
 }
 
 ## Escapes markup in the specified string.

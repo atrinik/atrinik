@@ -1229,7 +1229,7 @@ We failed to kill the giant king and his guards too.
 He is guarded by magic doors. We will never
 find the keys.. Listen, I hear them coming...
 Oh, Melarin... I will never come back home...
-I wi.. &lt;[i]the writing stops here[/i]&gt;
+I wi.. <[i]the writing stops here[/i]>
 endmsg
 name blood stained letter
 no_pick 1

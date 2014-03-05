@@ -126,7 +126,7 @@ The cast command will immediately cast a spell in the direction you're currently
 "/cast magic bullet"
 
 [title]Syntax:[/title]
-/cast &lt;name of spell&gt;
+/cast <name of spell>
 endmsg
 end
 
@@ -137,7 +137,7 @@ msg
 The shout command is the main communication command. It will display your message to all currently logged in players.
 
 [title]Syntax:[/title]
-/shout &lt;your message&gt;
+/shout <your message>
 [p]
 [title]See Also:[/title]
 [a=help]reply[/a]
@@ -153,7 +153,7 @@ msg
 The tell command is used to send a private message to another player online. Only he will be able to see the message!
 
 [title]Syntax:[/title]
-/tell &lt;name&gt; [your message]
+/tell <name> [your message]
 [p]
 [title]See Also:[/title]
 [a=help]reply[/a]
@@ -316,10 +316,10 @@ However, note that there is a party GUI in the client, which can be opened by cl
 
 [title]Syntax:[/title]
 To form a party:
-/party form &lt;party name&gt;
+/party form <party name>
 
 To join an existing party:
-/party join &lt;party name&gt;
+/party join <party name>
 
 To list ALL existing parties:
 /party list
@@ -328,16 +328,16 @@ To list players in your party:
 /party who
 
 To change party password:
-/party password &lt;new password&gt;
+/party password <new password>
 
 To leave your party:
 /party leave
 
 To post a message to your party members:
-/party say &lt;your message&gt;
+/party say <your message>
 
 To change party's loot mode:
-/party loot &lt;new mode&gt;
+/party loot <new mode>
 
 To see party's current loot mode:
 /party loot
@@ -345,7 +345,7 @@ To see party's current loot mode:
 Party loot mode controls how loot from corpses is handled. See "/party loot modes" for the various loot modes.
 
 To kick another player from your party:
-/party kick &lt;name&gt;
+/party kick <name>
 [p]
 [title]See Also:[/title]
 [a=help]gsay[/a]
@@ -473,7 +473,7 @@ title Get
 msg
 The get command is used to get an item from the floor. If there are multiple items the client will prompt you to enter a number of items to pick up.
 
-However, it is possible to configure the client to get all items if there are multiple items to get by going to client settings -&gt; General -&gt; Collect All Items.
+However, it is possible to configure the client to get all items if there are multiple items to get by going to client settings -> General -> Collect All Items.
 [p]
 [title]See Also:[/title]
 [a=help]apply[/a]
@@ -701,7 +701,7 @@ The item's name will then appear as "Hello World!" in inventories, the below inv
 Use /rename with no parameters to clear the custom name of an item.
 
 [title]Syntax:[/title]
-/rename &lt;new name&gt;
+/rename <new name>
 
 To clear item's custom name:
 /rename
@@ -1090,7 +1090,7 @@ msg
 You can ignore another player's chat from various chat types using the ignore command.
 
 [title]Syntax:[/title]
-/ignore &lt;player name&gt; &lt;chat type&gt;
+/ignore <player name> <chat type>
 
 Where:[padding=4]
 [b]player name[/b]: Name of the player to ignore (or [b]*[/b] to ignore all players)
@@ -1106,7 +1106,7 @@ msg
 The [b]/use_skill[/b] command can be used to use a skill, for example, the [b]construction[/b] skill. Note that many skills cannot be used in this way, for example, melee, archery, etc.
 
 [title]Syntax:[/title]
-/use_skill &lt;skill name&gt;
+/use_skill <skill name>
 
 Where:[padding=4]
 [b]skill name[/b]: Full name of the skill to use, for example, [b]construction[/b]
@@ -1121,7 +1121,7 @@ msg
 The [/b]/ready_spell[/b] command can be used to ready a spell into the range box.
 
 [title]Syntax:[/title]
-/ready_spell &lt;spell name&gt;
+/ready_spell <spell name>
 
 Where:[padding=4]
 [b]spell name[/b]: Full name of the spell to ready, for example, [b]magic bullet[/b]
@@ -1136,7 +1136,7 @@ msg
 The [/b]/ready_skill[/b] command can be used to ready a skill.
 
 [title]Syntax:[/title]
-/ready_skill &lt;skill name&gt;
+/ready_skill <skill name>
 
 Where:[padding=4]
 [b]skill name[/b]: Full name of the skill to ready, for example, [b]construction[/b]
@@ -1149,7 +1149,7 @@ title Writing Pen
 msg
 [book]Inscription Skill[/book]You can apply a writing pen to use the inscription skill in order to write messages into books and letters. You simply mark the object you want to write into and type:
 
-/use_skill inscription &lt;message to write&gt;
+/use_skill inscription <message to write>
 endmsg
 end
 
@@ -1217,11 +1217,11 @@ Right of the spells list, you can see the currently selected spell's description
 
 [title]Controls[/title]
 
-Use mouse wheel or drag the slider to scroll the list of spells (if applicable). Switch between spell paths by clicking the [b]&lt;[/b] and [b]&gt;[/b] buttons below the list of spells. If you keep holding those buttons, the spell paths will continue changing. The last spell path will show you all the spells, from all spell paths.
+Use mouse wheel or drag the slider to scroll the list of spells (if applicable). Switch between spell paths by clicking the [b]<[/b] and [b]>[/b] buttons below the list of spells. If you keep holding those buttons, the spell paths will continue changing. The last spell path will show you all the spells, from all spell paths.
 
 In order to ready a spell, double-click its name in the spells list. You can also drag the currently selected spell's icon in the bottom right corner, and drop it into your quickslots for fast access.
 
-You can filter the list of spells using the buttons above the currently selected spell's description. If you press [b]Known[/b], only spells that you know will be shown - otherwise, both known and unknown are shown. The [b]&lt;[/b] and [b]&gt;[/b] buttons allow you to switch between types of spells shown: wizardry [b]spells[/b], divine [b]prayers[/b], or [b]all[/b].
+You can filter the list of spells using the buttons above the currently selected spell's description. If you press [b]Known[/b], only spells that you know will be shown - otherwise, both known and unknown are shown. The [b]<[/b] and [b]>[/b] buttons allow you to switch between types of spells shown: wizardry [b]spells[/b], divine [b]prayers[/b], or [b]all[/b].
 
 The [b]F9[/b] key (default) can be used to open/close the widget.
 endmsg
@@ -1236,7 +1236,7 @@ Right of the skills list, you can see the currently selected skill's description
 
 [title]Controls[/title]
 
-Use mouse wheel or drag the slider to scroll the list of skills (if applicable). Switch between skill categories by clicking the [b]&lt;[/b] and [b]&gt;[/b] buttons below the list of skills. If you keep holding those buttons, the skill categories will continue changing. The last skill category will show you all the skills, from all the categories.
+Use mouse wheel or drag the slider to scroll the list of skills (if applicable). Switch between skill categories by clicking the [b]<[/b] and [b]>[/b] buttons below the list of skills. If you keep holding those buttons, the skill categories will continue changing. The last skill category will show you all the skills, from all the categories.
 
 In order to ready a skill, double-click its name in the skills list.
 
@@ -1296,13 +1296,13 @@ end
 help client settings
 title Client Settings
 msg
-Allows you to change client-related settings. The [b]&lt;[/b] and [b]&gt;[/b] buttons above the list can be used to change the settings category.
+Allows you to change client-related settings. The [b]<[/b] and [b]>[/b] buttons above the list can be used to change the settings category.
 
 [title]Controls[/title]
 
 Regular list controls apply - such as using the mouse wheel or dragging the slider to scroll, up and down arrow keys to move, etc.
 
-Left and right arrow keys can be used instead of [b]&lt;[/b] and [b]&gt;[/b] setting buttons. If you hold down shift, the settings category buttons will be affected instead.
+Left and right arrow keys can be used instead of [b]<[/b] and [b]>[/b] setting buttons. If you hold down shift, the settings category buttons will be affected instead.
 
 Clicking [b]Apply[/b] button will immediately apply the new settings - which is useful if you are checking out the different resolutions, for example. The [b]Done[/b] button will do the same as [b]Apply[/b], but will also exit the popup.
 endmsg
@@ -1469,7 +1469,7 @@ Target the NPC by right-clicking them on the map, and then click the [b]Hello[/b
 
 You can use the text input to talk to nearby players. This can be accessed by pressing [b]ENTER[/b]. If you type text in the text input and then press [b]ENTER[/b] again, your message will be heard by all nearby players.
 
-It is also possible to use commands in the text input. For example, typing [b]/shout Hello all![/b] in the text input and pressing [b]ENTER[/b] would shout out the message [b]Hello all![/b] for all online players to see. There are other chat-related commands, such as [b]/tell &lt;player&gt; Private message[/b], among others. See the [a=help:chat_guide]Chat Guide[/a] for more details. You can also check out the list of [a=help:commands]commands[/a] that you can use in the text input.
+It is also possible to use commands in the text input. For example, typing [b]/shout Hello all![/b] in the text input and pressing [b]ENTER[/b] would shout out the message [b]Hello all![/b] for all online players to see. There are other chat-related commands, such as [b]/tell <player> Private message[/b], among others. See the [a=help:chat_guide]Chat Guide[/a] for more details. You can also check out the list of [a=help:commands]commands[/a] that you can use in the text input.
 endmsg
 end
 

@@ -36,7 +36,7 @@ void command_no_chat(object *op, const char *command, char *params)
     player *pl;
 
     if (!params) {
-        draw_info(COLOR_WHITE, op, "Usage: /no_chat &lt;player&gt;");
+        draw_info(COLOR_WHITE, op, "Usage: /no_chat <player>");
         return;
     }
 

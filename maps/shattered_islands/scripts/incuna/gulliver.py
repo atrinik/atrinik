@@ -14,12 +14,12 @@ def main():
         elif msg == "yes":
             inf.add_msg("Hmm! Sam is a good friend of mine, and a great captain. Shame about what happened to you - from what I gather, you hit your head while on the sea in that storm?")
             inf.add_link("Er... Yes...", dest = "er... yes...")
-            inf.add_link("&lt;no comment&gt;", dest = "nocomment")
+            inf.add_link("<no comment>", dest = "nocomment")
 
         elif msg == "er... yes...":
             inf.add_msg("Must have been painful, that! How's your memory doing?")
             inf.add_link("Not so good...", dest = "nocomment")
-            inf.add_link("&lt;no comment&gt;", dest = "nocomment")
+            inf.add_link("<no comment>", dest = "nocomment")
 
         elif msg == "nocomment":
             inf.add_msg("Hmm... well... at any rate, what is the reason behind your visit?")
