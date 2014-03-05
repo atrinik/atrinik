@@ -1,17 +1,20 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <root>
-    <interface>
-        <action><![CDATA[
-def precond(self):
-    if self._npc.enemy:
-        if self._npc.enemy == self._activator:
-            self._npc.Say("Now you die!")
-            return False
-        else:
-            self.dialog_close()
+    <interface state="player_is_enemy">
+        <precond enemy="player" />
+        <dialog name="hello">
+            <say>Now you die!</say>
+        </dialog>
+    </interface>
 
-    return True
-        ]]></action>
+    <interface state="has_enemy">
+        <precond enemy="" />
+        <dialog name="hello">
+            <close />
+        </dialog>
+    </interface>
+
+    <interface>
         <dialog name="hello">
             <message color="yellow">{npc.name} yawns sleepily.</message>
             <message>Hello {activator.name}, I am {npc.name}. So what brings you here?</message>
@@ -51,11 +54,9 @@ def precond(self):
             <response message="You're such a drunkard..." destination="drunkard6" />
         </dialog>
         <dialog name="drunkard6">
-            <action><![CDATA[
-self.dialog_close()
-self._npc.Say("Now you've done it! Prepare to die!")
-self._npc.enemy = self._activator
-            ]]></action>
+            <close />
+            <say>Now you've done it! Prepare to die!</say>
+            <action enemy="player" />
         </dialog>
     </interface>
 </root>
