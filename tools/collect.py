@@ -283,10 +283,15 @@ def _make_interface(file, parent, npcs, part_uid = None):
                         for line in elem.text.split("\n"):
                             class_code += " " * 4 * 2 + line.rstrip() + "\n"
 
-                    for attr in ["start", "complete"]:
+                    for attr in ["start", "complete", "region_map"]:
                         val = elem.get(attr)
 
-                        if val:
+                        if not val:
+                            continue
+
+                        if attr == "region_map":
+                            class_code += " " * 4 * 2 + "self._activator.Controller().region_maps.append(\"{}\")\n".format(val)
+                        else:
                             split = val.split("::")
 
                             if len(split) > 1:
