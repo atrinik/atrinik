@@ -300,6 +300,11 @@ def _make_interface(file, parent, npcs, part_uid = None):
                                 val = "\"{}\"".format(val)
 
                             class_code += " " * 4 * 2 + "self.qm.{attr}({val})\n".format(**locals())
+                elif elem.tag == "notification":
+                    if not "Packet.Notification" in npcs[npc]["import"]:
+                        npcs[npc]["import"].append("Packet.Notification")
+
+                    class_code += " " * 4 * 2 + "Notification(self._activator.Controller(), {}, {}, {}, {})\n".format(repr(elem.get("message")), repr(elem.get("action", None)), repr(elem.get("shortcut", None)), repr(int(elem.get("delay", 0))))
 
         matchers_code = ""
 
