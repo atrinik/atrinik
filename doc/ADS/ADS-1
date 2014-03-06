@@ -48,7 +48,8 @@
  freely or by an editor dedicated to editing their contents through a GUI.
 
  The XML files MUST only reside in the maps/interfaces directory, and nowhere
- else.
+ else. Sub-directories are allowed and encouraged (to sort specific interfaces
+ by location).
 
  An XML file MUST be named "quest.xml" if it defines ANY <quest>...</quest>
  tags.
