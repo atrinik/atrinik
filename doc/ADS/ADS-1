@@ -1,5 +1,5 @@
 ===============================================================================
-= ADS-1, rev: 1.0: Atrinik Interface XML Documentation                        =
+= ADS-1, rev: 1.1: Atrinik Interface XML Documentation                        =
 ===============================================================================
  This document contains information about the syntax and rules of the Atrinik
  XML interface files.
@@ -11,22 +11,24 @@
  3. Tag definitions
     3.1. Quest
          3.1.1. Quest part
-                3.1.1.1 Quest part message
+                3.1.1.1 Quest part info
                 3.1.1.2 Quest part item
                 3.1.1.3 Quest part kill
     3.2. Interface
-         3.2.1. Interface action
-         3.2.2. Interface precondition
-         3.2.3. Interface dialog
-                3.2.3.1. Interface dialog message
-                3.2.3.2. Interface dialog choice
-                3.2.3.3. Interface dialog item
-                3.2.3.4. Interface dialog inherit
-                3.2.3.5. Interface dialog response
-                3.2.3.6. Interface dialog action
-                3.2.3.7. Interface dialog notification
-                3.2.3.8. Interface dialog close
-                3.2.3.9. Interface dialog say
+         3.2.1. Interface code
+         3.2.2. Interface and
+                3.2.2.1 Interface check
+         3.2.3. Interface precond
+         3.2.4. Interface dialog
+                3.2.4.1. Interface dialog message
+                3.2.4.2. Interface dialog choice
+                3.2.4.3. Interface dialog object
+                3.2.4.4. Interface dialog inherit
+                3.2.4.5. Interface dialog response
+                3.2.4.6. Interface dialog action
+                3.2.4.7. Interface dialog notification
+                3.2.4.8. Interface dialog close
+                3.2.4.9. Interface dialog say
 
 ===============================================================================
 = 1. Background                                                               =
@@ -54,6 +56,10 @@
  An XML file MUST be named "quest.xml" if it defines ANY <quest>...</quest>
  tags. In this case, the file MUST be inside of a sub-directory inside
  maps/interfaces/quests (the sub-directory name will define the quest's UID).
+ The sub-directory MUST contain only lowercase characters from the following
+ charset: a-z0-9_. Most commonly, this is a lowercase version of the quest's
+ "name" attribute, with spaces replaced by underscores and characters not found
+ in the charset replaced by nothing.
 
  An XML file SHOULD be named after the NPC it is for. For example, an interface
  for "Princess Helena" SHOULD be named "princess_helena.xml". Thus, the format
@@ -79,7 +85,6 @@
     <message>Hope it serves you well!</message>
    </dialog>
   </interface>
-
  In the above example, the first two message tags would be shown to the player
  first, separated by two newlines, then the player would receive the "heavy
  hammer of Thor" and it would be shown in the interface as an icon and name,
@@ -90,11 +95,10 @@
   - int: Integer, for example, repeat_delay="600"
   - boolean: Integer 1 or 0, for example, repeat="1"
 
- The interfaces tag can have the following tags inside of it:
-  - <quest>...</quest>:
-     See section 3.1.
-  - <interface>...</interface>:
-     See section 3.2.
+ The interfaces tag may have any number of <inteface>...</interface> tags
+ inside of it, in any order (see section 3.2.). Additionally, after the last
+ <interface>...</interface> tag (if any), at most one <quest>...</quest> tag
+ may be defined (see section 3.1.).
 
 ===============================================================================
 = 3.1. Quest                                                                  =
@@ -103,16 +107,6 @@
  parts (stages).
 
  It can have the following attributes:
-  - uid (string) (required):
-     Unique identifier for the quest. It MUST not be empty, and MUST contain
-     only lowercase characters from the following charset: a-z0-9_. Most
-     commonly, this is a lowercase version of the "name" attribute, with spaces
-     replaced by underscores and characters not found in the charset replaced
-     by nothing.
-
-     MUST not be changed after a quest has been created, as it would lead to
-     players being able to complete it again. Instead, one should change the
-     "name" attribute of the quest tag.
   - name (string) (required):
      Name of the quest that will be visible to the player. This can be changed
      freely at any point.
@@ -124,15 +118,14 @@
      completed, and if the player talks to the NPC, they get the "completed"
      interface stage.
 
- It can have the following tags inside of it:
-  - <interface>...</interface>:
-     See section 3.2.
-  - <part>...</part>:
-     See section 3.1.1.
+ The quest tag may define any number of <interface>...</interface> tags inside
+ of it, in any order (see section 3.2.). After the last <interface>...
+ </interface> tag (if any), any number of <part>...</part> tags may be defined,
+ in any order (see section 3.1.1.).
 
-  Example:
-   <quest uid="fort_sether_illness" name="Fort Sether Illness">
-   </quest>
+ Example:
+  <quest uid="fort_sether_illness" name="Fort Sether Illness">
+  </quest>
 
 ===============================================================================
 = 3.1.1. Quest part                                                           =
@@ -141,45 +134,46 @@
 
  It can have the following attributes:
   - uid (string) (required):
-     Unique identifier for the quest part. For all intents and purposes, this
-     has the same function and format as the UID attribute of a quest tag; see
-     section 3.1. for details.
+     Unique identifier for the quest part.
 
-     This UID MUST not clash with the quest UID.
+     This UID MUST not clash with the quest UID (the sub-directory name).
   - name (string) (required):
      Name of the quest part that will be visible to the player. Can be changed
      freely at any point.
 
- It can have the following tags inside of it:
-  - <interface>...</interface>:
-     See section 3.2.
-  - <message>...</message>:
+ It can have the following tags inside of it, in the following order, with each
+ tag being limited to a maximum of one:
+  - <info>...</info> (required):
      See section 3.2.1.1.
-  - <item>...</item>:
-     See section 3.2.1.2. MUST appear no more than once per part.
-  - <kill>...</kill>:
-     See section 3.2.1.3. MUST appear no more than once per part.
+  - <item>...</item> (optional):
+     See section 3.2.1.2.
+  - <kill>...</kill> (optional):
+     See section 3.2.1.3.
 
-  Example:
-   <part uid="figure" name="Poisoned Waters">
-   </part>
+ Additionally, <interface>...</interface> tag may be defined below the above
+ tags (see section 3.2.).
+
+ Example:
+  <part uid="figure" name="Poisoned Waters">
+   <info>Some info</info>
+   <interface npc="Gwenty">
+   </interface>
+  </part>
 
 ===============================================================================
-= 3.1.1.1. Quest part message                                                 =
+= 3.1.1.1. Quest part info                                                    =
 ===============================================================================
- The <message> tag is used to define a quest part's message, as it will appear
- to the player in their quest list. It is most often used to remind the player
- about the quest part in question, and what they need to do in order to
- complete it.
+ The <info> tag is used to define a quest part's information message, as it
+ will appear to the player in their quest list. It is most often used to remind
+ the player about the quest part in question, and what they need to do in order
+ to complete it.
 
  The shown text is stripped of left and right whitespace, but extraneous
  whitespace is not squeezed, for example. Thus one should usually define this
  on a single line without wrapping.
 
  Example:
-  <message>
-   Figure out why the waters of Fort Sether have been poisoned.
-  </message>
+  <info>Figure out why the waters of Fort Sether have been poisoned.</info>
 
 ===============================================================================
 = 3.1.1.2. Quest part item                                                    =
@@ -222,6 +216,9 @@
  without a quest, as well as interfaces for different NPCs during different
  quest stages.
 
+ Every <interface> tag MUST have a unique state attribute in the context of the
+ NPC it's defined for.
+
  It can have the following attributes:
   - npc (string) (optional):
      Defines name of the NPC that this interface is for. Any combination of
@@ -259,45 +256,57 @@
      "kill_spiders" quest part, or just the name of the custom-defined
      precondition with the "state" attribute, such as "has_enemy".
 
- It can have the following tags inside of it:
-  - <action>...</action>:
+ It can have the following tags inside of it, in the following order, with each
+ tag being limited to a maximum of one:
+  - <code>...</code> (optional):
      See section 3.2.1.
-  - <precond>...</precond>
+  - <and>...</and> (optional):
      See section 3.2.2.
-  - <dialog>...</dialog>
-     See section 3.2.3.
+  - <and>...</and> (optional):
+     See section 3.2.2.
+
+ Additionally, it may define any number of <dialog>...</dialog> tags after the
+ above listed ones (see section 3.2.4.).
 
 ===============================================================================
-= 3.2.1. Interface action                                                     =
+= 3.2.1. Interface code                                                       =
 ===============================================================================
- The <action> tag may be used inside of an <interface> tag to inject custom
+ The <code> tag may be used inside of an <interface> tag to inject custom
  Python code into the InterfaceBuilder class definition used by that specific
  interface tag.
 
  Example:
-  <action><![CDATA[
+  <code><![CDATA[
 def dialog(self, msg):
     if msg == "buy1 beer":
         self._activator.CreateObject("beer")
-  ]]></action>
+  ]]></code>
 
 ===============================================================================
-= 3.2.2. Interface precondition                                               =
+= 3.2.2. Interface and                                                        =
 ===============================================================================
- The <precond> tag may be used to define preconditions necessary for the
- interface to be shown.
+ The <and> tag can be used to build a set of preconditions.
 
- If there's raw text inside of the <precond> tag, a function called "precond"
- is generated inside the InterfaceBuilder class, and the text will be injected
- to the function's body as Python code. The return value of this function
- controls whether to show the interface or not, and is called before anything
- else.
+ It may contain any number of <and>...</and> and <or>...</or> tags, in any
+ level of nesting. Those tags can then contain any number of <check> tags (see
+ section 3.2.2.1).
 
- If there's no raw text inside of the <precond> tag, a precondition is added
- that the interface should only be shown if the rules defined in the tag's
- attributes are met. If there's no attributes in the precondition, it will
- always be shown, unless there was an interface tag with a precondition that
- matched first.
+ The interface will only be shown if the set of preconditions matches.
+
+ Example:
+  <and>
+   <check />
+   <or>
+    <check />
+    <check />
+   </or>
+   <check>
+  </and>
+
+===============================================================================
+= 3.2.2.1. Interface and check                                                =
+===============================================================================
+ The <check> tag can be used to build logic preconditions.
 
  It can have the following attributes:
   - region_map (string) (optional):
@@ -306,16 +315,29 @@ def dialog(self, msg):
   - enemy (string) (optional):
      If empty, will match when the NPC has an enemy. If set to "player", will
      match if the NPC's enemy is the player who activated the interface.
-  - operator (string) (optional):
-     Operator to use for the precondition when there's multiple preconditions.
-     One of: "and", "or". Defaults to "and".
 
  Examples:
-  <precond region_map="incuna" />
-  <precond enemy="player" />
+  <check region_map="incuna" />
+  <check enemy="player" />
 
 ===============================================================================
-= 3.2.3. Interface dialog                                                     =
+= 3.2.3. Interface precond                                                    =
+===============================================================================
+ The <precond> tag may be used to define preconditions necessary for the
+ interface to be shown.
+
+ The tag MUST include raw text. This text is injected as code into a function
+ called "precond" inside the InterfaceBuilder class, The return value of this
+ function controls whether to show the interface or not, and is called before
+ anything else.
+
+ Example:
+  <precond><![CDATA[
+return self._activator.FindObject(archname = "goldcoin") != None
+  ]]></precond>
+
+===============================================================================
+= 3.2.4. Interface dialog                                                     =
 ===============================================================================
  The <dialog> tag is used for creating a dialogue, matching initial greeting
  from the player and things like destinations.
@@ -337,25 +359,25 @@ def dialog(self, msg):
 
      If this begins with a double colon, hidden dialogues can be inherited.
 
- It can have the following tags inside of it:
+ It can have any number of the following tags inside of it, in any order:
   - <message>...</message>:
-     See section 3.2.3.1.
+     See section 3.2.4.1.
   - <choice>...</choice>:
-     See section 3.2.3.2.
-  - <item>...</item>:
-     See section 3.2.3.3.
+     See section 3.2.4.2.
+  - <object>...</object>:
+     See section 3.2.4.3.
   - <inherit />:
-     See section 3.2.3.4.
+     See section 3.2.4.4.
   - <response>...</response>:
-     See section 3.2.3.5.
+     See section 3.2.4.5.
   - <action>...</action>:
-     See section 3.2.3.6.
+     See section 3.2.4.6.
   - <notification>...</notification>:
-     See section 3.2.3.7.
+     See section 3.2.4.7.
   - <close />:
-     See section 3.2.3.8.
+     See section 3.2.4.8.
   - <say>...</say>:
-     See section 3.2.3.9.
+     See section 3.2.4.9.
 
  Example:
   <dialog name="hello">
@@ -364,7 +386,7 @@ def dialog(self, msg):
   <dialog name="hey" inherit="hello" />
 
 ===============================================================================
-= 3.2.3.1. Interface dialog message                                           =
+= 3.2.4.1. Interface dialog message                                           =
 ===============================================================================
  The <message> tag can be used to add a message to the NPC's interface.
  Every use except the first will also add two newlines to the final interface
@@ -383,14 +405,14 @@ def dialog(self, msg):
   </dialog>
 
 ===============================================================================
-= 3.2.3.2. Interface dialog choice                                            =
+= 3.2.4.2. Interface dialog choice                                            =
 ===============================================================================
  The <choice> tag can be used to randomly choose from a set of <message> tags
  contained within.
 
  It can have the following tags inside of it:
   - <message>...</message>:
-     See section 3.2.3.1.
+     See section 3.2.4.1.
 
  Example:
   <dialog name="hello">
@@ -401,27 +423,27 @@ def dialog(self, msg):
   </dialog>
 
 ===============================================================================
-= 3.2.3.3. Interface dialog item                                              =
+= 3.2.4.3. Interface dialog object                                            =
 ===============================================================================
- The <item> tag is used to give a clone of an item inside of NPC's inventory
- to the player, showing the item's icon and name in the interface at the same
- time.
+ The <object> tag is used to give a clone of an object inside of NPC's
+ inventory to the player, showing the object's icon and name in the interface
+ at the same time.
 
  It can have the following attributes:
   - arch (string) (optional):
-     Defines the arch-name of the item to give to the player.
+     Defines the arch-name of the object to give to the player.
   - name (string) (optional):
-     Defines the name of the item to give to the player.
+     Defines the name of the object to give to the player.
 
  One or both of "arch" and "name" attributes MUST be set.
 
  Example:
   <dialog name="hello">
-   <item arch="silvercoin" />
+   <object arch="silvercoin" />
   </dialog>
 
 ===============================================================================
-= 3.2.3.4. Interface dialog inherit                                           =
+= 3.2.4.4. Interface dialog inherit                                           =
 ===============================================================================
  The <inherit> tag is used to actually inherit the dialog from the inherit
  attribute specified in either the <interface> tag or the <dialog> tag.
@@ -441,7 +463,7 @@ def dialog(self, msg):
   </dialog>
 
 ===============================================================================
-= 3.2.3.5. Interface dialog response                                          =
+= 3.2.4.5. Interface dialog response                                          =
 ===============================================================================
  The <response> tag allows defining responses the player may pick from. It
  allows moving from one dialogue to another, for example, from "hello" to
@@ -467,7 +489,7 @@ def dialog(self, msg):
   </dialog>
 
 ===============================================================================
-= 3.2.3.6. Interface dialog action                                            =
+= 3.2.4.6. Interface dialog action                                            =
 ===============================================================================
  The <action> tag is used to perform various actions, from quest starting and
  completion to injecting custom Python code into the matching dialogue.
@@ -495,7 +517,7 @@ def dialog(self, msg):
   </dialog>
 
 ===============================================================================
-= 3.2.3.7. Interface dialog notification                                      =
+= 3.2.4.7. Interface dialog notification                                      =
 ===============================================================================
  The <notification> tag can be used to show a notification to the player.
 
@@ -515,7 +537,7 @@ def dialog(self, msg):
   </dialog>
 
 ===============================================================================
-= 3.2.3.8. Interface dialog close                                             =
+= 3.2.4.8. Interface dialog close                                             =
 ===============================================================================
  The <close> tag can be used to close the currently visible interface, if any.
 
@@ -526,7 +548,7 @@ def dialog(self, msg):
   </dialog>
 
 ===============================================================================
-= 3.2.3.9. Interface dialog say                                               =
+= 3.2.4.9. Interface dialog say                                               =
 ===============================================================================
  The <say> tag can be used to make the NPC say a message to all players on the
  map, in the game chat window.
