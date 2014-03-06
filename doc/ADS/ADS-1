@@ -188,7 +188,7 @@
      Defines the name of the item that is needed.
   - nrof (int) (optional):
      Defines how many items the player needs. If not specified, a default of 1
-     is assumed. MUST not be 0.
+     is assumed. MUST not be lower than 1.
 
  One or both of "arch" and "name" attributes MUST be set.
 
@@ -204,7 +204,7 @@
  It can have the following attributes:
   - nrof (int) (optional):
      Defines how many monsters the player needs to kill to complete this quest
-     part. Defaults to 1. MUST not be 0.
+     part. Defaults to 1. MUST not be lower than 1.
 
  Example:
   <kill nrof="50" />
