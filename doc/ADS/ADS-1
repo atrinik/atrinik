@@ -52,7 +52,8 @@
  by location).
 
  An XML file MUST be named "quest.xml" if it defines ANY <quest>...</quest>
- tags.
+ tags. In this case, the file MUST be inside of a sub-directory inside
+ maps/interfaces/quests (the sub-directory name will define the quest's UID).
 
  An XML file SHOULD be named after the NPC it is for. For example, an interface
  for "Princess Helena" SHOULD be named "princess_helena.xml". Thus, the format
