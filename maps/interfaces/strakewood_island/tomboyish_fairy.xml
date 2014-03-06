@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<root>
+<interfaces>
     <interface>
         <dialog name="hello">
             <message>Eye'm the strongest!</message>
@@ -49,4 +49,4 @@
         </dialog>
         <dialog regex="(baka|nineball|marukyuu|\(9\))" inherit="idiot" />
     </interface>
-</root>
+</interfaces>

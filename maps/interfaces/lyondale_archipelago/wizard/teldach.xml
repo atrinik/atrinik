@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<root>
+<interfaces>
     <interface>
         <dialog name="hello">
             <message>Welcome to the Wizards' Tower. This island is part of Lyondale Archipelago, mostly inhabited by Thelras.</message>
@@ -20,4 +20,4 @@
             <message>In this tower you can find various things that could help you in using your magical skills, including shops with magic tools, spells, potions, and so on.</message>
         </dialog>
     </interface>
-</root>
+</interfaces>

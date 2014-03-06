@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<root>
+<interfaces>
     <interface>
         <dialog name="hello">
             <message>Welcome to the Asterian Royal Library, funded by our gracious king. Be sure to ask if you have any questions.</message>
@@ -19,4 +19,4 @@
             <message>The categorization scheme is rather simple at the moment. F denotes a fiction shelf. NF denotes a non-fiction shelf. The shelf is also labeled by general topic.</message>
         </dialog>
     </interface>
-</root>
+</interfaces>

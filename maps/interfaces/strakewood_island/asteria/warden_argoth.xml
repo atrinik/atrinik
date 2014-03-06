@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<root>
+<interfaces>
     <interface state="player_is_enemy">
         <precond enemy="player" />
         <dialog name="hello">
@@ -59,4 +59,4 @@
             <action enemy="player" />
         </dialog>
     </interface>
-</root>
+</interfaces>

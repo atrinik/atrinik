@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<root>
+<interfaces>
     <quest uid="fort_sether_illness" name="Fort Sether Illness">
         <interface npc="Brownrott">
             <dialog name="hello">
@@ -201,4 +201,4 @@
             </interface>
         </part>
     </quest>
-</root>
+</interfaces>

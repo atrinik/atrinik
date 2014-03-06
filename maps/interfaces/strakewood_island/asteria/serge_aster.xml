@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<root>
+<interfaces>
     <interface>
         <dialog name="hello">
             <message>Oi. What are you doing down here?</message>
@@ -11,4 +11,4 @@
             <response message="Goodbye." action="close" />
         </dialog>
     </interface>
-</root>
+</interfaces>

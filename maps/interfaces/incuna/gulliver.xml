@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<root>
+<interfaces>
     <interface state="have_map">
         <precond region_map="incuna" />
         <dialog name="hello">
@@ -40,4 +40,4 @@
             <notification message="Tutorial Available: Region Map" action="/help basics_region_map" shortcut="?HELP" delay="90000" />
         </dialog>
     </interface>
-</root>
+</interfaces>

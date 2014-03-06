@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<root>
+<interfaces>
     <interface>
         <dialog name="hello">
             <message>Welcome to my shop. Here you can buy various scrolls to help you in your adventures.</message>
@@ -22,4 +22,4 @@
             <message>At any rate, the smoking pipe is most likely not even there, anyway. It would be a waste of time to go looking for it there.</message>
         </dialog>
     </interface>
-</root>
+</interfaces>

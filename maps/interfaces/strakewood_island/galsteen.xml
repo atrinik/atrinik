@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<root>
+<interfaces>
     <interface>
         <dialog name="hello">
             <message>Greetings adventurer. I'm {npc.name}, the captain of this outpost.</message>
@@ -16,4 +16,4 @@
             <message>Very safe! We are closely guarding it so no monsters can pass or take the tunnel as their own. Of course, there's the issue of some spider infestation. No one has seen the spiders so we've been unable to get rid of them, but the cobwebs just keep appearing after we remove them!</message>
         </dialog>
     </interface>
-</root>
+</interfaces>

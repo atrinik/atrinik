@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<root>
+<interfaces>
     <quest uid="lairwenn_notes" name="Lairwenn's Notes">
         <interface npc="Lairwenn" state="completed">
             <dialog name="hello">
@@ -63,4 +63,4 @@ else:
             </interface>
         </part>
     </quest>
-</root>
+</interfaces>

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<root>
+<interfaces>
     <interface>
         <dialog name="hello">
             <message>Hello there. I'm {npc.name} the wizard. I'm currently studying the abandoned mine north of here.</message>
@@ -10,4 +10,4 @@
             <message>If you are also interested in the mine, you can read about it in my notes in the bookcase.</message>
         </dialog>
     </interface>
-</root>
+</interfaces>

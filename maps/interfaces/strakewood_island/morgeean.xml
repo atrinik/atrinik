@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<root>
+<interfaces>
     <interface>
         <dialog name="hello">
             <message>Welcome! I am Morg'eean the kobold trader. I trade various goods between Asteria and Brynknot using my ship.</message>
@@ -16,4 +16,4 @@
             <message>I'll be especially pleased if you buy some of my goods!</message>
         </dialog>
     </interface>
-</root>
+</interfaces>

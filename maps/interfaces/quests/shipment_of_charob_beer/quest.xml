@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<root>
+<interfaces>
     <quest uid="shipment_of_charob_beer" name="Shipment of Charob Beer" repeat="1" repeat_delay="300">
         <interface npc="Steve Bruck">
             <dialog name="hello">
@@ -122,4 +122,4 @@ def show_bought(self, obj):
             </interface>
         </part>
     </quest>
-</root>
+</interfaces>

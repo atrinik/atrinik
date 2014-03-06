@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<root>
+<interfaces>
     <interface>
         <dialog name="hello">
             <message>Well, hello there! I'm a traveller looking for interesting artifacts and treasures. Have you seen the leftovers of a shop in the Brynknot sewers?</message>
@@ -23,4 +23,4 @@
             <message>Yes, a magical pouch with my costly collection of gems and jewels. If you ever happen to find it, do as you please and keep it all or sell the jewels and gems to a regular shop.</message>
         </dialog>
     </interface>
-</root>
+</interfaces>
