@@ -37,13 +37,16 @@ class Temple(InterfaceBuilder):
     enemy_temple_name = None
     enemy_temple_desc = None
 
-    def show_services(self):
+    def subdialog_services(self):
         """Show the available temple services."""
-
-        self.add_msg("I can offer you the following services.")
 
         for service in temple_services:
             self.add_link(temple_services[service][1], dest = service)
+
+        self.add_link("Tell me about {}.".format(self.temple_name), dest = self.temple_name)
+
+        if self.enemy_temple_name:
+            self.add_link("Tell me about {}.".format(self.enemy_temple_name), dest = self.enemy_temple_name)
 
     def dialog_hello(self):
         """Default hello dialog handler."""
@@ -53,12 +56,8 @@ class Temple(InterfaceBuilder):
         if self.enemy_temple_name:
             self.add_msg("Beware that followers of {enemy_god} are not welcome here.", enemy_god = self.enemy_temple_name)
 
-        self.show_services()
-
-        self.add_link("Tell me about {}.".format(self.temple_name), dest = self.temple_name)
-
-        if self.enemy_temple_name:
-            self.add_link("Tell me about {}.".format(self.enemy_temple_name), dest = self.enemy_temple_name)
+        self.add_msg("I can offer you the following services.")
+        self.subdialog_services()
 
     def dialog(self, msg):
         """Handle services and speaking about particular gods."""
