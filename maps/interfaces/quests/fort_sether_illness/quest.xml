@@ -29,10 +29,10 @@
         </interface>
 
         <interface npc="Gwenty" state="completed" inherit="Temple.TempleGrunhilde">
-            <dialog name="hello">
+            <dialog name="hello" inherit="::services">
                 <message>We won't forget what you have done for us, {activator.name}.</message>
                 <message>Please, if there's anything I can do for you, just ask.</message>
-                <action><![CDATA[self.show_services()]]></action>
+                <inherit />
             </dialog>
         </interface>
 
