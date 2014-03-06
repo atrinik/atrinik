@@ -230,14 +230,19 @@ def _make_interface(file, parent, npcs, part_uid = None):
             dialog_inherit = "self" if inherit == None else interface_inherit
             dialog_inherit2 = "" if inherit == None else interface_inherit + "."
             dialog_inherit_name = dialog.get("inherit")
+            dialog_inherit_name_prefix = ""
             dialog_inherit_args = "" if inherit == None else "self"
 
             if not dialog_inherit_name:
                 dialog_inherit_name = dialog_name
             else:
+                if dialog_inherit_name.startswith("::"):
+                    dialog_inherit_name = dialog_inherit_name[2:]
+                    dialog_inherit_name_prefix = "sub"
+
                 dialog_inherit_name = "_" + dialog_inherit_name.replace(" ", "_")
 
-            dialog_inherit_code = " " * 4 * 2 + "{dialog_inherit}.dialog{dialog_inherit_name}({dialog_inherit_args})\n".format(**locals())
+            dialog_inherit_code = " " * 4 * 2 + "{dialog_inherit}.{dialog_inherit_name_prefix}dialog{dialog_inherit_name}({dialog_inherit_args})\n".format(**locals())
 
             if dialog_regex:
                 dialog_prepend = "regex_"
