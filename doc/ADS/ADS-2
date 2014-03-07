@@ -1,0 +1,147 @@
+===============================================================================
+= ADS-2, rev: 0.1: Atrinik Protocol Specification                             =
+===============================================================================
+ This document contains design specification for the Atrinik client<->server
+ protocol. The following sections exist:
+  
+ 1. Session
+    1.2 Keepalive
+ 3. Server commands
+ 2. Client commands
+ 3. Example logic
+  
+===============================================================================
+= 1. Session                                                                  =
+===============================================================================
+ Atrinik uses a standard TCP/IP connection to establish a session. Once a
+ session has been established, the client and the server are free to exchange
+ data at will, in an asynchronous mode of data exchange.
+ 
+ Currently, only IPv4 sessions are supported, but IPv6 support is planned but
+ not yet implemented in any way whatsoever.
+ 
+ The network order is MSB (Most Significant Byte), also known as big-endian.
+ 
+ The implementation SHOULD use non-blocking sockets to receive and send data.
+ Using threads for this is highly recommended.
+ 
+ The implementation SHOULD disable Nagle's algorithm, as this algorithm is
+ enabled by default but introduces artificial lag due to buffering data until
+ some amount of data has been buffered, then flushing the buffer. This
+ behaviour has no place in a real-time action RPG such as Atrinik, where player
+ should get feedback to their actions as quickly as possible. 
+ 
+ The implementation MUST use some sort of buffers for data to send/receive, in
+ order to allow for cancellation/compression/prioritisation/etc. The
+ recommended approach is to use FIFO queues
+
+===============================================================================
+= 1.1. Packets                                                                =
+===============================================================================
+ Data packets are constructed in MSB (Most Significant Byte) order, also known
+ as big-endian.
+ 
+ Each packet starts with a 2-byte header, which is an integer that contains
+ information about the length of its payload. In the case of the client, this
+ should always be sent to the server as unsigned (uint16).
+ 
+ The server MUST implement the following additional behaviour for the header:
+ in the case that the payload length is longer than 32767 (size of sint16), it
+ MUST extend the header length to 3 bytes, thus changing the length to a 24-bit
+ unsigned integer. The value of "128" MUST be ORed to the first byte. The
+ client MUST add logic to handle this: if the first 8-bit integer can be ANDed
+ with 128, then the header size is 3 bytes instead of 2. Standard left-shifting
+ applies for both header sizes, but if the header size is 3, the first byte
+ MUST be ANDed with 127 before shifting.
+ 
+ The payload should always contain the command type as 8-bit integer, followed
+ by any data, in any format whatsoever, but still binary. See section 1.2. for
+ the available server commands organized by command type, and section 1.3. for
+ the available client commands.
+ 
+ Left shifting is done to convert any integers of size more than 1 byte. Signed
+ integers are converted to signed data type.
+ 
+ The following packet data types are recognised:
+  - uint8
+  - sint8
+  - uint16
+  - sint16
+  - uint32
+  - sint32
+  - uint64
+  - sint64
+  - float:
+     Multiplied by 100000, then sent as uint32. Parsed as uint32, then divided
+     by 100000 to get the floating point number.
+  - string:
+     ASCII string, terminated by a NUL character.
+
+===============================================================================
+= 1.2. Keepalive                                                              =
+===============================================================================
+ Once a session has been established, the client MUST send keepalive (command
+ explained in section 3.8) packets to the server, at an interval of no more
+ than one packet per minute.
+ 
+ If the server does not receive a keepalive packet from the client for a period
+ longer than 10 minutes, it MUST, for all intents and purposes, consider the
+ session as dead and drop connection immediately.
+ 
+===============================================================================
+= 1.2. Server commands                                                        =
+===============================================================================
+ The following is a list of commands recognised by the server.
+ 
+ These start at zero; thus, command type 0 equals that of the first command
+ here.
+ 
+ CONTROL:
+  See section 1.2.1.
+ ASK_FACE:
+  See section 1.2.2.
+ SETUP:
+  See section 1.2.3.
+ VERSION:
+  See section 1.2.4.
+ REQUEST_FILE:
+  See section 1.2.5.
+ CLEAR:
+  See section 1.2.6.
+ REQUEST_UPDATE: 
+  See section 1.2.7.
+ KEEPALIVE: 
+  See section 1.2.8.
+ ACCOUNT: 
+  See section 1.2.9.
+ ITEM_EXAMINE (player only): 
+  See section 1.2.10.
+ ITEM_APPLY (player only): 
+  See section 1.2.11.
+ ITEM_MOVE (player only): 
+  See section 1.2.12.
+ REPLY (player only): 
+  See section 1.2.13.
+ PLAYER_CMD (player only): 
+  See section 1.2.14.
+ ITEM_LOCK (player only): 
+  See section 1.2.15.
+ ITEM_MARK (player only): 
+  See section 1.2.16.
+ FIRE (player only): 
+  See section 1.2.17.
+ QUICKSLOT (player only): 
+  See section 1.2.18.
+ QUESTLIST (player only): 
+  See section 1.2.19.
+ MOVE_PATH (player only): 
+  See section 1.2.20.
+ ITEM_READY (player only): 
+  See section 1.2.21.
+ TALK (player only): 
+  See section 1.2.22.
+ MOVE (player only): 
+  See section 1.2.23.
+ TARGET (player only): 
+  See section 1.2.24.
+  
