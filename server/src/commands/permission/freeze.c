@@ -41,7 +41,7 @@ void command_freeze(object *op, const char *command, char *params)
     pos = 0;
 
     if (!string_get_word(params, &pos, ' ', word, sizeof(word), '"')) {
-        draw_info(COLOR_WHITE, op, "Usage: /freeze <player> [ticks]");
+        draw_info(COLOR_WHITE, op, "Usage: /freeze <player> &lsqb;ticks&rsqb;");
         return;
     }
 

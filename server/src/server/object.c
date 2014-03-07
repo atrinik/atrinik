@@ -925,6 +925,11 @@ void copy_object(object *op2, object *op, int no_speed)
         SET_FLAG(op, FLAG_REMOVED);
     }
 
+    if (op->type == PLAYER) {
+        op->type = MONSTER;
+        SET_FLAG(op, FLAG_MONSTER);
+    }
+
     ADD_REF_NOT_NULL_HASH(op->name);
     ADD_REF_NOT_NULL_HASH(op->title);
     ADD_REF_NOT_NULL_HASH(op->race);
@@ -3118,6 +3123,10 @@ void object_reverse_inventory(object *op)
 
     if (!op->inv) {
         return;
+    }
+
+    if (op->inv->inv) {
+        object_reverse_inventory(op->inv);
     }
 
     next = op->inv->below;

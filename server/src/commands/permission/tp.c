@@ -40,7 +40,7 @@ void command_tp(object *op, const char *command, char *params)
     pos = 0;
 
     if (!string_get_word(params, &pos, ' ', word, sizeof(word), '"')) {
-        draw_info(COLOR_WHITE, op, "Usage: /tp <dst> [who]");
+        draw_info(COLOR_WHITE, op, "Usage: /tp <dst> &lsqb;who&rsqb;");
         return;
     }
 

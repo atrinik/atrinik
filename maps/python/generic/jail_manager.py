@@ -25,8 +25,8 @@ def main():
             inf.set_text_input(prepend = "jail2 ")
             return
 
-        inf.add_msg("How long do you want to jail <green>{}</green> for?".format(pl.name))
-        inf.add_msg("For example, type <green>1 hour</green> or <green>10 minutes and 15 seconds</green>, etc.")
+        inf.add_msg("How long do you want to jail [green]{}[/green] for?".format(pl.name))
+        inf.add_msg("For example, type [green]1 hour[/green] or [green]10 minutes and 15 seconds[/green], etc.")
         inf.set_text_input(prepend = "jail3 \"" + pl.name + "\" ")
 
     elif msg.startswith("jail3 "):
@@ -49,11 +49,11 @@ def main():
             return
 
         if not seconds:
-            inf.add_msg("You need to enter a valid amount of time to jail <green>{}</green> for.".format(pl.name))
+            inf.add_msg("You need to enter a valid amount of time to jail [green]{}[/green] for.".format(pl.name))
             inf.set_text_input(prepend = "jail3 \"" + pl.name + "\" ")
             return
         elif seconds > 30000:
-            inf.add_msg("That's a ridiculous amount of time to jail <green>{}</green> for! Try again.".format(pl.name))
+            inf.add_msg("That's a ridiculous amount of time to jail [green]{}[/green] for! Try again.".format(pl.name))
             inf.set_text_input(prepend = "jail3 \"" + pl.name + "\" ")
             return
 

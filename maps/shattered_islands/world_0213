@@ -2,7 +2,7 @@ arch map
 name Brynknot
 msg
 Created:  2009-09-10 Alex Tokar
-Modified: 2011-11-03 Alex Tokar
+Modified: 2014-03-01 Alex Tokar
 endmsg
 width 24
 height 24
@@ -1094,7 +1094,7 @@ type 83
 direction 3
 arch event_obj
 sub_type 6
-race scripts/strakewood_island/brynknot/melanye.py
+race /interfaces/quests/melanye_lost_stick/quest.xml
 end
 arch silvercoin
 nrof 10

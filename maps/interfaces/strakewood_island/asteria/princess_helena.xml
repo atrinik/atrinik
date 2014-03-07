@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<interfaces>
+    <interface>
+        <dialog name="hello">
+            <message>Can't you see I'm reading?</message>
+            <response message="[b]You[/b] are reading?" destination="reading" />
+            <response message="Sorry." action="close" />
+        </dialog>
+        <dialog name="reading">
+            <message>Yes. Is it a crime for the daughter of a king to enjoy reading?</message>
+        </dialog>
+    </interface>
+</interfaces>

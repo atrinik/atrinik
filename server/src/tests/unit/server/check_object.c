@@ -24,6 +24,7 @@
 
 #include <global.h>
 #include <check.h>
+#include <check_proto.h>
 
 START_TEST(test_CAN_MERGE)
 {
@@ -279,6 +280,7 @@ START_TEST(test_can_pick)
 
     pl = get_archetype("raas");
     pl->type = PLAYER;
+    pl->custom_attrset = (player *) calloc(1, sizeof(player));
     CLEAR_FLAG(pl, FLAG_SEE_INVISIBLE);
 
     ob = get_archetype("sack");
@@ -330,7 +332,6 @@ START_TEST(test_was_destroyed)
     object_remove(ob, 0);
     fail_if(was_destroyed(ob, ob_tag) == 1, "was_destroyed() returned 1 but object was only removed from map.");
     object_destroy(ob);
-    object_destroy(ob2);
     fail_if(was_destroyed(ob, ob_tag) == 0, "was_destroyed() returned 0 but object was freed.");
     fail_if(was_destroyed(ob2, ob2_tag) == 0, "was_destroyed() returned 0 but object was freed.");
 }
@@ -351,12 +352,35 @@ START_TEST(test_load_object_str)
 }
 END_TEST
 
+START_TEST(test_object_reverse_inventory)
+{
+    char *cp, *cp2;
+    object *ob;
+    StringBuffer *sb;
+
+    cp = path_file_contents("unit/test_object_reverse_inventory.arc");
+    ob = load_object_str(cp);
+
+    object_reverse_inventory(ob);
+
+    sb = stringbuffer_new();
+    dump_object_rec(ob, sb);
+    cp2 = stringbuffer_finish(sb);
+
+    fail_unless(strcmp(cp, cp2) == 0, "Did not correctly reverse order of objects");
+
+    object_destroy(ob);
+    free(cp);
+    free(cp2);
+}
+END_TEST
+
 static Suite *object_suite(void)
 {
     Suite *s = suite_create("object");
     TCase *tc_core = tcase_create("Core");
 
-    tcase_add_checked_fixture(tc_core, NULL, NULL);
+    tcase_add_unchecked_fixture(tc_core, check_setup, check_teardown);
 
     suite_add_tcase(s, tc_core);
     tcase_add_test(tc_core, test_CAN_MERGE);
@@ -373,6 +397,7 @@ static Suite *object_suite(void)
     tcase_add_test(tc_core, test_object_create_clone);
     tcase_add_test(tc_core, test_was_destroyed);
     tcase_add_test(tc_core, test_load_object_str);
+    tcase_add_test(tc_core, test_object_reverse_inventory);
 
     return s;
 }

@@ -458,8 +458,8 @@ int keybind_process_command_up(const char *cmd)
         cmd++;
 
         if (!strcmp(cmd, "RUNON")) {
-            move_keys(5);
             cpl.run_on = 0;
+            move_keys(0);
         }
         else if (!strcmp(cmd, "FIREON")) {
             cpl.fire_on = 0;
@@ -469,7 +469,7 @@ int keybind_process_command_up(const char *cmd)
 
             cmd += 5;
 
-            if (strcmp(cmd, "STAY") && !cpl.fire_on && !cpl.run_on && (keybind = keybind_find_by_command(cmd_orig)) && keys[keybind->key].repeated) {
+            if (strcmp(cmd, "STAY") != 0 && !cpl.fire_on && (keybind = keybind_find_by_command(cmd_orig)) && keys[keybind->key].repeated) {
                 move_keys(5);
             }
         }

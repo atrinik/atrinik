@@ -115,7 +115,7 @@ y 20
 end
 arch ladder_down
 msg
-<yellow>*** You hear a booming voice inside your head ***</yellow>
+[yellow]*** You hear a booming voice inside your head ***[/yellow]
 
 Are you up for Scursaur's challenge, adventurer?! Pass my maze, beware of the skulls, and I'll show you the land of dragons.
 endmsg

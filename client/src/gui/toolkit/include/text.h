@@ -212,7 +212,7 @@ enum
 typedef struct text_info_struct
 {
     /** Anchor tag position. */
-    char *anchor_tag;
+    const char *anchor_tag;
 
     /** Action anchor tag should execute. */
     char anchor_action[HUGE_BUF];

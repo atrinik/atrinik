@@ -705,14 +705,14 @@ void effect_debug(const char *type)
         bytes = ((uint64) sizeof(effect_sprite)) * num;
         kbytes = (double) bytes / 1024;
 
-        draw_info_format(COLOR_WHITE, "Visible sprites: <green>%d</green> using <green>%"FMT64U "</green> bytes (<green>%2.2f</green> KB)", num, bytes, kbytes);
+        draw_info_format(COLOR_WHITE, "Visible sprites: [green]%d[/green] using [green]%"FMT64U "[/green] bytes ([green]%2.2f[/green] KB)", num, bytes, kbytes);
     }
     else if (!strcmp(type, "sizeof")) {
         draw_info(COLOR_WHITE, "Information about various data structures used by effects:\n");
-        draw_info_format(COLOR_WHITE, "Size of a single sprite definition: <green>%"FMT64U "</green>", (uint64) sizeof(effect_sprite_def));
-        draw_info_format(COLOR_WHITE, "Size of a single visible sprite: <green>%"FMT64U "</green>", (uint64) sizeof(effect_sprite));
-        draw_info_format(COLOR_WHITE, "Size of a single effect structure: <green>%"FMT64U "</green>", (uint64) sizeof(effect_struct));
-        draw_info_format(COLOR_WHITE, "Size of a single overlay: <green>%"FMT64U "</green>", (uint64) sizeof(effect_overlay));
+        draw_info_format(COLOR_WHITE, "Size of a single sprite definition: [green]%"FMT64U "[/green]", (uint64) sizeof(effect_sprite_def));
+        draw_info_format(COLOR_WHITE, "Size of a single visible sprite: [green]%"FMT64U "[/green]", (uint64) sizeof(effect_sprite));
+        draw_info_format(COLOR_WHITE, "Size of a single effect structure: [green]%"FMT64U "[/green]", (uint64) sizeof(effect_struct));
+        draw_info_format(COLOR_WHITE, "Size of a single overlay: [green]%"FMT64U "[/green]", (uint64) sizeof(effect_overlay));
     }
     else {
         draw_info_format(COLOR_RED, "No such debug option '%s'.", type);

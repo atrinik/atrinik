@@ -163,10 +163,10 @@ static const Atrinik_Constant constants[] =
     {"PLAYER_EQUIP_LIGHT", PLAYER_EQUIP_LIGHT},
     {"PLAYER_EQUIP_RING_LEFT", PLAYER_EQUIP_RING_LEFT},
 
-    {"QUEST_TYPE_SPECIAL", QUEST_TYPE_SPECIAL},
     {"QUEST_TYPE_KILL", QUEST_TYPE_KILL},
-    {"QUEST_TYPE_KILL_ITEM", QUEST_TYPE_KILL_ITEM},
-    {"QUEST_TYPE_MULTI", QUEST_TYPE_MULTI},
+    {"QUEST_TYPE_ITEM", QUEST_TYPE_ITEM},
+    {"QUEST_TYPE_ITEM_DROP", QUEST_TYPE_ITEM_DROP},
+    {"QUEST_TYPE_SPECIAL", QUEST_TYPE_SPECIAL},
     {"QUEST_STATUS_COMPLETED", QUEST_STATUS_COMPLETED},
 
     {"PARTY_MESSAGE_STATUS", PARTY_MESSAGE_STATUS},
@@ -675,6 +675,10 @@ static int do_script(PythonContext *context, const char *filename)
     PyObject *dict, *ret;
     PyGILState_STATE gilstate;
 
+    if (filename == NULL) {
+        return 0;
+    }
+
     if (context->event && !hooks->map_path_isabs(filename)) {
         char *path;
         object *env;
@@ -682,6 +686,44 @@ static int do_script(PythonContext *context, const char *filename)
         env = hooks->get_env_recursive(context->event);
 
         path = hooks->map_get_path(env->map, filename, 0, NULL);
+        FREE_AND_COPY_HASH(context->event->race, path);
+        free(path);
+    }
+
+    if (context->event != NULL && hooks->string_endswith(filename, ".xml")) {
+        char *path;
+
+        if (hooks->string_endswith(filename, "quest.xml")) {
+            char *dirname, inf_filename[MAX_BUF];
+            const char *cp;
+            size_t i;
+
+            for (cp = context->who->name, i = 0; *cp != '\0'; cp++) {
+                if (i == sizeof(inf_filename) - 1) {
+                    break;
+                }
+
+                if (*cp == '_' || *cp == ' ' || isalpha(*cp) || isdigit(*cp)) {
+                    inf_filename[i] = *cp == ' ' ? '_' : tolower(*cp);
+                    i++;
+                }
+            }
+
+            inf_filename[i] = '\0';
+            strncat(inf_filename, ".py", sizeof(inf_filename) - i - 1);
+
+            dirname = hooks->path_dirname(filename);
+            path = hooks->path_join(dirname, inf_filename);
+            free(dirname);
+        }
+        else {
+            char *cp;
+
+            cp = hooks->string_sub(filename, 0, -3);
+            path = hooks->string_join("", cp, "py", NULL);
+            free(cp);
+        }
+
         FREE_AND_COPY_HASH(context->event->race, path);
         free(path);
     }
@@ -2500,7 +2542,13 @@ PyObject *generic_field_getter(fields_struct *field, void *ptr)
         case FIELDTYPE_CSTR:
         {
             char *str = *(char **) field_ptr;
-            return Py_BuildValue("s", str ? str : "");
+
+            if (str == NULL) {
+                Py_INCREF(Py_None);
+                return Py_None;
+            }
+
+            return Py_BuildValue("s", str);
         }
 
         case FIELDTYPE_CARY:

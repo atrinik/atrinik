@@ -87,7 +87,7 @@ static fields_struct fields[] =
     {"quick_pos", FIELDTYPE_UINT8, offsetof(object, quick_pos), 0, 0},
     {"quickslot", FIELDTYPE_UINT8, offsetof(object, quickslot), FIELDFLAG_READONLY, 0},
 
-    {"type", FIELDTYPE_UINT8, offsetof(object, type), 0, 0},
+    {"type", FIELDTYPE_UINT8, offsetof(object, type), FIELDFLAG_PLAYER_READONLY, 0},
     {"sub_type", FIELDTYPE_UINT8, offsetof(object, sub_type), 0, 0},
     {"item_quality", FIELDTYPE_UINT8, offsetof(object, item_quality), 0, 0},
     {"item_condition", FIELDTYPE_UINT8, offsetof(object, item_condition), 0, 0},
@@ -1593,6 +1593,7 @@ static PyObject *Object_GetAttribute(Atrinik_Object *obj, void *context)
 static int Object_SetAttribute(Atrinik_Object *obj, PyObject *value, void *context)
 {
     fields_struct *field = (fields_struct *) context;
+    int ret;
 
     OBJEXISTCHECK_INT(obj);
 
@@ -1600,8 +1601,27 @@ static int Object_SetAttribute(Atrinik_Object *obj, PyObject *value, void *conte
         INTRAISE("Trying to modify a field that is read-only for player objects.");
     }
 
-    if (generic_field_setter(field, obj->obj, value) == -1) {
+    if (obj->obj->map != NULL && (field->offset == offsetof(object, layer) || field->offset == offsetof(object, sub_layer))) {
+        hooks->object_remove(obj->obj, 0);
+    }
+
+    ret = generic_field_setter(field, obj->obj, value);
+
+    if (field->offset == offsetof(object, layer) || field->offset == offsetof(object, sub_layer)) {
+        obj->obj->layer = MAX(0, MIN(NUM_LAYERS, obj->obj->layer));
+        obj->obj->sub_layer = MAX(0, MIN(NUM_SUB_LAYERS - 1, obj->obj->sub_layer));
+
+        if (obj->obj->map != NULL) {
+            hooks->insert_ob_in_map(obj->obj, obj->obj->map, NULL, 0);
+        }
+    }
+
+    if (ret == -1) {
         return -1;
+    }
+
+    if (field->offset == offsetof(object, type) && obj->obj->type == PLAYER) {
+        obj->obj->type = MONSTER;
     }
 
     hooks->esrv_send_item(obj->obj);

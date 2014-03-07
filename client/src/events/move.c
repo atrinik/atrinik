@@ -61,17 +61,13 @@ void move_keys(int num)
     else {
         packet_struct *packet;
 
-        if (num == 5 && !cpl.run_on) {
+        if (num == 5) {
             packet = packet_new(SERVER_CMD_CLEAR, 0, 0);
             socket_send_packet(packet);
         }
         else {
-            if (num == 5) {
-                cpl.run_on = 0;
-            }
-
             packet = packet_new(SERVER_CMD_MOVE, 8, 0);
-            packet_append_uint8(packet, directions_fire[num - 1]);
+            packet_append_uint8(packet, num ? directions_fire[num - 1] : 0);
             packet_append_uint8(packet, cpl.run_on);
             socket_send_packet(packet);
         }

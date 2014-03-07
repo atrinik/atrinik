@@ -688,6 +688,7 @@ static int popup_event_func(popup_struct *popup, SDL_Event *event)
                 if (rm_def->tooltips[i].hidden < 1 && xpos >= rm_def->tooltips[i].x * (region_map_zoom / 100.0) && xpos <= (rm_def->tooltips[i].x + rm_def->tooltips[i].w) * (region_map_zoom / 100.0) && ypos >= rm_def->tooltips[i].y * (region_map_zoom / 100.0) && ypos <= (rm_def->tooltips[i].y + rm_def->tooltips[i].h) * (region_map_zoom / 100.0)) {
                     tooltip_create(event->motion.x, event->motion.y, FONT_ARIAL11, rm_def->tooltips[i].text);
                     tooltip_multiline(200);
+                    tooltip_enable_delay(100);
                     break;
                 }
             }

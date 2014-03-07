@@ -52,9 +52,9 @@ void draw_info_send(uint8 type, const char *name, const char *color, socket_stru
     packet_append_string_terminated(packet, color);
 
     if (name) {
-        packet_append_string(packet, "<a=#charname>");
+        packet_append_string(packet, "[a=#charname]");
         packet_append_string(packet, name);
-        packet_append_string(packet, "</a>: ");
+        packet_append_string(packet, "[/a]: ");
     }
 
     packet_append_string_terminated(packet, buf);

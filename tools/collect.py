@@ -26,6 +26,9 @@
 # Script to collect archetypes, artifacts, treasures, etc.
 
 import sys, os, getopt, shutil
+import xml.etree.ElementTree as ET
+from collections import OrderedDict
+import re
 
 # Adjust the recursion limit.
 sys.setrecursionlimit(50000)
@@ -122,6 +125,354 @@ def collect_artifacts():
         file_copy(file, artifacts)
 
     artifacts.close()
+
+def _collect_parts(file, parent, definition, npcs):
+    for part in parent.iterfind("part"):
+        if not "parts" in definition:
+            definition["parts"] = OrderedDict()
+
+        uid = re.sub(r"\W+", "", part.get("uid"))
+        part_def = {
+            "name": part.get("name", uid),
+            "message": "\n".join(message.text for message in part.iterfind("message")),
+        }
+
+        for attr in ["item", "kill"]:
+            elem = next(part.iterfind(attr), None)
+
+            if elem is not None:
+                part_def[attr] = elem.attrib
+
+                for attr2 in ["nrof", "keep"]:
+                    if attr2 in part_def[attr]:
+                        part_def[attr][attr2] = int(part_def[attr][attr2])
+
+        definition["parts"][uid] = part_def
+        _collect_parts(file, part, definition["parts"][uid], npcs)
+        _make_interface(file, part, npcs, uid)
+
+def _make_interface(file, parent, npcs, part_uid = None):
+    for interface in parent.findall("interface"):
+        npc = interface.get("npc")
+
+        if npc:
+            npc = re.sub(r"\W+", "", npc.lower().replace(" ", "_"))
+        else:
+            npc = os.path.basename(file)[:-4]
+
+        if not npc in npcs:
+            npcs[npc] = {
+                "code": "",
+                "quest_uid": None,
+                "import": [],
+                "preconds": OrderedDict(),
+            }
+
+        if parent.tag == "quest":
+            npcs[npc]["quest_uid"] = parent.get("uid")
+
+        state = interface.get("state")
+        inherit = interface.get("inherit")
+
+        if inherit and inherit.find(".") != -1 and not inherit in npcs[npc]["import"]:
+            npcs[npc]["import"].append(inherit)
+
+        if state == None:
+            dialog_uid = ""
+        else:
+            dialog_uid = "_" + state
+
+            if parent.tag == "part":
+                dialog_uid += "_" + parent.get("uid")
+
+        if inherit == None:
+            interface_inherit = "InterfaceBuilder"
+        elif inherit == "":
+            interface_inherit = "InterfaceDialog"
+        elif inherit.find(".") != -1:
+            interface_inherit = inherit[inherit.find(".") + 1:]
+        else:
+            interface_inherit = "InterfaceDialog_" + inherit
+
+        code = ""
+        code += "class InterfaceDialog{dialog_uid}({interface_inherit}):\n".format(**locals())
+
+        class_code = ""
+
+        for elem in interface:
+            if elem.tag in ("action", "precond"):
+                if elem.tag == "precond":
+                    if not elem.text:
+                        if not dialog_uid in npcs[npc]["preconds"]:
+                            npcs[npc]["preconds"][dialog_uid] = []
+
+                        npcs[npc]["preconds"][dialog_uid].append(elem)
+                        continue
+
+                    class_code += " " * 4 + "def precond(self):\n"
+
+                for line in elem.text.split("\n"):
+                    class_code += " " * 4 * (2 if elem.tag == "precond" else 1) + line.rstrip() + "\n"
+
+        regex_matchers = []
+
+        for dialog in interface.findall("dialog"):
+            dialog_name = dialog.get("name", "")
+            dialog_regex = dialog.get("regex")
+            dialog_prepend = ""
+
+            if dialog_name:
+                dialog_name = "_" + dialog_name.replace(" ", "_")
+                dialog_args = ""
+            else:
+                dialog_args = ", msg"
+
+            dialog_inherit = "self" if inherit == None else interface_inherit
+            dialog_inherit2 = "" if inherit == None else interface_inherit + "."
+            dialog_inherit_name = dialog.get("inherit")
+            dialog_inherit_name_prefix = ""
+            dialog_inherit_args = "" if inherit == None else "self"
+
+            if not dialog_inherit_name:
+                dialog_inherit_name = dialog_name
+            else:
+                if dialog_inherit_name.startswith("::"):
+                    dialog_inherit_name = dialog_inherit_name[2:]
+                    dialog_inherit_name_prefix = "sub"
+
+                dialog_inherit_name = "_" + dialog_inherit_name.replace(" ", "_")
+
+            dialog_inherit_code = " " * 4 * 2 + "{dialog_inherit}.{dialog_inherit_name_prefix}dialog{dialog_inherit_name}({dialog_inherit_args})\n".format(**locals())
+
+            if dialog_regex:
+                dialog_prepend = "regex_"
+                regex_matchers.append((dialog_regex, "{dialog_prepend}dialog{dialog_name}".format(**locals()) if dialog_name else "{dialog_inherit2}dialog{dialog_inherit_name}".format(**locals())))
+
+            if not dialog_regex or dialog_name:
+                class_code += " " * 4 + "def {dialog_prepend}dialog{dialog_name}(self{dialog_args}):\n".format(**locals())
+
+            if dialog.get("inherit") and dialog_name and len(dialog.findall("inherit")) == 0:
+                class_code += dialog_inherit_code
+
+            if dialog_regex and not dialog_name:
+                continue
+
+            for elem in dialog:
+                if elem.tag == "message":
+                    color = elem.get("color", "")
+
+                    if color:
+                        color = ", color = {}".format("\"{}\"".format(color[1:]) if color.startswith("#") else "COLOR_{}".format(color.upper()))
+
+                    class_code += " " * 4 * 2 + "self.add_msg(\"\"\"{elem.text}\"\"\"{color})\n".format(**locals())
+                elif elem.tag == "choice":
+                    if not "random.choice" in npcs[npc]["import"]:
+                        npcs[npc]["import"].append("random.choice")
+
+                    class_code += " " * 4 * 2 + "self.add_msg(choice([{msgs}]))\n".format(msgs = ", ".join("\"\"\"{elem.text}\"\"\"".format(elem = msg) for msg in elem.findall("message")))
+                elif elem.tag == "item":
+                    item_args = []
+
+                    for attr, attr2 in [("arch", "archname"), ("name", "name")]:
+                        val = elem.get(attr)
+
+                        if val:
+                            item_args.append("{attr2} = \"{val}\"".format(**locals()))
+
+                    item_args = ", ".join(item_args)
+
+                    class_code += " " * 4 * 2 + "self.add_objects(me.FindObject({item_args}))\n".format(**locals())
+                elif elem.tag == "inherit":
+                    class_code += dialog_inherit_code
+                elif elem.tag == "response":
+                    message = elem.get("message")
+                    link_args = ""
+
+                    for attr, attr2 in [("destination", "dest"), ("action", "action")]:
+                        val = elem.get(attr)
+
+                        if val:
+                            link_args += ", {attr2} = \"{val}\"".format(**locals())
+
+                    class_code += " " * 4 * 2 + "self.add_link(\"{message}\"{link_args})\n".format(**locals())
+                elif elem.tag == "action":
+                    if elem.text:
+                        for line in elem.text.split("\n"):
+                            class_code += " " * 4 * 2 + line.rstrip() + "\n"
+
+                    for attr in ["start", "complete", "region_map", "enemy"]:
+                        val = elem.get(attr)
+
+                        if not val:
+                            continue
+
+                        if attr == "region_map":
+                            class_code += " " * 4 * 2 + "self._activator.Controller().region_maps.append(\"{}\")\n".format(val)
+                        elif attr == "enemy":
+                            class_code += " " * 4 * 2 + "self._npc.enemy = {}\n".format("self._activator" if val == "player" else "None")
+                        else:
+                            split = val.split("::")
+
+                            if len(split) > 1:
+                                val = "[{}]".format(", ".join("\"{}\"".format(val) for val in split))
+                            else:
+                                val = "\"{}\"".format(val)
+
+                            class_code += " " * 4 * 2 + "self.qm.{attr}({val})\n".format(**locals())
+                elif elem.tag == "notification":
+                    if not "Packet.Notification" in npcs[npc]["import"]:
+                        npcs[npc]["import"].append("Packet.Notification")
+
+                    class_code += " " * 4 * 2 + "Notification(self._activator.Controller(), {}, {}, {}, {})\n".format(repr(elem.get("message")), repr(elem.get("action", None)), repr(elem.get("shortcut", None)), repr(int(elem.get("delay", 0))))
+                elif elem.tag == "close":
+                    class_code += " " * 4 * 2 + "self.dialog_close()\n"
+                elif elem.tag == "say":
+                    class_code += " " * 4 * 2 + "self._npc.Say({})\n".format(repr(elem.text))
+
+        matchers_code = ""
+
+        if regex_matchers:
+            matchers_code += " " * 4 + "matchers = ["
+
+            for expr, dest in regex_matchers:
+                matchers_code += "(r\"\"\"{expr}\"\"\", {dest}),".format(**locals())
+
+            matchers_code += "]\n"
+
+        class_code += matchers_code
+
+        if not class_code:
+            class_code += " " * 4 + "pass\n"
+
+        code += class_code
+
+        npcs[npc]["code"] += code
+
+def _dump_quest(definition, indent = 1, pretty = False):
+    s = "OrderedDict((" if type(definition) is OrderedDict else "{"
+
+    if pretty:
+        s += "\n"
+
+    for key in definition:
+        if pretty:
+            s += " " * 4 * indent
+
+        if type(definition) is OrderedDict:
+            s += "(\"{key}\", ".format(**locals())
+        else:
+            s += "\"{key}\": ".format(**locals())
+
+        if type(definition[key]) is str:
+            s += "\"{}\"".format(definition[key])
+        elif type(definition[key]) is int:
+            s += "{}".format(definition[key])
+        else:
+            s += _dump_quest(definition[key], indent + 1)
+
+        if type(definition) is OrderedDict:
+            s += ")"
+
+        s += ","
+
+        if pretty:
+            s += "\n"
+
+    if pretty:
+        s += " " * 4 * (indent - 1)
+
+    s += "))" if type(definition) is OrderedDict else "}"
+
+    return s
+
+def collect_quests():
+    quests = open(os.path.join(paths["maps"], "python", "InterfaceQuests.py"), "wb")
+
+    quests.write("from collections import OrderedDict\n")
+
+    for file in find_files(paths["maps"], ".xml"):
+        try:
+            tree = ET.parse(file)
+        except ET.ParseError as e:
+            print("Error parsing {}: {}".format(file, e))
+            continue
+
+        root = tree.getroot()
+
+        npcs = {}
+
+        _make_interface(file, root, npcs)
+
+        for quest in root.findall("quest"):
+            uid = re.sub(r"\W+", "", quest.get("uid"))
+            quest_def = {
+                "name": quest.get("name"),
+                "uid": uid,
+            }
+
+            for attr in ["repeat", "repeat_delay"]:
+                val = quest.get(attr)
+
+                if val:
+                    quest_def[attr] = int(val)
+
+            _make_interface(file, quest, npcs)
+            _collect_parts(file, quest, quest_def, npcs)
+
+            quests.write("{} = {}\n".format(uid, _dump_quest(quest_def)))
+
+        for npc in npcs:
+            fh = open(os.path.join(os.path.dirname(file), npc + ".py"), "wb+")
+
+            code = [npcs[npc]["code"]]
+
+            if npcs[npc]["quest_uid"]:
+                fh.write("from QuestManager import QuestManager\n")
+                fh.write("from InterfaceQuests import {}\n".format(npcs[npc]["quest_uid"]))
+
+            for key in npcs[npc]["import"]:
+                fh.write("from {} import {}\n".format(*key.split(".")))
+
+            fh.write("from Interface import InterfaceBuilder\n")
+            fh.write(npcs[npc]["code"])
+            fh.write("ib = InterfaceBuilder(activator, me)\n")
+
+            if npcs[npc]["quest_uid"]:
+                fh.write("ib.set_quest(QuestManager(activator, {}))\n".format(npcs[npc]["quest_uid"]))
+
+            if npcs[npc]["preconds"]:
+                fh.write("def preconds(self):\n")
+
+                for i, dialog in enumerate(npcs[npc]["preconds"]):
+                    fh.write(" " * 4 + ("if " if i == 0 else "elif "))
+
+                    for i, elem in enumerate(npcs[npc]["preconds"][dialog]):
+                        if i != 0:
+                            fh.write(" " + elem.get("operator", "and") + " ")
+
+                        if "region_map" in elem.attrib:
+                            fh.write("{} in self._activator.Controller().region_maps".format(repr(elem.attrib["region_map"])))
+                        elif "enemy" in elem.attrib:
+                            fh.write("self._npc.enemy")
+
+                            if elem.attrib["enemy"]:
+                                fh.write(" == ")
+
+                                if elem.attrib["enemy"] == "player":
+                                    fh.write("self._activator")
+                        else:
+                            fh.write("True")
+
+                    fh.write(":\n")
+                    fh.write(" " * 4 * 2 + "self.dialog = \"InterfaceDialog{dialog}\"\n".format(**locals()))
+
+                fh.write("ib.preconds = preconds\n");
+
+            fh.write("ib.finish(locals(), msg)\n")
+
+            fh.close()
+
+    quests.close()
 
 # Print usage.
 def usage():

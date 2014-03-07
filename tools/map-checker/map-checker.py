@@ -447,7 +447,7 @@ def check_obj_msg(msg):
 
     test_msg = re.sub(r"<(\/?[a-z_]+)([^>]*)>", r"\1\2", msg)
 
-    if test_msg.find("<") != -1 or test_msg.find(">") != -1:
+    if test_msg.find("[") != -1 or test_msg.find("]") != -1:
         errors.append("unescaped-markup")
 
     for line in msg.split("\n"):
@@ -654,6 +654,9 @@ def check_obj(obj, map):
         if "race" in obj:
             if obj["race"].startswith("..") and obj["race"].find("/python") != -1:
                 add_error(map["file"], "Event object '{0}' is using a relative path to point to the global /python directory.".format(obj["archname"]), errors.warning, env["x"], env["y"])
+
+            if obj["race"].startswith("/") and not os.path.isfile(os.path.join(os.path.dirname(__file__), path) + obj["race"]):
+                add_error(map["file"], "Event object '{0}' has a path that doesn't exist.".format(obj["archname"]), errors.warning, env["x"], env["y"])
 
     if obj["type"] == types.beacon:
         if not "name" in obj:
@@ -1530,9 +1533,9 @@ if not cli:
             envs = dict(os.environ)
             delimiter = ";" if sys.platform.startswith("win") else ":"
             # Extend the PATH environment variable with the script's dir.
-            envs["PATH"] += delimiter + os.path.dirname(__file__)
+            envs["PATH"] += delimiter + os.path.abspath(os.path.dirname(__file__))
             # Execute Gridarta.
-            subprocess.Popen(["java", "-jar", os.path.realpath(arch_dir + "/../editor/AtrinikEditor.jar")] + maps, env = envs)
+            subprocess.Popen(["java", "-jar", os.path.realpath(arch_dir + "/../editor/AtrinikEditor.jar")] + maps, env = envs, cwd = os.path.realpath(arch_dir + "/../editor"))
 
         # The save button. Will save output in the tree view to file.
         def save_button(self, b):

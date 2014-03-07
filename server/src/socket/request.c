@@ -580,9 +580,9 @@ static const char *get_playername_color(object *pl, object *op)
 
 void packet_append_map_name(packet_struct *packet, object *op, object *map_info)
 {
-    packet_append_string(packet, "<b><o=0,0,0>");
+    packet_append_string(packet, "[b][o=#000000]");
     packet_append_string(packet, map_info && map_info->race ? map_info->race : op->map->name);
-    packet_append_string_terminated(packet, "</o></b>");
+    packet_append_string_terminated(packet, "[/o][/b]");
 }
 
 void packet_append_map_music(packet_struct *packet, object *op, object *map_info)
@@ -1151,7 +1151,7 @@ void draw_client_map2(object *pl)
 
 void socket_command_quest_list(socket_struct *ns, player *pl, uint8 *data, size_t len, size_t pos)
 {
-    object *quest_container, *tmp;
+    object *quest_container, *tmp, *tmp2, *last;
     StringBuffer *sb;
     packet_struct *packet;
     char *cp;
@@ -1161,13 +1161,13 @@ void socket_command_quest_list(socket_struct *ns, player *pl, uint8 *data, size_
 
     if (!quest_container || !quest_container->inv) {
         packet = packet_new(CLIENT_CMD_BOOK, 0, 0);
-        packet_append_string_terminated(packet, "<title>No quests to speak of.</title>");
+        packet_append_string_terminated(packet, "[title]No quests to speak of.[/title]");
         socket_send_packet(&pl->socket, packet);
         return;
     }
 
     sb = stringbuffer_new();
-    stringbuffer_append_string(sb, "<book=Quest List><title>Incomplete quests:</title>\n");
+    stringbuffer_append_string(sb, "[book]Quest List[/book][title]Incomplete quests:[/title]\n");
 
     /* First show incomplete quests */
     for (tmp = quest_container->inv; tmp; tmp = tmp->below) {
@@ -1175,44 +1175,35 @@ void socket_command_quest_list(socket_struct *ns, player *pl, uint8 *data, size_
             continue;
         }
 
-        stringbuffer_append_printf(sb, "\n<title>%s</title>\n%s%s", tmp->name, tmp->msg ? tmp->msg : "", tmp->msg ? "\n" : "");
+        stringbuffer_append_printf(sb, "\n[title]%s[/title]", tmp->race);
 
-        if (tmp->sub_type == QUEST_TYPE_MULTI) {
-            object *tmp2, *last;
-
-            /* Find the last entry. */
-            for (last = tmp->inv; last && last->below; last = last->below) {
-            }
-
-            /* Show the quest parts. */
-            for (tmp2 = last; tmp2; tmp2 = tmp2->above) {
-                if (tmp2->msg) {
-                    stringbuffer_append_printf(sb, "\n- %s", tmp2->msg);
-
-                    if (tmp2->magic == QUEST_STATUS_COMPLETED) {
-                        stringbuffer_append_string(sb, " [done]");
-                    }
-                }
-
-                switch (tmp2->sub_type) {
-                    case QUEST_TYPE_KILL:
-                        stringbuffer_append_printf(sb, "\n<x=10>Status: %d/%d", MIN(tmp2->last_sp, tmp2->last_grace), tmp2->last_grace);
-                        break;
-                }
-            }
-
-            stringbuffer_append_string(sb, "\n");
+        /* Find the last entry. */
+        for (last = tmp->inv; last && last->below; last = last->below) {
         }
-        else {
-            switch (tmp->sub_type) {
+
+        /* Show the quest parts. */
+        for (tmp2 = last; tmp2; tmp2 = tmp2->above) {
+            stringbuffer_append_printf(sb, "\n[b]%s[/b]", tmp2->race);
+
+            if (tmp2->msg) {
+                stringbuffer_append_printf(sb, ": %s", tmp2->msg);
+
+                if (tmp2->magic == QUEST_STATUS_COMPLETED) {
+                    stringbuffer_append_string(sb, " [done]");
+                }
+            }
+
+            switch (tmp2->sub_type) {
                 case QUEST_TYPE_KILL:
-                    stringbuffer_append_printf(sb, "Status: %d/%d\n", MIN(tmp->last_sp, tmp->last_grace), tmp->last_grace);
+                    stringbuffer_append_printf(sb, "\n[x=10]Status: %d/%d", MIN(tmp2->last_sp, tmp2->last_grace), tmp2->last_grace);
                     break;
             }
         }
+
+        stringbuffer_append_string(sb, "\n");
     }
 
-    stringbuffer_append_string(sb, "<p>\n<title>Completed quests:</title>\n");
+    stringbuffer_append_string(sb, "[p]\n[title]Completed quests:[/title]\n");
 
     /* Now show completed quests */
     for (tmp = quest_container->inv; tmp; tmp = tmp->below) {
@@ -1220,7 +1211,7 @@ void socket_command_quest_list(socket_struct *ns, player *pl, uint8 *data, size_
             continue;
         }
 
-        stringbuffer_append_printf(sb, "\n<title>%s</title>\n%s%s", tmp->name, tmp->msg ? tmp->msg : "", tmp->msg ? "\n" : "");
+        stringbuffer_append_printf(sb, "\n[title]%s[/title]", tmp->race);
     }
 
     cp_len = stringbuffer_length(sb);

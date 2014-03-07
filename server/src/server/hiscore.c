@@ -161,7 +161,7 @@ static int get_score(char *bp, score *sc)
 static char *draw_one_high_score(const score *sc, char *buf, size_t size)
 {
     if (sc->killer[0] == '\0') {
-        snprintf(buf, size, "<green>%3d</green> %s <green>%s</green> the %s (%s) <%d><%d>.", sc->position, string_format_number_comma(sc->exp), sc->name, sc->title, sc->maplevel, sc->maxhp, sc->maxsp);
+        snprintf(buf, size, "[green]%3d[/green] %s [green]%s[/green] the %s (%s) <%d><%d>.", sc->position, string_format_number_comma(sc->exp), sc->name, sc->title, sc->maplevel, sc->maxhp, sc->maxsp);
     }
     else {
         const char *s1, *s2;
@@ -175,7 +175,7 @@ static char *draw_one_high_score(const score *sc, char *buf, size_t size)
             s2 = sc->killer;
         }
 
-        snprintf(buf, size, "<green>%3d</green> %s <green>%s</green> the %s %s %s on map %s <%d><%d>.", sc->position, string_format_number_comma(sc->exp), sc->name, sc->title, s1, s2, sc->maplevel, sc->maxhp, sc->maxsp);
+        snprintf(buf, size, "[green]%3d[/green] %s [green]%s[/green] the %s %s %s on map %s <%d><%d>.", sc->position, string_format_number_comma(sc->exp), sc->name, sc->title, s1, s2, sc->maplevel, sc->maxhp, sc->maxsp);
     }
 
     return buf;

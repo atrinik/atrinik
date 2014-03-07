@@ -136,15 +136,17 @@ static void textwin_tab_append(widgetdata *widget, uint8 id, uint8 type, const c
         timelen = strftime(tmptimebuf, sizeof(tmptimebuf), format, tm);
 
         if (timelen != 0) {
-            snprintf(timebuf, sizeof(timebuf), "[%s] ", tmptimebuf);
+            snprintf(timebuf, sizeof(timebuf), "&lsqb;%s&rsqb; ", tmptimebuf);
         }
     }
 
     if (textwin->tabs[id].type == CHAT_TYPE_ALL) {
-        snprintf(tabname, sizeof(tabname), "%s ", textwin_tab_names[type - 1]);
+        cp = text_escape_markup(textwin_tab_names[type - 1]);
+        snprintf(tabname, sizeof(tabname), "%s ", cp);
+        free(cp);
     }
 
-    cp = string_join("", "<c=#", color, " 1>", timebuf, tabname, str, "\n", NULL);
+    cp = string_join("", "[c=#", color, " 1]", timebuf, tabname, str, "\n", NULL);
     len = strlen(cp);
     /* Resize the characters array as needed. */
     textwin->tabs[id].entries = realloc(textwin->tabs[id].entries, textwin->tabs[id].entries_size + len + 1);
@@ -284,7 +286,7 @@ void textwin_tab_add(widgetdata *widget, const char *name)
 
     button_create(&textwin->tabs[textwin->tabs_num].button);
     wd = text_get_width(textwin->tabs[textwin->tabs_num].button.font, TEXTWIN_TAB_NAME(&textwin->tabs[textwin->tabs_num]), 0) + 10;
-    snprintf(buf, sizeof(buf), "rectangle:%d,20,255;<border=widget_border %d 20>", wd, wd);
+    snprintf(buf, sizeof(buf), "rectangle:%d,20,255;[border=widget_border %d 20]", wd, wd);
     textwin->tabs[textwin->tabs_num].button.texture = texture_get(TEXTURE_TYPE_SOFTWARE, buf);
     textwin->tabs[textwin->tabs_num].button.texture_over = textwin->tabs[textwin->tabs_num].button.texture_pressed = NULL;
 
@@ -1089,13 +1091,13 @@ static void menu_textwin_players_one(widgetdata *widget, widgetdata *menuitem, S
 
             cp = string_sub(label->text, 0, -3);
 
-            snprintf(buf, sizeof(buf), "<a=#buddy:%s>%s</a>", cp, widget_buddy_check(widget_find(NULL, BUDDY_ID, "buddy", NULL), cp) == -1 ? "Add Buddy" : "Remove Buddy");
+            snprintf(buf, sizeof(buf), "[a=#buddy:%s]%s[/a]", cp, widget_buddy_check(widget_find(NULL, BUDDY_ID, "buddy", NULL), cp) == -1 ? "Add Buddy" : "Remove Buddy");
             add_menuitem(submenu, buf, &menu_textwin_players_one_tab, MENU_NORMAL, 0);
 
-            snprintf(buf, sizeof(buf), "<a=#opentab:%s>Open Tab</a>", cp);
+            snprintf(buf, sizeof(buf), "[a=#opentab:%s]Open Tab[/a]", cp);
             add_menuitem(submenu, buf, &menu_textwin_players_one_tab, MENU_NORMAL, 0);
 
-            snprintf(buf, sizeof(buf), "<a=#ignore:%s>%s</a>", cp, widget_buddy_check(widget_find(NULL, BUDDY_ID, "ignore", NULL), cp) == -1 ? "Ignore" : "Unignore");
+            snprintf(buf, sizeof(buf), "[a=#ignore:%s]%s[/a]", cp, widget_buddy_check(widget_find(NULL, BUDDY_ID, "ignore", NULL), cp) == -1 ? "Ignore" : "Unignore");
             add_menuitem(submenu, buf, &menu_textwin_players_one_tab, MENU_NORMAL, 0);
 
             free(cp);

@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<interfaces>
+    <interface>
+        <dialog name="hello">
+            <message>Welcome to Charob Beer Inc.</message>
+            <message>I'm {npc.name}, the president and founder of Charob Beer Inc.!</message>
+            <message>We produce the world famous Charob Beer, although for some reason my shipments haven't been going out on time, and I have my suspicions about a certain lazy worker...</message>
+            <response message="Tell me more about Charob Beer." destination="tellcharob" />
+            <response message="Lazy worker?" destination="lazyworker" />
+        </dialog>
+        <dialog name="tellcharob">
+            <message>We make it with my secret family recipe.</message>
+            <response message="It tastes great." destination="tastesgreat" />
+            <response message="It stinks." destination="tastesbad" />
+        </dialog>
+        <dialog name="lazyworker">
+            <message>I suspect that it's that no good Steve Bruck.</message>
+        </dialog>
+        <dialog name="tastesgreat">
+            <message>I'm glad you like it!</message>
+        </dialog>
+        <dialog name="tastesbad">
+            <message>If you don't like it, go drink some slime!</message>
+        </dialog>
+    </interface>
+</interfaces>

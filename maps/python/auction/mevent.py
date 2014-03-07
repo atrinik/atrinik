@@ -51,6 +51,6 @@ def main():
         if not seller:
             return
 
-        pl.DrawInfo("<green>Auction House Information</green>:\nPrice: {} (each)\nSeller: {}".format(CostString(int(other.ReadKey("auction_house_value"))), seller), COLOR_WHITE)
+        pl.DrawInfo("[green]Auction House Information[/green]:\nPrice: {} (each)\nSeller: {}".format(CostString(int(other.ReadKey("auction_house_value"))), seller), COLOR_WHITE)
 
 main()

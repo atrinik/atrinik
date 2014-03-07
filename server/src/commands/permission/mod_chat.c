@@ -46,7 +46,7 @@ void command_mod_chat(object *op, const char *command, char *params)
 
     for (pl = first_player; pl; pl = pl->next) {
         if (commands_check_permission(pl, command)) {
-            snprintf(name, sizeof(name), "[Moderator] (<a=#charname>%s</a>)", op->name);
+            snprintf(name, sizeof(name), "[Moderator] ([a=#charname]%s[/a])", op->name);
         }
         else {
             strncpy(name, "[Moderator]", sizeof(name) - 1);

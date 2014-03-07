@@ -1,218 +1,182 @@
-## @file
-## Generic code for implementing temples.
+"""Temple.py: Implements temple-related functions."""
 
 from Atrinik import *
+from collections import OrderedDict
+from Interface import InterfaceBuilder
 
-## A base temple object.
-class BaseTemple:
-    ## Name of the enemy god.
-    _enemy_name = None
-    ## Description about the enemy god that will be shown when asked about
-    ## the enemy god.
-    _enemy_desc = None
+temple_services = OrderedDict((
+    ("remove curse", [
+        3000,
+        "Removal of curse from all cursed items",
+        "I will remove any curse from all cursed items in your inventory. Note that the curse may still come back, if the item is permanently cursed...",
+    ]),
+    ("remove damnation", [
+        5000,
+        "Removal of damnation from all damned items",
+        "I will remove any damnation from all damned items in your inventory. Note that the damnation may still come back, if the item is permanently damned...",
+    ]),
+    ("cure disease", [
+        1000,
+        "Curing of disease",
+        "I can attempt to cure any disease that is troubling you.",
+    ]),
+    ("cure poison", [
+        500,
+        "Curing of poison",
+        "I can heal your poisoning, if you wish.",
+    ]),
+    ("food", [
+        0,
+        "Spare bit of food",
+    ]),
+))
 
-    ## The initializer.
-    ## @param activator Who activated the script.
-    ## @param me The event owner.
-    ## @param inf Interface to use.
-    def __init__(self, activator, me, inf):
-        self.hello_msg = None
+class Temple(InterfaceBuilder):
+    """Temple interface builder."""
 
-        self._activator = activator
-        self._me = me
-        self._inf = inf
+    enemy_temple_name = None
+    enemy_temple_desc = None
 
-        # Initialize default services.
-        #
-        # List entry meanings:
-        # - The amount of money required to pay for the service.
-        # - Row order. The highest will be as the first service, while
-        #   the lowest will be the last service.
-        # - Name of the service, as it appears in the links
-        # - Explanation of the service.
-        self.services = {
-            "remove curse": [
-                3000,
-                20,
-                "Removal of curse from all cursed items",
-                "I will remove any curse from all cursed items in your inventory. Note that the curse may still come back, if the item is permanently cursed...",
-            ],
-            "remove damnation": [
-                5000,
-                15,
-                "Removal of damnation from all damned items",
-                "I will remove any damnation from all damned items in your inventory. Note that the damnation may still come back, if the item is permanently damned...",
-            ],
-            "cure disease": [
-                self._activator.level * 40,
-                10,
-                "Curing of disease",
-                "I can attempt to cure any disease that is troubling you.",
-            ],
-            "cure poison": [
-                self._activator.level * 5,
-                5,
-                "Curing of poison",
-                "I can heal your poisoning, if you wish.",
-            ],
-            "food": [
-                0,
-                0,
-                "Spare bit of food",
-            ],
-        }
+    def subdialog_services(self):
+        """Show the available temple services."""
 
-    ## Handle chat.
-    ## @param msg The message that activated the chat.
-    ## @return True if the chat was handled, False otherwise.
-    def handle_chat(self, msg):
-        if msg == "hello":
-            self._inf.add_msg("Welcome to the church of {0}. I am {1}, a devoted servant of {0}.".format(self._name, self._me.name))
+        for service in temple_services:
+            self.add_link(temple_services[service][1], dest = service)
 
-            if self._enemy_name:
-                self._inf.add_msg("Beware that followers of {} are not welcome here.".format(self._enemy_name))
+        self.add_link("Tell me about {}.".format(self.temple_name), dest = self.temple_name)
 
-            # Custom message to say before services.
-            if self.hello_msg:
-                self._inf.add_msg(self.hello_msg)
+        if self.enemy_temple_name:
+            self.add_link("Tell me about {}.".format(self.enemy_temple_name), dest = self.enemy_temple_name)
 
-            # Sort the services.
-            services = sorted(self.services, key = lambda key: self.services[key][1], reverse = True)
+    def dialog_hello(self):
+        """Default hello dialog handler."""
 
-            if services:
-                self._inf.add_msg("I can offer you the following services.")
+        self.add_msg("Welcome to the church of {god}. I am {npc.name}, a devoted servant of {god}.", god = self.temple_name)
 
-                for service in services:
-                    self._inf.add_link(self.services[service][2], dest = service)
+        if self.enemy_temple_name:
+            self.add_msg("Beware that followers of {enemy_god} are not welcome here.", enemy_god = self.enemy_temple_name)
 
-            self._inf.add_link("Tell me about {}.".format(self._name), dest = self._name)
+        self.add_msg("I can offer you the following services.")
+        self.subdialog_services()
 
-            if self._enemy_name:
-                self._inf.add_link("Tell me about {}.".format(self._enemy_name), dest = self._enemy_name)
+    def dialog(self, msg):
+        """Handle services and speaking about particular gods."""
 
-            return True
-        # Explain about the temple's god.
-        elif msg == self._name:
-            self._inf.add_msg(self._desc)
-            return True
-        # Explain about the temple's enemy god, if there is one.
-        elif self._enemy_name and msg == self._enemy_name:
-            self._inf.add_msg(self._enemy_desc)
-            return True
-
-        is_buy = False
-
-        if msg.startswith("buy "):
-            msg = msg[4:]
-            is_buy = True
-
-        service = self.services.get(msg)
-
-        # No such service...
-        if not service:
-            return False
-
-        if msg == "food":
-            if self._activator.food < 500:
-                self._activator.food = 500
-                self._inf.add_msg("Your stomach is filled again.")
-            else:
-                self._inf.add_msg("You don't look very hungry to me...")
+        if msg == self.temple_name:
+            self.add_msg(self.temple_desc)
+        elif msg == self.enemy_temple_name:
+            self.add_msg(self.enemy_temple_desc)
         else:
-            self._inf.add_msg("<title>{}</title>".format(service[2]))
-
-            if not is_buy:
-                self._inf.add_msg(service[3])
-                self._inf.add_msg("This will cost you {}.".format(CostString(service[0])))
-                self._inf.add_link("Confirm", dest = "buy " + msg)
+            if msg.startswith("buy "):
+                msg = msg[4:]
+                is_buy = True
             else:
-                if self._activator.PayAmount(service[0]):
-                    if service[0]:
-                        self._inf.add_msg("You pay {}.".format(CostString(service[0])), COLOR_YELLOW)
+                is_buy = False
 
-                    self._inf.add_msg("Okay, I will cast <green>{}</green> on you now.".format(msg))
-                    self._me.Cast(GetArchetype("spell_" + msg.replace(" ", "_")).clone.sp, self._activator)
+            service = temple_services.get(msg)
+
+            if not service:
+                return
+
+            if msg == "food":
+                if self._activator.food < 500:
+                    self._activator.food = 500
+                    self.add_msg("Your stomach is filled again.")
                 else:
-                    self._inf.add_msg("You do not have enough money...")
+                    self.add_msg("You don't look very hungry to me...")
+            else:
+                self.add_msg("[title]{service[1]}[/title]", service = service)
 
-        return True
+                if not is_buy:
+                    self.add_msg(service[2])
+                    self.add_msg("This will cost you {cost}.", cost = CostString(service[0]))
+                    self.add_link("Confirm", dest = "buy " + msg)
+                else:
+                    if self._activator.PayAmount(service[0]):
+                        if service[0]:
+                            self.add_msg("You pay {cost}.", cost = CostString(service[0]), color = COLOR_YELLOW)
 
-## Grunhilde.
-class TempleGrunhilde(BaseTemple):
-    _name = "Grunhilde"
-    _desc = "I am a servant of the Valkyrie Queen and the Goddess of Victory, Grunhilde."
+                        self.add_msg("Okay, I will cast [green]{origmsg}[/green] on you now.", origmsg = msg)
+                        self._npc.Cast(GetArchetype("spell_" + msg.replace(" ", "_")).clone.sp, self._activator)
+                    else:
+                        self.add_msg("You do not have enough money...")
 
-## Dalosha.
-class TempleDalosha(BaseTemple):
-    _name = "Dalosha"
-    _desc = "I am a servant of the first Queen of the Drow and Spider Goddess, Dalosha."
-    _enemy_name = "Tylowyn"
-    _enemy_desc = "The high elves and their oppressive queen! Do not be swayed by her traps, she started the war with her attempt to enforce proper elven conduct in war. Tylowyn was too cowardly and weak to realize that it was our destiny to rule the world, so now she and her elves shall also perish!"
+class TempleGrunhilde(Temple):
+    """Grunhilde temple."""
+    temple_name = "Grunhilde"
+    temple_desc = "I am a servant of the Valkyrie Queen and the Goddess of Victory, Grunhilde."
 
-## Drolaxi.
-class TempleDrolaxi(BaseTemple):
-    _name = "Drolaxi"
-    _desc = "I am a servant of Queen of the Chaotic Seas and the Goddess of Water, Drolaxi."
-    _enemy_name = "Shaligar"
-    _enemy_desc = "Flames and terror does he seek to spread. Do not be deceived, although the flame be kin to the Lady, he is complerely mad. Avoid the scorching flames or they will consume you. We shall rule the world and all shall be seas!"
+class TempleDalosha(Temple):
+    """Dalosha temple."""
+    temple_name = "Dalosha"
+    temple_desc = "I am a servant of the first Queen of the Drow and Spider Goddess, Dalosha."
+    enemy_temple_name = "Tylowyn"
+    enemy_temple_desc = "The high elves and their oppressive queen! Do not be swayed by her traps, she started the war with her attempt to enforce proper elven conduct in war. Tylowyn was too cowardly and weak to realize that it was our destiny to rule the world, so now she and her elves shall also perish!"
 
-## Grumthar.
-class TempleGrumthar(BaseTemple):
-    _name = "Grumthar"
-    _desc = "I am a servant of the First Dwarven Lord and the God of Smithery, Grumthar."
-    _enemy_name = "Jotarl"
-    _enemy_desc = "Do not be speaking of that Giant tyrant amongst us. Him and his giants have long sought to crush the little folk. He has those goblin vermin under his wing also."
+class TempleDrolaxi(Temple):
+    """Drolaxi temple."""
+    temple_name = "Drolaxi"
+    temple_desc = "I am a servant of Queen of the Chaotic Seas and the Goddess of Water, Drolaxi."
+    enemy_temple_name = "Shaligar"
+    enemy_temple_desc = "Flames and terror does he seek to spread. Do not be deceived, although the flame be kin to the Lady, he is complerely mad. Avoid the scorching flames or they will consume you. We shall rule the world and all shall be seas!"
 
-## Jotarl.
-class TempleJotarl(BaseTemple):
-    _name = "Jotarl"
-    _desc = "I am a servant of the Titan King and the God of the Giants, Jotarl."
-    _enemy_name = "Grumthar"
-    _enemy_desc = "Puny dwarves do not scare Jotarl with their technology and mithril weapons, we shall rule the caves! The Dwarves shall fall and we shall claim their gold for ourselves."
+class TempleGrumthar(Temple):
+    """Grumthar temple."""
+    temple_name = "Grumthar"
+    temple_desc = "I am a servant of the First Dwarven Lord and the God of Smithery, Grumthar."
+    enemy_temple_name = "Jotarl"
+    enemy_temple_desc = "Do not be speaking of that Giant tyrant amongst us. Him and his giants have long sought to crush the little folk. He has those goblin vermin under his wing also."
 
-## Moroch.
-class TempleMoroch(BaseTemple):
-    _name = "Moroch"
-    _desc = "I am a servant of the Lord of the Grave and King of Undeath, Moroch."
-    _enemy_name = "Terria"
-    _enemy_desc = "Do you honestly believe the lies of those naturists? The powers of undeath will rule the universe and the servants of Nature will fail. The Dark Lord shall not fail to dominate the land and all be consumed in glorious Death."
+class TempleJotarl(Temple):
+    """Jotarl temple."""
+    temple_name = "Jotarl"
+    temple_desc = "I am a servant of the Titan King and the God of the Giants, Jotarl."
+    enemy_temple_name = "Grumthar"
+    enemy_temple_desc = "Puny dwarves do not scare Jotarl with their technology and mithril weapons, we shall rule the caves! The Dwarves shall fall and we shall claim their gold for ourselves."
 
-## Rashindel.
-class TempleRashindel(BaseTemple):
-    _name = "Rashindel"
-    _desc = "I am a servant of the Demonic King and the Overlord of Hell, Rashindel."
-    _enemy_name = "Tabernacle"
-    _enemy_desc = "Accursed fool, do not mention that name in our presence! In the days before this world, the Tyrant sought to oppress us with the his oppressive ideals of truth and justice. After our master freed us from the simpleton lots who follow him, he was bound into the darkness which is now our glorious kingdom."
+class TempleMoroch(Temple):
+    """Moroch temple."""
+    temple_name = "Moroch"
+    temple_desc = "I am a servant of the Lord of the Grave and King of Undeath, Moroch."
+    enemy_temple_name = "Terria"
+    enemy_temple_desc = "Do you honestly believe the lies of those naturists? The powers of undeath will rule the universe and the servants of Nature will fail. The Dark Lord shall not fail to dominate the land and all be consumed in glorious Death."
 
-## Rogroth.
-class TempleRogroth(BaseTemple):
-    _name = "Rogroth"
-    _desc = "I am a servant of the King of the Stormy Skies and the God of Lightning, Rogroth."
+class TempleRashindel(Temple):
+    """Rashindel temple."""
+    temple_name = "Rashindel"
+    temple_desc = "I am a servant of the Demonic King and the Overlord of Hell, Rashindel."
+    enemy_temple_name = "Tabernacle"
+    enemy_temple_desc = "Accursed fool, do not mention that name in our presence! In the days before this world, the Tyrant sought to oppress us with the his oppressive ideals of truth and justice. After our master freed us from the simpleton lots who follow him, he was bound into the darkness which is now our glorious kingdom."
 
-## TempleShaligar.
-class TempleShaligar(BaseTemple):
-    _name = "Shaligar"
-    _desc = "I am a servant of King of the Lava and the God of Flame, Shaligar."
-    _enemy_name = "Drolaxi"
-    _enemy_desc = "Ah, the weak and cowardly sister of the Flame Lord. One day, she shall no longer be able to keep our flames from consuming all things and our flames shall make all subjects to our will."
+class TempleRogroth(Temple):
+    """Rogroth temple."""
+    temple_name = "Rogroth"
+    temple_desc = "I am a servant of the King of the Stormy Skies and the God of Lightning, Rogroth."
 
-## Tabernacle.
-class TempleTabernacle(BaseTemple):
-    _name = "Tabernacle"
-    _desc = "I am a servant of the God of Light and King of the Angels, Tabernacle."
-    _enemy_name = "Rashindel"
-    _enemy_desc = "Caution child, for you speak of the Fallen One. In the days before the worlds were created by our Lord Tabernacle, the archangel Rashindel stood at his right hand. In that day, however, Rashindel sought to claim the throne of Heaven and unseat the Mighty Tabernacle. The Demon King was quickly defeated and banished to Hell with the angels he managed to deceive and they were transformed into the awful demons and devils which threaten the lands to this day."
+class TempleShaligar(Temple):
+    """Shaligar temple."""
+    temple_name = "Shaligar"
+    temple_desc = "I am a servant of King of the Lava and the God of Flame, Shaligar."
+    enemy_temple_name = "Drolaxi"
+    enemy_temple_desc = "Ah, the weak and cowardly sister of the Flame Lord. One day, she shall no longer be able to keep our flames from consuming all things and our flames shall make all subjects to our will."
 
-## Terria.
-class TempleTerria(BaseTemple):
-    _name = "Terria"
-    _desc = "I am a servant of Mother Earth and the Goddess of Life, Terria."
-    _enemy_name = "Moroch"
-    _enemy_desc = "Speak not of the Dark Lord here! The King of Death with his awful necromantic minions that rise from the sleep of death are not to be trifled with, for they are dangerous. Our Lady has long sought to remove the plague of death from the lands after that foul Lich ascended."
+class TempleTabernacle(Temple):
+    """Tabernacle temple."""
+    temple_name = "Tabernacle"
+    temple_desc = "I am a servant of the God of Light and King of the Angels, Tabernacle."
+    enemy_temple_name = "Rashindel"
+    enemy_temple_desc = "Caution child, for you speak of the Fallen One. In the days before the worlds were created by our Lord Tabernacle, the archangel Rashindel stood at his right hand. In that day, however, Rashindel sought to claim the throne of Heaven and unseat the Mighty Tabernacle. The Demon King was quickly defeated and banished to Hell with the angels he managed to deceive and they were transformed into the awful demons and devils which threaten the lands to this day."
 
-## Tylowyn.
-class TempleTylowyn(BaseTemple):
-    _name = "Tylowyn"
-    _desc = "I am a servant of the first Queen of Elven Kind and Elven Goddess of Luck, Tylowyn."
-    _enemy_name = "Dalosha"
-    _enemy_desc = "That rebellious heretic! In the days of the First Elven Kings, the first daughter of our gracious Tylowyn sought to overthrow the Elven Kingdoms with her lies and treachery. After she was routed from the Elven lands, she took her band of rebel dark elves and hid in the caves, but unfortunately managed to survive there. Avoid those drow if you know what is best for you."
+class TempleTerria(Temple):
+    """Terria temple."""
+    temple_name = "Terria"
+    temple_desc = "I am a servant of Mother Earth and the Goddess of Life, Terria."
+    enemy_temple_name = "Moroch"
+    enemy_temple_desc = "Speak not of the Dark Lord here! The King of Death with his awful necromantic minions that rise from the sleep of death are not to be trifled with, for they are dangerous. Our Lady has long sought to remove the plague of death from the lands after that foul Lich ascended."
+
+class TempleTylowyn(Temple):
+    """Tylowyn temple."""
+    temple_name = "Tylowyn"
+    temple_desc = "I am a servant of the first Queen of Elven Kind and Elven Goddess of Luck, Tylowyn."
+    enemy_temple_name = "Dalosha"
+    enemy_temple_desc = "That rebellious heretic! In the days of the First Elven Kings, the first daughter of our gracious Tylowyn sought to overthrow the Elven Kingdoms with her lies and treachery. After she was routed from the Elven lands, she took her band of rebel dark elves and hid in the caves, but unfortunately managed to survive there. Avoid those drow if you know what is best for you."

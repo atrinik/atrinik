@@ -37,7 +37,7 @@ class Bank:
         # Make a deposit.
         elif msg == "dodeposit":
             self._inf.add_msg("How much money would you like to deposit?")
-            self._inf.add_msg("For example, type <green>1 gold, 99 silver, 20 copper</green>, or <green>50 copper</green>, or <green>all</green>.")
+            self._inf.add_msg("For example, type [green]1 gold, 99 silver, 20 copper[/green], or [green]50 copper[/green], or [green]all[/green].")
             self._inf.set_text_input(prepend = "deposit ")
             return True
 
@@ -69,7 +69,7 @@ class Bank:
         # Make a withdrawal.
         elif msg == "dowithdraw":
             self._inf.add_msg("How much money would you like to withdraw from your account?")
-            self._inf.add_msg("For example, type <green>1 mithril</green>, or <green>2 gold, 50 silver</green>, or <green>40 copper</green>, or <green>all</green>.")
+            self._inf.add_msg("For example, type [green]1 mithril[/green], or [green]2 gold, 50 silver[/green], or [green]40 copper[/green], or [green]all[/green].")
             self._inf.set_text_input(prepend = "withdraw ")
             return True
 

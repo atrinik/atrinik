@@ -40,7 +40,7 @@ def main():
             activator.Say("Hmpf! Somebody stole my apple...")
         # Inform the map about us reaching this waypoint.
         else:
-            activator.Say("I just reached the waypoint <yellow>{}</yellow>.".format(me.name))
+            activator.Say("I just reached the waypoint [yellow]{}[/yellow].".format(me.name))
     # Close event is triggered whenever a waypoint makes a monster move.
     elif event_nr == EVENT_CLOSE:
         # Check for existing apple waypoint.

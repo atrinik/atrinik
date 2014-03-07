@@ -9,7 +9,7 @@ inf = Interface(activator, me)
 
 def main():
     if msg == "hello":
-        inf.add_msg("Welcome. I am the music changer -- just tell me which background music file to play and I will change this map to play it. You can find a list of media files <a=url:http://www.atrinik.org/page/client_media_files>here</a>. Use <green>none</green> to stop any music on the map.")
+        inf.add_msg("Welcome. I am the music changer -- just tell me which background music file to play and I will change this map to play it. You can find a list of media files [a=url:http://www.atrinik.org/page/client_media_files]here[/a]. Use [green]none[/green] to stop any music on the map.")
         inf.set_text_input()
     else:
         inf.dialog_close()
@@ -17,7 +17,7 @@ def main():
         info.slaying = "no_music" if msg == "none" else msg.strip()
         # Construct new map name from old one.
         info.race = re.sub(r"\([a-zA-Z0-9_\-\.]+\)", "({})".format(info.slaying), info.race)
-        map_name = "<b><o=0,0,0>{}</o></b>".format(info.race)
+        map_name = "[b][o=#000000]{}[/o][/b]".format(info.race)
 
         for player in me.map.GetPlayers():
             if player.x >= info.x and player.x <= info.x + info.hp and player.y >= info.y and player.y <= info.y + info.sp:

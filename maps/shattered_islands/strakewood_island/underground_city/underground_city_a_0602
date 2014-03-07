@@ -2,7 +2,7 @@ arch map
 name The Underground City II
 msg
 Created:  2009-09-10 Alex Tokar
-Modified: 2011-11-04 Alex Tokar
+Modified: 2014-02-28 alex
 endmsg
 width 24
 height 24
@@ -2131,7 +2131,9 @@ arch ability_icestorm
 last_grace 8
 end
 arch quest_container
-name Drula's Gloves
+name drula_gloves
+race Drula's Gloves
+sub_type 3
 arch gloves_drula
 end
 end

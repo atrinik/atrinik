@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<interfaces>
+    <interface>
+        <dialog name="hello">
+            <message>Apologies citizen, but this is a serious investigation. Please, excuse me.</message>
+            <response message="Where is Lynren?" destination="where" />
+        </dialog>
+        <dialog name="where">
+            <message>Well. That is what my investigation is about. You see, she left without a word, except the explanation on the sign outside. She has been gone for a long time now, and we don't know whether she is okay or not...</message>
+        </dialog>
+    </interface>
+</interfaces>

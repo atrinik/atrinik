@@ -2,25 +2,15 @@
 ## Implements the /mapinfo command.
 
 def main():
-    for msg in [
-        "{name} ({bg_music}, {path}, x: {x}, y: {y})".format(
-            name = activator.map.name,
-            bg_music = activator.map.bg_music,
-            path = activator.map.path,
-            x = activator.x,
-            y = activator.y,
-        ),
-        "Players: {num_players} difficulty: {difficulty} size: "
-        "{width}x{height} start: {enter_x}x{enter_y}".format(
-            num_players = activator.map.CountPlayers(),
-            difficulty = activator.map.difficulty,
-            width = activator.map.width,
-            height = activator.map.height,
-            enter_x = activator.map.enter_x,
-            enter_y = activator.map.enter_y,
+    for msg in (
+        "{map.name} ({map.bg_music}, {map.path}, x: {activator.x}, y: "
+        "{activator.y})".format(map = activator.map, activator = activator),
+        "Players: {num_players} difficulty: {map.difficulty} size: "
+        "{map.width}x{map.height} start: {map.enter_x}x{map.enter_y}".format(
+            num_players = activator.map.CountPlayers(), map = activator.map,
         ),
         activator.map.msg,
-    ]:
+               ):
         if msg:
             activator.Controller().DrawInfo(msg, color = COLOR_WHITE)
 

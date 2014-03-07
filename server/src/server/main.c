@@ -27,6 +27,7 @@
  * Server main related functions. */
 
 #include <global.h>
+#include <check_proto.h>
 
 /** Object used in process_events(). */
 static object marker;
@@ -636,6 +637,20 @@ int main(int argc, char **argv)
 
     init(argc, argv);
 
+    if (settings.unit_tests) {
+#ifdef HAVE_CHECK
+        logger_print(LOG(INFO), "Running unit tests...");
+        cleanup();
+        check_main();
+        exit(0);
+#else
+        logger_print(LOG(ERROR), "Unit tests have not been compiled, aborting.");
+        exit(1);
+#endif
+    }
+
+    atexit(cleanup);
+
     if (settings.world_maker) {
 #ifdef HAVE_WORLD_MAKER
         logger_print(LOG(INFO), "Running the world maker...");
@@ -647,6 +662,7 @@ int main(int argc, char **argv)
 #endif
     }
 
+    console_start_thread();
     memset(&marker, 0, sizeof(struct obj));
 
     logger_print(LOG(INFO), "Server ready. Waiting for connections...");

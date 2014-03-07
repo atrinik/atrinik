@@ -1415,18 +1415,20 @@ enum apply_flag
  * @defgroup quest_types Quest types
  * All the possible quest types.
  *@{*/
-/** The quest is a one drop type. */
-#define QUEST_TYPE_ITEM 0
+/** Used for containers. */
+#define QUEST_TYPE_NONE 0
 /** The quest requires you to kill X monsters. */
 #define QUEST_TYPE_KILL 1
-/** The quest requires you to get item X from monster Y. */
-#define QUEST_TYPE_KILL_ITEM 2
+/** The quest requires you to get item X from some location. */
+#define QUEST_TYPE_ITEM 2
+/**
+ * The quest is automatically started by giving the player an item (one-drop
+ * quest item, keys from killing a monster/opening a chest, etc). */
+#define QUEST_TYPE_ITEM_DROP 3
 /**
  * The quest is not handled by the server quest module; instead, it
  * is handled specially by scripts. */
-#define QUEST_TYPE_SPECIAL 3
-/** Multi-part quest. */
-#define QUEST_TYPE_MULTI 4
+#define QUEST_TYPE_SPECIAL 4
 /*@}*/
 
 /**

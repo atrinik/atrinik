@@ -27,7 +27,6 @@
  * Server initialization. */
 
 #include <global.h>
-#include <check_proto.h>
 
 /**
  * The server's settings. */
@@ -107,7 +106,7 @@ static void console_command_speed(const char *params)
 
 /**
  * Free all data before exiting. */
-static void cleanup(void)
+void cleanup(void)
 {
     cache_remove_all();
     remove_plugins();
@@ -137,16 +136,7 @@ static void cleanup(void)
 
 static void clioptions_option_unit(const char *arg)
 {
-    logger_print(LOG(INFO), "Running unit tests...");
-
-#ifdef HAVE_CHECK
-    cleanup();
-    check_main();
-    exit(0);
-#else
-    logger_print(LOG(ERROR), "Unit tests have not been compiled, aborting.");
-    exit(1);
-#endif
+    settings.unit_tests = 1;
 }
 
 static void clioptions_option_worldmaker(const char *arg)
@@ -385,8 +375,6 @@ static void clioptions_option_recycle_tmp_maps(const char *arg)
  * init_hash_table() if you are doing any object loading. */
 static void init_library(int argc, char *argv[])
 {
-    atexit(cleanup);
-
     toolkit_import(bzr);
     toolkit_import(clioptions);
     toolkit_import(console);
@@ -626,8 +614,12 @@ static void init_library(int argc, char *argv[])
     );
 
     memset(&settings, 0, sizeof(settings));
+
     clioptions_load_config("server.cfg", "[General]");
-    clioptions_parse(argc, argv);
+
+    if (argv != NULL) {
+        clioptions_parse(argc, argv);
+    }
 
     toolkit_import(commands);
 
@@ -672,6 +664,7 @@ void init_globals(void)
     first_treasurelist = NULL;
     first_artifactlist = NULL;
     first_archetype = NULL;
+    first_region = NULL;
     first_map = NULL;
     init_strings();
     init_object_initializers();
@@ -777,7 +770,6 @@ void init(int argc, char **argv)
     statistics_init();
     reset_sleep();
     init_plugins();
-    console_start_thread();
 }
 
 /**

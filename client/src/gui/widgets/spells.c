@@ -331,7 +331,7 @@ static void widget_draw(widgetdata *widget)
 
             icon = FaceList[spell_list[spell_list_path][spell_id]->spell->face].sprite->bitmap;
 
-            text_show_format(widget->surface, FONT_ARIAL10, 160, widget->h - 30, COLOR_WHITE, TEXT_MARKUP, NULL, "<b>Cost</b>: %d", (int) ((double) spell_list[spell_list_path][spell_id]->cost * (double) PATH_SP_MULT(&cpl, spell_list[spell_list_path][spell_id])));
+            text_show_format(widget->surface, FONT_ARIAL10, 160, widget->h - 30, COLOR_WHITE, TEXT_MARKUP, NULL, "[b]Cost[/b]: %d", (int) ((double) spell_list[spell_list_path][spell_id]->cost * (double) PATH_SP_MULT(&cpl, spell_list[spell_list_path][spell_id])));
 
             if (cpl.path_denied & spell_list[spell_list_path][spell_id]->path) {
                 status = "Denied";
@@ -346,7 +346,7 @@ static void widget_draw(widgetdata *widget)
                 status = "Normal";
             }
 
-            text_show_format(widget->surface, FONT_ARIAL10, 160, widget->h - 18, COLOR_WHITE, TEXT_MARKUP, NULL, "<b>Status</b>: %s", status);
+            text_show_format(widget->surface, FONT_ARIAL10, 160, widget->h - 18, COLOR_WHITE, TEXT_MARKUP, NULL, "[b]Status[/b]: %s", status);
             draw_frame(widget->surface, widget->w - 6 - icon->w, widget->h - 6 - icon->h, icon->w + 1, icon->h + 1);
             surface_show(widget->surface, widget->w - 5 - icon->w, widget->h - 5 - icon->h, NULL, icon);
         }

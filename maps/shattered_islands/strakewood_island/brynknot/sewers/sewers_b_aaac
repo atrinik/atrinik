@@ -2,7 +2,7 @@ arch map
 name Sewers
 msg
 Created:  2010-06-22 Edwin Miltenburg
-Modified: 2011-09-30 Alex Tokar
+Modified: 2014-02-28 alex
 endmsg
 width 24
 height 24
@@ -459,7 +459,9 @@ protect_cleave 5
 protect_pierce 7
 type 83
 arch quest_container
-name Redhelm's Lost Pouch
+name redhelm_lost_pouch
+race Redhelm's Lost Pouch
+sub_type 3
 arch redhelm_quest_pouch
 arch amethyst_small
 end

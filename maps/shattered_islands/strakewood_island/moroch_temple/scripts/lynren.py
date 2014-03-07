@@ -50,7 +50,7 @@ def main():
                 inf.add_msg("Splendid! Alright, let me have a look that book...")
                 inf.add_msg("Normally, holy word is used to cause mass damage to undead creatures. However, this book contains a variation of the prayer, with a ritual, which allows one to break even the darkest magics.")
                 inf.add_msg("This is what you have to do...")
-                inf.add_link("&lt;perform the ritual&gt;", dest = "perform")
+                inf.add_link("<perform the ritual>", dest = "perform")
 
             elif msg == "perform":
                 # Activate the spell effect.

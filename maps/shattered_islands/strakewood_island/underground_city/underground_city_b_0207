@@ -267,7 +267,7 @@ arch stairs_stone_down
 msg
 You start climbing down the staircase leading into darkness. You take many steps in the near complete darkness, but eventually you see a dim light. You reach the end of the staircase, and the moment you step onto the cavern floor, you hear a hissing voice, seemingly without a source...
 
-<yellow><i>Hissss</i>... You are not welcome here... Leave... <i>Hisssss</i>.... Now...</yellow>
+[yellow][i]Hissss[/i]... You are not welcome here... Leave... [i]Hisssss[/i].... Now...[/yellow]
 endmsg
 direction 7
 slaying underground_city_c_0207
@@ -284,7 +284,7 @@ arch stairs_stone_down
 msg
 You start climbing down the staircase leading into darkness. You take many steps in the near complete darkness, but eventually you see a dim light. You reach the end of the staircase, and the moment you step onto the cavern floor, you hear a hissing voice, seemingly without a source...
 
-<yellow><i>Hissss</i>... You are not welcome here... Leave... <i>Hisssss</i>.... Now...</yellow>
+[yellow][i]Hissss[/i]... You are not welcome here... Leave... [i]Hisssss[/i].... Now...[/yellow]
 endmsg
 direction 7
 slaying underground_city_c_0207

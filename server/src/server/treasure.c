@@ -358,7 +358,6 @@ static treasure *load_treasure(FILE *fp, int *t_style, int *a_chance)
  * Can be called multiple times without ill effects. */
 void init_artifacts(void)
 {
-    static int has_been_inited = 0;
     archetype *atemp;
     long old_pos, file_pos;
     FILE *fp;
@@ -369,12 +368,6 @@ void init_artifacts(void)
     size_t lcount;
     artifactlist *al;
     char buf_text[10 * 1024];
-
-    if (has_been_inited) {
-        return;
-    }
-
-    has_been_inited = 1;
 
     snprintf(filename, sizeof(filename), "%s/artifacts", settings.libpath);
     fp = fopen(filename, "rb");

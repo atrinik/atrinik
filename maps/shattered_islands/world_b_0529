@@ -2,7 +2,7 @@ arch map
 name Below Fort Sether
 msg
 Created:  2010-11-22 Alex Tokar
-Modified: 2014-02-14 alex
+Modified: 2014-02-28 Alex Tokar
 endmsg
 width 24
 height 24
@@ -1425,10 +1425,9 @@ protect_cleave 5
 protect_pierce 5
 type 83
 arch quest_container
-name Fort Sether Illness
-sub_type 4
+name fort_sether_illness
 arch quest_container
-name get hearts
+name get_hearts
 sub_type 2
 arch bone_skull
 name sword spider's heart
@@ -2834,7 +2833,7 @@ is_evil 0
 is_good 1
 arch event_obj
 sub_type 6
-race scripts/strakewood_island/fort_sether/brownrott.py
+race /interfaces/quests/fort_sether_illness/quest.xml
 end
 end
 end

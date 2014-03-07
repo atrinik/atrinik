@@ -1153,7 +1153,7 @@ x 7
 y 1
 arch event_obj
 msg
-<yellow>You touch the altar, and you feel being squeezed through time and space!</yellow>
+[yellow]You touch the altar, and you feel being squeezed through time and space![/yellow]
 endmsg
 sub_type 1
 race /python/events/trigger/connection.py

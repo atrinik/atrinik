@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<interfaces>
+    <interface>
+        <dialog name="hello">
+            <message>Why, hello there, my name is {npc.name}. I am making a drawing of the portal for my journal.</message>
+            <response message="Tell me more..." destination="tellmore" />
+        </dialog>
+        <dialog name="tellmore">
+            <message>I have some history about the portal in it, take a look if you like.</message>
+        </dialog>
+    </interface>
+</interfaces>

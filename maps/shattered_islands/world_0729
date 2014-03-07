@@ -2,7 +2,7 @@ arch map
 name Strakewood Island
 msg
 Created:  2009-08-09 Alex Tokar
-Modified: 2011-11-03 Alex Tokar
+Modified: 2014-03-01 Alex Tokar
 endmsg
 width 24
 height 24
@@ -32,6 +32,9 @@ end
 arch swamp1
 y 3
 end
+arch water_plant4
+y 3
+end
 arch swamp1
 y 4
 end
@@ -41,59 +44,49 @@ end
 arch swamp1
 y 6
 end
+arch water_plant3
+y 6
+end
 arch swamp1
 y 7
 end
-arch sand_dm7
+arch water_lily2
 y 7
 end
-arch floor_sand_d1
+arch swamp1
 y 8
 end
 arch swamp1
 y 9
 end
-arch sand_dm19
-y 9
-end
 arch swamp1
 y 10
 end
-arch swamp1
+arch bridge_wood_EW.111
 y 11
 end
 arch swamp1
 y 12
 end
-arch grassd_m14
+arch bridge_wood_EW.151
 y 12
 end
 arch swamp1
 y 13
 end
-arch grassd_m9
+arch water_plant1
 y 13
 end
 arch swamp1
 y 14
 end
-arch grassd_m9
-y 14
-end
 arch swamp1
 y 15
 end
-arch grassd_m13
-y 15
-end
-arch spawn_point
-y 15
-arch crocodile
-level 21
-type 83
-end
-end
 arch swamp1
+y 16
+end
+arch plant10
 y 16
 end
 arch swamp1
@@ -152,15 +145,11 @@ arch swamp1
 x 1
 y 7
 end
-arch sand_dm7
-x 1
-y 7
-end
-arch floor_sand_d4
+arch swamp1
 x 1
 y 8
 end
-arch floor_sand_d1
+arch swamp1
 x 1
 y 9
 end
@@ -168,15 +157,15 @@ arch swamp1
 x 1
 y 10
 end
-arch sand_dm19
-x 1
-y 10
-end
-arch swamp1
+arch bridge_wood_EW.111
 x 1
 y 11
 end
 arch swamp1
+x 1
+y 12
+end
+arch bridge_wood_EW.151
 x 1
 y 12
 end
@@ -248,7 +237,15 @@ arch swamp1
 x 2
 y 4
 end
+arch water_plant3
+x 2
+y 4
+end
 arch swamp1
+x 2
+y 5
+end
+arch plant13
 x 2
 y 5
 end
@@ -264,27 +261,27 @@ arch swamp1
 x 2
 y 8
 end
-arch sand_dm22
-x 2
-y 8
-end
-arch floor_sand_d3
+arch swamp1
 x 2
 y 9
 end
-arch floor_sand_d4
+arch water_plant1
+x 2
+y 9
+end
+arch swamp1
 x 2
 y 10
 end
-arch swamp1
-x 2
-y 11
-end
-arch sand_dm19
+arch bridge_wood_EW.111
 x 2
 y 11
 end
 arch swamp1
+x 2
+y 12
+end
+arch bridge_wood_EW.151
 x 2
 y 12
 end
@@ -352,6 +349,10 @@ arch swamp1
 x 3
 y 1
 end
+arch water_plant2
+x 3
+y 1
+end
 arch swamp1
 x 3
 y 2
@@ -384,6 +385,10 @@ arch swamp1
 x 3
 y 7
 end
+arch tree_burned3
+x 3
+y 7
+end
 arch swamp1
 x 3
 y 8
@@ -392,15 +397,11 @@ arch swamp1
 x 3
 y 9
 end
-arch sand_dm22
-x 3
-y 9
-end
-arch floor_sand_d2
+arch swamp1
 x 3
 y 10
 end
-arch floor_sand_d2
+arch bridge_wood_EW.111
 x 3
 y 11
 end
@@ -408,7 +409,7 @@ arch swamp1
 x 3
 y 12
 end
-arch sand_dm6
+arch bridge_wood_EW.151
 x 3
 y 12
 end
@@ -476,6 +477,10 @@ arch swamp1
 x 4
 y 2
 end
+arch plant11
+x 4
+y 2
+end
 arch swamp1
 x 4
 y 3
@@ -508,11 +513,7 @@ arch swamp1
 x 4
 y 10
 end
-arch sand_dm22
-x 4
-y 10
-end
-arch floor_sand_d1
+arch bridge_wood_EW.111
 x 4
 y 11
 end
@@ -520,7 +521,7 @@ arch swamp1
 x 4
 y 12
 end
-arch sand_dm6
+arch bridge_wood_EW.151
 x 4
 y 12
 end
@@ -529,6 +530,10 @@ x 4
 y 13
 end
 arch swamp1
+x 4
+y 14
+end
+arch water_lily
 x 4
 y 14
 end
@@ -608,6 +613,10 @@ arch swamp1
 x 5
 y 8
 end
+arch water_plant2
+x 5
+y 8
+end
 arch swamp1
 x 5
 y 9
@@ -616,11 +625,7 @@ arch swamp1
 x 5
 y 10
 end
-arch sand_dm7
-x 5
-y 10
-end
-arch floor_sand_d3
+arch bridge_wood_EW.111
 x 5
 y 11
 end
@@ -628,7 +633,7 @@ arch swamp1
 x 5
 y 12
 end
-arch sand_dm6
+arch bridge_wood_EW.151
 x 5
 y 12
 end
@@ -688,11 +693,19 @@ arch swamp1
 x 6
 y 1
 end
+arch water_plant1
+x 6
+y 1
+end
 arch swamp1
 x 6
 y 2
 end
 arch swamp1
+x 6
+y 3
+end
+arch water_plant3
 x 6
 y 3
 end
@@ -716,6 +729,10 @@ arch swamp1
 x 6
 y 7
 end
+arch water_plant4
+x 6
+y 7
+end
 arch swamp1
 x 6
 y 8
@@ -728,11 +745,7 @@ arch swamp1
 x 6
 y 10
 end
-arch sand_dm7
-x 6
-y 10
-end
-arch floor_sand_d2
+arch bridge_wood_EW.111
 x 6
 y 11
 end
@@ -740,7 +753,7 @@ arch swamp1
 x 6
 y 12
 end
-arch sand_dm6
+arch bridge_wood_EW.151
 x 6
 y 12
 end
@@ -828,6 +841,10 @@ arch swamp1
 x 7
 y 8
 end
+arch plant1
+x 7
+y 8
+end
 arch swamp1
 x 7
 y 9
@@ -836,11 +853,7 @@ arch swamp1
 x 7
 y 10
 end
-arch floor_sand_d3
-x 7
-y 11
-end
-arch bridge_wood_EW.181
+arch bridge_wood_EW.111
 x 7
 y 11
 end
@@ -853,7 +866,7 @@ direction 3
 x 7
 y 12
 end
-arch bridge_wood_EW.161
+arch bridge_wood_EW.151
 sub_layer 1
 x 7
 y 12
@@ -910,6 +923,9 @@ end
 arch swamp1
 x 8
 end
+arch plant13
+x 8
+end
 arch swamp1
 x 8
 y 1
@@ -923,6 +939,10 @@ x 8
 y 3
 end
 arch swamp1
+x 8
+y 4
+end
+arch water_plant1
 x 8
 y 4
 end
@@ -2126,7 +2146,7 @@ arch chest7_111
 x 15
 y 14
 arch quest_container
-name Morg'eean's Ship Key
+sub_type 3
 arch key2
 msg
 This key can be used to gain access to Morg'eean's ship which travels between Brynknot and Asteria.
@@ -2324,7 +2344,7 @@ friendly 1
 type 83
 arch event_obj
 sub_type 6
-race scripts/strakewood_island/morgeean.py
+race /interfaces/strakewood_island/morgeean.xml
 end
 end
 end

@@ -2,7 +2,7 @@ arch map
 name Strakewood Island
 msg
 Created:  2009-09-10 Alex Tokar
-Modified: 2011-10-29 Alex Tokar
+Modified: 2014-02-28 Alex Tokar
 endmsg
 width 24
 height 24
@@ -1150,9 +1150,12 @@ level 5
 unaggressive 1
 type 83
 arch quest_container
-name Melanye's Lost Walking Stick
+name melanye_lost_stick
+arch quest_container
+name get_stick
 sub_type 2
 arch melanye_walking_stick
+end
 end
 end
 end

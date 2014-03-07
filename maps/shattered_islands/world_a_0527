@@ -2,7 +2,7 @@ arch map
 name Below Fort Sether
 msg
 Created:  2010-11-22 Alex Tokar
-Modified: 2014-02-14 alex
+Modified: 2014-02-28 Alex Tokar
 endmsg
 width 24
 height 24
@@ -365,7 +365,7 @@ level 60
 type 83
 arch event_obj
 sub_type 6
-race scripts/strakewood_island/fort_sether/gwenty.py
+race /interfaces/quests/fort_sether_illness/quest.xml
 end
 arch bone_skull
 quest_item 1
@@ -2032,7 +2032,7 @@ level 30
 type 83
 arch event_obj
 sub_type 6
-race scripts/strakewood_island/fort_sether/fortress_guard.py
+race /interfaces/quests/fort_sether_illness/quest.xml
 end
 end
 end
@@ -2180,7 +2180,7 @@ type 83
 level 20
 arch event_obj
 sub_type 6
-race scripts/strakewood_island/fort_sether/fortress_guard.py
+race /interfaces/quests/fort_sether_illness/quest.xml
 end
 end
 end

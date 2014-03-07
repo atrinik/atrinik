@@ -10699,7 +10699,7 @@ y 28
 end
 arch marker1
 msg
-<green>East</green>
+[green]East[/green]
 To Everlink, the secret area only for proud house owners.
 endmsg
 direction 3

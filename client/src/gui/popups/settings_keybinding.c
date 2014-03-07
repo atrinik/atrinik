@@ -175,9 +175,9 @@ static int popup_draw(popup_struct *popup)
     if (keybinding_state == KEYBINDING_STATE_ADD || keybinding_state == KEYBINDING_STATE_EDIT) {
         int key, mod;
 
-        text_show_shadow_format(popup->surface, FONT_ARIAL11, 100, popup->surface->h - 72, COLOR_WHITE, COLOR_BLACK, TEXT_MARKUP, NULL, "<hcenter=%d>Command: </hcenter>", text_input_command.coords.h);
-        text_show_shadow_format(popup->surface, FONT_ARIAL11, 100, popup->surface->h - 49, COLOR_WHITE, COLOR_BLACK, TEXT_MARKUP, NULL, "<hcenter=%d>Key: </hcenter>", text_input_command.coords.h);
-        text_show_shadow_format(popup->surface, FONT_ARIAL10, 160, text_input_key.coords.y + text_input_key.coords.h + 5, COLOR_WHITE, COLOR_BLACK, TEXT_MARKUP, NULL, "<hcenter=%d>Press ESC to cancel.</hcenter>", button_apply.texture->surface->h);
+        text_show_shadow_format(popup->surface, FONT_ARIAL11, 100, popup->surface->h - 72, COLOR_WHITE, COLOR_BLACK, TEXT_MARKUP, NULL, "[hcenter=%d]Command: [/hcenter]", text_input_command.coords.h);
+        text_show_shadow_format(popup->surface, FONT_ARIAL11, 100, popup->surface->h - 49, COLOR_WHITE, COLOR_BLACK, TEXT_MARKUP, NULL, "[hcenter=%d]Key: [/hcenter]", text_input_command.coords.h);
+        text_show_shadow_format(popup->surface, FONT_ARIAL10, 160, text_input_key.coords.y + text_input_key.coords.h + 5, COLOR_WHITE, COLOR_BLACK, TEXT_MARKUP, NULL, "[hcenter=%d]Press ESC to cancel.[/hcenter]", button_apply.texture->surface->h);
 
         text_input_set_parent(&text_input_command, popup->x, popup->y);
         text_input_set_parent(&text_input_key, popup->x, popup->y);

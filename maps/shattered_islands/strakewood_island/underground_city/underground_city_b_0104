@@ -2,7 +2,7 @@ arch map
 name The Underground City III
 msg
 Created:  2010-06-05 Alex Tokar
-Modified: 2011-11-03 Alex Tokar
+Modified: 2014-02-28 alex
 endmsg
 width 24
 height 24
@@ -1885,7 +1885,7 @@ end
 arch ability_mbullet
 end
 arch quest_container
-name Daorosio's Portal Key
+sub_type 3
 arch key2
 msg
 Portal key from the drow sorcerer Daorosio in Underground City III.

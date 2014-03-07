@@ -2,6 +2,7 @@
 ## Implements the /roll command.
 
 from random import randrange
+from Markup import markup_escape
 
 # Limits.
 MIN_num = 1
@@ -31,7 +32,7 @@ def main():
     parse = parse_params()
 
     if not parse:
-        pl.DrawInfo("Usage: /roll <times>d<sides>", COLOR_RED)
+        pl.DrawInfo(markup_escape("Usage: /roll <times>d<sides>"), color = COLOR_RED)
         return
 
     (num, sides) = parse

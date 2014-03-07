@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<interfaces>
+    <interface>
+        <dialog name="hello">
+            <message>Oi. What are you doing down here?</message>
+            <response message="I have some questions..." destination="questions" />
+            <response message="Goodbye." action="close" />
+        </dialog>
+        <dialog name="questions">
+            <message>Some questions are dangerous, friend. Unless you have some business here, you should probably go.</message>
+            <response message="Goodbye." action="close" />
+        </dialog>
+    </interface>
+</interfaces>

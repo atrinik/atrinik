@@ -2,7 +2,7 @@ arch map
 name Fort Ghzal
 msg
 Created:  2009-09-10 Alex Tokar
-Modified: 2011-11-03 Alex Tokar
+Modified: 2014-03-04 Alex Tokar
 endmsg
 width 24
 height 24
@@ -409,7 +409,7 @@ y 13
 end
 arch client_map_info
 msg
-<font=serif.ttf 12>Fort Ghzal</font>
+[font=serif.ttf 12]Fort Ghzal[/font]
 endmsg
 name fort_ghzal
 sub_type 1
@@ -1577,7 +1577,7 @@ level 21
 type 83
 arch event_obj
 sub_type 6
-race scripts/strakewood_island/fort_ghzal/rienn_howell.py
+race /interfaces/quests/two_lovers_doomed/quest.xml
 end
 arch two_lovers_doomed_letter2
 end
@@ -2982,7 +2982,7 @@ type 83
 name Celach Dawson
 arch event_obj
 sub_type 6
-race /python/temples/tabernacle.py
+race /interfaces/temples/tabernacle.xml
 end
 end
 end

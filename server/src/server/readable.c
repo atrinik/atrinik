@@ -350,6 +350,9 @@ static void init_msgfile(void)
     FILE *fp;
     char buf[MAX_BUF], fname[MAX_BUF], *cp;
 
+    msgs = NULL;
+    num_msgs = 0;
+
     snprintf(fname, sizeof(fname), "%s/messages", settings.libpath);
 
     fp = fopen(fname, "r");
@@ -412,6 +415,9 @@ static void init_msgfile(void)
 static void init_mon_info(void)
 {
     archetype *at;
+
+    monsters = NULL;
+    num_monsters = 0;
 
     for (at = first_archetype; at; at = at->next) {
         if (QUERY_FLAG(&at->clone, FLAG_MONSTER)) {
@@ -551,7 +557,7 @@ object *get_random_mon(void)
  * @return 'buf'. */
 static char *mon_desc(object *mon, char *buf, size_t size)
 {
-    snprintf(buf, size, "<title>%s</title>\n%s", mon->name, describe_item(mon));
+    snprintf(buf, size, "[title]%s[/title]\n%s", mon->name, describe_item(mon));
     return buf;
 }
 
@@ -567,7 +573,7 @@ static char *mon_info_msg(char *buf, size_t booksize)
     object *tmp;
 
     /* Preamble */
-    strncpy(buf, "<title>Bestiary</title>\nHerein are detailed creatures found in the world around.\n", booksize - 1);
+    strncpy(buf, "[title]Bestiary[/title]\nHerein are detailed creatures found in the world around.\n", booksize - 1);
 
     /* Lets print info on as many monsters as will fit in our
      * document. */
@@ -641,7 +647,7 @@ static char *artifact_msg(int level, char *buf, size_t booksize)
     }
 
     /* Ok, let's print out the contents */
-    snprintf(buf, booksize, "<title>Magical %s</title>\nHerein %s detailed %s...\n", art_name_array[idx].name, book_entries > 1 ? "are" : "is", book_entries > 1 ? "some artifacts" : "an artifact");
+    snprintf(buf, booksize, "[title]Magical %s[/title]\nHerein %s detailed %s...\n", art_name_array[idx].name, book_entries > 1 ? "are" : "is", book_entries > 1 ? "some artifacts" : "an artifact");
 
     /* Artifact msg attributes loop. Let's keep adding entries to the 'book'
      * as long as we have space up to the allowed max # (book_entries) */
@@ -655,7 +661,7 @@ static char *artifact_msg(int level, char *buf, size_t booksize)
         give_artifact_abilities(tmp, art);
         SET_FLAG(tmp, FLAG_IDENTIFIED);
 
-        stringbuffer_append_printf(desc, "\n<title>%s</title>\nIt is ", query_material_name(tmp));
+        stringbuffer_append_printf(desc, "\n[title]%s[/title]\nIt is ", query_material_name(tmp));
 
         /* Chance of finding. */
         chance = 100 * ((float) art->chance / al->total_chance);
@@ -717,7 +723,7 @@ static char *spellpath_msg(int level, char *buf, size_t booksize)
     buf[0] = '\0';
 
     /* Preamble */
-    stringbuffer_append_printf(desc, "<title>Path of %s</title>\nHerein are detailed the names of incantations belonging to the path of %s:\n\n", spellpathnames[path], spellpathnames[path]);
+    stringbuffer_append_printf(desc, "[title]Path of %s[/title]\nHerein are detailed the names of incantations belonging to the path of %s:\n\n", spellpathnames[path], spellpathnames[path]);
 
     /* Now go through the entire list of spells. Add appropriate spells
      * in our message buffer */

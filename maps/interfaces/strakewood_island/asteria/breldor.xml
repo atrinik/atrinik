@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<interfaces>
+    <interface>
+        <dialog name="hello">
+            <message>Hello! I am {npc.name} the fisherman. I am currently taking a break, but I reckon I should get back to work soon...</message>
+            <response message="What work?" destination="work" />
+        </dialog>
+        <dialog name="work">
+            <message>I supply Asteria citizens with fresh fish, so I have a lot of work to do!</message>
+        </dialog>
+    </interface>
+</interfaces>

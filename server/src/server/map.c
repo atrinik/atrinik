@@ -1431,6 +1431,9 @@ void clean_tmp_map(mapstruct *m)
     }
 
     unlink(m->tmpname);
+
+    free(m->tmpname);
+    m->tmpname = NULL;
 }
 
 /**
@@ -2207,6 +2210,10 @@ int map_get_darkness(mapstruct *m, int x, int y, object **mirror)
 
 int map_path_isabs(const char *path)
 {
+    if (path == NULL) {
+        return 0;
+    }
+
     if (*path == '/' || string_startswith(path, settings.datapath)) {
         return 1;
     }
@@ -2347,9 +2354,8 @@ mapstruct *map_force_reset(mapstruct *m)
     shstr *path;
     int flags;
 
-    /* Cannot reset no-save unique maps, random maps, or maps that are
-     * not in memory. */
-    if (!m || (MAP_UNIQUE(m) && MAP_NOSAVE(m)) || strncmp(m->path, "/random/", 8) == 0 || m->in_memory != MAP_IN_MEMORY) {
+    /* Cannot reset no-save unique maps or random maps. */
+    if (m == NULL || (MAP_UNIQUE(m) && MAP_NOSAVE(m)) || strncmp(m->path, "/random/", 8) == 0) {
         return NULL;
     }
 
@@ -2370,7 +2376,12 @@ mapstruct *map_force_reset(mapstruct *m)
     /* Store the path, so we can load it after swapping is done. */
     path = add_refcount(m->path);
     flags = MAP_NAME_SHARED | (MAP_UNIQUE(m) ? MAP_PLAYER_UNIQUE : 0);
-    swap_map(m, 1);
+
+    if (m->in_memory == MAP_IN_MEMORY) {
+        swap_map(m, 1);
+    }
+
+    clean_tmp_map(m);
 
     m = ready_map_name(path, flags);
     free_string_shared(path);

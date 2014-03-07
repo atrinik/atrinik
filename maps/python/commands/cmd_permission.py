@@ -3,13 +3,14 @@
 
 import re
 from Interface import Interface
+from Markup import markup_escape
 
 def main():
     match = re.match(r"((?:\")(.+)(?:\")|([^ ]+))( (removeall|(add|remove) ([^ ]+)|add))?", msg)
 
     if not match:
         activator.Controller().DrawInfo(
-            "Usage: /cmd_permission &lt;[\"]player name[\"]&gt;",
+            markup_escape("Usage: /cmd_permission <[\"]player name[\"]>"),
             color = COLOR_WHITE
         )
         return
@@ -44,7 +45,7 @@ def main():
 
     for tmp in pl.Controller().cmd_permissions:
         if tmp:
-            inf.add_msg("\n    {perm} <y=-2><a=:/cmd_permission {activator.name} remove {perm}>x</a>", perm = tmp, newline = False)
+            inf.add_msg("\n    {perm} [y=-2][a=:/cmd_permission {activator.name} remove {perm}]x[/a]", perm = tmp, newline = False)
 
     inf.add_link("Add permission", dest = "/cmd_permission {} add".format(activator.name))
     inf.add_link("Remove all permissions", dest = "/cmd_permission {} removeall".format(activator.name))

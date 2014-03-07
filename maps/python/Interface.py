@@ -1,4 +1,5 @@
 from Atrinik import SetReturnValue, Type
+import re
 
 class Interface:
     def __init__(self, activator, npc):
@@ -19,26 +20,26 @@ class Interface:
             self._msg += "\n\n"
 
         if color:
-            self._msg += "<c=#" + color + ">"
+            self._msg += "[c=#" + color + "]"
 
         self._msg += msg.format(activator = self._activator, npc = self._npc, **keywds)
 
         if color:
-            self._msg += "</c>"
+            self._msg += "[/c]"
 
     def add_msg_icon(self, icon, desc = "", fit = False):
         self._msg += "\n\n"
-        self._msg += "<bar=#000000 52 52><border=#606060 52 52><x=1><y=1><icon="
+        self._msg += "[bar=#000000 52 52][border=#606060 52 52][x=1][y=1][icon="
         self._msg += icon
         self._msg += " 50 50"
 
         if fit:
             self._msg += " 1"
 
-        self._msg += "><x=-1><y=-1>"
-        self._msg += "<padding=60><hcenter=50>"
+        self._msg += "][x=-1][y=-1]"
+        self._msg += "[padding=60][hcenter=50]"
         self._msg += desc
-        self._msg += "</hcenter></padding>"
+        self._msg += "[/hcenter][/padding]"
 
     def add_msg_icon_object(self, obj):
         self.add_msg_icon(obj.face[0], obj.GetName())
@@ -61,9 +62,9 @@ class Interface:
         dest = self._get_dest(dest)
 
         if dest or action:
-            self._links.append("<a=" + action + ":" + dest + ">" + link + "</a>")
-        elif not link.startswith("<a"):
-            self._links.append("<a>" + link + "</a>")
+            self._links.append("[a=" + action + ":" + dest + "]" + link + "[/a]")
+        elif not link.startswith("[a"):
+            self._links.append("[a]" + link + "[/a]")
         else:
             self._links.append(link)
 
@@ -163,13 +164,85 @@ class Interface:
         pl.SendPacket(26, fmt, *data)
 
 class InterfaceBuilder(Interface):
+    qm = None
+    matchers = []
+    preconds = None
+
+    def _part_dialog(self, part, checks):
+        for check in checks:
+            name = "_".join((self.dialog, check, part[-1:][0]))
+
+            if not name in self.locals:
+                continue
+
+            if getattr(self.qm, check)(part):
+                self.dialog = name
+                return True
+
+        return False
+
+    def _check_parts(self, parts, name = []):
+        for part in parts:
+            l = name + [part]
+
+            if self._part_dialog(l, checks = ["need_start", "need_finish"]):
+                return True
+
+            if self.qm.need_complete(l) and "parts" in parts[part]:
+                if self._check_parts(parts[part]["parts"], l):
+                    return True
+
+            if self._part_dialog(l, checks = ["need_complete"]):
+                return True
+
+        return False
+
+    def set_quest(self, qm):
+        self.qm = qm
+
+    def precond(self):
+        return True
+
     def dialog(self, msg):
         pass
 
-    def finish(self, msg):
-        try:
-            getattr(self, "dialog_" + msg)()
-        except AttributeError:
-            self.dialog(msg)
+    def finish(self, d, msg):
+        self.locals = d
+        self.dialog = "InterfaceDialog"
+        dialog = None
 
-        Interface.finish(self)
+        # Do some quest handling.
+        if self.qm:
+            # Quest is completed, regardless of parts, so show completed dialog.
+            if self.qm.completed():
+                dialog = "completed"
+            else:
+                self._check_parts(self.qm.quest["parts"])
+
+        if dialog and self.dialog + "_" + dialog in self.locals:
+            self.dialog += "_" + dialog
+
+        if self.preconds:
+            self.preconds(self)
+
+        c = self.locals[self.dialog](self._activator, self._npc)
+        c.set_quest(self.qm)
+
+        if not c.precond():
+            Interface.finish(c)
+            return
+
+        for expr, callback in c.matchers:
+            if re.match(expr, msg):
+                callback(c)
+                Interface.finish(c)
+                return
+
+        fnc = getattr(c, "dialog_" + msg.replace(" ", "_"), None)
+
+        if fnc == None:
+            c.dialog(msg)
+        else:
+            fnc()
+
+        Interface.finish(c)

@@ -27,7 +27,7 @@ def main():
     pl.DrawInfo("\n{} of {}:".format("Members" if all_members else "Online members", g[0]), COLOR_WHITE)
 
     if all_members and FindPlayer(founder):
-        name = "<green>{}</green>".format(founder)
+        name = "[green]{}[/green]".format(founder)
     else:
         name = founder
 
@@ -47,7 +47,7 @@ def main():
             continue
 
         if all_members and player:
-            name = "<green>{}</green>".format(member)
+            name = "[green]{}[/green]".format(member)
         else:
             name = member
 

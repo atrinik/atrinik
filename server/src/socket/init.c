@@ -225,6 +225,14 @@ void init_ericserver(void)
 void free_all_newserver(void)
 {
     free_socket_images();
+
+#ifndef WIN32
+    close(init_sockets[0].fd);
+#else
+    shutdown(init_sockets[0].fd, SD_BOTH);
+    closesocket(init_sockets[0].fd);
+#endif
+
     free(init_sockets);
 }
 

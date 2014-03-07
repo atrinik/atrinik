@@ -2,7 +2,7 @@ arch map
 name Hierro's Lair
 msg
 Created:  2010-12-06 Alex Tokar
-Modified: 2011-11-03 Alex Tokar
+Modified: 2014-02-28 Alex Tokar
 endmsg
 width 22
 height 27
@@ -1479,10 +1479,6 @@ hp 12
 sp 8
 x 8
 y 25
-arch event_obj
-sub_type 1
-race /events/2010/winter/scripts/misc.py
-end
 end
 arch floor_sand_d1
 x 8
@@ -1659,10 +1655,6 @@ hp 13
 sp 8
 x 9
 y 25
-arch event_obj
-sub_type 1
-race /events/2010/winter/scripts/misc.py
-end
 end
 arch floor_sand_d3
 x 9
@@ -1854,7 +1846,9 @@ protect_pierce 5
 protect_cold 35
 type 83
 arch quest_container
-name Hierro's Ring
+name hierro_ring
+race Hierro's Ring
+sub_type 3
 arch hierro_ring_ice
 end
 end
@@ -1908,10 +1902,6 @@ hp 14
 sp 8
 x 10
 y 25
-arch event_obj
-sub_type 1
-race /events/2010/winter/scripts/misc.py
-end
 end
 arch floor_sand_d1
 x 10

@@ -4904,9 +4904,12 @@
 		being dropped.
 	]]>
 	</use>
-	<attribute arch="name" editor="quest name" type="string">
-		Name of this quest.
+	<attribute arch="name" editor="quest UID" type="string">
+		Unique identifier for this quest.
 	</attribute>
+    <attribute arch="race" editor="quest name" type="string">
+        Name of this quest. Only use for item drop quests.
+    </attribute>
 	<attribute arch="sub_type" editor="type of quest" type="list_quest_type">
 		Type of this quest.
 	</attribute>

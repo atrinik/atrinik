@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<interfaces>
+    <interface>
+        <dialog name="hello">
+            <message>Welcome to the Asterian Royal Library, funded by our gracious king. Be sure to ask if you have any questions.</message>
+            <response message="The king?" destination="king" />
+            <response message="I have some questions..." destination="questions" />
+        </dialog>
+        <dialog name="king">
+            <message>Believe it or not, King Romulus is quite generous to the intellectual pursuits.</message>
+            <response message="I have some questions..." destination="questions" />
+        </dialog>
+        <dialog name="questions">
+            <message>The public area is free for all, but exercise your manners, please. The private area is only open to a privileged few. If you're unable to find a certain copy, notify me and I'll be sure to find it, as I have ample experience in this matter. If ever this becomes an issue, you had better first speak with me. I have more contacts than ways to name them.</message>
+            <message>Be sure to ask if you need help with the categorization scheme.</message>
+            <response message="Tell me about the categorization scheme." destination="tellscheme" />
+        </dialog>
+        <dialog name="tellscheme">
+            <message>The categorization scheme is rather simple at the moment. F denotes a fiction shelf. NF denotes a non-fiction shelf. The shelf is also labeled by general topic.</message>
+        </dialog>
+    </interface>
+</interfaces>

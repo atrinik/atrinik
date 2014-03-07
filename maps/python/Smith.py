@@ -61,7 +61,7 @@ class Smith:
         # Find marked object; need it in most cases anyway;
         marked = self._activator.Controller().FindMarkedObject()
         # Add the title for what is being done.
-        self._inf.add_msg("<title>{}</title>".format(service[2]))
+        self._inf.add_msg("[title]{}[/title]".format(service[2]))
 
         if not is_buy:
             # Explain about single-item identification

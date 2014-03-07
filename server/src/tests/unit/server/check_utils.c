@@ -24,14 +24,15 @@
 
 #include <global.h>
 #include <check.h>
+#include <check_proto.h>
 #include <stdarg.h>
 
-static Suite *shstr_suite(void)
+static Suite *utils_suite(void)
 {
     Suite *s = suite_create("utils");
     TCase *tc_core = tcase_create("Core");
 
-    tcase_add_checked_fixture(tc_core, NULL, NULL);
+    tcase_add_unchecked_fixture(tc_core, check_setup, check_teardown);
 
     suite_add_tcase(s, tc_core);
 
@@ -40,7 +41,7 @@ static Suite *shstr_suite(void)
 
 void check_server_utils(void)
 {
-    Suite *s = shstr_suite();
+    Suite *s = utils_suite();
     SRunner *sr = srunner_create(s);
 
     srunner_set_xml(sr, "unit/server/utils.xml");

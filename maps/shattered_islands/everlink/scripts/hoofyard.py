@@ -13,7 +13,7 @@ def main():
         inf.add_msg("Sure...", dest = "information")
 
     elif msg == "information":
-        inf.add_msg("To use the construction skill, you need to buy a construction builder and a construction destroyer. With the destroyer, you can destroy previously built objects or walls. You will need a destroyer to destroy the extra walls in your house (in Greyton house this is the eastern wall, for example). Use the builder to build walls, windows, fireplaces, and so on. To use either the destroyer or the builder, you must first apply it, and then type <green>/use_skill construction</green> or find the construction skill in your skill list, press enter and use CTRL + direction.")
+        inf.add_msg("To use the construction skill, you need to buy a construction builder and a construction destroyer. With the destroyer, you can destroy previously built objects or walls. You will need a destroyer to destroy the extra walls in your house (in Greyton house this is the eastern wall, for example). Use the builder to build walls, windows, fireplaces, and so on. To use either the destroyer or the builder, you must first apply it, and then type [green]/use_skill construction[/green] or find the construction skill in your skill list, press enter and use CTRL + direction.")
         inf.add_msg("Tell me about building.", dest = "building")
 
     elif msg == "information about materials":

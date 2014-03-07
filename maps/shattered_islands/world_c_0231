@@ -769,7 +769,7 @@ x 19
 y 11
 arch note
 msg
-<title>Intelligence Report - Operative A234ZX</title>
+[title]Intelligence Report - Operative A234ZX[/title]
 Topic: Asteria Defences
 
 The defences of Asteria appear to be difficult to penetrate.  We have discovered that the guards will not open the gates except for those who know an, as yet, unknown password.  The guards will close the gate as soon as any substantial threat is detected.  This gate system would need to be disabled if we decided to mount an attack against the city.

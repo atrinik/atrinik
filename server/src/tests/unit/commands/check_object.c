@@ -24,6 +24,7 @@
 
 #include <global.h>
 #include <check.h>
+#include <check_proto.h>
 
 START_TEST(test_put_object_in_sack)
 {
@@ -80,7 +81,7 @@ static Suite *object_suite(void)
     Suite *s = suite_create("object");
     TCase *tc_core = tcase_create("Core");
 
-    tcase_add_checked_fixture(tc_core, NULL, NULL);
+    tcase_add_unchecked_fixture(tc_core, check_setup, check_teardown);
 
     suite_add_tcase(s, tc_core);
     tcase_add_test(tc_core, test_put_object_in_sack);

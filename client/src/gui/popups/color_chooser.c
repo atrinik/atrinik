@@ -46,7 +46,7 @@ static int popup_draw(popup_struct *popup)
     colorspace_hsv2rgb(color_picker->hsv, rgb);
     box.w = 100;
     box.h = 200;
-    text_show_format(popup->surface, FONT_ARIAL11, color_picker->x + 180, color_picker->y, COLOR_WHITE, TEXT_MARKUP | TEXT_WORD_WRAP, &box, "Preview:\n<bar=#%.2X%.2X%.2X 80 20><border=#303030 80 20>\n\nChoose your desired color, then dismiss this popup.", (int) (255 * rgb[0]), (int) (255 * rgb[1]), (int) (255 * rgb[2]));
+    text_show_format(popup->surface, FONT_ARIAL11, color_picker->x + 180, color_picker->y, COLOR_WHITE, TEXT_MARKUP | TEXT_WORD_WRAP, &box, "Preview:\n[bar=#%.2X%.2X%.2X 80 20][border=#303030 80 20]\n\nChoose your desired color, then dismiss this popup.", (int) (255 * rgb[0]), (int) (255 * rgb[1]), (int) (255 * rgb[2]));
 
     return 1;
 }
@@ -76,7 +76,7 @@ color_picker_struct *color_chooser_open(void)
     color_picker = malloc(sizeof(*color_picker));
     color_picker_create(color_picker, 150);
 
-    popup = popup_create(texture_get(TEXTURE_TYPE_SOFTWARE, "rectangle:300,200;<bar=widget_bg><border=widget_border -1 -1 2>"));
+    popup = popup_create(texture_get(TEXTURE_TYPE_SOFTWARE, "rectangle:300,200;[bar=widget_bg][border=widget_border -1 -1 2]"));
     popup->draw_func = popup_draw;
     popup->event_func = popup_event;
     popup->custom_data = color_picker;

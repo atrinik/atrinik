@@ -195,7 +195,7 @@ static int widget_event(widgetdata *widget, SDL_Event *event)
             if (event->motion.x >= widget->x + x && event->motion.x < widget->x + x + sprite->bitmap->w && event->motion.y >= widget->y + y && event->motion.y < widget->y + y + sprite->bitmap->h) {
                 char buf[HUGE_BUF];
 
-                snprintf(buf, sizeof(buf), "<b>%s</b>%s%s", effect->op->s_name, effect->msg[0] != '\0' ? "\n" : "", effect->msg);
+                snprintf(buf, sizeof(buf), "[b]%s[/b]%s%s", effect->op->s_name, effect->msg[0] != '\0' ? "\n" : "", effect->msg);
                 tooltip_create(event->motion.x, event->motion.y, FONT_ARIAL11, buf);
                 tooltip_multiline(200);
                 break;

@@ -1,34 +1,35 @@
 ## @file
 ## Script for Fhod Grimfist in Rockforge.
 
-from Interface import Interface
+from Interface import InterfaceBuilder
 from Tavern import Bartender
 
-inf = Interface(activator, me)
+class InterfaceDialog(Bartender, InterfaceBuilder):
+    """
+    Dialog when talking to the bartender.
+    """
 
-class FhodGrimfist(Bartender):
-    def _chat_greeting(self):
-        self._inf.add_msg("*grumbles*", COLOR_YELLOW)
-        self._inf.add_msg("Another customer... Very well... I am {}. What do you need? Make it quick, though.".format(self._me.name))
-        self._create_provisions()
+    def dialog_hello(self):
+        self.add_msg("*grumbles*", color = COLOR_YELLOW)
+        self.add_msg("Another customer... Very well... I am {npc.name}. What do you need? Make it quick, though.")
+        self.show_provisions()
 
-    def _chat_buy1(self, obj):
-        self._inf.add_msg("Very well...")
-        self._inf.add_msg_icon(obj.face[0], obj.GetName() + " for " + CostString(obj.value))
-        self._inf.add_msg("How many do you want?")
-        self._create_provision_numbers(obj)
+    def show_buy(self, obj):
+        self.add_msg("Very well...")
+        self.show_buy_icon(obj)
+        self.add_msg("How many do you want?")
+        self.show_provision(obj)
 
-    def _chat_buy2_success(self, obj):
-        self._inf.add_msg("There you go.")
-        self._inf.add_msg_icon(obj.face[0], obj.GetName())
-        self._inf.add_msg("Now off with ya.")
+    def show_bought(self, obj):
+        self.add_msg("There you go.")
+        self.show_buy_icon(obj, buying = False)
+        self.add_msg("Now off with ya.")
 
-    def _chat_buy2_fail(self):
-        self._inf.add_msg("What's this, you don't have enough money?")
+    def show_fail_weight(self):
+        self.add_msg("What's this, you're not strong enough to carry that?")
 
-def main():
-    bartender = FhodGrimfist(activator, me, WhatIsEvent(), inf)
-    bartender.handle_msg(msg)
+    def show_fail_money(self):
+        self.add_msg("What's this, you don't have enough money?")
 
-main()
-inf.finish()
+ib = InterfaceDialog(activator, me)
+ib.finish(msg)

@@ -9,7 +9,7 @@ inf = Interface(activator, me)
 def main():
     if not qm.started("explore"):
         if msg == "hello":
-            inf.add_msg("There you are, <i>{}</i>! You're finally awake I see, good, good. I was beginning to worry about you, but you seem to be alright now... unlike my boat.".format(activator.name))
+            inf.add_msg("There you are, [i]{}[/i]! You're finally awake I see, good, good. I was beginning to worry about you, but you seem to be alright now... unlike my boat.".format(activator.name))
             inf.add_link("Who are you?", dest = "who")
 
         elif msg == "who":

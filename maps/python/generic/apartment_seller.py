@@ -26,7 +26,7 @@ def main():
         if not name in apartment["apartments"]:
             return
 
-        inf.add_msg("<title>" + name.capitalize() + " Apartment</title>")
+        inf.add_msg("[title]" + name.capitalize() + " Apartment[/title]")
         inf.add_msg(apartment["apartments"][name]["info"])
 
         if pinfo:
@@ -42,7 +42,7 @@ def main():
         if not name in apartment["apartments"]:
             return
 
-        inf.add_msg("<title>" + name.capitalize() + " Apartment</title>")
+        inf.add_msg("[title]" + name.capitalize() + " Apartment[/title]")
 
         if pinfo and pinfo.slaying == name:
             inf.add_msg("But it seems you already own the {} apartment here!".format(name))

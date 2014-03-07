@@ -113,7 +113,7 @@ void hfiles_init(void)
             }
             else if (!strncmp(buf, "title ", 6)) {
                 *end = '\0';
-                snprintf(message, sizeof(message), "<book>%s</book>", buf + 6);
+                snprintf(message, sizeof(message), "[book]%s[/book]", buf + 6);
             }
         }
         else if (!strncmp(buf, "help ", 5)) {
@@ -156,7 +156,7 @@ void help_show(const char *name)
     if (!hfile) {
         char buf[HUGE_BUF];
 
-        snprintf(buf, sizeof(buf), "<book=Help not found><title>\n<center>The specified help file could not be found.</center></title>");
+        snprintf(buf, sizeof(buf), "[book]Help not found[/book][title]\n[center]The specified help file could not be found.[/center][/title]");
         book_load(buf, strlen(buf));
     }
     else {

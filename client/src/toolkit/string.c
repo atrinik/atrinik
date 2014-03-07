@@ -557,10 +557,18 @@ char *string_sub(const char *str, ssize_t start, ssize_t end)
 
     if (end <= 0) {
         end = str_len + end;
+
+        if (end < 0) {
+            end = 0;
+        }
     }
 
     if (start < 0) {
         start = end + start;
+
+        if (start < 0) {
+            start = 0;
+        }
     }
 
     if (!(str + start) || end - start < 0) {
@@ -696,90 +704,6 @@ char *string_create_char_range(char start, char end)
 }
 
 /**
- * Encrypt a string using the crypt library.
- * @param str The string to crypt.
- * @param salt Salt, if NULL, random will be chosen.
- * @return The crypted string. If the crypt library is not available,
- * 'str' is returned instead. */
-char *string_crypt(char *str, const char *salt)
-{
-#if defined(HAVE_CRYPT)
-    TOOLKIT_FUNC_PROTECTOR(API_NAME);
-
-    if (!salt) {
-        static const char *const c = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789./";
-        size_t stringlen;
-        char s[2];
-
-        stringlen = strlen(c);
-        s[0] = c[rndm(1, stringlen) - 1];
-        s[1] = c[rndm(1, stringlen) - 1];
-
-        return crypt(str, s);
-    }
-
-    return crypt(str, salt);
-#elif defined(WIN32)
-    HCRYPTPROV provider;
-    HCRYPTHASH hash;
-    DWORD resultlen = 0, i;
-    BYTE *result;
-    static char hashresult[HUGE_BUF];
-    char tmp[6];
-
-    TOOLKIT_FUNC_PROTECTOR(API_NAME);
-
-    if (!CryptAcquireContext(&provider, NULL, NULL, PROV_RSA_FULL, CRYPT_VERIFYCONTEXT)) {
-        return str;
-    }
-
-    if (!CryptCreateHash(provider, CALG_SHA1, 0, 0, &hash)) {
-        CryptReleaseContext(provider, 0);
-        return str;
-    }
-
-    if (!CryptHashData(hash, (BYTE *) str, strlen(str), 0)) {
-        CryptDestroyHash(hash);
-        CryptReleaseContext(provider, 0);
-        return str;
-    }
-
-    if (!CryptGetHashParam(hash, HP_HASHVAL, NULL, &resultlen, 0)) {
-        CryptDestroyHash(hash);
-        CryptReleaseContext(provider, 0);
-        return str;
-    }
-
-    result = calloc(1, sizeof(BYTE) * resultlen);
-
-    if (!CryptGetHashParam(hash, HP_HASHVAL, result, &resultlen, 0)) {
-        free(result);
-        CryptDestroyHash(hash);
-        CryptReleaseContext(provider, 0);
-        return str;
-    }
-
-    CryptDestroyHash(hash);
-    CryptReleaseContext(provider, 0);
-
-    hashresult[0] = '\0';
-
-    for (i = 0; i < resultlen; i++) {
-        snprintf(tmp, sizeof(tmp), "%.2x", result[i]);
-        strncat(hashresult, tmp, sizeof(hashresult) - strlen(hashresult) - 1);
-        hashresult[sizeof(hashresult) - strlen(hashresult) - 1] = '\0';
-    }
-
-    free(result);
-
-    return hashresult;
-#else
-    TOOLKIT_FUNC_PROTECTOR(API_NAME);
-    return str;
-#endif
-}
-
-/**
  * Join all the provided strings into one.
  *
  * Example:
@@ -910,4 +834,58 @@ size_t snprintfcat(char *buf, size_t size, const char *fmt, ...)
     va_end(args);
 
     return result + len;
+}
+
+/**
+ * Converts unsigned char array into a hexadecimal char representation.
+ * @param str Unsigned char array.
+ * @param len Number of elements in 'str'.
+ * @param result Where to store the result.
+ * @param resultsize Size of 'result'.
+ * @return Number of characters written into 'result'.
+ */
+size_t string_tohex(const unsigned char *str, size_t len, char *result, size_t resultsize)
+{
+    size_t i;
+
+    for (i = 0; i < len; i++) {
+        if (i * 2 + 1 >= resultsize - 1) {
+            break;
+        }
+
+        sprintf(result + (i * 2), "%02X", str[i]);
+    }
+
+    result[i * 2] = '\0';
+
+    return i * 2;
+}
+
+/**
+ * Does the reverse of string_tohex(), loading hexadecimal back into unsigned
+ * char.
+ * @param str String to load from.
+ * @param len Length of 'str'.
+ * @param result Where to store the result.
+ * @param resultsize Number of elements in 'result'.
+ * @return How many elements have been filled into 'result'.
+ */
+size_t string_fromhex(char *str, size_t len, unsigned char *result, size_t resultsize)
+{
+    size_t i, j;
+    unsigned char c, found;
+
+    for (found = 0, i = 0, j = 0; i < len && j < resultsize; i++) {
+        if ((str[i] >= 'A' && str[i] <= 'F') || (str[i] >= '0' && str[i] <= '9')) {
+            c = (c << 4) | ((str[i] >= 'A') ? (str[i] - 'A' + 10) : (str[i] - '0'));
+            found++;
+        }
+
+        if (found == 2) {
+            found = 0;
+            result[j++] = c;
+        }
+    }
+
+    return j;
 }

@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<interfaces>
+    <interface>
+        <dialog name="hello">
+            <message>Hello there. I'm {npc.name} the wizard. I'm currently studying the abandoned mine north of here.</message>
+            <response message="Tell me more..." destination="tellmore" />
+        </dialog>
+        <dialog name="tellmore">
+            <message>It's an abandoned dwarven mine that makes some sort of a tunnel between several locations. Rumor is that a portal to the legendary Moroch Temple is located there, which is what I'm trying to find out about.</message>
+            <message>If you are also interested in the mine, you can read about it in my notes in the bookcase.</message>
+        </dialog>
+    </interface>
+</interfaces>

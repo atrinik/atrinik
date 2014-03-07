@@ -239,7 +239,7 @@ y 13
 arch dwarf_scout
 msg
 @match ^hello$
-<yellow>*chews* *chews* *nomnomnom* *chews*</yellow>
+[yellow]*chews* *chews* *nomnomnom* *chews*[/yellow]
 Mmm, this steak is delicious! But it's expensive, since it's so difficult to acquire steaks from dragons...
 endmsg
 type 83

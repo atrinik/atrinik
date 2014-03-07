@@ -2,7 +2,7 @@ arch map
 name Asteria
 msg
 Created:  2009-08-09 Alex Tokar
-Modified: 2014-02-14 alex
+Modified: 2014-03-02 Alex Tokar
 endmsg
 width 24
 height 24
@@ -1250,8 +1250,7 @@ arch chest_4.111
 x 7
 y 11
 arch quest_container
-name Shipment of Charob Beer
-sub_type 4
+name shipment_of_charob_beer
 arch quest_container
 name deliver
 sub_type 2
@@ -1638,7 +1637,7 @@ type 83
 level 34
 arch event_obj
 sub_type 6
-race scripts/strakewood_island/asteria/steve_bruck.py
+race /interfaces/quests/shipment_of_charob_beer/quest.xml
 end
 arch silvercoin
 nrof 5

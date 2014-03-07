@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<interfaces>
+    <quest uid="shipment_of_charob_beer" name="Shipment of Charob Beer" repeat="1" repeat_delay="300">
+        <interface npc="Steve Bruck">
+            <dialog name="hello">
+                <message>Welcome to Charob Beer's Shipping Department. I am as usual overworked and underpaid.</message>
+            </dialog>
+        </interface>
+
+        <interface npc="Steve Bruck" state="completed">
+            <dialog name="hello">
+                <message>Thank you for the help with that shipment. I'll tell you when I need you for another delivery.</message>
+            </dialog>
+        </interface>
+
+        <interface npc="Gashir" inherit="Tavern.Bartender">
+            <dialog name="hello">
+                <message>Welcome to Asterian Arms Tavern.</message>
+                <message>I'm {npc.name}, the bartender of this tavern. Here is the place if you want to eat or drink the best booze! I can offer you the following provisions.</message>
+                <action><![CDATA[self.show_provisions()]]></action>
+            </dialog>
+            <action><![CDATA[
+def can_buy(self, obj):
+    if obj.arch.name == "beer_charob" and not self.qm.completed("deliver"):
+        return False
+
+    return True
+
+def show_bought(self, obj):
+    self.add_msg("Here you go!")
+    self.show_buy_icon(obj, buying = False)
+    self.add_msg({
+        "booze_generic": "Enjoy!",
+        "booze2": "Please be careful though, it is really strong!",
+        "food_generic": "It's really tasty, I tell you.",
+        "drink_generic": "Thirsty? Nothing like fresh water!",
+        "beer_charob": "It is quite good quality!",
+    }[obj.arch.name])
+            ]]></action>
+        </interface>
+
+        <part uid="deliver" name="Deliver the Shipment">
+            <message>Steve Bruck has asked you to deliver a shipment of Charob Beer to the bartender in Asterian Arms Tavern.</message>
+            <item arch="barrel2.101" name="shipment of Charob Beer" />
+
+            <interface npc="Steve Bruck" state="need_start" inherit="">
+                <dialog name="hello">
+                    <inherit />
+                    <message>I also have this shipment of beer gathering dust here.</message>
+                    <response message="Tell me more about this shipment." destination="moreinfo" />
+                </dialog>
+                <dialog name="moreinfo">
+                    <message>My body is terribly sore, and I've got a lot of shipments to sort. So I need someone to deliver this shipment of Charob Beer to the Asterian Arms Tavern.</message>
+                    <response message="I can handle that." destination="handle" />
+                </dialog>
+                <dialog name="handle">
+                    <message>Ah, you would? Great! You can find the shipment in question in a chest in the other room. Please deliver it to Gashir at the Asterian Arms Tavern.</message>
+                    <action start="deliver" />
+                </dialog>
+            </interface>
+
+            <interface npc="Steve Bruck" state="need_complete" inherit="">
+                <dialog name="hello">
+                    <inherit />
+                    <message>Well, have you delivered the shipment to Gashir at the Asterian Arms Tavern yet?</message>
+                    <response message="Working on it." destination="working" />
+                </dialog>
+                <dialog name="working">
+                    <message>Well, hurry up and get that beer to Gashir before I lose my job!</message>
+                </dialog>
+            </interface>
+
+            <interface npc="Steve Bruck" state="need_finish" inherit="need_complete_deliver">
+                <dialog name="hello">
+                    <inherit />
+                    <response message="Where can I find the shipment?" destination="shipment" />
+                </dialog>
+                <dialog name="shipment">
+                    <message>You can find the shipment in a chest in the other room.</message>
+                </dialog>
+            </interface>
+
+            <interface npc="Gashir" state="need_start" inherit="">
+                <dialog name="hello">
+                    <inherit />
+                    <message>Unfortunately, it appears we are fresh out of our local specialty, the Charob Beer. If you want to buy some, you'll have to wait until the shipment arrives. In the meantime, maybe you could check down at the brewery to see what is holding my shipment up...</message>
+                </dialog>
+            </interface>
+
+            <interface npc="Gashir" state="need_finish" inherit="need_start_deliver" />
+
+            <interface npc="Gashir" state="need_complete" inherit="need_start_deliver">
+                <dialog name="hello">
+                    <response message="I have your shipment of Charob Beer." destination="shipment" />
+                    <inherit />
+                </dialog>
+                <dialog name="shipment">
+                    <message>Finally, I get my shipment of Charob Beer!</message>
+                    <message color="yellow">You hand over the shipment of the Charob Beer.</message>
+                    <message>Thank you! Now I can serve you with Charob Beer. I am sure you'll get a payment for your delivery too!</message>
+                    <action start="reward" />
+                    <action complete="deliver" />
+                </dialog>
+            </interface>
+        </part>
+
+        <part uid="reward" name="The Reward">
+            <message>Gashir, the bartender in Asterian Arms Tavern, was pleased with the delivery, and has suggested that you go speak with Steve Bruck for a payment.</message>
+
+            <interface npc="Steve Bruck" state="need_complete">
+                <dialog name="hello">
+                    <message>Well, have you delivered the shipment to Gashir at the Asterian Arms Tavern yet?</message>
+                    <response message="Yes." destination="yes" />
+                </dialog>
+                <dialog name="yes">
+                    <message color="yellow">{npc.name} whistles at you appreciatively.</message>
+                    <message>Thank you! I hope he wasn't too upset about the late delivery!</message>
+                    <message>Here is your payment...</message>
+                    <item arch="silvercoin" />
+                    <action complete="reward" />
+                </dialog>
+            </interface>
+        </part>
+    </quest>
+</interfaces>

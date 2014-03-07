@@ -2,7 +2,7 @@ arch map
 name Strakewood Island
 msg
 Created:  2009-08-09 Alex Tokar
-Modified: 2011-08-09 Alex Tokar
+Modified: 2014-02-28 Alex Tokar
 endmsg
 width 24
 height 24
@@ -67,6 +67,9 @@ end
 arch swamp1
 y 8
 end
+arch water_plant4
+y 8
+end
 arch swamp1
 y 9
 end
@@ -80,6 +83,9 @@ arch swamp1
 y 12
 end
 arch swamp1
+y 13
+end
+arch water_plant3
 y 13
 end
 arch swamp1
@@ -171,11 +177,19 @@ arch swamp1
 x 1
 y 8
 end
+arch plant15
+x 1
+y 8
+end
 arch swamp1
 x 1
 y 9
 end
 arch swamp1
+x 1
+y 10
+end
+arch water_plant3
 x 1
 y 10
 end
@@ -430,11 +444,19 @@ arch swamp1
 x 3
 y 10
 end
+arch water_plant1
+x 3
+y 10
+end
 arch swamp1
 x 3
 y 11
 end
 arch swamp1
+x 3
+y 12
+end
+arch water_lily
 x 3
 y 12
 end
@@ -622,6 +644,10 @@ arch swamp1
 x 5
 y 1
 end
+arch plant1
+x 5
+y 1
+end
 arch swamp1
 x 5
 y 2
@@ -673,6 +699,10 @@ x 5
 y 11
 end
 arch swamp1
+x 5
+y 12
+end
+arch water_plant2
 x 5
 y 12
 end
@@ -801,6 +831,10 @@ arch swamp1
 x 6
 y 13
 end
+arch plant9
+x 6
+y 13
+end
 arch swamp1
 x 6
 y 14
@@ -865,6 +899,10 @@ x 7
 y 2
 end
 arch swamp1
+x 7
+y 3
+end
+arch water_plant3
 x 7
 y 3
 end
@@ -993,6 +1031,10 @@ arch swamp1
 x 8
 y 2
 end
+arch plant5
+x 8
+y 2
+end
 arch swamp1
 x 8
 y 3
@@ -1103,6 +1145,10 @@ arch swamp1
 x 9
 end
 arch swamp1
+x 9
+y 1
+end
+arch plant12
 x 9
 y 1
 end
@@ -1277,6 +1323,10 @@ arch swamp1
 x 10
 y 11
 end
+arch water_plant4
+x 10
+y 11
+end
 arch swamp1
 x 10
 y 12
@@ -1340,11 +1390,19 @@ arch swamp1
 x 11
 y 1
 end
+arch water_plant1
+x 11
+y 1
+end
 arch swamp1
 x 11
 y 2
 end
 arch swamp1
+x 11
+y 3
+end
+arch water_lily
 x 11
 y 3
 end
@@ -1455,6 +1513,9 @@ x 11
 y 23
 end
 arch swamp1
+x 12
+end
+arch water_plant4
 x 12
 end
 arch swamp1
@@ -1602,6 +1663,10 @@ arch swamp1
 x 13
 y 4
 end
+arch plant16
+x 13
+y 4
+end
 arch swamp1
 x 13
 y 5
@@ -1707,7 +1772,14 @@ end
 arch swamp1
 x 14
 end
+arch water_lily
+x 14
+end
 arch swamp1
+x 14
+y 1
+end
+arch plant15
 x 14
 y 1
 end
@@ -1716,6 +1788,10 @@ x 14
 y 2
 end
 arch swamp1
+x 14
+y 3
+end
+arch water_plant2
 x 14
 y 3
 end
@@ -2073,6 +2149,9 @@ end
 arch swamp1
 x 17
 end
+arch water_plant1
+x 17
+end
 arch swamp1
 x 17
 y 1
@@ -2341,11 +2420,18 @@ end
 arch swamp1
 x 19
 end
+arch water_plant2
+x 19
+end
 arch swamp1
 x 19
 y 1
 end
 arch swamp1
+x 19
+y 2
+end
+arch water_plant1
 x 19
 y 2
 end
@@ -2481,6 +2567,10 @@ arch swamp1
 x 20
 y 4
 end
+arch plant5
+x 20
+y 4
+end
 arch swamp1
 x 20
 y 5
@@ -2601,6 +2691,10 @@ arch swamp1
 x 21
 y 2
 end
+arch water_plant4
+x 21
+y 2
+end
 arch swamp1
 x 21
 y 3
@@ -2610,6 +2704,10 @@ x 21
 y 4
 end
 arch swamp1
+x 21
+y 5
+end
+arch water_lily
 x 21
 y 5
 end
@@ -2709,7 +2807,14 @@ end
 arch swamp1
 x 22
 end
+arch water_plant1
+x 22
+end
 arch swamp1
+x 22
+y 1
+end
+arch plant15
 x 22
 y 1
 end
@@ -2726,6 +2831,10 @@ x 22
 y 4
 end
 arch swamp1
+x 22
+y 5
+end
+arch water_plant4
 x 22
 y 5
 end

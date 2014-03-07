@@ -2,7 +2,7 @@ arch map
 name Incuna - Under the Barn
 msg
 Created:  2010-08-22 Edwin Miltenburg
-Modified: 2011-11-04 Alex Tokar
+Modified: 2014-02-28 Alex Tokar
 endmsg
 width 24
 height 24
@@ -3688,10 +3688,13 @@ arch ant_queen
 type 83
 level 2
 arch quest_container
-name Incuna Barn
+name incuna_barn
+arch quest_container
+name get_ant_head
 sub_type 2
 arch head_ant_queen
 name incuna barn ant queen head
+end
 end
 end
 end

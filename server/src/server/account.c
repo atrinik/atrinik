@@ -30,9 +30,17 @@
 
 #include <global.h>
 
+#define ACCOUNT_CHARACTERS_LIMIT 16
+#define ACCOUNT_PASSWORD_SIZE 32
+#define ACCOUNT_PASSWORD_ITERATIONS 4096
+
 typedef struct account_struct
 {
-    char *password;
+    unsigned char password[ACCOUNT_PASSWORD_SIZE];
+
+    unsigned char salt[ACCOUNT_PASSWORD_SIZE];
+
+    char *password_old;
 
     char *last_host;
 
@@ -52,8 +60,6 @@ typedef struct account_struct
     size_t characters_num;
 } account_struct;
 
-#define ACCOUNT_CHARACTERS_LIMIT 16
-
 void account_init(void)
 {
 }
@@ -66,8 +72,13 @@ static void account_free(account_struct *account)
 {
     size_t i;
 
-    free(account->password);
-    free(account->last_host);
+    if (account->last_host) {
+        free(account->last_host);
+    }
+
+    if (account->password_old) {
+        free(account->password_old);
+    }
 
     for (i = 0; i < account->characters_num; i++) {
         free(account->characters[i].name);
@@ -78,9 +89,96 @@ static void account_free(account_struct *account)
     }
 }
 
+static char *account_old_crypt(char *str, const char *salt)
+{
+#if defined(HAVE_CRYPT)
+    return crypt(str, salt);
+#elif defined(WIN32)
+    HCRYPTPROV provider;
+    HCRYPTHASH hash;
+    DWORD resultlen = 0, i;
+    BYTE *result;
+    static char hashresult[HUGE_BUF];
+    char tmp[6];
+
+    if (!CryptAcquireContext(&provider, NULL, NULL, PROV_RSA_FULL, CRYPT_VERIFYCONTEXT)) {
+        return str;
+    }
+
+    if (!CryptCreateHash(provider, CALG_SHA1, 0, 0, &hash)) {
+        CryptReleaseContext(provider, 0);
+        return str;
+    }
+
+    if (!CryptHashData(hash, (BYTE *) str, strlen(str), 0)) {
+        CryptDestroyHash(hash);
+        CryptReleaseContext(provider, 0);
+        return str;
+    }
+
+    if (!CryptGetHashParam(hash, HP_HASHVAL, NULL, &resultlen, 0)) {
+        CryptDestroyHash(hash);
+        CryptReleaseContext(provider, 0);
+        return str;
+    }
+
+    result = calloc(1, sizeof(BYTE) * resultlen);
+
+    if (!CryptGetHashParam(hash, HP_HASHVAL, result, &resultlen, 0)) {
+        free(result);
+        CryptDestroyHash(hash);
+        CryptReleaseContext(provider, 0);
+        return str;
+    }
+
+    CryptDestroyHash(hash);
+    CryptReleaseContext(provider, 0);
+
+    hashresult[0] = '\0';
+
+    for (i = 0; i < resultlen; i++) {
+        snprintf(tmp, sizeof(tmp), "%.2x", result[i]);
+        strncat(hashresult, tmp, sizeof(hashresult) - strlen(hashresult) - 1);
+        hashresult[sizeof(hashresult) - strlen(hashresult) - 1] = '\0';
+    }
+
+    free(result);
+
+    return hashresult;
+#else
+    return str;
+#endif
+}
+
+static void account_set_password(account_struct *account, const char *password)
+{
+    size_t i;
+
+    /* Create a truly random 256-bit salt. */
+    for (i = 0; i < ACCOUNT_PASSWORD_SIZE; i++) {
+        account->salt[i] = rndm(1, 256) - 1;
+    }
+
+    PKCS5_PBKDF2_HMAC((unsigned char *) password, strlen(password), account->salt, ACCOUNT_PASSWORD_SIZE, ACCOUNT_PASSWORD_ITERATIONS, ACCOUNT_PASSWORD_SIZE, account->password);
+}
+
+static int account_check_password(account_struct *account, char *password)
+{
+    unsigned char output[ACCOUNT_PASSWORD_SIZE];
+
+    if (account->password_old) {
+        return strcmp(account_old_crypt(password, account->password_old), account->password_old) == 0;
+    }
+
+    PKCS5_PBKDF2_HMAC((unsigned char *) password, strlen(password), account->salt, ACCOUNT_PASSWORD_SIZE, ACCOUNT_PASSWORD_ITERATIONS, ACCOUNT_PASSWORD_SIZE, output);
+
+    return memcmp(account->password, output, sizeof(output)) == 0;
+}
+
 static int account_save(account_struct *account, const char *path)
 {
     FILE *fp;
+    char hex[ACCOUNT_PASSWORD_SIZE * 2 + 1];
     size_t i;
 
     fp = fopen(path, "w");
@@ -90,7 +188,14 @@ static int account_save(account_struct *account, const char *path)
         return 0;
     }
 
-    fprintf(fp, "pswd %s\n", account->password);
+    if (string_tohex(account->password, ACCOUNT_PASSWORD_SIZE, hex, sizeof(hex)) == sizeof(hex) - 1) {
+        fprintf(fp, "pswd %s\n", hex);
+    }
+
+    if (string_tohex(account->salt, ACCOUNT_PASSWORD_SIZE, hex, sizeof(hex)) == sizeof(hex) - 1) {
+        fprintf(fp, "salt %s\n", hex);
+    }
+
     fprintf(fp, "host %s\n", account->last_host);
     fprintf(fp, "time %"FMT64U "\n", (uint64) account->last_time);
 
@@ -115,8 +220,7 @@ static int account_load(account_struct *account, const char *path)
         return 0;
     }
 
-    account->characters = NULL;
-    account->characters_num = 0;
+    memset(account, 0, sizeof(*account));
 
     while (fgets(buf, sizeof(buf), fp)) {
         end = strchr(buf, '\n');
@@ -126,7 +230,23 @@ static int account_load(account_struct *account, const char *path)
         }
 
         if (strncmp(buf, "pswd ", 5) == 0) {
-            account->password = strdup(buf + 5);
+            size_t len;
+
+            len = strlen(buf + 5);
+
+            if (len == 13 || len == 40) {
+                account->password_old = strdup(buf + 5);
+            }
+            else if (string_fromhex(buf + 5, len, account->password, ACCOUNT_PASSWORD_SIZE) != ACCOUNT_PASSWORD_SIZE) {
+                logger_print(LOG(BUG), "Invalid password entry in file: %s", path);
+                memset(account->password, 0, sizeof(account->password));
+            }
+        }
+        else if (strncmp(buf, "salt ", 5) == 0) {
+            if (string_fromhex(buf + 5, strlen(buf + 5), account->salt, ACCOUNT_PASSWORD_SIZE) != ACCOUNT_PASSWORD_SIZE) {
+                logger_print(LOG(BUG), "Invalid salt entry in file: %s", path);
+                memset(account->salt, 0, sizeof(account->salt));
+            }
         }
         else if (strncmp(buf, "host ", 5) == 0) {
             account->last_host = strdup(buf + 5);
@@ -235,7 +355,7 @@ void account_login(socket_struct *ns, char *name, char *password)
         return;
     }
 
-    if (strcmp(string_crypt(password, account.password), account.password) != 0) {
+    if (!account_check_password(&account, password)) {
         draw_info_send(CHAT_TYPE_GAME, NULL, COLOR_RED, ns, "Invalid password.");
         account_send_characters(ns, NULL);
         account_free(&account);
@@ -251,6 +371,10 @@ void account_login(socket_struct *ns, char *name, char *password)
         }
 
         return;
+    }
+
+    if (account.password_old) {
+        account_set_password(&account, password);
     }
 
     ns->account = strdup(name);
@@ -307,7 +431,7 @@ void account_register(socket_struct *ns, char *name, char *password, char *passw
 
     path_ensure_directories(path);
 
-    account.password = string_crypt(password, NULL);
+    account_set_password(&account, password);
     account.last_host = ns->host;
     account.last_time = datetime_getutc();
     account.characters = NULL;
@@ -413,7 +537,12 @@ void account_login_char(socket_struct *ns, char *name)
     }
 
     path = account_make_path(ns->account);
-    account_load(&account, path);
+
+    if (!account_load(&account, path)) {
+        free(path);
+        return;
+    }
+
     free(path);
 
     for (i = 0; i < account.characters_num; i++) {
@@ -496,15 +625,14 @@ void account_password_change(socket_struct *ns, char *password, char *password_n
         return;
     }
 
-    if (strcmp(string_crypt(password, account.password), account.password) != 0) {
+    if (!account_check_password(&account, password)) {
         draw_info_send(CHAT_TYPE_GAME, NULL, COLOR_RED, ns, "Invalid password.");
         account_free(&account);
         free(path);
         return;
     }
 
-    free(account.password);
-    account.password = strdup(string_crypt(password_new, NULL));
+    account_set_password(&account, password_new);
 
     if (account_save(&account, path)) {
         draw_info_send(CHAT_TYPE_GAME, NULL, COLOR_GREEN, ns, "Password changed successfully.");

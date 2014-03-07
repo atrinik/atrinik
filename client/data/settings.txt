@@ -20,7 +20,7 @@ category General
 		option LExp/LExp 4nl
 		option TExp/TExp 4nl
 		option (LExp/%) LExp tnl
-		desc The format key is:\n<green>4nl</green> = For next level\n<green>tnl</green> = Till next level\n<green>LExp</green> = Level exp\n<green>TExp</green> = Total exp
+		desc The format key is:\n[green]4nl[/green] = For next level\n[green]tnl[/green] = Till next level\n[green]LExp[/green] = Level exp\n[green]TExp[/green] = Total exp
 	end
 	setting Chat timestamps
 		type select

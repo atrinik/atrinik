@@ -385,14 +385,14 @@ def create_list(l, action, back = None, sort = None, start = None):
             code += b64encode(back.encode()).decode()
 
         # Add the action link
-        s += "[<a=:/talk 1 " + action + " " + code + ">" + action + "</a>"
+        s += "&lsqb;[a=:/talk 1 " + action + " " + code + "]" + action + "[/a]"
 
         # If buying, add examine link as well.
         if action == "buy":
-            s += ", <a=:/talk 1 examine " + code + ">examine</a>"
+            s += ", [a=:/talk 1 examine " + code + "]examine[/a]"
 
         # Add the object's name and the cost.
-        s += "] " + obj.GetName() + ": <u>" + CostString(int(obj.ReadKey("auction_house_value"))) + "</u> (each)"
+        s += "&rsqb; " + obj.GetName() + ": [u]" + CostString(int(obj.ReadKey("auction_house_value"))) + "[/u] (each)"
 
         # Buying and there is a stack of items, create links to only buy
         # a part of the stack.
@@ -404,9 +404,9 @@ def create_list(l, action, back = None, sort = None, start = None):
                 if nrof <= val:
                     break
 
-                links.append("<a=:/talk 1 buy " + code + " " + str(val) + ">" + str(val) + "</a>")
+                links.append("[a=:/talk 1 buy " + code + " " + str(val) + "]" + str(val) + "[/a]")
 
-            s += " [" + "; ".join(links) + "]"
+            s += " &lsqb;" + "; ".join(links) + "&rsqb;"
 
     return s
 
@@ -419,7 +419,7 @@ def main():
 
     elif msg == "search1":
         inf.add_msg("How do you want to search for items? Do you want to search by item name or by seller name?")
-        inf.add_msg("You can also browse the following item types: {}".format(", ".join(["<a=:search2_name 1 \"" + str(t[1]) + "\" xx>" + t[0] + "</a>" for t in Filter.types])))
+        inf.add_msg("You can also browse the following item types: {}".format(", ".join(["[a=:search2_name 1 \"" + str(t[1]) + "\" xx]" + t[0] + "[/a]" for t in Filter.types])))
         inf.add_link("I'd like to search by item name.", dest = "search1_name")
         inf.add_link("I'd like to search by seller name.", dest = "search1_seller")
 
@@ -482,52 +482,52 @@ def main():
             inf.set_text_input(prepend = "search2_name 1 \"\" ")
             return
 
-        s = "<yellow>Types:</yellow> "
+        s = "[yellow]Types:[/yellow] "
 
         for (filter_name, filter_id, filter_subs) in Filter.types:
             if filter_name != Filter.types[0][0]:
                 s += ", "
 
             if filter_id in filters:
-                s += "<u>" + filter_name + "</u> <size=8><a=:search2_name 1 \"" + ",".join([str(i) for i in filters if i != filter_id]) + "\" " + name + ">" + "X" + "</a></size>"
+                s += "[u]" + filter_name + "[/u] [size=8][a=:search2_name 1 \"" + ",".join([str(i) for i in filters if i != filter_id]) + "\" " + name + "]" + "X" + "[/a][/size]"
 
                 for filter_sub in filter_subs:
-                    s += " ["
+                    s += " &lsqb;"
 
                     for (filter_name2, filter_id2) in filter_sub:
                         if filter_name2 != filter_sub[0][0]:
                             s += ", "
 
                         if filter_id2 in filters:
-                            s += "<u>" + filter_name2 + "</u> <size=8><a=:search2_name 1 \"" + ",".join([str(i) for i in filters if i != filter_id2]) + "\" " + name + ">" + "X" + "</a></size>"
+                            s += "[u]" + filter_name2 + "[/u] [size=8][a=:search2_name 1 \"" + ",".join([str(i) for i in filters if i != filter_id2]) + "\" " + name + "]" + "X" + "[/a][/size]"
                         else:
-                            s += "<a=:search2_name 1 \"" + ",".join([str(i) for i in filters if not i in [t[1] for t in filter_sub]] + [str(filter_id2)]) + "\" " + name + ">" + filter_name2 + "</a>"
+                            s += "[a=:search2_name 1 \"" + ",".join([str(i) for i in filters if not i in [t[1] for t in filter_sub]] + [str(filter_id2)]) + "\" " + name + "]" + filter_name2 + "[/a]"
 
-                    s += "]"
+                    s += "&rsqb;"
             else:
-                s += "<a=:search2_name 1 \"" + ",".join([str(i) for i in filters if not i in [t[1] for t in Filter.types]] + [str(filter_id)]) + "\" " + name + ">" + filter_name + "</a>"
+                s += "[a=:search2_name 1 \"" + ",".join([str(i) for i in filters if not i in [t[1] for t in Filter.types]] + [str(filter_id)]) + "\" " + name + "]" + filter_name + "[/a]"
 
-        s += "\n<yellow>Filters:</yellow> "
+        s += "\n[yellow]Filters:[/yellow] "
 
         for (filter_name, filter_id, filter_disables) in Filter.filters:
             if filter_name != Filter.filters[0][0]:
                 s += ", "
 
             if filter_id in filters:
-                s += "<u>" + filter_name + "</u> <size=8><a=:search2_name 1 \"" + ",".join([str(i) for i in filters if i != filter_id]) + "\" " + name + ">" + "X" + "</a></size>"
+                s += "[u]" + filter_name + "[/u] [size=8][a=:search2_name 1 \"" + ",".join([str(i) for i in filters if i != filter_id]) + "\" " + name + "]" + "X" + "[/a][/size]"
             else:
-                s += "<a=:search2_name 1 \"" + ",".join([str(i) for i in filters if not i in filter_disables] + [str(filter_id)]) + "\" " + name + ">" + filter_name + "</a>"
+                s += "[a=:search2_name 1 \"" + ",".join([str(i) for i in filters if not i in filter_disables] + [str(filter_id)]) + "\" " + name + "]" + filter_name + "[/a]"
 
-        s += "\n<yellow>Sorting:</yellow> "
+        s += "\n[yellow]Sorting:[/yellow] "
 
         for (filter_name, filter_id) in Filter.sorts:
             if filter_name != Filter.sorts[0][0]:
                 s += ", "
 
             if filter_id == sort:
-                s += "<u>" + filter_name + "</u>"
+                s += "[u]" + filter_name + "[/u]"
             else:
-                s += "<a=:search2_name 1 \"" + ",".join([str(i) for i in filters if i not in sorts] + [str(filter_id)]) + "\" " + name + ">" + filter_name + "</a>"
+                s += "[a=:search2_name 1 \"" + ",".join([str(i) for i in filters if i not in sorts] + [str(filter_id)]) + "\" " + name + "]" + filter_name + "[/a]"
 
         s += "\n\nItems matching your search term"
 
@@ -542,17 +542,17 @@ def main():
 
             # Previous button
             if page > 1:
-                paging += "<a=:search2_name " + str(page - 1) + " \"" + ",".join([str(i) for i in filters]) + "\" " + name + ">&lt; Previous</a>"
+                paging += "[a=:search2_name " + str(page - 1) + " \"" + ",".join([str(i) for i in filters]) + "\" " + name + "]< Previous[/a]"
             else:
-                paging += "&lt; Previous"
+                paging += "< Previous"
 
             paging += " | "
 
             # Next button
             if len(l) > page * Auction.PER_PAGE:
-                paging += "<a=:search2_name " + str(page + 1) + " \"" + ",".join([str(i) for i in filters]) + "\" " + name + ">Next &gt;</a>"
+                paging += "[a=:search2_name " + str(page + 1) + " \"" + ",".join([str(i) for i in filters]) + "\" " + name + "]Next >[/a]"
             else:
-                paging += "Next &gt;"
+                paging += "Next >"
 
             # Add the paging and the objects list.
             s += paging
@@ -561,7 +561,7 @@ def main():
             s += paging
 
         # Help link.
-        s += "\n\nClick <a=:helpsearch " + msg + ">here</a> for help with searching."
+        s += "\n\nClick [a=:helpsearch " + msg + "]here[/a] for help with searching."
         inf.add_msg(s)
 
     elif msg == "search1_seller":
@@ -586,7 +586,7 @@ def main():
     # Show help about the search interface.
     elif msg.startswith("helpsearch "):
         back = msg[11:]
-        inf.add_msg("Several searching methods exist; you can filter by item types (weapons, slash 1h weapons, girdles, etc), item name, etc. When you search for something, all these filtering methods appear at the top of a window similar to this one. Here is what it may look like:\n\n<yellow>Types:</yellow> <u>weapons</u> <size=8><a=:>X</a></size> [<a=:>slash</a>, <u>pierce</u> <size=8><a=:>X</a></size>, ...] [<a=:>1h</a>], <a=:>armour</a>, ...\n\nThe above are item type filters; only one can be active at any time, but more sub-filters can be active along with it. In the above example, the active filter is <b>weapons</b>, so only weapons will appear in your search results, but the <b>pierce</b> sub-filter is also active, so only <b>pierce weapons</b> will appear. Clicking the <b>1h</b> sub-filter would only show <b>1h pierce weapons</b>, but clicking the <b>slash</b> sub-filter would switch from <b>pierce</b> weapons to <b>slash</b> weapons. Clicking the <b>armour</b> filter would deactivate the weapons filter. You can also click the <b>X</b> at top right of the filter name to deactivate that filter.\n\n<yellow>Filters:</yellow> <a=:>magical</a>, <a=:>identified</a>\n\nThe above are item filters, and any number of those can be active. Upon clicking <b>identified</b>, only <b>identified items</b> would appear in your search results.\n\nBelow filtering and sorting is pagination and below that, items list:\n\n&lt; Previous | <a=:>Next &gt;</a>\n[<a=:>buy</a>, <a=:>examine</a>] 10 beer: <u>1 silver coin</u> (each) [<a=:>1</a>; <a=:>5</a>]\n\nIf the <b>Next</b> button is active, it means there is another page of items and you can click it to see them. <b>Previous</b> button would take you to the previous page, if any. Clicking <b>buy</b> would buy the whole stock of the items (price is the shown price multiplied by number of items). You can examine the item by clicking <b>examine</b>. If there is a stock of items and you don't want to buy them all, the numbers like <b>1</b> and <b>5</b> after the item name and cost allow you to buy a smaller quantity.")
+        inf.add_msg("Several searching methods exist; you can filter by item types (weapons, slash 1h weapons, girdles, etc), item name, etc. When you search for something, all these filtering methods appear at the top of a window similar to this one. Here is what it may look like:\n\n[yellow]Types:[/yellow] [u]weapons[/u] [size=8][a=:]X[/a][/size] [[a=:]slash[/a], [u]pierce[/u] [size=8][a=:]X[/a][/size], ...] [[a=:]1h[/a]], [a=:]armour[/a], ...\n\nThe above are item type filters; only one can be active at any time, but more sub-filters can be active along with it. In the above example, the active filter is [b]weapons[/b], so only weapons will appear in your search results, but the [b]pierce[/b] sub-filter is also active, so only [b]pierce weapons[/b] will appear. Clicking the [b]1h[/b] sub-filter would only show [b]1h pierce weapons[/b], but clicking the [b]slash[/b] sub-filter would switch from [b]pierce[/b] weapons to [b]slash[/b] weapons. Clicking the [b]armour[/b] filter would deactivate the weapons filter. You can also click the [b]X[/b] at top right of the filter name to deactivate that filter.\n\n[yellow]Filters:[/yellow] [a=:]magical[/a], [a=:]identified[/a]\n\nThe above are item filters, and any number of those can be active. Upon clicking [b]identified[/b], only [b]identified items[/b] would appear in your search results.\n\nBelow filtering and sorting is pagination and below that, items list:\n\n< Previous | [a=:]Next >[/a]\n[[a=:]buy[/a], [a=:]examine[/a]] 10 beer: [u]1 silver coin[/u] (each) [[a=:]1[/a]; [a=:]5[/a]]\n\nIf the [b]Next[/b] button is active, it means there is another page of items and you can click it to see them. [b]Previous[/b] button would take you to the previous page, if any. Clicking [b]buy[/b] would buy the whole stock of the items (price is the shown price multiplied by number of items). You can examine the item by clicking [b]examine[/b]. If there is a stock of items and you don't want to buy them all, the numbers like [b]1[/b] and [b]5[/b] after the item name and cost allow you to buy a smaller quantity.")
         inf.add_link("I'd like to go back to my search.", dest = back)
 
     # Examine an object.
@@ -610,9 +610,9 @@ def main():
         if not obj:
             inf.add_msg("That item is not available anymore.")
         else:
-            inf.add_msg("<title>{}</title>".format(obj.GetName()))
+            inf.add_msg("[title]{}[/title]".format(obj.GetName()))
             inf.add_msg(activator.Controller().Examine(obj, True).strip())
-            inf.add_msg("<green>Price:</green> {} (each)\n<green>Seller:</green> {}".format(CostString(int(obj.ReadKey("auction_house_value"))), obj.ReadKey("auction_house_seller")))
+            inf.add_msg("[green]Price:[/green] {} (each)\n[green]Seller:[/green] {}".format(CostString(int(obj.ReadKey("auction_house_value"))), obj.ReadKey("auction_house_seller")))
 
         inf.add_link("I'd like to go back to my search.", dest = back)
 
@@ -693,9 +693,9 @@ def main():
             inf.add_msg("Please mark the item that you want to sell first.")
             return
 
-        inf.add_msg("<title>{}</title>".format(marked.GetName()))
+        inf.add_msg("[title]{}[/title]".format(marked.GetName()))
         inf.add_msg(activator.Controller().Examine(marked, True).strip())
-        inf.add_msg("How much do you want to sell that for? Example: <green>10 gold, 50 silver</green>".format(marked.GetName()))
+        inf.add_msg("How much do you want to sell that for? Example: [green]10 gold, 50 silver[/green]".format(marked.GetName()))
         inf.set_text_input(prepend = "sell2 ")
 
     elif msg.startswith("sell2 "):
@@ -708,7 +708,7 @@ def main():
         val = Auction.string_to_cost(msg[6:])
 
         if not val:
-            inf.add_msg("Invalid value to sell for, please try again. Example: <green>10 gold, 50 silver</green>")
+            inf.add_msg("Invalid value to sell for, please try again. Example: [green]10 gold, 50 silver[/green]")
             inf.set_text_input(prepend = "sell2 ")
             return
 

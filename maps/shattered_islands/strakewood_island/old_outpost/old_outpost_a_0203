@@ -2,7 +2,7 @@ arch map
 name Old Outpost
 msg
 Created:  2009-09-18 Alex Tokar
-Modified: 2011-11-04 Alex Tokar
+Modified: 2014-02-28 alex
 endmsg
 width 24
 height 24
@@ -422,12 +422,14 @@ arch gauntlet_precision
 end
 end
 arch quest_container
-name King Rhun's Cloak
+name king_rhun_cloak
+race King Rhun's Cloak
+sub_type 3
 arch cloak_rhun
 end
 end
 arch quest_container
-name King Rhun's Vault Key
+sub_type 3
 arch key_skull
 msg
 Key from the King Rhun's Vault entrance.
@@ -2232,7 +2234,7 @@ maxhp 110
 ac 12
 type 83
 arch quest_container
-name Old Outpost Key 2
+sub_type 3
 arch key_brown
 name orange stone giant key
 value 0
@@ -3396,7 +3398,7 @@ y 10
 end
 arch magic_mouth
 msg
-The orange force field prevents you from reaching the door. <i>Xuhrexal, the stone giant</i> is engraved on the door.
+The orange force field prevents you from reaching the door. [i]Xuhrexal, the stone giant[/i] is engraved on the door.
 endmsg
 slaying orange stone giant key
 last_sp 1
@@ -3446,7 +3448,7 @@ y 15
 end
 arch magic_mouth
 msg
-The blue force field prevents you from reaching the door. <i>Ksha'sha, the troll</i> is engraved on the door.
+The blue force field prevents you from reaching the door. [i]Ksha'sha, the troll[/i] is engraved on the door.
 endmsg
 slaying blue stone giant key
 last_sp 1

@@ -5,8 +5,8 @@ from Atrinik import *
 
 ## The markup escape table.
 _markup_escape_table = {
-    ">": "&gt;",
-    "<": "&lt;",
+    "]": "&rsqb;",
+    "[": "&lsqb;",
 }
 
 ## Escapes markup in the specified string.
@@ -182,7 +182,7 @@ class Map2Markup:
                 else:
                     break
 
-            self._ret.append("<img={} {}>".format(obj.face[0], " ".join(str(x) for x in values[:num_values])))
+            self._ret.append("[img={} {}]".format(obj.face[0], " ".join(str(x) for x in values[:num_values])))
 
             if (obj.f_draw_double and (x < self._x or y < self._y)) or obj.f_draw_double_always:
                 values[1] -= 22
@@ -223,7 +223,7 @@ class Map2Markup:
         self._calculate_coords()
         self._calculate_mmirrors()
         self._hide_objects()
-        self._ret = ["<x={}>".format((self._range - 1) * 48 // 2)]
+        self._ret = ["[x={}]".format((self._range - 1) * 48 // 2)]
 
         for (x, y) in self._coords:
             for layer in [LAYER_FLOOR, LAYER_FMASK]:

@@ -132,7 +132,7 @@ void command_party(object *op, const char *command, char *params)
         params = player_sanitize_input(params + 4);
 
         if (!params) {
-            draw_info_format(COLOR_WHITE, op, "Current looting mode: <green>%s</green>.", party_loot_modes[CONTR(op)->party->loot]);
+            draw_info_format(COLOR_WHITE, op, "Current looting mode: [green]%s[/green].", party_loot_modes[CONTR(op)->party->loot]);
             return;
         }
 
@@ -153,7 +153,7 @@ void command_party(object *op, const char *command, char *params)
         draw_info(COLOR_WHITE, op, "Invalid looting mode. Valid modes are:");
 
         for (i = 0; i < PARTY_LOOT_MAX; i++) {
-            draw_info_format(COLOR_WHITE, op, "<green>%s</green>: %s.", party_loot_modes[i], party_loot_modes_help[i]);
+            draw_info_format(COLOR_WHITE, op, "[green]%s[/green]: %s.", party_loot_modes[i], party_loot_modes_help[i]);
         }
     }
     else if (!strncmp(params, "kick", 4)) {

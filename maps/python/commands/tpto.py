@@ -2,19 +2,20 @@
 ## Implements the /tpto command.
 
 import re
+from Markup import markup_escape
 
 def main():
     match = re.match(r"([^ ]+)(?: (\d+))?(?: (\d+))?(?: (unique)(?:\:((?:\")(.+)(?:\")|([^ ]+)))?)?", WhatIsMessage() or "")
 
     if not match:
         activator.Controller().DrawInfo(
-            "Usage: /tpto &lt;path&gt; [x] [y] ['unique'[':'[\"]player name[\"]]]\n"
+            markup_escape("Usage: /tpto <path> [x] [y] ['unique'[':'[\"]player name[\"]]]\n") +
             "Examples:\n"
-            "<b>/tpto /shattered_islands/world_0110</b> - teleports to world_0110, at default map enter x/y\n"
-            "<b>/tpto world_0505</b> - teleports to world_0505 map, relative to the map path you're at\n"
-            "<b>/tpto /hall_of_dms 2 18</b> - teleports to Hall of DMs, at x: 2, y: 18\n"
-            "<b>/tpto /shattered_islands/strakewood_island/apartment_luxurious unique</b> - enter your luxurious apartment\n"
-            "<b>/tpto /shattered_islands/strakewood_island/apartment_cheap unique:\"Some Player\"</b> - enter the cheap apartment of 'Some Player'\n",
+            "[b]/tpto /shattered_islands/world_0110[/b] - teleports to world_0110, at default map enter x/y\n"
+            "[b]/tpto world_0505[/b] - teleports to world_0505 map, relative to the map path you're at\n"
+            "[b]/tpto /hall_of_dms 2 18[/b] - teleports to Hall of DMs, at x: 2, y: 18\n"
+            "[b]/tpto /shattered_islands/strakewood_island/apartment_luxurious unique[/b] - enter your luxurious apartment\n"
+            "[b]/tpto /shattered_islands/strakewood_island/apartment_cheap unique:\"Some Player\"[/b] - enter the cheap apartment of 'Some Player'\n",
             color = COLOR_WHITE
         )
         return

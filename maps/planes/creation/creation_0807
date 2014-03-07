@@ -2748,7 +2748,7 @@ y 13
 end
 arch sign
 msg
-Similar to <green>snow</green>, but with smaller snow particles.
+Similar to [green]snow[/green], but with smaller snow particles.
 endmsg
 name snow_light
 x 17

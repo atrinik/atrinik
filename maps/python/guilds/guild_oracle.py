@@ -34,7 +34,7 @@ def main():
 
         for member in guild.get_members():
             if not guild.member_approved(member):
-                inf.add_msg("{0} (<a=:member_approve {0}>approve</a>, <a=:member_remove2 {0}>decline</a>)")
+                inf.add_msg("{0} ([a=:member_approve {0}]approve[/a], [a=:member_remove2 {0}]decline[/a])")
 
     elif msg == "member_remove1":
         inf.add_msg("Enter the player's name that you want to remove from the guild.")
@@ -124,12 +124,12 @@ def main():
 
         for rank in guild.ranks_get_sorted():
             inf.add_msg(guild.rank_string(rank))
-            inf.add_msg("\n(<a=:rank_add_member1 \"{0}\">add member</a>, <a=:rank_change1 \"{0}\">change setting</a>)".format(rank), newline = False)
+            inf.add_msg("\n([a=:rank_add_member1 \"{0}\"]add member[/a], [a=:rank_change1 \"{0}\"]change setting[/a])".format(rank), newline = False)
 
         no_rank_members = list(filter(lambda name: not guild.member_get_rank(name), guild.get_members()))
 
         if no_rank_members:
-            inf.add_msg("<green>No rank assigned</green>\n{}".format(", ".join(no_rank_members)))
+            inf.add_msg("[green]No rank assigned[/green]\n{}".format(", ".join(no_rank_members)))
 
         inf.add_link("I'd like to add a rank.", dest = "rank_add1")
         inf.add_link("I'd like to delete a rank.", dest = "rank_delete1")
@@ -171,7 +171,7 @@ def main():
         (rank, what) = match.groups()
 
         if what == "limit_value":
-            inf.add_msg("Enter the value limit for that rank, such as <green>6 gold</green> or <green>1 m 500 g</green> or <green>unlimited</green>.")
+            inf.add_msg("Enter the value limit for that rank, such as [green]6 gold[/green] or [green]1 m 500 g[/green] or [green]unlimited[/green].")
         elif what == "limit_time":
             inf.add_msg("Enter the amount of time when to reset the value limit of that rank, in hours.")
 

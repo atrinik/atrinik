@@ -990,7 +990,7 @@ y 15
 arch dwarf_guard
 msg
 @match ^hello$
-<yellow>*sighs*</yellow>
+[yellow]*sighs*[/yellow]
 No one available to play cards with me today... Oh, hello... would you like to play some cards with me? No? Well, I suppose you're busy too...
 endmsg
 type 83
@@ -1780,7 +1780,7 @@ y 18
 arch dwarf_steelclad
 msg
 @match ^hello$
-<yellow>*laughs*</yellow>
+[yellow]*laughs*[/yellow]
 Deal with it Aena, you are no good at this!
 endmsg
 type 83
@@ -1943,7 +1943,7 @@ y 19
 arch dwarf_lord
 msg
 @match ^hello$
-<yellow>*chuckles*</yellow>
+[yellow]*chuckles*[/yellow]
 Quite right, Herlad, quite right.
 endmsg
 type 83
@@ -2384,7 +2384,7 @@ y 19
 arch dwarf_scout
 msg
 @match ^hello$
-<yellow>*HIC*</yellow>
+[yellow]*HIC*[/yellow]
 endmsg
 type 83
 name Nalko Witchslasher

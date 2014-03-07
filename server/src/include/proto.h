@@ -3,8 +3,6 @@
 extern void command_arrest(object *op, const char *command, char *params);
 /* src/commands/permission/ban.c */
 extern void command_ban(object *op, const char *command, char *params);
-/* src/commands/permission/cmd_permission.c */
-extern void command_cmd_permission(object *op, const char *command, char *params);
 /* src/commands/permission/follow.c */
 extern void command_follow(object *op, const char *command, char *params);
 /* src/commands/permission/freeze.c */
@@ -334,6 +332,7 @@ extern int world_darkness;
 extern unsigned long todtick;
 extern char first_map_path[256];
 extern void free_strings(void);
+extern void cleanup(void);
 extern void init_globals(void);
 extern void write_todclock(void);
 extern void init(int argc, char **argv);
@@ -549,7 +548,6 @@ extern object *object_projectile_move(object *op);
 extern int object_projectile_hit(object *op, object *victim);
 extern object *object_projectile_stop(object *op, int reason);
 extern int object_ranged_fire(object *op, object *shooter, int dir, double *delay);
-extern int object_throw(object *op, object *shooter, int dir);
 /* src/server/party.c */
 extern const char *const party_loot_modes[PARTY_LOOT_MAX];
 extern const char *const party_loot_modes_help[PARTY_LOOT_MAX];
@@ -891,8 +889,6 @@ extern object *common_object_projectile_stop_spell(object *op, int reason);
 extern object *common_object_projectile_fire_missile(object *op, object *shooter, int dir);
 extern int common_object_projectile_hit(object *op, object *victim);
 extern int common_object_projectile_move_on(object *op, object *victim, object *originator, int state);
-/* src/types/common/throw.c */
-extern int common_object_throw(object *op, object *shooter, int dir);
 /* src/types/compass.c */
 extern void object_type_init_compass(void);
 /* src/types/cone.c */
@@ -1247,6 +1243,8 @@ extern int path_exists(const char *path);
 extern int path_touch(const char *path);
 extern size_t path_size(const char *path);
 extern char *path_file_contents(const char *path);
+/* src/toolkit/pbkdf2.c */
+extern void PKCS5_PBKDF2_HMAC(unsigned char *password, size_t plen, unsigned char *salt, size_t slen, const unsigned long iteration_count, const unsigned long key_length, unsigned char *output);
 /* src/toolkit/porting.c */
 extern void toolkit_porting_init(void);
 extern void toolkit_porting_deinit(void);
@@ -1301,11 +1299,12 @@ extern int char_contains(const char c, const char *key);
 extern int string_contains(const char *str, const char *key);
 extern int string_contains_other(const char *str, const char *key);
 extern char *string_create_char_range(char start, char end);
-extern char *string_crypt(char *str, const char *salt);
 extern char *string_join(const char *delim, ...);
 extern char *string_join_array(const char *delim, char **array, size_t arraysize);
 extern char *string_repeat(const char *str, size_t num);
 extern size_t snprintfcat(char *buf, size_t size, const char *fmt, ...) __attribute__((format(printf, 3, 4)));
+extern size_t string_tohex(const unsigned char *str, size_t len, char *result, size_t resultsize);
+extern size_t string_fromhex(char *str, size_t len, unsigned char *result, size_t resultsize);
 /* src/toolkit/stringbuffer.c */
 extern void toolkit_stringbuffer_init(void);
 extern void toolkit_stringbuffer_deinit(void);
