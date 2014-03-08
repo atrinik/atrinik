@@ -288,8 +288,8 @@ def dialog(self, msg):
  The <and> tag can be used to build a set of preconditions.
 
  It may contain any number of <and>...</and> and <or>...</or> tags, in any
- level of nesting. Those tags can then contain any number of <check> tags (see
- section 3.2.2.1).
+ level of nesting. Those tags can then contain any number of <check> or
+ <ncheck> tags (see section 3.2.2.1).
 
  The interface will only be shown if the set of preconditions matches.
 
@@ -306,7 +306,8 @@ def dialog(self, msg):
 ===============================================================================
 = 3.2.2.1. Interface and check                                                =
 ===============================================================================
- The <check> tag can be used to build logic preconditions.
+ The <check> tag can be used to build logic preconditions. The <ncheck> does
+ the same as <check>, but in a not precondition.
 
  It can have any number of the following attributes:
   - region_map (string) (optional):
