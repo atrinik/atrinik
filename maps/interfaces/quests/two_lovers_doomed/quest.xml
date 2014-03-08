@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <interfaces>
-    <quest uid="two_lovers_doomed" name="Two Lovers Doomed">
+    <quest name="Two Lovers Doomed">
         <interface npc="Rienn Howell">
             <dialog name="hello">
                 <message color="yellow">{npc.name} doesn't seem to notice you and continues to stare in the direction of the ruins north...</message>

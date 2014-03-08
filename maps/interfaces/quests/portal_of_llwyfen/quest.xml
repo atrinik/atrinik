@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <interfaces>
-    <quest uid="portal_of_llwyfen" name="Portal of Llwyfen">
+    <quest name="Portal of Llwyfen">
         <interface npc="Maplevale">
             <dialog name="hello">
                 <message>Greetings, {activator.name}. I am {npc.name}, a priest of the elven god Llwyfen.</message>

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <interfaces>
-    <quest uid="melanye_lost_stick" name="Melanye's Lost Walking Stick">
+    <quest name="Melanye's Lost Walking Stick">
         <interface npc="Melanye" state="completed">
             <dialog name="hello">
                 <message>Thank you for recovering my walking stick and teaching that evil treant a lesson!</message>

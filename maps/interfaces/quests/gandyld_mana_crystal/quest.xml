@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <interfaces>
-    <quest uid="gandyld_mana_crystal" name="Gandyld's Mana Crystal">
+    <quest name="Gandyld's Mana Crystal">
         <interface npc="Gandyld" state="completed">
             <dialog name="hello">
                 <message>Welcome back, {activator.name}.</message>

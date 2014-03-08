@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <interfaces>
-    <quest uid="galann_revenge" name="Galann's Revenge">
+    <quest name="Galann's Revenge">
         <interface npc="Galann Strongfist" state="completed">
             <dialog name="hello">
                 <message>Thank you for bringing that stone giant to justice. I can now sleep peacefully at night, knowing that the stone giant will never trouble anyone ever again...</message>

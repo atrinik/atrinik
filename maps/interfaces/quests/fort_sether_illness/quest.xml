@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <interfaces>
-    <quest uid="fort_sether_illness" name="Fort Sether Illness">
+    <quest name="Fort Sether Illness">
         <interface npc="Brownrott">
             <dialog name="hello">
                 <choice>
