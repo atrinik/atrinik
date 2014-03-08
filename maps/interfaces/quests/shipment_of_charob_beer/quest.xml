@@ -19,7 +19,7 @@
                 <message>I'm {npc.name}, the bartender of this tavern. Here is the place if you want to eat or drink the best booze! I can offer you the following provisions.</message>
                 <action><![CDATA[self.show_provisions()]]></action>
             </dialog>
-            <action><![CDATA[
+            <code><![CDATA[
 def can_buy(self, obj):
     if obj.arch.name == "beer_charob" and not self.qm.completed("deliver"):
         return False
@@ -36,7 +36,7 @@ def show_bought(self, obj):
         "drink_generic": "Thirsty? Nothing like fresh water!",
         "beer_charob": "It is quite good quality!",
     }[obj.arch.name])
-            ]]></action>
+            ]]></code>
         </interface>
 
         <part uid="deliver" name="Deliver the Shipment">
