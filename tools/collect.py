@@ -162,22 +162,32 @@ def _make_precond(parent):
         if elem.tag in ("and", "or"):
             l.append(_make_precond(elem))
         elif elem.tag == "check":
-            if "region_map" in elem.attrib:
-                l.append("{} in self._activator.Controller().region_maps".format(repr(elem.attrib["region_map"])))
-            elif "enemy" in elem.attrib:
-                code = "self._npc.enemy"
+            for attr in elem.attrib:
+                if attr == "region_map":
+                    l.append("{} in self._activator.Controller().region_maps".format(repr(elem.attrib["region_map"])))
+                elif attr == "enemy":
+                    code = "self._npc.enemy"
 
-                if elem.attrib["enemy"]:
-                    code += " == "
+                    if elem.attrib["enemy"]:
+                        code += " == "
 
-                    if elem.attrib["enemy"] == "player":
-                        code += "self._activator"
+                        if elem.attrib["enemy"] == "player":
+                            code += "self._activator"
 
-                l.append(code)
+                    l.append(code)
+                elif attr in ("started", "finished", "completed"):
+                    split = elem.attrib["completed"].split("::")
+
+                    if len(split) > 1:
+                        val = "[{}]".format(", ".join(repr(val) for val in split))
+                    else:
+                        val = repr(elem.attrib["completed"])
+
+                    l.append("self.qm.{attr}({val})".format(**locals()))
 
     return "(" + (" " + parent.tag + " ").join(l) + ")"
 
-def _make_interface(file, parent, npcs, part_uid = None):
+def _make_interface(file, parent, npcs, uid = None):
     for interface in parent.findall("interface"):
         npc = interface.get("npc")
 
@@ -189,13 +199,10 @@ def _make_interface(file, parent, npcs, part_uid = None):
         if not npc in npcs:
             npcs[npc] = {
                 "code": "",
-                "quest_uid": None,
+                "quest_uid": uid,
                 "import": [],
                 "preconds": OrderedDict(),
             }
-
-        if parent.tag == "quest":
-            npcs[npc]["quest_uid"] = parent.get("uid")
 
         state = interface.get("state")
         inherit = interface.get("inherit")
@@ -248,11 +255,11 @@ def _make_interface(file, parent, npcs, part_uid = None):
             else:
                 dialog_args = ", msg"
 
-            dialog_inherit = "self" if inherit == None else interface_inherit
+            dialog_inherit = "self" if inherit == None or dialog_name.startswith("_::") else interface_inherit
             dialog_inherit2 = "" if inherit == None else interface_inherit + "."
             dialog_inherit_name = dialog.get("inherit")
             dialog_inherit_name_prefix = ""
-            dialog_inherit_args = "" if inherit == None else "self"
+            dialog_inherit_args = "" if inherit == None or dialog_name.startswith("_::") else "self"
 
             if not dialog_inherit_name:
                 dialog_inherit_name = dialog_name
@@ -265,7 +272,10 @@ def _make_interface(file, parent, npcs, part_uid = None):
 
             dialog_inherit_code = " " * 4 * 2 + "{dialog_inherit}.{dialog_inherit_name_prefix}dialog{dialog_inherit_name}({dialog_inherit_args})\n".format(**locals())
 
-            if dialog_regex:
+            if dialog_name.startswith("_::"):
+                dialog_prepend = "sub"
+                dialog_name = "_" + dialog_name[3:]
+            elif dialog_regex:
                 dialog_prepend = "regex_"
                 regex_matchers.append((dialog_regex, "{dialog_prepend}dialog{dialog_name}".format(**locals()) if dialog_name else "{dialog_inherit2}dialog{dialog_inherit_name}".format(**locals())))
 
@@ -304,7 +314,10 @@ def _make_interface(file, parent, npcs, part_uid = None):
 
                     class_code += " " * 4 * 2 + "self.add_objects(me.FindObject({item_args}))\n".format(**locals())
                 elif elem.tag == "inherit":
-                    class_code += dialog_inherit_code
+                    if "name" in elem.attrib:
+                        class_code += " " * 4 * 2 + "self.{}dialog{}()\n".format("sub" if elem.attrib["name"].startswith("::") else "", "_" + elem.attrib["name"].replace("::", ""))
+                    else:
+                        class_code += dialog_inherit_code
                 elif elem.tag == "response":
                     message = elem.get("message")
                     link_args = ""
@@ -349,6 +362,8 @@ def _make_interface(file, parent, npcs, part_uid = None):
                     class_code += " " * 4 * 2 + "self.dialog_close()\n"
                 elif elem.tag == "say":
                     class_code += " " * 4 * 2 + "self._npc.Say({})\n".format(repr(elem.text))
+                elif elem.tag == "and":
+                    class_code += " " * 4 * 2 + "return " + _make_precond(elem) + "\n"
 
         matchers_code = ""
 
@@ -436,7 +451,7 @@ def collect_quests():
                 if val:
                     quest_def[attr] = int(val)
 
-            _make_interface(file, quest, npcs)
+            _make_interface(file, quest, npcs, quest_def["uid"])
             _collect_parts(file, quest, quest_def, npcs)
 
             quests.write("{} = {}\n".format(quest_def["uid"], _dump_quest(quest_def)))
