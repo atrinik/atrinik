@@ -161,20 +161,20 @@ def _make_precond(parent, npc):
     for elem in parent:
         if elem.tag in ("and", "or"):
             l.append(_make_precond(elem, npc))
-        elif elem.tag == "check":
+        elif elem.tag in ("check", "ncheck"):
             for attr in elem.attrib:
+                code = "not " if elem.tag == "ncheck" else ""
+
                 if attr == "region_map":
-                    l.append("{} in self._activator.Controller().region_maps".format(repr(elem.attrib["region_map"])))
+                    code += "{} in self._activator.Controller().region_maps".format(repr(elem.attrib["region_map"]))
                 elif attr == "enemy":
-                    code = "self._npc.enemy"
+                    code += "self._npc.enemy"
 
                     if elem.attrib["enemy"]:
                         code += " == "
 
                         if elem.attrib["enemy"] == "player":
                             code += "self._activator"
-
-                    l.append(code)
                 elif attr in ("started", "finished", "completed"):
                     words = elem.attrib[attr].split(" ")
 
@@ -196,9 +196,11 @@ def _make_precond(parent, npc):
                         part_name = repr(part_name)
 
                     if quest_name:
-                        l.append("self.qm.{attr}({part_name})".format(**locals()))
+                        code += "self.qm.{attr}({part_name})".format(**locals())
                     else:
-                        l.append("QuestManager(self._activator, self._npc, {quest_name}).{attr}({part_name})".format(**locals()))
+                        code += "QuestManager(self._activator, self._npc, {quest_name}).{attr}({part_name})".format(**locals())
+
+                l.append(code)
 
     return "(" + (" " + parent.tag + " ").join(l) + ")"
 
