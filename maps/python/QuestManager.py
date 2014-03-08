@@ -91,8 +91,20 @@ class QuestManager:
         return None
 
     def get_quest_msg(self, quest = None):
-        """Acquire the quest's message."""
-        return quest.get("message")
+        """Acquire the quest's information message."""
+
+        if quest == None:
+            quest = self.quest
+
+        # TODO Remove 'message' once all the old quests have been
+        # updated to the new system.
+        for attr in ("info", "message"):
+            val = quest.get(attr)
+
+            if val:
+                return val
+
+        return None
 
     def create_quest_object(self, where, quest, uid):
         obj = where.CreateObject("quest_container")
