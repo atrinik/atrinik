@@ -49,7 +49,7 @@
                 <dialog name="takencare">
                     <message>Indeed? Thank you, {activator.name}. I'm glad he has been brought to justice, after all these years.</message>
                     <message>Here, take this ring. My days of adventuring have been over for a long time now, and I'm sure you can put the ring to better use on your journeys than I could.</message>
-                    <item arch="ring_prayers" />
+                    <object arch="ring_prayers" />
                     <action complete="kill_torathog" />
                 </dialog>
             </interface>

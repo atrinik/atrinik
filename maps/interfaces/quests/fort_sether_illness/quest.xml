@@ -113,7 +113,7 @@
                 <dialog name="yes">
                     <message color="yellow">You explain about Brownrott and his garden...</message>
                     <message>Indeed? So it was the water, like I thought... Well, I think I know how to mend this particular problem...</message>
-                    <item name="Gwenty's Potion" />
+                    <object name="Gwenty's Potion" />
                     <message>Here. Take that potion, and bring it to the kobold. Tell him he needs to mix it with his own. It should cancel out the negative effects it causes to us humans, but still make it effective for his garden. It might take some persuading, however...</message>
                     <action start="deliver_potion" />
                     <action complete="report" />
@@ -142,7 +142,7 @@
                 </dialog>
                 <dialog name="lost">
                     <message>What?! Well, it's not irreplaceable, but please, don't go wasting it and just convince the kobold to mix it with his potion... Here, take this spare one I have, and be more careful with it...</message>
-                    <item name="Gwenty's Potion" />
+                    <object name="Gwenty's Potion" />
                 </dialog>
             </interface>
 
@@ -195,7 +195,7 @@
                 <dialog name="yes">
                     <message>That's great news, {activator.name}! I knew I could count on you. You have my thanks, as well as that of all the people in the fort. We can now drink the water safely again...</message>
                     <message>As for your reward... Please, accept these coins from me. Also, since I'm no longer busy tending all the sick guards, I can now resume offering you my regular services.</message>
-                    <item arch="silvercoin" />
+                    <object arch="silvercoin" />
                     <action complete="reward" />
                 </dialog>
             </interface>

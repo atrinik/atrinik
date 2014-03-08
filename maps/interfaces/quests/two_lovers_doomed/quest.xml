@@ -42,7 +42,7 @@
                 </dialog>
                 <dialog name="sure">
                     <message>Thank you... Here's the letter. Please, deliver it to my wife, Rienn Howell in Fort Ghzal...</message>
-                    <item arch="two_lovers_doomed_letter1" />
+                    <object arch="two_lovers_doomed_letter1" />
                     <action start="deliver_tortwalds_letter" />
                 </dialog>
             </interface>
@@ -65,7 +65,7 @@
                 <dialog name="takeletter">
                     <message>Oh! He has been gone for a long time now...</message>
                     <message>Thank you, adventurer... Please, take this letter and deliver it to him...</message>
-                    <item arch="two_lovers_doomed_letter2" />
+                    <object arch="two_lovers_doomed_letter2" />
                     <action start="deliver_rienns_letter" />
                     <action complete="deliver_tortwalds_letter" />
                 </dialog>
@@ -84,7 +84,7 @@
                 <dialog name="takeletter">
                     <message>You have a letter for me from my dear Rienn? Oh... thank you...</message>
                     <message>Here, take this key... it supposedly opens something around here, but before I could figure it out, I was captured... and... thank you again.</message>
-                    <item arch="uc_ii_skull_key" />
+                    <object arch="uc_ii_skull_key" />
                     <action complete="deliver_rienns_letter" />
                 </dialog>
             </interface>

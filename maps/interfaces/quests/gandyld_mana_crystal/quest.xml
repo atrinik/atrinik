@@ -40,7 +40,7 @@
                 </dialog>
                 <dialog name="yespls">
                     <message>Very well then... Here you go, and take care of it. It's not powerful, but it could still be useful to you.</message>
-                    <item arch="gandyld_crystal_1" />
+                    <object arch="gandyld_crystal_1" />
                     <message>Now, listen. I have heard that King Rhun's alchemists are trying to come up with a concoction that would enhance the mana limit of weak crystals, like the one I have just given you. It is strange to see giants coming up with magical enchantments, so it may not even work, or maybe explode on contact with the crystal. However, feel free to go and check it out, but if you do and it works, please come back so I can examine the crystal.</message>
                     <message>The heart of the Giant Mountains, just north of here, is King Rhun's domain. He has an outpost of sorts at the very peak of the mountains, where it is so cold most don't even dare approach. The concoction is likely to be in a cauldron or a pool in their laboratory. Be careful.</message>
                     <action start="enhance_crystal_alchemists" />
@@ -87,7 +87,7 @@
                 </dialog>
                 <dialog name="worked">
                     <message>Well, well... very interesting, {activator.name}. Thank you for the information, it's likely going to be quite valuable in my own research.</message>
-                    <item arch="silvercoin" />
+                    <object arch="silvercoin" />
                     <message>Use that enhanced mana crystal well.</message>
                     <action complete="enhance_crystal_rhun" />
                 </dialog>

@@ -42,7 +42,7 @@
                 </dialog>
                 <dialog name="alright">
                     <message>Very well then. Take the amulet, and go investigate what's beyond that strange portal.</message>
-                    <item arch="amulet_llwyfen" />
+                    <object arch="amulet_llwyfen" />
                     <action start="portal_investigate" />
                     <action complete="portal_found" />
                 </dialog>
@@ -95,7 +95,7 @@
                 </dialog>
                 <dialog name="getto">
                     <message>Here, you'll need this key. The gate is sealed shut, but this key should still be able to open it.</message>
-                    <item arch="key_brynknot_sewer_maze" />
+                    <object arch="key_brynknot_sewer_maze" />
                     <message>Go through the portal once again, open the gate, and please find whoever is responsible for all this.</message>
                     <action start="kill_boss" />
                     <action complete="speak_captain" />
@@ -125,7 +125,7 @@
                 <dialog name="takencare">
                     <message>That's excellent news, {activator.name}.</message>
                     <message>You're not one of my guards, but you still deserve to be paid for your service. Who knows, if not for you, Brynknot might have been overrun by demons or worse... So, please accept this payment.</message>
-                    <item arch="goldcoin" />
+                    <object arch="goldcoin" />
                     <action complete="kill_boss" />
                 </dialog>
             </interface>

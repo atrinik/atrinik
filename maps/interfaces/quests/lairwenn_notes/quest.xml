@@ -57,7 +57,7 @@ else:
                     <message>They were in the luggage on the top floor? How curious... Well, thank you my dear! I think I have something here that may be useful on your adventures... Now, where did I put it...</message>
                     <message color="yellow">{npc.name} thinks for a moment.</message>
                     <message>Just pulling your leg my dear! Here it is, a writing pen will be useful, will it not?</message>
-                    <item name="writing pen" />
+                    <object name="writing pen" />
                     <action complete="get_notes" />
                 </dialog>
             </interface>

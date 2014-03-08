@@ -116,7 +116,7 @@ def show_bought(self, obj):
                     <message color="yellow">{npc.name} whistles at you appreciatively.</message>
                     <message>Thank you! I hope he wasn't too upset about the late delivery!</message>
                     <message>Here is your payment...</message>
-                    <item arch="silvercoin" />
+                    <object arch="silvercoin" />
                     <action complete="reward" />
                 </dialog>
             </interface>

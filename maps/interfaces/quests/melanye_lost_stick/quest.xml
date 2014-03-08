@@ -49,7 +49,7 @@
                 <dialog name="hereis">
                     <message>Oh, you found it! Thank you, thank you...</message>
                     <message>Here, it's all I can spare... I hope it will be useful to you.</message>
-                    <item arch="silvercoin" />
+                    <object arch="silvercoin" />
                     <action complete="get_stick" />
                 </dialog>
             </interface>
