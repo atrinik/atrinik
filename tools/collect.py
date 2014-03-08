@@ -134,13 +134,17 @@ def _collect_parts(file, parent, definition, npcs):
         uid = re.sub(r"\W+", "", part.get("uid"))
         part_def = {
             "name": part.get("name", uid),
-            "message": "\n".join(message.text for message in part.iterfind("message")),
         }
 
-        for attr in ["item", "kill"]:
+        for attr in ["info", "item", "kill"]:
             elem = next(part.iterfind(attr), None)
 
-            if elem is not None:
+            if elem is None:
+                continue
+
+            if attr == "info":
+                part_def[attr] = elem.text
+            else:
                 part_def[attr] = elem.attrib
 
                 for attr2 in ["nrof", "keep"]:
