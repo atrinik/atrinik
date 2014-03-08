@@ -421,10 +421,9 @@ def collect_quests():
         _make_interface(file, root, npcs)
 
         for quest in root.findall("quest"):
-            uid = re.sub(r"\W+", "", quest.get("uid"))
             quest_def = {
                 "name": quest.get("name"),
-                "uid": uid,
+                "uid": os.path.basename(os.path.dirname(file)),
             }
 
             for attr in ["repeat", "repeat_delay"]:
@@ -436,7 +435,7 @@ def collect_quests():
             _make_interface(file, quest, npcs)
             _collect_parts(file, quest, quest_def, npcs)
 
-            quests.write("{} = {}\n".format(uid, _dump_quest(quest_def)))
+            quests.write("{} = {}\n".format(quest_def["uid"], _dump_quest(quest_def)))
 
         for npc in npcs:
             fh = open(os.path.join(os.path.dirname(file), npc + ".py"), "wb+")
