@@ -1,25 +1,27 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <interfaces>
     <quest name="Lairwenn's Notes">
-        <interface npc="Lairwenn" state="completed">
+        <interface npc="Lairwenn" state="completed" inherit="Seller.Seller">
             <dialog name="hello">
-                <action><![CDATA[
-pen = self._npc.FindObject(name = "writing pen")
-self.add_msg("Thank you for finding my notes earlier. Would you like to buy an extra writing pen for mere {}?".format(CostString(pen.value)))
-                ]]></action>
-                <response message="Sure, why not." destination="buypen" />
+                <message>Thank you for finding my notes earlier. Would you be interested in an extra writing pen?</message>
+                <response message="Sure, tell me more." destination="buy writing pen" />
                 <response message="No thanks." action="close" />
             </dialog>
-            <dialog name="buypen">
-                <action><![CDATA[
-pen = self._npc.FindObject(name = "writing pen")
-if self._activator.PayAmount(pen.value):
-    self.add_msg("You pay {}.".format(CostString(pen.value)), color = COLOR_YELLOW)
-    self.add_msg("Here you go dear, a top-quality writing pen!")
-    self.add_objects(pen)
-else:
-    self.add_msg("Oh dear, it seems you don't have enough money!")
-                ]]></action>
+            <dialog name="::buyitem">
+                <message>Ah, good choice!</message>
+                <inherit name="::buy" />
+                <message>Would you like to buy this top-quality writing pen?</message>
+                <response message="Sure." destination="buy 1 writing pen" />
+                <response message="No thanks." action="close" />
+            </dialog>
+            <dialog name="::boughtitem">
+                <message>Here you go dear, a top-quality writing pen!</message>
+            </dialog>
+            <dialog name="::fail_money">
+                <message>Oh dear, it seems you don't have enough money!</message>
+            </dialog>
+            <dialog name="::fail_weight">
+                <message>Oh dear, you're not strong enough to hold this tiny writing pen?</message>
             </dialog>
         </interface>
 
