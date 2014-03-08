@@ -17,26 +17,30 @@
             <dialog name="hello">
                 <message>Welcome to Asterian Arms Tavern.</message>
                 <message>I'm {npc.name}, the bartender of this tavern. Here is the place if you want to eat or drink the best booze! I can offer you the following provisions.</message>
-                <action><![CDATA[self.show_provisions()]]></action>
+                <inherit name="::stock" />
             </dialog>
-            <code><![CDATA[
-def can_buy(self, obj):
-    if obj.arch.name == "beer_charob" and not self.qm.completed("deliver"):
-        return False
-
-    return True
-
-def show_bought(self, obj):
-    self.add_msg("Here you go!")
-    self.show_buy_icon(obj, buying = False)
-    self.add_msg({
-        "booze_generic": "Enjoy!",
-        "booze2": "Please be careful though, it is really strong!",
-        "food_generic": "It's really tasty, I tell you.",
-        "drink_generic": "Thirsty? Nothing like fresh water!",
-        "beer_charob": "It is quite good quality!",
-    }[obj.arch.name])
-            ]]></code>
+            <dialog name="::can_buy_beer_charob">
+                <and><check completed="deliver" /></and>
+            </dialog>
+            <dialog name="::boughtitem">
+                <message>Here you go!</message>
+                <inherit name="::bought" />
+            </dialog>
+            <dialog name="::bought_booze_generic" inherit="::boughtitem">
+                <message>Enjoy!</message>
+            </dialog>
+            <dialog name="::bought_booze2" inherit="::boughtitem">
+                <message>Please be careful though, it is really strong!</message>
+            </dialog>
+            <dialog name="::bought_food_generic" inherit="::boughtitem">
+                <message>It's really tasty, I tell you.</message>
+            </dialog>
+            <dialog name="::bought_drink_generic" inherit="::boughtitem">
+                <message>Thirsty? Nothing like fresh water!</message>
+            </dialog>
+            <dialog name="::bought_beer_charob" inherit="::boughtitem">
+                <message>It is quite good quality!</message>
+            </dialog>
         </interface>
 
         <part uid="deliver" name="Deliver the Shipment">
