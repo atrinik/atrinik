@@ -1,14 +1,12 @@
 ## @file
 ## Generic script to handle merchants.
 
-from Interface import Interface
-from Market import Merchant
+from Seller import Seller
 
-inf = Interface(activator, me)
+class InterfaceDialog(Seller):
+    """
+    Dialog when talking to the merchant.
+    """
 
-def main():
-    merchant = Merchant(activator, me, WhatIsEvent(), inf)
-    merchant.handle_msg(msg)
-
-main()
-inf.finish()
+ib = InterfaceDialog(activator, me)
+ib.finish(locals(), msg)
