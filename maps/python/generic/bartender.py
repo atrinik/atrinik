@@ -4,10 +4,10 @@
 from Interface import InterfaceBuilder
 from Tavern import Bartender
 
-class InterfaceDialog(Bartender, InterfaceBuilder):
+class InterfaceDialog(Bartender):
     """
     Dialog when talking to the bartender.
     """
 
 ib = InterfaceDialog(activator, me)
-ib.finish(msg)
+ib.finish(locals(), msg)
