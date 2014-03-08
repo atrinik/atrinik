@@ -291,7 +291,7 @@ def _make_interface(file, parent, npcs, part_uid = None):
                         npcs[npc]["import"].append("random.choice")
 
                     class_code += " " * 4 * 2 + "self.add_msg(choice([{msgs}]))\n".format(msgs = ", ".join("\"\"\"{elem.text}\"\"\"".format(elem = msg) for msg in elem.findall("message")))
-                elif elem.tag == "item":
+                elif elem.tag == "object":
                     item_args = []
 
                     for attr, attr2 in [("arch", "archname"), ("name", "name")]:
