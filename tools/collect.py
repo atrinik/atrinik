@@ -153,14 +153,14 @@ def _collect_parts(file, parent, definition, npcs):
 
         definition["parts"][uid] = part_def
         _collect_parts(file, part, definition["parts"][uid], npcs)
-        _make_interface(file, part, npcs, uid)
+        _make_interface(file, part, npcs)
 
-def _make_precond(parent):
+def _make_precond(parent, npc):
     l = []
 
     for elem in parent:
         if elem.tag in ("and", "or"):
-            l.append(_make_precond(elem))
+            l.append(_make_precond(elem, npc))
         elif elem.tag == "check":
             for attr in elem.attrib:
                 if attr == "region_map":
@@ -176,18 +176,33 @@ def _make_precond(parent):
 
                     l.append(code)
                 elif attr in ("started", "finished", "completed"):
-                    split = elem.attrib["completed"].split("::")
+                    words = elem.attrib[attr].split(" ")
+
+                    if len(words) == 2 and npc["quest_uid"]:
+                        quest_name, part_name = words
+
+                        for imp in ("QuestManager.QuestManager", "InterfaceQuests." + quest_name):
+                            if not imp in npc["import"]:
+                                npc["import"].append(imp)
+                    else:
+                        quest_name = None
+                        part_name = elem.attrib[attr]
+
+                    split = part_name.split("::")
 
                     if len(split) > 1:
-                        val = "[{}]".format(", ".join(repr(val) for val in split))
+                        part_name = "[{}]".format(", ".join(repr(val) for val in split))
                     else:
-                        val = repr(elem.attrib["completed"])
+                        part_name = repr(part_name)
 
-                    l.append("self.qm.{attr}({val})".format(**locals()))
+                    if quest_name:
+                        l.append("self.qm.{attr}({part_name})".format(**locals()))
+                    else:
+                        l.append("QuestManager(self._activator, self._npc, {quest_name}).{attr}({part_name})".format(**locals()))
 
     return "(" + (" " + parent.tag + " ").join(l) + ")"
 
-def _make_interface(file, parent, npcs, uid = None):
+def _make_interface(file, parent, npcs):
     for interface in parent.findall("interface"):
         npc = interface.get("npc")
 
@@ -199,10 +214,17 @@ def _make_interface(file, parent, npcs, uid = None):
         if not npc in npcs:
             npcs[npc] = {
                 "code": "",
-                "quest_uid": uid,
+                "quest_uid": None,
                 "import": [],
                 "preconds": OrderedDict(),
             }
+
+        if parent.tag in ("quest", "part"):
+            npcs[npc]["quest_uid"] = os.path.basename(os.path.dirname(file))
+
+            for imp in ("QuestManager.QuestManager", "InterfaceQuests." + npcs[npc]["quest_uid"]):
+                if not imp in npcs[npc]["import"]:
+                    npcs[npc]["import"].append(imp)
 
         state = interface.get("state")
         inherit = interface.get("inherit")
@@ -363,7 +385,7 @@ def _make_interface(file, parent, npcs, uid = None):
                 elif elem.tag == "say":
                     class_code += " " * 4 * 2 + "self._npc.Say({})\n".format(repr(elem.text))
                 elif elem.tag == "and":
-                    class_code += " " * 4 * 2 + "return " + _make_precond(elem) + "\n"
+                    class_code += " " * 4 * 2 + "return " + _make_precond(elem, npcs[npc]) + "\n"
 
         matchers_code = ""
 
@@ -451,7 +473,7 @@ def collect_quests():
                 if val:
                     quest_def[attr] = int(val)
 
-            _make_interface(file, quest, npcs, quest_def["uid"])
+            _make_interface(file, quest, npcs)
             _collect_parts(file, quest, quest_def, npcs)
 
             quests.write("{} = {}\n".format(quest_def["uid"], _dump_quest(quest_def)))
@@ -460,10 +482,6 @@ def collect_quests():
             fh = open(os.path.join(os.path.dirname(file), npc + ".py"), "wb+")
 
             code = [npcs[npc]["code"]]
-
-            if npcs[npc]["quest_uid"]:
-                fh.write("from QuestManager import QuestManager\n")
-                fh.write("from InterfaceQuests import {}\n".format(npcs[npc]["quest_uid"]))
 
             for key in npcs[npc]["import"]:
                 fh.write("from {} import {}\n".format(*key.split(".")))
@@ -480,7 +498,7 @@ def collect_quests():
 
                 for i, dialog in enumerate(npcs[npc]["preconds"]):
                     fh.write(" " * 4 + ("if " if i == 0 else "elif "))
-                    fh.write(_make_precond(npcs[npc]["preconds"][dialog]))
+                    fh.write(_make_precond(npcs[npc]["preconds"][dialog], npcs[npc]))
                     fh.write(":\n")
                     fh.write(" " * 4 * 2 + "self.dialog = \"InterfaceDialog{dialog}\"\n".format(**locals()))
 
