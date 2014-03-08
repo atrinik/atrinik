@@ -222,7 +222,7 @@ def _make_interface(file, parent, npcs, part_uid = None):
         class_code = ""
 
         for elem in interface:
-            if elem.tag in ("action", "precond"):
+            if elem.tag in ("code", "precond"):
                 if elem.tag == "precond":
                     class_code += " " * 4 + "def precond(self):\n"
 
