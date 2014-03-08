@@ -151,6 +151,28 @@ def _collect_parts(file, parent, definition, npcs):
         _collect_parts(file, part, definition["parts"][uid], npcs)
         _make_interface(file, part, npcs, uid)
 
+def _make_precond(parent):
+    l = []
+
+    for elem in parent:
+        if elem.tag in ("and", "or"):
+            l.append(_make_precond(elem))
+        elif elem.tag == "check":
+            if "region_map" in elem.attrib:
+                l.append("{} in self._activator.Controller().region_maps".format(repr(elem.attrib["region_map"])))
+            elif "enemy" in elem.attrib:
+                code = "self._npc.enemy"
+
+                if elem.attrib["enemy"]:
+                    code += " == "
+
+                    if elem.attrib["enemy"] == "player":
+                        code += "self._activator"
+
+                l.append(code)
+
+    return "(" + (" " + parent.tag + " ").join(l) + ")"
+
 def _make_interface(file, parent, npcs, part_uid = None):
     for interface in parent.findall("interface"):
         npc = interface.get("npc")
@@ -202,17 +224,12 @@ def _make_interface(file, parent, npcs, part_uid = None):
         for elem in interface:
             if elem.tag in ("action", "precond"):
                 if elem.tag == "precond":
-                    if not elem.text:
-                        if not dialog_uid in npcs[npc]["preconds"]:
-                            npcs[npc]["preconds"][dialog_uid] = []
-
-                        npcs[npc]["preconds"][dialog_uid].append(elem)
-                        continue
-
                     class_code += " " * 4 + "def precond(self):\n"
 
                 for line in elem.text.split("\n"):
                     class_code += " " * 4 * (2 if elem.tag == "precond" else 1) + line.rstrip() + "\n"
+            elif elem.tag == "and":
+                npcs[npc]["preconds"][dialog_uid] = elem
 
         regex_matchers = []
 
@@ -445,24 +462,7 @@ def collect_quests():
 
                 for i, dialog in enumerate(npcs[npc]["preconds"]):
                     fh.write(" " * 4 + ("if " if i == 0 else "elif "))
-
-                    for i, elem in enumerate(npcs[npc]["preconds"][dialog]):
-                        if i != 0:
-                            fh.write(" " + elem.get("operator", "and") + " ")
-
-                        if "region_map" in elem.attrib:
-                            fh.write("{} in self._activator.Controller().region_maps".format(repr(elem.attrib["region_map"])))
-                        elif "enemy" in elem.attrib:
-                            fh.write("self._npc.enemy")
-
-                            if elem.attrib["enemy"]:
-                                fh.write(" == ")
-
-                                if elem.attrib["enemy"] == "player":
-                                    fh.write("self._activator")
-                        else:
-                            fh.write("True")
-
+                    fh.write(_make_precond(npcs[npc]["preconds"][dialog]))
                     fh.write(":\n")
                     fh.write(" " * 4 * 2 + "self.dialog = \"InterfaceDialog{dialog}\"\n".format(**locals()))
 
