@@ -8,7 +8,7 @@
         </interface>
 
         <part uid="get_stick" name="The Stick">
-            <message>Melanye in Brynknot Tavern has asked you to bring her back her walking stick, which was stolen in the middle of the night by some evil treant, waking up the old woman, who saw the evil treant running to the east...</message>
+            <info>Melanye in Brynknot Tavern has asked you to bring her back her walking stick, which was stolen in the middle of the night by some evil treant, waking up the old woman, who saw the evil treant running to the east...</info>
             <item arch="melanye_walking_stick" name="Melanye's Walking Stick" />
 
             <interface npc="Melanye" state="need_start">

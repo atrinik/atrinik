@@ -40,7 +40,7 @@ def show_bought(self, obj):
         </interface>
 
         <part uid="deliver" name="Deliver the Shipment">
-            <message>Steve Bruck has asked you to deliver a shipment of Charob Beer to the bartender in Asterian Arms Tavern.</message>
+            <info>Steve Bruck has asked you to deliver a shipment of Charob Beer to the bartender in Asterian Arms Tavern.</info>
             <item arch="barrel2.101" name="shipment of Charob Beer" />
 
             <interface npc="Steve Bruck" state="need_start" inherit="">
@@ -105,7 +105,7 @@ def show_bought(self, obj):
         </part>
 
         <part uid="reward" name="The Reward">
-            <message>Gashir, the bartender in Asterian Arms Tavern, was pleased with the delivery, and has suggested that you go speak with Steve Bruck for a payment.</message>
+            <info>Gashir, the bartender in Asterian Arms Tavern, was pleased with the delivery, and has suggested that you go speak with Steve Bruck for a payment.</info>
 
             <interface npc="Steve Bruck" state="need_complete">
                 <dialog name="hello">

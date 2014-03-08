@@ -14,7 +14,7 @@
         </interface>
 
         <part uid="deliver_tortwalds_letter" name="Tortwald's Letter">
-            <message>You have found the guard Tortwald Howell imprisoned deep inside the Underground City. He has asked you to deliver a letter to his love, Rienn Howell, in Fort Ghzal.</message>
+            <info>You have found the guard Tortwald Howell imprisoned deep inside the Underground City. He has asked you to deliver a letter to his love, Rienn Howell, in Fort Ghzal.</info>
             <item arch="two_lovers_doomed_letter1" name="Tortwald's letter" />
 
             <interface npc="Tortwald Howell" state="need_start">
@@ -73,7 +73,7 @@
         </part>
 
         <part uid="deliver_rienns_letter" name="Rienn's Letter">
-            <message>After delivering Tortwald Howell's letter to Rienn Howell, she has asked you to deliver a letter of her own to Tortwald.</message>
+            <info>After delivering Tortwald Howell's letter to Rienn Howell, she has asked you to deliver a letter of her own to Tortwald.</info>
             <item arch="two_lovers_doomed_letter2" name="Rienn's letter" />
 
             <interface npc="Tortwald Howell" state="need_complete">

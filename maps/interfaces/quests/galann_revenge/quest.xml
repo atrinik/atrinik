@@ -8,7 +8,7 @@
         </interface>
 
         <part uid="kill_torathog" name="Enemy of the Past">
-            <message>Galann Strongfist, the old smith of Brynknot has asked you to go to the Old Outpost north of Aris in the Giant Mountains and kill Torathog the stone giant in revenge.</message>
+            <info>Galann Strongfist, the old smith of Brynknot has asked you to go to the Old Outpost north of Aris in the Giant Mountains and kill Torathog the stone giant in revenge.</info>
             <kill nrof="1" />
 
             <interface npc="Galann Strongfist" state="need_start">

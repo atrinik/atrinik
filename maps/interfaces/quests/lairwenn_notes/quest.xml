@@ -24,7 +24,7 @@ else:
         </interface>
 
         <part uid="get_notes" name="Finding the Notes">
-            <message>Lairwenn has lost her notes somewhere in the Brynknot Library and she has asked you to find them for her, as she can't finish the document she is working on without them.</message>
+            <info>Lairwenn has lost her notes somewhere in the Brynknot Library and she has asked you to find them for her, as she can't finish the document she is working on without them.</info>
             <item arch="note" name="Lairwenn's Notes" />
 
             <interface npc="Lairwenn" state="need_start">

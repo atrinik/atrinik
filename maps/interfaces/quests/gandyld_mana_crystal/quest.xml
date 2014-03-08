@@ -9,7 +9,7 @@
         </interface>
 
         <part uid="enhance_crystal_alchemists" name="A Better Crystal">
-            <message>Gandyld, an old mage living east of Aris, has given you his spare mana crystal. However, since the crystal is rather weak, he has suggested that you go check out his information about King Rhun's alchemists coming up with a concoction that could enhance mana crystals. King Rhun's domain is in the heart of Giant Mountains, and his outpost is at the very peak of the mountains. The concoction would likely be in a cauldron or a pool in their laboratory.</message>
+            <info>Gandyld, an old mage living east of Aris, has given you his spare mana crystal. However, since the crystal is rather weak, he has suggested that you go check out his information about King Rhun's alchemists coming up with a concoction that could enhance mana crystals. King Rhun's domain is in the heart of Giant Mountains, and his outpost is at the very peak of the mountains. The concoction would likely be in a cauldron or a pool in their laboratory.</info>
             <item arch="gandyld_crystal_2" name="Gandyld's Mana Crystal" keep="1" />
 
             <interface npc="Gandyld" state="need_start">
@@ -70,7 +70,7 @@
         </part>
 
         <part uid="enhance_crystal_rhun" name="A Stronger Crystal">
-            <message>Gandyld suspects that since King Rhun likes to experiment with alchemy, he might have found a way to make the concoction even better. If so, it would probably be in his vault or similar.</message>
+            <info>Gandyld suspects that since King Rhun likes to experiment with alchemy, he might have found a way to make the concoction even better. If so, it would probably be in his vault or similar.</info>
             <item arch="gandyld_crystal_3" name="Gandyld's Mana Crystal" keep="1" />
 
             <interface npc="Gandyld" state="need_finish">

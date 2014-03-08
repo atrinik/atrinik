@@ -28,7 +28,7 @@
         </interface>
 
         <part uid="portal_found" name="A Strange Portal">
-            <message>You have found a portal sealed by the power of the elven god Llwyfen. Perhaps you should find a priest of Llwyfen to learn more.</message>
+            <info>You have found a portal sealed by the power of the elven god Llwyfen. Perhaps you should find a priest of Llwyfen to learn more.</info>
 
             <interface npc="Maplevale" state="need_complete" inherit="">
                 <dialog name="hello">
@@ -50,7 +50,7 @@
         </part>
 
         <part uid="portal_investigate" name="Investigation of the Portal">
-            <message>Maplevale, a priest of Llwyfen and the mayor of Brynknot, has asked you to investigate what's beyond the strange portal in Underground City and has given you an amulet of Llwyfen, which should allow you to pass through the portal.</message>
+            <info>Maplevale, a priest of Llwyfen and the mayor of Brynknot, has asked you to investigate what's beyond the strange portal in Underground City and has given you an amulet of Llwyfen, which should allow you to pass through the portal.</info>
             <item arch="llwyfen_portal_nyhelobo_note" name="Letter from Nyhelobo to oty captain" />
 
             <interface npc="Maplevale" state="need_finish">
@@ -76,7 +76,7 @@
         </part>
 
         <part uid="speak_captain" name="Talthor Redeye">
-            <message>You have delivered the note you found in the passage beyond the portal in Underground City to Maplevale. After reading it, Maplevale told you to go speak to Talthor Redeye, the captain of the Brynknot guards, immediately.</message>
+            <info>You have delivered the note you found in the passage beyond the portal in Underground City to Maplevale. After reading it, Maplevale told you to go speak to Talthor Redeye, the captain of the Brynknot guards, immediately.</info>
 
             <interface npc="Maplevale" state="need_complete">
                 <dialog name="hello">
@@ -104,7 +104,7 @@
         </part>
 
         <part uid="kill_boss" name="The Attack">
-            <message>Talthor Redeye has given you the key to the lower levels of Brynknot Sewers, and instructed you to find and kill whoever is responsible for the planned attack on Brynknot.</message>
+            <info>Talthor Redeye has given you the key to the lower levels of Brynknot Sewers, and instructed you to find and kill whoever is responsible for the planned attack on Brynknot.</info>
             <kill nrof="1" />
 
             <interface npc="Maplevale" state="need_finish" inherit="need_complete_speak_captain" />

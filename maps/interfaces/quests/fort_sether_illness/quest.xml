@@ -54,7 +54,7 @@
         </interface>
 
         <part uid="figure" name="Poisoned Waters">
-            <message>Gwenty, a priestess of Grunhilde has asked you to figure out why Fort Sether guards keep falling ill. She seems to suspect it's because of the water, in which case it might be work checking out the water wells.</message>
+            <info>Gwenty, a priestess of Grunhilde has asked you to figure out why Fort Sether guards keep falling ill. She seems to suspect it's because of the water, in which case it might be work checking out the water wells.</info>
 
             <interface npc="Gwenty" state="need_start">
                 <dialog name="hello">
@@ -103,7 +103,7 @@
         </part>
 
         <part uid="report" name="The Kobold Gardener">
-            <message>You found a kobold named Brownrott below Fort Sether, with a most extraordinary garden. He has shown you a potion he uses to make his garden grow well, and its smell drove you nauseous. Perhaps you should ask Gwenty, the priestess in Fort Sether, for advice.</message>
+            <info>You found a kobold named Brownrott below Fort Sether, with a most extraordinary garden. He has shown you a potion he uses to make his garden grow well, and its smell drove you nauseous. Perhaps you should ask Gwenty, the priestess in Fort Sether, for advice.</info>
 
             <interface npc="Gwenty" state="need_complete">
                 <dialog name="hello">
@@ -122,7 +122,7 @@
         </part>
 
         <part uid="deliver_potion" name="Delivery of a Cure">
-            <message>Gwenty, the priestess in Fort Sether, has given you a potion to mix with Brownrott's one. He may need some persuading, however...</message>
+            <info>Gwenty, the priestess in Fort Sether, has given you a potion to mix with Brownrott's one. He may need some persuading, however...</info>
             <item arch="bone_skull" name="Gwenty's Potion" />
 
             <interface npc="Gwenty" state="need_complete">
@@ -161,7 +161,7 @@
             </interface>
 
             <part uid="get_hearts" name="The Kobold Delicacy">
-                <message>Just as you thought, Brownrott was very reluctant to mix his potion with yours, and has asked you to bring him 10 sword spider hearts first, which can be found by killing sword spiders below Fort Sether.</message>
+                <info>Just as you thought, Brownrott was very reluctant to mix his potion with yours, and has asked you to bring him 10 sword spider hearts first, which can be found by killing sword spiders below Fort Sether.</info>
                 <item arch="bone_skull" name="sword spider's heart" nrof="10" />
 
                 <interface npc="Brownrott" state="need_finish">
@@ -185,7 +185,7 @@
         </part>
 
         <part uid="reward" name="The Reward">
-            <message>After delivering the spider hearts to Brownrott, he mixed his potion with yours. You should report to Gwenty for a reward.</message>
+            <info>After delivering the spider hearts to Brownrott, he mixed his potion with yours. You should report to Gwenty for a reward.</info>
 
             <interface npc="Gwenty" state="need_complete">
                 <dialog name="hello">
