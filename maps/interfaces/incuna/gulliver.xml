@@ -1,14 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <interfaces>
     <interface state="have_map">
-        <precond region_map="incuna" />
+        <and><check region_map="incuna" /></and>
         <dialog name="hello">
             <message>Ah, you're back! I'd love to chat a bit more, but I've got paperwork to fix... Perhaps some other time?</message>
         </dialog>
     </interface>
 
-    <interface state="need_map">
-        <precond />
+    <interface>
         <dialog name="hello">
             <message>Hello there! I'm {npc.name}, the dockmaster. You must be new around here, for I do not recognize you. Are you the adventurer Sam Goodberry spoke of?</message>
             <response message="Yes..." destination="yes" />

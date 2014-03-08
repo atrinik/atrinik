@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <interfaces>
     <interface state="player_is_enemy">
-        <precond enemy="player" />
+        <and><check enemy="player" /></and>
         <dialog name="hello">
             <say>Now you die!</say>
         </dialog>
     </interface>
 
     <interface state="has_enemy">
-        <precond enemy="" />
+        <and><check enemy="" /></and>
         <dialog name="hello">
             <close />
         </dialog>
