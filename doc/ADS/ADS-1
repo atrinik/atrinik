@@ -308,17 +308,29 @@ def dialog(self, msg):
 ===============================================================================
  The <check> tag can be used to build logic preconditions.
 
- It can have the following attributes:
+ It can have any number of the following attributes:
   - region_map (string) (optional):
      Will match if the player has the specified region map UID in their known
      region maps.
   - enemy (string) (optional):
      If empty, will match when the NPC has an enemy. If set to "player", will
      match if the NPC's enemy is the player who activated the interface.
+  - started (string) (optional):
+  - finished (string) (optional):
+  - completed (string) (optional):
+     Quest part name (sub-parts can be separated with double colons) to check
+     for status (started, finished, completed). If the interface is not inside
+     a <quest> or <part> tag, the quest's UID MUST be specified as well as the
+     first word in this string (thus, the quest UID and the part UID(s) are
+     separated by a space in this case).
 
  Examples:
   <check region_map="incuna" />
   <check enemy="player" />
+  <check completed="deliver_potion::get_hearts" />
+  <check finished="get_hearts" />
+  <check started="fort_sether_illness figure" />
+  <check completed="fort_sether_illness" />
 
 ===============================================================================
 = 3.2.3. Interface precond                                                    =
@@ -378,6 +390,10 @@ return self._activator.FindObject(archname = "goldcoin") != None
      See section 3.2.4.8.
   - <say>...</say>:
      See section 3.2.4.9.
+
+ Additionally, it may have ONLY the <and>...</and> tag defined, in which case
+ it cannot have any other tags defined. See section 3.2.2. for details about
+ the <and> tag.
 
  Example:
   <dialog name="hello">
@@ -452,6 +468,11 @@ return self._activator.FindObject(archname = "goldcoin") != None
  at the beginning or at the end, or even in the middle of it. This allows the
  developer to define custom messages to show anywhere in the interface, then
  the inherited ones.
+
+ It can have the following attributes:
+  - name (string) (optional):
+     If set, defines which dialogue to inherit instead of using the one defined
+     in either <interface> or <dialog> tags.
 
  Example:
   <dialog name="hello">
