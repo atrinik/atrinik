@@ -240,7 +240,7 @@ class InterfaceBuilder(Interface):
                 Interface.finish(c)
                 return
 
-        fnc = getattr(c, "dialog_" + msg.replace(" ", "_"), None)
+        fnc = getattr(c, "dialog_" + msg.lower().replace(" ", "_"), None)
 
         if fnc == None:
             c.dialog(msg)
