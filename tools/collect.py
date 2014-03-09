@@ -319,16 +319,17 @@ def _make_interface(file, parent, npcs):
             for elem in dialog:
                 if elem.tag == "message":
                     color = elem.get("color", "")
+                    msg = repr(elem.text)
 
                     if color:
-                        color = ", color = {}".format("\"{}\"".format(color[1:]) if color.startswith("#") else "COLOR_{}".format(color.upper()))
+                        color = ", color = {}".format(repr(format(color[1:])) if color.startswith("#") else "COLOR_{}".format(color.upper()))
 
-                    class_code += " " * 4 * 2 + "self.add_msg(\"\"\"{elem.text}\"\"\"{color})\n".format(**locals())
+                    class_code += " " * 4 * 2 + "self.add_msg({msg}{color})\n".format(**locals())
                 elif elem.tag == "choice":
                     if not "random.choice" in npcs[npc]["import"]:
                         npcs[npc]["import"].append("random.choice")
 
-                    class_code += " " * 4 * 2 + "self.add_msg(choice([{msgs}]))\n".format(msgs = ", ".join("\"\"\"{elem.text}\"\"\"".format(elem = msg) for msg in elem.findall("message")))
+                    class_code += " " * 4 * 2 + "self.add_msg(choice([{msgs}]))\n".format(msgs = ", ".join(repr(msg.text) for msg in elem.findall("message")))
                 elif elem.tag == "object":
                     item_args = []
 
@@ -347,7 +348,7 @@ def _make_interface(file, parent, npcs):
                     else:
                         class_code += dialog_inherit_code
                 elif elem.tag == "response":
-                    message = elem.get("message")
+                    message = repr(elem.get("message"))
                     link_args = ""
 
                     for attr, attr2 in [("destination", "dest"), ("action", "action")]:
@@ -356,7 +357,7 @@ def _make_interface(file, parent, npcs):
                         if val:
                             link_args += ", {attr2} = \"{val}\"".format(**locals())
 
-                    class_code += " " * 4 * 2 + "self.add_link(\"{message}\"{link_args})\n".format(**locals())
+                    class_code += " " * 4 * 2 + "self.add_link({message}{link_args})\n".format(**locals())
                 elif elem.tag == "action":
                     if elem.text:
                         for line in elem.text.split("\n"):
@@ -376,9 +377,9 @@ def _make_interface(file, parent, npcs):
                             split = val.split("::")
 
                             if len(split) > 1:
-                                val = "[{}]".format(", ".join("\"{}\"".format(val) for val in split))
+                                val = "[{}]".format(", ".join(repr(val) for val in split))
                             else:
-                                val = "\"{}\"".format(val)
+                                val = repr(val)
 
                             class_code += " " * 4 * 2 + "self.qm.{attr}({val})\n".format(**locals())
                 elif elem.tag == "notification":
@@ -399,7 +400,8 @@ def _make_interface(file, parent, npcs):
             matchers_code += " " * 4 + "matchers = ["
 
             for expr, dest in regex_matchers:
-                matchers_code += "(r\"\"\"{expr}\"\"\", {dest}),".format(**locals())
+                expr = repr(expr)
+                matchers_code += "(r{expr}, {dest}),".format(**locals())
 
             matchers_code += "]\n"
 
