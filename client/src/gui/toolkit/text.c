@@ -615,8 +615,10 @@ int text_show_character(int *font, int orig_font, SDL_Surface *surface, SDL_Rect
         tag = cp + 1;
         tag_len = MAX(0, ret - 2);
 
+        if (tag_len == 0) {
+        }
         /* Color tag: [c=#RRGGBB] */
-        if (tag_len >= 3 && strncmp(tag, "c=#", 3) == 0) {
+        else if (tag_len >= 3 && strncmp(tag, "c=#", 3) == 0) {
             if (color && (surface || info->obscured) && !(flags & TEXT_NO_COLOR_CHANGE)) {
                 uint32 r, g, b;
                 int change_orig = 0;
@@ -1402,7 +1404,9 @@ int text_show_character(int *font, int orig_font, SDL_Surface *surface, SDL_Rect
             free(cp2);
         }
 
-        return ret;
+        if (tag_len != 0) {
+            return ret;
+        }
     }
 
     /* Parse entities. */
