@@ -9,7 +9,7 @@ import re
 class Seller(InterfaceBuilder):
     """Used for NPCs that sell something to the player."""
 
-    max_goods = 1
+    max_goods = 100
     _goods = None
 
     @property

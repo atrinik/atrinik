@@ -4,8 +4,6 @@
 from Seller import Seller
 
 class Bartender(Seller):
-    max_goods = 100
-
     def subdialog_buyitem(self):
         self.add_msg("Ah, excellent choice!")
         self.subdialog_buy()
