@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<interfaces>
+    <interface>
+        <dialog name="hello">
+            <message>Lembas... again....</message>
+            <response message="What's wrong?" destination="whatwrong" />
+        </dialog>
+        <dialog name="whatwrong">
+            <message>The cooks just keep purchasing waybread from the elves...</message>
+            <response message="How come?" destination="howcome" />
+        </dialog>
+        <dialog name="howcome">
+            <message color="yellow">{npc.name} grumbles.</message>
+            <message>Lazy buggers, that's my guess...</message>
+        </dialog>
+    </interface>
+</interfaces>

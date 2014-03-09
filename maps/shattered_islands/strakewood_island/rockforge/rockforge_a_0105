@@ -1552,7 +1552,7 @@ level 40
 direction 1
 arch event_obj
 sub_type 6
-race scripts/kendo_flamecutter.py
+race /interfaces/strakewood_island/rockforge/kendo_flamecutter.xml
 end
 end
 end
