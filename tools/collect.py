@@ -353,7 +353,7 @@ def _make_interface(file, parent, npcs):
                     message = repr(elem.get("message"))
                     link_args = ""
 
-                    for attr, attr2 in [("destination", "dest"), ("action", "action")]:
+                    for attr, attr2 in [("destination", "dest"), ("action", "action"), ("npc", "npc")]:
                         val = elem.get(attr)
 
                         if val:
