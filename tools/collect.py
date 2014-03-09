@@ -167,6 +167,8 @@ def _make_precond(parent, npc):
 
                 if attr == "region_map":
                     code += "{} in self._activator.Controller().region_maps".format(repr(elem.attrib["region_map"]))
+                elif attr == "options":
+                    code += "GetOptions() == " + repr(elem.attrib["options"])
                 elif attr == "enemy":
                     code += "self._npc.enemy"
 
