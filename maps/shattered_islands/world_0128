@@ -426,7 +426,7 @@ arch ability_firestorm
 end
 arch event_obj
 sub_type 6
-race scripts/strakewood_island/centennial/madoka.py
+race /interfaces/strakewood_island/centennial/madoka.xml
 end
 end
 end

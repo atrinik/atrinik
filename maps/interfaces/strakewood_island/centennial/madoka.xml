@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<root>
+    <interface>
+        <dialog name="hello">
+            <message>*sigh* I wish they'd stop talking about those novels all day.</message>
+        </dialog>
+        <dialog name="patchouli" regex="patchouli|patchouli knowledge">
+            <message>Well, they say Patchouli is a gateway herb, or character as the case may be... *chuckle*</message>
+        </dialog>
+        <dialog name="puella" regex="puella|puella magi madoka magica">
+            <message>Yeah, everyone in town is named from one novel or other. The town is weird like that.</message>
+        </dialog>
+        <dialog name="contract">
+            <message>What? Are you trying to pretend to be Kyubey or something?</message>
+            <response message="Where is Kyubey?" destination="kyubey" />
+        </dialog>
+        <dialog name="kyubey">
+            <message>No, we don't have a Kyubey...</message>
+        </dialog>
+    </interface>
+</root>
