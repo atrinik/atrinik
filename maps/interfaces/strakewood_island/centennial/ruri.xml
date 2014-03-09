@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<root>
+    <interface>
+        <dialog name="::main_menu">
+            <response message="Find a book." destination="book" />
+            <response message="Ask about the town." destination="town" />
+            <response message="Ask about the librarian." destination="librarian" />
+            <response message="Goodbye." action="close" />
+        </dialog>
+        <dialog name="hello">
+            <message>Hi, there {activator.name}. What's up? Can I help you find a book? Maybe you want to ask about other information?</message>
+            <inherit name="::main_menu" />
+        </dialog>
+        <dialog name="book">
+            <message>All right. What kind of book are you looking for? You are probably interested in the Eastern Project series, right? That's what everyone else seems to be reading these days.</message>
+            <message color="red">&amp;lsqb;NOTE: Not all available series are listed.&amp;rsqb;</message>
+            <response message="Ask about the Eastern Project." destination="touhou" />
+            <response message="Ask about something else." destination="main_menu" />
+        </dialog>
+        <dialog name="town">
+            <message>Try asking me some stuff about this town. I might be able to help.</message>
+            <response message="Ask why the town is called Centennial." destination="centennial" />
+            <response message="Ask about the witches." destination="witch" />
+            <response message="Ask about something else." destination="main_menu" />
+        </dialog>
+        <dialog name="librarian" regex="lindy|librarian">
+            <message>She's nice enough.  Was there anything else?</message>
+            <response message="Ask about something else." destination="main_menu" />
+        </dialog>
+        <dialog name="main_menu">
+            <message>Was there anything else you wanted to talk about {activator.name}?</message>
+            <inherit name="::main_menu" />
+        </dialog>
+        <dialog name="centennial">
+            <message>The name of this town is also a bit of an in-joke. If you are really that concerned about it, it's found in the 6th title of the "Eastern Project" series in the "Extra" section.</message>
+            <response message="Ask about the Eastern Project." destination="touhou" />
+            <response message="Ask about something else." destination="main_menu" />
+        </dialog>
+        <dialog name="the strongest">
+            <message>Nope, sorry. Wrong fairy. The tomboyish fairy who says that is on the river east of Aris in the early mornings.</message>
+            <response message="Ask about the tomboyish fairy." destination="tomboyish fairy" />
+            <response message="Ask about something else." destination="main_menu" />
+        </dialog>
+        <dialog name="touhou">
+            <message>They're kinda cool stories with lots of magic, but some people seem a bit too hyped up about them. The name is sort of a translation from the original language. Anyway, they are over in the Fantasy aisle.</message>
+            <response message="Ask Eastern Project characters." destination="th_chars" />
+            <response message="Must be popular because of all the magic." destination="magic" />
+            <response message="Ask about something else." destination="main_menu" />
+        </dialog>
+        <dialog name="th_chars">
+            <message>I suppose it's a bit cliche but I'm sort of partial to the fairies like Cirno and Daiyousei, myself. Then there's the other characters like Marisa, Reimu, Sanae, Patchouli and Alice that seem to be quite popular around the town gauging by the looks of it.</message>
+            <response message="Ask about Alice." destination="alice" />
+            <response message="Ask about Cirno." destination="cirno" />
+            <response message="Ask about Daiyousei." destination="daiyousei" />
+            <response message="Ask about Marisa." destination="marisa" />
+            <response message="Ask about Patchouli." destination="patchouli" />
+            <response message="Ask about Reimu." destination="reimu" />
+            <response message="Ask about Sanae." destination="sanae" />
+            <response message="Ask about something else." destination="main_menu" />
+        </dialog>
+        <dialog name="witch">
+            <message>Yes. This school is dedicated to teaching the fine art of witchcraft. You know, hexes, potions, magic?</message>
+            <response message="Magic?" destination="magic" />
+        </dialog>
+        <dialog name="magic">
+            <message>I guess that's what happens in a town of magical girls... Er. I mean, witches.</message>
+            <response message="Huh? Magical girls?" destination="magical girls" />
+        </dialog>
+        <dialog name="magical girls">
+            <message>Interesting story about that. In some languages, it's possible to change "magical girl" into "witch" by removing 2 symbols. If you think about it, it kind of seems that seems to be a theme of our town.</message>
+            <message color="yellow">{npc.name} winks at you like this is a secret.</message>
+            <response message="Ask about something else." destination="main_menu" />
+        </dialog>
+        <dialog name="cirno">
+            <message>Yeah, she's a fairy that lives by the Misty Lake near the Scarlet Devil Mansion. Of course, it's a bit of a thing to depict her as though she's dumb. Personally, I don't think Cirno is all *THAT* dumb even if she is a bit childish. She did manage to star in her own title from the series and even managed to beat Marisa once.</message>
+            <response message="Ask about the other characters." destination="th_chars" />
+            <response message="Ask about something else." destination="main_menu" />
+        </dialog>
+        <dialog name="daiyousei">
+            <message>Yeah, she's a fairy that lives by the Misty Lake near the Scarlet Devil Mansion. She's not really mentioned much except for in the 6th and 12.8th titles, but I kind of like that fan series that depicts her as cool and smart.</message>
+            <response message="Fan series." destination="nekokayou" />
+            <response message="Ask about the other characters." destination="th_chars" />
+            <response message="Ask about something else." destination="main_menu" />
+        </dialog>
+        <dialog name="alice">
+            <message>She is a youkai magician with lots of enchanted dolls. You should be able to recognize people who like her since they dress up with the short blonde hair and blue clothes.</message>
+            <response message="Ask about the other characters." destination="th_chars" />
+            <response message="Ask about something else." destination="main_menu" />
+        </dialog>
+        <dialog name="marisa">
+            <message>She is klepto witch who has a thing for beam spells. She's basically one of the main characters and pretty popular. You can recognize folks that like her by their long blonde hair and black-white witch motif.</message>
+            <response message="Witch? Isn't that what this school teaches?" destination="witch" />
+            <response message="Ask about the other characters." destination="th_chars" />
+            <response message="Ask about something else." destination="main_menu" />
+        </dialog>
+        <dialog name="patchouli">
+            <message>She is a youkai magician who lives in the Scarlet Devil Mansion library. For obvious reasons, the librarian is a bit of a fan. They tend to dress up in the lavender night robe, crescent moon hat with the purple hair. Obviously she's not to be confused with the aromatic herb.</message>
+            <response message="Ask about the librarian." destination="librarian" />
+            <response message="Ask about the other characters." destination="th_chars" />
+            <response message="Ask about something else." destination="main_menu" />
+        </dialog>
+        <dialog name="reimu">
+            <message>She is a shrine maiden and pretty much the main character except when Marisa or one of the other characters is the focus of the story. She's kind of easy to irritate and a bit touchy about not getting any donations. You can recognize the fans because they wear the red-white motif.</message>
+            <response message="Ask about the other characters." destination="th_chars" />
+            <response message="Ask about something else." destination="main_menu" />
+        </dialog>
+        <dialog name="sanae">
+            <message>She is a shrine maiden of a rival shrine to Reimu's. You can recognize the people who like her by their blue skirt, white top and green hair.</message>
+            <response message="Ask about the other characters." destination="th_chars" />
+            <response message="Ask about something else." destination="main_menu" />
+        </dialog>
+        <dialog name="nekokayou">
+            <message>I think it's called Eastern Project ":3". I don't think we have a copy at the moment, though.</message>
+            <response message="Ask about something else." destination="main_menu" />
+        </dialog>
+        <dialog name="baka" regex="baka|idiot|nineball|marukyuu|\(9\)">
+            <message color="yellow">{npc.name} looks insulted.</message>
+            <message>Hey, now! Don't underestimate me. Just because some fairies are stupid doesn't mean we all are.</message>
+            <response message="Ask about something else." destination="main_menu" />
+        </dialog>
+        <dialog name="tomboyish fairy">
+            <message>Yeah, that ice fairy by the lake has read way too many of those Eastern Project fan stories and now she thinks she's Cirno.</message>
+            <response message="Who is Cirno?" destination="cirno" />
+            <response message="Ask about the Eastern Project." destination="touhou" />
+            <response message="Ask about something else." destination="main_menu" />
+        </dialog>
+        <dialog name="ruri" regex="ruri hoshino|nadesico">
+            <message>Hmm... Interesting. I didn't realize someone would ever guess my namesake. It's a pretty obscure series here in this town.</message>
+            <response message="Ask about the town." destination="town" />
+            <response message="Ask about something else." destination="main_menu" />
+        </dialog>
+        <dialog name="prophecy" regex="ahriman's prophecy">
+            <message>Good story. Apparently the town founders liked it. It's kind of why they founded the town where they did.</message>
+            <response message="Ask about the town." destination="town" />
+            <response message="Ask about something else." destination="main_menu" />
+        </dialog>
+    </interface>
+</root>
