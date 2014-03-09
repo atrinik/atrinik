@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<interfaces>
+    <interface state="class">
+        <and><check options="classTime" /></and>
+        <dialog name="hello">
+            <message>I wonder when I learn how to cast Master Spark.</message>
+            <response message="What's a Master Spark?" destination="master spark" />
+        </dialog>
+        <dialog name="master spark">
+            <message>Master Spark, that's Marisa's favorite spell!</message>
+            <response message="Who is Marisa?" destination="marisa" />
+        </dialog>
+        <dialog name="marisa" regex="marisa|kirisame|marisa kirisame">
+            <message>She's the best, ze.</message>
+        </dialog>
+    </interface>
+
+    <interface state="club">
+        <and><check options="clubTime" /></and>
+        <dialog name="hello">
+            <message>Hmm, still haven't learned how to cast Master Spark. Maybe I can figure it out if I read some more of this story.</message>
+            <response message="What's a Master Spark?" destination="master spark" />
+            <response message="Which story?" destination="touhou" />
+        </dialog>
+        <dialog name="master spark">
+            <message>Master Spark, that's Marisa's favorite spell!</message>
+            <response message="Who is Marisa?" destination="marisa" />
+        </dialog>
+        <dialog name="marisa" regex="marisa|kirisame|marisa kirisame">
+            <message>She's the best, ze.</message>
+        </dialog>
+        <dialog name="touhou">
+            <message>That's "Eastern Project," ze.</message>
+        </dialog>
+    </interface>
+</interfaces>
