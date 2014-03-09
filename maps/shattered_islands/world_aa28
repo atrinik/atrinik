@@ -2,7 +2,7 @@ arch map
 name Strakewood Island
 msg
 Created:  2011-03-20 Alex Tokar
-Modified: 2011-10-01 emperorbma
+Modified: 2014-03-09 Alex Tokar
 endmsg
 width 24
 height 24
@@ -2219,7 +2219,7 @@ hp 48
 end
 arch event_obj
 sub_type 6
-race scripts/strakewood_island/centennial/ami.py
+race /interfaces/strakewood_island/centennial/ami.xml
 end
 end
 end

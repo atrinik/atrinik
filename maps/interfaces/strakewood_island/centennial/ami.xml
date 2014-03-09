@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<root>
+    <interface inherit="Temple.TempleDrolaxi">
+        <dialog name="sanae" regex="sanae|kotiya|sanae kotiya|kochiya|sanae kochiya">
+            <message>Even though I'm an ocean priestess, I still think she's awesome.</message>
+        </dialog>
+        <dialog name="mizuno" regex="mizuno ami|ami mizuno|mizuno">
+            <message>Good guess, but how do you know my namesake wasn't Ami Kawashima, instead?</message>
+            <message color="yellow">{npc.name} snickers.</message>
+        </dialog>
+        <dialog name="kawashima" regex="kawashima ami|ami kawashima|kawashima">
+            <message>Maybe my namesake is really Ami Mizuno? Who can say? nihihihi...</message>
+        </dialog>
+    </interface>
+</root>
