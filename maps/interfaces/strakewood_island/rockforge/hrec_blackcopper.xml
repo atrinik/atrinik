@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<interfaces>
+    <interface>
+        <dialog name="hello">
+            <message>Tread carefully, please, dear visitor! This farm is very important to us. Since Rockforge is a fortress, we usually do not go outside to collect timber, so we grow various plants here, inside the fortress.</message>
+            <response message="Don't plants need sunlight?" destination="sunlight" />
+        </dialog>
+        <dialog name="sunlight">
+            <message>Yes, indeed. Just look up! It was quite amazing actually. We found this miles-long opening into the sky while digging tunnels. We reckon it is still part of the Giant Mountains, since it goes so high up! Anyway, we thought it may be good enough to grow plants, and it works!</message>
+            <response message="Those trees are somewhat small." destination="small" />
+        </dialog>
+        <dialog name="small">
+            <message>Yes, yes. That is because we are still underground, and even the opening above us doesn't provide enough sunlight for them to grow as tall as trees on the surface. Still, it's good enough for our needs.</message>
+        </dialog>
+    </interface>
+</interfaces>

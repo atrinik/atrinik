@@ -2,7 +2,7 @@ arch map
 name Rockforge: City
 msg
 Created:  2011-06-03 Alex Tokar
-Modified: 2011-10-01 Alex Tokar
+Modified: 2014-03-09 Alex Tokar
 endmsg
 width 24
 height 24
@@ -1833,7 +1833,7 @@ name Hrec Blackcopper
 level 38
 arch event_obj
 sub_type 6
-race scripts/hrec_blackcopper.py
+race /interfaces/strakewood_island/rockforge/hrec_blackcopper.xml
 end
 end
 end
