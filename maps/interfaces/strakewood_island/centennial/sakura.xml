@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<root>
+    <interface inherit="Temple.TempleTerria">
+        <dialog name="reimu" regex="reimu|hakurei|reimu hakurei">
+            <message color="yellow">{npc.name} blushes.</message>
+            <message>Yeah, I kinda feel like she's kindred spirit or something.</message>
+            <message color="yellow">{npc.name} glances over at donations.</message>
+        </dialog>
+        <dialog name="kinomoto" regex="kinomoto|sakura kinomoto">
+            <message>Oh, fine... I'll say it.</message>
+            <message color="yellow">{npc.name} grabs a baton with a star on it and does a dance.</message>
+            <message color="pink">"Keiyaku no moto Sakura ga mejiru. Release!"</message>
+            <message>There. Happy?</message>
+        </dialog>
+    </interface>
+</root>
