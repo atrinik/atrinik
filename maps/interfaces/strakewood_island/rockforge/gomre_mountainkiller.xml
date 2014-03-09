@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<interfaces>
+    <interface>
+        <dialog name="hello">
+            <message color="yellow">*hic* *hic* *hic*</message>
+            <response message="Excuse me?" destination="excuse" />
+        </dialog>
+        <dialog name="excuse">
+            <message color="yellow">*HIC* *hic* *HIC* *HIC* *HIC*</message>
+            <response message="... bye, then." action="close" />
+        </dialog>
+    </interface>
+</interfaces>
