@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<root>
+    <interface state="class">
+        <and><check options="classTime" /></and>
+        <dialog name="hello">
+            <message>She only summons the boring animals!</message>
+        </dialog>
+        <dialog name="alice" regex="alice|margatroid|alice margatroid">
+            <message>Now she can summon exploding dolls! Awesome!</message>
+        </dialog>
+    </interface>
+
+    <interface state="club">
+        <and><check options="clubTime" /></and>
+        <dialog name="hello">
+            <message>Being on the student council is hard work.</message>
+        </dialog>
+        <dialog name="alice" regex="alice|margatroid|alice margatroid">
+            <message>Maybe later, I've got a student council to run.</message>
+        </dialog>
+    </interface>
+
+    <interface state="night">
+        <and><check options="nightTime" /></and>
+        <dialog name="hello">
+            <message>Hi, what's up {activator.name}?</message>
+        </dialog>
+        <dialog name="alice" regex="alice|margatroid|alice margatroid">
+            <message>Ooh, she's the best. I've even got a Shanghai doll!</message>
+            <response message="Shanghai doll? Why?" destination="shanghai doll" />
+        </dialog>
+        <dialog name="shanghai doll">
+            <message>Yeah, because they're Alice's favorite.</message>
+        </dialog>
+    </interface>
+</root>
