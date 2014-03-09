@@ -7,14 +7,11 @@ from Packet import MapStats
 inf = Interface(activator, me)
 
 def main():
-    inf.set_icon("tome_glitter.101")
-    inf.set_title("Eastern Project Music Book")
-
     if GetEventNumber() == EVENT_SAY:
         inf.dialog_close()
-        MapStats(activator.Controller(), music = me.map.bg_music if msg == "none" else msg)
+        MapStats(activator.Controller(), music = activator.map.bg_music if msg == "none" else msg)
     else:
-        inf.add_msg("This book seems strange.  You think the text is glowing for certain words...", COLOR_YELLOW)
+        inf.add_msg("This book seems strange. You think the text is glowing for certain words...", COLOR_YELLOW)
         inf.add_msg("Eastern Project Music Book - Select a theme:")
         inf.add_link("BAD Apple!! (Elly, book 4)", dest = "th_18.mid")
         inf.add_link("Scarlet Beyond a Crimson Dream (book 6)", dest = "th_31.mid")
