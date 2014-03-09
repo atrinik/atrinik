@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<interfaces>
+    <interface inherit="Tavern.Bartender">
+        <dialog name="hello">
+            <message color="yellow">*grumbles*</message>
+            <message>Another customer... Very well... I am {npc.name}. What do you need? Make it quick, though.</message>
+            <inherit name="::stock" />
+        </dialog>
+        <dialog name="::buyitem">
+            <message>Very well...</message>
+            <inherit name="::buy" />
+            <message>How many do you want?</message>
+            <inherit name="::stockitem" />
+        </dialog>
+        <dialog name="::boughtitem">
+            <message>There you go.</message>
+            <inherit name="::boughtitem" />
+            <message>Now off with ya.</message>
+        </dialog>
+        <dialog name="::fail_weight">
+            <message>What's this, you're not strong enough to carry that?</message>
+        </dialog>
+        <dialog name="::fail_money">
+            <message>What's this, you don't have enough money?</message>
+        </dialog>
+    </interface>
+</interfaces>
