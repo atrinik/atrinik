@@ -323,7 +323,7 @@ int client_command_check(const char *cmd)
         return 1;
     }
     else if (string_startswith(cmd, "/talk")) {
-        char type[MAX_BUF];
+        char type[MAX_BUF], npc_name[MAX_BUF];
         size_t pos;
         uint8 type_num;
         packet_struct *packet;
@@ -336,10 +336,18 @@ int client_command_check(const char *cmd)
 
         type_num = atoi(type);
 
+        if (type_num == CMD_TALK_NPC_NAME && (!string_get_word(cmd, &pos, ' ', npc_name, sizeof(npc_name), '"') || string_isempty(cmd + pos))) {
+            return 1;
+        }
+
         packet = packet_new(SERVER_CMD_TALK, 64, 64);
         packet_append_uint8(packet, type_num);
 
-        if (type_num == CMD_TALK_NPC) {
+        if (type_num == CMD_TALK_NPC || type_num == CMD_TALK_NPC_NAME) {
+            if (type_num == CMD_TALK_NPC_NAME) {
+                packet_append_string_terminated(packet, npc_name);
+            }
+
             packet_append_string_terminated(packet, cmd + pos);
         }
         else {

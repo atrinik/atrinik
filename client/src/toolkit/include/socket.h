@@ -583,6 +583,7 @@ enum
 #define CMD_TALK_INV 2
 #define CMD_TALK_BELOW 3
 #define CMD_TALK_CONTAINER 4
+#define CMD_TALK_NPC_NAME 5
 
 /**
  * @defgroup CMD_CONTROL_xxx Control command types

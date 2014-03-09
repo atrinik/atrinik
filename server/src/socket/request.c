@@ -1612,10 +1612,19 @@ void socket_command_talk(socket_struct *ns, player *pl, uint8 *data, size_t len,
 
     type = packet_to_uint8(data, len, &pos);
 
-    if (type == CMD_TALK_NPC) {
+    if (type == CMD_TALK_NPC || type == CMD_TALK_NPC_NAME) {
+        char npc_name[MAX_BUF];
         int i, x, y;
         mapstruct *m;
         object *tmp, *npc;
+
+        if (type == CMD_TALK_NPC_NAME) {
+            packet_to_string(data, len, &pos, npc_name, sizeof(npc_name));
+
+            if (string_isempty(npc_name)) {
+                return;
+            }
+        }
 
         packet_to_string(data, len, &pos, msg, sizeof(msg));
         player_sanitize_input(msg);
@@ -1626,7 +1635,7 @@ void socket_command_talk(socket_struct *ns, player *pl, uint8 *data, size_t len,
 
         npc = NULL;
 
-        if (OBJECT_VALID(pl->target_object, pl->target_object_count) && OBJECT_CAN_TALK(pl->target_object)) {
+        if (type == CMD_TALK_NPC && OBJECT_VALID(pl->target_object, pl->target_object_count) && OBJECT_CAN_TALK(pl->target_object)) {
             for (i = 0; i <= SIZEOFFREE2; i++) {
                 x = pl->ob->x + freearr_x[i];
                 y = pl->ob->y + freearr_y[i];
@@ -1643,7 +1652,8 @@ void socket_command_talk(socket_struct *ns, player *pl, uint8 *data, size_t len,
             }
         }
 
-        for (i = 0; i <= SIZEOFFREE2 && !npc; i++) {
+        /* Use larger search space when trying to talk to a specific NPC. */
+        for (i = 0; i <= (type == CMD_TALK_NPC ? SIZEOFFREE2 : SIZEOFFREE) && !npc; i++) {
             x = pl->ob->x + freearr_x[i];
             y = pl->ob->y + freearr_y[i];
             m = get_map_from_coord(pl->ob->map, &x, &y);
@@ -1654,7 +1664,7 @@ void socket_command_talk(socket_struct *ns, player *pl, uint8 *data, size_t len,
 
             FOR_MAP_LAYER_BEGIN(m, x, y, LAYER_LIVING, -1, tmp)
             {
-                if (OBJECT_CAN_TALK(tmp)) {
+                if (OBJECT_CAN_TALK(tmp) && (type == CMD_TALK_NPC || strcmp(tmp->name, npc_name) == 0)) {
                     npc = tmp;
                     FOR_MAP_LAYER_BREAK;
                 }
@@ -1673,7 +1683,7 @@ void socket_command_talk(socket_struct *ns, player *pl, uint8 *data, size_t len,
                 }
             }
         }
-        else if (OBJECT_VALID(pl->target_object, pl->target_object_count) && OBJECT_CAN_TALK(pl->target_object)) {
+        else if (type == CMD_TALK_NPC && OBJECT_VALID(pl->target_object, pl->target_object_count) && OBJECT_CAN_TALK(pl->target_object)) {
             draw_info_format(COLOR_WHITE, pl->ob, "You are too far away from %s.", pl->target_object->name);
         }
         else {
