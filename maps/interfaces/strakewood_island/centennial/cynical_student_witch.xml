@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<root>
+    <interface>
+        <dialog name="hello">
+            <message>Just cause she's a fan of Marisa doesn't mean that's all she's gotta go on about.  Geez.</message>
+        </dialog>
+        <dialog name="reimu" regex="reimu|hakurei|reimu hakurei">
+            <message></message>
+        </dialog>
+    </interface>
+</root>
