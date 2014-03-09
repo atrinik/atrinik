@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<root>
+    <interface>
+        <dialog name="hello">
+            <message>Hey! You don't look like one of my students...</message>
+        </dialog>
+        <dialog name="marisa" regex="marisa|kirisame|marisa kirisame">
+            <message>Hey, I don't knock your hobbies.</message>
+        </dialog>
+        <dialog name="tsukino" regex="sailor moon|tsukino|usagi tsukino">
+            <message>No, I won't do an "In the name of the Moon" speech for you. Go away.</message>
+        </dialog>
+    </interface>
+</root>
