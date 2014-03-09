@@ -233,7 +233,7 @@ class InterfaceBuilder(Interface):
             return
 
         for expr, callback in c.matchers:
-            if re.match(expr, msg):
+            if re.match(expr, msg, re.I):
                 callback(c)
                 Interface.finish(c)
                 return
