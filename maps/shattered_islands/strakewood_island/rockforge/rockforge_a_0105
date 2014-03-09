@@ -2411,7 +2411,7 @@ is_male 0
 is_female 1
 arch event_obj
 sub_type 6
-race scripts/raru_mountainsmiter.py
+race /interfaces/strakewood_island/rockforge/raru_mountainsmiter.xml
 end
 end
 end

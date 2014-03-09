@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<interfaces>
+    <interface>
+        <dialog name="hello">
+            <message>Hello there! My name is {npc.name}, but please excuse me, I'm about to start eating.</message>
+            <response message="Are you?" destination="eating" />
+            <response message="Sorry." action="close" />
+        </dialog>
+        <dialog name="eating">
+            <message>Well, since this is the Dining Hall, yes! Well, as soon as the cooks quit being lazy and bring me my meal...</message>
+            <message color="yellow">{npc.name} yells out towards cooks:</message>
+            <message>Oi! Hurry up, you lazy cooks!</message>
+        </dialog>
+    </interface>
+</interfaces>
