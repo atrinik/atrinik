@@ -44,11 +44,13 @@ class Interface:
     def add_msg_icon_object(self, obj):
         self.add_msg_icon(obj.face[0], obj.GetName())
 
-    def _get_dest(self, dest):
+    def _get_dest(self, dest, npc):
         prepend = ""
 
         if not dest.startswith("/"):
-            if self._npc.env:
+            if npc:
+                prepend = "/talk 5 \"{}\" ".format(npc)
+            elif self._npc.env:
                 if self._npc.env == self._activator:
                     prepend = "/talk 2 {} ".format(self._npc.count)
                 elif self._npc.env == self._activator.Controller().container:
@@ -58,8 +60,8 @@ class Interface:
 
         return prepend + dest
 
-    def add_link(self, link, action = "", dest = ""):
-        dest = self._get_dest(dest)
+    def add_link(self, link, action = "", dest = "", npc = None):
+        dest = self._get_dest(dest, npc)
 
         if dest or action:
             self._links.append("[a=" + action + ":" + dest + "]" + link + "[/a]")
