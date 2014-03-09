@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<root>
+    <interface>
+        <dialog name="hello">
+            <response message="Ask about fairies." destination="fairy" />
+        </dialog>
+        <dialog name="fairy">
+            <message>Fairies are kinda cute.</message>
+        </dialog>
+        <dialog name="reimu" regex="reimu|hakurei|reimu hakurei">
+            <message>Neko Miko Reimu. Aishite'ru...</message>
+        </dialog>
+    </interface>
+
+    <interface state="class" inherit="">
+        <and><check options="classTime" /></and>
+        <dialog name="hello">
+            <message>Whoa. Hey! Maybe I can learn to summon a fairy!</message>
+            <inherit />
+        </dialog>
+    </interface>
+
+    <interface state="club" inherit="">
+        <and><check options="clubTime" /></and>
+        <dialog name="hello">
+            <message>Aww, maybe tomorrow I'll learn how to summon a fairy.</message>
+            <inherit />
+        </dialog>
+    </interface>
+</root>
