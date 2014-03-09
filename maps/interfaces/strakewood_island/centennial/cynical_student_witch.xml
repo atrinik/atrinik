@@ -5,7 +5,7 @@
             <message>Just cause she's a fan of Marisa doesn't mean that's all she's gotta go on about.  Geez.</message>
         </dialog>
         <dialog name="reimu" regex="reimu|hakurei|reimu hakurei">
-            <message></message>
+            <message>Now Reimu *is* totally awesome...</message>
         </dialog>
     </interface>
 </root>
