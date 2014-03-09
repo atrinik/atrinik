@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<root>
+<interfaces>
     <interface state="class">
         <and><check options="classTime" /></and>
         <dialog name="hello">
@@ -33,4 +33,4 @@
             <message>Yeah, because they're Alice's favorite.</message>
         </dialog>
     </interface>
-</root>
+</interfaces>

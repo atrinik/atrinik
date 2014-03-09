@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<root>
+<interfaces>
     <interface>
         <dialog name="hello">
             <message>Just cause she's a fan of Marisa doesn't mean that's all she's gotta go on about.  Geez.</message>
@@ -8,4 +8,4 @@
             <message>Now Reimu *is* totally awesome...</message>
         </dialog>
     </interface>
-</root>
+</interfaces>

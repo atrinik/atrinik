@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<root>
+<interfaces>
     <interface inherit="Seller.Seller">
         <dialog name="marisa" regex="(marisa|kirisame|marisa kirisame)">
             <message>Yeah, she's pretty awesome.</message>
@@ -8,4 +8,4 @@
             <message>Hihihi, Good job guessing where my name is from. Don't worry, I won't turn out like her...</message>
         </dialog>
     </interface>
-</root>
+</interfaces>

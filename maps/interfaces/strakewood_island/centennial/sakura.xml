@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<root>
+<interfaces>
     <interface inherit="Temple.TempleTerria">
         <dialog name="reimu" regex="reimu|hakurei|reimu hakurei">
             <message color="yellow">{npc.name} blushes.</message>
@@ -13,4 +13,4 @@
             <message>There. Happy?</message>
         </dialog>
     </interface>
-</root>
+</interfaces>

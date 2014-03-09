@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<root>
+<interfaces>
     <interface inherit="Temple.TempleDrolaxi">
         <dialog name="sanae" regex="sanae|kotiya|sanae kotiya|kochiya|sanae kochiya">
             <message>Even though I'm an ocean priestess, I still think she's awesome.</message>
@@ -12,4 +12,4 @@
             <message>Maybe my namesake is really Ami Mizuno? Who can say? nihihihi...</message>
         </dialog>
     </interface>
-</root>
+</interfaces>

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<root>
+<interfaces>
     <interface>
         <dialog name="hello">
             <message>*sigh* I wish they'd stop talking about those novels all day.</message>
@@ -18,4 +18,4 @@
             <message>No, we don't have a Kyubey...</message>
         </dialog>
     </interface>
-</root>
+</interfaces>

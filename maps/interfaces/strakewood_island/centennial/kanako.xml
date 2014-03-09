@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<root>
+<interfaces>
     <interface>
         <dialog name="hello">
             <message>Hey. You're not in my summoning class...</message>
@@ -11,4 +11,4 @@
             <message>Somebody wants to be put through the wringer, do they?</message>
         </dialog>
     </interface>
-</root>
+</interfaces>

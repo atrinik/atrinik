@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<root>
+<interfaces>
     <interface>
         <dialog name="hello">
             <message>Hi, there {activator.name}. Welcome to the school library. Please try to keep quiet so others can study in peace.</message>
@@ -34,4 +34,4 @@
             <response message="Ask about something else." destination="main_menu" />
         </dialog>
     </interface>
-</root>
+</interfaces>

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<root>
+<interfaces>
     <interface>
         <dialog name="hello">
             <message>Welcome to the Centennial Witch Academy. How can I help you, {activator.name}?</message>
@@ -13,4 +13,4 @@
             <message>That's a pretty amusing association you have made.</message>
         </dialog>
     </interface>
-</root>
+</interfaces>

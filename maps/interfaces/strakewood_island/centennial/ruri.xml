@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<root>
+<interfaces>
     <interface>
         <dialog name="::main_menu">
             <response message="Find a book." destination="book" />
@@ -135,4 +135,4 @@
             <response message="Ask about something else." destination="main_menu" />
         </dialog>
     </interface>
-</root>
+</interfaces>

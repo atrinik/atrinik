@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<root>
+<interfaces>
     <interface>
         <dialog name="hello">
             <message>Hey! You don't look like one of my students...</message>
@@ -11,4 +11,4 @@
             <message>No, I won't do an "In the name of the Moon" speech for you. Go away.</message>
         </dialog>
     </interface>
-</root>
+</interfaces>
