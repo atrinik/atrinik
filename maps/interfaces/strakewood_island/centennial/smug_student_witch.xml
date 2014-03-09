@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<root>
+    <interface state="class">
+        <and><check options="classTime" /></and>
+        <dialog name="hello">
+            <message>Zzzzzzzz.....</message>
+        </dialog>
+        <dialog name="marisa" regex="marisa|kirisame|marisa kirisame">
+            <message color="yellow">{npc.name} mumbles "Love Sign: Master Spark".</message>
+        </dialog>
+    </interface>
+
+    <interface state="club">
+        <and><check options="clubTime" /></and>
+        <dialog name="hello">
+            <message>Heh. This sucker keeps falling for the same trick.</message>
+            <response message="Are you cheating?" destination="cheating" />
+        </dialog>
+        <dialog name="cheating">
+            <message>It ain't cheating, I'm just playing creatively. Haha.~</message>
+        </dialog>
+        <dialog name="marisa" regex="marisa|kirisame|marisa kirisame">
+            <message>Marisa's awesome isn't she?</message>
+        </dialog>
+    </interface>
+</root>

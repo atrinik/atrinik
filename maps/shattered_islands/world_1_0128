@@ -722,7 +722,7 @@ arch ability_cause_lig_wound
 end
 arch event_obj
 sub_type 6
-race scripts/strakewood_island/centennial/smug_student_witch.py
+race /interfaces/strakewood_island/centennial/smug_student_witch.xml
 slaying clubTime
 end
 end
