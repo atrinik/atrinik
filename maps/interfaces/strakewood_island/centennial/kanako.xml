@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<root>
+    <interface>
+        <dialog name="hello">
+            <message>Hey. You're not in my summoning class...</message>
+        </dialog>
+        <dialog name="sanae" regex="sanae|kotiya|sanae kotiya|kochiya|sanae kochiya">
+            <message>I'll remind you not to pry into other people's hobbies, thank you.</message>
+        </dialog>
+        <dialog name="yasaka" regex="kanako yasaka|yasaka">
+            <message>Somebody wants to be put through the wringer, do they?</message>
+        </dialog>
+    </interface>
+</root>

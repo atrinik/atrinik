@@ -1619,7 +1619,7 @@ hp 48
 end
 arch event_obj
 sub_type 6
-race scripts/strakewood_island/centennial/kanako.py
+race /interfaces/strakewood_island/centennial/kanako.xml
 end
 end
 end
