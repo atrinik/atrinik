@@ -1834,7 +1834,7 @@ spawn_time 08:30 - 23:00
 type 83
 arch event_obj
 sub_type 6
-race scripts/fede_greatblade.py
+race /interfaces/strakewood_island/rockforge/fede_greatblade.xml
 slaying dining_hall
 end
 end

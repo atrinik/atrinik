@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<interfaces>
+    <interface state="dining_hall">
+        <and><check options="dining_hall" /></and>
+        <dialog name="hello">
+            <message>No, you can't fool me! That cake is surely a lie! ... or is it? Hmm....</message>
+        </dialog>
+        <dialog name="portal">
+            <message>What? I just want cake!</message>
+        </dialog>
+        <dialog name="arcanum">
+            <message>Never heard of it! Is it some sort of delicious cake?</message>
+        </dialog>
+    </interface>
+
+    <interface state="house">
+        <and><check options="house" /></and>
+        <dialog name="hello">
+            <message color="yellow">The dwarf appears to be sleeping like a stone... Suddenly, he yells out, as if from a dream:</message>
+            <message>This is vewrry!!! Weird!!!</message>
+        </dialog>
+        <dialog name="shutdown">
+            <message>Aaahhhhhhhhhhhhhhhhhhhhhhh!!!!!</message>
+        </dialog>
+        <dialog name="faction">
+            <message>*snort*</message>
+            <message color="yellow">The dwarf continues sleeping...</message>
+        </dialog>
+    </interface>
+</interfaces>

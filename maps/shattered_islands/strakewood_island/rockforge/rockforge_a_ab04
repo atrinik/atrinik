@@ -2,7 +2,7 @@ arch map
 name Rockforge: City
 msg
 Created:  2011-06-03 Alex Tokar
-Modified: 2011-11-03 Alex Tokar
+Modified: 2014-03-09 Alex Tokar
 endmsg
 width 24
 height 24
@@ -287,7 +287,7 @@ spawn_time 23:30 - 8:00
 type 83
 arch event_obj
 sub_type 6
-race scripts/fede_greatblade.py
+race /interfaces/strakewood_island/rockforge/fede_greatblade.xml
 slaying house
 end
 end
