@@ -2,7 +2,7 @@ arch map
 name Brynknot
 msg
 Created:  2009-09-10 Alex Tokar
-Modified: 2011-10-04 Alex Tokar
+Modified: 2014-03-10 Alex Tokar
 endmsg
 width 24
 height 24
@@ -409,7 +409,7 @@ arch blue_crystal_fragment
 end
 arch event_obj
 sub_type 6
-race scripts/strakewood_island/brynknot/jonaslen.py
+race /interfaces/quests/construction_of_telescope/quest.xml
 end
 end
 end
