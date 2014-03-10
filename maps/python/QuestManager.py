@@ -269,6 +269,8 @@ class QuestManager:
         if obj.sub_type == QUEST_TYPE_ITEM:
             # Are we going to keep the quest item(s)?
             keep = quest["item"].get("keep")
+            nrof = quest["item"].get("nrof", 1)
+            removed = 0
 
             # Find all matching objects.
             for tmp in self.activator.FindObject(INVENTORY_CONTAINERS, quest["item"]["arch"], quest["item"]["name"], multiple = True):
@@ -278,7 +280,12 @@ class QuestManager:
                     tmp.f_quest_item = False
                     tmp.f_startequip = False
                 else:
-                    tmp.Remove()
+                    remove = min(max(1, tmp.nrof), nrof - removed)
+                    tmp.Decrease(remove)
+                    removed += remove
+
+                    if removed == nrof:
+                        break
 
         if skip_completion:
             return
