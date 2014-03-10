@@ -207,23 +207,23 @@
 ===============================================================================
  This command is used to control the server through remote means (no player
  login is necessary).
- 
+
  The implementation SHOULD have some sort of security checks to enable only
  specific IPs to control the server (for example, 127.0.0.1 or user-configured
  list of IPs). However, security measures for this are beyond the scope of this
  document, and are implementation-specific.
- 
+
  For control commands that involve a player, a player MUST be chosen by the
  implementation; for example, the first player, or the first player who's a
  server operator, or a user-configured player name. It is possible that no
  player will be chosen (if no player that meets the criteria is logged in, for
  example). This behaviour is however also implementation-specific.
- 
+
  For control commands that do involve a player, and one has been successfully
  found (logged in), the packet payload MUST be forwarded to the player's client
  as client command CONTROL (see section 1.3.18). This allows the client to
  react upon the control command involving the player.
- 
+
  The packet must be constructed as thus, in the listed order:
   - app_name (string):
      The application name (optionally version as well) that is requesting to
@@ -233,7 +233,7 @@
   - type (uint8):
      Type of the control command. You can see the possible options below, and
      the rest of the packet structure depends on this type.
-     
+
  The following is a list of possible control commands, starting at an index of
  one. If the control command requires a player, and no suitable player has been
  found, the implementation MUST exit and not do anything with the data it
@@ -244,10 +244,10 @@
   external source (such as an editor), and to request some player (chosen by
   the implementation) to be teleported to the map at specified X and Y
   coordinates.
-  
+
   The implementation MUST reload the map from file prior to teleporting the
   player.
-  
+
   The packet is then extended with the following data, in the listed order:
    - mappath (string):
      Absolute path to the map file, relative to the "maps" directory; for
