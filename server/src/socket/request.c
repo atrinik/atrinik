@@ -1189,7 +1189,7 @@ void socket_command_quest_list(socket_struct *ns, player *pl, uint8 *data, size_
                 stringbuffer_append_printf(sb, ": %s", tmp2->msg);
 
                 if (tmp2->magic == QUEST_STATUS_COMPLETED) {
-                    stringbuffer_append_string(sb, " [done]");
+                    stringbuffer_append_string(sb, " []done]");
                 }
             }
 
