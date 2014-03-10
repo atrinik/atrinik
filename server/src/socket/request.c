@@ -1730,6 +1730,7 @@ void socket_command_control(socket_struct *ns, player *pl, uint8 *data, size_t l
     char word[MAX_BUF], app_name[MAX_BUF];
     uint8 ip_match, type;
     player *controller;
+    packet_struct *packet;
 
     if (strcasecmp(settings.control_allowed_ips, "none") == 0) {
         return;
@@ -1758,46 +1759,42 @@ void socket_command_control(socket_struct *ns, player *pl, uint8 *data, size_t l
 
     controller = string_isempty(settings.control_player) ? first_player : find_player(settings.control_player);
 
+    /* Currently all the available command types require a controller, so as
+     * per ADS-2, ignore the rest of the data. */
+    if (controller == NULL) {
+        return;
+    }
+
     if (type == CMD_CONTROL_UPDATE_MAP) {
         char mappath[HUGE_BUF];
+        shstr *mappath_sh;
         sint16 x, y;
+        mapstruct *m;
 
         packet_to_string(data, len, &pos, mappath, sizeof(mappath));
         x = packet_to_sint16(data, len, &pos);
         y = packet_to_sint16(data, len, &pos);
 
-        if (controller) {
-            shstr *mappath_sh;
-            mapstruct *m;
+        mappath_sh = add_string(mappath);
+        m = has_been_loaded_sh(mappath_sh);
+        free_string_shared(mappath_sh);
 
-            mappath_sh = add_string(mappath);
-            m = has_been_loaded_sh(mappath_sh);
-            free_string_shared(mappath_sh);
+        if (m) {
+            m = map_force_reset(m);
+        }
+        else {
+            m = ready_map_name(mappath, 0);
+        }
 
-            if (m) {
-                m = map_force_reset(m);
-            }
-            else {
-                m = ready_map_name(mappath, 0);
-            }
-
-            if (!m) {
-                draw_info_format(COLOR_WHITE, controller->ob, "Could not load map: %s", mappath);
-            }
-            else {
-                object_enter_map(controller->ob, NULL, m, x, y, 1);
-            }
+        if (!m) {
+            draw_info_format(COLOR_WHITE, controller->ob, "Could not load map: %s", mappath);
+        }
+        else {
+            object_enter_map(controller->ob, NULL, m, x, y, 1);
         }
     }
-    else {
-        return;
-    }
 
-    if (controller) {
-        packet_struct *packet;
-
-        packet = packet_new(CLIENT_CMD_CONTROL, 256, 256);
-        packet_append_data_len(packet, data, len);
-        socket_send_packet(&controller->socket, packet);
-    }
+    packet = packet_new(CLIENT_CMD_CONTROL, 256, 256);
+    packet_append_data_len(packet, data, len);
+    socket_send_packet(&controller->socket, packet);
 }
