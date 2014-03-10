@@ -220,9 +220,9 @@
  example). This behaviour is however also implementation-specific.
  
  For control commands that do involve a player, and one has been successfully
- found (logged in), the packet payload is forwarded to the player's client as
- client command CONTROL (see section 1.3.18). This allows the client to react
- upon the control command involving the player.
+ found (logged in), the packet payload MUST be forwarded to the player's client
+ as client command CONTROL (see section 1.3.18). This allows the client to
+ react upon the control command involving the player.
  
  The packet must be constructed as thus, in the listed order:
   - app_name (string):
