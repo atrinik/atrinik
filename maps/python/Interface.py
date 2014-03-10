@@ -44,7 +44,7 @@ class Interface:
     def add_msg_icon_object(self, obj):
         self.add_msg_icon(obj.face[0], obj.GetName())
 
-    def _get_dest(self, dest, npc):
+    def _get_dest(self, dest, npc = None):
         prepend = ""
 
         if not dest.startswith("/"):
@@ -190,7 +190,7 @@ class InterfaceBuilder(Interface):
             if self._part_dialog(l, checks = ["need_start", "need_finish"]):
                 return True
 
-            if self.qm.need_complete(l) and "parts" in parts[part]:
+            if self.qm.started(l) and "parts" in parts[part]:
                 if self._check_parts(parts[part]["parts"], l):
                     return True
 
