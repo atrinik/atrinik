@@ -87,9 +87,10 @@
  behaviour has no place in a real-time action RPG such as Atrinik, where player
  should get feedback to their actions as quickly as possible.
 
- The implementation MUST use some sort of buffers for data to send/receive, in
- order to allow for cancellation/compression/prioritisation/etc. The
- recommended approach is to use FIFO queues.
+ The server implementation MUST use some sort of buffers for data to send and
+ receive, in order to allow for cancellation/compression/prioritisation/etc.
+ The recommended approach is to use FIFO queues. The client is free to choose
+ whether to implement such behaviour.
 
 ===============================================================================
 = 1.1. Packets                                                                =
