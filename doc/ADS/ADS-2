@@ -208,17 +208,6 @@
  list of IPs). However, security measures for this are beyond the scope of this
  document, and are implementation-specific.
 
- For control commands that involve a player, a player MUST be chosen by the
- implementation; for example, the first player, or the first player who's a
- server operator, or a user-configured player name. It is possible that no
- player will be chosen (if no player that meets the criteria is logged in, for
- example). This behaviour is however also implementation-specific.
-
- For control commands that do involve a player, and one has been successfully
- found (logged in), the packet payload MUST be forwarded to the player's client
- as client command CONTROL (see section 1.3.18). This allows the client to
- react upon the control command involving the player.
-
  The packet must be constructed as thus, in the listed order:
   - app_name (string):
      The application name (optionally version as well) that is requesting to
@@ -226,31 +215,81 @@
      things such as server logs, and not as a means of denying specific actions
      depending on the application's name. MUST not be empty.
   - type (uint8):
-     Type of the control command. You can see the possible options below, and
-     the rest of the packet structure depends on this type.
+     Type of the control command. This defines what kind of control packet this
+     is (whether it concerns a map, or a player, for example).
+  - subtype (uint8):
+     Sub-type of the control command; for example, teleporting a player, or
+     resetting a map.
 
- The following is a list of possible control commands, starting at an index of
- one. If the control command requires a player, and no suitable player has been
- found, the implementation MUST ignore the command and discard the rest of any
- data it may have received associated with this command.
+ The following is a list of possible control command types, starting at an
+ index of one.
 
- UPDATE_MAP (player required):
-  This command is used to inform the server that a map has been updated by an
-  external source (such as an editor), and to request some player (chosen by
-  the implementation) to be teleported to the map at specified X and Y
-  coordinates.
+ MAP:
+  This command is used to control maps loaded by the server. The value of
+  subtype defines what to do with the map file.
 
-  The implementation MUST reload the map from file prior to teleporting the
-  player.
+  The packet is extended with the following data, in the listed order:
+   - mappath (string):
+      Absolute path to the map file, relative to the "maps" directory; for
+      example, "/shattered_islands/world_0115", or "/hall_of_dms". If empty, or
+      the map file has not been loaded before, the implementation MUST ignore
+      the command and discard the rest of any data it may have received
+      associated with this command.
+
+  The following is a list of possible sub-types for this command type, starting
+  at an index of one.
+
+  RESET:
+   Used to request the reset of the specified map (due to for example, an
+   update to the map file by an external source).
+ PLAYER:
+  This command is used to control players that are currently logged in.
+
+  The packet is extended with the following data, in the listed order:
+   - playername (string):
+      Player name to control; can be empty.
+
+  If the received player name is empty, a player MUST be chosen by the
+  implementation; for example, the first player, or the first player who's a
+  server operator, or a user-configured player name. It is possible that no
+  player will be chosen (if no player that meets the criteria is logged in, for
+  example). This behaviour is however also implementation-specific.
+
+  If no suitable player has been found, the implementation MUST ignore the
+  command and discard the rest of any data it may have received associated with
+  this command.
+
+  If a player has been successfully found (logged in), the entire packet
+  payload MUST be forwarded to the player's client as client command CONTROL
+  (see section 1.3.18).
+
+  The following is a list of possible sub-types for this command type, starting
+  at an index of one.
+
+  TELEPORT:
+   This command is used to teleport the previously specified player to the
+   specified map, at the specified X/Y coordinates.
+
+   The packet is extended with the following data, in the listed order:
+    - mappath (string):
+       Absolute path to the map file, relative to the "maps" directory; for
+       example, "/shattered_islands/world_0115", or "/hall_of_dms".
+    - x (sint16):
+       X coordinate.
+    - y (sint16):
+       Y coordinate.
+
+ MAP_RESET:
+  This command is used to request the reset of the specified map (due to for
+  example, an update to the map file by an external source).
 
   The packet is then extended with the following data, in the listed order:
-   - mappath (string):
-     Absolute path to the map file, relative to the "maps" directory; for
-     example, "/shattered_islands/world_0115", or "/hall_of_dms".
-   - x (sint16):
-     X coordinate.
-   - y (sint16):
-     Y coordinate.
+ PLAYER_TELEPORT:
+
+  The packet is then extended with the following data, in the listed order:
+   - playername (string):
+     Player to teleport; if empty, some player will be chosen by the
+     implementation.
 
 ===============================================================================
 = 1.3. Client commands                                                        =
