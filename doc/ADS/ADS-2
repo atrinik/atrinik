@@ -103,13 +103,11 @@
  should always be sent to the server as unsigned (uint16).
 
  The server MUST implement the following additional behaviour for the header:
- in the case that the payload length is longer than 32767 (size of sint16), it
- MUST extend the header length to 3 bytes, thus changing the length to a 24-bit
- unsigned integer. The value of "128" MUST be ORed to the first byte. The
- client MUST add logic to handle this: if the first 8-bit integer can be ANDed
- with 128, then the header size is 3 bytes instead of 2. Standard left-shifting
- applies for both header sizes, but if the header size is 3, the first byte
- MUST be ANDed with 127 before shifting.
+ in the case that the payload length is shorter than 0x8000, the length MUST
+ be encoded as uint16. Otherwise, the length MUST be encoded as uint24, with
+ 0x800000 added. Thus, the client MUST implement behaviour to handle this (for
+ example, if the first byte's bit 7 is 0, the header is uint16, otherwise it's
+ uint24 minus 0x800000).
 
  The payload should always contain the command type as 8-bit integer, followed
  by any data, in any format whatsoever, but still binary. See section 1.2. for
@@ -128,11 +126,8 @@
   - sint32
   - uint64
   - sint64
-  - float:
-     Multiplied by 100000, then sent as uint32. Parsed as uint32, then divided
-     by 100000 to get the floating point number.
   - string:
-     ASCII string, terminated by a NUL character.
+     UTF-8 string, terminated by a NUL character.
 
 ===============================================================================
 = 1.2. Keepalive                                                              =
@@ -143,7 +138,7 @@
 
  If the server does not receive a keepalive packet from the client for a period
  longer than 10 minutes, it MUST, for all intents and purposes, consider the
- session as dead and drop connection immediately.
+ session as dead and drop the connection.
 
 ===============================================================================
 = 1.2. Server commands                                                        =
@@ -236,8 +231,8 @@
 
  The following is a list of possible control commands, starting at an index of
  one. If the control command requires a player, and no suitable player has been
- found, the implementation MUST exit and not do anything with the data it
- received.
+ found, the implementation MUST ignore the command and discard the rest of any
+ data it may have received associated with this command.
 
  UPDATE_MAP (player required):
   This command is used to inform the server that a map has been updated by an
