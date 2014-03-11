@@ -280,18 +280,6 @@
     - y (sint16):
        Y coordinate.
 
- MAP_RESET:
-  This command is used to request the reset of the specified map (due to for
-  example, an update to the map file by an external source).
-
-  The packet is then extended with the following data, in the listed order:
- PLAYER_TELEPORT:
-
-  The packet is then extended with the following data, in the listed order:
-   - playername (string):
-     Player to teleport; if empty, some player will be chosen by the
-     implementation.
-
 ===============================================================================
 = 1.3. Client commands                                                        =
 ===============================================================================
