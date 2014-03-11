@@ -61,6 +61,7 @@
     1.3.27 Client command INTERFACE
     1.3.28 Client command NOTIFICATION
  4. Example logic
+ 5. Authors
 
 ===============================================================================
 = 1. Session                                                                  =
@@ -355,3 +356,11 @@
   See section 1.3.27.
  NOTIFICATION:
   See section 1.3.28.
+
+===============================================================================
+= 5. Authors                                                                  =
+===============================================================================
+ This document was written by:
+
+  Alex Tokar
+  Andreas Kirschbaum

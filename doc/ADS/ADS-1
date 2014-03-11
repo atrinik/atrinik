@@ -29,6 +29,7 @@
                 3.2.4.7. Interface dialog notification
                 3.2.4.8. Interface dialog close
                 3.2.4.9. Interface dialog say
+ 4. Authors
 
 ===============================================================================
 = 1. Background                                                               =
@@ -579,3 +580,11 @@ return self._activator.FindObject(archname = "goldcoin") != None
   <dialog name="hello">
    <say>Hello!</say>
   </dialog>
+
+===============================================================================
+= 4. Authors                                                                  =
+===============================================================================
+ This document was written by:
+
+  Alex Tokar
+  Andreas Kirschbaum
