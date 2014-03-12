@@ -22,8 +22,8 @@ if activator.owner:
     activator = activator.owner
 
 def main():
-    me.map.Message(me.x, me.y, 20, "You hear a booming voice...", COLOR_GREEN)
-    me.map.Message(me.x, me.y, 20, "Noooooooooooooooo! Curse you {}, curse yoouuu!...".format(activator.race), COLOR_RED)
+    me.map.DrawInfo(me.x, me.y, "You hear a booming voice...", color = COLOR_GREEN, distance = 20)
+    me.map.DrawInfo(me.x, me.y, "Noooooooooooooooo! Curse you {}, curse yoouuu!...".format(activator.race), color = COLOR_RED, distance = 20)
 
     # Remove the spawn point... no more Hierro for this player.
     me.FindObject(type = Type.SPAWN_POINT_INFO).owner.Remove()

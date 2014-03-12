@@ -1,10 +1,10 @@
 ## @file
 ## Script for the Hierro's Lair stairs entrance.
 
-from QuestManager import get_quest_object
+from QuestManager import QuestManager
 
 def main():
-    if GetTime()["season_name"] != "Season of the Blizzard" or get_quest_object(activator, "Hierro's Ring"):
+    if GetTime()["season_name"] != "Season of the Blizzard" or activator.Controller().quest_container.FindObject(name = "hierro_ring"):
         pl.DrawInfo("You go down the stairs, but after a couple steps find your passage blocked by rocks. As there doesn't seem to be any way to the cave, you return.", COLOR_YELLOW)
         SetReturnValue(1)
     else:
