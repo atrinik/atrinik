@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<interfaces>
+    <interface>
+        <dialog name="hello">
+            <message>Oh hello there! Did you happen to see my cat around here somewhere?</message>
+            <response message="Your cat?" destination="cat" />
+        </dialog>
+        <dialog name="cat">
+            <message>Sadly, my cat has been missing since this giant hole formed... It may have something to do with it...</message>
+            <message>I see that you are an adventurer... If you are going into the hole, I suggest you speak to Achetran the mage on the other side of the hole. He may have some information for you.</message>
+        </dialog>
+    </interface>
+</interfaces>

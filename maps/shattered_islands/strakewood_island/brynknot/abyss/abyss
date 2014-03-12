@@ -2,7 +2,7 @@ arch map
 name In the Abyss
 msg
 Created:  2010-10-30 Alex Tokar
-Modified: 2010-10-30 Alex Tokar
+Modified: 2014-03-12 Alex Tokar
 endmsg
 width 45
 height 47
@@ -15,7 +15,7 @@ region brynknot
 end
 arch map_event_obj
 sub_type 1
-race /events/2010/halloween/scripts/map_enter.py
+race scripts/map_enter.py
 end
 arch blocked
 y 25
@@ -191,7 +191,7 @@ arch invis_exit
 msg
 Some old magic activates... And you find yourself back where you started.
 endmsg
-slaying /events/2010/halloween/abyss
+slaying /shattered_islands/strakewood_island/brynknot/abyss/abyss
 hp 20
 sp 43
 last_eat 1
@@ -213,7 +213,7 @@ arch invis_exit
 msg
 Some old magic activates... And you find yourself back where you started.
 endmsg
-slaying /events/2010/halloween/abyss
+slaying /shattered_islands/strakewood_island/brynknot/abyss/abyss
 hp 20
 sp 43
 last_eat 1
@@ -253,13 +253,9 @@ x 2
 y 32
 end
 arch magic_wall
-layer 0
 speed_left 0.2
-sys_object 1
-blocksview 0
 dam 49
 speed -0.01
-alive 0
 x 2
 y 32
 end
@@ -318,7 +314,7 @@ arch invis_exit
 msg
 Some old magic activates... And you find yourself back where you started.
 endmsg
-slaying /events/2010/halloween/abyss
+slaying /shattered_islands/strakewood_island/brynknot/abyss/abyss
 hp 20
 sp 43
 last_eat 1
@@ -340,7 +336,7 @@ arch invis_exit
 msg
 Some old magic activates... And you find yourself back where you started.
 endmsg
-slaying /events/2010/halloween/abyss
+slaying /shattered_islands/strakewood_island/brynknot/abyss/abyss
 hp 20
 sp 43
 last_eat 1
@@ -378,7 +374,7 @@ arch invis_exit
 msg
 Some old magic activates... And you find yourself back where you started.
 endmsg
-slaying /events/2010/halloween/abyss
+slaying /shattered_islands/strakewood_island/brynknot/abyss/abyss
 hp 20
 sp 43
 last_eat 1
@@ -400,7 +396,7 @@ arch invis_exit
 msg
 Some old magic activates... And you find yourself back where you started.
 endmsg
-slaying /events/2010/halloween/abyss
+slaying /shattered_islands/strakewood_island/brynknot/abyss/abyss
 hp 20
 sp 43
 last_eat 1
@@ -422,7 +418,7 @@ arch invis_exit
 msg
 Some old magic activates... And you find yourself back where you started.
 endmsg
-slaying /events/2010/halloween/abyss
+slaying /shattered_islands/strakewood_island/brynknot/abyss/abyss
 hp 20
 sp 43
 last_eat 1
@@ -516,7 +512,7 @@ arch invis_exit
 msg
 Some old magic activates... And you find yourself back where you started.
 endmsg
-slaying /events/2010/halloween/abyss
+slaying /shattered_islands/strakewood_island/brynknot/abyss/abyss
 hp 20
 sp 43
 last_eat 1
@@ -538,7 +534,7 @@ arch invis_exit
 msg
 Some old magic activates... And you find yourself back where you started.
 endmsg
-slaying /events/2010/halloween/abyss
+slaying /shattered_islands/strakewood_island/brynknot/abyss/abyss
 hp 20
 sp 43
 last_eat 1
@@ -568,7 +564,7 @@ arch invis_exit
 msg
 Some old magic activates... And you find yourself back where you started.
 endmsg
-slaying /events/2010/halloween/abyss
+slaying /shattered_islands/strakewood_island/brynknot/abyss/abyss
 hp 20
 sp 43
 last_eat 1
@@ -586,7 +582,7 @@ arch invis_exit
 msg
 Some old magic activates... And you find yourself back where you started.
 endmsg
-slaying /events/2010/halloween/abyss
+slaying /shattered_islands/strakewood_island/brynknot/abyss/abyss
 hp 20
 sp 43
 last_eat 1
@@ -604,7 +600,7 @@ arch invis_exit
 msg
 Some old magic activates... And you find yourself back where you started.
 endmsg
-slaying /events/2010/halloween/abyss
+slaying /shattered_islands/strakewood_island/brynknot/abyss/abyss
 hp 20
 sp 43
 last_eat 1
@@ -626,7 +622,7 @@ arch invis_exit
 msg
 Some old magic activates... And you find yourself back where you started.
 endmsg
-slaying /events/2010/halloween/abyss
+slaying /shattered_islands/strakewood_island/brynknot/abyss/abyss
 hp 20
 sp 43
 last_eat 1
@@ -713,7 +709,7 @@ arch invis_exit
 msg
 Some old magic activates... And you find yourself back where you started.
 endmsg
-slaying /events/2010/halloween/abyss
+slaying /shattered_islands/strakewood_island/brynknot/abyss/abyss
 hp 20
 sp 43
 last_eat 1
@@ -735,7 +731,7 @@ arch invis_exit
 msg
 Some old magic activates... And you find yourself back where you started.
 endmsg
-slaying /events/2010/halloween/abyss
+slaying /shattered_islands/strakewood_island/brynknot/abyss/abyss
 hp 20
 sp 43
 last_eat 1
@@ -757,7 +753,7 @@ arch invis_exit
 msg
 Some old magic activates... And you find yourself back where you started.
 endmsg
-slaying /events/2010/halloween/abyss
+slaying /shattered_islands/strakewood_island/brynknot/abyss/abyss
 hp 20
 sp 43
 last_eat 1
@@ -803,7 +799,7 @@ arch invis_exit
 msg
 Some old magic activates... And you find yourself back where you started.
 endmsg
-slaying /events/2010/halloween/abyss
+slaying /shattered_islands/strakewood_island/brynknot/abyss/abyss
 hp 20
 sp 43
 last_eat 1
@@ -847,7 +843,7 @@ arch invis_exit
 msg
 Some old magic activates... And you find yourself back where you started.
 endmsg
-slaying /events/2010/halloween/abyss
+slaying /shattered_islands/strakewood_island/brynknot/abyss/abyss
 hp 20
 sp 43
 last_eat 1
@@ -865,7 +861,7 @@ arch invis_exit
 msg
 Some old magic activates... And you find yourself back where you started.
 endmsg
-slaying /events/2010/halloween/abyss
+slaying /shattered_islands/strakewood_island/brynknot/abyss/abyss
 hp 20
 sp 43
 last_eat 1
@@ -887,7 +883,7 @@ arch invis_exit
 msg
 Some old magic activates... And you find yourself back where you started.
 endmsg
-slaying /events/2010/halloween/abyss
+slaying /shattered_islands/strakewood_island/brynknot/abyss/abyss
 hp 20
 sp 43
 last_eat 1
@@ -909,7 +905,7 @@ arch invis_exit
 msg
 Some old magic activates... And you find yourself back where you started.
 endmsg
-slaying /events/2010/halloween/abyss
+slaying /shattered_islands/strakewood_island/brynknot/abyss/abyss
 hp 20
 sp 43
 last_eat 1
@@ -1013,7 +1009,7 @@ arch invis_exit
 msg
 Some old magic activates... And you find yourself back where you started.
 endmsg
-slaying /events/2010/halloween/abyss
+slaying /shattered_islands/strakewood_island/brynknot/abyss/abyss
 hp 20
 sp 43
 last_eat 1
@@ -1035,7 +1031,7 @@ arch invis_exit
 msg
 Some old magic activates... And you find yourself back where you started.
 endmsg
-slaying /events/2010/halloween/abyss
+slaying /shattered_islands/strakewood_island/brynknot/abyss/abyss
 hp 20
 sp 43
 last_eat 1
@@ -1187,7 +1183,7 @@ arch invis_exit
 msg
 Some old magic activates... And you find yourself back where you started.
 endmsg
-slaying /events/2010/halloween/abyss
+slaying /shattered_islands/strakewood_island/brynknot/abyss/abyss
 hp 20
 sp 43
 last_eat 1
@@ -1209,7 +1205,7 @@ arch invis_exit
 msg
 Some old magic activates... And you find yourself back where you started.
 endmsg
-slaying /events/2010/halloween/abyss
+slaying /shattered_islands/strakewood_island/brynknot/abyss/abyss
 hp 20
 sp 43
 last_eat 1
@@ -1231,7 +1227,7 @@ arch invis_exit
 msg
 Some old magic activates... And you find yourself back where you started.
 endmsg
-slaying /events/2010/halloween/abyss
+slaying /shattered_islands/strakewood_island/brynknot/abyss/abyss
 hp 20
 sp 43
 last_eat 1
@@ -1325,7 +1321,7 @@ arch invis_exit
 msg
 Some old magic activates... And you find yourself back where you started.
 endmsg
-slaying /events/2010/halloween/abyss
+slaying /shattered_islands/strakewood_island/brynknot/abyss/abyss
 hp 20
 sp 43
 last_eat 1
@@ -1408,7 +1404,7 @@ arch invis_exit
 msg
 Some old magic activates... And you find yourself back where you started.
 endmsg
-slaying /events/2010/halloween/abyss
+slaying /shattered_islands/strakewood_island/brynknot/abyss/abyss
 hp 20
 sp 43
 last_eat 1
@@ -1426,7 +1422,7 @@ arch invis_exit
 msg
 Some old magic activates... And you find yourself back where you started.
 endmsg
-slaying /events/2010/halloween/abyss
+slaying /shattered_islands/strakewood_island/brynknot/abyss/abyss
 hp 20
 sp 43
 last_eat 1
@@ -1444,7 +1440,7 @@ arch invis_exit
 msg
 Some old magic activates... And you find yourself back where you started.
 endmsg
-slaying /events/2010/halloween/abyss
+slaying /shattered_islands/strakewood_island/brynknot/abyss/abyss
 hp 20
 sp 43
 last_eat 1
@@ -1487,14 +1483,10 @@ x 7
 y 26
 end
 arch magic_wall
-layer 0
 speed_left 0.2
-sys_object 1
-blocksview 0
 direction 5
 dam 49
 speed -0.01
-alive 0
 x 7
 y 26
 end
@@ -1638,13 +1630,9 @@ x 8
 y 13
 end
 arch magic_wall
-layer 0
 speed_left 0.2
-sys_object 1
-blocksview 0
 dam 49
 speed -0.01
-alive 0
 x 8
 y 13
 end
@@ -1671,7 +1659,7 @@ arch invis_exit
 msg
 Some old magic activates... And you find yourself back where you started.
 endmsg
-slaying /events/2010/halloween/abyss
+slaying /shattered_islands/strakewood_island/brynknot/abyss/abyss
 hp 20
 sp 43
 last_eat 1
@@ -1689,7 +1677,7 @@ arch invis_exit
 msg
 Some old magic activates... And you find yourself back where you started.
 endmsg
-slaying /events/2010/halloween/abyss
+slaying /shattered_islands/strakewood_island/brynknot/abyss/abyss
 hp 20
 sp 43
 last_eat 1
@@ -1730,7 +1718,7 @@ arch invis_exit
 msg
 Some old magic activates... And you find yourself back where you started.
 endmsg
-slaying /events/2010/halloween/abyss
+slaying /shattered_islands/strakewood_island/brynknot/abyss/abyss
 hp 20
 sp 43
 last_eat 1
@@ -1788,7 +1776,7 @@ arch invis_exit
 msg
 Some old magic activates... And you find yourself back where you started.
 endmsg
-slaying /events/2010/halloween/abyss
+slaying /shattered_islands/strakewood_island/brynknot/abyss/abyss
 hp 20
 sp 43
 last_eat 1
@@ -1810,7 +1798,7 @@ arch invis_exit
 msg
 Some old magic activates... And you find yourself back where you started.
 endmsg
-slaying /events/2010/halloween/abyss
+slaying /shattered_islands/strakewood_island/brynknot/abyss/abyss
 hp 20
 sp 43
 last_eat 1
@@ -1895,7 +1883,7 @@ arch invis_exit
 msg
 Some old magic activates... And you find yourself back where you started.
 endmsg
-slaying /events/2010/halloween/abyss
+slaying /shattered_islands/strakewood_island/brynknot/abyss/abyss
 hp 20
 sp 43
 last_eat 1
@@ -1917,7 +1905,7 @@ arch invis_exit
 msg
 Some old magic activates... And you find yourself back where you started.
 endmsg
-slaying /events/2010/halloween/abyss
+slaying /shattered_islands/strakewood_island/brynknot/abyss/abyss
 hp 20
 sp 43
 last_eat 1
@@ -1939,7 +1927,7 @@ arch invis_exit
 msg
 Some old magic activates... And you find yourself back where you started.
 endmsg
-slaying /events/2010/halloween/abyss
+slaying /shattered_islands/strakewood_island/brynknot/abyss/abyss
 hp 20
 sp 43
 last_eat 1
@@ -1981,7 +1969,7 @@ arch invis_exit
 msg
 Some old magic activates... And you find yourself back where you started.
 endmsg
-slaying /events/2010/halloween/abyss
+slaying /shattered_islands/strakewood_island/brynknot/abyss/abyss
 hp 20
 sp 43
 last_eat 1
@@ -2018,7 +2006,7 @@ arch invis_exit
 msg
 Some old magic activates... And you find yourself back where you started.
 endmsg
-slaying /events/2010/halloween/abyss
+slaying /shattered_islands/strakewood_island/brynknot/abyss/abyss
 hp 20
 sp 43
 last_eat 1
@@ -2040,7 +2028,7 @@ arch invis_exit
 msg
 Some old magic activates... And you find yourself back where you started.
 endmsg
-slaying /events/2010/halloween/abyss
+slaying /shattered_islands/strakewood_island/brynknot/abyss/abyss
 hp 20
 sp 43
 last_eat 1
@@ -2082,7 +2070,7 @@ arch invis_exit
 msg
 Some old magic activates... And you find yourself back where you started.
 endmsg
-slaying /events/2010/halloween/abyss
+slaying /shattered_islands/strakewood_island/brynknot/abyss/abyss
 hp 20
 sp 43
 last_eat 1
@@ -2100,7 +2088,7 @@ arch invis_exit
 msg
 Some old magic activates... And you find yourself back where you started.
 endmsg
-slaying /events/2010/halloween/abyss
+slaying /shattered_islands/strakewood_island/brynknot/abyss/abyss
 hp 20
 sp 43
 last_eat 1
@@ -2118,7 +2106,7 @@ arch invis_exit
 msg
 Some old magic activates... And you find yourself back where you started.
 endmsg
-slaying /events/2010/halloween/abyss
+slaying /shattered_islands/strakewood_island/brynknot/abyss/abyss
 hp 20
 sp 43
 last_eat 1
@@ -2203,7 +2191,7 @@ arch invis_exit
 msg
 Some old magic activates... And you find yourself back where you started.
 endmsg
-slaying /events/2010/halloween/abyss
+slaying /shattered_islands/strakewood_island/brynknot/abyss/abyss
 hp 20
 sp 43
 last_eat 1
@@ -2221,7 +2209,7 @@ arch invis_exit
 msg
 Some old magic activates... And you find yourself back where you started.
 endmsg
-slaying /events/2010/halloween/abyss
+slaying /shattered_islands/strakewood_island/brynknot/abyss/abyss
 hp 20
 sp 43
 last_eat 1
@@ -2239,7 +2227,7 @@ arch invis_exit
 msg
 Some old magic activates... And you find yourself back where you started.
 endmsg
-slaying /events/2010/halloween/abyss
+slaying /shattered_islands/strakewood_island/brynknot/abyss/abyss
 hp 20
 sp 43
 last_eat 1
@@ -2257,7 +2245,7 @@ arch invis_exit
 msg
 Some old magic activates... And you find yourself back where you started.
 endmsg
-slaying /events/2010/halloween/abyss
+slaying /shattered_islands/strakewood_island/brynknot/abyss/abyss
 hp 20
 sp 43
 last_eat 1
@@ -2279,7 +2267,7 @@ arch invis_exit
 msg
 Some old magic activates... And you find yourself back where you started.
 endmsg
-slaying /events/2010/halloween/abyss
+slaying /shattered_islands/strakewood_island/brynknot/abyss/abyss
 hp 20
 sp 43
 last_eat 1
@@ -2332,7 +2320,7 @@ arch invis_exit
 msg
 Some old magic activates... And you find yourself back where you started.
 endmsg
-slaying /events/2010/halloween/abyss
+slaying /shattered_islands/strakewood_island/brynknot/abyss/abyss
 hp 20
 sp 43
 last_eat 1
@@ -2354,7 +2342,7 @@ arch invis_exit
 msg
 Some old magic activates... And you find yourself back where you started.
 endmsg
-slaying /events/2010/halloween/abyss
+slaying /shattered_islands/strakewood_island/brynknot/abyss/abyss
 hp 20
 sp 43
 last_eat 1
@@ -2396,7 +2384,7 @@ arch invis_exit
 msg
 Some old magic activates... And you find yourself back where you started.
 endmsg
-slaying /events/2010/halloween/abyss
+slaying /shattered_islands/strakewood_island/brynknot/abyss/abyss
 hp 20
 sp 43
 last_eat 1
@@ -2414,7 +2402,7 @@ arch invis_exit
 msg
 Some old magic activates... And you find yourself back where you started.
 endmsg
-slaying /events/2010/halloween/abyss
+slaying /shattered_islands/strakewood_island/brynknot/abyss/abyss
 hp 20
 sp 43
 last_eat 1
@@ -2432,7 +2420,7 @@ arch invis_exit
 msg
 Some old magic activates... And you find yourself back where you started.
 endmsg
-slaying /events/2010/halloween/abyss
+slaying /shattered_islands/strakewood_island/brynknot/abyss/abyss
 hp 20
 sp 43
 last_eat 1
@@ -2525,7 +2513,7 @@ arch invis_exit
 msg
 Some old magic activates... And you find yourself back where you started.
 endmsg
-slaying /events/2010/halloween/abyss
+slaying /shattered_islands/strakewood_island/brynknot/abyss/abyss
 hp 20
 sp 43
 last_eat 1
@@ -2543,7 +2531,7 @@ arch invis_exit
 msg
 Some old magic activates... And you find yourself back where you started.
 endmsg
-slaying /events/2010/halloween/abyss
+slaying /shattered_islands/strakewood_island/brynknot/abyss/abyss
 hp 20
 sp 43
 last_eat 1
@@ -2561,7 +2549,7 @@ arch invis_exit
 msg
 Some old magic activates... And you find yourself back where you started.
 endmsg
-slaying /events/2010/halloween/abyss
+slaying /shattered_islands/strakewood_island/brynknot/abyss/abyss
 hp 20
 sp 43
 last_eat 1
@@ -2583,7 +2571,7 @@ arch invis_exit
 msg
 Some old magic activates... And you find yourself back where you started.
 endmsg
-slaying /events/2010/halloween/abyss
+slaying /shattered_islands/strakewood_island/brynknot/abyss/abyss
 hp 20
 sp 43
 last_eat 1
@@ -2605,7 +2593,7 @@ arch invis_exit
 msg
 Some old magic activates... And you find yourself back where you started.
 endmsg
-slaying /events/2010/halloween/abyss
+slaying /shattered_islands/strakewood_island/brynknot/abyss/abyss
 hp 20
 sp 43
 last_eat 1
@@ -2669,7 +2657,7 @@ arch invis_exit
 msg
 Some old magic activates... And you find yourself back where you started.
 endmsg
-slaying /events/2010/halloween/abyss
+slaying /shattered_islands/strakewood_island/brynknot/abyss/abyss
 hp 20
 sp 43
 last_eat 1
@@ -2712,7 +2700,7 @@ arch invis_exit
 msg
 Some old magic activates... And you find yourself back where you started.
 endmsg
-slaying /events/2010/halloween/abyss
+slaying /shattered_islands/strakewood_island/brynknot/abyss/abyss
 hp 20
 sp 43
 last_eat 1
@@ -2893,7 +2881,7 @@ arch invis_exit
 msg
 Some old magic activates... And you find yourself back where you started.
 endmsg
-slaying /events/2010/halloween/abyss
+slaying /shattered_islands/strakewood_island/brynknot/abyss/abyss
 hp 20
 sp 43
 last_eat 1
@@ -2915,7 +2903,7 @@ arch invis_exit
 msg
 Some old magic activates... And you find yourself back where you started.
 endmsg
-slaying /events/2010/halloween/abyss
+slaying /shattered_islands/strakewood_island/brynknot/abyss/abyss
 hp 20
 sp 43
 last_eat 1
@@ -2937,7 +2925,7 @@ arch invis_exit
 msg
 Some old magic activates... And you find yourself back where you started.
 endmsg
-slaying /events/2010/halloween/abyss
+slaying /shattered_islands/strakewood_island/brynknot/abyss/abyss
 hp 20
 sp 43
 last_eat 1
@@ -3062,7 +3050,7 @@ arch invis_exit
 msg
 Some old magic activates... And you find yourself back where you started.
 endmsg
-slaying /events/2010/halloween/abyss
+slaying /shattered_islands/strakewood_island/brynknot/abyss/abyss
 hp 20
 sp 43
 last_eat 1
@@ -3084,7 +3072,7 @@ arch invis_exit
 msg
 Some old magic activates... And you find yourself back where you started.
 endmsg
-slaying /events/2010/halloween/abyss
+slaying /shattered_islands/strakewood_island/brynknot/abyss/abyss
 hp 20
 sp 43
 last_eat 1
@@ -3188,14 +3176,10 @@ x 13
 y 9
 end
 arch magic_wall
-layer 0
 speed_left 0.4
-sys_object 1
-blocksview 0
 direction 5
 dam 49
 speed -0.01
-alive 0
 x 13
 y 9
 end
@@ -3440,7 +3424,7 @@ arch invis_exit
 msg
 Some old magic activates... And you find yourself back where you started.
 endmsg
-slaying /events/2010/halloween/abyss
+slaying /shattered_islands/strakewood_island/brynknot/abyss/abyss
 hp 20
 sp 43
 last_eat 1
@@ -3462,7 +3446,7 @@ arch invis_exit
 msg
 Some old magic activates... And you find yourself back where you started.
 endmsg
-slaying /events/2010/halloween/abyss
+slaying /shattered_islands/strakewood_island/brynknot/abyss/abyss
 hp 20
 sp 43
 last_eat 1
@@ -3616,7 +3600,7 @@ arch invis_exit
 msg
 Some old magic activates... And you find yourself back where you started.
 endmsg
-slaying /events/2010/halloween/abyss
+slaying /shattered_islands/strakewood_island/brynknot/abyss/abyss
 hp 20
 sp 43
 last_eat 1
@@ -3634,7 +3618,7 @@ arch invis_exit
 msg
 Some old magic activates... And you find yourself back where you started.
 endmsg
-slaying /events/2010/halloween/abyss
+slaying /shattered_islands/strakewood_island/brynknot/abyss/abyss
 hp 20
 sp 43
 last_eat 1
@@ -3656,7 +3640,7 @@ arch invis_exit
 msg
 Some old magic activates... And you find yourself back where you started.
 endmsg
-slaying /events/2010/halloween/abyss
+slaying /shattered_islands/strakewood_island/brynknot/abyss/abyss
 hp 20
 sp 43
 last_eat 1
@@ -3828,7 +3812,7 @@ arch invis_exit
 msg
 Some old magic activates... And you find yourself back where you started.
 endmsg
-slaying /events/2010/halloween/abyss
+slaying /shattered_islands/strakewood_island/brynknot/abyss/abyss
 hp 20
 sp 43
 last_eat 1
@@ -3846,7 +3830,7 @@ arch invis_exit
 msg
 Some old magic activates... And you find yourself back where you started.
 endmsg
-slaying /events/2010/halloween/abyss
+slaying /shattered_islands/strakewood_island/brynknot/abyss/abyss
 hp 20
 sp 43
 last_eat 1
@@ -3868,7 +3852,7 @@ arch invis_exit
 msg
 Some old magic activates... And you find yourself back where you started.
 endmsg
-slaying /events/2010/halloween/abyss
+slaying /shattered_islands/strakewood_island/brynknot/abyss/abyss
 hp 20
 sp 43
 last_eat 1
@@ -3916,7 +3900,7 @@ arch invis_exit
 msg
 Some old magic activates... And you find yourself back where you started.
 endmsg
-slaying /events/2010/halloween/abyss
+slaying /shattered_islands/strakewood_island/brynknot/abyss/abyss
 hp 20
 sp 43
 last_eat 1
@@ -3938,7 +3922,7 @@ arch invis_exit
 msg
 Some old magic activates... And you find yourself back where you started.
 endmsg
-slaying /events/2010/halloween/abyss
+slaying /shattered_islands/strakewood_island/brynknot/abyss/abyss
 hp 20
 sp 43
 last_eat 1
@@ -4166,7 +4150,7 @@ arch invis_exit
 msg
 Some old magic activates... And you find yourself back where you started.
 endmsg
-slaying /events/2010/halloween/abyss
+slaying /shattered_islands/strakewood_island/brynknot/abyss/abyss
 hp 20
 sp 43
 last_eat 1
@@ -4188,7 +4172,7 @@ arch invis_exit
 msg
 Some old magic activates... And you find yourself back where you started.
 endmsg
-slaying /events/2010/halloween/abyss
+slaying /shattered_islands/strakewood_island/brynknot/abyss/abyss
 hp 20
 sp 43
 last_eat 1
@@ -4230,7 +4214,7 @@ arch invis_exit
 msg
 Some old magic activates... And you find yourself back where you started.
 endmsg
-slaying /events/2010/halloween/abyss
+slaying /shattered_islands/strakewood_island/brynknot/abyss/abyss
 hp 20
 sp 43
 last_eat 1
@@ -4248,7 +4232,7 @@ arch invis_exit
 msg
 Some old magic activates... And you find yourself back where you started.
 endmsg
-slaying /events/2010/halloween/abyss
+slaying /shattered_islands/strakewood_island/brynknot/abyss/abyss
 hp 20
 sp 43
 last_eat 1
@@ -4266,7 +4250,7 @@ arch invis_exit
 msg
 Some old magic activates... And you find yourself back where you started.
 endmsg
-slaying /events/2010/halloween/abyss
+slaying /shattered_islands/strakewood_island/brynknot/abyss/abyss
 hp 20
 sp 43
 last_eat 1
@@ -4409,14 +4393,10 @@ x 17
 y 45
 end
 arch magic_wall
-layer 0
 speed_left 0.4
-sys_object 1
-blocksview 0
 direction 3
 dam 49
 speed -0.01
-alive 0
 x 17
 y 45
 end
@@ -4491,7 +4471,7 @@ arch invis_exit
 msg
 Some old magic activates... And you find yourself back where you started.
 endmsg
-slaying /events/2010/halloween/abyss
+slaying /shattered_islands/strakewood_island/brynknot/abyss/abyss
 hp 20
 sp 43
 last_eat 1
@@ -4753,7 +4733,7 @@ arch invis_exit
 msg
 Some old magic activates... And you find yourself back where you started.
 endmsg
-slaying /events/2010/halloween/abyss
+slaying /shattered_islands/strakewood_island/brynknot/abyss/abyss
 hp 20
 sp 43
 last_eat 1
@@ -6036,14 +6016,10 @@ x 29
 y 6
 end
 arch magic_wall
-layer 0
 speed_left 0.4
-sys_object 1
-blocksview 0
 direction 4
 dam 49
 speed -0.01
-alive 0
 x 29
 y 6
 end
@@ -6088,14 +6064,10 @@ x 29
 y 14
 end
 arch magic_wall
-layer 0
 speed_left 0.2
-sys_object 1
-blocksview 0
 direction 2
 dam 49
 speed -0.01
-alive 0
 x 29
 y 14
 end
@@ -6512,7 +6484,9 @@ hp 37
 maxsp 3
 end
 arch quest_container
-name Mysterious Abyss Crystal
+name brynknot_abyss_crystal
+race Brynknot Abyss Crystal
+sub_type 3
 arch halloween_abyss_jackolantern
 end
 end
@@ -6870,14 +6844,10 @@ x 37
 y 6
 end
 arch magic_wall
-layer 0
 speed_left 1.0
-sys_object 1
-blocksview 0
 direction 6
 dam 49
 speed -0.01
-alive 0
 x 37
 y 6
 end
@@ -6922,14 +6892,10 @@ x 37
 y 14
 end
 arch magic_wall
-layer 0
 speed_left 0.8
-sys_object 1
-blocksview 0
 direction 8
 dam 49
 speed -0.01
-alive 0
 x 37
 y 14
 end

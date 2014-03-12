@@ -2,7 +2,7 @@ arch map
 name Strakewood Island
 msg
 Created:  2009-09-10 Alex Tokar
-Modified: 2010-09-03 Alex Tokar
+Modified: 2014-03-12 Alex Tokar
 endmsg
 width 24
 height 24
@@ -452,7 +452,11 @@ arch grassd_1
 x 3
 y 12
 end
-arch grassd_1
+arch floor_sand_d1
+x 3
+y 13
+end
+arch grassd_m1
 x 3
 y 13
 end
@@ -566,7 +570,7 @@ arch plant7
 x 4
 y 6
 end
-arch grassd_2
+arch grassd_5
 x 4
 y 7
 end
@@ -574,7 +578,11 @@ arch grassd_3
 x 4
 y 8
 end
-arch grassd_3
+arch floor_sand_d3
+x 4
+y 9
+end
+arch grassd_m1
 x 4
 y 9
 end
@@ -582,11 +590,15 @@ arch grassd_1
 x 4
 y 10
 end
-arch grassd_4
+arch floor_sand_d2
 x 4
 y 11
 end
-arch tree_big
+arch grassd_m1
+x 4
+y 11
+end
+arch plant_mushroom2
 x 4
 y 11
 end
@@ -602,7 +614,11 @@ arch grassd_6
 x 4
 y 14
 end
-arch grassd_7
+arch floor_sand_d3
+x 4
+y 15
+end
+arch grassd_m1
 x 4
 y 15
 end
@@ -614,7 +630,15 @@ arch grassd_3
 x 4
 y 17
 end
-arch grassd_4
+arch small_stones
+x 4
+y 17
+end
+arch floor_sand_d3
+x 4
+y 18
+end
+arch grassd_m1
 x 4
 y 18
 end
@@ -692,19 +716,31 @@ arch grassd_6
 x 5
 y 6
 end
-arch grassd_1
+arch tree_big
 x 5
-y 7
+y 6
 end
 arch grassd_2
 x 5
+y 7
+end
+arch floor_sand_d1
+x 5
 y 8
 end
-arch grassd_5
+arch grassd_m1
+x 5
+y 8
+end
+arch grassd_4
 x 5
 y 9
 end
-arch grassd_1
+arch grassd_7
+x 5
+y 10
+end
+arch plant_flower8
 x 5
 y 10
 end
@@ -720,11 +756,11 @@ arch grassd_4
 x 5
 y 13
 end
-arch grassd_2
-x 5
-y 14
-end
 arch tree_big4b
+x 5
+y 13
+end
+arch grassd_2
 x 5
 y 14
 end
@@ -736,11 +772,11 @@ arch grassd_4
 x 5
 y 16
 end
-arch grassd_7
+arch floor_sand_d2
 x 5
 y 17
 end
-arch tree_big3
+arch grassd_m1
 x 5
 y 17
 end
@@ -752,7 +788,11 @@ arch grassd_4
 x 5
 y 19
 end
-arch grassd_5
+arch floor_sand_d4
+x 5
+y 20
+end
+arch grassd_m1
 x 5
 y 20
 end
@@ -818,11 +858,15 @@ arch plant17
 x 6
 y 5
 end
-arch grassd_5
+arch grassd_3
 x 6
 y 6
 end
-arch grassd_2
+arch floor_sand_d3
+x 6
+y 7
+end
+arch grassd_m1
 x 6
 y 7
 end
@@ -834,23 +878,61 @@ arch grassd_2
 x 6
 y 9
 end
-arch tree_big4b
+arch tree_big3
 x 6
 y 9
 end
-arch grassd_3
+arch blocked
+no_pass 0
+blocksview 0
 x 6
 y 10
 end
-arch grassd_3
+arch grassd_m4
+x 6
+y 10
+end
+arch invis_exit
+slaying /shattered_islands/strakewood_island/brynknot/abyss/abyss
+hp 21
+sp 43
+last_eat 1
+x 6
+y 10
+end
+arch blocked
+no_pass 0
+blocksview 0
 x 6
 y 11
 end
-arch grassd_4
+arch grassd_m9
+x 6
+y 11
+end
+arch invis_exit
+slaying /shattered_islands/strakewood_island/brynknot/abyss/abyss
+hp 21
+sp 43
+last_eat 1
+x 6
+y 11
+end
+arch blocked
+no_pass 0
+blocksview 0
 x 6
 y 12
 end
-arch plant_flower7
+arch grassd_m3
+x 6
+y 12
+end
+arch invis_exit
+slaying /shattered_islands/strakewood_island/brynknot/abyss/abyss
+hp 21
+sp 43
+last_eat 1
 x 6
 y 12
 end
@@ -944,39 +1026,101 @@ arch grassd_8
 x 7
 y 6
 end
-arch grassd_3
+arch floor_sand_d3
 x 7
 y 7
 end
-arch tree_big4b
+arch grassd_m1
 x 7
 y 7
 end
-arch grassd_1
+arch grassd_5
 x 7
 y 8
 end
-arch grassd_7
+arch blocked
+no_pass 0
+blocksview 0
 x 7
 y 9
 end
-arch grassd_7
+arch grassd_m4
+x 7
+y 9
+end
+arch invis_exit
+slaying /shattered_islands/strakewood_island/brynknot/abyss/abyss
+hp 21
+sp 43
+last_eat 1
+x 7
+y 9
+end
+arch blocked
+no_pass 0
+blocksview 0
 x 7
 y 10
 end
-arch plant_mushroom1
+arch grassd_m13
 x 7
 y 10
 end
-arch grassd_2
+arch invis_exit
+slaying /shattered_islands/strakewood_island/brynknot/abyss/abyss
+hp 21
+sp 43
+last_eat 1
+x 7
+y 10
+end
+arch blocked
+no_pass 0
+blocksview 0
 x 7
 y 11
 end
-arch grassd_2
+arch invis_exit
+slaying /shattered_islands/strakewood_island/brynknot/abyss/abyss
+hp 21
+sp 43
+last_eat 1
+x 7
+y 11
+end
+arch blocked
+no_pass 0
+blocksview 0
 x 7
 y 12
 end
-arch grassd_7
+arch grassd_m14
+x 7
+y 12
+end
+arch invis_exit
+slaying /shattered_islands/strakewood_island/brynknot/abyss/abyss
+hp 21
+sp 43
+last_eat 1
+x 7
+y 12
+end
+arch blocked
+no_pass 0
+blocksview 0
+x 7
+y 13
+end
+arch grassd_m3
+x 7
+y 13
+end
+arch invis_exit
+slaying /shattered_islands/strakewood_island/brynknot/abyss/abyss
+hp 21
+sp 43
+last_eat 1
 x 7
 y 13
 end
@@ -1059,39 +1203,111 @@ arch grassd_1
 x 8
 y 6
 end
-arch grassd_7
+arch grassd_4
 x 8
 y 7
 end
-arch grassd_8
+arch grassd_3
 x 8
 y 8
 end
-arch grassd_5
+arch grassd_m12
+x 8
+y 8
+end
+arch blocked
+no_pass 0
+blocksview 0
 x 8
 y 9
 end
-arch plant_flower6
+arch grassd_m10
 x 8
 y 9
 end
-arch grassd_2
+arch invis_exit
+slaying /shattered_islands/strakewood_island/brynknot/abyss/abyss
+hp 21
+sp 43
+last_eat 1
+x 8
+y 9
+end
+arch blocked
+no_pass 0
+blocksview 0
 x 8
 y 10
 end
-arch grassd_8
+arch invis_exit
+slaying /shattered_islands/strakewood_island/brynknot/abyss/abyss
+hp 21
+sp 43
+last_eat 1
+x 8
+y 10
+end
+arch blocked
+no_pass 0
+blocksview 0
 x 8
 y 11
 end
-arch grassd_7
+arch invis_exit
+slaying /shattered_islands/strakewood_island/brynknot/abyss/abyss
+hp 21
+sp 43
+last_eat 1
+x 8
+y 11
+end
+arch blocked
+no_pass 0
+blocksview 0
 x 8
 y 12
 end
-arch grassd_7
+arch invis_exit
+slaying /shattered_islands/strakewood_island/brynknot/abyss/abyss
+hp 21
+sp 43
+last_eat 1
+x 8
+y 12
+end
+arch blocked
+no_pass 0
+blocksview 0
 x 8
 y 13
 end
-arch grassd_3
+arch grassd_m14
+x 8
+y 13
+end
+arch invis_exit
+slaying /shattered_islands/strakewood_island/brynknot/abyss/abyss
+hp 21
+sp 43
+last_eat 1
+x 8
+y 13
+end
+arch blocked
+no_pass 0
+blocksview 0
+x 8
+y 14
+end
+arch grassd_m3
+x 8
+y 14
+end
+arch invis_exit
+slaying /shattered_islands/strakewood_island/brynknot/abyss/abyss
+hp 21
+sp 43
+last_eat 1
 x 8
 y 14
 end
@@ -1173,6 +1389,10 @@ arch grassd_5
 x 9
 y 5
 end
+arch tree_big
+x 9
+y 5
+end
 arch grassd_4
 x 9
 y 6
@@ -1181,47 +1401,150 @@ arch plant_flower11
 x 9
 y 6
 end
-arch grassd_3
+arch floor_sand_d4
 x 9
 y 7
 end
-arch grassd_6
+arch grassd_m1
+x 9
+y 7
+end
+arch small_stones
+x 9
+y 7
+end
+arch grassd_2
 x 9
 y 8
 end
-arch grassd_7
+arch plant4
+x 9
+y 8
+end
+arch blocked
+no_pass 0
+blocksview 0
 x 9
 y 9
 end
-arch grassd_7
+arch grassd_m6
+x 9
+y 9
+end
+arch invis_exit
+slaying /shattered_islands/strakewood_island/brynknot/abyss/abyss
+hp 21
+sp 43
+last_eat 1
+x 9
+y 9
+end
+arch blocked
+no_pass 0
+blocksview 0
 x 9
 y 10
 end
-arch grassd_8
+arch grassd_m12
+x 9
+y 10
+end
+arch invis_exit
+slaying /shattered_islands/strakewood_island/brynknot/abyss/abyss
+hp 21
+sp 43
+last_eat 1
+x 9
+y 10
+end
+arch blocked
+no_pass 0
+blocksview 0
 x 9
 y 11
 end
-arch grassd_1
+arch invis_exit
+slaying /shattered_islands/strakewood_island/brynknot/abyss/abyss
+hp 21
+sp 43
+last_eat 1
+x 9
+y 11
+end
+arch blocked
+no_pass 0
+blocksview 0
 x 9
 y 12
 end
-arch grassd_3
+arch invis_exit
+slaying /shattered_islands/strakewood_island/brynknot/abyss/abyss
+hp 21
+sp 43
+last_eat 1
+x 9
+y 12
+end
+arch blocked
+no_pass 0
+blocksview 0
 x 9
 y 13
 end
-arch grassd_3
+arch invis_exit
+slaying /shattered_islands/strakewood_island/brynknot/abyss/abyss
+hp 21
+sp 43
+last_eat 1
+x 9
+y 13
+end
+arch blocked
+no_pass 0
+blocksview 0
 x 9
 y 14
 end
-arch tree_big4b
+arch grassd_m14
 x 9
 y 14
 end
-arch grassd_6
+arch invis_exit
+slaying /shattered_islands/strakewood_island/brynknot/abyss/abyss
+hp 21
+sp 43
+last_eat 1
+x 9
+y 14
+end
+arch blocked
+no_pass 0
+blocksview 0
+x 9
+y 15
+end
+arch grassd_m3
+x 9
+y 15
+end
+arch invis_exit
+slaying /shattered_islands/strakewood_island/brynknot/abyss/abyss
+hp 21
+sp 43
+last_eat 1
 x 9
 y 15
 end
 arch grassd_3
+x 9
+y 16
+end
+arch lantern_magic.131
+direction 5
+x 9
+y 16
+end
+arch light5
 x 9
 y 16
 end
@@ -1244,6 +1567,19 @@ end
 arch grassd_1
 x 9
 y 20
+end
+arch spawn_point
+x 9
+y 20
+arch mage_old
+name Achetran
+level 60
+type 83
+arch event_obj
+sub_type 6
+race /interfaces/strakewood_island/brynknot/achetran.xml
+end
+end
 end
 arch floor_sand_d2
 x 9
@@ -1304,43 +1640,121 @@ arch grassd_8
 x 10
 y 8
 end
-arch grassd_2
+arch grassd_7
 x 10
 y 9
 end
-arch grassd_1
+arch blocked
+no_pass 0
+blocksview 0
 x 10
 y 10
 end
-arch grassd_6
+arch grassd_m6
+x 10
+y 10
+end
+arch invis_exit
+slaying /shattered_islands/strakewood_island/brynknot/abyss/abyss
+hp 21
+sp 43
+last_eat 1
+x 10
+y 10
+end
+arch blocked
+no_pass 0
+blocksview 0
 x 10
 y 11
 end
-arch tree_burned4
+arch grassd_m12
 x 10
 y 11
 end
-arch grassd_7
+arch invis_exit
+slaying /shattered_islands/strakewood_island/brynknot/abyss/abyss
+hp 21
+sp 43
+last_eat 1
+x 10
+y 11
+end
+arch blocked
+no_pass 0
+blocksview 0
 x 10
 y 12
 end
-arch plant11
+arch invis_exit
+slaying /shattered_islands/strakewood_island/brynknot/abyss/abyss
+hp 21
+sp 43
+last_eat 1
 x 10
 y 12
 end
-arch grassd_8
+arch blocked
+no_pass 0
+blocksview 0
 x 10
 y 13
 end
-arch grassd_3
+arch invis_exit
+slaying /shattered_islands/strakewood_island/brynknot/abyss/abyss
+hp 21
+sp 43
+last_eat 1
+x 10
+y 13
+end
+arch blocked
+no_pass 0
+blocksview 0
 x 10
 y 14
 end
-arch grassd_8
+arch invis_exit
+slaying /shattered_islands/strakewood_island/brynknot/abyss/abyss
+hp 21
+sp 43
+last_eat 1
+x 10
+y 14
+end
+arch blocked
+no_pass 0
+blocksview 0
 x 10
 y 15
 end
-arch grassd_7
+arch grassd_m14
+x 10
+y 15
+end
+arch invis_exit
+slaying /shattered_islands/strakewood_island/brynknot/abyss/abyss
+hp 21
+sp 43
+last_eat 1
+x 10
+y 15
+end
+arch blocked
+no_pass 0
+blocksview 0
+x 10
+y 16
+end
+arch grassd_m3
+x 10
+y 16
+end
+arch invis_exit
+slaying /shattered_islands/strakewood_island/brynknot/abyss/abyss
+hp 21
+sp 43
+last_eat 1
 x 10
 y 16
 end
@@ -1357,6 +1771,15 @@ x 10
 y 19
 end
 arch grassd_8
+x 10
+y 20
+end
+arch lantern_magic.131
+direction 3
+x 10
+y 20
+end
+arch light5
 x 10
 y 20
 end
@@ -1414,7 +1837,11 @@ arch grassd_2
 x 11
 y 7
 end
-arch grassd_2
+arch floor_sand_d1
+x 11
+y 8
+end
+arch grassd_m1
 x 11
 y 8
 end
@@ -1426,43 +1853,117 @@ arch grassd_3
 x 11
 y 10
 end
-arch grassd_6
+arch blocked
+no_pass 0
+blocksview 0
 x 11
 y 11
 end
-arch grassd_1
+arch grassd_m6
+x 11
+y 11
+end
+arch invis_exit
+slaying /shattered_islands/strakewood_island/brynknot/abyss/abyss
+hp 21
+sp 43
+last_eat 1
+x 11
+y 11
+end
+arch blocked
+no_pass 0
+blocksview 0
 x 11
 y 12
 end
-arch grassd_6
+arch grassd_m12
+x 11
+y 12
+end
+arch invis_exit
+slaying /shattered_islands/strakewood_island/brynknot/abyss/abyss
+hp 21
+sp 43
+last_eat 1
+x 11
+y 12
+end
+arch blocked
+no_pass 0
+blocksview 0
 x 11
 y 13
 end
-arch grassd_7
+arch invis_exit
+slaying /shattered_islands/strakewood_island/brynknot/abyss/abyss
+hp 21
+sp 43
+last_eat 1
+x 11
+y 13
+end
+arch blocked
+no_pass 0
+blocksview 0
 x 11
 y 14
 end
-arch plant_mushroom3
+arch invis_exit
+slaying /shattered_islands/strakewood_island/brynknot/abyss/abyss
+hp 21
+sp 43
+last_eat 1
 x 11
 y 14
 end
-arch grassd_7
+arch blocked
+no_pass 0
+blocksview 0
 x 11
 y 15
 end
-arch grassd_4
+arch invis_exit
+slaying /shattered_islands/strakewood_island/brynknot/abyss/abyss
+hp 21
+sp 43
+last_eat 1
+x 11
+y 15
+end
+arch blocked
+no_pass 0
+blocksview 0
 x 11
 y 16
 end
-arch small_stones
+arch grassd_m14
 x 11
 y 16
 end
-arch grassd_6
+arch invis_exit
+slaying /shattered_islands/strakewood_island/brynknot/abyss/abyss
+hp 21
+sp 43
+last_eat 1
+x 11
+y 16
+end
+arch blocked
+no_pass 0
+blocksview 0
 x 11
 y 17
 end
-arch plant_flower1
+arch grassd_m3
+x 11
+y 17
+end
+arch invis_exit
+slaying /shattered_islands/strakewood_island/brynknot/abyss/abyss
+hp 21
+sp 43
+last_eat 1
 x 11
 y 17
 end
@@ -1561,35 +2062,121 @@ arch grassd_4
 x 12
 y 11
 end
-arch grassd_2
+arch blocked
+no_pass 0
+blocksview 0
 x 12
 y 12
 end
-arch grassd_6
+arch grassd_m6
+x 12
+y 12
+end
+arch invis_exit
+slaying /shattered_islands/strakewood_island/brynknot/abyss/abyss
+hp 21
+sp 43
+last_eat 1
+x 12
+y 12
+end
+arch blocked
+no_pass 0
+blocksview 0
 x 12
 y 13
 end
-arch tree_branch2
+arch grassd_m8
 x 12
 y 13
 end
-arch grassd_8
+arch invis_exit
+slaying /shattered_islands/strakewood_island/brynknot/abyss/abyss
+hp 21
+sp 43
+last_eat 1
+x 12
+y 13
+end
+arch blocked
+no_pass 0
+blocksview 0
 x 12
 y 14
 end
-arch grassd_8
+arch grassd_m12
+x 12
+y 14
+end
+arch invis_exit
+slaying /shattered_islands/strakewood_island/brynknot/abyss/abyss
+hp 21
+sp 43
+last_eat 1
+x 12
+y 14
+end
+arch blocked
+no_pass 0
+blocksview 0
 x 12
 y 15
 end
-arch grassd_5
+arch invis_exit
+slaying /shattered_islands/strakewood_island/brynknot/abyss/abyss
+hp 21
+sp 43
+last_eat 1
+x 12
+y 15
+end
+arch blocked
+no_pass 0
+blocksview 0
 x 12
 y 16
 end
-arch grassd_2
+arch invis_exit
+slaying /shattered_islands/strakewood_island/brynknot/abyss/abyss
+hp 21
+sp 43
+last_eat 1
+x 12
+y 16
+end
+arch blocked
+no_pass 0
+blocksview 0
 x 12
 y 17
 end
-arch grassd_7
+arch grassd_m14
+x 12
+y 17
+end
+arch invis_exit
+slaying /shattered_islands/strakewood_island/brynknot/abyss/abyss
+hp 21
+sp 43
+last_eat 1
+x 12
+y 17
+end
+arch blocked
+no_pass 0
+blocksview 0
+x 12
+y 18
+end
+arch grassd_m3
+x 12
+y 18
+end
+arch invis_exit
+slaying /shattered_islands/strakewood_island/brynknot/abyss/abyss
+hp 21
+sp 43
+last_eat 1
 x 12
 y 18
 end
@@ -1667,7 +2254,11 @@ arch plant17
 x 13
 y 8
 end
-arch grassd_6
+arch floor_sand_d2
+x 13
+y 9
+end
+arch grassd_m1
 x 13
 y 9
 end
@@ -1687,31 +2278,103 @@ arch grassd_7
 x 13
 y 13
 end
-arch grassd_5
+arch blocked
+no_pass 0
+blocksview 0
 x 13
 y 14
 end
-arch grassd_1
+arch grassd_m6
+x 13
+y 14
+end
+arch invis_exit
+slaying /shattered_islands/strakewood_island/brynknot/abyss/abyss
+hp 21
+sp 43
+last_eat 1
+x 13
+y 14
+end
+arch blocked
+no_pass 0
+blocksview 0
 x 13
 y 15
 end
-arch plant10
+arch grassd_m12
 x 13
 y 15
 end
-arch grassd_6
+arch invis_exit
+slaying /shattered_islands/strakewood_island/brynknot/abyss/abyss
+hp 21
+sp 43
+last_eat 1
+x 13
+y 15
+end
+arch blocked
+no_pass 0
+blocksview 0
 x 13
 y 16
 end
-arch grassd_3
+arch invis_exit
+slaying /shattered_islands/strakewood_island/brynknot/abyss/abyss
+hp 21
+sp 43
+last_eat 1
+x 13
+y 16
+end
+arch blocked
+no_pass 0
+blocksview 0
 x 13
 y 17
 end
-arch grassd_7
+arch invis_exit
+slaying /shattered_islands/strakewood_island/brynknot/abyss/abyss
+hp 21
+sp 43
+last_eat 1
+x 13
+y 17
+end
+arch blocked
+no_pass 0
+blocksview 0
 x 13
 y 18
 end
-arch grassd_1
+arch grassd_m14
+x 13
+y 18
+end
+arch invis_exit
+slaying /shattered_islands/strakewood_island/brynknot/abyss/abyss
+hp 21
+sp 43
+last_eat 1
+x 13
+y 18
+end
+arch blocked
+no_pass 0
+blocksview 0
+x 13
+y 19
+end
+arch grassd_m3
+x 13
+y 19
+end
+arch invis_exit
+slaying /shattered_islands/strakewood_island/brynknot/abyss/abyss
+hp 21
+sp 43
+last_eat 1
 x 13
 y 19
 end
@@ -1730,6 +2393,19 @@ end
 arch grassd_m10
 x 13
 y 21
+end
+arch spawn_point
+x 13
+y 21
+arch guard
+msg
+@match ^hello$
+No fear, we have everything under control!
+endmsg
+level 66
+unaggressive 0
+type 83
+end
 end
 arch floor_sand_d4
 x 13
@@ -1774,6 +2450,10 @@ arch grassd_5
 x 14
 y 6
 end
+arch plant_big1
+x 14
+y 6
+end
 arch grassd_6
 x 14
 y 7
@@ -1810,35 +2490,103 @@ arch grassd_8
 x 14
 y 14
 end
-arch grassd_5
+arch blocked
+no_pass 0
+blocksview 0
 x 14
 y 15
 end
-arch grassd_6
+arch grassd_m6
+x 14
+y 15
+end
+arch invis_exit
+slaying /shattered_islands/strakewood_island/brynknot/abyss/abyss
+hp 21
+sp 43
+last_eat 1
+x 14
+y 15
+end
+arch blocked
+no_pass 0
+blocksview 0
 x 14
 y 16
 end
-arch tree_big4b
+arch grassd_m12
 x 14
 y 16
 end
-arch grassd_6
+arch invis_exit
+slaying /shattered_islands/strakewood_island/brynknot/abyss/abyss
+hp 21
+sp 43
+last_eat 1
+x 14
+y 16
+end
+arch blocked
+no_pass 0
+blocksview 0
 x 14
 y 17
 end
-arch grassd_4
+arch invis_exit
+slaying /shattered_islands/strakewood_island/brynknot/abyss/abyss
+hp 21
+sp 43
+last_eat 1
+x 14
+y 17
+end
+arch blocked
+no_pass 0
+blocksview 0
 x 14
 y 18
 end
-arch grassd_1
+arch invis_exit
+slaying /shattered_islands/strakewood_island/brynknot/abyss/abyss
+hp 21
+sp 43
+last_eat 1
+x 14
+y 18
+end
+arch blocked
+no_pass 0
+blocksview 0
 x 14
 y 19
 end
-arch tree_big
+arch grassd_m14
 x 14
 y 19
 end
-arch grassd_6
+arch invis_exit
+slaying /shattered_islands/strakewood_island/brynknot/abyss/abyss
+hp 21
+sp 43
+last_eat 1
+x 14
+y 19
+end
+arch blocked
+no_pass 0
+blocksview 0
+x 14
+y 20
+end
+arch grassd_m3
+x 14
+y 20
+end
+arch invis_exit
+slaying /shattered_islands/strakewood_island/brynknot/abyss/abyss
+hp 21
+sp 43
+last_eat 1
 x 14
 y 20
 end
@@ -1850,7 +2598,15 @@ arch grassd_m10
 x 14
 y 21
 end
+arch fence_01.173
+x 14
+y 21
+end
 arch floor_sand_d2
+x 14
+y 22
+end
+arch fence_01.171
 x 14
 y 22
 end
@@ -1859,6 +2615,10 @@ x 14
 y 23
 end
 arch grassd_m7
+x 14
+y 23
+end
+arch fence_01.172
 x 14
 y 23
 end
@@ -1909,7 +2669,11 @@ arch grassd_7
 x 15
 y 10
 end
-arch grassd_8
+arch floor_sand_d1
+x 15
+y 11
+end
+arch grassd_m1
 x 15
 y 11
 end
@@ -1933,43 +2697,116 @@ arch tree_big
 x 15
 y 15
 end
-arch grassd_3
+arch blocked
+no_pass 0
+blocksview 0
 x 15
 y 16
 end
-arch grassd_2
+arch grassd_m6
+x 15
+y 16
+end
+arch invis_exit
+slaying /shattered_islands/strakewood_island/brynknot/abyss/abyss
+hp 21
+sp 43
+last_eat 1
+x 15
+y 16
+end
+arch blocked
+no_pass 0
+blocksview 0
 x 15
 y 17
 end
-arch grassd_5
+arch grassd_m12
+x 15
+y 17
+end
+arch invis_exit
+slaying /shattered_islands/strakewood_island/brynknot/abyss/abyss
+hp 21
+sp 43
+last_eat 1
+x 15
+y 17
+end
+arch blocked
+no_pass 0
+blocksview 0
 x 15
 y 18
 end
-arch plant_flower2
+arch invis_exit
+slaying /shattered_islands/strakewood_island/brynknot/abyss/abyss
+hp 21
+sp 43
+last_eat 1
 x 15
 y 18
 end
-arch grassd_7
+arch blocked
+no_pass 0
+blocksview 0
 x 15
 y 19
 end
-arch floor_sand_d4
+arch invis_exit
+slaying /shattered_islands/strakewood_island/brynknot/abyss/abyss
+hp 21
+sp 43
+last_eat 1
+x 15
+y 19
+end
+arch blocked
+no_pass 0
+blocksview 0
 x 15
 y 20
 end
-arch grassd_m4
+arch grassd_m14
 x 15
 y 20
 end
-arch floor_sand_d2
+arch invis_exit
+slaying /shattered_islands/strakewood_island/brynknot/abyss/abyss
+hp 21
+sp 43
+last_eat 1
+x 15
+y 20
+end
+arch blocked
+no_pass 0
+blocksview 0
 x 15
 y 21
 end
-arch grassd_m13
+arch sand_dm13
+x 15
+y 21
+end
+arch invis_exit
+slaying /shattered_islands/strakewood_island/brynknot/abyss/abyss
+hp 21
+sp 43
+last_eat 1
 x 15
 y 21
 end
 arch floor_sand_d4
+x 15
+y 22
+end
+arch lantern_magic.131
+direction 5
+x 15
+y 22
+end
+arch light5
 x 15
 y 22
 end
@@ -1980,6 +2817,19 @@ end
 arch grassd_m7
 x 15
 y 23
+end
+arch spawn_point
+x 15
+y 23
+arch guard
+msg
+@match ^hello$
+Careful there! You'll have to walk around this big hole.
+endmsg
+level 66
+unaggressive 0
+type 83
+end
 end
 arch grassd_2
 x 16
@@ -2060,31 +2910,107 @@ arch grassd_8
 x 16
 y 16
 end
-arch grassd_3
+arch lantern_magic.131
+x 16
+y 16
+end
+arch light5
+x 16
+y 16
+end
+arch blocked
+no_pass 0
+blocksview 0
 x 16
 y 17
 end
-arch grassd_7
+arch grassd_m6
+x 16
+y 17
+end
+arch invis_exit
+slaying /shattered_islands/strakewood_island/brynknot/abyss/abyss
+hp 21
+sp 43
+last_eat 1
+x 16
+y 17
+end
+arch blocked
+no_pass 0
+blocksview 0
 x 16
 y 18
 end
-arch grassd_4
+arch grassd_m12
+x 16
+y 18
+end
+arch invis_exit
+slaying /shattered_islands/strakewood_island/brynknot/abyss/abyss
+hp 21
+sp 43
+last_eat 1
+x 16
+y 18
+end
+arch blocked
+no_pass 0
+blocksview 0
 x 16
 y 19
 end
-arch floor_sand_d2
+arch invis_exit
+slaying /shattered_islands/strakewood_island/brynknot/abyss/abyss
+hp 21
+sp 43
+last_eat 1
+x 16
+y 19
+end
+arch blocked
+no_pass 0
+blocksview 0
 x 16
 y 20
 end
-arch grassd_m10
+arch invis_exit
+slaying /shattered_islands/strakewood_island/brynknot/abyss/abyss
+hp 21
+sp 43
+last_eat 1
 x 16
 y 20
 end
-arch floor_sand_d1
+arch blocked
+no_pass 0
+blocksview 0
 x 16
 y 21
 end
-arch floor_sand_d1
+arch invis_exit
+slaying /shattered_islands/strakewood_island/brynknot/abyss/abyss
+hp 21
+sp 43
+last_eat 1
+x 16
+y 21
+end
+arch blocked
+no_pass 0
+blocksview 0
+x 16
+y 22
+end
+arch sand_dm13
+x 16
+y 22
+end
+arch invis_exit
+slaying /shattered_islands/strakewood_island/brynknot/abyss/abyss
+hp 21
+sp 43
+last_eat 1
 x 16
 y 22
 end
@@ -2151,63 +3077,140 @@ arch grassd_2
 x 17
 y 11
 end
-arch grassd_3
-x 17
-y 12
-end
-arch grassd_6
-x 17
-y 13
-end
-arch grassd_4
-x 17
-y 14
-end
-arch grassd_1
-x 17
-y 15
-end
-arch grassd_3
-x 17
-y 16
-end
-arch grassd_7
-x 17
-y 17
-end
-arch grassd_4
-x 17
-y 18
-end
-arch grassd_1
-x 17
-y 19
-end
-arch floor_sand_d4
-x 17
-y 20
-end
-arch grassd_m10
-x 17
-y 20
-end
-arch floor_sand_d1
-x 17
-y 21
-end
 arch floor_sand_d3
 x 17
-y 22
+y 12
 end
-arch grassd_m11
+arch grassd_m1
+x 17
+y 12
+end
+arch plant_mushroom2
+x 17
+y 12
+end
+arch grassd_6
+x 17
+y 13
+end
+arch grassd_4
+x 17
+y 14
+end
+arch grassd_1
+x 17
+y 15
+end
+arch grassd_3
+x 17
+y 16
+end
+arch grassd_7
+x 17
+y 17
+end
+arch blocked
+no_pass 0
+blocksview 0
+x 17
+y 18
+end
+arch grassd_m6
+x 17
+y 18
+end
+arch invis_exit
+slaying /shattered_islands/strakewood_island/brynknot/abyss/abyss
+hp 21
+sp 43
+last_eat 1
+x 17
+y 18
+end
+arch blocked
+no_pass 0
+blocksview 0
+x 17
+y 19
+end
+arch grassd_m8
+x 17
+y 19
+end
+arch invis_exit
+slaying /shattered_islands/strakewood_island/brynknot/abyss/abyss
+hp 21
+sp 43
+last_eat 1
+x 17
+y 19
+end
+arch blocked
+no_pass 0
+blocksview 0
+x 17
+y 20
+end
+arch grassd_m12
+x 17
+y 20
+end
+arch invis_exit
+slaying /shattered_islands/strakewood_island/brynknot/abyss/abyss
+hp 21
+sp 43
+last_eat 1
+x 17
+y 20
+end
+arch blocked
+no_pass 0
+blocksview 0
+x 17
+y 21
+end
+arch invis_exit
+slaying /shattered_islands/strakewood_island/brynknot/abyss/abyss
+hp 21
+sp 43
+last_eat 1
+x 17
+y 21
+end
+arch blocked
+no_pass 0
+blocksview 0
 x 17
 y 22
 end
-arch floor_sand_d2
+arch invis_exit
+slaying /shattered_islands/strakewood_island/brynknot/abyss/abyss
+hp 21
+sp 43
+last_eat 1
+x 17
+y 22
+end
+arch blocked
+no_pass 0
+blocksview 0
 x 17
 y 23
 end
-arch grassd_m5
+arch grassd_m7
+x 17
+y 23
+end
+arch sand_dm8
+layer 3
+x 17
+y 23
+end
+arch invis_exit
+slaying /shattered_islands/strakewood_island/brynknot/abyss/abyss
+hp 21
+sp 43
+last_eat 1
 x 17
 y 23
 end
@@ -2270,15 +3273,15 @@ arch grassd_1
 x 18
 y 12
 end
-arch grassd_1
+arch floor_sand_d3
+x 18
+y 13
+end
+arch grassd_m1
 x 18
 y 13
 end
 arch grassd_7
-x 18
-y 14
-end
-arch tree_big3
 x 18
 y 14
 end
@@ -2306,7 +3309,9 @@ arch grassd_8
 x 18
 y 19
 end
-arch floor_sand_d2
+arch blocked
+no_pass 0
+blocksview 0
 x 18
 y 20
 end
@@ -2314,19 +3319,66 @@ arch grassd_m10
 x 18
 y 20
 end
-arch floor_sand_d2
+arch sand_dm9
+sub_layer 1
+x 18
+y 20
+end
+arch invis_exit
+slaying /shattered_islands/strakewood_island/brynknot/abyss/abyss
+hp 21
+sp 43
+last_eat 1
+x 18
+y 20
+end
+arch blocked
+no_pass 0
+blocksview 0
 x 18
 y 21
 end
-arch floor_sand_d2
+arch sand_dm2
+x 18
+y 21
+end
+arch invis_exit
+slaying /shattered_islands/strakewood_island/brynknot/abyss/abyss
+hp 21
+sp 43
+last_eat 1
+x 18
+y 21
+end
+arch blocked
+no_pass 0
+blocksview 0
 x 18
 y 22
 end
-arch grassd_m7
+arch invis_exit
+slaying /shattered_islands/strakewood_island/brynknot/abyss/abyss
+hp 21
+sp 43
+last_eat 1
 x 18
 y 22
 end
-arch grassd_8
+arch blocked
+no_pass 0
+blocksview 0
+x 18
+y 23
+end
+arch grassd_m14
+x 18
+y 23
+end
+arch invis_exit
+slaying /shattered_islands/strakewood_island/brynknot/abyss/abyss
+hp 21
+sp 43
+last_eat 1
 x 18
 y 23
 end
@@ -2413,6 +3465,22 @@ arch grassd_4
 x 19
 y 16
 end
+arch spawn_point
+x 19
+y 16
+arch female1
+name Aranarra
+level 30
+random_move 1
+item_race 1
+item_level 1
+type 83
+arch event_obj
+sub_type 6
+race /interfaces/strakewood_island/brynknot/aranarra.xml
+end
+end
+end
 arch grassd_5
 x 19
 y 17
@@ -2433,23 +3501,61 @@ arch grassd_m10
 x 19
 y 20
 end
-arch floor_sand_d4
+arch lantern_magic.131
+x 19
+y 20
+end
+arch light5
+x 19
+y 20
+end
+arch blocked
+no_pass 0
+blocksview 0
 x 19
 y 21
 end
-arch floor_sand_d1
+arch sand_dm19
+x 19
+y 21
+end
+arch invis_exit
+slaying /shattered_islands/strakewood_island/brynknot/abyss/abyss
+hp 21
+sp 43
+last_eat 1
+x 19
+y 21
+end
+arch blocked
+no_pass 0
+blocksview 0
 x 19
 y 22
 end
-arch grassd_m7
+arch sand_dm2
 x 19
 y 22
 end
-arch grassd_1
+arch invis_exit
+slaying /shattered_islands/strakewood_island/brynknot/abyss/abyss
+hp 21
+sp 43
+last_eat 1
+x 19
+y 22
+end
+arch blocked
+no_pass 0
+blocksview 0
 x 19
 y 23
 end
-arch plant16
+arch invis_exit
+slaying /shattered_islands/strakewood_island/brynknot/abyss/abyss
+hp 21
+sp 43
+last_eat 1
 x 19
 y 23
 end
@@ -2524,11 +3630,19 @@ arch grassd_6
 x 20
 y 13
 end
-arch grassd_7
+arch tree_big2
+x 20
+y 13
+end
+arch grassd_8
 x 20
 y 14
 end
-arch grassd_7
+arch floor_sand_d2
+x 20
+y 15
+end
+arch grassd_m1
 x 20
 y 15
 end
@@ -2536,7 +3650,7 @@ arch grassd_7
 x 20
 y 16
 end
-arch grassd_2
+arch grassd_3
 x 20
 y 17
 end
@@ -2560,23 +3674,57 @@ arch grassd_m10
 x 20
 y 20
 end
+arch spawn_point
+x 20
+y 20
+arch guard
+msg
+@match ^hello$
+Careful there! You'll have to walk around this big hole.
+endmsg
+direction 3
+level 66
+unaggressive 0
+type 83
+end
+end
 arch floor_sand_d1
 x 20
 y 21
 end
-arch floor_sand_d1
+arch blocked
+no_pass 0
+blocksview 0
 x 20
 y 22
 end
-arch grassd_m7
+arch sand_dm19
 x 20
 y 22
 end
-arch grassd_1
+arch invis_exit
+slaying /shattered_islands/strakewood_island/brynknot/abyss/abyss
+hp 21
+sp 43
+last_eat 1
+x 20
+y 22
+end
+arch blocked
+no_pass 0
+blocksview 0
 x 20
 y 23
 end
-arch tree_big
+arch grassd_m12
+x 20
+y 23
+end
+arch invis_exit
+slaying /shattered_islands/strakewood_island/brynknot/abyss/abyss
+hp 21
+sp 43
+last_eat 1
 x 20
 y 23
 end
@@ -2643,15 +3791,11 @@ arch grassd_2
 x 21
 y 15
 end
-arch tree_big4b
-x 21
-y 15
-end
-arch grassd_7
+arch floor_sand_d1
 x 21
 y 16
 end
-arch tree_big2
+arch grassd_m1
 x 21
 y 16
 end
@@ -2664,10 +3808,6 @@ x 21
 y 18
 end
 arch grassd_1
-x 21
-y 19
-end
-arch plant_flower14
 x 21
 y 19
 end
@@ -2679,7 +3819,15 @@ arch grassd_m10
 x 21
 y 20
 end
+arch fence_01.133
+x 21
+y 20
+end
 arch floor_sand_d1
+x 21
+y 21
+end
+arch fence_01.131
 x 21
 y 21
 end
@@ -2691,7 +3839,25 @@ arch grassd_m7
 x 21
 y 22
 end
-arch grassd_6
+arch fence_01.132
+x 21
+y 22
+end
+arch blocked
+no_pass 0
+blocksview 0
+x 21
+y 23
+end
+arch grassd_m6
+x 21
+y 23
+end
+arch invis_exit
+slaying /shattered_islands/strakewood_island/brynknot/abyss/abyss
+hp 21
+sp 43
+last_eat 1
 x 21
 y 23
 end
@@ -2746,6 +3912,10 @@ arch grassd_5
 x 22
 y 11
 end
+arch plant_mushroom3
+x 22
+y 11
+end
 arch grassd_6
 x 22
 y 12
@@ -2774,15 +3944,15 @@ arch grassd_3
 x 22
 y 17
 end
-arch grassd_7
+arch floor_sand_d4
+x 22
+y 18
+end
+arch grassd_m1
 x 22
 y 18
 end
 arch grassd_2
-x 22
-y 19
-end
-arch plant_mushroom4
 x 22
 y 19
 end
@@ -2809,6 +3979,20 @@ end
 arch grassd_4
 x 22
 y 23
+end
+arch spawn_point
+x 22
+y 23
+arch guard
+msg
+@match ^hello$
+No fear, we have everything under control!
+endmsg
+direction 3
+level 66
+unaggressive 0
+type 83
+end
 end
 arch grassd_8
 x 23
@@ -2897,7 +4081,11 @@ arch grassd_4
 x 23
 y 18
 end
-arch grassd_2
+arch floor_sand_d4
+x 23
+y 19
+end
+arch grassd_m1
 x 23
 y 19
 end

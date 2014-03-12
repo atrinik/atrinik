@@ -2,7 +2,7 @@ arch map
 name Brynknot
 msg
 Created:  2009-09-10 Alex Tokar
-Modified: 2014-03-01 Alex Tokar
+Modified: 2014-03-12 Alex Tokar
 endmsg
 width 24
 height 24
@@ -22,13 +22,19 @@ region brynknot
 end
 arch grassd_7
 end
-arch grassd_3
+arch floor_sand_d2
+y 1
+end
+arch grassd_m1
 y 1
 end
 arch grassd_8
 y 2
 end
-arch grassd_1
+arch floor_sand_d4
+y 3
+end
+arch grassd_m1
 y 3
 end
 arch grassd_7
@@ -115,7 +121,13 @@ end
 arch floor_flagm4
 y 23
 end
-arch grassd_4
+arch floor_sand_d1
+x 1
+end
+arch grassd_m1
+x 1
+end
+arch plant_mushroom2
 x 1
 end
 arch grassd_8
