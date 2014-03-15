@@ -1979,7 +1979,7 @@ arch ability_firestorm
 end
 arch event_obj
 sub_type 6
-race scripts/strakewood_island/witch_broom.py
+race /interfaces/strakewood_island/cathi.xml
 end
 end
 end
