@@ -77,6 +77,11 @@ typedef struct object_methods
     int (*trigger_button_func)(object *op, object *cause, int state);
 
     /**
+     * Called when an object is inserted on a map.
+     * @param op The object being inserted. */
+    void (*insert_map_func)(object *op);
+
+    /**
      * Called when an object is removed from map.
      * @param op The object being removed. */
     void (*remove_map_func)(object *op);

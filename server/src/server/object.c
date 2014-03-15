@@ -1827,6 +1827,9 @@ object *insert_ob_in_map(object *op, mapstruct *m, object *originator, int flag)
     else if (op->type == MAP_EVENT_OBJ) {
         map_event_obj_init(op);
     }
+    else if (object_type_methods[op->type].insert_map_func) {
+        object_type_methods[op->type].insert_map_func(op);
+    }
 
     /* Mark this tile as changed. */
     mc->update_tile++;
