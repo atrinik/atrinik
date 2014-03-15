@@ -1,4 +1,5 @@
 from Atrinik import SetReturnValue, Type
+import Language
 import re
 
 class Interface:
@@ -167,6 +168,7 @@ class Interface:
 
 class InterfaceBuilder(Interface):
     qm = None
+    part = None
     matchers = []
     preconds = None
 
@@ -179,6 +181,7 @@ class InterfaceBuilder(Interface):
 
             if getattr(self.qm, check)(part):
                 self.dialog = name
+                self.part = part
                 return True
 
         return False
@@ -208,6 +211,13 @@ class InterfaceBuilder(Interface):
     def dialog(self, msg):
         pass
 
+    def num2finish(self):
+        return self.qm.num2finish(self.part)
+
+    @property
+    def numtofinish(self):
+        return Language.int2english(self.num2finish())
+
     def finish(self, d, msg):
         self.locals = d
         self.dialog = "InterfaceDialog"
@@ -229,6 +239,7 @@ class InterfaceBuilder(Interface):
 
         c = self.locals[self.dialog](self._activator, self._npc)
         c.set_quest(self.qm)
+        c.part = self.part
 
         if not c.precond():
             Interface.finish(c)
