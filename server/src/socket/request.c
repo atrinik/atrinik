@@ -1728,8 +1728,7 @@ void socket_command_control(socket_struct *ns, player *pl, uint8 *data, size_t l
 {
     size_t pos2;
     char word[MAX_BUF], app_name[MAX_BUF];
-    uint8 ip_match, type;
-    player *controller;
+    uint8 ip_match, type, sub_type;
     packet_struct *packet;
 
     if (strcasecmp(settings.control_allowed_ips, "none") == 0) {
@@ -1751,50 +1750,99 @@ void socket_command_control(socket_struct *ns, player *pl, uint8 *data, size_t l
     }
 
     packet_to_string(data, len, &pos, app_name, sizeof(app_name));
-    type = packet_to_uint8(data, len, &pos);
 
     if (string_isempty(app_name)) {
         return;
     }
 
-    controller = string_isempty(settings.control_player) ? first_player : find_player(settings.control_player);
+    type = packet_to_uint8(data, len, &pos);
+    sub_type = packet_to_uint8(data, len, &pos);
 
-    /* Currently all the available command types require a controller, so as
-     * per ADS-2, ignore the rest of the data. */
-    if (controller == NULL) {
-        return;
+    switch (type) {
+        case CMD_CONTROL_MAP:
+        {
+            char mappath[HUGE_BUF];
+            shstr *mappath_sh;
+            mapstruct *control_map;
+
+            packet_to_string(data, len, &pos, mappath, sizeof(mappath));
+
+            mappath_sh = add_string(mappath);
+            control_map = has_been_loaded_sh(mappath_sh);
+            free_string_shared(mappath_sh);
+
+            /* No such map has been loaded, nothing to do. */
+            if (control_map == NULL) {
+                return;
+            }
+
+            switch (sub_type) {
+                case CMD_CONTROL_MAP_RESET:
+                {
+                    map_force_reset(control_map);
+                    return;
+                }
+            }
+        }
+
+        case CMD_CONTROL_PLAYER:
+        {
+            char playername[MAX_BUF];
+            player *control_player;
+            int ret;
+
+            packet_to_string(data, len, &pos, playername, sizeof(playername));
+
+            /* Attempt to find a suitable player as the controller. */
+            if (!string_isempty(playername)) {
+                control_player = find_player(playername);
+            }
+            else if (!string_isempty(settings.control_player)) {
+                control_player = find_player(settings.control_player);
+            }
+            else {
+                control_player = first_player;
+            }
+
+            /* No player has been found, return immediately. This is not an
+             * error; no player is logged in, for example. */
+            if (control_player == NULL) {
+                return;
+            }
+
+            ret = 0;
+
+            switch (sub_type) {
+                case CMD_CONTROL_PLAYER_TELEPORT:
+                {
+                    char mappath[HUGE_BUF];
+                    sint16 x, y;
+                    mapstruct *m;
+
+                    packet_to_string(data, len, &pos, mappath, sizeof(mappath));
+                    x = packet_to_sint16(data, len, &pos);
+                    y = packet_to_sint16(data, len, &pos);
+
+                    m = ready_map_name(mappath, 0);
+
+                    if (m == NULL) {
+                        DEVEL("Could not teleport player to '%s' (%d,%d): map could not be loaded.", mappath, x, y);
+                        return;
+                    }
+
+                    ret = object_enter_map(control_player->ob, NULL, m, x, y, 1);
+                }
+            }
+
+            if (ret == 1) {
+                packet = packet_new(CLIENT_CMD_CONTROL, 256, 256);
+                packet_append_data_len(packet, data, len);
+                socket_send_packet(&control_player->socket, packet);
+
+                return;
+            }
+        }
     }
 
-    if (type == CMD_CONTROL_UPDATE_MAP) {
-        char mappath[HUGE_BUF];
-        shstr *mappath_sh;
-        sint16 x, y;
-        mapstruct *m;
-
-        packet_to_string(data, len, &pos, mappath, sizeof(mappath));
-        x = packet_to_sint16(data, len, &pos);
-        y = packet_to_sint16(data, len, &pos);
-
-        mappath_sh = add_string(mappath);
-        m = has_been_loaded_sh(mappath_sh);
-        free_string_shared(mappath_sh);
-
-        if (m) {
-            m = map_force_reset(m);
-        }
-        else {
-            m = ready_map_name(mappath, 0);
-        }
-
-        if (!m) {
-            draw_info_format(COLOR_WHITE, controller->ob, "Could not load map: %s", mappath);
-        }
-        else {
-            object_enter_map(controller->ob, NULL, m, x, y, 1);
-        }
-    }
-
-    packet = packet_new(CLIENT_CMD_CONTROL, 256, 256);
-    packet_append_data_len(packet, data, len);
-    socket_send_packet(&controller->socket, packet);
+    DEVEL("Unrecognised control command type: %d, sub-type: %d, by application: '%s'", type, sub_type, app_name);
 }

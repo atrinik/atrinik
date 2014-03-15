@@ -859,12 +859,13 @@ void socket_command_compressed(uint8 *data, size_t len, size_t pos)
 void socket_command_control(uint8 *data, size_t len, size_t pos)
 {
     char app_name[MAX_BUF];
-    uint8 type;
+    uint8 type, sub_type;
 
     packet_to_string(data, len, &pos, app_name, sizeof(app_name));
     type = packet_to_uint8(data, len, &pos);
+    sub_type = packet_to_uint8(data, len, &pos);
 
-    if (type == CMD_CONTROL_UPDATE_MAP) {
+    if (type == CMD_CONTROL_PLAYER && sub_type == CMD_CONTROL_PLAYER_TELEPORT) {
         x11_window_activate(SDL_display, x11_window_get_parent(SDL_display, SDL_window), 1);
     }
 }

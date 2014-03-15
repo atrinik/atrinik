@@ -35,6 +35,12 @@ typedef void (*logger_print_func)(const char *str);
 
 #define LOG(_level) # _level, __FUNCTION__, __LINE__
 
+#ifndef PRODUCTION
+#   define DEVEL(fmt, ...) logger_print(LOG(DEVEL), (fmt), __VA_ARGS__)
+#else
+#   define DEVEL
+#endif
+
 #ifdef WIN32
 #   define LOGGER_ESC_SEQ_BOLD ""
 #   define LOGGER_ESC_SEQ_BLACK ""

@@ -589,8 +589,28 @@ enum
  * @defgroup CMD_CONTROL_xxx Control command types
  *@{*/
 /**
- * Map file has been updated. */
-#define CMD_CONTROL_UPDATE_MAP 1
+ * Control command concerning a map. */
+#define CMD_CONTROL_MAP 1
+/**
+ * Control command concerning a player. */
+#define CMD_CONTROL_PLAYER 2
+/*@}*/
+
+
+/**
+ * @defgroup CMD_CONTROL_MAP_xxx Map control command types
+ *@{*/
+/**
+ * Reset the specified map. */
+#define CMD_CONTROL_MAP_RESET 1
+/*@}*/
+
+/**
+ * @defgroup CMD_CONTROL_PLAYER_xxx Player control command types
+ *@{*/
+/**
+ * Teleport player to the specified map. */
+#define CMD_CONTROL_PLAYER_TELEPORT 1
 /*@}*/
 
 /**
