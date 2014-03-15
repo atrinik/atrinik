@@ -1,12 +1,12 @@
 from QuestManager import QuestManagerMulti
-from Quests import EscapingDesertedIsland as quest
+from InterfaceQuests import escaping_deserted_island
 
-qm = QuestManagerMulti(activator, quest)
+qm = QuestManagerMulti(activator, escaping_deserted_island)
 
 def main():
     SetReturnValue(1)
 
-    if qm.finished("get branches"):
+    if qm.finished("get_branches"):
         pl.DrawInfo("You should return with the branches to Sam Goodberry.", COLOR_YELLOW)
         return
 

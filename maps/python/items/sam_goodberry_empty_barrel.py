@@ -1,8 +1,8 @@
 from QuestManager import QuestManagerMulti
-from Quests import EscapingDesertedIsland as quest
+from InterfaceQuests import escaping_deserted_island
 from Packet import Notification
 
-qm = QuestManagerMulti(activator, quest)
+qm = QuestManagerMulti(activator, escaping_deserted_island)
 
 def main():
     for (m, x, y) in activator.SquaresAround(1):
@@ -12,8 +12,6 @@ def main():
                 activator.CreateObject("deserted_island_filled_barrel")
                 pl.DrawInfo("\nYou fill the empty barrel up to the brim with the clean water. You should return to Sam Goodberry.", COLOR_YELLOW)
                 Notification(activator.Controller(), "Tutorial Available: Weight", "/help basics_weight", "?HELP", 60000)
-                qm.start("return barrel")
-                qm.complete("fill barrel")
                 return
 
     pl.DrawInfo("\nYou need to stand next to some clean water in order to fill up the empty barrel...", COLOR_YELLOW)
