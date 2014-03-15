@@ -554,6 +554,9 @@ typedef struct mapdef
     /** Linked list of linked lists of buttons */
     objectlink *buttons;
 
+    /** Linked list of linked spawn points. */
+    objectlink *linked_spawn_points;
+
     /** Chained list of players on this map */
     object *player_first;
 

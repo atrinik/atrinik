@@ -3178,6 +3178,11 @@
 		another one.
 	]]>
 	</description>
+    <attribute arch="title" editor="group" type="string">
+        Which linked group, if any, this spawn point belongs to. Monsters
+        in linked groups will make all of the monsters attack an enemy
+        when one of them is attacked.
+    </attribute>
 	<attribute arch="speed" editor="speed" type="float">
 		The &lt;speed&gt; determines how often a spawn point will control
 		itself and/or its monster. If there is no monster, the spawn

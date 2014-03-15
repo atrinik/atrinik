@@ -318,6 +318,7 @@ struct plugin_hooklist
     int (*string_endswith)(const char *, const char *);
     char *(*string_sub)(const char *, ssize_t, ssize_t);
     char *(*path_join)(const char *, const char *);
+    void (*monster_enemy_signal)(object *, object *);
 
     const char **season_name;
     const char **weekdays;

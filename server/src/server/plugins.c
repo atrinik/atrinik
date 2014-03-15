@@ -180,6 +180,7 @@ struct plugin_hooklist hooklist =
     string_endswith,
     string_sub,
     path_join,
+    monster_enemy_signal,
 
     season_name,
     weekdays,

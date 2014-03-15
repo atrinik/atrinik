@@ -998,6 +998,7 @@ extern void object_type_init_misc_object(void);
 extern void object_type_init_money(void);
 /* src/types/monster.c */
 extern void set_npc_enemy(object *npc, object *enemy, rv_vector *rv);
+extern void monster_enemy_signal(object *npc, object *enemy);
 extern object *check_enemy(object *npc, rv_vector *rv);
 extern object *find_enemy(object *npc, rv_vector *rv);
 extern void object_type_init_monster(void);
@@ -1094,6 +1095,7 @@ extern void object_type_init_skill_item(void);
 extern void sound_ambient_init(object *ob);
 extern void object_type_init_sound_ambient(void);
 /* src/types/spawn_point.c */
+extern void spawn_point_enemy_signal(object *op);
 extern void object_type_init_spawn_point(void);
 /* src/types/spawn_point_info.c */
 extern void object_type_init_spawn_point_info(void);

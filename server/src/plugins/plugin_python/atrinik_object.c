@@ -1669,6 +1669,11 @@ static int Object_SetAttribute(Atrinik_Object *obj, PyObject *value, void *conte
             SET_ANIMATION(obj->obj, (NUM_ANIMATIONS(obj->obj) / NUM_FACINGS(obj->obj)) * obj->obj->direction + obj->obj->state);
         }
     }
+    else if (field->offset == offsetof(object, enemy)) {
+        if (QUERY_FLAG(obj->obj, FLAG_MONSTER)) {
+            hooks->monster_enemy_signal(obj->obj, obj->obj->enemy);
+        }
+    }
 
     return 0;
 }

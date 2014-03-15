@@ -193,6 +193,28 @@ void set_npc_enemy(object *npc, object *enemy, rv_vector *rv)
 #endif
         }
     }
+
+    monster_enemy_signal(npc, enemy);
+}
+
+/**
+ * Signal a change in monster's enemy.
+ * @param npc Monster/NPC.
+ * @param enemy New enemy.
+ */
+void monster_enemy_signal(object *npc, object *enemy)
+{
+    object *spawn_point_info;
+
+    if (enemy == NULL) {
+        return;
+    }
+
+    spawn_point_info = present_in_ob(SPAWN_POINT_INFO, npc);
+
+    if (spawn_point_info != NULL && OBJECT_VALID(spawn_point_info->owner, spawn_point_info->ownercount)) {
+        spawn_point_enemy_signal(spawn_point_info->owner);
+    }
 }
 
 /**
