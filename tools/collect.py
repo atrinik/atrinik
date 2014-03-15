@@ -345,7 +345,7 @@ def _make_interface(file, parent, npcs):
                         npcs[npc]["import"].append("random.choice")
 
                     class_code += " " * 4 * 2 + "self.add_msg(choice([{msgs}]))\n".format(msgs = ", ".join(repr(msg.text) for msg in elem.findall("message")))
-                elif elem.tag == "object":
+                elif elem.tag in ("object", "remove"):
                     item_args = []
 
                     for attr, attr2 in [("arch", "archname"), ("name", "name")]:
@@ -356,7 +356,10 @@ def _make_interface(file, parent, npcs):
 
                     item_args = ", ".join(item_args)
 
-                    class_code += " " * 4 * 2 + "self.add_objects(me.FindObject({item_args}))\n".format(**locals())
+                    if elem.tag == "object":
+                        class_code += " " * 4 * 2 + "self.add_objects(self._npc.FindObject({item_args}))\n".format(**locals())
+                    elif elem.tag == "remove":
+                        class_code += " " * 4 * 2 + "self._activator.FindObject({item_args}).Remove()\n".format(**locals())
                 elif elem.tag == "inherit":
                     if "name" in elem.attrib:
                         class_code += " " * 4 * 2 + "self.{}dialog{}()\n".format("sub" if elem.attrib["name"].startswith("::") else "", "_" + elem.attrib["name"].replace("::", ""))
