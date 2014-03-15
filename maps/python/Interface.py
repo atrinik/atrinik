@@ -22,7 +22,7 @@ class Interface:
         if color:
             self._msg += "[c=#" + color + "]"
 
-        self._msg += msg.format(activator = self._activator, npc = self._npc, **keywds)
+        self._msg += msg.format(activator = self._activator, npc = self._npc, self = self, **keywds)
 
         if color:
             self._msg += "[/c]"
