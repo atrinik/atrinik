@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<interfaces>
+    <interface>
+        <dialog name="hello">
+            <message>We did it! Now let us sail to Incuna, and hope that nothing terrible happens again...</message>
+            <message>You seem tired, however... But, I'm not surprised - you have done a lot of hard work, and I thank you for helping me repair the boat.</message>
+            <message>Now, go and have a good rest in the lower deck - I'll wake you up when we arrive.</message>
+            <response message="Very well." destination="verywell" />
+        </dialog>
+        <dialog name="verywell">
+            <close />
+            <action teleport="/shattered_islands/incuna/ship_lower_deck 2 2" />
+        </dialog>
+    </interface>
+</interfaces>
