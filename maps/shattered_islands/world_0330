@@ -1774,6 +1774,7 @@ x 14
 y 12
 end
 arch spawn_point
+title cathi
 x 14
 y 12
 arch cat_black
@@ -1949,6 +1950,7 @@ x 15
 y 14
 end
 arch spawn_point
+title cathi
 x 15
 y 14
 arch pirate_sorceress
