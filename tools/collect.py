@@ -417,7 +417,20 @@ def _make_interface(file, parent, npcs):
                 elif elem.tag == "say":
                     class_code += " " * 4 * 2 + "self._npc.Say({})\n".format(repr(elem.text))
                 elif elem.tag == "and":
-                    class_code += " " * 4 * 2 + "return " + _make_precond(elem, npcs[npc]) + "\n"
+                    messages = elem.findall("message")
+                    preconds = _make_precond(elem, npcs[npc])
+
+                    if len(messages) == 0:
+                        class_code += " " * 4 * 2 + "return " + preconds + "\n"
+                    else:
+                        if preconds != "()":
+                            class_code += " " * 4 * 2 + "if " + preconds + ":\n"
+                        else:
+                            class_code += " " * 4 * 2 + "else:\n"
+
+                        for message in messages:
+                            msg = repr(message.text)
+                            class_code += " " * 4 * 3 + "self.add_msg({msg})\n".format(**locals())
 
         matchers_code = ""
 
