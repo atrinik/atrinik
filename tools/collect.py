@@ -177,6 +177,8 @@ def _make_precond(parent, npc):
 
                         if elem.attrib["enemy"] == "player":
                             code += "self._activator"
+                elif attr == "num2finish":
+                    code += "self.num2finish() == " + elem.attrib[attr]
                 elif attr in ("started", "finished", "completed"):
                     words = elem.attrib[attr].split(" ")
 
