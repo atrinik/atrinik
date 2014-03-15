@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<interfaces>
+    <interface>
+        <dialog name="hello">
+            <message>Good day, adventurer.</message>
+            <message>I'm {npc.name}, and I collect various herbs.</message>
+            <response message="Tell me more..." destination="tellmore" />
+        </dialog>
+        <dialog name="tellmore">
+            <message>Eld Woods Island is a home to a variety of herbs, but I'm especially fond of Athalas.</message>
+            <response message="Athalas?" destination="athalas" />
+        </dialog>
+        <dialog name="athalas">
+            <message>Athalas would be very useful for me, but I don't know any accessible places to find it. If you happen to find any on your travels, please tell me where you found it.</message>
+        </dialog>
+    </interface>
+</interfaces>
