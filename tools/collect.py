@@ -320,6 +320,17 @@ def _make_interface(file, parent, npcs):
             if dialog_regex and not dialog_name:
                 continue
 
+            title = dialog.get("title")
+            icon = dialog.get("icon")
+
+            if title:
+                class_code += " " * 4 * 2 + "self.set_title({})\n".format(repr(title))
+
+            if icon == "player":
+                class_code += " " * 4 * 2 + "self.set_icon(self._activator.arch.clone.face[0])\n"
+            elif icon:
+                class_code += " " * 4 * 2 + "self.set_icon({})\n".format(repr(icon))
+
             for elem in dialog:
                 if elem.tag == "message":
                     color = elem.get("color", "")
