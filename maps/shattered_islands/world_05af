@@ -2,7 +2,7 @@ arch map
 name Incuna
 msg
 Created:  2010-08-22 Edwin Miltenburg
-Modified: 2014-03-05 Alex Tokar
+Modified: 2014-03-16 Alex Tokar
 endmsg
 width 24
 height 24
@@ -608,7 +608,7 @@ level 3
 direction 3
 arch event_obj
 sub_type 6
-race scripts/incuna/sam_goodberry.py
+race /interfaces/quests/lost_memories/quest.xml
 end
 arch sack
 identified 1
