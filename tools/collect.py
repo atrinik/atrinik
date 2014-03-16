@@ -361,12 +361,19 @@ def _make_interface(file, parent, npcs):
 
                     item_args = ", ".join(item_args)
                     remove = elem.get("remove")
+                    message = elem.get("message")
 
                     if not remove:
-                        if not closed:
+                        if not closed and not message:
                             class_code += " " * 4 * 2 + "self.add_objects(self._npc.FindObject({item_args}))\n".format(**locals())
                         else:
-                            class_code += " " * 4 * 2 + "self._npc.FindObject({item_args}).Clone().InsertInto(self._activator)\n".format(**locals())
+                            class_code += " " * 4 * 2 + "obj = self._npc.FindObject({item_args}).Clone()\n".format(**locals())
+
+                            if not closed and message:
+                                message = repr(message)
+                                class_code += " " * 4 * 2 + "self.add_msg_icon(obj.face[0], {message})\n".format(**locals())
+
+                            class_code += " " * 4 * 2 + "obj.InsertInto(self._activator)\n".format(**locals())
                     else:
                         class_code += " " * 4 * 2 + "self._activator.FindObject({item_args}).Decrease({remove})\n".format(**locals())
                 elif elem.tag == "inherit":
