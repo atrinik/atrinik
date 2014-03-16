@@ -211,6 +211,7 @@ class InterfaceBuilder(Interface):
     def dialog(self, msg):
         pass
 
+    @property
     def num2finish(self):
         return self.qm.num2finish(self.part)
 
