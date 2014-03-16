@@ -2,7 +2,7 @@ arch map
 name Moroch Temple
 msg
 Created:  2009-09-22 Alex Tokar
-Modified: 2011-11-03 Alex Tokar
+Modified: 2014-03-16 Alex Tokar
 endmsg
 width 24
 height 24
@@ -1304,6 +1304,7 @@ level 115
 speed -0.5
 connected 101
 last_eat 0
+friendly 1
 x 9
 y 15
 end
@@ -1364,6 +1365,7 @@ level 115
 speed -0.5
 connected 101
 last_eat 0
+friendly 1
 x 9
 y 21
 end
@@ -1764,6 +1766,7 @@ level 115
 speed -0.5
 connected 101
 last_eat 0
+friendly 1
 x 12
 y 15
 end
@@ -1812,6 +1815,7 @@ level 115
 speed -0.5
 connected 101
 last_eat 0
+friendly 1
 x 12
 y 20
 end
