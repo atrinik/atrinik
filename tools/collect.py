@@ -331,6 +331,8 @@ def _make_interface(file, parent, npcs):
             elif icon:
                 class_code += " " * 4 * 2 + "self.set_icon({})\n".format(repr(icon))
 
+            closed = False
+
             for elem in dialog:
                 if elem.tag == "message":
                     color = elem.get("color", "")
@@ -339,7 +341,10 @@ def _make_interface(file, parent, npcs):
                     if color:
                         color = ", color = {}".format(repr(format(color[1:])) if color.startswith("#") else "COLOR_{}".format(color.upper()))
 
-                    class_code += " " * 4 * 2 + "self.add_msg({msg}{color})\n".format(**locals())
+                    if not closed:
+                        class_code += " " * 4 * 2 + "self.add_msg({msg}{color})\n".format(**locals())
+                    else:
+                        class_code += " " * 4 * 2 + "self._activator.Controller().DrawInfo({msg}{color})\n".format(**locals())
                 elif elem.tag == "choice":
                     if not "random.choice" in npcs[npc]["import"]:
                         npcs[npc]["import"].append("random.choice")
@@ -358,7 +363,10 @@ def _make_interface(file, parent, npcs):
                     remove = elem.get("remove")
 
                     if not remove:
-                        class_code += " " * 4 * 2 + "self.add_objects(self._npc.FindObject({item_args}))\n".format(**locals())
+                        if not closed:
+                            class_code += " " * 4 * 2 + "self.add_objects(self._npc.FindObject({item_args}))\n".format(**locals())
+                        else:
+                            class_code += " " * 4 * 2 + "self._npc.FindObject({item_args}).Clone().InsertInto(self._activator)\n".format(**locals())
                     else:
                         class_code += " " * 4 * 2 + "self._activator.FindObject({item_args}).Decrease({remove})\n".format(**locals())
                 elif elem.tag == "inherit":
@@ -418,6 +426,7 @@ def _make_interface(file, parent, npcs):
                     class_code += " " * 4 * 2 + "Notification(self._activator.Controller(), {}, {}, {}, {})\n".format(repr(elem.get("message")), repr(elem.get("action", None)), repr(elem.get("shortcut", None)), repr(int(elem.get("delay", 0))))
                 elif elem.tag == "close":
                     class_code += " " * 4 * 2 + "self.dialog_close()\n"
+                    closed = True
                 elif elem.tag == "say":
                     class_code += " " * 4 * 2 + "self._npc.Say({})\n".format(repr(elem.text))
                 elif elem.tag == "and":
