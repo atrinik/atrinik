@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<interfaces>
+    <quest name="Rescuing Lynren">
+        <interface npc="Lynren" state="completed" />
+
+        <part uid="rescue" name="The Book">
+            <info>Rescue Lynren the paladin, who is imprisoned in Moroch Temple, by locating her book of holy word in her home in Asteria, among the various temples, and bringing the book to her.</info>
+            <item arch="book" name="Lynren's book of holy word" />
+
+            <interface npc="Lynren" state="need_start">
+                <dialog name="hello">
+                    <message>Hello there...</message>
+                    <response message="Are you Lynren?" destination="areyou" />
+                </dialog>
+                <dialog name="areyou">
+                    <message color="yellow">{npc.name} sighs heavily.</message>
+                    <message>Yes, that is my name... Lynren the paladin...</message>
+                    <response message="Why are you here?" destination="whyhere" />
+                </dialog>
+                <dialog name="whyhere">
+                    <message>I have set out on a mission to destroy all evil, and set this evil place as my first target... But I was overpowered and my magics were subdued by the evil magicians here...</message>
+                    <response message="Is there anything I can do to help?" destination="dohelp" />
+                    <response message="I see. Farewell." destination="farewell" />
+                </dialog>
+                <dialog name="dohelp">
+                    <message>Well... You could visit my home in Asteria among the various temples, and bring me my book of holy word... The holy word prayer should work to set me free... Would you do this for me?</message>
+                    <response message="I will." destination="iwill" />
+                    <response message="Not interested." destination="farewell" />
+                </dialog>
+                <dialog name="iwill">
+                    <message>Excellent! Please make haste and bring me my book of holy word from my home.</message>
+                    <action start="rescue" />
+                </dialog>
+                <dialog name="farewell">
+                    <message color="yellow">{npc.name} sobs quietly to herself...</message>
+                </dialog>
+            </interface>
+
+            <interface npc="Lynren" state="need_finish">
+                <dialog name="hello">
+                    <message>Have you got my book of holy word yet? You can find the book at my home in Asteria, among the various temples... Please make haste.</message>
+                    <response message="I'll work on that." action="close" />
+                </dialog>
+            </interface>
+
+            <interface npc="Lynren" state="need_complete">
+                <dialog name="hello">
+                    <message>Have you got my book of holy word yet? You can find the book at my home in Asteria, among the various temples... Please make haste.</message>
+                    <response message="Yes, here you go." destination="herego" />
+                </dialog>
+                <dialog name="herego">
+                    <message>Splendid! Alright, let me have a look that book...</message>
+                    <message>Normally, holy word is used to cause mass damage to undead creatures. However, this book contains a variation of the prayer, with a ritual, which allows one to break even the darkest magics.</message>
+                    <message>This is what you have to do...</message>
+                    <response message="&lt;perform the ritual&gt;" destination="perform" />
+                </dialog>
+                <dialog name="perform">
+                    <action trigger="lynren_lever" />
+                    <close />
+                    <object arch="goldcoin" />
+                    <message color="green">You use the variation of the holy word prayer to free Lynren the paladin from her imprisonment.</message>
+                    <message color="navy">Lynren says: Thank you, thank you! I hope to meet you again once more... For now, farewell!</message>
+                    <message>Moments after Lynren vanishes, some sparkling gold coins materialize in your hand out of nowhere...</message>
+                    <action complete="rescue" />
+                </dialog>
+            </interface>
+        </part>
+    </quest>
+</interfaces>

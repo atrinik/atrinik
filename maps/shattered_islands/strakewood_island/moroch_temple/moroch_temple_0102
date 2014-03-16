@@ -1484,7 +1484,7 @@ race scripts/lynren_show.py
 end
 arch event_obj
 sub_type 6
-race scripts/lynren.py
+race /interfaces/quests/rescuing_lynren/quest.xml
 end
 arch goldcoin
 nrof 4
