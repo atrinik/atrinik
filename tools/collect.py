@@ -382,7 +382,7 @@ def _make_interface(file, parent, npcs):
                         for line in elem.text.split("\n"):
                             class_code += " " * 4 * 2 + line.rstrip() + "\n"
 
-                    for attr in ["start", "complete", "region_map", "enemy", "teleport"]:
+                    for attr in ["start", "complete", "region_map", "enemy", "teleport", "trigger"]:
                         val = elem.get(attr)
 
                         if not val:
@@ -399,6 +399,9 @@ def _make_interface(file, parent, npcs):
                                 continue
 
                             class_code += " " * 4 * 2 + "self._activator.TeleportTo({})\n".format(", ".join((repr(val) if i == 0 else val) for i, val in enumerate(match.groups())))
+                        elif attr == "trigger":
+                            class_code += " " * 4 * 2 + "beacon = self._npc.map.LocateBeacon({})\n".format(repr(val))
+                            class_code += " " * 4 * 2 + "beacon.env.Apply(beacon.env, APPLY_TOGGLE)\n"
                         else:
                             split = val.split("::")
 
