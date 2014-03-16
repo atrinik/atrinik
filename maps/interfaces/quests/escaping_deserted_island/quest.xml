@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <interfaces>
     <quest name="Escaping the Deserted Island">
-        <part uid="explore">
+        <part uid="explore" name="Clean Water Source">
             <info>Explore the deserted island and look for a clean water source.</info>
 
             <interface npc="Sam Goodberry" state="need_start">
@@ -43,7 +43,7 @@
             </interface>
         </part>
 
-        <part uid="explore_report">
+        <part uid="explore_report" name="Reporting To Sam Goodberry">
             <info>You have found a source of clean water. You should report your findings to Sam Goodberry on the western shore of the deserted island.</info>
 
             <interface npc="Sam Goodberry" state="need_complete">
@@ -59,7 +59,7 @@
             </interface>
         </part>
 
-        <part uid="fill_barrel">
+        <part uid="fill_barrel" name="Collecting Clean Water">
             <info>Sam Goodberry has given you an empty barrel and asked you to fill it up with clean water from the lake you found, near the eastern shore of the deserted island.</info>
             <item arch="deserted_island_filled_barrel" name="water barrel" />
 
@@ -93,7 +93,7 @@
             </interface>
         </part>
 
-        <part uid="get_mushrooms">
+        <part uid="get_mushrooms" name="Collecting Mushrooms">
             <info>You have agreed to explore the area around the lake for a cavern, which, if it exists, should have an abundance of edible mushrooms due to the right conditions.</info>
             <item arch="deserted_island_white_mushroom" name="wild white mushroom" nrof="70" />
 
@@ -132,7 +132,7 @@
             </interface>
         </part>
 
-        <part uid="get_branches">
+        <part uid="get_branches" name="Collecting Branches">
             <info>In order to escape the Deserted Island, you will need to repair the boat. In order to do this, Sam Goodberry has asked you to collect some branches from the trees next to the lake using his saw.</info>
             <item arch="deserted_island_branch" name="thick tree branch" nrof="10" />
 
