@@ -156,7 +156,7 @@
                     <response message="Alright then." destination="alright" />
                 </dialog>
                 <dialog name="alright" title="Sailing the Ocean" icon="player">
-                    <remove arch="sam_goodberry_saw" />
+                    <object arch="sam_goodberry_saw" remove="1" />
                     <message color="yellow">You return the saw to {npc.name} and help him repair the boat.</message>
                     <message color="yellow">After patching up the boat and setting everything in order, you set sail.</message>
                     <message color="yellow">You feel tired after all that hard work, perhaps you should speak to {npc.name}...</message>
