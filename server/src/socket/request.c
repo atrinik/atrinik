@@ -1517,10 +1517,10 @@ void generate_ext_title(player *pl)
         }
     }
 
-    snprintf(name, sizeof(name), "%s", pl->quick_name);
+    string_replace(pl->quick_name, "[", "[]", name, sizeof(name));
 
     if (pl->afk) {
-        strncat(name, " [AFK]", sizeof(name) - strlen(name) - 1);
+        strncat(name, " []AFK]", sizeof(name) - strlen(name) - 1);
     }
 
     snprintf(pl->ext_title, sizeof(pl->ext_title), "%s\n%s %s", name, gender_noun[object_get_gender(pl->ob)], player_get_race_class(pl->ob, race, sizeof(race)));
