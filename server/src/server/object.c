@@ -378,7 +378,7 @@ int CAN_MERGE(object *ob1, object *ob2)
 
     /* Do not allow merging objects if either has nrof of 0 and it's
      * not an event object (those normally have nrof of 0 but they are
-     * allowed to merge. */
+     * allowed to merge). */
     if ((!ob1->nrof || !ob2->nrof) && ob1->type != EVENT_OBJECT) {
         return 0;
     }
