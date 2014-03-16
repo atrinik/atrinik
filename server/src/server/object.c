@@ -362,7 +362,7 @@ static int compare_ob_value_lists(const object *ob1, const object *ob2)
  * @return 1 if the two object can merge, 0 otherwise */
 int CAN_MERGE(object *ob1, object *ob2)
 {
-    if (!QUERY_FLAG(ob1, FLAG_CAN_STACK)) {
+    if (!QUERY_FLAG(ob1, FLAG_CAN_STACK) && ob1->type != EVENT_OBJECT) {
         return 0;
     }
 
