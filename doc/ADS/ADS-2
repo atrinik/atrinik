@@ -5,61 +5,62 @@
  protocol. The following sections exist:
 
  1. Session
+    1.1 Packets
     1.2 Keepalive
  2. Server commands
-    1.2.1  Server command CONTROL
-    1.2.2  Server command ASK_FACE
-    1.2.3  Server command SETUP
-    1.2.4  Server command VERSION
-    1.2.5  Server command REQUEST_FILE
-    1.2.6  Server command CLEAR
-    1.2.7  Server command REQUEST_UPDATE
-    1.2.8  Server command KEEPALIVE
-    1.2.9  Server command ACCOUNT
-    1.2.10 Server command ITEM_EXAMINE
-    1.2.11 Server command ITEM_APPLY
-    1.2.12 Server command ITEM_MOVE
-    1.2.13 Server command REPLY
-    1.2.14 Server command PLAYER_CMD
-    1.2.15 Server command ITEM_LOCK
-    1.2.16 Server command ITEM_MARK
-    1.2.17 Server command FIRE
-    1.2.18 Server command QUICKSLOT
-    1.2.19 Server command QUESTLIST
-    1.2.20 Server command MOVE_PATH
-    1.2.21 Server command ITEM_READY
-    1.2.22 Server command TALK
-    1.2.23 Server command MOVE
-    1.2.24 Server command TARGET
+    2.1  Server command CONTROL
+    2.2  Server command ASK_FACE
+    2.3  Server command SETUP
+    2.4  Server command VERSION
+    2.5  Server command REQUEST_FILE
+    2.6  Server command CLEAR
+    2.7  Server command REQUEST_UPDATE
+    2.8  Server command KEEPALIVE
+    2.9  Server command ACCOUNT
+    2.10 Server command ITEM_EXAMINE
+    2.11 Server command ITEM_APPLY
+    2.12 Server command ITEM_MOVE
+    2.13 Server command REPLY
+    2.14 Server command PLAYER_CMD
+    2.15 Server command ITEM_LOCK
+    2.16 Server command ITEM_MARK
+    2.17 Server command FIRE
+    2.18 Server command QUICKSLOT
+    2.19 Server command QUESTLIST
+    2.20 Server command MOVE_PATH
+    2.21 Server command ITEM_READY
+    2.22 Server command TALK
+    2.23 Server command MOVE
+    2.24 Server command TARGET
  3. Client commands
-    1.3.1  Client command MAP
-    1.3.2  Client command DRAWINFO
-    1.3.3  Client command FILE_UPDATE
-    1.3.4  Client command ITEM
-    1.3.5  Client command SOUND
-    1.3.6  Client command TARGET
-    1.3.7  Client command ITEM_UPDATE
-    1.3.8  Client command ITEM_DELETE
-    1.3.9  Client command STATS
-    1.3.10 Client command IMAGE
-    1.3.11 Client command ANIM
-    1.3.12 Client command SKILL_READY
-    1.3.13 Client command PLAYER
-    1.3.14 Client command MAPSTATS
-    1.3.15 Client command SKILL_LIST
-    1.3.16 Client command VERSION
-    1.3.17 Client command SETUP
-    1.3.18 Client command CONTROL
-    1.3.19 Client command DATA
-    1.3.20 Client command CHARACTERS
-    1.3.21 Client command BOOK
-    1.3.22 Client command PARTY
-    1.3.23 Client command QUICKSLOT
-    1.3.24 Client command COMPRESSED
-    1.3.25 Client command REGION_MAP
-    1.3.26 Client command SOUND_AMBIENT
-    1.3.27 Client command INTERFACE
-    1.3.28 Client command NOTIFICATION
+    3.1  Client command MAP
+    3.2  Client command DRAWINFO
+    3.3  Client command FILE_UPDATE
+    3.4  Client command ITEM
+    3.5  Client command SOUND
+    3.6  Client command TARGET
+    3.7  Client command ITEM_UPDATE
+    3.8  Client command ITEM_DELETE
+    3.9  Client command STATS
+    3.10 Client command IMAGE
+    3.11 Client command ANIM
+    3.12 Client command SKILL_READY
+    3.13 Client command PLAYER
+    3.14 Client command MAPSTATS
+    3.15 Client command SKILL_LIST
+    3.16 Client command VERSION
+    3.17 Client command SETUP
+    3.18 Client command CONTROL
+    3.19 Client command DATA
+    3.20 Client command CHARACTERS
+    3.21 Client command BOOK
+    3.22 Client command PARTY
+    3.23 Client command QUICKSLOT
+    3.24 Client command COMPRESSED
+    3.25 Client command REGION_MAP
+    3.26 Client command SOUND_AMBIENT
+    3.27 Client command INTERFACE
+    3.28 Client command NOTIFICATION
  4. Example logic
  5. Authors
 
@@ -70,7 +71,7 @@
  session has been established, the client and the server are free to exchange
  data at will, in an asynchronous mode of data exchange. After this is done, it
  is recommended that the server and the client exchange version information,
- with the use of the version command (see section 1.2.4 and section 1.3.16).
+ with the use of the version command (see section 2.4 and section 3.16).
  This allows both the client and the server to be aware of what commands the
  other side supports, and in what format, thus allowing backward compatibility.
 
@@ -111,8 +112,8 @@
  uint24 minus 0x800000).
 
  The payload should always contain the command type as 8-bit integer, followed
- by any data, in any format whatsoever, but still binary. See section 1.2. for
- the available server commands organized by command type, and section 1.3. for
+ by any data, in any format whatsoever, but still binary. See section 2. for
+ the available server commands organized by command type, and section 3. for
  the available client commands.
 
  Left shifting is done to convert any integers of size more than 1 byte. Signed
@@ -142,64 +143,69 @@
  session as dead and drop the connection.
 
 ===============================================================================
-= 1.2. Server commands                                                        =
+= 2. Server commands                                                        =
 ===============================================================================
  The following is a list of commands recognised by the server.
+
+ The commands listed below that do NOT require a player MUST be handled with
+ priority: after reading them completely from the socket, they MUST be handled,
+ and other commands MUST be added into a separate queue that will be handled
+ at some other time (in a loop for each player, for example).
 
  These start at zero; thus, command type 0 equals that of the first command
  here.
 
  CONTROL:
-  See section 1.2.1.
+  See section 2.1.
  ASK_FACE:
-  See section 1.2.2.
+  See section 2.2.
  SETUP:
-  See section 1.2.3.
+  See section 2.3.
  VERSION:
-  See section 1.2.4.
+  See section 2.4.
  REQUEST_FILE:
-  See section 1.2.5.
+  See section 2.5.
  CLEAR:
-  See section 1.2.6.
+  See section 2.6.
  REQUEST_UPDATE:
-  See section 1.2.7.
+  See section 2.7.
  KEEPALIVE:
-  See section 1.2.8.
+  See section 2.8.
  ACCOUNT:
-  See section 1.2.9.
+  See section 2.9.
  ITEM_EXAMINE (player only):
-  See section 1.2.10.
+  See section 2.10.
  ITEM_APPLY (player only):
-  See section 1.2.11.
+  See section 2.11.
  ITEM_MOVE (player only):
-  See section 1.2.12.
+  See section 2.12.
  REPLY (player only):
-  See section 1.2.13.
+  See section 2.13.
  PLAYER_CMD (player only):
-  See section 1.2.14.
+  See section 2.14.
  ITEM_LOCK (player only):
-  See section 1.2.15.
+  See section 2.15.
  ITEM_MARK (player only):
-  See section 1.2.16.
+  See section 2.16.
  FIRE (player only):
-  See section 1.2.17.
+  See section 2.17.
  QUICKSLOT (player only):
-  See section 1.2.18.
+  See section 2.18.
  QUESTLIST (player only):
-  See section 1.2.19.
+  See section 2.19.
  MOVE_PATH (player only):
-  See section 1.2.20.
+  See section 2.20.
  ITEM_READY (player only):
-  See section 1.2.21.
+  See section 2.21.
  TALK (player only):
-  See section 1.2.22.
+  See section 2.22.
  MOVE (player only):
-  See section 1.2.23.
+  See section 2.23.
  TARGET (player only):
-  See section 1.2.24.
+  See section 2.24.
 
 ===============================================================================
-= 1.2.1. Server command CONTROL                                               =
+= 2.1. Server command CONTROL                                                 =
 ===============================================================================
  This command is used to control the server through remote means (no player
  login is necessary).
@@ -209,7 +215,7 @@
  list of IPs). However, security measures for this are beyond the scope of this
  document, and are implementation-specific.
 
- The packet must be constructed as thus, in the listed order:
+ The packet MUST be constructed as thus, in the listed order:
   - app_name (string):
      The application name (optionally version as well) that is requesting to
      control the server. This SHOULD only be used for informational purposes in
@@ -262,7 +268,7 @@
 
   If a player has been successfully found (logged in), the entire packet
   payload MUST be forwarded to the player's client as client command CONTROL
-  (see section 1.3.18).
+  (see section 3.18).
 
   The following is a list of possible sub-types for this command type, starting
   at an index of one.
@@ -281,7 +287,207 @@
        Y coordinate.
 
 ===============================================================================
-= 1.3. Client commands                                                        =
+= 2.2. Server command ASK_FACE                                                =
+===============================================================================
+ This command is used to ask the server for particular image data. The client
+ SHOULD use this when it attempts to display an image that it a) doesn't have
+ or b) the checksum is different than what was reported in the server file (it
+ was updated on the server-side).
+
+ The packet MUST be constructed as thus, in the listed order:
+  - facenum (uint16):
+     ID of the image to get image data of.
+
+ If the ID of the image is higher than zero and lower than the number of
+ available images, and there *is* data for that particular image, the server
+ SHOULD send the image's data to the client as a response, using the client
+ command IMAGE (see section 3.10.).
+
+===============================================================================
+= 2.3. Server command SETUP                                                   =
+===============================================================================
+ This command is used to exchange information about supported capabilities,
+ features, etc between the server and the client after having established a
+ connection, and, ideally, after exchanging version information (see sections
+ 2.4. and 3.16.).
+
+ As the packet data is being parsed by the server, a cloned packet MUST be
+ constructed at the same or later time, as a response for the client. This new
+ packet MUST have the same data format as what was received, but can have
+ different values: in essence, values that were accepted and *really*
+ configured by the server. What options get accepted are up to the server's
+ implementation, but the proper response MUST be sent to the client as client
+ command SETUP (see section 3.17.).
+
+ The packet MUST be constructed as thus, in the listed order, repeating any
+ number of times (for different setup options):
+  - type (uint8):
+     Type of the setup option. Defines what kind of an option this is.
+
+ The following is a list of possible types, starting at an index of zero.
+
+ SOUND:
+  Whether to enable/disable sound.
+
+  The packet is extended with the following data, in the listed order:
+   - value (uint8):
+      Zero to disable sound effects and music packets being sent to the
+      client, non-zero to enable them.
+ MAPSIZE:
+  Configuration for the map's size.
+
+  The packet is extended with the following data, in the listed order:
+   - width (uint8):
+      Width of the map.
+   - height (uint8):
+      Height of the map.
+ BOT:
+  Whether to enable/disable bot flag.
+
+  The packet is extended with the following data, in the listed order:
+   - value (uint8):
+      Zero to disable bot flag, non-zero to enable it.
+ SERVER_FILE:
+  Exchange information about server files.
+
+  The packet is extended with the following data, in the listed order:
+   - file_type (uint8):
+      ID of the server file.
+   - len_ucomp (uint64):
+      Uncompressed length of the server file that the client has.
+   - crc (uint64):
+      CRC32 checksum of the server file that the client has.
+
+  The response packet is slightly different here; instead of appending the
+  same data as parsed and defined above, the packet is appended with the
+  file type, and if the CRC32 checksum *or* the uncompressed length is
+  different to the server's version of the server file, uint8 value of 1 is
+  appended, otherwise uint8 value of 0 is appended.
+
+===============================================================================
+= 2.4. Server command VERSION                                                 =
+===============================================================================
+ This command is used to inform the server about the client's version. Upon
+ receiving the version, the server is free to drop the connection depending on
+ the received version number, if it determines that the version is unsupported,
+ for example.
+
+ The packet MUST be constructed as thus, in the listed order:
+  - version (uint32):
+     The version number. Must be higher than zero, otherwise the server MUST
+     drop connection.
+
+ Additionally, only one version packet is allowed per session. Any data in
+ version commands that are handled after the first MUST be discarded.
+
+ After successfully storing the version number (establishing that is valid and
+ compatible), the server MUST respond with its own version number, sending
+ client command VERSION (see section 3.16.) to the client.
+
+===============================================================================
+= 2.5. Server command REQUEST_FILE                                            =
+===============================================================================
+ This command is used to request a server file to be sent to the server.
+
+ The packet MUST be constructed as thus, in the listed order:
+  - file_type (uint8):
+     Type of the server file.
+
+ Additionally, only one request file packet for a particular file type is
+ allowed per session. Any data in request file commands that are handled after
+ the first (for a particular file type) MUST be discarded.
+
+ After successfully receiving and parsing the packet, client command DATA (see
+ section 3.19.) MUST be sent to the client, with the requested server file's
+ data.
+
+===============================================================================
+= 2.6. Server command CLEAR                                                   =
+===============================================================================
+ This command is used to clear the player packet commands queue. Thus, any
+ previously read player packet commands that haven't been handled yet will be
+ completely cleared.
+
+===============================================================================
+= 2.7. Server command REQUEST_UPDATE                                          =
+===============================================================================
+ This command is used to request an update of the specified file under the
+ client's directory, whatever it may be.
+
+ The packet MUST be constructed as thus, in the listed order:
+  - filename (string):
+     Path of the file to request an update for, relative to the client's
+     directory (for example, sound/effects/arrow.ogg, or textures/intro.png).
+
+ If the filename is valid (the server knows about this file), the server MUST
+ send client command FILE_UPDATE (see section 3.3.) with the file's contents
+ as a response.
+
+===============================================================================
+= 2.8. Server command KEEPALIVE                                               =
+===============================================================================
+ This command is used to inform the server that the connection is still alive.
+
+===============================================================================
+= 2.9. Server command ACCOUNT                                                 =
+===============================================================================
+ This command is used to perform account related operations, such as creating
+ new account, logging into an account, logging into an account's character, and
+ so on.
+
+ The packet MUST be constructed as thus, in the listed order:
+  - type (uint8):
+     The type of the operation.
+
+ The following is a list of possible types, starting at an index of one.
+
+ LOGIN:
+  Used to log in to the account.
+
+  The packet is extended with the following data, in the listed order:
+   - name (string):
+      Account name to log in to.
+   - password (string):
+      Account password to log in with.
+ REGISTER:
+  Used to register a new account.
+
+  The packet is extended with the following data, in the listed order:
+   - name (string):
+      Account name to register.
+   - password (string):
+      Account password to register with.
+   - password2 (string):
+      Verification of the provided password.
+ LOGIN_CHAR:
+  Used to log in to an account's character. May only be used once the
+  session has successfully logged into some account.
+
+  The packet is extended with the following data, in the listed order:
+   - name (string):
+      Character name to log in as.
+ NEW_CHAR:
+  Used to create a new character. May only be used once the session has
+  successfully logged into some account.
+
+  The packet is extended with the following data, in the listed order:
+   - name (string):
+      Character name to create.
+   - archname (string):
+      Archetype to use for the character (for example, half_elf_male,
+      human_female, etc).
+ PSWD:
+  Used to change the account password. May only be used once the session
+  has successfully logged into some account.
+   - password (string):
+      Current account password.
+   - password_new (string):
+      New password.
+   - password_new2 (string):
+      Verification of the new password.
+
+===============================================================================
+= 3. Client commands                                                          =
 ===============================================================================
  The following is a list of commands recognised by the client.
 
@@ -289,61 +495,61 @@
  here.
 
  MAP:
-  See section 1.3.1.
+  See section 3.1.
  DRAWINFO:
-  See section 1.3.2.
+  See section 3.2.
  FILE_UPDATE:
-  See section 1.3.3.
+  See section 3.3.
  ITEM:
-  See section 1.3.4.
+  See section 3.4.
  SOUND:
-  See section 1.3.5.
+  See section 3.5.
  TARGET:
-  See section 1.3.6.
+  See section 3.6.
  ITEM_UPDATE:
-  See section 1.3.7.
+  See section 3.7.
  ITEM_DELETE:
-  See section 1.3.8.
+  See section 3.8.
  STATS:
-  See section 1.3.9.
+  See section 3.9.
  IMAGE:
-  See section 1.3.10.
+  See section 3.10.
  ANIM:
-  See section 1.3.11.
+  See section 3.11.
  SKILL_READY:
-  See section 1.3.12.
+  See section 3.12.
  PLAYER:
-  See section 1.3.13.
+  See section 3.13.
  MAPSTATS:
-  See section 1.3.14.
+  See section 3.14.
  SKILL_LIST:
-  See section 1.3.15.
+  See section 3.15.
  VERSION:
-  See section 1.3.16.
+  See section 3.16.
  SETUP:
-  See section 1.3.17.
+  See section 3.17.
  CONTROL:
-  See section 1.3.18.
+  See section 3.18.
  DATA:
-  See section 1.3.19.
+  See section 3.19.
  CHARACTERS:
-  See section 1.3.20.
+  See section 3.20.
  BOOK:
-  See section 1.3.21.
+  See section 3.21.
  PARTY:
-  See section 1.3.22.
+  See section 3.22.
  QUICKSLOT:
-  See section 1.3.23.
+  See section 3.23.
  COMPRESSED:
-  See section 1.3.24.
+  See section 3.24.
  REGION_MAP:
-  See section 1.3.25.
+  See section 3.25.
  SOUND_AMBIENT:
-  See section 1.3.26.
+  See section 3.26.
  INTERFACE:
-  See section 1.3.27.
+  See section 3.27.
  NOTIFICATION:
-  See section 1.3.28.
+  See section 3.28.
 
 ===============================================================================
 = 5. Authors                                                                  =
