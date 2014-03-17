@@ -10,22 +10,6 @@ class QuestManager:
     Quest manager implementation.
     """
 
-    def _quest_adjust(self, quest):
-        """Compatibility function for old quest definitions."""
-
-        if "arch_name" in quest:
-            quest["item"] = {"arch": quest["arch_name"], "name": quest["item_name"]}
-
-        if "num" in quest:
-            if "item" in quest:
-                quest["item"]["nrof"] = quest["num"]
-            else:
-                quest["kill"] = {"nrof": quest["num"]}
-
-        if "parts" in quest:
-            for part in quest["parts"]:
-                self._quest_adjust(quest["parts"][part])
-
     def __init__(self, activator, quest):
         """
         Initiate the quest manager class.
@@ -38,81 +22,25 @@ class QuestManager:
         if activator.type != Type.PLAYER:
             return
 
-        if not "parts" in quest:
-            quest["parts"] = {
-                quest["quest_name"]: quest,
-            }
-
-        # TODO remove at some point
-        self._quest_adjust(quest)
-
         self.activator = activator
         self.quest = quest
         self.sound_last = None
 
         self.quest_container = activator.Controller().quest_container
-        self.quest_object = self.quest_container.FindObject(name = self.get_quest_uid())
+        self.quest_object = self.quest_container.FindObject(name = self.quest.get("uid"))
 
         if self.quest.get("repeat", False) and self.get_qp_remaining() != 0 and self.completed():
             if self.quest_object.exp == 0 or int(time.time()) >= self.quest_object.exp:
                 self.quest_object.Remove()
                 self.quest_object = None
 
-    def get_quest_name(self, quest = None):
-        """Acquire the quest's name."""
-
-        if quest == None:
-            quest = self.quest
-
-        # TODO Remove 'uid' and 'quest_name' once all the old quests have
-        # been updated to the new system.
-        for attr in ("name", "uid", "quest_name"):
-            val = quest.get(attr)
-
-            if val:
-                return val
-
-        return None
-
-    def get_quest_uid(self, quest = None):
-        """Acquire the quest's UID."""
-
-        if quest == None:
-            quest = self.quest
-
-        # TODO Remove 'quest_name' once all the old quests have been
-        # updated to the new system.
-        for attr in ("uid", "quest_name"):
-            val = quest.get(attr)
-
-            if val:
-                return val
-
-        return None
-
-    def get_quest_msg(self, quest = None):
-        """Acquire the quest's information message."""
-
-        if quest == None:
-            quest = self.quest
-
-        # TODO Remove 'message' once all the old quests have been
-        # updated to the new system.
-        for attr in ("info", "message"):
-            val = quest.get(attr)
-
-            if val:
-                return val
-
-        return None
-
     def create_quest_object(self, where, quest, uid):
         obj = where.CreateObject("quest_container")
         obj.magic = 0
         obj.last_grace = 0
         obj.name = uid
-        obj.race = self.get_quest_name(quest)
-        obj.msg = self.get_quest_msg(quest)
+        obj.race = quest.get("name")
+        obj.msg = quest.get("info")
 
         for attr, quest_type in (
             ("item", QUEST_TYPE_ITEM),
@@ -210,13 +138,6 @@ class QuestManager:
 
         return 0
 
-    def num_to_kill(self):
-        """Deprecated; do not use."""
-
-        # TODO remove me
-
-        return self.num2finish(self.quest["quest_name"])
-
     def need_start(self, *args, **kwargs):
         return not self.started(*args, **kwargs)
 
@@ -237,24 +158,16 @@ class QuestManager:
 
         return val, newpart
 
-    def start(self, part = None, sound = "learnspell.ogg"):
-        # TODO remove eventually, make part mandatory
-        if part == None:
-            part = self.quest["quest_name"]
-
+    def start(self, part, sound = "learnspell.ogg"):
         if not self.quest_object:
-            self.quest_object = self.create_quest_object(self.quest_container, self.quest, self.get_quest_uid())
+            self.quest_object = self.create_quest_object(self.quest_container, self.quest, self.quest.get("uid"))
 
         part, quest = self.get_part(part)
         self.create_quest_object(self.quest_object, quest, part)
 
         self.sound(sound)
 
-    def complete(self, part = None, sound = "learnspell.ogg", skip_completion = False):
-        # TODO remove eventually, make part mandatory
-        if part == None:
-            part = self.quest["quest_name"]
-
+    def complete(self, part, sound = "learnspell.ogg", skip_completion = False):
         part, quest = self.get_part(part)
         obj = self.quest_object.FindObject(name = part)
 
@@ -300,13 +213,9 @@ class QuestManager:
         self.quest_object.magic = QUEST_STATUS_COMPLETED
         self.use_qp()
 
-    def finished(self, part = None):
+    def finished(self, part):
         if not self.started(part):
             return False
-
-        # TODO remove eventually, make part mandatory
-        if part == None:
-            part = self.quest["quest_name"]
 
         part, quest = self.get_part(part)
         obj = self.quest_object.FindObject(name = part)
@@ -356,6 +265,3 @@ class QuestManager:
                 return True
 
         return False
-
-class QuestManagerMulti(QuestManager):
-    pass
