@@ -38,14 +38,14 @@ static const char *const server_file_names[SERVER_FILES_MAX] =
 };
 
 /** Post-loading functions to call. */
-static void (*server_file_funcs[SERVER_FILES_MAX]) () =
+static void (*server_file_funcs[SERVER_FILES_MAX]) (void) =
 {
     read_bmaps, file_updates_parse, server_settings_init,
     read_anims, effects_init, hfiles_init
 };
 
 /** Functions to call if the server file was already loaded. */
-static void (*server_file_funcs_reload[SERVER_FILES_MAX]) () =
+static void (*server_file_funcs_reload[SERVER_FILES_MAX]) (void) =
 {
     NULL, NULL, NULL,
     anims_reset, effects_reinit, NULL
@@ -54,7 +54,7 @@ static void (*server_file_funcs_reload[SERVER_FILES_MAX]) () =
 /**
  * Init-time functions to call. Needed for things like help files, which
  * are necessary before we connect to a server. */
-static void (*server_file_funcs_init[SERVER_FILES_MAX]) () =
+static void (*server_file_funcs_init[SERVER_FILES_MAX]) (void) =
 {
     NULL, NULL, NULL,
     NULL, NULL, hfiles_init

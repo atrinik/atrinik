@@ -492,7 +492,7 @@ typedef struct cache_struct
 /*@}*/
 
 #ifdef HAVE_WORLD_MAKER
-void world_maker();
+void world_maker(void);
 #endif
 
 #include "random_map.h"
