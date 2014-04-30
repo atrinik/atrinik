@@ -290,7 +290,7 @@ void finish_face_cmd(int facenum, uint32 checksum, char *face)
     }
 
     snprintf(buf, sizeof(buf), "%s.png", face);
-    FaceList[facenum].name = (char *) malloc(strlen(buf) + 1);
+    FaceList[facenum].name = malloc(strlen(buf) + 1);
     strcpy(FaceList[facenum].name, buf);
 
     FaceList[facenum].checksum = checksum;
@@ -405,7 +405,7 @@ static int load_gfx_user_face(uint16 num)
 
             if (FaceList[num].sprite) {
                 snprintf(buf, sizeof(buf), DIRECTORY_GFX_USER "/%s.png", bmaps[num].name);
-                FaceList[num].name = (char *) malloc(strlen(buf) + 1);
+                FaceList[num].name = malloc(strlen(buf) + 1);
                 strcpy(FaceList[num].name, buf);
                 FaceList[num].checksum = crc32(1L, data, len);
                 free(data);
@@ -451,7 +451,7 @@ int request_face(int pnum)
     /* Best case - we have it in atrinik.p0 */
     if (bmaps[num].pos != -1) {
         snprintf(buf, sizeof(buf), "%s.png", bmaps[num].name);
-        FaceList[num].name = (char *) malloc(strlen(buf) + 1);
+        FaceList[num].name = malloc(strlen(buf) + 1);
         strcpy(FaceList[num].name, buf);
         FaceList[num].checksum = bmaps[num].crc32;
         load_picture_from_pack(num);

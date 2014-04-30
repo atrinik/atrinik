@@ -66,10 +66,10 @@ char **maze_gen(int xsize, int ysize, int option)
     int i, j;
     struct free_walls_struct free_walls;
     /* allocate that array, set it up */
-    char **maze = (char **) calloc(sizeof(char *), xsize);
+    char **maze = calloc(sizeof(char *), xsize);
 
     for (i = 0; i < xsize; i++) {
-        maze[i] = (char *) calloc(sizeof(char), ysize);
+        maze[i] = calloc(sizeof(char), ysize);
     }
 
     /* Write the outer walls */
@@ -132,8 +132,8 @@ static void make_wall_free_list(int xsize, int ysize, free_walls_struct *free_wa
     }
 
     /* allocate it */
-    free_walls->wall_x_list = (int *) calloc(sizeof(int), free_walls->wall_free_size);
-    free_walls->wall_y_list = (int *) calloc(sizeof(int), free_walls->wall_free_size);
+    free_walls->wall_x_list = calloc(sizeof(int), free_walls->wall_free_size);
+    free_walls->wall_y_list = calloc(sizeof(int), free_walls->wall_free_size);
 
     /* top and bottom wall */
     for (i = 2; i < xsize - 2; i++) {

@@ -101,7 +101,7 @@ typedef unsigned char uint8_t;
 #define HASH_BLOOM_MAKE(tbl)                                                     \
     do {                                                                             \
         (tbl)->bloom_nbits = HASH_BLOOM;                                               \
-        (tbl)->bloom_bv = (uint8_t*)uthash_malloc(HASH_BLOOM_BYTELEN);                 \
+        (tbl)->bloom_bv = uthash_malloc(HASH_BLOOM_BYTELEN);                           \
         if (!((tbl)->bloom_bv))  { uthash_fatal( "out of memory"); }                   \
         memset((tbl)->bloom_bv, 0, HASH_BLOOM_BYTELEN);                                \
         (tbl)->bloom_sig = HASH_BLOOM_SIGNATURE;                                       \
@@ -130,7 +130,7 @@ typedef unsigned char uint8_t;
 
 #define HASH_MAKE_TABLE(hh,head)                                                 \
     do {                                                                             \
-        (head)->hh.tbl = (UT_hash_table*)uthash_malloc(                                \
+        (head)->hh.tbl = uthash_malloc(                                                \
             sizeof(UT_hash_table));                                        \
         if (!((head)->hh.tbl))  { uthash_fatal( "out of memory"); }                    \
         memset((head)->hh.tbl, 0, sizeof(UT_hash_table));                              \
@@ -138,7 +138,7 @@ typedef unsigned char uint8_t;
         (head)->hh.tbl->num_buckets = HASH_INITIAL_NUM_BUCKETS;                        \
         (head)->hh.tbl->log2_num_buckets = HASH_INITIAL_NUM_BUCKETS_LOG2;              \
         (head)->hh.tbl->hho = (char*)(&(head)->hh) - (char*)(head);                    \
-        (head)->hh.tbl->buckets = (UT_hash_bucket*)uthash_malloc(                      \
+        (head)->hh.tbl->buckets = uthash_malloc(                                       \
             HASH_INITIAL_NUM_BUCKETS*sizeof(struct UT_hash_bucket));               \
         if (!(head)->hh.tbl->buckets) { uthash_fatal( "out of memory"); }             \
         memset((head)->hh.tbl->buckets, 0,                                             \
@@ -644,7 +644,7 @@ typedef unsigned char uint8_t;
         unsigned _he_bkt_i;                                                          \
         struct UT_hash_handle *_he_thh, *_he_hh_nxt;                                 \
         UT_hash_bucket *_he_new_buckets, *_he_newbkt;                                \
-        _he_new_buckets = (UT_hash_bucket*)uthash_malloc(                            \
+        _he_new_buckets = uthash_malloc(                                             \
             2 * tbl->num_buckets * sizeof(struct UT_hash_bucket));              \
         if (!_he_new_buckets) { uthash_fatal( "out of memory"); }                    \
         memset(_he_new_buckets, 0,                                                   \

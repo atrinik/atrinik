@@ -1575,7 +1575,7 @@ static PyObject *Object_GetAttribute(Atrinik_Object *obj, void *context)
     fields_struct *field;
 
     OBJEXISTCHECK(obj);
-    field = (fields_struct *) context;
+    field = context;
 
     if (field->offset == offsetof(object, head)) {
         return wrap_object(HEAD(obj->obj));
@@ -1592,7 +1592,7 @@ static PyObject *Object_GetAttribute(Atrinik_Object *obj, void *context)
  * @return 0 on success, -1 on failure. */
 static int Object_SetAttribute(Atrinik_Object *obj, PyObject *value, void *context)
 {
-    fields_struct *field = (fields_struct *) context;
+    fields_struct *field = context;
     int ret;
 
     OBJEXISTCHECK_INT(obj);
@@ -1986,7 +1986,7 @@ int Atrinik_Object_init(PyObject *module)
         def->get = (getter) Object_GetAttribute;
         def->set = (setter) Object_SetAttribute;
         def->doc = NULL;
-        def->closure = (void *) &fields[i];
+        def->closure = &fields[i];
     }
 
     /* Flag getseters */

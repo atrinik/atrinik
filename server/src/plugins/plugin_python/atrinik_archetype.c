@@ -51,7 +51,7 @@ static fields_struct fields[] =
  * @return Python object with the attribute value, NULL on failure. */
 static PyObject *get_attribute(Atrinik_Archetype *at, void *context)
 {
-    return generic_field_getter((fields_struct *) context, at->at);
+    return generic_field_getter(context, at->at);
 }
 
 /**
@@ -171,7 +171,7 @@ int Atrinik_Archetype_init(PyObject *module)
         def->get = (getter) get_attribute;
         def->set = NULL;
         def->doc = NULL;
-        def->closure = (void *) &fields[i];
+        def->closure = &fields[i];
     }
 
     getseters[i].name = NULL;

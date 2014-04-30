@@ -42,10 +42,10 @@ char **expand2x(char **layout, int xsize, int ysize)
     int nysize = ysize * 2 - 1;
 
     /* Allocate new layout */
-    char **newlayout = (char **) calloc(sizeof(char *), nxsize);
+    char **newlayout = calloc(sizeof(char *), nxsize);
 
     for (i = 0; i < nxsize; i++) {
-        newlayout[i] = (char *) calloc(sizeof(char), nysize);
+        newlayout[i] = calloc(sizeof(char), nysize);
     }
 
     for (i = 0; i < xsize; i++) {

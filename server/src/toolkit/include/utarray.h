@@ -215,12 +215,12 @@ typedef struct {
 #pragma GCC diagnostic ignored "-Wcast-qual"
 /* last we pre-define a few icd for common utarrays of ints and strings */
 static void utarray_str_cpy(void *dst, const void *src) {
-    char **_src = (char**)src, **_dst = (char**)dst;
+    const char *const*_src = src, **_dst = dst;
     *_dst = (*_src == NULL) ? NULL : strdup(*_src);
 }
 #pragma GCC diagnostic pop
 static void utarray_str_dtor(void *elt) {
-    char **eltc = (char**)elt;
+    char **eltc = elt;
 
     if (*eltc) free(*eltc);
 }

@@ -77,7 +77,7 @@ typedef struct {
 } while(0)
 
 #define utarray_new(a,_icd) do {                                              \
-        a=(UT_array*)malloc(sizeof(UT_array));                                      \
+        a=malloc(sizeof(UT_array));                                                 \
         utarray_init(a,_icd);                                                       \
 } while(0)
 
@@ -89,7 +89,7 @@ typedef struct {
 #define utarray_reserve(a,by) do {                                            \
         if (((a)->i+by) > ((a)->n)) {                                               \
             while(((a)->i+by) > ((a)->n)) { (a)->n = ((a)->n ? (2*(a)->n) : 8); }     \
-            if ( ((a)->d=(char*)realloc((a)->d, (a)->n*(a)->icd->sz)) == NULL) oom(); \
+            if ( ((a)->d=realloc((a)->d, (a)->n*(a)->icd->sz)) == NULL) oom();      \
         }                                                                           \
 } while(0)
 
@@ -215,12 +215,12 @@ typedef struct {
 #pragma GCC diagnostic ignored "-Wcast-qual"
 /* last we pre-define a few icd for common utarrays of ints and strings */
 static void utarray_str_cpy(void *dst, const void *src) {
-    char **_src = (char**)src, **_dst = (char**)dst;
+    const char *const*_src = src, **_dst = dst;
     *_dst = (*_src == NULL) ? NULL : strdup(*_src);
 }
 #pragma GCC diagnostic pop
 static void utarray_str_dtor(void *elt) {
-    char **eltc = (char**)elt;
+    char **eltc = elt;
 
     if (*eltc) free(*eltc);
 }

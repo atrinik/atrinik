@@ -54,7 +54,7 @@ static fields_struct fields[] =
  * @return Python object with the attribute value, NULL on failure. */
 static PyObject *Region_GetAttribute(Atrinik_Region *r, void *context)
 {
-    return generic_field_getter((fields_struct *) context, r->region);
+    return generic_field_getter(context, r->region);
 }
 
 /**
@@ -174,7 +174,7 @@ int Atrinik_Region_init(PyObject *module)
         def->get = (getter) Region_GetAttribute;
         def->set = NULL;
         def->doc = NULL;
-        def->closure = (void *) &fields[i];
+        def->closure = &fields[i];
     }
 
     getseters[i].name = NULL;

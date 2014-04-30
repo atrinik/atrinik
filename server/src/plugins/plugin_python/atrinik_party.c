@@ -176,7 +176,7 @@ static PyMethodDef PartyMethods[] =
  * @return Python object with the attribute value, NULL on failure. */
 static PyObject *Party_GetAttribute(Atrinik_Party *party, void *context)
 {
-    return generic_field_getter((fields_struct *) context, party->party);
+    return generic_field_getter(context, party->party);
 }
 
 /**
@@ -187,7 +187,7 @@ static PyObject *Party_GetAttribute(Atrinik_Party *party, void *context)
  * @return 0 on success, -1 on failure. */
 static int Party_SetAttribute(Atrinik_Party *party, PyObject *value, void *context)
 {
-    if (generic_field_setter((fields_struct *) context, party->party, value) == -1) {
+    if (generic_field_setter(context, party->party, value) == -1) {
         return -1;
     }
 
@@ -310,7 +310,7 @@ int Atrinik_Party_init(PyObject *module)
         def->get = (getter) Party_GetAttribute;
         def->set = (setter) Party_SetAttribute;
         def->doc = NULL;
-        def->closure = (void *) &fields[i];
+        def->closure = &fields[i];
     }
 
     getseters[i].name = NULL;

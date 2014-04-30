@@ -357,10 +357,10 @@ char **symmetrize_layout(char **maze, int sym, RMParms *RP)
     RP->Xsize = ((sym == X_SYM || sym == XY_SYM) ? RP->Xsize * 2 - 3 : RP->Xsize);
     RP->Ysize = ((sym == Y_SYM || sym == XY_SYM) ? RP->Ysize * 2 - 3 : RP->Ysize);
 
-    sym_maze = (char **) calloc(sizeof(char *), RP->Xsize);
+    sym_maze = calloc(sizeof(char *), RP->Xsize);
 
     for (i = 0; i < RP->Xsize; i++) {
-        sym_maze[i] = (char *) calloc(sizeof(char), RP->Ysize);
+        sym_maze[i] = calloc(sizeof(char), RP->Ysize);
     }
 
     if (sym == X_SYM) {
@@ -467,10 +467,10 @@ char **rotate_layout(char **maze, int rotation, RMParms *RP)
         {
             int swap;
 
-            new_maze = (char **) calloc(sizeof(char *), RP->Ysize);
+            new_maze = calloc(sizeof(char *), RP->Ysize);
 
             for (i = 0; i < RP->Ysize; i++) {
-                new_maze[i] = (char *) calloc(sizeof(char), RP->Xsize);
+                new_maze[i] = calloc(sizeof(char), RP->Xsize);
             }
 
             /* swap x and y */

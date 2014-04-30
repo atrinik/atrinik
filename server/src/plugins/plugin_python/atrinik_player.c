@@ -630,7 +630,7 @@ static PyMethodDef methods[] =
  * @return Python object with the attribute value, NULL on failure. */
 static PyObject *get_attribute(Atrinik_Player *pl, void *context)
 {
-    return generic_field_getter((fields_struct *) context, pl->pl);
+    return generic_field_getter(context, pl->pl);
 }
 
 /**
@@ -641,7 +641,7 @@ static PyObject *get_attribute(Atrinik_Player *pl, void *context)
  * @return 0 on success, -1 on failure. */
 static int set_attribute(Atrinik_Player *pl, PyObject *value, void *context)
 {
-    fields_struct *field = (fields_struct *) context;
+    fields_struct *field = context;
 
     if (generic_field_setter(field, pl->pl, value) == -1) {
         return -1;
@@ -771,7 +771,7 @@ int Atrinik_Player_init(PyObject *module)
         def->get = (getter) get_attribute;
         def->set = (setter) set_attribute;
         def->doc = NULL;
-        def->closure = (void *) &fields[i];
+        def->closure = &fields[i];
     }
 
     getseters[i].name = NULL;

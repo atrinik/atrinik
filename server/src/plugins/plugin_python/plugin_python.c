@@ -1396,7 +1396,7 @@ static PyObject *Atrinik_CacheGet(PyObject *self, PyObject *args)
     }
     else {
         Py_INCREF((PyObject *) result->ptr);
-        return (PyObject *) result->ptr;
+        return result->ptr;
     }
 }
 
@@ -1751,7 +1751,7 @@ static int handle_global_event(int event_type, va_list args)
                 gilstate = PyGILState_Ensure();
 
                 /* Attempt to close file/database/etc objects. */
-                retval = PyObject_CallMethod((PyObject *) ptr, "close", "");
+                retval = PyObject_CallMethod(ptr, "close", "");
 
                 /* No close() method, ignore the exception. */
                 if (PyErr_Occurred() && PyErr_ExceptionMatches(PyExc_AttributeError)) {
@@ -1785,17 +1785,17 @@ static int handle_global_event(int event_type, va_list args)
 
     switch (event_type) {
         case GEVENT_BORN:
-            context->activator = (object *) va_arg(args, void *);
+            context->activator = va_arg(args, void *);
             break;
 
         case GEVENT_LOGIN:
             context->activator = ((player *) va_arg(args, void *))->ob;
-            context->text = (char *) va_arg(args, void *);
+            context->text = va_arg(args, void *);
             break;
 
         case GEVENT_LOGOUT:
             context->activator = ((player *) va_arg(args, void *))->ob;
-            context->text = (char *) va_arg(args, void *);
+            context->text = va_arg(args, void *);
             break;
 
         case GEVENT_PLAYER_DEATH:
@@ -2096,7 +2096,7 @@ int generic_field_setter(fields_struct *field, void *ptr, PyObject *value)
         INTRAISE("Trying to modify readonly field.");
     }
 
-    field_ptr = (void *) ((char *) ptr + field->offset);
+    field_ptr = (char *) ptr + field->offset;
 
     switch (field->type) {
         case FIELDTYPE_SHSTR:
@@ -2138,7 +2138,7 @@ int generic_field_setter(fields_struct *field, void *ptr, PyObject *value)
                 ((char *) field_ptr)[0] = '\0';
             }
             else if (PyString_Check(value)) {
-                memcpy((char *) field_ptr, PyString_AsString(value), field->extra_data);
+                memcpy(field_ptr, PyString_AsString(value), field->extra_data);
                 ((char *) field_ptr)[field->extra_data] = '\0';
             }
             else {
@@ -2340,7 +2340,7 @@ int generic_field_setter(fields_struct *field, void *ptr, PyObject *value)
 
         case FIELDTYPE_OBJECTREF:
         {
-            void *field_ptr2 = (void *) ((char *) ptr + field->extra_data);
+            void *field_ptr2 = (char *) ptr + field->extra_data;
 
             if (value == Py_None) {
                 *(object **) field_ptr = NULL;
@@ -2502,7 +2502,7 @@ int generic_field_setter(fields_struct *field, void *ptr, PyObject *value)
         case FIELDTYPE_CONNECTION:
 
             if (PyInt_Check(value)) {
-                hooks->connection_object_add((object *) ptr, ((object *) ptr)->map, PyLong_AsLong(value));
+                hooks->connection_object_add(ptr, ((object *) ptr)->map, PyLong_AsLong(value));
             }
             else {
                 INTRAISE("Illegal value for connection field.");
@@ -2535,7 +2535,7 @@ PyObject *generic_field_getter(fields_struct *field, void *ptr)
 {
     void *field_ptr;
 
-    field_ptr = (void *) ((char *) ptr + field->offset);
+    field_ptr = (char *) ptr + field->offset;
 
     switch (field->type) {
         case FIELDTYPE_SHSTR:
@@ -2588,7 +2588,7 @@ PyObject *generic_field_getter(fields_struct *field, void *ptr)
             return wrap_object(*(object **) field_ptr);
 
         case FIELDTYPE_OBJECT2:
-            return wrap_object((object *) field_ptr);
+            return wrap_object(field_ptr);
 
         case FIELDTYPE_OBJECTREF:
         {

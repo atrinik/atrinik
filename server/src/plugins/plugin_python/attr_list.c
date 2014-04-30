@@ -69,13 +69,13 @@
 static void *attr_list_len_ptr(Atrinik_AttrList *al)
 {
     if (al->field == FIELDTYPE_CMD_PERMISSIONS) {
-        return (int *) ((void *) ((char *) al->ptr + offsetof(player, num_cmd_permissions)));
+        return (char *) al->ptr + offsetof(player, num_cmd_permissions);
     }
     else if (al->field == FIELDTYPE_FACTIONS) {
-        return (int *) ((void *) ((char *) al->ptr + offsetof(player, num_faction_ids)));
+        return (char *) al->ptr + offsetof(player, num_faction_ids);
     }
     else if (al->field == FIELDTYPE_REGION_MAPS) {
-        return (int *) ((void *) ((char *) al->ptr + offsetof(player, num_region_maps)));
+        return (char *) al->ptr + offsetof(player, num_region_maps);
     }
 
     /* Not reached. */
@@ -108,7 +108,7 @@ static PyObject *attr_list_get(Atrinik_AttrList *al, PyObject *key, unsigned PY_
     void *ptr;
     fields_struct field = {"xxx", 0, 0, 0, 0};
 
-    ptr = (void *) ((char *) al->ptr + al->offset);
+    ptr = (char *) al->ptr + al->offset;
 
     if (al->field == FIELDTYPE_CMD_PERMISSIONS || al->field == FIELDTYPE_REGION_MAPS) {
         if (key) {
@@ -194,7 +194,7 @@ static int attr_list_set(Atrinik_AttrList *al, PyObject *key, unsigned PY_LONG_L
 
     /* Get the current length of the list. */
     len = attr_list_len(al);
-    ptr = (void *) ((char *) al->ptr + al->offset);
+    ptr = (char *) al->ptr + al->offset;
 
     /* Command permissions. */
     if (al->field == FIELDTYPE_CMD_PERMISSIONS || al->field == FIELDTYPE_REGION_MAPS) {
@@ -207,7 +207,7 @@ static int attr_list_set(Atrinik_AttrList *al, PyObject *key, unsigned PY_LONG_L
             /* And resize it. */
             *(char ***) ((void *) ((char *) al->ptr + al->offset)) = realloc(*(char ***) ((void *) ((char *) al->ptr + al->offset)), sizeof(char *) * attr_list_len(al));
             /* Make sure ptr points to the right memory... */
-            ptr = (void *) ((char *) al->ptr + al->offset);
+            ptr = (char *) al->ptr + al->offset;
             /* NULL the new member. */
             (*(char ***) ptr)[i] = NULL;
         }
@@ -236,7 +236,7 @@ static int attr_list_set(Atrinik_AttrList *al, PyObject *key, unsigned PY_LONG_L
             *(shstr **) (&(*(shstr ***) ptr)[i]) = hooks->add_string((const char *) (char *) idx);
             *(sint64 **) ((void *) ((char *) al->ptr + offsetof(player, faction_reputation))) = realloc(*(sint64 **) ((void *) ((char *) al->ptr + offsetof(player, faction_reputation))), sizeof(sint64) * attr_list_len(al));
             /* Make sure ptr points to the right memory... */
-            ptr = (void *) ((char *) al->ptr + offsetof(player, faction_reputation));
+            ptr = (char *) al->ptr + offsetof(player, faction_reputation);
             /* NULL the new member. */
             (*(sint64 **) ptr)[i] = 0;
         }

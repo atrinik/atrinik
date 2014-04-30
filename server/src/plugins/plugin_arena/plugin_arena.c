@@ -390,7 +390,7 @@ static int arena_enter(object *who, object *exit_ob, const char *arena_script)
             /* Add the player to the list of players and increase the number of
              * players/parties */
             else {
-                arena_map_players *player_list_tmp = (arena_map_players *) malloc(sizeof(arena_map_players));
+                arena_map_players *player_list_tmp = malloc(sizeof(arena_map_players));
 
                 /* For party arenas, also increase the parties count */
                 if (arena_maps_tmp->flags & ARENA_FLAG_PARTY) {
@@ -429,7 +429,7 @@ static int arena_enter(object *who, object *exit_ob, const char *arena_script)
 
     /* If we are here, the arena doesn't have an entry in the linked list --
      * create it */
-    arena_maps_tmp = (arena_maps_struct *) malloc(sizeof(arena_maps_struct));
+    arena_maps_tmp = malloc(sizeof(arena_maps_struct));
     strncpy(arena_maps_tmp->path, path, sizeof(arena_maps_tmp->path) - 1);
     free(path);
 
@@ -458,7 +458,7 @@ static int arena_enter(object *who, object *exit_ob, const char *arena_script)
     }
 
     /* Make a list of players in this arena */
-    arena_maps_tmp->player_list = (arena_map_players *) malloc(sizeof(arena_map_players));
+    arena_maps_tmp->player_list = malloc(sizeof(arena_map_players));
 
     /* Store the player */
     arena_maps_tmp->player_list->op = who;

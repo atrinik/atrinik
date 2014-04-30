@@ -582,7 +582,7 @@ static PyMethodDef MapMethods[] =
  * @return Python object with the attribute value, NULL on failure. */
 static PyObject *get_attribute(Atrinik_Map *map, void *context)
 {
-    return generic_field_getter((fields_struct *) context, map->map);
+    return generic_field_getter(context, map->map);
 }
 
 /**
@@ -593,7 +593,7 @@ static PyObject *get_attribute(Atrinik_Map *map, void *context)
  * @return 0 on success, -1 on failure. */
 static int set_attribute(Atrinik_Map *map, PyObject *value, void *context)
 {
-    if (generic_field_setter((fields_struct *) context, map->map, value) == -1) {
+    if (generic_field_setter(context, map->map, value) == -1) {
         return -1;
     }
 
@@ -773,7 +773,7 @@ int Atrinik_Map_init(PyObject *module)
         def->get = (getter) get_attribute;
         def->set = (setter) set_attribute;
         def->doc = NULL;
-        def->closure = (void *) &fields[i];
+        def->closure = &fields[i];
     }
 
     /* Flag getters */
