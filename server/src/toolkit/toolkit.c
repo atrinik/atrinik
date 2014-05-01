@@ -35,7 +35,7 @@ static size_t deinit_funcs_num = 0;
 
 void toolkit_import_register(toolkit_func func)
 {
-    deinit_funcs = realloc(deinit_funcs, sizeof(*deinit_funcs) * (deinit_funcs_num + 1));
+    deinit_funcs = erealloc(deinit_funcs, sizeof(*deinit_funcs) * (deinit_funcs_num + 1));
     deinit_funcs[deinit_funcs_num] = func;
     deinit_funcs_num++;
 }
