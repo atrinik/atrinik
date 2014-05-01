@@ -554,8 +554,10 @@ static int widget_event(widgetdata *widget, SDL_Event *event)
 /** @copydoc widgetdata::deinit_func */
 static void widget_deinit(widgetdata *widget)
 {
-    efree(shuffle_blacklist);
-    shuffle_blacklist = NULL;
+    if (shuffle_blacklist) {
+        efree(shuffle_blacklist);
+        shuffle_blacklist = NULL;
+    }
 }
 
 /**
