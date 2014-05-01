@@ -72,8 +72,6 @@ char *string_estrdup(const char *s)
 {
     char *cp;
 
-    TOOLKIT_FUNC_PROTECTOR(API_NAME);
-
     if (s == NULL) {
         logger_print(LOG(ERROR), "'s' is NULL.");
         abort();
@@ -100,8 +98,6 @@ char *string_estrdup(const char *s)
 char *string_estrndup(const char *s, size_t n)
 {
     char *cp;
-
-    TOOLKIT_FUNC_PROTECTOR(API_NAME);
 
     if (s == NULL) {
         logger_print(LOG(ERROR), "'s' is NULL.");
