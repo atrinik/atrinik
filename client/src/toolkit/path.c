@@ -114,18 +114,18 @@ char *path_dirname(const char *path)
     end = strrchr(path, '/');
 
     if (!end) {
-        return strdup(".");
+        return estrdup(".");
     }
 
     while (end > path && *end == '/') {
         end--;
     }
 
-    result = strndup(path, end - path + 1);
+    result = estrndup(path, end - path + 1);
 
     if (result[0] == '\0') {
-        free(result);
-        return strdup("/");
+        efree(result);
+        return estrdup("/");
     }
 
     return result;
@@ -153,11 +153,11 @@ char *path_basename(const char *path)
 
     while ((slash = strrchr(path, '/'))) {
         if (*(slash + 1) != '\0') {
-            return strdup(slash + 1);
+            return estrdup(slash + 1);
         }
     }
 
-    return strdup(path);
+    return estrdup(path);
 }
 
 /**
@@ -178,7 +178,7 @@ char *path_normalize(const char *path)
     TOOLKIT_FUNC_PROTECTOR(API_NAME);
 
     if (string_isempty(path)) {
-        return strdup(".");
+        return estrdup(".");
     }
 
     sb = stringbuffer_new();

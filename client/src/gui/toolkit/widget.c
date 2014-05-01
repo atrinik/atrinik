@@ -155,7 +155,7 @@ static int widget_load(const char *path, uint8 defaults, widgetdata *widgets[])
 
             cp = string_sub(line, 1, -1);
             id = widget_id_from_name(cp);
-            free(cp);
+            efree(cp);
 
             if (id == -1) {
                 logger_print(LOG(DEBUG), "Invalid widget: %s", line);
@@ -182,7 +182,7 @@ static int widget_load(const char *path, uint8 defaults, widgetdata *widgets[])
             string_whitespace_trim(cps[1]);
 
             if (strcmp(cps[0], "id") == 0) {
-                widget->id = strdup(cps[1]);
+                widget->id = estrdup(cps[1]);
             }
             else if (strcmp(cps[0], "texture_type") == 0) {
                 widget->texture_type = atoi(cps[1]);
@@ -480,7 +480,7 @@ widgetdata *create_widget_object(int widget_subtype_id)
      * in here */
     widget = create_widget(widget_subtype_id);
     widget->type = widget_type_id;
-    widget->name = strdup(widget_names[widget_subtype_id]);
+    widget->name = estrdup(widget_names[widget_subtype_id]);
     widget->redraw = 1;
     widget->menu_handle_func = widget_menu_handle;
 
@@ -545,15 +545,15 @@ void remove_widget_object_intern(widgetdata *widget)
         widget->deinit_func(widget);
     }
 
-    free(widget->name);
+    efree(widget->name);
 
     if (widget->id) {
-        free(widget->id);
+        efree(widget->id);
     }
 
     /* remove the custom attribute nodes if they exist */
     if (widget->subwidget) {
-        free(widget->subwidget);
+        efree(widget->subwidget);
         widget->subwidget = NULL;
     }
 
@@ -734,11 +734,7 @@ widgetdata *create_widget(int widget_id)
 #endif
 
     /* allocate it */
-    node = calloc(1, sizeof(widgetdata));
-
-    if (!node) {
-        exit(0);
-    }
+    node = ecalloc(1, sizeof(widgetdata));
 
     /* set the members */
     memcpy(node, &def_widget[widget_id], sizeof(*node));
@@ -876,7 +872,7 @@ void remove_widget(widgetdata *widget)
         widget->surface = NULL;
     }
 
-    free(widget);
+    efree(widget);
 
 #ifdef DEBUG_WIDGET
     debug_count_nodes(1);
@@ -1070,7 +1066,7 @@ static void widget_save_rec(FILE *fp, widgetdata *widget, int depth)
             fprintf(fp, "\n");
         }
 
-        free(padding);
+        efree(padding);
     }
 }
 
@@ -1925,7 +1921,7 @@ widgetdata *widget_find_create_id(int type, const char *id)
 
     if (!tmp) {
         tmp = create_widget_object(type);
-        tmp->id = strdup(id);
+        tmp->id = estrdup(id);
     }
 
     return tmp;
@@ -2136,7 +2132,7 @@ widgetdata *add_label(const char *text, int font, const char *color)
     widget = create_widget_object(LABEL_ID);
     label = LABEL(widget);
 
-    label->text = strdup(text);
+    label->text = estrdup(text);
 
     label->font = font;
     label->color = color;

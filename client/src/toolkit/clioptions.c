@@ -73,9 +73,9 @@ static void clioptions_option_help(const char *arg)
                 logger_print(LOG(INFO), " ");
 
                 for (curr = clioptions[i].desc; (curr && (next = strchr(curr, '\n'))) || curr; curr = next ? next + 1 : NULL) {
-                    cp = strndup(curr, next - curr);
+                    cp = estrndup(curr, next - curr);
                     logger_print(LOG(INFO), "%s", cp);
-                    free(cp);
+                    efree(cp);
                 }
 
                 break;
@@ -111,7 +111,7 @@ static void clioptions_option_help(const char *arg)
 
             desc = stringbuffer_finish(sb);
             logger_print(LOG(INFO), "    %s: %s", desc, clioptions[i].desc_brief);
-            free(desc);
+            efree(desc);
         }
 
         logger_print(LOG(INFO), " ");
@@ -175,19 +175,19 @@ void toolkit_clioptions_deinit(void)
 
         for (i = 0; i < clioptions_num; i++) {
             if (clioptions[i].longname) {
-                free(clioptions[i].longname);
+                efree(clioptions[i].longname);
             }
 
             if (clioptions[i].shortname) {
-                free(clioptions[i].shortname);
+                efree(clioptions[i].shortname);
             }
 
-            free(clioptions[i].desc_brief);
-            free(clioptions[i].desc);
+            efree(clioptions[i].desc_brief);
+            efree(clioptions[i].desc);
         }
 
         if (clioptions) {
-            free(clioptions);
+            efree(clioptions);
             clioptions = NULL;
         }
 
@@ -222,13 +222,13 @@ void clioptions_add(const char *longname, const char *shortname, clioptions_hand
         }
     }
 
-    clioptions = realloc(clioptions, sizeof(*clioptions) * (clioptions_num + 1));
-    clioptions[clioptions_num].longname = longname ? strdup(longname) : NULL;
-    clioptions[clioptions_num].shortname = shortname ? strdup(shortname) : NULL;
+    clioptions = erealloc(clioptions, sizeof(*clioptions) * (clioptions_num + 1));
+    clioptions[clioptions_num].longname = longname ? estrdup(longname) : NULL;
+    clioptions[clioptions_num].shortname = shortname ? estrdup(shortname) : NULL;
     clioptions[clioptions_num].handle_func = handle_func;
     clioptions[clioptions_num].argument = argument;
-    clioptions[clioptions_num].desc_brief = strdup(desc_brief);
-    clioptions[clioptions_num].desc = strdup(desc);
+    clioptions[clioptions_num].desc_brief = estrdup(desc_brief);
+    clioptions[clioptions_num].desc = estrdup(desc);
     clioptions_num++;
 }
 
@@ -308,8 +308,8 @@ int clioptions_load_config(const char *path, const char *category)
     argv = NULL;
     argc = 0;
 
-    argv = realloc(argv, sizeof(*argv) * (argc + 1));
-    argv[argc] = strdup("");
+    argv = erealloc(argv, sizeof(*argv) * (argc + 1));
+    argv[argc] = estrdup("");
     argc++;
 
     category_cur[0] = '\0';
@@ -343,8 +343,8 @@ int clioptions_load_config(const char *path, const char *category)
             string_newline_to_literal(cps[1]);
 
             snprintf(cp, sizeof(cp), "--%s=%s", cps[0], cps[1]);
-            argv = realloc(argv, sizeof(*argv) * (argc + 1));
-            argv[argc] = strdup(cp);
+            argv = erealloc(argv, sizeof(*argv) * (argc + 1));
+            argv[argc] = estrdup(cp);
             argc++;
         }
     }
@@ -352,10 +352,10 @@ int clioptions_load_config(const char *path, const char *category)
     clioptions_parse(argc, argv);
 
     for (i = 0; i < argc; i++) {
-        free(argv[i]);
+        efree(argv[i]);
     }
 
-    free(argv);
+    efree(argv);
 
     fclose(fp);
 

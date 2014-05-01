@@ -257,8 +257,8 @@ curl_data *curl_data_new(const char *url)
 {
     curl_data *data;
 
-    data = calloc(1, sizeof(curl_data));
-    data->url = strdup(url);
+    data = ecalloc(1, sizeof(curl_data));
+    data->url = estrdup(url);
     data->http_code = -1;
     /* Create a mutex to protect the structure. */
     data->mutex = SDL_CreateMutex();
@@ -369,12 +369,12 @@ void curl_data_free(curl_data *data)
     }
 
     if (data->memory) {
-        free(data->memory);
+        efree(data->memory);
     }
 
     SDL_DestroyMutex(data->mutex);
-    free(data->url);
-    free(data);
+    efree(data->url);
+    efree(data);
 }
 
 /**

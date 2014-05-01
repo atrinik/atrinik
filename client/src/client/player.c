@@ -238,10 +238,10 @@ char *player_make_path(const char *path)
     char *server_name;
 
     sb = stringbuffer_new();
-    server_name = strdup(selected_server->name);
+    server_name = estrdup(selected_server->name);
     string_replace_char(server_name, "/\\", ' ');
     stringbuffer_append_printf(sb, "settings/servers/%s/%s/%s/%s", server_name, cpl.account, cpl.name, path);
-    free(server_name);
+    efree(server_name);
 
     return stringbuffer_finish(sb);
 }

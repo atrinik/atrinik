@@ -83,11 +83,11 @@ void toolkit_mempool_deinit(void)
         size_t i;
 
         for (i = 0; i < mempool_chunks_num; i++) {
-            free(mempool_chunks[i]);
+            efree(mempool_chunks[i]);
         }
 
         if (mempool_chunks) {
-            free(mempool_chunks);
+            efree(mempool_chunks);
             mempool_chunks = NULL;
         }
 
@@ -152,7 +152,7 @@ mempool_struct *mempool_create(const char *description, uint32 expand, uint32 si
 
     TOOLKIT_FUNC_PROTECTOR(API_NAME);
 
-    pool = calloc(1, sizeof(mempool_struct));
+    pool = ecalloc(1, sizeof(mempool_struct));
 
     pthread_mutex_init(&pool->mutex, NULL);
     pool->chunk_description = description;
@@ -179,7 +179,7 @@ mempool_struct *mempool_create(const char *description, uint32 expand, uint32 si
 void mempool_free(mempool_struct *pool)
 {
     TOOLKIT_FUNC_PROTECTOR(API_NAME);
-    free(pool);
+    efree(pool);
 }
 
 /**
@@ -209,15 +209,10 @@ static void expand_mempool(mempool_struct *pool, uint32 arraysize_exp)
     }
 
     chunksize_real = sizeof(mempool_chunk_struct) + (pool->chunksize << arraysize_exp);
-    first = (mempool_chunk_struct *) calloc(1, nrof_arrays * chunksize_real);
-
-    if (first == NULL) {
-        logger_print(LOG(ERROR), "OOM.");
-        exit(1);
-    }
+    first = ecalloc(1, nrof_arrays * chunksize_real);
 
 #ifndef PRODUCTION
-    mempool_chunks = realloc(mempool_chunks, sizeof(*mempool_chunks) * (mempool_chunks_num + 1));
+    mempool_chunks = erealloc(mempool_chunks, sizeof(*mempool_chunks) * (mempool_chunks_num + 1));
     mempool_chunks[mempool_chunks_num] = first;
     mempool_chunks_num++;
 #endif
@@ -260,7 +255,7 @@ void *get_poolchunk_array_real(mempool_struct *pool, uint32 arraysize_exp)
     pthread_mutex_lock(&pool->mutex);
 
     if (pool->flags & MEMPOOL_BYPASS_POOLS) {
-        new_obj = calloc(1, sizeof(mempool_chunk_struct) + (pool->chunksize << arraysize_exp));
+        new_obj = ecalloc(1, sizeof(mempool_chunk_struct) + (pool->chunksize << arraysize_exp));
         pool->nrof_allocated[arraysize_exp]++;
     }
     else {
@@ -314,7 +309,7 @@ void return_poolchunk_array_real(void *data, uint32 arraysize_exp, mempool_struc
             pool->deinitialisator(MEM_USERDATA(old));
         }
 
-        free(old);
+        efree(old);
         pool->nrof_allocated[arraysize_exp]--;
     }
     else {

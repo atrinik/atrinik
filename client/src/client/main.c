@@ -238,39 +238,39 @@ void clioption_settings_deinit(void)
     size_t i;
 
     for (i = 0; i < clioption_settings.servers_num; i++) {
-        free(clioption_settings.servers[i]);
+        efree(clioption_settings.servers[i]);
     }
 
     for (i = 0; i < clioption_settings.metaservers_num; i++) {
-        free(clioption_settings.metaservers[i]);
+        efree(clioption_settings.metaservers[i]);
     }
 
     if (clioption_settings.servers) {
-        free(clioption_settings.servers);
+        efree(clioption_settings.servers);
     }
 
     for (i = 0; i < arraysize(clioption_settings.connect); i++) {
         if (clioption_settings.connect[i]) {
-            free(clioption_settings.connect[i]);
+            efree(clioption_settings.connect[i]);
         }
     }
 
     if (clioption_settings.game_news_url) {
-        free(clioption_settings.game_news_url);
+        efree(clioption_settings.game_news_url);
     }
 }
 
 static void clioptions_option_server(const char *arg)
 {
     clioption_settings.servers = realloc(clioption_settings.servers, sizeof(*clioption_settings.servers) * (clioption_settings.servers_num + 1));
-    clioption_settings.servers[clioption_settings.servers_num] = strdup(arg);
+    clioption_settings.servers[clioption_settings.servers_num] = estrdup(arg);
     clioption_settings.servers_num++;
 }
 
 static void clioptions_option_metaserver(const char *arg)
 {
     clioption_settings.metaservers = realloc(clioption_settings.metaservers, sizeof(*clioption_settings.metaservers) * (clioption_settings.metaservers_num + 1));
-    clioption_settings.metaservers[clioption_settings.metaservers_num] = strdup(arg);
+    clioption_settings.metaservers[clioption_settings.metaservers_num] = estrdup(arg);
     clioption_settings.metaservers_num++;
 }
 
@@ -282,7 +282,7 @@ static void clioptions_option_connect(const char *arg)
     pos = idx = 0;
 
     while (string_get_word(arg, &pos, ':', word, sizeof(word), 0)) {
-        clioption_settings.connect[idx] = strdup(word);
+        clioption_settings.connect[idx] = estrdup(word);
         string_whitespace_trim(clioption_settings.connect[idx]);
         idx++;
     }
@@ -300,7 +300,7 @@ static void clioptions_option_text_debug(const char *arg)
 
 static void clioptions_option_game_news_url(const char *arg)
 {
-    clioption_settings.game_news_url = strdup(arg);
+    clioption_settings.game_news_url = estrdup(arg);
 }
 
 static void clioptions_option_reconnect(const char *arg)

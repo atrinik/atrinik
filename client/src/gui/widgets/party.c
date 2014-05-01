@@ -186,8 +186,8 @@ void socket_command_party(uint8 *data, size_t len, size_t pos)
 
         for (row = 0; row < list_party->rows; row++) {
             if (!strcmp(list_party->text[row][0], name)) {
-                free(list_party->text[row][1]);
-                list_party->text[row][1] = strdup(bars);
+                efree(list_party->text[row][1]);
+                list_party->text[row][1] = estrdup(bars);
                 return;
             }
         }

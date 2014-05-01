@@ -238,7 +238,7 @@ void spells_update(object *op, uint16 cost, uint32 path, uint32 flags, const cha
     }
 
     if (!spell) {
-        spell = calloc(1, sizeof(*spell));
+        spell = ecalloc(1, sizeof(*spell));
         spell->spell = op;
 
         spell_list[path_real] = realloc(spell_list[path_real], sizeof(*spell_list[path_real]) * (spell_list_num[path_real] + 1));
@@ -264,7 +264,7 @@ void spells_remove(object *op)
         return;
     }
 
-    free(spell_list[spell_path][spell_id]);
+    efree(spell_list[spell_path][spell_id]);
 
     for (i = spell_id + 1; i < spell_list_num[spell_path]; i++) {
         spell_list[spell_path][i - 1] = spell_list[spell_path][i];

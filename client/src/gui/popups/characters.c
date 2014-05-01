@@ -154,7 +154,7 @@ static void list_post_column(list_struct *list, uint32 row, uint32 col)
 
             facename = string_sub(FaceList[face].name, 0, -4);
             text_show_format(list->surface, FONT_ARIAL10, list->x, LIST_ROWS_START(list) + (LIST_ROW_OFFSET(row, list) * LIST_ROW_HEIGHT(list)), COLOR_WHITE, TEXT_MARKUP, NULL, "[img=%s 0 10 0 0 0 0 0 0 0 0 0 50 45]", facename);
-            free(facename);
+            efree(facename);
         }
     }
 }
@@ -619,7 +619,7 @@ void socket_command_characters(uint8 *data, size_t len, size_t pos)
             list_characters->row_selected = list_characters->rows + 1;
 
             if (!clioption_settings.reconnect) {
-                free(clioption_settings.connect[3]);
+                efree(clioption_settings.connect[3]);
                 clioption_settings.connect[3] = NULL;
             }
 

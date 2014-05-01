@@ -43,7 +43,7 @@ popup_struct *popup_create(texture_struct *texture)
     popup_struct *popup;
     int mx, my;
 
-    popup = calloc(1, sizeof(popup_struct));
+    popup = ecalloc(1, sizeof(popup_struct));
     popup->texture = texture;
     /* Create the surface used by the popup. */
     popup->surface = SDL_ConvertSurface(texture_surface(popup->texture), texture_surface(popup->texture)->format, texture_surface(popup->texture)->flags);
@@ -65,7 +65,7 @@ popup_struct *popup_create(texture_struct *texture)
 
     popup->button_right.x = popup->surface->w - texture_surface(popup->button_right.button.texture)->w - 6;
     popup->button_right.y = 6;
-    popup->button_right.text = strdup("X");
+    popup->button_right.text = estrdup("X");
 
     popup->selection_start = popup->selection_end = -1;
     popup->redraw = 1;
@@ -80,7 +80,7 @@ popup_struct *popup_create(texture_struct *texture)
 static void popup_button_free(popup_button *button)
 {
     if (button->text) {
-        free(button->text);
+        efree(button->text);
     }
 }
 
@@ -96,17 +96,17 @@ void popup_destroy(popup_struct *popup)
     SDL_FreeSurface(popup->surface);
 
     if (popup->buf) {
-        free(popup->buf);
+        efree(popup->buf);
     }
 
     if (popup->custom_data) {
-        free(popup->custom_data);
+        efree(popup->custom_data);
     }
 
     popup_button_free(&popup->button_right);
     popup_button_free(&popup->button_left);
 
-    free(popup);
+    efree(popup);
 
     keybind_state_ensure();
 }
@@ -263,7 +263,7 @@ int popup_handle_event(SDL_Event *event)
             memcpy(str, contents + start, end - start + 1);
             str[end - start + 1] = '\0';
             x11_clipboard_set(SDL_display, SDL_window, str);
-            free(str);
+            efree(str);
 
             return 1;
         }
@@ -334,8 +334,8 @@ popup_struct *popup_get_head(void)
 void popup_button_set_text(popup_button *button, const char *text)
 {
     if (button->text) {
-        free(button->text);
+        efree(button->text);
     }
 
-    button->text = text ? strdup(text) : NULL;
+    button->text = text ? estrdup(text) : NULL;
 }

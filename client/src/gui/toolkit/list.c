@@ -90,7 +90,7 @@ void list_set_parent(list_struct *list, int px, int py)
  * @return The created list. */
 list_struct *list_create(uint32 max_rows, uint32 cols, int spacing)
 {
-    list_struct *list = calloc(1, sizeof(list_struct));
+    list_struct *list = ecalloc(1, sizeof(list_struct));
 
     if (max_rows == 0) {
         logger_print(LOG(BUG), "Attempted to create a list with 0 max rows, changing to 1.");
@@ -117,10 +117,10 @@ list_struct *list_create(uint32 max_rows, uint32 cols, int spacing)
     list->row_selected_func = list_row_selected;
 
     /* Initialize column data. */
-    list->col_widths = calloc(1, sizeof(*list->col_widths) * list->cols);
-    list->col_spacings = calloc(1, sizeof(*list->col_spacings) * list->cols);
-    list->col_names = calloc(1, sizeof(*list->col_names) * list->cols);
-    list->col_centered = calloc(1, sizeof(*list->col_centered) * list->cols);
+    list->col_widths = ecalloc(1, sizeof(*list->col_widths) * list->cols);
+    list->col_spacings = ecalloc(1, sizeof(*list->col_spacings) * list->cols);
+    list->col_names = ecalloc(1, sizeof(*list->col_names) * list->cols);
+    list->col_centered = ecalloc(1, sizeof(*list->col_centered) * list->cols);
 
     return list;
 }
@@ -153,11 +153,11 @@ void list_add(list_struct *list, uint32 row, uint32 col, const char *str)
 
         /* Allocate columns for the new row(s). */
         for (i = row; i < list->rows; i++) {
-            list->text[i] = calloc(1, sizeof(**list->text) * list->cols);
+            list->text[i] = ecalloc(1, sizeof(**list->text) * list->cols);
         }
     }
 
-    list->text[row][col] = str ? strdup(str) : NULL;
+    list->text[row][col] = str ? estrdup(str) : NULL;
 }
 
 /**
@@ -175,7 +175,7 @@ void list_remove_row(list_struct *list, uint32 row)
 
     /* Free the columns of the row that is being removed. */
     for (col = 0; col < list->cols; col++) {
-        free(list->text[row][col]);
+        efree(list->text[row][col]);
     }
 
     /* If there are any rows below the one that is being removed, they
@@ -222,10 +222,10 @@ void list_set_column(list_struct *list, uint32 col, int width, int spacing, cons
     if (name) {
         /* There shouldn't be one previously, but just in case. */
         if (list->col_names[col]) {
-            free(list->col_names[col]);
+            efree(list->col_names[col]);
         }
 
-        list->col_names[col] = strdup(name);
+        list->col_names[col] = estrdup(name);
     }
 
     /* Is the column centered? */
@@ -406,14 +406,14 @@ void list_clear_rows(list_struct *list)
     for (row = 0; row < list->rows; row++) {
         for (col = 0; col < list->cols; col++) {
             if (list->text[row][col]) {
-                free(list->text[row][col]);
+                efree(list->text[row][col]);
             }
         }
 
-        free(list->text[row]);
+        efree(list->text[row]);
     }
 
-    free(list->text);
+    efree(list->text);
     list->text = NULL;
     list->rows = 0;
 }
@@ -461,24 +461,24 @@ void list_remove(list_struct *list)
     }
 
     if (list->data) {
-        free(list->data);
+        efree(list->data);
     }
 
     list_clear(list);
 
-    free(list->col_widths);
-    free(list->col_spacings);
-    free(list->col_centered);
+    efree(list->col_widths);
+    efree(list->col_spacings);
+    efree(list->col_centered);
 
     /* Free column names. */
     for (col = 0; col < list->cols; col++) {
         if (list->col_names[col]) {
-            free(list->col_names[col]);
+            efree(list->col_names[col]);
         }
     }
 
-    free(list->col_names);
-    free(list);
+    efree(list->col_names);
+    efree(list);
 }
 
 /**

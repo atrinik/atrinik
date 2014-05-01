@@ -75,7 +75,7 @@ command_buffer *command_buffer_new(size_t len, uint8 *data)
  * @param buf Buffer to free. */
 void command_buffer_free(command_buffer *buf)
 {
-    free(buf);
+    efree(buf);
 }
 
 /**
@@ -234,7 +234,7 @@ static int reader_thread_loop(void *dummy)
                 readbuf_size = readbuf_len + toread;
                 readbuf = (uint8 *) malloc(readbuf_size);
                 memcpy(readbuf, tmp, readbuf_len);
-                free(tmp);
+                efree(tmp);
             }
         }
 
@@ -278,7 +278,7 @@ static int reader_thread_loop(void *dummy)
     }
 
     socket_close(&csocket);
-    free(readbuf);
+    efree(readbuf);
     readbuf = NULL;
     return -1;
 }

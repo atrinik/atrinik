@@ -124,13 +124,7 @@ void widget_container_init(widgetdata *widget)
 {
     _widget_container *container;
 
-    container = calloc(1, sizeof(_widget_container));
-
-    if (!container) {
-        logger_print(LOG(ERROR), "OOM.");
-        exit(1);
-    }
-
+    container = ecalloc(1, sizeof(_widget_container));
     container->widget_type = -1;
 
     widget->draw_func = widget_draw;
@@ -142,13 +136,7 @@ void widget_container_init(widgetdata *widget)
     if (widget->sub_type == CONTAINER_STRIP_ID || widget->sub_type == MENU_ID || widget->sub_type == MENUITEM_ID) {
         _widget_container_strip *container_strip;
 
-        container_strip = calloc(1, sizeof(_widget_container_strip));
-
-        if (!container_strip) {
-            logger_print(LOG(ERROR), "OOM.");
-            exit(1);
-        }
-
+        container_strip = ecalloc(1, sizeof(_widget_container_strip));
         container_strip->inner_padding = 10;
 
         container->subcontainer = container_strip;
@@ -156,25 +144,13 @@ void widget_container_init(widgetdata *widget)
         if (widget->sub_type == MENU_ID) {
             _menu *menu;
 
-            menu = calloc(1, sizeof(_menu));
-
-            if (!menu) {
-                logger_print(LOG(ERROR), "OOM.");
-                exit(1);
-            }
-
+            menu = ecalloc(1, sizeof(_menu));
             container_strip->subcontainer_strip = menu;
         }
         else if (widget->sub_type == MENUITEM_ID) {
             _menuitem *menuitem;
 
-            menuitem = malloc(sizeof(_menuitem));
-
-            if (!menuitem) {
-                logger_print(LOG(ERROR), "OOM.");
-                exit(1);
-            }
-
+            menuitem = emalloc(sizeof(_menuitem));
             menuitem->menu_type = MENU_NORMAL;
 
             container_strip->subcontainer_strip = menuitem;

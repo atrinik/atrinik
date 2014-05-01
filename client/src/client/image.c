@@ -181,14 +181,14 @@ void read_bmaps_p0(void)
         }
 
         bmap = malloc(sizeof(bmap_struct));
-        bmap->name = strdup(cp);
+        bmap->name = estrdup(cp);
         bmap->crc32 = crc32(1L, (const unsigned char FAR *) tmp_buf, len);
         bmap->len = len;
         bmap->pos = pos;
         bmap_add(bmap);
     }
 
-    free(tmp_buf);
+    efree(tmp_buf);
     fclose(fp);
 }
 
@@ -211,17 +211,17 @@ void read_bmaps(void)
     /* Free previously allocated bmaps. */
     if (bmaps) {
         for (i = 0; i < bmaps_size; i++) {
-            free(bmaps[i].name);
+            efree(bmaps[i].name);
         }
 
-        free(bmaps);
+        efree(bmaps);
         bmaps_size = 0;
         bmaps = NULL;
     }
 
     for (i = 0; i < MAX_FACE_TILES; i++) {
         if (FaceList[i].name) {
-            free(FaceList[i].name);
+            efree(FaceList[i].name);
             FaceList[i].name = NULL;
             sprite_free_sprite(FaceList[i].sprite);
             FaceList[i].sprite = NULL;
@@ -252,7 +252,7 @@ void read_bmaps(void)
 
         bmaps[bmaps_size].len = len;
         bmaps[bmaps_size].crc32 = crc;
-        bmaps[bmaps_size].name = strdup(name);
+        bmaps[bmaps_size].name = estrdup(name);
 
         bmaps_size++;
     }
@@ -284,7 +284,7 @@ void finish_face_cmd(int facenum, uint32 checksum, char *face)
         }
 
         /* Something is different. */
-        free(FaceList[facenum].name);
+        efree(FaceList[facenum].name);
         FaceList[facenum].name = NULL;
         sprite_free_sprite(FaceList[facenum].sprite);
     }
@@ -316,7 +316,7 @@ void finish_face_cmd(int facenum, uint32 checksum, char *face)
             newsum = crc32(1L, data, len);
         }
 
-        free(data);
+        efree(data);
 
         if (newsum == checksum) {
             FaceList[facenum].sprite = sprite_tryload_file(buf, 0, NULL);
@@ -351,7 +351,7 @@ static int load_picture_from_pack(int num)
     pbuf = malloc(bmaps[num].len);
 
     if (!fread(pbuf, bmaps[num].len, 1, stream)) {
-        free(pbuf);
+        efree(pbuf);
         fclose(stream);
         return 0;
     }
@@ -363,7 +363,7 @@ static int load_picture_from_pack(int num)
     FaceList[num].sprite = sprite_tryload_file(NULL, 0, rwop);
 
     SDL_FreeRW(rwop);
-    free(pbuf);
+    efree(pbuf);
 
     return 0;
 }
@@ -396,7 +396,7 @@ static int load_gfx_user_face(uint16 num)
             }
 
             if (FaceList[num].name) {
-                free(FaceList[num].name);
+                efree(FaceList[num].name);
                 FaceList[num].name = NULL;
             }
 
@@ -408,13 +408,13 @@ static int load_gfx_user_face(uint16 num)
                 FaceList[num].name = malloc(strlen(buf) + 1);
                 strcpy(FaceList[num].name, buf);
                 FaceList[num].checksum = crc32(1L, data, len);
-                free(data);
+                efree(data);
                 return 1;
             }
         }
 
         /* If we are here something was wrong with the file. */
-        free(data);
+        efree(data);
     }
 
     return 0;

@@ -124,7 +124,7 @@ void server_files_load(int post_load)
         /* Calculate and store the checksum, free the temporary buffer
          * and close the file pointer. */
         server_files[i].crc32 = crc32(1L, (const unsigned char FAR *) contents, numread);
-        free(contents);
+        efree(contents);
         fclose(fp);
 
         if (post_load) {

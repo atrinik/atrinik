@@ -36,14 +36,7 @@ static object *free_objects = NULL;
  * @return The object. */
 static object *object_new(void)
 {
-    object *op = calloc(1, sizeof(object));
-
-    if (!op) {
-        logger_print(LOG(ERROR), "OOM.");
-        exit(1);
-    }
-
-    return op;
+    return ecalloc(1, sizeof(object));
 }
 
 /**
@@ -86,7 +79,7 @@ void objects_free(object *op)
         }
 
         next = op->next;
-        free(op);
+        efree(op);
         op = next;
     }
 }

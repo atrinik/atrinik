@@ -76,7 +76,7 @@ static int mkdir_recurse(const char *path)
 {
     char *copy, *p;
 
-    p = copy = strdup(path);
+    p = copy = estrdup(path);
 
     do
     {
@@ -88,7 +88,7 @@ static int mkdir_recurse(const char *path)
 
         if (access(copy, F_OK) == -1) {
             if (mkdir(copy, 0755) == -1) {
-                free(copy);
+                efree(copy);
                 return -1;
             }
         }
@@ -99,7 +99,7 @@ static int mkdir_recurse(const char *path)
     }
     while (p);
 
-    free(copy);
+    efree(copy);
 
     return 0;
 }
@@ -310,7 +310,7 @@ void get_data_dir_file(char *buf, size_t len, const char *fname)
         prefix = binreloc_find_prefix("./");
         /* Construct the path. */
         snprintf(buf, len, "%s/"INSTALL_SUBDIR_SHARE "/%s", prefix, fname);
-        free(prefix);
+        efree(prefix);
     }
 #endif
 }

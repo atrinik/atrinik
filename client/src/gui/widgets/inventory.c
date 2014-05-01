@@ -459,13 +459,7 @@ void widget_inventory_init(widgetdata *widget)
 {
     inventory_struct *inventory;
 
-    inventory = calloc(1, sizeof(*inventory));
-
-    if (!inventory) {
-        logger_print(LOG(ERROR), "OOM.");
-        exit(1);
-    }
-
+    inventory = ecalloc(1, sizeof(*inventory));
     scrollbar_info_create(&inventory->scrollbar_info);
 
     if (widget->type == MAIN_INV_ID) {

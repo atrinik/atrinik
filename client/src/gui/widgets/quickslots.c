@@ -72,7 +72,7 @@ static void quickslot_set(widgetdata *widget, uint32 row, uint32 col, sint32 tag
     socket_send_packet(packet);
 
     snprintf(buf, sizeof(buf), "%d", tag);
-    tmp->list->text[row][col] = strdup(buf);
+    tmp->list->text[row][col] = estrdup(buf);
 }
 
 /**
@@ -101,7 +101,7 @@ static void quickslots_remove(widgetdata *widget, tag_t tag)
     for (row = 0; row < tmp->list->rows; row++) {
         for (col = 0; col < tmp->list->cols; col++) {
             if (tmp->list->text[row][col] && (tag_t) atoi(tmp->list->text[row][col]) == tag) {
-                free(tmp->list->text[row][col]);
+                efree(tmp->list->text[row][col]);
                 tmp->list->text[row][col] = NULL;
                 break;
             }
@@ -130,7 +130,7 @@ void quickslots_handle_key(int slot)
 
             if (ob) {
                 if (ob->tag == tag) {
-                    free(tmp->list->text[row][col]);
+                    efree(tmp->list->text[row][col]);
                     tmp->list->text[row][col] = NULL;
                     quickslot_set(widget, row, col, -1);
                 }
@@ -140,7 +140,7 @@ void quickslots_handle_key(int slot)
                     quickslots_remove(widget, ob->tag);
 
                     snprintf(buf, sizeof(buf), "%d", ob->tag);
-                    tmp->list->text[row][col] = strdup(buf);
+                    tmp->list->text[row][col] = estrdup(buf);
                     quickslot_set(widget, row, col, ob->tag);
                 }
             }
@@ -266,7 +266,7 @@ void widget_quickslots_init(widgetdata *widget)
     widget_quickslots_struct *tmp;
     uint32 i;
 
-    tmp = calloc(1, sizeof(*tmp));
+    tmp = ecalloc(1, sizeof(*tmp));
     tmp->list = list_create(1, MAX_QUICK_SLOTS, 0);
     tmp->list->post_column_func = list_post_column;
     tmp->list->row_color_func = list_row_color;

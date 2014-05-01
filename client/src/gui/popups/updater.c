@@ -162,12 +162,12 @@ static void updater_download_clean(void)
 
     /* Free the allocated filenames and SHA-1 sums. */
     for (i = 0; i < download_packages_num; i++) {
-        free(download_packages[i].filename);
-        free(download_packages[i].sha1);
+        efree(download_packages[i].filename);
+        efree(download_packages[i].sha1);
     }
 
     if (download_packages) {
-        free(download_packages);
+        efree(download_packages);
         download_packages = NULL;
     }
 
@@ -233,22 +233,22 @@ static int popup_draw_post(popup_struct *popup)
                 if (dl_data->memory) {
                     char *cp, *line, *tmp[2];
 
-                    cp = strdup(dl_data->memory);
+                    cp = estrdup(dl_data->memory);
 
                     line = strtok(cp, "\n");
 
                     while (line) {
                         if (string_split(line, tmp, arraysize(tmp), '\t') == 2) {
                             download_packages = realloc(download_packages, sizeof(*download_packages) * (download_packages_num + 1));
-                            download_packages[download_packages_num].filename = strdup(tmp[0]);
-                            download_packages[download_packages_num].sha1 = strdup(tmp[1]);
+                            download_packages[download_packages_num].filename = estrdup(tmp[0]);
+                            download_packages[download_packages_num].sha1 = estrdup(tmp[1]);
                             download_packages_num++;
                         }
 
                         line = strtok(NULL, "\n");
                     }
 
-                    free(cp);
+                    efree(cp);
                 }
 
 #ifdef WIN32

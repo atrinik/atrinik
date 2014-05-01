@@ -53,9 +53,9 @@ void hfiles_deinit(void)
     HASH_ITER(hh, hfiles, hfile, tmp)
     {
         HASH_DEL(hfiles, hfile);
-        free(hfile->key);
-        free(hfile->msg);
-        free(hfile);
+        efree(hfile->key);
+        efree(hfile->msg);
+        efree(hfile);
     }
 
     if (command_matches) {
@@ -92,7 +92,7 @@ void hfiles_init(void)
         if (hfile) {
             if (!strcmp(buf, "endmsg\n")) {
                 in_msg = 0;
-                hfile->msg = strdup(message);
+                hfile->msg = estrdup(message);
                 hfile->msg_len = strlen(hfile->msg);
             }
             else if (in_msg) {
@@ -118,8 +118,8 @@ void hfiles_init(void)
         }
         else if (!strncmp(buf, "help ", 5)) {
             *end = '\0';
-            hfile = calloc(1, sizeof(*hfile));
-            hfile->key = strdup(buf + 5);
+            hfile = ecalloc(1, sizeof(*hfile));
+            hfile->key = estrdup(buf + 5);
             message[0] = '\0';
         }
     }

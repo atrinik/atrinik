@@ -142,7 +142,7 @@ static void rm_def_create(char *str)
     size_t i;
     region_label_struct *label;
 
-    rm_def = calloc(1, sizeof(region_map_def));
+    rm_def = ecalloc(1, sizeof(region_map_def));
     rm_def->pixel_size = 1;
     rm_def->map_size_x = 24;
     rm_def->map_size_y = 24;
@@ -169,7 +169,7 @@ static void rm_def_create(char *str)
             if (sscanf(cp + 4, "%x %x %s", &x, &y, path) == 3) {
                 rm_def->maps[rm_def->num_maps].xpos = x;
                 rm_def->maps[rm_def->num_maps].ypos = y;
-                rm_def->maps[rm_def->num_maps].path = strdup(path);
+                rm_def->maps[rm_def->num_maps].path = estrdup(path);
             }
 
             rm_def->num_maps++;
@@ -185,8 +185,8 @@ static void rm_def_create(char *str)
                 rm_def->labels[rm_def->num_labels].x = x;
                 rm_def->labels[rm_def->num_labels].y = y;
                 string_newline_to_literal(label_text);
-                rm_def->labels[rm_def->num_labels].name = strdup(label_name);
-                rm_def->labels[rm_def->num_labels].text = strdup(label_text);
+                rm_def->labels[rm_def->num_labels].name = estrdup(label_name);
+                rm_def->labels[rm_def->num_labels].text = estrdup(label_text);
                 rm_def->num_labels++;
             }
         }
@@ -209,8 +209,8 @@ static void rm_def_create(char *str)
                 rm_def->tooltips[rm_def->num_tooltips].h = h;
                 string_newline_to_literal(tooltip);
 
-                rm_def->tooltips[rm_def->num_tooltips].text = strdup(tooltip);
-                rm_def->tooltips[rm_def->num_tooltips].name = strdup(tooltip_name);
+                rm_def->tooltips[rm_def->num_tooltips].text = estrdup(tooltip);
+                rm_def->tooltips[rm_def->num_tooltips].name = estrdup(tooltip_name);
                 rm_def->num_tooltips++;
             }
         }
@@ -249,12 +249,12 @@ static void rm_def_create(char *str)
             label->hidden = 0;
         }
 
-        free(cmd_labels[i]);
+        efree(cmd_labels[i]);
     }
 
     /* Don't need the labels from the command anymore, free them. */
     if (cmd_labels) {
-        free(cmd_labels);
+        efree(cmd_labels);
         cmd_labels = NULL;
     }
 
@@ -269,12 +269,12 @@ static void rm_def_create(char *str)
             tooltip->hidden = 0;
         }
 
-        free(cmd_tooltips[i]);
+        efree(cmd_tooltips[i]);
     }
 
     /* Don't need the tooltip from the command anymore, free them. */
     if (cmd_tooltips) {
-        free(cmd_tooltips);
+        efree(cmd_tooltips);
         cmd_tooltips = NULL;
     }
 
@@ -293,32 +293,32 @@ static void rm_def_free(void)
 
     /* Free all maps. */
     for (i = 0; i < rm_def->num_maps; i++) {
-        free(rm_def->maps[i].path);
+        efree(rm_def->maps[i].path);
     }
 
-    free(rm_def->maps);
+    efree(rm_def->maps);
 
     /* Free labels. */
     for (i = 0; i < rm_def->num_labels; i++) {
-        free(rm_def->labels[i].name);
-        free(rm_def->labels[i].text);
+        efree(rm_def->labels[i].name);
+        efree(rm_def->labels[i].text);
     }
 
     if (rm_def->labels) {
-        free(rm_def->labels);
+        efree(rm_def->labels);
     }
 
     /* Free tooltips. */
     for (i = 0; i < rm_def->num_tooltips; i++) {
-        free(rm_def->tooltips[i].name);
-        free(rm_def->tooltips[i].text);
+        efree(rm_def->tooltips[i].name);
+        efree(rm_def->tooltips[i].text);
     }
 
     if (rm_def->tooltips) {
-        free(rm_def->tooltips);
+        efree(rm_def->tooltips);
     }
 
-    free(rm_def);
+    efree(rm_def);
     rm_def = NULL;
 }
 
@@ -762,12 +762,12 @@ void socket_command_region_map(uint8 *data, size_t len, size_t pos)
 
         if (type == RM_TYPE_LABEL) {
             cmd_labels = realloc(cmd_labels, sizeof(*cmd_labels) * (num_cmd_labels + 1));
-            cmd_labels[num_cmd_labels] = strdup(text);
+            cmd_labels[num_cmd_labels] = estrdup(text);
             num_cmd_labels++;
         }
         else if (type == RM_TYPE_TOOLTIP) {
             cmd_tooltips = realloc(cmd_tooltips, sizeof(*cmd_tooltips) * (num_cmd_tooltips + 1));
-            cmd_tooltips[num_cmd_tooltips] = strdup(text);
+            cmd_tooltips[num_cmd_tooltips] = estrdup(text);
             num_cmd_tooltips++;
         }
     }
@@ -820,12 +820,12 @@ void socket_command_region_map(uint8 *data, size_t len, size_t pos)
     /* The map is the same, no downloading needed. */
     if (region_map_is_same(url)) {
         if (cmd_labels) {
-            free(cmd_labels);
+            efree(cmd_labels);
             cmd_labels = NULL;
         }
 
         if (cmd_tooltips) {
-            free(cmd_tooltips);
+            efree(cmd_tooltips);
             cmd_tooltips = NULL;
         }
 

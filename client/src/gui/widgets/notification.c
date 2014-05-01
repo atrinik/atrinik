@@ -50,14 +50,14 @@ void notification_destroy(void)
     }
 
     if (notification->action) {
-        free(notification->action);
+        efree(notification->action);
     }
 
     if (notification->shortcut) {
-        free(notification->shortcut);
+        efree(notification->shortcut);
     }
 
-    free(notification);
+    efree(notification);
     notification = NULL;
     cur_widget[NOTIFICATION_ID]->show = 0;
 }
@@ -108,7 +108,7 @@ void socket_command_notification(uint8 *data, size_t len, size_t pos)
     /* Show the widget... */
     cur_widget[NOTIFICATION_ID]->show = 1;
     /* Create the data structure and initialize default values. */
-    notification = calloc(1, sizeof(*notification));
+    notification = ecalloc(1, sizeof(*notification));
     notification->start_ticks = SDL_GetTicks();
     notification->alpha = 255;
     notification->delay = NOTIFICATION_DEFAULT_DELAY;
@@ -133,7 +133,7 @@ void socket_command_notification(uint8 *data, size_t len, size_t pos)
                 char action[HUGE_BUF];
 
                 packet_to_string(data, len, &pos, action, sizeof(action));
-                notification->action = strdup(action);
+                notification->action = estrdup(action);
                 break;
             }
 
@@ -142,7 +142,7 @@ void socket_command_notification(uint8 *data, size_t len, size_t pos)
                 char shortcut[HUGE_BUF];
 
                 packet_to_string(data, len, &pos, shortcut, sizeof(shortcut));
-                notification->shortcut = strdup(shortcut);
+                notification->shortcut = estrdup(shortcut);
                 break;
             }
 
@@ -217,7 +217,7 @@ void socket_command_notification(uint8 *data, size_t len, size_t pos)
     box.h = ht;
     text_show(cur_widget[NOTIFICATION_ID]->surface, NOTIFICATION_DEFAULT_FONT, cp, 3, 3, COLOR_BLACK, TEXT_MARKUP | TEXT_WORD_WRAP, &box);
 
-    free(cp);
+    efree(cp);
 }
 
 /** @copydoc widgetdata::draw_func */

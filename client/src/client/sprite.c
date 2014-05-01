@@ -162,7 +162,7 @@ void sprite_free_sprite(sprite_struct *sprite)
         }
     }
 
-    free(sprite);
+    efree(sprite);
 }
 
 void surface_show(SDL_Surface *surface, int x, int y, SDL_Rect *srcrect, SDL_Surface *src)
@@ -681,7 +681,7 @@ void remove_anim(struct _anim *anim)
 
     tmp = anim->before;
     tmp_next = anim->next;
-    free(anim);
+    efree(anim);
 
     if (tmp) {
         tmp->next = tmp_next;

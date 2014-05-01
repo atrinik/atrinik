@@ -227,16 +227,16 @@ void widget_active_effects_update(widgetdata *widget, object *op, sint32 sec, co
     }
 
     if (!effect) {
-        effect = calloc(1, sizeof(*effect));
+        effect = ecalloc(1, sizeof(*effect));
         DL_APPEND(tmp->active_effects, effect);
     }
     else {
-        free(effect->msg);
+        efree(effect->msg);
     }
 
     effect->op = op;
     effect->sec = sec;
-    effect->msg = strdup(msg);
+    effect->msg = estrdup(msg);
 
     WIDGET_REDRAW(widget);
 }
@@ -252,8 +252,8 @@ void widget_active_effects_remove(widgetdata *widget, object *op)
     {
         if (effect->op == op) {
             DL_DELETE(tmp->active_effects, effect);
-            free(effect->msg);
-            free(effect);
+            efree(effect->msg);
+            efree(effect);
             WIDGET_REDRAW(widget);
             break;
         }
@@ -266,7 +266,7 @@ void widget_active_effects_init(widgetdata *widget)
 {
     widget_active_effects_struct *tmp;
 
-    tmp = calloc(1, sizeof(*tmp));
+    tmp = ecalloc(1, sizeof(*tmp));
 
     widget->draw_func = widget_draw;
     widget->event_func = widget_event;

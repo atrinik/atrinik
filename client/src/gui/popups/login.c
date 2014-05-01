@@ -107,7 +107,7 @@ static int popup_draw(popup_struct *popup)
             text_input_set(&text_inputs[LOGIN_TEXT_INPUT_NAME], clioption_settings.connect[1]);
 
             if (!clioption_settings.reconnect) {
-                free(clioption_settings.connect[1]);
+                efree(clioption_settings.connect[1]);
                 clioption_settings.connect[1] = NULL;
             }
 
@@ -118,7 +118,7 @@ static int popup_draw(popup_struct *popup)
             text_input_set(&text_inputs[LOGIN_TEXT_INPUT_PASSWORD], clioption_settings.connect[2]);
 
             if (!clioption_settings.reconnect) {
-                free(clioption_settings.connect[2]);
+                efree(clioption_settings.connect[2]);
                 clioption_settings.connect[2] = NULL;
             }
 

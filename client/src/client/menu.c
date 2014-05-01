@@ -236,7 +236,7 @@ int client_command_check(const char *cmd)
             stringbuffer_append_string(sb, buf);
             cp = stringbuffer_finish(sb);
             send_command(cp);
-            free(cp);
+            efree(cp);
         }
 
         send_command("/console noinf::");

@@ -208,14 +208,14 @@ void book_load(const char *data, int len)
 
     /* Free old book data and reset the values. */
     if (book_content) {
-        free(book_content);
+        efree(book_content);
         book_lines = 0;
         book_scroll_lines = 0;
         book_scroll = 0;
     }
 
     /* Store the data. */
-    book_content = strdup(data);
+    book_content = estrdup(data);
     book_name_change("Book", 4);
 
     /* Strip trailing newlines. */

@@ -68,8 +68,6 @@ void *memory_emalloc(size_t size)
 {
     void *ptr;
 
-    TOOLKIT_FUNC_PROTECTOR(API_NAME);
-
     ptr = malloc(size);
 
     if (ptr == NULL) {
@@ -87,8 +85,6 @@ void *memory_emalloc(size_t size)
  */
 void memory_efree(void *ptr)
 {
-    TOOLKIT_FUNC_PROTECTOR(API_NAME);
-
     if (ptr == NULL) {
         logger_print(LOG(ERROR), "Freeing NULL pointer.");
         abort();
@@ -107,8 +103,6 @@ void memory_efree(void *ptr)
 void *memory_ecalloc(size_t nmemb, size_t size)
 {
     void *ptr;
-
-    TOOLKIT_FUNC_PROTECTOR(API_NAME);
 
     ptr = calloc(nmemb, size);
 
@@ -130,8 +124,6 @@ void *memory_ecalloc(size_t nmemb, size_t size)
 void *memory_erealloc(void *ptr, size_t size)
 {
     void *newptr;
-
-    TOOLKIT_FUNC_PROTECTOR(API_NAME);
 
     newptr = realloc(ptr, size);
 

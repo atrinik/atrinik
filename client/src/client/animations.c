@@ -46,17 +46,17 @@ void read_anims(void)
         /* Clear both animation tables. */
         for (i = 0; i < animations_num; i++) {
             if (animations[i].faces) {
-                free(animations[i].faces);
+                efree(animations[i].faces);
             }
 
             if (anim_table[i].anim_cmd) {
-                free(anim_table[i].anim_cmd);
+                efree(anim_table[i].anim_cmd);
             }
         }
 
-        free(animations);
+        efree(animations);
         animations = NULL;
-        free(anim_table);
+        efree(anim_table);
         anim_table = NULL;
         animations_num = 0;
     }
@@ -123,7 +123,7 @@ void read_anims(void)
     }
 
     animations_num = count;
-    animations = calloc(animations_num, sizeof(Animations));
+    animations = ecalloc(animations_num, sizeof(Animations));
     fclose(fp);
 }
 

@@ -49,11 +49,11 @@ static void widget_input_handle_enter(widgetdata *widget)
 
         str = text_escape_markup(text_input->str);
         stringbuffer_append_string(sb, str);
-        free(str);
+        efree(str);
 
         cp = stringbuffer_finish(sb);
         send_command_check(cp);
-        free(cp);
+        efree(cp);
     }
 }
 
@@ -113,7 +113,7 @@ void widget_input_init(widgetdata *widget)
 {
     widget_input_struct *input;
 
-    input = calloc(1, sizeof(*input));
+    input = ecalloc(1, sizeof(*input));
     text_input_create(&input->text_input);
     input->text_input.max = 250;
     input->text_input_history = text_input_history_create();

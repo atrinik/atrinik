@@ -66,8 +66,8 @@ static void settings_button_handle(popup_struct *popup, size_t button)
         settings_keybinding_open();
     }
     else if (button == BUTTON_LOGOUT) {
-        clioption_settings.connect[1] = strdup(cpl.account);
-        clioption_settings.connect[2] = strdup(cpl.password);
+        clioption_settings.connect[1] = estrdup(cpl.account);
+        clioption_settings.connect[2] = estrdup(cpl.password);
         socket_close(&csocket);
         login_start();
     }

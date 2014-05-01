@@ -97,7 +97,7 @@ static int popup_draw(popup_struct *popup)
     }
     else if (ret == 1) {
         if (!game_news->msg) {
-            game_news->msg = strdup(game_news->data->memory ? game_news->data->memory : "???");
+            game_news->msg = estrdup(game_news->data->memory ? game_news->data->memory : "???");
 
             text_show(NULL, NEWS_FONT, game_news->msg, 10, 40, COLOR_WHITE, TEXT_WORD_WRAP | TEXT_MARKUP | TEXT_LINES_CALC, &box);
             game_news->num_lines = box.h;
@@ -173,11 +173,11 @@ static int popup_destroy_callback(popup_struct *popup)
 
     game_news = (game_news_struct *) popup->custom_data;
 
-    free(game_news->title);
+    efree(game_news->title);
     curl_data_free(game_news->data);
 
     if (game_news->msg) {
-        free(game_news->msg);
+        efree(game_news->msg);
     }
 
     return 1;
@@ -198,8 +198,8 @@ void game_news_open(const char *title)
     popup->event_func = popup_event;
     popup->destroy_callback_func = popup_destroy_callback;
 
-    popup->custom_data = game_news = calloc(1, sizeof(*game_news));
-    game_news->title = strdup(title);
+    popup->custom_data = game_news = ecalloc(1, sizeof(*game_news));
+    game_news->title = estrdup(title);
 
     /* Initialize cURL, escape the game news title and construct
      * the url to use for downloading. */

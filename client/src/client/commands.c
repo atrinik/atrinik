@@ -93,7 +93,7 @@ void socket_command_anim(uint8 *data, size_t len, size_t pos)
         animations[anim_id].frame = animations[anim_id].num_animations;
     }
 
-    animations[anim_id].faces = malloc(sizeof(uint16) * animations[anim_id].num_animations);
+    animations[anim_id].faces = emalloc(sizeof(uint16) * animations[anim_id].num_animations);
 
     for (i = 0; pos < len; i++) {
         animations[anim_id].faces[i] = packet_to_uint16(data, len, &pos);
@@ -144,7 +144,7 @@ void socket_command_drawinfo(uint8 *data, size_t len, size_t pos)
 
     draw_info_tab(type, color, str);
 
-    free(str);
+    efree(str);
 }
 
 /** @copydoc socket_command_struct::handle_func */
@@ -820,11 +820,11 @@ void socket_command_data(uint8 *data, size_t len, size_t pos)
     len_ucomp = packet_to_uint32(data, len, &pos);
     len -= pos;
     /* Allocate large enough buffer to hold the uncompressed file. */
-    dest = malloc(len_ucomp);
+    dest = emalloc(len_ucomp);
 
     uncompress((Bytef *) dest, (uLongf *) &len_ucomp, (const Bytef *) data + pos, (uLong) len);
     server_file_save(data_type, dest, len_ucomp);
-    free(dest);
+    efree(dest);
 }
 
 /** @copydoc socket_command_struct::handle_func */
@@ -839,20 +839,14 @@ void socket_command_compressed(uint8 *data, size_t len, size_t pos)
     ucomp_len = packet_to_uint32(data, len, &pos);
 
     dest_size = ucomp_len + 1;
-    dest = malloc(dest_size);
-
-    if (!dest) {
-        logger_print(LOG(ERROR), "OOM.");
-        exit(1);
-    }
-
+    dest = emalloc(dest_size);
     dest[0] = type;
     uncompress((Bytef *) dest + 1, (uLongf *) &ucomp_len, (const Bytef *) data + pos, (uLong) len - pos);
 
     buf = command_buffer_new(ucomp_len + 1, dest);
     add_input_command(buf);
 
-    free(dest);
+    efree(dest);
 }
 
 /** @copydoc socket_command_struct::handle_func */

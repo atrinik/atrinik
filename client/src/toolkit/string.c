@@ -72,8 +72,6 @@ char *string_estrdup(const char *s)
 {
     char *cp;
 
-    TOOLKIT_FUNC_PROTECTOR(API_NAME);
-
     if (s == NULL) {
         logger_print(LOG(ERROR), "'s' is NULL.");
         abort();
@@ -100,8 +98,6 @@ char *string_estrdup(const char *s)
 char *string_estrndup(const char *s, size_t n)
 {
     char *cp;
-
-    TOOLKIT_FUNC_PROTECTOR(API_NAME);
 
     if (s == NULL) {
         logger_print(LOG(ERROR), "'s' is NULL.");
@@ -629,13 +625,13 @@ char *string_sub(const char *str, ssize_t start, ssize_t end)
     }
 
     if (!(str + start) || end - start < 0) {
-        return strdup("");
+        return estrdup("");
     }
 
     str += start;
     n = MIN(str_len, (size_t) (end - start));
 
-    return strndup(str, n);
+    return estrndup(str, n);
 }
 
 /**
@@ -749,7 +745,7 @@ char *string_create_char_range(char start, char end)
 
     TOOLKIT_FUNC_PROTECTOR(API_NAME);
 
-    str = malloc((end - start + 1) + 1);
+    str = emalloc((end - start + 1) + 1);
 
     for (c = start; c <= end; c++) {
         str[c - start] = c;
@@ -804,9 +800,9 @@ char *string_join(const char *delim, ...)
  * size_t strs_num;
  *
  * strs_num = 2;
- * strs = malloc(sizeof(*strs) * strs_num);
- * strs[0] = strdup("hello");
- * strs[1] = strdup("world");
+ * strs = emalloc(sizeof(*strs) * strs_num);
+ * strs[0] = estrdup("hello");
+ * strs[1] = estrdup("world");
  *
  * string_join_array(", ", strs, strs_num); --> "hello, world"
  * @endcode
@@ -856,7 +852,7 @@ char *string_repeat(const char *str, size_t num)
     TOOLKIT_FUNC_PROTECTOR(API_NAME);
 
     len = strlen(str);
-    ret = malloc(sizeof(char) * (len * num) + 1);
+    ret = emalloc(sizeof(char) * (len * num) + 1);
 
     for (i = 0; i < num; i++) {
         /* Cannot overflow; 'ret' has been allocated to hold enough characters.

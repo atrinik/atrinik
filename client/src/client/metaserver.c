@@ -143,11 +143,11 @@ void metaserver_clear_data(void)
     DL_FOREACH_SAFE(server_head, node, tmp)
     {
         DL_DELETE(server_head, node);
-        free(node->ip);
-        free(node->name);
-        free(node->version);
-        free(node->desc);
-        free(node);
+        efree(node->ip);
+        efree(node->name);
+        efree(node->version);
+        efree(node->desc);
+        efree(node);
     }
 
     server_count = 0;
@@ -167,13 +167,13 @@ void metaserver_add(const char *ip, int port, const char *name, int player, cons
 {
     server_struct *node;
 
-    node = calloc(1, sizeof(*node));
+    node = ecalloc(1, sizeof(*node));
     node->player = player;
     node->port = port;
-    node->ip = strdup(ip);
-    node->name = strdup(name);
-    node->version = strdup(version);
-    node->desc = strdup(desc);
+    node->ip = estrdup(ip);
+    node->name = estrdup(name);
+    node->version = estrdup(version);
+    node->desc = estrdup(desc);
 
     SDL_LockMutex(server_head_mutex);
     DL_PREPEND(server_head, node);

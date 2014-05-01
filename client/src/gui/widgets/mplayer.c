@@ -120,7 +120,7 @@ static void mplayer_do_shuffle(list_struct *list)
 
     /* Select a row ID at random. */
     selected = row_ids[rndm(1, row_num) - 1];
-    free(row_ids);
+    efree(row_ids);
 
     list->row_selected = selected + 1;
     list->row_offset = MIN(list->rows - list->max_rows, selected);
@@ -309,7 +309,7 @@ static void widget_draw(widgetdata *widget)
              * further down. It is not actually used by the blacklist as
              * it's not possible to toggle it on/off using the button, but
              * it simplifies other logic checks. */
-            shuffle_blacklist = calloc(1, sizeof(*shuffle_blacklist) * (list_mplayer->rows + 1));
+            shuffle_blacklist = ecalloc(1, sizeof(*shuffle_blacklist) * (list_mplayer->rows + 1));
 
             /* Sort the list. */
             list_sort(list_mplayer, LIST_SORT_ALPHA);
@@ -554,7 +554,7 @@ static int widget_event(widgetdata *widget, SDL_Event *event)
 /** @copydoc widgetdata::deinit_func */
 static void widget_deinit(widgetdata *widget)
 {
-    free(shuffle_blacklist);
+    efree(shuffle_blacklist);
     shuffle_blacklist = NULL;
 }
 

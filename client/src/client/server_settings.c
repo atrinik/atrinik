@@ -50,7 +50,7 @@ void server_settings_init(void)
     }
 
     server_settings_deinit();
-    s_settings = calloc(1, sizeof(server_settings));
+    s_settings = ecalloc(1, sizeof(server_settings));
 
     while (fgets(buf, sizeof(buf) - 1, fp)) {
         line++;
@@ -74,7 +74,7 @@ void server_settings_init(void)
         if (!strncmp(buf, "char ", 5)) {
             s_settings->characters = memory_reallocz(s_settings->characters, sizeof(*s_settings->characters) * s_settings->num_characters, sizeof(*s_settings->characters) * (s_settings->num_characters + 1));
             cur_char = &s_settings->characters[s_settings->num_characters];
-            cur_char->name = strdup(buf + 5);
+            cur_char->name = estrdup(buf + 5);
         }
         else if (!strncmp(buf, "gender ", 7)) {
             char gender[MAX_BUF], arch[MAX_BUF], face[MAX_BUF];
@@ -82,12 +82,12 @@ void server_settings_init(void)
 
             if (sscanf(buf + 7, "%s %s %s", gender, arch, face) == 3) {
                 gender_id = gender_to_id(gender);
-                cur_char->gender_archetypes[gender_id] = strdup(arch);
-                cur_char->gender_faces[gender_id] = strdup(face);
+                cur_char->gender_archetypes[gender_id] = estrdup(arch);
+                cur_char->gender_faces[gender_id] = estrdup(face);
             }
         }
         else if (!strncmp(buf, "desc ", 5)) {
-            cur_char->desc = strdup(buf + 5);
+            cur_char->desc = estrdup(buf + 5);
         }
         else if (!strcmp(buf, "end")) {
             s_settings->num_characters++;
@@ -112,7 +112,7 @@ void server_settings_init(void)
             if (text_id < SERVER_TEXT_MAX) {
                 size_t j = 0;
 
-                s_settings->text[text_id] = strdup(buf + 5);
+                s_settings->text[text_id] = estrdup(buf + 5);
                 string_newline_to_literal(s_settings->text[text_id]);
 
                 if (text_id == SERVER_TEXT_PROTECTION_LETTERS) {
@@ -155,7 +155,7 @@ void server_settings_init(void)
     }
 
     for (i = text_id; i < SERVER_TEXT_MAX; i++) {
-        s_settings->text[i] = strdup("???");
+        s_settings->text[i] = estrdup("???");
     }
 
     fclose(fp);
@@ -171,25 +171,25 @@ void server_settings_deinit(void)
         return;
     }
 
-    free(s_settings->level_exp);
+    efree(s_settings->level_exp);
 
     for (i = 0; i < s_settings->num_characters; i++) {
-        free(s_settings->characters[i].name);
-        free(s_settings->characters[i].desc);
+        efree(s_settings->characters[i].name);
+        efree(s_settings->characters[i].desc);
 
         for (gender = 0; gender < GENDER_MAX; gender++) {
             if (s_settings->characters[i].gender_archetypes[gender]) {
-                free(s_settings->characters[i].gender_archetypes[gender]);
-                free(s_settings->characters[i].gender_faces[gender]);
+                efree(s_settings->characters[i].gender_archetypes[gender]);
+                efree(s_settings->characters[i].gender_faces[gender]);
             }
         }
     }
 
     for (i = 0; i < SERVER_TEXT_MAX; i++) {
-        free(s_settings->text[i]);
+        efree(s_settings->text[i]);
     }
 
-    free(s_settings->characters);
-    free(s_settings);
+    efree(s_settings->characters);
+    efree(s_settings);
     s_settings = NULL;
 }

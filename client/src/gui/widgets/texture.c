@@ -49,12 +49,7 @@ void widget_texture_init(widgetdata *widget)
 {
     _widget_texture *texture;
 
-    texture = calloc(1, sizeof(*texture));
-
-    if (!texture) {
-        logger_print(LOG(ERROR), "OOM.");
-        exit(1);
-    }
+    texture = ecalloc(1, sizeof(*texture));
 
     widget->draw_func = widget_draw;
     widget->subwidget = texture;

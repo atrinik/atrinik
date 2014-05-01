@@ -105,12 +105,7 @@ static shared_string *new_shared_string(const char *str)
     /* Allocate room for a struct which can hold str. Note
      * that some bytes for the string are already allocated in the
      * shared_string struct. */
-    ss = (shared_string *) malloc(sizeof(shared_string) - PADDING + n + 1);
-
-    if (!ss) {
-        logger_print(LOG(ERROR), "OOM.");
-        exit(1);
-    }
+    ss = emalloc(sizeof(shared_string) - PADDING + n + 1);
 
     ss->u.previous = NULL;
     ss->next = NULL;
@@ -300,7 +295,7 @@ void free_string_shared(shstr *str)
                 *(ss->u.array) = NULL;
             }
 
-            free(ss);
+            efree(ss);
         }
         else {
             /* Relink and free this struct. */
@@ -309,7 +304,7 @@ void free_string_shared(shstr *str)
             }
 
             ss->u.previous->next = ss->next;
-            free(ss);
+            efree(ss);
         }
     }
 }

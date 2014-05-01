@@ -92,7 +92,7 @@ void keybind_load(void)
         /* Are we inside a keybinding definition? */
         else if (keybind) {
             if (!strncmp(cp, "command ", 8)) {
-                keybind->command = strdup(cp + 8);
+                keybind->command = estrdup(cp + 8);
             }
             else if (!strncmp(cp, "key ", 4)) {
                 keybind->key = atoi(cp + 4);
@@ -106,7 +106,7 @@ void keybind_load(void)
         }
         /* Keybinding definition start. */
         else if (!strcmp(cp, "bind")) {
-            keybind = calloc(1, sizeof(*keybind));
+            keybind = ecalloc(1, sizeof(*keybind));
         }
     }
 
@@ -149,8 +149,8 @@ void keybind_save(void)
  * @param keybind Keybinding to free. */
 void keybind_free(keybind_struct *keybind)
 {
-    free(keybind->command);
-    free(keybind);
+    efree(keybind->command);
+    efree(keybind);
 }
 
 /**
@@ -167,7 +167,7 @@ void keybind_deinit(void)
     }
 
     if (keybindings) {
-        free(keybindings);
+        efree(keybindings);
         keybindings = NULL;
     }
 
@@ -221,10 +221,10 @@ keybind_struct *keybind_add(SDLKey key, SDLMod mod, const char *command)
     keybind_struct *keybind;
 
     /* Allocate a new keybinding, and store the values. */
-    keybind = calloc(1, sizeof(*keybind));
+    keybind = ecalloc(1, sizeof(*keybind));
     keybind->key = key;
     keybind->mod = keybind_adjust_kmod(mod);
-    keybind->command = strdup(command);
+    keybind->command = estrdup(command);
 
     /* Expand the keybindings array, and store the new keybinding. */
     keybindings = realloc(keybindings, sizeof(keybindings) * (keybindings_num + 1));
@@ -250,8 +250,8 @@ void keybind_edit(size_t i, SDLKey key, SDLMod mod, const char *command)
     /* Store the values. */
     keybindings[i]->key = key;
     keybindings[i]->mod = keybind_adjust_kmod(mod);
-    free(keybindings[i]->command);
-    keybindings[i]->command = strdup(command);
+    efree(keybindings[i]->command);
+    keybindings[i]->command = estrdup(command);
 }
 
 /**

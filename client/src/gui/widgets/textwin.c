@@ -143,7 +143,7 @@ static void textwin_tab_append(widgetdata *widget, uint8 id, uint8 type, const c
     if (textwin->tabs[id].type == CHAT_TYPE_ALL) {
         cp = text_escape_markup(textwin_tab_names[type - 1]);
         snprintf(tabname, sizeof(tabname), "%s ", cp);
-        free(cp);
+        efree(cp);
     }
 
     cp = string_join("", "[c=#", color, " 1]", timebuf, tabname, str, "\n", NULL);
@@ -159,7 +159,7 @@ static void textwin_tab_append(widgetdata *widget, uint8 id, uint8 type, const c
     text_show(NULL, textwin->font, cp, TEXTWIN_TEXT_STARTX(widget), 0, COLOR_BLACK, TEXTWIN_TEXT_FLAGS(widget) | TEXT_LINES_CALC, &box);
     scroll = box.h - 1;
 
-    free(cp);
+    efree(cp);
 
     /* Adjust the counts. */
     textwin->tabs[id].num_lines += scroll;
@@ -180,7 +180,7 @@ static void textwin_tab_append(widgetdata *widget, uint8 id, uint8 type, const c
             text_show(NULL, textwin->font, buf, TEXTWIN_TEXT_STARTX(widget), 0, COLOR_BLACK, TEXTWIN_TEXT_FLAGS(widget) | TEXT_LINES_CALC, &box);
             scroll = box.h - 1;
 
-            free(buf);
+            efree(buf);
 
             /* Move the string after the found newline to the beginning,
              * effectively erasing the previous line. */
@@ -231,15 +231,15 @@ size_t textwin_tab_name_to_id(const char *name)
 void textwin_tab_free(textwin_tab_struct *tab)
 {
     if (tab->name) {
-        free(tab->name);
+        efree(tab->name);
     }
 
     if (tab->entries) {
-        free(tab->entries);
+        efree(tab->entries);
     }
 
     if (tab->charnames) {
-        free(tab->charnames);
+        efree(tab->charnames);
     }
 }
 
@@ -281,7 +281,7 @@ void textwin_tab_add(widgetdata *widget, const char *name)
     textwin->tabs[textwin->tabs_num].type = textwin_tab_name_to_id(name);
 
     if (!string_startswith(name, "[") && !string_endswith(name, "]")) {
-        textwin->tabs[textwin->tabs_num].name = strdup(name);
+        textwin->tabs[textwin->tabs_num].name = estrdup(name);
     }
 
     button_create(&textwin->tabs[textwin->tabs_num].button);
@@ -358,7 +358,7 @@ void draw_info_tab(size_t type, const char *color, const char *str)
         ignore_widget = widget_find_create_id(BUDDY_ID, "ignore");
 
         if (widget_buddy_check(ignore_widget, name) != -1) {
-            free(name);
+            efree(name);
             return;
         }
     }
@@ -395,7 +395,7 @@ void draw_info_tab(size_t type, const char *color, const char *str)
         }
     }
 
-    free(name);
+    efree(name);
 }
 
 /**
@@ -473,8 +473,8 @@ void textwin_handle_copy(widgetdata *widget)
     cp = text_strip_markup(cp, NULL, 1);
 
     x11_clipboard_set(SDL_display, SDL_window, cp);
-    free(str);
-    free(cp);
+    efree(str);
+    efree(cp);
 }
 
 /**
@@ -650,7 +650,7 @@ static void widget_draw(widgetdata *widget)
                 charnames = stringbuffer_finish(sb);
 
                 if (textwin->tabs[textwin->tab_selected].charnames) {
-                    free(textwin->tabs[textwin->tab_selected].charnames);
+                    efree(textwin->tabs[textwin->tab_selected].charnames);
                 }
 
                 textwin->tabs[textwin->tab_selected].charnames = charnames;
@@ -746,11 +746,11 @@ static int widget_event(widgetdata *widget, SDL_Event *event)
 
             str = text_escape_markup(textwin->tabs[textwin->tab_selected].text_input.str);
             stringbuffer_append_string(sb, str);
-            free(str);
+            efree(str);
 
             cp = stringbuffer_finish(sb);
             send_command_check(cp);
-            free(cp);
+            efree(cp);
         }
 
         if (event->key.keysym.sym == SDLK_ESCAPE) {
@@ -839,7 +839,7 @@ static void widget_deinit(widgetdata *widget)
     }
 
     if (textwin->tabs) {
-        free(textwin->tabs);
+        efree(textwin->tabs);
     }
 }
 
@@ -921,7 +921,7 @@ static void menu_textwin_clear(widgetdata *widget, widgetdata *menuitem, SDL_Eve
     textwin_struct *textwin;
 
     textwin = TEXTWIN(widget);
-    free(textwin->tabs[textwin->tab_selected].entries);
+    efree(textwin->tabs[textwin->tab_selected].entries);
     textwin->tabs[textwin->tab_selected].entries = NULL;
     textwin->tabs[textwin->tab_selected].num_lines = textwin->tabs[textwin->tab_selected].entries_size = textwin->tabs[textwin->tab_selected].scroll_offset = 0;
     WIDGET_REDRAW(widget);
@@ -1100,7 +1100,7 @@ static void menu_textwin_players_one(widgetdata *widget, widgetdata *menuitem, S
             snprintf(buf, sizeof(buf), "[a=#ignore:%s]%s[/a]", cp, widget_buddy_check(widget_find(NULL, BUDDY_ID, "ignore", NULL), cp) == -1 ? "Ignore" : "Unignore");
             add_menuitem(submenu, buf, &menu_textwin_players_one_tab, MENU_NORMAL, 0);
 
-            free(cp);
+            efree(cp);
             break;
         }
     }
@@ -1171,13 +1171,7 @@ void widget_textwin_init(widgetdata *widget)
 {
     textwin_struct *textwin;
 
-    textwin = calloc(1, sizeof(*textwin));
-
-    if (!textwin) {
-        logger_print(LOG(ERROR), "OOM.");
-        exit(1);
-    }
-
+    textwin = ecalloc(1, sizeof(*textwin));
     textwin->font = FONT_ARIAL11;
     textwin->selection_start = -1;
     textwin->selection_end = -1;

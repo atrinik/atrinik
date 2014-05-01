@@ -376,7 +376,7 @@ char *text_strip_markup(char *buf, size_t *buf_len, uint8 do_free)
     cp[cp_pos] = '\0';
 
     if (do_free) {
-        free(buf);
+        efree(buf);
     }
 
     if (buf_len) {
@@ -496,7 +496,7 @@ void text_anchor_execute(text_info_struct *info, void *custom_data)
     pos = strchr(info->anchor_action, ':');
 
     if (pos && pos + 1) {
-        buf = strdup(pos + 1);
+        buf = estrdup(pos + 1);
         len = strlen(buf);
         info->anchor_action[pos - info->anchor_action] = '\0';
     }
@@ -549,7 +549,7 @@ void text_anchor_execute(text_info_struct *info, void *custom_data)
         browser_open(buf);
     }
 
-    free(buf);
+    efree(buf);
 }
 
 /**
@@ -809,7 +809,7 @@ int text_show_character(int *font, int orig_font, SDL_Surface *surface, SDL_Rect
                 memcpy(buf, cp + 8, tag2 - cp - 8);
                 buf[tag2 - cp - 8] = '\0';
                 w = dest->x + box->w / 2 - text_get_width(*font, buf, flags) / 2;
-                free(buf);
+                efree(buf);
 
                 if (surface) {
                     dest->x = w;
@@ -1112,7 +1112,7 @@ int text_show_character(int *font, int orig_font, SDL_Surface *surface, SDL_Rect
                     text_show(NULL, *font, tmpbuf, 0, 0, "000000", flags | TEXT_HEIGHT, &hcenter_box);
                     dest->y += ht / 2 - hcenter_box.h / 2;
                     info->hcenter_y = MAX(0, ht / 2 - hcenter_box.h / 2);
-                    free(tmpbuf);
+                    efree(tmpbuf);
                 }
             }
         }
@@ -1348,7 +1348,7 @@ int text_show_character(int *font, int orig_font, SDL_Surface *surface, SDL_Rect
                     info->highlight_rect.y = dest->y;
                     info->highlight_rect.w = text_get_width(*font, buf, flags);
                     info->highlight_rect.h = text_get_height(*font, buf, flags);
-                    free(buf);
+                    efree(buf);
 
                     info->highlight = 1;
                     info->highlight_color.r = r;
@@ -1401,7 +1401,7 @@ int text_show_character(int *font, int orig_font, SDL_Surface *surface, SDL_Rect
 
             cp2 = text_escape_markup(cp);
             draw_info_format(COLOR_RED, "Unknown tag found in message: %.100s", cp2);
-            free(cp2);
+            efree(cp2);
         }
 
         if (tag_len != 0) {
@@ -2025,7 +2025,7 @@ void text_show(SDL_Surface *surface, int font, const char *text, int x, int y, c
             last_lines++;
         }
 
-        free(heights);
+        efree(heights);
         box->y = last_lines;
         box->h = lines;
     }

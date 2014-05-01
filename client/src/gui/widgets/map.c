@@ -995,7 +995,7 @@ static void widget_draw(widgetdata *widget)
     if (msg_anim.message[0] != '\0') {
         if ((LastTick - msg_anim.tick) < 3000) {
             int bmoff = (int) ((50.0f / 3.0f) * ((float) (LastTick - msg_anim.tick) / 1000.0f) * ((float) (LastTick - msg_anim.tick) / 1000.0f) + ((int) (150.0f * ((float) (LastTick - msg_anim.tick) / 3000.0f)))), y_offset = 0;
-            char *msg = strdup(msg_anim.message), *cp;
+            char *msg = estrdup(msg_anim.message), *cp;
 
             cp = strtok(msg, "\n");
 
@@ -1005,7 +1005,7 @@ static void widget_draw(widgetdata *widget)
                 cp = strtok(NULL, "\n");
             }
 
-            free(msg);
+            efree(msg);
         }
         else {
             msg_anim.message[0] = '\0';

@@ -77,14 +77,14 @@ void socket_command_file_update(uint8 *data, size_t len, size_t pos)
 
     if (!fp) {
         logger_print(LOG(BUG), "Could not open file '%s' for writing.", filename);
-        free(dest);
+        efree(dest);
         return;
     }
 
     /* Update the file. */
     fwrite(data, 1, len, fp);
     fclose(fp);
-    free(dest);
+    efree(dest);
 }
 
 /**
@@ -141,7 +141,7 @@ void file_updates_parse(void)
 
         /* Get the CRC32... */
         crc = crc32(1L, (const unsigned char FAR *) contents, numread);
-        free(contents);
+        efree(contents);
 
         /* If the checksum or the size doesn't match, we'll want to update it.
          * */

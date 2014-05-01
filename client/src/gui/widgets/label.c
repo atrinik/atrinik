@@ -51,7 +51,7 @@ static void widget_deinit(widgetdata *widget)
     label = (_widget_label *) widget->subwidget;
 
     if (label->text) {
-        free(label->text);
+        efree(label->text);
     }
 }
 
@@ -61,13 +61,7 @@ void widget_label_init(widgetdata *widget)
 {
     _widget_label *label;
 
-    label = calloc(1, sizeof(*label));
-
-    if (!label) {
-        logger_print(LOG(ERROR), "OOM.");
-        exit(1);
-    }
-
+    label = ecalloc(1, sizeof(*label));
     label->font = FONT_ARIAL10;
     label->color = COLOR_WHITE;
 

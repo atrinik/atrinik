@@ -204,7 +204,7 @@ int video_fullscreen_toggle(SDL_Surface **surface, uint32 *flags)
 
         if (*surface == NULL) {
             if (pixels) {
-                free(pixels);
+                efree(pixels);
             }
 
             return 0;
@@ -214,7 +214,7 @@ int video_fullscreen_toggle(SDL_Surface **surface, uint32 *flags)
     /* Unfortunately, you lose your OpenGL image until the next frame... */
     if (pixels) {
         memcpy((*surface)->pixels, pixels, framesize);
-        free(pixels);
+        efree(pixels);
     }
 
     SDL_SetClipRect(*surface, &clip);

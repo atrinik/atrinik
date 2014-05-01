@@ -89,7 +89,7 @@ static void cmd_aliases_load(const char *path)
                 HASH_ADD_KEYPTR(hh, cmd_aliases, cmd_alias->name, strlen(cmd_alias->name), cmd_alias);
             }
 
-            cmd_alias = calloc(1, sizeof(*cmd_alias));
+            cmd_alias = ecalloc(1, sizeof(*cmd_alias));
             cmd_alias->name = string_sub(buf, 1, -1);
         }
         else if (string_startswith(buf, "arg = ")) {
@@ -125,17 +125,17 @@ void cmd_aliases_deinit(void)
     {
         HASH_DEL(cmd_aliases, curr);
 
-        free(curr->name);
+        efree(curr->name);
 
         if (curr->arg) {
-            free(curr->arg);
+            efree(curr->arg);
         }
 
         if (curr->noarg) {
-            free(curr->noarg);
+            efree(curr->noarg);
         }
 
-        free(curr);
+        efree(curr);
     }
 }
 
@@ -173,18 +173,18 @@ static void cmd_aliases_execute(const char *cmd, const char *params)
                     }
 
                     if (strcmp(cps2[0], "arg") == 0) {
-                        str = strdup(params ? params : "");
+                        str = estrdup(params ? params : "");
                     }
                     else if (strcmp(cps2[0], "mplayer") == 0) {
                         if (sound_map_background(-1) && sound_playing_music()) {
-                            str = strdup(sound_get_bg_music_basename());
+                            str = estrdup(sound_get_bg_music_basename());
                         }
                         else {
-                            str = strdup("nothing");
+                            str = estrdup("nothing");
                         }
                     }
                     else {
-                        str = strdup("???");
+                        str = estrdup("???");
                     }
 
                     if (cps2[1]) {
@@ -203,7 +203,7 @@ static void cmd_aliases_execute(const char *cmd, const char *params)
                     }
 
                     stringbuffer_append_string(sb, str);
-                    free(str);
+                    efree(str);
                 }
                 else if (strcmp(cps[0], "gender") == 0) {
                     if (strcmp(cps[1], "possessive") == 0) {
@@ -248,7 +248,7 @@ static void cmd_aliases_execute(const char *cmd, const char *params)
                 }
             }
 
-            free(func);
+            efree(func);
 
             stringbuffer_append_string(sb, func_end + 1);
         }
@@ -259,7 +259,7 @@ static void cmd_aliases_execute(const char *cmd, const char *params)
 
     cp = stringbuffer_finish(sb);
     send_command(cp);
-    free(cp);
+    efree(cp);
 }
 
 /**

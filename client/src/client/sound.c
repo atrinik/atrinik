@@ -89,7 +89,7 @@ static sound_data_struct *sound_new(int type, const char *filename, void *data)
 
     tmp = malloc(sizeof(sound_data_struct));
     tmp->type = type;
-    tmp->filename = strdup(filename);
+    tmp->filename = estrdup(filename);
     tmp->data = data;
     HASH_ADD_KEYPTR(hh, sound_data, tmp->filename, strlen(tmp->filename), tmp);
 
@@ -115,8 +115,8 @@ static void sound_free(sound_data_struct *tmp)
             break;
     }
 
-    free(tmp->filename);
-    free(tmp);
+    efree(tmp->filename);
+    efree(tmp);
 }
 
 /**
@@ -137,7 +137,7 @@ static uint32 sound_music_file_get_duration(const char *filename)
     }
 
     duration = atoi(contents);
-    free(contents);
+    efree(contents);
 
     return duration;
 }
@@ -194,7 +194,7 @@ static void sound_music_finished(void)
         sound_start_bg_music(bg_music, sound_background_volume, sound_background_loop);
     }
 
-    free(tmp);
+    efree(tmp);
 }
 
 #endif
@@ -382,7 +382,7 @@ void sound_start_bg_music(const char *filename, int volume, int loop)
 
     sound_stop_bg_music();
 
-    sound_background = strdup(path);
+    sound_background = estrdup(path);
     sound_background_hook_execute();
     sound_background_loop = loop;
     sound_background_volume = volume;
@@ -413,7 +413,7 @@ void sound_stop_bg_music(void)
     }
 
     if (sound_background) {
-        free(sound_background);
+        efree(sound_background);
         sound_background = NULL;
 #ifdef HAVE_SDL_MIXER
         sound_background_hook_execute();
@@ -670,7 +670,7 @@ static void sound_ambient_free(sound_ambient_struct *tmp)
 #ifdef HAVE_SDL_MIXER
     Mix_HaltChannel(tmp->channel);
 #endif
-    free(tmp);
+    efree(tmp);
 }
 
 /**
@@ -789,7 +789,7 @@ void socket_command_sound_ambient(uint8 *data, size_t len, size_t pos)
             /* Successfully started playing the effect, add it to the
              * list of active sound effects. */
             if (channel != -1) {
-                sound_ambient = calloc(1, sizeof(*sound_ambient));
+                sound_ambient = ecalloc(1, sizeof(*sound_ambient));
                 sound_ambient->channel = channel;
                 sound_ambient->tag = tag;
                 sound_ambient->x = x;

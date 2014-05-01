@@ -92,7 +92,7 @@ packet_struct *packet_new(uint8 type, size_t size, size_t expand)
 
     /* Allocate the initial data block. */
     if (packet->size) {
-        packet->data = malloc(packet->size);
+        packet->data = emalloc(packet->size);
     }
 
     packet->ndelay = 0;
@@ -109,7 +109,7 @@ void packet_free(packet_struct *packet)
     TOOLKIT_FUNC_PROTECTOR(API_NAME);
 
     if (packet->data) {
-        free(packet->data);
+        efree(packet->data);
     }
 
     return_poolchunk(packet, pool_packets);
@@ -128,7 +128,7 @@ void packet_compress(packet_struct *packet)
         size_t new_size = compressBound(packet->len);
         uint8 *dest;
 
-        dest = malloc(new_size + 5);
+        dest = emalloc(new_size + 5);
         dest[0] = packet->type;
         /* Add original length of the packet. */
         dest[1] = (packet->len >> 24) & 0xff;
@@ -139,7 +139,7 @@ void packet_compress(packet_struct *packet)
         /* Compress it. */
         compress2((Bytef *) dest + 5, (uLong *) &new_size, (const unsigned char FAR *) packet->data, packet->len, Z_BEST_COMPRESSION);
 
-        free(packet->data);
+        efree(packet->data);
         packet->data = dest;
         packet->len = new_size + 5;
         packet->type = CLIENT_CMD_COMPRESSED;
@@ -207,12 +207,7 @@ static void packet_ensure(packet_struct *packet, size_t size)
     }
 
     packet->size += MAX(packet->expand, size);
-    packet->data = realloc(packet->data, packet->size);
-
-    if (!packet->data) {
-        logger_print(LOG(ERROR), "OOM.");
-        exit(1);
-    }
+    packet->data = erealloc(packet->data, packet->size);
 }
 
 void packet_merge(packet_struct *src, packet_struct *dst)

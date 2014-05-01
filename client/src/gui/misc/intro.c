@@ -233,7 +233,7 @@ void intro_show(void)
 
         /* Finished downloading, parse the data. */
         if (ret == 1) {
-            char *mem = strdup(news_data->memory ? news_data->memory : "???"), *cp;
+            char *mem = estrdup(news_data->memory ? news_data->memory : "???"), *cp;
             size_t i = 0;
 
             cp = strtok(mem, "\n");
@@ -244,7 +244,7 @@ void intro_show(void)
                 cp = strtok(NULL, "\n");
             }
 
-            free(mem);
+            efree(mem);
         }
 
         /* Finished downloading or there was an error: clean up in either
@@ -295,7 +295,7 @@ void intro_show(void)
                 list_servers->row_selected = i + 1;
 
                 if (!clioption_settings.reconnect) {
-                    free(clioption_settings.connect[0]);
+                    efree(clioption_settings.connect[0]);
                     clioption_settings.connect[0] = NULL;
                 }
 

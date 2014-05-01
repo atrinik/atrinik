@@ -91,6 +91,6 @@ void widget_fps_init(widgetdata *widget)
     widget->draw_func = widget_draw;
     widget->background_func = widget_background;
 
-    widget->subwidget = tmp = calloc(1, sizeof(*tmp));
+    widget->subwidget = tmp = ecalloc(1, sizeof(*tmp));
     tmp->lasttime = SDL_GetTicks();
 }

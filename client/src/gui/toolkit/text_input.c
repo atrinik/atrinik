@@ -34,7 +34,7 @@ text_input_history_struct *text_input_history_create(void)
 {
     text_input_history_struct *tmp;
 
-    tmp = calloc(1, sizeof(*tmp));
+    tmp = ecalloc(1, sizeof(*tmp));
     utarray_new(tmp->history, &ut_str_icd);
 
     return tmp;
@@ -43,7 +43,7 @@ text_input_history_struct *text_input_history_create(void)
 void text_input_history_free(text_input_history_struct *history)
 {
     utarray_free(history->history);
-    free(history);
+    efree(history);
 }
 
 /**
@@ -157,7 +157,7 @@ void text_input_show(text_input_struct *text_input, SDL_Surface *surface, int x,
     box.w = 0;
 
     if (text_input->show_edit_func) {
-        cp = strdup(text_input->str);
+        cp = estrdup(text_input->str);
         text_input->show_edit_func(text_input);
     }
 
@@ -194,7 +194,7 @@ void text_input_show(text_input_struct *text_input, SDL_Surface *surface, int x,
 
     if (cp) {
         text_input_set(text_input, cp);
-        free(cp);
+        efree(cp);
     }
 }
 
@@ -240,7 +240,7 @@ int text_input_event(text_input_struct *text_input, SDL_Event *event)
                 text_input->pos = text_input->num = strlen(text_input->str);
                 string_replace_unprintable_chars(text_input->str);
 
-                free(clipboard_contents);
+                efree(clipboard_contents);
             }
 
             return 1;

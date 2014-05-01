@@ -165,7 +165,7 @@ static void widget_deinit(widgetdata *widget)
 
     tmp = (widget_stat_struct *) widget->subwidget;
 
-    free(tmp->texture);
+    efree(tmp->texture);
 }
 
 /** @copydoc widgetdata::load_func */
@@ -176,7 +176,7 @@ static int widget_load(widgetdata *widget, const char *keyword, const char *para
     tmp = (widget_stat_struct *) widget->subwidget;
 
     if (strcmp(keyword, "texture") == 0) {
-        tmp->texture = strdup(parameter);
+        tmp->texture = estrdup(parameter);
         return 1;
     }
 
@@ -204,8 +204,8 @@ static void menu_stat_display_change(widgetdata *widget, widgetdata *menuitem, S
     for (tmp2 = menuitem->inv; tmp2; tmp2 = tmp2->next) {
         if (tmp2->type == LABEL_ID) {
             label = LABEL(tmp2);
-            free(tmp->texture);
-            tmp->texture = strdup(label->text);
+            efree(tmp->texture);
+            tmp->texture = estrdup(label->text);
             string_tolower(tmp->texture);
             WIDGET_REDRAW(widget);
 
@@ -249,7 +249,7 @@ void widget_stat_init(widgetdata *widget)
 {
     widget_stat_struct *tmp;
 
-    tmp = calloc(1, sizeof(*tmp));
+    tmp = ecalloc(1, sizeof(*tmp));
 
     widget->draw_func = widget_draw;
     widget->event_func = widget_event;

@@ -36,7 +36,7 @@
  * ... more calls to stringbuffer_append_xxx()
  * char *str = stringbuffer_finish(sb);
  * ... use str
- * free(str);
+ * efree(str);
  * @endcode
  *
  * No function ever fails. In case not enough memory is available, the
@@ -82,17 +82,12 @@ void toolkit_stringbuffer_deinit(void)
  * @return The newly allocated string buffer. */
 StringBuffer *stringbuffer_new(void)
 {
-    StringBuffer *sb = malloc(sizeof(StringBuffer));
+    StringBuffer *sb = emalloc(sizeof(StringBuffer));
 
     TOOLKIT_FUNC_PROTECTOR(API_NAME);
 
-    if (!sb) {
-        logger_print(LOG(ERROR), "OOM.");
-        exit(1);
-    }
-
     sb->size = MAX_BUF;
-    sb->buf = malloc(sb->size);
+    sb->buf = emalloc(sb->size);
     sb->pos = 0;
     return sb;
 }
@@ -102,7 +97,7 @@ StringBuffer *stringbuffer_new(void)
  *
  * The passed string buffer must not be accessed afterwards.
  * @param sb The string buffer to deallocate.
- * @return The result string; to free it, call free() on it. */
+ * @return The result string; to free it, call efree() on it. */
 char *stringbuffer_finish(StringBuffer *sb)
 {
     char *result;
@@ -111,7 +106,7 @@ char *stringbuffer_finish(StringBuffer *sb)
 
     sb->buf[sb->pos] = '\0';
     result = sb->buf;
-    free(sb);
+    efree(sb);
     return result;
 }
 
@@ -130,7 +125,7 @@ const char *stringbuffer_finish_shared(StringBuffer *sb)
 
     TOOLKIT_FUNC_PROTECTOR(API_NAME);
 
-    free(str);
+    efree(str);
     return result;
 }
 
@@ -237,12 +232,7 @@ static void stringbuffer_ensure(StringBuffer *sb, size_t len)
     }
 
     new_size = sb->pos + len + MAX_BUF;
-    tmp = realloc(sb->buf, new_size);
-
-    if (tmp == NULL) {
-        logger_print(LOG(ERROR), "OOM.");
-        exit(1);
-    }
+    tmp = erealloc(sb->buf, new_size);
 
     sb->buf = tmp;
     sb->size = new_size;
