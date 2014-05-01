@@ -109,5 +109,10 @@ typedef void (*toolkit_func)(void);
 #   define TOOLKIT_FUNC_PROTECTOR
 #endif
 
+/* Map the error-checking string duplicating functions into the toolkit
+ * variants. This is done for convenience, and because the functions can't be
+ * defined as they could conflict with functions from other libraries. */
+#define estrdup string_estrdup
+#define estrndup string_estrndup
 
 #endif

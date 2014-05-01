@@ -62,6 +62,63 @@ void toolkit_string_deinit(void)
 }
 
 /**
+ * Like strdup(), but performs error checking.
+ * @param s String to duplicate.
+ * @return Duplicated string, never NULL.
+ * @note abort() is called in case 's' is NULL or strdup() fails to duplicate
+ * the string (oom).
+ */
+char *string_estrdup(const char *s)
+{
+    char *cp;
+
+    TOOLKIT_FUNC_PROTECTOR(API_NAME);
+
+    if (s == NULL) {
+        logger_print(LOG(ERROR), "'s' is NULL.");
+        abort();
+    }
+
+    cp = strdup(s);
+
+    if (cp == NULL) {
+        logger_print(LOG(ERROR), "OOM.");
+        abort();
+    }
+
+    return cp;
+}
+
+/**
+ * Like strndup(), but performs error checking.
+ * @param s String to duplicate.
+ * @param n At most this many bytes to copy.
+ * @return Duplicated string, never NULL.
+ * @note abort() is called in case 's' is NULL or strndup() fails to duplicate
+ * the string (oom).
+ */
+char *string_estrndup(const char *s, size_t n)
+{
+    char *cp;
+
+    TOOLKIT_FUNC_PROTECTOR(API_NAME);
+
+    if (s == NULL) {
+        logger_print(LOG(ERROR), "'s' is NULL.");
+        abort();
+    }
+
+    cp = strndup(s, n);
+
+    if (cp == NULL) {
+        logger_print(LOG(ERROR), "OOM.");
+        abort();
+    }
+
+    return cp;
+}
+
+/**
  * Replace in string src all occurrences of key by replacement. The resulting
  * string is put into result; at most resultsize characters (including the
  * terminating null character) will be written to result. */
@@ -889,3 +946,4 @@ size_t string_fromhex(char *str, size_t len, unsigned char *result, size_t resul
 
     return j;
 }
+
