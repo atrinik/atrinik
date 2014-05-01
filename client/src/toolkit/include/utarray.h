@@ -77,7 +77,7 @@ typedef struct {
 } while(0)
 
 #define utarray_new(a,_icd) do {                                              \
-        a=malloc(sizeof(UT_array));                                                 \
+        a=(UT_array*)malloc(sizeof(UT_array));                                      \
         utarray_init(a,_icd);                                                       \
 } while(0)
 
@@ -89,7 +89,7 @@ typedef struct {
 #define utarray_reserve(a,by) do {                                            \
         if (((a)->i+by) > ((a)->n)) {                                               \
             while(((a)->i+by) > ((a)->n)) { (a)->n = ((a)->n ? (2*(a)->n) : 8); }     \
-            if ( ((a)->d=realloc((a)->d, (a)->n*(a)->icd->sz)) == NULL) oom();      \
+            if ( ((a)->d=(char*)realloc((a)->d, (a)->n*(a)->icd->sz)) == NULL) oom(); \
         }                                                                           \
 } while(0)
 
