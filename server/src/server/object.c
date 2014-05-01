@@ -950,7 +950,7 @@ void copy_object(object *op2, object *op, int no_speed)
         op->key_values = NULL;
 
         for (i = op2->key_values; i; i = i->next) {
-            key_value *new_link = malloc(sizeof(key_value));
+            key_value *new_link = emalloc(sizeof(key_value));
 
             new_link->next = NULL;
             new_link->key = add_refcount(i->key);
@@ -2728,7 +2728,7 @@ void free_key_values(object *op)
         }
 
         i->next = NULL;
-        free(i);
+        efree(i);
     }
 
     op->key_values = NULL;
@@ -2829,7 +2829,7 @@ static int object_set_value_s(object *op, const char *canonical_key, const char 
                     op->key_values = field->next;
                 }
 
-                free(field);
+                efree(field);
             }
         }
 
@@ -2848,7 +2848,7 @@ static int object_set_value_s(object *op, const char *canonical_key, const char 
         return 1;
     }
 
-    field = malloc(sizeof(key_value));
+    field = emalloc(sizeof(key_value));
 
     field->key = add_refcount(canonical_key);
     field->value = add_string(value);
@@ -3211,7 +3211,7 @@ int object_enter_map(object *op, object *exit_ob, mapstruct *m, int x, int y, ui
 
                 path = map_get_path(exit_ob->map, EXIT_PATH(exit_ob), op->type == PLAYER && (exit_ob->last_eat == MAP_PLAYER_MAP || (MAP_UNIQUE(exit_ob->map) && !map_path_isabs(EXIT_PATH(exit_ob)))), op->name);
                 m = ready_map_name(path, 0);
-                free(path);
+                efree(path);
 
                 /* Failed to load a random map? */
                 if (!m && op->type == PLAYER && strncmp(EXIT_PATH(exit_ob), "/random/", 8) == 0) {

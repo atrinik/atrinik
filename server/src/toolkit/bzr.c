@@ -100,7 +100,7 @@ int bzr_get_revision(void)
                 branch_revision = atoi(cps[0]);
             }
 
-            free(contents);
+            efree(contents);
         }
     }
 

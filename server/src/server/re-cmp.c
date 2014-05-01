@@ -43,6 +43,7 @@
 #include <limits.h>
 #include <re-cmp.h>
 #include <ctype.h>
+#include <string.h>
 
 const char *re_cmp(const char *, const char *);
 static int re_cmp_step(const char *, const char *, int, int);

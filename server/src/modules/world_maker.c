@@ -92,7 +92,7 @@ static void wm_images_init(void)
     uint8 *data;
     uint16 len;
 
-    wm_face_colors = malloc(sizeof(*wm_face_colors) * nrofpixmaps);
+    wm_face_colors = emalloc(sizeof(*wm_face_colors) * nrofpixmaps);
 
     for (i = 0; i < nrofpixmaps; i++) {
         uint64 total = 0, r = 0, g = 0, b = 0;
@@ -108,7 +108,7 @@ static void wm_images_init(void)
         im2 = gdImageCreateTrueColor(im->sx, im->sy);
         gdImageCopyResized(im2, im, 0, 0, 0, 0, im2->sx, im2->sy, im->sx, im->sy);
 
-        wm_face_colors[i] = calloc(1, sizeof(**wm_face_colors) * 5);
+        wm_face_colors[i] = ecalloc(1, sizeof(**wm_face_colors) * 5);
 
         /* Get the average pixel colors. */
         for (x = 0; x < im2->sx; x++) {
@@ -206,7 +206,7 @@ static int render_object(gdImagePtr im, int x, int y, object *ob)
 static void region_add_map(wm_region *r, mapstruct *m)
 {
     /* Resize the array. */
-    r->maps = realloc(r->maps, sizeof(*r->maps) * (r->num_maps + 1));
+    r->maps = erealloc(r->maps, sizeof(*r->maps) * (r->num_maps + 1));
     r->maps[r->num_maps].m = m;
     r->maps[r->num_maps].xpos = r->xpos;
     r->maps[r->num_maps].ypos = r->ypos;
@@ -345,7 +345,7 @@ void world_maker(void)
         }
 
         /* Initialize the region. */
-        wm_r = calloc(1, sizeof(wm_region));
+        wm_r = ecalloc(1, sizeof(wm_region));
         /* Open the definitions file. */
         snprintf(buf, sizeof(buf), "%s/%s.def", settings.world_maker_dir, r->name);
         def_fp = fopen(buf, "w");
@@ -451,7 +451,7 @@ void world_maker(void)
                             }
                         }
                         else {
-                            info_objects = realloc(info_objects, sizeof(*info_objects) * (num_info_objects + 1));
+                            info_objects = erealloc(info_objects, sizeof(*info_objects) * (num_info_objects + 1));
                             info_objects[num_info_objects] = tmp;
                             num_info_objects++;
                         }
@@ -580,7 +580,7 @@ void world_maker(void)
         }
 
         if (info_objects) {
-            free(info_objects);
+            efree(info_objects);
             info_objects = NULL;
         }
 
@@ -597,7 +597,7 @@ void world_maker(void)
         /* Free data. */
         gdImageDestroy(im);
         fclose(def_fp);
-        free(wm_r->maps);
-        free(wm_r);
+        efree(wm_r->maps);
+        efree(wm_r);
     }
 }

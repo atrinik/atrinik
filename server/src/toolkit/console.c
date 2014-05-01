@@ -100,9 +100,9 @@ static void console_command_help(const char *params)
                 logger_print(LOG(INFO), " ");
 
                 for (curr = console_commands[i].desc; (curr && (next = strchr(curr, '\n'))) || curr; curr = next ? next + 1 : NULL) {
-                    cp = strndup(curr, next ? (size_t) (next - curr) : strlen(curr));
+                    cp = estrndup(curr, next ? (size_t) (next - curr) : strlen(curr));
                     logger_print(LOG(INFO), "%s", cp);
-                    free(cp);
+                    efree(cp);
                 }
 
                 return;
@@ -160,7 +160,7 @@ static int handle_enter(int cnt, int key)
     utarray_push_back(command_process_queue, &line);
     pthread_mutex_unlock(&command_process_queue_mutex);
 
-    free(line);
+    efree(line);
     rl_redisplay();
     rl_done = 1;
 
@@ -184,7 +184,7 @@ static char *command_generator(const char *text, int state)
         i++;
 
         if (strncmp(command, text, len) == 0) {
-            return strdup(command);
+            return estrdup(command);
         }
     }
 
@@ -227,7 +227,7 @@ static void console_print(const char *str)
     rl_point = saved_point;
     rl_redisplay();
 
-    free(saved_line);
+    efree(saved_line);
 }
 
 #endif
@@ -340,13 +340,13 @@ void toolkit_console_deinit(void)
         pthread_cancel(thread_id);
 
         for (i = 0; i < console_commands_num; i++) {
-            free(console_commands[i].command);
-            free(console_commands[i].desc_brief);
-            free(console_commands[i].desc);
+            efree(console_commands[i].command);
+            efree(console_commands[i].desc_brief);
+            efree(console_commands[i].desc);
         }
 
         if (console_commands) {
-            free(console_commands);
+            efree(console_commands);
             console_commands = NULL;
         }
 
@@ -388,10 +388,10 @@ void console_command_add(const char *command, console_command_func handle_func, 
 
     /* Add it to the commands array. */
     console_commands = memory_reallocz(console_commands, sizeof(*console_commands) * console_commands_num, sizeof(*console_commands) * (console_commands_num + 1));
-    console_commands[console_commands_num].command = strdup(command);
+    console_commands[console_commands_num].command = estrdup(command);
     console_commands[console_commands_num].handle_func = handle_func;
-    console_commands[console_commands_num].desc_brief = strdup(desc_brief);
-    console_commands[console_commands_num].desc = strdup(desc);
+    console_commands[console_commands_num].desc_brief = estrdup(desc_brief);
+    console_commands[console_commands_num].desc = estrdup(desc);
     console_commands_num++;
 }
 

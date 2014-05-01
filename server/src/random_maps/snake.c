@@ -37,10 +37,10 @@ char **make_snake_layout(int xsize, int ysize)
 {
     int i, j;
     /* Allocate that array, set it up */
-    char **maze = (char **) calloc(sizeof(char *), xsize);
+    char **maze = (char **) ecalloc(sizeof(char *), xsize);
 
     for (i = 0; i < xsize; i++) {
-        maze[i] = (char *) calloc(sizeof(char), ysize);
+        maze[i] = (char *) ecalloc(sizeof(char), ysize);
     }
 
     /* Write the outer walls */

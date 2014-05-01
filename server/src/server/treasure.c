@@ -425,7 +425,7 @@ void init_artifacts(void)
                     *(next++) = '\0';
                 }
 
-                tmp = (linked_char *) malloc(sizeof(linked_char));
+                tmp = emalloc(sizeof(linked_char));
                 tmp->name = NULL;
                 FREE_AND_COPY_HASH(tmp->name, cp);
                 tmp->next = art->allowed;
@@ -529,11 +529,7 @@ void init_artifacts(void)
             }
 
             /* Now store the parse text in the artifacts list entry */
-            if ((art->parse_text = malloc(lcount)) == NULL) {
-                logger_print(LOG(ERROR), "out of memory in ->parse_text (size %"FMT64U ")", (uint64) lcount);
-                exit(1);
-            }
-
+            art->parse_text = emalloc(lcount);
             memcpy(art->parse_text, buf_text, lcount);
 
             /* Finally, change the archetype name of our fake arch to the
@@ -622,12 +618,7 @@ void init_archetype_pointers(void)
  * @return New structure, blanked, never NULL. */
 static treasurelist *get_empty_treasurelist(void)
 {
-    treasurelist *tl = (treasurelist *) malloc(sizeof(treasurelist));
-
-    if (tl == NULL) {
-        logger_print(LOG(ERROR), "OOM.");
-        exit(1);
-    }
+    treasurelist *tl = emalloc(sizeof(treasurelist));
 
     tl->name = NULL;
     tl->next = NULL;
@@ -647,12 +638,7 @@ static treasurelist *get_empty_treasurelist(void)
  * @return New structure, blanked, never NULL. */
 static treasure *get_empty_treasure(void)
 {
-    treasure *t = (treasure *) malloc(sizeof(treasure));
-
-    if (t == NULL) {
-        logger_print(LOG(ERROR), "OOM.");
-        exit(1);
-    }
+    treasure *t = emalloc(sizeof(treasure));
 
     t->change_arch.item_race = -1;
     t->change_arch.name = NULL;
@@ -2104,12 +2090,7 @@ jump_break1:
  * @return New structure blanked, never NULL. */
 static artifactlist *get_empty_artifactlist(void)
 {
-    artifactlist *tl = (artifactlist *) malloc(sizeof(artifactlist));
-
-    if (tl == NULL) {
-        logger_print(LOG(ERROR), "OOM.");
-        exit(1);
-    }
+    artifactlist *tl = emalloc(sizeof(artifactlist));
 
     tl->next = NULL;
     tl->items = NULL;
@@ -2123,12 +2104,7 @@ static artifactlist *get_empty_artifactlist(void)
  * @return New structure blanked, never NULL. */
 static artifact *get_empty_artifact(void)
 {
-    artifact *t = (artifact *) malloc(sizeof(artifact));
-
-    if (t == NULL) {
-        logger_print(LOG(ERROR), "OOM.");
-        exit(1);
-    }
+    artifact *t = emalloc(sizeof(artifact));
 
     t->next = NULL;
     t->name = NULL;
@@ -2377,7 +2353,7 @@ int generate_artifact(object *op, int difficulty, int t_style, int a_chance)
 
 /**
  * Frees a treasure, including its yes, no and next items.
- * @param t Treasure to free. Pointer is free()d too, so becomes
+ * @param t Treasure to free. Pointer is efree()d too, so becomes
  * invalid. */
 static void free_treasurestruct(treasure *t)
 {
@@ -2397,12 +2373,12 @@ static void free_treasurestruct(treasure *t)
     FREE_AND_CLEAR_HASH2(t->change_arch.name);
     FREE_AND_CLEAR_HASH2(t->change_arch.slaying);
     FREE_AND_CLEAR_HASH2(t->change_arch.title);
-    free(t);
+    efree(t);
 }
 
 /**
  * Frees a link structure and its next items.
- * @param lc Item to free. Pointer is free()d too, so becomes invalid. */
+ * @param lc Item to free. Pointer is efree()d too, so becomes invalid. */
 static void free_charlinks(linked_char *lc)
 {
     linked_char *tmp, *next;
@@ -2410,13 +2386,13 @@ static void free_charlinks(linked_char *lc)
     for (tmp = lc; tmp; tmp = next) {
         next = tmp->next;
         FREE_AND_CLEAR_HASH(tmp->name);
-        free(tmp);
+        efree(tmp);
     }
 }
 
 /**
  * Totally frees an artifact, its next items, and such.
- * @param at Artifact to free. Pointer is free()d too, so becomes
+ * @param at Artifact to free. Pointer is efree()d too, so becomes
  * invalid. */
 static void free_artifact(artifact *at)
 {
@@ -2432,7 +2408,7 @@ static void free_artifact(artifact *at)
     }
 
     if (at->parse_text) {
-        free(at->parse_text);
+        efree(at->parse_text);
     }
 
     FREE_AND_CLEAR_HASH2(at->def_at.clone.name);
@@ -2441,7 +2417,7 @@ static void free_artifact(artifact *at)
     FREE_AND_CLEAR_HASH2(at->def_at.clone.msg);
     FREE_AND_CLEAR_HASH2(at->def_at.clone.title);
     free_key_values(&at->def_at.clone);
-    free(at);
+    efree(at);
 }
 
 /**
@@ -2457,7 +2433,7 @@ static void free_artifactlist(void)
             free_artifact(al->items);
         }
 
-        free(al);
+        efree(al);
     }
 }
 
@@ -2475,7 +2451,7 @@ void free_all_treasures(void)
             free_treasurestruct(tl->items);
         }
 
-        free(tl);
+        efree(tl);
     }
 
     free_artifactlist();

@@ -117,7 +117,7 @@ static mapstruct *waypoint_load_dest(object *op, object *waypoint)
 
         path = map_get_path(op->map, waypoint->slaying, MAP_UNIQUE(op->map), NULL);
         FREE_AND_COPY_HASH(waypoint->slaying, path);
-        free(path);
+        efree(path);
     }
 
     if (waypoint->slaying == op->map->path) {

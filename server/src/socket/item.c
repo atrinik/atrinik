@@ -590,7 +590,7 @@ void socket_command_item_examine(socket_struct *ns, player *pl, uint8 *data, siz
         dump_object(op, sb);
         cp = stringbuffer_finish(sb);
         draw_info(COLOR_WHITE, pl->ob, cp);
-        free(cp);
+        efree(cp);
     }
 }
 

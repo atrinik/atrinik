@@ -70,7 +70,7 @@ static void add_ban_entry(char *name, char *ip)
     memset(gptr, 0, sizeof(_ban_struct));
     ol->objlink.ban = gptr;
 
-    ol->objlink.ban->ip = strdup(ip);
+    ol->objlink.ban->ip = estrdup(ip);
     FREE_AND_COPY_HASH(ol->objlink.ban->name, name);
     objectlink_link(&ban_list, NULL, NULL, ban_list, ol);
 }
@@ -80,7 +80,7 @@ static void add_ban_entry(char *name, char *ip)
  * @param ol Pointer to the objectlink to remove. */
 static void remove_ban_entry(objectlink *ol)
 {
-    free(ol->objlink.ban->ip);
+    efree(ol->objlink.ban->ip);
     FREE_AND_CLEAR_HASH(ol->objlink.ban->name);
     objectlink_unlink(&ban_list, NULL, ol);
     return_poolchunk(ol->objlink.ban, pool_ban);

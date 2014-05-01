@@ -313,7 +313,7 @@ typedef struct linked_char
     {                                \
         if (_xyz_)                   \
         {                            \
-            free(_xyz_);             \
+            efree(_xyz_);            \
         }                            \
                                  \
         _xyz_ = NULL;                \

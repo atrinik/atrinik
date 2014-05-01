@@ -29,7 +29,7 @@
  * API usage:
  *
  * @code
- *    char *str = strdup("hello world");
+ *    char *str = estrdup("hello world");
  *    cache_struct *res;
  *
  *    // CACHE_FLAG_AUTOFREE will automatically free the pointer.
@@ -121,7 +121,7 @@ int cache_add(const char *key, void *ptr, uint32 flags)
     }
 
     /* Increase the array's size. */
-    cache = realloc(cache, sizeof(cache_struct) * (num_cache + 1));
+    cache = erealloc(cache, sizeof(cache_struct) * (num_cache + 1));
 
     /* Now, insert the cache into the correct spot in the array. */
     for (i = 0; i < num_cache; i++) {
@@ -168,7 +168,7 @@ int cache_remove(shstr *key)
 
     /* Does it want to be freed automatically? */
     if (entry->flags & CACHE_FLAG_AUTOFREE) {
-        free(entry->ptr);
+        efree(entry->ptr);
     }
 
     /* Shift the entries. */
@@ -179,7 +179,7 @@ int cache_remove(shstr *key)
     }
 
     /* Decrease the array's size. */
-    cache = realloc(cache, sizeof(cache_struct) * (num_cache - 1));
+    cache = erealloc(cache, sizeof(cache_struct) * (num_cache - 1));
     num_cache--;
 
     return 1;

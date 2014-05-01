@@ -71,11 +71,11 @@ void magic_mirror_init(object *mirror)
 
         path = map_get_path(mirror->map, mirror->slaying, MAP_UNIQUE(mirror->map), NULL);
         FREE_AND_COPY_HASH(mirror->slaying, path);
-        free(path);
+        efree(path);
     }
 
     /* Initialize custom_attrset. */
-    mirror->custom_attrset = malloc(sizeof(magic_mirror_struct));
+    mirror->custom_attrset = emalloc(sizeof(magic_mirror_struct));
     /* Save x/y and clear map. */
     MMIRROR(mirror)->x = mirror_x;
     MMIRROR(mirror)->y = mirror_y;
@@ -89,7 +89,7 @@ void magic_mirror_init(object *mirror)
  * @param mirror Magic mirror to deinitialize. */
 void magic_mirror_deinit(object *mirror)
 {
-    free(mirror->custom_attrset);
+    efree(mirror->custom_attrset);
 }
 
 /**

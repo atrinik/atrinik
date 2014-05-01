@@ -46,21 +46,11 @@ static void updates_file_new(const char *filename, struct stat *sb)
     size_t st_size, numread;
     FILE *fp;
 
-    update_files = realloc(update_files, sizeof(update_file_struct) * (update_files_num + 1));
-
-    if (!update_files) {
-        logger_print(LOG(ERROR), "OOM.");
-        exit(1);
-    }
+    update_files = erealloc(update_files, sizeof(update_file_struct) * (update_files_num + 1));
 
     st_size = sb->st_size;
     /* Allocate a buffer to hold the whole file. */
-    contents = malloc(st_size);
-
-    if (!contents) {
-        logger_print(LOG(ERROR), "OOM.");
-        exit(1);
-    }
+    contents = emalloc(st_size);
 
     fp = fopen(filename, "rb");
 
@@ -72,33 +62,21 @@ static void updates_file_new(const char *filename, struct stat *sb)
     numread = fread(contents, 1, st_size, fp);
     fclose(fp);
 
-    update_files[update_files_num].filename = strdup(filename + strlen(UPDATES_DIR_NAME) + 1);
+    update_files[update_files_num].filename = estrdup(filename + strlen(UPDATES_DIR_NAME) + 1);
     update_files[update_files_num].checksum = crc32(1L, (const unsigned char FAR *) contents, numread);
     update_files[update_files_num].ucomp_len = numread;
     /* Calculate the upper bound of the compressed size. */
     numread = compressBound(st_size);
     /* Allocate a buffer to hold the compressed file. */
-    compressed = malloc(numread);
-
-    if (!compressed) {
-        logger_print(LOG(ERROR), "OOM.");
-        exit(1);
-    }
-
+    compressed = emalloc(numread);
     compress2((Bytef *) compressed, (uLong *) &numread, (const unsigned char FAR *) contents, st_size, Z_BEST_COMPRESSION);
-    update_files[update_files_num].contents = malloc(numread);
-
-    if (!update_files[update_files_num].contents) {
-        logger_print(LOG(ERROR), "OOM.");
-        exit(1);
-    }
-
+    update_files[update_files_num].contents = emalloc(numread);
     memcpy(update_files[update_files_num].contents, compressed, numread);
     update_files[update_files_num].len = numread;
 
     /* Free temporary buffers. */
-    free(contents);
-    free(compressed);
+    efree(contents);
+    efree(compressed);
 
     update_files[update_files_num].packet = packet_new(CLIENT_CMD_FILE_UPDATE, 0, 0);
     packet_append_string_terminated(update_files[update_files_num].packet, update_files[update_files_num].filename);

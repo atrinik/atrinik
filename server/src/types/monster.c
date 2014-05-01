@@ -1408,13 +1408,13 @@ static char *find_matching_message(const char *msg, const char *match)
 
             if (gotmatch) {
                 if (cp1) {
-                    cp3 = malloc(cp1 - cp2 + 1);
+                    cp3 = emalloc(cp1 - cp2 + 1);
                     strncpy(cp3, cp2 + 1, cp1 - cp2);
                     cp3[cp1 - cp2 - 1] = '\0';
                 }
                 /* If no next match, just want the rest of the string */
                 else {
-                    cp3 = strdup(cp2 + 1);
+                    cp3 = estrdup(cp2 + 1);
                 }
 
                 return cp3;
@@ -1495,7 +1495,7 @@ int talk_to_npc(object *op, object *npc, char *txt)
             draw_info_map(CHAT_TYPE_GAME, NULL, COLOR_WHITE, op->map, op->x, op->y, MAP_INFO_NORMAL, op, op, buf);
         }
 
-        free(cp);
+        efree(cp);
 
         return 1;
     }

@@ -68,10 +68,10 @@ char **map_gen_onion(int xsize, int ysize, int option, int layers)
     int i, j;
 
     /* Allocate that array, set it up */
-    char **maze = (char **) calloc(sizeof(char *), xsize);
+    char **maze = (char **) ecalloc(sizeof(char *), xsize);
 
     for (i = 0; i < xsize; i++) {
-        maze[i] = (char *) calloc(sizeof(char), ysize);
+        maze[i] = (char *) ecalloc(sizeof(char), ysize);
     }
 
     /* Pick some random options if option = 0 */
@@ -155,8 +155,8 @@ void centered_onion(char **maze, int xsize, int ysize, int option, int layers)
         layers = (RANDOM() % maxlayers) + 1;
     }
 
-    xlocations = (float *) calloc(sizeof(float), 2 * layers);
-    ylocations = (float *) calloc(sizeof(float), 2 * layers);
+    xlocations = (float *) ecalloc(sizeof(float), 2 * layers);
+    ylocations = (float *) ecalloc(sizeof(float), 2 * layers);
 
     /* Place all the walls */
 
@@ -237,8 +237,8 @@ void bottom_centered_onion(char **maze, int xsize, int ysize, int option, int la
         layers = (RANDOM() % maxlayers) + 1;
     }
 
-    xlocations = (float *) calloc(sizeof(float), 2 * layers);
-    ylocations = (float *) calloc(sizeof(float), 2 * layers);
+    xlocations = (float *) ecalloc(sizeof(float), 2 * layers);
+    ylocations = (float *) ecalloc(sizeof(float), 2 * layers);
 
     /* place all the walls */
 
@@ -486,8 +486,8 @@ void make_doors(char **maze, float *xlocations, float *ylocations, int layers, i
     maze[x][y] = 'C';
 
     /* Not needed anymore */
-    free(xlocations);
-    free(ylocations);
+    efree(xlocations);
+    efree(ylocations);
 }
 
 /**
@@ -517,8 +517,8 @@ void bottom_right_centered_onion(char **maze, int xsize, int ysize, int option, 
         layers = (RANDOM() % maxlayers)+1;
     }
 
-    xlocations = (float *) calloc(sizeof(float), 2 * layers);
-    ylocations = (float *) calloc(sizeof(float), 2 * layers);
+    xlocations = (float *) ecalloc(sizeof(float), 2 * layers);
+    ylocations = (float *) ecalloc(sizeof(float), 2 * layers);
 
     /* place all the walls */
 

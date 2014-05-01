@@ -174,11 +174,11 @@ void free_player(player *pl)
 
         for (i = 0; i < pl->num_cmd_permissions; i++) {
             if (pl->cmd_permissions[i]) {
-                free(pl->cmd_permissions[i]);
+                efree(pl->cmd_permissions[i]);
             }
         }
 
-        free(pl->cmd_permissions);
+        efree(pl->cmd_permissions);
     }
 
     if (pl->faction_ids) {
@@ -188,11 +188,11 @@ void free_player(player *pl)
             FREE_ONLY_HASH(pl->faction_ids[i]);
         }
 
-        free(pl->faction_ids);
+        efree(pl->faction_ids);
     }
 
     if (pl->faction_reputation) {
-        free(pl->faction_reputation);
+        efree(pl->faction_reputation);
     }
 
     if (pl->region_maps) {
@@ -200,11 +200,11 @@ void free_player(player *pl)
 
         for (i = 0; i < pl->num_region_maps; i++) {
             if (pl->region_maps[i]) {
-                free(pl->region_maps[i]);
+                efree(pl->region_maps[i]);
             }
         }
 
-        free(pl->region_maps);
+        efree(pl->region_maps);
     }
 
     player_path_clear(pl);
@@ -842,7 +842,7 @@ char *player_get_race_class(object *op, char *buf, size_t size)
  * @param y Y we want to reach. */
 void player_path_add(player *pl, mapstruct *map, sint16 x, sint16 y)
 {
-    player_path *path = malloc(sizeof(player_path));
+    player_path *path = emalloc(sizeof(player_path));
 
     /* Initialize the values. */
     path->map = map;
@@ -873,7 +873,7 @@ void player_path_clear(player *pl)
 
     for (path = pl->move_path; path; path = next) {
         next = path->next;
-        free(path);
+        efree(path);
     }
 
     pl->move_path = NULL;
@@ -921,7 +921,7 @@ void player_path_handle(player *pl)
             /* See if we succeeded in moving where we wanted. */
             if (pl->ob->map == tmp->map && pl->ob->x == tmp->x && pl->ob->y == tmp->y) {
                 pl->move_path = tmp->next;
-                free(tmp);
+                efree(tmp);
             }
             /* Clear all paths if we above check failed: this can happen
              * if we got teleported somewhere else by a teleporter or a
@@ -977,8 +977,8 @@ void player_faction_reputation_update(player *pl, shstr *faction, sint64 add)
         }
     }
 
-    pl->faction_ids = realloc(pl->faction_ids, sizeof(*pl->faction_ids) * (pl->num_faction_ids + 1));
-    pl->faction_reputation = realloc(pl->faction_reputation, sizeof(*pl->faction_reputation) * (pl->num_faction_ids + 1));
+    pl->faction_ids = erealloc(pl->faction_ids, sizeof(*pl->faction_ids) * (pl->num_faction_ids + 1));
+    pl->faction_reputation = erealloc(pl->faction_reputation, sizeof(*pl->faction_reputation) * (pl->num_faction_ids + 1));
     pl->faction_ids[pl->num_faction_ids] = add_string(faction);
     pl->faction_reputation[pl->num_faction_ids] = add;
     pl->num_faction_ids++;
@@ -1980,7 +1980,7 @@ char *player_make_path(const char *name, const char *ext)
 
     sb = stringbuffer_new();
     stringbuffer_append_printf(sb, "%s/players/", settings.datapath);
-    name_lower = strdup(name);
+    name_lower = estrdup(name);
     string_tolower(name_lower);
 
     for (i = 0; i < settings.limits[ALLOWED_CHARS_CHARNAME][0] - 1; i++) {
@@ -1990,7 +1990,7 @@ char *player_make_path(const char *name, const char *ext)
 
     stringbuffer_append_printf(sb, "%s/%s", name_lower, ext);
 
-    free(name_lower);
+    efree(name_lower);
     cp = stringbuffer_finish(sb);
 
     return cp;
@@ -2003,7 +2003,7 @@ int player_exists(const char *name)
 
     path = player_make_path(name, "player.dat");
     ret = path_exists(path);
-    free(path);
+    efree(path);
 
     return ret;
 }
@@ -2033,7 +2033,7 @@ void player_save(object *op)
         draw_info(COLOR_WHITE, op, "Can't open file for saving.");
         logger_print(LOG(BUG), "Can't open file for saving: %s.", path);
         rename(pathtmp, path);
-        free(path);
+        efree(path);
         return;
     }
 
@@ -2079,7 +2079,7 @@ void player_save(object *op)
     if (fclose(fp) == EOF) {
         draw_info(COLOR_WHITE, op, "Can't save character.");
         rename(pathtmp, path);
-        free(path);
+        efree(path);
         return;
     }
 
@@ -2146,8 +2146,8 @@ static int player_load(player *pl, const char *path)
             pl->bed_y = atoi(buf + 5);
         }
         else if (strncmp(buf, "cmd_permission ", 15) == 0) {
-            pl->cmd_permissions = realloc(pl->cmd_permissions, sizeof(char *) * (pl->num_cmd_permissions + 1));
-            pl->cmd_permissions[pl->num_cmd_permissions] = strdup(buf + 15);
+            pl->cmd_permissions = erealloc(pl->cmd_permissions, sizeof(char *) * (pl->num_cmd_permissions + 1));
+            pl->cmd_permissions[pl->num_cmd_permissions] = estrdup(buf + 15);
             pl->num_cmd_permissions++;
         }
         else if (strncmp(buf, "faction ", 8) == 0) {
@@ -2160,8 +2160,8 @@ static int player_load(player *pl, const char *path)
             if (string_get_word(buf, &pos, ' ', faction_id, sizeof(faction_id), 0)) {
                 rep = atoll(buf + pos);
 
-                pl->faction_ids = realloc(pl->faction_ids, sizeof(*pl->faction_ids) * (pl->num_faction_ids + 1));
-                pl->faction_reputation = realloc(pl->faction_reputation, sizeof(*pl->faction_reputation) * (pl->num_faction_ids + 1));
+                pl->faction_ids = erealloc(pl->faction_ids, sizeof(*pl->faction_ids) * (pl->num_faction_ids + 1));
+                pl->faction_reputation = erealloc(pl->faction_reputation, sizeof(*pl->faction_reputation) * (pl->num_faction_ids + 1));
                 pl->faction_ids[pl->num_faction_ids] = add_string(faction_id);
                 pl->faction_reputation[pl->num_faction_ids] = rep;
                 pl->num_faction_ids++;
@@ -2171,8 +2171,8 @@ static int player_load(player *pl, const char *path)
             pl->fame = atoi(buf + 5);
         }
         else if (strncmp(buf, "rmap ", 5) == 0) {
-            pl->region_maps = realloc(pl->region_maps, sizeof(*pl->region_maps) * (pl->num_region_maps + 1));
-            pl->region_maps[pl->num_region_maps] = strdup(buf + 5);
+            pl->region_maps = erealloc(pl->region_maps, sizeof(*pl->region_maps) * (pl->num_region_maps + 1));
+            pl->region_maps[pl->num_region_maps] = estrdup(buf + 5);
             pl->num_region_maps++;
         }
     }
@@ -2315,7 +2315,7 @@ void player_login(socket_struct *ns, const char *name, archetype *at)
         trigger_map_event(MEVENT_LOGIN, pl->ob->map, pl->ob, NULL, NULL, NULL, 0);
     }
 
-    free(path);
+    efree(path);
 }
 
 /** @copydoc object_methods::remove_map_func */

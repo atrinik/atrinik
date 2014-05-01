@@ -156,7 +156,7 @@ static char *x11_get_property(Display *display, Window win, Atom xa_prop_type, c
 
     /* Terminate the result to make string handling easier. */
     tmp_size = (ret_format / 8) * ret_nitems;
-    ret = malloc(tmp_size + 1);
+    ret = emalloc(tmp_size + 1);
     memcpy(ret, ret_prop, tmp_size);
     ret[tmp_size] = '\0';
 
@@ -197,7 +197,7 @@ void x11_window_activate(x11_display_type display, x11_window_type win, uint8 sw
                 logger_print(LOG(BUG), "Cannot switch desktop.");
             }
 
-            free(desktop);
+            efree(desktop);
         }
     }
 
@@ -434,7 +434,7 @@ char *x11_clipboard_get(x11_display_type display, x11_window_type win)
 
     if (XGetWindowProperty(display, owner, selection, 0, INT_MAX / 4, False, XA_STRING, &seln_type, &seln_format, &nbytes, &overflow, (unsigned char **) &src) == Success) {
         if (seln_type == XA_STRING) {
-            result = strdup(src);
+            result = estrdup(src);
         }
 
         XFree(src);
@@ -449,7 +449,7 @@ char *x11_clipboard_get(x11_display_type display, x11_window_type win)
 
         if (hMem) {
             src = (char *) GlobalLock(hMem);
-            result = strdup(src);
+            result = estrdup(src);
             GlobalUnlock(hMem);
         }
 

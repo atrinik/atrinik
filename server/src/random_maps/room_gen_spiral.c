@@ -59,10 +59,10 @@ char **map_gen_spiral(int xsize, int ysize, int option)
     float parm = 0, x = 0, y = 0, SizeX, SizeY, xscale,yscale;
 
     /* Allocate that array, set it up */
-    char **maze = (char **) calloc(sizeof(char *), xsize);
+    char **maze = (char **) ecalloc(sizeof(char *), xsize);
 
     for (i = 0; i < xsize; i++) {
-        maze[i] = (char *) calloc(sizeof(char), ysize);
+        maze[i] = (char *) ecalloc(sizeof(char), ysize);
     }
 
     /* Slightly easier to fill and then cut */

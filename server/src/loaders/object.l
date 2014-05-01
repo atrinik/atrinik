@@ -1508,7 +1508,7 @@ void save_object(FILE *fp, object *op)
     cp = stringbuffer_finish(sb);
 
     fputs(cp, fp);
-    free(cp);
+    efree(cp);
 
     for (tmp = op->inv; tmp; tmp = tmp->below) {
         save_object(fp, tmp);

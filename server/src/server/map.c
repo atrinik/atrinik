@@ -834,12 +834,7 @@ void set_map_darkness(mapstruct *m, int value)
  * @return The new map structure. */
 mapstruct *get_linked_map(void)
 {
-    mapstruct *map = (mapstruct *) calloc(1, sizeof(mapstruct));
-
-    if (map == NULL) {
-        logger_print(LOG(ERROR), "OOM.");
-        exit(1);
-    }
+    mapstruct *map = ecalloc(1, sizeof(mapstruct));
 
     if (first_map) {
         first_map->previous = map;
@@ -881,14 +876,8 @@ static void allocate_map(mapstruct *m)
         logger_print(LOG(BUG), "Callled with already set buttons (%s)", m->path);
     }
 
-    m->spaces = calloc(1, MAP_WIDTH(m) * MAP_HEIGHT(m) * sizeof(MapSpace));
-
-    m->bitmap = malloc(((MAP_WIDTH(m) + 31) / 32) * MAP_HEIGHT(m) * sizeof(uint32));
-
-    if (m->spaces == NULL || m->bitmap == NULL) {
-        logger_print(LOG(ERROR), "OOM.");
-        exit(1);
-    }
+    m->spaces = ecalloc(1, MAP_WIDTH(m) * MAP_HEIGHT(m) * sizeof(MapSpace));
+    m->bitmap = emalloc(((MAP_WIDTH(m) + 31) / 32) * MAP_HEIGHT(m) * sizeof(uint32));
 }
 
 /**
@@ -952,7 +941,7 @@ mapstruct *load_original_map(const char *filename, int flags)
         path = path_basename(pathname);
         string_replace_char(path, "$", '/');
         fp = fopen(create_pathname(path), "rb");
-        free(path);
+        efree(path);
     }
     else {
         fp = fopen(pathname, "rb");
@@ -1335,7 +1324,7 @@ void delete_map(mapstruct *m)
      * do it in free_map(). */
     FREE_AND_NULL_PTR(m->tmpname);
     FREE_AND_CLEAR_HASH(m->path);
-    free(m);
+    efree(m);
 }
 
 /**
@@ -1432,7 +1421,7 @@ void clean_tmp_map(mapstruct *m)
 
     unlink(m->tmpname);
 
-    free(m->tmpname);
+    efree(m->tmpname);
     m->tmpname = NULL;
 }
 
@@ -2233,16 +2222,16 @@ char *map_get_path(mapstruct *m, const char *path, uint8 unique, const char *nam
                 char *dir, *cp;
 
                 dir = path_dirname(m->path);
-                cp = strdup(path);
+                cp = estrdup(path);
                 string_replace_char(cp, "/", '$');
 
                 ret = path_join(dir, cp);
 
-                free(cp);
-                free(dir);
+                efree(cp);
+                efree(dir);
             }
             else {
-                return strdup(path);
+                return estrdup(path);
             }
         }
         else {
@@ -2272,17 +2261,17 @@ char *map_get_path(mapstruct *m, const char *path, uint8 unique, const char *nam
                 /* Construct the path pointing inside the data directory. */
                 ret = path_join(dir, newpath);
 
-                free(newpath);
-                free(dir);
+                efree(newpath);
+                efree(dir);
             }
             else {
                 joined = path_join(filedir, path);
                 ret = path_normalize(joined);
             }
 
-            free(joined);
-            free(filedir);
-            free(file);
+            efree(joined);
+            efree(filedir);
+            efree(file);
         }
     }
     else {
@@ -2290,15 +2279,15 @@ char *map_get_path(mapstruct *m, const char *path, uint8 unique, const char *nam
             if (unique && name) {
                 char *cp;
 
-                cp = strdup(path);
+                cp = estrdup(path);
                 string_replace_char(cp, "/", '$');
 
                 ret = player_make_path(name, cp);
 
-                free(cp);
+                efree(cp);
             }
             else {
-                return strdup(path);
+                return estrdup(path);
             }
         }
         else if (m != NULL) {
@@ -2320,23 +2309,23 @@ char *map_get_path(mapstruct *m, const char *path, uint8 unique, const char *nam
 
                 ret = player_make_path(name, newpath);
 
-                free(newpath);
+                efree(newpath);
             }
             else {
                 joined = path_join(filedir, path);
                 ret = path_normalize(joined);
             }
 
-            free(joined);
-            free(filedir);
+            efree(joined);
+            efree(filedir);
         }
         else {
-            return strdup(EMERGENCY_MAPPATH);
+            return estrdup(EMERGENCY_MAPPATH);
         }
     }
 
     if (path_tmp) {
-        free(path_tmp);
+        efree(path_tmp);
     }
 
     return ret;
@@ -2366,7 +2355,7 @@ mapstruct *map_force_reset(mapstruct *m)
         next = CONTR(tmp)->map_above;
 
         leave_map(tmp);
-        players = realloc(players, sizeof(*players) * (players_num + 1));
+        players = erealloc(players, sizeof(*players) * (players_num + 1));
         players[players_num] = tmp;
         players_num++;
     }
@@ -2391,7 +2380,7 @@ mapstruct *map_force_reset(mapstruct *m)
     }
 
     if (players) {
-        free(players);
+        efree(players);
     }
 
     return m;

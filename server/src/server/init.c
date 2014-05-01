@@ -336,14 +336,14 @@ static void clioptions_option_allowed_chars(const char *arg)
 
                     chars = string_create_char_range(start, end);
                     strncat(settings.allowed_chars[type], chars, sizeof(settings.allowed_chars[type]) - strlen(settings.allowed_chars[type]) - 1);
-                    free(chars);
+                    efree(chars);
                 }
             }
             else {
                 strncat(settings.allowed_chars[type], cmd, sizeof(settings.allowed_chars[type]) - strlen(settings.allowed_chars[type]) - 1);
             }
 
-            free(cmd);
+            efree(cmd);
         }
     }
 }

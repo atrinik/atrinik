@@ -2116,15 +2116,17 @@ int generic_field_setter(fields_struct *field, void *ptr, PyObject *value)
 
         case FIELDTYPE_CSTR:
 
-            if (value == Py_None) {
-                FREE_AND_NULL_PTR(*(char **) field_ptr);
-            }
-            else if (PyString_Check(value)) {
-                if (*(char **) field_ptr) {
+            if (value == Py_None || PyString_Check(value)) {
+                if (*(char **) field_ptr != NULL) {
                     free(*(char **) field_ptr);
                 }
 
-                *(char **) field_ptr = strdup(PyString_AsString(value));
+                if (value == Py_None) {
+                    *(char **) field_ptr = NULL;
+                }
+                else {
+                    *(char **) field_ptr = strdup(PyString_AsString(value));
+                }
             }
             else {
                 INTRAISE("Illegal value for C string field.");

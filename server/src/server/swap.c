@@ -81,7 +81,7 @@ void read_map_log(void)
         }
 
         FREE_AND_COPY_HASH(map->path, tmp[0]);
-        map->tmpname = strdup(tmp[1]);
+        map->tmpname = estrdup(tmp[1]);
 
         sscanf(tmp[2], "%ud:%d:%d\n", &map->reset_time, &map->difficulty, &darkness);
 

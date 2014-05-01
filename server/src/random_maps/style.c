@@ -82,10 +82,10 @@ int load_dir(const char *dir, char ***namelist, int skip_dirs)
 
         if (entries == entry_size) {
             entry_size += 10;
-            rn = realloc(rn, sizeof(char *) * entry_size);
+            rn = erealloc(rn, sizeof(char *) * entry_size);
         }
 
-        rn[entries] = strdup(d->d_name);
+        rn[entries] = estrdup(d->d_name);
         entries++;
     }
 
@@ -235,10 +235,10 @@ mapstruct *find_style(char *dirname, char *stylename, int difficulty)
                     style_map = find_style(style_file_path, namelist[RANDOM() % n], difficulty);
 
                     for (q = 0; q < n; q++) {
-                        free(namelist[q]);
+                        efree(namelist[q]);
                     }
 
-                    free(namelist);
+                    efree(namelist);
 
                     return style_map;
                 }
@@ -261,10 +261,10 @@ mapstruct *find_style(char *dirname, char *stylename, int difficulty)
         }
 
         for (i = 0; i < n; i++) {
-            free(namelist[i]);
+            efree(namelist[i]);
         }
 
-        free(namelist);
+        efree(namelist);
     }
 
     return style_map;

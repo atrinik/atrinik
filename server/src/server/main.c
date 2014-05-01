@@ -482,12 +482,12 @@ int swap_apartments(const char *mapold, const char *mapnew, int x, int y, object
     mapstruct *oldmap, *newmap;
 
     /* So we can transfer our items from the old apartment. */
-    cleanpath = strdup(mapold);
+    cleanpath = estrdup(mapold);
     string_replace_char(cleanpath, "/", '$');
     path = player_make_path(op->name, cleanpath);
     oldmap = ready_map_name(path, MAP_PLAYER_UNIQUE);
-    free(path);
-    free(cleanpath);
+    efree(path);
+    efree(cleanpath);
 
     if (!oldmap) {
         logger_print(LOG(BUG), "Could not get oldmap using ready_map_name().");
@@ -495,12 +495,12 @@ int swap_apartments(const char *mapold, const char *mapnew, int x, int y, object
     }
 
     /* Our new map. */
-    cleanpath = strdup(mapnew);
+    cleanpath = estrdup(mapnew);
     string_replace_char(cleanpath, "/", '$');
     path = player_make_path(op->name, cleanpath);
     newmap = ready_map_name(path, MAP_PLAYER_UNIQUE);
-    free(path);
-    free(cleanpath);
+    efree(path);
+    efree(cleanpath);
 
     if (!newmap) {
         logger_print(LOG(BUG), "Could not get newmap using ready_map_name().");

@@ -74,9 +74,9 @@ WS  [ \t]*
 lex_error = 0;
 %}
 
-^name{S}             m->name = strdup(yval());
-^bg_music{S}         m->bg_music = strdup(yval());
-^weather{S}          m->weather = strdup(yval());
+^name{S}             m->name = estrdup(yval());
+^bg_music{S}         m->bg_music = estrdup(yval());
+^weather{S}          m->weather = estrdup(yval());
 ^region{S}           m->region = get_region_by_name(yval());
 ^enter_x{S}          m->enter_x = IVAL;
 ^enter_y{S}          m->enter_y = IVAL;
@@ -130,7 +130,7 @@ lex_error = 0;
         else {
             path = map_get_path(m, value, m->map_flags & MAP_FLAG_UNIQUE, NULL);
             path_sh = add_string(path);
-            free(path);
+            efree(path);
         }
 
         m->tile_path[tile - 1] = path_sh;
@@ -156,7 +156,7 @@ lex_error = 0;
 <MESSAGE>^endmsg{WS} {
     BEGIN(INITIAL);
 
-    m->msg = strdup(msgbuf);
+    m->msg = estrdup(msgbuf);
 }
 <MESSAGE>.*          {
     if (msg_flag) {

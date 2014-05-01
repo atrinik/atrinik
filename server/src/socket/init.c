@@ -104,7 +104,7 @@ void init_connection(socket_struct *ns, const char *from_ip)
     ns->packet_tail = NULL;
     pthread_mutex_init(&ns->packet_mutex, NULL);
 
-    ns->host = strdup(from_ip);
+    ns->host = estrdup(from_ip);
 }
 
 /**
@@ -140,7 +140,7 @@ void init_ericserver(void)
     socket_info.nconns = 0;
 
     socket_info.nconns = 1;
-    init_sockets = malloc(sizeof(socket_struct));
+    init_sockets = emalloc(sizeof(socket_struct));
     socket_info.allocated_sockets = 1;
 
 #ifndef WIN32
@@ -233,7 +233,7 @@ void free_all_newserver(void)
     closesocket(init_sockets[0].fd);
 #endif
 
-    free(init_sockets);
+    efree(init_sockets);
 }
 
 /**
@@ -259,11 +259,11 @@ void free_newsocket(socket_struct *ns)
     }
 
     if (ns->host) {
-        free(ns->host);
+        efree(ns->host);
     }
 
     if (ns->account) {
-        free(ns->account);
+        efree(ns->account);
     }
 
     packet_free(ns->packet_recv);
@@ -294,13 +294,7 @@ static void load_srv_file(char *fname, int id)
     fstat(fileno(fp), &statbuf);
     fsize = statbuf.st_size;
     /* Allocate a buffer to hold the whole file. */
-    contents = malloc(fsize);
-
-    if (!contents) {
-        logger_print(LOG(ERROR), "OOM.");
-        exit(1);
-    }
-
+    contents = emalloc(fsize);
     numread = fread(contents, 1, fsize, fp);
     fclose(fp);
 
@@ -312,27 +306,15 @@ static void load_srv_file(char *fname, int id)
     /* Calculate the upper bound of the compressed size. */
     numread = compressBound(fsize);
     /* Allocate a buffer to hold the compressed file. */
-    compressed = malloc(numread);
-
-    if (!compressed) {
-        logger_print(LOG(ERROR), "OOM.");
-        exit(1);
-    }
-
+    compressed = emalloc(numread);
     compress2((Bytef *) compressed, (uLong *) &numread, (const unsigned char FAR *) contents, fsize, Z_BEST_COMPRESSION);
-    SrvClientFiles[id].file = malloc(numread);
-
-    if (!SrvClientFiles[id].file) {
-        logger_print(LOG(ERROR), "OOM.");
-        exit(1);
-    }
-
+    SrvClientFiles[id].file = emalloc(numread);
     memcpy(SrvClientFiles[id].file, compressed, numread);
     SrvClientFiles[id].len = numread;
 
     /* Free temporary buffers. */
-    free(contents);
-    free(compressed);
+    efree(contents);
+    efree(compressed);
 }
 
 /**
@@ -457,7 +439,7 @@ void free_srv_files(void)
     int i;
 
     for (i = 0; i < SERVER_FILES_MAX; i++) {
-        free(SrvClientFiles[i].file);
+        efree(SrvClientFiles[i].file);
     }
 }
 

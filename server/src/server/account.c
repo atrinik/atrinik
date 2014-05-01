@@ -73,19 +73,19 @@ static void account_free(account_struct *account)
     size_t i;
 
     if (account->last_host) {
-        free(account->last_host);
+        efree(account->last_host);
     }
 
     if (account->password_old) {
-        free(account->password_old);
+        efree(account->password_old);
     }
 
     for (i = 0; i < account->characters_num; i++) {
-        free(account->characters[i].name);
+        efree(account->characters[i].name);
     }
 
     if (account->characters) {
-        free(account->characters);
+        efree(account->characters);
     }
 }
 
@@ -122,10 +122,10 @@ static char *account_old_crypt(char *str, const char *salt)
         return str;
     }
 
-    result = calloc(1, sizeof(BYTE) * resultlen);
+    result = ecalloc(1, sizeof(BYTE) * resultlen);
 
     if (!CryptGetHashParam(hash, HP_HASHVAL, result, &resultlen, 0)) {
-        free(result);
+        efree(result);
         CryptDestroyHash(hash);
         CryptReleaseContext(provider, 0);
         return str;
@@ -142,7 +142,7 @@ static char *account_old_crypt(char *str, const char *salt)
         hashresult[sizeof(hashresult) - strlen(hashresult) - 1] = '\0';
     }
 
-    free(result);
+    efree(result);
 
     return hashresult;
 #else
@@ -235,7 +235,7 @@ static int account_load(account_struct *account, const char *path)
             len = strlen(buf + 5);
 
             if (len == 13 || len == 40) {
-                account->password_old = strdup(buf + 5);
+                account->password_old = estrdup(buf + 5);
             }
             else if (string_fromhex(buf + 5, len, account->password, ACCOUNT_PASSWORD_SIZE) != ACCOUNT_PASSWORD_SIZE) {
                 logger_print(LOG(BUG), "Invalid password entry in file: %s", path);
@@ -249,7 +249,7 @@ static int account_load(account_struct *account, const char *path)
             }
         }
         else if (strncmp(buf, "host ", 5) == 0) {
-            account->last_host = strdup(buf + 5);
+            account->last_host = estrdup(buf + 5);
         }
         else if (strncmp(buf, "time ", 5) == 0) {
             account->last_time = atoll(buf + 5);
@@ -262,10 +262,10 @@ static int account_load(account_struct *account, const char *path)
                 continue;
             }
 
-            account->characters = realloc(account->characters, sizeof(*account->characters) * (account->characters_num + 1));
+            account->characters = erealloc(account->characters, sizeof(*account->characters) * (account->characters_num + 1));
             account->characters[account->characters_num].at = find_archetype(cps[0]);
-            account->characters[account->characters_num].name = strdup(cps[1]);
-            account->characters[account->characters_num].region_name = strdup(cps[2]);
+            account->characters[account->characters_num].name = estrdup(cps[1]);
+            account->characters[account->characters_num].region_name = estrdup(cps[2]);
             account->characters[account->characters_num].level = atoi(cps[3]);
             account->characters_num++;
         }
@@ -344,14 +344,14 @@ void account_login(socket_struct *ns, char *name, char *password)
     if (!path_exists(path)) {
         draw_info_send(CHAT_TYPE_GAME, NULL, COLOR_RED, ns, "No such account.");
         account_send_characters(ns, NULL);
-        free(path);
+        efree(path);
         return;
     }
 
     if (!account_load(&account, path)) {
         draw_info_send(CHAT_TYPE_GAME, NULL, COLOR_RED, ns, "Read error occurred, please contact server administrator.");
         account_send_characters(ns, NULL);
-        free(path);
+        efree(path);
         return;
     }
 
@@ -359,7 +359,7 @@ void account_login(socket_struct *ns, char *name, char *password)
         draw_info_send(CHAT_TYPE_GAME, NULL, COLOR_RED, ns, "Invalid password.");
         account_send_characters(ns, NULL);
         account_free(&account);
-        free(path);
+        efree(path);
 
         ns->password_fails++;
         logger_print(LOG(SYSTEM), "%s: Failed to provide correct password for account %s.", ns->host, name);
@@ -377,15 +377,15 @@ void account_login(socket_struct *ns, char *name, char *password)
         account_set_password(&account, password);
     }
 
-    ns->account = strdup(name);
+    ns->account = estrdup(name);
     account_send_characters(ns, &account);
 
-    free(account.last_host);
-    account.last_host = strdup(ns->host);
+    efree(account.last_host);
+    account.last_host = estrdup(ns->host);
     account.last_time = datetime_getutc();
     account_save(&account, path);
     account_free(&account);
-    free(path);
+    efree(path);
 }
 
 void account_register(socket_struct *ns, char *name, char *password, char *password2)
@@ -425,7 +425,7 @@ void account_register(socket_struct *ns, char *name, char *password, char *passw
 
     if (path_exists(path)) {
         draw_info_send(CHAT_TYPE_GAME, NULL, COLOR_RED, ns, "That account name is already registered.");
-        free(path);
+        efree(path);
         return;
     }
 
@@ -439,13 +439,13 @@ void account_register(socket_struct *ns, char *name, char *password, char *passw
 
     if (!account_save(&account, path)) {
         draw_info_send(CHAT_TYPE_GAME, NULL, COLOR_RED, ns, "Save error occurred, please contact server administrator.");
-        free(path);
+        efree(path);
         return;
     }
 
-    ns->account = strdup(name);
+    ns->account = estrdup(name);
     account_send_characters(ns, &account);
-    free(path);
+    efree(path);
 }
 
 void account_new_char(socket_struct *ns, char *name, char *archname)
@@ -482,14 +482,14 @@ void account_new_char(socket_struct *ns, char *name, char *archname)
 
     if (!account_load(&account, path)) {
         draw_info_send(CHAT_TYPE_GAME, NULL, COLOR_RED, ns, "Read error occurred, please contact server administrator.");
-        free(path);
+        efree(path);
         return;
     }
 
     if (account.characters_num >= ACCOUNT_CHARACTERS_LIMIT) {
         draw_info_send(CHAT_TYPE_GAME, NULL, COLOR_RED, ns, "You have reached the maximum number of allowed characters per account.");
         account_free(&account);
-        free(path);
+        efree(path);
         return;
     }
 
@@ -498,31 +498,31 @@ void account_new_char(socket_struct *ns, char *name, char *archname)
     if (!path_touch(path_player)) {
         draw_info_send(CHAT_TYPE_GAME, NULL, COLOR_RED, ns, "Write error occurred, please contact server administrator.");
         account_free(&account);
-        free(path);
-        free(path_player);
+        efree(path);
+        efree(path_player);
         return;
     }
 
-    free(path_player);
+    efree(path_player);
 
-    account.characters = realloc(account.characters, sizeof(*account.characters) * (account.characters_num + 1));
+    account.characters = erealloc(account.characters, sizeof(*account.characters) * (account.characters_num + 1));
     account.characters[account.characters_num].at = at;
-    account.characters[account.characters_num].name = strdup(name);
-    account.characters[account.characters_num].region_name = strdup("");
+    account.characters[account.characters_num].name = estrdup(name);
+    account.characters[account.characters_num].region_name = estrdup("");
     account.characters[account.characters_num].level = 1;
     account.characters_num++;
 
     if (!account_save(&account, path)) {
         draw_info_send(CHAT_TYPE_GAME, NULL, COLOR_RED, ns, "Write error occurred, please contact server administrator.");
         account_free(&account);
-        free(path);
+        efree(path);
         return;
     }
 
     draw_info_send(CHAT_TYPE_GAME, NULL, COLOR_GREEN, ns, "New character created successfully.");
     account_send_characters(ns, &account);
     account_free(&account);
-    free(path);
+    efree(path);
 }
 
 void account_login_char(socket_struct *ns, char *name)
@@ -539,11 +539,11 @@ void account_login_char(socket_struct *ns, char *name)
     path = account_make_path(ns->account);
 
     if (!account_load(&account, path)) {
-        free(path);
+        efree(path);
         return;
     }
 
-    free(path);
+    efree(path);
 
     for (i = 0; i < account.characters_num; i++) {
         if (strcmp(account.characters[i].name, name) == 0) {
@@ -570,14 +570,14 @@ void account_logout_char(socket_struct *ns, player *pl)
     path = account_make_path(ns->account);
 
     if (!account_load(&account, path)) {
-        free(path);
+        efree(path);
         return;
     }
 
     for (i = 0; i < account.characters_num; i++) {
         if (strcmp(account.characters[i].name, pl->ob->name) == 0) {
-            free(account.characters[i].region_name);
-            account.characters[i].region_name = strdup(pl->ob->map->region ? get_region_longname(pl->ob->map->region) : "???");
+            efree(account.characters[i].region_name);
+            account.characters[i].region_name = estrdup(pl->ob->map->region ? get_region_longname(pl->ob->map->region) : "???");
             string_replace_char(account.characters[i].region_name, ":", ' ');
             account.characters[i].level = pl->ob->level;
             break;
@@ -586,7 +586,7 @@ void account_logout_char(socket_struct *ns, player *pl)
 
     account_save(&account, path);
     account_free(&account);
-    free(path);
+    efree(path);
 }
 
 void account_password_change(socket_struct *ns, char *password, char *password_new, char *password_new2)
@@ -621,14 +621,14 @@ void account_password_change(socket_struct *ns, char *password, char *password_n
 
     if (!account_load(&account, path)) {
         draw_info_send(CHAT_TYPE_GAME, NULL, COLOR_RED, ns, "Read error occurred, please contact server administrator.");
-        free(path);
+        efree(path);
         return;
     }
 
     if (!account_check_password(&account, password)) {
         draw_info_send(CHAT_TYPE_GAME, NULL, COLOR_RED, ns, "Invalid password.");
         account_free(&account);
-        free(path);
+        efree(path);
         return;
     }
 
@@ -642,5 +642,5 @@ void account_password_change(socket_struct *ns, char *password, char *password_n
     }
 
     account_free(&account);
-    free(path);
+    efree(path);
 }

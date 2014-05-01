@@ -314,13 +314,7 @@ void doeric_server(void)
 
         /* If this is the case, all sockets are currently in use */
         if (socket_info.allocated_sockets <= socket_info.nconns) {
-            init_sockets = realloc(init_sockets, sizeof(socket_struct) * (socket_info.nconns + 1));
-
-            if (!init_sockets) {
-                logger_print(LOG(ERROR), "OOM.");
-                exit(1);
-            }
-
+            init_sockets = erealloc(init_sockets, sizeof(socket_struct) * (socket_info.nconns + 1));
             newsocknum = socket_info.allocated_sockets;
             socket_info.allocated_sockets++;
             init_sockets[newsocknum].state = ST_AVAILABLE;

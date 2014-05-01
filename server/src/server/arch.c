@@ -135,7 +135,7 @@ void free_all_archs(void)
         FREE_AND_CLEAR_HASH(at->clone.slaying);
         FREE_AND_CLEAR_HASH(at->clone.msg);
         free_key_values(&at->clone);
-        free(at);
+        efree(at);
         i++;
     }
 }
@@ -148,12 +148,7 @@ static archetype *get_archetype_struct(void)
 {
     archetype *new;
 
-    new = (archetype *) calloc(1, sizeof(archetype));
-
-    if (new == NULL) {
-        logger_print(LOG(ERROR), "OOM.");
-        exit(1);
-    }
+    new = ecalloc(1, sizeof(archetype));
 
     /* To initial state other also */
     initialize_object(&new->clone);
@@ -224,7 +219,7 @@ static void first_arch_pass(FILE *fp)
     delete_loader_buffer(mybuffer);
     SET_FLAG(op, FLAG_REMOVED);
     object_destroy(op);
-    free(at);
+    efree(at);
 }
 
 /**

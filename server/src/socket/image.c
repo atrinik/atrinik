@@ -94,16 +94,16 @@ void free_socket_images(void)
         if (facesets[num].prefix) {
             for (q = 0; q < nrofpixmaps; q++) {
                 if (facesets[num].faces[q].data) {
-                    free(facesets[num].faces[q].data);
+                    efree(facesets[num].faces[q].data);
                 }
             }
 
-            free(facesets[num].prefix);
-            free(facesets[num].fullname);
-            free(facesets[num].size);
-            free(facesets[num].extension);
-            free(facesets[num].comment);
-            free(facesets[num].faces);
+            efree(facesets[num].prefix);
+            efree(facesets[num].fullname);
+            efree(facesets[num].size);
+            efree(facesets[num].extension);
+            efree(facesets[num].comment);
+            efree(facesets[num].faces);
         }
     }
 }
@@ -153,11 +153,11 @@ void read_client_images(void)
                 exit(1);
             }
 
-            facesets[len].prefix = strdup(cps[1]);
-            facesets[len].fullname = strdup(cps[2]);
-            facesets[len].size = strdup(cps[4]);
-            facesets[len].extension = strdup(cps[5]);
-            facesets[len].comment = strdup(cps[6]);
+            facesets[len].prefix = estrdup(cps[1]);
+            facesets[len].fullname = estrdup(cps[2]);
+            facesets[len].size = estrdup(cps[4]);
+            facesets[len].extension = estrdup(cps[5]);
+            facesets[len].comment = estrdup(cps[6]);
         }
     }
 
@@ -171,7 +171,7 @@ void read_client_images(void)
             continue;
         }
 
-        facesets[file_num].faces = calloc(nrofpixmaps, sizeof(FaceInfo));
+        facesets[file_num].faces = ecalloc(nrofpixmaps, sizeof(FaceInfo));
 
         snprintf(filename, sizeof(filename), "%s/atrinik.%d", settings.libpath, file_num);
         snprintf(buf, sizeof(buf), "%s/client_bmaps", settings.datapath);
@@ -215,7 +215,7 @@ void read_client_images(void)
             /* We don't actually care about the name if the image that
              * is embedded in the image file, so just ignore it. */
             facesets[file_num].faces[num].datalen = len;
-            facesets[file_num].faces[num].data = malloc(len);
+            facesets[file_num].faces[num].data = emalloc(len);
 
             if ((i = fread(facesets[file_num].faces[num].data, len, 1, infile)) != 1) {
                 logger_print(LOG(ERROR), "Did not read desired amount of data, wanted %d, got %d: %s", len, i, buf);

@@ -383,8 +383,8 @@ static void init_msgfile(void)
                     }
 
                     num_msgs++;
-                    msgs = realloc(msgs, sizeof(char *) * num_msgs);
-                    msgs[num_msgs - 1] = strdup(msgbuf);
+                    msgs = erealloc(msgs, sizeof(char *) * num_msgs);
+                    msgs[num_msgs - 1] = estrdup(msgbuf);
                     in_msg = 0;
                 }
                 else if (!buf_overflow(msgbuf, buf, sizeof(msgbuf) - 1)) {
@@ -422,7 +422,7 @@ static void init_mon_info(void)
     for (at = first_archetype; at; at = at->next) {
         if (QUERY_FLAG(&at->clone, FLAG_MONSTER)) {
             num_monsters++;
-            monsters = realloc(monsters, sizeof(object *) * num_monsters);
+            monsters = erealloc(monsters, sizeof(object *) * num_monsters);
             monsters[num_monsters - 1] = &at->clone;
         }
     }
@@ -690,12 +690,12 @@ static char *artifact_msg(int level, char *buf, size_t booksize)
 
         /* Add the buf if it will fit. */
         if (book_overflow(buf, final, booksize)) {
-            free(final);
+            efree(final);
             break;
         }
 
         snprintf(buf + strlen(buf), booksize - strlen(buf), "%s", final);
-        free(final);
+        efree(final);
 
         art = art->next;
         book_entries--;
@@ -754,7 +754,7 @@ static char *spellpath_msg(int level, char *buf, size_t booksize)
         snprintf(buf + strlen(buf), booksize - strlen(buf), "%s\n", final);
     }
 
-    free(final);
+    efree(final);
     return buf;
 }
 
@@ -850,9 +850,9 @@ void free_all_readable(void)
     size_t i;
 
     for (i = 0; i < num_msgs; i++) {
-        free(msgs[i]);
+        efree(msgs[i]);
     }
 
-    free(msgs);
-    free(monsters);
+    efree(msgs);
+    efree(monsters);
 }

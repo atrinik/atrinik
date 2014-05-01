@@ -200,23 +200,23 @@ void init_regions(void)
         if (!strcmp(key, "region")) {
             *end = '\0';
             new = get_region_struct();
-            new->name = strdup(value);
+            new->name = estrdup(value);
         }
         else if (!strcmp(key, "parent")) {
             *end = '\0';
-            new->parent_name = strdup(value);
+            new->parent_name = estrdup(value);
         }
         else if (!strcmp(key, "longname")) {
             *end = '\0';
-            new->longname = strdup(value);
+            new->longname = estrdup(value);
         }
         else if (!strcmp(key, "map_first")) {
             *end = '\0';
-            new->map_first = strdup(value);
+            new->map_first = estrdup(value);
         }
         else if (!strcmp(key, "map_bg")) {
             *end = '\0';
-            new->map_bg = strdup(value);
+            new->map_bg = estrdup(value);
         }
         else if (!strcmp(key, "map_quest")) {
             *end = '\0';
@@ -232,7 +232,7 @@ void init_regions(void)
                 exit(1);
             }
 
-            new->jailmap = strdup(path);
+            new->jailmap = estrdup(path);
             new->jailx = x;
             new->jaily = y;
         }
@@ -247,7 +247,7 @@ void init_regions(void)
             }
 
             if (msgpos != 0) {
-                new->msg = strdup(msgbuf);
+                new->msg = estrdup(msgbuf);
             }
 
             /* we have to reset msgpos, or the next region will store both msg
@@ -286,12 +286,7 @@ void init_regions(void)
  * @return Initialized region structure. */
 static region *get_region_struct(void)
 {
-    region *new = (region *) calloc(1, sizeof(region));
-
-    if (new == NULL) {
-        logger_print(LOG(ERROR), "OOM.");
-        exit(1);
-    }
+    region *new = ecalloc(1, sizeof(region));
 
     return new;
 }
@@ -329,6 +324,6 @@ void free_regions(void)
         FREE_AND_NULL_PTR(reg->map_bg);
         FREE_AND_NULL_PTR(reg->msg);
         FREE_AND_NULL_PTR(reg->jailmap);
-        free(reg);
+        efree(reg);
     }
 }

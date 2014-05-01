@@ -63,12 +63,12 @@ void beacon_add(object *ob)
 
         FREE_AND_COPY_HASH(ob->name, joined);
 
-        free(joined);
-        free(pl_name);
-        free(filedir);
+        efree(joined);
+        efree(pl_name);
+        efree(filedir);
     }
 
-    beacon = malloc(sizeof(beacon_struct));
+    beacon = emalloc(sizeof(beacon_struct));
     beacon->ob = ob;
     HASH_ADD(hh, beacons, ob->name, sizeof(shstr *), beacon);
 }
@@ -84,7 +84,7 @@ void beacon_remove(object *ob)
 
     if (beacon) {
         HASH_DEL(beacons, beacon);
-        free(beacon);
+        efree(beacon);
     }
     else {
         logger_print(LOG(BUG), "Could not remove beacon %s from hashtable.", ob->name);

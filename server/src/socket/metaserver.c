@@ -76,7 +76,7 @@ void metaserver_info_update(void)
     pthread_mutex_lock(&ms_info_mutex);
 
     if (metaserver_info.players) {
-        free(metaserver_info.players);
+        efree(metaserver_info.players);
     }
 
     snprintf(metaserver_info.num_players, sizeof(metaserver_info.num_players), "%u", num_players);

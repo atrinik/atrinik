@@ -1220,7 +1220,7 @@ void socket_command_quest_list(socket_struct *ns, player *pl, uint8 *data, size_
     packet = packet_new(CLIENT_CMD_BOOK, 0, 0);
     packet_append_data_len(packet, (uint8 *) cp, cp_len);
     socket_send_packet(&pl->socket, packet);
-    free(cp);
+    efree(cp);
 }
 
 void socket_command_clear(socket_struct *ns, player *pl, uint8 *data, size_t len, size_t pos)

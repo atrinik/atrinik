@@ -38,10 +38,11 @@ void command_statistics(object *op, const char *command, char *params)
     draw_info_format(COLOR_WHITE, op, "Experience: %s", string_format_number_comma(op->stats.exp));
 
     if (op->level < MAXLEVEL) {
-        char *cp = strdup(string_format_number_comma(level_exp(op->level + 1, 1.0)));
+        char *cp;
 
+        cp = estrdup(string_format_number_comma(level_exp(op->level + 1, 1.0)));
         draw_info_format(COLOR_WHITE, op, "Next Level:  %s (%s)", cp, string_format_number_comma(level_exp(op->level + 1, 1.0) - op->stats.exp));
-        free(cp);
+        efree(cp);
     }
 
     draw_info(COLOR_WHITE, op, "\nStat: Natural (Real)");
