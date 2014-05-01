@@ -59,6 +59,91 @@ void toolkit_memory_deinit(void)
 }
 
 /**
+ * Like malloc(), but performs error checking.
+ * @param size Number of bytes to allocate.
+ * @return Allocated pointer, never NULL.
+ * @note Will abort() in case the pointer can't be allocated.
+ */
+void *memory_emalloc(size_t size)
+{
+    void *ptr;
+
+    TOOLKIT_FUNC_PROTECTOR(API_NAME);
+
+    ptr = malloc(size);
+
+    if (ptr == NULL) {
+        logger_print(LOG(ERROR), "OOM.");
+        abort();
+    }
+
+    return ptr;
+}
+
+/**
+ * Like free(), but performs error checking.
+ * @param ptr Pointer to free.
+ * @note Will abort() in case the pointer is NULL.
+ */
+void memory_efree(void *ptr)
+{
+    TOOLKIT_FUNC_PROTECTOR(API_NAME);
+
+    if (ptr == NULL) {
+        logger_print(LOG(ERROR), "Freeing NULL pointer.");
+        abort();
+    }
+
+    free(ptr);
+}
+
+/**
+ * Like calloc(), but performs error checking.
+ * @param nmemb Elements.
+ * @param size Number of bytes.
+ * @return Allocated pointer, never NULL.
+ * @note Will abort() in case the pointer can't be allocated.
+ */
+void *memory_ecalloc(size_t nmemb, size_t size)
+{
+    void *ptr;
+
+    TOOLKIT_FUNC_PROTECTOR(API_NAME);
+
+    ptr = calloc(nmemb, size);
+
+    if (ptr == NULL) {
+        logger_print(LOG(ERROR), "OOM.");
+        abort();
+    }
+
+    return ptr;
+}
+
+/**
+ * Like realloc(), but performs error checking.
+ * @param ptr Pointer to resize.
+ * @param size New number of bytes.
+ * @return Resized pointer, never NULL.
+ * @note Will abort() in case the pointer can't be resized.
+ */
+void *memory_erealloc(void *ptr, size_t size)
+{
+    void *newptr;
+
+    TOOLKIT_FUNC_PROTECTOR(API_NAME);
+
+    newptr = realloc(ptr, size);
+
+    if (newptr == NULL) {
+        logger_print(LOG(ERROR), "OOM.");
+        abort();
+    }
+
+    return newptr;
+}
+
+/**
  * Like realloc(), but if more bytes are being allocated, they get set to
  * 0 using memset().
  * @param ptr Original pointer.
@@ -67,9 +152,11 @@ void toolkit_memory_deinit(void)
  * @return Resized pointer, NULL on failure. */
 void *memory_reallocz(void *ptr, size_t old_size, size_t new_size)
 {
-    void *new_ptr = realloc(ptr, new_size);
+    void *new_ptr;
 
     TOOLKIT_FUNC_PROTECTOR(API_NAME);
+
+    new_ptr = erealloc(ptr, new_size);
 
     if (new_ptr && new_size > old_size) {
         memset(((char *) new_ptr) + old_size, 0, new_size - old_size);
