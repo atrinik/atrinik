@@ -20,6 +20,8 @@ if [ -f "server-custom.cfg" ]; then
 	CLI_CONFIG="--config=server-custom.cfg"
 fi
 
+./tools/http_server.py > /dev/null 2>&1 &
+
 # Start up the server. If running from a terminal, pass options to the
 # executable. Otherwise, start up the server with some sane options,
 # which includes redirecting the log to a file.

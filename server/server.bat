@@ -17,4 +17,5 @@ if exist "server-custom.cfg" (
 	set CLI_CONFIG=--config=server-custom.cfg
 )
 
+start /B python ./tools/http_server.py
 atrinik_server.exe %CLI_CONFIG% --logfile=logfile.log

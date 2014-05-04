@@ -192,6 +192,12 @@ static void clioptions_option_mapspath(const char *arg)
     settings.mapspath[sizeof(settings.mapspath) - 1] = '\0';
 }
 
+static void clioptions_option_httppath(const char *arg)
+{
+    strncpy(settings.httppath, arg, sizeof(settings.httppath) - 1);
+    settings.httppath[sizeof(settings.httppath) - 1] = '\0';
+}
+
 static void clioptions_option_metaserver_url(const char *arg)
 {
     strncpy(settings.metaserver_url, arg, sizeof(settings.metaserver_url) - 1);
@@ -365,6 +371,11 @@ static void clioptions_option_recycle_tmp_maps(const char *arg)
     settings.recycle_tmp_maps = 1;
 }
 
+static void clioptions_option_http_url(const char *arg)
+{
+    snprintf(settings.http_url, sizeof(settings.http_url), "%s", arg);
+}
+
 /**
  * It is vital that init_library() is called by any functions using this
  * library.
@@ -482,6 +493,15 @@ static void init_library(int argc, char *argv[])
         1,
         "Map files location.",
         "Where the maps are."
+        );
+
+    clioptions_add(
+        "httppath",
+        NULL,
+        clioptions_option_httppath,
+        1,
+        "HTTP files location.",
+        "Where the HTTP server files are."
         );
 
     clioptions_add(
@@ -611,6 +631,26 @@ static void init_library(int argc, char *argv[])
         "Set this if you want the temporary maps to be saved and reused "
         "across Atrinik runs. This can be especially useful for single player "
         "servers, but even holds use for multiplayer servers."
+    );
+
+    clioptions_add(
+        "http_server",
+        NULL,
+        NULL,
+        1,
+        "Whether to bring up the simple HTTP server.",
+        "If 'on', will bring up the simple HTTP server for serving the game "
+        "server's data files to clients. Use 'off' to disable and configure "
+        "http_url option to your own HTTP server as you see fit."
+    );
+
+    clioptions_add(
+        "http_url",
+        NULL,
+        clioptions_option_http_url,
+        1,
+        "URL of the HTTP server.",
+        "URL pointing to the HTTP server."
     );
 
     memset(&settings, 0, sizeof(settings));

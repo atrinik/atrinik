@@ -349,6 +349,10 @@ typedef struct settings_struct
     char mapspath[MAX_BUF];
 
     /**
+     * Where the HTTP files are. */
+    char httppath[MAX_BUF];
+
+    /**
      * HTTP URL of the metaserver. */
     char metaserver_url[MAX_BUF];
 
@@ -416,6 +420,10 @@ typedef struct settings_struct
     /**
      * Whether to recycle tmp maps or not. */
     uint8 recycle_tmp_maps;
+
+    /**
+     * URL to the HTTP server. */
+    char http_url[MAX_BUF];
 } settings_struct;
 
 /** Constant shared string pointers. */
