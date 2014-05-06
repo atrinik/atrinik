@@ -604,7 +604,7 @@ extern region *first_region;
 extern region *get_region_by_name(const char *region_name);
 extern char *get_region_longname(const region *r);
 extern char *get_region_msg(const region *r);
-extern object *get_jail_exit(object *op);
+extern int region_enter_jail(object *op);
 extern void init_regions(void);
 extern void free_regions(void);
 /* src/server/rune.c */

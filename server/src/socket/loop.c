@@ -183,7 +183,7 @@ void remove_ns_dead_player(player *pl)
         command_party(pl->ob, "party", "leave");
     }
 
-    strncpy(pl->killer, "left", MAX_BUF - 1);
+    snprintf(pl->killer, sizeof(pl->killer), "left");
     hiscore_check(pl->ob, 1);
 
     /* Be sure we have closed container when we leave */

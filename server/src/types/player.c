@@ -569,7 +569,7 @@ void do_some_living(object *op)
 
     if ((op->stats.hp <= 0 || op->stats.food < 0) && !CONTR(op)->tgm) {
         draw_info_format(COLOR_WHITE, NULL, "%s starved to death.", op->name);
-        strcpy(CONTR(op)->killer, "starvation");
+        snprintf(CONTR(op)->killer, sizeof(CONTR(op)->killer), "starvation");
         kill_player(op);
     }
 }

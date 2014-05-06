@@ -1653,7 +1653,7 @@ void socket_command_talk(socket_struct *ns, player *pl, uint8 *data, size_t len,
         }
 
         /* Use larger search space when trying to talk to a specific NPC. */
-        for (i = 0; i <= (type == CMD_TALK_NPC ? SIZEOFFREE2 : SIZEOFFREE) && !npc; i++) {
+        for (i = 0; i < (type == CMD_TALK_NPC ? SIZEOFFREE2 + 1 : SIZEOFFREE) && !npc; i++) {
             x = pl->ob->x + freearr_x[i];
             y = pl->ob->y + freearr_y[i];
             m = get_map_from_coord(pl->ob->map, &x, &y);

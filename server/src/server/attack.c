@@ -791,7 +791,7 @@ int kill_object(object *op, int dam, object *hitter, int type)
             snprintf(CONTR(op)->killer, sizeof(CONTR(op)->killer), "%s the %s", owner->name, player_get_race_class(owner, race, sizeof(race)));
         }
         else {
-            strncpy(CONTR(op)->killer, owner->name, sizeof(CONTR(op)->killer) - 1);
+            snprintf(CONTR(op)->killer, sizeof(CONTR(op)->killer), "%s", owner->name);
         }
 
         /* And actually kill the player. */

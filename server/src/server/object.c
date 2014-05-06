@@ -184,7 +184,7 @@ void init_materials(void)
             int def_race = RACE_TYPE_NONE, type = M_NONE, quality = 100;
             char name[MAX_BUF];
 
-            if (i > NUM_MATERIALS_REAL) {
+            if (i < 0 || i >= NUM_MATERIALS_REAL) {
                 logger_print(LOG(ERROR), "Materials file contains declaration for material #%d but it doesn't exist.", i);
                 exit(1);
             }

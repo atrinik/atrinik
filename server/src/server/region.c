@@ -103,45 +103,40 @@ char *get_region_msg(const region *r)
 }
 
 /**
- * Returns an object which is an exit through which the player represented by
- * op should be sent in order to be imprisoned. If there is no suitable place
- * to which an exit can be constructed, then NULL will be returned.
- * @param op Object we want to jail. Must be a player.
- * @return Exit to jail, or NULL, in which case a message is LOG()ged . */
-object *get_jail_exit(object *op)
+ * Attempts to jail the specified object.
+ * @param op Object we want to jail.
+ * @return 1 if jailed successfully, 0 otherwise. . */
+int region_enter_jail(object *op)
 {
     region *reg;
-    object *exit_ob;
-
-    if (op->type != PLAYER) {
-        logger_print(LOG(BUG), "called for non-player object.");
-        return NULL;
-    }
+    mapstruct *m;
 
     if (!op->map->region) {
-        return NULL;
+        return 0;
     }
 
     reg = op->map->region;
 
     while (reg) {
         if (reg->jailmap) {
-            exit_ob = get_object();
-            FREE_AND_COPY_HASH(EXIT_PATH(exit_ob), reg->jailmap);
-            /* Damned exits reset savebed and remove teleports, so the prisoner
-             * can't escape */
-            SET_FLAG(exit_ob, FLAG_DAMNED);
-            EXIT_X(exit_ob) = reg->jailx;
-            EXIT_Y(exit_ob) = reg->jaily;
-            return exit_ob;
+            m = ready_map_name(reg->jailmap, 0);
+
+            if (m == NULL) {
+                logger_print(LOG(DEBUG), "Could not load map '%s' (%d,%d).",
+                             reg->jailmap, reg->jailx, reg->jaily);
+                return 0;
+            }
+            
+            return object_enter_map(op, NULL, m, reg->jailx, reg->jaily, 1);
         }
         else {
             reg = reg->parent;
         }
     }
 
-    logger_print(LOG(DEBUG), "No suitable jailmap for region %s was found.", op->map->region->name);
-    return NULL;
+    logger_print(LOG(DEBUG), "No suitable jailmap for region %s was found.",
+                 op->map->region->name);
+    return 0;
 }
 
 /**

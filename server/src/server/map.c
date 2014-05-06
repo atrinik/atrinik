@@ -915,25 +915,16 @@ mapstruct *load_original_map(const char *filename, int flags)
 {
     FILE *fp;
     mapstruct *m;
-    char pathname[HUGE_BUF], tmp_fname[HUGE_BUF];
+    char pathname[HUGE_BUF];
 
     /* No sense in doing this all for random maps, it will all fail anyways. */
     if (!strncmp(filename, "/random/", 8)) {
         return NULL;
     }
 
-    if (*filename != '/' && *filename != '.') {
-        tmp_fname[0] = '/';
-        strcpy(tmp_fname + 1, filename);
-        filename = tmp_fname;
-    }
-
-    if (flags & MAP_PLAYER_UNIQUE) {
-        strcpy(pathname, filename);
-    }
-    else {
-        strcpy(pathname, create_pathname(filename));
-    }
+    snprintf(pathname, sizeof(pathname), "%s%s",
+             *filename != '/' && *filename != '.' ? "/" : "",
+             flags & MAP_PLAYER_UNIQUE ? filename : create_pathname(filename));
 
     if (flags & MAP_PLAYER_UNIQUE && !path_exists(pathname)) {
         char *path;
@@ -963,6 +954,7 @@ mapstruct *load_original_map(const char *filename, int flags)
     if (!load_map_header(m, fp)) {
         logger_print(LOG(BUG), "Failure loading map header for %s, flags=%d", filename, flags);
         delete_map(m);
+        fclose(fp);
         return NULL;
     }
 
@@ -989,18 +981,13 @@ mapstruct *load_original_map(const char *filename, int flags)
 static mapstruct *load_temporary_map(mapstruct *m)
 {
     FILE *fp;
-    char buf[MAX_BUF];
+    char buf[HUGE_BUF];
 
     if (!m->tmpname) {
         logger_print(LOG(BUG), "No temporary filename for map %s! Fallback to original!", m->path);
-        strcpy(buf, m->path);
+        snprintf(buf, sizeof(buf), "%s", m->path);
         delete_map(m);
         m = load_original_map(buf, 0);
-
-        if (m == NULL) {
-            return NULL;
-        }
-
         return m;
     }
 
@@ -1012,26 +999,18 @@ static mapstruct *load_temporary_map(mapstruct *m)
         }
 
         logger_print(LOG(BUG), "Can't open temporary map %s! Fallback to original!", m->tmpname);
-        strcpy(buf, m->path);
+        snprintf(buf, sizeof(buf), "%s", m->path);
         delete_map(m);
         m = load_original_map(buf, 0);
-
-        if (m == NULL) {
-            return NULL;
-        }
-
         return m;
     }
 
     if (!load_map_header(m, fp)) {
         logger_print(LOG(BUG), "Error loading map header for %s (%s)! Fallback to original!", m->path, m->tmpname);
+        snprintf(buf, sizeof(buf), "%s", m->path);
         delete_map(m);
-        m = load_original_map(m->path, 0);
-
-        if (m == NULL) {
-            return NULL;
-        }
-
+        m = load_original_map(buf, 0);
+        fclose(fp);
         return m;
     }
 
@@ -1082,24 +1061,15 @@ static void load_unique_objects(mapstruct *m)
 {
     FILE *fp;
     int count;
-    char firstname[MAX_BUF];
+    char firstname[HUGE_BUF];
 
     for (count = 0; count < 10; count++) {
-        sprintf(firstname, "%s.v%02d", create_items_path(m->path), count);
-
-        if (!access(firstname, R_OK)) {
-            break;
-        }
+        snprintf(firstname, sizeof(firstname), "%s.v%02d", create_items_path(m->path), count);
+        fp = fopen(firstname, "rb");
     }
 
-    /* If we get here, we did not find any map */
-    if (count == 10) {
-        return;
-    }
-
-    fp = fopen(firstname, "rb");
-
-    if (!fp) {
+    /* If we get here, we did not find any map. */
+    if (fp == NULL) {
         return;
     }
 
@@ -1135,7 +1105,7 @@ int new_save_map(mapstruct *m, int flag)
 
     if (flag || MAP_UNIQUE(m)) {
         if (!MAP_UNIQUE(m)) {
-            strcpy(filename, create_pathname(m->path));
+            snprintf(filename, sizeof(filename), "%s", create_pathname(m->path));
         }
         else {
             /* This ensures we always reload from original maps */
@@ -1143,7 +1113,7 @@ int new_save_map(mapstruct *m, int flag)
                 return 0;
             }
 
-            strcpy(filename, m->path);
+            snprintf(filename, sizeof(filename), "%s", m->path);
         }
 
         path_ensure_directories(filename);
@@ -1156,7 +1126,7 @@ int new_save_map(mapstruct *m, int flag)
             m->tmpname = tempnam(path, NULL);
         }
 
-        strcpy(filename, m->tmpname);
+        snprintf(filename, sizeof(filename), "%s", m->tmpname);
     }
 
     m->in_memory = MAP_SAVING;

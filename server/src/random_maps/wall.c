@@ -244,7 +244,7 @@ object *pick_joined_wall(object *the_wall, char **layout, int i, int j, RMParms 
      *     finding the right wall. */
 
     /* extract the wall name, which is the text up to the leading _ */
-    for (l = sizeof(wall_name); l >= 0; l--) {
+    for (l = sizeof(wall_name) - 1; l >= 0; l--) {
         if (wall_name[l] == '_') {
             wall_name[l] = '\0';
             break;

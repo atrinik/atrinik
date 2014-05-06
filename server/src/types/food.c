@@ -168,7 +168,7 @@ static void eat_special_food(object *who, object *food)
                 tmp = -tmp;
             }
 
-            strcpy(CONTR(who)->killer, food->name);
+            snprintf(CONTR(who)->killer, sizeof(CONTR(who)->killer), "%s", food->name);
 
             if (QUERY_FLAG(food, FLAG_CURSED)) {
                 who->stats.hp += tmp * 2;
