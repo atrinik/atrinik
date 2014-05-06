@@ -258,7 +258,10 @@ void clioptions_parse(int argc, char *argv[])
                         exit(1);
                     }
 
-                    clioptions[opt].handle_func(arg);
+                    if (clioptions[opt].handle_func != NULL) {
+                        clioptions[opt].handle_func(arg);
+                    }
+
                     break;
                 }
             }
@@ -273,7 +276,10 @@ void clioptions_parse(int argc, char *argv[])
                         exit(1);
                     }
 
-                    clioptions[opt].handle_func(arg);
+                    if (clioptions[opt].handle_func != NULL) {
+                        clioptions[opt].handle_func(arg);
+                    }
+
                     break;
                 }
             }

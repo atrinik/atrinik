@@ -127,7 +127,7 @@ void *memory_erealloc(void *ptr, size_t size)
 
     newptr = realloc(ptr, size);
 
-    if (newptr == NULL) {
+    if (newptr == NULL && size != 0) {
         logger_print(LOG(ERROR), "OOM.");
         abort();
     }

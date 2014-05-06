@@ -928,7 +928,7 @@ size_t string_fromhex(char *str, size_t len, unsigned char *result, size_t resul
     size_t i, j;
     unsigned char c, found;
 
-    for (found = 0, i = 0, j = 0; i < len && j < resultsize; i++) {
+    for (found = 0, i = 0, j = 0, c = 0; i < len && j < resultsize; i++) {
         if ((str[i] >= 'A' && str[i] <= 'F') || (str[i] >= '0' && str[i] <= '9')) {
             c = (c << 4) | ((str[i] >= 'A') ? (str[i] - 'A' + 10) : (str[i] - '0'));
             found++;
@@ -937,9 +937,9 @@ size_t string_fromhex(char *str, size_t len, unsigned char *result, size_t resul
         if (found == 2) {
             found = 0;
             result[j++] = c;
+            c = 0;
         }
     }
 
     return j;
 }
-
