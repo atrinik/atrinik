@@ -154,11 +154,9 @@ void sprite_free_sprite(sprite_struct *sprite)
         SDL_FreeSurface(sprite->effect);
     }
 
-    if (sprite->dark_level) {
-        for (i = 0; i < DARK_LEVELS; i++) {
-            if (sprite->dark_level[i]) {
-                SDL_FreeSurface(sprite->dark_level[i]);
-            }
+    for (i = 0; i < DARK_LEVELS; i++) {
+        if (sprite->dark_level[i]) {
+            SDL_FreeSurface(sprite->dark_level[i]);
         }
     }
 
