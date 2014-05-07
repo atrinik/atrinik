@@ -345,13 +345,14 @@ int pay_for_item(object *op, object *pl)
  * @param op Player paying.
  * @param pouch Container (pouch or player) to remove the coins from.
  * @param to_pay Required amount.
- * @return Amount still not paid after using "pouch". */
+ * @return Amount still not paid after using "pouch".
+ * @todo Should be able to avoid the extra object allocations...
+ */
 static sint64 pay_from_container(object *op, object *pouch, sint64 to_pay)
 {
     sint64 remain;
     int count, i;
     object *tmp, *coin_objs[NUM_COINS], *next, *bank_object = NULL;
-    archetype *at;
 
     (void) op;
 
@@ -402,14 +403,7 @@ static sint64 pay_from_container(object *op, object *pouch, sint64 to_pay)
     /* Note that the coin_objs array goes from least value to greatest value */
     for (i = 0; i < NUM_COINS; i++) {
         if (coin_objs[i] == NULL) {
-            at = find_archetype(coins[NUM_COINS - 1 - i]);
-
-            if (at == NULL) {
-                logger_print(LOG(BUG), "Could not find %s archetype", coins[NUM_COINS - 1 - i]);
-            }
-
-            coin_objs[i] = get_object();
-            copy_object(&at->clone, coin_objs[i], 0);
+            coin_objs[i] = get_archetype(coins[NUM_COINS - 1 - i]);
             coin_objs[i]->nrof = 0;
         }
     }
@@ -458,6 +452,9 @@ static sint64 pay_from_container(object *op, object *pouch, sint64 to_pay)
     for (i = 0; i < NUM_COINS; i++) {
         if (coin_objs[i]->nrof) {
             insert_ob_in_ob(coin_objs[i], pouch);
+        }
+        else {
+            object_destroy(coin_objs[i]);
         }
     }
 
