@@ -1536,4 +1536,146 @@ enum apply_flag
     }
 /*@}*/
 
+/**
+ * @defgroup FOR_xxx Object looping macros
+ * Macros used for looping through objects in various locations.
+ * @author Andreas Kirschbaum
+ *@{*/
+/**
+ * Constructs a loop iterating over the inventory of an object. Example:
+ * <pre>
+ * FOR_INV_PREPARE(op, inv)
+ *     logger_print(LOG(INFO), "%s\n", inv->name);
+ * FOR_INV_FINISH();
+ * </pre>
+ * or
+ * <pre>
+ * FOR_INV_PREPARE(op, inv) {
+ *     logger_print(LOG(INFO), "%s\n", inv->name);
+ * } FOR_INV_FINISH();
+ * </pre>
+ * @param op_ the object to iterate over
+ * @param it_ a variable name that holds the inventory objects; a new variable
+ * will be declared; modifications do not affect the loop
+ */
+#define FOR_INV_PREPARE(op_, it_)                               \
+    do {                                                        \
+        object *it_ = (op_)->inv;                               \
+        FOR_OB_AND_BELOW_PREPARE(it_);
+/**
+ * Finishes #FOR_INV_PREPARE().
+ */
+#define FOR_INV_FINISH()                                        \
+        FOR_OB_AND_BELOW_FINISH();                              \
+    } while(0)
+
+/**
+ * Constructs a loop iterating over all objects above an object.
+ * @param op_ the object to iterate over
+ * @param it_ a variable name that holds the inventory objects; a new variable
+ * will be declared; modifications do not affect the loop
+ */
+#define FOR_ABOVE_PREPARE(op_, it_)                             \
+    do {                                                        \
+        object *it_ = (op_)->above;                             \
+        FOR_OB_AND_ABOVE_PREPARE(it_);
+/**
+ * Finishes #FOR_ABOVE_PREPARE().
+ */
+#define FOR_ABOVE_FINISH()                                      \
+        FOR_OB_AND_ABOVE_FINISH();                              \
+    } while(0)
+
+/**
+ * Constructs a loop iterating over all objects below an object.
+ * @param op_ the object to iterate over
+ * @param it_ a variable name that holds the inventory objects; a new variable
+ * will be declared; modifications do not affect the loop
+ */
+#define FOR_BELOW_PREPARE(op_, it_)                             \
+    do {                                                        \
+        object *it_ = (op_)->below;                             \
+        FOR_OB_AND_BELOW_PREPARE(it_);
+/**
+ * Finishes #FOR_BELOW_PREPARE().
+ */
+#define FOR_BELOW_FINISH()                                      \
+        FOR_OB_AND_BELOW_FINISH();                              \
+    } while(0)
+
+/**
+ * Constructs a loop iterating over all objects of a map tile.
+ * @param map_ the map to iterate over
+ * @param mx_ the map's x-coordinate to iterate over
+ * @param my_ the map's y-coordinate to iterate over
+ * @param it_ a variable name that holds the inventory objects; a new variable
+ * will be declared; modifications do not affect the loop
+ */
+#define FOR_MAP_PREPARE(map_, mx_, my_, it_)                    \
+    do {                                                        \
+        object *it_ = GET_MAP_OB((map_), (mx_), (my_));         \
+        FOR_OB_AND_ABOVE_PREPARE(it_);
+/**
+ * Finishes #FOR_MAP_PREPARE().
+ */
+#define FOR_MAP_FINISH()                                        \
+        FOR_OB_AND_ABOVE_FINISH();                              \
+    } while(0)
+
+/**
+ * Constructs a loop iterating over an object and all objects above it in the
+ * same pile.
+ * @param op_ the object to start with
+ */
+#define FOR_OB_AND_ABOVE_PREPARE(op_) FOR_OB_PREPARE(op_, above, __LINE__)
+/**
+ * Finishes #FOR_OB_AND_ABOVE_PREPARE().
+ */
+#define FOR_OB_AND_ABOVE_FINISH() FOR_OB_FINISH()
+
+/**
+ * Constructs a loop iterating over an object and all objects below it in the
+ * same pile.
+ * @param op_ the object to start with
+ */
+#define FOR_OB_AND_BELOW_PREPARE(op_) FOR_OB_PREPARE(op_, below, __LINE__)
+/**
+ * Finishes #FOR_OB_AND_BELOW_PREPARE().
+ */
+#define FOR_OB_AND_BELOW_FINISH() FOR_OB_FINISH()
+
+/**
+ * Constructs a loop iterating over a set of objects. This function should not
+ * be used directly in client code.
+ * @param op_ the object start start with
+ * @param field_ the field that holds the "next" pointer within op_
+ * @param suffix_ a suffix for constructing unique variable names
+ */
+#define FOR_OB_PREPARE(op_, field_, suffix_) FOR_OB_PREPARE2(op_, field_, suffix_)
+/**
+ * Constructs a loop iterating over a set of objects. This function should not
+ * be used at all. Use FOR_OB_PREPARE() instead.
+ * @param op_ the object start start with
+ * @param field_ the field that holds the "next" pointer within op_
+ * @param suffix_ a suffix for constructing unique variable names
+ */
+#define FOR_OB_PREPARE2(op_, field_, suffix_)                     \
+    do {                                                        \
+        object *next##suffix_ = (op_);                        \
+        tag_t next_tag##suffix_ = next##suffix_ == NULL ? 0 : next##suffix_->count;\
+        while (((op_) = next##suffix_) != NULL) {              \
+            if (was_destroyed(next##suffix_, next_tag##suffix_)) {\
+                break;                                          \
+            }                                                   \
+            next##suffix_ = next##suffix_->field_;                               \
+            next_tag##suffix_ = next##suffix_ == NULL ? 0 : next##suffix_->count;
+/**
+ * Finishes #FOR_OB_PREPARE().
+ */
+#define FOR_OB_FINISH()                                         \
+        }                                                       \
+    } while(0)
+    
+/*@}*/
+
 #endif
