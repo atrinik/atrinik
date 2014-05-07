@@ -130,7 +130,7 @@ void settings_init(void)
 
         if (!strcmp(cp, "end")) {
             if (setting) {
-                category->settings = realloc(category->settings, sizeof(category->settings) * (category->settings_num + 1));
+                category->settings = realloc(category->settings, sizeof(*category->settings) * (category->settings_num + 1));
                 category->settings[category->settings_num] = setting;
                 category->settings_num++;
                 setting = NULL;
