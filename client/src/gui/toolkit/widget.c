@@ -232,6 +232,8 @@ static int widget_load(const char *path, uint8 defaults, widgetdata *widgets[])
         }
     }
 
+    fclose(fp);
+
     if (old_depth != 0) {
         insert_widget_in_container(widgets[old_depth - 1], widget, 1);
     }
