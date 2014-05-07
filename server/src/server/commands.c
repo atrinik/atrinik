@@ -278,7 +278,7 @@ int commands_check_permission(player *pl, const char *command)
 
     TOOLKIT_FUNC_PROTECTOR(API_NAME);
 
-    if (settings.default_permission_groups && *settings.default_permission_groups != '\0') {
+    if (*settings.default_permission_groups != '\0') {
         char *curr, *next;
 
         for (curr = settings.default_permission_groups; (curr && (next = strchr(curr, ','))) || curr; curr = next ? next + 1 : NULL) {
