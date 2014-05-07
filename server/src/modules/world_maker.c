@@ -591,6 +591,13 @@ void world_maker(void)
 
         /* Write out the image. */
         out = fopen(buf, "wb");
+
+        if (out == NULL) {
+            logger_print(LOG(ERROR), "Could not open '%s': %s", buf,
+                         strerror(errno));
+            exit(1);
+        }
+        
         gdImagePng(im, out);
         fclose(out);
 
