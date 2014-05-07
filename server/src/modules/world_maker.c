@@ -39,7 +39,8 @@
  * - darker shade of the average color
  * - red average
  * - green average
- * - blue average */
+ * - blue average
+ */
 static int **wm_face_colors;
 
 /** Pixels per tile (3 = 3x3 box). */
@@ -84,7 +85,8 @@ typedef struct wm_region
 } wm_region;
 
 /**
- * Initialize the face colors. */
+ * Initialize the face colors.
+ */
 static void wm_images_init(void)
 {
     int i, x, y;
@@ -106,7 +108,8 @@ static void wm_images_init(void)
         gdImageSaveAlpha(im, 1);
 
         im2 = gdImageCreateTrueColor(im->sx, im->sy);
-        gdImageCopyResized(im2, im, 0, 0, 0, 0, im2->sx, im2->sy, im->sx, im->sy);
+        gdImageCopyResized(im2, im, 0, 0, 0, 0, im2->sx, im2->sy, im->sx,
+                           im->sy);
 
         wm_face_colors[i] = ecalloc(1, sizeof(**wm_face_colors) * 5);
 
@@ -130,7 +133,9 @@ static void wm_images_init(void)
             g /= total;
             b /= total;
             wm_face_colors[i][0] = gdImageColorResolve(im2, r, g, b);
-            wm_face_colors[i][1] = gdImageColorResolve(im2, MIN(r + 10, 255), MIN(g + 10, 255), MIN(b + 10, 255));
+            wm_face_colors[i][1] = gdImageColorResolve(im2, MIN(r + 10, 255),
+                                                            MIN(g + 10, 255),
+                                                            MIN(b + 10, 255));
             wm_face_colors[i][2] = r;
             wm_face_colors[i][3] = g;
             wm_face_colors[i][4] = b;
@@ -147,7 +152,8 @@ static void wm_images_init(void)
  * @param x X position.
  * @param y Y position.
  * @param ob Object to render.
- * @return 1 if we rendered the object, 0 otherwise. */
+ * @return 1 if we rendered the object, 0 otherwise.
+ */
 static int render_object(gdImagePtr im, int x, int y, object *ob)
 {
     /* Sanity check. */
@@ -166,10 +172,19 @@ static int render_object(gdImagePtr im, int x, int y, object *ob)
      * - doors
      * - exits (stairs, but also useful to see portals)
      * - shop mats
+     * - holy altars
+     * - signs
      * - misc objects blocking passage (rocks, trees, etc)
-     * - holy altars*/
-    if (ob->layer == LAYER_FLOOR || ob->type == WALL || ob->type == DOOR || ob->type == EXIT || ob->type == SHOP_MAT || (ob->type == MISC_OBJECT && QUERY_FLAG(ob, FLAG_NO_PASS)) || ob->type == HOLY_ALTAR || ob->type == SIGN) {
-        int px, py, j = 0, max;
+     */
+    if (ob->layer == LAYER_FLOOR ||
+        ob->type == WALL ||
+        ob->type == DOOR ||
+        ob->type == EXIT ||
+        ob->type == SHOP_MAT ||
+        ob->type == HOLY_ALTAR ||
+        ob->type == SIGN ||
+        (ob->type == MISC_OBJECT && QUERY_FLAG(ob, FLAG_NO_PASS))) {
+        int px, py, j = 0, max, color;
 
         max = MAX_PIXELS;
 
@@ -211,7 +226,8 @@ static int render_object(gdImagePtr im, int x, int y, object *ob)
 /**
  * Add map to region.
  * @param r Region.
- * @param m Map to add. */
+ * @param m Map to add.
+ */
 static void region_add_map(wm_region *r, mapstruct *m)
 {
     /* Resize the array. */
@@ -227,7 +243,8 @@ static void region_add_map(wm_region *r, mapstruct *m)
  * are checked for match.
  * @param m Map.
  * @param name Region to check.
- * @return 1 if it is in the region, 0 otherwise. */
+ * @return 1 if it is in the region, 0 otherwise.
+ */
 static int map_in_region(mapstruct *m, const char *name)
 {
     region *r;
@@ -245,7 +262,8 @@ static int map_in_region(mapstruct *m, const char *name)
  * Recursively add maps to a region.
  * @param r Region.
  * @param m Start map.
- * @param region_name Region name. */
+ * @param region_name Region name.
+ */
 static void region_add_rec(wm_region *r, mapstruct *m, const char *region_name)
 {
     int i;
@@ -327,7 +345,8 @@ static void region_add_rec(wm_region *r, mapstruct *m, const char *region_name)
 }
 
 /**
- * The main world maker function. */
+ * The main world maker function.
+ */
 void world_maker(void)
 {
     mapstruct *m;
@@ -356,11 +375,13 @@ void world_maker(void)
         /* Initialize the region. */
         wm_r = ecalloc(1, sizeof(wm_region));
         /* Open the definitions file. */
-        snprintf(buf, sizeof(buf), "%s/%s.def", settings.world_maker_dir, r->name);
+        snprintf(buf, sizeof(buf), "%s/%s.def", settings.world_maker_dir,
+                 r->name);
         def_fp = fopen(buf, "w");
 
         if (!def_fp) {
-            logger_print(LOG(ERROR), "Could not open '%s': %s", buf, strerror(errno));
+            logger_print(LOG(ERROR), "Could not open '%s': %s", buf,
+                         strerror(errno));
             exit(1);
         }
 
@@ -369,7 +390,8 @@ void world_maker(void)
         /* Parse the maps recursively. */
         region_add_rec(wm_r, m, r->name);
 
-        snprintf(buf, sizeof(buf), "%s/%s.png", settings.world_maker_dir, r->name);
+        snprintf(buf, sizeof(buf), "%s/%s.png", settings.world_maker_dir,
+                 r->name);
 
         /* Store defaults in the definitions file. */
         fprintf(def_fp, "pixel_size %d\n", MAX_PIXELS);
@@ -385,8 +407,10 @@ void world_maker(void)
             wm_r->maps[i].ypos -= wm_r->ypos_lowest;
 
             /* Calculate the maximum width needed for the actual image. */
-            map_w = MAP_WIDTH(wm_r->maps[i].m) * MAX_PIXELS + wm_r->maps[i].xpos;
-            map_h = MAP_HEIGHT(wm_r->maps[i].m) * MAX_PIXELS + wm_r->maps[i].ypos;
+            map_w = MAP_WIDTH(wm_r->maps[i].m) * MAX_PIXELS +
+                    wm_r->maps[i].xpos;
+            map_h = MAP_HEIGHT(wm_r->maps[i].m) * MAX_PIXELS +
+                    wm_r->maps[i].ypos;
 
             if (map_w > wm_r->w) {
                 wm_r->w = map_w;
@@ -397,7 +421,8 @@ void world_maker(void)
             }
 
             /* Store the map path, labels, etc. */
-            fprintf(def_fp, "map %x %x %s\n", wm_r->maps[i].xpos, wm_r->maps[i].ypos, wm_r->maps[i].m->path);
+            fprintf(def_fp, "map %x %x %s\n", wm_r->maps[i].xpos,
+                    wm_r->maps[i].ypos, wm_r->maps[i].m->path);
         }
 
         /* Create the image. */
@@ -409,7 +434,8 @@ void world_maker(void)
 
             /* Parse HTML color and fill the image with it. */
             if (sscanf(r->map_bg, "#%2X%2X%2X", &im_r, &im_g, &im_b) == 3) {
-                gdImageFill(im, 0, 0, gdImageColorAllocate(im, im_r, im_g, im_b));
+                gdImageFill(im, 0, 0,
+                            gdImageColorAllocate(im, im_r, im_g, im_b));
             }
         }
         /* Transparency otherwise. */
@@ -433,12 +459,16 @@ void world_maker(void)
                     ypos = y * MAX_PIXELS + wm_r->maps[i].ypos;
 
                     /* Look for map info objects. */
-                    for (tmp = GET_MAP_OB(m, x, y); tmp && tmp->layer == LAYER_SYS; tmp = tmp->above) {
+                    for (tmp = GET_MAP_OB(m, x, y);
+                         tmp && tmp->layer == LAYER_SYS;
+                         tmp = tmp->above) {
                         if (tmp->type != CLIENT_MAP_INFO) {
                             continue;
                         }
 
-                        if (tmp->sub_type != CLIENT_MAP_HIDE && (!tmp->name || strstr(tmp->name, " ") || !strcmp(tmp->name, tmp->arch->name))) {
+                        if (tmp->sub_type != CLIENT_MAP_HIDE && (!tmp->name ||
+                                strstr(tmp->name, " ") ||
+                                !strcmp(tmp->name, tmp->arch->name))) {
                             continue;
                         }
 
@@ -447,28 +477,42 @@ void world_maker(void)
                         if (tmp->msg) {
                             char msg[HUGE_BUF * 4];
 
-                            string_replace(tmp->msg, "\n", "\\n", msg, sizeof(msg));
+                            string_replace(tmp->msg, "\n", "\\n", msg,
+                                           sizeof(msg));
                             FREE_AND_COPY_HASH(tmp->msg, msg);
                         }
 
                         /* Label. */
                         if (tmp->sub_type == CLIENT_MAP_LABEL) {
-                            fprintf(def_fp, "label %x %x %s %s\n", xpos + tmp->last_heal * MAX_PIXELS, ypos + tmp->last_sp * MAX_PIXELS, tmp->name, tmp->msg ? tmp->msg : "???");
+                            fprintf(def_fp, "label %x %x %s %s\n",
+                                    xpos + tmp->last_heal * MAX_PIXELS,
+                                    ypos + tmp->last_sp * MAX_PIXELS,
+                                    tmp->name, tmp->msg ? tmp->msg : "???");
 
                             if (QUERY_FLAG(tmp, FLAG_CURSED)) {
                                 fprintf(def_fp, "label_hide\n");
                             }
                         }
                         else {
-                            info_objects = erealloc(info_objects, sizeof(*info_objects) * (num_info_objects + 1));
+                            info_objects = erealloc(
+                                info_objects,
+                                sizeof(*info_objects) * (num_info_objects + 1)
+                            );
                             info_objects[num_info_objects] = tmp;
                             num_info_objects++;
                         }
                     }
 
-                    for (layer = LAYER_FLOOR; layer <= LAYER_FMASK; layer++) {
-                        for (sub_layer = 0; sub_layer < NUM_SUB_LAYERS; sub_layer++) {
-                            if (render_object(im, xpos, ypos, GET_MAP_OB_LAYER(m, x, y, layer, sub_layer))) {
+                    for (layer = LAYER_FLOOR;
+                         layer <= LAYER_FMASK;
+                         layer++) {
+                        for (sub_layer = 0;
+                             sub_layer < NUM_SUB_LAYERS;
+                             sub_layer++) {
+                            if (render_object(
+                                    im, xpos, ypos,
+                                    GET_MAP_OB_LAYER(m, x, y, layer, sub_layer)
+                                )) {
                                 got_one = 1;
                             }
                         }
@@ -476,7 +520,12 @@ void world_maker(void)
 
                     /* Didn't get an object, fill this square with black. */
                     if (!got_one) {
-                        gdImageFilledRectangle(im, xpos, ypos, xpos + MAX_PIXELS - 1, ypos + MAX_PIXELS - 1, gdImageColorAllocate(im, 0, 0, 0));
+                        gdImageFilledRectangle(
+                            im, xpos, ypos,
+                            xpos + MAX_PIXELS - 1,
+                            ypos + MAX_PIXELS - 1,
+                            gdImageColorAllocate(im, 0, 0, 0)
+                        );
                     }
                 }
             }
@@ -487,9 +536,16 @@ void world_maker(void)
                     xpos = x * MAX_PIXELS + wm_r->maps[i].xpos;
                     ypos = y * MAX_PIXELS + wm_r->maps[i].ypos;
 
-                    for (layer = LAYER_ITEM; layer < NUM_LAYERS; layer++) {
-                        for (sub_layer = 0; sub_layer < NUM_SUB_LAYERS; sub_layer++) {
-                            render_object(im, xpos, ypos, GET_MAP_OB_LAYER(m, x, y, layer, sub_layer));
+                    for (layer = LAYER_ITEM;
+                         layer < NUM_LAYERS;
+                         layer++) {
+                        for (sub_layer = 0;
+                             sub_layer < NUM_SUB_LAYERS;
+                             sub_layer++) {
+                            render_object(
+                                im, xpos, ypos,
+                                GET_MAP_OB_LAYER(m, x, y, layer, sub_layer)
+                            );
                         }
                     }
                 }
@@ -517,13 +573,23 @@ void world_maker(void)
 
             /* Hiding part of the map. */
             if (tmp->sub_type == CLIENT_MAP_HIDE) {
-                gdImageFilledRectangle(im, xpos, ypos, MIN(xpos + ((tmp->path_attuned + 1) * MAX_PIXELS), (uint32) wm_r->w), MIN(ypos + ((tmp->path_repelled + 1) * MAX_PIXELS), (uint32) wm_r->h), gdImageColorAllocate(im, 0, 0, 0));
+                gdImageFilledRectangle(
+                    im, xpos, ypos,
+                    MIN(xpos + ((tmp->path_attuned + 1) * MAX_PIXELS),
+                        (uint32) wm_r->w),
+                    MIN(ypos + ((tmp->path_repelled + 1) * MAX_PIXELS),
+                        (uint32) wm_r->h),
+                    gdImageColorAllocate(im, 0, 0, 0)
+                );
             }
 
             /* Tooltip. */
             if (tmp->msg && tmp->sub_type == CLIENT_MAP_TOOLTIP) {
                 /* Tooltip with automatic width/height detection? */
-                if (!tmp->path_attuned && !tmp->path_repelled && !tmp->item_level && QUERY_FLAG(tmp, FLAG_STAND_STILL)) {
+                if (!tmp->path_attuned &&
+                    !tmp->path_repelled &&
+                    !tmp->item_level &&
+                    QUERY_FLAG(tmp, FLAG_STAND_STILL)) {
                     for (j = 0; j < num_info_objects; j++) {
                         rv_vector rv;
 
@@ -540,7 +606,8 @@ void world_maker(void)
 
                         /* Get range vector from the master info object to this
                          * one. */
-                        if (!get_rangevector(tmp, info_objects[j], &rv, RV_RECURSIVE_SEARCH)) {
+                        if (!get_rangevector(tmp, info_objects[j], &rv,
+                                             RV_RECURSIVE_SEARCH)) {
                             continue;
                         }
 
@@ -559,7 +626,18 @@ void world_maker(void)
                 }
 
                 /* Write out information about this tooltip. */
-                fprintf(def_fp, "tooltip %x %x %x %x %s %s\n", MAX(0, xpos - ((tmp->item_level) * MAX_PIXELS)), MAX(0, ypos - ((tmp->item_level) * MAX_PIXELS)), MIN(xpos + ((tmp->item_level * 2) * MAX_PIXELS + MAX_PIXELS) + (tmp->path_attuned * MAX_PIXELS), (uint32) wm_r->w) - xpos, MIN(ypos + ((tmp->item_level * 2) * MAX_PIXELS + MAX_PIXELS) + (tmp->path_repelled * MAX_PIXELS), (uint32) wm_r->h) - ypos, tmp->name, tmp->msg);
+                fprintf(def_fp, "tooltip %x %x %x %x %s %s\n",
+                        MAX(0, xpos - ((tmp->item_level) * MAX_PIXELS)),
+                        MAX(0, ypos - ((tmp->item_level) * MAX_PIXELS)),
+                        MIN(xpos + ((tmp->item_level * 2) * MAX_PIXELS +
+                            MAX_PIXELS) + (tmp->path_attuned * MAX_PIXELS),
+                            (uint32) wm_r->w
+                        ) - xpos,
+                        MIN(ypos + ((tmp->item_level * 2) * MAX_PIXELS +
+                            MAX_PIXELS) + (tmp->path_repelled * MAX_PIXELS),
+                            (uint32) wm_r->h
+                        ) - ypos,
+                        tmp->name, tmp->msg);
 
                 /* Outline set? */
                 if (tmp->item_skill) {
