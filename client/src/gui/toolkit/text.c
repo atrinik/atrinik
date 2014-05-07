@@ -1371,7 +1371,9 @@ int text_show_character(int *font, int orig_font, SDL_Surface *surface, SDL_Rect
                     y2 = MAX(1, y2 - info->height);
                 }
 
-                lineRGBA(surface, dest->x + x, dest->y + y, dest->x + x2, dest->y + y2, color->r, color->g, color->b, info->used_alpha);
+                if (surface) {
+                    lineRGBA(surface, dest->x + x, dest->y + y, dest->x + x2, dest->y + y2, color->r, color->g, color->b, info->used_alpha);
+                }
             }
         }
         else if (tag_len >= 5 && strncmp(tag, "flip=", 5) == 0) {
