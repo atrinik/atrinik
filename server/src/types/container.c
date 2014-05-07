@@ -52,7 +52,6 @@ int check_magical_container(object *op, object *container)
 static void container_open(object *applier, object *op)
 {
     player *pl;
-    object *tmp;
 
     /* Safety. */
     if (applier->type != PLAYER) {
@@ -68,11 +67,11 @@ static void container_open(object *applier, object *op)
 
     /* Check for quest containers. */
     if (HAS_EVENT(op, EVENT_QUEST)) {
-        for (tmp = op->inv; tmp; tmp = tmp->below) {
-            if (tmp->type == QUEST_CONTAINER) {
-                check_quest(applier, tmp);
+        FOR_INV_PREPARE(op, inv) {
+            if (inv->type == QUEST_CONTAINER) {
+                check_quest(applier, inv);
             }
-        }
+        } FOR_INV_FINISH();
     }
 
     pl->container = op;
@@ -99,31 +98,31 @@ static void container_open(object *applier, object *op)
 
         update_object(op, UP_OBJ_FACE);
 
-        for (tmp = op->inv; tmp; tmp = tmp->below) {
-            if (tmp->type == RUNE) {
-                rune_spring(tmp, applier);
+        FOR_INV_PREPARE(op, inv) {
+            if (inv->type == RUNE) {
+                rune_spring(inv, applier);
             }
-            else if (tmp->type == MONSTER) {
+            else if (inv->type == MONSTER) {
                 int i;
 
-                object_remove(tmp, 0);
-                tmp->x = op->x;
-                tmp->y = op->y;
-                i = find_free_spot(tmp->arch, tmp, applier->map, tmp->x, tmp->y, 0, SIZEOFFREE1 + 1);
+                object_remove(inv, 0);
+                inv->x = op->x;
+                inv->y = op->y;
+                i = find_free_spot(inv->arch, inv, applier->map, inv->x, inv->y, 0, SIZEOFFREE1 + 1);
 
                 if (i != -1) {
-                    tmp->x += freearr_x[i];
-                    tmp->y += freearr_y[i];
+                    inv->x += freearr_x[i];
+                    inv->y += freearr_y[i];
                 }
 
-                tmp = insert_ob_in_map(tmp, applier->map, tmp, 0);
+                inv = insert_ob_in_map(inv, applier->map, inv, 0);
 
-                if (tmp) {
-                    fix_monster(tmp);
-                    draw_info_format(COLOR_WHITE, applier, "A %s jumps out of the %s.", query_name(tmp, applier), query_base_name(op, applier));
+                if (inv) {
+                    fix_monster(inv);
+                    draw_info_format(COLOR_WHITE, applier, "A %s jumps out of the %s.", query_name(inv, applier), query_base_name(op, applier));
                 }
             }
-        }
+        } FOR_INV_FINISH();
     }
 
     esrv_send_inventory(applier, op);
