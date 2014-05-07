@@ -191,7 +191,11 @@ void cache_remove_all(void)
 {
     /* Keep removing until there's nothing left. */
     while (num_cache) {
-        cache_remove(cache[0].key);
+        if (!cache_remove(cache[0].key)) {
+            /* Shouldn't happen... */
+            logger_print(LOG(BUG), "Failed to remove cache entry.");
+            return;
+        }
     }
 }
 
@@ -204,9 +208,15 @@ void cache_remove_by_flags(uint32 flags)
 
     /* Search for matching entries, and remove them. */
     for (i = 0; i < num_cache; i++) {
-        if (cache[i].flags & flags) {
-            cache_remove(cache[i].key);
-            i--;
+        if (!(cache[i].flags & flags)) {
+            continue;
+
+        if (!cache_remove(cache[i].key)) {
+            /* Shouldn't happen... */
+            logger_print(LOG(BUG), "Failed to remove cache entry.");
+            continue;
         }
+
+        i--;
     }
 }
