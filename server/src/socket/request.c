@@ -292,10 +292,6 @@ void esrv_update_stats(player *pl)
     AddIfInt(pl->last_flags, flags, CS_STAT_FLAGS, uint16);
 
     for (i = 0; i < PLAYER_EQUIP_MAX; i++) {
-        if (CS_STAT_EQUIP_START + i > CS_STAT_EQUIP_END) {
-            break;
-        }
-
         AddIfInt(pl->last_equipment[i], pl->equipment[i] ? pl->equipment[i]->count : 0, CS_STAT_EQUIP_START + i, uint32);
     }
 
