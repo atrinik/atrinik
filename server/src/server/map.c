@@ -1066,6 +1066,10 @@ static void load_unique_objects(mapstruct *m)
     for (count = 0; count < 10; count++) {
         snprintf(firstname, sizeof(firstname), "%s.v%02d", create_items_path(m->path), count);
         fp = fopen(firstname, "rb");
+
+        if (fp != NULL) {
+            break;
+        }
     }
 
     /* If we get here, we did not find any map. */
