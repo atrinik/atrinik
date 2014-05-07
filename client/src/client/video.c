@@ -170,10 +170,6 @@ int video_fullscreen_toggle(SDL_Surface **surface, uint32 *flags)
         return 1;
     }
 
-    if (flags == NULL) {
-        flags = &tmpflags;
-    }
-
     SDL_GetClipRect(*surface, &clip);
 
     /* Save the contents of the screen. */
