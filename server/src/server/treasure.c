@@ -2567,7 +2567,7 @@ static void set_material_real(object *op, struct _change_arch *change_arch)
                 /* If we have no match, we simply use the (always valid)
                  * first material_real entry and forcing the
                  * material_quality to quality! */
-                if (q_tmp == -1) {
+                if (q_tmp >= 0) {
                     op->material_real = m_tmp;
                     op->item_quality = change_arch->material_quality;
                     op->item_condition = op->item_quality;

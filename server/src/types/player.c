@@ -1126,11 +1126,11 @@ static void examine_living(object *op, object *tmp, StringBuffer *sb_capture)
         }
     }
 
-    if (val != -1) {
+    if (val >= 0) {
         draw_info_full_format(CHAT_TYPE_GAME, NULL, COLOR_WHITE, sb_capture, op, "%s can naturally resist some attacks.", gender_subjective_upper[gender]);
     }
 
-    if (val2 != -1) {
+    if (val2 >= 0) {
         draw_info_full_format(CHAT_TYPE_GAME, NULL, COLOR_WHITE, sb_capture, op, "%s is naturally vulnerable to some attacks.", gender_subjective_upper[gender]);
     }
 
@@ -1141,7 +1141,7 @@ static void examine_living(object *op, object *tmp, StringBuffer *sb_capture)
         }
     }
 
-    if (val != -1) {
+    if (val >= 0) {
         draw_info_full_format(CHAT_TYPE_GAME, NULL, COLOR_WHITE, sb_capture, op, "Best armour protection seems to be for %s.", attack_name[val]);
     }
 
