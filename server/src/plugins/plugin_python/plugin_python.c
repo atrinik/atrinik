@@ -2509,6 +2509,8 @@ int generic_field_setter(fields_struct *field, void *ptr, PyObject *value)
             else {
                 INTRAISE("Illegal value for connection field.");
             }
+            
+            break;
 
         case FIELDTYPE_TREASURELIST:
 
@@ -2518,6 +2520,8 @@ int generic_field_setter(fields_struct *field, void *ptr, PyObject *value)
             else {
                 INTRAISE("Illegal value for treasure list field.");
             }
+            
+            break;
 
         default:
             break;
