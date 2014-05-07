@@ -68,7 +68,7 @@ typedef struct char_struct
 typedef struct server_settings
 {
     /** Maximum reachable level. */
-    uint32 max_level;
+    uint8 max_level;
 
     /** Experience needed for each level. */
     sint64 *level_exp;
