@@ -25,10 +25,12 @@ config-custom.cfg
 permissions-custom.cfg
 *.jar
 *.tar.gz
+*.tgz
 client/sound
 arch/dev/editor/pickmaps/*/*
 maps/interfaces/**/*.py
 maps/python/InterfaceQuests.py
+cov-int
 
 # GNU/Linux
 core
