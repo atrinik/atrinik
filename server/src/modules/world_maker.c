@@ -183,12 +183,21 @@ static int render_object(gdImagePtr im, int x, int y, object *ob)
             for (py = 0; py < max; py++) {
                 /* Do shading based on the floor's z. */
                 if (ob->type == FLOOR && ob->z) {
-                    gdImageSetPixel(im, x + px, y + py, gdImageColorResolve(im, MAX(0, wm_face_colors[ob->face->number][2] - ob->z / 2.5), MAX(0, wm_face_colors[ob->face->number][3] - ob->z / 2.5), MAX(0, wm_face_colors[ob->face->number][4] - ob->z / 2.5)));
+                    color = gdImageColorResolve(
+                        im,
+                        MAX(0, wm_face_colors[ob->face->number][2] - ob->z /
+                            2.5),
+                        MAX(0, wm_face_colors[ob->face->number][3] - ob->z /
+                            2.5),
+                        MAX(0, wm_face_colors[ob->face->number][4] - ob->z /
+                            2.5)
+                    );
                 }
                 else {
-                    gdImageSetPixel(im, x + px, y + py, wm_face_colors[ob->face->number][0]);
+                    color = wm_face_colors[ob->face->number][0];
                 }
 
+                gdImageSetPixel(im, x + px, y + py, color);
                 j++;
             }
         }
