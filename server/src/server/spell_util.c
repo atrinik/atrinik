@@ -152,17 +152,26 @@ int cast_spell(object *op, object *caster, int dir, int type, int ability, int i
     object *target = NULL;
     int success = 0, duration, spell_cost = 0;
 
-    if (!s) {
+    if (op == NULL && caster != NULL) {
+        op = caster;
+    }
+    else if (caster == NULL && op != NULL) {
+        caster = op;
+    }
+    else {
+        logger_print(LOG(BUG), "Both 'op' and 'caster' are NULL.");
+        return 0;
+    }
+
+    s = find_spell(type);
+
+    if (s == NULL) {
         logger_print(LOG(BUG), "Unknown spell: %d", type);
         return 0;
     }
 
     /* Get the base duration */
     duration = spells[type].bdur;
-
-    if (!op) {
-        op = caster;
-    }
 
     /* Script NPCs can ALWAYS cast - even in no spell areas! */
     if (item == CAST_NPC) {
@@ -177,16 +186,9 @@ int cast_spell(object *op, object *caster, int dir, int type, int ability, int i
         object *cast_op = op;
         MapSpace *msp;
 
-        if (!caster) {
-            if (item == CAST_NORMAL) {
-                caster = op;
-            }
-        }
-        else {
-            /* Caster has a map? Then we use caster */
-            if (caster->map) {
-                cast_op = caster;
-            }
+        /* Caster has a map? Then we use caster */
+        if (caster->map) {
+            cast_op = caster;
         }
 
         /* No magic. */
@@ -265,7 +267,7 @@ int cast_spell(object *op, object *caster, int dir, int type, int ability, int i
     }
 
     /* A last sanity check: are caster and target *really* valid? */
-    if ((caster && !OBJECT_ACTIVE(caster)) || (target && !OBJECT_ACTIVE(target))) {
+    if (!OBJECT_ACTIVE(caster) || (target && !OBJECT_ACTIVE(target))) {
         return 0;
     }
 
