@@ -1783,6 +1783,8 @@ void socket_command_control(socket_struct *ns, player *pl, uint8 *data, size_t l
                     return;
                 }
             }
+
+            break;
         }
 
         case CMD_CONTROL_PLAYER:
@@ -1831,6 +1833,7 @@ void socket_command_control(socket_struct *ns, player *pl, uint8 *data, size_t l
                     }
 
                     ret = object_enter_map(control_player->ob, NULL, m, x, y, 1);
+                    break;
                 }
             }
 
@@ -1841,6 +1844,8 @@ void socket_command_control(socket_struct *ns, player *pl, uint8 *data, size_t l
 
                 return;
             }
+
+            break;
         }
     }
 
