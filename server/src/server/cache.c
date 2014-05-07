@@ -210,6 +210,7 @@ void cache_remove_by_flags(uint32 flags)
     for (i = 0; i < num_cache; i++) {
         if (!(cache[i].flags & flags)) {
             continue;
+        }
 
         if (!cache_remove(cache[i].key)) {
             /* Shouldn't happen... */
