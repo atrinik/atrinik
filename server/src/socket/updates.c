@@ -157,8 +157,11 @@ void updates_init(void)
 
     if (path_exists(UPDATES_DIR_NAME)) {
         updates_traverse(UPDATES_DIR_NAME);
+        
         /* Sort the entries. */
-        qsort((void *) update_files, update_files_num, sizeof(update_file_struct), (void *) (int (*)())updates_file_compare);
+        if (update_files != NULL) {
+            qsort((void *) update_files, update_files_num, sizeof(update_file_struct), (void *) (int (*)())updates_file_compare);
+        }
     }
 
     snprintf(path, sizeof(path), "%s/%s", settings.datapath, UPDATES_FILE_NAME);
