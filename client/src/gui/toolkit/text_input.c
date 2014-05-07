@@ -139,18 +139,21 @@ int text_input_number_character_check(text_input_struct *text_input, char c)
     return isdigit(c);
 }
 
-void text_input_show(text_input_struct *text_input, SDL_Surface *surface, int x, int y)
+void text_input_show(text_input_struct *text_input, SDL_Surface *surface,
+                     int x, int y)
 {
     text_info_struct info;
     int underscore_width;
     size_t pos;
-    char buf[HUGE_BUF], *cp;
+    char *cp, *cp2;
     SDL_Rect box;
+    StringBuffer *sb;
 
     text_input->coords.x = x;
     text_input->coords.y = y;
 
-    rectangle_create(surface, text_input->coords.x, text_input->coords.y, text_input->coords.w, text_input->coords.h, "000000");
+    rectangle_create(surface, text_input->coords.x, text_input->coords.y,
+                     text_input->coords.w, text_input->coords.h, "000000");
     border_create_color(surface, &text_input->coords, 1, "303030");
 
     cp = NULL;
@@ -167,30 +170,39 @@ void text_input_show(text_input_struct *text_input, SDL_Surface *surface, int x,
     /* Figure out the width by going backwards. */
     for (pos = text_input->pos; pos; pos--) {
         /* Reached the maximum yet? */
-        if (box.w + glyph_get_width(text_input->font, *(text_input->str + pos)) + underscore_width > text_input->coords.w - TEXT_INPUT_PADDING * 2) {
+        if (box.w + glyph_get_width(text_input->font,
+                *(text_input->str + pos)) +
+            underscore_width > text_input->coords.w - TEXT_INPUT_PADDING * 2) {
             break;
         }
 
-        text_show_character(&text_input->font, text_input->font, NULL, &box, text_input->str + pos, NULL, NULL, 0, NULL, NULL, &info);
+        text_show_character(&text_input->font, text_input->font, NULL, &box,
+                            text_input->str + pos, NULL, NULL, 0, NULL, NULL,
+                            &info);
     }
 
-    strncpy(buf, text_input->str + pos, text_input->pos - pos);
+    sb = stringbuffer_new();
+    stringbuffer_append_string_len(sb, text_input->str + pos,
+                                   text_input->pos - pos);
 
     if (text_input->focus) {
-        buf[text_input->pos - pos] = '_';
-        buf[text_input->pos - pos + 1] = '\0';
-    }
-    else {
-        buf[text_input->pos - pos] = '\0';
+        stringbuffer_append_char(sb, '_');
     }
 
     if ((text_input->str + pos) + (text_input->pos - pos)) {
-        strcat(buf, (text_input->str + pos) + (text_input->pos - pos));
+        stringbuffer_append_string(sb,
+            (text_input->str + pos) + (text_input->pos - pos));
     }
 
     box.w = text_input->coords.w - TEXT_INPUT_PADDING * 2;
     box.h = text_input->coords.h - TEXT_INPUT_PADDING * 2;
-    text_show(surface, text_input->font, buf, text_input->coords.x + TEXT_INPUT_PADDING, text_input->coords.y + TEXT_INPUT_PADDING, COLOR_WHITE, text_input->text_flags | TEXT_WIDTH, &box);
+
+    cp2 = stringbuffer_finish(sb);
+    text_show(surface, text_input->font, cp2,
+              text_input->coords.x + TEXT_INPUT_PADDING,
+              text_input->coords.y + TEXT_INPUT_PADDING,
+              COLOR_WHITE, text_input->text_flags | TEXT_WIDTH, &box);
+    efree(cp2);
 
     if (cp) {
         text_input_set(text_input, cp);
