@@ -24,22 +24,26 @@
 
 /**
  * @file
- * String API. */
+ * String API.
+ */
 
 #include <global.h>
 #include <stdarg.h>
 
 /**
- * Name of the API. */
+ * Name of the API.
+ */
 #define API_NAME string
 
 /**
- * If 1, the API has been initialized. */
+ * If 1, the API has been initialized.
+ */
 static uint8 did_init = 0;
 
 /**
  * Initialize the string API.
- * @internal */
+ * @internal
+ */
 void toolkit_string_init(void)
 {
     TOOLKIT_INIT_FUNC_START(string)
@@ -52,7 +56,8 @@ void toolkit_string_init(void)
 
 /**
  * Deinitialize the string API.
- * @internal */
+ * @internal
+ */
 void toolkit_string_deinit(void)
 {
     TOOLKIT_DEINIT_FUNC_START(string)
@@ -117,8 +122,10 @@ char *string_estrndup(const char *s, size_t n)
 /**
  * Replace in string src all occurrences of key by replacement. The resulting
  * string is put into result; at most resultsize characters (including the
- * terminating null character) will be written to result. */
-void string_replace(const char *src, const char *key, const char *replacement, char *result, size_t resultsize)
+ * terminating null character) will be written to result.
+ */
+void string_replace(const char *src, const char *key, const char *replacement,
+                    char *result, size_t resultsize)
 {
     size_t resultlen, keylen;
 
@@ -135,7 +142,8 @@ void string_replace(const char *src, const char *key, const char *replacement, c
 
     while (*src != '\0' && resultlen + 1 < resultsize) {
         if (strncmp(src, key, keylen) == 0) {
-            snprintf(result + resultlen, resultsize - resultlen, "%s", replacement);
+            snprintf(result + resultlen, resultsize - resultlen, "%s",
+                     replacement);
             resultlen += strlen(result + resultlen);
             src += keylen;
         }
@@ -152,7 +160,8 @@ void string_replace(const char *src, const char *key, const char *replacement, c
  * @param str String to modify.
  * @param key Characters to replace, eg, " \t" to match all spaces and
  * tabs. NULL to match any character.
- * @param replacement What to replace matched characters with. */
+ * @param replacement What to replace matched characters with.
+ */
 void string_replace_char(char *str, const char *key, const char replacement)
 {
     size_t i;
@@ -186,7 +195,8 @@ void string_replace_char(char *str, const char *key, const char replacement)
  * excess fields are not split but included into the last element.
  * @param sep Separator to use.
  * @return The number of elements found; always less or equal to
- * <code>array_size</code>. */
+ * <code>array_size</code>.
+ */
 size_t string_split(char *str, char *array[], size_t array_size, char sep)
 {
     char *p;
@@ -228,7 +238,8 @@ size_t string_split(char *str, char *array[], size_t array_size, char sep)
 
 /**
  * Replaces any unprintable character in the given buffer with a space.
- * @param buf The buffer to modify. */
+ * @param buf The buffer to modify.
+ */
 void string_replace_unprintable_chars(char *buf)
 {
     char *p;
@@ -245,7 +256,8 @@ void string_replace_unprintable_chars(char *buf)
 /**
  * Adds thousand separators to a given number.
  * @param num Number.
- * @return Thousands-separated string. */
+ * @return Thousands-separated string.
+ */
 char *string_format_number_comma(uint64 num)
 {
     static char retbuf[4 * (sizeof(uint64) * CHAR_BIT + 2) / 3 / 3 + 1];
@@ -274,7 +286,8 @@ char *string_format_number_comma(uint64 num)
 
 /**
  * Transforms a string to uppercase, in-place.
- * @param str String to transform, will be modified. */
+ * @param str String to transform, will be modified.
+ */
 void string_toupper(char *str)
 {
     TOOLKIT_FUNC_PROTECTOR(API_NAME);
@@ -287,7 +300,8 @@ void string_toupper(char *str)
 
 /**
  * Transforms a string to lowercase, in-place.
- * @param str String to transform, will be modified. */
+ * @param str String to transform, will be modified.
+ */
 void string_tolower(char *str)
 {
     TOOLKIT_FUNC_PROTECTOR(API_NAME);
@@ -303,7 +317,8 @@ void string_tolower(char *str)
  *
  * @note Does in-place modification.
  * @param str String to trim.
- * @return 'str'. */
+ * @return 'str'.
+ */
 char *string_whitespace_trim(char *str)
 {
     char *cp;
@@ -333,7 +348,8 @@ char *string_whitespace_trim(char *str)
  *
  * @note Does in-place modification.
  * @param str The string.
- * @return 'str'. */
+ * @return 'str'.
+ */
 char *string_whitespace_squeeze(char *str)
 {
     size_t r, w;
@@ -360,7 +376,8 @@ char *string_whitespace_squeeze(char *str)
  * Replaces "\n" by a newline char.
  *
  * Since we are replacing 2 chars by 1, no overflow should happen.
- * @param str Text to replace into. */
+ * @param str Text to replace into.
+ */
 void string_newline_to_literal(char *str)
 {
     char *next;
@@ -384,8 +401,10 @@ void string_newline_to_literal(char *str)
  * @param word Where to store the word.
  * @param wordsize Size of 'word'.
  * @param surround Character that can surround a word, regardless of 'delim'.
- * @return 'word', NULL if 'word' is empty. */
-const char *string_get_word(const char *str, size_t *pos, char delim, char *word, size_t wordsize, int surround)
+ * @return 'word', NULL if 'word' is empty.
+ */
+const char *string_get_word(const char *str, size_t *pos, char delim,
+                            char *word, size_t wordsize, int surround)
 {
     size_t i;
     uint8 in_surround;
@@ -422,7 +441,8 @@ const char *string_get_word(const char *str, size_t *pos, char delim, char *word
  * Skips whitespace and the first word in the string.
  * @param str String.
  * @param[out] i Position to adjust.
- * @param dir If 1, skip to the right, if -1, skip to the left. */
+ * @param dir If 1, skip to the right, if -1, skip to the left.
+ */
 void string_skip_word(const char *str, size_t *i, int dir)
 {
     uint8 whitespace;
@@ -448,7 +468,8 @@ void string_skip_word(const char *str, size_t *i, int dir)
 
 /**
  * Checks if string is a digit.
- * @return 1 if the string is a digit, 0 otherwise. */
+ * @return 1 if the string is a digit, 0 otherwise.
+ */
 int string_isdigit(const char *str)
 {
     TOOLKIT_FUNC_PROTECTOR(API_NAME);
@@ -472,7 +493,8 @@ int string_isdigit(const char *str)
  * Capitalize a string, transforming the starting letter (if any) into
  * its uppercase version, and all following letters into their lowercase
  * versions.
- * @param str String to capitalize. */
+ * @param str String to capitalize.
+ */
 void string_capitalize(char *str)
 {
     TOOLKIT_FUNC_PROTECTOR(API_NAME);
@@ -492,7 +514,8 @@ void string_capitalize(char *str)
 
 /**
  * Titlecase a string.
- * @param str String to titlecase. */
+ * @param str String to titlecase.
+ */
 void string_title(char *str)
 {
     uint8 previous_cased;
@@ -532,7 +555,8 @@ void string_title(char *str)
  * Check whether the specified string starts with another string.
  * @param str String to check.
  * @param cmp What to check for.
- * @return 1 if 'str' starts with 'cmp', 0 otherwise. */
+ * @return 1 if 'str' starts with 'cmp', 0 otherwise.
+ */
 int string_startswith(const char *str, const char *cmp)
 {
     TOOLKIT_FUNC_PROTECTOR(API_NAME);
@@ -552,7 +576,8 @@ int string_startswith(const char *str, const char *cmp)
  * Check whether the specified string ends with another string.
  * @param str String to check.
  * @param cmp What to check for.
- * @return 1 if 'str' ends with 'cmp', 0 otherwise. */
+ * @return 1 if 'str' ends with 'cmp', 0 otherwise.
+ */
 int string_endswith(const char *str, const char *cmp)
 {
     ssize_t len;
@@ -579,16 +604,13 @@ int string_endswith(const char *str, const char *cmp)
  * 'start' and 'end' can be negative.
  *
  * If 'start' is, eg, -10, the starting index will automatically become
- * (strlen(str) - 10),
- * in other words, 10 characters from the right, and the ending index will
- * become
- * strlen(str), so you can use it to get the last 10 characters of a string, for
- * example.
+ * (strlen(str) - 10), in other words, 10 characters from the right, and the
+ * ending index will become strlen(str), so you can use it to get the last 10
+ * characters of a string, for example.
  *
  * If 'end' is, eg, -1, the ending index will automatically become (strlen(str)
- * - 1),
- * in other words, one less character from the right. In this case, 'start'
- * is unmodified.
+ * - 1), in other words, one less character from the right. In this case,
+ * 'start' is unmodified.
  *
  * Example:
  * @code
@@ -599,7 +621,8 @@ int string_endswith(const char *str, const char *cmp)
  * @param str String to get a substring from.
  * @param start Starting index, eg, 0 for the beginning.
  * @param end Ending index, eg, strlen(end) for the end.
- * @return The created substring; never NULL. Must be freed. */
+ * @return The created substring; never NULL. Must be freed.
+ */
 char *string_sub(const char *str, ssize_t start, ssize_t end)
 {
     size_t n, str_len;
@@ -638,7 +661,8 @@ char *string_sub(const char *str, ssize_t start, ssize_t end)
  * Convenience function to check whether a string is empty.
  * @param str String to check.
  * @return 1 if 'str' is either NULL or if it begins with the NUL
- * character. */
+ * character.
+ */
 int string_isempty(const char *str)
 {
     TOOLKIT_FUNC_PROTECTOR(API_NAME);
@@ -650,8 +674,8 @@ int string_isempty(const char *str)
  * Checks whether the specified string consists of only whitespace
  * characters.
  * @param str String to check.
- * @return 1 if 'str' consists of purely whitespace character, 0
- * otherwise. */
+ * @return 1 if 'str' consists of purely whitespace character, 0 otherwise.
+ */
 int string_iswhite(const char *str)
 {
     TOOLKIT_FUNC_PROTECTOR(API_NAME);
@@ -672,7 +696,8 @@ int string_iswhite(const char *str)
  * 'key'.
  * @param c Character to check.
  * @param key Characters to look for.
- * @return 1 if 'c' equals to any of the character in 'key', 0 otherwise. */
+ * @return 1 if 'c' equals to any of the character in 'key', 0 otherwise.
+ */
 int char_contains(const char c, const char *key)
 {
     size_t i;
@@ -692,7 +717,8 @@ int char_contains(const char c, const char *key)
  * Check whether the specified string contains any of the characters in 'key'.
  * @param str String to check.
  * @param key Characters to look for.
- * @return 1 if 'str' contains any of the characters in 'key', 0 otherwise. */
+ * @return 1 if 'str' contains any of the characters in 'key', 0 otherwise.
+ */
 int string_contains(const char *str, const char *key)
 {
     TOOLKIT_FUNC_PROTECTOR(API_NAME);
@@ -713,7 +739,8 @@ int string_contains(const char *str, const char *key)
  * those specified in 'key'.
  * @param str String to check.
  * @param key Characters to look for.
- * @return 1 if 'str' contains a character that is not in 'key', 0 otherwise. */
+ * @return 1 if 'str' contains a character that is not in 'key', 0 otherwise.
+ */
 int string_contains_other(const char *str, const char *key)
 {
     TOOLKIT_FUNC_PROTECTOR(API_NAME);
@@ -765,7 +792,8 @@ char *string_create_char_range(char start, char end)
  * @endcode
  * @param delim Delimeter to use, eg, ", ". Can be NULL.
  * @param ... Strings to join. Must have a terminating NULL entry.
- * @return Joined string; never NULL. Must be freed. */
+ * @return Joined string; never NULL. Must be freed.
+ */
 char *string_join(const char *delim, ...)
 {
     StringBuffer *sb;
@@ -809,7 +837,8 @@ char *string_join(const char *delim, ...)
  * @param delim Delimeter to use, eg, ", ". Can be NULL.
  * @param array Array of string pointers.
  * @param arraysize Number of entries inside ::array.
- * @return Joined string; never NULL. Must be freed. */
+ * @return Joined string; never NULL. Must be freed.
+ */
 char *string_join_array(const char *delim, char **array, size_t arraysize)
 {
     StringBuffer *sb;
@@ -843,7 +872,8 @@ char *string_join_array(const char *delim, char **array, size_t arraysize)
  * @endcode
  * @param str String to repeat.
  * @param num How many times to repeat the string.
- * @return Constructed string; never NULL. Must be freed. */
+ * @return Constructed string; never NULL. Must be freed.
+ */
 char *string_repeat(const char *str, size_t num)
 {
     size_t len, i;
@@ -855,8 +885,8 @@ char *string_repeat(const char *str, size_t num)
     ret = emalloc(sizeof(char) * (len * num) + 1);
 
     for (i = 0; i < num; i++) {
-        /* Cannot overflow; 'ret' has been allocated to hold enough characters.
-         * */
+        /* Cannot overflow; 'ret' has been allocated to hold enough
+         * characters. */
         strcpy(ret + (len * i), str);
     }
 
@@ -897,7 +927,8 @@ size_t snprintfcat(char *buf, size_t size, const char *fmt, ...)
  * @param resultsize Size of 'result'.
  * @return Number of characters written into 'result'.
  */
-size_t string_tohex(const unsigned char *str, size_t len, char *result, size_t resultsize)
+size_t string_tohex(const unsigned char *str, size_t len, char *result,
+                    size_t resultsize)
 {
     size_t i;
 
@@ -923,14 +954,17 @@ size_t string_tohex(const unsigned char *str, size_t len, char *result, size_t r
  * @param resultsize Number of elements in 'result'.
  * @return How many elements have been filled into 'result'.
  */
-size_t string_fromhex(char *str, size_t len, unsigned char *result, size_t resultsize)
+size_t string_fromhex(char *str, size_t len, unsigned char *result,
+                      size_t resultsize)
 {
     size_t i, j;
     unsigned char c, found;
 
     for (found = 0, i = 0, j = 0, c = 0; i < len && j < resultsize; i++) {
-        if ((str[i] >= 'A' && str[i] <= 'F') || (str[i] >= '0' && str[i] <= '9')) {
-            c = (c << 4) | ((str[i] >= 'A') ? (str[i] - 'A' + 10) : (str[i] - '0'));
+        if ((str[i] >= 'A' && str[i] <= 'F') ||
+            (str[i] >= '0' && str[i] <= '9')) {
+            c = (c << 4) |
+                ((str[i] >= 'A') ? (str[i] - 'A' + 10) : (str[i] - '0'));
             found++;
         }
 
