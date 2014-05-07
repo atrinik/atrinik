@@ -2925,7 +2925,7 @@ int item_matched_string(object *pl, object *op, const char *name)
     int count, retval = 0, book_level, book_level2;
 
     /* strtok is destructive to name */
-    strcpy(local_name, name);
+    snprintf(VS(local_name), "%s", name);
 
     for (cp = strtok(local_name, ","); cp; cp = strtok(NULL, ",")) {
         /* Get rid of spaces */
@@ -3050,7 +3050,8 @@ int item_matched_string(object *pl, object *op, const char *name)
         /* Need to plurify name for proper match */
         else if (count > 1) {
             char newname[MAX_BUF];
-            strcpy(newname, op->name);
+
+            snprintf(VS(newname), "%s", op->name);
 
             if (!strcasecmp(newname, cp)) {
                 retval = 6;
@@ -3293,7 +3294,7 @@ int object_enter_map(object *op, object *exit_ob, mapstruct *m, int x, int y, ui
     /* Do some action special for players after we have inserted them */
     if (op->type == PLAYER) {
         if (CONTR(op)) {
-            strcpy(CONTR(op)->maplevel, m->path);
+            snprintf(VS(CONTR(op)->maplevel), "%s", m->path);
             CONTR(op)->count = 0;
         }
 

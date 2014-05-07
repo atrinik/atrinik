@@ -39,7 +39,7 @@ static int apply_func(object *op, object *applier, int aflags)
     }
 
     /* Update respawn position. */
-    strcpy(CONTR(applier)->savebed_map, applier->map->path);
+    snprintf(VS(CONTR(applier)->savebed_map), "%s", applier->map->path);
     CONTR(applier)->bed_x = applier->x;
     CONTR(applier)->bed_y = applier->y;
 

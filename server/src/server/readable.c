@@ -829,12 +829,12 @@ void tailor_readable_ob(object *book, int msg_type)
 
         case MSGTYPE_MSGFILE:
         default:
-            strcpy(msgbuf, msgfile_msg( BOOK_BUF));
+            snprintf(VS(msgbuf), "%s", msgfile_msg(BOOK_BUF));
             break;
     }
 
     /* Safety -- we get ugly map saves/crashes without this */
-    strcat(msgbuf, "\n");
+    snprintfcat(VS(msgbuf), "\n");
 
     if (strlen(msgbuf) > 1) {
         FREE_AND_COPY_HASH(book->msg, msgbuf);
