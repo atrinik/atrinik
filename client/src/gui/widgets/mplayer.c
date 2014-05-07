@@ -209,6 +209,12 @@ static void mplayer_blacklist_save(list_struct *list)
 
     fp = fopen_wrapper(FILE_MPLAYER_BLACKLIST, "w");
 
+    if (fp == NULL) {
+        logger_print(LOG(ERROR), "Failed to open file: %s",
+                     FILE_MPLAYER_BLACKLIST);
+        return;
+    }
+
     for (row = 0; row < list->rows; row++) {
         if (shuffle_blacklist[row]) {
             fprintf(fp, "%s\n", list->text[row][0]);

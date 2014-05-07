@@ -60,6 +60,11 @@ void keybind_load(void)
 
     fp = fopen_wrapper(FILE_KEYBIND, "r");
 
+    if (fp == NULL) {
+        logger_print(LOG(ERROR), "Failed to open file: %s", FILE_KEYBIND);
+        return;
+    }
+
     while (fgets(buf, sizeof(buf) - 1, fp)) {
         cp = strchr(buf, '\n');
 
