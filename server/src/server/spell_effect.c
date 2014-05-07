@@ -622,14 +622,7 @@ int cast_change_attr(object *op, object *caster, object *target, int spell_type)
         case SP_STRENGTH:
             force->speed_left = -1;
 
-            if (tmp->type != PLAYER) {
-                if (op->type == PLAYER) {
-                    draw_info(COLOR_WHITE, op, "You can't cast this kind of spell on your target.");
-                }
-
-                return 0;
-            }
-            else if (op->type == PLAYER && op != tmp) {
+            if (op->type == PLAYER && op != tmp) {
                 draw_info_format(COLOR_WHITE, tmp, "%s casts strength on you!", op->name ? op->name : "Someone");
             }
 
