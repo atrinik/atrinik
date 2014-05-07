@@ -327,11 +327,10 @@ static void second_arch_pass(FILE *fp_start)
             if ((other = find_archetype(argument)) == NULL) {
                 logger_print(LOG(BUG), "Second artifacts pass: Failed to find def_arch %s from artifact %s", STRING_SAFE(argument), STRING_ARCH_NAME(at));
             }
-
-            /* now copy from real arch the stuff from above to our "fake" arches
-             * */
-            at->clone.other_arch = other->clone.other_arch;
-            at->clone.randomitems = other->clone.randomitems;
+            else if (at != NULL) {
+                at->clone.other_arch = other->clone.other_arch;
+                at->clone.randomitems = other->clone.randomitems;
+            }
         }
         else if (!strcmp("other_arch", variable)) {
             if ((other = find_archetype(argument)) == NULL) {
