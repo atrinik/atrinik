@@ -97,7 +97,7 @@ static void common_object_process_changing(object *op)
     tmp = arch_to_object(op->other_arch);
 
     if (env) {
-        tmp = insert_ob_in_ob(tmp, env);
+        insert_ob_in_ob(tmp, env);
     }
     else {
         tmp->x = op->x;

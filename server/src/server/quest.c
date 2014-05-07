@@ -243,7 +243,7 @@ static void check_quest_container(object *op, object *quest_container, object *q
             draw_info(COLOR_NAVY, op, buf);
 
             /* Insert the quest item inside the player. */
-            clone_ob = insert_ob_in_ob(clone_ob, op);
+            insert_ob_in_ob(clone_ob, op);
 
             play_sound_player_only(CONTR(op), CMD_SOUND_EFFECT, "event01.ogg", 0, 0, 0, 0);
             break;
