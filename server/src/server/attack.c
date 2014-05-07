@@ -654,7 +654,7 @@ static void share_kill_exp(object *op, sint64 exp_gain, object *skill)
         }
     }
 
-    if (count == 1 || shares > exp_gain) {
+    if (count <= 1 || shares > exp_gain) {
         share_kill_exp_one(op, exp_gain, skill);
     }
     else {
