@@ -489,7 +489,7 @@ void text_anchor_execute(text_info_struct *info, void *custom_data)
     char *buf, *pos;
 
     /* Sanity check. */
-    if (!info->anchor_action || !info->anchor_tag) {
+    if (info->anchor_action[0] == '\0' || !info->anchor_tag) {
         return;
     }
 
