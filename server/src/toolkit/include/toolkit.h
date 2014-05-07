@@ -115,4 +115,8 @@ typedef void (*toolkit_func)(void);
 #define estrdup string_estrdup
 #define estrndup string_estrndup
 
+/**
+ * Takes a variable and returns the variable and its size. */
+#define VS(var) (var), sizeof((var))
+
 #endif
