@@ -566,7 +566,7 @@ int string_endswith(const char *str, const char *cmp)
     len = strlen(str) - strlen(cmp);
     str += MAX(0, len);
 
-    if (str && strcmp(str, cmp) == 0) {
+    if (strcmp(str, cmp) == 0) {
         return 1;
     }
 
