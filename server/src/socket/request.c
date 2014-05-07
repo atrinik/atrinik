@@ -85,7 +85,7 @@ void socket_command_setup(socket_struct *ns, player *pl, uint8 *data, size_t len
             uint64 len_ucomp, crc;
 
             file_type = packet_to_uint8(data, len, &pos);
-            file_type = MAX(0, MIN(SERVER_FILES_MAX - 1, file_type));
+            file_type = MIN(SERVER_FILES_MAX - 1, file_type);
 
             len_ucomp = packet_to_uint64(data, len, &pos);
             crc = packet_to_uint64(data, len, &pos);
@@ -1354,10 +1354,10 @@ void socket_command_move(socket_struct *ns, player *pl, uint8 *data, size_t len,
     uint8 dir, run_on;
 
     dir = packet_to_uint8(data, len, &pos);
-    dir = MAX(0, MIN(dir, 8));
+    dir = MIN(dir, 8);
     run_on = packet_to_uint8(data, len, &pos);
 
-    pl->run_on = MAX(0, MIN(1, run_on));
+    pl->run_on = MIN(1, run_on);
 
     if (dir != 0) {
         pl->ob->speed_left -= 1.0;
