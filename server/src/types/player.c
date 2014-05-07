@@ -1122,7 +1122,7 @@ static void examine_living(object *op, object *tmp, StringBuffer *sb_capture)
             val = i;
         }
         else if (mon->protection[i] < 0) {
-            val = i;
+            val2 = i;
         }
     }
 
@@ -1134,7 +1134,7 @@ static void examine_living(object *op, object *tmp, StringBuffer *sb_capture)
         draw_info_full_format(CHAT_TYPE_GAME, NULL, COLOR_WHITE, sb_capture, op, "%s is naturally vulnerable to some attacks.", gender_subjective_upper[gender]);
     }
 
-    for (val =-1, val2 = i = 0; i < NROFATTACKS; i++) {
+    for (val = -1, val2 = i = 0; i < NROFATTACKS; i++) {
         if (mon->protection[i] > val2) {
             val = i;
             val2 = mon->protection[i];
