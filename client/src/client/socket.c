@@ -735,9 +735,12 @@ int socket_open(struct ClientSocket *csock, char *host, int port)
     }
 
     if (oldbufsize < newbufsize) {
-        if (setsockopt(csock->fd, SOL_SOCKET, SO_RCVBUF, (char *) &newbufsize, sizeof(&newbufsize))) {
+        if (setsockopt(csock->fd, SOL_SOCKET, SO_RCVBUF, (char *) &newbufsize, sizeof(newbufsize))) {
             logger_print(LOG(BUG), "Unable to set output buf size to %d", newbufsize);
-            setsockopt(csock->fd, SOL_SOCKET, SO_RCVBUF, (char *) &oldbufsize, sizeof(&oldbufsize));
+
+            if (setsockopt(csock->fd, SOL_SOCKET, SO_RCVBUF, (char *) &oldbufsize, sizeof(oldbufsize))) {
+                logger_print(LOG(BUG), "Unable to set output buf size back to %d", oldbufsize);
+            }
         }
     }
 
