@@ -203,7 +203,7 @@ void waypoint_compute_path(object *waypoint)
  * @param waypoint The waypoint object. */
 void waypoint_move(object *op, object *waypoint)
 {
-    mapstruct *destmap = op->map;
+    mapstruct *destmap;
     rv_vector local_rv, global_rv, *dest_rv;
     int dir;
     sint16 new_offset = 0;
@@ -211,6 +211,8 @@ void waypoint_move(object *op, object *waypoint)
     if (!waypoint || !op || !op->map) {
         return;
     }
+
+    destmap = op->map;
 
     /* Aggro or static waypoint? */
     if (QUERY_FLAG(waypoint, FLAG_DAMNED)) {

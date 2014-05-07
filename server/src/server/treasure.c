@@ -923,17 +923,17 @@ create_one_treasure_again_jmp:
         }
     }
 
+    if (!t || value > 0) {
+        logger_print(LOG(BUG), "create_one_treasure: got null object or not able to find treasure - tl:%s op:%s", tl ? tl->name : "(null)", op ? op->name : "(null)");
+        return;
+    }
+
     if (t->t_style != T_STYLE_UNSET) {
         t_style = t->t_style;
     }
 
     if (t->artifact_chance != ART_CHANCE_UNSET) {
         a_chance = t->artifact_chance;
-    }
-
-    if (!t || value > 0) {
-        logger_print(LOG(BUG), "create_one_treasure: got null object or not able to find treasure - tl:%s op:%s", tl ? tl->name : "(null)", op ? op->name : "(null)");
-        return;
     }
 
     if (t->name) {
@@ -1888,7 +1888,7 @@ jump_break1:
 
                     op->level = level;
 
-                    tailor_readable_ob(op, (creator && creator->stats.sp) ? creator->stats.sp : -1);
+                    tailor_readable_ob(op, creator->stats.sp ? creator->stats.sp : -1);
                     generate_artifact(op, 1, T_STYLE_UNSET, 100);
 
                     msg_len = op->msg ? strlen(op->msg) : 0;
