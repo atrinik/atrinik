@@ -33,7 +33,6 @@
 /** @copydoc command_func */
 void command_arrest(object *op, const char *command, char *params)
 {
-    object *dummy;
     player *pl;
 
     if (!params) {
