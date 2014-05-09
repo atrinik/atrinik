@@ -166,13 +166,26 @@ static int game_status_chain(void)
         packet_append_uint8(packet, CMD_SETUP_MAPSIZE);
         packet_append_uint8(packet, setting_get_int(OPT_CAT_MAP, OPT_MAP_WIDTH));
         packet_append_uint8(packet, setting_get_int(OPT_CAT_MAP, OPT_MAP_HEIGHT));
-        server_files_setup_add(packet);
+        packet_append_uint8(packet, CMD_SETUP_DATA_URL);
+        packet_append_string_terminated(packet, "");
         socket_send_packet(packet);
 
         cpl.state = ST_WAITSETUP;
     }
+    else if (cpl.state == ST_REQUEST_FILES_LISTING) {
+        /* Retrieve the server files listing. */
+        server_files_listing_retrieve();
+        /* Load up the existing server files. */
+        server_files_load(0);
+        cpl.state = ST_WAITREQUEST_FILES_LISTING;
+    }
+    else if (cpl.state == ST_WAITREQUEST_FILES_LISTING) {
+        if (server_files_listing_processed()) {
+            cpl.state = ST_REQUEST_FILES;
+        }
+    }
     else if (cpl.state == ST_REQUEST_FILES) {
-        if (!server_files_updating()) {
+        if (server_files_processed()) {
             server_files_load(1);
             cpl.state = ST_LOGIN;
         }

@@ -27,7 +27,6 @@ extern void socket_command_item_delete(uint8 *data, size_t len, size_t pos);
 extern void socket_command_mapstats(uint8 *data, size_t len, size_t pos);
 extern void socket_command_map(uint8 *data, size_t len, size_t pos);
 extern void socket_command_version(uint8 *data, size_t len, size_t pos);
-extern void socket_command_data(uint8 *data, size_t len, size_t pos);
 extern void socket_command_compressed(uint8 *data, size_t len, size_t pos);
 extern void socket_command_control(uint8 *data, size_t len, size_t pos);
 /* src/client/curl.c */
@@ -140,13 +139,17 @@ extern void player_draw_exp_progress(SDL_Surface *surface, int x, int y, sint64 
 extern char *player_make_path(const char *path);
 /* src/client/server_files.c */
 extern void server_files_init(void);
+extern void server_files_deinit(void);
+extern void server_files_init_all(void);
+extern server_files_struct *server_files_create(const char *name);
+extern server_files_struct *server_files_find(const char *name);
 extern void server_files_load(int post_load);
-extern FILE *server_file_open(size_t id);
-extern void server_file_save(size_t id, unsigned char *data, size_t len);
-extern int server_files_updating(void);
-extern void server_files_setup_add(packet_struct *packet);
-extern void server_files_mark_update(size_t i);
-extern void server_files_clear_update(void);
+extern void server_files_listing_retrieve(void);
+extern int server_files_listing_processed(void);
+extern int server_files_processed(void);
+extern FILE *server_file_open(server_files_struct *tmp);
+extern FILE *server_file_open_name(const char *name);
+extern int server_file_save(server_files_struct *tmp, unsigned char *data, size_t len);
 /* src/client/server_settings.c */
 extern server_settings *s_settings;
 extern void server_settings_init(void);

@@ -33,6 +33,5 @@
 #include <toolkit.h>
 #include <define.h>
 #include <version.h>
-#include <newclient.h>
 
 #endif

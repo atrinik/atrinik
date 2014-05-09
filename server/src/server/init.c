@@ -122,7 +122,6 @@ void cleanup(void)
     free_all_anim();
     free_strings();
     race_free();
-    free_srv_files();
     free_regions();
     objectlink_deinit();
     object_deinit();

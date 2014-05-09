@@ -24,14 +24,28 @@
 
 /**
  * @file
- * Header file for servers files declarations. */
+ * Header file for servers files declarations.
+ */
 
 #ifndef SERVER_FILES_H
 #define SERVER_FILES_H
 
+#define SERVER_FILES_HTTP_DIR       "data"
+#define SERVER_FILES_HTTP_LISTING   "listing.txt"
+
+#define SERVER_FILE_ANIMS           "anims"
+#define SERVER_FILE_BMAPS           "bmaps"
+#define SERVER_FILE_UPDATES         "updates"
+#define SERVER_FILE_SETTINGS        "settings"
+#define SERVER_FILE_EFFECTS         "effects"
+#define SERVER_FILE_HFILES          "hfiles"
+
 /** One server file. */
 typedef struct server_files_struct
 {
+    /** Name of the server file. */
+    char *name;
+
     /** If 0, will be (re-)loaded. */
     uint8 loaded;
 
@@ -47,8 +61,23 @@ typedef struct server_files_struct
     /** Size of the file. */
     size_t size;
 
-    /** Calculate checksum. */
+    /** Calculated checksum. */
     unsigned long crc32;
+
+    /** cURL data. */
+    curl_data *dl_data;
+
+    /** Init-time function. */
+    void (*init_func)(void);
+
+    /** Function to call when re-loading. */
+    void (*reload_func)(void);
+
+    /** Loading/parsing function. */
+    void (*parse_func)(void);
+
+    /** Hash handle. */
+    UT_hash_handle hh;
 } server_files_struct;
 
 #endif

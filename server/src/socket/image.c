@@ -174,7 +174,7 @@ void read_client_images(void)
         facesets[file_num].faces = ecalloc(nrofpixmaps, sizeof(FaceInfo));
 
         snprintf(filename, sizeof(filename), "%s/atrinik.%d", settings.libpath, file_num);
-        snprintf(buf, sizeof(buf), "%s/client_bmaps", settings.datapath);
+        snprintf(buf, sizeof(buf), "%s/bmaps", settings.datapath);
 
         if ((fbmap = fopen(buf, "wb")) == NULL) {
             logger_print(LOG(ERROR), "Unable to open %s", buf);

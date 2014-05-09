@@ -107,7 +107,7 @@ void file_updates_parse(void)
         return;
     }
 
-    fp = server_file_open(SERVER_FILE_UPDATES);
+    fp = server_file_open_name(SERVER_FILE_UPDATES);
 
     if (!fp) {
         return;

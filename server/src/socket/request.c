@@ -80,23 +80,16 @@ void socket_command_setup(socket_struct *ns, player *pl, uint8 *data, size_t len
 
             packet_append_uint8(packet, ns->is_bot);
         }
-        else if (type == CMD_SETUP_SERVER_FILE) {
-            uint8 file_type;
-            uint64 len_ucomp, crc;
+        else if (type == CMD_SETUP_DATA_URL) {
+            char url[MAX_BUF];
 
-            file_type = packet_to_uint8(data, len, &pos);
-            file_type = MIN(SERVER_FILES_MAX - 1, file_type);
+            packet_to_string(data, len, &pos, url, sizeof(url));
 
-            len_ucomp = packet_to_uint64(data, len, &pos);
-            crc = packet_to_uint64(data, len, &pos);
-
-            packet_append_uint8(packet, file_type);
-
-            if (SrvClientFiles[file_type].len_ucomp != len_ucomp || SrvClientFiles[file_type].crc != crc) {
-                packet_append_uint8(packet, 1);
+            if (!string_isempty(url)) {
+                packet_append_string_terminated(packet, url);
             }
             else {
-                packet_append_uint8(packet, 0);
+                packet_append_string_terminated(packet, settings.http_url);
             }
         }
     }
@@ -114,31 +107,6 @@ void socket_command_player_cmd(socket_struct *ns, player *pl, uint8 *data, size_
 
     packet_to_string(data, len, &pos, command, sizeof(command));
     commands_handle(pl->ob, command);
-}
-
-void socket_command_request_file(socket_struct *ns, player *pl, uint8 *data, size_t len, size_t pos)
-{
-    uint8 file_type;
-    packet_struct *packet;
-
-    if (ns->state != ST_LOGIN) {
-        return;
-    }
-
-    file_type = packet_to_uint8(data, len, &pos);
-    file_type = MIN(SERVER_FILES_MAX - 1, file_type);
-
-    if (ns->requested_file[file_type]) {
-        return;
-    }
-
-    ns->requested_file[file_type] = 1;
-
-    packet = packet_new(CLIENT_CMD_DATA, 1 + 4 + SrvClientFiles[file_type].len, 0);
-    packet_append_uint8(packet, file_type);
-    packet_append_uint32(packet, SrvClientFiles[file_type].len_ucomp);
-    packet_append_data_len(packet, SrvClientFiles[file_type].file, SrvClientFiles[file_type].len);
-    socket_send_packet(ns, packet);
 }
 
 void socket_command_version(socket_struct *ns, player *pl, uint8 *data, size_t len, size_t pos)
@@ -205,7 +173,7 @@ void socket_command_item_move(socket_struct *ns, player *pl, uint8 *data, size_t
  *
  * We look at the old values, and only send what has changed.
  *
- * Stat mapping values are in newclient.h */
+ * Stat mapping values are in socket.h */
 void esrv_update_stats(player *pl)
 {
     packet_struct *packet;

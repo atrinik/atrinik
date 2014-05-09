@@ -37,6 +37,7 @@ enum
     SERVER_CMD_ASK_FACE,
     SERVER_CMD_SETUP,
     SERVER_CMD_VERSION,
+    /** @deprecated */
     SERVER_CMD_REQUEST_FILE,
     SERVER_CMD_CLEAR,
     SERVER_CMD_REQUEST_UPDATE,
@@ -87,6 +88,7 @@ enum
     CLIENT_CMD_VERSION,
     CLIENT_CMD_SETUP,
     CLIENT_CMD_CONTROL,
+    /** @deprecated */
     CLIENT_CMD_DATA,
     CLIENT_CMD_CHARACTERS,
     CLIENT_CMD_BOOK,
@@ -164,8 +166,8 @@ enum
 #define CMD_SETUP_MAPSIZE 1
 /** Enable/disable bot flag. */
 #define CMD_SETUP_BOT 2
-/** Compare server files. */
-#define CMD_SETUP_SERVER_FILE 3
+/** URL of the data files to use. */
+#define CMD_SETUP_DATA_URL 3
 /*@}*/
 
 /**
@@ -553,22 +555,6 @@ enum
 /** Object is probed */
 #define FFLAG_PROBE     0x80
 /*@}*/
-
-/**
- * @anchor SERVER_FILE_xxx
- * Server file IDs. */
-enum
-{
-    SERVER_FILE_BMAPS,
-    SERVER_FILE_UPDATES,
-    SERVER_FILE_SETTINGS,
-    SERVER_FILE_ANIMS,
-    SERVER_FILE_EFFECTS,
-    SERVER_FILE_HFILES,
-
-    /** Last index. */
-    SERVER_FILES_MAX
-};
 
 #define CHAT_TYPE_ALL 1
 #define CHAT_TYPE_GAME 2

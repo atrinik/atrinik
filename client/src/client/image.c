@@ -202,7 +202,7 @@ void read_bmaps(void)
     bmap_struct *bmap;
     size_t i;
 
-    fp = server_file_open(SERVER_FILE_BMAPS);
+    fp = server_file_open_name(SERVER_FILE_BMAPS);
 
     if (!fp) {
         return;

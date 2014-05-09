@@ -41,8 +41,6 @@ void socket_command_setup(uint8 *data, size_t len, size_t pos)
 {
     uint8 type;
 
-    server_files_clear_update();
-
     while (pos < len) {
         type = packet_to_uint8(data, len, &pos);
 
@@ -58,20 +56,14 @@ void socket_command_setup(uint8 *data, size_t len, size_t pos)
             setting_set_int(OPT_CAT_MAP, OPT_MAP_WIDTH, x);
             setting_set_int(OPT_CAT_MAP, OPT_MAP_HEIGHT, y);
         }
-        else if (type == CMD_SETUP_SERVER_FILE) {
-            uint8 file_type, state;
-
-            file_type = packet_to_uint8(data, len, &pos);
-            state = packet_to_uint8(data, len, &pos);
-
-            if (state) {
-                server_files_mark_update(file_type);
-            }
+        else if (type == CMD_SETUP_DATA_URL) {
+            packet_to_string(data, len, &pos, cpl.http_url,
+                             sizeof(cpl.http_url));
         }
     }
 
     if (cpl.state != ST_PLAY) {
-        cpl.state = ST_REQUEST_FILES;
+        cpl.state = ST_REQUEST_FILES_LISTING;
     }
 }
 
@@ -807,24 +799,6 @@ void socket_command_version(uint8 *data, size_t len, size_t pos)
 
     cpl.server_socket_version = packet_to_uint32(data, len, &pos);
     cpl.state = ST_VERSION;
-}
-
-/** @copydoc socket_command_struct::handle_func */
-void socket_command_data(uint8 *data, size_t len, size_t pos)
-{
-    uint8 data_type;
-    unsigned long len_ucomp;
-    unsigned char *dest;
-
-    data_type = packet_to_uint8(data, len, &pos);
-    len_ucomp = packet_to_uint32(data, len, &pos);
-    len -= pos;
-    /* Allocate large enough buffer to hold the uncompressed file. */
-    dest = emalloc(len_ucomp);
-
-    uncompress((Bytef *) dest, (uLongf *) &len_ucomp, (const Bytef *) data + pos, (uLong) len);
-    server_file_save(data_type, dest, len_ucomp);
-    efree(dest);
 }
 
 /** @copydoc socket_command_struct::handle_func */

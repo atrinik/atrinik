@@ -76,7 +76,7 @@ void read_anims(void)
     anim_table[count].len = 6;
     count++;
 
-    fp = server_file_open(SERVER_FILE_ANIMS);
+    fp = server_file_open_name(SERVER_FILE_ANIMS);
 
     if (!fp) {
         logger_print(LOG(ERROR), "Could not open anims server file.");

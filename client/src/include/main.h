@@ -213,6 +213,14 @@ typedef enum player_state_t
     ST_WAITSETUP,
 
     /**
+     * Request files listing. */
+    ST_REQUEST_FILES_LISTING,
+
+    /**
+     * Wait for files listing request to complete. */
+    ST_WAITREQUEST_FILES_LISTING,
+
+    /**
      * Request files as necessary. */
     ST_REQUEST_FILES,
 

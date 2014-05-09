@@ -43,7 +43,7 @@ void server_settings_init(void)
     char_struct *cur_char = NULL;
     size_t text_id = 0, i;
 
-    fp = server_file_open(SERVER_FILE_SETTINGS);
+    fp = server_file_open_name(SERVER_FILE_SETTINGS);
 
     if (!fp) {
         return;

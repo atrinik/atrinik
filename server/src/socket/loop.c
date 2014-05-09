@@ -46,7 +46,7 @@ static const socket_command_struct socket_commands[SERVER_CMD_NROF] =
     {socket_command_ask_face, 0},
     {socket_command_setup, 0},
     {socket_command_version, 0},
-    {socket_command_request_file, 0},
+    {NULL, 0},
     {socket_command_clear, 0},
     {socket_command_request_update, 0},
     {socket_command_keepalive, 0},

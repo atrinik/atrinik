@@ -73,7 +73,7 @@ void hfiles_init(void)
     uint8 in_msg = 0;
     hfile_struct *hfile = NULL;
 
-    fp = server_file_open(SERVER_FILE_HFILES);
+    fp = server_file_open_name(SERVER_FILE_HFILES);
 
     if (!fp) {
         return;

@@ -30,92 +30,140 @@
 
 #include <global.h>
 
-/** File names of the server files inside srv_files directory. */
-static const char *const server_file_names[SERVER_FILES_MAX] =
-{
-    "bmaps", "updates", "settings",
-    "anims", "effects", "hfiles"
-};
-
-/** Post-loading functions to call. */
-static void (*server_file_funcs[SERVER_FILES_MAX]) (void) =
-{
-    read_bmaps, file_updates_parse, server_settings_init,
-    read_anims, effects_init, hfiles_init
-};
-
-/** Functions to call if the server file was already loaded. */
-static void (*server_file_funcs_reload[SERVER_FILES_MAX]) (void) =
-{
-    NULL, NULL, NULL,
-    anims_reset, effects_reinit, NULL
-};
-
-/**
- * Init-time functions to call. Needed for things like help files, which
- * are necessary before we connect to a server. */
-static void (*server_file_funcs_init[SERVER_FILES_MAX]) (void) =
-{
-    NULL, NULL, NULL,
-    NULL, NULL, hfiles_init
-};
-
 /** The server files. */
-static server_files_struct server_files[SERVER_FILES_MAX];
+static server_files_struct *server_files;
+
+/** Listing file data. */
+static curl_data *listing_data = NULL;
 
 /**
- * Initialize the necessary structures. */
+ * Initialize the server files API.
+ */
 void server_files_init(void)
 {
-    size_t i;
+    server_files_struct *tmp;
 
-    memset(&server_files, 0, sizeof(server_files));
+    server_files = NULL;
 
-    for (i = 0; i < SERVER_FILES_MAX; i++) {
-        if (server_file_funcs_init[i]) {
-            server_file_funcs_init[i]();
+    tmp = server_files_create(SERVER_FILE_BMAPS);
+    tmp->parse_func = read_bmaps;
+
+    tmp = server_files_create(SERVER_FILE_UPDATES);
+    tmp->parse_func = file_updates_parse;
+
+    tmp = server_files_create(SERVER_FILE_SETTINGS);
+    tmp->parse_func = server_settings_init;
+
+    tmp = server_files_create(SERVER_FILE_ANIMS);
+    tmp->parse_func = read_anims;
+    tmp->reload_func = anims_reset;
+
+    tmp = server_files_create(SERVER_FILE_EFFECTS);
+    tmp->parse_func = effects_init;
+    tmp->reload_func = effects_reinit;
+
+    tmp = server_files_create(SERVER_FILE_HFILES);
+    tmp->parse_func = hfiles_init;
+    tmp->init_func = hfiles_init;
+
+    server_files_init_all();
+}
+
+/**
+ * De-initialize the server files API.
+ */
+void server_files_deinit(void)
+{
+    server_files_struct *curr, *tmp;
+
+    HASH_ITER(hh, server_files, curr, tmp) {
+        HASH_DEL(server_files, curr);
+        free(curr->name);
+        free(curr);
+    }
+}
+
+/**
+ * Init all of the available server files.
+ */
+void server_files_init_all(void)
+{
+    server_files_struct *curr, *tmp;
+
+    HASH_ITER(hh, server_files, curr, tmp) {
+        if (curr->init_func) {
+            curr->init_func();
         }
     }
 }
 
 /**
+ * Create a server file with the specified name.
+ *
+ * The server file will be added to a hash table automatically.
+ * @param name Name of the server file.
+ * @return Created server file.
+ */
+server_files_struct *server_files_create(const char *name)
+{
+    server_files_struct *tmp;
+
+    tmp = ecalloc(1, sizeof(*tmp));
+    tmp->name = strdup(name);
+    HASH_ADD_KEYPTR(hh, server_files, tmp->name, strlen(tmp->name), tmp);
+
+    return tmp;
+}
+
+/**
+ * Find the specified server file in the hash table.
+ * @param name Name of the server file.
+ * @return Server file if found, NULL otherwise.
+ */
+server_files_struct *server_files_find(const char *name)
+{
+    server_files_struct *tmp;
+
+    HASH_FIND(hh, server_files, name, strlen(name), tmp);
+
+    return tmp;
+}
+
+/**
  * Load the server files. If they haven't changed since last load, no
  * loading will be done.
- * @param post_load Unless 1, (re)parsing the server files will not be done. */
+ * @param post_load Unless 1, (re-)parsing the server files will not be done.
+ */
 void server_files_load(int post_load)
 {
-    size_t i;
+    server_files_struct *curr, *tmp;
     FILE *fp;
     struct stat sb;
     size_t st_size, numread;
     char *contents;
 
-    for (i = 0; i < SERVER_FILES_MAX; i++) {
-        /* Invalid server file. */
-        if (!server_file_names[i]) {
-            continue;
-        }
+    HASH_ITER(hh, server_files, curr, tmp) {
+        curr->update = 0;
 
-        /* Server file was loaded previously. */
-        if (post_load && server_files[i].loaded) {
-            if (server_file_funcs_reload[i]) {
-                server_file_funcs_reload[i]();
+        if (post_load && curr->loaded) {
+            if (curr->reload_func) {
+                curr->reload_func();
             }
 
             continue;
         }
 
         /* Open the file. */
-        fp = server_file_open(i);
+        fp = server_file_open(curr);
 
-        if (!fp) {
-            return;
+        if (fp == NULL) {
+            continue;
         }
 
         /* Get and store the size. */
         fstat(fileno(fp), &sb);
         st_size = sb.st_size;
-        server_files[i].size = st_size;
+        curr->size = st_size;
 
         /* Allocate temporary buffer and read into it the file. */
         contents = malloc(st_size);
@@ -123,162 +171,265 @@ void server_files_load(int post_load)
 
         /* Calculate and store the checksum, free the temporary buffer
          * and close the file pointer. */
-        server_files[i].crc32 = crc32(1L, (const unsigned char FAR *) contents, numread);
+        curr->crc32 = crc32(1L, (const unsigned char FAR *) contents, numread);
         efree(contents);
         fclose(fp);
 
         if (post_load) {
             /* Mark that we have loaded this file. */
-            server_files[i].loaded = 1;
+            curr->loaded = 1;
 
-            if (server_file_funcs[i]) {
-                server_file_funcs[i]();
+            if (curr->parse_func) {
+                curr->parse_func();
             }
         }
     }
 }
 
 /**
- * Construct a path to the specified @ref SERVER_FILE_xxx "file".
- * @param id ID of the server file, one of @ref SERVER_FILE_xxx.
- * @param[out] buf Will contain the constructed path.
- * @param buf_size Size of 'buf'.
- * @return 'buf'. */
-static char *server_file_path(size_t id, char *buf, size_t buf_size)
+ * Begin downloading the listing file.
+ */
+void server_files_listing_retrieve(void)
 {
-    snprintf(buf, buf_size, "srv_files/%s", server_file_names[id]);
-    return buf;
+    char url[HUGE_BUF];
+
+    snprintf(url, sizeof(url), "%s/%s/%s", cpl.http_url, SERVER_FILES_HTTP_DIR,
+             SERVER_FILES_HTTP_LISTING);
+
+    if (listing_data != NULL) {
+        curl_data_free(listing_data);
+    }
+
+    listing_data = curl_download_start(url);
 }
 
 /**
- * Open a server file for reading.
- * @param id ID of the server file, one of @ref SERVER_FILE_xxx.
- * @return The file pointer, or NULL on failure of opening the file. */
-FILE *server_file_open(size_t id)
+ * Check if the listing file has been downloaded and processed.
+ * @return 1 if it has been processed, 0 otherwise.
+ */
+int server_files_listing_processed(void)
 {
-    char buf[MAX_BUF];
+    int ret;
 
-    /* Doesn't exist. */
-    if (!server_file_names[id]) {
-        return NULL;
+    if (listing_data == NULL) {
+        return 0;
     }
 
-    server_file_path(id, buf, sizeof(buf));
-    return fopen_wrapper(buf, "rb");
-}
+    ret = curl_download_finished(listing_data);
 
-/**
- * We have received the server file we asked for, so save it to disk.
- * @param id ID of the server file, one of @ref SERVER_FILE_xxx.
- * @param data The data to save.
- * @param len Length of 'data'. */
-void server_file_save(size_t id, unsigned char *data, size_t len)
-{
-    char path[MAX_BUF];
-    FILE *fp;
-
-    /* Finished updating. */
-    server_files[id].update = 0;
-
-    server_file_path(id, path, sizeof(path));
-    fp = fopen_wrapper(path, "wb");
-
-    if (!fp) {
-        logger_print(LOG(BUG), "Can't open %s for writing.", path);
-        return;
+    if (ret == -1) {
+        cpl.state = ST_INIT;
     }
 
-    if (fwrite(data, 1, len, fp) != len) {
-        logger_print(LOG(BUG), "Failed to write to %s.", path);
-    }
-    else {
-        /* Mark the server file for reload. */
-        server_files[id].loaded = 0;
+    if (ret <= 0) {
+        return 0;
     }
 
-    fclose(fp);
-}
+    if (listing_data->memory) {
+        char word[HUGE_BUF], *split[3];
+        size_t pos;
+        server_files_struct *tmp;
+        unsigned long crc;
+        size_t fsize;
 
-/**
- * Figure out whether there are server files being updated.
- * @return 1 if there are any server files being updated, 0 otherwise. */
-int server_files_updating(void)
-{
-    size_t i;
+        pos = 0;
 
-    /* Check all files. */
-    for (i = 0; i < SERVER_FILES_MAX; i++) {
-        /* The server file was marked for update previously, so start
-         * updating. */
-        if (server_files[i].update == 1) {
-            packet_struct *packet;
+        while (string_get_word(listing_data->memory, &pos, '\n', word,
+                               sizeof(word), 0)) {
+            if (string_split(word, split, arraysize(split),
+                             ':') != arraysize(split)) {
+                continue;
+            }
 
-            packet = packet_new(SERVER_CMD_REQUEST_FILE, 1, 0);
-            packet_append_uint8(packet, i);
-            socket_send_packet(packet);
+            tmp = server_files_find(split[0]);
 
-            /* Mark the file as 'being updated'. */
-            server_files[i].update = -1;
-            return 1;
-        }
-        /* The file is being updated. */
-        else if (server_files[i].update == -1) {
-            return 1;
+            if (tmp == NULL) {
+                continue;
+            }
+
+            crc = strtoul(split[1], NULL, 16);
+            fsize = strtoul(split[2], NULL, 16);
+
+            if (tmp->crc32 != crc || tmp->size != fsize) {
+                tmp->update = 1;
+            }
+
+            DEVEL("%-10s CRC32: %lu (local: %lu) Size: %lu (local: %lu) "
+                  "Update: %d", tmp->name, crc, tmp->crc32, fsize, tmp->size,
+                  tmp->update);
+
+            tmp->crc32 = crc;
+            tmp->size = fsize;
         }
     }
+
+    curl_data_free(listing_data);
+
+    return 1;
+}
+
+/**
+ * Process a single server file.
+ * @param tmp What to process.
+ * @return 1 if the file is being processed, 0 otherwise.
+ */
+static int server_file_process(server_files_struct *tmp)
+{
+    int ret;
+
+    if (tmp->update == 0) {
+        return 0;
+    }
+
+    if (tmp->update == 1) {
+        char url[MAX_BUF];
+
+        snprintf(VS(url), "%s/%s/%s.zz", cpl.http_url, SERVER_FILES_HTTP_DIR,
+                 tmp->name);
+
+        if (tmp->dl_data != NULL) {
+            curl_data_free(tmp->dl_data);
+        }
+
+        DEVEL("Beginning download: %s, URL: %s", tmp->name, url);
+
+        tmp->dl_data = curl_download_start(url);
+        tmp->update = -1;
+        return 1;
+    }
+
+    ret = curl_download_finished(tmp->dl_data);
+
+    /* In progress. */
+    if (ret == 0) {
+        return 1;
+    }
+
+    DEVEL("Download finished: %s, ret: %d, http_code: %d, size: %"FMT64U,
+          tmp->name, ret, tmp->dl_data->http_code, tmp->dl_data->size);
+
+    /* Done. */
+    if (ret == 1) {
+        unsigned char *dest;
+        unsigned long len_ucomp;
+
+        len_ucomp = tmp->size;
+
+        dest = emalloc(len_ucomp);
+        uncompress((Bytef *) dest, (uLongf *) &len_ucomp,
+                   (const Bytef *) tmp->dl_data->memory,
+                   (uLong) tmp->dl_data->size);
+
+        DEVEL("Saving: %s, uncompressed: %lu", tmp->name, len_ucomp);
+
+        if (server_file_save(tmp, dest, len_ucomp)) {
+            tmp->loaded = 0;
+        }
+
+        efree(dest);
+    }
+    /* Error occurred. */
+    else if (ret == -1) {
+        logger_print(LOG(BUG), "Could not download %s: %d", tmp->name,
+                     tmp->dl_data->http_code);
+    }
+
+    tmp->update = 0;
+    curl_data_free(tmp->dl_data);
+    tmp->dl_data = NULL;
 
     return 0;
 }
 
 /**
- * Add data about server files we have to the setup packet that is sent
- * to the server.
- * @param packet The packet for appending. */
-void server_files_setup_add(packet_struct *packet)
+ * Check if all of the server files have been processed.
+ * @return 1 if they all have been processed, 0 otherwise.
+ */
+int server_files_processed(void)
 {
-    size_t i;
+    server_files_struct *curr, *tmp;
 
-    /* Load up the files. */
-    server_files_load(0);
-
-    for (i = 0; i < SERVER_FILES_MAX; i++) {
-        /* Invalid file. */
-        if (!server_file_names[i]) {
-            continue;
+    /* Check all files. */
+    HASH_ITER(hh, server_files, curr, tmp) {
+        if (server_file_process(curr)) {
+            return 0;
         }
-
-        /* Add the server file identifier, its size and the checksum. */
-        packet_append_uint8(packet, CMD_SETUP_SERVER_FILE);
-        packet_append_uint8(packet, i);
-        packet_append_uint64(packet, server_files[i].size);
-        packet_append_uint64(packet, server_files[i].crc32);
     }
+
+    return 1;
 }
 
 /**
- * Mark the specified server file for update.
- * @param id The file to update. */
-void server_files_mark_update(size_t i)
+ * Construct a path to the specified server file.
+ * @param tmp Server file.
+ * @param[out] buf Will contain the constructed path.
+ * @param buf_size Size of 'buf'.
+ * @return 'buf'.
+ */
+static char *server_file_path(server_files_struct *tmp, char *buf,
+                              size_t buf_size)
 {
-    if (!server_file_names[i]) {
-        return;
-    }
-
-    server_files[i].update = 1;
+    snprintf(buf, buf_size, "srv_files/%s", tmp->name);
+    return buf;
 }
 
 /**
- * Clear update flag from all server files. */
-void server_files_clear_update(void)
+ * Open a server file for reading.
+ * @param tmp Server file.
+ * @return The file pointer, or NULL on failure of opening the file.
+ */
+FILE *server_file_open(server_files_struct *tmp)
 {
-    size_t i;
+    char buf[MAX_BUF];
 
-    for (i = 0; i < SERVER_FILES_MAX; i++) {
-        /* Invalid file. */
-        if (!server_file_names[i]) {
-            continue;
-        }
-
-        server_files[i].update = 0;
+    if (tmp == NULL) {
+        return NULL;
     }
+
+    server_file_path(tmp, buf, sizeof(buf));
+    return fopen_wrapper(buf, "rb");
+}
+
+/**
+ * Wrapper for server_file_open(), allows opening a server file by its
+ * name.
+ * @param name Name of the server file.
+ * @return Opened file pointer, NULL on failure.
+ */
+FILE *server_file_open_name(const char *name)
+{
+    return server_file_open(server_files_find(name));
+}
+
+/**
+ * We have received the server file we asked for, so save it to disk.
+ * @param tmp Server file.
+ * @param data The data to save.
+ * @param len Length of 'data'.
+ * @return 1 on success, 0 on failure.
+ */
+int server_file_save(server_files_struct *tmp, unsigned char *data, size_t len)
+{
+    char path[MAX_BUF];
+    FILE *fp;
+
+    server_file_path(tmp, path, sizeof(path));
+    fp = fopen_wrapper(path, "wb");
+
+    if (fp == NULL) {
+        logger_print(LOG(BUG), "Could not open %s for writing.", path);
+        return 0;
+    }
+
+    if (fwrite(data, 1, len, fp) != len) {
+        logger_print(LOG(BUG), "Failed to write to %s.", path);
+        return 0;
+    }
+
+    if (fclose(fp) != 0) {
+        logger_print(LOG(BUG), "Could not close %s.", path);
+        return 0;
+    }
+
+    return 1;
 }

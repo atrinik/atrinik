@@ -25,9 +25,7 @@
 /**
  * @file
  * Defines various structures and values that are used for the new client
- * server communication method.
- *
- * @see newclient.h */
+ * server communication method. */
 
 #ifndef NEWSERVER_H
 #define NEWSERVER_H
@@ -127,8 +125,6 @@ typedef struct socket_struct
 
     /** Does the client want sound? */
     uint32 sound : 1;
-
-    uint8 requested_file[SERVER_FILES_MAX];
 
     /** Is the client a bot? */
     uint8 is_bot;

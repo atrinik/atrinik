@@ -236,6 +236,11 @@ typedef struct Player_Struct
     /**
      * Last time the account was used. */
     time_t last_time;
+
+    /**
+     * HTTP data URL.
+     */
+    char http_url[MAX_BUF];
 } Client_Player;
 
 #endif

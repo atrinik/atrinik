@@ -50,7 +50,7 @@ void effects_init(void)
     /* Try to deinitialize all effects first. */
     effects_deinit();
 
-    fp = server_file_open(SERVER_FILE_EFFECTS);
+    fp = server_file_open_name(SERVER_FILE_EFFECTS);
 
     if (!fp) {
         return;

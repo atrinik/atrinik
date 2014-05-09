@@ -29,9 +29,6 @@
 #include <global.h>
 #include "zlib.h"
 
-/** All the server/client files. */
-_srv_client_files SrvClientFiles[SERVER_FILES_MAX];
-
 /** Socket information. */
 Socket_Info socket_info;
 /** Established connections for clients not yet playing. */
@@ -51,7 +48,6 @@ void init_connection(socket_struct *ns, const char *from_ip)
     int bufsize = 65535;
     int oldbufsize;
     socklen_t buflen = sizeof(int);
-    int i;
 
 #ifdef WIN32
     u_long temp = 1;
@@ -91,10 +87,6 @@ void init_connection(socket_struct *ns, const char *from_ip)
     ns->is_bot = 0;
     ns->account = NULL;
     ns->socket_version = 0;
-
-    for (i = 0; i < SERVER_FILES_MAX; i++) {
-        ns->requested_file[i] = 0;
-    }
 
     ns->packet_recv = packet_new(0, 1024 * 3, 0);
     ns->packet_recv_cmd = packet_new(0, 1024 * 64, 0);
@@ -277,14 +269,17 @@ void free_newsocket(socket_struct *ns)
 /**
  * Load server file.
  * @param fname Filename of the server file.
- * @param id ID of the server file.
- * @param cmd The data command. */
-static void load_srv_file(char *fname, int id)
+ * @param listing Open file pointer to the listings file.
+ * @param cmd The data command.
+ */
+static void load_srv_file(char *fname, FILE *listing)
 {
     FILE *fp;
-    char *contents, *compressed;
+    char *contents, *compressed, *cp;
+    StringBuffer *sb;
     size_t fsize, numread;
     struct stat statbuf;
+    unsigned long crc;
 
     if ((fp = fopen(fname, "rb")) == NULL) {
         logger_print(LOG(ERROR), "Can't open file %s", fname);
@@ -299,20 +294,35 @@ static void load_srv_file(char *fname, int id)
     fclose(fp);
 
     /* Get a crc from the uncompressed file. */
-    SrvClientFiles[id].crc = crc32(1L, (const unsigned char FAR *) contents, numread);
-    /* Store uncompressed length. */
-    SrvClientFiles[id].len_ucomp = numread;
+    crc = crc32(1L, (const unsigned char FAR *) contents, numread);
 
     /* Calculate the upper bound of the compressed size. */
     numread = compressBound(fsize);
     /* Allocate a buffer to hold the compressed file. */
     compressed = emalloc(numread);
-    compress2((Bytef *) compressed, (uLong *) &numread, (const unsigned char FAR *) contents, fsize, Z_BEST_COMPRESSION);
-    SrvClientFiles[id].file = emalloc(numread);
-    memcpy(SrvClientFiles[id].file, compressed, numread);
-    SrvClientFiles[id].len = numread;
+    compress2((Bytef *) compressed, (uLong *) &numread,
+              (const unsigned char FAR *) contents, fsize, Z_BEST_COMPRESSION);
+
+    sb = stringbuffer_new();
+    cp = path_basename(fname);
+    stringbuffer_append_printf(sb, "%s/http/data/%s.zz", settings.datapath, cp);
+    fprintf(listing, "%s:%"FMT64HEX":%"FMT64HEX"\n", cp, crc, fsize);
+
+    efree(cp);
+    cp = stringbuffer_finish(sb);
+    path_ensure_directories(cp);
+    fp = fopen(cp, "wb");
+
+    if (fp == NULL) {
+        logger_print(LOG(ERROR), "Could not open %s for writing.", cp);
+        exit(1);
+    }
+
+    fwrite(compressed, 1, numread, fp);
+    fclose(fp);
 
     /* Free temporary buffers. */
+    efree(cp);
     efree(contents);
     efree(compressed);
 }
@@ -326,7 +336,7 @@ static void create_server_settings(void)
     size_t i;
     FILE *fp;
 
-    snprintf(buf, sizeof(buf), "%s/server_settings", settings.datapath);
+    snprintf(buf, sizeof(buf), "%s/settings", settings.datapath);
 
     fp = fopen(buf, "wb");
 
@@ -408,56 +418,36 @@ static void create_server_animations(void)
 void init_srv_files(void)
 {
     char buf[MAX_BUF];
+    FILE *fp;
 
-    memset(&SrvClientFiles, 0, sizeof(SrvClientFiles));
+    snprintf(buf, sizeof(buf), "%s/http/data/listing.txt", settings.datapath);
+    path_ensure_directories(buf);
+    fp = fopen(buf, "w");
 
-    snprintf(buf, sizeof(buf), "%s/client_bmaps", settings.datapath);
-    load_srv_file(buf, SERVER_FILE_BMAPS);
+    if (fp == NULL) {
+        logger_print(LOG(ERROR), "Could not open %s for writing.", buf);
+        exit(1);
+    }
+
+    snprintf(buf, sizeof(buf), "%s/bmaps", settings.datapath);
+    load_srv_file(buf, fp);
 
     snprintf(buf, sizeof(buf), "%s/"UPDATES_FILE_NAME, settings.datapath);
-    load_srv_file(buf, SERVER_FILE_UPDATES);
+    load_srv_file(buf, fp);
 
     create_server_settings();
-    snprintf(buf, sizeof(buf), "%s/server_settings", settings.datapath);
-    load_srv_file(buf, SERVER_FILE_SETTINGS);
+    snprintf(buf, sizeof(buf), "%s/settings", settings.datapath);
+    load_srv_file(buf, fp);
 
     create_server_animations();
     snprintf(buf, sizeof(buf), "%s/anims", settings.datapath);
-    load_srv_file(buf, SERVER_FILE_ANIMS);
+    load_srv_file(buf, fp);
 
     snprintf(buf, sizeof(buf), "%s/effects", settings.libpath);
-    load_srv_file(buf, SERVER_FILE_EFFECTS);
+    load_srv_file(buf, fp);
 
     snprintf(buf, sizeof(buf), "%s/hfiles", settings.libpath);
-    load_srv_file(buf, SERVER_FILE_HFILES);
-}
+    load_srv_file(buf, fp);
 
-/**
- * Free all server files previously initialized by init_srv_files(). */
-void free_srv_files(void)
-{
-    int i;
-
-    for (i = 0; i < SERVER_FILES_MAX; i++) {
-        efree(SrvClientFiles[i].file);
-    }
-}
-
-/**
- * A connecting client has requested a server file.
- *
- * Note that we don't know anything about the player at this point - we
- * got an open socket, an IP, a matching version, and an usable setup
- * string from the client.
- * @param ns The client's socket.
- * @param id ID of the server file. */
-void send_srv_file(socket_struct *ns, int id)
-{
-    packet_struct *packet;
-
-    packet = packet_new(CLIENT_CMD_DATA, 1 + 4 + SrvClientFiles[id].len, 0);
-    packet_append_uint8(packet, id);
-    packet_append_uint32(packet, SrvClientFiles[id].len_ucomp);
-    packet_append_data_len(packet, SrvClientFiles[id].file, SrvClientFiles[id].len);
-    socket_send_packet(ns, packet);
+    fclose(fp);
 }

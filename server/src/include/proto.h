@@ -397,6 +397,7 @@ extern treasurelist *first_treasurelist;
 extern artifactlist *first_artifactlist;
 extern player *last_player;
 extern uint32 global_round_tag;
+extern pid_t http_server_pid;
 extern void version(object *op);
 extern void leave_map(object *op);
 extern void set_map_timeout(mapstruct *map);
@@ -406,6 +407,7 @@ extern void server_shutdown(void);
 extern int swap_apartments(const char *mapold, const char *mapnew, int x, int y, object *op);
 extern void shutdown_timer_start(long secs);
 extern void shutdown_timer_stop(void);
+extern void http_server_kill(void);
 extern int main(int argc, char **argv);
 /* src/server/map.c */
 extern int global_darkness_table[7 + 1];
@@ -752,7 +754,6 @@ extern void draw_info(const char *color, object *pl, const char *buf);
 extern void draw_info_format(const char *color, object *pl, const char *format, ...) __attribute__((format(printf, 3, 4)));
 extern void draw_info_map(uint8 type, const char *name, const char *color, mapstruct *map, int x, int y, int dist, object *op, object *op2, const char *buf);
 /* src/socket/init.c */
-extern _srv_client_files SrvClientFiles[SERVER_FILES_MAX];
 extern Socket_Info socket_info;
 extern socket_struct *init_sockets;
 extern void init_connection(socket_struct *ns, const char *from_ip);
@@ -760,8 +761,6 @@ extern void init_ericserver(void);
 extern void free_all_newserver(void);
 extern void free_newsocket(socket_struct *ns);
 extern void init_srv_files(void);
-extern void free_srv_files(void);
-extern void send_srv_file(socket_struct *ns, int id);
 /* src/socket/item.c */
 extern unsigned int query_flags(object *op);
 extern void esrv_draw_look(object *pl);
@@ -796,7 +795,6 @@ extern void metaserver_init(void);
 /* src/socket/request.c */
 extern void socket_command_setup(socket_struct *ns, player *pl, uint8 *data, size_t len, size_t pos);
 extern void socket_command_player_cmd(socket_struct *ns, player *pl, uint8 *data, size_t len, size_t pos);
-extern void socket_command_request_file(socket_struct *ns, player *pl, uint8 *data, size_t len, size_t pos);
 extern void socket_command_version(socket_struct *ns, player *pl, uint8 *data, size_t len, size_t pos);
 extern void socket_command_item_move(socket_struct *ns, player *pl, uint8 *data, size_t len, size_t pos);
 extern void esrv_update_stats(player *pl);
