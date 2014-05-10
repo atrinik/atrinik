@@ -254,9 +254,9 @@ int server_files_listing_processed(void)
                 tmp->update = 1;
             }
 
-            DEVEL("%-10s CRC32: %lu (local: %lu) Size: %lu (local: %lu) "
-                  "Update: %d", tmp->name, crc, tmp->crc32, fsize, tmp->size,
-                  tmp->update);
+            log(LOG(DEVEL), "%-10s CRC32: %lu (local: %lu) Size: %lu ("
+                            "local: %lu) Update: %d",
+                tmp->name, crc, tmp->crc32, fsize, tmp->size, tmp->update);
 
             tmp->crc32 = crc;
             tmp->size = fsize;
@@ -291,7 +291,7 @@ static int server_file_process(server_files_struct *tmp)
             curl_data_free(tmp->dl_data);
         }
 
-        DEVEL("Beginning download: %s, URL: %s", tmp->name, url);
+        log(LOG(DEVEL), "Beginning download: %s, URL: %s", tmp->name, url);
 
         tmp->dl_data = curl_download_start(url);
         tmp->update = -1;
@@ -305,8 +305,9 @@ static int server_file_process(server_files_struct *tmp)
         return 1;
     }
 
-    DEVEL("Download finished: %s, ret: %d, http_code: %d, size: %"FMT64U,
-          tmp->name, ret, tmp->dl_data->http_code, tmp->dl_data->size);
+    log(LOG(DEVEL), "Download finished: %s, ret: %d, http_code: %d, size: "
+                    "%"FMT64U,
+        tmp->name, ret, tmp->dl_data->http_code, tmp->dl_data->size);
 
     /* Done. */
     if (ret == 1) {
@@ -320,7 +321,7 @@ static int server_file_process(server_files_struct *tmp)
                    (const Bytef *) tmp->dl_data->memory,
                    (uLong) tmp->dl_data->size);
 
-        DEVEL("Saving: %s, uncompressed: %lu", tmp->name, len_ucomp);
+        log(LOG(DEVEL), "Saving: %s, uncompressed: %lu", tmp->name, len_ucomp);
 
         if (server_file_save(tmp, dest, len_ucomp)) {
             tmp->loaded = 0;

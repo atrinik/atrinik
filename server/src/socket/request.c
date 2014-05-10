@@ -1792,7 +1792,9 @@ void socket_command_control(socket_struct *ns, player *pl, uint8 *data, size_t l
                     m = ready_map_name(mappath, 0);
 
                     if (m == NULL) {
-                        DEVEL("Could not teleport player to '%s' (%d,%d): map could not be loaded.", mappath, x, y);
+                        log(LOG(DEBUG), "Could not teleport player to '%s' "
+                                        "(%d,%d): map could not be loaded.",
+                            mappath, x, y);
                         return;
                     }
 
@@ -1813,5 +1815,6 @@ void socket_command_control(socket_struct *ns, player *pl, uint8 *data, size_t l
         }
     }
 
-    DEVEL("Unrecognised control command type: %d, sub-type: %d, by application: '%s'", type, sub_type, app_name);
+    log(LOG(DEBUG), "Unrecognised control command type: %d, sub-type: %d, "
+                    "by application: '%s'", type, sub_type, app_name);
 }
