@@ -201,8 +201,7 @@ char **layoutgen(RMParms *RP)
             roomify_layout(maze, RP);
         }
     }
-
-    if (strstr(RP->layoutstyle, "maze")) {
+    else if (strstr(RP->layoutstyle, "maze")) {
         maze = maze_gen(RP->Xsize, RP->Ysize, RP->layoutoptions1);
 
         RP->map_layout_style = MAZE_LAYOUT;
@@ -211,8 +210,7 @@ char **layoutgen(RMParms *RP)
             doorify_layout(maze, RP);
         }
     }
-
-    if (strstr(RP->layoutstyle, "spiral")) {
+    else if (strstr(RP->layoutstyle, "spiral")) {
         maze = map_gen_spiral(RP->Xsize, RP->Ysize, RP->layoutoptions1);
 
         RP->map_layout_style = SPIRAL_LAYOUT;
@@ -221,14 +219,12 @@ char **layoutgen(RMParms *RP)
             doorify_layout(maze, RP);
         }
     }
-
-    if (strstr(RP->layoutstyle, "rogue")) {
+    else if (strstr(RP->layoutstyle, "rogue")) {
         maze = roguelike_layout_gen(RP->Xsize, RP->Ysize, RP->layoutoptions1);
 
         RP->map_layout_style = ROGUELIKE_LAYOUT;
     }
-
-    if (strstr(RP->layoutstyle, "snake")) {
+    else if (strstr(RP->layoutstyle, "snake")) {
         maze = make_snake_layout(RP->Xsize, RP->Ysize);
 
         RP->map_layout_style = SNAKE_LAYOUT;
@@ -237,8 +233,7 @@ char **layoutgen(RMParms *RP)
             roomify_layout(maze, RP);
         }
     }
-
-    if (strstr(RP->layoutstyle, "squarespiral")) {
+    else if (strstr(RP->layoutstyle, "squarespiral")) {
         maze = make_square_spiral_layout(RP->Xsize, RP->Ysize);
 
         RP->map_layout_style = SQUARE_SPIRAL_LAYOUT;
@@ -249,7 +244,7 @@ char **layoutgen(RMParms *RP)
     }
 
     /* unknown or unspecified layout type, pick one at random */
-    if (maze == 0) {
+    if (maze == NULL) {
         switch (RANDOM() % NROFLAYOUTS) {
             case 0:
                 maze = maze_gen(RP->Xsize, RP->Ysize, RANDOM() % 2);
