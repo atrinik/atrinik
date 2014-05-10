@@ -180,6 +180,21 @@ static void logger_set_filter(uint64 *filter, const char *str)
             cp += 1;
         }
 
+        if (strcasecmp(cp, "all") == 0) {
+            if (oper == -1) {
+                oper = *filter == 0;
+            }
+
+            if (oper == 1) {
+                *filter = UINT64_MAX;
+            }
+            else {
+                *filter = 0;
+            }
+
+            continue;
+        }
+
         level = logger_get_level(cp);
 
         if (level >= LOG_MAX) {
