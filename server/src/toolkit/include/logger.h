@@ -50,6 +50,8 @@ typedef enum logger_level
     LOG_MAX
 } logger_level;
 
+#define log logger_print
+
 #ifndef PRODUCTION
 #   define DEVEL(fmt, ...) logger_print(LOG(DEVEL), (fmt), __VA_ARGS__)
 #else
