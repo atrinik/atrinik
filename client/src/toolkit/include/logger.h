@@ -50,11 +50,7 @@ typedef enum logger_level
     LOG_MAX
 } logger_level;
 
-#ifndef PRODUCTION
-#   define DEVEL(fmt, ...) logger_print(LOG(DEVEL), (fmt), __VA_ARGS__)
-#else
-#   define DEVEL
-#endif
+#define log logger_print
 
 #ifdef WIN32
 #   define LOGGER_ESC_SEQ_BOLD ""
