@@ -158,7 +158,7 @@ int cast_spell(object *op, object *caster, int dir, int type, int ability, int i
     else if (caster == NULL && op != NULL) {
         caster = op;
     }
-    else {
+    else if (op == NULL && caster == NULL) {
         logger_print(LOG(BUG), "Both 'op' and 'caster' are NULL.");
         return 0;
     }
