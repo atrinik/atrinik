@@ -375,8 +375,9 @@ void world_maker(void)
         /* Initialize the region. */
         wm_r = ecalloc(1, sizeof(wm_region));
         /* Open the definitions file. */
-        snprintf(buf, sizeof(buf), "%s/%s.def", settings.world_maker_dir,
-                 r->name);
+        snprintf(VS(buf), "%s/client-maps/%s.def", settings.httppath, r->name);
+        path_ensure_directories(buf);
+
         def_fp = fopen(buf, "w");
 
         if (!def_fp) {
@@ -390,8 +391,8 @@ void world_maker(void)
         /* Parse the maps recursively. */
         region_add_rec(wm_r, m, r->name);
 
-        snprintf(buf, sizeof(buf), "%s/%s.png", settings.world_maker_dir,
-                 r->name);
+        snprintf(VS(buf), "%s/client-maps/%s.png", settings.httppath, r->name);
+        path_ensure_directories(buf);
 
         /* Store defaults in the definitions file. */
         fprintf(def_fp, "pixel_size %d\n", MAX_PIXELS);
@@ -684,7 +685,7 @@ void world_maker(void)
                          strerror(errno));
             exit(1);
         }
-        
+
         gdImagePng(im, out);
         fclose(out);
 

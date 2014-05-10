@@ -369,20 +369,12 @@ typedef struct settings_struct
     char server_desc[MAX_BUF];
 
     /**
-     * Location of the client maps. */
-    char client_maps_url[MAX_BUF];
-
-    /**
      * Executing the world maker? */
     uint8 world_maker;
 
     /**
      * Running unit tests? */
     uint8 unit_tests;
-
-    /**
-     * Where to store the world maker images. */
-    char world_maker_dir[MAX_BUF];
 
     /**
      * Adjustment to maximum magical device level the player may use. */

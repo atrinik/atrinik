@@ -41,12 +41,6 @@ void command_region_map(object *op, const char *command, char *params)
         return;
     }
 
-    /* Server has not configured client maps URL. */
-    if (*settings.client_maps_url == '\0') {
-        draw_info(COLOR_WHITE, op, "This server does not support that command.");
-        return;
-    }
-
     /* Check if params were given and whether the player is allowed to
      * see map of any region they want. */
     params_check = params && commands_check_permission(CONTR(op), command);
@@ -102,7 +96,8 @@ void command_region_map(object *op, const char *command, char *params)
     packet_append_uint16(packet, op->x);
     packet_append_uint16(packet, op->y);
     packet_append_string_terminated(packet, r->name);
-    packet_append_string_terminated(packet, settings.client_maps_url);
+    packet_append_string(packet, settings.http_url);
+    packet_append_string_terminated(packet, "/client-maps/");
 
     if (CONTR(op)->socket.socket_version >= 1058) {
         packet_append_string_terminated(packet, r->longname);

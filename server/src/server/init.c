@@ -141,11 +141,6 @@ static void clioptions_option_unit(const char *arg)
 static void clioptions_option_worldmaker(const char *arg)
 {
     settings.world_maker = 1;
-
-    if (arg) {
-        strncpy(settings.world_maker_dir, arg, sizeof(settings.world_maker_dir) - 1);
-        settings.world_maker_dir[sizeof(settings.world_maker_dir) - 1] = '\0';
-    }
 }
 
 static void clioptions_option_version(const char *arg)
@@ -219,12 +214,6 @@ static void clioptions_option_server_desc(const char *arg)
 {
     strncpy(settings.server_desc, arg, sizeof(settings.server_desc) - 1);
     settings.server_desc[sizeof(settings.server_desc) - 1] = '\0';
-}
-
-static void clioptions_option_client_maps_url(const char *arg)
-{
-    strncpy(settings.client_maps_url, arg, sizeof(settings.client_maps_url) - 1);
-    settings.client_maps_url[sizeof(settings.client_maps_url) - 1] = '\0';
 }
 
 static void clioptions_option_magic_devices_level(const char *arg)
@@ -445,8 +434,6 @@ static void init_library(int argc, char *argv[])
         0,
         "Generates the region maps.",
         "Generates the region maps using the world maker module.\n\n"
-        "Directory where to store the generated data can be specified with an argument, eg,"
-        "'--worldmaker=/var/www/client-maps'."
         );
 
     clioptions_add(
@@ -547,15 +534,6 @@ static void init_library(int argc, char *argv[])
         1,
         "Description about the server.",
         "Text that describes the server in a few sentences."
-        );
-
-    clioptions_add(
-        "client_maps_url",
-        NULL,
-        clioptions_option_client_maps_url,
-        1,
-        "URL of the client maps.",
-        "URL of the client maps."
         );
 
     clioptions_add(
