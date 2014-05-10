@@ -55,35 +55,35 @@ WS  [ \ t]*
 rmap_lex_error = 0;
 %}
 
-^wallstyle{S}               strncpy(RP->wallstyle, rmap_yval(), RM_SIZE); 
-^floorstyle{S}              strncpy(RP->floorstyle, rmap_yval(), RM_SIZE); 
-^monsterstyle{S}            strncpy(RP->monsterstyle, rmap_yval(), RM_SIZE); 
-^layoutstyle{S}             strncpy(RP->layoutstyle, rmap_yval(), RM_SIZE); 
-^doorstyle{S}               strncpy(RP->doorstyle, rmap_yval(), RM_SIZE); 
-^decorstyle{S}              strncpy(RP->decorstyle, rmap_yval(), RM_SIZE); 
-^dungeon_name{S}            strncpy(RP->dungeon_name, rmap_yval(), RM_SIZE); 
-^xsize{S}                   RP->Xsize = IVAL; 
-^ysize{S}                   RP->Ysize = IVAL; 
-^expand2x{S}                RP->expand2x = IVAL; 
+^wallstyle{S}               snprintf(VS(RP->wallstyle), "%s", rmap_yval());
+^floorstyle{S}              snprintf(VS(RP->floorstyle), "%s", rmap_yval());
+^monsterstyle{S}            snprintf(VS(RP->monsterstyle), "%s", rmap_yval());
+^layoutstyle{S}             snprintf(VS(RP->layoutstyle), "%s", rmap_yval());
+^doorstyle{S}               snprintf(VS(RP->doorstyle), "%s", rmap_yval());
+^decorstyle{S}              snprintf(VS(RP->decorstyle), "%s", rmap_yval());
+^dungeon_name{S}            snprintf(VS(RP->dungeon_name), "%s", rmap_yval());
+^xsize{S}                   RP->Xsize = IVAL;
+^ysize{S}                   RP->Ysize = IVAL;
+^expand2x{S}                RP->expand2x = IVAL;
 ^layoutoptions1{S}          RP->layoutoptions1 = IVAL;
-^layoutoptions2{S}          RP->layoutoptions2 = IVAL; 
+^layoutoptions2{S}          RP->layoutoptions2 = IVAL;
 ^layoutoptions3{S}          RP->layoutoptions3 = IVAL;
-^symmetry{S}                RP->symmetry = IVAL; 
-^difficulty{S}              RP->difficulty = IVAL; 
-^decorchance{S}             RP->decorchance = IVAL; 
-^exitstyle{S}               strncpy(RP->exitstyle, rmap_yval(), RM_SIZE); 
-^dungeon_level{S}           RP->dungeon_level = IVAL; 
-^dungeon_depth{S}           RP->dungeon_depth = IVAL; 
-^final_map{S}               strncpy(RP->final_map, rmap_yval(), RM_SIZE); 
-^orientation{S}             RP->orientation = IVAL; 
-^origin_x{S}                RP->origin_x = IVAL; 
-^origin_y{S}                RP->origin_y = IVAL; 
-^origin_map{S}              strncpy(RP->origin_map, rmap_yval(), RM_SIZE); 
-^random_seed{S}             RP->random_seed = IVAL; 
-^num_monsters{S}            RP->num_monsters = IVAL; 
-^darkness{S}                RP->darkness = IVAL; 
-^level_increment{S}         RP->level_increment = IVAL; 
-^bg_music{S}                strncpy(RP->bg_music, rmap_yval(), RM_SIZE); 
+^symmetry{S}                RP->symmetry = IVAL;
+^difficulty{S}              RP->difficulty = IVAL;
+^decorchance{S}             RP->decorchance = IVAL;
+^exitstyle{S}               snprintf(VS(RP->exitstyle), "%s", rmap_yval());
+^dungeon_level{S}           RP->dungeon_level = IVAL;
+^dungeon_depth{S}           RP->dungeon_depth = IVAL;
+^final_map{S}               snprintf(VS(RP->final_map), "%s", rmap_yval());
+^orientation{S}             RP->orientation = IVAL;
+^origin_x{S}                RP->origin_x = IVAL;
+^origin_y{S}                RP->origin_y = IVAL;
+^origin_map{S}              snprintf(VS(RP->origin_map), "%s", rmap_yval());
+^random_seed{S}             RP->random_seed = IVAL;
+^num_monsters{S}            RP->num_monsters = IVAL;
+^darkness{S}                RP->darkness = IVAL;
+^level_increment{S}         RP->level_increment = IVAL;
+^bg_music{S}                snprintf(VS(RP->bg_music), "%s", rmap_yval());
 
 
 <*>(^{WS}$)|\n              {}
