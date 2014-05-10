@@ -375,6 +375,16 @@ static void clioptions_option_http_url(const char *arg)
     snprintf(settings.http_url, sizeof(settings.http_url), "%s", arg);
 }
 
+static void clioptions_option_logger_filter_stdout(const char *arg)
+{
+    logger_set_filter_stdout(arg);
+}
+
+static void clioptions_option_logger_filter_logfile(const char *arg)
+{
+    logger_set_filter_logfile(arg);
+}
+
 /**
  * It is vital that init_library() is called by any functions using this
  * library.
@@ -650,6 +660,24 @@ static void init_library(int argc, char *argv[])
         1,
         "URL of the HTTP server.",
         "URL pointing to the HTTP server."
+    );
+
+    clioptions_add(
+        "logger_filter_stdout",
+        NULL,
+        clioptions_option_logger_filter_stdout,
+        1,
+        "",
+        ""
+    );
+
+    clioptions_add(
+        "logger_filter_logfile",
+        NULL,
+        clioptions_option_logger_filter_logfile,
+        1,
+        "",
+        ""
     );
 
     memset(&settings, 0, sizeof(settings));

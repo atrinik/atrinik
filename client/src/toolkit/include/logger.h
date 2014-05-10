@@ -33,7 +33,22 @@
 
 typedef void (*logger_print_func)(const char *str);
 
-#define LOG(_level) # _level, __FUNCTION__, __LINE__
+#define LOG(_level) LOG_## _level, __FUNCTION__, __LINE__
+
+/**
+ * Possible log levels. */
+typedef enum logger_level
+{
+    LOG_CHAT,
+    LOG_INFO,
+    LOG_SYSTEM,
+    LOG_ERROR,
+    LOG_BUG,
+    LOG_DEBUG,
+    LOG_DEVEL,
+
+    LOG_MAX
+} logger_level;
 
 #ifndef PRODUCTION
 #   define DEVEL(fmt, ...) logger_print(LOG(DEVEL), (fmt), __VA_ARGS__)

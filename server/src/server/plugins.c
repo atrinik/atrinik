@@ -167,6 +167,7 @@ struct plugin_hooklist hooklist =
     packet_append_map_weather,
     socket_send_packet,
     logger_print,
+    logger_get_level,
     commands_add,
     map_get_darkness,
     map_get_path,

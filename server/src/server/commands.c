@@ -95,7 +95,7 @@ static void commands_permissions_read(const char *path)
     fp = fopen(path, "r");
 
     if (!fp) {
-        logger_print(LOG(WARNING), "Could not open %s for reading.", path);
+        logger_print(LOG(BUG), "Could not open %s for reading.", path);
         return;
     }
 

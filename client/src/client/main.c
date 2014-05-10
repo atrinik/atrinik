@@ -321,6 +321,16 @@ static void clioptions_option_reconnect(const char *arg)
     clioption_settings.reconnect = 1;
 }
 
+static void clioptions_option_logger_filter_stdout(const char *arg)
+{
+    logger_set_filter_stdout(arg);
+}
+
+static void clioptions_option_logger_filter_logfile(const char *arg)
+{
+    logger_set_filter_logfile(arg);
+}
+
 /**
  * The main function.
  * @param argc Number of arguments.
@@ -407,6 +417,24 @@ int main(int argc, char *argv[])
         NULL,
         clioptions_option_reconnect,
         0,
+        "",
+        ""
+    );
+
+    clioptions_add(
+        "logger_filter_stdout",
+        NULL,
+        clioptions_option_logger_filter_stdout,
+        1,
+        "",
+        ""
+    );
+
+    clioptions_add(
+        "logger_filter_logfile",
+        NULL,
+        clioptions_option_logger_filter_logfile,
+        1,
         "",
         ""
     );

@@ -623,7 +623,7 @@ static PyCodeObject *compilePython(char *filename)
         fp = fopen(filename, "r");
 
         if (!fp) {
-            hooks->logger_print(LOG(WARNING), "Python: The script file %s can't be opened.", filename);
+            hooks->logger_print(LOG(BUG), "Python: The script file %s can't be opened.", filename);
             return NULL;
         }
 
@@ -1245,7 +1245,7 @@ static PyObject *Atrinik_FindParty(PyObject *self, PyObject *args)
 /**
  * <h1>Logger(string type, string message)</h1>
  * Logs a message.
- * @param type Type of the message, eg, "WARNING", "ERROR", "CHAT",
+ * @param type Type of the message, eg, "BUG", "ERROR", "CHAT",
  * "INFO", etc.
  * @param message The message to log. Cannot contain newlines. */
 static PyObject *Atrinik_Logger(PyObject *self, PyObject *args)
@@ -1258,7 +1258,8 @@ static PyObject *Atrinik_Logger(PyObject *self, PyObject *args)
         return NULL;
     }
 
-    hooks->logger_print(mode, __FUNCTION__, __LINE__, string);
+    hooks->logger_print(hooks->logger_get_level(mode), __FUNCTION__, __LINE__,
+                        string);
 
     Py_INCREF(Py_None);
     return Py_None;
@@ -2509,7 +2510,7 @@ int generic_field_setter(fields_struct *field, void *ptr, PyObject *value)
             else {
                 INTRAISE("Illegal value for connection field.");
             }
-            
+
             break;
 
         case FIELDTYPE_TREASURELIST:
@@ -2520,7 +2521,7 @@ int generic_field_setter(fields_struct *field, void *ptr, PyObject *value)
             else {
                 INTRAISE("Illegal value for treasure list field.");
             }
-            
+
             break;
 
         default:

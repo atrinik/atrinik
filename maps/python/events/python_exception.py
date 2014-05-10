@@ -14,7 +14,7 @@ exception = "".join(traceback.format_exception(exc_type, exc_value, exc_tracebac
 # Log the exception to the server log.
 for line in exception.split("\n"):
     if line:
-        Atrinik.Logger("WARNING", line)
+        Atrinik.Logger("BUG", line)
 
 # Escape the markup in the exception message, and print it out to all online DMs.
 exception = Markup.markup_escape(exception)

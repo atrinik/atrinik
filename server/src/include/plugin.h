@@ -304,7 +304,8 @@ struct plugin_hooklist
     void (*packet_append_map_music)(packet_struct *, object *, object *);
     void (*packet_append_map_weather)(packet_struct *, object *, object *);
     void (*socket_send_packet)(socket_struct *, packet_struct *);
-    void (*logger_print)(const char *, const char *, uint64, const char *, ...);
+    void (*logger_print)(logger_level, const char *, uint64, const char *, ...);
+    logger_level (*logger_get_level)(const char *);
     void (*commands_add)(const char *, command_func, double, uint64);
     int (*map_get_darkness)(mapstruct *, int, int, object **);
     char *(*map_get_path)(mapstruct *, const char *, uint8, const char *);

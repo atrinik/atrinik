@@ -100,7 +100,7 @@ typedef void (*toolkit_func)(void);
             if (!did_warn) \
             { \
                 toolkit_import(logger); \
-                logger_print(LOG(WARNING), "Toolkit API function used, but the API was not initialized - this could result in undefined behavior."); \
+                logger_print(LOG(DEBUG), "Toolkit API function used, but the API was not initialized - this could result in undefined behavior."); \
                 did_warn = 1; \
             } \
         } \

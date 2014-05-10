@@ -1172,9 +1172,12 @@ extern void toolkit_logger_init(void);
 extern void toolkit_logger_deinit(void);
 extern void logger_open_log(const char *path);
 extern FILE *logger_get_logfile(void);
+extern logger_level logger_get_level(const char *name);
+extern void logger_set_filter_stdout(const char *str);
+extern void logger_set_filter_logfile(const char *str);
 extern void logger_set_print_func(logger_print_func func);
 extern void logger_do_print(const char *str);
-extern void logger_print(const char *level, const char *function, uint64 line, const char *format, ...) __attribute__((format(printf, 4, 5)));
+extern void logger_print(logger_level level, const char *function, uint64 line, const char *format, ...) __attribute__((format(printf, 4, 5)));
 /* src/toolkit/math.c */
 extern void toolkit_math_init(void);
 extern void toolkit_math_deinit(void);
