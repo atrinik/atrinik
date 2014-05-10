@@ -264,6 +264,7 @@ int server_files_listing_processed(void)
     }
 
     curl_data_free(listing_data);
+    listing_data = NULL;
 
     return 1;
 }
