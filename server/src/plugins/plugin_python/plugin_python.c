@@ -2367,10 +2367,10 @@ int generic_field_setter(fields_struct *field, void *ptr, PyObject *value)
         case FIELDTYPE_REGION:
 
             if (value == Py_None) {
-                *(region **) field_ptr = NULL;
+                *(region_struct **) field_ptr = NULL;
             }
             else if (PyObject_TypeCheck(value, &Atrinik_RegionType)) {
-                *(region **) field_ptr = (region *) ((Atrinik_Region *) value)->region;
+                *(region_struct **) field_ptr = (region_struct *) ((Atrinik_Region *) value)->region;
             }
             else {
                 INTRAISE("Illegal value for region field.");
@@ -2605,7 +2605,7 @@ PyObject *generic_field_getter(fields_struct *field, void *ptr)
         }
 
         case FIELDTYPE_REGION:
-            return wrap_region(*(region **) field_ptr);
+            return wrap_region(*(region_struct **) field_ptr);
 
         case FIELDTYPE_PARTY:
             return wrap_party(*(party_struct **) field_ptr);

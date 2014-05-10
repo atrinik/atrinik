@@ -36,14 +36,14 @@
  * List of the region fields and their meaning. */
 static fields_struct fields[] =
 {
-    {"next", FIELDTYPE_REGION, offsetof(region, next), 0, 0},
-    {"parent", FIELDTYPE_REGION, offsetof(region, parent), 0, 0},
-    {"name", FIELDTYPE_CSTR, offsetof(region, name), 0, 0},
-    {"longname", FIELDTYPE_CSTR, offsetof(region, longname), 0, 0},
-    {"msg", FIELDTYPE_CSTR, offsetof(region, msg), 0, 0},
-    {"jailmap", FIELDTYPE_CSTR, offsetof(region, jailmap), 0, 0},
-    {"jailx", FIELDTYPE_SINT16, offsetof(region, jailx), 0, 0},
-    {"jaily", FIELDTYPE_SINT16, offsetof(region, jaily), 0, 0}
+    {"next", FIELDTYPE_REGION, offsetof(region_struct, next), 0, 0},
+    {"parent", FIELDTYPE_REGION, offsetof(region_struct, parent), 0, 0},
+    {"name", FIELDTYPE_CSTR, offsetof(region_struct, name), 0, 0},
+    {"longname", FIELDTYPE_CSTR, offsetof(region_struct, longname), 0, 0},
+    {"msg", FIELDTYPE_CSTR, offsetof(region_struct, msg), 0, 0},
+    {"jailmap", FIELDTYPE_CSTR, offsetof(region_struct, jailmap), 0, 0},
+    {"jailx", FIELDTYPE_SINT16, offsetof(region_struct, jailx), 0, 0},
+    {"jaily", FIELDTYPE_SINT16, offsetof(region_struct, jaily), 0, 0}
 };
 /* @endcparser */
 
@@ -195,7 +195,7 @@ int Atrinik_Region_init(PyObject *module)
  * Utility method to wrap a region.
  * @param what Region to wrap.
  * @return Python object wrapping the real region. */
-PyObject *wrap_region(region *what)
+PyObject *wrap_region(region_struct *what)
 {
     Atrinik_Region *wrapper;
 

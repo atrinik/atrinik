@@ -433,16 +433,16 @@ typedef struct MapSpace_s
  *
  * Each map is in a given region of the game world and links to a region
  * definition. */
-typedef struct region
+typedef struct region_struct
 {
     /** Pointer to next region, NULL for the last one */
-    struct region *next;
+    struct region_struct *next;
 
     /**
      * Pointer to the region that is a parent of the current
      * region, if a value isn't defined in the current region
      * we traverse this series of pointers until it is. */
-    struct region *parent;
+    struct region_struct *parent;
 
     /** Shortened name of the region as maps refer to it */
     char *name;
@@ -482,7 +482,7 @@ typedef struct region
 
     /** Y coodinate in jailmap to which the player should be sent. */
     sint16 jaily;
-} region;
+} region_struct;
 
 /**
  * A single map event, holding a pointer to map event object on map. */
@@ -546,7 +546,7 @@ typedef struct mapdef
     MapSpace *first_light;
 
     /** Pointer to the region this map is in. */
-    struct region *region;
+    region_struct *region;
 
     /** Map-wide events for this map. */
     struct map_event *events;

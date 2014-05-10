@@ -331,7 +331,7 @@ typedef struct
 } Atrinik_Party;
 
 PyTypeObject Atrinik_RegionType;
-PyObject *wrap_region(region *region);
+PyObject *wrap_region(region_struct *region);
 int Atrinik_Region_init(PyObject *module);
 
 /** The Atrinik_Region structure. */
@@ -339,7 +339,7 @@ typedef struct
 {
     PyObject_HEAD
     /** Pointer to the Atrinik region we wrap. */
-    region *region;
+    region_struct *region;
 } Atrinik_Region;
 
 PyTypeObject Atrinik_PlayerType;

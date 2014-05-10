@@ -34,7 +34,7 @@
 void command_region_map(object *op, const char *command, char *params)
 {
     uint8 params_check;
-    region *r;
+    region_struct *r;
     packet_struct *packet;
 
     if (!op->map) {

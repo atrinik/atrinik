@@ -343,7 +343,7 @@ struct plugin_hooklist
     archetype **first_archetype;
     mapstruct **first_map;
     party_struct **first_party;
-    region **first_region;
+    region_struct **first_region;
     long *pticks;
     settings_struct *settings;
     skill_struct *skills;

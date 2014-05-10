@@ -247,7 +247,7 @@ static void region_add_map(wm_region *r, mapstruct *m)
  */
 static int map_in_region(mapstruct *m, const char *name)
 {
-    region *r;
+    region_struct *r;
 
     for (r = m->region; r; r = r->parent) {
         if (!strcmp(r->name, name)) {
@@ -353,7 +353,7 @@ void world_maker(void)
     gdImagePtr im;
     FILE *out;
     size_t i;
-    region *r;
+    region_struct *r;
     wm_region *wm_r;
     char buf[MAX_BUF];
     int x, y, layer, sub_layer, got_one;

@@ -990,7 +990,7 @@ void player_faction_reputation_update(player *pl, shstr *faction, sint64 add)
  * @param r The region to check.
  * @return 1 if the player has region map of the specified region, 0
  * otherwise. */
-int player_has_region_map(player *pl, region *r)
+int player_has_region_map(player *pl, region_struct *r)
 {
     int i;
 

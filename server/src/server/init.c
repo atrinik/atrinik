@@ -122,7 +122,7 @@ void cleanup(void)
     free_all_anim();
     free_strings();
     race_free();
-    free_regions();
+    regions_free();
     objectlink_deinit();
     object_deinit();
     ban_deinit();
@@ -799,7 +799,7 @@ void init(int argc, char **argv)
 
     /* Load up the old temp map files */
     read_map_log();
-    init_regions();
+    regions_init();
     hiscore_init();
 
     init_beforeplay();
