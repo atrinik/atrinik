@@ -1608,8 +1608,8 @@ static int Object_SetAttribute(Atrinik_Object *obj, PyObject *value, void *conte
     ret = generic_field_setter(field, obj->obj, value);
 
     if (field->offset == offsetof(object, layer) || field->offset == offsetof(object, sub_layer)) {
-        obj->obj->layer = MAX(0, MIN(NUM_LAYERS, obj->obj->layer));
-        obj->obj->sub_layer = MAX(0, MIN(NUM_SUB_LAYERS - 1, obj->obj->sub_layer));
+        obj->obj->layer = MIN(NUM_LAYERS, obj->obj->layer);
+        obj->obj->sub_layer = MIN(NUM_SUB_LAYERS - 1, obj->obj->sub_layer);
 
         if (obj->obj->map != NULL) {
             hooks->insert_ob_in_map(obj->obj, obj->obj->map, NULL, 0);
