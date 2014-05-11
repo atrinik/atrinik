@@ -401,7 +401,7 @@ void *setting_get(setting_struct *setting)
  * @return The setting's string value. */
 const char *setting_get_str(int cat, int setting)
 {
-    return (const char *) setting_get(setting_categories[cat]->settings[setting]);
+    return setting_get(setting_categories[cat]->settings[setting]);
 }
 
 /**

@@ -52,7 +52,7 @@ static void widget_draw(widgetdata *widget)
 {
     widget_fps_struct *tmp;
 
-    tmp = (widget_fps_struct *) widget->subwidget;
+    tmp = widget->subwidget;
 
     if (widget->redraw) {
         char buf[MAX_BUF];
@@ -68,7 +68,7 @@ static void widget_background(widgetdata *widget)
 {
     widget_fps_struct *tmp;
 
-    tmp = (widget_fps_struct *) widget->subwidget;
+    tmp = widget->subwidget;
     tmp->frames++;
 
     if (tmp->lasttime < SDL_GetTicks() - 1000) {

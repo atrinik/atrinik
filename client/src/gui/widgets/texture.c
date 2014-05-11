@@ -36,7 +36,7 @@ static void widget_draw(widgetdata *widget)
 {
     _widget_texture *texture;
 
-    texture = (_widget_texture *) widget->subwidget;
+    texture = widget->subwidget;
 
     if (texture->texture) {
         surface_show(ScreenSurface, widget->x, widget->y, NULL, texture_surface(texture->texture));

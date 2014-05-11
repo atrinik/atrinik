@@ -280,7 +280,7 @@ START_TEST(test_can_pick)
 
     pl = get_archetype("raas");
     pl->type = PLAYER;
-    pl->custom_attrset = (player *) calloc(1, sizeof(player));
+    pl->custom_attrset = calloc(1, sizeof(player));
     CLEAR_FLAG(pl, FLAG_SEE_INVISIBLE);
 
     ob = get_archetype("sack");

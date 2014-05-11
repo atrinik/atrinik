@@ -919,7 +919,7 @@ void copy_object(object *op2, object *op, int no_speed)
 
     free_key_values(op);
 
-    memcpy((void *)((char *) op + offsetof(object, name)), (void *) ((char *) op2 + offsetof(object, name)), sizeof(object) - offsetof(object, name));
+    memcpy((char *) op + offsetof(object, name), (char *) op2 + offsetof(object, name), sizeof(object) - offsetof(object, name));
 
     if (is_removed) {
         SET_FLAG(op, FLAG_REMOVED);
@@ -1018,7 +1018,7 @@ void object_deinit(void)
  * @return The new object. */
 object *get_object(void)
 {
-    object *new_obj = (object *) get_poolchunk(pool_object);
+    object *new_obj = get_poolchunk(pool_object);
 
     SET_FLAG(new_obj, FLAG_REMOVED);
 

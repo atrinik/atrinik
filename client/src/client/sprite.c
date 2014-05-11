@@ -611,7 +611,7 @@ struct _anim *add_anim(int type, int mapx, int mapy, int value)
     }
 
     /* tmp == null - no anim in que, else tmp = last anim */
-    anim = (struct _anim *) malloc(sizeof(struct _anim));
+    anim = malloc(sizeof(struct _anim));
 
     if (!tmp) {
         start_anim = anim;

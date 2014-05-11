@@ -65,7 +65,7 @@ void ban_deinit(void)
 static void add_ban_entry(char *name, char *ip)
 {
     objectlink *ol = get_objectlink();
-    _ban_struct *gptr = (_ban_struct *) get_poolchunk(pool_ban);
+    _ban_struct *gptr = get_poolchunk(pool_ban);
 
     memset(gptr, 0, sizeof(_ban_struct));
     ol->objlink.ban = gptr;

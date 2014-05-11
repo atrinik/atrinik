@@ -104,7 +104,7 @@ static update_file_struct *updates_file_find(const char *filename)
     update_file_struct key;
 
     key.filename = (char *) filename;
-    return bsearch((void *) &key, (void *) update_files, update_files_num, sizeof(update_file_struct), updates_file_compare);
+    return bsearch(&key, update_files, update_files_num, sizeof(update_file_struct), updates_file_compare);
 }
 
 /**
@@ -160,7 +160,7 @@ void updates_init(void)
         
         /* Sort the entries. */
         if (update_files != NULL) {
-            qsort((void *) update_files, update_files_num, sizeof(update_file_struct), (void *) (int (*)())updates_file_compare);
+            qsort(update_files, update_files_num, sizeof(update_file_struct), (void *) (int (*)())updates_file_compare);
         }
     }
 

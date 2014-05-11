@@ -146,7 +146,7 @@ static SDL_mutex *handle_share_mutex = NULL;
 static size_t curl_callback(void *ptr, size_t size, size_t nmemb, void *data)
 {
     size_t realsize = size * nmemb;
-    curl_data *mem = (curl_data *) data;
+    curl_data *mem = data;
 
     SDL_LockMutex(mem->mutex);
     mem->memory = realloc(mem->memory, mem->size + realsize + 1);
@@ -170,7 +170,7 @@ static size_t curl_callback(void *ptr, size_t size, size_t nmemb, void *data)
  * @return -1 on failure, 1 on success. */
 int curl_connect(void *c_data)
 {
-    curl_data *data = (curl_data *) c_data;
+    curl_data *data = c_data;
     char user_agent[MAX_BUF], version[MAX_BUF];
     CURLcode res;
     long http_code;

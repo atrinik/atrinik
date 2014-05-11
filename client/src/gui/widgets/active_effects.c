@@ -77,7 +77,7 @@ static void widget_draw(widgetdata *widget)
     active_effect_struct *effect;
     SDL_Rect box;
 
-    tmp = (widget_active_effects_struct *) widget->subwidget;
+    tmp = widget->subwidget;
 
     if (SDL_GetTicks() - tmp->update_ticks > 1000) {
         uint8 redraw;
@@ -170,7 +170,7 @@ static int widget_event(widgetdata *widget, SDL_Event *event)
 {
     widget_active_effects_struct *tmp;
 
-    tmp = (widget_active_effects_struct *) widget->subwidget;
+    tmp = widget->subwidget;
 
     if (event->type == SDL_MOUSEMOTION) {
         active_effect_struct *effect;
@@ -213,7 +213,7 @@ void widget_active_effects_update(widgetdata *widget, object *op, sint32 sec, co
     widget_active_effects_struct *tmp;
     active_effect_struct *effect;
 
-    tmp = (widget_active_effects_struct *) widget->subwidget;
+    tmp = widget->subwidget;
 
     if (!(op->flags & CS_FLAG_APPLIED)) {
         return;
@@ -246,7 +246,7 @@ void widget_active_effects_remove(widgetdata *widget, object *op)
     widget_active_effects_struct *tmp;
     active_effect_struct *effect, *next;
 
-    tmp = (widget_active_effects_struct *) widget->subwidget;
+    tmp = widget->subwidget;
 
     DL_FOREACH_SAFE(tmp->active_effects, effect, next)
     {

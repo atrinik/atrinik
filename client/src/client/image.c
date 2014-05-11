@@ -129,7 +129,7 @@ void read_bmaps_p0(void)
     size_t len;
     bmap_struct *bmap;
 
-    memset((void *) bmaps_default, 0, BMAPS_MAX * sizeof(bmap_struct *));
+    memset(bmaps_default, 0, BMAPS_MAX * sizeof(bmap_struct *));
 
     fp = fopen_wrapper(FILE_ATRINIK_P0, "rb");
 

@@ -392,7 +392,7 @@ void init_plugin(const char *pluginfile)
         return;
     }
 
-    initfunc = (f_plug_init) (plugins_dlsym(ptr, "initPlugin"));
+    initfunc = plugins_dlsym(ptr, "initPlugin");
 
     if (!initfunc) {
         logger_print(LOG(BUG), "Error while requesting 'initPlugin' from %s: %s", pluginfile, plugins_dlerror());
@@ -400,7 +400,7 @@ void init_plugin(const char *pluginfile)
         return;
     }
 
-    eventfunc = (f_plug_api) (plugins_dlsym(ptr, "triggerEvent"));
+    eventfunc = plugins_dlsym(ptr, "triggerEvent");
 
     if (!eventfunc) {
         logger_print(LOG(BUG), "Error while requesting 'triggerEvent' from %s: %s", pluginfile, plugins_dlerror());
@@ -408,7 +408,7 @@ void init_plugin(const char *pluginfile)
         return;
     }
 
-    pinitfunc = (f_plug_pinit) (plugins_dlsym(ptr, "postinitPlugin"));
+    pinitfunc = plugins_dlsym(ptr, "postinitPlugin");
 
     if (!pinitfunc) {
         logger_print(LOG(BUG), "Error while requesting 'postinitPlugin' from %s: %s", pluginfile, plugins_dlerror());
@@ -416,7 +416,7 @@ void init_plugin(const char *pluginfile)
         return;
     }
 
-    propfunc = (f_plug_api) (plugins_dlsym(ptr, "getPluginProperty"));
+    propfunc = plugins_dlsym(ptr, "getPluginProperty");
 
     if (!propfunc) {
         logger_print(LOG(BUG), "Error while requesting 'getPluginProperty' from %s: %s", pluginfile, plugins_dlerror());
@@ -424,7 +424,7 @@ void init_plugin(const char *pluginfile)
         return;
     }
 
-    closefunc = (f_plug_pinit) (plugins_dlsym(ptr, "closePlugin"));
+    closefunc = plugins_dlsym(ptr, "closePlugin");
 
     if (!closefunc) {
         logger_print(LOG(BUG), "Error while requesting 'closePlugin' from %s: %s", pluginfile, plugins_dlerror());

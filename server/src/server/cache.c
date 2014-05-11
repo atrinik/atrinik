@@ -64,8 +64,8 @@ static size_t num_cache = 0;
  * Comparison function for binary search in cache_find(). */
 static int cache_compare(const void *one, const void *two)
 {
-    const cache_struct *one_cache = (const cache_struct *) one;
-    const cache_struct *two_cache = (const cache_struct *) two;
+    const cache_struct *one_cache = one;
+    const cache_struct *two_cache = two;
 
     if (one == NULL) {
         return -1;
@@ -100,7 +100,7 @@ cache_struct *cache_find(shstr *key)
 
     /* Attempt to find the cache entry. */
     bkey.key = key;
-    return bsearch((void *) &bkey, cache, num_cache, sizeof(cache_struct), cache_compare);
+    return bsearch(&bkey, cache, num_cache, sizeof(cache_struct), cache_compare);
 }
 
 /**

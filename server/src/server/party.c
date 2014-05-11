@@ -145,7 +145,7 @@ void remove_party_member(party_struct *party, object *op)
  * @return The initialized party structure. */
 static party_struct *make_party(const char *name)
 {
-    party_struct *party = (party_struct *) get_poolchunk(pool_party);
+    party_struct *party = get_poolchunk(pool_party);
 
     memset(party, 0, sizeof(party_struct));
     FREE_AND_COPY_HASH(party->name, name);

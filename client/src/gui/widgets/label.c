@@ -36,7 +36,7 @@ static void widget_draw(widgetdata *widget)
 {
     _widget_label *label;
 
-    label = (_widget_label *) widget->subwidget;
+    label = widget->subwidget;
 
     if (label->text) {
         text_show(ScreenSurface, label->font, label->text, widget->x, widget->y, label->color, TEXT_MARKUP, NULL);
@@ -48,7 +48,7 @@ static void widget_deinit(widgetdata *widget)
 {
     _widget_label *label;
 
-    label = (_widget_label *) widget->subwidget;
+    label = widget->subwidget;
 
     if (label->text) {
         efree(label->text);

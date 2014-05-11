@@ -4632,7 +4632,7 @@ int _pieColor(SDL_Surface * dst, Sint16 x, Sint16 y, Sint16 rad, Sint16 start, S
 	}
 
 	/* Allocate combined vertex array */
-	vx = vy = (Sint16 *) malloc(2 * sizeof(Uint16) * numpoints);
+	vx = vy = malloc(2 * sizeof(Uint16) * numpoints);
 	if (vx == NULL) {
 		return (-1);
 	}
@@ -5244,11 +5244,11 @@ int filledPolygonColorMT(SDL_Surface * dst, const Sint16 * vx, const Sint16 * vy
 	* Allocate temp array, only grow array
 	*/
 	if (!gfxPrimitivesPolyAllocated) {
-		gfxPrimitivesPolyInts = (int *) malloc(sizeof(int) * n);
+		gfxPrimitivesPolyInts = malloc(sizeof(int) * n);
 		gfxPrimitivesPolyAllocated = n;
 	} else {
 		if (gfxPrimitivesPolyAllocated < n) {
-			gfxPrimitivesPolyInts = (int *) realloc(gfxPrimitivesPolyInts, sizeof(int) * n);
+			gfxPrimitivesPolyInts = realloc(gfxPrimitivesPolyInts, sizeof(int) * n);
 			gfxPrimitivesPolyAllocated = n;
 		}
 	}
@@ -5595,11 +5595,11 @@ int texturedPolygonMT(SDL_Surface * dst, const Sint16 * vx, const Sint16 * vy, i
 	* Allocate temp array, only grow array
 	*/
 	if (!gfxPrimitivesPolyAllocated) {
-		gfxPrimitivesPolyInts = (int *) malloc(sizeof(int) * n);
+		gfxPrimitivesPolyInts = malloc(sizeof(int) * n);
 		gfxPrimitivesPolyAllocated = n;
 	} else {
 		if (gfxPrimitivesPolyAllocated < n) {
-			gfxPrimitivesPolyInts = (int *) realloc(gfxPrimitivesPolyInts, sizeof(int) * n);
+			gfxPrimitivesPolyInts = realloc(gfxPrimitivesPolyInts, sizeof(int) * n);
 			gfxPrimitivesPolyAllocated = n;
 		}
 	}
@@ -5817,10 +5817,10 @@ int bezierColor(SDL_Surface * dst, const Sint16 * vx, const Sint16 * vy, int n, 
 	stepsize=(double)1.0/(double)s;
 
 	/* Transfer vertices into float arrays */
-	if ((x=(double *)malloc(sizeof(double)*(n+1)))==NULL) {
+	if ((x=malloc(sizeof(double)*(n+1)))==NULL) {
 		return(-1);
 	}
-	if ((y=(double *)malloc(sizeof(double)*(n+1)))==NULL) {
+	if ((y=malloc(sizeof(double)*(n+1)))==NULL) {
 		free(x);
 		return(-1);
 	}

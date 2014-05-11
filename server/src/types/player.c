@@ -130,7 +130,7 @@ void display_motd(object *op)
 static player *get_player(player *p)
 {
     if (!p) {
-        p = (player *) get_poolchunk(pool_player);
+        p = get_poolchunk(pool_player);
         memset(p, 0, sizeof(player));
 
         if (!last_player) {
@@ -145,7 +145,7 @@ static player *get_player(player *p)
     else {
         /* Clears basically the entire player structure except
          * for next and socket. */
-        memset((void *) ((char *) p + offsetof(player, maplevel)), 0, sizeof(player) - offsetof(player, maplevel));
+        memset((char *) p + offsetof(player, maplevel), 0, sizeof(player) - offsetof(player, maplevel));
     }
 
 #ifdef AUTOSAVE

@@ -101,10 +101,10 @@ char **roguelike_layout_gen(int xsize, int ysize, int options)
     int tries = 0;
 
     /* Allocate that array, write walls everywhere up */
-    char **maze = (char **) emalloc(sizeof(char *) * xsize);
+    char **maze = emalloc(sizeof(char *) * xsize);
 
     for (i = 0; i < xsize; i++) {
-        maze[i] = (char *) emalloc(sizeof(char) * ysize);
+        maze[i] = emalloc(sizeof(char) * ysize);
 
         for (j = 0; j < ysize; j++) {
             maze[i][j] = '#';

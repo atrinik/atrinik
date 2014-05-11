@@ -254,8 +254,8 @@ static void sha2_update( sha2_context *ctx, const unsigned char *input, size_t i
 
     if( left && ilen >= fill )
     {
-        memcpy( (void *) (ctx->buffer + left),
-                (void *) input, fill );
+        memcpy( ctx->buffer + left,
+                input, fill );
         sha2_process( ctx, ctx->buffer );
         input += fill;
         ilen  -= fill;
@@ -271,8 +271,8 @@ static void sha2_update( sha2_context *ctx, const unsigned char *input, size_t i
 
     if( ilen > 0 )
     {
-        memcpy( (void *) (ctx->buffer + left),
-                (void *) input, ilen );
+        memcpy( ctx->buffer + left,
+                input, ilen );
     }
 }
 

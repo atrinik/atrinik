@@ -206,7 +206,7 @@ void object_remove(object *op)
     free_objects = op;
 
     /* Clear the object so it can be reused. */
-    memset((void *) ((char *) op + offsetof(object, prev)), 0, sizeof(object) - offsetof(object, prev));
+    memset((char *) op + offsetof(object, prev), 0, sizeof(object) - offsetof(object, prev));
 }
 
 /**

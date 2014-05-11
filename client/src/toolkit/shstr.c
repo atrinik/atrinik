@@ -47,7 +47,7 @@ void toolkit_shstr_init(void)
 {
     TOOLKIT_INIT_FUNC_START(shstr)
     {
-        memset((void *) hash_table, 0, TABLESIZE * sizeof(shared_string *));
+        memset(hash_table, 0, TABLESIZE * sizeof(shared_string *));
     }
     TOOLKIT_INIT_FUNC_END()
 }

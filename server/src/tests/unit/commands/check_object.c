@@ -32,7 +32,7 @@ START_TEST(test_put_object_in_sack)
     object *sack, *obj, *dummy;
 
     dummy = get_archetype("raas");
-    dummy->custom_attrset = (player *) calloc(1, sizeof(player));
+    dummy->custom_attrset = calloc(1, sizeof(player));
     dummy->type = PLAYER;
     SET_FLAG(dummy, FLAG_NO_FIX_PLAYER);
 

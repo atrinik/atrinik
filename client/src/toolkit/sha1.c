@@ -275,8 +275,8 @@ void sha1_update( sha1_context *ctx, const unsigned char *input, size_t ilen )
         ctx->total[1]++;
 
     if( left && ilen >= fill ) {
-        memcpy( (void *) (ctx->buffer + left),
-            (void *) input, fill );
+        memcpy( ctx->buffer + left,
+            input, fill );
         sha1_process( ctx, ctx->buffer );
         input += fill;
         ilen  -= fill;
@@ -290,8 +290,8 @@ void sha1_update( sha1_context *ctx, const unsigned char *input, size_t ilen )
     }
 
     if( ilen > 0 ) {
-        memcpy( (void *) (ctx->buffer + left),
-            (void *) input, ilen );
+        memcpy( ctx->buffer + left,
+            input, ilen );
     }
 }
 

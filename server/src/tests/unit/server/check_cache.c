@@ -39,7 +39,7 @@ START_TEST(test_cache)
     fail_if(res == NULL, "Could not find 'cache_test' cache.");
 
     if (res) {
-        fail_if(res->ptr == NULL || (char *) res->ptr != str || strcmp((char *) res->ptr, "hello world"), "Did not find correct cache pointer.");
+        fail_if(res->ptr == NULL || (char *) res->ptr != str || strcmp(res->ptr, "hello world"), "Did not find correct cache pointer.");
     }
 
     fail_if(cache_remove(find_string("cache_test")) == 0, "Could not remove cache entry.");

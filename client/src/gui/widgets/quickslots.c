@@ -42,7 +42,7 @@ void quickslots_init(void)
     uint32 i;
 
     for (widget = cur_widget[QUICKSLOT_ID]; widget; widget = widget->type_next) {
-        tmp = (widget_quickslots_struct *) widget->subwidget;
+        tmp = widget->subwidget;
         list_clear(tmp->list);
 
         for (i = 0; i < MAX_QUICK_SLOTS * MAX_QUICKSLOT_GROUPS; i++) {
@@ -63,7 +63,7 @@ static void quickslot_set(widgetdata *widget, uint32 row, uint32 col, sint32 tag
     packet_struct *packet;
     char buf[MAX_BUF];
 
-    tmp = (widget_quickslots_struct *) widget->subwidget;
+    tmp = widget->subwidget;
     slot = (row * MAX_QUICK_SLOTS) + (col + 1);
 
     packet = packet_new(SERVER_CMD_QUICKSLOT, 32, 0);
@@ -84,7 +84,7 @@ void quickslots_scroll(widgetdata *widget, int up, int scroll)
 {
     widget_quickslots_struct *tmp;
 
-    tmp = (widget_quickslots_struct *) widget->subwidget;
+    tmp = widget->subwidget;
     list_scroll(tmp->list, up, scroll);
 }
 
@@ -96,7 +96,7 @@ static void quickslots_remove(widgetdata *widget, tag_t tag)
     widget_quickslots_struct *tmp;
     uint32 row, col;
 
-    tmp = (widget_quickslots_struct *) widget->subwidget;
+    tmp = widget->subwidget;
 
     for (row = 0; row < tmp->list->rows; row++) {
         for (col = 0; col < tmp->list->cols; col++) {
@@ -119,7 +119,7 @@ void quickslots_handle_key(int slot)
     sint32 tag;
 
     for (widget = cur_widget[QUICKSLOT_ID]; widget; widget = widget->type_next) {
-        tmp = (widget_quickslots_struct *) widget->subwidget;
+        tmp = widget->subwidget;
         row = tmp->list->row_offset;
         col = slot;
 
@@ -201,7 +201,7 @@ static void widget_draw(widgetdata *widget)
 
     widget->redraw++;
 
-    tmp = (widget_quickslots_struct *) widget->subwidget;
+    tmp = widget->subwidget;
     tmp->list->surface = widget->surface;
     list_set_parent(tmp->list, widget->x, widget->y);
     list_show(tmp->list, 2, 2);
@@ -213,7 +213,7 @@ static int widget_event(widgetdata *widget, SDL_Event *event)
     widget_quickslots_struct *tmp;
     uint32 row, col;
 
-    tmp = (widget_quickslots_struct *) widget->subwidget;
+    tmp = widget->subwidget;
 
     if (EVENT_IS_MOUSE(event) && list_mouse_get_pos(tmp->list, event->motion.x, event->motion.y, &row, &col)) {
         if (event->button.button == SDL_BUTTON_LEFT) {
@@ -303,7 +303,7 @@ void socket_command_quickslots(uint8 *data, size_t len, size_t pos)
         snprintf(buf, sizeof(buf), "%d", tag);
 
         for (widget = cur_widget[QUICKSLOT_ID]; widget; widget = widget->type_next) {
-            tmp = (widget_quickslots_struct *) widget->subwidget;
+            tmp = widget->subwidget;
             list_add(tmp->list, (uint32) ((double) slot / (double) MAX_QUICK_SLOTS - 0.5), slot % tmp->list->cols, buf);
         }
     }

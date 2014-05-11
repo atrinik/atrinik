@@ -78,7 +78,7 @@ static int text_anchor_handle(const char *anchor_action, const char *buf, size_t
     if (custom_data && strcmp(anchor_action, "#charname") == 0) {
         StringBuffer *sb;
 
-        sb = (StringBuffer *) custom_data;
+        sb = custom_data;
 
         if (sb->pos) {
             stringbuffer_append_char(sb, ':');
@@ -198,8 +198,8 @@ static int textwin_tab_compare(const void *a, const void *b)
 {
     const textwin_tab_struct *tab_one, *tab_two;
 
-    tab_one = (const textwin_tab_struct *) a;
-    tab_two = (const textwin_tab_struct *) b;
+    tab_one = a;
+    tab_two = b;
 
     if (tab_one->name && !tab_two->name) {
         return 1;
@@ -299,7 +299,7 @@ void textwin_tab_add(widgetdata *widget, const char *name)
 
     textwin->tabs_num++;
 
-    qsort((void *) textwin->tabs, textwin->tabs_num, sizeof(*textwin->tabs), (void *) (int (*)())textwin_tab_compare);
+    qsort(textwin->tabs, textwin->tabs_num, sizeof(*textwin->tabs), (int (*)())textwin_tab_compare);
     textwin_readjust(widget);
 }
 

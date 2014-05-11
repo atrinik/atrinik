@@ -221,7 +221,7 @@ static int re_cmp_step(const char *str, const char *regexp, int slot, int matche
         re_token_depth = slot;
 
         if (re_token[slot] == NULL) {
-            re_token[slot] = (selection *) malloc(sizeof(selection));
+            re_token[slot] = malloc(sizeof(selection));
         }
 
         next_regexp = re_get_token(re_token[slot], regexp);
@@ -307,7 +307,7 @@ static void re_init(void)
 {
     int i;
 
-    re_token[0] = (selection *) malloc(sizeof(selection));
+    re_token[0] = malloc(sizeof(selection));
 
     for (i = 1; i < RE_TOKEN_MAX; i++) {
         re_token[i] = NULL;

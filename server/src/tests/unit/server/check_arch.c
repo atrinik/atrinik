@@ -33,7 +33,7 @@ START_TEST(test_item_matched_string)
 
     pl = get_archetype("raas");
     fail_if(pl == NULL, "Couldn't create raas.");
-    pl->custom_attrset = (player *) calloc(1, sizeof(player));
+    pl->custom_attrset = calloc(1, sizeof(player));
     fail_if(CONTR(pl) == NULL, "Couldn't alloc CONTR.");
 
     o1 = get_archetype("cloak");

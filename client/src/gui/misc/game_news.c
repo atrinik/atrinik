@@ -76,7 +76,7 @@ static int popup_draw(popup_struct *popup)
     SDL_Rect box;
     int ret;
 
-    game_news = (game_news_struct *) popup->custom_data;
+    game_news = popup->custom_data;
 
     box.w = popup->surface->w;
     box.h = 38;
@@ -122,7 +122,7 @@ static int popup_event(popup_struct *popup, SDL_Event *event)
 {
     game_news_struct *game_news;
 
-    game_news = (game_news_struct *) popup->custom_data;
+    game_news = popup->custom_data;
 
     if (!game_news->msg) {
         return -1;
@@ -171,7 +171,7 @@ static int popup_destroy_callback(popup_struct *popup)
 {
     game_news_struct *game_news;
 
-    game_news = (game_news_struct *) popup->custom_data;
+    game_news = popup->custom_data;
 
     efree(game_news->title);
     curl_data_free(game_news->data);

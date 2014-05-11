@@ -71,7 +71,7 @@ static void widget_draw(widgetdata *widget)
 {
     widget_stat_struct *tmp;
 
-    tmp = (widget_stat_struct *) widget->subwidget;
+    tmp = widget->subwidget;
 
     if (widget->redraw) {
         int curr, max;
@@ -163,7 +163,7 @@ static void widget_deinit(widgetdata *widget)
 {
     widget_stat_struct *tmp;
 
-    tmp = (widget_stat_struct *) widget->subwidget;
+    tmp = widget->subwidget;
 
     efree(tmp->texture);
 }
@@ -173,7 +173,7 @@ static int widget_load(widgetdata *widget, const char *keyword, const char *para
 {
     widget_stat_struct *tmp;
 
-    tmp = (widget_stat_struct *) widget->subwidget;
+    tmp = widget->subwidget;
 
     if (strcmp(keyword, "texture") == 0) {
         tmp->texture = estrdup(parameter);
@@ -188,7 +188,7 @@ static void widget_save(widgetdata *widget, FILE *fp, const char *padding)
 {
     widget_stat_struct *tmp;
 
-    tmp = (widget_stat_struct *) widget->subwidget;
+    tmp = widget->subwidget;
 
     fprintf(fp, "%stexture = %s\n", padding, tmp->texture);
 }
@@ -199,7 +199,7 @@ static void menu_stat_display_change(widgetdata *widget, widgetdata *menuitem, S
     widgetdata *tmp2;
     _widget_label *label;
 
-    tmp = (widget_stat_struct *) widget->subwidget;
+    tmp = widget->subwidget;
 
     for (tmp2 = menuitem->inv; tmp2; tmp2 = tmp2->next) {
         if (tmp2->type == LABEL_ID) {
@@ -220,7 +220,7 @@ static void menu_stat_display(widgetdata *widget, widgetdata *menuitem, SDL_Even
     widgetdata *submenu;
     size_t i;
 
-    tmp = (widget_stat_struct *) widget->subwidget;
+    tmp = widget->subwidget;
     submenu = MENU(menuitem->env)->submenu;
 
     for (i = 0; i < arraysize(display_modes); i++) {

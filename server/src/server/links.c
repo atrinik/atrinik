@@ -51,7 +51,7 @@ void objectlink_deinit(void)
  * @return Pointer to the new objectlink */
 objectlink *get_objectlink(void)
 {
-    objectlink *ol = (objectlink *) get_poolchunk(pool_objectlink);
+    objectlink *ol = get_poolchunk(pool_objectlink);
 
     memset(ol, 0, sizeof(objectlink));
     return ol;

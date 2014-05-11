@@ -344,7 +344,7 @@ void update_los(object *op)
  * @param op The player object. */
 void clear_los(object *op)
 {
-    (void) memset((void *) CONTR(op)->blocked_los, BLOCKED_LOS_VISIBLE, sizeof(CONTR(op)->blocked_los));
+    (void) memset(CONTR(op)->blocked_los, BLOCKED_LOS_VISIBLE, sizeof(CONTR(op)->blocked_los));
 }
 
 #define BLOCKED_LOS_EXPAND 0x20

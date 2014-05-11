@@ -87,7 +87,7 @@ void statistic_update(const char *type, object *op, sint64 i, const char *buf)
         packet_append_string_terminated(packet, buf);
     }
 
-    sendto(fd, (void *) packet->data, packet->len, 0, (struct sockaddr *) &insock, sizeof(insock));
+    sendto(fd, packet->data, packet->len, 0, (struct sockaddr *) &insock, sizeof(insock));
     packet_free(packet);
 }
 

@@ -104,7 +104,7 @@ int read_bmap_names(void)
     nrofpixmaps = 0;
     nroffiles = 0;
 
-    xbm = (struct bmappair *) emalloc(sizeof(struct bmappair) * (nrofbmaps + 1));
+    xbm = emalloc(sizeof(struct bmappair) * (nrofbmaps + 1));
     memset(xbm, 0, sizeof(struct bmappair) * (nrofbmaps + 1));
 
     while (fgets(buf, sizeof(buf) - 1, fp)) {
@@ -141,7 +141,7 @@ int read_bmap_names(void)
 
     fclose(fp);
 
-    new_faces = (New_Face *) emalloc(sizeof(New_Face) * (nrofpixmaps + 1));
+    new_faces = emalloc(sizeof(New_Face) * (nrofpixmaps + 1));
 
     for (i = 0; i < nrofpixmaps + 1; i++) {
         new_faces[i].name = "";
@@ -180,7 +180,7 @@ int find_face(char *name, int error)
     }
 
     tmp.name = name;
-    bp = (struct bmappair *) bsearch(&tmp, xbm, nroffiles, sizeof(struct bmappair), (void *) (int (*)())compar);
+    bp = bsearch(&tmp, xbm, nroffiles, sizeof(struct bmappair), (void *) (int (*)())compar);
 
     return bp ? bp->number : (unsigned int) error;
 }

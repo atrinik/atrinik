@@ -96,9 +96,9 @@ int _shrinkSurfaceRGBA(SDL_Surface * src, SDL_Surface * dst, int factorx, int fa
     /*
      * Scan destination
      */
-    sp = (tColorRGBA *) src->pixels;
+    sp = src->pixels;
 
-    dp = (tColorRGBA *) dst->pixels;
+    dp = dst->pixels;
     dgap = dst->pitch - dst->w * 4;
 
     for (y = 0; y < dst->h; y++) {
@@ -190,9 +190,9 @@ int _shrinkSurfaceY(SDL_Surface * src, SDL_Surface * dst, int factorx, int facto
     /*
      * Scan destination
      */
-    sp = (Uint8 *) src->pixels;
+    sp = src->pixels;
 
-    dp = (Uint8 *) dst->pixels;
+    dp = dst->pixels;
     dgap = dst->pitch - dst->w;
 
     for (y = 0; y < dst->h; y++) {
@@ -295,8 +295,8 @@ int _zoomSurfaceRGBA(SDL_Surface * src, SDL_Surface * dst, int flipx, int flipy,
     /*
      * Precalculate row increments
      */
-    sp = csp = (tColorRGBA *) src->pixels;
-    dp = (tColorRGBA *) dst->pixels;
+    sp = csp = src->pixels;
+    dp = dst->pixels;
 
     if (flipx) csp += (src->w-1);
 
@@ -521,8 +521,8 @@ int _zoomSurfaceY(SDL_Surface * src, SDL_Surface * dst, int flipx, int flipy)
     /*
      * Pointer setup
      */
-    sp = csp = (Uint8 *) src->pixels;
-    dp = (Uint8 *) dst->pixels;
+    sp = csp = src->pixels;
+    dp = dst->pixels;
     dgap = dst->pitch - dst->w;
 
     if (flipx) csp += (src->w-1);
@@ -635,7 +635,7 @@ void _transformSurfaceRGBA(SDL_Surface * src, SDL_Surface * dst, int cx, int cy,
     ay = (cy << 16) - (isin * cx);
     sw = src->w - 1;
     sh = src->h - 1;
-    pc = (tColorRGBA*) dst->pixels;
+    pc = dst->pixels;
     gap = dst->pitch - dst->w * 4;
 
     /*
@@ -655,7 +655,7 @@ void _transformSurfaceRGBA(SDL_Surface * src, SDL_Surface * dst, int cx, int cy,
                 if (flipy) dy = sh - dy;
 
                 if ((dx > -1) && (dy > -1) && (dx < (src->w-1)) && (dy < (src->h-1))) {
-                    sp = (tColorRGBA *)src->pixels;;
+                    sp = src->pixels;;
                     sp += ((src->pitch/4) * dy);
                     sp += dx;
                     c00 = *sp;
@@ -760,7 +760,7 @@ void transformSurfaceY(SDL_Surface * src, SDL_Surface * dst, int cx, int cy, int
     yd = ((src->h - dst->h) << 15);
     ax = (cx << 16) - (icos * cx);
     ay = (cy << 16) - (isin * cx);
-    pc = (tColorY*) dst->pixels;
+    pc = dst->pixels;
     gap = dst->pitch - dst->w;
     /*
      * Clear surface to colorkey
@@ -782,7 +782,7 @@ void transformSurfaceY(SDL_Surface * src, SDL_Surface * dst, int cx, int cy, int
             if (flipy) dy = (src->h-1)-dy;
 
             if ((dx >= 0) && (dy >= 0) && (dx < src->w) && (dy < src->h)) {
-                sp = (tColorY *) (src->pixels);
+                sp = src->pixels;
                 sp += (src->pitch * dy + dx);
                 *pc = *sp;
             }
@@ -868,8 +868,8 @@ SDL_Surface* rotateSurface90Degrees(SDL_Surface* src, int numClockwiseTurns)
             }
             else {
                 /* If the pitch differs, copy each row separately */
-                srcBuf = (Uint32*)(src->pixels);
-                dstBuf = (Uint32*)(dst->pixels);
+                srcBuf = src->pixels;
+                dstBuf = dst->pixels;
                 for (row = 0; row < src->h; row++) {
                     memcpy(dstBuf, srcBuf, dst->w * bpp);
                     srcBuf += src_ipr;
