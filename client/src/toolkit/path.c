@@ -237,23 +237,31 @@ void path_ensure_directories(const char *path)
 
     TOOLKIT_FUNC_PROTECTOR(API_NAME);
 
-    if (!path || *path == '\0') {
+    if (path == NULL || *path == '\0') {
         return;
     }
 
-    strncpy(buf, path, sizeof(buf) - 1);
-    buf[sizeof(buf) - 1] = '\0';
-
+    snprintf(VS(buf), "%s", path);
     cp = buf;
 
-    while ((cp = strchr(cp + 1, '/'))) {
+    while ((cp = strchr(cp + 1, '/')) != NULL) {
         *cp = '\0';
 
-        if (stat(buf, &statbuf) || !S_ISDIR(statbuf.st_mode)) {
-            if (mkdir(buf, 0777)) {
-                logger_print(LOG(BUG), "Cannot mkdir %s: %s", buf, strerror(errno));
-                return;
-            }
+        if (mkdir(buf, 0777) != 0 && errno != EEXIST) {
+            log(LOG(BUG), "Cannot mkdir %s (path: %s): %s", buf, path,
+                strerror(errno));
+            return;
+        }
+
+        if (stat(buf, &statbuf) != 0) {
+            log(LOG(BUG), "Cannot stat %s (path: %s): %s", buf, path,
+                strerror(errno));
+            return;
+        }
+
+        if (!S_ISDIR(statbuf.st_mode)) {
+            log(LOG(BUG), "Not a directory: %s (path: %s)", buf, path);
+            return;
         }
 
         *cp = '/';
