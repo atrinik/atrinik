@@ -26,26 +26,46 @@
  * @file
  * Handles help files.
  *
- * @author Alex Tokar */
+ * @author Alex Tokar
+ */
 
 #include <global.h>
 
 /**
- * Hashtable that contains the help files. */
+ * Hashtable that contains the help files.
+ */
 static hfile_struct *hfiles = NULL;
 /**
- * Array of command matches in console text input. */
+ * Array of command matches in console text input.
+ */
 static UT_array *command_matches = NULL;
 /**
  * Index in ::command_matches to add to text input on the next tabulator
- * key press. */
+ * key press.
+ */
 static size_t command_index = 0;
 /**
- * Last console string cache. */
+ * Last console string cache.
+ */
 static char command_buf[HUGE_BUF];
 
 /**
- * Frees the ::hfiles hashtable. */
+ * Free a help file structure.
+ */
+static void hfile_free(hfile_struct *hfile)
+{
+    efree(hfile->key);
+
+    if (hfile->msg != NULL) {
+        free(hfile->msg);
+    }
+
+    free(hfile);
+}
+
+/**
+ * Frees the ::hfiles hashtable.
+ */
 void hfiles_deinit(void)
 {
     hfile_struct *hfile, *tmp;
@@ -53,9 +73,7 @@ void hfiles_deinit(void)
     HASH_ITER(hh, hfiles, hfile, tmp)
     {
         HASH_DEL(hfiles, hfile);
-        efree(hfile->key);
-        efree(hfile->msg);
-        efree(hfile);
+        hfile_free(hfile);
     }
 
     if (command_matches) {
@@ -65,66 +83,120 @@ void hfiles_deinit(void)
 }
 
 /**
- * Read help files from file. */
+ * Read help files from file.
+ */
 void hfiles_init(void)
 {
     FILE *fp;
-    char buf[HUGE_BUF], message[HUGE_BUF * 12], *end;
-    uint8 in_msg = 0;
-    hfile_struct *hfile = NULL;
+    char buf[HUGE_BUF], *key, *value, *end;
+    hfile_struct *hfile;
+    StringBuffer *sb;
 
     fp = server_file_open_name(SERVER_FILE_HFILES);
 
-    if (!fp) {
+    if (fp == NULL) {
+        log(LOG(BUG), "Could not open help files: %s", strerror(errno));
         return;
     }
 
     hfiles_deinit();
+    hfile = NULL;
 
-    while (fgets(buf, sizeof(buf) - 1, fp)) {
-        /* Ignore comments and blank lines. */
-        if (*buf == '\0' || *buf == '#' || (*buf == '\n' && !in_msg)) {
-            continue;
+    while (fgets(buf, sizeof(buf), fp)) {
+        key = buf;
+
+        while (isspace(*key)) {
+            key++;
         }
 
         end = strchr(buf, '\n');
 
-        if (hfile) {
-            if (!strcmp(buf, "endmsg\n")) {
-                in_msg = 0;
-                hfile->msg = estrdup(message);
-                hfile->msg_len = strlen(hfile->msg);
-            }
-            else if (in_msg) {
-                strncat(message, buf, sizeof(message) - strlen(message) - 1);
-            }
-            else if (!strcmp(buf, "end\n")) {
-                HASH_ADD_KEYPTR(hh, hfiles, hfile->key, strlen(hfile->key), hfile);
-                hfile = NULL;
-            }
-            else if (!strcmp(buf, "msg\n")) {
-                in_msg = 1;
-            }
-            else if (!strncmp(buf, "autocomplete ", 13)) {
-                hfile->autocomplete = atoi(buf + 13);
-            }
-            else if (!strncmp(buf, "autocomplete_wiz ", 17)) {
-                hfile->autocomplete_wiz = atoi(buf + 17);
-            }
-            else if (!strncmp(buf, "title ", 6)) {
-                *end = '\0';
-                snprintf(message, sizeof(message), "[book]%s[/book]", buf + 6);
+        if (end != NULL) {
+            *end = '\0';
+        }
+
+        /* Empty line or a comment */
+        if (*key == '\0' || *key == '#') {
+            continue;
+        }
+
+        value = strchr(key, ' ');
+
+        if (value != NULL) {
+            *value = '\0';
+            value++;
+
+            while (isspace(*value)) {
+                value++;
             }
         }
-        else if (!strncmp(buf, "help ", 5)) {
-            *end = '\0';
-            hfile = ecalloc(1, sizeof(*hfile));
-            hfile->key = estrdup(buf + 5);
-            message[0] = '\0';
+
+        if (hfile == NULL) {
+            if (strcmp(key, "help") == 0 && !string_isempty(value)) {
+                hfile = ecalloc(1, sizeof(*hfile));
+                hfile->key = estrdup(value);
+            }
+            else {
+                log(LOG(DEVEL), "Unrecognised line: %s %s", buf,
+                    value ? value : "");
+            }
+        }
+        else if (value == NULL) {
+            if (strcmp(key, "msg") == 0) {
+                sb = stringbuffer_new();
+
+                if (hfile->msg != NULL) {
+                    stringbuffer_append_string(sb, hfile->msg);
+                    efree(hfile->msg);
+                }
+
+                while (fgets(buf, sizeof(buf), fp)) {
+                    if (strcmp(buf, "endmsg\n") == 0) {
+                        break;
+                    }
+
+                    stringbuffer_append_string(sb, buf);
+                }
+
+                hfile->msg = stringbuffer_finish(sb);
+            }
+            else if (strcmp(key, "end") == 0) {
+                if (hfile->msg != NULL) {
+                    hfile->msg_len = strlen(hfile->msg);
+                }
+
+                HASH_ADD_KEYPTR(hh, hfiles, hfile->key, strlen(hfile->key),
+                                hfile);
+                hfile = NULL;
+            }
+            else {
+                log(LOG(DEVEL), "Unrecognised line: %s %s", buf,
+                    value ? value : "");
+            }
+        }
+        else if (strcmp(key, "autocomplete") == 0) {
+            hfile->autocomplete = atoi(value);
+        }
+        else if (strcmp(key, "autocomplete_wiz") == 0) {
+            hfile->autocomplete_wiz = atoi(value);
+        }
+        else if (strcmp(key, "title") == 0) {
+            sb = stringbuffer_new();
+            stringbuffer_append_printf(sb, "[book]%s[/book]", value);
+            hfile->msg = stringbuffer_finish(sb);
+        }
+        else {
+            log(LOG(DEVEL), "Unrecognised line: %s %s", buf,
+                value ? value : "");
         }
     }
 
     fclose(fp);
+
+    if (hfile != NULL) {
+        log(LOG(BUG), "Help block without end: %s", hfile->key);
+        hfile_free(hfile);
+    }
 
     command_buf[0] = '\0';
     utarray_new(command_matches, &ut_str_icd);
@@ -133,7 +205,8 @@ void hfiles_init(void)
 /**
  * Find a help file by its name.
  * @param name Name of the help file to find.
- * @return Help file if found, NULL otherwise. */
+ * @return Help file if found, NULL otherwise.
+ */
 hfile_struct *help_find(const char *name)
 {
     hfile_struct *hfile;
@@ -145,7 +218,8 @@ hfile_struct *help_find(const char *name)
 
 /**
  * Show a help GUI.
- * @param name Name of the help file entry to show. */
+ * @param name Name of the help file entry to show.
+ */
 void help_show(const char *name)
 {
     hfile_struct *hfile;
@@ -153,10 +227,12 @@ void help_show(const char *name)
     hfile = help_find(name);
     book_add_help_history(name);
 
-    if (!hfile) {
+    if (hfile == NULL) {
         char buf[HUGE_BUF];
 
-        snprintf(buf, sizeof(buf), "[book]Help not found[/book][title]\n[center]The specified help file could not be found.[/center][/title]");
+        snprintf(VS(buf), "[book]Help not found[/book][title]\n[center]The "
+                          "specified help file could not be found.[/center]"
+                          "[/title]");
         book_load(buf, strlen(buf));
     }
     else {
@@ -165,35 +241,46 @@ void help_show(const char *name)
 }
 
 /**
- * Comparison function used in help_handle_tabulator(). */
+ * Comparison function used in help_handle_tabulator().
+ */
 static int command_match_cmp(const void *a, const void *b)
 {
     return strcmp(*(char * const *) a, *(char * const *) b);
 }
 
 /**
- * Handle tabulator key in console text input. */
+ * Handle tabulator key in console text input.
+ */
 void help_handle_tabulator(text_input_struct *text_input)
 {
     size_t len;
     char buf[sizeof(text_input->str)], *space;
 
-    /* Only handle the key if we have any help files, the text input
-     * starts with '/', and there is either no space in the text input
-     * or there is nothing after the space. */
-    if (!command_matches || *text_input->str != '/' || ((space = strrchr(text_input->str, ' ')) && *(space + 1) != '\0')) {
+    /* No help files or text input doesn't start with a forward slash. */
+    if (command_matches == NULL || *text_input->str != '/') {
+        return;
+    }
+
+    space = strrchr(text_input->str, ' ');
+
+    /* Cannot have anything after a space (if any). */
+    if (space != NULL && *(space + 1) != '\0') {
         return;
     }
 
     /* Does not match the previous command buffer, so rebuild the array. */
-    if (strcmp(command_buf, text_input->str)) {
+    if (strcmp(command_buf, text_input->str) != 0) {
         hfile_struct *hfile, *tmp;
 
         utarray_clear(command_matches);
 
-        HASH_ITER(hh, hfiles, hfile, tmp)
-        {
-            if ((hfile->autocomplete || (setting_get_int(OPT_CAT_DEVEL, OPT_OPERATOR) && hfile->autocomplete_wiz)) && !strncasecmp(hfile->key, text_input->str + 1, text_input->num - 1)) {
+        HASH_ITER(hh, hfiles, hfile, tmp) {
+            if ((hfile->autocomplete ||
+                 (setting_get_int(OPT_CAT_DEVEL, OPT_OPERATOR) &&
+                  hfile->autocomplete_wiz)
+                ) && strncasecmp(hfile->key, text_input->str + 1,
+                                 text_input->num - 1) == 0) {
+
                 utarray_push_back(command_matches, &hfile->key);
             }
         }
@@ -201,18 +288,19 @@ void help_handle_tabulator(text_input_struct *text_input)
         utarray_sort(command_matches, command_match_cmp);
         command_index = 0;
 
-        strcpy(command_buf, text_input->str);
+        snprintf(VS(command_buf), "%s", text_input->str);
     }
 
     len = utarray_len(command_matches);
 
-    if (!len) {
+    if (len == 0) {
         return;
     }
 
-    snprintf(buf, sizeof(buf), "/%s ", *((char **) utarray_eltptr(command_matches, command_index)));
+    snprintf(VS(buf), "/%s ", *((char **) utarray_eltptr(command_matches,
+                                                         command_index)));
     text_input_set(text_input, buf);
-    strcpy(command_buf, buf);
+    snprintf(VS(command_buf), "%s", buf);
 
     command_index++;
 
