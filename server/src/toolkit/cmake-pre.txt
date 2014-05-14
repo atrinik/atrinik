@@ -115,7 +115,7 @@ set(SOURCES_TOOLKIT
 	src/toolkit/mempool.c
 	src/toolkit/packet.c
 	src/toolkit/path.c
-    src/toolkit/pbkdf2.c
+	src/toolkit/pbkdf2.c
 	src/toolkit/porting.c
 	src/toolkit/sha1.c
 	src/toolkit/shstr.c
