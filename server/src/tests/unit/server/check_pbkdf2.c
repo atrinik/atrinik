@@ -26,15 +26,15 @@
 #include <check.h>
 #include <check_proto.h>
 
-START_TEST(test_PKCS5_PBKDF2_HMAC)
+START_TEST(test_PKCS5_PBKDF2_HMAC_SHA2)
 {
     unsigned char result[32];
     char hex[64 + 1];
 
-    PKCS5_PBKDF2_HMAC((unsigned char *) "Pa$$w0rd", strlen("Pa$$w0rd"), (unsigned char *) "xxx", strlen("xxx"), 4096, 32, result);
+    PKCS5_PBKDF2_HMAC_SHA2((unsigned char *) "Pa$$w0rd", strlen("Pa$$w0rd"), (unsigned char *) "xxx", strlen("xxx"), 4096, 32, result);
 
     fail_unless(string_tohex(result, 32, hex, sizeof(hex)) == 64, "string_tohex() didn't return correct value.");
-    fail_unless(strcmp(hex, "1A27DBE11B730C53A42951F40026F148D65708CCF4829BA89F618CF8720BF5FA") == 0, "PKCS5_PBKDF2_HMAC() didn't return correct result.");
+    fail_unless(strcmp(hex, "1A27DBE11B730C53A42951F40026F148D65708CCF4829BA89F618CF8720BF5FA") == 0, "PKCS5_PBKDF2_HMAC_SHA2() didn't return correct result.");
 }
 END_TEST
 
@@ -46,7 +46,7 @@ static Suite *pbkdf2_suite(void)
     tcase_add_unchecked_fixture(tc_core, check_setup, check_teardown);
 
     suite_add_tcase(s, tc_core);
-    tcase_add_test(tc_core, test_PKCS5_PBKDF2_HMAC);
+    tcase_add_test(tc_core, test_PKCS5_PBKDF2_HMAC_SHA2);
 
     return s;
 }
