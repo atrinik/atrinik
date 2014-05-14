@@ -1277,6 +1277,14 @@ extern void free_string_shared(shstr *str);
 /* src/toolkit/signals.c */
 extern void toolkit_signals_init(void);
 extern void toolkit_signals_deinit(void);
+/* src/toolkit/socket.c */
+extern void toolkit_socket_init(void);
+extern void toolkit_socket_deinit(void);
+extern socket_t *socket_create(const char *host, uint16 port);
+extern int socket_connect(socket_t *sc);
+extern void socket_destroy(socket_t *sc);
+extern SSL *socket_ssl_create(socket_t *sc, SSL_CTX *ctx);
+extern void socket_ssl_destroy(SSL *ssl);
 /* src/toolkit/string.c */
 extern void toolkit_string_init(void);
 extern void toolkit_string_deinit(void);
