@@ -347,22 +347,17 @@
   The packet is extended with the following data, in the listed order:
    - value (uint8):
       Zero to disable bot flag, non-zero to enable it.
- SERVER_FILE:
-  Exchange information about server files.
+ DATA_URL:
+  Which URL to use for data files (such as server files). The client CAN
+  suggest an URL to the server, and it is up to the server's implementation
+  whether to even consider the client's URL, or discard it altogether, or
+  approve its use. In either case, the server MUST respond with a valid URL
+  for the client to use.
 
   The packet is extended with the following data, in the listed order:
-   - file_type (uint8):
-      ID of the server file.
-   - len_ucomp (uint64):
-      Uncompressed length of the server file that the client has.
-   - crc (uint64):
-      CRC32 checksum of the server file that the client has.
-
-  The response packet is slightly different here; instead of appending the
-  same data as parsed and defined above, the packet is appended with the
-  file type, and if the CRC32 checksum *or* the uncompressed length is
-  different to the server's version of the server file, uint8 value of 1 is
-  appended, otherwise uint8 value of 0 is appended.
+   - url (string):
+      The URL to use for data files. Empty string to simply ask for the URL,
+      otherwise a valid URL as a suggestion.
 
 ===============================================================================
 = 2.4. Server command VERSION                                                 =
@@ -387,19 +382,8 @@
 ===============================================================================
 = 2.5. Server command REQUEST_FILE                                            =
 ===============================================================================
- This command is used to request a server file to be sent to the server.
-
- The packet MUST be constructed as thus, in the listed order:
-  - file_type (uint8):
-     Type of the server file.
-
- Additionally, only one request file packet for a particular file type is
- allowed per session. Any data in request file commands that are handled after
- the first (for a particular file type) MUST be discarded.
-
- After successfully receiving and parsing the packet, client command DATA (see
- section 3.19.) MUST be sent to the client, with the requested server file's
- data.
+ This is an obsolete command that is kept for backwards compatibility, but has
+ no use and may be renamed in future versions of this document specification.
 
 ===============================================================================
 = 2.6. Server command CLEAR                                                   =
@@ -485,6 +469,143 @@
       New password.
    - password_new2 (string):
       Verification of the new password.
+
+===============================================================================
+= 2.10. Server command ITEM_EXAMINE                                           =
+===============================================================================
+ Used to request examining of a specified item.
+
+ The packet MUST be constructed as thus, in the listed order:
+  - tag (uint32):
+     UID of the item to examine. If zero, no item will be examined.
+
+===============================================================================
+= 2.11. Server command ITEM_APPLY                                             =
+===============================================================================
+ Used to request applying of a specified item.
+
+ The packet MUST be constructed as thus, in the listed order:
+  - tag (uint32):
+     UID of the item to apply. If zero, no item will be applied.
+
+===============================================================================
+= 2.12. Server command ITEM_MOVE                                              =
+===============================================================================
+ Used to request moving any number of items from one inventory to another.
+
+ The packet MUST be constructed as thus, in the listed order:
+  - to (uint32):
+     UID of the container that the item should be moved into.
+  - tag (uint32):
+     UID of the item to move.
+  - nrof (uint32):
+     How many items to move.
+
+===============================================================================
+= 2.13. Server command REPLY                                                  =
+===============================================================================
+ This is an obsolete command that is kept for backwards compatibility, but has
+ no use and may be renamed in future versions of this document specification.
+
+===============================================================================
+= 2.14. Server command PLAYER_CMD                                             =
+===============================================================================
+ This command is used to run arbitrary game commands such as /chat, /ban, etc.
+
+ The packet MUST be constructed as thus, in the listed order:
+  - command (string):
+     Command to execute, for example, "/chat hello world".
+
+===============================================================================
+= 2.15. Server command ITEM_LOCK                                              =
+===============================================================================
+ Used to request locking of a specified item.
+
+ The packet MUST be constructed as thus, in the listed order:
+  - tag (uint32):
+     UID of the item to lock. If zero, no item will be locked.
+
+===============================================================================
+= 2.16. Server command ITEM_MARK                                              =
+===============================================================================
+ Used to request marking of a specified item.
+
+ The packet MUST be constructed as thus, in the listed order:
+  - tag (uint32):
+     UID of the item to mark. If zero, no item will be marked.
+
+===============================================================================
+= 2.17. Server command FIRE                                                   =
+===============================================================================
+ Used to request firing a specified ranged weapon.
+
+ The packet MUST be constructed as thus, in the listed order:
+  - dir (uint8):
+     Direction to fire into.
+  - tag (uint32):
+     UID of the ranged weapon to fire. If zero or same as player's currently
+     applied ranged weapon's UID, the currently applied ranged weapon MUST be
+     fired. Otherwise, a spell or skill object that matches the UID MUST be
+     fired.
+
+===============================================================================
+= 2.18. Server command QUICKSLOT                                              =
+===============================================================================
+ Used to request setting a specified quickslot to a particular item, or
+ removing quickslot.
+
+ The packet MUST be constructed as thus, in the listed order:
+  - quickslot (uint8):
+     Quickslot ID to work on. MUST be greater than or equal to 1, and MUST be
+     less than or equal to 32.
+  - tag (uint32):
+     UID of the item to set as quickslot (removing any previous item from the
+     quickslot). If zero, remove any previous item from the quickslot.
+
+===============================================================================
+= 2.19. Server command QUESTLIST                                              =
+===============================================================================
+ This command is used to request displaying of the player's quest list.
+
+===============================================================================
+= 2.20. Server command MOVE_PATH                                              =
+===============================================================================
+ This command is used to make the player intelligently walk to the specified
+ coordinates. This is done through path computation.
+
+ The packet MUST be constructed as thus, in the listed order:
+  - x (uint8):
+     X coordinate.
+  - y (uint8):
+     Y coordinate.
+
+ Note that the coordinates are uint8 and not uint16 on purpose; they do not
+ define a specific point on the map the player is located on, but a specific
+ point on the map that is visible to the player. Thus, coordinates of 0,0 would
+ mean the topmost (northwest) corner of the map that is visible to the player.
+ Further calculations are necessary to resolve that to the actual map
+ coordinates.
+
+===============================================================================
+= 2.21. Server command ITEM_READY                                             =
+===============================================================================
+ This is an obsolete command that is kept for backwards compatibility, but has
+ no use and may be renamed in future versions of this document specification.
+
+===============================================================================
+= 2.22. Server command TALK                                                   =
+===============================================================================
+ This command is used to talk to a specified object, for example, an NPC.
+
+===============================================================================
+= 2.23. Server command MOVE                                                   =
+===============================================================================
+ This command is used to move in a particular direction.
+
+===============================================================================
+= 2.24. Server command TARGET                                             =
+===============================================================================
+ This command is used to target a specified monster/NPC/etc.
 
 ===============================================================================
 = 3. Client commands                                                          =
