@@ -658,4 +658,26 @@ enum
     PLAYER_EQUIP_MAX
 };
 
+typedef struct socket_t
+{
+    /**
+     * Actual socket handle, as returned by socket() call. */
+    int handle;
+
+    /**
+     * Hostname that the socket connection will use.
+     */
+    char *host;
+
+    /**
+     * Port that the socket connection will use.
+     */
+    uint16 port;
+
+    /**
+     * SSL socket handle.
+     */
+    SSL *ssl_handle;
+} socket_t;
+
 #endif

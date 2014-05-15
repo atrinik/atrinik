@@ -423,7 +423,7 @@ static void sha2_hmac( const unsigned char *key, size_t keylen,
 #define min( a, b ) ( ((a) < (b)) ? (a) : (b) )
 #endif
 
-void PKCS5_PBKDF2_HMAC(unsigned char *password, size_t plen,
+void PKCS5_PBKDF2_HMAC_SHA2(unsigned char *password, size_t plen,
     unsigned char *salt, size_t slen,
     const unsigned long iteration_count, const unsigned long key_length,
     unsigned char *output)
