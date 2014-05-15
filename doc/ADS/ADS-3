@@ -1,0 +1,135 @@
+===============================================================================
+= ADS-3, rev: 0.1: Atrinik Master Server Protocol Specification               =
+===============================================================================
+ This document contains design specification for the Atrinik master server
+ protocol.
+
+ The following sections exist:
+
+ 1. Prologue
+ 2. Session
+
+===============================================================================
+= 1. Prologue                                                                 =
+===============================================================================
+ The Atrinik master server is designed to control many aspects of the Atrinik
+ infrastructure. It handles account authentication, game server management and
+ player data synchronization among other things.
+
+ The topology could look something like this:
+
+             |DATABASE|
+             | SERVER |      | WEB SITE |
+                 ^           |  SERVER  |
+                 |  +-----------^    ^
+                 v  v                |
+ [US-W] <---> |MASTER| <---> [EU-W]  |
+ [US-E] <---> |SERVER| <---> [EU-E]  |
+                 ^             ^     |
+                 |             |     |
+                 v             |     |
+              | USER | <-------+     |
+                  ^------------------+
+
+ Everything is basically connected to the master server. When a player decides
+ that they want to log in to EU-E(ast), a standard Atrinik connection is
+ established, with the appropriate version/setup exchange. However, the setup
+ command is extended to include the IP/port of the master server to use (that
+ the game server in question is connected to). Now, a connection to that master
+ server is also established. The master server handles the account login and/or
+ registration procedure. On a successful character login, the master server
+ generates a one-use authentication token, which is sent to the appropriate
+ game server and the player's client simultaneously. The client then sends that
+ token to the game server to actually log in without a password, and the token
+ is destroyed on the game server.
+
+===============================================================================
+= 2. Session                                                                  =
+===============================================================================
+ The session is a standard TCP/IP connection, but using TLS from the very
+ beginning. Establishing a TLS connection, performing handshakes and validating
+ the master server's certificate is outside of the scope of this document, and
+ implementations should refer to OpenSSL/GnuTLS/etc for implementation and/or
+ documentation.
+
+ Once a session has been established, the client and the master server are free
+ to exchange data at will, in an asynchronous mode of data exchange. After this
+ is done, it is recommended that the master server and the client exchange
+ version information, with the use of the version command (see section 4.1. and
+ section 5.1). This allows both the client and the master server to be aware of
+ what commands the other side supports, and in what format, thus allowing
+ backward compatibility.
+
+ The implementation SHOULD use non-blocking sockets to receive and send data.
+ Using threads for this is highly recommended.
+
+===============================================================================
+= 2.1. Packets                                                                =
+===============================================================================
+ Data packets are constructed in MSB (Most Significant Byte) order, also known
+ as big-endian.
+
+ Each packet starts with a 2-byte header, which is an unsigned integer (uint16)
+ that contains information about the length of its payload.
+
+ The payload should always contain the command type as 8-bit unsigned integer,
+ followed by any data, in any format whatsoever, but still binary. See
+ section 4. for the available master server commands organized by command type,
+ and section 5. for the available client commands.
+
+ Left shifting is done to convert any integers of size more than 1 byte. Signed
+ integers are converted to signed data type.
+
+ The following packet data types are recognised:
+  - uint8
+  - sint8
+  - uint16
+  - sint16
+  - uint32
+  - sint32
+  - uint64
+  - sint64
+  - string:
+     UTF-8 string, terminated by a NUL character.
+
+===============================================================================
+= 2.2. Heartbeat                                                              =
+===============================================================================
+ Once a session has been established, both the master server and the client
+ MUST send heartbeat packets (commands explained in section 4.2. and 5.2.) to
+ the other side, at a configurable interval.
+
+ What should happen when either side has not received a heartbeat packet for
+ a period longer than a configurable tolerance value is up to the
+ implementation: a game server might want to attempt re-establishing the
+ connection (or attempting to connect to a backup master server), whereas a
+ player client might want to just drop the connection completely with an error.
+
+===============================================================================
+= 3. Errors                                                                   =
+===============================================================================
+
+===============================================================================
+= 4. Server commands                                                          =
+===============================================================================
+ This section defines commands that are recognised by the master server.
+
+ This is a list of the possible commands, beginning at an index of zero:
+
+ VERSION:
+  See section 4.1.
+ HEARTBEAT:
+  See section 4.2.
+
+===============================================================================
+= 5. Client commands                                                          =
+===============================================================================
+ This section defines commands that are recognised by clients (both players and
+ game servers) that connect to the master server.
+
+ This is a list of the possible commands, beginning at an index of zero:
+
+ VERSION:
+  See section 5.1.
+ HEARTBEAT:
+  See section 5.2.
