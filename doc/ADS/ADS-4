@@ -1,0 +1,42 @@
+===============================================================================
+= ADS-4, rev: 0.1: Atrinik Master Server Specification                        =
+===============================================================================
+ This document contains design specification for the Atrinik master server.
+
+ The following sections exist:
+
+ 1. Prologue
+
+===============================================================================
+= 1. Prologue                                                                 =
+===============================================================================
+ The Atrinik master server is designed to control many aspects of the Atrinik
+ infrastructure. It handles account authentication, game server management and
+ player data synchronization among other things.
+
+ The topology could look something like this:
+
+             |DATABASE|
+             | SERVER |      | WEB SITE |
+                 ^           |  SERVER  |
+                 |  +-----------^    ^
+                 v  v                |
+ [US-W] <---> |MASTER| <---> [EU-W]  |
+ [US-E] <---> |SERVER| <---> [EU-E]  |
+                 ^             ^     |
+                 |             |     |
+                 v             |     |
+              | USER | <-------+     |
+                  ^------------------+
+
+ Everything is basically connected to the master server. When a player decides
+ that they want to log in to EU-E(ast), a standard Atrinik connection is
+ established, with the appropriate version/setup exchange. However, the setup
+ command is extended to include the IP/port of the master server to use (that
+ the game server in question is connected to). Now, a connection to that master
+ server is also established. The master server handles the account login and/or
+ registration procedure. On a successful character login, the master server
+ generates a one-use authentication token, which is sent to the appropriate
+ game server and the player's client simultaneously. The client then sends that
+ token to the game server to actually log in without a password, and the token
+ is destroyed on the game server.

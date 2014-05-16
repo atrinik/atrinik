@@ -6,45 +6,10 @@
 
  The following sections exist:
 
- 1. Prologue
- 2. Session
+ 1. Session
 
 ===============================================================================
-= 1. Prologue                                                                 =
-===============================================================================
- The Atrinik master server is designed to control many aspects of the Atrinik
- infrastructure. It handles account authentication, game server management and
- player data synchronization among other things.
-
- The topology could look something like this:
-
-             |DATABASE|
-             | SERVER |      | WEB SITE |
-                 ^           |  SERVER  |
-                 |  +-----------^    ^
-                 v  v                |
- [US-W] <---> |MASTER| <---> [EU-W]  |
- [US-E] <---> |SERVER| <---> [EU-E]  |
-                 ^             ^     |
-                 |             |     |
-                 v             |     |
-              | USER | <-------+     |
-                  ^------------------+
-
- Everything is basically connected to the master server. When a player decides
- that they want to log in to EU-E(ast), a standard Atrinik connection is
- established, with the appropriate version/setup exchange. However, the setup
- command is extended to include the IP/port of the master server to use (that
- the game server in question is connected to). Now, a connection to that master
- server is also established. The master server handles the account login and/or
- registration procedure. On a successful character login, the master server
- generates a one-use authentication token, which is sent to the appropriate
- game server and the player's client simultaneously. The client then sends that
- token to the game server to actually log in without a password, and the token
- is destroyed on the game server.
-
-===============================================================================
-= 2. Session                                                                  =
+= 1. Session                                                                  =
 ===============================================================================
  The session is a standard TCP/IP connection, but using TLS from the very
  beginning. Establishing a TLS connection, performing handshakes and validating
@@ -55,8 +20,8 @@
  Once a session has been established, the client and the master server are free
  to exchange data at will, in an asynchronous mode of data exchange. After this
  is done, it is recommended that the master server and the client exchange
- version information, with the use of the version command (see section 4.1. and
- section 5.1). This allows both the client and the master server to be aware of
+ version information, with the use of the version command (see section 2.1. and
+ section 3.1). This allows both the client and the master server to be aware of
  what commands the other side supports, and in what format, thus allowing
  backward compatibility.
 
@@ -64,7 +29,7 @@
  Using threads for this is highly recommended.
 
 ===============================================================================
-= 2.1. Packets                                                                =
+= 1.1. Packets                                                                =
 ===============================================================================
  Data packets are constructed in MSB (Most Significant Byte) order, also known
  as big-endian.
@@ -74,8 +39,8 @@
 
  The payload should always contain the command type as 8-bit unsigned integer,
  followed by any data, in any format whatsoever, but still binary. See
- section 4. for the available master server commands organized by command type,
- and section 5. for the available client commands.
+ section 2. for the available master server commands organized by command type,
+ and section 3. for the available client commands.
 
  Left shifting is done to convert any integers of size more than 1 byte. Signed
  integers are converted to signed data type.
@@ -93,10 +58,10 @@
      UTF-8 string, terminated by a NUL character.
 
 ===============================================================================
-= 2.2. Heartbeat                                                              =
+= 1.2. Heartbeat                                                              =
 ===============================================================================
  Once a session has been established, both the master server and the client
- MUST send heartbeat packets (commands explained in section 4.2. and 5.2.) to
+ MUST send heartbeat packets (commands explained in section 2.2. and 3.2.) to
  the other side, at a configurable interval.
 
  What should happen when either side has not received a heartbeat packet for
@@ -106,23 +71,88 @@
  player client might want to just drop the connection completely with an error.
 
 ===============================================================================
-= 3. Errors                                                                   =
-===============================================================================
-
-===============================================================================
-= 4. Server commands                                                          =
+= 2. Server commands                                                          =
 ===============================================================================
  This section defines commands that are recognised by the master server.
 
  This is a list of the possible commands, beginning at an index of zero:
 
  VERSION:
-  See section 4.1.
+  See section 2.1.
  HEARTBEAT:
-  See section 4.2.
+  See section 2.2.
+ SETUP:
+  See section 2.3.
+ ACCOUNT:
+  See section 2.4.
 
 ===============================================================================
-= 5. Client commands                                                          =
+= 2.1. Server command VERSION                                                 =
+===============================================================================
+ This command is used to inform the server about the client's protocol version.
+
+ The packet MUST be constructed as thus, in the listed order:
+  - version (uint32):
+     The version number.
+
+ After successfully storing the version number the master server MUST respond
+ with its own version number, sending client command VERSION (see section 3.1.)
+ to the client.
+
+===============================================================================
+= 2.2. Server command HEARTBEAT                                               =
+===============================================================================
+ This command is used to inform the server that the connection is still alive.
+
+ The packet MUST be constructed as thus, in the listed order:
+  - seconds (uint64):
+     Current time since the UNIX epoch in seconds.
+
+ The server MUST respond with client command VERSION (see section 3.2.), adding
+ the same seconds number that it received to the client command VERSION packet.
+
+===============================================================================
+= 2.3. Server command SETUP                                                   =
+===============================================================================
+ This command is used to exchange information about supported capabilities,
+ features, etc between the master server and the client after having
+ established a connection, and, ideally, after exchanging version information
+ (see sections 2.1. and 3.1.).
+
+ As the packet data is being parsed by the master server, a cloned packet MUST
+ be constructed at the same or later time, as a response for the client. This
+ new packet MUST have the same data format as what was received, but can have
+ different values: in essence, values that were accepted and *really*
+ configured by the master server. What options get accepted are up to the
+ implementation, but the proper response MUST be sent to the client as client
+ command SETUP (see section 3.3.).
+
+ The packet MUST be constructed as thus, in the listed order, repeating any
+ number of times (for different setup options):
+  - type (uint8):
+     Type of the setup option. Defines what kind of an option this is.
+
+ The following is a list of possible types, starting at an index of zero.
+
+ ROLE:
+  Configures the client's supposed role.
+
+  The packet is extended with the following data, in the listed order:
+   - role (uint8):
+      The role ID. Can be one of the following, starting at an index of zero:
+       - PLAYER: Regular player client.
+       - GAMESERVER: A game server.
+ GAMESERVER:
+  Configures which game server to work on.
+
+  The packet is extended with the following data, in the listed order:
+   - host (string):
+      IP or hostname of the game server.
+   - port (uint16):
+      Port of the game server.
+
+===============================================================================
+= 3. Client commands                                                          =
 ===============================================================================
  This section defines commands that are recognised by clients (both players and
  game servers) that connect to the master server.
@@ -130,6 +160,40 @@
  This is a list of the possible commands, beginning at an index of zero:
 
  VERSION:
-  See section 5.1.
+  See section 3.1.
  HEARTBEAT:
-  See section 5.2.
+  See section 3.2.
+ SETUP:
+  See section 3.3.
+ ACCOUNT:
+  See section 3.4.
+ ERROR:
+  See section 3.5.
+
+===============================================================================
+= 3.1. Client command VERSION                                                 =
+===============================================================================
+ This command is used to inform the client about the server's protocol version.
+
+ The packet MUST be constructed as thus, in the listed order:
+  - version (uint32):
+     The version number.
+
+===============================================================================
+= 3.2. Client command HEARTBEAT                                               =
+===============================================================================
+ This command is used to inform the client that the connection is still alive,
+ and that the client's heartbeat packet was successfully received.
+
+ The packet MUST be constructed as thus, in the listed order:
+  - seconds (uint64):
+     The time in seconds that was received with server command HEARTBEAT (see
+     section 2.2.).
+
+===============================================================================
+= 3.3. Client command SETUP                                                   =
+===============================================================================
+ This command is used to inform the client about accepted configuration from
+ the setup command sent by the client.
+
+ See server command SETUP (section 2.3.) for the packet structure.
