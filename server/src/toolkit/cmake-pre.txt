@@ -54,6 +54,9 @@ else (X11_FOUND)
 	message(STATUS "Warning: X11 not found, some features may be disabled")
 endif (X11_FOUND)
 
+find_package(OpenSSL REQUIRED)
+include_directories(${OPENSSL_INCLUDE_DIR})
+
 include(CheckIncludeFiles)
 include(CheckFunctionExists)
 
