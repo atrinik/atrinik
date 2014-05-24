@@ -155,9 +155,9 @@ void init_anim(void)
  * @param a First animation to compare
  * @param b Second animation to compare
  * @return Return value of strcmp for the animation names */
-static int anim_compare(Animations *a, Animations *b)
+static int anim_compare(const void *a, const void *b)
 {
-    return strcmp(a->name, b->name);
+    return strcmp(((const Animations *) a)->name, ((const Animations *) b)->name);
 }
 
 /**
@@ -171,7 +171,7 @@ int find_animation(char *name)
 
     search.name = name;
 
-    match = bsearch(&search, animations, (num_animations + 1), sizeof(Animations), (void *) (int (*)())anim_compare);
+    match = bsearch(&search, animations, (num_animations + 1), sizeof(Animations), anim_compare);
 
     if (match) {
         return match->num;
