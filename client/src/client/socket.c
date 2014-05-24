@@ -512,7 +512,7 @@ void socket_deinitialize(void)
  * @param host Host to connect to.
  * @param port Port to use.
  * @return 1 on success, 0 on failure. */
-static int socket_create(int *fd, char *host, int port)
+static int client_socket_create(int *fd, char *host, int port)
 {
     uint32 start_timer;
 
@@ -710,7 +710,7 @@ int socket_open(struct ClientSocket *csock, char *host, int port)
     socklen_t buflen = sizeof(int);
     struct linger linger_opt;
 
-    if (!socket_create(&csock->fd, host, port)) {
+    if (!client_socket_create(&csock->fd, host, port)) {
         logger_print(LOG(DEBUG), "Can't connect to server %s:%d.", host, port);
         return 0;
     }
