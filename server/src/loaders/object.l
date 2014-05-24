@@ -941,7 +941,7 @@ int load_object(void *fp, object *op, void *mybuffer, int bufstate, int map_flag
         retval = lex_load(&depth, items, MAXDEPTH, map_flags, 0);
     }
     else if (bufstate == LO_MEMORYMODE) {
-        char *strptr = (char *) fp;
+        char *strptr = fp;
         YY_BUFFER_STATE yybufstate;
         int lcount = 0;
 
@@ -974,7 +974,7 @@ int load_object(void *fp, object *op, void *mybuffer, int bufstate, int map_flag
     else {
         YY_BUFFER_STATE yybufstate;
 
-        while (fgets(inbuf, sizeof(inbuf) - 3, (FILE *) fp)) {
+        while (fgets(inbuf, sizeof(inbuf) - 3, fp)) {
             yybufstate = yy_scan_string(inbuf);
             retval = lex_load(&depth, items, MAXDEPTH, map_flags, 1);
             yy_delete_buffer(yybufstate);

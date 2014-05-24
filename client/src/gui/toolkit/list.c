@@ -753,7 +753,7 @@ void list_sort(list_struct *list, int type)
 
     /* Alphabetical sort. */
     if (type == LIST_SORT_ALPHA) {
-        qsort(list->text, list->rows, sizeof(*list->text), (int (*)())list_compare_alpha);
+        qsort(list->text, list->rows, sizeof(*list->text), list_compare_alpha);
     }
 }
 

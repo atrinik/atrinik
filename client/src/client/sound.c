@@ -103,11 +103,11 @@ static void sound_free(sound_data_struct *tmp)
 {
     switch (tmp->type) {
         case SOUND_TYPE_CHUNK:
-            Mix_FreeChunk((Mix_Chunk *) tmp->data);
+            Mix_FreeChunk(tmp->data);
             break;
 
         case SOUND_TYPE_MUSIC:
-            Mix_FreeMusic((Mix_Music *) tmp->data);
+            Mix_FreeMusic(tmp->data);
             break;
 
         default:
@@ -390,7 +390,7 @@ void sound_start_bg_music(const char *filename, int volume, int loop)
     sound_background_update_duration = 1;
 
     Mix_VolumeMusic(volume);
-    Mix_PlayMusic((Mix_Music *) tmp->data, 0);
+    Mix_PlayMusic(tmp->data, 0);
 
     sound_background_started = SDL_GetTicks();
 

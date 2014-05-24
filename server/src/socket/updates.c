@@ -160,7 +160,7 @@ void updates_init(void)
         
         /* Sort the entries. */
         if (update_files != NULL) {
-            qsort(update_files, update_files_num, sizeof(update_file_struct), (void *) (int (*)())updates_file_compare);
+            qsort(update_files, update_files_num, sizeof(update_file_struct), updates_file_compare);
         }
     }
 

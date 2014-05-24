@@ -129,7 +129,7 @@ char **roguelike_layout_gen(int xsize, int ysize, int options)
 
     /* decide on the number of rooms */
     nrooms = RANDOM() % 10 + 6;
-    Rooms = (Room *) ecalloc(nrooms + 1, sizeof(Room));
+    Rooms = ecalloc(nrooms + 1, sizeof(Room));
 
     /* Actually place the rooms */
     i = 0;

@@ -299,7 +299,7 @@ void textwin_tab_add(widgetdata *widget, const char *name)
 
     textwin->tabs_num++;
 
-    qsort(textwin->tabs, textwin->tabs_num, sizeof(*textwin->tabs), (int (*)())textwin_tab_compare);
+    qsort(textwin->tabs, textwin->tabs_num, sizeof(*textwin->tabs), textwin_tab_compare);
     textwin_readjust(widget);
 }
 
