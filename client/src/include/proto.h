@@ -876,7 +876,7 @@ extern int path_touch(const char *path);
 extern size_t path_size(const char *path);
 extern char *path_file_contents(const char *path);
 /* src/toolkit/pbkdf2.c */
-extern void PKCS5_PBKDF2_HMAC(unsigned char *password, size_t plen, unsigned char *salt, size_t slen, const unsigned long iteration_count, const unsigned long key_length, unsigned char *output);
+extern void PKCS5_PBKDF2_HMAC_SHA2(unsigned char *password, size_t plen, unsigned char *salt, size_t slen, const unsigned long iteration_count, const unsigned long key_length, unsigned char *output);
 /* src/toolkit/porting.c */
 extern void toolkit_porting_init(void);
 extern void toolkit_porting_deinit(void);
@@ -904,6 +904,14 @@ extern void free_string_shared(shstr *str);
 /* src/toolkit/signals.c */
 extern void toolkit_signals_init(void);
 extern void toolkit_signals_deinit(void);
+/* src/toolkit/socket.c */
+extern void toolkit_socket_init(void);
+extern void toolkit_socket_deinit(void);
+extern socket_t *socket_create(const char *host, uint16 port);
+extern int socket_connect(socket_t *sc);
+extern void socket_destroy(socket_t *sc);
+extern SSL *socket_ssl_create(socket_t *sc, SSL_CTX *ctx);
+extern void socket_ssl_destroy(SSL *ssl);
 /* src/toolkit/string.c */
 extern void toolkit_string_init(void);
 extern void toolkit_string_deinit(void);
