@@ -24,25 +24,21 @@
 
 /**
  * @file
- * OS path API.
- */
+ * OS path API. */
 
 #include <global.h>
 
 /**
- * Name of the API.
- */
+ * Name of the API. */
 #define API_NAME path
 
 /**
- * If 1, the API has been initialized.
- */
+ * If 1, the API has been initialized. */
 static uint8 did_init = 0;
 
 /**
  * Initialize the path API.
- * @internal
- */
+ * @internal */
 void toolkit_path_init(void)
 {
     TOOLKIT_INIT_FUNC_START(path)
@@ -56,8 +52,7 @@ void toolkit_path_init(void)
 
 /**
  * Deinitialize the path API.
- * @internal
- */
+ * @internal */
 void toolkit_path_deinit(void)
 {
     TOOLKIT_DEINIT_FUNC_START(path)
@@ -70,8 +65,7 @@ void toolkit_path_deinit(void)
  * Joins two path components, eg, '/usr' and 'bin' -> '/usr/bin'.
  * @param path First path component.
  * @param path2 Second path component.
- * @return The joined path; should be freed when no longer needed.
- */
+ * @return The joined path; should be freed when no longer needed. */
 char *path_join(const char *path, const char *path2)
 {
     StringBuffer *sb;
@@ -85,7 +79,7 @@ char *path_join(const char *path, const char *path2)
 
     len = strlen(path);
 
-    if (len != 0 && path[len - 1] != '/') {
+    if (len && path[len - 1] != '/') {
         stringbuffer_append_string(sb, "/");
     }
 
@@ -105,8 +99,7 @@ char *path_join(const char *path, const char *path2)
  * @param path A path.
  * @return A directory name. This string should be freed when no longer
  * needed.
- * @author Hongli Lai (public domain)
- */
+ * @author Hongli Lai (public domain) */
 char *path_dirname(const char *path)
 {
     const char *end;
@@ -114,13 +107,13 @@ char *path_dirname(const char *path)
 
     TOOLKIT_FUNC_PROTECTOR(API_NAME);
 
-    if (path == NULL) {
+    if (!path) {
         return NULL;
     }
 
     end = strrchr(path, '/');
 
-    if (end == NULL) {
+    if (!end) {
         return estrdup(".");
     }
 
@@ -147,15 +140,14 @@ char *path_dirname(const char *path)
  * @endcode
  * @param path A path.
  * @return The basename of the path. Should be freed when no longer
- * needed.
- */
+ * needed. */
 char *path_basename(const char *path)
 {
     const char *slash;
 
     TOOLKIT_FUNC_PROTECTOR(API_NAME);
 
-    if (path == NULL) {
+    if (!path) {
         return NULL;
     }
 
@@ -175,8 +167,7 @@ char *path_basename(const char *path)
  * If the path begins with either a forward slash or a dot *and* a forward
  * slash, they will be preserved.
  * @param path Path to normalize.
- * @return The normalized path; never NULL. Must be freed.
- */
+ * @return The normalized path; never NULL. Must be freed. */
 char *path_normalize(const char *path)
 {
     StringBuffer *sb;
@@ -212,8 +203,7 @@ char *path_normalize(const char *path)
                 last_slash = stringbuffer_rindex(sb, '/');
 
                 if (last_slash == -1) {
-                    log(LOG(BUG), "Should have found a forward slash, but "
-                                  "didn't: %s", path);
+                    logger_print(LOG(BUG), "Should have found a forward slash, but didn't: %s", path);
                     continue;
                 }
 
@@ -239,8 +229,7 @@ char *path_normalize(const char *path)
 /**
  * Checks whether any directories in the given path don't exist, and
  * creates them if necessary.
- * @param path The path to check.
- */
+ * @param path The path to check. */
 void path_ensure_directories(const char *path)
 {
     char buf[MAXPATHLEN], *cp;
@@ -284,8 +273,7 @@ void path_ensure_directories(const char *path)
  * @param src Path of the file to copy contents from.
  * @param dst Where to put the contents of 'src'.
  * @param mode Mode to open 'src' in.
- * @return 1 on success, 0 on failure.
- */
+ * @return 1 on success, 0 on failure. */
 int path_copy_file(const char *src, FILE *dst, const char *mode)
 {
     FILE *fp;
@@ -293,13 +281,13 @@ int path_copy_file(const char *src, FILE *dst, const char *mode)
 
     TOOLKIT_FUNC_PROTECTOR(API_NAME);
 
-    if (src == NULL || dst == NULL || mode == NULL) {
+    if (!src || !dst || !mode) {
         return 0;
     }
 
     fp = fopen(src, mode);
 
-    if (fp == NULL) {
+    if (!fp) {
         return 0;
     }
 
@@ -307,9 +295,7 @@ int path_copy_file(const char *src, FILE *dst, const char *mode)
         fputs(buf, dst);
     }
 
-    if (fclose(fp) == EOF) {
-        return 0;
-    }
+    fclose(fp);
 
     return 1;
 }
@@ -317,8 +303,7 @@ int path_copy_file(const char *src, FILE *dst, const char *mode)
 /**
  * Check if the specified path exists.
  * @param path Path to check.
- * @return 1 if 'path' exists, 0 otherwise.
- */
+ * @return 1 if 'path' exists, 0 otherwise. */
 int path_exists(const char *path)
 {
     struct stat statbuf;
@@ -335,8 +320,7 @@ int path_exists(const char *path)
 /**
  * Create a new blank file.
  * @param path Path to the file.
- * @return 1 on success, 0 on failure.
- */
+ * @return 1 on success, 0 on failure. */
 int path_touch(const char *path)
 {
     FILE *fp;
@@ -346,7 +330,7 @@ int path_touch(const char *path)
     path_ensure_directories(path);
     fp = fopen(path, "w");
 
-    if (fp == NULL) {
+    if (!fp) {
         return 0;
     }
 
@@ -360,8 +344,7 @@ int path_touch(const char *path)
 /**
  * Get size of the specified file, in bytes.
  * @param path Path to the file.
- * @return Size of the file.
- */
+ * @return Size of the file. */
 size_t path_size(const char *path)
 {
     struct stat statbuf;
@@ -379,9 +362,7 @@ size_t path_size(const char *path)
  * Load the entire contents of file 'path' into a StringBuffer instance,
  * then return the created string.
  * @param path File to load contents of.
- * @return The loaded contents. Must be freed. Can be NULL in case of failure
- * in opening the specified file.
- */
+ * @return The loaded contents. Must be freed. */
 char *path_file_contents(const char *path)
 {
     FILE *fp;
@@ -392,7 +373,7 @@ char *path_file_contents(const char *path)
 
     fp = fopen(path, "rb");
 
-    if (fp == NULL) {
+    if (!fp) {
         return NULL;
     }
 

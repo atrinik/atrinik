@@ -25,3 +25,5 @@ endif (HAVE_X11)
 if (HAVE_X11_XMU)
 	target_link_libraries(${EXECUTABLE} ${X11_XMU_LIBRARY})
 endif (HAVE_X11_XMU)
+
+target_link_libraries(${EXECUTABLE} ${OPENSSL_LIBRARIES})
