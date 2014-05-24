@@ -241,7 +241,9 @@ static void sha2_update( sha2_context *ctx, const unsigned char *input, size_t i
     unsigned long left;
 
     if( ilen <= 0 )
+    {
         return;
+    }
 
     left = ctx->total[0] & 0x3F;
     fill = 64 - left;
@@ -250,7 +252,9 @@ static void sha2_update( sha2_context *ctx, const unsigned char *input, size_t i
     ctx->total[0] &= 0xFFFFFFFF;
 
     if( ctx->total[0] < (unsigned long) ilen )
+    {
         ctx->total[1]++;
+    }
 
     if( left && ilen >= fill )
     {

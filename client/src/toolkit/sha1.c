@@ -262,8 +262,9 @@ void sha1_update( sha1_context *ctx, const unsigned char *input, size_t ilen )
     size_t fill;
     unsigned long left;
 
-    if( ilen <= 0 )
+    if( ilen <= 0 ) {
         return;
+    }
 
     left = ctx->total[0] & 0x3F;
     fill = 64 - left;
@@ -271,8 +272,9 @@ void sha1_update( sha1_context *ctx, const unsigned char *input, size_t ilen )
     ctx->total[0] += (unsigned long) ilen;
     ctx->total[0] &= 0xFFFFFFFF;
 
-    if( ctx->total[0] < (unsigned long) ilen )
+    if( ctx->total[0] < (unsigned long) ilen ) {
         ctx->total[1]++;
+    }
 
     if( left && ilen >= fill ) {
         memcpy(ctx->buffer + left,
@@ -356,13 +358,15 @@ int sha1_file( const char *path, unsigned char output[20] )
     sha1_context ctx;
     unsigned char buf[1024];
 
-    if( ( f = fopen( path, "rb" ) ) == NULL )
+    if( ( f = fopen( path, "rb" ) ) == NULL ) {
         return( 1 );
+    }
 
     sha1_starts( &ctx );
 
-    while( ( n = fread( buf, 1, sizeof( buf ), f ) ) > 0 )
+    while( ( n = fread( buf, 1, sizeof( buf ), f ) ) > 0 ) {
         sha1_update( &ctx, buf, n );
+    }
 
     sha1_finish( &ctx, output );
 

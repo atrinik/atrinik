@@ -707,8 +707,9 @@ void play_anims(void)
         tmp = anim->next;
 
         /* Have we passed the last tick */
-        if (LastTick > anim->last_tick)
+        if (LastTick > anim->last_tick) {
             remove_anim(anim);
+        }
         else {
             num_ticks = LastTick - anim->start_tick;
 
@@ -745,14 +746,18 @@ void play_anims(void)
                         tmp_off = 0;
 
                         /* Let's check the size of the value */
-                        if (anim->value < 10)
+                        if (anim->value < 10) {
                             tmp_off = 6;
-                        else if (anim->value < 100)
+                        }
+                        else if (anim->value < 100) {
                             tmp_off = 0;
-                        else if (anim->value < 1000)
+                        }
+                        else if (anim->value < 1000) {
                             tmp_off = -6;
-                        else if (anim->value < 10000)
+                        }
+                        else if (anim->value < 10000) {
                             tmp_off = -12;
+                        }
 
                         text_show(ScreenSurface, FONT_MONO10, buf, xpos + anim->x + tmp_off, ypos + tmp_y, COLOR_ORANGE, TEXT_OUTLINE, NULL);
                     }
