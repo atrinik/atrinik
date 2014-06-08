@@ -31,6 +31,11 @@ arch/dev/editor/pickmaps/*/*
 maps/interfaces/**/*.py
 maps/python/InterfaceQuests.py
 cov-int
+nbproject
+server-cpp/config.h
+*.json
+server-cpp/atrinik
+server-cpp/atrinik.exe
 
 # GNU/Linux
 core
