@@ -27,7 +27,7 @@ using namespace atrinik;
 using namespace boost;
 
 namespace atrinik {
-atomic<uint64_t> uid(0);
+std::atomic<uint64_t> uid(0);
 iobjects_t active_objects;
 sobjects_t archetypes;
 mutex active_objects_mutex;
@@ -36,7 +36,7 @@ GameObject *create_game_object(const string& archname, int type) {
     switch (type) {
         case GameObjectType::Floor:
             return new FloorObject(archname);
-            
+
         default:
             throw error("create_game_object: unrecognized type " + lexical_cast<string>(type));
     }

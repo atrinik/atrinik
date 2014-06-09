@@ -23,6 +23,7 @@
 #pragma once
 
 #include <stdint.h>
+#include <atomic>
 #include <boost/thread.hpp>
 #include <boost/lexical_cast.hpp>
 
@@ -33,7 +34,7 @@ using namespace std;
 
 namespace atrinik {
 
-extern atomic<uint64_t> uid;
+extern std::atomic<uint64_t> uid;
 extern iobjects_t active_objects;
 extern sobjects_t archetypes;
 extern mutex active_objects_mutex;

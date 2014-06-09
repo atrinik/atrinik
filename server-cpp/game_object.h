@@ -28,6 +28,7 @@
 #pragma once
 
 #include <stdint.h>
+#include <atomic>
 #include <string.h>
 #include <tbb/concurrent_hash_map.h>
 
@@ -61,8 +62,8 @@ public:
      */
     string const archname();
 
-    atomic<uint8_t> type; ///< Object type.
-    atomic<uint64_t> value; ///< Object value.
+    std::atomic<uint8_t> type; ///< Object type.
+    std::atomic<uint64_t> value; ///< Object value.
 
 private:
     string archname_; ///< Archetype name.
