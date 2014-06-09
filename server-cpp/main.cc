@@ -81,7 +81,7 @@ int main(int, char **)
     if (archetypes.find(result, "ship_floor_we_light_1")) {
         cout << result->second->archname() << endl;
         GameObject *obj = result->second->clone();
-        cout << obj->dump() << endl;;
+        cout << obj->dump() << endl;
         delete obj;
     }
 

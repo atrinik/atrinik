@@ -45,7 +45,7 @@ GameObject::GameObject(GameObject const& obj)
     layer_ = obj.layer_;
 }
 
-bool GameObject::load(std::string key, std::string val)
+bool GameObject::load(string key, string val)
 {
     if (key == "type") {
         return true;
@@ -58,17 +58,17 @@ bool GameObject::load(std::string key, std::string val)
     return false;
 }
 
-std::string GameObject::dump_()
+string GameObject::dump_()
 {
-    std::string s = Object::dump_();
+    string s = Object::dump_();
 
     s += "arch " + archname_ + "\n";
-    s += "layer " + boost::lexical_cast<std::string>(layer_) + "\n";
+    s += "layer " + lexical_cast<string>(layer_) + "\n";
 
     return s;
 }
 
-std::string const GameObject::archname()
+string const& GameObject::archname()
 {
     return archname_;
 }

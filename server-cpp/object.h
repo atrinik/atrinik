@@ -78,13 +78,13 @@ public:
      * Acquires the object's name.
      * @return Name.
      */
-    string const name();
+    const string& name();
 
     /**
      * Sets the object's name.
      * @param name Name.
      */
-    void name(string const& name);
+    void name(const string& name);
 };
 
 };

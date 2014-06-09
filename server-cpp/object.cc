@@ -64,7 +64,7 @@ uint64_t const Object::uid()
     return uid_;
 }
 
-string const Object::name()
+const string& Object::name()
 {
     strict_lock<Object> guard(*this);
     return name_;

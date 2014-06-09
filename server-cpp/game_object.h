@@ -60,7 +60,7 @@ public:
      * Acquires the game object's archetype name.
      * @return The archetype name.
      */
-    string const archname();
+    string const& archname();
 
     std::atomic<uint8_t> type; ///< Object type.
     std::atomic<uint64_t> value; ///< Object value.
