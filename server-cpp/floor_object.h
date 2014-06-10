@@ -34,14 +34,20 @@ using namespace atrinik;
 namespace atrinik {
 
 class FloorObject : public GameObject {
+private:
+    int f_is_floor : 1; ///< Whether the object is floor.
+protected:
+    FloorObject(FloorObject const& obj) : GameObject(obj)
+    {
+        f_is_floor = obj.f_is_floor;
+    }
+
+    virtual string dump_();
 public:
     using GameObject::GameObject;
     virtual FloorObject *clone() const { return new FloorObject(*this); }
 
     virtual bool load(string key, string val);
-    virtual string dump_();
-private:
-    int f_is_floor : 1; ///< Whether the object is floor.
 };
 
 }

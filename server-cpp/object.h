@@ -44,14 +44,25 @@ private:
 
     uint64_t uid_; ///< Object's UID.
 protected:
+    Object(const Object& obj)
+    {
+        boost::lock_guard<boost::mutex> _lock(obj.lockable());
+        name_ = obj.name_;
+    }
+
     /**
      * Function implementing object-specific dumping.
      * @return String dump.
      */
     virtual string dump_();
+
+    virtual void clone(const Object& obj)
+    {
+        name_ = obj.name_;
+    }
 public:
     Object();
-    virtual ~Object();
+    virtual ~Object() {}
     virtual Object *clone() const = 0;
 
     /**

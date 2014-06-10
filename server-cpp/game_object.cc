@@ -39,12 +39,6 @@ GameObject::GameObject(const string& archname) : Object()
     archname_ = archname;
 }
 
-GameObject::GameObject(GameObject const& obj)
-{
-    archname_ = obj.archname_;
-    layer_ = obj.layer_;
-}
-
 bool GameObject::load(string key, string val)
 {
     if (key == "type") {
@@ -55,15 +49,16 @@ bool GameObject::load(string key, string val)
         return true;
     }
 
-    return false;
+    return Object::load(key, val);
 }
 
 string GameObject::dump_()
 {
-    string s = Object::dump_();
+    string s;
 
-    s += "arch " + archname_ + "\n";
+    s = "arch " + archname_ + "\n";
     s += "layer " + lexical_cast<string>(layer_) + "\n";
+    s += Object::dump_();
 
     return s;
 }

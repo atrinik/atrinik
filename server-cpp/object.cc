@@ -40,12 +40,13 @@ Object::Object()
     uid_ = ++atrinik::uid;
 }
 
-Object::~Object()
-{
-}
-
 bool Object::load(string key, string val)
 {
+    if (key == "name") {
+        name_ = val;
+        return true;
+    }
+
     return false;
 }
 
@@ -56,7 +57,10 @@ string Object::dump()
 
 string Object::dump_()
 {
-    return "";
+    string s;
+
+    s += "name " + name_ + "\n";
+    return s;
 }
 
 uint64_t const Object::uid()
