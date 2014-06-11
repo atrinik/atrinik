@@ -25,7 +25,8 @@
  * The main file.
  */
 
-#include "atrinik.h"
+#include <boost/lexical_cast.hpp>
+
 #include "object.h"
 #include "game_object.h"
 #include "archetype_parser.h"

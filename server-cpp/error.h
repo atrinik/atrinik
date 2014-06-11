@@ -22,12 +22,6 @@
 
 #pragma once
 
-#include <stdint.h>
-#include <atomic>
-#include <boost/thread.hpp>
-#include <boost/lexical_cast.hpp>
-
-using namespace boost;
 using namespace std;
 
 namespace atrinik {

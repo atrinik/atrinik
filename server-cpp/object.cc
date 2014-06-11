@@ -25,7 +25,6 @@
  * Base Atrinik objects implementation.
  */
 
-#include "atrinik.h"
 #include "object.h"
 #include "lock.h"
 

@@ -20,8 +20,10 @@
 * The author can be reached at admin@atrinik.org                               *
 *******************************************************************************/
 
-#include "atrinik.h"
+#include <boost/lexical_cast.hpp>
+
 #include "floor_object.h"
+#include "error.h"
 
 using namespace atrinik;
 using namespace boost;
