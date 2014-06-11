@@ -26,9 +26,10 @@
  */
 
 #include <fstream>
+#include <boost/lexical_cast.hpp>
 
-#include "atrinik.h"
 #include "archetype_parser.h"
+#include "game_object.h"
 
 using namespace atrinik;
 using namespace boost;
@@ -144,7 +145,7 @@ void ArchetypeParser::load_archetypes_pass1()
         }
 
         // Insert into archetypes hashmap
-        atrinik::archetypes.insert(make_pair(obj->archname(), obj));
+        GameObject::archetypes.insert(make_pair(obj->archname(), obj));
     }
 }
 

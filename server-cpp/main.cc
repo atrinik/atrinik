@@ -38,9 +38,10 @@ using namespace tbb;
 void consumer()
 {
     while (true) {
-        lock_guard<mutex> lock(active_objects_mutex);
-        for (iobjects_t::iterator it = active_objects.begin();
-                it != active_objects.end(); it++) {
+        lock_guard<mutex> lock(GameObject::active_objects_mutex);
+        GameObject::iobjects_t::iterator it;
+        for (it = GameObject::active_objects.begin();
+                it != GameObject::active_objects.end(); it++) {
             cout << it->second->name() << endl;
         }
     }
@@ -53,19 +54,19 @@ void producer()
         obj = new GameObject("foo");
         obj->name("test-" + lexical_cast<string>(obj->uid()));
 
-        active_objects.insert(make_pair(obj->uid(), obj));
+        GameObject::active_objects.insert(make_pair(obj->uid(), obj));
     }
 }
 
 void deleter()
 {
     while (true) {
-        lock_guard<mutex> lock(active_objects_mutex);
-        iobjects_t::iterator it = active_objects.begin();
+        lock_guard<mutex> lock(GameObject::active_objects_mutex);
+        GameObject::iobjects_t::iterator it = GameObject::active_objects.begin();
 
-        if (it != active_objects.end()) {
+        if (it != GameObject::active_objects.end()) {
             GameObject *obj = it->second;
-            active_objects.erase(obj->uid());
+            GameObject::active_objects.erase(obj->uid());
             delete obj;
         }
     }
@@ -77,8 +78,8 @@ int main(int, char **)
     parser->read_archetypes("../arch/archetypes");
     parser->load_archetypes_pass1();
 
-    sobjects_t::accessor result;
-    if (archetypes.find(result, "ship_floor_we_light_1")) {
+    GameObject::sobjects_t::accessor result;
+    if (GameObject::archetypes.find(result, "ship_floor_we_light_1")) {
         cout << result->second->archname() << endl;
         GameObject *obj = result->second->clone();
         cout << obj->dump() << endl;

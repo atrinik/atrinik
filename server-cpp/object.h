@@ -29,6 +29,7 @@
 
 #include <stdint.h>
 #include <string>
+#include <atomic>
 #include <boost/thread.hpp>
 #include <boost/thread/lockable_adapter.hpp>
 
@@ -40,6 +41,8 @@ namespace atrinik {
 class Object
 : public basic_lockable_adapter<mutex> {
 private:
+    static std::atomic<uint64_t> guid; ///< Object GUID.
+
     string name_; ///< Object's name.
 
     uint64_t uid_; ///< Object's UID.
@@ -61,7 +64,7 @@ protected:
         name_ = obj.name_;
     }
 public:
-    Object();
+    Object() : uid_(++guid) {}
     virtual ~Object() {}
     virtual Object *clone() const = 0;
 

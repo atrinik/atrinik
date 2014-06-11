@@ -27,10 +27,6 @@ using namespace atrinik;
 using namespace boost;
 
 namespace atrinik {
-std::atomic<uint64_t> uid(0);
-iobjects_t active_objects;
-sobjects_t archetypes;
-mutex active_objects_mutex;
 
 GameObject *create_game_object(const string& archname, int type) {
     switch (type) {

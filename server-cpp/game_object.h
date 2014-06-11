@@ -34,8 +34,8 @@
 
 #include "object.h"
 
-using namespace std;
 using namespace boost;
+using namespace std;
 
 namespace atrinik {
 
@@ -75,43 +75,47 @@ public:
      */
     string const& archname();
 
-    std::atomic<uint8_t> type; ///< Object type.
+    std::atomic<uint8_t> type; ///< Object type. TODO: RTTI and type() method
     std::atomic<uint64_t> value; ///< Object value.
-};
 
-struct GameObjectHashCmp {
-    static size_t hash(const int value)
-    {
-        return static_cast<int>(value);
-    }
-
-    static size_t hash(const string value)
-    {
-        size_t result = 0;
-
-        for (auto i: value) {
-            result = (result * 131) + i;
+    struct HashCmp {
+        static size_t hash(const int value)
+        {
+            return static_cast<int>(value);
         }
 
-        return result;
-    }
+        static size_t hash(const string value)
+        {
+            size_t result = 0;
 
-    static bool equal(const int x, const int y)
-    {
-        return x == y;
-    }
+            for (auto i: value) {
+                result = (result * 131) + i;
+            }
 
-    static bool equal(const string x, const string y)
-    {
-        return x == y;
-    }
+            return result;
+        }
+
+        static bool equal(const int x, const int y)
+        {
+            return x == y;
+        }
+
+        static bool equal(const string x, const string y)
+        {
+            return x == y;
+        }
+    };
+
+    typedef tbb::concurrent_hash_map<uint64_t, GameObject*,
+        HashCmp> iobjects_t; ///< Game object hash map with UIDs
+
+    typedef tbb::concurrent_hash_map<string, GameObject*,
+        HashCmp> sobjects_t; ///< Game object hash map with strings
+
+    static GameObject::sobjects_t archetypes;
+    static iobjects_t active_objects;
+    static mutex active_objects_mutex;
 };
-
-typedef tbb::concurrent_hash_map<uint64_t, GameObject*,
-        GameObjectHashCmp> iobjects_t; ///< Game object hash map with UIDs
-
-typedef tbb::concurrent_hash_map<std::string, GameObject*,
-        GameObjectHashCmp> sobjects_t; ///< Game object hash map with strings
 
 /**
  * Creates a game object.

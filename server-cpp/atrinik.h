@@ -27,18 +27,10 @@
 #include <boost/thread.hpp>
 #include <boost/lexical_cast.hpp>
 
-#include "game_object.h"
-
 using namespace boost;
 using namespace std;
 
 namespace atrinik {
-
-extern std::atomic<uint64_t> uid;
-extern iobjects_t active_objects;
-extern sobjects_t archetypes;
-extern mutex active_objects_mutex;
-
 class error : public std::exception {
 public:
     string s;

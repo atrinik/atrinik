@@ -35,10 +35,7 @@ using namespace std;
 
 namespace atrinik {
 
-Object::Object()
-{
-    uid_ = ++atrinik::uid;
-}
+std::atomic<uint64_t> Object::guid(0);
 
 bool Object::load(string key, string val)
 {

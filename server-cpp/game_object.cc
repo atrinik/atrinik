@@ -34,6 +34,10 @@ using namespace boost;
 
 namespace atrinik {
 
+GameObject::sobjects_t GameObject::archetypes;
+GameObject::iobjects_t GameObject::active_objects;
+mutex GameObject::active_objects_mutex;
+
 GameObject::GameObject(const string& archname) : Object()
 {
     archname_ = archname;
