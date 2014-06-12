@@ -22,79 +22,68 @@
 
 /**
  * @file
- * The main file.
+ * Map parser implementation.
  */
 
-#include <boost/lexical_cast.hpp>
+#include <fstream>
 
-#include "object.h"
-#include "game_object.h"
-#include "archetype_parser.h"
 #include "map_parser.h"
+#include "game_object.h"
 
 using namespace atrinik;
 using namespace boost;
-using namespace std;
-using namespace tbb;
 
-void consumer()
+namespace atrinik {
+
+void MapParser::parse_map(MapObject* map)
 {
-    while (true) {
-        lock_guard<mutex> lock(GameObject::active_objects_mutex);
-        GameObject::iobjects_t::iterator it;
-        for (it = GameObject::active_objects.begin();
-                it != GameObject::active_objects.end(); it++) {
-            cout << it->second->name() << endl;
-        }
+    // Load map and parse it into a property tree
+    ifstream file(map->path());
+    property_tree::ptree pt = parse(file);
+    property_tree::ptree::const_iterator it = pt.begin(), end = pt.end();
+
+    if (it == end) {
+        // TODO error message map header not found
+        return;
     }
-}
 
-void producer()
-{
-    while (true) {
-        GameObject *obj;
-        obj = new GameObject("foo");
-        obj->name("test-" + lexical_cast<string>(obj->uid()));
-
-        GameObject::active_objects.insert(make_pair(obj->uid(), obj));
+    // Load map header
+    for (auto it2 : it->second) {
+        map->load(it2.first, it->second.get<string>(it2.first));
     }
-}
 
-void deleter()
-{
-    while (true) {
-        lock_guard<mutex> lock(GameObject::active_objects_mutex);
-        GameObject::iobjects_t::iterator it = GameObject::active_objects.begin();
+    cout << map->dump() << endl;
 
-        if (it != GameObject::active_objects.end()) {
-            GameObject *obj = it->second;
-            GameObject::active_objects.erase(obj->uid());
+    // Load the rest of the objects
+    for (it++; it != end; it++) {
+        string archname = it->second.get<string>(it->first);
+        GameObject::sobjects_t::accessor result;
+
+        if (GameObject::archetypes.find(result, archname)) {
+            GameObject *obj = result->second->clone();
+
+            // Load object attributes
+            for (auto it2 : it->second) {
+                obj->load(it2.first, it->second.get<string>(it2.first));
+            }
+
+//            cout << obj->dump() << endl;
             delete obj;
+        } else {
+            // TODO error log
         }
     }
 }
 
-int main(int, char **)
+MapObject* MapParser::load_map(const string& path)
 {
-    ArchetypeParser *parser = new ArchetypeParser;
-    parser->read_archetypes("../arch/archetypes");
-    parser->load_archetypes_pass1();
+    // TODO: loaded check
+    // TODO: load from binary if it exists
 
-    MapParser* map_parser = new MapParser;
-    map_parser->load_map("../maps/hall_of_dms");
+    MapObject* map = new MapObject(path);
+    parse_map(map);
 
-    return 0;
+    return map;
+}
 
-    thread thread1(consumer);
-    thread thread2(producer);
-    thread thread3(producer);
-    thread thread4(deleter);
-    thread thread5(deleter);
-    thread1.join();
-    thread2.join();
-    thread3.join();
-    thread4.join();
-    thread5.join();
-
-    return 0;
 }

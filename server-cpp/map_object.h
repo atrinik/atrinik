@@ -35,19 +35,38 @@ namespace atrinik {
 
 class MapObject : public Object {
 private:
-//    int f_is_floor : 1; ///< Whether the object is floor.
-protected:
-    MapObject(MapObject const& obj) : Object(obj)
-    {
-//        f_is_floor = obj.f_is_floor;
-    }
+    string path_;
 
+    string bg_music_;
+
+    string weather_;
+
+    string region_;
+
+    std::pair<int,int> enter_pos_;
+
+    std::pair<int,int> size_;
+protected:
+    MapObject(MapObject const& obj) : Object(obj) {}
     virtual string dump_();
 public:
+    std::atomic<int> reset_timeout;
+
+    std::atomic<int> swap_time;
+
+    std::atomic<int> difficulty;
+
+    std::atomic<int> darkness;
+
+    std::atomic<int> light;
+
     using Object::Object;
-    virtual MapObject *clone() const { return new MapObject(*this); }
+    explicit MapObject(const string& path) : Object(), path_(path) {}
+    virtual MapObject* clone() const { return new MapObject(*this); }
 
     virtual bool load(string key, string val);
+
+    const string& path();
 };
 
 }

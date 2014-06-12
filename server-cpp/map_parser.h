@@ -22,65 +22,21 @@
 
 /**
  * @file
- * Map object implementation.
+ * Map parser.
  */
 
-#include <boost/lexical_cast.hpp>
+#pragma once
 
+#include "object_parser.h"
 #include "map_object.h"
-
-using namespace std;
-using namespace atrinik;
 
 namespace atrinik {
 
-bool MapObject::load(string key, string val)
-{
-    if (key == "bg_music") {
-        bg_music_ = val;
-        return true;
-    } else if (key == "weather") {
-        weather_ = val;
-        return true;
-    } else if (key == "region") {
-        region_ = val;
-        return true;
-    } else if (key == "width") {
-        size_.first = lexical_cast<int>(val);
-        return true;
-    } else if (key == "height") {
-        size_.second = lexical_cast<int>(val);
-        return true;
-    }
-
-    return Object::load(key, val);
-}
-
-string MapObject::dump_()
-{
-    string s = "arch map\n";
-
-    if (!bg_music_.empty()) {
-        s += "bg_music " + bg_music_ + "\n";
-    }
-
-    if (!weather_.empty()) {
-        s += "weather " + weather_ + "\n";
-    }
-
-    if (!region_.empty()) {
-        s += "region " + region_ + "\n";
-    }
-
-    s += "width " + lexical_cast<string>(size_.first) + "\n";
-    s += "height " + lexical_cast<string>(size_.second) + "\n";
-
-    return s + Object::dump_();
-}
-
-const string& MapObject::path()
-{
-    return path_;
-}
+class MapParser : public ObjectParser {
+private:
+    void parse_map(MapObject* map);
+public:
+    MapObject* load_map(const string& path);
+};
 
 }
