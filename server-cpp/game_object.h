@@ -1,24 +1,24 @@
 /*******************************************************************************
-*               Atrinik, a Multiplayer Online Role Playing Game                *
-*                                                                              *
-*       Copyright (C) 2009-2014 Alex Tokar and Atrinik Development Team        *
-*                                                                              *
-* This program is free software; you can redistribute it and/or modify it      *
-* under the terms of the GNU General Public License as published by the Free   *
-* Software Foundation; either version 2 of the License, or (at your option)    *
-* any later version.                                                           *
-*                                                                              *
-* This program is distributed in the hope that it will be useful, but WITHOUT  *
-* ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or        *
-* FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for     *
-* more details.                                                                *
-*                                                                              *
-* You should have received a copy of the GNU General Public License along with *
-* this program; if not, write to the Free Software Foundation, Inc., 675 Mass  *
-* Ave, Cambridge, MA 02139, USA.                                               *
-*                                                                              *
-* The author can be reached at admin@atrinik.org                               *
-*******************************************************************************/
+ *               Atrinik, a Multiplayer Online Role Playing Game               *
+ *                                                                             *
+ *       Copyright (C) 2009-2014 Alex Tokar and Atrinik Development Team       *
+ *                                                                             *
+ * This program is free software; you can redistribute it and/or modify it     *
+ * under the terms of the GNU General Public License as published by the Free  *
+ * Software Foundation; either version 2 of the License, or (at your option)   *
+ * any later version.                                                          *
+ *                                                                             *
+ * This program is distributed in the hope that it will be useful, but WITHOUT *
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or       *
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for    *
+ * more details.                                                               *
+ *                                                                             *
+ * You should have received a copy of the GNU General Public License along     *
+ * with this program; if not, write to the Free Software Foundation, Inc.,     *
+ * 675 Mass Ave, Cambridge, MA 02139, USA.                                     *
+ *                                                                             *
+ * The author can be reached at admin@atrinik.org                              *
+ ******************************************************************************/
 
 /**
  * @file
@@ -53,6 +53,7 @@ private:
     int f_no_pass : 1; ///< Whether the object is impassable.
     int f_no_pick : 1; ///< Whether the object is unpickable.
 protected:
+
     GameObject(GameObject const& obj) : Object(obj)
     {
         archname_ = obj.archname_;
@@ -65,7 +66,11 @@ protected:
 public:
     using Object::Object;
     explicit GameObject(const string& archname);
-    virtual GameObject *clone() const { return new GameObject(*this); }
+
+    virtual GameObject *clone() const
+    {
+        return new GameObject(*this);
+    }
 
     virtual bool load(string key, string val);
 
@@ -79,16 +84,17 @@ public:
     std::atomic<uint64_t> value; ///< Object value.
 
     struct HashCmp {
+
         static size_t hash(const int value)
         {
-            return static_cast<int>(value);
+            return static_cast<int> (value);
         }
 
         static size_t hash(const string value)
         {
             size_t result = 0;
 
-            for (auto i: value) {
+            for (auto i : value) {
                 result = (result * 131) + i;
             }
 
@@ -107,10 +113,10 @@ public:
     };
 
     typedef tbb::concurrent_hash_map<uint64_t, GameObject*,
-        HashCmp> iobjects_t; ///< Game object hash map with UIDs
+    HashCmp> iobjects_t; ///< Game object hash map with UIDs
 
     typedef tbb::concurrent_hash_map<string, GameObject*,
-        HashCmp> sobjects_t; ///< Game object hash map with strings
+    HashCmp> sobjects_t; ///< Game object hash map with strings
 
     static GameObject::sobjects_t archetypes;
     static iobjects_t active_objects;

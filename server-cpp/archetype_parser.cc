@@ -1,24 +1,24 @@
 /*******************************************************************************
-*               Atrinik, a Multiplayer Online Role Playing Game                *
-*                                                                              *
-*       Copyright (C) 2009-2014 Alex Tokar and Atrinik Development Team        *
-*                                                                              *
-* This program is free software; you can redistribute it and/or modify it      *
-* under the terms of the GNU General Public License as published by the Free   *
-* Software Foundation; either version 2 of the License, or (at your option)    *
-* any later version.                                                           *
-*                                                                              *
-* This program is distributed in the hope that it will be useful, but WITHOUT  *
-* ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or        *
-* FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for     *
-* more details.                                                                *
-*                                                                              *
-* You should have received a copy of the GNU General Public License along with *
-* this program; if not, write to the Free Software Foundation, Inc., 675 Mass  *
-* Ave, Cambridge, MA 02139, USA.                                               *
-*                                                                              *
-* The author can be reached at admin@atrinik.org                               *
-*******************************************************************************/
+ *               Atrinik, a Multiplayer Online Role Playing Game               *
+ *                                                                             *
+ *       Copyright (C) 2009-2014 Alex Tokar and Atrinik Development Team       *
+ *                                                                             *
+ * This program is free software; you can redistribute it and/or modify it     *
+ * under the terms of the GNU General Public License as published by the Free  *
+ * Software Foundation; either version 2 of the License, or (at your option)   *
+ * any later version.                                                          *
+ *                                                                             *
+ * This program is distributed in the hope that it will be useful, but WITHOUT *
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or       *
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for    *
+ * more details.                                                               *
+ *                                                                             *
+ * You should have received a copy of the GNU General Public License along     *
+ * with this program; if not, write to the Free Software Foundation, Inc.,     *
+ * 675 Mass Ave, Cambridge, MA 02139, USA.                                     *
+ *                                                                             *
+ * The author can be reached at admin@atrinik.org                              *
+ ******************************************************************************/
 
 /**
  * @file
@@ -64,8 +64,7 @@ property_tree::ptree ArchetypeParser::parse(ifstream& file)
 
                 val += line + "\n";
             }
-        }
-        else {
+        } else {
             size_t space = line.find_first_of(' ');
 
             key = line.substr(0, space);
@@ -74,8 +73,7 @@ property_tree::ptree ArchetypeParser::parse(ifstream& file)
 
         if (key == "More") {
             is_more = true;
-        }
-        else if (key == "Object" || key == "arch") {
+        } else if (key == "Object" || key == "arch") {
             property_tree::ptree pt2;
 
             pt2 = parse(file);
@@ -91,16 +89,13 @@ property_tree::ptree ArchetypeParser::parse(ifstream& file)
                     property_tree::ptree pt3;
                     pt3.add_child(key, pt2);
                     last->add_child("More", pt3);
-                }
-                else {
+                } else {
                     child->add_child(key, pt2);
                 }
-            }
-            else {
+            } else {
                 pt.add_child(key, pt2);
             }
-        }
-        else {
+        } else {
             pt.put<string>(key, val);
         }
     }
@@ -117,7 +112,7 @@ void ArchetypeParser::read_archetypes(string path)
 
 void ArchetypeParser::load_archetypes_pass1()
 {
-    for (auto it: pt) {
+    for (auto it : pt) {
         string archname = it.second.get<string>(it.first);
         int type;
 
@@ -140,7 +135,7 @@ void ArchetypeParser::load_archetypes_pass1()
         }
 
         // Load the attributes
-        for (auto it2: it.second) {
+        for (auto it2 : it.second) {
             obj->load(it2.first, it.second.get<string>(it2.first));
         }
 
