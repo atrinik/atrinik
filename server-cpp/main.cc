@@ -74,14 +74,14 @@ void deleter()
     }
 }
 
-int main(int, char **)
+int main(int argc, char **argv)
 {
     ArchetypeParser *parser = new ArchetypeParser;
     parser->read_archetypes("../arch/archetypes");
     parser->load_archetypes_pass1();
 
     MapParser* map_parser = new MapParser;
-    map_parser->load_map("../maps/hall_of_dms");
+    map_parser->load_map(argc > 1 ? argv[1] : "../maps/hall_of_dms");
 
     return 0;
 
