@@ -61,8 +61,8 @@ string GameObject::dump_()
     string s;
 
     s = "arch " + archname_ + "\n";
-    s += "layer " + lexical_cast<string>(layer_) + "\n";
     s += Object::dump_();
+    s += "layer " + lexical_cast<string>(layer_) + "\n";
 
     return s;
 }

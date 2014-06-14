@@ -60,7 +60,11 @@ property_tree::ptree ObjectParser::parse(ifstream& file)
                     break;
                 }
 
-                val += line + "\n";
+                if (!val.empty()) {
+                    val += "\n";
+                }
+
+                val += line;
             }
         }
         else {
