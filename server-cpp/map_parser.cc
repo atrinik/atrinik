@@ -52,7 +52,7 @@ void MapParser::parse_map(MapObject* map)
         map->load(it2.first, it->second.get<string>(it2.first));
     }
 
-    cout << map->dump() << endl;
+    map->allocate();
 
     // Load the rest of the objects
     for (it++; it != end; it++) {
@@ -67,12 +67,15 @@ void MapParser::parse_map(MapObject* map)
                 obj->load(it2.first, it->second.get<string>(it2.first));
             }
 
-            //            cout << obj->dump() << endl;
-            delete obj;
+            // Add object to map's tile
+            MapTile& tile = map->tile_get(obj->x(), obj->y());
+            tile.objects.push_back(obj);
         } else {
             // TODO error log
         }
     }
+
+    cout << map->dump() << endl;
 }
 
 MapObject* MapParser::load_map(const string& path)

@@ -22,36 +22,22 @@
 
 /**
  * @file
- * Floor object implementation.
+ * Map tile.
  */
 
-#include "floor_object.h"
+#pragma once
+
+#include <string>
+
+#include "game_object.h"
 
 using namespace std;
-using namespace atrinik;
 
 namespace atrinik {
 
-bool FloorObject::load(string key, string val)
-{
-    if (key == "is_floor") {
-        f_is_floor = 1;
-        return true;
-    }
-
-    return GameObject::load(key, val);
-}
-
-string FloorObject::dump_()
-{
-    string s = GameObject::dump_();
-    const FloorObject *floor_arch = dynamic_cast<const FloorObject*>(arch);
-
-    if (f_is_floor != floor_arch->f_is_floor) {
-        s += "is_floor 1\n";
-    }
-
-    return s;
-}
+class MapTile {
+public:
+    list<GameObject*> objects;
+};
 
 }

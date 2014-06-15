@@ -102,6 +102,11 @@ bool MapObject::load(string key, string val)
     return Object::load(key, val);
 }
 
+string MapObject::dump()
+{
+    return dump_();
+}
+
 string MapObject::dump_()
 {
     string s = "arch map\n" + Object::dump_();
@@ -181,12 +186,30 @@ string MapObject::dump_()
         }
     }
 
+    s += "end\n";
+
+    for (int x = 0; x < size_.first; x++) {
+        for (int y = 0; y < size_.second; y++) {
+            MapTile& tile = tile_get(x, y);
+
+            for (auto it : tile.objects) {
+                s += it->dump();
+            }
+        }
+    }
+
     return s;
 }
 
 const string& MapObject::path()
 {
     return path_;
+}
+
+void MapObject::allocate()
+{
+    // Reserve map tiles
+    tiles_.resize(size_.first * size_.second);
 }
 
 }

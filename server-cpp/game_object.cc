@@ -45,14 +45,23 @@ GameObject::GameObject(const string& archname) : Object()
 
 bool GameObject::load(string key, string val)
 {
-    if (key == "type") {
+    if (key == "name") {
+        name_ = val;
+        return true;
+    } else if (key == "type") {
         return true;
     } else if (key == "layer") {
         layer_ = lexical_cast<uint8_t>(val);
         return true;
+    } else if (key == "x") {
+        x_ = lexical_cast<int>(val);
+        return true;
+    } else if (key == "y") {
+        y_ = lexical_cast<int>(val);
+        return true;
     }
 
-    return Object::load(key, val);
+    return false;
 }
 
 string GameObject::dump_()
@@ -60,8 +69,22 @@ string GameObject::dump_()
     string s;
 
     s = "arch " + archname_ + "\n";
-    s += Object::dump_();
-    s += "layer " + lexical_cast<string>(layer_) + "\n";
+
+    if (name_ != arch->name_) {
+        s += "name " + name() + "\n";
+    }
+
+    if (layer_ != arch->layer_) {
+        s += "layer " + lexical_cast<string>(layer_) + "\n";
+    }
+
+    if (x_ != arch->x_) {
+        s += "x " + lexical_cast<string>(x_) + "\n";
+    }
+
+    if (y_ != arch->y_) {
+        s += "y " + lexical_cast<string>(y_) + "\n";
+    }
 
     return s;
 }

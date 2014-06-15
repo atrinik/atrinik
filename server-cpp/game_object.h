@@ -48,18 +48,24 @@ enum GameObjectType {
 
 class GameObject : public Object {
 private:
+    string name_;
     string archname_; ///< Archetype name.
     uint8_t layer_; ///< Object's layer.
     int f_no_pass : 1; ///< Whether the object is impassable.
     int f_no_pick : 1; ///< Whether the object is unpickable.
+
+    int x_ = 0;
+    int y_ = 0;
 protected:
 
     GameObject(GameObject const& obj) : Object(obj)
     {
+        name_ = obj.name_;
         archname_ = obj.archname_;
         layer_ = obj.layer_;
         f_no_pass = obj.f_no_pass;
         f_no_pick = obj.f_no_pick;
+        arch = obj.arch ? obj.arch : &obj;
     }
 
     virtual string dump_();
@@ -80,8 +86,20 @@ public:
      */
     string const& archname();
 
+    const int x()
+    {
+        return x_;
+    }
+
+    const int y()
+    {
+        return y_;
+    }
+
     std::atomic<uint8_t> type; ///< Object type. TODO: RTTI and type() method
     std::atomic<uint64_t> value; ///< Object value.
+
+    const GameObject* arch = NULL;
 
     struct HashCmp {
 
