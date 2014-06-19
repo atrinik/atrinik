@@ -38,74 +38,30 @@ using namespace std;
 
 namespace atrinik {
 
-class Object
-: public basic_lockable_adapter<mutex> {
+class Object {
 private:
     static std::atomic<uint64_t> guid; ///< Object GUID.
-
-    string name_; ///< Object's name.
-
-    uint64_t uid_; ///< Object's UID.
-protected:
-
-    Object(const Object& obj)
-    {
-        boost::lock_guard<boost::mutex> _lock(obj.lockable());
-        name_ = obj.name_;
-    }
-
-    /**
-     * Function implementing object-specific dumping.
-     * @return String dump.
-     */
-    virtual string dump_();
-
-    virtual void clone(const Object& obj)
-    {
-        name_ = obj.name_;
-    }
 public:
+    string name; ///< Object's name.
 
-    Object() : uid_(++guid)
+    uint64_t uid; ///< Object's UID.
+
+    Object() : uid(++guid)
     {
     }
-
-    virtual ~Object()
-    {
-    }
-    virtual Object *clone() const = 0;
 
     /**
      * Loads key/value pair into the object's internal structure.
      * @param key Key.
      * @param val Value.
-     * @return true if the key/value was loaded, false otherwise.
      */
-    virtual bool load(string key, string val);
+    virtual void load(const string& key, const string& val);
 
     /**
-     * Dumps the object contents as a string.
+     * Function implementing object-specific dumping.
      * @return String dump.
      */
-    string dump();
-
-    /**
-     * Acquires the object's UID.
-     * @return UID.
-     */
-    uint64_t const uid();
-
-    /**
-     * Acquires the object's name.
-     * @return Name.
-     */
-    const string& name();
-
-    /**
-     * Sets the object's name.
-     * @param name Name.
-     */
-    void name(const string& name);
+    virtual string dump() = 0;
 };
 
 };

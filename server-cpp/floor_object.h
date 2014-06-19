@@ -27,32 +27,18 @@
 
 #pragma once
 
-#include "game_object.h"
+#include <stdint.h>
 
-using namespace atrinik;
+#include "game_object_type.h"
 
 namespace atrinik {
 
-class FloorObject : public GameObject {
-private:
-    int f_is_floor : 1; ///< Whether the object is floor.
-protected:
-
-    FloorObject(FloorObject const& obj) : GameObject(obj)
-    {
-        f_is_floor = obj.f_is_floor;
-    }
-
-    virtual string dump_();
+class FloorObject : GameObjectType {
 public:
-    using GameObject::GameObject;
+    std::uint8_t f_is_shop : 1;
 
-    virtual FloorObject *clone() const
-    {
-        return new FloorObject(*this);
-    }
-
-    virtual bool load(string key, string val);
+    virtual std::string dump();
+    virtual void load(const std::string& key, const std::string& val);
 };
 
 }

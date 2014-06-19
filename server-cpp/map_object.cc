@@ -36,59 +36,42 @@ using namespace std;
 
 namespace atrinik {
 
-bool MapObject::load(string key, string val)
+void MapObject::load(string key, string val)
 {
     if (key == "bg_music") {
         bg_music_ = val;
-        return true;
     } else if (key == "weather") {
         weather_ = val;
-        return true;
     } else if (key == "region") {
         region_ = val;
-        return true;
     } else if (key == "msg") {
         message_ = val;
-        return true;
     } else if (key == "width") {
         size_.first = lexical_cast<int>(val);
-        return true;
     } else if (key == "height") {
         size_.second = lexical_cast<int>(val);
-        return true;
     } else if (key == "difficulty") {
         difficulty = lexical_cast<int>(val);
-        return true;
     } else if (key == "no_magic") {
         f_no_magic(true);
-        return true;
     } else if (key == "no_harm") {
         f_no_harm(true);
-        return true;
     } else if (key == "no_summon") {
         f_no_summon(true);
-        return true;
     } else if (key == "no_player_save") {
         f_no_player_save(true);
-        return true;
     } else if (key == "no_save") {
         f_no_save(true);
-        return true;
     } else if (key == "outdoor") {
         f_outdoor(true);
-        return true;
     } else if (key == "unique") {
         f_unique(true);
-        return true;
     } else if (key == "fixed_resettime") {
         f_fixed_reset_time(true);
-        return true;
     } else if (key == "fixed_login") {
         f_fixed_login(true);
-        return true;
     } else if (key == "pvp") {
         f_pvp(true);
-        return true;
     } else if (starts_with(key, "tile_path_")) {
         int id = lexical_cast<int>(key.substr(10)) - 1;
 
@@ -98,18 +81,11 @@ bool MapObject::load(string key, string val)
             tile_path_[id] = val;
         }
     }
-
-    return Object::load(key, val);
 }
 
 string MapObject::dump()
 {
-    return dump_();
-}
-
-string MapObject::dump_()
-{
-    string s = "arch map\n" + Object::dump_();
+    string s = "arch map\n" + Object::dump();
 
     if (!bg_music_.empty()) {
         s += "bg_music " + bg_music_ + "\n";

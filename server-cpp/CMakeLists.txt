@@ -23,7 +23,7 @@ configure_file (
 
 include_directories ("${PROJECT_BINARY_DIR}")
 
-add_executable(atrinik atrinik.cc game_object.cc floor_object.cc object.cc
+add_executable(atrinik game_object.cc floor_object.cc object.cc
     object_parser.cc main.cc archetype_parser.cc map_object.cc map_parser.cc)
 
 target_link_libraries(atrinik ${Boost_LIBRARIES} ${TBB_LIBRARIES})

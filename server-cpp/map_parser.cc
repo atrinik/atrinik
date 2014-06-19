@@ -26,6 +26,7 @@
  */
 
 #include <fstream>
+#include <boost/property_tree/xml_parser.hpp>
 
 #include "map_parser.h"
 #include "game_object.h"
@@ -57,10 +58,12 @@ void MapParser::parse_map(MapObject* map)
     // Load the rest of the objects
     for (it++; it != end; it++) {
         string archname = it->second.get<string>(it->first);
-        GameObject::sobjects_t::accessor result;
+        GameObject::sobjects_t::iterator result;
 
-        if (GameObject::archetypes.find(result, archname)) {
-            GameObject *obj = result->second->clone();
+        result = GameObject::archetypes.find(archname);
+
+        if (result != GameObject::archetypes.end()) {
+            GameObject *obj = new GameObject(*result->second);
 
             // Load object attributes
             for (auto it2 : it->second) {
@@ -68,7 +71,7 @@ void MapParser::parse_map(MapObject* map)
             }
 
             // Add object to map's tile
-            MapTile& tile = map->tile_get(obj->x(), obj->y());
+            MapTile& tile = map->tile_get(obj->x, obj->y);
             tile.objects.push_back(obj);
         } else {
             // TODO error log
@@ -76,6 +79,10 @@ void MapParser::parse_map(MapObject* map)
     }
 
     cout << map->dump() << endl;
+
+    boost::property_tree::xml_writer_settings<char> settings('\t', 1);
+    boost::property_tree::write_xml("map_output.xml", pt, std::locale(),
+                                    settings);
 }
 
 MapObject* MapParser::load_map(const string& path)

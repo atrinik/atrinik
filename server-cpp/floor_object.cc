@@ -27,28 +27,24 @@
 
 #include "floor_object.h"
 
-using namespace std;
 using namespace atrinik;
+using namespace std;
 
 namespace atrinik {
 
-bool FloorObject::load(string key, string val)
+void FloorObject::load(const string& key, const string& val)
 {
-    if (key == "is_floor") {
-        f_is_floor = 1;
-        return true;
+    if (key == "is_shop") {
+        f_is_shop = 1;
     }
-
-    return GameObject::load(key, val);
 }
 
-string FloorObject::dump_()
+string FloorObject::dump()
 {
-    string s = GameObject::dump_();
-    const FloorObject *floor_arch = dynamic_cast<const FloorObject*>(arch);
+    string s = "";
 
-    if (f_is_floor != floor_arch->f_is_floor) {
-        s += "is_floor 1\n";
+    if (f_is_shop) {
+        s += "is_shop 1\n";
     }
 
     return s;

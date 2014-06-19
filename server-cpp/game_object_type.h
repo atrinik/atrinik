@@ -20,25 +20,21 @@
  * The author can be reached at admin@atrinik.org                              *
  ******************************************************************************/
 
-#include <boost/lexical_cast.hpp>
+/**
+ * @file
+ * Game object type.
+ */
 
-#include "floor_object.h"
-#include "error.h"
+#pragma once
 
-using namespace atrinik;
-using namespace boost;
+#include <string>
 
 namespace atrinik {
 
-GameObject *create_game_object(const string& archname, int type)
-{
-    switch (type) {
-    case GameObjectType::Floor:
-        return new FloorObject(archname);
-
-    default:
-        throw error("create_game_object: unrecognized type " + lexical_cast<string>(type));
-    }
-}
+class GameObjectType {
+public:
+    virtual void load(const std::string& key, const std::string& val) = 0;
+    virtual std::string dump() = 0;
+};
 
 }

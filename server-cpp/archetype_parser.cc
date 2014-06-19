@@ -124,15 +124,8 @@ void ArchetypeParser::load_archetypes_pass1()
             continue;
         }
 
-        GameObject *obj;
-
-        // Try to make the object
-        try {
-            obj = create_game_object(archname, type);
-        } catch (std::exception &e) {
-            //cout << e.what() << endl;
-            continue;
-        }
+        GameObject *obj = new GameObject();
+        obj->archname = archname;
 
         // Load the attributes
         for (auto it2 : it.second) {
@@ -140,7 +133,7 @@ void ArchetypeParser::load_archetypes_pass1()
         }
 
         // Insert into archetypes hashmap
-        GameObject::archetypes.insert(make_pair(obj->archname(), obj));
+        GameObject::archetypes.insert(make_pair(obj->archname, obj));
     }
 }
 

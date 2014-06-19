@@ -35,44 +35,43 @@
 using namespace atrinik;
 using namespace boost;
 using namespace std;
-using namespace tbb;
 
-void consumer()
-{
-    while (true) {
-        lock_guard<mutex> lock(GameObject::active_objects_mutex);
-        GameObject::iobjects_t::iterator it;
-        for (it = GameObject::active_objects.begin();
-                it != GameObject::active_objects.end(); it++) {
-            cout << it->second->name() << endl;
-        }
-    }
-}
-
-void producer()
-{
-    while (true) {
-        GameObject *obj;
-        obj = new GameObject("foo");
-        obj->name("test-" + lexical_cast<string>(obj->uid()));
-
-        GameObject::active_objects.insert(make_pair(obj->uid(), obj));
-    }
-}
-
-void deleter()
-{
-    while (true) {
-        lock_guard<mutex> lock(GameObject::active_objects_mutex);
-        GameObject::iobjects_t::iterator it = GameObject::active_objects.begin();
-
-        if (it != GameObject::active_objects.end()) {
-            GameObject *obj = it->second;
-            GameObject::active_objects.erase(obj->uid());
-            delete obj;
-        }
-    }
-}
+//void consumer()
+//{
+//    while (true) {
+//        lock_guard<mutex> lock(GameObject::active_objects_mutex);
+//        GameObject::iobjects_t::iterator it;
+//        for (it = GameObject::active_objects.begin();
+//                it != GameObject::active_objects.end(); it++) {
+//            cout << it->second->name() << endl;
+//        }
+//    }
+//}
+//
+//void producer()
+//{
+//    while (true) {
+//        GameObject *obj;
+//        obj = new GameObject("foo");
+//        obj->name("test-" + lexical_cast<string>(obj->uid()));
+//
+//        GameObject::active_objects.insert(make_pair(obj->uid(), obj));
+//    }
+//}
+//
+//void deleter()
+//{
+//    while (true) {
+//        lock_guard<mutex> lock(GameObject::active_objects_mutex);
+//        GameObject::iobjects_t::iterator it = GameObject::active_objects.begin();
+//
+//        if (it != GameObject::active_objects.end()) {
+//            GameObject *obj = it->second;
+//            GameObject::active_objects.erase(obj->uid());
+//            delete obj;
+//        }
+//    }
+//}
 
 int main(int argc, char **argv)
 {
@@ -85,16 +84,16 @@ int main(int argc, char **argv)
 
     return 0;
 
-    thread thread1(consumer);
-    thread thread2(producer);
-    thread thread3(producer);
-    thread thread4(deleter);
-    thread thread5(deleter);
-    thread1.join();
-    thread2.join();
-    thread3.join();
-    thread4.join();
-    thread5.join();
-
-    return 0;
+//    thread thread1(consumer);
+//    thread thread2(producer);
+//    thread thread3(producer);
+//    thread thread4(deleter);
+//    thread thread5(deleter);
+//    thread1.join();
+//    thread2.join();
+//    thread3.join();
+//    thread4.join();
+//    thread5.join();
+//
+//    return 0;
 }

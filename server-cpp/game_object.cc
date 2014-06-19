@@ -35,63 +35,32 @@ using namespace boost;
 namespace atrinik {
 
 GameObject::sobjects_t GameObject::archetypes;
-GameObject::iobjects_t GameObject::active_objects;
-mutex GameObject::active_objects_mutex;
 
-GameObject::GameObject(const string& archname) : Object()
-{
-    archname_ = archname;
-}
-
-bool GameObject::load(string key, string val)
+void GameObject::load(const string& key, const string& val)
 {
     if (key == "name") {
-        name_ = val;
-        return true;
-    } else if (key == "type") {
-        return true;
+        name = val;
     } else if (key == "layer") {
-        layer_ = lexical_cast<uint8_t>(val);
-        return true;
+        layer = lexical_cast<uint8_t>(val);
     } else if (key == "x") {
-        x_ = lexical_cast<int>(val);
-        return true;
+        x = lexical_cast<uint16_t>(val);
     } else if (key == "y") {
-        y_ = lexical_cast<int>(val);
-        return true;
+        y = lexical_cast<uint16_t>(val);
     }
-
-    return false;
 }
 
-string GameObject::dump_()
+string GameObject::dump()
 {
     string s;
 
-    s = "arch " + archname_ + "\n";
-
-    if (name_ != arch->name_) {
-        s += "name " + name() + "\n";
-    }
-
-    if (layer_ != arch->layer_) {
-        s += "layer " + lexical_cast<string>(layer_) + "\n";
-    }
-
-    if (x_ != arch->x_) {
-        s += "x " + lexical_cast<string>(x_) + "\n";
-    }
-
-    if (y_ != arch->y_) {
-        s += "y " + lexical_cast<string>(y_) + "\n";
-    }
+    s = "arch " + archname + "\n";
+    s += "name " + name + "\n";
+    s += "layer " + lexical_cast<string>(layer) + "\n";
+    s += "x " + lexical_cast<string>(x) + "\n";
+    s += "y " + lexical_cast<string>(y) + "\n";
+    s += "end\n";
 
     return s;
-}
-
-string const& GameObject::archname()
-{
-    return archname_;
 }
 
 }

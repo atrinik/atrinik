@@ -51,7 +51,7 @@ private:
         Pvp = 0x0200,
     };
 
-    std::atomic<uint32_t> map_flags_;
+    uint32_t map_flags_;
 
     string path_;
 
@@ -72,23 +72,17 @@ private:
     std::pair<int, int> size_;
 
     std::vector<MapTile> tiles_;
-protected:
-
-    MapObject(MapObject const& obj) : Object(obj)
-    {
-    }
-    virtual string dump_();
 public:
 
-    std::atomic<int> reset_timeout;
+    int reset_timeout;
 
-    std::atomic<int> swap_time;
+    int swap_time;
 
-    std::atomic<int> difficulty;
+    int difficulty;
 
-    std::atomic<int> darkness;
+    int darkness;
 
-    std::atomic<int> light;
+    int light;
 
     using Object::Object;
 
@@ -104,7 +98,7 @@ public:
 
     string dump();
 
-    virtual bool load(string key, string val);
+    virtual void load(string key, string val);
 
     const string& path();
 

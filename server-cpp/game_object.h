@@ -28,78 +28,33 @@
 #pragma once
 
 #include <stdint.h>
-#include <atomic>
 #include <string.h>
-#include <tbb/concurrent_hash_map.h>
 
 #include "object.h"
+#include "game_object_type.h"
 
-using namespace boost;
 using namespace std;
 
 namespace atrinik {
 
-/**
- * Game object types.
- */
-enum GameObjectType {
-    Floor = 71, ///< Floor object.
-};
-
-class GameObject : public Object {
+class GameObject : public Object, GameObjectType {
 private:
-    string name_;
-    string archname_; ///< Archetype name.
-    uint8_t layer_; ///< Object's layer.
-    int f_no_pass : 1; ///< Whether the object is impassable.
-    int f_no_pick : 1; ///< Whether the object is unpickable.
-
-    int x_ = 0;
-    int y_ = 0;
-protected:
-
-    GameObject(GameObject const& obj) : Object(obj)
-    {
-        name_ = obj.name_;
-        archname_ = obj.archname_;
-        layer_ = obj.layer_;
-        f_no_pass = obj.f_no_pass;
-        f_no_pick = obj.f_no_pick;
-        arch = obj.arch ? obj.arch : &obj;
-    }
-
-    virtual string dump_();
+    vector<GameObjectType*> types;
 public:
+    string name;
+    uint8_t layer; ///< Object's layer.
+    uint32_t f_no_pass : 1; ///< Whether the object is impassable.
+    uint32_t f_no_pick : 1; ///< Whether the object is unpickable.
+
+    uint16_t x = 0;
+    uint16_t y = 0;
+
+    string archname;
+
     using Object::Object;
-    explicit GameObject(const string& archname);
 
-    virtual GameObject *clone() const
-    {
-        return new GameObject(*this);
-    }
-
-    virtual bool load(string key, string val);
-
-    /**
-     * Acquires the game object's archetype name.
-     * @return The archetype name.
-     */
-    string const& archname();
-
-    const int x()
-    {
-        return x_;
-    }
-
-    const int y()
-    {
-        return y_;
-    }
-
-    std::atomic<uint8_t> type; ///< Object type. TODO: RTTI and type() method
-    std::atomic<uint64_t> value; ///< Object value.
-
-    const GameObject* arch = NULL;
+    virtual void load(const std::string& key, const std::string& val);
+    virtual std::string dump();
 
     struct HashCmp {
 
@@ -130,24 +85,12 @@ public:
         }
     };
 
-    typedef tbb::concurrent_hash_map<uint64_t, GameObject*,
-    HashCmp> iobjects_t; ///< Game object hash map with UIDs
+    typedef map<uint64_t, GameObject*>
+    iobjects_t; ///< Game object hash map with UIDs
+    typedef map<string, GameObject*>
+    sobjects_t; ///< Game object hash map with strings
 
-    typedef tbb::concurrent_hash_map<string, GameObject*,
-    HashCmp> sobjects_t; ///< Game object hash map with strings
-
-    static GameObject::sobjects_t archetypes;
-    static iobjects_t active_objects;
-    static mutex active_objects_mutex;
+    static sobjects_t archetypes;
 };
-
-/**
- * Creates a game object.
- * @param archname Game object's archetype name.
- * @param type Type of the object.
- * @return Created object.
- * @throws atrinik:error on invalid/unimplemented object type.
- */
-extern GameObject *create_game_object(const string& archname, int type);
 
 }
