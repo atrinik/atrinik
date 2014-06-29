@@ -42,7 +42,7 @@ private:
     vector<GameObjectType*> types;
 public:
     string name;
-    uint8_t layer; ///< Object's layer.
+    uint8_t layer = 0; ///< Object's layer.
     uint32_t f_no_pass : 1; ///< Whether the object is impassable.
     uint32_t f_no_pick : 1; ///< Whether the object is unpickable.
 
@@ -50,6 +50,8 @@ public:
     uint16_t y = 0;
 
     string archname;
+
+    vector<GameObject*> inv;
 
     using Object::Object;
 

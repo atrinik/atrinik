@@ -36,6 +36,48 @@ using namespace boost;
 
 namespace atrinik {
 
+static void parse_objects(MapObject* map, string archname,
+        property_tree::ptree tree, GameObject* env = NULL)
+{
+    GameObject::sobjects_t::iterator result;
+
+    result = GameObject::archetypes.find(archname);
+
+    if (result == GameObject::archetypes.end()) {
+        // TODO: error log
+        return;
+    }
+
+    GameObject *obj = new GameObject(*result->second);
+
+    // Load object attributes
+    for (auto it : tree) {
+        if (it.first == "arch") {
+            string archname2;
+
+            try {
+                 archname2 = it.second.get<string>(it.first);
+            } catch (property_tree::ptree_bad_path) {
+                continue;
+            }
+
+            parse_objects(map, archname2, it.second, obj);
+        } else {
+            obj->load(it.first, tree.get<string>(it.first));
+        }
+    }
+
+    // Add object to map's tile
+    if (env == NULL) {
+        MapTile& tile = map->tile_get(obj->x, obj->y);
+        tile.objects.push_back(obj);
+        obj->env = map;
+    } else {
+        env->inv.push_back(obj);
+        obj->env = env;
+    }
+}
+
 void MapParser::parse_map(MapObject* map)
 {
     // Load map and parse it into a property tree
@@ -55,27 +97,9 @@ void MapParser::parse_map(MapObject* map)
 
     map->allocate();
 
-    // Load the rest of the objects
+   // Load the rest of the objects
     for (it++; it != end; it++) {
-        string archname = it->second.get<string>(it->first);
-        GameObject::sobjects_t::iterator result;
-
-        result = GameObject::archetypes.find(archname);
-
-        if (result != GameObject::archetypes.end()) {
-            GameObject *obj = new GameObject(*result->second);
-
-            // Load object attributes
-            for (auto it2 : it->second) {
-                obj->load(it2.first, it->second.get<string>(it2.first));
-            }
-
-            // Add object to map's tile
-            MapTile& tile = map->tile_get(obj->x, obj->y);
-            tile.objects.push_back(obj);
-        } else {
-            // TODO error log
-        }
+        parse_objects(map, it->second.get<string>(it->first), it->second);
     }
 
     cout << map->dump() << endl;

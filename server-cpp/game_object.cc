@@ -54,10 +54,27 @@ string GameObject::dump()
     string s;
 
     s = "arch " + archname + "\n";
-    s += "name " + name + "\n";
-    s += "layer " + lexical_cast<string>(layer) + "\n";
-    s += "x " + lexical_cast<string>(x) + "\n";
-    s += "y " + lexical_cast<string>(y) + "\n";
+
+    if (!name.empty()) {
+        s += "name " + name + "\n";
+    }
+
+    if (layer != 0) {
+        s += "layer " + lexical_cast<string>(layer) + "\n";
+    }
+
+    if (x != 0) {
+        s += "x " + lexical_cast<string>(x) + "\n";
+    }
+
+    if (y != 0) {
+        s += "y " + lexical_cast<string>(y) + "\n";
+    }
+
+    for (auto it : inv) {
+        s += it->dump();
+    }
+
     s += "end\n";
 
     return s;
