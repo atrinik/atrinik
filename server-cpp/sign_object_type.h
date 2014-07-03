@@ -22,20 +22,24 @@
 
 /**
  * @file
- * Game object type.
+ * Sign object type.
  */
 
 #pragma once
 
 #include <string>
 
+#include "game_object_type.h"
+
 namespace atrinik {
 
-class GameObjectType {
+class SignObjectType : public GameObjectType {
 #include "game_object_type_internal.h"
+private:
+    uint8_t f_is_fan : 1;
 public:
-    virtual void load(const std::string& key, const std::string& val) = 0;
-    virtual std::string dump() = 0;
+    virtual void load(const std::string& key, const std::string& val);
+    virtual std::string dump();
 };
 
 }

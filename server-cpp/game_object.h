@@ -58,6 +58,50 @@ public:
     virtual void load(const std::string& key, const std::string& val);
     virtual std::string dump();
 
+    template<class T>
+    bool isinstance()
+    {
+        for (auto it : this->types) {
+            if (it->gettype() == T::type()) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    template<class T>
+    GameObjectType* getaddinstance()
+    {
+        GameObjectType* ptr = getinstance<T>();
+
+        if (!ptr) {
+            ptr = addinstance<T>();
+        }
+
+        return ptr;
+    }
+
+    template<class T>
+    GameObjectType* getinstance()
+    {
+        for (auto it : types) {
+            if (it->gettype() == T::type()) {
+                return it;
+            }
+        }
+
+        return NULL;
+    }
+
+    template<class T>
+    GameObjectType* addinstance()
+    {
+        GameObjectType* ptr = new T();
+        types.push_back(ptr);
+        return ptr;
+    }
+
     struct HashCmp {
 
         static size_t hash(const int value)

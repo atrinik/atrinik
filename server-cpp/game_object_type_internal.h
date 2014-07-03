@@ -22,20 +22,19 @@
 
 /**
  * @file
- * Game object type.
+ * Internal definitions for a game object type.
  */
 
-#pragma once
+#include <boost/preprocessor/slot/counter.hpp>
 
-#include <string>
-
-namespace atrinik {
-
-class GameObjectType {
-#include "game_object_type_internal.h"
 public:
-    virtual void load(const std::string& key, const std::string& val) = 0;
-    virtual std::string dump() = 0;
-};
+    static inline const int type()
+    {
+        return BOOST_PP_COUNTER;
+    }
+#include BOOST_PP_UPDATE_COUNTER()
+    virtual const int gettype()
+    {
+        return type();
+    }
 
-}

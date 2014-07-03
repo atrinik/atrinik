@@ -30,6 +30,7 @@
 
 #include "archetype_parser.h"
 #include "game_object.h"
+#include "sign_object_type.h"
 
 using namespace atrinik;
 using namespace boost;
@@ -126,6 +127,10 @@ void ArchetypeParser::load_archetypes_pass1()
 
         GameObject *obj = new GameObject();
         obj->archname = archname;
+
+        if (type == 98) {
+            obj->addinstance<SignObjectType>();
+        }
 
         // Load the attributes
         for (auto it2 : it.second) {

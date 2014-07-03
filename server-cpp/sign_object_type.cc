@@ -22,20 +22,36 @@
 
 /**
  * @file
- * Game object type.
+ * Sign object type implementation.
  */
 
-#pragma once
+#include <boost/lexical_cast.hpp>
 
-#include <string>
+#include "sign_object_type.h"
+
+using namespace atrinik;
+using namespace boost;
+using namespace std;
 
 namespace atrinik {
 
-class GameObjectType {
-#include "game_object_type_internal.h"
-public:
-    virtual void load(const std::string& key, const std::string& val) = 0;
-    virtual std::string dump() = 0;
-};
+void SignObjectType::load(const std::string& key, const std::string& val)
+{
+    if (key == "splitting") {
+        f_is_fan = lexical_cast<bool>(val);
+    }
+}
+
+std::string SignObjectType::dump()
+{
+    string s = "";
+
+    // TODO compare arch default
+    if (1) {
+        s += "splitting " + lexical_cast<string>(f_is_fan) + "\n";
+    }
+
+    return s;
+}
 
 }
