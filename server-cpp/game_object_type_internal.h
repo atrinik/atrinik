@@ -48,6 +48,7 @@ protected:
 #define GAME_OBJECT_TYPE_ID_STR STR_NAME(GAME_OBJECT_TYPE_ID)
         return GAME_OBJECT_TYPE_ID_STR;
 #undef STR_NAME
+#undef STR_VALUE
 #else
         return "";
 #endif
