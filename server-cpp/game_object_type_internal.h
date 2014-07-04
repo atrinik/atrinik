@@ -45,8 +45,7 @@ protected:
 #if defined(GAME_OBJECT_TYPE_ID)
 #define STR_VALUE(arg) #arg
 #define STR_NAME(name) STR_VALUE(name)
-#define GAME_OBJECT_TYPE_ID_STR STR_NAME(GAME_OBJECT_TYPE_ID)
-        return GAME_OBJECT_TYPE_ID_STR;
+        return STR_NAME(GAME_OBJECT_TYPE_ID);
 #undef STR_NAME
 #undef STR_VALUE
 #else
