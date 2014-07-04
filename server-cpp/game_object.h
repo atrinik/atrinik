@@ -39,19 +39,16 @@ namespace atrinik {
 
 class GameObject : public Object, GameObjectType {
 private:
-    vector<GameObjectType*> types;
+    list<GameObjectType*> types;
 public:
     string name;
     uint8_t layer = 0; ///< Object's layer.
     uint32_t f_no_pass : 1; ///< Whether the object is impassable.
     uint32_t f_no_pick : 1; ///< Whether the object is unpickable.
 
-    uint16_t x = 0;
-    uint16_t y = 0;
-
     string archname;
 
-    vector<GameObject*> inv;
+    list<GameObject*> inv;
 
     using Object::Object;
 

@@ -22,7 +22,7 @@
 
 /**
  * @file
- * Map tile.
+ * Map tile object.
  */
 
 #pragma once
@@ -35,9 +35,28 @@ using namespace std;
 
 namespace atrinik {
 
-class MapTile {
+class MapTileObject : public Object {
+private:
+    int x_;
+
+    int y_;
 public:
-    list<GameObject*> objects;
+    list<GameObject*> inv;
+
+    using Object::Object;
+
+    void x(int val)
+    {
+        x_ = val;
+    }
+
+    void y(int val)
+    {
+        y_ = val;
+    }
+
+    virtual bool load(const std::string& key, const std::string& val);
+    virtual std::string dump();
 };
 
 }

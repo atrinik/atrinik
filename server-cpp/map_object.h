@@ -29,7 +29,7 @@
 
 #include "object.h"
 #include "bit_flags.h"
-#include "map_tile.h"
+#include "map_tile_object.h"
 
 using namespace atrinik;
 
@@ -72,8 +72,6 @@ private:
     std::pair<int, int> enter_pos_;
 
     std::pair<int, int> size_;
-
-    std::vector<MapTile> tiles_;
 public:
 
     int reset_timeout;
@@ -85,6 +83,8 @@ public:
     int darkness;
 
     int light;
+
+    std::vector<MapTileObject> inv;
 
     using Object::Object;
 
@@ -99,11 +99,11 @@ public:
     }
 
     const string& path();
-
     void allocate();
-    inline MapTile& tile_get(int x, int y)
+
+    inline MapTileObject& tile_get(int x, int y)
     {
-        return tiles_[x * size_.second + y];
+        return inv[x * size_.second + y];
     }
 
     inline const bool f_no_magic()

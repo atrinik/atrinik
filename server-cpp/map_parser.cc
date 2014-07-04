@@ -69,9 +69,23 @@ static void parse_objects(MapObject* map, string archname,
 
     // Add object to map's tile
     if (env == NULL) {
-        MapTile& tile = map->tile_get(obj->x, obj->y);
-        tile.objects.push_back(obj);
-        obj->env = map;
+        int x, y;
+
+        try {
+            x = lexical_cast<int>(tree.get<string>("x"));
+        } catch (std::exception) {
+            x = 0;
+        }
+
+        try {
+            y = lexical_cast<int>(tree.get<string>("y"));
+        } catch (std::exception) {
+            y = 0;
+        }
+        
+        MapTileObject& tile = map->tile_get(x, y);
+        tile.inv.push_back(obj);
+        obj->env = &tile;
     } else {
         env->inv.push_back(obj);
         obj->env = env;

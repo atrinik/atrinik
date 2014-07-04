@@ -193,11 +193,7 @@ std::string MapObject::dump()
 
     for (int x = 0; x < size_.first; x++) {
         for (int y = 0; y < size_.second; y++) {
-            MapTile& tile = tile_get(x, y);
-
-            for (auto it : tile.objects) {
-                s += it->dump();
-            }
+            s += tile_get(x, y).dump();
         }
     }
 
@@ -211,8 +207,15 @@ const string& MapObject::path()
 
 void MapObject::allocate()
 {
-    // Reserve map tiles
-    tiles_.resize(size_.first * size_.second);
+    inv.resize(size_.first * size_.second); // Reserve map tiles
+
+    int len = size_.first * size_.second;
+
+    for (int i = 0; i < len; i++) {
+        inv[i].x(i / size_.first);
+        inv[i].y(i % size_.second);
+        inv[i].env = this;
+    }
 }
 
 }
