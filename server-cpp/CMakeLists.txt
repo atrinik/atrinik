@@ -23,7 +23,7 @@ configure_file (
 
 include_directories ("${PROJECT_BINARY_DIR}")
 
-add_executable(atrinik game_object.cc floor_object.cc object.cc
+add_executable(atrinik game_object.cc object.cc
     object_parser.cc main.cc archetype_parser.cc map_object.cc map_parser.cc
     sign_object_type.cc)
 
