@@ -42,8 +42,6 @@ class Object {
 private:
     static std::atomic<uint64_t> guid; ///< Object GUID.
 public:
-    string name; ///< Object's name.
-
     uint64_t uid; ///< Object's UID.
 
     Object* env = NULL;
@@ -58,13 +56,13 @@ public:
      * @param val Value.
      * @return Whether the value was loaded or not.
      */
-    virtual bool load(const string& key, const string& val);
+    virtual bool load(const std::string& key, const std::string& val) = 0;
 
     /**
      * Function implementing object-specific dumping.
      * @return String dump.
      */
-    virtual string dump() = 0;
+    virtual std::string dump() = 0;
 };
 
 };

@@ -36,9 +36,12 @@ using namespace std;
 
 namespace atrinik {
 
-bool MapObject::load(string key, string val)
+bool MapObject::load(const std::string& key, const std::string& val)
 {
-    if (key == "bg_music") {
+    if (key == "name") {
+        name_ = val;
+        return true;
+    } else if (key == "bg_music") {
         bg_music_ = val;
         return true;
     } else if (key == "weather") {
@@ -103,9 +106,13 @@ bool MapObject::load(string key, string val)
     return false;
 }
 
-string MapObject::dump()
+std::string MapObject::dump()
 {
-    string s = "arch map\n" + Object::dump();
+    string s = "arch map\n";
+
+    if (!name_.empty()) {
+        s += "name " + name_ + "\n";
+    }
 
     if (!bg_music_.empty()) {
         s += "bg_music " + bg_music_ + "\n";

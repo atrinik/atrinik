@@ -36,22 +36,4 @@ namespace atrinik {
 
 std::atomic<uint64_t> Object::guid(0);
 
-bool Object::load(const string& key, const string& val)
-{
-    if (key == "name") {
-        name = val;
-        return true;
-    }
-
-    return false;
-}
-
-string Object::dump()
-{
-    string s;
-
-    s += "name " + name + "\n";
-    return s;
-}
-
 }

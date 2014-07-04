@@ -53,6 +53,8 @@ private:
 
     uint32_t map_flags_;
 
+    string name_;
+
     string path_;
 
     string bg_music_;
@@ -95,10 +97,6 @@ public:
     {
         return new MapObject(*this);
     }
-
-    string dump();
-
-    virtual bool load(string key, string val);
 
     const string& path();
 
@@ -207,6 +205,9 @@ public:
     {
         BitFlag(map_flags_, Flags::Pvp, val);
     }
+
+    virtual bool load(const std::string& key, const std::string& val);
+    virtual std::string dump();
 };
 
 }
