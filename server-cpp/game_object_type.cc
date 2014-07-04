@@ -22,82 +22,28 @@
 
 /**
  * @file
- * Generic game object implementation.
+ * Game object type implementation.
  */
 
-#include <boost/lexical_cast.hpp>
-
-#include "game_object.h"
+#include "game_object_type.h"
 
 using namespace atrinik;
-using namespace boost;
+using namespace std;
 
 namespace atrinik {
 
-GameObject::sobjects_t GameObject::archetypes;
+GameObjectTypeFactory::MapType* GameObjectTypeFactory::map =
+new GameObjectTypeFactory::MapType;
 
-bool GameObject::load(const string& key, const string& val)
+GameObjectType* GameObjectTypeFactory::create_instance(const std::string& s)
 {
-    if (key == "name") {
-        name = val;
-        return true;
-    } else if (key == "layer") {
-        layer = lexical_cast<uint8_t>(val);
-        return true;
-    } else if (key == "x") {
-        x = lexical_cast<uint16_t>(val);
-        return true;
-    } else if (key == "y") {
-        y = lexical_cast<uint16_t>(val);
-        return true;
-    } else if (key == "typeid") {
-        getaddinstance(val);
-        return true;
-    } else {
-        for (auto it : types) {
-            if (it->load(key, val)) {
-                return true;
-            }
-        }
+    MapType::iterator it = map->find(s);
+
+    if (it == map->end()) {
+        return NULL;
     }
 
-    return false;
-}
-
-string GameObject::dump()
-{
-    string s;
-
-    s = "arch " + archname + "\n";
-
-    if (!name.empty()) {
-        s += "name " + name + "\n";
-    }
-
-    if (layer != 0) {
-        s += "layer " + lexical_cast<string>(layer) + "\n";
-    }
-
-    if (x != 0) {
-        s += "x " + lexical_cast<string>(x) + "\n";
-    }
-
-    if (y != 0) {
-        s += "y " + lexical_cast<string>(y) + "\n";
-    }
-
-    for (auto it : types) {
-        s += "typeid " + it->gettypeid() + "\n";
-        s += it->dump();
-    }
-
-    for (auto it : inv) {
-        s += it->dump();
-    }
-
-    s += "end\n";
-
-    return s;
+    return it->second();
 }
 
 }

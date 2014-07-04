@@ -28,6 +28,7 @@
 #pragma once
 
 #include <string>
+#include <map>
 
 namespace atrinik {
 
@@ -37,5 +38,27 @@ public:
     virtual bool load(const std::string& key, const std::string& val) = 0;
     virtual std::string dump() = 0;
 };
+
+template<typename T>
+GameObjectType* create_game_object_type()
+{
+    return new T;
+}
+
+struct GameObjectTypeFactory {
+    typedef std::map<std::string, GameObjectType*(*)()> MapType;
+    static MapType* map;
+    static GameObjectType* create_instance(const std::string& s);
+};
+
+template<typename T>
+struct GameObjectTypeFactoryRegister : GameObjectTypeFactory {
+    GameObjectTypeFactoryRegister(const std::string& s) {
+        map->insert(std::make_pair(s, &create_game_object_type<T>));
+    }
+};
+
+#define REGISTER_GAME_OBJECT_TYPE(_T) \
+    GameObjectTypeFactoryRegister<_T> _T::reg(#_T)
 
 }

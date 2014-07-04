@@ -35,6 +35,8 @@ using namespace std;
 
 namespace atrinik {
 
+REGISTER_GAME_OBJECT_TYPE(SignObjectType);
+
 bool SignObjectType::load(const std::string& key, const std::string& val)
 {
     if (key == "splitting") {

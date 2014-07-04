@@ -26,15 +26,42 @@
  */
 
 #include <boost/preprocessor/slot/counter.hpp>
+#include <string>
 
-public:
-    static inline const int type()
+#if defined(GAME_OBJECT_TYPE_ID)
+private:
+    static GameObjectTypeFactoryRegister<GAME_OBJECT_TYPE_ID> reg;
+#endif
+
+protected:
+    static inline const int type_()
     {
         return BOOST_PP_COUNTER;
-    }
 #include BOOST_PP_UPDATE_COUNTER()
-    virtual const int gettype()
-    {
-        return type();
     }
 
+    static const std::string gettypeid_()
+    {
+#if defined(GAME_OBJECT_TYPE_ID)
+#define STR_VALUE(arg) #arg
+#define STR_NAME(name) STR_VALUE(name)
+#define GAME_OBJECT_TYPE_ID_STR STR_NAME(GAME_OBJECT_TYPE_ID)
+        return GAME_OBJECT_TYPE_ID_STR;
+#undef STR_NAME
+#else
+        return "";
+#endif
+    }
+
+public:
+    virtual const int gettype()
+    {
+        return type_();
+    }
+
+    virtual const std::string gettypeid()
+    {
+        return gettypeid_();
+    }
+
+#undef GAME_OBJECT_TYPE_ID

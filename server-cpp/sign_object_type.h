@@ -34,7 +34,8 @@
 
 namespace atrinik {
 
-class SignObjectType : public GameObjectType {
+#define GAME_OBJECT_TYPE_ID SignObjectType
+class GAME_OBJECT_TYPE_ID : public GameObjectType {
 #include "game_object_type_internal.h"
 private:
     enum Flags {

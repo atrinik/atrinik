@@ -61,9 +61,20 @@ public:
     template<class T>
     bool isinstance()
     {
-        for (auto it : this->types) {
-            if (it->gettype() == T::type()) {
+        for (auto it : types) {
+            if (it->gettype() == T::type_()) {
                 return true;
+            }
+        }
+
+        return false;
+    }
+
+    bool isinstance(const std::string& val)
+    {
+        for (auto it : types) {
+            if (it->gettypeid() == val) {
+                return false;
             }
         }
 
@@ -82,6 +93,17 @@ public:
         return ptr;
     }
 
+    GameObjectType *getaddinstance(const std::string& val)
+    {
+        GameObjectType* ptr = getinstance(val);
+
+        if (!ptr) {
+            ptr = addinstance(val);
+        }
+
+        return ptr;
+    }
+
     template<class T>
     GameObjectType* getinstance()
     {
@@ -94,10 +116,28 @@ public:
         return NULL;
     }
 
+    GameObjectType* getinstance(const std::string& val)
+    {
+        for (auto it : types) {
+            if (it->gettypeid() == val) {
+                return it;
+            }
+        }
+
+        return NULL;
+    }
+
     template<class T>
     GameObjectType* addinstance()
     {
         GameObjectType* ptr = new T();
+        types.push_back(ptr);
+        return ptr;
+    }
+
+    GameObjectType* addinstance(const std::string val)
+    {
+        GameObjectType* ptr = GameObjectTypeFactory::create_instance(val);
         types.push_back(ptr);
         return ptr;
     }
