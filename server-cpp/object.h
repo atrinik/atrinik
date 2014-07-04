@@ -56,8 +56,9 @@ public:
      * Loads key/value pair into the object's internal structure.
      * @param key Key.
      * @param val Value.
+     * @return Whether the value was loaded or not.
      */
-    virtual void load(const string& key, const string& val);
+    virtual bool load(const string& key, const string& val);
 
     /**
      * Function implementing object-specific dumping.

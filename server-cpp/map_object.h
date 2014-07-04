@@ -98,7 +98,7 @@ public:
 
     string dump();
 
-    virtual void load(string key, string val);
+    virtual bool load(string key, string val);
 
     const string& path();
 

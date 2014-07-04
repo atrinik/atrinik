@@ -36,17 +36,30 @@ namespace atrinik {
 
 GameObject::sobjects_t GameObject::archetypes;
 
-void GameObject::load(const string& key, const string& val)
+bool GameObject::load(const string& key, const string& val)
 {
     if (key == "name") {
         name = val;
+        return true;
     } else if (key == "layer") {
         layer = lexical_cast<uint8_t>(val);
+        return true;
     } else if (key == "x") {
         x = lexical_cast<uint16_t>(val);
+        return true;
     } else if (key == "y") {
         y = lexical_cast<uint16_t>(val);
+        return true;
     }
+    else {
+        for (auto it : types) {
+            if (it->load(key, val)) {
+                return true;
+            }
+        }
+    }
+
+    return false;
 }
 
 string GameObject::dump()
@@ -69,6 +82,10 @@ string GameObject::dump()
 
     if (y != 0) {
         s += "y " + lexical_cast<string>(y) + "\n";
+    }
+
+    for (auto it : types) {
+        s += it->dump();
     }
 
     for (auto it : inv) {

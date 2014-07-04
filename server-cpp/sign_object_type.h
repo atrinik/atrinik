@@ -30,15 +30,30 @@
 #include <string>
 
 #include "game_object_type.h"
+#include "bit_flags.h"
 
 namespace atrinik {
 
 class SignObjectType : public GameObjectType {
 #include "game_object_type_internal.h"
 private:
-    uint8_t f_is_fan : 1;
+    enum Flags {
+        IsFan = 0x01,
+    };
+
+    uint8_t flags = 0;
 public:
-    virtual void load(const std::string& key, const std::string& val);
+    inline const bool f_is_fan()
+    {
+        return BitFlagQuery(flags, Flags::IsFan);
+    }
+
+    inline void f_is_fan(bool val)
+    {
+        BitFlag(flags, Flags::IsFan, val);
+    }
+
+    virtual bool load(const std::string& key, const std::string& val);
     virtual std::string dump();
 };
 

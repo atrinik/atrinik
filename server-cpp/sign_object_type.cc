@@ -35,11 +35,14 @@ using namespace std;
 
 namespace atrinik {
 
-void SignObjectType::load(const std::string& key, const std::string& val)
+bool SignObjectType::load(const std::string& key, const std::string& val)
 {
     if (key == "splitting") {
-        f_is_fan = lexical_cast<bool>(val);
+        f_is_fan(lexical_cast<bool>(val));
+        return true;
     }
+
+    return false;
 }
 
 std::string SignObjectType::dump()
@@ -48,7 +51,7 @@ std::string SignObjectType::dump()
 
     // TODO compare arch default
     if (1) {
-        s += "splitting " + lexical_cast<string>(f_is_fan) + "\n";
+        s += "splitting " + lexical_cast<string>(f_is_fan()) + "\n";
     }
 
     return s;

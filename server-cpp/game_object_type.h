@@ -34,7 +34,7 @@ namespace atrinik {
 class GameObjectType {
 #include "game_object_type_internal.h"
 public:
-    virtual void load(const std::string& key, const std::string& val) = 0;
+    virtual bool load(const std::string& key, const std::string& val) = 0;
     virtual std::string dump() = 0;
 };
 

@@ -55,7 +55,7 @@ public:
 
     using Object::Object;
 
-    virtual void load(const std::string& key, const std::string& val);
+    virtual bool load(const std::string& key, const std::string& val);
     virtual std::string dump();
 
     template<class T>
