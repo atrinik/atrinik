@@ -48,8 +48,6 @@ public:
 
     string archname;
 
-    list<GameObject*> inv;
-
     using Object::Object;
 
     virtual bool load(const std::string& key, const std::string& val);

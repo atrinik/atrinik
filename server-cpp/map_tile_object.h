@@ -41,8 +41,6 @@ private:
 
     int y_;
 public:
-    list<GameObject*> inv;
-
     using Object::Object;
 
     void x(int val)

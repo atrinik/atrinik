@@ -37,7 +37,7 @@ using namespace boost;
 namespace atrinik {
 
 static void parse_objects(MapObject* map, string archname,
-        property_tree::ptree tree, GameObject* env = NULL)
+        property_tree::ptree tree, Object* env = NULL)
 {
     GameObject::sobjects_t::iterator result;
 
@@ -82,14 +82,12 @@ static void parse_objects(MapObject* map, string archname,
         } catch (std::exception) {
             y = 0;
         }
-        
-        MapTileObject& tile = map->tile_get(x, y);
-        tile.inv.push_back(obj);
-        obj->env = &tile;
-    } else {
-        env->inv.push_back(obj);
-        obj->env = env;
+
+        env = &map->tile_get(x, y);
     }
+
+    env->inv.push_back(obj);
+    obj->env = env;
 }
 
 void MapParser::parse_map(MapObject* map)
