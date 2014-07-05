@@ -25,7 +25,7 @@ include_directories ("${PROJECT_BINARY_DIR}")
 
 add_executable(atrinik game_object.cc object.cc game_object_type.cc
     object_parser.cc main.cc archetype_parser.cc map_object.cc map_parser.cc
-    sign_object_type.cc map_tile_object.cc)
+    sign_object_type.cc map_tile_object.cc gfx_object_type.cc)
 
 target_link_libraries(atrinik ${Boost_LIBRARIES} ${TBB_LIBRARIES})
 

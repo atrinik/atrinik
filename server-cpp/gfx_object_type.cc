@@ -22,67 +22,39 @@
 
 /**
  * @file
- * Generic game object implementation.
+ * Graphical object type implementation.
  */
 
 #include <boost/lexical_cast.hpp>
 
-#include "game_object.h"
-#include "map_tile_object.h"
+#include "gfx_object_type.h"
 
 using namespace atrinik;
 using namespace boost;
+using namespace std;
 
 namespace atrinik {
 
-GameObject::sobjects_t GameObject::archetypes;
+REGISTER_GAME_OBJECT_TYPE(GfxObjectType);
 
-bool GameObject::load(const string& key, const string& val)
+bool GfxObjectType::load(const std::string& key, const std::string& val)
 {
-    if (key == "name") {
-        name = val;
+    if (key == "layer") {
+        layer(lexical_cast<uint8_t>(val));
         return true;
-    } else if (key == "typeid") {
-        getaddinstance(val);
-        return true;
-    } else {
-        for (auto it : types) {
-            if (it->load(key, val)) {
-                return true;
-            }
-        }
     }
 
     return false;
 }
 
-string GameObject::dump()
+std::string GfxObjectType::dump()
 {
-    string s;
-    MapTileObject *tile;
+    string s = "";
 
-    s = "arch " + archname + "\n";
-
-    tile = dynamic_cast<MapTileObject*>(env);
-
-    if (tile != NULL) {
-        s += tile->dump();
+    // TODO compare arch default
+    if (1) {
+        s += "layer " + lexical_cast<string>(layer()) + "\n";
     }
-
-    if (!name.empty()) {
-        s += "name " + name + "\n";
-    }
-
-    for (auto it : types) {
-        s += "typeid " + it->gettypeid() + "\n";
-        s += it->dump();
-    }
-
-    for (auto it : inv) {
-        s += it->dump();
-    }
-
-    s += "end\n";
 
     return s;
 }

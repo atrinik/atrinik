@@ -31,6 +31,7 @@
 #include "archetype_parser.h"
 #include "game_object.h"
 #include "sign_object_type.h"
+#include "gfx_object_type.h"
 
 using namespace atrinik;
 using namespace boost;
@@ -129,6 +130,7 @@ void ArchetypeParser::load_archetypes_pass1()
         obj->archname = archname;
 
         if (type == 98) {
+            obj->addinstance<GfxObjectType>();
             obj->addinstance<SignObjectType>();
         }
 
