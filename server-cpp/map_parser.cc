@@ -49,6 +49,7 @@ static void parse_objects(MapObject* map, string archname,
     }
 
     GameObject *obj = new GameObject(*result->second);
+    obj->arch = result->second;
 
     // Load object attributes
     for (auto it : tree) {

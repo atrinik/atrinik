@@ -128,7 +128,7 @@ void ArchetypeParser::load_archetypes_pass1()
         }
 
         GameObject *obj = new GameObject();
-        obj->archname = archname;
+        obj->arch = archname;
 
         if (type == 98) {
             obj->addinstance<BaseObjectType>();
@@ -142,7 +142,7 @@ void ArchetypeParser::load_archetypes_pass1()
         }
 
         // Insert into archetypes hashmap
-        GameObject::archetypes.insert(make_pair(obj->archname, obj));
+        GameObject::archetypes.insert(make_pair(archname, obj));
     }
 }
 

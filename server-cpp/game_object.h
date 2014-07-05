@@ -29,6 +29,7 @@
 
 #include <stdint.h>
 #include <string.h>
+#include <boost/variant.hpp>
 
 #include "object.h"
 #include "game_object_type.h"
@@ -41,7 +42,7 @@ class GameObject : public Object, GameObjectType {
 private:
     list<GameObjectType*> types;
 public:
-    string archname;
+    boost::variant<GameObject*, std::string> arch;
 
     using Object::Object;
 
@@ -167,6 +168,20 @@ public:
     sobjects_t; ///< Game object hash map with strings
 
     static sobjects_t archetypes;
+};
+
+class GameObjectArchVisitor : public boost::static_visitor<std::string>
+{
+public:
+    const std::string& operator()(const std::string& s) const
+    {
+        return s;
+    }
+
+    const std::string& operator()(const GameObject* obj) const
+    {
+        return boost::get<std::string>(obj->arch);
+    }
 };
 
 }

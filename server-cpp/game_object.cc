@@ -43,7 +43,7 @@ bool GameObject::load(const string& key, const string& val)
         getaddinstance(val);
         return true;
     }
-    
+
     for (auto it : types) {
         if (it->load(key, val)) {
             return true;
@@ -56,11 +56,10 @@ bool GameObject::load(const string& key, const string& val)
 string GameObject::dump()
 {
     string s;
-    MapTileObject *tile;
 
-    s = "arch " + archname + "\n";
+    s = "arch " + boost::apply_visitor(GameObjectArchVisitor(), arch) + "\n";
 
-    tile = dynamic_cast<MapTileObject*>(env);
+    MapTileObject *tile = dynamic_cast<MapTileObject*>(env);
 
     if (tile != NULL) {
         s += tile->dump();
