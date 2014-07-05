@@ -36,7 +36,7 @@ class MapParser : public ObjectParser {
 private:
     void parse_map(MapObject* map);
 public:
-    MapObject* load_map(const string& path);
+    MapObject* load_map(const std::string& path);
 };
 
 }

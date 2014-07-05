@@ -31,8 +31,6 @@
 
 #include "game_object.h"
 
-using namespace std;
-
 namespace atrinik {
 
 class MapTileObject : public ObjectCRTP<MapTileObject> {

@@ -31,8 +31,6 @@
 #include "bit_flags.h"
 #include "map_tile_object.h"
 
-using namespace atrinik;
-
 namespace atrinik {
 
 class MapObject : public ObjectCRTP<MapObject> {
@@ -53,21 +51,21 @@ private:
 
     uint32_t map_flags_;
 
-    string name_;
+    std::string name_;
 
-    string path_;
+    std::string path_;
 
-    string bg_music_;
+    std::string bg_music_;
 
-    string weather_;
+    std::string weather_;
 
-    string region_;
+    std::string region_;
 
-    string message_;
+    std::string message_;
 
     MapObject *tile_map_[8];
 
-    string tile_path_[8];
+    std::string tile_path_[8];
 
     std::pair<int, int> enter_pos_;
 
@@ -88,12 +86,12 @@ public:
 
     using Object::Object;
 
-    explicit MapObject(const string& path) : ObjectCRTP(), path_(path),
+    explicit MapObject(const std::string& path) : ObjectCRTP(), path_(path),
     map_flags_(0)
     {
     }
 
-    const string& path();
+    const std::string& path();
     void allocate();
 
     inline MapTileObject& tile_get(int x, int y)

@@ -36,10 +36,11 @@
 
 using namespace atrinik;
 using namespace boost;
+using namespace std;
 
 namespace atrinik {
 
-property_tree::ptree ArchetypeParser::parse(ifstream& file)
+boost::property_tree::ptree ArchetypeParser::parse(std::ifstream& file)
 {
     string line;
     property_tree::ptree pt;
@@ -106,7 +107,7 @@ property_tree::ptree ArchetypeParser::parse(ifstream& file)
     return pt;
 }
 
-void ArchetypeParser::read_archetypes(string path)
+void ArchetypeParser::read_archetypes(std::string path)
 {
     ifstream file(path);
 

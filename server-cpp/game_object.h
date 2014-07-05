@@ -34,13 +34,11 @@
 #include "object.h"
 #include "game_object_type.h"
 
-using namespace std;
-
 namespace atrinik {
 
 class GameObject : public ObjectCRTP<GameObject> {
 private:
-    list<GameObjectType*> types;
+    std::list<GameObjectType*> types;
 public:
     boost::variant<GameObject*, std::string> arch;
 
@@ -159,7 +157,7 @@ public:
             return static_cast<int> (value);
         }
 
-        static size_t hash(const string value)
+        static size_t hash(const std::string value)
         {
             size_t result = 0;
 
@@ -175,15 +173,15 @@ public:
             return x == y;
         }
 
-        static bool equal(const string x, const string y)
+        static bool equal(const std::string x, const std::string y)
         {
             return x == y;
         }
     };
 
-    typedef map<uint64_t, GameObject*>
+    typedef std::map<uint64_t, GameObject*>
     iobjects_t; ///< Game object hash map with UIDs
-    typedef map<string, GameObject*>
+    typedef std::map<std::string, GameObject*>
     sobjects_t; ///< Game object hash map with strings
 
     static sobjects_t archetypes;

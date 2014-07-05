@@ -30,11 +30,7 @@
 #include <stdint.h>
 #include <string>
 #include <atomic>
-#include <boost/thread.hpp>
-#include <boost/thread/lockable_adapter.hpp>
-
-using namespace boost;
-using namespace std;
+#include <list>
 
 namespace atrinik {
 
@@ -44,7 +40,7 @@ private:
 public:
     uint64_t uid; ///< Object's UID.
 
-    list<Object*> inv;
+    std::list<Object*> inv;
     Object* env = NULL;
 
     Object() : uid(++guid)
@@ -72,7 +68,7 @@ template <typename T>
 class ObjectCRTP : public Object {
 public:
     using Object::Object;
-    
+
     virtual Object* clone() const {
         return new T(static_cast<const T&>(*this));
     }

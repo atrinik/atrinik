@@ -22,15 +22,13 @@
 
 #pragma once
 
-using namespace std;
-
 namespace atrinik {
 
 class error : public std::exception {
 public:
-    string s;
+    std::string s;
 
-    error(string desc) : s(desc)
+    error(std::string desc) : s(desc)
     {
     }
 

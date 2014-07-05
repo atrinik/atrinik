@@ -32,12 +32,13 @@
 
 using namespace atrinik;
 using namespace boost;
+using namespace std;
 
 namespace atrinik {
 
 GameObject::sobjects_t GameObject::archetypes;
 
-bool GameObject::load(const string& key, const string& val)
+bool GameObject::load(const std::string& key, const std::string& val)
 {
     if (key == "typeid") {
         getaddinstance(val);
@@ -53,7 +54,7 @@ bool GameObject::load(const string& key, const string& val)
     return false;
 }
 
-string GameObject::dump()
+std::string GameObject::dump()
 {
     string s;
 

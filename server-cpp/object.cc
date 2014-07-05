@@ -26,11 +26,6 @@
  */
 
 #include "object.h"
-#include "lock.h"
-
-using namespace atrinik;
-using namespace boost;
-using namespace std;
 
 namespace atrinik {
 

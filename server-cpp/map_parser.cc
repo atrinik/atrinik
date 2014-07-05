@@ -33,6 +33,7 @@
 
 using namespace atrinik;
 using namespace boost;
+using namespace std;
 
 namespace atrinik {
 
@@ -122,7 +123,7 @@ void MapParser::parse_map(MapObject* map)
 //                                    settings);
 }
 
-MapObject* MapParser::load_map(const string& path)
+MapObject* MapParser::load_map(const std::string& path)
 {
     // TODO: loaded check
     // TODO: load from binary if it exists

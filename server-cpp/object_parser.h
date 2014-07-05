@@ -30,9 +30,6 @@
 #include <iostream>
 #include <boost/property_tree/ptree.hpp>
 
-using namespace boost;
-using namespace std;
-
 namespace atrinik {
 
 class ObjectParser {
@@ -42,7 +39,7 @@ public:
      * @param file File to parse.
      * @return Property tree.
      */
-    virtual property_tree::ptree parse(ifstream& file);
+    virtual boost::property_tree::ptree parse(std::ifstream& file);
 };
 
 }

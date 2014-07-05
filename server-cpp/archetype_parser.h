@@ -33,7 +33,7 @@ namespace atrinik {
 
 class ArchetypeParser : public ObjectParser {
 private:
-    property_tree::ptree pt; ///< Parsed objects residing in a property tree.
+    boost::property_tree::ptree pt; ///< Parsed objects residing in a property tree.
     bool is_more = false; ///< Whether parser is in multi-part archetype.
     bool was_more = false; ///< Whether parser was in multi-part archetype.
 public:
@@ -42,13 +42,13 @@ public:
      * @param file File.
      * @return Property tree.
      */
-    virtual property_tree::ptree parse(ifstream& file);
+    virtual boost::property_tree::ptree parse(std::ifstream& file);
 
     /**
      * Read archetypes from the specified file path.
      * @param path File to read from.
      */
-    void read_archetypes(string path);
+    void read_archetypes(std::string path);
 
     /**
      * First archetypes loading pass.
