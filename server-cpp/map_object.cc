@@ -193,7 +193,11 @@ std::string MapObject::dump()
 
     for (int x = 0; x < size_.first; x++) {
         for (int y = 0; y < size_.second; y++) {
-            s += tile_get(x, y).dump();
+            MapTileObject& tile = tile_get(x, y);
+
+            for (auto it : tile.inv) {
+                s += it->dump();
+            }
         }
     }
 

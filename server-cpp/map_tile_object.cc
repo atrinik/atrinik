@@ -50,11 +50,7 @@ bool MapTileObject::load(const std::string& key, const std::string& val)
 
 std::string MapTileObject::dump()
 {
-    if (inv.empty()) {
-        return "";
-    }
-
-    string s = "arch maptile\n";
+    string s = "";
 
     if (x_ != 0) {
         s += "x " + lexical_cast<string>(x_) + "\n";
@@ -63,12 +59,6 @@ std::string MapTileObject::dump()
     if (y_ != 0) {
         s += "y " + lexical_cast<string>(y_) + "\n";
     }
-
-    for (auto it : inv) {
-        s += it->dump();
-    }
-
-    s += "end\n";
 
     return s;
 }

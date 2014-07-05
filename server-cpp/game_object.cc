@@ -28,6 +28,7 @@
 #include <boost/lexical_cast.hpp>
 
 #include "game_object.h"
+#include "map_tile_object.h"
 
 using namespace atrinik;
 using namespace boost;
@@ -61,8 +62,15 @@ bool GameObject::load(const string& key, const string& val)
 string GameObject::dump()
 {
     string s;
+    MapTileObject *tile;
 
     s = "arch " + archname + "\n";
+
+    tile = dynamic_cast<MapTileObject*>(env);
+
+    if (tile != NULL) {
+        s += tile->dump();
+    }
 
     if (!name.empty()) {
         s += "name " + name + "\n";
