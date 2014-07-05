@@ -48,7 +48,7 @@ static void parse_objects(MapObject* map, string archname,
         return;
     }
 
-    GameObject *obj = new GameObject(*result->second);
+    GameObject *obj = dynamic_cast<GameObject*>(result->second->clone());
     obj->arch = result->second;
 
     // Load object attributes
@@ -117,9 +117,9 @@ void MapParser::parse_map(MapObject* map)
 
     cout << map->dump() << endl;
 
-    boost::property_tree::xml_writer_settings<char> settings('\t', 1);
-    boost::property_tree::write_xml("map_output.xml", pt, std::locale(),
-                                    settings);
+//    boost::property_tree::xml_writer_settings<char> settings('\t', 1);
+//    boost::property_tree::write_xml("map_output.xml", pt, std::locale(),
+//                                    settings);
 }
 
 MapObject* MapParser::load_map(const string& path)

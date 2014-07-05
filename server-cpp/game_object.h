@@ -38,13 +38,21 @@ using namespace std;
 
 namespace atrinik {
 
-class GameObject : public Object, GameObjectType {
+class GameObject : public ObjectCRTP<GameObject> {
 private:
     list<GameObjectType*> types;
 public:
     boost::variant<GameObject*, std::string> arch;
 
-    using Object::Object;
+    GameObject() : ObjectCRTP() {}
+    ~GameObject() {}
+    GameObject(const GameObject& obj) {
+        arch = obj.arch;
+
+        for (auto it : obj.types) {
+            types.push_back(it->clone());
+        }
+    }
 
     virtual bool load(const std::string& key, const std::string& val);
     virtual std::string dump();
@@ -111,6 +119,17 @@ public:
     {
         for (auto it : types) {
             if (it->gettypeid() == val) {
+                return it;
+            }
+        }
+
+        return NULL;
+    }
+
+    GameObjectType* getinstance(const int val)
+    {
+        for (auto it : types) {
+            if (it->gettype() == val) {
                 return it;
             }
         }

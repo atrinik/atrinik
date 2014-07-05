@@ -34,12 +34,12 @@
 namespace atrinik {
 
 #define GAME_OBJECT_TYPE_ID BaseObjectType
-class GAME_OBJECT_TYPE_ID : public GameObjectType {
+class GAME_OBJECT_TYPE_ID : public GameObjectTypeCRTP<GAME_OBJECT_TYPE_ID> {
 #include "game_object_type_internal.h"
 private:
     std::string name_;
 public:
-    inline const std::string& name()
+    inline const std::string& name() const
     {
         return name_;
     }
@@ -49,7 +49,7 @@ public:
     }
 
     virtual bool load(const std::string& key, const std::string& val);
-    virtual std::string dump();
+    virtual std::string dump(const GameObjectType* base);
 };
 
 }

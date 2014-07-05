@@ -47,12 +47,12 @@ bool BaseObjectType::load(const std::string& key, const std::string& val)
     return false;
 }
 
-std::string BaseObjectType::dump()
+std::string BaseObjectType::dump(const GameObjectType* base)
 {
+    auto base_type = dynamic_cast<const BaseObjectType*>(base);
     string s = "";
 
-    // TODO compare arch default
-    if (1) {
+    if (base_type == NULL || this->name() != base_type->name()) {
         s += "name " + name() + "\n";
     }
 

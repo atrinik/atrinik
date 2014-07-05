@@ -25,43 +25,42 @@
  * Internal definitions for a game object type.
  */
 
-#include <boost/preprocessor/slot/counter.hpp>
 #include <string>
 
 #if defined(GAME_OBJECT_TYPE_ID)
+
 private:
     static GameObjectTypeFactoryRegister<GAME_OBJECT_TYPE_ID> reg;
-#endif
 
 protected:
     static inline const int type_()
     {
-        return BOOST_PP_COUNTER;
-#include BOOST_PP_UPDATE_COUNTER()
+        return reg.id;
     }
 
     static const std::string gettypeid_()
     {
-#if defined(GAME_OBJECT_TYPE_ID)
 #define STR_VALUE(arg) #arg
 #define STR_NAME(name) STR_VALUE(name)
         return STR_NAME(GAME_OBJECT_TYPE_ID);
 #undef STR_NAME
 #undef STR_VALUE
-#else
-        return "";
-#endif
     }
 
 public:
-    virtual const int gettype()
+    virtual const int gettype() const
     {
         return type_();
     }
 
-    virtual const std::string gettypeid()
+    virtual const std::string gettypeid() const
     {
         return gettypeid_();
     }
 
 #undef GAME_OBJECT_TYPE_ID
+#else
+public:
+    virtual const int gettype() const = 0;
+    virtual const std::string gettypeid() const = 0;
+#endif

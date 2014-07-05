@@ -47,12 +47,12 @@ bool SignObjectType::load(const std::string& key, const std::string& val)
     return false;
 }
 
-std::string SignObjectType::dump()
+std::string SignObjectType::dump(const GameObjectType* base)
 {
+    auto base_type = dynamic_cast<const SignObjectType*>(base);
     string s = "";
 
-    // TODO compare arch default
-    if (1) {
+    if (base_type == NULL || this->f_is_fan() != base_type->f_is_fan()) {
         s += "splitting " + lexical_cast<string>(f_is_fan()) + "\n";
     }
 

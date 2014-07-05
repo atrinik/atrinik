@@ -35,7 +35,7 @@ using namespace atrinik;
 
 namespace atrinik {
 
-class MapObject : public Object {
+class MapObject : public ObjectCRTP<MapObject> {
 private:
 
     enum Flags {
@@ -88,14 +88,9 @@ public:
 
     using Object::Object;
 
-    explicit MapObject(const string& path) : Object(), path_(path),
+    explicit MapObject(const string& path) : ObjectCRTP(), path_(path),
     map_flags_(0)
     {
-    }
-
-    virtual MapObject* clone() const
-    {
-        return new MapObject(*this);
     }
 
     const string& path();

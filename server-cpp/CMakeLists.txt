@@ -8,7 +8,7 @@ set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_CURRENT_SOURCE_DIR}/CMake/")
 set (ATRINIK_VERSION_MAJOR 0)
 set (ATRINIK_VERSION_MINOR 1)
 
-set(CMAKE_CXX_FLAGS "-std=c++11 ${CMAKE_CXX_FLAGS} -g -O0")
+set(CMAKE_CXX_FLAGS "-std=c++11 ${CMAKE_CXX_FLAGS} -g -O0 -DFUTURE")
 
 find_package(Boost 1.40 COMPONENTS system thread REQUIRED)
 include_directories(${Boost_INCLUDE_DIR})

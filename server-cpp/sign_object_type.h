@@ -35,7 +35,7 @@
 namespace atrinik {
 
 #define GAME_OBJECT_TYPE_ID SignObjectType
-class GAME_OBJECT_TYPE_ID : public GameObjectType {
+class GAME_OBJECT_TYPE_ID : public GameObjectTypeCRTP<GAME_OBJECT_TYPE_ID> {
 #include "game_object_type_internal.h"
 private:
     enum Flags {
@@ -44,7 +44,7 @@ private:
 
     uint8_t flags = 0;
 public:
-    inline const bool f_is_fan()
+    inline const bool f_is_fan() const
     {
         return BitFlagQuery(flags, Flags::IsFan);
     }
@@ -55,7 +55,7 @@ public:
     }
 
     virtual bool load(const std::string& key, const std::string& val);
-    virtual std::string dump();
+    virtual std::string dump(const GameObjectType* base);
 };
 
 }

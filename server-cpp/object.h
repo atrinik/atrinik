@@ -51,6 +51,8 @@ public:
     {
     }
 
+    virtual Object* clone() const = 0;
+
     /**
      * Loads key/value pair into the object's internal structure.
      * @param key Key.
@@ -64,6 +66,16 @@ public:
      * @return String dump.
      */
     virtual std::string dump() = 0;
+};
+
+template <typename T>
+class ObjectCRTP : public Object {
+public:
+    using Object::Object;
+    
+    virtual Object* clone() const {
+        return new T(static_cast<const T&>(*this));
+    }
 };
 
 };

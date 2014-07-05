@@ -34,6 +34,7 @@ namespace atrinik {
 
 GameObjectTypeFactory::MapType* GameObjectTypeFactory::map =
 new GameObjectTypeFactory::MapType;
+int GameObjectTypeFactory::guid(0);
 
 GameObjectType* GameObjectTypeFactory::create_instance(const std::string& s)
 {

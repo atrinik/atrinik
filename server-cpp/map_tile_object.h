@@ -35,7 +35,7 @@ using namespace std;
 
 namespace atrinik {
 
-class MapTileObject : public Object {
+class MapTileObject : public ObjectCRTP<MapTileObject> {
 private:
     int x_;
 

@@ -65,9 +65,25 @@ string GameObject::dump()
         s += tile->dump();
     }
 
+    GameObject* arch = boost::get<GameObject*>(this->arch);
+
     for (auto it : types) {
-        s += "typeid " + it->gettypeid() + "\n";
-        s += it->dump();
+        GameObjectType *base = NULL;
+
+        if (arch != NULL) {
+            base = arch->getinstance(it->gettype());
+        }
+
+#if defined(FUTURE)
+        string typedump = it->dump(base);
+
+        if (base == NULL || !typedump.empty()) {
+            s += "typeid " + it->gettypeid() + "\n";
+            s += typedump;
+        }
+#else
+        s += it->dump(base);
+#endif
     }
 
     for (auto it : inv) {

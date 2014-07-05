@@ -34,12 +34,12 @@
 namespace atrinik {
 
 #define GAME_OBJECT_TYPE_ID GfxObjectType
-class GAME_OBJECT_TYPE_ID : public GameObjectType {
+class GAME_OBJECT_TYPE_ID : public GameObjectTypeCRTP<GAME_OBJECT_TYPE_ID> {
 #include "game_object_type_internal.h"
 private:
     uint8_t layer_ = 0;
 public:
-    inline const uint8_t layer()
+    inline const uint8_t layer() const
     {
         return layer_;
     }
@@ -47,9 +47,9 @@ public:
     inline void layer(uint8_t val) {
         layer_ = val;
     }
-    
+
     virtual bool load(const std::string& key, const std::string& val);
-    virtual std::string dump();
+    virtual std::string dump(const GameObjectType* base);
 };
 
 }
