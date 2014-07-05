@@ -69,18 +69,18 @@ static void parse_objects(MapObject* map, string archname,
 
     // Add object to map's tile
     if (env == NULL) {
-        int x, y;
+        int x = 0, y = 0;
 
         try {
             x = lexical_cast<int>(tree.get<string>("x"));
-        } catch (std::exception) {
-            x = 0;
+        } catch (property_tree::ptree_bad_path&) {
+        } catch (bad_lexical_cast&) {
         }
 
         try {
             y = lexical_cast<int>(tree.get<string>("y"));
-        } catch (std::exception) {
-            y = 0;
+        } catch (property_tree::ptree_bad_path&) {
+        } catch (bad_lexical_cast&) {
         }
 
         env = &map->tile_get(x, y);
