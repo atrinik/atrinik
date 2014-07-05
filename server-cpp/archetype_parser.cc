@@ -30,6 +30,7 @@
 
 #include "archetype_parser.h"
 #include "game_object.h"
+#include "base_object_type.h"
 #include "sign_object_type.h"
 #include "gfx_object_type.h"
 
@@ -130,6 +131,7 @@ void ArchetypeParser::load_archetypes_pass1()
         obj->archname = archname;
 
         if (type == 98) {
+            obj->addinstance<BaseObjectType>();
             obj->addinstance<GfxObjectType>();
             obj->addinstance<SignObjectType>();
         }

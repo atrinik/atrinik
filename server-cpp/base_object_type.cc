@@ -22,60 +22,39 @@
 
 /**
  * @file
- * Generic game object implementation.
+ * Base object type implementation.
  */
 
 #include <boost/lexical_cast.hpp>
 
-#include "game_object.h"
-#include "map_tile_object.h"
+#include "base_object_type.h"
 
 using namespace atrinik;
 using namespace boost;
+using namespace std;
 
 namespace atrinik {
 
-GameObject::sobjects_t GameObject::archetypes;
+REGISTER_GAME_OBJECT_TYPE(BaseObjectType);
 
-bool GameObject::load(const string& key, const string& val)
+bool BaseObjectType::load(const std::string& key, const std::string& val)
 {
-    if (key == "typeid") {
-        getaddinstance(val);
+    if (key == "name") {
+        name(val);
         return true;
-    }
-    
-    for (auto it : types) {
-        if (it->load(key, val)) {
-            return true;
-        }
     }
 
     return false;
 }
 
-string GameObject::dump()
+std::string BaseObjectType::dump()
 {
-    string s;
-    MapTileObject *tile;
+    string s = "";
 
-    s = "arch " + archname + "\n";
-
-    tile = dynamic_cast<MapTileObject*>(env);
-
-    if (tile != NULL) {
-        s += tile->dump();
+    // TODO compare arch default
+    if (1) {
+        s += "name " + name() + "\n";
     }
-
-    for (auto it : types) {
-        s += "typeid " + it->gettypeid() + "\n";
-        s += it->dump();
-    }
-
-    for (auto it : inv) {
-        s += it->dump();
-    }
-
-    s += "end\n";
 
     return s;
 }

@@ -41,10 +41,6 @@ class GameObject : public Object, GameObjectType {
 private:
     list<GameObjectType*> types;
 public:
-    string name;
-    uint32_t f_no_pass : 1; ///< Whether the object is impassable.
-    uint32_t f_no_pick : 1; ///< Whether the object is unpickable.
-
     string archname;
 
     using Object::Object;
