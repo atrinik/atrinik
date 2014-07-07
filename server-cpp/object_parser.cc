@@ -27,6 +27,7 @@
 
 #include <string.h>
 #include <fstream>
+#include <boost/algorithm/string/predicate.hpp>
 
 #include "object_parser.h"
 
@@ -42,7 +43,7 @@ property_tree::ptree ObjectParser::parse(ifstream& file)
     property_tree::ptree pt;
 
     while (getline(file, line)) {
-        if (line.empty()) {
+        if (line.empty() || starts_with(line, "#")) {
             continue;
         }
 
