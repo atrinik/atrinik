@@ -73,7 +73,7 @@ property_tree::ptree ObjectParser::parse(ifstream& file)
             val = line.substr(space + 1);
         }
 
-        if (key == "Object" || key == "arch") {
+        if (is_definition(key)) {
             property_tree::ptree pt2;
 
             pt2 = parse(file);

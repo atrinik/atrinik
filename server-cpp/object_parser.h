@@ -40,6 +40,11 @@ public:
      * @return Property tree.
      */
     virtual boost::property_tree::ptree parse(std::ifstream& file);
+
+    inline virtual bool is_definition(const std::string& key) const
+    {
+        return key == "Object" || key == "arch";
+    }
 };
 
 }
