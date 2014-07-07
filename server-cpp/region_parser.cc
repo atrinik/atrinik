@@ -22,82 +22,57 @@
 
 /**
  * @file
- * The main file.
+ * Region parser implementation.
  */
 
+#include <fstream>
 #include <boost/lexical_cast.hpp>
 
-#include "object.h"
-#include "game_object.h"
-#include "archetype_parser.h"
-#include "map_parser.h"
 #include "region_parser.h"
+#include "region_object.h"
 
 using namespace atrinik;
 using namespace boost;
 using namespace std;
 
-//void consumer()
-//{
-//    while (true) {
-//        lock_guard<mutex> lock(GameObject::active_objects_mutex);
-//        GameObject::iobjects_t::iterator it;
-//        for (it = GameObject::active_objects.begin();
-//                it != GameObject::active_objects.end(); it++) {
-//            cout << it->second->name() << endl;
-//        }
-//    }
-//}
-//
-//void producer()
-//{
-//    while (true) {
-//        GameObject *obj;
-//        obj = new GameObject("foo");
-//        obj->name("test-" + lexical_cast<string>(obj->uid()));
-//
-//        GameObject::active_objects.insert(make_pair(obj->uid(), obj));
-//    }
-//}
-//
-//void deleter()
-//{
-//    while (true) {
-//        lock_guard<mutex> lock(GameObject::active_objects_mutex);
-//        GameObject::iobjects_t::iterator it = GameObject::active_objects.begin();
-//
-//        if (it != GameObject::active_objects.end()) {
-//            GameObject *obj = it->second;
-//            GameObject::active_objects.erase(obj->uid());
-//            delete obj;
-//        }
-//    }
-//}
+namespace atrinik {
 
-int main(int argc, char **argv)
+void RegionParser::load(const std::string& path)
 {
-    ArchetypeParser *parser = new ArchetypeParser;
-    parser->read_archetypes("../arch/archetypes");
-    parser->load_archetypes_pass1();
+    ifstream file(path);
+    property_tree::ptree pt = parse(file);
 
-    RegionParser *region_parser = new RegionParser;
-    region_parser->load("../maps/regions.reg");
+    for (auto it : pt) {
+        string name = it.second.get<string>(it.first);
 
-    MapParser* map_parser = new MapParser;
-    map_parser->load_map(argc > 1 ? argv[1] : "../maps/hall_of_dms");
+/*
+        // Try to parse the type
+        try {
+            type = lexical_cast<int>(it.second.get<string>("type"));
+        } catch (std::exception &e) {
+            //cout << e.what() << ": " << endl;
+            continue;
+        }
 
-    return 0;
+        GameObject *obj = new GameObject();
+        obj->arch = archname;
 
-//    thread thread1(consumer);
-//    thread thread2(producer);
-//    thread thread3(producer);
-//    thread thread4(deleter);
-//    thread thread5(deleter);
-//    thread1.join();
-//    thread2.join();
-//    thread3.join();
-//    thread4.join();
-//    thread5.join();
-//
-//    return 0;
+        if (type == 98) {
+            obj->addinstance<BaseObjectType>();
+            obj->addinstance<GfxObjectType>();
+            obj->addinstance<SignObjectType>();
+        }
+
+        // Load the attributes
+        for (auto it2 : it.second) {
+            obj->load(it2.first, it.second.get<string>(it2.first));
+        }
+
+        // Insert into archetypes hashmap
+        GameObject::archetypes.insert(make_pair(archname, obj));
+*/
+    }
+
+}
+
 }
