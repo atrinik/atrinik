@@ -60,6 +60,11 @@ private:
 public:
     using Object::Object;
 
+    typedef std::map<std::string, RegionObject*>
+    regions_t; ///< Regions hash map type
+
+    static regions_t regions; ///< The regions hash map
+
     inline const bool f_map_quest() const
     {
         return BitFlagQuery(flags_, Flags::MapQuest);

@@ -36,6 +36,8 @@ using namespace std;
 
 namespace atrinik {
 
+RegionObject::regions_t RegionObject::regions;
+
 bool RegionObject::load(const std::string& key, const std::string& val)
 {
     if (key == "name") {

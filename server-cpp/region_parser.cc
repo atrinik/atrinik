@@ -45,34 +45,15 @@ void RegionParser::load(const std::string& path)
     for (auto it : pt) {
         string name = it.second.get<string>(it.first);
 
-/*
-        // Try to parse the type
-        try {
-            type = lexical_cast<int>(it.second.get<string>("type"));
-        } catch (std::exception &e) {
-            //cout << e.what() << ": " << endl;
-            continue;
-        }
+        RegionObject *obj = new RegionObject();
+        obj->name(name);
 
-        GameObject *obj = new GameObject();
-        obj->arch = archname;
-
-        if (type == 98) {
-            obj->addinstance<BaseObjectType>();
-            obj->addinstance<GfxObjectType>();
-            obj->addinstance<SignObjectType>();
-        }
-
-        // Load the attributes
         for (auto it2 : it.second) {
             obj->load(it2.first, it.second.get<string>(it2.first));
         }
 
-        // Insert into archetypes hashmap
-        GameObject::archetypes.insert(make_pair(archname, obj));
-*/
+        RegionObject::regions.insert(make_pair(name, obj));
     }
-
 }
 
 }
