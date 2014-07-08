@@ -98,8 +98,16 @@ public:
         parent_ = val;
     }
 
-    inline const std::string& longname() const
+    inline const std::string& longname(bool recursive = false) const
     {
+        if (recursive) {
+            if (!longname_.empty()) {
+                return longname_;
+            } else if (env_ != NULL) {
+                return env_->longname(true);
+            }
+        }
+
         return longname_;
     }
 
@@ -108,8 +116,16 @@ public:
         longname_ = val;
     }
 
-    inline const std::string& msg() const
+    inline const std::string& msg(bool recursive = false) const
     {
+        if (recursive) {
+            if (!msg_.empty()) {
+                return msg_;
+            } else if (env_ != NULL) {
+                return env_->msg(true);
+            }
+        }
+
         return msg_;
     }
 
@@ -118,8 +134,16 @@ public:
         msg_ = val;
     }
 
-    inline const mapcoords_t& jail() const
+    inline const mapcoords_t& jail(bool recursive = false) const
     {
+        if (recursive) {
+            if (!jail_.path.empty()) {
+                return jail_;
+            } else if (env_ != NULL) {
+                return env_->jail(true);
+            }
+        }
+
         return jail_;
     }
 
