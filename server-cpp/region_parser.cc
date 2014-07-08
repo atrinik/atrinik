@@ -42,6 +42,7 @@ void RegionParser::load(const std::string& path)
     ifstream file(path);
     property_tree::ptree pt = parse(file);
 
+    // Load up the regions into the regions map
     for (auto it : pt) {
         string name = it.second.get<string>(it.first);
 
@@ -53,6 +54,24 @@ void RegionParser::load(const std::string& path)
         }
 
         RegionObject::regions.insert(make_pair(name, obj));
+    }
+
+    // Link up children/parents
+    for (auto it : RegionObject::regions) {
+        if (it.second->parent().empty()) {
+            continue;
+        }
+
+        RegionObject::regions_t::iterator it2 = RegionObject::regions.find(
+                it.second->parent());
+
+        if (it2 == RegionObject::regions.end()) {
+            // TODO: error
+            continue;
+        }
+
+        it2->second->inv.push_back(it.second);
+        it.second->env = it2->second;
     }
 }
 
