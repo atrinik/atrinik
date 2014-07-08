@@ -58,6 +58,10 @@ bool MapTileObject::load(const std::string& key, const std::string& val)
 std::string MapTileObject::dump()
 {
 #if defined(FUTURE)
+    if (inv_.empty()) {
+        return "";
+    }
+    
     string s = "arch maptile\n";
 
     if (x_ != 0) {
