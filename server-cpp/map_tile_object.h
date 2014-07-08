@@ -29,9 +29,16 @@
 
 #include <string>
 
-#include "game_object.h"
+#include "object.h"
 
 namespace atrinik {
+
+typedef uint16_t coord_t;
+
+struct coords_t {
+    coord_t x;
+    coord_t y;
+};
 
 class MapTileObject : public ObjectCRTP<MapTileObject> {
 private:

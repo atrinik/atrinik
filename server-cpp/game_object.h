@@ -32,9 +32,14 @@
 #include <boost/variant.hpp>
 
 #include "object.h"
+#include "map_tile_object.h"
 #include "game_object_type.h"
 
 namespace atrinik {
+
+struct mapcoords_t : coords_t {
+    std::string path;
+};
 
 class GameObject : public ObjectCRTP<GameObject> {
 private:

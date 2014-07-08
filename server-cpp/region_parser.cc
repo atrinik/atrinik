@@ -73,6 +73,10 @@ void RegionParser::load(const std::string& path)
         it2->second->inv.push_back(it.second);
         it.second->env = it2->second;
     }
+
+    for (auto it : RegionObject::regions) {
+        cout << it.second->dump() << endl;
+    }
 }
 
 }

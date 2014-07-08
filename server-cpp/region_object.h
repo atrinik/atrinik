@@ -29,7 +29,7 @@
 
 #include "object.h"
 #include "bit_flags.h"
-#include "map_tile_object.h"
+#include "game_object.h"
 
 namespace atrinik {
 
@@ -50,9 +50,7 @@ private:
 
     std::string msg_;
 
-    std::string jailmap_;
-
-    std::pair<uint16_t, uint16_t> jailpos_;
+    mapcoords_t jail_;
 
     std::string map_first_;
 
@@ -115,34 +113,14 @@ public:
         msg_ = val;
     }
 
-    inline const std::string& jailmap() const
+    inline const mapcoords_t& jail() const
     {
-        return jailmap_;
+        return jail_;
     }
 
-    inline void jailmap(const std::string& val)
+    inline void jail(const mapcoords_t& val)
     {
-        jailmap_ = val;
-    }
-
-    inline const uint16_t jailx() const
-    {
-        return jailpos_.first;
-    }
-
-    inline void jailx(const uint16_t val)
-    {
-        jailpos_.first = val;
-    }
-
-    inline const uint16_t jaily() const
-    {
-        return jailpos_.second;
-    }
-
-    inline void jaily(const uint16_t val)
-    {
-        jailpos_.second = val;
+        jail_ = val;
     }
 
     inline const std::string& map_first() const

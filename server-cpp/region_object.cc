@@ -52,14 +52,18 @@ bool RegionObject::load(const std::string& key, const std::string& val)
     } else if (key == "msg") {
         msg(val);
         return true;
-    } else if (key == "jailmap") {
-        jailmap(val);
-        return true;
-    } else if (key == "jailx") {
-        jailx(lexical_cast<uint16_t>(val));
-        return true;
-    } else if (key == "jaily") {
-        jaily(lexical_cast<uint16_t>(val));
+    } else if (key == "jail") {
+        stringstream sstream(val);
+        mapcoords_t coords;
+
+        sstream >> coords.path >> coords.x >> coords.y;
+
+        if (!sstream.fail()) {
+            jail(coords);
+        } else {
+            // TODO: Error
+        }
+
         return true;
     } else if (key == "map_first") {
         map_first(val);
@@ -95,16 +99,11 @@ std::string RegionObject::dump()
         s += "endmsg\n";
     }
 
-    if (!jailmap().empty()) {
-        s += "jailmap " + jailmap() + "\n";
-    }
+    const mapcoords_t coords = jail();
 
-    if (jailx() != 0) {
-        s += "jailx " + lexical_cast<string>(jailx()) + "\n";
-    }
-
-    if (jaily() != 0) {
-        s += "jaily " + lexical_cast<string>(jaily()) + "\n";
+    if (!coords.path.empty()) {
+        s += "jail " + coords.path + " " + lexical_cast<string>(coords.x) +
+             " " + lexical_cast<string>(coords.y) + "\n";
     }
 
     if (!map_first().empty()) {
