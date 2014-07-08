@@ -25,6 +25,8 @@
  * Generic bit flags.
  */
 
+#pragma once
+
 #include <string>
 #include <boost/lexical_cast.hpp>
 
