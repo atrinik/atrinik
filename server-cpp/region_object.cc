@@ -119,6 +119,8 @@ std::string RegionObject::dump()
         s += "map_quest 1\n";
     }
 
+    s += "end\n";
+
     return s;
 }
 
