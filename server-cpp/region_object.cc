@@ -68,7 +68,7 @@ bool RegionObject::load(const std::string& key, const std::string& val)
         map_bg(val);
         return true;
     } else if (key == "map_quest") {
-        f_map_quest(lexical_cast<bool>(val));
+        f_map_quest(true);
         return true;
     }
 
