@@ -73,9 +73,9 @@ void RegionParser::load(const std::string& path)
         it2->second->inv_push_back(it.second);
     }
 
-    for (auto it : RegionObject::regions) {
+    /*for (auto it : RegionObject::regions) {
         cout << it.second->dump() << endl;
-    }
+    }*/
 }
 
 }
