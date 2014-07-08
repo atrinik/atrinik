@@ -44,6 +44,10 @@ struct mapcoords_t : coords_t {
 class GameObject : public ObjectCRTP<GameObject> {
 private:
     std::list<GameObjectType*> types;
+
+    boost::variant<boost::blank, MapTileObject*, GameObject*> env_;
+
+    std::list<GameObject*> inv_;
 public:
     boost::variant<GameObject*, std::string> arch;
 
@@ -55,6 +59,37 @@ public:
         for (auto it : obj.types) {
             types.push_back(it->clone());
         }
+    }
+
+    void env(boost::variant<GameObject*, MapTileObject*> env)
+    {
+        env_ = env;
+    }
+
+    void inv_push_back(GameObject* obj)
+    {
+        inv_.push_back(obj);
+        obj->env_ = this;
+    }
+
+    MapTileObject* map_tile()
+    {
+        try {
+            return boost::get<MapTileObject*>(env_);
+        } catch (boost::bad_get) {
+            return NULL;
+        }
+    }
+
+    MapObject* map()
+    {
+        MapTileObject* tile = map_tile();
+
+        if (tile == NULL) {
+            return NULL;
+        }
+
+        return tile->env();
     }
 
     virtual bool load(const std::string& key, const std::string& val);

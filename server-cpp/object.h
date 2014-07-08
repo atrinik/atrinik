@@ -40,9 +40,6 @@ private:
 public:
     uint64_t uid; ///< Object's UID.
 
-    std::list<Object*> inv;
-    Object* env = NULL;
-
     Object() : uid(++guid)
     {
     }

@@ -37,8 +37,8 @@ using namespace std;
 
 namespace atrinik {
 
-static void parse_objects(MapObject* map, string archname,
-        property_tree::ptree tree, Object* env = NULL)
+static void parse_objects(MapObject* map, const string& archname,
+        property_tree::ptree tree, GameObject* env = NULL)
 {
     GameObject::sobjects_t::iterator result;
 
@@ -85,11 +85,10 @@ static void parse_objects(MapObject* map, string archname,
         } catch (bad_lexical_cast&) {
         }
 
-        env = &map->tile_get(x, y);
+        map->tile_get(x, y).inv_push_back(obj);
+    } else {
+        env->inv_push_back(obj);
     }
-
-    env->inv.push_back(obj);
-    obj->env = env;
 }
 
 void MapParser::parse_map(MapObject* map)
@@ -113,7 +112,8 @@ void MapParser::parse_map(MapObject* map)
 
    // Load the rest of the objects
     for (it++; it != end; it++) {
-        parse_objects(map, it->second.get<string>(it->first), it->second);
+        parse_objects(map, it->second.get<string>(it->first), it->second,
+                (GameObject*) NULL);
     }
 
     cout << map->dump() << endl;

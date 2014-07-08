@@ -55,6 +55,9 @@ private:
     std::string map_first_;
 
     std::string map_bg_;
+
+    RegionObject *env_ = NULL;
+    std::list<RegionObject*> inv_;
 public:
     using Object::Object;
 
@@ -62,6 +65,8 @@ public:
     regions_t; ///< Regions hash map type
 
     static regions_t regions; ///< The regions hash map
+
+    void inv_push_back(RegionObject* obj);
 
     inline const bool f_map_quest() const
     {

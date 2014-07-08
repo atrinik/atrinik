@@ -28,12 +28,19 @@
 #include <boost/lexical_cast.hpp>
 
 #include "map_tile_object.h"
+#include "game_object.h"
 
 using namespace atrinik;
 using namespace boost;
 using namespace std;
 
 namespace atrinik {
+
+void MapTileObject::inv_push_back(GameObject* obj)
+{
+    inv_.push_back(obj);
+    obj->env(this);
+}
 
 bool MapTileObject::load(const std::string& key, const std::string& val)
 {
@@ -50,7 +57,8 @@ bool MapTileObject::load(const std::string& key, const std::string& val)
 
 std::string MapTileObject::dump()
 {
-    string s = "";
+#if defined(FUTURE)
+    string s = "arch maptile\n";
 
     if (x_ != 0) {
         s += "x " + lexical_cast<string>(x_) + "\n";
@@ -59,6 +67,17 @@ std::string MapTileObject::dump()
     if (y_ != 0) {
         s += "y " + lexical_cast<string>(y_) + "\n";
     }
+#else
+    string s = "";
+#endif
+
+    for (auto it : inv_) {
+        s += it->dump();
+    }
+
+#if defined(FUTURE)
+    s += "end\n";
+#endif
 
     return s;
 }

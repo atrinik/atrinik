@@ -38,6 +38,12 @@ namespace atrinik {
 
 RegionObject::regions_t RegionObject::regions;
 
+void RegionObject::inv_push_back(RegionObject* obj)
+{
+    inv_.push_back(obj);
+    obj->env_ = this;
+}
+
 bool RegionObject::load(const std::string& key, const std::string& val)
 {
     if (key == "name") {

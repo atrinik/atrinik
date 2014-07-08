@@ -29,6 +29,8 @@
 #include <boost/algorithm/string/predicate.hpp>
 
 #include "map_object.h"
+#include "map_tile_object.h"
+#include "game_object.h"
 
 using namespace atrinik;
 using namespace boost;
@@ -193,11 +195,7 @@ std::string MapObject::dump()
 
     for (int x = 0; x < size_.first; x++) {
         for (int y = 0; y < size_.second; y++) {
-            MapTileObject& tile = tile_get(x, y);
-
-            for (auto it : tile.inv) {
-                s += it->dump();
-            }
+            s += tile_get(x, y).dump();
         }
     }
 
@@ -218,7 +216,7 @@ void MapObject::allocate()
     for (int i = 0; i < len; i++) {
         inv[i].x(i / size_.first);
         inv[i].y(i % size_.second);
-        inv[i].env = this;
+        inv[i].env(this);
     }
 }
 

@@ -33,6 +33,9 @@
 
 namespace atrinik {
 
+class MapObject;
+class GameObject;
+
 typedef uint16_t coord_t;
 
 struct coords_t {
@@ -45,18 +48,43 @@ private:
     int x_;
 
     int y_;
+
+    MapObject *env_ = NULL;
+    std::list<GameObject*> inv_;
 public:
     using Object::Object;
+
+    int x()
+    {
+        return x_;
+    }
 
     void x(int val)
     {
         x_ = val;
     }
 
+    int y()
+    {
+        return y_;
+    }
+
     void y(int val)
     {
         y_ = val;
     }
+
+    MapObject *env()
+    {
+        return env_;
+    }
+
+    void env(MapObject *env)
+    {
+        env_ = env;
+    }
+
+    void inv_push_back(GameObject* obj);
 
     virtual bool load(const std::string& key, const std::string& val);
     virtual std::string dump();

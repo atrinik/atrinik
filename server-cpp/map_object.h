@@ -29,9 +29,10 @@
 
 #include "object.h"
 #include "bit_flags.h"
-#include "map_tile_object.h"
 
 namespace atrinik {
+
+class MapTileObject;
 
 class MapObject : public ObjectCRTP<MapObject> {
 private:

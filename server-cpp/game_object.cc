@@ -27,8 +27,8 @@
 
 #include <boost/lexical_cast.hpp>
 
-#include "game_object.h"
 #include "map_tile_object.h"
+#include "game_object.h"
 
 using namespace atrinik;
 using namespace boost;
@@ -60,11 +60,19 @@ std::string GameObject::dump()
 
     s = "arch " + boost::apply_visitor(GameObjectArchVisitor(), arch) + "\n";
 
-    MapTileObject *tile = dynamic_cast<MapTileObject*>(env);
+#if !defined(FUTURE)
+    MapTileObject *tile = map_tile();
 
     if (tile != NULL) {
-        s += tile->dump();
+        if (tile->x() != 0) {
+            s += "x " + lexical_cast<string>(tile->x()) + "\n";
+        }
+
+        if (tile->y() != 0) {
+            s += "y " + lexical_cast<string>(tile->y()) + "\n";
+        }
     }
+#endif
 
     GameObject* arch = boost::get<GameObject*>(this->arch);
 
@@ -87,7 +95,7 @@ std::string GameObject::dump()
 #endif
     }
 
-    for (auto it : inv) {
+    for (auto it : inv_) {
         s += it->dump();
     }
 

@@ -70,8 +70,7 @@ void RegionParser::load(const std::string& path)
             continue;
         }
 
-        it2->second->inv.push_back(it.second);
-        it.second->env = it2->second;
+        it2->second->inv_push_back(it.second);
     }
 
     for (auto it : RegionObject::regions) {
