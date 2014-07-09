@@ -53,7 +53,7 @@ void RegionParser::load(const std::string& path)
             obj->load(it2.first, it.second.get<string>(it2.first));
         }
 
-        RegionObject::regions.insert(make_pair(name, obj));
+        RegionObject::regions.add(obj);
     }
 
     // Link up children/parents
@@ -62,15 +62,15 @@ void RegionParser::load(const std::string& path)
             continue;
         }
 
-        RegionObject::regions_t::iterator it2 = RegionObject::regions.find(
+        RegionObject* parent = RegionObject::regions.find(
                 it.second->parent());
 
-        if (it2 == RegionObject::regions.end()) {
+        if (parent == NULL) {
             // TODO: error
             continue;
         }
 
-        it2->second->inv_push_back(it.second);
+        parent->inv_push_back(it.second);
     }
 
     /*for (auto it : RegionObject::regions) {

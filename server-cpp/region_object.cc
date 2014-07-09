@@ -36,7 +36,7 @@ using namespace std;
 
 namespace atrinik {
 
-RegionObject::regions_t RegionObject::regions;
+RegionTree RegionObject::regions;
 
 void RegionObject::inv_push_back(RegionObject* obj)
 {
@@ -127,6 +127,22 @@ std::string RegionObject::dump()
     s += "end\n";
 
     return s;
+}
+
+RegionObject* RegionTree::find(const std::string& name)
+{
+    auto it = regions.find(name);
+
+    if (it == regions.end()) {
+        return NULL;
+    }
+
+    return it->second;
+}
+
+bool RegionTree::add(RegionObject* region)
+{
+    return regions.insert(make_pair(region->name(), region)).second;
 }
 
 }

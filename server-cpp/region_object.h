@@ -27,11 +27,15 @@
 
 #pragma once
 
+#include <unordered_map>
+
 #include "object.h"
 #include "bit_flags.h"
 #include "game_object.h"
 
 namespace atrinik {
+
+class RegionTree;
 
 class RegionObject : public ObjectCRTP<RegionObject> {
 private:
@@ -59,12 +63,9 @@ private:
     RegionObject *env_ = NULL;
     std::list<RegionObject*> inv_;
 public:
+    static RegionTree regions;
+
     using Object::Object;
-
-    typedef std::map<std::string, RegionObject*>
-    regions_t; ///< Regions hash map type
-
-    static regions_t regions; ///< The regions hash map
 
     void inv_push_back(RegionObject* obj);
 
@@ -174,6 +175,30 @@ public:
 
     virtual bool load(const std::string& key, const std::string& val);
     virtual std::string dump();
+};
+
+class RegionTree {
+private:
+    typedef std::unordered_map<std::string, RegionObject*>
+    regions_t;
+
+    regions_t regions;
+public:
+    RegionObject* find(const std::string& name);
+    bool add(RegionObject* region);
+
+    typedef regions_t::iterator iterator;
+    typedef regions_t::const_iterator const_iterator;
+
+    iterator begin()
+    {
+        return regions.begin();
+    }
+
+    iterator end()
+    {
+        return regions.end();
+    }
 };
 
 }
