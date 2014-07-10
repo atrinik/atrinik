@@ -17,16 +17,33 @@ find_package(TBB REQUIRED)
 include_directories(${TBB_INCLUDE_DIRS})
 
 configure_file (
-  "${PROJECT_SOURCE_DIR}/config.h.in"
-  "${PROJECT_BINARY_DIR}/config.h"
+  "${PROJECT_SOURCE_DIR}/src/config.h.in"
+  "${PROJECT_BINARY_DIR}/src/config.h"
   )
 
-include_directories ("${PROJECT_BINARY_DIR}")
+include_directories(
+    "${PROJECT_BINARY_DIR}/src"
+    "${PROJECT_BINARY_DIR}/src/objects"
+    "${PROJECT_BINARY_DIR}/src/parsers"
+    "${PROJECT_BINARY_DIR}/src/types"
+)
 
-add_executable(atrinik game_object.cc object.cc game_object_type.cc
-    object_parser.cc main.cc archetype_parser.cc map_object.cc map_parser.cc
-    sign_object_type.cc map_tile_object.cc gfx_object_type.cc
-    base_object_type.cc region_object.cc region_parser.cc)
+add_executable(atrinik
+    src/main.cc
+    src/objects/game_object.cc
+    src/objects/map_object.cc
+    src/objects/map_tile_object.cc
+    src/objects/object.cc
+    src/objects/region_object.cc
+    src/parsers/archetype_parser.cc
+    src/parsers/map_parser.cc
+    src/parsers/object_parser.cc
+    src/parsers/region_parser.cc
+    src/types/base_object_type.cc
+    src/types/game_object_type.cc
+    src/types/gfx_object_type.cc
+    src/types/sign_object_type.cc
+)
 
 target_link_libraries(atrinik ${Boost_LIBRARIES} ${TBB_LIBRARIES})
 

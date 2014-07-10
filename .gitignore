@@ -32,7 +32,7 @@ maps/interfaces/**/*.py
 maps/python/InterfaceQuests.py
 cov-int
 nbproject
-server-cpp/config.h
+server-cpp/src/config.h
 *.json
 server-cpp/atrinik
 server-cpp/atrinik.exe
