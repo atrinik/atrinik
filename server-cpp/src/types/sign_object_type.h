@@ -29,14 +29,14 @@
 
 #include <string>
 
-#include "game_object_type.h"
-#include "bit_flags.h"
+#include <game_object_type.h>
+#include <bit_flags.h>
 
 namespace atrinik {
 
 #define GAME_OBJECT_TYPE_ID SignObjectType
 class GAME_OBJECT_TYPE_ID : public GameObjectTypeCRTP<GAME_OBJECT_TYPE_ID> {
-#include "game_object_type_internal.h"
+#include <game_object_type_internal.h>
 private:
     enum Flags {
         IsFan = 0x01,

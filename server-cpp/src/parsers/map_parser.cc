@@ -28,8 +28,8 @@
 #include <fstream>
 #include <boost/property_tree/xml_parser.hpp>
 
-#include "map_parser.h"
-#include "game_object.h"
+#include <map_parser.h>
+#include <game_object.h>
 
 using namespace atrinik;
 using namespace boost;

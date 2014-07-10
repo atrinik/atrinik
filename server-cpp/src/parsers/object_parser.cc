@@ -29,7 +29,7 @@
 #include <fstream>
 #include <boost/algorithm/string/predicate.hpp>
 
-#include "object_parser.h"
+#include <object_parser.h>
 
 using namespace atrinik;
 using namespace boost;

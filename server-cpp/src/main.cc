@@ -27,11 +27,11 @@
 
 #include <boost/lexical_cast.hpp>
 
-#include "object.h"
-#include "game_object.h"
-#include "archetype_parser.h"
-#include "map_parser.h"
-#include "region_parser.h"
+#include <object.h>
+#include <game_object.h>
+#include <archetype_parser.h>
+#include <map_parser.h>
+#include <region_parser.h>
 
 using namespace atrinik;
 using namespace boost;

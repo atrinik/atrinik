@@ -27,7 +27,7 @@
 
 #include <boost/lexical_cast.hpp>
 
-#include "base_object_type.h"
+#include <base_object_type.h>
 
 using namespace atrinik;
 using namespace boost;

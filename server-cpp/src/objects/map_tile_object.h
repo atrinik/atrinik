@@ -29,7 +29,7 @@
 
 #include <string>
 
-#include "object.h"
+#include <object.h>
 
 namespace atrinik {
 

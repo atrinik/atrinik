@@ -27,8 +27,8 @@
 
 #pragma once
 
-#include "object_parser.h"
-#include "map_object.h"
+#include <object_parser.h>
+#include <map_object.h>
 
 namespace atrinik {
 

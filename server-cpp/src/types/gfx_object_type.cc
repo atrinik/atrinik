@@ -27,7 +27,7 @@
 
 #include <boost/lexical_cast.hpp>
 
-#include "gfx_object_type.h"
+#include <gfx_object_type.h>
 
 using namespace atrinik;
 using namespace boost;

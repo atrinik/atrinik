@@ -27,8 +27,8 @@
 
 #pragma once
 
-#include "object.h"
-#include "bit_flags.h"
+#include <object.h>
+#include <bit_flags.h>
 
 namespace atrinik {
 

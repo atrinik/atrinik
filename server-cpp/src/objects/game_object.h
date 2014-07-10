@@ -31,9 +31,9 @@
 #include <string.h>
 #include <boost/variant.hpp>
 
-#include "object.h"
-#include "map_tile_object.h"
-#include "game_object_type.h"
+#include <object.h>
+#include <map_tile_object.h>
+#include <game_object_type.h>
 
 namespace atrinik {
 

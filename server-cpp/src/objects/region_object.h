@@ -29,9 +29,9 @@
 
 #include <unordered_map>
 
-#include "object.h"
-#include "bit_flags.h"
-#include "game_object.h"
+#include <object.h>
+#include <bit_flags.h>
+#include <game_object.h>
 
 namespace atrinik {
 

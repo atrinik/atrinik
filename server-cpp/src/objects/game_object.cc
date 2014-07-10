@@ -27,8 +27,8 @@
 
 #include <boost/lexical_cast.hpp>
 
-#include "map_tile_object.h"
-#include "game_object.h"
+#include <map_tile_object.h>
+#include <game_object.h>
 
 using namespace atrinik;
 using namespace boost;

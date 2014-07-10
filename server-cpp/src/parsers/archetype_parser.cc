@@ -28,11 +28,11 @@
 #include <fstream>
 #include <boost/lexical_cast.hpp>
 
-#include "archetype_parser.h"
-#include "game_object.h"
-#include "base_object_type.h"
-#include "sign_object_type.h"
-#include "gfx_object_type.h"
+#include <archetype_parser.h>
+#include <game_object.h>
+#include <base_object_type.h>
+#include <sign_object_type.h>
+#include <gfx_object_type.h>
 
 using namespace atrinik;
 using namespace boost;

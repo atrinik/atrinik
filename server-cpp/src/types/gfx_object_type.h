@@ -29,13 +29,13 @@
 
 #include <string>
 
-#include "game_object_type.h"
+#include <game_object_type.h>
 
 namespace atrinik {
 
 #define GAME_OBJECT_TYPE_ID GfxObjectType
 class GAME_OBJECT_TYPE_ID : public GameObjectTypeCRTP<GAME_OBJECT_TYPE_ID> {
-#include "game_object_type_internal.h"
+#include <game_object_type_internal.h>
 private:
     uint8_t layer_ = 0;
 public:

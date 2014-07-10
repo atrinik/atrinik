@@ -28,7 +28,7 @@
 #include <boost/lexical_cast.hpp>
 #include <boost/algorithm/string/predicate.hpp>
 
-#include "region_object.h"
+#include <region_object.h>
 
 using namespace atrinik;
 using namespace boost;

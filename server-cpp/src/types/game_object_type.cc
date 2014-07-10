@@ -25,7 +25,7 @@
  * Game object type implementation.
  */
 
-#include "game_object_type.h"
+#include <game_object_type.h>
 
 using namespace atrinik;
 using namespace std;

@@ -25,7 +25,7 @@
  * Base Atrinik objects implementation.
  */
 
-#include "object.h"
+#include <object.h>
 
 namespace atrinik {
 
