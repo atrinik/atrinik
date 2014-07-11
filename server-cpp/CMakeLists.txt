@@ -23,6 +23,7 @@ configure_file (
 
 include_directories(
     "${PROJECT_BINARY_DIR}/src"
+    "${PROJECT_BINARY_DIR}/src/network"
     "${PROJECT_BINARY_DIR}/src/objects"
     "${PROJECT_BINARY_DIR}/src/parsers"
     "${PROJECT_BINARY_DIR}/src/types"
@@ -30,6 +31,8 @@ include_directories(
 
 add_executable(atrinik
     src/main.cc
+    src/network/game_server.cc
+    src/network/tcp_connection.cc
     src/objects/game_object.cc
     src/objects/map_object.cc
     src/objects/map_tile_object.cc

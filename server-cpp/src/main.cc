@@ -26,12 +26,14 @@
  */
 
 #include <boost/lexical_cast.hpp>
+#include <thread>
 
 #include <object.h>
 #include <game_object.h>
 #include <archetype_parser.h>
 #include <map_parser.h>
 #include <region_parser.h>
+#include <game_server.h>
 
 using namespace atrinik;
 using namespace boost;
@@ -74,6 +76,17 @@ using namespace std;
 //    }
 //}
 
+void socket_thread()
+{
+    try {
+        asio::io_service io_service;
+        game_server server(io_service);
+        io_service.run();
+    } catch (std::exception& e) {
+        cout << e.what() << endl;
+    }
+}
+
 int main(int argc, char **argv)
 {
     ArchetypeParser *parser = new ArchetypeParser;
@@ -85,6 +98,9 @@ int main(int argc, char **argv)
 
     MapParser* map_parser = new MapParser;
     map_parser->load_map(argc > 1 ? argv[1] : "../maps/hall_of_dms");
+
+    thread thread_socket(socket_thread);
+    thread_socket.join();
 
     return 0;
 
