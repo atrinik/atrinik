@@ -32,15 +32,21 @@ using namespace std;
 
 namespace atrinik {
 
-GameObjectTypeFactory::MapType* GameObjectTypeFactory::map =
-new GameObjectTypeFactory::MapType;
 int GameObjectTypeFactory::guid(0);
+
+GameObjectTypeFactory::MapType& GameObjectTypeFactory::map()
+{
+    static GameObjectTypeFactory::MapType* map =
+        new GameObjectTypeFactory::MapType();
+
+    return *map;
+}
 
 GameObjectType* GameObjectTypeFactory::create_instance(const std::string& s)
 {
-    MapType::iterator it = map->find(s);
+    MapType::iterator it = map().find(s);
 
-    if (it == map->end()) {
+    if (it == map().end()) {
         return NULL;
     }
 

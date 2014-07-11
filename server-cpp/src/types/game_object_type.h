@@ -58,8 +58,8 @@ GameObjectType* create_game_object_type()
 
 struct GameObjectTypeFactory {
     typedef std::map<std::string, GameObjectType*(*)()> MapType;
-    static MapType* map;
     static int guid;
+    static MapType& map();
     static GameObjectType* create_instance(const std::string& s);
 };
 
@@ -68,7 +68,7 @@ struct GameObjectTypeFactoryRegister : GameObjectTypeFactory {
     int id;
 
     GameObjectTypeFactoryRegister(const std::string& s) {
-        map->insert(std::make_pair(s, &create_game_object_type<T>));
+        map().insert(std::make_pair(s, &create_game_object_type<T>));
         id = guid++;
     }
 };
