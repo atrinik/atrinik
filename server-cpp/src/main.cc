@@ -26,7 +26,8 @@
  */
 
 #include <boost/lexical_cast.hpp>
-#include <thread>
+#include <boost/bind.hpp>
+#include <boost/thread.hpp>
 
 #include <object.h>
 #include <game_object.h>
@@ -76,16 +77,16 @@ using namespace std;
 //    }
 //}
 
-void socket_thread()
-{
-    try {
-        asio::io_service io_service;
-        game_server server(io_service);
-        io_service.run();
-    } catch (std::exception& e) {
-        cout << e.what() << endl;
-    }
-}
+//void socket_thread()
+//{
+//    try {
+//        asio::io_service io_service;
+//        game_server server(io_service);
+//        io_service.run();
+//    } catch (std::exception& e) {
+//        cout << e.what() << endl;
+//    }
+//}
 
 int main(int argc, char **argv)
 {
@@ -99,8 +100,20 @@ int main(int argc, char **argv)
     MapParser* map_parser = new MapParser;
     map_parser->load_map(argc > 1 ? argv[1] : "../maps/hall_of_dms");
 
-    thread thread_socket(socket_thread);
-    thread_socket.join();
+    asio::io_service io_service;
+    asio::ip::tcp::endpoint endpoint(asio::ip::tcp::v6(), 13360);
+    game_server_ptr server(new game_server(io_service, endpoint));
+    thread bt(bind(&asio::io_service::run, &io_service));
+
+    while (true) {
+        server->process();
+        usleep(125000);
+    }
+
+    bt.join();
+
+//    thread thread_socket(socket_thread);
+//    thread_socket.join();
 
     return 0;
 

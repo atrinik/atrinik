@@ -22,11 +22,11 @@
 
 /**
  * @file
- * Game server implementation.
+ * Game connection implementation.
  */
 
 #include <boost/bind.hpp>
-#include <game_server.h>
+#include <game_session.h>
 
 using namespace atrinik;
 using namespace boost;
@@ -34,27 +34,65 @@ using namespace std;
 
 namespace atrinik {
 
-void game_server::start_accept()
+void game_session::start()
 {
-    game_session_ptr new_session(new game_session(io_service_, sessions_));
-    acceptor_.async_accept(new_session->socket(),
-            bind(&game_server::handle_accept, this, new_session,
-            asio::placeholders::error));
+    sessions_.add(shared_from_this());
+    asio::async_read(socket_,
+            asio::buffer(read_msg_.header(), game_message::header_length),
+            bind(&game_session::handle_read_header, shared_from_this(),
+            _1, _2));
 }
 
-void game_server::handle_accept(game_session_ptr session,
-        const boost::system::error_code& error)
+void game_session::write(const game_message& msg)
+{
+
+}
+
+void game_session::handle_read_header(const boost::system::error_code& error,
+        std::size_t bytes_transferred)
+{
+    if (!error && read_msg_.decode_header()) {
+        asio::async_read(socket_,
+                asio::buffer(read_msg_.body(), read_msg_.body_length()),
+                bind(&game_session::handle_read_body, shared_from_this(),
+                _1, _2));
+    } else {
+        sessions_.remove(shared_from_this());
+    }
+}
+
+void game_session::handle_read_body(const boost::system::error_code& error,
+        std::size_t bytes_transferred)
 {
     if (!error) {
-        session->start();
-    }
+        shared_from_this()->read_queue.push(read_msg_);
 
-    start_accept();
+        asio::async_read(socket_,
+                asio::buffer(read_msg_.header(), game_message::header_length),
+                bind(&game_session::handle_read_header, shared_from_this(),
+                _1, _2));
+    } else {
+        sessions_.remove(shared_from_this());
+    }
 }
 
-void game_server::process()
+void game_session::handle_write(const boost::system::error_code& error,
+        std::size_t bytes_transferred)
 {
-    sessions_.process();
+    if (!error) {
+        /*
+        write_queue.pop_front();
+
+        if (!write_queue.empty()) {
+            asio::async_write(socket_,
+                    asio::buffer(write_queue.front().body(),
+                    write_queue.front().length()),
+                    bind(&game_session::handle_write, shared_from_this(),
+                    _1, _2));
+        }*/
+    } else {
+        sessions_.remove(shared_from_this());
+    }
 }
 
 }

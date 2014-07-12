@@ -27,23 +27,32 @@
 
 #pragma once
 
-#include <tcp_connection.h>
+#include <game_session.h>
 
 namespace atrinik {
 
 class game_server {
-private:
-    boost::asio::ip::tcp::acceptor acceptor_;
-
-    void start_accept();
-    void handle_accept(tcp_connection::pointer new_connection,
-            const boost::system::error_code& error);
 public:
-    game_server(boost::asio::io_service& io_service) : acceptor_(io_service,
-            boost::asio::ip::tcp::endpoint(boost::asio::ip::tcp::v6(), 13361))
+
+    game_server(boost::asio::io_service& io_service,
+            const boost::asio::ip::tcp::endpoint& endpoint)
+    : io_service_(io_service), acceptor_(io_service, endpoint)
     {
         start_accept();
     }
+
+    void start_accept();
+    void handle_accept(game_session_ptr session,
+            const boost::system::error_code& error);
+
+    void process();
+
+private:
+    boost::asio::io_service& io_service_;
+    boost::asio::ip::tcp::acceptor acceptor_;
+    game_sessions sessions_;
 };
+
+typedef boost::shared_ptr<game_server> game_server_ptr;
 
 }

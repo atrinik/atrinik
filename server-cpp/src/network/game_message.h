@@ -22,43 +22,74 @@
 
 /**
  * @file
- * Basic TCP connection.
+ * Atrinik protocol message.
  */
 
 #pragma once
 
-#include <boost/shared_ptr.hpp>
-#include <boost/enable_shared_from_this.hpp>
-#include <boost/asio.hpp>
+#include <tbb/concurrent_queue.h>
 
 namespace atrinik {
 
-class tcp_connection : public boost::enable_shared_from_this<tcp_connection> {
-private:
-    boost::asio::ip::tcp::socket socket_;
-    std::string data_;
-
-    tcp_connection(boost::asio::io_service& io_service) : socket_(io_service)
-    {
-    }
-
-    void handle_write(const boost::system::error_code& error,
-            size_t bytes_transferred);
-
+class game_message {
 public:
-    typedef boost::shared_ptr<tcp_connection> pointer;
 
-    static pointer create(boost::asio::io_service& io_service)
+    enum {
+        header_length = 2
+    };
+
+    game_message() : body_length_(0), body_(header_length)
     {
-        return pointer(new tcp_connection(io_service));
     }
 
-    boost::asio::ip::tcp::socket& socket()
+    game_message(const game_message& msg)
+    : body_length_(msg.body_length_), body_(msg.length())
     {
-        return socket_;
+        memcpy(header(), msg.header(), msg.length());
     }
 
-    void start();
+    size_t length() const
+    {
+        return header_length + body_length_;
+    }
+
+    const char* header() const
+    {
+        return &body_[0];
+    }
+
+    char* header()
+    {
+        return &body_[0];
+    }
+
+    const char* body() const
+    {
+        return &body_[header_length];
+    }
+
+    char* body()
+    {
+        return &body_[header_length];
+    }
+
+    size_t body_length() const
+    {
+        return body_length_;
+    }
+
+    bool decode_header()
+    {
+        body_length_ = (body_[0] << 8) + body_[1];
+        body_.reserve(header_length + body_length_);
+        return true;
+    }
+
+private:
+    std::vector<char> body_;
+    uint16_t body_length_;
 };
+
+typedef tbb::concurrent_queue<game_message> game_message_queue;
 
 }
