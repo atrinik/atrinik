@@ -102,10 +102,14 @@ public:
                     break;
                 }
 
-                printf("RECEIVED %d: ", msg.length());
-                for (size_t i = 0; i < msg.body_length(); i++)
+                printf("RECEIVED %d bytes:\n", msg.length());
+                for (size_t i = 0; i < msg.length(); i++)
                 {
-                    printf("0x%02x ", msg.body()[i]);
+                    printf("0x%02x ", msg.header()[i] & 0xff);
+
+                    if (((i + 1) % 8) == 0) {
+                        printf("\n");
+                    }
                 }
                 printf("\n");
 
@@ -113,7 +117,7 @@ public:
 
                 if (type == 3) {
                     uint32_t version = msg.int32();
-                    printf("RECEIVED version: %d\n", version);
+                    printf("DETERMINED version: %d\n", version);
                 }
             }
         }

@@ -38,6 +38,8 @@ public:
         header_length = 2
     };
 
+    typedef std::vector<char> data_t;
+
     game_message() : body_length_(0), body_(header_length), idx_(0)
     {
     }
@@ -55,22 +57,22 @@ public:
 
     const char* header() const
     {
-        return &body_[0];
+        return body_.data();
     }
 
     char* header()
     {
-        return &body_[0];
+        return body_.data();
     }
 
     const char* body() const
     {
-        return &body_[header_length];
+        return body_.data() + header_length;
     }
 
     char* body()
     {
-        return &body_[header_length];
+        return body_.data() + header_length;
     }
 
     size_t body_length() const
@@ -112,7 +114,7 @@ public:
             return 0;
         }
 
-        return (body()[idx_++] << 8) + body()[idx_++];
+        return (body()[idx_++] << 8) +body()[idx_++];
     }
 
     void int16(int16_t val)
@@ -171,8 +173,36 @@ public:
         body_.push_back(val & 0xff);
     }
 
+    std::string string() const
+    {
+        std::string s;
+
+        if (body_length() - idx_ < 1) {
+            return s;
+        }
+
+        data_t::const_iterator it = std::find(body_.begin() + header_length +
+                idx_, body_.end(), 0);
+
+        if (it != body_.end()) {
+            size_t len = it - (body_.begin() + header_length + idx_);
+            s.assign(body() + idx_, len);
+            idx_ += len + 1;
+        }
+
+        return s;
+    }
+
+    void string(const std::string& val)
+    {
+        body_.reserve(header_length + body_length_ + val.length() + 1);
+        std::copy(val.begin(), val.end(), std::back_inserter(body_));
+        body_.push_back(0);
+        body_length_ += val.length() + 1;
+    }
+
 private:
-    std::vector<char> body_;
+    data_t body_;
     size_t body_length_;
     mutable size_t idx_;
 };
