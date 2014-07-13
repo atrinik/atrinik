@@ -80,6 +80,18 @@ public:
         return body_length_;
     }
 
+    void encode_header()
+    {
+        if (body_length_ > 32 * 1024 - 1) {
+            body_[0] = ((body_length_ >> 16) & 0xff) | 0x80;
+            body_[1] = (body_length_ >> 8) & 0xff;
+            body_.insert(body_.begin() + 2, body_length_ & 0xff);
+        } else {
+            body_[0] = (body_length_ >> 8) & 0xff;
+            body_[1] = body_length_ & 0xff;
+        }
+    }
+
     bool decode_header()
     {
         body_length_ = (body_[0] << 8) + body_[1];

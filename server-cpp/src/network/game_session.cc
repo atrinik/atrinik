@@ -45,7 +45,18 @@ void game_session::start()
 
 void game_session::write(const game_message& msg)
 {
+    bool write_in_progress = !write_queue.empty();
+    game_message write_msg;
 
+    write_queue.push(msg);
+
+    if (!write_in_progress && write_queue.try_pop(write_msg)) {
+        write_msg.encode_header();
+        asio::async_write(socket_,
+                asio::buffer(write_msg.header(), write_msg.length()),
+                bind(&game_session::handle_write, shared_from_this(),
+                _1, _2));
+    }
 }
 
 void game_session::handle_read_header(const boost::system::error_code& error,
@@ -80,16 +91,15 @@ void game_session::handle_write(const boost::system::error_code& error,
         std::size_t bytes_transferred)
 {
     if (!error) {
-        /*
-        write_queue.pop_front();
+        game_message write_msg;
 
-        if (!write_queue.empty()) {
+        if (!write_queue.empty() && write_queue.try_pop(write_msg)) {
+            write_msg.encode_header();
             asio::async_write(socket_,
-                    asio::buffer(write_queue.front().body(),
-                    write_queue.front().length()),
+                    asio::buffer(write_msg.header(), write_msg.length()),
                     bind(&game_session::handle_write, shared_from_this(),
                     _1, _2));
-        }*/
+        }
     } else {
         sessions_.remove(shared_from_this());
     }
