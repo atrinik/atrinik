@@ -108,6 +108,13 @@ public:
                     printf("0x%02x ", msg.body()[i]);
                 }
                 printf("\n");
+
+                uint8_t type = msg.int8();
+
+                if (type == 3) {
+                    uint32_t version = msg.int32();
+                    printf("RECEIVED version: %d\n", version);
+                }
             }
         }
     }

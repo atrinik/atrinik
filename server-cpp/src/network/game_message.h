@@ -38,12 +38,12 @@ public:
         header_length = 2
     };
 
-    game_message() : body_length_(0), body_(header_length)
+    game_message() : body_length_(0), body_(header_length), idx_(0)
     {
     }
 
     game_message(const game_message& msg)
-    : body_length_(msg.body_length_), body_(msg.length())
+    : body_length_(msg.body_length_), body_(msg.length()), idx_(0)
     {
         memcpy(header(), msg.header(), msg.length());
     }
@@ -81,13 +81,100 @@ public:
     bool decode_header()
     {
         body_length_ = (body_[0] << 8) + body_[1];
+
+        if (body_length_ == 0) {
+            return 0;
+        }
+
         body_.reserve(header_length + body_length_);
         return true;
     }
 
+    int8_t int8() const
+    {
+        if (body_length() - idx_ < 1) {
+            return 0;
+        }
+
+        return body()[idx_++];
+    }
+
+    void int8(int8_t val)
+    {
+        body_length_ += 1;
+        body_.reserve(header_length + body_length_);
+        body_.push_back(val & 0xff);
+    }
+
+    int16_t int16() const
+    {
+        if (body_length() - idx_ < 2) {
+            return 0;
+        }
+
+        return (body()[idx_++] << 8) + body()[idx_++];
+    }
+
+    void int16(int16_t val)
+    {
+        body_length_ += 2;
+        body_.reserve(header_length + body_length_);
+        body_.push_back((val >> 8) & 0xff);
+        body_.push_back(val & 0xff);
+    }
+
+    int32_t int32() const
+    {
+        if (body_length() - idx_ < 4) {
+            return 0;
+        }
+
+        return (body()[idx_++] << 24) + (body()[idx_++] << 16) +
+                (body()[idx_++] << 8) + body()[idx_++];
+    }
+
+    void int32(int32_t val)
+    {
+        body_length_ += 4;
+        body_.reserve(header_length + body_length_);
+        body_.push_back((val >> 24) & 0xff);
+        body_.push_back((val >> 16) & 0xff);
+        body_.push_back((val >> 8) & 0xff);
+        body_.push_back(val & 0xff);
+    }
+
+    int64_t int64() const
+    {
+        if (body_length() - idx_ < 8) {
+            return 0;
+        }
+
+        return ((int64_t) body()[idx_++] << 56) +
+                ((int64_t) body()[idx_++] << 48) +
+                ((int64_t) body()[idx_++] << 40) +
+                ((int64_t) body()[idx_++] << 32) +
+                (body()[idx_++] << 24) + (body()[idx_++] << 16) +
+                (body()[idx_++] << 8) + body()[idx_++];
+    }
+
+    void int64(int64_t val)
+    {
+        body_length_ += 8;
+        body_.reserve(header_length + body_length_);
+        body_.push_back((val >> 56) & 0xff);
+        body_.push_back((val >> 48) & 0xff);
+        body_.push_back((val >> 40) & 0xff);
+        body_.push_back((val >> 32) & 0xff);
+        body_.push_back((val >> 24) & 0xff);
+        body_.push_back((val >> 16) & 0xff);
+        body_.push_back((val >> 8) & 0xff);
+        body_.push_back(val & 0xff);
+    }
+
 private:
     std::vector<char> body_;
-    uint16_t body_length_;
+    size_t body_length_;
+    mutable size_t idx_;
 };
 
 typedef tbb::concurrent_queue<game_message> game_message_queue;
