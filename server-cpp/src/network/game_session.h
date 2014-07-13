@@ -118,6 +118,12 @@ public:
                 if (type == 3) {
                     uint32_t version = msg.int32();
                     printf("DETERMINED version: %d\n", version);
+
+                    game_message write_msg;
+
+                    write_msg.int8(15);
+                    write_msg.int32(1058);
+                    session->write(write_msg);
                 }
             }
         }
