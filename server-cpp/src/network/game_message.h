@@ -193,12 +193,15 @@ public:
         return s;
     }
 
-    void string(const std::string& val)
+    void string(const std::string& val, bool terminated = true)
     {
-        body_.reserve(header_length + body_length_ + val.length() + 1);
+        body_length_ += val.length() + terminated;
+        body_.reserve(header_length + body_length_);
         std::copy(val.begin(), val.end(), std::back_inserter(body_));
-        body_.push_back(0);
-        body_length_ += val.length() + 1;
+
+        if (terminated) {
+            body_.push_back(0);
+        }
     }
 
 private:
