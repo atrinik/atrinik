@@ -102,7 +102,7 @@ public:
                     break;
                 }
 
-                printf("RECEIVED %d bytes:\n", msg.length());
+                printf("RECEIVED %d bytes:\n", (int) msg.length());
                 for (size_t i = 0; i < msg.length(); i++)
                 {
                     printf("0x%02x ", msg.header()[i] & 0xff);
