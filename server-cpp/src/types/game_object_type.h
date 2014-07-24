@@ -45,8 +45,9 @@ class GameObjectTypeCRTP : public GameObjectType {
 public:
     using GameObjectType::GameObjectType;
 
-    virtual GameObjectType* clone() const {
-        return new T(static_cast<const T&>(*this));
+    virtual GameObjectType* clone() const
+    {
+        return new T(static_cast<const T&> (*this));
     }
 };
 
@@ -57,7 +58,7 @@ GameObjectType* create_game_object_type()
 }
 
 struct GameObjectTypeFactory {
-    typedef std::map<std::string, GameObjectType*(*)()> MapType;
+    typedef std::map<std::string, GameObjectType*(*)() > MapType;
     static int guid;
     static MapType& map();
     static GameObjectType* create_instance(const std::string& s);
@@ -67,7 +68,8 @@ template<typename T>
 struct GameObjectTypeFactoryRegister : GameObjectTypeFactory {
     int id;
 
-    GameObjectTypeFactoryRegister(const std::string& s) {
+    GameObjectTypeFactoryRegister(const std::string& s)
+    {
         map().insert(std::make_pair(s, &create_game_object_type<T>));
         id = guid++;
     }

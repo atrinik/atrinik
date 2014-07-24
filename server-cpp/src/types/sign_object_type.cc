@@ -49,7 +49,7 @@ bool SignObjectType::load(const std::string& key, const std::string& val)
 
 std::string SignObjectType::dump(const GameObjectType* base)
 {
-    auto base_type = dynamic_cast<const SignObjectType*>(base);
+    auto base_type = dynamic_cast<const SignObjectType*> (base);
     string s = "";
 
     if (base_type == NULL || this->f_is_fan() != base_type->f_is_fan()) {

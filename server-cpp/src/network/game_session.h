@@ -76,9 +76,9 @@ private:
 typedef boost::shared_ptr<GameSession> GameSessionPtr;
 
 class GameSessions
-: public boost::basic_lockable_adapter<boost::mutex>
-{
+: public boost::basic_lockable_adapter<boost::mutex> {
 public:
+
     void add(GameSessionPtr session)
     {
         boost::strict_lock<boost::mutex> guard(this->lockable());
@@ -103,8 +103,7 @@ public:
                 }
 
                 printf("RECEIVED %d bytes:\n", (int) msg.length());
-                for (size_t i = 0; i < msg.length(); i++)
-                {
+                for (size_t i = 0; i < msg.length(); i++) {
                     printf("0x%02x ", msg.header()[i] & 0xff);
 
                     if (((i + 1) % 8) == 0) {

@@ -49,7 +49,7 @@ static void parse_objects(MapObject* map, const string& archname,
         return;
     }
 
-    GameObject *obj = dynamic_cast<GameObject*>(result->second->clone());
+    GameObject *obj = dynamic_cast<GameObject*> (result->second->clone());
     obj->arch = result->second;
 
     // Load object attributes
@@ -58,7 +58,7 @@ static void parse_objects(MapObject* map, const string& archname,
             string archname2;
 
             try {
-                 archname2 = it.second.get<string>(it.first);
+                archname2 = it.second.get<string>(it.first);
             } catch (property_tree::ptree_bad_path) {
                 continue;
             }
@@ -110,7 +110,7 @@ void MapParser::parse_map(MapObject* map)
 
     map->allocate();
 
-   // Load the rest of the objects
+    // Load the rest of the objects
     for (it++; it != end; it++) {
         parse_objects(map, it->second.get<string>(it->first), it->second,
                 (GameObject*) NULL);
@@ -118,9 +118,9 @@ void MapParser::parse_map(MapObject* map)
 
     cout << map->dump() << endl;
 
-//    boost::property_tree::xml_writer_settings<char> settings('\t', 1);
-//    boost::property_tree::write_xml("map_output.xml", pt, std::locale(),
-//                                    settings);
+    //    boost::property_tree::xml_writer_settings<char> settings('\t', 1);
+    //    boost::property_tree::write_xml("map_output.xml", pt, std::locale(),
+    //                                    settings);
 }
 
 MapObject* MapParser::load_map(const std::string& path)

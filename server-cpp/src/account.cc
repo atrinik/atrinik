@@ -43,9 +43,9 @@ static void validate_name(const std::string& s)
     if (s.empty()) {
         throw AccountError("name cannot be empty");
     }
-    
+
     // TODO: add allowed characters check
-    
+
     if (s.length() < Account::name_min() || s.length() > Account::name_max()) {
         throw AccountError("name has invalid length");
     }
@@ -56,65 +56,65 @@ static void validate_password(const std::string& s)
     if (s.empty()) {
         throw AccountError("password cannot be empty");
     }
-    
+
     // TODO: add allowed characters check
-    
+
     if (s.length() < Account::password_min() ||
             s.length() > Account::password_max()) {
         throw AccountError("password has invalid length");
     }
 }
-    
+
 void Account::action_register(const std::string& name, const std::string& pswd,
-            const std::string& pswd2)
+        const std::string& pswd2)
 {
     validate_name(name);
     validate_password(pswd);
     validate_password(pswd2);
-    
+
     if (pswd != pswd2) {
         throw AccountError("passwords do not match");
     }
-    
+
     encrypt_password(pswd);
-    
+
     for (int i = 0; i < 32; i++) {
         printf("%02x", 255 & password[i]);
     }
-    
+
     printf("\n");
 }
 
 void Account::action_login(const std::string& name, const std::string& pswd)
 {
-    
+
 }
-    
+
 void Account::action_logout(const GameObject& obj)
 {
-    
+
 }
-    
+
 void Account::action_char_login(const std::string& name)
 {
-    
+
 }
-    
+
 void Account::action_char_new(const std::string& name,
         const std::string& archname)
 {
-    
+
 }
-    
+
 void Account::action_change_pswd(const std::string& pswd,
         const std::string& pswd_new, const std::string& pswd_new2)
 {
-    
+
 }
 
 GameMessage* Account::construct_packet()
 {
-    
+
 }
 
 void Account::encrypt_password(const std::string& s)
@@ -122,7 +122,7 @@ void Account::encrypt_password(const std::string& s)
     if (!RAND_bytes(salt, 32)) {
         throw AccountError("OpenSSL PRNG is not seeded");
     }
-    
+
     PKCS5_PBKDF2_HMAC(s.c_str(), s.length(), salt, 32,
             password_hash_iterations(), EVP_sha256(), 32, password);
 }

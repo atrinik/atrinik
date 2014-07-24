@@ -94,7 +94,7 @@ int main(int argc, char **argv)
 {
     SSL_load_error_strings();
     SSL_library_init();
-    
+
     ArchetypeParser *parser = new ArchetypeParser;
     parser->read_archetypes("../arch/archetypes");
     parser->load_archetypes_pass1();
@@ -109,15 +109,15 @@ int main(int argc, char **argv)
     asio::ip::tcp::endpoint endpoint(asio::ip::tcp::v6(), 13360);
     game_server_ptr server(new GameServer(io_service, endpoint));
     thread bt(bind(&asio::io_service::run, &io_service));
-    
+
     Account account;
-    
+
     try {
         account.action_register("Test", "password", "password");
     } catch (const AccountError& e) {
         cout << e.what() << endl;
     }
-    
+
 
     while (true) {
         server->process();
@@ -126,21 +126,21 @@ int main(int argc, char **argv)
 
     bt.join();
 
-//    thread thread_socket(socket_thread);
-//    thread_socket.join();
+    //    thread thread_socket(socket_thread);
+    //    thread_socket.join();
 
     return 0;
 
-//    thread thread1(consumer);
-//    thread thread2(producer);
-//    thread thread3(producer);
-//    thread thread4(deleter);
-//    thread thread5(deleter);
-//    thread1.join();
-//    thread2.join();
-//    thread3.join();
-//    thread4.join();
-//    thread5.join();
-//
-//    return 0;
+    //    thread thread1(consumer);
+    //    thread thread2(producer);
+    //    thread thread3(producer);
+    //    thread thread4(deleter);
+    //    thread thread5(deleter);
+    //    thread1.join();
+    //    thread2.join();
+    //    thread3.join();
+    //    thread4.join();
+    //    thread5.join();
+    //
+    //    return 0;
 }

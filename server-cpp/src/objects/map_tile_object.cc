@@ -61,7 +61,7 @@ std::string MapTileObject::dump()
     if (inv_.empty()) {
         return "";
     }
-    
+
     string s = "arch maptile\n";
 
     if (x_ != 0) {

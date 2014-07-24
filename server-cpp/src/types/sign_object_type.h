@@ -35,15 +35,18 @@
 namespace atrinik {
 
 #define GAME_OBJECT_TYPE_ID SignObjectType
+
 class GAME_OBJECT_TYPE_ID : public GameObjectTypeCRTP<GAME_OBJECT_TYPE_ID> {
 #include <game_object_type_internal.h>
 private:
+
     enum Flags {
         IsFan = 0x01,
     };
 
     uint8_t flags = 0;
 public:
+
     inline const bool f_is_fan() const
     {
         return BitFlagQuery(flags, Flags::IsFan);

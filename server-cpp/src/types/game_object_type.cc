@@ -37,7 +37,7 @@ int GameObjectTypeFactory::guid(0);
 GameObjectTypeFactory::MapType& GameObjectTypeFactory::map()
 {
     static GameObjectTypeFactory::MapType* map =
-        new GameObjectTypeFactory::MapType();
+            new GameObjectTypeFactory::MapType();
 
     return *map;
 }

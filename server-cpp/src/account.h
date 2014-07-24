@@ -23,7 +23,7 @@
 /**
  * @file
  * Account system.
- * 
+ *
  * The account system is used to store various data about individual player
  * accounts, including their last login time, IP used to log in, etc.
  */
@@ -60,7 +60,7 @@ AccountCharacterList; ///< List of characters.
  */
 class Account {
 public:
-   
+
     /**
      * Acquire the minimum number of characters an account name must have.
      * @return Number of characters.
@@ -78,7 +78,7 @@ public:
     {
         return 16;
     }
-    
+
     /**
      * Acquire the minimum number of characters an account password must have.
      * @return Number of characters.
@@ -110,13 +110,13 @@ public:
             const std::string& pswd2);
 
     void action_login(const std::string& name, const std::string& pswd);
-    
+
     void action_logout(const GameObject& obj);
-    
+
     void action_char_login(const std::string& name);
-    
+
     void action_char_new(const std::string& name, const std::string& archname);
-    
+
     void action_change_pswd(const std::string& pswd,
             const std::string& pswd_new, const std::string& pswd_new2);
 
@@ -130,11 +130,11 @@ private:
     std::string password_old; ///< Old-style crypt() password.
 
     AccountCharacterList characters; ///< Account's characters.
-    
+
     void save();
-    
+
     void load();
-    
+
     void encrypt_password(const std::string& s);
 };
 

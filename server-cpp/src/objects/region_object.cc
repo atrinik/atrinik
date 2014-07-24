@@ -109,7 +109,7 @@ std::string RegionObject::dump()
 
     if (!coords.path.empty()) {
         s += "jail " + coords.path + " " + lexical_cast<string>(coords.x) +
-             " " + lexical_cast<string>(coords.y) + "\n";
+                " " + lexical_cast<string>(coords.y) + "\n";
     }
 
     if (!map_first().empty()) {

@@ -49,7 +49,7 @@ bool GfxObjectType::load(const std::string& key, const std::string& val)
 
 std::string GfxObjectType::dump(const GameObjectType* base)
 {
-    auto base_type = dynamic_cast<const GfxObjectType*>(base);
+    auto base_type = dynamic_cast<const GfxObjectType*> (base);
     string s = "";
 
     if (base_type == NULL || this->layer() != base_type->layer()) {

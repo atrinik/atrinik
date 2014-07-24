@@ -51,9 +51,16 @@ private:
 public:
     boost::variant<GameObject*, std::string> arch;
 
-    GameObject() : ObjectCRTP() {}
-    ~GameObject() {}
-    GameObject(const GameObject& obj) {
+    GameObject() : ObjectCRTP()
+    {
+    }
+
+    ~GameObject()
+    {
+    }
+
+    GameObject(const GameObject& obj)
+    {
         arch = obj.arch;
 
         for (auto it : obj.types) {
@@ -227,9 +234,9 @@ public:
     static sobjects_t archetypes;
 };
 
-class GameObjectArchVisitor : public boost::static_visitor<std::string>
-{
+class GameObjectArchVisitor : public boost::static_visitor<std::string> {
 public:
+
     const std::string& operator()(const std::string& s) const
     {
         return s;

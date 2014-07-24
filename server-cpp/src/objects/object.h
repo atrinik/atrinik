@@ -66,8 +66,9 @@ class ObjectCRTP : public Object {
 public:
     using Object::Object;
 
-    virtual Object* clone() const {
-        return new T(static_cast<const T&>(*this));
+    virtual Object* clone() const
+    {
+        return new T(static_cast<const T&> (*this));
     }
 };
 
