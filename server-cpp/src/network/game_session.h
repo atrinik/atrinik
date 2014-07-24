@@ -40,12 +40,12 @@
 
 namespace atrinik {
 
-class game_sessions;
+class GameSessions;
 
-class game_session : public boost::enable_shared_from_this<game_session> {
+class GameSession : public boost::enable_shared_from_this<GameSession> {
 public:
 
-    game_session(boost::asio::io_service& io_service, game_sessions& sessions)
+    GameSession(boost::asio::io_service& io_service, GameSessions& sessions)
     : socket_(io_service), sessions_(sessions)
     {
     }
@@ -55,7 +55,7 @@ public:
         return socket_;
     }
 
-    virtual void write(const game_message& msg);
+    virtual void write(const GameMessage& msg);
 
     void start();
     void handle_read_header(const boost::system::error_code& error,
@@ -65,27 +65,27 @@ public:
     void handle_write(const boost::system::error_code& error,
             std::size_t bytes_transferred);
 
-    game_message_queue read_queue;
-    game_message_queue write_queue;
+    GameMessageQueue read_queue;
+    GameMessageQueue write_queue;
 private:
     boost::asio::ip::tcp::socket socket_;
-    game_sessions& sessions_;
-    game_message read_msg_;
+    GameSessions& sessions_;
+    GameMessage read_msg_;
 };
 
-typedef boost::shared_ptr<game_session> game_session_ptr;
+typedef boost::shared_ptr<GameSession> GameSessionPtr;
 
-class game_sessions
+class GameSessions
 : public boost::basic_lockable_adapter<boost::mutex>
 {
 public:
-    void add(game_session_ptr session)
+    void add(GameSessionPtr session)
     {
         boost::strict_lock<boost::mutex> guard(this->lockable());
         sessions_.insert(session);
     }
 
-    void remove(game_session_ptr session)
+    void remove(GameSessionPtr session)
     {
         boost::strict_lock<boost::mutex> guard(this->lockable());
         sessions_.erase(session);
@@ -96,7 +96,7 @@ public:
         boost::strict_lock<boost::mutex> guard(this->lockable());
         for (auto session : sessions_) {
             while (!session->read_queue.empty()) {
-                game_message msg;
+                GameMessage msg;
 
                 if (!session->read_queue.try_pop(msg)) {
                     break;
@@ -119,7 +119,7 @@ public:
                     uint32_t version = msg.int32();
                     printf("DETERMINED version: %d\n", version);
 
-                    game_message write_msg;
+                    GameMessage write_msg;
 
                     write_msg.int8(15);
                     write_msg.int32(1058);
@@ -130,7 +130,7 @@ public:
     }
 
 private:
-    std::set<game_session_ptr> sessions_;
+    std::set<GameSessionPtr> sessions_;
 };
 
 }

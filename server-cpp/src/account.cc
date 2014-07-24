@@ -112,7 +112,7 @@ void Account::action_change_pswd(const std::string& pswd,
     
 }
 
-game_message* Account::construct_packet()
+GameMessage* Account::construct_packet()
 {
     
 }

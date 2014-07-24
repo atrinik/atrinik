@@ -31,7 +31,7 @@
 
 namespace atrinik {
 
-class game_message {
+class GameMessage {
 public:
 
     enum {
@@ -40,11 +40,11 @@ public:
 
     typedef std::vector<char> data_t;
 
-    game_message() : body_length_(0), body_(header_length), idx_(0)
+    GameMessage() : body_length_(0), body_(header_length), idx_(0)
     {
     }
 
-    game_message(const game_message& msg)
+    GameMessage(const GameMessage& msg)
     : body_length_(msg.body_length_), body_(msg.length()), idx_(0)
     {
         memcpy(header(), msg.header(), msg.length());
@@ -222,6 +222,6 @@ private:
     mutable size_t idx_;
 };
 
-typedef tbb::concurrent_queue<game_message> game_message_queue;
+typedef tbb::concurrent_queue<GameMessage> GameMessageQueue;
 
 }

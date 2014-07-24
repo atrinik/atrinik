@@ -34,15 +34,15 @@ using namespace std;
 
 namespace atrinik {
 
-void game_server::start_accept()
+void GameServer::start_accept()
 {
-    game_session_ptr new_session(new game_session(io_service_, sessions_));
+    GameSessionPtr new_session(new GameSession(io_service_, sessions_));
     acceptor_.async_accept(new_session->socket(),
-            bind(&game_server::handle_accept, this, new_session,
+            bind(&GameServer::handle_accept, this, new_session,
             asio::placeholders::error));
 }
 
-void game_server::handle_accept(game_session_ptr session,
+void GameServer::handle_accept(GameSessionPtr session,
         const boost::system::error_code& error)
 {
     if (!error) {
@@ -52,7 +52,7 @@ void game_server::handle_accept(game_session_ptr session,
     start_accept();
 }
 
-void game_server::process()
+void GameServer::process()
 {
     sessions_.process();
 }

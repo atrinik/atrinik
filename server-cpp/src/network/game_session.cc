@@ -34,19 +34,19 @@ using namespace std;
 
 namespace atrinik {
 
-void game_session::start()
+void GameSession::start()
 {
     sessions_.add(shared_from_this());
     asio::async_read(socket_,
-            asio::buffer(read_msg_.header(), game_message::header_length),
-            bind(&game_session::handle_read_header, shared_from_this(),
+            asio::buffer(read_msg_.header(), GameMessage::header_length),
+            bind(&GameSession::handle_read_header, shared_from_this(),
             _1, _2));
 }
 
-void game_session::write(const game_message& msg)
+void GameSession::write(const GameMessage& msg)
 {
     bool write_in_progress = !write_queue.empty();
-    game_message write_msg;
+    GameMessage write_msg;
 
     write_queue.push(msg);
 
@@ -54,50 +54,50 @@ void game_session::write(const game_message& msg)
         write_msg.encode_header();
         asio::async_write(socket_,
                 asio::buffer(write_msg.header(), write_msg.length()),
-                bind(&game_session::handle_write, shared_from_this(),
+                bind(&GameSession::handle_write, shared_from_this(),
                 _1, _2));
     }
 }
 
-void game_session::handle_read_header(const boost::system::error_code& error,
+void GameSession::handle_read_header(const boost::system::error_code& error,
         std::size_t bytes_transferred)
 {
     if (!error && read_msg_.decode_header()) {
         asio::async_read(socket_,
                 asio::buffer(read_msg_.body(), read_msg_.body_length()),
-                bind(&game_session::handle_read_body, shared_from_this(),
+                bind(&GameSession::handle_read_body, shared_from_this(),
                 _1, _2));
     } else {
         sessions_.remove(shared_from_this());
     }
 }
 
-void game_session::handle_read_body(const boost::system::error_code& error,
+void GameSession::handle_read_body(const boost::system::error_code& error,
         std::size_t bytes_transferred)
 {
     if (!error) {
         shared_from_this()->read_queue.push(read_msg_);
 
         asio::async_read(socket_,
-                asio::buffer(read_msg_.header(), game_message::header_length),
-                bind(&game_session::handle_read_header, shared_from_this(),
+                asio::buffer(read_msg_.header(), GameMessage::header_length),
+                bind(&GameSession::handle_read_header, shared_from_this(),
                 _1, _2));
     } else {
         sessions_.remove(shared_from_this());
     }
 }
 
-void game_session::handle_write(const boost::system::error_code& error,
+void GameSession::handle_write(const boost::system::error_code& error,
         std::size_t bytes_transferred)
 {
     if (!error) {
-        game_message write_msg;
+        GameMessage write_msg;
 
         if (!write_queue.empty() && write_queue.try_pop(write_msg)) {
             write_msg.encode_header();
             asio::async_write(socket_,
                     asio::buffer(write_msg.header(), write_msg.length()),
-                    bind(&game_session::handle_write, shared_from_this(),
+                    bind(&GameSession::handle_write, shared_from_this(),
                     _1, _2));
         }
     } else {

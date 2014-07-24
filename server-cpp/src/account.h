@@ -120,7 +120,7 @@ public:
     void action_change_pswd(const std::string& pswd,
             const std::string& pswd_new, const std::string& pswd_new2);
 
-    game_message* construct_packet();
+    GameMessage* construct_packet();
 
 private:
     uint8_t password[32]; ///< Hashed account password.

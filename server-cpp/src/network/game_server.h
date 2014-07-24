@@ -31,10 +31,10 @@
 
 namespace atrinik {
 
-class game_server {
+class GameServer {
 public:
 
-    game_server(boost::asio::io_service& io_service,
+    GameServer(boost::asio::io_service& io_service,
             const boost::asio::ip::tcp::endpoint& endpoint)
     : io_service_(io_service), acceptor_(io_service, endpoint)
     {
@@ -42,7 +42,7 @@ public:
     }
 
     void start_accept();
-    void handle_accept(game_session_ptr session,
+    void handle_accept(GameSessionPtr session,
             const boost::system::error_code& error);
 
     void process();
@@ -50,9 +50,9 @@ public:
 private:
     boost::asio::io_service& io_service_;
     boost::asio::ip::tcp::acceptor acceptor_;
-    game_sessions sessions_;
+    GameSessions sessions_;
 };
 
-typedef boost::shared_ptr<game_server> game_server_ptr;
+typedef boost::shared_ptr<GameServer> game_server_ptr;
 
 }
