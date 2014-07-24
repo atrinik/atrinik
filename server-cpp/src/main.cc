@@ -28,6 +28,7 @@
 #include <boost/lexical_cast.hpp>
 #include <boost/bind.hpp>
 #include <boost/thread.hpp>
+#include <openssl/ssl.h>
 
 #include <object.h>
 #include <game_object.h>
@@ -35,6 +36,7 @@
 #include <map_parser.h>
 #include <region_parser.h>
 #include <game_server.h>
+#include <account.h>
 
 using namespace atrinik;
 using namespace boost;
@@ -90,6 +92,9 @@ using namespace std;
 
 int main(int argc, char **argv)
 {
+    SSL_load_error_strings();
+    SSL_library_init();
+    
     ArchetypeParser *parser = new ArchetypeParser;
     parser->read_archetypes("../arch/archetypes");
     parser->load_archetypes_pass1();
@@ -104,6 +109,15 @@ int main(int argc, char **argv)
     asio::ip::tcp::endpoint endpoint(asio::ip::tcp::v6(), 13360);
     game_server_ptr server(new game_server(io_service, endpoint));
     thread bt(bind(&asio::io_service::run, &io_service));
+    
+    Account account;
+    
+    try {
+        account.action_register("Test", "password", "password");
+    } catch (const AccountError& e) {
+        cout << e.what() << endl;
+    }
+    
 
     while (true) {
         server->process();

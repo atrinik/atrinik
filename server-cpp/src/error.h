@@ -24,15 +24,15 @@
 
 namespace atrinik {
 
-class error : public std::exception {
+class Error : public std::exception {
 public:
     std::string s;
 
-    error(std::string desc) : s(desc)
+    Error(std::string desc) : s(desc)
     {
     }
 
-    ~error() throw ()
+    ~Error() throw ()
     {
     }
 

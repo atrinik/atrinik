@@ -34,6 +34,7 @@
 
 #include <game_object.h>
 #include <game_session.h>
+#include <error.h>
 
 namespace atrinik {
 
@@ -59,6 +60,15 @@ AccountCharacterList; ///< List of characters.
  */
 class Account {
 public:
+   
+    /**
+     * Acquire the minimum number of characters an account name must have.
+     * @return Number of characters.
+     */
+    static inline int name_min()
+    {
+        return 3;
+    }
 
     /**
      * Acquire the maximum number of characters an account name can have.
@@ -67,6 +77,15 @@ public:
     static inline int name_max()
     {
         return 16;
+    }
+    
+    /**
+     * Acquire the minimum number of characters an account password must have.
+     * @return Number of characters.
+     */
+    static inline int password_min()
+    {
+        return 6;
     }
 
     /**
@@ -104,9 +123,9 @@ public:
     game_message* construct_packet();
 
 private:
-    std::string password; ///< Hashed account password.
+    uint8_t password[32]; ///< Hashed account password.
 
-    std::string salt; ///< Account password salt.
+    uint8_t salt[32]; ///< Account password salt.
 
     std::string password_old; ///< Old-style crypt() password.
 
@@ -115,6 +134,12 @@ private:
     void save();
     
     void load();
+    
+    void encrypt_password(const std::string& s);
+};
+
+class AccountError : public Error {
+    using Error::Error;
 };
 
 };

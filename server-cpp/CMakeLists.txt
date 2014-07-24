@@ -16,6 +16,9 @@ include_directories(${Boost_INCLUDE_DIR})
 find_package(TBB REQUIRED)
 include_directories(${TBB_INCLUDE_DIRS})
 
+find_package(OpenSSL REQUIRED)
+include_directories(${OPENSSL_INCLUDE_DIRS})
+
 configure_file (
   "${PROJECT_SOURCE_DIR}/src/config.h.in"
   "${PROJECT_BINARY_DIR}/src/config.h"
@@ -30,6 +33,7 @@ include_directories(
 )
 
 add_executable(atrinik
+    src/account.cc
     src/main.cc
     src/network/game_session.cc
     src/network/game_server.cc
@@ -48,7 +52,8 @@ add_executable(atrinik
     src/types/sign_object_type.cc
 )
 
-target_link_libraries(atrinik ${Boost_LIBRARIES} ${TBB_LIBRARIES})
+target_link_libraries(atrinik ${Boost_LIBRARIES} ${TBB_LIBRARIES}
+    ${OPENSSL_LIBRARIES})
 
 install (TARGETS atrinik DESTINATION bin)
 install (FILES "${PROJECT_BINARY_DIR}/config.h"
