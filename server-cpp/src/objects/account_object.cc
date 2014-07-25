@@ -105,12 +105,6 @@ void AccountObject::action_register(const std::string& name,
     }
 
     encrypt_password(pswd);
-
-    for (int i = 0; i < 32; i++) {
-        printf("%02x", 255 & password[i]);
-    }
-
-    printf("\n");
 }
 
 void AccountObject::action_login(const std::string& name,
