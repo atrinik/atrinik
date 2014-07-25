@@ -68,28 +68,28 @@ static void validate_password(const std::string& s)
 
 bool AccountObject::load(const std::string& key, const std::string& val)
 {
-    
+
 }
 
 std::string AccountObject::dump()
 {
     stringstream ss;
-    
+
     ss << "pswd ";
 
     for (auto c : password) {
-        ss << hex << setfill('0') << setw(2) << c;
+        ss << hex << setfill('0') << setw(2) << (int) c;
     }
-    
+
     ss << endl;
     ss << "salt ";
 
     for (auto c : salt) {
-        ss << hex << setfill('0') << setw(2) << c;
+        ss << hex << setfill('0') << setw(2) << (int) c;
     }
-    
+
     ss << endl;
-    
+
     return ss.str();
 }
 
@@ -105,7 +105,7 @@ void AccountObject::action_register(const std::string& name,
     }
 
     encrypt_password(pswd);
-    
+
     for (int i = 0; i < 32; i++) {
         printf("%02x", 255 & password[i]);
     }
