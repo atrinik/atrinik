@@ -36,7 +36,7 @@
 #include <map_parser.h>
 #include <region_parser.h>
 #include <game_server.h>
-#include <account.h>
+#include <account_object.h>
 
 using namespace atrinik;
 using namespace boost;
@@ -110,7 +110,7 @@ int main(int argc, char **argv)
     game_server_ptr server(new GameServer(io_service, endpoint));
     thread bt(bind(&asio::io_service::run, &io_service));
 
-    Account account;
+    AccountObject account;
 
     try {
         account.action_register("Test", "password", "password");
@@ -118,6 +118,7 @@ int main(int argc, char **argv)
         cout << e.what() << endl;
     }
 
+    cout << account.dump();
 
     while (true) {
         server->process();

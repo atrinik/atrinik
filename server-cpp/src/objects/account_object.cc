@@ -30,7 +30,7 @@
 #include <openssl/crypto.h>
 #include <openssl/rand.h>
 
-#include <account.h>
+#include <account_object.h>
 
 using namespace atrinik;
 using namespace boost;
@@ -46,7 +46,8 @@ static void validate_name(const std::string& s)
 
     // TODO: add allowed characters check
 
-    if (s.length() < Account::name_min() || s.length() > Account::name_max()) {
+    if (s.length() < AccountObject::name_min() ||
+            s.length() > AccountObject::name_max()) {
         throw AccountError("name has invalid length");
     }
 }
@@ -59,14 +60,41 @@ static void validate_password(const std::string& s)
 
     // TODO: add allowed characters check
 
-    if (s.length() < Account::password_min() ||
-            s.length() > Account::password_max()) {
+    if (s.length() < AccountObject::password_min() ||
+            s.length() > AccountObject::password_max()) {
         throw AccountError("password has invalid length");
     }
 }
 
-void Account::action_register(const std::string& name, const std::string& pswd,
-        const std::string& pswd2)
+bool AccountObject::load(const std::string& key, const std::string& val)
+{
+    
+}
+
+std::string AccountObject::dump()
+{
+    stringstream ss;
+    
+    ss << "pswd ";
+
+    for (auto c : password) {
+        ss << hex << setfill('0') << setw(2) << c;
+    }
+    
+    ss << endl;
+    ss << "salt ";
+
+    for (auto c : salt) {
+        ss << hex << setfill('0') << setw(2) << c;
+    }
+    
+    ss << endl;
+    
+    return ss.str();
+}
+
+void AccountObject::action_register(const std::string& name,
+        const std::string& pswd, const std::string& pswd2)
 {
     validate_name(name);
     validate_password(pswd);
@@ -77,7 +105,7 @@ void Account::action_register(const std::string& name, const std::string& pswd,
     }
 
     encrypt_password(pswd);
-
+    
     for (int i = 0; i < 32; i++) {
         printf("%02x", 255 & password[i]);
     }
@@ -85,46 +113,48 @@ void Account::action_register(const std::string& name, const std::string& pswd,
     printf("\n");
 }
 
-void Account::action_login(const std::string& name, const std::string& pswd)
+void AccountObject::action_login(const std::string& name,
+        const std::string& pswd)
 {
 
 }
 
-void Account::action_logout(const GameObject& obj)
+void AccountObject::action_logout(const GameObject& obj)
 {
 
 }
 
-void Account::action_char_login(const std::string& name)
+void AccountObject::action_char_login(const std::string& name)
 {
 
 }
 
-void Account::action_char_new(const std::string& name,
+void AccountObject::action_char_new(const std::string& name,
         const std::string& archname)
 {
 
 }
 
-void Account::action_change_pswd(const std::string& pswd,
+void AccountObject::action_change_pswd(const std::string& pswd,
         const std::string& pswd_new, const std::string& pswd_new2)
 {
 
 }
 
-GameMessage* Account::construct_packet()
+GameMessage* AccountObject::construct_packet()
 {
 
 }
 
-void Account::encrypt_password(const std::string& s)
+void AccountObject::encrypt_password(const std::string& s)
 {
-    if (!RAND_bytes(salt, 32)) {
+    if (!RAND_bytes(&salt[0], salt.size())) {
         throw AccountError("OpenSSL PRNG is not seeded");
     }
 
-    PKCS5_PBKDF2_HMAC(s.c_str(), s.length(), salt, 32,
-            password_hash_iterations(), EVP_sha256(), 32, password);
+    PKCS5_PBKDF2_HMAC(s.c_str(), s.length(), &salt[0], salt.size(),
+            password_hash_iterations(), EVP_sha256(), password.size(),
+            &password[0]);
 }
 
 };

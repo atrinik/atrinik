@@ -32,6 +32,7 @@
 
 #include <string.h>
 
+#include <object.h>
 #include <game_object.h>
 #include <game_session.h>
 #include <error.h>
@@ -55,10 +56,10 @@ typedef std::list<AccountCharacter>
 AccountCharacterList; ///< List of characters.
 
 /**
- * Implements the Account class, which is used to hold data about a particular
- * player account.
+ * Implements the Account object class, which is used to hold data about a
+ * particular player account.
  */
-class Account {
+class AccountObject : public ObjectCRTP<AccountObject> {
 public:
 
     /**
@@ -106,6 +107,21 @@ public:
         return 4096;
     }
 
+    AccountObject() : ObjectCRTP()
+    {
+    }
+
+    ~AccountObject()
+    {
+    }
+
+    AccountObject(const AccountObject& obj)
+    {
+    }
+    
+    virtual bool load(const std::string& key, const std::string& val);
+    virtual std::string dump();
+
     void action_register(const std::string& name, const std::string& pswd,
             const std::string& pswd2);
 
@@ -123,17 +139,13 @@ public:
     GameMessage* construct_packet();
 
 private:
-    uint8_t password[32]; ///< Hashed account password.
+    std::array<uint8_t, 32> password; ///< Hashed account password.
 
-    uint8_t salt[32]; ///< Account password salt.
+    std::array<uint8_t, 32> salt; ///< Account password salt.
 
     std::string password_old; ///< Old-style crypt() password.
 
     AccountCharacterList characters; ///< Account's characters.
-
-    void save();
-
-    void load();
 
     void encrypt_password(const std::string& s);
 };
