@@ -22,48 +22,32 @@
 
 /**
  * @file
- * Internal definitions for a game object type.
+ * Player object type implementation.
  */
 
-#include <string>
+#include <boost/lexical_cast.hpp>
 
-#if defined(GAME_OBJECT_TYPE_ID)
-friend class GameObject;
+#include <player_object_type.h>
 
-private:
-static GameObjectTypeFactoryRegister<GAME_OBJECT_TYPE_ID> reg;
+using namespace atrinik;
+using namespace boost;
+using namespace std;
 
-protected:
+namespace atrinik {
 
-static inline const int type_()
+REGISTER_GAME_OBJECT_TYPE(PlayerObjectType);
+
+bool PlayerObjectType::load(const std::string& key, const std::string& val)
 {
-    return reg.id;
+    return false;
 }
 
-static const std::string gettypeid_()
+std::string PlayerObjectType::dump(const GameObjectType* base)
 {
-#define STR_VALUE(arg) #arg
-#define STR_NAME(name) STR_VALUE(name)
-    return STR_NAME(GAME_OBJECT_TYPE_ID);
-#undef STR_NAME
-#undef STR_VALUE
+    auto base_type = dynamic_cast<const PlayerObjectType*> (base);
+    string s = "";
+
+    return s;
 }
 
-public:
-
-virtual const int gettype() const
-{
-    return type_();
 }
-
-virtual const std::string gettypeid() const
-{
-    return gettypeid_();
-}
-
-#undef GAME_OBJECT_TYPE_ID
-#else
-public:
-virtual const int gettype() const = 0;
-virtual const std::string gettypeid() const = 0;
-#endif

@@ -29,8 +29,11 @@
 #include <openssl/sha.h>
 #include <openssl/crypto.h>
 #include <openssl/rand.h>
+#include <boost/locale.hpp>
 
 #include <account_object.h>
+#include <base_object_type.h>
+#include <player_object_type.h>
 
 using namespace atrinik;
 using namespace boost;
@@ -89,6 +92,14 @@ std::string AccountObject::dump()
     }
 
     ss << endl;
+    ss << "host " << host << endl;
+    ss << "time " << timestamp << endl;
+
+    for (auto character : characters) {
+        ss << "char " << boost::apply_visitor(GameObjectArchVisitor(),
+                character.archetype->arch) << ":" << character.name << ":" <<
+                character.region_name << ":" << (int) character.level << endl;
+    }
 
     return ss.str();
 }
@@ -126,7 +137,33 @@ void AccountObject::action_char_login(const std::string& name)
 void AccountObject::action_char_new(const std::string& name,
         const std::string& archname)
 {
+    if (name.empty()) {
+        throw AccountError("name cannot be empty");
+    }
 
+    // TODO: invalid characters in name check
+    // TODO: player exists check
+
+    if (characters.size() >= AccountObject::characters_max()) {
+        throw AccountError("reached the maximum number of allowed characters");
+    }
+
+    const GameObject* archetype = GameObject::find_archetype(archname);
+
+    if (!archetype || !archetype->isinstance<PlayerObjectType>()) {
+        throw AccountError("invalid archname");
+    }
+
+    AccountCharacter character;
+
+    character.name = locale::to_title(name);
+    character.archetype = archetype;
+    character.region_name = "";
+    character.level = 1;
+
+    characters.push_back(character);
+
+    // TODO: make player file
 }
 
 void AccountObject::action_change_pswd(const std::string& pswd,
@@ -149,6 +186,21 @@ void AccountObject::encrypt_password(const std::string& s)
     PKCS5_PBKDF2_HMAC(s.c_str(), s.length(), &salt[0], salt.size(),
             password_hash_iterations(), EVP_sha256(), password.size(),
             &password[0]);
+}
+
+bool AccountObject::check_password(const std::string& s)
+{
+    std::array<uint8_t, 32> output;
+
+    if (!password_old.empty()) {
+        return false;
+    }
+
+    PKCS5_PBKDF2_HMAC(s.c_str(), s.length(), &salt[0], salt.size(),
+            password_hash_iterations(), EVP_sha256(), output.size(),
+            &output[0]);
+
+    return output == password;
 }
 
 };

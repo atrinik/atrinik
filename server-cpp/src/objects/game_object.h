@@ -103,7 +103,7 @@ public:
     virtual std::string dump();
 
     template<class T>
-    bool isinstance()
+    bool isinstance() const
     {
         for (auto it : types) {
             if (it->gettype() == T::type_()) {
@@ -114,7 +114,7 @@ public:
         return false;
     }
 
-    bool isinstance(const std::string& val)
+    bool isinstance(const std::string& val) const
     {
         for (auto it : types) {
             if (it->gettypeid() == val) {
@@ -149,10 +149,10 @@ public:
     }
 
     template<class T>
-    GameObjectType* getinstance()
+    GameObjectType* getinstance() const
     {
         for (auto it : types) {
-            if (it->gettype() == T::type()) {
+            if (it->gettype() == T::type_()) {
                 return it;
             }
         }
@@ -160,7 +160,7 @@ public:
         return NULL;
     }
 
-    GameObjectType* getinstance(const std::string& val)
+    GameObjectType* getinstance(const std::string& val) const
     {
         for (auto it : types) {
             if (it->gettypeid() == val) {
@@ -171,7 +171,7 @@ public:
         return NULL;
     }
 
-    GameObjectType* getinstance(const int val)
+    GameObjectType* getinstance(const int val) const
     {
         for (auto it : types) {
             if (it->gettype() == val) {
@@ -232,6 +232,19 @@ public:
     sobjects_t; ///< Game object hash map with strings
 
     static sobjects_t archetypes;
+
+    static const GameObject* find_archetype(const std::string& archname)
+    {
+        GameObject::sobjects_t::iterator result;
+
+        result = GameObject::archetypes.find(archname);
+
+        if (result == GameObject::archetypes.end()) {
+            return NULL;
+        }
+
+        return result->second;
+    }
 };
 
 class GameObjectArchVisitor : public boost::static_visitor<std::string> {

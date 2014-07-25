@@ -22,48 +22,26 @@
 
 /**
  * @file
- * Internal definitions for a game object type.
+ * Player object type.
  */
+
+#pragma once
 
 #include <string>
 
-#if defined(GAME_OBJECT_TYPE_ID)
-friend class GameObject;
+#include <game_object_type.h>
 
+namespace atrinik {
+
+#define GAME_OBJECT_TYPE_ID PlayerObjectType
+
+class GAME_OBJECT_TYPE_ID : public GameObjectTypeCRTP<GAME_OBJECT_TYPE_ID> {
+#include <game_object_type_internal.h>
 private:
-static GameObjectTypeFactoryRegister<GAME_OBJECT_TYPE_ID> reg;
-
-protected:
-
-static inline const int type_()
-{
-    return reg.id;
-}
-
-static const std::string gettypeid_()
-{
-#define STR_VALUE(arg) #arg
-#define STR_NAME(name) STR_VALUE(name)
-    return STR_NAME(GAME_OBJECT_TYPE_ID);
-#undef STR_NAME
-#undef STR_VALUE
-}
-
 public:
 
-virtual const int gettype() const
-{
-    return type_();
-}
+    virtual bool load(const std::string& key, const std::string& val);
+    virtual std::string dump(const GameObjectType* base);
+};
 
-virtual const std::string gettypeid() const
-{
-    return gettypeid_();
 }
-
-#undef GAME_OBJECT_TYPE_ID
-#else
-public:
-virtual const int gettype() const = 0;
-virtual const std::string gettypeid() const = 0;
-#endif

@@ -29,6 +29,7 @@
 #include <boost/bind.hpp>
 #include <boost/thread.hpp>
 #include <openssl/ssl.h>
+#include <boost/locale/generator.hpp>
 
 #include <object.h>
 #include <game_object.h>
@@ -95,6 +96,11 @@ int main(int argc, char **argv)
     SSL_load_error_strings();
     SSL_library_init();
 
+    boost::locale::generator gen;
+    std::locale loc = gen("");
+    std::locale::global(loc);
+    cout.imbue(loc);
+
     ArchetypeParser *parser = new ArchetypeParser;
     parser->read_archetypes("../arch/archetypes");
     parser->load_archetypes_pass1();
@@ -117,6 +123,8 @@ int main(int argc, char **argv)
     } catch (const AccountError& e) {
         cout << e.what() << endl;
     }
+
+    account.action_char_new("Test", "human_male");
 
     cout << account.dump();
 

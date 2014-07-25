@@ -43,7 +43,7 @@ namespace atrinik {
  * Structure for holding account character related data.
  */
 struct AccountCharacter {
-    GameObject& archetype; ///< Reference to player's base archetype object.
+    const GameObject* archetype; ///< Pointer to player's base archetype object.
 
     std::string name; ///< Character name.
 
@@ -59,7 +59,7 @@ AccountCharacterList; ///< List of characters.
  * Implements the Account object class, which is used to hold data about a
  * particular player account.
  */
-class AccountObject : public ObjectCRTP<AccountObject> {
+class AccountObject {
 public:
 
     /**
@@ -99,6 +99,15 @@ public:
     }
 
     /**
+     * Acquire the maximum number of player characters the account can have.
+     * @return Number of characters.
+     */
+    static inline int characters_max()
+    {
+        return 16;
+    }
+
+    /**
      * Acquire the number of iterations to perform when hashing a password.
      * @return Number of iterations.
      */
@@ -107,20 +116,8 @@ public:
         return 4096;
     }
 
-    AccountObject() : ObjectCRTP()
-    {
-    }
-
-    ~AccountObject()
-    {
-    }
-
-    AccountObject(const AccountObject& obj)
-    {
-    }
-    
-    virtual bool load(const std::string& key, const std::string& val);
-    virtual std::string dump();
+    bool load(const std::string& key, const std::string& val);
+    std::string dump();
 
     void action_register(const std::string& name, const std::string& pswd,
             const std::string& pswd2);
@@ -147,7 +144,12 @@ private:
 
     AccountCharacterList characters; ///< Account's characters.
 
+    std::string host; ///< Hostname the account last logged in from.
+
+    time_t timestamp = 0; ///< UTC timestamp of when the account last logged in.
+
     void encrypt_password(const std::string& s);
+    bool check_password(const std::string& s);
 };
 
 class AccountError : public Error {
