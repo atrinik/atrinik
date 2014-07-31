@@ -19,6 +19,10 @@ include_directories(${TBB_INCLUDE_DIRS})
 find_package(OpenSSL REQUIRED)
 include_directories(${OPENSSL_INCLUDE_DIRS})
 
+if (UNIX)
+    find_library(CRYPT_LIBRARY crypt REQUIRED)
+endif (UNIX)
+
 configure_file (
   "${PROJECT_SOURCE_DIR}/src/config.h.in"
   "${PROJECT_BINARY_DIR}/src/config.h"
@@ -42,6 +46,7 @@ add_executable(atrinik
     src/objects/map_tile_object.cc
     src/objects/object.cc
     src/objects/region_object.cc
+    src/parsers/account_parser.cc
     src/parsers/archetype_parser.cc
     src/parsers/map_parser.cc
     src/parsers/object_parser.cc
@@ -54,7 +59,7 @@ add_executable(atrinik
 )
 
 target_link_libraries(atrinik ${Boost_LIBRARIES} ${TBB_LIBRARIES}
-    ${OPENSSL_LIBRARIES})
+    ${OPENSSL_LIBRARIES} ${CRYPT_LIBRARY})
 
 install (TARGETS atrinik DESTINATION bin)
 install (FILES "${PROJECT_BINARY_DIR}/config.h"

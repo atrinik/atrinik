@@ -62,6 +62,8 @@ AccountCharacterList; ///< List of characters.
 class AccountObject {
 public:
 
+    static const int hashSize = 32;
+
     /**
      * Acquire the minimum number of characters an account name must have.
      * @return Number of characters.
@@ -136,9 +138,9 @@ public:
     GameMessage* construct_packet();
 
 private:
-    std::array<uint8_t, 32> password; ///< Hashed account password.
+    std::array<uint8_t, hashSize> password; ///< Hashed account password.
 
-    std::array<uint8_t, 32> salt; ///< Account password salt.
+    std::array<uint8_t, hashSize> salt; ///< Account password salt.
 
     std::string password_old; ///< Old-style crypt() password.
 

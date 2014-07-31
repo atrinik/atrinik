@@ -38,6 +38,7 @@
 #include <region_parser.h>
 #include <game_server.h>
 #include <account_object.h>
+#include <account_parser.h>
 
 using namespace atrinik;
 using namespace boost;
@@ -125,6 +126,12 @@ int main(int argc, char **argv)
     }
 
     account.action_char_new("Test", "human_male");
+
+    try {
+        account.load("char", "human_male:test:strakewood_island:100");
+    } catch (const AccountError& e) {
+        cout << e.what() << endl;
+    }
 
     cout << account.dump();
 

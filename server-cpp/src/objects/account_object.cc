@@ -30,6 +30,11 @@
 #include <openssl/crypto.h>
 #include <openssl/rand.h>
 #include <boost/locale.hpp>
+#include <boost/lexical_cast.hpp>
+#include <boost/algorithm/hex.hpp>
+#include <boost/algorithm/string.hpp>
+#include <boost/numeric/conversion/cast.hpp>
+#include <unistd.h>
 
 #include <account_object.h>
 #include <base_object_type.h>
@@ -71,34 +76,110 @@ static void validate_password(const std::string& s)
 
 bool AccountObject::load(const std::string& key, const std::string& val)
 {
+    if (key == "pswd") {
+        // Parse old-style passwords (UNIX crypt and Windows SHA1)
+        if (val.length() == 13 || val.length() == 40) {
+            password_old = val;
+            return true;
+        }
 
+        // Must be exactly twice that of the password hash size
+        if (val.length() != hashSize * 2) {
+            throw AccountError("invalid password");
+        }
+
+        algorithm::unhex(val.begin(), val.end(), password.data());
+        return true;
+    } else if (key == "salt") {
+        // Must be exactly twice that of the salt size
+        if (val.length() != hashSize * 2) {
+            throw AccountError("invalid password");
+        }
+
+        algorithm::unhex(val.begin(), val.end(), salt.data());
+        return true;
+    } else if (key == "host") {
+        host = val;
+        return true;
+    } else if (key == "time") {
+        try {
+            timestamp = lexical_cast<time_t>(val);
+        } catch (const bad_cast& e) {
+            throw AccountError("invalid timestamp");
+        }
+
+        return true;
+    } else if (key == "char") {
+        std::vector<string> strs;
+
+        // Must have correct amount of colon-separated strings
+        if (split(strs, val, is_any_of(":")).size() < 4) {
+            throw AccountError("invalid character data");
+        }
+
+        AccountCharacter character;
+
+        character.archetype = GameObject::find_archetype(strs[0]);
+
+        if (!character.archetype) {
+            throw AccountError("invalid character archetype");
+        }
+
+        character.name = strs[1];
+        character.region_name = strs[2];
+
+        try {
+            character.level = numeric_cast<uint8_t>(lexical_cast<int>(strs[3]));
+        } catch (const bad_cast& e) {
+            throw AccountError("invalid character level");
+        }
+
+        characters.push_back(character);
+
+        return true;
+    }
+
+    return false;
 }
 
 std::string AccountObject::dump()
 {
     stringstream ss;
 
-    ss << "pswd ";
+    // Write out old-style password if it exists, new style password hash and
+    // salt otherwise.
+    if (!password_old.empty()) {
+        ss << "pswd " << password_old << endl;
+    } else {
+        ss << hex << setfill('0');
 
-    for (auto c : password) {
-        ss << hex << setfill('0') << setw(2) << (int) c;
+        ss << "pswd ";
+
+        for (auto c : password) {
+            ss << setw(2) << (int) c;
+        }
+
+        ss << endl;
+        ss << "salt ";
+
+        for (auto c : salt) {
+            ss << setw(2) << (int) c;
+        }
+
+        ss << dec;
+        ss << endl;
     }
 
-    ss << endl;
-    ss << "salt ";
-
-    for (auto c : salt) {
-        ss << hex << setfill('0') << setw(2) << (int) c;
-    }
-
-    ss << endl;
     ss << "host " << host << endl;
     ss << "time " << timestamp << endl;
 
+    // Write out the characters.
     for (auto character : characters) {
         ss << "char " << boost::apply_visitor(GameObjectArchVisitor(),
-                character.archetype->arch) << ":" << character.name << ":" <<
-                character.region_name << ":" << (int) character.level << endl;
+                character.archetype->arch) <<
+                ":" << character.name <<
+                ":" << character.region_name <<
+                ":" << (int) character.level << endl;
     }
 
     return ss.str();
@@ -179,26 +260,26 @@ GameMessage* AccountObject::construct_packet()
 
 void AccountObject::encrypt_password(const std::string& s)
 {
-    if (!RAND_bytes(&salt[0], salt.size())) {
+    if (!RAND_bytes(salt.data(), salt.size())) {
         throw AccountError("OpenSSL PRNG is not seeded");
     }
 
-    PKCS5_PBKDF2_HMAC(s.c_str(), s.length(), &salt[0], salt.size(),
+    PKCS5_PBKDF2_HMAC(s.c_str(), s.length(), salt.data(), salt.size(),
             password_hash_iterations(), EVP_sha256(), password.size(),
-            &password[0]);
+            password.data());
 }
 
 bool AccountObject::check_password(const std::string& s)
 {
-    std::array<uint8_t, 32> output;
+    std::array<uint8_t, hashSize> output;
 
     if (!password_old.empty()) {
-        return false;
+        return crypt(s.c_str(), password_old.c_str()) == password_old;
     }
 
-    PKCS5_PBKDF2_HMAC(s.c_str(), s.length(), &salt[0], salt.size(),
+    PKCS5_PBKDF2_HMAC(s.c_str(), s.length(), salt.data(), salt.size(),
             password_hash_iterations(), EVP_sha256(), output.size(),
-            &output[0]);
+            output.data());
 
     return output == password;
 }
