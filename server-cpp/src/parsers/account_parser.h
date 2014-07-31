@@ -29,7 +29,7 @@
 
 #include <fstream>
 
-#include <account_object.h>
+#include <account.h>
 
 namespace atrinik {
 
@@ -40,7 +40,7 @@ public:
      * @param file File to read from.
      * @param obj Account object to parse into.
      */
-    static void parse(std::ifstream& file, AccountObject* obj);
+    static void parse(std::ifstream& file, Account* obj);
 };
 
 }

@@ -36,7 +36,7 @@
 #include <boost/numeric/conversion/cast.hpp>
 #include <unistd.h>
 
-#include <account_object.h>
+#include <account.h>
 #include <base_object_type.h>
 #include <player_object_type.h>
 
@@ -54,8 +54,8 @@ static void validate_name(const std::string& s)
 
     // TODO: add allowed characters check
 
-    if (s.length() < AccountObject::name_min() ||
-            s.length() > AccountObject::name_max()) {
+    if (s.length() < Account::name_min() ||
+            s.length() > Account::name_max()) {
         throw AccountError("name has invalid length");
     }
 }
@@ -68,13 +68,13 @@ static void validate_password(const std::string& s)
 
     // TODO: add allowed characters check
 
-    if (s.length() < AccountObject::password_min() ||
-            s.length() > AccountObject::password_max()) {
+    if (s.length() < Account::password_min() ||
+            s.length() > Account::password_max()) {
         throw AccountError("password has invalid length");
     }
 }
 
-bool AccountObject::load(const std::string& key, const std::string& val)
+bool Account::load(const std::string& key, const std::string& val)
 {
     if (key == "pswd") {
         // Parse old-style passwords (UNIX crypt and Windows SHA1)
@@ -142,7 +142,7 @@ bool AccountObject::load(const std::string& key, const std::string& val)
     return false;
 }
 
-std::string AccountObject::dump()
+std::string Account::dump()
 {
     stringstream ss;
 
@@ -185,7 +185,7 @@ std::string AccountObject::dump()
     return ss.str();
 }
 
-void AccountObject::action_register(const std::string& name,
+void Account::action_register(const std::string& name,
         const std::string& pswd, const std::string& pswd2)
 {
     validate_name(name);
@@ -199,23 +199,23 @@ void AccountObject::action_register(const std::string& name,
     encrypt_password(pswd);
 }
 
-void AccountObject::action_login(const std::string& name,
+void Account::action_login(const std::string& name,
         const std::string& pswd)
 {
 
 }
 
-void AccountObject::action_logout(const GameObject& obj)
+void Account::action_logout(const GameObject& obj)
 {
 
 }
 
-void AccountObject::action_char_login(const std::string& name)
+void Account::action_char_login(const std::string& name)
 {
 
 }
 
-void AccountObject::action_char_new(const std::string& name,
+void Account::action_char_new(const std::string& name,
         const std::string& archname)
 {
     if (name.empty()) {
@@ -225,7 +225,7 @@ void AccountObject::action_char_new(const std::string& name,
     // TODO: invalid characters in name check
     // TODO: player exists check
 
-    if (characters.size() >= AccountObject::characters_max()) {
+    if (characters.size() >= Account::characters_max()) {
         throw AccountError("reached the maximum number of allowed characters");
     }
 
@@ -247,18 +247,18 @@ void AccountObject::action_char_new(const std::string& name,
     // TODO: make player file
 }
 
-void AccountObject::action_change_pswd(const std::string& pswd,
+void Account::action_change_pswd(const std::string& pswd,
         const std::string& pswd_new, const std::string& pswd_new2)
 {
 
 }
 
-GameMessage* AccountObject::construct_packet()
+GameMessage* Account::construct_packet()
 {
 
 }
 
-void AccountObject::encrypt_password(const std::string& s)
+void Account::encrypt_password(const std::string& s)
 {
     if (!RAND_bytes(salt.data(), salt.size())) {
         throw AccountError("OpenSSL PRNG is not seeded");
@@ -269,7 +269,7 @@ void AccountObject::encrypt_password(const std::string& s)
             password.data());
 }
 
-bool AccountObject::check_password(const std::string& s)
+bool Account::check_password(const std::string& s)
 {
     std::array<uint8_t, hashSize> output;
 

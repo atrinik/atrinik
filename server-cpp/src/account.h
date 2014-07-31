@@ -32,7 +32,6 @@
 
 #include <string.h>
 
-#include <object.h>
 #include <game_object.h>
 #include <game_session.h>
 #include <error.h>
@@ -59,10 +58,10 @@ AccountCharacterList; ///< List of characters.
  * Implements the Account object class, which is used to hold data about a
  * particular player account.
  */
-class AccountObject {
+class Account {
 public:
 
-    static const int hashSize = 32;
+    static const int hashSize = 32; // Password hash and salt size in bytes
 
     /**
      * Acquire the minimum number of characters an account name must have.
