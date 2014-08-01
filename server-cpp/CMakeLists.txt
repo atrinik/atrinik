@@ -31,6 +31,7 @@ configure_file (
 include_directories(
     "${PROJECT_BINARY_DIR}/src"
     "${PROJECT_BINARY_DIR}/src/network"
+    "${PROJECT_BINARY_DIR}/src/network/messages"
     "${PROJECT_BINARY_DIR}/src/objects"
     "${PROJECT_BINARY_DIR}/src/parsers"
     "${PROJECT_BINARY_DIR}/src/types"
@@ -40,6 +41,7 @@ add_executable(atrinik
     src/account.cc
     src/main.cc
     src/server.cc
+    src/network/game_message.cc
     src/network/game_session.cc
     src/network/game_server.cc
     src/objects/game_object.cc
