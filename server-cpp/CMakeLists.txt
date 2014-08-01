@@ -10,7 +10,7 @@ set (ATRINIK_VERSION_MINOR 1)
 
 set(CMAKE_CXX_FLAGS "-std=c++11 ${CMAKE_CXX_FLAGS} -g -O0 -DFUTURE")
 
-find_package(Boost 1.40 COMPONENTS system thread locale REQUIRED)
+find_package(Boost 1.40 COMPONENTS system thread locale filesystem REQUIRED)
 include_directories(${Boost_INCLUDE_DIR})
 
 find_package(TBB REQUIRED)
@@ -39,6 +39,7 @@ include_directories(
 add_executable(atrinik
     src/account.cc
     src/main.cc
+    src/server.cc
     src/network/game_session.cc
     src/network/game_server.cc
     src/objects/game_object.cc

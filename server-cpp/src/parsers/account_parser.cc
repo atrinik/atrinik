@@ -36,7 +36,7 @@ using namespace std;
 
 namespace atrinik {
 
-void AccountParser::parse(std::ifstream& file, Account* obj)
+void AccountParser::parse(std::ifstream& file, AccountPtr obj)
 {
     string line;
 

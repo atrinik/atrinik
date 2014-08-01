@@ -37,6 +37,8 @@
 #include <boost/thread/strict_lock.hpp>
 
 #include <game_message.h>
+#include <account.h>
+#include <server.h>
 
 namespace atrinik {
 
@@ -67,6 +69,7 @@ public:
 
     GameMessageQueue read_queue;
     GameMessageQueue write_queue;
+    AccountPtr account;
 private:
     boost::asio::ip::tcp::socket socket_;
     GameSessions& sessions_;

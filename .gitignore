@@ -10,8 +10,8 @@ arch/atrinik.0
 arch/bmaps
 arch/facetree
 arch/treasures
-server/data
-server/lib
+server*/data
+server*/lib
 editor/*.conf
 tools/map-checker/config.cfg
 logfile.log

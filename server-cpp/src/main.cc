@@ -39,6 +39,7 @@
 #include <game_server.h>
 #include <account.h>
 #include <account_parser.h>
+#include <server.h>
 
 using namespace atrinik;
 using namespace boost;
@@ -115,32 +116,36 @@ int main(int argc, char **argv)
     asio::io_service io_service;
     asio::ip::tcp::endpoint endpoint(asio::ip::tcp::v6(), 13360);
     game_server_ptr server(new GameServer(io_service, endpoint));
-    thread bt(bind(&asio::io_service::run, &io_service));
+    thread t1(bind(&asio::io_service::run, &io_service));
 
-    Account account;
+//    Account account;
+//
+//    try {
+//        account.action_register("Test", "password", "password");
+//    } catch (const AccountError& e) {
+//        cout << e.what() << endl;
+//    }
+//
+//    account.action_char_new("Test", "human_male");
+//
+//    try {
+//        account.load("char", "human_male:test:strakewood_island:100");
+//    } catch (const AccountError& e) {
+//        cout << e.what() << endl;
+//    }
+//
+//    cout << account.dump();
 
-    try {
-        account.action_register("Test", "password", "password");
-    } catch (const AccountError& e) {
-        cout << e.what() << endl;
-    }
-
-    account.action_char_new("Test", "human_male");
-
-    try {
-        account.load("char", "human_male:test:strakewood_island:100");
-    } catch (const AccountError& e) {
-        cout << e.what() << endl;
-    }
-
-    cout << account.dump();
+    thread t2(&AccountManager::gc, Server::server.account_manager);
 
     while (true) {
+        Server::server.account_manager.gc();
         server->process();
         usleep(125000);
     }
 
-    bt.join();
+    t1.join();
+    t2.join();
 
     //    thread thread_socket(socket_thread);
     //    thread_socket.join();

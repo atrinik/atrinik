@@ -22,25 +22,21 @@
 
 /**
  * @file
- * Account parser.
+ * Atrinik server implementation.
  */
 
-#pragma once
+#include <server.h>
 
-#include <fstream>
-
-#include <account.h>
+using namespace atrinik;
+using namespace std;
 
 namespace atrinik {
 
-class AccountParser {
-public:
-    /**
-     * Parses the specified account file into the specified account.
-     * @param file File to read from.
-     * @param obj Account to parse into.
-     */
-    static void parse(std::ifstream& file, AccountPtr obj);
-};
+Server Server::server;
 
+uint64_t Server::get_ticks()
+{
+    return ticks;
 }
+
+};
