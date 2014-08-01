@@ -42,6 +42,8 @@
 #include <base_object_type.h>
 #include <player_object_type.h>
 
+#include "server.h"
+
 using namespace atrinik;
 using namespace boost;
 using namespace std;
@@ -239,7 +241,19 @@ void Account::character_logout(const GameObject& obj)
 void Account::change_password(const std::string& pswd,
         const std::string& pswd_new, const std::string& pswd_new2)
 {
+    validate_password(pswd);
+    validate_password(pswd_new);
+    validate_password(pswd_new2);
 
+    if (pswd_new != pswd_new2) {
+        throw AccountError("passwords do not match");
+    }
+
+    if (!check_password(pswd)) {
+        throw AccountError("invalid password");
+    }
+
+    set_password(pswd_new);
 }
 
 bool Account::has_old_password()
@@ -252,11 +266,40 @@ GameMessage* Account::construct_packet()
 
 }
 
+void Account::validate_name(const std::string& s)
+{
+    if (s.empty()) {
+        throw AccountError("name cannot be empty");
+    }
+
+    // TODO: add allowed characters check
+
+    if (s.length() < name_min() ||
+            s.length() > name_max()) {
+        throw AccountError("name has invalid length");
+    }
+}
+
+void Account::validate_password(const std::string& s)
+{
+    if (s.empty()) {
+        throw AccountError("password cannot be empty");
+    }
+
+    // TODO: add allowed characters check
+
+    if (s.length() < password_min() ||
+            s.length() > password_max()) {
+        throw AccountError("password has invalid length");
+    }
+}
+
 void AccountManager::gc()
 {
     static int gc_count = 0;
 
     if (gc_count++ < gc_frequency()) {
+        usleep(Server::ticks_duration());
         return;
     }
 
@@ -276,17 +319,15 @@ void AccountManager::gc()
         }
 
         accounts.erase(it.first);
-
-        //cout << it.second.use_count() << " - " << it.second.unique() << endl;
     }
 }
 
 AccountPtr AccountManager::account_register(const std::string& name,
         const std::string& pswd, const std::string& pswd2)
 {
-    validate_name(name);
-    validate_password(pswd);
-    validate_password(pswd2);
+    Account::validate_name(name);
+    Account::validate_password(pswd);
+    Account::validate_password(pswd2);
 
     if (pswd != pswd2) {
         throw AccountError("passwords do not match");
@@ -309,8 +350,8 @@ AccountPtr AccountManager::account_register(const std::string& name,
 AccountPtr AccountManager::account_login(const std::string& name,
         const std::string& pswd)
 {
-    validate_name(name);
-    validate_password(pswd);
+    Account::validate_name(name);
+    Account::validate_password(pswd);
 
     AccountPtr account = account_load(name);
 
@@ -377,34 +418,6 @@ AccountPtr AccountManager::account_load(const std::string& name)
     accounts.insert(make_pair(name, account));
 
     return account;
-}
-
-void AccountManager::validate_name(const std::string& s)
-{
-    if (s.empty()) {
-        throw AccountError("name cannot be empty");
-    }
-
-    // TODO: add allowed characters check
-
-    if (s.length() < Account::name_min() ||
-            s.length() > Account::name_max()) {
-        throw AccountError("name has invalid length");
-    }
-}
-
-void AccountManager::validate_password(const std::string& s)
-{
-    if (s.empty()) {
-        throw AccountError("password cannot be empty");
-    }
-
-    // TODO: add allowed characters check
-
-    if (s.length() < Account::password_min() ||
-            s.length() > Account::password_max()) {
-        throw AccountError("password has invalid length");
-    }
 }
 
 };

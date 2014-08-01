@@ -164,6 +164,10 @@ public:
 
     GameMessage* construct_packet();
 
+    static void validate_name(const std::string& s);
+    
+    static void validate_password(const std::string& s);
+
 private:
     std::array<uint8_t, hashSize> password; ///< Hashed account password.
 
@@ -222,8 +226,6 @@ public:
 private:
     boost::filesystem::path account_make_path(const std::string& name);
     AccountPtr account_load(const std::string& name);
-    static void validate_name(const std::string& s);
-    static void validate_password(const std::string& s);
 
     AccountMap accounts;
 };

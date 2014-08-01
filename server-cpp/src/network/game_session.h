@@ -37,6 +37,7 @@
 #include <boost/thread/strict_lock.hpp>
 
 #include <game_message.h>
+#include <draw_info_message.h>
 #include <account.h>
 #include <server.h>
 
@@ -126,6 +127,13 @@ public:
                     write_msg.int8(15);
                     write_msg.int32(1058);
                     session->write(write_msg);
+
+                    DrawInfoMessage write_msg2(
+                            ClientCommands::DrawInfoCommand::Game,
+                            ClientCommands::DrawInfoCommandColors::white,
+                            boost::format("%s") % "hello");
+
+                    session->write(write_msg2);
                 }
             }
         }

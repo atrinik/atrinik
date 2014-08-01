@@ -22,41 +22,35 @@
 
 /**
  * @file
- * Atrinik server.
+ * Game message implementation.
  */
 
-#pragma once
+#include <game_message.h>
 
-#include <atomic>
-
-#include <account.h>
+using namespace atrinik;
+using namespace std;
 
 namespace atrinik {
 
-class Server {
-public:
+using namespace ClientCommands;
 
-    static Server server;
-
-    static inline int ticks_duration()
-    {
-        return 125000;
-    }
-
-    Server() : account_manager()
-    {
-    }
-
-    ~Server()
-    {
-    }
-
-    uint64_t get_ticks();
-
-    AccountManager account_manager;
-
-private:
-    std::atomic<uint64_t> ticks;
-};
+const std::string DrawInfoCommandColors::white("ffffff");
+const std::string DrawInfoCommandColors::orange("ff9900");
+const std::string DrawInfoCommandColors::navy("00ffff");
+const std::string DrawInfoCommandColors::red("ff3030");
+const std::string DrawInfoCommandColors::green("00ff00");
+const std::string DrawInfoCommandColors::blue("0080ff");
+const std::string DrawInfoCommandColors::gray("999999");
+const std::string DrawInfoCommandColors::brown("c07f40");
+const std::string DrawInfoCommandColors::purple("cc66ff");
+const std::string DrawInfoCommandColors::pink("ff9999");
+const std::string DrawInfoCommandColors::yellow("ffff33");
+const std::string DrawInfoCommandColors::dark_navy("00c4c2");
+const std::string DrawInfoCommandColors::dark_green("006600");
+const std::string DrawInfoCommandColors::dark_orange("ff6600");
+const std::string DrawInfoCommandColors::light_purple("ff66ff");
+const std::string DrawInfoCommandColors::light_gold("d4d553");
+const std::string DrawInfoCommandColors::dark_gold("999900");
+const std::string DrawInfoCommandColors::black("000000");
 
 };

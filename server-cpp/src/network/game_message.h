@@ -27,6 +27,8 @@
 
 #pragma once
 
+#include <vector>
+#include <algorithm>
 #include <tbb/concurrent_queue.h>
 
 namespace atrinik {
@@ -224,4 +226,246 @@ private:
 
 typedef tbb::concurrent_queue<GameMessage> GameMessageQueue;
 
-}
+namespace ServerCommands {
+    enum {
+        Control,
+        AskFace,
+        Setup,
+        Version,
+        RequestFile, ///< @deprecated
+        Clear,
+        RequestUpdate,
+        Keepalive,
+        Account,
+        ItemExamine,
+        ItemApply,
+        ItemMove,
+        Reply, ///< @deprecated
+        PlayerCmd,
+        ItemLock,
+        ItemMark,
+        Fire,
+        Quickslot,
+        QuestList,
+        MovePath,
+        ItemReady, ///< @deprecated
+        Talk,
+        Move,
+        Target,
+
+        Nrof
+    };
+
+    enum class SetupCommand {
+        Sound,
+        MapSize,
+        Bot,
+        DataURL,
+    };
+
+    enum class TargetCommand {
+        MapXY = 1,
+        Clear,
+    };
+
+    enum class AccountCommand {
+        Login = 1,
+        Register,
+        LoginChar,
+        NewChar,
+        Pswd,
+    };
+
+    enum class TalkCommand {
+        NPC = 1,
+        Inv,
+        Below,
+        Container,
+        NpcName,
+    };
+
+    enum class ControlCommand {
+        Map = 1,
+        Player,
+    };
+
+    enum class ControlCommandMap {
+        Reset = 1,
+    };
+
+    enum class ControlCommandPlayer {
+        Teleport = 1,
+    };
+};
+
+namespace ClientCommands {
+    enum {
+        Map,
+        DrawInfo,
+        FileUpdate,
+        Item,
+        Sound,
+        Target,
+        ItemUpdate,
+        ItemDelete,
+        Stats,
+        Image,
+        Anim,
+        SkillReady, ///< @deprecated
+        Player,
+        MapStats,
+        SkillList, ///< @deprecated
+        Version,
+        Setup,
+        Control,
+        Data, ///< @deprecated
+        Characters,
+        Book,
+        Party,
+        Quickslot,
+        Compressed,
+        RegionMap,
+        SoundAmbient,
+        Interface,
+        Notification,
+
+        Nrof
+    };
+
+    enum class MapCommand {
+        Same,
+        New,
+        Connected,
+    };
+
+    enum class TargetCommand {
+        Self,
+        Enemy,
+        Friend,
+    };
+
+    enum class InterfaceCommand {
+        Text,
+        Link,
+        Icon,
+        Title,
+        Input,
+    };
+
+    enum class NotificationCommand {
+        Text,
+        Action,
+        Shortcut,
+        Delay,
+    };
+
+    enum class MapCommandFlags {
+        Multi = 0x01,
+        Name = 0x02,
+        Probe = 0x04,
+        Height = 0x08,
+        Zoom = 0x10,
+        Align = 0x20,
+        Double = 0x40,
+        More = 0x80,
+    };
+
+    enum class MapCommandFlags2 {
+        Alpha = 0x01,
+        Rotate = 0x02,
+        Infravision = 0x04,
+        Target = 0x08,
+    };
+
+    enum class MapCommandFlagsExt {
+        Anim = 0x01,
+    };
+
+    enum class MapCommandAnim {
+        Damage = 1,
+        Kill,
+    };
+
+    enum class MapCommandMask {
+        Clear = 0x2,
+        Darkness = 0x4,
+    };
+
+    enum class MapCommandLayer {
+        Clear = 255,
+    };
+
+    enum class MapStatsCommand {
+        Name = 1,
+        Music,
+        Weather,
+        TextAnim,
+    };
+
+    enum class SoundCommand {
+        Effect = 1,
+        Background,
+        Absolute,
+    };
+
+    enum class DrawInfoCommand {
+        All = 1,
+        Game,
+        Chat,
+        Local,
+        Private,
+        Guild,
+        Party,
+        Operator
+    };
+
+    class DrawInfoCommandColors {
+    public:
+        static const std::string white;
+        static const std::string orange;
+        static const std::string navy;
+        static const std::string red;
+        static const std::string green;
+        static const std::string blue;
+        static const std::string gray;
+        static const std::string brown;
+        static const std::string purple;
+        static const std::string pink;
+        static const std::string yellow;
+        static const std::string dark_navy;
+        static const std::string dark_green;
+        static const std::string dark_orange;
+        static const std::string light_purple;
+        static const std::string light_gold;
+        static const std::string dark_gold;
+        static const std::string black;
+    };
+
+    enum class ItemCommandFlags {
+        Location = 0x01,
+        Flags = 0x02,
+        Weight = 0x04,
+        Face = 0x08,
+        Name = 0x10,
+        Anim = 0x20,
+        AnimSpeed = 0x40,
+        Nrof = 0x80,
+        Direction = 0x0100,
+        Type = 0x0200,
+        Extra = 0x0400,
+    };
+
+    enum class ItemCommandObjectFlags {
+        Applied = 0x01,
+        Unpaid = 0x02,
+        IsMagical = 0x04,
+        Cursed = 0x08,
+        Damned = 0x10,
+        ContainerOpen = 0x20,
+        Locked = 0x40,
+        Trapped = 0x80,
+        Weapon2H = 0x0100,
+    };
+};
+
+};
