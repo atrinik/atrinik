@@ -27,6 +27,7 @@
 
 #pragma once
 
+#include <memory>
 #include <game_session.h>
 
 namespace atrinik {
@@ -53,6 +54,6 @@ private:
     GameSessions sessions_;
 };
 
-typedef boost::shared_ptr<GameServer> game_server_ptr;
+typedef std::shared_ptr<GameServer> game_server_ptr;
 
 }

@@ -28,8 +28,7 @@
 #pragma once
 
 #include <set>
-#include <boost/shared_ptr.hpp>
-#include <boost/enable_shared_from_this.hpp>
+#include <memory>
 #include <boost/asio.hpp>
 #include <boost/lockfree/queue.hpp>
 #include <boost/thread.hpp>
@@ -45,7 +44,7 @@ namespace atrinik {
 
 class GameSessions;
 
-class GameSession : public boost::enable_shared_from_this<GameSession> {
+class GameSession : public std::enable_shared_from_this<GameSession> {
 public:
 
     GameSession(boost::asio::io_service& io_service, GameSessions& sessions)
@@ -77,7 +76,7 @@ private:
     GameMessage read_msg_;
 };
 
-typedef boost::shared_ptr<GameSession> GameSessionPtr;
+typedef std::shared_ptr<GameSession> GameSessionPtr;
 
 class GameSessions
 : public boost::basic_lockable_adapter<boost::mutex> {

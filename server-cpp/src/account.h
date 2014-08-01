@@ -31,7 +31,7 @@
 #pragma once
 
 #include <string.h>
-#include <boost/shared_ptr.hpp>
+#include <memory>
 #include <boost/filesystem.hpp>
 #include <tbb/concurrent_hash_map.h>
 
@@ -165,7 +165,7 @@ public:
     GameMessage* construct_packet();
 
     static void validate_name(const std::string& s);
-    
+
     static void validate_password(const std::string& s);
 
 private:
@@ -182,7 +182,7 @@ private:
     time_t timestamp = 0; ///< UTC timestamp of when the account last logged in.
 };
 
-typedef boost::shared_ptr<Account> AccountPtr; ///< Account pointer.
+typedef std::shared_ptr<Account> AccountPtr; ///< Account pointer.
 typedef tbb::concurrent_hash_map<std::string, AccountPtr>
 AccountMap; ///< Map of accounts.
 
