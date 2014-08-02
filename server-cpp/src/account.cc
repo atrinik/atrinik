@@ -179,6 +179,7 @@ void Account::set_password(const std::string& s)
     PKCS5_PBKDF2_HMAC(s.c_str(), s.length(), salt.data(), salt.size(),
             password_hash_iterations(), EVP_sha256(), password.size(),
             password.data());
+    password_old.clear();
 }
 
 bool Account::check_password(const std::string& s)
