@@ -41,6 +41,10 @@ add_executable(atrinik
     src/account.cc
     src/main.cc
     src/server.cc
+    src/network/commands/account.cc
+    src/network/commands/setup.cc
+    src/network/commands/version.cc
+    src/network/game_command.cc
     src/network/game_message.cc
     src/network/game_session.cc
     src/network/game_server.cc

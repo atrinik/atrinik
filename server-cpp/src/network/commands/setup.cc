@@ -22,51 +22,62 @@
 
 /**
  * @file
- * Atrinik server.
+ * Setup game command implementation.
  */
 
-#pragma once
+#include <game_command.h>
+#include <game_message.h>
+#include <game_session.h>
 
-#include <atomic>
-
-#include <account.h>
+using namespace atrinik;
+using namespace std;
 
 namespace atrinik {
 
-class Server {
-public:
+void GameCommand::cmd_setup(const GameMessage& msg)
+{
+    GameMessage write_msg;
 
-    static Server server;
+    write_msg.int8(ClientCommands::Setup);
 
-    static inline int ticks_duration()
-    {
-        return 125000; // TODO: config
+    while (!msg.end()) {
+        uint8_t type = msg.int8();
+        write_msg.int8(type);
+
+        switch (static_cast<ServerCommands::SetupCommand>(type)) {
+        case ServerCommands::SetupCommand::Sound:
+            session_.sound((bool) msg.int8());
+            write_msg.int8((uint8_t) session_.sound());
+            break;
+
+        case ServerCommands::SetupCommand::MapSize:
+            session_.mapx(msg.int8());
+            write_msg.int8(session_.mapx());
+            session_.mapy(msg.int8());
+            write_msg.int8(session_.mapy());
+            break;
+
+        case ServerCommands::SetupCommand::Bot:
+            session_.bot((bool) msg.int8());
+            write_msg.int8((uint8_t) session_.bot());
+            break;
+
+        case ServerCommands::SetupCommand::DataURL:
+            string url;
+
+            url = msg.string();
+
+            if (!url.empty()) {
+                write_msg.string(url);
+            } else {
+                write_msg.string(Server::server.http_url());
+            }
+        }
     }
 
-    static inline int socket_version()
-    {
-        return 1058;
-    }
+    session_.write(write_msg);
+}
 
-    static inline std::string http_url()
-    {
-        return "http://localhost:13326"; // TODO: config
-    }
-
-    Server() : account_manager()
-    {
-    }
-
-    ~Server()
-    {
-    }
-
-    uint64_t get_ticks();
-
-    AccountManager account_manager;
-
-private:
-    std::atomic<uint64_t> ticks;
 };
 
-};
+

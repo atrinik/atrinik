@@ -22,51 +22,15 @@
 
 /**
  * @file
- * Atrinik server.
+ * Game command implementation.
  */
 
-#pragma once
+#include <game_command.h>
 
-#include <atomic>
-
-#include <account.h>
+using namespace atrinik;
+using namespace std;
 
 namespace atrinik {
 
-class Server {
-public:
-
-    static Server server;
-
-    static inline int ticks_duration()
-    {
-        return 125000; // TODO: config
-    }
-
-    static inline int socket_version()
-    {
-        return 1058;
-    }
-
-    static inline std::string http_url()
-    {
-        return "http://localhost:13326"; // TODO: config
-    }
-
-    Server() : account_manager()
-    {
-    }
-
-    ~Server()
-    {
-    }
-
-    uint64_t get_ticks();
-
-    AccountManager account_manager;
-
-private:
-    std::atomic<uint64_t> ticks;
 };
 
-};

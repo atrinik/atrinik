@@ -22,51 +22,44 @@
 
 /**
  * @file
- * Atrinik server.
+ * Version game command implementation.
  */
 
-#pragma once
+#include <game_command.h>
+#include <game_message.h>
+#include <game_session.h>
+#include <draw_info_message.h>
+#include <version_message.h>
 
-#include <atomic>
-
-#include <account.h>
+using namespace atrinik;
+using namespace std;
 
 namespace atrinik {
 
-class Server {
-public:
-
-    static Server server;
-
-    static inline int ticks_duration()
-    {
-        return 125000; // TODO: config
+void GameCommand::cmd_version(const GameMessage& msg)
+{
+    // Ignore multiple version commands
+    if (session_.version() != 0) {
+        return;
     }
 
-    static inline int socket_version()
-    {
-        return 1058;
+    uint32_t version = msg.int32();
+
+    if (version == 0 || version == 991017 || version == 1055) {
+        DrawInfoMessage write_msg(ClientCommands::DrawInfoCommandColors::red,
+                "Your client is outdated!\nGo to http://www.atrinik.org/ and "
+                "download the latest Atrinik client.");
+        session_.write(write_msg);
+        // TODO: dc/zombie
+        return;
     }
 
-    static inline std::string http_url()
-    {
-        return "http://localhost:13326"; // TODO: config
-    }
+    session_.version(version);
 
-    Server() : account_manager()
-    {
-    }
+    VersionMessage write_msg(Server::server.socket_version());
+    session_.write(write_msg);
+}
 
-    ~Server()
-    {
-    }
-
-    uint64_t get_ticks();
-
-    AccountManager account_manager;
-
-private:
-    std::atomic<uint64_t> ticks;
 };
 
-};
+

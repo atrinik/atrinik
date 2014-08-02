@@ -29,6 +29,7 @@
 
 #include <set>
 #include <memory>
+#include <algorithm>
 #include <boost/asio.hpp>
 #include <boost/lockfree/queue.hpp>
 #include <boost/thread.hpp>
@@ -39,16 +40,25 @@
 #include <draw_info_message.h>
 #include <account.h>
 #include <server.h>
+#include <game_command.h>
 
 namespace atrinik {
 
 class GameSessions;
+class GameCommand;
 
 class GameSession : public std::enable_shared_from_this<GameSession> {
 public:
 
+    enum class State {
+        Login,
+        Playing,
+        Dead,
+        Zombie,
+    };
+
     GameSession(boost::asio::io_service& io_service, GameSessions& sessions)
-    : socket_(io_service), sessions_(sessions)
+    : socket_(io_service), sessions_(sessions), command_(*this)
     {
     }
 
@@ -66,14 +76,80 @@ public:
             std::size_t bytes_transferred);
     void handle_write(const boost::system::error_code& error,
             std::size_t bytes_transferred);
+    void process();
+
+    inline const uint32_t version() const
+    {
+        return version_;
+    }
+
+    inline void version(uint32_t version)
+    {
+        version_ = version;
+    }
+
+    inline const bool sound() const
+    {
+        return sound_;
+    }
+
+    inline void sound(bool sound)
+    {
+        sound_ = sound;
+    }
+
+    inline const bool bot() const
+    {
+        return bot_;
+    }
+
+    inline void bot(bool bot)
+    {
+        bot_ = bot;
+    }
+
+    inline const uint8_t mapx() const
+    {
+        return mapx_;
+    }
+
+    inline void mapx(uint8_t mapx)
+    {
+        mapx_ = std::min(std::max(mapx, (uint8_t) 9), (uint8_t) 17);
+    }
+
+    inline const uint8_t mapy() const
+    {
+        return mapy_;
+    }
+
+    inline void mapy(uint8_t mapy)
+    {
+        mapy_ = std::min(std::max(mapy, (uint8_t) 9), (uint8_t) 17);
+    }
+
+    std::string ip()
+    {
+        return socket_.remote_endpoint().address().to_string();
+    }
 
     GameMessageQueue read_queue;
     GameMessageQueue write_queue;
     AccountPtr account;
 private:
+
+    bool process_message(const GameMessage& msg);
+
     boost::asio::ip::tcp::socket socket_;
     GameSessions& sessions_;
     GameMessage read_msg_;
+    GameCommand command_;
+
+    uint32_t version_ = 0;
+    bool sound_ = false;
+    bool bot_ = false;
+    uint8_t mapx_;
+    uint8_t mapy_;
 };
 
 typedef std::shared_ptr<GameSession> GameSessionPtr;
@@ -82,61 +158,9 @@ class GameSessions
 : public boost::basic_lockable_adapter<boost::mutex> {
 public:
 
-    void add(GameSessionPtr session)
-    {
-        boost::strict_lock<boost::mutex> guard(this->lockable());
-        sessions_.insert(session);
-    }
-
-    void remove(GameSessionPtr session)
-    {
-        boost::strict_lock<boost::mutex> guard(this->lockable());
-        sessions_.erase(session);
-    }
-
-    void process()
-    {
-        boost::strict_lock<boost::mutex> guard(this->lockable());
-        for (auto session : sessions_) {
-            while (!session->read_queue.empty()) {
-                GameMessage msg;
-
-                if (!session->read_queue.try_pop(msg)) {
-                    break;
-                }
-
-                printf("RECEIVED %d bytes:\n", (int) msg.length());
-                for (size_t i = 0; i < msg.length(); i++) {
-                    printf("0x%02x ", msg.header()[i] & 0xff);
-
-                    if (((i + 1) % 8) == 0) {
-                        printf("\n");
-                    }
-                }
-                printf("\n");
-
-                uint8_t type = msg.int8();
-
-                if (type == 3) {
-                    uint32_t version = msg.int32();
-                    printf("DETERMINED version: %d\n", version);
-
-                    GameMessage write_msg;
-
-                    write_msg.int8(15);
-                    write_msg.int32(1058);
-                    session->write(write_msg);
-
-                    DrawInfoMessage write_msg2(
-                            ClientCommands::DrawInfoCommand::Game,
-                            ClientCommands::DrawInfoCommandColors::white,
-                            boost::format("%s") % "hello");
-
-                    session->write(write_msg2);
-                }
-            }
-        }
-    }
+    void add(GameSessionPtr session);
+    void remove(GameSessionPtr session);
+    void process();
 
 private:
     std::set<GameSessionPtr> sessions_;

@@ -22,51 +22,24 @@
 
 /**
  * @file
- * Atrinik server.
+ * Draw info message.
  */
 
 #pragma once
 
-#include <atomic>
-
-#include <account.h>
+#include <game_message.h>
 
 namespace atrinik {
 
-class Server {
+class VersionMessage : public GameMessage {
 public:
+    using GameMessage::GameMessage;
 
-    static Server server;
-
-    static inline int ticks_duration()
+    VersionMessage(uint32_t version)
     {
-        return 125000; // TODO: config
+        int8(ClientCommands::Version);
+        int32(version);
     }
-
-    static inline int socket_version()
-    {
-        return 1058;
-    }
-
-    static inline std::string http_url()
-    {
-        return "http://localhost:13326"; // TODO: config
-    }
-
-    Server() : account_manager()
-    {
-    }
-
-    ~Server()
-    {
-    }
-
-    uint64_t get_ticks();
-
-    AccountManager account_manager;
-
-private:
-    std::atomic<uint64_t> ticks;
 };
 
 };

@@ -20,53 +20,63 @@
  * The author can be reached at admin@atrinik.org                              *
  ******************************************************************************/
 
+#include "game_message.h"
+
+
 /**
  * @file
- * Atrinik server.
+ * Game command.
  */
 
 #pragma once
 
-#include <atomic>
-
-#include <account.h>
+#include <array>
+#include <functional>
 
 namespace atrinik {
 
-class Server {
+class GameSession;
+class GameMessage;
+
+class GameCommand {
 public:
 
-    static Server server;
-
-    static inline int ticks_duration()
-    {
-        return 125000; // TODO: config
-    }
-
-    static inline int socket_version()
-    {
-        return 1058;
-    }
-
-    static inline std::string http_url()
-    {
-        return "http://localhost:13326"; // TODO: config
-    }
-
-    Server() : account_manager()
+    GameCommand(GameSession& session) : session_(session)
     {
     }
 
-    ~Server()
+    ~GameCommand()
     {
     }
 
-    uint64_t get_ticks();
-
-    AccountManager account_manager;
+    void cmd_control(const GameMessage& msg);
+    void cmd_ask_face(const GameMessage& msg);
+    void cmd_setup(const GameMessage& msg);
+    void cmd_version(const GameMessage& msg);
+    void cmd_request_file(const GameMessage& msg); ///< @deprecated
+    void cmd_clear(const GameMessage& msg);
+    void cmd_request_update(const GameMessage& msg);
+    void cmd_keepalive(const GameMessage& msg);
+    void cmd_account(const GameMessage& msg);
+    void cmd_item_examine(const GameMessage& msg);
+    void cmd_item_apply(const GameMessage& msg);
+    void cmd_item_move(const GameMessage& msg);
+    void cmd_reply(const GameMessage& msg); ///< @deprecated
+    void cmd_player_cmd(const GameMessage& msg);
+    void cmd_item_lock(const GameMessage& msg);
+    void cmd_item_mark(const GameMessage& msg);
+    void cmd_fire(const GameMessage& msg);
+    void cmd_quickslot(const GameMessage& msg);
+    void cmd_quest_list(const GameMessage& msg);
+    void cmd_move_path(const GameMessage& msg);
+    void cmd_item_ready(const GameMessage& msg); ///< @deprecated
+    void cmd_talk(const GameMessage& msg);
+    void cmd_move(const GameMessage& msg);
+    void cmd_target(const GameMessage& msg);
 
 private:
-    std::atomic<uint64_t> ticks;
+
+    GameSession& session_;
 };
 
 };

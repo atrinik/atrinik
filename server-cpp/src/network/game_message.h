@@ -52,6 +52,16 @@ public:
         memcpy(header(), msg.header(), msg.length());
     }
 
+    const inline bool end() const
+    {
+        return idx_ >= body_length();
+    }
+
+    const inline bool empty() const
+    {
+        return body_length() == 0;
+    }
+
     size_t length() const
     {
         return header_length + body_length_;
@@ -227,7 +237,7 @@ private:
 typedef tbb::concurrent_queue<GameMessage> GameMessageQueue;
 
 namespace ServerCommands {
-    enum {
+    enum ServerCommands {
         Control,
         AskFace,
         Setup,
@@ -299,7 +309,7 @@ namespace ServerCommands {
 };
 
 namespace ClientCommands {
-    enum {
+    enum ClientCommands {
         Map,
         DrawInfo,
         FileUpdate,

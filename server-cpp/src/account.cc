@@ -161,7 +161,7 @@ std::string Account::dump()
     return ss.str();
 }
 
-void Account::login(const std::string& host)
+void Account::update_last_login(const std::string& host)
 {
     this->host = host;
 
@@ -262,9 +262,19 @@ bool Account::has_old_password()
     return !password_old.empty();
 }
 
-GameMessage* Account::construct_packet()
+void Account::construct_message(GameMessage* msg)
 {
+    msg->string(host);
+    msg->int64(static_cast<uint64_t>(timestamp));
 
+    for (auto character : characters) {
+        msg->string(apply_visitor(GameObjectArchVisitor(),
+                character.archetype->arch));
+        msg->string(character.name);
+        msg->string(character.region_name);
+        msg->int16(1); // TODO: arch animation ID
+        msg->int8(character.level);
+    }
 }
 
 void Account::validate_name(const std::string& s)

@@ -29,6 +29,8 @@
 #include <game_session.h>
 
 using namespace atrinik;
+using namespace ClientCommands;
+using namespace ServerCommands;
 using namespace boost;
 using namespace std;
 
@@ -47,6 +49,16 @@ void GameSession::write(const GameMessage& msg)
 {
     bool write_in_progress = !write_queue.empty();
     GameMessage write_msg;
+
+    printf("SENDING %d bytes (header not encoded):\n", (int) msg.length());
+    for (size_t i = 0; i < msg.length(); i++) {
+        printf("0x%02x ", msg.header()[i] & 0xff);
+
+        if (((i + 1) % 8) == 0) {
+            printf("\n");
+        }
+    }
+    printf("\n");
 
     write_queue.push(msg);
 
@@ -102,6 +114,69 @@ void GameSession::handle_write(const boost::system::error_code& error,
         }
     } else {
         sessions_.remove(shared_from_this());
+    }
+}
+
+bool GameSession::process_message(const GameMessage& msg)
+{
+    printf("RECEIVED %d bytes:\n", (int) msg.length());
+    for (size_t i = 0; i < msg.length(); i++) {
+        printf("0x%02x ", msg.header()[i] & 0xff);
+
+        if (((i + 1) % 8) == 0) {
+            printf("\n");
+        }
+    }
+    printf("\n");
+
+    uint8_t type = msg.int8();
+
+    switch (type) {
+    case ServerCommands::Setup:
+        command_.cmd_setup(msg);
+        break;
+
+    case ServerCommands::Version:
+        command_.cmd_version(msg);
+        break;
+
+    case ServerCommands::Account:
+        command_.cmd_account(msg);
+        break;
+    }
+}
+
+void GameSession::process()
+{
+    while (!read_queue.empty()) {
+        GameMessage msg;
+
+        if (!read_queue.try_pop(msg)) {
+            break;
+        }
+
+        process_message(msg);
+    }
+}
+
+void GameSessions::add(GameSessionPtr session)
+{
+    strict_lock<mutex> guard(this->lockable());
+    sessions_.insert(session);
+}
+
+void GameSessions::remove(GameSessionPtr session)
+{
+    strict_lock<mutex> guard(this->lockable());
+    sessions_.erase(session);
+}
+
+void GameSessions::process()
+{
+    strict_lock<mutex> guard(this->lockable());
+
+    for (auto session : sessions_) {
+        session->process();
     }
 }
 

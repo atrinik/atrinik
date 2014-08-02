@@ -68,12 +68,10 @@ public:
 
     Account()
     {
-        std::cout << "allocating account" << std::endl;
     }
 
     ~Account()
     {
-        std::cout << "deallocating account" << std::endl;
     }
 
     /**
@@ -145,7 +143,7 @@ public:
      */
     std::string dump();
 
-    void login(const std::string& host);
+    void update_last_login(const std::string& host);
 
     void set_password(const std::string& s);
 
@@ -162,7 +160,7 @@ public:
 
     bool has_old_password();
 
-    GameMessage* construct_packet();
+    void construct_message(GameMessage* msg);
 
     static void validate_name(const std::string& s);
 
