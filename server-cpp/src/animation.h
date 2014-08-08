@@ -29,7 +29,6 @@
 
 #include <cstdint>
 #include <string>
-#include <memory>
 #include <vector>
 #include <unordered_map>
 
@@ -40,7 +39,7 @@ public:
     typedef std::uint16_t AnimationId;
     typedef std::vector<AnimationId> AnimationFrames;
 
-    Animation(const std::string& name) : id_(uid++), name_(name)
+    Animation(const std::string& name) : name_(name)
     {
     }
     
@@ -88,9 +87,9 @@ public:
         return frames.size();
     }
     
-private:
-    static AnimationId uid;
+    static bool cmp(Animation* a, Animation* b);
     
+private:
     AnimationFrames frames;
     
     AnimationId id_;
@@ -108,9 +107,10 @@ public:
     AnimationManager();
     ~AnimationManager();
     
+    void sort();
     void add(Animation* animation);
     const Animation& get(const std::string& name);
-    const Animation& get(uint16_t id);
+    const Animation& get(Animation::AnimationId id);
 private:
     AnimationVector animations_vector;
     AnimationMap animations_map;

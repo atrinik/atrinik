@@ -94,6 +94,8 @@ void AnimationParser::load_animations(const std::string& path)
             }
         }
     }
+    
+    Server::server.animation.sort();
 }
 
 }
