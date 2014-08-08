@@ -22,54 +22,53 @@
 
 /**
  * @file
- * Atrinik server.
+ * Animation.
  */
 
 #pragma once
 
-#include <atomic>
-
-#include <account.h>
-#include <animation.h>
+#include <string>
+#include <memory>
+#include <vector>
+#include <unordered_map>
 
 namespace atrinik {
 
-class Server {
-public:
+typedef std::vector<uint16_t> AnimationFrames;
 
-    static Server server;
-
-    static inline int ticks_duration()
-    {
-        return 125000; // TODO: config
-    }
-
-    static inline int socket_version()
-    {
-        return 1058;
-    }
-
-    static inline std::string http_url()
-    {
-        return "http://localhost:13326"; // TODO: config
-    }
-
-    Server() : account_manager()
-    {
-    }
-
-    ~Server()
-    {
-    }
-
-    uint64_t get_ticks();
-
-    AccountManager account_manager;
-    
-    AnimationManager animation;
-
+class Animation {
 private:
-    std::atomic<uint64_t> ticks;
+    static uint16_t uid;
+public:
+    Animation() : id(uid++)
+    {
+    }
+    
+    ~Animation()
+    {
+    }
+    
+    uint16_t id;
+    
+    uint8_t facings = 0;
+    
+    AnimationFrames frames;
+};
+
+typedef std::vector<Animation*> AnimationVector;
+typedef std::unordered_map<std::string, Animation*> AnimationMap;
+
+class AnimationManager {
+public:
+    AnimationManager();
+    ~AnimationManager();
+    
+    void add(const std::string& name, Animation* animation);
+    const Animation& get(const std::string& name);
+    const Animation& get(uint16_t id);
+private:
+    AnimationVector animations_vector;
+    AnimationMap animations_map;
 };
 
 };

@@ -39,6 +39,7 @@ include_directories(
 
 add_executable(atrinik
     src/account.cc
+    src/animation.cc
     src/main.cc
     src/server.cc
     src/network/commands/account.cc
@@ -54,6 +55,7 @@ add_executable(atrinik
     src/objects/object.cc
     src/objects/region_object.cc
     src/parsers/account_parser.cc
+    src/parsers/animation_parser.cc
     src/parsers/archetype_parser.cc
     src/parsers/map_parser.cc
     src/parsers/object_parser.cc

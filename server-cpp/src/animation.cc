@@ -22,54 +22,70 @@
 
 /**
  * @file
- * Atrinik server.
+ * Animation implementation.
  */
 
-#pragma once
-
-#include <atomic>
-
-#include <account.h>
 #include <animation.h>
+
+using namespace atrinik;
+using namespace std;
 
 namespace atrinik {
 
-class Server {
-public:
+uint16_t Animation::uid(0);
 
-    static Server server;
+AnimationManager::AnimationManager()
+{
+    // Add an empty base animation - returned from getters in case the requested
+    // animation ID/name cannot be found
+    auto animation = new Animation();
+    animation->frames.push_back(0);
+    animation->facings = 1;
+    add("", animation);
+}
 
-    static inline int ticks_duration()
-    {
-        return 125000; // TODO: config
+AnimationManager::~AnimationManager()
+{
+}
+
+void AnimationManager::add(const std::string& name, Animation* animation)
+{
+    if (animation->facings == 0 || (animation->facings != 9 &&
+            animation->facings != 25)) {
+        // TODO: log notice; invalid number of facings
+        animation->facings = 1;
     }
-
-    static inline int socket_version()
-    {
-        return 1058;
-    }
-
-    static inline std::string http_url()
-    {
-        return "http://localhost:13326"; // TODO: config
-    }
-
-    Server() : account_manager()
-    {
-    }
-
-    ~Server()
-    {
-    }
-
-    uint64_t get_ticks();
-
-    AccountManager account_manager;
     
-    AnimationManager animation;
+    if ((animation->frames.size() % animation->facings) != 0) {
+        // TODO: log notice; number of frames is not an exact multiple of number
+        // of facings
+    }
+    
+    animations_vector.push_back(animation);
+            
+    if (!animations_map.insert(make_pair(name, animation)).second) {
+        throw runtime_error("could not insert animation");
+    }
+}
 
-private:
-    std::atomic<uint64_t> ticks;
-};
+const Animation& AnimationManager::get(const std::string& name)
+{
+    AnimationMap::const_iterator it = animations_map.find(name);
+    
+    if (it == animations_map.end()) { // Doesn't exist, return default
+        return *animations_vector[0];
+    }
+    
+    return *it->second;
+}
+
+const Animation& AnimationManager::get(uint16_t id)
+{
+    try {
+        return *animations_vector.at(id);
+    } catch (out_of_range&) { // Animation ID doesn't exist, return default
+        return *animations_vector[0];
+    }
+}
 
 };

@@ -41,6 +41,8 @@
 #include <account_parser.h>
 #include <server.h>
 
+#include "animation_parser.h"
+
 using namespace atrinik;
 using namespace boost;
 using namespace std;
@@ -106,6 +108,8 @@ int main(int argc, char **argv)
     ArchetypeParser *parser = new ArchetypeParser;
     parser->read_archetypes("../arch/archetypes");
     parser->load_archetypes_pass1();
+    
+    AnimationParser::load_animations("../arch/animations");
 
     RegionParser *region_parser = new RegionParser;
     region_parser->load("../maps/regions.reg");

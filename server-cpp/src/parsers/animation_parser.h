@@ -22,54 +22,23 @@
 
 /**
  * @file
- * Atrinik server.
+ * Animation parser.
  */
 
 #pragma once
 
-#include <atomic>
-
-#include <account.h>
-#include <animation.h>
+#include <iostream>
+#include <boost/property_tree/ptree.hpp>
 
 namespace atrinik {
 
-class Server {
+class AnimationParser {
 public:
-
-    static Server server;
-
-    static inline int ticks_duration()
-    {
-        return 125000; // TODO: config
-    }
-
-    static inline int socket_version()
-    {
-        return 1058;
-    }
-
-    static inline std::string http_url()
-    {
-        return "http://localhost:13326"; // TODO: config
-    }
-
-    Server() : account_manager()
-    {
-    }
-
-    ~Server()
-    {
-    }
-
-    uint64_t get_ticks();
-
-    AccountManager account_manager;
-    
-    AnimationManager animation;
-
-private:
-    std::atomic<uint64_t> ticks;
+    /**
+     * Load animations from the specified file path.
+     * @param path File to read from.
+     */
+    static void load_animations(const std::string& path);
 };
 
-};
+}
