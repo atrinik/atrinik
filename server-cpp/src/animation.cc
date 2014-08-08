@@ -32,38 +32,39 @@ using namespace std;
 
 namespace atrinik {
 
-uint16_t Animation::uid(0);
+Animation::AnimationId Animation::uid(0);
 
 AnimationManager::AnimationManager()
 {
     // Add an empty base animation - returned from getters in case the requested
     // animation ID/name cannot be found
-    auto animation = new Animation();
-    animation->frames.push_back(0);
-    animation->facings = 1;
-    add("", animation);
+    auto animation = new Animation("");
+    animation->push_back(0);
+    animation->facings(1);
+    add(animation);
 }
 
 AnimationManager::~AnimationManager()
 {
 }
 
-void AnimationManager::add(const std::string& name, Animation* animation)
+void AnimationManager::add(Animation* animation)
 {
-    if (animation->facings == 0 || (animation->facings != 9 &&
-            animation->facings != 25)) {
+    if (animation->facings() == 0 || (animation->facings() != 9 &&
+            animation->facings() != 25)) {
         // TODO: log notice; invalid number of facings
-        animation->facings = 1;
+        animation->facings(1);
     }
     
-    if ((animation->frames.size() % animation->facings) != 0) {
+    if ((animation->size() % animation->facings()) != 0) {
         // TODO: log notice; number of frames is not an exact multiple of number
         // of facings
     }
     
     animations_vector.push_back(animation);
             
-    if (!animations_map.insert(make_pair(name, animation)).second) {
+    if (!animations_map.insert(make_pair(animation->name(),
+            animation)).second) {
         throw runtime_error("could not insert animation");
     }
 }
@@ -79,7 +80,7 @@ const Animation& AnimationManager::get(const std::string& name)
     return *it->second;
 }
 
-const Animation& AnimationManager::get(uint16_t id)
+const Animation& AnimationManager::get(Animation::AnimationId id)
 {
     try {
         return *animations_vector.at(id);

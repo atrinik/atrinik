@@ -44,51 +44,50 @@ namespace atrinik {
 void AnimationParser::load_animations(const std::string& path)
 {
     ifstream file(path);
-    
+
     if (!file) {
         throw runtime_error("could not open file");
     }
-    
-    string line, name;
+
+    string line;
     Animation* animation = NULL;
-    
+
     while (getline(file, line)) {
         if (line.empty() || starts_with(line, "#")) {
             continue;
         }
 
         size_t space = line.find_first_of(' ');
-        
+
         if (space == string::npos) {
             // TODO: error
             continue;
         }
-        
+
         string key = line.substr(0, space);
         string val = line.substr(space + 1);
 
         if (key == "anim") {
-            animation = new Animation();
-            name = val;
+            animation = new Animation(val);
         } else if (!animation) {
             // TODO: error
         } else if (key == "facings") {
             try {
-                animation->facings = numeric_cast<uint8_t>(
-                        lexical_cast<int>(val));
+                animation->facings(numeric_cast<uint8_t>(
+                        lexical_cast<int>(val)));
             } catch (bad_cast&) {
                 // TODO: error
             }
 
             while (getline(file, line)) {
                 if (line == "mina") {
-                    Server::server.animation.add(name, animation);
+                    Server::server.animation.add(animation);
                     animation = NULL;
                     break;
                 }
 
                 try {
-                    animation->frames.push_back(lexical_cast<uint16_t>(line));
+                    animation->push_back(lexical_cast<uint16_t>(line));
                 } catch (bad_cast&) {
                     // TODO: error
                 }

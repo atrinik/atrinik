@@ -27,6 +27,7 @@
 
 #pragma once
 
+#include <cstdint>
 #include <string>
 #include <memory>
 #include <vector>
@@ -34,13 +35,12 @@
 
 namespace atrinik {
 
-typedef std::vector<uint16_t> AnimationFrames;
-
 class Animation {
-private:
-    static uint16_t uid;
 public:
-    Animation() : id(uid++)
+    typedef std::uint16_t AnimationId;
+    typedef std::vector<AnimationId> AnimationFrames;
+
+    Animation(const std::string& name) : id_(uid++), name_(name)
     {
     }
     
@@ -48,22 +48,67 @@ public:
     {
     }
     
-    uint16_t id;
+    const std::string& name() const
+    {
+        return name_;
+    }
     
-    uint8_t facings = 0;
+    inline const AnimationId id() const
+    {
+        return id_;
+    }
+    
+    inline void id(AnimationId id)
+    {
+        id_ = id;
+    }
+    
+    inline const uint8_t facings() const
+    {
+        return facings_;
+    }
+    
+    inline void facings(uint8_t facings)
+    {
+        facings_ = facings;
+    }
+    
+    inline void push_back(AnimationFrames::value_type val)
+    {
+        frames.push_back(val);
+    }
+    
+    AnimationFrames::value_type operator [](AnimationFrames::size_type i) const
+    {
+        return frames[i];
+    }
+    
+    AnimationFrames::size_type size() const
+    {
+        return frames.size();
+    }
+    
+private:
+    static AnimationId uid;
     
     AnimationFrames frames;
+    
+    AnimationId id_;
+    
+    uint8_t facings_ = 0;
+    
+    std::string name_;
 };
-
-typedef std::vector<Animation*> AnimationVector;
-typedef std::unordered_map<std::string, Animation*> AnimationMap;
 
 class AnimationManager {
 public:
+    typedef std::vector<Animation*> AnimationVector;
+    typedef std::unordered_map<std::string, Animation*> AnimationMap;
+
     AnimationManager();
     ~AnimationManager();
     
-    void add(const std::string& name, Animation* animation);
+    void add(Animation* animation);
     const Animation& get(const std::string& name);
     const Animation& get(uint16_t id);
 private:
