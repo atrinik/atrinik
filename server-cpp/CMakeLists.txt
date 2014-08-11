@@ -41,6 +41,7 @@ add_executable(atrinik
     src/account.cc
     src/animation.cc
     src/main.cc
+    src/face.cc
     src/server.cc
     src/network/commands/account.cc
     src/network/commands/setup.cc
@@ -57,6 +58,7 @@ add_executable(atrinik
     src/parsers/account_parser.cc
     src/parsers/animation_parser.cc
     src/parsers/archetype_parser.cc
+    src/parsers/face_parser.cc
     src/parsers/map_parser.cc
     src/parsers/object_parser.cc
     src/parsers/region_parser.cc
