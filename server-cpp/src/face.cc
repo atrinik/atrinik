@@ -34,30 +34,7 @@ using namespace std;
 
 namespace atrinik {
 
-bool Face::cmp(Face* a, Face* b)
-{
-    return a->name() < b->name();
-}
-
-FaceManager::FaceManager()
-{
-}
-
-FaceManager::~FaceManager()
-{
-}
-
-void FaceManager::sort()
-{
-    std::sort(faces_vector.begin(), faces_vector.end(),
-            Face::cmp);
-    
-    Face::FaceId id = 0;
-    
-    for (auto face : faces_vector) {
-        face->id(id++);
-    }
-}
+int Face::uid(0);
 
 void FaceManager::add(Face* face)
 {

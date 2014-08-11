@@ -37,8 +37,9 @@ namespace atrinik {
 class Face {
 public:
     typedef std::uint16_t FaceId;
+    typedef std::pair<char*, size_t> FaceData;
 
-    Face(const std::string& name) : name_(name)
+    Face(const std::string& name) : name_(name), id_(uid++)
     {
     }
     
@@ -56,29 +57,31 @@ public:
         return id_;
     }
     
-    inline void id(FaceId id)
+    inline const FaceData data() const
     {
-        id_ = id;
+        return data_;
     }
     
-    
-    static bool cmp(Face* a, Face* b);
+    inline void data(FaceData data)
+    {
+        data_ = data;
+    }
     
 private:
+    static int uid;
+    
     FaceId id_;
     
     std::string name_;
+    
+    FaceData data_;
 };
 
 class FaceManager {
 public:
     typedef std::vector<Face*> FaceVector;
     typedef std::unordered_map<std::string, Face*> FaceMap;
-
-    FaceManager();
-    ~FaceManager();
     
-    void sort();
     void add(Face* face);
     const Face& get(const std::string& name);
     const Face& get(Face::FaceId id);
