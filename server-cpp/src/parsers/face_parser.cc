@@ -26,8 +26,14 @@
  */
 
 #include <string.h>
+#include <sstream>
 #include <fstream>
 #include <boost/algorithm/string/predicate.hpp>
+
+/*
+#include <boost/lexical_cast.hpp>
+#include <boost/numeric/conversion/cast.hpp>
+ * */
 
 #include <face_parser.h>
 #include <face.h>
@@ -41,32 +47,34 @@ namespace atrinik {
 
 void FaceParser::load(const std::string& path)
 {
-    ifstream file(path);
+    ifstream file(path, ios::binary);
 
     if (!file) {
         throw runtime_error("could not open file");
     }
 
     string line;
-    Face* face = NULL;
 
     while (getline(file, line)) {
-        if (line.empty() || starts_with(line, "#")) {
-            continue;
+        if (!starts_with(line, "IMAGE ")) {
+            throw runtime_error("line does not begin with 'IMAGE '");
         }
-
-        size_t space = line.find_first_of(' ');
-
-        if (space == string::npos) {
-            // TODO: error
-            continue;
+        
+        stringstream ss(line.substr(6));
+        uint16_t id, bytes;
+        string name;
+        
+        ss >> id >> bytes >> name;
+        
+        char* data = new char[bytes];
+        
+        if (file.read(data, bytes)) {
+            Face* face = new Face(name);
+            face->data(make_pair(data, bytes));
+        } else {
+            // TODO: error, only read X number of bytes
         }
-
-        string key = line.substr(0, space);
-        string val = line.substr(space + 1);
     }
-    
-    Server::server.face.sort();
 }
 
 }
