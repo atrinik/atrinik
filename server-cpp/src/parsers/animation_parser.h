@@ -28,7 +28,6 @@
 #pragma once
 
 #include <iostream>
-#include <boost/property_tree/ptree.hpp>
 
 namespace atrinik {
 
