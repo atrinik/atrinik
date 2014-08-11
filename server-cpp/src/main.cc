@@ -109,7 +109,7 @@ int main(int argc, char **argv)
     parser->read_archetypes("../arch/archetypes");
     parser->load_archetypes_pass1();
     
-    FaceParser::load("../arch/bmaps");
+    FaceParser::load("../arch/atrinik.0");
     AnimationParser::load_animations("../arch/animations");
 
     RegionParser *region_parser = new RegionParser;
