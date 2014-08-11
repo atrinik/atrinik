@@ -66,7 +66,9 @@ public:
 
     AccountManager account_manager;
     
-    AnimationManager animation;
+    AnimationManager animation
+    
+    FaceManager face;
 
 private:
     std::atomic<uint64_t> ticks;
