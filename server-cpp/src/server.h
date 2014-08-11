@@ -31,6 +31,7 @@
 
 #include <account.h>
 #include <animation.h>
+#include <face.h>
 
 namespace atrinik {
 
