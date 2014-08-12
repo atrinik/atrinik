@@ -39,7 +39,7 @@ public:
     typedef std::uint16_t AnimationId;
     typedef std::vector<AnimationId> AnimationFrames;
 
-    Animation(const std::string& name) : name_(name)
+    Animation(const std::string& name) : name_(name), id_(uid++)
     {
     }
     
@@ -55,11 +55,6 @@ public:
     inline const AnimationId id() const
     {
         return id_;
-    }
-    
-    inline void id(AnimationId id)
-    {
-        id_ = id;
     }
     
     inline const uint8_t facings() const
@@ -90,6 +85,8 @@ public:
     static bool cmp(Animation* a, Animation* b);
     
 private:
+    static int uid;
+    
     AnimationFrames frames;
     
     AnimationId id_;
@@ -107,7 +104,6 @@ public:
     AnimationManager();
     ~AnimationManager();
     
-    void sort();
     void add(Animation* animation);
     const Animation& get(const std::string& name);
     const Animation& get(Animation::AnimationId id);

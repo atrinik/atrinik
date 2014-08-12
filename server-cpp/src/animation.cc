@@ -25,8 +25,6 @@
  * Animation implementation.
  */
 
-#include <algorithm>
-
 #include <animation.h>
 
 using namespace atrinik;
@@ -34,10 +32,7 @@ using namespace std;
 
 namespace atrinik {
 
-bool Animation::cmp(Animation* a, Animation* b)
-{
-    return a->name() < b->name();
-}
+int Animation::uid(0);
 
 AnimationManager::AnimationManager()
 {
@@ -51,18 +46,6 @@ AnimationManager::AnimationManager()
 
 AnimationManager::~AnimationManager()
 {
-}
-
-void AnimationManager::sort()
-{
-    std::sort(animations_vector.begin(), animations_vector.end(),
-            Animation::cmp);
-    
-    Animation::AnimationId id = 0;
-    
-    for (auto animation : animations_vector) {
-        animation->id(id++);
-    }
 }
 
 void AnimationManager::add(Animation* animation)
