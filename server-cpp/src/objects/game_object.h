@@ -126,9 +126,9 @@ public:
     }
 
     template<class T>
-    GameObjectType* getaddinstance()
+    T* getaddinstance()
     {
-        GameObjectType* ptr = getinstance<T>();
+        T* ptr = getinstance<T>();
 
         if (!ptr) {
             ptr = addinstance<T>();
@@ -149,11 +149,11 @@ public:
     }
 
     template<class T>
-    GameObjectType* getinstance() const
+    T* getinstance() const
     {
         for (auto it : types) {
             if (it->gettype() == T::type_()) {
-                return it;
+                return dynamic_cast<T*>(it);
             }
         }
 
@@ -183,9 +183,9 @@ public:
     }
 
     template<class T>
-    GameObjectType* addinstance()
+    T* addinstance()
     {
-        GameObjectType* ptr = new T();
+        T* ptr = new T();
         types.push_back(ptr);
         return ptr;
     }
