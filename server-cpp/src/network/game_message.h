@@ -138,7 +138,7 @@ public:
             return 0;
         }
 
-        return (body()[idx_++] << 8) +body()[idx_++];
+        return (body()[idx_++] << 8) + body()[idx_++];
     }
 
     void int16(int16_t val)
