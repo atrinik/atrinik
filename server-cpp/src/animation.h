@@ -84,8 +84,6 @@ public:
         return frames.size();
     }
     
-    static bool cmp(Animation* a, Animation* b);
-    
 private:
     static int uid;
     
