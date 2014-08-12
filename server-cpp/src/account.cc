@@ -41,6 +41,7 @@
 #include <account_parser.h>
 #include <base_object_type.h>
 #include <player_object_type.h>
+#include <anim_object_type.h>
 
 #include "server.h"
 
@@ -272,7 +273,9 @@ void Account::construct_message(GameMessage* msg)
                 character.archetype->arch));
         msg->string(character.name);
         msg->string(character.region_name);
-        msg->int16(1); // TODO: arch animation ID
+        
+        auto anim_object = character.archetype->getinstance<AnimObjectType>();
+        msg->int16(anim_object ? anim_object->animation() : 0);
         msg->int8(character.level);
     }
 }
