@@ -58,14 +58,14 @@ void AnimationParser::load_animations(const std::string& path)
         }
 
         size_t space = line.find_first_of(' ');
+        string key, val;
 
         if (space == string::npos) {
-            // TODO: error
-            continue;
+            val = line;
+        } else {
+            key = line.substr(0, space);
+            val = line.substr(space + 1);
         }
-
-        string key = line.substr(0, space);
-        string val = line.substr(space + 1);
 
         if (key == "anim") {
             animation = new Animation(val);
@@ -78,19 +78,14 @@ void AnimationParser::load_animations(const std::string& path)
             } catch (bad_cast&) {
                 // TODO: error
             }
-
-            while (getline(file, line)) {
-                if (line == "mina") {
-                    AnimationManager::manager.add(animation);
-                    animation = NULL;
-                    break;
-                }
-
-                try {
-                    animation->push_back(lexical_cast<uint16_t>(line));
-                } catch (bad_cast&) {
-                    // TODO: error
-                }
+        } else if (line == "mina") {
+            AnimationManager::manager.add(animation);
+            animation = NULL;
+        } else {
+            try {
+                animation->push_back(lexical_cast<uint16_t>(val));
+            } catch (bad_cast&) {
+                // TODO: error
             }
         }
     }
