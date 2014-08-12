@@ -25,8 +25,6 @@
  * Face implementation.
  */
 
-#include <algorithm>
-
 #include <face.h>
 
 using namespace atrinik;
