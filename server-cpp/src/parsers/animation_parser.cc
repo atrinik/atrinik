@@ -81,7 +81,7 @@ void AnimationParser::load_animations(const std::string& path)
 
             while (getline(file, line)) {
                 if (line == "mina") {
-                    Server::server.animation.add(animation);
+                    AnimationManager::manager.add(animation);
                     animation = NULL;
                     break;
                 }

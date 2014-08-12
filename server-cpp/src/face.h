@@ -82,6 +82,8 @@ public:
     typedef std::vector<Face*> FaceVector;
     typedef std::unordered_map<std::string, Face*> FaceMap;
     
+    static FaceManager manager;
+    
     void add(Face* face);
     const Face& get(const std::string& name);
     const Face& get(Face::FaceId id);

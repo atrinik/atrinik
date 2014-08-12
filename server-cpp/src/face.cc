@@ -34,6 +34,8 @@ namespace atrinik {
 
 int Face::uid(0);
 
+FaceManager FaceManager::manager;
+
 void FaceManager::add(Face* face)
 {
     faces_vector.push_back(face);

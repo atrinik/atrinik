@@ -187,6 +187,8 @@ AccountMap; ///< Map of accounts.
 class AccountManager {
 public:
 
+    static AccountManager manager;
+
     static inline std::string accounts_path()
     {
         return "data/accounts"; // TODO: configuration

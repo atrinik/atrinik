@@ -34,6 +34,8 @@ namespace atrinik {
 
 int Animation::uid(0);
 
+AnimationManager AnimationManager::manager;
+
 AnimationManager::AnimationManager()
 {
     // Add an empty base animation - returned from getters in case the requested

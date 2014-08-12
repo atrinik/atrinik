@@ -55,7 +55,7 @@ public:
         return "http://localhost:13326"; // TODO: config
     }
 
-    Server() : account_manager()
+    Server()
     {
     }
 
@@ -64,12 +64,6 @@ public:
     }
 
     uint64_t get_ticks();
-
-    AccountManager account_manager;
-    
-    AnimationManager animation;
-    
-    FaceManager face;
 
 private:
     std::atomic<uint64_t> ticks;

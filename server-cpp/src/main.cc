@@ -141,10 +141,9 @@ int main(int argc, char **argv)
 //
 //    cout << account.dump();
 
-    thread t2(&AccountManager::gc, Server::server.account_manager);
+    thread t2(&AccountManager::gc, AccountManager::manager);
 
     while (true) {
-        Server::server.account_manager.gc();
         server->process();
         usleep(125000);
     }

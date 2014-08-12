@@ -32,12 +32,14 @@
 #include <vector>
 #include <unordered_map>
 
+#include <face.h>
+
 namespace atrinik {
 
 class Animation {
 public:
     typedef std::uint16_t AnimationId;
-    typedef std::vector<AnimationId> AnimationFrames;
+    typedef std::vector<Face::FaceId> AnimationFrames;
 
     Animation(const std::string& name) : name_(name), id_(uid++)
     {
@@ -69,7 +71,7 @@ public:
     
     inline void push_back(AnimationFrames::value_type val)
     {
-        frames.push_back(val);
+        frames.push_back(val == 0 ? 0 : FaceManager::manager.get(val).id());
     }
     
     AnimationFrames::value_type operator [](AnimationFrames::size_type i) const
@@ -100,6 +102,8 @@ class AnimationManager {
 public:
     typedef std::vector<Animation*> AnimationVector;
     typedef std::unordered_map<std::string, Animation*> AnimationMap;
+    
+    static AnimationManager manager;
 
     AnimationManager();
     ~AnimationManager();

@@ -305,6 +305,8 @@ void Account::validate_password(const std::string& s)
     }
 }
 
+AccountManager AccountManager::manager;
+
 void AccountManager::gc()
 {
     static int gc_count = 0;

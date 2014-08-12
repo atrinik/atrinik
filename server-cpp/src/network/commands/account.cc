@@ -53,7 +53,7 @@ void GameCommand::cmd_account(const GameMessage& msg)
         switch (type) {
         case ServerCommands::AccountCommand::Login:
             try {
-                AccountPtr account = Server::server.account_manager.
+                AccountPtr account = AccountManager::manager.
                         account_login(name, password);
                 session_.account = account;
             } catch (const AccountError& e) {
@@ -70,7 +70,7 @@ void GameCommand::cmd_account(const GameMessage& msg)
             string password2 = msg.string();
 
             try {
-                AccountPtr account = Server::server.account_manager.
+                AccountPtr account = AccountManager::manager.
                         account_register(name, password, password2);
                 session_.account = account;
                 session_.account->update_last_login(session_.ip());

@@ -71,6 +71,7 @@ void FaceParser::load(const std::string& path)
         if (file.read(data, bytes)) {
             Face* face = new Face(name);
             face->data(make_pair(data, bytes));
+            FaceManager::manager.add(face);
         } else {
             // TODO: error, only read X number of bytes
         }
