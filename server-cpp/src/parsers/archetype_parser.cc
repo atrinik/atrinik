@@ -34,6 +34,7 @@
 #include <sign_object_type.h>
 #include <gfx_object_type.h>
 #include <player_object_type.h>
+#include <anim_object_type.h>
 
 using namespace atrinik;
 using namespace boost;
@@ -139,6 +140,7 @@ void ArchetypeParser::load_archetypes_pass1()
         } else if (type == 1) {
             obj->addinstance<BaseObjectType>();
             obj->addinstance<GfxObjectType>();
+            obj->addinstance<AnimObjectType>();
             obj->addinstance<PlayerObjectType>();
         }
 
