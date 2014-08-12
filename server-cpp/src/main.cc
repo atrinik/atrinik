@@ -104,13 +104,13 @@ int main(int argc, char **argv)
     std::locale loc = gen("");
     std::locale::global(loc);
     cout.imbue(loc);
+    
+    FaceParser::load("../arch/atrinik.0");
+    AnimationParser::load_animations("../arch/animations");
 
     ArchetypeParser *parser = new ArchetypeParser;
     parser->read_archetypes("../arch/archetypes");
     parser->load_archetypes_pass1();
-    
-    FaceParser::load("../arch/atrinik.0");
-    AnimationParser::load_animations("../arch/animations");
 
     RegionParser *region_parser = new RegionParser;
     region_parser->load("../maps/regions.reg");
