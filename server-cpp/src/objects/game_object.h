@@ -256,6 +256,30 @@ public:
 
         return result->second;
     }
+
+    /**
+     * Old-style game object types. These only exist for backwards
+     * compatibility with the "type X" attribute (which then gets mapped to the
+     * appropriate type IDs in ObjectParser::assign_types).
+     */
+    enum class Types {
+        None, Player, Bullet, Rod, Treasure, Potion, Food, Book = 8, Clock,
+        Material, Duplicator, Lightning, Arrow, Bow, Weapon, Armour, Pedestal,
+        Confusion = 19, Door, Key, Map, MagicMirror = 28, Spell, Shield = 33,
+        Helmet, Greaves, Money, Class, Gravestone, Amulet, PlayerMover,
+        Teleporter, Creator, Skill, Experience, Blindness = 49, God, Detector,
+        SkillItem, DeadObject, Drink, Marker, HolyAltar, Pearl = 59, Gem,
+        SoundAmbient, Firewall, CheckInv = 64, Exit = 66, ShopFloor = 68,
+        ShopMat, Ring, Floor, Flesh, Inorganic, LightApply, Wall = 77,
+        LightSource, MiscObject, Monster, SpawnPoint, LightRefill,
+        SpawnPointMob, SpawnPointInfo, Organic = 86, Cloak, Cone, Spinner = 90,
+        Gate, Button, Handle, WordOfRecall = 96, Sign = 98, Boots, Gloves,
+        BaseInfo, RandomDrop, Bracers = 104, Poisoning, Savebed, Wand = 109,
+        Ability, Scroll, Director, Girdle, Force, PotionEffect, Jewel, Nugget,
+        EventObject, WaypointObject, QuestContainer, Container = 122,
+        Wealth = 125, Beacon, MapEventObj, Compass = 151, MapInfo, SwarmSpell,
+        Rune, ClientMapInfo, PowerCrystal, Corpse, Disease, Symptom, Nrof
+    };
 };
 
 class GameObjectArchVisitor : public boost::static_visitor<std::string> {
