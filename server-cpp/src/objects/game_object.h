@@ -197,6 +197,17 @@ public:
         return ptr;
     }
 
+    void cleaninstances(std::vector<GameObjectType*> instances)
+    {
+        auto it = std::remove_if(types.begin(), types.end(),
+                [instances](GameObjectType * type) -> bool
+                {
+                    return std::find(instances.begin(), instances.end(),
+                            type) != instances.end();
+                });
+        types.erase(it, types.end());
+    }
+
     struct HashCmp {
 
         static size_t hash(const int value)
