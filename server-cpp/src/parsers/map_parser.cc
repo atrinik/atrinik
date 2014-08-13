@@ -51,6 +51,17 @@ void MapParser::parse_objects(MapObject* map, const std::string& archname,
 
     GameObject *obj = dynamic_cast<GameObject*> (result->second->clone());
     obj->arch = result->second;
+    GameObject::Types type = GameObject::Types::None;
+
+    // Try to parse the type
+    try {
+        type = static_cast<GameObject::Types>(
+                lexical_cast<int>(tree.get<string>("type")));
+    } catch (property_tree::ptree_bad_path&) {
+    } catch (bad_lexical_cast&) {
+    }
+    
+    assign_types(tree, obj, static_cast<GameObject::Types>(type));
 
     // Load object attributes
     for (auto it : tree) {
@@ -68,18 +79,6 @@ void MapParser::parse_objects(MapObject* map, const std::string& archname,
             obj->load(it.first, tree.get<string>(it.first));
         }
     }
-    
-    GameObject::Types type = GameObject::Types::None;
-
-    // Try to parse the type
-    try {
-        type = static_cast<GameObject::Types>(
-                lexical_cast<int>(tree.get<string>("type")));
-    } catch (property_tree::ptree_bad_path&) {
-    } catch (bad_lexical_cast&) {
-    }
-    
-    assign_types(tree, obj, static_cast<GameObject::Types>(type));
 
     // Add object to map's tile
     if (env == NULL) {
