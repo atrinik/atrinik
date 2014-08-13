@@ -34,6 +34,8 @@ namespace atrinik {
 
 class MapParser : public ObjectParser {
 private:
+    void parse_objects(MapObject* map, const std::string& archname,
+            boost::property_tree::ptree tree, GameObject* env = NULL);
     void parse_map(MapObject* map);
 public:
     MapObject* load_map(const std::string& path);

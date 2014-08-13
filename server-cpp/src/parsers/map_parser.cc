@@ -37,8 +37,8 @@ using namespace std;
 
 namespace atrinik {
 
-static void parse_objects(MapObject* map, const string& archname,
-        property_tree::ptree tree, GameObject* env = NULL)
+void MapParser::parse_objects(MapObject* map, const std::string& archname,
+        boost::property_tree::ptree tree, GameObject* env)
 {
     GameObject::sobjects_t::iterator result;
 
