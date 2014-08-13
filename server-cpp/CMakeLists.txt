@@ -66,6 +66,7 @@ add_executable(atrinik
     src/types/base_object_type.cc
     src/types/game_object_type.cc
     src/types/gfx_object_type.cc
+    src/types/msg_object_type.cc
     src/types/player_object_type.cc
     src/types/sign_object_type.cc
 )
