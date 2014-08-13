@@ -153,7 +153,7 @@ public:
     {
         for (auto it : types) {
             if (it->gettype() == T::type_()) {
-                return dynamic_cast<T*>(it);
+                return dynamic_cast<T*> (it);
             }
         }
 
