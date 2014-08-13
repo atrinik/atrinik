@@ -35,6 +35,7 @@
 #include <sign_object_type.h>
 #include <gfx_object_type.h>
 #include <anim_object_type.h>
+#include <msg_object_type.h>
 
 using namespace atrinik;
 using namespace boost;
@@ -127,6 +128,10 @@ void ObjectParser::assign_types(const boost::property_tree::ptree& pt,
 
     if (pt.count("animation") != 0) {
         assign_type<AnimObjectType>(obj, types);
+    }
+
+    if (pt.count("msg") != 0) {
+        assign_type<MsgObjectType>(obj, types);
     }
     
     if (type != GameObject::Types::None) {
