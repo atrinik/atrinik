@@ -30,6 +30,11 @@
 #include <boost/algorithm/string/predicate.hpp>
 
 #include <object_parser.h>
+#include <base_object_type.h>
+#include <player_object_type.h>
+#include <sign_object_type.h>
+#include <gfx_object_type.h>
+#include <anim_object_type.h>
 
 using namespace atrinik;
 using namespace boost;
@@ -86,6 +91,47 @@ property_tree::ptree ObjectParser::parse(ifstream& file)
     }
 
     return pt;
+}
+
+template<typename T>
+void assign_type(GameObject* obj, vector<GameObjectType*> v)
+{
+    v.push_back(obj->getaddinstance<T>());
+}
+
+void ObjectParser::assign_types(const boost::property_tree::ptree& pt,
+        GameObject* obj, GameObject::Types type)
+{
+    vector<GameObjectType*> types;
+    
+    switch (type) {
+    case GameObject::Types::Player:
+        assign_type<BaseObjectType>(obj, types);
+        assign_type<PlayerObjectType>(obj, types);
+        break;
+        
+    case GameObject::Types::MiscObject:
+        assign_type<BaseObjectType>(obj, types);
+        assign_type<GfxObjectType>(obj, types);
+        break;
+        
+    case GameObject::Types::Sign:
+        assign_type<BaseObjectType>(obj, types);
+        assign_type<SignObjectType>(obj, types);
+        break;
+    }
+
+    if (pt.count("layer") != 0) {
+        assign_type<GfxObjectType>(obj, types);
+    }
+
+    if (pt.count("animation") != 0) {
+        assign_type<AnimObjectType>(obj, types);
+    }
+    
+    if (type != GameObject::Types::None) {
+        obj->cleaninstances(types);
+    }
 }
 
 }

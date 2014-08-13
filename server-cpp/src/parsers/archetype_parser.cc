@@ -133,16 +133,7 @@ void ArchetypeParser::load_archetypes_pass1()
         GameObject *obj = new GameObject();
         obj->arch = archname;
 
-        if (type == 98) {
-            obj->addinstance<BaseObjectType>();
-            obj->addinstance<GfxObjectType>();
-            obj->addinstance<SignObjectType>();
-        } else if (type == 1) {
-            obj->addinstance<BaseObjectType>();
-            obj->addinstance<GfxObjectType>();
-            obj->addinstance<AnimObjectType>();
-            obj->addinstance<PlayerObjectType>();
-        }
+        assign_types(it.second, obj, static_cast<GameObject::Types>(type));
 
         // Load the attributes
         for (auto it2 : it.second) {

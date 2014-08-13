@@ -30,6 +30,8 @@
 #include <iostream>
 #include <boost/property_tree/ptree.hpp>
 
+#include <game_object.h>
+
 namespace atrinik {
 
 class ObjectParser {
@@ -40,6 +42,9 @@ public:
      * @return Property tree.
      */
     virtual boost::property_tree::ptree parse(std::ifstream& file);
+    
+    void assign_types(const boost::property_tree::ptree& pt, GameObject* obj,
+            GameObject::Types type);
 
     inline virtual bool is_definition(const std::string& key) const
     {
