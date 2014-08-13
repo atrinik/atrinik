@@ -29,6 +29,7 @@
 
 #include <stdint.h>
 #include <string.h>
+#include <unordered_map>
 #include <boost/variant.hpp>
 
 #include <object.h>
@@ -237,9 +238,9 @@ public:
         }
     };
 
-    typedef std::map<uint64_t, GameObject*>
+    typedef std::unordered_map<uint64_t, GameObject*>
     iobjects_t; ///< Game object hash map with UIDs
-    typedef std::map<std::string, GameObject*>
+    typedef std::unordered_map<std::string, GameObject*>
     sobjects_t; ///< Game object hash map with strings
 
     static sobjects_t archetypes;
