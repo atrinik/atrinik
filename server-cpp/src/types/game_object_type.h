@@ -35,6 +35,10 @@ namespace atrinik {
 class GameObjectType {
 #include <game_object_type_internal.h>
 public:
+    virtual ~GameObjectType()
+    {
+    }
+    
     virtual bool load(const std::string& key, const std::string& val) = 0;
     virtual std::string dump(const GameObjectType* base) = 0;
     virtual GameObjectType* clone() const = 0;
