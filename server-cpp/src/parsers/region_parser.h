@@ -34,12 +34,7 @@ namespace atrinik {
 class RegionParser : public ObjectParser {
 public:
 
-    inline virtual bool is_definition(const std::string& key) const
-    {
-        return key == "region";
-    }
-
-    void load(const std::string& path);
+    static void load(const std::string& path);
 };
 
 }

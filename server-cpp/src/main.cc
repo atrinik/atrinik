@@ -104,19 +104,12 @@ int main(int argc, char **argv)
     std::locale loc = gen("");
     std::locale::global(loc);
     cout.imbue(loc);
-    
+
+    RegionParser::load("../maps/regions.reg");
     FaceParser::load("../arch/atrinik.0");
-    AnimationParser::load_animations("../arch/animations");
-
-    ArchetypeParser *parser = new ArchetypeParser;
-    parser->read_archetypes("../arch/archetypes");
-    parser->load_archetypes_pass1();
-
-    RegionParser *region_parser = new RegionParser;
-    region_parser->load("../maps/regions.reg");
-
-    MapParser* map_parser = new MapParser;
-    map_parser->load_map(argc > 1 ? argv[1] : "../maps/hall_of_dms");
+    AnimationParser::load("../arch/animations");
+    ArchetypeParser::load("../arch/archetypes");
+    MapParser::load_map(argc > 1 ? argv[1] : "../maps/hall_of_dms");
 
     asio::io_service io_service;
     asio::ip::tcp::endpoint endpoint(asio::ip::tcp::v6(), 13360);

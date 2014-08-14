@@ -41,7 +41,7 @@ using namespace std;
 
 namespace atrinik {
 
-void AnimationParser::load_animations(const std::string& path)
+void AnimationParser::load(const std::string& path)
 {
     ifstream file(path);
 
@@ -49,46 +49,37 @@ void AnimationParser::load_animations(const std::string& path)
         throw runtime_error("could not open file");
     }
 
-    string line;
-    Animation* animation = NULL;
+    Animation* animation = nullptr;
 
-    while (getline(file, line)) {
-        if (line.empty() || starts_with(line, "#")) {
-            continue;
-        }
+    parse(file,
+            [&animation] (const std::string & key,
+            const std::string & val) mutable -> bool
+            {
+                if (key.empty() && val == "mina") {
+                    AnimationManager::manager.add(animation);
+                    animation = nullptr;
+                } else if (key == "anim") {
+                    animation = new Animation(val);
+                } else if (!animation) {
+                    // TODO: parsing error
+                } else if (key == "facings") {
+                    try {
+                        animation->facings(numeric_cast<uint8_t>(
+                                lexical_cast<int>(val)));
+                    } catch (bad_cast&) {
+                        // TODO: error
+                    }
+                } else {
+                    try {
+                        animation->push_back(lexical_cast<uint16_t>(val));
+                    } catch (bad_cast&) {
+                        // TODO: error
+                    }
+                }
 
-        size_t space = line.find_first_of(' ');
-        string key, val;
-
-        if (space == string::npos) {
-            val = line;
-        } else {
-            key = line.substr(0, space);
-            val = line.substr(space + 1);
-        }
-
-        if (key == "anim") {
-            animation = new Animation(val);
-        } else if (!animation) {
-            // TODO: error
-        } else if (key == "facings") {
-            try {
-                animation->facings(numeric_cast<uint8_t>(
-                        lexical_cast<int>(val)));
-            } catch (bad_cast&) {
-                // TODO: error
+                return true;
             }
-        } else if (line == "mina") {
-            AnimationManager::manager.add(animation);
-            animation = NULL;
-        } else {
-            try {
-                animation->push_back(lexical_cast<uint16_t>(val));
-            } catch (bad_cast&) {
-                // TODO: error
-            }
-        }
-    }
+    );
 }
 
 }

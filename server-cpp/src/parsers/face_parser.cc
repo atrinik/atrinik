@@ -30,11 +30,6 @@
 #include <fstream>
 #include <boost/algorithm/string/predicate.hpp>
 
-/*
-#include <boost/lexical_cast.hpp>
-#include <boost/numeric/conversion/cast.hpp>
- * */
-
 #include <face_parser.h>
 #include <face.h>
 #include <server.h>

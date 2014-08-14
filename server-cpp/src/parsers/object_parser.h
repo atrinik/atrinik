@@ -28,6 +28,7 @@
 #pragma once
 
 #include <iostream>
+#include <functional>
 #include <boost/property_tree/ptree.hpp>
 
 #include <game_object.h>
@@ -36,20 +37,19 @@ namespace atrinik {
 
 class ObjectParser {
 public:
+    static void parse(std::ifstream& file, std::function<bool(
+            const std::string&, const std::string&) > handler);
+
     /**
      * Recursively parses objects from the specified file.
      * @param file File to parse.
      * @return Property tree.
      */
-    virtual boost::property_tree::ptree parse(std::ifstream& file);
-    
-    void assign_types(const boost::property_tree::ptree& pt, GameObject* obj,
-            GameObject::Types type);
+    static boost::property_tree::ptree parse(std::ifstream& file,
+            std::function<bool(const std::string&) > is_definition = nullptr);
 
-    inline virtual bool is_definition(const std::string& key) const
-    {
-        return key == "Object" || key == "arch";
-    }
+    static void assign_types(const boost::property_tree::ptree& pt,
+            GameObject* obj, GameObject::Types type);
 };
 
 }

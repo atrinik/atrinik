@@ -40,22 +40,34 @@ namespace atrinik {
 void RegionParser::load(const std::string& path)
 {
     ifstream file(path);
-    property_tree::ptree pt = parse(file);
 
-    // Load up the regions into the regions map
-    for (auto it : pt) {
-        string name = it.second.get<string>(it.first);
-
-        RegionObject *obj = new RegionObject();
-        obj->name(name);
-
-        for (auto it2 : it.second) {
-            obj->load(it2.first, it.second.get<string>(it2.first));
-        }
-
-        RegionObject::regions.add(obj);
+    if (!file) {
+        throw runtime_error("could not open file");
     }
 
+    RegionObject *region = nullptr;
+
+    parse(file,
+            [&region] (const std::string & key,
+            const std::string & val) mutable -> bool
+            {
+                if (key.empty() && val == "end") {
+                    RegionObject::regions.add(region);
+                    region = nullptr;
+                } else if (key == "region") {
+                    region = new RegionObject();
+                    region->name(val);
+                } else if (!region) {
+                    // TODO: parsing error
+                } else if (!region->load(key, val)) {
+                    // TODO: parsing error
+                }
+
+                return true;
+            }
+    );
+
+    // TODO: move to a RegionManager class logic
     // Link up children/parents
     for (auto it : RegionObject::regions) {
         if (it.second->parent().empty()) {

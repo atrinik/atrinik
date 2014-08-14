@@ -106,24 +106,41 @@ void MapParser::parse_map(MapObject* map)
 {
     // Load map and parse it into a property tree
     ifstream file(map->path());
-    property_tree::ptree pt = parse(file);
-    property_tree::ptree::const_iterator it = pt.begin(), end = pt.end();
-
-    if (it == end) {
-        // TODO error message map header not found
-        return;
+    
+    if (!file) {
+        throw runtime_error("could not open file");
+    }
+    
+    string line;
+    
+    // Verify map header exists
+    if (!getline(file, line) || line != "arch map") {
+        throw runtime_error("file is not a map");
     }
 
-    // Load map header
-    for (auto it2 : it->second) {
-        map->load(it2.first, it->second.get<string>(it2.first));
-    }
-
+    parse(file,
+            [&map] (const std::string & key,
+            const std::string & val) mutable -> bool
+            {
+                if (key.empty() && val == "end") {
+                    return false;
+                } else if (!map->load(key, val)) {
+                    // TODO: parsing error
+                }
+                
+                return true;
+            }
+    );
+    
+    // TODO: width/height/etc checks
+    
     map->allocate();
+    
+    auto pt = parse(file);
 
     // Load the rest of the objects
-    for (it++; it != end; it++) {
-        parse_objects(map, it->second.get<string>(it->first), it->second,
+    for (auto it : pt) {
+        parse_objects(map, it.second.get<string>(it.first), it.second,
                 (GameObject*) NULL);
     }
 

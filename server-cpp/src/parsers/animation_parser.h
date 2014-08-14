@@ -29,15 +29,17 @@
 
 #include <iostream>
 
+#include <object_parser.h>
+
 namespace atrinik {
 
-class AnimationParser {
+class AnimationParser : public ObjectParser {
 public:
     /**
      * Load animations from the specified file path.
      * @param path File to read from.
      */
-    static void load_animations(const std::string& path);
+    static void load(const std::string& path);
 };
 
 }

@@ -37,82 +37,56 @@ using namespace std;
 
 namespace atrinik {
 
-boost::property_tree::ptree ArchetypeParser::parse(std::ifstream& file)
-{
-    string line;
-    property_tree::ptree pt;
-
-    while (getline(file, line)) {
-        if (line.empty()) {
-            continue;
-        }
-
-        if (line == "end") {
-            was_more = is_more;
-            is_more = false;
-            break;
-        }
-
-        string key, val;
-
-        if (line == "msg") {
-            key = line;
-
-            while (getline(file, line)) {
-                if (line == "endmsg") {
-                    break;
-                }
-
-                val += line + "\n";
-            }
-        } else {
-            size_t space = line.find_first_of(' ');
-
-            key = line.substr(0, space);
-            val = line.substr(space + 1);
-        }
-
-        if (key == "More") {
-            is_more = true;
-        } else if (key == "Object" || key == "arch") {
-            property_tree::ptree pt2;
-
-            pt2 = parse(file);
-            pt2.put<string>(key, val);
-
-            if (was_more) {
-                property_tree::ptree *last = &pt.rbegin()->second;
-                optional<property_tree::ptree&> child;
-
-                child = last->get_child_optional("More");
-
-                if (!child) {
-                    property_tree::ptree pt3;
-                    pt3.add_child(key, pt2);
-                    last->add_child("More", pt3);
-                } else {
-                    child->add_child(key, pt2);
-                }
-            } else {
-                pt.add_child(key, pt2);
-            }
-        } else {
-            pt.put<string>(key, val);
-        }
-    }
-
-    return pt;
-}
-
-void ArchetypeParser::read_archetypes(std::string path)
+void ArchetypeParser::load(const std::string& path)
 {
     ifstream file(path);
+    
+    if (!file) {
+        throw runtime_error("could not open file");
+    }
+    
+    property_tree::ptree pt;
+    bool is_more = false, was_more = false;
+    
+    parse(file,
+            [&file, &pt, &is_more, &was_more] (const std::string & key,
+            const std::string & val) mutable -> bool
+            {
+                if (key.empty() && val == "end") {
+                    was_more = is_more;
+                    is_more = false;
+                    return false;
+                } else if (key == "More") {
+                    is_more = true;
+                } else if (key == "Object" || key == "arch") {
+                    property_tree::ptree pt2;
 
-    pt = parse(file);
-}
+                    pt2 = parse(file);
+                    pt2.put<string>(key, val);
 
-void ArchetypeParser::load_archetypes_pass1()
-{
+                    if (was_more) {
+                        property_tree::ptree *last = &pt.rbegin()->second;
+                        optional<property_tree::ptree&> child;
+
+                        child = last->get_child_optional("More");
+
+                        if (!child) {
+                            property_tree::ptree pt3;
+                            pt3.add_child(key, pt2);
+                            last->add_child("More", pt3);
+                        } else {
+                            child->add_child(key, pt2);
+                        }
+                    } else {
+                        pt.add_child(key, pt2);
+                    }
+                } else {
+                    pt.put<string>(key, val);
+                }
+
+                return true;
+            });
+    
     for (auto it : pt) {
         string archname = it.second.get<string>(it.first);
         int type;
