@@ -20,9 +20,6 @@
  * The author can be reached at admin@atrinik.org                              *
  ******************************************************************************/
 
-#include "game_message.h"
-
-
 /**
  * @file
  * Game command.
