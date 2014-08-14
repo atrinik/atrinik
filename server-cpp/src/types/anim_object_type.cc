@@ -57,7 +57,8 @@ std::string AnimObjectType::dump(const GameObjectType* base)
     auto base_type = dynamic_cast<const AnimObjectType*> (base);
     string s = "";
 
-    if (base_type == NULL || this->animation() != base_type->animation()) {
+    if ((!base_type && animation()) ||
+            (base_type && animation() != base_type->animation())) {
         if (animation() == 0) {
             s += "animation NONE";
         } else {

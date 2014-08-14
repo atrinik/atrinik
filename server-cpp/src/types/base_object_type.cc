@@ -52,7 +52,8 @@ std::string BaseObjectType::dump(const GameObjectType* base)
     auto base_type = dynamic_cast<const BaseObjectType*> (base);
     string s = "";
 
-    if (base_type == NULL || this->name() != base_type->name()) {
+    if ((!base_type && !name().empty()) ||
+            (base_type && name() != base_type->name())) {
         s += "name " + name() + "\n";
     }
 

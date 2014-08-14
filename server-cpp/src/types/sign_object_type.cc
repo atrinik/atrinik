@@ -52,7 +52,8 @@ std::string SignObjectType::dump(const GameObjectType* base)
     auto base_type = dynamic_cast<const SignObjectType*> (base);
     string s = "";
 
-    if (base_type == NULL || this->f_is_fan() != base_type->f_is_fan()) {
+    if ((!base_type && f_is_fan()) ||
+            (base_type && f_is_fan() != base_type->f_is_fan())) {
         s += "splitting " + lexical_cast<string>(f_is_fan()) + "\n";
     }
 

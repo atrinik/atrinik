@@ -52,7 +52,8 @@ std::string GfxObjectType::dump(const GameObjectType* base)
     auto base_type = dynamic_cast<const GfxObjectType*> (base);
     string s = "";
 
-    if (base_type == NULL || this->layer() != base_type->layer()) {
+    if ((!base_type && layer()) ||
+            (base_type && layer() != base_type->layer())) {
         s += "layer " + lexical_cast<string>(layer()) + "\n";
     }
 
