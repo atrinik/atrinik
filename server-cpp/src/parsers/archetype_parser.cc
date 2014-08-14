@@ -30,11 +30,6 @@
 
 #include <archetype_parser.h>
 #include <game_object.h>
-#include <base_object_type.h>
-#include <sign_object_type.h>
-#include <gfx_object_type.h>
-#include <player_object_type.h>
-#include <anim_object_type.h>
 
 using namespace atrinik;
 using namespace boost;
