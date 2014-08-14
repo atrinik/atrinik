@@ -29,6 +29,7 @@
 
 #include <vector>
 #include <algorithm>
+#include <cstdint>
 #include <tbb/concurrent_queue.h>
 
 namespace atrinik {
@@ -95,14 +96,14 @@ public:
     void encode_header();
     bool decode_header();
 
-    int8_t int8() const;
-    void int8(int8_t val);
-    int16_t int16() const;
-    void int16(int16_t val);
-    int32_t int32() const;
-    void int32(int32_t val);
-    int64_t int64() const;
-    void int64(int64_t val);
+    std::int8_t int8() const;
+    void int8(std::int8_t val);
+    std::int16_t int16() const;
+    void int16(std::int16_t val);
+    std::int32_t int32() const;
+    void int32(std::int32_t val);
+    std::int64_t int64() const;
+    void int64(std::int64_t val);
 
     std::string string() const;
     void string(const std::string& val, bool terminated = true);

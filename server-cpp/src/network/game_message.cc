@@ -56,7 +56,7 @@ bool GameMessage::decode_header()
     return true;
 }
 
-int8_t GameMessage::int8() const
+std::int8_t GameMessage::int8() const
 {
     if (body_length() - idx_ < 1) {
         return 0;
@@ -65,14 +65,14 @@ int8_t GameMessage::int8() const
     return body()[idx_++];
 }
 
-void GameMessage::int8(int8_t val)
+void GameMessage::int8(std::int8_t val)
 {
     body_length_ += 1;
     body_.reserve(header_length + body_length_);
     body_.push_back(val & 0xff);
 }
 
-int16_t GameMessage::int16() const
+std::int16_t GameMessage::int16() const
 {
     if (body_length() - idx_ < 2) {
         return 0;
@@ -81,7 +81,7 @@ int16_t GameMessage::int16() const
     return (body()[idx_++] << 8) + body()[idx_++];
 }
 
-void GameMessage::int16(int16_t val)
+void GameMessage::int16(std::int16_t val)
 {
     body_length_ += 2;
     body_.reserve(header_length + body_length_);
@@ -89,7 +89,7 @@ void GameMessage::int16(int16_t val)
     body_.push_back(val & 0xff);
 }
 
-int32_t GameMessage::int32() const
+std::int32_t GameMessage::int32() const
 {
     if (body_length() - idx_ < 4) {
         return 0;
@@ -99,7 +99,7 @@ int32_t GameMessage::int32() const
             (body()[idx_++] << 8) + body()[idx_++];
 }
 
-void GameMessage::int32(int32_t val)
+void GameMessage::int32(std::int32_t val)
 {
     body_length_ += 4;
     body_.reserve(header_length + body_length_);
@@ -109,7 +109,7 @@ void GameMessage::int32(int32_t val)
     body_.push_back(val & 0xff);
 }
 
-int64_t GameMessage::int64() const
+std::int64_t GameMessage::int64() const
 {
     if (body_length() - idx_ < 8) {
         return 0;
@@ -123,7 +123,7 @@ int64_t GameMessage::int64() const
             (body()[idx_++] << 8) + body()[idx_++];
 }
 
-void GameMessage::int64(int64_t val)
+void GameMessage::int64(std::int64_t val)
 {
     body_length_ += 8;
     body_.reserve(header_length + body_length_);
@@ -145,8 +145,7 @@ std::string GameMessage::string() const
         return s;
     }
 
-    data_t::const_iterator it = std::find(body_.begin() + header_length +
-            idx_, body_.end(), 0);
+    auto it = find(body_.begin() + header_length + idx_, body_.end(), '\0');
 
     if (it != body_.end()) {
         size_t len = it - (body_.begin() + header_length + idx_);
@@ -161,10 +160,10 @@ void GameMessage::string(const std::string& val, bool terminated)
 {
     body_length_ += val.length() + terminated;
     body_.reserve(header_length + body_length_);
-    std::copy(val.begin(), val.end(), std::back_inserter(body_));
+    copy(val.begin(), val.end(), back_inserter(body_));
 
     if (terminated) {
-        body_.push_back(0);
+        body_.push_back('\0');
     }
 }
 
