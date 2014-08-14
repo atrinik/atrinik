@@ -43,6 +43,10 @@ public:
     Object() : uid(++guid)
     {
     }
+    
+    virtual ~Object()
+    {
+    }
 
     virtual Object* clone() const = 0;
 
