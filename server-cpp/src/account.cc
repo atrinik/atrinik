@@ -42,8 +42,7 @@
 #include <base_object_type.h>
 #include <player_object_type.h>
 #include <anim_object_type.h>
-
-#include "server.h"
+#include <server.h>
 
 using namespace atrinik;
 using namespace boost;
