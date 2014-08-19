@@ -109,32 +109,15 @@ int main(int argc, char **argv)
     FaceParser::load("../arch/atrinik.0");
     AnimationParser::load("../arch/animations");
     ArchetypeParser::load("../arch/archetypes");
-    MapParser::load_map(argc > 1 ? argv[1] : "../maps/hall_of_dms");
+    auto map = MapParser::load_map(argc > 1 ? argv[1] : "../maps/hall_of_dms");
+    delete map;
 
     asio::io_service io_service;
     asio::ip::tcp::endpoint endpoint(asio::ip::tcp::v6(), 13360);
     game_server_ptr server(new GameServer(io_service, endpoint));
+    
     thread t1(bind(&asio::io_service::run, &io_service));
-
-//    Account account;
-//
-//    try {
-//        account.action_register("Test", "password", "password");
-//    } catch (const AccountError& e) {
-//        cout << e.what() << endl;
-//    }
-//
-//    account.action_char_new("Test", "human_male");
-//
-//    try {
-//        account.load("char", "human_male:test:strakewood_island:100");
-//    } catch (const AccountError& e) {
-//        cout << e.what() << endl;
-//    }
-//
-//    cout << account.dump();
-
-    thread t2(&AccountManager::gc, AccountManager::manager);
+    thread t2(bind(&AccountManager::gc, &AccountManager::manager));
 
     while (true) {
         server->process();

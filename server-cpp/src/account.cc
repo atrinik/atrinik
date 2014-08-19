@@ -43,6 +43,7 @@
 #include <player_object_type.h>
 #include <anim_object_type.h>
 #include <server.h>
+#include <bits/shared_ptr_base.h>
 
 using namespace atrinik;
 using namespace boost;
@@ -311,29 +312,26 @@ AccountManager AccountManager::manager;
 
 void AccountManager::gc()
 {
-    static int gc_count = 0;
+    while (true) {
+        for (auto &it : accounts) {
+            // Skip accounts that are still being used
+            if (!it.second.unique()) {
+                continue;
+            }
 
-    if (gc_count++ < gc_frequency()) {
-        usleep(Server::ticks_duration());
-        return;
-    }
+            cout << "removing account" << endl;
 
-    gc_count = 0;
+            try {
+                account_save(it.first, it.second);
+            } catch (const AccountError& e) {
+                // TODO: syslog
+                continue;
+            }
 
-    for (auto it : accounts) {
-        // Skip accounts that are still being used
-        if (it.second.use_count() > 2) { // 1 here, 1 in hash map
-            continue;
+            accounts.erase(it.first);
         }
-
-        try {
-            account_save(it.first, it.second);
-        } catch (const AccountError& e) {
-            // TODO: syslog
-            continue;
-        }
-
-        accounts.erase(it.first);
+        
+        usleep(Server::ticks_duration() * gc_frequency());
     }
 }
 
