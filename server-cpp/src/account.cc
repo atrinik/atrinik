@@ -43,7 +43,7 @@
 #include <player_object_type.h>
 #include <anim_object_type.h>
 #include <server.h>
-#include <bits/shared_ptr_base.h>
+#include <logger.h>
 
 using namespace atrinik;
 using namespace boost;
@@ -312,19 +312,23 @@ AccountManager AccountManager::manager;
 
 void AccountManager::gc()
 {
+    BOOST_LOG_FUNCTION();
+    
     while (true) {
         for (auto &it : accounts) {
             // Skip accounts that are still being used
             if (!it.second.unique()) {
                 continue;
             }
-
-            cout << "removing account" << endl;
+            
+            BOOST_LOG_NAMED_SCOPE("for each account");
+            LOG(Development) << "GCing account: " << it.first;
 
             try {
                 account_save(it.first, it.second);
             } catch (const AccountError& e) {
-                // TODO: syslog
+                LOG(Error) << "Could not save account (" << it.first << "): " <<
+                        e.what() << LOG_STACK(e);
                 continue;
             }
 
@@ -383,13 +387,17 @@ AccountPtr AccountManager::account_login(const std::string& name,
 
 void AccountManager::account_save(const std::string& name, AccountPtr account)
 {
+    BOOST_LOG_FUNCTION();
+    
     filesystem::path p = account_make_path(name);
     filesystem::create_directories(p.parent_path());
-
+    
+    // TODO: write to temp file, if successful, rename
+    
     ofstream file(p.string());
 
-    if (!file) {
-        throw AccountError("could not save account");
+    if (!file.is_open()) {
+        throw LOG_EXCEPTION(AccountError("failed to open file for writing"));
     }
 
     file << account->dump();

@@ -42,6 +42,7 @@
 #include <server.h>
 #include <animation_parser.h>
 #include <face_parser.h>
+#include <logger.h>
 
 using namespace atrinik;
 using namespace boost;
@@ -104,6 +105,7 @@ int main(int argc, char **argv)
     std::locale loc = gen("");
     std::locale::global(loc);
     cout.imbue(loc);
+    Logger::init();
 
     RegionParser::load("../maps/regions.reg");
     FaceParser::load("../arch/atrinik.0");
@@ -118,6 +120,8 @@ int main(int argc, char **argv)
     
     thread t1(bind(&asio::io_service::run, &io_service));
     thread t2(bind(&AccountManager::gc, &AccountManager::manager));
+    
+    LOG(Info) << "Server ready.";
 
     while (true) {
         server->process();

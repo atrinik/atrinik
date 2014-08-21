@@ -8,9 +8,11 @@ set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_CURRENT_SOURCE_DIR}/CMake/")
 set (ATRINIK_VERSION_MAJOR 0)
 set (ATRINIK_VERSION_MINOR 1)
 
+add_definitions(-DBOOST_LOG_DYN_LINK)
 set(CMAKE_CXX_FLAGS "-std=c++11 ${CMAKE_CXX_FLAGS} -g -O0 -DFUTURE")
 
-find_package(Boost 1.40 COMPONENTS system thread locale filesystem REQUIRED)
+find_package(Boost 1.53 COMPONENTS thread locale filesystem log log_setup system
+    REQUIRED)
 include_directories(${Boost_INCLUDE_DIR})
 
 find_package(TBB REQUIRED)
@@ -40,6 +42,7 @@ include_directories(
 add_executable(atrinik
     src/account.cc
     src/animation.cc
+    src/logger.cc
     src/main.cc
     src/face.cc
     src/server.cc
