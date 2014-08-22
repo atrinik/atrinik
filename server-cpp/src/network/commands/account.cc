@@ -30,6 +30,7 @@
 #include <game_session.h>
 #include <draw_info_message.h>
 #include <account.h>
+#include <logger.h>
 
 using namespace atrinik;
 using namespace boost;
@@ -39,34 +40,53 @@ namespace atrinik {
 
 void GameCommand::cmd_account(const GameMessage& msg)
 {
+    BOOST_LOG_FUNCTION();
+
+    // Acquire the command type
     ServerCommands::AccountCommand type =
             static_cast<ServerCommands::AccountCommand> (msg.int8());
 
+    // Try to parse commands that can be used when the client hasn't logged into
+    // an account yet.
     if (!session_.account) {
+        BOOST_LOG_NAMED_SCOPE("not logged in");
+
         GameMessage write_msg;
 
         write_msg.int8(ClientCommands::Characters);
 
-        string name = msg.string();
-        string password = msg.string();
+        // Handles registering and logging into an account, so in both cases,
+        // there's at least the account name and a password.
+        string name = msg.string(), password = msg.string();
 
         switch (type) {
-        case ServerCommands::AccountCommand::Login:
+        case ServerCommands::AccountCommand::Login: // Login to an account
+        {
+            BOOST_LOG_NAMED_SCOPE("case account command login");
+
             try {
                 AccountPtr account = AccountManager::manager.
                         account_login(name, password);
                 session_.account = account;
+
+                LOG(Detail) << "Logged in as: " << name;
             } catch (const AccountError& e) {
                 DrawInfoMessage info_msg(
                         ClientCommands::DrawInfoCommandColors::red,
                         format("Error: %s") % e.what());
                 session_.write(info_msg);
-                // TODO: syslog
+
+                LOG(Detail) << "Failed to log in: " << e.what() << LOG_STACK(e);
             }
 
             break;
+        }
 
-        case ServerCommands::AccountCommand::Register:
+        case ServerCommands::AccountCommand::Register: // Register an account
+        {
+            BOOST_LOG_NAMED_SCOPE("case account command register");
+
+            // Second password (for verification)
             string password2 = msg.string();
 
             try {
@@ -74,15 +94,20 @@ void GameCommand::cmd_account(const GameMessage& msg)
                         account_register(name, password, password2);
                 session_.account = account;
                 session_.account->update_last_login(session_.ip());
+
+                LOG(Detail) << "Registered as: " << name;
             } catch (const AccountError& e) {
                 DrawInfoMessage info_msg(
                         ClientCommands::DrawInfoCommandColors::red,
                         format("Error: %s") % e.what());
                 session_.write(info_msg);
-                // TODO: syslog
+
+                LOG(Detail) << "Failed to register: " << e.what() <<
+                        LOG_STACK(e);
             }
 
             break;
+        }
         }
 
         if (session_.account) {
@@ -94,22 +119,31 @@ void GameCommand::cmd_account(const GameMessage& msg)
 
         session_.write(write_msg);
     } else {
+        BOOST_LOG_NAMED_SCOPE("logged in");
+
         switch (type) {
-        case ServerCommands::AccountCommand::Pswd:
+        case ServerCommands::AccountCommand::Pswd: // Change password
         {
-            string password = msg.string();
-            string password_new = msg.string();
-            string password_new2 = msg.string();
+            BOOST_LOG_NAMED_SCOPE("case account command password");
+
+            // Acquire the old password, the new password, and verification of
+            // the new password
+            string password = msg.string(), password_new = msg.string(),
+                    password_new2 = msg.string();
 
             try {
                 session_.account->change_password(password, password_new,
                         password_new2);
+
+                LOG(Detail) << "Password has been changed";
             } catch (const AccountError& e) {
                 DrawInfoMessage info_msg(
                         ClientCommands::DrawInfoCommandColors::red,
                         format("Error: %s") % e.what());
                 session_.write(info_msg);
-                // TODO: syslog
+
+                LOG(Detail) << "Failed to change password: " << e.what() <<
+                        LOG_STACK(e);
             }
 
             break;

@@ -27,6 +27,7 @@
 
 #include <boost/bind.hpp>
 #include <game_session.h>
+#include <logger.h>
 
 using namespace atrinik;
 using namespace ClientCommands;
@@ -47,18 +48,31 @@ void GameSession::start()
 
 void GameSession::write(const GameMessage& msg)
 {
-    bool write_in_progress = !write_queue.empty();
-    GameMessage write_msg;
+    BOOST_LOG_FUNCTION();
 
-    printf("SENDING %d bytes (header not encoded):\n", (int) msg.length());
+    stringstream strm;
+    strm << "Sending " << msg.length() << " bytes:\n\t";
+    strm << hex << setfill('0');
+    char c;
+
     for (size_t i = 0; i < msg.length(); i++) {
-        printf("0x%02x ", msg.header()[i] & 0xff);
+        if (i < 2) {
+            c = msg.length() >> (16 - 8 * (i + 1));
+        } else {
+            c = msg.header()[i] & 0xff;
+        }
 
-        if (((i + 1) % 8) == 0) {
-            printf("\n");
+        strm << "0x" << setw(2) << (c & 0xff) << " ";
+
+        if (((i + 1) % 8) == 0 && i < msg.length() - 1) {
+            strm << "\n\t";
         }
     }
-    printf("\n");
+
+    LOG(Development) << strm.str();
+
+    bool write_in_progress = !write_queue.empty();
+    GameMessage write_msg;
 
     write_queue.push(msg);
 
@@ -119,36 +133,55 @@ void GameSession::handle_write(const boost::system::error_code& error,
 
 bool GameSession::process_message(const GameMessage& msg)
 {
-    printf("RECEIVED %d bytes:\n", (int) msg.length());
-    for (size_t i = 0; i < msg.length(); i++) {
-        printf("0x%02x ", msg.header()[i] & 0xff);
+    BOOST_LOG_FUNCTION();
 
-        if (((i + 1) % 8) == 0) {
-            printf("\n");
+    stringstream strm;
+    strm << "Received " << msg.length() << " bytes:\n\t";
+    strm << hex << setfill('0');
+
+    for (size_t i = 0; i < msg.length(); i++) {
+        strm << "0x" << setw(2) << (msg.header()[i] & 0xff) << " ";
+
+        if (((i + 1) % 8) == 0 && i < msg.length() - 1) {
+            strm << "\n\t";
         }
     }
-    printf("\n");
+
+    LOG(Development) << strm.str();
 
     uint8_t type = msg.int8();
 
     switch (type) {
     case ServerCommands::Setup:
+    {
+        BOOST_LOG_NAMED_SCOPE("case server command setup");
         command_.cmd_setup(msg);
         break;
+    }
 
     case ServerCommands::Version:
+    {
+        BOOST_LOG_NAMED_SCOPE("case server command version");
         command_.cmd_version(msg);
         break;
+    }
 
     case ServerCommands::Account:
+    {
+        BOOST_LOG_NAMED_SCOPE("case server command account");
         command_.cmd_account(msg);
         break;
+    }
     }
 }
 
 void GameSession::process()
 {
+    BOOST_LOG_FUNCTION();
+
     while (!read_queue.empty()) {
+        BOOST_LOG_NAMED_SCOPE("while read_queue");
+
         GameMessage msg;
 
         if (!read_queue.try_pop(msg)) {
@@ -161,21 +194,28 @@ void GameSession::process()
 
 void GameSessions::add(GameSessionPtr session)
 {
+    BOOST_LOG_FUNCTION();
+
     strict_lock<mutex> guard(this->lockable());
     sessions_.insert(session);
 }
 
 void GameSessions::remove(GameSessionPtr session)
 {
+    BOOST_LOG_FUNCTION();
+
     strict_lock<mutex> guard(this->lockable());
     sessions_.erase(session);
 }
 
 void GameSessions::process()
 {
+    BOOST_LOG_FUNCTION();
+
     strict_lock<mutex> guard(this->lockable());
 
     for (auto session : sessions_) {
+        BOOST_LOG_NAMED_SCOPE("for sessions_");
         session->process();
     }
 }

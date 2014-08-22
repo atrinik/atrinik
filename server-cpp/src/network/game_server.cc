@@ -27,6 +27,7 @@
 
 #include <boost/bind.hpp>
 #include <game_server.h>
+#include <logger.h>
 
 using namespace atrinik;
 using namespace boost;
@@ -54,6 +55,8 @@ void GameServer::handle_accept(GameSessionPtr session,
 
 void GameServer::process()
 {
+    BOOST_LOG_FUNCTION();
+
     sessions_.process();
 }
 

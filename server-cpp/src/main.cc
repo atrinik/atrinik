@@ -98,6 +98,8 @@ using namespace std;
 
 int main(int argc, char **argv)
 {
+    BOOST_LOG_FUNCTION();
+
     SSL_load_error_strings();
     SSL_library_init();
 
@@ -117,10 +119,10 @@ int main(int argc, char **argv)
     asio::io_service io_service;
     asio::ip::tcp::endpoint endpoint(asio::ip::tcp::v6(), 13360);
     game_server_ptr server(new GameServer(io_service, endpoint));
-    
+
     thread t1(bind(&asio::io_service::run, &io_service));
     thread t2(bind(&AccountManager::gc, &AccountManager::manager));
-    
+
     LOG(Info) << "Server ready.";
 
     while (true) {

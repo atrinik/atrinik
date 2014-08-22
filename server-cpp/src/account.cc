@@ -53,6 +53,8 @@ namespace atrinik {
 
 bool Account::load(const std::string& key, const std::string& val)
 {
+    BOOST_LOG_FUNCTION();
+
     if (key == "pswd") {
         // Parse old-style passwords (UNIX crypt and Windows SHA1)
         if (val.length() == 13 || val.length() == 40) {
@@ -62,7 +64,7 @@ bool Account::load(const std::string& key, const std::string& val)
 
         // Must be exactly twice that of the password hash size
         if (val.length() != hashSize * 2) {
-            throw AccountError("invalid password");
+            throw LOG_EXCEPTION(AccountError("invalid password"));
         }
 
         algorithm::unhex(val.begin(), val.end(), password.data());
@@ -70,7 +72,7 @@ bool Account::load(const std::string& key, const std::string& val)
     } else if (key == "salt") {
         // Must be exactly twice that of the salt size
         if (val.length() != hashSize * 2) {
-            throw AccountError("invalid password");
+            throw LOG_EXCEPTION(AccountError("invalid password"));
         }
 
         algorithm::unhex(val.begin(), val.end(), salt.data());
@@ -82,7 +84,7 @@ bool Account::load(const std::string& key, const std::string& val)
         try {
             timestamp = lexical_cast<time_t>(val);
         } catch (const bad_cast& e) {
-            throw AccountError("invalid timestamp");
+            throw LOG_EXCEPTION(AccountError("invalid timestamp"));
         }
 
         return true;
@@ -91,7 +93,7 @@ bool Account::load(const std::string& key, const std::string& val)
 
         // Must have correct amount of colon-separated strings
         if (split(strs, val, is_any_of(":")).size() < 4) {
-            throw AccountError("invalid character data");
+            throw LOG_EXCEPTION(AccountError("invalid character data"));
         }
 
         AccountCharacter character;
@@ -99,7 +101,7 @@ bool Account::load(const std::string& key, const std::string& val)
         character.archetype = GameObject::find_archetype(strs[0]);
 
         if (!character.archetype) {
-            throw AccountError("invalid character archetype");
+            throw LOG_EXCEPTION(AccountError("invalid character archetype"));
         }
 
         character.name = strs[1];
@@ -108,7 +110,7 @@ bool Account::load(const std::string& key, const std::string& val)
         try {
             character.level = numeric_cast<uint8_t>(lexical_cast<int>(strs[3]));
         } catch (const bad_cast& e) {
-            throw AccountError("invalid character level");
+            throw LOG_EXCEPTION(AccountError("invalid character level"));
         }
 
         characters.push_back(character);
@@ -174,7 +176,7 @@ void Account::update_last_login(const std::string& host)
 void Account::set_password(const std::string& s)
 {
     if (!RAND_bytes(salt.data(), salt.size())) {
-        throw AccountError("OpenSSL PRNG is not seeded");
+        throw LOG_EXCEPTION(AccountError("OpenSSL PRNG is not seeded"));
     }
 
     PKCS5_PBKDF2_HMAC(s.c_str(), s.length(), salt.data(), salt.size(),
@@ -207,20 +209,21 @@ void Account::character_create(const std::string& name,
         const std::string& archname)
 {
     if (name.empty()) {
-        throw AccountError("name cannot be empty");
+        throw LOG_EXCEPTION(AccountError("name cannot be empty"));
     }
 
     // TODO: invalid characters in name check
     // TODO: player exists check
 
     if (characters.size() >= Account::characters_max()) {
-        throw AccountError("reached the maximum number of allowed characters");
+        throw LOG_EXCEPTION(AccountError(
+                "reached the maximum number of allowed characters"));
     }
 
     const GameObject* archetype = GameObject::find_archetype(archname);
 
     if (!archetype || !archetype->isinstance<PlayerObjectType>()) {
-        throw AccountError("invalid archname");
+        throw LOG_EXCEPTION(AccountError("invalid archname"));
     }
 
     AccountCharacter character;
@@ -248,11 +251,11 @@ void Account::change_password(const std::string& pswd,
     validate_password(pswd_new2);
 
     if (pswd_new != pswd_new2) {
-        throw AccountError("passwords do not match");
+        throw LOG_EXCEPTION(AccountError("passwords do not match"));
     }
 
     if (!check_password(pswd)) {
-        throw AccountError("invalid password");
+        throw LOG_EXCEPTION(AccountError("invalid password"));
     }
 
     set_password(pswd_new);
@@ -273,7 +276,7 @@ void Account::construct_message(GameMessage* msg)
                 character.archetype->arch));
         msg->string(character.name);
         msg->string(character.region_name);
-        
+
         auto anim_object = character.archetype->getinstance<AnimObjectType>();
         msg->int16(anim_object ? anim_object->animation() : 0);
         msg->int8(character.level);
@@ -283,28 +286,28 @@ void Account::construct_message(GameMessage* msg)
 void Account::validate_name(const std::string& s)
 {
     if (s.empty()) {
-        throw AccountError("name cannot be empty");
+        throw LOG_EXCEPTION(AccountError("name cannot be empty"));
     }
 
     // TODO: add allowed characters check
 
     if (s.length() < name_min() ||
             s.length() > name_max()) {
-        throw AccountError("name has invalid length");
+        throw LOG_EXCEPTION(AccountError("name has invalid length"));
     }
 }
 
 void Account::validate_password(const std::string& s)
 {
     if (s.empty()) {
-        throw AccountError("password cannot be empty");
+        throw LOG_EXCEPTION(AccountError("password cannot be empty"));
     }
 
     // TODO: add allowed characters check
 
     if (s.length() < password_min() ||
             s.length() > password_max()) {
-        throw AccountError("password has invalid length");
+        throw LOG_EXCEPTION(AccountError("password has invalid length"));
     }
 }
 
@@ -313,15 +316,15 @@ AccountManager AccountManager::manager;
 void AccountManager::gc()
 {
     BOOST_LOG_FUNCTION();
-    
+
     while (true) {
         for (auto &it : accounts) {
             // Skip accounts that are still being used
             if (!it.second.unique()) {
                 continue;
             }
-            
-            BOOST_LOG_NAMED_SCOPE("for each account");
+
+            BOOST_LOG_NAMED_SCOPE("for accounts");
             LOG(Development) << "GCing account: " << it.first;
 
             try {
@@ -334,7 +337,7 @@ void AccountManager::gc()
 
             accounts.erase(it.first);
         }
-        
+
         usleep(Server::ticks_duration() * gc_frequency());
     }
 }
@@ -347,13 +350,13 @@ AccountPtr AccountManager::account_register(const std::string& name,
     Account::validate_password(pswd2);
 
     if (pswd != pswd2) {
-        throw AccountError("passwords do not match");
+        throw LOG_EXCEPTION(AccountError("passwords do not match"));
     }
 
     filesystem::path p = account_make_path(name);
 
     if (filesystem::exists(p)) {
-        throw AccountError("account is already registered");
+        throw LOG_EXCEPTION(AccountError("account is already registered"));
     }
 
     AccountPtr account(new Account);
@@ -373,8 +376,7 @@ AccountPtr AccountManager::account_login(const std::string& name,
     AccountPtr account = account_load(name);
 
     if (!account->check_password(pswd)) {
-        // TODO: syslog
-        throw AccountError("invalid password");
+        throw LOG_EXCEPTION(AccountError("invalid password"));
     }
 
     // If the account uses old-style password, update it
@@ -388,12 +390,12 @@ AccountPtr AccountManager::account_login(const std::string& name,
 void AccountManager::account_save(const std::string& name, AccountPtr account)
 {
     BOOST_LOG_FUNCTION();
-    
+
     filesystem::path p = account_make_path(name);
     filesystem::create_directories(p.parent_path());
-    
+
     // TODO: write to temp file, if successful, rename
-    
+
     ofstream file(p.string());
 
     if (!file.is_open()) {
@@ -421,6 +423,8 @@ boost::filesystem::path AccountManager::account_make_path(
 
 AccountPtr AccountManager::account_load(const std::string& name)
 {
+    BOOST_LOG_FUNCTION();
+
     AccountMap::accessor a;
 
     if (accounts.find(a, name)) {
@@ -430,7 +434,7 @@ AccountPtr AccountManager::account_load(const std::string& name)
     ifstream file(account_make_path(name).string());
 
     if (!file) {
-        throw AccountError("no such account");
+        throw LOG_EXCEPTION(AccountError("no such account"));
     }
 
     // Load up the account and cache it
