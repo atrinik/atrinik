@@ -33,6 +33,7 @@
 #include <face_parser.h>
 #include <face.h>
 #include <server.h>
+#include <logger.h>
 
 using namespace atrinik;
 using namespace boost;
@@ -42,35 +43,43 @@ namespace atrinik {
 
 void FaceParser::load(const std::string& path)
 {
+    BOOST_LOG_FUNCTION();
+
     ifstream file(path, ios::binary);
 
-    if (!file) {
-        throw runtime_error("could not open file");
+    if (!file.is_open()) {
+        throw LOG_EXCEPTION(runtime_error("could not open file"));
     }
 
     string line;
 
     while (getline(file, line)) {
         if (!starts_with(line, "IMAGE ")) {
-            throw runtime_error("line does not begin with 'IMAGE '");
+            LOG(Error) << "Unrecognized attribute (should begin with "
+                    "'IMAGE '): " << line;
+            throw LOG_EXCEPTION(runtime_error("corrupted faces file"));
         }
-        
+
         stringstream ss(line.substr(6));
         uint16_t id, bytes;
         string name;
-        
+
         ss >> id >> bytes >> name;
-        
+
         char* data = new char[bytes];
-        
+
         if (file.read(data, bytes)) {
             Face* face = new Face(name);
             face->data(make_pair(data, bytes));
             FaceManager::manager.add(face);
         } else {
-            // TODO: error, only read X number of bytes
+            LOG(Error) << "Read " << file.gcount() <<
+                    " bytes, expected to read " << bytes << " bytes";
+            throw LOG_EXCEPTION(runtime_error("corrupted faces file"));
         }
     }
+
+    LOG(Detail) << "Loaded " << FaceManager::manager.count() << " faces";
 }
 
 }

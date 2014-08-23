@@ -30,6 +30,7 @@
 
 #include <archetype_parser.h>
 #include <game_object.h>
+#include <logger.h>
 
 using namespace atrinik;
 using namespace boost;
@@ -40,14 +41,14 @@ namespace atrinik {
 void ArchetypeParser::load(const std::string& path)
 {
     ifstream file(path);
-    
-    if (!file) {
-        throw runtime_error("could not open file");
+
+    if (!file.is_open()) {
+        throw LOG_EXCEPTION(runtime_error("could not open file"));
     }
-    
+
     property_tree::ptree pt;
     bool is_more = false, was_more = false;
-    
+
     parse(file,
             [&file, &pt, &is_more, &was_more] (const std::string & key,
             const std::string & val) mutable -> bool
@@ -86,7 +87,7 @@ void ArchetypeParser::load(const std::string& path)
 
                 return true;
             });
-    
+
     for (auto it : pt) {
         string archname = it.second.get<string>(it.first);
         int type;

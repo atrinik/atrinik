@@ -44,7 +44,7 @@ void AccountParser::load(std::ifstream& file, AccountPtr account)
             const std::string & val) mutable -> bool
             {
                 if (!account->load(key, val)) {
-                    LOG(Error) << "Unrecognised attribute: " << key << " " <<
+                    LOG(Error) << "Unrecognized attribute: " << key << " " <<
                             val;
                 }
 

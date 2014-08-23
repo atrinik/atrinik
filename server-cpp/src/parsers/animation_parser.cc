@@ -34,6 +34,7 @@
 #include <animation_parser.h>
 #include <animation.h>
 #include <server.h>
+#include <logger.h>
 
 using namespace atrinik;
 using namespace boost;
@@ -43,10 +44,12 @@ namespace atrinik {
 
 void AnimationParser::load(const std::string& path)
 {
+    BOOST_LOG_FUNCTION();
+
     ifstream file(path);
 
-    if (!file) {
-        throw runtime_error("could not open file");
+    if (!file.is_open()) {
+        throw LOG_EXCEPTION(runtime_error("could not open file"));
     }
 
     Animation* animation = nullptr;
@@ -61,20 +64,21 @@ void AnimationParser::load(const std::string& path)
                 } else if (key == "anim") {
                     animation = new Animation(val);
                 } else if (!animation) {
-                    // TODO: parsing error
+                    LOG(Error) << "Unrecognized attribute (before animation "
+                            "definition): " << key << " " << val;
+                    throw LOG_EXCEPTION(runtime_error(
+                            "corrupted animations file"));
                 } else if (key == "facings") {
                     try {
                         animation->facings(numeric_cast<uint8_t>(
                                 lexical_cast<int>(val)));
                     } catch (bad_cast&) {
-                        // TODO: error
+                        LOG(Error) << "Bad value: " << key << " " << val;
+                        throw LOG_EXCEPTION(runtime_error(
+                                "corrupted animations file"));
                     }
                 } else {
-                    try {
-                        animation->push_back(lexical_cast<uint16_t>(val));
-                    } catch (bad_cast&) {
-                        // TODO: error
-                    }
+                    animation->push_back(val);
                 }
 
                 return true;
