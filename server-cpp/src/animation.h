@@ -59,12 +59,12 @@ public:
         return id_;
     }
 
-    inline const uint8_t facings() const
+    inline const uint16_t facings() const
     {
         return facings_;
     }
 
-    inline void facings(uint8_t facings)
+    inline void facings(uint16_t facings)
     {
         facings_ = facings;
     }
@@ -96,7 +96,7 @@ private:
 
     AnimationId id_;
 
-    uint8_t facings_ = 0;
+    uint16_t facings_ = 1;
 
     std::string name_;
 };

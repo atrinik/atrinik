@@ -43,7 +43,6 @@ AnimationManager::AnimationManager()
     // animation ID/name cannot be found
     auto animation = new Animation("###none");
     animation->push_back(0);
-    animation->facings(1);
     add(animation);
 }
 
@@ -55,8 +54,8 @@ void AnimationManager::add(Animation* animation)
 {
     BOOST_LOG_FUNCTION();
 
-    if (animation->facings() == 0 || (animation->facings() != 9 &&
-            animation->facings() != 25)) {
+    if (animation->facings() == 0 || (animation->facings() != 1 &&
+            animation->facings() != 9 && animation->facings() != 25)) {
         LOG(Error) << "Animation " << animation->name() <<
                 " has invalid number of facings (" << animation->facings() <<
                 "), setting to 1";
