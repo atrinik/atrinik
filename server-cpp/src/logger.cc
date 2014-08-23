@@ -112,6 +112,27 @@ Logger::LoggerType Logger::logger;
 
 void Logger::init()
 {
+    logger.add_attribute("ColorBold",
+            log::attributes::make_constant("\033[1m"));
+    logger.add_attribute("ColorBlack",
+            log::attributes::make_constant("\033[30m"));
+    logger.add_attribute("ColorRed",
+            log::attributes::make_constant("\033[31m"));
+    logger.add_attribute("ColorGreen",
+            log::attributes::make_constant("\033[32m"));
+    logger.add_attribute("ColorYellow",
+            log::attributes::make_constant("\033[33m"));
+    logger.add_attribute("ColorBlue",
+            log::attributes::make_constant("\033[34m"));
+    logger.add_attribute("ColorMagenta",
+            log::attributes::make_constant("\033[35m"));
+    logger.add_attribute("ColorCyan",
+            log::attributes::make_constant("\033[36m"));
+    logger.add_attribute("ColorWhite",
+            log::attributes::make_constant("\033[37m"));
+    logger.add_attribute("ColorEnd",
+            log::attributes::make_constant("\033[0m"));
+
     log::register_formatter_factory("Scope",
             make_shared<scope_formatter_factory>());
     log::register_simple_formatter_factory<Level, char>("Severity");
