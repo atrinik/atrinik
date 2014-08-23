@@ -26,7 +26,6 @@
  */
 
 #include <fstream>
-#include <boost/property_tree/xml_parser.hpp>
 
 #include <map_parser.h>
 #include <game_object.h>
@@ -41,12 +40,14 @@ namespace atrinik {
 void MapParser::parse_objects(MapObject* map, const std::string& archname,
         boost::property_tree::ptree tree, GameObject* env)
 {
+    BOOST_LOG_FUNCTION();
+
     GameObject::sobjects_t::iterator result;
 
     result = GameObject::archetypes.find(archname);
 
     if (result == GameObject::archetypes.end()) {
-        // TODO: error log
+        LOG(Error) << "Unknown archetype: " << archname;
         return;
     }
 
@@ -103,13 +104,22 @@ void MapParser::parse_objects(MapObject* map, const std::string& archname,
     }
 }
 
-void MapParser::load(std::ifstream& file, MapObject* map)
+void MapParser::load(const std::string &path, MapObject* map)
 {
+    BOOST_LOG_FUNCTION();
+
+    LOG(Detail) << "Loading map from: " << path;
+    ifstream file(path);
+
+    if (!file.is_open()) {
+        throw LOG_EXCEPTION(runtime_error("could not open file"));
+    }
+
     string line;
 
     // Verify map header exists
     if (!getline(file, line) || line != "arch map") {
-        throw runtime_error("file is not a map");
+        throw LOG_EXCEPTION(runtime_error("file is not a map"));
     }
 
     parse(file,
@@ -139,11 +149,8 @@ void MapParser::load(std::ifstream& file, MapObject* map)
                 nullptr);
     }
 
-    cout << map->dump() << endl;
-
-    //    boost::property_tree::xml_writer_settings<char> settings('\t', 1);
-    //    boost::property_tree::write_xml("map_output.xml", pt, std::locale(),
-    //                                    settings);
+    LOG(Detail) << "Loaded map with " << pt.size() <<
+            " objects (inventories not included)";
 }
 
 }

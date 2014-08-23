@@ -40,6 +40,9 @@ namespace atrinik {
 
 void ArchetypeParser::load(const std::string& path)
 {
+    BOOST_LOG_FUNCTION();
+
+    LOG(Detail) << "Loading archetypes from: " << path;
     ifstream file(path);
 
     if (!file.is_open()) {
@@ -91,6 +94,8 @@ void ArchetypeParser::load(const std::string& path)
     for (auto it : pt) {
         string archname = it.second.get<string>(it.first);
         int type;
+
+        // TODO: handle multi-arches and their linking
 
         // Try to parse the type
         try {

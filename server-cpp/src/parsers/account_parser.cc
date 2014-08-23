@@ -39,6 +39,8 @@ namespace atrinik {
 
 void AccountParser::load(std::ifstream& file, AccountPtr account)
 {
+    BOOST_LOG_FUNCTION();
+
     parse(file,
             [&account] (const std::string & key,
             const std::string & val) mutable -> bool

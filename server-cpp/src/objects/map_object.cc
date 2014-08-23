@@ -251,15 +251,16 @@ MapObject* MapObject::load_map(const std::string& path)
 {
     // TODO: loaded check
     // TODO: load from binary if it exists
-
-    ifstream file(path);
-
-    if (!file.is_open()) {
-        return nullptr;
-    }
+    BOOST_LOG_FUNCTION();
 
     MapObject* map = new MapObject(path);
-    MapParser::load(file, map);
+
+    try {
+        MapParser::load(path, map);
+    } catch (const std::exception& e) {
+        LOG(Error) << "Failed to load map " << path << ":" << e.what() <<
+                LOG_STACK(e);
+    }
 
     return map;
 }

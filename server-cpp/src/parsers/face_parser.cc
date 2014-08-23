@@ -45,6 +45,7 @@ void FaceParser::load(const std::string& path)
 {
     BOOST_LOG_FUNCTION();
 
+    LOG(Detail) << "Loading faces from: " << path;
     ifstream file(path, ios::binary);
 
     if (!file.is_open()) {

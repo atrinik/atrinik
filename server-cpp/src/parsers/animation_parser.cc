@@ -46,6 +46,7 @@ void AnimationParser::load(const std::string& path)
 {
     BOOST_LOG_FUNCTION();
 
+    LOG(Detail) << "Loading animations from: " << path;
     ifstream file(path);
 
     if (!file.is_open()) {

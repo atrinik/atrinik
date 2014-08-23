@@ -35,37 +35,12 @@
 
 namespace atrinik {
 
-class RegionTree;
-
 class RegionObject : public ObjectCRTP<RegionObject> {
-private:
-
-    enum Flags {
-        MapQuest = 0x01,
-    };
-
-    uint8_t flags_;
-
-    std::string name_;
-
-    std::string parent_;
-
-    std::string longname_;
-
-    std::string msg_;
-
-    mapcoords_t jail_;
-
-    std::string map_first_;
-
-    std::string map_bg_;
-
-    RegionObject *env_ = NULL;
-    std::list<RegionObject*> inv_;
 public:
-    static RegionTree regions;
-
     using Object::Object;
+
+    virtual bool load(const std::string& key, const std::string& val);
+    virtual std::string dump();
 
     void inv_push_back(RegionObject* obj);
 
@@ -172,33 +147,48 @@ public:
     {
         map_bg_ = val;
     }
+private:
 
-    virtual bool load(const std::string& key, const std::string& val);
-    virtual std::string dump();
+    /**
+     * Possible region flags.
+     */
+    enum Flags {
+        MapQuest = 0x01,
+    };
+
+    uint8_t flags_; ///< The region's flags/
+
+    std::string name_; ///< Name of the region.
+
+    std::string parent_; ///< Name of the region's parent.
+
+    std::string longname_; ///< Long name of the region.
+
+    std::string msg_; ///< Message of the region.
+
+    mapcoords_t jail_; ///< Map path and X/Y coordinates of the region's jail.
+
+    std::string map_first_; ///< A map that belongs to this region.
+
+    std::string map_bg_; ///< Background color to use for the region map.
+
+    RegionObject *env_ = nullptr; ///< Parent region object.
+    std::list<RegionObject*> inv_; ///< Children of the region.
 };
 
-class RegionTree {
+class RegionManager {
 private:
     typedef std::unordered_map<std::string, RegionObject*>
-    regions_t;
+    RegionsMap;
 
-    regions_t regions;
+    RegionsMap regions; ///< Map of the regions.
 public:
-    RegionObject* find(const std::string& name);
+    static RegionManager manager;
+
     bool add(RegionObject* region);
-
-    typedef regions_t::iterator iterator;
-    typedef regions_t::const_iterator const_iterator;
-
-    iterator begin()
-    {
-        return regions.begin();
-    }
-
-    iterator end()
-    {
-        return regions.end();
-    }
+    RegionObject* get(const std::string& name);
+    RegionsMap::size_type count();
+    void link_parents_children();
 };
 
 }

@@ -46,7 +46,7 @@ void RegionParser::load(const std::string& path)
     ifstream file(path);
 
     if (!file.is_open()) {
-        throw runtime_error("could not open file");
+        throw LOG_EXCEPTION(runtime_error("could not open file"));
     }
 
     RegionObject *region = nullptr;
@@ -56,7 +56,7 @@ void RegionParser::load(const std::string& path)
             const std::string & val) mutable -> bool
             {
                 if (key.empty() && val == "end") {
-                    RegionObject::regions.add(region);
+                    RegionManager::manager.add(region);
                     region = nullptr;
                 } else if (key == "region") {
                     region = new RegionObject();
@@ -77,27 +77,8 @@ void RegionParser::load(const std::string& path)
             }
     );
 
-    // TODO: move to a RegionManager class logic
-    // Link up children/parents
-    for (auto it : RegionObject::regions) {
-        if (it.second->parent().empty()) {
-            continue;
-        }
-
-        RegionObject* parent = RegionObject::regions.find(
-                it.second->parent());
-
-        if (parent == NULL) {
-            // TODO: error
-            continue;
-        }
-
-        parent->inv_push_back(it.second);
-    }
-
-    /*for (auto it : RegionObject::regions) {
-        cout << it.second->dump() << endl;
-    }*/
+    LOG(Detail) << "Loaded " << RegionManager::manager.count() <<
+            " regions";
 }
 
 }

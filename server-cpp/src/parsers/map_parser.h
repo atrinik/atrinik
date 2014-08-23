@@ -37,7 +37,7 @@ private:
     static void parse_objects(MapObject* map, const std::string& archname,
             boost::property_tree::ptree tree, GameObject* env = NULL);
 public:
-    static void load(std::ifstream& file, MapObject* map);
+    static void load(const std::string &path, MapObject* map);
 };
 
 }

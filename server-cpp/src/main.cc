@@ -43,6 +43,7 @@
 #include <animation_parser.h>
 #include <face_parser.h>
 #include <logger.h>
+#include <region_object.h>
 
 using namespace atrinik;
 using namespace boost;
@@ -110,6 +111,7 @@ int main(int argc, char **argv)
     Logger::init();
 
     RegionParser::load("../maps/regions.reg");
+    RegionManager::manager.link_parents_children();
     FaceParser::load("../arch/atrinik.0");
     AnimationParser::load("../arch/animations");
     ArchetypeParser::load("../arch/archetypes");

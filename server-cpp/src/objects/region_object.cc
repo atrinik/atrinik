@@ -29,6 +29,7 @@
 #include <boost/algorithm/string/predicate.hpp>
 
 #include <region_object.h>
+#include <logger.h>
 
 using namespace atrinik;
 using namespace boost;
@@ -36,16 +37,10 @@ using namespace std;
 
 namespace atrinik {
 
-RegionTree RegionObject::regions;
-
-void RegionObject::inv_push_back(RegionObject* obj)
-{
-    inv_.push_back(obj);
-    obj->env_ = this;
-}
-
 bool RegionObject::load(const std::string& key, const std::string& val)
 {
+    BOOST_LOG_FUNCTION();
+
     if (key == "name") {
         name(val);
         return true;
@@ -67,7 +62,7 @@ bool RegionObject::load(const std::string& key, const std::string& val)
         if (!sstream.fail()) {
             jail(coords);
         } else {
-            // TODO: Error
+            LOG(Error) << "Bad value: " << key << " " << val;
         }
 
         return true;
@@ -129,7 +124,20 @@ std::string RegionObject::dump()
     return s;
 }
 
-RegionObject* RegionTree::find(const std::string& name)
+void RegionObject::inv_push_back(RegionObject* obj)
+{
+    inv_.push_back(obj);
+    obj->env_ = this;
+}
+
+RegionManager RegionManager::manager;
+
+bool RegionManager::add(RegionObject* region)
+{
+    return regions.insert(make_pair(region->name(), region)).second;
+}
+
+RegionObject* RegionManager::get(const std::string& name)
 {
     auto it = regions.find(name);
 
@@ -140,9 +148,32 @@ RegionObject* RegionTree::find(const std::string& name)
     return it->second;
 }
 
-bool RegionTree::add(RegionObject* region)
+RegionManager::RegionsMap::size_type RegionManager::count()
 {
-    return regions.insert(make_pair(region->name(), region)).second;
+    return regions.size();
+}
+
+void RegionManager::link_parents_children()
+{
+    BOOST_LOG_FUNCTION();
+
+    // Link up children/parents
+    for (auto it : regions) {
+        if (it.second->parent().empty()) {
+            continue;
+        }
+
+        RegionObject* parent = RegionManager::manager.get(
+                it.second->parent());
+
+        if (!parent) {
+            LOG(Error) << "Region " << it.second->name() <<
+                    " has invalid parent: " << it.second->parent();
+            continue;
+        }
+
+        parent->inv_push_back(it.second);
+    }
 }
 
 }

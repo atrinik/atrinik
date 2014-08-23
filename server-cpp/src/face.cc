@@ -26,6 +26,7 @@
  */
 
 #include <face.h>
+#include <logger.h>
 
 using namespace atrinik;
 using namespace std;
@@ -38,10 +39,12 @@ FaceManager FaceManager::manager;
 
 void FaceManager::add(Face* face)
 {
+    BOOST_LOG_FUNCTION();
+
     faces_vector.push_back(face);
 
     if (!faces_map.insert(make_pair(face->name(), face)).second) {
-        throw runtime_error("could not insert face");
+        throw LOG_EXCEPTION(runtime_error("could not insert face"));
     }
 }
 
