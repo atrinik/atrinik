@@ -25,12 +25,15 @@
  * Map object implementation.
  */
 
+#include <fstream>
 #include <boost/lexical_cast.hpp>
 #include <boost/algorithm/string/predicate.hpp>
 
 #include <map_object.h>
 #include <map_tile_object.h>
 #include <game_object.h>
+#include <logger.h>
+#include <map_parser.h>
 
 using namespace atrinik;
 using namespace boost;
@@ -40,6 +43,8 @@ namespace atrinik {
 
 bool MapObject::load(const std::string& key, const std::string& val)
 {
+    BOOST_LOG_FUNCTION();
+
     if (key == "name") {
         name_ = val;
         return true;
@@ -98,11 +103,12 @@ bool MapObject::load(const std::string& key, const std::string& val)
         int id = lexical_cast<int>(key.substr(10)) - 1;
 
         if (id < 0 || id >= NumTiledMaps) {
-            // TODO error
+            LOG(Error) << "tile_path_" << (id + 1) << " is not in valid range";
         } else {
             tile_path_[id] = val;
-            return true;
         }
+
+        return true;
     }
 
     return false;
@@ -218,6 +224,23 @@ void MapObject::allocate()
         inv[i].y(i % size_.second);
         inv[i].env(this);
     }
+}
+
+MapObject* MapObject::load_map(const std::string& path)
+{
+    // TODO: loaded check
+    // TODO: load from binary if it exists
+
+    ifstream file(path);
+
+    if (!file.is_open()) {
+        return nullptr;
+    }
+
+    MapObject* map = new MapObject(path);
+    MapParser::load(file, map);
+
+    return map;
 }
 
 }

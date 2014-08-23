@@ -36,9 +36,8 @@ class MapParser : public ObjectParser {
 private:
     static void parse_objects(MapObject* map, const std::string& archname,
             boost::property_tree::ptree tree, GameObject* env = NULL);
-    static void parse_map(MapObject* map);
 public:
-    static MapObject* load_map(const std::string& path);
+    static void load(std::ifstream& file, MapObject* map);
 };
 
 }

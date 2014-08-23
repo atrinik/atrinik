@@ -113,7 +113,7 @@ int main(int argc, char **argv)
     FaceParser::load("../arch/atrinik.0");
     AnimationParser::load("../arch/animations");
     ArchetypeParser::load("../arch/archetypes");
-    auto map = MapParser::load_map(argc > 1 ? argv[1] : "../maps/hall_of_dms");
+    auto map = MapObject::load_map(argc > 1 ? argv[1] : "../maps/hall_of_dms");
     delete map;
 
     asio::io_service io_service;

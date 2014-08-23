@@ -30,6 +30,7 @@
 
 #include <map_parser.h>
 #include <game_object.h>
+#include <logger.h>
 
 using namespace atrinik;
 using namespace boost;
@@ -60,7 +61,7 @@ void MapParser::parse_objects(MapObject* map, const std::string& archname,
     } catch (property_tree::ptree_bad_path&) {
     } catch (bad_lexical_cast&) {
     }
-    
+
     assign_types(tree, obj, static_cast<GameObject::Types>(type));
 
     // Load object attributes
@@ -81,7 +82,7 @@ void MapParser::parse_objects(MapObject* map, const std::string& archname,
     }
 
     // Add object to map's tile
-    if (env == NULL) {
+    if (!env) {
         int x = 0, y = 0;
 
         try {
@@ -102,17 +103,10 @@ void MapParser::parse_objects(MapObject* map, const std::string& archname,
     }
 }
 
-void MapParser::parse_map(MapObject* map)
+void MapParser::load(std::ifstream& file, MapObject* map)
 {
-    // Load map and parse it into a property tree
-    ifstream file(map->path());
-    
-    if (!file) {
-        throw runtime_error("could not open file");
-    }
-    
     string line;
-    
+
     // Verify map header exists
     if (!getline(file, line) || line != "arch map") {
         throw runtime_error("file is not a map");
@@ -125,23 +119,24 @@ void MapParser::parse_map(MapObject* map)
                 if (key.empty() && val == "end") {
                     return false;
                 } else if (!map->load(key, val)) {
-                    // TODO: parsing error
+                    LOG(Error) << "Unrecognized attribute: " << key << " " <<
+                            val;
                 }
-                
+
                 return true;
             }
     );
-    
+
     // TODO: width/height/etc checks
-    
+
     map->allocate();
-    
+
     auto pt = parse(file);
 
     // Load the rest of the objects
     for (auto it : pt) {
         parse_objects(map, it.second.get<string>(it.first), it.second,
-                (GameObject*) NULL);
+                nullptr);
     }
 
     cout << map->dump() << endl;
@@ -149,17 +144,6 @@ void MapParser::parse_map(MapObject* map)
     //    boost::property_tree::xml_writer_settings<char> settings('\t', 1);
     //    boost::property_tree::write_xml("map_output.xml", pt, std::locale(),
     //                                    settings);
-}
-
-MapObject* MapParser::load_map(const std::string& path)
-{
-    // TODO: loaded check
-    // TODO: load from binary if it exists
-
-    MapObject* map = new MapObject(path);
-    parse_map(map);
-
-    return map;
 }
 
 }

@@ -30,17 +30,18 @@
 #include <fstream>
 
 #include <account.h>
+#include <object_parser.h>
 
 namespace atrinik {
 
-class AccountParser {
+class AccountParser : public ObjectParser {
 public:
     /**
-     * Parses the specified account file into the specified account.
+     * Loads the specified account file into the specified account.
      * @param file File to read from.
-     * @param obj Account to parse into.
+     * @param account Account to load into.
      */
-    static void parse(std::ifstream& file, AccountPtr obj);
+    static void load(std::ifstream& file, AccountPtr account);
 };
 
 }

@@ -204,6 +204,8 @@ public:
 
     virtual bool load(const std::string& key, const std::string& val);
     virtual std::string dump();
+
+    static MapObject* load_map(const std::string& path);
 };
 
 }

@@ -29,6 +29,7 @@
 #include <fstream>
 
 #include <account_parser.h>
+#include <logger.h>
 
 using namespace atrinik;
 using namespace boost;
@@ -36,22 +37,20 @@ using namespace std;
 
 namespace atrinik {
 
-void AccountParser::parse(std::ifstream& file, AccountPtr obj)
+void AccountParser::load(std::ifstream& file, AccountPtr account)
 {
-    string line;
+    parse(file,
+            [&account] (const std::string & key,
+            const std::string & val) mutable -> bool
+            {
+                if (!account->load(key, val)) {
+                    LOG(Error) << "Unrecognised attribute: " << key << " " <<
+                            val;
+                }
 
-    while (getline(file, line)) {
-        if (line.empty()) {
-            continue;
-        }
-
-        if (line == "end") {
-            break;
-        }
-
-        size_t space = line.find_first_of(' ');
-        obj->load(line.substr(0, space), line.substr(space + 1));
-    }
+                return true;
+            }
+    );
 }
 
 }

@@ -439,7 +439,7 @@ AccountPtr AccountManager::account_load(const std::string& name)
 
     // Load up the account and cache it
     AccountPtr account(new Account);
-    AccountParser::parse(file, account);
+    AccountParser::load(file, account);
     accounts.insert(make_pair(name, account));
 
     return account;
