@@ -30,6 +30,7 @@
 
 #include <region_parser.h>
 #include <region_object.h>
+#include <logger.h>
 
 using namespace atrinik;
 using namespace boost;
@@ -39,9 +40,12 @@ namespace atrinik {
 
 void RegionParser::load(const std::string& path)
 {
+    BOOST_LOG_FUNCTION();
+
+    LOG(Detail) << "Loading regions from: " << path;
     ifstream file(path);
 
-    if (!file) {
+    if (!file.is_open()) {
         throw runtime_error("could not open file");
     }
 
@@ -58,9 +62,15 @@ void RegionParser::load(const std::string& path)
                     region = new RegionObject();
                     region->name(val);
                 } else if (!region) {
-                    // TODO: parsing error
+                    LOG(Error) << "Unrecognized attribute (before region "
+                            "definition): " << key << " " << val;
+                    throw LOG_EXCEPTION(runtime_error(
+                            "corrupted regions file"));
                 } else if (!region->load(key, val)) {
-                    // TODO: parsing error
+                    LOG(Error) << "Unrecognized attribute: " << key << " " <<
+                            val;
+                    throw LOG_EXCEPTION(runtime_error(
+                            "corrupted regions file"));
                 }
 
                 return true;
