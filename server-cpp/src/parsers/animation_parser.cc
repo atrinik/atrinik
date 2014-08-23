@@ -84,6 +84,9 @@ void AnimationParser::load(const std::string& path)
                 return true;
             }
     );
+
+    LOG(Detail) << "Loaded " << AnimationManager::manager.count() <<
+            " animations";
 }
 
 }
