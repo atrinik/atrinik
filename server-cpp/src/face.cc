@@ -39,7 +39,7 @@ FaceManager FaceManager::manager;
 void FaceManager::add(Face* face)
 {
     faces_vector.push_back(face);
-            
+
     if (!faces_map.insert(make_pair(face->name(), face)).second) {
         throw runtime_error("could not insert face");
     }
@@ -48,11 +48,11 @@ void FaceManager::add(Face* face)
 const Face& FaceManager::get(const std::string& name)
 {
     FaceMap::const_iterator it = faces_map.find(name);
-    
+
     if (it == faces_map.end()) { // Doesn't exist, return default
         return *faces_vector[0];
     }
-    
+
     return *it->second;
 }
 
@@ -63,6 +63,11 @@ const Face& FaceManager::get(Face::FaceId id)
     } catch (out_of_range&) { // Face ID doesn't exist, return default
         return *faces_vector[0];
     }
+}
+
+FaceManager::FaceVector::size_type FaceManager::count()
+{
+    return faces_vector.size();
 }
 
 };

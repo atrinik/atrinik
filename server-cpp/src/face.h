@@ -42,38 +42,38 @@ public:
     Face(const std::string& name) : name_(name), id_(uid++)
     {
     }
-    
+
     ~Face()
     {
     }
-    
+
     const std::string& name() const
     {
         return name_;
     }
-    
+
     inline const FaceId id() const
     {
         return id_;
     }
-    
+
     inline const FaceData data() const
     {
         return data_;
     }
-    
+
     inline void data(FaceData data)
     {
         data_ = data;
     }
-    
+
 private:
     static int uid;
-    
+
     FaceId id_;
-    
+
     std::string name_;
-    
+
     FaceData data_;
 };
 
@@ -81,12 +81,13 @@ class FaceManager {
 public:
     typedef std::vector<Face*> FaceVector;
     typedef std::unordered_map<std::string, Face*> FaceMap;
-    
+
     static FaceManager manager;
-    
+
     void add(Face* face);
     const Face& get(const std::string& name);
     const Face& get(Face::FaceId id);
+    FaceVector::size_type count();
 private:
     FaceVector faces_vector;
     FaceMap faces_map;
