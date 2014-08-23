@@ -37,6 +37,8 @@ class MapTileObject;
 class MapObject : public ObjectCRTP<MapObject> {
 private:
 
+    static const int NumTiledMaps = 8;
+
     enum Flags {
         NoMagic = 0x01,
         NoHarm = 0x02,
@@ -64,9 +66,9 @@ private:
 
     std::string message_;
 
-    MapObject *tile_map_[8];
+    MapObject *tile_map_[NumTiledMaps];
 
-    std::string tile_path_[8];
+    std::string tile_path_[NumTiledMaps];
 
     std::pair<int, int> enter_pos_;
 

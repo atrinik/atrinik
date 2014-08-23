@@ -97,7 +97,7 @@ bool MapObject::load(const std::string& key, const std::string& val)
     } else if (starts_with(key, "tile_path_")) {
         int id = lexical_cast<int>(key.substr(10)) - 1;
 
-        if (id < 0 || id >= 8) {
+        if (id < 0 || id >= NumTiledMaps) {
             // TODO error
         } else {
             tile_path_[id] = val;
