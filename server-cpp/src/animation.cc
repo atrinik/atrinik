@@ -26,6 +26,7 @@
  */
 
 #include <animation.h>
+#include <logger.h>
 
 using namespace atrinik;
 using namespace std;
@@ -52,22 +53,28 @@ AnimationManager::~AnimationManager()
 
 void AnimationManager::add(Animation* animation)
 {
+    BOOST_LOG_FUNCTION();
+
     if (animation->facings() == 0 || (animation->facings() != 9 &&
             animation->facings() != 25)) {
-        // TODO: log notice; invalid number of facings
+        LOG(Error) << "Animation " << animation->name() <<
+                " has invalid number of facings (" << animation->facings() <<
+                "), setting to 1";
         animation->facings(1);
     }
 
     if ((animation->size() % animation->facings()) != 0) {
-        // TODO: log notice; number of frames is not an exact multiple of number
-        // of facings
+        LOG(Error) << "Number of frames (" << animation->size() <<
+                ") in animation " << animation->name() <<
+                " is not an exact multiple of number of facings (" <<
+                animation->facings() << ")";
     }
 
     animations_vector.push_back(animation);
 
     if (!animations_map.insert(make_pair(animation->name(),
             animation)).second) {
-        throw runtime_error("could not insert animation");
+        throw LOG_EXCEPTION(runtime_error("could not insert animation"));
     }
 }
 
