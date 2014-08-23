@@ -113,6 +113,9 @@ void ArchetypeParser::load(const std::string& path)
         // Insert into archetypes hashmap
         GameObject::archetypes.insert(make_pair(archname, obj));
     }
+
+    LOG(Detail) << "Loaded " << GameObject::archetypes.size() <<
+            " archetypes";
 }
 
 }
