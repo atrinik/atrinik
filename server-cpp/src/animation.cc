@@ -57,14 +57,14 @@ void AnimationManager::add(Animation* animation)
         // TODO: log notice; invalid number of facings
         animation->facings(1);
     }
-    
+
     if ((animation->size() % animation->facings()) != 0) {
         // TODO: log notice; number of frames is not an exact multiple of number
         // of facings
     }
-    
+
     animations_vector.push_back(animation);
-            
+
     if (!animations_map.insert(make_pair(animation->name(),
             animation)).second) {
         throw runtime_error("could not insert animation");
@@ -74,11 +74,11 @@ void AnimationManager::add(Animation* animation)
 const Animation& AnimationManager::get(const std::string& name)
 {
     AnimationMap::const_iterator it = animations_map.find(name);
-    
+
     if (it == animations_map.end()) { // Doesn't exist, return default
         return *animations_vector[0];
     }
-    
+
     return *it->second;
 }
 
@@ -89,6 +89,11 @@ const Animation& AnimationManager::get(Animation::AnimationId id)
     } catch (out_of_range&) { // Animation ID doesn't exist, return default
         return *animations_vector[0];
     }
+}
+
+AnimationManager::AnimationVector::size_type AnimationManager::count()
+{
+    return animations_vector.size();
 }
 
 };

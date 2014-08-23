@@ -44,55 +44,60 @@ public:
     Animation(const std::string& name) : name_(name), id_(uid++)
     {
     }
-    
+
     ~Animation()
     {
     }
-    
+
     const std::string& name() const
     {
         return name_;
     }
-    
+
     inline const AnimationId id() const
     {
         return id_;
     }
-    
+
     inline const uint8_t facings() const
     {
         return facings_;
     }
-    
+
     inline void facings(uint8_t facings)
     {
         facings_ = facings;
     }
-    
+
     inline void push_back(AnimationFrames::value_type val)
     {
-        frames.push_back(val == 0 ? 0 : FaceManager::manager.get(val).id());
+        frames.push_back(val);
     }
-    
+
+    inline void push_back(const std::string& val)
+    {
+        frames.push_back(FaceManager::manager.get(val).id());
+    }
+
     AnimationFrames::value_type operator [](AnimationFrames::size_type i) const
     {
         return frames[i];
     }
-    
+
     AnimationFrames::size_type size() const
     {
         return frames.size();
     }
-    
+
 private:
     static int uid;
-    
+
     AnimationFrames frames;
-    
+
     AnimationId id_;
-    
+
     uint8_t facings_ = 0;
-    
+
     std::string name_;
 };
 
@@ -100,15 +105,16 @@ class AnimationManager {
 public:
     typedef std::vector<Animation*> AnimationVector;
     typedef std::unordered_map<std::string, Animation*> AnimationMap;
-    
+
     static AnimationManager manager;
 
     AnimationManager();
     ~AnimationManager();
-    
+
     void add(Animation* animation);
     const Animation& get(const std::string& name);
     const Animation& get(Animation::AnimationId id);
+    AnimationVector::size_type count();
 private:
     AnimationVector animations_vector;
     AnimationMap animations_map;
