@@ -66,8 +66,17 @@ bool MapObject::load(const std::string& key, const std::string& val)
     } else if (key == "height") {
         size_.second = lexical_cast<int>(val);
         return true;
+    } else if (key == "enter_x") {
+        enter_pos_.first = lexical_cast<int>(val);
+        return true;
+    } else if (key == "enter_y") {
+        enter_pos_.second = lexical_cast<int>(val);
+        return true;
     } else if (key == "difficulty") {
         difficulty = lexical_cast<int>(val);
+        return true;
+    } else if (key == "darkness") {
+        darkness = lexical_cast<int>(val);
         return true;
     } else if (key == "no_magic") {
         f_no_magic(true);
@@ -143,8 +152,20 @@ std::string MapObject::dump()
     s += "width " + lexical_cast<string>(size_.first) + "\n";
     s += "height " + lexical_cast<string>(size_.second) + "\n";
 
+    if (enter_pos_.first) {
+        s += "enter_x " + lexical_cast<string>(enter_pos_.first) + "\n";
+    }
+
+    if (enter_pos_.second) {
+        s += "enter_y " + lexical_cast<string>(enter_pos_.second) + "\n";
+    }
+
     if (difficulty) {
         s += "difficulty " + lexical_cast<string>(difficulty) + "\n";
+    }
+
+    if (darkness) {
+        s += "darkness " + lexical_cast<string>(darkness) + "\n";
     }
 
     if (f_no_magic()) {
