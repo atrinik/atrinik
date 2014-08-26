@@ -120,13 +120,13 @@ property_tree::ptree ObjectParser::parse(ifstream& file,
 }
 
 template<typename T>
-void assign_type(GameObject* obj, vector<GameObjectType*> v)
+void assign_type(GameObjectPtr obj, vector<GameObjectType*> v)
 {
     v.push_back(obj->getaddinstance<T>());
 }
 
 void ObjectParser::assign_types(const boost::property_tree::ptree& pt,
-        GameObject* obj, GameObject::Types type)
+        GameObjectPtr obj, GameObject::Types type)
 {
     vector<GameObjectType*> types;
 

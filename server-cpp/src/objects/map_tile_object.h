@@ -34,7 +34,11 @@
 namespace atrinik {
 
 class MapObject;
+typedef std::shared_ptr<MapObject> MapObjectPtr;
 class GameObject;
+typedef std::shared_ptr<GameObject> GameObjectPtr;
+class MapTileObject;
+typedef std::shared_ptr<MapTileObject> MapTileObjectPtr;
 
 typedef uint16_t coord_t;
 
@@ -43,14 +47,14 @@ struct coords_t {
     coord_t y;
 };
 
-class MapTileObject : public ObjectCRTP<MapTileObject> {
+class MapTileObject : public ObjectCRTPShared<MapTileObject> {
 private:
     int x_;
 
     int y_;
 
-    MapObject *env_ = NULL;
-    std::list<GameObject*> inv_;
+    std::weak_ptr<MapObject> env_;
+    std::list<GameObjectPtr> inv_;
 public:
     using Object::Object;
 
@@ -74,17 +78,17 @@ public:
         y_ = val;
     }
 
-    MapObject *env()
+    MapObjectPtr env()
     {
-        return env_;
+        return env_.lock();
     }
 
-    void env(MapObject *env)
+    void env(MapObjectPtr env)
     {
         env_ = env;
     }
 
-    void inv_push_back(GameObject* obj);
+    void inv_push_back(GameObjectPtr obj);
 
     virtual bool load(const std::string& key, const std::string& val);
     virtual std::string dump();

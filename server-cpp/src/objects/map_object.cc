@@ -222,7 +222,7 @@ std::string MapObject::dump()
 
     for (int x = 0; x < size_.first; x++) {
         for (int y = 0; y < size_.second; y++) {
-            s += tile_get(x, y).dump();
+            s += tile_get(x, y)->dump();
         }
     }
 
@@ -241,19 +241,20 @@ void MapObject::allocate()
     int len = size_.first * size_.second;
 
     for (int i = 0; i < len; i++) {
-        inv[i].x(i / size_.first);
-        inv[i].y(i % size_.second);
-        inv[i].env(this);
+        inv[i] = std::shared_ptr<MapTileObject>(new MapTileObject());
+        inv[i]->x(i / size_.first);
+        inv[i]->y(i % size_.second);
+        inv[i]->env(shared_from_this());
     }
 }
 
-MapObject* MapObject::load_map(const std::string& path)
+MapObjectPtr MapObject::load_map(const std::string& path)
 {
     // TODO: loaded check
     // TODO: load from binary if it exists
     BOOST_LOG_FUNCTION();
 
-    MapObject* map = new MapObject(path);
+    MapObjectPtr map(new MapObject(path));
 
     try {
         MapParser::load(path, map);

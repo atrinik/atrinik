@@ -45,7 +45,7 @@ namespace atrinik {
  * Structure for holding account character related data.
  */
 struct AccountCharacter {
-    const GameObject* archetype; ///< Pointer to player's base archetype object.
+    GameObjectPtrConst archetype; ///< Pointer to player's base archetype object.
 
     std::string name; ///< Character name.
 

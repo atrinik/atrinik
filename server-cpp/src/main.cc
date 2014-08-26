@@ -116,7 +116,6 @@ int main(int argc, char **argv)
     AnimationParser::load("../arch/animations");
     ArchetypeParser::load("../arch/archetypes");
     auto map = MapObject::load_map(argc > 1 ? argv[1] : "../maps/hall_of_dms");
-    delete map;
 
     asio::io_service io_service;
     asio::ip::tcp::endpoint endpoint(asio::ip::tcp::v6(), 13360);

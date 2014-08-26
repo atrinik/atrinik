@@ -36,10 +36,10 @@ using namespace std;
 
 namespace atrinik {
 
-void MapTileObject::inv_push_back(GameObject* obj)
+void MapTileObject::inv_push_back(GameObjectPtr obj)
 {
     inv_.push_back(obj);
-    obj->env(this);
+    obj->env(shared_from_this());
 }
 
 bool MapTileObject::load(const std::string& key, const std::string& val)
@@ -75,8 +75,8 @@ std::string MapTileObject::dump()
     string s = "";
 #endif
 
-    for (auto it : inv_) {
-        s += it->dump();
+    for (auto obj : inv_) {
+        s += obj->dump();
     }
 
 #if defined(FUTURE)

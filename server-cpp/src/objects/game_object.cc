@@ -29,14 +29,13 @@
 
 #include <map_tile_object.h>
 #include <game_object.h>
+#include <logger.h>
 
 using namespace atrinik;
 using namespace boost;
 using namespace std;
 
 namespace atrinik {
-
-GameObject::sobjects_t GameObject::archetypes;
 
 bool GameObject::load(const std::string& key, const std::string& val)
 {
@@ -95,13 +94,43 @@ std::string GameObject::dump()
 #endif
     }
 
-    for (auto it : inv_) {
-        s += it->dump();
+    for (auto obj : inv_) {
+        s += obj->dump();
     }
 
     s += "end\n";
 
     return s;
+}
+
+GameObjectManager GameObjectManager::manager;
+
+void GameObjectManager::add(const std::string& archname, GameObjectPtr obj)
+{
+    BOOST_LOG_FUNCTION();
+
+    if (!game_objects_map.insert(make_pair(archname, obj)).second) {
+        throw LOG_EXCEPTION(runtime_error("could not insert game object"));
+    }
+}
+
+boost::optional<GameObjectPtrConst> GameObjectManager::get(
+const std::string& archname)
+{
+    BOOST_LOG_FUNCTION();
+    
+    auto result = game_objects_map.find(archname);
+
+    if (result == game_objects_map.end()) {
+        return optional<GameObjectPtrConst>();
+    }
+
+    return optional<GameObjectPtrConst>(result->second);
+}
+
+GameObjectManager::GameObjectMap::size_type GameObjectManager::count()
+{
+    return game_objects_map.size();
 }
 
 }

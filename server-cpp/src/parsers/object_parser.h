@@ -49,7 +49,7 @@ public:
             std::function<bool(const std::string&) > is_definition = nullptr);
 
     static void assign_types(const boost::property_tree::ptree& pt,
-            GameObject* obj, GameObject::Types type);
+            GameObjectPtr obj, GameObject::Types type);
 };
 
 }

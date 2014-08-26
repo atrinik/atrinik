@@ -31,6 +31,7 @@
 #include <string.h>
 #include <unordered_map>
 #include <boost/variant.hpp>
+#include <boost/optional.hpp>
 
 #include <object.h>
 #include <map_tile_object.h>
@@ -42,17 +43,22 @@ struct mapcoords_t : coords_t {
     std::string path;
 };
 
-class GameObject : public ObjectCRTP<GameObject> {
+class GameObject;
+typedef std::shared_ptr<GameObject> GameObjectPtr;
+typedef std::shared_ptr<const GameObject> GameObjectPtrConst;
+
+class GameObject : public ObjectCRTPShared<GameObject> {
 private:
     std::list<GameObjectType*> types;
 
-    boost::variant<boost::blank, MapTileObject*, GameObject*> env_;
+    boost::variant<boost::blank, std::weak_ptr<MapTileObject>,
+    std::weak_ptr<GameObject>> env_;
 
-    std::list<GameObject*> inv_;
+    std::list<GameObjectPtr> inv_;
 public:
-    boost::variant<GameObject*, std::string> arch;
+    boost::variant<GameObjectPtrConst, std::string> arch;
 
-    GameObject() : ObjectCRTP()
+    GameObject() : ObjectCRTPShared()
     {
     }
 
@@ -64,40 +70,41 @@ public:
     {
         arch = obj.arch;
 
-        for (auto it : obj.types) {
+        for (auto &it : obj.types) {
             types.push_back(it->clone());
         }
     }
 
-    void env(boost::variant<GameObject*, MapTileObject*> env)
+    void env(boost::variant<GameObjectPtr, MapTileObjectPtr> env)
     {
         env_ = env;
     }
 
-    void inv_push_back(GameObject* obj)
+    void inv_push_back(GameObjectPtr obj)
     {
         inv_.push_back(obj);
-        obj->env_ = this;
+        obj->env_ = shared_from_this();
     }
 
-    MapTileObject* map_tile()
+    boost::optional<MapTileObjectPtr> map_tile()
     {
         try {
-            return boost::get<MapTileObject*>(env_);
+            return boost::optional<MapTileObjectPtr>(
+                    boost::get<std::weak_ptr<MapTileObject>>(env_).lock());
         } catch (boost::bad_get) {
-            return NULL;
+            return boost::optional<MapTileObjectPtr>();
         }
     }
 
-    MapObject* map()
+    boost::optional<MapObjectPtr> map()
     {
-        MapTileObject* tile = map_tile();
+        auto tile = map_tile();
 
-        if (tile == NULL) {
-            return NULL;
+        if (!tile) {
+            return boost::optional<MapObjectPtr>();
         }
 
-        return tile->env();
+        return boost::optional<MapObjectPtr>((*tile)->env());
     }
 
     virtual bool load(const std::string& key, const std::string& val);
@@ -209,55 +216,6 @@ public:
         types.erase(it, types.end());
     }
 
-    struct HashCmp {
-
-        static size_t hash(const int value)
-        {
-            return static_cast<int> (value);
-        }
-
-        static size_t hash(const std::string value)
-        {
-            size_t result = 0;
-
-            for (auto i : value) {
-                result = (result * 131) + i;
-            }
-
-            return result;
-        }
-
-        static bool equal(const int x, const int y)
-        {
-            return x == y;
-        }
-
-        static bool equal(const std::string x, const std::string y)
-        {
-            return x == y;
-        }
-    };
-
-    typedef std::unordered_map<uint64_t, GameObject*>
-    iobjects_t; ///< Game object hash map with UIDs
-    typedef std::unordered_map<std::string, GameObject*>
-    sobjects_t; ///< Game object hash map with strings
-
-    static sobjects_t archetypes;
-
-    static const GameObject* find_archetype(const std::string& archname)
-    {
-        GameObject::sobjects_t::iterator result;
-
-        result = GameObject::archetypes.find(archname);
-
-        if (result == GameObject::archetypes.end()) {
-            return NULL;
-        }
-
-        return result->second;
-    }
-
     /**
      * Old-style game object types. These only exist for backwards
      * compatibility with the "type X" attribute (which then gets mapped to the
@@ -291,10 +249,25 @@ public:
         return s;
     }
 
-    const std::string& operator()(const GameObject* obj) const
+    const std::string& operator()(GameObjectPtrConst obj) const
     {
         return boost::get<std::string>(obj->arch);
     }
+};
+
+class GameObjectManager {
+public:
+    typedef std::unordered_map<std::string, GameObjectPtr>
+    GameObjectMap; ///< Game object hash map with strings
+
+    static GameObjectManager manager;
+
+    void add(const std::string& archname, GameObjectPtr obj);
+    boost::optional<GameObjectPtrConst> get(const std::string& archname);
+    GameObjectMap::size_type count();
+
+private:
+    GameObjectMap game_objects_map;
 };
 
 }

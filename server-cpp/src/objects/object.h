@@ -31,6 +31,7 @@
 #include <string>
 #include <atomic>
 #include <list>
+#include <memory>
 
 namespace atrinik {
 
@@ -43,12 +44,10 @@ public:
     Object() : uid(++guid)
     {
     }
-    
+
     virtual ~Object()
     {
     }
-
-    virtual Object* clone() const = 0;
 
     /**
      * Loads key/value pair into the object's internal structure.
@@ -70,9 +69,21 @@ class ObjectCRTP : public Object {
 public:
     using Object::Object;
 
-    virtual Object* clone() const
+    T* clone() const
     {
         return new T(static_cast<const T&> (*this));
+    }
+};
+
+template <typename T>
+class ObjectCRTPShared : public Object,
+public std::enable_shared_from_this<T> {
+public:
+    using Object::Object;
+
+    std::shared_ptr<T> clone() const
+    {
+        return std::make_shared<T>(static_cast<const T&> (*this));
     }
 };
 

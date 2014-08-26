@@ -95,15 +95,16 @@ bool Account::load(const std::string& key, const std::string& val)
         if (split(strs, val, is_any_of(":")).size() < 4) {
             throw LOG_EXCEPTION(AccountError("invalid character data"));
         }
+        
+        auto archetype = GameObjectManager::manager.get(strs[0]);
 
-        AccountCharacter character;
-
-        character.archetype = GameObject::find_archetype(strs[0]);
-
-        if (!character.archetype) {
+        if (!archetype) {
             throw LOG_EXCEPTION(AccountError("invalid character archetype"));
         }
 
+        AccountCharacter character;
+
+        character.archetype = *archetype;
         character.name = strs[1];
         character.region_name = strs[2];
 
@@ -220,16 +221,16 @@ void Account::character_create(const std::string& name,
                 "reached the maximum number of allowed characters"));
     }
 
-    const GameObject* archetype = GameObject::find_archetype(archname);
+    auto archetype = GameObjectManager::manager.get(archname);
 
-    if (!archetype || !archetype->isinstance<PlayerObjectType>()) {
+    if (!archetype || !(*archetype)->isinstance<PlayerObjectType>()) {
         throw LOG_EXCEPTION(AccountError("invalid archname"));
     }
 
     AccountCharacter character;
 
     character.name = locale::to_title(name);
-    character.archetype = archetype;
+    character.archetype = *archetype;
     character.region_name = "";
     character.level = 1;
 

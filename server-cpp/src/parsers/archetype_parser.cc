@@ -105,7 +105,7 @@ void ArchetypeParser::load(const std::string& path)
             continue;
         }
 
-        GameObject *obj = new GameObject();
+        GameObjectPtr obj(new GameObject());
         obj->arch = archname;
 
         assign_types(it.second, obj, static_cast<GameObject::Types>(type));
@@ -116,10 +116,10 @@ void ArchetypeParser::load(const std::string& path)
         }
 
         // Insert into archetypes hashmap
-        GameObject::archetypes.insert(make_pair(archname, obj));
+        GameObjectManager::manager.add(archname, obj);
     }
 
-    LOG(Detail) << "Loaded " << GameObject::archetypes.size() <<
+    LOG(Detail) << "Loaded " << GameObjectManager::manager.count() <<
             " archetypes";
 }
 

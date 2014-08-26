@@ -29,15 +29,17 @@
 
 #include <object_parser.h>
 #include <map_object.h>
+#include <boost/optional.hpp>
 
 namespace atrinik {
 
 class MapParser : public ObjectParser {
 private:
-    static void parse_objects(MapObject* map, const std::string& archname,
-            boost::property_tree::ptree tree, GameObject* env = NULL);
+    static void parse_objects(MapObjectPtr map, const std::string& archname,
+            boost::property_tree::ptree tree,
+            boost::optional<GameObjectPtr> env);
 public:
-    static void load(const std::string &path, MapObject* map);
+    static void load(const std::string &path, MapObjectPtr map);
 };
 
 }

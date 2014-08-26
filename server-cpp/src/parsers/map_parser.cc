@@ -37,22 +37,20 @@ using namespace std;
 
 namespace atrinik {
 
-void MapParser::parse_objects(MapObject* map, const std::string& archname,
-        boost::property_tree::ptree tree, GameObject* env)
+void MapParser::parse_objects(MapObjectPtr map, const std::string& archname,
+        boost::property_tree::ptree tree, boost::optional<GameObjectPtr> env)
 {
     BOOST_LOG_FUNCTION();
 
-    GameObject::sobjects_t::iterator result;
+    auto archetype = GameObjectManager::manager.get(archname);
 
-    result = GameObject::archetypes.find(archname);
-
-    if (result == GameObject::archetypes.end()) {
+    if (!archetype) {
         LOG(Error) << "Unknown archetype: " << archname;
         return;
     }
 
-    GameObject *obj = dynamic_cast<GameObject*> (result->second->clone());
-    obj->arch = result->second;
+    GameObjectPtr obj = (*archetype)->clone();
+    obj->arch = (*archetype);
     GameObject::Types type = GameObject::Types::None;
 
     // Try to parse the type
@@ -98,13 +96,13 @@ void MapParser::parse_objects(MapObject* map, const std::string& archname,
         } catch (bad_lexical_cast&) {
         }
 
-        map->tile_get(x, y).inv_push_back(obj);
+        map->tile_get(x, y)->inv_push_back(obj);
     } else {
-        env->inv_push_back(obj);
+        (*env)->inv_push_back(obj);
     }
 }
 
-void MapParser::load(const std::string &path, MapObject* map)
+void MapParser::load(const std::string &path, MapObjectPtr map)
 {
     BOOST_LOG_FUNCTION();
 

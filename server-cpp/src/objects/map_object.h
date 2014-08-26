@@ -29,12 +29,17 @@
 
 #include <object.h>
 #include <bit_flags.h>
+#include <memory>
 
 namespace atrinik {
 
 class MapTileObject;
+typedef std::shared_ptr<MapTileObject> MapTileObjectPtr;
 
-class MapObject : public ObjectCRTP<MapObject> {
+class MapObject;
+typedef std::shared_ptr<MapObject> MapObjectPtr;
+
+class MapObject : public ObjectCRTPShared<MapObject> {
 private:
 
     static const int NumTiledMaps = 8;
@@ -66,7 +71,7 @@ private:
 
     std::string message_;
 
-    MapObject *tile_map_[NumTiledMaps];
+    MapObjectPtr tile_map_[NumTiledMaps];
 
     std::string tile_path_[NumTiledMaps];
 
@@ -85,19 +90,19 @@ public:
 
     int light;
 
-    std::vector<MapTileObject> inv;
+    std::vector<MapTileObjectPtr> inv;
 
     using Object::Object;
 
-    explicit MapObject(const std::string& path) : ObjectCRTP(), path_(path),
-    map_flags_(0)
+    explicit MapObject(const std::string& path) : ObjectCRTPShared(),
+    path_(path), map_flags_(0)
     {
     }
 
     const std::string& path();
     void allocate();
 
-    inline MapTileObject& tile_get(int x, int y)
+    inline MapTileObjectPtr tile_get(int x, int y)
     {
         return inv[x * size_.second + y];
     }
@@ -205,7 +210,7 @@ public:
     virtual bool load(const std::string& key, const std::string& val);
     virtual std::string dump();
 
-    static MapObject* load_map(const std::string& path);
+    static MapObjectPtr load_map(const std::string& path);
 };
 
 }
