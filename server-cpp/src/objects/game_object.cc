@@ -73,12 +73,12 @@ std::string GameObject::dump()
     }
 #endif
 
-    GameObject* arch = boost::get<GameObject*>(this->arch);
+    GameObjectPtrConst arch = boost::get<GameObjectPtrConst>(this->arch);
 
     for (auto it : types) {
         GameObjectType *base = NULL;
 
-        if (arch != NULL) {
+        if (arch) {
             base = arch->getinstance(it->gettype());
         }
 
