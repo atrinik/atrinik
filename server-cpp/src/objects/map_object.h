@@ -30,6 +30,8 @@
 #include <object.h>
 #include <bit_flags.h>
 #include <memory>
+#include <unordered_map>
+#include <boost/optional.hpp>
 
 namespace atrinik {
 
@@ -209,8 +211,19 @@ public:
 
     virtual bool load(const std::string& key, const std::string& val);
     virtual std::string dump();
+};
 
-    static MapObjectPtr load_map(const std::string& path);
+class MapObjectManager {
+public:
+    typedef std::unordered_map<std::string, MapObjectPtr> MapObjectMap;
+
+    static MapObjectManager manager;
+
+    void add(MapObjectPtr obj);
+    boost::optional<MapObjectPtr> get(const std::string& path);
+    MapObjectMap::size_type count();
+private:
+    MapObjectMap map_objects_map;
 };
 
 }

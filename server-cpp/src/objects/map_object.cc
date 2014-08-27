@@ -248,12 +248,27 @@ void MapObject::allocate()
     }
 }
 
-MapObjectPtr MapObject::load_map(const std::string& path)
+MapObjectManager MapObjectManager::manager;
+
+void MapObjectManager::add(MapObjectPtr obj)
 {
-    // TODO: loaded check
-    // TODO: load from binary if it exists
     BOOST_LOG_FUNCTION();
 
+    if (!map_objects_map.insert(make_pair(obj->path(), obj)).second) {
+        throw LOG_EXCEPTION(runtime_error("could not insert map object"));
+    }
+}
+
+boost::optional<MapObjectPtr> MapObjectManager::get(const std::string& path)
+{
+    BOOST_LOG_FUNCTION();
+    
+    auto result = map_objects_map.find(path);
+
+    if (result != map_objects_map.end()) {
+        return optional<MapObjectPtr>(result->second);
+    }
+    
     MapObjectPtr map(new MapObject(path));
 
     try {
@@ -261,9 +276,15 @@ MapObjectPtr MapObject::load_map(const std::string& path)
     } catch (const std::exception& e) {
         LOG(Error) << "Failed to load map " << path << ":" << e.what() <<
                 LOG_STACK(e);
+        return optional<MapObjectPtr>();
     }
 
-    return map;
+    return optional<MapObjectPtr>(map);
+}
+
+MapObjectManager::MapObjectMap::size_type MapObjectManager::count()
+{
+    return map_objects_map.size();
 }
 
 }
