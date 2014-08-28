@@ -91,7 +91,7 @@ void ArchetypeParser::load(const std::string& path)
                 return true;
             });
 
-    for (auto it : pt) {
+    for (const auto& it : pt) {
         string archname = it.second.get<string>(it.first);
         int type;
 
@@ -111,7 +111,7 @@ void ArchetypeParser::load(const std::string& path)
         assign_types(it.second, obj, static_cast<GameObject::Types>(type));
 
         // Load the attributes
-        for (auto it2 : it.second) {
+        for (const auto& it2 : it.second) {
             obj->load(it2.first, it.second.get<string>(it2.first));
         }
 
