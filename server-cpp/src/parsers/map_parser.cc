@@ -30,7 +30,6 @@
 #include <map_parser.h>
 #include <game_object.h>
 #include <logger.h>
-#include <boost/property_tree/xml_parser.hpp>
 
 using namespace atrinik;
 using namespace boost;

@@ -260,10 +260,12 @@ public:
     typedef std::unordered_map<std::string, GameObjectPtr>
     GameObjectMap; ///< Game object hash map with strings
 
+    static std::string SingularityObjectName;
+
     static GameObjectManager manager;
 
     void add(const std::string& archname, GameObjectPtr obj);
-    boost::optional<GameObjectPtrConst> get(const std::string& archname);
+    GameObjectPtrConst get(const std::string& archname);
     GameObjectMap::size_type count();
 
 private:

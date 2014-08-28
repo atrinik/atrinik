@@ -117,10 +117,6 @@ int main(int argc, char **argv)
     ArchetypeParser::load("../arch/archetypes");
     auto map = MapObjectManager::manager.get(
             argc > 1 ? argv[1] : "../maps/hall_of_dms");
-    
-    if (map) {
-        cout << (*map)->dump();
-    }
 
     asio::io_service io_service;
     asio::ip::tcp::endpoint endpoint(asio::ip::tcp::v6(), 13360);

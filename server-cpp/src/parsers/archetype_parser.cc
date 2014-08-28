@@ -49,6 +49,11 @@ void ArchetypeParser::load(const std::string& path)
         throw LOG_EXCEPTION(runtime_error("could not open file"));
     }
 
+    GameObjectPtr singularity(new GameObject());
+    singularity->arch = GameObjectManager::SingularityObjectName;
+    GameObjectManager::manager.add(GameObjectManager::SingularityObjectName,
+            singularity);
+
     property_tree::ptree pt;
     bool is_more = false, was_more = false;
 

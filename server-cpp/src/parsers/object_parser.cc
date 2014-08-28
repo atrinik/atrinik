@@ -131,13 +131,8 @@ GameObjectPtr ObjectParser::parse(const boost::property_tree::ptree& tree)
     auto archname = tree.get<string>("archname");
     auto archetype = GameObjectManager::manager.get(archname);
 
-    if (!archetype) {
-        LOG(Error) << "Unknown archetype: " << archname;
-        // TODO: use singularity archetype
-    }
-
-    GameObjectPtr obj = (*archetype)->clone();
-    obj->arch = (*archetype);
+    GameObjectPtr obj = archetype->clone();
+    obj->arch = archetype;
     GameObject::Types type = GameObject::Types::None;
 
     // Try to parse the type

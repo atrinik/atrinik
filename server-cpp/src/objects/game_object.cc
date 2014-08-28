@@ -103,6 +103,7 @@ std::string GameObject::dump()
     return s;
 }
 
+std::string GameObjectManager::SingularityObjectName = "singularity";
 GameObjectManager GameObjectManager::manager;
 
 void GameObjectManager::add(const std::string& archname, GameObjectPtr obj)
@@ -114,18 +115,18 @@ void GameObjectManager::add(const std::string& archname, GameObjectPtr obj)
     }
 }
 
-boost::optional<GameObjectPtrConst> GameObjectManager::get(
-const std::string& archname)
+GameObjectPtrConst GameObjectManager::get(const std::string& archname)
 {
     BOOST_LOG_FUNCTION();
     
     auto result = game_objects_map.find(archname);
 
     if (result == game_objects_map.end()) {
-        return optional<GameObjectPtrConst>();
+        LOG(Error) << "Unknown archetype: " << archname;
+        return game_objects_map["singularity"];
     }
 
-    return optional<GameObjectPtrConst>(result->second);
+    return result->second;
 }
 
 GameObjectManager::GameObjectMap::size_type GameObjectManager::count()

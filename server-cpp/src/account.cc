@@ -96,15 +96,9 @@ bool Account::load(const std::string& key, const std::string& val)
             throw LOG_EXCEPTION(AccountError("invalid character data"));
         }
         
-        auto archetype = GameObjectManager::manager.get(strs[0]);
-
-        if (!archetype) {
-            throw LOG_EXCEPTION(AccountError("invalid character archetype"));
-        }
-
         AccountCharacter character;
 
-        character.archetype = *archetype;
+        character.archetype = GameObjectManager::manager.get(strs[0]);
         character.name = strs[1];
         character.region_name = strs[2];
 
@@ -223,14 +217,14 @@ void Account::character_create(const std::string& name,
 
     auto archetype = GameObjectManager::manager.get(archname);
 
-    if (!archetype || !(*archetype)->isinstance<PlayerObjectType>()) {
+    if (!archetype->isinstance<PlayerObjectType>()) {
         throw LOG_EXCEPTION(AccountError("invalid archname"));
     }
 
     AccountCharacter character;
 
     character.name = locale::to_title(name);
-    character.archetype = *archetype;
+    character.archetype = archetype;
     character.region_name = "";
     character.level = 1;
 
