@@ -64,6 +64,7 @@ add_executable(atrinik
     src/parsers/face_parser.cc
     src/parsers/map_parser.cc
     src/parsers/object_parser.cc
+    src/parsers/player_parser.cc
     src/parsers/region_parser.cc
     src/types/anim_object_type.cc
     src/types/base_object_type.cc
