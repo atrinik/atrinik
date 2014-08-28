@@ -274,8 +274,7 @@ boost::optional<MapObjectPtr> MapObjectManager::get(const std::string& path)
     try {
         MapParser::load(path, map);
     } catch (const std::exception& e) {
-        LOG(Error) << "Failed to load map " << path << ":" << e.what() <<
-                LOG_STACK(e);
+        LOG(Error) << "Failed to load map " << path << ":" << e.what();
         return optional<MapObjectPtr>();
     }
 

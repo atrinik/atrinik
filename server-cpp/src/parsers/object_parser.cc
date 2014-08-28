@@ -36,6 +36,7 @@
 #include <gfx_object_type.h>
 #include <anim_object_type.h>
 #include <msg_object_type.h>
+#include <logger.h>
 
 using namespace atrinik;
 using namespace boost;
@@ -46,6 +47,8 @@ namespace atrinik {
 void ObjectParser::parse(std::ifstream& file, std::function<bool(
         const std::string&, const std::string&) > handler)
 {
+    BOOST_LOG_FUNCTION();
+    
     string line;
 
     while (getline(file, line)) {
@@ -89,6 +92,8 @@ void ObjectParser::parse(std::ifstream& file, std::function<bool(
 property_tree::ptree ObjectParser::parse(ifstream& file,
         std::function<bool(const std::string&) > is_definition)
 {
+    BOOST_LOG_FUNCTION();
+    
     property_tree::ptree pt;
 
     parse(file, [&file, &pt, is_definition] (const std::string& key,
@@ -107,7 +112,7 @@ property_tree::ptree ObjectParser::parse(ifstream& file,
                     property_tree::ptree pt2;
 
                     pt2 = parse(file);
-                    pt2.put<string>(key, val);
+                    pt2.put<string>("archname", val);
                     pt.add_child(key, pt2);
                 } else {
                     pt.put<string>(key, val);
@@ -117,6 +122,44 @@ property_tree::ptree ObjectParser::parse(ifstream& file,
             });
 
     return pt;
+}
+
+GameObjectPtr ObjectParser::parse(const boost::property_tree::ptree& tree)
+{
+    BOOST_LOG_FUNCTION();
+
+    auto archname = tree.get<string>("archname");
+    auto archetype = GameObjectManager::manager.get(archname);
+
+    if (!archetype) {
+        LOG(Error) << "Unknown archetype: " << archname;
+        // TODO: use singularity archetype
+    }
+
+    GameObjectPtr obj = (*archetype)->clone();
+    obj->arch = (*archetype);
+    GameObject::Types type = GameObject::Types::None;
+
+    // Try to parse the type
+    try {
+        type = static_cast<GameObject::Types>(
+                lexical_cast<int>(tree.get<string>("type")));
+    } catch (property_tree::ptree_bad_path&) {
+    } catch (bad_lexical_cast&) {
+    }
+
+    assign_types(tree, obj, static_cast<GameObject::Types>(type));
+
+    // Load object attributes
+    for (const auto& it : tree) {
+        if (it.first == "arch") {
+            obj->inv_push_back(parse(it.second));
+        } else {
+            obj->load(it.first, tree.get<string>(it.first));
+        }
+    }
+
+    return obj;
 }
 
 template<typename T>

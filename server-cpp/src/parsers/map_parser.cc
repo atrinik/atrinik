@@ -30,6 +30,7 @@
 #include <map_parser.h>
 #include <game_object.h>
 #include <logger.h>
+#include <boost/property_tree/xml_parser.hpp>
 
 using namespace atrinik;
 using namespace boost;
@@ -37,72 +38,7 @@ using namespace std;
 
 namespace atrinik {
 
-void MapParser::parse_objects(MapObjectPtr map, const std::string& archname,
-        boost::property_tree::ptree tree, boost::optional<GameObjectPtr> env)
-{
-    BOOST_LOG_FUNCTION();
-
-    auto archetype = GameObjectManager::manager.get(archname);
-
-    if (!archetype) {
-        LOG(Error) << "Unknown archetype: " << archname;
-        return;
-    }
-
-    GameObjectPtr obj = (*archetype)->clone();
-    obj->arch = (*archetype);
-    GameObject::Types type = GameObject::Types::None;
-
-    // Try to parse the type
-    try {
-        type = static_cast<GameObject::Types>(
-                lexical_cast<int>(tree.get<string>("type")));
-    } catch (property_tree::ptree_bad_path&) {
-    } catch (bad_lexical_cast&) {
-    }
-
-    assign_types(tree, obj, static_cast<GameObject::Types>(type));
-
-    // Load object attributes
-    for (auto it : tree) {
-        if (it.first == "arch") {
-            string archname2;
-
-            try {
-                archname2 = it.second.get<string>(it.first);
-            } catch (property_tree::ptree_bad_path) {
-                continue;
-            }
-
-            parse_objects(map, archname2, it.second, obj);
-        } else {
-            obj->load(it.first, tree.get<string>(it.first));
-        }
-    }
-
-    // Add object to map's tile
-    if (!env) {
-        int x = 0, y = 0;
-
-        try {
-            x = lexical_cast<int>(tree.get<string>("x"));
-        } catch (property_tree::ptree_bad_path&) {
-        } catch (bad_lexical_cast&) {
-        }
-
-        try {
-            y = lexical_cast<int>(tree.get<string>("y"));
-        } catch (property_tree::ptree_bad_path&) {
-        } catch (bad_lexical_cast&) {
-        }
-
-        map->tile_get(x, y)->inv_push_back(obj);
-    } else {
-        (*env)->inv_push_back(obj);
-    }
-}
-
-void MapParser::load(const std::string &path, MapObjectPtr map)
+void MapParser::load(const std::string& path, MapObjectPtr map)
 {
     BOOST_LOG_FUNCTION();
 
@@ -143,8 +79,22 @@ void MapParser::load(const std::string &path, MapObjectPtr map)
 
     // Load the rest of the objects
     for (auto it : pt) {
-        parse_objects(map, it.second.get<string>(it.first), it.second,
-                nullptr);
+        auto obj = parse(it.second);
+        int x = 0, y = 0;
+
+        try {
+            x = lexical_cast<int>(it.second.get<string>("x"));
+        } catch (property_tree::ptree_bad_path&) {
+        } catch (bad_lexical_cast&) {
+        }
+
+        try {
+            y = lexical_cast<int>(it.second.get<string>("y"));
+        } catch (property_tree::ptree_bad_path&) {
+        } catch (bad_lexical_cast&) {
+        }
+
+        map->tile_get(x, y)->inv_push_back(obj);
     }
 
     LOG(Detail) << "Loaded map with " << pt.size() <<

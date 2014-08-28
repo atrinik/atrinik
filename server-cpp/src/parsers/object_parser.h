@@ -48,6 +48,8 @@ public:
     static boost::property_tree::ptree parse(std::ifstream& file,
             std::function<bool(const std::string&) > is_definition = nullptr);
 
+    static GameObjectPtr parse(const boost::property_tree::ptree& tree);
+
     static void assign_types(const boost::property_tree::ptree& pt,
             GameObjectPtr obj, GameObject::Types type);
 };
