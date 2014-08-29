@@ -48,7 +48,7 @@ void ObjectParser::parse(std::ifstream& file, std::function<bool(
         const std::string&, const std::string&) > handler)
 {
     BOOST_LOG_FUNCTION();
-    
+
     string line;
 
     while (getline(file, line)) {
@@ -93,7 +93,7 @@ property_tree::ptree ObjectParser::parse(ifstream& file,
         std::function<bool(const std::string&) > is_definition)
 {
     BOOST_LOG_FUNCTION();
-    
+
     property_tree::ptree pt;
 
     parse(file, [&file, &pt, is_definition] (const std::string& key,
@@ -129,7 +129,7 @@ GameObjectPtr ObjectParser::parse(const boost::property_tree::ptree& tree)
     BOOST_LOG_FUNCTION();
 
     auto archname = tree.get<string>("archname");
-    auto archetype = GameObjectManager::manager.get(archname);
+    auto archetype = GameObjectManager::get(archname);
 
     GameObjectPtr obj = archetype->clone();
     obj->arch = archetype;

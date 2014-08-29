@@ -65,8 +65,7 @@ void GameCommand::cmd_account(const GameMessage& msg)
             BOOST_LOG_NAMED_SCOPE("case account command login");
 
             try {
-                AccountPtr account = AccountManager::manager.
-                        account_login(name, password);
+                auto account = AccountManager::account_login(name, password);
                 session_.account = account;
 
                 LOG(Detail) << "Logged in as: " << name;
@@ -90,8 +89,8 @@ void GameCommand::cmd_account(const GameMessage& msg)
             string password2 = msg.string();
 
             try {
-                AccountPtr account = AccountManager::manager.
-                        account_register(name, password, password2);
+                auto account = AccountManager::account_register(name, password,
+                        password2);
                 session_.account = account;
                 session_.account->update_last_login(session_.ip());
 

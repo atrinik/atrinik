@@ -25,32 +25,42 @@
  * Animation implementation.
  */
 
+#include <boost/filesystem.hpp>
+
 #include <animation.h>
+#include <animation_parser.h>
 #include <logger.h>
 
 using namespace atrinik;
+using namespace boost;
 using namespace std;
 
 namespace atrinik {
 
 int Animation::uid(0);
 
-AnimationManager AnimationManager::manager;
+template<> bool Manager<AnimationManager>::use_secondary = true;
 
-AnimationManager::AnimationManager()
+const char* AnimationManager::path()
 {
-    // Add an empty base animation - returned from getters in case the requested
-    // animation ID/name cannot be found
-    auto animation = new Animation("###none");
-    animation->push_back(0);
-    add(animation);
+    return "../arch/animations";
 }
 
-AnimationManager::~AnimationManager()
+void AnimationManager::load()
 {
+    BOOST_LOG_FUNCTION();
+
+    filesystem::path p(path());
+    time_t t = filesystem::last_write_time(p);
+
+    if (t > manager().timestamp) {
+        Animation::uid = 0;
+        AnimationParser::load(path());
+        manager().timestamp = t;
+    }
 }
 
-void AnimationManager::add(Animation* animation)
+void AnimationManager::add(AnimationPtr animation)
 {
     BOOST_LOG_FUNCTION();
 
@@ -69,37 +79,44 @@ void AnimationManager::add(Animation* animation)
                 animation->facings() << ")";
     }
 
-    animations_vector.push_back(animation);
+    manager().animations_vector.push_back(animation);
 
-    if (!animations_map.insert(make_pair(animation->name(),
+    if (!manager().animations_map.insert(make_pair(animation->name(),
             animation)).second) {
         throw LOG_EXCEPTION(runtime_error("could not insert animation"));
     }
 }
 
-const Animation& AnimationManager::get(const std::string& name)
+AnimationPtrConst AnimationManager::get(const std::string& name)
 {
-    AnimationMap::const_iterator it = animations_map.find(name);
+    const auto& it = manager().animations_map.find(name);
 
-    if (it == animations_map.end()) { // Doesn't exist, return default
-        return *animations_vector[0];
+    if (it == manager().animations_map.end()) {
+        // Doesn't exist, return default
+        return manager().animations_vector[0];
     }
 
-    return *it->second;
+    return it->second;
 }
 
-const Animation& AnimationManager::get(Animation::AnimationId id)
+AnimationPtrConst AnimationManager::get(Animation::AnimationId id)
 {
     try {
-        return *animations_vector.at(id);
+        return manager().animations_vector.at(id);
     } catch (out_of_range&) { // Animation ID doesn't exist, return default
-        return *animations_vector[0];
+        return manager().animations_vector[0];
     }
 }
 
 AnimationManager::AnimationVector::size_type AnimationManager::count()
 {
-    return animations_vector.size();
+    return manager().animations_vector.size();
+}
+
+void AnimationManager::clear()
+{
+    animations_vector.clear();
+    animations_map.clear();
 }
 
 };

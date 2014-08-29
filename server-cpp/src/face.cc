@@ -25,52 +25,81 @@
  * Face implementation.
  */
 
+#include <boost/filesystem.hpp>
+
 #include <face.h>
+#include <face_parser.h>
 #include <logger.h>
 
 using namespace atrinik;
+using namespace boost;
 using namespace std;
 
 namespace atrinik {
 
 int Face::uid(0);
 
-FaceManager FaceManager::manager;
+template<> bool Manager<FaceManager>::use_secondary = true;
 
-void FaceManager::add(Face* face)
+const char* FaceManager::path()
+{
+    return "../arch/atrinik.0";
+}
+
+void FaceManager::load()
 {
     BOOST_LOG_FUNCTION();
 
-    faces_vector.push_back(face);
+    filesystem::path p(path());
+    time_t t = filesystem::last_write_time(p);
 
-    if (!faces_map.insert(make_pair(face->name(), face)).second) {
+    if (t > manager().timestamp) {
+        Face::uid = 0;
+        FaceParser::load(path());
+        manager().timestamp = t;
+    }
+}
+
+void FaceManager::add(FacePtr face)
+{
+    BOOST_LOG_FUNCTION();
+
+    manager().faces_vector.push_back(face);
+
+    if (!manager().faces_map.insert(make_pair(face->name(), face)).second) {
         throw LOG_EXCEPTION(runtime_error("could not insert face"));
     }
 }
 
-const Face& FaceManager::get(const std::string& name)
+FacePtrConst FaceManager::get(const std::string& name)
 {
-    FaceMap::const_iterator it = faces_map.find(name);
+    const auto& it = manager().faces_map.find(name);
 
-    if (it == faces_map.end()) { // Doesn't exist, return default
-        return *faces_vector[0];
+    if (it == manager().faces_map.end()) { // Doesn't exist, return default
+        return manager().faces_vector[0];
     }
 
-    return *it->second;
+    return it->second;
 }
 
-const Face& FaceManager::get(Face::FaceId id)
+FacePtrConst FaceManager::get(Face::FaceId id)
 {
     try {
-        return *faces_vector.at(id);
+        return manager().faces_vector.at(id);
     } catch (out_of_range&) { // Face ID doesn't exist, return default
-        return *faces_vector[0];
+        return manager().faces_vector[0];
     }
 }
 
 FaceManager::FaceVector::size_type FaceManager::count()
 {
-    return faces_vector.size();
+    return manager().faces_vector.size();
+}
+
+void FaceManager::clear()
+{
+    faces_vector.clear();
+    faces_map.clear();
 }
 
 };

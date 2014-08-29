@@ -27,11 +27,13 @@
 
 #pragma once
 
-#include <object.h>
-#include <bit_flags.h>
 #include <memory>
 #include <unordered_map>
 #include <boost/optional.hpp>
+
+#include <object.h>
+#include <bit_flags.h>
+#include <manager.h>
 
 namespace atrinik {
 
@@ -213,15 +215,13 @@ public:
     virtual std::string dump();
 };
 
-class MapObjectManager {
+class MapObjectManager : public Manager<MapObjectManager> {
 public:
     typedef std::unordered_map<std::string, MapObjectPtr> MapObjectMap;
 
-    static MapObjectManager manager;
-
-    void add(MapObjectPtr obj);
-    boost::optional<MapObjectPtr> get(const std::string& path);
-    MapObjectMap::size_type count();
+    static void add(MapObjectPtr obj);
+    static boost::optional<MapObjectPtr> get(const std::string& path);
+    static MapObjectMap::size_type count();
 private:
     MapObjectMap map_objects_map;
 };

@@ -46,27 +46,36 @@ void AnimationParser::load(const std::string& path)
 {
     BOOST_LOG_FUNCTION();
 
+    AnimationManager::setup();
     LOG(Detail) << "Loading animations from: " << path;
     ifstream file(path);
 
     if (!file.is_open()) {
+        AnimationManager::setup(false);
         throw LOG_EXCEPTION(runtime_error("could not open file"));
     }
 
-    Animation* animation = nullptr;
+    // Add an empty base animation - returned from getters in case the requested
+    // animation ID/name cannot be found
+    AnimationPtr animation(new Animation("###none"));
+    animation->push_back(0);
+    AnimationManager::add(animation);
+
+    animation.reset();
 
     parse(file,
             [&animation] (const std::string & key,
             const std::string & val) mutable -> bool
             {
                 if (key.empty() && val == "mina") {
-                    AnimationManager::manager.add(animation);
-                    animation = nullptr;
+                    AnimationManager::add(animation);
+                    animation.reset();
                 } else if (key == "anim") {
-                    animation = new Animation(val);
+                    animation.reset(new Animation(val));
                 } else if (!animation) {
                     LOG(Error) << "Unrecognized attribute (before animation "
                             "definition): " << key << " " << val;
+                    AnimationManager::setup(false);
                     throw LOG_EXCEPTION(runtime_error(
                             "corrupted animations file"));
                 } else if (key == "facings") {
@@ -75,6 +84,7 @@ void AnimationParser::load(const std::string& path)
                                 lexical_cast<int>(val)));
                     } catch (bad_cast&) {
                         LOG(Error) << "Bad value: " << key << " " << val;
+                        AnimationManager::setup(false);
                         throw LOG_EXCEPTION(runtime_error(
                                 "corrupted animations file"));
                     }
@@ -86,8 +96,9 @@ void AnimationParser::load(const std::string& path)
             }
     );
 
-    LOG(Detail) << "Loaded " << AnimationManager::manager.count() <<
+    LOG(Detail) << "Loaded " << AnimationManager::count() <<
             " animations";
+    AnimationManager::setup(true);
 }
 
 }

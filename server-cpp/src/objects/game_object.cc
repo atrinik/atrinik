@@ -25,10 +25,12 @@
  * Generic game object implementation.
  */
 
+#include <boost/filesystem.hpp>
 #include <boost/lexical_cast.hpp>
 
 #include <map_tile_object.h>
 #include <game_object.h>
+#include <archetype_parser.h>
 #include <logger.h>
 
 using namespace atrinik;
@@ -104,13 +106,32 @@ std::string GameObject::dump()
 }
 
 std::string GameObjectManager::SingularityObjectName = "singularity";
-GameObjectManager GameObjectManager::manager;
+
+template<> bool Manager<GameObjectManager>::use_secondary = true;
+
+const char* GameObjectManager::path()
+{
+    return "../arch/archetypes";
+}
+
+void GameObjectManager::load()
+{
+    BOOST_LOG_FUNCTION();
+
+    filesystem::path p(path());
+    time_t t = filesystem::last_write_time(p);
+
+    if (t > manager().timestamp) {
+        ArchetypeParser::load(path());
+        manager().timestamp = t;
+    }
+}
 
 void GameObjectManager::add(const std::string& archname, GameObjectPtr obj)
 {
     BOOST_LOG_FUNCTION();
 
-    if (!game_objects_map.insert(make_pair(archname, obj)).second) {
+    if (!manager().game_objects_map.insert(make_pair(archname, obj)).second) {
         throw LOG_EXCEPTION(runtime_error("could not insert game object"));
     }
 }
@@ -118,12 +139,12 @@ void GameObjectManager::add(const std::string& archname, GameObjectPtr obj)
 GameObjectPtrConst GameObjectManager::get(const std::string& archname)
 {
     BOOST_LOG_FUNCTION();
-    
-    auto result = game_objects_map.find(archname);
 
-    if (result == game_objects_map.end()) {
+    auto result = manager().game_objects_map.find(archname);
+
+    if (result == manager().game_objects_map.end()) {
         LOG(Error) << "Unknown archetype: " << archname;
-        return game_objects_map["singularity"];
+        return manager().game_objects_map["singularity"];
     }
 
     return result->second;
@@ -131,7 +152,12 @@ GameObjectPtrConst GameObjectManager::get(const std::string& archname)
 
 GameObjectManager::GameObjectMap::size_type GameObjectManager::count()
 {
-    return game_objects_map.size();
+    return manager().game_objects_map.size();
+}
+
+void GameObjectManager::clear()
+{
+    game_objects_map.clear();
 }
 
 }

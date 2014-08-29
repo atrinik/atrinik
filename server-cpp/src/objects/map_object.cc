@@ -248,13 +248,13 @@ void MapObject::allocate()
     }
 }
 
-MapObjectManager MapObjectManager::manager;
+template<> bool Manager<MapObjectManager>::use_secondary = true;
 
 void MapObjectManager::add(MapObjectPtr obj)
 {
     BOOST_LOG_FUNCTION();
 
-    if (!map_objects_map.insert(make_pair(obj->path(), obj)).second) {
+    if (!manager().map_objects_map.insert(make_pair(obj->path(), obj)).second) {
         throw LOG_EXCEPTION(runtime_error("could not insert map object"));
     }
 }
@@ -262,13 +262,13 @@ void MapObjectManager::add(MapObjectPtr obj)
 boost::optional<MapObjectPtr> MapObjectManager::get(const std::string& path)
 {
     BOOST_LOG_FUNCTION();
-    
-    auto result = map_objects_map.find(path);
 
-    if (result != map_objects_map.end()) {
+    auto result = manager().map_objects_map.find(path);
+
+    if (result != manager().map_objects_map.end()) {
         return optional<MapObjectPtr>(result->second);
     }
-    
+
     MapObjectPtr map(new MapObject(path));
 
     try {
@@ -283,7 +283,7 @@ boost::optional<MapObjectPtr> MapObjectManager::get(const std::string& path)
 
 MapObjectManager::MapObjectMap::size_type MapObjectManager::count()
 {
-    return map_objects_map.size();
+    return manager().map_objects_map.size();
 }
 
 }

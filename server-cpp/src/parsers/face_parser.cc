@@ -45,10 +45,12 @@ void FaceParser::load(const std::string& path)
 {
     BOOST_LOG_FUNCTION();
 
+    FaceManager::setup();
     LOG(Detail) << "Loading faces from: " << path;
     ifstream file(path, ios::binary);
 
     if (!file.is_open()) {
+        FaceManager::setup(false);
         throw LOG_EXCEPTION(runtime_error("could not open file"));
     }
 
@@ -58,6 +60,7 @@ void FaceParser::load(const std::string& path)
         if (!starts_with(line, "IMAGE ")) {
             LOG(Error) << "Unrecognized attribute (should begin with "
                     "'IMAGE '): " << line;
+            FaceManager::setup(false);
             throw LOG_EXCEPTION(runtime_error("corrupted faces file"));
         }
 
@@ -70,17 +73,19 @@ void FaceParser::load(const std::string& path)
         char* data = new char[bytes];
 
         if (file.read(data, bytes)) {
-            Face* face = new Face(name);
+            FacePtr face(new Face(name));
             face->data(make_pair(data, bytes));
-            FaceManager::manager.add(face);
+            FaceManager::add(face);
         } else {
             LOG(Error) << "Read " << file.gcount() <<
                     " bytes, expected to read " << bytes << " bytes";
+            FaceManager::setup(false);
             throw LOG_EXCEPTION(runtime_error("corrupted faces file"));
         }
     }
 
-    LOG(Detail) << "Loaded " << FaceManager::manager.count() << " faces";
+    LOG(Detail) << "Loaded " << FaceManager::count() << " faces";
+    FaceManager::setup(true);
 }
 
 }

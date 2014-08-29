@@ -43,9 +43,9 @@ bool AnimObjectType::load(const std::string& key, const std::string& val)
         if (val == "NONE") {
             animation(0);
         } else {
-            animation(AnimationManager::manager.get(val).id());
+            animation(AnimationManager::get(val)->id());
         }
-        
+
         return true;
     }
 
@@ -63,7 +63,7 @@ std::string AnimObjectType::dump(const GameObjectType* base)
             s += "animation NONE";
         } else {
             s += "animation " + lexical_cast<string>(
-                    AnimationManager::manager.get(animation()).name()) + "\n";
+                    AnimationManager::get(animation())->name()) + "\n";
         }
     }
 

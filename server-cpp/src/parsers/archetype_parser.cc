@@ -42,16 +42,18 @@ void ArchetypeParser::load(const std::string& path)
 {
     BOOST_LOG_FUNCTION();
 
+    GameObjectManager::setup();
     LOG(Detail) << "Loading archetypes from: " << path;
     ifstream file(path);
 
     if (!file.is_open()) {
+        GameObjectManager::setup(false);
         throw LOG_EXCEPTION(runtime_error("could not open file"));
     }
 
     GameObjectPtr singularity(new GameObject());
     singularity->arch = GameObjectManager::SingularityObjectName;
-    GameObjectManager::manager.add(GameObjectManager::SingularityObjectName,
+    GameObjectManager::add(GameObjectManager::SingularityObjectName,
             singularity);
 
     property_tree::ptree pt;
@@ -121,11 +123,12 @@ void ArchetypeParser::load(const std::string& path)
         }
 
         // Insert into archetypes hashmap
-        GameObjectManager::manager.add(archname, obj);
+        GameObjectManager::add(archname, obj);
     }
 
-    LOG(Detail) << "Loaded " << GameObjectManager::manager.count() <<
+    LOG(Detail) << "Loaded " << GameObjectManager::count() <<
             " archetypes";
+    GameObjectManager::setup(true);
 }
 
 }

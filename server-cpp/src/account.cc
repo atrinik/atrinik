@@ -95,10 +95,10 @@ bool Account::load(const std::string& key, const std::string& val)
         if (split(strs, val, is_any_of(":")).size() < 4) {
             throw LOG_EXCEPTION(AccountError("invalid character data"));
         }
-        
+
         AccountCharacter character;
 
-        character.archetype = GameObjectManager::manager.get(strs[0]);
+        character.archetype = GameObjectManager::get(strs[0]);
         character.name = strs[1];
         character.region_name = strs[2];
 
@@ -215,7 +215,7 @@ void Account::character_create(const std::string& name,
                 "reached the maximum number of allowed characters"));
     }
 
-    auto archetype = GameObjectManager::manager.get(archname);
+    auto archetype = GameObjectManager::get(archname);
 
     if (!archetype->isinstance<PlayerObjectType>()) {
         throw LOG_EXCEPTION(AccountError("invalid archname"));
@@ -306,7 +306,7 @@ void Account::validate_password(const std::string& s)
     }
 }
 
-AccountManager AccountManager::manager;
+template<> bool Manager<AccountManager>::use_secondary = true;
 
 void AccountManager::gc()
 {
@@ -348,16 +348,16 @@ AccountPtr AccountManager::account_register(const std::string& name,
         throw LOG_EXCEPTION(AccountError("passwords do not match"));
     }
 
-    filesystem::path p = account_make_path(name);
+    filesystem::path p = manager().account_make_path(name);
 
     if (filesystem::exists(p)) {
         throw LOG_EXCEPTION(AccountError("account is already registered"));
     }
 
-    AccountPtr account(new Account);
+    AccountPtr account(new Account());
     account->set_password(pswd);
 
-    accounts.insert(make_pair(name, account));
+    manager().accounts.insert(make_pair(name, account));
 
     return account;
 }
@@ -368,7 +368,7 @@ AccountPtr AccountManager::account_login(const std::string& name,
     Account::validate_name(name);
     Account::validate_password(pswd);
 
-    AccountPtr account = account_load(name);
+    AccountPtr account = manager().account_load(name);
 
     if (!account->check_password(pswd)) {
         throw LOG_EXCEPTION(AccountError("invalid password"));
@@ -386,7 +386,7 @@ void AccountManager::account_save(const std::string& name, AccountPtr account)
 {
     BOOST_LOG_FUNCTION();
 
-    filesystem::path p = account_make_path(name);
+    filesystem::path p = manager().account_make_path(name);
     filesystem::create_directories(p.parent_path());
 
     // TODO: write to temp file, if successful, rename
@@ -433,7 +433,7 @@ AccountPtr AccountManager::account_load(const std::string& name)
     }
 
     // Load up the account and cache it
-    AccountPtr account(new Account);
+    AccountPtr account(new Account());
     AccountParser::load(file, account);
     accounts.insert(make_pair(name, account));
 

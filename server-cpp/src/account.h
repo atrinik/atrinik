@@ -38,6 +38,7 @@
 #include <game_object.h>
 #include <game_message.h>
 #include <error.h>
+#include <manager.h>
 
 namespace atrinik {
 
@@ -184,10 +185,8 @@ typedef std::shared_ptr<Account> AccountPtr; ///< Account pointer.
 typedef tbb::concurrent_hash_map<std::string, AccountPtr>
 AccountMap; ///< Map of accounts.
 
-class AccountManager {
+class AccountManager : public Manager<AccountManager> {
 public:
-
-    static AccountManager manager;
 
     static inline std::string accounts_path()
     {
@@ -211,7 +210,7 @@ public:
      * the same name exists, the password wasn't long enough, the two passwords
      * didn't match, etc.
      */
-    AccountPtr account_register(const std::string& name,
+    static AccountPtr account_register(const std::string& name,
             const std::string& pswd, const std::string& pswd2);
 
     /**
@@ -220,9 +219,9 @@ public:
      * @param pswd Account password.
      * @return Account.
      */
-    AccountPtr account_login(const std::string& name, const std::string& pswd);
+    static AccountPtr account_login(const std::string& name, const std::string& pswd);
 
-    void account_save(const std::string& name, AccountPtr account);
+    static void account_save(const std::string& name, AccountPtr account);
 private:
     boost::filesystem::path account_make_path(const std::string& name);
     AccountPtr account_load(const std::string& name);

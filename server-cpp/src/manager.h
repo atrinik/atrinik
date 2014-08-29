@@ -22,105 +22,59 @@
 
 /**
  * @file
- * Animation.
+ * Base manager.
  */
 
 #pragma once
 
-#include <cstdint>
-#include <string>
-#include <vector>
-#include <unordered_map>
 #include <memory>
-
-#include <face.h>
-#include <manager.h>
 
 namespace atrinik {
 
-class Animation {
+template <typename T>
+class Manager {
 public:
-    typedef std::uint16_t AnimationId;
-    typedef std::vector<Face::FaceId> AnimationFrames;
+    typedef std::unique_ptr<T> ManagerPtr;
 
-    static int uid;
+    time_t timestamp = 0;
 
-    Animation(const std::string& name) : name_(name), id_(uid++)
+    static T& primary()
     {
+        static ManagerPtr ptr(new T());
+        return *ptr;
     }
 
-    ~Animation()
+    static T& secondary()
     {
+        static ManagerPtr ptr(new T());
+        return *ptr;
     }
 
-    const std::string& name() const
+    static T& manager(bool get_secondary = true)
     {
-        return name_;
+        if (use_secondary == get_secondary) {
+            return secondary();
+        } else {
+            return primary();
+        }
     }
 
-    inline const AnimationId id() const
+    static void setup()
     {
-        return id_;
+        use_secondary = !use_secondary;
     }
 
-    inline const uint16_t facings() const
+    static void setup(bool success)
     {
-        return facings_;
-    }
-
-    inline void facings(uint16_t facings)
-    {
-        facings_ = facings;
-    }
-
-    inline void push_back(AnimationFrames::value_type val)
-    {
-        frames.push_back(val);
-    }
-
-    inline void push_back(const std::string& val)
-    {
-        frames.push_back(FaceManager::get(val)->id());
-    }
-
-    AnimationFrames::value_type operator [](AnimationFrames::size_type i) const
-    {
-        return frames[i];
-    }
-
-    AnimationFrames::size_type size() const
-    {
-        return frames.size();
+        if (success) {
+            manager(false).clear();
+        } else {
+            use_secondary = !use_secondary;
+        }
     }
 
 private:
-    AnimationFrames frames;
-
-    AnimationId id_;
-
-    uint16_t facings_ = 1;
-
-    std::string name_;
+    static bool use_secondary;
 };
 
-typedef std::shared_ptr<Animation> AnimationPtr;
-typedef std::shared_ptr<const Animation> AnimationPtrConst;
-
-class AnimationManager : public Manager<AnimationManager> {
-public:
-    typedef std::vector<AnimationPtr> AnimationVector;
-    typedef std::unordered_map<std::string, AnimationPtr> AnimationMap;
-
-    static const char* path();
-    static void load();
-    static void add(AnimationPtr animation);
-    static AnimationPtrConst get(const std::string& name);
-    static AnimationPtrConst get(Animation::AnimationId id);
-    static AnimationVector::size_type count();
-    void clear();
-private:
-    AnimationVector animations_vector;
-    AnimationMap animations_map;
-};
-
-};
+}

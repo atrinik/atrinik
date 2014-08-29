@@ -25,10 +25,12 @@
  * Region object implementation.
  */
 
+#include <boost/filesystem.hpp>
 #include <boost/lexical_cast.hpp>
 #include <boost/algorithm/string/predicate.hpp>
 
 #include <region_object.h>
+#include <region_parser.h>
 #include <logger.h>
 
 using namespace atrinik;
@@ -124,33 +126,59 @@ std::string RegionObject::dump()
     return s;
 }
 
-void RegionObject::inv_push_back(RegionObject* obj)
+void RegionObject::inv_push_back(RegionObjectPtr obj)
 {
     inv_.push_back(obj);
-    obj->env_ = this;
+    obj->env_ = shared_from_this();
 }
 
-RegionManager RegionManager::manager;
+template<> bool Manager<RegionManager>::use_secondary = true;
 
-bool RegionManager::add(RegionObject* region)
+const char* RegionManager::path()
 {
-    return regions.insert(make_pair(region->name(), region)).second;
+    return "../maps/regions.reg";
 }
 
-RegionObject* RegionManager::get(const std::string& name)
+void RegionManager::load()
 {
-    auto it = regions.find(name);
+    BOOST_LOG_FUNCTION();
 
-    if (it == regions.end()) {
-        return NULL;
+    filesystem::path p(path());
+    time_t t = filesystem::last_write_time(p);
+
+    if (t > manager().timestamp) {
+        RegionParser::load(path());
+        link_parents_children();
+        manager().timestamp = t;
+    }
+}
+
+void RegionManager::add(RegionObjectPtr region)
+{
+    if (!manager().regions.insert(make_pair(region->name(), region)).second) {
+        throw LOG_EXCEPTION(runtime_error("could not insert region"));
+    }
+}
+
+boost::optional<RegionObjectPtr> RegionManager::get(const std::string& name)
+{
+    auto it = manager().regions.find(name);
+
+    if (it == manager().regions.end()) {
+        return boost::optional<RegionObjectPtr>();
     }
 
-    return it->second;
+    return boost::optional<RegionObjectPtr>(it->second);
 }
 
 RegionManager::RegionsMap::size_type RegionManager::count()
 {
-    return regions.size();
+    return manager().regions.size();
+}
+
+void RegionManager::clear()
+{
+    regions.clear();
 }
 
 void RegionManager::link_parents_children()
@@ -158,13 +186,12 @@ void RegionManager::link_parents_children()
     BOOST_LOG_FUNCTION();
 
     // Link up children/parents
-    for (auto it : regions) {
+    for (auto& it : manager().regions) {
         if (it.second->parent().empty()) {
             continue;
         }
 
-        RegionObject* parent = RegionManager::manager.get(
-                it.second->parent());
+        auto parent = RegionManager::get(it.second->parent());
 
         if (!parent) {
             LOG(Error) << "Region " << it.second->name() <<
@@ -172,7 +199,7 @@ void RegionManager::link_parents_children()
             continue;
         }
 
-        parent->inv_push_back(it.second);
+        (*parent)->inv_push_back(it.second);
     }
 }
 

@@ -31,6 +31,9 @@
 #include <string>
 #include <vector>
 #include <unordered_map>
+#include <memory>
+
+#include <manager.h>
 
 namespace atrinik {
 
@@ -38,6 +41,8 @@ class Face {
 public:
     typedef std::uint16_t FaceId;
     typedef std::pair<char*, size_t> FaceData;
+
+    static int uid;
 
     Face(const std::string& name) : name_(name), id_(uid++)
     {
@@ -68,8 +73,6 @@ public:
     }
 
 private:
-    static int uid;
-
     FaceId id_;
 
     std::string name_;
@@ -77,17 +80,21 @@ private:
     FaceData data_;
 };
 
-class FaceManager {
+typedef std::shared_ptr<Face> FacePtr;
+typedef std::shared_ptr<const Face> FacePtrConst;
+
+class FaceManager : public Manager<FaceManager> {
 public:
-    typedef std::vector<Face*> FaceVector;
-    typedef std::unordered_map<std::string, Face*> FaceMap;
+    typedef std::vector<FacePtr> FaceVector;
+    typedef std::unordered_map<std::string, FacePtr> FaceMap;
 
-    static FaceManager manager;
-
-    void add(Face* face);
-    const Face& get(const std::string& name);
-    const Face& get(Face::FaceId id);
-    FaceVector::size_type count();
+    static const char* path();
+    static void load();
+    static void add(FacePtr face);
+    static FacePtrConst get(const std::string& name);
+    static FacePtrConst get(Face::FaceId id);
+    static FaceVector::size_type count();
+    void clear();
 private:
     FaceVector faces_vector;
     FaceMap faces_map;

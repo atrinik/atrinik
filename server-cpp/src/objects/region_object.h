@@ -27,22 +27,29 @@
 
 #pragma once
 
+#include <memory>
 #include <unordered_map>
+#include <boost/optional.hpp>
 
 #include <object.h>
 #include <bit_flags.h>
 #include <game_object.h>
+#include <manager.h>
 
 namespace atrinik {
 
-class RegionObject : public ObjectCRTP<RegionObject> {
+class RegionObject;
+typedef std::shared_ptr<RegionObject> RegionObjectPtr;
+
+class RegionObject : public ObjectCRTP<RegionObject>,
+public std::enable_shared_from_this<RegionObject> {
 public:
     using Object::Object;
 
     virtual bool load(const std::string& key, const std::string& val);
     virtual std::string dump();
 
-    void inv_push_back(RegionObject* obj);
+    void inv_push_back(RegionObjectPtr region);
 
     inline const bool f_map_quest() const
     {
@@ -79,8 +86,12 @@ public:
         if (recursive) {
             if (!longname_.empty()) {
                 return longname_;
-            } else if (env_ != NULL) {
-                return env_->longname(true);
+            }
+
+            auto env = env_.lock();
+
+            if (env) {
+                return env->longname(true);
             }
         }
 
@@ -97,8 +108,12 @@ public:
         if (recursive) {
             if (!msg_.empty()) {
                 return msg_;
-            } else if (env_ != NULL) {
-                return env_->msg(true);
+            }
+
+            auto env = env_.lock();
+
+            if (env) {
+                return env->msg(true);
             }
         }
 
@@ -115,8 +130,12 @@ public:
         if (recursive) {
             if (!jail_.path.empty()) {
                 return jail_;
-            } else if (env_ != NULL) {
-                return env_->jail(true);
+            }
+
+            auto env = env_.lock();
+
+            if (env) {
+                return env->jail(true);
             }
         }
 
@@ -172,23 +191,25 @@ private:
 
     std::string map_bg_; ///< Background color to use for the region map.
 
-    RegionObject *env_ = nullptr; ///< Parent region object.
-    std::list<RegionObject*> inv_; ///< Children of the region.
+    std::weak_ptr<RegionObject> env_; ///< Parent region object.
+    std::list<RegionObjectPtr> inv_; ///< Children of the region.
 };
 
-class RegionManager {
+class RegionManager : public Manager<RegionManager> {
 private:
-    typedef std::unordered_map<std::string, RegionObject*>
+    typedef std::unordered_map<std::string, RegionObjectPtr>
     RegionsMap;
 
     RegionsMap regions; ///< Map of the regions.
 public:
-    static RegionManager manager;
 
-    bool add(RegionObject* region);
-    RegionObject* get(const std::string& name);
-    RegionsMap::size_type count();
-    void link_parents_children();
+    static const char* path();
+    static void load();
+    static void add(RegionObjectPtr region);
+    static boost::optional<RegionObjectPtr> get(const std::string& name);
+    static RegionsMap::size_type count();
+    static void link_parents_children();
+    void clear();
 };
 
 }

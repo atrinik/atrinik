@@ -40,7 +40,7 @@
 #include <account.h>
 #include <account_parser.h>
 #include <server.h>
-#include <animation_parser.h>
+#include <animation.h>
 #include <face_parser.h>
 #include <logger.h>
 #include <region_object.h>
@@ -110,12 +110,11 @@ int main(int argc, char **argv)
     cout.imbue(loc);
     Logger::init();
 
-    RegionParser::load("../maps/regions.reg");
-    RegionManager::manager.link_parents_children();
-    FaceParser::load("../arch/atrinik.0");
-    AnimationParser::load("../arch/animations");
-    ArchetypeParser::load("../arch/archetypes");
-    auto map = MapObjectManager::manager.get(
+    RegionManager::load();
+    FaceManager::load();
+    AnimationManager::load();
+    GameObjectManager::load();
+    auto map = MapObjectManager::get(
             argc > 1 ? argv[1] : "../maps/hall_of_dms");
 
     asio::io_service io_service;
@@ -123,11 +122,16 @@ int main(int argc, char **argv)
     game_server_ptr server(new GameServer(io_service, endpoint));
 
     thread t1(bind(&asio::io_service::run, &io_service));
-    thread t2(bind(&AccountManager::gc, &AccountManager::manager));
+    thread t2(bind(&AccountManager::gc, &AccountManager::manager()));
 
     LOG(Info) << "Server ready.";
 
     while (true) {
+        RegionManager::load();
+        FaceManager::load();
+        AnimationManager::load();
+        GameObjectManager::load();
+
         server->process();
         usleep(125000);
     }

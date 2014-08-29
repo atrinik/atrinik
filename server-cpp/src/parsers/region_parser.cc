@@ -42,33 +42,37 @@ void RegionParser::load(const std::string& path)
 {
     BOOST_LOG_FUNCTION();
 
+    RegionManager::setup();
     LOG(Detail) << "Loading regions from: " << path;
     ifstream file(path);
 
     if (!file.is_open()) {
+        RegionManager::setup(false);
         throw LOG_EXCEPTION(runtime_error("could not open file"));
     }
 
-    RegionObject *region = nullptr;
+    RegionObjectPtr region;
 
     parse(file,
             [&region] (const std::string & key,
             const std::string & val) mutable -> bool
             {
                 if (key.empty() && val == "end") {
-                    RegionManager::manager.add(region);
-                    region = nullptr;
+                    RegionManager::add(region);
+                    region.reset();
                 } else if (key == "region") {
-                    region = new RegionObject();
+                    region.reset(new RegionObject());
                     region->name(val);
                 } else if (!region) {
                     LOG(Error) << "Unrecognized attribute (before region "
                             "definition): " << key << " " << val;
+                    RegionManager::setup(false);
                     throw LOG_EXCEPTION(runtime_error(
                             "corrupted regions file"));
                 } else if (!region->load(key, val)) {
                     LOG(Error) << "Unrecognized attribute: " << key << " " <<
                             val;
+                    RegionManager::setup(false);
                     throw LOG_EXCEPTION(runtime_error(
                             "corrupted regions file"));
                 }
@@ -77,8 +81,9 @@ void RegionParser::load(const std::string& path)
             }
     );
 
-    LOG(Detail) << "Loaded " << RegionManager::manager.count() <<
+    LOG(Detail) << "Loaded " << RegionManager::count() <<
             " regions";
+    RegionManager::setup(true);
 }
 
 }

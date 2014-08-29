@@ -36,6 +36,7 @@
 #include <object.h>
 #include <map_tile_object.h>
 #include <game_object_type.h>
+#include <manager.h>
 
 namespace atrinik {
 
@@ -255,18 +256,19 @@ public:
     }
 };
 
-class GameObjectManager {
+class GameObjectManager : public Manager<GameObjectManager> {
 public:
     typedef std::unordered_map<std::string, GameObjectPtr>
     GameObjectMap; ///< Game object hash map with strings
 
     static std::string SingularityObjectName;
 
-    static GameObjectManager manager;
-
-    void add(const std::string& archname, GameObjectPtr obj);
-    GameObjectPtrConst get(const std::string& archname);
-    GameObjectMap::size_type count();
+    static const char* path();
+    static void load();
+    static void add(const std::string& archname, GameObjectPtr obj);
+    static GameObjectPtrConst get(const std::string& archname);
+    static GameObjectMap::size_type count();
+    void clear();
 
 private:
     GameObjectMap game_objects_map;
