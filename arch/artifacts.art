@@ -4362,7 +4362,7 @@ Allowed all
 chance 10
 artifact range_accuracy
 def_arch bow
-Object Accuracy
+Object
 title of accuracy
 type 14
 value 5500
@@ -4378,7 +4378,7 @@ Allowed all
 chance 10
 artifact crossbow_accuracy
 def_arch crossbow
-Object Accuracy
+Object
 title of accuracy
 type 14
 value 5500
@@ -4394,7 +4394,7 @@ Allowed all
 chance 10
 artifact sling_accuracy
 def_arch sling
-Object Accuracy
+Object
 title of accuracy
 type 14
 value 5500
