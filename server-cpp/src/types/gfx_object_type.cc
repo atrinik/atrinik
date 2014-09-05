@@ -42,6 +42,9 @@ bool GfxObjectType::load(const std::string& key, const std::string& val)
     if (key == "layer") {
         layer(lexical_cast<uint8_t>(val));
         return true;
+    } else if (key == "sub_layer") {
+        sub_layer(lexical_cast<uint8_t>(val));
+        return true;
     }
 
     return false;
@@ -55,6 +58,9 @@ std::string GfxObjectType::dump(const GameObjectType* base)
     if ((!base_type && layer()) ||
             (base_type && layer() != base_type->layer())) {
         s += "layer " + lexical_cast<string>(layer()) + "\n";
+    } else if ((!base_type && sub_layer()) ||
+            (base_type && sub_layer() != base_type->sub_layer())) {
+        s += "sub_layer " + lexical_cast<string>(sub_layer()) + "\n";
     }
 
     return s;

@@ -39,6 +39,7 @@ class GAME_OBJECT_TYPE_ID : public GameObjectTypeCRTP<GAME_OBJECT_TYPE_ID> {
 #include <game_object_type_internal.h>
 private:
     uint8_t layer_ = 0;
+    uint8_t sub_layer_ = 0;
 public:
 
     inline const uint8_t layer() const
@@ -49,6 +50,16 @@ public:
     inline void layer(uint8_t val)
     {
         layer_ = val;
+    }
+
+    inline const uint8_t sub_layer() const
+    {
+        return sub_layer_;
+    }
+
+    inline void sub_layer(uint8_t val)
+    {
+        sub_layer_ = val;
     }
 
     virtual bool load(const std::string& key, const std::string& val);

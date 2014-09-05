@@ -48,15 +48,34 @@ struct coords_t {
 };
 
 class MapTileObject : public ObjectCRTPShared<MapTileObject> {
-private:
-    int x_;
-
-    int y_;
-
-    std::weak_ptr<MapObject> env_;
-    std::list<GameObjectPtr> inv_;
 public:
     using Object::Object;
+
+    enum class Layer {
+        System,
+        Floor,
+        FloorMask,
+        Item,
+        Item2,
+        Wall,
+        Living,
+        Effect,
+    };
+
+    static constexpr int NumLayers()
+    {
+        return 7;
+    }
+
+    static constexpr int NumSubLayers()
+    {
+        return 5;
+    }
+
+    static constexpr int NumRealLayers()
+    {
+        return NumLayers() * NumSubLayers();
+    }
 
     int x()
     {
@@ -92,6 +111,13 @@ public:
 
     virtual bool load(const std::string& key, const std::string& val);
     virtual std::string dump();
+private:
+    int x_;
+
+    int y_;
+
+    std::weak_ptr<MapObject> env_;
+    std::list<GameObjectPtr> inv_;
 };
 
 }

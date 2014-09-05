@@ -192,6 +192,48 @@ void GameSession::process()
     }
 }
 
+void GameSession::draw_map()
+{
+    GameMessage map_msg, layer_msg, sound_msg;
+    auto map_ = obj_->map();
+    auto tile_ = obj_->map_tile();
+
+    if (!map_ || !tile_) {
+        return;
+    }
+
+    auto map = *map_;
+    auto tile = *tile_;
+
+    map_msg.int8(static_cast<int>(map_cache.update_cmd));
+
+    // TODO: update_cmd handling
+
+    map_msg.int8(tile->x());
+    map_msg.int8(tile->y());
+
+    for (int ay = mapy_ - 1, y = tile->y() + (mapy_ + 1) / 2 - 1;
+            y >= tile->y() - mapy_ / 2; y--, ay--) {
+        for (int ax = mapx_ -1, x = tile->x() + (mapx_ + 1) / 2 - 1;
+                x >= tile->x() - mapx_ / 2; x--, ax--) {
+            // line of sight checks
+            uint16_t mask = (ax & 0x1f) << 11 | (ay & 0x1f) << 6;
+
+            map_msg.int16(mask);
+
+            int num_layers = 0;
+
+            for (int layer = static_cast<int>(MapTileObject::Layer::Floor);
+                    layer <= MapTileObject::NumLayers(); layer++) {
+                for (int sub_layer = 0; sub_layer <
+                        MapTileObject::NumSubLayers(); sub_layer++) {
+
+                }
+            }
+        }
+    }
+}
+
 void GameSessions::add(GameSessionPtr session)
 {
     BOOST_LOG_FUNCTION();

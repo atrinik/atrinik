@@ -47,6 +47,16 @@ namespace atrinik {
 class GameSessions;
 class GameCommand;
 
+struct GameSessionMapCache {
+    enum class UpdateCmd {
+        Same,
+        New,
+        Connected
+    };
+
+    UpdateCmd update_cmd = UpdateCmd::Same;
+};
+
 class GameSession : public std::enable_shared_from_this<GameSession> {
 public:
 
@@ -77,6 +87,7 @@ public:
     void handle_write(const boost::system::error_code& error,
             std::size_t bytes_transferred);
     void process();
+    void draw_map();
 
     inline const uint32_t version() const
     {
@@ -133,6 +144,16 @@ public:
         return socket_.remote_endpoint().address().to_string();
     }
 
+    GameObjectPtr obj()
+    {
+        return obj_;
+    }
+
+    void obj(GameObjectPtr obj)
+    {
+        obj_ = obj;
+    }
+
     GameMessageQueue read_queue;
     GameMessageQueue write_queue;
     AccountPtr account;
@@ -150,6 +171,9 @@ private:
     bool bot_ = false;
     uint8_t mapx_;
     uint8_t mapy_;
+
+    GameSessionMapCache map_cache;
+    GameObjectPtr obj_;
 };
 
 typedef std::shared_ptr<GameSession> GameSessionPtr;
