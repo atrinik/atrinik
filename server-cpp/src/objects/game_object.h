@@ -111,6 +111,15 @@ public:
     virtual bool load(const std::string& key, const std::string& val);
     virtual std::string dump();
 
+    int getprimaryinstance() const
+    {
+        if (types.size() > 0) {
+            return types.front()->gettype();
+        }
+
+        return -1;
+    }
+
     template<class T>
     bool isinstance() const
     {

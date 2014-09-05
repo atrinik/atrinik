@@ -31,6 +31,7 @@
 #include <map_tile_object.h>
 #include <game_object.h>
 #include <archetype_parser.h>
+#include <artifact_object.h>
 #include <logger.h>
 
 using namespace atrinik;
@@ -143,8 +144,14 @@ GameObjectPtrConst GameObjectManager::get(const std::string& archname)
     auto result = manager().game_objects_map.find(archname);
 
     if (result == manager().game_objects_map.end()) {
+        auto artifact = ArtifactObjectManager::get(archname);
+
+        if (artifact) {
+            return (*artifact)->obj();
+        }
+
         LOG(Error) << "Unknown archetype: " << archname;
-        return manager().game_objects_map["singularity"];
+        return manager().game_objects_map["singularity"]; //
     }
 
     return result->second;

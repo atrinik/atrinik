@@ -22,42 +22,23 @@
 
 /**
  * @file
- * Sign object type implementation.
+ * Artifact parser.
  */
 
-#include <boost/lexical_cast.hpp>
+#pragma once
 
-#include <sign_object_type.h>
-
-using namespace atrinik;
-using namespace boost;
-using namespace std;
+#include <object_parser.h>
 
 namespace atrinik {
 
-REGISTER_GAME_OBJECT_TYPE(SignObjectType);
+class ArtifactParser : public ObjectParser {
+public:
 
-bool SignObjectType::load(const std::string& key, const std::string& val)
-{
-    if (key == "splitting") {
-        f_is_fan(lexical_cast<int>(val));
-        return true;
-    }
-
-    return false;
-}
-
-std::string SignObjectType::dump(const GameObjectType* base)
-{
-    auto base_type = dynamic_cast<const SignObjectType*> (base);
-    string s = "";
-
-    if ((!base_type && f_is_fan()) ||
-            (base_type && f_is_fan() != base_type->f_is_fan())) {
-        s += "splitting " + lexical_cast<string>((int) f_is_fan()) + "\n";
-    }
-
-    return s;
-}
+    /**
+     * Loads artifacts from the specified file.
+     * @param path File to read from.
+     */
+    static void load(const std::string& path);
+};
 
 }

@@ -62,11 +62,16 @@ public:
     static void setup()
     {
         use_secondary = !use_secondary;
+        // Ensure the manager doesn't have any entries (could happen from a
+        // failed setup before)
+        manager().clear();
     }
 
     static void setup(bool success)
     {
         if (success) {
+            // Successfully set up the manager, so clear the old one to release
+            // old resources.
             manager(false).clear();
         } else {
             use_secondary = !use_secondary;

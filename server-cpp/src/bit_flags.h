@@ -45,7 +45,7 @@ inline void BitFlag(T& flags, uint64_t mask, bool val)
 template <typename T>
 inline void BitFlag(T& flags, uint64_t mask, std::string val)
 {
-    BitFlag(flags, mask, boost::lexical_cast<bool>(val));
+    BitFlag(flags, mask, boost::lexical_cast<int>(val));
 }
 
 template <typename T>

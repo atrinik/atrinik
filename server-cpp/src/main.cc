@@ -30,6 +30,7 @@
 #include <boost/thread.hpp>
 #include <openssl/ssl.h>
 #include <boost/locale/generator.hpp>
+#include <boost/algorithm/string/predicate.hpp>
 
 #include <object.h>
 #include <game_object.h>
@@ -44,10 +45,32 @@
 #include <face_parser.h>
 #include <logger.h>
 #include <region_object.h>
+#include <artifact_object.h>
 
 using namespace atrinik;
 using namespace boost;
 using namespace std;
+
+namespace boost {
+
+template<>
+bool lexical_cast<bool, std::string>(const std::string& arg)
+{
+    std::istringstream ss(arg);
+    bool b;
+    ss >> std::boolalpha >> b;
+    return b;
+}
+
+template<>
+std::string lexical_cast<std::string, bool>(const bool& b)
+{
+    std::ostringstream ss;
+    ss << std::boolalpha << b;
+    return ss.str();
+}
+
+}
 
 //void consumer()
 //{
@@ -114,6 +137,7 @@ int main(int argc, char **argv)
     FaceManager::load();
     AnimationManager::load();
     GameObjectManager::load();
+    ArtifactObjectManager::load();
     auto map = MapObjectManager::get(
             argc > 1 ? argv[1] : "../maps/hall_of_dms");
 
@@ -131,6 +155,7 @@ int main(int argc, char **argv)
         FaceManager::load();
         AnimationManager::load();
         GameObjectManager::load();
+        ArtifactObjectManager::load();
 
         server->process();
         usleep(125000);

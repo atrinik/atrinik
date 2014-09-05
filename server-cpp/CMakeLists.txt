@@ -53,6 +53,7 @@ add_executable(atrinik
     src/network/game_message.cc
     src/network/game_session.cc
     src/network/game_server.cc
+    src/objects/artifact_object.cc
     src/objects/game_object.cc
     src/objects/map_object.cc
     src/objects/map_tile_object.cc
@@ -61,6 +62,7 @@ add_executable(atrinik
     src/parsers/account_parser.cc
     src/parsers/animation_parser.cc
     src/parsers/archetype_parser.cc
+    src/parsers/artifact_parser.cc
     src/parsers/face_parser.cc
     src/parsers/map_parser.cc
     src/parsers/object_parser.cc
