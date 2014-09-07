@@ -34,8 +34,13 @@
 #include <object.h>
 #include <bit_flags.h>
 #include <manager.h>
+#include <map_tile_object.h>
 
 namespace atrinik {
+
+struct mapcoords_t : coords_t {
+    std::string path;
+};
 
 class MapTileObject;
 typedef std::shared_ptr<MapTileObject> MapTileObjectPtr;

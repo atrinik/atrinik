@@ -34,19 +34,18 @@
 #include <boost/optional.hpp>
 
 #include <object.h>
-#include <map_tile_object.h>
 #include <game_object_type.h>
 #include <manager.h>
 
 namespace atrinik {
 
-struct mapcoords_t : coords_t {
-    std::string path;
-};
-
 class GameObject;
 typedef std::shared_ptr<GameObject> GameObjectPtr;
 typedef std::shared_ptr<const GameObject> GameObjectPtrConst;
+class MapObject;
+typedef std::shared_ptr<MapObject> MapObjectPtr;
+class MapTileObject;
+typedef std::shared_ptr<MapTileObject> MapTileObjectPtr;
 
 class GameObject : public ObjectCRTPShared<GameObject> {
 private:
@@ -87,26 +86,10 @@ public:
         obj->env_ = shared_from_this();
     }
 
-    boost::optional<MapTileObjectPtr> map_tile()
-    {
-        try {
-            return boost::optional<MapTileObjectPtr>(
-                    boost::get<std::weak_ptr<MapTileObject>>(env_).lock());
-        } catch (boost::bad_get) {
-            return boost::optional<MapTileObjectPtr>();
-        }
-    }
-
-    boost::optional<MapObjectPtr> map()
-    {
-        auto tile = map_tile();
-
-        if (!tile) {
-            return boost::optional<MapObjectPtr>();
-        }
-
-        return boost::optional<MapObjectPtr>((*tile)->env());
-    }
+    boost::optional<MapTileObjectPtr> map_tile();
+    boost::optional<MapObjectPtr> map();
+    int layer() const;
+    int layer_effective() const;
 
     virtual bool load(const std::string& key, const std::string& val);
     virtual std::string dump();

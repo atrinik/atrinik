@@ -27,7 +27,10 @@
 
 #include <boost/bind.hpp>
 #include <game_session.h>
+#include <map_tile_object.h>
 #include <logger.h>
+
+#include "map_object.h"
 
 using namespace atrinik;
 using namespace ClientCommands;
@@ -203,31 +206,40 @@ void GameSession::draw_map()
     }
 
     auto map = *map_;
-    auto tile = *tile_;
+    auto tile_pl = *tile_;
 
-    map_msg.int8(static_cast<int>(map_cache.update_cmd));
+    map_msg.int8(static_cast<int> (map_cache.update_cmd));
 
     // TODO: update_cmd handling
 
-    map_msg.int8(tile->x());
-    map_msg.int8(tile->y());
+    map_msg.int8(tile_pl->x());
+    map_msg.int8(tile_pl->y());
 
-    for (int ay = mapy_ - 1, y = tile->y() + (mapy_ + 1) / 2 - 1;
-            y >= tile->y() - mapy_ / 2; y--, ay--) {
-        for (int ax = mapx_ -1, x = tile->x() + (mapx_ + 1) / 2 - 1;
-                x >= tile->x() - mapx_ / 2; x--, ax--) {
+    for (int ay = mapy_ - 1, y = tile_pl->y() + (mapy_ + 1) / 2 - 1;
+            y >= tile_pl->y() - mapy_ / 2; y--, ay--) {
+        for (int ax = mapx_ - 1, x = tile_pl->x() + (mapx_ + 1) / 2 - 1;
+                x >= tile_pl->x() - mapx_ / 2; x--, ax--) {
             // line of sight checks
             uint16_t mask = (ax & 0x1f) << 11 | (ay & 0x1f) << 6;
 
             map_msg.int16(mask);
 
+            auto tile = map->tile_get(x, y);
+
             int num_layers = 0;
 
-            for (int layer = static_cast<int>(MapTileObject::Layer::Floor);
+            for (int layer = static_cast<int> (MapTileObject::Layer::Floor);
                     layer <= MapTileObject::NumLayers(); layer++) {
                 for (int sub_layer = 0; sub_layer <
                         MapTileObject::NumSubLayers(); sub_layer++) {
+                    auto p = tile->get_obj_layer(MapTileObject::NumLayers() *
+                            sub_layer + layer);
 
+                    if (p.first == p.second) {
+                        continue;
+                    }
+
+                    auto obj = *p.first;
                 }
             }
         }

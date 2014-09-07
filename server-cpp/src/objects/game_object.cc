@@ -33,12 +33,57 @@
 #include <archetype_parser.h>
 #include <artifact_object.h>
 #include <logger.h>
+#include <gfx_object_type.h>
 
 using namespace atrinik;
 using namespace boost;
 using namespace std;
 
 namespace atrinik {
+
+boost::optional<MapTileObjectPtr> GameObject::map_tile()
+{
+    try {
+        return optional<MapTileObjectPtr>(
+                boost::get<std::weak_ptr<MapTileObject>>(env_).lock());
+    } catch (bad_get) {
+        return optional<MapTileObjectPtr>();
+    }
+}
+
+boost::optional<MapObjectPtr> GameObject::map()
+{
+    auto tile = map_tile();
+
+    if (!tile) {
+        return optional<MapObjectPtr>();
+    }
+
+    return optional<MapObjectPtr>((*tile)->env());
+}
+
+int GameObject::layer() const
+{
+    auto gfx_object = getinstance<GfxObjectType>();
+
+    if (!gfx_object) {
+        return 0;
+    }
+
+    return gfx_object->layer();
+}
+
+int GameObject::layer_effective() const
+{
+    auto gfx_object = getinstance<GfxObjectType>();
+
+    if (!gfx_object) {
+        return 0;
+    }
+
+    return MapTileObject::NumLayers() * gfx_object->sub_layer() +
+            gfx_object->layer();
+}
 
 bool GameObject::load(const std::string& key, const std::string& val)
 {

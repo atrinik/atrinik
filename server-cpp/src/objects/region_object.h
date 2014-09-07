@@ -33,7 +33,7 @@
 
 #include <object.h>
 #include <bit_flags.h>
-#include <game_object.h>
+#include <map_object.h>
 #include <manager.h>
 
 namespace atrinik {

@@ -28,8 +28,15 @@
 #pragma once
 
 #include <string>
+#include <boost/multi_index_container.hpp>
+#include <boost/multi_index/ordered_index.hpp>
+#include <boost/multi_index/identity.hpp>
+#include <boost/multi_index/member.hpp>
+#include <boost/multi_index/mem_fun.hpp>
 
 #include <object.h>
+#include <game_object.h>
+#include <gfx_object_type.h>
 
 namespace atrinik {
 
@@ -49,7 +56,39 @@ struct coords_t {
 
 class MapTileObject : public ObjectCRTPShared<MapTileObject> {
 public:
-    using Object::Object;
+    typedef boost::multi_index_container<GameObjectPtr,
+    boost::multi_index::indexed_by<
+    // Sort by regular layer
+    boost::multi_index::ordered_non_unique<boost::multi_index::const_mem_fun<
+    GameObject, int, &GameObject::layer> >,
+    // Sort by effective layer
+    boost::multi_index::ordered_non_unique<boost::multi_index::const_mem_fun<
+    GameObject, int, &GameObject::layer_effective> >
+    > > GameObjectPtrContainer;
+
+    typedef boost::multi_index::nth_index<GameObjectPtrContainer, 0>::type
+    GameObjectPtrLayerIndex;
+    typedef boost::multi_index::nth_index<GameObjectPtrContainer, 0>::type
+    GameObjectPtrLayerEffectiveIndex;
+
+    typedef std::pair<
+    GameObjectPtrLayerIndex::const_iterator,
+    GameObjectPtrLayerIndex::const_iterator
+    > GameObjectPtrLayerIterator;
+
+    typedef std::pair<
+    GameObjectPtrLayerEffectiveIndex::const_iterator,
+    GameObjectPtrLayerEffectiveIndex::const_iterator
+    > GameObjectPtrLayerEffectiveIterator;
+
+    MapTileObject() : ObjectCRTPShared(), layer_index(inv_.get<0>()),
+    layer_effective_index(inv_.get<0>())
+    {
+    }
+
+    ~MapTileObject()
+    {
+    }
 
     enum class Layer {
         System,
@@ -72,7 +111,7 @@ public:
         return 5;
     }
 
-    static constexpr int NumRealLayers()
+    static constexpr int NumEffectiveLayers()
     {
         return NumLayers() * NumSubLayers();
     }
@@ -109,6 +148,17 @@ public:
 
     void inv_push_back(GameObjectPtr obj);
 
+    GameObjectPtrLayerIterator get_obj_layer(int layer)
+    {
+        return layer_index.equal_range(layer);
+    }
+
+    GameObjectPtrLayerEffectiveIterator get_obj_layer_effective(
+            int layer_effective)
+    {
+        return layer_effective_index.equal_range(layer_effective);
+    }
+
     virtual bool load(const std::string& key, const std::string& val);
     virtual std::string dump();
 private:
@@ -117,7 +167,10 @@ private:
     int y_;
 
     std::weak_ptr<MapObject> env_;
-    std::list<GameObjectPtr> inv_;
+    GameObjectPtrContainer inv_;
+
+    GameObjectPtrLayerIndex& layer_index;
+    GameObjectPtrLayerEffectiveIndex& layer_effective_index;
 };
 
 }

@@ -29,6 +29,7 @@
 
 #include <map_tile_object.h>
 #include <game_object.h>
+#include <gfx_object_type.h>
 
 using namespace atrinik;
 using namespace boost;
@@ -38,7 +39,7 @@ namespace atrinik {
 
 void MapTileObject::inv_push_back(GameObjectPtr obj)
 {
-    inv_.push_back(obj);
+    inv_.insert(obj);
     obj->env(shared_from_this());
 }
 
