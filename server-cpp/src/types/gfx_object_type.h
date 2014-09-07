@@ -38,7 +38,7 @@ namespace atrinik {
 class GAME_OBJECT_TYPE_ID : public GameObjectTypeCRTP<GAME_OBJECT_TYPE_ID> {
 #include <game_object_type_internal.h>
 private:
-    uint8_t layer_ = 0;
+    uint8_t layer_ = 1;
     uint8_t sub_layer_ = 0;
 public:
 
