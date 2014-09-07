@@ -26,6 +26,7 @@
  */
 
 #include <boost/lexical_cast.hpp>
+#include <boost/numeric/conversion/cast.hpp>
 
 #include <gfx_object_type.h>
 
@@ -40,10 +41,10 @@ REGISTER_GAME_OBJECT_TYPE(GfxObjectType);
 bool GfxObjectType::load(const std::string& key, const std::string& val)
 {
     if (key == "layer") {
-        layer(lexical_cast<uint8_t>(val));
+        layer(numeric_cast<uint8_t>(lexical_cast<int>(val)));
         return true;
     } else if (key == "sub_layer") {
-        sub_layer(lexical_cast<uint8_t>(val));
+        sub_layer(numeric_cast<uint8_t>(lexical_cast<int>(val)));
         return true;
     }
 
