@@ -97,7 +97,7 @@ endforeach (var)
 # Go through the source files and construct a string.
 foreach (var ${SOURCES})
 	string(REPLACE "${CMAKE_CURRENT_SOURCE_DIR}/" "" var ${var})
-	set(SOURCES_STRING "${SOURCES_STRING} "${var}"")
+	set(SOURCES_STRING "${SOURCES_STRING};${var}")
 endforeach (var)
 
 # Create a 'proto' build target, which generates the proto.h file.
