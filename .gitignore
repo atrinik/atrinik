@@ -31,6 +31,8 @@ arch/dev/editor/pickmaps/*/*
 maps/interfaces/**/*.py
 maps/python/InterfaceQuests.py
 cov-int
+nbproject
+*.json
 
 # GNU/Linux
 core
