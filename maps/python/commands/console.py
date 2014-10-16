@@ -29,7 +29,7 @@ class PyConsole(code.InteractiveConsole):
             "find_obj": Common.find_obj,
         }
         # The thread name will have the activator's name for uniqueness.
-        super(PyConsole, self).__init__(locals = _locals)
+        code.InteractiveConsole.__init__(self, locals = _locals)
         matches = []
 
     def write(self, data):
