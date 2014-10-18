@@ -219,10 +219,10 @@ void esrv_update_stats(player *pl)
         AddIfInt(pl->last_path_repelled, pl->ob->path_repelled, CS_STAT_PATH_REPELLED, uint32);
         AddIfInt(pl->last_path_denied, pl->ob->path_denied, CS_STAT_PATH_DENIED, uint32);
 
-        if (pl->equipment[PLAYER_EQUIP_WEAPON] && pl->equipment[PLAYER_EQUIP_WEAPON]->type == BOW && (arrow = arrow_find(pl->ob, pl->equipment[PLAYER_EQUIP_WEAPON]->race))) {
-            AddIfInt(pl->last_ranged_dam, arrow_get_damage(pl->ob, pl->equipment[PLAYER_EQUIP_WEAPON], arrow), CS_STAT_RANGED_DAM, uint16);
-            AddIfInt(pl->last_ranged_wc, arrow_get_wc(pl->ob, pl->equipment[PLAYER_EQUIP_WEAPON], arrow), CS_STAT_RANGED_WC, uint16);
-            AddIfInt(pl->last_ranged_ws, bow_get_ws(pl->equipment[PLAYER_EQUIP_WEAPON], arrow), CS_STAT_RANGED_WS, uint32);
+        if (pl->equipment[PLAYER_EQUIP_WEAPON_RANGED] && pl->equipment[PLAYER_EQUIP_WEAPON_RANGED]->type == BOW && (arrow = arrow_find(pl->ob, pl->equipment[PLAYER_EQUIP_WEAPON_RANGED]->race))) {
+            AddIfInt(pl->last_ranged_dam, arrow_get_damage(pl->ob, pl->equipment[PLAYER_EQUIP_WEAPON_RANGED], arrow), CS_STAT_RANGED_DAM, uint16);
+            AddIfInt(pl->last_ranged_wc, arrow_get_wc(pl->ob, pl->equipment[PLAYER_EQUIP_WEAPON_RANGED], arrow), CS_STAT_RANGED_WC, uint16);
+            AddIfInt(pl->last_ranged_ws, bow_get_ws(pl->equipment[PLAYER_EQUIP_WEAPON_RANGED], arrow), CS_STAT_RANGED_WS, uint32);
         }
         else {
             AddIfInt(pl->last_ranged_dam, 0, CS_STAT_RANGED_DAM, uint16);
