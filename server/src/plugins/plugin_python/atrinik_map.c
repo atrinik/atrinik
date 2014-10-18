@@ -755,6 +755,9 @@ PyTypeObject Atrinik_MapType =
 #ifndef IS_PY_LEGACY
     , 0
 #endif
+#ifdef Py_TPFLAGS_HAVE_FINALIZE
+    , NULL
+#endif
 };
 
 /**
