@@ -1,8 +1,8 @@
-from QuestManager import QuestManagerMulti
+from QuestManager import QuestManager
 from InterfaceQuests import escaping_deserted_island
 from Packet import Notification
 
-qm = QuestManagerMulti(activator, escaping_deserted_island)
+qm = QuestManager(activator, escaping_deserted_island)
 
 def main():
     for (m, x, y) in activator.SquaresAround(1):
