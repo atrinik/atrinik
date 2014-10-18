@@ -58,8 +58,13 @@ static void interface_destroy(interface_struct *data)
         return;
     }
 
-    efree(data->message);
-    efree(data->title);
+    if (data->message) {
+        efree(data->message);
+    }
+
+    if (data->title) {
+        efree(data->title);
+    }
 
     if (data->icon) {
         efree(data->icon);
