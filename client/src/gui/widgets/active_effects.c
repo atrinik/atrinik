@@ -205,7 +205,7 @@ static int widget_event(widgetdata *widget, SDL_Event *event)
         }
     }
 
-    return -1;
+    return 0;
 }
 
 void widget_active_effects_update(widgetdata *widget, object *op, sint32 sec, const char *msg)
