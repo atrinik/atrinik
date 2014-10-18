@@ -1894,6 +1894,9 @@ static PyNumberMethods AtrinikObjectNumber =
     NULL,
     NULL,
     NULL,
+#ifndef IS_PY3K
+    NULL, /* nb_divide */
+#endif
     NULL,
     NULL,
     NULL,
@@ -1906,12 +1909,22 @@ static PyNumberMethods AtrinikObjectNumber =
     NULL,
     NULL,
     NULL,
+#ifndef IS_PY3K
+    NULL, /* nb_coerce */
+#endif
     NULL,
     NULL,
     NULL,
+#ifndef IS_PY3K
+    NULL, /* nb_oct */
+    NULL, /* nb_hex */
+#endif
     NULL,
     NULL,
     NULL,
+#ifndef IS_PY3K
+    NULL, /* nb_inplace_divide */
+#endif
     NULL,
     NULL,
     NULL,
