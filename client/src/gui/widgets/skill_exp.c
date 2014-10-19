@@ -49,33 +49,9 @@ static void widget_draw(widgetdata *widget)
     SDL_BlitSurface(widget->surface, NULL, ScreenSurface, &box);
 }
 
-/** @copydoc widgetdata::background_func */
-static void widget_background(widgetdata *widget)
-{
-    static uint32 action_tick = 0;
-
-    /* Pre-emptively tick down the skill delay timer */
-    if (cpl.action_timer > 0) {
-        if (LastTick - action_tick > 125) {
-            cpl.action_timer -= (float) (LastTick - action_tick) / 1000.0f;
-
-            if (cpl.action_timer < 0) {
-                cpl.action_timer = 0;
-            }
-
-            action_tick = LastTick;
-            WIDGET_REDRAW(widget);
-        }
-    }
-    else {
-        action_tick = LastTick;
-    }
-}
-
 /**
  * Initialize one skill experience widget. */
 void widget_skill_exp_init(widgetdata *widget)
 {
     widget->draw_func = widget_draw;
-    widget->background_func = widget_background;
 }

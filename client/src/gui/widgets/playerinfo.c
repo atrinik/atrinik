@@ -34,11 +34,41 @@
 static void widget_draw(widgetdata *widget)
 {
     SDL_Rect box;
+    char buf[MAX_BUF];
 
-    if (widget->redraw) {
-        box.w = widget->w - 12;
-        box.h = 36;
-        text_show(widget->surface, FONT_ARIAL10, cpl.ext_title, 6, 2, COLOR_HGOLD, TEXT_MARKUP | TEXT_WORD_WRAP, &box);
+    if (!widget->redraw) {
+        return;
+    }
+
+    box.w = widget->w;
+    box.h = widget->h;
+
+    text_show_format(widget->surface, FONT_SERIF14, 4, 0, COLOR_WHITE, TEXT_VALIGN_CENTER | TEXT_OUTLINE, &box, "%1.2f", cpl.action_timer);
+    text_show_format(widget->surface, FONT_SERIF14, 0, 0, COLOR_HGOLD, TEXT_ALIGN_CENTER | TEXT_VALIGN_CENTER | TEXT_OUTLINE | TEXT_MARKUP, &box, "[b]%s[/b]", cpl.name);
+
+    snprintf(buf, sizeof(buf), "[b]%d[/b]", cpl.stats.level);
+    text_show(widget->surface, FONT_SERIF14, buf, widget->w - 4 - text_get_width(FONT_SERIF14, buf, TEXT_MARKUP), 0, cpl.stats.level == s_settings->max_level ? COLOR_HGOLD : COLOR_WHITE, TEXT_MARKUP | TEXT_OUTLINE | TEXT_VALIGN_CENTER, &box);
+}
+
+/** @copydoc widgetdata::background_func */
+static void widget_background(widgetdata *widget)
+{
+    static uint32 action_tick = 0;
+
+    /* Pre-emptively tick down the skill delay timer */
+    if (cpl.action_timer > 0) {
+        if (LastTick - action_tick > 125) {
+            cpl.action_timer -= (float) (LastTick - action_tick) / 1000.0f;
+
+            if (cpl.action_timer < 0) {
+                cpl.action_timer = 0;
+            }
+
+            action_tick = LastTick;
+            WIDGET_REDRAW(widget);
+        }
+    } else {
+        action_tick = LastTick;
     }
 }
 
@@ -47,4 +77,5 @@ static void widget_draw(widgetdata *widget)
 void widget_playerinfo_init(widgetdata *widget)
 {
     widget->draw_func = widget_draw;
+    widget->background_func = widget_background;
 }
