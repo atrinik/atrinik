@@ -614,8 +614,8 @@ enum
      * Weapon. */
     PLAYER_EQUIP_WEAPON,
     /**
-     * Ranged weapon. */
-    PLAYER_EQUIP_WEAPON_RANGED,
+     * Shield. */
+    PLAYER_EQUIP_SHIELD,
     /**
      * Gauntlets. */
     PLAYER_EQUIP_GAUNTLETS,
@@ -644,8 +644,8 @@ enum
      * Bracers. */
     PLAYER_EQUIP_BRACERS,
     /**
-     * Shield. */
-    PLAYER_EQUIP_SHIELD,
+     * Ranged weapon. */
+    PLAYER_EQUIP_WEAPON_RANGED,
     /**
      * Light (lantern, torch). */
     PLAYER_EQUIP_LIGHT,

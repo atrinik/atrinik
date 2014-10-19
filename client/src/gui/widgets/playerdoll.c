@@ -36,11 +36,11 @@
  * Used to determine where to put item sprites on the player doll. */
 static int player_doll_positions[PLAYER_EQUIP_MAX][2] =
 {
-    {22, 6},
     {22, 44},
+    {22, 6},
     {22, 82},
-    {22, 82},
-    {22, 120},
+    {102, 82},
+    {102, 120},
     {22, 158},
     {62, 6},
     {62, 44},
@@ -49,21 +49,59 @@ static int player_doll_positions[PLAYER_EQUIP_MAX][2] =
     {62, 158},
     {102, 6},
     {102, 44},
-    {102, 82},
-    {102, 120},
+    {22, 82},
+    {22, 120},
     {102, 158}
 };
+
+object *playerdoll_get_equipment(int i, int *xpos, int *ypos)
+{
+    object *obj;
+
+    if (cpl.equipment[i] == 0) {
+        return NULL;
+    }
+
+    obj = object_find(cpl.equipment[i]);
+
+    if (obj == NULL) {
+        return NULL;
+    }
+
+    if (i == PLAYER_EQUIP_SHIELD) {
+        object *obj2 = NULL;
+
+        if (cpl.equipment[PLAYER_EQUIP_WEAPON_RANGED] != 0) {
+            obj2 = object_find(cpl.equipment[PLAYER_EQUIP_WEAPON_RANGED]);
+        } else if (cpl.equipment[PLAYER_EQUIP_WEAPON] != 0) {
+            obj2 = object_find(cpl.equipment[PLAYER_EQUIP_WEAPON]);
+        }
+
+        if (obj2 != NULL && obj2->flags & CS_FLAG_WEAPON_2H) {
+            obj = obj2;
+        }
+    } else if (i == PLAYER_EQUIP_WEAPON_RANGED) {
+        if (obj->flags & CS_FLAG_WEAPON_2H) {
+            return NULL;
+        }
+    }
+
+    *xpos = player_doll_positions[i][0] + 2;
+    *ypos = player_doll_positions[i][1] + 2;
+
+    return obj;
+}
 
 /** @copydoc widgetdata::draw_func */
 static void widget_draw(widgetdata *widget)
 {
-    char *tooltip_text;
-    int i, xpos, ypos, mx, my;
+    int i, xpos, ypos;
     SDL_Surface *texture_slot_border;
     object *obj;
 
-    tooltip_text = NULL;
-    widget->redraw++;
+    if (!widget->redraw) {
+        return;
+    }
 
     text_show(widget->surface, FONT_SANS12, "[b]Ranged[/b]", 20, 188, COLOR_HGOLD, TEXT_MARKUP, NULL);
     text_show(widget->surface, FONT_ARIAL10, "DMG", 9, 205, COLOR_HGOLD, 0, NULL);
@@ -94,34 +132,67 @@ static void widget_draw(widgetdata *widget)
 
     surface_show(widget->surface, 0, 0, NULL, TEXTURE_CLIENT(cpl.gender == GENDER_FEMALE ? "player_doll_f" : "player_doll"));
 
-    SDL_GetMouseState(&mx, &my);
-
     for (i = 0; i < PLAYER_EQUIP_MAX; i++) {
         surface_show(widget->surface, player_doll_positions[i][0], player_doll_positions[i][1], NULL, texture_slot_border);
 
-        if ((i == PLAYER_EQUIP_WEAPON && cpl.equipment[PLAYER_EQUIP_WEAPON_RANGED] != 0) ||
-            (cpl.equipment[i] == 0 || !(obj = object_find(cpl.equipment[i])))) {
+        obj = playerdoll_get_equipment(i, &xpos, &ypos);
+
+        if (!obj) {
             continue;
         }
 
-        xpos = player_doll_positions[i][0] + 2;
-        ypos = player_doll_positions[i][1] + 2;
-
         object_show_centered(widget->surface, obj, xpos, ypos);
+    }
+}
 
-        /* Prepare item name tooltip */
-        if (mx - widget->x > xpos && mx - widget->x <= xpos + INVENTORY_ICON_SIZE && my - widget->y > ypos && my - widget->y <= ypos + INVENTORY_ICON_SIZE) {
-            tooltip_text = obj->s_name;
+/** @copydoc widgetdata::event_func */
+static int widget_event(widgetdata *widget, SDL_Event *event)
+{
+    if (event->type == SDL_MOUSEMOTION) {
+        char buf[HUGE_BUF];
+        object *obj;
+        int i, xpos, ypos;
+
+        buf[0] = '\0';
+
+        for (i = 0; i < PLAYER_EQUIP_MAX; i++) {
+            obj = playerdoll_get_equipment(i, &xpos, &ypos);
+
+            if (!obj) {
+                continue;
+            }
+
+            if (event->motion.x - widget->x > xpos &&
+                    event->motion.x - widget->x <= xpos + INVENTORY_ICON_SIZE &&
+                    event->motion.y - widget->y > ypos &&
+                    event->motion.y - widget->y <= ypos + INVENTORY_ICON_SIZE) {
+                if (buf[0] != '\0') {
+                    strncat(buf, "\n", sizeof(buf) - strlen(buf) - 1);
+                }
+
+                if (obj->nrof > 1) {
+                    snprintfcat(buf, sizeof(buf), "%d %s", obj->nrof,
+                            obj->s_name);
+                } else {
+                    strncat(buf, obj->s_name, sizeof(buf) - strlen(buf) - 1);
+                }
+            }
         }
+
+        if (buf[0] != '\0') {
+            tooltip_create(event->motion.x, event->motion.y, FONT_ARIAL11, buf);
+            tooltip_enable_delay(300);
+            tooltip_multiline(200);
+        }
+
+        return 1;
     }
 
-    /* Draw item name tooltip */
-    if (tooltip_text) {
-        tooltip_create(mx, my, FONT_ARIAL10, tooltip_text);
-    }
+    return 0;
 }
 
 void widget_playerdoll_init(widgetdata *widget)
 {
     widget->draw_func = widget_draw;
+    widget->event_func = widget_event;
 }
