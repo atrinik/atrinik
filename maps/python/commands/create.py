@@ -2,6 +2,7 @@
 ## Implements the /create DM command.
 
 import re
+from Common import obj_assign_attribs
 
 def main():
     msg = WhatIsMessage()
@@ -38,28 +39,7 @@ def main():
                 pl.DrawInfo(str(err), COLOR_RED)
                 break
 
-        if attribs:
-            for (attrib, val) in re.findall(r'(\w+) ("[^"]+"|[^ ]+)', attribs):
-                if val.startswith('"') and val.endswith('"'):
-                    val = val[1:-1]
-
-                try:
-                    val = int(val)
-                except ValueError:
-                    try:
-                        val = float(val)
-                    except ValueError:
-                        pass
-
-                if val == "None":
-                    val = None
-
-                if hasattr(obj, attrib):
-                    setattr(obj, attrib, val)
-                elif hasattr(obj, "f_" + attrib):
-                    setattr(obj, "f_" + attrib, True if val else False)
-                else:
-                    obj.Load("{} {}".format(attrib, "NONE" if val == None else val))
+        obj_assign_attribs(obj, attribs)
 
         if obj.f_monster:
             activator.map.Insert(obj, activator.x, activator.y)
@@ -70,4 +50,5 @@ def main():
         else:
             obj.InsertInto(activator)
 
+print(__name__)
 main()

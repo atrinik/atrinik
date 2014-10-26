@@ -1,6 +1,8 @@
 ## @file
 ## This file holds common code used across Atrinik Python scripts.
 
+import re
+
 ## Calculate the diagonal distance between two X and Y coordinates.
 def diagonal_distance(x1, y1, x2, y2):
     return max(abs(x1 - x2), abs(y1 - y2))
@@ -71,3 +73,35 @@ def find_obj(activator, limit = 10, archname = None, name = None, count = None):
                     continue
 
                 return tmp
+
+def obj_assign_attribs (obj, attribs):
+    if not attribs:
+        return
+
+    for (attrib, val) in re.findall(r'(\w+) ("[^"]+"|[^ ]+)', attribs):
+        if val.startswith('"') and val.endswith('"'):
+            val = val[1:-1]
+
+        # Try to create an integer or a float from the value if possible.
+        try:
+            val = int(val)
+        except ValueError:
+            try:
+                val = float(val)
+            except ValueError:
+                pass
+
+        # Translate None string to literal None
+        if val == "None":
+            val = None
+
+        # If the object has the attribute, set it directly
+        if hasattr(obj, attrib):
+            setattr(obj, attrib, val)
+        # If the object has the flag attribute, set it directly
+        elif hasattr(obj, "f_" + attrib):
+            setattr(obj, "f_" + attrib, True if val else False)
+        # Otherwise attempt to use the Load method
+        else:
+            obj.Load("{} {}".format(attrib, "NONE" if val == None else val))
+
