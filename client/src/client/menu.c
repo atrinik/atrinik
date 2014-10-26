@@ -259,6 +259,20 @@ int client_command_check(const char *cmd)
 
         return 1;
     }
+    else if (strncasecmp(cmd, "/patch-obj", 11) == 0) {
+        object *ob;
+
+        ob = widget_inventory_get_selected(cur_widget[cpl.inventory_focus]);
+
+        if (ob != NULL) {
+            char buf[HUGE_BUF];
+
+            snprintf(buf, sizeof(buf), "/patch #%d ", ob->tag);
+            widget_textwin_handle_console(buf);
+        }
+
+        return 1;
+    }
     else if (string_startswith(cmd, "/cast ") || string_startswith(cmd, "/use_skill ")) {
         object *tmp;
         uint8 type;

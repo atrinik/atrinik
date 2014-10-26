@@ -304,6 +304,7 @@ static int widget_menu_handle(widgetdata *widget, SDL_Event *event)
         add_menuitem(menu, "Examine", &menu_inventory_examine, MENU_NORMAL, 0);
 
         if (setting_get_int(OPT_CAT_DEVEL, OPT_OPERATOR)) {
+            add_menuitem(menu, "Patch", &menu_inventory_patch, MENU_NORMAL, 0);
             add_menuitem(menu, "Load to console", &menu_inventory_loadtoconsole, MENU_NORMAL, 0);
         }
 

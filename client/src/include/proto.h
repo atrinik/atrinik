@@ -85,6 +85,7 @@ extern int keybind_process_command(const char *cmd);
 /* src/client/main.c */
 extern SDL_Surface *ScreenSurface;
 extern struct sockaddr_in insock;
+extern ClientSocket csocket;
 extern server_struct *selected_server;
 extern uint32 LastTick;
 extern texture_struct *cursor_texture;
@@ -653,6 +654,7 @@ extern void menu_inventory_get(widgetdata *widget, widgetdata *menuitem, SDL_Eve
 extern void menu_inventory_getall(widgetdata *widget, widgetdata *menuitem, SDL_Event *event);
 extern void menu_inventory_examine(widgetdata *widget, widgetdata *menuitem, SDL_Event *event);
 extern void menu_inventory_loadtoconsole(widgetdata *widget, widgetdata *menuitem, SDL_Event *event);
+extern void menu_inventory_patch(widgetdata *widget, widgetdata *menuitem, SDL_Event *event);
 extern void menu_inventory_mark(widgetdata *widget, widgetdata *menuitem, SDL_Event *event);
 extern void menu_inventory_lock(widgetdata *widget, widgetdata *menuitem, SDL_Event *event);
 extern void menu_inventory_drag(widgetdata *widget, widgetdata *menuitem, SDL_Event *event);
@@ -702,6 +704,7 @@ extern void widget_notification_init(widgetdata *widget);
 extern void socket_command_party(uint8 *data, size_t len, size_t pos);
 extern void widget_party_init(widgetdata *widget);
 /* src/gui/widgets/playerdoll.c */
+extern object *playerdoll_get_equipment(int i, int *xpos, int *ypos);
 extern void widget_playerdoll_init(widgetdata *widget);
 /* src/gui/widgets/playerinfo.c */
 extern void widget_playerinfo_init(widgetdata *widget);
@@ -965,7 +968,7 @@ extern ssize_t stringbuffer_rindex(StringBuffer *sb, char c);
 extern void toolkit_import_register(toolkit_func func);
 extern int toolkit_check_imported(toolkit_func func);
 extern void toolkit_deinit(void);
-/* src/toolkit/x11.c*/
+/* src/toolkit/x11.c */
 extern void toolkit_x11_init(void);
 extern void toolkit_x11_deinit(void);
 extern x11_window_type x11_window_get_parent(x11_display_type display, x11_window_type win);

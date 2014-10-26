@@ -731,6 +731,16 @@ void menu_inventory_loadtoconsole(widgetdata *widget, widgetdata *menuitem, SDL_
 }
 
 /**
+ * The 'Patch' menu action for inventory windows.
+ * @param widget The widget.
+ * @param x X.
+ * @param y Y. */
+void menu_inventory_patch(widgetdata *widget, widgetdata *menuitem, SDL_Event *event)
+{
+    send_command_check("/patch-obj");
+}
+
+/**
  * The 'Mark' menu action for inventory windows.
  * @param widget The widget.
  * @param x X.
