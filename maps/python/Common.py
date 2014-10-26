@@ -78,9 +78,9 @@ def obj_assign_attribs (obj, attribs):
     if not attribs:
         return
 
-    for (attrib, val) in re.findall(r'(\w+) ("[^"]+"|[^ ]+)', attribs):
-        if val.startswith('"') and val.endswith('"'):
-            val = val[1:-1]
+    for t in re.findall(r'(\w+) (?:(?:"([^"]+)")|([^ ]+))', attribs):
+        attrib = t[0]
+        val = t[1] or t[2]
 
         # Try to create an integer or a float from the value if possible.
         try:
