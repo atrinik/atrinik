@@ -63,6 +63,9 @@ if (ENABLE_DEBUG)
 	add_definitions(-g)
 endif (ENABLE_DEBUG)
 
+set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -DDEBUG=1")
+set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} -DDEBUG=0")
+
 # Add our includes.
 include_directories(src/include)
 include_directories(src/gui/toolkit/include)
