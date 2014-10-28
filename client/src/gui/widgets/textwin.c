@@ -973,18 +973,21 @@ static void menu_textwin_tabs_one(widgetdata *widget, widgetdata *menuitem, SDL_
     widgetdata *tmp;
     _widget_label *label;
     size_t id;
+    char *cp;
 
     for (tmp = menuitem->inv; tmp; tmp = tmp->next) {
         if (tmp->type == LABEL_ID) {
             label = LABEL(menuitem->inv);
+            cp = text_strip_markup(label->text, NULL, 0);
 
-            if (textwin_tab_find(widget, textwin_tab_name_to_id(label->text), label->text, &id)) {
-                textwin_tab_remove(widget, label->text);
+            if (textwin_tab_find(widget, textwin_tab_name_to_id(cp), cp, &id)) {
+                textwin_tab_remove(widget, cp);
             }
             else {
-                textwin_tab_add(widget, label->text);
+                textwin_tab_add(widget, cp);
             }
 
+            efree(cp);
             WIDGET_REDRAW(widget);
             break;
         }
@@ -998,6 +1001,7 @@ static void menu_textwin_tabs(widgetdata *widget, widgetdata *menuitem, SDL_Even
     size_t i, id;
     uint8 found;
     _widget_label *label;
+    char *cp;
 
     submenu = MENU(menuitem->env)->submenu;
 
@@ -1006,7 +1010,9 @@ static void menu_textwin_tabs(widgetdata *widget, widgetdata *menuitem, SDL_Even
             continue;
         }
 
-        add_menuitem(submenu, textwin_tab_names[i], &menu_textwin_tabs_one, MENU_CHECKBOX, textwin_tab_find(widget, i + 1, NULL, &id));
+        cp = text_escape_markup(textwin_tab_names[i]);
+        add_menuitem(submenu, cp, &menu_textwin_tabs_one, MENU_CHECKBOX, textwin_tab_find(widget, i + 1, NULL, &id));
+        efree(cp);
     }
 
     for (tmp = cur_widget[CHATWIN_ID]; tmp; tmp = tmp->type_next) {
