@@ -33,7 +33,7 @@
 /** Tooltip's text. */
 static char tooltip_text[HUGE_BUF * 4];
 /** Font of the tooltip text. */
-static int tooltip_font;
+static font_struct *tooltip_font;
 /** Tooltip's X position. */
 static int tooltip_x = -1;
 /** Tooltip's Y position. */
@@ -51,9 +51,10 @@ static uint8 tooltip_opacity = 0;
  * @param my Mouse Y.
  * @param font Font to use, one of @ref FONT_xxx.
  * @param text The text to show in the tooltip. */
-void tooltip_create(int mx, int my, int font, const char *text)
+void tooltip_create(int mx, int my, font_struct *font, const char *text)
 {
     tooltip_delay = 0;
+    FONT_INCREF(font);
     tooltip_font = font;
     tooltip_x = mx;
     tooltip_y = my;
@@ -162,4 +163,9 @@ void tooltip_dismiss(void)
     tooltip_y = -1;
     tooltip_w = -1;
     tooltip_h = -1;
+
+    if (tooltip_font != NULL) {
+        font_free(tooltip_font);
+        tooltip_font = NULL;
+    }
 }

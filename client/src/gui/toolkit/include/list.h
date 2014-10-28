@@ -124,7 +124,7 @@ typedef struct list_struct
     scrollbar_struct scrollbar;
 
     /** Font used, one of @ref FONT_xxx. Default is @ref FONT_SANS10. */
-    int font;
+    font_struct *font;
 
     /** Surface used to draw the list on. */
     SDL_Surface *surface;
@@ -212,7 +212,7 @@ typedef struct list_struct
 } list_struct;
 
 /** Calculate list's row height. */
-#define LIST_ROW_HEIGHT(list) (((list)->font != -1 ? FONT_HEIGHT((list)->font) : 0) + (list)->row_height_adjust)
+#define LIST_ROW_HEIGHT(list) (((list)->font != NULL ? FONT_HEIGHT((list)->font) : 0) + (list)->row_height_adjust)
 /** Figure out Y position where rows should actually start. */
 #define LIST_ROWS_START(list) ((list)->y + (list)->header_height + (list)->spacing + (list)->frame_offset)
 /** Figure out maximum visible rows. */

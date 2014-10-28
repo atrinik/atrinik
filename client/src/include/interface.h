@@ -46,7 +46,7 @@ typedef struct interface_struct
     char *text_input_prepend;
 
     /** Font used. */
-    int font;
+    font_struct *font;
 
     /** Array of the shortcut-supporting links. */
     UT_array *links;

@@ -72,118 +72,253 @@ static text_anchor_handle_func text_anchor_handle = NULL;
  * argument. */
 static void *text_anchor_info_ptr = NULL;
 
-/** All the usable fonts. */
-font_struct fonts[FONTS_MAX] =
+/**
+ * The usable fonts.
+ */
+static font_struct *fonts;
+
+/**
+ * Get a hash table key for a font.
+ * @param name Name of the font.
+ * @param size Size of the font.
+ * @param buf Where to store the result.
+ * @param buf_size Size of 'buf'.
+ * @return 'buf'.
+ */
+static char *font_get_hash_key(const char *name, uint8 size, char *buf,
+        size_t buf_size)
 {
-    {"fonts/vera/sans.ttf", 7, NULL, 0},
-    {"fonts/vera/sans.ttf", 8, NULL, 0},
-    {"fonts/vera/sans.ttf", 9, NULL, 0},
-    {"fonts/vera/sans.ttf", 10, NULL, 0},
-    {"fonts/vera/sans.ttf", 11, NULL, 0},
-    {"fonts/vera/sans.ttf", 12, NULL, 0},
-    {"fonts/vera/sans.ttf", 13, NULL, 0},
-    {"fonts/vera/sans.ttf", 14, NULL, 0},
-    {"fonts/vera/sans.ttf", 15, NULL, 0},
-    {"fonts/vera/sans.ttf", 16, NULL, 0},
-    {"fonts/vera/sans.ttf", 18, NULL, 0},
-    {"fonts/vera/sans.ttf", 20, NULL, 0},
-    {"fonts/vera/serif.ttf", 8, NULL, 0},
-    {"fonts/vera/serif.ttf", 10, NULL, 0},
-    {"fonts/vera/serif.ttf", 12, NULL, 0},
-    {"fonts/vera/serif.ttf", 14, NULL, 0},
-    {"fonts/vera/serif.ttf", 16, NULL, 0},
-    {"fonts/vera/serif.ttf", 18, NULL, 0},
-    {"fonts/vera/serif.ttf", 20, NULL, 0},
-    {"fonts/vera/serif.ttf", 22, NULL, 0},
-    {"fonts/vera/serif.ttf", 24, NULL, 0},
-    {"fonts/vera/serif.ttf", 26, NULL, 0},
-    {"fonts/vera/serif.ttf", 28, NULL, 0},
-    {"fonts/vera/serif.ttf", 30, NULL, 0},
-    {"fonts/vera/serif.ttf", 32, NULL, 0},
-    {"fonts/vera/serif.ttf", 34, NULL, 0},
-    {"fonts/vera/serif.ttf", 36, NULL, 0},
-    {"fonts/vera/serif.ttf", 38, NULL, 0},
-    {"fonts/vera/serif.ttf", 40, NULL, 0},
-    {"fonts/vera/mono.ttf", 8, NULL, 0},
-    {"fonts/vera/mono.ttf", 9, NULL, 0},
-    {"fonts/vera/mono.ttf", 10, NULL, 0},
-    {"fonts/vera/mono.ttf", 12, NULL, 0},
-    {"fonts/vera/mono.ttf", 14, NULL, 0},
-    {"fonts/vera/mono.ttf", 16, NULL, 0},
-    {"fonts/vera/mono.ttf", 18, NULL, 0},
-    {"fonts/vera/mono.ttf", 20, NULL, 0},
-    {"fonts/arial.ttf", 8, NULL, 0},
-    {"fonts/arial.ttf", 10, NULL, 0},
-    {"fonts/arial.ttf", 11, NULL, 0},
-    {"fonts/arial.ttf", 12, NULL, 0},
-    {"fonts/arial.ttf", 13, NULL, 0},
-    {"fonts/arial.ttf", 14, NULL, 0},
-    {"fonts/arial.ttf", 15, NULL, 0},
-    {"fonts/arial.ttf", 16, NULL, 0},
-    {"fonts/arial.ttf", 18, NULL, 0},
-    {"fonts/arial.ttf", 20, NULL, 0},
-    {"fonts/logisoso.ttf", 8, NULL, 0},
-    {"fonts/logisoso.ttf", 10, NULL, 0},
-    {"fonts/logisoso.ttf", 12, NULL, 0},
-    {"fonts/logisoso.ttf", 14, NULL, 0},
-    {"fonts/logisoso.ttf", 16, NULL, 0},
-    {"fonts/logisoso.ttf", 18, NULL, 0},
-    {"fonts/logisoso.ttf", 20, NULL, 0},
-    {"fonts/fanwood.otf", 8, NULL, 0},
-    {"fonts/fanwood.otf", 10, NULL, 0},
-    {"fonts/fanwood.otf", 12, NULL, 0},
-    {"fonts/fanwood.otf", 14, NULL, 0},
-    {"fonts/fanwood.otf", 16, NULL, 0},
-    {"fonts/fanwood.otf", 18, NULL, 0},
-    {"fonts/fanwood.otf", 20, NULL, 0},
-    {"fonts/courier.otf", 8, NULL, 0},
-    {"fonts/courier.otf", 10, NULL, 0},
-    {"fonts/courier.otf", 12, NULL, 0},
-    {"fonts/courier.otf", 14, NULL, 0},
-    {"fonts/courier.otf", 16, NULL, 0},
-    {"fonts/courier.otf", 18, NULL, 0},
-    {"fonts/courier.otf", 20, NULL, 0},
-    {"fonts/pecita.otf", 8, NULL, 0},
-    {"fonts/pecita.otf", 10, NULL, 0},
-    {"fonts/pecita.otf", 12, NULL, 0},
-    {"fonts/pecita.otf", 14, NULL, 0},
-    {"fonts/pecita.otf", 16, NULL, 0},
-    {"fonts/pecita.otf", 18, NULL, 0},
-    {"fonts/pecita.otf", 20, NULL, 0}
-};
+    snprintf(buf, buf_size, "%s@%d", name, size);
+    return buf;
+}
+
+/**
+ * Attempt to open a TTF font. Will attempt various paths/extensions until
+ * giving up.
+ * @param name Name of the font.
+ * @param size Size of the font.
+ * @return Opened font on success, NULL on failure.
+ */
+static TTF_Font *font_open(const char *name, uint8 size)
+{
+    char path[MAX_BUF];
+    TTF_Font *ttf_font;
+
+    snprintf(path, sizeof(path), "fonts/%s.ttf", name);
+    ttf_font = TTF_OpenFont_wrapper(path, size);
+
+    if (ttf_font == NULL) {
+        snprintf(path, sizeof(path), "fonts/%s.otf", name);
+        ttf_font = TTF_OpenFont_wrapper(path, size);
+    }
+
+    if (ttf_font == NULL) {
+        logger_print(LOG(ERROR), "Unable to load font (%s, %d): %s", name, size,
+                TTF_GetError());
+    }
+
+    return ttf_font;
+}
+
+/**
+ * Allocate a new font structure.
+ * @param name Name of the font.
+ * @param size Size of the font.
+ * @return The allocated font; NULL on failure. */
+static font_struct *font_new(const char *name, uint8 size)
+{
+    TTF_Font *ttf_font;
+    font_struct *font;
+    char key[MAX_BUF];
+
+    ttf_font = font_open(name, size);
+
+    if (ttf_font == NULL) {
+        return NULL;
+    }
+
+    font = ecalloc(1, sizeof(*font));
+    font->key = estrdup(font_get_hash_key(name, size, key, sizeof(key)));
+    font->name = estrdup(name);
+    font->size = size;
+    font->last_used = time(NULL);
+    font->font = ttf_font;
+    font->height = TTF_FontLineSkip(ttf_font);
+    font->ref = 1; /* One because we're inserting it into a hash table. */
+
+    HASH_ADD_KEYPTR(hh, fonts, font->key, strlen(font->key), font);
+
+    return font;
+}
+
+/**
+ * Acquires a weak reference to the font of the specified name and size. Do NOT
+ * store a reference to this pointer without explicit FONT_INCREF. If in doubt,
+ * use font_get() instead.
+ *
+ * This function will attempt to find the specified font with the specified
+ * size in a hash table, and, failing that, it will attempt to initialized
+ * such font.
+ * @param name Name of the font to get.
+ * @param size Size of the font to get.
+ * @return Font; can be NULL in case of failure.
+ */
+font_struct *font_get_weak(const char *name, uint8 size)
+{
+    char key[MAX_BUF];
+    font_struct *font;
+
+    assert(name != NULL);
+    assert(size != 0);
+
+    font_get_hash_key(name, size, key, sizeof(key));
+    HASH_FIND_STR(fonts, key, font);
+
+    if (font == NULL) {
+        font = font_new(name, size);
+    } else {
+        font->last_used = time(NULL);
+    }
+
+    return font;
+}
+
+/**
+ * Like font_get_weak(), but the returned pointer will have increased reference
+ * count, so remember to use font_free() in your cleanup function.
+ * @param name Name of the font to get.
+ * @param size Size of the font to get.
+ * @return Font; can be NULL in case of failure.
+ */
+font_struct *font_get(const char *name, uint8 size)
+{
+    font_struct *font;
+
+    assert(name != NULL);
+    assert(size != 0);
+
+    font = font_get_weak(name, size);
+
+    if (font) {
+        font->ref++;
+    }
+
+    return font;
+}
+
+/**
+ * Acquire font of a larger or smaller size.
+ * @param font Font.
+ * @param size Size adjustment; 1 for a bigger one, -1 for a smaller one.
+ * @return The font. NULL if the size is not in an acceptable range or some
+ * other failure occurs.
+ */
+font_struct *font_get_size(font_struct *font, sint8 size)
+{
+    int size_desired;
+
+    assert(font != NULL);
+
+    size_desired = font->size + size;
+
+    if (size_desired < 1 || size_desired > UINT8_MAX) {
+        return NULL;
+    }
+
+    return font_get(font->name, size_desired);
+}
+
+/**
+ * Free a font.
+ * @param font Font to free. */
+void font_free(font_struct *font)
+{
+    assert(font != NULL);
+
+    if (font->ref > 1) {
+        font->ref--;
+        return;
+    }
+
+    if (DEBUG) {
+        char key[MAX_BUF];
+        font_struct *tmp;
+
+        font_get_hash_key(font->name, font->size, key, sizeof(key));
+        HASH_FIND_STR(fonts, key, tmp);
+
+        if (tmp != NULL) {
+            logger_print(LOG(ERROR), "Attempted to free a font that was still "
+                                     "in the hash table! Font name: %s, "
+                                     "size: %d", font->name, font->size);
+            abort();
+        }
+    }
+
+    efree(font->name);
+    efree(font->key);
+    TTF_CloseFont(font->font);
+    efree(font);
+}
+
+/**
+ * Garbage-collect fonts.
+ */
+void font_gc(void)
+{
+    time_t now;
+    struct timeval tv1, tv2;
+    font_struct *font, *next;
+
+    if (!rndm_chance(FONT_GC_CHANCE)) {
+        return;
+    }
+
+    now = time(NULL);
+    gettimeofday(&tv1, NULL);
+
+    HASH_ITER(hh, fonts, font, next) {
+        if (gettimeofday(&tv2, NULL) == 0 &&
+                tv2.tv_usec - tv1.tv_usec >= FONT_GC_MAX_TIME) {
+            break;
+        }
+
+        /* If this is not the only reference, skip it. */
+        if (font->ref > 1) {
+            continue;
+        }
+
+        /* If not enough time has passed, skip it. */
+        if (now - font->last_used < FONT_GC_FREE_TIME) {
+            continue;
+        }
+
+        HASH_DEL(fonts, font);
+        FONT_DECREF(font);
+        font_free(font);
+    }
+}
 
 /**
  * Initialize the text API. Should only be done once. */
 void text_init(void)
 {
-    size_t i;
-    TTF_Font *font;
-
     TTF_Init();
-
-    for (i = 0; i < FONTS_MAX; i++) {
-        font = TTF_OpenFont_wrapper(fonts[i].path, fonts[i].size);
-
-        if (!font) {
-            logger_print(LOG(ERROR), "Unable to load font (%s): %s", fonts[i].path, TTF_GetError());
-            exit(1);
-        }
-
-        fonts[i].font = font;
-        fonts[i].height = TTF_FontLineSkip(font);
-    }
+    fonts = NULL;
 
     text_link_color = text_link_color_default;
 }
 
 /**
- * Deinitializes the text API. */
+ * Deinitialize the text API. */
 void text_deinit(void)
 {
-    size_t i;
+    font_struct *font, *next;
 
-    for (i = 0; i < FONTS_MAX; i++) {
-        TTF_CloseFont(fonts[i].font);
+    HASH_ITER(hh, fonts, font, next) {
+        HASH_DEL(fonts, font);
+        FONT_DECREF(font);
+        font_free(font);
     }
 
     TTF_Quit();
@@ -255,57 +390,6 @@ void text_set_anchor_handle(text_anchor_handle_func func)
 void text_set_anchor_info(void *ptr)
 {
     text_anchor_info_ptr = ptr;
-}
-
-/**
- * Get font's filename; removes the path/to/fontdir part from the font's
- * path and returns it.
- * @param font Font ID.
- * @return The filename. */
-const char *get_font_filename(int font)
-{
-    const char *cp;
-
-    cp = strrchr(fonts[font].path, '/');
-
-    if (!cp) {
-        cp = fonts[font].path;
-    }
-    else {
-        cp++;
-    }
-
-    return cp;
-}
-
-/**
- * Get font's ID from its xxx.ttf name (not including path) and the pixel
- * size.
- * @param name The font name.
- * @param size The size.
- * @return The font ID, -1 if there is no such font. */
-int get_font_id(const char *name, size_t size)
-{
-    size_t i;
-    const char *cp;
-    uint8 ext = strstr(name, ".ttf") || strstr(name, ".otf") ? 1 : 0;
-
-    for (i = 0; i < FONTS_MAX; i++) {
-        cp = strrchr(fonts[i].path, '/');
-
-        if (!cp) {
-            cp = fonts[i].path;
-        }
-        else {
-            cp++;
-        }
-
-        if ((!strcmp(cp, name) || (!ext && !strncmp(cp, name, strlen(cp) - 4))) && fonts[i].size == size) {
-            return i;
-        }
-    }
-
-    return -1;
 }
 
 /**
@@ -567,7 +651,7 @@ void text_show_character_init(text_info_struct *info)
     info->in_bold = info->in_italic = info->in_underline = info->in_strikethrough = 0;
     info->obscured = 0;
     info->calc_bold = 0;
-    info->calc_font = -1;
+    info->calc_font = NULL;
     info->hcenter_y = 0;
     info->height = 0;
     info->start_x = 0;
@@ -593,9 +677,10 @@ void text_show_character_init(text_info_struct *info)
  * @return How many characters to jump. Usually 1, but can be more in
  * case of markup tags that need to be jumped over, since they are not
  * actually drawn. */
-int text_show_character(int *font, int orig_font, SDL_Surface *surface, SDL_Rect *dest, const char *cp, SDL_Color *color, SDL_Color *orig_color, uint64 flags, SDL_Rect *box, int *x_adjust, text_info_struct *info)
+int text_show_character(font_struct **font, font_struct *orig_font, SDL_Surface *surface, SDL_Rect *dest, const char *cp, SDL_Color *color, SDL_Color *orig_color, uint64 flags, SDL_Rect *box, int *x_adjust, text_info_struct *info)
 {
-    int width, minx, ret = 1, restore_font = -1, new_style;
+    int width, minx, ret = 1, new_style;
+    font_struct *restore_font = NULL;
     char c = *cp;
     uint8 remove_bold = 0;
 
@@ -749,14 +834,14 @@ int text_show_character(int *font, int orig_font, SDL_Surface *surface, SDL_Rect
             char font_name[MAX_BUF];
 
             if (!(flags & TEXT_NO_FONT_CHANGE) && sscanf(tag + 5, "%64[^] >] %d", font_name, &font_size) >= 1) {
-                int font_id = get_font_id(font_name, font_size);
+                font_struct *font_new = font_get_weak(font_name, font_size);
 
-                if (font_id != -1) {
+                if (font_new != NULL) {
                     if (surface || info->obscured) {
-                        *font = font_id;
+                        *font = font_new;
                     }
                     else {
-                        info->calc_font = font_id;
+                        info->calc_font = font_new;
                     }
                 }
             }
@@ -765,24 +850,14 @@ int text_show_character(int *font, int orig_font, SDL_Surface *surface, SDL_Rect
             int font_size;
 
             if (!(flags & TEXT_NO_FONT_CHANGE) && sscanf(tag + 5, "%d", &font_size) == 1) {
-                const char *tmp = strrchr(fonts[*font].path, '/');
-                int font_id;
+                font_struct *font_new = font_get_weak((*font)->name, font_size);
 
-                if (!tmp) {
-                    tmp = fonts[*font].path;
-                }
-                else {
-                    tmp++;
-                }
-
-                font_id = get_font_id(tmp, font_size);
-
-                if (font_id != -1) {
+                if (font_new != NULL) {
                     if (surface || info->obscured) {
-                        *font = font_id;
+                        *font = font_new;
                     }
                     else {
-                        info->calc_font = font_id;
+                        info->calc_font = font_new;
                     }
                 }
             }
@@ -792,7 +867,7 @@ int text_show_character(int *font, int orig_font, SDL_Surface *surface, SDL_Rect
                 *font = orig_font;
             }
             else {
-                info->calc_font = -1;
+                info->calc_font = NULL;
             }
         }
         /* Make text centered. */
@@ -1018,7 +1093,7 @@ int text_show_character(int *font, int orig_font, SDL_Surface *surface, SDL_Rect
                 *font = orig_font;
             }
             else {
-                info->calc_font = -1;
+                info->calc_font = NULL;
             }
         }
         else if (tag_len >= 8 && strncmp(tag, "padding=", 8) == 0) {
@@ -1447,8 +1522,8 @@ int text_show_character(int *font, int orig_font, SDL_Surface *surface, SDL_Rect
             new_style |= TTF_STYLE_UNDERLINE;
         }
 
-        if (TTF_GetFontStyle(fonts[*font].font) != new_style) {
-            TTF_SetFontStyle(fonts[*font].font, new_style);
+        if (TTF_GetFontStyle((*font)->font) != new_style) {
+            TTF_SetFontStyle((*font)->font, new_style);
         }
     }
     /* Deals with the case when calculating width. */
@@ -1457,37 +1532,37 @@ int text_show_character(int *font, int orig_font, SDL_Surface *surface, SDL_Rect
 
         /* Different font sizes affect the width, so we need to
          * temporarily change the current font. */
-        if (info->calc_font != -1) {
-            restore_font = *font;
-            *font = info->calc_font;
+        if (info->calc_font != NULL) {
+            restore_font = (*font);
+            (*font) = info->calc_font;
         }
 
-        is_bold = TTF_GetFontStyle(fonts[*font].font) & TTF_STYLE_BOLD;
+        is_bold = TTF_GetFontStyle((*font)->font) & TTF_STYLE_BOLD;
 
         /* Bold style also slightly affects the width. */
         if (info->calc_bold && !is_bold) {
-            TTF_SetFontStyle(fonts[*font].font, TTF_GetFontStyle(fonts[*font].font) | TTF_STYLE_BOLD);
+            TTF_SetFontStyle((*font)->font, TTF_GetFontStyle((*font)->font) | TTF_STYLE_BOLD);
             remove_bold = 1;
         }
         else if (!info->calc_bold && is_bold) {
-            TTF_SetFontStyle(fonts[*font].font, TTF_GetFontStyle(fonts[*font].font) & ~TTF_STYLE_BOLD);
+            TTF_SetFontStyle((*font)->font, TTF_GetFontStyle((*font)->font) & ~TTF_STYLE_BOLD);
         }
     }
 
     /* Get the glyph's metrics. */
-    if (TTF_GlyphMetrics(fonts[*font].font, c == '\t' ? ' ' : c, &minx, NULL, NULL, NULL, &width) == -1) {
+    if (TTF_GlyphMetrics((*font)->font, c == '\t' ? ' ' : c, &minx, NULL, NULL, NULL, &width) == -1) {
         return ret;
     }
 
     /* Remove temporary bold style. */
     if (remove_bold) {
-        TTF_SetFontStyle(fonts[*font].font, TTF_GetFontStyle(fonts[*font].font) & ~TTF_STYLE_BOLD);
+        TTF_SetFontStyle((*font)->font, TTF_GetFontStyle((*font)->font) & ~TTF_STYLE_BOLD);
     }
 
     /* Restore font. */
-    if (restore_font != -1) {
+    if (restore_font != NULL) {
         *font = restore_font;
-        restore_font = -1;
+        restore_font = NULL;
     }
 
     if (minx < 0) {
@@ -1563,10 +1638,10 @@ int text_show_character(int *font, int orig_font, SDL_Surface *surface, SDL_Rect
                     outline_box.y = dest->y + outline_y + MAX(info->start_y - dest->y + outline_y, 0);
 
                     if (flags & TEXT_SOLID) {
-                        ttf_surface = TTF_RenderText_Solid(fonts[*font].font, buf, info->outline_color);
+                        ttf_surface = TTF_RenderText_Solid((*font)->font, buf, info->outline_color);
                     }
                     else {
-                        ttf_surface = TTF_RenderText_Blended(fonts[*font].font, buf, info->outline_color);
+                        ttf_surface = TTF_RenderText_Blended((*font)->font, buf, info->outline_color);
                     }
 
                     srcrect.x = 0;
@@ -1582,7 +1657,7 @@ int text_show_character(int *font, int orig_font, SDL_Surface *surface, SDL_Rect
 
         /* Render the character. */
         if (flags & TEXT_SOLID) {
-            ttf_surface = TTF_RenderText_Solid(fonts[*font].font, buf, *use_color);
+            ttf_surface = TTF_RenderText_Solid((*font)->font, buf, *use_color);
 
             /* Opacity. */
             if (info->used_alpha != 255) {
@@ -1600,7 +1675,7 @@ int text_show_character(int *font, int orig_font, SDL_Surface *surface, SDL_Rect
             }
         }
         else {
-            ttf_surface = TTF_RenderText_Blended(fonts[*font].font, buf, *use_color);
+            ttf_surface = TTF_RenderText_Blended((*font)->font, buf, *use_color);
 
             if (info->used_alpha != 255) {
                 surface_set_alpha(ttf_surface, info->used_alpha);
@@ -1610,7 +1685,7 @@ int text_show_character(int *font, int orig_font, SDL_Surface *surface, SDL_Rect
         if (info->in_strikethrough) {
             int font_height;
 
-            font_height = TTF_FontHeight(fonts[*font].font);
+            font_height = TTF_FontHeight((*font)->font);
             lineRGBA(ttf_surface, 0, font_height / 2, ttf_surface->w - 1, font_height / 2, use_color->r, use_color->g, use_color->b, 255);
         }
 
@@ -1650,11 +1725,11 @@ int text_show_character(int *font, int orig_font, SDL_Surface *surface, SDL_Rect
  * @param font Font of the glyph.
  * @param c The glyph.
  * @return The width. */
-int glyph_get_width(int font, char c)
+int glyph_get_width(font_struct *font, char c)
 {
     int minx, width;
 
-    if (TTF_GlyphMetrics(fonts[font].font, c == '\t' ? ' ' : c, &minx, NULL, NULL, NULL, &width) != -1) {
+    if (TTF_GlyphMetrics(font->font, c == '\t' ? ' ' : c, &minx, NULL, NULL, NULL, &width) != -1) {
         if (minx < 0) {
             width -= minx;
         }
@@ -1674,11 +1749,11 @@ int glyph_get_width(int font, char c)
  * @param font Font of the glyph.
  * @param c The glyph.
  * @return The height. */
-int glyph_get_height(int font, char c)
+int glyph_get_height(font_struct *font, char c)
 {
     int miny, maxy;
 
-    if (TTF_GlyphMetrics(fonts[font].font, c, NULL, NULL, &miny, &maxy, NULL) != -1) {
+    if (TTF_GlyphMetrics(font->font, c, NULL, NULL, &miny, &maxy, NULL) != -1) {
         if (miny) {
             maxy -= miny;
         }
@@ -1763,13 +1838,13 @@ int glyph_get_height(int font, char c)
  * one of the 'flags', this is used to get the max width from. Also even
  * if word wrap is disabled, this is used to get the max height from, if
  * set (both box->w and box->h can be 0 to indicate unlimited). */
-void text_show(SDL_Surface *surface, int font, const char *text, int x, int y, const char *color_notation, uint64 flags, SDL_Rect *box)
+void text_show(SDL_Surface *surface, font_struct *font, const char *text, int x, int y, const char *color_notation, uint64 flags, SDL_Rect *box)
 {
     const char *cp = text;
     SDL_Rect dest;
     int pos = 0, last_space = 0, is_lf, ret, skip, max_height, max_width, height = 0;
     SDL_Color color, orig_color, select_color_orig;
-    int orig_font = font, lines = 1, width = 0;
+    int lines = 1, width = 0;
     uint16 *heights = NULL;
     size_t num_heights = 0;
     int x_adjust = 0;
@@ -1777,6 +1852,7 @@ void text_show(SDL_Surface *surface, int font, const char *text, int x, int y, c
     sint64 select_start = 0, select_end = 0;
     uint8 select_color_changed = 0;
     text_info_struct info;
+    font_struct *orig_font = font;
 
     if (text_color_parse(color_notation, &color)) {
         orig_color = color;
@@ -2054,7 +2130,7 @@ void text_show(SDL_Surface *surface, int font, const char *text, int x, int y, c
  * one of the 'flags', this is used to get the max width from. Also even
  * if word wrap is disabled, this is used to get the max height from, if
  * set (both box->w and box->h can be 0 to indicate unlimited). */
-void text_show_shadow(SDL_Surface *surface, int font, const char *text, int x, int y, const char *color_notation, const char *color_shadow_notation, uint64 flags, SDL_Rect *box)
+void text_show_shadow(SDL_Surface *surface, font_struct *font, const char *text, int x, int y, const char *color_notation, const char *color_shadow_notation, uint64 flags, SDL_Rect *box)
 {
     text_show(surface, font, text, x + 1, y + 1, color_shadow_notation, flags | TEXT_NO_COLOR_CHANGE, box);
     text_show(surface, font, text, x, y, color_notation, flags, box);
@@ -2064,7 +2140,7 @@ void text_show_shadow(SDL_Surface *surface, int font, const char *text, int x, i
  * Like text_show(), but allows using printf-like format specifiers.
  *
  * @copydoc text_show() */
-void text_show_format(SDL_Surface *surface, int font, int x, int y, const char *color_notation, uint64 flags, SDL_Rect *box, const char *format, ...)
+void text_show_format(SDL_Surface *surface, font_struct *font, int x, int y, const char *color_notation, uint64 flags, SDL_Rect *box, const char *format, ...)
 {
     char buf[HUGE_BUF * 4];
     va_list ap;
@@ -2079,7 +2155,7 @@ void text_show_format(SDL_Surface *surface, int font, int x, int y, const char *
  * Like text_show_shadow(), but allows using printf-like format specifiers.
  *
  * @copydoc text_show_shadow() */
-void text_show_shadow_format(SDL_Surface *surface, int font, int x, int y, const char *color_notation, const char *color_shadow_notation, uint64 flags, SDL_Rect *box, const char *format, ...)
+void text_show_shadow_format(SDL_Surface *surface, font_struct *font, int x, int y, const char *color_notation, const char *color_shadow_notation, uint64 flags, SDL_Rect *box, const char *format, ...)
 {
     char buf[HUGE_BUF * 4];
     va_list ap;
@@ -2097,14 +2173,14 @@ void text_show_shadow_format(SDL_Surface *surface, int font, int x, int y, const
  * @param text String to get width of.
  * @param flags One or a combination of @ref TEXT_xxx.
  * @return The string's width. */
-int text_get_width(int font, const char *text, uint64 flags)
+int text_get_width(font_struct *font, const char *text, uint64 flags)
 {
     SDL_Rect dest;
     const char *cp = text;
     text_info_struct info;
 
     text_show_character_init(&info);
-    TTF_SetFontStyle(fonts[font].font, TTF_STYLE_NORMAL);
+    TTF_SetFontStyle(font->font, TTF_STYLE_NORMAL);
 
     dest.w = 0;
 
@@ -2126,7 +2202,7 @@ int text_get_width(int font, const char *text, uint64 flags)
  * @param text String to get height of.
  * @param flags One or a combination of @ref TEXT_xxx.
  * @return The string's height. */
-int text_get_height(int font, const char *text, uint64 flags)
+int text_get_height(font_struct *font, const char *text, uint64 flags)
 {
     SDL_Rect dest;
     const char *cp;
@@ -2165,7 +2241,7 @@ int text_get_height(int font, const char *text, uint64 flags)
  * for example).
  * @param[out] w Will contain the calculated width.
  * @param[out] h Will contain the calculated height. */
-void text_get_width_height(int font, const char *text, uint64 flags, SDL_Rect *box, int *w, int *h)
+void text_get_width_height(font_struct *font, const char *text, uint64 flags, SDL_Rect *box, int *w, int *h)
 {
     SDL_Rect box2;
 
@@ -2197,7 +2273,7 @@ void text_get_width_height(int font, const char *text, uint64 flags, SDL_Rect *b
  * @param font Font used for the text.
  * @param text The text.
  * @param max_width Maximum possible width. */
-void text_truncate_overflow(int font, char *text, int max_width)
+void text_truncate_overflow(font_struct *font, char *text, int max_width)
 {
     size_t pos = 0;
     int width = 0;
@@ -2223,7 +2299,7 @@ void text_anchor_parse(text_info_struct *info, const char *text)
 {
     const char *cp = text;
     SDL_Rect dest;
-    int font = FONT_ARIAL10;
+    font_struct *font = FONT_ARIAL10;
 
     text_show_character_init(info);
     info->obscured = 1;

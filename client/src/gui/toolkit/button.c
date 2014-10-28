@@ -59,13 +59,14 @@ static texture_struct *button_determine_texture(button_struct *button)
  * @param button Button. */
 void button_create(button_struct *button)
 {
+    memset(button, 0, sizeof(*button));
+
     /* Initialize default values. */
     button->surface = ScreenSurface;
     button->x = button->y = 0;
     button->texture = texture_get(TEXTURE_TYPE_CLIENT, "button");
     button->texture_pressed = texture_get(TEXTURE_TYPE_CLIENT, "button_down");
-    button->texture_over = texture_get(TEXTURE_TYPE_CLIENT, "button_over");;
-    button->font = FONT_ARIAL10;
+    button->texture_over = texture_get(TEXTURE_TYPE_CLIENT, "button_over");
     button->flags = 0;
     button->center = 1;
     button->color = COLOR_WHITE;
@@ -75,12 +76,44 @@ void button_create(button_struct *button)
     button->mouse_over = button->pressed = button->pressed_forced = button->disabled = 0;
     button->pressed_ticks = button->hover_ticks = button->pressed_repeat_ticks = 0;
     button->repeat_func = NULL;
+
+    button_set_font(button, FONT_ARIAL10);
+}
+
+/**
+ * Destroy data associated with the specified button. The button structure
+ * itself is not freed.
+ * @param button Button to destroy.
+ */
+void button_destroy(button_struct *button)
+{
+    if (button->font) {
+        font_free(button->font);
+    }
 }
 
 void button_set_parent(button_struct *button, int px, int py)
 {
     button->px = px;
     button->py = py;
+}
+
+/**
+ * Set font of the specified button.
+ * @param button Button.
+ * @param font Font to set.
+ */
+void button_set_font(button_struct *button, font_struct *font)
+{
+    if (button->font) {
+        font_free(button->font);
+    }
+
+    if (font) {
+        FONT_INCREF(font);
+    }
+
+    button->font = font;
 }
 
 int button_need_redraw(button_struct *button)
@@ -232,7 +265,7 @@ int button_event(button_struct *button, SDL_Event *event)
  * @param button Button.
  * @param font Font to use for the tooltip text.
  * @param text Tooltip text. */
-void button_tooltip(button_struct *button, int font, const char *text)
+void button_tooltip(button_struct *button, font_struct *font, const char *text)
 {
     /* Sanity check. */
     if (!button || !text) {

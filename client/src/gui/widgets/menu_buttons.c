@@ -211,7 +211,7 @@ void widget_menu_buttons_init(widgetdata *widget)
     }
 
     buttons[BUTTON_HELP].flags |= TEXT_MARKUP;
-    buttons[BUTTON_HELP].font = FONT_SANS16;
+    button_set_font(&buttons[BUTTON_HELP], FONT_SANS16);
 
     widget->draw_func = widget_draw;
     widget->event_func = widget_event;

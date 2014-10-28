@@ -81,8 +81,13 @@ void text_input_create(text_input_struct *text_input)
     text_input_set_font(text_input, FONT_ARIAL11);
 }
 
-void text_input_set_font(text_input_struct *text_input, int font)
+void text_input_set_font(text_input_struct *text_input, font_struct *font)
 {
+    if (text_input->font != NULL) {
+        font_free(text_input->font);
+    }
+
+    FONT_INCREF(font);
     text_input->font = font;
     text_input->coords.h = FONT_HEIGHT(font) + TEXT_INPUT_PADDING * 2;
 }

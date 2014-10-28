@@ -2127,7 +2127,7 @@ void resize_widget_rec(widgetdata *widget, int x, int width, int y, int height)
 
 /** Creates a label with the given text, font and colour, and sets the size of
  * the widget to the correct boundaries. */
-widgetdata *add_label(const char *text, int font, const char *color)
+widgetdata *add_label(const char *text, font_struct *font, const char *color)
 {
     widgetdata *widget;
     _widget_label *label;
@@ -2137,6 +2137,7 @@ widgetdata *add_label(const char *text, int font, const char *color)
 
     label->text = estrdup(text);
 
+    FONT_INCREF(font);
     label->font = font;
     label->color = color;
 

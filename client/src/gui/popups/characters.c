@@ -487,6 +487,8 @@ static int popup_destroy_callback(popup_struct *popup)
         cpl.state = ST_START;
     }
 
+    button_destroy(&button_login);
+
     return 1;
 }
 
@@ -525,7 +527,7 @@ void characters_open(void)
     button_login.texture_over = texture_get(TEXTURE_TYPE_CLIENT, "button_large_over");
     button_login.texture_pressed = texture_get(TEXTURE_TYPE_CLIENT, "button_large_down");
     button_login.flags = TEXT_MARKUP;
-    button_login.font = FONT_SERIF14;
+    button_set_font(&button_login, FONT_SERIF14);
 
     for (i = 0; i < TEXT_INPUT_NUM; i++) {
         text_input_create(&text_inputs[i]);

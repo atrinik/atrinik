@@ -66,7 +66,7 @@ typedef struct button_struct
     texture_struct *texture_pressed;
 
     /** Font used for the text. */
-    int font;
+    font_struct *font;
 
     /** Text flags. */
     uint64 flags;

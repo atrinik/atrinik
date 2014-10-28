@@ -274,7 +274,7 @@ void widget_quickslots_init(widgetdata *widget)
     tmp->list->row_highlight_func = NULL;
     tmp->list->row_height_adjust = INVENTORY_ICON_SIZE;
     tmp->list->header_height = tmp->list->frame_offset = 0;
-    list_set_font(tmp->list, -1);
+    list_set_font(tmp->list, NULL);
     list_scrollbar_enable(tmp->list);
 
     for (i = 0; i < tmp->list->cols; i++) {

@@ -73,7 +73,7 @@ typedef struct text_input_struct
 
     /**
      * Font to use. */
-    int font;
+    font_struct *font;
 
     /**
      * Text flags. */

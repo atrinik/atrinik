@@ -576,6 +576,7 @@ int main(int argc, char *argv[])
         }
 
         texture_gc();
+        font_gc();
         SDL_Flip(ScreenSurface);
 
         LastTick = SDL_GetTicks();

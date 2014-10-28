@@ -841,6 +841,8 @@ static void widget_deinit(widgetdata *widget)
     if (textwin->tabs) {
         efree(textwin->tabs);
     }
+
+    font_free(textwin->font);
 }
 
 /** @copydoc widgetdata::load_func */
@@ -852,10 +854,11 @@ static int widget_load(widgetdata *widget, const char *keyword, const char *para
 
     if (strcmp(keyword, "font") == 0) {
         char font_name[MAX_BUF];
-        int font_size, font_id;
+        int font_size;
 
-        if (sscanf(parameter, "%s %d", font_name, &font_size) == 2 && (font_id = get_font_id(font_name, font_size)) != -1) {
-            textwin->font = font_id;
+        if (sscanf(parameter, "%s %d", font_name, &font_size) == 2) {
+            font_free(textwin->font);
+            textwin->font = font_get(font_name, font_size);
             return 1;
         }
     }
@@ -900,7 +903,7 @@ static void widget_save(widgetdata *widget, FILE *fp, const char *padding)
 
     textwin = TEXTWIN(widget);
 
-    fprintf(fp, "%sfont = %s %"FMT64U "\n", padding, get_font_filename(textwin->font), (uint64) fonts[textwin->font].size);
+    fprintf(fp, "%sfont = %s %d\n", padding, textwin->font->name, textwin->font->size);
     fprintf(fp, "%stimestamps = %s\n", padding, textwin->timestamps ? "yes" : "no");
 
     if (textwin->tabs_num) {
@@ -935,22 +938,24 @@ static void menu_textwin_copy(widgetdata *widget, widgetdata *menuitem, SDL_Even
 static void textwin_font_adjust(widgetdata *widget, int adjust)
 {
     textwin_struct *textwin;
-    int font;
+    font_struct *font;
+    size_t i;
 
     textwin = TEXTWIN(widget);
-    font = MAX(FONT_ARIAL10, MIN(FONT_ARIAL16, textwin->font + adjust));
+    font = font_get_size(textwin->font, adjust);
 
-    if (textwin->font != font) {
-        size_t i;
-
-        for (i = 0; i < textwin->tabs_num; i++) {
-            text_input_set_font(&textwin->tabs[i].text_input, font);
-        }
-
-        textwin->font = font;
-        textwin_readjust(widget);
-        WIDGET_REDRAW(widget);
+    if (font == NULL) {
+        return;
     }
+
+    for (i = 0; i < textwin->tabs_num; i++) {
+        text_input_set_font(&textwin->tabs[i].text_input, font);
+    }
+
+    font_free(textwin->font);
+    textwin->font = font;
+    textwin_readjust(widget);
+    WIDGET_REDRAW(widget);
 }
 
 static void menu_textwin_font_inc(widgetdata *widget, widgetdata *menuitem, SDL_Event *event)
@@ -1172,7 +1177,7 @@ void widget_textwin_init(widgetdata *widget)
     textwin_struct *textwin;
 
     textwin = ecalloc(1, sizeof(*textwin));
-    textwin->font = FONT_ARIAL11;
+    textwin->font = font_get("arial", 11);
     textwin->selection_start = -1;
     textwin->selection_end = -1;
 

@@ -79,6 +79,7 @@ static void interface_destroy(interface_struct *data)
     }
 
     utarray_free(data->links);
+    font_free(data->font);
     efree(data);
 }
 
@@ -398,7 +399,7 @@ void socket_command_interface(uint8 *data, size_t len, size_t pos)
     interface_data = ecalloc(1, sizeof(*interface_data));
     interface_popup->redraw = 1;
     interface_popup->selection_start = interface_popup->selection_end = -1;
-    interface_data->font = FONT_ARIAL11;
+    interface_data->font = font_get("arial", 11);
     utarray_new(interface_data->links, &ut_str_icd);
 
     /* Parse the data. */
@@ -563,7 +564,8 @@ void socket_command_interface(uint8 *data, size_t len, size_t pos)
     button_hello.texture = button_close.texture = texture_get(TEXTURE_TYPE_CLIENT, "button_large");
     button_hello.texture_over = button_close.texture_over = texture_get(TEXTURE_TYPE_CLIENT, "button_large_over");
     button_hello.texture_pressed = button_close.texture_pressed = texture_get(TEXTURE_TYPE_CLIENT, "button_large_down");
-    button_hello.font = button_close.font = FONT_ARIAL13;
+    button_set_font(&button_hello, FONT_ARIAL13);
+    button_set_font(&button_close, FONT_ARIAL13);
 
     /* Destroy previous interface data. */
     if (interface_data != old_interface_data) {

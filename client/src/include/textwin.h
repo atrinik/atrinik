@@ -62,7 +62,7 @@ typedef struct textwin_tab_struct
 typedef struct textwin_struct
 {
     /** Font used. */
-    int font;
+    font_struct *font;
 
     /** The scrollbar. */
     scrollbar_struct scrollbar;

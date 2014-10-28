@@ -101,7 +101,6 @@ list_struct *list_create(uint32 max_rows, uint32 cols, int spacing)
     list->max_rows = max_rows;
     list->cols = cols;
     list->spacing = spacing;
-    list->font = FONT_SANS10;
     list->surface = ScreenSurface;
     list->focus = 1;
 
@@ -121,6 +120,8 @@ list_struct *list_create(uint32 max_rows, uint32 cols, int spacing)
     list->col_spacings = ecalloc(1, sizeof(*list->col_spacings) * list->cols);
     list->col_names = ecalloc(1, sizeof(*list->col_names) * list->cols);
     list->col_centered = ecalloc(1, sizeof(*list->col_centered) * list->cols);
+
+    list_set_font(list, FONT_SANS10);
 
     return list;
 }
@@ -238,8 +239,16 @@ void list_set_column(list_struct *list, uint32 col, int width, int spacing, cons
  * Change list's font.
  * @param list Which list to change font for.
  * @param font Font to use. */
-void list_set_font(list_struct *list, int font)
+void list_set_font(list_struct *list, font_struct *font)
 {
+    if (list->font != NULL) {
+        font_free(list->font);
+    }
+
+    if (font != NULL) {
+        FONT_INCREF(font);
+    }
+
     list->font = font;
 }
 
@@ -349,7 +358,7 @@ void list_show(list_struct *list, int x, int y)
         /* Show all the columns. */
         for (col = 0; col < list->cols; col++) {
             /* Is there any text to show? */
-            if (list->text[row][col] && list->font != -1) {
+            if (list->text[row][col] && list->font != NULL) {
                 const char *text_color, *text_color_shadow;
                 SDL_Rect text_rect;
 

@@ -236,7 +236,7 @@ static void widget_draw(widgetdata *widget)
         list_skills->row_highlight_func = NULL;
         list_skills->surface = widget->surface;
         list_skills->row_height_adjust = INVENTORY_ICON_SIZE;
-        list_set_font(list_skills, -1);
+        list_set_font(list_skills, NULL);
         list_scrollbar_enable(list_skills);
         list_set_column(list_skills, 0, INVENTORY_ICON_SIZE, 0, NULL, -1);
         list_set_column(list_skills, 1, INVENTORY_ICON_SIZE, 0, NULL, -1);

@@ -200,7 +200,7 @@ typedef struct _widget_label
     char *text;
 
     /** The font of the text. */
-    int font;
+    font_struct *font;
 
     /** The color of the text. */
     const char *color;
