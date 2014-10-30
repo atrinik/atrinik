@@ -45,8 +45,7 @@
 static widgetdata def_widget[TOTAL_SUBWIDGETS];
 static const char *const widget_names[TOTAL_SUBWIDGETS] =
 {
-    "map", "stat", "main_lvl", "skill_exp",
-    "menu_buttons", "quickslots", "textwin", "playerdoll",
+    "map", "stat", "menu_buttons", "quickslots", "textwin", "playerdoll",
     "belowinv", "playerinfo", "maininv", "mapname",
     "input", "fps", "mplayer", "spells", "skills", "party", "notification",
     "container", "label", "texture", "buddy", "active_effects",
@@ -259,7 +258,6 @@ void toolkit_widget_init(void)
     widget_initializers[MAIN_INV_ID] = widget_inventory_init;
     widget_initializers[BELOW_INV_ID] = widget_inventory_init;
     widget_initializers[LABEL_ID] = widget_label_init;
-    widget_initializers[MAIN_LVL_ID] = widget_main_lvl_init;
     widget_initializers[MAP_ID] = widget_map_init;
     widget_initializers[MAPNAME_ID] = widget_mapname_init;
     widget_initializers[MENU_B_ID] = widget_menu_buttons_init;
@@ -269,7 +267,6 @@ void toolkit_widget_init(void)
     widget_initializers[PDOLL_ID] = widget_playerdoll_init;
     widget_initializers[PLAYER_INFO_ID] = widget_playerinfo_init;
     widget_initializers[QUICKSLOT_ID] = widget_quickslots_init;
-    widget_initializers[SKILL_EXP_ID] = widget_skill_exp_init;
     widget_initializers[SKILLS_ID] = widget_skills_init;
     widget_initializers[SPELLS_ID] = widget_spells_init;
     widget_initializers[STAT_ID] = widget_stat_init;

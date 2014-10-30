@@ -288,8 +288,6 @@ typedef enum WidgetID
 {
     MAP_ID,
     STAT_ID,
-    MAIN_LVL_ID,
-    SKILL_EXP_ID,
     MENU_B_ID,
     QUICKSLOT_ID,
     CHATWIN_ID,

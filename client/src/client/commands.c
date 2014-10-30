@@ -250,13 +250,11 @@ void socket_command_stats(uint8 *data, size_t len, size_t pos)
 
                 case CS_STAT_EXP:
                     cpl.stats.exp = packet_to_uint64(data, len, &pos);
-                    WIDGET_REDRAW_ALL(MAIN_LVL_ID);
                     widget_redraw_type_id(STAT_ID, "exp");
                     break;
 
                 case CS_STAT_LEVEL:
                     cpl.stats.level = packet_to_uint8(data, len, &pos);
-                    WIDGET_REDRAW_ALL(MAIN_LVL_ID);
                     break;
 
                 case CS_STAT_WC:

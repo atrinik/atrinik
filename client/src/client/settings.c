@@ -452,7 +452,6 @@ static void setting_apply_runtime(int cat, int setting)
                 /* Changed how exp display shows its data, redraw the
                  * widget. */
                 case OPT_EXP_DISPLAY:
-                    WIDGET_REDRAW_ALL(SKILL_EXP_ID);
                     break;
             }
 
