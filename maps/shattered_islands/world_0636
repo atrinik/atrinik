@@ -2636,7 +2636,7 @@ y 21
 end
 arch client_map_info
 msg
-[font=serif.ttf 14]Asteria     Palace[/font]
+[font=serif 14]Asteria     Palace[/font]
 endmsg
 name asteria_palace
 sub_type 1

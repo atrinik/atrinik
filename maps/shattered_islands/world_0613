@@ -409,7 +409,7 @@ y 13
 end
 arch client_map_info
 msg
-[font=serif.ttf 12]Fort Ghzal[/font]
+[font=serif 12]Fort Ghzal[/font]
 endmsg
 name fort_ghzal
 sub_type 1

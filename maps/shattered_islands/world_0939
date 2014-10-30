@@ -1754,7 +1754,7 @@ y 12
 end
 arch client_map_info
 msg
-[font=serif.ttf 14]Asteria Docks[/font]
+[font=serif 14]Asteria Docks[/font]
 endmsg
 name asteria_docks
 sub_type 1

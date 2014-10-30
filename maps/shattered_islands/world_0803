@@ -24,7 +24,7 @@ arch water_lt2
 end
 arch client_map_info
 msg
-[font=serif.ttf 24]Eld Woods Island[/font]
+[font=serif 24]Eld Woods Island[/font]
 endmsg
 name eld_woods_island
 sub_type 1
