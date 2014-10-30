@@ -158,6 +158,9 @@ static int widget_load(const char *path, uint8 defaults, widgetdata *widgets[])
             efree(cp);
 
             if (id == -1) {
+                /* Reset to NULL in case there was a valid widget previously,
+                 * so that we don't load into it from this invalid one. */
+                widget = NULL;
                 logger_print(LOG(DEBUG), "Invalid widget: %s", line);
                 continue;
             }
