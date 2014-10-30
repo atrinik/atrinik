@@ -113,7 +113,6 @@
 		<Unit filename="..\..\src\gui\widgets\input.c" />
 		<Unit filename="..\..\src\gui\widgets\inventory.c" />
 		<Unit filename="..\..\src\gui\widgets\label.c" />
-		<Unit filename="..\..\src\gui\widgets\main_lvl.c" />
 		<Unit filename="..\..\src\gui\widgets\map.c" />
 		<Unit filename="..\..\src\gui\widgets\mapname.c" />
 		<Unit filename="..\..\src\gui\widgets\menu.c" />
@@ -124,7 +123,6 @@
 		<Unit filename="..\..\src\gui\widgets\playerdoll.c" />
 		<Unit filename="..\..\src\gui\widgets\playerinfo.c" />
 		<Unit filename="..\..\src\gui\widgets\quickslots.c" />
-		<Unit filename="..\..\src\gui\widgets\skill_exp.c" />
 		<Unit filename="..\..\src\gui\widgets\skills.c" />
 		<Unit filename="..\..\src\gui\widgets\spells.c" />
 		<Unit filename="..\..\src\gui\widgets\stat.c" />
@@ -147,6 +145,7 @@
 		<Unit filename="..\..\src\toolkit\sha1.c" />
 		<Unit filename="..\..\src\toolkit\shstr.c" />
 		<Unit filename="..\..\src\toolkit\signals.c" />
+		<Unit filename="..\..\src\toolkit\socket.c" />
 		<Unit filename="..\..\src\toolkit\string.c" />
 		<Unit filename="..\..\src\toolkit\stringbuffer.c" />
 		<Unit filename="..\..\src\toolkit\toolkit.c" />
