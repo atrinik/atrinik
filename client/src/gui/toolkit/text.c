@@ -899,6 +899,31 @@ int text_show_character(font_struct **font, font_struct *orig_font, SDL_Surface 
         }
         else if (tag_len == 7 && strncmp(tag, "/center", tag_len) == 0) {
         }
+        /* Make text right-aligned. */
+        else if (tag_len == 5 && strncmp(tag, "right", tag_len) == 0) {
+            /* Find the ending tag. */
+            tag2 = strstr(tag + tag_len, "[/right]");
+
+            if (tag2 && box && box->w) {
+                char *buf = malloc(tag2 - cp - 7 + 1);
+                int w;
+
+                /* Copy the string between [right] and [/right] to a
+                 * temporary buffer so we can calculate its width. */
+                memcpy(buf, cp + 7, tag2 - cp - 7);
+                buf[tag2 - cp - 7] = '\0';
+                w = info->start_x + box->w - text_get_width(*font, buf, flags);
+                efree(buf);
+
+                if (surface) {
+                    if (w > dest->x) {
+                        dest->x = w;
+                    }
+                }
+            }
+        }
+        else if (tag_len == 6 && strncmp(tag, "/right", tag_len) == 0) {
+        }
         /* Anchor tag. */
         else if ((tag_len == 1 && strncmp(tag, "a", tag_len) == 0) || (tag_len >= 2 && strncmp(tag, "a=", 2) == 0)) {
             /* Scan for action other than the default. */
