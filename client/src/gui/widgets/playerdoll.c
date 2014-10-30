@@ -54,6 +54,58 @@ static int player_doll_positions[PLAYER_EQUIP_MAX][2] =
     {102, 158}
 };
 
+/**
+ * Text used in the player doll.
+ */
+static const char *player_doll_text =
+        "[center][font=sans 12][b]Statistics[/b][/font][/center]\n"
+        "Strength[c=#ffffff][right][font=mono]%02d[/font][/right][/c]\n"
+        "Dexterity[c=#ffffff][right][font=mono]%02d[/font][/right][/c]\n"
+        "Constitution[c=#ffffff][right][font=mono]%02d[/font][/right][/c]\n"
+        "Intelligence[c=#ffffff][right][font=mono]%02d[/font][/right][/c]\n"
+        "Power[c=#ffffff][right][font=mono]%02d[/font][/right][/c]\n"
+        "Speed[c=#ffffff][right][font=mono]%3.2f[/font][/right][/c]\n"
+        "Armour class[c=#ffffff][right][font=mono]%02d[/font][/right][/c]\n"
+        "[y=4][center][font=sans 12][b]Melee[/b][/font][/center]\n"
+        "Damage[c=#ffffff][right][font=mono]%02d[/font][/right][/c]\n"
+        "Weapon class[c=#ffffff][right][font=mono]%02d[/font][/right][/c]\n"
+        "Weapon speed[c=#ffffff][right][font=mono]%3.2fs[/font][/right][/c]\n"
+        "[y=4][center][font=sans 12][b]Ranged[/b][/font][/center]\n"
+        "Damage[c=#ffffff][right][font=mono]%02d[/font][/right][/c]\n"
+        "Weapon class[c=#ffffff][right][font=mono]%02d[/font][/right][/c]\n"
+        "Weapon speed[c=#ffffff][right][font=mono]%3.2fs[/font][/right][/c]\n";
+
+/**
+ * Same as above, except with abbreviations to conserve horizontal space.
+ */
+static const char *player_doll_text_abbr =
+        "[center][font=sans 12][b]Stats[/b][/font][/center]\n"
+        "Str[c=#ffffff][right][font=mono]%02d[/font][/right][/c]\n"
+        "Dex[c=#ffffff][right][font=mono]%02d[/font][/right][/c]\n"
+        "Con[c=#ffffff][right][font=mono]%02d[/font][/right][/c]\n"
+        "Int[c=#ffffff][right][font=mono]%02d[/font][/right][/c]\n"
+        "Pow[c=#ffffff][right][font=mono]%02d[/font][/right][/c]\n"
+        "Speed[c=#ffffff][right][font=mono]%3.2f[/font][/right][/c]\n"
+        "AC[c=#ffffff][right][font=mono]%02d[/font][/right][/c]\n"
+        "[y=4][center][font=sans 12][b]Melee[/b][/font][/center]\n"
+        "DMG[c=#ffffff][right][font=mono]%02d[/font][/right][/c]\n"
+        "WC[c=#ffffff][right][font=mono]%02d[/font][/right][/c]\n"
+        "WS[c=#ffffff][right][font=mono]%3.2fs[/font][/right][/c]\n"
+        "[y=4][center][font=sans 12][b]Ranged[/b][/font][/center]\n"
+        "DMG[c=#ffffff][right][font=mono]%02d[/font][/right][/c]\n"
+        "WC[c=#ffffff][right][font=mono]%02d[/font][/right][/c]\n"
+        "WS[c=#ffffff][right][font=mono]%3.2fs[/font][/right][/c]\n";
+
+#define PLAYER_DOLL_TEXT_RENDER(flags, box) \
+    text_show_format(widget->surface, FONT_ARIAL10, 10, 10, COLOR_HGOLD, \
+            TEXT_MARKUP | flags, box, text, \
+            cpl.stats.Str, cpl.stats.Dex, cpl.stats.Con, \
+            cpl.stats.Int, cpl.stats.Pow, \
+            (double) cpl.stats.speed / FLOAT_MULTF, cpl.stats.ac, \
+            cpl.stats.dam, cpl.stats.wc, cpl.stats.weapon_speed, \
+            cpl.stats.ranged_dam, cpl.stats.ranged_wc, \
+            cpl.stats.ranged_ws / 1000.0);
+
 object *playerdoll_get_equipment(int i, int *xpos, int *ypos)
 {
     object *obj;
@@ -95,45 +147,48 @@ object *playerdoll_get_equipment(int i, int *xpos, int *ypos)
 /** @copydoc widgetdata::draw_func */
 static void widget_draw(widgetdata *widget)
 {
-    int i, xpos, ypos;
-    SDL_Surface *texture_slot_border;
+    int i, xpos, ypos, xoff, yoff;
+    SDL_Surface *texture_slot_border, *texture;
     object *obj;
+    SDL_Rect box, box2;
+    const char *text;
 
     if (!widget->redraw) {
         return;
     }
 
-    text_show(widget->surface, FONT_SANS12, "[b]Ranged[/b]", 20, 188, COLOR_HGOLD, TEXT_MARKUP, NULL);
-    text_show(widget->surface, FONT_ARIAL10, "DMG", 9, 205, COLOR_HGOLD, 0, NULL);
-    text_show_format(widget->surface, FONT_MONO10, 40, 205, COLOR_WHITE, 0, NULL, "%02d", cpl.stats.ranged_dam);
-    text_show(widget->surface, FONT_ARIAL10, "WC", 10, 215, COLOR_HGOLD, 0, NULL);
-    text_show_format(widget->surface, FONT_MONO10, 40, 215, COLOR_WHITE, 0, NULL, "%02d", cpl.stats.ranged_wc);
-    text_show(widget->surface, FONT_ARIAL10, "WS", 10, 225, COLOR_HGOLD, 0, NULL);
-    text_show_format(widget->surface, FONT_MONO10, 40, 225, COLOR_WHITE, 0, NULL, "%3.2fs", cpl.stats.ranged_ws / 1000.0);
+    if (cpl.gender == GENDER_FEMALE) {
+        texture = TEXTURE_CLIENT("player_doll_f");
+    } else {
+        texture = TEXTURE_CLIENT("player_doll");
+    }
 
-    text_show(widget->surface, FONT_SANS12, "[b]Melee[/b]", 155, 188, COLOR_HGOLD, TEXT_MARKUP, NULL);
-    text_show(widget->surface, FONT_ARIAL10, "DMG", 139, 205, COLOR_HGOLD, 0, NULL);
-    text_show_format(widget->surface, FONT_MONO10, 170, 205, COLOR_WHITE, 0, NULL, "%02d", cpl.stats.dam);
-    text_show(widget->surface, FONT_ARIAL10, "WC", 140, 215, COLOR_HGOLD, 0, NULL);
-    text_show_format(widget->surface, FONT_MONO10, 170, 215, COLOR_WHITE, 0, NULL, "%02d", cpl.stats.wc);
-    text_show(widget->surface, FONT_ARIAL10, "WS", 140, 225, COLOR_HGOLD, 0, NULL);
-    text_show_format(widget->surface, FONT_MONO10, 170, 225, COLOR_WHITE, 0, NULL, "%3.2fs", cpl.stats.weapon_speed);
+    xoff = widget->w - texture->w + 10;
+    yoff = widget->h / 2 - texture->h / 2;
 
-    text_show(widget->surface, FONT_ARIAL10, "Speed", 92, 193, COLOR_HGOLD, 0, NULL);
-    text_show_format(widget->surface, FONT_MONO10, 93, 205, COLOR_WHITE, 0, NULL, "%3.2f", (float) cpl.stats.speed / FLOAT_MULTF);
-    text_show(widget->surface, FONT_ARIAL10, "AC", 92, 215, COLOR_HGOLD, 0, NULL);
-    text_show_format(widget->surface, FONT_MONO10, 92, 225, COLOR_WHITE, 0, NULL, "%02d", cpl.stats.ac);
+    box.w = xoff - 10;
+    box.h = widget->h - 10 * 2;
+
+    text = player_doll_text;
+
+    PLAYER_DOLL_TEXT_RENDER(TEXT_MAX_WIDTH, &box2);
+
+    if (box2.w > box.w) {
+        text = player_doll_text_abbr;
+    }
+
+    PLAYER_DOLL_TEXT_RENDER(0, &box);
 
     texture_slot_border = TEXTURE_CLIENT("player_doll_slot_border");
 
     for (i = 0; i < PLAYER_EQUIP_MAX; i++) {
-        rectangle_create(widget->surface, player_doll_positions[i][0], player_doll_positions[i][1], texture_slot_border->w, texture_slot_border->h, PLAYER_DOLL_SLOT_COLOR);
+        rectangle_create(widget->surface, player_doll_positions[i][0] + xoff, player_doll_positions[i][1] + yoff, texture_slot_border->w, texture_slot_border->h, PLAYER_DOLL_SLOT_COLOR);
     }
 
-    surface_show(widget->surface, 0, 0, NULL, TEXTURE_CLIENT(cpl.gender == GENDER_FEMALE ? "player_doll_f" : "player_doll"));
+    surface_show(widget->surface, xoff, yoff, NULL, texture);
 
     for (i = 0; i < PLAYER_EQUIP_MAX; i++) {
-        surface_show(widget->surface, player_doll_positions[i][0], player_doll_positions[i][1], NULL, texture_slot_border);
+        surface_show(widget->surface, player_doll_positions[i][0] + xoff, player_doll_positions[i][1] + yoff, NULL, texture_slot_border);
 
         obj = playerdoll_get_equipment(i, &xpos, &ypos);
 
@@ -141,7 +196,7 @@ static void widget_draw(widgetdata *widget)
             continue;
         }
 
-        object_show_centered(widget->surface, obj, xpos, ypos);
+        object_show_centered(widget->surface, obj, xpos + xoff, ypos + yoff);
     }
 }
 
