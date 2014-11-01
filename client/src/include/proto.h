@@ -486,6 +486,7 @@ extern int list_handle_mouse(list_struct *list, SDL_Event *event);
 extern int list_mouse_get_pos(list_struct *list, int mx, int my, uint32 *row, uint32 *col);
 extern void list_sort(list_struct *list, int type);
 extern int list_set_selected(list_struct *list, const char *str, uint32 col);
+extern const char *list_get_selected(list_struct *list, uint32 col);
 /* src/gui/toolkit/popup.c */
 extern popup_struct *popup_create(texture_struct *texture);
 extern void popup_destroy(popup_struct *popup);

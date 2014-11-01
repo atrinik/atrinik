@@ -786,3 +786,18 @@ int list_set_selected(list_struct *list, const char *str, uint32 col)
 
     return 0;
 }
+
+/**
+ * Acquire text at the specified column of the currently selected row.
+ * @param list List.
+ * @param col Column to get text at.
+ * @return Pointer to column's text, NULL if there is no row selected.
+ */
+const char *list_get_selected(list_struct *list, uint32 col)
+{
+    if (list->text == NULL) {
+        return NULL;
+    }
+
+    return list->text[list->row_selected - 1][col];
+}
