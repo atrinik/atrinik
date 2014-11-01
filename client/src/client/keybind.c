@@ -653,9 +653,10 @@ int keybind_process_command(const char *cmd)
 
                 if (strcmp(cmd, "NEXT") == 0) {
                     quickslots_scroll(widget, 0, 1);
-                }
-                else if (strcmp(cmd, "PREV") == 0) {
+                } else if (strcmp(cmd, "PREV") == 0) {
                     quickslots_scroll(widget, 1, 1);
+                } else if (strcmp(cmd, "CYCLE") == 0) {
+                    quickslots_cycle(widget);
                 }
             }
             else if (string_isdigit(cmd)) {

@@ -308,3 +308,8 @@ bind
 	key 116
 	command ?HELLO
 end
+bind
+	# `
+	key 96
+	command ?QUICKSLOT_GROUP_CYCLE
+end

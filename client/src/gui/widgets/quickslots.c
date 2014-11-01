@@ -89,6 +89,22 @@ void quickslots_scroll(widgetdata *widget, int up, int scroll)
 }
 
 /**
+ * Cycle the quickslots list.
+ * @param widget Quickslots widget. */
+void quickslots_cycle(widgetdata *widget)
+{
+    widget_quickslots_struct *tmp;
+
+    tmp = widget->subwidget;
+
+    if (tmp->list->row_selected == tmp->list->rows) {
+        list_scroll(tmp->list, 1, tmp->list->rows);
+    } else {
+        list_scroll(tmp->list, 0, 1);
+    }
+}
+
+/**
  * Remove item from the quickslots by tag.
  * @param tag Item tag to remove from quickslots. */
 static void quickslots_remove(widgetdata *widget, tag_t tag)

@@ -710,6 +710,7 @@ extern void widget_playerinfo_init(widgetdata *widget);
 /* src/gui/widgets/quickslots.c */
 extern void quickslots_init(void);
 extern void quickslots_scroll(widgetdata *widget, int up, int scroll);
+extern void quickslots_cycle(widgetdata *widget);
 extern void quickslots_handle_key(int slot);
 extern void widget_quickslots_init(widgetdata *widget);
 extern void socket_command_quickslots(uint8 *data, size_t len, size_t pos);
