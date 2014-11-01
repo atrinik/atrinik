@@ -188,6 +188,9 @@ void quickslots_handle_key(int slot)
 static void list_post_column(list_struct *list, uint32 row, uint32 col)
 {
     object *tmp;
+    int x, y;
+    char buf[MAX_BUF];
+    keybind_struct *keybind;
 
     if (!list->text[row][col]) {
         return;
@@ -195,15 +198,44 @@ static void list_post_column(list_struct *list, uint32 row, uint32 col)
 
     tmp = object_find_object(cpl.ob, atoi(list->text[row][col]));
 
-    if (tmp) {
-        object_show_inventory(list->surface, tmp, list->x + list->frame_offset + INVENTORY_ICON_SIZE * col, LIST_ROWS_START(list) + (LIST_ROW_OFFSET(row, list) * LIST_ROW_HEIGHT(list)));
+    if (tmp == NULL) {
+        return;
     }
+
+    x = list->x + list->frame_offset + (INVENTORY_ICON_SIZE + 1) * col;
+    y = LIST_ROWS_START(list) + (LIST_ROW_OFFSET(row, list) *
+            LIST_ROW_HEIGHT(list));
+    object_show_inventory(list->surface, tmp, x, y);
+
+    snprintf(buf, sizeof(buf), "?QUICKSLOT_%d", col + 1);
+    keybind = keybind_find_by_command(buf);
+
+    if (keybind) {
+        SDL_Rect box;
+
+        box.w = INVENTORY_ICON_SIZE;
+        box.h = INVENTORY_ICON_SIZE;
+
+        keybind_get_key_shortcut(keybind->key, keybind->mod, buf, sizeof(buf));
+        text_show_format(list->surface, FONT("sans", 8), x, y,
+                COLOR_HGOLD, TEXT_MARKUP, &box,
+                "[right][alpha=220][o=#000000]%s[/o][/alpha][/right]", buf);
+    }
+
 }
 
 /** @copydoc list_struct::row_color_func */
 static void list_row_color(list_struct *list, int row, SDL_Rect box)
 {
+    int i;
+
     SDL_FillRect(list->surface, &box, SDL_MapRGB(list->surface->format, 25, 25, 25));
+    box.w = 1;
+
+    for (i = 0; i < MAX_QUICK_SLOTS; i++) {
+        box.x = (INVENTORY_ICON_SIZE + 1) * i + 1;
+        SDL_FillRect(list->surface, &box, SDL_MapRGB(list->surface->format, 130, 130, 130));
+    }
 }
 
 /** @copydoc widgetdata::draw_func */
@@ -294,7 +326,7 @@ void widget_quickslots_init(widgetdata *widget)
     list_scrollbar_enable(tmp->list);
 
     for (i = 0; i < tmp->list->cols; i++) {
-        list_set_column(tmp->list, i, INVENTORY_ICON_SIZE, 0, NULL, -1);
+        list_set_column(tmp->list, i, INVENTORY_ICON_SIZE + 1, 0, NULL, -1);
     }
 
     widget->draw_func = widget_draw;
