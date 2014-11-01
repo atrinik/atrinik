@@ -729,7 +729,6 @@ extern void widget_skills_init(widgetdata *widget);
 extern void spells_init(void);
 extern int spell_find(const char *name, size_t *spell_path, size_t *spell_id);
 extern int spell_find_object(object *op, size_t *spell_path, size_t *spell_id);
-extern int spell_find_path_selected(const char *name, size_t *spell_id);
 extern spell_entry_struct *spell_get(size_t spell_path, size_t spell_id);
 extern void spells_update(object *op, uint16 cost, uint32 path, uint32 flags, const char *msg);
 extern void spells_remove(object *op);
