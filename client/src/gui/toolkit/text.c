@@ -1677,6 +1677,10 @@ int text_show_character(font_struct **font, font_struct *orig_font, SDL_Surface 
                         ttf_surface = TTF_RenderText_Blended((*font)->font, buf, info->outline_color);
                     }
 
+                    if (info->used_alpha != 255) {
+                        surface_set_alpha(ttf_surface, info->used_alpha);
+                    }
+
                     srcrect.x = 0;
                     srcrect.y = MAX(info->start_y - dest->y + outline_y, 0);
                     srcrect.w = ttf_surface->w;
