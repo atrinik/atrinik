@@ -403,6 +403,10 @@ void animate_objects(void)
         /* For now, only the players inventory needs to be animated */
         for (ob = cpl.ob->inv; ob; ob = ob->next) {
             animate_object(ob);
+
+            if (ob->flags & CS_FLAG_APPLIED) {
+                WIDGET_REDRAW_ALL(PDOLL_ID);
+            }
         }
     }
 
