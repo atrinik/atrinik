@@ -1663,6 +1663,10 @@ int text_show_character(font_struct **font, font_struct *orig_font, SDL_Surface 
 
             for (outline_x = -1; outline_x < 2; outline_x++) {
                 for (outline_y = -1; outline_y < 2; outline_y++) {
+                    if (outline_x == 0 && outline_y == 0) {
+                        continue;
+                    }
+
                     outline_box.x = dest->x + outline_x;
                     outline_box.y = dest->y + outline_y + MAX(info->start_y - dest->y + outline_y, 0);
 
