@@ -34,6 +34,14 @@
 uint64 inventory_filter = INVENTORY_FILTER_ALL;
 
 /**
+ * String representations of the possible inventory filters.
+ */
+const char *inventory_filter_names[INVENTORY_FILTER_MAX] = {
+    "applied", "container", "magical", "cursed", "unidentified", "unapplied",
+    "locked"
+};
+
+/**
  * Check if an object matches one of the active inventory filters.
  * @param op Object to check.
  * @return 1 if there is a match, 0 otherwise. */
@@ -96,6 +104,7 @@ void inventory_filter_set(uint64 filter)
 {
     inventory_filter = filter;
     widget_inventory_handle_arrow_key(cur_widget[MAIN_INV_ID], SDLK_UNKNOWN);
+    cur_widget[MAIN_INV_ID]->redraw = 1;
     draw_info(COLOR_GREEN, "Inventory filter changed.");
 }
 
@@ -112,6 +121,32 @@ void inventory_filter_toggle(uint64 filter)
     }
 
     widget_inventory_handle_arrow_key(cur_widget[MAIN_INV_ID], SDLK_UNKNOWN);
+    cur_widget[MAIN_INV_ID]->redraw = 1;
+    draw_info(COLOR_GREEN, "Inventory filter changed.");
+}
+
+/**
+ * Set one or more filters.
+ * @param filter Filter(s) to toggle. */
+void inventory_filter_set_names(const char *filter)
+{
+    char word[MAX_BUF];
+    size_t i, pos;
+
+    inventory_filter = INVENTORY_FILTER_ALL;
+    pos = 0;
+
+    while (string_get_word(filter, &pos, ' ', word, sizeof(word), 0)) {
+        for (i = 0; i < INVENTORY_FILTER_MAX; i++) {
+            if (strcmp(inventory_filter_names[i], word) == 0) {
+                inventory_filter |= 1 << i;
+                break;
+            }
+        }
+    }
+
+    widget_inventory_handle_arrow_key(cur_widget[MAIN_INV_ID], SDLK_UNKNOWN);
+    cur_widget[MAIN_INV_ID]->redraw = 1;
     draw_info(COLOR_GREEN, "Inventory filter changed.");
 }
 
@@ -122,14 +157,16 @@ void inventory_toggle_display(void)
     widgetdata *widget;
 
     widget = get_outermost_container(widget_find(NULL, MAIN_INV_ID, NULL, NULL));
+    assert(widget != NULL);
     WIDGET_SHOW_TOGGLE(widget);
 
-    if (widget->show) {
-        SetPriorityWidget(widget);
+    if (widget->show == 0) {
+        widget = widget_find(NULL, BELOW_INV_ID, NULL, NULL);
+        assert(widget != NULL);
     }
-    else {
-        SetPriorityWidget(widget_find(NULL, BELOW_INV_ID, NULL, NULL));
-    }
+
+    SetPriorityWidget(widget);
+    widget->redraw = 1;
 }
 
 /**
@@ -148,7 +185,10 @@ void inventory_toggle_display(void)
 static int inventory_render_object(widgetdata *widget, object *ob, uint32 i, uint32 *r, int mx, int my)
 {
     inventory_struct *inventory;
-    uint32 row;
+    uint32 row, r_row, r_col;
+    int x, y;
+    char buf[HUGE_BUF];
+    SDL_Rect box;
 
     inventory = INVENTORY(widget);
     row = i / INVENTORY_COLS(inventory);
@@ -159,119 +199,169 @@ static int inventory_render_object(widgetdata *widget, object *ob, uint32 i, uin
     }
 
     /* Check if this object should be visible. */
-    if (row >= inventory->scrollbar_info.scroll_offset && row < inventory->scrollbar_info.scroll_offset + INVENTORY_ROWS(inventory)) {
-        uint32 r_row, r_col;
-        int x, y;
+    if (row < inventory->scrollbar_info.scroll_offset ||
+            row >= inventory->scrollbar_info.scroll_offset +
+            INVENTORY_ROWS(inventory)) {
+        return 0;
+    }
 
-        /* Calculate the row and column to render on. */
-        r_row = *r / INVENTORY_COLS(inventory);
-        r_col = *r % INVENTORY_COLS(inventory);
+    /* Calculate the row and column to render on. */
+    r_row = *r / INVENTORY_COLS(inventory);
+    r_col = *r % INVENTORY_COLS(inventory);
 
-        /* Calculate the X/Y positions. */
-        x = inventory->x + r_col * INVENTORY_ICON_SIZE;
-        y = inventory->y + r_row * INVENTORY_ICON_SIZE;
+    /* Calculate the X/Y positions. */
+    x = inventory->x + r_col * INVENTORY_ICON_SIZE;
+    y = inventory->y + r_row * INVENTORY_ICON_SIZE;
 
-        /* Increase the rendering index. */
-        *r += 1;
+    /* Increase the rendering index. */
+    *r += 1;
 
-        /* If 'mx' and 'my' are not -1, do not render, just check if the
-         * provided coordinates are over the object. */
-        if (mx != -1 && my != -1) {
-            if (mx >= x && mx < x + INVENTORY_ICON_SIZE && my >= y && my < y + INVENTORY_ICON_SIZE) {
-                return 1;
-            }
-            else {
-                return 0;
-            }
+    /* If 'mx' and 'my' are not -1, do not render, just check if the
+     * provided coordinates are over the object. */
+    if (mx != -1 && my != -1) {
+        if (mx >= x && mx < x + INVENTORY_ICON_SIZE &&
+                my >= y && my < y + INVENTORY_ICON_SIZE) {
+            return 1;
+        } else {
+            return 0;
         }
+    }
 
-        object_show_inventory(widget->surface, ob, x, y);
+    object_show_inventory(widget->surface, ob, x, y);
 
-        /* If this object is selected, show the selected graphic and
-         * show some extra information in the widget. */
-        if (i == inventory->selected) {
-            char buf[MAX_BUF];
+    /* If this object is selected, show the selected graphic. */
+    if (i == inventory->selected) {
+        surface_show(widget->surface, x, y, NULL, TEXTURE_CLIENT(
+                cpl.inventory_focus == widget->type ? "invslot" : "invslot_u"));
+    }
 
-            surface_show(widget->surface, x, y, NULL, TEXTURE_CLIENT(cpl.inventory_focus == widget->type ? "invslot" : "invslot_u"));
+    /* If the object is marked, show that. */
+    if (ob->tag == cpl.mark_count) {
+        surface_show(widget->surface, x, y, NULL,
+                TEXTURE_CLIENT("invslot_marked"));
+    }
 
-            if (ob->nrof > 1) {
-                snprintf(buf, sizeof(buf), "%d %s", ob->nrof, ob->s_name);
-            }
-            else {
-                snprintf(buf, sizeof(buf), "%s", ob->s_name);
-            }
-
-            if (widget->type == MAIN_INV_ID) {
-                text_truncate_overflow(FONT_ARIAL10, buf, widget->w - 26 - 4);
-                text_show(widget->surface, FONT_ARIAL10, buf, 26, 2, COLOR_HGOLD, 0, NULL);
-
-                snprintf(buf, sizeof(buf), "%4.3f kg", ob->weight * (double) ob->nrof);
-                text_show(widget->surface, FONT_ARIAL10, buf, widget->w - 4 - text_get_width(FONT_ARIAL10, buf, 0), 15, COLOR_HGOLD, 0, NULL);
-
-                /* 255 item quality marks the item as unidentified. */
-                if (ob->item_qua == 255) {
-                    text_show(widget->surface, FONT_ARIAL10, "not identified", 26, 15, COLOR_RED, 0, NULL);
-                }
-                else {
-                    text_show(widget->surface, FONT_ARIAL10, "con: ", 26, 15, COLOR_HGOLD, 0, NULL);
-                    text_show_format(widget->surface, FONT_ARIAL10, 53, 15, COLOR_HGOLD, 0, NULL, "%d/%d", ob->item_con, ob->item_qua);
-
-                    if (ob->item_level) {
-                        object *skill;
-                        size_t skill_id;
-                        int level;
-
-                        if (ob->item_skill_tag && (skill = object_find(ob->item_skill_tag)) && skill_find_object(skill, &skill_id)) {
-                            level = skill_get(skill_id)->level;
-                            snprintf(buf, sizeof(buf), "lvl %d %s", ob->item_level, skill->s_name);
-                        }
-                        else {
-                            level = cpl.stats.level;
-                            snprintf(buf, sizeof(buf), "lvl %d", ob->item_level);
-                        }
-
-                        if (ob->item_level <= level) {
-                            text_show(widget->surface, FONT_ARIAL10, buf, 95, 15, COLOR_HGOLD, 0, NULL);
-                        }
-                        else {
-                            text_show(widget->surface, FONT_ARIAL10, buf, 95, 15, COLOR_RED, 0, NULL);
-                        }
-                    }
-                }
-            }
-            else if (widget->type == BELOW_INV_ID) {
-                text_truncate_overflow(FONT_ARIAL10, buf, 250);
-                text_show(widget->surface, FONT_ARIAL10, buf, 6, 3, COLOR_HGOLD, 0, NULL);
-            }
+    /* If it's the currently open container, add the 'container
+     * start' graphic. */
+    if (ob->tag == cpl.container_tag) {
+        surface_show(widget->surface, x, y, NULL,
+                TEXTURE_CLIENT("cmark_start"));
+    }
+    /* Object inside the open container... */
+    else if (ob->env == cpl.sack) {
+        /* If there is still something more in the container, show the
+         * 'object in the middle of container' graphic. */
+        if (ob->next) {
+            surface_show(widget->surface, x, y, NULL,
+                    TEXTURE_CLIENT("cmark_middle"));
         }
-
-        /* If the object is marked, show that. */
-        if (ob->tag == cpl.mark_count) {
-            surface_show(widget->surface, x, y, NULL, TEXTURE_CLIENT("invslot_marked"));
+        /* The end, show the 'end of container' graphic instead. */
+        else {
+            surface_show(widget->surface, x, y, NULL,
+                    TEXTURE_CLIENT("cmark_end"));
         }
+    }
 
-        /* If it's the currently open container, add the 'container
-         * start' graphic. */
-        if (ob->tag == cpl.container_tag) {
-            surface_show(widget->surface, x, y, NULL, TEXTURE_CLIENT("cmark_start"));
-        }
-        /* Object inside the open container... */
-        else if (ob->env == cpl.sack) {
-            /* If there is still something more in the container, show the
-             * 'object in the middle of container' graphic. */
-            if (ob->next) {
-                surface_show(widget->surface, x, y, NULL, TEXTURE_CLIENT("cmark_middle"));
-            }
-            /* The end, show the 'end of container' graphic instead. */
-            else {
-                surface_show(widget->surface, x, y, NULL, TEXTURE_CLIENT("cmark_end"));
-            }
-        }
-
+    /* Only show extra information for the selected object. */
+    if (i != inventory->selected) {
         return 1;
     }
 
-    return 0;
+    snprintf(buf, sizeof(buf), "[center][b]");
+
+    /* Construct the name */
+    if (ob->nrof > 1) {
+        snprintfcat(buf, sizeof(buf), "%d %s", ob->nrof, ob->s_name);
+    } else {
+        snprintfcat(buf, sizeof(buf), "%s", ob->s_name);
+    }
+
+    snprintfcat(buf, sizeof(buf), "[/b][/center]\n");
+
+    /* Extra information for items in the player's inventory */
+    if (widget->type == MAIN_INV_ID) {
+        char filter[MAX_BUF];
+
+        /* Item quality of 255 marks unidentified items */
+        if (ob->item_qua == 255) {
+            snprintfcat(buf, sizeof(buf), "[red]not identified[/red]");
+        } else {
+            snprintfcat(buf, sizeof(buf), "Con: %d/%d", ob->item_con,
+                    ob->item_qua);
+
+            /* Show item's level and required skill */
+            if (ob->item_level) {
+                object *skill;
+                size_t skill_id;
+                int level;
+                char buf2[MAX_BUF];
+
+                if (ob->item_skill_tag &&
+                        (skill = object_find(ob->item_skill_tag)) &&
+                        skill_find_object(skill, &skill_id)) {
+                    level = skill_get(skill_id)->level;
+                    snprintf(buf2, sizeof(buf2), "level %d %s",
+                            ob->item_level, skill->s_name);
+                }
+                else {
+                    level = cpl.stats.level;
+                    snprintf(buf2, sizeof(buf2), "level %d",
+                            ob->item_level);
+                }
+
+                /* If the player or the player's skill level is too low,
+                 * show the required level in red to indicate that. */
+                if (ob->item_level > level) {
+                    snprintfcat(buf, sizeof(buf), " [red]%s[/red]",
+                            buf2);
+                } else {
+                    snprintfcat(buf, sizeof(buf), " %s", buf2);
+                }
+            }
+        }
+
+        /* Item's weight */
+        snprintfcat(buf, sizeof(buf), " [right]%4.3f kg[/right]\n",
+                ob->weight * (double) ob->nrof);
+
+        /* No active filter, show "all". */
+        if (inventory_filter == INVENTORY_FILTER_ALL) {
+            snprintf(filter, sizeof(filter), "all");
+        } else {
+            size_t filter_num;
+
+            *filter = '\0';
+
+            /* Construct a string of active filters. Only the first active
+             * filter will be shown, and if there are any more active filters,
+             * ellipsis will be appended. */
+            for (filter_num = 0; filter_num < INVENTORY_FILTER_MAX;
+                    filter_num++) {
+                if (inventory_filter & (1 << filter_num)) {
+                    if (*filter == '\0') {
+                        snprintf(filter, sizeof(filter), "%s",
+                                inventory_filter_names[filter_num]);
+                    } else {
+                        snprintfcat(filter, sizeof(filter), ", ...");
+                        break;
+                    }
+                }
+            }
+        }
+
+        /* Append the active filter(s) and carrying capacity of the player */
+        snprintfcat(buf, sizeof(buf),
+                "Showing: %s [right]Carrying: %4.3f/%4.3f kg[/right]", filter,
+                cpl.real_weight, cpl.weight_limit);
+    }
+
+    box.w = widget->w - 4 * 2;
+    box.h = widget->h - inventory->h - 2 * 2;
+
+    text_show(widget->surface, FONT_ARIAL11, buf, 4, 2, COLOR_HGOLD,
+            TEXT_MARKUP, &box);
+
+    return 1;
 }
 
 /** @copydoc widgetdata::draw_func */
@@ -282,8 +372,11 @@ static void widget_draw(widgetdata *widget)
     object *tmp, *tmp2;
     uint32 i, r;
 
+    if (!widget->redraw) {
+        return;
+    }
+
     inventory = INVENTORY(widget);
-    widget->redraw++;
 
     w = MAX(widget->w - inventory->x * 2 - 9, INVENTORY_ICON_SIZE);
     h = MAX(widget->h - inventory->y - inventory->x, INVENTORY_ICON_SIZE);
@@ -305,14 +398,6 @@ static void widget_draw(widgetdata *widget)
     cpl.inventory_focus = get_outermost_container(widget_find(NULL, MAIN_INV_ID, NULL, NULL))->show ? MAIN_INV_ID : BELOW_INV_ID;
 
     if (widget->type == MAIN_INV_ID) {
-        int face;
-
-        face = get_bmap_id("bag.101");
-
-        if (face != -1 && FaceList[face].sprite) {
-            surface_show(widget->surface, -FaceList[face].sprite->border_left + 8, -FaceList[face].sprite->border_up + 5, NULL, FaceList[face].sprite->bitmap);
-        }
-
         /* Recalculate the weight, as it may have changed. */
         cpl.real_weight = 0.0;
 
@@ -321,25 +406,7 @@ static void widget_draw(widgetdata *widget)
                 continue;
             }
 
-            cpl.real_weight += tmp->weight * (float) tmp->nrof;
-        }
-
-        if (0) {
-            text_show(widget->surface, FONT_ARIAL10, "Carrying", 162, 4, COLOR_HGOLD, 0, NULL);
-            text_show_format(widget->surface, FONT_ARIAL10, 207, 4, COLOR_WHITE, 0, NULL, "%4.3f kg", cpl.real_weight);
-
-            text_show(widget->surface, FONT_ARIAL10, "Limit", 162, 15, COLOR_HGOLD, 0, NULL);
-            text_show_format(widget->surface, FONT_ARIAL10, 207, 15, COLOR_WHITE, 0, NULL, "%4.3f kg", (float) cpl.weight_limit);
-
-            if (inventory_filter == INVENTORY_FILTER_ALL) {
-                text_show(widget->surface, FONT_ARIAL10, "(SHIFT for inventory)", 35, 9, COLOR_WHITE, TEXT_OUTLINE, NULL);
-            }
-            else {
-                text_show(widget->surface, FONT_ARIAL10, "(SHIFT for inventory)", 35, 4, COLOR_WHITE, TEXT_OUTLINE, NULL);
-                text_show(widget->surface, FONT_ARIAL10, "filter(s) active", 54, 15, COLOR_WHITE, TEXT_OUTLINE, NULL);
-            }
-
-            return;
+            cpl.real_weight += tmp->weight * (double) tmp->nrof;
         }
 
         surface_show(widget->surface, inventory->x - 1, inventory->y - 1, NULL, texture_surface(inventory->texture));
@@ -373,11 +440,6 @@ static void widget_draw(widgetdata *widget)
     inventory->scrollbar.px = widget->x;
     inventory->scrollbar.py = widget->y;
     scrollbar_show(&inventory->scrollbar, widget->surface, inventory->x + inventory->w, inventory->y);
-
-    if (inventory->scrollbar_info.redraw) {
-        inventory->selected = *inventory->scrollbar.scroll_offset * INVENTORY_COLS(inventory);
-        inventory->scrollbar_info.redraw = 0;
-    }
 }
 
 /** @copydoc widgetdata::event_func */
@@ -388,6 +450,8 @@ static int widget_event(widgetdata *widget, SDL_Event *event)
     inventory = INVENTORY(widget);
 
     if (scrollbar_event(&inventory->scrollbar, event)) {
+        widget->redraw = 1;
+
         if (inventory->scrollbar_info.redraw) {
             inventory->selected = *inventory->scrollbar.scroll_offset * INVENTORY_COLS(inventory);
             inventory->scrollbar_info.redraw = 0;
@@ -440,6 +504,7 @@ static int widget_event(widgetdata *widget, SDL_Event *event)
 
             if (found) {
                 inventory->selected = i;
+                widget->redraw = 1;
 
                 if (event->button.button == SDL_BUTTON_LEFT) {
                     keybind_process_command("?APPLY");
@@ -464,7 +529,7 @@ void widget_inventory_init(widgetdata *widget)
 
     if (widget->type == MAIN_INV_ID) {
         inventory->x = 3;
-        inventory->y = 31;
+        inventory->y = 44;
     }
     else if (widget->type == BELOW_INV_ID) {
         inventory->x = 5;
@@ -592,7 +657,11 @@ void widget_inventory_handle_arrow_key(widgetdata *widget, SDLKey key)
         selected = max - 1;
     }
 
-    inventory->selected = selected;
+    if (inventory->selected != (uint32) selected) {
+        inventory->selected = selected;
+        widget->redraw = 1;
+    }
+
     offset = MAX(0, selected / (int) INVENTORY_COLS(inventory));
 
     if (inventory->scrollbar_info.scroll_offset > offset) {
@@ -1000,4 +1069,61 @@ void widget_inventory_handle_drop(widgetdata *widget)
     draw_info_format(COLOR_DGOLD, "drop %s", ob->s_name);
     client_send_move(loc, ob->tag, nrof);
     sound_play_effect("drop.ogg", 100);
+}
+
+void menu_inv_filter(widgetdata *widget, widgetdata *menuitem, SDL_Event *event)
+{
+    widgetdata *tmp;
+    _widget_label *label;
+    size_t i;
+
+    for (tmp = menuitem->inv; tmp; tmp = tmp->next) {
+        if (tmp->type == LABEL_ID) {
+            label = LABEL(menuitem->inv);
+
+            if (strcasecmp(label->text, "all") == 0) {
+                inventory_filter_set(INVENTORY_FILTER_ALL);
+                return;
+            }
+
+            for (i = 0; i < INVENTORY_FILTER_MAX; i++) {
+                if (strcasecmp(label->text, inventory_filter_names[i]) == 0) {
+                    inventory_filter_toggle(1 << i);
+                    return;
+                }
+            }
+
+            break;
+        }
+    }
+}
+
+void menu_inv_filter_submenu(widgetdata *widget, widgetdata *menuitem, SDL_Event *event)
+{
+    widgetdata *submenu;
+    size_t i;
+    char buf[MAX_BUF];
+
+    submenu = MENU(menuitem->env)->submenu;
+
+    add_menuitem(submenu, "All", &menu_inv_filter, MENU_CHECKBOX, inventory_filter == INVENTORY_FILTER_ALL);
+
+    for (i = 0; i < INVENTORY_FILTER_MAX; i++) {
+        snprintf(buf, sizeof(buf), "%s", inventory_filter_names[i]);
+        string_capitalize(buf);
+
+        add_menuitem(submenu, buf, &menu_inv_filter, MENU_CHECKBOX,
+                inventory_filter & (1 << i));
+    }
+}
+
+void menu_inventory_submenu_more(widgetdata *widget, widgetdata *menuitem, SDL_Event *event)
+{
+    widgetdata *submenu;
+
+    submenu = MENU(menuitem->env)->submenu;
+    add_menuitem(submenu, "Drop all", &menu_inventory_dropall, MENU_NORMAL, 0);
+    add_menuitem(submenu, "Mark", &menu_inventory_mark, MENU_NORMAL, 0);
+    add_menuitem(submenu, "Lock", &menu_inventory_lock, MENU_NORMAL, 0);
+    add_menuitem(submenu, "Drag", &menu_inventory_drag, MENU_NORMAL, 0);
 }

@@ -181,6 +181,8 @@ void object_remove(object *op)
         widget_active_effects_remove(cur_widget[ACTIVE_EFFECTS_ID], op);
     }
 
+    object_redraw(op);
+
     if (op->inv) {
         object_remove_inventory(op);
     }
@@ -217,6 +219,8 @@ void object_remove_inventory(object *op)
     if (!op) {
         return;
     }
+
+    object_redraw(op);
 
     while (op->inv) {
         object_remove(op->inv);
@@ -299,6 +303,8 @@ object *object_create(object *env, sint32 tag, int bflag)
         object_add(env, op, bflag);
     }
 
+    object_redraw(op);
+
     return op;
 }
 
@@ -338,9 +344,26 @@ void object_send_mark(object *op)
         cpl.mark_count = op->tag;
     }
 
+    object_redraw(op);
+
     packet = packet_new(SERVER_CMD_ITEM_MARK, 8, 0);
     packet_append_uint32(packet, op->tag);
     socket_send_packet(packet);
+}
+
+void object_redraw(object *op)
+{
+    assert(op != NULL);
+
+    if (op->env == NULL) {
+        return;
+    }
+
+    if (op->env == cpl.below) {
+        WIDGET_REDRAW_ALL(BELOW_INV_ID);
+    } else {
+        WIDGET_REDRAW_ALL(MAIN_INV_ID);
+    }
 }
 
 /**
@@ -366,8 +389,9 @@ void objects_init(void)
 
 /**
  * Animate one object.
- * @param ob The object to animate. */
-static void animate_object(object *ob)
+ * @param ob The object to animate.
+ * @return 1 if the object changed face, 0 otherwise. */
+static int animate_object(object *ob)
 {
     if (ob->animation_id > 0) {
         check_animation_status(ob->animation_id);
@@ -389,7 +413,34 @@ static void animate_object(object *ob)
             }
 
             ob->last_anim = 0;
+
+            return 1;
         }
+    }
+
+    return 0;
+}
+
+/**
+ * Animate the inventory of an object.
+ * @param op The object, such as cpl.ob, cpl.below, etc.
+ */
+static void animate_inventory(object *op)
+{
+    object *tmp;
+
+    for (tmp = op->inv; tmp != NULL; tmp = tmp->next) {
+        if (!animate_object(tmp)) {
+            continue;
+        }
+
+        /* Applied item inside the player, redraw the player doll -- most items
+         * that can be applied are visible in the player doll. */
+        if (op == cpl.ob && tmp->flags & CS_FLAG_APPLIED) {
+            WIDGET_REDRAW_ALL(PDOLL_ID);
+        }
+
+        object_redraw(tmp);
     }
 }
 
@@ -397,30 +448,9 @@ static void animate_object(object *ob)
  * Animate all possible objects. */
 void animate_objects(void)
 {
-    object *ob;
-
-    if (cpl.ob) {
-        /* For now, only the players inventory needs to be animated */
-        for (ob = cpl.ob->inv; ob; ob = ob->next) {
-            animate_object(ob);
-
-            if (ob->flags & CS_FLAG_APPLIED) {
-                WIDGET_REDRAW_ALL(PDOLL_ID);
-            }
-        }
-    }
-
-    if (cpl.below) {
-        for (ob = cpl.below->inv; ob; ob = ob->next) {
-            animate_object(ob);
-        }
-    }
-
-    if (cpl.sack) {
-        for (ob = cpl.sack->inv; ob; ob = ob->next) {
-            animate_object(ob);
-        }
-    }
+    animate_inventory(cpl.ob);
+    animate_inventory(cpl.below);
+    animate_inventory(cpl.sack);
 }
 
 /**

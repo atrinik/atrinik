@@ -157,33 +157,7 @@ int client_command_check(const char *cmd)
         return 1;
     }
     else if (!strncmp(cmd, "/invfilter ", 11)) {
-        cmd += 11;
-
-        if (!strcmp(cmd, "all")) {
-            inventory_filter_set(INVENTORY_FILTER_ALL);
-        }
-        else if (!strcmp(cmd, "applied")) {
-            inventory_filter_set(INVENTORY_FILTER_APPLIED);
-        }
-        else if (!strcmp(cmd, "container")) {
-            inventory_filter_set(INVENTORY_FILTER_CONTAINER);
-        }
-        else if (!strcmp(cmd, "magical")) {
-            inventory_filter_set(INVENTORY_FILTER_MAGICAL);
-        }
-        else if (!strcmp(cmd, "cursed")) {
-            inventory_filter_set(INVENTORY_FILTER_CURSED);
-        }
-        else if (!strcmp(cmd, "unidentified")) {
-            inventory_filter_set(INVENTORY_FILTER_UNIDENTIFIED);
-        }
-        else if (!strcmp(cmd, "unapplied")) {
-            inventory_filter_set(INVENTORY_FILTER_UNAPPLIED);
-        }
-        else if (!strcmp(cmd, "locked")) {
-            inventory_filter_set(INVENTORY_FILTER_LOCKED);
-        }
-
+        inventory_filter_set_names(cmd + 11);
         return 1;
     }
     else if (!strncasecmp(cmd, "/screenshot", 11)) {

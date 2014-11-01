@@ -149,25 +149,6 @@ void widget_highlight_menu(widgetdata *widget)
 
         tmp_menu->submenu = create_menu(x, y, tmp_menu->owner);
 
-        if (tmp_menu->owner->type == MAIN_INV_ID) {
-            if (submenuitem->menu_func_ptr == menu_inv_filter_submenu) {
-                add_menuitem(tmp_menu->submenu, "All", &menu_inv_filter_all, MENU_CHECKBOX, inventory_filter == INVENTORY_FILTER_ALL);
-                add_menuitem(tmp_menu->submenu, "Applied", &menu_inv_filter_applied, MENU_CHECKBOX, inventory_filter & INVENTORY_FILTER_APPLIED);
-                add_menuitem(tmp_menu->submenu, "Unapplied", &menu_inv_filter_unapplied, MENU_CHECKBOX, inventory_filter & INVENTORY_FILTER_UNAPPLIED);
-                add_menuitem(tmp_menu->submenu, "Containers", &menu_inv_filter_containers, MENU_CHECKBOX, inventory_filter & INVENTORY_FILTER_CONTAINER);
-                add_menuitem(tmp_menu->submenu, "Magical", &menu_inv_filter_magical, MENU_CHECKBOX, inventory_filter & INVENTORY_FILTER_MAGICAL);
-                add_menuitem(tmp_menu->submenu, "Cursed", &menu_inv_filter_cursed, MENU_CHECKBOX, inventory_filter & INVENTORY_FILTER_CURSED);
-                add_menuitem(tmp_menu->submenu, "Unidentified", &menu_inv_filter_unidentified, MENU_CHECKBOX, inventory_filter & INVENTORY_FILTER_UNIDENTIFIED);
-                add_menuitem(tmp_menu->submenu, "Locked", &menu_inv_filter_locked, MENU_CHECKBOX, inventory_filter & INVENTORY_FILTER_LOCKED);
-            }
-            else if (submenuitem->menu_func_ptr == menu_inventory_submenu_more) {
-                add_menuitem(tmp_menu->submenu, "Drop all", &menu_inventory_dropall, MENU_NORMAL, 0);
-                add_menuitem(tmp_menu->submenu, "Mark", &menu_inventory_mark, MENU_NORMAL, 0);
-                add_menuitem(tmp_menu->submenu, "Lock", &menu_inventory_lock, MENU_NORMAL, 0);
-                add_menuitem(tmp_menu->submenu, "Drag", &menu_inventory_drag, MENU_NORMAL, 0);
-            }
-        }
-
         if (submenuitem->menu_func_ptr) {
             submenuitem->menu_func_ptr(tmp_menu->owner, submenuwidget, NULL);
         }

@@ -49,6 +49,10 @@
 #define INVENTORY_FILTER_UNAPPLIED 32
 /** Locked objects. */
 #define INVENTORY_FILTER_LOCKED 64
+/**
+ * Number of the inventory filters.
+ */
+#define INVENTORY_FILTER_MAX 7
 /*@}*/
 
 /** Size of the image icons in inventory. */

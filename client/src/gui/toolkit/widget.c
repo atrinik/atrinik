@@ -2337,54 +2337,6 @@ void menu_detach_widget(widgetdata *widget, widgetdata *menuitem, SDL_Event *eve
     detach_widget(widget);
 }
 
-void menu_inv_filter_all(widgetdata *widget, widgetdata *menuitem, SDL_Event *event)
-{
-    inventory_filter_set(INVENTORY_FILTER_ALL);
-}
-
-void menu_inv_filter_applied(widgetdata *widget, widgetdata *menuitem, SDL_Event *event)
-{
-    inventory_filter_toggle(INVENTORY_FILTER_APPLIED);
-}
-
-void menu_inv_filter_containers(widgetdata *widget, widgetdata *menuitem, SDL_Event *event)
-{
-    inventory_filter_toggle(INVENTORY_FILTER_CONTAINER);
-}
-
-void menu_inv_filter_magical(widgetdata *widget, widgetdata *menuitem, SDL_Event *event)
-{
-    inventory_filter_toggle(INVENTORY_FILTER_MAGICAL);
-}
-
-void menu_inv_filter_cursed(widgetdata *widget, widgetdata *menuitem, SDL_Event *event)
-{
-    inventory_filter_toggle(INVENTORY_FILTER_CURSED);
-}
-
-void menu_inv_filter_unidentified(widgetdata *widget, widgetdata *menuitem, SDL_Event *event)
-{
-    inventory_filter_toggle(INVENTORY_FILTER_UNIDENTIFIED);
-}
-
-void menu_inv_filter_locked(widgetdata *widget, widgetdata *menuitem, SDL_Event *event)
-{
-    inventory_filter_toggle(INVENTORY_FILTER_LOCKED);
-}
-
-void menu_inv_filter_unapplied(widgetdata *widget, widgetdata *menuitem, SDL_Event *event)
-{
-    inventory_filter_toggle(INVENTORY_FILTER_UNAPPLIED);
-}
-
-void menu_inv_filter_submenu(widgetdata *widget, widgetdata *menuitem, SDL_Event *event)
-{
-}
-
-void menu_inventory_submenu_more(widgetdata *widget, widgetdata *menuitem, SDL_Event *event)
-{
-}
-
 void menu_inventory_submenu_quickslots(widgetdata *widget, widgetdata *menuitem, SDL_Event *event)
 {
 }

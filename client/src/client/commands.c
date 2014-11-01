@@ -445,6 +445,8 @@ static void command_item_update(uint8 *data, size_t len, size_t *pos, uint32 fla
             widget_active_effects_update(cur_widget[ACTIVE_EFFECTS_ID], tmp, sec, msg);
         }
     }
+
+    object_redraw(tmp);
 }
 
 /** @copydoc socket_command_struct::handle_func */

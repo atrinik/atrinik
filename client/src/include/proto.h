@@ -58,6 +58,7 @@ extern void object_remove_inventory(object *op);
 extern object *object_create(object *env, sint32 tag, int bflag);
 extern void toggle_locked(object *op);
 extern void object_send_mark(object *op);
+extern void object_redraw(object *op);
 extern void objects_deinit(void);
 extern void objects_init(void);
 extern void animate_objects(void);
@@ -617,16 +618,6 @@ extern void menu_move_widget(widgetdata *widget, widgetdata *menuitem, SDL_Event
 extern void menu_create_widget(widgetdata *widget, widgetdata *menuitem, SDL_Event *event);
 extern void menu_remove_widget(widgetdata *widget, widgetdata *menuitem, SDL_Event *event);
 extern void menu_detach_widget(widgetdata *widget, widgetdata *menuitem, SDL_Event *event);
-extern void menu_inv_filter_all(widgetdata *widget, widgetdata *menuitem, SDL_Event *event);
-extern void menu_inv_filter_applied(widgetdata *widget, widgetdata *menuitem, SDL_Event *event);
-extern void menu_inv_filter_containers(widgetdata *widget, widgetdata *menuitem, SDL_Event *event);
-extern void menu_inv_filter_magical(widgetdata *widget, widgetdata *menuitem, SDL_Event *event);
-extern void menu_inv_filter_cursed(widgetdata *widget, widgetdata *menuitem, SDL_Event *event);
-extern void menu_inv_filter_unidentified(widgetdata *widget, widgetdata *menuitem, SDL_Event *event);
-extern void menu_inv_filter_locked(widgetdata *widget, widgetdata *menuitem, SDL_Event *event);
-extern void menu_inv_filter_unapplied(widgetdata *widget, widgetdata *menuitem, SDL_Event *event);
-extern void menu_inv_filter_submenu(widgetdata *widget, widgetdata *menuitem, SDL_Event *event);
-extern void menu_inventory_submenu_more(widgetdata *widget, widgetdata *menuitem, SDL_Event *event);
 extern void menu_inventory_submenu_quickslots(widgetdata *widget, widgetdata *menuitem, SDL_Event *event);
 /* src/gui/widgets/active_effects.c */
 extern void widget_active_effects_update(widgetdata *widget, object *op, sint32 sec, const char *msg);
@@ -645,8 +636,10 @@ extern void widget_fps_init(widgetdata *widget);
 extern void widget_input_init(widgetdata *widget);
 /* src/gui/widgets/inventory.c */
 extern uint64 inventory_filter;
+extern const char *inventory_filter_names[7];
 extern void inventory_filter_set(uint64 filter);
 extern void inventory_filter_toggle(uint64 filter);
+extern void inventory_filter_set_names(const char *filter);
 extern void inventory_toggle_display(void);
 extern void widget_inventory_init(widgetdata *widget);
 extern uint32 widget_inventory_num_items(widgetdata *widget);
@@ -669,6 +662,9 @@ extern void widget_inventory_handle_mark(widgetdata *widget);
 extern void widget_inventory_handle_lock(widgetdata *widget);
 extern void widget_inventory_handle_get(widgetdata *widget);
 extern void widget_inventory_handle_drop(widgetdata *widget);
+extern void menu_inv_filter(widgetdata *widget, widgetdata *menuitem, SDL_Event *event);
+extern void menu_inv_filter_submenu(widgetdata *widget, widgetdata *menuitem, SDL_Event *event);
+extern void menu_inventory_submenu_more(widgetdata *widget, widgetdata *menuitem, SDL_Event *event);
 /* src/gui/widgets/label.c */
 extern void widget_label_init(widgetdata *widget);
 /* src/gui/widgets/map.c */
