@@ -230,6 +230,7 @@ void socket_command_stats(uint8 *data, size_t len, size_t pos)
                     }
 
                     *stat_curr = stat_new;
+                    WIDGET_REDRAW_ALL(PDOLL_ID);
                     break;
                 }
 
@@ -255,22 +256,27 @@ void socket_command_stats(uint8 *data, size_t len, size_t pos)
 
                 case CS_STAT_LEVEL:
                     cpl.stats.level = packet_to_uint8(data, len, &pos);
+                    WIDGET_REDRAW_ALL(PLAYER_INFO_ID);
                     break;
 
                 case CS_STAT_WC:
                     cpl.stats.wc = packet_to_uint16(data, len, &pos);
+                    WIDGET_REDRAW_ALL(PDOLL_ID);
                     break;
 
                 case CS_STAT_AC:
                     cpl.stats.ac = packet_to_uint16(data, len, &pos);
+                    WIDGET_REDRAW_ALL(PDOLL_ID);
                     break;
 
                 case CS_STAT_DAM:
                     cpl.stats.dam = packet_to_uint16(data, len, &pos);
+                    WIDGET_REDRAW_ALL(PDOLL_ID);
                     break;
 
                 case CS_STAT_SPEED:
                     cpl.stats.speed = packet_to_uint32(data, len, &pos);
+                    WIDGET_REDRAW_ALL(PDOLL_ID);
                     break;
 
                 case CS_STAT_FOOD:
@@ -280,6 +286,7 @@ void socket_command_stats(uint8 *data, size_t len, size_t pos)
 
                 case CS_STAT_WEAPON_SPEED:
                     cpl.stats.weapon_speed = abs(packet_to_uint32(data, len, &pos)) / FLOAT_MULTF;
+                    WIDGET_REDRAW_ALL(PDOLL_ID);
                     break;
 
                 case CS_STAT_FLAGS:
@@ -297,6 +304,7 @@ void socket_command_stats(uint8 *data, size_t len, size_t pos)
 
                 case CS_STAT_GENDER:
                     cpl.gender = packet_to_uint8(data, len, &pos);
+                    WIDGET_REDRAW_ALL(PDOLL_ID);
                     break;
 
                 case CS_STAT_EXT_TITLE:
@@ -306,14 +314,17 @@ void socket_command_stats(uint8 *data, size_t len, size_t pos)
 
                 case CS_STAT_RANGED_DAM:
                     cpl.stats.ranged_dam = packet_to_uint16(data, len, &pos);
+                    WIDGET_REDRAW_ALL(PDOLL_ID);
                     break;
 
                 case CS_STAT_RANGED_WC:
                     cpl.stats.ranged_wc = packet_to_uint16(data, len, &pos);
+                    WIDGET_REDRAW_ALL(PDOLL_ID);
                     break;
 
                 case CS_STAT_RANGED_WS:
                     cpl.stats.ranged_ws = packet_to_uint32(data, len, &pos);
+                    WIDGET_REDRAW_ALL(PDOLL_ID);
                     break;
             }
         }
