@@ -466,7 +466,6 @@ enum
 #define CS_STAT_TITLE           21
 #define CS_STAT_FLAGS           25
 #define CS_STAT_WEIGHT_LIM      26
-#define CS_STAT_EXT_TITLE       27
 #define CS_STAT_REG_HP          28
 #define CS_STAT_REG_MANA        29
 #define CS_STAT_TARGET_HP       31

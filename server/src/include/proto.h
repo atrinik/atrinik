@@ -806,7 +806,7 @@ extern void socket_command_keepalive(socket_struct *ns, player *pl, uint8 *data,
 extern void socket_command_move(socket_struct *ns, player *pl, uint8 *data, size_t len, size_t pos);
 extern void send_target_command(player *pl);
 extern void socket_command_account(socket_struct *ns, player *pl, uint8 *data, size_t len, size_t pos);
-extern void generate_ext_title(player *pl);
+extern void generate_quick_name(player *pl);
 extern void socket_command_target(socket_struct *ns, player *pl, uint8 *data, size_t len, size_t pos);
 extern void socket_command_talk(socket_struct *ns, player *pl, uint8 *data, size_t len, size_t pos);
 extern void socket_command_control(socket_struct *ns, player *pl, uint8 *data, size_t len, size_t pos);

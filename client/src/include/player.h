@@ -170,9 +170,6 @@ typedef struct Player_Struct
     /** Player's name. */
     char name[40];
 
-    /** Rank and name of char. */
-    char ext_title[MAX_BUF];
-
     /** Party name this player is member of. */
     char partyname[MAX_BUF];
 

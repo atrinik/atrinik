@@ -307,11 +307,6 @@ void socket_command_stats(uint8 *data, size_t len, size_t pos)
                     WIDGET_REDRAW_ALL(PDOLL_ID);
                     break;
 
-                case CS_STAT_EXT_TITLE:
-                    packet_to_string(data, len, &pos, cpl.ext_title, sizeof(cpl.ext_title));
-                    WIDGET_REDRAW_ALL(PLAYER_INFO_ID);
-                    break;
-
                 case CS_STAT_RANGED_DAM:
                     cpl.stats.ranged_dam = packet_to_uint16(data, len, &pos);
                     WIDGET_REDRAW_ALL(PDOLL_ID);

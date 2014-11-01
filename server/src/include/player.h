@@ -138,9 +138,6 @@ typedef struct pl_player
     /** Map where player will respawn after death. */
     char savebed_map[MAX_BUF];
 
-    /** For client: \<Rank\> \<Name\>\n\<Gender\> \<Race\> \<Profession\> */
-    char ext_title[MAX_EXT_TITLE];
-
     /** Who killed this player. */
     char killer[BIG_NAME];
 

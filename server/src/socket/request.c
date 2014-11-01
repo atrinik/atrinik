@@ -264,9 +264,7 @@ void esrv_update_stats(player *pl)
     }
 
     if (pl->socket.ext_title_flag) {
-        generate_ext_title(pl);
-        packet_append_uint8(packet, CS_STAT_EXT_TITLE);
-        packet_append_string_terminated(packet, pl->ext_title);
+        generate_quick_name(pl);
         pl->socket.ext_title_flag = 0;
     }
 
@@ -1464,30 +1462,24 @@ void socket_command_account(socket_struct *ns, player *pl, uint8 *data, size_t l
 }
 
 /**
- * Generate player's extended name from race, gender, guild, etc.
+ * Generate player's name, as visible on the map.
  * @param pl The player. */
-void generate_ext_title(player *pl)
+void generate_quick_name(player *pl)
 {
-    char name[MAX_BUF], race[MAX_BUF];
     int i;
 
-    strncpy(pl->quick_name, pl->ob->name, sizeof(pl->quick_name) - 1);
-    pl->quick_name[sizeof(pl->quick_name) - 1] = '\0';
+    snprintf(pl->quick_name, sizeof(pl->quick_name), "%s", pl->ob->name);
 
     for (i = 0; i < pl->num_cmd_permissions; i++) {
         if (pl->cmd_permissions[i] && string_startswith(pl->cmd_permissions[i], "[") && string_endswith(pl->cmd_permissions[i], "]")) {
-            strncat(pl->quick_name, " ", sizeof(pl->quick_name) - strlen(pl->quick_name) - 1);
-            strncat(pl->quick_name, pl->cmd_permissions[i], sizeof(pl->quick_name) - strlen(pl->quick_name) - 1);
+            snprintfcat(pl->quick_name, sizeof(pl->quick_name), " %s",
+                    pl->cmd_permissions[i]);
         }
     }
 
-    string_replace(pl->quick_name, "[", "[]", name, sizeof(name));
-
     if (pl->afk) {
-        strncat(name, " []AFK]", sizeof(name) - strlen(name) - 1);
+        snprintfcat(pl->quick_name, sizeof(pl->quick_name), " [AFK]");
     }
-
-    snprintf(pl->ext_title, sizeof(pl->ext_title), "%s\n%s %s", name, gender_noun[object_get_gender(pl->ob)], player_get_race_class(pl->ob, race, sizeof(race)));
 }
 
 void socket_command_target(socket_struct *ns, player *pl, uint8 *data, size_t len, size_t pos)
