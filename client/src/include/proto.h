@@ -671,8 +671,6 @@ extern void widget_inventory_handle_get(widgetdata *widget);
 extern void widget_inventory_handle_drop(widgetdata *widget);
 /* src/gui/widgets/label.c */
 extern void widget_label_init(widgetdata *widget);
-/* src/gui/widgets/main_lvl.c */
-extern void widget_main_lvl_init(widgetdata *widget);
 /* src/gui/widgets/map.c */
 extern _mapdata MapData;
 extern _multi_part_obj MultiArchs[16];
@@ -719,8 +717,6 @@ extern void quickslots_scroll(widgetdata *widget, int up, int scroll);
 extern void quickslots_handle_key(int slot);
 extern void widget_quickslots_init(widgetdata *widget);
 extern void socket_command_quickslots(uint8 *data, size_t len, size_t pos);
-/* src/gui/widgets/skill_exp.c */
-extern void widget_skill_exp_init(widgetdata *widget);
 /* src/gui/widgets/skills.c */
 extern void skills_init(void);
 extern int skill_find(const char *name, size_t *id);
