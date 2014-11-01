@@ -50,5 +50,4 @@ def main():
         else:
             obj.InsertInto(activator)
 
-print(__name__)
 main()
