@@ -1039,16 +1039,14 @@ int text_show_character(font_struct **font, font_struct *orig_font, SDL_Surface 
             }
         }
         else if (tag_len >= 3 && strncmp(tag, "o=#", 3) == 0) {
-            if (surface || info->obscured) {
-                uint32 r, g, b;
+            uint32 r, g, b;
 
-                /* Parse the r,g,b colors. */
-                if (sscanf(tag + 3, "%2X%2X%2X", &r, &g, &b) == 3) {
-                    info->outline_color.r = r;
-                    info->outline_color.g = g;
-                    info->outline_color.b = b;
-                    info->outline_show = 1;
-                }
+            /* Parse the r,g,b colors. */
+            if (sscanf(tag + 3, "%2X%2X%2X", &r, &g, &b) == 3) {
+                info->outline_color.r = r;
+                info->outline_color.g = g;
+                info->outline_color.b = b;
+                info->outline_show = 1;
             }
         }
         else if (tag_len == 2 && strncmp(tag, "/o", tag_len) == 0) {
