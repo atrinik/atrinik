@@ -107,6 +107,7 @@ void socket_command_notification(uint8 *data, size_t len, size_t pos)
     notification_destroy();
     /* Show the widget... */
     cur_widget[NOTIFICATION_ID]->show = 1;
+    SetPriorityWidget(cur_widget[NOTIFICATION_ID]);
     /* Create the data structure and initialize default values. */
     notification = ecalloc(1, sizeof(*notification));
     notification->start_ticks = SDL_GetTicks();
