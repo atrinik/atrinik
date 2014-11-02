@@ -395,8 +395,6 @@ static void widget_draw(widgetdata *widget)
         inventory->texture = texture_get(TEXTURE_TYPE_SOFTWARE, buf);
     }
 
-    cpl.inventory_focus = get_outermost_container(widget_find(NULL, MAIN_INV_ID, NULL, NULL))->show ? MAIN_INV_ID : BELOW_INV_ID;
-
     if (widget->type == MAIN_INV_ID) {
         /* Recalculate the weight, as it may have changed. */
         cpl.real_weight = 0.0;

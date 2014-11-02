@@ -2335,7 +2335,46 @@ void widget_redraw_type_id(int type, const char *id)
     }
 }
 
-/** Toggles visibility of all widgets of a particular type. */
+/**
+ * Sets visibility of the specified widget.
+ * @param widget Widget to show.
+ * @param show 1 to show the widget, 0 to hide it.
+ */
+void widget_show(widgetdata *widget, int show)
+{
+    /* Visibility is already the same, nothing to do. */
+    if (widget->show == show) {
+        return;
+    }
+
+    widget->show = show;
+
+    if (show) {
+        widget->showed_ticks = SDL_GetTicks();
+    }
+
+    /* So that containers can factor in the widget's visibility */
+    resize_widget(widget, 0, 0);
+
+    /* TODO: make a callback function for this? seems a bit hacky ATM */
+    if (widget->type == MAIN_INV_ID || widget->type == BELOW_INV_ID) {
+        if (!show) {
+            int type;
+
+            type = widget->type == MAIN_INV_ID ? BELOW_INV_ID : MAIN_INV_ID;
+            widget = widget_find(NULL, type, NULL, NULL);
+            assert(widget != NULL);
+        }
+
+        SetPriorityWidget(widget);
+        widget->redraw = 1;
+        cpl.inventory_focus = widget->type;
+    }
+}
+
+/**
+ * Toggles visibility of all widgets of a particular type.
+ * @param type_id The type. */
 void widget_show_toggle_all(int type_id)
 {
     widgetdata *widget;

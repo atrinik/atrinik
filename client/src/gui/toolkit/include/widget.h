@@ -401,26 +401,8 @@ typedef struct widgetresize
 /** Macro to redraw widget using the array. */
 #define WIDGET_REDRAW(__tmp) __tmp->redraw = 1;
 
-#define WIDGET_SHOW(_widget) \
-    { \
-        (_widget)->show = 1; \
-        (_widget)->showed_ticks = SDL_GetTicks(); \
-        resize_widget((_widget), 0, 0); \
-    }
-
-#define WIDGET_SHOW_TOGGLE(_widget) \
-    { \
-        if (!(_widget)->show) \
-        { \
-            WIDGET_SHOW(_widget); \
-        } \
-        else \
-        { \
-            (_widget)->show = 0; \
-            resize_widget((_widget), 0, 0); \
-        } \
-    }
-
+#define WIDGET_SHOW(_widget) widget_show(_widget, 1);
+#define WIDGET_SHOW_TOGGLE(_widget) widget_show(_widget, !(_widget)->show);
 #define WIDGET_SHOW_TOGGLE_ALL(__id) widget_show_toggle_all(__id);
 
 /* Macro to redraw all widgets of a particular type. Don't use this often. */
