@@ -673,8 +673,9 @@ int keybind_process_command(const char *cmd)
         return 1;
     }
     else {
-        draw_info(COLOR_DGOLD, cmd);
-        send_command_check(cmd);
+        if (send_command_check(cmd)) {
+            draw_info(COLOR_DGOLD, cmd);
+        }
     }
 
     return 0;

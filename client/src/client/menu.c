@@ -395,9 +395,12 @@ int client_command_check(const char *cmd)
 /**
  * Same as send_command(), but also check client commands.
  * @param cmd Command to send. */
-void send_command_check(const char *cmd)
+int send_command_check(const char *cmd)
 {
     if (!client_command_check(cmd)) {
         send_command(cmd);
+        return 1;
     }
+
+    return 0;
 }

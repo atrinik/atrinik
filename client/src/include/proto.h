@@ -105,7 +105,7 @@ extern void clioption_settings_deinit(void);
 extern int main(int argc, char *argv[]);
 /* src/client/menu.c */
 extern int client_command_check(const char *cmd);
-extern void send_command_check(const char *cmd);
+extern int send_command_check(const char *cmd);
 /* src/client/metaserver.c */
 extern void metaserver_init(void);
 extern void metaserver_disable(void);
