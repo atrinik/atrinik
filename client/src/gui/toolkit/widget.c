@@ -1610,6 +1610,12 @@ void SetPriorityWidget(widgetdata *node)
         return;
     }
 
+    /* TODO: add callback function? could also block the above if with it */
+    if (node->type == MAIN_INV_ID || node->type == BELOW_INV_ID) {
+        cpl.inventory_focus = node->type;
+        node->redraw = 1;
+    }
+
 #ifdef DEBUG_WIDGET
     logger_print(LOG(DEBUG), "..BEFORE:");
     logger_print(LOG(DEBUG), "....node: %p - %s", node, node->name);
@@ -2368,7 +2374,6 @@ void widget_show(widgetdata *widget, int show)
 
         SetPriorityWidget(widget);
         widget->redraw = 1;
-        cpl.inventory_focus = widget->type;
     }
 }
 
