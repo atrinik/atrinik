@@ -419,6 +419,8 @@ typedef struct widgetresize
         } \
     }
 
+#define WIDGET_SHOW_TOGGLE_ALL(__id) widget_show_toggle_all(__id);
+
 /* Macro to redraw all widgets of a particular type. Don't use this often. */
 #define WIDGET_REDRAW_ALL(__id) widget_redraw_all(__id);
 

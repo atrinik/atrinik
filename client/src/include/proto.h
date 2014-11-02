@@ -615,6 +615,7 @@ extern void add_separator(widgetdata *widget);
 extern void menu_finalize(widgetdata *widget);
 extern void widget_redraw_all(int widget_type_id);
 extern void widget_redraw_type_id(int type, const char *id);
+extern void widget_show_toggle_all(int type_id);
 extern void menu_move_widget(widgetdata *widget, widgetdata *menuitem, SDL_Event *event);
 extern void menu_create_widget(widgetdata *widget, widgetdata *menuitem, SDL_Event *event);
 extern void menu_remove_widget(widgetdata *widget, widgetdata *menuitem, SDL_Event *event);

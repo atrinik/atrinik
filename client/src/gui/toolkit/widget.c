@@ -2312,6 +2312,16 @@ void widget_redraw_type_id(int type, const char *id)
     }
 }
 
+/** Toggles visibility of all widgets of a particular type. */
+void widget_show_toggle_all(int type_id)
+{
+    widgetdata *widget;
+
+    for (widget = cur_widget[type_id]; widget; widget = widget->type_next) {
+        WIDGET_SHOW(widget);
+    }
+}
+
 void menu_move_widget(widgetdata *widget, widgetdata *menuitem, SDL_Event *event)
 {
     widget_event_start_move(widget);
