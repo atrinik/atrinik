@@ -405,6 +405,7 @@ typedef struct widgetresize
     { \
         (_widget)->show = 1; \
         (_widget)->showed_ticks = SDL_GetTicks(); \
+        resize_widget((_widget), 0, 0); \
     }
 
 #define WIDGET_SHOW_TOGGLE(_widget) \
@@ -416,6 +417,7 @@ typedef struct widgetresize
         else \
         { \
             (_widget)->show = 0; \
+            resize_widget((_widget), 0, 0); \
         } \
     }
 

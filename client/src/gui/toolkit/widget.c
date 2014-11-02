@@ -2076,11 +2076,34 @@ void resize_widget_rec(widgetdata *widget, int x, int width, int y, int height)
                 break;
         }
 
+        if (!widget->show) {
+            for (tmp = widget_container->inv; tmp != NULL; tmp = tmp->next) {
+                if (tmp->show) {
+                    break;
+                }
+            }
+
+            widget = tmp;
+
+            if (widget) {
+                x = widget->x;
+                y = widget->y;
+                width = widget->w;
+                height = widget->h;
+            } else {
+                x = y = width = height = 0;
+            }
+        }
+
         /* TODO: add the buffer system so that this mess of code will only need
          * to be executed after the user stops resizing the widget */
         cmp1 = cmp2 = cmp3 = cmp4 = widget;
 
         for (tmp = widget_container->inv; tmp; tmp = tmp->next) {
+            if (!tmp->show) {
+                continue;
+            }
+
             /* widget's left x co-ordinate becomes greater than tmp's left x
              * coordinate */
             if (cmp1->x > tmp->x) {
@@ -2318,7 +2341,7 @@ void widget_show_toggle_all(int type_id)
     widgetdata *widget;
 
     for (widget = cur_widget[type_id]; widget; widget = widget->type_next) {
-        WIDGET_SHOW(widget);
+        WIDGET_SHOW_TOGGLE(widget);
     }
 }
 
