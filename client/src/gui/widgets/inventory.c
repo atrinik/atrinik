@@ -623,6 +623,11 @@ void widget_inventory_handle_arrow_key(widgetdata *widget, SDLKey key)
     uint32 offset;
 
     inventory = INVENTORY(widget);
+
+    if (INVENTORY_COLS(inventory) == 0) {
+        return;
+    }
+
     selected = inventory->selected;
 
     switch (key) {
