@@ -569,6 +569,7 @@ extern void tooltip_dismiss(void);
 /* src/gui/toolkit/widget.c */
 extern widgetdata *cur_widget[TOTAL_SUBWIDGETS];
 extern widgetevent widget_mouse_event;
+extern int widget_id_from_name(const char *name);
 extern void toolkit_widget_init(void);
 extern void menu_container_move(widgetdata *widget, widgetdata *menuitem, SDL_Event *event);
 extern void menu_container_detach(widgetdata *widget, widgetdata *menuitem, SDL_Event *event);

@@ -96,7 +96,7 @@ static widgetresize widget_event_resize =
  * */
 static int IsMouseExclusive = 0;
 
-static int widget_id_from_name(const char *name)
+int widget_id_from_name(const char *name)
 {
     int i;
 
