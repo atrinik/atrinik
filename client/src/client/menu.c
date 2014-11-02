@@ -353,6 +353,40 @@ int client_command_check(const char *cmd)
         socket_send_packet(packet);
 
         return 1;
+    } else if (string_startswith(cmd, "/widget_toggle")) {
+        size_t pos;
+        char word[MAX_BUF], *cps[2];
+        int widget_id;
+
+        pos = 14;
+
+        while (string_get_word(cmd, &pos, ' ', word, sizeof(word), 0)) {
+            if (string_split(word, cps, arraysize(cps), ':') < 1) {
+                continue;
+            }
+
+            widget_id = widget_id_from_name(cps[0]);
+
+            /* Invalid widget ID */
+            if (widget_id == -1) {
+                continue;
+            }
+
+            /* Redraw all or a specific one identified by its UID */
+            if (cps[1] == NULL) {
+                WIDGET_SHOW_TOGGLE_ALL(widget_id);
+            } else {
+                widgetdata *widget;
+
+                widget = widget_find(NULL, widget_id, cps[1], NULL);
+
+                if (widget) {
+                    WIDGET_SHOW_TOGGLE(widget);
+                }
+            }
+        }
+
+        return 1;
     }
 
     return 0;
