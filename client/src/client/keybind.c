@@ -553,19 +553,19 @@ int keybind_process_command(const char *cmd)
             widget_inventory_handle_apply(cur_widget[cpl.inventory_focus]);
         }
         else if (!strcmp(cmd, "EXAMINE")) {
-            widget_inventory_handle_examine(cur_widget[cpl.inventory_focus]);
+            menu_inventory_examine(cur_widget[cpl.inventory_focus], NULL, NULL);
         }
         else if (!strcmp(cmd, "MARK")) {
-            widget_inventory_handle_mark(cur_widget[cpl.inventory_focus]);
+            menu_inventory_mark(cur_widget[cpl.inventory_focus], NULL, NULL);
         }
         else if (!strcmp(cmd, "LOCK")) {
-            widget_inventory_handle_lock(cur_widget[cpl.inventory_focus]);
+            menu_inventory_lock(cur_widget[cpl.inventory_focus], NULL, NULL);
         }
         else if (!strcmp(cmd, "GET")) {
-            widget_inventory_handle_get(cur_widget[cpl.inventory_focus]);
+            menu_inventory_get(cur_widget[cpl.inventory_focus], NULL, NULL);
         }
         else if (!strcmp(cmd, "DROP")) {
-            widget_inventory_handle_drop(cur_widget[cpl.inventory_focus]);
+            menu_inventory_drop(cur_widget[cpl.inventory_focus], NULL, NULL);
         }
         else if (!strcmp(cmd, "HELP")) {
             help_show("main");

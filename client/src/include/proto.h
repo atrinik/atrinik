@@ -659,11 +659,6 @@ extern void menu_inventory_mark(widgetdata *widget, widgetdata *menuitem, SDL_Ev
 extern void menu_inventory_lock(widgetdata *widget, widgetdata *menuitem, SDL_Event *event);
 extern void menu_inventory_drag(widgetdata *widget, widgetdata *menuitem, SDL_Event *event);
 extern void widget_inventory_handle_apply(widgetdata *widget);
-extern void widget_inventory_handle_examine(widgetdata *widget);
-extern void widget_inventory_handle_mark(widgetdata *widget);
-extern void widget_inventory_handle_lock(widgetdata *widget);
-extern void widget_inventory_handle_get(widgetdata *widget);
-extern void widget_inventory_handle_drop(widgetdata *widget);
 extern void menu_inv_filter(widgetdata *widget, widgetdata *menuitem, SDL_Event *event);
 extern void menu_inv_filter_submenu(widgetdata *widget, widgetdata *menuitem, SDL_Event *event);
 extern void menu_inventory_submenu_more(widgetdata *widget, widgetdata *menuitem, SDL_Event *event);

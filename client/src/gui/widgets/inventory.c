@@ -1,36 +1,39 @@
-/************************************************************************
-*            Atrinik, a Multiplayer Online Role Playing Game            *
-*                                                                       *
-*    Copyright (C) 2009-2012 Alex Tokar and Atrinik Development Team    *
-*                                                                       *
-* Fork from Crossfire (Multiplayer game for X-windows).                 *
-*                                                                       *
-* This program is free software; you can redistribute it and/or modify  *
-* it under the terms of the GNU General Public License as published by  *
-* the Free Software Foundation; either version 2 of the License, or     *
-* (at your option) any later version.                                   *
-*                                                                       *
-* This program is distributed in the hope that it will be useful,       *
-* but WITHOUT ANY WARRANTY; without even the implied warranty of        *
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
-* GNU General Public License for more details.                          *
-*                                                                       *
-* You should have received a copy of the GNU General Public License     *
-* along with this program; if not, write to the Free Software           *
-* Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.             *
-*                                                                       *
-* The author can be reached at admin@atrinik.org                        *
-************************************************************************/
+/*************************************************************************
+ *           Atrinik, a Multiplayer Online Role Playing Game             *
+ *                                                                       *
+ *   Copyright (C) 2009-2012 Alex Tokar and Atrinik Development Team     *
+ *                                                                       *
+ * Fork from Crossfire (Multiplayer game for X-windows).                 *
+ *                                                                       *
+ * This program is free software; you can redistribute it and/or modify  *
+ * it under the terms of the GNU General Public License as published by  *
+ * the Free Software Foundation; either version 2 of the License, or     *
+ * (at your option) any later version.                                   *
+ *                                                                       *
+ * This program is distributed in the hope that it will be useful,       *
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of        *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
+ * GNU General Public License for more details.                          *
+ *                                                                       *
+ * You should have received a copy of the GNU General Public License     *
+ * along with this program; if not, write to the Free Software           *
+ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.             *
+ *                                                                       *
+ * The author can be reached at admin@atrinik.org                        *
+ ************************************************************************/
 
 /**
  * @file
  * Implements inventory type widgets.
  *
- * @author Alex Tokar */
+ * @author Alex Tokar
+ */
 
 #include <global.h>
 
-/** Active inventory filter, one of @ref INVENTORY_FILTER_xxx. */
+/**
+ * Active inventory filter, one of @ref INVENTORY_FILTER_xxx.
+ */
 uint64 inventory_filter = INVENTORY_FILTER_ALL;
 
 /**
@@ -44,7 +47,8 @@ const char *inventory_filter_names[INVENTORY_FILTER_MAX] = {
 /**
  * Check if an object matches one of the active inventory filters.
  * @param op Object to check.
- * @return 1 if there is a match, 0 otherwise. */
+ * @return 1 if there is a match, 0 otherwise.
+ */
 static int inventory_matches_filter(object *op)
 {
     /* No filtering of objects in the below inventory. */
@@ -53,7 +57,8 @@ static int inventory_matches_filter(object *op)
     }
 
     /* Never show spell/skill/force objects in the inventory. */
-    if (op->itype == TYPE_SPELL || op->itype == TYPE_SKILL || op->itype == TYPE_FORCE || op->itype == TYPE_POISONING) {
+    if (op->itype == TYPE_SPELL || op->itype == TYPE_SKILL ||
+            op->itype == TYPE_FORCE || op->itype == TYPE_POISONING) {
         return 0;
     }
 
@@ -66,31 +71,38 @@ static int inventory_matches_filter(object *op)
         return 1;
     }
 
-    if (inventory_filter & INVENTORY_FILTER_APPLIED && op->flags & CS_FLAG_APPLIED) {
+    if (inventory_filter & INVENTORY_FILTER_APPLIED &&
+            op->flags & CS_FLAG_APPLIED) {
         return 1;
     }
 
-    if (inventory_filter & INVENTORY_FILTER_CONTAINER && op->itype == TYPE_CONTAINER) {
+    if (inventory_filter & INVENTORY_FILTER_CONTAINER &&
+            op->itype == TYPE_CONTAINER) {
         return 1;
     }
 
-    if (inventory_filter & INVENTORY_FILTER_MAGICAL && op->flags & CS_FLAG_IS_MAGICAL) {
+    if (inventory_filter & INVENTORY_FILTER_MAGICAL &&
+            op->flags & CS_FLAG_IS_MAGICAL) {
         return 1;
     }
 
-    if (inventory_filter & INVENTORY_FILTER_CURSED && op->flags & (CS_FLAG_CURSED | CS_FLAG_DAMNED)) {
+    if (inventory_filter & INVENTORY_FILTER_CURSED &&
+            op->flags & (CS_FLAG_CURSED | CS_FLAG_DAMNED)) {
         return 1;
     }
 
-    if (inventory_filter & INVENTORY_FILTER_UNIDENTIFIED && op->item_qua == 255) {
+    if (inventory_filter & INVENTORY_FILTER_UNIDENTIFIED &&
+            op->item_qua == 255) {
         return 1;
     }
 
-    if (inventory_filter & INVENTORY_FILTER_UNAPPLIED && !(op->flags & CS_FLAG_APPLIED)) {
+    if (inventory_filter & INVENTORY_FILTER_UNAPPLIED &&
+            !(op->flags & CS_FLAG_APPLIED)) {
         return 1;
     }
 
-    if (inventory_filter & INVENTORY_FILTER_LOCKED && op->flags & CS_FLAG_LOCKED) {
+    if (inventory_filter & INVENTORY_FILTER_LOCKED &&
+            op->flags & CS_FLAG_LOCKED) {
         return 1;
     }
 
@@ -99,7 +111,8 @@ static int inventory_matches_filter(object *op)
 
 /**
  * Set an inventory filter to the passed value.
- * @param filter The value to set. */
+ * @param filter The value to set.
+ */
 void inventory_filter_set(uint64 filter)
 {
     inventory_filter = filter;
@@ -110,7 +123,8 @@ void inventory_filter_set(uint64 filter)
 
 /**
  * Toggle one inventory filter.
- * @param filter Filter to toggle. */
+ * @param filter Filter to toggle.
+ */
 void inventory_filter_toggle(uint64 filter)
 {
     if (inventory_filter & filter) {
@@ -127,7 +141,8 @@ void inventory_filter_toggle(uint64 filter)
 
 /**
  * Set one or more filters.
- * @param filter Filter(s) to toggle. */
+ * @param filter Filter(s) to toggle.
+ */
 void inventory_filter_set_names(const char *filter)
 {
     char word[MAX_BUF];
@@ -162,8 +177,10 @@ void inventory_filter_set_names(const char *filter)
  * @param[out] r Rendering index of the object.
  * @param mx Mouse X. Can be -1.
  * @param my Mouse Y. Can be -1.
- * @return 1 if the object was rendered, 0 otherwise. */
-static int inventory_render_object(widgetdata *widget, object *ob, uint32 i, uint32 *r, int mx, int my)
+ * @return 1 if the object was rendered, 0 otherwise.
+ */
+static int inventory_render_object(widgetdata *widget, object *ob, uint32 i,
+        uint32 *r, int mx, int my)
 {
     inventory_struct *inventory;
     uint32 row, r_row, r_col;
@@ -368,11 +385,17 @@ static void widget_draw(widgetdata *widget)
         inventory->w = w;
         inventory->h = h;
 
-        scrollbar_create(&inventory->scrollbar, 9, inventory->h, &inventory->scrollbar_info.scroll_offset, &inventory->scrollbar_info.num_lines, INVENTORY_ROWS(inventory));
+        scrollbar_create(&inventory->scrollbar, 9, inventory->h,
+                &inventory->scrollbar_info.scroll_offset,
+                &inventory->scrollbar_info.num_lines,
+                INVENTORY_ROWS(inventory));
         inventory->scrollbar.redraw = &inventory->scrollbar_info.redraw;
 
         texture_delete(inventory->texture);
-        snprintf(buf, sizeof(buf), "rectangle:%d,%d;[bar=inventory_bg][border=widget_border]", inventory->w + 1 * 2 + inventory->scrollbar.background.w, inventory->h + 1 * 2);
+        snprintf(buf, sizeof(buf),
+                "rectangle:%d,%d;[bar=inventory_bg][border=widget_border]",
+                inventory->w + 1 * 2 + inventory->scrollbar.background.w,
+                inventory->h + 1 * 2);
         inventory->texture = texture_get(TEXTURE_TYPE_SOFTWARE, buf);
     }
 
@@ -388,15 +411,18 @@ static void widget_draw(widgetdata *widget)
             cpl.real_weight += tmp->weight * (double) tmp->nrof;
         }
 
-        surface_show(widget->surface, inventory->x - 1, inventory->y - 1, NULL, texture_surface(inventory->texture));
+        surface_show(widget->surface, inventory->x - 1, inventory->y - 1, NULL,
+                texture_surface(inventory->texture));
     }
     else if (widget->type == BELOW_INV_ID) {
-        surface_show(widget->surface, inventory->x - 1, inventory->y - 1, NULL, texture_surface(inventory->texture));
+        surface_show(widget->surface, inventory->x - 1, inventory->y - 1, NULL,
+                texture_surface(inventory->texture));
     }
 
     widget_inventory_handle_arrow_key(widget, SDLK_UNKNOWN);
 
-    for (i = 0, r = 0, tmp = INVENTORY_WHERE(widget)->inv; tmp; tmp = tmp->next) {
+    for (i = 0, r = 0, tmp = INVENTORY_WHERE(widget)->inv; tmp;
+            tmp = tmp->next) {
         if (!inventory_matches_filter(tmp)) {
             continue;
         }
@@ -418,7 +444,8 @@ static void widget_draw(widgetdata *widget)
 
     inventory->scrollbar.px = widget->x;
     inventory->scrollbar.py = widget->y;
-    scrollbar_show(&inventory->scrollbar, widget->surface, inventory->x + inventory->w, inventory->y);
+    scrollbar_show(&inventory->scrollbar, widget->surface,
+            inventory->x + inventory->w, inventory->y);
 }
 
 /** @copydoc widgetdata::event_func */
@@ -432,7 +459,8 @@ static int widget_event(widgetdata *widget, SDL_Event *event)
         widget->redraw = 1;
 
         if (inventory->scrollbar_info.redraw) {
-            inventory->selected = *inventory->scrollbar.scroll_offset * INVENTORY_COLS(inventory);
+            inventory->selected = *inventory->scrollbar.scroll_offset *
+                    INVENTORY_COLS(inventory);
             inventory->scrollbar_info.redraw = 0;
         }
 
@@ -443,22 +471,23 @@ static int widget_event(widgetdata *widget, SDL_Event *event)
         if (event->button.button == SDL_BUTTON_WHEELUP) {
             widget_inventory_handle_arrow_key(widget, SDLK_LEFT);
             return 1;
-        }
-        else if (event->button.button == SDL_BUTTON_WHEELDOWN) {
+        } else if (event->button.button == SDL_BUTTON_WHEELDOWN) {
             widget_inventory_handle_arrow_key(widget, SDLK_RIGHT);
             return 1;
-        }
-        else if (event->button.button == SDL_BUTTON_LEFT || event->button.button == SDL_BUTTON_RIGHT) {
+        } else if (event->button.button == SDL_BUTTON_LEFT ||
+                event->button.button == SDL_BUTTON_RIGHT) {
             uint32 i, r;
             object *tmp, *tmp2;
             uint8 found = 0;
 
-            for (i = 0, r = 0, tmp = INVENTORY_WHERE(widget)->inv; tmp && !found; tmp = tmp->next) {
+            for (i = 0, r = 0, tmp = INVENTORY_WHERE(widget)->inv;
+                    tmp && !found; tmp = tmp->next) {
                 if (!inventory_matches_filter(tmp)) {
                     continue;
                 }
 
-                if (inventory_render_object(widget, tmp, i, &r, event->motion.x, event->motion.y)) {
+                if (inventory_render_object(widget, tmp, i, &r,
+                        event->motion.x, event->motion.y)) {
                     found = 1;
                     break;
                 }
@@ -471,7 +500,8 @@ static int widget_event(widgetdata *widget, SDL_Event *event)
                             continue;
                         }
 
-                        if (inventory_render_object(widget, tmp2, i, &r, event->motion.x, event->motion.y)) {
+                        if (inventory_render_object(widget, tmp2, i, &r,
+                                event->motion.x, event->motion.y)) {
                             found = 1;
                             break;
                         }
@@ -498,7 +528,8 @@ static int widget_event(widgetdata *widget, SDL_Event *event)
 }
 
 /**
- * Initialize one inventory widget. */
+ * Initialize one inventory widget.
+ */
 void widget_inventory_init(widgetdata *widget)
 {
     inventory_struct *inventory;
@@ -509,8 +540,7 @@ void widget_inventory_init(widgetdata *widget)
     if (widget->type == MAIN_INV_ID) {
         inventory->x = 3;
         inventory->y = 44;
-    }
-    else if (widget->type == BELOW_INV_ID) {
+    } else if (widget->type == BELOW_INV_ID) {
         inventory->x = 5;
         inventory->y = 19;
     }
@@ -523,7 +553,8 @@ void widget_inventory_init(widgetdata *widget)
 /**
  * Calculate number of items in the inventory widget.
  * @param widget The widget.
- * @return Number of items in the inventory widget. */
+ * @return Number of items in the inventory widget.
+ */
 uint32 widget_inventory_num_items(widgetdata *widget)
 {
     uint32 i;
@@ -553,7 +584,8 @@ uint32 widget_inventory_num_items(widgetdata *widget)
 /**
  * Get the selected object from the inventory widget.
  * @param widget The inventory object.
- * @return The selected object, if any. */
+ * @return The selected object, if any.
+ */
 object *widget_inventory_get_selected(widgetdata *widget)
 {
     inventory_struct *inventory;
@@ -594,7 +626,8 @@ object *widget_inventory_get_selected(widgetdata *widget)
 /**
  * Handle the arrow keys in the inventory widget.
  * @param widget The inventory widget.
- * @param key The key. */
+ * @param key The key.
+ */
 void widget_inventory_handle_arrow_key(widgetdata *widget, SDLKey key)
 {
     inventory_struct *inventory;
@@ -675,7 +708,8 @@ void widget_inventory_handle_arrow_key(widgetdata *widget, SDLKey key)
  * and draws nrof (if higher than 1) of items near the bottom.
  * @param tmp Pointer to the inventory item
  * @param x X position of the item
- * @param y Y position of the item */
+ * @param y Y position of the item
+ */
 void object_show_inventory(SDL_Surface *surface, object *tmp, int x, int y)
 {
     SDL_Surface *icon;
@@ -684,67 +718,127 @@ void object_show_inventory(SDL_Surface *surface, object *tmp, int x, int y)
 
     if (tmp->nrof > 1) {
         char buf[64];
+        SDL_Rect box;
 
         if (tmp->nrof > 9999) {
             snprintf(buf, sizeof(buf), "many");
-        }
-        else {
+        } else {
             snprintf(buf, sizeof(buf), "%d", tmp->nrof);
         }
 
-        text_show(surface, FONT_ARIAL10, buf, x + INVENTORY_ICON_SIZE / 2 - text_get_width(FONT_ARIAL10, buf, 0) / 2, y + 18, COLOR_WHITE, TEXT_OUTLINE, NULL);
+        box.w = INVENTORY_ICON_SIZE;
+        text_show(surface, FONT_ARIAL10, buf, x, y + 18, COLOR_WHITE,
+                TEXT_OUTLINE | TEXT_ALIGN_CENTER, &box);
     }
 
     if (tmp->flags & CS_FLAG_APPLIED) {
         surface_show(surface, x, y, NULL, TEXTURE_CLIENT("apply"));
-    }
-    else if (tmp->flags & CS_FLAG_UNPAID) {
+    } else if (tmp->flags & CS_FLAG_UNPAID) {
         surface_show(surface, x, y, NULL, TEXTURE_CLIENT("unpaid"));
     }
 
     if (tmp->flags & CS_FLAG_LOCKED) {
         icon = TEXTURE_CLIENT("lock");
-        surface_show(surface, x, y + INVENTORY_ICON_SIZE - icon->w - 2, NULL, icon);
+        surface_show(surface, x, y + INVENTORY_ICON_SIZE - icon->w - 2, NULL,
+                icon);
     }
 
     if (tmp->flags & CS_FLAG_IS_MAGICAL) {
         icon = TEXTURE_CLIENT("magic");
-        surface_show(surface, x + INVENTORY_ICON_SIZE - icon->w - 2, y + INVENTORY_ICON_SIZE - icon->h - 2, NULL, icon);
+        surface_show(surface, x + INVENTORY_ICON_SIZE - icon->w - 2,
+                y + INVENTORY_ICON_SIZE - icon->h - 2, NULL, icon);
     }
 
     if (tmp->flags & (CS_FLAG_CURSED | CS_FLAG_DAMNED)) {
         if (tmp->flags & CS_FLAG_DAMNED) {
             icon = TEXTURE_CLIENT("damned");
-        }
-        else {
+        } else {
             icon = TEXTURE_CLIENT("cursed");
         }
 
-        surface_show(surface, x + INVENTORY_ICON_SIZE - icon->w - 2, y, NULL, icon);
+        surface_show(surface, x + INVENTORY_ICON_SIZE - icon->w - 2, y, NULL,
+                icon);
     }
 
     if (tmp->flags & CS_FLAG_IS_TRAPPED) {
         icon = TEXTURE_CLIENT("trapped");
-        surface_show(surface, x + INVENTORY_ICON_SIZE / 2 - icon->w / 2, y + INVENTORY_ICON_SIZE / 2 - icon->h / 2, NULL, icon);
+        surface_show(surface, x + INVENTORY_ICON_SIZE / 2 - icon->w / 2,
+                y + INVENTORY_ICON_SIZE / 2 - icon->h / 2, NULL, icon);
     }
 }
 
 /**
  * The 'Drop' menu action for inventory windows.
  * @param widget The widget.
- * @param x X.
- * @param y Y. */
-void menu_inventory_drop(widgetdata *widget, widgetdata *menuitem, SDL_Event *event)
+ * @param menuitem The menu item.
+ * @param event Event.
+ */
+void menu_inventory_drop(widgetdata *widget, widgetdata *menuitem,
+        SDL_Event *event)
 {
-    keybind_process_command("?DROP");
+    object *ob, *container;
+    int nrof;
+    sint32 loc;
+
+    if (widget->type != MAIN_INV_ID) {
+        return;
+    }
+
+    ob = widget_inventory_get_selected(widget);
+    container = object_find(cpl.container_tag);
+
+    if (ob == NULL) {
+        return;
+    }
+
+    if (ob->flags & CS_FLAG_LOCKED) {
+        draw_info(COLOR_DGOLD, "That item is locked.");
+        return;
+    }
+
+    if (container && container->env == cpl.below) {
+        loc = container->tag;
+    } else {
+        loc = cpl.below->tag;
+    }
+
+    nrof = ob->nrof;
+
+    if (nrof == 1) {
+        nrof = 0;
+    } else if (!(setting_get_int(OPT_CAT_GENERAL, OPT_COLLECT_MODE) & 2)) {
+        widget_input_struct *input;
+        char buf[MAX_BUF];
+
+        WIDGET_SHOW(cur_widget[INPUT_ID]);
+        SetPriorityWidget(cur_widget[INPUT_ID]);
+        input = cur_widget[INPUT_ID]->subwidget;
+
+        snprintf(input->title_text, sizeof(input->title_text),
+                "Drop how many from %d %s?", nrof, ob->s_name);
+        snprintf(input->prepend_text, sizeof(input->prepend_text),
+                "/droptag %d %d ", loc, ob->tag);
+        snprintf(buf, sizeof(buf), "%d", nrof);
+        text_input_set(&input->text_input, buf);
+        input->text_input.character_check_func =
+                text_input_number_character_check;
+        text_input_set_history(&input->text_input, NULL);
+        return;
+    }
+
+    draw_info_format(COLOR_DGOLD, "drop %s", ob->s_name);
+    client_send_move(loc, ob->tag, nrof);
+    sound_play_effect("drop.ogg", 100);
 }
 
 /**
  * The 'Drop all' menu action for inventory windows.
  * @param widget The widget.
- * @param x X.
- * @param y Y. */
-void menu_inventory_dropall(widgetdata *widget, widgetdata *menuitem, SDL_Event *event)
+ * @param menuitem The menu item.
+ * @param event Event.
+ */
+void menu_inventory_dropall(widgetdata *widget, widgetdata *menuitem,
+        SDL_Event *event)
 {
     send_command_check("/drop all");
 }
@@ -752,19 +846,94 @@ void menu_inventory_dropall(widgetdata *widget, widgetdata *menuitem, SDL_Event 
 /**
  * The 'Get' menu action for inventory windows.
  * @param widget The widget.
- * @param x X.
- * @param y Y. */
-void menu_inventory_get(widgetdata *widget, widgetdata *menuitem, SDL_Event *event)
+ * @param menuitem The menu item.
+ * @param event Event.
+ */
+void menu_inventory_get(widgetdata *widget, widgetdata *menuitem,
+        SDL_Event *event)
 {
-    keybind_process_command("?GET");
+    object *ob, *container;
+    int nrof;
+    sint32 loc;
+
+    ob = widget_inventory_get_selected(widget);
+    container = object_find(cpl.container_tag);
+
+    if (ob == NULL) {
+        return;
+    }
+
+    assert(widget->type == MAIN_INV_ID || widget->type == BELOW_INV_ID);
+
+    if (widget->type == MAIN_INV_ID) { /* 'G' in main inventory. */
+        /* Need to have an open container to do 'get' in main inventory... */
+        if (container == NULL) {
+            draw_info(COLOR_DGOLD, "You have no open container to put it in.");
+            return;
+        } else {
+            if (container->env != cpl.ob) {
+                /* Open container not in main inventory... */
+                draw_info(COLOR_DGOLD, "You already have it.");
+                return;
+            } else if (ob->env == cpl.sack) {
+                /* If the object is already in the open container, take it
+                 * out. */
+                loc = cpl.ob->tag;
+            } else {
+                /* Put the object into the open container. */
+                loc = container->tag;
+            }
+        }
+    } else if (widget->type == BELOW_INV_ID) { /* 'G' in below inventory. */
+        if (container != NULL && container->env == cpl.below &&
+                container->tag != ob->tag && ob->env != cpl.sack) {
+            /* If there is an open container on the ground and the item to
+             * 'get' is not the container and it's not inside the container,
+             * put it into the container. */
+            loc = container->tag;
+        } else {
+            /* Otherwise pick it up into the player's inventory. */
+            loc = cpl.ob->tag;
+        }
+    }
+
+    nrof = ob->nrof;
+
+    if (nrof == 1) {
+        nrof = 0;
+    } else if (!(setting_get_int(OPT_CAT_GENERAL, OPT_COLLECT_MODE) & 1)) {
+        widget_input_struct *input;
+        char buf[MAX_BUF];
+
+        WIDGET_SHOW(cur_widget[INPUT_ID]);
+        SetPriorityWidget(cur_widget[INPUT_ID]);
+        input = cur_widget[INPUT_ID]->subwidget;
+
+        snprintf(input->title_text, sizeof(input->title_text),
+                "Take how many from %d %s?", nrof, ob->s_name);
+        snprintf(input->prepend_text, sizeof(input->prepend_text),
+                "/gettag %d %d ", loc, ob->tag);
+        snprintf(buf, sizeof(buf), "%d", nrof);
+        text_input_set(&input->text_input, buf);
+        input->text_input.character_check_func =
+                text_input_number_character_check;
+        text_input_set_history(&input->text_input, NULL);
+        return;
+    }
+
+    draw_info_format(COLOR_DGOLD, "get %s", ob->s_name);
+    client_send_move(loc, ob->tag, nrof);
+    sound_play_effect("get.ogg", 100);
 }
 
 /**
  * The 'Get all' menu action for inventory windows.
  * @param widget The widget.
- * @param x X.
- * @param y Y. */
-void menu_inventory_getall(widgetdata *widget, widgetdata *menuitem, SDL_Event *event)
+ * @param menuitem The menu item.
+ * @param event Event.
+ */
+void menu_inventory_getall(widgetdata *widget, widgetdata *menuitem,
+        SDL_Event *event)
 {
     send_command_check("/take all");
 }
@@ -772,65 +941,135 @@ void menu_inventory_getall(widgetdata *widget, widgetdata *menuitem, SDL_Event *
 /**
  * The 'Examine' menu action for inventory windows.
  * @param widget The widget.
- * @param x X.
- * @param y Y. */
-void menu_inventory_examine(widgetdata *widget, widgetdata *menuitem, SDL_Event *event)
-{
-    keybind_process_command("?EXAMINE");
-}
-
-/**
- * The 'Load to console' menu action for inventory windows.
- * @param widget The widget.
- * @param x X.
- * @param y Y. */
-void menu_inventory_loadtoconsole(widgetdata *widget, widgetdata *menuitem, SDL_Event *event)
-{
-    send_command_check("/console-obj");
-}
-
-/**
- * The 'Patch' menu action for inventory windows.
- * @param widget The widget.
- * @param x X.
- * @param y Y. */
-void menu_inventory_patch(widgetdata *widget, widgetdata *menuitem, SDL_Event *event)
-{
-    send_command_check("/patch-obj");
-}
-
-/**
- * The 'Mark' menu action for inventory windows.
- * @param widget The widget.
- * @param x X.
- * @param y Y. */
-void menu_inventory_mark(widgetdata *widget, widgetdata *menuitem, SDL_Event *event)
-{
-    keybind_process_command("?MARK");
-}
-
-/**
- * The 'Lock' menu action for inventory windows.
- * @param widget The widget.
- * @param x X.
- * @param y Y. */
-void menu_inventory_lock(widgetdata *widget, widgetdata *menuitem, SDL_Event *event)
-{
-    keybind_process_command("?LOCK");
-}
-
-/**
- * The 'Drag' menu action for inventory windows.
- * @param widget The widget.
- * @param x X.
- * @param y Y. */
-void menu_inventory_drag(widgetdata *widget, widgetdata *menuitem, SDL_Event *event)
+ * @param menuitem The menu item.
+ * @param event Event.
+ */
+void menu_inventory_examine(widgetdata *widget, widgetdata *menuitem,
+        SDL_Event *event)
 {
     object *ob;
 
     ob = widget_inventory_get_selected(widget);
 
-    if (!ob) {
+    if (ob == NULL) {
+        return;
+    }
+
+    draw_info_format(COLOR_DGOLD, "examine %s", ob->s_name);
+    client_send_examine(ob->tag);
+}
+
+/**
+ * The 'Load to console' menu action for inventory windows.
+ * @param widget The widget.
+ * @param menuitem The menu item.
+ * @param event Event.
+ */
+void menu_inventory_loadtoconsole(widgetdata *widget, widgetdata *menuitem,
+        SDL_Event *event)
+{
+    object *ob;
+    char buf[HUGE_BUF];
+
+    ob = widget_inventory_get_selected(widget);
+
+    if (ob == NULL) {
+        return;
+    }
+
+    snprintf(buf, sizeof(buf), "/console noinf::obj = find_obj(me, count = %d)",
+            ob->tag);
+    send_command(buf);
+}
+
+/**
+ * The 'Patch' menu action for inventory windows.
+ * @param widget The widget.
+ * @param menuitem The menu item.
+ * @param event Event.
+ */
+void menu_inventory_patch(widgetdata *widget, widgetdata *menuitem,
+        SDL_Event *event)
+{
+    object *ob;
+    char buf[HUGE_BUF];
+
+    ob = widget_inventory_get_selected(widget);
+
+    if (ob == NULL) {
+        return;
+    }
+
+    snprintf(buf, sizeof(buf), "/patch #%d ", ob->tag);
+    widget_textwin_handle_console(buf);
+}
+
+/**
+ * The 'Mark' menu action for inventory windows.
+ * @param widget The widget.
+ * @param menuitem The menu item.
+ * @param event Event.
+ */
+void menu_inventory_mark(widgetdata *widget, widgetdata *menuitem,
+        SDL_Event *event)
+{
+    object *ob;
+
+    ob = widget_inventory_get_selected(widget);
+
+    if (ob == NULL) {
+        return;
+    }
+
+    if (ob->tag == cpl.mark_count) {
+        draw_info_format(COLOR_DGOLD, "unmark %s", ob->s_name);
+    } else {
+        draw_info_format(COLOR_DGOLD, "mark %s", ob->s_name);
+    }
+
+    object_send_mark(ob);
+}
+
+/**
+ * The 'Lock' menu action for inventory windows.
+ * @param widget The widget.
+ * @param menuitem The menu item.
+ * @param event Event.
+ */
+void menu_inventory_lock(widgetdata *widget, widgetdata *menuitem,
+        SDL_Event *event)
+{
+    object *ob;
+
+    ob = widget_inventory_get_selected(widget);
+
+    if (ob == NULL) {
+        return;
+    }
+
+    if (ob->flags & CS_FLAG_LOCKED) {
+        draw_info_format(COLOR_DGOLD, "unlock %s", ob->s_name);
+    } else {
+        draw_info_format(COLOR_DGOLD, "lock %s", ob->s_name);
+    }
+
+    toggle_locked(ob);
+}
+
+/**
+ * The 'Drag' menu action for inventory windows.
+ * @param widget The widget.
+ * @param menuitem The menu item.
+ * @param event Event.
+ */
+void menu_inventory_drag(widgetdata *widget, widgetdata *menuitem,
+        SDL_Event *event)
+{
+    object *ob;
+
+    ob = widget_inventory_get_selected(widget);
+
+    if (ob == NULL) {
         return;
     }
 
@@ -841,7 +1080,8 @@ void menu_inventory_drag(widgetdata *widget, widgetdata *menuitem, SDL_Event *ev
 
 /**
  * Handle the 'apply' operation for objects inside inventory widget.
- * @param widget The widget. */
+ * @param widget The widget.
+ */
 void widget_inventory_handle_apply(widgetdata *widget)
 {
     object *ob;
@@ -857,210 +1097,11 @@ void widget_inventory_handle_apply(widgetdata *widget)
 }
 
 /**
- * Handle the 'examine' operation for objects inside inventory widget.
- * @param widget The widget. */
-void widget_inventory_handle_examine(widgetdata *widget)
-{
-    object *ob;
-
-    ob = widget_inventory_get_selected(widget);
-
-    if (!ob) {
-        return;
-    }
-
-    draw_info_format(COLOR_DGOLD, "examine %s", ob->s_name);
-    client_send_examine(ob->tag);
-}
-
-/**
- * Handle the 'mark' operation for objects inside inventory widget.
- * @param widget The widget. */
-void widget_inventory_handle_mark(widgetdata *widget)
-{
-    object *ob;
-
-    ob = widget_inventory_get_selected(widget);
-
-    if (!ob) {
-        return;
-    }
-
-    if (ob->tag == cpl.mark_count) {
-        draw_info_format(COLOR_DGOLD, "unmark %s", ob->s_name);
-    }
-    else {
-        draw_info_format(COLOR_DGOLD, "mark %s", ob->s_name);
-    }
-
-    object_send_mark(ob);
-}
-
-/**
- * Handle the 'lock' operation for objects inside inventory widget.
- * @param widget The widget. */
-void widget_inventory_handle_lock(widgetdata *widget)
-{
-    object *ob;
-
-    ob = widget_inventory_get_selected(widget);
-
-    if (!ob) {
-        return;
-    }
-
-    if (ob->flags & CS_FLAG_LOCKED) {
-        draw_info_format(COLOR_DGOLD, "unlock %s", ob->s_name);
-    }
-    else {
-        draw_info_format(COLOR_DGOLD, "lock %s", ob->s_name);
-    }
-
-    toggle_locked(ob);
-}
-
-/**
- * Handle the 'get' operation for objects inside inventory widget.
- * @param widget The widget. */
-void widget_inventory_handle_get(widgetdata *widget)
-{
-    object *ob, *container;
-    int nrof;
-    sint32 loc;
-
-    ob = widget_inventory_get_selected(widget);
-    container = object_find(cpl.container_tag);
-
-    if (!ob) {
-        return;
-    }
-
-    /* 'G' in main inventory. */
-    if (widget->type == MAIN_INV_ID) {
-        /* Need to have an open container to do 'get' in main inventory... */
-        if (!container) {
-            draw_info(COLOR_DGOLD, "You have no open container to put it in.");
-            return;
-        }
-        else {
-            /* Open container not in main inventory... */
-            if (container->env != cpl.ob) {
-                draw_info(COLOR_DGOLD, "You already have it.");
-                return;
-            }
-            /* If the object is already in the open container, take it out. */
-            else if (ob->env == cpl.sack) {
-                loc = cpl.ob->tag;
-            }
-            /* Put the object into the open container. */
-            else {
-                loc = container->tag;
-            }
-        }
-    }
-    /* 'G' in below inventory. */
-    else if (widget->type == BELOW_INV_ID) {
-        /* If there is an open container on the ground and the item to
-         * 'get' is not the container and it's not inside the container,
-         * put it into the container. */
-        if (container && container->env == cpl.below && container->tag != ob->tag && ob->env != cpl.sack) {
-            loc = container->tag;
-        }
-        /* Otherwise pick it up into the player's inventory. */
-        else {
-            loc = cpl.ob->tag;
-        }
-    }
-    else {
-        return;
-    }
-
-    nrof = ob->nrof;
-
-    if (nrof == 1) {
-        nrof = 0;
-    }
-    else if (!(setting_get_int(OPT_CAT_GENERAL, OPT_COLLECT_MODE) & 1)) {
-        widget_input_struct *input;
-        char buf[MAX_BUF];
-
-        WIDGET_SHOW(cur_widget[INPUT_ID]);
-        SetPriorityWidget(cur_widget[INPUT_ID]);
-        input = (widget_input_struct *) cur_widget[INPUT_ID]->subwidget;
-
-        snprintf(input->title_text, sizeof(input->title_text), "Take how many from %d %s?", nrof, ob->s_name);
-        snprintf(input->prepend_text, sizeof(input->prepend_text), "/gettag %d %d ", loc, ob->tag);
-        snprintf(buf, sizeof(buf), "%d", nrof);
-        text_input_set(&input->text_input, buf);
-        input->text_input.character_check_func = text_input_number_character_check;
-        text_input_set_history(&input->text_input, NULL);
-        return;
-    }
-
-    draw_info_format(COLOR_DGOLD, "get %s", ob->s_name);
-    client_send_move(loc, ob->tag, nrof);
-    sound_play_effect("get.ogg", 100);
-}
-
-/**
- * Handle the 'drop' operation for objects inside inventory widget.
- * @param widget The widget. */
-void widget_inventory_handle_drop(widgetdata *widget)
-{
-    object *ob, *container;
-    int nrof;
-    sint32 loc;
-
-    if (widget->type != MAIN_INV_ID) {
-        return;
-    }
-
-    ob = widget_inventory_get_selected(widget);
-    container = object_find(cpl.container_tag);
-
-    if (!ob) {
-        return;
-    }
-
-    if (ob->flags & CS_FLAG_LOCKED) {
-        draw_info(COLOR_DGOLD, "That item is locked.");
-        return;
-    }
-
-    if (container && container->env == cpl.below) {
-        loc = container->tag;
-    }
-    else {
-        loc = cpl.below->tag;
-    }
-
-    nrof = ob->nrof;
-
-    if (nrof == 1) {
-        nrof = 0;
-    }
-    else if (!(setting_get_int(OPT_CAT_GENERAL, OPT_COLLECT_MODE) & 2)) {
-        widget_input_struct *input;
-        char buf[MAX_BUF];
-
-        WIDGET_SHOW(cur_widget[INPUT_ID]);
-        SetPriorityWidget(cur_widget[INPUT_ID]);
-        input = (widget_input_struct *) cur_widget[INPUT_ID]->subwidget;
-
-        snprintf(input->title_text, sizeof(input->title_text), "Drop how many from %d %s?", nrof, ob->s_name);
-        snprintf(input->prepend_text, sizeof(input->prepend_text), "/droptag %d %d ", loc, ob->tag);
-        snprintf(buf, sizeof(buf), "%d", nrof);
-        text_input_set(&input->text_input, buf);
-        input->text_input.character_check_func = text_input_number_character_check;
-        text_input_set_history(&input->text_input, NULL);
-        return;
-    }
-
-    draw_info_format(COLOR_DGOLD, "drop %s", ob->s_name);
-    client_send_move(loc, ob->tag, nrof);
-    sound_play_effect("drop.ogg", 100);
-}
-
+ * Handle clicking a specific inventory filter.
+ * @param widget The widget.
+ * @param menuitem The menu item.
+ * @param event Event.
+ */
 void menu_inv_filter(widgetdata *widget, widgetdata *menuitem, SDL_Event *event)
 {
     widgetdata *tmp;
@@ -1088,7 +1129,14 @@ void menu_inv_filter(widgetdata *widget, widgetdata *menuitem, SDL_Event *event)
     }
 }
 
-void menu_inv_filter_submenu(widgetdata *widget, widgetdata *menuitem, SDL_Event *event)
+/**
+ * Construct the inventory filters submenu.
+ * @param widget The widget.
+ * @param menuitem The menu item.
+ * @param event Event.
+ */
+void menu_inv_filter_submenu(widgetdata *widget, widgetdata *menuitem,
+        SDL_Event *event)
 {
     widgetdata *submenu;
     size_t i;
@@ -1096,7 +1144,8 @@ void menu_inv_filter_submenu(widgetdata *widget, widgetdata *menuitem, SDL_Event
 
     submenu = MENU(menuitem->env)->submenu;
 
-    add_menuitem(submenu, "All", &menu_inv_filter, MENU_CHECKBOX, inventory_filter == INVENTORY_FILTER_ALL);
+    add_menuitem(submenu, "All", &menu_inv_filter, MENU_CHECKBOX,
+            inventory_filter == INVENTORY_FILTER_ALL);
 
     for (i = 0; i < INVENTORY_FILTER_MAX; i++) {
         snprintf(buf, sizeof(buf), "%s", inventory_filter_names[i]);
@@ -1107,7 +1156,14 @@ void menu_inv_filter_submenu(widgetdata *widget, widgetdata *menuitem, SDL_Event
     }
 }
 
-void menu_inventory_submenu_more(widgetdata *widget, widgetdata *menuitem, SDL_Event *event)
+/**
+ * Construct the "More" inventory submenu.
+ * @param widget The widget.
+ * @param menuitem The menu item.
+ * @param event Event.
+ */
+void menu_inventory_submenu_more(widgetdata *widget, widgetdata *menuitem,
+        SDL_Event *event)
 {
     widgetdata *submenu;
 
