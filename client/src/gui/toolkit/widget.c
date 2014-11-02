@@ -1900,7 +1900,7 @@ widgetdata *widget_find(widgetdata *where, int type, const char *id, SDL_Surface
     }
 
     for (tmp = where; tmp; tmp = tmp->next) {
-        if ((type == -1 || tmp->type == type) && (id == NULL || strcmp(tmp->id, id) == 0) && (surface == NULL || tmp->surface == surface)) {
+        if ((type == -1 || tmp->type == type) && (id == NULL || (tmp->id != NULL && strcmp(tmp->id, id) == 0)) && (surface == NULL || tmp->surface == surface)) {
             return tmp;
         }
 
