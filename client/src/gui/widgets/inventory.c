@@ -665,21 +665,21 @@ void widget_inventory_handle_arrow_key(widgetdata *widget, SDLKey key)
     if (inventory->selected != (uint32) selected) {
         inventory->selected = selected;
         widget->redraw = 1;
-    }
 
-    offset = MAX(0, selected / (int) INVENTORY_COLS(inventory));
+        offset = MAX(0, selected / (int) INVENTORY_COLS(inventory));
 
-    if (inventory->scrollbar_info.scroll_offset > offset) {
-        inventory->scrollbar_info.scroll_offset = offset;
-    }
-    else if (offset >= inventory->scrollbar.max_lines + inventory->scrollbar_info.scroll_offset) {
-        inventory->scrollbar_info.scroll_offset = offset - inventory->scrollbar.max_lines + 1;
-    }
+        if (inventory->scrollbar_info.scroll_offset > offset) {
+            inventory->scrollbar_info.scroll_offset = offset;
+        }
+        else if (offset >= inventory->scrollbar.max_lines + inventory->scrollbar_info.scroll_offset) {
+            inventory->scrollbar_info.scroll_offset = offset - inventory->scrollbar.max_lines + 1;
+        }
 
-    inventory->scrollbar_info.num_lines = ceil(max / (double) INVENTORY_COLS(inventory));
-    /* Makes sure the scroll offset doesn't overflow. */
-    scrollbar_scroll_adjust(&inventory->scrollbar, 0);
-    inventory->scrollbar_info.redraw = 0;
+        inventory->scrollbar_info.num_lines = ceil(max / (double) INVENTORY_COLS(inventory));
+        /* Makes sure the scroll offset doesn't overflow. */
+        scrollbar_scroll_adjust(&inventory->scrollbar, 0);
+        inventory->scrollbar_info.redraw = 0;
+    }
 }
 
 /**
