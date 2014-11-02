@@ -151,25 +151,6 @@ void inventory_filter_set_names(const char *filter)
 }
 
 /**
- * Toggle inventory display. */
-void inventory_toggle_display(void)
-{
-    widgetdata *widget;
-
-    widget = get_outermost_container(widget_find(NULL, MAIN_INV_ID, NULL, NULL));
-    assert(widget != NULL);
-    WIDGET_SHOW_TOGGLE(widget);
-
-    if (widget->show == 0) {
-        widget = widget_find(NULL, BELOW_INV_ID, NULL, NULL);
-        assert(widget != NULL);
-    }
-
-    SetPriorityWidget(widget);
-    widget->redraw = 1;
-}
-
-/**
  * Render a single object in the inventory widget.
  *
  * If 'mx' and 'my' are not -1, no rendering is done and instead the

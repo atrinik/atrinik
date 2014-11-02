@@ -619,9 +619,6 @@ int keybind_process_command(const char *cmd)
         else if (!strcmp(cmd, "RIGHT")) {
             widget_inventory_handle_arrow_key(cur_widget[cpl.inventory_focus], SDLK_RIGHT);
         }
-        else if (!strncmp(cmd, "INVENTORY", 9)) {
-            inventory_toggle_display();
-        }
         else if (!strncmp(cmd, "RUNON", 5)) {
             if (!strcmp(cmd + 5, "_TOGGLE")) {
                 if (cpl.run_on) {

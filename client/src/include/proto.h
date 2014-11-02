@@ -643,7 +643,6 @@ extern const char *inventory_filter_names[7];
 extern void inventory_filter_set(uint64 filter);
 extern void inventory_filter_toggle(uint64 filter);
 extern void inventory_filter_set_names(const char *filter);
-extern void inventory_toggle_display(void);
 extern void widget_inventory_init(widgetdata *widget);
 extern uint32 widget_inventory_num_items(widgetdata *widget);
 extern object *widget_inventory_get_selected(widgetdata *widget);
