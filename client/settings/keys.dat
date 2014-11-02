@@ -199,7 +199,7 @@ end
 bind
 	# tab
 	key 9
-	command ?INVENTORY
+	command /widget_toggle maininv
 end
 bind
 	# left alt
