@@ -1601,6 +1601,11 @@ static int Object_SetAttribute(Atrinik_Object *obj, PyObject *value, void *conte
         INTRAISE("Trying to modify a field that is read-only for player objects.");
     }
 
+    if (field->offset == offsetof(object, type) &&
+            obj->obj->custom_attrset != NULL) {
+        INTRAISE("Cannot modify type of object that has custom_attrset.");
+    }
+
     if (obj->obj->map != NULL && (field->offset == offsetof(object, layer) || field->offset == offsetof(object, sub_layer))) {
         hooks->object_remove(obj->obj, 0);
     }
