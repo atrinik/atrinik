@@ -39,6 +39,10 @@ def main():
                 pl.DrawInfo(str(err), COLOR_RED)
                 break
 
+        if obj.type == Type.PLAYER:
+            obj.type = Type.MONSTER
+            obj.f_monster = True
+
         obj_assign_attribs(obj, attribs)
 
         if obj.f_monster:
