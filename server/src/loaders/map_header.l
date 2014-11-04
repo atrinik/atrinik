@@ -244,7 +244,9 @@ int map_set_variable(mapstruct *m, char *buf)
  * Frees all memory allocated by the map header loader. */
 void free_map_header_loader(void)
 {
+#ifndef WIN32
     yylex_destroy();
+#endif
 }
 
 /**

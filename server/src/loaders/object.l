@@ -865,7 +865,9 @@ static char *yval(void)
  * Frees all memory allocated by the object loader. */
 void free_object_loader(void)
 {
+#ifndef WIN32
     yylex_destroy();
+#endif
 }
 
 /* Buffer functions - needed to make load_object() recursive save. */
