@@ -38,6 +38,11 @@ enum
 };
 
 /**
+ * Called when dragged object is not handled, and a handler was specified.
+ */
+typedef void (*event_drag_cb_fnc)(void);
+
+/**
  * Key information. */
 typedef struct key_struct
 {

@@ -29,6 +29,9 @@
 
 #include <global.h>
 
+/** @copydoc event_drag_cb_fnc */
+static event_drag_cb_fnc event_drag_cb = NULL;
+
 int event_dragging_check(void)
 {
     int mx, my;
@@ -51,11 +54,27 @@ void event_dragging_start(int tag, int mx, int my)
     cpl.dragging_tag = tag;
     cpl.dragging_startx = mx;
     cpl.dragging_starty = my;
+
+    event_dragging_set_callback(NULL);
+}
+
+void event_dragging_set_callback(event_drag_cb_fnc fnc)
+{
+    event_drag_cb = fnc;
 }
 
 void event_dragging_stop(void)
 {
     cpl.dragging_tag = 0;
+}
+
+static void event_dragging_stop_internal(void)
+{
+    if (cpl.dragging_tag != 0 && event_drag_cb != NULL) {
+        event_drag_cb();
+    }
+
+    event_dragging_stop();
 }
 
 /**
@@ -184,7 +203,7 @@ int Event_PollInputDevice(void)
         }
 
         if (event.type == SDL_MOUSEBUTTONUP) {
-            event_dragging_stop();
+            event_dragging_stop_internal();
         }
     }
 

@@ -284,6 +284,7 @@ extern TTF_Font *TTF_OpenFont_wrapper(const char *file, int ptsize);
 /* src/events/event.c */
 extern int event_dragging_check(void);
 extern void event_dragging_start(int tag, int mx, int my);
+extern void event_dragging_set_callback(event_drag_cb_fnc fnc);
 extern void event_dragging_stop(void);
 extern void resize_window(int width, int height);
 extern int Event_PollInputDevice(void);
