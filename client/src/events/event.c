@@ -70,7 +70,7 @@ void event_dragging_stop(void)
 
 static void event_dragging_stop_internal(void)
 {
-    if (cpl.dragging_tag != 0 && event_drag_cb != NULL) {
+    if (event_dragging_check() && event_drag_cb != NULL) {
         event_drag_cb();
     }
 
