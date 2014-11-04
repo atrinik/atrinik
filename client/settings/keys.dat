@@ -323,3 +323,8 @@ bind
 	key 278
 	command ?QUICKSLOT_GROUP_PREV
 end
+bind
+	# left shift
+	key 304
+	command ?QUICKSLOT_SET_KEY
+end
