@@ -56,7 +56,7 @@ void quickslots_init(void)
  * 'tag'.
  * @param slot Quickslot ID.
  * @param tag ID of the item to set. */
-static void quickslot_set(widgetdata *widget, uint32 row, uint32 col, sint32 tag)
+static void quickslots_set(widgetdata *widget, uint32 row, uint32 col, sint32 tag)
 {
     widget_quickslots_struct *tmp;
     uint32 slot;
@@ -125,60 +125,108 @@ static void quickslots_remove(widgetdata *widget, tag_t tag)
     }
 }
 
+/**
+ * Trigger the specified quickslot.
+ * @param widget Quickslots widget.
+ * @param row Row.
+ * @param col Column.
+ * @return 1 if the trigger was handled, 0 otherwise.
+ */
+static int quickslots_trigger(widgetdata *widget, uint32 row, uint32 col)
+{
+    widget_quickslots_struct *tmp;
+    tag_t tag;
+    object *ob;
+    size_t spell_path, spell_id;
+    spell_entry_struct *spell;
+
+    assert(widget != NULL);
+
+    tmp = widget->subwidget;
+    tag = tmp->list->text[row][col] ? atoi(tmp->list->text[row][col]) : 0;
+
+    if (tag == 0) {
+        return 0;
+    }
+
+    ob = object_find(tag);
+
+    if (ob->itype == TYPE_SPELL &&
+            spell_find(ob->s_name, &spell_path, &spell_id) &&
+            (spell = spell_get(spell_path, spell_id)) &&
+            spell->flags & SPELL_DESC_SELF) {
+        char buf[MAX_BUF];
+
+        snprintf(buf, sizeof(buf), "/cast %s", ob->s_name);
+        send_command_check(buf);
+    } else {
+        client_send_apply(tag);
+    }
+
+    return 1;
+}
+
+/**
+ * Changes the specified quickslot.
+ * @param widget Quickslots widget.
+ * @param row Row.
+ * @param col Column.
+ * @param tag Tag to change to.
+ * @return 1 if the change was handled, 0 otherwise.
+ */
+static int quickslots_change(widgetdata *widget, uint32 row, uint32 col)
+{
+    object *ob;
+    widget_quickslots_struct *tmp;
+    tag_t tag;
+
+    assert(widget != NULL);
+
+    if (!cur_widget[MAIN_INV_ID]->show) {
+        return 0;
+    }
+
+    ob = widget_inventory_get_selected(cur_widget[MAIN_INV_ID]);
+
+    if (ob == NULL) {
+        return 0;
+    }
+
+    tmp = widget->subwidget;
+    tag = tmp->list->text[row][col] ? atoi(tmp->list->text[row][col]) : 0;
+
+    if (tag == (tag_t) ob->tag) {
+        efree(tmp->list->text[row][col]);
+        tmp->list->text[row][col] = NULL;
+        quickslots_set(widget, row, col, -1);
+    } else {
+        char buf[MAX_BUF];
+
+        quickslots_remove(widget, ob->tag);
+
+        snprintf(buf, sizeof(buf), "%d", ob->tag);
+        tmp->list->text[row][col] = estrdup(buf);
+        quickslots_set(widget, row, col, ob->tag);
+    }
+
+    return 1;
+}
+
 /* Handle quickslot key event. */
 void quickslots_handle_key(int slot)
 {
     widgetdata *widget;
     widget_quickslots_struct *tmp;
-    uint32 row, col;
-    object *ob;
-    sint32 tag;
 
-    for (widget = cur_widget[QUICKSLOT_ID]; widget; widget = widget->type_next) {
+    for (widget = cur_widget[QUICKSLOT_ID]; widget != NULL;
+            widget = widget->type_next) {
         tmp = widget->subwidget;
-        row = tmp->list->row_offset;
-        col = slot;
 
-        tag = tmp->list->text[row][col] ? atoi(tmp->list->text[row][col]) : -1;
-
-        if (cpl.inventory_focus == MAIN_INV_ID) {
-            ob = widget_inventory_get_selected(cur_widget[MAIN_INV_ID]);
-
-            if (ob) {
-                if (ob->tag == tag) {
-                    efree(tmp->list->text[row][col]);
-                    tmp->list->text[row][col] = NULL;
-                    quickslot_set(widget, row, col, -1);
-                }
-                else {
-                    char buf[MAX_BUF];
-
-                    quickslots_remove(widget, ob->tag);
-
-                    snprintf(buf, sizeof(buf), "%d", ob->tag);
-                    tmp->list->text[row][col] = estrdup(buf);
-                    quickslot_set(widget, row, col, ob->tag);
-                }
+        if (keybind_command_matches_state("?QUICKSLOT_SET_KEY")) {
+            if (quickslots_change(widget, tmp->list->row_offset, slot)) {
+                break;
             }
-
-            break;
-        }
-        else if (tag != -1) {
-            size_t spell_path, spell_id;
-            spell_entry_struct *spell;
-
-            ob = object_find(tag);
-
-            if (ob->itype == TYPE_SPELL && spell_find(ob->s_name, &spell_path, &spell_id) && (spell = spell_get(spell_path, spell_id)) && spell->flags & SPELL_DESC_SELF) {
-                char buf[MAX_BUF];
-
-                snprintf(buf, sizeof(buf), "/cast %s", ob->s_name);
-                send_command_check(buf);
-            }
-            else {
-                client_send_apply(tag);
-            }
-
+        } else if (quickslots_trigger(widget, tmp->list->row_offset, slot)) {
             break;
         }
     }
@@ -272,11 +320,13 @@ static int widget_event(widgetdata *widget, SDL_Event *event)
                     }
                     else {
                         quickslots_remove(widget, cpl.dragging_tag);
-                        quickslot_set(widget, row, col, cpl.dragging_tag);
+                        quickslots_set(widget, row, col, cpl.dragging_tag);
                     }
+
+                    event_dragging_stop();
                 }
                 else {
-                    quickslots_handle_key(col);
+                    quickslots_trigger(widget, row, col);
                 }
 
                 return 1;
