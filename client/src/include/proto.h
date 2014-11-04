@@ -282,7 +282,6 @@ extern FILE *fopen_wrapper(const char *fname, const char *mode);
 extern SDL_Surface *IMG_Load_wrapper(const char *file);
 extern TTF_Font *TTF_OpenFont_wrapper(const char *file, int ptsize);
 /* src/events/event.c */
-extern int old_mouse_y;
 extern int event_dragging_check(void);
 extern void event_dragging_start(int tag, int mx, int my);
 extern void event_dragging_stop(void);

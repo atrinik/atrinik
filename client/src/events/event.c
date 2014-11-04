@@ -29,8 +29,6 @@
 
 #include <global.h>
 
-int old_mouse_y = 0;
-
 int event_dragging_check(void)
 {
     int mx, my;
@@ -188,8 +186,6 @@ int Event_PollInputDevice(void)
         if (event.type == SDL_MOUSEBUTTONUP) {
             event_dragging_stop();
         }
-
-        old_mouse_y = y;
     }
 
     for (key = 0; key < SDLK_LAST; key++) {
