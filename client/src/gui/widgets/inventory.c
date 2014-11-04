@@ -362,6 +362,22 @@ static int inventory_render_object(widgetdata *widget, object *ob, uint32 i,
     return 1;
 }
 
+/** @copydoc event_drag_cb_fnc */
+static void event_drag_cb(void)
+{
+    object *dragging, *sack;
+
+    dragging = object_find(cpl.dragging_tag);
+    sack = object_find(cpl.container_tag);
+    assert(dragging != NULL);
+
+    if (dragging->env == cpl.ob || (sack != NULL && sack->env == cpl.ob)) {
+        menu_inventory_drop(cur_widget[MAIN_INV_ID], NULL, NULL);
+    } else {
+        menu_inventory_get(cur_widget[BELOW_INV_ID], NULL, NULL);
+    }
+}
+
 /** @copydoc widgetdata::draw_func */
 static void widget_draw(widgetdata *widget)
 {
@@ -474,53 +490,104 @@ static int widget_event(widgetdata *widget, SDL_Event *event)
         } else if (event->button.button == SDL_BUTTON_WHEELDOWN) {
             widget_inventory_handle_arrow_key(widget, SDLK_RIGHT);
             return 1;
-        } else if (event->button.button == SDL_BUTTON_LEFT ||
-                event->button.button == SDL_BUTTON_RIGHT) {
-            uint32 i, r;
-            object *tmp, *tmp2;
-            uint8 found = 0;
+        }
+    }
 
-            for (i = 0, r = 0, tmp = INVENTORY_WHERE(widget)->inv;
-                    tmp && !found; tmp = tmp->next) {
-                if (!inventory_matches_filter(tmp)) {
-                    continue;
-                }
+    if ((event->type == SDL_MOUSEBUTTONDOWN ||
+            event->type == SDL_MOUSEBUTTONUP) &&
+            (event->button.button == SDL_BUTTON_LEFT ||
+            event->button.button == SDL_BUTTON_RIGHT)) {
+        uint32 i, r;
+        object *tmp, *tmp2, *found;
 
-                if (inventory_render_object(widget, tmp, i, &r,
-                        event->motion.x, event->motion.y)) {
-                    found = 1;
-                    break;
-                }
+        if (event_dragging_check()) {
+            object *dragging, *target_env, *sack;
 
-                i++;
+            dragging = object_find(cpl.dragging_tag);
+            sack = object_find(cpl.container_tag);
 
-                if (cpl.container_tag == tmp->tag) {
-                    for (tmp2 = cpl.sack->inv; tmp2; tmp2 = tmp2->next) {
-                        if (!inventory_matches_filter(tmp2)) {
-                            continue;
-                        }
+            if (widget->type == BELOW_INV_ID) {
+                target_env = cpl.below;
+            } else {
+                target_env = cpl.ob;
+            }
 
-                        if (inventory_render_object(widget, tmp2, i, &r,
-                                event->motion.x, event->motion.y)) {
-                            found = 1;
-                            break;
-                        }
+            if (sack != NULL && dragging != sack &&
+                    (dragging->env == cpl.sack || dragging->env == sack->env)) {
+                if (sack->env == cpl.ob && target_env == cpl.below) {
+                    menu_inventory_drop(cur_widget[MAIN_INV_ID], NULL, NULL);
+                } else {
+                    int type;
 
-                        i++;
+                    if (sack->env == cpl.below) {
+                        type = BELOW_INV_ID;
+                    } else {
+                        type = MAIN_INV_ID;
                     }
+
+                    menu_inventory_get(cur_widget[type], NULL, NULL);
                 }
+            } else if (dragging->env == target_env) {
+                if (target_env == cpl.below) {
+                    menu_inventory_get(cur_widget[BELOW_INV_ID], NULL, NULL);
+                }
+            } else if (target_env == cpl.below) {
+                menu_inventory_drop(cur_widget[MAIN_INV_ID], NULL, NULL);
+            } else if (target_env == cpl.ob) {
+                menu_inventory_get(cur_widget[BELOW_INV_ID], NULL, NULL);
             }
 
-            if (found) {
-                inventory->selected = i;
-                widget->redraw = 1;
+            event_dragging_stop();
 
+            return 1;
+        }
+
+        for (found = NULL, i = 0, r = 0, tmp = INVENTORY_WHERE(widget)->inv;
+                tmp && found == NULL; tmp = tmp->next) {
+            if (!inventory_matches_filter(tmp)) {
+                continue;
+            }
+
+            if (inventory_render_object(widget, tmp, i, &r,
+                    event->motion.x, event->motion.y)) {
+                found = tmp;
+                break;
+            }
+
+            i++;
+
+            if (cpl.container_tag == tmp->tag) {
+                for (tmp2 = cpl.sack->inv; tmp2; tmp2 = tmp2->next) {
+                    if (!inventory_matches_filter(tmp2)) {
+                        continue;
+                    }
+
+                    if (inventory_render_object(widget, tmp2, i, &r,
+                            event->motion.x, event->motion.y)) {
+                        found = tmp2;
+                        break;
+                    }
+
+                    i++;
+                }
+            }
+        }
+
+        if (found != NULL) {
+            if (event->type == SDL_MOUSEBUTTONDOWN) {
                 if (event->button.button == SDL_BUTTON_LEFT) {
-                    keybind_process_command("?APPLY");
+                    event_dragging_start(found->tag, event->motion.x,
+                            event->motion.y);
+                    event_dragging_set_callback(event_drag_cb);
                 }
-
-                return 1;
+            } else {
+                widget_inventory_handle_apply(widget);
             }
+
+            inventory->selected = i;
+            widget->redraw = 1;
+
+            return 1;
         }
     }
 
