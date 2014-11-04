@@ -44,7 +44,7 @@
 			<Add directory="..\..\src\include" />
 			<Add directory="..\..\src\toolkit\include" />
 			<Add directory="..\..\src\random_maps" />
-			<Add directory="include" />
+			<Add directory="share\include" />
 		</Compiler>
 		<Unit filename="..\..\src\plugins\plugin_arena\plugin_arena.c">
 			<Option compilerVar="CC" />

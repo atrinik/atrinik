@@ -46,6 +46,8 @@
 			<Add library="libwsock32.a" />
 			<Add library="libwinmm.a" />
 			<Add library="libpthread.a" />
+            <Add library="libeay32" />
+            <Add library="libssleay32" />
 		</Linker>
 		<Unit filename="README" />
 		<Projectunits />
