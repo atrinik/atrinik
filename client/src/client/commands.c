@@ -161,6 +161,9 @@ void socket_command_stats(uint8 *data, size_t len, size_t pos)
         if (type >= CS_STAT_EQUIP_START && type <= CS_STAT_EQUIP_END) {
             cpl.equipment[type - CS_STAT_EQUIP_START] = packet_to_uint32(data, len, &pos);
             WIDGET_REDRAW_ALL(PDOLL_ID);
+        } else if (type >= CS_STAT_PROT_START && type <= CS_STAT_PROT_END) {
+            cpl.stats.protection[type - CS_STAT_PROT_START] =
+                    packet_to_sint8(data, len, &pos);
         }
         else {
             switch (type) {
