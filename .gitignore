@@ -33,6 +33,7 @@ maps/python/InterfaceQuests.py
 cov-int
 nbproject
 *.json
+*.a
 
 # GNU/Linux
 core
