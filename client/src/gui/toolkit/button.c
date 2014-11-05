@@ -259,28 +259,3 @@ int button_event(button_struct *button, SDL_Event *event)
 
     return 0;
 }
-
-/**
- * Render a tooltip, if possible.
- * @param button Button.
- * @param font Font to use for the tooltip text.
- * @param text Tooltip text. */
-void button_tooltip(button_struct *button, font_struct *font, const char *text)
-{
-    /* Sanity check. */
-    if (!button || !text) {
-        return;
-    }
-
-    /* Render the tooltip if the mouse is over the button, it's not
-     * pressed, and enough time has passed since the button was
-     * highlighted. */
-    if (BUTTON_CHECK_TOOLTIP(button) &&
-            SDL_GetTicks() - button->hover_ticks > BUTTON_TOOLTIP_DELAY) {
-        int mx, my;
-
-        SDL_GetMouseState(&mx, &my);
-
-        tooltip_create(mx, my, font, text);
-    }
-}

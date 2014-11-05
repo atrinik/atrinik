@@ -458,7 +458,6 @@ extern void button_set_font(button_struct *button, font_struct *font);
 extern int button_need_redraw(button_struct *button);
 extern void button_show(button_struct *button, const char *text);
 extern int button_event(button_struct *button, SDL_Event *event);
-extern void button_tooltip(button_struct *button, font_struct *font, const char *text);
 /* src/gui/toolkit/color_picker.c */
 extern void color_picker_create(color_picker_struct *color_picker, int size);
 extern void color_picker_set_parent(color_picker_struct *color_picker, int px, int py);
