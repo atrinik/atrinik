@@ -1,146 +1,151 @@
-/************************************************************************
-*            Atrinik, a Multiplayer Online Role Playing Game            *
-*                                                                       *
-*    Copyright (C) 2009-2012 Alex Tokar and Atrinik Development Team    *
-*                                                                       *
-* Fork from Crossfire (Multiplayer game for X-windows).                 *
-*                                                                       *
-* This program is free software; you can redistribute it and/or modify  *
-* it under the terms of the GNU General Public License as published by  *
-* the Free Software Foundation; either version 2 of the License, or     *
-* (at your option) any later version.                                   *
-*                                                                       *
-* This program is distributed in the hope that it will be useful,       *
-* but WITHOUT ANY WARRANTY; without even the implied warranty of        *
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
-* GNU General Public License for more details.                          *
-*                                                                       *
-* You should have received a copy of the GNU General Public License     *
-* along with this program; if not, write to the Free Software           *
-* Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.             *
-*                                                                       *
-* The author can be reached at admin@atrinik.org                        *
-************************************************************************/
+/*************************************************************************
+ *           Atrinik, a Multiplayer Online Role Playing Game             *
+ *                                                                       *
+ *   Copyright (C) 2009-2012 Alex Tokar and Atrinik Development Team     *
+ *                                                                       *
+ * Fork from Crossfire (Multiplayer game for X-windows).                 *
+ *                                                                       *
+ * This program is free software; you can redistribute it and/or modify  *
+ * it under the terms of the GNU General Public License as published by  *
+ * the Free Software Foundation; either version 2 of the License, or     *
+ * (at your option) any later version.                                   *
+ *                                                                       *
+ * This program is distributed in the hope that it will be useful,       *
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of        *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
+ * GNU General Public License for more details.                          *
+ *                                                                       *
+ * You should have received a copy of the GNU General Public License     *
+ * along with this program; if not, write to the Free Software           *
+ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.             *
+ *                                                                       *
+ * The author can be reached at admin@atrinik.org                        *
+ ************************************************************************/
 
 /**
  * @file
  * Implements menu buttons type widgets.
  *
- * @author Alex Tokar */
+ * @author Alex Tokar
+ */
 
 #include <global.h>
 
-/** The different buttons inside the widget. */
+/**
+ * The different buttons inside the widget.
+ */
 enum
 {
-    /** Spells. */
-    BUTTON_SPELLS,
-    /** Skills. */
-    BUTTON_SKILLS,
-    /** Protections. */
-    BUTTON_PROTECTIONS,
-    /** Party. */
-    BUTTON_PARTY,
-    /** Music player. */
-    BUTTON_MPLAYER,
-    /** Region map. */
-    BUTTON_MAP,
-    /** Quest list. */
-    BUTTON_QUEST,
-    /** Help. */
-    BUTTON_HELP,
-    /** Esc menu. */
-    BUTTON_SETTINGS,
-    BUTTON_BUDDY,
-    BUTTON_IGNORE,
+    BUTTON_SPELLS, ///< Spells.
+    BUTTON_SKILLS, ///< Skills.
+    BUTTON_PROTECTIONS, ///< Protections.
+    BUTTON_PARTY, ///< Party.
+    BUTTON_MPLAYER, ///< Music player.
+    BUTTON_BUDDY, ///< Buddy list.
+    BUTTON_IGNORE, ///< Ignore list.
+    BUTTON_MAP, ///< Region map.
+    BUTTON_QUEST, ///< Quest list.
+    BUTTON_HELP, ///< Help.
+    BUTTON_SETTINGS, ///< Esc menu.
 
-    /** Total number of the buttons. */
-    NUM_BUTTONS
+    NUM_BUTTONS ///< Total number of the buttons.
 };
 
-/** Button buffers. */
+/**
+ * Button buffers.
+ */
 static button_struct buttons[NUM_BUTTONS];
-/** Images to render on top of the buttons, -1 for none. */
+/**
+ * Images to render on top of the buttons, NULL for none.
+ */
 static const char *button_images[NUM_BUTTONS] =
 {
-    "magic", "skill", "protections", "party", "music", "map", "quest", NULL,
-    "cogs", "buddy", "ignore"
+    "magic", "skill", "protections", "party", "music", "buddy", "ignore", "map",
+    "quest", NULL, "cogs"
 };
-/** Tooltip texts for the buttons. */
+/**
+ * Tooltip texts for the buttons.
+ */
 static const char *const button_tooltips[NUM_BUTTONS] =
 {
-    "Spells", "Skills", "Protections", "Party", "Music player", "Region map",
-    "Quest list", "Help", "Settings", "Buddy List", "Ignore List"
+    "Spells", "Skills", "Protections", "Party", "Music player", "Buddy List",
+    "Ignore List", "Region map", "Quest list", "Help", "Settings"
+};
+/**
+ * Widgets associated with the buttons, -1 for none.
+ */
+static int button_widgets[NUM_BUTTONS] =
+{
+    SPELLS_ID, SKILLS_ID, PROTECTIONS_ID, PARTY_ID, MPLAYER_ID, BUDDY_ID,
+    BUDDY_ID, -1, -1, -1, -1
 };
 
 /** @copydoc widgetdata::draw_func */
 static void widget_draw(widgetdata *widget)
 {
-    size_t i;
+    int i, x, y;
+    const char *text;
 
-    if (widget->redraw) {
-        const char *text;
-        int x, y;
-
-        x = 4;
-        y = 3;
-
-        /* Render the buttons. */
-        for (i = 0; i < NUM_BUTTONS; i++) {
-            if (x > widget->w - 4) {
-                x = 4;
-                y += texture_surface(buttons[i].texture)->h + 1;
-            }
-
-            text = NULL;
-
-            if (i == BUTTON_HELP) {
-                text = "[y=2]?";
-            }
-            else if (i == BUTTON_SPELLS) {
-                buttons[i].pressed_forced = cur_widget[SPELLS_ID]->show;
-            }
-            else if (i == BUTTON_MPLAYER) {
-                buttons[i].pressed_forced = cur_widget[MPLAYER_ID]->show;
-            }
-            else if (i == BUTTON_SKILLS) {
-                buttons[i].pressed_forced = cur_widget[SKILLS_ID]->show;
-            }
-            else if (i == BUTTON_PROTECTIONS) {
-                buttons[i].pressed_forced = cur_widget[PROTECTIONS_ID]->show;
-            }
-            else if (i == BUTTON_PARTY) {
-                buttons[i].pressed_forced = cur_widget[PARTY_ID]->show;
-            }
-            else if (i == BUTTON_BUDDY || i == BUTTON_IGNORE) {
-                widgetdata *tmp;
-
-                tmp = widget_find(NULL, BUDDY_ID, button_images[i], NULL);
-                buttons[i].pressed_forced = tmp ? tmp->show : 0;
-            }
-
-            buttons[i].x = x;
-            buttons[i].y = y;
-            buttons[i].surface = widget->surface;
-            button_set_parent(&buttons[i], widget->x, widget->y);
-            button_show(&buttons[i], text);
-
-            if (button_images[i]) {
-                char buf[MAX_BUF];
-
-                snprintf(buf, sizeof(buf), "icon_%s", button_images[i]);
-                surface_show(widget->surface, x, y, NULL, TEXTURE_CLIENT(buf));
-            }
-
-            x += texture_surface(buttons[i].texture)->w + 3;
-        }
+    if (!widget->redraw && 0) {
+        return;
     }
 
-    for (i = 0; i < NUM_BUTTONS; i++) {
-        button_tooltip(&buttons[i], FONT_ARIAL10, button_tooltips[i]);
+    x = 4;
+    y = 3;
 
+    /* Render the buttons. */
+    for (i = 0; i < NUM_BUTTONS; i++) {
+        if (x > widget->w - 4) {
+            x = 4;
+            y += texture_surface(buttons[i].texture)->h + 1;
+        }
+
+        text = NULL;
+
+        if (button_widgets[i] != -1) {
+            widgetdata *tmp;
+
+            if (button_widgets[i] == BUDDY_ID) {
+                tmp = widget_find(NULL, button_widgets[i], button_images[i],
+                        NULL);
+            } else {
+                tmp = cur_widget[button_widgets[i]];
+            }
+
+            assert(tmp != NULL);
+            buttons[i].pressed_forced = tmp->show;
+        } else if (i == BUTTON_HELP) {
+            text = "[y=2]?";
+        }
+
+        buttons[i].x = x;
+        buttons[i].y = y;
+        buttons[i].surface = widget->surface;
+        button_set_parent(&buttons[i], widget->x, widget->y);
+        button_show(&buttons[i], text);
+
+        if (button_images[i]) {
+            char buf[MAX_BUF];
+
+            snprintf(buf, sizeof(buf), "icon_%s", button_images[i]);
+            surface_show(widget->surface, x, y, NULL, TEXTURE_CLIENT(buf));
+        }
+
+        x += texture_surface(buttons[i].texture)->w + 3;
+    }
+}
+
+/** @copydoc widgetdata::background_func */
+static void widget_background(widgetdata *widget)
+{
+    int i;
+
+    /* Figure out whether we need to redraw the widget due to change in
+     * the buttons.*/
+    for (i = 0; i < NUM_BUTTONS; i++) {
         if (button_need_redraw(&buttons[i])) {
-            widget->redraw++;
+            widget->redraw = 1;
+            break;
         }
     }
 }
@@ -148,82 +153,90 @@ static void widget_draw(widgetdata *widget)
 /** @copydoc widgetdata::event_func */
 static int widget_event(widgetdata *widget, SDL_Event *event)
 {
-    size_t i;
+    int i;
 
     for (i = 0; i < NUM_BUTTONS; i++) {
-        if (button_event(&buttons[i], event)) {
-            if (i == BUTTON_SPELLS) {
-                cur_widget[SPELLS_ID]->show = !cur_widget[SPELLS_ID]->show;
-                SetPriorityWidget(cur_widget[SPELLS_ID]);
-            }
-            else if (i == BUTTON_SKILLS) {
-                cur_widget[SKILLS_ID]->show = !cur_widget[SKILLS_ID]->show;
-                SetPriorityWidget(cur_widget[SKILLS_ID]);
-            }
-            else if (i == BUTTON_PROTECTIONS) {
-                WIDGET_SHOW_TOGGLE(cur_widget[PROTECTIONS_ID]);
-                SetPriorityWidget(cur_widget[PROTECTIONS_ID]);
-            }
-            else if (i == BUTTON_PARTY) {
-                if (cur_widget[PARTY_ID]->show) {
-                    cur_widget[PARTY_ID]->show = 0;
-                }
-                else {
-                    send_command_check("/party list");
-                }
-            }
-            else if (i == BUTTON_MPLAYER) {
-                cur_widget[MPLAYER_ID]->show = !cur_widget[MPLAYER_ID]->show;
-                SetPriorityWidget(cur_widget[MPLAYER_ID]);
-            }
-            else if (i == BUTTON_SETTINGS) {
-                settings_open();
-            }
-            else if (i == BUTTON_MAP) {
-                send_command("/region_map");
-            }
-            else if (i == BUTTON_QUEST) {
-                keybind_process_command("?QLIST");
-            }
-            else if (i == BUTTON_HELP) {
-                help_show("main");
-            }
-            else if (i == BUTTON_BUDDY || i == BUTTON_IGNORE) {
-                widgetdata *tmp;
-
-                tmp = widget_find(NULL, BUDDY_ID, button_images[i], NULL);
-                tmp->show = !tmp->show;
-                SetPriorityWidget(tmp);
+        if (!button_event(&buttons[i], event)) {
+            if (BUTTON_CHECK_TOOLTIP(&buttons[i])) {
+                tooltip_create(event->motion.x, event->motion.y, FONT_ARIAL11,
+                        button_tooltips[i]);
+                tooltip_enable_delay(300);
             }
 
-            widget->redraw = 1;
+            continue;
+        }
+
+        widget->redraw = 1;
+
+        /* Toggle visibility of a widget. */
+        if (button_widgets[i] != -1) {
+            widgetdata *tmp;
+
+            if (button_widgets[i] == BUDDY_ID) {
+                tmp = widget_find(NULL, button_widgets[i], button_images[i],
+                        NULL);
+            } else {
+                tmp = cur_widget[button_widgets[i]];
+            }
+
+            assert(tmp != NULL);
+            WIDGET_SHOW_TOGGLE(tmp);
+            SetPriorityWidget(tmp);
 
             return 1;
         }
-        else if (buttons[i].redraw) {
-            widget->redraw = 1;
+
+        /* Decide how to handle the button. */
+        switch (i) {
+        case BUTTON_SETTINGS:
+            settings_open();
+            break;
+
+        case BUTTON_MAP:
+            send_command("/region_map");
+            break;
+
+        case BUTTON_QUEST:
+            keybind_process_command("?QLIST");
+            break;
+
+        case BUTTON_HELP:
+            help_show("main");
+            break;
+
+        default:
+            logger_print(LOG(BUG), "Cannot handle button ID: %d", i);
+            break;
         }
+
+        return 1;
     }
 
     return 0;
 }
 
 /**
- * Initialize one menu buttons widget. */
+ * Initialize one menu buttons widget.
+ */
 void widget_menu_buttons_init(widgetdata *widget)
 {
-    size_t i;
+    int i;
 
     for (i = 0; i < NUM_BUTTONS; i++) {
         button_create(&buttons[i]);
-        buttons[i].texture = texture_get(TEXTURE_TYPE_CLIENT, "button_rect");
-        buttons[i].texture_over = texture_get(TEXTURE_TYPE_CLIENT, "button_rect_over");
-        buttons[i].texture_pressed = texture_get(TEXTURE_TYPE_CLIENT, "button_rect_down");
+
+        buttons[i].texture = texture_get(TEXTURE_TYPE_CLIENT,
+                "button_rect");
+        buttons[i].texture_over = texture_get(TEXTURE_TYPE_CLIENT,
+                "button_rect_over");
+        buttons[i].texture_pressed = texture_get(TEXTURE_TYPE_CLIENT,
+                "button_rect_down");
     }
 
     buttons[BUTTON_HELP].flags |= TEXT_MARKUP;
     button_set_font(&buttons[BUTTON_HELP], FONT_SANS16);
 
     widget->draw_func = widget_draw;
+    widget->background_func = widget_background;
     widget->event_func = widget_event;
 }
