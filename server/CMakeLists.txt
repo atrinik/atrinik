@@ -9,7 +9,7 @@ include(build.config)
 
 if (EXISTS build.user)
 	include(build.user)
-endif (EXISTS build.user)
+endif ()
 
 # Need Flex...
 find_package(FLEX REQUIRED)
@@ -29,18 +29,18 @@ find_library(CHECK_LIBRARY check)
 
 if (CHECK_LIBRARY)
 	set(HAVE_CHECK true)
-elseif (CHECK_LIBRARY)
+else ()
 	message(STATUS "Could not find check library, unit tests will be disabled.")
-endif (CHECK_LIBRARY)
+endif ()
 
 # GD is used for world maker, but like unit tests, is also optional.
 find_library(GD_LIBRARY gd)
 
 if (GD_LIBRARY)
 	set(HAVE_WORLD_MAKER true)
-elseif (GD_LIBRARY)
+else ()
 	message(STATUS "Could not find gd library, world maker module will be disabled.")
-endif (GD_LIBRARY)
+endif ()
 
 set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -DDEBUG=1 -O0 -g")
 set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} -DDEBUG=0 -O3")
@@ -51,16 +51,16 @@ add_definitions(${CUSTOM_WARNINGS})
 
 if (ENABLE_EXTRA_WARNINGS)
 	add_definitions(-ftree-vrp -Wdeclaration-after-statement -Wundef -Wpointer-arith -Wbad-function-cast -Wcast-align -Wlogical-op -Waggregate-return -Wnested-externs -Wunreachable-code -Wstack-protector -D_POSIX_C_SOURCE=200112L -D_GNU_SOURCE -fbounds-check -ftrapv -fstack-protector-all -Wformat=2 -Wformat-security -Winit-self -Wshadow -Wunsafe-loop-optimizations -Wbad-function-cast)
-endif (ENABLE_EXTRA_WARNINGS)
+endif ()
 
 if (ENABLE_AGGRESSIVE_WARNINGS)
 	add_definitions(-Wcast-qual -Wmissing-declarations)
-endif (ENABLE_AGGRESSIVE_WARNINGS)
+endif ()
 
 # Turn warnings into errors?
 if (ENABLE_WARNING_ERRORS)
 	add_definitions(-Werror)
-endif (ENABLE_WARNING_ERRORS)
+endif ()
 
 # Configure the .h file with the configuration options (size of long,
 # package version, etc).
@@ -110,13 +110,13 @@ if (CHECK_LIBRARY)
 		src/tests/unit/server/check_shstr.c
         src/tests/unit/server/check_string.c
 		src/tests/unit/server/check_utils.c)
-endif (CHECK_LIBRARY)
+endif ()
 
 # Find the world maker files, if enabled.
 if (HAVE_WORLD_MAKER)
 	set(SOURCES_WORLD_MAKER
 		src/modules/world_maker.c)
-endif (HAVE_WORLD_MAKER)
+endif ()
 
 # Compile the sources into an executable.
 add_executable(${EXECUTABLE} ${SOURCES} ${LEXERS_OUT} ${SOURCES_CHECK} ${SOURCES_WORLD_MAKER})
@@ -134,12 +134,12 @@ if (CHECK_LIBRARY)
 	endif ()
 
 	target_link_libraries(${EXECUTABLE} ${CHECK_LIBRARY})
-endif (CHECK_LIBRARY)
+endif ()
 
 # Link GD.
 if (GD_LIBRARY)
 	target_link_libraries(${EXECUTABLE} ${GD_LIBRARY})
-endif (GD_LIBRARY)
+endif ()
 
 target_link_libraries(${EXECUTABLE} ${CMAKE_THREAD_LIBS_INIT})
 
@@ -188,7 +188,7 @@ if (CHECK_LIBRARY)
 		WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
 		COMMENT "Generating unit test prototypes..."
 		VERBATIM)
-endif (CHECK_LIBRARY)
+endif ()
 
 # Create the Arena plugin.
 set(SOURCES_PLUGIN_ARENA
@@ -218,6 +218,6 @@ if (PYTHONLIBS_FOUND)
 		src/plugins/plugin_python/plugin_python.c)
 	add_library(plugin_python MODULE ${SOURCES_PLUGIN_PYTHON})
 	target_link_libraries(plugin_python ${PYTHON_LIBRARIES})
-elseif (PYTHONLIBS_FOUND)
+else ()
 	message(STATUS "Python libs not found, Python plugin will not be built.")
-endif (PYTHONLIBS_FOUND)
+endif ()

@@ -91,60 +91,8 @@ static void account_free(account_struct *account)
 
 static char *account_old_crypt(char *str, const char *salt)
 {
-#if defined(HAVE_CRYPT)
+#if defined(HAVE_CRYPT) && defined(HAVE_CRYPT_H)
     return crypt(str, salt);
-#elif defined(WIN32)
-    HCRYPTPROV provider;
-    HCRYPTHASH hash;
-    DWORD resultlen = 0, i;
-    BYTE *result;
-    static char hashresult[HUGE_BUF];
-    char tmp[6];
-
-    if (!CryptAcquireContext(&provider, NULL, NULL, PROV_RSA_FULL, CRYPT_VERIFYCONTEXT)) {
-        return str;
-    }
-
-    if (!CryptCreateHash(provider, CALG_SHA1, 0, 0, &hash)) {
-        CryptReleaseContext(provider, 0);
-        return str;
-    }
-
-    if (!CryptHashData(hash, (BYTE *) str, strlen(str), 0)) {
-        CryptDestroyHash(hash);
-        CryptReleaseContext(provider, 0);
-        return str;
-    }
-
-    if (!CryptGetHashParam(hash, HP_HASHVAL, NULL, &resultlen, 0)) {
-        CryptDestroyHash(hash);
-        CryptReleaseContext(provider, 0);
-        return str;
-    }
-
-    result = ecalloc(1, sizeof(BYTE) * resultlen);
-
-    if (!CryptGetHashParam(hash, HP_HASHVAL, result, &resultlen, 0)) {
-        efree(result);
-        CryptDestroyHash(hash);
-        CryptReleaseContext(provider, 0);
-        return str;
-    }
-
-    CryptDestroyHash(hash);
-    CryptReleaseContext(provider, 0);
-
-    hashresult[0] = '\0';
-
-    for (i = 0; i < resultlen; i++) {
-        snprintf(tmp, sizeof(tmp), "%.2x", result[i]);
-        strncat(hashresult, tmp, sizeof(hashresult) - strlen(hashresult) - 1);
-        hashresult[sizeof(hashresult) - strlen(hashresult) - 1] = '\0';
-    }
-
-    efree(result);
-
-    return hashresult;
 #else
     return str;
 #endif

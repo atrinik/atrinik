@@ -38,58 +38,8 @@
 #   define  __attribute__(x)
 #endif
 
-#ifdef WIN32
-#   ifndef STRICT
-#       define STRICT
-#   endif
-
-#   if _MSC_VER > 1000
-#       pragma once
-#   endif
-
-#   define WIN32_LEAN_AND_MEAN
-
-#   include <windows.h>
-#   include <windowsx.h>
-#   include <mmsystem.h>
-#   include <winsock2.h>
-#   include <io.h>
-#   include <malloc.h>
-#   include <direct.h>
-#   include <shellapi.h>
-#   include <wincrypt.h>
-
-#   ifdef MINGW
-#       define HAVE_DIRENT_H
-#       define HAVE_UNISTD_H
-#       define _set_fmode(_mode) \
-    { \
-        _fmode = (_mode); \
-    }
-#   endif
-
-#   define mkdir(__a, __b) _mkdir(__a)
-#   define socklen_t int
-#   define sleep(_x) Sleep((_x) * 1000)
-
-#   define HAVE_STRICMP 1
-#   define HAVE_STRNICMP 1
-#   define HAVE_ZLIB 1
-#   ifndef HAVE_STRERROR
-#       define HAVE_STRERROR 1
-#   endif
-#   define HAVE_SRAND 1
-#   define HAVE_FCNTL_H 1
-#   define HAVE_TIME_H 1
-#   define HAVE_STDDEF_H 1
-#   define HAVE_STRDUP 1
-
-#   define PLUGIN_SUFFIX ".dll"
-#else
-#   include <cmake.h>
-#   include <toolkit_cmake.h>
-#endif
-
+#include <cmake.h>
+#include <toolkit_cmake.h>
 #include <math.h>
 #include <stdio.h>
 #include <string.h>
@@ -137,7 +87,7 @@
 #   include <crypt.h>
 #endif
 
-#ifdef LINUX
+#ifdef HAVE_SYS_SOCKET_H
 #   include <netdb.h>
 #   include <sys/socket.h>
 #   include <netinet/in.h>
@@ -167,6 +117,34 @@
 #   ifdef HAVE_X11_XMU
 #       include <X11/Xmu/Atoms.h>
 #   endif
+#endif
+
+#ifdef WIN32
+#   include <windows.h>
+#   include <windowsx.h>
+#   include <mmsystem.h>
+#   include <winsock2.h>
+
+#   ifdef __MINGW32__
+#       include <ws2tcpip.h>
+#   endif
+
+#   define mkdir(__a, __b) _mkdir(__a)
+#   define sleep(_x) Sleep((_x) * 1000)
+
+#   ifdef __MINGW32__
+#       define _set_fmode(_mode) \
+        { \
+            _fmode = (_mode); \
+        }
+#   endif
+#endif
+
+#if 0
+#   include <io.h>
+#   include <malloc.h>
+#   include <direct.h>
+#   include <shellapi.h>
 #endif
 
 #ifdef HAVE_SRANDOM
