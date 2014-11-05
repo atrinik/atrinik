@@ -37,6 +37,8 @@ enum
     BUTTON_SPELLS,
     /** Skills. */
     BUTTON_SKILLS,
+    /** Protections. */
+    BUTTON_PROTECTIONS,
     /** Party. */
     BUTTON_PARTY,
     /** Music player. */
@@ -61,12 +63,14 @@ static button_struct buttons[NUM_BUTTONS];
 /** Images to render on top of the buttons, -1 for none. */
 static const char *button_images[NUM_BUTTONS] =
 {
-    "magic", "skill", "party", "music", "map", "quest", NULL, "cogs", "buddy", "ignore"
+    "magic", "skill", "protections", "party", "music", "map", "quest", NULL,
+    "cogs", "buddy", "ignore"
 };
 /** Tooltip texts for the buttons. */
 static const char *const button_tooltips[NUM_BUTTONS] =
 {
-    "Spells", "Skills", "Party", "Music player", "Region map", "Quest list", "Help", "Settings", "Buddy List", "Ignore List"
+    "Spells", "Skills", "Protections", "Party", "Music player", "Region map",
+    "Quest list", "Help", "Settings", "Buddy List", "Ignore List"
 };
 
 /** @copydoc widgetdata::draw_func */
@@ -101,6 +105,9 @@ static void widget_draw(widgetdata *widget)
             }
             else if (i == BUTTON_SKILLS) {
                 buttons[i].pressed_forced = cur_widget[SKILLS_ID]->show;
+            }
+            else if (i == BUTTON_PROTECTIONS) {
+                buttons[i].pressed_forced = cur_widget[PROTECTIONS_ID]->show;
             }
             else if (i == BUTTON_PARTY) {
                 buttons[i].pressed_forced = cur_widget[PARTY_ID]->show;
@@ -152,6 +159,10 @@ static int widget_event(widgetdata *widget, SDL_Event *event)
             else if (i == BUTTON_SKILLS) {
                 cur_widget[SKILLS_ID]->show = !cur_widget[SKILLS_ID]->show;
                 SetPriorityWidget(cur_widget[SKILLS_ID]);
+            }
+            else if (i == BUTTON_PROTECTIONS) {
+                WIDGET_SHOW_TOGGLE(cur_widget[PROTECTIONS_ID]);
+                SetPriorityWidget(cur_widget[PROTECTIONS_ID]);
             }
             else if (i == BUTTON_PARTY) {
                 if (cur_widget[PARTY_ID]->show) {
