@@ -33,7 +33,9 @@
  * @param url URL to open. */
 void browser_open(const char *url)
 {
-#if defined(LINUX)
+#if defined(WIN32)
+    ShellExecute(NULL, "open", url, NULL, NULL, SW_SHOWDEFAULT);
+#elif defined(__GNUC__)
     char buf[HUGE_BUF];
 
     snprintf(buf, sizeof(buf), "xdg-open \"%s\"", url);
@@ -45,8 +47,6 @@ void browser_open(const char *url)
             logger_print(LOG(BUG), "Could not open '%s'.", url);
         }
     }
-#elif defined(WIN32)
-    ShellExecute(NULL, "open", url, NULL, NULL, SW_SHOWDEFAULT);
 #else
     logger_print(LOG(DEBUG), "Unknown platform, cannot open '%s'.", url);
 #endif
@@ -93,7 +93,7 @@ char *package_get_version_partial(char *dst, size_t dstlen)
  * @return 1 if the file was converted to PNG, 0 otherwise. */
 int bmp2png(const char *path)
 {
-#if defined(LINUX)
+#if defined(__GNUC__) && !defined(WIN32)
     char buf[HUGE_BUF];
 
     snprintf(buf, sizeof(buf), "convert \"%s\" \"`echo \"%s\" | sed -e 's/.bmp/.png/'`\" && rm \"%s\"", path, path, path);

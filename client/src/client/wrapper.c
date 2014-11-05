@@ -276,7 +276,7 @@ const char *get_config_dir(void)
 {
     const char *desc;
 
-#ifdef LINUX
+#ifndef WIN32
     desc = getenv("HOME");
 #else
     desc = getenv("APPDATA");
