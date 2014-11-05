@@ -117,25 +117,17 @@ void tooltip_show(void)
         tooltip_opacity = 255;
     }
 
-    if (tooltip_w != -1) {
-        text_box.w = tooltip_w;
-    }
-    else {
-        text_box.w = text_get_width(tooltip_font, tooltip_text, TEXT_MARKUP);
-    }
+    text_box.w = tooltip_w;
+    text_box.h = tooltip_h;
 
-    if (tooltip_h != -1) {
-        text_box.h = tooltip_h;
-    }
-    else {
-        text_box.h = FONT_HEIGHT(tooltip_font);
-    }
+    text_get_width_height(tooltip_font, tooltip_text, TEXT_MARKUP, &text_box,
+            &text_box.w, &text_box.h);
 
     /* Generate the tooltip's background. */
     box.x = tooltip_x + 9;
     box.y = tooltip_y + 17;
-    box.w = text_box.w + 6;
-    box.h = text_box.h + 1;
+    box.w = text_box.w + 4;
+    box.h = text_box.h;
 
     /* Push the tooltip to the left if it would go beyond maximum screen
      * size. */
