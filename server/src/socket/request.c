@@ -259,6 +259,17 @@ void esrv_update_stats(player *pl)
 
     AddIfInt(pl->last_flags, flags, CS_STAT_FLAGS, uint16);
 
+    for (i = 0; i < NROFATTACKS; i++) {
+        /* If there are more attacks, but we reached CS_STAT_PROT_END,
+         * we stop now. */
+        if (CS_STAT_PROT_START + i > CS_STAT_PROT_END) {
+            break;
+        }
+
+        AddIfInt(pl->last_protection[i], pl->ob->protection[i],
+                CS_STAT_PROT_START + i, sint8);
+    }
+
     for (i = 0; i < PLAYER_EQUIP_MAX; i++) {
         AddIfInt(pl->last_equipment[i], pl->equipment[i] ? pl->equipment[i]->count : 0, CS_STAT_EQUIP_START + i, uint32);
     }
