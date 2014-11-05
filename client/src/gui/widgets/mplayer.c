@@ -386,8 +386,8 @@ static void widget_draw(widgetdata *widget)
         scrollbar_show(&scrollbar_progress, widget->surface, 170, 50);
 
         box.h = 120;
-        box.w -= 6;
-        text_show(widget->surface, FONT_ARIAL10, "You can use the music player to play your favorite tunes from the game, or play them all one-by-one in random order (shuffle).\n\nNote that if you use the music player, in-game areas won't change your music until you click [b]Stop[/b].", widget->w / 2, 62, COLOR_WHITE, TEXT_WORD_WRAP | TEXT_MARKUP, &box);
+        box.w -= 6 * 2;
+        text_show(widget->surface, FONT_ARIAL10, "You can use the music player to play your favorite tunes from the game, or play them all one-by-one in random order (shuffle).\n\nNote that if you use the music player, in-game areas won't change your music until you click [b]Stop[/b].", widget->w / 2 + 6, 62, COLOR_WHITE, TEXT_WORD_WRAP | TEXT_MARKUP, &box);
 
         for (i = 0; i < BUTTON_NUM; i++) {
             buttons[i].surface = widget->surface;
