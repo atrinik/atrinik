@@ -33,6 +33,11 @@
 #define BUTTON_MOUSE_OVER(button, mx, my, texture) ((mx) - (button)->px >= (button)->x && (mx) - (button)->px < (button)->x + (texture)->w && (my) - (button)->py >= (button)->y && (my) - (button)->py < (button)->y + (texture)->h)
 /** Delay in milliseconds for the tooltip to appear (if any). */
 #define BUTTON_TOOLTIP_DELAY 750
+/**
+ * Checks if a tooltip can be generated for the specified button.
+ */
+#define BUTTON_CHECK_TOOLTIP(button) \
+    ((button)->mouse_over && !(button)->pressed)
 
 /** Button structure. */
 typedef struct button_struct
