@@ -90,11 +90,6 @@ static int popup_draw_func(popup_struct *popup)
 static int popup_draw_post_func(popup_struct *popup)
 {
     scrollbar_show(&scrollbar, ScreenSurface, popup->x + BOOK_SCROLLBAR_STARTX, popup->y + BOOK_SCROLLBAR_STARTY);
-
-    if (book_help_history_enabled) {
-        button_tooltip(&popup->button_left.button, FONT_ARIAL10, "Go back");
-    }
-
     surface_show(ScreenSurface, popup->x, popup->y, NULL, TEXTURE_CLIENT("book_border"));
 
     return 1;
@@ -134,6 +129,13 @@ static int popup_event_func(popup_struct *popup, SDL_Event *event)
 {
     if (scrollbar_event(&scrollbar, event)) {
         return 1;
+    }
+
+    if (book_help_history_enabled &&
+            BUTTON_CHECK_TOOLTIP(&popup->button_left.button)) {
+        tooltip_create(event->motion.x, event->motion.y, FONT_ARIAL11,
+                "Go back");
+        tooltip_enable_delay(300);
     }
 
     /* Mouse event and the mouse is inside the book. */
