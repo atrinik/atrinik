@@ -72,6 +72,7 @@ set(SOURCES
 	src/gui/widgets/party.c
 	src/gui/widgets/playerdoll.c
 	src/gui/widgets/playerinfo.c
+	src/gui/widgets/protections.c
 	src/gui/widgets/quickslots.c
 	src/gui/widgets/skills.c
 	src/gui/widgets/spells.c

@@ -308,6 +308,7 @@ typedef enum WidgetID
     TEXTURE_ID,
     BUDDY_ID,
     ACTIVE_EFFECTS_ID,
+    PROTECTIONS_ID,
 
     /** The total number of widgets. */
     TOTAL_WIDGETS

@@ -48,7 +48,7 @@ static const char *const widget_names[TOTAL_SUBWIDGETS] =
     "map", "stat", "menu_buttons", "quickslots", "textwin", "playerdoll",
     "belowinv", "playerinfo", "maininv", "mapname",
     "input", "fps", "mplayer", "spells", "skills", "party", "notification",
-    "container", "label", "texture", "buddy", "active_effects",
+    "container", "label", "texture", "buddy", "active_effects", "protections",
 
     "container_strip", "menu", "menuitem"
 };
@@ -266,6 +266,7 @@ void toolkit_widget_init(void)
     widget_initializers[PARTY_ID] = widget_party_init;
     widget_initializers[PDOLL_ID] = widget_playerdoll_init;
     widget_initializers[PLAYER_INFO_ID] = widget_playerinfo_init;
+    widget_initializers[PROTECTIONS_ID] = widget_protections_init;
     widget_initializers[QUICKSLOT_ID] = widget_quickslots_init;
     widget_initializers[SKILLS_ID] = widget_skills_init;
     widget_initializers[SPELLS_ID] = widget_spells_init;

@@ -704,6 +704,8 @@ extern object *playerdoll_get_equipment(int i, int *xpos, int *ypos);
 extern void widget_playerdoll_init(widgetdata *widget);
 /* src/gui/widgets/playerinfo.c */
 extern void widget_playerinfo_init(widgetdata *widget);
+/* src/gui/widgets/protections.c */
+extern void widget_protections_init(widgetdata *widget);
 /* src/gui/widgets/quickslots.c */
 extern void quickslots_init(void);
 extern void quickslots_scroll(widgetdata *widget, int up, int scroll);
