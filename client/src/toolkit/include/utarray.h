@@ -213,17 +213,18 @@ typedef struct {
 
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wcast-qual"
+#pragma GCC diagnostic ignored "-fpermissive"
 /* last we pre-define a few icd for common utarrays of ints and strings */
 static void utarray_str_cpy(void *dst, const void *src) {
     const char *const*_src = src, **_dst = dst;
     *_dst = (*_src == NULL) ? NULL : strdup(*_src);
 }
-#pragma GCC diagnostic pop
 static void utarray_str_dtor(void *elt) {
     char **eltc = elt;
 
     free(*eltc);
 }
+#pragma GCC diagnostic pop
 static const UT_icd ut_str_icd _UNUSED_ = {sizeof(char*),NULL,utarray_str_cpy,utarray_str_dtor};
 static const UT_icd ut_int_icd _UNUSED_ = {sizeof(int),NULL,NULL,NULL};
 

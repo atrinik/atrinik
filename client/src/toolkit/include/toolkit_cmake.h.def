@@ -25,9 +25,6 @@
 #ifndef TOOLKIT_CMAKE_H
 #define TOOLKIT_CMAKE_H
 
-/* Are we compiling on GNU/Linux? */
-#cmakedefine LINUX
-
 /* Plugin suffix. */
 #define PLUGIN_SUFFIX "@PLUGIN_SUFFIX@"
 
@@ -79,6 +76,10 @@
 
 #ifndef HAVE_SYS_NDIR_H
 #cmakedefine HAVE_SYS_DIR_H
+#endif
+
+#ifndef HAVE_SYS_SOCKET_H
+#cmakedefine HAVE_SYS_SOCKET_H
 #endif
 
 #ifndef HAVE_NDIR_H
