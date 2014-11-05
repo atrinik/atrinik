@@ -1909,7 +1909,7 @@ void text_show(SDL_Surface *surface, font_struct *font, const char *text, int x,
 
     /* Align to the center. */
     if (box && flags & (TEXT_ALIGN_CENTER | TEXT_VALIGN_CENTER)) {
-        int w, h;
+        uint16 w, h;
 
         text_get_width_height(font, text, flags & ~(TEXT_ALIGN_CENTER | TEXT_VALIGN_CENTER), box, flags & TEXT_ALIGN_CENTER ? &w : NULL, flags & TEXT_VALIGN_CENTER ? &h : NULL);
 
@@ -2278,7 +2278,7 @@ int text_get_height(font_struct *font, const char *text, uint64 flags)
  * for example).
  * @param[out] w Will contain the calculated width.
  * @param[out] h Will contain the calculated height. */
-void text_get_width_height(font_struct *font, const char *text, uint64 flags, SDL_Rect *box, int *w, int *h)
+void text_get_width_height(font_struct *font, const char *text, uint64 flags, SDL_Rect *box, uint16 *w, uint16 *h)
 {
     SDL_Rect box2;
 
