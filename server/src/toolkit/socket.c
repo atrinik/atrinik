@@ -139,7 +139,7 @@ int socket_connect(socket_t *sc)
     server.sin_family = AF_INET;
     server.sin_port = htons(sc->port);
     server.sin_addr = *((struct in_addr *) host->h_addr);
-    bzero(&(server.sin_zero), 8);
+    memset(&server.sin_zero, 0, sizeof(server.sin_zero));
 
     if (connect(sc->handle, (struct sockaddr *) &server,
                 sizeof(struct sockaddr)) == -1) {
