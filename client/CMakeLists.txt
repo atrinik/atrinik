@@ -37,6 +37,9 @@ else (SDLMIXER_FOUND)
 	message(STATUS "Warning: SDL_mixer not found - sound support will be disabled")
 endif (SDLMIXER_FOUND)
 
+set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -DDEBUG=1 -O0 -g")
+set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} -DDEBUG=0 -O3")
+
 # Add some useful compile flags.
 add_definitions(-Wall -Wextra -Wno-unused-parameter)
 add_definitions(${CUSTOM_WARNINGS})
@@ -53,18 +56,6 @@ endif (ENABLE_AGGRESSIVE_WARNINGS)
 if (ENABLE_WARNING_ERRORS)
 	add_definitions(-Werror)
 endif (ENABLE_WARNING_ERRORS)
-
-# Disable optimization?
-if (DISABLE_OPTIMIZING)
-	add_definitions(-O0)
-endif (DISABLE_OPTIMIZING)
-
-if (ENABLE_DEBUG)
-	add_definitions(-g)
-endif (ENABLE_DEBUG)
-
-set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -DDEBUG=1")
-set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} -DDEBUG=0")
 
 # Add our includes.
 include_directories(src/include)
