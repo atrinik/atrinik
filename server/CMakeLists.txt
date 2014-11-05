@@ -20,9 +20,9 @@ find_package(Threads REQUIRED)
 # libdl is required.
 find_library(DL_LIBRARY dl)
 
-if (NOT DL_LIBRARY)
+if (NOT DL_LIBRARY AND NOT MINGW)
 	message(FATAL_ERROR "Could not find dl library.")
-endif (NOT DL_LIBRARY)
+endif ()
 
 # Check is used for unit tests, but is optional.
 find_library(CHECK_LIBRARY check)
@@ -123,7 +123,9 @@ add_executable(${EXECUTABLE} ${SOURCES} ${LEXERS_OUT} ${SOURCES_CHECK} ${SOURCES
 include(src/toolkit/cmake-post.txt)
 
 # Link libraries.
-target_link_libraries(${EXECUTABLE} ${DL_LIBRARY})
+if (DL_LIBRARY)
+    target_link_libraries(${EXECUTABLE} ${DL_LIBRARY})
+endif ()
 
 # Link check.
 if (CHECK_LIBRARY)
