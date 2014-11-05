@@ -93,7 +93,7 @@ typedef struct Stat_struct
     uint16 flags;
 
     /** Protections. */
-    sint8 protection[20];
+    sint8 protection[CS_STAT_PROT_END - CS_STAT_PROT_START + 1];
 
     /** Ranged weapon damage. */
     sint16 ranged_dam;
