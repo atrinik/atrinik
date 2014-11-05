@@ -342,8 +342,8 @@ static int widget_event(widgetdata *widget, SDL_Event *event)
 
                 ob = object_find_object(cpl.ob, atoi(tmp->list->text[row][col]));
 
-                if (ob) {
-                    tooltip_create(event->motion.x, event->motion.y, FONT_ARIAL10, ob->s_name);
+                if (ob != NULL) {
+                    tooltip_create(event->motion.x, event->motion.y, FONT_ARIAL11, ob->s_name);
                 }
             }
         }
