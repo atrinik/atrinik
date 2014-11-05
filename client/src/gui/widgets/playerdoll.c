@@ -26,14 +26,16 @@
  * @file
  * Implements player doll type widgets.
  *
- * @author Alex Tokar */
+ * @author Alex Tokar
+ */
 
 #include <global.h>
 
 /**
  * Player doll item positions.
  *
- * Used to determine where to put item sprites on the player doll. */
+ * Used to determine where to put item sprites on the player doll.
+ */
 static int player_doll_positions[PLAYER_EQUIP_MAX][2] =
 {
     {22, 44},
@@ -182,13 +184,16 @@ static void widget_draw(widgetdata *widget)
     texture_slot_border = TEXTURE_CLIENT("player_doll_slot_border");
 
     for (i = 0; i < PLAYER_EQUIP_MAX; i++) {
-        rectangle_create(widget->surface, player_doll_positions[i][0] + xoff, player_doll_positions[i][1] + yoff, texture_slot_border->w, texture_slot_border->h, PLAYER_DOLL_SLOT_COLOR);
+        rectangle_create(widget->surface, player_doll_positions[i][0] + xoff,
+                player_doll_positions[i][1] + yoff, texture_slot_border->w,
+                texture_slot_border->h, PLAYER_DOLL_SLOT_COLOR);
     }
 
     surface_show(widget->surface, xoff, yoff, NULL, texture);
 
     for (i = 0; i < PLAYER_EQUIP_MAX; i++) {
-        surface_show(widget->surface, player_doll_positions[i][0] + xoff, player_doll_positions[i][1] + yoff, NULL, texture_slot_border);
+        surface_show(widget->surface, player_doll_positions[i][0] + xoff,
+                player_doll_positions[i][1] + yoff, NULL, texture_slot_border);
 
         obj = playerdoll_get_equipment(i, &xpos, &ypos);
 
@@ -206,16 +211,21 @@ static int widget_event(widgetdata *widget, SDL_Event *event)
     if (event->type == SDL_MOUSEMOTION) {
         char buf[HUGE_BUF];
         object *obj;
-        int i, xpos, ypos;
+        int i, xpos, ypos, xoff, yoff;
 
         buf[0] = '\0';
+        xoff = widget->w - TEXTURE_CLIENT("player_doll")->w + 10;
+        yoff = widget->h / 2 - TEXTURE_CLIENT("player_doll")->h / 2;
 
         for (i = 0; i < PLAYER_EQUIP_MAX; i++) {
             obj = playerdoll_get_equipment(i, &xpos, &ypos);
 
-            if (!obj) {
+            if (obj == NULL) {
                 continue;
             }
+
+            xpos += xoff;
+            ypos += yoff;
 
             if (event->motion.x - widget->x > xpos &&
                     event->motion.x - widget->x <= xpos + INVENTORY_ICON_SIZE &&
