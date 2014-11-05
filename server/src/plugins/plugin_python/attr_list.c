@@ -233,7 +233,7 @@ static int attr_list_set(Atrinik_AttrList *al, PyObject *key, unsigned PY_LONG_L
         if (i == len) {
             (*(int *) attr_list_len_ptr(al))++;
             *(shstr ***) ((void *) ((char *) al->ptr + al->offset)) = realloc(*(shstr ***) ((void *) ((char *) al->ptr + al->offset)), sizeof(shstr *) * attr_list_len(al));
-            *(shstr **) (&(*(shstr ***) ptr)[i]) = hooks->add_string((const char *) (char *) idx);
+            *(shstr **) (&(*(shstr ***) ptr)[i]) = hooks->add_string(str);
             *(sint64 **) ((void *) ((char *) al->ptr + offsetof(player, faction_reputation))) = realloc(*(sint64 **) ((void *) ((char *) al->ptr + offsetof(player, faction_reputation))), sizeof(sint64) * attr_list_len(al));
             /* Make sure ptr points to the right memory... */
             ptr = (char *) al->ptr + offsetof(player, faction_reputation);
