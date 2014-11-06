@@ -14,9 +14,6 @@ endif ()
 # Need Flex...
 find_package(FLEX REQUIRED)
 
-# libpthread is required.
-find_package(Threads REQUIRED)
-
 # libdl is required.
 find_library(DL_LIBRARY dl)
 
@@ -42,8 +39,8 @@ else ()
 	message(STATUS "Could not find gd library, world maker module will be disabled.")
 endif ()
 
-set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -DDEBUG=1 -O0 -g")
-set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} -DDEBUG=0 -O3")
+set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -DDEBUG=1 -O0 -g -DCURL_STATICLIB -DPTW32_STATIC_LIB")
+set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} -DDEBUG=0 -O3 -s -DCURL_STATICLIB -DPTW32_STATIC_LIB")
 
 # Add some useful compile flags.
 add_definitions(-Wall -Wextra -Wno-unused-parameter)
@@ -140,8 +137,6 @@ endif ()
 if (GD_LIBRARY)
 	target_link_libraries(${EXECUTABLE} ${GD_LIBRARY})
 endif ()
-
-target_link_libraries(${EXECUTABLE} ${CMAKE_THREAD_LIBS_INIT})
 
 # Get all the include directories used to compile the server.
 get_directory_property(INCLUDES INCLUDE_DIRECTORIES)

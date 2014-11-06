@@ -1,4 +1,11 @@
 target_link_libraries(${EXECUTABLE} ${CURL_LIBRARIES})
+
+target_link_libraries(${EXECUTABLE} ${CMAKE_THREAD_LIBS_INIT})
+
+if (MINGW)
+    target_link_libraries(${EXECUTABLE} wsock32 idn wldap32 ssh2 rtmp winmm ws2_32)
+endif ()
+
 target_link_libraries(${EXECUTABLE} ${ZLIB_LIBRARIES})
 
 # Link math...
@@ -26,10 +33,4 @@ if (HAVE_X11_XMU)
     target_link_libraries(${EXECUTABLE} ${X11_XMU_LIBRARY})
 endif ()
 
-if (MINGW)
-    target_link_libraries(${EXECUTABLE} wsock32 idn wldap32 ssh2 rtmp z winmm ws2_32)
-endif ()
-
 target_link_libraries(${EXECUTABLE} ${OPENSSL_LIBRARIES})
-
-message(STATUS "${ZLIB_LIBRARIES}")
