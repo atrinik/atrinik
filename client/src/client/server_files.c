@@ -254,9 +254,10 @@ int server_files_listing_processed(void)
                 tmp->update = 1;
             }
 
-            log(LOG(DEVEL), "%-10s CRC32: %lu (local: %lu) Size: %lu ("
-                            "local: %lu) Update: %d",
-                tmp->name, crc, tmp->crc32, fsize, tmp->size, tmp->update);
+            log(LOG(DEVEL),
+                    "%-10s CRC32: %lu (local: %lu) Size: %"FMT64U" ("
+                    "local: %"FMT64U") Update: %d", tmp->name, crc, tmp->crc32,
+                    (uint64) fsize, (uint64) tmp->size, tmp->update);
 
             tmp->crc32 = crc;
             tmp->size = fsize;
@@ -306,9 +307,10 @@ static int server_file_process(server_files_struct *tmp)
         return 1;
     }
 
-    log(LOG(DEVEL), "Download finished: %s, ret: %d, http_code: %d, size: "
-                    "%"FMT64U,
-        tmp->name, ret, tmp->dl_data->http_code, tmp->dl_data->size);
+    log(LOG(DEVEL),
+            "Download finished: %s, ret: %d, http_code: %d, size: %"FMT64U,
+            tmp->name, ret, tmp->dl_data->http_code,
+            (uint64) tmp->dl_data->size);
 
     /* Done. */
     if (ret == 1) {
