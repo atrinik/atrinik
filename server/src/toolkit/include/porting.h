@@ -124,6 +124,7 @@
 #   include <windowsx.h>
 #   include <mmsystem.h>
 #   include <winsock2.h>
+#   include <shellapi.h>
 
 #   ifdef __MINGW32__
 #       include <ws2tcpip.h>
@@ -138,13 +139,6 @@
             _fmode = (_mode); \
         }
 #   endif
-#endif
-
-#if 0
-#   include <io.h>
-#   include <malloc.h>
-#   include <direct.h>
-#   include <shellapi.h>
 #endif
 
 #ifdef HAVE_SRANDOM
