@@ -11,6 +11,31 @@ if (EXISTS build.user)
 	include(build.user)
 endif (EXISTS build.user)
 
+set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -DDEBUG=1 -O0 -g")
+set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} -DDEBUG=0 -O3")
+
+# Add some useful compile flags.
+add_definitions(-Wall -Wextra -Wno-unused-parameter)
+add_definitions(${CUSTOM_WARNINGS})
+
+if (ENABLE_EXTRA_WARNINGS)
+	add_definitions(-ftree-vrp -Wdeclaration-after-statement -Wundef -Wpointer-arith -Wbad-function-cast -Wcast-align -Wlogical-op -Waggregate-return -Wnested-externs -Wunreachable-code -Wstack-protector -D_POSIX_C_SOURCE=200112L -D_GNU_SOURCE -fbounds-check -ftrapv -fstack-protector-all -Wformat -Wformat-security -Winit-self -Wshadow -Wunsafe-loop-optimizations -Wbad-function-cast)
+endif (ENABLE_EXTRA_WARNINGS)
+
+if (ENABLE_AGGRESSIVE_WARNINGS)
+	add_definitions(-Wcast-qual -Wmissing-declarations -Wformat=2)
+endif (ENABLE_AGGRESSIVE_WARNINGS)
+
+# Turn warnings into errors?
+if (ENABLE_WARNING_ERRORS)
+	add_definitions(-Werror)
+endif (ENABLE_WARNING_ERRORS)
+
+# Add our includes.
+include_directories(src/include)
+include_directories(src/gui/toolkit/include)
+include(src/toolkit/cmake-pre.txt)
+
 # SDL is required to run the client.
 find_package(SDL REQUIRED)
 include_directories(${SDL_INCLUDE_DIR})
@@ -36,31 +61,6 @@ if (SDLMIXER_FOUND)
 else (SDLMIXER_FOUND)
 	message(STATUS "Warning: SDL_mixer not found - sound support will be disabled")
 endif (SDLMIXER_FOUND)
-
-set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -DDEBUG=1 -O0 -g")
-set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} -DDEBUG=0 -O3")
-
-# Add some useful compile flags.
-add_definitions(-Wall -Wextra -Wno-unused-parameter)
-add_definitions(${CUSTOM_WARNINGS})
-
-if (ENABLE_EXTRA_WARNINGS)
-	add_definitions(-ftree-vrp -Wdeclaration-after-statement -Wundef -Wpointer-arith -Wbad-function-cast -Wcast-align -Wlogical-op -Waggregate-return -Wnested-externs -Wunreachable-code -Wstack-protector -D_POSIX_C_SOURCE=200112L -D_GNU_SOURCE -fbounds-check -ftrapv -fstack-protector-all -Wformat -Wformat-security -Winit-self -Wshadow -Wunsafe-loop-optimizations -Wbad-function-cast)
-endif (ENABLE_EXTRA_WARNINGS)
-
-if (ENABLE_AGGRESSIVE_WARNINGS)
-	add_definitions(-Wcast-qual -Wmissing-declarations -Wformat=2)
-endif (ENABLE_AGGRESSIVE_WARNINGS)
-
-# Turn warnings into errors?
-if (ENABLE_WARNING_ERRORS)
-	add_definitions(-Werror)
-endif (ENABLE_WARNING_ERRORS)
-
-# Add our includes.
-include_directories(src/include)
-include_directories(src/gui/toolkit/include)
-include(src/toolkit/cmake-pre.txt)
 
 # Add sources.
 include(src/cmake.txt)
