@@ -1,0 +1,49 @@
+Compiling the Atrinik server (Windows)
+=================================================
+
+ === Prerequisites ===
+
+ - MinGW
+    The compiler that you will use for compiling. Download it here:
+    http://sourceforge.net/projects/mingw/files/latest/download?source=files
+
+    After installing, execute the mingw-install-prereq.bat script in "tools"
+    directory (located in Atrinik root directory).
+ - CMake
+    Required to build makefiles. Download it here:
+
+    http://www.cmake.org/files/v3.0/cmake-3.0.2-win32-x86.exe
+ - Microsoft Visual C++ Redistributables 2008
+    This is required for OpenSSL to work properly. Download it here:
+    http://www.microsoft.com/en-us/download/details.aspx?id=29
+ - OpenSSL
+    Atrinik requires OpenSSL. Download it here:
+
+    http://slproweb.com/download/Win32OpenSSL-1_0_1j.exe
+
+    The installer will ask where to copy OpenSSL DLL files. Make sure this is
+    set to the system directory.
+ - cURL
+    Atrinik requires cURL. Download it here:
+
+    http://curl.haxx.se/gknw.net/7.39.0/dist-w32/curl-7.39.0-devel-mingw32.zip
+
+    Extract the archive and copy "lib" and "include" directories into
+    C:/MinGW/msys/1.0 (or where you installed MinGW).
+
+ === Compiling ===
+
+ Make sure you have the following paths in your PATH environment variable, in
+ this order (adjust accordingly if you installed MinGW or CMake somewhere else):
+
+ C:\MinGW\bin;C:/MinGW/msys/1.0/bin;C:\Program Files (x86)\CMake\bin
+
+ Install Netbeans for C/C++. Download it here:
+
+ https://netbeans.org/downloads/start.html?platform=windows&lang=en&option=cpp
+
+ Go to Tools -> Options -> C/C++ -> Build Tools and click the Add button. Enter
+ C:\MinGW\bin (or where you installed MinGW) into the "base directory" box.
+
+ Go to File -> New Project -> C/C++ Project with Existing Sources and select the
+ server directory. Click "Finish" and the project should build automatically.
