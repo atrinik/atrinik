@@ -36,6 +36,10 @@ include_directories(src/include)
 include_directories(src/gui/toolkit/include)
 include(src/toolkit/cmake-pre.txt)
 
+if (MINGW)
+    set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -mwindows")
+endif ()
+
 # SDL is required to run the client.
 find_package(SDL REQUIRED)
 include_directories(${SDL_INCLUDE_DIR})
