@@ -272,23 +272,27 @@ bind
 	command ?QUICKSLOT_8
 end
 bind
-	# unknown key
-	key 0
+	# q
+	key 113
+	mod 3
 	command /invfilter all
 end
 bind
-	# unknown key
-	key 0
+	# w
+	key 119
+	mod 3
 	command /invfilter applied
 end
 bind
-	# unknown key
-	key 0
+	# e
+	key 101
+	mod 3
 	command /invfilter locked
 end
 bind
-	# unknown key
-	key 0
+	# r
+	key 114
+	mod 3
 	command /invfilter unidentified
 end
 bind
