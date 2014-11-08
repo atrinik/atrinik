@@ -54,6 +54,16 @@
 #define MAP_MAX_SIZE 17
 
 /**
+ * Size of the Fog of War cache. Setting this to 1 will decrease memory usage
+ * somewhat, but make Fog of War less useful when moving across maps.
+ *
+ * Basically this value represents how big grid of maps to keep in memory. For
+ * example, if the value is 3, the grid will be 3x3, which means 9 "maps", and
+ * the middle one is the currently displayed one.
+ */
+#define MAP_FOW_SIZE 3
+
+/**
  * The number of our dark levels.
  *
  * For each level we store an own bitmap copy. */

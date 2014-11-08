@@ -141,14 +141,19 @@ typedef struct _mapdata
     int posy;
 } _mapdata;
 
-/** Map cell structure. */
+/**
+ * Map cell structure.
+ */
 typedef struct MapCell
 {
-    /** Position. */
-    uint8 quick_pos[NUM_REAL_LAYERS];
+    /** Name of player on this cell. */
+    char pname[NUM_REAL_LAYERS][64];
 
     /** Player name color on this cell. */
     char pcolor[NUM_REAL_LAYERS][COLOR_BUF];
+
+    /** Position. */
+    uint8 quick_pos[NUM_REAL_LAYERS];
 
     /** If this is where our enemy is. */
     uint8 probe[NUM_REAL_LAYERS];
@@ -189,20 +194,26 @@ typedef struct MapCell
     /** How we stretch this is really 8 char for N S E W. */
     uint32 stretch[NUM_SUB_LAYERS];
 
-    /** Name of player on this cell. */
-    char pname[NUM_REAL_LAYERS][64];
-
+    /**
+     * Target object.
+     */
     uint32 target_object_count[NUM_REAL_LAYERS];
 
+    /**
+     * Whether the target is a friend.
+     */
     uint8 target_is_friend[NUM_REAL_LAYERS];
+
+    /**
+     * Whether Fog of War is enabled on this cell.
+     */
+    uint8 fow;
 } MapCell;
 
-/** Map structure. */
-typedef struct Map
-{
-    /** Map cells. */
-    struct MapCell cells[MAP_MAX_SIZE][MAP_MAX_SIZE];
-} Map;
+#define MAP_CELL_GET(_x, _y) (&cells[(_y) * (map_width * MAP_FOW_SIZE) + (_x)])
+#define MAP_CELL_GET_MIDDLE(_x, _y) \
+    (&cells[((_y) + map_height * (MAP_FOW_SIZE / 2)) * \
+    (map_width * MAP_FOW_SIZE) + (_x) + map_width * (MAP_FOW_SIZE / 2)])
 
 typedef struct map_target_struct
 {

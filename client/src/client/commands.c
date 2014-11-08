@@ -642,7 +642,7 @@ void socket_command_map(uint8 *data, size_t len, size_t pos)
             ypos = packet_to_uint8(data, len, &pos);
             mx = xpos;
             my = ypos;
-            display_mapscroll(xoff, yoff);
+            display_mapscroll(xoff, yoff, 0, 0);
 
             map_play_footstep();
         }
@@ -657,7 +657,7 @@ void socket_command_map(uint8 *data, size_t len, size_t pos)
 
         /* Have we moved? */
         if ((xpos - mx || ypos - my)) {
-            display_mapscroll(xpos - mx, ypos - my);
+            display_mapscroll(xpos - mx, ypos - my, 0, 0);
             map_play_footstep();
         }
 

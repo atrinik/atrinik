@@ -491,13 +491,19 @@ static void setting_apply_runtime(int cat, int setting)
                 case OPT_MAP_HEIGHT:
 
                     if (setting_update_mapsize) {
+                        int w, h;
                         packet_struct *packet;
+
+                        w = setting_get_int(cat, OPT_MAP_WIDTH);
+                        h = setting_get_int(cat, OPT_MAP_HEIGHT);
 
                         packet = packet_new(SERVER_CMD_SETUP, 32, 0);
                         packet_append_uint8(packet, CMD_SETUP_MAPSIZE);
-                        packet_append_uint8(packet, setting_get_int(cat, OPT_MAP_WIDTH));
-                        packet_append_uint8(packet, setting_get_int(cat, OPT_MAP_HEIGHT));
+                        packet_append_uint8(packet, w);
+                        packet_append_uint8(packet, h);
                         socket_send_packet(packet);
+
+                        map_update_size(w, h);
 
                         setting_update_mapsize = 0;
                     }
