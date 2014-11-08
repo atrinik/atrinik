@@ -160,10 +160,12 @@ void init_map_data(int xl, int yl, int px, int py)
  * Checks for X/Y overflows.
  * @param x X position.
  * @param y Y position.
+ * @param w Max width.
+ * @param h Max height.
  * @return The height. */
-static int calc_map_cell_height(int x, int y, int sub_layer)
+static int calc_map_cell_height(int x, int y, int w, int h, int sub_layer)
 {
-    if (x >= 0 && x < setting_get_int(OPT_CAT_MAP, OPT_MAP_WIDTH) && y >= 0 && y < setting_get_int(OPT_CAT_MAP, OPT_MAP_HEIGHT)) {
+    if (x >= 0 && x < w && y >= 0 && y < h) {
         return the_map.cells[x][y].height[GET_MAP_LAYER(LAYER_FLOOR, sub_layer)];
     }
 
@@ -176,26 +178,30 @@ static int calc_map_cell_height(int x, int y, int sub_layer)
 /**
  * Align tile stretch based on X/Y.
  * @param x X position.
- * @param y Y position. */
-static void align_tile_stretch(int x, int y, int sub_layer)
+ * @param y Y position.
+ * @param w Max width.
+ * @param h Max height.
+ * @param sub_layer Sub-layer.
+ */
+static void align_tile_stretch(int x, int y, int w, int h, int sub_layer)
 {
     uint8 top, bottom, right, left, min_ht;
-    uint32 h;
+    uint32 stretch;
     int nw_height, n_height, ne_height, sw_height, s_height, se_height, w_height, e_height, my_height;
 
-    if (x < 0 || y < 0 || x >= setting_get_int(OPT_CAT_MAP, OPT_MAP_WIDTH) || y >= setting_get_int(OPT_CAT_MAP, OPT_MAP_HEIGHT)) {
+    if (x < 0 || y < 0 || x >= w || y >= h) {
         return;
     }
 
-    nw_height = calc_map_cell_height(x - 1, y - 1, sub_layer);
-    n_height = calc_map_cell_height(x, y - 1, sub_layer);
-    ne_height = calc_map_cell_height(x + 1, y - 1, sub_layer);
-    sw_height = calc_map_cell_height(x - 1, y + 1, sub_layer);
-    s_height = calc_map_cell_height(x, y + 1, sub_layer);
-    se_height = calc_map_cell_height(x + 1, y + 1, sub_layer);
-    w_height = calc_map_cell_height(x - 1, y, sub_layer);
-    e_height = calc_map_cell_height(x + 1, y, sub_layer);
-    my_height = calc_map_cell_height(x, y, sub_layer);
+    nw_height = calc_map_cell_height(x - 1, y - 1, w, h, sub_layer);
+    n_height = calc_map_cell_height(x, y - 1, w, h, sub_layer);
+    ne_height = calc_map_cell_height(x + 1, y - 1, w, h, sub_layer);
+    sw_height = calc_map_cell_height(x - 1, y + 1, w, h, sub_layer);
+    s_height = calc_map_cell_height(x, y + 1, w, h, sub_layer);
+    se_height = calc_map_cell_height(x + 1, y + 1, w, h, sub_layer);
+    w_height = calc_map_cell_height(x - 1, y, w, h, sub_layer);
+    e_height = calc_map_cell_height(x + 1, y, w, h, sub_layer);
+    my_height = calc_map_cell_height(x, y, w, h, sub_layer);
 
     if (abs(my_height - e_height) > MAX_STRETCH) {
         e_height = my_height;
@@ -256,8 +262,8 @@ static void align_tile_stretch(int x, int y, int sub_layer)
     left -= min_ht;
     right -= min_ht;
 
-    h = bottom + (left << 8) + (right << 16) + (top << 24);
-    the_map.cells[x][y].stretch[sub_layer] = h;
+    stretch = bottom + (left << 8) + (right << 16) + (top << 24);
+    the_map.cells[x][y].stretch[sub_layer] = stretch;
 }
 
 /**
@@ -269,22 +275,25 @@ static void align_tile_stretch(int x, int y, int sub_layer)
  * parts. */
 void adjust_tile_stretch(void)
 {
-    int x, y, sub_layer;
+    int w, h, x, y, sub_layer;
 
-    for (x = 0; x < setting_get_int(OPT_CAT_MAP, OPT_MAP_WIDTH); x++) {
-        for (y = 0; y < setting_get_int(OPT_CAT_MAP, OPT_MAP_HEIGHT); y++) {
+    w = setting_get_int(OPT_CAT_MAP, OPT_MAP_WIDTH);
+    h = setting_get_int(OPT_CAT_MAP, OPT_MAP_HEIGHT);
+
+    for (x = 0; x < w; x++) {
+        for (y = 0; y < h; y++) {
             for (sub_layer = 0; sub_layer < NUM_SUB_LAYERS; sub_layer++) {
-                align_tile_stretch(x - 1, y - 1, sub_layer);
-                align_tile_stretch(x, y - 1, sub_layer);
-                align_tile_stretch(x + 1, y - 1, sub_layer);
-                align_tile_stretch(x + 1, y, sub_layer);
+                align_tile_stretch(x - 1, y - 1, w, h, sub_layer);
+                align_tile_stretch(x, y - 1, w, h, sub_layer);
+                align_tile_stretch(x + 1, y - 1, w, h, sub_layer);
+                align_tile_stretch(x + 1, y, w, h, sub_layer);
 
-                align_tile_stretch(x + 1, y + 1, sub_layer);
-                align_tile_stretch(x, y + 1, sub_layer);
-                align_tile_stretch(x - 1, y + 1, sub_layer);
-                align_tile_stretch(x - 1, y, sub_layer);
+                align_tile_stretch(x + 1, y + 1, w, h, sub_layer);
+                align_tile_stretch(x, y + 1, w, h, sub_layer);
+                align_tile_stretch(x - 1, y + 1, w, h, sub_layer);
+                align_tile_stretch(x - 1, y, w, h, sub_layer);
 
-                align_tile_stretch(x, y, sub_layer);
+                align_tile_stretch(x, y, w, h, sub_layer);
             }
         }
     }
