@@ -82,6 +82,9 @@ typedef struct server_settings
     /** Server-configured strings. */
     char *text[SERVER_TEXT_MAX];
 
+    /** Protection group names. */
+    char protection_groups[5][MAX_BUF];
+
     /** Protection few-letter acronyms. */
     char protection_letters[20][MAX_BUF];
 

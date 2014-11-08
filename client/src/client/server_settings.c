@@ -115,7 +115,18 @@ void server_settings_init(void)
                 s_settings->text[text_id] = estrdup(buf + 5);
                 string_newline_to_literal(s_settings->text[text_id]);
 
-                if (text_id == SERVER_TEXT_PROTECTION_LETTERS) {
+                if (text_id == SERVER_TEXT_PROTECTION_GROUPS) {
+                    cp = strtok(s_settings->text[text_id], " ");
+
+                    while (cp) {
+                        snprintf(s_settings->protection_groups[j],
+                                sizeof(s_settings->protection_groups[j]), "%s",
+                                cp);
+                        j++;
+                        cp = strtok(NULL, " ");
+                    }
+                }
+                else if (text_id == SERVER_TEXT_PROTECTION_LETTERS) {
                     cp = strtok(s_settings->text[text_id], " ");
 
                     while (cp) {
