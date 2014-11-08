@@ -311,6 +311,11 @@ static void clioptions_option_text_debug(const char *arg)
     text_enable_debug();
 }
 
+static void clioptions_option_widget_render_debug(const char *arg)
+{
+    widget_render_enable_debug();
+}
+
 static void clioptions_option_game_news_url(const char *arg)
 {
     clioption_settings.game_news_url = estrdup(arg);
@@ -398,6 +403,15 @@ int main(int argc, char *argv[])
         "text_debug",
         NULL,
         clioptions_option_text_debug,
+        0,
+        "",
+        ""
+        );
+
+    clioptions_add(
+        "widget_render_debug",
+        NULL,
+        clioptions_option_widget_render_debug,
         0,
         "",
         ""

@@ -621,6 +621,7 @@ extern void menu_create_widget(widgetdata *widget, widgetdata *menuitem, SDL_Eve
 extern void menu_remove_widget(widgetdata *widget, widgetdata *menuitem, SDL_Event *event);
 extern void menu_detach_widget(widgetdata *widget, widgetdata *menuitem, SDL_Event *event);
 extern void menu_inventory_submenu_quickslots(widgetdata *widget, widgetdata *menuitem, SDL_Event *event);
+extern void widget_render_enable_debug(void);
 /* src/gui/widgets/active_effects.c */
 extern void widget_active_effects_update(widgetdata *widget, object *op, sint32 sec, const char *msg);
 extern void widget_active_effects_remove(widgetdata *widget, object *op);

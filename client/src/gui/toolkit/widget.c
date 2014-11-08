@@ -96,6 +96,11 @@ static widgetresize widget_event_resize =
  * */
 static int IsMouseExclusive = 0;
 
+/**
+ * Whether widget rendering debugging is turned on or off.
+ */
+static int widget_render_debug = 0;
+
 int widget_id_from_name(const char *name)
 {
     int i;
@@ -1560,6 +1565,19 @@ static void process_widgets_rec(int draw, widgetdata *widget)
                 SDL_BlitSurface(widget->surface, NULL, ScreenSurface, &box);
             }
 
+            if (redraw != 0 && widget_render_debug) {
+                texture_struct *texture_debug;
+                SDL_Rect box;
+
+                box.w = widget->w;
+                box.h = widget->h;
+
+                texture_debug = texture_get(TEXTURE_TYPE_SOFTWARE,
+                        "rectangle:50,50,127;[bar=#ff66ff]");
+                surface_show_fill(ScreenSurface, widget->x, widget->y, NULL,
+                        texture_surface(texture_debug), &box);
+            }
+
             widget->redraw -= redraw;
         }
 
@@ -2417,4 +2435,11 @@ void menu_detach_widget(widgetdata *widget, widgetdata *menuitem, SDL_Event *eve
 
 void menu_inventory_submenu_quickslots(widgetdata *widget, widgetdata *menuitem, SDL_Event *event)
 {
+}
+
+/**
+ * Enable widget rendering debugging. */
+void widget_render_enable_debug(void)
+{
+    widget_render_debug = 1;
 }
