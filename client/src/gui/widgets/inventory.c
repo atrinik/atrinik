@@ -794,6 +794,7 @@ void object_show_inventory(SDL_Surface *surface, object *tmp, int x, int y)
         }
 
         box.w = INVENTORY_ICON_SIZE;
+        box.h = 0;
         text_show(surface, FONT_ARIAL10, buf, x, y + 18, COLOR_WHITE,
                 TEXT_OUTLINE | TEXT_ALIGN_CENTER, &box);
     }

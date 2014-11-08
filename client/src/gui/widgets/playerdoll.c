@@ -170,6 +170,8 @@ static void widget_draw(widgetdata *widget)
 
     box.w = xoff - 10;
     box.h = widget->h - 10 * 2;
+    box2.w = 0;
+    box2.h = 0;
 
     text = player_doll_text;
 
