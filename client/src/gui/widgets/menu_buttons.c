@@ -86,7 +86,7 @@ static void widget_draw(widgetdata *widget)
     int i, x, y;
     const char *text;
 
-    if (!widget->redraw && 0) {
+    if (!widget->redraw) {
         return;
     }
 
@@ -157,6 +157,10 @@ static int widget_event(widgetdata *widget, SDL_Event *event)
 
     for (i = 0; i < NUM_BUTTONS; i++) {
         if (!button_event(&buttons[i], event)) {
+            if (buttons[i].redraw) {
+                widget->redraw = 1;
+            }
+            
             if (BUTTON_CHECK_TOOLTIP(&buttons[i])) {
                 tooltip_create(event->motion.x, event->motion.y, FONT_ARIAL11,
                         button_tooltips[i]);
