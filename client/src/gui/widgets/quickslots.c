@@ -209,6 +209,8 @@ static int quickslots_change(widgetdata *widget, uint32 row, uint32 col)
         quickslots_set(widget, row, col, ob->tag);
     }
 
+    widget->redraw = 1;
+
     return 1;
 }
 
@@ -295,8 +297,6 @@ static void widget_draw(widgetdata *widget)
         return;
     }
 
-    widget->redraw++;
-
     tmp = widget->subwidget;
     tmp->list->surface = widget->surface;
     list_set_parent(tmp->list, widget->x, widget->y);
@@ -321,6 +321,7 @@ static int widget_event(widgetdata *widget, SDL_Event *event)
                     else {
                         quickslots_remove(widget, cpl.dragging_tag);
                         quickslots_set(widget, row, col, cpl.dragging_tag);
+                        widget->redraw = 1;
                     }
 
                     event_dragging_stop();

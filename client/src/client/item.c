@@ -363,6 +363,8 @@ void object_redraw(object *op)
         WIDGET_REDRAW_ALL(BELOW_INV_ID);
     } else {
         WIDGET_REDRAW_ALL(MAIN_INV_ID);
+        /* TODO: This could be more sophisticated... */
+        WIDGET_REDRAW_ALL(QUICKSLOT_ID);
     }
 }
 
