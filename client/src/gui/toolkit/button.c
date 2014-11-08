@@ -133,7 +133,8 @@ int button_need_redraw(button_struct *button)
             ret = 1;
         }
 
-        if (button->pressed && (!mover || state != SDL_BUTTON_LEFT)) {
+        if (button->pressed && !button->pressed_forced &&
+                (!mover || state != SDL_BUTTON_LEFT)) {
             button->pressed = 0;
             ret = 1;
         }
