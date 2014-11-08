@@ -164,6 +164,7 @@ void socket_command_stats(uint8 *data, size_t len, size_t pos)
         } else if (type >= CS_STAT_PROT_START && type <= CS_STAT_PROT_END) {
             cpl.stats.protection[type - CS_STAT_PROT_START] =
                     packet_to_sint8(data, len, &pos);
+            WIDGET_REDRAW_ALL(PROTECTIONS_ID);
         }
         else {
             switch (type) {
