@@ -67,16 +67,18 @@ static void widget_draw(widgetdata *widget)
 static void widget_background(widgetdata *widget)
 {
     widget_fps_struct *tmp;
+    uint32 ticks;
 
     tmp = widget->subwidget;
     tmp->frames++;
+    ticks = SDL_GetTicks();
 
-    if (tmp->lasttime < SDL_GetTicks() - 1000) {
+    if (tmp->lasttime < ticks - 1000) {
         if (tmp->current != tmp->frames) {
             widget->redraw = 1;
         }
 
-        tmp->lasttime = SDL_GetTicks();
+        tmp->lasttime = ticks;
         tmp->current = tmp->frames;
         tmp->frames = 0;
     }
