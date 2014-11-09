@@ -86,6 +86,8 @@ void quickslots_scroll(widgetdata *widget, int up, int scroll)
 
     tmp = widget->subwidget;
     list_scroll(tmp->list, up, scroll);
+
+    widget->redraw = 1;
 }
 
 /**
@@ -102,6 +104,8 @@ void quickslots_cycle(widgetdata *widget)
     } else {
         list_scroll(tmp->list, 0, 1);
     }
+
+    widget->redraw = 1;
 }
 
 /**
