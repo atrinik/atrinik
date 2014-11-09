@@ -94,6 +94,7 @@ static int attack_ob_simple(object *op, object *hitter, int base_dam, int base_w
 {
     int simple_attack, roll, dam = 0;
     tag_t op_tag, hitter_tag;
+    rv_vector dir;
 
     if (op->head) {
         op = op->head;
@@ -124,25 +125,11 @@ static int attack_ob_simple(object *op, object *hitter, int base_dam, int base_w
         roll += adj_attackroll(hitter, op);
     }
 
-    /* So we do one swing */
-    if (hitter->type == PLAYER) {
-        CONTR(hitter)->anim_flags |= PLAYER_AFLAG_ENEMY;
-    }
+    hitter->anim_flags |= ANIM_FLAG_ATTACKING;
+    hitter->anim_flags &= ~ANIM_FLAG_STOP_ATTACKING;
 
-    /* Force player to face enemy */
-    if (hitter->type == PLAYER) {
-        rv_vector dir;
-
-        if (get_rangevector(hitter, op, &dir, RV_NO_DISTANCE)) {
-            if (hitter->head) {
-                hitter->head->anim_enemy_dir = dir.direction;
-                hitter->head->facing = dir.direction;
-            }
-            else {
-                hitter->anim_enemy_dir = dir.direction;
-                hitter->facing = dir.direction;
-            }
-        }
+    if (get_rangevector(hitter, op, &dir, RV_NO_DISTANCE)) {
+        HEAD(hitter)->direction = dir.direction;
     }
 
     /* See if we hit the creature */

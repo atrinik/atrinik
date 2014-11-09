@@ -882,16 +882,6 @@ void initialize_object(object *op)
      * than explicitly clearing the fields. */
     memset(op, 0, sizeof(object));
 
-    /* Set some values that should not be 0 by default */
-    /* control the facings 25 animations */
-    op->anim_enemy_dir = -1;
-    /* the same for movement */
-    op->anim_moving_dir = -1;
-    op->anim_enemy_dir_last = -1;
-    op->anim_moving_dir_last = -1;
-    op->anim_last_facing = 4;
-    op->anim_last_facing_last = -1;
-
     op->face = blank_face;
 
     /* give the object a new (unique) count tag */
@@ -2440,26 +2430,11 @@ int dirdiff(int dir1, int dir2)
  * @return The direction */
 int get_dir_to_target(object *op, object *target, rv_vector *range_vector)
 {
-    int dir;
-
     if (!get_rangevector(op, target, range_vector, 0)) {
         return 0;
     }
 
-    dir = range_vector->direction;
-
-    if (op->type == PLAYER) {
-        if (op->head) {
-            op->head->anim_enemy_dir = dir;
-            op->head->facing = dir;
-        }
-        else {
-            op->anim_enemy_dir = dir;
-            op->facing = dir;
-        }
-    }
-
-    return dir;
+    return range_vector->direction;
 }
 
 /**

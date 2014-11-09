@@ -459,7 +459,7 @@ lex_error = 0;
 ^rotate{S}           op->rotate = IVAL;
 ^nrof{S}             op->nrof = atol(yval());
 ^level{S}            op->level = IVAL;
-^direction{S}        op->facing = op->anim_last_facing = op->direction = (IVAL % 9);
+^direction{S}        op->direction = (IVAL % 9);
 ^type{S}             op->type = IVAL;
 ^material{S}         op->material = IVAL;
 ^value{S}            op->value = atoll(yval());

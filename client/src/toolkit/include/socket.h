@@ -191,8 +191,8 @@ enum
 #define MAP2_FLAG_MULTI      1
 /** Player name. */
 #define MAP2_FLAG_NAME       2
-/** Target's HP bar. */
-#define MAP2_FLAG_PROBE      4
+/** Animation instead of a face. */
+#define MAP2_FLAG_ANIMATION  4
 /** Tile's Z position. */
 #define MAP2_FLAG_HEIGHT     8
 /** Zoom. */
@@ -218,6 +218,8 @@ enum
 #define MAP2_FLAG2_INFRAVISION 4
 /** Possible target. */
 #define MAP2_FLAG2_TARGET 8
+/** Target's HP bar. */
+#define MAP2_FLAG2_PROBE 16
 /*@}*/
 
 /**
@@ -556,6 +558,16 @@ enum
 #define FFLAG_ETHEREAL  0x40
 /** Object is probed */
 #define FFLAG_PROBE     0x80
+/*@}*/
+
+/**
+ * @defgroup anim_flags Animation flags
+ * Used to indicate what stage the animation is in.
+ *@{*/
+#define ANIM_FLAG_MOVING 0x01 ///< Moving.
+#define ANIM_FLAG_ATTACKING 0x02 ///< Attacking.
+#define ANIM_FLAG_STOP_MOVING 0x04 ///< Stop moving.
+#define ANIM_FLAG_STOP_ATTACKING 0x08 ///< Stop attacking.
 /*@}*/
 
 #define CHAT_TYPE_ALL 1

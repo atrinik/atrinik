@@ -415,10 +415,6 @@ static void process_func(object *op)
     /* If we are here, we're never paralyzed anymore */
     CLEAR_FLAG(op, FLAG_PARALYZED);
 
-    /* For target facing, we copy this value here for fast access */
-    op->anim_enemy_dir = -1;
-    op->anim_moving_dir = -1;
-
     /* Here is the heart of the mob attack and target area.
      * find_enemy() checks the old enemy or gets us a new one. */
 
@@ -432,7 +428,12 @@ static void process_func(object *op)
     }
     else if ((enemy = find_enemy(op, &rv))) {
         CLEAR_FLAG(op, FLAG_SLEEP);
-        op->anim_enemy_dir = rv.direction;
+        op->direction = rv.direction;
+
+        if (rv.distance <= 1) {
+            logger_print(LOG(INFO), "test");
+            op->anim_flags |= ANIM_FLAG_ATTACKING;
+        }
 
         if (!enemy->attacked_by || (enemy->attacked_by && enemy->attacked_by_distance > (int) rv.distance)) {
             /* We have an enemy, just tell him we want him dead */

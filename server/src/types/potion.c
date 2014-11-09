@@ -183,7 +183,7 @@ static int apply_func(object *op, object *applier, int aflags)
     else if (op->stats.sp != SP_NO_SPELL) {
         /* Fire in the player's facing direction, unless the spell is
          * something like healing or cure disease. */
-        cast_spell(applier, op, spells[op->stats.sp].flags & SPELL_DESC_SELF ? 0 : applier->facing, op->stats.sp, 1, CAST_POTION, NULL);
+        cast_spell(applier, op, spells[op->stats.sp].flags & SPELL_DESC_SELF ? 0 : applier->direction, op->stats.sp, 1, CAST_POTION, NULL);
     }
     else {
         draw_info(COLOR_WHITE, applier, "Nothing happens as you apply it.");

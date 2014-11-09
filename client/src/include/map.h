@@ -204,6 +204,16 @@ typedef struct MapCell
      */
     uint8 target_is_friend[NUM_REAL_LAYERS];
 
+    uint8 anim_last[NUM_REAL_LAYERS];
+
+    uint8 anim_speed[NUM_REAL_LAYERS];
+
+    uint8 anim_facing[NUM_REAL_LAYERS];
+
+    uint8 anim_state[NUM_REAL_LAYERS];
+
+    uint8 anim_flags[NUM_SUB_LAYERS];
+
     /**
      * Whether Fog of War is enabled on this cell.
      */

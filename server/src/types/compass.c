@@ -42,7 +42,7 @@ static int apply_func(object *op, object *applier, int aflags)
         return OBJECT_METHOD_OK;
     }
 
-    draw_info_format(COLOR_WHITE, applier, "You are facing %s.", direction_names[absdir(applier->facing) - 1]);
+    draw_info_format(COLOR_WHITE, applier, "You are facing %s.", direction_names[absdir(applier->direction) - 1]);
     return OBJECT_METHOD_OK;
 }
 

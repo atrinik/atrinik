@@ -199,8 +199,8 @@ static int builder_item(object *op, object *new_item, int x, int y)
     }
 
     /* If the item is turnable, adjust direction. */
-    if (QUERY_FLAG(new_item, FLAG_IS_TURNABLE) && op->facing) {
-        new_item->direction = op->facing;
+    if (QUERY_FLAG(new_item, FLAG_IS_TURNABLE) && op->direction) {
+        new_item->direction = op->direction;
         SET_ANIMATION(new_item, (NUM_ANIMATIONS(new_item) / NUM_FACINGS(new_item)) * new_item->direction);
     }
 

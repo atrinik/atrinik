@@ -37,7 +37,7 @@ void command_push(object *op, const char *command, char *params)
     mapstruct *m;
     int x, y, dir;
 
-    dir = op->facing;
+    dir = op->direction;
 
     /* We check for all conditions where the player can't push anything. */
     if (dir <= 0 || QUERY_FLAG(op, FLAG_PARALYZED)) {

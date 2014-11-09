@@ -30,6 +30,9 @@
 #ifndef NEWSERVER_H
 #define NEWSERVER_H
 
+#include "map.h"
+
+
 /** How many items to show in the below window. Used in esrv_draw_look(). */
 #define NUM_LOOK_OBJECTS 15
 
@@ -55,6 +58,12 @@ typedef struct MapCell_struct
 
     /** Flags cache. */
     uint8 flags[NUM_REAL_LAYERS];
+
+    uint8 anim_speed[NUM_REAL_LAYERS];
+
+    uint8 anim_facing[NUM_REAL_LAYERS];
+
+    uint8 anim_flags[NUM_SUB_LAYERS];
 
     /**
      * Probe cache. No need for an array, since this only appears

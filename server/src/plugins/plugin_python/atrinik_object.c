@@ -83,7 +83,6 @@ static fields_struct fields[] =
     {"state", FIELDTYPE_UINT8, offsetof(object, state), 0, 0},
     {"level", FIELDTYPE_SINT8, offsetof(object, level), FIELDFLAG_PLAYER_READONLY, 0},
     {"direction", FIELDTYPE_SINT8, offsetof(object, direction), 0, 0},
-    {"facing", FIELDTYPE_SINT8, offsetof(object, facing), 0, 0},
     {"quick_pos", FIELDTYPE_UINT8, offsetof(object, quick_pos), 0, 0},
     {"quickslot", FIELDTYPE_UINT8, offsetof(object, quickslot), FIELDFLAG_READONLY, 0},
 
@@ -98,14 +97,7 @@ static fields_struct fields[] =
     {"move_status", FIELDTYPE_SINT8, offsetof(object, move_status), 0, 0},
     {"move_type", FIELDTYPE_UINT8, offsetof(object, move_type), 0, 0},
 
-    {"anim_enemy_dir", FIELDTYPE_SINT8, offsetof(object, anim_enemy_dir), 0, 0},
-    {"anim_moving_dir", FIELDTYPE_SINT8, offsetof(object, anim_moving_dir), 0, 0},
-    {"anim_enemy_dir_last", FIELDTYPE_SINT8, offsetof(object, anim_enemy_dir_last), 0, 0},
-    {"anim_moving_dir_last", FIELDTYPE_SINT8, offsetof(object, anim_moving_dir_last), 0, 0},
-    {"anim_last_facing", FIELDTYPE_SINT8, offsetof(object, anim_last_facing), 0, 0},
-    {"anim_last_facing_last", FIELDTYPE_SINT8, offsetof(object, anim_last_facing_last), 0, 0},
     {"anim_speed", FIELDTYPE_UINT8, offsetof(object, anim_speed), 0, 0},
-    {"last_anim", FIELDTYPE_UINT8, offsetof(object, last_anim), 0, 0},
     {"behavior", FIELDTYPE_UINT8, offsetof(object, behavior), 0, 0},
     {"run_away", FIELDTYPE_UINT8, offsetof(object, run_away), 0, 0},
 
@@ -1665,11 +1657,9 @@ static int Object_SetAttribute(Atrinik_Object *obj, PyObject *value, void *conte
             obj->obj->type = SPAWN_POINT_MOB;
         }
     }
-    /* Direction, update object's facing. */
+    /* Direction. */
     else if (field->offset == offsetof(object, direction)) {
-        obj->obj->anim_last_facing = obj->obj->anim_last_facing_last = obj->obj->facing = obj->obj->direction;
-
-        /* If the object is animated and turnable, updated its face as well. */
+        /* If the object is animated and turnable, update its face. */
         if (obj->obj->animation_id && QUERY_FLAG(obj->obj, FLAG_IS_TURNABLE)) {
             SET_ANIMATION(obj->obj, (NUM_ANIMATIONS(obj->obj) / NUM_FACINGS(obj->obj)) * obj->obj->direction + obj->obj->state);
         }

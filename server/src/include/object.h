@@ -323,9 +323,6 @@ typedef struct obj
     /** Means the object is moving that way. */
     sint8 direction;
 
-    /** Object is oriented/facing that way. */
-    sint8 facing;
-
     /**
      * quick pos is 0 for single arch, xxxx0000 for a head
      * or x/y offset packed to 4 bits for a tail
@@ -362,28 +359,13 @@ typedef struct obj
     /** What kind of attack movement */
     uint8 attack_move_type;
 
-    /** special shadow variable: show dir to targeted enemy */
-    sint8 anim_enemy_dir;
-
-    /** sic: shows moving dir or -1 when object do something else */
-    sint8 anim_moving_dir;
-
-    /** if we change facing in movement, we must test for update the anim*/
-    sint8 anim_enemy_dir_last;
-
-    /** sic: */
-    sint8 anim_moving_dir_last;
-
-    /** The last direction this monster was facing */
-    sint8 anim_last_facing;
-
-    /** The last direction this monster was facing backbuffer */
-    sint8 anim_last_facing_last;
+    /** Combination of @ref anim_flags "animation flags". */
+    uint8 anim_flags;
 
     /** Animation speed in ticks */
     uint8 anim_speed;
 
-    /** Ticks between animation-frames */
+    /** Last animated tick. */
     uint8 last_anim;
 
     /** Various @ref BEHAVIOR_xxx "behavior flags". */

@@ -202,6 +202,13 @@ void display_mapscroll(int dx, int dy, int old_w, int old_h)
                         &(cells_old[(y + dy) * old_w + x + dx]),
                         sizeof(struct MapCell));
             }
+
+            if (x < map_width * (MAP_FOW_SIZE / 2) ||
+                    x >= map_width + map_width * (MAP_FOW_SIZE / 2) ||
+                    y < map_height * (MAP_FOW_SIZE / 2) ||
+                    y >= map_height + map_height * (MAP_FOW_SIZE / 2)) {
+                cells[y * w + x].fow = 1;
+            }
         }
     }
 
@@ -426,15 +433,19 @@ void adjust_tile_stretch(void)
  * @param rotate Rotation in degrees.
  * @param infravision Whether to show the object in red.
  */
-void map_set_data(int x, int y, int layer, sint16 face, uint8 quick_pos,
-        uint8 obj_flags, const char *name, const char *name_color,
-        sint16 height, uint8 probe, sint16 zoom_x, sint16 zoom_y, sint16 align,
-        uint8 draw_double, uint8 alpha, sint16 rotate, uint8 infravision,
-        uint32 target_object_count, uint8 target_is_friend)
+void map_set_data(int x, int y, int layer, sint16 face,
+        uint8 quick_pos, uint8 obj_flags, const char *name,
+        const char *name_color, sint16 height, uint8 probe, sint16 zoom_x,
+        sint16 zoom_y, sint16 align, uint8 draw_double, uint8 alpha,
+        sint16 rotate, uint8 infravision, uint32 target_object_count,
+        uint8 target_is_friend, uint8 anim_speed, uint8 anim_facing,
+        uint8 anim_flags, uint8 anim_state)
 {
     struct MapCell *cell;
+    int sub_layer;
 
     cell = MAP_CELL_GET_MIDDLE(x, y);
+    sub_layer = layer / NUM_LAYERS;
 
     if (cell->fow) {
         int i;
@@ -451,6 +462,14 @@ void map_set_data(int x, int y, int layer, sint16 face, uint8 quick_pos,
             cell->align[i] = 0;
             cell->rotate[i] = 0;
             cell->infravision[i] = 0;
+            cell->anim_last[i] = 0;
+            cell->anim_speed[i] = 0;
+            cell->anim_facing[i] = 0;
+            cell->anim_state[i] = 0;
+        }
+
+        for (i = 0; i < NUM_SUB_LAYERS; i++) {
+            cell->anim_flags[i] = 0;
         }
     }
 
@@ -462,7 +481,8 @@ void map_set_data(int x, int y, int layer, sint16 face, uint8 quick_pos,
 
     snprintf(cell->pcolor[layer], sizeof(cell->pcolor[layer]), "%s",
             name_color);
-    snprintf(cell->pname[layer], sizeof(cell->pname[layer]), "%s", name);
+    snprintf(cell->pname[layer], sizeof(cell->pname[layer]), "%s",
+            name);
 
     cell->height[layer] = height;
     cell->zoom_x[layer] = zoom_x;
@@ -480,6 +500,27 @@ void map_set_data(int x, int y, int layer, sint16 face, uint8 quick_pos,
 
     cell->target_object_count[layer] = target_object_count;
     cell->target_is_friend[layer] = target_is_friend;
+
+    cell->anim_speed[layer] = anim_speed;
+    cell->anim_facing[layer] = anim_facing;
+
+    if (((layer + 1) % NUM_LAYERS) == LAYER_LIVING) {
+        if (anim_flags & ANIM_FLAG_ATTACKING &&
+                !(cell->anim_flags[sub_layer] & ANIM_FLAG_ATTACKING)) {
+            cell->anim_state[layer] = 0;
+        } else if (anim_flags & ANIM_FLAG_MOVING &&
+                !(cell->anim_flags[sub_layer] & ANIM_FLAG_MOVING)) {
+            cell->anim_state[layer] = anim_state;
+        }
+
+        cell->anim_flags[sub_layer] = anim_flags;
+    }
+
+    if (anim_speed != 0) {
+        check_animation_status(face);
+    } else {
+        request_face(face);
+    }
 }
 
 /**
@@ -546,6 +587,93 @@ static int get_top_floor_height(int x, int y)
     return top_height;
 }
 
+static void map_animate_object(struct MapCell *cell, int layer)
+{
+    Animations *animation;
+
+    if (cell->faces[layer] == 0 || cell->anim_speed[layer] == 0 ||
+            cell->anim_facing[layer] == 0) {
+        return;
+    }
+
+    animation = &animations[cell->faces[layer]];
+
+    if (animation->num_animations == 0) {
+        return;
+    }
+
+    if (!(cell->flags[layer] & FFLAG_SLEEP) &&
+            !(cell->flags[layer] & FFLAG_PARALYZED)) {
+        cell->anim_state[layer]++;
+        map_redraw_flag = 1;
+    }
+
+    /* If beyond drawable states, reset */
+    if (cell->anim_state[layer] >=
+            animation->num_animations / animation->facings) {
+        cell->anim_state[layer] = 0;
+    }
+}
+
+void map_animate(void)
+{
+    int x, y, layer;
+    struct MapCell *cell;
+
+    for (x = 0; x < map_width; x++) {
+        for (y = 0; y < map_height; y++) {
+            cell = MAP_CELL_GET_MIDDLE(x, y);
+
+            for (layer = 0; layer < NUM_REAL_LAYERS; layer++) {
+                if (cell->anim_speed[layer] == 0) {
+                    continue;
+                }
+
+                if (cell->anim_last[layer] >= cell->anim_speed[layer]) {
+                    map_animate_object(cell, layer);
+                    cell->anim_last[layer] = 1;
+                } else {
+                    cell->anim_last[layer]++;
+                }
+            }
+        }
+    }
+}
+
+static uint16 map_object_get_face(struct MapCell *cell, int layer)
+{
+    int sub_layer, dir, state;
+    Animations *animation;
+
+    if (cell->anim_speed[layer] == 0) {
+        return cell->faces[layer];
+    }
+
+    animation = &animations[cell->faces[layer]];
+
+    if (animation->num_animations == 0) {
+        return cell->faces[layer];
+    }
+
+    sub_layer = layer / NUM_LAYERS;
+    dir = cell->anim_facing[layer] - 1;
+    state = 0;
+
+    if (animation->facings == 9) {
+        state = dir * (animation->num_animations / 9);
+    } else if (animation->facings >= 25) {
+        if (cell->anim_flags[sub_layer] & ANIM_FLAG_ATTACKING) {
+            dir += 16;
+        } else if (cell->anim_flags[sub_layer] & ANIM_FLAG_MOVING) {
+            dir += 8;
+        }
+
+        state = dir * (animation->num_animations / animation->facings);
+    }
+
+    return animation->faces[cell->anim_state[layer] + state];
+}
+
 /**
  * Draw a single object on the map.
  * @param x X position of the object.
@@ -578,7 +706,7 @@ static void draw_map_object(int x, int y, int layer, int sub_layer,
 
     xpos = MAP_START_XOFF + x * MAP_TILE_YOFF - y * MAP_TILE_YOFF;
     ypos = MAP_START_YOFF + x * MAP_TILE_XOFF + y * MAP_TILE_XOFF;
-    face = cell->faces[GET_MAP_LAYER(layer, sub_layer)];
+    face = map_object_get_face(cell, GET_MAP_LAYER(layer, sub_layer));
 
     if (face <= 0 || face >= MAX_FACE_TILES) {
         return;

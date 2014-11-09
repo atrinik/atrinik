@@ -856,8 +856,12 @@ void draw_client_map2(object *pl)
                         uint8 quick_pos = tmp->quick_pos;
                         uint8 flags = 0, probe_val = 0;
                         uint32 flags2 = 0;
-                        object *head = tmp->head ? tmp->head : tmp;
+                        object *head = tmp->head ? tmp->head : tmp, *face_obj;
                         tag_t target_object_count = 0;
+                        uint8 anim_speed, anim_facing, anim_flags;
+
+                        face_obj = NULL;
+                        anim_speed = anim_facing = anim_flags = 0;
 
                         /* If we have a multi-arch object. */
                         if (quick_pos) {
@@ -874,7 +878,7 @@ void draw_client_map2(object *pl)
                                 else {
                                     /* Mark this object as sent. */
                                     head->update_tag = map2_count;
-                                    face = head->face->number;
+                                    face_obj = head;
                                 }
                             }
                             /* Head. */
@@ -884,12 +888,24 @@ void draw_client_map2(object *pl)
                                 }
                                 else {
                                     tmp->update_tag = map2_count;
-                                    face = tmp->face->number;
+                                    face_obj = tmp;
                                 }
                             }
                         }
                         else {
-                            face = tmp->face->number;
+                            face_obj = tmp;
+                        }
+
+                        if (face_obj != NULL) {
+                            if (QUERY_FLAG(face_obj, FLAG_ANIMATE)) {
+                                flags |= MAP2_FLAG_ANIMATION;
+                                face = face_obj->animation_id;
+                                anim_speed = face_obj->anim_speed;
+                                anim_facing = face_obj->direction + 1;
+                                anim_flags = face_obj->anim_flags & ~ANIM_FLAG_STOP_MOVING;
+                            } else {
+                                face = face_obj->face->number;
+                            }
                         }
 
                         /* Player? So we want to send their name. */
@@ -901,7 +917,7 @@ void draw_client_map2(object *pl)
                          * want to
                          * know its HP percent. */
                         if (head->count == CONTR(pl)->target_object_count) {
-                            flags |= MAP2_FLAG_PROBE;
+                            flags2 |= MAP2_FLAG2_PROBE;
                             probe_val = MAX(1, ((double) head->stats.hp / ((double) head->stats.maxhp / 100.0)));
                         }
 
@@ -956,7 +972,7 @@ void draw_client_map2(object *pl)
                         }
 
                         /* Now, check if we have cached this. */
-                        if (mp->faces[socket_layer] == face && mp->quick_pos[socket_layer] == quick_pos && mp->flags[socket_layer] == flags && (layer != LAYER_LIVING || (mp->probe == probe_val && mp->target_object_count == target_object_count))) {
+                        if (mp->faces[socket_layer] == face && mp->quick_pos[socket_layer] == quick_pos && mp->flags[socket_layer] == flags && (layer != LAYER_LIVING || !IS_LIVE(head) || (mp->probe == probe_val && mp->target_object_count == target_object_count)) && mp->anim_speed[socket_layer] == anim_speed && mp->anim_facing[socket_layer] == anim_facing && (layer != LAYER_LIVING || mp->anim_flags[sub_layer] == anim_flags)) {
                             continue;
                         }
 
@@ -964,6 +980,12 @@ void draw_client_map2(object *pl)
                         mp->faces[socket_layer] = face;
                         mp->quick_pos[socket_layer] = quick_pos;
                         mp->flags[socket_layer] = flags;
+                        mp->anim_speed[socket_layer] = anim_speed;
+                        mp->anim_facing[socket_layer] = anim_facing;
+
+                        if (layer == LAYER_LIVING) {
+                            mp->anim_flags[sub_layer] = anim_flags;
+                        }
 
                         if (layer == LAYER_LIVING) {
                             mp->probe = probe_val;
@@ -972,7 +994,7 @@ void draw_client_map2(object *pl)
 
                         if (OBJECT_IS_HIDDEN(pl, head)) {
                             /* Update target if applicable. */
-                            if (flags & MAP2_FLAG_PROBE) {
+                            if (flags2 & MAP2_FLAG2_PROBE) {
                                 CONTR(pl)->target_object = NULL;
                                 CONTR(pl)->target_object_count = 0;
                                 send_target_command(CONTR(pl));
@@ -1006,9 +1028,15 @@ void draw_client_map2(object *pl)
                             packet_append_string_terminated(packet_layer, get_playername_color(pl, tmp));
                         }
 
-                        /* Target's HP bar. */
-                        if (flags & MAP2_FLAG_PROBE) {
-                            packet_append_uint8(packet_layer, probe_val);
+                        if (flags & MAP2_FLAG_ANIMATION) {
+                            packet_append_uint8(packet_layer, anim_speed);
+                            packet_append_uint8(packet_layer, anim_facing);
+                            packet_append_uint8(packet_layer, anim_flags);
+
+                            if (anim_flags & ANIM_FLAG_MOVING) {
+                                packet_append_uint8(packet_layer,
+                                        face_obj->state);
+                            }
                         }
 
                         /* Z position. */
@@ -1058,6 +1086,11 @@ void draw_client_map2(object *pl)
                                 packet_append_uint32(packet_layer, target_object_count);
                                 packet_append_uint8(packet_layer, is_friend_of(pl, head));
                             }
+
+                            /* Target's HP bar. */
+                            if (flags2 & MAP2_FLAG2_PROBE) {
+                                packet_append_uint8(packet_layer, probe_val);
+                            }
                         }
                     }
                     /* Didn't find anything. Now, if we have previously seen a
@@ -1066,6 +1099,13 @@ void draw_client_map2(object *pl)
                     else if (mp->faces[socket_layer]) {
                         mp->faces[socket_layer] = 0;
                         mp->quick_pos[socket_layer] = 0;
+                        mp->anim_speed[socket_layer] = 0;
+                        mp->anim_facing[socket_layer] = 0;
+
+                        if (layer == LAYER_LIVING) {
+                            mp->anim_flags[sub_layer] = 0;
+                        }
+
                         packet_append_uint8(packet_layer, MAP2_LAYER_CLEAR);
                         packet_append_uint8(packet_layer, socket_layer);
                         num_layers++;

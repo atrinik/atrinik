@@ -33,9 +33,6 @@
 /** @copydoc command_func */
 void command_left(object *op, const char *command, char *params)
 {
-    int dir;
-
-    dir = absdir(op->facing - 1);
-    op->anim_last_facing = op->anim_last_facing_last = op->facing = dir;
-    SET_ANIMATION(op, dir * (NUM_ANIMATIONS(op) / NUM_FACINGS(op)));
+    op->direction = absdir(op->direction - 1);
+    SET_ANIMATION(op, op->direction * (NUM_ANIMATIONS(op) / NUM_FACINGS(op)));
 }

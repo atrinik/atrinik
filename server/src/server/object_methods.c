@@ -389,7 +389,7 @@ int object_ranged_fire(object *op, object *shooter, int dir, double *delay)
     }
 
     if (dir == 0) {
-        dir = shooter->facing;
+        dir = shooter->direction;
 
         /* Should not happen... */
         if (dir == 0) {
@@ -400,11 +400,6 @@ int object_ranged_fire(object *op, object *shooter, int dir, double *delay)
     if (QUERY_FLAG(shooter, FLAG_CONFUSED)) {
         dir = get_randomized_dir(dir);
     }
-
-    shooter->facing = dir;
-    shooter->anim_moving_dir = -1;
-    shooter->anim_last_facing = -1;
-    shooter->anim_enemy_dir = dir;
 
     for (methods = &object_type_methods[op->type]; methods; methods = methods->fallback) {
         if (methods->ranged_fire_func) {

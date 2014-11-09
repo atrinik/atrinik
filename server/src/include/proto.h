@@ -238,7 +238,7 @@ extern int animations_allocated;
 extern void free_all_anim(void);
 extern void init_anim(void);
 extern int find_animation(char *name);
-extern void animate_object(object *op, int count);
+extern void animate_object(object *op);
 extern void animate_turning(object *op);
 /* src/server/apply.c */
 extern int manual_apply(object *op, object *tmp, int aflag);

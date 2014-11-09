@@ -76,10 +76,8 @@ int move_ob(object *op, int dir, object *originator)
         dir = get_randomized_dir(dir);
     }
 
-    op->anim_moving_dir = dir;
-    op->anim_enemy_dir = dir;
-    op->anim_last_facing = -1;
-    op->facing = dir;
+    op->anim_flags |= ANIM_FLAG_MOVING;
+    op->anim_flags &= ~ANIM_FLAG_STOP_MOVING;
     op->direction = dir;
 
     xt = op->x + freearr_x[dir];

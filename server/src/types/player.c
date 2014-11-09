@@ -2303,7 +2303,6 @@ void player_login(socket_struct *ns, const char *name, archetype *at)
         pl->ob->direction = SOUTHEAST;
     }
 
-    pl->ob->anim_last_facing = pl->ob->anim_last_facing_last = pl->ob->facing = pl->ob->direction;
     SET_ANIMATION(pl->ob, (NUM_ANIMATIONS(pl->ob) / NUM_FACINGS(pl->ob)) * pl->ob->direction);
 
     esrv_new_player(pl, pl->ob->weight + pl->ob->carrying);

@@ -116,7 +116,7 @@ static void add_object_to_packet(packet_struct *packet, object *op, object *pl, 
     }
 
     if (flags & UPD_DIRECTION) {
-        packet_append_uint8(packet, op->facing);
+        packet_append_uint8(packet, op->direction);
     }
 
     if (flags & UPD_TYPE) {

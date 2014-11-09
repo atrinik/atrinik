@@ -67,7 +67,7 @@ static int apply_func(object *op, object *applier, int aflags)
 
     draw_info_format(COLOR_WHITE, applier, "The scroll of %s turns to dust.", spells[op->stats.sp].name);
 
-    cast_spell(applier, op, applier->facing ? applier->facing : SOUTHEAST, op->stats.sp, 0, CAST_SCROLL, NULL);
+    cast_spell(applier, op, applier->direction ? applier->direction : SOUTHEAST, op->stats.sp, 0, CAST_SCROLL, NULL);
     decrease_ob(op);
 
     return OBJECT_METHOD_OK;

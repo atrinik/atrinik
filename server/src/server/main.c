@@ -336,34 +336,39 @@ void process_events(mapstruct *map)
             }
         }
 
+        if (op->anim_flags & ANIM_FLAG_STOP_MOVING) {
+            op->anim_flags &= ~(ANIM_FLAG_MOVING | ANIM_FLAG_STOP_MOVING);
+        }
+
+        if (op->anim_flags & ANIM_FLAG_STOP_ATTACKING) {
+            if (op->enemy == NULL || !is_melee_range(op, op->enemy)) {
+                op->anim_flags &= ~ANIM_FLAG_ATTACKING;
+            }
+
+            op->anim_flags &= ~ANIM_FLAG_STOP_ATTACKING;
+        }
+
         /* Handle archetype-field anim_speed differently when it comes to
          * the animation. If we have a value on this we don't animate it
          * at speed-events. */
         if (QUERY_FLAG(op, FLAG_ANIMATE)) {
             if (op->last_anim >= op->anim_speed) {
-                animate_object(op, 1);
-
-                /* Check for direction changing */
-                if (op->type == PLAYER && NUM_FACINGS(op) >= 25) {
-                    if (op->anim_moving_dir != -1) {
-                        op->anim_last_facing = op->anim_moving_dir;
-                        op->anim_moving_dir = -1;
-                    }
-
-                    if (op->anim_enemy_dir != -1) {
-                        op->anim_last_facing = op->anim_enemy_dir;
-                        op->anim_enemy_dir = -1;
-                    }
-                }
-
+                animate_object(op);
                 op->last_anim = 1;
-            }
-            else {
-                /* Check for direction changing */
-                if (NUM_FACINGS(op) >= 25) {
-                    animate_object(op, 0);
+
+                if (op->anim_flags & ANIM_FLAG_ATTACKING) {
+                    op->anim_flags |= ANIM_FLAG_STOP_ATTACKING;
                 }
 
+                if (op->anim_flags & ANIM_FLAG_MOVING) {
+                    if ((op->anim_flags & ANIM_FLAG_ATTACKING &&
+                            !(op->anim_flags & ANIM_FLAG_STOP_ATTACKING)) ||
+                            op->type == PLAYER ||
+                            !OBJECT_VALID(op->enemy,op->enemy_count)) {
+                        op->anim_flags |= ANIM_FLAG_STOP_MOVING;
+                    }
+                }
+            } else {
                 op->last_anim++;
             }
         }

@@ -550,9 +550,10 @@ int main(int argc, char *argv[])
 
         if (SDL_GetAppState() & SDL_APPACTIVE) {
             if (cpl.state == ST_PLAY) {
-                if (LastTick - anim_tick > 110) {
+                if (LastTick - anim_tick > 125) {
                     anim_tick = LastTick;
                     animate_objects();
+                    map_animate();
                 }
 
                 play_action_sounds();

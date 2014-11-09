@@ -363,7 +363,7 @@ int skill_attack(object *tmp, object *pl, int dir, char *string)
     mapstruct *m;
 
     if (!dir) {
-        dir = pl->facing;
+        dir = pl->direction;
     }
 
     /* If we don't yet have an opponent, find if one exists, and attack.
