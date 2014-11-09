@@ -409,6 +409,8 @@ void adjust_tile_stretch(void)
 
 /**
  * Set data for map cell.
+ *
+ * If FOW was previously set on this cell, cell data is cleared.
  * @param x X of the cell.
  * @param y Y of the cell.
  * @param layer Layer we're doing this for.
@@ -434,7 +436,23 @@ void map_set_data(int x, int y, int layer, sint16 face, uint8 quick_pos,
 
     cell = MAP_CELL_GET_MIDDLE(x, y);
 
-    cell->fow = 0;
+    if (cell->fow) {
+        int i;
+
+        cell->fow = 0;
+
+        for (i = 0; i < NUM_REAL_LAYERS; i++) {
+            cell->faces[i] = 0;
+            cell->flags[i] = 0;
+            cell->quick_pos[i] = 0;
+            cell->height[i] = 0;
+            cell->zoom_x[i] = 0;
+            cell->zoom_y[i] = 0;
+            cell->align[i] = 0;
+            cell->rotate[i] = 0;
+            cell->infravision[i] = 0;
+        }
+    }
 
     cell->faces[layer] = face;
     cell->flags[layer] = obj_flags;
@@ -490,8 +508,6 @@ void map_clear_cell(int x, int y)
 
 /**
  * Set darkness for map's cell.
- *
- * If FOW was previously set on this cell, cell data is cleared.
  * @param x X of the cell.
  * @param y Y of the cell.
  * @param darkness Darkness to set.
@@ -499,22 +515,9 @@ void map_clear_cell(int x, int y)
 void map_set_darkness(int x, int y, uint8 darkness)
 {
     struct MapCell *cell;
-    int layer;
 
     cell = MAP_CELL_GET_MIDDLE(x, y);
     cell->darkness = darkness;
-
-    for (layer = 0; layer < NUM_REAL_LAYERS; layer++) {
-        cell->faces[layer] = 0;
-        cell->flags[layer] = 0;
-        cell->quick_pos[layer] = 0;
-        cell->height[layer] = 0;
-        cell->zoom_x[layer] = 0;
-        cell->zoom_y[layer] = 0;
-        cell->align[layer] = 0;
-        cell->rotate[layer] = 0;
-        cell->infravision[layer] = 0;
-    }
 }
 
 /**
