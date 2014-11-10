@@ -1,3 +1,4 @@
+#!/usr/bin/python3
 '''
 Main file of the map checker program.
 '''
