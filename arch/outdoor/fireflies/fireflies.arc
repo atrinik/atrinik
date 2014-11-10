@@ -6,7 +6,6 @@ is_animated 1
 anim_speed 4
 type 79
 layer 4
-speed 0.02
 glow_radius 3
 no_pick 1
 end

@@ -2,7 +2,6 @@ Object quicksilver_pool
 name pool of quicksilver
 face quicksilver_pool.101
 animation quicksilver_pool
-speed 0.02
 is_animated 1
 anim_speed 10
 no_teleport 1

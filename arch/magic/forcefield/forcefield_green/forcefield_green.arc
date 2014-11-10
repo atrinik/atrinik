@@ -7,7 +7,6 @@ anim_speed 2
 type 77
 layer 5
 no_pick 1
-speed 0.02
 glow_radius 5
 end
 
@@ -20,7 +19,6 @@ anim_speed 2
 type 77
 layer 5
 no_pick 1
-speed 0.02
 glow_radius 4
 end
 
@@ -33,7 +31,6 @@ anim_speed 2
 type 77
 layer 5
 no_pick 1
-speed 0.02
 glow_radius 4
 end
 
@@ -46,7 +43,6 @@ anim_speed 2
 type 77
 layer 5
 no_pick 1
-speed 0.02
 glow_radius 4
 end
 
@@ -59,6 +55,5 @@ anim_speed 2
 type 77
 layer 5
 no_pick 1
-speed 0.02
 glow_radius 4
 end

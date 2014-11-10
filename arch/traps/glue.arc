@@ -1,6 +1,5 @@
 Object glue
 face glue.101
-speed -0.06
 layer 4
 type 79
 animation glue

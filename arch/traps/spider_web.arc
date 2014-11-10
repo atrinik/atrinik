@@ -2,7 +2,6 @@ Object spider_web
 name spider web
 face spider_web.111
 layer 4
-speed 0.01
 type 79
 animation spider_web
 is_animated 1

@@ -4,7 +4,6 @@ face kettle.101
 animation kettle
 is_animated 1
 anim_speed 1
-speed 1
 layer 3
 identified 1
 no_pick 1

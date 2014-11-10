@@ -7,7 +7,6 @@ layer 5
 animation fireplace_right
 is_animated 1
 anim_speed 1
-speed 1
 no_pick 1
 no_pass 1
 end
@@ -54,7 +53,6 @@ layer 5
 animation fireplace_left
 is_animated 1
 anim_speed 1
-speed 1
 no_pick 1
 no_pass 1
 end

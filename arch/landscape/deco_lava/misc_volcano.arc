@@ -19,7 +19,6 @@ no_pass 1
 animation obstacle_volcano_2
 is_animated 1
 anim_speed 3
-speed 1
 end
 
 Object obstacle_volcano_3
@@ -55,7 +54,6 @@ glow_radius 3
 animation obstacle_volcano_5
 is_animated 1
 anim_speed 3
-speed 1
 end
 
 Object obstacle_volcano_6

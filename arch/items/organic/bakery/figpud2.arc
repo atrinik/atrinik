@@ -10,7 +10,6 @@ item_condition 100
 nrof 1
 layer 3
 type 6
-speed 0.002
 value 100
 weight 300
 can_stack 1

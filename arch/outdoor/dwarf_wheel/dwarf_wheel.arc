@@ -7,7 +7,6 @@ layer 5
 animation dwarf_wheel
 is_animated 1
 anim_speed 1
-speed 1
 no_pick 1
 end
 More
@@ -29,7 +28,6 @@ layer 5
 animation dwarf_wheel_2
 is_animated 1
 anim_speed 1
-speed 1
 no_pick 1
 end
 More
