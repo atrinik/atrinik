@@ -276,7 +276,7 @@ spell_struct spells[NROFREALSPELLS] =
      10, 30, 2, 0, 3, 1.0,
      10, 9, 0, 30, 9, "magic_bomb.ogg",
      SPELL_USE_CAST, SPELL_DESC_DIRECTION,
-     PATH_DETONATE, "bomb", NULL},
+     PATH_DETONATE, NULL, NULL},
 
     {"cure confusion",
      5, 8, 3, 6,4, 1.0,
