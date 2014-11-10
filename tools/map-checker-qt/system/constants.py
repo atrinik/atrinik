@@ -90,3 +90,4 @@ class game:
         cone = 88
         bullet = 2
         rod = 3
+        lightning = 12

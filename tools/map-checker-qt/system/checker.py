@@ -377,7 +377,7 @@ class CheckerObject(AbstractChecker):
     def checker_anim(self, obj):
         t = obj.getAttributeInt("type")
 
-        if not obj.getAttributeInt("is_used_up") and obj.getAttributeInt("is_animated") and obj.getAttribute("speed") and not t in (game.types.monster, game.types.player, game.types.god, game.types.exit, game.types.shop_mat, game.types.cone, game.types.bullet, game.types.teleporter, game.types.rod):
+        if not obj.getAttributeInt("is_used_up") and obj.getAttributeInt("anim_speed") and obj.getAttribute("speed") and not t in (game.types.monster, game.types.player, game.types.god, game.types.exit, game.types.shop_mat, game.types.cone, game.types.bullet, game.types.teleporter, game.types.rod, game.types.spawn_point_mob, game.types.lightning):
             self.addError("warning", "Object is animated and has speed but its object type does not require speed.", "Animated objects don't require speed attribute to be set in order to be animated. Objects with speed are processed each tick server-side, using up unnecessary resources, since animations are processed client-side. Removing the speed attribute is recommended.", obj = obj)
 
 class CheckerArchetype(AbstractChecker):
@@ -410,7 +410,7 @@ class CheckerArchetype(AbstractChecker):
     def checker_anim(self, obj):
         t = obj.getAttributeInt("type")
 
-        if not obj.getAttributeInt("is_used_up") and obj.getAttributeInt("is_animated") and obj.getAttribute("speed") and not t in (game.types.monster, game.types.player, game.types.god, game.types.exit, game.types.shop_mat, game.types.cone, game.types.bullet, game.types.teleporter, game.types.rod):
+        if not obj.getAttributeInt("is_used_up") and obj.getAttributeInt("anim_speed") and obj.getAttribute("speed") and not t in (game.types.monster, game.types.player, game.types.god, game.types.exit, game.types.shop_mat, game.types.cone, game.types.bullet, game.types.teleporter, game.types.rod, game.types.spawn_point_mob, game.types.lightning):
             self.addError("medium", "Archetype is animated and has speed but its object type does not require speed.", "Animated objects don't require speed attribute to be set in order to be animated. Objects with speed are processed each tick server-side, using up unnecessary resources, since animations are processed client-side. Removing the speed attribute is recommended.", obj = obj)
 
 class CheckerMap(AbstractChecker):
