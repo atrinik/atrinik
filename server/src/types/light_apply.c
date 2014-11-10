@@ -53,13 +53,9 @@ static int apply_func(object *op, object *applier, int aflags)
 
         if (op->other_arch && op->other_arch->clone.sub_type & 1) {
             op->animation_id = op->other_arch->clone.animation_id;
-            op->state = 0;
-            SET_ANIMATION_STATE(op);
             esrv_update_item(UPD_FACE | UPD_ANIM, op);
-        }
-        else {
+        } else {
             CLEAR_FLAG(op, FLAG_ANIMATE);
-            op->face = op->arch->clone.face;
             esrv_update_item(UPD_FACE | UPD_ANIMSPEED, op);
         }
 
@@ -80,10 +76,9 @@ static int apply_func(object *op, object *applier, int aflags)
             SET_FLAG(op, FLAG_CHANGING);
         }
 
-        if (op->speed) {
+        if (op->anim_speed) {
             SET_FLAG(op, FLAG_ANIMATE);
             op->animation_id = op->arch->clone.animation_id;
-            SET_ANIMATION_STATE(op);
             esrv_update_item(UPD_FACE | UPD_ANIM | UPD_ANIMSPEED, op);
         }
 
