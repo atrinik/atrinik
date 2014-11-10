@@ -431,7 +431,6 @@ static void process_func(object *op)
         op->direction = rv.direction;
 
         if (rv.distance <= 1) {
-            logger_print(LOG(INFO), "test");
             op->anim_flags |= ANIM_FLAG_ATTACKING;
         }
 
