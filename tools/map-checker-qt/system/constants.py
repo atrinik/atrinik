@@ -87,3 +87,6 @@ class game:
         bow = 14
         god = 50
         shop_mat = 69
+        cone = 88
+        bullet = 2
+        rod = 3

@@ -205,9 +205,7 @@ class WindowMain(Model, QMainWindow, Ui_WindowMain):
         
     def buttonOpen_allTrigger(self):
         maps = [self.widgetTableMaps.item(i, 0).data["file"]["path"] for i in range(self.widgetTableMaps.rowCount())]
-        print(maps)
-        #maps = ["C:/Users/alexej.tokar/workspace/atrinik/maps/shattered_islands/world_0333"]
-        #self.open_maps(maps)
+        self.open_maps(maps)
 
 class RichTextColumnDelegate(QStyledItemDelegate):
     '''Implements delegate for showing error level column in tables.'''
