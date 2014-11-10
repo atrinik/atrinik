@@ -66,7 +66,6 @@ title of light
 is_magical 1
 type 74
 value 254500
-speed 0.15
 last_sp 5
 end
 
@@ -5222,7 +5221,6 @@ face hat_cornuthaum.101
 animation hat_cornuthaum
 is_animated 1
 anim_speed 5
-speed 0.02
 item_level 20
 item_quality 85
 item_condition 85
