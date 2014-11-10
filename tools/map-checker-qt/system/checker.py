@@ -74,7 +74,7 @@ class CheckerObject(AbstractChecker):
         errors = []
         has_hello = False
 
-        test_msg = re.sub(r"<(\/?[a-z_]+)([^>]*)>", r"\1\2", msg)
+        test_msg = re.sub(r"\[(\/?[a-z_]+)([^\]]*)\]", r"\1\2", msg)
 
         if test_msg.find("[") != -1 or test_msg.find("]") != -1:
             errors.append("unescaped-markup")
@@ -98,7 +98,7 @@ class CheckerObject(AbstractChecker):
                     if part[:1] != "^" or part[-1:] != "$":
                         errors.append("suspicious-regex")
             else:
-                if line.find("<a") != -1:
+                if line.find("[a") != -1:
                     errors.append("link-in-msg")
 
                 if re.search(r"\^[^\^]*\^", line) or re.search(r"\|[^\|]*\|", line) or re.search(r"\~[^\~]*\~", line):
@@ -374,6 +374,12 @@ class CheckerObject(AbstractChecker):
         if not obj.env or obj.env.getAttributeInt("type") != game.types.spawn_point:
             self.addError("critical", "Monster is not inside a spawn point.", "All monsters should always be inside a spawn point.", obj = obj)
 
+    def checker_anim(self, obj):
+        t = obj.getAttributeInt("type")
+
+        if obj.getAttributeInt("is_used_up") == 0 and obj.getAttribute("anim_speed") and obj.getAttribute("speed") and not t in (game.types.monster, game.types.player, game.types.god, game.types.exit, game.types.shop_mat):
+            self.addError("medium", "Object has animation speed and speed but its object type does not require speed.", "Animated objects don't require speed attribute to be set in order to be animated. Objects with speed are processed each tick server-side, using up unnecessary resources, since animations are processed client-side. Removing the speed attribute is recommended.", obj = obj)
+
 class CheckerArchetype(AbstractChecker):
     def check(self, obj):
         super().check(obj)
@@ -399,7 +405,13 @@ class CheckerArchetype(AbstractChecker):
 
     def checker_misc(self, obj):
         if obj.getAttribute("material") and not (obj.getAttribute("material_real") or obj.getAttribute("item_quality")) and obj.getAttributeInt("no_pick") == 0:
-            self.addError("low", "Archetype has material set but no material_real or item_quality.", "Material requires material_real or item_quality to be set in order to work properly.")
+            self.addError("low", "Archetype has material set but no material_real or item_quality.", "Material requires material_real or item_quality to be set in order to work properly.", obj = obj)
+
+    def checker_anim(self, obj):
+        t = obj.getAttributeInt("type")
+
+        if obj.getAttributeInt("is_used_up") == 0 and obj.getAttribute("anim_speed") and obj.getAttribute("speed") and not t in (game.types.monster, game.types.player, game.types.god, game.types.exit, game.types.shop_mat):
+            self.addError("medium", "Archetype has animation speed and speed but its object type does not require speed.", "Animated objects don't require speed attribute to be set in order to be animated. Objects with speed are processed each tick server-side, using up unnecessary resources, since animations are processed client-side. Removing the speed attribute is recommended.", obj = obj)
 
 class CheckerMap(AbstractChecker):
     def check(self, obj):

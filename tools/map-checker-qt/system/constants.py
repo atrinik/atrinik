@@ -85,3 +85,5 @@ class game:
         magic_ear = 29
         light_source = 74
         bow = 14
+        god = 50
+        shop_mat = 69
