@@ -14,6 +14,5 @@ value 254500
 weight 100
 food 1
 is_magical 1
-speed 0.15
 last_sp 5
 end

@@ -12,7 +12,6 @@ value 450
 weight 500
 maxhp 2000
 food 2000
-speed 0.15
 last_eat 1
 last_sp 5
 item_quality 100
