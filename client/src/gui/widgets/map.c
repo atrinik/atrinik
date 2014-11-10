@@ -473,6 +473,10 @@ void map_set_data(int x, int y, int layer, sint16 face,
         }
     }
 
+    if (anim_speed != 0 && cell->faces[layer] != face) {
+        cell->anim_state[layer] = 0;
+    }
+
     cell->faces[layer] = face;
     cell->flags[layer] = obj_flags;
 
