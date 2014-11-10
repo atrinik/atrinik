@@ -65,6 +65,7 @@ class MapChecker:
         self.checker_map = CheckerMap(config)
         self.checker_object = CheckerObject(config)
         self.checker_archetype = CheckerArchetype(config)
+        self.checker_artifact = self.checker_archetype
         self.parser_map = ParserMap(config)
         self.parser_archetype = ParserArchetype(config)
         self.parser_artifact = ParserArtifact(config)
