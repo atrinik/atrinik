@@ -35,6 +35,27 @@ Make sure to read MIDI.txt in the make_win32 directory for instructions
 how to install GUS-compatible patches, in order to correctly play MIDI
 files in the client.
 
+Building Atrinik installer (Windows)
+=================================================
+
+Compile the project in release mode by editing (or creating) the file build.user
+and adding the following at the end:
+
+set(CMAKE_BUILD_TYPE "Release")
+
+You will need to place tar.exe and gunzip.exe binaries to the client's
+directory. You can download them here (or compile them yourself):
+
+http://www2.cs.uidaho.edu/~jeffery/win32/
+
+Then download latest ca-bundle.crt and place it in the client's directory:
+
+https://raw.githubusercontent.com/bagder/ca-bundle/master/ca-bundle.crt
+
+Then run the following in the client's directory to build an installer:
+
+cpack -G NSIS
+
 Installing music and sound files files
 =================================================
 
