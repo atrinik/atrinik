@@ -216,6 +216,10 @@ int curl_connect(void *c_data)
 
     /* Set user agent. */
     curl_easy_setopt(data->handle, CURLOPT_USERAGENT, user_agent);
+    
+#ifdef WIN32
+    curl_easy_setopt(data->handle, CURLOPT_CAINFO, "ca-bundle.crt");
+#endif
 
     /* Get the data. */
     res = curl_easy_perform(data->handle);
