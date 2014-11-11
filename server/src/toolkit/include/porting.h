@@ -125,6 +125,7 @@
 #   include <mmsystem.h>
 #   include <winsock2.h>
 #   include <shellapi.h>
+#   include <imagehlp.h>
 
 #   ifdef __MINGW32__
 #       include <ws2tcpip.h>

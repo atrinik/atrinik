@@ -34,6 +34,10 @@
  *
  * @author Alex Tokar */
 
+#ifdef WIN32
+#   define WINVER 0x502
+#endif
+
 #include <global.h>
 #include <signal.h>
 
@@ -70,6 +74,117 @@ static void signal_handler(int signum)
     exit(1);
 }
 
+#ifdef WIN32
+void windows_print_stacktrace(CONTEXT *context)
+{
+    STACKFRAME frame;
+    int i;
+    
+    SymInitialize(GetCurrentProcess(), 0, 1);
+
+    memset(&frame, 0, sizeof(frame));
+    frame.AddrPC.Offset = context->Eip;
+    frame.AddrPC.Mode = AddrModeFlat;
+    frame.AddrStack.Offset = context->Esp;
+    frame.AddrStack.Mode = AddrModeFlat;
+    frame.AddrFrame.Offset = context->Ebp;
+    frame.AddrFrame.Mode = AddrModeFlat;
+    
+    i = 0;
+
+    while (StackWalk(IMAGE_FILE_MACHINE_I386, GetCurrentProcess(),
+            GetCurrentThread(), &frame, context, 0, SymFunctionTableAccess,
+            SymGetModuleBase, 0)) {
+        fprintf(stderr, "%d: %p\n", i, (void *) frame.AddrPC.Offset);
+        i++;
+    }
+
+    SymCleanup(GetCurrentProcess());
+}
+
+LONG WINAPI windows_exception_handler(EXCEPTION_POINTERS *ExceptionInfo)
+{
+    switch (ExceptionInfo->ExceptionRecord->ExceptionCode) {
+    case EXCEPTION_ACCESS_VIOLATION:
+        fputs("Error: EXCEPTION_ACCESS_VIOLATION\n", stderr);
+        break;
+    case EXCEPTION_ARRAY_BOUNDS_EXCEEDED:
+        fputs("Error: EXCEPTION_ARRAY_BOUNDS_EXCEEDED\n", stderr);
+        break;
+    case EXCEPTION_BREAKPOINT:
+        fputs("Error: EXCEPTION_BREAKPOINT\n", stderr);
+        break;
+    case EXCEPTION_DATATYPE_MISALIGNMENT:
+        fputs("Error: EXCEPTION_DATATYPE_MISALIGNMENT\n", stderr);
+        break;
+    case EXCEPTION_FLT_DENORMAL_OPERAND:
+        fputs("Error: EXCEPTION_FLT_DENORMAL_OPERAND\n", stderr);
+        break;
+    case EXCEPTION_FLT_DIVIDE_BY_ZERO:
+        fputs("Error: EXCEPTION_FLT_DIVIDE_BY_ZERO\n", stderr);
+        break;
+    case EXCEPTION_FLT_INEXACT_RESULT:
+        fputs("Error: EXCEPTION_FLT_INEXACT_RESULT\n", stderr);
+        break;
+    case EXCEPTION_FLT_INVALID_OPERATION:
+        fputs("Error: EXCEPTION_FLT_INVALID_OPERATION\n", stderr);
+        break;
+    case EXCEPTION_FLT_OVERFLOW:
+        fputs("Error: EXCEPTION_FLT_OVERFLOW\n", stderr);
+        break;
+    case EXCEPTION_FLT_STACK_CHECK:
+        fputs("Error: EXCEPTION_FLT_STACK_CHECK\n", stderr);
+        break;
+    case EXCEPTION_FLT_UNDERFLOW:
+        fputs("Error: EXCEPTION_FLT_UNDERFLOW\n", stderr);
+        break;
+    case EXCEPTION_ILLEGAL_INSTRUCTION:
+        fputs("Error: EXCEPTION_ILLEGAL_INSTRUCTION\n", stderr);
+        break;
+    case EXCEPTION_IN_PAGE_ERROR:
+        fputs("Error: EXCEPTION_IN_PAGE_ERROR\n", stderr);
+        break;
+    case EXCEPTION_INT_DIVIDE_BY_ZERO:
+        fputs("Error: EXCEPTION_INT_DIVIDE_BY_ZERO\n", stderr);
+        break;
+    case EXCEPTION_INT_OVERFLOW:
+        fputs("Error: EXCEPTION_INT_OVERFLOW\n", stderr);
+        break;
+    case EXCEPTION_INVALID_DISPOSITION:
+        fputs("Error: EXCEPTION_INVALID_DISPOSITION\n", stderr);
+        break;
+    case EXCEPTION_NONCONTINUABLE_EXCEPTION:
+        fputs("Error: EXCEPTION_NONCONTINUABLE_EXCEPTION\n", stderr);
+        break;
+    case EXCEPTION_PRIV_INSTRUCTION:
+        fputs("Error: EXCEPTION_PRIV_INSTRUCTION\n", stderr);
+        break;
+    case EXCEPTION_SINGLE_STEP:
+        fputs("Error: EXCEPTION_SINGLE_STEP\n", stderr);
+        break;
+    case EXCEPTION_STACK_OVERFLOW:
+        fputs("Error: EXCEPTION_STACK_OVERFLOW\n", stderr);
+        break;
+    default:
+        fputs("Error: Unrecognized Exception\n", stderr);
+        break;
+    }
+    
+    fputs("Stack trace:\n", stderr);
+    
+    if (EXCEPTION_STACK_OVERFLOW !=
+            ExceptionInfo->ExceptionRecord->ExceptionCode) {
+        windows_print_stacktrace(ExceptionInfo->ContextRecord);
+    } else {
+        fprintf(stderr, "%p\n", (void *) ExceptionInfo->ContextRecord->Eip);
+    }
+    
+    fflush(stderr);
+
+    return EXCEPTION_EXECUTE_HANDLER;
+}
+#endif
+
 /**
  * Initialize the signals API.
  * @internal */
@@ -97,6 +212,10 @@ void toolkit_signals_init(void)
             signal(register_signals[i], signal_handler);
 #endif
         }
+        
+#ifdef WIN32
+        AddVectoredExceptionHandler(1, windows_exception_handler);
+#endif
     }
     TOOLKIT_INIT_FUNC_END()
 }

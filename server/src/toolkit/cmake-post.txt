@@ -3,7 +3,8 @@ target_link_libraries(${EXECUTABLE} ${CURL_LIBRARIES})
 target_link_libraries(${EXECUTABLE} ${CMAKE_THREAD_LIBS_INIT})
 
 if (MINGW)
-    target_link_libraries(${EXECUTABLE} wsock32 idn wldap32 ssh2 rtmp winmm ws2_32)
+    target_link_libraries(${EXECUTABLE} wsock32 idn wldap32 ssh2 rtmp winmm
+            ws2_32 imagehlp)
 endif ()
 
 target_link_libraries(${EXECUTABLE} ${ZLIB_LIBRARIES})
