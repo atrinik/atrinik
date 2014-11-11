@@ -29,7 +29,7 @@ Compiling the Atrinik server (Windows)
     http://curl.haxx.se/gknw.net/7.39.0/dist-w32/curl-7.39.0-devel-mingw32.zip
 
     Extract the archive and copy "lib" and "include" directories into
-    C:/MinGW/msys/1.0 (or where you installed MinGW).
+    C:/MinGW (or where you installed MinGW).
 
  === Compiling ===
 
