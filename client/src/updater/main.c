@@ -61,7 +61,7 @@ int main(int argc, char *argv[])
         shExecInfo.fMask = 0;
         shExecInfo.hwnd = NULL;
         shExecInfo.lpVerb = "runas";
-        shExecInfo.lpFile = "atrinik_updater.bat";
+        shExecInfo.lpFile = "atrinik.bat";
         shExecInfo.lpParameters = params;
         shExecInfo.lpDirectory = NULL;
         shExecInfo.nShow = SW_SHOW;

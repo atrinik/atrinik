@@ -387,7 +387,7 @@ static int popup_event(popup_struct *popup, SDL_Event *event)
     else if (button_event(&button_restart, event)) {
         char path[HUGE_BUF], wdir[HUGE_BUF];
 
-        snprintf(path, sizeof(path), "%s\\up_dater.exe", getcwd(wdir, sizeof(wdir) - 1));
+        snprintf(path, sizeof(path), "%s\\atrinik2.exe", getcwd(wdir, sizeof(wdir) - 1));
         ShellExecute(NULL, "open", path, NULL, NULL, SW_SHOWNORMAL);
         system_end();
         exit(0);
