@@ -359,6 +359,7 @@ int main(int argc, char *argv[])
     toolkit_import(packet);
     toolkit_import(porting);
     toolkit_import(sha1);
+    toolkit_import(signals);
     toolkit_import(string);
     toolkit_import(stringbuffer);
     toolkit_import(x11);
