@@ -37,8 +37,7 @@ static void process_func(object *op)
         if (--op->stats.hp == 0) {
             op->value = !op->value;
             op->stats.food = 0;
-        }
-        else {
+        } else {
             return;
         }
     }
@@ -50,8 +49,7 @@ static void process_func(object *op)
 
             if (op->stats.food) {
                 op->stats.hp = op->stats.maxhp;
-            }
-            else {
+            } else {
                 op->speed = 0;
                 update_ob_speed(op);
             }
@@ -66,8 +64,9 @@ static void process_func(object *op)
             update_object(op, UP_OBJ_FLAGS);
         }
     }
-    /* Going up. */
     else {
+        /* Going up. */
+
         if (++op->stats.wc >= (NUM_ANIMATIONS(op) / NUM_FACINGS(op)) / 2) {
             object *tmp, *next;
             uint8 is_blocked = 0;
@@ -94,8 +93,8 @@ static void process_func(object *op)
                         tmp->y += freearr_y[i];
                         insert_ob_in_map(tmp, op->map, op, 0);
                     }
-                    /* No free spot, so the gate is blocked. */
                     else {
+                        /* No free spot, so the gate is blocked. */
                         is_blocked = 1;
                     }
                 }
@@ -103,8 +102,7 @@ static void process_func(object *op)
 
             if (is_blocked) {
                 op->stats.wc--;
-            }
-            else if (!QUERY_FLAG(op, FLAG_NO_PASS)) {
+            } else if (!QUERY_FLAG(op, FLAG_NO_PASS)) {
                 if (op->stats.ac) {
                     SET_FLAG(op, FLAG_BLOCKSVIEW);
                 }
@@ -118,8 +116,7 @@ static void process_func(object *op)
 
                 if (op->stats.food) {
                     op->stats.hp = op->stats.maxhp;
-                }
-                else {
+                } else {
                     op->speed = 0;
                     update_ob_speed(op);
                 }
@@ -147,8 +144,7 @@ static int trigger_func(object *op, object *cause, int state)
     if (op->stats.maxhp) {
         op->stats.food = 1;
         op->value = !op->value;
-    }
-    else {
+    } else {
         op->value = op->stats.maxsp ? !state : state;
     }
 

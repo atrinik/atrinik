@@ -43,6 +43,7 @@ START_TEST(test_CAN_MERGE)
     ob2->nrof = 1;
     fail_if(CAN_MERGE(ob1, ob2) == 1, "Should not be able to merge 2 objects if result nrof goes to higher than SINT32_MAX");
 }
+
 END_TEST
 
 START_TEST(test_sum_weight)
@@ -68,6 +69,7 @@ START_TEST(test_sum_weight)
     sum = sum_weight(ob1);
     fail_if(sum != 45, "Sum of object's inventory should be 45 ((6 * 10 + 7 + 8) * .6) but was %lu.", sum);
 }
+
 END_TEST
 
 START_TEST(test_add_weight)
@@ -96,6 +98,7 @@ START_TEST(test_add_weight)
     add_weight(ob4, 10);
     fail_if(ob1->carrying != 24, "After call to add_weight, carrying of ob1 should be 24 but was %d.", ob1->carrying);
 }
+
 END_TEST
 
 START_TEST(test_sub_weight)
@@ -124,6 +127,7 @@ START_TEST(test_sub_weight)
     sub_weight(ob4, 10);
     fail_if(ob1->carrying != 12, "After call to sub_weight, carrying of ob1 should be 12 but was %d.", ob1->carrying);
 }
+
 END_TEST
 
 START_TEST(test_get_env_recursive)
@@ -140,6 +144,7 @@ START_TEST(test_get_env_recursive)
     result = get_env_recursive(ob4);
     fail_if(result != ob1, "Getting top level container for ob4(%p) should bring ob1(%p) but brought %p.", ob4, ob1, result);
 }
+
 END_TEST
 
 START_TEST(test_is_player_inv)
@@ -159,6 +164,7 @@ START_TEST(test_is_player_inv)
     result = is_player_inv(ob4);
     fail_if(result != ob1, "Getting containing player for ob4(%p) should bring ob1(%p) but brought %p while ob1 is player.", ob4, ob1, result);
 }
+
 END_TEST
 
 START_TEST(test_dump_object)
@@ -178,6 +184,7 @@ START_TEST(test_dump_object)
     fail_if(strstr(result, "arch") == 0, "The object dump should contain 'arch' but was %s", result);
     free(result);
 }
+
 END_TEST
 
 START_TEST(test_insert_ob_in_map)
@@ -233,6 +240,7 @@ START_TEST(test_insert_ob_in_map)
     fail_if(got != second, "Modified bolt shouldn't disappear.");
     fail_if(second->nrof != 1, "Modified bolt should have nrof 1.");
 }
+
 END_TEST
 
 START_TEST(test_decrease_ob_nr)
@@ -248,6 +256,7 @@ START_TEST(test_decrease_ob_nr)
     second = decrease_ob_nr(first, 2);
     fail_if(second != NULL, "object_decrease_nrof should return NULL");
 }
+
 END_TEST
 
 START_TEST(test_insert_ob_in_ob)
@@ -272,6 +281,7 @@ START_TEST(test_insert_ob_in_ob)
     fail_if(container->inv != item, "Item not inserted.");
     fail_if(container->carrying != 25, "Container should carry 25 and not %d.", container->carrying);
 }
+
 END_TEST
 
 START_TEST(test_can_pick)
@@ -298,6 +308,7 @@ START_TEST(test_can_pick)
     ob = get_archetype("raas");
     fail_if(can_pick(pl, ob) == 1, "Player can pick up a monster object.");
 }
+
 END_TEST
 
 START_TEST(test_object_create_clone)
@@ -311,6 +322,7 @@ START_TEST(test_object_create_clone)
     fail_if(clone_ob->inv == NULL, "object_create_clone() created a clone object with no inventory.");
     fail_if(strcmp(clone_ob->inv->name, ob->inv->name) != 0, "Object created using object_create_clone() had object '%s' in inventory, but it should have had '%s' instead.", clone_ob->inv->name, ob->inv->name);
 }
+
 END_TEST
 
 START_TEST(test_was_destroyed)
@@ -335,6 +347,7 @@ START_TEST(test_was_destroyed)
     fail_if(was_destroyed(ob, ob_tag) == 0, "was_destroyed() returned 0 but object was freed.");
     fail_if(was_destroyed(ob2, ob2_tag) == 0, "was_destroyed() returned 0 but object was freed.");
 }
+
 END_TEST
 
 START_TEST(test_load_object_str)
@@ -350,6 +363,7 @@ START_TEST(test_load_object_str)
     fail_if(strcmp(ob->name, "magic sack") != 0, "load_object_str() created object with name '%s', but name should have been 'magic sack'.", ob->name);
     fail_if(ob->weight != 129, "load_object_str() created object with weight %d, but it should have had 129 weight.", ob->weight);
 }
+
 END_TEST
 
 START_TEST(test_object_reverse_inventory)
@@ -373,6 +387,7 @@ START_TEST(test_object_reverse_inventory)
     free(cp);
     free(cp2);
 }
+
 END_TEST
 
 static Suite *object_suite(void)

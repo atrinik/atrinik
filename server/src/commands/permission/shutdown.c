@@ -46,8 +46,7 @@ void command_shutdown(object *op, const char *command, char *params)
     if (strcasecmp(when, "stop") == 0) {
         shutdown_timer_stop();
         draw_info_type(CHAT_TYPE_CHAT, NULL, COLOR_GREEN, NULL, "[Server]: Server shut down stopped.");
-    }
-    else if (sscanf(when, "%d:%d", &mins, &secs) == 2) {
+    } else if (sscanf(when, "%d:%d", &mins, &secs) == 2) {
         char *reason;
 
         secs = MAX(30, MAX(0, MIN(60, secs)) + MAX(0, mins) * 60);

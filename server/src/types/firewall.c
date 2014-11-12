@@ -47,8 +47,7 @@ static int trigger_func(object *op, object *cause, int state)
 
     if (cause->last_eat) {
         op->last_eat = !op->last_eat;
-    }
-    else if (op->stats.maxsp) {
+    } else if (op->stats.maxsp) {
         op->direction = absdir(op->direction + op->stats.maxsp);
         animate_turning(op);
     }

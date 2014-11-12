@@ -253,14 +253,13 @@ lex_error = 0;
             if (QUERY_FLAG(tmp, FLAG_AUTO_APPLY)) {
                 /* auto_apply() will clear FLAG_AUTO_APPLY */
                 auto_apply(tmp);
-            }
-            /* Here we can have an interesting problem when we have kind of
-             * creators (like spawn points) which use the inv object as a clone
-             * kind object. Then we don't want substitute the treasure here or
-             * the
-             * generator will clone objects with same treasures over and over.
-             * */
-            else if (tmp->randomitems && (map_flags & MAP_ORIGINAL) && (op->type != SPAWN_POINT)) {
+            } else if (tmp->randomitems && (map_flags & MAP_ORIGINAL) && (op->type != SPAWN_POINT)) {
+                /* Here we can have an interesting problem when we have kind of
+                 * creators (like spawn points) which use the inv object as a clone
+                 * kind object. Then we don't want substitute the treasure here or
+                 * the
+                 * generator will clone objects with same treasures over and over.
+                 * */
                 create_treasure(tmp->randomitems, tmp, 0, get_environment_level(tmp), T_STYLE_UNSET, ART_CHANCE_UNSET, 0, NULL);
             }
 
@@ -268,9 +267,8 @@ lex_error = 0;
                 object_initializers[tmp->type](tmp);
             }
         }
-    }
-    /* This is the actual archetype definition */
-    else {
+    } else {
+        /* This is the actual archetype definition */
         op->arch = find_archetype(yval());
 
         if (op->arch != NULL) {
@@ -1021,9 +1019,9 @@ int load_object(void *fp, object *op, void *mybuffer, int bufstate, int map_flag
                     op->speed_left = op->speed_left + (float) (RANDOM() % 90) / 100.0f;
                 }
             }
-        }
-        /* arch load... perhaps a map */
-        else {
+        } else {
+            /* arch load... perhaps a map */
+
             /* Only do this when we have not loaded a fix speed_left and
              * speed is lower than zero. */
             if (op->speed < 0.0f && op->speed_left == op->arch->clone.speed_left) {

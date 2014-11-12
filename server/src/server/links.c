@@ -129,8 +129,9 @@ objectlink *objectlink_link(objectlink **startptr, objectlink **endptr, objectli
             *endptr = objptr;
         }
     }
-    /* Link it before beforeptr */
     else if (!afterptr) {
+        /* Link it before beforeptr */
+
         if (beforeptr->prev) {
             objptr->prev = beforeptr->prev;
             beforeptr->prev->next = objptr;
@@ -144,8 +145,9 @@ objectlink *objectlink_link(objectlink **startptr, objectlink **endptr, objectli
             *startptr = objptr;
         }
     }
-    /* Special: link together two lists/objects */
     else {
+        /* Special: link together two lists/objects */
+
         beforeptr->prev = objptr;
         afterptr->next = objptr;
         objptr->next = beforeptr;

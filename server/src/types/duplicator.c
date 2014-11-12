@@ -42,8 +42,7 @@ static void duplicator_match_obj(object *op, object *tmp)
 
     if (op->level <= 0) {
         destruct_ob(tmp);
-    }
-    else {
+    } else {
         tmp->nrof = MIN(SINT32_MAX, (uint64) tmp->nrof * op->level);
     }
 }

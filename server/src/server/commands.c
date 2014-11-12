@@ -119,8 +119,7 @@ static void commands_permissions_read(const char *path)
 
             tmp = ecalloc(1, sizeof(*tmp));
             tmp->name = estrdup(buf);
-        }
-        else if (tmp) {
+        } else if (tmp) {
             char *cps[2];
 
             if (string_split(buf, cps, arraysize(cps), '=') == 2) {
@@ -148,6 +147,7 @@ static void commands_permissions_read(const char *path)
  * @internal */
 void toolkit_commands_init(void)
 {
+
     TOOLKIT_INIT_FUNC_START(commands)
     {
         toolkit_import(path);
@@ -216,6 +216,7 @@ void toolkit_commands_init(void)
  * @internal */
 void toolkit_commands_deinit(void)
 {
+
     TOOLKIT_DEINIT_FUNC_START(commands)
     {
         command_struct *curr, *tmp;
@@ -295,8 +296,7 @@ int commands_check_permission(player *pl, const char *command)
 
         if (string_startswith(pl->cmd_permissions[i], "[") && string_endswith(pl->cmd_permissions[i], "]") && commands_check_permission_group(pl->cmd_permissions[i], strlen(pl->cmd_permissions[i]), command)) {
             return 1;
-        }
-        else if (strcmp(pl->cmd_permissions[i], command) == 0) {
+        } else if (strcmp(pl->cmd_permissions[i], command) == 0) {
             return 1;
         }
     }
@@ -322,8 +322,7 @@ void commands_handle(object *op, char *cmd)
             if (*params == '\0') {
                 params = NULL;
             }
-        }
-        else {
+        } else {
             params = NULL;
         }
 

@@ -65,6 +65,7 @@ static size_t mempool_chunks_num;
  * @internal */
 void toolkit_mempool_init(void)
 {
+
     TOOLKIT_INIT_FUNC_START(mempool)
     {
         mempool_chunks = NULL;
@@ -78,6 +79,7 @@ void toolkit_mempool_init(void)
  * @internal */
 void toolkit_mempool_deinit(void)
 {
+
     TOOLKIT_DEINIT_FUNC_START(mempool)
     {
         size_t i;
@@ -102,8 +104,7 @@ void toolkit_mempool_deinit(void)
  * (1 << exp) >= n and (1 << (exp -1)) \< n */
 uint32 nearest_pow_two_exp(uint32 n)
 {
-    static const uint32 exp_lookup[65] =
-    {
+    static const uint32 exp_lookup[65] ={
         0, 0, 1, 2, 2, 3, 3, 3, 3, 4, 4, 4, 4, 4, 4, 4, 4, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 6, 6, 6, 6,
         6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6
     };
@@ -257,8 +258,7 @@ void *get_poolchunk_array_real(mempool_struct *pool, uint32 arraysize_exp)
     if (pool->flags & MEMPOOL_BYPASS_POOLS) {
         new_obj = ecalloc(1, sizeof(mempool_chunk_struct) + (pool->chunksize << arraysize_exp));
         pool->nrof_allocated[arraysize_exp]++;
-    }
-    else {
+    } else {
         if (pool->nrof_free[arraysize_exp] == 0) {
             expand_mempool(pool, arraysize_exp);
         }
@@ -311,8 +311,7 @@ void return_poolchunk_array_real(void *data, uint32 arraysize_exp, mempool_struc
 
         efree(old);
         pool->nrof_allocated[arraysize_exp]--;
-    }
-    else {
+    } else {
         old->next = pool->freelist[arraysize_exp];
         pool->freelist[arraysize_exp] = old;
         pool->nrof_free[arraysize_exp]++;

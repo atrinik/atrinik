@@ -67,8 +67,7 @@ static char *_binreloc_find_exe()
     /* Read from /proc/self/exe (symlink) */
     if (sizeof(path) > SSIZE_MAX) {
         buf_size = SSIZE_MAX - 1;
-    }
-    else {
+    } else {
         buf_size = PATH_MAX - 1;
     }
 
@@ -184,6 +183,7 @@ static char *_binreloc_find_exe()
  * @internal */
 void toolkit_binreloc_init(void)
 {
+
     TOOLKIT_INIT_FUNC_START(binreloc)
     {
         toolkit_import(path);
@@ -197,6 +197,7 @@ void toolkit_binreloc_init(void)
  * @internal */
 void toolkit_binreloc_deinit(void)
 {
+
     TOOLKIT_DEINIT_FUNC_START(binreloc)
     {
         if (exe) {

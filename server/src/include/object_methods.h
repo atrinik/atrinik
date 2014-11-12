@@ -29,8 +29,7 @@
 #ifndef OBJECT_METHODS_H
 #define OBJECT_METHODS_H
 
-typedef struct object_methods
-{
+typedef struct object_methods {
     /**
      * Applies an object.
      * @param op The object to apply.

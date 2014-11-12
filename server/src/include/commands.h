@@ -40,8 +40,7 @@ typedef void (*command_func)(object *op, const char *command, char *params);
 
 /**
  * A single command. */
-typedef struct command_struct
-{
+typedef struct command_struct {
     /**
      * Name of the command. */
     char *name;
@@ -65,8 +64,7 @@ typedef struct command_struct
 
 /**
  * A single permission group. */
-typedef struct permission_group_struct
-{
+typedef struct permission_group_struct {
     /**
      * Name, eg, '[OP]'. */
     char *name;

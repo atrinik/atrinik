@@ -49,8 +49,8 @@ int manual_apply(object *op, object *tmp, int aflag)
             draw_info(COLOR_WHITE, op, "You should pay for it first.");
             return OBJECT_METHOD_OK;
         }
-        /* Monsters just skip unpaid items */
         else {
+            /* Monsters just skip unpaid items */
             return OBJECT_METHOD_UNHANDLED;
         }
     }
@@ -81,8 +81,7 @@ int manual_apply(object *op, object *tmp, int aflag)
 
         if (tmp->item_skill && op->type == PLAYER) {
             tmp_lev = CONTR(op)->skill_ptr[tmp->item_skill - 1]->level;
-        }
-        else {
+        } else {
             tmp_lev = op->level;
         }
 
@@ -125,8 +124,7 @@ int player_apply(object *pl, object *op, int aflag, int quiet)
     if (!quiet) {
         if (tmp == OBJECT_METHOD_UNHANDLED) {
             draw_info_format(COLOR_WHITE, pl, "I don't know how to apply the %s.", query_name(op, NULL));
-        }
-        else if (tmp == OBJECT_METHOD_ERROR) {
+        } else if (tmp == OBJECT_METHOD_ERROR) {
             if (op->env != pl) {
                 draw_info_format(COLOR_WHITE, pl, "You must get it first!\n");
             }
@@ -164,8 +162,8 @@ void player_apply_below(object *pl)
         if (QUERY_FLAG(tmp, FLAG_IS_FLOOR)) {
             floors++;
         }
-        /* Process only floor objects after first floor object */
         else if (floors > 0) {
+            /* Process only floor objects after first floor object */
             return;
         }
 

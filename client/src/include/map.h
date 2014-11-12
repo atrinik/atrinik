@@ -89,8 +89,7 @@
     (NUM_LAYERS * (_sub_layer) + (_layer) - 1)
 
 /** Multi part object tile structure */
-typedef struct _multi_part_tile
-{
+typedef struct _multi_part_tile {
     /** X-offset */
     int xoff;
 
@@ -105,8 +104,7 @@ typedef struct _multi_part_tile
  * The way of determinate the starting and shift points is explained
  * in the dev/multi_arch folder of the arches, where the multi arch templates &
  * masks are. */
-typedef struct _multi_part_obj
-{
+typedef struct _multi_part_obj {
     /** Natural xlen of the whole multi arch */
     int xlen;
 
@@ -118,8 +116,7 @@ typedef struct _multi_part_obj
 } _multi_part_obj;
 
 /** Map data structure */
-typedef struct _mapdata
-{
+typedef struct _mapdata {
     /** Map name. */
     char name[HUGE_BUF];
 
@@ -144,8 +141,7 @@ typedef struct _mapdata
 /**
  * Map cell structure.
  */
-typedef struct MapCell
-{
+typedef struct MapCell {
     /** Name of player on this cell. */
     char pname[NUM_REAL_LAYERS][64];
 
@@ -225,8 +221,7 @@ typedef struct MapCell
     (&cells[((_y) + map_height * (MAP_FOW_SIZE / 2)) * \
     (map_width * MAP_FOW_SIZE) + (_x) + map_width * (MAP_FOW_SIZE / 2)])
 
-typedef struct map_target_struct
-{
+typedef struct map_target_struct {
     uint32 count;
     int x;
     int y;

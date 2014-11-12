@@ -71,8 +71,7 @@ static int apply_func(object *op, object *applier, int aflags)
      * decrease the amount of units it gives back. */
     if (op->stats.food - capacity_received <= 0) {
         decrease_ob(op);
-    }
-    else {
+    } else {
         op = object_stack_get_reinsert(op, 1);
         op->stats.food -= capacity_received;
     }

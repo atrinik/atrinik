@@ -70,8 +70,7 @@ static void notification_action_do(void)
         /* Macro or command? */
         if (*notification->action == '?') {
             keybind_process_command(notification->action);
-        }
-        else {
+        } else {
             send_command_check(notification->action);
         }
 
@@ -120,39 +119,39 @@ void socket_command_notification(uint8 *data, size_t len, size_t pos)
         type = packet_to_uint8(data, len, &pos);
 
         switch (type) {
-            case CMD_NOTIFICATION_TEXT:
-            {
-                char message[HUGE_BUF];
+        case CMD_NOTIFICATION_TEXT:
+        {
+            char message[HUGE_BUF];
 
-                packet_to_string(data, len, &pos, message, sizeof(message));
-                stringbuffer_append_string(sb, message);
-                break;
-            }
+            packet_to_string(data, len, &pos, message, sizeof(message));
+            stringbuffer_append_string(sb, message);
+            break;
+        }
 
-            case CMD_NOTIFICATION_ACTION:
-            {
-                char action[HUGE_BUF];
+        case CMD_NOTIFICATION_ACTION:
+        {
+            char action[HUGE_BUF];
 
-                packet_to_string(data, len, &pos, action, sizeof(action));
-                notification->action = estrdup(action);
-                break;
-            }
+            packet_to_string(data, len, &pos, action, sizeof(action));
+            notification->action = estrdup(action);
+            break;
+        }
 
-            case CMD_NOTIFICATION_SHORTCUT:
-            {
-                char shortcut[HUGE_BUF];
+        case CMD_NOTIFICATION_SHORTCUT:
+        {
+            char shortcut[HUGE_BUF];
 
-                packet_to_string(data, len, &pos, shortcut, sizeof(shortcut));
-                notification->shortcut = estrdup(shortcut);
-                break;
-            }
+            packet_to_string(data, len, &pos, shortcut, sizeof(shortcut));
+            notification->shortcut = estrdup(shortcut);
+            break;
+        }
 
-            case CMD_NOTIFICATION_DELAY:
-                notification->delay = MAX(NOTIFICATION_DEFAULT_FADEOUT, packet_to_uint32(data, len, &pos));
-                break;
+        case CMD_NOTIFICATION_DELAY:
+            notification->delay = MAX(NOTIFICATION_DEFAULT_FADEOUT, packet_to_uint32(data, len, &pos));
+            break;
 
-            default:
-                break;
+        default:
+            break;
         }
     }
 
@@ -168,9 +167,8 @@ void socket_command_notification(uint8 *data, size_t len, size_t pos)
             string_toupper(key_buf);
             stringbuffer_append_printf(sb, " (click or [b]%s[/b])", key_buf);
         }
-    }
-    /* No shortcut, clicking is the best one can do... */
-    else if (notification->action) {
+    } else if (notification->action) {
+        /* No shortcut, clicking is the best one can do... */
         stringbuffer_append_string(sb, " (click)");
     }
 

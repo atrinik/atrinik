@@ -69,7 +69,7 @@ void socket_command_file_update(uint8 *data, size_t len, size_t pos)
 
     /* Uncompress it. */
     dest = malloc(ucomp_len);
-    uncompress((Bytef *) dest, (uLongf *) &ucomp_len, (const Bytef *) data + pos, (uLong) len);
+    uncompress((Bytef *) dest, (uLongf *) & ucomp_len, (const Bytef *) data + pos, (uLong) len);
     data = dest;
     len = ucomp_len;
 

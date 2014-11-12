@@ -82,8 +82,7 @@ void command_apply(object *op, const char *command, char *params)
     if (string_get_word(params, &pos, ' ', word, sizeof(word), 0)) {
         if (strcmp(word, "-a") == 0) {
             aflag = AP_APPLY;
-        }
-        else {
+        } else {
             pos = 0;
         }
     }
@@ -91,8 +90,7 @@ void command_apply(object *op, const char *command, char *params)
     if (string_get_word(params, &pos, ' ', word, sizeof(word), 0)) {
         if (strcmp(word, "-u") == 0) {
             aflag = AP_UNAPPLY;
-        }
-        else {
+        } else {
             pos = 0;
         }
     }
@@ -101,8 +99,7 @@ void command_apply(object *op, const char *command, char *params)
 
     if (ob) {
         player_apply(op, ob, aflag, 0);
-    }
-    else {
+    } else {
         draw_info(COLOR_WHITE, op, "Could not find any matching item.");
     }
 }

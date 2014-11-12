@@ -33,8 +33,7 @@
 #define BMAPS_MAX 32767
 
 /** Structure for bmap data. */
-typedef struct bmap_struct
-{
+typedef struct bmap_struct {
     /** The name. */
     char *name;
 

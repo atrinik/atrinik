@@ -28,8 +28,7 @@
 
 #include <global.h>
 
-typedef struct
-{
+typedef struct {
     /* coordinates of room centers */
     int x;
     int y;
@@ -39,7 +38,7 @@ typedef struct
     int sy;
 
     /* coordinates of extrema of the rectangle */
-    int ax,ay,zx,zy;
+    int ax, ay, zx, zy;
 
     /* Circle or rectangular */
     int rtype;
@@ -121,7 +120,7 @@ char **roguelike_layout_gen(int xsize, int ysize, int options)
             }
         }
 
-        maze[i / 2][j / 2]= '>';
+        maze[i / 2][j / 2] = '>';
         maze[i / 2][j / 2 + 1] = '<';
 
         return maze;
@@ -138,8 +137,7 @@ char **roguelike_layout_gen(int xsize, int ysize, int options)
         /* Try to place the room */
         if (!roguelike_place_room(Rooms, xsize, ysize, nrooms)) {
             tries++;
-        }
-        else {
+        } else {
             i++;
         }
     }
@@ -300,23 +298,22 @@ static void roguelike_make_rooms(Room *Rooms, char **maze, int options)
     for (walk = Rooms; walk->x != 0; walk++) {
         /* First decide what shape to make */
         switch (options) {
-            case 1:
-                making_circle = 0;
-                break;
+        case 1:
+            making_circle = 0;
+            break;
 
-            case 2:
-                making_circle = 1;
-                break;
+        case 2:
+            making_circle = 1;
+            break;
 
-            default:
-                making_circle = ((RANDOM() % 3 == 0) ? 1 : 0);
+        default:
+            making_circle = ((RANDOM() % 3 == 0) ? 1 : 0);
 
-                if (walk->sx < walk->sy) {
-                    R = walk->sx / 2;
-                }
-                else {
-                    R = walk->sy / 2;
-                }
+            if (walk->sx < walk->sy) {
+                R = walk->sx / 2;
+            } else {
+                R = walk->sy / 2;
+            }
         }
 
         /* Enscribe a rectangle */
@@ -369,12 +366,10 @@ static void roguelike_link_rooms(Room *Rooms, char **maze)
                 if (in_wall == 0 && maze[i][j] == '#') {
                     in_wall = 1;
                     maze[i][j] = 'D';
-                }
-                else if (in_wall && maze[i][j] == '.') {
+                } else if (in_wall && maze[i][j] == '.') {
                     in_wall = 0;
                     maze[i - 1][j] = 'D';
-                }
-                else if (maze[i][j] != 'D' && maze[i][j] != '.') {
+                } else if (maze[i][j] != 'D' && maze[i][j] != '.') {
                     maze[i][j] = 0;
                 }
             }
@@ -393,18 +388,17 @@ static void roguelike_link_rooms(Room *Rooms, char **maze)
                 if (in_wall == 0 && maze[i][j] == '#') {
                     in_wall = 1;
                     maze[i][j] = 'D';
-                }
-                else if (in_wall && maze[i][j] == '.') {
+                } else if (in_wall && maze[i][j] == '.') {
                     in_wall = 0;
                     maze[i][j - 1] = 'D';
-                }
-                else if (maze[i][j] != 'D' && maze[i][j] != '.') {
+                } else if (maze[i][j] != 'D' && maze[i][j] != '.') {
                     maze[i][j] = 0;
                 }
             }
         }
-        /* Connect in y direction first */
         else {
+            /* Connect in y direction first */
+
             in_wall = 0;
 
             /* Swap if necessary */
@@ -424,12 +418,10 @@ static void roguelike_link_rooms(Room *Rooms, char **maze)
                 if (in_wall == 0 && maze[i][j] == '#') {
                     in_wall = 1;
                     maze[i][j] = 'D';
-                }
-                else if (in_wall && maze[i][j] == '.') {
+                } else if (in_wall && maze[i][j] == '.') {
                     in_wall = 0;
                     maze[i][j - 1] = 'D';
-                }
-                else if (maze[i][j] != 'D' && maze[i][j] != '.') {
+                } else if (maze[i][j] != 'D' && maze[i][j] != '.') {
                     maze[i][j] = 0;
                 }
             }
@@ -448,12 +440,10 @@ static void roguelike_link_rooms(Room *Rooms, char **maze)
                 if (in_wall == 0 && maze[i][j] == '#') {
                     in_wall = 1;
                     maze[i][j] = 'D';
-                }
-                else if (in_wall && maze[i][j] == '.') {
+                } else if (in_wall && maze[i][j] == '.') {
                     in_wall = 0;
                     maze[i - 1][j] = 'D';
-                }
-                else if (maze[i][j] != 'D' && maze[i][j] != '.') {
+                } else if (maze[i][j] != 'D' && maze[i][j] != '.') {
                     maze[i][j] = 0;
                 }
             }

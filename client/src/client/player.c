@@ -37,38 +37,32 @@
 
 /**
  * Gender nouns. */
-const char *gender_noun[GENDER_MAX] =
-{
+const char *gender_noun[GENDER_MAX] = {
     "neuter", "male", "female", "hermaphrodite"
 };
 /**
  * Subjective pronouns. */
-const char *gender_subjective[GENDER_MAX] =
-{
+const char *gender_subjective[GENDER_MAX] = {
     "it", "he", "she", "it"
 };
 /**
  * Subjective pronouns, with first letter in uppercase. */
-const char *gender_subjective_upper[GENDER_MAX] =
-{
+const char *gender_subjective_upper[GENDER_MAX] = {
     "It", "He", "She", "It"
 };
 /**
  * Objective pronouns. */
-const char *gender_objective[GENDER_MAX] =
-{
+const char *gender_objective[GENDER_MAX] = {
     "it", "him", "her", "it"
 };
 /**
  * Possessive pronouns. */
-const char *gender_possessive[GENDER_MAX] =
-{
+const char *gender_possessive[GENDER_MAX] = {
     "its", "his", "her", "its"
 };
 /**
  * Reflexive pronouns. */
-const char *gender_reflexive[GENDER_MAX] =
-{
+const char *gender_reflexive[GENDER_MAX] = {
     "itself", "himself", "herself", "itself"
 };
 

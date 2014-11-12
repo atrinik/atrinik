@@ -41,8 +41,7 @@
 
 /**
  * One 'cached' sound. */
-typedef struct sound_data_struct
-{
+typedef struct sound_data_struct {
     /** The sound's data. */
     void *data;
 
@@ -63,8 +62,7 @@ typedef struct sound_data_struct
 
 /**
  * One ambient sound effect. */
-typedef struct sound_ambient_struct
-{
+typedef struct sound_ambient_struct {
     /** Next ambient sound effect in a doubly-linked list. */
     struct sound_ambient_struct *next;
 

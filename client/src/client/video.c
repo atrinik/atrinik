@@ -59,8 +59,7 @@ void video_init(void)
         if (info.subsystem == SDL_SYSWM_X11) {
             SDL_display = info.info.x11.display;
             SDL_window = info.info.x11.window;
-        }
-        else {
+        } else {
             logger_print(LOG(BUG), "SDL is not running on X11 display.");
         }
 
@@ -104,8 +103,7 @@ uint32 get_video_flags(void)
 {
     if (setting_get_int(OPT_CAT_CLIENT, OPT_FULLSCREEN)) {
         return SDL_FULLSCREEN | SDL_SWSURFACE | SDL_HWACCEL | SDL_HWPALETTE | SDL_DOUBLEBUF | SDL_ANYFORMAT;
-    }
-    else {
+    } else {
         return SDL_SWSURFACE | SDL_SWSURFACE | SDL_HWACCEL | SDL_HWPALETTE | SDL_ANYFORMAT | SDL_RESIZABLE;
     }
 }
@@ -165,8 +163,7 @@ int video_fullscreen_toggle(SDL_Surface **surface, uint32 *flags)
 
     if ((*surface = SDL_SetVideoMode(w, h, bpp, *flags)) == NULL) {
         *surface = SDL_SetVideoMode(w, h, bpp, tmpflags);
-    }
-    else {
+    } else {
         return 1;
     }
 
@@ -194,8 +191,7 @@ int video_fullscreen_toggle(SDL_Surface **surface, uint32 *flags)
 
     if (*surface != NULL) {
         *flags ^= SDL_FULLSCREEN;
-    }
-    else {
+    } else {
         *surface = SDL_SetVideoMode(w, h, bpp, tmpflags);
 
         if (*surface == NULL) {

@@ -75,13 +75,11 @@ void effects_init(void)
                     /* Update total chance value. */
                     effect->chance_total += sprite_def->chance;
                     sprite_def = NULL;
-                }
-                /* Overlay block, just set it as the effect's overlay. */
+                }/* Overlay block, just set it as the effect's overlay. */
                 else if (overlay) {
                     effect->overlay = overlay;
                     overlay = NULL;
-                }
-                /* Inside effect block. */
+                }/* Inside effect block. */
                 else {
                     /* Add this effect to the linked list of effects. */
                     effect->next = effects;
@@ -104,83 +102,58 @@ void effects_init(void)
         if (sprite_def) {
             if (!strncmp(buf, "chance ", 7)) {
                 sprite_def->chance = atoi(buf + 7);
-            }
-            else if (!strncmp(buf, "weight ", 7)) {
+            } else if (!strncmp(buf, "weight ", 7)) {
                 sprite_def->weight = atof(buf + 7);
-            }
-            else if (!strncmp(buf, "weight_mod ", 11)) {
+            } else if (!strncmp(buf, "weight_mod ", 11)) {
                 sprite_def->weight_mod = atof(buf + 11);
-            }
-            else if (!strncmp(buf, "delay ", 6)) {
+            } else if (!strncmp(buf, "delay ", 6)) {
                 sprite_def->delay = atoi(buf + 6);
-            }
-            else if (!strncmp(buf, "wind ", 5)) {
+            } else if (!strncmp(buf, "wind ", 5)) {
                 sprite_def->wind = atoi(buf + 5);
-            }
-            else if (!strncmp(buf, "wiggle ", 7)) {
+            } else if (!strncmp(buf, "wiggle ", 7)) {
                 sprite_def->wiggle = atof(buf + 7);
-            }
-            else if (!strncmp(buf, "wind_mod ", 9)) {
+            } else if (!strncmp(buf, "wind_mod ", 9)) {
                 sprite_def->wind_mod = atof(buf + 9);
-            }
-            else if (!strncmp(buf, "x ", 2)) {
+            } else if (!strncmp(buf, "x ", 2)) {
                 sprite_def->x = atoi(buf + 2);
-            }
-            else if (!strncmp(buf, "y ", 2)) {
+            } else if (!strncmp(buf, "y ", 2)) {
                 sprite_def->y = atoi(buf + 2);
-            }
-            else if (!strncmp(buf, "xpos ", 5)) {
+            } else if (!strncmp(buf, "xpos ", 5)) {
                 sprite_def->xpos = atoi(buf + 5);
-            }
-            else if (!strncmp(buf, "ypos ", 5)) {
+            } else if (!strncmp(buf, "ypos ", 5)) {
                 sprite_def->ypos = atoi(buf + 5);
-            }
-            else if (!strncmp(buf, "reverse ", 8)) {
+            } else if (!strncmp(buf, "reverse ", 8)) {
                 sprite_def->reverse = atoi(buf + 8);
                 sprite_def->y_mod = -sprite_def->y_mod;
-            }
-            else if (!strncmp(buf, "y_rndm ", 7)) {
+            } else if (!strncmp(buf, "y_rndm ", 7)) {
                 sprite_def->y_rndm = atof(buf + 7);
-            }
-            else if (!strncmp(buf, "x_mod ", 6)) {
+            } else if (!strncmp(buf, "x_mod ", 6)) {
                 sprite_def->x_mod = atof(buf + 6);
-            }
-            else if (!strncmp(buf, "y_mod ", 6)) {
+            } else if (!strncmp(buf, "y_mod ", 6)) {
                 sprite_def->y_mod = atof(buf + 6);
-            }
-            else if (!strncmp(buf, "x_check_mod ", 12)) {
+            } else if (!strncmp(buf, "x_check_mod ", 12)) {
                 sprite_def->x_check_mod = atoi(buf + 12);
-            }
-            else if (!strncmp(buf, "y_check_mod ", 12)) {
+            } else if (!strncmp(buf, "y_check_mod ", 12)) {
                 sprite_def->y_check_mod = atoi(buf + 12);
-            }
-            else if (!strncmp(buf, "kill_sides ", 11)) {
+            } else if (!strncmp(buf, "kill_sides ", 11)) {
                 sprite_def->kill_side_left = sprite_def->kill_side_right = atoi(buf + 11);
-            }
-            else if (!strncmp(buf, "kill_side_left ", 15)) {
+            } else if (!strncmp(buf, "kill_side_left ", 15)) {
                 sprite_def->kill_side_left = atoi(buf + 15);
-            }
-            else if (!strncmp(buf, "kill_side_right ", 16)) {
+            } else if (!strncmp(buf, "kill_side_right ", 16)) {
                 sprite_def->kill_side_right = atoi(buf + 16);
-            }
-            else if (!strncmp(buf, "zoom ", 5)) {
+            } else if (!strncmp(buf, "zoom ", 5)) {
                 sprite_def->zoom = atoi(buf + 5);
-            }
-            else if (!strncmp(buf, "warp_sides ", 11)) {
+            } else if (!strncmp(buf, "warp_sides ", 11)) {
                 sprite_def->warp_sides = atoi(buf + 11);
-            }
-            else if (!strncmp(buf, "ttl ", 4)) {
+            } else if (!strncmp(buf, "ttl ", 4)) {
                 sprite_def->ttl = atoi(buf + 4);
-            }
-            else if (!strncmp(buf, "sound_file ", 11)) {
+            } else if (!strncmp(buf, "sound_file ", 11)) {
                 strncpy(sprite_def->sound_file, buf + 11, sizeof(sprite_def->sound_file) - 1);
                 sprite_def->sound_file[sizeof(sprite_def->sound_file) - 1] = '\0';
-            }
-            else if (!strncmp(buf, "sound_volume ", 13)) {
+            } else if (!strncmp(buf, "sound_volume ", 13)) {
                 sprite_def->sound_volume = atoi(buf + 13);
             }
-        }
-        else if (!strcmp(buf, "overlay")) {
+        } else if (!strcmp(buf, "overlay")) {
             size_t col;
 
             overlay = ecalloc(1, sizeof(effect_overlay));
@@ -189,70 +162,52 @@ void effects_init(void)
                 overlay->col[col].val = -1;
                 overlay->col[col].mod[4] = 1.0;
             }
-        }
-        else if (overlay) {
+        } else if (overlay) {
             size_t col;
 
             for (col = 0; col < arraysize(overlay_cols); col++) {
                 if (!strncmp(buf, overlay_cols[col], strlen(overlay_cols[col]))) {
                     if (!strncmp(buf + 1, "_rndm_min ", 10)) {
                         overlay->col[col].rndm_min = atoi(buf + 11);
-                    }
-                    else if (!strncmp(buf + 1, "_rndm_max ", 10)) {
+                    } else if (!strncmp(buf + 1, "_rndm_max ", 10)) {
                         overlay->col[col].rndm_max = atoi(buf + 11);
-                    }
-                    else if (!strncmp(buf + 1, "_mod1 ", 6)) {
+                    } else if (!strncmp(buf + 1, "_mod1 ", 6)) {
                         overlay->col[col].mod[0] = atof(buf + 7);
-                    }
-                    else if (!strncmp(buf + 1, "_mod2 ", 6)) {
+                    } else if (!strncmp(buf + 1, "_mod2 ", 6)) {
                         overlay->col[col].mod[1] = atof(buf + 7);
-                    }
-                    else if (!strncmp(buf + 1, "_mod3 ", 6)) {
+                    } else if (!strncmp(buf + 1, "_mod3 ", 6)) {
                         overlay->col[col].mod[2] = atof(buf + 7);
-                    }
-                    else if (!strncmp(buf + 1, "_mod4 ", 6)) {
+                    } else if (!strncmp(buf + 1, "_mod4 ", 6)) {
                         overlay->col[col].mod[3] = atof(buf + 7);
-                    }
-                    else if (!strncmp(buf + 1, "_mod5 ", 6)) {
+                    } else if (!strncmp(buf + 1, "_mod5 ", 6)) {
                         overlay->col[col].mod[4] = atof(buf + 7);
-                    }
-                    else {
+                    } else {
                         overlay->col[col].val = atoi(buf + 2);
                     }
                 }
             }
-        }
-        /* Parse definitions inside effect block. */
+        }/* Parse definitions inside effect block. */
         else if (effect) {
             if (!strncmp(buf, "wind_chance ", 12)) {
                 effect->wind_chance = atof(buf + 12);
-            }
-            else if (!strncmp(buf, "sprite_chance ", 14)) {
+            } else if (!strncmp(buf, "sprite_chance ", 14)) {
                 effect->sprite_chance = atof(buf + 14);
-            }
-            else if (!strncmp(buf, "delay ", 6)) {
+            } else if (!strncmp(buf, "delay ", 6)) {
                 effect->delay = atoi(buf + 6);
-            }
-            else if (!strncmp(buf, "wind_blow_dir ", 14)) {
+            } else if (!strncmp(buf, "wind_blow_dir ", 14)) {
                 effect->wind_blow_dir = atoi(buf + 14);
-            }
-            else if (!strncmp(buf, "max_sprites ", 12)) {
+            } else if (!strncmp(buf, "max_sprites ", 12)) {
                 effect->max_sprites = atoi(buf + 12);
-            }
-            else if (!strncmp(buf, "wind_mod ", 9)) {
+            } else if (!strncmp(buf, "wind_mod ", 9)) {
                 effect->wind_mod = atof(buf + 9);
-            }
-            else if (!strncmp(buf, "sprites_per_move ", 17)) {
+            } else if (!strncmp(buf, "sprites_per_move ", 17)) {
                 effect->sprites_per_move = atoi(buf + 17);
-            }
-            else if (!strncmp(buf, "sound_effect ", 13)) {
+            } else if (!strncmp(buf, "sound_effect ", 13)) {
                 strncpy(effect->sound_effect, buf + 13, sizeof(effect->sound_effect) - 1);
                 effect->sound_effect[sizeof(effect->sound_effect) - 1] = '\0';
-            }
-            else if (!strncmp(buf, "sound_volume ", 13)) {
+            } else if (!strncmp(buf, "sound_volume ", 13)) {
                 effect->sound_volume = atoi(buf + 13);
-            }
-            /* Start of sprite block. */
+            }/* Start of sprite block. */
             else if (!strncmp(buf, "sprite ", 7)) {
                 sprite_def = ecalloc(1, sizeof(*sprite_def));
                 /* Store the sprite ID and name. */
@@ -280,8 +235,7 @@ void effects_init(void)
                 sprite_def->ttl = 0;
                 sprite_def->sound_volume = 100;
             }
-        }
-        /* Start of effect block. */
+        }/* Start of effect block. */
         else if (!strncmp(buf, "effect ", 7)) {
             effect = ecalloc(1, sizeof(effect_struct));
             /* Store the effect unique name. */
@@ -405,15 +359,13 @@ void effect_sprite_remove(effect_sprite *sprite)
 
     if (sprite->prev) {
         sprite->prev->next = sprite->next;
-    }
-    else {
+    } else {
         current_effect->sprites = sprite->next;
     }
 
     if (sprite->next) {
         sprite->next->prev = sprite->prev;
-    }
-    else {
+    } else {
         current_effect->sprites_end = sprite->prev;
     }
 
@@ -459,8 +411,7 @@ static effect_sprite *effect_sprite_create(effect_struct *effect)
     /* Add it to the linked list. */
     if (!effect->sprites) {
         effect->sprites = effect->sprites_end = sprite;
-    }
-    else {
+    } else {
         effect->sprites_end->next = sprite;
         sprite->prev = effect->sprites_end;
         effect->sprites_end = sprite;
@@ -512,8 +463,7 @@ void effect_sprites_play(void)
             if (tmp->x + x_check < 0) {
                 tmp->x = cur_widget[MAP_ID]->w;
                 continue;
-            }
-            else if (tmp->x - x_check > cur_widget[MAP_ID]->w) {
+            } else if (tmp->x - x_check > cur_widget[MAP_ID]->w) {
                 tmp->x = -x_check;
                 continue;
             }
@@ -558,8 +508,7 @@ void effect_sprites_play(void)
 
     if (current_effect->wind_blow_dir == WIND_BLOW_LEFT) {
         current_effect->wind = -1.0 * current_effect->wind_mod;
-    }
-    else if (current_effect->wind_blow_dir == WIND_BLOW_RIGHT) {
+    } else if (current_effect->wind_blow_dir == WIND_BLOW_RIGHT) {
         current_effect->wind = 1.0 * current_effect->wind_mod;
     }
 
@@ -584,16 +533,14 @@ void effect_sprites_play(void)
 
             if (sprite->def->x != -1) {
                 sprite->x = sprite->def->x;
-            }
-            else {
+            } else {
                 /* Calculate where to put the sprite. */
                 sprite->x = (double) cur_widget[MAP_ID]->w * RANDOM() / (RAND_MAX + 1.0) * sprite->def->x_mod;
             }
 
             if (sprite->def->reverse) {
                 sprite->y = cur_widget[MAP_ID]->h - FaceList[sprite->def->id].sprite->bitmap->h;
-            }
-            else if (sprite->def->y != -1) {
+            } else if (sprite->def->y != -1) {
                 sprite->y = sprite->def->y;
             }
 
@@ -706,15 +653,13 @@ void effect_debug(const char *type)
         kbytes = (double) bytes / 1024;
 
         draw_info_format(COLOR_WHITE, "Visible sprites: [green]%d[/green] using [green]%"FMT64U "[/green] bytes ([green]%2.2f[/green] KB)", num, bytes, kbytes);
-    }
-    else if (!strcmp(type, "sizeof")) {
+    } else if (!strcmp(type, "sizeof")) {
         draw_info(COLOR_WHITE, "Information about various data structures used by effects:\n");
         draw_info_format(COLOR_WHITE, "Size of a single sprite definition: [green]%"FMT64U "[/green]", (uint64) sizeof(effect_sprite_def));
         draw_info_format(COLOR_WHITE, "Size of a single visible sprite: [green]%"FMT64U "[/green]", (uint64) sizeof(effect_sprite));
         draw_info_format(COLOR_WHITE, "Size of a single effect structure: [green]%"FMT64U "[/green]", (uint64) sizeof(effect_struct));
         draw_info_format(COLOR_WHITE, "Size of a single overlay: [green]%"FMT64U "[/green]", (uint64) sizeof(effect_overlay));
-    }
-    else {
+    } else {
         draw_info_format(COLOR_RED, "No such debug option '%s'.", type);
     }
 }

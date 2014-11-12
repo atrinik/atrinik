@@ -41,6 +41,7 @@ START_TEST(test_add_string)
     fail_if(str3 == NULL, "add_string() should gracefully gandle empty non-NULL strings.");
     free(temp);
 }
+
 END_TEST
 
 START_TEST(test_add_refcount)
@@ -52,6 +53,7 @@ START_TEST(test_add_refcount)
     fail_if(str1 != str2, "Result of add_refcount() (%p) should be the same as original pointer (%p).", str2, str1);
     fail_if(query_refcount(str1) != 2, "add_refcount() (%p) should have made refcount to value 2 but was %d instead.", str1, query_refcount(str1));
 }
+
 END_TEST
 
 START_TEST(test_query_refcount)
@@ -65,6 +67,7 @@ START_TEST(test_query_refcount)
     add_refcount(str1);
     fail_if(query_refcount(str1) != 3, "After call to add_refcount(), query_refcount() should now return 3 but returned %d(0x%X) for %s.", query_refcount(str1), query_refcount(str1), str1);
 }
+
 END_TEST
 
 START_TEST(test_find_string)
@@ -86,6 +89,7 @@ START_TEST(test_find_string)
     result = find_string("Bonjour le monde");
     fail_if(result != NULL, "After add_string() and free_string_shared(), find_string() should return NULL, but returned %p(%s).", result, result);
 }
+
 END_TEST
 
 START_TEST(test_free_string_shared)
@@ -105,6 +109,7 @@ START_TEST(test_free_string_shared)
     str2 = find_string("bleh");
     fail_if(str2 != NULL, "find_string() should return NULL after add_string(), add_string(), free_string_shared(), free_string_shared() but returned %p.", str2);
 }
+
 END_TEST
 
 static Suite *shstr_suite(void)

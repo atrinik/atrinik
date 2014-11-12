@@ -37,8 +37,7 @@ object *active_objects;
  * could go to go back to us. Eg, entry 15 below is 4, 14, 16. This
  * basically means that if direction is 15, then it could either go
  * direction 4, 14, or 16 to get back to where we are. */
-static const int reduction_dir[SIZEOFFREE][3] =
-{
+static const int reduction_dir[SIZEOFFREE][3] = {
     {0, 0, 0},
     {0, 0, 0},
     {0, 0, 0},
@@ -92,44 +91,37 @@ static const int reduction_dir[SIZEOFFREE][3] =
 
 /**
  * Gender nouns. */
-const char *gender_noun[GENDER_MAX] =
-{
+const char *gender_noun[GENDER_MAX] = {
     "neuter", "male", "female", "hermaphrodite"
 };
 /**
  * Subjective pronouns. */
-const char *gender_subjective[GENDER_MAX] =
-{
+const char *gender_subjective[GENDER_MAX] = {
     "it", "he", "she", "it"
 };
 /**
  * Subjective pronouns, with first letter in uppercase. */
-const char *gender_subjective_upper[GENDER_MAX] =
-{
+const char *gender_subjective_upper[GENDER_MAX] = {
     "It", "He", "She", "It"
 };
 /**
  * Objective pronouns. */
-const char *gender_objective[GENDER_MAX] =
-{
+const char *gender_objective[GENDER_MAX] = {
     "it", "him", "her", "it"
 };
 /**
  * Possessive pronouns. */
-const char *gender_possessive[GENDER_MAX] =
-{
+const char *gender_possessive[GENDER_MAX] = {
     "its", "his", "her", "its"
 };
 /**
  * Reflexive pronouns. */
-const char *gender_reflexive[GENDER_MAX] =
-{
+const char *gender_reflexive[GENDER_MAX] = {
     "itself", "himself", "herself", "itself"
 };
 
 /** Material types. */
-materialtype materials[NROFMATERIALS] =
-{
+materialtype materials[NROFMATERIALS] = {
     {"paper"},
     {"metal"},
     {"crystal"},
@@ -209,8 +201,7 @@ void init_materials(void)
             material_real[i].quality = quality;
             material_real[i].type = type;
             material_real[i].def_race = def_race;
-        }
-        else {
+        } else {
             logger_print(LOG(ERROR), "Bogus line in materials file: %s", buf);
             exit(1);
         }
@@ -220,29 +211,25 @@ void init_materials(void)
 }
 
 /** X offset when searching around a spot. */
-int freearr_x[SIZEOFFREE] =
-{
+int freearr_x[SIZEOFFREE] = {
     0, 0, 1, 1, 1, 0, -1, -1, -1, 0, 1, 2, 2, 2, 2, 2, 1, 0, -1, -2, -2, -2, -2, -2, -1,
     0, 1, 2, 3, 3, 3, 3, 3, 3, 3, 2, 1, 0, -1, -2, -3, -3, -3, -3, -3, -3, -3, -2, -1
 };
 
 /** Y offset when searching around a spot. */
-int freearr_y[SIZEOFFREE] =
-{
+int freearr_y[SIZEOFFREE] = {
     0, -1, -1, 0, 1, 1, 1, 0, -1, -2, -2, -2, -1, 0, 1, 2, 2, 2, 2, 2, 1, 0, -1, -2, -2,
     -3, -3, -3, -3, -2, -1, 0, 1, 2, 3, 3, 3, 3, 3, 3, 3, 2, 1, 0, -1, -2, -3, -3, -3
 };
 
 /** Number of spots around a location, including that location (except for 0) */
-int maxfree[SIZEOFFREE] =
-{
+int maxfree[SIZEOFFREE] = {
     0, 9, 10, 13, 14, 17, 18, 21, 22, 25, 26, 27, 30, 31, 32, 33, 36, 37, 39, 39, 42, 43, 44, 45,
     48, 49, 49, 49, 49, 49, 49, 49, 49, 49, 49, 49, 49, 49, 49, 49, 49, 49, 49, 49, 49, 49, 49, 49, 49
 };
 
 /** Direction we're pointing on this spot. */
-int freedir[SIZEOFFREE] =
-{
+int freedir[SIZEOFFREE] = {
     0, 1, 2, 3, 4, 5, 6, 7, 8, 1, 2, 2, 2, 3, 4, 4, 4, 5, 6, 6, 6, 7, 8, 8, 8,
     1, 2, 2, 2, 2, 2, 3, 4, 4, 4, 4, 4, 5, 6, 6, 6, 6, 6, 7, 8, 8, 8, 8, 8
 };
@@ -271,8 +258,7 @@ void (*object_initializers[256]) (object *);
  * @page plugin_python_object_flags Python object flags
  * <h2>Python object flags</h2>
  * List of the object flags and their meaning. */
-const char *object_flag_names[NUM_FLAGS + 1] =
-{
+const char *object_flag_names[NUM_FLAGS + 1] = {
     "sleep", "confused", NULL, "scared", "is_blind",
     "is_invisible", "is_ethereal", "is_good", "no_pick", "walk_on",
     "no_pass", "is_animated", "slow_move", "flying", "monster",
@@ -391,37 +377,37 @@ int CAN_MERGE(object *ob1, object *ob2)
 
     /* Do not merge arrows with different owners. */
     if (ob1->type == ARROW && ob2->type == ARROW &&
-        ob1->attacked_by_count != 0 && ob2->attacked_by_count != 0 &&
-        ob1->attacked_by_count != ob2->attacked_by_count) {
+            ob1->attacked_by_count != 0 && ob2->attacked_by_count != 0 &&
+            ob1->attacked_by_count != ob2->attacked_by_count) {
         return 0;
     }
 
     /* Check attributes that cannot ever merge if they're different. */
     if (ob1->arch               != ob2->arch ||
-        ob1->item_condition     != ob2->item_condition ||
-        ob1->item_level         != ob2->item_level ||
-        ob1->item_power         != ob2->item_power ||
-        ob1->item_quality       != ob2->item_quality ||
-        ob1->item_race          != ob2->item_race ||
-        ob1->item_skill         != ob2->item_skill ||
-        ob1->last_grace         != ob2->last_grace ||
-        ob1->level              != ob2->level ||
-        ob1->magic              != ob2->magic ||
-        ob1->material           != ob2->material ||
-        ob1->material_real      != ob2->material_real ||
-        ob1->other_arch         != ob2->other_arch ||
-        ob1->path_attuned       != ob2->path_attuned ||
-        ob1->path_denied        != ob2->path_denied ||
-        ob1->path_repelled      != ob2->path_repelled ||
-        ob1->randomitems        != ob2->randomitems ||
-        ob1->speed              != ob2->speed ||
-        ob1->sub_type           != ob2->sub_type ||
-        ob1->terrain_flag       != ob2->terrain_flag ||
-        ob1->terrain_type       != ob2->terrain_type ||
-        ob1->type               != ob2->type ||
-        ob1->value              != ob2->value ||
-        ob1->weapon_speed       != ob2->weapon_speed ||
-        ob1->weight             != ob2->weight) {
+            ob1->item_condition     != ob2->item_condition ||
+            ob1->item_level         != ob2->item_level ||
+            ob1->item_power         != ob2->item_power ||
+            ob1->item_quality       != ob2->item_quality ||
+            ob1->item_race          != ob2->item_race ||
+            ob1->item_skill         != ob2->item_skill ||
+            ob1->last_grace         != ob2->last_grace ||
+            ob1->level              != ob2->level ||
+            ob1->magic              != ob2->magic ||
+            ob1->material           != ob2->material ||
+            ob1->material_real      != ob2->material_real ||
+            ob1->other_arch         != ob2->other_arch ||
+            ob1->path_attuned       != ob2->path_attuned ||
+            ob1->path_denied        != ob2->path_denied ||
+            ob1->path_repelled      != ob2->path_repelled ||
+            ob1->randomitems        != ob2->randomitems ||
+            ob1->speed              != ob2->speed ||
+            ob1->sub_type           != ob2->sub_type ||
+            ob1->terrain_flag       != ob2->terrain_flag ||
+            ob1->terrain_type       != ob2->terrain_type ||
+            ob1->type               != ob2->type ||
+            ob1->value              != ob2->value ||
+            ob1->weapon_speed       != ob2->weapon_speed ||
+            ob1->weight             != ob2->weight) {
         return 0;
     }
 
@@ -462,37 +448,37 @@ int CAN_MERGE(object *ob1, object *ob2)
 
     /* Check the shared strings of both objects. */
     if (ob1->name           != ob2->name ||
-        ob1->title          != ob2->title ||
-        ob1->race           != ob2->race ||
-        ob1->slaying        != ob2->slaying ||
-        ob1->msg            != ob2->msg ||
-        ob1->artifact       != ob2->artifact ||
-        ob1->custom_name    != ob2->custom_name) {
+            ob1->title          != ob2->title ||
+            ob1->race           != ob2->race ||
+            ob1->slaying        != ob2->slaying ||
+            ob1->msg            != ob2->msg ||
+            ob1->artifact       != ob2->artifact ||
+            ob1->custom_name    != ob2->custom_name) {
         return 0;
     }
 
     /* Compare arrays and structures the object has (stats, protections, etc) */
     if (memcmp(&ob1->stats, &ob2->stats, sizeof(living)) != 0 ||
-        memcmp(&ob1->attack, &ob2->attack, sizeof(ob1->attack) != 0) ||
-        memcmp(&ob1->protection, &ob2->protection, sizeof(ob1->protection)) != 0) {
+            memcmp(&ob1->attack, &ob2->attack, sizeof(ob1->attack) != 0) ||
+            memcmp(&ob1->protection, &ob2->protection, sizeof(ob1->protection)) != 0) {
         return 0;
     }
 
     /* Ignore REMOVED and BEEN_APPLIED */
     if ((ob1->flags[0] | FLAG_BITMASK(FLAG_REMOVED) | FLAG_BITMASK(FLAG_BEEN_APPLIED)) !=
-        (ob2->flags[0] | FLAG_BITMASK(FLAG_REMOVED) | FLAG_BITMASK(FLAG_BEEN_APPLIED)) ||
-        (ob1->flags[1]) != (ob2->flags[1]) ||
-        (ob1->flags[2] | FLAG_BITMASK(FLAG_APPLIED)) !=
-        (ob2->flags[2] | FLAG_BITMASK(FLAG_APPLIED)) ||
-        (ob1->flags[3]) != (ob2->flags[3])) {
+            (ob2->flags[0] | FLAG_BITMASK(FLAG_REMOVED) | FLAG_BITMASK(FLAG_BEEN_APPLIED)) ||
+            (ob1->flags[1]) != (ob2->flags[1]) ||
+            (ob1->flags[2] | FLAG_BITMASK(FLAG_APPLIED)) !=
+            (ob2->flags[2] | FLAG_BITMASK(FLAG_APPLIED)) ||
+            (ob1->flags[3]) != (ob2->flags[3])) {
         return 0;
     }
 
     /* Compare face and animation IDs. */
     if (ob1->face               != ob2->face ||
-        ob1->inv_face           != ob2->inv_face ||
-        ob1->animation_id       != ob2->animation_id ||
-        ob1->inv_animation_id   != ob2->inv_animation_id) {
+            ob1->inv_face           != ob2->inv_face ||
+            ob1->animation_id       != ob2->animation_id ||
+            ob1->inv_animation_id   != ob2->inv_animation_id) {
         return 0;
     }
 
@@ -506,8 +492,7 @@ int CAN_MERGE(object *ob1, object *ob2)
         /* One has fields, but the other one doesn't. */
         if ((ob1->key_values == NULL) != (ob2->key_values == NULL)) {
             return 0;
-        }
-        else {
+        } else {
             return compare_ob_value_lists(ob1, ob2);
         }
     }
@@ -530,11 +515,9 @@ object *object_merge(object *op)
 
     if (op->map) {
         tmp = GET_MAP_OB_LAST(op->map, op->x, op->y);
-    }
-    else if (op->env) {
+    } else if (op->env) {
         tmp = op->env->inv;
-    }
-    else {
+    } else {
         return op;
     }
 
@@ -583,9 +566,9 @@ signed long sum_weight(object *op)
 
     if (op->type == CONTAINER && op->weapon_speed != 1.0f) {
         /* We'll store the calculated value in damage_round_tag, so
-        * we can use that as 'cache' for unmodified carrying weight.
-        * This allows us to reliably calculate the weight again in
-        * add_weight() and sub_weight() without rounding errors. */
+         * we can use that as 'cache' for unmodified carrying weight.
+         * This allows us to reliably calculate the weight again in
+         * add_weight() and sub_weight() without rounding errors. */
         op->damage_round_tag = sum;
         sum = (sint32) ((float) sum * op->weapon_speed);
     }
@@ -608,8 +591,7 @@ void add_weight(object *op, sint32 weight)
             op->damage_round_tag += weight;
             op->carrying = (sint32) ((float) op->damage_round_tag * op->weapon_speed);
             weight = op->carrying - old_carrying;
-        }
-        else {
+        } else {
             op->carrying += weight;
         }
 
@@ -635,8 +617,7 @@ void sub_weight(object *op, sint32 weight)
             op->damage_round_tag -= weight;
             op->carrying = (sint32) ((float) op->damage_round_tag * op->weapon_speed);
             weight = old_carrying - op->carrying;
-        }
-        else {
+        } else {
             op->carrying -= weight;
         }
 
@@ -693,8 +674,7 @@ void dump_object(object *op, StringBuffer *sb)
         stringbuffer_append_printf(sb, "arch %s\n", op->arch->name ? op->arch->name : "(null)");
         get_ob_diff(sb, op, &empty_archetype->clone);
         stringbuffer_append_string(sb, "end\n");
-    }
-    else {
+    } else {
         stringbuffer_append_string(sb, "Object ");
         stringbuffer_append_string(sb, op->name == NULL ? "(null)" : op->name);
         stringbuffer_append_string(sb, "\nend\n");
@@ -847,8 +827,7 @@ void copy_owner(object *op, object *clone_ob)
          * as appropriate. */
         if (clone_ob->type == PLAYER) {
             owner = clone_ob;
-        }
-        else {
+        } else {
             return;
         }
     }
@@ -942,8 +921,7 @@ void copy_object(object *op2, object *op, int no_speed)
 
             if (i->value) {
                 new_link->value = add_refcount(i->value);
-            }
-            else {
+            } else {
                 new_link->value = NULL;
             }
 
@@ -951,8 +929,7 @@ void copy_object(object *op2, object *op, int no_speed)
             if (op->key_values == NULL) {
                 op->key_values = new_link;
                 tail = new_link;
-            }
-            else {
+            } else {
                 tail->next = new_link;
                 tail = new_link;
             }
@@ -1067,8 +1044,7 @@ void update_ob_speed(object *op)
 
         active_objects = op;
         op->active_prev = NULL;
-    }
-    else {
+    } else {
         /* If not on the active list, nothing needs to be done */
         if (!op->active_next && !op->active_prev && op != active_objects) {
             return;
@@ -1080,8 +1056,7 @@ void update_ob_speed(object *op)
             if (op->active_next != NULL) {
                 op->active_next->active_prev = NULL;
             }
-        }
-        else {
+        } else {
             op->active_prev->active_next = op->active_next;
 
             if (op->active_next) {
@@ -1144,13 +1119,13 @@ void update_object(object *op, int action)
         if (QUERY_FLAG(op, FLAG_NO_PASS) || QUERY_FLAG(op, FLAG_PASS_THRU)) {
             newflags |= P_FLAGS_UPDATE;
         }
-        /* Floors define our node - force an update */
         else if (QUERY_FLAG(op, FLAG_IS_FLOOR)) {
+            /* Floors define our node - force an update */
             newflags |= P_FLAGS_UPDATE;
             msp->light_value += op->last_sp;
         }
-        /* We don't have to use flag loop - we can set it by hand! */
         else {
+            /* We don't have to use flag loop - we can set it by hand! */
             if (op->type == CHECK_INV) {
                 newflags |= P_CHECK_INV;
             }
@@ -1207,8 +1182,7 @@ void update_object(object *op, int action)
                 newflags |= P_OUTDOOR;
             }
         }
-    }
-    else if (action == UP_OBJ_REMOVE) {
+    } else if (action == UP_OBJ_REMOVE) {
         /* Force layer rebuild */
         newflags |= P_NEED_UPDATE;
         msp->update_tile++;
@@ -1223,28 +1197,23 @@ void update_object(object *op, int action)
         if (QUERY_FLAG(op, FLAG_MONSTER) || QUERY_FLAG(op, FLAG_IS_PLAYER) || QUERY_FLAG(op, FLAG_BLOCKSVIEW) || QUERY_FLAG(op, FLAG_DOOR_CLOSED) || QUERY_FLAG(op, FLAG_PASS_THRU) || QUERY_FLAG(op, FLAG_NO_PASS) || QUERY_FLAG(op, FLAG_PLAYER_ONLY) || QUERY_FLAG(op, FLAG_NO_MAGIC) || QUERY_FLAG(op, FLAG_WALK_ON) || QUERY_FLAG(op, FLAG_FLY_ON) || QUERY_FLAG(op, FLAG_WALK_OFF) || QUERY_FLAG(op, FLAG_FLY_OFF) || QUERY_FLAG(op,  FLAG_IS_FLOOR) || op->type == CHECK_INV) {
             newflags |= P_FLAGS_UPDATE;
         }
-    }
-    else if (action == UP_OBJ_FLAGS) {
+    } else if (action == UP_OBJ_FLAGS) {
         /* Force flags rebuild but no tile counter */
         newflags |= P_FLAGS_UPDATE;
-    }
-    else if (action == UP_OBJ_FLAGFACE) {
+    } else if (action == UP_OBJ_FLAGFACE) {
         /* Force flags rebuild */
         newflags |= P_FLAGS_UPDATE;
         msp->update_tile++;
-    }
-    else if (action == UP_OBJ_LAYER) {
+    } else if (action == UP_OBJ_LAYER) {
         /* Rebuild layers - most common when we change visibility of the object
          * */
         newflags |= P_NEED_UPDATE;
         msp->update_tile++;
-    }
-    else if (action == UP_OBJ_ALL) {
+    } else if (action == UP_OBJ_ALL) {
         /* Force full tile update */
         newflags |= (P_FLAGS_UPDATE | P_NEED_UPDATE);
         msp->update_tile++;
-    }
-    else {
+    } else {
         return;
     }
 
@@ -1253,8 +1222,7 @@ void update_object(object *op, int action)
         if (newflags & (P_FLAGS_UPDATE)) {
             msp->flags |= (newflags | P_NO_ERROR | P_FLAGS_ONLY);
             update_position(op->map, op->x, op->y);
-        }
-        else {
+        } else {
             msp->flags |= newflags;
         }
     }
@@ -1285,8 +1253,7 @@ void drop_ob_inv(object *ob)
 
     if (ob->enemy && ob->enemy->type == PLAYER) {
         enemy = ob->enemy;
-    }
-    else {
+    } else {
         enemy = get_owner(ob->enemy);
     }
 
@@ -1316,7 +1283,7 @@ void drop_ob_inv(object *ob)
         }
 
         if ((QUERY_FLAG(ob, FLAG_STARTEQUIP) && !(tmp_op->type == ARROW && tmp_op->attacked_by_count != 0)) ||
-            (tmp_op->type != RUNE && (QUERY_FLAG(tmp_op, FLAG_SYS_OBJECT) || QUERY_FLAG(tmp_op, FLAG_STARTEQUIP) || QUERY_FLAG(tmp_op, FLAG_NO_DROP)))) {
+                (tmp_op->type != RUNE && (QUERY_FLAG(tmp_op, FLAG_SYS_OBJECT) || QUERY_FLAG(tmp_op, FLAG_STARTEQUIP) || QUERY_FLAG(tmp_op, FLAG_NO_DROP)))) {
             continue;
         }
 
@@ -1329,17 +1296,15 @@ void drop_ob_inv(object *ob)
 
         /* If we have a corpse put the item in it */
         if (corpse && !(tmp_op->type == ARROW && tmp_op->attacked_by_count != 0 &&
-            enemy != NULL && OBJECT_VALID(tmp_op->attacked_by, tmp_op->attacked_by_count) &&
-            tmp_op->attacked_by_count != enemy->count && !(tmp_op->attacked_by->type == PLAYER &&
-            enemy->type == PLAYER && CONTR(tmp_op->attacked_by)->party != NULL &&
-            CONTR(tmp_op->attacked_by)->party == CONTR(enemy)->party))) {
+                enemy != NULL && OBJECT_VALID(tmp_op->attacked_by, tmp_op->attacked_by_count) &&
+                tmp_op->attacked_by_count != enemy->count && !(tmp_op->attacked_by->type == PLAYER &&
+                enemy->type == PLAYER && CONTR(tmp_op->attacked_by)->party != NULL &&
+                CONTR(tmp_op->attacked_by)->party == CONTR(enemy)->party))) {
             insert_ob_in_ob(tmp_op, corpse);
-        }
-        else if (tmp_op->type != RUNE) {
+        } else if (tmp_op->type != RUNE) {
             if (ob->env) {
                 insert_ob_in_ob(tmp_op, ob->env);
-            }
-            else {
+            } else {
                 insert_ob_in_map(tmp_op, ob->map, NULL, 0);
             }
         }
@@ -1351,8 +1316,7 @@ void drop_ob_inv(object *ob)
             if (enemy->count == ob->enemy_count) {
                 FREE_AND_ADD_REF_HASH(corpse->slaying, enemy->name);
             }
-        }
-        else if (QUERY_FLAG(ob, FLAG_CORPSE_FORCED)) {
+        } else if (QUERY_FLAG(ob, FLAG_CORPSE_FORCED)) {
             corpse->stats.food = 5;
         }
 
@@ -1361,8 +1325,7 @@ void drop_ob_inv(object *ob)
             if (CONTR(enemy)->party && CONTR(enemy)->party->loot != PARTY_LOOT_OWNER) {
                 FREE_AND_ADD_REF_HASH(corpse->slaying, CONTR(enemy)->party->name);
                 corpse->sub_type = ST1_CONTAINER_CORPSE_party;
-            }
-            else {
+            } else {
                 corpse->sub_type = ST1_CONTAINER_CORPSE_player;
             }
         }
@@ -1372,8 +1335,7 @@ void drop_ob_inv(object *ob)
 
         if (ob->env) {
             insert_ob_in_ob(corpse, ob->env);
-        }
-        else {
+        } else {
             insert_ob_in_map(corpse, ob->map, NULL, 0);
         }
     }
@@ -1427,18 +1389,18 @@ void object_destroy(object *ob)
     /* Free attached attrsets */
     if (ob->custom_attrset) {
         switch (ob->type) {
-            case PLAYER:
+        case PLAYER:
             /* Players are changed into DEAD_OBJECTs when they logout */
-            case DEAD_OBJECT:
-                return_poolchunk(ob->custom_attrset, pool_player);
-                break;
+        case DEAD_OBJECT:
+            return_poolchunk(ob->custom_attrset, pool_player);
+            break;
 
-            case MAGIC_MIRROR:
-                magic_mirror_deinit(ob);
-                break;
+        case MAGIC_MIRROR:
+            magic_mirror_deinit(ob);
+            break;
 
-            default:
-                logger_print(LOG(BUG), "custom attrset found in unsupported object %s (type %d)", STRING_OBJ_NAME(ob), ob->type);
+        default:
+            logger_print(LOG(BUG), "custom attrset found in unsupported object %s (type %d)", STRING_OBJ_NAME(ob), ob->type);
         }
 
         ob->custom_attrset = NULL;
@@ -1571,8 +1533,7 @@ void object_remove(object *op, int flags)
 
         if (op->above) {
             op->above->below = op->below;
-        }
-        else {
+        } else {
             op->env->inv = op->below;
         }
 
@@ -1592,8 +1553,8 @@ void object_remove(object *op, int flags)
         op->above = NULL, op->below = NULL;
         op->env = NULL;
     }
-    /* The object is on map. */
     else if (op->map) {
+        /* The object is on map. */
         MapSpace *msp;
 
         /* If this is the base layer object, we assign the next object
@@ -1603,8 +1564,7 @@ void object_remove(object *op, int flags)
         if (op->layer && GET_MAP_SPACE_LAYER(msp, op->layer, op->sub_layer) == op) {
             if (op->above && op->above->layer == op->layer && op->above->sub_layer == op->sub_layer) {
                 SET_MAP_SPACE_LAYER(msp, op->layer, op->sub_layer, op->above);
-            }
-            else {
+            } else {
                 SET_MAP_SPACE_LAYER(msp, op->layer, op->sub_layer, NULL);
             }
         }
@@ -1613,8 +1573,8 @@ void object_remove(object *op, int flags)
         if (op->above) {
             op->above->below = op->below;
         }
-        /* Assign below as last one. */
         else {
+            /* Assign below as last one. */
             SET_MAP_SPACE_LAST(msp, op->below);
         }
 
@@ -1622,8 +1582,8 @@ void object_remove(object *op, int flags)
         if (op->below) {
             op->below->above = op->above;
         }
-        /* First object goes on above it. */
         else {
+            /* First object goes on above it. */
             SET_MAP_SPACE_FIRST(msp, op->above);
         }
 
@@ -1763,34 +1723,29 @@ object *insert_ob_in_map(object *op, mapstruct *m, object *originator, int flag)
         if (top) {
             if (top->below) {
                 top->below->above = op;
-            }
-            else {
+            } else {
                 SET_MAP_SPACE_FIRST(mc, op);
             }
 
             op->below = top->below;
             top->below = op;
             op->above = top;
-        }
-        else {
+        } else {
             if ((top = GET_MAP_SPACE_LAST(mc)) != NULL) {
                 top->above = op;
                 op->below = top;
-            }
-            else {
+            } else {
                 SET_MAP_SPACE_FIRST(mc, op);
             }
 
             SET_MAP_SPACE_LAST(mc, op);
         }
-    }
-    else {
+    } else {
         if ((top = GET_MAP_SPACE_FIRST(mc)) != NULL) {
             /* Easy chaining */
             top->below = op;
             op->above = top;
-        }
-        else {
+        } else {
             SET_MAP_SPACE_LAST(mc, op);
         }
 
@@ -1808,11 +1763,9 @@ object *insert_ob_in_map(object *op, mapstruct *m, object *originator, int flag)
         }
 
         op->map->player_first = op;
-    }
-    else if (op->type == MAP_EVENT_OBJ) {
+    } else if (op->type == MAP_EVENT_OBJ) {
         map_event_obj_init(op);
-    }
-    else if (object_type_methods[op->type].insert_map_func) {
+    } else if (object_type_methods[op->type].insert_map_func) {
         object_type_methods[op->type].insert_map_func(op);
     }
 
@@ -1942,8 +1895,7 @@ object *object_stack_get_reinsert(object *op, uint32 nrof)
     if (split != op) {
         if (op->map) {
             split = insert_ob_in_map(split, op->map, NULL, INS_NO_MERGE);
-        }
-        else if (op->env) {
+        } else if (op->env) {
             split = object_insert_into(split, op->env, INS_NO_MERGE);
         }
     }
@@ -1986,25 +1938,21 @@ object *decrease_ob_nr(object *op, uint32 i)
 
     if (QUERY_FLAG(op, FLAG_REMOVED)) {
         op->nrof -= i;
-    }
-    else if (op->env) {
+    } else if (op->env) {
         if (i < op->nrof) {
             op->nrof -= i;
 
             if (!QUERY_FLAG(op, FLAG_SYS_OBJECT)) {
                 sub_weight(op->env, op->weight * i);
             }
-        }
-        else {
+        } else {
             object_remove(op, 0);
             op->nrof = 0;
         }
-    }
-    else {
+    } else {
         if (i < op->nrof) {
             op->nrof -= i;
-        }
-        else {
+        } else {
             object_remove(op, 0);
             op->nrof = 0;
         }
@@ -2083,8 +2031,7 @@ object *object_insert_into(object *op, object *where, int flag)
      * It sure simplifies this function... */
     if (where->inv == NULL) {
         where->inv = op;
-    }
-    else {
+    } else {
         op->below = where->inv;
         op->below->above = op;
         where->inv = op;
@@ -2094,8 +2041,7 @@ object *object_insert_into(object *op, object *where, int flag)
      * event flags. */
     if (op->type == EVENT_OBJECT && op->sub_type) {
         where->event_flags |= (1U << (op->sub_type - 1));
-    }
-    else if (op->type == QUEST_CONTAINER && where->type == CONTAINER) {
+    } else if (op->type == QUEST_CONTAINER && where->type == CONTAINER) {
         where->event_flags |= EVENT_FLAG(EVENT_QUEST);
     }
 
@@ -2240,8 +2186,7 @@ int find_free_spot(archetype *at, object *op, mapstruct *m, int x, int y, int st
     for (i = start; i < stop; i++) {
         if (!arch_blocked(at, op, m, x + freearr_x[i], y + freearr_y[i])) {
             altern[inx++] = i;
-        }
-        else if (wall(m, x + freearr_x[i], y + freearr_y[i]) && maxfree[i] < stop) {
+        } else if (wall(m, x + freearr_x[i], y + freearr_y[i]) && maxfree[i] < stop) {
             stop = maxfree[i];
         }
     }
@@ -2339,8 +2284,7 @@ int find_dir_2(int x, int y)
 
     if (!y) {
         q = -300 * x;
-    }
-    else {
+    } else {
         q = x * 100 / y;
     }
 
@@ -2494,8 +2438,7 @@ object *object_create_clone(object *asrc)
         if (!part->head) {
             dst = tmp;
             tmp->head = NULL;
-        }
-        else {
+        } else {
             tmp->head = dst;
         }
 
@@ -2567,72 +2510,70 @@ int auto_apply(object *op)
     }
 
     switch (op->type) {
-        case SHOP_FLOOR:
+    case SHOP_FLOOR:
 
-            if (op->randomitems == NULL) {
+        if (op->randomitems == NULL) {
+            return 0;
+        }
+
+        a_chance = op->randomitems->artifact_chance;
+
+        /* If damned shop floor, force 0 artifact chance. */
+        if (QUERY_FLAG(op, FLAG_DAMNED)) {
+            a_chance = 0;
+        }
+
+        do {
+            /* Let's give it 10 tries */
+            i = 10;
+            level = op->stats.exp ? (int) op->stats.exp : get_environment_level(op);
+
+            while ((tmp = generate_treasure(op->randomitems, level, a_chance)) == NULL && --i) {
+            }
+
+            if (tmp == NULL) {
                 return 0;
             }
 
-            a_chance = op->randomitems->artifact_chance;
-
-            /* If damned shop floor, force 0 artifact chance. */
-            if (QUERY_FLAG(op, FLAG_DAMNED)) {
-                a_chance = 0;
+            if (QUERY_FLAG(tmp, FLAG_CURSED) || QUERY_FLAG(tmp, FLAG_DAMNED)) {
+                tmp = NULL;
             }
+        } while (!tmp);
 
-            do
-            {
-                /* Let's give it 10 tries */
-                i = 10;
-                level = op->stats.exp ? (int) op->stats.exp : get_environment_level(op);
+        tmp->x = op->x, tmp->y = op->y;
+        SET_FLAG(tmp, FLAG_UNPAID);
 
-                while ((tmp = generate_treasure(op->randomitems, level, a_chance)) == NULL && --i) {
-                }
+        /* If this shop floor doesn't have FLAG_CURSED, generate
+         * shop-clone items. */
+        if (!QUERY_FLAG(op, FLAG_CURSED)) {
+            SET_FLAG(tmp, FLAG_NO_PICK);
+        }
 
-                if (tmp == NULL) {
-                    return 0;
-                }
+        insert_ob_in_map(tmp, op->map, NULL, INS_NO_MERGE | INS_NO_WALK_ON);
+        identify(tmp);
 
-                if (QUERY_FLAG(tmp, FLAG_CURSED) || QUERY_FLAG(tmp, FLAG_DAMNED)) {
-                    tmp = NULL;
-                }
+        break;
+
+    case TREASURE:
+        level = op->stats.exp ? (int) op->stats.exp : get_environment_level(op);
+        create_treasure(op->randomitems, op, op->map ? GT_ENVIRONMENT : 0, level, T_STYLE_UNSET, ART_CHANCE_UNSET, 0, NULL);
+
+        /* If we generated on object and put it in this object inventory,
+         * move it to the parent object as the current object is about
+         * to disappear.  An example of this item is the random_* stuff
+         * that is put inside other objects. */
+        for (tmp = op->inv; tmp; tmp = tmp2) {
+            tmp2 = tmp->below;
+            object_remove(tmp, 0);
+
+            if (op->env) {
+                insert_ob_in_ob(tmp, op->env);
             }
-            while (!tmp);
+        }
 
-            tmp->x = op->x, tmp->y = op->y;
-            SET_FLAG(tmp, FLAG_UNPAID);
-
-            /* If this shop floor doesn't have FLAG_CURSED, generate
-             * shop-clone items. */
-            if (!QUERY_FLAG(op, FLAG_CURSED)) {
-                SET_FLAG(tmp, FLAG_NO_PICK);
-            }
-
-            insert_ob_in_map(tmp, op->map, NULL, INS_NO_MERGE | INS_NO_WALK_ON);
-            identify(tmp);
-
-            break;
-
-        case TREASURE:
-            level = op->stats.exp ? (int) op->stats.exp : get_environment_level(op);
-            create_treasure(op->randomitems, op, op->map ? GT_ENVIRONMENT : 0, level, T_STYLE_UNSET, ART_CHANCE_UNSET, 0, NULL);
-
-            /* If we generated on object and put it in this object inventory,
-             * move it to the parent object as the current object is about
-             * to disappear.  An example of this item is the random_* stuff
-             * that is put inside other objects. */
-            for (tmp = op->inv; tmp; tmp = tmp2) {
-                tmp2 = tmp->below;
-                object_remove(tmp, 0);
-
-                if (op->env) {
-                    insert_ob_in_ob(tmp, op->env);
-                }
-            }
-
-            /* No move off needed */
-            object_remove(op, 0);
-            break;
+        /* No move off needed */
+        object_remove(op, 0);
+        break;
     }
 
     return tmp ? 1 : 0;
@@ -2773,16 +2714,14 @@ static int object_set_value_s(object *op, const char *canonical_key, const char 
 
         if (value) {
             field->value = add_string(value);
-        }
-        else {
+        } else {
             /* Basically, if the archetype has this key set, we need to
              * store the NULL value so when we save it, we save the empty
              * value so that when we load, we get this value back
              * again. */
             if (object_get_key_link(&op->arch->clone, canonical_key)) {
                 field->value = NULL;
-            }
-            else {
+            } else {
                 /* Delete this link */
                 if (field->key) {
                     FREE_AND_CLEAR_HASH(field->key);
@@ -2794,8 +2733,7 @@ static int object_set_value_s(object *op, const char *canonical_key, const char 
 
                 if (last) {
                     last->next = field->next;
-                }
-                else {
+                } else {
                     op->key_values = field->next;
                 }
 
@@ -2942,24 +2880,20 @@ int item_matched_string(object *pl, object *op, const char *name)
                 if (!strcasecmp(cp, "impact weapons")) {
                     return 2;
                 }
-            }
-            else if (op->item_skill - 1 == SK_SLASH_WEAPONS) {
+            } else if (op->item_skill - 1 == SK_SLASH_WEAPONS) {
                 if (!strcasecmp(cp, "slash weapons")) {
                     return 2;
                 }
-            }
-            else if (op->item_skill - 1 == SK_CLEAVE_WEAPONS) {
+            } else if (op->item_skill - 1 == SK_CLEAVE_WEAPONS) {
                 if (!strcasecmp(cp, "cleave weapons")) {
                     return 2;
                 }
-            }
-            else if (op->item_skill - 1 == SK_PIERCE_WEAPONS) {
+            } else if (op->item_skill - 1 == SK_PIERCE_WEAPONS) {
                 if (!strcasecmp(cp, "pierce weapons")) {
                     return 2;
                 }
             }
-        }
-        else if (op->type == BOOK) {
+        } else if (op->type == BOOK) {
             if (!strcasecmp(cp, "books")) {
                 return 2;
             }
@@ -2980,8 +2914,7 @@ int item_matched_string(object *pl, object *op, const char *name)
                 if (sscanf(cp, "unread level %d-%d books", &book_level, &book_level2) == 2 && op->level >= book_level && op->level <= book_level2) {
                     return 2;
                 }
-            }
-            else {
+            } else {
                 if (!strcasecmp(cp, "read books")) {
                     return 2;
                 }
@@ -3017,17 +2950,17 @@ int item_matched_string(object *pl, object *op, const char *name)
         if (strcasecmp(cp, op->name) == 0 && !count) {
             retval = 4;
         }
-        /* Need to plurify name for proper match */
         else if (count > 1) {
             char newname[MAX_BUF];
+
+            /* Need to plurify name for proper match */
 
             snprintf(VS(newname), "%s", op->name);
 
             if (!strcasecmp(newname, cp)) {
                 retval = 6;
             }
-        }
-        else if (count == 1) {
+        } else if (count == 1) {
             if (!strcasecmp(op->name, cp)) {
                 retval = 6;
             }
@@ -3035,31 +2968,26 @@ int item_matched_string(object *pl, object *op, const char *name)
 
         if (!strcasecmp(cp, query_name(op, NULL))) {
             retval = 20;
-        }
-        else if (!strcasecmp(cp, query_short_name(op, NULL))) {
+        } else if (!strcasecmp(cp, query_short_name(op, NULL))) {
             retval = 18;
-        }
-        else if (!strcasecmp(cp, query_base_name(op, pl))) {
+        } else if (!strcasecmp(cp, query_base_name(op, pl))) {
             retval = 16;
-        }
-        else if (op->custom_name && !strcasecmp(cp, op->custom_name)) {
+        } else if (op->custom_name && !strcasecmp(cp, op->custom_name)) {
             retval = 15;
-        }
-        else if (!strncasecmp(cp, query_base_name(op, pl), strlen(cp))) {
+        } else if (!strncasecmp(cp, query_base_name(op, pl), strlen(cp))) {
             retval = 14;
         }
-        /* Do substring checks, so things like 'Str+1' will match.
-         * retval of these should perhaps be lower - they are lower
-         * than the specific strcasecmps above, but still higher than
-         * some other match criteria. */
         else if (strstr(query_base_name(op, pl), cp)) {
+            /* Do substring checks, so things like 'Str+1' will match.
+             * retval of these should perhaps be lower - they are lower
+             * than the specific strcasecmps above, but still higher than
+             * some other match criteria. */
+            retval = 12;
+        } else if (strstr(query_short_name(op, NULL), cp)) {
             retval = 12;
         }
-        else if (strstr(query_short_name(op, NULL), cp)) {
-            retval = 12;
-        }
-        /* Check for partial custom name, but give a really low priority. */
         else if (op->custom_name && strstr(op->custom_name, cp)) {
+            /* Check for partial custom name, but give a really low priority. */
             retval = 3;
         }
 
@@ -3083,8 +3011,7 @@ int object_get_gender(object *op)
 {
     if (QUERY_FLAG(op, FLAG_IS_MALE)) {
         return QUERY_FLAG(op, FLAG_IS_FEMALE) ? GENDER_HERMAPHRODITE : GENDER_MALE;
-    }
-    else if (QUERY_FLAG(op, FLAG_IS_FEMALE)) {
+    } else if (QUERY_FLAG(op, FLAG_IS_FEMALE)) {
         return GENDER_FEMALE;
     }
 
@@ -3161,7 +3088,7 @@ int object_enter_map(object *op, object *exit_ob, mapstruct *m, int x, int y, ui
             rp.origin_map[sizeof(rp.origin_map) - 1] = '\0';
 
             /* Pick a new pathname for the new map. Currently, we just use a
-            * static variable and increment the counter by one each time. */
+             * static variable and increment the counter by one each time. */
             snprintf(newmap_name, sizeof(newmap_name), "/random/%"FMT64U, reference_number++);
 
             /* Now to generate the actual map. */
@@ -3175,8 +3102,7 @@ int object_enter_map(object *op, object *exit_ob, mapstruct *m, int x, int y, ui
                 FREE_AND_COPY_HASH(EXIT_PATH(exit_ob), newmap_name);
                 FREE_AND_COPY_HASH(m->path, newmap_name);
             }
-        }
-        else {
+        } else {
             if (exit_ob->map) {
                 char *path;
 
@@ -3188,8 +3114,7 @@ int object_enter_map(object *op, object *exit_ob, mapstruct *m, int x, int y, ui
                 if (!m && op->type == PLAYER && strncmp(EXIT_PATH(exit_ob), "/random/", 8) == 0) {
                     return object_enter_map(op, NULL, ready_map_name(CONTR(op)->savebed_map, 0), CONTR(op)->bed_x, CONTR(op)->bed_y, 1);
                 }
-            }
-            else {
+            } else {
                 m = ready_map_name(EXIT_PATH(exit_ob), MAP_NAME_SHARED);
             }
         }

@@ -39,8 +39,7 @@
 #include <loader.h>
 
 /** All the coin arches. */
-char *coins[NUM_COINS + 1] =
-{
+char *coins[NUM_COINS + 1] = {
     "mitcoin",
     "goldcoin",
     "silvercoin",
@@ -117,13 +116,12 @@ void load_treasures(void)
 
             if (previous == NULL) {
                 first_treasurelist = tl;
-            }
-            else {
+            } else {
                 previous->next = tl;
             }
 
             previous = tl;
-            t_style= T_STYLE_UNSET;
+            t_style = T_STYLE_UNSET;
             a_chance = ART_CHANCE_UNSET;
             tl->items = load_treasure(fp, &t_style, &a_chance);
 
@@ -149,8 +147,7 @@ void load_treasures(void)
                     tl->total_chance += t->chance;
                 }
             }
-        }
-        else {
+        } else {
             logger_print(LOG(ERROR), "Treasure list didn't understand: %s", buf);
             exit(1);
         }
@@ -221,84 +218,62 @@ static treasure *load_treasure(FILE *fp, int *t_style, int *a_chance)
         if (sscanf(cp, "t_style %d", &value)) {
             if (start_marker) {
                 t->t_style = value;
-            }
-            else {
+            } else {
                 /* No, it's global for the while treasure list entry */
                 *t_style = value;
             }
-        }
-        else if (sscanf(cp, "artifact_chance %d", &value)) {
+        } else if (sscanf(cp, "artifact_chance %d", &value)) {
             if (start_marker) {
                 t->artifact_chance = value;
-            }
-            else {
+            } else {
                 /* No, it's global for the while treasure list entry */
                 *a_chance = value;
             }
-        }
-        else if (sscanf(cp, "arch %s", variable)) {
+        } else if (sscanf(cp, "arch %s", variable)) {
             if ((t->item = find_archetype(variable)) == NULL) {
                 logger_print(LOG(BUG), "Treasure lacks archetype: %s", variable);
             }
 
             start_marker = 1;
-        }
-        else if (sscanf(cp, "list %s", variable)) {
+        } else if (sscanf(cp, "list %s", variable)) {
             start_marker = 1;
             FREE_AND_COPY_HASH(t->name, variable);
-        }
-        else if (sscanf(cp, "name %s", variable)) {
+        } else if (sscanf(cp, "name %s", variable)) {
             FREE_AND_COPY_HASH(t->change_arch.name, cp + 5);
-        }
-        else if (sscanf(cp, "title %s", variable)) {
+        } else if (sscanf(cp, "title %s", variable)) {
             FREE_AND_COPY_HASH(t->change_arch.title, cp + 6);
-        }
-        else if (sscanf(cp, "slaying %s", variable)) {
+        } else if (sscanf(cp, "slaying %s", variable)) {
             FREE_AND_COPY_HASH(t->change_arch.slaying, cp + 8);
-        }
-        else if (sscanf(cp, "item_race %d", &value)) {
+        } else if (sscanf(cp, "item_race %d", &value)) {
             t->change_arch.item_race = value;
-        }
-        else if (sscanf(cp, "quality %d", &value)) {
+        } else if (sscanf(cp, "quality %d", &value)) {
             t->change_arch.quality = value;
-        }
-        else if (sscanf(cp, "quality_range %d", &value)) {
+        } else if (sscanf(cp, "quality_range %d", &value)) {
             t->change_arch.quality_range = value;
-        }
-        else if (sscanf(cp, "material %d", &value)) {
+        } else if (sscanf(cp, "material %d", &value)) {
             t->change_arch.material = value;
-        }
-        else if (sscanf(cp, "material_quality %d", &value)) {
+        } else if (sscanf(cp, "material_quality %d", &value)) {
             t->change_arch.material_quality = value;
-        }
-        else if (sscanf(cp, "material_range %d", &value)) {
+        } else if (sscanf(cp, "material_range %d", &value)) {
             t->change_arch.material_range = value;
-        }
-        else if (sscanf(cp, "chance_fix %d", &value)) {
+        } else if (sscanf(cp, "chance_fix %d", &value)) {
             t->chance_fix = (sint16) value;
             /* Important or the chance will stay 100% when not set to 0
              * in treasure list! */
             t->chance = 0;
-        }
-        else if (sscanf(cp, "chance %d", &value)) {
+        } else if (sscanf(cp, "chance %d", &value)) {
             t->chance = (uint8) value;
-        }
-        else if (sscanf(cp, "nrof %d", &value)) {
+        } else if (sscanf(cp, "nrof %d", &value)) {
             t->nrof = (uint16) value;
-        }
-        else if (sscanf(cp, "magic %d", &value)) {
+        } else if (sscanf(cp, "magic %d", &value)) {
             t->magic = value;
-        }
-        else if (sscanf(cp, "magic_fix %d", &value)) {
+        } else if (sscanf(cp, "magic_fix %d", &value)) {
             t->magic_fix = value;
-        }
-        else if (sscanf(cp, "magic_chance %d", &value)) {
+        } else if (sscanf(cp, "magic_chance %d", &value)) {
             t->magic_chance = value;
-        }
-        else if (sscanf(cp, "difficulty %d", &value)) {
+        } else if (sscanf(cp, "difficulty %d", &value)) {
             t->difficulty = value;
-        }
-        else if (!strncmp(cp, "yes", 3)) {
+        } else if (!strncmp(cp, "yes", 3)) {
             t_style2 = T_STYLE_UNSET;
             a_chance2 = ART_CHANCE_UNSET;
             t->next_yes = load_treasure(fp, &t_style2, &a_chance2);
@@ -310,8 +285,7 @@ static treasure *load_treasure(FILE *fp, int *t_style, int *a_chance)
             if (t->next_yes->t_style == T_STYLE_UNSET) {
                 t->next_yes->t_style = t_style2;
             }
-        }
-        else if (!strncmp(cp, "no", 2)) {
+        } else if (!strncmp(cp, "no", 2)) {
             t_style2 = T_STYLE_UNSET;
             a_chance2 = ART_CHANCE_UNSET;
             t->next_no = load_treasure(fp, &t_style2, &a_chance2);
@@ -323,11 +297,9 @@ static treasure *load_treasure(FILE *fp, int *t_style, int *a_chance)
             if (t->next_no->t_style == T_STYLE_UNSET) {
                 t->next_no->t_style = t_style2;
             }
-        }
-        else if (!strncmp(cp, "end", 3)) {
+        } else if (!strncmp(cp, "end", 3)) {
             return t;
-        }
-        else if (!strncmp(cp, "more", 4)) {
+        } else if (!strncmp(cp, "more", 4)) {
             t_style2 = T_STYLE_UNSET;
             a_chance2 = ART_CHANCE_UNSET;
             t->next = load_treasure(fp, &t_style2, &a_chance2);
@@ -341,8 +313,7 @@ static treasure *load_treasure(FILE *fp, int *t_style, int *a_chance)
             }
 
             return t;
-        }
-        else {
+        } else {
             logger_print(LOG(BUG), "Unknown treasure command: '%s', last entry %s", cp, t->name ? t->name : "null");
         }
     }
@@ -414,8 +385,7 @@ void init_artifacts(void)
                 continue;
             }
 
-            do
-            {
+            do {
                 /* Trim left whitespace. */
                 while (isspace(*cp)) {
                     cp++;
@@ -430,26 +400,21 @@ void init_artifacts(void)
                 FREE_AND_COPY_HASH(tmp->name, cp);
                 tmp->next = art->allowed;
                 art->allowed = tmp;
-            }
-            while ((cp = next) != NULL);
-        }
-        else if (sscanf(cp, "t_style %d", &value)) {
+            }            while ((cp = next) != NULL);
+        } else if (sscanf(cp, "t_style %d", &value)) {
             art->t_style = value;
-        }
-        else if (sscanf(cp, "chance %d", &value)) {
+        } else if (sscanf(cp, "chance %d", &value)) {
             art->chance = (uint16) value;
-        }
-        else if (sscanf(cp, "difficulty %d", &value)) {
+        } else if (sscanf(cp, "difficulty %d", &value)) {
             art->difficulty = (uint8) value;
-        }
-        else if (!strncmp(cp, "artifact", 8)) {
+        } else if (!strncmp(cp, "artifact", 8)) {
             FREE_AND_COPY_HASH(art->name, cp + 9);
-        }
-        else if (strncmp(cp, "copy_artifact ", 14) == 0) {
+        } else if (strncmp(cp, "copy_artifact ", 14) == 0) {
             art->copy_artifact = KEYWORD_IS_TRUE(cp + 14);
         }
-        /* Chain a default arch to this treasure */
         else if (!strncmp(cp, "def_arch", 8)) {
+            /* Chain a default arch to this treasure */
+
             if ((atemp = find_archetype(cp + 9)) == NULL) {
                 logger_print(LOG(ERROR), "Can't find def_arch %s.", cp + 9);
                 exit(1);
@@ -478,8 +443,9 @@ void init_artifacts(void)
              * one" and we
              * will have always a non-magical base for every artifact */
         }
-        /* All text after Object is now like an arch file until an end comes */
         else if (!strncmp(cp, "Object", 6)) {
+            /* All text after Object is now like an arch file until an end comes */
+
             old_pos = ftell(fp);
 
             if (!load_object(fp, &(art->def_at.clone), NULL, LO_LINEMODE, MAP_STYLE)) {
@@ -551,8 +517,7 @@ void init_artifacts(void)
 
             art->next = al->items;
             al->items = art;
-        }
-        else {
+        } else {
             logger_print(LOG(BUG), "Unknown input in artifact file: %s", buf);
         }
     }
@@ -568,8 +533,7 @@ void init_artifacts(void)
 
             if (!art->chance) {
                 logger_print(LOG(BUG), "Artifact with no chance: %s", art->name);
-            }
-            else {
+            } else {
                 al->total_chance += art->chance;
             }
         }
@@ -755,8 +719,7 @@ void create_treasure(treasurelist *t, object *op, int flag, int difficulty, int 
 
     if (t->total_chance) {
         create_one_treasure(t, op, flag, difficulty, t_style, a_chance, tries, arch_change);
-    }
-    else {
+    } else {
         create_all_treasures(t->items, op, flag, difficulty, t_style, a_chance, tries, arch_change);
     }
 }
@@ -788,8 +751,7 @@ static void create_all_treasures(treasure *t, object *op, int flag, int difficul
             if (t->name != shstr_cons.NONE && difficulty >= t->difficulty) {
                 create_treasure(find_treasurelist(t->name), op, flag, difficulty, t_style, a_chance, tries, change_arch ? change_arch : &t->change_arch);
             }
-        }
-        else if (difficulty >= t->difficulty) {
+        } else if (difficulty >= t->difficulty) {
             if (IS_SYS_INVISIBLE(&t->item->clone) || !(flag & GT_INVISIBLE)) {
                 if (t->item->clone.type != WEALTH) {
                     tmp = arch_to_object(t->item);
@@ -813,8 +775,9 @@ static void create_all_treasures(treasure *t, object *op, int flag, int difficul
                         SET_FLAG(tmp, FLAG_IDENTIFIED);
                     }
                 }
-                /* We have a wealth object - expand it to real money */
                 else {
+                    /* We have a wealth object - expand it to real money */
+
                     /* If t->magic is != 0, that's our value - if not use
                      * default setting */
                     int i, value = t->magic ? t->magic : t->item->clone.value;
@@ -840,8 +803,7 @@ static void create_all_treasures(treasure *t, object *op, int flag, int difficul
         if (t->next_yes != NULL) {
             create_all_treasures(t->next_yes, op, flag, difficulty, (t->next_yes->t_style == T_STYLE_UNSET) ? t_style : t->next_yes->t_style, a_chance, tries, change_arch);
         }
-    }
-    else if (t->next_no != NULL) {
+    } else if (t->next_no != NULL) {
         create_all_treasures(t->next_no, op, flag, difficulty, (t->next_no->t_style == T_STYLE_UNSET) ? t_style : t->next_no->t_style, a_chance, tries, change_arch);
     }
 
@@ -943,8 +905,7 @@ create_one_treasure_again_jmp:
 
         if (difficulty >= t->difficulty) {
             create_treasure(find_treasurelist(t->name), op, flag, difficulty, t_style, a_chance, tries, change_arch);
-        }
-        else if (t->nrof) {
+        } else if (t->nrof) {
             create_one_treasure(tl, op, flag, difficulty, t_style, a_chance, tries, change_arch);
         }
 
@@ -972,8 +933,9 @@ create_one_treasure_again_jmp:
                 SET_FLAG(tmp, FLAG_IDENTIFIED);
             }
         }
-        /* We have a wealth object - expand it to real money */
         else {
+            /* We have a wealth object - expand it to real money */
+
             /* If t->magic is != 0, that's our value - if not use default
              * setting */
             int i;
@@ -1008,8 +970,7 @@ static void put_treasure(object *op, object *creator, int flags)
         op->x = creator->x;
         op->y = creator->y;
         insert_ob_in_map(op, creator->map, op, INS_NO_MERGE | INS_NO_WALK_ON);
-    }
-    else {
+    } else {
         insert_ob_in_ob(op, creator);
     }
 }
@@ -1052,8 +1013,7 @@ static void set_magic(int difficulty, object *op, int max_magic, int fix_magic, 
     /* If we have a fixed value, force it */
     if (fix_magic) {
         i = fix_magic;
-    }
-    else {
+    } else {
         i = 0;
 
         /* chance_magic 0 means always no magic bonus */
@@ -1102,17 +1062,13 @@ void set_abs_magic(object *op, int magic)
     if (op->arch) {
         if (magic == 1) {
             op->value += 5300;
-        }
-        else if (magic == 2) {
+        } else if (magic == 2) {
             op->value += 12300;
-        }
-        else if (magic == 3) {
+        } else if (magic == 3) {
             op->value += 24300;
-        }
-        else if (magic == 4) {
+        } else if (magic == 4) {
             op->value += 52300;
-        }
-        else {
+        } else {
             op->value += 88300;
         }
 
@@ -1126,8 +1082,7 @@ void set_abs_magic(object *op, int magic)
         }
 
         op->weight = (op->arch->clone.weight * (100 - magic * 10)) / 100;
-    }
-    else {
+    } else {
         if (op->type == ARMOUR) {
             ARMOUR_SPEED(op) = (ARMOUR_SPEED(op) * (100 + magic * 10)) / 100;
         }
@@ -1171,329 +1126,304 @@ set_ring_bonus_jump1:
     if (op->type == AMULET) {
         if (!(RANDOM() % 21)) {
             r = 20 + RANDOM() % 2;
-        }
-        else if (!(RANDOM() % 20)) {
+        } else if (!(RANDOM() % 20)) {
             tmp = RANDOM() % 3;
 
             if (tmp == 2) {
                 r = 0;
-            }
-            else if (!tmp) {
+            } else if (!tmp) {
                 r = 11;
-            }
-            else {
+            } else {
                 r = 12;
             }
-        }
-        else if (RANDOM() & 2) {
+        } else if (RANDOM() & 2) {
             if (RANDOM() & 2) {
                 r = 10;
-            }
-            else {
+            } else {
                 r = 8;
             }
-        }
-        else {
+        } else {
             r = 13 + RANDOM() % 7;
         }
     }
 
     switch (r % 25) {
         /* We are creating hp stuff! */
-        case 0:
-            tmp = 5;
+    case 0:
+        tmp = 5;
 
-            if (level < 5) {
-                tmp += RANDOM() % 10;
+        if (level < 5) {
+            tmp += RANDOM() % 10;
 
-                if (bonus > 0) {
-                    op->value = (int) ((float) op->value * 1.3f);
-                }
-            }
-            else if (level < 10) {
-                tmp += 10 + RANDOM() % 10;
-
-                if (bonus > 0) {
-                    op->value = (int) ((float) op->value * 1.32f);
-                }
-            }
-            else if (level < 15) {
-                tmp += 15 + RANDOM() % 20;
-
-                if (bonus > 0) {
-                    op->value = (int) ((float) op->value * 1.34f);
-                }
-            }
-            else if (level < 20) {
-                tmp += 20 + RANDOM() % 21;
-
-                if (bonus > 0) {
-                    op->value = (int) ((float) op->value * 1.36f);
-                }
-            }
-            else if (level < 25) {
-                tmp += 25 + RANDOM() % 23;
-
-                if (bonus > 0) {
-                    op->value = (int) ((float) op->value * 1.38f);
-                }
-            }
-            else if (level < 30) {
-                tmp += 30 + RANDOM() % 25;
-
-                if (bonus > 0) {
-                    op->value = (int) ((float) op->value * 1.4f);
-                }
-            }
-            else if (level < 40) {
-                tmp += 40 + RANDOM() % 30;
-
-                if (bonus > 0) {
-                    op->value = (int) ((float) op->value * 1.42f);
-                }
-            }
-            else {
-                tmp += (int) ((double) level * 0.65) + 50 + RANDOM() % 40;
-
-                if (bonus > 0) {
-                    op->value = (int) ((float) op->value * 1.44f);
-                }
-            }
-
-            if (bonus < 0) {
-                tmp = -tmp;
-            }
-            else {
-                op->item_level = (int) ((double) level * (0.5 + ((double) (RANDOM() % 40) / 100.0)));
-            }
-
-            op->stats.maxhp = tmp;
-            break;
-
-        /* Stats */
-        case 1:
-        case 2:
-        case 3:
-        case 4:
-        case 5:
-        case 6:
-            set_attr_value(&op->stats, r, (sint8) (bonus + get_attr_value(&op->stats, r)));
-            break;
-
-        case 7:
-            op->stats.dam += bonus;
-
-            if (bonus > 0 && (RANDOM() % 20 > 16 ? 1 : 0)) {
+            if (bonus > 0) {
                 op->value = (int) ((float) op->value * 1.3f);
-                op->stats.dam++;
             }
+        } else if (level < 10) {
+            tmp += 10 + RANDOM() % 10;
 
-            break;
-
-        case 8:
-            op->stats.wc += bonus;
-
-            if (bonus > 0 && (RANDOM() % 20 > 16 ? 1 : 0)) {
-                op->value = (int) ((float) op->value * 1.3f);
-                op->stats.wc++;
+            if (bonus > 0) {
+                op->value = (int) ((float) op->value * 1.32f);
             }
+        } else if (level < 15) {
+            tmp += 15 + RANDOM() % 20;
 
-            break;
-
-        /* Hunger/sustenance */
-        case 9:
-            op->stats.food += bonus;
-
-            if (bonus > 0 && (RANDOM() % 20 > 16 ? 1 : 0)) {
-                op->value = (int) ((float) op->value * 1.2f);
-                op->stats.food++;
+            if (bonus > 0) {
+                op->value = (int) ((float) op->value * 1.34f);
             }
+        } else if (level < 20) {
+            tmp += 20 + RANDOM() % 21;
 
-            break;
-
-        case 10:
-            op->stats.ac += bonus;
-
-            if (bonus > 0 && (RANDOM() % 20 > 16 ? 1 : 0)) {
-                op->value = (int) ((float) op->value * 1.3f);
-                op->stats.ac++;
+            if (bonus > 0) {
+                op->value = (int) ((float) op->value * 1.36f);
             }
+        } else if (level < 25) {
+            tmp += 25 + RANDOM() % 23;
 
-            break;
-
-        case 11:
-        case 12:
-
-            if (!RANDOM() % 3) {
-                goto make_prot_items;
+            if (bonus > 0) {
+                op->value = (int) ((float) op->value * 1.38f);
             }
+        } else if (level < 30) {
+            tmp += 30 + RANDOM() % 25;
 
-            tmp = 3;
-
-            if (level < 5) {
-                tmp += RANDOM() % 3;
-
-                if (bonus > 0) {
-                    op->value = (int) ((float) op->value * 1.3f);
-                }
+            if (bonus > 0) {
+                op->value = (int) ((float) op->value * 1.4f);
             }
-            else if (level < 10) {
-                tmp += 3 + RANDOM() % 4;
+        } else if (level < 40) {
+            tmp += 40 + RANDOM() % 30;
 
-                if (bonus > 0) {
-                    op->value = (int) ((float) op->value * 1.32f);
-                }
+            if (bonus > 0) {
+                op->value = (int) ((float) op->value * 1.42f);
             }
-            else if (level < 15) {
-                tmp += 4 + RANDOM() % 6;
+        } else {
+            tmp += (int) ((double) level * 0.65) + 50 + RANDOM() % 40;
 
-                if (bonus > 0) {
-                    op->value = (int) ((float) op->value * 1.34f);
-                }
+            if (bonus > 0) {
+                op->value = (int) ((float) op->value * 1.44f);
             }
-            else if (level < 20) {
-                tmp += 6 + RANDOM() % 8;
-
-                if (bonus > 0) {
-                    op->value = (int) ((float) op->value * 1.36f);
-                }
-            }
-            else if (level < 25) {
-                tmp += 8 + RANDOM() % 10;
-
-                if (bonus > 0) {
-                    op->value = (int) ((float) op->value * 1.38f);
-                }
-            }
-            else if (level < 33) {
-                tmp += 10 + RANDOM() % 12;
-
-                if (bonus > 0) {
-                    op->value = (int) ((float) op->value * 1.4f);
-                }
-            }
-            else if (level < 44) {
-                tmp += 15 + RANDOM() % 15;
-
-                if (bonus > 0) {
-                    op->value = (int) ((float) op->value * 1.42f);
-                }
-            }
-            else {
-                tmp += (int) ((double) level * 0.53) + 20 + RANDOM() % 20;
-
-                if (bonus > 0) {
-                    op->value = (int) ((float) op->value * 1.44f);
-                }
-            }
-
-            if (bonus < 0) {
-                tmp = -tmp;
-            }
-            else {
-                op->item_level = (int) ((double) level * (0.5 + ((double) (RANDOM() % 40) / 100.0)));
-            }
-
-            op->stats.maxsp = tmp;
-            break;
-
-        case 13:
-make_prot_items:
-        case 14:
-        case 15:
-        case 16:
-        case 17:
-        case 18:
-        case 19:
-        {
-            int b = 5 + FABS(bonus), val, protect = RANDOM() % (LAST_PROTECTION - 4 + off);
-
-            /* Roughly generate a bonus between 100 and 35 (depending on the
-             * bonus) */
-            val = 10 + RANDOM() % b + RANDOM() % b + RANDOM() % b + RANDOM() % b;
-
-            /* Cursed items need to have higher negative values to equal
-             * out with positive values for how protections work out. Put
-             * another little random element in since that they don't
-             * always end up with even values. */
-            if (bonus < 0) {
-                val = 2 * -val - RANDOM() % b;
-            }
-
-            /* Upper limit */
-            if (val > 35) {
-                val = 35;
-            }
-
-            b = 0;
-
-            while (op->protection[protect] != 0) {
-                /* Not able to find a free protection */
-                if (b++ >= 4) {
-                    goto set_ring_bonus_jump1;
-                }
-
-                protect = RANDOM() % (LAST_PROTECTION - 4 + off);
-            }
-
-            op->protection[protect] = val;
-            break;
         }
 
-        case 20:
+        if (bonus < 0) {
+            tmp = -tmp;
+        } else {
+            op->item_level = (int) ((double) level * (0.5 + ((double) (RANDOM() % 40) / 100.0)));
+        }
 
-            if (op->type == AMULET) {
-                SET_FLAG(op, FLAG_REFL_SPELL);
-                op->value *= 11;
-            }
-            else {
-                /* Regenerate hit points */
-                op->stats.hp += bonus;
+        op->stats.maxhp = tmp;
+        break;
+
+        /* Stats */
+    case 1:
+    case 2:
+    case 3:
+    case 4:
+    case 5:
+    case 6:
+        set_attr_value(&op->stats, r, (sint8) (bonus + get_attr_value(&op->stats, r)));
+        break;
+
+    case 7:
+        op->stats.dam += bonus;
+
+        if (bonus > 0 && (RANDOM() % 20 > 16 ? 1 : 0)) {
+            op->value = (int) ((float) op->value * 1.3f);
+            op->stats.dam++;
+        }
+
+        break;
+
+    case 8:
+        op->stats.wc += bonus;
+
+        if (bonus > 0 && (RANDOM() % 20 > 16 ? 1 : 0)) {
+            op->value = (int) ((float) op->value * 1.3f);
+            op->stats.wc++;
+        }
+
+        break;
+
+        /* Hunger/sustenance */
+    case 9:
+        op->stats.food += bonus;
+
+        if (bonus > 0 && (RANDOM() % 20 > 16 ? 1 : 0)) {
+            op->value = (int) ((float) op->value * 1.2f);
+            op->stats.food++;
+        }
+
+        break;
+
+    case 10:
+        op->stats.ac += bonus;
+
+        if (bonus > 0 && (RANDOM() % 20 > 16 ? 1 : 0)) {
+            op->value = (int) ((float) op->value * 1.3f);
+            op->stats.ac++;
+        }
+
+        break;
+
+    case 11:
+    case 12:
+
+        if (!RANDOM() % 3) {
+            goto make_prot_items;
+        }
+
+        tmp = 3;
+
+        if (level < 5) {
+            tmp += RANDOM() % 3;
+
+            if (bonus > 0) {
                 op->value = (int) ((float) op->value * 1.3f);
+            }
+        } else if (level < 10) {
+            tmp += 3 + RANDOM() % 4;
 
-                if (bonus > 0 && (RANDOM() % 20 > 16 ? 1 : 0)) {
-                    op->value = (int) ((float) op->value * 1.3f);
-                    op->stats.hp++;
-                }
+            if (bonus > 0) {
+                op->value = (int) ((float) op->value * 1.32f);
+            }
+        } else if (level < 15) {
+            tmp += 4 + RANDOM() % 6;
+
+            if (bonus > 0) {
+                op->value = (int) ((float) op->value * 1.34f);
+            }
+        } else if (level < 20) {
+            tmp += 6 + RANDOM() % 8;
+
+            if (bonus > 0) {
+                op->value = (int) ((float) op->value * 1.36f);
+            }
+        } else if (level < 25) {
+            tmp += 8 + RANDOM() % 10;
+
+            if (bonus > 0) {
+                op->value = (int) ((float) op->value * 1.38f);
+            }
+        } else if (level < 33) {
+            tmp += 10 + RANDOM() % 12;
+
+            if (bonus > 0) {
+                op->value = (int) ((float) op->value * 1.4f);
+            }
+        } else if (level < 44) {
+            tmp += 15 + RANDOM() % 15;
+
+            if (bonus > 0) {
+                op->value = (int) ((float) op->value * 1.42f);
+            }
+        } else {
+            tmp += (int) ((double) level * 0.53) + 20 + RANDOM() % 20;
+
+            if (bonus > 0) {
+                op->value = (int) ((float) op->value * 1.44f);
+            }
+        }
+
+        if (bonus < 0) {
+            tmp = -tmp;
+        } else {
+            op->item_level = (int) ((double) level * (0.5 + ((double) (RANDOM() % 40) / 100.0)));
+        }
+
+        op->stats.maxsp = tmp;
+        break;
+
+    case 13:
+        make_prot_items :
+    case 14:
+    case 15:
+    case 16:
+    case 17:
+    case 18:
+    case 19:
+    {
+        int b = 5 + FABS(bonus), val, protect = RANDOM() % (LAST_PROTECTION - 4 + off);
+
+        /* Roughly generate a bonus between 100 and 35 (depending on the
+         * bonus) */
+        val = 10 + RANDOM() % b + RANDOM() % b + RANDOM() % b + RANDOM() % b;
+
+        /* Cursed items need to have higher negative values to equal
+         * out with positive values for how protections work out. Put
+         * another little random element in since that they don't
+         * always end up with even values. */
+        if (bonus < 0) {
+            val = 2 * -val - RANDOM() % b;
+        }
+
+        /* Upper limit */
+        if (val > 35) {
+            val = 35;
+        }
+
+        b = 0;
+
+        while (op->protection[protect] != 0) {
+            /* Not able to find a free protection */
+            if (b++ >= 4) {
+                goto set_ring_bonus_jump1;
             }
 
-            break;
+            protect = RANDOM() % (LAST_PROTECTION - 4 + off);
+        }
 
-        case 21:
+        op->protection[protect] = val;
+        break;
+    }
 
-            if (op->type == AMULET) {
-                SET_FLAG(op, FLAG_REFL_MISSILE);
-                op->value *= 9;
+    case 20:
+
+        if (op->type == AMULET) {
+            SET_FLAG(op, FLAG_REFL_SPELL);
+            op->value *= 11;
+        } else {
+            /* Regenerate hit points */
+            op->stats.hp += bonus;
+            op->value = (int) ((float) op->value * 1.3f);
+
+            if (bonus > 0 && (RANDOM() % 20 > 16 ? 1 : 0)) {
+                op->value = (int) ((float) op->value * 1.3f);
+                op->stats.hp++;
             }
-            else {
-                /* Regenerate spell points */
-                op->stats.sp += bonus;
+        }
+
+        break;
+
+    case 21:
+
+        if (op->type == AMULET) {
+            SET_FLAG(op, FLAG_REFL_MISSILE);
+            op->value *= 9;
+        } else {
+            /* Regenerate spell points */
+            op->stats.sp += bonus;
+            op->value = (int) ((float) op->value * 1.35f);
+
+            if (bonus > 0 && (RANDOM() % 20 > 16 ? 1 : 0)) {
                 op->value = (int) ((float) op->value * 1.35f);
-
-                if (bonus > 0 && (RANDOM() % 20 > 16 ? 1 : 0)) {
-                    op->value = (int) ((float) op->value * 1.35f);
-                    op->stats.sp++;
-                }
+                op->stats.sp++;
             }
+        }
 
-            break;
+        break;
 
-        default:
+    default:
 
-            if (!bonus) {
-                bonus = 1;
-            }
+        if (!bonus) {
+            bonus = 1;
+        }
 
-            /* Speed! */
-            op->stats.exp += bonus;
-            op->value = (int) ((float) op->value * 1.4f);
-            break;
+        /* Speed! */
+        op->stats.exp += bonus;
+        op->value = (int) ((float) op->value * 1.4f);
+        break;
     }
 
     if (bonus > 0) {
         op->value = (int) ((float) op->value * 2.0f * (float) bonus);
-    }
-    else {
+    } else {
         op->value = -(op->value * 2 * bonus) / 2;
     }
 
@@ -1686,386 +1616,380 @@ int fix_generated_item(object **op_ptr, object *creator, int difficulty, int a_c
     if (!op->title || op->type == RUNE) {
         switch (op->type) {
             /* We create scrolls now in artifacts file too */
-            case SCROLL:
-                while (op->stats.sp == SP_NO_SPELL) {
-                    generate_artifact(op, difficulty, t_style, 100);
+        case SCROLL:
+            while (op->stats.sp == SP_NO_SPELL) {
+                generate_artifact(op, difficulty, t_style, 100);
 
-                    if (too_many_tries++ > 3) {
-                        break;
-                    }
-                }
-
-                /* Ok, forget it... */
-                if (op->stats.sp == SP_NO_SPELL) {
+                if (too_many_tries++ > 3) {
                     break;
                 }
+            }
 
-                /* Marks as magical */
-                SET_FLAG(op, FLAG_IS_MAGICAL);
-                /* Charges */
-                op->stats.food = rndm(1, spells[op->stats.sp].charges);
-                temp = (((difficulty * 100) - (difficulty * 20)) + (difficulty * rndm(0, 34))) / 100;
-
-                if (temp < 1) {
-                    temp = 1;
-                }
-                else if (temp > MAXLEVEL) {
-                    temp = MAXLEVEL;
-                }
-
-                op->level = temp;
-
-                if (temp < spells[op->stats.sp].at->clone.level) {
-                    temp = spells[op->stats.sp].at->clone.level;
-                }
-
-                break;
-
-            case POTION:
-            {
-                /* Balm */
-                if (!op->sub_type) {
-                    if ((op->stats.sp = get_random_spell(difficulty, SPELL_USE_BALM)) == SP_NO_SPELL) {
-                        break;
-                    }
-
-                    SET_FLAG(op, FLAG_IS_MAGICAL);
-                    op->value = (int) (150.0f * spells[op->stats.sp].value_mul);
-                }
-                /* Dust */
-                else if (op->sub_type > 128) {
-                    if ((op->stats.sp = get_random_spell(difficulty, SPELL_USE_DUST)) == SP_NO_SPELL) {
-                        break;
-                    }
-
-                    SET_FLAG(op, FLAG_IS_MAGICAL);
-                    op->value = (int) (125.0f * spells[op->stats.sp].value_mul);
-                }
-                else {
-                    while (!(is_special = special_potion(op)) && op->stats.sp == SP_NO_SPELL) {
-                        generate_artifact(op, difficulty, t_style, 100);
-
-                        if (too_many_tries++ > 3) {
-                            goto jump_break1;
-                        }
-                    }
-                }
-
-                temp = (((difficulty * 100) - (difficulty * 20)) + (difficulty * rndm(0, 34))) / 100;
-
-                if (temp < 1) {
-                    temp = 1;
-                }
-                else if (temp > MAXLEVEL) {
-                    temp = MAXLEVEL;
-                }
-
-                if (!is_special && temp < spells[op->stats.sp].at->clone.level) {
-                    temp = spells[op->stats.sp].at->clone.level;
-                }
-
-                op->level = temp;
-
-                /* Chance to make special potions damned or cursed. The
-                 * chance is somewhat high to make the game more
-                 * difficult. Applying this potions without identify is a
-                 * great risk! */
-                if (is_special && !(flags & GT_ONLY_GOOD)) {
-                    if (rndm_chance(2)) {
-                        SET_FLAG(op, (rndm_chance(2) ? FLAG_CURSED : FLAG_DAMNED));
-                    }
-                }
-
-jump_break1:
+            /* Ok, forget it... */
+            if (op->stats.sp == SP_NO_SPELL) {
                 break;
             }
 
-            case AMULET:
+            /* Marks as magical */
+            SET_FLAG(op, FLAG_IS_MAGICAL);
+            /* Charges */
+            op->stats.food = rndm(1, spells[op->stats.sp].charges);
+            temp = (((difficulty * 100) - (difficulty * 20)) + (difficulty * rndm(0, 34))) / 100;
 
-                /* Since it's not just decoration */
-                if (op->arch == amulet_arch) {
-                    op->value *= 5;
-                }
+            if (temp < 1) {
+                temp = 1;
+            } else if (temp > MAXLEVEL) {
+                temp = MAXLEVEL;
+            }
 
-            case RING:
+            op->level = temp;
 
-                if (op->arch == NULL) {
-                    object_remove(op, 0);
-                    *op_ptr = op = NULL;
+            if (temp < spells[op->stats.sp].at->clone.level) {
+                temp = spells[op->stats.sp].at->clone.level;
+            }
+
+            break;
+
+        case POTION:
+        {
+            /* Balm */
+            if (!op->sub_type) {
+                if ((op->stats.sp = get_random_spell(difficulty, SPELL_USE_BALM)) == SP_NO_SPELL) {
                     break;
                 }
 
-                /* It's a special artifact! For these items, there is no point
-                 * carrying on, as the next bit is for regular rings only. */
-                if (op->arch != ring_arch && op->arch != amulet_arch) {
+                SET_FLAG(op, FLAG_IS_MAGICAL);
+                op->value = (int) (150.0f * spells[op->stats.sp].value_mul);
+            }
+            else if (op->sub_type > 128) {
+                /* Dust */
+
+                if ((op->stats.sp = get_random_spell(difficulty, SPELL_USE_DUST)) == SP_NO_SPELL) {
                     break;
                 }
 
-                /* We have no special ring or amulet - now we create one. We
-                 * first
-                 * get us a value, material and face changed prototype.
-                 * Then we cast the powers over it. */
+                SET_FLAG(op, FLAG_IS_MAGICAL);
+                op->value = (int) (125.0f * spells[op->stats.sp].value_mul);
+            } else {
+                while (!(is_special = special_potion(op)) && op->stats.sp == SP_NO_SPELL) {
+                    generate_artifact(op, difficulty, t_style, 100);
 
-                /* This is called before we inserted it in the map or elsewhere
-                 * */
-                if (!QUERY_FLAG(op, FLAG_REMOVED)) {
-                    object_remove(op, 0);
+                    if (too_many_tries++ > 3) {
+                        goto jump_break1;
+                    }
                 }
+            }
 
-                /* Here we give the ring or amulet a random material.
-                 * First we use a special arch for this. Only this archtype is
-                 * allowed to be masked with a special material artifact. */
-                if (op->arch == ring_arch) {
-                    *op_ptr = op = arch_to_object(ring_arch_normal);
+            temp = (((difficulty * 100) - (difficulty * 20)) + (difficulty * rndm(0, 34))) / 100;
+
+            if (temp < 1) {
+                temp = 1;
+            } else if (temp > MAXLEVEL) {
+                temp = MAXLEVEL;
+            }
+
+            if (!is_special && temp < spells[op->stats.sp].at->clone.level) {
+                temp = spells[op->stats.sp].at->clone.level;
+            }
+
+            op->level = temp;
+
+            /* Chance to make special potions damned or cursed. The
+             * chance is somewhat high to make the game more
+             * difficult. Applying this potions without identify is a
+             * great risk! */
+            if (is_special && !(flags & GT_ONLY_GOOD)) {
+                if (rndm_chance(2)) {
+                    SET_FLAG(op, (rndm_chance(2) ? FLAG_CURSED : FLAG_DAMNED));
                 }
-                else {
-                    *op_ptr = op = arch_to_object(amulet_arch_normal);
-                }
+            }
 
-                generate_artifact(op, difficulty, t_style, 99);
+        jump_break1:
+            break;
+        }
 
-                /* Now we add the random boni/mali to the item */
-                if (!(flags & GT_ONLY_GOOD) && rndm_chance(4)) {
-                    SET_FLAG(op, FLAG_CURSED);
-                }
+        case AMULET:
 
-                set_ring_bonus(op, QUERY_FLAG(op, FLAG_CURSED) ? -DICE2 : DICE2, difficulty);
+            /* Since it's not just decoration */
+            if (op->arch == amulet_arch) {
+                op->value *= 5;
+            }
 
-                if (op->type == RING) {
+        case RING:
+
+            if (op->arch == NULL) {
+                object_remove(op, 0);
+                *op_ptr = op = NULL;
+                break;
+            }
+
+            /* It's a special artifact! For these items, there is no point
+             * carrying on, as the next bit is for regular rings only. */
+            if (op->arch != ring_arch && op->arch != amulet_arch) {
+                break;
+            }
+
+            /* We have no special ring or amulet - now we create one. We
+             * first
+             * get us a value, material and face changed prototype.
+             * Then we cast the powers over it. */
+
+            /* This is called before we inserted it in the map or elsewhere
+             * */
+            if (!QUERY_FLAG(op, FLAG_REMOVED)) {
+                object_remove(op, 0);
+            }
+
+            /* Here we give the ring or amulet a random material.
+             * First we use a special arch for this. Only this archtype is
+             * allowed to be masked with a special material artifact. */
+            if (op->arch == ring_arch) {
+                *op_ptr = op = arch_to_object(ring_arch_normal);
+            } else {
+                *op_ptr = op = arch_to_object(amulet_arch_normal);
+            }
+
+            generate_artifact(op, difficulty, t_style, 99);
+
+            /* Now we add the random boni/mali to the item */
+            if (!(flags & GT_ONLY_GOOD) && rndm_chance(4)) {
+                SET_FLAG(op, FLAG_CURSED);
+            }
+
+            set_ring_bonus(op, QUERY_FLAG(op, FLAG_CURSED) ? -DICE2 : DICE2, difficulty);
+
+            if (op->type == RING) {
+                if (rndm_chance(4)) {
+                    int d = (!rndm_chance(2) || QUERY_FLAG(op, FLAG_CURSED)) ? -DICE2 : DICE2;
+
+                    if (set_ring_bonus(op, d, difficulty)) {
+                        op->value = (int) ((float) op->value * 1.95f);
+                    }
+
                     if (rndm_chance(4)) {
-                        int d = (!rndm_chance(2) || QUERY_FLAG(op, FLAG_CURSED)) ? -DICE2 : DICE2;
+                        d = (!rndm_chance(3) || QUERY_FLAG(op, FLAG_CURSED)) ? -DICE2 : DICE2;
 
                         if (set_ring_bonus(op, d, difficulty)) {
                             op->value = (int) ((float) op->value * 1.95f);
                         }
-
-                        if (rndm_chance(4)) {
-                            d = (!rndm_chance(3) || QUERY_FLAG(op, FLAG_CURSED)) ? -DICE2 : DICE2;
-
-                            if (set_ring_bonus(op, d, difficulty)) {
-                                op->value = (int) ((float) op->value * 1.95f);
-                            }
-                        }
                     }
                 }
+            }
 
-                set_ring_item_power(op);
+            set_ring_item_power(op);
 
+            break;
+
+        case BOOK:
+
+            /* Is it an empty book? If yes let's make a special msg
+             * for it, and tailor its properties based on the creator
+             * and/or map level we found it on. */
+            if (!op->msg && !rndm_chance(10)) {
+                int level = 5;
+                size_t msg_len = 0;
+
+                /* Set the book level properly. */
+                if (creator->level == 0 || IS_LIVE(creator)) {
+                    object *ob;
+
+                    for (ob = creator; ob && ob->env; ob = ob->env) {
+                    }
+
+                    if (ob->map && ob->map->difficulty) {
+                        level = ob->map->difficulty;
+                    }
+                } else {
+                    level = creator->level;
+                }
+
+                level = (((level * 100) - (level * 20)) + (level * rndm(0, 50))) / 100;
+
+                if (level < 1) {
+                    level = 1;
+                } else if (level > MAXLEVEL) {
+                    level = MAXLEVEL;
+                }
+
+                op->level = level;
+
+                tailor_readable_ob(op, creator->stats.sp ? creator->stats.sp : -1);
+                generate_artifact(op, 1, T_STYLE_UNSET, 100);
+
+                msg_len = op->msg ? strlen(op->msg) : 0;
+
+                /* Books with info are worth more! */
+                if (msg_len) {
+                    op->value *= ((op->level > 10 ? op->level : (op->level + 1) / 2) * ((msg_len / 250) + 1));
+                    op->stats.exp = 105 + (msg_len / 25) + (rndm(0, 20) - 10);
+                }
+
+                /* For library, chained books! */
+                if (creator->type != MONSTER && QUERY_FLAG(creator, FLAG_NO_PICK)) {
+                    SET_FLAG(op, FLAG_NO_PICK);
+                }
+
+                /* For check_inv floors */
+                if (creator->slaying && !op->slaying) {
+                    FREE_AND_COPY_HASH(op->slaying, creator->slaying);
+                }
+            }
+
+            break;
+
+        case WAND:
+
+            if ((op->stats.sp = get_random_spell(difficulty, SPELL_USE_WAND)) == SP_NO_SPELL) {
                 break;
+            }
 
-            case BOOK:
+            /* Marks as magical */
+            SET_FLAG(op, FLAG_IS_MAGICAL);
+            /* Charges */
+            op->stats.food = rndm(1, spells[op->stats.sp].charges) + 12;
 
-                /* Is it an empty book? If yes let's make a special msg
-                 * for it, and tailor its properties based on the creator
-                 * and/or map level we found it on. */
-                if (!op->msg && !rndm_chance(10)) {
-                    int level = 5;
-                    size_t msg_len = 0;
+            temp = (((difficulty * 100) - (difficulty * 20)) + (difficulty * rndm(0, 34))) / 100;
 
-                    /* Set the book level properly. */
-                    if (creator->level == 0 || IS_LIVE(creator)) {
-                        object *ob;
+            if (temp < 1) {
+                temp = 1;
+            } else if (temp > MAXLEVEL) {
+                temp = MAXLEVEL;
+            }
 
-                        for (ob = creator; ob && ob->env; ob = ob->env) {
-                        }
+            if (temp < spells[op->stats.sp].at->clone.level) {
+                temp = spells[op->stats.sp].at->clone.level;
+            }
 
-                        if (ob->map && ob->map->difficulty) {
-                            level = ob->map->difficulty;
-                        }
-                    }
-                    else {
-                        level = creator->level;
-                    }
+            op->level = temp;
+            op->value = (int) (16.3f * spells[op->stats.sp].value_mul);
 
-                    level = (((level * 100) - (level * 20)) + (level * rndm(0, 50))) / 100;
+            break;
 
-                    if (level < 1) {
-                        level = 1;
-                    }
-                    else if (level > MAXLEVEL) {
-                        level = MAXLEVEL;
-                    }
+        case ROD:
 
-                    op->level = level;
-
-                    tailor_readable_ob(op, creator->stats.sp ? creator->stats.sp : -1);
-                    generate_artifact(op, 1, T_STYLE_UNSET, 100);
-
-                    msg_len = op->msg ? strlen(op->msg) : 0;
-
-                    /* Books with info are worth more! */
-                    if (msg_len) {
-                        op->value *= ((op->level > 10 ? op->level : (op->level + 1) / 2) * ((msg_len / 250) + 1));
-                        op->stats.exp = 105 + (msg_len / 25) + (rndm(0, 20) - 10);
-                    }
-
-                    /* For library, chained books! */
-                    if (creator->type != MONSTER && QUERY_FLAG(creator, FLAG_NO_PICK)) {
-                        SET_FLAG(op, FLAG_NO_PICK);
-                    }
-
-                    /* For check_inv floors */
-                    if (creator->slaying && !op->slaying) {
-                        FREE_AND_COPY_HASH(op->slaying, creator->slaying);
-                    }
-                }
-
+            if ((op->stats.sp = get_random_spell(difficulty, SPELL_USE_ROD)) == SP_NO_SPELL) {
                 break;
+            }
 
-            case WAND:
+            /* Marks as magical */
+            SET_FLAG(op, FLAG_IS_MAGICAL);
 
-                if ((op->stats.sp = get_random_spell(difficulty, SPELL_USE_WAND)) == SP_NO_SPELL) {
-                    break;
-                }
+            if (op->stats.maxhp) {
+                op->stats.maxhp += rndm(0, op->stats.maxhp);
+            }
 
-                /* Marks as magical */
-                SET_FLAG(op, FLAG_IS_MAGICAL);
-                /* Charges */
-                op->stats.food = rndm(1, spells[op->stats.sp].charges) + 12;
+            op->stats.hp = op->stats.maxhp;
+            temp = (((difficulty * 100) - (difficulty * 20)) + (difficulty * rndm(0, 34))) / 100;
 
-                temp = (((difficulty * 100) - (difficulty * 20)) + (difficulty * rndm(0, 34))) / 100;
+            if (temp < 1) {
+                temp = 1;
+            } else if (temp > MAXLEVEL) {
+                temp = MAXLEVEL;
+            }
 
-                if (temp < 1) {
-                    temp = 1;
-                }
-                else if (temp > MAXLEVEL) {
-                    temp = MAXLEVEL;
-                }
+            op->level = temp;
 
-                if (temp < spells[op->stats.sp].at->clone.level) {
-                    temp = spells[op->stats.sp].at->clone.level;
-                }
+            if (temp < spells[op->stats.sp].at->clone.level) {
+                temp = spells[op->stats.sp].at->clone.level;
+            }
 
-                op->level = temp;
-                op->value = (int) (16.3f * spells[op->stats.sp].value_mul);
+            op->value = (int) (1850.0f * spells[op->stats.sp].value_mul);
 
-                break;
+            break;
 
-            case ROD:
-
-                if ((op->stats.sp = get_random_spell(difficulty, SPELL_USE_ROD)) == SP_NO_SPELL) {
-                    break;
-                }
-
-                /* Marks as magical */
-                SET_FLAG(op, FLAG_IS_MAGICAL);
-
-                if (op->stats.maxhp) {
-                    op->stats.maxhp += rndm(0, op->stats.maxhp);
-                }
-
-                op->stats.hp = op->stats.maxhp;
-                temp = (((difficulty * 100) - (difficulty * 20)) + (difficulty * rndm(0, 34))) / 100;
-
-                if (temp < 1) {
-                    temp = 1;
-                }
-                else if (temp > MAXLEVEL) {
-                    temp = MAXLEVEL;
-                }
-
-                op->level = temp;
-
-                if (temp < spells[op->stats.sp].at->clone.level) {
-                    temp = spells[op->stats.sp].at->clone.level;
-                }
-
-                op->value = (int) (1850.0f * spells[op->stats.sp].value_mul);
-
-                break;
-
-            case RUNE:
-                /* Artifact AND normal treasure runes! */
-                trap_adjust(op, difficulty);
-                break;
+        case RUNE:
+            /* Artifact AND normal treasure runes! */
+            trap_adjust(op, difficulty);
+            break;
 
             /* Generate some special food */
-            case FOOD:
+        case FOOD:
 
-                if (rndm_chance(4)) {
-                    generate_artifact(op, difficulty, T_STYLE_UNSET, 100);
-                }
+            if (rndm_chance(4)) {
+                generate_artifact(op, difficulty, T_STYLE_UNSET, 100);
+            }
 
-                /* Small chance to become cursed food */
-                if (!(flags & GT_ONLY_GOOD) && rndm_chance(20)) {
-                    int strong_curse = rndm(0, 1), i;
+            /* Small chance to become cursed food */
+            if (!(flags & GT_ONLY_GOOD) && rndm_chance(20)) {
+                int strong_curse = rndm(0, 1), i;
 
-                    SET_FLAG(op, FLAG_CURSED);
-                    SET_FLAG(op, FLAG_PERM_CURSED);
+                SET_FLAG(op, FLAG_CURSED);
+                SET_FLAG(op, FLAG_PERM_CURSED);
 
-                    /* Pick a random stat to put negative value on */
+                /* Pick a random stat to put negative value on */
+                change_attr_value(&op->stats, rndm(1, NUM_STATS) - 1, strong_curse ? -2 : -1);
+
+                /* If this is strong curse food, give it half a chance to
+                 * curse another stat */
+                if (strong_curse && rndm(0, 1)) {
                     change_attr_value(&op->stats, rndm(1, NUM_STATS) - 1, strong_curse ? -2 : -1);
+                }
 
-                    /* If this is strong curse food, give it half a chance to
-                     * curse another stat */
-                    if (strong_curse && rndm(0, 1)) {
-                        change_attr_value(&op->stats, rndm(1, NUM_STATS) - 1, strong_curse ? -2 : -1);
-                    }
+                /* Put a negative value on random protection. */
+                op->protection[rndm(1, LAST_PROTECTION) - 1] = strong_curse ? -25 : -10;
 
-                    /* Put a negative value on random protection. */
+                /* And again, if this is strong curse food, half a chance to
+                 * curse another protection. */
+                if (strong_curse && rndm(0, 1)) {
                     op->protection[rndm(1, LAST_PROTECTION) - 1] = strong_curse ? -25 : -10;
+                }
 
-                    /* And again, if this is strong curse food, half a chance to
-                     * curse another protection. */
-                    if (strong_curse && rndm(0, 1)) {
-                        op->protection[rndm(1, LAST_PROTECTION) - 1] = strong_curse ? -25 : -10;
-                    }
+                /* Change food, hp, mana bonuses to negative values */
+                if (op->stats.food) {
+                    op->stats.food = -op->stats.food;
+                }
 
-                    /* Change food, hp, mana bonuses to negative values */
-                    if (op->stats.food) {
-                        op->stats.food = -op->stats.food;
-                    }
+                if (op->stats.hp) {
+                    op->stats.hp = -op->stats.hp;
+                }
 
-                    if (op->stats.hp) {
-                        op->stats.hp = -op->stats.hp;
-                    }
+                if (op->stats.sp) {
+                    op->stats.sp = -op->stats.sp;
+                }
 
-                    if (op->stats.sp) {
-                        op->stats.sp = -op->stats.sp;
-                    }
+                /* Change any positive stat bonuses to negative bonuses. */
+                for (i = 0; i < NUM_STATS; i++) {
+                    sint8 val = get_attr_value(&op->stats, i);
 
-                    /* Change any positive stat bonuses to negative bonuses. */
-                    for (i = 0; i < NUM_STATS; i++) {
-                        sint8 val = get_attr_value(&op->stats, i);
-
-                        if (val > 0) {
-                            set_attr_value(&op->stats, i, -val);
-                        }
-                    }
-
-                    /* And the same for protections. */
-                    for (i = 0; i < NROFATTACKS; i++) {
-                        if (op->protection[i] > 0) {
-                            op->protection[i] = -op->protection[i];
-                        }
-                    }
-
-                    if (!op->title) {
-                        FREE_AND_ADD_REF_HASH(op->title, (strong_curse ? shstr_cons.of_hideous_poison : shstr_cons.of_poison));
+                    if (val > 0) {
+                        set_attr_value(&op->stats, i, -val);
                     }
                 }
 
-                break;
+                /* And the same for protections. */
+                for (i = 0; i < NROFATTACKS; i++) {
+                    if (op->protection[i] > 0) {
+                        op->protection[i] = -op->protection[i];
+                    }
+                }
+
+                if (!op->title) {
+                    FREE_AND_ADD_REF_HASH(op->title, (strong_curse ? shstr_cons.of_hideous_poison : shstr_cons.of_poison));
+                }
+            }
+
+            break;
         }
     }
-    /* Title is not NULL. */
     else {
+        /* Title is not NULL. */
+
         switch (op->type) {
-            case ARROW:
+        case ARROW:
 
-                if (op->slaying == shstr_cons.none) {
-                    add_random_race(op);
-                }
+            if (op->slaying == shstr_cons.none) {
+                add_random_race(op);
+            }
 
-                break;
+            break;
 
-            case WEAPON:
+        case WEAPON:
 
-                if (op->slaying == shstr_cons.none) {
-                    add_random_race(op);
-                }
+            if (op->slaying == shstr_cons.none) {
+                add_random_race(op);
+            }
 
-                break;
+            break;
         }
     }
 
@@ -2076,8 +2000,7 @@ jump_break1:
     if (flags & GT_STARTEQUIP) {
         if (op->nrof < 2 && op->type != CONTAINER && op->type != MONEY && !QUERY_FLAG(op, FLAG_IS_THROWN)) {
             SET_FLAG(op, FLAG_STARTEQUIP);
-        }
-        else if (op->type != MONEY) {
+        } else if (op->type != MONEY) {
             op->value = 0;
         }
     }
@@ -2149,15 +2072,13 @@ archetype *find_artifact_archtype(const char *name)
     for (al = first_artifactlist; al != NULL; al = al->next) {
         art = al->items;
 
-        do
-        {
+        do {
             if (art->name && !strcmp(art->name, name)) {
                 return &art->def_at;
             }
 
             art = art->next;
-        }
-        while (art != NULL);
+        }        while (art != NULL);
     }
 
     return NULL;
@@ -2209,8 +2130,7 @@ static int legal_artifact_combination(object *op, artifact *art)
 
         if (*tmp->name == '!') {
             name = tmp->name + 1, neg = 1;
-        }
-        else {
+        } else {
             name = tmp->name, neg = 0;
         }
 
@@ -2218,9 +2138,9 @@ static int legal_artifact_combination(object *op, artifact *art)
         if (!strcmp(name, op->name) || (op->arch && !strcmp(name, op->arch->name))) {
             return !neg;
         }
-        /* Set success as true, since if the match was an inverse, it
-         * means everything is allowed except what we match. */
         else if (neg) {
+            /* Set success as true, since if the match was an inverse, it
+             * means everything is allowed except what we match. */
             success = 1;
         }
     }
@@ -2235,8 +2155,7 @@ void give_artifact_abilities(object *op, artifact *art)
 {
     if (art->copy_artifact) {
         copy_object_with_inv(&art->def_at.clone, op);
-    }
-    else {
+    } else {
         int tmp_value = op->value;
 
         op->value = 0;
@@ -2485,48 +2404,34 @@ static void set_material_real(object *op, struct _change_arch *change_arch)
         if (change_arch->material_range > 0 && change_arch->material) {
             op->material_real += rndm(0, change_arch->material_range);
         }
-    }
-
-    /* If 0, grab a valid material class. We should assign to all objects
-     * a valid material_real value to avoid problems here. */
+    }        /* If 0, grab a valid material class. We should assign to all objects
+         * a valid material_real value to avoid problems here. */
     else if (!op->material_real && op->material != M_ADAMANT) {
         if (op->material & M_IRON) {
             op->material_real = M_START_IRON;
-        }
-        else if (op->material & M_LEATHER) {
+        } else if (op->material & M_LEATHER) {
             op->material_real = M_START_LEATHER;
-        }
-        else if (op->material & M_PAPER) {
+        } else if (op->material & M_PAPER) {
             op->material_real = M_START_PAPER;
-        }
-        else if (op->material & M_GLASS) {
+        } else if (op->material & M_GLASS) {
             op->material_real = M_START_GLASS;
-        }
-        else if (op->material & M_WOOD) {
+        } else if (op->material & M_WOOD) {
             op->material_real = M_START_WOOD;
-        }
-        else if (op->material & M_ORGANIC) {
+        } else if (op->material & M_ORGANIC) {
             op->material_real = M_START_ORGANIC;
-        }
-        else if (op->material & M_STONE) {
+        } else if (op->material & M_STONE) {
             op->material_real = M_START_STONE;
-        }
-        else if (op->material & M_CLOTH) {
+        } else if (op->material & M_CLOTH) {
             op->material_real = M_START_CLOTH;
-        }
-        else if (op->material & M_ADAMANT) {
+        } else if (op->material & M_ADAMANT) {
             op->material_real = M_START_ADAMANT;
-        }
-        else if (op->material & M_LIQUID) {
+        } else if (op->material & M_LIQUID) {
             op->material_real = M_START_LIQUID;
-        }
-        else if (op->material & M_SOFT_METAL) {
+        } else if (op->material & M_SOFT_METAL) {
             op->material_real = M_START_SOFT_METAL;
-        }
-        else if (op->material & M_BONE) {
+        } else if (op->material & M_BONE) {
             op->material_real = M_START_BONE;
-        }
-        else if (op->material & M_ICE) {
+        } else if (op->material & M_ICE) {
             op->material_real = M_START_ICE;
         }
     }
@@ -2577,15 +2482,17 @@ static void set_material_real(object *op, struct _change_arch *change_arch)
                 /* That's now our best match! */
                 op->material_real = q_tmp;
             }
-            /* Excluded material table! */
             else {
+                /* Excluded material table! */
+
                 op->item_quality = m_range;
                 op->item_condition = op->item_quality;
                 return;
             }
         }
-        /* We have material_real 0 but we modify at least the quality! */
         else {
+            /* We have material_real 0 but we modify at least the quality! */
+
             op->item_quality = m_range;
             op->item_condition = op->item_quality;
             return;
@@ -2597,8 +2504,7 @@ set_material_real:
     /* Adjust quality - use material default value or quality adjustment */
     if (change_arch->quality != -1) {
         op->item_quality = change_arch->quality;
-    }
-    else {
+    } else {
         op->item_quality = material_real[op->material_real].quality;
     }
 
@@ -2677,6 +2583,7 @@ object *create_artifact(object *op, char *artifactname)
 }
 
 #ifdef TREASURE_DEBUG
+
 /**
  * Checks if a treasure if valid. Will also check its yes and no options.
  * @param t Treasure to check.

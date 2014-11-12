@@ -31,8 +31,7 @@
 
 /**
  * Scrollbar element. */
-typedef struct scrollbar_element
-{
+typedef struct scrollbar_element {
     /** X position. */
     int x;
 
@@ -59,8 +58,7 @@ typedef struct scrollbar_element
 
 /**
  * Holds scrollbar information. */
-typedef struct scrollbar_struct
-{
+typedef struct scrollbar_struct {
     /** Pointer to the scroll offset. */
     uint32 *scroll_offset;
 
@@ -122,8 +120,7 @@ typedef struct scrollbar_struct
 /**
  * Optional structure that can be used for storing scrollbar
  * information. */
-typedef struct scrollbar_info_struct
-{
+typedef struct scrollbar_info_struct {
     /** @copydoc scrollbar_struct::scroll_offset */
     uint32 scroll_offset;
 

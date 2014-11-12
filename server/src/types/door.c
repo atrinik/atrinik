@@ -153,12 +153,10 @@ int door_try_open(object *op, mapstruct *m, int x, int y, int test)
                     }
 
                     return 0;
-                }
-                else if (!test) {
+                } else if (!test) {
                     if (key->type == KEY) {
                         draw_info_format(COLOR_WHITE, op, "You open the %s with the %s.", tmp->name, query_short_name(key, NULL));
-                    }
-                    else if (key->type == FORCE) {
+                    } else if (key->type == FORCE) {
                         draw_info_format(COLOR_WHITE, op, "The %s is opened for you.", tmp->name);
                     }
                 }

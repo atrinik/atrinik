@@ -68,8 +68,7 @@ void place_monsters(mapstruct *map, char *monsterstyle, int difficulty, RMParms 
             new_monster->y = y;
             insert_ob_in_map(new_monster, map, new_monster, INS_NO_MERGE | INS_NO_WALK_ON);
             number_monsters++;
-        }
-        else {
+        } else {
             failed_placements++;
         }
     }

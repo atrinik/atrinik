@@ -66,9 +66,8 @@ int range_buttons_show(int x, int y, int *val, int advance)
             *val -= advance;
             ticks = SDL_GetTicks();
             return 1;
-        }
-        /* Otherwise increase it. */
-        else if (mx > x + texture_left->w && mx < x + texture_left->w + texture_right->w) {
+        } else if (mx > x + texture_left->w && mx < x + texture_left->w + texture_right->w) {
+            /* Otherwise increase it. */
             surface_show(ScreenSurface, x + texture_left->w, y, NULL, texture_right);
             *val += advance;
             ticks = SDL_GetTicks();

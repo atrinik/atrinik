@@ -36,29 +36,29 @@
 
 /** This is for allowing both python 3 and python 2. */
 #if PY_MAJOR_VERSION >= 3
-#   define IS_PY3K
+#define IS_PY3K
 #else
-#   if PY_MINOR_VERSION >= 6
-#       define IS_PY26
-#   else
-#       define IS_PY_LEGACY
-#   endif
-#   if PY_MINOR_VERSION >= 5
-#       define IS_PY25
-#   endif
+#if PY_MINOR_VERSION >= 6
+#define IS_PY26
+#else
+#define IS_PY_LEGACY
+#endif
+#if PY_MINOR_VERSION >= 5
+#define IS_PY25
+#endif
 #endif
 
 /* Fake some Python 2.x functions for Python 3.x. */
 #ifdef IS_PY3K
-#   define PyString_Check PyUnicode_Check
-#   define PyString_AsString _PyUnicode_AsString
-#   define PyInt_Check PyLong_Check
-#   define PyInt_AsLong PyLong_AsLong
+#define PyString_Check PyUnicode_Check
+#define PyString_AsString _PyUnicode_AsString
+#define PyInt_Check PyLong_Check
+#define PyInt_AsLong PyLong_AsLong
 extern PyTypeObject PyIOBase_Type;
-#   define PyFile_Check(op) (PyObject_IsInstance((op), (PyObject *) &PyIOBase_Type))
-#   define PyString_FromFormat PyUnicode_FromFormat
+#define PyFile_Check(op) (PyObject_IsInstance((op), (PyObject *) &PyIOBase_Type))
+#define PyString_FromFormat PyUnicode_FromFormat
 #else
-#   define PyObject_AsFileDescriptor(op) (PyFile_AsFile((op)) ? PyFile_AsFile((op))->fd : -1)
+#define PyObject_AsFileDescriptor(op) (PyFile_AsFile((op)) ? PyFile_AsFile((op))->fd : -1)
 #endif
 
 /** Name of the plugin. */
@@ -151,8 +151,7 @@ extern PyObject *AtrinikError;
     }
 
 /** The Python event context. */
-typedef struct _pythoncontext
-{
+typedef struct _pythoncontext {
     /** Next context. */
     struct _pythoncontext *down;
 
@@ -184,8 +183,7 @@ typedef struct _pythoncontext
 extern PythonContext *current_context;
 
 /** Type used for integer constants. */
-typedef struct
-{
+typedef struct {
     /** Name of the constant. */
     const char *name;
 
@@ -194,8 +192,7 @@ typedef struct
 } Atrinik_Constant;
 
 /** Types used in objects and maps structs. */
-typedef enum
-{
+typedef enum {
     /** Pointer to shared string. */
     FIELDTYPE_SHSTR,
     /** Pointer to C string. */
@@ -289,8 +286,7 @@ int Atrinik_Object_init(PyObject *module);
 /*@}*/
 
 /** The Atrinik_Object structure. */
-typedef struct Atrinik_Object
-{
+typedef struct Atrinik_Object {
     PyObject_HEAD
 
     /** Pointer to the Atrinik object we wrap. */
@@ -311,8 +307,7 @@ PyObject *wrap_map(mapstruct *map);
 int Atrinik_Map_init(PyObject *module);
 
 /** The Atrinik_Map structure. */
-typedef struct
-{
+typedef struct {
     PyObject_HEAD
     /** Pointer to the Atrinik map we wrap. */
     mapstruct *map;
@@ -323,8 +318,7 @@ PyObject *wrap_party(party_struct *party);
 int Atrinik_Party_init(PyObject *module);
 
 /** The Atrinik_Party structure. */
-typedef struct
-{
+typedef struct {
     PyObject_HEAD
     /** Pointer to the Atrinik party we wrap. */
     party_struct *party;
@@ -335,8 +329,7 @@ PyObject *wrap_region(region_struct *region);
 int Atrinik_Region_init(PyObject *module);
 
 /** The Atrinik_Region structure. */
-typedef struct
-{
+typedef struct {
     PyObject_HEAD
     /** Pointer to the Atrinik region we wrap. */
     region_struct *region;
@@ -347,8 +340,7 @@ PyObject *wrap_player(player *pl);
 int Atrinik_Player_init(PyObject *module);
 
 /** The Atrinik_Player structure. */
-typedef struct
-{
+typedef struct {
     PyObject_HEAD
     /** Pointer to the Atrinik player we wrap. */
     player *pl;
@@ -359,8 +351,7 @@ PyObject *wrap_archetype(archetype *at);
 int Atrinik_Archetype_init(PyObject *module);
 
 /** The Atrinik_Archetype structure. */
-typedef struct
-{
+typedef struct {
     PyObject_HEAD
     /** Pointer to the Atrinik archetype we wrap. */
     archetype *at;
@@ -371,8 +362,7 @@ PyObject *wrap_attr_list(void *ptr, size_t offset, field_type field);
 int Atrinik_AttrList_init(PyObject *module);
 
 /** The Atrinik_AttrList structure. */
-typedef struct
-{
+typedef struct {
     PyObject_HEAD
 
     /** Pointer to the structure the array is in. */
@@ -391,8 +381,7 @@ typedef struct
 } Atrinik_AttrList;
 
 /** One cache entry. */
-typedef struct python_cache_entry
-{
+typedef struct python_cache_entry {
     /** The script file. */
     char *file;
 
@@ -408,8 +397,7 @@ typedef struct python_cache_entry
 
 /**
  * General structure for Python object fields. */
-typedef struct
-{
+typedef struct {
     /**
      * Name of the field. */
     char *name;

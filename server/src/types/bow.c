@@ -79,8 +79,7 @@ static int ranged_fire_func(object *op, object *shooter, int dir, double *delay)
         SET_FLAG(copy, FLAG_NO_PICK);
         copy->nrof = 0;
         arrow = copy;
-    }
-    else {
+    } else {
         arrow = object_stack_get_removed(arrow, 1);
     }
 

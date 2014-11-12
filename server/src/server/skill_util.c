@@ -32,8 +32,7 @@
 #include <global.h>
 
 /** Table for stat modification of exp */
-float stat_exp_mult[MAX_STAT + 1] =
-{
+float stat_exp_mult[MAX_STAT + 1] = {
     0.0f,   0.01f,  0.1f,   0.3f,   0.5f,
     0.6f,   0.7f,   0.8f,   0.85f,  0.9f,
     0.95f,  0.96f,  0.97f,  0.98f,  0.99f,
@@ -45,8 +44,7 @@ float stat_exp_mult[MAX_STAT + 1] =
 
 /**
  * Used for calculating experience gained in calc_skill_exp(). */
-static float lev_exp[MAXLEVEL + 1] =
-{
+static float lev_exp[MAXLEVEL + 1] = {
     0.0f,     1.0f,     1.11f,    1.75f,    3.2f,
     5.5f,     10.0f,    20.0f,    35.25f,   66.1f,
     137.0f,   231.58f,  240.00f,  247.62f,  254.55f,
@@ -101,25 +99,25 @@ sint64 do_skill(object *op, int dir, const char *params)
     }
 
     switch (skill) {
-        case SK_FIND_TRAPS:
-            success = find_traps(op, op->level);
-            break;
+    case SK_FIND_TRAPS:
+        success = find_traps(op, op->level);
+        break;
 
-        case SK_REMOVE_TRAPS:
-            success = remove_trap(op);
-            break;
+    case SK_REMOVE_TRAPS:
+        success = remove_trap(op);
+        break;
 
-        case SK_CONSTRUCTION:
-            construction_do(op, dir);
-            return success;
+    case SK_CONSTRUCTION:
+        construction_do(op, dir);
+        return success;
 
-        case SK_INSCRIPTION:
-            success = skill_inscription(op, params);
-            break;
+    case SK_INSCRIPTION:
+        success = skill_inscription(op, params);
+        break;
 
-        default:
-            draw_info(COLOR_WHITE, op, "This skill is not usable in this way.");
-            return 0;
+    default:
+        draw_info(COLOR_WHITE, op, "This skill is not usable in this way.");
+        return 0;
     }
 
     /* This is a good place to add experience for successfull use of skills.
@@ -162,8 +160,8 @@ sint64 calc_skill_exp(object *who, object *op, int level)
         op_lvl = who->map->difficulty < 1 ? 1 : who->map->difficulty;
         op_exp = 0;
     }
-    /* All other items/living creatures */
     else {
+        /* All other items/living creatures */
         op_exp = op->stats.exp;
         op_lvl = op->level;
     }
@@ -179,20 +177,15 @@ sint64 calc_skill_exp(object *who, object *op, int level)
 
     if (who_lvl < 3) {
         max_mul = 0.7f;
-    }
-    else if (who_lvl < 4) {
+    } else if (who_lvl < 4) {
         max_mul = 0.6f;
-    }
-    else if (who_lvl < 5) {
+    } else if (who_lvl < 5) {
         max_mul = 0.45f;
-    }
-    else if (who_lvl < 7) {
+    } else if (who_lvl < 7) {
         max_mul = 0.35f;
-    }
-    else if (who_lvl < 8) {
+    } else if (who_lvl < 8) {
         max_mul = 0.3f;
-    }
-    else {
+    } else {
         max_mul = 0.25f;
     }
 
@@ -249,21 +242,16 @@ int check_skill_to_fire(object *op, object *weapon)
     if (weapon->type == BOW) {
         if (weapon->item_skill) {
             skillnr = weapon->item_skill - 1;
-        }
-        else {
+        } else {
             skillnr = SK_BOW_ARCHERY;
         }
-    }
-    else if (weapon->type == SPELL) {
+    } else if (weapon->type == SPELL) {
         skillnr = SK_WIZARDRY_SPELLS;
-    }
-    else if (weapon->type == ROD || weapon->type == WAND) {
+    } else if (weapon->type == ROD || weapon->type == WAND) {
         skillnr = SK_MAGIC_DEVICES;
-    }
-    else if (weapon->type == ARROW) {
+    } else if (weapon->type == ARROW) {
         skillnr = SK_THROWING;
-    }
-    else if (weapon->type == SKILL) {
+    } else if (weapon->type == SKILL) {
         skillnr = weapon->stats.sp;
     }
 
@@ -372,7 +360,7 @@ int skill_attack(object *tmp, object *pl, int dir, char *string)
         xt = pl->x + freearr_x[dir];
         yt = pl->y + freearr_y[dir];
 
-        if (!(m = get_map_from_coord(pl->map, &xt,&yt))) {
+        if (!(m = get_map_from_coord(pl->map, &xt, &yt))) {
             return 0;
         }
 
@@ -415,8 +403,7 @@ static int do_skill_attack(object *tmp, object *op, char *string)
     if (op->type == PLAYER) {
         if (CONTR(op)->equipment[PLAYER_EQUIP_WEAPON] && CONTR(op)->equipment[PLAYER_EQUIP_WEAPON]->type == WEAPON && CONTR(op)->equipment[PLAYER_EQUIP_WEAPON]->item_skill) {
             op->chosen_skill = CONTR(op)->skill_ptr[CONTR(op)->equipment[PLAYER_EQUIP_WEAPON]->item_skill - 1];
-        }
-        else {
+        } else {
             op->chosen_skill = CONTR(op)->skill_ptr[SK_UNARMED];
         }
     }
@@ -427,8 +414,7 @@ static int do_skill_attack(object *tmp, object *op, char *string)
     if (success && string != NULL) {
         if (op->type == PLAYER) {
             draw_info_format(COLOR_WHITE, op, "You %s %s!", string, name);
-        }
-        else if (tmp->type == PLAYER) {
+        } else if (tmp->type == PLAYER) {
             draw_info_format(COLOR_WHITE, tmp, "%s %s you!", query_name(op, NULL), string);
         }
     }
@@ -448,8 +434,7 @@ int SK_level(object *op)
 
     if (head->type == PLAYER && head->chosen_skill && head->chosen_skill->level != 0) {
         level = head->chosen_skill->level;
-    }
-    else {
+    } else {
         level = head->level;
     }
 

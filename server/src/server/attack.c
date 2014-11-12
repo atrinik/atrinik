@@ -31,8 +31,7 @@
 /**
  * Names of attack types to use when saving them to file.
  * @warning Cannot contain spaces. Use underscores instead. */
-char *attack_save[NROFATTACKS] =
-{
+char *attack_save[NROFATTACKS] = {
     "impact",   "slash", "cleave",      "pierce",    "weaponmagic",
     "fire",     "cold",  "electricity", "poison",    "acid",
     "magic",    "mind",  "blind",       "paralyze",  "force",
@@ -42,8 +41,7 @@ char *attack_save[NROFATTACKS] =
 
 /**
  * Short description of names of the attack types. */
-char *attack_name[NROFATTACKS] =
-{
+char *attack_name[NROFATTACKS] = {
     "impact",   "slash", "cleave",      "pierce",    "weapon magic",
     "fire",     "cold",  "electricity", "poison",    "acid",
     "magic",    "mind",  "blind",       "paralyze",  "force",
@@ -54,7 +52,7 @@ char *attack_name[NROFATTACKS] =
 #define ATTACK_HIT_DAMAGE(_op, _anum)       dam = dam * ((double) _op->attack[_anum] * (double) 0.01); dam >= 1.0f ? (damage = (int) dam) : (damage = 1)
 #define ATTACK_PROTECT_DAMAGE(_op, _anum)   dam = dam * ((double) (100 - _op->protection[_anum]) * (double) 0.01)
 
-static int get_attack_mode(object **target, object **hitter,int *simple_attack);
+static int get_attack_mode(object **target, object **hitter, int *simple_attack);
 static int abort_attack(object *target, object *hitter, int simple_attack);
 static int attack_ob_simple(object *op, object *hitter, int base_dam, int base_wc);
 static void send_attack_msg(object *op, object *hitter, int attacknum, int dam, int damage);
@@ -141,18 +139,14 @@ static int attack_ob_simple(object *op, object *hitter, int base_dam, int base_w
 
         if (hitter->type == ARROW) {
             play_sound_map(hitter->map, CMD_SOUND_EFFECT, "arrow_hit.ogg", hitter->x, hitter->y, 0, 0);
-        }
-        else {
+        } else {
             if (hitter->attack[ATNR_SLASH]) {
                 play_sound_map(hitter->map, CMD_SOUND_EFFECT, "hit_slash.ogg", hitter->x, hitter->y, 0, 0);
-            }
-            else if (hitter->attack[ATNR_CLEAVE]) {
+            } else if (hitter->attack[ATNR_CLEAVE]) {
                 play_sound_map(hitter->map, CMD_SOUND_EFFECT, "hit_cleave.ogg", hitter->x, hitter->y, 0, 0);
-            }
-            else if (hitter->attack[ATNR_IMPACT]) {
+            } else if (hitter->attack[ATNR_IMPACT]) {
                 play_sound_map(hitter->map, CMD_SOUND_EFFECT, "hit_impact.ogg", hitter->x, hitter->y, 0, 0);
-            }
-            else {
+            } else {
                 play_sound_map(hitter->map, CMD_SOUND_EFFECT, "hit_pierce.ogg", hitter->x, hitter->y, 0, 0);
             }
         }
@@ -178,8 +172,9 @@ static int attack_ob_simple(object *op, object *hitter, int base_dam, int base_w
             return dam;
         }
     }
-    /* We missed */
     else {
+        /* We missed */
+
         if (hitter->type != ARROW) {
             if (hitter->type == PLAYER) {
                 play_sound_map(hitter->map, CMD_SOUND_EFFECT, "miss_player1.ogg", hitter->x, hitter->y, 0, 0);
@@ -188,8 +183,7 @@ static int attack_ob_simple(object *op, object *hitter, int base_dam, int base_w
                 if (op->type == PLAYER) {
                     draw_info_format(COLOR_PURPLE, op, "%s misses you!", hitter->name);
                 }
-            }
-            else {
+            } else {
                 play_sound_map(hitter->map, CMD_SOUND_EFFECT, "miss_mob1.ogg", hitter->x, hitter->y, 0, 0);
                 draw_info_format(COLOR_PURPLE, op, "%s misses you!", hitter->name);
             }
@@ -248,8 +242,7 @@ int hit_player(object *op, int dam, object *hitter, int type)
 
     if (hitter_owner) {
         hit_obj = hitter_owner;
-    }
-    else {
+    } else {
         hit_obj = hitter;
     }
 
@@ -260,8 +253,7 @@ int hit_player(object *op, int dam, object *hitter, int type)
     /* Get from hitter object the right skill level. */
     if (hit_obj->type == PLAYER) {
         hit_level = SK_level(hit_obj);
-    }
-    else {
+    } else {
         hit_level = hitter->level;
     }
 
@@ -424,8 +416,7 @@ static int hit_player_attacktype(object *op, object *hitter, int damage, uint32 
         if (((op->race != NULL) && strstr(hitter->slaying, op->race)) || (op->arch && (op->arch->name != NULL) &&  strstr(op->arch->name, hitter->slaying))) {
             if (QUERY_FLAG(hitter, FLAG_IS_ASSASSINATION)) {
                 damage = (int) ((double) damage * 2.25);
-            }
-            else {
+            } else {
                 damage = (int) ((double) damage * 1.75);
             }
 
@@ -472,107 +463,104 @@ static int hit_player_attacktype(object *op, object *hitter, int damage, uint32 
     }
 
     switch (attacknum) {
-        case ATNR_IMPACT:
-        case ATNR_SLASH:
-        case ATNR_CLEAVE:
-        case ATNR_PIERCE:
-            check_physically_infect(op, hitter);
+    case ATNR_IMPACT:
+    case ATNR_SLASH:
+    case ATNR_CLEAVE:
+    case ATNR_PIERCE:
+        check_physically_infect(op, hitter);
 
-            ATTACK_HIT_DAMAGE(hitter, attacknum);
-            ATTACK_PROTECT_DAMAGE(op, attacknum);
+        ATTACK_HIT_DAMAGE(hitter, attacknum);
+        ATTACK_PROTECT_DAMAGE(op, attacknum);
 
-            if (damage && dam < 1.0) {
-                dam = 1.0;
-            }
+        if (damage && dam < 1.0) {
+            dam = 1.0;
+        }
 
-            send_attack_msg(op, hitter, attacknum, (int) dam, damage);
-            break;
+        send_attack_msg(op, hitter, attacknum, (int) dam, damage);
+        break;
 
-        case ATNR_POISON:
-            ATTACK_HIT_DAMAGE(hitter, attacknum);
-            ATTACK_PROTECT_DAMAGE(op, attacknum);
+    case ATNR_POISON:
+        ATTACK_HIT_DAMAGE(hitter, attacknum);
+        ATTACK_PROTECT_DAMAGE(op, attacknum);
 
-            if (damage && dam < 1.0) {
-                dam = 1.0;
-            }
+        if (damage && dam < 1.0) {
+            dam = 1.0;
+        }
 
-            send_attack_msg(op, hitter, attacknum, (int) dam, damage);
+        send_attack_msg(op, hitter, attacknum, (int) dam, damage);
 
-            if (dam && IS_LIVE(op)) {
-                poison_player(op, hitter, (float)dam);
-            }
-
-            break;
-
-        case ATNR_CONFUSION:
-        case ATNR_SLOW:
-        case ATNR_PARALYZE:
-        case ATNR_BLIND:
-        {
-            int level_diff = MIN(MAXLEVEL, MAX(0, op->level - hitter->level));
-
-            if (op->speed && (QUERY_FLAG(op, FLAG_MONSTER) || op->type == PLAYER) && !(rndm(0, (attacknum == ATNR_SLOW ? 6 : 3) - 1)) && ((rndm(1, 20) + op->protection[attacknum] / 10) < savethrow[level_diff])) {
-                if (attacknum == ATNR_CONFUSION) {
-                    if (hitter->type == PLAYER) {
-                        draw_info_format(COLOR_ORANGE, hitter, "You confuse %s!", op->name);
-                    }
-
-                    if (op->type == PLAYER) {
-                        draw_info_format(COLOR_PURPLE, op, "%s confused you!", hitter->name);
-                    }
-
-                    confuse_living(op);
-                }
-                else if (attacknum == ATNR_SLOW) {
-                    if (hitter->type == PLAYER) {
-                        draw_info_format(COLOR_ORANGE, hitter, "You slow %s!", op->name);
-                    }
-
-                    if (op->type == PLAYER) {
-                        draw_info_format(COLOR_PURPLE, op, "%s slowed you!", hitter->name);
-                    }
-
-                    slow_living(op);
-                }
-                else if (attacknum == ATNR_PARALYZE) {
-                    if (hitter->type == PLAYER) {
-                        draw_info_format(COLOR_ORANGE, hitter, "You paralyze %s!", op->name);
-                    }
-
-                    if (op->type == PLAYER) {
-                        draw_info_format(COLOR_PURPLE, op, "%s paralyzed you!", hitter->name);
-                    }
-
-                    paralyze_living(op, (int) dam);
-                }
-                else if (attacknum == ATNR_BLIND && !QUERY_FLAG(op, FLAG_UNDEAD)) {
-                    if (hitter->type == PLAYER) {
-                        draw_info_format(COLOR_ORANGE, hitter, "You blind %s!", op->name);
-                    }
-
-                    if (op->type == PLAYER) {
-                        draw_info_format(COLOR_PURPLE, op, "%s blinded you!", hitter->name);
-                    }
-
-                    blind_living(op, hitter, (int) dam);
-                }
-            }
-
-            dam = 0;
+        if (dam && IS_LIVE(op)) {
+            poison_player(op, hitter, (float) dam);
         }
 
         break;
 
-        default:
-            ATTACK_HIT_DAMAGE(hitter, attacknum);
-            ATTACK_PROTECT_DAMAGE(op, attacknum);
+    case ATNR_CONFUSION:
+    case ATNR_SLOW:
+    case ATNR_PARALYZE:
+    case ATNR_BLIND:
+    {
+        int level_diff = MIN(MAXLEVEL, MAX(0, op->level - hitter->level));
 
-            if (damage && dam < 1.0) {
-                dam = 1.0;
+        if (op->speed && (QUERY_FLAG(op, FLAG_MONSTER) || op->type == PLAYER) && !(rndm(0, (attacknum == ATNR_SLOW ? 6 : 3) - 1)) && ((rndm(1, 20) + op->protection[attacknum] / 10) < savethrow[level_diff])) {
+            if (attacknum == ATNR_CONFUSION) {
+                if (hitter->type == PLAYER) {
+                    draw_info_format(COLOR_ORANGE, hitter, "You confuse %s!", op->name);
+                }
+
+                if (op->type == PLAYER) {
+                    draw_info_format(COLOR_PURPLE, op, "%s confused you!", hitter->name);
+                }
+
+                confuse_living(op);
+            } else if (attacknum == ATNR_SLOW) {
+                if (hitter->type == PLAYER) {
+                    draw_info_format(COLOR_ORANGE, hitter, "You slow %s!", op->name);
+                }
+
+                if (op->type == PLAYER) {
+                    draw_info_format(COLOR_PURPLE, op, "%s slowed you!", hitter->name);
+                }
+
+                slow_living(op);
+            } else if (attacknum == ATNR_PARALYZE) {
+                if (hitter->type == PLAYER) {
+                    draw_info_format(COLOR_ORANGE, hitter, "You paralyze %s!", op->name);
+                }
+
+                if (op->type == PLAYER) {
+                    draw_info_format(COLOR_PURPLE, op, "%s paralyzed you!", hitter->name);
+                }
+
+                paralyze_living(op, (int) dam);
+            } else if (attacknum == ATNR_BLIND && !QUERY_FLAG(op, FLAG_UNDEAD)) {
+                if (hitter->type == PLAYER) {
+                    draw_info_format(COLOR_ORANGE, hitter, "You blind %s!", op->name);
+                }
+
+                if (op->type == PLAYER) {
+                    draw_info_format(COLOR_PURPLE, op, "%s blinded you!", hitter->name);
+                }
+
+                blind_living(op, hitter, (int) dam);
             }
+        }
 
-            send_attack_msg(op, hitter, attacknum, (int) dam, damage);
-            break;
+        dam = 0;
+    }
+
+        break;
+
+    default:
+        ATTACK_HIT_DAMAGE(hitter, attacknum);
+        ATTACK_PROTECT_DAMAGE(op, attacknum);
+
+        if (damage && dam < 1.0) {
+            dam = 1.0;
+        }
+
+        send_attack_msg(op, hitter, attacknum, (int) dam, damage);
+        break;
     }
 
     return (int) dam;
@@ -608,8 +596,7 @@ static void share_kill_exp_one(object *op, sint64 exp_gain, object *skill)
 {
     if (exp_gain) {
         add_exp(op, exp_gain, skill->stats.sp, 0);
-    }
-    else {
+    } else {
         draw_info(COLOR_WHITE, op, "Your enemy wasn't worth any experience to you.");
     }
 }
@@ -643,8 +630,7 @@ static void share_kill_exp(object *op, sint64 exp_gain, object *skill)
 
     if (count <= 1 || shares > exp_gain) {
         share_kill_exp_one(op, exp_gain, skill);
-    }
-    else {
+    } else {
         sint64 share = exp_gain / shares, given = 0, nexp;
 
         for (ol = party->members; ol; ol = ol->next) {
@@ -713,8 +699,7 @@ int kill_object(object *op, int dam, object *hitter, int type)
     if (owner->type == PLAYER) {
         if (owner != hitter) {
             draw_info_format(COLOR_WHITE, owner, "You killed %s with %s.", query_name(op, NULL), query_name(hitter, NULL));
-        }
-        else {
+        } else {
             draw_info_format(COLOR_WHITE, owner, "You killed %s.", query_name(op, NULL));
         }
 
@@ -727,8 +712,7 @@ int kill_object(object *op, int dam, object *hitter, int type)
             if ((faction = object_get_value(op, "faction")) && (faction_kill_penalty = object_get_value(op, "faction_kill_penalty"))) {
                 player_faction_reputation_update(CONTR(owner), faction, -atoll(faction_kill_penalty));
             }
-        }
-        else if (op->type == PLAYER) {
+        } else if (op->type == PLAYER) {
             CONTR(owner)->stat_kills_pvp++;
         }
     }
@@ -747,8 +731,9 @@ int kill_object(object *op, int dam, object *hitter, int type)
         if (hitter->chosen_skill) {
             skill = hitter->chosen_skill;
         }
-        /* Otherwise try to use owner's chosen_skill. */
         else {
+            /* Otherwise try to use owner's chosen_skill. */
+
             skill = owner->chosen_skill;
         }
 
@@ -766,8 +751,7 @@ int kill_object(object *op, int dam, object *hitter, int type)
         /* Tell everyone that this player has died. */
         if (get_owner(hitter)) {
             draw_info_format(COLOR_WHITE, NULL, "%s killed %s with %s%s.", hitter->owner->name, query_name(op, NULL), query_name(hitter, NULL), battleg ? " (duel)" : "");
-        }
-        else {
+        } else {
             draw_info_format(COLOR_WHITE, NULL, "%s killed %s%s.", hitter->name, op->name, battleg ? " (duel)" : "");
         }
 
@@ -776,16 +760,16 @@ int kill_object(object *op, int dam, object *hitter, int type)
             char race[MAX_BUF];
 
             snprintf(CONTR(op)->killer, sizeof(CONTR(op)->killer), "%s the %s", owner->name, player_get_race_class(owner, race, sizeof(race)));
-        }
-        else {
+        } else {
             snprintf(CONTR(op)->killer, sizeof(CONTR(op)->killer), "%s", owner->name);
         }
 
         /* And actually kill the player. */
         kill_player(op);
     }
-    /* Monster or something else has been killed. */
     else {
+        /* Monster or something else has been killed. */
+
         /* Remove the monster from the active list. */
         op->speed = 0.0f;
         update_ob_speed(op);
@@ -807,8 +791,9 @@ int kill_object(object *op, int dam, object *hitter, int type)
             /* Force an empty corpse though. */
             SET_FLAG(op, FLAG_CORPSE_FORCED);
         }
-        /* No exp, no loot and no corpse. */
         else if (!exp_gain) {
+            /* No exp, no loot and no corpse. */
+
             SET_FLAG(op, FLAG_STARTEQUIP);
         }
 
@@ -865,11 +850,9 @@ static int abort_attack(object *target, object *hitter, int simple_attack)
 
     if (hitter->env == target || target->env == hitter) {
         new_mode = 1;
-    }
-    else if (QUERY_FLAG(target, FLAG_REMOVED) || QUERY_FLAG(hitter, FLAG_REMOVED) || hitter->map == NULL) {
+    } else if (QUERY_FLAG(target, FLAG_REMOVED) || QUERY_FLAG(hitter, FLAG_REMOVED) || hitter->map == NULL) {
         return 1;
-    }
-    else {
+    } else {
         new_mode = 0;
     }
 
@@ -904,8 +887,7 @@ static void poison_player(object *op, object *hitter, float dam)
 
     if (dam2 > op->stats.maxhp / 3) {
         dam2 = op->stats.maxhp / 3;
-    }
-    else if (dam2 < 1) {
+    } else if (dam2 < 1) {
         dam2 = 1;
     }
 
@@ -926,23 +908,22 @@ static void poison_player(object *op, object *hitter, float dam)
             insert_ob_in_ob(tmp, op);
             fix_player(op);
         }
-        /* It's a monster */
         else {
+            /* It's a monster */
+
             SET_FLAG(tmp, FLAG_APPLIED);
             insert_ob_in_ob(tmp, op);
             fix_monster(op);
 
             if (hitter->type == PLAYER) {
                 draw_info_format(COLOR_WHITE, hitter, "You poisoned %s!", query_name(op, NULL));
-            }
-            else if (get_owner(hitter) && hitter->owner->type == PLAYER) {
+            } else if (get_owner(hitter) && hitter->owner->type == PLAYER) {
                 draw_info_format(COLOR_WHITE, hitter->owner, "%s poisoned %s!", query_name(hitter, NULL), query_name(op, NULL));
             }
         }
 
         tmp->speed_left = 0;
-    }
-    else {
+    } else {
         tmp->stats.food++;
         esrv_update_item(UPD_EXTRA, tmp);
 
@@ -969,8 +950,7 @@ static void slow_living(object *op)
         tmp = arch_to_object(at);
         tmp = insert_ob_in_ob(tmp, op);
         draw_info(COLOR_WHITE, op, "The world suddenly moves very fast!");
-    }
-    else {
+    } else {
         tmp->stats.food++;
     }
 
@@ -1043,8 +1023,7 @@ static void blind_living(object *op, object *hitter, int dam)
 
         if (hitter->owner) {
             owner = get_owner(hitter);
-        }
-        else {
+        } else {
             owner = hitter;
         }
 
@@ -1107,8 +1086,7 @@ static int adj_attackroll(object *hitter, object *target)
         if ((attacker = get_owner(hitter)) == NULL) {
             attacker = hitter;
         }
-    }
-    else if (!IS_LIVE(hitter)) {
+    } else if (!IS_LIVE(hitter)) {
         return 0;
     }
 

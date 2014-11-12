@@ -61,8 +61,7 @@
 #define MONTHS_PER_SEASON (MONTHS_PER_YEAR / SEASONS_PER_YEAR)
 
 /** Represents the in-game time. */
-typedef struct _timeofday
-{
+typedef struct _timeofday {
     /** Year */
     int year;
 

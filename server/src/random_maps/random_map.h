@@ -32,8 +32,7 @@
 #define RM_SIZE 512
 
 /** Random map parameters. */
-typedef struct
-{
+typedef struct {
     /** Wall style used. */
     char wallstyle[RM_SIZE];
 

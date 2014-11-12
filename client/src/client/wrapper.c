@@ -79,8 +79,7 @@ static int mkdir_recurse(const char *path)
 
     p = copy = estrdup(path);
 
-    do
-    {
+    do {
         p = strchr(p + 1, '/');
 
         if (p) {
@@ -97,8 +96,7 @@ static int mkdir_recurse(const char *path)
         if (p) {
             *p = '/';
         }
-    }
-    while (p);
+    }    while (p);
 
     efree(copy);
 
@@ -211,8 +209,7 @@ void rmrf(const char *path)
 
         if (S_ISDIR(st.st_mode)) {
             rmrf(buf);
-        }
-        else if (S_ISREG(st.st_mode)) {
+        } else if (S_ISREG(st.st_mode)) {
             unlink(buf);
         }
     }
@@ -262,9 +259,7 @@ void copy_rec(const char *src, const char *dst)
         }
 
         closedir(dir);
-    }
-    /* Copy file. */
-    else {
+    } else {
         copy_file(src, dst);
     }
 }
@@ -336,8 +331,7 @@ char *file_path(const char *fname, const char *mode)
             mkdir_recurse(tmp);
             stmp[0] = ctmp;
         }
-    }
-    else if (strchr(mode, '+') || strchr(mode, 'a')) {
+    } else if (strchr(mode, '+') || strchr(mode, 'a')) {
         if (access(tmp, W_OK)) {
             char otmp[HUGE_BUF];
 
@@ -352,8 +346,7 @@ char *file_path(const char *fname, const char *mode)
 
             copy_file(otmp, tmp);
         }
-    }
-    else {
+    } else {
         if (access(tmp, R_OK)) {
             get_data_dir_file(tmp, sizeof(tmp), fname);
         }

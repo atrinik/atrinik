@@ -37,8 +37,7 @@
 #define MAXSTRING 20
 
 /** The servers list, as given by the metaserver. */
-typedef struct server_struct
-{
+typedef struct server_struct {
     /** Next server in the list. */
     struct server_struct *next;
 
@@ -67,8 +66,7 @@ typedef struct server_struct
 /**
  * Message animation structure. Used when NDI_ANIM is passed to
  * DrawInfoCmd2(). */
-typedef struct msg_anim_struct
-{
+typedef struct msg_anim_struct {
     /** The message to play. */
     char message[MAX_BUF];
 
@@ -84,8 +82,7 @@ typedef struct msg_anim_struct
 /* Face requested from server - do it only one time */
 #define FACE_REQUESTED      16
 
-typedef struct _face_struct
-{
+typedef struct _face_struct {
     /* Our face data. if != null, face is loaded */
     struct sprite_struct *sprite;
 
@@ -96,12 +93,11 @@ typedef struct _face_struct
     uint32 checksum;
 
     int flags;
-}_face_struct;
+} _face_struct;
 
 #define NUM_STATS 7
 
-typedef struct spell_entry_struct
-{
+typedef struct spell_entry_struct {
     /**
      * The spell object in player's inventory. */
     object *spell;
@@ -128,8 +124,7 @@ typedef struct spell_entry_struct
  * pointers to spells in the other spell paths. */
 #define SPELL_PATH_NUM 21
 
-typedef struct skill_entry_struct
-{
+typedef struct skill_entry_struct {
     object *skill;
 
     uint8 level;
@@ -138,8 +133,7 @@ typedef struct skill_entry_struct
 } skill_entry_struct;
 
 /** Fire mode structure */
-typedef struct _fire_mode
-{
+typedef struct _fire_mode {
     /** Item */
     int item;
 
@@ -153,12 +147,11 @@ typedef struct _fire_mode
 
     /** Name */
     char name[128];
-}_fire_mode;
+} _fire_mode;
 
 /**
  * A single help file entry. */
-typedef struct hfile_struct
-{
+typedef struct hfile_struct {
     char *key;
 
     char *msg;
@@ -174,8 +167,7 @@ typedef struct hfile_struct
 
 /**
  * Player's state. */
-typedef enum player_state_t
-{
+typedef enum player_state_t {
     /**
      * Just initialized the client. */
     ST_INIT,
@@ -256,8 +248,7 @@ typedef enum player_state_t
 #define SURFACE_FLAG_DISPLAYFORMATALPHA 8
 
 /* For custom cursors */
-enum
-{
+enum {
     MSCURSOR_MOVE = 1
 };
 

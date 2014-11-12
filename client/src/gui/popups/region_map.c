@@ -152,14 +152,11 @@ static void rm_def_create(char *str)
     while (cp) {
         if (!strncmp(cp, "pixel_size ", 11)) {
             rm_def->pixel_size = atoi(cp + 11);
-        }
-        else if (!strncmp(cp, "map_size_x ", 11)) {
+        } else if (!strncmp(cp, "map_size_x ", 11)) {
             rm_def->map_size_x = atoi(cp + 11);
-        }
-        else if (!strncmp(cp, "map_size_y ", 11)) {
+        } else if (!strncmp(cp, "map_size_y ", 11)) {
             rm_def->map_size_y = atoi(cp + 11);
-        }
-        /* Map command, add it to the list of maps. */
+        }/* Map command, add it to the list of maps. */
         else if (!strncmp(cp, "map ", 4)) {
             uint32 x, y;
             char path[HUGE_BUF * 4];
@@ -173,8 +170,7 @@ static void rm_def_create(char *str)
             }
 
             rm_def->num_maps++;
-        }
-        /* Add label. */
+        }/* Add label. */
         else if (!strncmp(cp, "label ", 6)) {
             uint32 x, y;
             char label_name[MAX_BUF], label_text[HUGE_BUF * 2];
@@ -189,12 +185,10 @@ static void rm_def_create(char *str)
                 rm_def->labels[rm_def->num_labels].text = estrdup(label_text);
                 rm_def->num_labels++;
             }
-        }
-        /* Hide the previously added label. */
+        }/* Hide the previously added label. */
         else if (!strncmp(cp, "label_hide", 10)) {
             rm_def->labels[rm_def->num_labels - 1].hidden = 1;
-        }
-        /* Add tooltip. */
+        }/* Add tooltip. */
         else if (!strncmp(cp, "tooltip ", 8)) {
             uint32 x, y, w, h;
             char tooltip_name[MAX_BUF], tooltip[HUGE_BUF * 2];
@@ -213,11 +207,9 @@ static void rm_def_create(char *str)
                 rm_def->tooltips[rm_def->num_tooltips].name = estrdup(tooltip_name);
                 rm_def->num_tooltips++;
             }
-        }
-        else if (!strncmp(cp, "tooltip_hide", 12)) {
+        } else if (!strncmp(cp, "tooltip_hide", 12)) {
             rm_def->tooltips[rm_def->num_tooltips - 1].hidden = 1;
-        }
-        else if (!strncmp(cp, "t_outline ", 10)) {
+        } else if (!strncmp(cp, "t_outline ", 10)) {
             uint32 r, g, b;
             int outline_size = 1;
 
@@ -228,8 +220,7 @@ static void rm_def_create(char *str)
                 rm_def->tooltips[rm_def->num_tooltips - 1].outline_color.b = b;
                 rm_def->tooltips[rm_def->num_tooltips - 1].outline_size = outline_size;
             }
-        }
-        else if (!strncmp(cp, "t_outline", 9)) {
+        } else if (!strncmp(cp, "t_outline", 9)) {
             rm_def->tooltips[rm_def->num_tooltips - 1].outline = 1;
             rm_def->tooltips[rm_def->num_tooltips - 1].outline_size = 1;
             rm_def->tooltips[rm_def->num_tooltips - 1].outline_color.r = 255;
@@ -438,8 +429,7 @@ static void region_map_resize(int adjust)
 
     if (adjust > 0) {
         delta = (region_map_zoom / 100.0 - 0.1f);
-    }
-    else {
+    } else {
         delta = (region_map_zoom / 100.0 + 0.1f);
     }
 
@@ -486,8 +476,7 @@ static int popup_draw_post_func(popup_struct *popup)
 
         if (tmp->http_code != -1) {
             text_show_format(ScreenSurface, FONT_SERIF14, box.x, box.y, COLOR_WHITE, TEXT_ALIGN_CENTER | TEXT_VALIGN_CENTER | TEXT_OUTLINE, &box, "Error: %d", tmp->http_code);
-        }
-        else {
+        } else {
             text_show(ScreenSurface, FONT_SERIF14, "Connection timed out.", box.x, box.y, COLOR_WHITE, TEXT_ALIGN_CENTER | TEXT_VALIGN_CENTER | TEXT_OUTLINE, &box);
         }
 
@@ -534,8 +523,7 @@ static int popup_draw_post_func(popup_struct *popup)
             /* Center the map on the player. */
             region_map_pos.x = (map->xpos + current_x * rm_def->pixel_size) - region_map_pos.w / 2;
             region_map_pos.y = (map->ypos + current_y * rm_def->pixel_size) - region_map_pos.h / 2;
-        }
-        else {
+        } else {
             region_map_pos.x = region_map_png->w / 2 - region_map_pos.w / 2;
             region_map_pos.y = region_map_png->h / 2 - region_map_pos.h / 2;
             surface_pan(region_map_png, &region_map_pos);
@@ -561,8 +549,7 @@ static int popup_draw_post_func(popup_struct *popup)
         scrollbar_info.redraw = 0;
         region_map_pos.y = scrollbar_info.scroll_offset;
         surface_pan(region_map_png, &region_map_pos);
-    }
-    else {
+    } else {
         scrollbar_info.num_lines = region_map_png->h;
         scrollbar_info.scroll_offset = region_map_pos.y;
         scrollbar.max_lines = region_map_pos.h;
@@ -572,8 +559,7 @@ static int popup_draw_post_func(popup_struct *popup)
         scrollbar_horizontal_info.redraw = 0;
         region_map_pos.x = scrollbar_horizontal_info.scroll_offset;
         surface_pan(region_map_png, &region_map_pos);
-    }
-    else {
+    } else {
         scrollbar_horizontal_info.num_lines = region_map_png->w;
         scrollbar_horizontal_info.scroll_offset = region_map_pos.x;
         scrollbar_horizontal.max_lines = region_map_pos.w;
@@ -633,8 +619,7 @@ static int popup_event_func(popup_struct *popup, SDL_Event *event)
     /* Handle scrollbars. */
     if (scrollbar_event(&scrollbar, event)) {
         return 1;
-    }
-    else if (scrollbar_event(&scrollbar_horizontal, event)) {
+    } else if (scrollbar_event(&scrollbar_horizontal, event)) {
         return 1;
     }
 
@@ -645,15 +630,13 @@ static int popup_event_func(popup_struct *popup, SDL_Event *event)
                 region_map_resize(RM_ZOOM_PROGRESS);
                 return 1;
             }
-        }
-        /* Zoom out. */
+        }/* Zoom out. */
         else if (event->button.button == SDL_BUTTON_WHEELDOWN) {
             if (region_map_zoom > RM_ZOOM_MIN) {
                 region_map_resize(-RM_ZOOM_PROGRESS);
                 return 1;
             }
-        }
-        /* Quickport. */
+        }/* Quickport. */
         else if (event->button.button == SDL_BUTTON_MIDDLE && setting_get_int(OPT_CAT_DEVEL, OPT_OPERATOR) && RM_IN_MAP(popup, event->motion.x, event->motion.y)) {
             int xpos, ypos;
             size_t i;
@@ -675,8 +658,7 @@ static int popup_event_func(popup_struct *popup, SDL_Event *event)
                 }
             }
         }
-    }
-    else if (event->type == SDL_MOUSEMOTION) {
+    } else if (event->type == SDL_MOUSEMOTION) {
         if (RM_IN_MAP(popup, event->motion.x, event->motion.y)) {
             int xpos, ypos;
             size_t i;
@@ -693,8 +675,7 @@ static int popup_event_func(popup_struct *popup, SDL_Event *event)
                 }
             }
         }
-    }
-    else if (event->type == SDL_KEYDOWN) {
+    } else if (event->type == SDL_KEYDOWN) {
         int pos = RM_SCROLL;
 
         if (event->key.keysym.mod & KMOD_SHIFT) {
@@ -705,29 +686,24 @@ static int popup_event_func(popup_struct *popup, SDL_Event *event)
             region_map_pos.y -= pos;
             surface_pan(region_map_png, &region_map_pos);
             return 1;
-        }
-        else if (event->key.keysym.sym == SDLK_DOWN) {
+        } else if (event->key.keysym.sym == SDLK_DOWN) {
             region_map_pos.y += pos;
             surface_pan(region_map_png, &region_map_pos);
             return 1;
-        }
-        else if (event->key.keysym.sym == SDLK_LEFT) {
+        } else if (event->key.keysym.sym == SDLK_LEFT) {
             region_map_pos.x -= pos;
             surface_pan(region_map_png, &region_map_pos);
             return 1;
-        }
-        else if (event->key.keysym.sym == SDLK_RIGHT) {
+        } else if (event->key.keysym.sym == SDLK_RIGHT) {
             region_map_pos.x += pos;
             surface_pan(region_map_png, &region_map_pos);
             return 1;
-        }
-        else if (event->key.keysym.sym == SDLK_PAGEUP) {
+        } else if (event->key.keysym.sym == SDLK_PAGEUP) {
             if (region_map_zoom < RM_ZOOM_MAX) {
                 region_map_resize(RM_ZOOM_PROGRESS);
                 return 1;
             }
-        }
-        else if (event->key.keysym.sym == SDLK_PAGEDOWN) {
+        } else if (event->key.keysym.sym == SDLK_PAGEDOWN) {
             if (region_map_zoom > RM_ZOOM_MIN) {
                 region_map_resize(-RM_ZOOM_PROGRESS);
                 return 1;
@@ -764,8 +740,7 @@ void socket_command_region_map(uint8 *data, size_t len, size_t pos)
             cmd_labels = realloc(cmd_labels, sizeof(*cmd_labels) * (num_cmd_labels + 1));
             cmd_labels[num_cmd_labels] = estrdup(text);
             num_cmd_labels++;
-        }
-        else if (type == RM_TYPE_TOOLTIP) {
+        } else if (type == RM_TYPE_TOOLTIP) {
             cmd_tooltips = realloc(cmd_tooltips, sizeof(*cmd_tooltips) * (num_cmd_tooltips + 1));
             cmd_tooltips[num_cmd_tooltips] = estrdup(text);
             num_cmd_tooltips++;

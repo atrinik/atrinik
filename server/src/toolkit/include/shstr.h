@@ -74,9 +74,9 @@ typedef const char shstr;
 #define SS_DUMP_TOTALS  2
 
 #ifdef SS_STATISTICS
+
 /** Used to collect statistics on string manipulation. */
-static struct statistics
-{
+static struct statistics {
     int calls;
     int hashed;
     int strcmps;
@@ -95,10 +95,9 @@ static struct statistics
 
 /**
  * One actual shared string. */
-typedef struct _shared_string
-{
-    union
-    {
+typedef struct _shared_string {
+
+    union {
         struct _shared_string **array;
 
         struct _shared_string *previous;

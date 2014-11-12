@@ -30,14 +30,13 @@
 
 #include <global.h>
 
-enum
-{
+enum {
     LOGIN_TEXT_INPUT_NAME,
     LOGIN_TEXT_INPUT_PASSWORD,
     LOGIN_TEXT_INPUT_PASSWORD2,
 
     LOGIN_TEXT_INPUT_NUM
-};
+} ;
 
 #define LOGIN_TEXT_INPUT_MAX ((button_tab_login.pressed_forced ? LOGIN_TEXT_INPUT_PASSWORD : LOGIN_TEXT_INPUT_PASSWORD2) + 1)
 
@@ -59,8 +58,7 @@ static int text_input_character_check(text_input_struct *text_input, char c)
 {
     if (text_input == &text_inputs[LOGIN_TEXT_INPUT_NAME] && !char_contains(c, s_settings->text[SERVER_TEXT_ALLOWED_CHARS_ACCOUNT])) {
         return 0;
-    }
-    else if ((text_input == &text_inputs[LOGIN_TEXT_INPUT_PASSWORD] || text_input == &text_inputs[LOGIN_TEXT_INPUT_PASSWORD2]) && !char_contains(c, s_settings->text[SERVER_TEXT_ALLOWED_CHARS_PASSWORD])) {
+    } else if ((text_input == &text_inputs[LOGIN_TEXT_INPUT_PASSWORD] || text_input == &text_inputs[LOGIN_TEXT_INPUT_PASSWORD2]) && !char_contains(c, s_settings->text[SERVER_TEXT_ALLOWED_CHARS_PASSWORD])) {
         return 0;
     }
 
@@ -102,7 +100,7 @@ static int popup_draw(popup_struct *popup)
     }
 
     if ((string_isempty(clioption_settings.connect[0]) || strcasecmp(selected_server->name, clioption_settings.connect[0]) == 0) &&
-        cpl.state < ST_WAITLOGIN) {
+            cpl.state < ST_WAITLOGIN) {
         if (clioption_settings.connect[1]) {
             text_input_set(&text_inputs[LOGIN_TEXT_INPUT_NAME], clioption_settings.connect[1]);
 
@@ -158,13 +156,11 @@ static int popup_event(popup_struct *popup, SDL_Event *event)
         button_tab_login.pressed_forced = 1;
         button_tab_register.pressed_forced = 0;
         return 1;
-    }
-    else if (button_event(&button_tab_register, event)) {
+    } else if (button_event(&button_tab_register, event)) {
         button_tab_register.pressed_forced = 1;
         button_tab_login.pressed_forced = 0;
         return 1;
-    }
-    else if (button_event(&button_done, event)) {
+    } else if (button_event(&button_done, event)) {
         event_push_key_once(SDLK_RETURN, 0);
         return 1;
     }
@@ -188,8 +184,7 @@ static int popup_event(popup_struct *popup, SDL_Event *event)
 
                 if (button_tab_login.pressed_forced) {
                     packet_append_uint8(packet, CMD_ACCOUNT_LOGIN);
-                }
-                else {
+                } else {
                     packet_append_uint8(packet, CMD_ACCOUNT_REGISTER);
                 }
 
@@ -198,8 +193,7 @@ static int popup_event(popup_struct *popup, SDL_Event *event)
                         draw_info(COLOR_RED, "You must enter a valid value for all text inputs.");
                         packet_free(packet);
                         return 1;
-                    }
-                    else if (sscanf(s_settings->text[i == LOGIN_TEXT_INPUT_NAME ? SERVER_TEXT_ALLOWED_CHARS_ACCOUNT_MAX : SERVER_TEXT_ALLOWED_CHARS_PASSWORD_MAX], "%u-%u", &lower, &upper) == 2 && (text_inputs[i].num < lower || text_inputs[i].num > upper)) {
+                    } else if (sscanf(s_settings->text[i == LOGIN_TEXT_INPUT_NAME ? SERVER_TEXT_ALLOWED_CHARS_ACCOUNT_MAX : SERVER_TEXT_ALLOWED_CHARS_PASSWORD_MAX], "%u-%u", &lower, &upper) == 2 && (text_inputs[i].num < lower || text_inputs[i].num > upper)) {
                         draw_info_format(COLOR_RED, "%s must be between %d and %d characters long.", i == LOGIN_TEXT_INPUT_NAME ? "Account name" : "Password", lower, upper);
                         packet_free(packet);
                         return 1;
@@ -236,8 +230,7 @@ static int popup_event(popup_struct *popup, SDL_Event *event)
 
             return 1;
         }
-    }
-    else if (event->type == SDL_MOUSEBUTTONDOWN) {
+    } else if (event->type == SDL_MOUSEBUTTONDOWN) {
         if (event->button.button == SDL_BUTTON_LEFT) {
             for (i = 0; i < LOGIN_TEXT_INPUT_MAX; i++) {
                 if (text_input_mouse_over(&text_inputs[i], event->motion.x, event->motion.y)) {

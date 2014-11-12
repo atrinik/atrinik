@@ -40,6 +40,7 @@ START_TEST(test_add_ban)
     fail_if(add_ban(strdup("Tester/:xxx.x.x.x:11")) == 1, "Successfully added a new ban with add_ban(), but the IP had colons in it.");
     remove_ban(strdup("Tester/:xxx.x.x.x:11"));
 }
+
 END_TEST
 
 START_TEST(test_checkbanned)
@@ -58,6 +59,7 @@ START_TEST(test_checkbanned)
 
     fail_if(checkbanned(NULL, "10543./4t5vr.3546") == 1, "checkbanned() returned 1 for an IP that was not previously banned.");
 }
+
 END_TEST
 
 START_TEST(test_remove_ban)
@@ -67,6 +69,7 @@ START_TEST(test_remove_ban)
 
     fail_if(remove_ban(strdup("Tester~$#@:127.0.0.1")) == 1, "remove_ban() managed to remove nonexistent ban.");
 }
+
 END_TEST
 
 static Suite *ban_suite(void)

@@ -75,16 +75,14 @@
  + -                   \\//                x - >
  +    @endverbatim
  */
-static int std_tile_half_len[] =
-{
+static int std_tile_half_len[] = {
     0, 0, 1, 1, 2, 2, 3, 3, 4, 4, 5, 5, 6, 6, 7, 7, 8, 8, 9, 9,
     10, 10, 11, 11, 11, 11, 10, 10, 9, 9, 8, 8, 7, 7, 6, 6, 5,
     5, 4, 4, 3, 3, 2, 2, 1, 1, 0, 0
 };
 
 /** Line information structure. */
-typedef struct line_and_slope
-{
+typedef struct line_and_slope {
     /** Starting X coordinate. */
     int sx;
 
@@ -119,22 +117,19 @@ static void determine_line(line_and_slope *dest, int sx, int sy, int ex, int ey)
 
     if (sy > ey) {
         y_diff = sy - ey;
-    }
-    else {
+    } else {
         y_diff = ey - sy;
     }
 
     if (sx > ex) {
         x_diff = sx - ex;
-    }
-    else {
+    } else {
         x_diff = ex - sx;
     }
 
     if (x_diff == 0) {
         slope = 0.0;
-    }
-    else {
+    } else {
         slope = y_diff / x_diff;
     }
 
@@ -294,8 +289,7 @@ int copy_vertical_line(SDL_Surface *src, SDL_Surface *dest, int src_x, int src_s
             SDL_UnlockSurface(src);
             SDL_UnlockSurface(dest);
             return 0;
-        }
-        else {
+        } else {
             copy_pixel_to_pixel(src, dest, src_x, (src_ey - src_sy) / 2, dest_x, dest_sy, brightness);
 
             SDL_UnlockSurface(src);
@@ -414,8 +408,7 @@ SDL_Surface *tile_stretch(SDL_Surface *src, int n, int e, int s, int w)
      * to try to extent the line by 1 pixel */
     if (n == 0 && e == 0 && w == 0 && s == 0) {
         flat = 0;
-    }
-    else {
+    } else {
         flat = 1;
     }
 
@@ -500,8 +493,7 @@ SDL_Surface *tile_stretch(SDL_Surface *src, int n, int e, int s, int w)
             dest_sy_2 = dest_lines[ln_num + 1].sy;
             dest_ey_2 = dest_lines[ln_num + 1].end_y;
             dest_slope_2 = dest_lines[ln_num + 1].slope;
-        }
-        else {
+        } else {
             /* Dead code: information about the second line is the same as the
              * first! */
             dest_sy_2 = dest_lines[ln_num].sy;
@@ -512,24 +504,21 @@ SDL_Surface *tile_stretch(SDL_Surface *src, int n, int e, int s, int w)
         /* Calculate the direction of the y co-ordinate */
         if (dest_sy > dest_ey) {
             dest_y_inc = -1;
-        }
-        else {
+        } else {
             dest_y_inc = 1;
         }
 
         /* Calculate the direction of the x co-ordinate */
         if (dest_sx > dest_ex) {
             dest_x_inc = -1;
-        }
-        else {
+        } else {
             dest_x_inc = 1;
         }
 
         /* Calculate the direction of the 2nd y co-ordinate */
         if (dest_sy_2 > dest_ey_2) {
             dest_y_inc_2 = -1;
-        }
-        else {
+        } else {
             dest_y_inc_2 = 1;
         }
 
@@ -572,8 +561,7 @@ SDL_Surface *tile_stretch(SDL_Surface *src, int n, int e, int s, int w)
 
             if (ln_num < 2) {
                 copy_vertical_line(src, destination, x, 11 + src_len, 11 - src_len, x, y, y2, w_dark, flat);
-            }
-            else {
+            } else {
                 copy_vertical_line(src, destination, x, 11 + src_len, 11 - src_len, x, y, y2, e_dark, flat);
             }
 
@@ -593,7 +581,7 @@ SDL_Surface *tile_stretch(SDL_Surface *src, int n, int e, int s, int w)
     }
 
     for (x = 0; x < 2; x++) {
-        copy_pixel_to_pixel(src,destination, x, 11, x, 11 + n - w, w_dark);
+        copy_pixel_to_pixel(src, destination, x, 11, x, 11 + n - w, w_dark);
     }
 
     for (x = 46; x < 48; x++) {

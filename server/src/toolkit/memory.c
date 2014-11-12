@@ -41,6 +41,7 @@ static uint8 did_init = 0;
  * @internal */
 void toolkit_memory_init(void)
 {
+
     TOOLKIT_INIT_FUNC_START(memory)
     {
     }
@@ -52,6 +53,7 @@ void toolkit_memory_init(void)
  * @internal */
 void toolkit_memory_deinit(void)
 {
+
     TOOLKIT_DEINIT_FUNC_START(memory)
     {
     }

@@ -115,8 +115,7 @@ static int popup_button_event_func(popup_button *button)
             help_show(*p);
             utarray_erase(book_help_history, pos, 2);
         }
-    }
-    else {
+    } else {
         utarray_clear(book_help_history);
         help_show("main");
     }
@@ -144,27 +143,22 @@ static int popup_event_func(popup_struct *popup, SDL_Event *event)
         if (event->button.button == SDL_BUTTON_WHEELDOWN) {
             scrollbar_scroll_adjust(&scrollbar, 1);
             return 1;
-        }
-        else if (event->button.button == SDL_BUTTON_WHEELUP) {
+        } else if (event->button.button == SDL_BUTTON_WHEELUP) {
             scrollbar_scroll_adjust(&scrollbar, -1);
             return 1;
         }
-    }
-    else if (event->type == SDL_KEYDOWN) {
+    } else if (event->type == SDL_KEYDOWN) {
         /* Scrolling. */
         if (event->key.keysym.sym == SDLK_DOWN) {
             scrollbar_scroll_adjust(&scrollbar, 1);
             return 1;
-        }
-        else if (event->key.keysym.sym == SDLK_UP) {
+        } else if (event->key.keysym.sym == SDLK_UP) {
             scrollbar_scroll_adjust(&scrollbar, -1);
             return 1;
-        }
-        else if (event->key.keysym.sym == SDLK_PAGEDOWN) {
+        } else if (event->key.keysym.sym == SDLK_PAGEDOWN) {
             scrollbar_scroll_adjust(&scrollbar, book_scroll_lines);
             return 1;
-        }
-        else if (event->key.keysym.sym == SDLK_PAGEUP) {
+        } else if (event->key.keysym.sym == SDLK_PAGEUP) {
             scrollbar_scroll_adjust(&scrollbar, -book_scroll_lines);
             return 1;
         }

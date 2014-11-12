@@ -54,8 +54,7 @@ static int move_on_func(object *op, object *victim, object *originator, int stat
 
     if (op->msg) {
         draw_info(COLOR_WHITE, victim, op->msg);
-    }
-    else {
+    } else {
         int sub_layer;
         object *tmp;
 

@@ -47,8 +47,7 @@ object *check_inv(object *op, object *ob)
             if (ret) {
                 return ret;
             }
-        }
-        else {
+        } else {
             if (op->stats.hp && tmp->type != op->stats.hp) {
                 continue;
             }
@@ -87,8 +86,7 @@ static int move_on_func(object *op, object *victim, object *originator, int stat
         }
 
         connection_trigger(op, state);
-    }
-    else if (!match && !op->last_sp) {
+    } else if (!match && !op->last_sp) {
         connection_trigger(op, state);
     }
 

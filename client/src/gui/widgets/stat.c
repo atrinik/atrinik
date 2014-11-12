@@ -45,23 +45,19 @@ static void stat_get_data(widgetdata *widget, int *curr, int *max, float *regen)
         *curr = cpl.stats.hp;
         *max = cpl.stats.maxhp;
         *regen = cpl.gen_hp;
-    }
-    else if (strcmp(widget->id, "mana") == 0) {
+    } else if (strcmp(widget->id, "mana") == 0) {
         *curr = cpl.stats.sp;
         *max = cpl.stats.maxsp;
         *regen = cpl.gen_sp;
-    }
-    else if (strcmp(widget->id, "food") == 0) {
+    } else if (strcmp(widget->id, "food") == 0) {
         *curr = cpl.stats.food;
         *max = 999;
         *regen = 0;
-    }
-    else if (strcmp(widget->id, "exp") == 0) {
+    } else if (strcmp(widget->id, "exp") == 0) {
         *curr = cpl.stats.exp - s_settings->level_exp[cpl.stats.level];
         *max = s_settings->level_exp[cpl.stats.level + 1] - s_settings->level_exp[cpl.stats.level];
         *regen = 0;
-    }
-    else {
+    } else {
         *curr = *max = *regen = 1;
     }
 }
@@ -92,8 +88,7 @@ static void widget_draw(widgetdata *widget)
             box.w = widget->surface->w;
             box.h = widget->surface->h;
             text_show(widget->surface, FONT_ARIAL11, buf, 0, 0, COLOR_WHITE, TEXT_ALIGN_CENTER | TEXT_VALIGN_CENTER, &box);
-        }
-        else if (strcmp(tmp->texture, "sphere") == 0) {
+        } else if (strcmp(tmp->texture, "sphere") == 0) {
             box.x = 0;
             box.y = 0;
             box.w = widget->w - WIDGET_BORDER_SIZE * 2;
@@ -103,8 +98,7 @@ static void widget_draw(widgetdata *widget)
             text_show_format(widget->surface, FONT_ARIAL11, WIDGET_BORDER_SIZE + 2 + SPHERE_PADDING, WIDGET_BORDER_SIZE + 2 + SPHERE_PADDING, COLOR_WHITE, TEXT_MARKUP, NULL, "[icon=stat_sphere_%s %d %d 1 0 %f]", widget->id, widget->w - WIDGET_BORDER_SIZE * 2 - 2 * 2 - SPHERE_PADDING * 2, widget->h - WIDGET_BORDER_SIZE * 2 - 2 * 2 - SPHERE_PADDING * 2, 4.0 + ((double) MAX(0, curr) / (double) max));
             text_show_format(widget->surface, FONT_ARIAL11, WIDGET_BORDER_SIZE + SPHERE_PADDING, WIDGET_BORDER_SIZE + SPHERE_PADDING, COLOR_WHITE, TEXT_MARKUP, &box, "[icon=stat_sphere %d %d 1]", widget->w - WIDGET_BORDER_SIZE * 2 - SPHERE_PADDING * 2, widget->h - WIDGET_BORDER_SIZE * 2 - SPHERE_PADDING * 2);
 #undef SPHERE_PADDING
-        }
-        else {
+        } else {
             int thickness;
 
             thickness = (double) MIN(widget->w, widget->h) * 0.15;
@@ -122,8 +116,7 @@ static void widget_draw(widgetdata *widget)
 
             if (widget->w > widget->h) {
                 box.w *= ((double) MAX(0, curr) / (double) max);
-            }
-            else {
+            } else {
                 int h;
 
                 h = box.h * ((double) MAX(0, curr) / (double) max);

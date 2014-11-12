@@ -65,8 +65,8 @@ void init_anim(void)
     num_animations = 0;
 
     /* Make a default.  New animations start at one, so if something
-    * thinks it is animated but hasn't set the animation_id properly,
-    * it will have a default value that should be pretty obvious. */
+     * thinks it is animated but hasn't set the animation_id properly,
+     * it will have a default value that should be pretty obvious. */
     animations = emalloc(10 * sizeof(Animations));
     /* set the name so we don't try to dereference null.
      * Put # at start so it will be first in alphabetical
@@ -111,8 +111,7 @@ void init_anim(void)
             /* for bsearch */
             animations[num_animations].num = num_animations;
             animations[num_animations].facings = 1;
-        }
-        else if (!strncmp(buf, "mina", 4)) {
+        } else if (!strncmp(buf, "mina", 4)) {
             animations[num_animations].faces = emalloc(sizeof(Fontindex) * num_frames);
 
             for (i = 0; i < num_frames; i++) {
@@ -126,8 +125,7 @@ void init_anim(void)
             }
 
             num_frames = 0;
-        }
-        else if (!strncmp(buf, "facings", 7)) {
+        } else if (!strncmp(buf, "facings", 7)) {
             if (!(animations[num_animations].facings = atoi(buf + 7))) {
                 logger_print(LOG(DEBUG), "Animation %s has 0 facings, line=%s", STRING_SAFE(animations[num_animations].name), buf);
                 animations[num_animations].facings = 1;
@@ -137,8 +135,7 @@ void init_anim(void)
                 logger_print(LOG(DEBUG), "Animation %s has invalid facings parameter (%d - allowed are 9 or 25 only).", STRING_SAFE(animations[num_animations].name), animations[num_animations].facings);
                 animations[num_animations].facings = 1;
             }
-        }
-        else {
+        } else {
             if (!(faces[num_frames++] = find_face(buf, 0))) {
                 logger_print(LOG(BUG), "Could not find face %s for animation %s", buf, STRING_SAFE(animations[num_animations].name));
             }

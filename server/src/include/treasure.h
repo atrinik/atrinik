@@ -60,8 +60,7 @@
  * When a treasure got cloned from archlist, we want to perhaps change
  * some default values. All values in this structure will override the
  * default arch. */
-typedef struct _change_arch
-{
+typedef struct _change_arch {
     /** If not NULL, copy this over the original arch name. */
     const char *name;
 
@@ -96,8 +95,7 @@ typedef struct _change_arch
  *
  * Any arch can point to a treasurelist to get generated standard
  * treasure when an archetype of that type is generated. */
-typedef struct treasurestruct
-{
+typedef struct treasurestruct {
     /** Which item this link can be */
     struct archt *item;
 
@@ -160,8 +158,7 @@ typedef struct treasurestruct
 } treasure;
 
 /** Treasure list structure */
-typedef struct treasureliststruct
-{
+typedef struct treasureliststruct {
     /** Usually monster name/combination */
     const char *name;
 

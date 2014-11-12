@@ -48,8 +48,7 @@ static int apply_func(object *op, object *applier, int aflags)
         if (!QUERY_FLAG(op, FLAG_SYS_OBJECT)) {
             draw_info_format(COLOR_WHITE, applier, "The %s is closed.", query_name(op, NULL));
         }
-    }
-    else {
+    } else {
         /* Don't display messages for random maps. */
         if (op->msg && strncmp(EXIT_PATH(op), "/!", 2) != 0 && strncmp(EXIT_PATH(op), "/random/", 8) != 0) {
             draw_info(COLOR_NAVY, applier, op->msg);

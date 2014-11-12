@@ -208,7 +208,7 @@ static char *yval(void)
     }
 
     /* Get last character before null and strip
-        * off trailing whitespace. */
+     * off trailing whitespace. */
     for (end = cp + strlen(cp) - 1; *end == ' ' || *end == 0x0A || *end == 0x0D; end--) {
         if (end == cp) {
             return em;

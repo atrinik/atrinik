@@ -34,8 +34,7 @@
  * @page plugin_python_party_fields Python party fields
  * <h2>Python party fields</h2>
  * List of the party fields and their meaning. */
-static fields_struct fields[] =
-{
+static fields_struct fields[] = {
     {"name", FIELDTYPE_SHSTR, offsetof(party_struct, name), FIELDFLAG_READONLY, 0},
     {"leader", FIELDTYPE_SHSTR, offsetof(party_struct, leader), 0, 0},
     {"password", FIELDTYPE_CARY, offsetof(party_struct, passwd), FIELDFLAG_READONLY, 0}
@@ -67,12 +66,10 @@ static PyObject *Atrinik_Party_AddMember(Atrinik_Party *party, PyObject *args)
     if (ob->obj->type != PLAYER || !CONTR(ob->obj)) {
         PyErr_SetString(PyExc_ValueError, "'player' must be a player object.");
         return NULL;
-    }
-    else if (CONTR(ob->obj)->party) {
+    } else if (CONTR(ob->obj)->party) {
         if (CONTR(ob->obj)->party == party->party) {
             RAISE("The specified player object is already in the specified party.");
-        }
-        else {
+        } else {
             RAISE("The specified player object is already in another party.");
         }
     }
@@ -102,8 +99,7 @@ static PyObject *Atrinik_Party_RemoveMember(Atrinik_Party *party, PyObject *args
     if (ob->obj->type != PLAYER || !CONTR(ob->obj)) {
         PyErr_SetString(PyExc_ValueError, "'player' must be a player object.");
         return NULL;
-    }
-    else if (!CONTR(ob->obj)->party) {
+    } else if (!CONTR(ob->obj)->party) {
         RAISE("party.RemoveMember(): The specified player is not in a party.");
     }
 
@@ -160,8 +156,7 @@ static PyObject *Atrinik_Party_SendMessage(Atrinik_Party *party, PyObject *args)
 /*@}*/
 
 /** Available Python methods for the AtrinikParty object */
-static PyMethodDef PartyMethods[] =
-{
+static PyMethodDef PartyMethods[] = {
     {"AddMember", (PyCFunction) Atrinik_Party_AddMember, METH_VARARGS, 0},
     {"RemoveMember", (PyCFunction) Atrinik_Party_RemoveMember, METH_VARARGS, 0},
     {"GetMembers", (PyCFunction) Atrinik_Party_GetMembers, METH_NOARGS, 0},
@@ -257,8 +252,7 @@ static PyObject *Atrinik_Party_RichCompare(Atrinik_Party *left, Atrinik_Party *r
 static PyGetSetDef getseters[NUM_FIELDS + 1];
 
 /** Our actual Python PartyType. */
-PyTypeObject Atrinik_PartyType =
-{
+PyTypeObject Atrinik_PartyType = {
 #ifdef IS_PY3K
     PyVarObject_HEAD_INIT(NULL, 0)
 #else
@@ -325,7 +319,7 @@ int Atrinik_Party_init(PyObject *module)
     }
 
     Py_INCREF(&Atrinik_PartyType);
-    PyModule_AddObject(module, "Party", (PyObject *) &Atrinik_PartyType);
+    PyModule_AddObject(module, "Party", (PyObject *) & Atrinik_PartyType);
 
     return 1;
 }

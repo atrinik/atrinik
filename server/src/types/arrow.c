@@ -50,8 +50,7 @@ sint16 arrow_get_wc(object *op, object *bow, object *arrow)
         }
 
         level = skill->level;
-    }
-    else {
+    } else {
         level = op->level;
     }
 
@@ -81,8 +80,7 @@ sint16 arrow_get_damage(object *op, object *bow, object *arrow)
         }
 
         level = skill->level;
-    }
-    else {
+    } else {
         level = op->level;
     }
 
@@ -92,8 +90,7 @@ sint16 arrow_get_damage(object *op, object *bow, object *arrow)
 
     if (bow->item_condition > arrow->item_condition) {
         dam = (sint16) (((float) dam / 100.0f) * (float) bow->item_condition);
-    }
-    else {
+    } else {
         dam = (sint16) (((float) dam / 100.0f) * (float) arrow->item_condition);
     }
 
@@ -118,8 +115,7 @@ object *arrow_find(object *op, shstr *type)
         for (tmp = op->inv; tmp; tmp = tmp->below) {
             if (tmp->type == ARROW && tmp->race == type) {
                 return tmp;
-            }
-            else if (tmp->type == CONTAINER && tmp->race == type && QUERY_FLAG(tmp, FLAG_APPLIED)) {
+            } else if (tmp->type == CONTAINER && tmp->race == type && QUERY_FLAG(tmp, FLAG_APPLIED)) {
                 tmp2 = arrow_find(tmp, type);
 
                 if (tmp2) {
@@ -147,8 +143,8 @@ object *arrow_find(object *op, shstr *type)
     if (tmp->type == ARROW) {
         return tmp;
     }
-    /* A quiver, search through it for arrows. */
     else if (tmp->type == CONTAINER) {
+        /* A quiver, search through it for arrows. */
         return arrow_find(tmp, type);
     }
 
@@ -208,8 +204,7 @@ static int ranged_fire_func(object *op, object *shooter, int dir, double *delay)
     if (shooter->type == PLAYER) {
         op->stats.dam += dam_bonus[shooter->stats.Str] / 2;
         op->stats.wc += thaco_bonus[shooter->stats.Dex];
-    }
-    else {
+    } else {
         op->stats.wc += 5;
     }
 

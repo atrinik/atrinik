@@ -42,6 +42,7 @@ START_TEST(test_re_cmp)
     check_re_cmp("where is treasure", "treasure$");
     check_re_cmp("where is treasure?", "treasure[?.]$");
 }
+
 END_TEST
 
 static Suite *re_cmp_suite(void)

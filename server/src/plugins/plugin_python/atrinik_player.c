@@ -34,8 +34,7 @@
  * @page plugin_python_player_fields Python player fields
  * <h2>Python player fields</h2>
  * List of the player fields and their meaning. */
-static fields_struct fields[] =
-{
+static fields_struct fields[] = {
     {"next", FIELDTYPE_PLAYER, offsetof(player, next), FIELDFLAG_READONLY, 0},
     {"prev", FIELDTYPE_PLAYER, offsetof(player, prev), FIELDFLAG_READONLY, 0},
 
@@ -131,11 +130,9 @@ static PyObject *Atrinik_Player_CanCarry(Atrinik_Player *pl, PyObject *what)
     if (PyObject_TypeCheck(what, &Atrinik_ObjectType)) {
         OBJEXISTCHECK((Atrinik_Object *) what);
         weight = WEIGHT_NROF(((Atrinik_Object *) what)->obj, ((Atrinik_Object *) what)->obj->nrof);
-    }
-    else if (PyInt_Check(what)) {
+    } else if (PyInt_Check(what)) {
         weight = PyInt_AsLong(what);
-    }
-    else {
+    } else {
         PyErr_SetString(PyExc_ValueError, "Invalid value for 'what' parameter.");
         return NULL;
     }
@@ -170,8 +167,7 @@ static PyObject *Atrinik_Player_AddExp(Atrinik_Player *pl, PyObject *args)
             PyErr_Format(PyExc_ValueError, "Skill ID '%d' is invalid; 0-%d should be used.", skill_nr, NROFSKILLS - 1);
             return NULL;
         }
-    }
-    else if (PyString_Check(skill)) {
+    } else if (PyString_Check(skill)) {
         const char *skill_name;
 
         skill_name = PyString_AsString(skill);
@@ -186,8 +182,7 @@ static PyObject *Atrinik_Player_AddExp(Atrinik_Player *pl, PyObject *args)
             PyErr_Format(PyExc_ValueError, "Skill '%s' does not exist.", skill_name);
             return NULL;
         }
-    }
-    else {
+    } else {
         PyErr_SetString(PyExc_TypeError, "Invalid object type for 'skill' parameter.");
         return NULL;
     }
@@ -445,8 +440,7 @@ static PyObject *Atrinik_Player_SendPacket(Atrinik_Player *pl, PyObject *args)
                 hooks->packet_append_sint8(packet, val);
                 continue;
             }
-        }
-        else if (format[i] == 'B') {
+        } else if (format[i] == 'B') {
             if (PyInt_Check(value)) {
                 long val = PyLong_AsLong(value);
 
@@ -458,8 +452,7 @@ static PyObject *Atrinik_Player_SendPacket(Atrinik_Player *pl, PyObject *args)
                 hooks->packet_append_uint8(packet, val);
                 continue;
             }
-        }
-        else if (format[i] == 'h') {
+        } else if (format[i] == 'h') {
             if (PyInt_Check(value)) {
                 long val = PyLong_AsLong(value);
 
@@ -471,8 +464,7 @@ static PyObject *Atrinik_Player_SendPacket(Atrinik_Player *pl, PyObject *args)
                 hooks->packet_append_sint16(packet, val);
                 continue;
             }
-        }
-        else if (format[i] == 'H') {
+        } else if (format[i] == 'H') {
             if (PyInt_Check(value)) {
                 long val = PyLong_AsLong(value);
 
@@ -484,8 +476,7 @@ static PyObject *Atrinik_Player_SendPacket(Atrinik_Player *pl, PyObject *args)
                 hooks->packet_append_uint16(packet, val);
                 continue;
             }
-        }
-        else if (format[i] == 'i') {
+        } else if (format[i] == 'i') {
             if (PyInt_Check(value)) {
                 long val = PyLong_AsLong(value);
 
@@ -497,8 +488,7 @@ static PyObject *Atrinik_Player_SendPacket(Atrinik_Player *pl, PyObject *args)
                 hooks->packet_append_sint32(packet, val);
                 continue;
             }
-        }
-        else if (format[i] == 'I') {
+        } else if (format[i] == 'I') {
             if (PyInt_Check(value)) {
                 long val = PyLong_AsLong(value);
 
@@ -510,8 +500,7 @@ static PyObject *Atrinik_Player_SendPacket(Atrinik_Player *pl, PyObject *args)
                 hooks->packet_append_uint32(packet, val);
                 continue;
             }
-        }
-        else if (format[i] == 'l') {
+        } else if (format[i] == 'l') {
             if (PyInt_Check(value)) {
                 PY_LONG_LONG val = PyLong_AsLongLong(value);
 
@@ -523,8 +512,7 @@ static PyObject *Atrinik_Player_SendPacket(Atrinik_Player *pl, PyObject *args)
                 hooks->packet_append_sint64(packet, val);
                 continue;
             }
-        }
-        else if (format[i] == 'L') {
+        } else if (format[i] == 'L') {
             if (PyInt_Check(value)) {
                 unsigned PY_LONG_LONG val = PyLong_AsUnsignedLongLong(value);
 
@@ -536,20 +524,17 @@ static PyObject *Atrinik_Player_SendPacket(Atrinik_Player *pl, PyObject *args)
                 hooks->packet_append_uint64(packet, val);
                 continue;
             }
-        }
-        else if (format[i] == 's') {
+        } else if (format[i] == 's') {
             if (PyString_Check(value)) {
                 hooks->packet_append_string_terminated(packet, PyString_AsString(value));
                 continue;
             }
-        }
-        else if (format[i] == 'x') {
+        } else if (format[i] == 'x') {
             if (PyBytes_Check(value)) {
                 hooks->packet_append_data_len(packet, (uint8 *) PyBytes_AsString(value), PyBytes_Size(value));
                 continue;
             }
-        }
-        else {
+        } else {
             PyErr_Format(PyExc_TypeError, "Illegal format specifier '%c'.", format[i]);
             return NULL;
         }
@@ -605,8 +590,7 @@ static PyObject *Atrinik_Player_DrawInfo(Atrinik_Player *pl, PyObject *args, PyO
 /*@}*/
 
 /** Available Python methods for the AtrinikPlayer type. */
-static PyMethodDef methods[] =
-{
+static PyMethodDef methods[] = {
     {"GetEquipment", (PyCFunction) Atrinik_Player_GetEquipment, METH_VARARGS, 0},
     {"CanCarry", (PyCFunction) Atrinik_Player_CanCarry, METH_O, 0},
     {"AddExp", (PyCFunction) Atrinik_Player_AddExp, METH_VARARGS, 0},
@@ -718,8 +702,7 @@ static PyObject *Atrinik_Player_RichCompare(Atrinik_Player *left, Atrinik_Player
 static PyGetSetDef getseters[NUM_FIELDS + 1];
 
 /** Our actual Python PlayerType. */
-PyTypeObject Atrinik_PlayerType =
-{
+PyTypeObject Atrinik_PlayerType = {
 #ifdef IS_PY3K
     PyVarObject_HEAD_INIT(NULL, 0)
 #else
@@ -786,7 +769,7 @@ int Atrinik_Player_init(PyObject *module)
     }
 
     Py_INCREF(&Atrinik_PlayerType);
-    PyModule_AddObject(module, "Player", (PyObject *) &Atrinik_PlayerType);
+    PyModule_AddObject(module, "Player", (PyObject *) & Atrinik_PlayerType);
 
     return 1;
 }

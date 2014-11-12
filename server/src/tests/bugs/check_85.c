@@ -52,6 +52,7 @@ START_TEST(test_run)
         }
     }
 }
+
 END_TEST
 
 static Suite *bug_suite(void)

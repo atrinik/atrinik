@@ -43,6 +43,7 @@ static uint8 did_init = 0;
  * @internal */
 void toolkit_math_init(void)
 {
+
     TOOLKIT_INIT_FUNC_START(math)
     {
         SRANDOM(time(NULL));
@@ -55,6 +56,7 @@ void toolkit_math_init(void)
  * @internal */
 void toolkit_math_deinit(void)
 {
+
     TOOLKIT_DEINIT_FUNC_START(math)
     {
     }

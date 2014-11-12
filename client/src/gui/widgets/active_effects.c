@@ -33,8 +33,7 @@
 /**
  * One active effect.
  */
-typedef struct active_effect_struct
-{
+typedef struct active_effect_struct {
     /**
      * Next active effect in a doubly-linked list.
      */
@@ -63,8 +62,7 @@ typedef struct active_effect_struct
 
 /**
  * Active effects widget data. */
-typedef struct widget_active_effects_struct
-{
+typedef struct widget_active_effects_struct {
     active_effect_struct *active_effects;
 
     uint32 update_ticks;
@@ -148,8 +146,7 @@ static void widget_draw(widgetdata *widget)
 
                 if (effect->sec > 60) {
                     snprintf(buf, sizeof(buf), "%d:%02d", effect->sec / 60, effect->sec % 60);
-                }
-                else {
+                } else {
                     snprintf(buf, sizeof(buf), "%d", effect->sec);
                 }
 
@@ -229,8 +226,7 @@ void widget_active_effects_update(widgetdata *widget, object *op, sint32 sec, co
     if (!effect) {
         effect = ecalloc(1, sizeof(*effect));
         DL_APPEND(tmp->active_effects, effect);
-    }
-    else {
+    } else {
         efree(effect->msg);
     }
 

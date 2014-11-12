@@ -32,8 +32,7 @@
 
 /**
  * FPS widget data. */
-typedef struct widget_fps_struct
-{
+typedef struct widget_fps_struct {
     /**
      * Last time the FPS was calculated. */
     uint32 lasttime;

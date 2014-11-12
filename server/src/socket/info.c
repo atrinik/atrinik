@@ -92,8 +92,7 @@ void draw_info_full(uint8 type, const char *name, const char *color, StringBuffe
     if (sb_capture) {
         stringbuffer_append_string(sb_capture, buf);
         stringbuffer_append_string(sb_capture, "\n");
-    }
-    else {
+    } else {
         draw_info_send(type, name, color, &CONTR(pl)->socket, buf);
     }
 }

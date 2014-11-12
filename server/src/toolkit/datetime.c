@@ -43,6 +43,7 @@ static uint8 did_init = 0;
  * @internal */
 void toolkit_datetime_init(void)
 {
+
     TOOLKIT_INIT_FUNC_START(datetime)
     {
     }
@@ -54,6 +55,7 @@ void toolkit_datetime_init(void)
  * @internal */
 void toolkit_datetime_deinit(void)
 {
+
     TOOLKIT_DEINIT_FUNC_START(datetime)
     {
     }

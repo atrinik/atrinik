@@ -76,7 +76,8 @@ void server_files_deinit(void)
 {
     server_files_struct *curr, *tmp;
 
-    HASH_ITER(hh, server_files, curr, tmp) {
+    HASH_ITER(hh, server_files, curr, tmp)
+    {
         HASH_DEL(server_files, curr);
         free(curr->name);
         free(curr);
@@ -90,7 +91,8 @@ void server_files_init_all(void)
 {
     server_files_struct *curr, *tmp;
 
-    HASH_ITER(hh, server_files, curr, tmp) {
+    HASH_ITER(hh, server_files, curr, tmp)
+    {
         if (curr->init_func) {
             curr->init_func();
         }
@@ -142,7 +144,8 @@ void server_files_load(int post_load)
     size_t st_size, numread;
     char *contents;
 
-    HASH_ITER(hh, server_files, curr, tmp) {
+    HASH_ITER(hh, server_files, curr, tmp)
+    {
         curr->update = 0;
 
         if (post_load && curr->loaded) {
@@ -194,7 +197,7 @@ void server_files_listing_retrieve(void)
     char url[HUGE_BUF];
 
     snprintf(url, sizeof(url), "%s/%s/%s", cpl.http_url, SERVER_FILES_HTTP_DIR,
-             SERVER_FILES_HTTP_LISTING);
+            SERVER_FILES_HTTP_LISTING);
 
     if (listing_data != NULL) {
         curl_data_free(listing_data);
@@ -235,9 +238,9 @@ int server_files_listing_processed(void)
         pos = 0;
 
         while (string_get_word(listing_data->memory, &pos, '\n', word,
-                               sizeof(word), 0)) {
+                sizeof(word), 0)) {
             if (string_split(word, split, arraysize(split),
-                             ':') != arraysize(split)) {
+                    ':') != arraysize(split)) {
                 continue;
             }
 
@@ -287,7 +290,7 @@ static int server_file_process(server_files_struct *tmp)
         char url[MAX_BUF];
 
         snprintf(VS(url), "%s/%s/%s.zz", cpl.http_url, SERVER_FILES_HTTP_DIR,
-                 tmp->name);
+                tmp->name);
 
         if (tmp->dl_data != NULL) {
             curl_data_free(tmp->dl_data);
@@ -320,9 +323,9 @@ static int server_file_process(server_files_struct *tmp)
         len_ucomp = tmp->size;
 
         dest = emalloc(len_ucomp);
-        uncompress((Bytef *) dest, (uLongf *) &len_ucomp,
-                   (const Bytef *) tmp->dl_data->memory,
-                   (uLong) tmp->dl_data->size);
+        uncompress((Bytef *) dest, (uLongf *) & len_ucomp,
+                (const Bytef *) tmp->dl_data->memory,
+                (uLong) tmp->dl_data->size);
 
         log(LOG(DEVEL), "Saving: %s, uncompressed: %lu", tmp->name, len_ucomp);
 
@@ -331,11 +334,10 @@ static int server_file_process(server_files_struct *tmp)
         }
 
         efree(dest);
-    }
-    /* Error occurred. */
-    else if (ret == -1) {
+    } else if (ret == -1) {
+        /* Error occurred. */
         logger_print(LOG(BUG), "Could not download %s: %d", tmp->name,
-                     tmp->dl_data->http_code);
+                tmp->dl_data->http_code);
     }
 
     tmp->update = 0;
@@ -354,7 +356,8 @@ int server_files_processed(void)
     server_files_struct *curr, *tmp;
 
     /* Check all files. */
-    HASH_ITER(hh, server_files, curr, tmp) {
+    HASH_ITER(hh, server_files, curr, tmp)
+    {
         if (server_file_process(curr)) {
             return 0;
         }
@@ -371,7 +374,7 @@ int server_files_processed(void)
  * @return 'buf'.
  */
 static char *server_file_path(server_files_struct *tmp, char *buf,
-                              size_t buf_size)
+        size_t buf_size)
 {
     snprintf(buf, buf_size, "srv_files/%s", tmp->name);
     return buf;

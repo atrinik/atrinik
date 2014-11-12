@@ -103,8 +103,7 @@ static int game_status_chain(void)
         effect_stop();
         sound_ambient_clear();
         cpl.state = ST_META;
-    }
-    else if (cpl.state == ST_META) {
+    } else if (cpl.state == ST_META) {
         size_t i, pos;
         char host[MAX_BUF], port[MAX_BUF];
         uint16 port_num;
@@ -123,8 +122,7 @@ static int game_status_chain(void)
 
         metaserver_get_servers();
         cpl.state = ST_START;
-    }
-    else if (cpl.state == ST_START) {
+    } else if (cpl.state == ST_START) {
         if (csocket.fd != -1) {
             socket_close(&csocket);
         }
@@ -132,13 +130,11 @@ static int game_status_chain(void)
         clear_map();
         map_redraw_flag = 1;
         cpl.state = ST_WAITLOOP;
-    }
-    else if (cpl.state == ST_STARTCONNECT) {
+    } else if (cpl.state == ST_STARTCONNECT) {
         draw_info_format(COLOR_GREEN, "Trying server %s (%d)...", selected_server->name, selected_server->port);
         last_keepalive = SDL_GetTicks();
         cpl.state = ST_CONNECT;
-    }
-    else if (cpl.state == ST_CONNECT) {
+    } else if (cpl.state == ST_CONNECT) {
         packet_struct *packet;
 
         if (!socket_open(&csocket, selected_server->ip, selected_server->port)) {
@@ -156,8 +152,7 @@ static int game_status_chain(void)
         socket_send_packet(packet);
 
         cpl.state = ST_WAITVERSION;
-    }
-    else if (cpl.state == ST_VERSION) {
+    } else if (cpl.state == ST_VERSION) {
         packet_struct *packet;
 
         packet = packet_new(SERVER_CMD_SETUP, 256, 256);
@@ -171,26 +166,22 @@ static int game_status_chain(void)
         socket_send_packet(packet);
 
         cpl.state = ST_WAITSETUP;
-    }
-    else if (cpl.state == ST_REQUEST_FILES_LISTING) {
+    } else if (cpl.state == ST_REQUEST_FILES_LISTING) {
         /* Retrieve the server files listing. */
         server_files_listing_retrieve();
         /* Load up the existing server files. */
         server_files_load(0);
         cpl.state = ST_WAITREQUEST_FILES_LISTING;
-    }
-    else if (cpl.state == ST_WAITREQUEST_FILES_LISTING) {
+    } else if (cpl.state == ST_WAITREQUEST_FILES_LISTING) {
         if (server_files_listing_processed()) {
             cpl.state = ST_REQUEST_FILES;
         }
-    }
-    else if (cpl.state == ST_REQUEST_FILES) {
+    } else if (cpl.state == ST_REQUEST_FILES) {
         if (server_files_processed()) {
             server_files_load(1);
             cpl.state = ST_LOGIN;
         }
-    }
-    else if (cpl.state == ST_WAITFORPLAY) {
+    } else if (cpl.state == ST_WAITFORPLAY) {
         clear_map();
     }
 
@@ -214,8 +205,7 @@ static void play_action_sounds(void)
     if (cpl.warn_hp) {
         if (cpl.warn_hp == 2) {
             sound_play_effect("warning_hp2.ogg", 100);
-        }
-        else {
+        } else {
             sound_play_effect("warning_hp.ogg", 100);
         }
 
@@ -365,94 +355,94 @@ int main(int argc, char *argv[])
     toolkit_import(x11);
 
     clioptions_add(
-        "server",
-        NULL,
-        clioptions_option_server,
-        1,
-        "",
-        ""
-        );
+            "server",
+            NULL,
+            clioptions_option_server,
+            1,
+            "",
+            ""
+            );
 
     clioptions_add(
-        "metaserver",
-        NULL,
-        clioptions_option_metaserver,
-        1,
-        "",
-        ""
-        );
+            "metaserver",
+            NULL,
+            clioptions_option_metaserver,
+            1,
+            "",
+            ""
+            );
 
     clioptions_add(
-        "connect",
-        NULL,
-        clioptions_option_connect,
-        1,
-        "",
-        ""
-        );
+            "connect",
+            NULL,
+            clioptions_option_connect,
+            1,
+            "",
+            ""
+            );
 
     clioptions_add(
-        "nometa",
-        NULL,
-        clioptions_option_nometa,
-        0,
-        "",
-        ""
-        );
+            "nometa",
+            NULL,
+            clioptions_option_nometa,
+            0,
+            "",
+            ""
+            );
 
     clioptions_add(
-        "text_debug",
-        NULL,
-        clioptions_option_text_debug,
-        0,
-        "",
-        ""
-        );
+            "text_debug",
+            NULL,
+            clioptions_option_text_debug,
+            0,
+            "",
+            ""
+            );
 
     clioptions_add(
-        "widget_render_debug",
-        NULL,
-        clioptions_option_widget_render_debug,
-        0,
-        "",
-        ""
-        );
+            "widget_render_debug",
+            NULL,
+            clioptions_option_widget_render_debug,
+            0,
+            "",
+            ""
+            );
 
     clioptions_add(
-        "game_news_url",
-        NULL,
-        clioptions_option_game_news_url,
-        0,
-        "",
-        ""
-    );
+            "game_news_url",
+            NULL,
+            clioptions_option_game_news_url,
+            0,
+            "",
+            ""
+            );
 
     clioptions_add(
-        "reconnect",
-        NULL,
-        clioptions_option_reconnect,
-        0,
-        "",
-        ""
-    );
+            "reconnect",
+            NULL,
+            clioptions_option_reconnect,
+            0,
+            "",
+            ""
+            );
 
     clioptions_add(
-        "logger_filter_stdout",
-        NULL,
-        clioptions_option_logger_filter_stdout,
-        1,
-        "",
-        ""
-    );
+            "logger_filter_stdout",
+            NULL,
+            clioptions_option_logger_filter_stdout,
+            1,
+            "",
+            ""
+            );
 
     clioptions_add(
-        "logger_filter_logfile",
-        NULL,
-        clioptions_option_logger_filter_logfile,
-        1,
-        "",
-        ""
-    );
+            "logger_filter_logfile",
+            NULL,
+            clioptions_option_logger_filter_logfile,
+            1,
+            "",
+            ""
+            );
 
     memset(&clioption_settings, 0, sizeof(clioption_settings));
     clioptions_load_config(file_path("client.cfg", "r"), "[General]");
@@ -584,8 +574,7 @@ int main(int argc, char *argv[])
             if (cursor_x != -1 && cursor_y != -1 && SDL_GetAppState() & SDL_APPMOUSEFOCUS) {
                 surface_show(ScreenSurface, cursor_x - (texture_surface(cursor_texture)->w / 2), cursor_y - (texture_surface(cursor_texture)->h / 2), NULL, texture_surface(cursor_texture));
             }
-        }
-        else {
+        } else {
             if (cpl.state == ST_PLAY) {
                 process_widgets(0);
             }

@@ -30,8 +30,7 @@
 #define SERVER_SETTINGS_H
 
 /** Text IDs from server_settings file. */
-enum
-{
+enum {
     SERVER_TEXT_PROTECTION_GROUPS,
     SERVER_TEXT_PROTECTION_LETTERS,
     SERVER_TEXT_PROTECTION_FULL,
@@ -47,8 +46,7 @@ enum
 };
 
 /** One character. */
-typedef struct char_struct
-{
+typedef struct char_struct {
     /** The race name. */
     char *name;
 
@@ -65,8 +63,7 @@ typedef struct char_struct
 /**
  * Server settings structure, initialized from the server_settings srv
  * file. */
-typedef struct server_settings
-{
+typedef struct server_settings {
     /** Maximum reachable level. */
     uint8 max_level;
 

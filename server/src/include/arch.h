@@ -34,8 +34,7 @@
  * objects which point to archetypes.
  * This structure should get removed, and just replaced
  * by the object structure */
-typedef struct archt
-{
+typedef struct archt {
     /** More definite name, like "generate_kobold" */
     const char *name;
 

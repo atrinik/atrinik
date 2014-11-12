@@ -33,8 +33,7 @@
  * Face structure - this enforces the notion that data is face by
  * face only - you can not change the color of an item - you need to instead
  * create a new face with that color. */
-typedef struct new_face_struct
-{
+typedef struct new_face_struct {
     /** Name of the face. */
     char *name;
 
@@ -45,8 +44,7 @@ typedef struct new_face_struct
 } New_Face;
 
 /** Map look structure. */
-typedef struct map_look_struct
-{
+typedef struct map_look_struct {
     /** Face. */
     New_Face *face;
 
@@ -55,8 +53,7 @@ typedef struct map_look_struct
 } MapLook;
 
 /** Animations structure */
-typedef struct
-{
+typedef struct {
     /** Name of the animation sequence. */
     shstr *name;
 

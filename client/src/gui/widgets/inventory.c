@@ -129,8 +129,7 @@ void inventory_filter_toggle(uint64 filter)
 {
     if (inventory_filter & filter) {
         inventory_filter &= ~filter;
-    }
-    else {
+    } else {
         inventory_filter |= filter;
     }
 
@@ -244,17 +243,16 @@ static int inventory_render_object(widgetdata *widget, object *ob, uint32 i,
     if (ob->tag == cpl.container_tag) {
         surface_show(widget->surface, x, y, NULL,
                 TEXTURE_CLIENT("cmark_start"));
-    }
-    /* Object inside the open container... */
-    else if (ob->env == cpl.sack) {
+    } else if (ob->env == cpl.sack) {
+        /* Object inside the open container... */
+        
         /* If there is still something more in the container, show the
          * 'object in the middle of container' graphic. */
         if (ob->next) {
             surface_show(widget->surface, x, y, NULL,
                     TEXTURE_CLIENT("cmark_middle"));
-        }
-        /* The end, show the 'end of container' graphic instead. */
-        else {
+        } else {
+            /* The end, show the 'end of container' graphic instead. */
             surface_show(widget->surface, x, y, NULL,
                     TEXTURE_CLIENT("cmark_end"));
         }
@@ -300,8 +298,7 @@ static int inventory_render_object(widgetdata *widget, object *ob, uint32 i,
                     level = skill_get(skill_id)->level;
                     snprintf(buf2, sizeof(buf2), "level %d %s",
                             ob->item_level, skill->s_name);
-                }
-                else {
+                } else {
                     level = cpl.stats.level;
                     snprintf(buf2, sizeof(buf2), "level %d",
                             ob->item_level);
@@ -429,8 +426,7 @@ static void widget_draw(widgetdata *widget)
 
         surface_show(widget->surface, inventory->x - 1, inventory->y - 1, NULL,
                 texture_surface(inventory->texture));
-    }
-    else if (widget->type == BELOW_INV_ID) {
+    } else if (widget->type == BELOW_INV_ID) {
         surface_show(widget->surface, inventory->x - 1, inventory->y - 1, NULL,
                 texture_surface(inventory->texture));
     }
@@ -710,24 +706,24 @@ void widget_inventory_handle_arrow_key(widgetdata *widget, SDLKey key)
     selected = inventory->selected;
 
     switch (key) {
-        case SDLK_UP:
-            selected -= INVENTORY_COLS(inventory);
-            break;
+    case SDLK_UP:
+        selected -= INVENTORY_COLS(inventory);
+        break;
 
-        case SDLK_DOWN:
-            selected += INVENTORY_COLS(inventory);
-            break;
+    case SDLK_DOWN:
+        selected += INVENTORY_COLS(inventory);
+        break;
 
-        case SDLK_LEFT:
-            selected -= 1;
-            break;
+    case SDLK_LEFT:
+        selected -= 1;
+        break;
 
-        case SDLK_RIGHT:
-            selected += 1;
-            break;
+    case SDLK_RIGHT:
+        selected += 1;
+        break;
 
-        default:
-            break;
+    default:
+        break;
     }
 
     /* Calculate maximum number of inventory items. */
@@ -736,8 +732,7 @@ void widget_inventory_handle_arrow_key(widgetdata *widget, SDLKey key)
     /* Make sure the selected value does not overflow. */
     if (selected < 0) {
         selected = 0;
-    }
-    else if (selected > max - 1) {
+    } else if (selected > max - 1) {
         selected = max - 1;
     }
 
@@ -753,8 +748,7 @@ void widget_inventory_handle_arrow_key(widgetdata *widget, SDLKey key)
 
     if (inventory->scrollbar_info.scroll_offset > offset) {
         inventory->scrollbar_info.scroll_offset = offset;
-    }
-    else if (offset >= inventory->scrollbar.max_lines +
+    } else if (offset >= inventory->scrollbar.max_lines +
             inventory->scrollbar_info.scroll_offset) {
         inventory->scrollbar_info.scroll_offset = offset -
                 inventory->scrollbar.max_lines + 1;

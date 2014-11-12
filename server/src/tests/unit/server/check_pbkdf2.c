@@ -36,6 +36,7 @@ START_TEST(test_PKCS5_PBKDF2_HMAC_SHA2)
     fail_unless(string_tohex(result, 32, hex, sizeof(hex)) == 64, "string_tohex() didn't return correct value.");
     fail_unless(strcmp(hex, "1A27DBE11B730C53A42951F40026F148D65708CCF4829BA89F618CF8720BF5FA") == 0, "PKCS5_PBKDF2_HMAC_SHA2() didn't return correct result.");
 }
+
 END_TEST
 
 static Suite *pbkdf2_suite(void)

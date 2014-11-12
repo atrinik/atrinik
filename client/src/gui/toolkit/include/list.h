@@ -30,8 +30,7 @@
 #define LIST_H
 
 /** One list. */
-typedef struct list_struct
-{
+typedef struct list_struct {
     /** X position of the list. */
     int x;
 

@@ -38,8 +38,7 @@ static int apply_func(object *op, object *applier, int aflags)
     if (op->speed || (op->stats.exp == -1 && op->value)) {
         if (op->msg) {
             draw_info(COLOR_WHITE, applier, op->msg);
-        }
-        else {
+        } else {
             draw_info_format(COLOR_WHITE, applier, "The %s won't budge.", op->name);
         }
 
@@ -55,8 +54,7 @@ static int apply_func(object *op, object *applier, int aflags)
     /* Inform the applier. */
     if (op->msg) {
         draw_info(COLOR_WHITE, applier, op->msg);
-    }
-    else {
+    } else {
         draw_info_format(COLOR_WHITE, applier, "You turn the %s.", op->name);
         play_sound_map(op->map, CMD_SOUND_EFFECT, "pull.ogg", op->x, op->y, 0, 0);
     }

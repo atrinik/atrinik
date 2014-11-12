@@ -71,8 +71,7 @@ static void list_handle_enter(list_struct *list, SDL_Event *event)
             login_start();
             return;
         }
-    }
-    else if (list == list_news) {
+    } else if (list == list_news) {
         if (list->text && list->text[list->row_selected - 1]) {
             game_news_open(list->text[list->row_selected - 1][0]);
         }
@@ -167,8 +166,7 @@ void intro_show(void)
 
             if (node->player >= 0) {
                 snprintf(buf, sizeof(buf), "%d", node->player);
-            }
-            else {
+            } else {
                 strcpy(buf, "-");
             }
 
@@ -197,8 +195,7 @@ void intro_show(void)
     /* Show whether we are connecting to the metaserver or not. */
     if (ms_connecting(-1)) {
         text_show_shadow(ScreenSurface, FONT_ARIAL10, "Connecting to metaserver, please wait...", x + 105, y + 8, COLOR_HGOLD, COLOR_BLACK, 0, NULL);
-    }
-    else {
+    } else {
         text_show_shadow(ScreenSurface, FONT_ARIAL10, "Select a server.", x + 226, y + 8, COLOR_GREEN, COLOR_BLACK, 0, NULL);
     }
 
@@ -320,8 +317,7 @@ int intro_event(SDL_Event *event)
         if (LIST_MOUSE_OVER(list_news, event->motion.x, event->motion.y)) {
             list_news->focus = 1;
             list_servers->focus = 0;
-        }
-        else if (LIST_MOUSE_OVER(list_servers, event->motion.x, event->motion.y)) {
+        } else if (LIST_MOUSE_OVER(list_servers, event->motion.x, event->motion.y)) {
             list_servers->focus = 1;
             list_news->focus = 0;
         }
@@ -330,40 +326,32 @@ int intro_event(SDL_Event *event)
     if (button_event(&button_play, event)) {
         list_handle_enter(list_servers, event);
         return 1;
-    }
-    else if (button_event(&button_refresh, event)) {
+    } else if (button_event(&button_refresh, event)) {
         if (!ms_connecting(-1)) {
             cpl.state = ST_META;
         }
 
         return 1;
-    }
-    else if (button_event(&button_server, event)) {
+    } else if (button_event(&button_server, event)) {
         server_add_open();
         return 1;
-    }
-    else if (button_event(&button_settings, event)) {
+    } else if (button_event(&button_settings, event)) {
         settings_open();
         return 1;
-    }
-    else if (button_event(&button_update, event)) {
+    } else if (button_event(&button_update, event)) {
         updater_open();
         return 1;
-    }
-    else if (button_event(&button_help, event)) {
+    } else if (button_event(&button_help, event)) {
         help_show("main screen");
         return 1;
-    }
-    else if (button_event(&button_credits, event)) {
+    } else if (button_event(&button_credits, event)) {
         credits_show();
         return 1;
-    }
-    else if (button_event(&button_quit, event)) {
+    } else if (button_event(&button_quit, event)) {
         system_end();
         exit(0);
         return 1;
-    }
-    else if (event->type == SDL_KEYDOWN && event->key.keysym.sym == SDLK_TAB && list_news) {
+    } else if (event->type == SDL_KEYDOWN && event->key.keysym.sym == SDLK_TAB && list_news) {
         int news_focus = 0;
 
         if (list_servers->focus) {
@@ -372,14 +360,11 @@ int intro_event(SDL_Event *event)
 
         list_news->focus = news_focus;
         list_servers->focus = !news_focus;
-    }
-    else if (list_handle_keyboard(list_news && list_news->focus ? list_news : list_servers, event)) {
+    } else if (list_handle_keyboard(list_news && list_news->focus ? list_news : list_servers, event)) {
         return 1;
-    }
-    else if (list_handle_mouse(list_news, event)) {
+    } else if (list_handle_mouse(list_news, event)) {
         return 1;
-    }
-    else if (list_handle_mouse(list_servers, event)) {
+    } else if (list_handle_mouse(list_servers, event)) {
         return 1;
     }
 

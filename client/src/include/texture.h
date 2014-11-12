@@ -31,16 +31,14 @@
 
 /**
  * Texture types. */
-typedef enum texture_type_t
-{
+typedef enum texture_type_t {
     TEXTURE_TYPE_SOFTWARE,
     TEXTURE_TYPE_CLIENT,
 
     TEXTURE_TYPE_NUM
 } texture_type_t;
 
-typedef struct texture_struct
-{
+typedef struct texture_struct {
     char *name;
 
     texture_type_t type;

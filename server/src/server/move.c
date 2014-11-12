@@ -122,8 +122,7 @@ int move_ob(object *op, int dir, object *originator)
                 if (op->type == PLAYER) {
                     return 1;
                 }
-            }
-            else {
+            } else {
                 return 0;
             }
         }
@@ -166,11 +165,9 @@ int transfer_ob(object *op, int x, int y, int randomly, object *originator, obje
 
         object_enter_map(op, trap, NULL, 0, 0, 0);
         return 1;
-    }
-    else if (randomly) {
+    } else if (randomly) {
         i = find_free_spot(op->arch, NULL, op->map, x, y, 0, SIZEOFFREE);
-    }
-    else {
+    } else {
         i = find_first_free_spot(op->arch, op, op->map, x, y);
     }
 
@@ -202,7 +199,7 @@ int transfer_ob(object *op, int x, int y, int randomly, object *originator, obje
 int teleport(object *teleporter, uint8 tele_type, object *user)
 {
     /* Better use c/malloc here in the future */
-    object *altern[120];
+    object * altern[120];
     int i, j, k, nrofalt = 0, xt, yt;
     object *other_teleporter, *tmp;
     mapstruct *m;
@@ -310,8 +307,7 @@ int push_ob(object *op, int dir, object *pusher)
     if (flags) {
         if (flags & (P_NO_PASS | P_CHECK_INV) || ((flags & P_DOOR_CLOSED) && !door_try_open(op, m, x, y, 0))) {
             return 0;
-        }
-        else {
+        } else {
             return 0;
         }
     }

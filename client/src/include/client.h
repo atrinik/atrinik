@@ -40,8 +40,7 @@
 #define NUM_MODE_GET  1
 #define NUM_MODE_DROP 2
 
-typedef struct Animations
-{
+typedef struct Animations {
     /* 0 = all fields are invalid, 1 = anim is loaded */
     int loaded;
 
@@ -58,14 +57,13 @@ typedef struct Animations
     uint8 flags;
 } Animations;
 
-typedef struct _anim_table
-{
+typedef struct _anim_table {
     /* Length of anim_cmd data */
     size_t len;
 
     /* Faked animation command */
     uint8 *anim_cmd;
-}_anim_table;
+} _anim_table;
 
 /**
  * Timeout when attempting a connection in milliseconds. */
@@ -73,8 +71,7 @@ typedef struct _anim_table
 
 /**
  * One command buffer. */
-typedef struct command_buffer
-{
+typedef struct command_buffer {
     /** Next command in queue. */
     struct command_buffer *next;
 
@@ -91,8 +88,7 @@ typedef struct command_buffer
 /* ClientSocket could probably hold more of the global values - it could
  * probably hold most all socket/communication related values instead
  * of globals. */
-typedef struct ClientSocket
-{
+typedef struct ClientSocket {
     int fd;
 } ClientSocket;
 
@@ -120,8 +116,7 @@ typedef struct ClientSocket
         (_color)->b = (_color2)->b; \
     }
 
-typedef struct socket_command_struct
-{
+typedef struct socket_command_struct {
     void (*handle_func)(uint8 *data, size_t len, size_t pos);
 } socket_command_struct;
 
@@ -139,10 +134,10 @@ typedef struct socket_command_struct
 #define SPELL_DESC_FRIENDLY     0x08
 /** Spell can be cast on enemy creature. */
 #define SPELL_DESC_ENEMY        0x10
+
 /*@}*/
 
-typedef struct clioption_settings_struct
-{
+typedef struct clioption_settings_struct {
     char **servers;
 
     size_t servers_num;

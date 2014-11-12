@@ -108,8 +108,7 @@ void load_bans_file(void)
 
         if (sscanf(buf, "%s %s", name, ip) == 2) {
             add_ban_entry(name, ip);
-        }
-        else {
+        } else {
             logger_print(LOG(BUG), "Malformed line in bans file: %s", buf);
         }
     }

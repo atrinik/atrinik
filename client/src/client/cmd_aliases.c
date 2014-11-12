@@ -32,8 +32,7 @@
 
 /**
  * One command alias. */
-typedef struct cmd_alias_struct
-{
+typedef struct cmd_alias_struct {
     /**
      * Name of the command alias. */
     char *name;
@@ -91,11 +90,9 @@ static void cmd_aliases_load(const char *path)
 
             cmd_alias = ecalloc(1, sizeof(*cmd_alias));
             cmd_alias->name = string_sub(buf, 1, -1);
-        }
-        else if (string_startswith(buf, "arg = ")) {
+        } else if (string_startswith(buf, "arg = ")) {
             cmd_alias->arg = string_sub(buf, 6, strlen(buf));
-        }
-        else if (string_startswith(buf, "noarg = ")) {
+        } else if (string_startswith(buf, "noarg = ")) {
             cmd_alias->noarg = string_sub(buf, 8, strlen(buf));
         }
     }
@@ -174,49 +171,39 @@ static void cmd_aliases_execute(const char *cmd, const char *params)
 
                     if (strcmp(cps2[0], "arg") == 0) {
                         str = estrdup(params ? params : "");
-                    }
-                    else if (strcmp(cps2[0], "mplayer") == 0) {
+                    } else if (strcmp(cps2[0], "mplayer") == 0) {
                         if (sound_map_background(-1) && sound_playing_music()) {
                             str = estrdup(sound_get_bg_music_basename());
-                        }
-                        else {
+                        } else {
                             str = estrdup("nothing");
                         }
-                    }
-                    else {
+                    } else {
                         str = estrdup("???");
                     }
 
                     if (cps2[1]) {
                         if (strcmp(cps2[1], "upper") == 0) {
                             string_toupper(str);
-                        }
-                        else if (strcmp(cps2[1], "lower") == 0) {
+                        } else if (strcmp(cps2[1], "lower") == 0) {
                             string_tolower(str);
-                        }
-                        else if (strcmp(cps2[1], "capitalize") == 0) {
+                        } else if (strcmp(cps2[1], "capitalize") == 0) {
                             string_capitalize(str);
-                        }
-                        else if (strcmp(cps2[1], "titlecase") == 0) {
+                        } else if (strcmp(cps2[1], "titlecase") == 0) {
                             string_title(str);
                         }
                     }
 
                     stringbuffer_append_string(sb, str);
                     efree(str);
-                }
-                else if (strcmp(cps[0], "gender") == 0) {
+                } else if (strcmp(cps[0], "gender") == 0) {
                     if (strcmp(cps[1], "possessive") == 0) {
                         stringbuffer_append_string(sb, gender_possessive[cpl.gender]);
-                    }
-                    else if (strcmp(cps[1], "reflexive") == 0) {
+                    } else if (strcmp(cps[1], "reflexive") == 0) {
                         stringbuffer_append_string(sb, gender_reflexive[cpl.gender]);
-                    }
-                    else if (strcmp(cps[1], "subjective") == 0) {
+                    } else if (strcmp(cps[1], "subjective") == 0) {
                         stringbuffer_append_string(sb, gender_subjective[cpl.gender]);
                     }
-                }
-                else if (strcmp(cps[0], "choice") == 0) {
+                } else if (strcmp(cps[0], "choice") == 0) {
                     UT_array *strs;
                     char *s, **p;
                     size_t idx;
@@ -238,8 +225,7 @@ static void cmd_aliases_execute(const char *cmd, const char *params)
                     }
 
                     utarray_free(strs);
-                }
-                else if (strcmp(cps[0], "rndm") == 0) {
+                } else if (strcmp(cps[0], "rndm") == 0) {
                     int min, max;
 
                     if (sscanf(cps[1], "%d-%d", &min, &max) == 2) {
@@ -251,8 +237,7 @@ static void cmd_aliases_execute(const char *cmd, const char *params)
             efree(func);
 
             stringbuffer_append_string(sb, func_end + 1);
-        }
-        else {
+        } else {
             stringbuffer_append_string(sb, word);
         }
     }
@@ -284,8 +269,7 @@ int cmd_aliases_handle(const char *cmd)
             if (*params == '\0') {
                 params = NULL;
             }
-        }
-        else {
+        } else {
             cmd_len = strlen(cmd);
             params = NULL;
         }
@@ -295,8 +279,7 @@ int cmd_aliases_handle(const char *cmd)
         if (cmd_alias) {
             if (params && cmd_alias->arg) {
                 cmd_aliases_execute(cmd_alias->arg, params);
-            }
-            else if (cmd_alias->noarg) {
+            } else if (cmd_alias->noarg) {
                 cmd_aliases_execute(cmd_alias->noarg, params);
             }
 

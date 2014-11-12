@@ -43,8 +43,7 @@ static void remove_map_func(object *op)
         if (tmp->event == op) {
             if (!prev) {
                 op->map->events = tmp->next;
-            }
-            else {
+            } else {
                 prev->next = tmp->next;
             }
 

@@ -94,8 +94,8 @@ void rune_spring(object *op, object *victim)
         OBJ_DESTROYED_END(victim);
         OBJ_DESTROYED_END(op);
     }
-    /* Spell. */
     else {
+        /* Spell. */
         cast_spell(env, op, op->stats.maxsp, op->stats.sp, 1, CAST_NORMAL, NULL);
     }
 

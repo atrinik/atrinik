@@ -109,15 +109,15 @@ void init_ericserver(void)
 #ifndef WIN32
     struct protoent *protox;
 
-#   ifdef HAVE_SYSCONF
+#ifdef HAVE_SYSCONF
     socket_info.max_filedescriptor = sysconf(_SC_OPEN_MAX);
-#   else
-#       ifdef HAVE_GETDTABLESIZE
+#else
+#ifdef HAVE_GETDTABLESIZE
     socket_info.max_filedescriptor = getdtablesize();
-#       else
+#else
     "Unable to find usable function to get max filedescriptors";
-#       endif
-#   endif
+#endif
+#endif
 #else
     WSADATA w;
 
@@ -300,8 +300,8 @@ static void load_srv_file(char *fname, FILE *listing)
     numread = compressBound(fsize);
     /* Allocate a buffer to hold the compressed file. */
     compressed = emalloc(numread);
-    compress2((Bytef *) compressed, (uLong *) &numread,
-              (const unsigned char FAR *) contents, fsize, Z_BEST_COMPRESSION);
+    compress2((Bytef *) compressed, (uLong *) & numread,
+            (const unsigned char FAR *) contents, fsize, Z_BEST_COMPRESSION);
 
     sb = stringbuffer_new();
     cp = path_basename(fname);
@@ -397,9 +397,10 @@ static void create_server_animations(void)
         if (!strncmp(buf, "anim ", 5) || !strcmp(buf, "mina\n") || !strncmp(buf, "facings ", 8)) {
             fputs(buf, fp);
         }
-        /* Transform face names into IDs. */
         else {
             char *end = strchr(buf, '\n');
+
+            /* Transform face names into IDs. */
 
             *end = '\0';
             fprintf(fp, "%d\n", find_face(buf, 0));

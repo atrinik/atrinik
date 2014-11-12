@@ -31,8 +31,7 @@
 #ifndef TEXT_INPUT_H
 #define TEXT_INPUT_H
 
-typedef struct text_input_history_struct
-{
+typedef struct text_input_history_struct {
     /**
      * The history. */
     UT_array *history;
@@ -45,8 +44,7 @@ typedef struct text_input_history_struct
 
 /**
  * Text input structure. */
-typedef struct text_input_struct
-{
+typedef struct text_input_struct {
     /**
      * The text input string. */
     char str[HUGE_BUF];

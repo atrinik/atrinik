@@ -44,8 +44,7 @@
 /*@}*/
 
 /** One effect definition in a linked list. */
-typedef struct effect_struct
-{
+typedef struct effect_struct {
     /** Next effect in the list. */
     struct effect_struct *next;
 
@@ -115,8 +114,7 @@ typedef struct effect_struct
 } effect_struct;
 
 /** One sprite currently shown. */
-typedef struct effect_sprite
-{
+typedef struct effect_sprite {
     /** Next sprite. */
     struct effect_sprite *next;
 
@@ -140,8 +138,7 @@ typedef struct effect_sprite
 } effect_sprite;
 
 /** Sprite definition; holds various settings of a single sprite. */
-typedef struct effect_sprite_def
-{
+typedef struct effect_sprite_def {
     /** Next sprite definition in a linked list. */
     struct effect_sprite_def *next;
 
@@ -250,8 +247,7 @@ typedef struct effect_sprite_def
 } effect_sprite_def;
 
 /** One single color in the overlay configuration. */
-typedef struct effect_overlay_col
-{
+typedef struct effect_overlay_col {
     /** Initial value; if -1, will use the original color value. */
     sint16 val;
 
@@ -267,8 +263,7 @@ typedef struct effect_overlay_col
 
 /**
  * Holds information about effect overlay. */
-typedef struct effect_overlay
-{
+typedef struct effect_overlay {
     /** Array of the configuration; R(ed), G(reen), B(lue), A(lpha). */
     effect_overlay_col col[4];
 } effect_overlay;

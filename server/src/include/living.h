@@ -64,8 +64,7 @@
 /**
  * Mostly used by "alive" objects, but also by other objects like gates,
  * buttons, waypoints and a number of other objects. */
-typedef struct liv
-{
+typedef struct liv {
     /** Experience. */
     sint64 exp;
 

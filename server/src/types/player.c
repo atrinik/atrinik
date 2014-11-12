@@ -135,14 +135,12 @@ static player *get_player(player *p)
 
         if (!last_player) {
             first_player = last_player = p;
-        }
-        else {
+        } else {
             last_player->next = p;
             p->prev = last_player;
             last_player = p;
         }
-    }
-    else {
+    } else {
         /* Clears basically the entire player structure except
          * for next and socket. */
         memset((char *) p + offsetof(player, maplevel), 0, sizeof(player) - offsetof(player, maplevel));
@@ -212,15 +210,13 @@ void free_player(player *pl)
     /* Now remove from list of players. */
     if (pl->prev) {
         pl->prev->next = pl->next;
-    }
-    else {
+    } else {
         first_player = pl->next;
     }
 
     if (pl->next) {
         pl->next->prev = pl->prev;
-    }
-    else {
+    } else {
         last_player = pl->prev;
     }
 
@@ -320,8 +316,7 @@ int handle_newcs_player(player *pl)
 
         if (pl->ob->speed_left > 0) {
             return 1;
-        }
-        else {
+        } else {
             return 0;
         }
     }
@@ -393,8 +388,7 @@ static void remove_unpaid_objects(object *op, object *env)
             op->x = env->x;
             op->y = env->y;
             insert_ob_in_map(op, env->map, NULL, 0);
-        }
-        else if (op->inv) {
+        } else if (op->inv) {
             remove_unpaid_objects(op->inv, env);
         }
 
@@ -422,7 +416,7 @@ static int get_regen_amount(uint16 regen, uint16 *regen_remainder)
 
     /* First check if we can distribute it evenly, if not, try to remove
      * leftovers, if any. */
-    for (division = (float) 1000000 / MAX_TIME;; division = 1.0f) {
+    for (division = (float) 1000000 / MAX_TIME; ; division = 1.0f) {
         if (*regen_remainder / 10.0f / division >= 1.0f) {
             int add = (int) *regen_remainder / 10.0f / division;
 
@@ -479,14 +473,12 @@ void do_some_living(object *op)
 
                 if (CONTR(op)->digestion < 0) {
                     op->stats.food += CONTR(op)->digestion;
-                }
-                else if (CONTR(op)->digestion > 0 && rndm(0, CONTR(op)->digestion)) {
+                } else if (CONTR(op)->digestion > 0 && rndm(0, CONTR(op)->digestion)) {
                     op->stats.food = last_food;
                 }
             }
         }
-    }
-    else {
+    } else {
         CONTR(op)->gen_hp_remainder = 0;
     }
 
@@ -507,14 +499,12 @@ void do_some_living(object *op)
 
                 if (CONTR(op)->digestion < 0) {
                     op->stats.food += CONTR(op)->digestion;
-                }
-                else if (CONTR(op)->digestion > 0 && rndm(0, CONTR(op)->digestion)) {
+                } else if (CONTR(op)->digestion > 0 && rndm(0, CONTR(op)->digestion)) {
                     op->stats.food = last_food;
                 }
             }
         }
-    }
-    else {
+    } else {
         CONTR(op)->gen_sp_remainder = 0;
     }
 
@@ -525,8 +515,7 @@ void do_some_living(object *op)
 
         if (CONTR(op)->gen_hp > 0) {
             op->last_eat = 25 * (1 + bonus) / (CONTR(op)->gen_hp + penalty + 1);
-        }
-        else {
+        } else {
             op->last_eat = 25 * (1 + bonus) / (penalty + 1);
         }
 
@@ -547,8 +536,7 @@ void do_some_living(object *op)
                     if (op->stats.food >= 0 || op->stats.hp < 0) {
                         break;
                     }
-                }
-                else if (tmp->type == FLESH) {
+                } else if (tmp->type == FLESH) {
                     flesh = tmp;
                 }
             }
@@ -713,12 +701,12 @@ void cast_dust(object *op, object *throw_ob, int dir)
     if (throw_ob->type == POTION && arch != NULL) {
         cast_cone(op, throw_ob, dir, 10, throw_ob->stats.sp, arch);
     }
-    /* dust_effect */
     else if ((arch = find_archetype("dust_effect")) != NULL) {
+        /* dust_effect */
         cast_cone(op, throw_ob, dir, 1, 0, arch);
     }
-    /* Problem occurred! */
     else {
+        /* Problem occurred! */
         logger_print(LOG(BUG), "can't find an archetype to use!");
     }
 
@@ -800,8 +788,7 @@ int player_can_carry(object *pl, uint32 weight)
 
     if (pl->stats.Str <= MAX_STAT) {
         effective_weight_limit = weight_limit[pl->stats.Str];
-    }
-    else {
+    } else {
         effective_weight_limit = weight_limit[MAX_STAT];
     }
 
@@ -825,8 +812,7 @@ char *player_get_race_class(object *op, char *buf, size_t size)
 
         if (object_get_gender(op) == GENDER_FEMALE && (name_female = object_get_value(CONTR(op)->class_ob, "name_female"))) {
             strncat(buf, name_female, size - strlen(buf) - 1);
-        }
-        else {
+        } else {
             strncat(buf, CONTR(op)->class_ob->name, size - strlen(buf) - 1);
         }
     }
@@ -853,8 +839,7 @@ void player_path_add(player *pl, mapstruct *map, sint16 x, sint16 y)
 
     if (!pl->move_path) {
         pl->move_path = pl->move_path_end = path;
-    }
-    else {
+    } else {
         pl->move_path_end->next = path;
         pl->move_path_end = path;
     }
@@ -895,15 +880,13 @@ void player_path_handle(player *pl)
              * somewhere), clear all queued paths. */
             player_path_clear(pl);
             return;
-        }
-        else {
+        } else {
             int success = 0, dir = rv.direction;
 
             /* Can the player move there directly? */
             if (move_object(pl->ob, dir)) {
                 success = 1;
-            }
-            else {
+            } else {
                 int diff;
 
                 /* Try to move around corners otherwise. */
@@ -923,17 +906,17 @@ void player_path_handle(player *pl)
                 pl->move_path = tmp->next;
                 efree(tmp);
             }
-            /* Clear all paths if we above check failed: this can happen
-             * if we got teleported somewhere else by a teleporter or a
-             * shop mat, in which case the player most likely doesn't want
-             * to move to the original destination. Also see if we failed
-             * to move to destination too many times already. */
             else if ((rv.distance <= 1 && success) || tmp->fails > PLAYER_PATH_MAX_FAILS) {
+                /* Clear all paths if we above check failed: this can happen
+                 * if we got teleported somewhere else by a teleporter or a
+                 * shop mat, in which case the player most likely doesn't want
+                 * to move to the original destination. Also see if we failed
+                 * to move to destination too many times already. */
                 player_path_clear(pl);
                 return;
             }
-            /* Not any of the above; we failed to move where we wanted. */
             else {
+                /* Not any of the above; we failed to move where we wanted. */
                 tmp->fails++;
             }
 
@@ -1053,14 +1036,12 @@ static object *find_marked_object_rec(object *op, object **marked, uint32 *marke
         if (tmp == *marked) {
             if (tmp->count == *marked_count) {
                 return tmp;
-            }
-            else {
+            } else {
                 *marked = NULL;
                 *marked_count = 0;
                 return NULL;
             }
-        }
-        else if (tmp->inv) {
+        } else if (tmp->inv) {
             tmp2 = find_marked_object_rec(tmp, marked, marked_count);
 
             if (tmp2) {
@@ -1102,14 +1083,11 @@ static void examine_living(object *op, object *tmp, StringBuffer *sb_capture)
 
     if (QUERY_FLAG(mon, FLAG_IS_GOOD)) {
         draw_info_full_format(CHAT_TYPE_GAME, NULL, COLOR_WHITE, sb_capture, op, "%s is a good aligned %s %s.", gender_subjective_upper[gender], gender_noun[gender], mon->race);
-    }
-    else if (QUERY_FLAG(mon, FLAG_IS_EVIL)) {
+    } else if (QUERY_FLAG(mon, FLAG_IS_EVIL)) {
         draw_info_full_format(CHAT_TYPE_GAME, NULL, COLOR_WHITE, sb_capture, op, "%s is an evil aligned %s %s.", gender_subjective_upper[gender], gender_noun[gender], mon->race);
-    }
-    else if (QUERY_FLAG(mon, FLAG_IS_NEUTRAL)) {
+    } else if (QUERY_FLAG(mon, FLAG_IS_NEUTRAL)) {
         draw_info_full_format(CHAT_TYPE_GAME, NULL, COLOR_WHITE, sb_capture, op, "%s is a neutral aligned %s %s.", gender_subjective_upper[gender], gender_noun[gender], mon->race);
-    }
-    else {
+    } else {
         draw_info_full_format(CHAT_TYPE_GAME, NULL, COLOR_WHITE, sb_capture, op, "%s is a %s %s.", gender_subjective_upper[gender], gender_noun[gender], mon->race);
     }
 
@@ -1120,8 +1098,7 @@ static void examine_living(object *op, object *tmp, StringBuffer *sb_capture)
     for (val = val2 = -1, i = 0; i < NROFATTACKS; i++) {
         if (mon->protection[i] > 0) {
             val = i;
-        }
-        else if (mon->protection[i] < 0) {
+        } else if (mon->protection[i] < 0) {
             val2 = i;
         }
     }
@@ -1150,21 +1127,21 @@ static void examine_living(object *op, object *tmp, StringBuffer *sb_capture)
     }
 
     switch ((mon->stats.hp + 1) * 4 / (mon->stats.maxhp + 1)) {
-        case 1:
-            draw_info_full_format(CHAT_TYPE_GAME, NULL, COLOR_WHITE, sb_capture, op, "%s is in a bad shape.", gender_subjective_upper[gender]);
-            break;
+    case 1:
+        draw_info_full_format(CHAT_TYPE_GAME, NULL, COLOR_WHITE, sb_capture, op, "%s is in a bad shape.", gender_subjective_upper[gender]);
+        break;
 
-        case 2:
-            draw_info_full_format(CHAT_TYPE_GAME, NULL, COLOR_WHITE, sb_capture, op, "%s is hurt.", gender_subjective_upper[gender]);
-            break;
+    case 2:
+        draw_info_full_format(CHAT_TYPE_GAME, NULL, COLOR_WHITE, sb_capture, op, "%s is hurt.", gender_subjective_upper[gender]);
+        break;
 
-        case 3:
-            draw_info_full_format(CHAT_TYPE_GAME, NULL, COLOR_WHITE, sb_capture, op, "%s is somewhat hurt.", gender_subjective_upper[gender]);
-            break;
+    case 3:
+        draw_info_full_format(CHAT_TYPE_GAME, NULL, COLOR_WHITE, sb_capture, op, "%s is somewhat hurt.", gender_subjective_upper[gender]);
+        break;
 
-        default:
-            draw_info_full_format(CHAT_TYPE_GAME, NULL, COLOR_WHITE, sb_capture, op, "%s is in excellent shape.", gender_subjective_upper[gender]);
-            break;
+    default:
+        draw_info_full_format(CHAT_TYPE_GAME, NULL, COLOR_WHITE, sb_capture, op, "%s is in excellent shape.", gender_subjective_upper[gender]);
+        break;
     }
 
     if (present_in_ob(POISONING, mon) != NULL) {
@@ -1189,49 +1166,49 @@ char *long_desc(object *tmp, object *caller)
     buf[0] = '\0';
 
     switch (tmp->type) {
-        case RING:
-        case SKILL:
-        case WEAPON:
-        case ARMOUR:
-        case BRACERS:
-        case HELMET:
-        case SHIELD:
-        case BOOTS:
-        case GLOVES:
-        case AMULET:
-        case GIRDLE:
-        case POTION:
-        case BOW:
-        case ARROW:
-        case CLOAK:
-        case FOOD:
-        case DRINK:
-        case WAND:
-        case ROD:
-        case FLESH:
-        case BOOK:
-        case CONTAINER:
+    case RING:
+    case SKILL:
+    case WEAPON:
+    case ARMOUR:
+    case BRACERS:
+    case HELMET:
+    case SHIELD:
+    case BOOTS:
+    case GLOVES:
+    case AMULET:
+    case GIRDLE:
+    case POTION:
+    case BOW:
+    case ARROW:
+    case CLOAK:
+    case FOOD:
+    case DRINK:
+    case WAND:
+    case ROD:
+    case FLESH:
+    case BOOK:
+    case CONTAINER:
 
-            if (*(cp = describe_item(tmp)) != '\0') {
-                size_t len;
+        if (*(cp = describe_item(tmp)) != '\0') {
+            size_t len;
 
-                strncat(buf, query_name(tmp, caller), VERY_BIG_BUF - 1);
+            strncat(buf, query_name(tmp, caller), VERY_BIG_BUF - 1);
 
+            buf[VERY_BIG_BUF - 1] = '\0';
+            len = strlen(buf);
+
+            if (len < VERY_BIG_BUF - 5 && ((tmp->type != AMULET && tmp->type != RING) || tmp->title)) {
+                /* Since we know the length, we save a few CPU cycles by
+                 * using
+                 * it instead of calling strcat */
+                strcpy(buf + len, " ");
+                len++;
+                strncpy(buf + len, cp, VERY_BIG_BUF - len - 1);
                 buf[VERY_BIG_BUF - 1] = '\0';
-                len = strlen(buf);
-
-                if (len < VERY_BIG_BUF - 5 && ((tmp->type != AMULET && tmp->type != RING) || tmp->title)) {
-                    /* Since we know the length, we save a few CPU cycles by
-                     * using
-                     * it instead of calling strcat */
-                    strcpy(buf + len, " ");
-                    len++;
-                    strncpy(buf + len, cp, VERY_BIG_BUF - len - 1);
-                    buf[VERY_BIG_BUF - 1] = '\0';
-                }
             }
+        }
 
-            break;
+        break;
     }
 
     if (buf[0] == '\0') {
@@ -1264,24 +1241,21 @@ void examine(object *op, object *tmp, StringBuffer *sb_capture)
         draw_info_full_format(CHAT_TYPE_GAME, NULL, COLOR_WHITE, sb_capture, op, "%s.", describe_item(tmp->head ? tmp->head : tmp));
         examine_living(op, tmp, sb_capture);
     }
-    /* We don't double use the item_xxx arch commands, so they are always valid
-     * */
     else if (QUERY_FLAG(tmp, FLAG_IDENTIFIED)) {
+        /* We don't double use the item_xxx arch commands, so they are always valid */
+
         if (QUERY_FLAG(tmp, FLAG_IS_GOOD)) {
             draw_info_full_format(CHAT_TYPE_GAME, NULL, COLOR_WHITE, sb_capture, op, "It is good aligned.");
-        }
-        else if (QUERY_FLAG(tmp, FLAG_IS_EVIL)) {
+        } else if (QUERY_FLAG(tmp, FLAG_IS_EVIL)) {
             draw_info_full_format(CHAT_TYPE_GAME, NULL, COLOR_WHITE, sb_capture, op, "It is evil aligned.");
-        }
-        else if (QUERY_FLAG(tmp, FLAG_IS_NEUTRAL)) {
+        } else if (QUERY_FLAG(tmp, FLAG_IS_NEUTRAL)) {
             draw_info_full_format(CHAT_TYPE_GAME, NULL, COLOR_WHITE, sb_capture, op, "It is neutral aligned.");
         }
 
         if (tmp->item_level) {
             if (tmp->item_skill) {
                 draw_info_full_format(CHAT_TYPE_GAME, NULL, COLOR_WHITE, sb_capture, op, "It needs a level of %d in %s to use.", tmp->item_level, skills[tmp->item_skill - 1].name);
-            }
-            else {
+            } else {
                 draw_info_full_format(CHAT_TYPE_GAME, NULL, COLOR_WHITE, sb_capture, op, "It needs a level of %d to use.", tmp->item_level);
             }
         }
@@ -1289,159 +1263,145 @@ void examine(object *op, object *tmp, StringBuffer *sb_capture)
         if (tmp->item_quality) {
             if (QUERY_FLAG(tmp, FLAG_INDESTRUCTIBLE)) {
                 draw_info_full_format(CHAT_TYPE_GAME, NULL, COLOR_WHITE, sb_capture, op, "Qua: %d Con: Indestructible.", tmp->item_quality);
-            }
-            else {
+            } else {
                 draw_info_full_format(CHAT_TYPE_GAME, NULL, COLOR_WHITE, sb_capture, op, "Qua: %d Con: %d.", tmp->item_quality, tmp->item_condition);
             }
         }
     }
 
     switch (tmp->type) {
-        case BOOK:
-        {
-            if (tmp->msg) {
-                draw_info_full(CHAT_TYPE_GAME, NULL, COLOR_WHITE, sb_capture, op, "Something is written in it.");
+    case BOOK:
+    {
+        if (tmp->msg) {
+            draw_info_full(CHAT_TYPE_GAME, NULL, COLOR_WHITE, sb_capture, op, "Something is written in it.");
 
-                if (op->type == PLAYER && !QUERY_FLAG(tmp, FLAG_NO_SKILL_IDENT)) {
-                    int level = CONTR(op)->skill_ptr[SK_LITERACY]->level;
+            if (op->type == PLAYER && !QUERY_FLAG(tmp, FLAG_NO_SKILL_IDENT)) {
+                int level = CONTR(op)->skill_ptr[SK_LITERACY]->level;
 
-                    /* Gray. */
-                    if (tmp->level < level_color[level].green) {
-                        draw_info_full(CHAT_TYPE_GAME, NULL, COLOR_WHITE, sb_capture, op, "It seems to contain no knowledge you could learn from.");
-                    }
+                /* Gray. */
+                if (tmp->level < level_color[level].green) {
+                    draw_info_full(CHAT_TYPE_GAME, NULL, COLOR_WHITE, sb_capture, op, "It seems to contain no knowledge you could learn from.");
+                }
+                else if (tmp->level < level_color[level].blue) {
                     /* Green. */
-                    else if (tmp->level < level_color[level].blue) {
-                        draw_info_full(CHAT_TYPE_GAME, NULL, COLOR_WHITE, sb_capture, op, "It seems to contain tiny bits of knowledge you could learn from.");
-                    }
+                    draw_info_full(CHAT_TYPE_GAME, NULL, COLOR_WHITE, sb_capture, op, "It seems to contain tiny bits of knowledge you could learn from.");
+                }
+                else if (tmp->level < level_color[level].yellow) {
                     /* Blue. */
-                    else if (tmp->level < level_color[level].yellow) {
-                        draw_info_full(CHAT_TYPE_GAME, NULL, COLOR_WHITE, sb_capture, op, "It seems to contain a small amount of knowledge you could learn from.");
-                    }
+                    draw_info_full(CHAT_TYPE_GAME, NULL, COLOR_WHITE, sb_capture, op, "It seems to contain a small amount of knowledge you could learn from.");
+                }
+                else if (tmp->level < level_color[level].orange) {
                     /* Yellow. */
-                    else if (tmp->level < level_color[level].orange) {
-                        draw_info_full(CHAT_TYPE_GAME, NULL, COLOR_WHITE, sb_capture, op, "It seems to contain an average amount of knowledge you could learn from.");
-                    }
+                    draw_info_full(CHAT_TYPE_GAME, NULL, COLOR_WHITE, sb_capture, op, "It seems to contain an average amount of knowledge you could learn from.");
+                }
+                else if (tmp->level < level_color[level].red) {
                     /* Orange. */
-                    else if (tmp->level < level_color[level].red) {
-                        draw_info_full(CHAT_TYPE_GAME, NULL, COLOR_WHITE, sb_capture, op, "It seems to contain a moderate amount of knowledge you could learn from.");
-                    }
+                    draw_info_full(CHAT_TYPE_GAME, NULL, COLOR_WHITE, sb_capture, op, "It seems to contain a moderate amount of knowledge you could learn from.");
+                }
+                else if (tmp->level < level_color[level].purple) {
                     /* Red. */
-                    else if (tmp->level < level_color[level].purple) {
-                        draw_info_full(CHAT_TYPE_GAME, NULL, COLOR_WHITE, sb_capture, op, "It seems to contain a fair amount of knowledge you could learn from.");
-                    }
+                    draw_info_full(CHAT_TYPE_GAME, NULL, COLOR_WHITE, sb_capture, op, "It seems to contain a fair amount of knowledge you could learn from.");
+                }
+                else {
                     /* Purple. */
-                    else {
-                        draw_info_full(CHAT_TYPE_GAME, NULL, COLOR_WHITE, sb_capture, op, "It seems to contain a great amount of knowledge you could learn from.");
-                    }
+                    draw_info_full(CHAT_TYPE_GAME, NULL, COLOR_WHITE, sb_capture, op, "It seems to contain a great amount of knowledge you could learn from.");
                 }
             }
-
-            break;
         }
 
-        case CONTAINER:
-        {
-            if (QUERY_FLAG(tmp, FLAG_IDENTIFIED)) {
-                if (tmp->race != NULL) {
-                    if (tmp->weight_limit) {
-                        draw_info_full_format(CHAT_TYPE_GAME, NULL, COLOR_WHITE, sb_capture, op, "It can hold only %s and its weight limit is %.1f kg.", tmp->race, (float) tmp->weight_limit / 1000.0f);
+        break;
+    }
+
+    case CONTAINER:
+    {
+        if (QUERY_FLAG(tmp, FLAG_IDENTIFIED)) {
+            if (tmp->race != NULL) {
+                if (tmp->weight_limit) {
+                    draw_info_full_format(CHAT_TYPE_GAME, NULL, COLOR_WHITE, sb_capture, op, "It can hold only %s and its weight limit is %.1f kg.", tmp->race, (float) tmp->weight_limit / 1000.0f);
+                } else {
+                    draw_info_full_format(CHAT_TYPE_GAME, NULL, COLOR_WHITE, sb_capture, op, "It can hold only %s.", tmp->race);
+                }
+
+                /* Has magic modifier? */
+                if (tmp->weapon_speed != 1.0f) {
+                    /* Bad */
+                    if (tmp->weapon_speed > 1.0f) {
+                        draw_info_full_format(CHAT_TYPE_GAME, NULL, COLOR_WHITE, sb_capture, op, "It increases the weight of items inside by %.1f%%.", tmp->weapon_speed * 100.0f);
                     }
                     else {
-                        draw_info_full_format(CHAT_TYPE_GAME, NULL, COLOR_WHITE, sb_capture, op, "It can hold only %s.", tmp->race);
-                    }
-
-                    /* Has magic modifier? */
-                    if (tmp->weapon_speed != 1.0f) {
-                        /* Bad */
-                        if (tmp->weapon_speed > 1.0f) {
-                            draw_info_full_format(CHAT_TYPE_GAME, NULL, COLOR_WHITE, sb_capture, op, "It increases the weight of items inside by %.1f%%.", tmp->weapon_speed * 100.0f);
-                        }
                         /* Good */
-                        else {
-                            draw_info_full_format(CHAT_TYPE_GAME, NULL, COLOR_WHITE, sb_capture, op, "It decreases the weight of items inside by %.1f%%.", 100.0f - (tmp->weapon_speed * 100.0f));
-                        }
+                        draw_info_full_format(CHAT_TYPE_GAME, NULL, COLOR_WHITE, sb_capture, op, "It decreases the weight of items inside by %.1f%%.", 100.0f - (tmp->weapon_speed * 100.0f));
                     }
                 }
-                else {
-                    if (tmp->weight_limit) {
-                        draw_info_full_format(CHAT_TYPE_GAME, NULL, COLOR_WHITE, sb_capture, op, "Its weight limit is %.1f kg.", (float)tmp->weight_limit / 1000.0f);
-                    }
-                }
-
-                if (tmp->weapon_speed == 1.0f) {
-                    draw_info_full_format(CHAT_TYPE_GAME, NULL, COLOR_WHITE, sb_capture, op, "It contains %3.3f kg.", (float) tmp->carrying / 1000.0f);
-                }
-                else if (tmp->weapon_speed > 1.0f) {
-                    draw_info_full_format(CHAT_TYPE_GAME, NULL, COLOR_WHITE, sb_capture, op, "It contains %3.3f kg, increased to %3.3f kg.", (float) tmp->damage_round_tag / 1000.0f, (float) tmp->carrying / 1000.0f);
-                }
-                else {
-                    draw_info_full_format(CHAT_TYPE_GAME, NULL, COLOR_WHITE, sb_capture, op, "It contains %3.3f kg, decreased to %3.3f kg.", (float) tmp->damage_round_tag / 1000.0f, (float) tmp->carrying / 1000.0f);
+            } else {
+                if (tmp->weight_limit) {
+                    draw_info_full_format(CHAT_TYPE_GAME, NULL, COLOR_WHITE, sb_capture, op, "Its weight limit is %.1f kg.", (float) tmp->weight_limit / 1000.0f);
                 }
             }
 
-            break;
+            if (tmp->weapon_speed == 1.0f) {
+                draw_info_full_format(CHAT_TYPE_GAME, NULL, COLOR_WHITE, sb_capture, op, "It contains %3.3f kg.", (float) tmp->carrying / 1000.0f);
+            } else if (tmp->weapon_speed > 1.0f) {
+                draw_info_full_format(CHAT_TYPE_GAME, NULL, COLOR_WHITE, sb_capture, op, "It contains %3.3f kg, increased to %3.3f kg.", (float) tmp->damage_round_tag / 1000.0f, (float) tmp->carrying / 1000.0f);
+            } else {
+                draw_info_full_format(CHAT_TYPE_GAME, NULL, COLOR_WHITE, sb_capture, op, "It contains %3.3f kg, decreased to %3.3f kg.", (float) tmp->damage_round_tag / 1000.0f, (float) tmp->carrying / 1000.0f);
+            }
         }
 
-        case WAND:
-        {
-            if (QUERY_FLAG(tmp, FLAG_IDENTIFIED)) {
-                draw_info_full_format(CHAT_TYPE_GAME, NULL, COLOR_WHITE, sb_capture, op, "It has %d charges left.", tmp->stats.food);
-            }
+        break;
+    }
 
-            break;
+    case WAND:
+    {
+        if (QUERY_FLAG(tmp, FLAG_IDENTIFIED)) {
+            draw_info_full_format(CHAT_TYPE_GAME, NULL, COLOR_WHITE, sb_capture, op, "It has %d charges left.", tmp->stats.food);
         }
 
-        case POWER_CRYSTAL:
-        {
-            /* Avoid division by zero... */
-            if (tmp->stats.maxsp == 0) {
-                draw_info_full_format(CHAT_TYPE_GAME, NULL, COLOR_WHITE, sb_capture, op, "It has capacity of %d.", tmp->stats.maxsp);
-            }
-            else {
-                const char *charge;
+        break;
+    }
 
-                i = (tmp->stats.sp * 10) / tmp->stats.maxsp;
+    case POWER_CRYSTAL:
+    {
+        /* Avoid division by zero... */
+        if (tmp->stats.maxsp == 0) {
+            draw_info_full_format(CHAT_TYPE_GAME, NULL, COLOR_WHITE, sb_capture, op, "It has capacity of %d.", tmp->stats.maxsp);
+        } else {
+            const char *charge;
 
-                if (tmp->stats.sp == 0) {
-                    charge = "empty";
-                }
-                else if (i == 0) {
-                    charge = "almost empty";
-                }
-                else if (i < 3) {
-                    charge = "partially filled";
-                }
-                else if (i < 6) {
-                    charge = "half full";
-                }
-                else if (i < 9) {
-                    charge = "well charged";
-                }
-                else if (tmp->stats.sp == tmp->stats.maxsp) {
-                    charge = "fully charged";
-                }
-                else {
-                    charge = "almost full";
-                }
+            i = (tmp->stats.sp * 10) / tmp->stats.maxsp;
 
-                /* Higher capacity crystals */
-                if (tmp->stats.maxsp > 1000) {
-                    i = (tmp->stats.maxsp % 1000) / 100;
-
-                    if (i != 0) {
-                        draw_info_full_format(CHAT_TYPE_GAME, NULL, COLOR_WHITE, sb_capture, op, "It has capacity of %d.%dk and is %s.", tmp->stats.maxsp / 1000, i, charge);
-                    }
-                    else {
-                        draw_info_full_format(CHAT_TYPE_GAME, NULL, COLOR_WHITE, sb_capture, op, "It has capacity of %dk and is %s.", tmp->stats.maxsp / 1000, charge);
-                    }
-                }
-                else {
-                    draw_info_full_format(CHAT_TYPE_GAME, NULL, COLOR_WHITE, sb_capture, op, "It has capacity of %d and is %s.", tmp->stats.maxsp, charge);
-                }
+            if (tmp->stats.sp == 0) {
+                charge = "empty";
+            } else if (i == 0) {
+                charge = "almost empty";
+            } else if (i < 3) {
+                charge = "partially filled";
+            } else if (i < 6) {
+                charge = "half full";
+            } else if (i < 9) {
+                charge = "well charged";
+            } else if (tmp->stats.sp == tmp->stats.maxsp) {
+                charge = "fully charged";
+            } else {
+                charge = "almost full";
             }
 
-            break;
+            /* Higher capacity crystals */
+            if (tmp->stats.maxsp > 1000) {
+                i = (tmp->stats.maxsp % 1000) / 100;
+
+                if (i != 0) {
+                    draw_info_full_format(CHAT_TYPE_GAME, NULL, COLOR_WHITE, sb_capture, op, "It has capacity of %d.%dk and is %s.", tmp->stats.maxsp / 1000, i, charge);
+                } else {
+                    draw_info_full_format(CHAT_TYPE_GAME, NULL, COLOR_WHITE, sb_capture, op, "It has capacity of %dk and is %s.", tmp->stats.maxsp / 1000, charge);
+                }
+            } else {
+                draw_info_full_format(CHAT_TYPE_GAME, NULL, COLOR_WHITE, sb_capture, op, "It has capacity of %d and is %s.", tmp->stats.maxsp, charge);
+            }
         }
+
+        break;
+    }
     }
 
     if (tmp->material && (need_identify(tmp) && QUERY_FLAG(tmp, FLAG_IDENTIFIED))) {
@@ -1463,11 +1423,9 @@ void examine(object *op, object *tmp, StringBuffer *sb_capture)
 
         if (tmp->type == MONSTER) {
             draw_info_full_format(CHAT_TYPE_GAME, NULL, COLOR_WHITE, sb_capture, op, "%s weighs %3.3f kg.", gender_subjective_upper[object_get_gender(tmp)], weight);
-        }
-        else if (tmp->type == PLAYER) {
+        } else if (tmp->type == PLAYER) {
             draw_info_full_format(CHAT_TYPE_GAME, NULL, COLOR_WHITE, sb_capture, op, "%s weighs %3.3f kg and is carrying %3.3f kg.", gender_subjective_upper[object_get_gender(tmp)], weight, (float) tmp->carrying / 1000.0f);
-        }
-        else {
+        } else {
             draw_info_full_format(CHAT_TYPE_GAME, NULL, COLOR_WHITE, sb_capture, op, tmp->nrof > 1 ? "They weigh %3.3f kg." : "It weighs %3.3f kg.", weight);
         }
     }
@@ -1477,26 +1435,23 @@ void examine(object *op, object *tmp, StringBuffer *sb_capture)
         if (QUERY_FLAG(tmp, FLAG_UNPAID)) {
             draw_info_full_format(CHAT_TYPE_GAME, NULL, COLOR_WHITE, sb_capture, op, "%s would cost you %s.", tmp->nrof > 1 ? "They" : "It", query_cost_string(tmp, op, COST_BUY));
         }
-        /* God-given item */
         else {
+            /* God-given item */
             draw_info_full_format(CHAT_TYPE_GAME, NULL, COLOR_WHITE, sb_capture, op, "%s god-given item%s.", tmp->nrof > 1 ? "They are" : "It is a", tmp->nrof > 1 ? "s" : "");
 
             if (QUERY_FLAG(tmp, FLAG_IDENTIFIED)) {
                 if (tmp->value) {
                     draw_info_full_format(CHAT_TYPE_GAME, NULL, COLOR_WHITE, sb_capture, op, "But %s worth %s.", tmp->nrof > 1 ? "they are" : "it is", query_cost_string(tmp, op, COST_TRUE));
-                }
-                else {
+                } else {
                     draw_info_full_format(CHAT_TYPE_GAME, NULL, COLOR_WHITE, sb_capture, op, "%s worthless.", tmp->nrof > 1 ? "They are" : "It is");
                 }
             }
         }
-    }
-    else if (tmp->value && !IS_LIVE(tmp)) {
+    } else if (tmp->value && !IS_LIVE(tmp)) {
         if (QUERY_FLAG(tmp, FLAG_IDENTIFIED)) {
             if (QUERY_FLAG(tmp, FLAG_UNPAID)) {
                 draw_info_full_format(CHAT_TYPE_GAME, NULL, COLOR_WHITE, sb_capture, op, "%s would cost you %s.", tmp->nrof > 1 ? "They" : "It", query_cost_string(tmp, op, COST_BUY));
-            }
-            else {
+            } else {
                 draw_info_full_format(CHAT_TYPE_GAME, NULL, COLOR_WHITE, sb_capture, op, "%s worth %s.", tmp->nrof > 1 ? "They are" : "It is", query_cost_string(tmp, op, COST_TRUE));
             }
         }
@@ -1510,13 +1465,11 @@ void examine(object *op, object *tmp, StringBuffer *sb_capture)
                 draw_info_full_format(CHAT_TYPE_GAME, NULL, COLOR_WHITE, sb_capture, op, "This shop will pay you %s.", query_cost_string(tmp, op, COST_SELL));
             }
         }
-    }
-    else if (!IS_LIVE(tmp)) {
+    } else if (!IS_LIVE(tmp)) {
         if (QUERY_FLAG(tmp, FLAG_IDENTIFIED)) {
             if (QUERY_FLAG(tmp, FLAG_UNPAID)) {
                 draw_info_full_format(CHAT_TYPE_GAME, NULL, COLOR_WHITE, sb_capture, op, "%s would cost nothing.", tmp->nrof > 1 ? "They" : "It");
-            }
-            else {
+            } else {
                 draw_info_full_format(CHAT_TYPE_GAME, NULL, COLOR_WHITE, sb_capture, op, "%s worthless.", tmp->nrof > 1 ? "They are" : "It is");
             }
         }
@@ -1589,14 +1542,12 @@ static object *get_pickup_object(object *pl, object *op, int nrof)
         op->nrof = nrof;
 
         draw_info_format(COLOR_WHITE, pl, "You pick up %s for %s from the storage.", query_name(op, NULL), query_cost_string(op, pl, COST_BUY));
-    }
-    else {
+    } else {
         op = object_stack_get_removed(op, nrof);
 
         if (QUERY_FLAG(op, FLAG_UNPAID)) {
             draw_info_format(COLOR_WHITE, pl, "%s will cost you %s.", query_name(op, NULL), query_cost_string(op, pl, COST_BUY));
-        }
-        else {
+        } else {
             draw_info_format(COLOR_WHITE, pl, "You pick up the %s.", query_name(op, NULL));
         }
     }
@@ -1635,8 +1586,7 @@ static void pick_up_object(object *pl, object *op, object *tmp, int nrof, int no
 
     if (tmp->type == CONTAINER) {
         container_close(NULL, tmp);
-    }
-    else if (tmp->type == ARROW) {
+    } else if (tmp->type == ARROW) {
         object_projectile_stop(tmp, OBJECT_PROJECTILE_PICKUP);
     }
 
@@ -1677,8 +1627,7 @@ void pick_up(object *op, object *alt, int no_mevent)
         }
 
         tmp = alt;
-    }
-    else {
+    } else {
         if (op->below == NULL || !can_pick(op, op->below)) {
             draw_info(COLOR_WHITE, op, "There is nothing to pick up here.");
             return;
@@ -1701,8 +1650,7 @@ void pick_up(object *op, object *alt, int no_mevent)
         if (count == 0) {
             count = tmp->nrof;
         }
-    }
-    else {
+    } else {
         count = tmp->nrof;
     }
 
@@ -1714,8 +1662,9 @@ void pick_up(object *op, object *alt, int no_mevent)
             return;
         }
     }
-    /* Con container pickup */
     else {
+        /* Con container pickup */
+
         for (alt = op->inv; alt; alt = alt->below) {
             if (alt->type == CONTAINER && QUERY_FLAG(alt, FLAG_APPLIED) && alt->race && alt->race == tmp->race && sack_can_hold(NULL, alt, tmp, count) && !check_magical_container(tmp, alt)) {
                 /* Perfect match */
@@ -1882,8 +1831,7 @@ void drop_object(object *op, object *tmp, long nrof, int no_mevent)
                     tmp->y = op->y;
                     insert_ob_in_map(tmp, op->map, op, 0);
                 }
-            }
-            else {
+            } else {
                 draw_info(COLOR_WHITE, op, "The god-given item vanishes to nowhere as you drop it!");
             }
         }
@@ -1960,14 +1908,12 @@ void drop(object *op, object *tmp, int no_mevent)
     if (op->type == PLAYER) {
         if (CONTR(op)->container) {
             put_object_in_sack(op, CONTR(op)->container, tmp, CONTR(op)->count);
-        }
-        else {
+        } else {
             drop_object(op, tmp, CONTR(op)->count, no_mevent);
         }
 
         CONTR(op)->count = 0;
-    }
-    else {
+    } else {
         drop_object(op, tmp, 0, no_mevent);
     }
 }
@@ -2112,45 +2058,33 @@ static int player_load(player *pl, const char *path)
 
         if (strcmp(buf, "endplst") == 0) {
             break;
-        }
-        else if (strncmp(buf, "no_chat ", 8) == 0) {
+        } else if (strncmp(buf, "no_chat ", 8) == 0) {
             pl->no_chat = atoi(buf + 8);
-        }
-        else if (strncmp(buf, "tcl ", 4) == 0) {
+        } else if (strncmp(buf, "tcl ", 4) == 0) {
             pl->tcl = atoi(buf + 4);
-        }
-        else if (strncmp(buf, "tgm ", 4) == 0) {
+        } else if (strncmp(buf, "tgm ", 4) == 0) {
             pl->tgm = atoi(buf + 4);
-        }
-        else if (strncmp(buf, "tsi ", 4) == 0) {
+        } else if (strncmp(buf, "tsi ", 4) == 0) {
             pl->tsi = atoi(buf + 4);
-        }
-        else if (strncmp(buf, "tli ", 4) == 0) {
+        } else if (strncmp(buf, "tli ", 4) == 0) {
             pl->tli = atoi(buf + 4);
-        }
-        else if (strncmp(buf, "tls ", 4) == 0) {
+        } else if (strncmp(buf, "tls ", 4) == 0) {
             pl->tls = atoi(buf + 4);
-        }
-        else if (strncmp(buf, "map ", 4) == 0) {
+        } else if (strncmp(buf, "map ", 4) == 0) {
             strncpy(pl->maplevel, buf + 4, sizeof(pl->maplevel) - 1);
             pl->maplevel[sizeof(pl->maplevel) - 1] = '\0';
-        }
-        else if (strncmp(buf, "bed_map ", 8) == 0) {
+        } else if (strncmp(buf, "bed_map ", 8) == 0) {
             strncpy(pl->savebed_map, buf + 8, sizeof(pl->savebed_map) - 1);
             pl->savebed_map[sizeof(pl->savebed_map) - 1] = '\0';
-        }
-        else if (strncmp(buf, "bed_x ", 5) == 0) {
+        } else if (strncmp(buf, "bed_x ", 5) == 0) {
             pl->bed_x = atoi(buf + 5);
-        }
-        else if (strncmp(buf, "bed_y ", 5) == 0) {
+        } else if (strncmp(buf, "bed_y ", 5) == 0) {
             pl->bed_y = atoi(buf + 5);
-        }
-        else if (strncmp(buf, "cmd_permission ", 15) == 0) {
+        } else if (strncmp(buf, "cmd_permission ", 15) == 0) {
             pl->cmd_permissions = erealloc(pl->cmd_permissions, sizeof(char *) * (pl->num_cmd_permissions + 1));
             pl->cmd_permissions[pl->num_cmd_permissions] = estrdup(buf + 15);
             pl->num_cmd_permissions++;
-        }
-        else if (strncmp(buf, "faction ", 8) == 0) {
+        } else if (strncmp(buf, "faction ", 8) == 0) {
             size_t pos;
             char faction_id[MAX_BUF];
             sint64 rep;
@@ -2166,11 +2100,9 @@ static int player_load(player *pl, const char *path)
                 pl->faction_reputation[pl->num_faction_ids] = rep;
                 pl->num_faction_ids++;
             }
-        }
-        else if (strncmp(buf, "fame ", 5) == 0) {
+        } else if (strncmp(buf, "fame ", 5) == 0) {
             pl->fame = atoi(buf + 5);
-        }
-        else if (strncmp(buf, "rmap ", 5) == 0) {
+        } else if (strncmp(buf, "rmap ", 5) == 0) {
             pl->region_maps = erealloc(pl->region_maps, sizeof(*pl->region_maps) * (pl->num_region_maps + 1));
             pl->region_maps[pl->num_region_maps] = estrdup(buf + 5);
             pl->num_region_maps++;
@@ -2280,8 +2212,7 @@ void player_login(socket_struct *ns, const char *name, archetype *at)
 
     if (!m && strncmp(pl->maplevel, "/random/", 8) == 0) {
         object_enter_map(pl->ob, NULL, ready_map_name(pl->savebed_map, 0), pl->bed_x, pl->bed_y, 1);
-    }
-    else {
+    } else {
         object_enter_map(pl->ob, NULL, m, pl->ob->x, pl->ob->y, 1);
     }
 
@@ -2330,8 +2261,7 @@ static void remove_map_func(object *op)
     /* Remove player from the map's linked list of players. */
     if (pl->map_below) {
         CONTR(pl->map_below)->map_above = pl->map_above;
-    }
-    else {
+    } else {
         op->map->player_first = pl->map_above;
     }
 

@@ -34,8 +34,7 @@
  * @page plugin_python_map_fields Python map fields
  * <h2>Python map fields</h2>
  * List of the map fields and their meaning. */
-static fields_struct fields[] =
-{
+static fields_struct fields[] = {
     {"next", FIELDTYPE_MAP, offsetof(mapstruct, next), FIELDFLAG_READONLY, 0},
     {"previous", FIELDTYPE_MAP, offsetof(mapstruct, previous), FIELDFLAG_READONLY, 0},
 
@@ -64,8 +63,7 @@ static fields_struct fields[] =
  * @page plugin_python_map_flags Python map flags
  * <h2>Python map flags</h2>
  * List of the map flags and their meaning. */
-static char *mapflag_names[] =
-{
+static char *mapflag_names[] = {
     "f_outdoor", "f_unique", "f_fixed_rtime", "f_nomagic",
     NULL, "f_noharm", "f_nosummon", "f_fixed_login",
     "f_player_no_save", "f_unused2", "f_unused3", "f_pvp",
@@ -540,8 +538,7 @@ static PyObject *Atrinik_Map_LocateBeacon(Atrinik_Map *map, PyObject *args)
         free(joined);
         free(pl_name);
         free(filedir);
-    }
-    else {
+    } else {
         FREE_AND_COPY_HASH(beacon_name, name);
     }
 
@@ -554,8 +551,7 @@ static PyObject *Atrinik_Map_LocateBeacon(Atrinik_Map *map, PyObject *args)
 /*@}*/
 
 /** Available Python methods for the AtrinikMap object */
-static PyMethodDef MapMethods[] =
-{
+static PyMethodDef MapMethods[] = {
     {"GetFirstObject", (PyCFunction) Atrinik_Map_GetFirstObject, METH_VARARGS, 0},
     {"GetLastObject", (PyCFunction) Atrinik_Map_GetLastObject, METH_VARARGS, 0},
     {"GetLayer", (PyCFunction) Atrinik_Map_GetLayer, METH_VARARGS, 0},
@@ -642,11 +638,9 @@ static int Map_SetFlag(Atrinik_Map *map, PyObject *val, void *context)
 
     if (val == Py_True) {
         map->map->map_flags |= (1U << flagno);
-    }
-    else if (val == Py_False) {
+    } else if (val == Py_False) {
         map->map->map_flags &= ~(1U << flagno);
-    }
-    else {
+    } else {
         PyErr_SetString(PyExc_TypeError, "Flag value must be either True or False.");
         return -1;
     }
@@ -720,8 +714,7 @@ static PyObject *Atrinik_Map_RichCompare(Atrinik_Map *left, Atrinik_Map *right, 
 static PyGetSetDef getseters[NUM_FIELDS + NUM_MAPFLAGS + 1];
 
 /** Our actual Python MapType. */
-PyTypeObject Atrinik_MapType =
-{
+PyTypeObject Atrinik_MapType = {
 #ifdef IS_PY3K
     PyVarObject_HEAD_INIT(NULL, 0)
 #else
@@ -799,7 +792,7 @@ int Atrinik_Map_init(PyObject *module)
     }
 
     Py_INCREF(&Atrinik_MapType);
-    PyModule_AddObject(module, "Map", (PyObject *) &Atrinik_MapType);
+    PyModule_AddObject(module, "Map", (PyObject *) & Atrinik_MapType);
 
     return 1;
 }

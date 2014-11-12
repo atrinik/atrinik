@@ -32,13 +32,11 @@
 
 /**
  * Names of the text window tabs. */
-const char *const textwin_tab_names[] =
-{
+const char *const textwin_tab_names[] ={
     "[ALL]", "[GAME]", "[CHAT]", "[LOCAL]", "[PRIVATE]", "[GUILD]", "[PARTY]", "[OPERATOR]"
 };
 
-const char *const textwin_tab_commands[] =
-{
+const char *const textwin_tab_commands[] ={
     "say", NULL, "chat", "say", "reply", "guild", "party say", "opsay"
 };
 
@@ -112,25 +110,25 @@ static void textwin_tab_append(widgetdata *widget, uint8 id, uint8 type, const c
 
         switch (setting_get_int(OPT_CAT_GENERAL, OPT_CHAT_TIMESTAMPS)) {
             /* HH:MM */
-            case 1:
-            default:
-                format = "%H:%M";
-                break;
+        case 1:
+        default:
+            format = "%H:%M";
+            break;
 
             /* HH:MM:SS */
-            case 2:
-                format = "%H:%M:%S";
-                break;
+        case 2:
+            format = "%H:%M:%S";
+            break;
 
             /* H:MM AM/PM */
-            case 3:
-                format = "%I:%M %p";
-                break;
+        case 3:
+            format = "%I:%M %p";
+            break;
 
             /* H:MM:SS AM/PM */
-            case 4:
-                format = "%I:%M:%S %p";
-                break;
+        case 4:
+            format = "%I:%M:%S %p";
+            break;
         }
 
         timelen = strftime(tmptimebuf, sizeof(tmptimebuf), format, tm);
@@ -203,11 +201,9 @@ static int textwin_tab_compare(const void *a, const void *b)
 
     if (tab_one->name && !tab_two->name) {
         return 1;
-    }
-    else if (!tab_one->name && tab_two->name) {
+    } else if (!tab_one->name && tab_two->name) {
         return -1;
-    }
-    else if (tab_one->name && tab_two->name) {
+    } else if (tab_one->name && tab_two->name) {
         return strcmp(tab_one->name, tab_two->name);
     }
 
@@ -328,8 +324,7 @@ void textwin_tab_open(widgetdata *widget, const char *name)
     if (textwin_tab_find(widget, CHAT_TYPE_PRIVATE, name, &i)) {
         textwin->tab_selected = i;
         textwin_readjust(widget);
-    }
-    else {
+    } else {
         textwin_tab_add(widget, name);
     }
 }
@@ -738,8 +733,7 @@ static int widget_event(widgetdata *widget, SDL_Event *event)
             if (*(textwin->tabs[textwin->tab_selected].text_input.str) != '/') {
                 if (textwin->tabs[textwin->tab_selected].name != NULL) {
                     stringbuffer_append_printf(sb, "/tell \"%s\" ", textwin->tabs[textwin->tab_selected].name);
-                }
-                else {
+                } else {
                     stringbuffer_append_printf(sb, "/%s ", textwin_tab_commands[textwin->tabs[textwin->tab_selected].type - 1]);
                 }
             }
@@ -758,13 +752,11 @@ static int widget_event(widgetdata *widget, SDL_Event *event)
             text_input_reset(&textwin->tabs[textwin->tab_selected].text_input);
             WIDGET_REDRAW(widget);
             return 1;
-        }
-        else if (event->key.keysym.sym == SDLK_TAB) {
+        } else if (event->key.keysym.sym == SDLK_TAB) {
             help_handle_tabulator(&textwin->tabs[textwin->tab_selected].text_input);
             WIDGET_REDRAW(widget);
             return 1;
-        }
-        else if (text_input_event(&textwin->tabs[textwin->tab_selected].text_input, event)) {
+        } else if (text_input_event(&textwin->tabs[textwin->tab_selected].text_input, event)) {
             if (IS_ENTER(event->key.keysym.sym)) {
                 text_input_reset(&textwin->tabs[textwin->tab_selected].text_input);
                 textwin->tabs[textwin->tab_selected].text_input.focus = 0;
@@ -787,15 +779,13 @@ static int widget_event(widgetdata *widget, SDL_Event *event)
     if (event->button.button == SDL_BUTTON_LEFT) {
         if (event->type == SDL_MOUSEBUTTONUP) {
             return 1;
-        }
-        else if (event->type == SDL_MOUSEBUTTONDOWN) {
+        } else if (event->type == SDL_MOUSEBUTTONDOWN) {
             textwin->selection_started = 0;
             textwin->selection_start = -1;
             textwin->selection_end = -1;
             WIDGET_REDRAW(widget);
             return 1;
-        }
-        else if (event->type == SDL_MOUSEMOTION) {
+        } else if (event->type == SDL_MOUSEMOTION) {
             textwin->selection_started = 1;
             return 1;
         }
@@ -805,8 +795,7 @@ static int widget_event(widgetdata *widget, SDL_Event *event)
         if (event->button.button == SDL_BUTTON_WHEELUP) {
             scrollbar_scroll_adjust(&textwin->scrollbar, -1);
             return 1;
-        }
-        else if (event->button.button == SDL_BUTTON_WHEELDOWN) {
+        } else if (event->button.button == SDL_BUTTON_WHEELDOWN) {
             scrollbar_scroll_adjust(&textwin->scrollbar, 1);
             return 1;
         }
@@ -816,8 +805,7 @@ static int widget_event(widgetdata *widget, SDL_Event *event)
         if (event->key.keysym.sym == SDLK_PAGEUP) {
             scrollbar_scroll_adjust(&textwin->scrollbar, -TEXTWIN_ROWS_VISIBLE(widget));
             return 1;
-        }
-        else if (event->key.keysym.sym == SDLK_PAGEDOWN) {
+        } else if (event->key.keysym.sym == SDLK_PAGEDOWN) {
             scrollbar_scroll_adjust(&textwin->scrollbar, TEXTWIN_ROWS_VISIBLE(widget));
             return 1;
         }
@@ -861,8 +849,7 @@ static int widget_load(widgetdata *widget, const char *keyword, const char *para
             textwin->font = font_get(font_name, font_size);
             return 1;
         }
-    }
-    else if (strcmp(keyword, "tabs") == 0) {
+    } else if (strcmp(keyword, "tabs") == 0) {
         size_t pos;
         char word[MAX_BUF];
 
@@ -871,24 +858,21 @@ static int widget_load(widgetdata *widget, const char *keyword, const char *para
         while (string_get_word(parameter, &pos, ':', word, sizeof(word), 0)) {
             if (string_startswith(word, "/")) {
                 textwin_tab_remove(widget, word + 1);
-            }
-            else {
+            } else {
                 if (strcmp(word, "*") == 0) {
                     size_t i;
 
                     for (i = 0; i < arraysize(textwin_tab_names); i++) {
                         textwin_tab_add(widget, textwin_tab_names[i]);
                     }
-                }
-                else {
+                } else {
                     textwin_tab_add(widget, word);
                 }
             }
         }
 
         return 1;
-    }
-    else if (strcmp(keyword, "timestamps") == 0) {
+    } else if (strcmp(keyword, "timestamps") == 0) {
         KEYWORD_TO_BOOLEAN(parameter, textwin->timestamps);
         return 1;
     }
@@ -982,8 +966,7 @@ static void menu_textwin_tabs_one(widgetdata *widget, widgetdata *menuitem, SDL_
 
             if (textwin_tab_find(widget, textwin_tab_name_to_id(cp), cp, &id)) {
                 textwin_tab_remove(widget, cp);
-            }
-            else {
+            } else {
                 textwin_tab_add(widget, cp);
             }
 
@@ -1053,14 +1036,12 @@ static int text_anchor_handle_players_tab(const char *anchor_action, const char 
 
         if (widget_buddy_check(widget, buf) == -1) {
             widget_buddy_add(widget, buf, 1);
-        }
-        else {
+        } else {
             widget_buddy_remove(widget, buf);
         }
 
         return 1;
-    }
-    else if (strcmp(anchor_action, "#opentab") == 0) {
+    } else if (strcmp(anchor_action, "#opentab") == 0) {
         widget = widget_find(NULL, CHATWIN_ID, NULL, NULL);
         textwin_tab_open(widget, buf);
 

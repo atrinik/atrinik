@@ -42,8 +42,7 @@
 
 /**
  * Structure that holds the game news popup data. */
-typedef struct game_news_struct
-{
+typedef struct game_news_struct {
     /**
      * Title of the game news entry to read about. */
     char *title;
@@ -90,12 +89,10 @@ static int popup_draw(popup_struct *popup)
     if (ret == -1) {
         text_show(popup->surface, FONT_SERIF12, "Connection timed out.", 0, 0, COLOR_WHITE, TEXT_ALIGN_CENTER | TEXT_VALIGN_CENTER, &box);
         return 1;
-    }
-    else if (ret == 0) {
+    } else if (ret == 0) {
         text_show(popup->surface, FONT_SERIF12, "Downloading news, please wait...", 0, 0, COLOR_WHITE, TEXT_ALIGN_CENTER | TEXT_VALIGN_CENTER, &box);
         return 1;
-    }
-    else if (ret == 1) {
+    } else if (ret == 1) {
         if (!game_news->msg) {
             game_news->msg = estrdup(game_news->data->memory ? game_news->data->memory : "???");
 
@@ -137,27 +134,22 @@ static int popup_event(popup_struct *popup, SDL_Event *event)
         if (event->key.keysym.sym == SDLK_DOWN) {
             scrollbar_scroll_adjust(&game_news->scrollbar, 1);
             return 1;
-        }
-        else if (event->key.keysym.sym == SDLK_UP) {
+        } else if (event->key.keysym.sym == SDLK_UP) {
             scrollbar_scroll_adjust(&game_news->scrollbar, -1);
             return 1;
-        }
-        else if (event->key.keysym.sym == SDLK_PAGEUP) {
+        } else if (event->key.keysym.sym == SDLK_PAGEUP) {
             scrollbar_scroll_adjust(&game_news->scrollbar, -game_news->scrollbar.max_lines);
             return 1;
-        }
-        else if (event->key.keysym.sym == SDLK_PAGEDOWN) {
+        } else if (event->key.keysym.sym == SDLK_PAGEDOWN) {
             scrollbar_scroll_adjust(&game_news->scrollbar, game_news->scrollbar.max_lines);
             return 1;
         }
-    }
-    /* Mouse wheel? */
+    }/* Mouse wheel? */
     else if (event->type == SDL_MOUSEBUTTONDOWN) {
         if (event->button.button == SDL_BUTTON_WHEELDOWN) {
             scrollbar_scroll_adjust(&game_news->scrollbar, 1);
             return 1;
-        }
-        else if (event->button.button == SDL_BUTTON_WHEELUP) {
+        } else if (event->button.button == SDL_BUTTON_WHEELUP) {
             scrollbar_scroll_adjust(&game_news->scrollbar, -1);
             return 1;
         }

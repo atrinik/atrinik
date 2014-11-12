@@ -38,8 +38,7 @@ typedef void (*clioptions_handler_func)(const char *arg);
 
 /**
  * A single command line option. */
-typedef struct clioptions_struct
-{
+typedef struct clioptions_struct {
     /**
      * Long option name, eg, 'verbose'. */
     char *longname;

@@ -73,7 +73,7 @@ bmap_struct *bmap_find(const char *name)
 
     idx = bmap_hash(name);
 
-    for (;; ) {
+    for (; ; ) {
         bmap = bmaps_default[idx];
 
         /* Not in the array. */
@@ -98,7 +98,7 @@ void bmap_add(bmap_struct *bmap)
 {
     unsigned long idx = bmap_hash(bmap->name), orig_idx = idx;
 
-    for (;; ) {
+    for (; ; ) {
         if (bmaps_default[idx] && !strcmp(bmaps_default[idx]->name, bmap->name)) {
             logger_print(LOG(BUG), "Double use of bmap name %s.", bmap->name);
         }
@@ -244,9 +244,8 @@ void read_bmaps(void)
         /* Does it exist, and the lengths and checksums match? */
         if (bmap && bmap->len == len && bmap->crc32 == crc) {
             bmaps[bmaps_size].pos = bmap->pos;
-        }
-        /* It doesn't exist in the atrinik.p0 file. */
-        else {
+        } else {
+            /* It doesn't exist in the atrinik.p0 file. */
             bmaps[bmaps_size].pos = -1;
         }
 
@@ -310,9 +309,8 @@ void finish_face_cmd(int facenum, uint32 checksum, char *face)
         if (len <= 0) {
             unlink(buf);
             checksum = 1;
-        }
-        /* Checksum check */
-        else {
+        } else {
+            /* Checksum check */
             newsum = crc32(1L, data, len);
         }
 
@@ -448,16 +446,15 @@ int request_face(int pnum)
         return 1;
     }
 
-    /* Best case - we have it in atrinik.p0 */
     if (bmaps[num].pos != -1) {
+        /* Best case - we have it in atrinik.p0 */
         snprintf(buf, sizeof(buf), "%s.png", bmaps[num].name);
         FaceList[num].name = malloc(strlen(buf) + 1);
         strcpy(FaceList[num].name, buf);
         FaceList[num].checksum = bmaps[num].crc32;
         load_picture_from_pack(num);
-    }
-    /* Second best case - check the cache for it, or request it. */
-    else {
+    } else {
+        /* Second best case - check the cache for it, or request it. */
         FaceList[num].flags |= FACE_REQUESTED;
         finish_face_cmd(num, bmaps[num].crc32, bmaps[num].name);
     }
@@ -482,11 +479,9 @@ int get_bmap_id(char *name)
 
         if (cmp < 0) {
             r = x - 1;
-        }
-        else if (cmp > 0) {
+        } else if (cmp > 0) {
             l = x + 1;
-        }
-        else {
+        } else {
             request_face(x);
             return x;
         }

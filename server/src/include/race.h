@@ -31,8 +31,7 @@
 
 /**
  * A single race. */
-typedef struct ob_race
-{
+typedef struct ob_race {
     /**
      * Name of this race. */
     shstr *name;

@@ -61,16 +61,13 @@ static void widget_draw(widgetdata *widget)
 
                 MapData.name_new[0] = '\0';
             }
-        }
-        else {
+        } else {
             alpha = 255 * (1.0 - (double) time_passed / MAP_NAME_FADEOUT);
         }
-    }
-    else if (MapData.name_new[0] != '\0') {
+    } else if (MapData.name_new[0] != '\0') {
         if (strcmp(MapData.name_new, MapData.name) != 0) {
             MapData.name_fadeout_start = SDL_GetTicks();
-        }
-        else {
+        } else {
             MapData.name_new[0] = '\0';
         }
     }

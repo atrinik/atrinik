@@ -69,7 +69,7 @@ static void updates_file_new(const char *filename, struct stat *sb)
     numread = compressBound(st_size);
     /* Allocate a buffer to hold the compressed file. */
     compressed = emalloc(numread);
-    compress2((Bytef *) compressed, (uLong *) &numread, (const unsigned char FAR *) contents, st_size, Z_BEST_COMPRESSION);
+    compress2((Bytef *) compressed, (uLong *) & numread, (const unsigned char FAR *) contents, st_size, Z_BEST_COMPRESSION);
     update_files[update_files_num].contents = emalloc(numread);
     memcpy(update_files[update_files_num].contents, compressed, numread);
     update_files[update_files_num].len = numread;
@@ -157,7 +157,7 @@ void updates_init(void)
 
     if (path_exists(UPDATES_DIR_NAME)) {
         updates_traverse(UPDATES_DIR_NAME);
-        
+
         /* Sort the entries. */
         if (update_files != NULL) {
             qsort(update_files, update_files_num, sizeof(update_file_struct), updates_file_compare);

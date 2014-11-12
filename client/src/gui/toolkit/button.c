@@ -45,11 +45,9 @@ static texture_struct *button_determine_texture(button_struct *button)
 {
     if (button->pressed && button->texture_pressed) {
         return button->texture_pressed;
-    }
-    else if (button->mouse_over && button->texture_over) {
+    } else if (button->mouse_over && button->texture_over) {
         return button->texture_over;
-    }
-    else {
+    } else {
         return button->texture;
     }
 }
@@ -167,8 +165,7 @@ void button_show(button_struct *button, const char *text)
         if (button->mouse_over) {
             color = button->color_over;
             color_shadow = button->color_over_shadow;
-        }
-        else {
+        } else {
             color = button->color;
             color_shadow = button->color_shadow;
         }
@@ -183,8 +180,7 @@ void button_show(button_struct *button, const char *text)
 
         if (!color_shadow) {
             text_show(button->surface, button->font, text, x, y, color, button->flags, NULL);
-        }
-        else {
+        } else {
             text_show_shadow(button->surface, button->font, text, x, y - 2, color, color_shadow, button->flags, NULL);
         }
     }
@@ -242,8 +238,7 @@ int button_event(button_struct *button, SDL_Event *event)
             button->pressed_repeat_ticks = 750;
             button->redraw = 1;
             return 1;
-        }
-        else {
+        } else {
             button->mouse_over = 1;
 
             /* Do not reset hover ticks if the previous state was already

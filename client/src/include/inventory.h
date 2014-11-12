@@ -70,8 +70,7 @@
 
 /**
  * The inventory data. */
-typedef struct inventory_struct
-{
+typedef struct inventory_struct {
     /** Index of the selected object. */
     uint32 selected;
 

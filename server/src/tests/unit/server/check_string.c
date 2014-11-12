@@ -68,6 +68,7 @@ START_TEST(test_string_replace)
     string_replace("hello world", "hello", "", buf2, sizeof(buf2));
     fail_unless(strcmp(buf2, " worl") == 0, "Replaced string does not match expected output.");
 }
+
 END_TEST
 
 START_TEST(test_string_replace_char)
@@ -98,6 +99,7 @@ START_TEST(test_string_replace_char)
     fail_unless(strcmp(cp, "$shattered_islands$world_0112") == 0, "Replaced string does not match expected output.");
     free(cp);
 }
+
 END_TEST
 
 START_TEST(test_string_split)
@@ -138,6 +140,7 @@ START_TEST(test_string_split)
     fail_unless(strcmp(cps2[1], "w e r t y") == 0, "Split string doesn't have the correct output.");
     free(cp);
 }
+
 END_TEST
 
 START_TEST(test_string_replace_unprintable_char)
@@ -162,6 +165,7 @@ START_TEST(test_string_replace_unprintable_char)
     fail_unless(strcmp(cp, "        ") == 0, "String doesn't match expected result after replacing unprintable characters.");
     free(cp);
 }
+
 END_TEST
 
 START_TEST(test_string_format_number_comma)
@@ -172,6 +176,7 @@ START_TEST(test_string_format_number_comma)
     fail_unless(strcmp(string_format_number_comma(99999999999999999), "99,999,999,999,999,999") == 0, "Formatted string doesn't have correct output.");
     fail_unless(strcmp(string_format_number_comma(UINT64_MAX), "18,446,744,073,709,551,615") == 0, "Formatted string doesn't have correct output.");
 }
+
 END_TEST
 
 START_TEST(test_string_toupper)
@@ -193,6 +198,7 @@ START_TEST(test_string_toupper)
     fail_unless(strcmp(cp, "") == 0, "Transformed string doesn't match expected output.");
     free(cp);
 }
+
 END_TEST
 
 START_TEST(test_string_tolower)
@@ -214,6 +220,7 @@ START_TEST(test_string_tolower)
     fail_unless(strcmp(cp, "") == 0, "Transformed string doesn't match expected output.");
     free(cp);
 }
+
 END_TEST
 
 START_TEST(test_string_whitespace_trim)
@@ -245,6 +252,7 @@ START_TEST(test_string_whitespace_trim)
     fail_unless(strcmp(cp, "hello world") == 0, "Trimmed string doesn't match expected output.");
     free(cp);
 }
+
 END_TEST
 
 START_TEST(test_string_whitespace_squeeze)
@@ -271,6 +279,7 @@ START_TEST(test_string_whitespace_squeeze)
     fail_unless(strcmp(cp, "hello world ") == 0, "Squeezed string doesn't match expected output.");
     free(cp);
 }
+
 END_TEST
 
 START_TEST(test_string_newline_to_literal)
@@ -292,6 +301,7 @@ START_TEST(test_string_newline_to_literal)
     fail_unless(strcmp(cp, "") == 0, "Didn't correctly replace \\n by literal newline character.");
     free(cp);
 }
+
 END_TEST
 
 START_TEST(test_string_get_word)
@@ -318,6 +328,7 @@ START_TEST(test_string_get_word)
     fail_unless(string_get_word(cp, &pos, ' ', word, sizeof(word), 0) == NULL, "Didn't get correct word.");
     free(cp);
 }
+
 END_TEST
 
 START_TEST(test_string_skip_word)
@@ -343,6 +354,7 @@ START_TEST(test_string_skip_word)
     fail_unless(strcmp(cp + pos, " world") == 0, "Didn't skip word correctly.");
     free(cp);
 }
+
 END_TEST
 
 START_TEST(test_string_isdigit)
@@ -356,6 +368,7 @@ START_TEST(test_string_isdigit)
     fail_unless(string_isdigit("hello world") == 0, "string_isdigit() didn't return correct value.");
     fail_unless(string_isdigit("hell0 w0rld") == 0, "string_isdigit() didn't return correct value.");
 }
+
 END_TEST
 
 START_TEST(test_string_capitalize)
@@ -387,6 +400,7 @@ START_TEST(test_string_capitalize)
     fail_unless(strcmp(cp, "") == 0, "Capitalized string doesn't match expected output.");
     free(cp);
 }
+
 END_TEST
 
 START_TEST(test_string_title)
@@ -418,6 +432,7 @@ START_TEST(test_string_title)
     fail_unless(strcmp(cp, "") == 0, "Capitalized string doesn't match expected output.");
     free(cp);
 }
+
 END_TEST
 
 START_TEST(test_string_startswith)
@@ -430,6 +445,7 @@ START_TEST(test_string_startswith)
     fail_unless(string_startswith("hello world", "h") == 1, "string_startswith() didn't return correct value.");
     fail_unless(string_startswith("hello", "hello world") == 0, "string_startswith() didn't return correct value.");
 }
+
 END_TEST
 
 START_TEST(test_string_endswith)
@@ -442,6 +458,7 @@ START_TEST(test_string_endswith)
     fail_unless(string_endswith("world", "hello world") == 0, "string_endswith() didn't return correct value.");
     fail_unless(string_endswith("hello world", "hello world") == 1, "string_endswith() didn't return correct value.");
 }
+
 END_TEST
 
 START_TEST(test_string_sub)
@@ -504,6 +521,7 @@ START_TEST(test_string_sub)
     fail_unless(strcmp(cp, "") == 0, "string_sub() didn't return correct result.");
     free(cp);
 }
+
 END_TEST
 
 START_TEST(test_string_isempty)
@@ -515,6 +533,7 @@ START_TEST(test_string_isempty)
     fail_unless(string_isempty(" ") == 0, "string_isempty() didn't return correct value.");
     fail_unless(string_isempty("   ") == 0, "string_isempty() didn't return correct value.");
 }
+
 END_TEST
 
 START_TEST(test_string_iswhite)
@@ -530,6 +549,7 @@ START_TEST(test_string_iswhite)
     fail_unless(string_iswhite("h i") == 0, "string_iswhite() didn't return correct value.");
     fail_unless(string_iswhite("\thi\t") == 0, "string_iswhite() didn't return correct value.");
 }
+
 END_TEST
 
 START_TEST(test_char_contains)
@@ -542,6 +562,7 @@ START_TEST(test_char_contains)
     fail_unless(char_contains('\t', "qwerty") == 0, "char_contains() didn't return correct value.");
     fail_unless(char_contains('\n', "qwerty") == 0, "char_contains() didn't return correct value.");
 }
+
 END_TEST
 
 START_TEST(test_string_contains)
@@ -550,6 +571,7 @@ START_TEST(test_string_contains)
     fail_unless(string_contains("hello world", " ") == 1, "string_contains() didn't return correct value.");
     fail_unless(string_contains("hello world", "\t") == 0, "string_contains() didn't return correct value.");
 }
+
 END_TEST
 
 START_TEST(test_string_contains_other)
@@ -559,6 +581,7 @@ START_TEST(test_string_contains_other)
     fail_unless(string_contains_other("hello world", "qwerty") == 1, "string_contains_other() didn't return correct value.");
     fail_unless(string_contains_other("     \t\t\n", "\t\n ") == 0, "string_contains_other() didn't return correct value.");
 }
+
 END_TEST
 
 START_TEST(test_string_create_char_range)
@@ -577,6 +600,7 @@ START_TEST(test_string_create_char_range)
     fail_unless(strcmp(cp, "0123456789") == 0, "string_create_char_range() didn't return correct result.");
     free(cp);
 }
+
 END_TEST
 
 START_TEST(test_string_join)
@@ -607,6 +631,7 @@ START_TEST(test_string_join)
     fail_unless(strcmp(cp, "hello\nworld\nhi") == 0, "string_join() didn't return correct result.");
     free(cp);
 }
+
 END_TEST
 
 START_TEST(test_string_join_array)
@@ -645,6 +670,7 @@ START_TEST(test_string_join_array)
     fail_unless(strcmp(cp, "hello\nworld") == 0, "string_join_array() didn't return correct result.");
     free(cp);
 }
+
 END_TEST
 
 START_TEST(test_string_repeat)
@@ -663,6 +689,7 @@ START_TEST(test_string_repeat)
     fail_unless(strcmp(cp, "") == 0, "string_repeat() didn't return correct result.");
     free(cp);
 }
+
 END_TEST
 
 START_TEST(test_snprintfcat)
@@ -693,6 +720,7 @@ START_TEST(test_snprintfcat)
     fail_unless(snprintfcat(buf2, sizeof(buf2), " %s", "world") == 13, "snprintfcat() didn't return correct value.");
     fail_unless(strcmp(buf2, "testing") == 0, "snprintfcat() didn't return correct result.");
 }
+
 END_TEST
 
 START_TEST(test_string_tohex)
@@ -716,6 +744,7 @@ START_TEST(test_string_tohex)
     fail_unless(string_tohex(cp, arraysize(cp), buf4, sizeof(buf4)) == 6, "string_tohex() didn't return correct value.");
     fail_unless(strcmp(buf4, "FF0003") == 0, "string_tohex() didn't return correct result.");
 }
+
 END_TEST
 
 START_TEST(test_string_fromhex)
@@ -734,6 +763,7 @@ START_TEST(test_string_fromhex)
     fail_unless(string_fromhex("FF0304", strlen("FF0304"), buf2, arraysize(buf2)) == 2, "string_fromhex() didn't return correct value.");
     fail_unless(buf2[0] == 0xFF && buf2[1] == 0x03, "string_fromhex() didn't return correct result.");
 }
+
 END_TEST
 
 static Suite *string_suite(void)

@@ -47,8 +47,7 @@
 /**
  * Used for depositing/withdrawing money from bank, and using string
  * to get information about how much money to deposit/withdraw. */
-typedef struct _money_block
-{
+typedef struct _money_block {
     /** One of @ref MONEYSTRING_xxx. */
     int mode;
 
@@ -229,8 +228,7 @@ typedef struct _money_block
 
 /**
  * Used to link together shared strings. */
-typedef struct linked_char
-{
+typedef struct linked_char {
     /** Shared string. */
     shstr *name;
 
@@ -319,8 +317,7 @@ typedef struct linked_char
         _xyz_ = NULL;                \
     }
 
-enum
-{
+enum {
     ALLOWED_CHARS_ACCOUNT,
     ALLOWED_CHARS_CHARNAME,
     ALLOWED_CHARS_PASSWORD,
@@ -330,8 +327,7 @@ enum
 
 /**
  * The server settings. */
-typedef struct settings_struct
-{
+typedef struct settings_struct {
     /**
      * Port to use for client/server communication. */
     uint16 port;
@@ -419,8 +415,7 @@ typedef struct settings_struct
 } settings_struct;
 
 /** Constant shared string pointers. */
-typedef struct shstr_constants
-{
+typedef struct shstr_constants {
     const char *none;
     const char *NONE;
     const char *home;
@@ -436,8 +431,7 @@ typedef struct shstr_constants
 } shstr_constants;
 
 /** Ban structure. */
-typedef struct ban_struct
-{
+typedef struct ban_struct {
     /** Name of the banned player. */
     const char *name;
 
@@ -458,8 +452,7 @@ typedef struct ban_struct
 /*@}*/
 
 /** One cache entry. */
-typedef struct cache_struct
-{
+typedef struct cache_struct {
     /** Key name this entry is identified by. */
     shstr *key;
 
@@ -474,7 +467,7 @@ typedef struct cache_struct
 } cache_struct;
 
 #ifndef tolower
-#   define tolower(C) (((C) >= 'A' && (C) <= 'Z') ? (C) - 'A' + 'a' : (C))
+#define tolower(C) (((C) >= 'A' && (C) <= 'Z') ? (C) - 'A' + 'a' : (C))
 #endif
 
 #define GETTIMEOFDAY(last_time) gettimeofday(last_time, (struct timezone *) NULL);
@@ -498,7 +491,7 @@ void world_maker(void);
 #include "random_map.h"
 
 #ifndef GLOBAL_NO_PROTOTYPES
-#   include "proto.h"
+#include "proto.h"
 #endif
 
 #include "plugin.h"

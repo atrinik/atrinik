@@ -47,8 +47,7 @@ static void list_row_color(list_struct *list, int row, SDL_Rect box)
 {
     if (row & 1) {
         SDL_FillRect(list->surface, &box, SDL_MapRGB(list->surface->format, 0x55, 0x55, 0x55));
-    }
-    else {
+    } else {
         SDL_FillRect(list->surface, &box, SDL_MapRGB(list->surface->format, 0x45, 0x45, 0x45));
     }
 }
@@ -342,13 +341,12 @@ void list_show(list_struct *list, int x, int y)
             break;
         }
 
-        /* Color selected row. */
         if (list->row_selected_func && (row + 1) == list->row_selected) {
+            /* Color selected row. */
             box.y = LIST_ROWS_START(list) + (LIST_ROW_OFFSET(row, list) * LIST_ROW_HEIGHT(list));
             list->row_selected_func(list, box);
-        }
-        /* Color highlighted row. */
-        else if (list->row_highlight_func && (row + 1) == list->row_highlighted) {
+        } else if (list->row_highlight_func && (row + 1) == list->row_highlighted) {
+            /* Color highlighted row. */
             box.y = LIST_ROWS_START(list) + (LIST_ROW_OFFSET(row, list) * LIST_ROW_HEIGHT(list));
             list->row_highlight_func(list, box);
         }
@@ -385,8 +383,7 @@ void list_show(list_struct *list, int x, int y)
                 /* Output the text. */
                 if (text_color_shadow) {
                     text_show_shadow(list->surface, list->font, list->text[row][col], text_rect.x, text_rect.y, text_color, text_color_shadow, TEXT_WORD_WRAP | list->text_flags, &text_rect);
-                }
-                else if (text_color) {
+                } else if (text_color) {
                     text_show(list->surface, list->font, list->text[row][col], text_rect.x, text_rect.y, text_color, TEXT_WORD_WRAP | list->text_flags, &text_rect);
                 }
             }
@@ -451,8 +448,7 @@ void list_offsets_ensure(list_struct *list)
 
     if (list->rows < list->max_rows) {
         list->row_offset = 0;
-    }
-    else if (list->row_offset >= list->rows - list->max_rows) {
+    } else if (list->row_offset >= list->rows - list->max_rows) {
         list->row_offset = list->rows - list->max_rows;
     }
 }
@@ -507,17 +503,16 @@ void list_scroll(list_struct *list, int up, int scroll)
     /* Number of visible rows. */
     max_rows = list->max_rows;
 
-    /* Scrolling upward. */
     if (up) {
+        /* Scrolling upward. */
         row_selected -= scroll;
 
         /* Adjust row offset if needed. */
         if (row_offset >= (row_selected - 1)) {
             row_offset -= scroll;
         }
-    }
-    /* Downward otherwise. */
-    else {
+    } else {
+        /* Downward otherwise. */
         row_selected += scroll;
 
         /* Adjust row offset if needed. */
@@ -529,16 +524,14 @@ void list_scroll(list_struct *list, int up, int scroll)
     /* Make sure row offset is within bounds. */
     if (row_offset < 0 || rows < max_rows) {
         row_offset = 0;
-    }
-    else if (row_offset >= rows - max_rows) {
+    } else if (row_offset >= rows - max_rows) {
         row_offset = rows - max_rows;
     }
 
     /* Make sure selected row is within bounds. */
     if (row_selected < 1) {
         row_selected = 1;
-    }
-    else if (row_selected >= rows) {
+    } else if (row_selected >= rows) {
         row_selected = list->rows;
     }
 
@@ -572,47 +565,47 @@ int list_handle_keyboard(list_struct *list, SDL_Event *event)
 
     switch (event->key.keysym.sym) {
         /* Up arrow. */
-        case SDLK_UP:
-            list_scroll(list, 1, 1);
-            return 1;
+    case SDLK_UP:
+        list_scroll(list, 1, 1);
+        return 1;
 
         /* Down arrow. */
-        case SDLK_DOWN:
-            list_scroll(list, 0, 1);
-            return 1;
+    case SDLK_DOWN:
+        list_scroll(list, 0, 1);
+        return 1;
 
         /* Page up. */
-        case SDLK_PAGEUP:
-            list_scroll(list, 1, list->max_rows);
-            return 1;
+    case SDLK_PAGEUP:
+        list_scroll(list, 1, list->max_rows);
+        return 1;
 
         /* Page down. */
-        case SDLK_PAGEDOWN:
-            list_scroll(list, 0, list->max_rows);
-            return 1;
+    case SDLK_PAGEDOWN:
+        list_scroll(list, 0, list->max_rows);
+        return 1;
 
         /* Esc, let the list creator handle this if they want to. */
-        case SDLK_ESCAPE:
+    case SDLK_ESCAPE:
 
-            if (list->handle_esc_func) {
-                list->handle_esc_func(list);
-            }
+        if (list->handle_esc_func) {
+            list->handle_esc_func(list);
+        }
 
-            return 1;
+        return 1;
 
         /* Enter. */
-        case SDLK_RETURN:
-        case SDLK_KP_ENTER:
+    case SDLK_RETURN:
+    case SDLK_KP_ENTER:
 
-            if (list->handle_enter_func) {
-                list->handle_enter_func(list, event);
-            }
+        if (list->handle_enter_func) {
+            list->handle_enter_func(list, event);
+        }
 
-            return 1;
+        return 1;
 
         /* Unhandled key. */
-        default:
-            break;
+    default:
+        break;
     }
 
     return 0;
@@ -680,17 +673,14 @@ int list_handle_mouse(list_struct *list, SDL_Event *event)
                  * function did not actually jump to another GUI,
                  * thus removing the need for this list). */
                 list->row_selected = row + 1;
-            }
-            /* Normal click. */
-            else {
+            } else { /* Normal click. */
                 /* Update selected row and click ticks for above
                  * double click calculation. */
                 list->row_selected = row + 1;
                 list->click_tick = SDL_GetTicks();
             }
-        }
-        /* Not a mouse click, so update highlighted row. */
-        else {
+        } else {
+            /* Not a mouse click, so update highlighted row. */
             list->row_highlighted = row + 1;
         }
     }

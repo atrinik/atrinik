@@ -30,8 +30,7 @@
 #define PLAYER_H
 
 /** Level color structure. */
-typedef struct _level_color
-{
+typedef struct _level_color {
     /** Green level. */
     int green;
 
@@ -49,11 +48,10 @@ typedef struct _level_color
 
     /** Purple level. */
     int purple;
-}_level_color;
+} _level_color;
 
 /** Fire modes submitted from client. */
-enum
-{
+enum {
     /** No fire mode. */
     FIRE_MODE_NONE = -1,
     /** Bow. */
@@ -89,8 +87,7 @@ enum
 #define PLAYER_PATH_MAX_FAILS 15
 
 /** One path player is attempting to reach. */
-typedef struct player_path
-{
+typedef struct player_path {
     /** Next path in linked list. */
     struct player_path *next;
 
@@ -113,8 +110,7 @@ typedef struct player_path
 #define SKILL_LEVEL(_pl, _skill) ((_pl)->skill_ptr[(_skill)] ? (_pl)->skill_ptr[(_skill)]->level : 1)
 
 /** The player structure. */
-typedef struct pl_player
-{
+typedef struct pl_player {
     /** Pointer to previous player, NULL if this is first. */
     struct pl_player *prev;
 

@@ -38,7 +38,7 @@
 #define DEFINE_H
 
 #ifndef NAME_MAX
-#   define NAME_MAX 255
+#define NAME_MAX 255
 #endif
 
 /** The maximum legal value of any stat. */
@@ -1308,8 +1308,7 @@ static inline void safe_strcat(char *dest, const char *orig, size_t *curlen, siz
  * Flags for object_apply_item().
  *
  * @anchor AP_xxx */
-enum apply_flag
-{
+enum apply_flag {
     /* Basic flags, always use one of these */
     AP_NULL = 0,
     AP_APPLY = 1,
@@ -1675,7 +1674,7 @@ enum apply_flag
 #define FOR_OB_FINISH()                                         \
         }                                                       \
     } while(0)
-    
+
 /*@}*/
 
 #endif

@@ -65,8 +65,7 @@ static int apply_func(object *op, object *applier, int aflags)
         }
 
         op->glow_radius = 0;
-    }
-    else if (op->last_sp) {
+    } else if (op->last_sp) {
         op = object_stack_get_reinsert(op, 1);
 
         draw_info_format(COLOR_WHITE, applier, "You light the %s.", query_name(op, NULL));
@@ -88,8 +87,7 @@ static int apply_func(object *op, object *applier, int aflags)
             adjust_light_source(op->map, op->x, op->y, op->glow_radius);
             update_object(op, UP_OBJ_FACE);
         }
-    }
-    else {
+    } else {
         draw_info_format(COLOR_WHITE, applier, "The %s can't be lit.", query_name(op, applier));
     }
 

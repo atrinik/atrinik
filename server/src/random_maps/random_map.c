@@ -69,16 +69,14 @@ mapstruct *generate_random_map(char *OutFileName, RMParms *RP)
     /* pick a random seed, or use the one from the input file */
     if (RP->random_seed == 0) {
         SRANDOM(time(0));
-    }
-    else {
+    } else {
         SRANDOM(RP->random_seed);
     }
 
     if (RP->difficulty == 0) {
         /* use this instead of a map difficulty */
         RP->difficulty = RP->dungeon_level;
-    }
-    else {
+    } else {
         RP->difficulty_given = 1;
     }
 
@@ -91,8 +89,7 @@ mapstruct *generate_random_map(char *OutFileName, RMParms *RP)
 
     if (RP->level_increment > 0) {
         RP->dungeon_level += RP->level_increment;
-    }
-    else {
+    } else {
         RP->dungeon_level++;
     }
 
@@ -121,7 +118,7 @@ mapstruct *generate_random_map(char *OutFileName, RMParms *RP)
 
     put_doors(theMap, layout, RP->doorstyle, RP);
 
-    place_exits(theMap, layout, RP->exitstyle, RP->orientation,RP);
+    place_exits(theMap, layout, RP->exitstyle, RP->orientation, RP);
 
     place_monsters(theMap, RP->monsterstyle, RP->difficulty, RP);
 
@@ -157,8 +154,7 @@ char **layoutgen(RMParms *RP)
         if (RP->Ysize < 15) {
             RP->Ysize = 15 + RANDOM() % 25;
         }
-    }
-    else {
+    } else {
         /* Has to be at least 7 for square spirals to work */
         if (RP->Xsize < 7) {
             RP->Xsize = 15 + RANDOM() % 25;
@@ -179,8 +175,7 @@ char **layoutgen(RMParms *RP)
         if (RP->symmetry_used == X_SYM || RP->symmetry_used == XY_SYM) {
             RP->Xsize = RP->Xsize / 2 + 1;
         }
-    }
-    else {
+    } else {
         RP->symmetry_used = RP->symmetry;
     }
 
@@ -200,8 +195,7 @@ char **layoutgen(RMParms *RP)
         if (!(RANDOM() % 3) && !(RP->layoutoptions1 & OPT_WALLS_ONLY)) {
             roomify_layout(maze, RP);
         }
-    }
-    else if (strstr(RP->layoutstyle, "maze")) {
+    } else if (strstr(RP->layoutstyle, "maze")) {
         maze = maze_gen(RP->Xsize, RP->Ysize, RP->layoutoptions1);
 
         RP->map_layout_style = MAZE_LAYOUT;
@@ -209,8 +203,7 @@ char **layoutgen(RMParms *RP)
         if (!(RANDOM() % 2)) {
             doorify_layout(maze, RP);
         }
-    }
-    else if (strstr(RP->layoutstyle, "spiral")) {
+    } else if (strstr(RP->layoutstyle, "spiral")) {
         maze = map_gen_spiral(RP->Xsize, RP->Ysize, RP->layoutoptions1);
 
         RP->map_layout_style = SPIRAL_LAYOUT;
@@ -218,13 +211,11 @@ char **layoutgen(RMParms *RP)
         if (!(RANDOM() % 2)) {
             doorify_layout(maze, RP);
         }
-    }
-    else if (strstr(RP->layoutstyle, "rogue")) {
+    } else if (strstr(RP->layoutstyle, "rogue")) {
         maze = roguelike_layout_gen(RP->Xsize, RP->Ysize, RP->layoutoptions1);
 
         RP->map_layout_style = ROGUELIKE_LAYOUT;
-    }
-    else if (strstr(RP->layoutstyle, "snake")) {
+    } else if (strstr(RP->layoutstyle, "snake")) {
         maze = make_snake_layout(RP->Xsize, RP->Ysize);
 
         RP->map_layout_style = SNAKE_LAYOUT;
@@ -232,8 +223,7 @@ char **layoutgen(RMParms *RP)
         if (RANDOM() % 2) {
             roomify_layout(maze, RP);
         }
-    }
-    else if (strstr(RP->layoutstyle, "squarespiral")) {
+    } else if (strstr(RP->layoutstyle, "squarespiral")) {
         maze = make_square_spiral_layout(RP->Xsize, RP->Ysize);
 
         RP->map_layout_style = SQUARE_SPIRAL_LAYOUT;
@@ -246,81 +236,81 @@ char **layoutgen(RMParms *RP)
     /* unknown or unspecified layout type, pick one at random */
     if (maze == NULL) {
         switch (RANDOM() % NROFLAYOUTS) {
-            case 0:
-                maze = maze_gen(RP->Xsize, RP->Ysize, RANDOM() % 2);
+        case 0:
+            maze = maze_gen(RP->Xsize, RP->Ysize, RANDOM() % 2);
 
-                RP->map_layout_style = MAZE_LAYOUT;
+            RP->map_layout_style = MAZE_LAYOUT;
 
-                if (!(RANDOM() % 2)) {
-                    doorify_layout(maze, RP);
-                }
+            if (!(RANDOM() % 2)) {
+                doorify_layout(maze, RP);
+            }
 
-                break;
+            break;
 
-            case 1:
-                maze = map_gen_onion(RP->Xsize, RP->Ysize, RP->layoutoptions1, RP->layoutoptions2);
+        case 1:
+            maze = map_gen_onion(RP->Xsize, RP->Ysize, RP->layoutoptions1, RP->layoutoptions2);
 
-                RP->map_layout_style = ONION_LAYOUT;
+            RP->map_layout_style = ONION_LAYOUT;
 
-                if (!(RANDOM() % 3) && !(RP->layoutoptions1 & OPT_WALLS_ONLY)) {
-                    roomify_layout(maze, RP);
-                }
+            if (!(RANDOM() % 3) && !(RP->layoutoptions1 & OPT_WALLS_ONLY)) {
+                roomify_layout(maze, RP);
+            }
 
-                break;
+            break;
 
-            case 2:
-                maze = map_gen_spiral(RP->Xsize, RP->Ysize, RP->layoutoptions1);
+        case 2:
+            maze = map_gen_spiral(RP->Xsize, RP->Ysize, RP->layoutoptions1);
 
-                RP->map_layout_style = SPIRAL_LAYOUT;
+            RP->map_layout_style = SPIRAL_LAYOUT;
 
-                if (!(RANDOM() % 2)) {
-                    doorify_layout(maze, RP);
-                }
+            if (!(RANDOM() % 2)) {
+                doorify_layout(maze, RP);
+            }
 
-                break;
+            break;
 
-            case 3:
-                maze = roguelike_layout_gen(RP->Xsize, RP->Ysize, RP->layoutoptions1);
+        case 3:
+            maze = roguelike_layout_gen(RP->Xsize, RP->Ysize, RP->layoutoptions1);
 
-                RP->map_layout_style = ROGUELIKE_LAYOUT;
+            RP->map_layout_style = ROGUELIKE_LAYOUT;
 
-                break;
+            break;
 
-            case 4:
-                maze = make_snake_layout(RP->Xsize, RP->Ysize);
+        case 4:
+            maze = make_snake_layout(RP->Xsize, RP->Ysize);
 
-                RP->map_layout_style = SNAKE_LAYOUT;
+            RP->map_layout_style = SNAKE_LAYOUT;
 
-                if (RANDOM() % 2) {
-                    roomify_layout(maze, RP);
-                }
+            if (RANDOM() % 2) {
+                roomify_layout(maze, RP);
+            }
 
-                break;
+            break;
 
-            case 5:
-                maze = make_square_spiral_layout(RP->Xsize, RP->Ysize);
+        case 5:
+            maze = make_square_spiral_layout(RP->Xsize, RP->Ysize);
 
-                RP->map_layout_style = SQUARE_SPIRAL_LAYOUT;
+            RP->map_layout_style = SQUARE_SPIRAL_LAYOUT;
 
-                if (RANDOM() % 2) {
-                    roomify_layout(maze, RP);
-                }
+            if (RANDOM() % 2) {
+                roomify_layout(maze, RP);
+            }
 
-                break;
+            break;
         }
     }
 
     maze = symmetrize_layout(maze, RP->symmetry_used, RP);
 
 #ifdef RMAP_DEBUG
-    dump_layout(maze,RP);
+    dump_layout(maze, RP);
 #endif
 
     if (RP->expand2x) {
         maze = expand2x(maze, RP->Xsize, RP->Ysize);
 
-        RP->Xsize = RP->Xsize * 2 -1;
-        RP->Ysize = RP->Ysize * 2 -1;
+        RP->Xsize = RP->Xsize * 2 - 1;
+        RP->Ysize = RP->Ysize * 2 - 1;
     }
 
     return maze;
@@ -371,7 +361,7 @@ char **symmetrize_layout(char **maze, int sym, RMParms *RP)
         for (i = 0; i < RP->Xsize; i++) {
             for (j = 0; j < RP->Ysize / 2 + 1; j++) {
                 sym_maze[i][j] = maze[i][j];
-                sym_maze[i][RP->Ysize-j - 1] = maze[i][j];
+                sym_maze[i][RP->Ysize - j - 1] = maze[i][j];
             }
         }
     }
@@ -429,76 +419,76 @@ char **rotate_layout(char **maze, int rotation, RMParms *RP)
     int i, j;
 
     switch (rotation) {
-        case 0:
-            return maze;
-            break;
+    case 0:
+        return maze;
+        break;
 
         /* a reflection */
-        case 2:
-        {
-            char *new = emalloc(sizeof(char) * RP->Xsize * RP->Ysize);
+    case 2:
+    {
+        char *new = emalloc(sizeof(char) * RP->Xsize * RP->Ysize);
 
-            /* make a copy */
-            for (i = 0; i < RP->Xsize; i++) {
-                for (j = 0; j < RP->Ysize; j++) {
-                    new[i * RP->Ysize + j] = maze[i][j];
-                }
+        /* make a copy */
+        for (i = 0; i < RP->Xsize; i++) {
+            for (j = 0; j < RP->Ysize; j++) {
+                new[i * RP->Ysize + j] = maze[i][j];
             }
-
-            /* copy a reflection back */
-            for (i = 0; i < RP->Xsize; i++) {
-                for (j = 0; j < RP->Ysize; j++) {
-                    maze[i][j]= new[(RP->Xsize - i - 1) * RP->Ysize + RP->Ysize - j - 1];
-                }
-            }
-
-            efree(new);
-            return maze;
-            break;
         }
 
-        case 1:
-        case 3:
-        {
-            int swap;
-
-            new_maze = ecalloc(sizeof(char *), RP->Ysize);
-
-            for (i = 0; i < RP->Ysize; i++) {
-                new_maze[i] = ecalloc(sizeof(char), RP->Xsize);
+        /* copy a reflection back */
+        for (i = 0; i < RP->Xsize; i++) {
+            for (j = 0; j < RP->Ysize; j++) {
+                maze[i][j] = new[(RP->Xsize - i - 1) * RP->Ysize + RP->Ysize - j - 1];
             }
-
-            /* swap x and y */
-            if (rotation == 1) {
-                for (i = 0; i < RP->Xsize; i++) {
-                    for (j = 0; j < RP->Ysize; j++) {
-                        new_maze[j][i] = maze[i][j];
-                    }
-                }
-            }
-
-            /* swap x and y */
-            if (rotation == 3) {
-                for (i = 0; i < RP->Xsize; i++) {
-                    for (j = 0; j < RP->Ysize; j++) {
-                        new_maze[j][i] = maze[RP->Xsize - i - 1][RP->Ysize - j - 1];
-                    }
-                }
-            }
-
-            /* delete the old layout */
-            for (i = 0; i < RP->Xsize; i++) {
-                efree(maze[i]);
-            }
-
-            efree(maze);
-
-            swap = RP->Ysize;
-            RP->Ysize = RP->Xsize;
-            RP->Xsize = swap;
-            return new_maze;
-            break;
         }
+
+        efree(new);
+        return maze;
+        break;
+    }
+
+    case 1:
+    case 3:
+    {
+        int swap;
+
+        new_maze = ecalloc(sizeof(char *), RP->Ysize);
+
+        for (i = 0; i < RP->Ysize; i++) {
+            new_maze[i] = ecalloc(sizeof(char), RP->Xsize);
+        }
+
+        /* swap x and y */
+        if (rotation == 1) {
+            for (i = 0; i < RP->Xsize; i++) {
+                for (j = 0; j < RP->Ysize; j++) {
+                    new_maze[j][i] = maze[i][j];
+                }
+            }
+        }
+
+        /* swap x and y */
+        if (rotation == 3) {
+            for (i = 0; i < RP->Xsize; i++) {
+                for (j = 0; j < RP->Ysize; j++) {
+                    new_maze[j][i] = maze[RP->Xsize - i - 1][RP->Ysize - j - 1];
+                }
+            }
+        }
+
+        /* delete the old layout */
+        for (i = 0; i < RP->Xsize; i++) {
+            efree(maze[i]);
+        }
+
+        efree(maze);
+
+        swap = RP->Ysize;
+        RP->Ysize = RP->Xsize;
+        RP->Xsize = swap;
+        return new_maze;
+        break;
+    }
     }
 
     return NULL;
@@ -508,7 +498,7 @@ char **rotate_layout(char **maze, int rotation, RMParms *RP)
  * Take a layout and make some rooms in it. Works best on onions.
  * @param maze Layout to alter.
  * @param RP Random map parameters. */
-void roomify_layout(char **maze,RMParms *RP)
+void roomify_layout(char **maze, RMParms *RP)
 {
     int tries = RP->Xsize * RP->Ysize / 30, ti;
 
@@ -543,8 +533,7 @@ void roomify_layout(char **maze,RMParms *RP)
 
         if (cx < cy) {
             make_wall(maze, dx, dy, 0);
-        }
-        else {
+        } else {
             make_wall(maze, dx, dy, 1);
         }
     }
@@ -621,9 +610,10 @@ int can_make_wall(char **maze, int dx, int dy, int dir, RMParms *RP)
 
         return length;
     }
-    /* vertical */
     else {
         int x = dx;
+
+        /* vertical */
 
         for (i1 = dy - 1; i1 > 0; i1--) {
             int sindex = surround_flag2(maze, x, i1, RP);
@@ -678,7 +668,7 @@ int can_make_wall(char **maze, int dx, int dy, int dir, RMParms *RP)
  * - <b>0</b>: Horizontally.
  * - <b>1</b>: Vertically.
  * @return Always returns 0. */
-int make_wall(char **maze,int x, int y, int dir)
+int make_wall(char **maze, int x, int y, int dir)
 {
     int i1;
 
@@ -687,28 +677,28 @@ int make_wall(char **maze,int x, int y, int dir)
 
     switch (dir) {
         /* horizontal */
-        case 0:
-            for (i1 = x - 1; maze[i1][y] == '\0'; i1--) {
-                maze[i1][y] = '#';
-            }
+    case 0:
+        for (i1 = x - 1; maze[i1][y] == '\0'; i1--) {
+            maze[i1][y] = '#';
+        }
 
-            for (i1 = x + 1; maze[i1][y] == '\0'; i1++) {
-                maze[i1][y] = '#';
-            }
+        for (i1 = x + 1; maze[i1][y] == '\0'; i1++) {
+            maze[i1][y] = '#';
+        }
 
-            break;
+        break;
 
         /* vertical */
-        case 1:
-            for (i1 = y - 1; maze[x][i1] == '\0'; i1--) {
-                maze[x][i1] = '#';
-            }
+    case 1:
+        for (i1 = y - 1; maze[x][i1] == '\0'; i1--) {
+            maze[x][i1] = '#';
+        }
 
-            for (i1 = y + 1; maze[x][i1] == '\0'; i1++) {
-                maze[x][i1] = '#';
-            }
+        for (i1 = y + 1; maze[x][i1] == '\0'; i1++) {
+            maze[x][i1] = '#';
+        }
 
-            break;
+        break;
     }
 
     return 0;

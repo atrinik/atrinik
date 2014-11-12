@@ -34,8 +34,7 @@
 /**
  * The different buttons inside the widget.
  */
-enum
-{
+enum {
     BUTTON_SPELLS, ///< Spells.
     BUTTON_SKILLS, ///< Skills.
     BUTTON_PROTECTIONS, ///< Protections.
@@ -49,7 +48,7 @@ enum
     BUTTON_SETTINGS, ///< Esc menu.
 
     NUM_BUTTONS ///< Total number of the buttons.
-};
+} ;
 
 /**
  * Button buffers.
@@ -58,24 +57,21 @@ static button_struct buttons[NUM_BUTTONS];
 /**
  * Images to render on top of the buttons, NULL for none.
  */
-static const char *button_images[NUM_BUTTONS] =
-{
+static const char *button_images[NUM_BUTTONS] ={
     "magic", "skill", "protections", "party", "music", "buddy", "ignore", "map",
     "quest", NULL, "cogs"
 };
 /**
  * Tooltip texts for the buttons.
  */
-static const char *const button_tooltips[NUM_BUTTONS] =
-{
+static const char *const button_tooltips[NUM_BUTTONS] ={
     "Spells", "Skills", "Protections", "Party", "Music player", "Buddy List",
     "Ignore List", "Region map", "Quest list", "Help", "Settings"
 };
 /**
  * Widgets associated with the buttons, -1 for none.
  */
-static int button_widgets[NUM_BUTTONS] =
-{
+static int button_widgets[NUM_BUTTONS] ={
     SPELLS_ID, SKILLS_ID, PROTECTIONS_ID, PARTY_ID, MPLAYER_ID, BUDDY_ID,
     BUDDY_ID, -1, -1, -1, -1
 };
@@ -160,7 +156,7 @@ static int widget_event(widgetdata *widget, SDL_Event *event)
             if (buttons[i].redraw) {
                 widget->redraw = 1;
             }
-            
+
             if (BUTTON_CHECK_TOOLTIP(&buttons[i])) {
                 tooltip_create(event->motion.x, event->motion.y, FONT_ARIAL11,
                         button_tooltips[i]);

@@ -33,8 +33,7 @@
 
 #define TEXTWIN_TAB_NAME(_tab) ((_tab)->name ? (_tab)->name : textwin_tab_names[(_tab)->type - 1])
 
-typedef struct textwin_tab_struct
-{
+typedef struct textwin_tab_struct {
     uint8 type;
 
     char *name;
@@ -59,8 +58,7 @@ typedef struct textwin_tab_struct
 } textwin_tab_struct;
 
 /** Custom attributes for text window widgets. */
-typedef struct textwin_struct
-{
+typedef struct textwin_struct {
     /** Font used. */
     font_struct *font;
 

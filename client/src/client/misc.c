@@ -131,8 +131,7 @@ void screenshot_create(SDL_Surface *surface)
 
         strftime(timebuf2, sizeof(timebuf2), "%Y-%m-%d-%H-%M-%S", tm);
         snprintf(timebuf, sizeof(timebuf), "%s-%06"FMT64U, timebuf2, (uint64) tv.tv_usec);
-    }
-    else {
+    } else {
         draw_info(COLOR_RED, "Could not get time information.");
         return;
     }
@@ -146,8 +145,7 @@ void screenshot_create(SDL_Surface *surface)
         if (bmp2png(path)) {
             draw_info(COLOR_GREEN, "Converted to PNG successfully.");
         }
-    }
-    else {
+    } else {
         draw_info_format(COLOR_RED, "Failed to write screenshot data (path: %s).", path);
     }
 }

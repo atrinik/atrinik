@@ -32,8 +32,7 @@
 /**
  * The different option categories.
  * @anchor OPT_CAT_xxx. */
-enum
-{
+enum {
     /** General. */
     OPT_CAT_GENERAL,
     /** Client-related. */
@@ -53,8 +52,7 @@ enum
 
 /**
  * Options in the ::OPT_CAT_GENERAL category. */
-enum
-{
+enum {
     /** Whether to target self if no target is selected. */
     OPT_TARGET_SELF,
     /** Collect mode. */
@@ -73,8 +71,7 @@ enum
 
 /**
  * Options in the ::OPT_CAT_CLIENT category. */
-enum
-{
+enum {
     /** Resolution. */
     OPT_RESOLUTION,
     /** Fullscreen enabled? */
@@ -104,8 +101,7 @@ enum
 
 /**
  * Options in the ::OPT_CAT_MAP category. */
-enum
-{
+enum {
     /** Which player names to show. */
     OPT_PLAYER_NAMES,
     /** How much to zoom the map. */
@@ -122,8 +118,7 @@ enum
 
 /**
  * Options in the ::OPT_CAT_SOUND category. */
-enum
-{
+enum {
     /** Music volume. */
     OPT_VOLUME_MUSIC,
     /** Sound volume. */
@@ -134,8 +129,7 @@ enum
 
 /**
  * Options in the ::OPT_CAT_DEVEL category. */
-enum
-{
+enum {
     /** Whether to show FPS. */
     OPT_SHOW_FPS,
     /** Whether to always try to reload graphics from gfx_user directory. */
@@ -151,8 +145,7 @@ enum
 /**
  * Various setting types.
  * @anchor OPT_TYPE_xxx */
-enum
-{
+enum {
     /** Bool (checkbox). */
     OPT_TYPE_BOOL,
     /** Number input. */
@@ -173,8 +166,7 @@ enum
 };
 
 /** Range setting data. */
-typedef struct setting_range
-{
+typedef struct setting_range {
     /** Min value for the setting. */
     sint64 min;
 
@@ -188,8 +180,7 @@ typedef struct setting_range
 /**
  * Select setting - contains a list of text options the user may choose
  * from. */
-typedef struct setting_select
-{
+typedef struct setting_select {
     /** Array of the options. */
     char **options;
 
@@ -199,8 +190,7 @@ typedef struct setting_select
 
 /**
  * A single setting. */
-typedef struct setting_struct
-{
+typedef struct setting_struct {
     /** Name of the setting. */
     char *name;
 
@@ -217,8 +207,7 @@ typedef struct setting_struct
     void *custom_attrset;
 
     /** Setting value. */
-    union
-    {
+    union {
         /** String value. */
         char *str;
 
@@ -229,8 +218,7 @@ typedef struct setting_struct
 
 /**
  * One setting category. */
-typedef struct setting_category
-{
+typedef struct setting_category {
     /** Name of the category. */
     char *name;
 
@@ -248,8 +236,7 @@ typedef struct setting_category
 
 /**
  * Step in the keybinding settings. */
-enum
-{
+enum {
     /** Entering a command. */
     KEYBIND_STEP_COMMAND,
     /** Entering a shortcut. */

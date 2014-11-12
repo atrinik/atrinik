@@ -100,8 +100,7 @@ void put_doors(mapstruct *the_map, char **maze, char *doorstyle, RMParms *RP)
 
                 if (sindex == 3) {
                     this_door = pick_random_object(hdoors);
-                }
-                else {
+                } else {
                     this_door = pick_random_object(vdoors);
                 }
 

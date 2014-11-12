@@ -48,6 +48,7 @@ static mempool_struct *pool_packets;
  * @internal */
 void toolkit_packet_init(void)
 {
+
     TOOLKIT_INIT_FUNC_START(packet)
     {
         toolkit_import(mempool);
@@ -61,6 +62,7 @@ void toolkit_packet_init(void)
  * @internal */
 void toolkit_packet_deinit(void)
 {
+
     TOOLKIT_DEINIT_FUNC_START(packet)
     {
         mempool_free(pool_packets);
@@ -137,7 +139,7 @@ void packet_compress(packet_struct *packet)
         dest[4] = (packet->len) & 0xff;
         packet->size = new_size + 5;
         /* Compress it. */
-        compress2((Bytef *) dest + 5, (uLong *) &new_size, (const unsigned char FAR *) packet->data, packet->len, Z_BEST_COMPRESSION);
+        compress2((Bytef *) dest + 5, (uLong *) & new_size, (const unsigned char FAR *) packet->data, packet->len, Z_BEST_COMPRESSION);
 
         efree(packet->data);
         packet->data = dest;

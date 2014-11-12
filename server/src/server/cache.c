@@ -69,18 +69,15 @@ static int cache_compare(const void *one, const void *two)
 
     if (one == NULL) {
         return -1;
-    }
-    else if (two == NULL) {
+    } else if (two == NULL) {
         return 1;
     }
 
     if (one_cache->key < two_cache->key) {
         return -1;
-    }
-    else if (one_cache->key > two_cache->key) {
+    } else if (one_cache->key > two_cache->key) {
         return 1;
-    }
-    else {
+    } else {
         return 0;
     }
 }
@@ -163,7 +160,7 @@ int cache_remove(shstr *key)
 
     /* The entry wants global events, so send one about it being removed. */
     if (entry->flags & CACHE_FLAG_GEVENT) {
-        trigger_global_event(GEVENT_CACHE_REMOVED, entry->ptr, (uint32 *) &entry->flags);
+        trigger_global_event(GEVENT_CACHE_REMOVED, entry->ptr, (uint32 *) & entry->flags);
     }
 
     /* Does it want to be freed automatically? */

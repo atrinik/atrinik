@@ -42,9 +42,10 @@
 
 #define oom() exit(-1)
 
-typedef void (ctor_f)(void *dst, const void *src);
-typedef void (dtor_f)(void *elt);
-typedef void (init_f)(void *elt);
+typedef void (ctor_f) (void *dst, const void *src);
+typedef void (dtor_f) (void *elt);
+typedef void (init_f) (void *elt);
+
 typedef struct {
     size_t sz;
     init_f *init;
@@ -53,9 +54,9 @@ typedef struct {
 } UT_icd;
 
 typedef struct {
-    unsigned i,n; /* i: index of next available slot, n: num slots */
+    unsigned i, n; /* i: index of next available slot, n: num slots */
     const UT_icd *icd; /* initializer, copy and destructor functions */
-    char *d;     /* n slots of size icd->sz*/
+    char *d; /* n slots of size icd->sz*/
 } UT_array;
 
 #define utarray_init(a,_icd) do {                                             \
@@ -214,19 +215,23 @@ typedef struct {
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wcast-qual"
 #pragma GCC diagnostic ignored "-fpermissive"
+
 /* last we pre-define a few icd for common utarrays of ints and strings */
-static void utarray_str_cpy(void *dst, const void *src) {
+static void utarray_str_cpy(void *dst, const void *src)
+{
     const char *const*_src = src, **_dst = dst;
     *_dst = (*_src == NULL) ? NULL : strdup(*_src);
 }
-static void utarray_str_dtor(void *elt) {
+
+static void utarray_str_dtor(void *elt)
+{
     char **eltc = elt;
 
     free(*eltc);
 }
 #pragma GCC diagnostic pop
-static const UT_icd ut_str_icd _UNUSED_ = {sizeof(char*),NULL,utarray_str_cpy,utarray_str_dtor};
-static const UT_icd ut_int_icd _UNUSED_ = {sizeof(int),NULL,NULL,NULL};
+static const UT_icd ut_str_icd _UNUSED_ = {sizeof(char*), NULL, utarray_str_cpy, utarray_str_dtor};
+static const UT_icd ut_int_icd _UNUSED_ = {sizeof(int), NULL, NULL, NULL};
 
 
 #endif /* UTARRAY_H */

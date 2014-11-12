@@ -86,8 +86,7 @@ int move_disease(object *disease)
             destruct_ob(disease);
             return 1;
         }
-    }
-    else {
+    } else {
         /* if we're inside a person, have the disease run its course.
          * negative foods denote "perpetual" diseases. */
         if (disease->stats.food > 0 && is_susceptible_to_disease(disease->env, disease)) {
@@ -166,8 +165,7 @@ static void check_infection(object *disease)
         x = disease->env->x;
         y = disease->env->y;
         map = disease->env->map;
-    }
-    else {
+    } else {
         x = disease->x;
         y = disease->y;
         map = disease->map;
@@ -279,15 +277,13 @@ int infect_object(object *victim, object *disease, int force)
         /* if the disease has a title, it has a special infection message */
         if (new_disease->title) {
             snprintf(buf, sizeof(buf), "%s %s!!", disease->title, victim->name);
-        }
-        else {
+        } else {
             snprintf(buf, sizeof(buf), "You infect %s with your disease, %s!", victim->name, new_disease->name);
         }
 
         if (victim->type == PLAYER) {
             draw_info(COLOR_RED, new_disease->owner, buf);
-        }
-        else {
+        } else {
             draw_info(COLOR_WHITE, new_disease->owner, buf);
         }
     }
@@ -309,8 +305,8 @@ static void do_symptoms(object *disease)
     object *symptom, *victim = disease->env, *tmp;
 
     /* This is a quick hack - for whatever reason, disease->env will point
-    * back to disease, causing endless loops. Why this happens really needs
-    * to be found, but this should at least prevent the infinite loops. */
+     * back to disease, causing endless loops. Why this happens really needs
+     * to be found, but this should at least prevent the infinite loops. */
 
     /* no-one to inflict symptoms on. */
     if (victim == NULL || victim == disease) {
@@ -335,8 +331,7 @@ static void do_symptoms(object *disease)
         /* hm, disease should be NEVER in a tail of a multi part object */
         if (victim->head) {
             tmp = victim->head->inv;
-        }
-        else {
+        } else {
             tmp = victim->inv;
         }
 
@@ -486,15 +481,13 @@ void move_symptom(object *symptom)
 
     if (symptom->stats.dam > 0) {
         hit_player(victim, symptom->stats.dam, symptom, AT_INTERNAL);
-    }
-    else {
+    } else {
         hit_player(victim, (int) MAX((float) 1, (float) -victim->stats.maxhp * (float) symptom->stats.dam / (float) 100.0), symptom, AT_INTERNAL);
     }
 
     if (symptom->stats.maxsp > 0) {
         sp_reduce = symptom->stats.maxsp;
-    }
-    else {
+    } else {
         sp_reduce = (int) MAX((float) 1, (float) victim->stats.maxsp * (float) symptom->stats.maxsp / (float) 100.0);
     }
 
@@ -562,8 +555,7 @@ int cure_disease(object *sufferer, object *caster)
 
     if (caster) {
         casting_level = caster->level;
-    }
-    else {
+    } else {
         caster = sufferer;
         /* if null caster, CURE all. */
         casting_level = 1000;
@@ -602,8 +594,7 @@ int cure_disease(object *sufferer, object *caster)
                 }
 
                 object_destroy(disease);
-            }
-            else {
+            } else {
                 if (sufferer->type == PLAYER) {
                     draw_info_format(COLOR_WHITE, sufferer, "The disease %s resists the cure spell!", disease->name);
                 }

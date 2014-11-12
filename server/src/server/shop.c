@@ -55,34 +55,33 @@ sint64 query_cost(object *tmp, object *who, int flag)
     if (QUERY_FLAG(tmp, FLAG_IDENTIFIED) || !need_identify(tmp)) {
         if (QUERY_FLAG(tmp, FLAG_CURSED) || QUERY_FLAG(tmp, FLAG_DAMNED)) {
             return 0;
-        }
-        else {
+        } else {
             val = tmp->value * number;
         }
     }
-    /* This area deals with objects that are not identified, but can be */
     else {
+        /* This area deals with objects that are not identified, but can be */
+
         if (tmp->arch != NULL) {
             if (flag == COST_BUY) {
                 logger_print(LOG(BUG), "Asking for buy-value of unidentified object %s.", query_name(tmp, NULL));
                 val = tmp->arch->clone.value * number;
             }
-            /* Trying to sell something, or get true value */
             else {
+                /* Trying to sell something, or get true value */
+
                 /* Selling unidentified gems is *always* stupid */
                 if (tmp->type == GEM || tmp->type == JEWEL || tmp->type == NUGGET || tmp->type == PEARL) {
                     val = number * 3;
                 }
-                /* Don't want to give anything away */
                 else if (tmp->type == POTION) {
+                    /* Don't want to give anything away */
                     val = number * 50;
-                }
-                else {
+                } else {
                     val = number * tmp->arch->clone.value;
                 }
             }
-        }
-        else {
+        } else {
             /* No archetype with this object - we generate some dummy values to
              * avoid server break */
             logger_print(LOG(BUG), "Have object with no archetype: %s", query_name(tmp, NULL));
@@ -90,8 +89,7 @@ sint64 query_cost(object *tmp, object *who, int flag)
             if (flag == COST_BUY) {
                 logger_print(LOG(BUG), "Asking for buy-value of unidentified object without arch.");
                 val = number * 100;
-            }
-            else {
+            } else {
                 val = number * 80;
             }
         }
@@ -100,8 +98,7 @@ sint64 query_cost(object *tmp, object *who, int flag)
     /* Wands will count special. The base value is for a wand with one charge */
     if (tmp->type == WAND) {
         val += (val * tmp->level) * tmp->stats.food;
-    }
-    else if (tmp->type == ROD || tmp->type == POTION || tmp->type == SCROLL) {
+    } else if (tmp->type == ROD || tmp->type == POTION || tmp->type == SCROLL) {
         val += val * tmp->level;
     }
 
@@ -113,8 +110,7 @@ sint64 query_cost(object *tmp, object *who, int flag)
     /* Now adjust for sell or buy multiplier */
     if (flag == COST_BUY) {
         diff = 1.0;
-    }
-    else {
+    } else {
         diff = 0.20;
     }
 
@@ -139,8 +135,7 @@ static archetype *find_next_coin(sint64 c, int *cointype)
 {
     archetype *coin;
 
-    do
-    {
+    do {
         if (coins[*cointype] == NULL) {
             return NULL;
         }
@@ -152,8 +147,7 @@ static archetype *find_next_coin(sint64 c, int *cointype)
         }
 
         *cointype += 1;
-    }
-    while (coin->clone.value > c);
+    }    while (coin->clone.value > c);
 
     return coin;
 }
@@ -181,8 +175,7 @@ char *cost_string_from_value(sint64 cost)
 
     if (num == 1) {
         snprintf(buf, sizeof(buf), "1 %s%s", material_real[coin->clone.material_real].name, coin->clone.name);
-    }
-    else {
+    } else {
         snprintf(buf, sizeof(buf), "%"FMT64 " %s%ss", num, material_real[coin->clone.material_real].name, coin->clone.name);
     }
 
@@ -192,8 +185,7 @@ char *cost_string_from_value(sint64 cost)
         return buf;
     }
 
-    do
-    {
+    do {
         endbuf = buf + strlen(buf);
 
         coin = next_coin;
@@ -202,8 +194,7 @@ char *cost_string_from_value(sint64 cost)
 
         if (cost == 0.0) {
             next_coin = NULL;
-        }
-        else {
+        } else {
             next_coin = find_next_coin(cost, &cointype);
         }
 
@@ -212,21 +203,18 @@ char *cost_string_from_value(sint64 cost)
              * use a comma. */
             strcat(endbuf, ", ");
             endbuf += 2;
-        }
-        else {
+        } else {
             strcat(endbuf, " and ");
             endbuf += 5;
         }
 
         if (num == 1) {
             sprintf(endbuf, "1 %s%s", material_real[coin->clone.material_real].name, coin->clone.name);
-        }
-        else {
+        } else {
             sprintf(endbuf, "%"FMT64 " %s%ss", num, material_real[coin->clone.material_real].name, coin->clone.name);
         }
 
-    }
-    while (next_coin);
+    }    while (next_coin);
 
     return buf;
 }
@@ -263,11 +251,9 @@ sint64 query_money(object *op)
     for (tmp = op->inv; tmp; tmp = tmp->below) {
         if (tmp->type == MONEY) {
             total += tmp->nrof * tmp->value;
-        }
-        else if (tmp->type == CONTAINER && ((!tmp->race || strstr(tmp->race, "gold")) || QUERY_FLAG(tmp, FLAG_APPLIED))) {
+        } else if (tmp->type == CONTAINER && ((!tmp->race || strstr(tmp->race, "gold")) || QUERY_FLAG(tmp, FLAG_APPLIED))) {
             total += query_money(tmp);
-        }
-        else if (tmp->arch->name == shstr_cons.player_info && tmp->name == shstr_cons.BANK_GENERAL) {
+        } else if (tmp->arch->name == shstr_cons.player_info && tmp->name == shstr_cons.BANK_GENERAL) {
             total += tmp->value;
         }
     }
@@ -380,8 +366,7 @@ static sint64 pay_from_container(object *op, object *pouch, sint64 to_pay)
                         logger_print(LOG(BUG), "%s has two money entries of (%s)", query_name(pouch, NULL), coins[NUM_COINS - 1 - i]);
                         object_remove(tmp, 0);
                         coin_objs[i]->nrof += tmp->nrof;
-                    }
-                    else {
+                    } else {
                         object_remove(tmp, 0);
                         coin_objs[i] = tmp;
                     }
@@ -393,8 +378,7 @@ static sint64 pay_from_container(object *op, object *pouch, sint64 to_pay)
             if (i == NUM_COINS) {
                 logger_print(LOG(BUG), "Did not find string match for %s", tmp->arch->name);
             }
-        }
-        else if (tmp->arch->name == shstr_cons.player_info && tmp->name == shstr_cons.BANK_GENERAL) {
+        } else if (tmp->arch->name == shstr_cons.player_info && tmp->name == shstr_cons.BANK_GENERAL) {
             bank_object = tmp;
         }
     }
@@ -417,8 +401,7 @@ static sint64 pay_from_container(object *op, object *pouch, sint64 to_pay)
             if ((num_coins * coin_objs[i]->value) < remain) {
                 num_coins++;
             }
-        }
-        else {
+        } else {
             num_coins = coin_objs[i]->nrof;
         }
 
@@ -452,8 +435,7 @@ static sint64 pay_from_container(object *op, object *pouch, sint64 to_pay)
     for (i = 0; i < NUM_COINS; i++) {
         if (coin_objs[i]->nrof) {
             insert_ob_in_ob(coin_objs[i], pouch);
-        }
-        else {
+        } else {
             object_destroy(coin_objs[i]);
         }
     }
@@ -494,8 +476,7 @@ int get_payment(object *pl, object *op)
             draw_info_format(COLOR_WHITE, pl, "You lack %s to buy %s.", cost_string_from_value(query_cost(op, pl, COST_BUY) - query_money(pl)), query_name(op, NULL));
             SET_FLAG(op, FLAG_UNPAID);
             return 0;
-        }
-        else {
+        } else {
             CLEAR_FLAG(op, FLAG_UNPAID);
             CLEAR_FLAG(op, FLAG_STARTEQUIP);
 
@@ -530,8 +511,7 @@ void sell_item(object *op, object *pl, sint64 value)
 
     if (op == NULL) {
         i = value;
-    }
-    else {
+    } else {
         i = query_cost(op, pl, COST_SELL);
     }
 
@@ -577,7 +557,7 @@ int get_money_from_string(const char *text, struct _money_block *money)
     memset(money, 0, sizeof(struct _money_block));
 
     /* Kill all whitespace */
-    while (*text !='\0' && (isspace(*text) || !isprint(*text))) {
+    while (*text != '\0' && (isspace(*text) || !isprint(*text))) {
         text++;
     }
 
@@ -605,16 +585,13 @@ int get_money_from_string(const char *text, struct _money_block *money)
                 if (!strncasecmp("mithril", word, len)) {
                     money->mode = MONEYSTRING_AMOUNT;
                     money->mithril += value;
-                }
-                else if (!strncasecmp("gold", word, len)) {
+                } else if (!strncasecmp("gold", word, len)) {
                     money->mode = MONEYSTRING_AMOUNT;
                     money->gold += value;
-                }
-                else if (!strncasecmp("silver", word, len)) {
+                } else if (!strncasecmp("silver", word, len)) {
                     money->mode = MONEYSTRING_AMOUNT;
                     money->silver += value;
-                }
-                else if (!strncasecmp("copper", word, len)) {
+                } else if (!strncasecmp("copper", word, len)) {
                     money->mode = MONEYSTRING_AMOUNT;
                     money->copper += value;
                 }
@@ -638,8 +615,7 @@ int query_money_type(object *op, int value)
     for (tmp = op->inv; tmp; tmp = tmp->below) {
         if (tmp->type == MONEY && tmp->value == value) {
             total += tmp->nrof;
-        }
-        else if (tmp->type == CONTAINER && !tmp->slaying && ((!tmp->race || strstr(tmp->race, "gold")))) {
+        } else if (tmp->type == CONTAINER && !tmp->slaying && ((!tmp->race || strstr(tmp->race, "gold")))) {
             total += query_money_type(tmp, value);
         }
 
@@ -673,19 +649,16 @@ sint64 remove_money_type(object *who, object *op, sint64 value, sint64 amount)
             if ((sint64) tmp->nrof <= amount || value == -1) {
                 if (value == -1) {
                     amount += (tmp->nrof * tmp->value);
-                }
-                else {
+                } else {
                     amount -= tmp->nrof;
                 }
 
                 object_remove(tmp, 0);
-            }
-            else {
+            } else {
                 tmp->nrof -= (uint32) amount;
                 amount = 0;
             }
-        }
-        else if (tmp->type == CONTAINER && !tmp->slaying && ((!tmp->race || strstr(tmp->race, "gold")))) {
+        } else if (tmp->type == CONTAINER && !tmp->slaying && ((!tmp->race || strstr(tmp->race, "gold")))) {
             amount = remove_money_type(who, tmp, value, amount);
         }
     }
@@ -784,14 +757,12 @@ int bank_deposit(object *op, const char *text, sint64 *value)
 
     if (!money.mode) {
         return BANK_SYNTAX_ERROR;
-    }
-    else if (money.mode == MONEYSTRING_ALL) {
+    } else if (money.mode == MONEYSTRING_ALL) {
         bank = bank_get_create_info(op);
         *value = remove_money_type(op, op, -1, 0);
         bank->value += *value;
         fix_player(op);
-    }
-    else {
+    } else {
         if (money.mithril) {
             if (query_money_type(op, coins_arch[0]->clone.value) < money.mithril) {
                 return BANK_DEPOSIT_MITHRIL;
@@ -865,14 +836,12 @@ int bank_withdraw(object *op, const char *text, sint64 *value)
 
     if (!money.mode) {
         return BANK_SYNTAX_ERROR;
-    }
-    else if (money.mode == MONEYSTRING_ALL) {
+    } else if (money.mode == MONEYSTRING_ALL) {
         *value = bank->value;
         sell_item(NULL, op, bank->value);
         bank->value = 0;
         fix_player(op);
-    }
-    else {
+    } else {
         /* Just to set a border. */
         if (money.mithril > 100000 || money.gold > 100000 || money.silver > 1000000 || money.copper > 1000000) {
             return BANK_WITHDRAW_HIGH;
@@ -930,8 +899,7 @@ sint64 insert_coins(object *pl, sint64 value)
 
         if (at == NULL) {
             logger_print(LOG(BUG), "Could not find %s archetype", coins[count]);
-        }
-        else if ((value / at->clone.value) > 0) {
+        } else if ((value / at->clone.value) > 0) {
             for (pouch = pl->inv; pouch; pouch = pouch->below) {
                 if (pouch->type == CONTAINER && QUERY_FLAG(pouch, FLAG_APPLIED) && pouch->race && strstr(pouch->race, "gold")) {
                     double w;

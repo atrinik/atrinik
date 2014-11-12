@@ -47,17 +47,17 @@ static int can_build_over(mapstruct *m, object *new_item, int x, int y)
         }
 
         switch (new_item->type) {
-            case SIGN:
+        case SIGN:
 
-                /* Allow signs to be built on books. */
-                if (tmp->type != BOOK) {
-                    return 0;
-                }
-
-                break;
-
-            default:
+            /* Allow signs to be built on books. */
+            if (tmp->type != BOOK) {
                 return 0;
+            }
+
+            break;
+
+        default:
+            return 0;
         }
     }
 
@@ -143,16 +143,16 @@ static int builder_item(object *op, object *new_item, int x, int y)
         draw_info_format(COLOR_WHITE, op, "Something is blocking you from building the %s on that square.", query_name(new_item, NULL));
         return 0;
     }
-    /* Wallmask, only allow building on top of blocked square that only
-     * contains a wall. */
     else if (new_item->type == WALL) {
         object *wall_ob = get_wall(op->map, x, y);
+
+        /* Wallmask, only allow building on top of blocked square that only
+         * contains a wall. */
 
         if (!w || !wall_ob) {
             draw_info_format(COLOR_WHITE, op, "The %s can only be built on top of a wall.", query_name(new_item, NULL));
             return 0;
-        }
-        else if (wall_ob->above && wall_ob->above->type == WALL) {
+        } else if (wall_ob->above && wall_ob->above->type == WALL) {
             draw_info_format(COLOR_WHITE, op, "You first need to remove the %s before building on top of that wall again.", query_name(wall_ob->above, NULL));
             return 0;
         }
@@ -283,35 +283,35 @@ static void fix_walls(mapstruct *map, int x, int y)
     }
 
     switch (connect_val) {
-        case 0:
-            return;
+    case 0:
+        return;
 
-        case 10:
-        case 8:
-        case 2:
-            strncat(wall_name, "_8", sizeof(wall_name) - strlen(wall_name) - 1);
-            break;
+    case 10:
+    case 8:
+    case 2:
+        strncat(wall_name, "_8", sizeof(wall_name) - strlen(wall_name) - 1);
+        break;
 
-        case 11:
-        case 9:
-        case 3:
-        case 1:
-            strncat(wall_name, "_1", sizeof(wall_name) - strlen(wall_name) - 1);
-            break;
+    case 11:
+    case 9:
+    case 3:
+    case 1:
+        strncat(wall_name, "_1", sizeof(wall_name) - strlen(wall_name) - 1);
+        break;
 
-        case 12:
-        case 4:
-        case 14:
-        case 6:
-            strncat(wall_name, "_3", sizeof(wall_name) - strlen(wall_name) - 1);
-            break;
+    case 12:
+    case 4:
+    case 14:
+    case 6:
+        strncat(wall_name, "_3", sizeof(wall_name) - strlen(wall_name) - 1);
+        break;
 
-        case 5:
-        case 7:
-        case 13:
-        case 15:
-            strncat(wall_name, "_4", sizeof(wall_name) - strlen(wall_name) - 1);
-            break;
+    case 5:
+    case 7:
+    case 13:
+    case 15:
+        strncat(wall_name, "_4", sizeof(wall_name) - strlen(wall_name) - 1);
+        break;
     }
 
     /* No need to change anything if the old and new names are identical. */
@@ -381,9 +381,10 @@ static int builder_wall(object *op, object *new_wall, int x, int y)
         fix_walls(op->map, x, y);
         draw_info(COLOR_WHITE, op, "You redecorate the wall to better suit your tastes.");
     }
-    /* Else insert new wall and fix all walls around */
     else {
         int xt, yt;
+
+        /* Else insert new wall and fix all walls around */
 
         new_wall->x = x;
         new_wall->y = y;
@@ -430,8 +431,7 @@ static int builder_window(object *op, int x, int y)
     if (!wall_split_orientation(wall_ob, wall_name, sizeof(wall_name), orientation, sizeof(orientation))) {
         draw_info(COLOR_WHITE, op, "You don't see a way to build a window in that wall.");
         return 0;
-    }
-    else if (!strcmp(orientation, "_1") && !strcmp(orientation, "_3")) {
+    } else if (!strcmp(orientation, "_1") && !strcmp(orientation, "_3")) {
         draw_info(COLOR_WHITE, op, "You cannot build a window in that wall.");
         return 0;
     }
@@ -512,26 +512,26 @@ static void construction_builder(object *op, int x, int y)
 
     /* Insert the new object in the map. */
     switch (material->sub_type) {
-        case ST_MAT_FLOOR:
-            built = builder_floor(op, new_item, x, y);
-            break;
+    case ST_MAT_FLOOR:
+        built = builder_floor(op, new_item, x, y);
+        break;
 
-        case ST_MAT_WALL:
-            built = builder_wall(op, new_item, x, y);
-            break;
+    case ST_MAT_WALL:
+        built = builder_wall(op, new_item, x, y);
+        break;
 
-        case ST_MAT_ITEM:
-            built = builder_item(op, new_item, x, y);
-            break;
+    case ST_MAT_ITEM:
+        built = builder_item(op, new_item, x, y);
+        break;
 
-        case ST_MAT_WIN:
-            built = builder_window(op, x, y);
-            break;
+    case ST_MAT_WIN:
+        built = builder_window(op, x, y);
+        break;
 
-        default:
-            logger_print(LOG(BUG), "Invalid material subtype %d.", material->sub_type);
-            draw_info(COLOR_WHITE, op, "Don't know how to apply this material, sorry.");
-            break;
+    default:
+        logger_print(LOG(BUG), "Invalid material subtype %d.", material->sub_type);
+        draw_info(COLOR_WHITE, op, "Don't know how to apply this material, sorry.");
+        break;
     }
 
     if (built) {
@@ -669,17 +669,17 @@ void construction_do(object *op, int dir)
     }
 
     switch (skill_item->sub_type) {
-        case ST_BD_REMOVE:
-            construction_destroyer(op, x, y);
-            break;
+    case ST_BD_REMOVE:
+        construction_destroyer(op, x, y);
+        break;
 
-        case ST_BD_BUILD:
-            construction_builder(op, x, y);
-            break;
+    case ST_BD_BUILD:
+        construction_builder(op, x, y);
+        break;
 
-        default:
-            logger_print(LOG(BUG), "Skill item %s has invalid subtype.", query_name(skill_item, NULL));
-            draw_info(COLOR_WHITE, op, "Don't know how to apply this tool, sorry.");
-            break;
+    default:
+        logger_print(LOG(BUG), "Skill item %s has invalid subtype.", query_name(skill_item, NULL));
+        draw_info(COLOR_WHITE, op, "Don't know how to apply this tool, sorry.");
+        break;
     }
 }

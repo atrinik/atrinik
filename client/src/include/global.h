@@ -42,7 +42,7 @@
 #include <toolkit.h>
 
 #ifdef HAVE_SDL_MIXER
-#   include <SDL_mixer.h>
+#include <SDL_mixer.h>
 #endif
 
 #define HUGE_BUF 4096
@@ -87,7 +87,7 @@
 #include <updater.h>
 
 #ifndef __CPROTO__
-#   include <proto.h>
+#include <proto.h>
 #endif
 
 #endif

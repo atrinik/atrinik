@@ -34,8 +34,7 @@
 #define MAX_FACE_SETS   1
 
 /** Face info structure. */
-typedef struct FaceInfo
-{
+typedef struct FaceInfo {
     /** Image data */
     uint8 *data;
 
@@ -47,8 +46,7 @@ typedef struct FaceInfo
 } FaceInfo;
 
 /** Face sets structure. */
-typedef struct
-{
+typedef struct {
     /** Prefix */
     char *prefix;
 
@@ -144,8 +142,7 @@ void read_client_images(void)
         if (string_split(buf, cps, sizeof(cps) / sizeof(*cps), ':') != 7) {
             logger_print(LOG(ERROR), "Bad line in image_info file: %s", buf);
             exit(1);
-        }
-        else {
+        } else {
             len = atoi(cps[0]);
 
             if (len >= MAX_FACE_SETS) {

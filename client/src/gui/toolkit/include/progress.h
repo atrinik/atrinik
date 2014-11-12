@@ -31,8 +31,7 @@
 
 /**
  * Dots progress indicator. */
-typedef struct progress_dots
-{
+typedef struct progress_dots {
     /** Last time when one of the dots was lit. */
     uint32 ticks;
 

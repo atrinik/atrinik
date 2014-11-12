@@ -96,12 +96,10 @@ static int widget_event(widgetdata *widget, SDL_Event *event)
         if (event->key.keysym.sym == SDLK_ESCAPE) {
             widget->show = 0;
             return 1;
-        }
-        else if (event->key.keysym.sym == SDLK_TAB) {
+        } else if (event->key.keysym.sym == SDLK_TAB) {
             help_handle_tabulator(text_input);
             return 1;
-        }
-        else if (text_input_event(text_input, event)) {
+        } else if (text_input_event(text_input, event)) {
             return 1;
         }
     }

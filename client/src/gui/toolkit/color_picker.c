@@ -166,14 +166,12 @@ static int color_picker_element_show(SDL_Surface *surface, color_picker_struct *
             if (my >= box.y + box.h) {
                 my = box.y + box.h - 1;
             }
-        }
-        else if (event->type == SDL_MOUSEMOTION) {
+        } else if (event->type == SDL_MOUSEMOTION) {
             return 0;
         }
-    }
-    /* If the element says it's being dragged, but the mouse state says
-     * otherwise, stop dragging. */
-    else if (color_picker->elements[type].dragging && SDL_GetMouseState(NULL, NULL) != SDL_BUTTON_LEFT) {
+    } else if (color_picker->elements[type].dragging && SDL_GetMouseState(NULL, NULL) != SDL_BUTTON_LEFT) {
+        /* If the element says it's being dragged, but the mouse state says
+         * otherwise, stop dragging. */
         color_picker->elements[type].dragging = 0;
     }
 
@@ -238,8 +236,7 @@ static int color_picker_element_show(SDL_Surface *surface, color_picker_struct *
                 putpixel(surface, box.x + selx, box.y + y, SDL_MapRGB(surface->format, 255 - r, 255 - g, 255 - b));
             }
         }
-    }
-    else if (type == COLOR_PICKER_ELEM_HUE) {
+    } else if (type == COLOR_PICKER_ELEM_HUE) {
         hsv[1] = hsv[2] = 1.0;
 
         for (y = 0; y < box.h; y++) {

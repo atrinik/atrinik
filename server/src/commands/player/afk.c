@@ -43,16 +43,15 @@ void command_afk(object *op, const char *command, char *params)
         if (CONTR(op)->afk) {
             CONTR(op)->afk = 0;
             draw_info(COLOR_WHITE, op, "You are no longer AFK.");
-        }
-        /* Currently not afk */
-        else {
+        } else {
+            /* Currently not afk */
             CONTR(op)->afk = 1;
             CONTR(op)->stat_afk_used++;
             draw_info(COLOR_WHITE, op, "You are now AFK.");
         }
-    }
-    /* Auto-reply message given */
-    else {
+    } else {
+        /* Auto-reply message given */
+
         CONTR(op)->afk = 1;
         CONTR(op)->stat_afk_used++;
         draw_info_format(COLOR_WHITE, op, "You are now AFK. Auto-reply: %s", params);

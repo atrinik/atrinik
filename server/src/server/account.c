@@ -34,8 +34,7 @@
 #define ACCOUNT_PASSWORD_SIZE 32
 #define ACCOUNT_PASSWORD_ITERATIONS 4096
 
-typedef struct account_struct
-{
+typedef struct account_struct {
     unsigned char password[ACCOUNT_PASSWORD_SIZE];
 
     unsigned char salt[ACCOUNT_PASSWORD_SIZE];
@@ -46,8 +45,7 @@ typedef struct account_struct
 
     time_t last_time;
 
-    struct
-    {
+    struct {
         archetype *at;
 
         char *name;
@@ -184,25 +182,20 @@ static int account_load(account_struct *account, const char *path)
 
             if (len == 13 || len == 40) {
                 account->password_old = estrdup(buf + 5);
-            }
-            else if (string_fromhex(buf + 5, len, account->password, ACCOUNT_PASSWORD_SIZE) != ACCOUNT_PASSWORD_SIZE) {
+            } else if (string_fromhex(buf + 5, len, account->password, ACCOUNT_PASSWORD_SIZE) != ACCOUNT_PASSWORD_SIZE) {
                 logger_print(LOG(BUG), "Invalid password entry in file: %s", path);
                 memset(account->password, 0, sizeof(account->password));
             }
-        }
-        else if (strncmp(buf, "salt ", 5) == 0) {
+        } else if (strncmp(buf, "salt ", 5) == 0) {
             if (string_fromhex(buf + 5, strlen(buf + 5), account->salt, ACCOUNT_PASSWORD_SIZE) != ACCOUNT_PASSWORD_SIZE) {
                 logger_print(LOG(BUG), "Invalid salt entry in file: %s", path);
                 memset(account->salt, 0, sizeof(account->salt));
             }
-        }
-        else if (strncmp(buf, "host ", 5) == 0) {
+        } else if (strncmp(buf, "host ", 5) == 0) {
             account->last_host = estrdup(buf + 5);
-        }
-        else if (strncmp(buf, "time ", 5) == 0) {
+        } else if (strncmp(buf, "time ", 5) == 0) {
             account->last_time = atoll(buf + 5);
-        }
-        else if (strncmp(buf, "char ", 5) == 0) {
+        } else if (strncmp(buf, "char ", 5) == 0) {
             char *cps[4];
 
             if (string_split(buf + 5, cps, arraysize(cps), ':') != arraysize(cps)) {
@@ -584,8 +577,7 @@ void account_password_change(socket_struct *ns, char *password, char *password_n
 
     if (account_save(&account, path)) {
         draw_info_send(CHAT_TYPE_GAME, NULL, COLOR_GREEN, ns, "Password changed successfully.");
-    }
-    else {
+    } else {
         draw_info_send(CHAT_TYPE_GAME, NULL, COLOR_RED, ns, "Save error occurred, please contact server administrator.");
     }
 

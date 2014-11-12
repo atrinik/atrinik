@@ -50,8 +50,7 @@ void command_no_chat(object *op, const char *command, char *params)
     if (pl->no_chat) {
         draw_info_format(COLOR_WHITE, op, "%s is able to shout again.", pl->ob->name);
         pl->no_chat = 0;
-    }
-    else {
+    } else {
         draw_info_format(COLOR_WHITE, op, "%s is now not able to shout.", pl->ob->name);
         pl->no_chat = 1;
     }

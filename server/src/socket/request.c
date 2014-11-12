@@ -51,8 +51,7 @@ void socket_command_setup(socket_struct *ns, player *pl, uint8 *data, size_t len
         if (type == CMD_SETUP_SOUND) {
             ns->sound = packet_to_uint8(data, len, &pos);
             packet_append_uint8(packet, ns->sound);
-        }
-        else if (type == CMD_SETUP_MAPSIZE) {
+        } else if (type == CMD_SETUP_MAPSIZE) {
             int x, y;
 
             x = packet_to_uint8(data, len, &pos);
@@ -70,8 +69,7 @@ void socket_command_setup(socket_struct *ns, player *pl, uint8 *data, size_t len
 
             packet_append_uint8(packet, x);
             packet_append_uint8(packet, y);
-        }
-        else if (type == CMD_SETUP_BOT) {
+        } else if (type == CMD_SETUP_BOT) {
             ns->is_bot = packet_to_uint8(data, len, &pos);
 
             if (ns->is_bot != 0 && ns->is_bot != 1) {
@@ -79,16 +77,14 @@ void socket_command_setup(socket_struct *ns, player *pl, uint8 *data, size_t len
             }
 
             packet_append_uint8(packet, ns->is_bot);
-        }
-        else if (type == CMD_SETUP_DATA_URL) {
+        } else if (type == CMD_SETUP_DATA_URL) {
             char url[MAX_BUF];
 
             packet_to_string(data, len, &pos, url, sizeof(url));
 
             if (!string_isempty(url)) {
                 packet_append_string_terminated(packet, url);
-            }
-            else {
+            } else {
                 packet_append_string_terminated(packet, settings.http_url);
             }
         }
@@ -123,8 +119,8 @@ void socket_command_version(socket_struct *ns, player *pl, uint8 *data, size_t l
 
     if (ver == 0 || ver == 991017 || ver == 1055) {
         draw_info_send(CHAT_TYPE_GAME, NULL, COLOR_RED, ns, "Your client is "
-            "outdated!\nGo to http://www.atrinik.org/ and download the latest "
-            "Atrinik client.");
+                "outdated!\nGo to http://www.atrinik.org/ and download the latest "
+                "Atrinik client.");
         ns->state = ST_ZOMBIE;
         return;
     }
@@ -223,8 +219,7 @@ void esrv_update_stats(player *pl)
             AddIfInt(pl->last_ranged_dam, arrow_get_damage(pl->ob, pl->equipment[PLAYER_EQUIP_WEAPON_RANGED], arrow), CS_STAT_RANGED_DAM, uint16);
             AddIfInt(pl->last_ranged_wc, arrow_get_wc(pl->ob, pl->equipment[PLAYER_EQUIP_WEAPON_RANGED], arrow), CS_STAT_RANGED_WC, uint16);
             AddIfInt(pl->last_ranged_ws, bow_get_ws(pl->equipment[PLAYER_EQUIP_WEAPON_RANGED], arrow), CS_STAT_RANGED_WS, uint32);
-        }
-        else {
+        } else {
             AddIfInt(pl->last_ranged_dam, 0, CS_STAT_RANGED_DAM, uint16);
             AddIfInt(pl->last_ranged_wc, 0, CS_STAT_RANGED_WC, uint16);
             AddIfInt(pl->last_ranged_ws, 0, CS_STAT_RANGED_WS, uint32);
@@ -283,8 +278,7 @@ void esrv_update_stats(player *pl)
 
     if (packet->len >= 1) {
         socket_send_packet(&pl->socket, packet);
-    }
-    else {
+    } else {
         packet_free(packet);
     }
 }
@@ -391,60 +385,58 @@ void draw_client_map(object *pl)
             memset(&(CONTR(pl)->socket.lastmap), 0, sizeof(struct Map));
             CONTR(pl)->last_update = pl->map;
             redraw_below = 1;
-        }
-        else {
+        } else {
             CONTR(pl)->map_update_cmd = MAP_UPDATE_CMD_CONNECTED;
             CONTR(pl)->map_update_tile = tile_map;
             redraw_below = 1;
 
             /* We have moved to a tiled map. Let's calculate the offsets. */
             switch (tile_map - 1) {
-                case 0:
-                    CONTR(pl)->map_off_x = pl->x - CONTR(pl)->map_tile_x;
-                    CONTR(pl)->map_off_y = -(CONTR(pl)->map_tile_y + (MAP_HEIGHT(pl->map) - pl->y));
-                    break;
+            case 0:
+                CONTR(pl)->map_off_x = pl->x - CONTR(pl)->map_tile_x;
+                CONTR(pl)->map_off_y = -(CONTR(pl)->map_tile_y + (MAP_HEIGHT(pl->map) - pl->y));
+                break;
 
-                case 1:
-                    CONTR(pl)->map_off_y = pl->y - CONTR(pl)->map_tile_y;
-                    CONTR(pl)->map_off_x = (MAP_WIDTH(pl->map) - CONTR(pl)->map_tile_x) + pl->x;
-                    break;
+            case 1:
+                CONTR(pl)->map_off_y = pl->y - CONTR(pl)->map_tile_y;
+                CONTR(pl)->map_off_x = (MAP_WIDTH(pl->map) - CONTR(pl)->map_tile_x) + pl->x;
+                break;
 
-                case 2:
-                    CONTR(pl)->map_off_x = pl->x - CONTR(pl)->map_tile_x;
-                    CONTR(pl)->map_off_y = (MAP_HEIGHT(pl->map) - CONTR(pl)->map_tile_y) + pl->y;
-                    break;
+            case 2:
+                CONTR(pl)->map_off_x = pl->x - CONTR(pl)->map_tile_x;
+                CONTR(pl)->map_off_y = (MAP_HEIGHT(pl->map) - CONTR(pl)->map_tile_y) + pl->y;
+                break;
 
-                case 3:
-                    CONTR(pl)->map_off_y = pl->y - CONTR(pl)->map_tile_y;
-                    CONTR(pl)->map_off_x = -(CONTR(pl)->map_tile_x + (MAP_WIDTH(pl->map) - pl->x));
-                    break;
+            case 3:
+                CONTR(pl)->map_off_y = pl->y - CONTR(pl)->map_tile_y;
+                CONTR(pl)->map_off_x = -(CONTR(pl)->map_tile_x + (MAP_WIDTH(pl->map) - pl->x));
+                break;
 
-                case 4:
-                    CONTR(pl)->map_off_y = -(CONTR(pl)->map_tile_y + (MAP_HEIGHT(pl->map) - pl->y));
-                    CONTR(pl)->map_off_x = (MAP_WIDTH(pl->map) - CONTR(pl)->map_tile_x) + pl->x;
-                    break;
+            case 4:
+                CONTR(pl)->map_off_y = -(CONTR(pl)->map_tile_y + (MAP_HEIGHT(pl->map) - pl->y));
+                CONTR(pl)->map_off_x = (MAP_WIDTH(pl->map) - CONTR(pl)->map_tile_x) + pl->x;
+                break;
 
-                case 5:
-                    CONTR(pl)->map_off_x = (MAP_WIDTH(pl->map) - CONTR(pl)->map_tile_x) + pl->x;
-                    CONTR(pl)->map_off_y = (MAP_HEIGHT(pl->map) - CONTR(pl)->map_tile_y) + pl->y;
-                    break;
+            case 5:
+                CONTR(pl)->map_off_x = (MAP_WIDTH(pl->map) - CONTR(pl)->map_tile_x) + pl->x;
+                CONTR(pl)->map_off_y = (MAP_HEIGHT(pl->map) - CONTR(pl)->map_tile_y) + pl->y;
+                break;
 
-                case 6:
-                    CONTR(pl)->map_off_y = (MAP_HEIGHT(pl->map) - CONTR(pl)->map_tile_y) + pl->y;
-                    CONTR(pl)->map_off_x = -(CONTR(pl)->map_tile_x + (MAP_WIDTH(pl->map) - pl->x));
-                    break;
+            case 6:
+                CONTR(pl)->map_off_y = (MAP_HEIGHT(pl->map) - CONTR(pl)->map_tile_y) + pl->y;
+                CONTR(pl)->map_off_x = -(CONTR(pl)->map_tile_x + (MAP_WIDTH(pl->map) - pl->x));
+                break;
 
-                case 7:
-                    CONTR(pl)->map_off_x = -(CONTR(pl)->map_tile_x + (MAP_WIDTH(pl->map) - pl->x));
-                    CONTR(pl)->map_off_y = -(CONTR(pl)->map_tile_y + (MAP_HEIGHT(pl->map) - pl->y));
-                    break;
+            case 7:
+                CONTR(pl)->map_off_x = -(CONTR(pl)->map_tile_x + (MAP_WIDTH(pl->map) - pl->x));
+                CONTR(pl)->map_off_y = -(CONTR(pl)->map_tile_y + (MAP_HEIGHT(pl->map) - pl->y));
+                break;
             }
 
             copy_lastmap(&CONTR(pl)->socket, CONTR(pl)->map_off_x, CONTR(pl)->map_off_y);
             CONTR(pl)->last_update = pl->map;
         }
-    }
-    else {
+    } else {
         if (CONTR(pl)->map_tile_x != pl->x || CONTR(pl)->map_tile_y != pl->y) {
             copy_lastmap(&CONTR(pl)->socket, pl->x - CONTR(pl)->map_tile_x, pl->y - CONTR(pl)->map_tile_y);
             redraw_below = 1;
@@ -489,8 +481,7 @@ void draw_client_map(object *pl)
             if (map_info) {
                 strncpy(CONTR(pl)->map_info_name, map_info->race, sizeof(CONTR(pl)->map_info_name) - 1);
                 CONTR(pl)->map_info_name[sizeof(CONTR(pl)->map_info_name) - 1] = '\0';
-            }
-            else {
+            } else {
                 CONTR(pl)->map_info_name[0] = '\0';
             }
         }
@@ -502,8 +493,7 @@ void draw_client_map(object *pl)
             if (map_info) {
                 strncpy(CONTR(pl)->map_info_music, map_info->slaying, sizeof(CONTR(pl)->map_info_music) - 1);
                 CONTR(pl)->map_info_music[sizeof(CONTR(pl)->map_info_music) - 1] = '\0';
-            }
-            else {
+            } else {
                 CONTR(pl)->map_info_music[0] = '\0';
             }
         }
@@ -515,8 +505,7 @@ void draw_client_map(object *pl)
             if (map_info) {
                 strncpy(CONTR(pl)->map_info_weather, map_info->title, sizeof(CONTR(pl)->map_info_weather) - 1);
                 CONTR(pl)->map_info_weather[sizeof(CONTR(pl)->map_info_weather) - 1] = '\0';
-            }
-            else {
+            } else {
                 CONTR(pl)->map_info_weather[0] = '\0';
             }
         }
@@ -524,8 +513,7 @@ void draw_client_map(object *pl)
         /* Anything to send? */
         if (packet->len >= 1) {
             socket_send_packet(&CONTR(pl)->socket, packet);
-        }
-        else {
+        } else {
             packet_free(packet);
         }
     }
@@ -543,8 +531,7 @@ static const char *get_playername_color(object *pl, object *op)
 {
     if (CONTR(pl)->party != NULL && CONTR(op)->party != NULL && CONTR(pl)->party == CONTR(op)->party) {
         return COLOR_GREEN;
-    }
-    else if (pl != op && pvp_area(pl, op)) {
+    } else if (pl != op && pvp_area(pl, op)) {
         return COLOR_RED;
     }
 
@@ -645,8 +632,7 @@ void draw_client_map2(object *pl)
             packet_append_uint8(packet, CONTR(pl)->map_update_tile);
             packet_append_sint8(packet, CONTR(pl)->map_off_x);
             packet_append_sint8(packet, CONTR(pl)->map_off_y);
-        }
-        else {
+        } else {
             packet_append_uint8(packet, pl->map->width);
             packet_append_uint8(packet, pl->map->height);
         }
@@ -707,8 +693,7 @@ void draw_client_map2(object *pl)
                     packet_append_uint8(packet_sound, msp->sound_ambient->item_level);
 
                     mp->sound_ambient_count = msp->sound_ambient->count;
-                }
-                else {
+                } else {
                     packet_append_uint32(packet_sound, 0);
 
                     mp->sound_ambient_count = 0;
@@ -727,8 +712,7 @@ void draw_client_map2(object *pl)
                     if (!d) {
                         CONTR(pl)->update_los = 1;
                     }
-                }
-                else {
+                } else {
                     if (d & BLOCKED_LOS_BLOCKSVIEW) {
                         CONTR(pl)->update_los = 1;
                     }
@@ -746,8 +730,7 @@ void draw_client_map2(object *pl)
                 /* Xray or infravision? */
                 if (special_vision & 1 || (special_vision & 2 && msp->flags & (P_IS_PLAYER | P_IS_MONSTER))) {
                     d = 100;
-                }
-                else {
+                } else {
                     map_if_clearcell();
                     continue;
                 }
@@ -755,23 +738,17 @@ void draw_client_map2(object *pl)
 
             if (d > 640) {
                 d = 210;
-            }
-            else if (d > 320) {
+            } else if (d > 320) {
                 d = 180;
-            }
-            else if (d > 160) {
+            } else if (d > 160) {
                 d = 150;
-            }
-            else if (d > 80) {
+            } else if (d > 80) {
                 d = 120;
-            }
-            else if (d > 40) {
+            } else if (d > 40) {
                 d = 90;
-            }
-            else if (d > 20) {
+            } else if (d > 20) {
                 d = 60;
-            }
-            else {
+            } else {
                 d = 30;
             }
 
@@ -840,10 +817,10 @@ void draw_client_map2(object *pl)
                         if ((!tmp->direction || tmp->direction == NORTH || tmp->direction == NORTHEAST || tmp->direction == SOUTHEAST || tmp->direction == SOUTH || tmp->direction == SOUTHWEST || tmp->direction == NORTHWEST) && !((ax <= CONTR(pl)->socket.mapx_2) && (ay <= CONTR(pl)->socket.mapy_2)) && !((ax > CONTR(pl)->socket.mapx_2) && (ay < CONTR(pl)->socket.mapy_2))) {
                             tmp = NULL;
                         }
-                        /* If the object is dir [0234768] and not in the top
-                         * or left quadrant or on the central square, do not
-                         * show it. */
                         else if ((!tmp->direction || tmp->direction == NORTHEAST || tmp->direction == EAST || tmp->direction == SOUTHEAST || tmp->direction == SOUTHWEST || tmp->direction == WEST || tmp->direction == NORTHWEST) && !((ax <= CONTR(pl)->socket.mapx_2) && (ay <= CONTR(pl)->socket.mapy_2)) && !((ax < CONTR(pl)->socket.mapx_2) && (ay > CONTR(pl)->socket.mapy_2))) {
+                            /* If the object is dir [0234768] and not in the top
+                             * or left quadrant or on the central square, do not
+                             * show it. */
                             tmp = NULL;
                         }
                     }
@@ -874,25 +851,23 @@ void draw_client_map2(object *pl)
                                  * update before, so skip it. */
                                 if (head->update_tag == map2_count) {
                                     face = 0;
-                                }
-                                else {
+                                } else {
                                     /* Mark this object as sent. */
                                     head->update_tag = map2_count;
                                     face_obj = head;
                                 }
                             }
-                            /* Head. */
                             else {
+                                /* Head. */
+
                                 if (tmp->update_tag == map2_count) {
                                     face = 0;
-                                }
-                                else {
+                                } else {
                                     tmp->update_tag = map2_count;
                                     face_obj = tmp;
                                 }
                             }
-                        }
-                        else {
+                        } else {
                             face_obj = tmp;
                         }
 
@@ -1043,8 +1018,7 @@ void draw_client_map2(object *pl)
                         if (flags & MAP2_FLAG_HEIGHT) {
                             if (mirror && mirror->last_eat) {
                                 packet_append_sint16(packet_layer, head->z + mirror->last_eat);
-                            }
-                            else {
+                            } else {
                                 packet_append_sint16(packet_layer, head->z);
                             }
                         }
@@ -1055,8 +1029,7 @@ void draw_client_map2(object *pl)
                             if (mirror && mirror->last_heal) {
                                 packet_append_uint16(packet_layer, mirror->last_heal);
                                 packet_append_uint16(packet_layer, mirror->last_heal);
-                            }
-                            else {
+                            } else {
                                 packet_append_uint16(packet_layer, head->zoom_x);
                                 packet_append_uint16(packet_layer, head->zoom_y);
                             }
@@ -1065,8 +1038,7 @@ void draw_client_map2(object *pl)
                         if (flags & MAP2_FLAG_ALIGN) {
                             if (mirror && mirror->align) {
                                 packet_append_sint16(packet_layer, head->align + mirror->align);
-                            }
-                            else {
+                            } else {
                                 packet_append_sint16(packet_layer, head->align);
                             }
                         }
@@ -1093,10 +1065,10 @@ void draw_client_map2(object *pl)
                             }
                         }
                     }
-                    /* Didn't find anything. Now, if we have previously seen a
-                     * face
-                     * on this layer, we will want the client to clear it. */
                     else if (mp->faces[socket_layer]) {
+                        /* Didn't find anything. Now, if we have previously seen a
+                         * face
+                         * on this layer, we will want the client to clear it. */
                         mp->faces[socket_layer] = 0;
                         mp->quick_pos[socket_layer] = 0;
                         mp->anim_speed[socket_layer] = 0;
@@ -1149,15 +1121,13 @@ void draw_client_map2(object *pl)
     /* Verify that we in fact do need to send this. */
     if (packet->len >= 4) {
         socket_send_packet(&CONTR(pl)->socket, packet);
-    }
-    else {
+    } else {
         packet_free(packet);
     }
 
     if (packet_sound->len >= 1) {
         socket_send_packet(&CONTR(pl)->socket, packet_sound);
-    }
-    else {
+    } else {
         packet_free(packet_sound);
     }
 }
@@ -1207,9 +1177,9 @@ void socket_command_quest_list(socket_struct *ns, player *pl, uint8 *data, size_
             }
 
             switch (tmp2->sub_type) {
-                case QUEST_TYPE_KILL:
-                    stringbuffer_append_printf(sb, "\n[x=10]Status: %d/%d", MIN(tmp2->last_sp, tmp2->last_grace), tmp2->last_grace);
-                    break;
+            case QUEST_TYPE_KILL:
+                stringbuffer_append_printf(sb, "\n[x=10]Status: %d/%d", MIN(tmp2->last_sp, tmp2->last_grace), tmp2->last_grace);
+                break;
             }
         }
 
@@ -1313,16 +1283,14 @@ void socket_command_fire(socket_struct *ns, player *pl, uint8 *data, size_t len,
     if (tag) {
         if (pl->equipment[PLAYER_EQUIP_WEAPON_RANGED] && pl->equipment[PLAYER_EQUIP_WEAPON_RANGED]->count == tag) {
             tmp = pl->equipment[PLAYER_EQUIP_WEAPON_RANGED];
-        }
-        else {
+        } else {
             for (tmp = pl->ob->inv; tmp; tmp = tmp->below) {
                 if (tmp->count == tag && (tmp->type == SPELL || tmp->type == SKILL)) {
                     break;
                 }
             }
         }
-    }
-    else {
+    } else {
         tmp = pl->equipment[PLAYER_EQUIP_WEAPON_RANGED];
 
         if (!tmp && pl->equipment[PLAYER_EQUIP_AMMO] && QUERY_FLAG(pl->equipment[PLAYER_EQUIP_AMMO], FLAG_IS_THROWN)) {
@@ -1405,12 +1373,10 @@ void send_target_command(player *pl)
 
         pl->target_object = pl->ob;
         pl->target_object_count = 0;
-    }
-    else {
+    } else {
         if (is_friend_of(pl->ob, pl->target_object)) {
             packet_append_uint8(packet, CMD_TARGET_FRIEND);
-        }
-        else {
+        } else {
             packet_append_uint8(packet, CMD_TARGET_ENEMY);
 
             pl->ob->enemy = pl->target_object;
@@ -1420,27 +1386,21 @@ void send_target_command(player *pl)
         if (pl->target_object->level < level_color[pl->ob->level].yellow) {
             if (pl->target_object->level < level_color[pl->ob->level].green) {
                 packet_append_string_terminated(packet, COLOR_GRAY);
-            }
-            else {
+            } else {
                 if (pl->target_object->level < level_color[pl->ob->level].blue) {
                     packet_append_string_terminated(packet, COLOR_GREEN);
-                }
-                else {
+                } else {
                     packet_append_string_terminated(packet, COLOR_BLUE);
                 }
             }
-        }
-        else {
+        } else {
             if (pl->target_object->level >= level_color[pl->ob->level].purple) {
                 packet_append_string_terminated(packet, COLOR_PURPLE);
-            }
-            else if (pl->target_object->level >= level_color[pl->ob->level].red) {
+            } else if (pl->target_object->level >= level_color[pl->ob->level].red) {
                 packet_append_string_terminated(packet, COLOR_RED);
-            }
-            else if (pl->target_object->level >= level_color[pl->ob->level].orange) {
+            } else if (pl->target_object->level >= level_color[pl->ob->level].orange) {
                 packet_append_string_terminated(packet, COLOR_ORANGE);
-            }
-            else {
+            } else {
                 packet_append_string_terminated(packet, COLOR_YELLOW);
             }
         }
@@ -1450,8 +1410,7 @@ void send_target_command(player *pl)
 
             snprintf(buf, sizeof(buf), "%s (lvl %d)", pl->target_object->name, pl->target_object->level);
             packet_append_string_terminated(packet, buf);
-        }
-        else {
+        } else {
             packet_append_string_terminated(packet, pl->target_object->name);
         }
     }
@@ -1476,8 +1435,7 @@ void socket_command_account(socket_struct *ns, player *pl, uint8 *data, size_t l
         }
 
         account_login(ns, name, password);
-    }
-    else if (type == CMD_ACCOUNT_REGISTER) {
+    } else if (type == CMD_ACCOUNT_REGISTER) {
         char name[MAX_BUF], password[MAX_BUF], password2[MAX_BUF];
 
         packet_to_string(data, len, &pos, name, sizeof(name));
@@ -1485,23 +1443,20 @@ void socket_command_account(socket_struct *ns, player *pl, uint8 *data, size_t l
         packet_to_string(data, len, &pos, password2, sizeof(password2));
 
         account_register(ns, name, password, password2);
-    }
-    else if (type == CMD_ACCOUNT_LOGIN_CHAR) {
+    } else if (type == CMD_ACCOUNT_LOGIN_CHAR) {
         char name[MAX_BUF];
 
         packet_to_string(data, len, &pos, name, sizeof(name));
 
         account_login_char(ns, name);
-    }
-    else if (type == CMD_ACCOUNT_NEW_CHAR) {
+    } else if (type == CMD_ACCOUNT_NEW_CHAR) {
         char name[MAX_BUF], archname[MAX_BUF];
 
         packet_to_string(data, len, &pos, name, sizeof(name));
         packet_to_string(data, len, &pos, archname, sizeof(archname));
 
         account_new_char(ns, name, archname);
-    }
-    else if (type == CMD_ACCOUNT_PSWD) {
+    } else if (type == CMD_ACCOUNT_PSWD) {
         char password[MAX_BUF], password_new[MAX_BUF], password_new2[MAX_BUF];
 
         packet_to_string(data, len, &pos, password, sizeof(password));
@@ -1600,8 +1555,7 @@ void socket_command_target(socket_struct *ns, player *pl, uint8 *data, size_t le
         if (pl->target_object_count != target_object_count) {
             send_target_command(pl);
         }
-    }
-    else if (type == CMD_TARGET_CLEAR) {
+    } else if (type == CMD_TARGET_CLEAR) {
         if (pl->target_object_count) {
             pl->target_object = NULL;
             pl->target_object_count = 0;
@@ -1689,15 +1643,12 @@ void socket_command_talk(socket_struct *ns, player *pl, uint8 *data, size_t len,
                     send_target_command(pl);
                 }
             }
-        }
-        else if (type == CMD_TALK_NPC && OBJECT_VALID(pl->target_object, pl->target_object_count) && OBJECT_CAN_TALK(pl->target_object)) {
+        } else if (type == CMD_TALK_NPC && OBJECT_VALID(pl->target_object, pl->target_object_count) && OBJECT_CAN_TALK(pl->target_object)) {
             draw_info_format(COLOR_WHITE, pl->ob, "You are too far away from %s.", pl->target_object->name);
-        }
-        else {
+        } else {
             draw_info(COLOR_WHITE, pl->ob, "There are no NPCs that you can talk to nearby.");
         }
-    }
-    else if (type == CMD_TALK_INV || type == CMD_TALK_BELOW || type == CMD_TALK_CONTAINER) {
+    } else if (type == CMD_TALK_INV || type == CMD_TALK_BELOW || type == CMD_TALK_CONTAINER) {
         tag_t tag;
         object *tmp;
 
@@ -1711,14 +1662,11 @@ void socket_command_talk(socket_struct *ns, player *pl, uint8 *data, size_t len,
 
         if (type == CMD_TALK_INV) {
             tmp = pl->ob->inv;
-        }
-        else if (type == CMD_TALK_BELOW) {
+        } else if (type == CMD_TALK_BELOW) {
             tmp = GET_MAP_OB_LAST(pl->ob->map, pl->ob->x, pl->ob->y);
-        }
-        else if (type == CMD_TALK_CONTAINER && pl->container) {
+        } else if (type == CMD_TALK_CONTAINER && pl->container) {
             tmp = pl->container->inv;
-        }
-        else {
+        } else {
             return;
         }
 
@@ -1766,98 +1714,96 @@ void socket_command_control(socket_struct *ns, player *pl, uint8 *data, size_t l
     sub_type = packet_to_uint8(data, len, &pos);
 
     switch (type) {
-        case CMD_CONTROL_MAP:
+    case CMD_CONTROL_MAP:
+    {
+        char mappath[HUGE_BUF];
+        shstr *mappath_sh;
+        mapstruct *control_map;
+
+        packet_to_string(data, len, &pos, mappath, sizeof(mappath));
+
+        mappath_sh = add_string(mappath);
+        control_map = has_been_loaded_sh(mappath_sh);
+        free_string_shared(mappath_sh);
+
+        /* No such map has been loaded, nothing to do. */
+        if (control_map == NULL) {
+            return;
+        }
+
+        switch (sub_type) {
+        case CMD_CONTROL_MAP_RESET:
+        {
+            map_force_reset(control_map);
+            return;
+        }
+        }
+
+        break;
+    }
+
+    case CMD_CONTROL_PLAYER:
+    {
+        char playername[MAX_BUF];
+        player *control_player;
+        int ret;
+
+        packet_to_string(data, len, &pos, playername, sizeof(playername));
+
+        /* Attempt to find a suitable player as the controller. */
+        if (!string_isempty(playername)) {
+            control_player = find_player(playername);
+        } else if (!string_isempty(settings.control_player)) {
+            control_player = find_player(settings.control_player);
+        } else {
+            control_player = first_player;
+        }
+
+        /* No player has been found, return immediately. This is not an
+         * error; no player is logged in, for example. */
+        if (control_player == NULL) {
+            return;
+        }
+
+        ret = 0;
+
+        switch (sub_type) {
+        case CMD_CONTROL_PLAYER_TELEPORT:
         {
             char mappath[HUGE_BUF];
-            shstr *mappath_sh;
-            mapstruct *control_map;
+            sint16 x, y;
+            mapstruct *m;
 
             packet_to_string(data, len, &pos, mappath, sizeof(mappath));
+            x = packet_to_sint16(data, len, &pos);
+            y = packet_to_sint16(data, len, &pos);
 
-            mappath_sh = add_string(mappath);
-            control_map = has_been_loaded_sh(mappath_sh);
-            free_string_shared(mappath_sh);
+            m = ready_map_name(mappath, 0);
 
-            /* No such map has been loaded, nothing to do. */
-            if (control_map == NULL) {
+            if (m == NULL) {
+                log(LOG(DEBUG), "Could not teleport player to '%s' "
+                        "(%d,%d): map could not be loaded.",
+                        mappath, x, y);
                 return;
             }
 
-            switch (sub_type) {
-                case CMD_CONTROL_MAP_RESET:
-                {
-                    map_force_reset(control_map);
-                    return;
-                }
-            }
-
+            ret = object_enter_map(control_player->ob, NULL, m, x, y, 1);
             break;
         }
-
-        case CMD_CONTROL_PLAYER:
-        {
-            char playername[MAX_BUF];
-            player *control_player;
-            int ret;
-
-            packet_to_string(data, len, &pos, playername, sizeof(playername));
-
-            /* Attempt to find a suitable player as the controller. */
-            if (!string_isempty(playername)) {
-                control_player = find_player(playername);
-            }
-            else if (!string_isempty(settings.control_player)) {
-                control_player = find_player(settings.control_player);
-            }
-            else {
-                control_player = first_player;
-            }
-
-            /* No player has been found, return immediately. This is not an
-             * error; no player is logged in, for example. */
-            if (control_player == NULL) {
-                return;
-            }
-
-            ret = 0;
-
-            switch (sub_type) {
-                case CMD_CONTROL_PLAYER_TELEPORT:
-                {
-                    char mappath[HUGE_BUF];
-                    sint16 x, y;
-                    mapstruct *m;
-
-                    packet_to_string(data, len, &pos, mappath, sizeof(mappath));
-                    x = packet_to_sint16(data, len, &pos);
-                    y = packet_to_sint16(data, len, &pos);
-
-                    m = ready_map_name(mappath, 0);
-
-                    if (m == NULL) {
-                        log(LOG(DEBUG), "Could not teleport player to '%s' "
-                                        "(%d,%d): map could not be loaded.",
-                            mappath, x, y);
-                        return;
-                    }
-
-                    ret = object_enter_map(control_player->ob, NULL, m, x, y, 1);
-                    break;
-                }
-            }
-
-            if (ret == 1) {
-                packet = packet_new(CLIENT_CMD_CONTROL, 256, 256);
-                packet_append_data_len(packet, data, len);
-                socket_send_packet(&control_player->socket, packet);
-
-                return;
-            }
-
-            break;
         }
+
+        if (ret == 1) {
+            packet = packet_new(CLIENT_CMD_CONTROL, 256, 256);
+            packet_append_data_len(packet, data, len);
+            socket_send_packet(&control_player->socket, packet);
+
+            return;
+        }
+
+        break;
+    }
     }
 
     log(LOG(DEBUG), "Unrecognised control command type: %d, sub-type: %d, "
-                    "by application: '%s'", type, sub_type, app_name);
+            "by application: '%s'", type, sub_type, app_name);
 }

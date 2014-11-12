@@ -49,8 +49,8 @@
 static uint8 did_init = 0;
 
 #ifdef HAVE_READLINE
-#   include <readline/readline.h>
-#   include <readline/history.h>
+#include <readline/readline.h>
+#include <readline/history.h>
 #endif
 
 /**
@@ -110,9 +110,8 @@ static void console_command_help(const char *params)
         }
 
         logger_print(LOG(INFO), "No such command '%s'.", params);
-    }
-    /* Otherwise brief information about all available commands. */
-    else {
+    } else {
+        /* Otherwise brief information about all available commands. */
         logger_print(LOG(INFO), "List of available commands:");
         logger_print(LOG(INFO), " ");
 
@@ -271,6 +270,7 @@ static void *do_thread(void *dummy)
  * @internal */
 void toolkit_console_init(void)
 {
+
     TOOLKIT_INIT_FUNC_START(console)
     {
         toolkit_import(logger);
@@ -282,12 +282,12 @@ void toolkit_console_init(void)
 
         /* Add the 'help' command. */
         console_command_add(
-            "help",
-            console_command_help,
-            "Displays this help.",
-            "Displays the help, listing available console commands, etc.\n\n"
-            "'help <command>' can be used to get more detailed help about the specified command."
-        );
+                "help",
+                console_command_help,
+                "Displays this help.",
+                "Displays the help, listing available console commands, etc.\n\n"
+                "'help <command>' can be used to get more detailed help about the specified command."
+                );
     }
     TOOLKIT_INIT_FUNC_END()
 }
@@ -332,6 +332,7 @@ int console_start_thread(void)
  * @internal */
 void toolkit_console_deinit(void)
 {
+
     TOOLKIT_DEINIT_FUNC_START(console)
     {
         size_t i;

@@ -122,8 +122,7 @@ static mapstruct *waypoint_load_dest(object *op, object *waypoint)
 
     if (waypoint->slaying == op->map->path) {
         destmap = op->map;
-    }
-    else {
+    } else {
         destmap = ready_map_name(waypoint->slaying, MAP_NAME_SHARED);
     }
 
@@ -147,8 +146,7 @@ void waypoint_compute_path(object *waypoint)
             FREE_AND_COPY_HASH(waypoint->slaying, waypoint->enemy->map->path);
             waypoint->x = waypoint->stats.hp = waypoint->enemy->x;
             waypoint->y = waypoint->stats.sp = waypoint->enemy->y;
-        }
-        else {
+        } else {
             logger_print(LOG(BUG), "Dynamic waypoint without valid target: '%s'", waypoint->name);
             return;
         }
@@ -221,8 +219,7 @@ void waypoint_move(object *op, object *waypoint)
             destmap = waypoint->enemy->map;
             waypoint->stats.hp = waypoint->enemy->x;
             waypoint->stats.sp = waypoint->enemy->y;
-        }
-        else {
+        } else {
             /* Owner has either switched or lost enemy. This should work for
              * both cases.
              * switched -> similar to if target moved
@@ -231,8 +228,7 @@ void waypoint_move(object *op, object *waypoint)
             waypoint->enemy_count = op->enemy_count;
             return;
         }
-    }
-    else if (waypoint->slaying) {
+    } else if (waypoint->slaying) {
         destmap = waypoint_load_dest(op, waypoint);
     }
 
@@ -338,8 +334,7 @@ void waypoint_move(object *op, object *waypoint)
         if (!waypoint->msg) {
             /* Request a path if we don't have one */
             request_new_path(waypoint);
-        }
-        else {
+        } else {
             /* If we have precalculated path, take direction to next subwaypoint
              * */
             int destx = waypoint->stats.hp, desty = waypoint->stats.sp;
@@ -349,8 +344,7 @@ void waypoint_move(object *op, object *waypoint)
             if (new_offset < waypoint->attacked_by_distance && get_path_next(waypoint->msg, &new_offset, &waypoint->race, &destmap, &destx, &desty)) {
                 get_rangevector_from_mapcoords(op->map, op->x, op->y, destmap, destx, desty, &local_rv, RV_RECURSIVE_SEARCH | RV_DIAGONAL_DISTANCE);
                 dest_rv = &local_rv;
-            }
-            else {
+            } else {
                 /* We seem to have an invalid path string or offset. */
                 FREE_AND_CLEAR_HASH(waypoint->msg);
                 request_new_path(waypoint);
@@ -363,8 +357,7 @@ void waypoint_move(object *op, object *waypoint)
         waypoint->stats.dam = dest_rv->distance;
         /* Number of times we failed getting closer to (sub)goal */
         waypoint->stats.Str = 0;
-    }
-    else if (waypoint->stats.Str++ > 4) {
+    } else if (waypoint->stats.Str++ > 4) {
         /* Discard the current path, so that we can get a new one */
         FREE_AND_CLEAR_HASH(waypoint->msg);
 

@@ -100,15 +100,12 @@ static void process_func(object *op)
                     /* Clear player's path; they probably can't move there
                      * any more after being pushed, or might not want to. */
                     player_path_clear(CONTR(victim));
-                }
-                else {
+                } else {
                     continue;
                 }
-            }
-            else if (op->stats.hp) {
+            } else if (op->stats.hp) {
                 move_object(victim, dir);
-            }
-            else {
+            } else {
                 continue;
             }
 

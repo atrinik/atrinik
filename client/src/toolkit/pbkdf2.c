@@ -73,8 +73,7 @@ static void sha2_starts( sha2_context *ctx, int is224 )
     ctx->total[0] = 0;
     ctx->total[1] = 0;
 
-    if( is224 == 0 )
-    {
+    if ( is224 == 0 ) {
         /* SHA-256 */
         ctx->state[0] = 0x6A09E667;
         ctx->state[1] = 0xBB67AE85;
@@ -84,9 +83,7 @@ static void sha2_starts( sha2_context *ctx, int is224 )
         ctx->state[5] = 0x9B05688C;
         ctx->state[6] = 0x1F83D9AB;
         ctx->state[7] = 0x5BE0CD19;
-    }
-    else
-    {
+    } else {
         /* SHA-224 */
         ctx->state[0] = 0xC1059ED8;
         ctx->state[1] = 0x367CD507;
@@ -240,8 +237,7 @@ static void sha2_update( sha2_context *ctx, const unsigned char *input, size_t i
     size_t fill;
     unsigned long left;
 
-    if( ilen <= 0 )
-    {
+    if ( ilen <= 0 ) {
         return;
     }
 
@@ -251,38 +247,33 @@ static void sha2_update( sha2_context *ctx, const unsigned char *input, size_t i
     ctx->total[0] += (unsigned long) ilen;
     ctx->total[0] &= 0xFFFFFFFF;
 
-    if( ctx->total[0] < (unsigned long) ilen )
-    {
+    if ( ctx->total[0] < (unsigned long) ilen ) {
         ctx->total[1]++;
     }
 
-    if( left && ilen >= fill )
-    {
+    if ( left && ilen >= fill ) {
         memcpy(ctx->buffer + left,
-               input, fill );
+                input, fill );
         sha2_process( ctx, ctx->buffer );
         input += fill;
         ilen  -= fill;
         left = 0;
     }
 
-    while( ilen >= 64 )
-    {
+    while ( ilen >= 64 ) {
         sha2_process( ctx, input );
         input += 64;
         ilen  -= 64;
     }
 
-    if( ilen > 0 )
-    {
+    if ( ilen > 0 ) {
         memcpy(ctx->buffer + left,
-               input, ilen );
+                input, ilen );
     }
 }
 
-static const unsigned char sha2_padding[64] =
-{
- 0x80, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+static const unsigned char sha2_padding[64] ={
+    0x80, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
@@ -298,7 +289,7 @@ static void sha2_finish( sha2_context *ctx, unsigned char output[32] )
     unsigned char msglen[8];
 
     high = ( ctx->total[0] >> 29 )
-         | ( ctx->total[1] <<  3 );
+            | ( ctx->total[1] <<  3 );
     low  = ( ctx->total[0] <<  3 );
 
     PUT_ULONG_BE( high, msglen, 0 );
@@ -318,7 +309,7 @@ static void sha2_finish( sha2_context *ctx, unsigned char output[32] )
     PUT_ULONG_BE( ctx->state[5], output, 20 );
     PUT_ULONG_BE( ctx->state[6], output, 24 );
 
-    if( ctx->is224 == 0 )
+    if ( ctx->is224 == 0 )
         PUT_ULONG_BE( ctx->state[7], output, 28 );
 }
 
@@ -326,7 +317,7 @@ static void sha2_finish( sha2_context *ctx, unsigned char output[32] )
  * output = SHA-256( input buffer )
  */
 static void sha2( const unsigned char *input, size_t ilen,
-           unsigned char output[32], int is224 )
+        unsigned char output[32], int is224 )
 {
     sha2_context ctx;
 
@@ -341,13 +332,12 @@ static void sha2( const unsigned char *input, size_t ilen,
  * SHA-256 HMAC context setup
  */
 static void sha2_hmac_starts( sha2_context *ctx, const unsigned char *key, size_t keylen,
-                       int is224 )
+        int is224 )
 {
     size_t i;
     unsigned char sum[32];
 
-    if( keylen > 64 )
-    {
+    if ( keylen > 64 ) {
         sha2( key, keylen, sum, is224 );
         keylen = ( is224 ) ? 28 : 32;
         key = sum;
@@ -356,10 +346,9 @@ static void sha2_hmac_starts( sha2_context *ctx, const unsigned char *key, size_
     memset( ctx->ipad, 0x36, 64 );
     memset( ctx->opad, 0x5C, 64 );
 
-    for( i = 0; i < keylen; i++ )
-    {
-        ctx->ipad[i] = (unsigned char)( ctx->ipad[i] ^ key[i] );
-        ctx->opad[i] = (unsigned char)( ctx->opad[i] ^ key[i] );
+    for ( i = 0; i < keylen; i++ ) {
+        ctx->ipad[i] = (unsigned char) ( ctx->ipad[i] ^ key[i] );
+        ctx->opad[i] = (unsigned char) ( ctx->opad[i] ^ key[i] );
     }
 
     sha2_starts( ctx, is224 );
@@ -397,6 +386,7 @@ static void sha2_hmac_finish( sha2_context *ctx, unsigned char output[32] )
 }
 
 #if 0
+
 /*
  * SHA-256 HMAC context reset
  */
@@ -410,8 +400,8 @@ static void sha2_hmac_reset( sha2_context *ctx )
  * output = HMAC-SHA-256( hmac key, input buffer )
  */
 static void sha2_hmac( const unsigned char *key, size_t keylen,
-                const unsigned char *input, size_t ilen,
-                unsigned char output[32], int is224 )
+        const unsigned char *input, size_t ilen,
+        unsigned char output[32], int is224 )
 {
     sha2_context ctx;
 
@@ -428,9 +418,9 @@ static void sha2_hmac( const unsigned char *key, size_t keylen,
 #endif
 
 void PKCS5_PBKDF2_HMAC_SHA2(unsigned char *password, size_t plen,
-    unsigned char *salt, size_t slen,
-    const unsigned long iteration_count, const unsigned long key_length,
-    unsigned char *output)
+        unsigned char *salt, size_t slen,
+        const unsigned long iteration_count, const unsigned long key_length,
+        unsigned char *output)
 {
     sha2_context ctx;
     // Size of the generated digest

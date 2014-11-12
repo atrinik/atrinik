@@ -266,20 +266,17 @@ int popup_handle_event(SDL_Event *event)
             efree(str);
 
             return 1;
-        }
-        else if ((event->type == SDL_MOUSEBUTTONDOWN || event->type == SDL_MOUSEBUTTONUP || event->type == SDL_MOUSEMOTION) && event->motion.x >= popup_head->x && event->motion.x < popup_head->x + texture_surface(popup_head->texture)->w && event->motion.y >= popup_head->y && event->motion.y < popup_head->y + texture_surface(popup_head->texture)->h) {
+        } else if ((event->type == SDL_MOUSEBUTTONDOWN || event->type == SDL_MOUSEBUTTONUP || event->type == SDL_MOUSEMOTION) && event->motion.x >= popup_head->x && event->motion.x < popup_head->x + texture_surface(popup_head->texture)->w && event->motion.y >= popup_head->y && event->motion.y < popup_head->y + texture_surface(popup_head->texture)->h) {
             if (event->type == SDL_MOUSEMOTION) {
                 popup_head->redraw = 1;
 
                 if (event->button.button == SDL_BUTTON_LEFT) {
                     popup_head->selection_started = 1;
                 }
-            }
-            else if (event->button.button == SDL_BUTTON_LEFT) {
+            } else if (event->button.button == SDL_BUTTON_LEFT) {
                 if (event->type == SDL_MOUSEBUTTONUP) {
                     popup_head->selection_started = 0;
-                }
-                else if (event->type == SDL_MOUSEBUTTONDOWN) {
+                } else if (event->type == SDL_MOUSEBUTTONDOWN) {
                     popup_head->selection_started = 0;
                     popup_head->selection_start = -1;
                     popup_head->selection_end = -1;
@@ -304,11 +301,9 @@ int popup_handle_event(SDL_Event *event)
         if (event->key.keysym.sym == SDLK_ESCAPE) {
             popup_destroy(popup_head);
         }
-    }
-    else if ((ret = popup_button_handle_event(&popup_head->button_left, event))) {
+    } else if ((ret = popup_button_handle_event(&popup_head->button_left, event))) {
         return 1;
-    }
-    else if ((ret = popup_button_handle_event(&popup_head->button_right, event))) {
+    } else if ((ret = popup_button_handle_event(&popup_head->button_right, event))) {
         if (ret == 1) {
             popup_destroy(popup_head);
         }

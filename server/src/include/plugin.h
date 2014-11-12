@@ -32,19 +32,19 @@
 #define PLUGIN_H
 
 #ifndef WIN32
-#   include <dlfcn.h>
+#include <dlfcn.h>
 #endif
 
 #undef MODULEAPI
 
 #ifdef WIN32
-#   ifdef PYTHON_PLUGIN_EXPORTS
-#       define MODULEAPI __declspec(dllexport)
-#   else
-#       define MODULEAPI __declspec(dllimport)
-#   endif
+#ifdef PYTHON_PLUGIN_EXPORTS
+#define MODULEAPI __declspec(dllexport)
 #else
-#   define MODULEAPI
+#define MODULEAPI __declspec(dllimport)
+#endif
+#else
+#define MODULEAPI
 #endif
 
 /**
@@ -171,8 +171,7 @@
  *
  * If you need a function or variable from server accessed by a plugin,
  * add it here and to ::hooklist in plugins.c. */
-struct plugin_hooklist
-{
+struct plugin_hooklist {
     char *(*query_name)(object *, object *);
     const char *(*re_cmp)(const char *, const char *);
     object *(*present_in_ob)(unsigned char, object *);
@@ -200,14 +199,14 @@ struct plugin_hooklist
     void (*esrv_send_inventory)(object *, object *);
     object *(*get_archetype)(const char *);
     mapstruct *(*ready_map_name)(const char *, int);
-    sint64 (*add_exp)(object *, sint64, int, int);
+    sint64(*add_exp)(object *, sint64, int, int);
     const char *(*determine_god)(object *);
     object *(*find_god)(const char *);
     void (*register_global_event)(const char *, int);
     void (*unregister_global_event)(const char *, int);
     object *(*load_object_str)(char *);
-    sint64 (*query_cost)(object *, object *, int);
-    sint64 (*query_money)(object *);
+    sint64(*query_cost)(object *, object *, int);
+    sint64(*query_money)(object *);
     int (*pay_for_item)(object *, object *);
     int (*pay_for_amount)(sint64, object *);
     object *(*object_create_clone)(object *);
@@ -223,7 +222,7 @@ struct plugin_hooklist
     char *(*cost_string_from_value)(sint64);
     int (*bank_deposit)(object *, const char *, sint64 *value);
     int (*bank_withdraw)(object *, const char *, sint64 *value);
-    sint64 (*bank_get_balance)(object *);
+    sint64(*bank_get_balance)(object *);
     int (*swap_apartments)(const char *, const char *, int, int, object *);
     int (*player_exists)(const char *);
     void (*get_tod)(timeofday_t *);
@@ -287,7 +286,7 @@ struct plugin_hooklist
     void (*packet_compress)(packet_struct *);
     void (*packet_enable_ndelay)(packet_struct *);
     void (*packet_set_pos)(packet_struct *, size_t);
-    size_t (*packet_get_pos)(packet_struct *);
+    size_t(*packet_get_pos)(packet_struct *);
     void (*packet_merge)(packet_struct *, packet_struct *);
     void (*packet_append_uint8)(packet_struct *, uint8);
     void (*packet_append_sint8)(packet_struct *, sint8);
@@ -305,7 +304,7 @@ struct plugin_hooklist
     void (*packet_append_map_weather)(packet_struct *, object *, object *);
     void (*socket_send_packet)(socket_struct *, packet_struct *);
     void (*logger_print)(logger_level, const char *, uint64, const char *, ...);
-    logger_level (*logger_get_level)(const char *);
+    logger_level(*logger_get_level)(const char *);
     void (*commands_add)(const char *, command_func, double, uint64);
     int (*map_get_darkness)(mapstruct *, int, int, object **);
     char *(*map_get_path)(mapstruct *, const char *, uint8, const char *);
@@ -315,7 +314,7 @@ struct plugin_hooklist
     char *(*string_join)(const char *delim, ...);
     object *(*get_env_recursive)(object *);
     int (*set_variable)(object *, const char *);
-    uint64 (*level_exp)(int, double);
+    uint64(*level_exp)(int, double);
     int (*string_endswith)(const char *, const char *);
     char *(*string_sub)(const char *, ssize_t, ssize_t);
     char *(*path_join)(const char *, const char *);
@@ -359,28 +358,27 @@ typedef void *(*f_plug_pinit)(void);
 
 #ifndef WIN32
 /** Library handle. */
-#   define LIBPTRTYPE void *
+#define LIBPTRTYPE void *
 /** Load a shared library. */
-#   define plugins_dlopen(fname) dlopen(fname, RTLD_NOW | RTLD_GLOBAL)
+#define plugins_dlopen(fname) dlopen(fname, RTLD_NOW | RTLD_GLOBAL)
 /** Unload a shared library. */
-#   define plugins_dlclose(lib) dlclose(lib)
+#define plugins_dlclose(lib) dlclose(lib)
 /** Get a function from a shared library. */
-#   define plugins_dlsym(lib, name) dlsym(lib, name)
+#define plugins_dlsym(lib, name) dlsym(lib, name)
 /** Library error. */
-#   define plugins_dlerror() dlerror()
+#define plugins_dlerror() dlerror()
 #else
-#   define LIBPTRTYPE HMODULE
-#   define plugins_dlopen(fname) LoadLibrary(fname)
-#   define plugins_dlclose(lib) FreeLibrary(lib)
-#   define plugins_dlsym(lib, name) GetProcAddress(lib, name)
+#define LIBPTRTYPE HMODULE
+#define plugins_dlopen(fname) LoadLibrary(fname)
+#define plugins_dlclose(lib) FreeLibrary(lib)
+#define plugins_dlsym(lib, name) GetProcAddress(lib, name)
 #endif
 
 /** Check if the specified filename is a plugin file. */
 #define FILENAME_IS_PLUGIN(_path) (strstr((_path), "plugin_") && !strcmp((_path) + strlen((_path)) - strlen(PLUGIN_SUFFIX), PLUGIN_SUFFIX))
 
 /** One loaded plugin. */
-typedef struct atrinik_plugin
-{
+typedef struct atrinik_plugin {
     /** Event handler function. */
     f_plug_api eventfunc;
 

@@ -29,8 +29,7 @@
 #ifndef EVENT_H
 #define EVENT_H
 
-enum
-{
+enum {
     DRAG_GET_STATUS = -1,
     DRAG_NONE,
     DRAG_QUICKSLOT,
@@ -44,8 +43,7 @@ typedef void (*event_drag_cb_fnc)(void);
 
 /**
  * Key information. */
-typedef struct key_struct
-{
+typedef struct key_struct {
     /** If 1, the key is pressed. */
     uint8 pressed;
 

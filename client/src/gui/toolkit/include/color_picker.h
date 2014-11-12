@@ -31,8 +31,7 @@
 #ifndef COLOR_PICKER_H
 #define COLOR_PICKER_H
 
-enum
-{
+enum {
     /**
      * The color chooser. */
     COLOR_PICKER_ELEM_COLOR,
@@ -47,8 +46,7 @@ enum
 
 /**
  * One color picker element. */
-typedef struct color_picker_element_struct
-{
+typedef struct color_picker_element_struct {
     /**
      * Dimensions. */
     SDL_Rect coords;
@@ -60,8 +58,7 @@ typedef struct color_picker_element_struct
 
 /**
  * Color picker structure. */
-typedef struct color_picker_struct
-{
+typedef struct color_picker_struct {
     /**
      * X position of the color picker. */
     int x;

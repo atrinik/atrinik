@@ -36,8 +36,7 @@
  *
  * Used to determine where to put item sprites on the player doll.
  */
-static int player_doll_positions[PLAYER_EQUIP_MAX][2] =
-{
+static int player_doll_positions[PLAYER_EQUIP_MAX][2] ={
     {22, 44},
     {22, 6},
     {22, 82},

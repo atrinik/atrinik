@@ -152,8 +152,7 @@ void swap_map(mapstruct *map, int force_flag)
          * free the objects with it. */
         map->in_memory = MAP_IN_MEMORY;
         delete_map(map);
-    }
-    else {
+    } else {
         free_map(map, 1);
     }
 }
@@ -210,11 +209,10 @@ void flush_old_maps(void)
             m = m->next;
             delete_map(oldmap);
         }
-        /* No need to flush them if there are no resets */
         else if (m->in_memory != MAP_SWAPPED || m->tmpname == NULL || (uint32) sec < m->reset_time) {
+            /* No need to flush them if there are no resets */
             m = m->next;
-        }
-        else {
+        } else {
             if (m->events) {
                 /* Trigger the map reset event */
                 trigger_map_event(MEVENT_RESET, m, NULL, NULL, NULL, m->path, 0);

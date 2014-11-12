@@ -37,8 +37,7 @@ void command_resetmap(object *op, const char *command, char *params)
 
     if (!params) {
         m = op->map;
-    }
-    else {
+    } else {
         shstr *mapfile_sh;
 
         mapfile_sh = add_string(params);

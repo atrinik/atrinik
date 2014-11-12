@@ -41,6 +41,7 @@ static uint8 did_init = 0;
  * @internal */
 void toolkit_porting_init(void)
 {
+
     TOOLKIT_INIT_FUNC_START(porting)
     {
     }
@@ -52,6 +53,7 @@ void toolkit_porting_init(void)
  * @internal */
 void toolkit_porting_deinit(void)
 {
+
     TOOLKIT_DEINIT_FUNC_START(porting)
     {
     }
@@ -60,7 +62,8 @@ void toolkit_porting_deinit(void)
 
 #ifndef __CPROTO__
 
-#   ifndef HAVE_STRTOK_R
+#ifndef HAVE_STRTOK_R
+
 /**
  * Re-entrant string tokenizer; glibc version, licensed under GNU LGPL
  * version 2.1. */
@@ -87,8 +90,7 @@ char *strtok_r(char *s, const char *delim, char **save_ptr)
     if (s == NULL) {
         /* This token finishes the string.  */
         *save_ptr = strchr(token, '\0');
-    }
-    else {
+    } else {
         /* Terminate the token and make *SAVE_PTR point past it.  */
         *s = '\0';
         *save_ptr = s + 1;
@@ -96,9 +98,9 @@ char *strtok_r(char *s, const char *delim, char **save_ptr)
 
     return token;
 }
-#   endif
+#endif
 
-#   ifndef HAVE_TEMPNAM
+#ifndef HAVE_TEMPNAM
 static uint32 curtmp = 0;
 
 char *tempnam(const char *dir, const char *pfx)
@@ -119,21 +121,20 @@ char *tempnam(const char *dir, const char *pfx)
             return NULL;
         }
 
-        do
-        {
+        do {
             snprintf(name, MAXPATHLEN, "%s/%s%hx.%d", dir, pfx, pid, curtmp);
             curtmp++;
-        }
-        while (access(name, F_OK) != -1);
+        }        while (access(name, F_OK) != -1);
 
         return name;
     }
 
     return NULL;
 }
-#   endif
+#endif
 
-#   ifndef HAVE_STRDUP
+#ifndef HAVE_STRDUP
+
 char *strdup(const char *s)
 {
     size_t len = strlen(s) + 1;
@@ -145,9 +146,10 @@ char *strdup(const char *s)
 
     return (char *) memcpy(new, s, len);
 }
-#   endif
+#endif
 
-#   ifndef HAVE_STRNDUP
+#ifndef HAVE_STRNDUP
+
 char *strndup(const char *s, size_t n)
 {
     size_t len;
@@ -169,16 +171,18 @@ char *strndup(const char *s, size_t n)
 
     return (char *) memcpy(new, s, len);
 }
-#   endif
+#endif
 
-#   ifndef HAVE_STRERROR
+#ifndef HAVE_STRERROR
+
 char *strerror(int errnum)
 {
     return "";
 }
 #endif
 
-#   ifndef HAVE_STRCASESTR
+#ifndef HAVE_STRCASESTR
+
 const char *strcasestr(const char *haystack, const char *needle)
 {
     char c, sc;
@@ -188,26 +192,23 @@ const char *strcasestr(const char *haystack, const char *needle)
         c = tolower(c);
         len = strlen(needle);
 
-        do
-        {
-            do
-            {
+        do {
+            do {
                 if ((sc = *haystack++) == 0) {
                     return NULL;
                 }
-            }
-            while (tolower(sc) != c);
-        }
-        while (strncasecmp(haystack, needle, len) != 0);
+            }            while (tolower(sc) != c);
+        }        while (strncasecmp(haystack, needle, len) != 0);
 
         haystack--;
     }
 
     return haystack;
 }
-#   endif
+#endif
 
-#   ifndef HAVE_GETTIMEOFDAY
+#ifndef HAVE_GETTIMEOFDAY
+
 int gettimeofday(struct timeval *tv, struct timezone *tz)
 {
 #ifdef WIN32
@@ -215,9 +216,9 @@ int gettimeofday(struct timeval *tv, struct timezone *tz)
     unsigned __int64 res;
 
 #if defined(_MSC_VER) || defined(_MSC_EXTENSIONS)
-#   define DELTA_EPOCH 11644473600000000Ui64
+#define DELTA_EPOCH 11644473600000000Ui64
 #else
-#   define DELTA_EPOCH 11644473600000000ULL
+#define DELTA_EPOCH 11644473600000000ULL
 #endif
 
     GetSystemTimeAsFileTime(&time);
@@ -241,9 +242,10 @@ int gettimeofday(struct timeval *tv, struct timezone *tz)
     return 0;
 #endif
 }
-#   endif
+#endif
 
-#   ifndef HAVE_GETLINE
+#ifndef HAVE_GETLINE
+
 ssize_t getline(char **lineptr, size_t *n, FILE *stream)
 {
     char *buf;
@@ -300,9 +302,10 @@ ssize_t getline(char **lineptr, size_t *n, FILE *stream)
 
     return numread;
 }
-#   endif
+#endif
 
-#   ifndef HAVE_USLEEP
+#ifndef HAVE_USLEEP
+
 int usleep(uint32 usec)
 {
     struct timeval tv1, tv2;
@@ -311,19 +314,18 @@ int usleep(uint32 usec)
         return -1;
     }
 
-    do
-    {
+    do {
         if (gettimeofday(&tv2, NULL) != 0) {
             return -1;
         }
-    }
-    while ((tv2.tv_usec - tv1.tv_usec) < usec);
+    }    while ((tv2.tv_usec - tv1.tv_usec) < usec);
 
     return 0;
 }
-#   endif
+#endif
 
-#   ifndef HAVE_STRNLEN
+#ifndef HAVE_STRNLEN
+
 size_t strnlen(const char *s, size_t max)
 {
     const char *p;
@@ -333,6 +335,6 @@ size_t strnlen(const char *s, size_t max)
 
     return p - s;
 }
-#   endif
+#endif
 
 #endif

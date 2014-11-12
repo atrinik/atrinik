@@ -53,13 +53,12 @@ static void process_func(object *op)
     if (op->stats.hp) {
         if (basedir & 1) {
             adjustdir = cardinal_adjust[rndm(0, 8)];
-        }
-        else {
+        } else {
             adjustdir = diagonal_adjust[rndm(0, 9)];
         }
     }
-    /* Fire the last one from forward. */
     else {
+        /* Fire the last one from forward. */
         adjustdir = 0;
     }
 

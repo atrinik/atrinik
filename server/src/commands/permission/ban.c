@@ -51,24 +51,20 @@ void command_ban(object *op, const char *command, char *params)
 
         if (add_ban(params)) {
             draw_info(COLOR_GREEN, op, "Added new ban successfully.");
-        }
-        else {
+        } else {
             draw_info(COLOR_RED, op, "Failed to add new ban!");
         }
-    }
-    else if (strcmp(word, "remove") == 0) {
+    } else if (strcmp(word, "remove") == 0) {
         if (!params) {
             return;
         }
 
         if (remove_ban(params)) {
             draw_info(COLOR_GREEN, op, "Removed ban successfully.");
-        }
-        else {
+        } else {
             draw_info(COLOR_RED, op, "Failed to remove ban!");
         }
-    }
-    else if (strcmp(word, "list") == 0) {
+    } else if (strcmp(word, "list") == 0) {
         list_bans(op);
     }
 }

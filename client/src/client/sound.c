@@ -66,7 +66,7 @@ static int sound_background_volume;
 static sound_data_struct *sound_data;
 /**
  * Hook function calle whenever ::sound_background changes its value. */
-static void (*sound_background_hook)(void);
+static void (*sound_background_hook)(void) ;
 
 /**
  * Execute the ::sound_background_hook callback. */
@@ -102,17 +102,17 @@ static sound_data_struct *sound_new(int type, const char *filename, void *data)
 static void sound_free(sound_data_struct *tmp)
 {
     switch (tmp->type) {
-        case SOUND_TYPE_CHUNK:
-            Mix_FreeChunk(tmp->data);
-            break;
+    case SOUND_TYPE_CHUNK:
+        Mix_FreeChunk(tmp->data);
+        break;
 
-        case SOUND_TYPE_MUSIC:
-            Mix_FreeMusic(tmp->data);
-            break;
+    case SOUND_TYPE_MUSIC:
+        Mix_FreeMusic(tmp->data);
+        break;
 
-        default:
-            logger_print(LOG(BUG), "Trying to free sound with unknown type: %d.", tmp->type);
-            break;
+    default:
+        logger_print(LOG(BUG), "Trying to free sound with unknown type: %d.", tmp->type);
+        break;
     }
 
     efree(tmp->filename);
@@ -452,8 +452,7 @@ void update_map_bg_music(const char *bg_music)
 
     if (!strcmp(bg_music, "no_music")) {
         sound_stop_bg_music();
-    }
-    else {
+    } else {
         int loop = -1, vol = 0;
         char filename[MAX_BUF];
 
@@ -485,9 +484,8 @@ void sound_update_volume(void)
             if (!Mix_PausedMusic()) {
                 sound_pause_music();
             }
-        }
-        /* Non-zero and already paused, so resume the music. */
-        else if (Mix_PausedMusic()) {
+        } else if (Mix_PausedMusic()) {
+            /* Non-zero and already paused, so resume the music. */
             sound_resume_music();
         }
     }
@@ -527,8 +525,7 @@ uint8 sound_map_background(int val)
 {
     if (val == -1) {
         return sound_map_background_disabled;
-    }
-    else {
+    } else {
         sound_map_background_disabled = val;
         return val;
     }
@@ -562,13 +559,13 @@ int sound_music_can_seek(void)
 
 #ifdef HAVE_SDL_MIXER
     switch (Mix_GetMusicType(NULL)) {
-        case MUS_OGG:
-        case MUS_MP3:
-        case MUS_MP3_MAD:
-            return 1;
+    case MUS_OGG:
+    case MUS_MP3:
+    case MUS_MP3_MAD:
+        return 1;
 
-        default:
-            break;
+    default:
+        break;
     }
 #endif
 
@@ -644,16 +641,13 @@ void socket_command_sound(uint8 *data, size_t len, size_t pos)
             Mix_SetPosition(channel, angle, distance);
 #endif
         }
-    }
-    else if (type == CMD_SOUND_BACKGROUND) {
+    } else if (type == CMD_SOUND_BACKGROUND) {
         if (!sound_map_background_disabled) {
             sound_start_bg_music(filename, setting_get_int(OPT_CAT_SOUND, OPT_VOLUME_MUSIC) + volume, loop);
         }
-    }
-    else if (type == CMD_SOUND_ABSOLUTE) {
+    } else if (type == CMD_SOUND_ABSOLUTE) {
         sound_add_effect(filename, volume, loop);
-    }
-    else {
+    } else {
         logger_print(LOG(BUG), "Invalid sound type: %d", type);
         return;
     }
@@ -763,6 +757,7 @@ void socket_command_sound_ambient(uint8 *data, size_t len, size_t pos)
         /* If there is an old tag, the server is telling us to stop
          * playing a sound effect. */
         if (tag_old) {
+
             DL_FOREACH(sound_ambient_head, sound_ambient)
             {
                 if (sound_ambient->tag == tag_old) {

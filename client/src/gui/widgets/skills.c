@@ -30,13 +30,12 @@
 
 #include <global.h>
 
-enum
-{
+enum {
     BUTTON_CLOSE,
     BUTTON_HELP,
 
     BUTTON_NUM
-};
+} ;
 
 /**
  * Button buffer. */
@@ -184,8 +183,7 @@ void skills_update(object *op, uint8 level, sint64 xp)
 
     if (skill_find_object(op, &skill_id)) {
         skill = skill_get(skill_id);
-    }
-    else {
+    } else {
         skill = ecalloc(1, sizeof(*skill));
         skill->skill = op;
 
@@ -311,8 +309,7 @@ static int widget_event(widgetdata *widget, SDL_Event *event)
                     widget->redraw = 1;
                     return 1;
                 }
-            }
-            else if (event->type == SDL_MOUSEBUTTONDOWN) {
+            } else if (event->type == SDL_MOUSEBUTTONDOWN) {
                 event_dragging_start(skill_list[skill_id]->skill->tag, event->motion.x, event->motion.y);
                 return 1;
             }
@@ -330,13 +327,13 @@ static int widget_event(widgetdata *widget, SDL_Event *event)
     for (i = 0; i < BUTTON_NUM; i++) {
         if (button_event(&buttons[i], event)) {
             switch (i) {
-                case BUTTON_CLOSE:
-                    widget->show = 0;
-                    break;
+            case BUTTON_CLOSE:
+                widget->show = 0;
+                break;
 
-                case BUTTON_HELP:
-                    help_show("skill list");
-                    break;
+            case BUTTON_HELP:
+                help_show("skill list");
+                break;
             }
 
             widget->redraw = 1;

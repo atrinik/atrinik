@@ -57,9 +57,9 @@ static int searched_nodes = 0;
 static int pathfinder_queue_first = 0;
 /** Last in the queue. */
 static int pathfinder_queue_last = 0;
+
 /** The pathfinder queue. */
-static struct
-{
+static struct {
     /** Waypoint object. */
     object *waypoint;
 
@@ -146,8 +146,7 @@ object *get_next_requested_path(void)
     object *waypoint;
     tag_t count;
 
-    do
-    {
+    do {
         waypoint = pathfinder_queue_dequeue((void *) &count);
 
         if (waypoint == NULL) {
@@ -158,8 +157,7 @@ object *get_next_requested_path(void)
         if (!OBJECT_VALID(waypoint, count) || !OBJECT_VALID(waypoint->owner, waypoint->ownercount) || !(QUERY_FLAG(waypoint, FLAG_CURSED) || QUERY_FLAG(waypoint, FLAG_DAMNED)) || (QUERY_FLAG(waypoint, FLAG_DAMNED) && !OBJECT_VALID(waypoint->enemy, waypoint->enemy_count))) {
             waypoint = NULL;
         }
-    }
-    while (waypoint == NULL);
+    }    while (waypoint == NULL);
 
 #ifdef DEBUG_PATHFINDING
     logger_print(LOG(DEBUG), "dequeued '%s' -> '%s'", waypoint->owner->name, waypoint->name);
@@ -211,8 +209,7 @@ static void remove_node(path_node *node, path_node **list)
 {
     if (node->prev) {
         node->prev->next = node->next;
-    }
-    else {
+    } else {
         *list = node->next;
     }
 
@@ -262,14 +259,14 @@ static void insert_priority_node(path_node *node, path_node **list)
     if (insert_before == *list) {
         insert_node(node, list);
     }
-    /* Insert last */
     else if (!insert_before) {
+        /* Insert last */
         node->next = NULL;
         node->prev = last;
         last->next = node;
     }
-    /* Insert in middle */
     else {
+        /* Insert in middle */
         node->next = insert_before;
         node->prev = insert_before->prev;
         insert_before->prev = node;
@@ -465,14 +462,13 @@ path_node *compress_path(path_node *path)
 #ifdef DEBUG_PATHFINDING
             removed_nodes++;
 #endif
-        }
-        else {
+        } else {
             last_dir = v.direction;
         }
     }
 
 #ifdef DEBUG_PATHFINDING
-    logger_print(LOG(DEBUG), "removed %d nodes of %d (%.0f%%)", removed_nodes, total_nodes, (float)removed_nodes * 100.0 / (float)total_nodes);
+    logger_print(LOG(DEBUG), "removed %d nodes of %d (%.0f%%)", removed_nodes, total_nodes, (float) removed_nodes * 100.0 / (float) total_nodes);
 #endif
 
     return path;
@@ -504,8 +500,7 @@ static float distance_heuristic(path_node *start, path_node *current, path_node 
         v1.distance_x = current->x - goal->x;
         v1.distance_y = current->y - goal->y;
         v1.distance = MAX(abs(v1.distance_x), abs(v1.distance_y));
-    }
-    else {
+    } else {
         if (!get_rangevector_from_mapcoords(current->map, current->x, current->y, goal->map, goal->x, goal->y, &v1, RV_RECURSIVE_SEARCH | RV_DIAGONAL_DISTANCE)) {
             return HEURISTIC_ERROR;
         }
@@ -519,8 +514,7 @@ static float distance_heuristic(path_node *start, path_node *current, path_node 
         /* Avoid a function call in simple case */
         v2.distance_x = start->x - goal->x;
         v2.distance_y = start->y - goal->y;
-    }
-    else {
+    } else {
         if (!get_rangevector_from_mapcoords(start->map, start->x, start->y, goal->map, goal->x, goal->y, &v2, RV_RECURSIVE_SEARCH | RV_NO_DISTANCE)) {
             return HEURISTIC_ERROR;
         }
@@ -563,12 +557,11 @@ static int find_neighbours(path_node *node, path_node **open_list, path_node *st
             if (op->type == PLAYER && CONTR(op)->tcl) {
                 block = 0;
             }
-            /* Multi-arch or not? (blocked_link_2 works for normal archs too,
-             * but is more expensive) */
             else if (op->head || op->more) {
+                /* Multi-arch or not? (blocked_link_2 works for normal archs too,
+                 * but is more expensive) */
                 block = blocked_link_2(op, map, x2, y2);
-            }
-            else {
+            } else {
                 block = blocked(op, map, x2, y2, op->terrain_flag);
 
                 /* Check for possible door opening */
@@ -580,7 +573,7 @@ static int find_neighbours(path_node *node, path_node **open_list, path_node *st
             if (!block) {
                 path_node *new_node;
 
-                if ((new_node = make_node(map, (sint16)x2, (sint16)y2, (uint16)(node->cost + 1), node))) {
+                if ((new_node = make_node(map, (sint16) x2, (sint16) y2, (uint16) (node->cost + 1), node))) {
                     new_node->heuristic = distance_heuristic(start, new_node, goal);
 
                     if (new_node->heuristic == HEURISTIC_ERROR) {
@@ -588,8 +581,7 @@ static int find_neighbours(path_node *node, path_node **open_list, path_node *st
                     }
 
                     insert_priority_node(new_node, open_list);
-                }
-                else {
+                } else {
                     return 0;
                 }
             }
@@ -649,7 +641,7 @@ path_node *find_path(object *op, mapstruct *map1, int x, int y, mapstruct *map2,
     goal.map = map2;
 
     /* The initial tile */
-    open_list = make_node(map1, (sint16)x, (sint16)y, 0, NULL);
+    open_list = make_node(map1, (sint16) x, (sint16) y, 0, NULL);
     open_list->heuristic = distance_heuristic(&start, open_list, &goal);
     closed_list = NULL;
     SET_MAP_TILE_VISITED(map1, x, y, traversal_id);
@@ -673,8 +665,7 @@ path_node *find_path(object *op, mapstruct *map1, int x, int y, mapstruct *map2,
             }
 
             break;
-        }
-        else {
+        } else {
             if (!find_neighbours(tmp, &open_list, &start, &goal, op, traversal_id)) {
                 break;
             }

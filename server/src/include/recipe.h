@@ -30,8 +30,7 @@
 #define RECIPE_H
 
 /** Recipe structure */
-typedef struct recipestruct
-{
+typedef struct recipestruct {
     /** Distinguishing name of product */
     const char *title;
 
@@ -65,8 +64,7 @@ typedef struct recipestruct
 } recipe;
 
 /** Recipe list structure */
-typedef struct recipeliststruct
-{
+typedef struct recipeliststruct {
     /** Total chance */
     int total_chance;
 

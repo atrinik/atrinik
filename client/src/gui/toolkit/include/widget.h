@@ -33,8 +33,7 @@
 /*#define DEBUG_WIDGET*/
 
 /** Information about a widget. */
-typedef struct widgetdata
-{
+typedef struct widgetdata {
     /** Widget name. */
     char *name;
 
@@ -148,8 +147,7 @@ typedef struct widgetdata
 
 /** Information about a widget container. Containers can hold widgets inside
  * them. */
-typedef struct _widget_container
-{
+typedef struct _widget_container {
     /** What type of widget this widget can hold, set to -1 to hold all types of
      * widgets. */
     int widget_type;
@@ -194,8 +192,7 @@ typedef struct _widget_container
     void *subcontainer;
 } _widget_container;
 
-typedef struct _widget_label
-{
+typedef struct _widget_label {
     /** The string used in the label. */
     char *text;
 
@@ -206,14 +203,12 @@ typedef struct _widget_label
     const char *color;
 } _widget_label;
 
-typedef struct _widget_texture
-{
+typedef struct _widget_texture {
     /** The texture. */
     texture_struct *texture;
 } _widget_texture;
 
-typedef struct widget_input_struct
-{
+typedef struct widget_input_struct {
     text_input_struct text_input;
 
     text_input_history_struct *text_input_history;
@@ -223,15 +218,13 @@ typedef struct widget_input_struct
     char prepend_text[MAX_BUF];
 } widget_input_struct;
 
-typedef struct widget_stat_struct
-{
+typedef struct widget_stat_struct {
     char *texture;
 } widget_stat_struct;
 
 /** A more specialized kind of container, where widgets snap into it when
  * inserted, and where widgets are sorted into rows and columns. */
-typedef struct _widget_container_strip
-{
+typedef struct _widget_container_strip {
     /** The space between the widgets inside in relation to each other. */
     int inner_padding;
 
@@ -247,8 +240,7 @@ typedef struct _widget_container_strip
 
 /** A menu. This is a special strip container that contains the menuitems
  * inside. */
-typedef struct _menu
-{
+typedef struct _menu {
     /** Pointer to a submenu from one of the menuitems that is stored when the
      * submenu is open. */
     widgetdata *submenu;
@@ -263,8 +255,7 @@ typedef struct _menu
  * It is a special strip container that contains the string inside.
  * This allows the menu to detect how long the string is so that it can resize
  * itself to fit it on the fly. */
-typedef struct _menuitem
-{
+typedef struct _menuitem {
     /** Pointer to the function that performs the relevant operation when the
      * menuitem is clicked. */
     void (*menu_func_ptr)(widgetdata *, widgetdata *, SDL_Event *event);
@@ -276,16 +267,14 @@ typedef struct _menuitem
 } _menuitem;
 
 /** A mouse event. */
-enum _MEvent
-{
+enum _MEvent {
     MOUSE_UP = 1,
     MOUSE_DOWN,
     MOUSE_MOVE
 };
 
 /** The widget type IDs. */
-typedef enum WidgetID
-{
+typedef enum WidgetID {
     MAP_ID,
     STAT_ID,
     MENU_B_ID,
@@ -315,8 +304,7 @@ typedef enum WidgetID
 } WidgetID;
 
 /** The widget subtype IDs. These are derived from base widgets. */
-enum
-{
+enum {
     /** First element must be equal to TOTAL_WIDGETS. */
     CONTAINER_STRIP_ID = TOTAL_WIDGETS,
     MENU_ID,
@@ -327,8 +315,7 @@ enum
 };
 
 /** Widget resize flags. */
-enum
-{
+enum {
     RESIZE_LEFT = 1,
     RESIZE_TOP = 2,
     RESIZE_RIGHT = 4,
@@ -340,16 +327,14 @@ enum
 };
 
 /** Menu types. */
-enum
-{
+enum {
     MENU_NORMAL,
     MENU_SUBMENU,
     MENU_CHECKBOX,
     MENU_RADIO
 };
 
-enum
-{
+enum {
     WIDGET_TEXTURE_TYPE_NONE,
     WIDGET_TEXTURE_TYPE_NORMAL,
 
@@ -357,8 +342,7 @@ enum
 };
 
 /** Used for mouse button/move events */
-typedef struct widgetevent
-{
+typedef struct widgetevent {
     /** The widget involved in the mouse event. */
     widgetdata *owner;
 
@@ -370,8 +354,7 @@ typedef struct widgetevent
 } widgetevent;
 
 /** This is used when moving a widget with the mouse. */
-typedef struct widgetmove
-{
+typedef struct widgetmove {
     /** Is the widget active? */
     int active;
 
@@ -386,8 +369,7 @@ typedef struct widgetmove
 } widgetmove;
 
 /** This is used when resizing a widget with the mouse. */
-typedef struct widgetresize
-{
+typedef struct widgetresize {
     /** Is the widget active? */
     int active;
 

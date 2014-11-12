@@ -47,8 +47,7 @@ void command_server_chat(object *op, const char *command, char *params)
     for (pl = first_player; pl; pl = pl->next) {
         if (commands_check_permission(pl, command)) {
             snprintf(name, sizeof(name), "[Server] ([a=#charname]%s[/a])", op->name);
-        }
-        else {
+        } else {
             strncpy(name, "[Server]", sizeof(name) - 1);
             name[sizeof(name) - 1] = '\0';
         }

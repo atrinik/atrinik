@@ -132,11 +132,9 @@ int Event_PollInputDevice(void)
                 keys[event.key.keysym.sym].pressed = 1;
                 keys[event.key.keysym.sym].time = LastTick + KEY_REPEAT_TIME_INIT;
             }
-        }
-        else if (event.type == SDL_KEYUP) {
+        } else if (event.type == SDL_KEYUP) {
             keys[event.key.keysym.sym].pressed = 0;
-        }
-        else if (event.type == SDL_MOUSEMOTION) {
+        } else if (event.type == SDL_MOUSEMOTION) {
             tooltip_dismiss();
         }
 
@@ -147,59 +145,58 @@ int Event_PollInputDevice(void)
 
         switch (event.type) {
             /* Screen has been resized, update screen size. */
-            case SDL_VIDEORESIZE:
-                ScreenSurface = SDL_SetVideoMode(event.resize.w, event.resize.h, video_get_bpp(), get_video_flags());
+        case SDL_VIDEORESIZE:
+            ScreenSurface = SDL_SetVideoMode(event.resize.w, event.resize.h, video_get_bpp(), get_video_flags());
 
-                if (!ScreenSurface) {
-                    logger_print(LOG(ERROR), "Unable to grab surface after resize event: %s", SDL_GetError());
-                    exit(1);
-                }
+            if (!ScreenSurface) {
+                logger_print(LOG(ERROR), "Unable to grab surface after resize event: %s", SDL_GetError());
+                exit(1);
+            }
 
-                /* Set resolution to custom. */
-                setting_set_int(OPT_CAT_CLIENT, OPT_RESOLUTION, 0);
-                resize_window(event.resize.w, event.resize.h);
+            /* Set resolution to custom. */
+            setting_set_int(OPT_CAT_CLIENT, OPT_RESOLUTION, 0);
+            resize_window(event.resize.w, event.resize.h);
+            break;
+
+        case SDL_MOUSEBUTTONDOWN:
+        case SDL_MOUSEBUTTONUP:
+        case SDL_MOUSEMOTION:
+        case SDL_KEYUP:
+        case SDL_KEYDOWN:
+
+            if (event.type == SDL_MOUSEMOTION) {
+                cursor_x = x;
+                cursor_y = y;
+                cursor_texture = texture_get(TEXTURE_TYPE_CLIENT, "cursor_default");
+            }
+
+            if (popup_handle_event(&event)) {
                 break;
+            }
 
-            case SDL_MOUSEBUTTONDOWN:
-            case SDL_MOUSEBUTTONUP:
-            case SDL_MOUSEMOTION:
-            case SDL_KEYUP:
-            case SDL_KEYDOWN:
-
-                if (event.type == SDL_MOUSEMOTION) {
-                    cursor_x = x;
-                    cursor_y = y;
-                    cursor_texture = texture_get(TEXTURE_TYPE_CLIENT, "cursor_default");
-                }
-
-                if (popup_handle_event(&event)) {
-                    break;
-                }
-
-                if (event_dragging_check() && event.type != SDL_MOUSEBUTTONUP) {
-                    break;
-                }
-
-                if (cpl.state <= ST_WAITFORPLAY && intro_event(&event)) {
-                    break;
-                }
-                else if (cpl.state == ST_PLAY && widgets_event(&event)) {
-                    break;
-                }
-
-                if (cpl.state == ST_PLAY && (event.type == SDL_KEYDOWN || event.type == SDL_KEYUP)) {
-                    key_handle_event(&event.key);
-                    break;
-                }
-
+            if (event_dragging_check() && event.type != SDL_MOUSEBUTTONUP) {
                 break;
+            }
 
-            case SDL_QUIT:
-                done = 1;
+            if (cpl.state <= ST_WAITFORPLAY && intro_event(&event)) {
                 break;
+            } else if (cpl.state == ST_PLAY && widgets_event(&event)) {
+                break;
+            }
 
-            default:
+            if (cpl.state == ST_PLAY && (event.type == SDL_KEYDOWN || event.type == SDL_KEYUP)) {
+                key_handle_event(&event.key);
                 break;
+            }
+
+            break;
+
+        case SDL_QUIT:
+            done = 1;
+            break;
+
+        default:
+            break;
         }
 
         if (event.type == SDL_MOUSEBUTTONUP) {

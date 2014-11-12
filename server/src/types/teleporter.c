@@ -53,23 +53,20 @@ static void process_func(object *op)
 
             if (ret == 1) {
                 return;
-            }
-            else if (ret == 2) {
+            } else if (ret == 2) {
                 continue;
             }
         }
 
         if (EXIT_PATH(op)) {
             object_enter_map(tmp, op, NULL, 0, 0, 0);
-        }
-        else if (EXIT_X(op) != -1 && EXIT_Y(op) != -1) {
+        } else if (EXIT_X(op) != -1 && EXIT_Y(op) != -1) {
             if (OUT_OF_MAP(op->map, EXIT_X(op), EXIT_Y(op))) {
                 return;
             }
 
             transfer_ob(tmp, EXIT_X(op), EXIT_Y(op), 0, op, NULL);
-        }
-        else {
+        } else {
             teleport(op, TELEPORTER, tmp);
         }
     }

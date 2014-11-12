@@ -36,8 +36,7 @@ static void process_func(object *op)
     if (op->env && op->env->map && op->env->type == PLAYER) {
         if (blocks_magic(op->env->map, op->env->x, op->env->y)) {
             draw_info(COLOR_WHITE, op, "You feel something fizzle inside you.");
-        }
-        else {
+        } else {
             object_enter_map(op->env, op, NULL, 0, 0, 0);
         }
     }

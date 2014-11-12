@@ -48,8 +48,7 @@ static long process_utime_long_count;
 struct timeval last_time;
 
 /** In-game seasons. */
-const char *season_name[SEASONS_PER_YEAR] =
-{
+const char *season_name[SEASONS_PER_YEAR] = {
     "Season of the Blizzard",
     "Season of Growth",
     "Season of Harvest",
@@ -57,8 +56,7 @@ const char *season_name[SEASONS_PER_YEAR] =
 };
 
 /** Days of the week. */
-const char *weekdays[DAYS_PER_WEEK] =
-{
+const char *weekdays[DAYS_PER_WEEK] = {
     "Day of the Moon",
     "Day of the Bull",
     "Day of the Deception",
@@ -69,8 +67,7 @@ const char *weekdays[DAYS_PER_WEEK] =
 };
 
 /** Months. */
-const char *month_name[MONTHS_PER_YEAR] =
-{
+const char *month_name[MONTHS_PER_YEAR] = {
     "Month of the Winter",
     "Month of the Ice Dragon",
     "Month of the Frost Giant",
@@ -86,8 +83,7 @@ const char *month_name[MONTHS_PER_YEAR] =
 };
 
 /** Periods of day. */
-const char *periodsofday[PERIODS_PER_DAY] =
-{
+const char *periodsofday[PERIODS_PER_DAY] = {
     "midnight",
     "late night",
     "dawn",
@@ -102,8 +98,7 @@ const char *periodsofday[PERIODS_PER_DAY] =
 
 /**
  * Period of the day at each hour in the day. */
-const int periodsofday_hours[HOURS_PER_DAY] =
-{
+const int periodsofday_hours[HOURS_PER_DAY] = {
     /* 24: Midnight */
     0,
     /* 1 - 4: Late night */
@@ -211,8 +206,7 @@ void sleep_delta(void)
 
         Sleep((int) (sleep_time.tv_usec / 1000.0));
 #endif
-    }
-    else {
+    } else {
         process_utime_long_count++;
     }
 
@@ -277,14 +271,11 @@ void print_tod(object *op)
 
     if (day == 1 || ((day % 10) == 1 && day > 20)) {
         suf = "st";
-    }
-    else if (day == 2 || ((day % 10) == 2 && day > 20)) {
+    } else if (day == 2 || ((day % 10) == 2 && day > 20)) {
         suf = "nd";
-    }
-    else if (day == 3 || ((day % 10) == 3 && day > 20)) {
+    } else if (day == 3 || ((day % 10) == 3 && day > 20)) {
         suf = "rd";
-    }
-    else {
+    } else {
         suf = "th";
     }
 

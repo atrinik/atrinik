@@ -42,8 +42,7 @@ const char *gravestone_text(object *op)
 
     if (op->type == PLAYER) {
         snprintf(buf, sizeof(buf), "Here rests the hero %s the %s\n", op->name, player_get_race_class(op, race, sizeof(race)));
-    }
-    else {
+    } else {
         snprintf(buf, sizeof(buf), "%s\n", op->name);
     }
 
@@ -51,8 +50,7 @@ const char *gravestone_text(object *op)
 
     if (op->type == PLAYER) {
         snprintf(buf, sizeof(buf), "who was killed at level %d\nby %s.", op->level, strcmp(CONTR(op)->killer, "") ? CONTR(op)->killer : "something nasty");
-    }
-    else {
+    } else {
         snprintf(buf, sizeof(buf), "who died at level %d.", op->level);
     }
 

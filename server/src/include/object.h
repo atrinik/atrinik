@@ -68,8 +68,7 @@
 /**
  * This structure allows any object to have extra fields the Flex loader
  * does not know about. */
-typedef struct key_value_struct
-{
+typedef struct key_value_struct {
     /** Name of this extra field. Shared string. */
     const char *key;
 
@@ -82,8 +81,7 @@ typedef struct key_value_struct
 
 /**
  * Object structure. */
-typedef struct obj
-{
+typedef struct obj {
     /* These variables are not changed by copy_object(): */
 
     /**
@@ -445,11 +443,10 @@ typedef struct obj
 } object;
 
 /** Used to link together several objects. */
-typedef struct oblnk
-{
+typedef struct oblnk {
+
     /** The object link. */
-    union
-    {
+    union {
         /** Link. */
         struct oblnk *link;
 
@@ -590,8 +587,7 @@ typedef struct oblnk
 
 /**
  * Structure used for object::custom_attrset of magic mirrors. */
-typedef struct magic_mirror_struct
-{
+typedef struct magic_mirror_struct {
     /** Map the magic mirror is pointing to. */
     struct mapdef *map;
 

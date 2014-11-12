@@ -61,6 +61,7 @@ START_TEST(test_item_matched_string)
     val = item_matched_string(pl, o2, "wrong");
     fail_if(val != 0, "Unpaid cloak matched wrong name %d.", val);
 }
+
 END_TEST
 
 START_TEST(test_arch_to_object)
@@ -72,6 +73,7 @@ START_TEST(test_arch_to_object)
     obj = arch_to_object(arch);
     fail_if(obj == NULL, "arch_to_object() with valid archetype should not return NULL.");
 }
+
 END_TEST
 
 START_TEST(test_create_singularity)
@@ -82,6 +84,7 @@ START_TEST(test_create_singularity)
     fail_if(obj == NULL, "create_singularity() should not return NULL.");
     fail_if(strstr(obj->name, "JO3584jke") == 0, "create_singularity(\"JO3584jke\") should put JO3584jke somewhere in singularity name.");
 }
+
 END_TEST
 
 START_TEST(test_get_archetype)
@@ -91,6 +94,7 @@ START_TEST(test_get_archetype)
     obj = get_archetype("empty_archetype");
     fail_if(obj == NULL, "create_archetype(\"empty_archetype\") should not return NULL.");
 }
+
 END_TEST
 
 START_TEST(test_find_archetype)
@@ -102,6 +106,7 @@ START_TEST(test_find_archetype)
     arch = find_archetype("AA938DFEPQ54FH");
     fail_if(arch != NULL, "find_archetype(\"AA938DFEPQ54FH\") should return NULL.");
 }
+
 END_TEST
 
 static Suite *arch_suite(void)

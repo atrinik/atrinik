@@ -32,8 +32,7 @@
 
 /**
  * One beacon. */
-typedef struct beacon_struct
-{
+typedef struct beacon_struct {
     /** The beacon object. */
     object *ob;
 
@@ -85,8 +84,7 @@ void beacon_remove(object *ob)
     if (beacon) {
         HASH_DEL(beacons, beacon);
         efree(beacon);
-    }
-    else {
+    } else {
         logger_print(LOG(BUG), "Could not remove beacon %s from hashtable.", ob->name);
     }
 }

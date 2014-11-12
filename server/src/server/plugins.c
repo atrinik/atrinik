@@ -33,8 +33,7 @@ static void register_global_event(const char *plugin_name, int event_nr);
 static void unregister_global_event(const char *plugin_name, int event_nr);
 
 /** The actual hooklist. */
-struct plugin_hooklist hooklist =
-{
+struct plugin_hooklist hooklist = {
     query_name,
     re_cmp,
     present_in_ob,
@@ -349,6 +348,7 @@ void init_plugins(void)
 }
 
 #ifdef WIN32
+
 /**
  * There is no dlerror() on Win32, so we make our own.
  * @return Returned error from loading a plugin. */
@@ -450,8 +450,7 @@ void init_plugin(const char *pluginfile)
 
     if (!plugins_list) {
         plugins_list = plugin;
-    }
-    else {
+    } else {
         plugin->next = plugins_list;
         plugins_list = plugin;
     }
@@ -474,8 +473,7 @@ void remove_plugin(const char *id)
         if (!strcmp(plugin->id, id)) {
             if (!prev) {
                 plugins_list = plugin->next;
-            }
-            else {
+            } else {
                 prev->next = plugin->next;
             }
 
@@ -608,7 +606,7 @@ void trigger_global_event(int event_type, void *parm1, void *parm2)
  * @param parm3 Third parameter.
  * @param flags Event flags.
  * @return 1 if the event returns an event value, 0 otherwise. */
-int trigger_event(int event_type, object *const activator, object *const me, object *const other, const char *msg, int parm1, int parm2, int parm3, int flags)
+int trigger_event(int event_type, object * const activator, object * const me, object * const other, const char *msg, int parm1, int parm2, int parm3, int flags)
 {
     object *event_obj;
     atrinik_plugin *plugin;
@@ -651,8 +649,7 @@ int trigger_event(int event_type, object *const activator, object *const me, obj
         logger_print(LOG(DEBUG), "Running time: %2.6f seconds", (stop_u - start_u) / 1000000.0);
 #endif
         return returnvalue;
-    }
-    else {
+    } else {
         logger_print(LOG(BUG), "event object with unknown plugin: %s, plugin %s", STRING_OBJ_NAME(me), STRING_OBJ_NAME(event_obj));
         me->event_flags &= ~(1 << event_type);
     }

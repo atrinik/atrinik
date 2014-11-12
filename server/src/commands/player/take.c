@@ -43,8 +43,7 @@ void command_take(object *op, const char *command, char *params)
 
     if (CONTR(op)->container) {
         tmp = CONTR(op)->container->inv;
-    }
-    else {
+    } else {
         tmp = GET_MAP_OB_LAST(op->map, op->x, op->y);
     }
 
@@ -71,8 +70,7 @@ void command_take(object *op, const char *command, char *params)
         if (ival > 0) {
             if (ival <= 2 && !can_pick(op, tmp)) {
                 missed++;
-            }
-            else {
+            } else {
                 pick_up(op, tmp, 1);
                 did_one = 1;
             }
@@ -100,15 +98,13 @@ void command_take(object *op, const char *command, char *params)
                 CONTR(tmp)->socket.look_position = ((int) (((float) ground_total / NUM_LOOK_OBJECTS) - 0.5f)) * NUM_LOOK_OBJECTS;
             }
         }
-    }
-    else if (!missed) {
+    } else if (!missed) {
         draw_info(COLOR_WHITE, op, "Nothing to take.");
     }
 
     if (missed == 1) {
         draw_info(COLOR_WHITE, op, "You were unable to take one of the items.");
-    }
-    else if (missed > 1) {
+    } else if (missed > 1) {
         draw_info_format(COLOR_WHITE, op, "You were unable to take %d of the items.", missed);
     }
 

@@ -45,8 +45,7 @@
 /**
  * Party looting modes.
  * @anchor PARTY_LOOT_xxx */
-enum
-{
+enum {
     /**
      * Normal looting: any party member can loot the corpse. */
     PARTY_LOOT_NORMAL,
@@ -70,8 +69,7 @@ enum
 
 /**
  * Party structure. */
-typedef struct party_struct
-{
+typedef struct party_struct {
     /**
      * Name of the party leader. */
     shstr *leader;

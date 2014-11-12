@@ -30,8 +30,7 @@
 #define IGNORE_H
 
 /** The ignore list structure. */
-typedef struct _ignore_list
-{
+typedef struct _ignore_list {
     /** Next entry in this list. */
     struct _ignore_list *next;
 

@@ -33,8 +33,7 @@ static void *metaserver_thread(void *junk);
 
 /**
  * Metaserver update information structure. */
-typedef struct ms_update_info
-{
+typedef struct ms_update_info {
     /**
      * Number of players in the game. */
     char num_players[MAX_BUF];

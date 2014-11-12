@@ -30,19 +30,17 @@
 
 #include <global.h>
 
-enum
-{
+enum {
     BUTTON_ADD,
     BUTTON_CLOSE,
     BUTTON_HELP,
 
     BUTTON_NUM
-};
+} ;
 
 /**
  * Buddy data structure. */
-typedef struct buddy_struct
-{
+typedef struct buddy_struct {
     /**
      * The character names. */
     UT_array *names;
@@ -210,8 +208,7 @@ static void widget_buddy_save(widgetdata *widget)
 
     if (!fp) {
         logger_print(LOG(BUG), "Could not open file for writing: %s", tmp->path);
-    }
-    else {
+    } else {
         char **p;
 
         p = NULL;
@@ -295,8 +292,7 @@ static void widget_background(widgetdata *widget)
 
     if (cpl.state == ST_PLAY) {
         widget_buddy_load(widget);
-    }
-    else {
+    } else {
         widget_buddy_save(widget);
     }
 }
@@ -317,34 +313,33 @@ static int widget_event(widgetdata *widget, SDL_Event *event)
     for (i = 0; i < BUTTON_NUM; i++) {
         if (button_event(&tmp->buttons[i], event)) {
             switch (i) {
-                case BUTTON_ADD:
+            case BUTTON_ADD:
 
-                    if (tmp->text_input.focus) {
-                        if (*tmp->text_input.str != '\0') {
-                            widget_buddy_add(widget, tmp->text_input.str, 1);
-                            text_input_set(&tmp->text_input, NULL);
-                        }
-
-                        tmp->text_input.focus = 0;
-                    }
-                    else {
-                        tmp->text_input.focus = 1;
+                if (tmp->text_input.focus) {
+                    if (*tmp->text_input.str != '\0') {
+                        widget_buddy_add(widget, tmp->text_input.str, 1);
+                        text_input_set(&tmp->text_input, NULL);
                     }
 
-                    break;
-
-                case BUTTON_CLOSE:
-                    widget->show = 0;
-                    break;
-
-                case BUTTON_HELP:
-                {
-                    char buf[MAX_BUF];
-
-                    snprintf(buf, sizeof(buf), "%s list", widget->id);
-                    help_show(buf);
-                    break;
+                    tmp->text_input.focus = 0;
+                } else {
+                    tmp->text_input.focus = 1;
                 }
+
+                break;
+
+            case BUTTON_CLOSE:
+                widget->show = 0;
+                break;
+
+            case BUTTON_HELP:
+            {
+                char buf[MAX_BUF];
+
+                snprintf(buf, sizeof(buf), "%s list", widget->id);
+                help_show(buf);
+                break;
+            }
             }
 
             widget->redraw = 1;

@@ -35,7 +35,7 @@
  * @author Alex Tokar */
 
 #ifdef WIN32
-#   define WINVER 0x502
+#define WINVER 0x502
 #endif
 
 #include <global.h>
@@ -51,8 +51,7 @@ static uint8 did_init = 0;
 
 /**
  * The signals to register. */
-static const int register_signals[] =
-{
+static const int register_signals[] = {
 #ifndef WIN32
     SIGHUP,
 #endif
@@ -75,11 +74,12 @@ static void signal_handler(int signum)
 }
 
 #ifdef WIN32
+
 void windows_print_stacktrace(CONTEXT *context)
 {
     STACKFRAME frame;
     int i;
-    
+
     SymInitialize(GetCurrentProcess(), 0, 1);
 
     memset(&frame, 0, sizeof(frame));
@@ -89,7 +89,7 @@ void windows_print_stacktrace(CONTEXT *context)
     frame.AddrStack.Mode = AddrModeFlat;
     frame.AddrFrame.Offset = context->Ebp;
     frame.AddrFrame.Mode = AddrModeFlat;
-    
+
     i = 0;
 
     while (StackWalk(IMAGE_FILE_MACHINE_I386, GetCurrentProcess(),
@@ -169,16 +169,16 @@ LONG WINAPI windows_exception_handler(EXCEPTION_POINTERS *ExceptionInfo)
         fputs("Error: Unrecognized Exception\n", stderr);
         break;
     }
-    
+
     fputs("Stack trace:\n", stderr);
-    
+
     if (EXCEPTION_STACK_OVERFLOW !=
             ExceptionInfo->ExceptionRecord->ExceptionCode) {
         windows_print_stacktrace(ExceptionInfo->ContextRecord);
     } else {
         fprintf(stderr, "%p\n", (void *) ExceptionInfo->ContextRecord->Eip);
     }
-    
+
     fflush(stderr);
 
     return EXCEPTION_EXECUTE_HANDLER;
@@ -190,6 +190,7 @@ LONG WINAPI windows_exception_handler(EXCEPTION_POINTERS *ExceptionInfo)
  * @internal */
 void toolkit_signals_init(void)
 {
+
     TOOLKIT_INIT_FUNC_START(signals)
     {
         size_t i;
@@ -212,7 +213,7 @@ void toolkit_signals_init(void)
             signal(register_signals[i], signal_handler);
 #endif
         }
-        
+
 #ifdef WIN32
         AddVectoredExceptionHandler(1, windows_exception_handler);
 #endif
@@ -225,6 +226,7 @@ void toolkit_signals_init(void)
  * @internal */
 void toolkit_signals_deinit(void)
 {
+
     TOOLKIT_DEINIT_FUNC_START(signals)
     {
     }

@@ -49,8 +49,7 @@
 
 #define EXP_PROGRESS_BUBBLES 10
 
-typedef struct Stat_struct
-{
+typedef struct Stat_struct {
     sint8 Str, Dex, Con, Int, Pow;
 
     /** Weapon class. */
@@ -106,8 +105,7 @@ typedef struct Stat_struct
 } Stats;
 
 /** The player structure. */
-typedef struct Player_Struct
-{
+typedef struct Player_Struct {
     /** Player object. */
     object *ob;
 

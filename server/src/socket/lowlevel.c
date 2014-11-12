@@ -39,11 +39,9 @@ int socket_recv(socket_struct *ns)
 #ifdef WIN32
     stat_ret = recv(ns->fd, ns->packet_recv->data + ns->packet_recv->len, ns->packet_recv->size - ns->packet_recv->len, 0);
 #else
-    do
-    {
+    do {
         stat_ret = read(ns->fd, ns->packet_recv->data + ns->packet_recv->len, ns->packet_recv->size - ns->packet_recv->len);
-    }
-    while (stat_ret == -1 && errno == EINTR);
+    }    while (stat_ret == -1 && errno == EINTR);
 #endif
 
     if (stat_ret == 0) {
@@ -52,15 +50,13 @@ int socket_recv(socket_struct *ns)
 
     if (stat_ret > 0) {
         ns->packet_recv->len += stat_ret;
-    }
-    else if (stat_ret < 0) {
+    } else if (stat_ret < 0) {
 #ifdef WIN32
 
         if (WSAGetLastError() != WSAEWOULDBLOCK) {
             if (WSAGetLastError() == WSAECONNRESET) {
                 logger_print(LOG(DEBUG), "Connection closed by client.");
-            }
-            else {
+            } else {
                 logger_print(LOG(DEBUG), "got error %d, returning %d.", WSAGetLastError(), stat_ret);
             }
 
@@ -107,8 +103,7 @@ static void socket_packet_enqueue(socket_struct *ns, packet_struct *packet)
     if (!ns->packet_head) {
         ns->packet_head = packet;
         packet->prev = NULL;
-    }
-    else {
+    } else {
         ns->packet_tail->next = packet;
         packet->prev = ns->packet_tail;
     }
@@ -121,15 +116,13 @@ static void socket_packet_dequeue(socket_struct *ns, packet_struct *packet)
 {
     if (!packet->prev) {
         ns->packet_head = packet->next;
-    }
-    else {
+    } else {
         packet->prev->next = packet->next;
     }
 
     if (!packet->next) {
         ns->packet_tail = packet->prev;
-    }
-    else {
+    } else {
         packet->next->prev = packet->prev;
     }
 
@@ -175,11 +168,10 @@ void socket_buffer_write(socket_struct *ns)
 
         if (!amt) {
             amt = max;
-        }
-        else
+        } else
 #endif
 
-        if (amt < 0) {
+            if (amt < 0) {
 #ifdef WIN32
 
             if (WSAGetLastError() != WSAEWOULDBLOCK) {
@@ -192,8 +184,8 @@ void socket_buffer_write(socket_struct *ns)
                 ns->state = ST_DEAD;
                 break;
             }
-            /* EWOULDBLOCK: We can't write because socket is busy. */
             else {
+                /* EWOULDBLOCK: We can't write because socket is busy. */
                 break;
             }
         }
@@ -226,13 +218,12 @@ void socket_send_packet(socket_struct *ns, packet_struct *packet)
 
     if (toread > 32 * 1024 - 1) {
         log(LOG(DEVEL), "Sending packet with size > 32KB: %lu, type: %d",
-            toread, packet->type);
+                toread, packet->type);
         tmp->data[0] = ((toread >> 16) & 0xff) | 0x80;
         tmp->data[1] = (toread >> 8) & 0xff;
         tmp->data[2] = (toread) & 0xff;
         tmp->len = 3;
-    }
-    else {
+    } else {
         tmp->data[0] = (toread >> 8) & 0xff;
         tmp->data[1] = (toread) & 0xff;
         tmp->len = 2;

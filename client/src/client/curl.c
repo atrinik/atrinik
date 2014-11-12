@@ -216,7 +216,7 @@ int curl_connect(void *c_data)
 
     /* Set user agent. */
     curl_easy_setopt(data->handle, CURLOPT_USERAGENT, user_agent);
-    
+
 #ifdef WIN32
     curl_easy_setopt(data->handle, CURLOPT_CAINFO, "ca-bundle.crt");
 #endif
@@ -351,11 +351,9 @@ char *curl_download_speedinfo(curl_data *data, char *buf, size_t bufsize)
 
     if (!speed && !received && !size) {
         *buf = '\0';
-    }
-    else if (size == -1) {
+    } else if (size == -1) {
         snprintf(buf, bufsize, "%0.3f MB/s", speed / 1024.0 / 1024.0);
-    }
-    else {
+    } else {
         snprintf(buf, bufsize, "%.0f%% @ %0.3f MB/s", received * 100.0 / size, speed / 1024.0 / 1024.0);
     }
 

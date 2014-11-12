@@ -35,8 +35,7 @@ void command_whereami(object *op, const char *command, char *params)
 {
     if (!op->map->region) {
         draw_info(COLOR_WHITE, op, "You appear to be lost somewhere...");
-    }
-    else {
+    } else {
         draw_info_format(COLOR_WHITE, op, "You are in %s.\n%s", region_get_longname(op->map->region), region_get_msg(op->map->region));
     }
 }

@@ -146,8 +146,7 @@ void widget_container_init(widgetdata *widget)
 
             menu = ecalloc(1, sizeof(_menu));
             container_strip->subcontainer_strip = menu;
-        }
-        else if (widget->sub_type == MENUITEM_ID) {
+        } else if (widget->sub_type == MENUITEM_ID) {
             _menuitem *menuitem;
 
             menuitem = emalloc(sizeof(_menuitem));

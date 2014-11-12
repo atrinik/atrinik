@@ -81,8 +81,7 @@ int trap_show(object *trap, object *where)
     if (env && env->type != PLAYER && env->type != MONSTER && env->type != DOOR && !QUERY_FLAG(env, FLAG_NO_PASS)) {
         insert_ob_in_ob(trap, env);
         set_trapped_flag(env);
-    }
-    else {
+    } else {
         insert_ob_in_map(trap, where->map, NULL, 0);
     }
 
@@ -105,8 +104,7 @@ int trap_disarm(object *disarmer, object *trap)
         set_trapped_flag(env);
         CONTR(disarmer)->stat_traps_disarmed++;
         return 1;
-    }
-    else {
+    } else {
         draw_info_format(COLOR_WHITE, disarmer, "You fail to remove the %s (lvl %d).", trap->name, trap->level);
 
         if (trap->level > disarmer_level * 1.4f || rndm(0, 2)) {

@@ -60,6 +60,7 @@ static void stringbuffer_ensure(StringBuffer *sb, size_t len);
  * @internal */
 void toolkit_stringbuffer_init(void)
 {
+
     TOOLKIT_INIT_FUNC_START(stringbuffer)
     {
     }
@@ -71,6 +72,7 @@ void toolkit_stringbuffer_init(void)
  * @internal */
 void toolkit_stringbuffer_deinit(void)
 {
+
     TOOLKIT_DEINIT_FUNC_START(stringbuffer)
     {
     }
@@ -163,7 +165,7 @@ void stringbuffer_append_printf(StringBuffer *sb, const char *format, ...)
 
     TOOLKIT_FUNC_PROTECTOR(API_NAME);
 
-    for (;; ) {
+    for (; ; ) {
         int n;
         va_list arg;
 
@@ -181,9 +183,8 @@ void stringbuffer_append_printf(StringBuffer *sb, const char *format, ...)
         /* Precisely what is needed */
         if (n > -1) {
             size = n + 1;
-        }
-        /* Twice the old size */
-        else {
+        } else {
+            /* Twice the old size */
             size *= 2;
         }
     }

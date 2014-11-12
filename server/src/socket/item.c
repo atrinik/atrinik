@@ -59,8 +59,7 @@ unsigned int query_flags(object *op)
     if (QUERY_FLAG(op, FLAG_IDENTIFIED) || QUERY_FLAG(op, FLAG_APPLIED)) {
         if (QUERY_FLAG(op, FLAG_DAMNED)) {
             flags |= CS_FLAG_DAMNED;
-        }
-        else if (QUERY_FLAG(op, FLAG_CURSED)) {
+        } else if (QUERY_FLAG(op, FLAG_CURSED)) {
             flags |= CS_FLAG_CURSED;
         }
     }
@@ -109,8 +108,7 @@ static void add_object_to_packet(packet_struct *packet, object *op, object *pl, 
     if (flags & UPD_FACE) {
         if (op->inv_face && QUERY_FLAG(op, FLAG_IDENTIFIED)) {
             packet_append_uint16(packet, op->inv_face->number);
-        }
-        else {
+        } else {
             packet_append_uint16(packet, op->face->number);
         }
     }
@@ -130,12 +128,10 @@ static void add_object_to_packet(packet_struct *packet, object *op, object *pl, 
 
             if (op->item_skill && CONTR(pl)->skill_ptr[op->item_skill - 1]) {
                 packet_append_uint32(packet, CONTR(pl)->skill_ptr[op->item_skill - 1]->count);
-            }
-            else {
+            } else {
                 packet_append_uint32(packet, 0);
             }
-        }
-        else {
+        } else {
             packet_append_uint8(packet, 255);
         }
     }
@@ -154,15 +150,12 @@ static void add_object_to_packet(packet_struct *packet, object *op, object *pl, 
         if (QUERY_FLAG(op, FLAG_ANIMATE)) {
             if (op->anim_speed) {
                 anim_speed = op->anim_speed;
-            }
-            else {
+            } else {
                 if (FABS(op->speed) < 0.001) {
                     anim_speed = 255;
-                }
-                else if (FABS(op->speed) >= 1.0) {
+                } else if (FABS(op->speed) >= 1.0) {
                     anim_speed = 1;
-                }
-                else {
+                } else {
                     anim_speed = (int) (1.0 / FABS(op->speed));
                 }
             }
@@ -185,12 +178,10 @@ static void add_object_to_packet(packet_struct *packet, object *op, object *pl, 
             packet_append_uint32(packet, spells[op->stats.sp].path);
             packet_append_uint32(packet, spells[op->stats.sp].flags);
             packet_append_string_terminated(packet, op->msg ? op->msg : "");
-        }
-        else if (op->type == SKILL) {
+        } else if (op->type == SKILL) {
             packet_append_uint8(packet, op->level);
             packet_append_sint64(packet, op->stats.exp);
-        }
-        else if (op->type == FORCE || op->type == POISONING) {
+        } else if (op->type == FORCE || op->type == POISONING) {
             sint32 sec;
 
             sec = -1;
@@ -350,8 +341,7 @@ void esrv_send_inventory(object *pl, object *op)
     if (pl != op) {
         /* Container mode flag */
         packet_append_sint32(packet, -1);
-    }
-    else {
+    } else {
         packet_append_sint32(packet, op->count);
     }
 
@@ -402,16 +392,14 @@ void esrv_update_item(int flags, object *op)
 {
     if (op->type == PLAYER) {
         esrv_update_item_send(flags, op, op);
-    }
-    else if (op->env) {
+    } else if (op->env) {
         if (op->env->type == CONTAINER) {
             object *tmp;
 
             for (tmp = op->env->attacked_by; tmp; tmp = CONTR(tmp)->container_above) {
                 esrv_update_item_send(flags, tmp, op);
             }
-        }
-        else if (op->env->type == PLAYER) {
+        } else if (op->env->type == PLAYER) {
             esrv_update_item_send(flags, op->env, op);
         }
     }
@@ -460,8 +448,7 @@ void esrv_send_item(object *op)
         for (tmp = op->env->attacked_by; tmp; tmp = CONTR(tmp)->container_above) {
             esrv_send_item_send(tmp, op);
         }
-    }
-    else if (op->env->type == PLAYER) {
+    } else if (op->env->type == PLAYER) {
         esrv_send_item_send(op->env, op);
     }
 }
@@ -504,8 +491,7 @@ void esrv_del_item(object *op)
         for (tmp = op->env->attacked_by; tmp; tmp = CONTR(tmp)->container_above) {
             esrv_del_item_send(tmp, op);
         }
-    }
-    else if (op->env->type == PLAYER) {
+    } else if (op->env->type == PLAYER) {
         esrv_del_item_send(op->env, op);
     }
 }
@@ -521,8 +507,7 @@ static object *get_ob_from_count_rec(object *pl, object *where, tag_t count)
 
         if (head->count == count) {
             return head;
-        }
-        else if (head->inv && (CONTR(pl)->tsi || (head->type == CONTAINER && CONTR(pl)->container == head))) {
+        } else if (head->inv && (CONTR(pl)->tsi || (head->type == CONTAINER && CONTR(pl)->container == head))) {
             tmp2 = get_ob_from_count_rec(pl, head->inv, count);
 
             if (tmp2) {
@@ -739,8 +724,7 @@ void socket_command_item_mark(socket_struct *ns, player *pl, uint8 *data, size_t
         draw_info_format(COLOR_WHITE, pl->ob, "Unmarked item %s.", query_name(op, NULL));
         pl->mark = NULL;
         pl->mark_count = 0;
-    }
-    else {
+    } else {
         draw_info_format(COLOR_WHITE, pl->ob, "Marked item %s.", query_name(op, NULL));
         pl->mark_count = op->count;
         pl->mark = op;
@@ -774,11 +758,9 @@ void esrv_move_object(object *pl, tag_t to, tag_t tag, long nrof)
 
         if ((tmp = check_container(pl, op))) {
             draw_info(COLOR_WHITE, pl, "First remove all god-given items from this container!");
-        }
-        else if (QUERY_FLAG(pl, FLAG_INV_LOCKED)) {
+        } else if (QUERY_FLAG(pl, FLAG_INV_LOCKED)) {
             draw_info(COLOR_WHITE, pl, "You can't drop a container with locked items inside!");
-        }
-        else {
+        } else {
             drop_object(pl, op, nrof, 0);
         }
 
@@ -786,8 +768,9 @@ void esrv_move_object(object *pl, tag_t to, tag_t tag, long nrof)
 
         return;
     }
-    /* Pick it up to the inventory */
     else if (to == pl->count || (to == op->count && !op->env)) {
+        /* Pick it up to the inventory */
+
         /* Return if player has already picked it up */
         if (op->env == pl) {
             return;
@@ -816,14 +799,11 @@ void esrv_move_object(object *pl, tag_t to, tag_t tag, long nrof)
 
         if (QUERY_FLAG(pl, FLAG_INV_LOCKED) && env->env != pl) {
             draw_info(COLOR_WHITE, pl, "You can't drop a container with locked items inside!");
-        }
-        else if (tmp && env->env != pl) {
+        } else if (tmp && env->env != pl) {
             draw_info(COLOR_WHITE, pl, "First remove all god-given items from this container!");
-        }
-        else if (QUERY_FLAG(op, FLAG_STARTEQUIP) && env->env != pl) {
+        } else if (QUERY_FLAG(op, FLAG_STARTEQUIP) && env->env != pl) {
             draw_info(COLOR_WHITE, pl, "You can't store god-given items outside your inventory!");
-        }
-        else {
+        } else {
             put_object_in_sack(pl, env, op, nrof);
         }
 

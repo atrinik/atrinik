@@ -68,8 +68,7 @@ void command_region_map(object *op, const char *command, char *params)
             draw_info(COLOR_WHITE, op, "No such region.");
             return;
         }
-    }
-    else {
+    } else {
         r = op->map->region;
     }
 

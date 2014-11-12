@@ -73,19 +73,19 @@ static void clioptions_option_help(const char *arg)
 
     if (arg) {
         char *curr, *next, *cp;
-        
+
         for (i = 0; i < clioptions_num; i++) {
             if (strcmp(clioptions[i].longname, arg) != 0) {
                 continue;
             }
 
             logger_print(LOG(INFO), "##### Option: --%s #####",
-                         clioptions[i].longname);
+                    clioptions[i].longname);
             logger_print(LOG(INFO), " ");
 
             for (curr = clioptions[i].desc;
-                 (curr && (next = strchr(curr, '\n'))) || curr;
-                 curr = next ? next + 1 : NULL) {
+                    (curr && (next = strchr(curr, '\n'))) || curr;
+                    curr = next ? next + 1 : NULL) {
                 cp = estrndup(curr, next - curr);
                 logger_print(LOG(INFO), "%s", cp);
                 efree(cp);
@@ -98,11 +98,11 @@ static void clioptions_option_help(const char *arg)
         if (i == clioptions_num) {
             logger_print(LOG(INFO), "No such option '--%s'.", arg);
         }
-    }
-    /* Otherwise brief information about all available options. */
-    else {
+    } else {
         StringBuffer *sb;
         char *desc;
+        
+        /* Otherwise brief information about all available options. */
 
         logger_print(LOG(INFO), "List of available options:");
         logger_print(LOG(INFO), " ");
@@ -112,9 +112,9 @@ static void clioptions_option_help(const char *arg)
 
             if (clioptions[i].shortname) {
                 stringbuffer_append_printf(
-                    sb, "-%s%s", clioptions[i].shortname,
-                    clioptions[i].argument ? " arg" : ""
-                );
+                        sb, "-%s%s", clioptions[i].shortname,
+                        clioptions[i].argument ? " arg" : ""
+                        );
             }
 
             if (clioptions[i].longname) {
@@ -123,20 +123,20 @@ static void clioptions_option_help(const char *arg)
                 }
 
                 stringbuffer_append_printf(
-                    sb, "--%s%s", clioptions[i].longname,
-                    clioptions[i].argument ? "=arg" : ""
-                );
+                        sb, "--%s%s", clioptions[i].longname,
+                        clioptions[i].argument ? "=arg" : ""
+                        );
             }
 
             desc = stringbuffer_finish(sb);
             logger_print(LOG(INFO), "    %s: %s",
-                         desc, clioptions[i].desc_brief);
+                    desc, clioptions[i].desc_brief);
             efree(desc);
         }
 
         logger_print(LOG(INFO), " ");
         logger_print(LOG(INFO), "Use '--help=option' to learn more about the "
-                                "specified option.");
+                "specified option.");
     }
 
     exit(0);
@@ -148,6 +148,7 @@ static void clioptions_option_help(const char *arg)
  */
 void toolkit_clioptions_init(void)
 {
+
     TOOLKIT_INIT_FUNC_START(clioptions)
     {
         toolkit_import(logger);
@@ -158,31 +159,31 @@ void toolkit_clioptions_init(void)
         clioptions_num = 0;
 
         clioptions_add(
-            "config",
-            NULL,
-            clioptions_option_config,
-            1,
-            "Reads configuration from a text file.",
-            "Instead of specifying your options on the command line each time"
-            " you run the server, you can create a text file containing the "
-            "options, in the format of:\n\n"
-            "option = argument\n"
-            "help = True\n\n"
-            "Each option must be on its own line. Empty lines and lines "
-            "beginning with '#' are ignored. '\\n' strings in the argument "
-            "will be converted into literal newline characters."
-            );
+                "config",
+                NULL,
+                clioptions_option_config,
+                1,
+                "Reads configuration from a text file.",
+                "Instead of specifying your options on the command line each time"
+                " you run the server, you can create a text file containing the "
+                "options, in the format of:\n\n"
+                "option = argument\n"
+                "help = True\n\n"
+                "Each option must be on its own line. Empty lines and lines "
+                "beginning with '#' are ignored. '\\n' strings in the argument "
+                "will be converted into literal newline characters."
+                );
 
         clioptions_add(
-            "help",
-            "h",
-            clioptions_option_help,
-            0,
-            "Displays this help.",
-            "Displays the help, listing available options, etc.\n\n"
-            "'--help=argument' can be used to get more detailed help about "
-            "specified option."
-            );
+                "help",
+                "h",
+                clioptions_option_help,
+                0,
+                "Displays this help.",
+                "Displays the help, listing available options, etc.\n\n"
+                "'--help=argument' can be used to get more detailed help about "
+                "specified option."
+                );
     }
     TOOLKIT_INIT_FUNC_END()
 }
@@ -193,6 +194,7 @@ void toolkit_clioptions_init(void)
  */
 void toolkit_clioptions_deinit(void)
 {
+
     TOOLKIT_DEINIT_FUNC_START(clioptions)
     {
         size_t i;
@@ -230,8 +232,8 @@ void toolkit_clioptions_deinit(void)
  * @param desc More detailed description of the option.
  */
 void clioptions_add(const char *longname, const char *shortname,
-                    clioptions_handler_func handle_func, uint8 argument,
-                    const char *desc_brief, const char *desc)
+        clioptions_handler_func handle_func, uint8 argument,
+        const char *desc_brief, const char *desc)
 {
     size_t i;
 
@@ -239,7 +241,7 @@ void clioptions_add(const char *longname, const char *shortname,
 
     if (longname == NULL && shortname == NULL) {
         logger_print(LOG(BUG), "Tried adding an option with neither longname "
-                               "nor shortname.");
+                "nor shortname.");
         return;
     }
 
@@ -257,22 +259,22 @@ void clioptions_add(const char *longname, const char *shortname,
     for (i = 0; i < clioptions_num; i++) {
         if ((clioptions[i].longname != NULL && longname != NULL &&
                 strcmp(clioptions[i].longname, longname) == 0) ||
-            (clioptions[i].shortname != NULL && shortname != NULL &&
+                (clioptions[i].shortname != NULL && shortname != NULL &&
                 strcmp(clioptions[i].shortname, shortname) == 0)) {
             logger_print(LOG(BUG), "Option already exists (longname: %s, "
-                                   "shortname: %s).",
-                         longname  != NULL ? longname  : "none",
-                         shortname != NULL ? shortname : "none");
+                    "shortname: %s).",
+                    longname  != NULL ? longname  : "none",
+                    shortname != NULL ? shortname : "none");
             return;
         }
     }
 
     clioptions = erealloc(
-        clioptions, sizeof(*clioptions) * (clioptions_num + 1));
+            clioptions, sizeof(*clioptions) * (clioptions_num + 1));
     clioptions[clioptions_num].longname =
-        longname ? estrdup(longname) : NULL;
+            longname ? estrdup(longname) : NULL;
     clioptions[clioptions_num].shortname =
-        shortname ? estrdup(shortname) : NULL;
+            shortname ? estrdup(shortname) : NULL;
     clioptions[clioptions_num].handle_func = handle_func;
     clioptions[clioptions_num].argument = argument;
     clioptions[clioptions_num].desc_brief = estrdup(desc_brief);
@@ -318,8 +320,8 @@ void clioptions_parse(int argc, char *argv[])
 
                     if (clioptions[opt].argument && (!arg || *arg == '\0')) {
                         logger_print(
-                            LOG(ERROR), "Option --%s requires an argument.",
-                            clioptions[opt].longname);
+                                LOG(ERROR), "Option --%s requires an argument.",
+                                clioptions[opt].longname);
                         exit(1);
                     }
 
@@ -329,21 +331,21 @@ void clioptions_parse(int argc, char *argv[])
 
                     break;
                 }
-            }
-            /* Then short name CLI. */
-            else if (strncmp(argv[i], "-", 1) == 0) {
+            } else if (strncmp(argv[i], "-", 1) == 0) {
+                /* Then short name CLI. */
+                
                 if (clioptions[opt].shortname == NULL) {
                     continue;
                 }
-                
+
                 if (strcmp(argv[i] + 1, clioptions[opt].shortname) == 0) {
                     arg = clioptions[opt].argument &&
-                          i + 1 < argc ? argv[++i] : NULL;
+                            i + 1 < argc ? argv[++i] : NULL;
 
                     if (clioptions[opt].argument && (!arg || *arg == '\0')) {
                         logger_print(
-                            LOG(ERROR), "Option -%s requires an argument.",
-                            clioptions[opt].shortname);
+                                LOG(ERROR), "Option -%s requires an argument.",
+                                clioptions[opt].shortname);
                         exit(1);
                     }
 
@@ -407,12 +409,11 @@ int clioptions_load_config(const char *path, const char *category)
         if (string_startswith(buf, "[") && string_endswith(buf, "]")) {
             strncpy(category_cur, buf, sizeof(category_cur) - 1);
             category_cur[sizeof(category_cur) - 1] = '\0';
-        }
-        else if (!category || strcasecmp(category, category_cur) == 0) {
+        } else if (!category || strcasecmp(category, category_cur) == 0) {
             char *cps[2], cp[HUGE_BUF];
 
             if (string_split(buf, cps, arraysize(cps), '=') !=
-                arraysize(cps)) {
+                    arraysize(cps)) {
                 logger_print(LOG(BUG), "Invalid line: %s", buf);
                 continue;
             }

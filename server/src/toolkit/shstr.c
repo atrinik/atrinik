@@ -45,6 +45,7 @@ static shared_string *hash_table[TABLESIZE];
  * @internal */
 void toolkit_shstr_init(void)
 {
+
     TOOLKIT_INIT_FUNC_START(shstr)
     {
         memset(hash_table, 0, TABLESIZE * sizeof(shared_string *));
@@ -57,6 +58,7 @@ void toolkit_shstr_init(void)
  * @internal */
 void toolkit_shstr_deinit(void)
 {
+
     TOOLKIT_DEINIT_FUNC_START(shstr)
     {
     }
@@ -184,9 +186,9 @@ shstr *add_string(const char *str)
         ++(ss->refcount);
 
         return ss->string;
-    }
-    /* The string isn't registered, and the slot is empty. */
-    else {
+    } else {
+        /* The string isn't registered, and the slot is empty. */
+
         GATHER(add_stats.hashed);
         hash_table[ind] = new_shared_string(str);
 
@@ -247,8 +249,7 @@ shstr *find_string(const char *str)
         if (!strcmp(ss->string, str)) {
             GATHER(find_stats.hashed);
             return ss->string;
-        }
-        else {
+        } else {
             /* Recurse through the linked list, if there's one. */
             while (ss->next) {
                 GATHER(find_stats.search);
@@ -290,14 +291,12 @@ void free_string_shared(shstr *str)
                 *(ss->u.array) = ss->next;
                 ss->next->u.array = ss->u.array;
                 ss->next->refcount |= TOPBIT;
-            }
-            else {
+            } else {
                 *(ss->u.array) = NULL;
             }
 
             efree(ss);
-        }
-        else {
+        } else {
             /* Relink and free this struct. */
             if (ss->next) {
                 ss->next->u.previous = ss->u.previous;

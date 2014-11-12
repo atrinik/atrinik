@@ -98,8 +98,7 @@ static void console_command_speed(const char *params)
         reset_sleep();
         logger_print(LOG(INFO), "The speed has been changed to %ld.", max_time);
         draw_info(COLOR_GRAY, NULL, "You feel a sudden and inexplicable change in the fabric of time and space...");
-    }
-    else {
+    } else {
         logger_print(LOG(INFO), "Current speed is: %ld, default speed is: %d.", max_time, MAX_TIME);
     }
 }
@@ -239,8 +238,7 @@ static void clioptions_option_python_reload_modules(const char *arg)
 {
     if (KEYWORD_IS_TRUE(arg)) {
         settings.python_reload_modules = 1;
-    }
-    else if (KEYWORD_IS_FALSE(arg)) {
+    } else if (KEYWORD_IS_FALSE(arg)) {
         settings.python_reload_modules = 0;
     }
 }
@@ -249,8 +247,7 @@ static void clioptions_option_default_permission_groups(const char *arg)
 {
     if (strcmp(arg, "None") == 0) {
         settings.default_permission_groups[0] = '\0';
-    }
-    else {
+    } else {
         strncpy(settings.default_permission_groups, arg, sizeof(settings.default_permission_groups) - 1);
         settings.default_permission_groups[sizeof(settings.default_permission_groups) - 1] = '\0';
     }
@@ -305,23 +302,18 @@ static void clioptions_option_allowed_chars(const char *arg)
                 if (strcmp(cmd, ":alphalower:") == 0) {
                     start = 'a';
                     end = 'z';
-                }
-                else if (strcmp(cmd, ":alphaupper:") == 0) {
+                } else if (strcmp(cmd, ":alphaupper:") == 0) {
                     start = 'A';
                     end = 'Z';
-                }
-                else if (strcmp(cmd, ":numeric:") == 0) {
+                } else if (strcmp(cmd, ":numeric:") == 0) {
                     start = '0';
                     end = '9';
-                }
-                else if (strcmp(cmd, ":print:") == 0) {
+                } else if (strcmp(cmd, ":print:") == 0) {
                     start = '!';
                     end = '}';
-                }
-                else if (strcmp(cmd, ":space:") == 0) {
+                } else if (strcmp(cmd, ":space:") == 0) {
                     start = end = ' ';
-                }
-                else {
+                } else {
                     start = end = '\0';
                 }
 
@@ -332,8 +324,7 @@ static void clioptions_option_allowed_chars(const char *arg)
                     strncat(settings.allowed_chars[type], chars, sizeof(settings.allowed_chars[type]) - strlen(settings.allowed_chars[type]) - 1);
                     efree(chars);
                 }
-            }
-            else {
+            } else {
                 strncat(settings.allowed_chars[type], cmd, sizeof(settings.allowed_chars[type]) - strlen(settings.allowed_chars[type]) - 1);
             }
 
@@ -402,261 +393,261 @@ static void init_library(int argc, char *argv[])
 
     /* Add console commands. */
     console_command_add(
-        "shutdown",
-        console_command_shutdown,
-        "Shuts down the server.",
-        "Shuts down the server, saving all the data and disconnecting all players.\n\n"
-        "All of the used memory is freed, if possible."
-        );
+            "shutdown",
+            console_command_shutdown,
+            "Shuts down the server.",
+            "Shuts down the server, saving all the data and disconnecting all players.\n\n"
+            "All of the used memory is freed, if possible."
+            );
 
     console_command_add(
-        "speed",
-        console_command_speed,
-        "Changes the server's speed.",
-        "Changes the speed of the server, which in turn affects how quickly everything is processed."
-        "Without an argument, shows the current speed and the default speed."
-        );
+            "speed",
+            console_command_speed,
+            "Changes the server's speed.",
+            "Changes the speed of the server, which in turn affects how quickly everything is processed."
+            "Without an argument, shows the current speed and the default speed."
+            );
 
     /* Add command-line options. */
     clioptions_add(
-        "unit",
-        NULL,
-        clioptions_option_unit,
-        0,
-        "Runs the unit tests.",
-        "Runs the unit tests."
-        );
+            "unit",
+            NULL,
+            clioptions_option_unit,
+            0,
+            "Runs the unit tests.",
+            "Runs the unit tests."
+            );
 
     clioptions_add(
-        "worldmaker",
-        NULL,
-        clioptions_option_worldmaker,
-        0,
-        "Generates the region maps.",
-        "Generates the region maps using the world maker module.\n\n"
-        );
+            "worldmaker",
+            NULL,
+            clioptions_option_worldmaker,
+            0,
+            "Generates the region maps.",
+            "Generates the region maps using the world maker module.\n\n"
+            );
 
     clioptions_add(
-        "version",
-        NULL,
-        clioptions_option_version,
-        0,
-        "Displays the server version.",
-        "Displays the server version."
-        );
+            "version",
+            NULL,
+            clioptions_option_version,
+            0,
+            "Displays the server version.",
+            "Displays the server version."
+            );
 
     clioptions_add(
-        "logfile",
-        NULL,
-        clioptions_option_logfile,
-        1,
-        "Sets the file to write log to.",
-        "All of the output that is normally written to stdout will also be written to the specified file."
-        );
+            "logfile",
+            NULL,
+            clioptions_option_logfile,
+            1,
+            "Sets the file to write log to.",
+            "All of the output that is normally written to stdout will also be written to the specified file."
+            );
 
     clioptions_add(
-        "port",
-        NULL,
-        clioptions_option_port,
-        1,
-        "Sets the port to use.",
-        "Sets the port to use for server/client communication."
-        );
+            "port",
+            NULL,
+            clioptions_option_port,
+            1,
+            "Sets the port to use.",
+            "Sets the port to use for server/client communication."
+            );
 
     clioptions_add(
-        "libpath",
-        NULL,
-        clioptions_option_libpath,
-        1,
-        "Read-only data files location.",
-        "Where the read-only files such as the collected treasures, artifacts,"
-        "archetypes etc reside."
-        );
+            "libpath",
+            NULL,
+            clioptions_option_libpath,
+            1,
+            "Read-only data files location.",
+            "Where the read-only files such as the collected treasures, artifacts,"
+            "archetypes etc reside."
+            );
 
     clioptions_add(
-        "datapath",
-        NULL,
-        clioptions_option_datapath,
-        1,
-        "Read and write data files location.",
-        "Where to read and write player data, unique maps, etc."
-        );
+            "datapath",
+            NULL,
+            clioptions_option_datapath,
+            1,
+            "Read and write data files location.",
+            "Where to read and write player data, unique maps, etc."
+            );
 
     clioptions_add(
-        "mapspath",
-        NULL,
-        clioptions_option_mapspath,
-        1,
-        "Map files location.",
-        "Where the maps are."
-        );
+            "mapspath",
+            NULL,
+            clioptions_option_mapspath,
+            1,
+            "Map files location.",
+            "Where the maps are."
+            );
 
     clioptions_add(
-        "httppath",
-        NULL,
-        clioptions_option_httppath,
-        1,
-        "HTTP files location.",
-        "Where the HTTP server files are."
-        );
+            "httppath",
+            NULL,
+            clioptions_option_httppath,
+            1,
+            "HTTP files location.",
+            "Where the HTTP server files are."
+            );
 
     clioptions_add(
-        "metaserver_url",
-        NULL,
-        clioptions_option_metaserver_url,
-        1,
-        "URL of the metaserver.",
-        "URL of the metaserver."
-        );
+            "metaserver_url",
+            NULL,
+            clioptions_option_metaserver_url,
+            1,
+            "URL of the metaserver.",
+            "URL of the metaserver."
+            );
 
     clioptions_add(
-        "server_host",
-        NULL,
-        clioptions_option_server_host,
-        1,
-        "Hostname of the server.",
-        "Hostname of the server."
-        );
+            "server_host",
+            NULL,
+            clioptions_option_server_host,
+            1,
+            "Hostname of the server.",
+            "Hostname of the server."
+            );
 
     clioptions_add(
-        "server_name",
-        NULL,
-        clioptions_option_server_name,
-        1,
-        "Name of the server.",
-        "Name of the server."
-        );
+            "server_name",
+            NULL,
+            clioptions_option_server_name,
+            1,
+            "Name of the server.",
+            "Name of the server."
+            );
 
     clioptions_add(
-        "server_desc",
-        NULL,
-        clioptions_option_server_desc,
-        1,
-        "Description about the server.",
-        "Text that describes the server in a few sentences."
-        );
+            "server_desc",
+            NULL,
+            clioptions_option_server_desc,
+            1,
+            "Description about the server.",
+            "Text that describes the server in a few sentences."
+            );
 
     clioptions_add(
-        "magic_devices_level",
-        NULL,
-        clioptions_option_magic_devices_level,
-        1,
-        "Magic devices level for players.",
-        "Adjustment to maximum magical device level the player may use."
-        );
+            "magic_devices_level",
+            NULL,
+            clioptions_option_magic_devices_level,
+            1,
+            "Magic devices level for players.",
+            "Adjustment to maximum magical device level the player may use."
+            );
 
     clioptions_add(
-        "item_power_factor",
-        NULL,
-        clioptions_option_item_power_factor,
-        1,
-        "Item power factor.",
-        "item_power_factor is the relation of how the players equipped item_power"
-        "total relates to their overall level. If 1.0, then sum of the character's"
-        "equipped item's item_power can not be greater than their overall level."
-        "If 2.0, then that sum can not exceed twice the character's overall level."
-        "By setting this to a high enough value, you can effectively disable"
-        "the item_power code."
-        );
+            "item_power_factor",
+            NULL,
+            clioptions_option_item_power_factor,
+            1,
+            "Item power factor.",
+            "item_power_factor is the relation of how the players equipped item_power"
+            "total relates to their overall level. If 1.0, then sum of the character's"
+            "equipped item's item_power can not be greater than their overall level."
+            "If 2.0, then that sum can not exceed twice the character's overall level."
+            "By setting this to a high enough value, you can effectively disable"
+            "the item_power code."
+            );
 
     clioptions_add(
-        "python_reload_modules",
-        NULL,
-        clioptions_option_python_reload_modules,
-        1,
-        "Whether to reload Python modules.",
-        "Whether to reload Python user modules (eg Interface.py and the like)"
-        "each time a Python script executes. If enabled, executing scripts will"
-        "be slower, but allows for easy development of modules. This should not"
-        "be enabled on a production server."
-        );
+            "python_reload_modules",
+            NULL,
+            clioptions_option_python_reload_modules,
+            1,
+            "Whether to reload Python modules.",
+            "Whether to reload Python user modules (eg Interface.py and the like)"
+            "each time a Python script executes. If enabled, executing scripts will"
+            "be slower, but allows for easy development of modules. This should not"
+            "be enabled on a production server."
+            );
 
     clioptions_add(
-        "default_permission_groups",
-        NULL,
-        clioptions_option_default_permission_groups,
-        1,
-        "Permission groups applied to all players.",
-        "Comma-delimited list of permission groups that every player will be"
-        "able to access, eg, '[MOD],[DEV]'. 'None' is the same as not using"
-        "the option in the first place, ie, no default permission groups."
-        );
+            "default_permission_groups",
+            NULL,
+            clioptions_option_default_permission_groups,
+            1,
+            "Permission groups applied to all players.",
+            "Comma-delimited list of permission groups that every player will be"
+            "able to access, eg, '[MOD],[DEV]'. 'None' is the same as not using"
+            "the option in the first place, ie, no default permission groups."
+            );
 
     clioptions_add(
-        "allowed_chars",
-        NULL,
-        clioptions_option_allowed_chars,
-        1,
-        "",
-        ""
-        );
+            "allowed_chars",
+            NULL,
+            clioptions_option_allowed_chars,
+            1,
+            "",
+            ""
+            );
 
     clioptions_add(
-        "control_allowed_ips",
-        NULL,
-        clioptions_option_control_allowed_ips,
-        1,
-        "",
-        ""
-        );
+            "control_allowed_ips",
+            NULL,
+            clioptions_option_control_allowed_ips,
+            1,
+            "",
+            ""
+            );
 
     clioptions_add(
-        "control_player",
-        NULL,
-        clioptions_option_control_player,
-        1,
-        "",
-        ""
-    );
+            "control_player",
+            NULL,
+            clioptions_option_control_player,
+            1,
+            "",
+            ""
+            );
 
     clioptions_add(
-        "recycle_tmp_maps",
-        NULL,
-        clioptions_option_recycle_tmp_maps,
-        0,
-        "If enabled, reuse temporary map files across server runs.",
-        "Set this if you want the temporary maps to be saved and reused "
-        "across Atrinik runs. This can be especially useful for single player "
-        "servers, but even holds use for multiplayer servers."
-    );
+            "recycle_tmp_maps",
+            NULL,
+            clioptions_option_recycle_tmp_maps,
+            0,
+            "If enabled, reuse temporary map files across server runs.",
+            "Set this if you want the temporary maps to be saved and reused "
+            "across Atrinik runs. This can be especially useful for single player "
+            "servers, but even holds use for multiplayer servers."
+            );
 
     clioptions_add(
-        "http_server",
-        NULL,
-        NULL,
-        1,
-        "Whether to bring up the simple HTTP server.",
-        "If 'on', will bring up the simple HTTP server for serving the game "
-        "server's data files to clients. Use 'off' to disable and configure "
-        "http_url option to your own HTTP server as you see fit."
-    );
+            "http_server",
+            NULL,
+            NULL,
+            1,
+            "Whether to bring up the simple HTTP server.",
+            "If 'on', will bring up the simple HTTP server for serving the game "
+            "server's data files to clients. Use 'off' to disable and configure "
+            "http_url option to your own HTTP server as you see fit."
+            );
 
     clioptions_add(
-        "http_url",
-        NULL,
-        clioptions_option_http_url,
-        1,
-        "URL of the HTTP server.",
-        "URL pointing to the HTTP server."
-    );
+            "http_url",
+            NULL,
+            clioptions_option_http_url,
+            1,
+            "URL of the HTTP server.",
+            "URL pointing to the HTTP server."
+            );
 
     clioptions_add(
-        "logger_filter_stdout",
-        NULL,
-        clioptions_option_logger_filter_stdout,
-        1,
-        "",
-        ""
-    );
+            "logger_filter_stdout",
+            NULL,
+            clioptions_option_logger_filter_stdout,
+            1,
+            "",
+            ""
+            );
 
     clioptions_add(
-        "logger_filter_logfile",
-        NULL,
-        clioptions_option_logger_filter_logfile,
-        1,
-        "",
-        ""
-    );
+            "logger_filter_logfile",
+            NULL,
+            clioptions_option_logger_filter_logfile,
+            1,
+            "",
+            ""
+            );
 
     memset(&settings, 0, sizeof(settings));
 
@@ -768,8 +759,7 @@ static void init_clocks(void)
 
     if (has_been_done) {
         return;
-    }
-    else {
+    } else {
         has_been_done = 1;
     }
 

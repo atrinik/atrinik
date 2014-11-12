@@ -39,8 +39,7 @@
 /**
  * One map cell. Used to hold 'cache' of faces we already sent
  * to the client. */
-typedef struct MapCell_struct
-{
+typedef struct MapCell_struct {
     /** Cache of last sent ambient sound. */
     tag_t sound_ambient_count;
 
@@ -76,15 +75,13 @@ typedef struct MapCell_struct
 } MapCell;
 
 /** One map for a player. */
-struct Map
-{
+struct Map {
     /** The map cells. */
     struct MapCell_struct cells[MAP_CLIENT_X][MAP_CLIENT_Y];
 };
 
 /** Possible socket statuses. */
-enum
-{
+enum {
     ST_AVAILABLE,
     ST_WAITING,
     ST_LOGIN,
@@ -94,8 +91,7 @@ enum
 };
 
 /** This contains basic information on the socket structure. */
-typedef struct socket_struct
-{
+typedef struct socket_struct {
     /** The actual file descriptor we are using. */
     int fd;
 
@@ -180,8 +176,7 @@ typedef struct socket_struct
 #define SOCKET_KEEPALIVE_TIMEOUT (60 * 10)
 
 /** Holds some system related information. */
-typedef struct Socket_Info_struct
-{
+typedef struct Socket_Info_struct {
     /** Timeout for select. */
     struct timeval timeout;
 
@@ -198,8 +193,7 @@ typedef struct Socket_Info_struct
 /**
  * A single file loaded from the updates directory that the client can
  * request. */
-typedef struct update_file_struct
-{
+typedef struct update_file_struct {
     /** File's CRC32. */
     unsigned long checksum;
 

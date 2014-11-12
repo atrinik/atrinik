@@ -54,11 +54,11 @@ void widget_highlight_menu(widgetdata *widget)
          * for visual feedback. */
         if (tmp == widget_mouse_event.owner) {
             visible = 1;
-        }
-        /* The cursor is hovering over something the menuitem contains. This
-         * only needs to search the direct children,
-         * as there should be nothing contained within the children. */
-        else if (tmp->inv) {
+        } else if (tmp->inv) {
+            /* The cursor is hovering over something the menuitem contains. This
+             * only needs to search the direct children,
+             * as there should be nothing contained within the children. */
+            
             for (tmp2 = tmp->inv; tmp2; tmp2 = tmp2->next) {
                 if (tmp2 == widget_mouse_event.owner) {
                     /* The cursor was hovering over something inside the
@@ -90,9 +90,9 @@ void widget_highlight_menu(widgetdata *widget)
                 x = tmp->x + widget->w - 4;
                 y = tmp->y - (CONTAINER(widget))->outer_padding_top;
             }
-        }
-        /* Cursor no longer hovers over the menuitem. */
-        else {
+        } else {
+            /* Cursor no longer hovers over the menuitem. */
+            
             tmp->hidden = 1;
 
             /* Let's check if we need to remove the submenu.
@@ -124,18 +124,16 @@ void widget_highlight_menu(widgetdata *widget)
                         }
 
                         menu->submenu = NULL;
-                    }
-                    else {
+                    } else {
                         /* Cursor is hovering over the submenu, so leave this
                          * menuitem highlighted. */
                         tmp->hidden = 0;
                     }
-                }
-                /* Cursor is not over a menu, so leave the menuitem containing
-                 * the submenu highlighted.
-                 * We want to keep the submenu open, which should reduce
-                 * annoyance if the user is not precise with the mouse. */
-                else {
+                } else {
+                    /* Cursor is not over a menu, so leave the menuitem containing
+                     * the submenu highlighted.
+                     * We want to keep the submenu open, which should reduce
+                     * annoyance if the user is not precise with the mouse. */
                     tmp->hidden = 0;
                 }
             }

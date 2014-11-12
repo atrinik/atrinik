@@ -31,8 +31,7 @@
 
 /**
  * The attack IDs. */
-typedef enum _attacks
-{
+typedef enum _attacks {
     /** Impact. */
     ATNR_IMPACT,
     /** Slash. */

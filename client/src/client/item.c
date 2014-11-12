@@ -69,8 +69,7 @@ void objects_free(object *op)
     while (op) {
         if (op->itype == TYPE_SPELL) {
             spells_remove(op);
-        }
-        else if (op->itype == TYPE_SKILL) {
+        } else if (op->itype == TYPE_SKILL) {
             skills_remove(op);
         }
 
@@ -83,6 +82,7 @@ void objects_free(object *op)
         op = next;
     }
 }
+
 /**
  * Find an object inside another object, but not inside inventories.
  * @param op Object to search in.
@@ -111,8 +111,7 @@ object *object_find_object(object *op, sint32 tag)
     for (; op; op = op->next) {
         if (op->tag == tag) {
             return op;
-        }
-        else if (op->inv) {
+        } else if (op->inv) {
             object *tmp = object_find_object(op->inv, tag);
 
             if (tmp) {
@@ -173,11 +172,9 @@ void object_remove(object *op)
 
     if (op->itype == TYPE_SPELL) {
         spells_remove(op);
-    }
-    else if (op->itype == TYPE_SKILL) {
+    } else if (op->itype == TYPE_SKILL) {
         skills_remove(op);
-    }
-    else if (op->itype == TYPE_FORCE || op->itype == TYPE_POISONING) {
+    } else if (op->itype == TYPE_FORCE || op->itype == TYPE_POISONING) {
         widget_active_effects_remove(cur_widget[ACTIVE_EFFECTS_ID], op);
     }
 
@@ -189,8 +186,7 @@ void object_remove(object *op)
 
     if (op->prev) {
         op->prev->next = op->next;
-    }
-    else {
+    } else {
         op->env->inv = op->next;
     }
 
@@ -251,8 +247,7 @@ static void object_add(object *env, object *op, int bflag)
         op->prev = NULL;
         env->inv = op;
         op->env = env;
-    }
-    else {
+    } else {
         for (tmp = env->inv; tmp && tmp->next; tmp = tmp->next) {
         }
 
@@ -262,8 +257,7 @@ static void object_add(object *env, object *op, int bflag)
 
         if (!tmp) {
             env->inv = op;
-        }
-        else {
+        } else {
             if (tmp->next) {
                 tmp->next->prev = op;
             }
@@ -339,8 +333,7 @@ void object_send_mark(object *op)
 
     if (cpl.mark_count == op->tag) {
         cpl.mark_count = -1;
-    }
-    else {
+    } else {
         cpl.mark_count = op->tag;
     }
 
@@ -409,8 +402,7 @@ static int animate_object(object *ob)
 
             if (ob->direction > animations[ob->animation_id].facings) {
                 ob->face = animations[ob->animation_id].faces[ob->anim_state];
-            }
-            else {
+            } else {
                 ob->face = animations[ob->animation_id].faces[animations[ob->animation_id].frame * ob->direction + ob->anim_state];
             }
 
@@ -476,7 +468,7 @@ void object_show_centered(SDL_Surface *surface, object *tmp, int x, int y)
     face = tmp->face;
 
     /* If the item is animated, try to use the first animation face for
-    * coordinate calculations to prevent 'jumping' of the animation. */
+     * coordinate calculations to prevent 'jumping' of the animation. */
     if (tmp->animation_id > 0) {
         check_animation_status(tmp->animation_id);
 
@@ -495,8 +487,7 @@ void object_show_centered(SDL_Surface *surface, object *tmp, int x, int y)
         temp = (xlen - INVENTORY_ICON_SIZE) / 2;
         box.x = xstart + temp;
         xstart = 0;
-    }
-    else {
+    } else {
         box.w = xlen;
         box.x = xstart;
         xstart = (INVENTORY_ICON_SIZE - xlen) / 2;
@@ -507,8 +498,7 @@ void object_show_centered(SDL_Surface *surface, object *tmp, int x, int y)
         temp = (ylen - INVENTORY_ICON_SIZE) / 2;
         box.y = ystart + temp;
         ystart = 0;
-    }
-    else {
+    } else {
         box.h = ylen;
         box.y = ystart;
         ystart = (INVENTORY_ICON_SIZE - ylen) / 2;
@@ -535,8 +525,7 @@ void object_show_centered(SDL_Surface *surface, object *tmp, int x, int y)
             }
 
             xstart = 0;
-        }
-        else {
+        } else {
             if (box.w + xstart > INVENTORY_ICON_SIZE) {
                 box.w -= ((box.w + xstart) - INVENTORY_ICON_SIZE);
             }
@@ -551,8 +540,7 @@ void object_show_centered(SDL_Surface *surface, object *tmp, int x, int y)
             }
 
             ystart = 0;
-        }
-        else {
+        } else {
             if (box.h + ystart > INVENTORY_ICON_SIZE) {
                 box.h -= ((box.h + ystart) - INVENTORY_ICON_SIZE);
             }

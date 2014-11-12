@@ -74,6 +74,7 @@ START_TEST(test_put_object_in_sack)
     fail_if(sack->inv != NULL, "Item was put in sack even if too heavy?");
     fail_if(GET_MAP_OB(test_map, 1, 0) != obj, "Object was removed from map?");
 }
+
 END_TEST
 
 static Suite *object_suite(void)

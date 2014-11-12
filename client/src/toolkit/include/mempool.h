@@ -34,8 +34,7 @@
  *
  * It is up to the application to keep track of which pool it belongs
  * to. */
-typedef struct mempool_chunk_struct
-{
+typedef struct mempool_chunk_struct {
     /* This struct must always be padded for longword alignment of the data
      * coming behind it.
      * Not a problem as long as we only keep a single pointer here, but be
@@ -63,8 +62,7 @@ typedef void (*chunk_destructor)(void *ptr);
 #define MEMPOOL_MAX_ARRAYSIZE (1 << MEMPOOL_NROF_FREELISTS)
 
 /** Data for a single memory pool */
-typedef struct mempool_struct
-{
+typedef struct mempool_struct {
     /** Mutex protecting the mempool's data. */
     pthread_mutex_t mutex;
 

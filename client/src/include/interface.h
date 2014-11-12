@@ -31,8 +31,7 @@
 
 /**
  * Interface data. */
-typedef struct interface_struct
-{
+typedef struct interface_struct {
     /** Message contents. */
     char *message;
 

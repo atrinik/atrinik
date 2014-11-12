@@ -30,8 +30,7 @@
 #define CURL_H
 
 /** cURL data. */
-typedef struct curl_data
-{
+typedef struct curl_data {
     /** The data. Can be NULL in case we got no data from the url. */
     char *memory;
 

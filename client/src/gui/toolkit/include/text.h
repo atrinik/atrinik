@@ -30,8 +30,7 @@
 #define TEXT_H
 
 /** One font. */
-typedef struct font_struct
-{
+typedef struct font_struct {
     /** Key of the font (name@size) */
     char *key;
 
@@ -141,8 +140,7 @@ typedef struct font_struct
 /**
  * Structure that holds information about markup and other things when
  * drawing. */
-typedef struct text_info_struct
-{
+typedef struct text_info_struct {
     /** Anchor tag position. */
     const char *anchor_tag;
 

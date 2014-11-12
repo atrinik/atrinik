@@ -42,8 +42,7 @@
 
 /**
  * A single update file that is to be downloaded. */
-typedef struct update_file_struct
-{
+typedef struct update_file_struct {
     /** File name to download. */
     char *filename;
 

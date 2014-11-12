@@ -64,8 +64,9 @@ void connection_object_add(object *op, mapstruct *map, int connected)
         ol2->next = ol->objlink.link;
         ol->objlink.link = ol2;
     }
-    /* Create new. */
     else {
+        /* Create new. */
+
         ol = get_objectlink();
         ol->value = connected;
 

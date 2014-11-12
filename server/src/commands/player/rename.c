@@ -53,8 +53,7 @@ void command_rename(object *op, const char *command, char *params)
 
         FREE_AND_CLEAR_HASH(tmp->custom_name);
         draw_info_format(COLOR_WHITE, op, "You stop calling your %s with weird names.", query_base_name(tmp, NULL));
-    }
-    else {
+    } else {
         if (tmp->type == MONEY) {
             draw_info(COLOR_WHITE, op, "You cannot rename that item.");
             return;

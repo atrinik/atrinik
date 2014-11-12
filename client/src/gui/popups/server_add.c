@@ -99,13 +99,11 @@ static int popup_event(popup_struct *popup, SDL_Event *event)
         if (text_input_mouse_over(&text_input_server_host, event->button.x, event->button.y)) {
             text_input_server_port.focus = 0;
             text_input_server_host.focus = 1;
-        }
-        else if (text_input_mouse_over(&text_input_server_port, event->button.x, event->button.y)) {
+        } else if (text_input_mouse_over(&text_input_server_port, event->button.x, event->button.y)) {
             text_input_server_host.focus = 0;
             text_input_server_port.focus = 1;
         }
-    }
-    else if (event->type == SDL_KEYDOWN) {
+    } else if (event->type == SDL_KEYDOWN) {
         if (event->key.keysym.sym == SDLK_TAB) {
             text_input_server_host.focus = !text_input_server_host.focus;
             text_input_server_port.focus = !text_input_server_port.focus;

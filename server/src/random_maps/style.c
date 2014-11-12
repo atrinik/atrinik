@@ -125,8 +125,7 @@ mapstruct *load_style_map(char *style_name)
 
         if (style_map == first_map) {
             first_map = style_map->next;
-        }
-        else {
+        } else {
             for (tmp = first_map; tmp && tmp->next != style_map; tmp = tmp->next) {
             }
 
@@ -169,8 +168,8 @@ mapstruct *find_style(char *dirname, char *stylename, int difficulty)
     if (stylename && strlen(stylename) > 0) {
         snprintf(style_file_path, sizeof(style_file_path), "%s/%s", dirname, stylename);
     }
-    /* Otherwise, just use the dirname.  We'll pick a random stylefile.*/
     else {
+        /* Otherwise, just use the dirname.  We'll pick a random stylefile.*/
         snprintf(style_file_path, sizeof(style_file_path), "%s", dirname);
     }
 
@@ -211,17 +210,17 @@ mapstruct *find_style(char *dirname, char *stylename, int difficulty)
         if (difficulty == -1) {
             if (only_subdirs) {
                 style_map = NULL;
-            }
-            else {
+            } else {
                 strcat(style_file_path, "/");
                 strcat(style_file_path, namelist[RANDOM() % n]);
 
                 style_map = load_style_map(style_file_path);
             }
         }
-        /* find the map closest in difficulty */
         else {
             int min_dist = 32000, min_index = -1;
+
+            /* find the map closest in difficulty */
 
             for (i = 0; i < n; i++) {
                 int dist;
@@ -241,8 +240,7 @@ mapstruct *find_style(char *dirname, char *stylename, int difficulty)
                     efree(namelist);
 
                     return style_map;
-                }
-                else {
+                } else {
                     dist = abs(difficulty - atoi(mfile_name));
 
                     if (dist < min_dist) {
@@ -283,20 +281,17 @@ object *pick_random_object(mapstruct *style)
     /* If someone makes a style map that is empty, this will loop forever,
      * but the callers will crash if we return a NULL object, so either
      * way is not good. */
-    do
-    {
+    do {
         i = RANDOM () % (MAP_WIDTH(style) * MAP_HEIGHT(style));
 
         x = i / MAP_HEIGHT(style);
         y = i % MAP_HEIGHT(style);
         new_obj = GET_MAP_OB(style, x, y);
-    }
-    while (new_obj == NULL);
+    }    while (new_obj == NULL);
 
     if (new_obj->head) {
         return new_obj->head;
-    }
-    else {
+    } else {
         return new_obj;
     }
 }

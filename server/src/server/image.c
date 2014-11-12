@@ -42,12 +42,11 @@ New_Face *new_faces;
  * number corresponds to the face at that number - for ::xbm, it may not.
  * At current time, these do in fact match because the bmaps file is
  * created in a sorted order. */
-struct bmappair
-{
+struct bmappair {
     char *name;
 
     unsigned int number;
-};
+} ;
 
 /**
  * The xbm array (which contains name and number information, and is then
@@ -123,8 +122,7 @@ int read_bmap_names(void)
         if (cp) {
             cp++;
             xbm[nroffiles].name = estrdup(cp);
-        }
-        else {
+        } else {
             xbm[nroffiles].name = estrdup(buf);
         }
 

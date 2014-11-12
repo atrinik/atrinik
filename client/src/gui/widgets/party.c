@@ -37,8 +37,7 @@
 #define PARTY_STAT_BAR() \
     snprintf(bars, sizeof(bars), "[x=5][bar=#000000 %d 6][bar=#cb0202 %d 6][border=#909090 60 6][y=6][bar=#000000 %d 6][bar=#1818a4 %d 6][y=-1][border=#909090 60 7]", STAT_BAR_WIDTH, (int) (STAT_BAR_WIDTH * (hp / 100.0)), STAT_BAR_WIDTH, (int) (STAT_BAR_WIDTH * (sp / 100.0)));
 
-enum
-{
+enum {
     BUTTON_PARTIES,
     BUTTON_MEMBERS,
     BUTTON_FORM,
@@ -49,7 +48,7 @@ enum
     BUTTON_HELP,
 
     BUTTON_NUM
-};
+} ;
 
 /**
  * Button buffer. */
@@ -112,8 +111,7 @@ void socket_command_party(uint8 *data, size_t len, size_t pos)
                 packet_to_string(data, len, &pos, party_leader, sizeof(party_leader));
                 list_add(list_party, list_party->rows, 0, party_name);
                 list_add(list_party, list_party->rows - 1, 1, party_leader);
-            }
-            else if (type == CMD_PARTY_WHO) {
+            } else if (type == CMD_PARTY_WHO) {
                 char name[MAX_BUF], bars[MAX_BUF];
                 uint8 hp, sp;
 
@@ -139,39 +137,38 @@ void socket_command_party(uint8 *data, size_t len, size_t pos)
         cur_widget[PARTY_ID]->redraw = 1;
         cur_widget[PARTY_ID]->show = 1;
         SetPriorityWidget(cur_widget[PARTY_ID]);
-    }
-    /* Join command; store the party name we're member of, and show the
-     * list of party members, if the party widget is not hidden. */
-    else if (type == CMD_PARTY_JOIN) {
+    } else if (type == CMD_PARTY_JOIN) {
+        /* Join command; store the party name we're member of, and show the
+         * list of party members, if the party widget is not hidden. */
         packet_to_string(data, len, &pos, cpl.partyname, sizeof(cpl.partyname));
 
         if (cur_widget[PARTY_ID]->show) {
             send_command("/party who");
         }
-    }
-    /* Leave; clear the party name and switch to list of parties (unless
-     * the party widget is hidden). */
-    else if (type == CMD_PARTY_LEAVE) {
+    } else if (type == CMD_PARTY_LEAVE) {
+        /* Leave; clear the party name and switch to list of parties (unless
+         * the party widget is hidden). */
+        
         cpl.partyname[0] = '\0';
 
         if (cur_widget[PARTY_ID]->show) {
             send_command("/party list");
         }
-    }
-    /* Party requires password, bring up the console for the player to
-     * enter the password. */
-    else if (type == CMD_PARTY_PASSWORD) {
+    } else if (type == CMD_PARTY_PASSWORD) {
         char buf[MAX_BUF];
+        
+        /* Party requires password, bring up the console for the player to
+         * enter the password. */
 
         packet_to_string(data, len, &pos, cpl.partyjoin, sizeof(cpl.partyjoin));
         snprintf(buf, sizeof(buf), "?MCON /joinpassword ");
         keybind_process_command(buf);
-    }
-    /* Update list of party members. */
-    else if (type == CMD_PARTY_UPDATE) {
+    } else if (type == CMD_PARTY_UPDATE) {
         char name[MAX_BUF], bars[MAX_BUF];
         uint8 hp, sp;
         uint32 row;
+        
+        /* Update list of party members. */
 
         if (list_contents != CMD_PARTY_WHO) {
             return;
@@ -195,11 +192,11 @@ void socket_command_party(uint8 *data, size_t len, size_t pos)
         list_add(list_party, list_party->rows, 0, name);
         list_add(list_party, list_party->rows - 1, 1, bars);
         list_sort(list_party, LIST_SORT_ALPHA);
-    }
-    /* Remove member from the list of party members. */
-    else if (type == CMD_PARTY_REMOVE_MEMBER) {
+    } else if (type == CMD_PARTY_REMOVE_MEMBER) {
         char name[MAX_BUF];
         uint32 row;
+        
+        /* Remove member from the list of party members. */
 
         if (list_contents != CMD_PARTY_WHO) {
             return;
@@ -257,8 +254,7 @@ static void widget_draw(widgetdata *widget)
 
         if (cpl.partyname[0] == '\0') {
             button_show(&buttons[BUTTON_FORM], "Form");
-        }
-        else {
+        } else {
             button_show(&buttons[BUTTON_MEMBERS], list_contents == CMD_PARTY_WHO ? "[u]Members[/u]" : "Members");
             buttons[BUTTON_LEAVE].x = buttons[BUTTON_PASSWORD].x = buttons[BUTTON_CHAT].x = 244;
             buttons[BUTTON_LEAVE].y = 82;
@@ -295,8 +291,7 @@ static void widget_background(widgetdata *widget)
                 buttons[i].texture = texture_get(TEXTURE_TYPE_CLIENT, "button_round");
                 buttons[i].texture_pressed = texture_get(TEXTURE_TYPE_CLIENT, "button_round_down");
                 buttons[i].texture_over = texture_get(TEXTURE_TYPE_CLIENT, "button_round_over");
-            }
-            else if (i == BUTTON_PARTIES || i == BUTTON_MEMBERS) {
+            } else if (i == BUTTON_PARTIES || i == BUTTON_MEMBERS) {
                 buttons[i].flags = TEXT_MARKUP;
             }
         }
@@ -339,40 +334,40 @@ static int widget_event(widgetdata *widget, SDL_Event *event)
 
         if (button_event(&buttons[i], event)) {
             switch (i) {
-                case BUTTON_PARTIES:
-                    send_command("/party list");
-                    break;
+            case BUTTON_PARTIES:
+                send_command("/party list");
+                break;
 
-                case BUTTON_MEMBERS:
-                    send_command("/party who");
-                    break;
+            case BUTTON_MEMBERS:
+                send_command("/party who");
+                break;
 
-                case BUTTON_FORM:
-                    snprintf(buf, sizeof(buf), "?MCON /party form ");
-                    keybind_process_command(buf);
-                    break;
+            case BUTTON_FORM:
+                snprintf(buf, sizeof(buf), "?MCON /party form ");
+                keybind_process_command(buf);
+                break;
 
-                case BUTTON_PASSWORD:
-                    snprintf(buf, sizeof(buf), "?MCON /party password ");
-                    keybind_process_command(buf);
-                    break;
+            case BUTTON_PASSWORD:
+                snprintf(buf, sizeof(buf), "?MCON /party password ");
+                keybind_process_command(buf);
+                break;
 
-                case BUTTON_LEAVE:
-                    send_command("/party leave");
-                    break;
+            case BUTTON_LEAVE:
+                send_command("/party leave");
+                break;
 
-                case BUTTON_CHAT:
-                    snprintf(buf, sizeof(buf), "?MCON /gsay ");
-                    keybind_process_command(buf);
-                    break;
+            case BUTTON_CHAT:
+                snprintf(buf, sizeof(buf), "?MCON /gsay ");
+                keybind_process_command(buf);
+                break;
 
-                case BUTTON_CLOSE:
-                    widget->show = 0;
-                    break;
+            case BUTTON_CLOSE:
+                widget->show = 0;
+                break;
 
-                case BUTTON_HELP:
-                    help_show("spell list");
-                    break;
+            case BUTTON_HELP:
+                help_show("spell list");
+                break;
             }
 
             widget->redraw = 1;

@@ -98,15 +98,13 @@
 #define M_START_ICE             12 * 64 + 1
 
 /** A single material. */
-typedef struct
-{
+typedef struct {
     /** Name of the material. */
     char *name;
 } materialtype;
 
 /** A real material. */
-typedef struct _material_real_struct
-{
+typedef struct _material_real_struct {
     /** Name of this material. */
     char name[MAX_BUF];
 

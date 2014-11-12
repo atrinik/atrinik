@@ -107,8 +107,7 @@ void set_npc_enemy(object *npc, object *enemy, rv_vector *rv)
             /* The unaggressives look after themselves 8) */
             CLEAR_FLAG(npc, FLAG_UNAGGRESSIVE);
         }
-    }
-    else {
+    } else {
         object *base = insert_base_info_object(npc);
         object *wp = get_active_waypoint(npc);
 
@@ -185,8 +184,7 @@ void set_npc_enemy(object *npc, object *enemy, rv_vector *rv)
 #ifdef DEBUG_PATHFINDING
             logger_print(LOG(DEBUG), "got wp for '%s' -> '%s'", npc->name, enemy->name);
 #endif
-        }
-        else {
+        } else {
             aggro_wp->enemy = NULL;
 #ifdef DEBUG_PATHFINDING
             logger_print(LOG(DEBUG), "cleared aggro wp for '%s'", npc->name);
@@ -270,8 +268,9 @@ object *find_enemy(object *npc, rv_vector *rv)
                 /* Skip it, but let's wake up */
                 CLEAR_FLAG(npc, FLAG_SLEEP);
             }
-            /* The only thing we must know... */
             else if (on_same_map(npc, npc->attacked_by)) {
+                /* The only thing we must know... */
+
                 CLEAR_FLAG(npc, FLAG_SLEEP);
                 set_npc_enemy(npc, npc->attacked_by, rv);
                 /* Always clear the attacker entry */
@@ -290,8 +289,7 @@ object *find_enemy(object *npc, rv_vector *rv)
             if (tmp != npc->enemy) {
                 set_npc_enemy(npc, tmp, rv);
             }
-        }
-        else if (npc->enemy) {
+        } else if (npc->enemy) {
             /* Make sure to clear the enemy, even if FLAG_UNAGRESSIVE is true */
             set_npc_enemy(npc, NULL, NULL);
         }
@@ -334,8 +332,8 @@ static int can_detect_enemy(object *op, object *enemy, rv_vector *rv)
             return 0;
         }
     }
-    /* Our mob is aggroed again - because target is in range again */
     else {
+        /* Our mob is aggroed again - because target is in range again */
         op->last_eat = 0;
     }
 
@@ -425,8 +423,7 @@ static void process_func(object *op)
         }
 
         enemy = NULL;
-    }
-    else if ((enemy = find_enemy(op, &rv))) {
+    } else if ((enemy = find_enemy(op, &rv))) {
         CLEAR_FLAG(op, FLAG_SLEEP);
         op->direction = rv.direction;
 
@@ -510,46 +507,45 @@ static void process_func(object *op)
                 }
 
                 switch (op->move_type & HI4) {
-                    case CIRCLE1:
-                        circ1_move(op);
-                        break;
+                case CIRCLE1:
+                    circ1_move(op);
+                    break;
 
-                    case CIRCLE2:
-                        circ2_move(op);
-                        break;
+                case CIRCLE2:
+                    circ2_move(op);
+                    break;
 
-                    case PACEV:
-                        pace_movev(op);
-                        break;
+                case PACEV:
+                    pace_movev(op);
+                    break;
 
-                    case PACEH:
-                        pace_moveh(op);
-                        break;
+                case PACEH:
+                    pace_moveh(op);
+                    break;
 
-                    case PACEV2:
-                        pace2_movev(op);
-                        break;
+                case PACEV2:
+                    pace2_movev(op);
+                    break;
 
-                    case PACEH2:
-                        pace2_moveh(op);
-                        break;
+                case PACEH2:
+                    pace2_moveh(op);
+                    break;
 
-                    case RANDO:
-                        rand_move(op);
-                        break;
+                case RANDO:
+                    rand_move(op);
+                    break;
 
-                    case RANDO2:
-                        move_randomly(op);
-                        break;
+                case RANDO2:
+                    move_randomly(op);
+                    break;
 
-                    case WPOINT:
-                        waypoint_move(op, get_active_waypoint(op));
-                        break;
+                case WPOINT:
+                    waypoint_move(op, get_active_waypoint(op));
+                    break;
                 }
 
                 return;
-            }
-            else if (QUERY_FLAG(op, FLAG_RANDOM_MOVE)) {
+            } else if (QUERY_FLAG(op, FLAG_RANDOM_MOVE)) {
                 if (monster_can_move(op)) {
                     move_randomly(op);
                 }
@@ -598,37 +594,37 @@ static void process_func(object *op)
     if (!QUERY_FLAG(op, FLAG_SCARED)) {
         if (op->attack_move_type & LO4) {
             switch (op->attack_move_type & LO4) {
-                case DISTATT:
-                    special_dir = dist_att(dir, part, &rv);
-                    break;
+            case DISTATT:
+                special_dir = dist_att(dir, part, &rv);
+                break;
 
-                case RUNATT:
-                    special_dir = run_att(dir, op, part, &rv);
-                    break;
+            case RUNATT:
+                special_dir = run_att(dir, op, part, &rv);
+                break;
 
-                case HITRUN:
-                    special_dir = hitrun_att(dir, op);
-                    break;
+            case HITRUN:
+                special_dir = hitrun_att(dir, op);
+                break;
 
-                case WAITATT:
-                    special_dir = wait_att(dir, op, part, &rv);
-                    break;
+            case WAITATT:
+                special_dir = wait_att(dir, op, part, &rv);
+                break;
 
-                case RUSH:
-                case ALLRUN:
-                    special_dir = dir;
-                    break;
+            case RUSH:
+            case ALLRUN:
+                special_dir = dir;
+                break;
 
-                case DISTHIT:
-                    special_dir = disthit_att(dir, op, part, &rv);
-                    break;
+            case DISTHIT:
+                special_dir = disthit_att(dir, op, part, &rv);
+                break;
 
-                case WAIT2:
-                    special_dir = wait_att2(dir, &rv);
-                    break;
+            case WAIT2:
+                special_dir = wait_att2(dir, &rv);
+                break;
 
-                default:
-                    logger_print(LOG(DEBUG), "Illegal low mon-move: %d", op->attack_move_type & LO4);
+            default:
+                logger_print(LOG(DEBUG), "Illegal low mon-move: %d", op->attack_move_type & LO4);
             }
 
             if (!special_dir) {
@@ -656,8 +652,7 @@ static void process_func(object *op)
         if (aggro_wp && aggro_wp->enemy && aggro_wp->enemy == op->enemy && rv.distance > 1 && !QUERY_FLAG(op, FLAG_SCARED) && !QUERY_FLAG(op, FLAG_RUN_AWAY)) {
             waypoint_move(op, aggro_wp);
             return;
-        }
-        else {
+        } else {
             int maxdiff = (QUERY_FLAG(op, FLAG_ONLY_ATTACK) || RANDOM() & 1) ? 1 : 2;
 
             /* Can the monster move directly toward player? */
@@ -698,8 +693,7 @@ static void process_func(object *op)
             }
 
             part->stats.wc += 10;
-        }
-        else {
+        } else {
             /* As long we are > 0, we are not ready to swing */
             if (op->weapon_speed_left <= 0) {
                 skill_attack(enemy, part, 0, NULL);
@@ -749,8 +743,7 @@ static int can_detect_target(object *op, object *target, int range, int srange, 
         if (srange < (int) rv->distance) {
             return 0;
         }
-    }
-    else {
+    } else {
         if (range < (int) rv->distance) {
             return 0;
         }
@@ -780,8 +773,7 @@ static object *find_nearest_enemy(object *ob)
     if (QUERY_FLAG(ob, FLAG_SLEEP) || QUERY_FLAG(ob, FLAG_BLIND)) {
         aggro_range /= 2;
         aggro_stealth = aggro_range - 2;
-    }
-    else {
+    } else {
         aggro_stealth = aggro_range - 2;
     }
 
@@ -876,8 +868,8 @@ static int move_randomly(object *op)
             if (ret == 1) {
                 return 0;
             }
-            /* Keep trying. */
             else if (ret == 2) {
+                /* Keep trying. */
                 continue;
             }
         }
@@ -913,7 +905,7 @@ static int can_hit(object *ob1, rv_vector *rv)
  * @return Random spell object, NULL if no spell found. */
 static object *monster_choose_random_spell(object *monster, uint32 flags)
 {
-    object *altern[MAX_KNOWN_SPELLS], *tmp;
+    object * altern[MAX_KNOWN_SPELLS], *tmp;
     spell_struct *spell;
     int i = 0, j;
 
@@ -925,8 +917,7 @@ static object *monster_choose_random_spell(object *monster, uint32 flags)
                     for (j = 0; i < MAX_KNOWN_SPELLS && j < tmp->stats.maxsp; j++) {
                         altern[i++] = tmp;
                     }
-                }
-                else {
+                } else {
                     altern[i++] = tmp;
                 }
 
@@ -953,9 +944,9 @@ static object *monster_choose_random_spell(object *monster, uint32 flags)
 static int monster_spell_useful(object *target, int spell_id)
 {
     switch (spell_id) {
-        case SP_MINOR_HEAL:
-        case SP_GREATER_HEAL:
-            return target->stats.hp != target->stats.maxhp;
+    case SP_MINOR_HEAL:
+    case SP_GREATER_HEAL:
+        return target->stats.hp != target->stats.maxhp;
     }
 
     return 1;
@@ -988,12 +979,10 @@ static int monster_cast_spell(object *head, object *part, int dir, rv_vector *rv
         /* Alternate long-range spell: check how far away enemy is */
         if (rv->distance > 6) {
             sp_typ = spell_item->stats.hp;
-        }
-        else {
+        } else {
             sp_typ = spell_item->stats.sp;
         }
-    }
-    else {
+    } else {
         sp_typ = spell_item->stats.sp;
 
         /* Not looking for friendly target, but this is a friendly spell, and
@@ -1122,8 +1111,7 @@ static int dist_att(int dir, object *part, rv_vector *rv)
 
     if (rv->distance < 10) {
         return absdir(dir + 4);
-    }
-    else if (rv->distance > 18) {
+    } else if (rv->distance > 18) {
         return dir;
     }
 
@@ -1142,8 +1130,7 @@ static int run_att(int dir, object *ob, object *part, rv_vector *rv)
     if ((can_hit(part, rv) && ob->move_status < 20) || ob->move_status < 20) {
         ob->move_status++;
         return dir;
-    }
-    else if (ob->move_status > 20) {
+    } else if (ob->move_status > 20) {
         ob->move_status = 0;
     }
 
@@ -1159,11 +1146,9 @@ static int hitrun_att(int dir, object *ob)
 {
     if (ob->move_status++ < 25) {
         return dir;
-    }
-    else if (ob->move_status < 50) {
+    } else if (ob->move_status < 50) {
         return absdir(dir + 4);
-    }
-    else {
+    } else {
         ob->move_status = 0;
     }
 
@@ -1185,11 +1170,9 @@ static int wait_att(int dir, object *ob, object *part, rv_vector *rv)
 
     if (ob->move_status == 0) {
         return 0;
-    }
-    else if (ob->move_status < 10) {
+    } else if (ob->move_status < 10) {
         return dir;
-    }
-    else if (ob->move_status < 15) {
+    } else if (ob->move_status < 15) {
         return absdir(dir + 4);
     }
 
@@ -1270,8 +1253,7 @@ static void pace_movev(object *ob)
 
     if (ob->move_status < 4) {
         move_object(ob, 5);
-    }
-    else {
+    } else {
         move_object(ob, 1);
     }
 }
@@ -1287,8 +1269,7 @@ static void pace_moveh(object *ob)
 
     if (ob->move_status < 4) {
         move_object(ob, 3);
-    }
-    else {
+    } else {
         move_object(ob, 7);
     }
 }
@@ -1304,11 +1285,9 @@ static void pace2_movev(object *ob)
 
     if (ob->move_status < 6) {
         move_object(ob, 5);
-    }
-    else if (ob->move_status < 8) {
+    } else if (ob->move_status < 8) {
         return;
-    }
-    else if (ob->move_status < 13) {
+    } else if (ob->move_status < 13) {
         move_object(ob, 1);
     }
 }
@@ -1324,11 +1303,9 @@ static void pace2_moveh(object *ob)
 
     if (ob->move_status < 6) {
         move_object(ob, 3);
-    }
-    else if (ob->move_status < 8) {
+    } else if (ob->move_status < 8) {
         return;
-    }
-    else if (ob->move_status < 13) {
+    } else if (ob->move_status < 13) {
         move_object(ob, 7);
     }
 }
@@ -1366,8 +1343,7 @@ static char *find_matching_message(const char *msg, const char *match)
         if (strncmp(cp, "@match ", 7)) {
             logger_print(LOG(DEBUG), "Invalid message: %s", msg);
             return NULL;
-        }
-        else {
+        } else {
             /* Find the end of the line, and copy the regex portion into it */
             cp2 = strchr(cp + 7, '\n');
 
@@ -1385,8 +1361,7 @@ static char *find_matching_message(const char *msg, const char *match)
             /* Got a match - handle * as special case. */
             if (regex[0] == '*') {
                 gotmatch = 1;
-            }
-            else {
+            } else {
                 char *pipe_sep, *pnext = NULL;
 
                 /* Need to parse all the | separators.  Our re_cmp isn't
@@ -1412,8 +1387,8 @@ static char *find_matching_message(const char *msg, const char *match)
                     strncpy(cp3, cp2 + 1, cp1 - cp2);
                     cp3[cp1 - cp2 - 1] = '\0';
                 }
-                /* If no next match, just want the rest of the string */
                 else {
+                    /* If no next match, just want the rest of the string */
                     cp3 = estrdup(cp2 + 1);
                 }
 
@@ -1424,8 +1399,7 @@ static char *find_matching_message(const char *msg, const char *match)
 
             if (cp1) {
                 cp = cp1 + 1;
-            }
-            else {
+            } else {
                 return NULL;
             }
         }
@@ -1489,8 +1463,7 @@ int talk_to_npc(object *op, object *npc, char *txt)
             packet_append_string_terminated(packet, npc->name);
 
             socket_send_packet(&CONTR(op)->socket, packet);
-        }
-        else {
+        } else {
             snprintf(buf, sizeof(buf), "\n%s says: %s", query_name(npc, NULL), cp);
             draw_info_map(CHAT_TYPE_GAME, NULL, COLOR_WHITE, op->map, op->x, op->y, MAP_INFO_NORMAL, op, op, buf);
         }
@@ -1532,8 +1505,7 @@ int faction_is_friend_of(object *mon, object *pl)
 
     if (rep < 0) {
         return pl_rep <= rep ? 0 : -1;
-    }
-    else if (rep > 0) {
+    } else if (rep > 0) {
         return pl_rep >= rep ? 1 : -1;
     }
 
@@ -1585,8 +1557,7 @@ int is_friend_of(object *op, object *obj)
     /* Check factions. */
     if (op->type == PLAYER) {
         faction_friend = faction_is_friend_of(obj, op);
-    }
-    else if (obj->type == PLAYER) {
+    } else if (obj->type == PLAYER) {
         faction_friend = faction_is_friend_of(op, obj);
     }
 
@@ -1627,7 +1598,7 @@ int check_good_weapon(object *who, object *item)
     val += (item->magic - other_weap->magic) * 3;
 
     /* Monsters don't really get benefits from things like regen rates
-    * from items. But the bonus for their stats are very important. */
+     * from items. But the bonus for their stats are very important. */
     for (i = 0; i < NUM_STATS; i++) {
         val += (get_attr_value(&item->stats, i) - get_attr_value(&other_weap->stats, i)) * 2;
     }
@@ -1673,8 +1644,7 @@ int check_good_armour(object *who, object *item)
     for (i = 0; i < NROFATTACKS; i++) {
         if (item->protection[i] > other_armour->protection[i]) {
             val++;
-        }
-        else if (item->protection[i] < other_armour->protection[i]) {
+        } else if (item->protection[i] < other_armour->protection[i]) {
             val--;
         }
     }

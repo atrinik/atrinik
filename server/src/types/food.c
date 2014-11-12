@@ -59,50 +59,50 @@ static void create_food_force(object* who, object *food, object *force)
         int stat_multiplier = QUERY_FLAG(food, FLAG_CURSED) ? 2 : 3;
 
         if (force->stats.Str > 0) {
-            force->stats.Str =-force->stats.Str;
+            force->stats.Str = -force->stats.Str;
         }
 
         force->stats.Str *= stat_multiplier;
 
         if (force->stats.Dex > 0) {
-            force->stats.Dex =-force->stats.Dex;
+            force->stats.Dex = -force->stats.Dex;
         }
 
         force->stats.Dex *= stat_multiplier;
 
         if (force->stats.Con > 0) {
-            force->stats.Con =-force->stats.Con;
+            force->stats.Con = -force->stats.Con;
         }
 
         force->stats.Con *= stat_multiplier;
 
         if (force->stats.Int > 0) {
-            force->stats.Int =-force->stats.Int;
+            force->stats.Int = -force->stats.Int;
         }
 
         force->stats.Int *= stat_multiplier;
 
         if (force->stats.Wis > 0) {
-            force->stats.Wis =-force->stats.Wis;
+            force->stats.Wis = -force->stats.Wis;
         }
 
         force->stats.Wis *= stat_multiplier;
 
         if (force->stats.Pow > 0) {
-            force->stats.Pow =-force->stats.Pow;
+            force->stats.Pow = -force->stats.Pow;
         }
 
         force->stats.Pow *= stat_multiplier;
 
         if (force->stats.Cha > 0) {
-            force->stats.Cha =-force->stats.Cha;
+            force->stats.Cha = -force->stats.Cha;
         }
 
         force->stats.Cha *= stat_multiplier;
 
         for (i = 0; i < NROFATTACKS; i++) {
             if (force->protection[i] > 0) {
-                force->protection[i] =-force->protection[i];
+                force->protection[i] = -force->protection[i];
             }
 
             force->protection[i] *= stat_multiplier;
@@ -147,8 +147,7 @@ static void eat_special_food(object *who, object *food)
      * */
     if (food->stats.Pow || food->stats.Str || food->stats.Dex || food->stats.Con || food->stats.Int || food->stats.Wis || food->stats.Cha) {
         create_food_force(who, food, get_archetype("force"));
-    }
-    else {
+    } else {
         int i;
 
         for (i = 0; i < NROFATTACKS; i++) {
@@ -172,14 +171,12 @@ static void eat_special_food(object *who, object *food)
 
             if (QUERY_FLAG(food, FLAG_CURSED)) {
                 who->stats.hp += tmp * 2;
-            }
-            else {
+            } else {
                 who->stats.hp += tmp * 3;
             }
 
             draw_info(COLOR_WHITE, who, "Eck!... that was rotten food!");
-        }
-        else {
+        } else {
             draw_info(COLOR_WHITE, who, "You begin to feel better.");
             who->stats.hp += food->stats.hp;
 
@@ -201,16 +198,14 @@ static void eat_special_food(object *who, object *food)
 
             if (QUERY_FLAG(food, FLAG_CURSED)) {
                 who->stats.sp += tmp * 2;
-            }
-            else {
+            } else {
                 who->stats.sp += tmp * 3;
             }
 
             if (who->stats.sp < 0) {
                 who->stats.sp = 0;
             }
-        }
-        else {
+        } else {
             draw_info(COLOR_WHITE, who, "You feel a rush of magical energy!");
             who->stats.sp += food->stats.sp;
 
@@ -238,8 +233,7 @@ static int apply_func(object *op, object *applier, int aflags)
 
         if (op->type == FOOD || op->type == FLESH) {
             draw_info(COLOR_WHITE, applier, "You feel full, but what a waste of food!");
-        }
-        else {
+        } else {
             draw_info(COLOR_WHITE, applier, "Most of the drink goes down your face not your throat!");
         }
     }
@@ -251,8 +245,7 @@ static int apply_func(object *op, object *applier, int aflags)
 
         if (op->type == DRINK) {
             draw_info_format(COLOR_WHITE, applier, "Ahhh... that %s tasted good.", op->name);
-        }
-        else {
+        } else {
             draw_info_format(COLOR_WHITE, applier, "The %s tasted %s", op->name, op->type == FLESH ? "terrible!" : "good.");
         }
 
@@ -264,15 +257,14 @@ static int apply_func(object *op, object *applier, int aflags)
         if (applier->stats.hp > applier->stats.maxhp) {
             applier->stats.hp = applier->stats.maxhp;
         }
-    }
-    else {
+    } else {
         draw_info_format(COLOR_WHITE, applier, "The %s tasted terrible!", op->name);
         applier->stats.food = MAX(0, MIN(FOOD_MAX, applier->stats.food - ABS(op->stats.food)));
     }
 
     CONTR(applier)->stat_food_num_consumed++;
 
-    if (op->title || QUERY_FLAG(op, FLAG_CURSED)|| QUERY_FLAG(op, FLAG_DAMNED)) {
+    if (op->title || QUERY_FLAG(op, FLAG_CURSED) || QUERY_FLAG(op, FLAG_DAMNED)) {
         eat_special_food(applier, op);
     }
 

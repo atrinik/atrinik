@@ -33,8 +33,7 @@
 
 /**
  * A single data packet. */
-typedef struct packet_struct
-{
+typedef struct packet_struct {
     /**
      * Next packet to send. */
     struct packet_struct *next;

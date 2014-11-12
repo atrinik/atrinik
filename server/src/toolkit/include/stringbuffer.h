@@ -31,8 +31,7 @@
 
 /**
  * The string buffer state. */
-typedef struct StringBuffer_struct
-{
+typedef struct StringBuffer_struct {
     /**
      * The string buffer. The first ::pos bytes contain the collected
      * string. Its size is at least ::bytes. */

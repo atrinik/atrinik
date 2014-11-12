@@ -37,8 +37,7 @@ typedef void (*console_command_func)(const char *params);
 
 /**
  * One console command. */
-typedef struct console_command_struct
-{
+typedef struct console_command_struct {
     /** Name of the command. */
     char *command;
 

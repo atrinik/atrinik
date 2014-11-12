@@ -40,8 +40,7 @@ static uint8 did_init = 0;
 
 /**
  * Where to search for .bzr directory. */
-static const char *const branch_paths[] =
-{
+static const char *const branch_paths[] = {
     ".", ".."
 };
 
@@ -54,6 +53,7 @@ static int branch_revision;
  * @internal */
 void toolkit_bzr_init(void)
 {
+
     TOOLKIT_INIT_FUNC_START(bzr)
     {
         toolkit_import(path);
@@ -68,6 +68,7 @@ void toolkit_bzr_init(void)
  * @internal */
 void toolkit_bzr_deinit(void)
 {
+
     TOOLKIT_DEINIT_FUNC_START(bzr)
     {
     }

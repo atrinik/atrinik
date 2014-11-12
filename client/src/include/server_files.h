@@ -41,8 +41,7 @@
 #define SERVER_FILE_HFILES          "hfiles"
 
 /** One server file. */
-typedef struct server_files_struct
-{
+typedef struct server_files_struct {
     /** Name of the server file. */
     char *name;
 

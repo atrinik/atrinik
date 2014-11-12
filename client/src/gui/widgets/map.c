@@ -1200,8 +1200,7 @@ void map_target_handle(uint8 is_friend)
 /**
  * Tile offsets used in mouse_to_tile_coords().
  */
-const char tile_off[MAP_TILE_YOFF][MAP_TILE_POS_XOFF] =
-{
+const char tile_off[MAP_TILE_YOFF][MAP_TILE_POS_XOFF] ={
     "000000000000000000000022221111111111111111111111",
     "000000000000000000002222222211111111111111111111",
     "000000000000000000222222222222111111111111111111",
@@ -1483,8 +1482,7 @@ static int widget_event(widgetdata *widget, SDL_Event *event)
 
         right_click_ticks = -1;
         return 1;
-    }
-    else if (event->type == SDL_MOUSEBUTTONDOWN) {
+    } else if (event->type == SDL_MOUSEBUTTONDOWN) {
         if (event->button.button == SDL_BUTTON_RIGHT) {
             right_click_ticks = SDL_GetTicks();
         } else if (SDL_GetMouseState(NULL, NULL) == SDL_BUTTON_LEFT) {
@@ -1492,8 +1490,7 @@ static int widget_event(widgetdata *widget, SDL_Event *event)
 
             if (cpl.fire_on || cpl.run_on) {
                 move_keys(dir_from_tile_coords(tx, ty));
-            }
-            else {
+            } else {
                 send_move_path(tx, ty);
             }
         }

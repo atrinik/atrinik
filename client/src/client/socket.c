@@ -125,8 +125,7 @@ static command_buffer *command_buffer_dequeue(command_buffer **queue_start, comm
 
         if (buf->next) {
             buf->next->prev = NULL;
-        }
-        else {
+        } else {
             *queue_end = NULL;
         }
     }
@@ -202,15 +201,12 @@ static int reader_thread_loop(void *dummy)
             /* Three-byte length? */
             if (readbuf_len > 0 && (readbuf[0] & 0x80)) {
                 toread = 3 - readbuf_len;
-            }
-            else {
+            } else {
                 toread = 2 - readbuf_len;
             }
-        }
-        else if (readbuf_len == 2 && (readbuf[0] & 0x80)) {
+        } else if (readbuf_len == 2 && (readbuf[0] & 0x80)) {
             toread = 1;
-        }
-        else {
+        } else {
             /* If we have a finished header, get the packet size from it. */
             if (readbuf_len <= 3) {
                 uint8 *p = readbuf;
@@ -244,8 +240,7 @@ static int reader_thread_loop(void *dummy)
         if (ret == 0) {
             logger_print(LOG(INFO), "Reader thread got EOF trying to read %d bytes.", toread);
             break;
-        }
-        else if (ret == -1) {
+        } else if (ret == -1) {
             /* IO error */
 #ifdef WIN32
             logger_print(LOG(INFO), "Reader thread got error %d", WSAGetLastError());
@@ -253,8 +248,7 @@ static int reader_thread_loop(void *dummy)
             logger_print(LOG(INFO), "Reader thread got error %d: %s", errno, strerror(errno));
 #endif
             break;
-        }
-        else {
+        } else {
             readbuf_len += ret;
         }
 
@@ -311,8 +305,7 @@ static int writer_thread_loop(void *dummy)
             if (ret == 0) {
                 logger_print(LOG(INFO), "Writer thread got EOF.");
                 break;
-            }
-            else if (ret == -1) {
+            } else if (ret == -1) {
                 /* IO error */
 #ifdef WIN32
                 logger_print(LOG(INFO), "Writer thread got error %d", WSAGetLastError());
@@ -320,8 +313,7 @@ static int writer_thread_loop(void *dummy)
                 logger_print(LOG(INFO), "Writer thread got error %d: %s", errno, strerror(errno));
 #endif
                 break;
-            }
-            else {
+            } else {
                 written += ret;
             }
         }
@@ -550,8 +542,7 @@ static int client_socket_create(int *fd, char *host, int port)
 
     if (isdigit(*host)) {
         addr.sin_addr.s_addr = inet_addr(host);
-    }
-    else {
+    } else {
         struct hostent *hostbn = gethostbyname(host);
 
         if (!hostbn) {

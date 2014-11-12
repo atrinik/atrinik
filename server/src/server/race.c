@@ -31,8 +31,7 @@
 /**
  * This list is used for the item prefixes ('dwarven bolt', 'elven arrow',
  * etc). */
-const char *item_races[NROF_ITEM_RACES] =
-{
+const char *item_races[NROF_ITEM_RACES] = {
     "", "dwarven ", "elven ", "gnomish ", "drow ", "orcish ", "goblin ",
     "kobold ", "giant ", "tiny ", "demonish ", "draconish ", "ogre "
 };
@@ -123,18 +122,15 @@ static int race_compare(const void *one, const void *two)
 
     if (one == NULL) {
         return -1;
-    }
-    else if (two == NULL) {
+    } else if (two == NULL) {
         return 1;
     }
 
     if (one_race->name < two_race->name) {
         return -1;
-    }
-    else if (one_race->name > two_race->name) {
+    } else if (one_race->name > two_race->name) {
         return 1;
-    }
-    else {
+    } else {
         return 0;
     }
 }

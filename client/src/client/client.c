@@ -49,8 +49,7 @@ Client_Player cpl;
 ClientSocket csocket;
 
 /** Structure of all the socket commands */
-static socket_command_struct commands[CLIENT_CMD_NROF] =
-{
+static socket_command_struct commands[CLIENT_CMD_NROF] = {
     {socket_command_map},
     {socket_command_drawinfo},
     {socket_command_file_update},
@@ -92,8 +91,7 @@ void DoClient(void)
     while ((cmd = get_next_input_command())) {
         if (cmd->data[0] >= CLIENT_CMD_NROF || !commands[cmd->data[0]].handle_func) {
             logger_print(LOG(BUG), "Bad command from server (%d)", cmd->data[0]);
-        }
-        else {
+        } else {
             commands[cmd->data[0]].handle_func(cmd->data + 1, cmd->len - 1, 0);
         }
 

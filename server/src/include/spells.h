@@ -125,8 +125,7 @@
 /*@}*/
 
 /** Spell structure. */
-typedef struct spell_struct
-{
+typedef struct spell_struct {
     /** Name of this spell. */
     char name[BIG_NAME];
 
@@ -207,8 +206,7 @@ typedef struct spell_struct
  * are.
  *
  * @anchor spell_numbers */
-enum spellnrs
-{
+enum spellnrs {
     SP_FIRESTORM,
     SP_ICESTORM,
     SP_MINOR_HEAL,

@@ -38,8 +38,7 @@
  * mass-change blacklist status. */
 #define BLACKLIST_ALL_DELAY 1500
 
-enum
-{
+enum {
     BUTTON_PLAY,
     BUTTON_SHUFFLE,
     BUTTON_BLACKLIST,
@@ -47,7 +46,7 @@ enum
     BUTTON_HELP,
 
     BUTTON_NUM
-};
+} ;
 
 /**
  * Is shuffle enabled? */
@@ -161,9 +160,9 @@ static void mplayer_blacklist_toggle(list_struct *list)
         /* Clear blacklist status. */
         if (shuffle_blacklist[list->row_selected - 1]) {
             shuffle_blacklist[list->row_selected - 1] = 0;
-        }
-        /* Enable blacklist status. */
-        else {
+        } else {
+            /* Enable blacklist status. */
+            
             shuffle_blacklist[list->row_selected - 1] = 1;
 
             /* Shuffle mode and we're playing the music we just
@@ -211,7 +210,7 @@ static void mplayer_blacklist_save(list_struct *list)
 
     if (fp == NULL) {
         logger_print(LOG(ERROR), "Failed to open file: %s",
-                     FILE_MPLAYER_BLACKLIST);
+                FILE_MPLAYER_BLACKLIST);
         return;
     }
 
@@ -371,7 +370,7 @@ static void widget_draw(widgetdata *widget)
         box.w = widget->w / 2;
 
         /* Store the background music file name in temporary buffer and
-        * make sure it won't overflow by truncating it if necessary. */
+         * make sure it won't overflow by truncating it if necessary. */
         if (bg_music) {
             strncpy(buf, bg_music, sizeof(buf) - 1);
             buf[sizeof(buf) - 1] = '\0';
@@ -445,8 +444,7 @@ static void widget_background(widgetdata *widget)
             sound_music_seek(scrollbar_progress_info.scroll_offset + 1);
             scrollbar_progress_info.redraw = 0;
             widget->redraw = 1;
-        }
-        else {
+        } else {
             uint32 offset;
 
             offset = scrollbar_progress_info.scroll_offset;
@@ -493,8 +491,7 @@ static int widget_event(widgetdata *widget, SDL_Event *event)
         if (list_handle_mouse(list_mplayer, event)) {
             widget->redraw = 1;
             return 1;
-        }
-        else if (scrollbar_event(&scrollbar_progress, event)) {
+        } else if (scrollbar_event(&scrollbar_progress, event)) {
             widget->redraw = 1;
             return 1;
         }
@@ -503,46 +500,44 @@ static int widget_event(widgetdata *widget, SDL_Event *event)
     for (i = 0; i < BUTTON_NUM; i++) {
         if (button_event(&buttons[i], event)) {
             switch (i) {
-                case BUTTON_PLAY:
+            case BUTTON_PLAY:
 
-                    if (sound_map_background(-1)) {
-                        sound_start_bg_music("no_music", 0, 0);
-                        sound_map_background(0);
-                        shuffle = 0;
-                    }
-                    else {
-                        list_handle_enter(list_mplayer, event);
-                    }
+                if (sound_map_background(-1)) {
+                    sound_start_bg_music("no_music", 0, 0);
+                    sound_map_background(0);
+                    shuffle = 0;
+                } else {
+                    list_handle_enter(list_mplayer, event);
+                }
 
-                    break;
+                break;
 
-                case BUTTON_SHUFFLE:
-                    shuffle = !shuffle;
+            case BUTTON_SHUFFLE:
+                shuffle = !shuffle;
 
-                    if (shuffle) {
-                        mplayer_do_shuffle(list_mplayer);
-                        sound_map_background(1);
-                    }
-                    else {
-                        sound_start_bg_music("no_music", 0, 0);
-                        sound_map_background(0);
-                    }
+                if (shuffle) {
+                    mplayer_do_shuffle(list_mplayer);
+                    sound_map_background(1);
+                } else {
+                    sound_start_bg_music("no_music", 0, 0);
+                    sound_map_background(0);
+                }
 
-                    break;
+                break;
 
-                case BUTTON_BLACKLIST:
-                    /* Toggle the blacklist state of the selected row. */
-                    mplayer_blacklist_toggle(list_mplayer);
-                    mplayer_blacklist_save(list_mplayer);
-                    break;
+            case BUTTON_BLACKLIST:
+                /* Toggle the blacklist state of the selected row. */
+                mplayer_blacklist_toggle(list_mplayer);
+                mplayer_blacklist_save(list_mplayer);
+                break;
 
-                case BUTTON_CLOSE:
-                    widget->show = 0;
-                    break;
+            case BUTTON_CLOSE:
+                widget->show = 0;
+                break;
 
-                case BUTTON_HELP:
-                    help_show("music player");
-                    break;
+            case BUTTON_HELP:
+                help_show("music player");
+                break;
             }
 
             widget->redraw = 1;

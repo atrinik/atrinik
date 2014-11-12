@@ -37,8 +37,7 @@ typedef void (*logger_print_func)(const char *str);
 
 /**
  * Possible log levels. */
-typedef enum logger_level
-{
+typedef enum logger_level {
     LOG_CHAT,
     LOG_INFO,
     LOG_SYSTEM,
@@ -53,27 +52,27 @@ typedef enum logger_level
 #define log logger_print
 
 #ifdef WIN32
-#   define LOGGER_ESC_SEQ_BOLD ""
-#   define LOGGER_ESC_SEQ_BLACK ""
-#   define LOGGER_ESC_SEQ_RED ""
-#   define LOGGER_ESC_SEQ_GREEN ""
-#   define LOGGER_ESC_SEQ_YELLOW ""
-#   define LOGGER_ESC_SEQ_BLUE ""
-#   define LOGGER_ESC_SEQ_MAGENTA ""
-#   define LOGGER_ESC_SEQ_CYAN ""
-#   define LOGGER_ESC_SEQ_WHITE ""
-#   define LOGGER_ESC_SEQ_END ""
+#define LOGGER_ESC_SEQ_BOLD ""
+#define LOGGER_ESC_SEQ_BLACK ""
+#define LOGGER_ESC_SEQ_RED ""
+#define LOGGER_ESC_SEQ_GREEN ""
+#define LOGGER_ESC_SEQ_YELLOW ""
+#define LOGGER_ESC_SEQ_BLUE ""
+#define LOGGER_ESC_SEQ_MAGENTA ""
+#define LOGGER_ESC_SEQ_CYAN ""
+#define LOGGER_ESC_SEQ_WHITE ""
+#define LOGGER_ESC_SEQ_END ""
 #else
-#   define LOGGER_ESC_SEQ_BOLD "\033[1m"
-#   define LOGGER_ESC_SEQ_BLACK "\033[30m"
-#   define LOGGER_ESC_SEQ_RED "\033[31m"
-#   define LOGGER_ESC_SEQ_GREEN "\033[32m"
-#   define LOGGER_ESC_SEQ_YELLOW "\033[33m"
-#   define LOGGER_ESC_SEQ_BLUE "\033[34m"
-#   define LOGGER_ESC_SEQ_MAGENTA "\033[35m"
-#   define LOGGER_ESC_SEQ_CYAN "\033[36m"
-#   define LOGGER_ESC_SEQ_WHITE "\033[37m"
-#   define LOGGER_ESC_SEQ_END "\033[0m"
+#define LOGGER_ESC_SEQ_BOLD "\033[1m"
+#define LOGGER_ESC_SEQ_BLACK "\033[30m"
+#define LOGGER_ESC_SEQ_RED "\033[31m"
+#define LOGGER_ESC_SEQ_GREEN "\033[32m"
+#define LOGGER_ESC_SEQ_YELLOW "\033[33m"
+#define LOGGER_ESC_SEQ_BLUE "\033[34m"
+#define LOGGER_ESC_SEQ_MAGENTA "\033[35m"
+#define LOGGER_ESC_SEQ_CYAN "\033[36m"
+#define LOGGER_ESC_SEQ_WHITE "\033[37m"
+#define LOGGER_ESC_SEQ_END "\033[0m"
 #endif
 
 #endif

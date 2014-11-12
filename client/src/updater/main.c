@@ -68,9 +68,8 @@ int main(int argc, char *argv[])
         shExecInfo.hInstApp = NULL;
 
         ShellExecuteEx(&shExecInfo);
-    }
-    /* No updates, execute the client. */
-    else {
+    } else {
+        /* No updates, execute the client. */
         snprintf(path, sizeof(path), "%s\\atrinik.exe", getcwd(wdir, sizeof(wdir) - 1));
         ShellExecute(NULL, "open", path, params, NULL, SW_SHOWNORMAL);
     }

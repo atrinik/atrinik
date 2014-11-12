@@ -59,8 +59,7 @@ static int inscribe_book(object *op, const char *msg, object *marked)
 
     if (marked->msg) {
         snprintf(buf, sizeof(buf), "%s\n%s\n", marked->msg, msg);
-    }
-    else {
+    } else {
         snprintf(buf, sizeof(buf), "%s\n", msg);
     }
 

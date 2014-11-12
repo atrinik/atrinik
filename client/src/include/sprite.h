@@ -44,8 +44,7 @@
 /*@}*/
 
 /** Sprite structure. */
-typedef struct sprite_struct
-{
+typedef struct sprite_struct {
     /** Rows of blank pixels before first color information. */
     int border_up;
 
@@ -88,8 +87,7 @@ typedef struct sprite_struct
 /*@}*/
 
 /** Animation structure. */
-typedef struct _anim
-{
+typedef struct _anim {
     /** Pointer to next anim in queue. */
     struct _anim *next;
 
@@ -125,7 +123,7 @@ typedef struct _anim
 
     /** Map position Y. */
     int mapy;
-}_anim;
+} _anim;
 
 #define BORDER_CREATE_TOP(_surface, _x, _y, _w, _h, _color, _thickness) border_create_line((_surface), (_x), (_y), (_w), (_thickness), (_color))
 #define BORDER_CREATE_BOTTOM(_surface, _x, _y, _w, _h, _color, _thickness) border_create_line((_surface), (_x), (_y) + (_h) - (_thickness), (_w), (_thickness), (_color))

@@ -41,6 +41,7 @@ static uint8 did_init = 0;
  * @internal */
 void toolkit_path_init(void)
 {
+
     TOOLKIT_INIT_FUNC_START(path)
     {
         toolkit_import(logger);
@@ -55,6 +56,7 @@ void toolkit_path_init(void)
  * @internal */
 void toolkit_path_deinit(void)
 {
+
     TOOLKIT_DEINIT_FUNC_START(path)
     {
     }
@@ -186,8 +188,7 @@ char *path_normalize(const char *path)
 
     if (string_startswith(path, "/")) {
         stringbuffer_append_string(sb, "/");
-    }
-    else if (string_startswith(path, "./")) {
+    } else if (string_startswith(path, "./")) {
         stringbuffer_append_string(sb, "./");
     }
 
@@ -209,8 +210,7 @@ char *path_normalize(const char *path)
 
                 sb->pos = last_slash;
             }
-        }
-        else {
+        } else {
             if (sb->pos == 0 || sb->buf[sb->pos - 1] != '/') {
                 stringbuffer_append_string(sb, "/");
             }
@@ -249,13 +249,13 @@ void path_ensure_directories(const char *path)
 
         if (mkdir(buf, 0777) != 0 && errno != EEXIST) {
             log(LOG(BUG), "Cannot mkdir %s (path: %s): %s", buf, path,
-                strerror(errno));
+                    strerror(errno));
             return;
         }
 
         if (stat(buf, &statbuf) != 0) {
             log(LOG(BUG), "Cannot stat %s (path: %s): %s", buf, path,
-                strerror(errno));
+                    strerror(errno));
             return;
         }
 

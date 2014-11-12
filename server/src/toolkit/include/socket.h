@@ -31,8 +31,7 @@
 
 /**
  * Commands used for sending data from client to server. */
-enum
-{
+enum {
     SERVER_CMD_CONTROL,
     SERVER_CMD_ASK_FACE,
     SERVER_CMD_SETUP,
@@ -66,8 +65,7 @@ enum
 
 /**
  * All the possible socket commands. */
-enum
-{
+enum {
     CLIENT_CMD_MAP,
     CLIENT_CMD_DRAWINFO,
     CLIENT_CMD_FILE_UPDATE,
@@ -616,8 +614,7 @@ enum
 /**
  * Player equipment.
  * @anchor PLAYER_EQUIP_xxx */
-enum
-{
+enum {
     /**
      * Ammunition. */
     PLAYER_EQUIP_AMMO,
@@ -672,8 +669,7 @@ enum
     PLAYER_EQUIP_MAX
 };
 
-typedef struct socket_t
-{
+typedef struct socket_t {
     /**
      * Actual socket handle, as returned by socket() call. */
     int handle;

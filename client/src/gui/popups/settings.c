@@ -32,20 +32,18 @@
 
 /**
  * The different buttons of the settings popup. */
-enum
-{
+enum {
     BUTTON_SETTINGS,
     BUTTON_KEY_SETTINGS,
     BUTTON_LOGOUT,
     BUTTON_DISCONNECT,
 
     BUTTON_NUM
-};
+} ;
 
 /**
  * Names of the buttons. */
-static const char *const button_names[BUTTON_NUM] =
-{
+static const char *const button_names[BUTTON_NUM] ={
     "Client Settings", "Key Settings", "Logout", "Disconnect"
 };
 
@@ -61,17 +59,14 @@ static void settings_button_handle(popup_struct *popup, size_t button)
 {
     if (button == BUTTON_SETTINGS) {
         settings_client_open();
-    }
-    else if (button == BUTTON_KEY_SETTINGS) {
+    } else if (button == BUTTON_KEY_SETTINGS) {
         settings_keybinding_open();
-    }
-    else if (button == BUTTON_LOGOUT) {
+    } else if (button == BUTTON_LOGOUT) {
         clioption_settings.connect[1] = estrdup(cpl.account);
         clioption_settings.connect[2] = estrdup(cpl.password);
         socket_close(&csocket);
         login_start();
-    }
-    else if (button == BUTTON_DISCONNECT) {
+    } else if (button == BUTTON_DISCONNECT) {
         socket_close(&csocket);
         cpl.state = ST_INIT;
     }
@@ -98,8 +93,7 @@ static int popup_draw(popup_struct *popup)
 
         if (button_selected == i) {
             text_show_shadow_format(popup->surface, FONT_SERIF40, 0, 60 + i * FONT_HEIGHT(FONT_SERIF40), COLOR_HGOLD, COLOR_BLACK, TEXT_ALIGN_CENTER | TEXT_MARKUP, &box, "[c=#9f0408]>[/c] %s [c=#9f0408]<[/c]", button_names[i]);
-        }
-        else {
+        } else {
             text_show_shadow(popup->surface, FONT_SERIF40, button_names[i], 0, 60 + i * FONT_HEIGHT(FONT_SERIF40), COLOR_WHITE, COLOR_BLACK, TEXT_ALIGN_CENTER, &box);
         }
     }
@@ -120,20 +114,17 @@ static int popup_event(popup_struct *popup, SDL_Event *event)
 
             if (selected < 0) {
                 selected = num_buttons;
-            }
-            else if (selected > num_buttons) {
+            } else if (selected > num_buttons) {
                 selected = 0;
             }
 
             button_selected = selected;
             return 1;
-        }
-        else if (IS_ENTER(event->key.keysym.sym)) {
+        } else if (IS_ENTER(event->key.keysym.sym)) {
             settings_button_handle(popup, button_selected);
             return 1;
         }
-    }
-    else if (event->type == SDL_MOUSEBUTTONDOWN || event->type == SDL_MOUSEMOTION) {
+    } else if (event->type == SDL_MOUSEBUTTONDOWN || event->type == SDL_MOUSEMOTION) {
         size_t i;
         int x, y, width;
 
@@ -151,8 +142,7 @@ static int popup_event(popup_struct *popup, SDL_Event *event)
                 if (event->motion.x >= x && event->motion.x < x + width) {
                     if (event->type == SDL_MOUSEMOTION) {
                         button_selected = i;
-                    }
-                    else if (event->type == SDL_MOUSEBUTTONDOWN && event->button.button == SDL_BUTTON_LEFT) {
+                    } else if (event->type == SDL_MOUSEBUTTONDOWN && event->button.button == SDL_BUTTON_LEFT) {
                         settings_button_handle(popup, i);
                         return 1;
                     }

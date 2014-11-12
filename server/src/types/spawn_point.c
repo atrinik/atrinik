@@ -41,8 +41,8 @@ static void spawn_point_enemy_signal_map(object *op, mapstruct *map)
 
     for (ol = map->linked_spawn_points; ol != NULL; ol = ol->next) {
         if (ol->objlink.ob != op && ol->objlink.ob->title == op->title &&
-            OBJECT_VALID(ol->objlink.ob->enemy, ol->objlink.ob->enemy_count) &&
-            !OBJECT_VALID(ol->objlink.ob->enemy->enemy, ol->objlink.ob->enemy->enemy_count)) {
+                OBJECT_VALID(ol->objlink.ob->enemy, ol->objlink.ob->enemy_count) &&
+                !OBJECT_VALID(ol->objlink.ob->enemy->enemy, ol->objlink.ob->enemy->enemy_count)) {
             set_npc_enemy(ol->objlink.ob->enemy, op->enemy->enemy, NULL);
         }
     }
@@ -102,39 +102,39 @@ static object *spawn_point_generate(object *op, object *monster)
         diff = op->map->difficulty;
 
         switch (tmp->item_condition) {
-            case SPAWN_RELATIVE_LEVEL_GREEN:
-                min = level_color[diff].green;
-                max = level_color[diff].blue - 1;
-                break;
+        case SPAWN_RELATIVE_LEVEL_GREEN:
+            min = level_color[diff].green;
+            max = level_color[diff].blue - 1;
+            break;
 
-            case SPAWN_RELATIVE_LEVEL_BLUE:
-                min = level_color[diff].blue;
-                max = level_color[diff].yellow - 1;
-                break;
+        case SPAWN_RELATIVE_LEVEL_BLUE:
+            min = level_color[diff].blue;
+            max = level_color[diff].yellow - 1;
+            break;
 
-            case SPAWN_RELATIVE_LEVEL_YELLOW:
-                min = level_color[diff].yellow;
-                max = level_color[diff].orange - 1;
-                break;
+        case SPAWN_RELATIVE_LEVEL_YELLOW:
+            min = level_color[diff].yellow;
+            max = level_color[diff].orange - 1;
+            break;
 
-            case SPAWN_RELATIVE_LEVEL_ORANGE:
-                min = level_color[diff].orange;
-                max = level_color[diff].red - 1;
-                break;
+        case SPAWN_RELATIVE_LEVEL_ORANGE:
+            min = level_color[diff].orange;
+            max = level_color[diff].red - 1;
+            break;
 
-            case SPAWN_RELATIVE_LEVEL_RED:
-                min = level_color[diff].red;
-                max = level_color[diff].purple - 1;
-                break;
+        case SPAWN_RELATIVE_LEVEL_RED:
+            min = level_color[diff].red;
+            max = level_color[diff].purple - 1;
+            break;
 
-            case SPAWN_RELATIVE_LEVEL_PURPLE:
-                min = level_color[diff].purple;
-                max = min + 1;
-                break;
+        case SPAWN_RELATIVE_LEVEL_PURPLE:
+            min = level_color[diff].purple;
+            max = min + 1;
+            break;
 
-            default:
-                min = level;
-                max = min;
+        default:
+            min = level;
+            max = min;
         }
 
         tmp->level = rndm(MAX(level, MIN(min, MAXLEVEL)), MAX(level, MIN(max, MAXLEVEL)));
@@ -177,8 +177,8 @@ static int spawn_point_can_generate(object *op, object *monster)
                     return 0;
                 }
             }
-            /* Overnight. */
             else {
+                /* Overnight. */
                 if (tod.hour < hour && tod.hour > hour2) {
                     return 0;
                 }
@@ -190,8 +190,7 @@ static int spawn_point_can_generate(object *op, object *monster)
             }
 
             return 1;
-        }
-        else {
+        } else {
             logger_print(LOG(BUG), "Syntax error in spawn_time attribute: %s", spawn_time);
         }
     }
@@ -288,8 +287,7 @@ static void process_func(object *op)
                 copy_object_with_inv(tmp2, copy);
                 insert_ob_in_ob(copy, monster);
             }
-        }
-        else {
+        } else {
             copy = get_object();
             copy_object_with_inv(tmp, copy);
             insert_ob_in_ob(copy, monster);

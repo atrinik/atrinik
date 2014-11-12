@@ -65,8 +65,7 @@ void magic_mirror_init(object *mirror)
     /* No map path specified, use mirror's map path. */
     if (!mirror->slaying) {
         FREE_AND_ADD_REF_HASH(mirror->slaying, mirror->map->path);
-    }
-    else if (!map_path_isabs(mirror->slaying)) {
+    } else if (!map_path_isabs(mirror->slaying)) {
         char *path;
 
         path = map_get_path(mirror->map, mirror->slaying, MAP_UNIQUE(mirror->map), NULL);

@@ -38,8 +38,7 @@
  * stat. If the player is intelligent enough, they may be able to read
  * higher level books; if their intelligence is too low, the maximum level
  * books they can read will decrease. */
-static int book_level_mod[MAX_STAT + 1] =
-{
+static int book_level_mod[MAX_STAT + 1] = {
     -9,
     -8, -7, -6, -5, -4,
     -4, -3, -2, -2, -1,
@@ -54,8 +53,7 @@ static int book_level_mod[MAX_STAT + 1] =
  * knowledge you read from books. Thus, you get more experience by
  * reading books the more wisdom you have, and less experience if you
  * have unnaturally low wisdom. */
-static double book_exp_mod[MAX_STAT + 1] =
-{
+static double book_exp_mod[MAX_STAT + 1] = {
     -3.00f,
     -2.00f, -1.90f, -1.80f, -1.70f, -1.60f,
     -1.50f, -1.40f, -1.30f, -1.20f, -1.10f,
@@ -98,20 +96,15 @@ static int apply_func(object *op, object *applier, int aflags)
     if (lev_diff > 0) {
         if (lev_diff < 2) {
             draw_info(COLOR_WHITE, applier, "This book is just barely beyond your comprehension.");
-        }
-        else if (lev_diff < 3) {
+        } else if (lev_diff < 3) {
             draw_info(COLOR_WHITE, applier, "This book is slightly beyond your comprehension.");
-        }
-        else if (lev_diff < 5) {
+        } else if (lev_diff < 5) {
             draw_info(COLOR_WHITE, applier, "This book is beyond your comprehension.");
-        }
-        else if (lev_diff < 8) {
+        } else if (lev_diff < 8) {
             draw_info(COLOR_WHITE, applier, "This book is quite a bit beyond your comprehension.");
-        }
-        else if (lev_diff < 15) {
+        } else if (lev_diff < 15) {
             draw_info(COLOR_WHITE, applier, "This book is way beyond your comprehension.");
-        }
-        else {
+        } else {
             draw_info(COLOR_WHITE, applier, "This book is totally beyond your comprehension.");
         }
 

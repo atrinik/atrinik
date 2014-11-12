@@ -86,8 +86,7 @@ void common_object_projectile_process(object *op)
         if (QUERY_FLAG(op, FLAG_REFLECTING)) {
             if (op->direction & 1) {
                 op->direction = absdir(op->direction + 4);
-            }
-            else {
+            } else {
                 int left, right;
 
                 left = wall(op->map, op->x + freearr_x[absdir(op->direction - 1)], op->y + freearr_y[absdir(op->direction - 1)]);
@@ -95,18 +94,15 @@ void common_object_projectile_process(object *op)
 
                 if (left == right) {
                     op->direction = absdir(op->direction + 4);
-                }
-                else if (left) {
+                } else if (left) {
                     op->direction = absdir(op->direction + 2);
-                }
-                else if (right) {
+                } else if (right) {
                     op->direction = absdir(op->direction - 2);
                 }
             }
 
             SET_ANIMATION_STATE(op);
-        }
-        else {
+        } else {
             object_projectile_stop(op, OBJECT_PROJECTILE_STOP_WALL);
             return;
         }
@@ -130,15 +126,13 @@ void common_object_projectile_process(object *op)
                 op->direction = absdir(op->direction + 4);
                 SET_ANIMATION_STATE(op);
                 FOR_MAP_LAYER_BREAK;
-            }
-            else {
+            } else {
                 ret = object_projectile_hit(op, tmp);
 
                 if (ret == OBJECT_METHOD_OK) {
                     object_projectile_stop(op, OBJECT_PROJECTILE_STOP_HIT);
                     return;
-                }
-                else if (ret == OBJECT_METHOD_ERROR) {
+                } else if (ret == OBJECT_METHOD_ERROR) {
                     return;
                 }
             }
@@ -224,9 +218,10 @@ object *common_object_projectile_stop_missile(object *op, int reason)
 
         op = object_merge(op);
     }
-    /* Not an arrow, the object has payload instead. */
     else if (op->inv) {
         object *payload;
+
+        /* Not an arrow, the object has payload instead. */
 
         payload = op->inv;
 
@@ -239,8 +234,9 @@ object *common_object_projectile_stop_missile(object *op, int reason)
 
         return payload;
     }
-    /* Should not happen... */
     else {
+        /* Should not happen... */
+
         object_remove(op, 0);
         object_destroy(op);
         return NULL;
@@ -258,8 +254,7 @@ object *common_object_projectile_stop_spell(object *op, int reason)
 
     if (op->other_arch) {
         explode_object(op);
-    }
-    else {
+    } else {
         object_remove(op, 0);
         object_destroy(op);
     }

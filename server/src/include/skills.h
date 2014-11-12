@@ -30,8 +30,7 @@
 #define SKILLS_H
 
 /** Skill numbers. */
-enum skillnrs
-{
+enum skillnrs {
     /** Player can attempt alchemical recipes. */
     SK_ALCHEMY,
     /** Can read books */
@@ -89,8 +88,7 @@ enum skillnrs
 };
 
 /** Skill structure for the skills array. */
-typedef struct skill_struct
-{
+typedef struct skill_struct {
     /** How to describe it to the player */
     char *name;
 

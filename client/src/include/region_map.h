@@ -47,8 +47,7 @@
 #define RM_SCROLL_SHIFT 50
 
 /** Single map. */
-typedef struct region_map_struct
-{
+typedef struct region_map_struct {
     /** The map path. */
     char *path;
 
@@ -60,8 +59,7 @@ typedef struct region_map_struct
 } region_map_struct;
 
 /** Single map label. */
-typedef struct region_label_struct
-{
+typedef struct region_label_struct {
     /** X position. */
     int x;
 
@@ -84,8 +82,7 @@ typedef struct region_label_struct
 } region_label_struct;
 
 /** Map tooltips. */
-typedef struct region_map_tooltip
-{
+typedef struct region_map_tooltip {
     /** X position. */
     int x;
 
@@ -118,8 +115,7 @@ typedef struct region_map_tooltip
 } region_map_tooltip;
 
 /** Map region definitions. */
-typedef struct region_map_def
-{
+typedef struct region_map_def {
     /** The maps. */
     region_map_struct *maps;
 

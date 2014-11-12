@@ -33,8 +33,7 @@
 #include <global.h>
 
 /** Contains free walls in the map. */
-typedef struct free_walls_struct
-{
+typedef struct free_walls_struct {
     /** X coordinates of free spots for walls. */
     int *wall_x_list;
 
@@ -45,7 +44,7 @@ typedef struct free_walls_struct
     int wall_free_size;
 } free_walls_struct;
 
-static void fill_maze_full(char **maze, int x, int y,int xsize, int ysize, free_walls_struct *free_walls);
+static void fill_maze_full(char **maze, int x, int y, int xsize, int ysize, free_walls_struct *free_walls);
 static void fill_maze_sparse(char **maze, int x, int y, int xsize, int ysize, free_walls_struct *free_walls);
 static void make_wall_free_list(int xsize, int ysize, free_walls_struct *free_walls);
 static void pop_wall_point(int *x, int *y, free_walls_struct *free_walls);
@@ -101,8 +100,7 @@ char **maze_gen(int xsize, int ysize, int option)
 
         if (option) {
             fill_maze_full(maze, i, j, xsize, ysize, &free_walls);
-        }
-        else {
+        } else {
             fill_maze_sparse(maze, i, j, xsize, ysize, &free_walls);
         }
     }
@@ -253,38 +251,37 @@ static int find_free_point(char **maze, int *x, int *y, int xc, int yc, int xsiz
     /* choose a random direction */
     if (count > 1) {
         count = RANDOM() % count;
-    }
-    else {
+    } else {
         count = 0;
     }
 
     switch (dirlist[count]) {
-        case 1:
-            *y = yc + 1;
-            *x = xc;
+    case 1:
+        *y = yc + 1;
+        *x = xc;
 
-            break;
+        break;
 
-        case 2:
-            *y = yc - 1;
-            *x = xc;
+    case 2:
+        *y = yc - 1;
+        *x = xc;
 
-            break;
+        break;
 
-        case 3:
-            *y = yc;
-            *x = xc + 1;
+    case 3:
+        *y = yc;
+        *x = xc + 1;
 
-            break;
+        break;
 
-        case 4:
-            *x = xc - 1;
-            *y = yc;
+    case 4:
+        *x = xc - 1;
+        *y = yc;
 
-            break;
+        break;
 
-        default:
-            return -1;
+    default:
+        return -1;
     }
 
     return 1;

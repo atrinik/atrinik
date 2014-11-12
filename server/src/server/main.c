@@ -71,12 +71,10 @@ void version(object *op)
 
         if (revision) {
             draw_info_format(COLOR_WHITE, op, "This is Atrinik v%s (r%d)", PACKAGE_VERSION, revision);
-        }
-        else {
+        } else {
             draw_info_format(COLOR_WHITE, op, "This is Atrinik v%s", PACKAGE_VERSION);
         }
-    }
-    else {
+    } else {
         logger_print(LOG(INFO), "This is Atrinik v%s.", PACKAGE_VERSION);
     }
 }
@@ -159,8 +157,7 @@ static void process_players1(void)
                         insert_ob_in_map(pl->ob, followed->ob->map, NULL, 0);
                     }
                 }
-            }
-            else {
+            } else {
                 draw_info_format(COLOR_RED, pl->ob, "Player %s left.", pl->followed_player);
                 pl->followed_player[0] = '\0';
             }
@@ -176,14 +173,13 @@ static void process_players1(void)
 
                 if (!OBJECT_VALID(pl->ob->enemy, pl->ob->enemy_count) || pl->ob->enemy->owner == pl->ob) {
                     pl->ob->enemy = NULL;
-                }
-                else if (is_melee_range(pl->ob, pl->ob->enemy)) {
+                } else if (is_melee_range(pl->ob, pl->ob->enemy)) {
                     if (!OBJECT_VALID(pl->ob->enemy->enemy, pl->ob->enemy->enemy_count)) {
                         set_npc_enemy(pl->ob->enemy, pl->ob, NULL);
                     }
-                    /* Our target already has an enemy - then note we had
-                     * attacked */
                     else {
+                        /* Our target already has an enemy - then note we had
+                         * attacked */
                         pl->ob->enemy->attacked_by = pl->ob;
                         pl->ob->enemy->attacked_by_distance = 1;
                     }
@@ -221,8 +217,7 @@ static void process_players1(void)
 
             if (pl->afk) {
                 pl->stat_time_afk++;
-            }
-            else {
+            } else {
                 pl->stat_time_played++;
             }
         }
@@ -277,8 +272,7 @@ void process_events(mapstruct *map)
 
         if (op->active_prev) {
             op->active_prev->active_next = op;
-        }
-        else {
+        } else {
             active_objects = op;
         }
 
@@ -364,7 +358,7 @@ void process_events(mapstruct *map)
                     if ((op->anim_flags & ANIM_FLAG_ATTACKING &&
                             !(op->anim_flags & ANIM_FLAG_STOP_ATTACKING)) ||
                             op->type == PLAYER ||
-                            !OBJECT_VALID(op->enemy,op->enemy_count)) {
+                            !OBJECT_VALID(op->enemy, op->enemy_count)) {
                         op->anim_flags |= ANIM_FLAG_STOP_MOVING;
                     }
                 }
@@ -381,8 +375,7 @@ void process_events(mapstruct *map)
     /* Remove marker object from active list */
     if (marker.active_prev) {
         marker.active_prev->active_next = NULL;
-    }
-    else {
+    } else {
         active_objects = NULL;
     }
 
@@ -403,8 +396,7 @@ void clean_tmp_files(void)
         if (m->in_memory == MAP_IN_MEMORY) {
             if (settings.recycle_tmp_maps) {
                 swap_map(m, 0);
-            }
-            else {
+            } else {
                 new_save_map(m, 0);
                 clean_tmp_map(m);
             }
@@ -537,8 +529,9 @@ int swap_apartments(const char *mapold, const char *mapnew, int x, int y, object
                     ob->y = y;
                     insert_ob_in_map(ob, newmap, NULL, INS_NO_MERGE | INS_NO_WALK_ON);
                 }
-                /* Fixed part of map */
                 else {
+                    /* Fixed part of map */
+
                     /* Now we test for containers, because player
                      * can have items stored in it. So, go through
                      * the container and look for things to transfer. */
@@ -672,7 +665,7 @@ int main(int argc, char **argv)
 
     logger_print(LOG(INFO), "Server ready. Waiting for connections...");
 
-    for (;; ) {
+    for (; ; ) {
         if (shutdown_timer_check()) {
             break;
         }

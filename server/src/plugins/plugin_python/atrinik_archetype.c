@@ -34,8 +34,7 @@
  * @page plugin_python_archetype_fields Python archetype fields
  * <h2>Python archetype fields</h2>
  * List of the archetype fields and their meaning. */
-static fields_struct fields[] =
-{
+static fields_struct fields[] = {
     {"name", FIELDTYPE_SHSTR, offsetof(archetype, name), 0, 0},
     {"next", FIELDTYPE_ARCH, offsetof(archetype, next), 0, 0},
     {"head", FIELDTYPE_ARCH, offsetof(archetype, head), 0, 0},
@@ -118,8 +117,7 @@ static PyObject *Atrinik_Archetype_RichCompare(Atrinik_Archetype *left, Atrinik_
 static PyGetSetDef getseters[NUM_FIELDS + 1];
 
 /** Our actual Python ArchetypeType. */
-PyTypeObject Atrinik_ArchetypeType =
-{
+PyTypeObject Atrinik_ArchetypeType = {
 #ifdef IS_PY3K
     PyVarObject_HEAD_INIT(NULL, 0)
 #else
@@ -186,7 +184,7 @@ int Atrinik_Archetype_init(PyObject *module)
     }
 
     Py_INCREF(&Atrinik_ArchetypeType);
-    PyModule_AddObject(module, "Archetype", (PyObject *) &Atrinik_ArchetypeType);
+    PyModule_AddObject(module, "Archetype", (PyObject *) & Atrinik_ArchetypeType);
 
     return 1;
 }

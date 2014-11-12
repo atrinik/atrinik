@@ -40,8 +40,7 @@
  * should be plenty for most purposes. */
 #define RE_TOKEN_MAX 64
 
-typedef enum
-{
+typedef enum {
     /* corresponds to e.g. . */
     sel_any,
 
@@ -64,8 +63,7 @@ typedef enum
     sel_not_range
 } selection_type;
 
-typedef enum
-{
+typedef enum {
     /* corresponds to no meta-char */
     rep_once,
 
@@ -79,16 +77,13 @@ typedef enum
     rep_null_or_more
 } repetetion_type;
 
-typedef struct
-{
+typedef struct {
     selection_type type;
 
-    union
-    {
+    union {
         unsigned char single;
 
-        struct
-        {
+        struct {
             unsigned char low, high;
         } range;
 

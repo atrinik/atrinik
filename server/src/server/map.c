@@ -29,14 +29,12 @@
 #include <global.h>
 #include <loader.h>
 
-int global_darkness_table[MAX_DARKNESS + 1] =
-{
+int global_darkness_table[MAX_DARKNESS + 1] = {
     0, 20, 40, 80, 160, 320, 640, 1280
 };
 
 /** To get the reverse direction for all 8 tiled map index */
-int map_tiled_reverse[TILED_NUM] =
-{
+int map_tiled_reverse[TILED_NUM] = {
     2, 3, 0, 1, 6, 7, 4, 5
 };
 
@@ -102,48 +100,48 @@ static int relative_tile_position_rec(mapstruct *map1, mapstruct *map2, int *x, 
             if (map1->tile_map[i]->traversed != id && ((map1->tile_map[i] == map2) || relative_tile_position_rec(map1->tile_map[i], map2, x, y, id, level))) {
                 switch (i) {
                     /* North */
-                    case 0:
-                        *y -= MAP_HEIGHT(map1->tile_map[i]);
-                        return 1;
+                case 0:
+                    *y -= MAP_HEIGHT(map1->tile_map[i]);
+                    return 1;
 
                     /* East */
-                    case 1:
-                        *x += MAP_WIDTH(map1);
-                        return 1;
+                case 1:
+                    *x += MAP_WIDTH(map1);
+                    return 1;
 
                     /* South */
-                    case 2:
-                        *y += MAP_HEIGHT(map1);
-                        return 1;
+                case 2:
+                    *y += MAP_HEIGHT(map1);
+                    return 1;
 
                     /* West */
-                    case 3:
-                        *x -= MAP_WIDTH(map1->tile_map[i]);
-                        return 1;
+                case 3:
+                    *x -= MAP_WIDTH(map1->tile_map[i]);
+                    return 1;
 
                     /* Northest */
-                    case 4:
-                        *y -= MAP_HEIGHT(map1->tile_map[i]);
-                        *x += MAP_WIDTH(map1);
-                        return 1;
+                case 4:
+                    *y -= MAP_HEIGHT(map1->tile_map[i]);
+                    *x += MAP_WIDTH(map1);
+                    return 1;
 
                     /* Southest */
-                    case 5:
-                        *y += MAP_HEIGHT(map1);
-                        *x += MAP_WIDTH(map1);
-                        return 1;
+                case 5:
+                    *y += MAP_HEIGHT(map1);
+                    *x += MAP_WIDTH(map1);
+                    return 1;
 
                     /* Southwest */
-                    case 6:
-                        *y += MAP_HEIGHT(map1);
-                        *x -= MAP_WIDTH(map1->tile_map[i]);
-                        return 1;
+                case 6:
+                    *y += MAP_HEIGHT(map1);
+                    *x -= MAP_WIDTH(map1->tile_map[i]);
+                    return 1;
 
                     /* Northwest */
-                    case 7:
-                        *y -= MAP_HEIGHT(map1->tile_map[i]);
-                        *x -= MAP_WIDTH(map1->tile_map[i]);
-                        return 1;
+                case 7:
+                    *y -= MAP_HEIGHT(map1->tile_map[i]);
+                    *x -= MAP_WIDTH(map1->tile_map[i]);
+                    return 1;
                 }
             }
         }
@@ -197,48 +195,48 @@ static int relative_tile_position(mapstruct *map1, mapstruct *map2, int *x, int 
             if (map1->tile_map[i] == map2) {
                 switch (i) {
                     /* North */
-                    case 0:
-                        *y -= MAP_HEIGHT(map1->tile_map[i]);
-                        return 1;
+                case 0:
+                    *y -= MAP_HEIGHT(map1->tile_map[i]);
+                    return 1;
 
                     /* East */
-                    case 1:
-                        *x += MAP_WIDTH(map1);
-                        return 1;
+                case 1:
+                    *x += MAP_WIDTH(map1);
+                    return 1;
 
                     /* South */
-                    case 2:
-                        *y += MAP_HEIGHT(map1);
-                        return 1;
+                case 2:
+                    *y += MAP_HEIGHT(map1);
+                    return 1;
 
                     /* West */
-                    case 3:
-                        *x -= MAP_WIDTH(map1->tile_map[i]);
-                        return 1;
+                case 3:
+                    *x -= MAP_WIDTH(map1->tile_map[i]);
+                    return 1;
 
                     /* Northeast */
-                    case 4:
-                        *y -= MAP_HEIGHT(map1->tile_map[i]);
-                        *x += MAP_WIDTH(map1);
-                        return 1;
+                case 4:
+                    *y -= MAP_HEIGHT(map1->tile_map[i]);
+                    *x += MAP_WIDTH(map1);
+                    return 1;
 
                     /* Southeast */
-                    case 5:
-                        *y += MAP_HEIGHT(map1);
-                        *x += MAP_WIDTH(map1);
-                        return 1;
+                case 5:
+                    *y += MAP_HEIGHT(map1);
+                    *x += MAP_WIDTH(map1);
+                    return 1;
 
                     /* Southwest */
-                    case 6:
-                        *y += MAP_HEIGHT(map1);
-                        *x -= MAP_WIDTH(map1->tile_map[i]);
-                        return 1;
+                case 6:
+                    *y += MAP_HEIGHT(map1);
+                    *x -= MAP_WIDTH(map1->tile_map[i]);
+                    return 1;
 
                     /* Northwest */
-                    case 7:
-                        *y -= MAP_HEIGHT(map1->tile_map[i]);
-                        *x -= MAP_WIDTH(map1->tile_map[i]);
-                        return 1;
+                case 7:
+                    *y -= MAP_HEIGHT(map1->tile_map[i]);
+                    *x -= MAP_WIDTH(map1->tile_map[i]);
+                    return 1;
                 }
             }
         }
@@ -302,8 +300,7 @@ char *create_pathname(const char *name)
 
     if (*name == '/') {
         snprintf(buf, sizeof(buf), "%s%s", settings.mapspath, name);
-    }
-    else {
+    } else {
         snprintf(buf, sizeof(buf), "%s/%s", settings.mapspath, name);
     }
 
@@ -331,8 +328,7 @@ static char *create_items_path(shstr *s)
     for (t = buf + strlen(buf); *s; s++, t++) {
         if (*s == '/') {
             *t = '@';
-        }
-        else {
+        } else {
             *t = *s;
         }
     }
@@ -600,9 +596,10 @@ int blocked_tile(object *op, mapstruct *m, int x, int y)
 
                 continue;
             }
-            /* In this case, the player must not have the object -
-             * if they do, they can't pass through. */
             else {
+                /* In this case, the player must not have the object -
+                 * if they do, they can't pass through. */
+
                 if (check_inv(tmp, op) != NULL) {
                     return 1;
                 }
@@ -633,8 +630,7 @@ int arch_blocked(archetype *at, object *op, mapstruct *m, int x, int y)
 
     if (op) {
         t = op->terrain_flag;
-    }
-    else {
+    } else {
         t = TERRAIN_ALL;
     }
 
@@ -682,7 +678,7 @@ static void load_objects(mapstruct *m, FILE *fp, int mapflags)
 
     while ((i = load_object(fp, op, mybuffer, LO_REPEAT, mapflags))) {
         if (i == LL_MORE) {
-            logger_print(LOG(DEBUG), "object %s - its a tail!",query_short_name(op, NULL));
+            logger_print(LOG(DEBUG), "object %s - its a tail!", query_short_name(op, NULL));
             continue;
         }
 
@@ -717,8 +713,8 @@ static void load_objects(mapstruct *m, FILE *fp, int mapflags)
         if (QUERY_FLAG(op, FLAG_AUTO_APPLY)) {
             auto_apply(op);
         }
-        /* For fresh maps, create treasures */
         else if ((mapflags & MAP_ORIGINAL) && op->randomitems) {
+            /* For fresh maps, create treasures */
             create_treasure(op->randomitems, op, op->type != TREASURE ? GT_APPLY : 0, op->level ? op->level : m->difficulty, T_STYLE_UNSET, ART_CHANCE_UNSET, 0, NULL);
         }
 
@@ -760,8 +756,7 @@ static void save_objects(mapstruct *m, FILE *fp, FILE *fp2)
                     object_remove(head, 0);
                     object_destroy(head);
                     continue;
-                }
-                else if (QUERY_FLAG(head, FLAG_SPAWN_MOB)) {
+                } else if (QUERY_FLAG(head, FLAG_SPAWN_MOB)) {
                     /* Try to find the spawn point information. */
                     for (tmp = head->inv; tmp; tmp = tmp->below) {
                         if (tmp->type == SPAWN_POINT_INFO) {
@@ -778,8 +773,7 @@ static void save_objects(mapstruct *m, FILE *fp, FILE *fp2)
                     object_remove(head, 0);
                     object_destroy(head);
                     continue;
-                }
-                else if (head->type == SPAWN_POINT) {
+                } else if (head->type == SPAWN_POINT) {
                     if (OBJECT_VALID(head->enemy, head->enemy_count)) {
                         head->last_sp = -1;
                         head->speed_left += 1.0f;
@@ -804,8 +798,7 @@ static void save_objects(mapstruct *m, FILE *fp, FILE *fp2)
 
                 if (unique || QUERY_FLAG(head, FLAG_UNIQUE)) {
                     save_object(fp2, head);
-                }
-                else {
+                } else {
                     save_object(fp, head);
                 }
             }
@@ -923,8 +916,8 @@ mapstruct *load_original_map(const char *filename, int flags)
     }
 
     snprintf(pathname, sizeof(pathname), "%s%s",
-             *filename != '/' && *filename != '.' ? "/" : "",
-             flags & MAP_PLAYER_UNIQUE ? filename : create_pathname(filename));
+            *filename != '/' && *filename != '.' ? "/" : "",
+            flags & MAP_PLAYER_UNIQUE ? filename : create_pathname(filename));
 
     if (flags & MAP_PLAYER_UNIQUE && !path_exists(pathname)) {
         char *path;
@@ -933,8 +926,7 @@ mapstruct *load_original_map(const char *filename, int flags)
         string_replace_char(path, "$", '/');
         fp = fopen(create_pathname(path), "rb");
         efree(path);
-    }
-    else {
+    } else {
         fp = fopen(pathname, "rb");
     }
 
@@ -1110,8 +1102,7 @@ int new_save_map(mapstruct *m, int flag)
     if (flag || MAP_UNIQUE(m)) {
         if (!MAP_UNIQUE(m)) {
             snprintf(filename, sizeof(filename), "%s", create_pathname(m->path));
-        }
-        else {
+        } else {
             /* This ensures we always reload from original maps */
             if (MAP_NOSAVE(m)) {
                 return 0;
@@ -1121,8 +1112,7 @@ int new_save_map(mapstruct *m, int flag)
         }
 
         path_ensure_directories(filename);
-    }
-    else {
+    } else {
         if (m->tmpname == NULL) {
             char path[MAX_BUF];
 
@@ -1159,15 +1149,14 @@ int new_save_map(mapstruct *m, int flag)
             if (ftell(fp2) == 0) {
                 fclose(fp2);
                 unlink(buf);
-            }
-            else {
+            } else {
                 fclose(fp2);
                 chmod(buf, SAVE_MODE);
             }
         }
     }
-    /* Otherwise to the same file, like apartments */
     else {
+        /* Otherwise to the same file, like apartments */
         save_objects(m, fp, fp);
     }
 
@@ -1276,8 +1265,7 @@ void delete_map(mapstruct *m)
          * so that object_remove doesn't do as much work. */
         m->in_memory = MAP_SAVING;
         free_map(m, 1);
-    }
-    else {
+    } else {
         remove_light_source_list(m);
     }
 
@@ -1289,8 +1277,8 @@ void delete_map(mapstruct *m)
     if (m->previous) {
         m->previous->next = m->next;
     }
-    /* If there is no previous, we are first map */
     else {
+        /* If there is no previous, we are first map */
         first_map = m->next;
     }
 
@@ -1322,8 +1310,7 @@ mapstruct *ready_map_name(const char *name, int flags)
     /* Have we been at this level before? */
     if (flags & MAP_NAME_SHARED) {
         m = has_been_loaded_sh(name);
-    }
-    else {
+    } else {
         /* Create a temporary shared string for the name if not explicitly given
          * */
         name_sh = add_string(name);
@@ -1366,8 +1353,7 @@ mapstruct *ready_map_name(const char *name, int flags)
         if (!(flags & (MAP_FLUSH | MAP_PLAYER_UNIQUE))) {
             load_unique_objects(m);
         }
-    }
-    else {
+    } else {
         /* If in this loop, we found a temporary map, so load it up. */
         m = load_temporary_map(m);
 
@@ -1496,8 +1482,7 @@ void update_position(mapstruct *m, int x, int y)
                     if (!QUERY_FLAG(tmp, FLAG_PASS_THRU)) {
                         flags &= ~P_PASS_THRU;
                     }
-                }
-                else {
+                } else {
                     flags |= P_NO_PASS;
 
                     if (QUERY_FLAG(tmp, FLAG_PASS_THRU)) {
@@ -1978,40 +1963,31 @@ int get_rangevector_from_mapcoords(mapstruct *map1, int x, int y, mapstruct *map
     if (map1 == map2) {
         retval->distance_x = x2 - x;
         retval->distance_y = y2 - y;
-    }
-    else if (map1->tile_map[0] == map2) {
+    } else if (map1->tile_map[0] == map2) {
         retval->distance_x = x2 - x;
         retval->distance_y = -(y + (MAP_HEIGHT(map2) - y2));
-    }
-    else if (map1->tile_map[1] == map2) {
+    } else if (map1->tile_map[1] == map2) {
         retval->distance_y = y2 - y;
         retval->distance_x = (MAP_WIDTH(map1) - x) + x2;
-    }
-    else if (map1->tile_map[2] == map2) {
+    } else if (map1->tile_map[2] == map2) {
         retval->distance_x = x2 - x;
         retval->distance_y = (MAP_HEIGHT(map1) - y) + y2;
-    }
-    else if (map1->tile_map[3] == map2) {
+    } else if (map1->tile_map[3] == map2) {
         retval->distance_y = y2 - y;
         retval->distance_x = -(x + (MAP_WIDTH(map2) - x2));
-    }
-    else if (map1->tile_map[4] == map2) {
-        retval->distance_y = -(y + (MAP_HEIGHT(map2)- y2));
+    } else if (map1->tile_map[4] == map2) {
+        retval->distance_y = -(y + (MAP_HEIGHT(map2) - y2));
         retval->distance_x = (MAP_WIDTH(map1) - x) + x2;
-    }
-    else if (map1->tile_map[5] == map2) {
+    } else if (map1->tile_map[5] == map2) {
         retval->distance_x = (MAP_WIDTH(map1) - x) + x2;
         retval->distance_y = (MAP_HEIGHT(map1) - y) + y2;
-    }
-    else if (map1->tile_map[6] == map2) {
+    } else if (map1->tile_map[6] == map2) {
         retval->distance_y = (MAP_HEIGHT(map1) - y) + y2;
         retval->distance_x = -(x + (MAP_WIDTH(map2) - x2));
-    }
-    else if (map1->tile_map[7] == map2) {
+    } else if (map1->tile_map[7] == map2) {
         retval->distance_x = -(x + (MAP_WIDTH(map2) - x2));
         retval->distance_y = -(y + (MAP_HEIGHT(map2) - y2));
-    }
-    else if (flags & RV_RECURSIVE_SEARCH) {
+    } else if (flags & RV_RECURSIVE_SEARCH) {
         retval->distance_x = x2;
         retval->distance_y = y2;
 
@@ -2021,27 +1997,26 @@ int get_rangevector_from_mapcoords(mapstruct *map1, int x, int y, mapstruct *map
 
         retval->distance_x -= x;
         retval->distance_y -= y;
-    }
-    else {
+    } else {
         return 0;
     }
 
     switch (flags & (0x04 | 0x08)) {
-        case RV_MANHATTAN_DISTANCE:
-            retval->distance = abs(retval->distance_x) + abs(retval->distance_y);
-            break;
+    case RV_MANHATTAN_DISTANCE:
+        retval->distance = abs(retval->distance_x) + abs(retval->distance_y);
+        break;
 
-        case RV_EUCLIDIAN_DISTANCE:
-            retval->distance = isqrt(retval->distance_x * retval->distance_x + retval->distance_y * retval->distance_y);
-            break;
+    case RV_EUCLIDIAN_DISTANCE:
+        retval->distance = isqrt(retval->distance_x * retval->distance_x + retval->distance_y * retval->distance_y);
+        break;
 
-        case RV_DIAGONAL_DISTANCE:
-            retval->distance = MAX(abs(retval->distance_x), abs(retval->distance_y));
-            break;
+    case RV_DIAGONAL_DISTANCE:
+        retval->distance = MAX(abs(retval->distance_x), abs(retval->distance_y));
+        break;
 
         /* No distance calc */
-        case RV_NO_DISTANCE:
-            return 1;
+    case RV_NO_DISTANCE:
+        return 1;
     }
 
     retval->direction = find_dir_2(-retval->distance_x, -retval->distance_y);
@@ -2118,8 +2093,7 @@ int map_get_darkness(mapstruct *m, int x, int y, object **mirror)
 
     if (((outdoor && !(msp->flags & P_OUTDOOR)) || (!outdoor && msp->flags & P_OUTDOOR)) && (!msp->map_info || !OBJECT_VALID(msp->map_info, msp->map_info_count) || msp->map_info->item_power < 0)) {
         darkness = msp->light_value + global_darkness_table[world_darkness];
-    }
-    else {
+    } else {
         /* Check if map info object bound to this tile has a darkness. */
         if (msp->map_info && OBJECT_VALID(msp->map_info, msp->map_info_count) && msp->map_info->item_power != -1) {
             int dark_value;
@@ -2131,8 +2105,7 @@ int map_get_darkness(mapstruct *m, int x, int y, object **mirror)
             }
 
             darkness = global_darkness_table[dark_value] + msp->light_value;
-        }
-        else {
+        } else {
             darkness = m->light_value + msp->light_value;
         }
     }
@@ -2156,8 +2129,7 @@ int map_get_darkness(mapstruct *m, int x, int y, object **mirror)
 
                     if ((MAP_OUTDOORS(mirror_map) && !(mirror_msp->flags & P_OUTDOOR)) || (!MAP_OUTDOORS(mirror_map) && mirror_msp->flags & P_OUTDOOR)) {
                         darkness = mirror_msp->light_value + global_darkness_table[world_darkness];
-                    }
-                    else {
+                    } else {
                         darkness = mirror_map->light_value + mirror_msp->light_value;
                     }
                 }
@@ -2203,12 +2175,10 @@ char *map_get_path(mapstruct *m, const char *path, uint8 unique, const char *nam
 
                 efree(cp);
                 efree(dir);
-            }
-            else {
+            } else {
                 return estrdup(path);
             }
-        }
-        else {
+        } else {
             char *file, *filedir, *joined;
 
             /* Demangle the original map path, and get the original
@@ -2237,8 +2207,7 @@ char *map_get_path(mapstruct *m, const char *path, uint8 unique, const char *nam
 
                 efree(newpath);
                 efree(dir);
-            }
-            else {
+            } else {
                 joined = path_join(filedir, path);
                 ret = path_normalize(joined);
             }
@@ -2247,8 +2216,7 @@ char *map_get_path(mapstruct *m, const char *path, uint8 unique, const char *nam
             efree(filedir);
             efree(file);
         }
-    }
-    else {
+    } else {
         if (path && map_path_isabs(path)) {
             if (unique && name) {
                 char *cp;
@@ -2259,12 +2227,10 @@ char *map_get_path(mapstruct *m, const char *path, uint8 unique, const char *nam
                 ret = player_make_path(name, cp);
 
                 efree(cp);
-            }
-            else {
+            } else {
                 return estrdup(path);
             }
-        }
-        else if (m != NULL) {
+        } else if (m != NULL) {
             char *filedir, *joined;
 
             filedir = path_dirname(m->path);
@@ -2284,16 +2250,14 @@ char *map_get_path(mapstruct *m, const char *path, uint8 unique, const char *nam
                 ret = player_make_path(name, newpath);
 
                 efree(newpath);
-            }
-            else {
+            } else {
                 joined = path_join(filedir, path);
                 ret = path_normalize(joined);
             }
 
             efree(joined);
             efree(filedir);
-        }
-        else {
+        } else {
             return estrdup(EMERGENCY_MAPPATH);
         }
     }

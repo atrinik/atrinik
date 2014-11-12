@@ -31,8 +31,7 @@
 
 /**
  * A single "generic" button in a popup. */
-typedef struct popup_button
-{
+typedef struct popup_button {
     /** X position in the popup of the button. */
     int x;
 
@@ -54,8 +53,7 @@ typedef struct popup_button
 } popup_button;
 
 /** A single popup. */
-typedef struct popup_struct
-{
+typedef struct popup_struct {
     /**
      * Surface the popup uses for drawing. This surface is then copied
      * to ::ScreenSurface. */

@@ -30,8 +30,7 @@
 #define ARTIFACT_H
 
 /** The artifact structure. */
-typedef struct artifactstruct
-{
+typedef struct artifactstruct {
     /** Memory block with artifacts parse commands for loader.l. */
     char *parse_text;
 
@@ -68,8 +67,7 @@ typedef struct artifactstruct
 } artifact;
 
 /** Artifact list structure. */
-typedef struct artifactliststruct
-{
+typedef struct artifactliststruct {
     /** Next list. */
     struct artifactliststruct *next;
 

@@ -112,8 +112,7 @@ void tooltip_show(void)
         }
 
         tooltip_created = SDL_GetTicks() + tooltip_delay;
-    }
-    else {
+    } else {
         tooltip_opacity = 255;
     }
 

@@ -34,8 +34,7 @@
 
 /**
  * One keybind. */
-typedef struct keybind_struct
-{
+typedef struct keybind_struct {
     /** Command to execute. */
     char *command;
 

@@ -39,13 +39,12 @@
 #define BINRELOC_H
 
 #ifndef WIN32
-#   define ENABLE_BINRELOC
+#define ENABLE_BINRELOC
 #endif
 
 /** These error codes can be returned by br_init(), br_init_lib(), gbr_init() or
  * gbr_init_lib(). */
-typedef enum
-{
+typedef enum {
     /** Cannot allocate memory. */
     BR_INIT_ERROR_NOMEM,
     /** Unable to open /proc/self/maps; see errno for details. */

@@ -95,6 +95,7 @@ START_TEST(test_cache)
 
     fail_if(cache_remove(find_string("cache_rem_test")) == 0, "Failed to remove previously added cache entry.");
 }
+
 END_TEST
 
 static Suite *cache_suite(void)

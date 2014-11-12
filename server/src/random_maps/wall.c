@@ -109,7 +109,7 @@ int surround_flag3(mapstruct *map, int i, int j, RMParms *RP)
 {
     int surround_index = 0;
 
-    if ((i > 0) && blocked(NULL, map, i -1, j, TERRAIN_ALL)) {
+    if ((i > 0) && blocked(NULL, map, i - 1, j, TERRAIN_ALL)) {
         surround_index |= 1;
     }
 
@@ -153,7 +153,7 @@ int surround_flag4(mapstruct *map, int i, int j, RMParms *RP)
         surround_index |= 2;
     }
 
-    if ((j > 0) && wall_blocked(map, i, j- 1)) {
+    if ((j > 0) && wall_blocked(map, i, j - 1)) {
         surround_index |= 4;
     }
 
@@ -254,44 +254,43 @@ object *pick_joined_wall(object *the_wall, char **layout, int i, int j, RMParms 
     surround_index = surround_flag2(layout, i, j, RP);
 
     switch (surround_index) {
-        case 0:
-            strcat(wall_name, "_0");
-            break;
+    case 0:
+        strcat(wall_name, "_0");
+        break;
 
-        case 10:
-        case 8:
-        case 2:
-            strcat(wall_name, "_8");
-            break;
+    case 10:
+    case 8:
+    case 2:
+        strcat(wall_name, "_8");
+        break;
 
-        case 11:
-        case 9:
-        case 3:
-            strcat(wall_name, "_1");
-            break;
+    case 11:
+    case 9:
+    case 3:
+        strcat(wall_name, "_1");
+        break;
 
-        case 12:
-        case 4:
-        case 14:
-        case 6:
-            strcat(wall_name, "_3");
-            break;
+    case 12:
+    case 4:
+    case 14:
+    case 6:
+        strcat(wall_name, "_3");
+        break;
 
-        case 1:
-        case 5:
-        case 7:
-        case 13:
-        case 15:
-            strcat(wall_name, "_4");
-            break;
+    case 1:
+    case 5:
+    case 7:
+    case 13:
+    case 15:
+        strcat(wall_name, "_4");
+        break;
     }
 
     wall_arch = find_archetype(wall_name);
 
     if (wall_arch) {
         return arch_to_object(wall_arch);
-    }
-    else {
+    } else {
         return arch_to_object(the_wall->arch);
     }
 }
@@ -327,8 +326,7 @@ object * retrofit_joined_wall(mapstruct *the_map, int i, int j, int insert_flag,
         if (insert_flag == 0) {
             return NULL;
         }
-    }
-    else if (the_wall == NULL) {
+    } else if (the_wall == NULL) {
         return NULL;
     }
 
@@ -343,36 +341,36 @@ object * retrofit_joined_wall(mapstruct *the_map, int i, int j, int insert_flag,
     surround_index = surround_flag4(the_map, i, j, RP);
 
     switch (surround_index) {
-        case 0:
-            strcat(RP->wall_name, "_0");
-            break;
+    case 0:
+        strcat(RP->wall_name, "_0");
+        break;
 
-        case 10:
-        case 8:
-        case 2:
-            strcat(RP->wall_name, "_8");
-            break;
+    case 10:
+    case 8:
+    case 2:
+        strcat(RP->wall_name, "_8");
+        break;
 
-        case 11:
-        case 9:
-        case 3:
-            strcat(RP->wall_name, "_1");
-            break;
+    case 11:
+    case 9:
+    case 3:
+        strcat(RP->wall_name, "_1");
+        break;
 
-        case 12:
-        case 4:
-        case 14:
-        case 6:
-            strcat(RP->wall_name, "_3");
-            break;
+    case 12:
+    case 4:
+    case 14:
+    case 6:
+        strcat(RP->wall_name, "_3");
+        break;
 
-        case 1:
-        case 5:
-        case 7:
-        case 13:
-        case 15:
-            strcat(RP->wall_name, "_4");
-            break;
+    case 1:
+    case 5:
+    case 7:
+    case 13:
+    case 15:
+        strcat(RP->wall_name, "_4");
+        break;
     }
 
     wall_arch = find_archetype(RP->wall_name);

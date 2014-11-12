@@ -56,7 +56,7 @@ enum {
     BUTTON_HELP,
 
     BUTTON_NUM
-};
+} ;
 
 /**
  * Button buffer.

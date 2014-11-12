@@ -56,7 +56,7 @@
 char **map_gen_spiral(int xsize, int ysize, int option)
 {
     int i, j, ic, jc;
-    float parm = 0, x = 0, y = 0, SizeX, SizeY, xscale,yscale;
+    float parm = 0, x = 0, y = 0, SizeX, SizeY, xscale, yscale;
 
     /* Allocate that array, set it up */
     char **maze = ecalloc(sizeof(char *), xsize);
@@ -91,14 +91,13 @@ char **map_gen_spiral(int xsize, int ysize, int option)
         /* unset REGULAR_SPIRAL half the time */
         if (RANDOM() % 2 && (option & REGULAR_SPIRAL)) {
             option -= REGULAR_SPIRAL;
-        }
-        else {
+        } else {
             option -= FIT_SPIRAL;
         }
     }
 
     /* fine spiral */
-    xscale = yscale= ( float) MAX_FINE;
+    xscale = yscale = ( float) MAX_FINE;
 
     /* choose the spiral pitch */
     if (!(option & FINE_SPIRAL)) {
@@ -110,8 +109,7 @@ char **map_gen_spiral(int xsize, int ysize, int option)
     if ((option & FIT_SPIRAL) && (xsize != ysize)) {
         if (xsize > ysize) {
             xscale *= (float) xsize / (float) ysize;
-        }
-        else {
+        } else {
             yscale *= (float) ysize / (float) xsize;
         }
     }

@@ -30,15 +30,13 @@
 
 /**
  * String representations of the party looting modes. */
-const char *const party_loot_modes[PARTY_LOOT_MAX] =
-{
+const char *const party_loot_modes[PARTY_LOOT_MAX] = {
     "normal", "leader", "owner", "random", "split"
 };
 
 /**
  * Explanation of the party modes. */
-const char *const party_loot_modes_help[PARTY_LOOT_MAX] =
-{
+const char *const party_loot_modes_help[PARTY_LOOT_MAX] = {
     "everyone in the party is able to loot the corpse",
     "only the party leader can loot the corpse",
     "only the corpse owner can loot the corpse; standard behavior when outside of a party",
@@ -126,8 +124,9 @@ void remove_party_member(party_struct *party, object *op)
     if (!party->members) {
         remove_party(CONTR(op)->party);
     }
-    /* Otherwise choose a new leader, if the old one left. */
     else if (op->name == party->leader) {
+        /* Otherwise choose a new leader, if the old one left. */
+
         FREE_AND_ADD_REF_HASH(party->leader, party->members->objlink.ob->name);
         draw_info_format(COLOR_WHITE, party->members->objlink.ob, "You are the new leader of party %s!", party->name);
     }
@@ -202,19 +201,19 @@ int party_can_open_corpse(object *pl, object *corpse)
 
     switch (CONTR(pl)->party->loot) {
         /* Normal: anyone can access it. */
-        case PARTY_LOOT_NORMAL:
-        default:
-            return 1;
+    case PARTY_LOOT_NORMAL:
+    default:
+        return 1;
 
         /* Only leader can access it. */
-        case PARTY_LOOT_LEADER:
+    case PARTY_LOOT_LEADER:
 
-            if (pl->name != CONTR(pl)->party->leader) {
-                draw_info(COLOR_WHITE, pl, "You're not the party's leader.");
-                return 0;
-            }
+        if (pl->name != CONTR(pl)->party->leader) {
+            draw_info(COLOR_WHITE, pl, "You're not the party's leader.");
+            return 0;
+        }
 
-            return 1;
+        return 1;
     }
 }
 
@@ -385,8 +384,8 @@ void party_handle_corpse(object *pl, object *corpse)
         next = tmp->below;
 
         if (tmp->type == ARROW && OBJECT_VALID(tmp->attacked_by, tmp->attacked_by_count) &&
-            tmp->attacked_by->type == PLAYER && CONTR(tmp->attacked_by)->party == CONTR(pl)->party &&
-            on_same_map(tmp->attacked_by, pl)) {
+                tmp->attacked_by->type == PLAYER && CONTR(tmp->attacked_by)->party == CONTR(pl)->party &&
+                on_same_map(tmp->attacked_by, pl)) {
             if (can_pick(tmp->attacked_by, tmp) && player_can_carry(tmp->attacked_by, WEIGHT_NROF(tmp, tmp->nrof))) {
                 pick_up(tmp->attacked_by, tmp, 0);
             }
@@ -394,13 +393,13 @@ void party_handle_corpse(object *pl, object *corpse)
     }
 
     switch (CONTR(pl)->party->loot) {
-        case PARTY_LOOT_RANDOM:
-            party_loot_random(pl, corpse);
-            break;
+    case PARTY_LOOT_RANDOM:
+        party_loot_random(pl, corpse);
+        break;
 
-        case PARTY_LOOT_SPLIT:
-            party_loot_split(pl, corpse);
-            break;
+    case PARTY_LOOT_SPLIT:
+        party_loot_split(pl, corpse);
+        break;
     }
 }
 
@@ -422,8 +421,7 @@ void send_party_message(party_struct *party, const char *msg, int flag, object *
 
         if (flag == PARTY_MESSAGE_STATUS) {
             draw_info(COLOR_YELLOW, ol->objlink.ob, msg);
-        }
-        else if (flag == PARTY_MESSAGE_CHAT) {
+        } else if (flag == PARTY_MESSAGE_CHAT) {
             draw_info_type(CHAT_TYPE_PARTY, op->name, COLOR_YELLOW, ol->objlink.ob, msg);
         }
     }
@@ -447,8 +445,7 @@ void remove_party(party_struct *party)
         if (tmp == party) {
             if (!prev) {
                 first_party = tmp->next;
-            }
-            else {
+            } else {
                 prev->next = tmp->next;
             }
 

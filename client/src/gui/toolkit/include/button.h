@@ -38,8 +38,7 @@
     ((button)->mouse_over && !(button)->pressed)
 
 /** Button structure. */
-typedef struct button_struct
-{
+typedef struct button_struct {
     /**
      * Surface to use for rendering. */
     SDL_Surface *surface;

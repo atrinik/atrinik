@@ -75,8 +75,7 @@ void server_settings_init(void)
             s_settings->characters = memory_reallocz(s_settings->characters, sizeof(*s_settings->characters) * s_settings->num_characters, sizeof(*s_settings->characters) * (s_settings->num_characters + 1));
             cur_char = &s_settings->characters[s_settings->num_characters];
             cur_char->name = estrdup(buf + 5);
-        }
-        else if (!strncmp(buf, "gender ", 7)) {
+        } else if (!strncmp(buf, "gender ", 7)) {
             char gender[MAX_BUF], arch[MAX_BUF], face[MAX_BUF];
             int gender_id;
 
@@ -85,14 +84,11 @@ void server_settings_init(void)
                 cur_char->gender_archetypes[gender_id] = estrdup(arch);
                 cur_char->gender_faces[gender_id] = estrdup(face);
             }
-        }
-        else if (!strncmp(buf, "desc ", 5)) {
+        } else if (!strncmp(buf, "desc ", 5)) {
             cur_char->desc = estrdup(buf + 5);
-        }
-        else if (!strcmp(buf, "end")) {
+        } else if (!strcmp(buf, "end")) {
             s_settings->num_characters++;
-        }
-        else if (!strncmp(buf, "level ", 6)) {
+        } else if (!strncmp(buf, "level ", 6)) {
             uint32 lev;
 
             s_settings->max_level = atoi(buf + 6);
@@ -107,8 +103,7 @@ void server_settings_init(void)
             }
 
             s_settings->level_exp[lev] = 0;
-        }
-        else if (!strncmp(buf, "text ", 5)) {
+        } else if (!strncmp(buf, "text ", 5)) {
             if (text_id < SERVER_TEXT_MAX) {
                 size_t j = 0;
 
@@ -125,8 +120,7 @@ void server_settings_init(void)
                         j++;
                         cp = strtok(NULL, " ");
                     }
-                }
-                else if (text_id == SERVER_TEXT_PROTECTION_LETTERS) {
+                } else if (text_id == SERVER_TEXT_PROTECTION_LETTERS) {
                     cp = strtok(s_settings->text[text_id], " ");
 
                     while (cp) {
@@ -135,8 +129,7 @@ void server_settings_init(void)
                         j++;
                         cp = strtok(NULL, " ");
                     }
-                }
-                else if (text_id == SERVER_TEXT_PROTECTION_FULL) {
+                } else if (text_id == SERVER_TEXT_PROTECTION_FULL) {
                     cp = strtok(s_settings->text[text_id], " ");
 
                     while (cp) {
@@ -145,8 +138,7 @@ void server_settings_init(void)
                         j++;
                         cp = strtok(NULL, " ");
                     }
-                }
-                else if (text_id == SERVER_TEXT_SPELL_PATHS) {
+                } else if (text_id == SERVER_TEXT_SPELL_PATHS) {
                     cp = strtok(s_settings->text[text_id], " ");
 
                     while (cp) {
@@ -158,8 +150,7 @@ void server_settings_init(void)
                 }
 
                 text_id++;
-            }
-            else {
+            } else {
                 logger_print(LOG(BUG), "Error in settings file, more text entries than allowed on line %d.", line);
             }
         }

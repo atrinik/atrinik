@@ -30,8 +30,7 @@
 
 #include <global.h>
 
-typedef struct widget_quickslots_struct
-{
+typedef struct widget_quickslots_struct {
     list_struct *list;
 } widget_quickslots_struct;
 
@@ -321,27 +320,23 @@ static int widget_event(widgetdata *widget, SDL_Event *event)
                 if (event_dragging_check()) {
                     if (!object_find_object_inv(cpl.ob, cpl.dragging_tag)) {
                         draw_info(COLOR_RED, "Only items from main inventory are allowed in quickslots.");
-                    }
-                    else {
+                    } else {
                         quickslots_remove(widget, cpl.dragging_tag);
                         quickslots_set(widget, row, col, cpl.dragging_tag);
                         widget->redraw = 1;
                     }
 
                     event_dragging_stop();
-                }
-                else {
+                } else {
                     quickslots_trigger(widget, row, col);
                 }
 
                 return 1;
-            }
-            else if (event->type == SDL_MOUSEBUTTONDOWN && tmp->list->text[row][col]) {
+            } else if (event->type == SDL_MOUSEBUTTONDOWN && tmp->list->text[row][col]) {
                 event_dragging_start(atoi(tmp->list->text[row][col]), event->motion.x, event->motion.y);
                 return 1;
             }
-        }
-        else if (event->type == SDL_MOUSEMOTION) {
+        } else if (event->type == SDL_MOUSEMOTION) {
             if (tmp->list->text[row][col]) {
                 object *ob;
 

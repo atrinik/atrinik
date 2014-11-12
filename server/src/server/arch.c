@@ -122,8 +122,7 @@ void free_all_archs(void)
     for (at = first_archetype; at != NULL; at = next) {
         if (at->more) {
             next = at->more;
-        }
-        else {
+        } else {
             next = at->next;
         }
 
@@ -165,7 +164,7 @@ static void first_arch_pass(FILE *fp)
 {
     object *op;
     void *mybuffer;
-    archetype *at,*prev = NULL, *last_more = NULL;
+    archetype *at, *prev = NULL, *last_more = NULL;
     int i, first = 2;
 
     op = get_object();
@@ -182,33 +181,33 @@ static void first_arch_pass(FILE *fp)
          * alter speed_left to guarantee a random & sensible start value. */
         switch (i) {
             /* A new archetype, just link it with the previous */
-            case LL_NORMAL:
+        case LL_NORMAL:
 
-                if (last_more != NULL) {
-                    last_more->next = at;
-                }
+            if (last_more != NULL) {
+                last_more->next = at;
+            }
 
-                if (prev != NULL) {
-                    prev->next = at;
-                }
+            if (prev != NULL) {
+                prev->next = at;
+            }
 
-                prev = last_more = at;
+            prev = last_more = at;
 
-                break;
+            break;
 
             /* Another part of the previous archetype, link it correctly */
-            case LL_MORE:
-                at->head = prev;
-                at->clone.head = &prev->clone;
+        case LL_MORE:
+            at->head = prev;
+            at->clone.head = &prev->clone;
 
-                if (last_more != NULL) {
-                    last_more->more = at;
-                    last_more->clone.more = &at->clone;
-                }
+            if (last_more != NULL) {
+                last_more->more = at;
+                last_more->clone.more = &at->clone;
+            }
 
-                last_more = at;
+            last_more = at;
 
-                break;
+            break;
         }
 
         at = get_archetype_struct();
@@ -252,37 +251,31 @@ static void second_arch_pass(FILE *fp_start)
             if ((at = find_archetype(argument)) == NULL) {
                 logger_print(LOG(BUG), "Failed to find arch %s", STRING_SAFE(argument));
             }
-        }
-        else if (!strcmp("other_arch", variable)) {
+        } else if (!strcmp("other_arch", variable)) {
             if (at != NULL && at->clone.other_arch == NULL) {
                 if ((other = find_archetype(argument)) == NULL) {
                     logger_print(LOG(BUG), "Failed to find other_arch %s", STRING_SAFE(argument));
-                }
-                else if (at != NULL) {
+                } else if (at != NULL) {
                     at->clone.other_arch = other;
                 }
             }
-        }
-        else if (!strcmp("randomitems", variable)) {
+        } else if (!strcmp("randomitems", variable)) {
             if (at != NULL) {
                 treasurelist *tl = find_treasurelist(argument);
 
                 if (tl == NULL) {
                     logger_print(LOG(BUG), "Failed to link treasure to arch. (arch: %s ->%s", STRING_OBJ_NAME(&at->clone), STRING_SAFE(argument));
-                }
-                else {
+                } else {
                     at->clone.randomitems = tl;
                 }
             }
-        }
-        else if (!strcmp("arch", variable)) {
+        } else if (!strcmp("arch", variable)) {
             inv = get_archetype(argument);
             load_object(fp, inv, NULL, LO_LINEMODE, 0);
 
             if (at) {
                 insert_ob_in_ob(inv, &at->clone);
-            }
-            else {
+            } else {
                 logger_print(LOG(ERROR), "Got an arch %s not inside an Object.", argument);
                 exit(1);
             }
@@ -322,31 +315,25 @@ static void second_arch_pass(FILE *fp_start)
             if ((at = find_archetype(argument)) == NULL) {
                 logger_print(LOG(BUG), "Second artifacts pass: Failed to find artifact %s", STRING_SAFE(argument));
             }
-        }
-        else if (!strcmp("def_arch", variable)) {
+        } else if (!strcmp("def_arch", variable)) {
             if ((other = find_archetype(argument)) == NULL) {
                 logger_print(LOG(BUG), "Second artifacts pass: Failed to find def_arch %s from artifact %s", STRING_SAFE(argument), STRING_ARCH_NAME(at));
-            }
-            else if (at != NULL) {
+            } else if (at != NULL) {
                 at->clone.other_arch = other->clone.other_arch;
                 at->clone.randomitems = other->clone.randomitems;
             }
-        }
-        else if (!strcmp("other_arch", variable)) {
+        } else if (!strcmp("other_arch", variable)) {
             if ((other = find_archetype(argument)) == NULL) {
                 logger_print(LOG(BUG), "Second artifacts pass: Failed to find other_arch %s", STRING_SAFE(argument));
-            }
-            else if (at != NULL) {
+            } else if (at != NULL) {
                 at->clone.other_arch = other;
             }
-        }
-        else if (!strcmp("randomitems", variable)) {
+        } else if (!strcmp("randomitems", variable)) {
             treasurelist *tl = find_treasurelist(argument);
 
             if (tl == NULL) {
                 logger_print(LOG(BUG), "Second artifacts pass: Failed to link treasure to arch. (arch: %s ->%s)", STRING_OBJ_NAME(&at->clone), STRING_SAFE(argument));
-            }
-            else if (at != NULL) {
+            } else if (at != NULL) {
                 at->clone.randomitems = tl;
             }
         }

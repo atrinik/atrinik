@@ -34,8 +34,7 @@
  * @page plugin_python_region_fields Python region fields
  * <h2>Python region fields</h2>
  * List of the region fields and their meaning. */
-static fields_struct fields[] =
-{
+static fields_struct fields[] = {
     {"next", FIELDTYPE_REGION, offsetof(region_struct, next), 0, 0},
     {"parent", FIELDTYPE_REGION, offsetof(region_struct, parent), 0, 0},
     {"name", FIELDTYPE_CSTR, offsetof(region_struct, name), 0, 0},
@@ -121,8 +120,7 @@ static PyObject *Atrinik_Region_RichCompare(Atrinik_Region *left, Atrinik_Region
 static PyGetSetDef getseters[NUM_FIELDS + 1];
 
 /** Our actual Python RegionType. */
-PyTypeObject Atrinik_RegionType =
-{
+PyTypeObject Atrinik_RegionType = {
 #ifdef IS_PY3K
     PyVarObject_HEAD_INIT(NULL, 0)
 #else
@@ -189,7 +187,7 @@ int Atrinik_Region_init(PyObject *module)
     }
 
     Py_INCREF(&Atrinik_RegionType);
-    PyModule_AddObject(module, "Region", (PyObject *) &Atrinik_RegionType);
+    PyModule_AddObject(module, "Region", (PyObject *) & Atrinik_RegionType);
 
     return 1;
 }

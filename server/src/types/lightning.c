@@ -46,8 +46,8 @@ static void lightning_fork(object *op, object *tmp)
     if (rndm(0, 99) < tmp->stats.Con) {
         dir_adjust = -1;
     }
-    /* Fork right. */
     else {
+        /* Fork right. */
         dir_adjust = 1;
     }
 
@@ -98,8 +98,7 @@ static object *projectile_move_func(object *op)
         }
 
         op->stats.food = 1;
-    }
-    else if (op->stats.food == 1) {
+    } else if (op->stats.food == 1) {
         object *tmp;
 
         tmp = get_object();

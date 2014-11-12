@@ -37,8 +37,7 @@
 /* #define ARCHIVE_DEBUG */
 
 /** special structure, used only by art_name_array[] */
-typedef struct namebytype
-{
+typedef struct namebytype {
     /** Generic name to call artifacts of this type */
     char *name;
 
@@ -61,8 +60,7 @@ static char **msgs = NULL;
 static size_t num_msgs = 0;
 
 /** Spellpath information */
-static uint32 spellpathdef[NRSPELLPATHS] =
-{
+static uint32 spellpathdef[NRSPELLPATHS] = {
     PATH_PROT,
     PATH_FIRE,
     PATH_FROST,
@@ -86,8 +84,7 @@ static uint32 spellpathdef[NRSPELLPATHS] =
 };
 
 /** Path book information */
-static char *path_book_name[] =
-{
+static char *path_book_name[] = {
     "codex",
     "compendium",
     "exposition",
@@ -106,8 +103,7 @@ static char *path_book_name[] =
 };
 
 /** Used by spellpath texts */
-static char *path_author[] =
-{
+static char *path_author[] = {
     "aether",
     "astral byways",
     "connections",
@@ -141,8 +137,7 @@ static char *path_author[] =
  *
  * If it isn't listed here, then art_attr_msg will never generate
  * a message for this type of artifact. */
-static arttypename art_name_array[] =
-{
+static arttypename art_name_array[] = {
     {"Helmet", HELMET},
     {"Amulet", AMULET},
     {"Shield", SHIELD},
@@ -161,8 +156,7 @@ static arttypename art_name_array[] =
 };
 
 /** Artifact book information */
-static char *art_book_name[] =
-{
+static char *art_book_name[] = {
     "collection",
     "file",
     "files",
@@ -177,8 +171,7 @@ static char *art_book_name[] =
 };
 
 /** Used by artifact texts */
-static char *art_author[] =
-{
+static char *art_author[] = {
     "ancient things",
     "artifacts",
     "Havlor",
@@ -189,8 +182,7 @@ static char *art_author[] =
 };
 
 /** Monster book information */
-static char *mon_book_name[] =
-{
+static char *mon_book_name[] = {
     "bestiary",
     "catalog",
     "compilation",
@@ -207,8 +199,7 @@ static char *mon_book_name[] =
 };
 
 /** Used by monster bestiary texts */
-static char *mon_author[] =
-{
+static char *mon_author[] = {
     "beasts",
     "creatures",
     "dezidens",
@@ -226,8 +217,7 @@ static char *mon_author[] =
 
 /**
  * Generic book information. */
-static char *book_name[] =
-{
+static char *book_name[] = {
     "calendar",
     "datebook",
     "diary",
@@ -253,8 +243,7 @@ static char *book_name[] =
 };
 
 /** Used by 'generic' books */
-static char *book_author[] =
-{
+static char *book_author[] = {
     "Abdulah",
     "Al'hezred",
     "Alywn",
@@ -386,22 +375,18 @@ static void init_msgfile(void)
                     msgs = erealloc(msgs, sizeof(char *) * num_msgs);
                     msgs[num_msgs - 1] = estrdup(msgbuf);
                     in_msg = 0;
-                }
-                else if (!buf_overflow(msgbuf, buf, sizeof(msgbuf) - 1)) {
+                } else if (!buf_overflow(msgbuf, buf, sizeof(msgbuf) - 1)) {
                     strcat(msgbuf, buf);
                     strcat(msgbuf, "\n");
-                }
-                else if (error_lineno != 0) {
+                } else if (error_lineno != 0) {
                     logger_print(LOG(BUG), "Truncating book at %s, line %d", fname, error_lineno);
                     error_lineno = 0;
                 }
-            }
-            else if (!strcmp(buf, "MSG")) {
+            } else if (!strcmp(buf, "MSG")) {
                 error_lineno = lineno;
                 msgbuf[0] = '\0';
                 in_msg = 1;
-            }
-            else {
+            } else {
                 logger_print(LOG(BUG), "Syntax error at %s, line %d", fname, lineno);
             }
         }
@@ -458,22 +443,22 @@ static void new_text_name(object *book, int msgtype)
     }
 
     switch (msgtype) {
-        case MSGTYPE_MONSTER:
-            name = mon_book_name[rndm(1, arraysize(mon_book_name)) - 1];
-            break;
+    case MSGTYPE_MONSTER:
+        name = mon_book_name[rndm(1, arraysize(mon_book_name)) - 1];
+        break;
 
-        case MSGTYPE_ARTIFACT:
-            name = art_book_name[rndm(1, arraysize(art_book_name)) - 1];
-            break;
+    case MSGTYPE_ARTIFACT:
+        name = art_book_name[rndm(1, arraysize(art_book_name)) - 1];
+        break;
 
-        case MSGTYPE_SPELLPATH:
-            name = path_book_name[rndm(1, arraysize(path_book_name)) - 1];
-            break;
+    case MSGTYPE_SPELLPATH:
+        name = path_book_name[rndm(1, arraysize(path_book_name)) - 1];
+        break;
 
-        case MSGTYPE_MSGFILE:
-        default:
-            name = book_name[rndm(1, arraysize(book_name)) - 1];
-            break;
+    case MSGTYPE_MSGFILE:
+    default:
+        name = book_name[rndm(1, arraysize(book_name)) - 1];
+        break;
     }
 
     FREE_AND_COPY_HASH(book->name, name);
@@ -494,21 +479,21 @@ static void add_author(object *op, int msgtype)
     }
 
     switch (msgtype) {
-        case MSGTYPE_MONSTER:
-            name = mon_author[rndm(1, arraysize(mon_author)) - 1];
-            break;
+    case MSGTYPE_MONSTER:
+        name = mon_author[rndm(1, arraysize(mon_author)) - 1];
+        break;
 
-        case MSGTYPE_ARTIFACT:
-            name = art_author[rndm(1, arraysize(art_author)) - 1];
-            break;
+    case MSGTYPE_ARTIFACT:
+        name = art_author[rndm(1, arraysize(art_author)) - 1];
+        break;
 
-        case MSGTYPE_SPELLPATH:
-            name = path_author[rndm(1, arraysize(path_author)) - 1];
-            break;
+    case MSGTYPE_SPELLPATH:
+        name = path_author[rndm(1, arraysize(path_author)) - 1];
+        break;
 
-        case MSGTYPE_MSGFILE:
-        default:
-            name = book_author[rndm(1, arraysize(book_author)) - 1];
+    case MSGTYPE_MSGFILE:
+    default:
+        name = book_author[rndm(1, arraysize(book_author)) - 1];
     }
 
     snprintf(title, sizeof(title), "of %s", name);
@@ -618,14 +603,12 @@ static char *artifact_msg(int level, char *buf, size_t booksize)
      * for that type exists! */
     i = 0;
 
-    do
-    {
+    do {
         idx = rndm(1, arraysize(art_name_array)) - 1;
         type = art_name_array[idx].type;
         al = find_artifactlist(type);
         i++;
-    }
-    while (al == NULL && i < 10);
+    }    while (al == NULL && i < 10);
 
     /* Unable to find a message */
     if (i == 10) {
@@ -668,14 +651,11 @@ static char *artifact_msg(int level, char *buf, size_t booksize)
 
         if (chance >= 20) {
             stringbuffer_append_string(desc, "an uncommon");
-        }
-        else if (chance >= 10) {
+        } else if (chance >= 10) {
             stringbuffer_append_string(desc, "an unusual");
-        }
-        else if (chance >= 5) {
+        } else if (chance >= 5) {
             stringbuffer_append_string(desc, "a rare");
-        }
-        else {
+        } else {
             stringbuffer_append_string(desc, "a very rare");
         }
 
@@ -749,8 +729,7 @@ static char *spellpath_msg(int level, char *buf, size_t booksize)
     /* Geez, no spells were generated. */
     if (!did_first_sp) {
         snprintf(buf + strlen(buf), booksize - strlen(buf), "%s\n - no known spells exist -\n", final);
-    }
-    else {
+    } else {
         snprintf(buf + strlen(buf), booksize - strlen(buf), "%s\n", final);
     }
 
@@ -774,8 +753,7 @@ static char *msgfile_msg(size_t booksize)
 
     if (msg && !book_overflow(buf, msg, booksize)) {
         strncpy(buf, msg, sizeof(buf) - 1);
-    }
-    else {
+    } else {
         strncpy(buf, "*undecipherable text*", sizeof(buf) - 1);
     }
 
@@ -815,22 +793,22 @@ void tailor_readable_ob(object *book, int msg_type)
     msg_type = msg_type > 0 ? msg_type : rndm(0, MSGTYPE_NUM);
 
     switch (msg_type) {
-        case MSGTYPE_MONSTER:
-            mon_info_msg(msgbuf, BOOK_BUF);
-            break;
+    case MSGTYPE_MONSTER:
+        mon_info_msg(msgbuf, BOOK_BUF);
+        break;
 
-        case MSGTYPE_ARTIFACT:
-            artifact_msg(level, msgbuf, BOOK_BUF);
-            break;
+    case MSGTYPE_ARTIFACT:
+        artifact_msg(level, msgbuf, BOOK_BUF);
+        break;
 
-        case MSGTYPE_SPELLPATH:
-            spellpath_msg(level, msgbuf, BOOK_BUF);
-            break;
+    case MSGTYPE_SPELLPATH:
+        spellpath_msg(level, msgbuf, BOOK_BUF);
+        break;
 
-        case MSGTYPE_MSGFILE:
-        default:
-            snprintf(VS(msgbuf), "%s", msgfile_msg(BOOK_BUF));
-            break;
+    case MSGTYPE_MSGFILE:
+    default:
+        snprintf(VS(msgbuf), "%s", msgfile_msg(BOOK_BUF));
+        break;
     }
 
     /* Safety -- we get ugly map saves/crashes without this */

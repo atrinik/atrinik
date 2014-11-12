@@ -54,8 +54,7 @@ void command_freeze(object *op, const char *command, char *params)
 
     if (string_get_word(params, &pos, ' ', word, sizeof(word), 0) && string_isdigit(word)) {
         ticks = atoi(word);
-    }
-    else {
+    } else {
         ticks = 100;
     }
 

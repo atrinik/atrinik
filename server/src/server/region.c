@@ -98,16 +98,14 @@ void regions_init(void)
             if (strcmp(key, "region") == 0 && !string_isempty(value)) {
                 region = region_get();
                 region->name = estrdup(value);
-            }
-            else {
+            } else {
                 logger_print(LOG(ERROR), "Parsing error: %s %s", buf,
-                             value ? value : "");
+                        value ? value : "");
                 exit(1);
             }
 
             continue;
-        }
-        else if (value == NULL) {
+        } else if (value == NULL) {
             if (strcmp(key, "msg") == 0) {
                 msgbuf[0] = '\0';
 
@@ -122,52 +120,44 @@ void regions_init(void)
                 if (msgbuf[0] != '\0') {
                     region->msg = estrdup(msgbuf);
                 }
-            }
-            else if (strcmp(key, "end") == 0) {
+            } else if (strcmp(key, "end") == 0) {
                 region_add(region);
                 region = NULL;
-            }
-            else {
+            } else {
                 logger_print(LOG(ERROR), "Parsing error: %s %s", buf,
-                             value ? value : "");
+                        value ? value : "");
                 exit(1);
             }
 
             continue;
-        }
-        else if (strcmp(key, "parent") == 0) {
+        } else if (strcmp(key, "parent") == 0) {
             region->parent_name = estrdup(value);
-        }
-        else if (strcmp(key, "longname") == 0) {
+        } else if (strcmp(key, "longname") == 0) {
             region->longname = estrdup(value);
-        }
-        else if (strcmp(key, "map_first") == 0) {
+        } else if (strcmp(key, "map_first") == 0) {
             region->map_first = estrdup(value);
-        }
-        else if (strcmp(key, "map_bg") == 0) {
+        } else if (strcmp(key, "map_bg") == 0) {
             region->map_bg = estrdup(value);
-        }
-        else if (strcmp(key, "map_quest") == 0) {
+        } else if (strcmp(key, "map_quest") == 0) {
             region->map_quest = KEYWORD_IS_TRUE(value);
         }
-        /* Jail entries are of the form: /path/to/map x y */
         else if (strcmp(key, "jail") == 0) {
             char path[MAX_BUF];
             int x, y;
 
+            /* Jail entries are of the form: /path/to/map x y */
             if (sscanf(value, "%255[^ ] %d %d", path, &x, &y) != 3) {
                 logger_print(LOG(ERROR), "Parsing error: %s %s", buf,
-                             value ? value : "");
+                        value ? value : "");
                 exit(1);
             }
 
             region->jailmap = estrdup(path);
             region->jailx = x;
             region->jaily = y;
-        }
-        else {
+        } else {
             logger_print(LOG(ERROR), "Parsing error: %s %s", buf,
-                         value ? value : "");
+                    value ? value : "");
             exit(1);
         }
     }
@@ -233,14 +223,13 @@ static void region_add(region_struct *region)
     region_struct *tmp;
 
     for (tmp = first_region;
-         tmp != NULL && tmp->next != NULL;
-         tmp = tmp->next) {
+            tmp != NULL && tmp->next != NULL;
+            tmp = tmp->next) {
     }
 
     if (tmp == NULL) {
         first_region = region;
-    }
-    else {
+    } else {
         tmp->next = region;
     }
 }
@@ -293,13 +282,12 @@ char *region_get_longname(const region_struct *region)
 {
     if (region->longname) {
         return region->longname;
-    }
-    else if (region->parent) {
+    } else if (region->parent) {
         return region_get_longname(region->parent);
     }
 
     logger_print(LOG(BUG), "Region %s has no parent and no longname.",
-                 region->name);
+            region->name);
     return "no region name";
 }
 
@@ -313,13 +301,12 @@ char *region_get_msg(const region_struct *region)
 {
     if (region->msg) {
         return region->msg;
-    }
-    else if (region->parent) {
+    } else if (region->parent) {
         return region_get_msg(region->parent);
     }
 
     logger_print(LOG(BUG), "Region %s has no parent and no msg.",
-                 region->name);
+            region->name);
     return "no region message";
 }
 
@@ -346,7 +333,7 @@ int region_enter_jail(object *op)
 
         if (m == NULL) {
             logger_print(LOG(BUG), "Could not load map '%s' (%d,%d).",
-                         region->jailmap, region->jailx, region->jaily);
+                    region->jailmap, region->jailx, region->jaily);
             return 0;
         }
 
@@ -354,6 +341,6 @@ int region_enter_jail(object *op)
     }
 
     logger_print(LOG(BUG), "No suitable jailmap for region %s was found.",
-                 op->map->region->name);
+            op->map->region->name);
     return 0;
 }

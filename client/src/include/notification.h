@@ -31,8 +31,7 @@
 
 /**
  * The notification data. */
-typedef struct notification_struct
-{
+typedef struct notification_struct {
     /** Current alpha value of the notification surface. */
     int alpha;
 

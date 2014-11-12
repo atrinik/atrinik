@@ -47,11 +47,10 @@ static int **wm_face_colors;
 #define MAX_PIXELS 3
 
 /** Region. */
-typedef struct wm_region
-{
+typedef struct wm_region {
+
     /** Maps in the region. */
-    struct
-    {
+    struct {
         /** The map. */
         mapstruct *m;
 
@@ -109,7 +108,7 @@ static void wm_images_init(void)
 
         im2 = gdImageCreateTrueColor(im->sx, im->sy);
         gdImageCopyResized(im2, im, 0, 0, 0, 0, im2->sx, im2->sy, im->sx,
-                           im->sy);
+                im->sy);
 
         wm_face_colors[i] = ecalloc(1, sizeof(**wm_face_colors) * 5);
 
@@ -134,8 +133,8 @@ static void wm_images_init(void)
             b /= total;
             wm_face_colors[i][0] = gdImageColorResolve(im2, r, g, b);
             wm_face_colors[i][1] = gdImageColorResolve(im2, MIN(r + 10, 255),
-                                                            MIN(g + 10, 255),
-                                                            MIN(b + 10, 255));
+                    MIN(g + 10, 255),
+                    MIN(b + 10, 255));
             wm_face_colors[i][2] = r;
             wm_face_colors[i][3] = g;
             wm_face_colors[i][4] = b;
@@ -177,13 +176,13 @@ static int render_object(gdImagePtr im, int x, int y, object *ob)
      * - misc objects blocking passage (rocks, trees, etc)
      */
     if (ob->layer == LAYER_FLOOR ||
-        ob->type == WALL ||
-        ob->type == DOOR ||
-        ob->type == EXIT ||
-        ob->type == SHOP_MAT ||
-        ob->type == HOLY_ALTAR ||
-        ob->type == SIGN ||
-        (ob->type == MISC_OBJECT && QUERY_FLAG(ob, FLAG_NO_PASS))) {
+            ob->type == WALL ||
+            ob->type == DOOR ||
+            ob->type == EXIT ||
+            ob->type == SHOP_MAT ||
+            ob->type == HOLY_ALTAR ||
+            ob->type == SIGN ||
+            (ob->type == MISC_OBJECT && QUERY_FLAG(ob, FLAG_NO_PASS))) {
         int px, py, j = 0, max, color;
 
         max = MAX_PIXELS;
@@ -199,16 +198,15 @@ static int render_object(gdImagePtr im, int x, int y, object *ob)
                 /* Do shading based on the floor's z. */
                 if (ob->type == FLOOR && ob->z) {
                     color = gdImageColorResolve(
-                        im,
-                        MAX(0, wm_face_colors[ob->face->number][2] - ob->z /
+                            im,
+                            MAX(0, wm_face_colors[ob->face->number][2] - ob->z /
                             2.5),
-                        MAX(0, wm_face_colors[ob->face->number][3] - ob->z /
+                            MAX(0, wm_face_colors[ob->face->number][3] - ob->z /
                             2.5),
-                        MAX(0, wm_face_colors[ob->face->number][4] - ob->z /
+                            MAX(0, wm_face_colors[ob->face->number][4] - ob->z /
                             2.5)
-                    );
-                }
-                else {
+                            );
+                } else {
                     color = wm_face_colors[ob->face->number][0];
                 }
 
@@ -293,21 +291,21 @@ static void region_add_rec(wm_region *r, mapstruct *m, const char *region_name)
             /* Is the map in region? */
             if (map_in_region(m->tile_map[i], region_name)) {
                 switch (i) {
-                    case 0:
-                        r->ypos -= MAP_HEIGHT(m->tile_map[i]) * MAX_PIXELS;
-                        break;
+                case 0:
+                    r->ypos -= MAP_HEIGHT(m->tile_map[i]) * MAX_PIXELS;
+                    break;
 
-                    case 1:
-                        r->xpos += MAP_WIDTH(m->tile_map[i]) * MAX_PIXELS;
-                        break;
+                case 1:
+                    r->xpos += MAP_WIDTH(m->tile_map[i]) * MAX_PIXELS;
+                    break;
 
-                    case 2:
-                        r->ypos += MAP_HEIGHT(m->tile_map[i]) * MAX_PIXELS;
-                        break;
+                case 2:
+                    r->ypos += MAP_HEIGHT(m->tile_map[i]) * MAX_PIXELS;
+                    break;
 
-                    case 3:
-                        r->xpos -= MAP_WIDTH(m->tile_map[i]) * MAX_PIXELS;
-                        break;
+                case 3:
+                    r->xpos -= MAP_WIDTH(m->tile_map[i]) * MAX_PIXELS;
+                    break;
                 }
 
                 /* Store the lowest x/y positions to do adjustments later. */
@@ -323,21 +321,21 @@ static void region_add_rec(wm_region *r, mapstruct *m, const char *region_name)
                 region_add_rec(r, m->tile_map[i], region_name);
 
                 switch (i) {
-                    case 0:
-                        r->ypos += MAP_HEIGHT(m->tile_map[i]) * MAX_PIXELS;
-                        break;
+                case 0:
+                    r->ypos += MAP_HEIGHT(m->tile_map[i]) * MAX_PIXELS;
+                    break;
 
-                    case 1:
-                        r->xpos -= MAP_WIDTH(m->tile_map[i]) * MAX_PIXELS;
-                        break;
+                case 1:
+                    r->xpos -= MAP_WIDTH(m->tile_map[i]) * MAX_PIXELS;
+                    break;
 
-                    case 2:
-                        r->ypos -= MAP_HEIGHT(m->tile_map[i]) * MAX_PIXELS;
-                        break;
+                case 2:
+                    r->ypos -= MAP_HEIGHT(m->tile_map[i]) * MAX_PIXELS;
+                    break;
 
-                    case 3:
-                        r->xpos += MAP_WIDTH(m->tile_map[i]) * MAX_PIXELS;
-                        break;
+                case 3:
+                    r->xpos += MAP_WIDTH(m->tile_map[i]) * MAX_PIXELS;
+                    break;
                 }
             }
         }
@@ -382,7 +380,7 @@ void world_maker(void)
 
         if (!def_fp) {
             logger_print(LOG(ERROR), "Could not open '%s': %s", buf,
-                         strerror(errno));
+                    strerror(errno));
             exit(1);
         }
 
@@ -436,11 +434,11 @@ void world_maker(void)
             /* Parse HTML color and fill the image with it. */
             if (sscanf(r->map_bg, "#%2X%2X%2X", &im_r, &im_g, &im_b) == 3) {
                 gdImageFill(im, 0, 0,
-                            gdImageColorAllocate(im, im_r, im_g, im_b));
+                        gdImageColorAllocate(im, im_r, im_g, im_b));
             }
         }
-        /* Transparency otherwise. */
         else {
+            /* Transparency otherwise. */
             gdImageAlphaBlending(im, 1);
             gdImageSaveAlpha(im, 1);
             gdImageFill(im, 0, 0, gdTransparent);
@@ -461,8 +459,8 @@ void world_maker(void)
 
                     /* Look for map info objects. */
                     for (tmp = GET_MAP_OB(m, x, y);
-                         tmp && tmp->layer == LAYER_SYS;
-                         tmp = tmp->above) {
+                            tmp && tmp->layer == LAYER_SYS;
+                            tmp = tmp->above) {
                         if (tmp->type != CLIENT_MAP_INFO) {
                             continue;
                         }
@@ -479,7 +477,7 @@ void world_maker(void)
                             char msg[HUGE_BUF * 4];
 
                             string_replace(tmp->msg, "\n", "\\n", msg,
-                                           sizeof(msg));
+                                    sizeof(msg));
                             FREE_AND_COPY_HASH(tmp->msg, msg);
                         }
 
@@ -493,27 +491,26 @@ void world_maker(void)
                             if (QUERY_FLAG(tmp, FLAG_CURSED)) {
                                 fprintf(def_fp, "label_hide\n");
                             }
-                        }
-                        else {
+                        } else {
                             info_objects = erealloc(
-                                info_objects,
-                                sizeof(*info_objects) * (num_info_objects + 1)
-                            );
+                                    info_objects,
+                                    sizeof(*info_objects) * (num_info_objects + 1)
+                                    );
                             info_objects[num_info_objects] = tmp;
                             num_info_objects++;
                         }
                     }
 
                     for (layer = LAYER_FLOOR;
-                         layer <= LAYER_FMASK;
-                         layer++) {
+                            layer <= LAYER_FMASK;
+                            layer++) {
                         for (sub_layer = 0;
-                             sub_layer < NUM_SUB_LAYERS;
-                             sub_layer++) {
+                                sub_layer < NUM_SUB_LAYERS;
+                                sub_layer++) {
                             if (render_object(
                                     im, xpos, ypos,
                                     GET_MAP_OB_LAYER(m, x, y, layer, sub_layer)
-                                )) {
+                                    )) {
                                 got_one = 1;
                             }
                         }
@@ -522,11 +519,11 @@ void world_maker(void)
                     /* Didn't get an object, fill this square with black. */
                     if (!got_one) {
                         gdImageFilledRectangle(
-                            im, xpos, ypos,
-                            xpos + MAX_PIXELS - 1,
-                            ypos + MAX_PIXELS - 1,
-                            gdImageColorAllocate(im, 0, 0, 0)
-                        );
+                                im, xpos, ypos,
+                                xpos + MAX_PIXELS - 1,
+                                ypos + MAX_PIXELS - 1,
+                                gdImageColorAllocate(im, 0, 0, 0)
+                                );
                     }
                 }
             }
@@ -538,15 +535,15 @@ void world_maker(void)
                     ypos = y * MAX_PIXELS + wm_r->maps[i].ypos;
 
                     for (layer = LAYER_ITEM;
-                         layer < NUM_LAYERS;
-                         layer++) {
+                            layer < NUM_LAYERS;
+                            layer++) {
                         for (sub_layer = 0;
-                             sub_layer < NUM_SUB_LAYERS;
-                             sub_layer++) {
+                                sub_layer < NUM_SUB_LAYERS;
+                                sub_layer++) {
                             render_object(
-                                im, xpos, ypos,
-                                GET_MAP_OB_LAYER(m, x, y, layer, sub_layer)
-                            );
+                                    im, xpos, ypos,
+                                    GET_MAP_OB_LAYER(m, x, y, layer, sub_layer)
+                                    );
                         }
                     }
                 }
@@ -575,22 +572,22 @@ void world_maker(void)
             /* Hiding part of the map. */
             if (tmp->sub_type == CLIENT_MAP_HIDE) {
                 gdImageFilledRectangle(
-                    im, xpos, ypos,
-                    MIN(xpos + ((tmp->path_attuned + 1) * MAX_PIXELS),
+                        im, xpos, ypos,
+                        MIN(xpos + ((tmp->path_attuned + 1) * MAX_PIXELS),
                         (uint32) wm_r->w),
-                    MIN(ypos + ((tmp->path_repelled + 1) * MAX_PIXELS),
+                        MIN(ypos + ((tmp->path_repelled + 1) * MAX_PIXELS),
                         (uint32) wm_r->h),
-                    gdImageColorAllocate(im, 0, 0, 0)
-                );
+                        gdImageColorAllocate(im, 0, 0, 0)
+                        );
             }
 
             /* Tooltip. */
             if (tmp->msg && tmp->sub_type == CLIENT_MAP_TOOLTIP) {
                 /* Tooltip with automatic width/height detection? */
                 if (!tmp->path_attuned &&
-                    !tmp->path_repelled &&
-                    !tmp->item_level &&
-                    QUERY_FLAG(tmp, FLAG_STAND_STILL)) {
+                        !tmp->path_repelled &&
+                        !tmp->item_level &&
+                        QUERY_FLAG(tmp, FLAG_STAND_STILL)) {
                     for (j = 0; j < num_info_objects; j++) {
                         rv_vector rv;
 
@@ -608,7 +605,7 @@ void world_maker(void)
                         /* Get range vector from the master info object to this
                          * one. */
                         if (!get_rangevector(tmp, info_objects[j], &rv,
-                                             RV_RECURSIVE_SEARCH)) {
+                                RV_RECURSIVE_SEARCH)) {
                             continue;
                         }
 
@@ -631,12 +628,12 @@ void world_maker(void)
                         MAX(0, xpos - ((tmp->item_level) * MAX_PIXELS)),
                         MAX(0, ypos - ((tmp->item_level) * MAX_PIXELS)),
                         MIN(xpos + ((tmp->item_level * 2) * MAX_PIXELS +
-                            MAX_PIXELS) + (tmp->path_attuned * MAX_PIXELS),
-                            (uint32) wm_r->w
+                        MAX_PIXELS) + (tmp->path_attuned * MAX_PIXELS),
+                        (uint32) wm_r->w
                         ) - xpos,
                         MIN(ypos + ((tmp->item_level * 2) * MAX_PIXELS +
-                            MAX_PIXELS) + (tmp->path_repelled * MAX_PIXELS),
-                            (uint32) wm_r->h
+                        MAX_PIXELS) + (tmp->path_repelled * MAX_PIXELS),
+                        (uint32) wm_r->h
                         ) - ypos,
                         tmp->name, tmp->msg);
 
@@ -648,9 +645,9 @@ void world_maker(void)
                     if (tmp->slaying) {
                         fprintf(def_fp, " %s", tmp->slaying);
                     }
-                    /* No outline color, but there is non-standard size,
-                     * so we must include the default color as well. */
                     else if (tmp->item_skill != 1) {
+                        /* No outline color, but there is non-standard size,
+                         * so we must include the default color as well. */
                         fprintf(def_fp, " #ff0000");
                     }
 
@@ -682,7 +679,7 @@ void world_maker(void)
 
         if (out == NULL) {
             logger_print(LOG(ERROR), "Could not open '%s': %s", buf,
-                         strerror(errno));
+                    strerror(errno));
             exit(1);
         }
 

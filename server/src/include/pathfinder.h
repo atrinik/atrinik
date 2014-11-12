@@ -30,8 +30,7 @@
 #define PATHFINDER_H
 
 /** Path node */
-typedef struct astar_node
-{
+typedef struct astar_node {
     /** Next node in linked list */
     struct astar_node *next;
 

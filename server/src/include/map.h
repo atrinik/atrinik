@@ -308,8 +308,7 @@
 /*@}*/
 
 /** Single tile on a map */
-typedef struct MapSpace_s
-{
+typedef struct MapSpace_s {
     /** Start of the objects on this map tile */
     object *first;
 
@@ -433,8 +432,7 @@ typedef struct MapSpace_s
  *
  * Each map is in a given region of the game world and links to a region
  * definition. */
-typedef struct region_struct
-{
+typedef struct region_struct {
     /** Pointer to next region, NULL for the last one */
     struct region_struct *next;
 
@@ -486,8 +484,7 @@ typedef struct region_struct
 
 /**
  * A single map event, holding a pointer to map event object on map. */
-typedef struct map_event
-{
+typedef struct map_event {
     /** Next map event in linked list. */
     struct map_event *next;
 
@@ -507,8 +504,7 @@ typedef struct map_event
  * You may think it is safe to look at width and height values directly
  * (or even through the macros), but doing so will completely break map
  * tiling. */
-typedef struct mapdef
-{
+typedef struct mapdef {
     /** Previous map before. If NULL we are first_map. */
     struct mapdef *previous;
 
@@ -637,8 +633,7 @@ typedef struct mapdef
 /**
  * This is used by get_rangevector() to determine where the other
  * creature is. */
-typedef struct rv_vector_s
-{
+typedef struct rv_vector_s {
     /** The distance away */
     unsigned int distance;
 

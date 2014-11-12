@@ -46,6 +46,7 @@ static uint8 did_init = 0;
  */
 void toolkit_string_init(void)
 {
+
     TOOLKIT_INIT_FUNC_START(string)
     {
         toolkit_import(math);
@@ -60,6 +61,7 @@ void toolkit_string_init(void)
  */
 void toolkit_string_deinit(void)
 {
+
     TOOLKIT_DEINIT_FUNC_START(string)
     {
     }
@@ -125,7 +127,7 @@ char *string_estrndup(const char *s, size_t n)
  * terminating null character) will be written to result.
  */
 void string_replace(const char *src, const char *key, const char *replacement,
-                    char *result, size_t resultsize)
+        char *result, size_t resultsize)
 {
     size_t resultlen, keylen;
 
@@ -143,11 +145,10 @@ void string_replace(const char *src, const char *key, const char *replacement,
     while (*src != '\0' && resultlen + 1 < resultsize) {
         if (strncmp(src, key, keylen) == 0) {
             snprintf(result + resultlen, resultsize - resultlen, "%s",
-                     replacement);
+                    replacement);
             resultlen += strlen(result + resultlen);
             src += keylen;
-        }
-        else {
+        } else {
             result[resultlen++] = *src++;
         }
     }
@@ -176,8 +177,7 @@ void string_replace_char(char *str, const char *key, const char replacement)
                     break;
                 }
             }
-        }
-        else {
+        } else {
             *str = replacement;
         }
 
@@ -269,8 +269,7 @@ char *string_format_number_comma(uint64 num)
     buf = &retbuf[sizeof(retbuf) - 1];
     *buf = '\0';
 
-    do
-    {
+    do {
         if (i % 3 == 0 && i != 0) {
             *--buf = ',';
         }
@@ -278,8 +277,7 @@ char *string_format_number_comma(uint64 num)
         *--buf = '0' + num % 10;
         num /= 10;
         i++;
-    }
-    while (num != 0);
+    }    while (num != 0);
 
     return buf;
 }
@@ -361,8 +359,7 @@ char *string_whitespace_squeeze(char *str)
             if (!w || !isspace(str[w - 1])) {
                 str[w++] = ' ';
             }
-        }
-        else {
+        } else {
             str[w++] = str[r];
         }
     }
@@ -404,7 +401,7 @@ void string_newline_to_literal(char *str)
  * @return 'word', NULL if 'word' is empty.
  */
 const char *string_get_word(const char *str, size_t *pos, char delim,
-                            char *word, size_t wordsize, int surround)
+        char *word, size_t wordsize, int surround)
 {
     size_t i;
     uint8 in_surround;
@@ -423,8 +420,7 @@ const char *string_get_word(const char *str, size_t *pos, char delim,
     while (str && *str != '\0' && (*str != delim || in_surround)) {
         if (*str == surround) {
             in_surround = !in_surround;
-        }
-        else if (i < wordsize - 1) {
+        } else if (i < wordsize - 1) {
             word[i++] = *str;
         }
 
@@ -457,8 +453,7 @@ void string_skip_word(const char *str, size_t *i, int dir)
             if (!whitespace) {
                 break;
             }
-        }
-        else if (whitespace) {
+        } else if (whitespace) {
             whitespace = 0;
         }
 
@@ -535,15 +530,13 @@ void string_title(char *str)
             }
 
             previous_cased = 1;
-        }
-        else if (isupper(*str)) {
+        } else if (isupper(*str)) {
             if (previous_cased) {
                 *str = tolower(*str);
             }
 
             previous_cased = 1;
-        }
-        else {
+        } else {
             previous_cased = 0;
         }
 
@@ -928,7 +921,7 @@ size_t snprintfcat(char *buf, size_t size, const char *fmt, ...)
  * @return Number of characters written into 'result'.
  */
 size_t string_tohex(const unsigned char *str, size_t len, char *result,
-                    size_t resultsize)
+        size_t resultsize)
 {
     size_t i;
 
@@ -955,16 +948,16 @@ size_t string_tohex(const unsigned char *str, size_t len, char *result,
  * @return How many elements have been filled into 'result'.
  */
 size_t string_fromhex(char *str, size_t len, unsigned char *result,
-                      size_t resultsize)
+        size_t resultsize)
 {
     size_t i, j;
     unsigned char c, found;
 
     for (found = 0, i = 0, j = 0, c = 0; i < len && j < resultsize; i++) {
         if ((str[i] >= 'A' && str[i] <= 'F') ||
-            (str[i] >= '0' && str[i] <= '9')) {
+                (str[i] >= '0' && str[i] <= '9')) {
             c = (c << 4) |
-                ((str[i] >= 'A') ? (str[i] - 'A' + 10) : (str[i] - '0'));
+                    ((str[i] >= 'A') ? (str[i] - 'A' + 10) : (str[i] - '0'));
             found++;
         }
 

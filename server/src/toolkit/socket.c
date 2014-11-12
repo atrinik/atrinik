@@ -65,12 +65,13 @@ static void socket_ssl_ctx_destroy(SSL_CTX *ctx);
  * @internal */
 void toolkit_socket_init(void)
 {
+
     TOOLKIT_INIT_FUNC_START(socket)
     {
         OPENSSL_config(NULL);
         SSL_load_error_strings();
         SSL_library_init();
-        
+
         ssl_context = socket_ssl_ctx_create();
     }
     TOOLKIT_INIT_FUNC_END()
@@ -81,6 +82,7 @@ void toolkit_socket_init(void)
  * @internal */
 void toolkit_socket_deinit(void)
 {
+
     TOOLKIT_DEINIT_FUNC_START(socket)
     {
         socket_ssl_ctx_destroy(ssl_context);
@@ -112,7 +114,7 @@ socket_t *socket_create(const char *host, uint16 port)
     if (handle == -1) {
         return NULL;
     }
-    
+
     sc = calloc(1, sizeof(*sc));
     sc->handle = handle;
     sc->host = strdup(host);
@@ -142,7 +144,7 @@ int socket_connect(socket_t *sc)
     memset(&server.sin_zero, 0, sizeof(server.sin_zero));
 
     if (connect(sc->handle, (struct sockaddr *) &server,
-                sizeof(struct sockaddr)) == -1) {
+            sizeof(struct sockaddr)) == -1) {
         return 0;
     }
 
@@ -173,7 +175,7 @@ static int socket_ssl_ctx_select_cipher(SSL_CTX *ctx)
     if (ssl == NULL) {
         return 0;
     }
-    
+
     active_ciphers = SSL_get_ciphers(ssl);
 
     if (active_ciphers == NULL) {
@@ -202,7 +204,7 @@ static int socket_ssl_ctx_select_cipher(SSL_CTX *ctx)
     if (SSL_CTX_set_cipher_list(ctx, ciphers) != 1) {
         return 0;
     }
-    
+
     return 1;
 }
 
@@ -227,7 +229,7 @@ static SSL_CTX *socket_ssl_ctx_create(void)
     if (SSL_CTX_set_cipher_list(ctx, "HIGH:MEDIUM") != 1) {
         return NULL;
     }
-    
+
     /* Select best cipher. */
     if (socket_ssl_ctx_select_cipher(ctx) != 1) {
         return NULL;
@@ -273,7 +275,7 @@ SSL *socket_ssl_create(socket_t *sc, SSL_CTX *ctx)
     if (ret != 1) {
         return NULL;
     }
-    
+
     /* Obtain the server certificate. */
     peercert = SSL_get_peer_certificate(ssl);
 
@@ -287,7 +289,7 @@ SSL *socket_ssl_create(socket_t *sc, SSL_CTX *ctx)
     /* Check the certificate verification result. */
     if (ret != X509_V_OK) {
         log(LOG(SYSTEM), "Verify result: %s",
-            X509_verify_cert_error_string(ret));
+                X509_verify_cert_error_string(ret));
         X509_free(peercert);
         return NULL;
     }
@@ -295,11 +297,11 @@ SSL *socket_ssl_create(socket_t *sc, SSL_CTX *ctx)
     /* Check if the server certificate matches the host name used to
      * establish the connection. */
     X509_NAME_get_text_by_NID(X509_get_subject_name(peercert), NID_commonName,
-                              peer_CN, sizeof(peer_CN));
+            peer_CN, sizeof(peer_CN));
 
     if (strcasecmp(peer_CN, sc->host) != 0) {
         log(LOG(SYSTEM), "Peer name %s doesn't match host name %s\n", peer_CN,
-            sc->host);
+                sc->host);
         X509_free(peercert);
         return NULL;
     }
@@ -318,29 +320,28 @@ void socket_ssl_destroy(SSL *ssl)
 
     switch (ret) {
         /* A close_notify alert has already been received. */
+    case 1:
+        break;
+
+        /* Wait for the close_notify alert from the peer. */
+    case 0:
+        ret = SSL_shutdown(ssl);
+
+        switch (ret) {
+        case 0:
+            log(LOG(SYSTEM),  "second SSL_shutdown returned zero");
+            break;
+
         case 1:
             break;
 
-        /* Wait for the close_notify alert from the peer. */
-        case 0:
-            ret = SSL_shutdown(ssl);
-
-            switch (ret)
-            {
-                case 0:
-                    log(LOG(SYSTEM),  "second SSL_shutdown returned zero");
-                    break;
-
-                case 1:
-                    break;
-
-                default:
-                    log(LOG(SYSTEM),  "SSL_shutdown 2 %d", ret);
-            }
-            break;
-
         default:
-            log(LOG(SYSTEM),  "SSL_shutdown 1 %d", ret);
+            log(LOG(SYSTEM),  "SSL_shutdown 2 %d", ret);
+        }
+        break;
+
+    default:
+        log(LOG(SYSTEM),  "SSL_shutdown 1 %d", ret);
     }
 
     SSL_free(ssl);

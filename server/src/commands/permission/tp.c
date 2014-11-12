@@ -48,8 +48,7 @@ void command_tp(object *op, const char *command, char *params)
 
     if (string_get_word(params, &pos, ' ', word, sizeof(word), '"')) {
         who = find_player(word);
-    }
-    else {
+    } else {
         who = CONTR(op);
     }
 

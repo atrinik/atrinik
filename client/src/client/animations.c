@@ -88,22 +88,18 @@ void read_anims(void)
             if (!strncmp(buf, "anim ", 5)) {
                 new_anim = 0;
                 faces = 0;
-                anim_cmd[0] = (uint8)((count >> 8) & 0xff);
-                anim_cmd[1] = (uint8)(count & 0xff);
+                anim_cmd[0] = (uint8) ((count >> 8) & 0xff);
+                anim_cmd[1] = (uint8) (count & 0xff);
                 faces = 1;
                 anim_len = 4;
-            }
-            /* we should never hit this point */
-            else {
+            } else {
+                /* we should never hit this point */
                 logger_print(LOG(BUG), "Error parsing anims.tmp - unknown cmd: >%s<!", buf);
             }
-        }
-        /* No, we are inside! */
-        else {
+        } else {
             if (!strncmp(buf, "facings ", 8)) {
                 faces = atoi(buf + 8);
-            }
-            else if (!strncmp(buf, "mina", 4)) {
+            } else if (!strncmp(buf, "mina", 4)) {
                 anim_table = realloc(anim_table, sizeof(_anim_table) * (count + 1));
                 anim_cmd[2] = 0;
                 anim_cmd[3] = faces;
@@ -112,8 +108,7 @@ void read_anims(void)
                 memcpy(anim_table[count].anim_cmd, anim_cmd, anim_len);
                 count++;
                 new_anim = 1;
-            }
-            else {
+            } else {
                 uint16 face_id = atoi(buf);
 
                 anim_cmd[anim_len++] = (uint8) ((face_id >> 8) & 0xff);

@@ -73,8 +73,7 @@ char **make_snake_layout(int xsize, int ysize)
                 }
 
                 maze[i][j] = 'D';
-            }
-            else {
+            } else {
                 for (j = 2; j < ysize; j++) {
                     maze[i][j] = '#';
                 }
@@ -86,11 +85,12 @@ char **make_snake_layout(int xsize, int ysize)
             orientation ^= 1;
         }
     }
-    /* horizontal orientation */
     else {
         int n_walls = RANDOM() % ((ysize - 5) / 3) + 1;
         int spacing = ysize / (n_walls + 1);
         int orientation = 1;
+
+        /* horizontal orientation */
 
         for (i = spacing; i < ysize - 3; i += spacing) {
             if (orientation) {
@@ -99,8 +99,7 @@ char **make_snake_layout(int xsize, int ysize)
                 }
 
                 maze[j][i] = 'D';
-            }
-            else {
+            } else {
                 for (j = 2; j < xsize; j++) {
                     maze[j][i] = '#';
                 }
@@ -117,8 +116,7 @@ char **make_snake_layout(int xsize, int ysize)
     if (RANDOM() % 2) {
         maze[1][1] = '<';
         maze[xsize - 2][ysize - 2] = '>';
-    }
-    else {
+    } else {
         maze[1][1] = '>';
         maze[xsize - 2][ysize - 2] = '<';
     }
