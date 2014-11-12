@@ -47,6 +47,7 @@ CMakeCache.txt
 CMakeFiles
 cmake.h
 toolkit_cmake.h
+version.h
 cmake_install.cmake
 client/atrinik
 *.kdev*
