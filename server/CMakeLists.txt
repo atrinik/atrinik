@@ -21,24 +21,6 @@ if (NOT DL_LIBRARY AND NOT MINGW)
 	message(FATAL_ERROR "Could not find dl library.")
 endif ()
 
-# Check is used for unit tests, but is optional.
-find_library(CHECK_LIBRARY check)
-
-if (CHECK_LIBRARY)
-	set(HAVE_CHECK true)
-else ()
-	message(STATUS "Could not find check library, unit tests will be disabled.")
-endif ()
-
-# GD is used for world maker, but like unit tests, is also optional.
-find_library(GD_LIBRARY gd)
-
-if (GD_LIBRARY)
-	set(HAVE_WORLD_MAKER true)
-else ()
-	message(STATUS "Could not find gd library, world maker module will be disabled.")
-endif ()
-
 set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -DDEBUG=1 -O0 -g -DCURL_STATICLIB -DPTW32_STATIC_LIB")
 set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} -DDEBUG=0 -O3 -s -DCURL_STATICLIB -DPTW32_STATIC_LIB")
 
@@ -91,6 +73,24 @@ include(src/toolkit/cmake-pre.txt)
 
 # Add sources.
 include(src/cmake.txt)
+
+# Check is used for unit tests, but is optional.
+find_library(CHECK_LIBRARY check)
+
+if (CHECK_LIBRARY)
+	set(HAVE_CHECK true)
+else ()
+	message(STATUS "Could not find check library, unit tests will be disabled.")
+endif ()
+
+# GD is used for world maker, but like unit tests, is also optional.
+find_library(GD_LIBRARY gd)
+
+if (GD_LIBRARY)
+	set(HAVE_WORLD_MAKER true)
+else ()
+	message(STATUS "Could not find gd library, world maker module will be disabled.")
+endif ()
 
 # Find unit test source files if check is installed.
 if (CHECK_LIBRARY)
