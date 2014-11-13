@@ -188,7 +188,7 @@ shstr *add_string(const char *str)
         return ss->string;
     } else {
         /* The string isn't registered, and the slot is empty. */
-        
+
         GATHER(add_stats.hashed);
         hash_table[ind] = new_shared_string(str);
 

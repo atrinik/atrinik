@@ -299,7 +299,7 @@ void sha1_update( sha1_context *ctx, const unsigned char *input, size_t ilen )
     }
 }
 
-static const unsigned char sha1_padding[64] ={
+static const unsigned char sha1_padding[64] = {
     0x80, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,

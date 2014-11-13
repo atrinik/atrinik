@@ -272,7 +272,7 @@ static void sha2_update( sha2_context *ctx, const unsigned char *input, size_t i
     }
 }
 
-static const unsigned char sha2_padding[64] ={
+static const unsigned char sha2_padding[64] = {
     0x80, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
