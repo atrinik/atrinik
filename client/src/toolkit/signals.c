@@ -41,6 +41,10 @@
 #include <global.h>
 #include <signal.h>
 
+#ifdef HAVE_SIGACTION
+#   include <execinfo.h>
+#endif
+
 /**
  * Name of the API. */
 #define API_NAME signals
@@ -55,16 +59,19 @@ static const int register_signals[] = {
 #ifndef WIN32
     SIGHUP,
 #endif
-    SIGINT,
-    SIGTERM,
     SIGSEGV,
+    SIGINT,
+    SIGFPE,
+    SIGILL,
+    SIGTERM,
     SIGABRT
 };
 
 /**
  * The signal interception handler.
- * @param signum ID of the signal being intercepted. */
-static void signal_handler(int signum)
+ * @param signum ID of the signal being intercepted.
+ */
+static void simple_signal_handler(int signum)
 {
     if (signum == SIGABRT) {
 #ifdef WIN32
@@ -73,7 +80,7 @@ static void signal_handler(int signum)
         return;
 #endif
     }
-        
+
     /* SIGSEGV, so abort instead of exiting normally. */
     if (signum == SIGSEGV) {
         abort();
@@ -82,29 +89,40 @@ static void signal_handler(int signum)
     exit(1);
 }
 
+#if defined(WIN32) || defined(HAVE_SIGACTION)
 #ifdef WIN32
+LONG WINAPI signal_handler(EXCEPTION_POINTERS *ExceptionInfo)
+#else
 
-LONG WINAPI windows_exception_handler(EXCEPTION_POINTERS *ExceptionInfo)
+void signal_handler(int sig, siginfo_t *siginfo, void *context)
+#endif
 {
     struct tm *tm;
     static time_t t = 0;
-    char path[HUGE_BUF], date[MAX_BUF];
+    char path[MAX_BUF], date[MAX_BUF];
     FILE *fp;
+
+#ifndef WIN32
+    if (sig == SIGINT) {
+        exit(1);
+    }
+#endif
 
     if (t == 0) {
         t = time(NULL);
     }
-    
+
     tm = localtime(&t);
 
     strftime(VS(date), "%Y_%m_%d_%H-%M-%S", tm);
     snprintf(VS(path), "traceback_%s.txt", date);
     fp = fopen(path, "a");
-    
+
     if (fp == NULL) {
         fp = stderr;
     }
-    
+
+#ifdef WIN32
     switch (ExceptionInfo->ExceptionRecord->ExceptionCode) {
     case EXCEPTION_ACCESS_VIOLATION:
         fputs("Error: EXCEPTION_ACCESS_VIOLATION\n", fp);
@@ -170,7 +188,85 @@ LONG WINAPI windows_exception_handler(EXCEPTION_POINTERS *ExceptionInfo)
         fputs("Error: Unrecognized Exception\n", fp);
         break;
     }
+#else
+    switch (sig) {
+    case SIGSEGV:
+        fputs("Caught SIGSEGV: Segmentation Fault\n", fp);
+        break;
+    case SIGFPE:
+        switch (siginfo->si_code) {
+        case FPE_INTDIV:
+            fputs("Caught SIGFPE: (integer divide by zero)\n", fp);
+            break;
+        case FPE_INTOVF:
+            fputs("Caught SIGFPE: (integer overflow)\n", fp);
+            break;
+        case FPE_FLTDIV:
+            fputs("Caught SIGFPE: (floating-point divide by zero)\n", fp);
+            break;
+        case FPE_FLTOVF:
+            fputs("Caught SIGFPE: (floating-point overflow)\n", fp);
+            break;
+        case FPE_FLTUND:
+            fputs("Caught SIGFPE: (floating-point underflow)\n", fp);
+            break;
+        case FPE_FLTRES:
+            fputs("Caught SIGFPE: (floating-point inexact result)\n", fp);
+            break;
+        case FPE_FLTINV:
+            fputs("Caught SIGFPE: (floating-point invalid operation)\n", fp);
+            break;
+        case FPE_FLTSUB:
+            fputs("Caught SIGFPE: (subscript out of range)\n", fp);
+            break;
+        default:
+            fputs("Caught SIGFPE: Arithmetic Exception\n", fp);
+            break;
+        }
+    case SIGILL:
+        switch (siginfo->si_code) {
+        case ILL_ILLOPC:
+            fputs("Caught SIGILL: (illegal opcode)\n", fp);
+            break;
+        case ILL_ILLOPN:
+            fputs("Caught SIGILL: (illegal operand)\n", fp);
+            break;
+        case ILL_ILLADR:
+            fputs("Caught SIGILL: (illegal addressing mode)\n", fp);
+            break;
+        case ILL_ILLTRP:
+            fputs("Caught SIGILL: (illegal trap)\n", fp);
+            break;
+        case ILL_PRVOPC:
+            fputs("Caught SIGILL: (privileged opcode)\n", fp);
+            break;
+        case ILL_PRVREG:
+            fputs("Caught SIGILL: (privileged register)\n", fp);
+            break;
+        case ILL_COPROC:
+            fputs("Caught SIGILL: (coprocessor error)\n", fp);
+            break;
+        case ILL_BADSTK:
+            fputs("Caught SIGILL: (internal stack error)\n", fp);
+            break;
+        default:
+            fputs("Caught SIGILL: Illegal Instruction\n", fp);
+            break;
+        }
+        break;
+    case SIGTERM:
+        fputs("Caught SIGTERM: a termination request was sent to the program\n",
+                fp);
+        break;
+    case SIGABRT:
+        fputs("Caught SIGABRT: usually caused by an abort() or assert()\n", fp);
+        break;
+    default:
+        break;
+    }
+#endif
 
+#ifdef WIN32
     fputs("Stack trace:\n", fp);
 
     if (EXCEPTION_STACK_OVERFLOW !=
@@ -180,7 +276,7 @@ LONG WINAPI windows_exception_handler(EXCEPTION_POINTERS *ExceptionInfo)
 
         SymInitialize(GetCurrentProcess(), 0, 1);
 
-        memset(&frame, 0, sizeof(frame));
+        memset(&frame, 0, sizeof (frame));
         frame.AddrPC.Offset = ExceptionInfo->ContextRecord->Eip;
         frame.AddrPC.Mode = AddrModeFlat;
         frame.AddrStack.Offset = ExceptionInfo->ContextRecord->Esp;
@@ -201,6 +297,24 @@ LONG WINAPI windows_exception_handler(EXCEPTION_POINTERS *ExceptionInfo)
     } else {
         fprintf(fp, "%p\n", (void *) ExceptionInfo->ContextRecord->Eip);
     }
+#else
+    {
+        void *stack_traces[64];
+        int i, trace_size = 0;
+        char **messages = NULL;
+
+        trace_size = backtrace(stack_traces, 64);
+        messages = backtrace_symbols(stack_traces, trace_size);
+
+        for (i = 0; i < trace_size; i++) {
+            fprintf(fp, "%d: %s\n", i, messages[i]);
+        }
+
+        if (messages) {
+            free(messages);
+        }
+    }
+#endif
 
     if (fp == stderr) {
         fflush(stderr);
@@ -208,8 +322,13 @@ LONG WINAPI windows_exception_handler(EXCEPTION_POINTERS *ExceptionInfo)
         fclose(fp);
     }
 
+#ifdef WIN32
     return EXCEPTION_EXECUTE_HANDLER;
+#else
+    simple_signal_handler(sig);
+#endif
 }
+
 #endif
 
 /**
@@ -221,28 +340,40 @@ void toolkit_signals_init(void)
     TOOLKIT_INIT_FUNC_START(signals)
     {
         size_t i;
+#ifdef HAVE_SIGACTION
+        stack_t ss;
+
+        ss.ss_sp = emalloc(SIGSTKSZ * 4);
+        ss.ss_size = SIGSTKSZ * 4;
+        ss.ss_flags = 0;
+
+        if (sigaltstack(&ss, NULL) != 0) {
+            logger_print(LOG(ERROR), "Could not set up alternate stack.");
+            exit(1);
+        }
+#endif
 
         /* Register the signals. */
         for (i = 0; i < arraysize(register_signals); i++) {
 #ifdef HAVE_SIGACTION
-            struct sigaction new_action, old_action;
+            struct sigaction sig_action;
 
-            new_action.sa_handler = signal_handler;
-            sigemptyset(&new_action.sa_mask);
-            new_action.sa_flags = 0;
+            sig_action.sa_sigaction = signal_handler;
+            sigemptyset(&sig_action.sa_mask);
+            sig_action.sa_flags = SA_SIGINFO | SA_ONSTACK;
 
-            sigaction(register_signals[i], NULL, &old_action);
-
-            if (old_action.sa_handler != SIG_IGN) {
-                sigaction(register_signals[i], &new_action, NULL);
+            if (sigaction(register_signals[i], &sig_action, NULL) != 0) {
+                logger_print(LOG(ERROR), "Could not register signal: %d",
+                        register_signals[i]);
+                exit(1);
             }
 #else
-            signal(register_signals[i], signal_handler);
+            signal(register_signals[i], simple_signal_handler);
 #endif
         }
 
 #ifdef WIN32
-        AddVectoredExceptionHandler(1, windows_exception_handler);
+        AddVectoredExceptionHandler(1, signal_handler);
 #endif
     }
     TOOLKIT_INIT_FUNC_END()
