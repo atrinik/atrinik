@@ -340,7 +340,7 @@ int main(int argc, char *argv[])
     char version[MAX_BUF];
 
     toolkit_import(signals);
-    
+
     toolkit_import(binreloc);
     toolkit_import(clioptions);
     toolkit_import(colorspace);
@@ -497,6 +497,8 @@ int main(int argc, char *argv[])
     scrollbar_init();
     button_init();
 
+    atexit(system_end);
+
     SDL_ShowCursor(0);
     cursor_texture = texture_get(TEXTURE_TYPE_CLIENT, "cursor_default");
 
@@ -547,13 +549,13 @@ int main(int argc, char *argv[])
 
             play_action_sounds();
         }
-        
+
         update = 0;
-        
+
         if (!(SDL_GetAppState() & SDL_APPACTIVE)) {
         } else if (cpl.state == ST_PLAY) {
             static int old_cursor_x = -1, old_cursor_y = -1;
-            
+
             if (widgets_need_redraw()) {
                 update = 1;
             } else if (cursor_x != old_cursor_x || cursor_y != old_cursor_y) {
@@ -576,7 +578,7 @@ int main(int argc, char *argv[])
         if (update) {
             SDL_FillRect(ScreenSurface, NULL, 0);
         }
-        
+
         if (cpl.state <= ST_WAITFORPLAY) {
             intro_show();
         } else if (cpl.state == ST_PLAY) {
@@ -605,7 +607,7 @@ int main(int argc, char *argv[])
 
         texture_gc();
         font_gc();
-        
+
         if (update) {
             SDL_Flip(ScreenSurface);
         }
@@ -629,8 +631,6 @@ int main(int argc, char *argv[])
             }
         }
     }
-
-    system_end();
 
     return 0;
 }

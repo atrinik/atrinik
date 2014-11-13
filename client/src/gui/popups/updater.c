@@ -226,7 +226,7 @@ static int popup_draw_post(popup_struct *popup)
             button_show(&button_retry, "Retry");
         } else if (ret == 1) {
             /* Finished downloading. */
-            
+
             /* Is it the list of updates? */
             if (!strncmp(dl_data->url, UPDATER_CHECK_URL, strlen(UPDATER_CHECK_URL))) {
                 if (dl_data->memory) {
@@ -327,7 +327,7 @@ static int popup_draw_post(popup_struct *popup)
         }
     } else {
         /* Finished all downloads. */
-        
+
         progress.done = 1;
 
         /* No packages, so the client is up-to-date. */
@@ -385,7 +385,6 @@ static int popup_event(popup_struct *popup, SDL_Event *event)
 
         snprintf(path, sizeof(path), "%s\\atrinik2.exe", getcwd(wdir, sizeof(wdir) - 1));
         ShellExecute(NULL, "open", path, NULL, NULL, SW_SHOWNORMAL);
-        system_end();
         exit(0);
         return 1;
     }

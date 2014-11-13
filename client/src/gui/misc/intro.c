@@ -83,7 +83,6 @@ static void list_handle_esc(list_struct *list)
 {
     (void) list;
 
-    system_end();
     exit(0);
 }
 
@@ -348,7 +347,6 @@ int intro_event(SDL_Event *event)
         credits_show();
         return 1;
     } else if (button_event(&button_quit, event)) {
-        system_end();
         exit(0);
         return 1;
     } else if (event->type == SDL_KEYDOWN && event->key.keysym.sym == SDLK_TAB && list_news) {
