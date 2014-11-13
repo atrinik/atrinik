@@ -8,13 +8,23 @@ def main ():
 
     with open(sys.argv[2], "r") as f:
         for line in f:
-            match = re.match(r"\d+:\s*(.+)\s*", line, re.I)
+            line = line.strip()
+            address = None
 
-            if not match:
+            if line.endswith("]"):
+                address = line.split()[-1][1:-1]
+            else:
+	            match = re.match(r"\d+:\s*(.+)\s*", line, re.I)
+
+	            if match:
+					address = match.group(1)
+
+            if address == None:
+                print(line)
                 continue
 
             process = subprocess.Popen(["addr2line", "-e", sys.argv[1], "-f",
-                    "-p", match.group(1)], stdout = subprocess.PIPE)
+                    "-p", address], stdout = subprocess.PIPE)
             (output, err) = process.communicate()
             exit_code = process.wait()
 
