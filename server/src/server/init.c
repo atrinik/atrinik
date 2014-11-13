@@ -375,6 +375,8 @@ static void clioptions_option_logger_filter_logfile(const char *arg)
  * init_hash_table() if you are doing any object loading. */
 static void init_library(int argc, char *argv[])
 {
+    toolkit_import(signals);
+    
     toolkit_import(bzr);
     toolkit_import(clioptions);
     toolkit_import(console);
@@ -387,7 +389,6 @@ static void init_library(int argc, char *argv[])
     toolkit_import(path);
     toolkit_import(porting);
     toolkit_import(shstr);
-    toolkit_import(signals);
     toolkit_import(string);
     toolkit_import(stringbuffer);
 

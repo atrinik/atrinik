@@ -339,6 +339,8 @@ int main(int argc, char *argv[])
     int fps_limits[] = {30, 60, 120, 0};
     char version[MAX_BUF];
 
+    toolkit_import(signals);
+    
     toolkit_import(binreloc);
     toolkit_import(clioptions);
     toolkit_import(colorspace);
@@ -349,7 +351,6 @@ int main(int argc, char *argv[])
     toolkit_import(packet);
     toolkit_import(porting);
     toolkit_import(sha1);
-    toolkit_import(signals);
     toolkit_import(string);
     toolkit_import(stringbuffer);
     toolkit_import(x11);
