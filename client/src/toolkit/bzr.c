@@ -40,7 +40,7 @@ static uint8 did_init = 0;
 
 /**
  * Where to search for .bzr directory. */
-static const char *const branch_paths[] ={
+static const char *const branch_paths[] = {
     ".", ".."
 };
 

@@ -101,7 +101,7 @@ static void clioptions_option_help(const char *arg)
     } else {
         StringBuffer *sb;
         char *desc;
-        
+
         /* Otherwise brief information about all available options. */
 
         logger_print(LOG(INFO), "List of available options:");
@@ -333,7 +333,7 @@ void clioptions_parse(int argc, char *argv[])
                 }
             } else if (strncmp(argv[i], "-", 1) == 0) {
                 /* Then short name CLI. */
-                
+
                 if (clioptions[opt].shortname == NULL) {
                     continue;
                 }
