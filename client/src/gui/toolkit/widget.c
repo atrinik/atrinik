@@ -1433,6 +1433,38 @@ widgetdata *get_widget_owner_rec(int x, int y, widgetdata *widget, widgetdata *e
 }
 
 /**
+ * Used by widgets_need_redraw() to check if any widget needs redrawing.
+ * @param widget Widget.
+ * @return 1 if any widget needs redrawing, 0 otherwise.
+ */
+static int widgets_need_redraw_rec(widgetdata *widget)
+{
+    for ( ; widget != NULL; widget = widget->next) {
+        if (widget->show && !widget->hidden && widget->draw_func &&
+                widget->redraw) {
+            return 1;
+        }
+        
+        if (widget->inv) {
+            if (widgets_need_redraw_rec(widget->inv)) {
+                return 1;
+            }
+        }
+    }
+    
+    return 0;
+}
+
+/**
+ * Check if any widget need redrawing.
+ * @return 1 if any widget needs redrawing, 0 otherwise.
+ */
+int widgets_need_redraw(void)
+{
+    return widgets_need_redraw_rec(widget_list_head);
+}
+
+/**
  * The priority list is a binary tree, so we walk the tree by using loops and
  * recursions.
  * We actually only need to recurse for every child node. When we traverse the
@@ -1444,7 +1476,7 @@ static void process_widgets_rec(int draw, widgetdata *widget)
 
     for (; widget; widget = widget->prev) {
         if (widget->background_func) {
-            widget->background_func(widget);
+            widget->background_func(widget, draw);
         }
 
         if (draw && widget->show && !widget->hidden && widget->draw_func) {

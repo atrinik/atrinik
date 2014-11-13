@@ -32,6 +32,8 @@
 /** @copydoc event_drag_cb_fnc */
 static event_drag_cb_fnc event_drag_cb = NULL;
 
+static int dragging_old_mx = -1, dragging_old_my = -1;
+
 int event_dragging_check(void)
 {
     int mx, my;
@@ -49,8 +51,31 @@ int event_dragging_check(void)
     return 1;
 }
 
+int event_dragging_need_redraw(void)
+{
+    int mx, my;
+    
+    if (!event_dragging_check()) {
+        return 0;
+    }
+    
+    SDL_GetMouseState(&mx, &my);
+    
+    if (mx != dragging_old_mx || my != dragging_old_my) {
+        dragging_old_mx = mx;
+        dragging_old_my = my;
+        
+        return 1;
+    }
+    
+    return 0;
+}
+
 void event_dragging_start(int tag, int mx, int my)
 {
+    dragging_old_mx = -1;
+    dragging_old_my = -1;
+    
     cpl.dragging_tag = tag;
     cpl.dragging_startx = mx;
     cpl.dragging_starty = my;

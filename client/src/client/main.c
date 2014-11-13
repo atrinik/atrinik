@@ -334,7 +334,7 @@ static void clioptions_option_logger_filter_logfile(const char *arg)
 int main(int argc, char *argv[])
 {
     char *path;
-    int done = 0;
+    int done = 0, update;
     uint32 anim_tick, frame_start_time, elapsed_time, fps_limit;
     int fps_limits[] = {30, 60, 120, 0};
     char version[MAX_BUF];
@@ -538,52 +538,77 @@ int main(int argc, char *argv[])
             if (!game_status_chain()) {
                 logger_print(LOG(BUG), "Error connecting: cpl.state: %d  SocketError: %d", cpl.state, socket_get_error());
             }
+        } else if (SDL_GetAppState() & SDL_APPACTIVE) {
+            if (LastTick - anim_tick > 125) {
+                anim_tick = LastTick;
+                animate_objects();
+                map_animate();
+            }
+
+            play_action_sounds();
         }
-
-        if (SDL_GetAppState() & SDL_APPACTIVE) {
-            if (cpl.state == ST_PLAY) {
-                if (LastTick - anim_tick > 125) {
-                    anim_tick = LastTick;
-                    animate_objects();
-                    map_animate();
-                }
-
-                play_action_sounds();
-            }
-
-            SDL_FillRect(ScreenSurface, NULL, 0);
-
-            if (cpl.state == ST_PLAY) {
-                process_widgets(1);
-            }
-
-            /* Show the currently dragged item. */
-            if (event_dragging_check()) {
-                int mx, my;
-
-                SDL_GetMouseState(&mx, &my);
-                object_show_centered(ScreenSurface, object_find(cpl.dragging_tag), mx, my);
-            }
-
-            if (cpl.state <= ST_WAITFORPLAY) {
-                intro_show();
-            }
-
-            popup_render_all();
-            tooltip_show();
-
-            if (cursor_x != -1 && cursor_y != -1 && SDL_GetAppState() & SDL_APPMOUSEFOCUS) {
-                surface_show(ScreenSurface, cursor_x - (texture_surface(cursor_texture)->w / 2), cursor_y - (texture_surface(cursor_texture)->h / 2), NULL, texture_surface(cursor_texture));
+        
+        update = 0;
+        
+        if (!(SDL_GetAppState() & SDL_APPACTIVE)) {
+        } else if (cpl.state == ST_PLAY) {
+            static int old_cursor_x = -1, old_cursor_y = -1;
+            
+            if (widgets_need_redraw()) {
+                update = 1;
+            } else if (cursor_x != old_cursor_x || cursor_y != old_cursor_y) {
+                update = 1;
+                old_cursor_x = cursor_x;
+                old_cursor_y = cursor_y;
+            } else if (event_dragging_need_redraw()) {
+                update = 1;
+            } else if (popup_need_redraw()) {
+                update = 1;
+            } else if (tooltip_need_redraw()) {
+                update = 1;
+            } else if (map_redraw_flag) {
+                update = 1;
             }
         } else {
-            if (cpl.state == ST_PLAY) {
-                process_widgets(0);
-            }
+            update = 1;
+        }
+
+        if (update) {
+            SDL_FillRect(ScreenSurface, NULL, 0);
+        }
+        
+        if (cpl.state <= ST_WAITFORPLAY) {
+            intro_show();
+        } else if (cpl.state == ST_PLAY) {
+            process_widgets(update);
+        }
+
+        popup_render_all();
+        tooltip_show();
+
+        /* Show the currently dragged item. */
+        if (event_dragging_check()) {
+            int mx, my;
+
+            SDL_GetMouseState(&mx, &my);
+            object_show_centered(ScreenSurface, object_find(cpl.dragging_tag),
+                    mx, my);
+        }
+
+        if (cursor_x != -1 && cursor_y != -1 &&
+                SDL_GetAppState() & SDL_APPMOUSEFOCUS) {
+            surface_show(ScreenSurface,
+                    cursor_x - (texture_surface(cursor_texture)->w / 2),
+                    cursor_y - (texture_surface(cursor_texture)->h / 2),
+                    NULL, texture_surface(cursor_texture));
         }
 
         texture_gc();
         font_gc();
-        SDL_Flip(ScreenSurface);
+        
+        if (update) {
+            SDL_Flip(ScreenSurface);
+        }
 
         LastTick = SDL_GetTicks();
         elapsed_time = SDL_GetTicks() - frame_start_time;

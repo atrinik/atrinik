@@ -273,7 +273,7 @@ static void widget_draw(widgetdata *widget)
 }
 
 /** @copydoc widgetdata::background_func */
-static void widget_background(widgetdata *widget)
+static void widget_background(widgetdata *widget, int draw)
 {
     if (!widget->redraw) {
         widget->redraw = list_need_redraw(list_skills);

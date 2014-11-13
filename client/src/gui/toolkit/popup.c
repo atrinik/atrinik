@@ -334,3 +334,13 @@ void popup_button_set_text(popup_button *button, const char *text)
 
     button->text = text ? estrdup(text) : NULL;
 }
+
+/**
+ * Check whether any popup needs redrawing.
+ * @return 1 if any popup needs redrawing, 0 otherwise.
+ * @todo Actual redrawing logic in popups.
+ */
+int popup_need_redraw(void)
+{
+    return popup_get_head() != NULL;
+}

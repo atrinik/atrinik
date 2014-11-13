@@ -132,7 +132,7 @@ typedef struct widgetdata {
 
     void (*draw_func)(struct widgetdata *widget);
 
-    void (*background_func)(struct widgetdata *widget);
+    void (*background_func)(struct widgetdata *widget, int draw);
 
     int (*event_func)(struct widgetdata *widget, SDL_Event *event);
 

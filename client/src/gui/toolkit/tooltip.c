@@ -160,3 +160,19 @@ void tooltip_dismiss(void)
         tooltip_font = NULL;
     }
 }
+
+/**
+ * Check whether the tooltip needs redrawing.
+ * @return 1 if the tooltip needs redrawing, 0 otherwise.
+ * @todo This needs some actual redrawing check logic. Need various checks like
+ * whether the x/y is the same, text/font is the same (in other words, reset
+ * old x/y when creating if text/font has changed)
+ */
+int tooltip_need_redraw(void)
+{
+    if (tooltip_x == -1 || tooltip_y == -1) {
+        return 0;
+    }
+    
+    return 1;
+}

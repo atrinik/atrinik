@@ -283,6 +283,7 @@ extern SDL_Surface *IMG_Load_wrapper(const char *file);
 extern TTF_Font *TTF_OpenFont_wrapper(const char *file, int ptsize);
 /* src/events/event.c */
 extern int event_dragging_check(void);
+extern int event_dragging_need_redraw(void);
 extern void event_dragging_start(int tag, int mx, int my);
 extern void event_dragging_set_callback(event_drag_cb_fnc fnc);
 extern void event_dragging_stop(void);
@@ -496,6 +497,7 @@ extern void popup_render_all(void);
 extern int popup_handle_event(SDL_Event *event);
 extern popup_struct *popup_get_head(void);
 extern void popup_button_set_text(popup_button *button, const char *text);
+extern int popup_need_redraw(void);
 /* src/gui/toolkit/progress.c */
 extern void progress_dots_create(progress_dots *progress);
 extern void progress_dots_show(progress_dots *progress, SDL_Surface *surface, int x, int y);
@@ -565,6 +567,7 @@ extern void tooltip_enable_delay(uint32 delay);
 extern void tooltip_multiline(int max_width);
 extern void tooltip_show(void);
 extern void tooltip_dismiss(void);
+extern int tooltip_need_redraw(void);
 /* src/gui/toolkit/widget.c */
 extern widgetdata *cur_widget[TOTAL_SUBWIDGETS];
 extern widgetevent widget_mouse_event;
@@ -594,6 +597,7 @@ extern int widget_event_move_stop(int x, int y);
 extern int widget_event_respond(int x, int y);
 extern widgetdata *get_widget_owner(int x, int y, widgetdata *start, widgetdata *end);
 extern widgetdata *get_widget_owner_rec(int x, int y, widgetdata *widget, widgetdata *end);
+extern int widgets_need_redraw(void);
 extern void process_widgets(int draw);
 extern void SetPriorityWidget(widgetdata *node);
 extern void SetPriorityWidget_reverse(widgetdata *node);
