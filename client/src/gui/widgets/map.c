@@ -1045,7 +1045,7 @@ void map_draw_one(int x, int y, SDL_Surface *surface)
 
     cell = MAP_CELL_GET_MIDDLE(x, y);
 
-    if (cell->faces[1] != 0) {
+    if (cell->faces[0] != 0) {
         ypos = (ypos - get_top_floor_height(x, y)) +
                 get_top_floor_height(map_width - (map_width / 2) - 1,
                 map_height - (map_height / 2) - 1);
@@ -1262,7 +1262,7 @@ int mouse_to_tile_coords(int mx, int my, int *tx, int *ty)
             ypos = (x * MAP_TILE_XOFF + y * MAP_TILE_XOFF) *
                     (setting_get_int(OPT_CAT_MAP, OPT_MAP_ZOOM) / 100.0);
 
-            if (cell->faces[1] != 0) {
+            if (cell->faces[0] != 0) {
                 ypos = (ypos - (get_top_floor_height(x, y)) *
                         (setting_get_int(OPT_CAT_MAP, OPT_MAP_ZOOM) / 100.0)) +
                         (get_top_floor_height(map_width - (map_width / 2) - 1,
