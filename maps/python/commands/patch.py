@@ -22,7 +22,12 @@ def main():
     if count:
         count = int(count)
 
-    obj = FindPlayer(name) if name else None
+    if name == "me":
+        obj = activator
+    elif name:
+        obj = FindPlayer(name)
+    else:
+        obj = None
 
     if not obj:
         obj = find_obj(activator, archname = name, name = name, count = count)
