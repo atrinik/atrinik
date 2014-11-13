@@ -42,8 +42,18 @@ typedef struct widget_fps_struct {
     uint32 current;
 
     /**
-     * Number of frames drawn since last calculation. */
+     * Real number of frames rendered in the last second.
+     */
+    uint32 current_real;
+
+    /**
+     * Number of main loop iterations since last calculation. */
     uint32 frames;
+
+    /**
+     * Real number of frames drawn since last calculation.
+     */
+    uint32 frames_real;
 } widget_fps_struct;
 
 /** @copydoc widgetdata::draw_func */
@@ -51,15 +61,14 @@ static void widget_draw(widgetdata *widget)
 {
     widget_fps_struct *tmp;
 
+    if (!widget->redraw) {
+        return;
+    }
+
     tmp = widget->subwidget;
 
-    if (widget->redraw) {
-        char buf[MAX_BUF];
-
-        snprintf(buf, sizeof(buf), "%d", tmp->current);
-        text_show(widget->surface, FONT_ARIAL11, "fps:", 5, 4, COLOR_WHITE, 0, NULL);
-        text_show(widget->surface, FONT_ARIAL11, buf, widget->w - 5 - text_get_width(FONT_ARIAL11, buf, 0), 4, COLOR_WHITE, 0, NULL);
-    }
+    text_show_format(widget->surface, FONT_ARIAL11, 4, 4, COLOR_WHITE, 0, NULL,
+            "%d (%d)", tmp->current, tmp->current_real);
 }
 
 /** @copydoc widgetdata::background_func */
@@ -70,16 +79,20 @@ static void widget_background(widgetdata *widget, int draw)
 
     tmp = widget->subwidget;
     tmp->frames++;
+    tmp->frames_real += draw;
     ticks = SDL_GetTicks();
 
     if (tmp->lasttime < ticks - 1000) {
-        if (tmp->current != tmp->frames) {
+        if (tmp->current != tmp->frames ||
+                tmp->current_real != tmp->frames_real) {
             widget->redraw = 1;
         }
 
         tmp->lasttime = ticks;
         tmp->current = tmp->frames;
+        tmp->current_real = tmp->frames_real;
         tmp->frames = 0;
+        tmp->frames_real = 0;
     }
 }
 
