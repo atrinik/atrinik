@@ -30,6 +30,43 @@ Compiling the Atrinik server (Windows)
 
     Extract the archive and copy "lib" and "include" directories into
     C:/MinGW (or where you installed MinGW).
+ - GD Graphics Library (optional, recommended):
+    If you want to generate client maps you will need to install this library.
+
+    Download libpng sources from here:
+    http://sourceforge.net/projects/libpng/files/libpng16/1.6.14/libpng-1.6.14.tar.gz/download
+
+    Extract to C:/MinGW/msys/1.0/home/<your username> and open bash through the
+    Windows run dialog in start menu (C:\MinGW\msys\1.0\bin\bash.exe). In the
+    extracted directory run the following (adjust the prefix if necessary):
+
+    export PATH=/usr/bin:$PATH
+    ./configure --prefix=/c/MinGW
+    make && make install
+
+    Download GD sources from here:
+    https://bitbucket.org/libgd/gd-libgd/downloads/libgd-2.1.0.tar.gz
+
+    Extract to C:/MinGW/msys/1.0/home/<your username> and open bash through the
+    Windows run dialog in start menu (C:\MinGW\msys\1.0\bin\bash.exe). In the
+    extracted directory run the following (adjust the prefix if necessary):
+
+    export PATH=/usr/bin:$PATH
+    ./configure --prefix=/c/MinGW --with-png=/c/MinGW
+    make && make install
+ - Check (optional)
+    This is only needed if you want to do development and is used to run unit
+    tests. Download it here:
+
+    http://sourceforge.net/projects/check/files/latest/download
+
+    Extract to C:/MinGW/msys/1.0/home/<your username> and open bash through the
+    Windows run dialog in start menu (C:\MinGW\msys\1.0\bin\bash.exe). In the
+    extracted directory run the following (adjust the prefix if necessary):
+
+    export PATH=/usr/bin:$PATH
+    ./configure --prefix=/c/MinGW
+    make && make check && make install
 
  === Compiling ===
 
