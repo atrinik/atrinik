@@ -12,9 +12,6 @@ if (EXISTS build.user)
     include(build.user)
 endif ()
 
-set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -DDEBUG=1 -O0 -g")
-set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} -DDEBUG=0 -O3")
-
 # Add some useful compile flags.
 add_definitions(-Wall -Wextra -Wno-unused-parameter)
 add_definitions(${CUSTOM_WARNINGS})

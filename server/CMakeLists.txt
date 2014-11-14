@@ -21,9 +21,6 @@ if (NOT DL_LIBRARY AND NOT MINGW)
 	message(FATAL_ERROR "Could not find dl library.")
 endif ()
 
-set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -DDEBUG=1 -O0 -g")
-set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} -DDEBUG=0 -O3 -s")
-
 # Add some useful compile flags.
 add_definitions(-Wall -Wextra -Wno-unused-parameter)
 add_definitions(${CUSTOM_WARNINGS})
