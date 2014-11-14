@@ -628,6 +628,10 @@ void map_animate(void)
         for (y = 0; y < map_height; y++) {
             cell = MAP_CELL_GET_MIDDLE(x, y);
 
+            if (cell->fow) {
+                continue;
+            }
+
             for (layer = 0; layer < NUM_REAL_LAYERS; layer++) {
                 if (cell->anim_speed[layer] == 0) {
                     continue;
