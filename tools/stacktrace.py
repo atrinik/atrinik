@@ -14,10 +14,10 @@ def main ():
             if line.endswith("]"):
                 address = line.split()[-1][1:-1]
             else:
-	            match = re.match(r"\d+:\s*(.+)\s*", line, re.I)
+                match = re.match(r"\d+:\s*(.+)\s*", line, re.I)
 
-	            if match:
-					address = match.group(1)
+                if match:
+                    address = match.group(1)
 
             if address == None:
                 print(line)
