@@ -736,13 +736,10 @@ void widget_inventory_handle_arrow_key(widgetdata *widget, SDLKey key)
         selected = max - 1;
     }
 
-    /* Selection is the same, nothing to do. */
-    if (inventory->selected == (uint32) selected) {
-        return;
+    if (inventory->selected != (uint32) selected) {
+        inventory->selected = selected;
+        widget->redraw = 1;
     }
-
-    inventory->selected = selected;
-    widget->redraw = 1;
 
     offset = MAX(0, selected / (int) INVENTORY_COLS(inventory));
 
