@@ -251,8 +251,10 @@ static void hiscore_load(score_table *table)
 
     fp = fopen(table->fname, "r");
 
-    if (!fp) {
-        logger_print(LOG(BUG), "Cannot open highscore file %s: %s", table->fname, strerror(errno));
+    if (fp == NULL) {
+        if (errno != ENOENT) {
+            logger_print(LOG(ERROR), "Cannot open highscore file %s: %s", table->fname, strerror(errno));
+        }
     } else {
         while (i < HIGHSCORE_LENGTH) {
             char buf[MAX_BUF];
