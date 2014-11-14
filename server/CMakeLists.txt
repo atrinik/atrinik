@@ -41,11 +41,6 @@ if (ENABLE_WARNING_ERRORS)
 	add_definitions(-Werror)
 endif ()
 
-# Configure the .h file with the configuration options (size of long,
-# package version, etc).
-configure_file(src/include/cmake.h.def src/include/cmake.h)
-configure_file(src/include/version.h.def src/include/version.h)
-
 # Add our includes.
 include_directories(src/include)
 include_directories(src/random_maps)
@@ -221,3 +216,8 @@ if (PYTHONLIBS_FOUND)
 else ()
 	message(STATUS "Python libs not found, Python plugin will not be built.")
 endif ()
+
+# Configure the .h file with the configuration options (size of long,
+# package version, etc).
+configure_file(src/include/cmake.h.def src/include/cmake.h)
+configure_file(src/include/version.h.def src/include/version.h)
