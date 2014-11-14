@@ -245,7 +245,7 @@ static int inventory_render_object(widgetdata *widget, object *ob, uint32 i,
                 TEXTURE_CLIENT("cmark_start"));
     } else if (ob->env == cpl.sack) {
         /* Object inside the open container... */
-        
+
         /* If there is still something more in the container, show the
          * 'object in the middle of container' graphic. */
         if (ob->next) {
@@ -263,7 +263,7 @@ static int inventory_render_object(widgetdata *widget, object *ob, uint32 i,
         return 1;
     }
 
-    snprintf(buf, sizeof(buf), "[center][b]");
+    snprintf(buf, sizeof(buf), "[center]");
 
     /* Construct the name */
     if (ob->nrof > 1) {
@@ -272,7 +272,7 @@ static int inventory_render_object(widgetdata *widget, object *ob, uint32 i,
         snprintfcat(buf, sizeof(buf), "%s", ob->s_name);
     }
 
-    snprintfcat(buf, sizeof(buf), "[/b][/center]\n");
+    snprintfcat(buf, sizeof(buf), "[/center]\n");
 
     /* Extra information for items in the player's inventory */
     if (widget->type == MAIN_INV_ID) {
