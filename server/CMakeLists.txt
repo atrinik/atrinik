@@ -21,8 +21,8 @@ if (NOT DL_LIBRARY AND NOT MINGW)
 	message(FATAL_ERROR "Could not find dl library.")
 endif ()
 
-set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -DDEBUG=1 -O0 -g -DCURL_STATICLIB -DPTW32_STATIC_LIB")
-set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} -DDEBUG=0 -O3 -s -DCURL_STATICLIB -DPTW32_STATIC_LIB")
+set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -DDEBUG=1 -O0 -g")
+set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} -DDEBUG=0 -O3 -s")
 
 # Add some useful compile flags.
 add_definitions(-Wall -Wextra -Wno-unused-parameter)
@@ -117,7 +117,6 @@ endif ()
 
 # Compile the sources into an executable.
 add_executable(${EXECUTABLE} ${SOURCES} ${LEXERS_OUT} ${SOURCES_CHECK} ${SOURCES_WORLD_MAKER})
-include(src/toolkit/cmake-post.txt)
 
 # Link libraries.
 if (DL_LIBRARY)
@@ -135,8 +134,14 @@ endif ()
 
 # Link GD.
 if (GD_LIBRARY)
-	target_link_libraries(${EXECUTABLE} ${GD_LIBRARY})
+    target_link_libraries(${EXECUTABLE} ${GD_LIBRARY})
+
+    if (MINGW)
+        target_link_libraries(${EXECUTABLE} png)
+    endif ()
 endif ()
+
+include(src/toolkit/cmake-post.txt)
 
 # Get all the include directories used to compile the server.
 get_directory_property(INCLUDES INCLUDE_DIRECTORIES)
