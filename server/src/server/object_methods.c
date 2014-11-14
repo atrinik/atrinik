@@ -401,6 +401,8 @@ int object_ranged_fire(object *op, object *shooter, int dir, double *delay)
         dir = get_randomized_dir(dir);
     }
 
+    shooter->direction = dir;
+
     for (methods = &object_type_methods[op->type]; methods; methods = methods->fallback) {
         if (methods->ranged_fire_func) {
             return methods->ranged_fire_func(op, shooter, dir, delay);
