@@ -570,6 +570,8 @@ int main(int argc, char *argv[])
                 update = 1;
             } else if (map_redraw_flag) {
                 update = 1;
+            } else if (anims_need_redraw()) {
+                update = 1;
             }
         } else {
             update = 1;

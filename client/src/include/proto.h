@@ -229,6 +229,7 @@ extern int surface_borders_get(SDL_Surface *surface, int *top, int *bottom, int 
 extern struct _anim *add_anim(int type, int mapx, int mapy, int value);
 extern void remove_anim(struct _anim *anim);
 extern void play_anims(void);
+extern int anims_need_redraw(void);
 extern int sprite_collision(int x, int y, int x2, int y2, sprite_struct *sprite1, sprite_struct *sprite2);
 extern void surface_pan(SDL_Surface *surface, SDL_Rect *box);
 extern void draw_frame(SDL_Surface *surface, int x, int y, int w, int h);
@@ -907,6 +908,7 @@ extern int query_refcount(shstr *str);
 extern shstr *find_string(const char *str);
 extern void free_string_shared(shstr *str);
 /* src/toolkit/signals.c */
+extern void signal_handler(int sig, siginfo_t *siginfo, void *context);
 extern void toolkit_signals_init(void);
 extern void toolkit_signals_deinit(void);
 /* src/toolkit/socket.c */

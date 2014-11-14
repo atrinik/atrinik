@@ -754,6 +754,15 @@ void play_anims(void)
 }
 
 /**
+ * Check whether the damage animations need redrawing.
+ * @return 1 if the damage animations need redrawing, 0 otherwise.
+ */
+int anims_need_redraw(void)
+{
+    return start_anim != NULL;
+}
+
+/**
  * Check for possible sprite collision.
  *
  * Used to make the player overlapping objects transparent.
