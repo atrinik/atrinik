@@ -240,7 +240,8 @@ void font_free(font_struct *font)
         return;
     }
 
-    if (DEBUG) {
+#ifndef NDEBUG
+    {
         char key[MAX_BUF];
         font_struct *tmp;
 
@@ -254,6 +255,7 @@ void font_free(font_struct *font)
             abort();
         }
     }
+#endif
 
     efree(font->name);
     efree(font->key);
