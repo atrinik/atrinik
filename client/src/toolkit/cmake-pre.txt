@@ -4,6 +4,7 @@ if (MINGW)
     set(CMAKE_EXE_LINKER_FLAGS "-static -static-libgcc")
     set(PLUGIN_SUFFIX ".dll")
     set(CMAKE_PREFIX_PATH "C:\\MinGW\\msys\\1.0;C:\\MinGW")
+    set(CMAKE_FIND_LIBRARY_SUFFIXES ".a;.so;.dll.a")
 else ()
     # Compiling on GNU/Linux.
     set(LINUX true)
