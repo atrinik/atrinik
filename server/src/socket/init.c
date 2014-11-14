@@ -306,7 +306,8 @@ static void load_srv_file(char *fname, FILE *listing)
     sb = stringbuffer_new();
     cp = path_basename(fname);
     stringbuffer_append_printf(sb, "%s/http/data/%s.zz", settings.datapath, cp);
-    fprintf(listing, "%s:%"FMT64HEX":%"FMT64HEX"\n", cp, crc, fsize);
+    fprintf(listing, "%s:%"FMT64HEX":%"FMT64HEX"\n", cp, (uint64) crc,
+            (uint64) fsize);
 
     efree(cp);
     cp = stringbuffer_finish(sb);
