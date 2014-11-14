@@ -151,8 +151,10 @@
 #define GEVENT_PLAYER_DEATH 3
 /** Cache entry was removed. */
 #define GEVENT_CACHE_REMOVED 4
+/** A server tick has occurred. */
+#define GEVENT_TICK 5
 /** Number of global events. */
-#define GEVENT_NUM 5
+#define GEVENT_NUM 6
 /*@}*/
 
 /**

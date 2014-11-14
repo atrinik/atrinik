@@ -687,6 +687,8 @@ int main(int argc, char **argv)
         do_specials();
 
         doeric_server_write();
+        
+        trigger_global_event(GEVENT_TICK, NULL, NULL);
 
         /* Sleep proper amount of time before next tick */
         sleep_delta();
