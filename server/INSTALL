@@ -65,6 +65,7 @@ Compiling the Atrinik server (Windows)
     extracted directory run the following (adjust the prefix if necessary):
 
     export PATH=/usr/bin:$PATH
+    export CFLAGS="-DPTW32_STATIC_LIB"
     ./configure --prefix=/c/MinGW
     make && make check && make install
 
