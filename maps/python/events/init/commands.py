@@ -19,7 +19,7 @@ commands = [
     ("rainbow", 1, COMMAND_PERMISSION),
     ("addexp", 1, COMMAND_PERMISSION),
     ("tpto", 1, COMMAND_PERMISSION),
-    ("cmd_permission", 1, COMMAND_PERMISSION),
+    ("cmd_permission", 1, COMMAND_PERMISSION | COMMAND_ALLOW_MARKUP),
 #    ("pirate_say", 1, 0),
 #    ("pirate_shout", 1, 0),
 ]
