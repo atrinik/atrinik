@@ -310,6 +310,7 @@ extern void effect_sprite_def_free(effect_sprite_def *sprite_def);
 extern void effect_sprite_free(effect_sprite *sprite);
 extern void effect_sprite_remove(effect_sprite *sprite);
 extern void effect_sprites_play(void);
+extern void effect_frames(int frames);
 extern int effect_start(const char *name);
 extern void effect_debug(const char *type);
 extern void effect_stop(void);

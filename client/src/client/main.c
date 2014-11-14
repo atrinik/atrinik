@@ -334,8 +334,9 @@ static void clioptions_option_logger_filter_logfile(const char *arg)
 int main(int argc, char *argv[])
 {
     char *path;
-    int done = 0, update;
-    uint32 anim_tick, frame_start_time, elapsed_time, fps_limit;
+    int done = 0, update, frames;
+    uint32 anim_tick, frame_start_time, elapsed_time, fps_limit,
+            last_frame_ticks;
     int fps_limits[] = {30, 60, 120, 0};
     char version[MAX_BUF];
 
@@ -504,7 +505,8 @@ int main(int argc, char *argv[])
 
     sound_background_hook_register(sound_background_hook);
 
-    LastTick = anim_tick = SDL_GetTicks();
+    LastTick = anim_tick = last_frame_ticks = SDL_GetTicks();
+    frames = 0;
 
     while (!done) {
         frame_start_time = SDL_GetTicks();
@@ -615,6 +617,17 @@ int main(int argc, char *argv[])
         }
 
         LastTick = SDL_GetTicks();
+
+        if (SDL_GetAppState() & SDL_APPACTIVE) {
+            frames++;
+
+            if (LastTick - last_frame_ticks >= 1000) {
+                last_frame_ticks = LastTick;
+                effect_frames(frames);
+                frames = 0;
+            }
+        }
+
         elapsed_time = SDL_GetTicks() - frame_start_time;
         fps_limit = fps_limits[setting_get_int(OPT_CAT_CLIENT, OPT_FPS_LIMIT)];
 

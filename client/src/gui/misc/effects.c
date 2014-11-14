@@ -36,6 +36,7 @@ static effect_struct *effects = NULL;
 static effect_struct *current_effect = NULL;
 /** RGBA as lowercase overlay color names. */
 static const char *overlay_cols[] = {"r", "g", "b", "a"};
+static int max_frames = 60;
 
 /**
  * Initialize effects from file. */
@@ -482,19 +483,22 @@ void effect_sprites_play(void)
         /* Move it if there is no delay configured or if enough time has passed.
          * */
         if (!tmp->def->delay || !tmp->delay_ticks || ticks - tmp->delay_ticks > tmp->def->delay) {
-            int ypos = tmp->def->weight * tmp->def->weight_mod;
+            int xpos, ypos;
+
+            xpos = (-1.0 + 3.0 * RANDOM() / (RAND_MAX + 1.0)) * tmp->def->wiggle;
+            ypos = tmp->def->weight * tmp->def->weight_mod;
+
+            /* Apply wind. */
+            if (tmp->def->wind && current_effect->wind_blow_dir != WIND_BLOW_NONE) {
+                xpos += ((double) current_effect->wind / tmp->def->weight + tmp->def->weight * tmp->def->weight_mod * ((-1.0 + 2.0 * RANDOM() / (RAND_MAX + 1.0)) * tmp->def->wind_mod));
+            }
 
             if (tmp->def->reverse) {
                 ypos = -ypos;
             }
 
-            tmp->y += ypos;
-            tmp->x += (-1.0 + 3.0 * RANDOM() / (RAND_MAX + 1.0)) * tmp->def->wiggle;
-
-            /* Apply wind. */
-            if (tmp->def->wind && current_effect->wind_blow_dir != WIND_BLOW_NONE) {
-                tmp->x += ((double) current_effect->wind / tmp->def->weight + tmp->def->weight * tmp->def->weight_mod * ((-1.0 + 2.0 * RANDOM() / (RAND_MAX + 1.0)) * tmp->def->wind_mod));
-            }
+            tmp->x += (double) xpos * (60.0 / (double) max_frames);
+            tmp->y += (double) ypos * (60.0 / (double) max_frames);
 
             tmp->delay_ticks = ticks;
             map_redraw_flag = 1;
@@ -558,6 +562,15 @@ void effect_sprites_play(void)
         }
 
         current_effect->delay_ticks = ticks;
+    }
+}
+
+void effect_frames(int frames)
+{
+    max_frames = frames;
+
+    if (current_effect != NULL) {
+        map_redraw_flag = 1;
     }
 }
 
