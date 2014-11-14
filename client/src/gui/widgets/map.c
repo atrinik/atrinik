@@ -726,6 +726,11 @@ static void draw_map_object(int x, int y, int layer, int sub_layer,
         return;
     }
 
+    if (abs(get_top_floor_height(x, y) - player_height_offset) >
+            HEIGHT_MAX_RENDER) {
+        return;
+    }
+
     bitmap_h = face_sprite->bitmap->h;
     bitmap_w = face_sprite->bitmap->w;
 
@@ -1245,7 +1250,8 @@ const char tile_off[MAP_TILE_YOFF][MAP_TILE_POS_XOFF] ={
  */
 int mouse_to_tile_coords(int mx, int my, int *tx, int *ty)
 {
-    int x, y, xpos, ypos;
+    int x, y, xpos, ypos, player_height_offset;
+    double zoom;
     struct MapCell *cell;
 
     /* Adjust mouse x/y, making it look as if the map was drawn from
@@ -1255,35 +1261,35 @@ int mouse_to_tile_coords(int mx, int my, int *tx, int *ty)
     my -= (MAP_START_YOFF * (setting_get_int(OPT_CAT_MAP, OPT_MAP_ZOOM) /
             100.0)) + cur_widget[MAP_ID]->y;
 
+    player_height_offset = get_top_floor_height(map_width - (map_width / 2) - 1,
+            map_height - (map_height / 2) - 1);
+    zoom = (setting_get_int(OPT_CAT_MAP, OPT_MAP_ZOOM) / 100.0);
+
     /* Go through all the map squares. */
     for (x = map_width - 1; x >= 0; x--) {
         for (y = map_height - 1; y >= 0; y--) {
             cell = MAP_CELL_GET_MIDDLE(x, y);
 
             /* X/Y position of the map square. */
-            xpos = (x * MAP_TILE_YOFF - y * MAP_TILE_YOFF) *
-                    (setting_get_int(OPT_CAT_MAP, OPT_MAP_ZOOM) / 100.0);
-            ypos = (x * MAP_TILE_XOFF + y * MAP_TILE_XOFF) *
-                    (setting_get_int(OPT_CAT_MAP, OPT_MAP_ZOOM) / 100.0);
+            xpos = (x * MAP_TILE_YOFF - y * MAP_TILE_YOFF) * zoom;
+            ypos = (x * MAP_TILE_XOFF + y * MAP_TILE_XOFF) * zoom;
+
+            if (abs(get_top_floor_height(x, y) - player_height_offset) >
+                    HEIGHT_MAX_RENDER) {
+                continue;
+            }
 
             if (cell->faces[0] != 0) {
-                ypos = (ypos - (get_top_floor_height(x, y)) *
-                        (setting_get_int(OPT_CAT_MAP, OPT_MAP_ZOOM) / 100.0)) +
-                        (get_top_floor_height(map_width - (map_width / 2) - 1,
-                        map_height - (map_height / 2) - 1)) *
-                        (setting_get_int(OPT_CAT_MAP, OPT_MAP_ZOOM) / 100.0);
+                ypos = (ypos - (get_top_floor_height(x, y)) * zoom) +
+                        (player_height_offset) * zoom;
             }
 
             /* See if this square matches our 48x24 box shape. */
-            if (mx >= xpos && mx < xpos + (MAP_TILE_POS_XOFF *
-                    (setting_get_int(OPT_CAT_MAP, OPT_MAP_ZOOM) / 100.0)) &&
-                    my >= ypos && my < ypos + (MAP_TILE_YOFF *
-                    (setting_get_int(OPT_CAT_MAP, OPT_MAP_ZOOM) / 100.0))) {
+            if (mx >= xpos && mx < xpos + (MAP_TILE_POS_XOFF * zoom) &&
+                    my >= ypos && my < ypos + (MAP_TILE_YOFF * zoom)) {
                 /* See if the square matches isometric 48x24 tile. */
-                if (tile_off[(int) ((my - ypos) / (setting_get_int(OPT_CAT_MAP,
-                        OPT_MAP_ZOOM) / 100.0))][(int) ((mx - xpos) /
-                        (setting_get_int(OPT_CAT_MAP, OPT_MAP_ZOOM) /
-                        100.0))] == '2') {
+                if (tile_off[(int) ((my - ypos) / zoom)][(int) ((mx - xpos) /
+                        zoom)] == '2') {
                     if (tx) {
                         *tx = x;
                     }

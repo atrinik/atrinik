@@ -233,4 +233,12 @@ typedef struct map_target_struct {
 /** Time in milliseconds for fade out/in effect of the map name. */
 #define MAP_NAME_FADEOUT 500
 
+/**
+ * Maximum height difference between the rendered tile and the player's tile.
+ *
+ * Tiles that are lower/higher than this (relative to the player) will not
+ * be rendered.
+ */
+#define HEIGHT_MAX_RENDER 56
+
 #endif
