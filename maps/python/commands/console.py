@@ -6,6 +6,7 @@
 from Interface import Interface
 import Common
 import threading, code
+from Markup import markup_escape
 
 ## Version of the console.
 __VERSION__ = "1.2"
@@ -17,6 +18,24 @@ __HISTORY__ = 40
 __SLEEPTIME__ = 0.05
 ## Lock used for stdout.
 stdout_lock = threading.Lock()
+
+# Sends an interface to the activator.
+def send_inf(activator, msg, autocomplete = None, append_text = None):
+    inf = Interface(activator, None)
+
+    if msg:
+        inf.set_icon(activator.face[0])
+        inf.set_title(activator.name + "'s Python Console")
+        inf.add_msg("[font=mono 12]" + msg + "[/font]")
+    else:
+        inf.restore()
+
+    inf.set_text_input(prepend = "/console \"", allow_tab = True, allow_empty = True, cleanup_text = False, scroll_bottom = True, autocomplete = "noinf::ac::", text = autocomplete if autocomplete else "")
+
+    if append_text:
+        inf.set_append_text("[font=mono 12]\n" + append_text + "[/font]")
+
+    inf.finish()
 
 ## Handles the console data.
 class PyConsole(code.InteractiveConsole):
@@ -31,32 +50,16 @@ class PyConsole(code.InteractiveConsole):
         # The thread name will have the activator's name for uniqueness.
         code.InteractiveConsole.__init__(self, locals = _locals)
         matches = []
+        self.activator = activator
 
     def write(self, data):
         self.inf_data.append(data)
+        s = markup_escape("\n".join(self.inf_data))
+        Eval("send_inf(self.activator, s)")
 
 ## The actual function that is called in the per-player console thread.
 def py_console_thread():
     import time, collections, sys, re, inspect
-    from Markup import markup_escape
-
-    # Sends an interface to the activator.
-    def send_inf(activator, msg, autocomplete = None, append_text = None):
-        inf = Interface(activator, None)
-
-        if msg:
-            inf.set_icon(activator.face[0])
-            inf.set_title(activator.name + "'s Python Console")
-            inf.add_msg("[font=mono 12]" + msg + "[/font]")
-        else:
-            inf.restore()
-
-        inf.set_text_input(prepend = "/console \"", allow_tab = True, allow_empty = True, cleanup_text = False, scroll_bottom = True, autocomplete = "noinf::ac::", text = autocomplete if autocomplete else "")
-
-        if append_text:
-            inf.set_append_text("[font=mono 12]\n" + append_text + "[/font]")
-
-        inf.finish()
 
     def autocomplete_best_match(l, match = None):
         match_new = ""
@@ -151,7 +154,8 @@ def py_console_thread():
     # Used to redirect stdout so that it writes the print() and the like
     # data to the interface instead of stdout.
     class stdout_inf:
-        def __init__(self, inf_data):
+        def __init__(self, activator, inf_data):
+            self.activator = activator
             self._inf_data = inf_data
 
         def write(self, s):
@@ -159,7 +163,8 @@ def py_console_thread():
                 self._inf_data += s.split("\n")
 
         def flush(self):
-            pass
+            s = markup_escape("\n".join(self._inf_data))
+            Eval("send_inf(self.activator, s)")
 
     # Create a ring buffer.
     inf_data = collections.deque(maxlen = __HISTORY__)
@@ -170,7 +175,7 @@ def py_console_thread():
     console = PyConsole(thread.activator)
     console.inf_data = inf_data
 
-    stdout = stdout_inf(inf_data)
+    stdout = stdout_inf(thread.activator, inf_data)
 
     # Send the greeting message.
     inf_data.append("Atrinik Python Console v{}".format(__VERSION__))
@@ -186,12 +191,6 @@ def py_console_thread():
         thread.commands_lock.acquire()
 
         if thread.commands:
-            # Acquire the stdout lock.
-            stdout_lock.acquire()
-            # Redirect stdout.
-            old_stdout = sys.stdout
-            sys.stdout = stdout
-
             for command in thread.commands:
                 if command == None:
                     continue
@@ -207,15 +206,19 @@ def py_console_thread():
                     continue
 
                 inf_data.append(">>> {}".format(command))
-                console.push(command)
-
-            sys.stdout = old_stdout
-            stdout_lock.release()
+                Eval("""
+old_stdout = sys.stdout
+sys.stdout = stdout
+console.push(command)
+sys.stdout.flush()
+sys.stdout = old_stdout
+                """)
 
             # Send the interface, but only if the first command didn't
             # start with "noinf::".
             if not thread.commands[0] or not thread.commands[0].startswith("noinf::"):
-                send_inf(thread.activator, markup_escape("\n".join(inf_data)))
+                s = markup_escape("\n".join(inf_data))
+                Eval("send_inf(thread.activator, s)")
 
             thread.commands = []
 
