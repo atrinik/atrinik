@@ -346,13 +346,27 @@ void object_send_mark(object *op)
 
 void object_redraw(object *op)
 {
+    object *env;
+
     assert(op != NULL);
 
     if (op->env == NULL) {
         return;
     }
 
-    if (op->env == cpl.below) {
+    env = op->env;
+
+    if (env == cpl.sack) {
+        object *sack;
+
+        sack = object_find(cpl.container_tag);
+
+        if (sack != NULL) {
+            env = sack->env;
+        }
+    }
+
+    if (env == cpl.below) {
         WIDGET_REDRAW_ALL(BELOW_INV_ID);
     } else {
         WIDGET_REDRAW_ALL(MAIN_INV_ID);
