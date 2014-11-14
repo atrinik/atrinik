@@ -55,6 +55,26 @@ PythonContext *current_context;
 static PyObject *py_globals_dict = NULL;
 
 /**
+ * Structure used to evaluate code in the main thread after a specified delay.
+ * 
+ * Can also be used to execute code from other threads with no ill effects.
+ */
+typedef struct python_eval_struct {
+    struct python_eval_struct *next; ///< Next pointer.
+    struct python_eval_struct *prev; ///< Previous pointer.
+    
+    PyObject *globals; ///< Globals dictionary.
+    PyObject *locals; ///< Locals dictionary.
+    PyCodeObject *code; ///< Compiled code to execute.
+    long ticks; ///< When to execute.
+} python_eval_struct;
+
+/**
+ * The first code to evaluate.
+ */
+static python_eval_struct *python_eval;
+
+/**
  * Useful constants */
 /* @cparser
  * @page plugin_python_constants Python constants
@@ -1592,6 +1612,58 @@ static PyObject *Atrinik_print(PyObject *self, PyObject *args)
     return Py_None;
 }
 
+/**
+ * <h1>Eval(string code, float [seconds = 0])</h1>
+ * Executes the specified code from the main thread after the specified delay
+ * in seconds.
+ * @param code The code to compile and execute.
+ * @param seconds How long to wait. 0.5 for half a second, 10.0 for 10 seconds,
+ * etc.
+ */
+static PyObject *Atrinik_Eval(PyObject *self, PyObject *args)
+{
+    double seconds = 0.0f;
+    const char *s;
+    struct _node *n;
+    PyCodeObject *code = NULL;
+
+    if (!PyArg_ParseTuple(args, "s|d", &s, &seconds)) {
+        return NULL;
+    }
+    
+    n = PyParser_SimpleParseString(s, Py_file_input);
+
+    if (n != NULL) {
+        code = PyNode_Compile(n, "eval'd code");
+        PyNode_Free(n);
+    }
+
+    if (PyErr_Occurred()) {
+        PyErr_LOG();
+        return NULL;
+    }
+    
+    if (code != NULL) {
+        python_eval_struct *tmp;
+        PyGILState_STATE gilstate;
+        
+        tmp = malloc(sizeof(*tmp));
+        tmp->globals = PyEval_GetGlobals();
+        Py_INCREF(tmp->globals);
+        tmp->locals = PyEval_GetLocals();
+        Py_INCREF(tmp->locals);
+        tmp->code = code;
+        tmp->ticks = *hooks->pticks + seconds * (double) (1000000 / MAX_TIME);
+        
+        gilstate = PyGILState_Ensure();
+        DL_APPEND(python_eval, tmp);
+        PyGILState_Release(gilstate);
+    }
+            
+    Py_INCREF(Py_None);
+    return Py_None;
+}
+
 /*@}*/
 
 /**
@@ -1628,6 +1700,7 @@ static PyMethodDef AtrinikMethods[] = {
     {"GetTicks", Atrinik_GetTicks, METH_NOARGS, 0},
     {"GetArchetype", Atrinik_GetArchetype, METH_VARARGS, 0},
     {"print", Atrinik_print, METH_VARARGS, 0},
+    {"Eval", Atrinik_Eval, METH_VARARGS, 0},
     {NULL, NULL, 0, 0}
 };
 
@@ -1753,6 +1826,45 @@ static int handle_global_event(int event_type, va_list args)
 
         return 0;
     }
+    
+    case GEVENT_TICK:
+    {
+        python_eval_struct *eval, *tmp;
+        PyGILState_STATE gilstate;
+        PyObject *ret;
+            
+        gilstate = PyGILState_Ensure();
+        
+        DL_FOREACH_SAFE(python_eval, eval, tmp) {
+            if (*hooks->pticks < eval->ticks) {
+                continue;
+            }
+            
+            DL_DELETE(python_eval, eval);
+
+#if PY_MAJOR_VERSION >= 3 && PY_MINOR_VERSION >= 2
+            ret = PyEval_EvalCode((PyObject *) eval->code, eval->globals,
+                    eval->locals);
+#else
+            ret = PyEval_EvalCode(eval->code, eval->globals, eval->locals);
+#endif
+
+            if (PyErr_Occurred()) {
+                PyErr_LOG();
+            }
+
+            Py_XDECREF(ret);
+            Py_DECREF(eval->globals);
+            Py_DECREF(eval->locals);
+            Py_DECREF(eval->code);
+            
+            free(eval);
+        }
+            
+        PyGILState_Release(gilstate);
+        
+        return 0;
+    }
     }
 
     context = malloc(sizeof(PythonContext));
@@ -1863,6 +1975,7 @@ MODULEAPI void postinitPlugin(void)
     PyGILState_STATE gilstate;
 
     hooks->register_global_event(PLUGIN_NAME, GEVENT_CACHE_REMOVED);
+    hooks->register_global_event(PLUGIN_NAME, GEVENT_TICK);
     initContextStack();
 
     gilstate = PyGILState_Ensure();
