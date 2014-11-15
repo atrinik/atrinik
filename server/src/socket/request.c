@@ -1328,7 +1328,17 @@ void socket_command_fire(socket_struct *ns, player *pl, uint8 *data, size_t len,
 
 void socket_command_keepalive(socket_struct *ns, player *pl, uint8 *data, size_t len, size_t pos)
 {
+    uint32 id;
+    packet_struct *packet;
+
     ns->keepalive = 0;
+
+    id = packet_to_uint32(data, len, &pos);
+
+    packet = packet_new(CLIENT_CMD_KEEPALIVE, 20, 0);
+    packet_enable_ndelay(packet);
+    packet_append_uint32(packet, id);
+    socket_send_packet(ns, packet);
 }
 
 void socket_command_move(socket_struct *ns, player *pl, uint8 *data, size_t len, size_t pos)

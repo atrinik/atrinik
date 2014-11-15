@@ -100,6 +100,8 @@ extern struct screensize *Screensize;
 extern _face_struct FaceList[32767];
 extern struct msg_anim_struct msg_anim;
 extern clioption_settings_struct clioption_settings;
+extern void keepalive_ping_stats(void);
+extern void socket_command_keepalive(uint8 *data, size_t len, size_t pos);
 extern void list_vid_modes(void);
 extern void clioption_settings_deinit(void);
 extern int main(int argc, char *argv[]);

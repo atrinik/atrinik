@@ -340,6 +340,9 @@ int client_command_check(const char *cmd)
         }
 
         return 1;
+    } else if (string_startswith(cmd, "/ping")) {
+        keepalive_ping_stats();
+        return 1;
     }
 
     return 0;

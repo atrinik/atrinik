@@ -70,6 +70,102 @@ static uint32 last_keepalive;
 clioption_settings_struct clioption_settings;
 
 /**
+ * Used to keep track of keepalive commands.
+ */
+typedef struct keepalive_data_struct {
+    struct keepalive_data_struct *next; ///< Next keepalive data.
+
+    uint32 ticks; ///< When the keepalive command was sent.
+    uint32 id; ///< ID of the keepalive command.
+} keepalive_data_struct;
+
+static keepalive_data_struct *keepalive_data; ///< Keepalive data.
+static int keepalive_id; ///< UID for sending keepalives.
+static int keepalive_ping; ///< Last keepalive ping time.
+static int keepalive_ping_avg; ///< Average keepalive ping time.
+static int keepalive_ping_num; ///< Number of keepalive pings.
+
+/**
+ * Reset keepalive data.
+ */
+static void keepalive_reset(void)
+{
+    keepalive_data_struct *keepalive, *tmp;
+
+    last_keepalive = SDL_GetTicks();
+    keepalive_id = 0;
+    keepalive_ping = 0;
+    keepalive_ping_avg = 0;
+    keepalive_ping_num = 0;
+
+    LL_FOREACH_SAFE(keepalive_data, keepalive, tmp)
+    {
+        LL_DELETE(keepalive_data, keepalive);
+        free(keepalive);
+    }
+}
+
+/**
+ * Send a keepalive packet.
+ */
+static void keepalive_send(void)
+{
+    keepalive_data_struct *keepalive;
+    packet_struct *packet;
+
+    keepalive = emalloc(sizeof(*keepalive));
+    keepalive->ticks = SDL_GetTicks();
+    keepalive->id = ++keepalive_id;
+    LL_PREPEND(keepalive_data, keepalive);
+
+    packet = packet_new(SERVER_CMD_KEEPALIVE, 0, 0);
+    packet_append_uint32(packet, keepalive->id);
+    packet_enable_ndelay(packet);
+    socket_send_packet(packet);
+    last_keepalive = keepalive->ticks;
+}
+
+/**
+ * Display ping statistics.
+ */
+void keepalive_ping_stats(void)
+{
+    draw_info(COLOR_WHITE, "\nPing statistics this session:");
+    draw_info_format(COLOR_WHITE, "Keepalive TX: %d, RX: %d, missed: %d",
+            keepalive_id, keepalive_ping_num,
+            keepalive_id - keepalive_ping_num);
+    draw_info_format(COLOR_WHITE, "Average ping: %d", keepalive_ping_avg);
+    draw_info_format(COLOR_WHITE, "Last ping: %d", keepalive_ping);
+}
+
+/** @copydoc socket_command_struct::handle_func */
+void socket_command_keepalive(uint8 *data, size_t len, size_t pos)
+{
+    uint32 id, ticks;
+    keepalive_data_struct *keepalive, *tmp;
+
+    id = packet_to_uint32(data, len, &pos);
+    ticks = SDL_GetTicks();
+
+    LL_FOREACH_SAFE(keepalive_data, keepalive, tmp)
+    {
+        if (id == keepalive->id) {
+            LL_DELETE(keepalive_data, keepalive);
+
+            keepalive_ping = ticks - keepalive->ticks;
+            keepalive_ping_num++;
+            keepalive_ping_avg = keepalive_ping_avg + ((keepalive_ping -
+                    keepalive_ping_avg) / keepalive_ping_num);
+            free(keepalive);
+
+            return;
+        }
+    }
+
+    log(LOG(BUG), "Received unknown keepalive ID: %d", id);
+}
+
+/**
  * Initialize game data. */
 static void init_game_data(void)
 {
@@ -132,7 +228,7 @@ static int game_status_chain(void)
         cpl.state = ST_WAITLOOP;
     } else if (cpl.state == ST_STARTCONNECT) {
         draw_info_format(COLOR_GREEN, "Trying server %s (%d)...", selected_server->name, selected_server->port);
-        last_keepalive = SDL_GetTicks();
+        keepalive_reset();
         cpl.state = ST_CONNECT;
     } else if (cpl.state == ST_CONNECT) {
         packet_struct *packet;
@@ -150,6 +246,8 @@ static int game_status_chain(void)
         packet = packet_new(SERVER_CMD_VERSION, 16, 0);
         packet_append_uint32(packet, SOCKET_VERSION);
         socket_send_packet(packet);
+
+        keepalive_send();
 
         cpl.state = ST_WAITVERSION;
     } else if (cpl.state == ST_VERSION) {
@@ -526,11 +624,7 @@ int main(int argc, char *argv[])
         if (cpl.state > ST_CONNECT) {
             /* Send keepalive command every 2 minutes. */
             if (SDL_GetTicks() - last_keepalive > (2 * 60) * 1000) {
-                packet_struct *packet;
-
-                packet = packet_new(SERVER_CMD_KEEPALIVE, 0, 0);
-                socket_send_packet(packet);
-                last_keepalive = SDL_GetTicks();
+                keepalive_send();
             }
 
             DoClient();
