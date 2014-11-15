@@ -422,6 +422,21 @@ START_TEST(test_string_title)
     fail_unless(strcmp(cp, "Hello") == 0, "Capitalized string doesn't match expected output.");
     free(cp);
 
+    cp = strdup(" Hello ");
+    string_title(cp);
+    fail_unless(strcmp(cp, " Hello ") == 0, "Capitalized string doesn't match expected output.");
+    free(cp);
+
+    cp = strdup("Hello ");
+    string_title(cp);
+    fail_unless(strcmp(cp, "Hello ") == 0, "Capitalized string doesn't match expected output.");
+    free(cp);
+
+    cp = strdup("hello ");
+    string_title(cp);
+    fail_unless(strcmp(cp, "Hello ") == 0, "Capitalized string doesn't match expected output.");
+    free(cp);
+
     cp = strdup("MiXeD CaSe");
     string_title(cp);
     fail_unless(strcmp(cp, "Mixed Case") == 0, "Capitalized string doesn't match expected output.");
@@ -430,6 +445,26 @@ START_TEST(test_string_title)
     cp = strdup("");
     string_title(cp);
     fail_unless(strcmp(cp, "") == 0, "Capitalized string doesn't match expected output.");
+    free(cp);
+
+    cp = strdup(" ");
+    string_title(cp);
+    fail_unless(strcmp(cp, " ") == 0, "Capitalized string doesn't match expected output.");
+    free(cp);
+
+    cp = strdup(" a");
+    string_title(cp);
+    fail_unless(strcmp(cp, " A") == 0, "Capitalized string doesn't match expected output.");
+    free(cp);
+
+    cp = strdup("fOrMaT thIs aS titLe String");
+    string_title(cp);
+    fail_unless(strcmp(cp, "Format This As Title String") == 0, "Capitalized string doesn't match expected output.");
+    free(cp);
+
+    cp = strdup("fOrMaT,thIs-aS*titLe;String");
+    string_title(cp);
+    fail_unless(strcmp(cp, "Format,This-As*Title;String") == 0, "Capitalized string doesn't match expected output.");
     free(cp);
 }
 
