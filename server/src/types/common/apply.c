@@ -50,6 +50,10 @@ static int object_apply_item_check_type(object *op, object *tmp)
         return 1;
     }
 
+    if (OBJECT_IS_AMMO(op) && OBJECT_IS_AMMO(tmp)) {
+        return 1;
+    }
+
     return 0;
 }
 
@@ -127,6 +131,7 @@ int object_apply_item(object *op, object *applier, int aflags)
         case SPELL:
         case SKILL:
         case ARROW:
+        case CONTAINER:
             draw_info_format(COLOR_WHITE, applier, "You unready %s.", query_name(op, applier));
             break;
 
@@ -213,6 +218,7 @@ int object_apply_item(object *op, object *applier, int aflags)
     case SPELL:
     case SKILL:
     case ARROW:
+    case CONTAINER:
 
         if (op->type == SPELL && SKILL_LEVEL(CONTR(applier), SK_WIZARDRY_SPELLS) < op->level) {
             draw_info_format(COLOR_WHITE, applier, "Your wizardry spells skill is too low to use %s.", query_name(op, applier));

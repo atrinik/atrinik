@@ -627,4 +627,11 @@ typedef struct magic_mirror_struct {
  * Check whether the object is a ranged weapon. */
 #define OBJECT_IS_RANGED(_ob) ((_ob)->type == WAND || (_ob)->type == ROD || (_ob)->type == BOW || (_ob)->type == SPELL || (_ob)->type == SKILL || ((_ob)->type == ARROW && QUERY_FLAG((_ob), FLAG_IS_THROWN)))
 
+/**
+ * Check whether the object is ammunition (quiver, arrow, bolt, etc).
+ */
+#define OBJECT_IS_AMMO(_ob) (((_ob)->type == CONTAINER && \
+        (_ob)->race != NULL && (_ob)->sub_type == ST1_CONTAINER_QUIVER) || \
+        ((_ob)->type == ARROW && !QUERY_FLAG((_ob), FLAG_IS_THROWN)))
+
 #endif

@@ -144,15 +144,6 @@ static void container_open(object *applier, object *op)
 }
 
 /**
- * Remove a player from the container list.
- *
- * Unlinking is a bit more tricky - pl OR sack can be NULL.
- * @param pl The player object. If NULL, we unlink all players from the
- * container identified by 'sack'.
- * @param sack The container object. If NULL, unlink this container from
- * player object identified by 'pl'. */
-
-/**
  * Close a container and remove player from the container's linked list.
  *
  * @param applier The player. If NULL, we will unlink all players from
@@ -239,6 +230,10 @@ int container_close(object *applier, object *op)
 
         op->attacked_by = NULL;
         op->attacked_by_count = 0;
+
+        if (op->env != NULL && op->env->type == PLAYER && OBJECT_IS_AMMO(op)) {
+            fix_player(op->env);
+        }
 
         return 1;
     }
@@ -358,13 +353,16 @@ static int apply_func(object *op, object *applier, int aflags)
             container_open(applier, op);
         } else {
             /* Otherwise ready it. */
+            if (OBJECT_IS_AMMO(op)) {
+                object_apply_item(op, applier, aflags);
+            } else {
+                draw_info_format(COLOR_WHITE, applier, "You ready %s.",
+                        query_base_name(op, applier));
+                SET_FLAG(op, FLAG_APPLIED);
 
-            draw_info_format(COLOR_WHITE, applier, "You readied %s.",
-                    query_base_name(op, applier));
-            SET_FLAG(op, FLAG_APPLIED);
-
-            update_object(op, UP_OBJ_FACE);
-            esrv_update_item(UPD_FLAGS, op);
+                update_object(op, UP_OBJ_FACE);
+                esrv_update_item(UPD_FLAGS, op);
+            }
         }
     }
 

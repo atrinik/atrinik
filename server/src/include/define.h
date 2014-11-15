@@ -474,6 +474,8 @@
 #define ST1_CONTAINER_CORPSE           1
 /** Player container */
 #define ST1_CONTAINER_DEAD_PL          2
+/** Quiver. */
+#define ST1_CONTAINER_QUIVER           3
 
 /** Personalized normal container */
 #define ST1_CONTAINER_NORMAL_player    64

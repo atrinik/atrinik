@@ -811,7 +811,9 @@ void fix_player(object *op)
             continue;
         }
 
-        if (tmp->type == SCROLL || tmp->type == POTION || tmp->type == CONTAINER || tmp->type == LIGHT_REFILL) {
+        if (tmp->type == SCROLL || tmp->type == POTION ||
+                (tmp->type == CONTAINER && !OBJECT_IS_AMMO(tmp)) ||
+                tmp->type == LIGHT_REFILL) {
             continue;
         }
 
@@ -897,7 +899,7 @@ void fix_player(object *op)
                 }
 
                 living_apply_flags(op, tmp);
-            } else if (tmp->type == ARROW && !QUERY_FLAG(tmp, FLAG_IS_THROWN)) {
+            } else if (OBJECT_IS_AMMO(tmp)) {
                 pl->equipment[PLAYER_EQUIP_AMMO] = tmp;
             } else if (tmp->type == AMULET) {
                 pl->equipment[PLAYER_EQUIP_AMULET] = tmp;
