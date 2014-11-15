@@ -726,8 +726,7 @@ int remove_curse(object *op, object *target, int type, int src)
 
                 CLEAR_FLAG(tmp, FLAG_CURSED);
                 esrv_send_item(tmp);
-            }
-            else {
+            } else {
                 /* Level of the items is too high for this remove curse */
 
                 if (target->type == PLAYER) {

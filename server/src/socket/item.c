@@ -767,8 +767,7 @@ void esrv_move_object(object *pl, tag_t to, tag_t tag, long nrof)
         CLEAR_FLAG(pl, FLAG_INV_LOCKED);
 
         return;
-    }
-    else if (to == pl->count || (to == op->count && !op->env)) {
+    } else if (to == pl->count || (to == op->count && !op->env)) {
         /* Pick it up to the inventory */
 
         /* Return if player has already picked it up */

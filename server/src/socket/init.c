@@ -397,8 +397,7 @@ static void create_server_animations(void)
         /* Copy anything but face names. */
         if (!strncmp(buf, "anim ", 5) || !strcmp(buf, "mina\n") || !strncmp(buf, "facings ", 8)) {
             fputs(buf, fp);
-        }
-        else {
+        } else {
             char *end = strchr(buf, '\n');
 
             /* Transform face names into IDs. */

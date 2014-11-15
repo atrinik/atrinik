@@ -1226,8 +1226,7 @@ void fix_monster(object *op)
 
     if (base->stats.wc_range) {
         op->stats.wc_range = base->stats.wc_range;
-    }
-    else {
+    } else {
         /* Default value if not set in arch */
         op->stats.wc_range = 20;
     }
@@ -1385,8 +1384,7 @@ void set_mobile_speed(object *op, int idx)
 
     if (idx) {
         op->speed = speed * idx;
-    }
-    else {
+    } else {
         /* We will generate the speed by setting of the monster */
 
         /* If not slowed... */

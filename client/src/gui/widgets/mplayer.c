@@ -162,7 +162,7 @@ static void mplayer_blacklist_toggle(list_struct *list)
             shuffle_blacklist[list->row_selected - 1] = 0;
         } else {
             /* Enable blacklist status. */
-            
+
             shuffle_blacklist[list->row_selected - 1] = 1;
 
             /* Shuffle mode and we're playing the music we just

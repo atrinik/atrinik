@@ -183,8 +183,7 @@ void socket_buffer_write(socket_struct *ns)
 #endif
                 ns->state = ST_DEAD;
                 break;
-            }
-            else {
+            } else {
                 /* EWOULDBLOCK: We can't write because socket is busy. */
                 break;
             }

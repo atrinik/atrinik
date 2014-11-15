@@ -598,7 +598,7 @@ void text_anchor_execute(text_info_struct *info, void *custom_data)
     if (text_anchor_handle && text_anchor_handle(info->anchor_action, buf, len, custom_data)) {
     } else if (info->anchor_action[0] == '\0') {
         /* No action specified. */
-        
+
         if (cpl.state == ST_PLAY) {
             /* It's not a command, so prepend "/say " to it. */
             if (buf[0] != '/') {
@@ -692,7 +692,7 @@ int text_show_character(font_struct **font, font_struct *orig_font, SDL_Surface 
         if (tag_len == 0) {
         } else if (tag_len >= 3 && strncmp(tag, "c=#", 3) == 0) {
             /* Color tag: [c=#RRGGBB] */
-            
+
             if (color && (surface || info->obscured) && !(flags & TEXT_NO_COLOR_CHANGE)) {
                 uint32 r, g, b;
                 int change_orig = 0;
@@ -710,13 +710,13 @@ int text_show_character(font_struct **font, font_struct *orig_font, SDL_Surface 
             }
         } else if (tag_len == 2 && strncmp(tag, "/c", tag_len) == 0) {
             /* End of color tag. */
-            
+
             if (color && (surface || info->obscured)) {
                 SDL_color_copy(color, orig_color);
             }
         } else if (tag_len == 5 && strncmp(tag, "green", tag_len) == 0) {
             /* Convenience tag to make string green. */
-            
+
             if (color && (surface || info->obscured) && !(flags & TEXT_NO_COLOR_CHANGE)) {
                 color->r = 0;
                 color->g = 255;
@@ -728,7 +728,7 @@ int text_show_character(font_struct **font, font_struct *orig_font, SDL_Surface 
             }
         } else if (tag_len == 6 && strncmp(tag, "yellow", tag_len) == 0) {
             /* Convenience tag to make string yellow. */
-            
+
             if (color && (surface || info->obscured) && !(flags & TEXT_NO_COLOR_CHANGE)) {
                 color->r = 255;
                 color->g = 255;
@@ -740,7 +740,7 @@ int text_show_character(font_struct **font, font_struct *orig_font, SDL_Surface 
             }
         } else if (tag_len == 3 && strncmp(tag, "red", tag_len) == 0) {
             /* Convenience tag to make string red. */
-            
+
             if (color && (surface || info->obscured) && !(flags & TEXT_NO_COLOR_CHANGE)) {
                 color->r = 255;
                 color->g = 0;
@@ -752,7 +752,7 @@ int text_show_character(font_struct **font, font_struct *orig_font, SDL_Surface 
             }
         } else if (tag_len == 4 && strncmp(tag, "blue", tag_len) == 0) {
             /* Convenience tag to make string blue. */
-            
+
             if (color && (surface || info->obscured) && !(flags & TEXT_NO_COLOR_CHANGE)) {
                 color->r = 0;
                 color->g = 0;
@@ -764,7 +764,7 @@ int text_show_character(font_struct **font, font_struct *orig_font, SDL_Surface 
             }
         } else if (tag_len == 1 && strncmp(tag, "b", tag_len) == 0) {
             /* Bold. */
-            
+
             if (surface || info->obscured) {
                 info->in_bold = 1;
             } else {
@@ -778,7 +778,7 @@ int text_show_character(font_struct **font, font_struct *orig_font, SDL_Surface 
             }
         } else if (tag_len == 1 && strncmp(tag, "i", tag_len) == 0) {
             /* Italic. */
-            
+
             if (surface || info->obscured) {
                 info->in_italic = 1;
             }
@@ -788,7 +788,7 @@ int text_show_character(font_struct **font, font_struct *orig_font, SDL_Surface 
             }
         } else if (tag_len == 1 && strncmp(tag, "u", tag_len) == 0) {
             /* Underscore. */
-            
+
             if (surface || info->obscured) {
                 info->in_underline = 1;
             }
@@ -798,7 +798,7 @@ int text_show_character(font_struct **font, font_struct *orig_font, SDL_Surface 
             }
         } else if (tag_len == 1 && strncmp(tag, "s", tag_len) == 0) {
             /* Strikethrough. */
-            
+
             if (surface || info->obscured) {
                 info->in_strikethrough = 1;
             }
@@ -809,7 +809,7 @@ int text_show_character(font_struct **font, font_struct *orig_font, SDL_Surface 
         } else if (tag_len >= 5 && strncmp(tag, "font=", 5) == 0) {
             int font_size = 10;
             char font_name[MAX_BUF];
-            
+
             /* Font change. */
 
             if (!(flags & TEXT_NO_FONT_CHANGE) && sscanf(tag + 5, "%64[^] >] %d", font_name, &font_size) >= 1) {
@@ -1276,21 +1276,21 @@ int text_show_character(font_struct **font, font_struct *orig_font, SDL_Surface 
                             // Left to right
                             if (show_percentage >= 6.0) {
                                 icon_box.w *= show_percentage - 6.0;
-                            }                                // Bottom to top
+                            }// Bottom to top
                             else if (show_percentage >= 4.0) {
                                 int offset;
 
                                 offset = icon_box.h - ((float) icon_box.h * (show_percentage - 4.0));
                                 icon_box.y += offset;
                                 icon_dst.y += offset;
-                            }                                // Right to left
+                            }// Right to left
                             else if (show_percentage >= 2.0) {
                                 int offset;
 
                                 offset = icon_box.w - ((float) icon_box.w * (show_percentage - 2.0));
                                 icon_box.x += offset;
                                 icon_dst.x += offset;
-                            }                                // Top to bottom
+                            }// Top to bottom
                             else {
                                 icon_box.h *= show_percentage;
                             }
@@ -1476,7 +1476,7 @@ int text_show_character(font_struct **font, font_struct *orig_font, SDL_Surface 
         }
     } else {
         uint8 is_bold;
-        
+
         /* Deals with the case when calculating width. */
 
         /* Different font sizes affect the width, so we need to

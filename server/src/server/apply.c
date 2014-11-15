@@ -48,8 +48,7 @@ int manual_apply(object *op, object *tmp, int aflag)
         if (op->type == PLAYER) {
             draw_info(COLOR_WHITE, op, "You should pay for it first.");
             return OBJECT_METHOD_OK;
-        }
-        else {
+        } else {
             /* Monsters just skip unpaid items */
             return OBJECT_METHOD_UNHANDLED;
         }
@@ -161,8 +160,7 @@ void player_apply_below(object *pl)
 
         if (QUERY_FLAG(tmp, FLAG_IS_FLOOR)) {
             floors++;
-        }
-        else if (floors > 0) {
+        } else if (floors > 0) {
             /* Process only floor objects after first floor object */
             return;
         }

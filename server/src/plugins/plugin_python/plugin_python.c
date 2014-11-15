@@ -56,13 +56,13 @@ static PyObject *py_globals_dict = NULL;
 
 /**
  * Structure used to evaluate code in the main thread after a specified delay.
- * 
+ *
  * Can also be used to execute code from other threads with no ill effects.
  */
 typedef struct python_eval_struct {
     struct python_eval_struct *next; ///< Next pointer.
     struct python_eval_struct *prev; ///< Previous pointer.
-    
+
     PyObject *globals; ///< Globals dictionary.
     PyObject *locals; ///< Locals dictionary.
     PyCodeObject *code; ///< Compiled code to execute.
@@ -1630,7 +1630,7 @@ static PyObject *Atrinik_Eval(PyObject *self, PyObject *args)
     if (!PyArg_ParseTuple(args, "s|d", &s, &seconds)) {
         return NULL;
     }
-    
+
     n = PyParser_SimpleParseString(s, Py_file_input);
 
     if (n != NULL) {
@@ -1642,11 +1642,11 @@ static PyObject *Atrinik_Eval(PyObject *self, PyObject *args)
         PyErr_LOG();
         return NULL;
     }
-    
+
     if (code != NULL) {
         python_eval_struct *tmp;
         PyGILState_STATE gilstate;
-        
+
         tmp = malloc(sizeof(*tmp));
         tmp->globals = PyEval_GetGlobals();
         Py_INCREF(tmp->globals);
@@ -1654,12 +1654,12 @@ static PyObject *Atrinik_Eval(PyObject *self, PyObject *args)
         Py_INCREF(tmp->locals);
         tmp->code = code;
         tmp->ticks = *hooks->pticks + seconds * (double) (1000000 / MAX_TIME);
-        
+
         gilstate = PyGILState_Ensure();
         DL_APPEND(python_eval, tmp);
         PyGILState_Release(gilstate);
     }
-            
+
     Py_INCREF(Py_None);
     return Py_None;
 }
@@ -1826,20 +1826,21 @@ static int handle_global_event(int event_type, va_list args)
 
         return 0;
     }
-    
+
     case GEVENT_TICK:
     {
         python_eval_struct *eval, *tmp;
         PyGILState_STATE gilstate;
         PyObject *ret;
-            
+
         gilstate = PyGILState_Ensure();
-        
-        DL_FOREACH_SAFE(python_eval, eval, tmp) {
+
+        DL_FOREACH_SAFE(python_eval, eval, tmp)
+        {
             if (*hooks->pticks < eval->ticks) {
                 continue;
             }
-            
+
             DL_DELETE(python_eval, eval);
 
 #if PY_MAJOR_VERSION >= 3 && PY_MINOR_VERSION >= 2
@@ -1857,12 +1858,12 @@ static int handle_global_event(int event_type, va_list args)
             Py_DECREF(eval->globals);
             Py_DECREF(eval->locals);
             Py_DECREF(eval->code);
-            
+
             free(eval);
         }
-            
+
         PyGILState_Release(gilstate);
-        
+
         return 0;
     }
     }

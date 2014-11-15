@@ -142,8 +142,7 @@ static int builder_item(object *op, object *new_item, int x, int y)
     if (new_item->type != WALL && w) {
         draw_info_format(COLOR_WHITE, op, "Something is blocking you from building the %s on that square.", query_name(new_item, NULL));
         return 0;
-    }
-    else if (new_item->type == WALL) {
+    } else if (new_item->type == WALL) {
         object *wall_ob = get_wall(op->map, x, y);
 
         /* Wallmask, only allow building on top of blocked square that only
@@ -380,8 +379,7 @@ static int builder_wall(object *op, object *new_wall, int x, int y)
         insert_ob_in_map(new_wall, op->map, NULL, 0);
         fix_walls(op->map, x, y);
         draw_info(COLOR_WHITE, op, "You redecorate the wall to better suit your tastes.");
-    }
-    else {
+    } else {
         int xt, yt;
 
         /* Else insert new wall and fix all walls around */

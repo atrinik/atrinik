@@ -123,8 +123,7 @@ void remove_party_member(party_struct *party, object *op)
     /* If no members left, remove the party. */
     if (!party->members) {
         remove_party(CONTR(op)->party);
-    }
-    else if (op->name == party->leader) {
+    } else if (op->name == party->leader) {
         /* Otherwise choose a new leader, if the old one left. */
 
         FREE_AND_ADD_REF_HASH(party->leader, party->members->objlink.ob->name);

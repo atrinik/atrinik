@@ -376,7 +376,7 @@ static void clioptions_option_logger_filter_logfile(const char *arg)
 static void init_library(int argc, char *argv[])
 {
     toolkit_import(signals);
-    
+
     toolkit_import(bzr);
     toolkit_import(clioptions);
     toolkit_import(console);

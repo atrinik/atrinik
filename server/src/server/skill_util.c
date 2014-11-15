@@ -159,8 +159,7 @@ sint64 calc_skill_exp(object *who, object *op, int level)
     if (!op) {
         op_lvl = who->map->difficulty < 1 ? 1 : who->map->difficulty;
         op_exp = 0;
-    }
-    else {
+    } else {
         /* All other items/living creatures */
         op_exp = op->stats.exp;
         op_lvl = op->level;

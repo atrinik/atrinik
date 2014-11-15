@@ -43,7 +43,7 @@ enum {
 
 /**
  * Names of the buttons. */
-static const char *const button_names[BUTTON_NUM] ={
+static const char *const button_names[BUTTON_NUM] = {
     "Client Settings", "Key Settings", "Logout", "Disconnect"
 };
 

@@ -322,8 +322,7 @@ char *query_short_name(object *op, object *caller)
                 safe_strcat(buf, buf2, &len, sizeof(buf));
             }
         }
-    }
-    else {
+    } else {
         /* If nrof is 0, the object is not mergable, and thus, op->name
          * should contain the name to be used. */
 
@@ -364,8 +363,7 @@ char *query_short_name(object *op, object *caller)
                         }
 
                         safe_strcat(buf, ")", &len, sizeof(buf));
-                    }
-                    else {
+                    } else {
                         /* It's a different party */
                         safe_strcat(buf, " (bounty of another party)", &len, sizeof(buf));
                     }
@@ -673,8 +671,7 @@ char *query_base_name(object *op, object *caller)
                         }
 
                         safe_strcat(buf, ")", &len, sizeof(buf));
-                    }
-                    else {
+                    } else {
                         /* It's a different party */
                         safe_strcat(buf, " (bounty of another party)", &len, sizeof(buf));
                     }
@@ -849,8 +846,7 @@ char *describe_item(object *op)
             sprintf(buf, "(mana reg. %3.1f)", (float) CONTR(op)->gen_client_sp / 10);
             strcat(retbuf, buf);
         }
-    }
-    else if (QUERY_FLAG(op, FLAG_MONSTER)) {
+    } else if (QUERY_FLAG(op, FLAG_MONSTER)) {
         /* And then monsters */
 
         describe_terrain(op, retbuf);
@@ -931,8 +927,7 @@ char *describe_item(object *op)
                 break;
             }
         }
-    }
-    else {
+    } else {
         /* Here we handle items */
 
         /* We only need calculate this once */

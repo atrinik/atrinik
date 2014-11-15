@@ -816,8 +816,7 @@ void draw_client_map2(object *pl)
                          * show it. */
                         if ((!tmp->direction || tmp->direction == NORTH || tmp->direction == NORTHEAST || tmp->direction == SOUTHEAST || tmp->direction == SOUTH || tmp->direction == SOUTHWEST || tmp->direction == NORTHWEST) && !((ax <= CONTR(pl)->socket.mapx_2) && (ay <= CONTR(pl)->socket.mapy_2)) && !((ax > CONTR(pl)->socket.mapx_2) && (ay < CONTR(pl)->socket.mapy_2))) {
                             tmp = NULL;
-                        }
-                        else if ((!tmp->direction || tmp->direction == NORTHEAST || tmp->direction == EAST || tmp->direction == SOUTHEAST || tmp->direction == SOUTHWEST || tmp->direction == WEST || tmp->direction == NORTHWEST) && !((ax <= CONTR(pl)->socket.mapx_2) && (ay <= CONTR(pl)->socket.mapy_2)) && !((ax < CONTR(pl)->socket.mapx_2) && (ay > CONTR(pl)->socket.mapy_2))) {
+                        } else if ((!tmp->direction || tmp->direction == NORTHEAST || tmp->direction == EAST || tmp->direction == SOUTHEAST || tmp->direction == SOUTHWEST || tmp->direction == WEST || tmp->direction == NORTHWEST) && !((ax <= CONTR(pl)->socket.mapx_2) && (ay <= CONTR(pl)->socket.mapy_2)) && !((ax < CONTR(pl)->socket.mapx_2) && (ay > CONTR(pl)->socket.mapy_2))) {
                             /* If the object is dir [0234768] and not in the top
                              * or left quadrant or on the central square, do not
                              * show it. */
@@ -856,8 +855,7 @@ void draw_client_map2(object *pl)
                                     head->update_tag = map2_count;
                                     face_obj = head;
                                 }
-                            }
-                            else {
+                            } else {
                                 /* Head. */
 
                                 if (tmp->update_tag == map2_count) {
@@ -1064,8 +1062,7 @@ void draw_client_map2(object *pl)
                                 packet_append_uint8(packet_layer, probe_val);
                             }
                         }
-                    }
-                    else if (mp->faces[socket_layer]) {
+                    } else if (mp->faces[socket_layer]) {
                         /* Didn't find anything. Now, if we have previously seen a
                          * face
                          * on this layer, we will want the client to clear it. */

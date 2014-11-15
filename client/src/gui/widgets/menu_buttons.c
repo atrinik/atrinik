@@ -57,21 +57,21 @@ static button_struct buttons[NUM_BUTTONS];
 /**
  * Images to render on top of the buttons, NULL for none.
  */
-static const char *button_images[NUM_BUTTONS] ={
+static const char *button_images[NUM_BUTTONS] = {
     "magic", "skill", "protections", "party", "music", "buddy", "ignore", "map",
     "quest", NULL, "cogs"
 };
 /**
  * Tooltip texts for the buttons.
  */
-static const char *const button_tooltips[NUM_BUTTONS] ={
+static const char *const button_tooltips[NUM_BUTTONS] = {
     "Spells", "Skills", "Protections", "Party", "Music player", "Buddy List",
     "Ignore List", "Region map", "Quest list", "Help", "Settings"
 };
 /**
  * Widgets associated with the buttons, -1 for none.
  */
-static int button_widgets[NUM_BUTTONS] ={
+static int button_widgets[NUM_BUTTONS] = {
     SPELLS_ID, SKILLS_ID, PROTECTIONS_ID, PARTY_ID, MPLAYER_ID, BUDDY_ID,
     BUDDY_ID, -1, -1, -1, -1
 };

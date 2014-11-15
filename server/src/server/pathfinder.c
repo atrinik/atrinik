@@ -258,14 +258,12 @@ static void insert_priority_node(path_node *node, path_node **list)
     /* Insert first */
     if (insert_before == *list) {
         insert_node(node, list);
-    }
-    else if (!insert_before) {
+    } else if (!insert_before) {
         /* Insert last */
         node->next = NULL;
         node->prev = last;
         last->next = node;
-    }
-    else {
+    } else {
         /* Insert in middle */
         node->next = insert_before;
         node->prev = insert_before->prev;
@@ -556,8 +554,7 @@ static int find_neighbours(path_node *node, path_node **open_list, path_node *st
 
             if (op->type == PLAYER && CONTR(op)->tcl) {
                 block = 0;
-            }
-            else if (op->head || op->more) {
+            } else if (op->head || op->more) {
                 /* Multi-arch or not? (blocked_link_2 works for normal archs too,
                  * but is more expensive) */
                 block = blocked_link_2(op, map, x2, y2);

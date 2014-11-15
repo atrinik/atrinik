@@ -700,12 +700,10 @@ void cast_dust(object *op, object *throw_ob, int dir)
 
     if (throw_ob->type == POTION && arch != NULL) {
         cast_cone(op, throw_ob, dir, 10, throw_ob->stats.sp, arch);
-    }
-    else if ((arch = find_archetype("dust_effect")) != NULL) {
+    } else if ((arch = find_archetype("dust_effect")) != NULL) {
         /* dust_effect */
         cast_cone(op, throw_ob, dir, 1, 0, arch);
-    }
-    else {
+    } else {
         /* Problem occurred! */
         logger_print(LOG(BUG), "can't find an archetype to use!");
     }
@@ -905,8 +903,7 @@ void player_path_handle(player *pl)
             if (pl->ob->map == tmp->map && pl->ob->x == tmp->x && pl->ob->y == tmp->y) {
                 pl->move_path = tmp->next;
                 efree(tmp);
-            }
-            else if ((rv.distance <= 1 && success) || tmp->fails > PLAYER_PATH_MAX_FAILS) {
+            } else if ((rv.distance <= 1 && success) || tmp->fails > PLAYER_PATH_MAX_FAILS) {
                 /* Clear all paths if we above check failed: this can happen
                  * if we got teleported somewhere else by a teleporter or a
                  * shop mat, in which case the player most likely doesn't want
@@ -914,8 +911,7 @@ void player_path_handle(player *pl)
                  * to move to destination too many times already. */
                 player_path_clear(pl);
                 return;
-            }
-            else {
+            } else {
                 /* Not any of the above; we failed to move where we wanted. */
                 tmp->fails++;
             }
@@ -1240,8 +1236,7 @@ void examine(object *op, object *tmp, StringBuffer *sb_capture)
     if (QUERY_FLAG(tmp, FLAG_MONSTER) || tmp->type == PLAYER) {
         draw_info_full_format(CHAT_TYPE_GAME, NULL, COLOR_WHITE, sb_capture, op, "%s.", describe_item(tmp->head ? tmp->head : tmp));
         examine_living(op, tmp, sb_capture);
-    }
-    else if (QUERY_FLAG(tmp, FLAG_IDENTIFIED)) {
+    } else if (QUERY_FLAG(tmp, FLAG_IDENTIFIED)) {
         /* We don't double use the item_xxx arch commands, so they are always valid */
 
         if (QUERY_FLAG(tmp, FLAG_IS_GOOD)) {
@@ -1281,28 +1276,22 @@ void examine(object *op, object *tmp, StringBuffer *sb_capture)
                 /* Gray. */
                 if (tmp->level < level_color[level].green) {
                     draw_info_full(CHAT_TYPE_GAME, NULL, COLOR_WHITE, sb_capture, op, "It seems to contain no knowledge you could learn from.");
-                }
-                else if (tmp->level < level_color[level].blue) {
+                } else if (tmp->level < level_color[level].blue) {
                     /* Green. */
                     draw_info_full(CHAT_TYPE_GAME, NULL, COLOR_WHITE, sb_capture, op, "It seems to contain tiny bits of knowledge you could learn from.");
-                }
-                else if (tmp->level < level_color[level].yellow) {
+                } else if (tmp->level < level_color[level].yellow) {
                     /* Blue. */
                     draw_info_full(CHAT_TYPE_GAME, NULL, COLOR_WHITE, sb_capture, op, "It seems to contain a small amount of knowledge you could learn from.");
-                }
-                else if (tmp->level < level_color[level].orange) {
+                } else if (tmp->level < level_color[level].orange) {
                     /* Yellow. */
                     draw_info_full(CHAT_TYPE_GAME, NULL, COLOR_WHITE, sb_capture, op, "It seems to contain an average amount of knowledge you could learn from.");
-                }
-                else if (tmp->level < level_color[level].red) {
+                } else if (tmp->level < level_color[level].red) {
                     /* Orange. */
                     draw_info_full(CHAT_TYPE_GAME, NULL, COLOR_WHITE, sb_capture, op, "It seems to contain a moderate amount of knowledge you could learn from.");
-                }
-                else if (tmp->level < level_color[level].purple) {
+                } else if (tmp->level < level_color[level].purple) {
                     /* Red. */
                     draw_info_full(CHAT_TYPE_GAME, NULL, COLOR_WHITE, sb_capture, op, "It seems to contain a fair amount of knowledge you could learn from.");
-                }
-                else {
+                } else {
                     /* Purple. */
                     draw_info_full(CHAT_TYPE_GAME, NULL, COLOR_WHITE, sb_capture, op, "It seems to contain a great amount of knowledge you could learn from.");
                 }
@@ -1327,8 +1316,7 @@ void examine(object *op, object *tmp, StringBuffer *sb_capture)
                     /* Bad */
                     if (tmp->weapon_speed > 1.0f) {
                         draw_info_full_format(CHAT_TYPE_GAME, NULL, COLOR_WHITE, sb_capture, op, "It increases the weight of items inside by %.1f%%.", tmp->weapon_speed * 100.0f);
-                    }
-                    else {
+                    } else {
                         /* Good */
                         draw_info_full_format(CHAT_TYPE_GAME, NULL, COLOR_WHITE, sb_capture, op, "It decreases the weight of items inside by %.1f%%.", 100.0f - (tmp->weapon_speed * 100.0f));
                     }
@@ -1434,8 +1422,7 @@ void examine(object *op, object *tmp, StringBuffer *sb_capture)
         /* Unpaid clone shop item */
         if (QUERY_FLAG(tmp, FLAG_UNPAID)) {
             draw_info_full_format(CHAT_TYPE_GAME, NULL, COLOR_WHITE, sb_capture, op, "%s would cost you %s.", tmp->nrof > 1 ? "They" : "It", query_cost_string(tmp, op, COST_BUY));
-        }
-        else {
+        } else {
             /* God-given item */
             draw_info_full_format(CHAT_TYPE_GAME, NULL, COLOR_WHITE, sb_capture, op, "%s god-given item%s.", tmp->nrof > 1 ? "They are" : "It is a", tmp->nrof > 1 ? "s" : "");
 
@@ -1661,8 +1648,7 @@ void pick_up(object *op, object *alt, int no_mevent)
         if (alt != tmp->env && !sack_can_hold(op, alt, tmp, count) && !check_magical_container(tmp, alt)) {
             return;
         }
-    }
-    else {
+    } else {
         /* Con container pickup */
 
         for (alt = op->inv; alt; alt = alt->below) {

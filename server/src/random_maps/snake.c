@@ -84,8 +84,7 @@ char **make_snake_layout(int xsize, int ysize)
             /* toggle the value of orientation */
             orientation ^= 1;
         }
-    }
-    else {
+    } else {
         int n_walls = RANDOM() % ((ysize - 5) / 3) + 1;
         int spacing = ysize / (n_walls + 1);
         int orientation = 1;

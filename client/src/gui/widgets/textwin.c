@@ -32,11 +32,11 @@
 
 /**
  * Names of the text window tabs. */
-const char *const textwin_tab_names[] ={
+const char *const textwin_tab_names[] = {
     "[ALL]", "[GAME]", "[CHAT]", "[LOCAL]", "[PRIVATE]", "[GUILD]", "[PARTY]", "[OPERATOR]"
 };
 
-const char *const textwin_tab_commands[] ={
+const char *const textwin_tab_commands[] = {
     "say", NULL, "chat", "say", "reply", "guild", "party say", "opsay"
 };
 

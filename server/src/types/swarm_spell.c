@@ -56,8 +56,7 @@ static void process_func(object *op)
         } else {
             adjustdir = diagonal_adjust[rndm(0, 9)];
         }
-    }
-    else {
+    } else {
         /* Fire the last one from forward. */
         adjustdir = 0;
     }

@@ -436,8 +436,7 @@ static PyObject *Atrinik_Object_Hit(Atrinik_Object *obj, PyObject *args)
     if (damage == -1) {
         target->obj->stats.hp = -1;
         hooks->kill_object(target->obj, 0, obj->obj, 0);
-    }
-    else {
+    } else {
         /* Do damage. */
         hooks->hit_player(target->obj, damage, obj->obj, 0);
     }
@@ -482,8 +481,7 @@ static PyObject *Atrinik_Object_Cast(Atrinik_Object *obj, PyObject *args, PyObje
         } else {
             mode = CAST_NORMAL;
         }
-    }
-    else if (mode == CAST_NORMAL && target && target != obj && obj->obj->type != PLAYER) {
+    } else if (mode == CAST_NORMAL && target && target != obj && obj->obj->type != PLAYER) {
         /* Ensure the mode is valid. */
         mode = CAST_NPC;
     }
@@ -1223,8 +1221,7 @@ static PyObject *Atrinik_Object_SquaresAround(Atrinik_Object *what, PyObject *ar
             /* We want all squares. */
             if (type == AROUND_ALL && !callable) {
                 SQUARES_AROUND_ADD(m, xt, yt);
-            }
-            else if (beyond) {
+            } else if (beyond) {
                 /* Only those that are not blocked by view, or beyond a wall, etc,
                  * so use the Bresenham algorithm. */
                 int xt2, yt2, fraction, dx2, dy2, stepx, stepy;
@@ -1254,8 +1251,7 @@ static PyObject *Atrinik_Object_SquaresAround(Atrinik_Object *what, PyObject *ar
                         break;
                     }
                 }
-            }
-            else {
+            } else {
                 /* We only want to ignore squares that either block view, or have
                  * a wall, etc, but not any squares behind them. */
                 if ((type & AROUND_BLOCKSVIEW && GET_MAP_FLAGS(m, xt, yt) & P_BLOCKSVIEW) || (type & AROUND_PLAYER_ONLY && GET_MAP_FLAGS(m, xt, yt) & P_PLAYER_ONLY) || (type & AROUND_WALL && hooks->wall(m, xt, yt)) || (callable && python_call_int(callable, Py_BuildValue("(OiiO)", wrap_map(m), xt, yt, wrap_object(what->obj))))) {
@@ -1361,12 +1357,10 @@ static PyObject *Atrinik_Object_CreateTreasure(Atrinik_Object *obj, PyObject *ar
         /* Try the object's level first. */
         if (obj->obj->level) {
             level = obj->obj->level;
-        }
-        else if (obj->obj->map) {
+        } else if (obj->obj->map) {
             /* Otherwise the map's difficulty. */
             level = obj->obj->map->difficulty;
-        }
-        else {
+        } else {
             /* Default to MAXLEVEL. */
             level = MAXLEVEL;
         }
@@ -1621,8 +1615,7 @@ static int Object_SetAttribute(Atrinik_Object *obj, PyObject *value, void *conte
     /* Update object's speed. */
     if (field->offset == offsetof(object, speed)) {
         hooks->update_ob_speed(obj->obj);
-    }
-    else if (field->offset == offsetof(object, type)) {
+    } else if (field->offset == offsetof(object, type)) {
         /* Handle object's type changing. */
 
         /* Changing to a spawn point monster requires special handling:
@@ -1645,8 +1638,7 @@ static int Object_SetAttribute(Atrinik_Object *obj, PyObject *value, void *conte
             obj->obj->speed = old_speed;
             obj->obj->type = SPAWN_POINT_MOB;
         }
-    }
-    else if (field->offset == offsetof(object, direction)) {
+    } else if (field->offset == offsetof(object, direction)) {
         /* Direction. */
 
         /* If the object is animated and turnable, update its face. */

@@ -88,8 +88,7 @@ static void container_open(object *applier, object *op)
     /* Already opened. */
     if (op->attacked_by) {
         CONTR(op->attacked_by)->container_below = applier;
-    }
-    else {
+    } else {
         /* Not open yet. */
 
         SET_FLAG(op, FLAG_APPLIED);
@@ -196,8 +195,7 @@ int container_close(object *applier, object *op)
             pl->container->attacked_by = pl->container_above;
             pl->container->attacked_by_count = pl->container_above->count;
             CONTR(pl->container_above)->container_below = NULL;
-        }
-        else {
+        } else {
             /* Elsewhere in the list. */
 
             CONTR(pl->container_below)->container_above = pl->container_above;
@@ -316,16 +314,14 @@ static int apply_func(object *op, object *applier, int aflags)
                         );
                 return OBJECT_METHOD_OK;
             }
-        }
-        else {
+        } else {
             /* Personalized container. */
 
             /* Party corpse. */
             if (op->sub_type == ST1_CONTAINER_CORPSE_party &&
                     !party_can_open_corpse(applier, op)) {
                 return OBJECT_METHOD_OK;
-            }
-            else if (op->sub_type == ST1_CONTAINER_CORPSE_player &&
+            } else if (op->sub_type == ST1_CONTAINER_CORPSE_player &&
                     op->slaying != applier->name) {
                 /* Normal player-only corpse. */
                 draw_info(COLOR_WHITE, applier, "It's not your bounty.");
@@ -352,8 +348,7 @@ static int apply_func(object *op, object *applier, int aflags)
         if (op->slaying && op->sub_type == ST1_CONTAINER_CORPSE_party) {
             party_handle_corpse(applier, op);
         }
-    }
-    else {
+    } else {
         /* Container is in player's inventory. */
 
         /* If it's readied, open it. */
@@ -361,8 +356,7 @@ static int apply_func(object *op, object *applier, int aflags)
             draw_info_format(COLOR_WHITE, applier, "You open %s.",
                     query_base_name(op, applier));
             container_open(applier, op);
-        }
-        else {
+        } else {
             /* Otherwise ready it. */
 
             draw_info_format(COLOR_WHITE, applier, "You readied %s.",

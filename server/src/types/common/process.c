@@ -72,8 +72,7 @@ static void common_object_process_changing(object *op)
                     /* Will take care about adjusting light masks. */
                     fix_player(op->env);
                 }
-            }
-            else {
+            } else {
                 /* Object is on map. */
 
                 /* Remove light mask from map. */
@@ -140,8 +139,7 @@ int common_object_process_pre(object *op)
                 op->stats.food = op->arch->clone.stats.food;
                 return 1;
             }
-        }
-        else if (op->env && op->env->type == PLAYER && QUERY_FLAG(op, FLAG_APPLIED)) {
+        } else if (op->env && op->env->type == PLAYER && QUERY_FLAG(op, FLAG_APPLIED)) {
             /* If it's a force or such in player's inventory, unapply it. */
             CLEAR_FLAG(op, FLAG_APPLIED);
             change_abil(op->env, op);

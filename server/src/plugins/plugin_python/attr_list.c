@@ -211,8 +211,7 @@ static int attr_list_set(Atrinik_AttrList *al, PyObject *key, unsigned PY_LONG_L
 
         field.type = FIELDTYPE_CSTR;
         ptr = &(*(char ***) ptr)[i];
-    }
-    else if (al->field == FIELDTYPE_FACTIONS) {
+    } else if (al->field == FIELDTYPE_FACTIONS) {
         char *str;
 
         /* Factions. */
@@ -252,8 +251,7 @@ static int attr_list_set(Atrinik_AttrList *al, PyObject *key, unsigned PY_LONG_L
         if (al->field == FIELDTYPE_CMD_PERMISSIONS) {
             ((socket_struct *) (&(*(socket_struct **) ((void *) ((char *) al->ptr + offsetof(player, socket))))))->ext_title_flag = 1;
         }
-    }
-    else if (ret == -1) {
+    } else if (ret == -1) {
         /* Failure; overflow, invalid value or some other kind of error. */
 
         if (i >= len) {

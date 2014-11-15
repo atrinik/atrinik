@@ -176,8 +176,7 @@ static void process_players1(void)
                 } else if (is_melee_range(pl->ob, pl->ob->enemy)) {
                     if (!OBJECT_VALID(pl->ob->enemy->enemy, pl->ob->enemy->enemy_count)) {
                         set_npc_enemy(pl->ob->enemy, pl->ob, NULL);
-                    }
-                    else {
+                    } else {
                         /* Our target already has an enemy - then note we had
                          * attacked */
                         pl->ob->enemy->attacked_by = pl->ob;
@@ -528,8 +527,7 @@ int swap_apartments(const char *mapold, const char *mapnew, int x, int y, object
                     ob->x = x;
                     ob->y = y;
                     insert_ob_in_map(ob, newmap, NULL, INS_NO_MERGE | INS_NO_WALK_ON);
-                }
-                else {
+                } else {
                     /* Fixed part of map */
 
                     /* Now we test for containers, because player
@@ -687,7 +685,7 @@ int main(int argc, char **argv)
         do_specials();
 
         doeric_server_write();
-        
+
         trigger_global_event(GEVENT_TICK, NULL, NULL);
 
         /* Sleep proper amount of time before next tick */

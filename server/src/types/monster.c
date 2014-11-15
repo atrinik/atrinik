@@ -267,8 +267,7 @@ object *find_enemy(object *npc, rv_vector *rv)
             if (is_friend_of(npc, npc->attacked_by)) {
                 /* Skip it, but let's wake up */
                 CLEAR_FLAG(npc, FLAG_SLEEP);
-            }
-            else if (on_same_map(npc, npc->attacked_by)) {
+            } else if (on_same_map(npc, npc->attacked_by)) {
                 /* The only thing we must know... */
 
                 CLEAR_FLAG(npc, FLAG_SLEEP);
@@ -331,8 +330,7 @@ static int can_detect_enemy(object *op, object *enemy, rv_vector *rv)
             set_npc_enemy(op, NULL, NULL);
             return 0;
         }
-    }
-    else {
+    } else {
         /* Our mob is aggroed again - because target is in range again */
         op->last_eat = 0;
     }
@@ -867,8 +865,7 @@ static int move_randomly(object *op)
             /* Cancel random movement. */
             if (ret == 1) {
                 return 0;
-            }
-            else if (ret == 2) {
+            } else if (ret == 2) {
                 /* Keep trying. */
                 continue;
             }
@@ -1386,8 +1383,7 @@ static char *find_matching_message(const char *msg, const char *match)
                     cp3 = emalloc(cp1 - cp2 + 1);
                     strncpy(cp3, cp2 + 1, cp1 - cp2);
                     cp3[cp1 - cp2 - 1] = '\0';
-                }
-                else {
+                } else {
                     /* If no next match, just want the rest of the string */
                     cp3 = estrdup(cp2 + 1);
                 }

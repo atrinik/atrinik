@@ -411,8 +411,7 @@ void init_artifacts(void)
             FREE_AND_COPY_HASH(art->name, cp + 9);
         } else if (strncmp(cp, "copy_artifact ", 14) == 0) {
             art->copy_artifact = KEYWORD_IS_TRUE(cp + 14);
-        }
-        else if (!strncmp(cp, "def_arch", 8)) {
+        } else if (!strncmp(cp, "def_arch", 8)) {
             /* Chain a default arch to this treasure */
 
             if ((atemp = find_archetype(cp + 9)) == NULL) {
@@ -442,8 +441,7 @@ void init_artifacts(void)
              * This will allow us the generate for every artifact a "default
              * one" and we
              * will have always a non-magical base for every artifact */
-        }
-        else if (!strncmp(cp, "Object", 6)) {
+        } else if (!strncmp(cp, "Object", 6)) {
             /* All text after Object is now like an arch file until an end comes */
 
             old_pos = ftell(fp);
@@ -774,8 +772,7 @@ static void create_all_treasures(treasure *t, object *op, int flag, int difficul
                     if (op->type == TREASURE && QUERY_FLAG(op, FLAG_IDENTIFIED)) {
                         SET_FLAG(tmp, FLAG_IDENTIFIED);
                     }
-                }
-                else {
+                } else {
                     /* We have a wealth object - expand it to real money */
 
                     /* If t->magic is != 0, that's our value - if not use
@@ -932,8 +929,7 @@ create_one_treasure_again_jmp:
             if (op->type == TREASURE && QUERY_FLAG(op, FLAG_IDENTIFIED)) {
                 SET_FLAG(tmp, FLAG_IDENTIFIED);
             }
-        }
-        else {
+        } else {
             /* We have a wealth object - expand it to real money */
 
             /* If t->magic is != 0, that's our value - if not use default
@@ -1660,8 +1656,7 @@ int fix_generated_item(object **op_ptr, object *creator, int difficulty, int a_c
 
                 SET_FLAG(op, FLAG_IS_MAGICAL);
                 op->value = (int) (150.0f * spells[op->stats.sp].value_mul);
-            }
-            else if (op->sub_type > 128) {
+            } else if (op->sub_type > 128) {
                 /* Dust */
 
                 if ((op->stats.sp = get_random_spell(difficulty, SPELL_USE_DUST)) == SP_NO_SPELL) {
@@ -1970,8 +1965,7 @@ int fix_generated_item(object **op_ptr, object *creator, int difficulty, int a_c
 
             break;
         }
-    }
-    else {
+    } else {
         /* Title is not NULL. */
 
         switch (op->type) {
@@ -2137,8 +2131,7 @@ static int legal_artifact_combination(object *op, artifact *art)
         /* If we match name, then return the opposite of 'neg' */
         if (!strcmp(name, op->name) || (op->arch && !strcmp(name, op->arch->name))) {
             return !neg;
-        }
-        else if (neg) {
+        } else if (neg) {
             /* Set success as true, since if the match was an inverse, it
              * means everything is allowed except what we match. */
             success = 1;
@@ -2404,7 +2397,7 @@ static void set_material_real(object *op, struct _change_arch *change_arch)
         if (change_arch->material_range > 0 && change_arch->material) {
             op->material_real += rndm(0, change_arch->material_range);
         }
-    }        /* If 0, grab a valid material class. We should assign to all objects
+    }/* If 0, grab a valid material class. We should assign to all objects
          * a valid material_real value to avoid problems here. */
     else if (!op->material_real && op->material != M_ADAMANT) {
         if (op->material & M_IRON) {
@@ -2481,16 +2474,14 @@ static void set_material_real(object *op, struct _change_arch *change_arch)
 
                 /* That's now our best match! */
                 op->material_real = q_tmp;
-            }
-            else {
+            } else {
                 /* Excluded material table! */
 
                 op->item_quality = m_range;
                 op->item_condition = op->item_quality;
                 return;
             }
-        }
-        else {
+        } else {
             /* We have material_real 0 but we modify at least the quality! */
 
             op->item_quality = m_range;

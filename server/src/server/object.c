@@ -1118,13 +1118,11 @@ void update_object(object *op, int action)
         /* This is handled a bit more complex, we must always loop the flags! */
         if (QUERY_FLAG(op, FLAG_NO_PASS) || QUERY_FLAG(op, FLAG_PASS_THRU)) {
             newflags |= P_FLAGS_UPDATE;
-        }
-        else if (QUERY_FLAG(op, FLAG_IS_FLOOR)) {
+        } else if (QUERY_FLAG(op, FLAG_IS_FLOOR)) {
             /* Floors define our node - force an update */
             newflags |= P_FLAGS_UPDATE;
             msp->light_value += op->last_sp;
-        }
-        else {
+        } else {
             /* We don't have to use flag loop - we can set it by hand! */
             if (op->type == CHECK_INV) {
                 newflags |= P_CHECK_INV;
@@ -1552,8 +1550,7 @@ void object_remove(object *op, int flags)
 
         op->above = NULL, op->below = NULL;
         op->env = NULL;
-    }
-    else if (op->map) {
+    } else if (op->map) {
         /* The object is on map. */
         MapSpace *msp;
 
@@ -1572,8 +1569,7 @@ void object_remove(object *op, int flags)
         /* Link the object above us. */
         if (op->above) {
             op->above->below = op->below;
-        }
-        else {
+        } else {
             /* Assign below as last one. */
             SET_MAP_SPACE_LAST(msp, op->below);
         }
@@ -1581,8 +1577,7 @@ void object_remove(object *op, int flags)
         /* Relink the object below us, if there is one. */
         if (op->below) {
             op->below->above = op->above;
-        }
-        else {
+        } else {
             /* First object goes on above it. */
             SET_MAP_SPACE_FIRST(msp, op->above);
         }
@@ -2949,8 +2944,7 @@ int item_matched_string(object *pl, object *op, const char *name)
         /* Base name matched - not bad */
         if (strcasecmp(cp, op->name) == 0 && !count) {
             retval = 4;
-        }
-        else if (count > 1) {
+        } else if (count > 1) {
             char newname[MAX_BUF];
 
             /* Need to plurify name for proper match */
@@ -2976,8 +2970,7 @@ int item_matched_string(object *pl, object *op, const char *name)
             retval = 15;
         } else if (!strncasecmp(cp, query_base_name(op, pl), strlen(cp))) {
             retval = 14;
-        }
-        else if (strstr(query_base_name(op, pl), cp)) {
+        } else if (strstr(query_base_name(op, pl), cp)) {
             /* Do substring checks, so things like 'Str+1' will match.
              * retval of these should perhaps be lower - they are lower
              * than the specific strcasecmps above, but still higher than
@@ -2985,8 +2978,7 @@ int item_matched_string(object *pl, object *op, const char *name)
             retval = 12;
         } else if (strstr(query_short_name(op, NULL), cp)) {
             retval = 12;
-        }
-        else if (op->custom_name && strstr(op->custom_name, cp)) {
+        } else if (op->custom_name && strstr(op->custom_name, cp)) {
             /* Check for partial custom name, but give a really low priority. */
             retval = 3;
         }

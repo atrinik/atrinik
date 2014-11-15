@@ -63,8 +63,7 @@ static void process_func(object *op)
             CLEAR_FLAG(op, FLAG_NO_PASS);
             update_object(op, UP_OBJ_FLAGS);
         }
-    }
-    else {
+    } else {
         /* Going up. */
 
         if (++op->stats.wc >= (NUM_ANIMATIONS(op) / NUM_FACINGS(op)) / 2) {
@@ -92,8 +91,7 @@ static void process_func(object *op)
                         tmp->x += freearr_x[i];
                         tmp->y += freearr_y[i];
                         insert_ob_in_map(tmp, op->map, op, 0);
-                    }
-                    else {
+                    } else {
                         /* No free spot, so the gate is blocked. */
                         is_blocked = 1;
                     }

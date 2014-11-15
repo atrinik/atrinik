@@ -128,8 +128,7 @@ objectlink *objectlink_link(objectlink **startptr, objectlink **endptr, objectli
         if (endptr && (!*endptr || *endptr == afterptr)) {
             *endptr = objptr;
         }
-    }
-    else if (!afterptr) {
+    } else if (!afterptr) {
         /* Link it before beforeptr */
 
         if (beforeptr->prev) {
@@ -144,8 +143,7 @@ objectlink *objectlink_link(objectlink **startptr, objectlink **endptr, objectli
         if (startptr && (!*startptr || *startptr == beforeptr)) {
             *startptr = objptr;
         }
-    }
-    else {
+    } else {
         /* Special: link together two lists/objects */
 
         beforeptr->prev = objptr;

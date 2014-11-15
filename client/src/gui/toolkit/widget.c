@@ -43,7 +43,7 @@
 #include <global.h>
 
 static widgetdata def_widget[TOTAL_SUBWIDGETS];
-static const char *const widget_names[TOTAL_SUBWIDGETS] ={
+static const char *const widget_names[TOTAL_SUBWIDGETS] = {
     "map", "stat", "menu_buttons", "quickslots", "textwin", "playerdoll",
     "belowinv", "playerinfo", "maininv", "mapname",
     "input", "fps", "mplayer", "spells", "skills", "party", "notification",
@@ -72,17 +72,17 @@ static widgetdata *type_list_foot[TOTAL_SUBWIDGETS];
 /**
  * Determines which widget has mouse focus
  * This value is determined in the mouse routines for the widgets */
-widgetevent widget_mouse_event ={
+widgetevent widget_mouse_event = {
     NULL, 0, 0
 };
 
 /** This is used when moving a widget with the mouse. */
-static widgetmove widget_event_move ={
+static widgetmove widget_event_move = {
     0, NULL, 0, 0
 };
 
 /** This is used when resizing a widget with the mouse. */
-static widgetresize widget_event_resize ={
+static widgetresize widget_event_resize = {
     0, NULL, 0, 0
 };
 
@@ -777,13 +777,13 @@ void remove_widget(widgetdata *widget)
             widget_list_head->prev = NULL;
         } else if (widget == widget_list_foot) {
             /* node to delete is the foot, move the pointer to the previous node */
-            
+
             widget_list_foot = widget_list_foot->prev;
             widget_list_foot->next = NULL;
         } else if (!widget->prev) {
             /* node is first sibling, and should have a parent since it is not the
              * root node */
-            
+
             /* node is also the last sibling, so NULL the parent's inventory */
             if (!widget->next) {
                 widget->env->inv = NULL;
@@ -1172,7 +1172,7 @@ int widgets_event(SDL_Event *event)
         return 1;
     } else if (widget_event_resize.active) {
         /* Widget is being resized. */
-        
+
         widget = widget_event_resize.owner;
 
         if (event->type == SDL_MOUSEBUTTONUP) {
@@ -1444,14 +1444,14 @@ static int widgets_need_redraw_rec(widgetdata *widget)
                 widget->redraw) {
             return 1;
         }
-        
+
         if (widget->inv) {
             if (widgets_need_redraw_rec(widget->inv)) {
                 return 1;
             }
         }
     }
-    
+
     return 0;
 }
 

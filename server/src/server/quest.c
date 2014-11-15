@@ -151,8 +151,7 @@ static void check_quest_container(object *op, object *quest_container, object *q
          * for example). */
         if (!one_drop && has_quest_item(op, tmp, 0, NULL)) {
             return;
-        }
-        else if (one_drop && quest_object) {
+        } else if (one_drop && quest_object) {
             /* One-drop and we already found this quest object before
              * (Rhun's cloak, for example). */
             return;

@@ -79,8 +79,7 @@ void command_tell(object *op, const char *command, char *params)
     if (CONTR(pl->ob)->afk_auto_reply[0] != '\0') {
         snprintf(buf, sizeof(buf), "[a=#charname]%s[/a] auto-replies: %s", pl->ob->name, CONTR(pl->ob)->afk_auto_reply);
         draw_info_type(CHAT_TYPE_PRIVATE, NULL, COLOR_NAVY, op, buf);
-    }
-    else if (CONTR(pl->ob)->afk) {
+    } else if (CONTR(pl->ob)->afk) {
         /* Player is AFK */
         snprintf(buf, sizeof(buf), "[a=#charname]%s[/a] is currently [AFK].", pl->ob->name);
         draw_info_type(CHAT_TYPE_PRIVATE, NULL, COLOR_NAVY, op, buf);

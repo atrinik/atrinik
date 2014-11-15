@@ -142,8 +142,7 @@ object *arrow_find(object *op, shstr *type)
     /* The readied item is an arrow, so simply return it. */
     if (tmp->type == ARROW) {
         return tmp;
-    }
-    else if (tmp->type == CONTAINER) {
+    } else if (tmp->type == CONTAINER) {
         /* A quiver, search through it for arrows. */
         return arrow_find(tmp, type);
     }

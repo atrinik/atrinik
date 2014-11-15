@@ -58,7 +58,7 @@ void widget_highlight_menu(widgetdata *widget)
             /* The cursor is hovering over something the menuitem contains. This
              * only needs to search the direct children,
              * as there should be nothing contained within the children. */
-            
+
             for (tmp2 = tmp->inv; tmp2; tmp2 = tmp2->next) {
                 if (tmp2 == widget_mouse_event.owner) {
                     /* The cursor was hovering over something inside the
@@ -92,7 +92,7 @@ void widget_highlight_menu(widgetdata *widget)
             }
         } else {
             /* Cursor no longer hovers over the menuitem. */
-            
+
             tmp->hidden = 1;
 
             /* Let's check if we need to remove the submenu.

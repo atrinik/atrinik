@@ -595,8 +595,7 @@ int blocked_tile(object *op, mapstruct *m, int x, int y)
                 }
 
                 continue;
-            }
-            else {
+            } else {
                 /* In this case, the player must not have the object -
                  * if they do, they can't pass through. */
 
@@ -712,8 +711,7 @@ static void load_objects(mapstruct *m, FILE *fp, int mapflags)
         /* auto_apply() will remove FLAG_AUTO_APPLY after first use */
         if (QUERY_FLAG(op, FLAG_AUTO_APPLY)) {
             auto_apply(op);
-        }
-        else if ((mapflags & MAP_ORIGINAL) && op->randomitems) {
+        } else if ((mapflags & MAP_ORIGINAL) && op->randomitems) {
             /* For fresh maps, create treasures */
             create_treasure(op->randomitems, op, op->type != TREASURE ? GT_APPLY : 0, op->level ? op->level : m->difficulty, T_STYLE_UNSET, ART_CHANCE_UNSET, 0, NULL);
         }
@@ -1154,8 +1152,7 @@ int new_save_map(mapstruct *m, int flag)
                 chmod(buf, SAVE_MODE);
             }
         }
-    }
-    else {
+    } else {
         /* Otherwise to the same file, like apartments */
         save_objects(m, fp, fp);
     }
@@ -1276,8 +1273,7 @@ void delete_map(mapstruct *m)
 
     if (m->previous) {
         m->previous->next = m->next;
-    }
-    else {
+    } else {
         /* If there is no previous, we are first map */
         first_map = m->next;
     }

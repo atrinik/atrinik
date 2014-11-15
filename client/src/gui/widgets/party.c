@@ -148,7 +148,7 @@ void socket_command_party(uint8 *data, size_t len, size_t pos)
     } else if (type == CMD_PARTY_LEAVE) {
         /* Leave; clear the party name and switch to list of parties (unless
          * the party widget is hidden). */
-        
+
         cpl.partyname[0] = '\0';
 
         if (cur_widget[PARTY_ID]->show) {
@@ -156,7 +156,7 @@ void socket_command_party(uint8 *data, size_t len, size_t pos)
         }
     } else if (type == CMD_PARTY_PASSWORD) {
         char buf[MAX_BUF];
-        
+
         /* Party requires password, bring up the console for the player to
          * enter the password. */
 
@@ -167,7 +167,7 @@ void socket_command_party(uint8 *data, size_t len, size_t pos)
         char name[MAX_BUF], bars[MAX_BUF];
         uint8 hp, sp;
         uint32 row;
-        
+
         /* Update list of party members. */
 
         if (list_contents != CMD_PARTY_WHO) {
@@ -195,7 +195,7 @@ void socket_command_party(uint8 *data, size_t len, size_t pos)
     } else if (type == CMD_PARTY_REMOVE_MEMBER) {
         char name[MAX_BUF];
         uint32 row;
-        
+
         /* Remove member from the list of party members. */
 
         if (list_contents != CMD_PARTY_WHO) {

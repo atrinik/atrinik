@@ -58,23 +58,20 @@ sint64 query_cost(object *tmp, object *who, int flag)
         } else {
             val = tmp->value * number;
         }
-    }
-    else {
+    } else {
         /* This area deals with objects that are not identified, but can be */
 
         if (tmp->arch != NULL) {
             if (flag == COST_BUY) {
                 logger_print(LOG(BUG), "Asking for buy-value of unidentified object %s.", query_name(tmp, NULL));
                 val = tmp->arch->clone.value * number;
-            }
-            else {
+            } else {
                 /* Trying to sell something, or get true value */
 
                 /* Selling unidentified gems is *always* stupid */
                 if (tmp->type == GEM || tmp->type == JEWEL || tmp->type == NUGGET || tmp->type == PEARL) {
                     val = number * 3;
-                }
-                else if (tmp->type == POTION) {
+                } else if (tmp->type == POTION) {
                     /* Don't want to give anything away */
                     val = number * 50;
                 } else {

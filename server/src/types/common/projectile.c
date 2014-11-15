@@ -217,8 +217,7 @@ object *common_object_projectile_stop_missile(object *op, int reason)
         update_ob_speed(op);
 
         op = object_merge(op);
-    }
-    else if (op->inv) {
+    } else if (op->inv) {
         object *payload;
 
         /* Not an arrow, the object has payload instead. */
@@ -233,8 +232,7 @@ object *common_object_projectile_stop_missile(object *op, int reason)
         payload = insert_ob_in_map(payload, op->map, op, 0);
 
         return payload;
-    }
-    else {
+    } else {
         /* Should not happen... */
 
         object_remove(op, 0);

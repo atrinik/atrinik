@@ -491,8 +491,7 @@ float calc_level_difference(int who_lvl, int op_lvl)
 
             v = 0.3f / (float) r;
             tmp = 0.4f + (v * (float) (op_lvl - level_color[who_lvl].blue + 1));
-        }
-        else {
+        } else {
             /* Green */
 
             r = level_color[who_lvl].blue - level_color[who_lvl].green;
@@ -504,8 +503,7 @@ float calc_level_difference(int who_lvl, int op_lvl)
             v = 0.05f / (float) r;
             tmp = 0.25f + (v * (float) (op_lvl - level_color[who_lvl].green + 1));
         }
-    }
-    else if (who_lvl < op_lvl) {
+    } else if (who_lvl < op_lvl) {
         /* Yellow, orange, red, purple */
 
         /* Still yellow */
@@ -519,8 +517,7 @@ float calc_level_difference(int who_lvl, int op_lvl)
             v = 0.1f / (float) r;
             tmp = 1.0f + (v * (float) (op_lvl - who_lvl));
 
-        }
-        else if (op_lvl < level_color[who_lvl].red) {
+        } else if (op_lvl < level_color[who_lvl].red) {
             /* Orange */
 
             r = level_color[who_lvl].red - who_lvl - 1;
@@ -531,8 +528,7 @@ float calc_level_difference(int who_lvl, int op_lvl)
 
             v = 0.2f / (float) r;
             tmp = 1.2f + (v * (float) (op_lvl - who_lvl));
-        }
-        else {
+        } else {
             /* Red or purple */
 
             r = (op_lvl + 1) - level_color[who_lvl].red;

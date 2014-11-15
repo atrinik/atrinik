@@ -135,8 +135,7 @@ static int apply_func(object *op, object *applier, int aflags)
         if (!change_abil(applier, force)) {
             draw_info(COLOR_WHITE, applier, "Nothing happened.");
         }
-    }
-    else if (op->last_eat == 1) {
+    } else if (op->last_eat == 1) {
         int i;
 
         /* Potion of minor restoration (removes depletion). */
@@ -176,8 +175,7 @@ static int apply_func(object *op, object *applier, int aflags)
             insert_spell_effect("meffect_green", applier->map, applier->x, applier->y);
             play_sound_map(applier->map, CMD_SOUND_EFFECT, "magic_default.ogg", applier->x, applier->y, 0, 0);
         }
-    }
-    else if (op->stats.sp != SP_NO_SPELL) {
+    } else if (op->stats.sp != SP_NO_SPELL) {
         /* Spell potion. */
 
         /* Fire in the player's facing direction, unless the spell is

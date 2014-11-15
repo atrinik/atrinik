@@ -218,8 +218,7 @@ static void check_wall(object *op, int x, int y)
         /* mark the space as OUT_OF_MAP. */
         if (blocks_view(op->map, op->x + x - MAP_CLIENT_X / 2, op->y + y - MAP_CLIENT_Y / 2) & P_OUT_OF_MAP) {
             CONTR(op)->blocked_los[ax][ay] = BLOCKED_LOS_OUT_OF_MAP;
-        }
-        else {
+        } else {
             /* ignore means ignore for LOS */
             CONTR(op)->blocked_los[ax][ay] |= BLOCKED_LOS_IGNORE;
         }

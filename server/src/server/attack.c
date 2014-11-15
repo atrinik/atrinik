@@ -171,8 +171,7 @@ static int attack_ob_simple(object *op, object *hitter, int base_dam, int base_w
         if (was_destroyed(op, op_tag) || was_destroyed(hitter, hitter_tag) || abort_attack(op, hitter, simple_attack)) {
             return dam;
         }
-    }
-    else {
+    } else {
         /* We missed */
 
         if (hitter->type != ARROW) {
@@ -730,8 +729,7 @@ int kill_object(object *op, int dam, object *hitter, int type)
          * has chosen_skill set, we will use that. */
         if (hitter->chosen_skill) {
             skill = hitter->chosen_skill;
-        }
-        else {
+        } else {
             /* Otherwise try to use owner's chosen_skill. */
 
             skill = owner->chosen_skill;
@@ -766,8 +764,7 @@ int kill_object(object *op, int dam, object *hitter, int type)
 
         /* And actually kill the player. */
         kill_player(op);
-    }
-    else {
+    } else {
         /* Monster or something else has been killed. */
 
         /* Remove the monster from the active list. */
@@ -790,8 +787,7 @@ int kill_object(object *op, int dam, object *hitter, int type)
             SET_FLAG(op, FLAG_STARTEQUIP);
             /* Force an empty corpse though. */
             SET_FLAG(op, FLAG_CORPSE_FORCED);
-        }
-        else if (!exp_gain) {
+        } else if (!exp_gain) {
             /* No exp, no loot and no corpse. */
 
             SET_FLAG(op, FLAG_STARTEQUIP);
@@ -907,8 +903,7 @@ static void poison_player(object *op, object *hitter, float dam)
             SET_FLAG(tmp, FLAG_APPLIED);
             insert_ob_in_ob(tmp, op);
             fix_player(op);
-        }
-        else {
+        } else {
             /* It's a monster */
 
             SET_FLAG(tmp, FLAG_APPLIED);

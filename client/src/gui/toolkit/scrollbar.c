@@ -214,7 +214,7 @@ static int scrollbar_click_scroll(scrollbar_struct *scrollbar, int test)
         return 1;
     } else if (scrollbar->background.highlight && scrollbar->scroll_direction != SCROLL_DIRECTION_NONE) {
         /* Mouse over the background and there's a known scroll direction. */
-        
+
         if (scrollbar->scroll_direction == SCROLL_DIRECTION_UP) {
             if (!test) {
                 scrollbar_scroll_adjust(scrollbar, -scrollbar->max_lines);
@@ -438,7 +438,7 @@ void scrollbar_show(scrollbar_struct *scrollbar, SDL_Surface *surface, int x, in
         }
     } else {
         /* Not necessary to calculate, so full slider height. */
-        
+
         if (horizontal) {
             scrollbar->slider.w = scrollbar_slider_width(scrollbar);
             scrollbar->slider.x = 0;
@@ -534,7 +534,7 @@ int scrollbar_event(scrollbar_struct *scrollbar, SDL_Event *event)
             return 1;
         } else if (scrollbar->background.highlight) {
             /* Set scroll direction if clicked on the background. */
-            
+
             if (scrollbar->background.w > scrollbar->background.h) {
                 if (event->motion.x - scrollbar->px < scrollbar->x + scrollbar->slider.x) {
                     scrollbar->scroll_direction = SCROLL_DIRECTION_UP;

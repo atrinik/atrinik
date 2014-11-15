@@ -167,8 +167,7 @@ mapstruct *find_style(char *dirname, char *stylename, int difficulty)
     /* If stylename exists, set style_file_path to that file.*/
     if (stylename && strlen(stylename) > 0) {
         snprintf(style_file_path, sizeof(style_file_path), "%s/%s", dirname, stylename);
-    }
-    else {
+    } else {
         /* Otherwise, just use the dirname.  We'll pick a random stylefile.*/
         snprintf(style_file_path, sizeof(style_file_path), "%s", dirname);
     }
@@ -216,8 +215,7 @@ mapstruct *find_style(char *dirname, char *stylename, int difficulty)
 
                 style_map = load_style_map(style_file_path);
             }
-        }
-        else {
+        } else {
             int min_dist = 32000, min_index = -1;
 
             /* find the map closest in difficulty */

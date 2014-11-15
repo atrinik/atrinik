@@ -42,7 +42,7 @@
 #include <signal.h>
 
 #ifdef HAVE_SIGACTION
-#   include <execinfo.h>
+#include <execinfo.h>
 #endif
 
 /**
@@ -276,7 +276,7 @@ void signal_handler(int sig, siginfo_t *siginfo, void *context)
 
         SymInitialize(GetCurrentProcess(), 0, 1);
 
-        memset(&frame, 0, sizeof (frame));
+        memset(&frame, 0, sizeof(frame));
         frame.AddrPC.Offset = ExceptionInfo->ContextRecord->Eip;
         frame.AddrPC.Mode = AddrModeFlat;
         frame.AddrStack.Offset = ExceptionInfo->ContextRecord->Esp;

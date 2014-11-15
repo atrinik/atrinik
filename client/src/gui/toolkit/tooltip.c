@@ -173,6 +173,6 @@ int tooltip_need_redraw(void)
     if (tooltip_x == -1 || tooltip_y == -1) {
         return 0;
     }
-    
+
     return 1;
 }

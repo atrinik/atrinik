@@ -395,8 +395,7 @@ static void roguelike_link_rooms(Room *Rooms, char **maze)
                     maze[i][j] = 0;
                 }
             }
-        }
-        else {
+        } else {
             /* Connect in y direction first */
 
             in_wall = 0;

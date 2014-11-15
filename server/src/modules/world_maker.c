@@ -436,8 +436,7 @@ void world_maker(void)
                 gdImageFill(im, 0, 0,
                         gdImageColorAllocate(im, im_r, im_g, im_b));
             }
-        }
-        else {
+        } else {
             /* Transparency otherwise. */
             gdImageAlphaBlending(im, 1);
             gdImageSaveAlpha(im, 1);
@@ -644,8 +643,7 @@ void world_maker(void)
                     /* Store outline's color, if any. */
                     if (tmp->slaying) {
                         fprintf(def_fp, " %s", tmp->slaying);
-                    }
-                    else if (tmp->item_skill != 1) {
+                    } else if (tmp->item_skill != 1) {
                         /* No outline color, but there is non-standard size,
                          * so we must include the default color as well. */
                         fprintf(def_fp, " #ff0000");

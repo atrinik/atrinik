@@ -836,8 +836,7 @@ int find_target_for_spell(object *op, object **target, uint32 flags)
                 *target = op;
                 return 1;
             }
-        }
-        else {
+        } else {
             /* We have a target and it's not self */
 
             if (is_friend_of(op, tmp)) {
@@ -870,8 +869,7 @@ int find_target_for_spell(object *op, object **target, uint32 flags)
                 }
             }
         }
-    }
-    else {
+    } else {
         /* A monster or rune/firewall/etc */
 
         if ((flags & SPELL_DESC_SELF) && !(flags & (SPELL_DESC_ENEMY | SPELL_DESC_FRIENDLY))) {

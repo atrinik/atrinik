@@ -398,8 +398,7 @@ void make_doors(char **maze, float *xlocations, float *ylocations, int layers, i
 
                 break;
             }
-        }
-        else {
+        } else {
             /* random door placement. */
 
             which_wall = RANDOM() % freedoms + 1;

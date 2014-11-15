@@ -45,8 +45,7 @@ static void lightning_fork(object *op, object *tmp)
     /* Fork left. */
     if (rndm(0, 99) < tmp->stats.Con) {
         dir_adjust = -1;
-    }
-    else {
+    } else {
         /* Fork right. */
         dir_adjust = 1;
     }

@@ -176,8 +176,7 @@ static int spawn_point_can_generate(object *op, object *monster)
                 if (tod.hour < hour || tod.hour > hour2) {
                     return 0;
                 }
-            }
-            else {
+            } else {
                 /* Overnight. */
                 if (tod.hour < hour && tod.hour > hour2) {
                     return 0;
