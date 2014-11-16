@@ -115,6 +115,13 @@ void socket_command_image(uint8 *data, size_t len, size_t pos)
 
     book_redraw();
     interface_redraw();
+
+    /* TODO: this could be a bit more intelligent to detect whether any of
+     * these widgets actually contain an object with the updated face. */
+    WIDGET_REDRAW_ALL(PDOLL_ID);
+    WIDGET_REDRAW_ALL(QUICKSLOT_ID);
+    WIDGET_REDRAW_ALL(MAIN_INV_ID);
+    WIDGET_REDRAW_ALL(BELOW_INV_ID);
 }
 
 /** @copydoc socket_command_struct::handle_func */
