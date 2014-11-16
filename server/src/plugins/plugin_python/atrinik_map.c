@@ -65,8 +65,8 @@ static fields_struct fields[] = {
  * List of the map flags and their meaning. */
 static char *mapflag_names[] = {
     "f_outdoor", "f_unique", "f_fixed_rtime", "f_nomagic",
-    NULL, "f_noharm", "f_nosummon", "f_fixed_login",
-    "f_player_no_save", "f_unused2", "f_unused3", "f_pvp",
+    "f_height_diff", "f_noharm", "f_nosummon", "f_fixed_login",
+    "f_player_no_save", NULL, NULL, NULL, "f_pvp",
     "f_no_save"
 };
 /* @endcparser */
@@ -774,7 +774,13 @@ int Atrinik_Map_init(PyObject *module)
 
     /* Flag getters */
     for (flagno = 0; flagno < NUM_MAPFLAGS; flagno++) {
-        PyGetSetDef *def = &getseters[i++];
+        PyGetSetDef *def;
+
+        if (mapflag_names[flagno] == NULL) {
+            continue;
+        }
+
+        def = &getseters[i++];
 
         def->name = mapflag_names[flagno];
         def->get = (getter) Map_GetFlag;

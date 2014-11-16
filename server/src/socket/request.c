@@ -610,6 +610,7 @@ void draw_client_map2(object *pl)
         packet_append_map_name(packet, pl, map_info);
         packet_append_map_music(packet, pl, map_info);
         packet_append_map_weather(packet, pl, map_info);
+        packet_append_uint8(packet, MAP_HEIGHT_DIFF(pl->map) ? 1 : 0);
 
         if (map_info) {
             if (map_info->race) {

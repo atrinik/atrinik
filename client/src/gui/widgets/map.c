@@ -237,6 +237,14 @@ void update_map_weather(const char *weather)
 }
 
 /**
+ * Update map's height difference rendering flag.
+ */
+void update_map_height_diff(uint8 height_diff)
+{
+    MapData.height_diff = height_diff;
+}
+
+/**
  * Initialize map's data.
  * @param xl Map width.
  * @param yl Map height.
@@ -726,8 +734,8 @@ static void draw_map_object(int x, int y, int layer, int sub_layer,
         return;
     }
 
-    if (abs(get_top_floor_height(x, y) - player_height_offset) >
-            HEIGHT_MAX_RENDER) {
+    if ((cell->fow || MapData.height_diff) && abs(get_top_floor_height(
+            x, y) - player_height_offset) > HEIGHT_MAX_RENDER) {
         return;
     }
 
@@ -1274,8 +1282,8 @@ int mouse_to_tile_coords(int mx, int my, int *tx, int *ty)
             xpos = (x * MAP_TILE_YOFF - y * MAP_TILE_YOFF) * zoom;
             ypos = (x * MAP_TILE_XOFF + y * MAP_TILE_XOFF) * zoom;
 
-            if (abs(get_top_floor_height(x, y) - player_height_offset) >
-                    HEIGHT_MAX_RENDER) {
+            if ((cell->fow || MapData.height_diff) && abs(get_top_floor_height(
+                    x, y) - player_height_offset) > HEIGHT_MAX_RENDER) {
                 continue;
             }
 

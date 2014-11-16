@@ -602,10 +602,12 @@ void socket_command_map(uint8 *data, size_t len, size_t pos)
 
     if (mapstat != MAP_UPDATE_CMD_SAME) {
         char mapname[HUGE_BUF], bg_music[HUGE_BUF], weather[MAX_BUF];
+        uint8 height_diff;
 
         packet_to_string(data, len, &pos, mapname, sizeof(mapname));
         packet_to_string(data, len, &pos, bg_music, sizeof(bg_music));
         packet_to_string(data, len, &pos, weather, sizeof(weather));
+        height_diff = packet_to_uint8(data, len, &pos);
 
         if (mapstat == MAP_UPDATE_CMD_NEW) {
             int map_w, map_h;
@@ -635,6 +637,7 @@ void socket_command_map(uint8 *data, size_t len, size_t pos)
         update_map_name(mapname);
         update_map_bg_music(bg_music);
         update_map_weather(weather);
+        update_map_height_diff(height_diff);
     } else {
         xpos = packet_to_uint8(data, len, &pos);
         ypos = packet_to_uint8(data, len, &pos);

@@ -136,6 +136,12 @@ typedef struct _mapdata {
 
     /** Position Y. */
     int posy;
+
+    /**
+     * If set, height difference will be taken into account when rendering
+     * tiles (even if they are not FoW tiles).
+     */
+    int height_diff : 1;
 } _mapdata;
 
 /**
@@ -238,7 +244,10 @@ typedef struct map_target_struct {
  *
  * Tiles that are lower/higher than this (relative to the player) will not
  * be rendered.
+ *
+ * Only applicable to tiles that are in the Fog of War, or if
+ * MapData::height_diff is set.
  */
-#define HEIGHT_MAX_RENDER 56
+#define HEIGHT_MAX_RENDER 50
 
 #endif

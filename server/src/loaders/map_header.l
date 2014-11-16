@@ -99,6 +99,7 @@ lex_error = 0;
 ^no_save{S}          SET_OR_CLEAR_MAP_FLAG(m, MAP_FLAG_NO_SAVE, IVAL);
 ^no_magic{S}         SET_OR_CLEAR_MAP_FLAG(m, MAP_FLAG_NOMAGIC, IVAL);
 ^no_harm{S}          SET_OR_CLEAR_MAP_FLAG(m, MAP_FLAG_NOHARM, IVAL);
+^height_diff{S}      SET_OR_CLEAR_MAP_FLAG(m, MAP_FLAG_HEIGHT_DIFF, IVAL);
 ^no_summon{S}        SET_OR_CLEAR_MAP_FLAG(m, MAP_FLAG_NOSUMMON, IVAL);
 ^fixed_login{S}      SET_OR_CLEAR_MAP_FLAG(m, MAP_FLAG_FIXED_LOGIN, IVAL);
 ^player_no_save{S}   SET_OR_CLEAR_MAP_FLAG(m, MAP_FLAG_PLAYER_NO_SAVE, IVAL);
@@ -357,6 +358,10 @@ void save_map_header(mapstruct *m, FILE *fp, int flag)
 
     if (MAP_NOMAGIC(m)) {
         fprintf(fp, "no_magic 1\n");
+    }
+
+    if (MAP_HEIGHT_DIFF(m)) {
+        fprintf(fp, "height_diff 1\n");
     }
 
     if (MAP_NOHARM(m)) {

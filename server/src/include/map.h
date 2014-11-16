@@ -94,6 +94,10 @@
 #define MAP_NOSAVE(m)          ((m)->map_flags & MAP_FLAG_NO_SAVE)
 /** Does the map disallow magic? */
 #define MAP_NOMAGIC(m)         ((m)->map_flags & MAP_FLAG_NOMAGIC)
+/*
+ * Height difference will be taken into account when rendering the map.
+ */
+#define MAP_HEIGHT_DIFF(m)     ((m)->map_flags & MAP_FLAG_HEIGHT_DIFF)
 /** Does the map disallow harmful spells? */
 #define MAP_NOHARM(m)          ((m)->map_flags & MAP_FLAG_NOHARM)
 /** Does the map disallow summoning spells? */
@@ -382,6 +386,10 @@ typedef struct MapSpace_s {
 #define MAP_FLAG_FIXED_RTIME 4
 /** No wizardry based spells */
 #define MAP_FLAG_NOMAGIC 8
+/**
+ * Height difference will be taken into account when rendering the map.
+ */
+#define MAP_FLAG_HEIGHT_DIFF 16
 /** No harmful spells like fireball, magic bullet, etc. */
 #define MAP_FLAG_NOHARM 32
 /**
