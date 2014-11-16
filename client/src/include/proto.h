@@ -912,7 +912,6 @@ extern int query_refcount(shstr *str);
 extern shstr *find_string(const char *str);
 extern void free_string_shared(shstr *str);
 /* src/toolkit/signals.c */
-extern void signal_handler(int sig, siginfo_t *siginfo, void *context);
 extern void toolkit_signals_init(void);
 extern void toolkit_signals_deinit(void);
 /* src/toolkit/socket.c */

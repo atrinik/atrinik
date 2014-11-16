@@ -91,10 +91,10 @@ static void simple_signal_handler(int signum)
 
 #if defined(WIN32) || defined(HAVE_SIGACTION)
 #ifdef WIN32
-LONG WINAPI signal_handler(EXCEPTION_POINTERS *ExceptionInfo)
+static LONG WINAPI signal_handler(EXCEPTION_POINTERS *ExceptionInfo)
 #else
 
-void signal_handler(int sig, siginfo_t *siginfo, void *context)
+static void signal_handler(int sig, siginfo_t *siginfo, void *context)
 #endif
 {
     struct tm *tm;
