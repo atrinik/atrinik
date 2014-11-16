@@ -73,14 +73,12 @@ static pthread_mutex_t command_process_queue_mutex;
  * The thread's ID. */
 static pthread_t thread_id;
 
-/**
- * If 1, the thread is done executing. */
-static uint8 thread_done;
-
 #ifdef HAVE_READLINE
 /**
  * Prompt for readline. */
 static const char *current_prompt;
+
+static pthread_mutex_t rl_mutex; ///< Mutex for readline in general.
 #endif
 
 /**
@@ -212,6 +210,8 @@ static void console_print(const char *str)
     char *saved_line;
     int saved_point;
 
+    pthread_mutex_lock(&rl_mutex);
+
     saved_line = rl_copy_text(0, rl_end);
     saved_point = rl_point;
 
@@ -227,6 +227,8 @@ static void console_print(const char *str)
     rl_redisplay();
 
     efree(saved_line);
+
+    pthread_mutex_unlock(&rl_mutex);
 }
 
 #endif
@@ -241,11 +243,23 @@ static void *do_thread(void *dummy)
     char *line;
     ssize_t numread;
     size_t len;
+#else
+    fd_set fds;
+
+    FD_ZERO(&fds);
+    FD_SET(STDIN_FILENO, &fds);
 #endif
 
-    while (!thread_done) {
+    pthread_setcanceltype(PTHREAD_CANCEL_ASYNCHRONOUS, NULL);
+
+    for ( ; ; ) {
 #ifdef HAVE_READLINE
-        rl_callback_read_char();
+        if (select(STDIN_FILENO + 1, &fds, NULL, NULL, NULL) != -1 &&
+                FD_ISSET(STDIN_FILENO, &fds)) {
+            pthread_mutex_lock(&rl_mutex);
+            rl_callback_read_char();
+            pthread_mutex_unlock(&rl_mutex);
+        }
 #else
         line = NULL;
         numread = getline(&line, &len, stdin);
@@ -314,9 +328,9 @@ int console_start_thread(void)
 
     rl_callback_handler_install(current_prompt, handle_line_fake);
     logger_set_print_func(console_print);
+    pthread_mutex_init(&rl_mutex, NULL);
 #endif
 
-    thread_done = 0;
     pthread_mutex_init(&command_process_queue_mutex, NULL);
     ret = pthread_create(&thread_id, NULL, do_thread, NULL);
 
@@ -337,7 +351,6 @@ void toolkit_console_deinit(void)
     {
         size_t i;
 
-        thread_done = 1;
         pthread_cancel(thread_id);
 
         for (i = 0; i < console_commands_num; i++) {
@@ -357,11 +370,13 @@ void toolkit_console_deinit(void)
         logger_set_print_func(logger_do_print);
 
 #ifdef HAVE_READLINE
+        pthread_mutex_lock(&rl_mutex);
         rl_unbind_key(RETURN);
         rl_callback_handler_remove();
 
         rl_set_prompt("");
         rl_redisplay();
+        pthread_mutex_unlock(&rl_mutex);
 #endif
     }
     TOOLKIT_DEINIT_FUNC_END()
