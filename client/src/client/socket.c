@@ -57,7 +57,7 @@ static command_buffer *output_queue_start = NULL, *output_queue_end = NULL;
  * @return A new command buffer or NULL in case of an error. */
 command_buffer *command_buffer_new(size_t len, uint8 *data)
 {
-    command_buffer *buf = malloc(sizeof(command_buffer) + len + 1);
+    command_buffer *buf = emalloc(sizeof(command_buffer) + len + 1);
 
     buf->next = buf->prev = NULL;
     buf->len = len;
@@ -189,7 +189,7 @@ static int reader_thread_loop(void *dummy)
     int cmd_len = -1;
 
     if (!readbuf) {
-        readbuf = malloc(readbuf_size);
+        readbuf = emalloc(readbuf_size);
     }
 
     while (!abort_thread) {
@@ -228,7 +228,7 @@ static int reader_thread_loop(void *dummy)
                 uint8 *tmp = readbuf;
 
                 readbuf_size = readbuf_len + toread;
-                readbuf = malloc(readbuf_size);
+                readbuf = emalloc(readbuf_size);
                 memcpy(readbuf, tmp, readbuf_len);
                 efree(tmp);
             }
