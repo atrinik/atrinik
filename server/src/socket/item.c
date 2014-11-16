@@ -187,9 +187,8 @@ static void add_object_to_packet(packet_struct *packet, object *op, object *pl, 
             sec = -1;
 
             if (QUERY_FLAG(op, FLAG_IS_USED_UP)) {
-                sec = (int) (op->speed_left / op->speed / (float) (1000000 / max_time) + (1.0 / op->speed / (float) (1000000 / max_time) * (float) op->stats.food - 1));
+                sec = (int) (op->speed_left / op->speed / (float) MAX_TICKS + (1.0 / op->speed / (float) MAX_TICKS * (float) op->stats.food - 1));
                 sec = ABS(sec);
-
             }
 
             packet_append_sint32(packet, sec);

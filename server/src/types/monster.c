@@ -381,7 +381,7 @@ static void monster_update_move_timeout(object *op, int len)
 
     timeout = object_get_value(op, "npc_move_timeout");
     secs = (long) (((double) MAX(INTERFACE_TIMEOUT_CHARS, len) / INTERFACE_TIMEOUT_CHARS) * INTERFACE_TIMEOUT_SECONDS) - INTERFACE_TIMEOUT_SECONDS + INTERFACE_TIMEOUT_INITIAL;
-    ticks = pticks + MIN(secs, INTERFACE_TIMEOUT_MAX) * (1000000 / MAX_TIME);
+    ticks = pticks + MIN(secs, INTERFACE_TIMEOUT_MAX) * MAX_TICKS;
 
     if (!timeout || ticks > atol(timeout)) {
         char buf[MAX_BUF];

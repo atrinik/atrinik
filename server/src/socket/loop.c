@@ -242,12 +242,12 @@ void doeric_server(void)
         if (init_sockets[i].state == ST_DEAD) {
             FREE_SOCKET(i);
         } else if (init_sockets[i].state == ST_ZOMBIE) {
-            if (init_sockets[i].login_count++ >= 1000000 / MAX_TIME) {
+            if (init_sockets[i].login_count++ >= MAX_TICKS_MULTIPLIER) {
                 init_sockets[i].state = ST_DEAD;
             }
         } else if (init_sockets[i].state != ST_AVAILABLE) {
             if (init_sockets[i].state > ST_WAITING) {
-                if (init_sockets[i].keepalive++ >= (uint32) SOCKET_KEEPALIVE_TIMEOUT * (1000000 / max_time)) {
+                if (init_sockets[i].keepalive++ >= (uint32) SOCKET_KEEPALIVE_TIMEOUT * MAX_TICKS_MULTIPLIER) {
                     logger_print(LOG(INFO), "Keepalive: disconnecting %s: %d", init_sockets[i].host ? init_sockets[i].host : "(unknown ip?)", init_sockets[i].fd);
                     FREE_SOCKET(i);
                     continue;
@@ -268,7 +268,7 @@ void doeric_server(void)
             pl->socket.state = ST_DEAD;
         }
 
-        if (pl->socket.state != ST_DEAD && pl->socket.keepalive++ >= (uint32) SOCKET_KEEPALIVE_TIMEOUT * (1000000 / max_time)) {
+        if (pl->socket.state != ST_DEAD && pl->socket.keepalive++ >= (uint32) SOCKET_KEEPALIVE_TIMEOUT * MAX_TICKS_MULTIPLIER) {
             logger_print(LOG(INFO), "Keepalive: disconnecting %s [%s]: %d", (pl->ob && pl->ob->name) ? pl->ob->name : "(unnamed player?)", (pl->socket.host) ? pl->socket.host : "(unknown ip?)", pl->socket.fd);
             pl->socket.state = ST_DEAD;
         }
@@ -279,7 +279,7 @@ void doeric_server(void)
             remove_ns_dead_player(pl);
             pl = npl;
         } else if (pl->socket.state == ST_ZOMBIE) {
-            if (pl->socket.login_count++ >= 1000000 / MAX_TIME) {
+            if (pl->socket.login_count++ >= MAX_TICKS_MULTIPLIER) {
                 pl->socket.state = ST_DEAD;
             }
         } else {

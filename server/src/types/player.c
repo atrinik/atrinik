@@ -416,7 +416,7 @@ static int get_regen_amount(uint16 regen, uint16 *regen_remainder)
 
     /* First check if we can distribute it evenly, if not, try to remove
      * leftovers, if any. */
-    for (division = (float) 1000000 / MAX_TIME; ; division = 1.0f) {
+    for (division = (float) MAX_TICKS; ; division = 1.0f) {
         if (*regen_remainder / 10.0f / division >= 1.0f) {
             int add = (int) *regen_remainder / 10.0f / division;
 
@@ -453,8 +453,8 @@ void do_some_living(object *op)
     gen_sp = gen_sp * 10 / MAX(CONTR(op)->gen_sp_armour, 10);
 
     /* Update client's regen rates. */
-    CONTR(op)->gen_client_hp = ((float) (1000000 / MAX_TIME) / ((float) rate_hp / (MAX(gen_hp, 20) + 10))) * 10.0f;
-    CONTR(op)->gen_client_sp = ((float) (1000000 / MAX_TIME) / ((float) rate_sp / (MAX(gen_sp, 20) + 10))) * 10.0f;
+    CONTR(op)->gen_client_hp = ((float) MAX_TICKS / ((float) rate_hp / (MAX(gen_hp, 20) + 10))) * 10.0f;
+    CONTR(op)->gen_client_sp = ((float) MAX_TICKS / ((float) rate_sp / (MAX(gen_sp, 20) + 10))) * 10.0f;
 
     /* Regenerate hit points. */
     if (op->stats.hp < op->stats.maxhp && op->stats.food) {

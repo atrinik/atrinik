@@ -72,6 +72,8 @@ typedef struct MapCell_struct {
     /**
      * Possible target object UID cache. */
     tag_t target_object_count;
+    
+    uint8 ext_flags; ///< Last ext flags.
 } MapCell;
 
 /** One map for a player. */

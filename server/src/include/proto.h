@@ -690,6 +690,7 @@ extern void check_active_maps(void);
 extern void flush_old_maps(void);
 /* src/server/time.c */
 extern long max_time;
+extern int max_time_multiplier;
 extern long pticks;
 extern struct timeval last_time;
 extern const char *season_name[4];
@@ -700,6 +701,7 @@ extern const int periodsofday_hours[24];
 extern void reset_sleep(void);
 extern void sleep_delta(void);
 extern void set_max_time(long t);
+extern void set_max_time_multiplier(long t);
 extern void get_tod(timeofday_t *tod);
 extern void print_tod(object *op);
 extern void time_info(object *op);

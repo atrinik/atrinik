@@ -195,7 +195,7 @@ void esrv_update_stats(player *pl)
 
         AddIfInt(pl->last_level, pl->ob->level, CS_STAT_LEVEL, uint8);
         AddIfFloat(pl->last_speed, pl->ob->speed, CS_STAT_SPEED);
-        AddIfFloat(pl->last_weapon_speed, pl->ob->weapon_speed / (1000000 / MAX_TIME), CS_STAT_WEAPON_SPEED);
+        AddIfFloat(pl->last_weapon_speed, pl->ob->weapon_speed / MAX_TICKS, CS_STAT_WEAPON_SPEED);
         AddIfInt(pl->last_weight_limit, weight_limit[pl->ob->stats.Str], CS_STAT_WEIGHT_LIM, uint32);
         AddIfInt(pl->last_stats.hp, pl->ob->stats.hp, CS_STAT_HP, sint32);
         AddIfInt(pl->last_stats.maxhp, pl->ob->stats.maxhp, CS_STAT_MAXHP, sint32);
@@ -1095,6 +1095,12 @@ void draw_client_map2(object *pl)
                 anim_value = GET_MAP_DAMAGE(m, nx, ny);
             }
 
+            if (ext_flags == mp->ext_flags) {
+                ext_flags = 0;
+            } else {
+                mp->ext_flags = ext_flags;
+            }
+
             /* Add flags for this tile. */
             packet_append_uint8(packet, ext_flags);
 
@@ -1323,7 +1329,7 @@ void socket_command_fire(socket_struct *ns, player *pl, uint8 *data, size_t len,
 
     pl->action_attack = global_round_tag + skill_time + delay;
 
-    pl->action_timer = (float) (pl->action_attack - global_round_tag) / (1000000 / MAX_TIME) * 1000.0;
+    pl->action_timer = (float) (pl->action_attack - global_round_tag) / MAX_TICKS * 1000.0;
     pl->last_action_timer = 0;
 }
 

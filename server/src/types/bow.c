@@ -37,7 +37,7 @@
  * @return Firing speed. */
 sint32 bow_get_ws(object *bow, object *arrow)
 {
-    return (((float) bow->stats.sp / (1000000 / MAX_TIME)) + ((float) arrow->last_grace / (1000000 / MAX_TIME))) * 1000;
+    return (((float) bow->stats.sp / MAX_TICKS) + ((float) arrow->last_grace / MAX_TICKS)) * 1000;
 }
 
 /**

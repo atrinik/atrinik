@@ -187,7 +187,7 @@ static void process_players1(void)
 
                     pl->action_attack = global_round_tag + pl->ob->weapon_speed;
 
-                    pl->action_timer = (float) (pl->action_attack - global_round_tag) / (1000000 / MAX_TIME) * 1000.0;
+                    pl->action_timer = (float) (pl->action_attack - global_round_tag) / MAX_TICKS * 1000.0;
                     pl->last_action_timer = 0;
                 }
             }
@@ -593,7 +593,7 @@ static void do_specials(void)
 
 void shutdown_timer_start(long secs)
 {
-    shutdown_time = pticks + secs * (1000000 / max_time);
+    shutdown_time = pticks + secs * MAX_TICKS;
     shutdown_active = 1;
 }
 
@@ -612,8 +612,8 @@ static int shutdown_timer_check(void)
         return 1;
     }
 
-    if (!((shutdown_time - pticks) % (60 * (1000000 / max_time))) || pticks == shutdown_time - 5 * (1000000 / max_time)) {
-        draw_info_type_format(CHAT_TYPE_CHAT, NULL, COLOR_GREEN, NULL, "[Server]: Server will shut down in %02"FMT64U ":%02"FMT64U " minutes.", (uint64) ((shutdown_time - pticks) / (1000000 / max_time) / 60), (uint64) ((shutdown_time - pticks) / (1000000 / max_time) % 60));
+    if (!((shutdown_time - pticks) % (60 * MAX_TICKS)) || pticks == shutdown_time - 5 * MAX_TICKS) {
+        draw_info_type_format(CHAT_TYPE_CHAT, NULL, COLOR_GREEN, NULL, "[Server]: Server will shut down in %02"FMT64U ":%02"FMT64U " minutes.", (uint64) ((shutdown_time - pticks) / MAX_TICKS / 60), (uint64) ((shutdown_time - pticks) / MAX_TICKS % 60));
     }
 
     return 0;
@@ -626,6 +626,8 @@ static int shutdown_timer_check(void)
  * @return 0. */
 int main(int argc, char **argv)
 {
+    int process_delay;
+
 #ifdef WIN32
     /* Open all files in binary mode by default. */
     _set_fmode(_O_BINARY);
@@ -660,6 +662,7 @@ int main(int argc, char **argv)
 
     console_start_thread();
     memset(&marker, 0, sizeof(struct obj));
+    process_delay = 0;
 
     logger_print(LOG(INFO), "Server ready. Waiting for connections...");
 
@@ -672,21 +675,26 @@ int main(int argc, char **argv)
 
         doeric_server();
 
-        /* Global round ticker. */
-        global_round_tag++;
+        if (++process_delay >= max_time_multiplier) {
+            process_delay = 0;
 
-        /* "do" something with objects with speed */
-        process_events(NULL);
+            /* Global round ticker. */
+            global_round_tag++;
+            pticks++;
 
-        /* Removes unused maps after a certain timeout */
-        check_active_maps();
+            /* "do" something with objects with speed */
+            process_events(NULL);
 
-        /* Routines called from time to time. */
-        do_specials();
+            /* Removes unused maps after a certain timeout */
+            check_active_maps();
+
+            /* Routines called from time to time. */
+            do_specials();
+
+            trigger_global_event(GEVENT_TICK, NULL, NULL);
+        }
 
         doeric_server_write();
-
-        trigger_global_event(GEVENT_TICK, NULL, NULL);
 
         /* Sleep proper amount of time before next tick */
         sleep_delta();

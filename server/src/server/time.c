@@ -29,6 +29,7 @@
 #include <global.h>
 
 long max_time = MAX_TIME;
+int max_time_multiplier = MAX_TIME_MULTIPLIER;
 
 /** Size of history buffer. */
 #define PBUFLEN 100
@@ -144,8 +145,6 @@ void reset_sleep(void)
  * Adds time to our history list. */
 static void log_time(long process_utime)
 {
-    pticks++;
-
     if (++psaveind >= PBUFLEN) {
         psaveind = 0;
     }
@@ -175,7 +174,7 @@ void sleep_delta(void)
     GETTIMEOFDAY(&new_time);
 
     sleep_sec = last_time.tv_sec - new_time.tv_sec;
-    sleep_usec = max_time - (new_time.tv_usec - last_time.tv_usec);
+    sleep_usec = max_time / max_time_multiplier - (new_time.tv_usec - last_time.tv_usec);
 
     /* This is very ugly, but probably the fastest for our use: */
     while (sleep_usec < 0) {
@@ -211,7 +210,7 @@ void sleep_delta(void)
     }
 
     /* Set last_time to when we're expected to wake up: */
-    last_time.tv_usec += max_time;
+    last_time.tv_usec += max_time / max_time_multiplier;
 
     while (last_time.tv_usec > 1000000) {
         last_time.tv_usec -= 1000000;
@@ -233,6 +232,15 @@ void sleep_delta(void)
 void set_max_time(long t)
 {
     max_time = t;
+}
+
+/**
+ * Sets the max speed multiplier.
+ * @param t New speed multiplier.
+ */
+void set_max_time_multiplier(long t)
+{
+    max_time_multiplier = t;
 }
 
 /**

@@ -103,6 +103,23 @@ static void console_command_speed(const char *params)
     }
 }
 
+static void console_command_speed_multiplier(const char *params)
+{
+    int new_speed_multiplier;
+
+    if (params != NULL && sscanf(params, "%d", &new_speed_multiplier) == 1) {
+        set_max_time_multiplier(new_speed_multiplier);
+        logger_print(LOG(INFO), "The speed multiplier has been changed to %d.",
+                max_time_multiplier);
+        draw_info(COLOR_GRAY, NULL, "You feel a sudden and inexplicable change "
+                "in the fabric of time and space...");
+    } else {
+        logger_print(LOG(INFO), "Current speed multiplier is: %d, default "
+                "speed multiplier is: %d.", max_time_multiplier,
+                MAX_TIME_MULTIPLIER);
+    }
+}
+
 /**
  * Free all data before exiting. */
 void cleanup(void)
@@ -365,6 +382,16 @@ static void clioptions_option_logger_filter_logfile(const char *arg)
     logger_set_filter_logfile(arg);
 }
 
+static void clioptions_option_speed(const char *arg)
+{
+    set_max_time(atol(arg));
+}
+
+static void clioptions_option_speed_multiplier(const char *arg)
+{
+    set_max_time_multiplier(atoi(arg));
+}
+
 /**
  * It is vital that init_library() is called by any functions using this
  * library.
@@ -407,6 +434,14 @@ static void init_library(int argc, char *argv[])
             "Changes the server's speed.",
             "Changes the speed of the server, which in turn affects how quickly everything is processed."
             "Without an argument, shows the current speed and the default speed."
+            );
+
+    console_command_add(
+            "speed_multiplier",
+            console_command_speed_multiplier,
+            "Changes the server's speed multiplier.",
+            "Changes the speed multiplier of the server, which in turn affects how quickly everything is processed."
+            "Without an argument, shows the current speed multiplier and the default speed multiplier."
             );
 
     /* Add command-line options. */
@@ -645,6 +680,24 @@ static void init_library(int argc, char *argv[])
             "logger_filter_logfile",
             NULL,
             clioptions_option_logger_filter_logfile,
+            1,
+            "",
+            ""
+            );
+
+    clioptions_add(
+            "speed",
+            NULL,
+            clioptions_option_speed,
+            1,
+            "",
+            ""
+            );
+
+    clioptions_add(
+            "speed_multiplier",
+            NULL,
+            clioptions_option_speed_multiplier,
             1,
             "",
             ""

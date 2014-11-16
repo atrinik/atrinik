@@ -947,7 +947,7 @@ char *describe_item(object *op)
             switch (op->type) {
             case WAND:
             case ROD:
-                sprintf(buf, "(delay%+2.1fs)", ((float) op->last_grace / (1000000 / MAX_TIME)));
+                sprintf(buf, "(delay%+2.1fs)", ((float) op->last_grace / MAX_TICKS));
                 strcat(retbuf, buf);
                 break;
 
@@ -985,10 +985,10 @@ char *describe_item(object *op)
             case ARROW:
 
                 if (op->type == BOW) {
-                    sprintf(buf, "(delay%+2.1fs)", ((float) op->stats.sp / (1000000 / MAX_TIME)));
+                    sprintf(buf, "(delay%+2.1fs)", ((float) op->stats.sp / MAX_TICKS));
                     strcat(retbuf, buf);
                 } else if (op->type == ARROW) {
-                    sprintf(buf, "(delay%+2.1fs)", ((float) op->last_grace / (1000000 / MAX_TIME)));
+                    sprintf(buf, "(delay%+2.1fs)", ((float) op->last_grace / MAX_TICKS));
                     strcat(retbuf, buf);
                 }
 
@@ -1013,7 +1013,7 @@ char *describe_item(object *op)
                 }
 
                 if (op->type == WEAPON) {
-                    sprintf(buf, "(%3.2f sec)", ((float) op->last_grace / (1000000 / MAX_TIME)));
+                    sprintf(buf, "(%3.2f sec)", ((float) op->last_grace / MAX_TICKS));
                     strcat(retbuf, buf);
 
                     if (op->level > 0) {

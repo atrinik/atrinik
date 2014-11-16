@@ -68,6 +68,16 @@
  * players, monsters, or items with speed 1 can do one thing. */
 #define MAX_TIME 125000
 
+/**
+ * Multiplier for important operations like socket reading, writing, sending
+ * the map, etc.
+ *
+ * Increasing this will increase the server's CPU usage, but is recommended for
+ * remote servers, or players connecting from remote locations to reduce the
+ * artificial delay of 125ms between each server tick.
+ */
+#define MAX_TIME_MULTIPLIER 1
+
 /* If you get a complaint about O_NDELAY not being known/undefined, try
  * uncommenting this.
  * This may cause problems - O_NONBLOCK will return -1 on blocking writes
