@@ -66,7 +66,7 @@ typedef struct python_eval_struct {
     PyObject *globals; ///< Globals dictionary.
     PyObject *locals; ///< Locals dictionary.
     PyCodeObject *code; ///< Compiled code to execute.
-    long ticks; ///< When to execute.
+    double seconds; ///< When to execute.
 } python_eval_struct;
 
 /**
@@ -1646,6 +1646,9 @@ static PyObject *Atrinik_Eval(PyObject *self, PyObject *args)
     if (code != NULL) {
         python_eval_struct *tmp;
         PyGILState_STATE gilstate;
+        struct timeval tv;
+
+        gettimeofday(&tv, NULL);
 
         tmp = malloc(sizeof(*tmp));
         tmp->globals = PyEval_GetGlobals();
@@ -1653,7 +1656,8 @@ static PyObject *Atrinik_Eval(PyObject *self, PyObject *args)
         tmp->locals = PyEval_GetLocals();
         Py_INCREF(tmp->locals);
         tmp->code = code;
-        tmp->ticks = *hooks->pticks + seconds * (double) (1000000 / MAX_TIME);
+        tmp->seconds = tv.tv_sec + tv.tv_usec / 1000000. + seconds;
+        DL_APPEND(python_eval, tmp);
 
         gilstate = PyGILState_Ensure();
         DL_APPEND(python_eval, tmp);
@@ -1832,12 +1836,20 @@ static int handle_global_event(int event_type, va_list args)
         python_eval_struct *eval, *tmp;
         PyGILState_STATE gilstate;
         PyObject *ret;
+        double seconds;
 
         gilstate = PyGILState_Ensure();
 
+        if (python_eval != NULL) {
+            struct timeval tv;
+
+            gettimeofday(&tv, NULL);
+            seconds = tv.tv_sec + tv.tv_usec / 1000000.;
+        }
+
         DL_FOREACH_SAFE(python_eval, eval, tmp)
         {
-            if (*hooks->pticks < eval->ticks) {
+            if (seconds < eval->seconds) {
                 continue;
             }
 
