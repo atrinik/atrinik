@@ -365,8 +365,24 @@ static void list_post_column(list_struct *list, uint32 row, uint32 col)
 /** @copydoc list_struct::handle_enter_func */
 static void list_handle_enter(list_struct *list, SDL_Event *event)
 {
-    if (list->row_selected) {
-        setting_change_value(setting_category_selected, list->row_selected - 1, 0);
+    uint32 row;
+    setting_struct *setting;
+
+    if (list->row_selected == 0) {
+        return;
+    }
+
+    row = list->row_selected - 1;
+    setting = setting_categories[setting_category_selected]->settings[row];
+
+    if (setting->type == OPT_TYPE_INPUT_TEXT ||
+            setting->type == OPT_TYPE_COLOR) {
+        list_settings_graphic_union *settings_graphic;
+
+        settings_graphic = list_settings->data;
+        text_input_focused = &settings_graphic[row].text.text_input;
+    } else {
+        setting_change_value(setting_category_selected, row, 0);
     }
 }
 
@@ -589,7 +605,7 @@ static int popup_event(popup_struct *popup, SDL_Event *event)
                 }
             }
 
-            if ((event->type == SDL_MOUSEBUTTONDOWN && event->button.button == SDL_BUTTON_LEFT && text_input_mouse_over(text_input, event->motion.x, event->motion.y)) || (event->type == SDL_KEYDOWN && IS_ENTER(event->key.keysym.sym))) {
+            if ((event->type == SDL_MOUSEBUTTONDOWN && event->button.button == SDL_BUTTON_LEFT && text_input_mouse_over(text_input, event->motion.x, event->motion.y))) {
                 text_input_focused = text_input;
                 return 1;
             }
