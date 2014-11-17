@@ -269,11 +269,6 @@ void esrv_update_stats(player *pl)
         AddIfInt(pl->last_equipment[i], pl->equipment[i] ? pl->equipment[i]->count : 0, CS_STAT_EQUIP_START + i, uint32);
     }
 
-    if (pl->socket.ext_title_flag) {
-        generate_quick_name(pl);
-        pl->socket.ext_title_flag = 0;
-    }
-
     AddIfInt(pl->last_gender, object_get_gender(pl->ob), CS_STAT_GENDER, uint8);
 
     if (packet->len >= 1) {
@@ -946,7 +941,7 @@ void draw_client_map2(object *pl)
                         }
 
                         /* Now, check if we have cached this. */
-                        if (mp->faces[socket_layer] == face && mp->quick_pos[socket_layer] == quick_pos && mp->flags[socket_layer] == flags && (layer != LAYER_LIVING || !IS_LIVE(head) || (mp->probe == probe_val && mp->target_object_count == target_object_count)) && mp->anim_speed[socket_layer] == anim_speed && mp->anim_facing[socket_layer] == anim_facing && (layer != LAYER_LIVING || mp->anim_flags[sub_layer] == anim_flags)) {
+                        if (mp->faces[socket_layer] == face && mp->quick_pos[socket_layer] == quick_pos && mp->flags[socket_layer] == flags && (layer != LAYER_LIVING || !IS_LIVE(head) || (mp->probe == probe_val && mp->target_object_count == target_object_count)) && mp->anim_speed[socket_layer] == anim_speed && mp->anim_facing[socket_layer] == anim_facing && (layer != LAYER_LIVING || mp->anim_flags[sub_layer] == anim_flags) && (!(flags & MAP2_FLAG_NAME) || !CONTR(tmp)->socket.ext_title_flag)) {
                             continue;
                         }
 

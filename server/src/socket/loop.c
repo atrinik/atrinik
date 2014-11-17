@@ -439,6 +439,16 @@ void doeric_server_write(void)
             continue;
         }
 
+        /* The removal of ext_title_flag is done in two steps because we might
+         * be somewhere in the middle of the loop right now, which would mean
+         * that the previous players in the list would not get the update. */
+        if (pl->socket.ext_title_flag == 1) {
+            generate_quick_name(pl);
+            pl->socket.ext_title_flag = 2;
+        } else if (pl->socket.ext_title_flag == 2) {
+            pl->socket.ext_title_flag = 0;
+        }
+
         esrv_update_stats(pl);
         party_update_who(pl);
 
