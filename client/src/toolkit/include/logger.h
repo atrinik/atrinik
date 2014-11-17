@@ -45,6 +45,7 @@ typedef enum logger_level {
     LOG_BUG,
     LOG_DEBUG,
     LOG_DEVEL,
+    LOG_PACKET,
 
     LOG_MAX
 } logger_level;

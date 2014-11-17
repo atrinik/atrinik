@@ -61,7 +61,8 @@ static const char *const logger_names[LOG_MAX] = {
     "ERROR",
     "BUG",
     "DEBUG",
-    "DEVEL"
+    "DEVEL",
+    "PACKET"
 };
 
 /**
