@@ -1348,12 +1348,27 @@ void socket_command_move(socket_struct *ns, player *pl, uint8 *data, size_t len,
     uint8 dir, run_on;
 
     dir = packet_to_uint8(data, len, &pos);
-    dir = MIN(dir, 8);
     run_on = packet_to_uint8(data, len, &pos);
 
-    pl->run_on = MIN(1, run_on);
+    if (dir > 8) {
+        log(LOG(PACKET), "%s: Invalid dir: %d", ns->host, dir);
+        return;
+    }
+
+    if (run_on > 1) {
+        log(LOG(PACKET), "%s: Invalid run_on: %d", ns->host, run_on);
+        return;
+    }
+
+    if (run_on == 1 && dir == 0) {
+        log(LOG(PACKET), "%s: run_on is 1 but dir is 0", ns->host);
+        return;
+    }
+
+    pl->run_on = run_on;
 
     if (dir != 0) {
+        pl->run_on_dir = dir - 1;
         pl->ob->speed_left -= 1.0;
         move_object(pl->ob, dir);
     }

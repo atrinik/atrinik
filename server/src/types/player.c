@@ -309,10 +309,10 @@ int handle_newcs_player(player *pl)
     /* If we are here, we're never paralyzed anymore. */
     CLEAR_FLAG(pl->ob, FLAG_PARALYZED);
 
-    if (pl->ob->direction && CONTR(pl->ob)->run_on) {
+    if (CONTR(pl->ob)->run_on) {
         /* All move commands take 1 tick, at least for now. */
         pl->ob->speed_left--;
-        move_object(pl->ob, pl->ob->direction);
+        move_object(pl->ob, pl->run_on_dir + 1);
 
         if (pl->ob->speed_left > 0) {
             return 1;

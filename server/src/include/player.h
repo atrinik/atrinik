@@ -282,7 +282,10 @@ typedef struct pl_player {
     signed char gen_sp;
 
     /** Player should keep moving in dir until run is off. */
-    unsigned char run_on;
+    unsigned int run_on : 1;
+
+    /** Direction (minus one) the player should keep running in. */
+    unsigned int run_on_dir : 3;
 
 #ifdef AUTOSAVE
     /** Last tick the player was saved. */
