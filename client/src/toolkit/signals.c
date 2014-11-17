@@ -216,6 +216,7 @@ static void signal_handler(int sig, siginfo_t *siginfo, void *context)
             fputs("Caught SIGFPE: Arithmetic Exception\n", fp);
             break;
         }
+        break;
     case SIGILL:
         switch (siginfo->si_code) {
         case ILL_ILLOPC:
