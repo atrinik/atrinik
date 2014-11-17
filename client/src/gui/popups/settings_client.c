@@ -357,7 +357,7 @@ static void list_post_column(list_struct *list, uint32 row, uint32 col)
         dst.x -= text_input->coords.w;
         text_input->focus = text_input_focused == text_input;
         text_input_set_parent(text_input, list->px, list->py);
-        text_input_show(text_input, list->surface, dst.x, dst.y + 1);
+        text_input_show(text_input, list->surface, dst.x, dst.y - 1);
         text_input->focus = 0;
     }
 }
