@@ -73,16 +73,27 @@ void textwin_readjust(widgetdata *widget)
 /** @copydoc text_anchor_handle_func */
 static int text_anchor_handle(const char *anchor_action, const char *buf, size_t len, void *custom_data)
 {
-    if (custom_data && strcmp(anchor_action, "#charname") == 0) {
+    if (strcmp(anchor_action, "#charname") == 0) {
         StringBuffer *sb;
 
-        sb = custom_data;
+        if (custom_data != NULL) {
+            sb = custom_data;
 
-        if (sb->pos) {
-            stringbuffer_append_char(sb, ':');
+            if (sb->pos != 0) {
+                stringbuffer_append_char(sb, ':');
+            }
+
+            stringbuffer_append_string(sb, buf);
+        } else {
+            char *cp;
+
+            sb = stringbuffer_new();
+            stringbuffer_append_printf(sb, "/tell \"%s\" ", buf);
+            cp = stringbuffer_finish(sb);
+            widget_textwin_handle_console(cp);
+            efree(cp);
         }
 
-        stringbuffer_append_string(sb, buf);
         return 1;
     }
 
