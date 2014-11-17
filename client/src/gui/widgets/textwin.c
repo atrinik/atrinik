@@ -52,6 +52,8 @@ void textwin_readjust(widgetdata *widget)
         return;
     }
 
+    textwin->tabs[textwin->tab_selected].unread = 0;
+
     if (textwin->tabs[textwin->tab_selected].entries) {
         SDL_Rect box;
 
@@ -153,6 +155,8 @@ static void textwin_tab_append(widgetdata *widget, uint8 id, uint8 type, const c
         cp = text_escape_markup(textwin_tab_names[type - 1]);
         snprintf(tabname, sizeof(tabname), "%s ", cp);
         efree(cp);
+    } else if (textwin->tabs[textwin->tab_selected].type != CHAT_TYPE_ALL) {
+        textwin->tabs[id].unread = 1;
     }
 
     cp = string_join("", "[c=#", color, " 1]", timebuf, tabname, str, "\n", NULL);
@@ -618,6 +622,12 @@ static void widget_draw(widgetdata *widget)
                         button_y += TEXTWIN_TAB_HEIGHT - 1;
                     }
 
+                    if (textwin->tabs[i].unread) {
+                        textwin->tabs[i].button.color = COLOR_NAVY;
+                    } else {
+                        textwin->tabs[i].button.color = COLOR_WHITE;
+                    }
+
                     textwin->tabs[i].button.x = button_x;
                     textwin->tabs[i].button.y = button_y;
                     textwin->tabs[i].button.surface = widget->surface;
@@ -688,6 +698,21 @@ static void widget_draw(widgetdata *widget)
     border_create_texture(ScreenSurface, &box, 1, TEXTURE_CLIENT("widget_border"));
 }
 
+/** @copydoc widgetdata::background_func */
+static void widget_background(widgetdata *widget, int draw)
+{
+    textwin_struct *textwin;
+    size_t i;
+
+    textwin = TEXTWIN(widget);
+
+    for (i = 0; i < textwin->tabs_num; i++) {
+        if (button_need_redraw(&textwin->tabs[i].button)) {
+            WIDGET_REDRAW(widget);
+        }
+    }
+}
+
 /** @copydoc widgetdata::event_func */
 static int widget_event(widgetdata *widget, SDL_Event *event)
 {
@@ -726,10 +751,6 @@ static int widget_event(widgetdata *widget, SDL_Event *event)
                 textwin->tab_selected = i;
                 textwin_readjust(widget);
                 return 1;
-            }
-
-            if (textwin->tabs[i].button.redraw) {
-                WIDGET_REDRAW(widget);
             }
         }
     }
@@ -1180,6 +1201,7 @@ void widget_textwin_init(widgetdata *widget)
     textwin->selection_end = -1;
 
     widget->draw_func = widget_draw;
+    widget->background_func = widget_background;
     widget->event_func = widget_event;
     widget->save_func = widget_save;
     widget->load_func = widget_load;

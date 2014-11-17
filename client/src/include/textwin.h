@@ -55,6 +55,8 @@ typedef struct textwin_tab_struct {
     text_input_struct text_input;
 
     text_input_history_struct *text_input_history;
+
+    int unread : 1;
 } textwin_tab_struct;
 
 /** Custom attributes for text window widgets. */
