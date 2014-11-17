@@ -15,6 +15,8 @@ extern void command_mod_chat(object *op, const char *command, char *params);
 extern void command_no_chat(object *op, const char *command, char *params);
 /* src/commands/permission/opsay.c */
 extern void command_opsay(object *op, const char *command, char *params);
+/* src/commands/permission/password.c */
+extern void command_password(object *op, const char *command, char *params);
 /* src/commands/permission/resetmap.c */
 extern void command_resetmap(object *op, const char *command, char *params);
 /* src/commands/permission/server_chat.c */
@@ -231,6 +233,7 @@ extern void account_new_char(socket_struct *ns, char *name, char *archname);
 extern void account_login_char(socket_struct *ns, char *name);
 extern void account_logout_char(socket_struct *ns, player *pl);
 extern void account_password_change(socket_struct *ns, char *password, char *password_new, char *password_new2);
+extern void account_password_force(object *op, char *name, const char *password);
 /* src/server/anim.c */
 extern Animations *animations;
 extern int num_animations;

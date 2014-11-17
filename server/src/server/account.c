@@ -584,3 +584,56 @@ void account_password_change(socket_struct *ns, char *password, char *password_n
     account_free(&account);
     efree(path);
 }
+
+void account_password_force(object *op, char *name, const char *password)
+{
+    size_t password_len;
+    char *path;
+    account_struct account;
+
+    assert(op != NULL);
+    assert(name != NULL);
+    assert(password != NULL);
+
+    if (*password == '\0' || string_contains_other(password,
+            settings.allowed_chars[ALLOWED_CHARS_PASSWORD])) {
+        draw_info(COLOR_RED, op, "Invalid password.");
+        return;
+    }
+
+    password_len = strlen(password);
+
+    if (password_len < settings.limits[ALLOWED_CHARS_PASSWORD][0] ||
+            password_len > settings.limits[ALLOWED_CHARS_PASSWORD][1]) {
+        draw_info(COLOR_RED, op, "Invalid length for password.");
+        return;
+    }
+
+    string_tolower(name);
+    path = account_make_path(name);
+
+    if (!path_exists(path)) {
+        draw_info(COLOR_RED, op, "No such account.");
+        efree(path);
+        return;
+    }
+
+    if (!account_load(&account, path)) {
+        draw_info(COLOR_RED, op, "Read error occurred, please contact server "
+                "administrator.");
+        efree(path);
+        return;
+    }
+
+    account_set_password(&account, password);
+
+    if (account_save(&account, path)) {
+        draw_info(COLOR_GREEN, op, "Password changed successfully.");
+    } else {
+        draw_info(COLOR_RED, op, "Save error occurred, please contact server "
+                "administrator.");
+    }
+
+    account_free(&account);
+    efree(path);
+}
