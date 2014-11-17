@@ -60,7 +60,6 @@ static const int register_signals[] = {
     SIGHUP,
 #endif
     SIGSEGV,
-    SIGINT,
     SIGFPE,
     SIGILL,
     SIGTERM,
@@ -101,12 +100,6 @@ static void signal_handler(int sig, siginfo_t *siginfo, void *context)
     static time_t t = 0;
     char path[MAX_BUF], date[MAX_BUF];
     FILE *fp;
-
-#ifndef WIN32
-    if (sig == SIGINT) {
-        exit(1);
-    }
-#endif
 
     if (t == 0) {
         t = time(NULL);
