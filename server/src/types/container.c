@@ -75,7 +75,7 @@ static void container_open(object *applier, object *op)
         FOR_INV_PREPARE(op, inv)
         {
             if (inv->type == QUEST_CONTAINER) {
-                check_quest(applier, inv);
+                quest_handle(applier, inv);
             }
         }
         FOR_INV_FINISH();

@@ -582,7 +582,7 @@ extern int trigger_map_event(int event_id, mapstruct *m, object *activator, obje
 extern void trigger_global_event(int event_type, void *parm1, void *parm2);
 extern int trigger_event(int event_type, object *const activator, object *const me, object *const other, const char *msg, int parm1, int parm2, int parm3, int flags);
 /* src/server/quest.c */
-extern void check_quest(object *op, object *quest_container);
+extern void quest_handle(object *op, object *quest_container);
 /* src/server/race.c */
 extern const char *item_races[13];
 extern ob_race *race_find(shstr *name);

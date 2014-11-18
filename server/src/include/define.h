@@ -1402,6 +1402,13 @@ enum apply_flag {
 #define QUEST_CONTAINER_ARCHETYPE "quest_container"
 
 /**
+ * Acquire the name of a specified quest. If the quest name is not set, uses the
+ * UID of the quest.
+ */
+#define QUEST_NAME(_quest) \
+    ((_quest)->race != NULL ? (_quest)->race : (_quest)->name)
+
+/**
  * @defgroup quest_statuses Quest statuses
  * Quest statuses. Stored in object::magic.
  *@{*/

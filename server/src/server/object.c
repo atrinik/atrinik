@@ -1274,7 +1274,7 @@ void drop_ob_inv(object *ob)
 
         if (tmp_op->type == QUEST_CONTAINER) {
             if (enemy && enemy->type == PLAYER && enemy->count == ob->enemy_count) {
-                check_quest(enemy, tmp_op);
+                quest_handle(enemy, tmp_op);
             }
 
             continue;
