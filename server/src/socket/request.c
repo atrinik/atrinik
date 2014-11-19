@@ -154,22 +154,6 @@ void socket_command_item_move(socket_struct *ns, player *pl, uint8 *data, size_t
     esrv_move_object(pl->ob, to, tag, nrof);
 }
 
-#define AddIfInt(_old, _new, _type, _bitsize) \
-    if ((_old) != (_new)) \
-    { \
-        (_old) = (_new); \
-        packet_append_uint8(packet, (_type)); \
-        packet_append_ ## _bitsize(packet, (_new)); \
-    }
-
-#define AddIfFloat(_old, _new, _type) \
-    if ((_old) != (_new)) \
-    { \
-        (_old) = (_new); \
-        packet_append_uint8(packet, (_type)); \
-        packet_append_uint32(packet, (_new) * FLOAT_MULTI); \
-    }
-
 /**
  * Sends player statistics update.
  *
@@ -182,7 +166,29 @@ void esrv_update_stats(player *pl)
     int i;
     uint16 flags;
 
-    packet = packet_new(CLIENT_CMD_STATS, 32, 256);
+#define AddIfInt(_old, _new, _type, _bitsize) \
+    if ((_old) != (_new)) \
+    { \
+        if (packet == NULL) { \
+            packet = packet_new(CLIENT_CMD_STATS, 32, 128); \
+        } \
+        (_old) = (_new); \
+        packet_append_uint8(packet, (_type)); \
+        packet_append_ ## _bitsize(packet, (_new)); \
+    }
+
+#define AddIfFloat(_old, _new, _type) \
+    if ((_old) != (_new)) \
+    { \
+        if (packet == NULL) { \
+            packet = packet_new(CLIENT_CMD_STATS, 32, 128); \
+        } \
+        (_old) = (_new); \
+        packet_append_uint8(packet, (_type)); \
+        packet_append_uint32(packet, (_new) * FLOAT_MULTI); \
+    }
+
+    packet = NULL;
 
     if (pl->target_object && pl->target_object != pl->ob) {
         char hp;
@@ -277,11 +283,12 @@ void esrv_update_stats(player *pl)
 
     AddIfInt(pl->last_gender, object_get_gender(pl->ob), CS_STAT_GENDER, uint8);
 
-    if (packet->len >= 1) {
+    if (packet != NULL) {
         socket_send_packet(&pl->socket, packet);
-    } else {
-        packet_free(packet);
     }
+
+#undef AddIfInt
+#undef AddIfFloat
 }
 
 /**
