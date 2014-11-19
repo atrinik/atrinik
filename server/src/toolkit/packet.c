@@ -304,6 +304,26 @@ void packet_append_sint64(packet_struct *packet, sint64 data)
     packet->data[packet->len++] = data & 0xff;
 }
 
+void packet_append_float(packet_struct *packet, float data)
+{
+    uint32 val;
+
+    TOOLKIT_FUNC_PROTECTOR(API_NAME);
+
+    memcpy(&val, &data, sizeof(val));
+    packet_append_uint32(packet, val);
+}
+
+void packet_append_double(packet_struct *packet, double data)
+{
+    uint64 val;
+
+    TOOLKIT_FUNC_PROTECTOR(API_NAME);
+
+    memcpy(&val, &data, sizeof(val));
+    packet_append_uint64(packet, val);
+}
+
 void packet_append_data_len(packet_struct *packet, uint8 *data, size_t len)
 {
     TOOLKIT_FUNC_PROTECTOR(API_NAME);
@@ -462,6 +482,32 @@ sint64 packet_to_sint64(uint8 *data, size_t len, size_t *pos)
 
     ret = ((sint64) data[*pos] << 56) + ((sint64) data[*pos + 1] << 48) + ((sint64) data[*pos + 2] << 40) + ((sint64) data[*pos + 3] << 32) + ((sint64) data[*pos + 4] << 24) + ((sint64) data[*pos + 5] << 16) + ((sint64) data[*pos + 6] << 8) + (sint64) data[*pos + 7];
     *pos += 8;
+
+    return ret;
+}
+
+float packet_to_float(uint8 *data, size_t len, size_t *pos)
+{
+    uint32 val;
+    float ret;
+
+    TOOLKIT_FUNC_PROTECTOR(API_NAME);
+
+    val = packet_to_uint32(data, len, pos);
+    memcpy(&ret, &val, sizeof(ret));
+
+    return ret;
+}
+
+double packet_to_double(uint8 *data, size_t len, size_t *pos)
+{
+    uint64 val;
+    double ret;
+
+    TOOLKIT_FUNC_PROTECTOR(API_NAME);
+
+    val = packet_to_uint64(data, len, pos);
+    memcpy(&ret, &val, sizeof(ret));
 
     return ret;
 }

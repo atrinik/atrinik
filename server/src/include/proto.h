@@ -582,7 +582,7 @@ extern int trigger_map_event(int event_id, mapstruct *m, object *activator, obje
 extern void trigger_global_event(int event_type, void *parm1, void *parm2);
 extern int trigger_event(int event_type, object *const activator, object *const me, object *const other, const char *msg, int parm1, int parm2, int parm3, int flags);
 /* src/server/quest.c */
-extern void quest_handle(object *op, object *quest_container);
+extern void quest_handle(object *op, object *quest);
 /* src/server/race.c */
 extern const char *item_races[13];
 extern ob_race *race_find(shstr *name);
@@ -1222,6 +1222,8 @@ extern void packet_append_uint32(packet_struct *packet, uint32 data);
 extern void packet_append_sint32(packet_struct *packet, sint32 data);
 extern void packet_append_uint64(packet_struct *packet, uint64 data);
 extern void packet_append_sint64(packet_struct *packet, sint64 data);
+extern void packet_append_float(packet_struct *packet, float data);
+extern void packet_append_double(packet_struct *packet, double data);
 extern void packet_append_data_len(packet_struct *packet, uint8 *data, size_t len);
 extern void packet_append_string(packet_struct *packet, const char *data);
 extern void packet_append_string_terminated(packet_struct *packet, const char *data);
@@ -1233,6 +1235,8 @@ extern uint32 packet_to_uint32(uint8 *data, size_t len, size_t *pos);
 extern sint32 packet_to_sint32(uint8 *data, size_t len, size_t *pos);
 extern uint64 packet_to_uint64(uint8 *data, size_t len, size_t *pos);
 extern sint64 packet_to_sint64(uint8 *data, size_t len, size_t *pos);
+extern float packet_to_float(uint8 *data, size_t len, size_t *pos);
+extern double packet_to_double(uint8 *data, size_t len, size_t *pos);
 extern char *packet_to_string(uint8 *data, size_t len, size_t *pos, char *dest, size_t dest_size);
 extern void packet_to_stringbuffer(uint8 *data, size_t len, size_t *pos, StringBuffer *sb);
 /* src/toolkit/path.c */

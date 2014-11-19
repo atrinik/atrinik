@@ -859,6 +859,8 @@ extern void packet_append_uint32(packet_struct *packet, uint32 data);
 extern void packet_append_sint32(packet_struct *packet, sint32 data);
 extern void packet_append_uint64(packet_struct *packet, uint64 data);
 extern void packet_append_sint64(packet_struct *packet, sint64 data);
+extern void packet_append_float(packet_struct *packet, float data);
+extern void packet_append_double(packet_struct *packet, double data);
 extern void packet_append_data_len(packet_struct *packet, uint8 *data, size_t len);
 extern void packet_append_string(packet_struct *packet, const char *data);
 extern void packet_append_string_terminated(packet_struct *packet, const char *data);
@@ -870,6 +872,8 @@ extern uint32 packet_to_uint32(uint8 *data, size_t len, size_t *pos);
 extern sint32 packet_to_sint32(uint8 *data, size_t len, size_t *pos);
 extern uint64 packet_to_uint64(uint8 *data, size_t len, size_t *pos);
 extern sint64 packet_to_sint64(uint8 *data, size_t len, size_t *pos);
+extern float packet_to_float(uint8 *data, size_t len, size_t *pos);
+extern double packet_to_double(uint8 *data, size_t len, size_t *pos);
 extern char *packet_to_string(uint8 *data, size_t len, size_t *pos, char *dest, size_t dest_size);
 extern void packet_to_stringbuffer(uint8 *data, size_t len, size_t *pos, StringBuffer *sb);
 /* src/toolkit/path.c */
