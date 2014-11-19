@@ -58,6 +58,7 @@ void socket_command_setup(socket_struct *ns, player *pl, uint8 *data, size_t len
             y = packet_to_uint8(data, len, &pos);
 
             if (x < 9 || y < 9 || x > MAP_CLIENT_X || y > MAP_CLIENT_Y) {
+                log(LOG(PACKET), "X/Y not in range: %d, %d", x, y);
                 x = MAP_CLIENT_X;
                 y = MAP_CLIENT_Y;
             }
@@ -87,6 +88,8 @@ void socket_command_setup(socket_struct *ns, player *pl, uint8 *data, size_t len
             } else {
                 packet_append_string_terminated(packet, settings.http_url);
             }
+        } else {
+            log(LOG(PACKET), "Unknown type: %d", type);
         }
     }
 
@@ -98,6 +101,7 @@ void socket_command_player_cmd(socket_struct *ns, player *pl, uint8 *data, size_
     char command[MAX_BUF];
 
     if (pl->socket.state != ST_PLAYING) {
+        log(LOG(PACKET), "Received player command while not playing.");
         return;
     }
 
@@ -112,6 +116,7 @@ void socket_command_version(socket_struct *ns, player *pl, uint8 *data, size_t l
 
     /* Ignore multiple version commands. */
     if (ns->socket_version != 0) {
+        log(LOG(PACKET), "Received extraneous version command.");
         return;
     }
 
@@ -141,7 +146,8 @@ void socket_command_item_move(socket_struct *ns, player *pl, uint8 *data, size_t
     tag = packet_to_uint32(data, len, &pos);
     nrof = packet_to_uint32(data, len, &pos);
 
-    if (!tag) {
+    if (tag == 0) {
+        log(LOG(PACKET), "Tag is zero.");
         return;
     }
 
@@ -1222,6 +1228,7 @@ void socket_command_move_path(socket_struct *ns, player *pl, uint8 *data, size_t
 
     /* Validate the passed x/y. */
     if (x >= pl->socket.mapx || y >= pl->socket.mapy) {
+        log(LOG(PACKET), "X/Y not in range: %d, %d", x, y);
         return;
     }
 
@@ -1382,6 +1389,7 @@ void send_target_command(player *pl)
     packet_struct *packet;
 
     if (!pl->ob->map) {
+        log(LOG(PACKET), "Received target command while not playing.");
         return;
     }
 
@@ -1455,6 +1463,7 @@ void socket_command_account(socket_struct *ns, player *pl, uint8 *data, size_t l
         packet_to_string(data, len, &pos, password, sizeof(password));
 
         if (*name == '\0' || *password == '\0' || string_contains_other(name, settings.allowed_chars[ALLOWED_CHARS_ACCOUNT]) || string_contains_other(password, settings.allowed_chars[ALLOWED_CHARS_PASSWORD])) {
+            log(LOG(PACKET), "Received invalid data in account login command.");
             return;
         }
 
@@ -1488,6 +1497,8 @@ void socket_command_account(socket_struct *ns, player *pl, uint8 *data, size_t l
         packet_to_string(data, len, &pos, password_new2, sizeof(password_new2));
 
         account_password_change(ns, password, password_new, password_new2);
+    } else {
+        log(LOG(PACKET), "Invalid type: %d", type);
     }
 }
 
@@ -1531,6 +1542,7 @@ void socket_command_target(socket_struct *ns, player *pl, uint8 *data, size_t le
 
         /* Validate the passed x/y. */
         if (x >= pl->socket.mapx || y >= pl->socket.mapy) {
+            log(LOG(PACKET), "Invalid X/Y: %d, %d", x, y);
             return;
         }
 
@@ -1585,6 +1597,8 @@ void socket_command_target(socket_struct *ns, player *pl, uint8 *data, size_t le
             pl->target_object_count = 0;
             send_target_command(pl);
         }
+    } else {
+        log(LOG(PACKET), "Invalid type: %d", type);
     }
 }
 
@@ -1607,6 +1621,7 @@ void socket_command_talk(socket_struct *ns, player *pl, uint8 *data, size_t len,
             packet_to_string(data, len, &pos, npc_name, sizeof(npc_name));
 
             if (string_isempty(npc_name)) {
+                log(LOG(PACKET), "Empty NPC name.");
                 return;
             }
         }
@@ -1615,6 +1630,7 @@ void socket_command_talk(socket_struct *ns, player *pl, uint8 *data, size_t len,
         player_sanitize_input(msg);
 
         if (string_isempty(msg)) {
+            log(LOG(PACKET), "Empty message.");
             return;
         }
 
@@ -1681,6 +1697,7 @@ void socket_command_talk(socket_struct *ns, player *pl, uint8 *data, size_t len,
         player_sanitize_input(msg);
 
         if (string_isempty(msg)) {
+            log(LOG(PACKET), "Empty message.");
             return;
         }
 
@@ -1700,6 +1717,8 @@ void socket_command_talk(socket_struct *ns, player *pl, uint8 *data, size_t len,
                 break;
             }
         }
+    } else {
+        log(LOG(PACKET), "Invalid type: %d", type);
     }
 }
 
@@ -1711,6 +1730,7 @@ void socket_command_control(socket_struct *ns, player *pl, uint8 *data, size_t l
     packet_struct *packet;
 
     if (strcasecmp(settings.control_allowed_ips, "none") == 0) {
+        log(LOG(PACKET), "Control command received but no IPs are allowed.");
         return;
     }
 
@@ -1725,12 +1745,15 @@ void socket_command_control(socket_struct *ns, player *pl, uint8 *data, size_t l
     }
 
     if (!ip_match) {
+        log(LOG(PACKET), "Received control command from unauthorized IP: %s",
+                ns->host);
         return;
     }
 
     packet_to_string(data, len, &pos, app_name, sizeof(app_name));
 
     if (string_isempty(app_name)) {
+        log(LOG(PACKET), "Received empty app_name.");
         return;
     }
 
@@ -1805,9 +1828,8 @@ void socket_command_control(socket_struct *ns, player *pl, uint8 *data, size_t l
             m = ready_map_name(mappath, 0);
 
             if (m == NULL) {
-                log(LOG(DEBUG), "Could not teleport player to '%s' "
-                        "(%d,%d): map could not be loaded.",
-                        mappath, x, y);
+                log(LOG(ERROR), "Could not teleport player to '%s' (%d,%d): "
+                        "map could not be loaded.", mappath, x, y);
                 return;
             }
 
@@ -1828,6 +1850,6 @@ void socket_command_control(socket_struct *ns, player *pl, uint8 *data, size_t l
     }
     }
 
-    log(LOG(DEBUG), "Unrecognised control command type: %d, sub-type: %d, "
+    log(LOG(PACKET), "Unrecognised control command type: %d, sub-type: %d, "
             "by application: '%s'", type, sub_type, app_name);
 }
