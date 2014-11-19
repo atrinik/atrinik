@@ -187,10 +187,10 @@ void x11_window_activate(x11_display_type display, x11_window_type win, uint8 sw
 #if defined(HAVE_X11)
 
     if (switch_desktop) {
-        unsigned long *desktop;
+        char *desktop;
 
-        if (!(desktop = (unsigned long *) x11_get_property(display, win, XA_CARDINAL, "_NET_WM_DESKTOP", NULL))) {
-            if (!(desktop = (unsigned long *) x11_get_property(display, win, XA_CARDINAL, "_WIN_WORKSPACE", NULL))) {
+        if (!(desktop = x11_get_property(display, win, XA_CARDINAL, "_NET_WM_DESKTOP", NULL))) {
+            if (!(desktop = x11_get_property(display, win, XA_CARDINAL, "_WIN_WORKSPACE", NULL))) {
                 logger_print(LOG(BUG), "Cannot find desktop ID of the window.");
             }
         }
