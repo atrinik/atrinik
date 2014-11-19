@@ -207,7 +207,9 @@ font_struct *font_get(const char *name, uint8 size)
 }
 
 /**
- * Acquire font of a larger or smaller size.
+ * Acquire font of a larger or smaller size. The returned pointer will have
+ * increased reference count, so remember to use font_free() in your cleanup
+ * function.
  * @param font Font.
  * @param size Size adjustment; 1 for a bigger one, -1 for a smaller one.
  * @return The font. NULL if the size is not in an acceptable range or some
@@ -833,6 +835,12 @@ int text_show_character(font_struct **font, font_struct *orig_font, SDL_Surface 
             if (strncmp(tag + 5, "+", 1) == 0 ||
                     strncmp(tag + 5, "-", 1) == 0) {
                 font_new = font_get_size(*font, atoi(tag + 5));
+
+                if (font_new != NULL) {
+                    /* Decrease the refcount, since we want a weak reference but
+                     * font_get_size() increases the refcount. */
+                    font_free(font_new);
+                }
             } else if (sscanf(tag + 5, "%d", &font_size) == 1) {
                 font_new = font_get_weak((*font)->name, font_size);
             }
