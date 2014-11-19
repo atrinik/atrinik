@@ -62,7 +62,7 @@ void widget_label_init(widgetdata *widget)
     _widget_label *label;
 
     label = ecalloc(1, sizeof(*label));
-    label->font = FONT_ARIAL10;
+    label->font = font_get("arial", 10);
     label->color = COLOR_WHITE;
 
     widget->draw_func = widget_draw;

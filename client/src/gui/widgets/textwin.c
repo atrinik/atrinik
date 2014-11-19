@@ -969,6 +969,7 @@ static void textwin_font_adjust(widgetdata *widget, int adjust)
     }
 
     font_free(textwin->font);
+    FONT_INCREF(font);
     textwin->font = font;
     textwin_readjust(widget);
     WIDGET_REDRAW(widget);

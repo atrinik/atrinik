@@ -221,8 +221,8 @@ static void settings_list_reload(void)
             text_input = &((list_settings_graphic_union *) list_settings->data)[i].text.text_input;
             text_input_create(text_input);
             text_input_set(text_input, setting_get_str(setting_category_selected, i));
+            text_input_set_font(text_input, FONT_ARIAL10);
             text_input->coords.w = 100;
-            text_input->font = FONT_ARIAL10;
             text_input->focus = 0;
 
             if (setting->type == OPT_TYPE_COLOR) {
