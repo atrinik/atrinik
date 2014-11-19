@@ -1389,6 +1389,7 @@ void send_target_command(player *pl)
     }
 
     packet = packet_new(CLIENT_CMD_TARGET, 64, 64);
+    packet_enable_ndelay(packet);
 
     pl->ob->enemy = NULL;
     pl->ob->enemy_count = 0;
@@ -1835,6 +1836,7 @@ void socket_command_control(socket_struct *ns, player *pl, uint8 *data, size_t l
 
         if (ret == 1) {
             packet = packet_new(CLIENT_CMD_CONTROL, 256, 256);
+            packet_enable_ndelay(packet);
             packet_append_data_len(packet, data, len);
             socket_send_packet(&control_player->socket, packet);
 

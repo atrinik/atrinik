@@ -255,6 +255,7 @@ void esrv_draw_look(object *pl)
     tmp = GET_MAP_OB_LAST(pl->map, pl->x, pl->y);
 
     packet = packet_new(CLIENT_CMD_ITEM, 512, 256);
+    packet_enable_ndelay(packet);
     packet_append_uint32(packet, 0);
     packet_append_uint32(packet, 0);
     packet_append_uint8(packet, 1);
@@ -319,6 +320,7 @@ void esrv_close_container(object *op)
     packet_struct *packet;
 
     packet = packet_new(CLIENT_CMD_ITEM, 32, 0);
+    packet_enable_ndelay(packet);
     packet_append_sint32(packet, -1);
     packet_append_sint32(packet, -1);
     socket_send_packet(&CONTR(op)->socket, packet);
@@ -335,6 +337,7 @@ void esrv_send_inventory(object *pl, object *op)
     object *tmp;
 
     packet = packet_new(CLIENT_CMD_ITEM, 128, 256);
+    packet_enable_ndelay(packet);
 
     /* In this case we're sending a container inventory */
     if (pl != op) {
@@ -377,6 +380,7 @@ static void esrv_update_item_send(int flags, object *pl, object *op)
     }
 
     packet = packet_new(CLIENT_CMD_ITEM_UPDATE, 64, 128);
+    packet_enable_ndelay(packet);
     packet_append_uint16(packet, flags);
     add_object_to_packet(packet, op, pl, flags);
     socket_send_packet(&CONTR(pl)->socket, packet);
@@ -422,6 +426,7 @@ static void esrv_send_item_send(object *pl, object *op)
     }
 
     packet = packet_new(CLIENT_CMD_ITEM, 64, 128);
+    packet_enable_ndelay(packet);
     packet_append_sint32(packet, -4);
     packet_append_uint32(packet, op->env->count);
     packet_append_uint8(packet, 0);
@@ -470,6 +475,7 @@ static void esrv_del_item_send(object *pl, object *op)
     }
 
     packet = packet_new(CLIENT_CMD_ITEM_DELETE, 16, 0);
+    packet_enable_ndelay(packet);
     packet_append_uint32(packet, op->count);
     socket_send_packet(&CONTR(pl)->socket, packet);
 }

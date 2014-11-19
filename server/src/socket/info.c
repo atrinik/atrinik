@@ -48,6 +48,7 @@ void draw_info_send(uint8 type, const char *name, const char *color, socket_stru
     packet_struct *packet;
 
     packet = packet_new(CLIENT_CMD_DRAWINFO, 256, 512);
+    packet_enable_ndelay(packet);
     packet_append_uint8(packet, type);
     packet_append_string_terminated(packet, color);
 
