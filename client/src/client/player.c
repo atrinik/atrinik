@@ -161,7 +161,7 @@ void init_player_data(void)
     cpl.stats.maxsp = 1;
     cpl.stats.maxhp = 1;
 
-    cpl.stats.speed = 1;
+    cpl.stats.speed = 1.0;
 
     cpl.ob->nrof = 1;
     cpl.partyname[0] = cpl.partyjoin[0] = '\0';

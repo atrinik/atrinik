@@ -255,10 +255,10 @@ typedef struct pl_player {
     uint32 action_attack;
 
     /** weapon_speed_left * 1000 and cast from float to int for client. */
-    uint32 action_timer;
+    float action_timer;
 
     /** Previous value of action timer sent to the client. */
-    uint32 last_action_timer;
+    float last_action_timer;
 
     /** Last speed value sent to client. */
     float last_speed;

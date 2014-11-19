@@ -102,10 +102,9 @@ static const char *player_doll_text_abbr =
             TEXT_MARKUP | flags, box, text, \
             cpl.stats.Str, cpl.stats.Dex, cpl.stats.Con, \
             cpl.stats.Int, cpl.stats.Pow, \
-            (double) cpl.stats.speed / FLOAT_MULTF, cpl.stats.ac, \
+            cpl.stats.speed, cpl.stats.ac, \
             cpl.stats.dam, cpl.stats.wc, cpl.stats.weapon_speed, \
-            cpl.stats.ranged_dam, cpl.stats.ranged_wc, \
-            cpl.stats.ranged_ws / 1000.0);
+            cpl.stats.ranged_dam, cpl.stats.ranged_wc, cpl.stats.ranged_ws);
 
 object *playerdoll_get_equipment(int i, int *xpos, int *ypos)
 {

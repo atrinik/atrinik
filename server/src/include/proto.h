@@ -846,7 +846,7 @@ extern void object_type_init_book(void);
 /* src/types/boots.c */
 extern void object_type_init_boots(void);
 /* src/types/bow.c */
-extern sint32 bow_get_ws(object *bow, object *arrow);
+extern float bow_get_ws(object *bow, object *arrow);
 extern int bow_get_skill(object *bow);
 extern void object_type_init_bow(void);
 /* src/types/bracers.c */

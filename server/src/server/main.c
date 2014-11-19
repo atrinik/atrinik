@@ -187,7 +187,7 @@ static void process_players1(void)
 
                     pl->action_attack = global_round_tag + pl->ob->weapon_speed;
 
-                    pl->action_timer = (float) (pl->action_attack - global_round_tag) / MAX_TICKS * 1000.0;
+                    pl->action_timer = (float) (pl->action_attack - global_round_tag) / MAX_TICKS;
                     pl->last_action_timer = 0;
                 }
             }

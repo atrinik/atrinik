@@ -521,17 +521,6 @@ enum {
 /*@}*/
 
 /**
- * @defgroup FLOAT_MULTx Float multiplication
- * These are multiplication values that should be used when changing
- * floats to ints, and vice versa.
- *@{*/
-/** Integer representation (float to int) */
-#define FLOAT_MULTI 100000
-/** Float representation (int to float) */
-#define FLOAT_MULTF 100000.0
-/*@}*/
-
-/**
  * @defgroup map_face_flags Map face flags
  * These are the 'face flags' we grab out of the flags object structure
  * 1:1.

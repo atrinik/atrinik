@@ -281,7 +281,7 @@ void socket_command_stats(uint8 *data, size_t len, size_t pos)
                 break;
 
             case CS_STAT_SPEED:
-                cpl.stats.speed = packet_to_uint32(data, len, &pos);
+                cpl.stats.speed = packet_to_float(data, len, &pos);
                 WIDGET_REDRAW_ALL(PDOLL_ID);
                 break;
 
@@ -291,7 +291,7 @@ void socket_command_stats(uint8 *data, size_t len, size_t pos)
                 break;
 
             case CS_STAT_WEAPON_SPEED:
-                cpl.stats.weapon_speed = abs(packet_to_uint32(data, len, &pos)) / FLOAT_MULTF;
+                cpl.stats.weapon_speed = packet_to_float(data, len, &pos);
                 WIDGET_REDRAW_ALL(PDOLL_ID);
                 break;
 
@@ -304,7 +304,7 @@ void socket_command_stats(uint8 *data, size_t len, size_t pos)
                 break;
 
             case CS_STAT_ACTION_TIME:
-                cpl.action_timer = abs(packet_to_uint32(data, len, &pos)) / 1000.0;
+                cpl.action_timer = packet_to_float(data, len, &pos);
                 WIDGET_REDRAW_ALL(PLAYER_INFO_ID);
                 break;
 
@@ -324,7 +324,7 @@ void socket_command_stats(uint8 *data, size_t len, size_t pos)
                 break;
 
             case CS_STAT_RANGED_WS:
-                cpl.stats.ranged_ws = packet_to_uint32(data, len, &pos);
+                cpl.stats.ranged_ws = packet_to_float(data, len, &pos);
                 WIDGET_REDRAW_ALL(PDOLL_ID);
                 break;
             }

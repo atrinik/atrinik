@@ -82,11 +82,11 @@ typedef struct Stat_struct {
     /** How much damage the player does when hitting. */
     sint16 dam;
 
-    /** Player's speed; gets converted to a float for display. */
-    sint32 speed;
+    /** Player's speed. */
+    float speed;
 
     /** Weapon speed. */
-    double weapon_speed;
+    float weapon_speed;
 
     /** Contains fire on/run on flags. */
     uint16 flags;
@@ -101,7 +101,7 @@ typedef struct Stat_struct {
     sint16 ranged_wc;
 
     /** Ranged weapon speed. */
-    sint32 ranged_ws;
+    float ranged_ws;
 } Stats;
 
 /** The player structure. */
@@ -119,7 +119,7 @@ typedef struct Player_Struct {
     sint32 container_tag;
 
     /** Player's weight limit. */
-    double weight_limit;
+    float weight_limit;
 
     /** Are we a DM? */
     int dm;

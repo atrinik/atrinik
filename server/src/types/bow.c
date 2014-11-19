@@ -34,10 +34,11 @@
  * Calculate how quickly bow fires its arrow.
  * @param bow The bow.
  * @param arrow Arrow.
- * @return Firing speed. */
-sint32 bow_get_ws(object *bow, object *arrow)
+ * @return Firing speed.
+ */
+float bow_get_ws(object *bow, object *arrow)
 {
-    return (((float) bow->stats.sp / MAX_TICKS) + ((float) arrow->last_grace / MAX_TICKS)) * 1000;
+    return (((float) bow->stats.sp / MAX_TICKS) + ((float) arrow->last_grace / MAX_TICKS));
 }
 
 /**
