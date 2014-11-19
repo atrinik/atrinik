@@ -262,7 +262,9 @@ void doeric_server(void)
 
     /* Go through the players. Let the loop set the next pl value, since
      * we may remove some. */
-    for (pl = first_player; pl != NULL; ) {
+    for (pl = first_player; pl != NULL; pl = next) {
+        next = pl->next;
+
         if (pl->socket.state != ST_DEAD && !is_fd_valid(pl->socket.fd)) {
             logger_print(LOG(DEBUG), "Invalid file descriptor for player %s [%s]: %d", (pl->ob && pl->ob->name) ? pl->ob->name : "(unnamed player?)", (pl->socket.host) ? pl->socket.host : "(unknown ip?)", pl->socket.fd);
             pl->socket.state = ST_DEAD;
@@ -274,10 +276,7 @@ void doeric_server(void)
         }
 
         if (pl->socket.state == ST_DEAD) {
-            player *npl = pl->next;
-
             remove_ns_dead_player(pl);
-            pl = npl;
         } else if (pl->socket.state == ST_ZOMBIE) {
             if (pl->socket.login_count++ >= MAX_TICKS_MULTIPLIER) {
                 pl->socket.state = ST_DEAD;
@@ -286,7 +285,6 @@ void doeric_server(void)
             FD_SET((uint32) pl->socket.fd, &tmp_read);
             FD_SET((uint32) pl->socket.fd, &tmp_write);
             FD_SET((uint32) pl->socket.fd, &tmp_exceptions);
-            pl = pl->next;
         }
     }
 
