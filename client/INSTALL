@@ -1,5 +1,20 @@
-Compiling the Atrinik client (GNU/Linux)
-=================================================
+======================
+= Installing Atrinik =
+======================
+
+This document explains how to compile and install Atrinik.
+
+For compiling on GNU/Linux, see section 1.1.
+For compiling on Windows, see section 1.2.
+
+For installing music and sound files, see section 2.
+
+For building GNU/Linux installer, see section 3.1.
+For building Windows installer, see section 3.2.
+
+================================================
+= 1.1 Compiling the Atrinik client (GNU/Linux) =
+================================================
 
 Several libraries and programs are needed in order to compile and/or run
 the Atrinik client:
@@ -12,34 +27,109 @@ the Atrinik client:
     Timidity: Optional, necessary to play MIDI background music files
     cURL: Required
     zlib: Required
+    openssl: Required
     libx11, libxmu: Optional, necessary for clipboard support
 
 In addition gcc and cmake are required to build the client. All the
 necessary packages may be installed on Debian-like systems using the
 following command:
 
-    apt-get install libsdl-image1.2-dev libsdl-mixer1.2-dev libsdl1.2-dev libsdl-ttf2.0-dev timidity libsdl1.2debian libsdl1.2debian-all libcurl4-openssl-dev zlib1g-dev build-essential libx11-dev libxmu-dev cmake
+    apt-get install libsdl-image1.2-dev libsdl-mixer1.2-dev libsdl1.2-dev \
+    libsdl-ttf2.0-dev timidity libsdl1.2debian libsdl1.2debian-all \
+    libcurl4-openssl-dev zlib1g-dev build-essential libx11-dev libxmu-dev \
+    cmake openssl-dev
 
 After installing the necessary packages, you need to create the Makefiles
 for the project using 'cmake .'. Then you can use 'make' to compile the
 client. When the compilation is done, you can execute the 'atrinik'
 binary to start the client.
 
-Compiling the Atrinik client (Windows)
-=================================================
+==============================================
+= 1.2 Compiling the Atrinik client (Windows) =
+==============================================
 
-Go to make_win32 directory, and choose your IDE. See the README file in
-the chosen IDE's directory for further instructions.
+You will need to install the following prerequisites:
 
-Make sure to read MIDI.txt in the make_win32 directory for instructions
-how to install GUS-compatible patches, in order to correctly play MIDI
-files in the client.
+ - MinGW
+    The compiler that you will use for compiling. Download it here:
+    http://sourceforge.net/projects/mingw/files/latest/download?source=files
 
-Building Atrinik installer (Windows)
-=================================================
+    After installing, execute the mingw-install-prereq.bat script in "tools"
+    directory (located in Atrinik root directory).
+ - CMake
+    Required to build makefiles. Download it here:
+
+    http://www.cmake.org/files/v3.0/cmake-3.0.2-win32-x86.exe
+ - Microsoft Visual C++ Redistributables 2008
+    This is required for OpenSSL to work properly. Download it here:
+    http://www.microsoft.com/en-us/download/details.aspx?id=29
+ - OpenSSL
+    Atrinik requires OpenSSL. Download it here:
+
+    http://slproweb.com/download/Win32OpenSSL-1_0_1j.exe
+
+    The installer will ask where to copy OpenSSL DLL files. Make sure this is
+    set to the system directory.
+ - cURL
+    Atrinik requires cURL. Download it here:
+
+    http://curl.haxx.se/gknw.net/7.39.0/dist-w32/curl-7.39.0-devel-mingw32.zip
+
+    Extract the archive and copy "lib" and "include" directories into
+    C:/MinGW (or where you installed MinGW).
+ - SDL
+    Atrinik requires SDL, SDL_image and SDL_ttf. SDL_mixer is also necessary to
+    play music and sounds. Either compile these yourself, or download
+    pre-compiled libraries and binaries here:
+
+    http://www.atrinik.org/download/win32/libsdl-all.zip
+
+    Extract the archive and copy "lib" and "include" directories into
+    C:/MinGW (or where you installed MinGW). Then copy the contents of the "bin"
+    directory to the client's directory.
+ - Timidity
+    You need to install Timidity GUS patches in order to play MIDI files
+    correctly. Download them here:
+
+    http://www.libsdl.org/projects/SDL_mixer/timidity/timidity.tar.gz
+
+    Extract the archive and copy "timidity" directory into the client's
+    directory.
+
+Make sure you have the following paths in your PATH environment variable, in
+this order (adjust accordingly if you installed MinGW or CMake somewhere else):
+
+C:\MinGW\bin;C:/MinGW/msys/1.0/bin;C:\Program Files (x86)\CMake\bin
+
+Install Netbeans for C/C++. Download it here:
+
+https://netbeans.org/downloads/start.html?platform=windows&lang=en&option=cpp
+
+Go to Tools -> Options -> C/C++ -> Build Tools and click the Add button. Enter
+C:\MinGW\bin (or where you installed MinGW) into the "base directory" box.
+
+Go to File -> New Project -> C/C++ Project with Existing Sources and select the
+client directory. Click "Finish" and the project should build automatically.
+
+=============================================
+= 2. Installing music and sound files files =
+=============================================
+
+Media files: Clone the following repository into client/sound:
+https://github.com/atrinik/atrinik-sound
+
+==============================================
+= 3.1 Building Atrinik installer (GNU/Linux) =
+==============================================
+
+TODO
+
+============================================
+= 3.2 Building Atrinik installer (Windows) =
+============================================
 
 Compile the project in release mode by editing (or creating) the file build.user
-and adding the following at the end:
+and adding the following at the end (for release builds):
 
 set(CMAKE_BUILD_TYPE "Release")
 
@@ -52,12 +142,9 @@ Then download latest ca-bundle.crt and place it in the client's directory:
 
 https://raw.githubusercontent.com/bagder/ca-bundle/master/ca-bundle.crt
 
+Go to C:\OpenSSL-Win32 (or where you installed OpenSSL) and copy libeay32.dll
+and ssleay32.dll to the client's directory.
+
 Then run the following in the client's directory to build an installer:
 
 cpack -G NSIS
-
-Installing music and sound files files
-=================================================
-
-Media files: Clone the following repository into client/sound:
-https://github.com/atrinik/atrinik-sound
