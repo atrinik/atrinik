@@ -1,8 +1,0 @@
-For MIDI support on Windows, you will need to download GUS patches from
-here:
-
-http://www.libsdl.org/projects/SDL_mixer/timidity/timidity.tar.gz
-
-and untar the archive to the client directory. Also the timidity.cfg file
-in the directory with this README file needs to be copied to the client
-directory.
