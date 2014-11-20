@@ -57,10 +57,10 @@ static void hfile_free(hfile_struct *hfile)
     efree(hfile->key);
 
     if (hfile->msg != NULL) {
-        free(hfile->msg);
+        efree(hfile->msg);
     }
 
-    free(hfile);
+    efree(hfile);
 }
 
 /**

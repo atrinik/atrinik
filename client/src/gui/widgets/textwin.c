@@ -162,7 +162,7 @@ static void textwin_tab_append(widgetdata *widget, uint8 id, uint8 type, const c
     cp = string_join("", "[c=#", color, " 1]", timebuf, tabname, str, "\n", NULL);
     len = strlen(cp);
     /* Resize the characters array as needed. */
-    textwin->tabs[id].entries = realloc(textwin->tabs[id].entries, textwin->tabs[id].entries_size + len + 1);
+    textwin->tabs[id].entries = erealloc(textwin->tabs[id].entries, textwin->tabs[id].entries_size + len + 1);
     memcpy(textwin->tabs[id].entries + textwin->tabs[id].entries_size, cp, len);
     textwin->tabs[id].entries[textwin->tabs[id].entries_size + len] = '\0';
     textwin->tabs[id].entries_size += len;
@@ -181,7 +181,7 @@ static void textwin_tab_append(widgetdata *widget, uint8 id, uint8 type, const c
     if (textwin->tabs[id].entries && textwin->tabs[id].num_lines >= (size_t) setting_get_int(OPT_CAT_GENERAL, OPT_MAX_CHAT_LINES)) {
         while (textwin->tabs[id].num_lines >= (size_t) setting_get_int(OPT_CAT_GENERAL, OPT_MAX_CHAT_LINES) && (cp = strchr(textwin->tabs[id].entries, '\n'))) {
             size_t pos = cp - textwin->tabs[id].entries + 1;
-            char *buf = malloc(pos + 1);
+            char *buf = emalloc(pos + 1);
 
             /* Copy the string together with the newline to a temporary
              * buffer. */
@@ -272,7 +272,7 @@ void textwin_tab_remove(widgetdata *widget, const char *name)
             textwin->tabs[i - 1] = textwin->tabs[i];
         }
 
-        textwin->tabs = realloc(textwin->tabs, sizeof(*textwin->tabs) * (textwin->tabs_num - 1));
+        textwin->tabs = erealloc(textwin->tabs, sizeof(*textwin->tabs) * (textwin->tabs_num - 1));
         textwin->tabs_num--;
         textwin->tab_selected = MIN(textwin->tab_selected, textwin->tabs_num - 1);
         textwin_readjust(widget);
@@ -467,11 +467,11 @@ void textwin_handle_copy(widgetdata *widget)
     }
 
     /* Get the string to copy, depending on the start and end positions. */
-    str = malloc(sizeof(char) * (end - start + 1 + 1));
+    str = emalloc(sizeof(char) * (end - start + 1 + 1));
     memcpy(str, textwin->tabs[textwin->tab_selected].entries + start, end - start + 1);
     str[end - start + 1] = '\0';
 
-    cp = malloc(sizeof(char) * (end - start + 1 + 1));
+    cp = emalloc(sizeof(char) * (end - start + 1 + 1));
     i = 0;
 
     /* Remove the special \r color changers. */

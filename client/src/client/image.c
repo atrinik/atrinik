@@ -138,7 +138,7 @@ void read_bmaps_p0(void)
     }
 
     tmp_buf_size = 24 * 1024;
-    tmp_buf = malloc(tmp_buf_size);
+    tmp_buf = emalloc(tmp_buf_size);
 
     while (fgets(buf, sizeof(buf) - 1, fp) != NULL) {
         if (strncmp(buf, "IMAGE ", 6)) {
@@ -159,7 +159,7 @@ void read_bmaps_p0(void)
         /* Adjust the buffer if necessary. */
         if (len > tmp_buf_size) {
             tmp_buf_size = len;
-            tmp_buf = realloc(tmp_buf, tmp_buf_size);
+            tmp_buf = erealloc(tmp_buf, tmp_buf_size);
         }
 
         pos = ftell(fp);
@@ -180,7 +180,7 @@ void read_bmaps_p0(void)
             cp++;
         }
 
-        bmap = malloc(sizeof(bmap_struct));
+        bmap = emalloc(sizeof(bmap_struct));
         bmap->name = estrdup(cp);
         bmap->crc32 = crc32(1L, (const unsigned char FAR *) tmp_buf, len);
         bmap->len = len;
@@ -239,7 +239,7 @@ void read_bmaps(void)
         /* Find the bmap. */
         bmap = bmap_find(name);
         /* Expand the array. */
-        bmaps = realloc(bmaps, sizeof(*bmaps) * (bmaps_size + 1));
+        bmaps = erealloc(bmaps, sizeof(*bmaps) * (bmaps_size + 1));
 
         /* Does it exist, and the lengths and checksums match? */
         if (bmap && bmap->len == len && bmap->crc32 == crc) {
@@ -289,9 +289,7 @@ void finish_face_cmd(int facenum, uint32 checksum, char *face)
     }
 
     snprintf(buf, sizeof(buf), "%s.png", face);
-    FaceList[facenum].name = malloc(strlen(buf) + 1);
-    strcpy(FaceList[facenum].name, buf);
-
+    FaceList[facenum].name = estrdup(buf);
     FaceList[facenum].checksum = checksum;
 
     /* Check private cache first */
@@ -300,7 +298,7 @@ void finish_face_cmd(int facenum, uint32 checksum, char *face)
     if ((fp = fopen_wrapper(buf, "rb")) != NULL) {
         fstat(fileno (fp), &statbuf);
         len = statbuf.st_size;
-        data = malloc(len);
+        data = emalloc(len);
         len = fread(data, 1, len, fp);
         fclose(fp);
         newsum = 0;
@@ -346,7 +344,7 @@ static int load_picture_from_pack(int num)
 
     lseek(fileno(stream), bmaps[num].pos, SEEK_SET);
 
-    pbuf = malloc(bmaps[num].len);
+    pbuf = emalloc(bmaps[num].len);
 
     if (!fread(pbuf, bmaps[num].len, 1, stream)) {
         efree(pbuf);
@@ -384,7 +382,7 @@ static int load_gfx_user_face(uint16 num)
     if ((stream = fopen_wrapper(buf, "rb")) != NULL) {
         fstat(fileno(stream), &statbuf);
         len = statbuf.st_size;
-        data = malloc(len);
+        data = emalloc(len);
         len = fread(data, 1, len, stream);
         fclose(stream);
 
@@ -403,8 +401,7 @@ static int load_gfx_user_face(uint16 num)
 
             if (FaceList[num].sprite) {
                 snprintf(buf, sizeof(buf), DIRECTORY_GFX_USER "/%s.png", bmaps[num].name);
-                FaceList[num].name = malloc(strlen(buf) + 1);
-                strcpy(FaceList[num].name, buf);
+                FaceList[num].name = estrdup(buf);
                 FaceList[num].checksum = crc32(1L, data, len);
                 efree(data);
                 return 1;
@@ -449,8 +446,7 @@ int request_face(int pnum)
     if (bmaps[num].pos != -1) {
         /* Best case - we have it in atrinik.p0 */
         snprintf(buf, sizeof(buf), "%s.png", bmaps[num].name);
-        FaceList[num].name = malloc(strlen(buf) + 1);
-        strcpy(FaceList[num].name, buf);
+        FaceList[num].name = estrdup(buf);
         FaceList[num].checksum = bmaps[num].crc32;
         load_picture_from_pack(num);
     } else {

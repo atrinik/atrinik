@@ -126,12 +126,12 @@ void settings_init(void)
 
         if (!strcmp(cp, "end")) {
             if (setting) {
-                category->settings = realloc(category->settings, sizeof(*category->settings) * (category->settings_num + 1));
+                category->settings = erealloc(category->settings, sizeof(*category->settings) * (category->settings_num + 1));
                 category->settings[category->settings_num] = setting;
                 category->settings_num++;
                 setting = NULL;
             } else if (category) {
-                setting_categories = realloc(setting_categories, sizeof(*setting_categories) * (setting_categories_num + 1));
+                setting_categories = erealloc(setting_categories, sizeof(*setting_categories) * (setting_categories_num + 1));
                 setting_categories[setting_categories_num] = category;
                 setting_categories_num++;
                 category = NULL;
@@ -165,7 +165,7 @@ void settings_init(void)
             } else if (setting->type == OPT_TYPE_SELECT && !strncmp(cp, "option ", 7)) {
                 setting_select *s_select = SETTING_SELECT(setting);
 
-                s_select->options = realloc(s_select->options, sizeof(*s_select->options) * (s_select->options_len + 1));
+                s_select->options = erealloc(s_select->options, sizeof(*s_select->options) * (s_select->options_len + 1));
                 s_select->options[s_select->options_len] = estrdup(cp + 7);
                 s_select->options_len++;
             } else if (setting->type == OPT_TYPE_RANGE && !strncmp(cp, "range ", 6)) {

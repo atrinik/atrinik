@@ -92,7 +92,7 @@ void server_settings_init(void)
             uint32 lev;
 
             s_settings->max_level = atoi(buf + 6);
-            s_settings->level_exp = malloc(sizeof(*s_settings->level_exp) * (s_settings->max_level + 2));
+            s_settings->level_exp = emalloc(sizeof(*s_settings->level_exp) * (s_settings->max_level + 2));
 
             for (lev = 0; lev <= s_settings->max_level; lev++) {
                 if (!fgets(buf, sizeof(buf) - 1, fp)) {

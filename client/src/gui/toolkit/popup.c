@@ -259,7 +259,7 @@ int popup_handle_event(SDL_Event *event)
 
             /* Get the string to copy, depending on the start and end positions.
              * */
-            str = malloc(sizeof(char) * (end - start + 1 + 1));
+            str = emalloc(sizeof(char) * (end - start + 1 + 1));
             memcpy(str, contents + start, end - start + 1);
             str[end - start + 1] = '\0';
             x11_clipboard_set(SDL_display, SDL_window, str);

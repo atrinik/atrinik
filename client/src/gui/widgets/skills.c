@@ -187,7 +187,7 @@ void skills_update(object *op, uint8 level, sint64 xp)
         skill = ecalloc(1, sizeof(*skill));
         skill->skill = op;
 
-        skill_list = realloc(skill_list, sizeof(*skill_list) * (skill_list_num + 1));
+        skill_list = erealloc(skill_list, sizeof(*skill_list) * (skill_list_num + 1));
         skill_list[skill_list_num] = skill;
         skill_list_num++;
     }
@@ -213,7 +213,7 @@ void skills_remove(object *op)
         skill_list[i - 1] = skill_list[i];
     }
 
-    skill_list = realloc(skill_list, sizeof(*skill_list) * (skill_list_num - 1));
+    skill_list = erealloc(skill_list, sizeof(*skill_list) * (skill_list_num - 1));
     skill_list_num--;
 
     skill_list_reload();

@@ -172,7 +172,7 @@ int video_fullscreen_toggle(SDL_Surface **surface, uint32 *flags)
     /* Save the contents of the screen. */
     if ((!(tmpflags & SDL_OPENGL)) && (!(tmpflags & SDL_OPENGLBLIT))) {
         framesize = (w * h) * ((*surface)->format->BytesPerPixel);
-        pixels = malloc(framesize);
+        pixels = emalloc(framesize);
 
         if (pixels == NULL) {
             return 0;

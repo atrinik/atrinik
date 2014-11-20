@@ -149,7 +149,7 @@ void list_add(list_struct *list, uint32 row, uint32 col, const char *str)
 
         /* Update rows count and resize the array of rows. */
         list->rows = row + 1;
-        list->text = realloc(list->text, sizeof(*list->text) * list->rows);
+        list->text = erealloc(list->text, sizeof(*list->text) * list->rows);
 
         /* Allocate columns for the new row(s). */
         for (i = row; i < list->rows; i++) {
@@ -187,7 +187,7 @@ void list_remove_row(list_struct *list, uint32 row)
     }
 
     list->rows--;
-    list->text = realloc(list->text, sizeof(*list->text) * list->rows);
+    list->text = erealloc(list->text, sizeof(*list->text) * list->rows);
 }
 
 /**

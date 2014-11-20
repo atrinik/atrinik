@@ -73,7 +73,7 @@ color_picker_struct *color_chooser_open(void)
     popup_struct *popup;
     color_picker_struct *color_picker;
 
-    color_picker = malloc(sizeof(*color_picker));
+    color_picker = emalloc(sizeof(*color_picker));
     color_picker_create(color_picker, 150);
 
     popup = popup_create(texture_get(TEXTURE_TYPE_SOFTWARE, "rectangle:300,200;[bar=widget_bg][border=widget_border -1 -1 2]"));

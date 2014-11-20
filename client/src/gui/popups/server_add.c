@@ -79,7 +79,7 @@ static int popup_event(popup_struct *popup, SDL_Event *event)
 
         snprintf(buf, sizeof(buf), "%s:%s", text_input_server_host.str, text_input_server_port.str);
 
-        clioption_settings.servers = realloc(clioption_settings.servers, sizeof(*clioption_settings.servers) * (clioption_settings.servers_num + 1));
+        clioption_settings.servers = erealloc(clioption_settings.servers, sizeof(*clioption_settings.servers) * (clioption_settings.servers_num + 1));
         clioption_settings.servers[clioption_settings.servers_num] = estrdup(buf);
         clioption_settings.servers_num++;
 

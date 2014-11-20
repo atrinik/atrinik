@@ -88,7 +88,7 @@ sprite_struct *sprite_tryload_file(char *fname, uint32 flag, SDL_RWops *rwop)
         bitmap = IMG_LoadPNG_RW(rwop);
     }
 
-    if (!(sprite = malloc(sizeof(sprite_struct)))) {
+    if (!(sprite = emalloc(sizeof(sprite_struct)))) {
         return NULL;
     }
 
@@ -599,7 +599,7 @@ struct _anim *add_anim(int type, int mapx, int mapy, int value)
     }
 
     /* tmp == null - no anim in que, else tmp = last anim */
-    anim = malloc(sizeof(struct _anim));
+    anim = emalloc(sizeof(struct _anim));
 
     if (!tmp) {
         start_anim = anim;

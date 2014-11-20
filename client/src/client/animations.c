@@ -61,7 +61,7 @@ void read_anims(void)
         animations_num = 0;
     }
 
-    anim_table = malloc(sizeof(_anim_table));
+    anim_table = emalloc(sizeof(_anim_table));
 
     /* Animation #0 is like face id #0. */
     anim_cmd[0] = (uint8) ((count >> 8) & 0xff);
@@ -71,7 +71,7 @@ void read_anims(void)
     anim_cmd[4] = 0;
     anim_cmd[5] = 0;
 
-    anim_table[count].anim_cmd = malloc(6);
+    anim_table[count].anim_cmd = emalloc(6);
     memcpy(anim_table[count].anim_cmd, anim_cmd, 6);
     anim_table[count].len = 6;
     count++;
@@ -100,11 +100,11 @@ void read_anims(void)
             if (!strncmp(buf, "facings ", 8)) {
                 faces = atoi(buf + 8);
             } else if (!strncmp(buf, "mina", 4)) {
-                anim_table = realloc(anim_table, sizeof(_anim_table) * (count + 1));
+                anim_table = erealloc(anim_table, sizeof(_anim_table) * (count + 1));
                 anim_cmd[2] = 0;
                 anim_cmd[3] = faces;
                 anim_table[count].len = anim_len;
-                anim_table[count].anim_cmd = malloc(anim_len);
+                anim_table[count].anim_cmd = emalloc(anim_len);
                 memcpy(anim_table[count].anim_cmd, anim_cmd, anim_len);
                 count++;
                 new_anim = 1;

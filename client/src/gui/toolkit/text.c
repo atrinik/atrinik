@@ -420,7 +420,7 @@ char *text_strip_markup(char *buf, size_t *buf_len, uint8 do_free)
         len = strlen(buf);
     }
 
-    cp = malloc(sizeof(char) * (len + 1));
+    cp = emalloc(sizeof(char) * (len + 1));
 
     while (pos < len) {
         if (buf[pos] == '[') {
@@ -588,7 +588,7 @@ void text_anchor_execute(text_info_struct *info, void *custom_data)
         len = tag - info->anchor_tag;
         /* Allocate a temporary buffer and copy the text until the
          * ending [/a], so we have the text between the anchor tags. */
-        buf = malloc(len + 1);
+        buf = emalloc(len + 1);
         memcpy(buf, info->anchor_tag, len);
         buf[len] = '\0';
     }
@@ -603,7 +603,7 @@ void text_anchor_execute(text_info_struct *info, void *custom_data)
             /* It's not a command, so prepend "/say " to it. */
             if (buf[0] != '/') {
                 /* Resize the buffer so it can hold 5 more bytes. */
-                buf = realloc(buf, len + 5 + 1);
+                buf = erealloc(buf, len + 5 + 1);
                 /* Copy the existing bytes to the end, so we have 5
                  * we can use in the front. */
                 memmove(buf + 5, buf, len + 1);
@@ -855,7 +855,7 @@ int text_show_character(font_struct **font, font_struct *orig_font, SDL_Surface 
             tag2 = strstr(tag + tag_len, "[/center]");
 
             if (tag2 && box && box->w) {
-                char *buf = malloc(tag2 - cp - 8 + 1);
+                char *buf = emalloc(tag2 - cp - 8 + 1);
                 int w;
 
                 /* Copy the string between [center] and [/center] to a
@@ -875,7 +875,7 @@ int text_show_character(font_struct **font, font_struct *orig_font, SDL_Surface 
             tag2 = strstr(tag + tag_len, "[/right]");
 
             if (tag2 && box && box->w) {
-                char *buf = malloc(tag2 - cp - 7 + 1);
+                char *buf = emalloc(tag2 - cp - 7 + 1);
                 int w;
 
                 /* Copy the string between [right] and [/right] to a
@@ -1149,7 +1149,7 @@ int text_show_character(font_struct **font, font_struct *orig_font, SDL_Surface 
                     SDL_Rect hcenter_box;
 
                     len = tag2 - (tag + tag_len + 1);
-                    tmpbuf = malloc(len + 1);
+                    tmpbuf = emalloc(len + 1);
                     memcpy(tmpbuf, tag + tag_len + 1, len);
                     tmpbuf[len] = '\0';
 
@@ -1375,7 +1375,7 @@ int text_show_character(font_struct **font, font_struct *orig_font, SDL_Surface 
                 if (tag2) {
                     char *buf;
 
-                    buf = malloc(tag2 - cp - 11 + 1);
+                    buf = emalloc(tag2 - cp - 11 + 1);
                     memcpy(buf, cp + 11, tag2 - cp - 11);
                     buf[tag2 - cp - 11] = '\0';
                     info->highlight_rect.x = dest->x;
@@ -1942,7 +1942,7 @@ void text_show(SDL_Surface *surface, font_struct *font, const char *text, int x,
 
             /* Calculating lines, store the height of this line. */
             if (flags & TEXT_LINES_CALC) {
-                heights = realloc(heights, sizeof(*heights) * (num_heights + 1));
+                heights = erealloc(heights, sizeof(*heights) * (num_heights + 1));
                 heights[num_heights] = max_height;
                 num_heights++;
             }
@@ -2034,7 +2034,7 @@ void text_show(SDL_Surface *surface, font_struct *font, const char *text, int x,
     if (box && flags & TEXT_LINES_CALC) {
         int total_height = 0, i, last_lines = 0;
 
-        heights = realloc(heights, sizeof(*heights) * (num_heights + 1));
+        heights = erealloc(heights, sizeof(*heights) * (num_heights + 1));
         heights[num_heights] = max_height;
         num_heights++;
 

@@ -109,7 +109,7 @@ static void mplayer_do_shuffle(list_struct *list)
 
     /* Build a list containing non-blacklisted row IDs. */
     row_num = 0;
-    row_ids = malloc(sizeof(*row_ids) * (list->rows - 1));
+    row_ids = emalloc(sizeof(*row_ids) * (list->rows - 1));
 
     for (i = 0; i < list->rows - 1; i++) {
         if (!shuffle_blacklist[i]) {

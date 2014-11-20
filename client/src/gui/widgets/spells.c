@@ -300,7 +300,7 @@ void spells_update(object *op, uint16 cost, uint32 path, uint32 flags,
         spell = ecalloc(1, sizeof(*spell));
         spell->spell = op;
 
-        spell_list[path_real] = realloc(spell_list[path_real],
+        spell_list[path_real] = erealloc(spell_list[path_real],
                 sizeof(*spell_list[path_real]) *
                 (spell_list_num[path_real] + 1));
         spell_list[path_real][spell_list_num[path_real]] = spell;
@@ -332,7 +332,7 @@ void spells_remove(object *op)
         spell_list[spell_path][i - 1] = spell_list[spell_path][i];
     }
 
-    spell_list[spell_path] = realloc(spell_list[spell_path],
+    spell_list[spell_path] = erealloc(spell_list[spell_path],
             sizeof(*spell_list[spell_path]) * (spell_list_num[spell_path] - 1));
     spell_list_num[spell_path]--;
 

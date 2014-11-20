@@ -68,7 +68,7 @@ void socket_command_file_update(uint8 *data, size_t len, size_t pos)
     len -= pos;
 
     /* Uncompress it. */
-    dest = malloc(ucomp_len);
+    dest = emalloc(ucomp_len);
     uncompress((Bytef *) dest, (uLongf *) & ucomp_len, (const Bytef *) data + pos, (uLong) len);
     data = dest;
     len = ucomp_len;
@@ -135,7 +135,7 @@ void file_updates_parse(void)
 
         fstat(fileno(fp2), &sb);
         st_size = sb.st_size;
-        contents = malloc(st_size);
+        contents = emalloc(st_size);
         numread = fread(contents, 1, st_size, fp2);
         fclose(fp2);
 

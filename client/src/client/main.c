@@ -101,7 +101,7 @@ static void keepalive_reset(void)
     LL_FOREACH_SAFE(keepalive_data, keepalive, tmp)
     {
         LL_DELETE(keepalive_data, keepalive);
-        free(keepalive);
+        efree(keepalive);
     }
 }
 
@@ -156,7 +156,7 @@ void socket_command_keepalive(uint8 *data, size_t len, size_t pos)
             keepalive_ping_num++;
             keepalive_ping_avg = keepalive_ping_avg + ((keepalive_ping -
                     keepalive_ping_avg) / keepalive_ping_num);
-            free(keepalive);
+            efree(keepalive);
 
             return;
         }
@@ -363,14 +363,14 @@ void clioption_settings_deinit(void)
 
 static void clioptions_option_server(const char *arg)
 {
-    clioption_settings.servers = realloc(clioption_settings.servers, sizeof(*clioption_settings.servers) * (clioption_settings.servers_num + 1));
+    clioption_settings.servers = erealloc(clioption_settings.servers, sizeof(*clioption_settings.servers) * (clioption_settings.servers_num + 1));
     clioption_settings.servers[clioption_settings.servers_num] = estrdup(arg);
     clioption_settings.servers_num++;
 }
 
 static void clioptions_option_metaserver(const char *arg)
 {
-    clioption_settings.metaservers = realloc(clioption_settings.metaservers, sizeof(*clioption_settings.metaservers) * (clioption_settings.metaservers_num + 1));
+    clioption_settings.metaservers = erealloc(clioption_settings.metaservers, sizeof(*clioption_settings.metaservers) * (clioption_settings.metaservers_num + 1));
     clioption_settings.metaservers[clioption_settings.metaservers_num] = estrdup(arg);
     clioption_settings.metaservers_num++;
 }

@@ -238,7 +238,7 @@ static int popup_draw_post(popup_struct *popup)
 
                     while (line) {
                         if (string_split(line, tmp, arraysize(tmp), '\t') == 2) {
-                            download_packages = realloc(download_packages, sizeof(*download_packages) * (download_packages_num + 1));
+                            download_packages = erealloc(download_packages, sizeof(*download_packages) * (download_packages_num + 1));
                             download_packages[download_packages_num].filename = estrdup(tmp[0]);
                             download_packages[download_packages_num].sha1 = estrdup(tmp[1]);
                             download_packages_num++;

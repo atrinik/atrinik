@@ -79,8 +79,8 @@ void server_files_deinit(void)
     HASH_ITER(hh, server_files, curr, tmp)
     {
         HASH_DEL(server_files, curr);
-        free(curr->name);
-        free(curr);
+        efree(curr->name);
+        efree(curr);
     }
 }
 
@@ -111,7 +111,7 @@ server_files_struct *server_files_create(const char *name)
     server_files_struct *tmp;
 
     tmp = ecalloc(1, sizeof(*tmp));
-    tmp->name = strdup(name);
+    tmp->name = estrdup(name);
     HASH_ADD_KEYPTR(hh, server_files, tmp->name, strlen(tmp->name), tmp);
 
     return tmp;
@@ -169,7 +169,7 @@ void server_files_load(int post_load)
         curr->size = st_size;
 
         /* Allocate temporary buffer and read into it the file. */
-        contents = malloc(st_size);
+        contents = emalloc(st_size);
         numread = fread(contents, 1, st_size, fp);
 
         /* Calculate and store the checksum, free the temporary buffer

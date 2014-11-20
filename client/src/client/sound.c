@@ -87,7 +87,7 @@ static sound_data_struct *sound_new(int type, const char *filename, void *data)
 {
     sound_data_struct *tmp;
 
-    tmp = malloc(sizeof(sound_data_struct));
+    tmp = emalloc(sizeof(sound_data_struct));
     tmp->type = type;
     tmp->filename = estrdup(filename);
     tmp->data = data;

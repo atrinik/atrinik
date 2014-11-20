@@ -212,7 +212,7 @@ void display_mapscroll(int dx, int dy, int old_w, int old_h)
         }
     }
 
-    free(cells_old);
+    efree(cells_old);
 
     sound_ambient_mapcroll(dx, dy);
     cpl.target_object_index = 0;

@@ -161,7 +161,7 @@ static void rm_def_create(char *str)
             uint32 x, y;
             char path[HUGE_BUF * 4];
 
-            rm_def->maps = realloc(rm_def->maps, sizeof(*rm_def->maps) * (rm_def->num_maps + 1));
+            rm_def->maps = erealloc(rm_def->maps, sizeof(*rm_def->maps) * (rm_def->num_maps + 1));
 
             if (sscanf(cp + 4, "%x %x %s", &x, &y, path) == 3) {
                 rm_def->maps[rm_def->num_maps].xpos = x;
@@ -176,7 +176,7 @@ static void rm_def_create(char *str)
             char label_name[MAX_BUF], label_text[HUGE_BUF * 2];
 
             if (sscanf(cp + 6, "%x %x %s %8191[^\n]", &x, &y, label_name, label_text) == 4) {
-                rm_def->labels = realloc(rm_def->labels, sizeof(*rm_def->labels) * (rm_def->num_labels + 1));
+                rm_def->labels = erealloc(rm_def->labels, sizeof(*rm_def->labels) * (rm_def->num_labels + 1));
                 rm_def->labels[rm_def->num_labels].hidden = -1;
                 rm_def->labels[rm_def->num_labels].x = x;
                 rm_def->labels[rm_def->num_labels].y = y;
@@ -194,7 +194,7 @@ static void rm_def_create(char *str)
             char tooltip_name[MAX_BUF], tooltip[HUGE_BUF * 2];
 
             if (sscanf(cp + 8, "%x %x %x %x %s %8191[^\n]", &x, &y, &w, &h, tooltip_name, tooltip) == 6) {
-                rm_def->tooltips = realloc(rm_def->tooltips, sizeof(*rm_def->tooltips) * (rm_def->num_tooltips + 1));
+                rm_def->tooltips = erealloc(rm_def->tooltips, sizeof(*rm_def->tooltips) * (rm_def->num_tooltips + 1));
                 rm_def->tooltips[rm_def->num_tooltips].hidden = -1;
                 rm_def->tooltips[rm_def->num_tooltips].outline = 0;
                 rm_def->tooltips[rm_def->num_tooltips].x = x;
@@ -737,11 +737,11 @@ void socket_command_region_map(uint8 *data, size_t len, size_t pos)
         packet_to_string(data, len, &pos, text, sizeof(text));
 
         if (type == RM_TYPE_LABEL) {
-            cmd_labels = realloc(cmd_labels, sizeof(*cmd_labels) * (num_cmd_labels + 1));
+            cmd_labels = erealloc(cmd_labels, sizeof(*cmd_labels) * (num_cmd_labels + 1));
             cmd_labels[num_cmd_labels] = estrdup(text);
             num_cmd_labels++;
         } else if (type == RM_TYPE_TOOLTIP) {
-            cmd_tooltips = realloc(cmd_tooltips, sizeof(*cmd_tooltips) * (num_cmd_tooltips + 1));
+            cmd_tooltips = erealloc(cmd_tooltips, sizeof(*cmd_tooltips) * (num_cmd_tooltips + 1));
             cmd_tooltips[num_cmd_tooltips] = estrdup(text);
             num_cmd_tooltips++;
         }
