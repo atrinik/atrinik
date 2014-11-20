@@ -39,20 +39,20 @@ def find_files(where, ext = None, rec = True, ignore_dirs = True, ignore_files =
     nodes = os.listdir(where)
     nodes.sort()
     files = []
-    
+
     for node in nodes:
         path = os.path.join(where, node)
-        
+
         # Do we want to ignore this path?
         if ignore_paths and path in ignore_paths:
             continue
-        
+
         # A directory.
         if os.path.isdir(path):
             # Do we want to go on recursively?
             if rec:
                 files += find_files(path, ext)
-                
+
             # Are we ignoring directories? If not, add it to the list.
             if not ignore_dirs:
                 files.append(path)
@@ -60,34 +60,16 @@ def find_files(where, ext = None, rec = True, ignore_dirs = True, ignore_files =
             # Only add the file if we're not ignoring files and ext was not set or it matches.
             if not ignore_files and (not ext or path.endswith(ext)):
                 files.append(path)
-                            
+
     return files
 
 for project_dir in PROJECT_DIRS:
     path = os.path.join(project_dir, "src")
     ignore_paths = [os.path.join(path, "updater"), os.path.join(path, "plugins"), os.path.join(path, "modules"), os.path.join(path, "tests")]
-    
+
     files = find_files(path, ".c", ignore_paths = [os.path.join(path, "toolkit")] + ignore_paths)
 
     fp = open(os.path.join(path, "cmake.txt"), "w")
     fp.write("set(SOURCES\n\t{}\n\t${{SOURCES_TOOLKIT}})".format("\n\t".join(["/".join(f.split(os.path.sep)[len(project_dir.split(os.path.sep)):]) for f in files])))
-    fp.close()
-
-    files = find_files(path, ".c", ignore_paths = ignore_paths)
-    name = os.path.join(project_dir, "make_win32", "CodeBlocks", os.path.basename(project_dir))
-
-    fp_xml = open(name + ".xml", "r")
-    fp = open(name + ".cbp", "w")
-
-    for line in fp_xml:
-        if line.endswith("<Projectunits />\n"):
-            indent = line.replace("<Projectunits />\n", "")
-
-            for f in files:
-                fp.write("""{}<Unit filename="..\\..\\{}" />\n""".format(indent, "\\".join(f.split(os.path.sep)[len(project_dir.split(os.path.sep)):])))
-        else:
-            fp.write(line)
-
-    fp_xml.close()
     fp.close()
 
