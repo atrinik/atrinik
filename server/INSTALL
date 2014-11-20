@@ -1,7 +1,23 @@
-Compiling the Atrinik server (Windows)
-=================================================
+======================
+= Installing Atrinik =
+======================
 
- === Prerequisites ===
+This document explains how to compile the Atrinik server.
+
+For compiling on GNU/Linux, see section 1.1.
+For compiling on Windows, see section 1.2.
+
+================================================
+= 1.1 Compiling the Atrinik server (GNU/Linux) =
+================================================
+
+TODO
+
+==============================================
+= 1.2 Compiling the Atrinik server (Windows) =
+==============================================
+
+You will need to install the following prerequisites:
 
  - MinGW
     The compiler that you will use for compiling. Download it here:
@@ -9,6 +25,13 @@ Compiling the Atrinik server (Windows)
 
     After installing, execute the mingw-install-prereq.bat script in "tools"
     directory (located in Atrinik root directory).
+ - Python
+    Download and install the latest Python 3 from here:
+
+    https://www.python.org/downloads/
+
+    For example this one:
+    https://www.python.org/ftp/python/3.4.2/python-3.4.2.msi
  - CMake
     Required to build makefiles. Download it here:
 
@@ -68,8 +91,6 @@ Compiling the Atrinik server (Windows)
     export CFLAGS="-DPTW32_STATIC_LIB"
     ./configure --prefix=/c/MinGW
     make && make check && make install
-
- === Compiling ===
 
  Make sure you have the following paths in your PATH environment variable, in
  this order (adjust accordingly if you installed MinGW or CMake somewhere else):
