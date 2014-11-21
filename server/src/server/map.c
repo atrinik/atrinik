@@ -721,6 +721,7 @@ static void load_objects(mapstruct *m, FILE *fp, int mapflags)
     }
 
     delete_loader_buffer(mybuffer);
+    object_destroy(op);
 
     m->in_memory = MAP_IN_MEMORY;
     check_light_source_list(m);
