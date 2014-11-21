@@ -155,7 +155,6 @@ mempool_struct *mempool_create(const char *description, uint32 expand, uint32 si
 
     pool = ecalloc(1, sizeof(mempool_struct));
 
-    pthread_mutex_init(&pool->mutex, NULL);
     pool->chunk_description = description;
     pool->expand_size = expand;
     pool->chunksize = size;
@@ -253,8 +252,6 @@ void *get_poolchunk_array_real(mempool_struct *pool, uint32 arraysize_exp)
 
     TOOLKIT_FUNC_PROTECTOR(API_NAME);
 
-    pthread_mutex_lock(&pool->mutex);
-
     if (pool->flags & MEMPOOL_BYPASS_POOLS) {
         new_obj = ecalloc(1, sizeof(mempool_chunk_struct) + (pool->chunksize << arraysize_exp));
         pool->nrof_allocated[arraysize_exp]++;
@@ -273,8 +270,6 @@ void *get_poolchunk_array_real(mempool_struct *pool, uint32 arraysize_exp)
     if (pool->constructor) {
         pool->constructor(MEM_USERDATA(new_obj));
     }
-
-    pthread_mutex_unlock(&pool->mutex);
 
     return MEM_USERDATA(new_obj);
 }
@@ -298,8 +293,6 @@ void return_poolchunk_array_real(void *data, uint32 arraysize_exp, mempool_struc
         return;
     }
 
-    pthread_mutex_lock(&pool->mutex);
-
     if (pool->destructor) {
         pool->destructor(data);
     }
@@ -316,6 +309,4 @@ void return_poolchunk_array_real(void *data, uint32 arraysize_exp, mempool_struc
         pool->freelist[arraysize_exp] = old;
         pool->nrof_free[arraysize_exp]++;
     }
-
-    pthread_mutex_unlock(&pool->mutex);
 }

@@ -134,13 +134,9 @@ static void socket_packet_dequeue(socket_struct *ns, packet_struct *packet)
  * @param ns Socket to clear the socket buffers for. */
 void socket_buffer_clear(socket_struct *ns)
 {
-    pthread_mutex_lock(&ns->packet_mutex);
-
     while (ns->packet_head) {
         socket_packet_dequeue(ns, ns->packet_head);
     }
-
-    pthread_mutex_unlock(&ns->packet_mutex);
 }
 
 /**
@@ -149,8 +145,6 @@ void socket_buffer_clear(socket_struct *ns)
 void socket_buffer_write(socket_struct *ns)
 {
     int amt, max;
-
-    pthread_mutex_lock(&ns->packet_mutex);
 
     while (ns->packet_head) {
         if (ns->packet_head->ndelay) {
@@ -195,8 +189,6 @@ void socket_buffer_write(socket_struct *ns)
             socket_packet_dequeue(ns, ns->packet_head);
         }
     }
-
-    pthread_mutex_unlock(&ns->packet_mutex);
 }
 
 void socket_send_packet(socket_struct *ns, packet_struct *packet)
@@ -230,8 +222,6 @@ void socket_send_packet(socket_struct *ns, packet_struct *packet)
 
     packet_append_uint8(tmp, packet->type);
 
-    pthread_mutex_lock(&ns->packet_mutex);
     socket_packet_enqueue(ns, tmp);
     socket_packet_enqueue(ns, packet);
-    pthread_mutex_unlock(&ns->packet_mutex);
 }

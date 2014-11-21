@@ -63,9 +63,6 @@ typedef void (*chunk_destructor)(void *ptr);
 
 /** Data for a single memory pool */
 typedef struct mempool_struct {
-    /** Mutex protecting the mempool's data. */
-    pthread_mutex_t mutex;
-
     /** Description of chunks. Mostly for debugging */
     const char *chunk_description;
 

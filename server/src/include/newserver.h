@@ -72,7 +72,7 @@ typedef struct MapCell_struct {
     /**
      * Possible target object UID cache. */
     tag_t target_object_count;
-    
+
     uint8 ext_flags; ///< Last ext flags.
 } MapCell;
 
@@ -158,7 +158,6 @@ typedef struct socket_struct {
 
     struct packet_struct *packet_head;
     struct packet_struct *packet_tail;
-    pthread_mutex_t packet_mutex;
 
     /**
      * Buffer for how many ticks have passed since the last keep alive

@@ -94,7 +94,6 @@ void init_connection(socket_struct *ns, const char *from_ip)
     memset(&ns->lastmap, 0, sizeof(struct Map));
     ns->packet_head = NULL;
     ns->packet_tail = NULL;
-    pthread_mutex_init(&ns->packet_mutex, NULL);
 
     ns->host = estrdup(from_ip);
 }
