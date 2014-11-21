@@ -13,9 +13,5 @@ if not exist "data" (
 
 copy ..\arch\*.* lib\*.*
 
-if exist "server-custom.cfg" (
-	set CLI_CONFIG=--config=server-custom.cfg
-)
-
 start /B python ./tools/http_server.py
-atrinik-server.exe %CLI_CONFIG% --logfile=logfile.log
+atrinik-server.exe --logfile=logfile.log

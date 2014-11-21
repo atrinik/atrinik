@@ -707,6 +707,10 @@ static void init_library(int argc, char *argv[])
 
     clioptions_load_config("server.cfg", "[General]");
 
+    if (path_exists("server-custom.cfg")) {
+        clioptions_load_config("server-custom.cfg", "[General]");
+    }
+
     if (argv != NULL) {
         clioptions_parse(argc, argv);
     }
