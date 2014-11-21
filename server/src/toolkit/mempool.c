@@ -149,23 +149,27 @@ mempool_struct *mempool_create(const char *description, size_t expand,
  */
 void mempool_free(mempool_struct *pool)
 {
-    size_t i;
-    mempool_chunk_struct *chunk, *next;
 
     TOOLKIT_FUNC_PROTECTOR(API_NAME);
 
-    for (i = 0; i < MEMPOOL_NROF_FREELISTS; i++) {
-        for (chunk = pool->freelist[i]; chunk != &end_marker;
-                chunk = next) {
-            next = chunk->next;
+#ifndef NDEBUG
+    {
+        size_t i;
+        void *data;
 
-            if (pool->deinitialisator) {
-                pool->deinitialisator(MEM_USERDATA(chunk));
+        for (i = 0; i < pool->chunks_num; i++) {
+            data = MEM_USERDATA(pool->chunks[i]);
+
+            if (CHUNK_FREE(data)) {
+                continue;
             }
 
-            efree(chunk);
+            log(LOG(ERROR), "Chunk #%"FMT64U" %p (%p) in pool %s has not been "
+                    "freed.", (uint64_t) i, pool->chunks[i], data,
+                    pool->chunk_description);
         }
     }
+#endif
 
     efree(pool);
 }
@@ -205,19 +209,26 @@ static void expand_mempool(mempool_struct *pool, size_t arraysize_exp)
     /* Set up the linked list */
     chunk = first;
 
-    for (i = 0; i < nrof_arrays - 1; i++) {
+    for (i = 0; i < nrof_arrays; i++) {
+#ifndef NDEBUG
+        if (!(pool->flags & MEMPOOL_BYPASS_POOLS)) {
+            pool->chunks = erealloc(pool->chunks, sizeof(*pool->chunks) *
+                    (pool->chunks_num + 1));
+            pool->chunks[pool->chunks_num] = chunk;
+            pool->chunks_num++;
+        }
+#endif
+
         if (pool->initialisator) {
             pool->initialisator(MEM_USERDATA(chunk));
         }
 
-        chunk = chunk->next = (mempool_chunk_struct *) (((char *) chunk) + chunksize_real);
-    }
-
-    /* And the last element */
-    chunk->next = &end_marker;
-
-    if (pool->initialisator) {
-        pool->initialisator(MEM_USERDATA(chunk));
+        if (i < nrof_arrays - 1) {
+            chunk = chunk->next = (mempool_chunk_struct *) (((char *) chunk) +
+                    chunksize_real);
+        } else {
+            chunk->next = &end_marker;
+        }
     }
 }
 

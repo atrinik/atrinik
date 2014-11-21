@@ -106,6 +106,18 @@ typedef struct mempool_struct {
      */
     size_t nrof_allocated[MEMPOOL_NROF_FREELISTS];
 
+#ifndef NDEBUG
+    /**
+     * Holds all the allocated chunks in an array of pointers.
+     */
+    mempool_chunk_struct **chunks;
+
+    /**
+     * Number of allocated ::chunks.
+     */
+    size_t chunks_num;
+#endif
+
     chunk_initialisator initialisator; ///< @copydoc chunk_initialisator
     chunk_deinitialisator deinitialisator; ///< @copydoc chunk_deinitialisator
     chunk_constructor constructor; ///< @copydoc chunk_constructor
