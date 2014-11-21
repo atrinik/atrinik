@@ -91,7 +91,7 @@ typedef void (*toolkit_func)(void);
     }
 
 
-#ifndef PRODUCTION
+#ifndef NDEBUG
 #define TOOLKIT_FUNC_PROTECTOR(__api_name) \
     { \
         if (!did_init) \

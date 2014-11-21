@@ -211,7 +211,7 @@ static void expand_mempool(mempool_struct *pool, uint32 arraysize_exp)
     chunksize_real = sizeof(mempool_chunk_struct) + (pool->chunksize << arraysize_exp);
     first = ecalloc(1, nrof_arrays * chunksize_real);
 
-#ifndef PRODUCTION
+#ifndef NDEBUG
     mempool_chunks = erealloc(mempool_chunks, sizeof(*mempool_chunks) * (mempool_chunks_num + 1));
     mempool_chunks[mempool_chunks_num] = first;
     mempool_chunks_num++;
