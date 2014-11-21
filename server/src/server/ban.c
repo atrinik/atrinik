@@ -83,8 +83,8 @@ static void remove_ban_entry(objectlink *ol)
     efree(ol->objlink.ban->ip);
     FREE_AND_CLEAR_HASH(ol->objlink.ban->name);
     objectlink_unlink(&ban_list, NULL, ol);
-    return_poolchunk(ol->objlink.ban, pool_ban);
-    return_poolchunk(ol, pool_objectlink);
+    return_poolchunk(pool_ban, ol->objlink.ban);
+    return_poolchunk(pool_objectlink, ol);
 }
 
 /**

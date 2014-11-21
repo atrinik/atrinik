@@ -437,7 +437,7 @@ void remove_party(party_struct *party)
     for (ol = party->members; ol; ol = ol->next) {
         CONTR(ol->objlink.ob)->party = NULL;
         objectlink_unlink(&party->members, NULL, ol);
-        return_poolchunk(ol, pool_objectlink);
+        return_poolchunk(pool_objectlink, ol);
     }
 
     for (tmp = first_party; tmp; prev = tmp, tmp = tmp->next) {
@@ -454,7 +454,7 @@ void remove_party(party_struct *party)
 
     FREE_AND_CLEAR_HASH(party->name);
     FREE_AND_CLEAR_HASH(party->leader);
-    return_poolchunk(party, pool_party);
+    return_poolchunk(pool_party, party);
 }
 
 /**

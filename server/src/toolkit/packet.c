@@ -114,7 +114,7 @@ void packet_free(packet_struct *packet)
         efree(packet->data);
     }
 
-    return_poolchunk(packet, pool_packets);
+    return_poolchunk(pool_packets, packet);
 }
 
 /**

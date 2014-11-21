@@ -26,39 +26,36 @@
  * @file
  * Memory pools API.
  *
- * The mempool system never frees memory back to the system, but is
- * extremely efficient when it comes to allocating and returning pool
- * chunks.
+ * The mempool system never frees memory back to the system, but is extremely
+ * efficient when it comes to allocating and returning pool chunks.
  *
- * Always use the get_poolchunk() and return_poolchunk() functions for
- * getting and returning memory chunks. expand_mempool() is used
- * internally.
+ * Always use the get_poolchunk() and return_poolchunk() functions for getting
+ * and returning memory chunks. expand_mempool() is used internally.
  *
- * Be careful if you want to use the internal chunk or pool data, its
- * semantics and format might change in the future. */
+ * Be careful if you want to use the internal chunk or pool data, its semantics
+ * and format might change in the future.
+ */
 
 #include <global.h>
 
-/**
- * Name of the API. */
-#define API_NAME mempool
-
-/**
- * If 1, the API has been initialized. */
-static uint8 did_init = 0;
+#define API_NAME mempool ///< Name of the API.
+static uint8 did_init = 0; ///< Whether the API has been initialized.
 
 /**
  * The removedlist is not ended by NULL, but by a pointer to the end_marker.
  *
- * Only used as an end marker for the lists */
-mempool_chunk_struct end_marker;
+ * Only used as an end marker for the lists.
+ */
+static mempool_chunk_struct end_marker;
 
 /**
- * Contains all the allocated chunks. */
-static mempool_chunk_struct **mempool_chunks;
-/**
- * Number of chunks in ::mempool_chunks. */
-static size_t mempool_chunks_num;
+ * Used by nearest_pow_two_exp() for a fast lookup.
+ */
+static const size_t exp_lookup[65] = {
+    0, 0, 1, 2, 2, 3, 3, 3, 3, 4, 4, 4, 4, 4, 4, 4, 4, 5, 5, 5, 5, 5,
+    5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6,
+    6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6
+};
 
 /**
  * Initialize the mempool API.
@@ -68,8 +65,6 @@ void toolkit_mempool_init(void)
 
     TOOLKIT_INIT_FUNC_START(mempool)
     {
-        mempool_chunks = NULL;
-        mempool_chunks_num = 0;
     }
     TOOLKIT_INIT_FUNC_END()
 }
@@ -82,33 +77,17 @@ void toolkit_mempool_deinit(void)
 
     TOOLKIT_DEINIT_FUNC_START(mempool)
     {
-        size_t i;
-
-        for (i = 0; i < mempool_chunks_num; i++) {
-            efree(mempool_chunks[i]);
-        }
-
-        if (mempool_chunks) {
-            efree(mempool_chunks);
-            mempool_chunks = NULL;
-        }
-
-        mempool_chunks_num = 0;
     }
     TOOLKIT_DEINIT_FUNC_END()
 }
 
 /**
  * Return the exponent exp needed to round n up to the nearest power of two, so
- * that
- * (1 << exp) >= n and (1 << (exp -1)) \< n */
-uint32 nearest_pow_two_exp(uint32 n)
+ * that (1 << exp) >= n and (1 << (exp - 1)) \< n
+ */
+size_t nearest_pow_two_exp(size_t n)
 {
-    static const uint32 exp_lookup[65] = {
-        0, 0, 1, 2, 2, 3, 3, 3, 3, 4, 4, 4, 4, 4, 4, 4, 4, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 6, 6, 6, 6,
-        6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6
-    };
-    uint32 i;
+    size_t i;
 
     TOOLKIT_FUNC_PROTECTOR(API_NAME);
 
@@ -116,44 +95,35 @@ uint32 nearest_pow_two_exp(uint32 n)
         return exp_lookup[n];
     }
 
-    for (i = 7; (uint32) (1 << i) < n; i++) {
+    for (i = 7; (1U << i) < n; i++) {
     }
 
     return i;
 }
 
 /**
- * A tiny little function to set up the constructors/destructors to
- * functions that may reside outside the library.
- * @param pool Pool.
- * @param constructor Constructor function.
- * @param destructor Destructor function. */
-void setup_poolfunctions(mempool_struct *pool, chunk_constructor constructor, chunk_destructor destructor)
-{
-    TOOLKIT_FUNC_PROTECTOR(API_NAME);
-    pool->constructor = constructor;
-    pool->destructor = destructor;
-}
-
-/**
  * Create a memory pool.
- * @param description
- * @param expand
- * @param size
- * @param flags
- * @param initialisator
- * @param deinitialisator
- * @param constructor
- * @param destructor
- * @return The created memory pool. */
-mempool_struct *mempool_create(const char *description, uint32 expand, uint32 size, uint32 flags, chunk_initialisator initialisator, chunk_deinitialisator deinitialisator, chunk_constructor constructor, chunk_destructor destructor)
+ * @param description @copydoc mempool_struct::chunk_description
+ * @param expand @copydoc mempool_struct::expand_size
+ * @param size @copydoc mempool_struct::chunk_size
+ * @param flags @copydoc mempool_struct::flags
+ * @param initialisator @copydoc mempool_struct::initialisator
+ * @param deinitialisator @copydoc mempool_struct::deinitialisator
+ * @param constructor @copydoc mempool_struct::constructor
+ * @param destructor @copydoc mempool_struct::destructor
+ * @return The created memory pool.
+ */
+mempool_struct *mempool_create(const char *description, size_t expand,
+        size_t size, uint32 flags, chunk_initialisator initialisator,
+        chunk_deinitialisator deinitialisator, chunk_constructor constructor,
+        chunk_destructor destructor)
 {
-    int i;
+    size_t i;
     mempool_struct *pool;
 
     TOOLKIT_FUNC_PROTECTOR(API_NAME);
 
-    pool = ecalloc(1, sizeof(mempool_struct));
+    pool = ecalloc(1, sizeof(*pool));
 
     pool->chunk_description = description;
     pool->expand_size = expand;
@@ -175,89 +145,109 @@ mempool_struct *mempool_create(const char *description, uint32 expand, uint32 si
 
 /**
  * Free a mempool.
- * @param pool The mempool to free. */
+ * @param pool The mempool to free.
+ */
 void mempool_free(mempool_struct *pool)
 {
+    size_t i;
+    mempool_chunk_struct *chunk, *next;
+
     TOOLKIT_FUNC_PROTECTOR(API_NAME);
+
+    for (i = 0; i < MEMPOOL_NROF_FREELISTS; i++) {
+        for (chunk = pool->freelist[i]; chunk != &end_marker;
+                chunk = next) {
+            next = chunk->next;
+
+            if (pool->deinitialisator) {
+                pool->deinitialisator(MEM_USERDATA(chunk));
+            }
+
+            efree(chunk);
+        }
+    }
+
     efree(pool);
 }
 
 /**
- * Expands the memory pool with MEMPOOL_EXPAND new chunks. All new chunks
- * are put into the pool's freelist for future use.
- * expand_mempool is only meant to be used from get_poolchunk().
+ * Expands the memory pool based on its settings. All new chunks are put into
+ * the pool's freelist for future use.
  * @param pool Pool to expand.
  * @param arraysize_exp The exponent for the array size, for example 3
- * for arrays of length 8 (2^3 = 8) */
-static void expand_mempool(mempool_struct *pool, uint32 arraysize_exp)
+ * for arrays of length 8 (2^3 = 8)
+ */
+static void expand_mempool(mempool_struct *pool, size_t arraysize_exp)
 {
-    uint32 i;
-    mempool_chunk_struct *first, *ptr;
-    int chunksize_real, nrof_arrays;
+    mempool_chunk_struct *first, *chunk;
+    size_t chunksize_real, nrof_arrays, i;
 
-    TOOLKIT_FUNC_PROTECTOR(API_NAME);
-
-    if (pool->nrof_free[arraysize_exp] > 0) {
-        logger_print(LOG(BUG), "called with chunks still available in pool");
-    }
+    assert(pool != NULL);
+    assert(arraysize_exp < MEMPOOL_NROF_FREELISTS);
+    assert(pool->nrof_free[arraysize_exp] == 0);
 
     nrof_arrays = pool->expand_size >> arraysize_exp;
 
     if (nrof_arrays == 0) {
-        logger_print(LOG(DEBUG), "called with too big array size for its expand_size");
+        log(LOG(ERROR), "Called with too large array size exponent: %"FMT64U,
+                (uint64_t) arraysize_exp);
         nrof_arrays = 1;
     }
 
-    chunksize_real = sizeof(mempool_chunk_struct) + (pool->chunksize << arraysize_exp);
+    chunksize_real = sizeof(mempool_chunk_struct) +
+            (pool->chunksize << arraysize_exp);
     first = ecalloc(1, nrof_arrays * chunksize_real);
-
-#ifndef NDEBUG
-    mempool_chunks = erealloc(mempool_chunks, sizeof(*mempool_chunks) * (mempool_chunks_num + 1));
-    mempool_chunks[mempool_chunks_num] = first;
-    mempool_chunks_num++;
-#endif
 
     pool->freelist[arraysize_exp] = first;
     pool->nrof_allocated[arraysize_exp] += nrof_arrays;
     pool->nrof_free[arraysize_exp] = nrof_arrays;
 
     /* Set up the linked list */
-    ptr = first;
+    chunk = first;
 
-    for (i = 0; (int) i < nrof_arrays - 1; i++) {
+    for (i = 0; i < nrof_arrays - 1; i++) {
         if (pool->initialisator) {
-            pool->initialisator(MEM_USERDATA(ptr));
+            pool->initialisator(MEM_USERDATA(chunk));
         }
 
-        ptr = ptr->next = (mempool_chunk_struct *) (((char *) ptr) + chunksize_real);
+        chunk = chunk->next = (mempool_chunk_struct *) (((char *) chunk) + chunksize_real);
     }
 
     /* And the last element */
-    ptr->next = &end_marker;
+    chunk->next = &end_marker;
 
     if (pool->initialisator) {
-        pool->initialisator(MEM_USERDATA(ptr));
+        pool->initialisator(MEM_USERDATA(chunk));
     }
 }
 
 /**
  * Get a chunk from the selected pool. The pool will be expanded if
  * necessary.
- * @param pool
- * @param arraysize_exp
- * @return  */
-void *get_poolchunk_array_real(mempool_struct *pool, uint32 arraysize_exp)
+ * @param pool Pool to get the chunk from.
+ * @param arraysize_exp The exponent for the array size, for example 3
+ * for arrays of length 8 (2^3 = 8)
+ * @return Acquired memory chunk, guaranteed to be zero-filled.
+ */
+void *get_poolchunk_array_real(mempool_struct *pool, size_t arraysize_exp)
 {
     mempool_chunk_struct *new_obj;
 
     TOOLKIT_FUNC_PROTECTOR(API_NAME);
 
+    assert(pool != NULL);
+    assert(arraysize_exp < MEMPOOL_NROF_FREELISTS);
+
     if (pool->flags & MEMPOOL_BYPASS_POOLS) {
-        new_obj = ecalloc(1, sizeof(mempool_chunk_struct) + (pool->chunksize << arraysize_exp));
+        new_obj = ecalloc(1, sizeof(mempool_chunk_struct) +
+                (pool->chunksize << arraysize_exp));
         pool->nrof_allocated[arraysize_exp]++;
     } else {
         if (pool->nrof_free[arraysize_exp] == 0) {
             expand_mempool(pool, arraysize_exp);
+        } else {
+            memset(MEM_USERDATA(pool->freelist[arraysize_exp]), 0,
+                    pool->chunksize);
         }
 
         new_obj = pool->freelist[arraysize_exp];
@@ -275,21 +265,30 @@ void *get_poolchunk_array_real(mempool_struct *pool, uint32 arraysize_exp)
 }
 
 /**
- * Return a chunk to the selected pool. Don't return memory to the wrong
- * pool!
- *
- * Returned memory will be reused, so be careful about those stale pointers
- * @param data
- * @param arraysize_exp
- * @param pool  */
-void return_poolchunk_array_real(void *data, uint32 arraysize_exp, mempool_struct *pool)
+ * Return a chunk to the selected pool.
+ * @warning Don't ever return memory to the wrong pool.
+ * @warning Returned memory will be reused, so be careful about stale pointers.
+ * @param pool Memory pool to return to.
+ * @param arraysize_exp The exponent for the array size, for example 3
+ * for arrays of length 8 (2^3 = 8)
+ * @param data Data to return.
+ */
+void return_poolchunk_array_real(mempool_struct *pool, size_t arraysize_exp,
+        void *data)
 {
-    mempool_chunk_struct *old = MEM_POOLDATA(data);
+    mempool_chunk_struct *chunk;
 
     TOOLKIT_FUNC_PROTECTOR(API_NAME);
 
+    assert(pool != NULL);
+    assert(arraysize_exp < MEMPOOL_NROF_FREELISTS);
+    assert(data != NULL);
+
+    chunk = MEM_POOLDATA(data);
+
     if (CHUNK_FREE(data)) {
-        logger_print(LOG(BUG), "on already free chunk (pool '%s')", pool->chunk_description);
+        log(LOG(ERROR), "Chunk %p in pool '%s' has already been freed.", chunk,
+                pool->chunk_description);
         return;
     }
 
@@ -299,14 +298,14 @@ void return_poolchunk_array_real(void *data, uint32 arraysize_exp, mempool_struc
 
     if (pool->flags & MEMPOOL_BYPASS_POOLS) {
         if (pool->deinitialisator) {
-            pool->deinitialisator(MEM_USERDATA(old));
+            pool->deinitialisator(MEM_USERDATA(chunk));
         }
 
-        efree(old);
+        efree(chunk);
         pool->nrof_allocated[arraysize_exp]--;
     } else {
-        old->next = pool->freelist[arraysize_exp];
-        pool->freelist[arraysize_exp] = old;
+        chunk->next = pool->freelist[arraysize_exp];
+        pool->freelist[arraysize_exp] = chunk;
         pool->nrof_free[arraysize_exp]++;
     }
 }

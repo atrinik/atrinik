@@ -470,7 +470,7 @@ typedef struct oblnk {
     long value;
 } objectlink;
 
-#define free_objectlink_simple(_chunk_) return_poolchunk((_chunk_), pool_objectlink);
+#define free_objectlink_simple(_chunk_) return_poolchunk(pool_objectlink, (_chunk_));
 
 #define CONTR(ob) ((player *) ((ob)->custom_attrset))
 

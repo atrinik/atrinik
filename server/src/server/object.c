@@ -1390,7 +1390,7 @@ void object_destroy(object *ob)
         case PLAYER:
             /* Players are changed into DEAD_OBJECTs when they logout */
         case DEAD_OBJECT:
-            return_poolchunk(ob->custom_attrset, pool_player);
+            return_poolchunk(pool_player, ob->custom_attrset);
             break;
 
         case MAGIC_MIRROR:
@@ -1420,7 +1420,7 @@ void object_destroy(object *ob)
     ob->count = 0;
 
     /* Return the memory to the mempool. */
-    return_poolchunk(ob, pool_object);
+    return_poolchunk(pool_object, ob);
 }
 
 /**
