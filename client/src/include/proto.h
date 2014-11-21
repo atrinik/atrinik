@@ -830,15 +830,13 @@ extern void *memory_ecalloc(size_t nmemb, size_t size);
 extern void *memory_erealloc(void *ptr, size_t size);
 extern void *memory_reallocz(void *ptr, size_t old_size, size_t new_size);
 /* src/toolkit/mempool.c */
-extern mempool_chunk_struct end_marker;
 extern void toolkit_mempool_init(void);
 extern void toolkit_mempool_deinit(void);
-extern uint32 nearest_pow_two_exp(uint32 n);
-extern void setup_poolfunctions(mempool_struct *pool, chunk_constructor constructor, chunk_destructor destructor);
-extern mempool_struct *mempool_create(const char *description, uint32 expand, uint32 size, uint32 flags, chunk_initialisator initialisator, chunk_deinitialisator deinitialisator, chunk_constructor constructor, chunk_destructor destructor);
+extern size_t nearest_pow_two_exp(size_t n);
+extern mempool_struct *mempool_create(const char *description, size_t expand, size_t size, uint32 flags, chunk_initialisator initialisator, chunk_deinitialisator deinitialisator, chunk_constructor constructor, chunk_destructor destructor);
 extern void mempool_free(mempool_struct *pool);
-extern void *get_poolchunk_array_real(mempool_struct *pool, uint32 arraysize_exp);
-extern void return_poolchunk_array_real(void *data, uint32 arraysize_exp, mempool_struct *pool);
+extern void *get_poolchunk_array_real(mempool_struct *pool, size_t arraysize_exp);
+extern void return_poolchunk_array_real(mempool_struct *pool, size_t arraysize_exp, void *data);
 /* src/toolkit/packet.c */
 extern void toolkit_packet_init(void);
 extern void toolkit_packet_deinit(void);
