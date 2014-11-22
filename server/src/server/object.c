@@ -1398,6 +1398,14 @@ void object_destroy_inv(object *ob)
  * @param ob The object to destroy (free). */
 void object_destroy(object *ob)
 {
+    if (!QUERY_FLAG(ob, FLAG_REMOVED)) {
+        char buf[HUGE_BUF];
+
+        object_debugger(ob, VS(buf));
+        log(LOG(ERROR), "Freeing an object that was not removed: %s", buf);
+        return;
+    }
+
     free_key_values(ob);
 
     if (QUERY_FLAG(ob, FLAG_IS_LINKED)) {
