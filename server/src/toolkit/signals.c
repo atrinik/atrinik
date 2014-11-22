@@ -98,8 +98,14 @@ static void signal_handler(int sig, siginfo_t *siginfo, void *context)
 {
     struct tm *tm;
     static time_t t = 0;
-    char path[MAX_BUF], date[MAX_BUF];
+    char path[MAX_BUF], date[MAX_BUF], *homedir;
     FILE *fp;
+
+#ifndef WIN32
+    homedir = getenv("HOME");
+#else
+    homedir = getenv("APPDATA");
+#endif
 
     if (t == 0) {
         t = time(NULL);
@@ -108,11 +114,17 @@ static void signal_handler(int sig, siginfo_t *siginfo, void *context)
     tm = localtime(&t);
 
     strftime(VS(date), "%Y_%m_%d_%H-%M-%S", tm);
-    snprintf(VS(path), "traceback_%s.txt", date);
+    snprintf(VS(path), "%s/.atrinik/"EXECUTABLE"-traceback-%s.txt", homedir,
+            date);
     fp = fopen(path, "a");
 
     if (fp == NULL) {
-        fp = stderr;
+        snprintf(VS(path), EXECUTABLE"-traceback-%s.txt", date);
+        fp = fopen(path, "a");
+
+        if (fp == NULL) {
+            fp = stderr;
+        }
     }
 
 #ifdef WIN32
