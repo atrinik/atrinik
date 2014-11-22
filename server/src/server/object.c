@@ -974,7 +974,9 @@ static void object_debugger(object *op, char *buf, size_t size)
  * Initialize the object API. */
 void object_init(void)
 {
-    pool_object = mempool_create("objects", OBJECT_EXPAND, sizeof(object), 0, NULL, NULL, (chunk_constructor) initialize_object, NULL);
+    pool_object = mempool_create("objects", OBJECT_EXPAND, sizeof(object),
+            MEMPOOL_ALLOW_FREEING, NULL, NULL,
+            (chunk_constructor) initialize_object, NULL);
     mempool_set_debugger(pool_object, (chunk_debugger) object_debugger);
 }
 

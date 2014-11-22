@@ -167,6 +167,7 @@ void toolkit_commands_init(void)
         commands_add(COMMAND(follow), 0.0, COMMAND_PERMISSION);
         commands_add(COMMAND(freeze), 0.0, COMMAND_PERMISSION);
         commands_add(COMMAND(kick), 0.0, COMMAND_PERMISSION);
+        commands_add(COMMAND(memfree), 0.0, COMMAND_PERMISSION);
         commands_add(COMMAND(mod_chat), 0.0, COMMAND_PERMISSION);
         commands_add(COMMAND(no_chat), 0.0, COMMAND_PERMISSION);
         commands_add(COMMAND(opsay), 0.0, COMMAND_PERMISSION);

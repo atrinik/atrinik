@@ -58,6 +58,11 @@ static const size_t exp_lookup[65] = {
 };
 
 /**
+ * Pool for ::mempool_puddle_struct.
+ */
+mempool_struct *pool_puddle;
+
+/**
  * Initialize the mempool API.
  * @internal */
 void toolkit_mempool_init(void)
@@ -67,6 +72,10 @@ void toolkit_mempool_init(void)
     {
         toolkit_import(memory);
         toolkit_import(string);
+
+        pool_puddle = mempool_create("puddles", 10,
+                sizeof(mempool_puddle_struct), MEMPOOL_ALLOW_FREEING,
+                NULL, NULL, NULL, NULL);
     }
     TOOLKIT_INIT_FUNC_END()
 }
@@ -79,6 +88,7 @@ void toolkit_mempool_deinit(void)
 
     TOOLKIT_DEINIT_FUNC_START(mempool)
     {
+        mempool_free(pool_puddle);
     }
     TOOLKIT_DEINIT_FUNC_END()
 }
@@ -101,6 +111,117 @@ size_t nearest_pow_two_exp(size_t n)
     }
 
     return i;
+}
+
+/* Comparison function for sort_linked_list() */
+static int sort_puddle_by_nrof_free(void *a, void *b, void *args)
+{
+    mempool_puddle_struct *puddle_a, *puddle_b;
+
+    puddle_a = a;
+    puddle_b = b;
+
+    if (puddle_a->nrof_free < puddle_b->nrof_free) {
+        return -1;
+    } else if (puddle_a->nrof_free > puddle_b->nrof_free) {
+        return 1;
+    } else {
+        return 0;
+    }
+}
+
+/**
+ * Go through the freelists and free puddles with no used chunks.
+ * @return Number of freed puddles.
+ */
+static size_t mempool_free_puddles(mempool_struct *pool)
+{
+    size_t chunksize_real, nrof_arrays, i, j, freed;
+    mempool_chunk_struct *last_free, *chunk;
+    mempool_puddle_struct *puddle, *next_puddle;
+
+    assert(pool != NULL);
+
+    if (pool->flags & MEMPOOL_BYPASS_POOLS) {
+        return 0;
+    }
+
+    freed = 0;
+
+    for (i = 0; i < MEMPOOL_NROF_FREELISTS; i++) {
+        chunksize_real = sizeof(mempool_chunk_struct) + (pool->chunksize << i);
+        nrof_arrays = pool->expand_size >> i;
+
+        /* Free empty puddles and setup puddle-local freelists */
+        for (puddle = pool->puddlelist[i], pool->puddlelist[i] = NULL;
+                puddle != NULL; puddle = next_puddle) {
+            next_puddle = puddle->next;
+
+            /* Count free chunks in puddle, and set up a local freelist */
+            puddle->first_free = puddle->last_free = NULL;
+            puddle->nrof_free = 0;
+
+            for (j = 0; j < nrof_arrays; j++) {
+                chunk = (mempool_chunk_struct *)
+                        (((char *) puddle->first_chunk) + chunksize_real * j);
+
+                /* Find free chunks. */
+                if (CHUNK_FREE(MEM_USERDATA(chunk))) {
+                    if (puddle->nrof_free == 0) {
+                        puddle->first_free = chunk;
+                        puddle->last_free = chunk;
+                        chunk->next = NULL;
+                    } else {
+                        chunk->next = puddle->first_free;
+                        puddle->first_free = chunk;
+                    }
+
+                    puddle->nrof_free++;
+                }
+            }
+
+            /* Can we actually free this puddle? */
+            if (puddle->nrof_free == nrof_arrays) {
+                /* Yup. Forget about it. */
+                free(puddle->first_chunk);
+                return_poolchunk(pool_puddle, puddle);
+                pool->nrof_free[i] -= nrof_arrays;
+                pool->nrof_allocated[i] -= nrof_arrays;
+                freed++;
+            } else {
+                /* Nope, keep this puddle: put it back into the tracking list */
+                puddle->next = pool->puddlelist[i];
+                pool->puddlelist[i] = puddle;
+            }
+        }
+
+        /* Sort the puddles by amount of free chunks. It will let us set up the
+         * freelist so that the chunks from the fullest puddles are used first.
+         * This should (hopefully) help us free some of the lesser-used puddles
+         * earlier. */
+        pool->puddlelist[i] = sort_linked_list(pool->puddlelist[i], 0,
+                sort_puddle_by_nrof_free, NULL, NULL, NULL);
+
+        /* Finally: restore the global freelist */
+        pool->freelist[i] = &end_marker;
+        last_free = &end_marker;
+
+        for (puddle = pool->puddlelist[i]; puddle != NULL;
+                puddle = puddle->next) {
+            if (puddle->nrof_free > 0) {
+                if (pool->freelist[i] == &end_marker) {
+                    pool->freelist[i] = puddle->first_free;
+                } else {
+                    last_free->next = puddle->first_free;
+                }
+
+                puddle->last_free->next = &end_marker;
+                last_free = puddle->last_free;
+            }
+        }
+    }
+
+    return freed;
 }
 
 /**
@@ -151,40 +272,56 @@ mempool_struct *mempool_create(const char *description, size_t expand,
  */
 void mempool_free(mempool_struct *pool)
 {
+    size_t chunksize_real, nrof_arrays, i, j;
+    char buf[HUGE_BUF];
+    mempool_puddle_struct *puddle;
+    mempool_chunk_struct *chunk;
+    void *data;
 
     TOOLKIT_FUNC_PROTECTOR(API_NAME);
 
-#ifndef NDEBUG
-    {
-        size_t i;
-        void *data;
-        char buf[HUGE_BUF];
+    assert(pool != NULL);
 
-        if (pool->debugger == NULL) {
-            snprintf(VS(buf), "no debug information available");
-        }
+    if (pool->debugger == NULL) {
+        snprintf(VS(buf), "no debug information available");
+    }
 
-        for (i = 0; i < pool->chunks_num; i++) {
-            data = MEM_USERDATA(pool->chunks[i]);
+    for (i = 0; i < MEMPOOL_NROF_FREELISTS; i++) {
+        chunksize_real = sizeof(mempool_chunk_struct) + (pool->chunksize << i);
+        nrof_arrays = pool->expand_size >> i;
 
-            if (CHUNK_FREE(data)) {
-                continue;
+        for (puddle = pool->puddlelist[i]; puddle != NULL;
+                puddle = puddle->next) {
+            for (j = 0; j < nrof_arrays; j++) {
+                chunk = (mempool_chunk_struct *)
+                        (((char *) puddle->first_chunk) + chunksize_real * j);
+                data = MEM_USERDATA(chunk);
+
+                /* Find free chunks. */
+                if (CHUNK_FREE(data)) {
+                    continue;
+                }
+
+                if (pool->debugger != NULL) {
+                    pool->debugger(data, VS(buf));
+                }
+
+                log(LOG(ERROR), "Chunk %p (%p) in pool %s has not been freed: "
+                        "%s", chunk, data, pool->chunk_description, buf);
             }
-
-            if (pool->debugger != NULL) {
-                pool->debugger(data, VS(buf));
-            }
-
-            log(LOG(ERROR), "Chunk #%"FMT64U" %p (%p) in pool %s has not been "
-                    "freed: %s", (uint64) i, pool->chunks[i], data,
-                    pool->chunk_description, buf);
         }
     }
-#endif
+
+    mempool_free_puddles(pool);
 
     efree(pool);
 }
 
+/**
+ * Set the mempool's debugging function.
+ * @param pool Memory pool.
+ * @param debugger Debugging function to use.
+ */
 void mempool_set_debugger(mempool_struct *pool, chunk_debugger debugger)
 {
 #ifndef NDEBUG
@@ -192,6 +329,12 @@ void mempool_set_debugger(mempool_struct *pool, chunk_debugger debugger)
 #endif
 }
 
+/**
+ * Acquire detailed statistics about the specified memory pool.
+ * @param pool Memory pool.
+ * @param[out] buf Buffer to use for writing.
+ * @param size Size of 'buf'.
+ */
 void mempool_stats(mempool_struct *pool, char *buf, size_t size)
 {
     size_t i, allocated;
@@ -242,10 +385,11 @@ void mempool_stats(mempool_struct *pool, char *buf, size_t size)
  * @param arraysize_exp The exponent for the array size, for example 3
  * for arrays of length 8 (2^3 = 8)
  */
-static void expand_mempool(mempool_struct *pool, size_t arraysize_exp)
+static void mempool_expand(mempool_struct *pool, size_t arraysize_exp)
 {
     mempool_chunk_struct *first, *chunk;
     size_t chunksize_real, nrof_arrays, i;
+    mempool_puddle_struct *p;
 
     assert(pool != NULL);
     assert(arraysize_exp < MEMPOOL_NROF_FREELISTS);
@@ -273,15 +417,6 @@ static void expand_mempool(mempool_struct *pool, size_t arraysize_exp)
     chunk = first;
 
     for (i = 0; i < nrof_arrays; i++) {
-#ifndef NDEBUG
-        if (!(pool->flags & MEMPOOL_BYPASS_POOLS)) {
-            pool->chunks = erealloc(pool->chunks, sizeof(*pool->chunks) *
-                    (pool->chunks_num + 1));
-            pool->chunks[pool->chunks_num] = chunk;
-            pool->chunks_num++;
-        }
-#endif
-
         if (pool->initialisator) {
             pool->initialisator(MEM_USERDATA(chunk));
         }
@@ -292,6 +427,13 @@ static void expand_mempool(mempool_struct *pool, size_t arraysize_exp)
         } else {
             chunk->next = &end_marker;
         }
+    }
+
+    if (pool != pool_puddle) {
+        p = get_poolchunk(pool_puddle);
+        p->first_chunk = first;
+        p->next = pool->puddlelist[arraysize_exp];
+        pool->puddlelist[arraysize_exp] = p;
     }
 }
 
@@ -320,7 +462,7 @@ void *get_poolchunk_array_real(mempool_struct *pool, size_t arraysize_exp)
         pool->nrof_allocated[arraysize_exp]++;
     } else {
         if (pool->nrof_free[arraysize_exp] == 0) {
-            expand_mempool(pool, arraysize_exp);
+            mempool_expand(pool, arraysize_exp);
         } else {
             memset(MEM_USERDATA(pool->freelist[arraysize_exp]), 0,
                     pool->chunksize);
@@ -386,4 +528,20 @@ void return_poolchunk_array_real(mempool_struct *pool, size_t arraysize_exp,
         pool->freelist[arraysize_exp] = chunk;
         pool->nrof_free[arraysize_exp]++;
     }
+}
+
+/**
+ * Attempt to reclaim no longer used memory allocated by the specified pool.
+ * @param pool
+ * @return Number of reclaimed puddles.
+ */
+size_t mempool_reclaim(mempool_struct *pool)
+{
+    assert(pool != NULL);
+
+    if (!(pool->flags & MEMPOOL_ALLOW_FREEING)) {
+        return 0;
+    }
+
+    return mempool_free_puddles(pool);
 }
