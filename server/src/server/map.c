@@ -1172,12 +1172,11 @@ int new_save_map(mapstruct *m, int flag)
 static void free_all_objects(mapstruct *m)
 {
     int x, y;
-    object *ob, *next, *head;
+    object *ob, *head;
 
     for (x = 0; x < MAP_WIDTH(m); x++) {
         for (y = 0; y < MAP_HEIGHT(m); y++) {
-            for (ob = GET_MAP_OB(m, x, y); ob; ob = next) {
-                next = ob->above;
+            while ((ob = GET_MAP_OB(m, x, y)) != NULL) {
                 head = HEAD(ob);
 
                 object_remove(head, 0);
