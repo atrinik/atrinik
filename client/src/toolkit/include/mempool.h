@@ -65,6 +65,10 @@ typedef void (*chunk_constructor)(void *ptr);
  * Optional destructor to be called when returning chunks.
  */
 typedef void (*chunk_destructor)(void *ptr);
+/**
+ * Optional debugger to be called when debugging chunks.
+ */
+typedef void (*chunk_debugger)(void *ptr, char *buf, size_t size);
 
 /* Definitions used for array handling */
 #define MEMPOOL_NROF_FREELISTS 8
@@ -122,6 +126,10 @@ typedef struct mempool_struct {
     chunk_deinitialisator deinitialisator; ///< @copydoc chunk_deinitialisator
     chunk_constructor constructor; ///< @copydoc chunk_constructor
     chunk_destructor destructor; ///< @copydoc chunk_destructor
+
+#ifndef NDEBUG
+    chunk_debugger debugger; ///< @copydoc chunk_debugger;
+#endif
 } mempool_struct;
 
 /**
