@@ -1308,11 +1308,13 @@ void drop_ob_inv(object *ob)
                 quest_handle(enemy, tmp_op);
             }
 
+            object_destroy(tmp_op);
             continue;
         }
 
         if ((QUERY_FLAG(ob, FLAG_STARTEQUIP) && !(tmp_op->type == ARROW && tmp_op->attacked_by_count != 0)) ||
                 (tmp_op->type != RUNE && (QUERY_FLAG(tmp_op, FLAG_SYS_OBJECT) || QUERY_FLAG(tmp_op, FLAG_STARTEQUIP) || QUERY_FLAG(tmp_op, FLAG_NO_DROP)))) {
+            object_destroy(tmp_op);
             continue;
         }
 
@@ -1336,6 +1338,8 @@ void drop_ob_inv(object *ob)
             } else {
                 insert_ob_in_map(tmp_op, ob->map, NULL, 0);
             }
+        } else {
+            object_destroy(tmp_op);
         }
     }
 
