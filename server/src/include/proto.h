@@ -1190,6 +1190,7 @@ extern unsigned long isqrt(unsigned long n);
 extern int rndm(int min, int max);
 extern int rndm_chance(uint32 n);
 extern void *sort_linked_list(void *p, unsigned index, int (*compare)(void *, void *, void *), void *pointer, unsigned long *pcount, void *end_marker);
+extern size_t nearest_pow_two_exp(size_t n);
 /* src/toolkit/memory.c */
 extern void toolkit_memory_init(void);
 extern void toolkit_memory_deinit(void);
@@ -1202,7 +1203,6 @@ extern void *memory_reallocz(void *ptr, size_t old_size, size_t new_size);
 extern mempool_struct *pool_puddle;
 extern void toolkit_mempool_init(void);
 extern void toolkit_mempool_deinit(void);
-extern size_t nearest_pow_two_exp(size_t n);
 extern mempool_struct *mempool_create(const char *description, size_t expand, size_t size, uint32 flags, chunk_initialisator initialisator, chunk_deinitialisator deinitialisator, chunk_constructor constructor, chunk_destructor destructor);
 extern void mempool_free(mempool_struct *pool);
 extern void mempool_set_debugger(mempool_struct *pool, chunk_debugger debugger);

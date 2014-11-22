@@ -39,6 +39,15 @@
 static uint8 did_init = 0;
 
 /**
+ * Used by nearest_pow_two_exp() for a fast lookup.
+ */
+static const size_t exp_lookup[65] = {
+    0, 0, 1, 2, 2, 3, 3, 3, 3, 4, 4, 4, 4, 4, 4, 4, 4, 5, 5, 5, 5, 5,
+    5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6,
+    6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6
+};
+
+/**
  * Initialize the math API.
  * @internal */
 void toolkit_math_init(void)
@@ -269,4 +278,24 @@ void *sort_linked_list(void *p, unsigned index,
     }
 
     return tape[base].first;
+}
+
+/**
+ * Return the exponent exp needed to round n up to the nearest power of two, so
+ * that (1 << exp) >= n and (1 << (exp - 1)) \< n
+ */
+size_t nearest_pow_two_exp(size_t n)
+{
+    size_t i;
+
+    TOOLKIT_FUNC_PROTECTOR(API_NAME);
+
+    if (n <= 64) {
+        return exp_lookup[n];
+    }
+
+    for (i = 7; (1U << i) < n; i++) {
+    }
+
+    return i;
 }
