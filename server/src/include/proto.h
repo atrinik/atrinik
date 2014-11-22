@@ -1198,6 +1198,8 @@ extern void toolkit_mempool_deinit(void);
 extern size_t nearest_pow_two_exp(size_t n);
 extern mempool_struct *mempool_create(const char *description, size_t expand, size_t size, uint32 flags, chunk_initialisator initialisator, chunk_deinitialisator deinitialisator, chunk_constructor constructor, chunk_destructor destructor);
 extern void mempool_free(mempool_struct *pool);
+extern void mempool_set_debugger(mempool_struct *pool, chunk_debugger debugger);
+extern void mempool_stats(mempool_struct *pool, char *buf, size_t size);
 extern void *get_poolchunk_array_real(mempool_struct *pool, size_t arraysize_exp);
 extern void return_poolchunk_array_real(mempool_struct *pool, size_t arraysize_exp, void *data);
 /* src/toolkit/packet.c */

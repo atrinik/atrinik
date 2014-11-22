@@ -65,6 +65,8 @@ void toolkit_mempool_init(void)
 
     TOOLKIT_INIT_FUNC_START(mempool)
     {
+        toolkit_import(memory);
+        toolkit_import(string);
     }
     TOOLKIT_INIT_FUNC_END()
 }
@@ -156,6 +158,11 @@ void mempool_free(mempool_struct *pool)
     {
         size_t i;
         void *data;
+        char buf[HUGE_BUF];
+
+        if (pool->debugger == NULL) {
+            snprintf(VS(buf), "no debug information available");
+        }
 
         for (i = 0; i < pool->chunks_num; i++) {
             data = MEM_USERDATA(pool->chunks[i]);
@@ -164,14 +171,53 @@ void mempool_free(mempool_struct *pool)
                 continue;
             }
 
+            if (pool->debugger != NULL) {
+                pool->debugger(data, VS(buf));
+            }
+
             log(LOG(ERROR), "Chunk #%"FMT64U" %p (%p) in pool %s has not been "
-                    "freed.", (uint64_t) i, pool->chunks[i], data,
-                    pool->chunk_description);
+                    "freed: %s", (uint64_t) i, pool->chunks[i], data,
+                    pool->chunk_description, buf);
         }
     }
 #endif
 
     efree(pool);
+}
+
+void mempool_set_debugger(mempool_struct *pool, chunk_debugger debugger)
+{
+#ifndef NDEBUG
+    pool->debugger = debugger;
+#endif
+}
+
+void mempool_stats(mempool_struct *pool, char *buf, size_t size)
+{
+    size_t i;
+
+    assert(pool != NULL);
+    assert(buf != NULL);
+    assert(size != 0);
+
+    snprintf(buf, size,
+            "\nMemory pool: %s"
+            "\n - Expand size: %"FMT64U
+            "\n - Chunk size: %"FMT64U,
+            pool->chunk_description, (uint64_t) pool->expand_size,
+            (uint64_t) pool->chunksize);
+
+    for (i = 0; i < MEMPOOL_NROF_FREELISTS; i++) {
+        if (pool->nrof_allocated[i] == 0 && pool->nrof_free[i] == 0) {
+            continue;
+        }
+
+        snprintfcat(buf, size, "\nFreelist #%"FMT64U":", (uint64_t) i);
+        snprintfcat(buf, size, " allocated: %s",
+                string_format_number_comma(pool->nrof_allocated[i]));
+        snprintfcat(buf, size, " free: %s",
+                string_format_number_comma(pool->nrof_free[i]));
+    }
 }
 
 /**
