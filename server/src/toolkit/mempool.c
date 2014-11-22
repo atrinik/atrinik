@@ -61,7 +61,9 @@ void toolkit_mempool_init(void)
 
     TOOLKIT_INIT_FUNC_START(mempool)
     {
+        toolkit_import(math);
         toolkit_import(memory);
+        toolkit_import(logger);
         toolkit_import(string);
 
         pool_puddle = mempool_create("puddles", 10,
