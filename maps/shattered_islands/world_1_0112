@@ -2,7 +2,7 @@ arch map
 name Brynknot
 msg
 Created:  2011-10-02 Alex Tokar
-Modified: 2011-10-02 Alex Tokar
+Modified: 2014-11-22 Alex Tokar
 endmsg
 width 24
 height 24
@@ -1102,7 +1102,7 @@ name Talthor Redeye
 direction 1
 arch event_obj
 sub_type 6
-race scripts/strakewood_island/brynknot/talthor_redeye.py
+race /interfaces/quests/portal_of_llwyfen/quest.xml
 end
 arch key_brynknot_sewer_maze
 end
