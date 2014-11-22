@@ -106,7 +106,7 @@ packet_struct *packet_new(uint8 type, size_t size, size_t expand)
 
     TOOLKIT_FUNC_PROTECTOR(API_NAME);
 
-    packet = get_poolchunk(pool_packet);
+    packet = mempool_get(pool_packet);
     packet->next = packet->prev = NULL;
     packet->pos = 0;
     packet->size = size;
@@ -136,7 +136,7 @@ void packet_free(packet_struct *packet)
         efree(packet->data);
     }
 
-    return_poolchunk(pool_packet, packet);
+    mempool_return(pool_packet, packet);
 }
 
 /**

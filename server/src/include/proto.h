@@ -1207,8 +1207,8 @@ extern mempool_struct *mempool_create(const char *description, size_t expand, si
 extern void mempool_free(mempool_struct *pool);
 extern void mempool_set_debugger(mempool_struct *pool, chunk_debugger debugger);
 extern void mempool_stats(mempool_struct *pool, char *buf, size_t size);
-extern void *get_poolchunk_array_real(mempool_struct *pool, size_t arraysize_exp);
-extern void return_poolchunk_array_real(mempool_struct *pool, size_t arraysize_exp, void *data);
+extern void *mempool_get_chunk(mempool_struct *pool, size_t arraysize_exp);
+extern void mempool_return_chunk(mempool_struct *pool, size_t arraysize_exp, void *data);
 extern size_t mempool_reclaim(mempool_struct *pool);
 /* src/toolkit/packet.c */
 extern mempool_struct *pool_packet;

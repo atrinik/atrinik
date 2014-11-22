@@ -821,6 +821,8 @@ extern void toolkit_math_deinit(void);
 extern unsigned long isqrt(unsigned long n);
 extern int rndm(int min, int max);
 extern int rndm_chance(uint32 n);
+extern void *sort_linked_list(void *p, unsigned index, int (*compare)(void *, void *, void *), void *pointer, unsigned long *pcount, void *end_marker);
+extern size_t nearest_pow_two_exp(size_t n);
 /* src/toolkit/memory.c */
 extern void toolkit_memory_init(void);
 extern void toolkit_memory_deinit(void);
@@ -830,14 +832,18 @@ extern void *memory_ecalloc(size_t nmemb, size_t size);
 extern void *memory_erealloc(void *ptr, size_t size);
 extern void *memory_reallocz(void *ptr, size_t old_size, size_t new_size);
 /* src/toolkit/mempool.c */
+extern mempool_struct *pool_puddle;
 extern void toolkit_mempool_init(void);
 extern void toolkit_mempool_deinit(void);
-extern size_t nearest_pow_two_exp(size_t n);
 extern mempool_struct *mempool_create(const char *description, size_t expand, size_t size, uint32 flags, chunk_initialisator initialisator, chunk_deinitialisator deinitialisator, chunk_constructor constructor, chunk_destructor destructor);
 extern void mempool_free(mempool_struct *pool);
-extern void *get_poolchunk_array_real(mempool_struct *pool, size_t arraysize_exp);
-extern void return_poolchunk_array_real(mempool_struct *pool, size_t arraysize_exp, void *data);
+extern void mempool_set_debugger(mempool_struct *pool, chunk_debugger debugger);
+extern void mempool_stats(mempool_struct *pool, char *buf, size_t size);
+extern void *mempool_get_chunk(mempool_struct *pool, size_t arraysize_exp);
+extern void mempool_return_chunk(mempool_struct *pool, size_t arraysize_exp, void *data);
+extern size_t mempool_reclaim(mempool_struct *pool);
 /* src/toolkit/packet.c */
+extern mempool_struct *pool_packet;
 extern void toolkit_packet_init(void);
 extern void toolkit_packet_deinit(void);
 extern packet_struct *packet_new(uint8 type, size_t size, size_t expand);

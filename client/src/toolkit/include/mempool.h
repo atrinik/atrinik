@@ -50,6 +50,19 @@ typedef struct mempool_chunk_struct {
 } mempool_chunk_struct;
 
 /**
+ * Structure used to keep track of allocated puddles.
+ */
+typedef struct mempool_puddle_struct {
+    struct mempool_puddle_struct *next; ///< Next puddle.
+
+    mempool_chunk_struct *first_chunk; ///< First mempool chunk.
+
+    mempool_chunk_struct *first_free; ///< Used for freeing memory.
+    mempool_chunk_struct *last_free; ///< Used for freeing memory.
+    uint32 nrof_free; ///< Number of free chunks in this puddle.
+} mempool_puddle_struct;
+
+/**
  * Optional initialisator to be called when expanding.
  */
 typedef void (*chunk_initialisator)(void *ptr);
@@ -110,21 +123,14 @@ typedef struct mempool_struct {
      */
     size_t nrof_allocated[MEMPOOL_NROF_FREELISTS];
 
+    /**
+     * List of puddles used for chunk tracking.
+     */
+    mempool_puddle_struct *puddlelist[MEMPOOL_NROF_FREELISTS];
+
     uint64 calls_expand; ///< Number of calls to expand the pool.
     uint64 calls_get; ///< Number of calls to getting a chunk from the pool.
     uint64 calls_return; ///< Number of calls to returning a chunk to the pool.
-
-#ifndef NDEBUG
-    /**
-     * Holds all the allocated chunks in an array of pointers.
-     */
-    mempool_chunk_struct **chunks;
-
-    /**
-     * Number of allocated ::chunks.
-     */
-    size_t chunks_num;
-#endif
 
     chunk_initialisator initialisator; ///< @copydoc chunk_initialisator
     chunk_deinitialisator deinitialisator; ///< @copydoc chunk_deinitialisator
@@ -156,12 +162,16 @@ typedef struct mempool_struct {
 
 /** Don't use pooling, but only malloc/free instead */
 #define MEMPOOL_BYPASS_POOLS  1
+/** Allow puddles from this pool to be freed. */
+#define MEMPOOL_ALLOW_FREEING 2
 /*@}*/
 
-#define get_poolchunk(_pool) get_poolchunk_array_real((_pool), 0)
-#define get_poolarray(_pool, _arraysize) get_poolchunk_array_real((_pool), nearest_pow_two_exp(_arraysize))
+#define mempool_get(_pool) mempool_get_chunk((_pool), 0)
+#define mempool_get_array(_pool, _arraysize) \
+    mempool_get_chunk((_pool), nearest_pow_two_exp(_arraysize))
 
-#define return_poolchunk(_pool, _data) return_poolchunk_array_real((_pool), 0, (_data))
-#define return_poolarray(_pool, _arraysize, _data) return_poolchunk_array_real((_pool), nearest_pow_two_exp(_arraysize), (_data))
+#define mempool_return(_pool, _data) mempool_return_chunk((_pool), 0, (_data))
+#define mempool_return_array(_pool, _arraysize, _data) \
+    mempool_return_chunk((_pool), nearest_pow_two_exp(_arraysize), (_data))
 
 #endif

@@ -65,7 +65,7 @@ void ban_deinit(void)
 static void add_ban_entry(char *name, char *ip)
 {
     objectlink *ol = get_objectlink();
-    _ban_struct *gptr = get_poolchunk(pool_ban);
+    _ban_struct *gptr = mempool_get(pool_ban);
 
     memset(gptr, 0, sizeof(_ban_struct));
     ol->objlink.ban = gptr;
@@ -83,8 +83,8 @@ static void remove_ban_entry(objectlink *ol)
     efree(ol->objlink.ban->ip);
     FREE_AND_CLEAR_HASH(ol->objlink.ban->name);
     objectlink_unlink(&ban_list, NULL, ol);
-    return_poolchunk(pool_ban, ol->objlink.ban);
-    return_poolchunk(pool_objectlink, ol);
+    mempool_return(pool_ban, ol->objlink.ban);
+    mempool_return(pool_objectlink, ol);
 }
 
 /**

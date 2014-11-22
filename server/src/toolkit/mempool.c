@@ -155,7 +155,7 @@ static size_t mempool_free_puddles(mempool_struct *pool)
             if (puddle->nrof_free == nrof_arrays) {
                 /* Yup. Forget about it. */
                 free(puddle->first_chunk);
-                return_poolchunk(pool_puddle, puddle);
+                mempool_return(pool_puddle, puddle);
                 pool->nrof_free[i] -= nrof_arrays;
                 pool->nrof_allocated[i] -= nrof_arrays;
                 freed++;
@@ -401,7 +401,7 @@ static void mempool_expand(mempool_struct *pool, size_t arraysize_exp)
     }
 
     if (pool != pool_puddle) {
-        p = get_poolchunk(pool_puddle);
+        p = mempool_get(pool_puddle);
         p->first_chunk = first;
         p->next = pool->puddlelist[arraysize_exp];
         pool->puddlelist[arraysize_exp] = p;
@@ -416,7 +416,7 @@ static void mempool_expand(mempool_struct *pool, size_t arraysize_exp)
  * for arrays of length 8 (2^3 = 8)
  * @return Acquired memory chunk, guaranteed to be zero-filled.
  */
-void *get_poolchunk_array_real(mempool_struct *pool, size_t arraysize_exp)
+void *mempool_get_chunk(mempool_struct *pool, size_t arraysize_exp)
 {
     mempool_chunk_struct *new_obj;
 
@@ -462,7 +462,7 @@ void *get_poolchunk_array_real(mempool_struct *pool, size_t arraysize_exp)
  * for arrays of length 8 (2^3 = 8)
  * @param data Data to return.
  */
-void return_poolchunk_array_real(mempool_struct *pool, size_t arraysize_exp,
+void mempool_return_chunk(mempool_struct *pool, size_t arraysize_exp,
         void *data)
 {
     mempool_chunk_struct *chunk;

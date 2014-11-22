@@ -995,7 +995,7 @@ void object_deinit(void)
  * @return The new object. */
 object *get_object(void)
 {
-    object *new_obj = get_poolchunk(pool_object);
+    object *new_obj = mempool_get(pool_object);
 
     SET_FLAG(new_obj, FLAG_REMOVED);
 
@@ -1417,7 +1417,7 @@ void object_destroy(object *ob)
         case PLAYER:
             /* Players are changed into DEAD_OBJECTs when they logout */
         case DEAD_OBJECT:
-            return_poolchunk(pool_player, ob->custom_attrset);
+            mempool_return(pool_player, ob->custom_attrset);
             break;
 
         case MAGIC_MIRROR:
@@ -1447,7 +1447,7 @@ void object_destroy(object *ob)
     ob->count = 0;
 
     /* Return the memory to the mempool. */
-    return_poolchunk(pool_object, ob);
+    mempool_return(pool_object, ob);
 }
 
 /**

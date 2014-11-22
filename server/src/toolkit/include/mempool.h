@@ -166,10 +166,12 @@ typedef struct mempool_struct {
 #define MEMPOOL_ALLOW_FREEING 2
 /*@}*/
 
-#define get_poolchunk(_pool) get_poolchunk_array_real((_pool), 0)
-#define get_poolarray(_pool, _arraysize) get_poolchunk_array_real((_pool), nearest_pow_two_exp(_arraysize))
+#define mempool_get(_pool) mempool_get_chunk((_pool), 0)
+#define mempool_get_array(_pool, _arraysize) \
+    mempool_get_chunk((_pool), nearest_pow_two_exp(_arraysize))
 
-#define return_poolchunk(_pool, _data) return_poolchunk_array_real((_pool), 0, (_data))
-#define return_poolarray(_pool, _arraysize, _data) return_poolchunk_array_real((_pool), nearest_pow_two_exp(_arraysize), (_data))
+#define mempool_return(_pool, _data) mempool_return_chunk((_pool), 0, (_data))
+#define mempool_return_array(_pool, _arraysize, _data) \
+    mempool_return_chunk((_pool), nearest_pow_two_exp(_arraysize), (_data))
 
 #endif

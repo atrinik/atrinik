@@ -130,7 +130,7 @@ void display_motd(object *op)
 static player *get_player(player *p)
 {
     if (!p) {
-        p = get_poolchunk(pool_player);
+        p = mempool_get(pool_player);
         memset(p, 0, sizeof(player));
 
         if (!last_player) {

@@ -143,7 +143,7 @@ void remove_party_member(party_struct *party, object *op)
  * @return The initialized party structure. */
 static party_struct *make_party(const char *name)
 {
-    party_struct *party = get_poolchunk(pool_party);
+    party_struct *party = mempool_get(pool_party);
 
     memset(party, 0, sizeof(party_struct));
     FREE_AND_COPY_HASH(party->name, name);
@@ -437,7 +437,7 @@ void remove_party(party_struct *party)
     for (ol = party->members; ol; ol = ol->next) {
         CONTR(ol->objlink.ob)->party = NULL;
         objectlink_unlink(&party->members, NULL, ol);
-        return_poolchunk(pool_objectlink, ol);
+        mempool_return(pool_objectlink, ol);
     }
 
     for (tmp = first_party; tmp; prev = tmp, tmp = tmp->next) {
@@ -454,7 +454,7 @@ void remove_party(party_struct *party)
 
     FREE_AND_CLEAR_HASH(party->name);
     FREE_AND_CLEAR_HASH(party->leader);
-    return_poolchunk(pool_party, party);
+    mempool_return(pool_party, party);
 }
 
 /**
