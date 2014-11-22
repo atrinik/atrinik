@@ -1960,30 +1960,25 @@ object *decrease_ob_nr(object *op, uint32 i)
 
     if (QUERY_FLAG(op, FLAG_REMOVED)) {
         op->nrof -= i;
-    } else if (op->env) {
+    } else {
         if (i < op->nrof) {
             op->nrof -= i;
 
-            if (!QUERY_FLAG(op, FLAG_SYS_OBJECT)) {
+            if (op->env != NULL && !QUERY_FLAG(op, FLAG_SYS_OBJECT)) {
                 sub_weight(op->env, op->weight * i);
             }
         } else {
             object_remove(op, 0);
             op->nrof = 0;
         }
-    } else {
-        if (i < op->nrof) {
-            op->nrof -= i;
-        } else {
-            object_remove(op, 0);
-            op->nrof = 0;
-        }
     }
 
-    if (op->nrof) {
+    if (op->nrof != 0) {
         esrv_update_item(UPD_NROF, op);
         return op;
     }
+
+    object_destroy(op);
 
     return NULL;
 }
