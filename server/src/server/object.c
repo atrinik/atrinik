@@ -2593,6 +2593,7 @@ int auto_apply(object *op)
 
         /* No move off needed */
         object_remove(op, 0);
+        object_destroy(op);
         break;
     }
 
