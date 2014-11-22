@@ -386,13 +386,13 @@ static int apply_func(object *op, object *applier, int aflags)
 }
 
 /** @copydoc object_methods::remove_inv_func */
-void remove_inv_func(object *op)
+static void remove_inv_func(object *op)
 {
     container_close(NULL, op);
 }
 
 /** @copydoc object_methods::remove_map_func */
-void remove_map_func(object *op)
+static void remove_map_func(object *op)
 {
     remove_inv_func(op);
 }
