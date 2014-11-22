@@ -48,6 +48,8 @@ void command_stats(object *op, const char *command, char *params)
             snprintf(VS(buf), "Usage: /stats mempool <pool name>");
         } else if (strcmp(pool, "object") == 0) {
             mempool_stats(pool_object, VS(buf));
+        } else if (strcmp(pool, "packet") == 0) {
+            mempool_stats(pool_packet, VS(buf));
         } else {
             snprintf(VS(buf), "Unknown memory pool name: %s", pool);
         }

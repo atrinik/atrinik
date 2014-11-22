@@ -41,7 +41,7 @@ static uint8 did_init = 0;
 
 /**
  * The packets memory pool. */
-static mempool_struct *pool_packets;
+mempool_struct *pool_packet;
 
 /**
  * Initialize the packet API.
@@ -52,7 +52,7 @@ void toolkit_packet_init(void)
     TOOLKIT_INIT_FUNC_START(packet)
     {
         toolkit_import(mempool);
-        pool_packets = mempool_create("packets", PACKET_EXPAND, sizeof(packet_struct), 0, NULL, NULL, NULL, NULL);
+        pool_packet = mempool_create("packets", PACKET_EXPAND, sizeof(packet_struct), 0, NULL, NULL, NULL, NULL);
     }
     TOOLKIT_INIT_FUNC_END()
 }
@@ -65,7 +65,7 @@ void toolkit_packet_deinit(void)
 
     TOOLKIT_DEINIT_FUNC_START(packet)
     {
-        mempool_free(pool_packets);
+        mempool_free(pool_packet);
     }
     TOOLKIT_DEINIT_FUNC_END()
 }
@@ -84,7 +84,7 @@ packet_struct *packet_new(uint8 type, size_t size, size_t expand)
 
     TOOLKIT_FUNC_PROTECTOR(API_NAME);
 
-    packet = get_poolchunk(pool_packets);
+    packet = get_poolchunk(pool_packet);
     packet->next = packet->prev = NULL;
     packet->pos = 0;
     packet->size = size;
@@ -114,7 +114,7 @@ void packet_free(packet_struct *packet)
         efree(packet->data);
     }
 
-    return_poolchunk(pool_packets, packet);
+    return_poolchunk(pool_packet, packet);
 }
 
 /**

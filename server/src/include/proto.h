@@ -1206,6 +1206,7 @@ extern void mempool_stats(mempool_struct *pool, char *buf, size_t size);
 extern void *get_poolchunk_array_real(mempool_struct *pool, size_t arraysize_exp);
 extern void return_poolchunk_array_real(mempool_struct *pool, size_t arraysize_exp, void *data);
 /* src/toolkit/packet.c */
+extern mempool_struct *pool_packet;
 extern void toolkit_packet_init(void);
 extern void toolkit_packet_deinit(void);
 extern packet_struct *packet_new(uint8 type, size_t size, size_t expand);
