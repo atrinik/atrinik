@@ -1716,6 +1716,7 @@ int fix_generated_item(object **op_ptr, object *creator, int difficulty, int a_c
 
             if (op->arch == NULL) {
                 object_remove(op, 0);
+                object_destroy(op);
                 *op_ptr = op = NULL;
                 break;
             }
@@ -1735,6 +1736,7 @@ int fix_generated_item(object **op_ptr, object *creator, int difficulty, int a_c
              * */
             if (!QUERY_FLAG(op, FLAG_REMOVED)) {
                 object_remove(op, 0);
+                object_destroy(op);
             }
 
             /* Here we give the ring or amulet a random material.
