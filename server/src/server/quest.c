@@ -195,7 +195,7 @@ static void quest_check_kill(object *op, object *quest, object *quest_pl,
     if (quest_pl->last_sp <= quest_pl->last_grace) {
         char buf[MAX_BUF];
 
-        snprintf(VS(buf), "Quest <b>%s</b>", QUEST_NAME(quest_pl));
+        snprintf(VS(buf), "Quest [b]%s[/b]", QUEST_NAME(quest_pl));
 
         if (quest_pl->last_sp == quest_pl->last_grace) {
             play_sound_player_only(CONTR(op), CMD_SOUND_EFFECT, "event01.ogg",
@@ -255,7 +255,7 @@ static void quest_check_item(object *op, object *quest, object *quest_pl,
     SET_FLAG(clone, FLAG_STARTEQUIP);
     CLEAR_FLAG(clone, FLAG_SYS_OBJECT);
 
-    snprintf(VS(buf), "Quest <b>%s</b>: You found the quest item %s",
+    snprintf(VS(buf), "Quest [b]%s[/b]: You found the quest item %s",
             QUEST_NAME(quest_pl), query_base_name(clone, NULL));
 
     if (quest_pl->last_grace > 1) {
