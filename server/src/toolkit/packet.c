@@ -43,6 +43,27 @@ static uint8 did_init = 0;
  * The packets memory pool. */
 mempool_struct *pool_packet;
 
+/** @copydoc chunk_debugger */
+static void packet_debugger(packet_struct *packet, char *buf, size_t size)
+{
+    snprintf(buf, size, "type: %d length: %"FMT64U" size: %"FMT64U,
+            packet->type, (uint64_t) packet->len, (uint64_t) packet->size);
+
+    if (packet->data != NULL && packet->len != 0) {
+#define MAXHEXLEN 256
+        char hexbuf[MAXHEXLEN * 2 + 1];
+
+        string_tohex(packet->data, packet->len, hexbuf, sizeof(hexbuf));
+        snprintfcat(buf, size, " data: %s", hexbuf);
+
+        if (packet->len > MAXHEXLEN) {
+            snprintfcat(buf, size, " (%"FMT64" bytes follow)",
+                    (uint64_t) (packet->len - MAXHEXLEN));
+        }
+#undef MAXHEXLEN
+    }
+}
+
 /**
  * Initialize the packet API.
  * @internal */
@@ -53,6 +74,7 @@ void toolkit_packet_init(void)
     {
         toolkit_import(mempool);
         pool_packet = mempool_create("packets", PACKET_EXPAND, sizeof(packet_struct), 0, NULL, NULL, NULL, NULL);
+        mempool_set_debugger(pool_packet, (chunk_debugger) packet_debugger);
     }
     TOOLKIT_INIT_FUNC_END()
 }
