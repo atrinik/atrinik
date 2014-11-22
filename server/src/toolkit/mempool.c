@@ -176,7 +176,7 @@ void mempool_free(mempool_struct *pool)
             }
 
             log(LOG(ERROR), "Chunk #%"FMT64U" %p (%p) in pool %s has not been "
-                    "freed: %s", (uint64_t) i, pool->chunks[i], data,
+                    "freed: %s", (uint64) i, pool->chunks[i], data,
                     pool->chunk_description, buf);
         }
     }
@@ -204,15 +204,15 @@ void mempool_stats(mempool_struct *pool, char *buf, size_t size)
             "\nMemory pool: %s"
             "\n - Expand size: %"FMT64U
             "\n - Chunk size: %"FMT64U,
-            pool->chunk_description, (uint64_t) pool->expand_size,
-            (uint64_t) pool->chunksize);
+            pool->chunk_description, (uint64) pool->expand_size,
+            (uint64) pool->chunksize);
 
     for (i = 0; i < MEMPOOL_NROF_FREELISTS; i++) {
         if (pool->nrof_allocated[i] == 0 && pool->nrof_free[i] == 0) {
             continue;
         }
 
-        snprintfcat(buf, size, "\nFreelist #%"FMT64U":", (uint64_t) i);
+        snprintfcat(buf, size, "\nFreelist #%"FMT64U":", (uint64) i);
         snprintfcat(buf, size, " allocated: %s",
                 string_format_number_comma(pool->nrof_allocated[i]));
         snprintfcat(buf, size, " free: %s",
@@ -240,7 +240,7 @@ static void expand_mempool(mempool_struct *pool, size_t arraysize_exp)
 
     if (nrof_arrays == 0) {
         log(LOG(ERROR), "Called with too large array size exponent: %"FMT64U,
-                (uint64_t) arraysize_exp);
+                (uint64) arraysize_exp);
         nrof_arrays = 1;
     }
 

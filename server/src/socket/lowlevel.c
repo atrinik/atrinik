@@ -209,7 +209,7 @@ void socket_send_packet(socket_struct *ns, packet_struct *packet)
 
     if (toread > 32 * 1024 - 1) {
         log(LOG(PACKET), "Sending packet with size > 32KB: %"FMT64U", type: %d",
-                (uint64_t) toread, packet->type);
+                (uint64) toread, packet->type);
         tmp->data[0] = ((toread >> 16) & 0xff) | 0x80;
         tmp->data[1] = (toread >> 8) & 0xff;
         tmp->data[2] = (toread) & 0xff;

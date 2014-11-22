@@ -47,7 +47,7 @@ mempool_struct *pool_packet;
 static void packet_debugger(packet_struct *packet, char *buf, size_t size)
 {
     snprintf(buf, size, "type: %d length: %"FMT64U" size: %"FMT64U,
-            packet->type, (uint64_t) packet->len, (uint64_t) packet->size);
+            packet->type, (uint64) packet->len, (uint64) packet->size);
 
     if (packet->data != NULL && packet->len != 0) {
 #define MAXHEXLEN 256
@@ -58,7 +58,7 @@ static void packet_debugger(packet_struct *packet, char *buf, size_t size)
 
         if (packet->len > MAXHEXLEN) {
             snprintfcat(buf, size, " (%"FMT64" bytes follow)",
-                    (uint64_t) (packet->len - MAXHEXLEN));
+                    (uint64) (packet->len - MAXHEXLEN));
         }
 #undef MAXHEXLEN
     }

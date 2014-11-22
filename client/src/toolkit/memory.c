@@ -73,7 +73,7 @@ void *memory_emalloc(size_t size)
     ptr = malloc(size);
 
     if (ptr == NULL) {
-        logger_print(LOG(ERROR), "OOM (size: %"FMT64U").", (uint64_t) size);
+        logger_print(LOG(ERROR), "OOM (size: %"FMT64U").", (uint64) size);
         abort();
     }
 
@@ -110,7 +110,7 @@ void *memory_ecalloc(size_t nmemb, size_t size)
 
     if (ptr == NULL) {
         logger_print(LOG(ERROR), "OOM (nmemb: %"FMT64U", size: %"FMT64U").",
-                (uint64_t) nmemb, (uint64_t) size);
+                (uint64) nmemb, (uint64) size);
         abort();
     }
 
@@ -132,7 +132,7 @@ void *memory_erealloc(void *ptr, size_t size)
 
     if (newptr == NULL && size != 0) {
         logger_print(LOG(ERROR), "OOM (ptr: %p, size: %"FMT64U".", ptr,
-                (uint64_t) size);
+                (uint64) size);
         abort();
     }
 
