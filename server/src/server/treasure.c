@@ -687,6 +687,8 @@ object *generate_treasure(treasurelist *t, int difficulty, int a_chance)
         logger_print(LOG(BUG), "Created multiple objects.");
     }
 
+    object_destroy(ob);
+
     return tmp;
 }
 
