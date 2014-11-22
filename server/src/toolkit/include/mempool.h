@@ -110,6 +110,10 @@ typedef struct mempool_struct {
      */
     size_t nrof_allocated[MEMPOOL_NROF_FREELISTS];
 
+    uint64 calls_expand; ///< Number of calls to expand the pool.
+    uint64 calls_get; ///< Number of calls to getting a chunk from the pool.
+    uint64 calls_return; ///< Number of calls to returning a chunk to the pool.
+
 #ifndef NDEBUG
     /**
      * Holds all the allocated chunks in an array of pointers.

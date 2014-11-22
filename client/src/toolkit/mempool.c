@@ -194,7 +194,7 @@ void mempool_set_debugger(mempool_struct *pool, chunk_debugger debugger)
 
 void mempool_stats(mempool_struct *pool, char *buf, size_t size)
 {
-    size_t i;
+    size_t i, allocated;
 
     assert(pool != NULL);
     assert(buf != NULL);
@@ -207,8 +207,10 @@ void mempool_stats(mempool_struct *pool, char *buf, size_t size)
             pool->chunk_description, (uint64) pool->expand_size,
             (uint64) pool->chunksize);
 
+    allocated = 0;
+
     for (i = 0; i < MEMPOOL_NROF_FREELISTS; i++) {
-        if (pool->nrof_allocated[i] == 0 && pool->nrof_free[i] == 0) {
+        if (pool->nrof_allocated[i] == 0) {
             continue;
         }
 
@@ -217,7 +219,20 @@ void mempool_stats(mempool_struct *pool, char *buf, size_t size)
                 string_format_number_comma(pool->nrof_allocated[i]));
         snprintfcat(buf, size, " free: %s",
                 string_format_number_comma(pool->nrof_free[i]));
+
+        allocated += pool->nrof_allocated[i] * ((pool->chunksize << i) +
+                sizeof(mempool_chunk_struct));
     }
+
+    snprintfcat(buf, size, "\nCalls:");
+    snprintfcat(buf, size, " %s expansions",
+            string_format_number_comma(pool->calls_expand));
+    snprintfcat(buf, size, " %s gets",
+            string_format_number_comma(pool->calls_get));
+    snprintfcat(buf, size, " %s returns",
+            string_format_number_comma(pool->calls_return));
+    snprintfcat(buf, size, "\nTotal allocated memory: %s bytes",
+            string_format_number_comma(allocated));
 }
 
 /**
@@ -235,6 +250,8 @@ static void expand_mempool(mempool_struct *pool, size_t arraysize_exp)
     assert(pool != NULL);
     assert(arraysize_exp < MEMPOOL_NROF_FREELISTS);
     assert(pool->nrof_free[arraysize_exp] == 0);
+
+    pool->calls_expand++;
 
     nrof_arrays = pool->expand_size >> arraysize_exp;
 
@@ -295,6 +312,8 @@ void *get_poolchunk_array_real(mempool_struct *pool, size_t arraysize_exp)
     assert(pool != NULL);
     assert(arraysize_exp < MEMPOOL_NROF_FREELISTS);
 
+    pool->calls_get++;
+
     if (pool->flags & MEMPOOL_BYPASS_POOLS) {
         new_obj = ecalloc(1, sizeof(mempool_chunk_struct) +
                 (pool->chunksize << arraysize_exp));
@@ -341,12 +360,14 @@ void return_poolchunk_array_real(mempool_struct *pool, size_t arraysize_exp,
     assert(arraysize_exp < MEMPOOL_NROF_FREELISTS);
     assert(data != NULL);
 
+    pool->calls_return++;
+
     chunk = MEM_POOLDATA(data);
 
     if (CHUNK_FREE(data)) {
         log(LOG(ERROR), "Chunk %p in pool '%s' has already been freed.", chunk,
                 pool->chunk_description);
-        return;
+        abort();
     }
 
     if (pool->destructor) {
