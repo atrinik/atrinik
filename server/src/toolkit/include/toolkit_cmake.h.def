@@ -176,4 +176,7 @@
 /* The size of 'long long'. */
 #define SIZEOF_LONG_LONG @SIZEOF_LONG_LONG@
 
+/* Name of the generated executable. */
+#define EXECUTABLE "@EXECUTABLE@"
+
 #endif
