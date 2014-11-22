@@ -1404,10 +1404,6 @@ void object_destroy(object *ob)
         connection_object_remove(ob);
     }
 
-    if (ob->type == CONTAINER && ob->attacked_by) {
-        container_close(NULL, ob);
-    }
-
     /* Remove and free the inventory. */
     object_destroy_inv(ob);
 

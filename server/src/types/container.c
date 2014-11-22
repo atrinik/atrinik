@@ -205,6 +205,10 @@ int container_close(object *applier, object *op)
     } else if (op) {
         object *tmp, *next;
 
+        if (op->attacked_by == NULL) {
+            return 0;
+        }
+
         CLEAR_FLAG(op, FLAG_APPLIED);
 
         if (op->other_arch) {
@@ -381,10 +385,24 @@ static int apply_func(object *op, object *applier, int aflags)
     return 1;
 }
 
+/** @copydoc object_methods::remove_inv_func */
+void remove_inv_func(object *op)
+{
+    container_close(NULL, op);
+}
+
+/** @copydoc object_methods::remove_map_func */
+void remove_map_func(object *op)
+{
+    remove_inv_func(op);
+}
+
 /**
  * Initialize the container type object methods.
  */
 void object_type_init_container(void)
 {
     object_type_methods[CONTAINER].apply_func = apply_func;
+    object_type_methods[CONTAINER].remove_inv_func = remove_inv_func;
+    object_type_methods[CONTAINER].remove_map_func = remove_map_func;
 }

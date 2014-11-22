@@ -1571,12 +1571,6 @@ static void pick_up_object(object *pl, object *op, object *tmp, int nrof, int no
         return;
     }
 
-    if (tmp->type == CONTAINER) {
-        container_close(NULL, tmp);
-    } else if (tmp->type == ARROW) {
-        object_projectile_stop(tmp, OBJECT_PROJECTILE_PICKUP);
-    }
-
     /* Trigger the PICKUP event */
     if (trigger_event(EVENT_PICKUP, pl, tmp, op, NULL, nrof, 0, 0, SCRIPT_FIX_ACTIVATOR)) {
         return;
@@ -1623,10 +1617,6 @@ void pick_up(object *op, object *alt, int no_mevent)
         tmp = op->below;
     }
 
-    if (tmp->type == CONTAINER) {
-        container_close(NULL, tmp);
-    }
-
     if (!can_pick(op, tmp)) {
         return;
     }
@@ -1642,7 +1632,8 @@ void pick_up(object *op, object *alt, int no_mevent)
     }
 
     /* Container is open, so use it */
-    if (op->type == PLAYER && CONTR(op)->container) {
+    if (op->type == PLAYER && CONTR(op)->container != NULL &&
+            CONTR(op)->container != tmp) {
         alt = CONTR(op)->container;
 
         if (alt != tmp->env && !sack_can_hold(op, alt, tmp, count) && !check_magical_container(tmp, alt)) {
@@ -1732,10 +1723,6 @@ void put_object_in_sack(object *op, object *sack, object *tmp, long nrof)
         return;
     }
 
-    if (tmp->type == CONTAINER) {
-        container_close(NULL, tmp);
-    }
-
     if (nrof > tmp_nrof || nrof == 0) {
         nrof = tmp_nrof;
     }
@@ -1784,10 +1771,6 @@ void drop_object(object *op, object *tmp, long nrof, int no_mevent)
         if (object_apply_item(tmp, op, AP_UNAPPLY | AP_NO_MERGE) != OBJECT_METHOD_OK) {
             return;
         }
-    }
-
-    if (tmp->type == CONTAINER) {
-        container_close(NULL, tmp);
     }
 
     /* Trigger the DROP event */
