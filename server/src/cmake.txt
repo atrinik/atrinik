@@ -12,6 +12,7 @@ set(SOURCES
 	src/commands/permission/server_chat.c
 	src/commands/permission/settime.c
 	src/commands/permission/shutdown.c
+	src/commands/permission/stats.c
 	src/commands/permission/tcl.c
 	src/commands/permission/tgm.c
 	src/commands/permission/tli.c

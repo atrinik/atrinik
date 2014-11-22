@@ -236,7 +236,7 @@ int freedir[SIZEOFFREE] = {
 
 /**
  * The object memory pool. */
-static mempool_struct *pool_object;
+mempool_struct *pool_object;
 
 /**
  * Progressive object counter (every new object will increase this, even
@@ -958,11 +958,42 @@ void copy_object_with_inv(object *src_ob, object *dest_ob)
     }
 }
 
+/** @copydoc chunk_debugger */
+static void object_debugger(object *op, char *buf, size_t size)
+{
+    snprintf(buf, size, "count: %d", op->count);
+
+    if (op->name != NULL) {
+        snprintfcat(buf, size, " name: %s", op->name);
+    }
+
+    if (op->arch != NULL && op->arch->name != NULL) {
+        snprintfcat(buf, size, " archname: %s", op->arch->name);
+    }
+
+    if (op->map != NULL) {
+        snprintfcat(buf, size, " coords: %d, %d", op->x, op->y);
+
+        if (op->map->name != NULL) {
+            snprintfcat(buf, size, " map name: %s", op->map->name);
+        }
+
+        if (op->map->path != NULL) {
+            snprintfcat(buf, size, " map path: %s", op->map->path);
+        }
+    }
+
+    if (op->env != NULL && op->env->name != NULL) {
+        snprintfcat(buf, size, " env: %s [%d]", op->env->name, op->env->count);
+    }
+}
+
 /**
  * Initialize the object API. */
 void object_init(void)
 {
     pool_object = mempool_create("objects", OBJECT_EXPAND, sizeof(object), 0, NULL, NULL, (chunk_constructor) initialize_object, NULL);
+    mempool_set_debugger(pool_object, (chunk_debugger) object_debugger);
 }
 
 /**

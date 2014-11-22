@@ -25,6 +25,8 @@ extern void command_server_chat(object *op, const char *command, char *params);
 extern void command_settime(object *op, const char *command, char *params);
 /* src/commands/permission/shutdown.c */
 extern void command_shutdown(object *op, const char *command, char *params);
+/* src/commands/permission/stats.c */
+extern void command_stats(object *op, const char *command, char *params);
 /* src/commands/permission/tcl.c */
 extern void command_tcl(object *op, const char *command, char *params);
 /* src/commands/permission/tgm.c */
@@ -463,6 +465,7 @@ extern int freearr_x[49];
 extern int freearr_y[49];
 extern int maxfree[49];
 extern int freedir[49];
+extern mempool_struct *pool_object;
 extern void (*object_initializers[256])(object *);
 extern const char *object_flag_names[135 + 1];
 extern int CAN_MERGE(object *ob1, object *ob2);

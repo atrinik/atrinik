@@ -175,6 +175,7 @@ void toolkit_commands_init(void)
         commands_add(COMMAND(server_chat), 0.0, COMMAND_PERMISSION);
         commands_add(COMMAND(settime), 0.0, COMMAND_PERMISSION);
         commands_add(COMMAND(shutdown), 0.0, COMMAND_PERMISSION);
+        commands_add(COMMAND(stats), 0.0, COMMAND_PERMISSION);
         commands_add(COMMAND(tcl), 0.0, COMMAND_PERMISSION);
         commands_add(COMMAND(tgm), 0.0, COMMAND_PERMISSION);
         commands_add(COMMAND(tli), 0.0, COMMAND_PERMISSION);
