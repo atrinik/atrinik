@@ -47,7 +47,7 @@ for x in range(m.width):
                     food = cont.inv
 
                     if food.food < 100:
-                        food.Remove()
+                        food.Destroy()
                         food = None
 
                 # Identify it and insert on the map.
@@ -62,3 +62,4 @@ for x in range(m.width):
 
 # Teleport the player to the new map.
 activator.TeleportTo(m.path, m.width // 2, m.height // 2)
+cont.Destroy()

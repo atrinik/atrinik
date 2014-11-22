@@ -31,7 +31,7 @@ class QuestManager:
 
         if self.quest.get("repeat", False) and self.get_qp_remaining() != 0 and self.completed():
             if self.quest_object.exp == 0 or int(time.time()) >= self.quest_object.exp:
-                self.quest_object.Remove()
+                self.quest_object.Destroy()
                 self.quest_object = None
 
     def create_quest_object(self, where, quest, uid):

@@ -135,5 +135,6 @@ def item_buy(activator, obj, nrof, seller):
     finally:
         post.db.close()
 
+    cont.Destroy()
     item_insert()
     return "You paid {} for {}.".format(CostString(cost), obj_name)

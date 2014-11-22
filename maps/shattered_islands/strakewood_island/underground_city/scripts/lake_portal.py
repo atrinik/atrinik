@@ -23,6 +23,6 @@ def main():
 
         if amulet:
             pl.DrawInfo("Upon coming into contact with the portal, the amulet of Llwyfen shatters and you feel as if an invisible force was being removed! The seal is broken.", COLOR_GREEN)
-            amulet.Remove()
+            amulet.Destroy()
 
 main()
