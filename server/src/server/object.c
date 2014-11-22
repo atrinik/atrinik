@@ -1406,6 +1406,10 @@ void object_destroy(object *ob)
         return;
     }
 
+    if (ob->more) {
+        object_destroy(ob->more);
+    }
+
     free_key_values(ob);
 
     if (QUERY_FLAG(ob, FLAG_IS_LINKED)) {
