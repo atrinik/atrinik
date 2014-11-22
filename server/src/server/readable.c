@@ -608,7 +608,7 @@ static char *artifact_msg(int level, char *buf, size_t booksize)
         type = art_name_array[idx].type;
         al = find_artifactlist(type);
         i++;
-    }    while (al == NULL && i < 10);
+    } while (al == NULL && i < 10);
 
     /* Unable to find a message */
     if (i == 10) {
@@ -666,6 +666,7 @@ static char *artifact_msg(int level, char *buf, size_t booksize)
             stringbuffer_append_printf(desc, "\nProperties of this artifact include:\n %s", ch);
         }
 
+        object_destroy(tmp);
         final = stringbuffer_finish(desc);
 
         /* Add the buf if it will fit. */
