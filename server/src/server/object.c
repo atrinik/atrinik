@@ -964,28 +964,10 @@ static void object_debugger(object *op, char *buf, size_t size)
     snprintf(buf, size, "count: %d", op->count);
 
     if (op->name != NULL) {
-        snprintfcat(buf, size, " name: %s", op->name);
+        snprintfcat(buf, size, " name: %s", query_name(op, NULL));
     }
 
-    if (op->arch != NULL && op->arch->name != NULL) {
-        snprintfcat(buf, size, " archname: %s", op->arch->name);
-    }
-
-    if (op->map != NULL) {
-        snprintfcat(buf, size, " coords: %d, %d", op->x, op->y);
-
-        if (op->map->name != NULL) {
-            snprintfcat(buf, size, " map name: %s", op->map->name);
-        }
-
-        if (op->map->path != NULL) {
-            snprintfcat(buf, size, " map path: %s", op->map->path);
-        }
-    }
-
-    if (op->env != NULL && op->env->name != NULL) {
-        snprintfcat(buf, size, " env: %s [%d]", op->env->name, op->env->count);
-    }
+    snprintfcat(buf, size, " coords: %d, %d", op->x, op->y);
 }
 
 /**
