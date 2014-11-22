@@ -232,12 +232,6 @@ static int ranged_fire_func(object *op, object *shooter, int dir, double *delay)
     return OBJECT_METHOD_OK;
 }
 
-/** @copydoc object_methods::remove_map_func */
-static void remove_map_func(object *op)
-{
-    object_projectile_stop(op, OBJECT_PROJECTILE_PICKUP);
-}
-
 /**
  * Initialize the arrow type object methods. */
 void object_type_init_arrow(void)
@@ -250,5 +244,4 @@ void object_type_init_arrow(void)
     object_type_methods[ARROW].projectile_fire_func = common_object_projectile_fire_missile;
     object_type_methods[ARROW].projectile_hit_func = common_object_projectile_hit;
     object_type_methods[ARROW].move_on_func = common_object_projectile_move_on;
-    object_type_methods[ARROW].remove_map_func = remove_map_func;
 }

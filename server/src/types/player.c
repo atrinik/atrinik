@@ -1571,6 +1571,10 @@ static void pick_up_object(object *pl, object *op, object *tmp, int nrof, int no
         return;
     }
 
+    if (tmp->type == ARROW) {
+        object_projectile_stop(tmp, OBJECT_PROJECTILE_PICKUP);
+    }
+
     /* Trigger the PICKUP event */
     if (trigger_event(EVENT_PICKUP, pl, tmp, op, NULL, nrof, 0, 0, SCRIPT_FIX_ACTIVATOR)) {
         return;
