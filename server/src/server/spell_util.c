@@ -676,6 +676,7 @@ int cast_cone(object *op, object *caster, int dir, int strength, int spell_type,
         /* Was not inserted */
         if (!QUERY_FLAG(tmp, FLAG_REMOVED)) {
             object_remove(tmp, 0);
+            object_destroy(tmp);
         }
     }
 
@@ -716,6 +717,7 @@ void explode_object(object *op)
     if (op->other_arch == NULL) {
         logger_print(LOG(BUG), "op %s without other_arch", query_name(op, NULL));
         object_remove(op, 0);
+        object_destroy(op);
         return;
     }
 
@@ -790,7 +792,7 @@ void check_fired_arch(object *op)
         if (was_destroyed(op, op_tag) || !was_destroyed(tmp, tmp_tag) || (op->stats.dam -= dam) < 0) {
             if (!QUERY_FLAG(op, FLAG_REMOVED)) {
                 object_remove(op, 0);
-
+                object_destroy(op);
                 return;
             }
         }
