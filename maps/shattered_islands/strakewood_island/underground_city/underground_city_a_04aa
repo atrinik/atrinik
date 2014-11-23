@@ -13,7 +13,7 @@ tile_path_2 underground_city_a_05aa
 tile_path_5 underground_city_a_0501
 tile_path_8 underground_city_a_0301
 bg_music thonkdonk.ogg
-region underground_city
+region underground_city_a
 end
 arch floor_cave6
 x 17

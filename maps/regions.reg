@@ -208,7 +208,28 @@ end
 region underground_city
 parent strakewood_island
 longname The Underground City
+map_first /shattered_islands/strakewood_island/underground_city/underground_city_0101
+map_quest true
 end
+
+region underground_city_a
+parent underground_city
+map_first /shattered_islands/strakewood_island/underground_city/underground_city_a_0301
+map_quest true
+end
+
+region underground_city_b
+parent underground_city
+map_first /shattered_islands/strakewood_island/underground_city/underground_city_b_0103
+map_quest true
+end
+
+region underground_city_c
+parent underground_city
+map_first /shattered_islands/strakewood_island/underground_city/underground_city_c_0207
+map_quest true
+end
+
 
 # Dark Cave.
 region dark_cave

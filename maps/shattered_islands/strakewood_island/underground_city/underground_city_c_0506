@@ -13,7 +13,7 @@ tile_path_4 underground_city_c_0406
 tile_path_6 underground_city_c_0605
 tile_path_8 underground_city_c_0407
 bg_music thonkdonk.ogg
-region underground_city
+region underground_city_c
 end
 arch floor_lava_3
 glow_radius 3

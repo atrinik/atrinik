@@ -12,7 +12,7 @@ tile_path_3 underground_city_b_0306
 tile_path_4 underground_city_b_0207
 tile_path_7 underground_city_b_0206
 bg_music thonkdonk.ogg
-region underground_city
+region underground_city_b
 end
 arch floor_sand_d2
 end
