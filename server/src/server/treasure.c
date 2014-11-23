@@ -1736,8 +1736,9 @@ int fix_generated_item(object **op_ptr, object *creator, int difficulty, int a_c
              * */
             if (!QUERY_FLAG(op, FLAG_REMOVED)) {
                 object_remove(op, 0);
-                object_destroy(op);
             }
+
+            object_destroy(op);
 
             /* Here we give the ring or amulet a random material.
              * First we use a special arch for this. Only this archtype is
