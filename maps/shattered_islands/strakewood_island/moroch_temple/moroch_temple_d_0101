@@ -12,7 +12,7 @@ tile_path_1 moroch_temple_d_0102
 tile_path_2 moroch_temple_d_0201
 tile_path_5 moroch_temple_d_0202
 bg_music evil_temple.ogg
-region moroch_temple
+region moroch_temple_d
 end
 arch floor_sblack1b
 x 2
