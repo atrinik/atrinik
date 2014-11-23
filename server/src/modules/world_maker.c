@@ -176,7 +176,7 @@ static int render_object(gdImagePtr im, int x, int y, object *ob)
      * - misc objects blocking passage (rocks, trees, etc)
      */
     if (ob->layer == LAYER_FLOOR ||
-            ob->type == WALL ||
+            (ob->type == WALL && !QUERY_FLAG(ob, FLAG_DRAW_DIRECTION)) ||
             ob->type == DOOR ||
             ob->type == EXIT ||
             ob->type == SHOP_MAT ||
@@ -534,7 +534,7 @@ void world_maker(void)
                     ypos = y * MAX_PIXELS + wm_r->maps[i].ypos;
 
                     for (layer = LAYER_ITEM;
-                            layer < NUM_LAYERS;
+                            layer <= NUM_LAYERS;
                             layer++) {
                         for (sub_layer = 0;
                                 sub_layer < NUM_SUB_LAYERS;
