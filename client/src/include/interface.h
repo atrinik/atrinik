@@ -87,6 +87,16 @@ typedef struct interface_struct {
      * Text to prefix for autocompleting text. If NULL, autocompletion
      * will be disabled. */
     char *text_autocomplete;
+
+    /**
+     * Animated object.
+     */
+    object *anim;
+
+    /**
+     * Ticks of the last animation.
+     */
+    uint32 last_anim;
 } interface_struct;
 
 /**
@@ -125,6 +135,8 @@ typedef struct interface_struct {
 #define CMD_INTERFACE_RESTORE 11
 /** Text to append to the existing text. */
 #define CMD_INTERFACE_APPEND_TEXT 12
+/** Animation; animated image in the upper left corner square. */
+#define CMD_INTERFACE_ANIM 13
 /*@}*/
 
 /**

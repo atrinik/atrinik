@@ -166,7 +166,7 @@ object *object_find(sint32 tag)
  * @param op What to remove. */
 void object_remove(object *op)
 {
-    if (!op || op == cpl.ob || op == cpl.below || op == cpl.sack) {
+    if (op == NULL || op == cpl.ob || op == cpl.below || op == cpl.sack) {
         return;
     }
 
@@ -180,31 +180,32 @@ void object_remove(object *op)
 
     object_redraw(op);
 
-    if (op->inv) {
+    if (op->inv != NULL) {
         object_remove_inventory(op);
     }
 
-    if (op->prev) {
+    if (op->prev != NULL) {
         op->prev->next = op->next;
-    } else {
+    } else if (op->env != NULL) {
         op->env->inv = op->next;
     }
 
-    if (op->next) {
+    if (op->next != NULL) {
         op->next->prev = op->prev;
     }
 
     /* Add object to the list of free objects. */
     op->next = free_objects;
 
-    if (op->next) {
+    if (op->next != NULL) {
         op->next->prev = op;
     }
 
     free_objects = op;
 
     /* Clear the object so it can be reused. */
-    memset((char *) op + offsetof(object, prev), 0, sizeof(object) - offsetof(object, prev));
+    memset((char *) op + offsetof(object, prev), 0,
+            sizeof(object) - offsetof(object, prev));
 }
 
 /**
@@ -400,7 +401,7 @@ void objects_init(void)
  * Animate one object.
  * @param ob The object to animate.
  * @return 1 if the object changed face, 0 otherwise. */
-static int animate_object(object *ob)
+int object_animate(object *ob)
 {
     if (ob->animation_id > 0) {
         check_animation_status(ob->animation_id);
@@ -438,7 +439,7 @@ static void animate_inventory(object *op)
     object *tmp;
 
     for (tmp = op->inv; tmp != NULL; tmp = tmp->next) {
-        if (!animate_object(tmp)) {
+        if (!object_animate(tmp)) {
             continue;
         }
 
@@ -468,10 +469,11 @@ void animate_objects(void)
  * @param tmp Object to show.
  * @param x X position.
  * @param y Y position. */
-void object_show_centered(SDL_Surface *surface, object *tmp, int x, int y)
+void object_show_centered(SDL_Surface *surface, object *tmp, int x, int y,
+        int w, int h)
 {
     int temp, xstart, xlen, ystart, ylen;
-    sint16 face;
+    uint16 face;
     SDL_Rect box;
 
     if (!FaceList[tmp->face].sprite) {
@@ -486,8 +488,14 @@ void object_show_centered(SDL_Surface *surface, object *tmp, int x, int y)
     if (tmp->animation_id > 0) {
         check_animation_status(tmp->animation_id);
 
-        if (animations[tmp->animation_id].num_animations && animations[tmp->animation_id].facings <= 1 && FaceList[animations[tmp->animation_id].faces[0]].sprite) {
-            face = animations[tmp->animation_id].faces[0];
+        if (animations[tmp->animation_id].num_animations) {
+            uint16 face_id;
+
+            face_id = animations[tmp->animation_id].frame * tmp->direction;
+
+            if (FaceList[animations[tmp->animation_id].faces[face_id]].sprite) {
+                face = animations[tmp->animation_id].faces[face_id];
+            }
         }
     }
 
@@ -496,26 +504,26 @@ void object_show_centered(SDL_Surface *surface, object *tmp, int x, int y)
     ystart = FaceList[face].sprite->border_up;
     ylen = FaceList[face].sprite->bitmap->h - ystart - FaceList[face].sprite->border_down;
 
-    if (xlen > INVENTORY_ICON_SIZE) {
-        box.w = INVENTORY_ICON_SIZE;
-        temp = (xlen - INVENTORY_ICON_SIZE) / 2;
+    if (xlen > w) {
+        box.w = w;
+        temp = (xlen - w) / 2;
         box.x = xstart + temp;
         xstart = 0;
     } else {
         box.w = xlen;
         box.x = xstart;
-        xstart = (INVENTORY_ICON_SIZE - xlen) / 2;
+        xstart = (w - xlen) / 2;
     }
 
-    if (ylen > INVENTORY_ICON_SIZE) {
-        box.h = INVENTORY_ICON_SIZE;
-        temp = (ylen - INVENTORY_ICON_SIZE) / 2;
+    if (ylen > h) {
+        box.h = h;
+        temp = (ylen - h) / 2;
         box.y = ystart + temp;
         ystart = 0;
     } else {
         box.h = ylen;
         box.y = ystart;
-        ystart = (INVENTORY_ICON_SIZE - ylen) / 2;
+        ystart = (h - ylen) / 2;
     }
 
     if (face != tmp->face) {
@@ -534,14 +542,14 @@ void object_show_centered(SDL_Surface *surface, object *tmp, int x, int y)
             box.x = -xstart;
             box.w = FaceList[tmp->face].sprite->bitmap->w + xstart;
 
-            if (box.w > INVENTORY_ICON_SIZE) {
-                box.w = INVENTORY_ICON_SIZE;
+            if (box.w > w) {
+                box.w = w;
             }
 
             xstart = 0;
         } else {
-            if (box.w + xstart > INVENTORY_ICON_SIZE) {
-                box.w -= ((box.w + xstart) - INVENTORY_ICON_SIZE);
+            if (box.w + xstart > w) {
+                box.w -= ((box.w + xstart) - w);
             }
         }
 
@@ -549,14 +557,14 @@ void object_show_centered(SDL_Surface *surface, object *tmp, int x, int y)
             box.y = -ystart;
             box.h = FaceList[tmp->face].sprite->bitmap->h + ystart;
 
-            if (box.h > INVENTORY_ICON_SIZE) {
-                box.h = INVENTORY_ICON_SIZE;
+            if (box.h > h) {
+                box.h = h;
             }
 
             ystart = 0;
         } else {
-            if (box.h + ystart > INVENTORY_ICON_SIZE) {
-                box.h -= ((box.h + ystart) - INVENTORY_ICON_SIZE);
+            if (box.h + ystart > h) {
+                box.h -= ((box.h + ystart) - h);
             }
         }
     }

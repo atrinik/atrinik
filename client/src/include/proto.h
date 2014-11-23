@@ -61,8 +61,9 @@ extern void object_send_mark(object *op);
 extern void object_redraw(object *op);
 extern void objects_deinit(void);
 extern void objects_init(void);
+extern int object_animate(object *ob);
 extern void animate_objects(void);
-extern void object_show_centered(SDL_Surface *surface, object *tmp, int x, int y);
+extern void object_show_centered(SDL_Surface *surface, object *tmp, int x, int y, int w, int h);
 /* src/client/keybind.c */
 extern keybind_struct **keybindings;
 extern size_t keybindings_num;

@@ -78,6 +78,10 @@ static void interface_destroy(interface_struct *data)
         efree(data->text_autocomplete);
     }
 
+    if (data->anim != NULL) {
+        object_remove(data->anim);
+    }
+
     utarray_free(data->links);
     font_free(data->font);
     efree(data);
@@ -129,13 +133,30 @@ static void interface_execute_link(size_t link_id)
 /** @copydoc popup_struct::draw_func */
 static int popup_draw_func(popup_struct *popup)
 {
+    if (interface_data->anim != NULL &&
+            SDL_GetTicks() - interface_data->last_anim > 125) {
+        interface_data->last_anim = SDL_GetTicks();
+
+        if (object_animate(interface_data->anim)) {
+            popup->redraw = 1;
+        }
+    }
+
     if (popup->redraw) {
         SDL_Rect box;
 
         surface_show(popup->surface, 0, 0, NULL, texture_surface(popup->texture));
 
-        if (interface_data->icon) {
-            text_show_format(popup->surface, FONT_ARIAL10, INTERFACE_ICON_STARTX, INTERFACE_ICON_STARTY, COLOR_WHITE, TEXT_MARKUP, NULL, "[icon=%s %d %d]", interface_data->icon, INTERFACE_ICON_WIDTH, INTERFACE_ICON_HEIGHT);
+        if (interface_data->icon != NULL) {
+            text_show_format(popup->surface, FONT_ARIAL10,
+                    INTERFACE_ICON_STARTX, INTERFACE_ICON_STARTY, COLOR_WHITE,
+                    TEXT_MARKUP, NULL, "[icon=%s %d %d]", interface_data->icon,
+                    INTERFACE_ICON_WIDTH, INTERFACE_ICON_HEIGHT);
+        } else if (interface_data->anim != NULL) {
+            request_face(interface_data->anim->face);
+            object_show_centered(popup->surface, interface_data->anim,
+                    INTERFACE_ICON_STARTX, INTERFACE_ICON_STARTY,
+                    INTERFACE_ICON_WIDTH, INTERFACE_ICON_HEIGHT);
         }
 
         box.w = INTERFACE_TITLE_WIDTH;
@@ -503,6 +524,17 @@ void socket_command_interface(uint8 *data, size_t len, size_t pos)
             }
 
             break;
+
+        case CMD_INTERFACE_ANIM:
+        {
+            interface_data->anim = object_create(NULL, 0, 0);
+            interface_data->anim->animation_id = packet_to_uint16(data, len,
+                    &pos);
+            interface_data->anim->anim_speed = packet_to_uint8(data, len, &pos);
+            interface_data->anim->direction = packet_to_uint8(data, len, &pos);
+            interface_data->anim->last_anim = interface_data->anim->anim_speed;
+            break;
+        }
 
         default:
             break;

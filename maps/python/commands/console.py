@@ -198,10 +198,9 @@ class PyConsole (code.InteractiveConsole):
         sys.stdout = old_stdout
 
     def show (self, ac = None, append = None):
-        inf = Interface(self.activator, None)
+        inf = Interface(self.activator, self.activator)
 
         if ac == None:
-            inf.set_icon(self.activator.face[0])
             inf.set_title(self.activator.name + "'s Python Console")
             msg = markup_escape("\n".join(self.inf_data))
             inf.add_msg("[font=mono 12]{}[/font]".format(msg))
