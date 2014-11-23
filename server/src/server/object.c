@@ -2554,6 +2554,7 @@ int auto_apply(object *op)
             }
 
             if (QUERY_FLAG(tmp, FLAG_CURSED) || QUERY_FLAG(tmp, FLAG_DAMNED)) {
+                object_destroy(tmp);
                 tmp = NULL;
             }
         } while (!tmp);
