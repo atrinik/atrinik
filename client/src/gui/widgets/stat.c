@@ -39,7 +39,7 @@ static const char *const display_modes[] = {
 /**
  * Get data for the stat widget.
  */
-static void stat_get_data(widgetdata *widget, int *curr, int *max, float *regen)
+static void stat_get_data(widgetdata *widget, sint64 *curr, sint64 *max, float *regen)
 {
     if (strcmp(widget->id, "health") == 0) {
         *curr = cpl.stats.hp;
@@ -70,7 +70,7 @@ static void widget_draw(widgetdata *widget)
     tmp = widget->subwidget;
 
     if (widget->redraw) {
-        int curr, max;
+        sint64 curr, max;
         float regen;
         char buf[MAX_BUF];
         SDL_Rect box;
@@ -78,7 +78,8 @@ static void widget_draw(widgetdata *widget)
         stat_get_data(widget, &curr, &max, &regen);
 
         if (strcmp(tmp->texture, "text") == 0) {
-            snprintf(buf, sizeof(buf), "%s: %d/%d", widget->id, curr, max);
+            snprintf(buf, sizeof(buf), "%s: %"FMT64"/%"FMT64, widget->id, curr,
+                    max);
             string_title(buf);
 
             if (regen) {
@@ -134,7 +135,7 @@ static void widget_draw(widgetdata *widget)
 static int widget_event(widgetdata *widget, SDL_Event *event)
 {
     if (event->type == SDL_MOUSEMOTION) {
-        int curr, max;
+        sint64 curr, max;
         float regen;
 
         stat_get_data(widget, &curr, &max, &regen);
