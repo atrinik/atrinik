@@ -964,6 +964,7 @@ static void object_debugger(object *op, char *buf, size_t size)
     snprintf(buf, size, "count: %d", op->count);
 
     if (op->name != NULL) {
+        SET_FLAG(op, FLAG_IDENTIFIED);
         snprintfcat(buf, size, " name: %s", query_name(op, NULL));
     }
 
