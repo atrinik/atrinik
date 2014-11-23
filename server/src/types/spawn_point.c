@@ -338,6 +338,7 @@ static void remove_map_func(object *op)
     for (ol = op->map->linked_spawn_points; ol; ol = ol->next) {
         if (ol->objlink.ob == op) {
             objectlink_unlink(&op->map->linked_spawn_points, NULL, ol);
+            free_objectlink_simple(ol);
             break;
         }
     }
