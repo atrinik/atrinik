@@ -155,13 +155,19 @@ static void wm_images_init(void)
  */
 static int render_object(gdImagePtr im, int x, int y, object *ob)
 {
+    object *head, *tmp;
+    int i, color, r, g, b, num, j, start, max, k, mx, my, z, num_z;
+    mapstruct *m;
+
     /* Sanity check. */
-    if (!ob) {
+    if (ob == NULL) {
         return 0;
     }
 
-    /* No need to do this for tail parts. */
-    if (ob->head) {
+    head = HEAD(ob);
+
+    /* Do not render system objects. */
+    if (QUERY_FLAG(head, FLAG_SYS_OBJECT)) {
         return 0;
     }
 
@@ -175,50 +181,137 @@ static int render_object(gdImagePtr im, int x, int y, object *ob)
      * - signs
      * - misc objects blocking passage (rocks, trees, etc)
      */
-    if (ob->layer == LAYER_FLOOR ||
-            (ob->type == WALL && !QUERY_FLAG(ob, FLAG_DRAW_DIRECTION)) ||
-            ob->type == DOOR ||
-            ob->type == EXIT ||
-            ob->type == SHOP_MAT ||
-            ob->type == HOLY_ALTAR ||
-            ob->type == SIGN ||
-            (ob->type == MISC_OBJECT && QUERY_FLAG(ob, FLAG_NO_PASS))) {
-        int px, py, j = 0, max, color;
+    if (head->layer != LAYER_FLOOR &&
+            (head->type != WALL || QUERY_FLAG(head, FLAG_DRAW_DIRECTION)) &&
+            head->type != DOOR &&
+            head->type != EXIT &&
+            head->type != SHOP_MAT &&
+            head->type != HOLY_ALTAR &&
+            head->type != SIGN &&
+            (head->type != MISC_OBJECT || !QUERY_FLAG(head, FLAG_NO_PASS))) {
+        return 0;
+    }
 
-        max = MAX_PIXELS;
-
-        /* Adjust the maximum position if this is a multi-arch object. */
-        if (ob->quick_pos) {
-            max *= ((ob->quick_pos >> 4) + 1) / 2;
-        }
-
-        /* Draw the pixels. */
-        for (px = 0; px < max; px++) {
-            for (py = 0; py < max; py++) {
-                /* Do shading based on the floor's z. */
-                if (ob->type == FLOOR && ob->z) {
-                    color = gdImageColorResolve(
-                            im,
-                            MAX(0, wm_face_colors[ob->face->number][2] - ob->z /
-                            2.5),
-                            MAX(0, wm_face_colors[ob->face->number][3] - ob->z /
-                            2.5),
-                            MAX(0, wm_face_colors[ob->face->number][4] - ob->z /
-                            2.5)
-                            );
-                } else {
-                    color = wm_face_colors[ob->face->number][0];
-                }
-
-                gdImageSetPixel(im, x + px, y + py, color);
-                j++;
-            }
-        }
-
+    /* No image, so we don't want to render anything, and only check whether
+     * the object is renderable. */
+    if (im == NULL) {
         return 1;
     }
 
-    return 0;
+    for (i = 0; i <= SIZEOFFREE1; i++) {
+        color = wm_face_colors[head->face->number][0];
+        r = wm_face_colors[head->face->number][2];
+        g = wm_face_colors[head->face->number][3];
+        b = wm_face_colors[head->face->number][4];
+        z = 0;
+        num = 1;
+        num_z = 0;
+
+        if (i > 0) {
+            start = i - ((i - 1) % 2);
+            max = i + ((i - 1) % 2);
+
+            /* Try to look for objects on adjacent tiles for a smoother
+             * color transition. */
+            for (j = start; j <= max; j++) {
+                k = (((j + SIZEOFFREE1) - 1) % SIZEOFFREE1) + 1;
+
+                mx = ob->x + freearr_x[k];
+                my = ob->y + freearr_y[k];
+
+                m = get_map_from_coord(ob->map, &mx, &my);
+
+                if (m == NULL) {
+                    continue;
+                }
+
+                tmp = GET_MAP_OB_LAYER(m, mx, my, LAYER_WALL, 0);
+
+                if (tmp != NULL && tmp->type == WALL) {
+                    continue;
+                }
+
+                /* Try to find something renderable on the adjacent tile,
+                 * that has the same layer as the object being rendered. */
+                for (tmp = GET_MAP_OB_LAST(m, mx, my); tmp != NULL;
+                            tmp = tmp->below) {
+                    if (tmp->layer == head->layer) {
+                        break;
+                    }
+                }
+
+                if (tmp == NULL) {
+                    /* Didn't find anything on the same layer and sub-layer,
+                     * so try to find anything at all that is renderable. */
+                    for (tmp = GET_MAP_OB_LAST(m, mx, my); tmp != NULL;
+                            tmp = tmp->below) {
+                        if (render_object(NULL, 0, 0, tmp)) {
+                            break;
+                        }
+                    }
+
+                    /* If there's nothing on this tile, increase num for
+                     * a smoother transition to black. */
+                    if (tmp == NULL) {
+                        num++;
+                        continue;
+                    }
+                }
+
+                tmp = HEAD(tmp);
+
+                if (tmp == head) {
+                    continue;
+                }
+
+                if (tmp->type == FLOOR && tmp->z != 0) {
+                    z += tmp->z;
+                    num_z++;
+                }
+
+                r += wm_face_colors[tmp->face->number][2];
+                g += wm_face_colors[tmp->face->number][3];
+                b += wm_face_colors[tmp->face->number][4];
+                num++;
+            }
+        }
+
+        if (num != 1) {
+            r /= num;
+            g /= num;
+            b /= num;
+
+            if (r != wm_face_colors[head->face->number][2] ||
+                    g != wm_face_colors[head->face->number][3] ||
+                    b != wm_face_colors[head->face->number][4]) {
+                color = -1;
+            }
+        }
+
+        if (head->type == FLOOR && head->z != 0) {
+            z += head->z;
+            num_z++;
+        }
+
+        if (num_z != 0) {
+            r -= z / num_z / 2.5;
+            g -= z / num_z / 2.5;
+            b -= z / num_z / 2.5;
+            color = -1;
+        }
+
+        if (color == -1) {
+            r = MAX(0, MIN(255, r));
+            g = MAX(0, MIN(255, g));
+            b = MAX(0, MIN(255, b));
+            color = gdImageColorResolve(im, r, g, b);
+        }
+
+        gdImageSetPixel(im, x + 1 + freearr_x[i], y + 1 + freearr_y[i],
+                color);
+    }
+
+    return 1;
 }
 
 /**
@@ -426,6 +519,7 @@ void world_maker(void)
 
         /* Create the image. */
         im = gdImageCreateTrueColor(wm_r->w, wm_r->h);
+        gdImageAlphaBlending(im, 1);
 
         /* Custom background to use? */
         if (r->map_bg) {
@@ -438,7 +532,6 @@ void world_maker(void)
             }
         } else {
             /* Transparency otherwise. */
-            gdImageAlphaBlending(im, 1);
             gdImageSaveAlpha(im, 1);
             gdImageFill(im, 0, 0, gdTransparent);
         }
