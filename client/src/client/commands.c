@@ -821,7 +821,6 @@ void socket_command_compressed(uint8 *data, size_t len, size_t pos)
     unsigned long ucomp_len;
     uint8 type, *dest;
     size_t dest_size;
-    command_buffer *buf;
 
     type = packet_to_uint8(data, len, &pos);
     ucomp_len = packet_to_uint32(data, len, &pos);
@@ -829,10 +828,14 @@ void socket_command_compressed(uint8 *data, size_t len, size_t pos)
     dest_size = ucomp_len + 1;
     dest = emalloc(dest_size);
     dest[0] = type;
-    uncompress((Bytef *) dest + 1, (uLongf *) & ucomp_len, (const Bytef *) data + pos, (uLong) len - pos);
 
-    buf = command_buffer_new(ucomp_len + 1, dest);
-    add_input_command(buf);
+    if (uncompress((Bytef *) dest + 1, (uLongf *) & ucomp_len,
+            (const Bytef *) data + pos, (uLong) len - pos) == Z_OK) {
+        command_buffer *buf;
+
+        buf = command_buffer_new(ucomp_len + 1, dest);
+        add_input_command(buf);
+    }
 
     efree(dest);
 }
