@@ -79,4 +79,11 @@
  * checking with tools like Valgrind. */
 #define MEMORY_DEBUG 0
 
+/**
+ * This is the minimum server version required to connect, represented as
+ * hexadecimal and backwards. Thus, 0x0503 requires at least 3.5, and 0x010503
+ * requires at least 3.5.1.
+ */
+#define SERVER_VERSION 0x0503
+
 #endif

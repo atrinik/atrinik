@@ -63,14 +63,30 @@ static void list_handle_enter(list_struct *list, SDL_Event *event)
 {
     /* Servers list? */
     if (list == list_servers) {
+        char number[16];
+        uint32 version, i;
+        size_t pos;
+
         /* Get selected server. */
         selected_server = server_get_id(list->row_selected - 1);
 
-        /* Valid server, start connecting. */
-        if (selected_server) {
-            login_start();
+        if (selected_server == NULL) {
             return;
         }
+
+        for (pos = 0, i = 0, version = 0;
+                string_get_word(selected_server->version, &pos, '.', number,
+                sizeof(number), 0); i++) {
+            version += atoi(number) << (i * CHAR_BIT);
+        }
+
+        if (version != 0 && version < SERVER_VERSION) {
+            draw_info(COLOR_RED, "The server is outdated; "
+                    "choose a different one.");
+            return;
+        }
+
+        login_start();
     } else if (list == list_news) {
         if (list->text && list->text[list->row_selected - 1]) {
             game_news_open(list->text[list->row_selected - 1][0]);
