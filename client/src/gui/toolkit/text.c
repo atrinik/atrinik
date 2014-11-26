@@ -1863,7 +1863,7 @@ void text_show(SDL_Surface *surface, font_struct *font, const char *text, int x,
 
     while (cp[pos] != '\0') {
         /* Have we gone over the height limit yet? */
-        if (box && box->h && dest.y + (flags & TEXT_LINES_CALC ? FONT_HEIGHT(FONT_TRY_INFO(font, info, surface)) : 0) - y > box->h) {
+        if (box && box->h && dest.y + (flags & (TEXT_LINES_CALC | TEXT_LINES_SKIP) ? FONT_HEIGHT(FONT_TRY_INFO(font, info, surface)) : 0) - y > box->h) {
             /* We are calculating height/lines, keep going on but without
              * any more drawing. */
             if ((flags & TEXT_LINES_CALC) || (flags & TEXT_HEIGHT && box->y == 0)) {

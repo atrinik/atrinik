@@ -96,6 +96,8 @@ static int popup_draw(popup_struct *popup)
         if (!game_news->msg) {
             game_news->msg = estrdup(game_news->data->memory ? game_news->data->memory : "???");
 
+            box.w = NEWS_MAX_WIDTH;
+            box.h = NEWS_MAX_HEIGHT;
             text_show(NULL, NEWS_FONT, game_news->msg, 10, 40, COLOR_WHITE, TEXT_WORD_WRAP | TEXT_MARKUP | TEXT_LINES_CALC, &box);
             game_news->num_lines = box.h;
             scrollbar_create(&game_news->scrollbar, 15, 240, &game_news->scroll_offset, &game_news->num_lines, box.y);
