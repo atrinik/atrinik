@@ -94,25 +94,25 @@ static void fill_command_buffer(socket_struct *ns)
 {
     size_t toread;
 
-    do {
-        toread = 0;
-
+    while (ns->packet_recv->len >= 2) {
         if (ns->state == ST_DEAD) {
             break;
         }
 
-        if (ns->packet_recv->len >= 2) {
-            toread = 2 + (ns->packet_recv->data[0] << 8) + ns->packet_recv->data[1];
+        toread = 2 + (ns->packet_recv->data[0] << 8) + ns->packet_recv->data[1];
 
-            if (toread <= ns->packet_recv->len) {
-                if (socket_command_check(ns, NULL, ns->packet_recv->data, toread) == 0) {
-                    packet_append_data_len(ns->packet_recv_cmd, ns->packet_recv->data, toread);
-                }
-
-                packet_delete(ns->packet_recv, 0, toread);
-            }
+        if (toread > ns->packet_recv->len) {
+            break;
         }
-    }    while (toread);
+
+        if (socket_command_check(ns, NULL, ns->packet_recv->data,
+                toread) == 0) {
+            packet_append_data_len(ns->packet_recv_cmd, ns->packet_recv->data,
+                    toread);
+        }
+
+        packet_delete(ns->packet_recv, 0, toread);
+    }
 }
 
 /**
