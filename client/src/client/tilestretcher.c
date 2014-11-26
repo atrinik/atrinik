@@ -376,8 +376,7 @@ SDL_Surface *tile_stretch(SDL_Surface *src, int n, int e, int s, int w)
     int src_len;
     Uint32 color;
     Uint8 red, green, blue, alpha;
-    /* Only index numbers 0-3 are actually used */
-    line_and_slope dest_lines[10];
+    line_and_slope dest_lines[4];
 
     /* Initialisation and housekeeping */
     SDL_LockSurface(src);
@@ -469,15 +468,7 @@ SDL_Surface *tile_stretch(SDL_Surface *src, int n, int e, int s, int w)
     ey = 22 + n - s;
     determine_line(&dest_lines[3], sx, sy, ex, ey);
 
-    /* loop information:
-     * effective loop control:
-     * for (ln_num = 0; ln_num < 4; ln_num += 2) */
-    for (ln_num = 0; ln_num < 4; ln_num++) {
-        /* see "effective loop control" */
-        if (ln_num == 1 || ln_num == 3) {
-            continue;
-        }
-
+    for (ln_num = 0; ln_num < 4; ln_num += 2) {
         /* Extract the information for the first, i.e. bottom, line (S or E
          * edge) */
         dest_sx = dest_lines[ln_num].sx;
@@ -486,20 +477,11 @@ SDL_Surface *tile_stretch(SDL_Surface *src, int n, int e, int s, int w)
         dest_ey = dest_lines[ln_num].end_y;
         dest_slope = dest_lines[ln_num].slope;
 
-        /* ln_num is always either 0 or 2 here */
-        if (ln_num == 0 || ln_num == 2) {
-            /* Extract the information for the second, i.e. top, line (W or N
-             * edge) */
-            dest_sy_2 = dest_lines[ln_num + 1].sy;
-            dest_ey_2 = dest_lines[ln_num + 1].end_y;
-            dest_slope_2 = dest_lines[ln_num + 1].slope;
-        } else {
-            /* Dead code: information about the second line is the same as the
-             * first! */
-            dest_sy_2 = dest_lines[ln_num].sy;
-            dest_ey_2 = dest_lines[ln_num].end_y;
-            dest_slope_2 = dest_lines[ln_num].slope;
-        }
+        /* Extract the information for the second, i.e. top, line (W or N
+         * edge) */
+        dest_sy_2 = dest_lines[ln_num + 1].sy;
+        dest_ey_2 = dest_lines[ln_num + 1].end_y;
+        dest_slope_2 = dest_lines[ln_num + 1].slope;
 
         /* Calculate the direction of the y co-ordinate */
         if (dest_sy > dest_ey) {

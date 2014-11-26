@@ -406,16 +406,6 @@ void adjust_tile_stretch(void)
     for (x = map_width; x < map_width * 2; x++) {
         for (y = map_height; y < map_height * 2; y++) {
             for (sub_layer = 0; sub_layer < NUM_SUB_LAYERS; sub_layer++) {
-                align_tile_stretch(x - 1, y - 1, w2, h2, sub_layer);
-                align_tile_stretch(x, y - 1, w2, h2, sub_layer);
-                align_tile_stretch(x + 1, y - 1, w2, h2, sub_layer);
-                align_tile_stretch(x + 1, y, w2, h2, sub_layer);
-
-                align_tile_stretch(x + 1, y + 1, w2, h2, sub_layer);
-                align_tile_stretch(x, y + 1, w2, h2, sub_layer);
-                align_tile_stretch(x - 1, y + 1, w2, h2, sub_layer);
-                align_tile_stretch(x - 1, y, w2, h2, sub_layer);
-
                 align_tile_stretch(x, y, w2, h2, sub_layer);
             }
         }
