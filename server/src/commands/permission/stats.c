@@ -55,6 +55,8 @@ void command_stats(object *op, const char *command, char *params)
         }
     } else if (strcmp(type, "shstr") == 0) {
         shstr_stats(VS(buf));
+    } else if (strcmp(type, "metaserver") == 0) {
+        metaserver_stats(VS(buf));
     } else {
         snprintf(VS(buf), "Unknown stats type: %s", type);
     }
