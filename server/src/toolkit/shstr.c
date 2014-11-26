@@ -61,6 +61,15 @@ void toolkit_shstr_deinit(void)
 
     TOOLKIT_DEINIT_FUNC_START(shstr)
     {
+        size_t i;
+        shared_string *ss;
+
+        for (i = 0; i < TABLESIZE; i++) {
+            for (ss = hash_table[i]; ss != NULL; ss = ss->next) {
+                log(LOG(ERROR), "String still has %lu references: '%s'",
+                        ss->refcount & ~TOPBIT, ss->string);
+            }
+        }
     }
     TOOLKIT_DEINIT_FUNC_END()
 }
