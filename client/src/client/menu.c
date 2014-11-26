@@ -94,17 +94,7 @@ int client_command_check(const char *cmd)
 
         return 1;
     } else if (!strncmp(cmd, "/resetwidgets", 13)) {
-        reset_widget(NULL);
-        return 1;
-    } else if (!strncmp(cmd, "/resetwidget", 12)) {
-        cmd = strchr(cmd, ' ');
-
-        if (!cmd || *++cmd == '\0') {
-            draw_info(COLOR_RED, "Usage: /resetwidget <name>");
-        } else {
-            reset_widget(cmd);
-        }
-
+        widgets_reset();
         return 1;
     } else if (!strncmp(cmd, "/effect ", 8)) {
         if (!strcmp(cmd + 8, "none")) {

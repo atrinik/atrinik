@@ -589,7 +589,7 @@ extern void remove_widget_object(widgetdata *widget);
 extern void remove_widget_object_intern(widgetdata *widget);
 extern void remove_widget_inv(widgetdata *widget);
 extern void kill_widgets(void);
-extern void reset_widget(const char *name);
+extern void widgets_reset(void);
 extern void widgets_ensure_onscreen(void);
 extern void kill_widget_tree(widgetdata *widget);
 extern widgetdata *create_widget(int widget_id);

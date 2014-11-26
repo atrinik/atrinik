@@ -597,30 +597,25 @@ void kill_widgets(void)
     /* kick off the chain reaction, there's no turning back now :) */
     if (widget_list_head) {
         kill_widget_tree(widget_list_head);
+        widget_list_head = NULL;
     }
 }
 
 /**
- * Resets widget's coordinates from default.
- * @param name Widget name to reset. If NULL, will reset all. */
-void reset_widget(const char *name)
+ * Resets all the widgets, and the user's widget configuration as well.
+ */
+void widgets_reset(void)
 {
-    widgetdata *tmp;
+    char *path;
 
-    for (tmp = widget_list_head; tmp; tmp = tmp->next) {
-        if (!tmp->moveable) {
-            continue;
-        }
+    toolkit_widget_deinit();
+    path = file_path("settings/interface.cfg", "w");
 
-        if (!name || !strcasecmp(tmp->name, name)) {
-            tmp->x = def_widget[tmp->type].x;
-            tmp->y = def_widget[tmp->type].y;
-            tmp->w = def_widget[tmp->type].w;
-            tmp->h = def_widget[tmp->type].h;
-            tmp->show = def_widget[tmp->type].show;
-            WIDGET_REDRAW(tmp);
-        }
+    if (path_exists(path)) {
+        unlink(path);
     }
+
+    toolkit_widget_init();
 }
 
 /**

@@ -507,7 +507,8 @@ void textwin_show(SDL_Surface *surface, int x, int y, int w, int h)
         textwin = TEXTWIN(widget);
 
         for (i = 0; i < textwin->tabs_num; i++) {
-            if (textwin->tabs[i].type == CHAT_TYPE_GAME) {
+            if (textwin->tabs[i].type == CHAT_TYPE_GAME &&
+                    textwin->tabs[i].entries != NULL) {
                 box.w = w - 3;
                 box.h = 0;
                 box.x = 0;
