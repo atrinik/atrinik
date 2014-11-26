@@ -31,7 +31,7 @@
 #include <global.h>
 
 /** How often to blink the eyes in ticks. */
-#define EYES_BLINK_TIME (10 * 1000)
+#define EYES_BLINK_TIME (15 * 1000)
 /** How long the eyes remain 'closed' (not drawn). */
 #define EYES_BLINK_DELAY (200)
 
@@ -111,11 +111,25 @@ void intro_show(void)
      * showing the eyes again. */
     if (SDL_GetTicks() - eyes_blink_ticks >= (eyes_draw ? EYES_BLINK_TIME : EYES_BLINK_DELAY)) {
         eyes_blink_ticks = SDL_GetTicks();
-        eyes_draw = !eyes_draw;
+        eyes_draw++;
     }
 
     if (eyes_draw) {
-        surface_show(ScreenSurface, texture->w - 90, 310, NULL, TEXTURE_CLIENT("eyes"));
+        SDL_Rect src_box;
+
+        src_box.x = 0;
+        src_box.y = eyes_draw - 1;
+        src_box.w = TEXTURE_CLIENT("eyes")->w;
+        src_box.h = TEXTURE_CLIENT("eyes")->h;
+        surface_show(ScreenSurface, texture->w - 90, 310 + src_box.y, &src_box, TEXTURE_CLIENT("eyes"));
+
+        if (eyes_draw > 1) {
+            eyes_draw++;
+
+            if (eyes_draw > src_box.h) {
+                eyes_draw = 1;
+            }
+        }
     }
 
     texture = TEXTURE_CLIENT("servers_bg");
