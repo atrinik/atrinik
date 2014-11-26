@@ -1287,6 +1287,7 @@ extern shstr *add_refcount(shstr *str);
 extern int query_refcount(shstr *str);
 extern shstr *find_string(const char *str);
 extern void free_string_shared(shstr *str);
+extern void shstr_stats(char *buf, size_t size);
 /* src/toolkit/signals.c */
 extern void toolkit_signals_init(void);
 extern void toolkit_signals_deinit(void);

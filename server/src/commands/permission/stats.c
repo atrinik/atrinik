@@ -53,6 +53,8 @@ void command_stats(object *op, const char *command, char *params)
         } else {
             snprintf(VS(buf), "Unknown memory pool name: %s", pool);
         }
+    } else if (strcmp(type, "shstr") == 0) {
+        shstr_stats(VS(buf));
     } else {
         snprintf(VS(buf), "Unknown stats type: %s", type);
     }
