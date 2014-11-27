@@ -41,6 +41,8 @@
 #define API_NAME mempool ///< Name of the API.
 static uint8 did_init = 0; ///< Whether the API has been initialized.
 
+static void mempool_free(mempool_struct *pool);
+
 /**
  * The removedlist is not ended by NULL, but by a pointer to the end_marker.
  *
@@ -51,7 +53,14 @@ static mempool_chunk_struct end_marker;
 /**
  * Pool for ::mempool_puddle_struct.
  */
-mempool_struct *pool_puddle;
+static mempool_struct *pool_puddle;
+
+/**
+ * All the registered pools.
+ */
+static mempool_struct **pools;
+
+size_t pools_num; ///< Number of ::pools.
 
 /**
  * Initialize the mempool API.
@@ -61,8 +70,13 @@ void toolkit_mempool_init(void)
 
     TOOLKIT_INIT_FUNC_START(mempool)
     {
+        toolkit_import(math);
         toolkit_import(memory);
+        toolkit_import(logger);
         toolkit_import(string);
+
+        pools = NULL;
+        pools_num = 0;
 
         pool_puddle = mempool_create("puddles", 10,
                 sizeof(mempool_puddle_struct), MEMPOOL_ALLOW_FREEING,
@@ -79,7 +93,13 @@ void toolkit_mempool_deinit(void)
 
     TOOLKIT_DEINIT_FUNC_START(mempool)
     {
-        mempool_free(pool_puddle);
+        size_t i;
+
+        for (i = 0; i < pools_num; i++) {
+            mempool_free(pools[i]);
+        }
+
+        efree(pools);
     }
     TOOLKIT_DEINIT_FUNC_END()
 }
@@ -234,6 +254,10 @@ mempool_struct *mempool_create(const char *description, size_t expand,
         pool->nrof_allocated[i] = 0;
     }
 
+    pools = erealloc(pools, sizeof(*pools) * (pools_num + 1));
+    pools[pools_num] = pool;
+    pools_num++;
+
     return pool;
 }
 
@@ -241,7 +265,7 @@ mempool_struct *mempool_create(const char *description, size_t expand,
  * Free a mempool.
  * @param pool The mempool to free.
  */
-void mempool_free(mempool_struct *pool)
+static void mempool_free(mempool_struct *pool)
 {
     size_t chunksize_real, nrof_arrays, i, j;
     char buf[HUGE_BUF];
@@ -302,51 +326,94 @@ void mempool_set_debugger(mempool_struct *pool, chunk_debugger debugger)
 
 /**
  * Acquire detailed statistics about the specified memory pool.
- * @param pool Memory pool.
- * @param[out] buf Buffer to use for writing.
+ * @param name Name of the memory pool, empty or NULL for all.
+ * @param[out] buf Buffer to use for writing. Must end with a NUL.
  * @param size Size of 'buf'.
  */
-void mempool_stats(mempool_struct *pool, char *buf, size_t size)
+void mempool_stats(const char *name, char *buf, size_t size)
 {
-    size_t i, allocated;
+    size_t i, j, allocated;
 
-    assert(pool != NULL);
     assert(buf != NULL);
     assert(size != 0);
 
-    snprintf(buf, size,
-            "\nMemory pool: %s"
-            "\n - Expand size: %"FMT64U
-            "\n - Chunk size: %"FMT64U,
-            pool->chunk_description, (uint64) pool->expand_size,
-            (uint64) pool->chunksize);
+    snprintfcat(buf, size, "\n=== MEMPOOL ===");
 
-    allocated = 0;
+    if (string_isempty(name)) {
+        snprintfcat(buf, size, "\nRegistered pools: %"FMT64U,
+                (uint64) pools_num);
+    }
 
-    for (i = 0; i < MEMPOOL_NROF_FREELISTS; i++) {
-        if (pool->nrof_allocated[i] == 0) {
+    for (i = 0; i < pools_num; i++) {
+        if (!string_isempty(name) &&
+                strcasecmp(pools[i]->chunk_description, name) != 0) {
             continue;
         }
 
-        snprintfcat(buf, size, "\nFreelist #%"FMT64U":", (uint64) i);
-        snprintfcat(buf, size, " allocated: %s",
-                string_format_number_comma(pool->nrof_allocated[i]));
-        snprintfcat(buf, size, " free: %s",
-                string_format_number_comma(pool->nrof_free[i]));
+        snprintfcat(buf, size,
+                "\n\nMemory pool: %s"
+                "\n - Expand size: %"FMT64U
+                "\n - Chunk size: %"FMT64U,
+                pools[i]->chunk_description, (uint64) pools[i]->expand_size,
+                (uint64) pools[i]->chunksize);
 
-        allocated += pool->nrof_allocated[i] * ((pool->chunksize << i) +
-                sizeof(mempool_chunk_struct));
+        allocated = 0;
+
+        for (j = 0; j < MEMPOOL_NROF_FREELISTS; j++) {
+            if (pools[i]->nrof_allocated[j] == 0) {
+                continue;
+            }
+
+            snprintfcat(buf, size, "\nFreelist #%"FMT64U":", (uint64) j);
+            snprintfcat(buf, size, " allocated: %s",
+                    string_format_number_comma(pools[i]->nrof_allocated[j]));
+            snprintfcat(buf, size, " free: %s",
+                    string_format_number_comma(pools[i]->nrof_free[j]));
+
+            allocated += pools[i]->nrof_allocated[j] *
+                    ((pools[i]->chunksize << j) + sizeof(mempool_chunk_struct));
+        }
+
+        snprintfcat(buf, size, "\nCalls:");
+        snprintfcat(buf, size, " %s expansions",
+                string_format_number_comma(pools[i]->calls_expand));
+        snprintfcat(buf, size, " %s gets",
+                string_format_number_comma(pools[i]->calls_get));
+        snprintfcat(buf, size, " %s returns",
+                string_format_number_comma(pools[i]->calls_return));
+        snprintfcat(buf, size, "\nTotal allocated memory: %s bytes",
+                string_format_number_comma(allocated));
+
+        if (!string_isempty(name)) {
+            break;
+        }
     }
 
-    snprintfcat(buf, size, "\nCalls:");
-    snprintfcat(buf, size, " %s expansions",
-            string_format_number_comma(pool->calls_expand));
-    snprintfcat(buf, size, " %s gets",
-            string_format_number_comma(pool->calls_get));
-    snprintfcat(buf, size, " %s returns",
-            string_format_number_comma(pool->calls_return));
-    snprintfcat(buf, size, "\nTotal allocated memory: %s bytes",
-            string_format_number_comma(allocated));
+    if (!string_isempty(name) && i == pools_num) {
+        snprintfcat(buf, size, "\nNo such pool: %s", name);
+    }
+
+    snprintfcat(buf, size, "\n");
+}
+
+/**
+ * Attempt to find the specified memory pool identified by its name.
+ * @param name Name of the memory pool to find.
+ * @return Memory pool if found, NULL otherwise.
+ */
+mempool_struct *mempool_find(const char *name)
+{
+    size_t i;
+
+    assert(name != NULL);
+
+    for (i = 0; i < pools_num; i++) {
+        if (strcasecmp(pools[i]->chunk_description, name) == 0) {
+            return pools[i];
+        }
+    }
+
+    return NULL;
 }
 
 /**
@@ -436,7 +503,7 @@ void *mempool_get_chunk(mempool_struct *pool, size_t arraysize_exp)
             mempool_expand(pool, arraysize_exp);
         } else {
             memset(MEM_USERDATA(pool->freelist[arraysize_exp]), 0,
-                    pool->chunksize);
+                    pool->chunksize << arraysize_exp);
         }
 
         new_obj = pool->freelist[arraysize_exp];

@@ -40,6 +40,14 @@ static uint8 did_init = 0;
 /** Hash table to store our strings. */
 static shared_string *hash_table[TABLESIZE];
 
+static struct statistics {
+    uint32 calls;
+    uint32 hashed;
+    uint32 strcmps;
+    uint32 search;
+    uint32 linked;
+} add_stats, add_ref_stats, free_stats, find_stats, hash_stats;
+
 /**
  * Initialize the shstr API.
  * @internal */
@@ -48,6 +56,7 @@ void toolkit_shstr_init(void)
 
     TOOLKIT_INIT_FUNC_START(shstr)
     {
+        toolkit_import(logger);
         memset(hash_table, 0, TABLESIZE * sizeof(shared_string *));
     }
     TOOLKIT_INIT_FUNC_END()
@@ -61,6 +70,15 @@ void toolkit_shstr_deinit(void)
 
     TOOLKIT_DEINIT_FUNC_START(shstr)
     {
+        size_t i;
+        shared_string *ss;
+
+        for (i = 0; i < TABLESIZE; i++) {
+            for (ss = hash_table[i]; ss != NULL; ss = ss->next) {
+                log(LOG(ERROR), "String still has %lu references: '%s'",
+                        ss->refcount & ~TOPBIT, ss->string);
+            }
+        }
     }
     TOOLKIT_DEINIT_FUNC_END()
 }
@@ -78,7 +96,7 @@ static unsigned long hashstr(const char *str)
 
     TOOLKIT_FUNC_PROTECTOR(API_NAME);
 
-    GATHER(hash_stats.calls);
+    hash_stats.calls++;
 
     for (p = str; i < MAXSTRING && *p; p++, i++) {
         hash ^= (unsigned long) *p << rot;
@@ -130,7 +148,7 @@ shstr *add_string(const char *str)
 
     TOOLKIT_FUNC_PROTECTOR(API_NAME);
 
-    GATHER(add_stats.calls);
+    add_stats.calls++;
 
     ind = hashstr(str);
     ss = hash_table[ind];
@@ -139,18 +157,18 @@ shstr *add_string(const char *str)
     if (ss) {
         /* Simple case first: See if the first pointer matches. */
         if (str != ss->string) {
-            GATHER(add_stats.strcmps);
+            add_stats.strcmps++;
 
             if (strcmp(ss->string, str)) {
                 /* Apparently, a string with the same hash value has this
                  * slot. We must see in the list if "str" has been
                  * registered earlier. */
                 while (ss->next) {
-                    GATHER(add_stats.search);
+                    add_stats.search++;
                     ss = ss->next;
 
                     if (ss->string != str) {
-                        GATHER(add_stats.strcmps);
+                        add_stats.strcmps++;
 
                         if (strcmp(ss->string, str)) {
                             /* This wasn't the right string... */
@@ -160,7 +178,7 @@ shstr *add_string(const char *str)
 
                     /* We found an entry for this string. Fix the
                      * refcount and exit. */
-                    GATHER(add_stats.linked);
+                    add_stats.linked++;
                     ++(ss->refcount);
 
                     return ss->string;
@@ -170,7 +188,7 @@ shstr *add_string(const char *str)
                 {
                     shared_string *new_ss;
 
-                    GATHER(add_stats.linked);
+                    add_stats.linked++;
                     new_ss = new_shared_string(str);
                     ss->next = new_ss;
                     new_ss->u.previous = ss;
@@ -182,14 +200,14 @@ shstr *add_string(const char *str)
             /* Fall through. */
         }
 
-        GATHER(add_stats.hashed);
+        add_stats.hashed++;
         ++(ss->refcount);
 
         return ss->string;
     } else {
         /* The string isn't registered, and the slot is empty. */
 
-        GATHER(add_stats.hashed);
+        add_stats.hashed++;
         hash_table[ind] = new_shared_string(str);
 
         /* One bit in refcount is used to keep track of the union. */
@@ -208,7 +226,7 @@ shstr *add_string(const char *str)
 shstr *add_refcount(shstr *str)
 {
     TOOLKIT_FUNC_PROTECTOR(API_NAME);
-    GATHER(add_ref_stats.calls);
+    add_ref_stats.calls++;
     ++(SS(str)->refcount);
 
     return str;
@@ -236,7 +254,7 @@ shstr *find_string(const char *str)
 
     TOOLKIT_FUNC_PROTECTOR(API_NAME);
 
-    GATHER(find_stats.calls);
+    find_stats.calls++;
 
     ind = hashstr(str);
     ss = hash_table[ind];
@@ -244,20 +262,20 @@ shstr *find_string(const char *str)
     /* Is there an entry for that hash? */
     if (ss) {
         /* Simple case first: Is the first string the right one? */
-        GATHER(find_stats.strcmps);
+        find_stats.strcmps++;
 
         if (!strcmp(ss->string, str)) {
-            GATHER(find_stats.hashed);
+            find_stats.hashed++;
             return ss->string;
         } else {
             /* Recurse through the linked list, if there's one. */
             while (ss->next) {
-                GATHER(find_stats.search);
-                GATHER(find_stats.strcmps);
+                find_stats.search++;
+                find_stats.strcmps++;
                 ss = ss->next;
 
                 if (!strcmp(ss->string, str)) {
-                    GATHER(find_stats.linked);
+                    find_stats.linked++;
                     return ss->string;
                 }
             }
@@ -280,7 +298,7 @@ void free_string_shared(shstr *str)
 
     TOOLKIT_FUNC_PROTECTOR(API_NAME);
 
-    GATHER(free_stats.calls);
+    free_stats.calls++;
     ss = SS(str);
 
     if ((--ss->refcount & ~TOPBIT) == 0) {
@@ -308,29 +326,24 @@ void free_string_shared(shstr *str)
     }
 }
 
-#ifdef SS_STATISTICS
-
 /**
- * A call to this function will cause the statistics to be dumped into
+ * A call to this function will cause the shstr API statistics to be dumped into
  * specified buffer.
- *
- * The routines will gather statistics if SS_STATISTICS is defined.
- * @param buf Buffer which will contain dumped information.
- * @param size Buffer's size. */
-void ss_dump_statistics(char *buf, size_t size)
+ * @param[out] buf Buffer to use for writing. Must end with a NUL.
+ * @param size Size of 'buf'.
+ */
+void shstr_stats(char *buf, size_t size)
 {
-    static char line[MAX_BUF];
-
-    snprintf(buf, size, "%-13s %6s %6s %6s %6s %6s\n", "", "calls", "hashed", "strcmp", "search", "linked");
-    snprintf(line, sizeof(line), "%-13s %6d %6d %6d %6d %6d\n", "add_string:", add_stats.calls, add_stats.hashed, add_stats.strcmps, add_stats.search, add_stats.linked);
-    snprintf(buf + strlen(buf), size - strlen(buf), "%s", line);
-    snprintf(line, sizeof(line), "%-13s %6d\n", "add_refcount:", add_ref_stats.calls);
-    snprintf(buf + strlen(buf), size - strlen(buf), "%s", line);
-    snprintf(line, sizeof(line), "%-13s %6d\n", "free_string:", free_stats.calls);
-    snprintf(buf + strlen(buf), size - strlen(buf), "%s", line);
-    snprintf(line, sizeof(line), "%-13s %6d %6d %6d %6d %6d\n", "find_string:", find_stats.calls, find_stats.hashed, find_stats.strcmps, find_stats.search, find_stats.linked);
-    snprintf(buf + strlen(buf), size - strlen(buf), "%s", line);
-    snprintf(line, sizeof(line), "%-13s %6d\n", "hashstr:", hash_stats.calls);
-    snprintf(buf + strlen(buf), size - strlen(buf), "%s", line);
+    snprintfcat(buf, size, "\n=== SHSTR ===\n");
+    snprintfcat(buf, size, "\n%-13s %6s %6s %6s %6s %6s\n", "", "calls",
+            "hashed", "strcmp", "search", "linked");
+    snprintfcat(buf, size, "%-13s %6d %6d %6d %6d %6d\n", "add_string:",
+            add_stats.calls, add_stats.hashed, add_stats.strcmps,
+            add_stats.search, add_stats.linked);
+    snprintfcat(buf, size, "%-13s %6d\n", "add_refcount:", add_ref_stats.calls);
+    snprintfcat(buf, size, "%-13s %6d\n", "free_string:", free_stats.calls);
+    snprintfcat(buf, size, "%-13s %6d %6d %6d %6d %6d\n", "find_string:",
+            find_stats.calls, find_stats.hashed, find_stats.strcmps,
+            find_stats.search, find_stats.linked);
+    snprintfcat(buf, size, "%-13s %6d\n", "hashstr:", hash_stats.calls);
 }
-#endif

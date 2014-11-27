@@ -41,7 +41,7 @@ static uint8 did_init = 0;
 
 /**
  * The packets memory pool. */
-mempool_struct *pool_packet;
+static mempool_struct *pool_packet;
 
 /** @copydoc chunk_debugger */
 static void packet_debugger(packet_struct *packet, char *buf, size_t size)
@@ -73,7 +73,9 @@ void toolkit_packet_init(void)
     TOOLKIT_INIT_FUNC_START(packet)
     {
         toolkit_import(mempool);
-        pool_packet = mempool_create("packets", PACKET_EXPAND, sizeof(packet_struct), 0, NULL, NULL, NULL, NULL);
+        pool_packet = mempool_create("packets", PACKET_EXPAND,
+                sizeof(packet_struct), MEMPOOL_ALLOW_FREEING,
+                NULL, NULL, NULL, NULL);
         mempool_set_debugger(pool_packet, (chunk_debugger) packet_debugger);
     }
     TOOLKIT_INIT_FUNC_END()
@@ -87,7 +89,6 @@ void toolkit_packet_deinit(void)
 
     TOOLKIT_DEINIT_FUNC_START(packet)
     {
-        mempool_free(pool_packet);
     }
     TOOLKIT_DEINIT_FUNC_END()
 }
@@ -107,19 +108,14 @@ packet_struct *packet_new(uint8 type, size_t size, size_t expand)
     TOOLKIT_FUNC_PROTECTOR(API_NAME);
 
     packet = mempool_get(pool_packet);
-    packet->next = packet->prev = NULL;
-    packet->pos = 0;
     packet->size = size;
     packet->expand = expand;
-    packet->len = 0;
-    packet->data = NULL;
 
     /* Allocate the initial data block. */
     if (packet->size) {
         packet->data = emalloc(packet->size);
     }
 
-    packet->ndelay = 0;
     packet->type = type;
 
     return packet;
