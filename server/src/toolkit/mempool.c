@@ -438,7 +438,7 @@ void *mempool_get_chunk(mempool_struct *pool, size_t arraysize_exp)
             mempool_expand(pool, arraysize_exp);
         } else {
             memset(MEM_USERDATA(pool->freelist[arraysize_exp]), 0,
-                    pool->chunksize);
+                    pool->chunksize << arraysize_exp);
         }
 
         new_obj = pool->freelist[arraysize_exp];
