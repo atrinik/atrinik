@@ -55,14 +55,14 @@ static mempool_struct *pool_party;
  * Initialize the party API. */
 void party_init(void)
 {
-    pool_party = mempool_create("parties", 25, sizeof(party_struct), 0, NULL, NULL, NULL, NULL);
+    pool_party = mempool_create("parties", 25, sizeof(party_struct),
+            MEMPOOL_ALLOW_FREEING, NULL, NULL, NULL, NULL);
 }
 
 /**
  * Deinitialize the party API. */
 void party_deinit(void)
 {
-    mempool_free(pool_party);
 }
 
 /**

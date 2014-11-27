@@ -40,7 +40,8 @@ mempool_struct *pool_player;
  * Initialize the player API. */
 void player_init(void)
 {
-    pool_player = mempool_create("players", 25, sizeof(player), MEMPOOL_BYPASS_POOLS, NULL, NULL, NULL, NULL);
+    pool_player = mempool_create("players", 25, sizeof(player),
+            MEMPOOL_ALLOW_FREEING, NULL, NULL, NULL, NULL);
 }
 
 /**
@@ -50,8 +51,6 @@ void player_deinit(void)
     while (first_player) {
         free_player(first_player);
     }
-
-    mempool_free(pool_player);
 }
 
 /**

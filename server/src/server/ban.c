@@ -48,14 +48,14 @@ static mempool_struct *pool_ban;
  * Initialize the ban API. */
 void ban_init(void)
 {
-    pool_ban = mempool_create("bans", 25, sizeof(_ban_struct), 0, NULL, NULL, NULL, NULL);
+    pool_ban = mempool_create("bans", 25, sizeof(_ban_struct),
+            MEMPOOL_ALLOW_FREEING, NULL, NULL, NULL, NULL);
 }
 
 /**
  * Deinitialize the ban API. */
 void ban_deinit(void)
 {
-    mempool_free(pool_ban);
 }
 
 /**

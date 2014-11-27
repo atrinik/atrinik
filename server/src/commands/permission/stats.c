@@ -31,34 +31,44 @@
 
 #include <global.h>
 
+/**
+ * Names of the possible stat types. Must end with NULL.
+ */
+static const char *const stats[] = {
+    "mempool", "shstr", "metaserver",
+    NULL
+};
+
 /** @copydoc command_func */
 void command_stats(object *op, const char *command, char *params)
 {
-    size_t pos;
-    char type[MAX_BUF], buf[HUGE_BUF];
+    size_t pos, i;
+    char type[MAX_BUF], buf[HUGE_BUF * 32];
 
     pos = 0;
+    string_get_word(params, &pos, ' ', type, sizeof(type), 0);
+    buf[0] = '\0';
 
-    if (!string_get_word(params, &pos, ' ', type, sizeof(type), 0)) {
-        snprintf(VS(buf), "Usage: /stats <stats type>");
-    } else if (strcmp(type, "mempool") == 0) {
-        char pool[MAX_BUF];
-
-        if (!string_get_word(params, &pos, ' ', pool, sizeof(pool), 0)) {
-            snprintf(VS(buf), "Usage: /stats mempool <pool name>");
-        } else if (strcmp(pool, "object") == 0) {
-            mempool_stats(pool_object, VS(buf));
-        } else if (strcmp(pool, "packet") == 0) {
-            mempool_stats(pool_packet, VS(buf));
-        } else {
-            snprintf(VS(buf), "Unknown memory pool name: %s", pool);
+    for (i = 0; stats[i] != NULL; i++) {
+        if (*type != '\0' && strcasecmp(stats[i], type) != 0) {
+            continue;
         }
-    } else if (strcmp(type, "shstr") == 0) {
-        shstr_stats(VS(buf));
-    } else if (strcmp(type, "metaserver") == 0) {
-        metaserver_stats(VS(buf));
-    } else {
-        snprintf(VS(buf), "Unknown stats type: %s", type);
+
+        if (strcmp(stats[i], "mempool") == 0) {
+            mempool_stats(params + pos, VS(buf));
+        } else if (strcmp(stats[i], "shstr") == 0) {
+            shstr_stats(VS(buf));
+        } else if (strcmp(stats[i], "metaserver") == 0) {
+            metaserver_stats(VS(buf));
+        }
+
+        if (!string_isempty(type)) {
+            break;
+        }
+    }
+
+    if (!string_isempty(type) && stats[i] == NULL) {
+        snprintfcat(VS(buf), "Unknown stats type: %s", type);
     }
 
     draw_info(COLOR_WHITE, op, buf);

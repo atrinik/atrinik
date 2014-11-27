@@ -467,7 +467,6 @@ extern int freearr_x[49];
 extern int freearr_y[49];
 extern int maxfree[49];
 extern int freedir[49];
-extern mempool_struct *pool_object;
 extern void (*object_initializers[256])(object *);
 extern const char *object_flag_names[135 + 1];
 extern int CAN_MERGE(object *ob1, object *ob2);
@@ -1201,18 +1200,16 @@ extern void *memory_ecalloc(size_t nmemb, size_t size);
 extern void *memory_erealloc(void *ptr, size_t size);
 extern void *memory_reallocz(void *ptr, size_t old_size, size_t new_size);
 /* src/toolkit/mempool.c */
-extern mempool_struct *pool_puddle;
 extern void toolkit_mempool_init(void);
 extern void toolkit_mempool_deinit(void);
 extern mempool_struct *mempool_create(const char *description, size_t expand, size_t size, uint32 flags, chunk_initialisator initialisator, chunk_deinitialisator deinitialisator, chunk_constructor constructor, chunk_destructor destructor);
-extern void mempool_free(mempool_struct *pool);
 extern void mempool_set_debugger(mempool_struct *pool, chunk_debugger debugger);
-extern void mempool_stats(mempool_struct *pool, char *buf, size_t size);
+extern void mempool_stats(const char *name, char *buf, size_t size);
+extern mempool_struct *mempool_find(const char *name);
 extern void *mempool_get_chunk(mempool_struct *pool, size_t arraysize_exp);
 extern void mempool_return_chunk(mempool_struct *pool, size_t arraysize_exp, void *data);
 extern size_t mempool_reclaim(mempool_struct *pool);
 /* src/toolkit/packet.c */
-extern mempool_struct *pool_packet;
 extern void toolkit_packet_init(void);
 extern void toolkit_packet_deinit(void);
 extern packet_struct *packet_new(uint8 type, size_t size, size_t expand);

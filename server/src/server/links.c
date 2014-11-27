@@ -36,14 +36,14 @@ mempool_struct *pool_objectlink;
  * Initialize the objectlink API. */
 void objectlink_init(void)
 {
-    pool_objectlink = mempool_create("object links", 500, sizeof(objectlink), 0, NULL, NULL, NULL, NULL);
+    pool_objectlink = mempool_create("object links", 500, sizeof(objectlink),
+            MEMPOOL_ALLOW_FREEING, NULL, NULL, NULL, NULL);
 }
 
 /**
  * Deinitialize the objectlink API. */
 void objectlink_deinit(void)
 {
-    mempool_free(pool_objectlink);
 }
 
 /**

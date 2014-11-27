@@ -34,23 +34,22 @@
 /** @copydoc command_func */
 void command_memfree(object *op, const char *command, char *params)
 {
-    size_t pos, freed;
-    char pool[MAX_BUF];
+    size_t freed;
+    mempool_struct *pool;
 
-    pos = 0;
-
-    if (!string_get_word(params, &pos, ' ', pool, sizeof(pool), 0)) {
+    if (params == NULL) {
         draw_info(COLOR_WHITE, op, "Usage: /memfree <pool name>");
-        return;
-    } else if (strcmp(pool, "object") == 0) {
-        freed = mempool_reclaim(pool_object);
-    } else if (strcmp(pool, "packet") == 0) {
-        freed = mempool_reclaim(pool_packet);
-    } else {
-        draw_info_format(COLOR_WHITE, op, "Unknown memory pool name: %s", pool);
         return;
     }
 
+    pool = mempool_find(params);
+
+    if (pool == NULL) {
+        draw_info_format(COLOR_WHITE, op, "Unknown memory pool: %s", params);
+        return;
+    }
+
+    freed = mempool_reclaim(pool);
     draw_info_format(COLOR_WHITE, op, "Freed %"FMT64" puddles.",
             (uint64) freed);
 }

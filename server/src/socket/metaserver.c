@@ -126,21 +126,25 @@ void metaserver_init(void)
 
 /**
  * Construct metaserver statistics.
- * @param buf Buffer to write to.
+ * @param[out] buf Buffer to use for writing. Must end with a NUL.
  * @param size Size of 'buf'.
  */
 void metaserver_stats(char *buf, size_t size)
 {
-    snprintf(buf, size, "\nMetaserver statistics:");
+    snprintfcat(buf, size, "\n=== METASERVER ===\n");
     snprintfcat(buf, size, "\nUpdates: %"FMT64U, stats.num);
     snprintfcat(buf, size, "\nFailed: %"FMT64U, stats.num_failed);
 
-    snprintfcat(buf, size, "\nLast update: %.19s", ctime(&stats.last));
+    if (stats.last != 0) {
+        snprintfcat(buf, size, "\nLast update: %.19s", ctime(&stats.last));
+    }
 
     if (stats.last_failed != 0) {
         snprintfcat(buf, size, "\nLast failure: %.19s",
                 ctime(&stats.last_failed));
     }
+
+    snprintfcat(buf, size, "\n");
 }
 
 /**

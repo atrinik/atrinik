@@ -329,13 +329,14 @@ void free_string_shared(shstr *str)
 /**
  * A call to this function will cause the shstr API statistics to be dumped into
  * specified buffer.
- * @param buf Buffer which will contain dumped information.
- * @param size Buffer's size.
+ * @param[out] buf Buffer to use for writing. Must end with a NUL.
+ * @param size Size of 'buf'.
  */
 void shstr_stats(char *buf, size_t size)
 {
-    snprintf(buf, size, "%-13s %6s %6s %6s %6s %6s\n", "", "calls", "hashed",
-            "strcmp", "search", "linked");
+    snprintfcat(buf, size, "\n=== SHSTR ===\n");
+    snprintfcat(buf, size, "\n%-13s %6s %6s %6s %6s %6s\n", "", "calls",
+            "hashed", "strcmp", "search", "linked");
     snprintfcat(buf, size, "%-13s %6d %6d %6d %6d %6d\n", "add_string:",
             add_stats.calls, add_stats.hashed, add_stats.strcmps,
             add_stats.search, add_stats.linked);

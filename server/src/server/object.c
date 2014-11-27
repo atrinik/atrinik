@@ -236,7 +236,7 @@ int freedir[SIZEOFFREE] = {
 
 /**
  * The object memory pool. */
-mempool_struct *pool_object;
+static mempool_struct *pool_object;
 
 /**
  * Progressive object counter (every new object will increase this, even
@@ -985,7 +985,6 @@ void object_init(void)
  * Deinitialize the object API. */
 void object_deinit(void)
 {
-    mempool_free(pool_object);
 }
 
 /**
