@@ -67,7 +67,6 @@ static void add_ban_entry(char *name, char *ip)
     objectlink *ol = get_objectlink();
     _ban_struct *gptr = mempool_get(pool_ban);
 
-    memset(gptr, 0, sizeof(_ban_struct));
     ol->objlink.ban = gptr;
 
     ol->objlink.ban->ip = estrdup(ip);

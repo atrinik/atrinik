@@ -48,6 +48,11 @@ archetype *empty_archetype;
 archetype *base_info_archetype;
 /** Pointer to level up effect archetype. */
 archetype *level_up_arch;
+/**
+ * Used to create archetype's clone object in get_archetype_struct(), to avoid
+ * a lot of calls to object_get().
+ */
+static object *clone_op;
 
 static void load_archetypes(void);
 
@@ -87,6 +92,7 @@ void init_archetypes(void)
         return;
     }
 
+    clone_op = get_object();
     arch_init = 1;
     load_archetypes();
     arch_init = 0;
@@ -137,6 +143,8 @@ void free_all_archs(void)
         efree(at);
         i++;
     }
+
+    object_destroy(clone_op);
 }
 
 /**
@@ -148,9 +156,7 @@ static archetype *get_archetype_struct(void)
     archetype *new;
 
     new = ecalloc(1, sizeof(archetype));
-
-    /* To initial state other also */
-    initialize_object(&new->clone);
+    memcpy(&new->clone, clone_op, sizeof(new->clone));
 
     return new;
 }
@@ -162,19 +168,16 @@ static archetype *get_archetype_struct(void)
  * archetypes. */
 static void first_arch_pass(FILE *fp)
 {
-    object *op;
     void *mybuffer;
     archetype *at, *prev = NULL, *last_more = NULL;
     int i, first = 2;
 
-    op = get_object();
-    op->arch = first_archetype = at = get_archetype_struct();
+    first_archetype = at = get_archetype_struct();
+    at->clone.arch = at;
     mybuffer = create_loader_buffer(fp);
 
-    while ((i = load_object(fp, op, mybuffer, first, MAP_STYLE))) {
+    while ((i = load_object(fp, &at->clone, mybuffer, first, MAP_STYLE))) {
         first = 0;
-
-        copy_object(op, &at->clone, 1);
 
         /* Now we have the right speed_left value for out object.
          * copy_object() now will track down negative speed values, to
@@ -211,13 +214,10 @@ static void first_arch_pass(FILE *fp)
         }
 
         at = get_archetype_struct();
-        initialize_object(op);
-        op->arch = at;
+        at->clone.arch = at;
     }
 
     delete_loader_buffer(mybuffer);
-    SET_FLAG(op, FLAG_REMOVED);
-    object_destroy(op);
     efree(at);
 }
 

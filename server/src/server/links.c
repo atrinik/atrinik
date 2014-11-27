@@ -53,7 +53,6 @@ objectlink *get_objectlink(void)
 {
     objectlink *ol = mempool_get(pool_objectlink);
 
-    memset(ol, 0, sizeof(objectlink));
     return ol;
 }
 

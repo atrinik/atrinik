@@ -130,7 +130,6 @@ static player *get_player(player *p)
 {
     if (!p) {
         p = mempool_get(pool_player);
-        memset(p, 0, sizeof(player));
 
         if (!last_player) {
             first_player = last_player = p;

@@ -840,34 +840,6 @@ void copy_owner(object *op, object *clone_ob)
 }
 
 /**
- * Frees everything allocated by an object, and also initializes all
- * variables and flags to default settings.
- * @param op The object */
-void initialize_object(object *op)
-{
-    free_key_values(op);
-
-    /* the memset will clear all these values for us, but we need
-     * to reduce the refcount on them. */
-    FREE_ONLY_HASH(op->name);
-    FREE_ONLY_HASH(op->title);
-    FREE_ONLY_HASH(op->race);
-    FREE_ONLY_HASH(op->slaying);
-    FREE_ONLY_HASH(op->msg);
-    FREE_ONLY_HASH(op->artifact);
-    FREE_ONLY_HASH(op->custom_name);
-
-    /* Using this memset is a lot easier (and probably faster)
-     * than explicitly clearing the fields. */
-    memset(op, 0, sizeof(object));
-
-    op->face = blank_face;
-
-    /* give the object a new (unique) count tag */
-    op->count = ++ob_count;
-}
-
-/**
  * Copy object first frees everything allocated by the second object,
  * and then copies the contents of the first object into the second
  * object, allocating what needs to be allocated.
@@ -976,8 +948,7 @@ static void object_debugger(object *op, char *buf, size_t size)
 void object_init(void)
 {
     pool_object = mempool_create("objects", OBJECT_EXPAND, sizeof(object),
-            MEMPOOL_ALLOW_FREEING, NULL, NULL,
-            (chunk_constructor) initialize_object, NULL);
+            MEMPOOL_ALLOW_FREEING, NULL, NULL, NULL, NULL);
     mempool_set_debugger(pool_object, (chunk_debugger) object_debugger);
 }
 
@@ -998,6 +969,9 @@ object *get_object(void)
     object *new_obj = mempool_get(pool_object);
 
     SET_FLAG(new_obj, FLAG_REMOVED);
+    new_obj->face = blank_face;
+    /* give the object a new (unique) count tag */
+    new_obj->count = ++ob_count;
 
     return new_obj;
 }

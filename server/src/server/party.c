@@ -145,7 +145,6 @@ static party_struct *make_party(const char *name)
 {
     party_struct *party = mempool_get(pool_party);
 
-    memset(party, 0, sizeof(party_struct));
     FREE_AND_COPY_HASH(party->name, name);
 
     party->next = first_party;

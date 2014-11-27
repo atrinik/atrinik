@@ -108,19 +108,14 @@ packet_struct *packet_new(uint8 type, size_t size, size_t expand)
     TOOLKIT_FUNC_PROTECTOR(API_NAME);
 
     packet = mempool_get(pool_packet);
-    packet->next = packet->prev = NULL;
-    packet->pos = 0;
     packet->size = size;
     packet->expand = expand;
-    packet->len = 0;
-    packet->data = NULL;
 
     /* Allocate the initial data block. */
     if (packet->size) {
         packet->data = emalloc(packet->size);
     }
 
-    packet->ndelay = 0;
     packet->type = type;
 
     return packet;
