@@ -5,4 +5,4 @@ for %%f in (..\ui\*.ui) do (
 )
 
 cd ..
-map_checker_w32.bat
+map-checker-w32.bat
