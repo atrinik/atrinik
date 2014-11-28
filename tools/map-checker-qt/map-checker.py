@@ -311,7 +311,13 @@ def main():
             try:
                 error = map_checker.queue.get(0)
                 severity = "<b>{}</b>".format(error["severity"].upper())
-                l = [severity, error["description"]]
+                desc = error["description"]
+
+                if error["explanation"]:
+                    desc += "<br>"
+                    desc += format(error["explanation"])
+
+                l = [severity, desc]
 
                 if error["loc"]:
                     l.insert(0, " ".join(str(i) for i in error["loc"]))
