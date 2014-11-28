@@ -115,13 +115,20 @@ class MapChecker:
 
     def getDefinitionsPath(self, name):
         '''Returns absolute path to the specified definitions file.'''
-        return os.path.join(self.config.get("General", self.definitionFilesData[name]["option"]), self.definitionFilesData[name]["filename"])
+
+        try:
+            path = self.definitionFilesData[name]["path"]
+        except KeyError:
+            path = self.config.get("General",
+                self.definitionFilesData[name]["option"])
+
+        return os.path.join(path, self.definitionFilesData[name]["filename"])
 
     def getMapsPath(self):
         '''Returns absolute path to the maps directory.'''
         return self.config.get("General", "path_dir_maps")
 
-    def _scan(self, path):
+    def _scan(self, path, files, rec):
         '''
         Internal function for actually performing the scan. Used by scan,
         in both threading and non-threading mode. Changes things such as
@@ -137,9 +144,10 @@ class MapChecker:
 
         self._scan_progress = 0
 
-        # First scan for possible map files.
-        self._scan_status = "Gathering files..."
-        files = self.scanner.scan(path)
+        if not files:
+            # First scan for possible map files.
+            self._scan_status = "Gathering files..."
+            files = self.scanner.scan(path, rec)
 
         # Now filter out non-map files by reading the header of all
         # found files.
@@ -203,7 +211,7 @@ class MapChecker:
             for error in self.checker_map.errors:
                 self.queue.put(error)
 
-    def scan(self, path = None, threading = True):
+    def scan(self, path = None, files = None, rec = True, threading = True):
         '''Perform a new scan for errors.'''
         if self._thread and self._thread.is_alive():
             return
@@ -211,10 +219,11 @@ class MapChecker:
         self._thread_running = True
 
         if threading:
-            self._thread = Thread(target = self._scan, args = (path, ))
+            self._thread = Thread(target = self._scan,
+                args = (path, files, rec))
             self._thread.start()
         else:
-            self._scan(path)
+            self._scan(path, files, rec)
 
     def scan_stop(self):
         '''Stop current scan, if any.'''
@@ -253,13 +262,16 @@ def main():
 
     # Try to parse our command line options.
     try:
-        opts, args = getopt.getopt(sys.argv[1:], "hc", ["help", "cli"])
+        opts, args = getopt.getopt(sys.argv[1:], "hcd:m:a:r:", ["help", "cli",
+            "directory=", "map=", "arch=", "regions=", "text-only"])
     except getopt.GetoptError as err:
         # Invalid option, show the error and exit.
         print(err)
         sys.exit(2)
 
     cli = False
+    files = []
+    path = None
 
     # Parse options.
     for o, a in opts:
@@ -268,6 +280,18 @@ def main():
             sys.exit()
         elif o in ("-c", "--cli"):
             cli = True
+        elif o in ("-d", "--directory"):
+            path = a
+        elif o in ("-m", "--map"):
+            files.append(a)
+        elif o in ("-a", "--arch"):
+            # TODO: make this more robust?
+            map_checker.definitionFilesData["archetype"]["path"] = a
+            map_checker.definitionFilesData["artifact"]["path"] = a
+        elif o in ("-r", "--regions"):
+            # TODO: maps directory option instead?
+            a = os.path.dirname(a)
+            map_checker.definitionFilesData["region"]["path"] = a
 
     if not cli:
         # Create a GUI window using Qt.
@@ -280,8 +304,21 @@ def main():
 
         ret = app.exec_()
     else:
-        map_checker.scan(threading = False)
+        map_checker.scan(path = path, files = files, threading = False)
         ret = 0
+
+        while map_checker.queue.qsize():
+            try:
+                error = map_checker.queue.get(0)
+                severity = "<b>{}</b>".format(error["severity"].upper())
+                l = [severity, error["description"]]
+
+                if error["loc"]:
+                    l.insert(0, " ".join(str(i) for i in error["loc"]))
+
+                print(" ".join(l))
+            except queue.Empty:
+                pass
 
     # Save configuration on exit.
     config.save()

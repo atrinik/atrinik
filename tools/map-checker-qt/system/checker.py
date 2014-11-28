@@ -57,6 +57,7 @@ class AbstractChecker:
                  "severity": "fixed" if fixed else severity,
                  "description": description,
                  "explanation": explanation,
+                 "loc": loc,
         }
 
         self.errors.append(error)
