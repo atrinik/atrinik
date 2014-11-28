@@ -44,6 +44,7 @@ class WindowMain(Model, QMainWindow, Ui_WindowMain):
 
         self.actionScan.triggered.connect(self.actionScanTrigger)
         self.actionScan_directory.triggered.connect(self.actionScan_directoryTrigger)
+        self.actionExit.triggered.connect(self.actionExitTrigger)
 
         self.actionSelect_all.triggered.connect(self.actionSelect_allTrigger)
         self.actionPreferences.triggered.connect(self.actionPreferencesTrigger)
@@ -175,6 +176,9 @@ class WindowMain(Model, QMainWindow, Ui_WindowMain):
         self.actionScan.setEnabled(False)
         self.actionScan_directory.setEnabled(False)
         self.buttonScan.setEnabled(False)
+
+    def actionExitTrigger(self):
+        self.close()
 
     def actionScan_directoryTrigger(self):
         if not self.last_scan_directory:
