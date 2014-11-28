@@ -128,10 +128,17 @@ TODO
 = 3.2 Building Atrinik installer (Windows) =
 ============================================
 
-Compile the project in release mode by editing (or creating) the file build.user
-and adding the following at the end (for release builds):
+If you're creating a release build, you will need to specify CMAKE_BUILD_TYPE
+to "Release". You can do so by editing (or creating) the file build.user and
+adding the following at the end:
 
 set(CMAKE_BUILD_TYPE "Release")
+
+Alternatively, you can create a debug build (by default). In this case, the
+generated exe will contain a large number of debug symbols, which can be split
+into a separate file by using the following command in a Bash shell:
+
+../tools/split_symbols.sh atrinik.exe
 
 You will need to place tar.exe and gunzip.exe binaries to the client's
 directory. You can download them here (or compile them yourself):
