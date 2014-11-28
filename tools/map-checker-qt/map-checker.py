@@ -11,7 +11,8 @@ import sys
 from threading import Thread
 import time
 
-from system.checker import CheckerMap, CheckerObject, CheckerArchetype
+from system.checker import CheckerMap, CheckerObject, CheckerArchetype, \
+    AbstractChecker
 from system.config import Config
 import system.constants
 from system.game_object import AbstractObjectCollection, ArchObjectCollection, \
@@ -99,7 +100,15 @@ class MapChecker:
     @property
     def collections(self):
         '''Returns all the available object collections.'''
-        return sorted([self.__dict__[obj] for obj in self.__dict__ if isinstance(self.__dict__[obj], AbstractObjectCollection)], key = lambda x: list(self.definitionFilesData.keys()).index(x.name))
+        return sorted([self.__dict__[obj] for obj in self.__dict__ if
+            isinstance(self.__dict__[obj], AbstractObjectCollection)],
+            key = lambda x: list(self.definitionFilesData.keys()).index(x.name))
+
+    @property
+    def checkers(self):
+        '''Returns all the available checkers.'''
+        return [self.__dict__[obj] for obj in self.__dict__ if
+            isinstance(self.__dict__[obj], AbstractChecker)]
 
     def collection_parser(self, collection):
         '''Returns a parser object for the specified collection.'''
@@ -128,13 +137,21 @@ class MapChecker:
         '''Returns absolute path to the maps directory.'''
         return self.config.get("General", "path_dir_maps")
 
-    def _scan(self, path, files, rec):
+    def checkers_set_fix(self, fix):
+        '''Set the fix attribute for all checkers.'''
+        for checker in self.checkers:
+            checker.fix = fix
+
+    def _scan(self, path, files, rec, fix):
         '''
         Internal function for actually performing the scan. Used by scan,
         in both threading and non-threading mode. Changes things such as
         _scan_status, _scan_progress, etc. Puts info about errors into
         the queue object
         '''
+
+        print(fix)
+        self.checkers_set_fix(fix)
 
         if not path:
             path = self.getMapsPath()
@@ -201,17 +218,25 @@ class MapChecker:
             with open(file, "r") as f:
                 m = self.parser_map.parse(f)
 
-            #with open(file + ".tmp", "w", newline="\n") as f:
-            #    self.saver_map.save(m, f)
-
             self._scan_status = "Checking {}...".format(file)
 
             self.checker_map.check(m)
+            os.rename(file, file + ".tmp")
+
+            try:
+                with open(file, "w", newline = "\n") as f:
+                    self.saver_map.save(m, f)
+            except:
+                os.unlink(file)
+                os.rename(file + ".tmp", file)
+            else:
+                os.unlink(file + ".tmp")
 
             for error in self.checker_map.errors:
                 self.queue.put(error)
 
-    def scan(self, path = None, files = None, rec = True, threading = True):
+    def scan(self, path = None, files = None, rec = True, fix = False,
+        threading = True):
         '''Perform a new scan for errors.'''
         if self._thread and self._thread.is_alive():
             return
@@ -220,10 +245,10 @@ class MapChecker:
 
         if threading:
             self._thread = Thread(target = self._scan,
-                args = (path, files, rec))
+                args = (path, files, rec, fix))
             self._thread.start()
         else:
-            self._scan(path, files, rec)
+            self._scan(path, files, rec, fix)
 
     def scan_stop(self):
         '''Stop current scan, if any.'''
@@ -262,14 +287,15 @@ def main():
 
     # Try to parse our command line options.
     try:
-        opts, args = getopt.getopt(sys.argv[1:], "hcd:m:a:r:", ["help", "cli",
-            "directory=", "map=", "arch=", "regions=", "text-only"])
+        opts, args = getopt.getopt(sys.argv[1:], "hcfd:m:a:r:", ["help", "cli",
+            "fix", "directory=", "map=", "arch=", "regions=", "text-only"])
     except getopt.GetoptError as err:
         # Invalid option, show the error and exit.
         print(err)
         sys.exit(2)
 
     cli = False
+    fix = False
     files = []
     path = None
 
@@ -280,6 +306,8 @@ def main():
             sys.exit()
         elif o in ("-c", "--cli"):
             cli = True
+        elif o in ("-f", "--fix"):
+            fix = True
         elif o in ("-d", "--directory"):
             path = a
         elif o in ("-m", "--map"):
@@ -304,7 +332,8 @@ def main():
 
         ret = app.exec_()
     else:
-        map_checker.scan(path = path, files = files, threading = False)
+        map_checker.scan(path = path, files = files, fix = fix,
+            threading = False)
         ret = 0
 
         while map_checker.queue.qsize():

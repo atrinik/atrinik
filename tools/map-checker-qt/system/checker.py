@@ -145,15 +145,15 @@ class CheckerObject(AbstractChecker):
         if t == game.types.spawn_point and not obj.inv:
             if self.fix:
                 obj.delete()
-            else:
-                self.addError("medium", "Empty spawn point object.", "Spawn point objects should generally have a monster inside their inventory that they will spawn.", obj = obj)
+
+            self.addError("medium", "Empty spawn point object.", "Spawn point objects should generally have a monster inside their inventory that they will spawn.", obj = obj, fixed = self.fix)
 
         # Players.
         if t == game.types.player:
             if self.fix:
                 obj.delete()
-            else:
-                self.addError("critical", "Player object on map.", "Player type objects are reserved system objects, and putting them on map will cause undefined behavior.", obj = obj)
+
+            self.addError("critical", "Player object on map.", "Player type objects are reserved system objects, and putting them on map will cause undefined behavior.", obj = obj, fixed = self.fix)
 
         # Monsters.
         if t == game.types.monster:
@@ -331,7 +331,7 @@ class CheckerObject(AbstractChecker):
                 if self.fix:
                     obj.setAttribute("layer", "0")
 
-                self.addError("low", "System object has a non-zero layer set.", "System objects should always have layer 0.", obj = obj, fixed = True)
+                self.addError("low", "System object has a non-zero layer set.", "System objects should always have layer 0.", obj = obj, fixed = self.fix)
 
     def checker_monster(self, obj):
         if not obj.getAttributeInt("type") in (game.types.spawn_point_mob, game.types.monster):
@@ -447,15 +447,15 @@ class CheckerMap(AbstractChecker):
                 if obj.name[len(obj.name) - len(obj.attributes[attribute]):] == obj.attributes[attribute]:
                     if self.fix:
                         del obj.attributes[attribute]
-                    else:
-                        self.addError("critical", "Map is tiled into itself (tile #{})".format(attribute[len("tile_path_"):]), "Map cannot be tiled into itself.")
+
+                    self.addError("critical", "Map is tiled into itself (tile #{})".format(attribute[len("tile_path_"):]), "Map cannot be tiled into itself.", fixed = self.fix)
 
                 for tile in tiles:
                     if tile == obj.attributes[attribute]:
                         if self.fix:
                             del obj.attributes[attribute]
-                        else:
-                            self.addError("critical", "Map is tiled to <b>{0}</b> more than once.".format(tile), "A map cannot have duplicate tile paths.")
+
+                        self.addError("critical", "Map is tiled to <b>{0}</b> more than once.".format(tile), "A map cannot have duplicate tile paths.", fixed = self.fix)
 
     def checker_difficulty(self, obj):
         difficulty = obj.getAttributeInt("difficulty")
@@ -463,13 +463,13 @@ class CheckerMap(AbstractChecker):
         if difficulty == None:
             if self.fix:
                 obj.setAttribute("difficulty", 1)
-            else:
-                self.addError("low", "Map is missing difficulty.", "This could indicate an old map. Difficulty should be set between 1 and {}.".format(system.constants.game.max_level))
+
+            self.addError("low", "Map is missing difficulty.", "This could indicate an old map. Difficulty should be set between 1 and {}.".format(system.constants.game.max_level), fixed = self.fix)
         elif difficulty < 1 or difficulty > system.constants.game.max_level:
             if self.fix:
                 obj.setAttribute("difficulty", 1 if difficulty < 1 else system.constants.game.max_level)
-            else:
-                self.addError("low", "Map has invalid difficulty set (<b>{}</b>).".format(difficulty), "Difficulty should be set between 1 and {}.".format(system.constants.game.max_level))
+
+            self.addError("low", "Map has invalid difficulty set (<b>{}</b>).".format(difficulty), "Difficulty should be set between 1 and {}.".format(system.constants.game.max_level), fixed = self.fix)
 
     def checker_bg_music(self, obj):
         bg_music = obj.getAttribute("bg_music")
