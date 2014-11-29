@@ -243,6 +243,7 @@ extern void border_create_color(SDL_Surface *surface, SDL_Rect *coords, int thic
 extern void border_create_texture(SDL_Surface *surface, SDL_Rect *coords, int thickness, SDL_Surface *texture);
 extern void rectangle_create(SDL_Surface *surface, int x, int y, int w, int h, const char *color_notation);
 extern void surface_set_alpha(SDL_Surface *surface, uint8 alpha);
+extern int polygon_check_coords(double x, double y, double corners_x[], double corners_y[], int corners_num);
 /* src/client/texture.c */
 extern void texture_init(void);
 extern void texture_deinit(void);
@@ -252,6 +253,7 @@ extern void texture_gc(void);
 extern texture_struct *texture_get(texture_type_t type, const char *name);
 extern SDL_Surface *texture_surface(texture_struct *texture);
 /* src/client/tilestretcher.c */
+extern int tilestretcher_coords_in_tile(uint32 stretch, int x, int y);
 extern int add_color_to_surface(SDL_Surface *dest, Uint8 red, Uint8 green, Uint8 blue);
 extern int copy_pixel_to_pixel(SDL_Surface *src, SDL_Surface *dest, int x, int y, int x2, int y2, float brightness);
 extern int copy_vertical_line(SDL_Surface *src, SDL_Surface *dest, int src_x, int src_sy, int src_ey, int dest_x, int dest_sy, int dest_ey, float brightness, int extra);
@@ -692,7 +694,6 @@ extern void map_animate(void);
 extern void map_draw_map(void);
 extern void map_draw_one(int x, int y, SDL_Surface *surface);
 extern void map_target_handle(uint8 is_friend);
-extern const char tile_off[24][48];
 extern int mouse_to_tile_coords(int mx, int my, int *tx, int *ty);
 extern void widget_map_init(widgetdata *widget);
 /* src/gui/widgets/mapname.c */

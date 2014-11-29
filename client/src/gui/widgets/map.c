@@ -1205,35 +1205,6 @@ void map_target_handle(uint8 is_friend)
 }
 
 /**
- * Tile offsets used in mouse_to_tile_coords().
- */
-const char tile_off[MAP_TILE_YOFF][MAP_TILE_POS_XOFF] = {
-    "000000000000000000000022221111111111111111111111",
-    "000000000000000000002222222211111111111111111111",
-    "000000000000000000222222222222111111111111111111",
-    "000000000000000022222222222222221111111111111111",
-    "000000000000002222222222222222222211111111111111",
-    "000000000000222222222222222222222222111111111111",
-    "000000000022222222222222222222222222221111111111",
-    "000000002222222222222222222222222222222211111111",
-    "000000222222222222222222222222222222222222111111",
-    "000022222222222222222222222222222222222222221111",
-    "002222222222222222222222222222222222222222222211",
-    "222222222222222222222222222222222222222222222222",
-    "332222222222222222222222222222222222222222222244",
-    "333322222222222222222222222222222222222222224444",
-    "333333222222222222222222222222222222222222444444",
-    "333333332222222222222222222222222222222244444444",
-    "333333333322222222222222222222222222224444444444",
-    "333333333333222222222222222222222222444444444444",
-    "333333333333332222222222222222222244444444444444",
-    "333333333333333322222222222222224444444444444444",
-    "333333333333333333222222222222444444444444444444",
-    "333333333333333333332222222244444444444444444444",
-    "333333333333333333333322224444444444444444444444"
-};
-
-/**
  * Transform mouse coordinates to tile coordinates on map.
  *
  * Both 'tx' and 'ty' can be NULL, which is useful if you only want to
@@ -1248,9 +1219,11 @@ const char tile_off[MAP_TILE_YOFF][MAP_TILE_POS_XOFF] = {
  */
 int mouse_to_tile_coords(int mx, int my, int *tx, int *ty)
 {
-    int x, y, xpos, ypos, player_height_offset;
+    int x, y, xpos, ypos, player_height_offset, sub_layer;
+    sint16 height, max_height;
     double zoom;
     struct MapCell *cell;
+    uint32 stretch;
 
     /* Adjust mouse x/y, making it look as if the map was drawn from
      * top left corner, in order to simplify comparisons below. */
@@ -1282,12 +1255,25 @@ int mouse_to_tile_coords(int mx, int my, int *tx, int *ty)
                         (player_height_offset) * zoom;
             }
 
+            stretch = 0;
+            max_height = 0;
+
+            for (sub_layer = 0; sub_layer < NUM_SUB_LAYERS; sub_layer++) {
+                height = cell->height[sub_layer * NUM_LAYERS];
+
+                if (height > max_height) {
+                    max_height = height;
+                    stretch = cell->stretch[sub_layer];
+                }
+            }
+
             /* See if this square matches our 48x24 box shape. */
-            if (mx >= xpos && mx < xpos + (MAP_TILE_POS_XOFF * zoom) &&
-                    my >= ypos && my < ypos + (MAP_TILE_YOFF * zoom)) {
-                /* See if the square matches isometric 48x24 tile. */
-                if (tile_off[(int) ((my - ypos) / zoom)][(int) ((mx - xpos) /
-                        zoom)] == '2') {
+            if (mx >= xpos && mx <= xpos + (MAP_TILE_POS_XOFF * zoom) &&
+                    my >= ypos && my <= ypos + ((MAP_TILE_YOFF +
+                    ((stretch >> 24) & 0xff)) * zoom)) {
+                if (tilestretcher_coords_in_tile(stretch,
+                        (int) ((mx - xpos) / zoom),
+                        (int) ((my - ypos) / zoom))) {
                     if (tx) {
                         *tx = x;
                     }

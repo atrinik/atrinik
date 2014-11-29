@@ -141,6 +141,81 @@ static void determine_line(line_and_slope *dest, int sx, int sy, int ex, int ey)
 }
 
 /**
+ * Calculate the information about the lines which will form the
+ * edge of the stretched tile (see the comments above
+ * std_tile_half_len for a picture).
+ *
+ * In the isometric view, closer objects are displayed lower down
+ * on the VDU (smaller y co-ordinate) and further objects are
+ * displayed higher up (larger y co-ordinate).
+ *
+ * The SW corner moves closer the more West the tile is stretched.
+ * The NE corner moves closer the more East the tile is stretched.
+ * Both the SW and NE corners move further away the more North the
+ * tile is stretched.
+ * Both the SE and NW corners move close the more South and further
+ * away the more North the tile is stretched
+ */
+static void determine_lines(line_and_slope *dest, int n, int e, int s, int w)
+{
+    /* 0: Western edge: SW to NW corner  */
+    determine_line(&dest[0], 2, 10 - w + n, 22, 0);
+    /* 1: Southern edge: SW to SE corner */
+    determine_line(&dest[1], 2, 12 - w + n, 22, 22 + n - s);
+    /* 2: Northern edge: NE to NW corner */
+    determine_line(&dest[2], 45, 10 - e + n, 25, 0);
+    /* 3: Eastern edge: NE to SE corner */
+    determine_line(&dest[3], 45, 12 - e + n, 25, 22 + n - s);
+}
+
+/**
+ * Checks whether the supplied coordinates (relative to the tile size, so for
+ * example: 0,0, 47,0, etc) are inside the (possibly stretched) isometric map
+ * tile shape.
+ * @param stretch Calculated stretch factor.
+ * @param x X coordinate.
+ * @param y Y coordinate.
+ * @return 1 if the supplied coordinates are within the isometric map tile
+ * shape, 0 otherwise.
+ */
+int tilestretcher_coords_in_tile(uint32 stretch, int x, int y)
+{
+    uint8 n, e, s, w;
+    double corners_x[8], corners_y[8];
+    line_and_slope lines[4];
+
+    n = (stretch >> 24) & 0xff;
+    e = (stretch >> 16) & 0xff;
+    w = (stretch >> 8) & 0xff;
+    s = stretch & 0xff;
+
+    determine_lines(lines, n, e, s, w);
+
+    /* The following creates an array of points for coords_in_polygon().
+     * Basically, adjusts the coordinates returned by determine_lines() so that
+     * the isometric map tile shape would be entirely surrounded. */
+    corners_x[0] = lines[0].end_x - 1;
+    corners_y[0] = lines[0].end_y - 1;
+    corners_x[1] = lines[2].end_x + 1;
+    corners_y[1] = lines[2].end_y - 1;
+    corners_x[2] = lines[2].sx + 3;
+    corners_y[2] = lines[2].sy - 1;
+    corners_x[3] = lines[3].sx + 3;
+    corners_y[3] = lines[3].sy + 1;
+    corners_x[4] = lines[3].end_x + 1;
+    corners_y[4] = lines[3].end_y + 2;
+    corners_x[5] = lines[1].end_x - 1;
+    corners_y[5] = lines[1].end_y + 2;
+    corners_x[6] = lines[1].sx - 3;
+    corners_y[6] = lines[1].sy + 1;
+    corners_x[7] = lines[0].sx - 3;
+    corners_y[7] = lines[0].sy - 1;
+
+    return polygon_check_coords(x, y, corners_x, corners_y,
+            arraysize(corners_x));
+}
+
+/**
  * Adds a colour to the palette in a bitmap ("surface"). */
 int add_color_to_surface(SDL_Surface *dest, Uint8 red, Uint8 green, Uint8 blue)
 {
@@ -362,7 +437,6 @@ SDL_Surface *tile_stretch(SDL_Surface *src, int n, int e, int s, int w)
     /* If set, copy_vertical_line will attempt to extend the line further
      * by 1 pixel (no idea why this is named "flat") */
     int flat;
-    int sx, sy, ex, ey;
     int ln_num;
     int dest_sx, dest_sy, dest_ex, dest_ey;
     float dest_slope;
@@ -428,45 +502,7 @@ SDL_Surface *tile_stretch(SDL_Surface *src, int n, int e, int s, int w)
         }
     }
 
-    /* Calculate the information about the lines which will form the
-     * edge of the stretched tile (see the comments above
-     * std_tile_half_len for a picture).
-     *
-     * In the isometric view, closer objects are displayed lower down
-     * on the VDU (smaller y co-ordinate) and further objects are
-     * displayed higher up (larger y co-ordinate).
-     *
-     * The SW corner moves closer the more West the tile is stretched.
-     * The NE corner moves closer the more East the tile is stretched.
-     * Both the SW and NE corners move further away the more North the
-     * tile is stretched.
-     * Both the SE and NW corners move close the more South and further
-     * away the more North the tile is stretched */
-
-    /* 0: Southern edge: SW to SE corner */
-    sx = 2;
-    sy = (10 - w) + n;
-    ex = 22;
-    ey = 0;
-    determine_line(&dest_lines[0], sx, sy, ex, ey);
-    /* 1: Western edge: SW to NW corner */
-    sx = 2;
-    sy = (12 - w) + n;
-    ex = 22;
-    ey = 22 + n - s;
-    determine_line(&dest_lines[1], sx, sy, ex, ey);
-    /* 2: Eastern edge: NE to SE corner */
-    sx = 45;
-    sy = (10 - e) + n;
-    ex = 25;
-    ey = 0;
-    determine_line(&dest_lines[2], sx, sy, ex, ey);
-    /* 3: Northern edge: NE to NW corner */
-    sx = 45;
-    sy = (12 - e) + n;
-    ex = 25;
-    ey = 22 + n - s;
-    determine_line(&dest_lines[3], sx, sy, ex, ey);
+    determine_lines(dest_lines, n, e, s, w);
 
     for (ln_num = 0; ln_num < 4; ln_num += 2) {
         /* Extract the information for the first, i.e. bottom, line (S or E

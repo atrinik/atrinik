@@ -995,3 +995,37 @@ void surface_set_alpha(SDL_Surface *surface, uint8 alpha)
         SDL_UnlockSurface(surface);
     }
 }
+
+/**
+ * Checks whether the given coordinates are within the specified polygon.
+ *
+ * The arrays corners_x/corners_y should contain every single corner point of
+ * the polygon that you want to test.
+ * @param x X coordinate.
+ * @param y Y coordinate.
+ * @param corners_x Array of X corner coordinates.
+ * @param corners_y Array of Y corner coordinates.
+ * @param corners_num Number of corner coordinate entries.
+ * @return 1 if the coordinates are in the polygon, 0 otherwise.
+ */
+int polygon_check_coords(double x, double y,
+        double corners_x[], double corners_y[], int corners_num)
+{
+    int i, j, odd_nodes;
+
+    j = corners_num - 1;
+    odd_nodes = 0;
+
+    for (i = 0; i < corners_num; i++) {
+        if (((corners_y[i] < y && corners_y[j] >= y) ||
+                (corners_y[j] < y && corners_y[i] >= y)) &&
+                (corners_x[i] <= x || corners_x[j] <= x)) {
+            odd_nodes ^= (corners_x[i] + (y - corners_y[i]) / (corners_y[j] -
+                    corners_y[i]) * (corners_x[j] - corners_x[i]) < x);
+        }
+
+        j = i;
+    }
+
+    return odd_nodes;
+}
