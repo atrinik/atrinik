@@ -150,7 +150,6 @@ class MapChecker:
         the queue object
         '''
 
-        print(fix)
         self.checkers_set_fix(fix)
 
         if not path:
