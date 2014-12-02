@@ -2,7 +2,7 @@ arch map
 name Asteria
 msg
 Created:  2009-08-09 Alex Tokar
-Modified: 2011-10-02 Alex Tokar
+Modified: 2014-12-02 atokar
 endmsg
 width 24
 height 24
@@ -1077,9 +1077,10 @@ msg
 ["/shattered_islands/world_4_1036", "other"]
 ]
 endmsg
+name Auction House sign
 layer 0
 sys_object 1
-name Auction House sign
+type 79
 x 6
 y 9
 end
