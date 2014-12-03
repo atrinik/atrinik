@@ -553,7 +553,7 @@ class CheckerMap(AbstractChecker):
 
                 # Go through the layers (ignoring layer 0), and check if we have more than one
                 # object of the same layer on this space.
-                for i in range(1, system.constants.game.max_layers):
+                for i in range(1, system.constants.game.max_layers + 1):
                     for j in range(0, system.constants.game.num_sub_layers):
                         if layers[i][j] > 1:
                             self.addError("warning", "More than 1 object ({}) with layer {}, sub-layer {} on same tile.".format(layers[i][j], i, j), "It is not recommended to place more than one object with the same layer and sub-layer on a single tile, as only one of them will appear on map in the client, and which one will appear is undefined.", loc = [x, y])
