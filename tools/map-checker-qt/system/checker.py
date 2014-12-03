@@ -167,13 +167,26 @@ class CheckerObject(AbstractChecker):
 
         # Quest container.
         if t == game.types.quest_container:
+            sub_type = obj.getAttributeInt("sub_type")
+
             # Cannot be outside of inventory.
             if not obj.env:
                 self.addError("high", "Quest container is outside of inventory.", "Quest containers do not trigger unless they are inside of an inventory.", obj = obj)
 
-            # Quest containers require a quest name to be set.
+            need_name = sub_type != game.quest_container_sub_types.item_drop
+
+            if not need_name:
+                for tmp in obj.inv:
+                    if tmp.getAttributeInt("one_drop") == 1:
+                        need_name = True
+                        break
+
             if obj.getAttribute("name") == obj.name:
-                self.addError("high", "Quest container has no quest name.", "Quest containers should always have a quest name set.", obj = obj)
+                if need_name:
+                    self.addError("high", "Quest container has no quest name.", "Quest containers should always have a quest name set, unless they're item drop quest type or they have a one_drop item.", obj = obj)
+            else:
+                if not need_name:
+                    self.addError("low", "Quest container has a name.", "Quest containers with item drop quest type and no one_drop items should not have a quest name.", obj = obj)
 
         # Signs.
         if t == game.types.sign:
