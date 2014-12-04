@@ -360,30 +360,19 @@ class CheckerObject(AbstractChecker):
             self.addError("warning", "NPC cannot cast spells but has ability objects.", "In order for the NPC to be able to cast spells, it must have the 'can_cast_spell' flag on.", obj = obj)
 
     def checker_attributes(self, obj):
-        if not obj.map:
-            return
-
         artifact = self.map_checker.artifacts.get(obj.name)
+        fix = obj.map is not None
 
         for attr in obj.getAttributes():
             val = obj.getAttribute(attr)
 
             if not attr.islower():
-                self.addError("medium", "Attribute name is not all lowercase: <b>{}</b>.".format(attr), "Officially, only lowercase attribute names are supported. Even though mixed-case attribute names still work today, they may not work in the future or on different platforms.", obj = obj, fixed = self.fix)
+                self.addError("medium", "Attribute is not all lowercase: <b>{}</b>.".format(attr), "Officially, only lowercase attribute names are supported. Even though mixed-case attribute names still work today, they may not work in the future or on different platforms.", obj = obj, fixed = fix)
 
-                if self.fix:
+                if fix:
                     attr_old = attr
                     attr = attr.lower()
                     obj.replaceAttribute(attr_old, attr, val)
-
-            if artifact and not attr in ("x", "y", "identified", "unpaid", "no_pick", "level", "nrof", "value", "can_stack", "layer", "sub_layer", "z", "zoom", "zoom_x", "zoom_y", "alpha", "align"):
-                self.addError("high", "Artifact with modified attribute: <b>{}</b>.".format(attr), "Directly modifying attributes of most artifacts is not recommended, as it can result in artifacts with different statistics, found in different regions of the world, for example.<br><br>It is recommended to create a new artifact, rather than modifying an existing one on the map.", obj = obj)
-
-            if obj.isSameArchAttribute(attr):
-                if self.fix:
-                    obj.removeAttribute(attr)
-
-                self.addError("low", "Attribute <b>{}</b> is same as arch default.".format(attr), "This is often due to a change in archetypes, when the default value changes to something that has been set the same on a map.", obj = obj, fixed = self.fix)
 
             game_attr = game.attributes.attrs.get(attr)
 
@@ -404,6 +393,18 @@ class CheckerObject(AbstractChecker):
             else:
                 if self.config.getboolean("Errors", "unknown_attribute"):
                     self.addError("warning", "Attribute <b>{}</b> is not recognized.".format(attr), "Unrecognized attributes are loaded as custom attributes and can have special meaning in some object types. However, they could also be typos.", obj = obj)
+
+            if not obj.map:
+                continue
+
+            if artifact and not attr in ("x", "y", "identified", "unpaid", "no_pick", "level", "nrof", "value", "can_stack", "layer", "sub_layer", "z", "zoom", "zoom_x", "zoom_y", "alpha", "align"):
+                self.addError("high", "Artifact with modified attribute: <b>{}</b>.".format(attr), "Directly modifying attributes of most artifacts is not recommended, as it can result in artifacts with different statistics, found in different regions of the world, for example.<br><br>It is recommended to create a new artifact, rather than modifying an existing one on the map.", obj = obj)
+
+            if obj.isSameArchAttribute(attr):
+                if self.fix:
+                    obj.removeAttribute(attr)
+
+                self.addError("low", "Attribute <b>{}</b> is same as arch default.".format(attr), "This is often due to a change in archetypes, when the default value changes to something that has been set the same on a map.", obj = obj, fixed = self.fix)
 
     def checker_sys_object(self, obj):
         if obj.getAttributeInt("sys_object") == 1 and obj.getAttributeInt("layer") != 0:
