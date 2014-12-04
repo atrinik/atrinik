@@ -340,10 +340,6 @@
 		If enabled, it is impossible for players to use spells on that
 		spot.
 	</attribute>
-	<attribute arch="no_cleric" editor="no prayers" type="bool">
-		If enabled, it is impossible for players to use prayers on that
-		spot.
-	</attribute>
 	<attribute arch="unpaid" editor="unpaid" type="bool">
 		An &lt;unpaid&gt; item cannot be used unless the player carried
 		it over a shop mat, paying the demanded price. Setting this flag
@@ -5050,9 +5046,6 @@
 	</attribute>
 	<attribute arch="no_magic" editor="no magic" type="bool">
 		Disables magic.
-	</attribute>
-	<attribute arch="no_cleric" editor="no prayers" type="bool">
-		Disables prayers.
 	</attribute>
 	<attribute arch="no_pvp" editor="no PvP" type="bool">
 		Disables PvP.
