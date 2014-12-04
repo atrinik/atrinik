@@ -216,6 +216,16 @@ class ParserArchetype(Parser):
         self._parse_setup(f)
         self._parse(f, cls = ArchObject)
 
+        for obj in self.collection:
+            for tmp in self.collection[obj].inv:
+                self._link_inventory_arches(tmp, self.collection[obj])
+
+    def _link_inventory_arches(self, obj, arch):
+        obj.setArch(arch)
+
+        for tmp in obj.inv:
+            self._link_inventory_arches(tmp, arch)
+
 class ParserArtifact(Parser):
     '''Artifacts parser.'''
 

@@ -61,7 +61,7 @@
       <enum>QTabWidget::Rounded</enum>
      </property>
      <property name="currentIndex">
-      <number>0</number>
+      <number>2</number>
      </property>
      <property name="documentMode">
       <bool>false</bool>
@@ -351,9 +351,9 @@
           <property name="geometry">
            <rect>
             <x>0</x>
-            <y>0</y>
-            <width>385</width>
-            <height>233</height>
+            <y>-12</y>
+            <width>364</width>
+            <height>245</height>
            </rect>
           </property>
           <layout class="QGridLayout" name="gridLayout_8">
@@ -441,6 +441,16 @@
             <widget class="QLabel" name="label_8">
              <property name="text">
               <string>Configure what kind of errors to check for.</string>
+             </property>
+            </widget>
+           </item>
+           <item row="9" column="0">
+            <widget class="QCheckBox" name="pref_errors_unknown_attribute">
+             <property name="styleSheet">
+              <string notr="true">margin-left: 10;</string>
+             </property>
+             <property name="text">
+              <string>Unrecognized attribute</string>
              </property>
             </widget>
            </item>

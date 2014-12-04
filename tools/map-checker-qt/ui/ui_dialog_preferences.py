@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file '..\ui\ui_dialog_preferences.ui'
 #
-# Created: Fri Nov 28 12:49:12 2014
+# Created: Thu Dec  4 15:56:59 2014
 #      by: PyQt5 UI code generator 5.3.2
 #
 # WARNING! All changes made in this file will be lost!
@@ -164,7 +164,7 @@ class Ui_DialogPreferences(object):
         self.scrollArea_3.setWidgetResizable(True)
         self.scrollArea_3.setObjectName("scrollArea_3")
         self.scrollAreaWidgetContents_5 = QtWidgets.QWidget()
-        self.scrollAreaWidgetContents_5.setGeometry(QtCore.QRect(0, 0, 385, 233))
+        self.scrollAreaWidgetContents_5.setGeometry(QtCore.QRect(0, -12, 364, 245))
         self.scrollAreaWidgetContents_5.setObjectName("scrollAreaWidgetContents_5")
         self.gridLayout_8 = QtWidgets.QGridLayout(self.scrollAreaWidgetContents_5)
         self.gridLayout_8.setObjectName("gridLayout_8")
@@ -203,13 +203,17 @@ class Ui_DialogPreferences(object):
         self.label_8 = QtWidgets.QLabel(self.scrollAreaWidgetContents_5)
         self.label_8.setObjectName("label_8")
         self.gridLayout_8.addWidget(self.label_8, 0, 0, 1, 1)
+        self.pref_errors_unknown_attribute = QtWidgets.QCheckBox(self.scrollAreaWidgetContents_5)
+        self.pref_errors_unknown_attribute.setStyleSheet("margin-left: 10;")
+        self.pref_errors_unknown_attribute.setObjectName("pref_errors_unknown_attribute")
+        self.gridLayout_8.addWidget(self.pref_errors_unknown_attribute, 9, 0, 1, 1)
         self.scrollArea_3.setWidget(self.scrollAreaWidgetContents_5)
         self.gridLayout_7.addWidget(self.scrollArea_3, 0, 0, 1, 1)
         self.tabWidget.addTab(self.tab, "")
         self.gridLayout.addWidget(self.tabWidget, 0, 1, 1, 1)
 
         self.retranslateUi(DialogPreferences)
-        self.tabWidget.setCurrentIndex(0)
+        self.tabWidget.setCurrentIndex(2)
         self.buttonClose.clicked.connect(DialogPreferences.close)
         QtCore.QMetaObject.connectSlotsByName(DialogPreferences)
 
@@ -248,5 +252,6 @@ class Ui_DialogPreferences(object):
         self.pref_errors_map_no_music.setText(_translate("DialogPreferences", "Map with no music"))
         self.pref_errors_map_no_region.setText(_translate("DialogPreferences", "Map with no region"))
         self.label_8.setText(_translate("DialogPreferences", "Configure what kind of errors to check for."))
+        self.pref_errors_unknown_attribute.setText(_translate("DialogPreferences", "Unrecognized attribute"))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab), _translate("DialogPreferences", "Errors"))
 

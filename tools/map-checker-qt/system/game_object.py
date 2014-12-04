@@ -35,6 +35,19 @@ class AbstractObject:
         self.setModified(modified)
         self._attributes[attribute] = str(value)
 
+    def replaceAttribute(self, attribute_old, attribute, value, modified = True):
+        '''Replace attribute with the specified one.'''
+        self.setModified(modified)
+
+        attributes = self._attributes
+        self._attributes = OrderedDict()
+
+        for attr in attributes:
+            if attr == attribute_old:
+                self._attributes[attribute] = value
+            else:
+                self._attributes[attr] = attributes[attr]
+
     def removeAttribute(self, attribute, modified = True):
         '''
         Delete object's attribute. It's an error if the attribute does not
@@ -53,6 +66,10 @@ class AbstractObject:
     def getAttributeInt(self, attribute):
         '''Get object's attribute as an integer.'''
         return int(self.getAttribute(attribute, 0))
+
+    def getAttributeFloat(self, attribute):
+        '''Get object's attribute as a float.'''
+        return float(self.getAttribute(attribute, 0.0))
 
     def setName(self, name, modified = True):
         '''Change object's name.'''
