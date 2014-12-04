@@ -13,7 +13,7 @@ terrain_flag 1
 weapon_speed 0.035
 attack_cleave 80
 type 80
-Wis 3
+wis 3
 animation dwarf_noble
 is_animated 1
 anim_speed 4

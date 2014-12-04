@@ -13,7 +13,7 @@ is_neutral 1
 direction 5
 terrain_flag 1
 randomitems mob_rat
-Wis 3
+wis 3
 animation rat_a
 is_animated 1
 anim_speed 4
@@ -46,7 +46,7 @@ is_neutral 1
 direction 5
 terrain_flag 1
 randomitems mob_rat
-Wis 3
+wis 3
 animation rat_b
 is_animated 1
 anim_speed 4
@@ -79,7 +79,7 @@ is_neutral 1
 direction 5
 terrain_flag 1
 randomitems mob_rat
-Wis 3
+wis 3
 animation rat_c
 is_animated 1
 anim_speed 4
@@ -112,7 +112,7 @@ is_neutral 1
 direction 5
 terrain_flag 1
 randomitems mob_rat
-Wis 3
+wis 3
 animation rat_d
 is_animated 1
 anim_speed 4

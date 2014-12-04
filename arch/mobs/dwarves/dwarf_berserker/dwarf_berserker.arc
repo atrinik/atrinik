@@ -14,7 +14,7 @@ terrain_flag 1
 weapon_speed 0.045
 attack_cleave 100
 type 80
-Wis 3
+wis 3
 animation dwarf_berserker
 is_animated 1
 anim_speed 4

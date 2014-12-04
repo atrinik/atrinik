@@ -13,7 +13,7 @@ terrain_flag 1
 weapon_speed 0.035
 attack_slash 80
 type 80
-Wis 3
+wis 3
 randomitems mob_skeleton1
 animation skel_fighter1
 is_animated 1

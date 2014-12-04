@@ -13,9 +13,9 @@ terrain_flag 1
 weapon_speed 0.035
 attack_cleave 75
 type 80
-Wis 3
-Dex 3
-Pow 2
+wis 3
+dex 3
+pow 2
 randomitems mob_demilich
 animation demilich
 is_animated 1

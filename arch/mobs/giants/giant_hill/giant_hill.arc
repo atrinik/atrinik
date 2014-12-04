@@ -18,7 +18,7 @@ dam 62
 hp -1
 maxhp 72
 terrain_flag 1
-Wis 3
+wis 3
 face giant_hill.131
 animation giant_hill
 is_animated 1

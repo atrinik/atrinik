@@ -10,7 +10,7 @@ speed -0.0611
 corpse 1
 type 80
 is_neutral 1
-Wis 4
+wis 4
 terrain_flag 1
 mpart_id 3
 animation worm_purple
@@ -18,8 +18,8 @@ is_animated 1
 anim_speed 5
 monster 1
 level 1
-Con 2
-Pow 2
+con 2
+pow 2
 exp 111
 ac 11
 wc 7

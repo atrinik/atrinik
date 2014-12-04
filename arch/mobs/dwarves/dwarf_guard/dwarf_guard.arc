@@ -18,7 +18,7 @@ protect_slash 10
 protect_cleave 10
 protect_pierce 10
 type 80
-Wis 3
+wis 3
 animation dwarf_guard
 is_animated 1
 anim_speed 4

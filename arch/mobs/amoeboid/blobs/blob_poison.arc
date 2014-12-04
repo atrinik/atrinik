@@ -15,7 +15,7 @@ dam 42
 hp -1
 maxhp 55
 terrain_flag 1
-Wis 3
+wis 3
 can_see_in_dark 1
 face blob_poison.111
 animation blob_poison

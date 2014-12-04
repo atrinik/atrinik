@@ -13,7 +13,7 @@ terrain_flag 1
 weapon_speed 0.035
 attack_pierce 75
 type 80
-Wis 3
+wis 3
 randomitems mob_orc_mage
 animation orc_priest
 is_animated 1
@@ -30,7 +30,7 @@ maxhp 66
 can_cast_spell 1
 sp -1
 maxsp 7
-Pow 2
+pow 2
 magic 5
 level 1
 speed -0.047

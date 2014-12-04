@@ -5,8 +5,8 @@ race undead
 can_cast_spell 1
 maxsp 10
 behavior 2
-Pow 2
-Dex 4
+pow 2
+dex 4
 magic 5
 wc_range 20
 corpse 1
@@ -18,7 +18,7 @@ weapon_speed 0.035
 attack_pierce 70
 attack_cold 15
 type 80
-Wis 3
+wis 3
 randomitems mob_skeleton_mage
 animation necromancer
 is_animated 1

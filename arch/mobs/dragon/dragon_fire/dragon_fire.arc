@@ -19,7 +19,7 @@ protect_pierce 5
 protect_fire 100
 protect_cold -20
 type 80
-Wis 3
+wis 3
 mpart_id 3
 animation dragon_fire
 is_animated 1

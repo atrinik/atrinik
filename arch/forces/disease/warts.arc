@@ -9,7 +9,7 @@ wc 1
 wc_range 20
 magic 1
 identified 1
-Cha -4
+cha -4
 maxhp 1
 speed 0.001
 last_sp 0

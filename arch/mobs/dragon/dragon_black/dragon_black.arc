@@ -20,7 +20,7 @@ protect_pierce 5
 protect_fire 75
 protect_cold 75
 type 80
-Wis 3
+wis 3
 mpart_id 3
 animation dragon_black
 is_animated 1

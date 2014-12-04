@@ -13,7 +13,7 @@ weapon_speed 0.038
 attack_cold 60
 attack_cleave 40
 type 80
-Wis 3
+wis 3
 animation giant_ice
 is_animated 1
 anim_speed 4

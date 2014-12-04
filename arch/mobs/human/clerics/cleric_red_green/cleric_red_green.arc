@@ -18,9 +18,9 @@ is_animated 1
 anim_speed 4
 speed -0.048
 monster 1
-Wis 4
+wis 4
 no_pick 1
-Con 15
+con 15
 exp 100
 hp -1
 maxhp 100

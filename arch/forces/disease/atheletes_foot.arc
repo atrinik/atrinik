@@ -8,7 +8,7 @@ dam 1
 wc 1
 wc_range 20
 magic 1
-Dex -3
+dex -3
 identified 1
 maxhp 1
 speed 0.005

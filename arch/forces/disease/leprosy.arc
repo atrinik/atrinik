@@ -7,10 +7,10 @@ attack_internal 100
 other_arch leprous_skin
 wc 10
 magic 0
-Str -1
-Con -1
-Dex -1
-Cha -2
+str -1
+con -1
+dex -1
+cha -2
 maxhp 1
 dam 1
 food -1

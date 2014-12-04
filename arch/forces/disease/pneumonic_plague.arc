@@ -7,10 +7,10 @@ attack_internal 100
 wc 20
 last_grace 1
 magic 4
-Str -3
-Con -4
-Dex -3
-Cha -4
+str -3
+con -4
+dex -3
+cha -4
 maxhp 7
 dam -11
 food -1

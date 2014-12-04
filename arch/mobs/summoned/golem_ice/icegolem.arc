@@ -14,7 +14,7 @@ attack_cold 80
 protect_fire -35
 protect_cold 100
 type 80
-Wis 3
+wis 3
 randomitems mob_ice
 animation icegolem
 is_animated 1

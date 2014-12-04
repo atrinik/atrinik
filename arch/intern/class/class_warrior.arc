@@ -8,7 +8,7 @@ no_drop 1
 applied 1
 hp 20
 ac 2
-Str 2
-Dex 1
-Con 1
+str 2
+dex 1
+con 1
 end

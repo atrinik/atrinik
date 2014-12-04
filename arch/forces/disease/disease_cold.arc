@@ -6,8 +6,8 @@ face force.101
 attack_internal 100
 wc 20
 magic 3
-Con -1
-Cha -1
+con -1
+cha -1
 maxhp 10
 dam 1
 last_grace 1

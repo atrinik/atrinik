@@ -13,7 +13,7 @@ weapon_speed 0.035
 attack_slash 65
 attack_drain 25
 type 80
-Wis 3
+wis 3
 randomitems mob_lost_soul
 animation lost_soul
 is_animated 1

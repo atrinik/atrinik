@@ -19,10 +19,10 @@ is_animated 1
 anim_speed 4
 speed -0.060
 monster 1
-Wis 4
-Dex 3
-Int 10
-Pow 10
+wis 4
+dex 3
+int 10
+pow 10
 magic 1
 see_invisible 1
 can_see_in_dark 1
@@ -37,7 +37,7 @@ randomitems mob_lom_lobon
 reflect_missile 1
 reflect_spell 1
 glow_radius 5
-Con 15
+con 15
 exp 113
 hp -1
 maxhp 100

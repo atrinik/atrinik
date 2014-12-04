@@ -13,7 +13,7 @@ weapon_speed 0.038
 attack_impact 70
 attack_drain 20
 type 80
-Wis 3
+wis 3
 animation zombie
 is_animated 1
 anim_speed 4

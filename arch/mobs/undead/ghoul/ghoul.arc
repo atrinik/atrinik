@@ -14,7 +14,7 @@ weapon_speed 0.035
 attack_slash 70
 attack_drain 20
 type 80
-Wis 3
+wis 3
 randomitems mob_ghoul
 animation ghoul
 is_animated 1

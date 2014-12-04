@@ -30,9 +30,9 @@ can_use_weapon 1
 is_player 1
 weight 70000
 food 750
-Str 15
-Dex 11
-Con 14
-Int 13
-Pow 12
+str 15
+dex 11
+con 14
+int 13
+pow 12
 end

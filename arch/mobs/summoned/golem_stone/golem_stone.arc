@@ -13,7 +13,7 @@ terrain_flag 1
 weapon_speed 0.035
 attack_impact 80
 type 80
-Wis 3
+wis 3
 randomitems mob_default
 animation golem_stone
 is_animated 1

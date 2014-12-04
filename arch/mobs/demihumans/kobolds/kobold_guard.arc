@@ -13,7 +13,7 @@ terrain_flag 1
 weapon_speed 0.035
 attack_slash 75
 type 80
-Wis 3
+wis 3
 randomitems mob_kobold
 animation kobold_guard
 is_animated 1

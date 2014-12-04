@@ -12,7 +12,7 @@ terrain_flag 1
 weapon_speed 0.039
 attack_weaponmagic 80
 type 80
-Wis 3
+wis 3
 animation archon_lantern
 is_animated 1
 anim_speed 4
