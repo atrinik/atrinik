@@ -220,16 +220,18 @@ class MapChecker:
             self._scan_status = "Checking {}...".format(file)
 
             self.checker_map.check(m)
-            os.rename(file, file + ".tmp")
 
-            try:
-                with open(file, "w", newline = "\n") as f:
-                    self.saver_map.save(m, f)
-            except:
-                os.unlink(file)
-                os.rename(file + ".tmp", file)
-            else:
-                os.unlink(file + ".tmp")
+            if m.isModified():
+                os.rename(file, file + ".tmp")
+
+                try:
+                    with open(file, "w", newline = "\n") as f:
+                        self.saver_map.save(m, f)
+                except:
+                    os.unlink(file)
+                    os.rename(file + ".tmp", file)
+                else:
+                    os.unlink(file + ".tmp")
 
             for error in self.checker_map.errors:
                 self.queue.put(error)

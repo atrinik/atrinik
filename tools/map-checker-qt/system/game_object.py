@@ -15,16 +15,38 @@ class AbstractObject:
 
     def __init__(self, name):
         self.name = name
-        self.attributes = OrderedDict()
+        self._attributes = OrderedDict()
+        self.modified = False
 
-    def setAttribute(self, attribute, value):
+    def setModified(self, val = True):
+        if val is not True:
+            return
+
+        self.modified = True
+
+    def isModified(self):
+        return self.modified
+
+    def getAttributes(self):
+        return self._attributes.keys()
+
+    def setAttribute(self, attribute, value, modified = True):
         '''Set object's attribute to value.'''
-        self.attributes[attribute] = str(value)
+        self.setModified(modified)
+        self._attributes[attribute] = str(value)
+
+    def removeAttribute(self, attribute, modified = True):
+        '''
+        Delete object's attribute. It's an error if the attribute does not
+        exist.
+        '''
+        self.setModified(modified)
+        del self._attributes[attribute]
 
     def getAttribute(self, attribute, default = None):
         '''Get object's attribute, return default if attribute doesn't exist.'''
         try:
-            return self.attributes[attribute]
+            return self._attributes[attribute]
         except KeyError:
             return default
 
@@ -32,19 +54,20 @@ class AbstractObject:
         '''Get object's attribute as an integer.'''
         return int(self.getAttribute(attribute, 0))
 
-    def setName(self, name):
+    def setName(self, name, modified = True):
         '''Change object's name.'''
+        self.setModified(modified)
         self.name = name
 
     def save(self):
         '''Save object's data as human-readable string.'''
         l = []
 
-        for attribute in self.attributes:
+        for attribute in self._attributes:
             if attribute == "msg":
-                l.append("msg\n{0}\nendmsg\n".format(self.attributes[attribute]))
+                l.append("msg\n{0}\nendmsg\n".format(self._attributes[attribute]))
             else:
-                l.append("{0} {1}\n".format(attribute, self.attributes[attribute]))
+                l.append("{0} {1}\n".format(attribute, self._attributes[attribute]))
 
         return "".join(l)
 
@@ -58,12 +81,24 @@ class AbstractObjectInventory(AbstractObject):
         self.env = None
         self.inv = []
 
-    def inventoryAdd(self, obj):
+    def setModified(self, *args):
+        '''
+        Set the modified state of an abstract inventory object. The object's
+        environment object is also marked as modified, if it exists.
+        '''
+        super().setModified(*args)
+
+        if self.env is not None:
+            self.env.setModified(*args)
+
+    def inventoryAdd(self, obj, modified = True):
         '''Add an object to current object's inventory.'''
+        self.setModified(modified)
         self.inv.append(obj)
 
-    def setParent(self, obj):
+    def setParent(self, obj, modified = True):
         '''Set this object's parent object.'''
+        self.setModified(modified)
         self.env = obj
 
     def getParentTop(self):
@@ -86,6 +121,21 @@ class GameObject(AbstractObjectInventory):
 
     def setArch(self, arch):
         self.arch = arch
+
+    def setModified(self, *args):
+        super().setModified(*args)
+
+        if self.map is not None:
+            self.map.setModified(*args)
+
+    def setAttribute(self, attribute, value, modified = True):
+        if self.arch and modified and self.arch.getAttribute(attribute) == value:
+            if super().getAttribute(attribute) != None:
+                self.removeAttribute(attribute)
+
+            return
+
+        super().setAttribute(attribute, value, modified)
 
     def getAttribute(self, attribute, default = None):
         val = super().getAttribute(attribute, default)
@@ -124,6 +174,7 @@ class GameObject(AbstractObjectInventory):
         return self.getAttributeInt("y")
 
     def delete(self):
+        self.setModified()
         self._deleted = True
 
     def deleted(self):
@@ -137,8 +188,10 @@ class MapObject(AbstractObject):
 
         self.tiles = OrderedDict()
 
-    def addObject(self, obj):
+    def addObject(self, obj, modified = True):
         '''Add object to the map.'''
+        self.setModified(modified)
+
         if not obj.x in self.tiles:
             self.tiles[obj.x] = OrderedDict()
 
@@ -178,10 +231,6 @@ class ArchObject(GameObject):
 
 class ArtifactObject(ArchObject):
     '''Implements artifact object.'''
-
-    def setArtifactAttributes(self, attributes):
-        '''Set artifact attributes.'''
-        self.artifact_attributes = attributes
 
 class RegionObject(AbstractObjectInventory):
     @property

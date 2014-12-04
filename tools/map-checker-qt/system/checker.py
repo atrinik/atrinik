@@ -331,20 +331,29 @@ class CheckerObject(AbstractChecker):
     def checker_attributes(self, obj):
         artifact = self.map_checker.artifacts.get(obj.name)
 
-        for attr in obj.attributes:
+        for attr in obj.getAttributes():
             if artifact and not attr in ("x", "y", "identified", "unpaid", "no_pick", "level", "nrof", "value", "can_stack", "layer", "sub_layer", "z", "zoom", "zoom_x", "zoom_y", "alpha", "align"):
                 self.addError("high", "Artifact with modified attribute: <b>{}</b>.".format(attr), "Directly modifying attributes of most artifacts is not recommended, as it can result in artifacts with different statistics, found in different regions of the world, for example.<br><br>It is recommended to create a new artifact, rather than modifying an existing one on the map.", obj = obj)
 
             if obj.isSameArchAttribute(attr):
-                self.addError("low", "Attribute <b>{}</b> is same as arch default.".format(attr), "This is often due to a change in archetypes, when the default value changes to something that has been set the same on a map.", obj = obj)
+                if self.fix:
+                    obj.removeAttribute(attr)
+
+                self.addError("low", "Attribute <b>{}</b> is same as arch default.".format(attr), "This is often due to a change in archetypes, when the default value changes to something that has been set the same on a map.", obj = obj, fixed = self.fix)
 
     def checker_sys_object(self, obj):
-        if obj.getAttributeInt("sys_object") == 1 and obj.getAttributeInt("layer") > 0:
+        if obj.getAttributeInt("sys_object") == 1 and obj.getAttributeInt("layer") != 0:
             if not obj.env or obj.env.getAttributeInt("type") != game.types.spawn_point_mob:
                 if self.fix:
                     obj.setAttribute("layer", "0")
 
                 self.addError("low", "System object has a non-zero layer set.", "System objects should always have layer 0.", obj = obj, fixed = self.fix)
+
+        if obj.getAttributeInt("sys_object") == 0 and obj.getAttributeInt("layer") == 0:
+            if self.fix:
+                obj.setAttribute("sys_object", "1")
+
+            self.addError("low", "Layer 0 object doesn't have sys_object set.", "Layer 0 objects should always have sys_object set.", obj = obj, fixed = self.fix)
 
     def checker_monster(self, obj):
         if not obj.getAttributeInt("type") in (game.types.spawn_point_mob, game.types.monster):
@@ -455,20 +464,24 @@ class CheckerMap(AbstractChecker):
         tiles = []
 
         # Go through the attributes.
-        for attribute in obj.attributes:
+        for attribute in obj.getAttributes():
             if attribute.startswith("tile_path_"):
-                if obj.name[len(obj.name) - len(obj.attributes[attribute]):] == obj.attributes[attribute]:
+                val = obj.getAttribute(attribute)
+
+                if obj.name[len(obj.name) - len(val):] == val:
                     if self.fix:
-                        del obj.attributes[attribute]
+                        obj.removeAttribute(attribute)
 
                     self.addError("critical", "Map is tiled into itself (tile #{})".format(attribute[len("tile_path_"):]), "Map cannot be tiled into itself.", fixed = self.fix)
 
                 for tile in tiles:
-                    if tile == obj.attributes[attribute]:
+                    if tile == val:
                         if self.fix:
-                            del obj.attributes[attribute]
+                            obj.removeAttribute(attribute)
 
                         self.addError("critical", "Map is tiled to <b>{0}</b> more than once.".format(tile), "A map cannot have duplicate tile paths.", fixed = self.fix)
+
+                tiles.append(val)
 
     def checker_difficulty(self, obj):
         difficulty = obj.getAttributeInt("difficulty")
@@ -533,6 +546,9 @@ class CheckerMap(AbstractChecker):
 
                 # Go through the objects on this map space.
                 for game_obj in obj.tiles[x][y]:
+                    # Recursively check the object.
+                    self.errors += self._checker_game_object(game_obj)
+
                     # Get our layer and sub-layer.
                     layer = game_obj.getAttributeInt("layer")
                     sub_layer = game_obj.getAttributeInt("sub_layer")
@@ -545,9 +561,6 @@ class CheckerMap(AbstractChecker):
 
                     # The total count of objects.
                     obj_count_all += 1
-
-                    # Now recursively check the object.
-                    self.errors += self._checker_game_object(game_obj)
 
                     if game_obj.getAttributeInt("type") == game.types.shop_floor:
                         is_shop = True
