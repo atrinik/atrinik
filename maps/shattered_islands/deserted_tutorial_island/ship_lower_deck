@@ -2,7 +2,7 @@ arch map
 name Lower Deck
 msg
 Created:  2011-08-18 Alex Tokar
-Modified: 2011-09-30 Alex Tokar
+Modified: 2014-12-04 atokar
 endmsg
 width 5
 height 14
@@ -420,8 +420,6 @@ arch blocked
 x 3
 end
 arch ship_rail_s_high
-ldraw_double 1
-ayer 5
 x 3
 end
 arch ship_floor_ns_4

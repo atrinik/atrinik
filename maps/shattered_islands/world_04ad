@@ -2,7 +2,7 @@ arch map
 name Incuna
 msg
 Created:  2010-08-22 Edwin Miltenburg
-Modified: 2012-06-22 Alex Tokar
+Modified: 2014-12-04 atokar
 endmsg
 width 24
 height 24
@@ -981,7 +981,7 @@ y 18
 end
 arch straw2.111
 z 6
-align - 6
+align -6
 x 6
 y 18
 end
