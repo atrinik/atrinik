@@ -120,6 +120,7 @@ class game:
             "inv_face": STRING,
             "title": STRING,
             "randomitems": STRING,
+
             "quickslot": INTEGER,
             "object_int1": INTEGER,
             "object_int2": INTEGER,
@@ -238,9 +239,11 @@ class game:
             "mpart_id": INTEGER,
             "mpart_nr": INTEGER,
             "item_power": INTEGER,
+
             "speed": FLOAT,
             "speed_left": FLOAT,
             "weapon_speed": FLOAT,
+
             "slow_move": BOOLEAN,
             "door_closed": BOOLEAN,
             "cursed_perm": BOOLEAN,
@@ -348,4 +351,15 @@ class game:
             "is_dust": BOOLEAN,
             "one_hit": BOOLEAN,
             "is_indestructible": BOOLEAN,
+
+            "spawn_time": STRING,
+            "stock": INTEGER,
+            "faction": STRING,
+            "faction_rep": INTEGER,
+            "faction_kill_penalty": INTEGER,
+            "name_female": STRING,
+            "notification_message": STRING,
+            "notification_action": STRING,
+            "notification_shortcut": STRING,
+            "notification_delay": INTEGER,
         }
