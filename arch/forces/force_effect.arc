@@ -1,7 +1,7 @@
 Object force_effect
 name effect force
-layer 0
 type 114
+layer 3
 face force.101
 identified 1
 no_drop 1
