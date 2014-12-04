@@ -5217,7 +5217,6 @@ artifact hat_cornuthaum
 def_arch hat_blue
 Object
 name cornuthaum
-face hat_cornuthaum.101
 animation hat_cornuthaum
 is_animated 1
 anim_speed 5
