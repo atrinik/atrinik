@@ -61,8 +61,8 @@ y 8
 arch orc_sorcerer
 level 37
 maxsp 16
-Pow 20
-Dex 2
+pow 20
+dex 2
 type 83
 arch ability_mbullet
 end
@@ -112,8 +112,8 @@ y 19
 arch orc_sorcerer
 level 38
 maxsp 16
-Pow 20
-Dex 2
+pow 20
+dex 2
 type 83
 arch ability_mbullet
 end
@@ -602,8 +602,8 @@ y 18
 arch orc_sorcerer
 level 38
 maxsp 16
-Pow 20
-Dex 2
+pow 20
+dex 2
 type 83
 arch ability_mbullet
 end

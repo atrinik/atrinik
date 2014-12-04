@@ -1262,13 +1262,13 @@ attack_cold 15
 can_cast_spell 1
 sp -1
 maxsp 10
-Pow 5
+pow 5
 magic 3
 path_attuned 4
 path_repelled 2
 path_denied 2
 terrain_flag 3
-Dex 2
+dex 2
 friendly 1
 random_move 1
 item_race 2

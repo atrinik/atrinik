@@ -65,8 +65,8 @@ exp 122
 can_cast_spell 1
 sp -1
 maxsp 30
-Pow 2
-Dex 3
+pow 2
+dex 3
 type 83
 arch ability_firestorm
 end
@@ -468,8 +468,8 @@ exp 132
 can_cast_spell 1
 sp -1
 maxsp 30
-Pow 2
-Dex 3
+pow 2
+dex 3
 type 83
 arch ability_firestorm
 sp 34
@@ -543,8 +543,8 @@ exp 132
 can_cast_spell 1
 sp -1
 maxsp 30
-Pow 2
-Dex 3
+pow 2
+dex 3
 type 83
 arch ability_firestorm
 sp 34

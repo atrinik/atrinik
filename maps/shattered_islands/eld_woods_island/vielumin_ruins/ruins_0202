@@ -399,7 +399,7 @@ y 4
 arch drow_captain
 name rebel drow commander
 level 57
-Wis 4
+wis 4
 type 83
 end
 end
@@ -446,10 +446,10 @@ arch drow_sorcerer
 name rebel drow researcher
 level 59
 maxsp 16
-Pow 20
+pow 20
 magic 3
-Dex 3
-Wis 4
+dex 3
+wis 4
 type 83
 arch ability_icestorm
 end
@@ -590,10 +590,10 @@ arch drow_sorcerer
 name rebel drow alchemist
 level 59
 maxsp 16
-Pow 20
+pow 20
 magic 3
-Dex 3
-Wis 4
+dex 3
+wis 4
 type 83
 arch ability_icestorm
 end
@@ -893,7 +893,7 @@ y 1
 arch drow_captain
 name rebel drow commander
 level 57
-Wis 4
+wis 4
 type 83
 end
 end
@@ -933,10 +933,10 @@ arch drow_sorcerer
 name rebel drow warlock
 level 58
 maxsp 16
-Pow 20
+pow 20
 magic 3
-Dex 3
-Wis 4
+dex 3
+wis 4
 type 83
 arch ability_firestorm
 end
@@ -1619,10 +1619,10 @@ arch drow_sorcerer
 name rebel drow researcher
 level 58
 maxsp 16
-Pow 20
+pow 20
 magic 3
-Dex 3
-Wis 4
+dex 3
+wis 4
 type 83
 arch ability_mbullet
 end
@@ -1686,10 +1686,10 @@ name porlit the alchemist
 level 60
 exp 135
 maxsp 16
-Pow 20
+pow 20
 magic 3
-Dex 3
-Wis 4
+dex 3
+wis 4
 attack_move_type 1
 type 83
 arch ability_icestorm
@@ -2099,7 +2099,7 @@ y 1
 arch drow_captain
 name rebel drow commander
 level 57
-Wis 4
+wis 4
 type 83
 end
 end
@@ -2264,10 +2264,10 @@ arch drow_sorcerer
 name rebel drow warlock
 level 58
 maxsp 16
-Pow 20
+pow 20
 magic 3
-Dex 3
-Wis 4
+dex 3
+wis 4
 type 83
 arch ability_mbullet
 end
@@ -2776,7 +2776,7 @@ y 3
 arch drow_captain
 name rebel drow commander
 level 58
-Wis 4
+wis 4
 type 83
 end
 end
@@ -2823,10 +2823,10 @@ arch drow_sorcerer
 name rebel drow researcher
 level 59
 maxsp 16
-Pow 20
+pow 20
 magic 3
-Dex 3
-Wis 4
+dex 3
+wis 4
 type 83
 arch ability_icestorm
 end
@@ -2873,10 +2873,10 @@ arch drow_sorcerer
 name rebel drow alchemist
 level 60
 maxsp 16
-Pow 20
+pow 20
 magic 3
-Dex 3
-Wis 4
+dex 3
+wis 4
 type 83
 arch ability_icestorm
 end

@@ -283,7 +283,7 @@ level 38
 can_cast_spell 1
 sp -1
 maxsp 15
-Dex 2
+dex 2
 type 83
 arch ability_cause_lig_wound
 name ability meteor
@@ -356,7 +356,7 @@ spawn_time 14:00-16:00
 can_cast_spell 1
 sp -1
 maxsp 12
-Dex 3
+dex 3
 type 83
 arch ability_cause_lig_wound
 end
@@ -585,7 +585,7 @@ spawn_time 14:00-16:00
 can_cast_spell 1
 sp -1
 maxsp 12
-Dex 3
+dex 3
 type 83
 arch ability_cause_lig_wound
 end
@@ -681,8 +681,8 @@ level 15
 can_cast_spell 1
 sp -1
 maxsp 12
-Pow 3
-Dex 2
+pow 3
+dex 2
 unaggressive 1
 friendly 1
 random_move 1

@@ -515,8 +515,8 @@ arch drow_sorcerer
 name rebel drow warlock
 level 49
 maxsp 16
-Pow 20
-Dex 3
+pow 20
+dex 3
 type 83
 arch ability_firestorm
 end
@@ -1471,8 +1471,8 @@ arch drow_sorcerer
 name rebel drow warlock
 level 51
 maxsp 16
-Pow 20
-Dex 3
+pow 20
+dex 3
 type 83
 arch ability_firestorm
 end

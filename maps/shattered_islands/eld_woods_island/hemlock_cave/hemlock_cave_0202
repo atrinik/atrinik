@@ -310,7 +310,7 @@ y 13
 arch lost_soul
 type 83
 level 32
-Wis 4
+wis 4
 end
 end
 arch floor_earth1e
@@ -347,7 +347,7 @@ y 20
 arch skel_fighter1
 type 83
 level 32
-Wis 4
+wis 4
 end
 end
 arch floor_earth1c
@@ -684,7 +684,7 @@ y 10
 arch skel_fighter2
 type 83
 level 33
-Wis 4
+wis 4
 end
 end
 arch floor_earth1c
@@ -1088,7 +1088,7 @@ y 17
 arch skel_fighter2
 type 83
 level 33
-Wis 4
+wis 4
 direction 1
 end
 end
@@ -1138,7 +1138,7 @@ y 5
 arch ghoul
 type 83
 level 34
-Wis 4
+wis 4
 end
 end
 arch floor_earth1a
@@ -1400,7 +1400,7 @@ y 15
 arch wraith
 type 83
 level 33
-Wis 4
+wis 4
 end
 end
 arch floor_earth1c
@@ -1723,7 +1723,7 @@ y 10
 arch lost_soul
 type 83
 level 33
-Wis 4
+wis 4
 end
 end
 arch floor_earth1a
@@ -1902,7 +1902,7 @@ y 4
 arch skel_mage
 type 83
 level 34
-Wis 4
+wis 4
 arch ability_mbullet
 end
 arch ability_icestorm

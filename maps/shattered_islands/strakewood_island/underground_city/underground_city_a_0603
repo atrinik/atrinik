@@ -545,8 +545,8 @@ arch drow_annihilator
 direction 1
 level 56
 maxsp 16
-Pow 20
-Dex 2
+pow 20
+dex 2
 type 83
 arch ability_firestorm
 hp 35
@@ -1220,8 +1220,8 @@ arch drow_sorcerer
 direction 3
 level 56
 maxsp 16
-Pow 20
-Dex 2
+pow 20
+dex 2
 type 83
 arch ability_cause_lig_wound
 end
@@ -2497,8 +2497,8 @@ y 17
 arch drow_sorcerer
 level 54
 maxsp 16
-Pow 20
-Dex 2
+pow 20
+dex 2
 type 83
 arch ability_cause_lig_wound
 end

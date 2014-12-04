@@ -2252,7 +2252,7 @@ level 6
 random_move 1
 item_race 5
 item_level 5
-Wis 4
+wis 4
 end
 end
 arch grassd_3
@@ -2613,7 +2613,7 @@ level 6
 random_move 1
 item_race 5
 item_level 5
-Wis 4
+wis 4
 end
 end
 arch grassd_8
@@ -2661,7 +2661,7 @@ level 6
 random_move 1
 item_race 5
 item_level 5
-Wis 4
+wis 4
 end
 end
 arch grassd_1
@@ -2772,7 +2772,7 @@ level 6
 random_move 1
 item_race 5
 item_level 5
-Wis 4
+wis 4
 end
 end
 arch grassd_1

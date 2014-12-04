@@ -163,9 +163,9 @@ name burnt drow warlock
 level 44
 sp -1
 maxsp 16
-Pow 20
-Dex 2
-Wis 7
+pow 20
+dex 2
+wis 7
 type 83
 arch ability_firestorm
 end

@@ -1429,8 +1429,8 @@ arch orc_priest
 name orc skeleton master
 level 40
 maxsp 16
-Pow 20
-Dex 2
+pow 20
+dex 2
 type 83
 arch ability_cause_lig_wound
 end
@@ -2654,8 +2654,8 @@ y 2
 arch orc_sorcerer
 level 40
 maxsp 16
-Pow 20
-Dex 2
+pow 20
+dex 2
 type 83
 arch ability_mbullet
 end

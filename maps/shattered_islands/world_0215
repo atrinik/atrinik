@@ -1802,7 +1802,7 @@ name hill giant scout
 type 83
 randomitems mob_mage_l9
 level 5
-Dex 5
+dex 5
 can_use_bow 1
 arch ability_stone_throw
 end

@@ -373,7 +373,7 @@ x 7
 y 4
 arch bat_brown
 level 9
-Wis 4
+wis 4
 type 83
 end
 end
@@ -1154,7 +1154,7 @@ x 17
 y 1
 arch bat_brown
 level 9
-Wis 4
+wis 4
 type 83
 end
 end

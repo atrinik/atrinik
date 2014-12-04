@@ -2874,7 +2874,7 @@ arch kobold
 name kobold sneaker
 wc_range 12
 unaggressive 1
-Wis 2
+wis 2
 type 83
 end
 end

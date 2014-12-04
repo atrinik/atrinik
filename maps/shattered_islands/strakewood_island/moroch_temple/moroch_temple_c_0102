@@ -330,7 +330,7 @@ y 1
 arch skel_fighter1
 name skeleton archer
 level 95
-Dex 2
+dex 2
 can_use_bow 1
 type 83
 arch ability_stone_throw

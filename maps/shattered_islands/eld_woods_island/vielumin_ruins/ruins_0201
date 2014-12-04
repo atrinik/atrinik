@@ -345,7 +345,7 @@ can_see_in_dark 1
 random_move 1
 item_race 5
 item_level 5
-Wis 6
+wis 6
 run_away 10
 type 83
 end
@@ -912,9 +912,9 @@ level 44
 can_cast_spell 1
 sp -1
 maxsp 16
-Pow 20
+pow 20
 magic 5
-Dex 4
+dex 4
 random_move 1
 item_race 5
 item_level 5
@@ -1707,8 +1707,8 @@ name burnt drow mage
 level 44
 sp -1
 maxsp 16
-Pow 20
-Dex 3
+pow 20
+dex 3
 type 83
 arch ability_mbullet
 end

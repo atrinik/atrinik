@@ -1134,8 +1134,8 @@ arch drow_annihilator
 level 83
 exp 157
 maxsp 16
-Pow 20
-Dex 2
+pow 20
+dex 2
 unaggressive 1
 type 83
 arch ability_firestorm
@@ -1537,8 +1537,8 @@ arch drow_annihilator
 level 83
 exp 144
 maxsp 16
-Pow 20
-Dex 2
+pow 20
+dex 2
 type 83
 arch ability_firestorm
 end

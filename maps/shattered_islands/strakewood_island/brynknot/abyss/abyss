@@ -6450,7 +6450,7 @@ is_male 0
 is_female 0
 wc 1000
 maxhp 375
-Con 0
+con 0
 attack_cleave 0
 can_cast_spell 1
 magic 4

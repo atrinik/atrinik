@@ -718,7 +718,7 @@ arch skel_fighter1
 name skeleton archer
 type 83
 level 69
-Dex 2
+dex 2
 can_use_bow 1
 direction 3
 arch ability_stone_throw

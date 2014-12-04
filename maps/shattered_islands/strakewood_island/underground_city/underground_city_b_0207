@@ -2841,15 +2841,15 @@ dam 68
 wc 4
 maxhp 90
 ac 11
-Con 20
+con 20
 attack_pierce 85
 maxsp 20
-Pow 30
+pow 30
 magic 2
-Dex 2
+dex 2
 can_use_weapon 1
 can_use_armour 1
-Wis 5
+wis 5
 protect_impact 15
 protect_slash 15
 protect_cleave 15
@@ -2929,8 +2929,8 @@ arch drow_sorcerer
 level 90
 exp 127
 maxsp 16
-Pow 20
-Dex 2
+pow 20
+dex 2
 type 83
 arch ability_cause_lig_wound
 end

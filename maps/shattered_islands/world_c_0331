@@ -2289,7 +2289,7 @@ end
 arch spawn_point
 x 17
 arch drow_captain
-Wis 2
+wis 2
 level 32
 type 83
 end

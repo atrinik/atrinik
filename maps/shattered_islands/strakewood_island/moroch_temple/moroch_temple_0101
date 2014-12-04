@@ -1061,7 +1061,7 @@ y 8
 arch skel_fighter2
 type 83
 level 54
-Dex 2
+dex 2
 can_use_bow 1
 direction 3
 arch arrow
@@ -1444,7 +1444,7 @@ y 1
 arch skel_fighter2
 type 83
 level 56
-Dex 2
+dex 2
 can_use_bow 1
 direction 1
 arch ability_stone_throw

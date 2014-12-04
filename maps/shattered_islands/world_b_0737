@@ -269,7 +269,7 @@ y 8
 arch giant_hill
 name Orgloroth, the Key Guardian
 level 35
-Wis 2
+wis 2
 type 83
 arch quest_container
 sub_type 3

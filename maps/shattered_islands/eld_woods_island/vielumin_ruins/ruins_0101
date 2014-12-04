@@ -3682,9 +3682,9 @@ level 48
 can_cast_spell 1
 sp -1
 maxsp 16
-Pow 20
+pow 20
 magic 5
-Dex 3
+dex 3
 random_move 1
 item_race 5
 item_level 5

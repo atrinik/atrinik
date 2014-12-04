@@ -437,8 +437,8 @@ arch drow_annihilator
 level 80
 exp 135
 maxsp 16
-Pow 20
-Dex 2
+pow 20
+dex 2
 type 83
 arch ability_firestorm
 sp 1
@@ -1865,8 +1865,8 @@ arch drow_sorcerer
 level 78
 exp 140
 maxsp 16
-Pow 20
-Dex 2
+pow 20
+dex 2
 type 83
 name Daorosio the sorcerer
 arch key2
@@ -2345,8 +2345,8 @@ arch drow_sorcerer
 level 79
 exp 112
 maxsp 16
-Pow 20
-Dex 2
+pow 20
+dex 2
 type 83
 arch ability_cause_lig_wound
 end
@@ -3257,8 +3257,8 @@ arch drow_sorcerer
 level 79
 exp 112
 maxsp 16
-Pow 20
-Dex 2
+pow 20
+dex 2
 type 83
 arch ability_cause_lig_wound
 end

@@ -95,7 +95,7 @@ arch tiger
 level 28
 dam 60
 maxhp 71
-Con 2
+con 2
 type 83
 end
 end
@@ -316,7 +316,7 @@ arch tiger
 level 28
 dam 60
 maxhp 71
-Con 2
+con 2
 type 83
 end
 end
@@ -583,7 +583,7 @@ arch tiger
 level 28
 dam 60
 maxhp 71
-Con 2
+con 2
 type 83
 end
 end
@@ -838,7 +838,7 @@ arch tiger
 level 29
 dam 60
 maxhp 71
-Con 2
+con 2
 type 83
 end
 end
@@ -1117,7 +1117,7 @@ arch tiger
 level 29
 dam 60
 maxhp 71
-Con 2
+con 2
 type 83
 end
 end
@@ -1144,7 +1144,7 @@ arch tiger
 level 29
 dam 60
 maxhp 71
-Con 2
+con 2
 type 83
 end
 end

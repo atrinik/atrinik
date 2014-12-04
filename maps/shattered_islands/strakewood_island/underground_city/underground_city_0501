@@ -2580,9 +2580,9 @@ y 20
 arch drow_annihilator
 level 50
 maxsp 16
-Pow 20
-Dex 2
-Wis 4
+pow 20
+dex 2
+wis 4
 type 83
 arch ability_firestorm
 end

@@ -1788,9 +1788,9 @@ is_evil 1
 can_cast_spell 1
 sp -1
 maxsp 15
-Dex 2
+dex 2
 friendly 1
-Wis 4
+wis 4
 type 83
 arch ability_mbullet
 name ability lightning
@@ -1966,9 +1966,9 @@ dam 50
 can_cast_spell 1
 sp -1
 maxsp 15
-Pow 4
+pow 4
 path_attuned 131072
-Dex 2
+dex 2
 can_see_in_dark 1
 run_away 10
 protect_weaponmagic 5

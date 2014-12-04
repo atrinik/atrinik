@@ -164,7 +164,7 @@ y 12
 arch skel_mage
 type 83
 level 27
-Wis 4
+wis 4
 arch ability_mbullet
 end
 arch ability_icestorm
@@ -765,7 +765,7 @@ y 5
 arch ghoul
 type 83
 level 29
-Wis 4
+wis 4
 direction 3
 end
 end
@@ -958,7 +958,7 @@ y 9
 arch lost_soul
 type 83
 level 27
-Wis 4
+wis 4
 end
 end
 arch floor_earth1a
@@ -1004,7 +1004,7 @@ y 1
 arch ghoul
 type 83
 level 29
-Wis 4
+wis 4
 direction 3
 end
 end
@@ -1437,7 +1437,7 @@ y 18
 arch lost_soul
 type 83
 level 28
-Wis 4
+wis 4
 direction 1
 end
 end
@@ -1807,7 +1807,7 @@ y 5
 arch ghoul
 type 83
 level 28
-Wis 4
+wis 4
 end
 end
 arch floor_earth1a
@@ -2145,7 +2145,7 @@ y 18
 arch skel_fighter1
 type 83
 level 28
-Wis 4
+wis 4
 end
 end
 arch floor_earth1e

@@ -419,10 +419,10 @@ arch drow_sorcerer
 direction 3
 level 30
 maxhp 1000
-Con 100
+con 100
 maxsp 16
-Pow 20
-Dex 2
+pow 20
+dex 2
 stand_still 1
 type 83
 arch ability_icestorm
@@ -483,9 +483,9 @@ level 30
 no_attack 1
 sp -1
 maxsp 16
-Pow 20
+pow 20
 magic 0
-Dex 1
+dex 1
 unaggressive 1
 stand_still 1
 behavior 3
@@ -604,9 +604,9 @@ direction 3
 level 30
 sp -1
 maxsp 16
-Pow 20
+pow 20
 magic 0
-Dex 1
+dex 1
 stand_still 1
 behavior 3
 type 83
@@ -645,7 +645,7 @@ arch raas
 direction 3
 level 30
 stand_still 1
-Wis 1
+wis 1
 type 83
 end
 end
@@ -664,7 +664,7 @@ arch raas
 direction 3
 level 30
 stand_still 1
-Wis 1
+wis 1
 type 83
 end
 end
@@ -768,9 +768,9 @@ arch guard
 level 30
 dam 50
 maxhp 1000
-Con 100
+con 100
 unaggressive 0
-Wis 1
+wis 1
 type 83
 end
 end
@@ -801,9 +801,9 @@ arch guard
 level 30
 dam 50
 maxhp 1000
-Con 100
+con 100
 unaggressive 0
-Wis 1
+wis 1
 type 83
 end
 end
@@ -822,9 +822,9 @@ arch guard
 level 30
 dam 50
 maxhp 1000
-Con 100
+con 100
 unaggressive 0
-Wis 1
+wis 1
 type 83
 end
 end
@@ -907,16 +907,16 @@ y 10
 arch mage_old
 level 30
 maxhp 1000
-Con 100
+con 100
 can_cast_spell 1
 sp -1
 maxsp 16
-Pow 20
+pow 20
 magic 5
-Dex 2
+dex 2
 unaggressive 0
 stand_still 1
-Wis 3
+wis 3
 type 83
 arch ability_firestorm
 end

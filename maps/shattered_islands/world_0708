@@ -110,8 +110,8 @@ exp 132
 can_cast_spell 1
 sp -1
 maxsp 30
-Pow 2
-Dex 3
+pow 2
+dex 3
 type 83
 arch ability_firestorm
 sp 34
@@ -1694,12 +1694,12 @@ is_female 0
 dam 65
 wc 8
 maxhp 90
-Con 20
+con 20
 can_cast_spell 1
 sp -1
 maxsp 30
-Pow 2
-Dex 3
+pow 2
+dex 3
 protect_impact 20
 protect_slash 20
 protect_cleave 20
@@ -3514,8 +3514,8 @@ exp 132
 can_cast_spell 1
 sp -1
 maxsp 30
-Pow 2
-Dex 3
+pow 2
+dex 3
 type 83
 arch ability_firestorm
 sp 34

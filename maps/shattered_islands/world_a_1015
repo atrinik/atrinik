@@ -185,7 +185,7 @@ x 1
 y 14
 arch bat_brown
 level 8
-Wis 4
+wis 4
 type 83
 end
 end
@@ -242,7 +242,7 @@ x 1
 y 21
 arch bat_brown
 level 8
-Wis 4
+wis 4
 type 83
 end
 end
@@ -2234,7 +2234,7 @@ x 8
 y 10
 arch bat_brown
 level 7
-Wis 4
+wis 4
 type 83
 end
 end
@@ -2833,7 +2833,7 @@ x 10
 y 23
 arch bat_brown
 level 8
-Wis 4
+wis 4
 type 83
 end
 end
@@ -3215,7 +3215,7 @@ x 12
 y 15
 arch bat_brown
 level 8
-Wis 4
+wis 4
 type 83
 end
 end
@@ -3395,7 +3395,7 @@ x 13
 y 8
 arch bat_brown
 level 7
-Wis 4
+wis 4
 type 83
 end
 end
@@ -3920,7 +3920,7 @@ x 14
 y 20
 arch bat_brown
 level 6
-Wis 4
+wis 4
 type 83
 end
 end
@@ -4742,7 +4742,7 @@ x 17
 y 1
 arch bat_brown
 level 8
-Wis 4
+wis 4
 type 83
 end
 end

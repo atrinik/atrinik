@@ -725,7 +725,7 @@ arch hobgoblin
 name hobgoblin enslaver
 type 83
 level 37
-Wis 4
+wis 4
 end
 end
 arch floor_stone_b2

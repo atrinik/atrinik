@@ -2285,7 +2285,7 @@ x 15
 arch lavagolem
 name Stair Guardian Golem
 level 30
-Wis 1
+wis 1
 type 83
 arch quest_container
 sub_type 3

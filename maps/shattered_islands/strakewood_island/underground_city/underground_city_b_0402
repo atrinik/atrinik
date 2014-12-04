@@ -82,8 +82,8 @@ arch drow_sorcerer
 level 63
 exp 112
 maxsp 16
-Pow 20
-Dex 2
+pow 20
+dex 2
 type 83
 arch ability_cause_lig_wound
 end
@@ -172,7 +172,7 @@ dam 67
 wc 6
 maxhp 82
 ac 11
-Con 1
+con 1
 attack_cleave 0
 attack_pierce 85
 terrain_flag 1
@@ -2579,8 +2579,8 @@ arch drow_sorcerer
 level 65
 exp 112
 maxsp 16
-Pow 20
-Dex 2
+pow 20
+dex 2
 type 83
 arch ability_cause_lig_wound
 end

@@ -391,7 +391,7 @@ y 21
 arch wraith
 type 83
 level 39
-Wis 4
+wis 4
 direction 3
 end
 end
@@ -596,7 +596,7 @@ y 8
 arch skel_fighter2
 type 83
 level 34
-Wis 4
+wis 4
 direction 1
 end
 end
@@ -654,7 +654,7 @@ y 18
 arch skel_fighter1
 type 83
 level 39
-Wis 4
+wis 4
 direction 3
 end
 end
@@ -977,7 +977,7 @@ y 10
 arch ghoul
 type 83
 level 35
-Wis 4
+wis 4
 direction 1
 end
 end
@@ -1597,7 +1597,7 @@ y 13
 arch skel_fighter3
 type 83
 level 37
-Wis 4
+wis 4
 end
 end
 arch floor_earth1c
@@ -1678,7 +1678,7 @@ y 5
 arch skel_fighter3
 type 83
 level 36
-Wis 4
+wis 4
 end
 end
 arch floor_earth1c
@@ -1751,7 +1751,7 @@ y 19
 arch lost_soul
 type 83
 level 38
-Wis 4
+wis 4
 end
 end
 arch floor_earth1c
@@ -2203,7 +2203,7 @@ y 17
 arch lost_soul
 type 83
 level 39
-Wis 4
+wis 4
 end
 end
 arch floor_earth1b
@@ -2364,7 +2364,7 @@ y 13
 arch skel_fighter2
 type 83
 level 40
-Wis 4
+wis 4
 end
 end
 arch floor_earth1c
@@ -2413,7 +2413,7 @@ y 2
 arch wraith
 type 83
 level 38
-Wis 4
+wis 4
 end
 end
 arch floor_earth1c

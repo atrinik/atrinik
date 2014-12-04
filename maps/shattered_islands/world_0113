@@ -172,7 +172,7 @@ y 5
 arch ranger
 direction 3
 level 73
-Dex 1
+dex 1
 can_use_bow 1
 unaggressive 0
 type 83
@@ -859,7 +859,7 @@ y 5
 arch ranger
 direction 3
 level 73
-Dex 1
+dex 1
 can_use_bow 1
 unaggressive 0
 type 83

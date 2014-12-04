@@ -69,7 +69,7 @@ arch kobold
 name kobold sneaker
 wc_range 12
 unaggressive 1
-Wis 2
+wis 2
 type 83
 end
 end
@@ -349,7 +349,7 @@ arch kobold
 name kobold sneaker
 wc_range 12
 unaggressive 1
-Wis 2
+wis 2
 type 83
 end
 end
@@ -388,7 +388,7 @@ arch kobold
 name kobold sneaker
 wc_range 12
 unaggressive 1
-Wis 2
+wis 2
 type 83
 end
 end
@@ -563,7 +563,7 @@ y 12
 arch kobold
 name kobold hunter
 unaggressive 1
-Wis 2
+wis 2
 type 83
 end
 end
@@ -603,7 +603,7 @@ arch cube_gel
 randomitems mob_fighter_l9
 wc_range 12
 unaggressive 1
-Wis 2
+wis 2
 type 83
 end
 end
@@ -1146,7 +1146,7 @@ arch kobold
 name kobold sneaker
 wc_range 12
 unaggressive 1
-Wis 2
+wis 2
 type 83
 end
 end
@@ -1353,7 +1353,7 @@ y 18
 arch kobold
 name kobold scout
 level 2
-Wis 2
+wis 2
 type 83
 end
 end
@@ -1567,7 +1567,7 @@ y 9
 arch kobold_guard
 direction 3
 level 3
-Wis 2
+wis 2
 type 83
 end
 end
@@ -1935,7 +1935,7 @@ y 3
 arch kobold
 name kobold hunter
 unaggressive 1
-Wis 2
+wis 2
 type 83
 end
 end
@@ -2013,7 +2013,7 @@ y 16
 arch kobold
 name kobold scout
 level 2
-Wis 2
+wis 2
 type 83
 end
 end
@@ -2085,7 +2085,7 @@ randomitems mob_fighter_l9
 level 2
 wc_range 12
 unaggressive 1
-Wis 2
+wis 2
 type 83
 end
 end
@@ -2367,7 +2367,7 @@ randomitems mob_fighter_l9
 level 2
 wc_range 12
 unaggressive 1
-Wis 2
+wis 2
 type 83
 end
 end
@@ -2544,7 +2544,7 @@ arch kobold
 name kobold hunter
 level 2
 unaggressive 1
-Wis 2
+wis 2
 type 83
 end
 end
@@ -2578,7 +2578,7 @@ y 9
 arch kobold
 name kobold scout
 level 2
-Wis 2
+wis 2
 type 83
 end
 end
@@ -2719,7 +2719,7 @@ x 22
 y 15
 arch kobold_fighter
 level 2
-Wis 2
+wis 2
 type 83
 end
 end

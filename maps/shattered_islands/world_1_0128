@@ -422,7 +422,7 @@ spawn_time 14:00-16:00
 can_cast_spell 1
 sp -1
 maxsp 12
-Dex 3
+dex 3
 type 83
 direction 3
 arch ability_cause_lig_wound
@@ -493,8 +493,8 @@ level 45
 can_cast_spell 1
 sp -1
 maxsp 15
-Pow 4
-Dex 2
+pow 4
+dex 2
 type 83
 arch ability_cause_lig_wound
 end
@@ -553,7 +553,7 @@ level 25
 can_cast_spell 1
 sp -1
 maxsp 12
-Dex 3
+dex 3
 type 83
 direction 1
 spawn_time 14:00-16:00
@@ -716,7 +716,7 @@ level 27
 can_cast_spell 1
 sp -1
 maxsp 12
-Dex 3
+dex 3
 type 83
 spawn_time 14:00-16:00
 arch ability_cause_lig_wound
@@ -1281,7 +1281,7 @@ spawn_time 8:00-14:00
 can_cast_spell 1
 sp -1
 maxsp 12
-Dex 3
+dex 3
 type 83
 direction 3
 arch ability_cause_lig_wound
@@ -1498,7 +1498,7 @@ spawn_time 14:00-16:00
 can_cast_spell 1
 sp -1
 maxsp 12
-Dex 3
+dex 3
 type 83
 direction 1
 arch ability_cause_lig_wound
@@ -1610,8 +1610,8 @@ spawn_time 8:00-16:00
 can_cast_spell 1
 sp -1
 maxsp 15
-Pow 4
-Dex 2
+pow 4
+dex 2
 type 83
 arch ability_mbullet
 name ability lightning
@@ -1986,7 +1986,7 @@ spawn_time 8:00-14:00
 can_cast_spell 1
 sp -1
 maxsp 12
-Dex 3
+dex 3
 type 83
 arch ability_cause_lig_wound
 end
@@ -2027,7 +2027,7 @@ spawn_time 8:00-14:00
 can_cast_spell 1
 sp -1
 maxsp 12
-Dex 3
+dex 3
 type 83
 direction 7
 arch ability_cause_lig_wound

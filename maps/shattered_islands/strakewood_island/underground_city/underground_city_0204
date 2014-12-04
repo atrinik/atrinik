@@ -2393,10 +2393,10 @@ y 21
 arch orc_priest
 level 35
 maxsp 30
-Pow 20
-Dex 2
+pow 20
+dex 2
 pick_up 64
-Wis 6
+wis 6
 attack_move_type 1
 run_away 10
 protect_weaponmagic 100

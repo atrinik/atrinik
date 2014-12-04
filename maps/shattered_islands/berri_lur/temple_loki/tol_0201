@@ -784,9 +784,9 @@ level 100
 dam 50
 can_cast_spell 1
 maxsp 20
-Pow 3
+pow 3
 magic 4
-Dex 4
+dex 4
 protect_fire -50
 protect_cold 100
 type 83
@@ -1551,9 +1551,9 @@ level 100
 dam 50
 can_cast_spell 1
 maxsp 20
-Pow 3
+pow 3
 magic 4
-Dex 4
+dex 4
 protect_fire -50
 protect_cold 100
 type 83
@@ -2546,9 +2546,9 @@ attack_cold 0
 can_cast_spell 1
 sp -1
 maxsp 20
-Pow 4
+pow 4
 magic 3
-Dex 3
+dex 3
 protect_impact 15
 protect_slash 15
 protect_cleave 15

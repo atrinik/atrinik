@@ -866,7 +866,7 @@ y 20
 arch skel_fighter1
 type 83
 level 62
-Dex 2
+dex 2
 can_use_bow 1
 direction 1
 arch ability_stone_throw

@@ -164,7 +164,7 @@ dam 58
 wc 5
 maxhp 70
 ac 11
-Con 3
+con 3
 attack_cleave 90
 type 83
 end
@@ -236,11 +236,11 @@ dam 58
 wc 5
 maxhp 70
 ac 11
-Con 3
+con 3
 attack_cleave 90
 can_cast_spell 1
 maxsp 30
-Dex 2
+dex 2
 type 83
 arch ability_firestorm
 sp 1
@@ -283,7 +283,7 @@ dam 58
 wc 5
 maxhp 70
 ac 11
-Con 3
+con 3
 attack_cleave 100
 type 83
 end
@@ -939,7 +939,7 @@ dam 58
 wc 5
 maxhp 70
 ac 11
-Con 3
+con 3
 attack_cleave 90
 type 83
 end
@@ -1079,10 +1079,10 @@ dam 58
 wc 5
 maxhp 70
 ac 11
-Con 3
+con 3
 can_cast_spell 1
 maxsp 30
-Dex 2
+dex 2
 type 83
 arch ability_firestorm
 sp 1
@@ -1459,7 +1459,7 @@ dam 58
 wc 5
 maxhp 70
 ac 11
-Con 3
+con 3
 attack_cleave 100
 type 83
 end
@@ -1746,7 +1746,7 @@ dam 58
 wc 5
 maxhp 70
 ac 11
-Con 3
+con 3
 attack_cleave 90
 type 83
 end
@@ -1782,10 +1782,10 @@ dam 58
 wc 5
 maxhp 70
 ac 11
-Con 3
+con 3
 can_cast_spell 1
 maxsp 30
-Dex 2
+dex 2
 type 83
 arch ability_firestorm
 sp 1

@@ -130,7 +130,7 @@ arch kobold
 name kobold hunter
 level 4
 unaggressive 1
-Wis 2
+wis 2
 type 83
 end
 end
@@ -541,7 +541,7 @@ y 17
 arch kobold_fighter
 direction 3
 level 5
-Wis 2
+wis 2
 type 83
 end
 end
@@ -627,7 +627,7 @@ y 7
 arch kobold_fighter
 direction 3
 level 5
-Wis 2
+wis 2
 type 83
 end
 end
@@ -676,7 +676,7 @@ x 5
 y 15
 arch kobold_fighter
 level 5
-Wis 2
+wis 2
 type 83
 end
 end
@@ -938,7 +938,7 @@ y 20
 arch kobold_guard
 direction 3
 level 5
-Wis 2
+wis 2
 type 83
 end
 end
@@ -1059,7 +1059,7 @@ x 8
 y 18
 arch kobold_guard
 level 5
-Wis 2
+wis 2
 type 83
 end
 end
@@ -1252,7 +1252,7 @@ x 10
 y 5
 arch kobold_fighter
 level 5
-Wis 2
+wis 2
 type 83
 end
 end
@@ -1312,7 +1312,7 @@ name kobold mushroom keeper
 direction 7
 level 4
 wc_range 12
-Wis 2
+wis 2
 type 83
 end
 end
@@ -1586,7 +1586,7 @@ y 18
 arch kobold_guard
 name kobold clan guard
 level 5
-Wis 2
+wis 2
 type 83
 end
 end
@@ -1913,7 +1913,7 @@ arch kobold
 name kobold hunter
 level 4
 unaggressive 1
-Wis 2
+wis 2
 type 83
 end
 end
@@ -2112,7 +2112,7 @@ y 11
 arch kobold_guard
 name kobold clan guard
 level 5
-Wis 2
+wis 2
 type 83
 end
 end
@@ -2178,7 +2178,7 @@ y 19
 arch kobold_guard
 name kobold clan guard
 level 5
-Wis 2
+wis 2
 type 83
 end
 end
@@ -2309,7 +2309,7 @@ x 17
 y 17
 arch kobold_shaman
 level 6
-Wis 2
+wis 2
 type 83
 arch ability_cause_lig_wound
 last_grace 14
@@ -2562,7 +2562,7 @@ y 15
 arch kobold_big
 name kobold clan chief
 level 6
-Wis 2
+wis 2
 type 83
 arch quest_container
 sub_type 3
@@ -2725,7 +2725,7 @@ y 17
 arch kobold_guard
 name kobold guard leader
 level 6
-Wis 2
+wis 2
 type 83
 end
 end
@@ -2795,7 +2795,7 @@ y 3
 arch kobold_guard
 direction 3
 level 4
-Wis 2
+wis 2
 type 83
 end
 end

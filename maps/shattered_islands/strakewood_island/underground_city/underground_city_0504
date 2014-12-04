@@ -670,7 +670,7 @@ attack_confusion 8
 can_cast_spell 1
 maxsp 16
 magic 5
-Dex 3
+dex 3
 protect_impact 15
 protect_slash 15
 protect_cleave 15
@@ -2233,8 +2233,8 @@ y 22
 arch orc_sorcerer
 level 37
 maxsp 16
-Pow 20
-Dex 2
+pow 20
+dex 2
 type 83
 arch ability_mbullet
 end
@@ -2863,8 +2863,8 @@ y 19
 arch orc_sorcerer
 level 37
 maxsp 16
-Pow 20
-Dex 2
+pow 20
+dex 2
 type 83
 arch ability_mbullet
 end

@@ -73,7 +73,7 @@ type 83
 level 13
 dam 54
 unaggressive 1
-Wis 4
+wis 4
 end
 end
 arch grassd_8
@@ -354,7 +354,7 @@ type 83
 level 14
 dam 54
 unaggressive 1
-Wis 4
+wis 4
 end
 end
 arch grassd_5
@@ -543,7 +543,7 @@ type 83
 level 14
 dam 54
 unaggressive 1
-Wis 4
+wis 4
 end
 end
 arch grassd_7
@@ -1058,7 +1058,7 @@ type 83
 level 12
 dam 54
 unaggressive 1
-Wis 4
+wis 4
 end
 end
 arch grassd_4
@@ -1140,7 +1140,7 @@ type 83
 level 13
 dam 54
 unaggressive 1
-Wis 4
+wis 4
 end
 end
 arch grassd_3
@@ -1650,7 +1650,7 @@ type 83
 level 13
 dam 54
 unaggressive 1
-Wis 4
+wis 4
 end
 end
 arch grassd_3
@@ -1899,7 +1899,7 @@ type 83
 level 12
 dam 54
 unaggressive 1
-Wis 4
+wis 4
 end
 end
 arch grassd_8
@@ -1945,7 +1945,7 @@ type 83
 level 14
 dam 54
 unaggressive 1
-Wis 4
+wis 4
 end
 end
 arch grassd_8

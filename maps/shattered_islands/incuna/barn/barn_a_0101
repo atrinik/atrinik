@@ -361,7 +361,7 @@ unaggressive 1
 random_move 1
 item_race 6
 item_level 7
-Wis 3
+wis 3
 end
 end
 arch floor_earth1c
@@ -444,7 +444,7 @@ unaggressive 1
 random_move 1
 item_race 6
 item_level 7
-Wis 3
+wis 3
 end
 end
 arch floor_earth1a
@@ -587,7 +587,7 @@ unaggressive 1
 random_move 1
 item_race 6
 item_level 7
-Wis 3
+wis 3
 end
 end
 arch floor_earth1d

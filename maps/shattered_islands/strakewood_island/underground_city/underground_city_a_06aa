@@ -139,7 +139,7 @@ exp 116
 sp -1
 maxsp 30
 magic 0
-Dex 4
+dex 4
 type 83
 arch ability_cause_lig_wound
 sp 2

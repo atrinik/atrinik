@@ -1248,7 +1248,7 @@ type 83
 level 15
 maxhp 70
 terrain_flag 3
-Wis 4
+wis 4
 end
 end
 arch grassd_3
@@ -1677,7 +1677,7 @@ type 83
 level 15
 maxhp 70
 terrain_flag 3
-Wis 4
+wis 4
 end
 end
 arch grassd_2
@@ -1747,7 +1747,7 @@ type 83
 level 16
 maxhp 70
 terrain_flag 3
-Wis 4
+wis 4
 end
 end
 arch grassd_8
@@ -2393,7 +2393,7 @@ type 83
 level 15
 maxhp 70
 terrain_flag 3
-Wis 4
+wis 4
 end
 end
 arch grassd_1
@@ -2463,7 +2463,7 @@ type 83
 level 18
 maxhp 70
 terrain_flag 3
-Wis 4
+wis 4
 end
 end
 arch grassd_6

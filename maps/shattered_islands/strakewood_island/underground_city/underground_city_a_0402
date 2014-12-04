@@ -82,7 +82,7 @@ y 15
 arch skel_fighter2
 name skeleton archer
 level 54
-Dex 3
+dex 3
 can_use_bow 1
 type 83
 arch ability_stone_throw
@@ -867,7 +867,7 @@ exp 121
 sp -1
 maxsp 30
 magic 0
-Dex 4
+dex 4
 type 83
 arch ability_cause_lig_wound
 sp 2
@@ -1991,9 +1991,9 @@ dam 104
 wc 6
 maxhp 124
 ac 9
-Con 3
+con 3
 unaggressive 1
-Wis 1
+wis 1
 movement_type 176
 type 83
 arch waypoint

@@ -295,7 +295,7 @@ y 6
 arch raas
 level 52
 exp 120
-Con 5
+con 5
 type 83
 end
 end
@@ -465,7 +465,7 @@ y 2
 arch raas
 level 52
 exp 120
-Con 5
+con 5
 type 83
 end
 end
@@ -605,7 +605,7 @@ y 12
 arch raas
 level 51
 exp 120
-Con 5
+con 5
 type 83
 end
 end
@@ -838,7 +838,7 @@ level 53
 exp 130
 dam 88
 maxhp 90
-Con 10
+con 10
 can_cast_spell 1
 maxsp 30
 magic 0
@@ -1240,7 +1240,7 @@ y 5
 arch raas
 level 51
 exp 120
-Con 5
+con 5
 type 83
 end
 end
@@ -1392,7 +1392,7 @@ y 12
 arch raas
 level 50
 exp 120
-Con 5
+con 5
 type 83
 end
 end
@@ -2473,7 +2473,7 @@ exp 116
 sp -1
 maxsp 30
 magic 0
-Dex 4
+dex 4
 type 83
 arch ability_cause_lig_wound
 sp 2

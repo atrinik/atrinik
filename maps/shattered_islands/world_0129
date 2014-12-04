@@ -1538,7 +1538,7 @@ spawn_time 16:00-8:00
 can_cast_spell 1
 sp -1
 maxsp 12
-Dex 3
+dex 3
 type 83
 arch ability_cause_lig_wound
 end
@@ -2589,7 +2589,7 @@ spawn_time 16:00-8:00
 can_cast_spell 1
 sp -1
 maxsp 12
-Dex 3
+dex 3
 type 83
 arch ability_cause_lig_wound
 end

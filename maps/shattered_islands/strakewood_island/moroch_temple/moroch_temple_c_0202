@@ -1618,7 +1618,7 @@ arch skel_fighter3
 name skeleton archer
 type 83
 level 86
-Dex 2
+dex 2
 can_use_bow 1
 random_move 1
 item_race 1
@@ -1919,7 +1919,7 @@ arch skel_fighter1
 name skeleton archer
 type 83
 level 87
-Dex 2
+dex 2
 can_use_bow 1
 random_move 1
 item_race 1

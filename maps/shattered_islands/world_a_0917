@@ -831,7 +831,7 @@ x 8
 y 17
 arch bat_brown
 level 8
-Wis 4
+wis 4
 type 83
 end
 end
@@ -1295,7 +1295,7 @@ arch ogre
 name ogre rock thrower
 type 83
 level 10
-Dex 2
+dex 2
 can_use_bow 1
 arch ability_stone_throw
 end
@@ -1525,7 +1525,7 @@ arch ogre
 name ogre rock thrower
 type 83
 level 11
-Dex 2
+dex 2
 can_use_bow 1
 arch ability_stone_throw
 end
@@ -2358,7 +2358,7 @@ arch ogre
 name ogre rock thrower
 type 83
 level 12
-Dex 2
+dex 2
 can_use_bow 1
 arch ability_stone_throw
 end

@@ -475,8 +475,8 @@ level 85
 can_cast_spell 1
 sp -1
 maxsp 30
-Pow 2
-Dex 3
+pow 2
+dex 3
 type 83
 arch ability_firestorm
 end
@@ -1014,8 +1014,8 @@ level 84
 can_cast_spell 1
 sp -1
 maxsp 30
-Pow 2
-Dex 3
+pow 2
+dex 3
 type 83
 arch ability_icestorm
 end
@@ -2125,7 +2125,7 @@ arch skel_fighter3
 name skeleton archer
 type 83
 level 82
-Dex 2
+dex 2
 can_use_bow 1
 direction 7
 arch ability_stone_throw
