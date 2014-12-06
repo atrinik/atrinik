@@ -397,6 +397,11 @@ void check_light_source_list(mapstruct *map)
                     }
 
                     break;
+
+                case TILED_UP:
+                case TILED_DOWN:
+                    reaching = 0;
+                    break;
                 }
 
                 if (reaching) {

@@ -33,9 +33,22 @@ int global_darkness_table[MAX_DARKNESS + 1] = {
     0, 20, 40, 80, 160, 320, 640, 1280
 };
 
-/** To get the reverse direction for all 8 tiled map index */
+/**
+ * Used to get the reverse direction for all the tiled maps.
+ *
+ * For example: TILED_NORTH -> TILED_SOUTH
+ */
 int map_tiled_reverse[TILED_NUM] = {
-    2, 3, 0, 1, 6, 7, 4, 5
+    TILED_SOUTH, /* TILED_NORTH */
+    TILED_WEST, /* TILED_EAST */
+    TILED_NORTH, /* TILED_SOUTH */
+    TILED_EAST, /* TILED_WEST */
+    TILED_SOUTHWEST, /* TILED_NORTHEAST */
+    TILED_NORTHWEST, /* TILED_SOUTHEAST */
+    TILED_NORTHEAST, /* TILED_SOUTHWEST */
+    TILED_SOUTHEAST, /* TILED_NORTHWEST */
+    TILED_DOWN, /* TILED_UP */
+    TILED_UP /* TILED_DOWN */
 };
 
 #define DEBUG_OLDFLAGS 1
@@ -99,46 +112,38 @@ static int relative_tile_position_rec(mapstruct *map1, mapstruct *map2, int *x, 
 
             if (map1->tile_map[i]->traversed != id && ((map1->tile_map[i] == map2) || relative_tile_position_rec(map1->tile_map[i], map2, x, y, id, level))) {
                 switch (i) {
-                    /* North */
-                case 0:
+                case TILED_NORTH:
                     *y -= MAP_HEIGHT(map1->tile_map[i]);
                     return 1;
 
-                    /* East */
-                case 1:
+                case TILED_EAST:
                     *x += MAP_WIDTH(map1);
                     return 1;
 
-                    /* South */
-                case 2:
+                case TILED_SOUTH:
                     *y += MAP_HEIGHT(map1);
                     return 1;
 
-                    /* West */
-                case 3:
+                case TILED_WEST:
                     *x -= MAP_WIDTH(map1->tile_map[i]);
                     return 1;
 
-                    /* Northest */
-                case 4:
+                case TILED_NORTHEAST:
                     *y -= MAP_HEIGHT(map1->tile_map[i]);
                     *x += MAP_WIDTH(map1);
                     return 1;
 
-                    /* Southest */
-                case 5:
+                case TILED_SOUTHEAST:
                     *y += MAP_HEIGHT(map1);
                     *x += MAP_WIDTH(map1);
                     return 1;
 
-                    /* Southwest */
-                case 6:
+                case TILED_SOUTHWEST:
                     *y += MAP_HEIGHT(map1);
                     *x -= MAP_WIDTH(map1->tile_map[i]);
                     return 1;
 
-                    /* Northwest */
-                case 7:
+                case TILED_NORTHWEST:
                     *y -= MAP_HEIGHT(map1->tile_map[i]);
                     *x -= MAP_WIDTH(map1->tile_map[i]);
                     return 1;
@@ -194,49 +199,45 @@ static int relative_tile_position(mapstruct *map1, mapstruct *map2, int *x, int 
 
             if (map1->tile_map[i] == map2) {
                 switch (i) {
-                    /* North */
-                case 0:
+                case TILED_NORTH:
                     *y -= MAP_HEIGHT(map1->tile_map[i]);
                     return 1;
 
-                    /* East */
-                case 1:
+                case TILED_EAST:
                     *x += MAP_WIDTH(map1);
                     return 1;
 
-                    /* South */
-                case 2:
+                case TILED_SOUTH:
                     *y += MAP_HEIGHT(map1);
                     return 1;
 
-                    /* West */
-                case 3:
+                case TILED_WEST:
                     *x -= MAP_WIDTH(map1->tile_map[i]);
                     return 1;
 
-                    /* Northeast */
-                case 4:
+                case TILED_NORTHEAST:
                     *y -= MAP_HEIGHT(map1->tile_map[i]);
                     *x += MAP_WIDTH(map1);
                     return 1;
 
-                    /* Southeast */
-                case 5:
+                case TILED_SOUTHEAST:
                     *y += MAP_HEIGHT(map1);
                     *x += MAP_WIDTH(map1);
                     return 1;
 
-                    /* Southwest */
-                case 6:
+                case TILED_SOUTHWEST:
                     *y += MAP_HEIGHT(map1);
                     *x -= MAP_WIDTH(map1->tile_map[i]);
                     return 1;
 
-                    /* Northwest */
-                case 7:
+                case TILED_NORTHWEST:
                     *y -= MAP_HEIGHT(map1->tile_map[i]);
                     *x -= MAP_WIDTH(map1->tile_map[i]);
                     return 1;
+
+                case TILED_UP:
+                case TILED_DOWN:
+                    return 0;
                 }
             }
         }
@@ -1546,6 +1547,31 @@ void set_map_reset_time(mapstruct *map)
 }
 
 /**
+ * Get tiled map, loading it if necessary.
+ * @param m Map.
+ * @param tiled Tile ID to get.
+ * @return Tiled map on success, NULL on failure.
+ */
+mapstruct *get_map_from_tiled(mapstruct *m, int tiled)
+{
+    assert(m != NULL);
+    assert(tiled >= 0 && tiled < TILED_NUM);
+
+    if (m->tile_path[tiled] == NULL) {
+        return NULL;
+    }
+
+    if (m->tile_map[tiled] == NULL ||
+            m->tile_map[tiled]->in_memory != MAP_IN_MEMORY) {
+        if (!load_and_link_tiled_map(m, tiled)) {
+            return NULL;
+        }
+    }
+
+    return m->tile_map[tiled];
+}
+
+/**
  * Get real coordinates from map.
  *
  * Return NULL if no map is valid (coordinates out of bounds and no tiled
@@ -1959,30 +1985,33 @@ int get_rangevector_from_mapcoords(mapstruct *map1, int x, int y, mapstruct *map
     if (map1 == map2) {
         retval->distance_x = x2 - x;
         retval->distance_y = y2 - y;
-    } else if (map1->tile_map[0] == map2) {
+    } else if (map1->tile_map[TILED_NORTH] == map2) {
         retval->distance_x = x2 - x;
         retval->distance_y = -(y + (MAP_HEIGHT(map2) - y2));
-    } else if (map1->tile_map[1] == map2) {
+    } else if (map1->tile_map[TILED_EAST] == map2) {
         retval->distance_y = y2 - y;
         retval->distance_x = (MAP_WIDTH(map1) - x) + x2;
-    } else if (map1->tile_map[2] == map2) {
+    } else if (map1->tile_map[TILED_SOUTH] == map2) {
         retval->distance_x = x2 - x;
         retval->distance_y = (MAP_HEIGHT(map1) - y) + y2;
-    } else if (map1->tile_map[3] == map2) {
+    } else if (map1->tile_map[WEST] == map2) {
         retval->distance_y = y2 - y;
         retval->distance_x = -(x + (MAP_WIDTH(map2) - x2));
-    } else if (map1->tile_map[4] == map2) {
+    } else if (map1->tile_map[TILED_NORTHEAST] == map2) {
         retval->distance_y = -(y + (MAP_HEIGHT(map2) - y2));
         retval->distance_x = (MAP_WIDTH(map1) - x) + x2;
-    } else if (map1->tile_map[5] == map2) {
+    } else if (map1->tile_map[TILED_SOUTHEAST] == map2) {
         retval->distance_x = (MAP_WIDTH(map1) - x) + x2;
         retval->distance_y = (MAP_HEIGHT(map1) - y) + y2;
-    } else if (map1->tile_map[6] == map2) {
+    } else if (map1->tile_map[TILED_SOUTHWEST] == map2) {
         retval->distance_y = (MAP_HEIGHT(map1) - y) + y2;
         retval->distance_x = -(x + (MAP_WIDTH(map2) - x2));
-    } else if (map1->tile_map[7] == map2) {
+    } else if (map1->tile_map[TILED_NORTHWEST] == map2) {
         retval->distance_x = -(x + (MAP_WIDTH(map2) - x2));
         retval->distance_y = -(y + (MAP_HEIGHT(map2) - y2));
+    } else if (map1->tile_map[TILED_UP] == map2 ||
+            map1->tile_map[TILED_DOWN] == map2) {
+        return 0;
     } else if (flags & RV_RECURSIVE_SEARCH) {
         retval->distance_x = x2;
         retval->distance_y = y2;

@@ -107,7 +107,7 @@ lex_error = 0;
 ^outdoor{S}          SET_OR_CLEAR_MAP_FLAG(m, MAP_FLAG_OUTDOOR, IVAL);
 ^unique{S}           SET_OR_CLEAR_MAP_FLAG(m, MAP_FLAG_UNIQUE, IVAL);
 ^fixed_resettime{S}  SET_OR_CLEAR_MAP_FLAG(m, MAP_FLAG_FIXED_RTIME, IVAL);
-^tile_path_[1-8]{S}  {
+^tile_path_[0-9]{1,2}{S}  {
     int tile = atoi(yytext + 10);
 
     if (tile < 1 || tile > TILED_NUM) {

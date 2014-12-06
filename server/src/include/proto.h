@@ -411,7 +411,7 @@ extern void shutdown_timer_stop(void);
 extern int main(int argc, char **argv);
 /* src/server/map.c */
 extern int global_darkness_table[7 + 1];
-extern int map_tiled_reverse[8];
+extern int map_tiled_reverse[10];
 extern mapstruct *has_been_loaded_sh(shstr *name);
 extern char *create_pathname(const char *name);
 extern int wall(mapstruct *m, int x, int y);
@@ -434,6 +434,7 @@ extern void clean_tmp_map(mapstruct *m);
 extern void free_all_maps(void);
 extern void update_position(mapstruct *m, int x, int y);
 extern void set_map_reset_time(mapstruct *map);
+extern mapstruct *get_map_from_tiled(mapstruct *m, int tiled);
 extern mapstruct *get_map_from_coord(mapstruct *m, int *x, int *y);
 extern mapstruct *get_map_from_coord2(mapstruct *m, int *x, int *y);
 extern int get_rangevector(object *op1, object *op2, rv_vector *retval, int flags);
