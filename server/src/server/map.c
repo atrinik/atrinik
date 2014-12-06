@@ -1994,7 +1994,7 @@ int get_rangevector_from_mapcoords(mapstruct *map1, int x, int y, mapstruct *map
     } else if (map1->tile_map[TILED_SOUTH] == map2) {
         retval->distance_x = x2 - x;
         retval->distance_y = (MAP_HEIGHT(map1) - y) + y2;
-    } else if (map1->tile_map[WEST] == map2) {
+    } else if (map1->tile_map[TILED_WEST] == map2) {
         retval->distance_y = y2 - y;
         retval->distance_x = -(x + (MAP_WIDTH(map2) - x2));
     } else if (map1->tile_map[TILED_NORTHEAST] == map2) {
