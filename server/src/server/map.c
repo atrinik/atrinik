@@ -147,6 +147,10 @@ static int relative_tile_position_rec(mapstruct *map1, mapstruct *map2, int *x, 
                     *y -= MAP_HEIGHT(map1->tile_map[i]);
                     *x -= MAP_WIDTH(map1->tile_map[i]);
                     return 1;
+
+                case TILED_UP:
+                case TILED_DOWN:
+                    return 0;
                 }
             }
         }
