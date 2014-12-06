@@ -779,7 +779,34 @@ void draw_client_map2(object *pl)
                 int sub_layer, socket_layer;
 
                 for (sub_layer = 0; sub_layer < NUM_SUB_LAYERS; sub_layer++) {
-                    object *tmp = GET_MAP_SPACE_LAYER(msp, layer, sub_layer);
+                    object *tmp;
+
+                    tmp = NULL;
+
+                    if (sub_layer != 0 && layer == LAYER_EFFECT) {
+                        mapstruct *tiled;
+                        int i;
+
+                        tiled = m;
+
+                        for (i = 0; i < sub_layer; i++) {
+                            tiled = get_map_from_tiled(tiled, TILED_UP);
+
+                            if (tiled == NULL) {
+                                break;
+                            }
+                        }
+
+                        if (tiled != NULL) {
+                            tmp = GET_MAP_SPACE_LAYER(
+                                    GET_MAP_SPACE_PTR(tiled, nx, ny),
+                                    LAYER_WALL, 0);
+                        }
+                    }
+
+                    if (tmp == NULL) {
+                        tmp = GET_MAP_SPACE_LAYER(msp, layer, sub_layer);
+                    }
 
                     /* Double check that we can actually see this object. */
                     if (tmp && QUERY_FLAG(tmp, FLAG_HIDDEN)) {
@@ -892,7 +919,8 @@ void draw_client_map2(object *pl)
                         }
 
                         /* Z position set? */
-                        if (head->z) {
+                        if (head->z ||
+                                (sub_layer != 0 && layer == LAYER_EFFECT)) {
                             flags |= MAP2_FLAG_HEIGHT;
                         }
 
@@ -1011,11 +1039,19 @@ void draw_client_map2(object *pl)
 
                         /* Z position. */
                         if (flags & MAP2_FLAG_HEIGHT) {
+                            sint16 z;
+
+                            z = head->z;
+
                             if (mirror && mirror->last_eat) {
-                                packet_append_sint16(packet_layer, head->z + mirror->last_eat);
-                            } else {
-                                packet_append_sint16(packet_layer, head->z);
+                                z += mirror->last_eat;
                             }
+
+                            if (sub_layer != 0 && layer == LAYER_EFFECT) {
+                                z += 46 * sub_layer;
+                            }
+
+                            packet_append_sint16(packet_layer, z);
                         }
 
                         if (flags & MAP2_FLAG_ZOOM) {

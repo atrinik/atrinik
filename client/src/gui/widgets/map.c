@@ -972,10 +972,27 @@ void map_draw_map(void)
                         continue;
                     }
 
+                    /* Skip objects on the effect layer with non-zero sub-layer
+                     * because they will be rendered later. */
+                    if (layer == LAYER_EFFECT && sub_layer != 0) {
+                        continue;
+                    }
+
                     draw_map_object(x, y, layer, sub_layer,
                             player_height_offset, &target_cell, &target_layer,
                             &target_rect);
                 }
+            }
+        }
+    }
+
+    /* Render objects on the effect layer with non-zero sub-layer */
+    for (sub_layer = 1; sub_layer < NUM_SUB_LAYERS; sub_layer++) {
+        for (x = 0; x < map_width; x++) {
+            for (y = 0; y < map_height; y++) {
+                draw_map_object(x, y, LAYER_EFFECT, sub_layer,
+                        player_height_offset, &target_cell, &target_layer,
+                        &target_rect);
             }
         }
     }
