@@ -69,6 +69,19 @@ static int old_map_mouse_x = 0, old_map_mouse_y = 0;
 static int right_click_ticks = -1;
 
 /**
+ * If 1, will print tile coordinates.
+ */
+static int tiles_debug = 0;
+
+/**
+ * Enable map tiles debug.
+ */
+void clioptions_option_tiles_debug(const char *arg)
+{
+    tiles_debug = 1;
+}
+
+/**
  * Loads multi-arch object data offsets.
  */
 void load_mapdef_dat(void)
@@ -437,7 +450,7 @@ void map_set_data(int x, int y, int layer, sint16 face,
         sint16 zoom_y, sint16 align, uint8 draw_double, uint8 alpha,
         sint16 rotate, uint8 infravision, uint32 target_object_count,
         uint8 target_is_friend, uint8 anim_speed, uint8 anim_facing,
-        uint8 anim_flags, uint8 anim_state)
+        uint8 anim_flags, uint8 anim_state, uint8 priority)
 {
     struct MapCell *cell;
     int sub_layer;
@@ -468,12 +481,15 @@ void map_set_data(int x, int y, int layer, sint16 face,
 
         for (i = 0; i < NUM_SUB_LAYERS; i++) {
             cell->anim_flags[i] = 0;
+            cell->priority[i] = 0;
         }
     }
 
     if (anim_speed != 0 && cell->faces[layer] != face) {
         cell->anim_state[layer] = 0;
     }
+
+    cell->priority[sub_layer] |= priority << (((layer + 1) % NUM_LAYERS));
 
     cell->faces[layer] = face;
     cell->flags[layer] = obj_flags;
@@ -694,7 +710,8 @@ static uint16 map_object_get_face(struct MapCell *cell, int layer)
  */
 static void draw_map_object(int x, int y, int layer, int sub_layer,
         int player_height_offset, struct MapCell **target_cell,
-        int *target_layer, SDL_Rect *target_rect)
+        int *target_layer, SDL_Rect *target_rect, SDL_Rect **tiles,
+        size_t *tiles_num)
 {
     struct MapCell *cell;
     sprite_struct *face_sprite;
@@ -928,6 +945,15 @@ static void draw_map_object(int x, int y, int layer, int sub_layer,
         }
     }
 
+    if (layer == LAYER_FLOOR && tiles_debug) {
+        *tiles = erealloc(*tiles, sizeof(**tiles) * ((*tiles_num) + 1));
+        (*tiles)[*tiles_num].x = xl;
+        (*tiles)[*tiles_num].y = yl;
+        (*tiles)[*tiles_num].w = x;
+        (*tiles)[*tiles_num].h = y;
+        (*tiles_num)++;
+    }
+
     if (cell->probe[GET_MAP_LAYER(layer, sub_layer)]) {
         *target_cell = cell;
         *target_layer = GET_MAP_LAYER(layer, sub_layer);
@@ -944,27 +970,39 @@ void map_draw_map(void)
 {
     int player_height_offset;
     int x, y, layer, sub_layer, target_layer;
-    struct MapCell *target_cell;
-    SDL_Rect target_rect;
+    struct MapCell *target_cell, *cell;
+    SDL_Rect target_rect, *tiles;
     int tx, ty;
+    size_t tiles_num;
 
     player_height_offset = get_top_floor_height(map_width - (map_width / 2) - 1,
             map_height - (map_height / 2) - 1);
     target_cell = NULL;
+    tiles = NULL;
+    tiles_num = 0;
 
     /* Draw floor and fmasks. */
     for (x = 0; x < map_width; x++) {
         for (y = 0; y < map_height; y++) {
-            draw_map_object(x, y, LAYER_FLOOR, 0, player_height_offset,
-                    &target_cell, &target_layer, &target_rect);
-            draw_map_object(x, y, LAYER_FMASK, 0, player_height_offset,
-                    &target_cell, &target_layer, &target_rect);
+            cell = MAP_CELL_GET_MIDDLE(x, y);
+
+            for (layer = LAYER_FLOOR; layer <= LAYER_FMASK; layer++) {
+                if (cell->priority[0] & (1 << layer)) {
+                    continue;
+                }
+
+                draw_map_object(x, y, layer, 0, player_height_offset,
+                        &target_cell, &target_layer, &target_rect,
+                        &tiles, &tiles_num);
+            }
         }
     }
 
     /* Now draw everything else. */
     for (x = 0; x < map_width; x++) {
         for (y = 0; y < map_height; y++) {
+            cell = MAP_CELL_GET_MIDDLE(x, y);
+
             for (layer = LAYER_FLOOR; layer <= NUM_LAYERS; layer++) {
                 for (sub_layer = 0; sub_layer < NUM_SUB_LAYERS; sub_layer++) {
                     if (sub_layer == 0 && (layer == LAYER_FLOOR ||
@@ -975,26 +1013,71 @@ void map_draw_map(void)
                     /* Skip objects on the effect layer with non-zero sub-layer
                      * because they will be rendered later. */
                     if (layer == LAYER_EFFECT && sub_layer != 0) {
+                        if (cell->height[GET_MAP_LAYER(LAYER_EFFECT, sub_layer)] >= 0) {
+                            continue;
+                        }
+                    }
+
+                    if (cell->priority[sub_layer] & (1 << layer)) {
                         continue;
                     }
 
                     draw_map_object(x, y, layer, sub_layer,
                             player_height_offset, &target_cell, &target_layer,
-                            &target_rect);
+                            &target_rect, &tiles, &tiles_num);
                 }
+            }
+
+            for (layer = LAYER_FLOOR; layer <= NUM_LAYERS; layer++) {
+                for (sub_layer = 0; sub_layer < NUM_SUB_LAYERS; sub_layer++) {
+                    /* Skip objects on the effect layer with non-zero sub-layer
+                     * because they will be rendered later. */
+                    if (layer == LAYER_EFFECT && sub_layer != 0) {
+                        continue;
+                    }
+
+                    cell = MAP_CELL_GET_MIDDLE(x, y);
+
+                    if (!(cell->priority[sub_layer] & (1 << layer))) {
+                        continue;
+                    }
+
+                    draw_map_object(x, y, layer, sub_layer,
+                            player_height_offset, &target_cell, &target_layer,
+                            &target_rect, &tiles, &tiles_num);
+                }
+            }
+
+            for (sub_layer = NUM_SUB_LAYERS - 1; sub_layer >= 1; sub_layer--) {
+                cell = MAP_CELL_GET_MIDDLE(x, y);
+
+                if (cell->height[GET_MAP_LAYER(LAYER_EFFECT, sub_layer)] < 0) {
+                    continue;
+                }
+
+                draw_map_object(x, y, LAYER_EFFECT, sub_layer,
+                        player_height_offset, &target_cell, &target_layer,
+                        &target_rect, &tiles, &tiles_num);
             }
         }
     }
 
-    /* Render objects on the effect layer with non-zero sub-layer */
-    for (sub_layer = 1; sub_layer < NUM_SUB_LAYERS; sub_layer++) {
-        for (x = 0; x < map_width; x++) {
-            for (y = 0; y < map_height; y++) {
-                draw_map_object(x, y, LAYER_EFFECT, sub_layer,
-                        player_height_offset, &target_cell, &target_layer,
-                        &target_rect);
-            }
+    if (tiles != NULL) {
+        size_t i;
+        SDL_Rect box;
+
+        for (i = 0; i < tiles_num; i++) {
+            box.x = tiles[i].x;
+            box.y = tiles[i].y;
+            box.w = MAP_TILE_POS_XOFF;
+            box.h = MAP_TILE_POS_YOFF;
+            text_show_format(cur_widget[MAP_ID]->surface, FONT("arial", 9),
+                    box.x, box.y, COLOR_WHITE, TEXT_OUTLINE |
+                    TEXT_VALIGN_CENTER | TEXT_ALIGN_CENTER, &box, "%d,%d",
+                    tiles[i].w, tiles[i].h);
         }
+
+        efree(tiles);
     }
 
     if (widget_mouse_event.owner == cur_widget[MAP_ID] &&

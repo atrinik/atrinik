@@ -307,6 +307,10 @@ static inline int get_tiled_map_id(player *pl, struct mapdef *map)
     }
 
     for (i = 0; i < TILED_NUM; i++) {
+        if (i == TILED_UP || i == TILED_DOWN) {
+            continue;
+        }
+
         if (pl->last_update->tile_path[i] == map->path) {
             return i + 1;
         }
@@ -574,9 +578,9 @@ void draw_client_map2(object *pl)
     static uint32 map2_count = 0;
     MapCell *mp;
     MapSpace *msp;
-    mapstruct *m;
+    mapstruct *m, *m_down, *tiled;
     int x, y, ax, ay, d, nx, ny;
-    int x_start;
+    int x_start, zoff, floorzoff, have_down, need_roof;
     int special_vision;
     uint16 mask;
     int layer, dark;
@@ -763,6 +767,21 @@ void draw_client_map2(object *pl)
                 mp->count = d;
             }
 
+            zoff = floorzoff = have_down = 0;
+            need_roof = 1;
+            m_down = NULL;
+            tiled = m;
+
+            do {
+                tiled = get_map_from_tiled(tiled, TILED_DOWN);
+
+                if (tiled != NULL) {
+                    m_down = tiled;
+                    have_down = 1;
+                    zoff++;
+                }
+            } while (tiled != NULL);
+
             /* Add the mask. Any mask changes should go above this line. */
             packet_append_uint16(packet, mask);
 
@@ -776,41 +795,59 @@ void draw_client_map2(object *pl)
 
             /* Go through the visible layers. */
             for (layer = LAYER_FLOOR; layer <= NUM_LAYERS; layer++) {
-                int sub_layer, socket_layer;
+                int sub_layer, socket_layer, tiled_dir, tiled_depth, zadj;
+                int force_draw_double, priority;
 
-                for (sub_layer = 0; sub_layer < NUM_SUB_LAYERS; sub_layer++) {
+                tiled_depth = 0;
+                tiled_dir = TILED_DOWN;
+                tiled = m;
+                force_draw_double = 0;
+
+                for (sub_layer = NUM_SUB_LAYERS - 1; sub_layer >= 0; sub_layer--) {
                     object *tmp;
 
                     tmp = NULL;
+                    zadj = 0;
+                    priority = 0;
 
-                    if (sub_layer != 0 && layer == LAYER_EFFECT) {
-                        mapstruct *tiled;
-                        int i;
+                    if (sub_layer != 0 && layer == LAYER_EFFECT &&
+                            tiled != NULL) {
+                        tiled = get_map_from_tiled(tiled, tiled_dir);
 
-                        tiled = m;
-
-                        for (i = 0; i < sub_layer; i++) {
-                            tiled = get_map_from_tiled(tiled, TILED_UP);
-
-                            if (tiled == NULL) {
-                                break;
-                            }
+                        if (tiled == NULL && tiled_dir == TILED_DOWN) {
+                            tiled_depth = 0;
+                            tiled_dir = TILED_UP;
+                            tiled = get_map_from_tiled(m, tiled_dir);
                         }
 
-                        if (tiled != NULL) {
+                        if (tiled != NULL && tiled != m_down) {
                             tmp = GET_MAP_SPACE_LAYER(
                                     GET_MAP_SPACE_PTR(tiled, nx, ny),
                                     LAYER_WALL, 0);
+                            tiled_depth += tiled_dir == TILED_UP ? 1 : -1;
+                            force_draw_double = 1;
                         }
                     }
 
                     if (tmp == NULL) {
                         tmp = GET_MAP_SPACE_LAYER(msp, layer, sub_layer);
+
+                        if (tmp != NULL && layer == LAYER_WALL) {
+                            zadj += floorzoff;
+                        }
                     }
 
                     /* Double check that we can actually see this object. */
                     if (tmp && QUERY_FLAG(tmp, FLAG_HIDDEN)) {
                         tmp = NULL;
+                    }
+
+                    if (tmp != NULL) {
+                        if (have_down) {
+                            priority = 1;
+                        }
+
+                        m_down = NULL;
                     }
 
                     /* This is done so that the player image is always shown
@@ -829,6 +866,25 @@ void draw_client_map2(object *pl)
 
                         if (m_data && (mirror_map = magic_mirror_get_map(mirror)) && !OUT_OF_MAP(mirror_map, m_data->x, m_data->y)) {
                             tmp = GET_MAP_SPACE_LAYER(GET_MAP_SPACE_PTR(mirror_map, m_data->x, m_data->y), layer, sub_layer);
+                        }
+                    }
+
+                    if (tmp == NULL && m_down != NULL) {
+                        tmp = GET_MAP_SPACE_LAYER(
+                                GET_MAP_SPACE_PTR(m_down, nx, ny),
+                                layer, sub_layer);
+
+                        if (tmp != NULL && layer != LAYER_FMASK) {
+                            if (layer != LAYER_WALL) {
+                                zadj = -(46 * zoff);
+                            } else {
+                                force_draw_double = 1;
+                                need_roof = 0;
+                            }
+
+                            if (layer == LAYER_FLOOR) {
+                                floorzoff = -zadj;
+                            }
                         }
                     }
 
@@ -919,7 +975,7 @@ void draw_client_map2(object *pl)
                         }
 
                         /* Z position set? */
-                        if (head->z ||
+                        if (head->z != 0 || zadj != 0 ||
                                 (sub_layer != 0 && layer == LAYER_EFFECT)) {
                             flags |= MAP2_FLAG_HEIGHT;
                         }
@@ -937,7 +993,7 @@ void draw_client_map2(object *pl)
 
                         /* Draw the object twice if set, but only if it's not
                          * in the bottom quadrant of the map. */
-                        if ((QUERY_FLAG(tmp, FLAG_DRAW_DOUBLE) && (ax < CONTR(pl)->socket.mapx_2 || ay < CONTR(pl)->socket.mapy_2)) || QUERY_FLAG(tmp, FLAG_DRAW_DOUBLE_ALWAYS)) {
+                        if ((QUERY_FLAG(tmp, FLAG_DRAW_DOUBLE) && (force_draw_double || (ax < CONTR(pl)->socket.mapx_2 || ay < CONTR(pl)->socket.mapy_2))) || QUERY_FLAG(tmp, FLAG_DRAW_DOUBLE_ALWAYS)) {
                             flags |= MAP2_FLAG_DOUBLE;
                         }
 
@@ -956,6 +1012,10 @@ void draw_client_map2(object *pl)
                         if (head != pl && layer == LAYER_LIVING && IS_LIVE(head)) {
                             flags2 |= MAP2_FLAG2_TARGET;
                             target_object_count = head->count;
+                        }
+
+                        if (priority) {
+                            flags2 |= MAP2_FLAG2_PRIORITY;
                         }
 
                         if (flags2) {
@@ -1043,12 +1103,16 @@ void draw_client_map2(object *pl)
 
                             z = head->z;
 
+                            if (zadj) {
+                                z += zadj;
+                            }
+
                             if (mirror && mirror->last_eat) {
                                 z += mirror->last_eat;
                             }
 
                             if (sub_layer != 0 && layer == LAYER_EFFECT) {
-                                z += 46 * sub_layer;
+                                z += 46 * tiled_depth;
                             }
 
                             packet_append_sint16(packet_layer, z);

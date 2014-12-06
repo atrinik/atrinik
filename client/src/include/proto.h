@@ -678,6 +678,7 @@ extern void widget_label_init(widgetdata *widget);
 /* src/gui/widgets/map.c */
 extern _mapdata MapData;
 extern _multi_part_obj MultiArchs[16];
+extern void clioptions_option_tiles_debug(const char *arg);
 extern void load_mapdef_dat(void);
 extern void clear_map(void);
 extern void map_update_size(int w, int h);
@@ -687,7 +688,7 @@ extern void update_map_weather(const char *weather);
 extern void update_map_height_diff(uint8 height_diff);
 extern void init_map_data(int xl, int yl, int px, int py);
 extern void adjust_tile_stretch(void);
-extern void map_set_data(int x, int y, int layer, sint16 face, uint8 quick_pos, uint8 obj_flags, const char *name, const char *name_color, sint16 height, uint8 probe, sint16 zoom_x, sint16 zoom_y, sint16 align, uint8 draw_double, uint8 alpha, sint16 rotate, uint8 infravision, uint32 target_object_count, uint8 target_is_friend, uint8 anim_speed, uint8 anim_facing, uint8 anim_flags, uint8 anim_state);
+extern void map_set_data(int x, int y, int layer, sint16 face, uint8 quick_pos, uint8 obj_flags, const char *name, const char *name_color, sint16 height, uint8 probe, sint16 zoom_x, sint16 zoom_y, sint16 align, uint8 draw_double, uint8 alpha, sint16 rotate, uint8 infravision, uint32 target_object_count, uint8 target_is_friend, uint8 anim_speed, uint8 anim_facing, uint8 anim_flags, uint8 anim_state, uint8 priority);
 extern void map_clear_cell(int x, int y);
 extern void map_set_darkness(int x, int y, uint8 darkness);
 extern void map_animate(void);

@@ -219,6 +219,8 @@ enum {
 #define MAP2_FLAG2_TARGET 8
 /** Target's HP bar. */
 #define MAP2_FLAG2_PROBE 16
+/** Priority rendering. */
+#define MAP2_FLAG2_PRIORITY 32
 /*@}*/
 
 /**

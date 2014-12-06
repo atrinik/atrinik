@@ -220,6 +220,8 @@ typedef struct MapCell {
      * Whether Fog of War is enabled on this cell.
      */
     uint8 fow;
+
+    uint8 priority[NUM_SUB_LAYERS];
 } MapCell;
 
 #define MAP_CELL_GET(_x, _y) (&cells[(_y) * (map_width * MAP_FOW_SIZE) + (_x)])

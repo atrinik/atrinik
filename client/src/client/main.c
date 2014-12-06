@@ -509,6 +509,15 @@ int main(int argc, char *argv[])
             );
 
     clioptions_add(
+            "tiles_debug",
+            NULL,
+            clioptions_option_tiles_debug,
+            0,
+            "",
+            ""
+            );
+
+    clioptions_add(
             "game_news_url",
             NULL,
             clioptions_option_game_news_url,
