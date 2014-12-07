@@ -2,21 +2,131 @@ arch map
 name Brynknot
 msg
 Created:  2010-09-08 Alex Tokar
-Modified: 2014-03-02 Alex Tokar
+Modified: 2014-12-07 Alex Tokar
 endmsg
 width 24
 height 24
 difficulty 80
 darkness 3
 no_harm 1
+tile_path_2 world_2_0213
+tile_path_9 world_3_0113
+tile_path_10 world_1_0113
 bg_music lontala.mid
 region brynknot
+end
+arch roof_brick
+direction 3
+x 7
+y 15
+end
+arch roof_brick
+direction 3
+x 7
+y 16
+end
+arch roof_brick
+direction 3
+x 7
+y 17
+end
+arch roof_brick
+direction 5
+x 8
+y 14
+end
+arch roof_brick
+direction 8
+x 8
+y 15
+end
+arch roof_brick
+direction 1
+x 8
+y 16
+end
+arch roof_brick
+direction 1
+x 8
+y 17
+end
+arch roof_brick
+direction 5
+x 9
+y 14
+end
+arch roof_brick
+direction 7
+x 9
+y 15
+end
+arch roof_brick
+direction 8
+x 9
+y 16
+end
+arch roof_brick
+direction 1
+x 9
+y 17
+end
+arch roof_brick
+direction 5
+x 10
+y 14
+end
+arch roof_brick
+direction 7
+x 10
+y 15
+end
+arch roof_brick
+direction 7
+x 10
+y 16
+end
+arch roof_brick
+direction 8
+x 10
+y 17
+end
+arch roof_brick
+direction 3
+x 10
+y 19
+end
+arch roof_brick
+direction 3
+x 10
+y 20
+end
+arch roof_brick
+direction 5
+x 11
+y 18
+end
+arch roof_brick
+direction 1
+x 11
+y 19
+end
+arch roof_brick
+direction 1
+x 11
+y 20
 end
 arch blocked
 x 12
 y 13
 end
 arch wall_stone_8
+x 12
+y 13
+end
+arch map_info
+hp 10
+sp 7
+name brynknot_bank
 x 12
 y 13
 end
@@ -42,10 +152,11 @@ x 12
 y 15
 end
 arch blocked
+blocksview 0
 x 12
 y 16
 end
-arch wall_stone_3
+arch wall_stone_w.131
 x 12
 y 16
 end
@@ -77,7 +188,14 @@ arch blocked
 x 12
 y 20
 end
+arch roof_brick
+direction 1
+hidden 0
+x 12
+y 20
+end
 arch wall_stone_3
+sub_layer 1
 x 12
 y 20
 end
@@ -223,7 +341,23 @@ arch floor_ostone13
 x 14
 y 17
 end
+arch wall_stone_8
+x 14
+y 17
+end
 arch floor_ostone13
+x 14
+y 18
+end
+arch candlelight3.101
+x 14
+y 18
+end
+arch wall_stone_3
+x 14
+y 18
+end
+arch light5
 x 14
 y 18
 end
@@ -231,11 +365,15 @@ arch floor_ostone13
 x 14
 y 19
 end
+arch wall_stone_3
+x 14
+y 19
+end
 arch floor_ostone13
 x 14
 y 20
 end
-arch wall_stone_1
+arch wall_stone_4
 x 14
 y 20
 end
@@ -267,39 +405,45 @@ arch floor_ostone13
 x 15
 y 17
 end
-arch wall_stone_8
-x 15
-y 17
-end
 arch floor_ostone13
 x 15
 y 18
 end
-arch candlelight3.101
+arch shelf3b.111
+direction 7
 x 15
 y 18
+arch random_treasure
+no_pick 1
+randomitems random_read
 end
-arch wall_stone_3
-x 15
-y 18
-end
-arch light5
-x 15
-y 18
 end
 arch floor_ostone13
 x 15
 y 19
 end
-arch wall_stone_3
+arch shelf3c.111
+direction 7
 x 15
 y 19
+arch random_treasure
+no_pick 1
+randomitems random_read
+end
+arch random_treasure
+no_pick 1
+randomitems random_read
+end
+arch random_treasure
+no_pick 1
+randomitems random_read
+end
 end
 arch floor_ostone13
 x 15
 y 20
 end
-arch wall_stone_4
+arch wall_stone_w.111
 x 15
 y 20
 end
@@ -331,119 +475,161 @@ arch floor_ostone13
 x 16
 y 17
 end
-arch floor_ostone13
-x 16
-y 18
-end
-arch shelf3b.111
-direction 7
-x 16
-y 18
-arch random_treasure
-no_pick 1
-randomitems random_read
-end
-end
-arch floor_ostone13
-x 16
-y 19
-end
-arch shelf3c.111
-direction 7
-x 16
-y 19
-arch random_treasure
-no_pick 1
-randomitems random_read
-end
-arch random_treasure
-no_pick 1
-randomitems random_read
-end
-arch random_treasure
-no_pick 1
-randomitems random_read
-end
-end
-arch floor_ostone13
-x 16
-y 20
-end
-arch wall_stone_1
-x 16
-y 20
-end
-arch blocked
-x 17
-y 13
-end
-arch wall_stone_1
-x 17
-y 13
-end
-arch floor_ostone13
-x 17
-y 14
-end
-arch shelf3c.111
-x 17
-y 14
-arch random_treasure
-no_pick 1
-randomitems random_read
-end
-arch random_treasure
-no_pick 1
-randomitems random_read
-end
-end
-arch floor_ostone13
-x 17
-y 15
-end
-arch floor_ostone13
-x 17
-y 16
-end
-arch floor_ostone13
-x 17
-y 17
-end
 arch wall_stone_8
-x 17
+x 16
 y 17
 end
 arch floor_ostone13
-x 17
+x 16
 y 18
 end
 arch candlelight3.101
-x 17
+x 16
 y 18
 end
 arch wall_stone_3
-x 17
+x 16
 y 18
 end
 arch light5
-x 17
+x 16
 y 18
 end
 arch floor_ostone13
-x 17
+x 16
 y 19
 end
 arch wall_stone_3
+x 16
+y 19
+end
+arch floor_ostone13
+x 16
+y 20
+end
+arch wall_stone_4
+x 16
+y 20
+end
+arch blocked
+blocksview 0
+x 16
+y 21
+end
+arch wall_stone_3w
+x 16
+y 21
+end
+arch map_info
+is_magical 1
+hp 3
+sp 1
+name brynknot_bank
+x 16
+y 21
+end
+arch blocked
+blocksview 0
+x 16
+y 22
+end
+arch wall_stone_3w
+x 16
+y 22
+end
+arch blocked
+x 17
+y 13
+end
+arch wall_stone_1
+x 17
+y 13
+end
+arch floor_ostone13
+x 17
+y 14
+end
+arch shelf3c.111
+x 17
+y 14
+arch random_treasure
+no_pick 1
+randomitems random_read
+end
+arch random_treasure
+no_pick 1
+randomitems random_read
+end
+end
+arch floor_ostone13
+x 17
+y 15
+end
+arch floor_ostone13
+x 17
+y 16
+end
+arch floor_ostone13
+x 17
+y 17
+end
+arch floor_ostone13
+x 17
+y 18
+end
+arch shelf3a.111
+direction 7
+x 17
+y 18
+arch random_treasure
+no_pick 1
+randomitems random_read
+end
+arch random_treasure
+no_pick 1
+randomitems random_read
+end
+arch random_treasure
+no_pick 1
+randomitems random_read
+end
+end
+arch floor_ostone13
 x 17
 y 19
+end
+arch shelf3c.111
+direction 7
+x 17
+y 19
+arch random_treasure
+no_pick 1
+randomitems random_read
+end
+arch random_treasure
+no_pick 1
+randomitems random_read
+end
 end
 arch floor_ostone13
 x 17
 y 20
 end
-arch wall_stone_4
+arch wall_stone_1
 x 17
 y 20
+end
+arch floor_stone_b3
+x 17
+y 21
+end
+arch floor_stone_b2
+x 17
+y 22
+end
+arch wall_stone_1w
+x 17
+y 22
 end
 arch blocked
 x 18
@@ -489,47 +675,29 @@ arch floor_ostone13
 x 18
 y 18
 end
-arch shelf3a.111
-direction 7
-x 18
-y 18
-arch random_treasure
-no_pick 1
-randomitems random_read
-end
-arch random_treasure
-no_pick 1
-randomitems random_read
-end
-arch random_treasure
-no_pick 1
-randomitems random_read
-end
-end
 arch floor_ostone13
 x 18
 y 19
-end
-arch shelf3c.111
-direction 7
-x 18
-y 19
-arch random_treasure
-no_pick 1
-randomitems random_read
-end
-arch random_treasure
-no_pick 1
-randomitems random_read
-end
 end
 arch floor_ostone13
 x 18
 y 20
 end
-arch wall_stone_1
+arch door_wood2
 x 18
 y 20
+end
+arch floor_stone_b2
+x 18
+y 21
+end
+arch floor_stone_b3
+x 18
+y 22
+end
+arch wall_stone_1w
+x 18
+y 22
 end
 arch blocked
 x 19
@@ -575,6 +743,10 @@ arch floor_ostone13
 x 19
 y 17
 end
+arch wall_stone_1
+x 19
+y 17
+end
 arch floor_ostone13
 x 19
 y 18
@@ -590,6 +762,27 @@ end
 arch wall_stone_1
 x 19
 y 20
+end
+arch floor_stone_b3
+x 19
+y 21
+end
+arch wall_stone_3w
+x 19
+y 21
+end
+arch floor_stone_b3
+x 19
+y 22
+end
+arch wall_stone_3w
+x 19
+y 22
+end
+arch wall_stone_1w
+sub_layer 2
+x 19
+y 22
 end
 arch blocked
 x 20
@@ -622,15 +815,27 @@ end
 arch floor_ostone13
 x 20
 y 16
-end
-arch floor_ostone13
-x 20
-y 17
 end
 arch ladder_down2
 slaying world_1_0113
 hp 20
-sp 17
+sp 16
+x 20
+y 16
+end
+arch floor_ostone13
+x 20
+y 17
+end
+arch candlelight3.101
+x 20
+y 17
+end
+arch wall_stone_1
+x 20
+y 17
+end
+arch light5
 x 20
 y 17
 end
@@ -638,29 +843,17 @@ arch floor_ostone13
 x 20
 y 18
 end
-arch candlelight3.101
-x 20
-y 18
-end
-arch wall_stone_1
-x 20
-y 18
-end
-arch light5
-x 20
-y 18
-end
-arch floor_ostone13
-x 20
-y 19
-end
 arch shelf2_wall.111
 x 20
-y 19
+y 18
 arch random_treasure
 no_pick 1
 randomitems random_read
 end
+end
+arch floor_ostone13
+x 20
+y 19
 end
 arch floor_ostone13
 x 20
@@ -710,21 +903,17 @@ arch floor_ostone13
 x 21
 y 17
 end
-arch floor_ostone13
-x 21
-y 18
-end
 arch wall_stone_1
 x 21
-y 18
+y 17
 end
 arch floor_ostone13
 x 21
-y 19
+y 18
 end
 arch chest_m
 x 21
-y 19
+y 18
 arch random_treasure
 identified 1
 randomitems random_coin
@@ -732,9 +921,13 @@ end
 end
 arch floor_ostone13
 x 21
+y 19
+end
+arch floor_ostone13
+x 21
 y 20
 end
-arch wall_stone_1
+arch wall_stone_w.111
 x 21
 y 20
 end
@@ -758,43 +951,43 @@ arch floor_ostone13
 x 22
 y 15
 end
-arch candlelight3.101
+arch wall_stone_w.131
 x 22
 y 15
 end
+arch floor_ostone13
+x 22
+y 16
+end
+arch candlelight3.101
+x 22
+y 16
+end
 arch wall_stone_3
 x 22
-y 15
+y 16
 end
 arch light5
 x 22
-y 15
-end
-arch floor_ostone13
-x 22
-y 16
-end
-arch wall_stone_3
-x 22
 y 16
 end
 arch floor_ostone13
 x 22
 y 17
-end
-arch wall_stone_3
-x 22
-y 17
-end
-arch floor_ostone13
-x 22
-y 18
 end
 arch wall_stone_4
 x 22
-y 18
+y 17
 end
 arch picture4.151
+x 22
+y 17
+end
+arch floor_ostone13
+x 22
+y 18
+end
+arch wall_stone_w.131
 x 22
 y 18
 end
@@ -816,7 +1009,7 @@ y 20
 end
 arch spawn_point
 x 23
-y 21
+y 19
 arch ant_red
 msg
 @match ^hello$
@@ -839,5 +1032,11 @@ no_attack 1
 friendly 1
 stand_still 1
 type 83
+hidden 1
 end
+end
+arch map_info
+name brynknot_bank
+x 23
+y 19
 end
