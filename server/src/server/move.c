@@ -57,9 +57,9 @@ int get_randomized_dir(int dir)
  * deadly trap or something). */
 int move_ob(object *op, int dir, object *originator)
 {
-    object *tmp;
+    object *tmp, *floor, *floor_tmp;
     mapstruct *m;
-    int xt, yt, flags;
+    int xt, yt, flags, z, z_highest, sub_layer, found_floor;
 
     if (op == NULL) {
         return 0;
@@ -93,45 +93,60 @@ int move_ob(object *op, int dir, object *originator)
         return 0;
     }
 
-    /* multi arch objects... */
-    if (op->more) {
-        /* Look in single tile move to see how we handle doors.
-         * This needs to be done before we allow multi tile mobs to do
-         * more fancy things. */
-        if (blocked_link(op, freearr_x[dir], freearr_y[dir])) {
-            return 0;
-        }
-
-        object_remove(op, 0);
-
-        for (tmp = op; tmp != NULL; tmp = tmp->more) {
-            tmp->x += freearr_x[dir], tmp->y += freearr_y[dir];
-        }
-
-        insert_ob_in_map(op, op->map, op, 0);
-
-        return 1;
-    }
-
-    /* Single arch */
     if (op->type != PLAYER || !CONTR(op)->tcl) {
-        /* Is the spot blocked from something? */
-        if ((flags = blocked(op, m, xt, yt, op->terrain_flag))) {
-            /* A closed door which we can open? */
-            if ((flags & P_DOOR_CLOSED) && (op->behavior & BEHAVIOR_OPEN_DOORS) && door_try_open(op, m, xt, yt, 0)) {
-                if (op->type == PLAYER) {
-                    return 1;
-                }
-            } else {
+        if (op->more != NULL) {
+            if (blocked_link(op, freearr_x[dir], freearr_y[dir])) {
                 return 0;
+            }
+        } else {
+            /* Is the spot blocked from something? */
+            if ((flags = blocked(op, m, xt, yt, op->terrain_flag))) {
+                /* A closed door which we can open? */
+                if ((flags & P_DOOR_CLOSED) &&
+                        (op->behavior & BEHAVIOR_OPEN_DOORS) &&
+                        door_try_open(op, m, xt, yt, 0)) {
+                    if (op->type == PLAYER) {
+                        return 1;
+                    }
+                } else {
+                    return 0;
+                }
             }
         }
     }
 
+    floor = GET_MAP_OB_LAYER(op->map, op->x, op->y, LAYER_FLOOR, op->sub_layer);
+    z = floor != NULL ? floor->z : 0;
+    z_highest = 0;
+    sub_layer = 0;
+    found_floor = 0;
+
+    FOR_MAP_LAYER_BEGIN(m, xt, yt, LAYER_FLOOR, -1, floor_tmp)
+    {
+        if (abs(z - floor_tmp->z) > MOVE_MAX_HEIGHT_DIFF) {
+            continue;
+        }
+
+        found_floor = 1;
+
+        if (floor_tmp->z > z_highest) {
+            z_highest = floor_tmp->z;
+            sub_layer = floor_tmp->sub_layer;
+        }
+    }
+    FOR_MAP_LAYER_END
+
+    if (!found_floor && (op->type != PLAYER || !CONTR(op)->tcl)) {
+        return 0;
+    }
+
     object_remove(op, 0);
 
-    op->x += freearr_x[dir];
-    op->y += freearr_y[dir];
+    for (tmp = op; tmp != NULL; tmp = tmp->more) {
+        tmp->x += freearr_x[dir];
+        tmp->y += freearr_y[dir];
+        tmp->sub_layer = sub_layer;
+    }
 
     insert_ob_in_map(op, op->map, originator, 0);
 

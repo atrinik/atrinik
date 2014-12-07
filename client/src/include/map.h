@@ -147,6 +147,11 @@ typedef struct _mapdata {
      * If 1, the player is currently in a building.
      */
     int in_building : 1;
+
+    /**
+     * Player's current sub-layer.
+     */
+    uint8 player_sub_layer;
 } _mapdata;
 
 /**

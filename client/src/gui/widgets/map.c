@@ -617,24 +617,15 @@ void map_set_darkness(int x, int y, uint8 darkness)
  * @param y Y position.
  * @return The height.
  */
-static int get_top_floor_height(int x, int y)
+static int get_top_floor_height(int x, int y, int sub_layer)
 {
     struct MapCell *cell;
-    int top_height, height, sub_layer;
+    sint16 height;
 
     cell = MAP_CELL_GET_MIDDLE(x, y);
+    height = cell->height[GET_MAP_LAYER(LAYER_FLOOR, sub_layer)];
 
-    top_height = 0;
-
-    for (sub_layer = 0; sub_layer < NUM_SUB_LAYERS; sub_layer++) {
-        height = cell->height[GET_MAP_LAYER(LAYER_FLOOR, sub_layer)];
-
-        if (height > top_height) {
-            top_height = height;
-        }
-    }
-
-    return top_height;
+    return MAX(0, height);
 }
 
 static void map_animate_object(struct MapCell *cell, int layer)
@@ -774,7 +765,7 @@ static void draw_map_object(int x, int y, int layer, int sub_layer,
     }
 
     if ((cell->fow || MapData.height_diff) && abs(get_top_floor_height(
-            x, y) - player_height_offset) > HEIGHT_MAX_RENDER) {
+            x, y, sub_layer) - player_height_offset) > HEIGHT_MAX_RENDER) {
         return;
     }
 
@@ -870,7 +861,7 @@ static void draw_map_object(int x, int y, int layer, int sub_layer,
 
     if (layer == LAYER_LIVING || layer == LAYER_EFFECT || layer == LAYER_ITEM ||
             layer == LAYER_ITEM2) {
-        yl -= get_top_floor_height(x, y);
+        yl -= get_top_floor_height(x, y, sub_layer);
     } else {
         yl -= cell->height[GET_MAP_LAYER(LAYER_FLOOR, sub_layer)];
     }
@@ -1008,7 +999,7 @@ void map_draw_map(void)
     size_t tiles_num;
 
     player_height_offset = get_top_floor_height(map_width - (map_width / 2) - 1,
-            map_height - (map_height / 2) - 1);
+            map_height - (map_height / 2) - 1, MapData.player_sub_layer);
     target_cell = NULL;
     tiles = NULL;
     tiles_num = 0;
@@ -1186,9 +1177,9 @@ void map_draw_one(int x, int y, SDL_Surface *surface)
     cell = MAP_CELL_GET_MIDDLE(x, y);
 
     if (cell->faces[0] != 0) {
-        ypos = (ypos - get_top_floor_height(x, y)) +
+        ypos = (ypos - get_top_floor_height(x, y, MapData.player_sub_layer)) +
                 get_top_floor_height(map_width - (map_width / 2) - 1,
-                map_height - (map_height / 2) - 1);
+                map_height - (map_height / 2) - 1, MapData.player_sub_layer);
     }
 
     surface_show_effects(cur_widget[MAP_ID]->surface, xpos, ypos, NULL, surface,
@@ -1366,7 +1357,7 @@ int mouse_to_tile_coords(int mx, int my, int *tx, int *ty)
             100.0)) + cur_widget[MAP_ID]->y;
 
     player_height_offset = get_top_floor_height(map_width - (map_width / 2) - 1,
-            map_height - (map_height / 2) - 1);
+            map_height - (map_height / 2) - 1, MapData.player_sub_layer);
     zoom = (setting_get_int(OPT_CAT_MAP, OPT_MAP_ZOOM) / 100.0);
 
     /* Go through all the map squares. */
@@ -1379,12 +1370,13 @@ int mouse_to_tile_coords(int mx, int my, int *tx, int *ty)
             ypos = (x * MAP_TILE_XOFF + y * MAP_TILE_XOFF) * zoom;
 
             if ((cell->fow || MapData.height_diff) && abs(get_top_floor_height(
-                    x, y) - player_height_offset) > HEIGHT_MAX_RENDER) {
+                    x, y, MapData.player_sub_layer) - player_height_offset) >
+                    HEIGHT_MAX_RENDER) {
                 continue;
             }
 
             if (cell->faces[0] != 0) {
-                ypos = (ypos - (get_top_floor_height(x, y)) * zoom) +
+                ypos = (ypos - (get_top_floor_height(x, y, MapData.player_sub_layer)) * zoom) +
                         (player_height_offset) * zoom;
             }
 

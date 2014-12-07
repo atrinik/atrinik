@@ -661,6 +661,7 @@ void socket_command_map(uint8 *data, size_t len, size_t pos)
 
     MapData.posx = xpos;
     MapData.posy = ypos;
+    MapData.player_sub_layer = packet_to_uint8(data, len, &pos);
 
     in_building = packet_to_uint8(data, len, &pos);
 

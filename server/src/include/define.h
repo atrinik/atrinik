@@ -1493,6 +1493,11 @@ enum apply_flag {
 /*@}*/
 
 /**
+ * Maximum height difference between two tiles to be able to move between them.
+ */
+#define MOVE_MAX_HEIGHT_DIFF 12
+
+/**
  * @defgroup FOR_MAP_LAYER_xxx Map layer looping macros
  * Macros used for looping through objects on a specific map square and layer.
  *@{*/

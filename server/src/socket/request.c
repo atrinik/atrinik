@@ -578,9 +578,9 @@ void draw_client_map2(object *pl)
     static uint32 map2_count = 0;
     MapCell *mp;
     MapSpace *msp, *msp2;
-    mapstruct *m, *m_down, *tiled;
+    mapstruct *m, *tiled;
     int x, y, ax, ay, d, nx, ny;
-    int x_start, zoff, floorzoff, have_down, draw_up, blocksview;
+    int x_start, floorzoff, have_down, draw_up, blocksview;
     int special_vision, is_building_wall;
     uint16 mask;
     int layer, dark;
@@ -643,6 +643,7 @@ void draw_client_map2(object *pl)
 
     packet_append_uint8(packet, pl->x);
     packet_append_uint8(packet, pl->y);
+    packet_append_uint8(packet, pl->sub_layer);
     packet_append_uint8(packet, msp2->map_info != NULL);
 
     x_start = (pl->x + (CONTR(pl)->socket.mapx + 1) / 2) - 1;
@@ -773,19 +774,11 @@ void draw_client_map2(object *pl)
                 mp->count = d;
             }
 
-            zoff = floorzoff = have_down = draw_up = 0;
-            m_down = NULL;
-            tiled = m;
+            floorzoff = have_down = draw_up = 0;
 
-            do {
-                tiled = get_map_from_tiled(tiled, TILED_DOWN);
-
-                if (tiled != NULL) {
-                    m_down = tiled;
-                    have_down = 1;
-                    zoff++;
-                }
-            } while (tiled != NULL);
+            if (get_map_from_tiled(m, TILED_DOWN) != NULL) {
+                have_down = 1;
+            }
 
             /* Add the mask. Any mask changes should go above this line. */
             packet_append_uint16(packet, mask);
@@ -806,12 +799,11 @@ void draw_client_map2(object *pl)
             /* Go through the visible layers. */
             for (layer = LAYER_FLOOR; layer <= NUM_LAYERS; layer++) {
                 int sub_layer, socket_layer, tiled_dir, tiled_depth, zadj;
-                int force_draw_double, priority;
+                int force_draw_double, priority, tiled_z;
 
                 tiled_depth = 0;
                 tiled_dir = TILED_DOWN;
                 tiled = m;
-                force_draw_double = m->tile_map[TILED_UP] != NULL && draw_up;
 
                 for (sub_layer = NUM_SUB_LAYERS - 1; sub_layer >= 0;
                         sub_layer--) {
@@ -821,9 +813,11 @@ void draw_client_map2(object *pl)
                     zadj = 0;
                     priority = 0;
                     is_building_wall = 0;
+                    tiled_z = 0;
+                    force_draw_double = m->tile_map[TILED_UP] != NULL &&
+                            draw_up;
 
-                    if (sub_layer != 0 && layer == LAYER_EFFECT &&
-                            tiled != NULL) {
+                    if (sub_layer != 0 && tiled != NULL) {
                         tiled = get_map_from_tiled(tiled, tiled_dir);
 
                         if (tiled == NULL && tiled_dir == TILED_DOWN) {
@@ -832,32 +826,76 @@ void draw_client_map2(object *pl)
                             tiled = get_map_from_tiled(m, tiled_dir);
                         }
 
-                        if (tiled != NULL && tiled != m_down &&
+                        if (tiled != NULL &&
                                 (draw_up || tiled_dir == TILED_DOWN)) {
-                            tmp = GET_MAP_SPACE_LAYER(
-                                    GET_MAP_SPACE_PTR(tiled, nx, ny),
-                                    LAYER_WALL, 0);
+                            MapSpace *msp3;
+
+                            msp3 = GET_MAP_SPACE_PTR(tiled, nx, ny);
+
+                            if (layer == LAYER_EFFECT) {
+                                tmp = GET_MAP_SPACE_LAYER(msp3, LAYER_WALL, 0);
+                            } else {
+                                int sub_layer2;
+
+                                for (sub_layer2 = NUM_SUB_LAYERS - 1;
+                                        sub_layer2 >= 0; sub_layer2--) {
+                                    tmp = GET_MAP_SPACE_LAYER(msp3, layer,
+                                            sub_layer2);
+
+                                    if (tmp != NULL) {
+                                        break;
+                                    }
+                                }
+                            }
+
                             tiled_depth += tiled_dir == TILED_UP ? 1 : -1;
                             force_draw_double = 1;
 
-                            if (tmp != NULL && tmp->type != WALL &&
-                                    tmp->type != DOOR) {
+                            if (tmp != NULL && layer == LAYER_EFFECT &&
+                                    tmp->type != WALL && tmp->type != DOOR) {
                                 tmp = NULL;
                             }
-                        }
 
-                        if (tiled == NULL && tiled_dir == TILED_UP) {
-                            m_down = NULL;
+                            if (tmp != NULL && tiled_dir == TILED_UP &&
+                                    msp2->map_info != NULL &&
+                                    msp3->map_info != NULL &&
+                                    msp2->map_info->name ==
+                                    msp3->map_info->name) {
+                                tmp = NULL;
+                            }
+
+                            if (tmp != NULL && layer == LAYER_WALL &&
+                                    tmp->sub_layer == 0 &&
+                                    (msp3->map_info != NULL ||
+                                    QUERY_FLAG(tmp, FLAG_HIDDEN))) {
+                                tmp = NULL;
+                            }
+
+                            if (tmp != NULL && layer == LAYER_FLOOR &&
+                                    tiled_dir == TILED_UP &&
+                                    (msp3->map_info == NULL || !QUERY_FLAG(
+                                    msp3->map_info, FLAG_IS_MAGICAL))) {
+                                tmp = NULL;
+                            }
+
+                            if (tmp != NULL) {
+                                if (layer == LAYER_FLOOR) {
+                                    floorzoff = -(46 * tiled_depth);
+                                } else if (tiled_dir == TILED_UP) {
+                                    zadj += floorzoff;
+                                }
+                            }
+
+                            if (tmp != NULL && (layer != LAYER_WALL ||
+                                    tmp->sub_layer != 0) &&
+                                    layer != LAYER_FMASK) {
+                                tiled_z = 1;
+                            }
                         }
                     }
 
                     if (tmp == NULL) {
                         tmp = GET_MAP_SPACE_LAYER(msp, layer, sub_layer);
-
-                        if (tmp != NULL && layer == LAYER_WALL &&
-                                sub_layer == 0) {
-                            zadj += floorzoff;
-                        }
 
                         if (tmp != NULL) {
                             if (have_down) {
@@ -868,20 +906,18 @@ void draw_client_map2(object *pl)
 
                     /* Double check that we can actually see this object. */
                     if (tmp != NULL && QUERY_FLAG(tmp, FLAG_HIDDEN) &&
-                            (!force_draw_double || layer == LAYER_FLOOR) &&
-                            tmp->type != WALL) {
+                            (!force_draw_double || layer == LAYER_FLOOR || layer == LAYER_LIVING)) {
                         tmp = NULL;
-                    }
-
-                    if (tmp != NULL) {
-                        m_down = NULL;
+                        floorzoff = 0;
                     }
 
                     /* This is done so that the player image is always shown
                      * to the player, even if they are standing on top of
                      * another
                      * player or monster. */
-                    if (tmp && tmp->layer == pl->layer && tmp->sub_layer == pl->sub_layer && pl->x == nx && pl->y == ny) {
+                    if (tmp != NULL && layer == pl->layer &&
+                            sub_layer == pl->sub_layer &&
+                            pl->x == nx && pl->y == ny) {
                         tmp = pl;
                     }
 
@@ -893,31 +929,6 @@ void draw_client_map2(object *pl)
 
                         if (m_data && (mirror_map = magic_mirror_get_map(mirror)) && !OUT_OF_MAP(mirror_map, m_data->x, m_data->y)) {
                             tmp = GET_MAP_SPACE_LAYER(GET_MAP_SPACE_PTR(mirror_map, m_data->x, m_data->y), layer, sub_layer);
-                        }
-                    }
-
-                    if (tmp == NULL && m_down != NULL) {
-                        MapSpace *msp3;
-
-                        msp3 = GET_MAP_SPACE_PTR(m_down, nx, ny);
-
-                        if (msp3->map_info == NULL || layer == LAYER_WALL ||
-                                layer <= LAYER_FMASK) {
-                            tmp = GET_MAP_SPACE_LAYER(msp3, layer, sub_layer);
-                        }
-
-                        if (tmp != NULL && layer != LAYER_FMASK) {
-                            if (layer != LAYER_WALL) {
-                                zadj = -(46 * zoff);
-                            } else {
-                                force_draw_double = 1;
-                            }
-
-                            if (layer == LAYER_FLOOR) {
-                                floorzoff = -zadj;
-                            }
-
-                            priority = 0;
                         }
                     }
 
@@ -975,8 +986,10 @@ void draw_client_map2(object *pl)
                                     continue;
                                 }
 
-                                if (GET_MAP_SPACE_PTR(m2, x2,
-                                        y2)->map_info == NULL) {
+                                msp3 = GET_MAP_SPACE_PTR(m2, x2, y2);
+
+                                if (msp3->map_info == NULL || QUERY_FLAG(
+                                        msp3->map_info, FLAG_IS_MAGICAL)) {
                                     break;
                                 }
                             }
@@ -1000,11 +1013,10 @@ void draw_client_map2(object *pl)
                         tmp = NULL;
                     }
 
-                    if (tmp != NULL && floorzoff != 0 && !is_building_wall &&
+                    if (tmp != NULL && layer != LAYER_EFFECT && sub_layer != 0 && !is_building_wall &&
                             GET_MAP_SPACE_PTR(tmp->map, tmp->x,
                             tmp->y)->map_info != NULL) {
                         tmp = NULL;
-                        floorzoff = 0;
                     }
 
                     socket_layer = NUM_LAYERS * sub_layer + layer - 1;
@@ -1078,8 +1090,7 @@ void draw_client_map2(object *pl)
                         }
 
                         /* Z position set? */
-                        if (head->z != 0 || zadj != 0 ||
-                                (sub_layer != 0 && layer == LAYER_EFFECT)) {
+                        if (head->z != 0 || zadj != 0 || tiled_z) {
                             flags |= MAP2_FLAG_HEIGHT;
                         }
 
@@ -1214,7 +1225,7 @@ void draw_client_map2(object *pl)
                                 z += mirror->last_eat;
                             }
 
-                            if (sub_layer != 0 && layer == LAYER_EFFECT) {
+                            if (tiled_z) {
                                 z += 46 * tiled_depth;
                             }
 
