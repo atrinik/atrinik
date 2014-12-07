@@ -258,6 +258,38 @@ void update_map_height_diff(uint8 height_diff)
 }
 
 /**
+ * Updates the map's in_building state flag.
+ *
+ * When entering a building, clears FoW objects from effect layer with non-zero
+ * sub-layer.
+ * @param in_building New in_building state.
+ */
+void map_update_in_building(uint8 in_building)
+{
+    if (in_building && !MapData.in_building) {
+        int x, y;
+        struct MapCell *cell;
+        int sub_layer;
+
+        for (x = 0; x < map_width * MAP_FOW_SIZE; x++) {
+            for (y = 0; y < map_height * MAP_FOW_SIZE; y++) {
+                cell = MAP_CELL_GET(x, y);
+
+                if (!cell->fow) {
+                    continue;
+                }
+
+                for (sub_layer = 1; sub_layer < NUM_SUB_LAYERS; sub_layer++) {
+                    cell->faces[GET_MAP_LAYER(LAYER_EFFECT, sub_layer)] = 0;
+                }
+            }
+        }
+    }
+
+    MapData.in_building = in_building;
+}
+
+/**
  * Initialize map's data.
  * @param xl Map width.
  * @param yl Map height.
@@ -489,7 +521,7 @@ void map_set_data(int x, int y, int layer, sint16 face,
         cell->anim_state[layer] = 0;
     }
 
-    cell->priority[sub_layer] |= priority << (((layer + 1) % NUM_LAYERS));
+    cell->priority[sub_layer] |= priority << (((layer % NUM_LAYERS) + 1) - 1);
 
     cell->faces[layer] = face;
     cell->flags[layer] = obj_flags;
@@ -522,7 +554,7 @@ void map_set_data(int x, int y, int layer, sint16 face,
     cell->anim_speed[layer] = anim_speed;
     cell->anim_facing[layer] = anim_facing;
 
-    if (((layer + 1) % NUM_LAYERS) == LAYER_LIVING) {
+    if (((layer % NUM_LAYERS) + 1) == LAYER_LIVING) {
         if (anim_flags & ANIM_FLAG_ATTACKING &&
                 !(cell->anim_flags[sub_layer] & ANIM_FLAG_ATTACKING)) {
             cell->anim_state[layer] = 0;
@@ -987,7 +1019,7 @@ void map_draw_map(void)
             cell = MAP_CELL_GET_MIDDLE(x, y);
 
             for (layer = LAYER_FLOOR; layer <= LAYER_FMASK; layer++) {
-                if (cell->priority[0] & (1 << layer)) {
+                if (cell->priority[0] & (1 << (layer - 1))) {
                     continue;
                 }
 
@@ -1013,12 +1045,13 @@ void map_draw_map(void)
                     /* Skip objects on the effect layer with non-zero sub-layer
                      * because they will be rendered later. */
                     if (layer == LAYER_EFFECT && sub_layer != 0) {
-                        if (cell->height[GET_MAP_LAYER(LAYER_EFFECT, sub_layer)] >= 0) {
+                        if (cell->height[GET_MAP_LAYER(LAYER_EFFECT,
+                                sub_layer)] >= 0) {
                             continue;
                         }
                     }
 
-                    if (cell->priority[sub_layer] & (1 << layer)) {
+                    if (cell->priority[sub_layer] & (1 << (layer - 1))) {
                         continue;
                     }
 
@@ -1038,7 +1071,7 @@ void map_draw_map(void)
 
                     cell = MAP_CELL_GET_MIDDLE(x, y);
 
-                    if (!(cell->priority[sub_layer] & (1 << layer))) {
+                    if (!(cell->priority[sub_layer] & (1 << (layer - 1)))) {
                         continue;
                     }
 

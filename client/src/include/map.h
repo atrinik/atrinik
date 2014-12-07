@@ -142,6 +142,11 @@ typedef struct _mapdata {
      * tiles (even if they are not FoW tiles).
      */
     int height_diff : 1;
+
+    /**
+     * If 1, the player is currently in a building.
+     */
+    int in_building : 1;
 } _mapdata;
 
 /**

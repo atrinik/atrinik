@@ -603,7 +603,7 @@ void socket_command_map(uint8 *data, size_t len, size_t pos)
     int mapstat;
     int xpos, ypos;
     int layer, ext_flags;
-    uint8 num_layers;
+    uint8 num_layers, in_building;
 
     mapstat = packet_to_uint8(data, len, &pos);
 
@@ -661,6 +661,8 @@ void socket_command_map(uint8 *data, size_t len, size_t pos)
 
     MapData.posx = xpos;
     MapData.posy = ypos;
+
+    in_building = packet_to_uint8(data, len, &pos);
 
     while (pos < len) {
         mask = packet_to_uint16(data, len, &pos);
@@ -804,6 +806,7 @@ void socket_command_map(uint8 *data, size_t len, size_t pos)
     }
 
     adjust_tile_stretch();
+    map_update_in_building(in_building);
     map_redraw_flag = 1;
 }
 
