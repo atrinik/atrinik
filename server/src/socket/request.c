@@ -1006,7 +1006,7 @@ void draw_client_map2(object *pl)
 
                     if (tmp != NULL && layer != LAYER_EFFECT &&
                             sub_layer != 0 && !is_building_wall &&
-                            GET_MAP_SPACE_PTR(tmp->map, tmp->x,
+                            tmp->map != m && GET_MAP_SPACE_PTR(tmp->map, tmp->x,
                             tmp->y)->map_info != NULL) {
                         tmp = NULL;
                     }
