@@ -524,7 +524,7 @@ arch map_info
 is_magical 1
 hp 3
 sp 1
-name brynknot_bank
+name brynknot_bank2
 x 16
 y 21
 end
