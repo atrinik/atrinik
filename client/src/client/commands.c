@@ -678,7 +678,16 @@ void socket_command_map(uint8 *data, size_t len, size_t pos)
 
         /* Do we have darkness information? */
         if (mask & MAP2_MASK_DARKNESS) {
-            map_set_darkness(x, y, packet_to_uint8(data, len, &pos));
+            map_set_darkness(x, y, 0, packet_to_uint8(data, len, &pos));
+        }
+
+        if (mask & MAP2_MASK_DARKNESS_MORE) {
+            int sub_layer;
+
+            for (sub_layer = 1; sub_layer < NUM_SUB_LAYERS; sub_layer++) {
+                map_set_darkness(x, y, sub_layer, packet_to_uint8(data, len,
+                        &pos));
+            }
         }
 
         num_layers = packet_to_uint8(data, len, &pos);

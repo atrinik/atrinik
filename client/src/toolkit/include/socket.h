@@ -248,8 +248,8 @@ enum {
  *@{*/
 /** Clear cell, with all layers. */
 #define MAP2_MASK_CLEAR      0x2
-/** Add darkness. */
-#define MAP2_MASK_DARKNESS   0x4
+#define MAP2_MASK_DARKNESS 0x4
+#define MAP2_MASK_DARKNESS_MORE 0x8
 /*@}*/
 
 /**

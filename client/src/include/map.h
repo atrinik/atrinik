@@ -171,7 +171,7 @@ typedef struct MapCell {
     uint8 probe[NUM_REAL_LAYERS];
 
     /** Cell darkness. */
-    uint8 darkness;
+    uint8 darkness[NUM_SUB_LAYERS];
 
     /** Object flags. */
     uint8 flags[NUM_REAL_LAYERS];

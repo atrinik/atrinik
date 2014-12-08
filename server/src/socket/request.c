@@ -558,14 +558,14 @@ void packet_append_map_weather(packet_struct *packet, object *op, object *map_in
 /** Clear a map cell. */
 #define map_clearcell(_cell_) \
     { \
-        memset((void *) ((char *) (_cell_) + offsetof(MapCell, count)), 0, sizeof(MapCell) - offsetof(MapCell, count)); \
-        (_cell_)->count = -1; \
+        memset((void *) ((char *) (_cell_) + offsetof(MapCell, cleared)), 0, sizeof(MapCell) - offsetof(MapCell, cleared)); \
+        (_cell_)->cleared = 1; \
     }
 
 /** Clear a map cell, but only if it has not been cleared before. */
 #define map_if_clearcell() \
     { \
-        if (CONTR(pl)->socket.lastmap.cells[ax][ay].count != -1) \
+        if (CONTR(pl)->socket.lastmap.cells[ax][ay].cleared != 1) \
         { \
             packet_append_uint16(packet, mask | MAP2_MASK_CLEAR); \
             map_clearcell(&CONTR(pl)->socket.lastmap.cells[ax][ay]); \
@@ -583,7 +583,7 @@ void draw_client_map2(object *pl)
     int x_start, have_down, draw_up, blocksview;
     int special_vision, is_building_wall;
     uint16 mask;
-    int layer, dark;
+    int layer, dark[NUM_SUB_LAYERS], dark_set[NUM_SUB_LAYERS];
     int anim_value, anim_type, ext_flags;
     int num_layers;
     object *mirror = NULL;
@@ -591,6 +591,8 @@ void draw_client_map2(object *pl)
     packet_struct *packet, *packet_layer, *packet_sound;
     size_t oldpos;
     uint8 floor_z_down, floor_z_up;
+    int sub_layer, socket_layer, tiled_dir, tiled_depth, zadj;
+    int force_draw_double, priority, tiled_z;
 
     /* Any kind of special vision? */
     special_vision = (QUERY_FLAG(pl, FLAG_XRAYS) ? 1 : 0) | (QUERY_FLAG(pl, FLAG_SEE_IN_DARK) ? 2 : 0);
@@ -730,66 +732,22 @@ void draw_client_map2(object *pl)
                 }
             }
 
-            d = map_get_darkness(m, nx, ny, &mirror);
+            map_get_darkness(m, nx, ny, &mirror);
 
-            if (CONTR(pl)->tli) {
-                d += global_darkness_table[MAX_DARKNESS];
-            }
-
-            /* Tile is not normally visible */
-            if (d <= 0) {
-                /* Xray or infravision? */
-                if (special_vision & 1 || (special_vision & 2 && msp->flags & (P_IS_PLAYER | P_IS_MONSTER))) {
-                    d = 100;
-                } else {
-                    map_if_clearcell();
-                    continue;
-                }
-            }
-
-            if (d > 640) {
-                d = 210;
-            } else if (d > 320) {
-                d = 180;
-            } else if (d > 160) {
-                d = 150;
-            } else if (d > 80) {
-                d = 120;
-            } else if (d > 40) {
-                d = 90;
-            } else if (d > 20) {
-                d = 60;
-            } else {
-                d = 30;
+            for (sub_layer = 0; sub_layer < NUM_SUB_LAYERS; sub_layer++) {
+                dark_set[sub_layer] = 0;
             }
 
             /* Initialize default values for some variables. */
-            dark = NO_FACE_SEND;
             ext_flags = 0;
             oldpos = packet_get_pos(packet);
             anim_type = 0;
             anim_value = 0;
-
-            /* Do we need to send the darkness? */
-            if (mp->count != d) {
-                mask |= MAP2_MASK_DARKNESS;
-                dark = d;
-                mp->count = d;
-            }
-
             have_down = draw_up = 0;
             floor_z_down = floor_z_up = 0;
 
             if (get_map_from_tiled(m, TILED_DOWN) != NULL) {
                 have_down = 1;
-            }
-
-            /* Add the mask. Any mask changes should go above this line. */
-            packet_append_uint16(packet, mask);
-
-            /* If we have darkness to send, send it. */
-            if (dark != NO_FACE_SEND) {
-                packet_append_uint8(packet, dark);
             }
 
             packet_layer = packet_new(0, 0, 128);
@@ -802,9 +760,6 @@ void draw_client_map2(object *pl)
 
             /* Go through the visible layers. */
             for (layer = LAYER_FLOOR; layer <= NUM_LAYERS; layer++) {
-                int sub_layer, socket_layer, tiled_dir, tiled_depth, zadj;
-                int force_draw_double, priority, tiled_z;
-
                 tiled_depth = 0;
                 tiled_dir = TILED_DOWN;
                 tiled = m;
@@ -1056,6 +1011,40 @@ void draw_client_map2(object *pl)
                         tmp = NULL;
                     }
 
+                    if (tmp != NULL && !dark_set[sub_layer]) {
+                        dark_set[sub_layer] = 1;
+                        dark[sub_layer] = map_get_darkness(tmp->map, tmp->x,
+                                tmp->y, NULL);
+
+                        if (CONTR(pl)->tli) {
+                            dark[sub_layer] +=
+                                    global_darkness_table[MAX_DARKNESS];
+                        }
+
+                        if (dark[sub_layer] < 100) {
+                            if (QUERY_FLAG(tmp, FLAG_HIDDEN) ||
+                                    special_vision & 1 ||
+                                    (special_vision & 2 && GET_MAP_SPACE_PTR(
+                                    tmp->map, tmp->x, tmp->y)->flags &
+                                    (P_IS_PLAYER | P_IS_MONSTER))) {
+                                dark[sub_layer] = 100;
+                            }
+                        }
+                    }
+
+                    if (dark[sub_layer] <= 0) {
+                        tmp = NULL;
+                    }
+
+                    if (tmp != NULL && dark[sub_layer] !=
+                            mp->darkness[sub_layer]) {
+                        if (sub_layer == 0) {
+                            mask |= MAP2_MASK_DARKNESS;
+                        } else {
+                            mask |= MAP2_MASK_DARKNESS_MORE;
+                        }
+                    }
+
                     socket_layer = NUM_LAYERS * sub_layer + layer - 1;
 
                     /* Found something. */
@@ -1156,7 +1145,7 @@ void draw_client_map2(object *pl)
                             flags2 |= MAP2_FLAG2_ROTATE;
                         }
 
-                        if (QUERY_FLAG(pl, FLAG_SEE_IN_DARK) && ((head->layer == LAYER_LIVING && d < 150) || (head->type == CONTAINER && (head->sub_type & 1) == ST1_CONTAINER_CORPSE && QUERY_FLAG(head, FLAG_IS_USED_UP) && (float) head->stats.food / head->last_eat >= CORPSE_INFRAVISION_PERCENT / 100.0))) {
+                        if (QUERY_FLAG(pl, FLAG_SEE_IN_DARK) && ((head->layer == LAYER_LIVING && dark[sub_layer] < 150) || (head->type == CONTAINER && (head->sub_type & 1) == ST1_CONTAINER_CORPSE && QUERY_FLAG(head, FLAG_IS_USED_UP) && (float) head->stats.food / head->last_eat >= CORPSE_INFRAVISION_PERCENT / 100.0))) {
                             flags2 |= MAP2_FLAG2_INFRAVISION;
                         }
 
@@ -1328,6 +1317,37 @@ void draw_client_map2(object *pl)
                         num_layers++;
                     }
                 }
+            }
+
+            /* Add the mask. Any mask changes should go above this line. */
+            packet_append_uint16(packet, mask);
+
+            for (sub_layer = 0; sub_layer < NUM_SUB_LAYERS; sub_layer++) {
+                if (sub_layer == 0 && !(mask & MAP2_MASK_DARKNESS)) {
+                    continue;
+                }
+
+                if (sub_layer != 0 && !(mask & MAP2_MASK_DARKNESS_MORE)) {
+                    break;
+                }
+
+                if (dark[sub_layer] > 640) {
+                    d = 210;
+                } else if (dark[sub_layer] > 320) {
+                    d = 180;
+                } else if (dark[sub_layer] > 160) {
+                    d = 150;
+                } else if (dark[sub_layer] > 80) {
+                    d = 120;
+                } else if (dark[sub_layer] > 40) {
+                    d = 90;
+                } else if (dark[sub_layer] > 20) {
+                    d = 60;
+                } else {
+                    d = 30;
+                }
+
+                packet_append_uint8(packet, d);
             }
 
             packet_append_uint8(packet, num_layers);

@@ -604,14 +604,15 @@ void map_clear_cell(int x, int y)
  * Set darkness for map's cell.
  * @param x X of the cell.
  * @param y Y of the cell.
+ * @param sub_layer Sub-layer.
  * @param darkness Darkness to set.
  */
-void map_set_darkness(int x, int y, uint8 darkness)
+void map_set_darkness(int x, int y, int sub_layer, uint8 darkness)
 {
     struct MapCell *cell;
 
     cell = MAP_CELL_GET_MIDDLE(x, y);
-    cell->darkness = darkness;
+    cell->darkness[sub_layer] = darkness;
 }
 
 /**
@@ -822,7 +823,7 @@ static void draw_map_object(int x, int y, int layer, int sub_layer,
     }
 
     /* Draw the face in the darkness level the tile has */
-    temp = cell->darkness;
+    temp = cell->darkness[sub_layer];
 
     if (temp == 210) {
         dark_level = 0;
