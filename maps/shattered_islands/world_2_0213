@@ -2,12 +2,13 @@ arch map
 name Brynknot
 msg
 Created:  2014-12-06 Alex Tokar
-Modified: 2014-12-07 Alex Tokar
+Modified: 2014-12-08 Alex Tokar
 endmsg
 width 24
 height 24
 difficulty 1
 darkness 3
+outdoor 1
 no_harm 1
 tile_path_4 world_2_0113
 tile_path_10 world_1_0213
