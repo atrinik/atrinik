@@ -269,7 +269,7 @@ void map_update_in_building(uint8 in_building)
     if (in_building && !MapData.in_building) {
         int x, y;
         struct MapCell *cell;
-        int sub_layer;
+        int layer, sub_layer;
 
         for (x = 0; x < map_width * MAP_FOW_SIZE; x++) {
             for (y = 0; y < map_height * MAP_FOW_SIZE; y++) {
@@ -279,8 +279,11 @@ void map_update_in_building(uint8 in_building)
                     continue;
                 }
 
-                for (sub_layer = 1; sub_layer < NUM_SUB_LAYERS; sub_layer++) {
-                    cell->faces[GET_MAP_LAYER(LAYER_EFFECT, sub_layer)] = 0;
+                for (sub_layer = MapData.player_sub_layer + 1;
+                        sub_layer < NUM_SUB_LAYERS; sub_layer++) {
+                    for (layer = LAYER_FLOOR; layer <= NUM_LAYERS; layer++) {
+                        cell->faces[GET_MAP_LAYER(layer, sub_layer)] = 0;
+                    }
                 }
             }
         }
@@ -1056,10 +1059,6 @@ void map_draw_map(void)
                 for (sub_layer = 0; sub_layer < NUM_SUB_LAYERS; sub_layer++) {
                     /* Skip objects on the effect layer with non-zero sub-layer
                      * because they will be rendered later. */
-                    if (layer == LAYER_EFFECT && sub_layer != 0) {
-                        continue;
-                    }
-
                     cell = MAP_CELL_GET_MIDDLE(x, y);
 
                     if (!(cell->priority[sub_layer] & (1 << (layer - 1)))) {
