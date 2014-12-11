@@ -829,14 +829,6 @@ void draw_client_map2(object *pl)
                                 tmp = NULL;
                             }
 
-                            if (tmp != NULL && tiled_dir == TILED_UP &&
-                                    msp_pl->map_info != NULL &&
-                                    msp_tmp->map_info != NULL &&
-                                    msp_pl->map_info->name ==
-                                    msp_tmp->map_info->name) {
-                                tmp = NULL;
-                            }
-
                             if (tmp != NULL && layer == LAYER_WALL &&
                                     tmp->sub_layer == 0 &&
                                     (msp_tmp->map_info != NULL ||
