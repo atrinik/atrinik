@@ -63,6 +63,14 @@ void map_info_init(object *info)
             if (QUERY_FLAG(info, FLAG_STAND_STILL)) {
                 msp->extra_flags |= MSP_EXTRA_NO_HARM;
             }
+
+            if (QUERY_FLAG(info, FLAG_CURSED)) {
+                msp->extra_flags |= MSP_EXTRA_IS_BUILDING;
+            }
+
+            if (QUERY_FLAG(info, FLAG_IS_MAGICAL)) {
+                msp->extra_flags |= MSP_EXTRA_IS_BALCONY;
+            }
         }
     }
 }

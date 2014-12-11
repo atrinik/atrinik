@@ -309,6 +309,10 @@
 #define MSP_EXTRA_NO_PVP 2
 /** No magic. */
 #define MSP_EXTRA_NO_MAGIC 4
+/** The tile is part of a building. */
+#define MSP_EXTRA_IS_BUILDING 8
+/** The tile is a balcony. */
+#define MSP_EXTRA_IS_BALCONY 16
 /*@}*/
 
 /** Single tile on a map */

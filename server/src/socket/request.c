@@ -586,13 +586,13 @@ void draw_client_map2(object *pl)
     int layer, dark[NUM_SUB_LAYERS], dark_set[NUM_SUB_LAYERS];
     int anim_value, anim_type, ext_flags;
     int num_layers;
-    object *mirror = NULL;
+    object *mirror = NULL, *tmp;
     uint8 have_sound_ambient;
     packet_struct *packet, *packet_layer, *packet_sound;
     size_t oldpos;
     uint8 floor_z_down, floor_z_up;
     int sub_layer, socket_layer, tiled_dir, tiled_depth, zadj;
-    int force_draw_double, priority, tiled_z;
+    int force_draw_double, priority, tiled_z, is_building;
 
     /* Any kind of special vision? */
     special_vision = (QUERY_FLAG(pl, FLAG_XRAYS) ? 1 : 0) | (QUERY_FLAG(pl, FLAG_SEE_IN_DARK) ? 2 : 0);
@@ -643,12 +643,14 @@ void draw_client_map2(object *pl)
     }
 
     msp_pl = GET_MAP_SPACE_PTR(pl->map, pl->x, pl->y);
+    /* Figure out whether the player is in a building, but not on a balcony. */
+    is_building = (msp_pl->extra_flags & (MSP_EXTRA_IS_BUILDING |
+            MSP_EXTRA_IS_BALCONY)) == MSP_EXTRA_IS_BUILDING;
 
     packet_append_uint8(packet, pl->x);
     packet_append_uint8(packet, pl->y);
     packet_append_uint8(packet, pl->sub_layer);
-    packet_append_uint8(packet, msp_pl->map_info != NULL &&
-            !QUERY_FLAG(msp_pl->map_info, FLAG_IS_MAGICAL));
+    packet_append_uint8(packet, is_building);
 
     x_start = (pl->x + (CONTR(pl)->socket.mapx + 1) / 2) - 1;
 
@@ -711,9 +713,8 @@ void draw_client_map2(object *pl)
 
             blocksview = d & BLOCKED_LOS_BLOCKED;
 
-            if (blocksview && (msp->map_info == NULL ||
-                    (msp_pl->map_info != NULL &&
-                    !QUERY_FLAG(msp_pl->map_info, FLAG_IS_MAGICAL)))) {
+            if (blocksview && (is_building || !(msp->extra_flags &
+                    MSP_EXTRA_IS_BUILDING))) {
                 map_if_clearcell();
                 continue;
             }
@@ -746,20 +747,34 @@ void draw_client_map2(object *pl)
             oldpos = packet_get_pos(packet);
             anim_type = 0;
             anim_value = 0;
-            have_down = draw_up = 0;
+            have_down = 0;
             floor_z_down = floor_z_up = 0;
 
+            /* Check if we have a map under this tile. */
             if (get_map_from_tiled(m, TILED_DOWN) != NULL) {
                 have_down = 1;
             }
 
+            draw_up = m->tile_map[TILED_UP] != NULL;
+
+            /* If the player is inside a building, and we're currently on the
+             * map square that is part of that building, do not send objects
+             * on the upper floors.
+             *
+             * This means that if a player is for example on the ground floor,
+             * anything above that will not be visible while they're in the
+             * building, *but*, only for that building - other buildings will
+             * have the upper floors. */
+            if (OBJECT_VALID(msp_pl->map_info, msp_pl->map_info_count) &&
+                    OBJECT_VALID(msp->map_info, msp->map_info_count) &&
+                    msp_pl->extra_flags & MSP_EXTRA_IS_BUILDING &&
+                    msp->extra_flags & MSP_EXTRA_IS_BUILDING &&
+                    msp_pl->map_info->name == msp->map_info->name) {
+                draw_up = 0;
+            }
+
             packet_layer = packet_new(0, 0, 128);
             num_layers = 0;
-
-            if (msp_pl->map_info == NULL || msp->map_info == NULL ||
-                    msp->map_info->name != msp_pl->map_info->name) {
-                draw_up = 1;
-            }
 
             /* Go through the visible layers. */
             for (layer = LAYER_FLOOR; layer <= NUM_LAYERS; layer++) {
@@ -769,15 +784,14 @@ void draw_client_map2(object *pl)
 
                 for (sub_layer = NUM_SUB_LAYERS - 1; sub_layer >= 0;
                         sub_layer--) {
-                    object *tmp;
-
                     tmp = NULL;
                     zadj = 0;
                     priority = 0;
                     is_building_wall = 0;
                     tiled_z = 0;
-                    force_draw_double = m->tile_map[TILED_UP] != NULL &&
-                            draw_up;
+                    /* Force drawing of double faces for walls and such if we're
+                     * sending the upper floors of a building. */
+                    force_draw_double = draw_up;
 
                     if (sub_layer != 0 && tiled != NULL) {
                         tiled = get_map_from_tiled(tiled, tiled_dir);
@@ -788,12 +802,13 @@ void draw_client_map2(object *pl)
                             tiled = get_map_from_tiled(m, tiled_dir);
                         }
 
-                        if (tiled != NULL &&
-                                (draw_up || tiled_dir == TILED_DOWN)) {
+                        if (tiled != NULL && (draw_up ||
+                                tiled_dir == TILED_DOWN)) {
                             msp_tmp = GET_MAP_SPACE_PTR(tiled, nx, ny);
 
                             if (layer == LAYER_EFFECT) {
-                                tmp = GET_MAP_SPACE_LAYER(msp_tmp, LAYER_WALL, 0);
+                                tmp = GET_MAP_SPACE_LAYER(msp_tmp, LAYER_WALL,
+                                        0);
                             } else {
                                 int sub_layer2;
 
