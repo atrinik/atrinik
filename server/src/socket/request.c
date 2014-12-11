@@ -831,15 +831,16 @@ void draw_client_map2(object *pl)
 
                             if (tmp != NULL && layer == LAYER_WALL &&
                                     tmp->sub_layer == 0 &&
-                                    (msp_tmp->map_info != NULL ||
+                                    ((msp_tmp->extra_flags &
+                                    MSP_EXTRA_IS_BUILDING) ||
                                     QUERY_FLAG(tmp, FLAG_HIDDEN))) {
                                 tmp = NULL;
                             }
 
                             if (tmp != NULL && layer == LAYER_FLOOR &&
                                     tiled_dir == TILED_UP &&
-                                    (msp_tmp->map_info == NULL || !QUERY_FLAG(
-                                    msp_tmp->map_info, FLAG_IS_MAGICAL))) {
+                                    !(msp_tmp->extra_flags &
+                                    MSP_EXTRA_IS_BALCONY)) {
                                 tmp = NULL;
                             }
 
@@ -849,10 +850,10 @@ void draw_client_map2(object *pl)
                             }
 
                             if (tmp != NULL && tiled_dir == TILED_UP &&
-                                    (msp_pl->map_info != NULL && !QUERY_FLAG(
-                                    msp_pl->map_info, FLAG_IS_MAGICAL)) &&
-                                    msp_tmp->map_info != NULL && QUERY_FLAG(
-                                    msp_tmp->map_info, FLAG_IS_MAGICAL)) {
+                                    is_in_building && (msp_tmp->extra_flags &
+                                    MSP_EXTRA_IS_BALCONY) &&
+                                    !(msp_pl->extra_flags &
+                                    MSP_EXTRA_IS_BALCONY)) {
                                 tmp = NULL;
                             }
 
@@ -869,9 +870,8 @@ void draw_client_map2(object *pl)
                                     layer != LAYER_FMASK) {
                                 tiled_z = 1;
 
-                                if (msp_tmp->map_info != NULL &&
-                                        QUERY_FLAG(msp_tmp->map_info,
-                                        FLAG_IS_MAGICAL)) {
+                                if (msp_tmp->extra_flags &
+                                        MSP_EXTRA_IS_BALCONY) {
                                     priority = 1;
                                 }
 
@@ -945,17 +945,20 @@ void draw_client_map2(object *pl)
                         }
                     }
 
-                    if (tmp != NULL && GET_MAP_SPACE_PTR(tmp->map, tmp->x,
-                            tmp->y)->map_info != NULL) {
+                    if (tmp != NULL && (msp_tmp = GET_MAP_SPACE_PTR(tmp->map,
+                            tmp->x, tmp->y))->extra_flags &
+                            MSP_EXTRA_IS_BUILDING &&
+                            OBJECT_VALID(msp_tmp->map_info,
+                            msp_tmp->map_info_count)) {
                         int match_x, match_y, match_x2, match_y2, match_x3,
                                 match_y3;
 
-                        msp_tmp = GET_MAP_SPACE_PTR(tmp->map, tmp->x, tmp->y);
-
                         match_x = tmp->x >= msp_tmp->map_info->x && tmp->x <=
-                                msp_tmp->map_info->x + msp_tmp->map_info->stats.hp;
+                                msp_tmp->map_info->x +
+                                msp_tmp->map_info->stats.hp;
                         match_y = tmp->y >= msp_tmp->map_info->y && tmp->y <=
-                                msp_tmp->map_info->y + msp_tmp->map_info->stats.sp;
+                                msp_tmp->map_info->y +
+                                msp_tmp->map_info->stats.sp;
                         match_x2 = tmp->x == msp_tmp->map_info->x +
                                 msp_tmp->map_info->stats.hp;
                         match_y2 = tmp->y == msp_tmp->map_info->y +
@@ -984,8 +987,10 @@ void draw_client_map2(object *pl)
 
                                 msp_tmp = GET_MAP_SPACE_PTR(m2, x2, y2);
 
-                                if (msp_tmp->map_info == NULL || QUERY_FLAG(
-                                        msp_tmp->map_info, FLAG_IS_MAGICAL)) {
+                                if (!(msp_tmp->extra_flags &
+                                        MSP_EXTRA_IS_BUILDING) ||
+                                        msp_tmp->extra_flags &
+                                        MSP_EXTRA_IS_BALCONY) {
                                     break;
                                 }
                             }
@@ -1012,7 +1017,7 @@ void draw_client_map2(object *pl)
                     if (tmp != NULL && layer != LAYER_EFFECT &&
                             sub_layer != 0 && !is_building_wall &&
                             tmp->map != m && GET_MAP_SPACE_PTR(tmp->map, tmp->x,
-                            tmp->y)->map_info != NULL) {
+                            tmp->y)->extra_flags & MSP_EXTRA_IS_BUILDING) {
                         tmp = NULL;
                     }
 
