@@ -577,7 +577,7 @@ void draw_client_map2(object *pl)
 {
     static uint32 map2_count = 0;
     MapCell *mp;
-    MapSpace *msp, *msp2;
+    MapSpace *msp, *msp_pl;
     mapstruct *m, *tiled;
     int x, y, ax, ay, d, nx, ny;
     int x_start, have_down, draw_up, blocksview;
@@ -642,13 +642,13 @@ void draw_client_map2(object *pl)
         }
     }
 
-    msp2 = GET_MAP_SPACE_PTR(pl->map, pl->x, pl->y);
+    msp_pl = GET_MAP_SPACE_PTR(pl->map, pl->x, pl->y);
 
     packet_append_uint8(packet, pl->x);
     packet_append_uint8(packet, pl->y);
     packet_append_uint8(packet, pl->sub_layer);
-    packet_append_uint8(packet, msp2->map_info != NULL &&
-            !QUERY_FLAG(msp2->map_info, FLAG_IS_MAGICAL));
+    packet_append_uint8(packet, msp_pl->map_info != NULL &&
+            !QUERY_FLAG(msp_pl->map_info, FLAG_IS_MAGICAL));
 
     x_start = (pl->x + (CONTR(pl)->socket.mapx + 1) / 2) - 1;
 
@@ -712,8 +712,8 @@ void draw_client_map2(object *pl)
             blocksview = d & BLOCKED_LOS_BLOCKED;
 
             if (blocksview && (msp->map_info == NULL ||
-                    (msp2->map_info != NULL &&
-                    !QUERY_FLAG(msp2->map_info, FLAG_IS_MAGICAL)))) {
+                    (msp_pl->map_info != NULL &&
+                    !QUERY_FLAG(msp_pl->map_info, FLAG_IS_MAGICAL)))) {
                 map_if_clearcell();
                 continue;
             }
@@ -756,8 +756,8 @@ void draw_client_map2(object *pl)
             packet_layer = packet_new(0, 0, 128);
             num_layers = 0;
 
-            if (msp2->map_info == NULL || msp->map_info == NULL ||
-                    msp->map_info->name != msp2->map_info->name) {
+            if (msp_pl->map_info == NULL || msp->map_info == NULL ||
+                    msp->map_info->name != msp_pl->map_info->name) {
                 draw_up = 1;
             }
 
@@ -819,9 +819,9 @@ void draw_client_map2(object *pl)
                             }
 
                             if (tmp != NULL && tiled_dir == TILED_UP &&
-                                    msp2->map_info != NULL &&
+                                    msp_pl->map_info != NULL &&
                                     msp3->map_info != NULL &&
-                                    msp2->map_info->name ==
+                                    msp_pl->map_info->name ==
                                     msp3->map_info->name) {
                                 tmp = NULL;
                             }
@@ -846,8 +846,8 @@ void draw_client_map2(object *pl)
                             }
 
                             if (tmp != NULL && tiled_dir == TILED_UP &&
-                                    (msp2->map_info != NULL && !QUERY_FLAG(
-                                    msp2->map_info, FLAG_IS_MAGICAL)) &&
+                                    (msp_pl->map_info != NULL && !QUERY_FLAG(
+                                    msp_pl->map_info, FLAG_IS_MAGICAL)) &&
                                     msp3->map_info != NULL && QUERY_FLAG(
                                     msp3->map_info, FLAG_IS_MAGICAL)) {
                                 tmp = NULL;
