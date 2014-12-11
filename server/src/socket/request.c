@@ -718,6 +718,9 @@ void draw_client_map2(object *pl)
                 continue;
             }
 
+            /* Any map_if_clearcell() calls should go above this line. */
+            mp->cleared = 0;
+
             /* Border tile, we can ignore every LOS change */
             if (!(d & BLOCKED_LOS_IGNORE)) {
                 /* Tile has blocksview set? */
