@@ -592,7 +592,7 @@ void draw_client_map2(object *pl)
     size_t oldpos;
     uint8 floor_z_down, floor_z_up;
     int sub_layer, socket_layer, tiled_dir, tiled_depth, zadj;
-    int force_draw_double, priority, tiled_z, is_building;
+    int force_draw_double, priority, tiled_z, is_in_building;
 
     /* Any kind of special vision? */
     special_vision = (QUERY_FLAG(pl, FLAG_XRAYS) ? 1 : 0) | (QUERY_FLAG(pl, FLAG_SEE_IN_DARK) ? 2 : 0);
@@ -644,13 +644,13 @@ void draw_client_map2(object *pl)
 
     msp_pl = GET_MAP_SPACE_PTR(pl->map, pl->x, pl->y);
     /* Figure out whether the player is in a building, but not on a balcony. */
-    is_building = (msp_pl->extra_flags & (MSP_EXTRA_IS_BUILDING |
+    is_in_building = (msp_pl->extra_flags & (MSP_EXTRA_IS_BUILDING |
             MSP_EXTRA_IS_BALCONY)) == MSP_EXTRA_IS_BUILDING;
 
     packet_append_uint8(packet, pl->x);
     packet_append_uint8(packet, pl->y);
     packet_append_uint8(packet, pl->sub_layer);
-    packet_append_uint8(packet, is_building);
+    packet_append_uint8(packet, is_in_building);
 
     x_start = (pl->x + (CONTR(pl)->socket.mapx + 1) / 2) - 1;
 
@@ -713,7 +713,7 @@ void draw_client_map2(object *pl)
 
             blocksview = d & BLOCKED_LOS_BLOCKED;
 
-            if (blocksview && (is_building || !(msp->extra_flags &
+            if (blocksview && (is_in_building || !(msp->extra_flags &
                     MSP_EXTRA_IS_BUILDING))) {
                 map_if_clearcell();
                 continue;
