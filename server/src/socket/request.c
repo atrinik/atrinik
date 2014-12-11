@@ -1032,7 +1032,7 @@ void draw_client_map2(object *pl)
                         }
                     }
 
-                    if (dark[sub_layer] <= 0) {
+                    if (tmp != NULL && dark[sub_layer] <= 0) {
                         tmp = NULL;
                     }
 
@@ -1331,7 +1331,9 @@ void draw_client_map2(object *pl)
                     break;
                 }
 
-                if (dark[sub_layer] > 640) {
+                if (!dark_set[sub_layer]) {
+                    d = 0;
+                } else if (dark[sub_layer] > 640) {
                     d = 210;
                 } else if (dark[sub_layer] > 320) {
                     d = 180;
