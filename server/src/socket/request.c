@@ -580,7 +580,7 @@ void draw_client_map2(object *pl)
     MapSpace *msp, *msp_pl, *msp_tmp;
     mapstruct *m, *tiled;
     int x, y, ax, ay, d, nx, ny;
-    int x_start, have_down, draw_up, blocksview;
+    int have_down, draw_up, blocksview;
     int special_vision, is_building_wall;
     uint16 mask;
     int layer, dark[NUM_SUB_LAYERS], dark_set[NUM_SUB_LAYERS];
@@ -652,12 +652,10 @@ void draw_client_map2(object *pl)
     packet_append_uint8(packet, pl->sub_layer);
     packet_append_uint8(packet, is_in_building);
 
-    x_start = (pl->x + (CONTR(pl)->socket.mapx + 1) / 2) - 1;
-
     for (ay = CONTR(pl)->socket.mapy - 1, y = (pl->y + (CONTR(pl)->socket.mapy + 1) / 2) - 1; y >= pl->y - CONTR(pl)->socket.mapy_2; y--, ay--) {
         ax = CONTR(pl)->socket.mapx - 1;
 
-        for (x = x_start; x >= pl->x - CONTR(pl)->socket.mapx_2; x--, ax--) {
+        for (x = (pl->x + (CONTR(pl)->socket.mapx + 1) / 2) - 1; x >= pl->x - CONTR(pl)->socket.mapx_2; x--, ax--) {
             d = CONTR(pl)->blocked_los[ax][ay];
             /* Form the data packet for x and y positions. */
             mask = (ax & 0x1f) << 11 | (ay & 0x1f) << 6;
