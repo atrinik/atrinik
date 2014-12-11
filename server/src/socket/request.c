@@ -577,7 +577,7 @@ void draw_client_map2(object *pl)
 {
     static uint32 map2_count = 0;
     MapCell *mp;
-    MapSpace *msp, *msp_pl;
+    MapSpace *msp, *msp_pl, *msp_tmp;
     mapstruct *m, *tiled;
     int x, y, ax, ay, d, nx, ny;
     int x_start, have_down, draw_up, blocksview;
@@ -790,18 +790,16 @@ void draw_client_map2(object *pl)
 
                         if (tiled != NULL &&
                                 (draw_up || tiled_dir == TILED_DOWN)) {
-                            MapSpace *msp3;
-
-                            msp3 = GET_MAP_SPACE_PTR(tiled, nx, ny);
+                            msp_tmp = GET_MAP_SPACE_PTR(tiled, nx, ny);
 
                             if (layer == LAYER_EFFECT) {
-                                tmp = GET_MAP_SPACE_LAYER(msp3, LAYER_WALL, 0);
+                                tmp = GET_MAP_SPACE_LAYER(msp_tmp, LAYER_WALL, 0);
                             } else {
                                 int sub_layer2;
 
                                 for (sub_layer2 = NUM_SUB_LAYERS - 1;
                                         sub_layer2 >= 0; sub_layer2--) {
-                                    tmp = GET_MAP_SPACE_LAYER(msp3, layer,
+                                    tmp = GET_MAP_SPACE_LAYER(msp_tmp, layer,
                                             sub_layer2);
 
                                     if (tmp != NULL) {
@@ -820,23 +818,23 @@ void draw_client_map2(object *pl)
 
                             if (tmp != NULL && tiled_dir == TILED_UP &&
                                     msp_pl->map_info != NULL &&
-                                    msp3->map_info != NULL &&
+                                    msp_tmp->map_info != NULL &&
                                     msp_pl->map_info->name ==
-                                    msp3->map_info->name) {
+                                    msp_tmp->map_info->name) {
                                 tmp = NULL;
                             }
 
                             if (tmp != NULL && layer == LAYER_WALL &&
                                     tmp->sub_layer == 0 &&
-                                    (msp3->map_info != NULL ||
+                                    (msp_tmp->map_info != NULL ||
                                     QUERY_FLAG(tmp, FLAG_HIDDEN))) {
                                 tmp = NULL;
                             }
 
                             if (tmp != NULL && layer == LAYER_FLOOR &&
                                     tiled_dir == TILED_UP &&
-                                    (msp3->map_info == NULL || !QUERY_FLAG(
-                                    msp3->map_info, FLAG_IS_MAGICAL))) {
+                                    (msp_tmp->map_info == NULL || !QUERY_FLAG(
+                                    msp_tmp->map_info, FLAG_IS_MAGICAL))) {
                                 tmp = NULL;
                             }
 
@@ -848,8 +846,8 @@ void draw_client_map2(object *pl)
                             if (tmp != NULL && tiled_dir == TILED_UP &&
                                     (msp_pl->map_info != NULL && !QUERY_FLAG(
                                     msp_pl->map_info, FLAG_IS_MAGICAL)) &&
-                                    msp3->map_info != NULL && QUERY_FLAG(
-                                    msp3->map_info, FLAG_IS_MAGICAL)) {
+                                    msp_tmp->map_info != NULL && QUERY_FLAG(
+                                    msp_tmp->map_info, FLAG_IS_MAGICAL)) {
                                 tmp = NULL;
                             }
 
@@ -866,8 +864,8 @@ void draw_client_map2(object *pl)
                                     layer != LAYER_FMASK) {
                                 tiled_z = 1;
 
-                                if (msp3->map_info != NULL &&
-                                        QUERY_FLAG(msp3->map_info,
+                                if (msp_tmp->map_info != NULL &&
+                                        QUERY_FLAG(msp_tmp->map_info,
                                         FLAG_IS_MAGICAL)) {
                                     priority = 1;
                                 }
@@ -944,22 +942,21 @@ void draw_client_map2(object *pl)
 
                     if (tmp != NULL && GET_MAP_SPACE_PTR(tmp->map, tmp->x,
                             tmp->y)->map_info != NULL) {
-                        MapSpace *msp3;
                         int match_x, match_y, match_x2, match_y2, match_x3,
                                 match_y3;
 
-                        msp3 = GET_MAP_SPACE_PTR(tmp->map, tmp->x, tmp->y);
+                        msp_tmp = GET_MAP_SPACE_PTR(tmp->map, tmp->x, tmp->y);
 
-                        match_x = tmp->x >= msp3->map_info->x && tmp->x <=
-                                msp3->map_info->x + msp3->map_info->stats.hp;
-                        match_y = tmp->y >= msp3->map_info->y && tmp->y <=
-                                msp3->map_info->y + msp3->map_info->stats.sp;
-                        match_x2 = tmp->x == msp3->map_info->x +
-                                msp3->map_info->stats.hp;
-                        match_y2 = tmp->y == msp3->map_info->y +
-                                msp3->map_info->stats.sp;
-                        match_x3 = tmp->x == msp3->map_info->x;
-                        match_y3 = tmp->y == msp3->map_info->y;
+                        match_x = tmp->x >= msp_tmp->map_info->x && tmp->x <=
+                                msp_tmp->map_info->x + msp_tmp->map_info->stats.hp;
+                        match_y = tmp->y >= msp_tmp->map_info->y && tmp->y <=
+                                msp_tmp->map_info->y + msp_tmp->map_info->stats.sp;
+                        match_x2 = tmp->x == msp_tmp->map_info->x +
+                                msp_tmp->map_info->stats.hp;
+                        match_y2 = tmp->y == msp_tmp->map_info->y +
+                                msp_tmp->map_info->stats.sp;
+                        match_x3 = tmp->x == msp_tmp->map_info->x;
+                        match_y3 = tmp->y == msp_tmp->map_info->y;
 
                         if (match_x == match_y2 || match_y == match_x2 ||
                                 match_x == match_y3 || match_y == match_x3) {
@@ -980,10 +977,10 @@ void draw_client_map2(object *pl)
                                     continue;
                                 }
 
-                                msp3 = GET_MAP_SPACE_PTR(m2, x2, y2);
+                                msp_tmp = GET_MAP_SPACE_PTR(m2, x2, y2);
 
-                                if (msp3->map_info == NULL || QUERY_FLAG(
-                                        msp3->map_info, FLAG_IS_MAGICAL)) {
+                                if (msp_tmp->map_info == NULL || QUERY_FLAG(
+                                        msp_tmp->map_info, FLAG_IS_MAGICAL)) {
                                     break;
                                 }
                             }
