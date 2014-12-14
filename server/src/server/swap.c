@@ -99,31 +99,59 @@ void read_map_log(void)
 }
 
 /**
+ * Checks if the specified map can be swapped.
+ *
+ * In order to prevent frequent map reloads (by sending the map data to the
+ * player, for example), this function checks nearby tiled maps, including
+ * recursively checking up and down maps.
+ * @param map Map to check.
+ * @param tiled TILED_UP or TILED_DOWN to ignore the specified direction. Used
+ * internally by the recursion mechanism, use -1 when calling this function.
+ * @return 1 if the map can be swapped, 0 otherwise.
+ */
+static int can_swap_map(mapstruct *map, int tiled)
+{
+    int i;
+
+    assert(map != NULL);
+
+    if (map->player_first != NULL) {
+        return 0;
+    }
+
+    for (i = 0; i < TILED_NUM; i++) {
+        if (map->tile_map[i] == NULL ||
+                map->tile_map[i]->in_memory != MAP_IN_MEMORY) {
+            continue;
+        }
+
+        if (i < TILED_NUM_DIR) {
+            if (map->tile_map[i]->player_first != NULL) {
+                return 0;
+            }
+        } else if (i != tiled) {
+            if (!can_swap_map(map->tile_map[i], map_tiled_reverse[i])) {
+                return 0;
+            }
+        }
+    }
+
+    return 1;
+}
+
+/**
  * Swaps a map to disk.
  * @param map Map to swap.
  * @param force_flag Force flag. If set, will not check for players. */
 void swap_map(mapstruct *map, int force_flag)
 {
-    int i;
-
     if (map->in_memory != MAP_IN_MEMORY) {
         logger_print(LOG(BUG), "Tried to swap out map which was not in memory (%s).", map->path);
         return;
     }
 
-    /* Test for players. */
-    if (!force_flag) {
-        if (map->player_first) {
-            return;
-        }
-
-        for (i = 0; i < TILED_NUM; i++) {
-            /* If there is a map, is loaded and in memory, has players, then no
-             * swap */
-            if (map->tile_map[i] && map->tile_map[i]->in_memory == MAP_IN_MEMORY && map->tile_map[i]->player_first) {
-                return;
-            }
-        }
+    if (!force_flag && !can_swap_map(map, -1)) {
+        return;
     }
 
     /* Update the reset time. */
