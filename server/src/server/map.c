@@ -102,7 +102,7 @@ static int relative_tile_position_rec(mapstruct *map1, mapstruct *map2, int *x, 
     map1->traversed = id;
 
     /* Depth-first search for the destination map */
-    for (i = 0; i < TILED_NUM; i++) {
+    for (i = 0; i < TILED_NUM_DIR; i++) {
         if (map1->tile_path[i]) {
             if (!map1->tile_map[i] || map1->tile_map[i]->in_memory != MAP_IN_MEMORY) {
                 if (!load_and_link_tiled_map(map1, i)) {
@@ -147,10 +147,6 @@ static int relative_tile_position_rec(mapstruct *map1, mapstruct *map2, int *x, 
                     *y -= MAP_HEIGHT(map1->tile_map[i]);
                     *x -= MAP_WIDTH(map1->tile_map[i]);
                     return 1;
-
-                case TILED_UP:
-                case TILED_DOWN:
-                    return 0;
                 }
             }
         }
@@ -193,7 +189,7 @@ static int relative_tile_position(mapstruct *map1, mapstruct *map2, int *x, int 
         return 1;
     }
 
-    for (i = 0; i < TILED_NUM; i++) {
+    for (i = 0; i < TILED_NUM_DIR; i++) {
         if (map1->tile_path[i]) {
             if (!map1->tile_map[i] || map1->tile_map[i]->in_memory != MAP_IN_MEMORY) {
                 if (!load_and_link_tiled_map(map1, i)) {
@@ -238,10 +234,6 @@ static int relative_tile_position(mapstruct *map1, mapstruct *map2, int *x, int 
                     *y -= MAP_HEIGHT(map1->tile_map[i]);
                     *x -= MAP_WIDTH(map1->tile_map[i]);
                     return 1;
-
-                case TILED_UP:
-                case TILED_DOWN:
-                    return 0;
                 }
             }
         }

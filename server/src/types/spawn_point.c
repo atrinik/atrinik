@@ -64,13 +64,7 @@ void spawn_point_enemy_signal(object *op)
     spawn_point_enemy_signal_map(op, op->map);
 
     /* Signal all the tiled maps that are in memory. */
-    for (i = 0; i < TILED_NUM; i++) {
-        if (i == TILED_UP || i == TILED_DOWN) {
-            /* There is no point in signaling these, as the monster would be
-             * unable to get to the player right now anyway... */
-            continue;
-        }
-
+    for (i = 0; i < TILED_NUM_DIR; i++) {
         if (op->map->tile_map[i] != NULL && op->map->tile_map[i]->in_memory == MAP_IN_MEMORY) {
             spawn_point_enemy_signal_map(op, op->map->tile_map[i]);
         }

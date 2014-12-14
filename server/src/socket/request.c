@@ -306,11 +306,7 @@ static inline int get_tiled_map_id(player *pl, struct mapdef *map)
         return 0;
     }
 
-    for (i = 0; i < TILED_NUM; i++) {
-        if (i == TILED_UP || i == TILED_DOWN) {
-            continue;
-        }
-
+    for (i = 0; i < TILED_NUM_DIR; i++) {
         if (pl->last_update->tile_path[i] == map->path) {
             return i + 1;
         }
