@@ -71,6 +71,10 @@ void map_info_init(object *info)
             if (QUERY_FLAG(info, FLAG_IS_MAGICAL)) {
                 msp->extra_flags |= MSP_EXTRA_IS_BALCONY;
             }
+
+            if (QUERY_FLAG(info, FLAG_DAMNED)) {
+                msp->extra_flags |= MSP_EXTRA_IS_OVERLOOK;
+            }
         }
     }
 }
