@@ -2,7 +2,7 @@ arch map
 name Brynknot
 msg
 Created:  2011-10-02 Alex Tokar
-Modified: 2014-12-13 Alex Tokar
+Modified: 2014-12-14 Alex Tokar
 endmsg
 width 24
 height 24
@@ -11,11 +11,119 @@ darkness 3
 no_harm 1
 tile_path_1 world_2_0213
 tile_path_2 world_2_0312
+tile_path_4 world_2_0112
 tile_path_8 world_2_0113
 tile_path_10 world_1_0212
 bg_music lontala.mid
 region brynknot
 end
+arch roof_brick_brown
+direction 5
+y 6
+end
+arch roof_brick_brown
+direction 7
+y 7
+end
+arch roof_brick_brown
+direction 7
+y 8
+end
+arch roof_brick_brown
+direction 7
+y 9
+end
+arch roof_brick_brown
+direction 7
+y 10
+end
+arch roof_brick_brown
+direction 7
+y 11
+end
+arch roof_brick_brown
+direction 7
+y 12
+end
+arch roof_brick_brown
+direction 7
+y 13
+end
+arch roof_brick_brown
+direction 7
+y 14
+end
+arch roof_brick_brown
+direction 7
+y 15
+end
+arch roof_brick_brown
+direction 8
+y 16
+end
+arch roof_brick_brown
+y 17
+end
+arch roof_brick_brown
+direction 5
+x 1
+y 6
+end
+arch roof_brick_brown
+direction 7
+x 1
+y 7
+end
+arch roof_brick_brown
+direction 7
+x 1
+y 8
+end
+arch roof_brick_brown
+direction 7
+x 1
+y 9
+end
+arch roof_brick_brown
+direction 7
+x 1
+y 10
+end
+arch roof_brick_brown
+direction 7
+x 1
+y 11
+end
+arch roof_brick_brown
+direction 7
+x 1
+y 12
+end
+arch roof_brick_brown
+direction 7
+x 1
+y 13
+end
+arch roof_brick_brown
+direction 7
+x 1
+y 14
+end
+arch roof_brick_brown
+direction 7
+x 1
+y 15
+end
+arch roof_brick_brown
+direction 7
+x 1
+y 16
+end
+arch roof_brick_brown
+direction 8
+x 1
+y 17
+end
 arch roof_brick_gray
 direction 3
 x 21
@@ -72,12 +180,10 @@ x 22
 y 8
 end
 arch roof_brick_gray
-direction 1
 x 22
 y 9
 end
 arch roof_brick_gray
-direction 1
 x 22
 y 10
 end
@@ -92,7 +198,6 @@ x 23
 y 5
 end
 arch roof_brick_gray
-direction 1
 x 23
 y 6
 end
@@ -107,12 +212,10 @@ x 23
 y 8
 end
 arch roof_brick_gray
-direction 1
 x 23
 y 9
 end
 arch roof_brick_gray
-direction 1
 x 23
 y 10
 end
