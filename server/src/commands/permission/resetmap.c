@@ -34,28 +34,40 @@
 void command_resetmap(object *op, const char *command, char *params)
 {
     mapstruct *m, *newmap;
+    shstr *mappath;
 
-    if (!params) {
+    m = NULL;
+    mappath = NULL;
+
+    if (params == NULL) {
         m = op->map;
-    } else {
-        shstr *mapfile_sh;
+    } else if (!map_path_isabs(params)) {
+        char *path;
 
-        mapfile_sh = add_string(params);
-        m = has_been_loaded_sh(mapfile_sh);
-        free_string_shared(mapfile_sh);
+        path = map_get_path(op->map, params, 0, NULL);
+        mappath = add_string(path);
+        efree(path);
+    } else {
+        mappath = add_string(params);
     }
 
-    if (!m) {
+    if (mappath != NULL) {
+        m = has_been_loaded_sh(mappath);
+        free_string_shared(mappath);
+    }
+
+    if (m == NULL) {
         draw_info(COLOR_WHITE, op, "No such map.");
         return;
     }
 
     newmap = map_force_reset(m);
 
-    if (!newmap) {
+    if (newmap == NULL) {
         draw_info_format(COLOR_WHITE, op, "Could not reset map: %s", m->path);
         return;
     }
 
-    draw_info_format(COLOR_WHITE, op, "Successfully reset map: %s", newmap->path);
+    draw_info_format(COLOR_WHITE, op, "Successfully reset map: %s",
+            newmap->path);
 }
