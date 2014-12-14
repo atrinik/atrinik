@@ -2,7 +2,7 @@ arch map
 name Brynknot
 msg
 Created:  2011-02-06 Alex Tokar
-Modified: 2014-02-28 Alex Tokar
+Modified: 2014-12-13 Alex Tokar
 endmsg
 width 24
 height 24
@@ -10,8 +10,39 @@ difficulty 25
 darkness 3
 no_harm 1
 fixed_resettime 1
+tile_path_4 world_2_0212
+tile_path_9 world_3_0312
+tile_path_10 world_1_0312
 bg_music town_music.ogg
 region brynknot
+end
+arch roof_brick_gray
+direction 5
+y 4
+end
+arch roof_brick_gray
+direction 1
+y 5
+end
+arch roof_brick_gray
+direction 1
+y 6
+end
+arch roof_brick_gray
+direction 1
+y 7
+end
+arch roof_brick_gray
+direction 1
+y 8
+end
+arch roof_brick_gray
+direction 1
+y 9
+end
+arch roof_brick_gray
+direction 1
+y 10
 end
 arch blocked
 y 13
@@ -19,6 +50,13 @@ end
 arch wall_wood_8
 y 13
 end
+arch map_info
+name brynknot_library
+cursed 1
+hp 8
+sp 9
+y 13
+end
 arch blocked
 y 14
 end
@@ -72,6 +110,41 @@ y 22
 end
 arch wall_wood_3
 y 22
+end
+arch roof_brick_gray
+direction 5
+x 1
+y 4
+end
+arch roof_brick_gray
+direction 1
+x 1
+y 5
+end
+arch roof_brick_gray
+direction 1
+x 1
+y 6
+end
+arch roof_brick_gray
+direction 1
+x 1
+y 7
+end
+arch roof_brick_gray
+direction 1
+x 1
+y 8
+end
+arch roof_brick_gray
+direction 1
+x 1
+y 9
+end
+arch roof_brick_gray
+direction 1
+x 1
+y 10
 end
 arch blocked
 x 1
@@ -207,6 +280,66 @@ y 22
 end
 arch blocked
 x 2
+y 4
+end
+arch wall_marble1.181
+x 2
+y 4
+end
+arch map_info
+name brynknot_church
+cursed 1
+hp 4
+sp 4
+x 2
+y 4
+end
+arch blocked
+blocksview 0
+x 2
+y 5
+end
+arch wall_marble1w.111
+x 2
+y 5
+end
+arch blocked
+x 2
+y 6
+end
+arch wall_marble1.111
+x 2
+y 6
+end
+arch blocked
+blocksview 0
+x 2
+y 7
+end
+arch wall_marble1w.111
+x 2
+y 7
+end
+arch blocked
+x 2
+y 8
+end
+arch wall_marble1.111
+x 2
+y 8
+end
+arch roof_brick_gray
+direction 1
+x 2
+y 9
+end
+arch roof_brick_gray
+direction 1
+x 2
+y 10
+end
+arch blocked
+x 2
 y 13
 end
 arch wall_wood_1
@@ -256,6 +389,40 @@ end
 arch wall_wood2_1
 x 2
 y 22
+end
+arch blocked
+blocksview 0
+x 3
+y 4
+end
+arch wall_marble1w.131
+x 3
+y 4
+end
+arch floor_marble1b
+x 3
+y 5
+end
+arch floor_marble1a
+x 3
+y 6
+end
+arch floor_marble1b
+x 3
+y 7
+end
+arch floor_marble1a
+x 3
+y 8
+end
+arch wall_marble1w.131
+x 3
+y 8
+end
+arch roof_brick_gray
+direction 1
+x 3
+y 10
 end
 arch blocked
 x 3
@@ -335,6 +502,46 @@ y 22
 end
 arch blocked
 x 4
+y 4
+end
+arch wall_marble1.131
+x 4
+y 4
+end
+arch floor_marble1a
+x 4
+y 5
+end
+arch ladder_up
+hp 4
+sp 5
+slaying world_3_0312
+x 4
+y 5
+end
+arch floor_marble1a
+x 4
+y 6
+end
+arch floor_marble1
+x 4
+y 7
+end
+arch floor_marble1b
+x 4
+y 8
+end
+arch wall_marble1.131
+x 4
+y 8
+end
+arch roof_brick_gray
+direction 1
+x 4
+y 10
+end
+arch blocked
+x 4
 y 13
 end
 arch wall_wood3_1
@@ -402,6 +609,47 @@ end
 arch wall_wood3_1
 x 4
 y 22
+end
+arch blocked
+blocksview 0
+x 5
+y 4
+end
+arch wall_marble1w.131
+x 5
+y 4
+end
+arch floor_marble1
+x 5
+y 5
+end
+arch ladder_down2
+hp 5
+sp 5
+slaying world_1_0312
+x 5
+y 5
+end
+arch floor_marble1a
+x 5
+y 6
+end
+arch floor_marble1a
+x 5
+y 7
+end
+arch floor_marble1b
+x 5
+y 8
+end
+arch wall_marble1w.131
+x 5
+y 8
+end
+arch roof_brick_gray
+direction 1
+x 5
+y 10
 end
 arch blocked
 x 5
@@ -485,6 +733,51 @@ end
 arch wall_wood_1
 x 5
 y 22
+end
+arch blocked
+x 6
+y 4
+end
+arch wall_marble1.131
+x 6
+y 4
+end
+arch floor_marble1a
+x 6
+y 5
+end
+arch wall_marble1w.111
+x 6
+y 5
+end
+arch floor_marble1
+x 6
+y 6
+end
+arch wall_marble1.111
+x 6
+y 6
+end
+arch floor_marble1a
+x 6
+y 7
+end
+arch wall_marble1w.111
+x 6
+y 7
+end
+arch floor_marble1b
+x 6
+y 8
+end
+arch wall_marble1.141
+x 6
+y 8
+end
+arch roof_brick_gray
+direction 1
+x 6
+y 10
 end
 arch blocked
 x 6
@@ -600,6 +893,16 @@ arch wall_wood2_1
 x 6
 y 22
 end
+arch roof_brick_gray
+direction 5
+x 7
+y 4
+end
+arch roof_brick_gray
+direction 1
+x 7
+y 10
+end
 arch blocked
 x 7
 y 13
@@ -680,6 +983,41 @@ end
 arch fwall_wood1b
 x 7
 y 22
+end
+arch roof_brick_gray
+direction 5
+x 8
+y 4
+end
+arch roof_brick_gray
+direction 7
+x 8
+y 5
+end
+arch roof_brick_gray
+direction 7
+x 8
+y 6
+end
+arch roof_brick_gray
+direction 7
+x 8
+y 7
+end
+arch roof_brick_gray
+direction 7
+x 8
+y 8
+end
+arch roof_brick_gray
+direction 7
+x 8
+y 9
+end
+arch roof_brick_gray
+direction 8
+x 8
+y 10
 end
 arch blocked
 x 8

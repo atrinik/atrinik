@@ -2,7 +2,7 @@ arch map
 name Brynknot
 msg
 Created:  2011-10-02 Alex Tokar
-Modified: 2011-10-02 Alex Tokar
+Modified: 2014-12-13 Alex Tokar
 endmsg
 width 24
 height 24
@@ -13,6 +13,8 @@ tile_path_1 world_1_0213
 tile_path_2 world_1_0312
 tile_path_4 world_1_0112
 tile_path_8 world_1_0113
+tile_path_9 world_2_0212
+tile_path_10 world_0212
 bg_music lontala.mid
 region brynknot
 end
@@ -20,6 +22,13 @@ arch blocked
 y 6
 end
 arch wall_flagstone1.111
+y 6
+end
+arch map_info
+hp 1
+sp 11
+name brynknot_barracks
+cursed 1
 y 6
 end
 arch floor_grey1a1
@@ -162,4 +171,117 @@ end
 arch wall_flagstone1.141
 x 1
 y 17
+end
+arch blocked
+x 21
+y 4
+end
+arch wall_marble1.181
+x 21
+y 4
+end
+arch map_info
+hp 2
+sp 6
+cursed 1
+name brynknot_church
+x 21
+y 4
+end
+arch blocked
+x 21
+y 5
+end
+arch wall_marble1.111
+x 21
+y 5
+end
+arch blocked
+x 21
+y 6
+end
+arch blocked
+x 21
+y 6
+end
+arch wall_marble1.111a
+x 21
+y 6
+end
+arch blocked
+x 21
+y 7
+end
+arch wall_marble1.111
+x 21
+y 7
+end
+arch blocked
+x 21
+y 8
+end
+arch wall_marble1.111a
+x 21
+y 8
+end
+arch blocked
+x 21
+y 9
+end
+arch blocked
+x 21
+y 9
+end
+arch wall_marble1.111a
+x 21
+y 9
+end
+arch blocked
+x 21
+y 10
+end
+arch wall_marble1.111
+x 21
+y 10
+end
+arch blocked
+x 22
+y 4
+end
+arch wall_marble1.131a
+x 22
+y 4
+end
+arch map_info
+hp 1
+sp 4
+name brynknot_church
+damned 1
+cursed 1
+x 22
+y 5
+end
+arch blocked
+x 22
+y 10
+end
+arch wall_marble1.131a
+x 22
+y 10
+end
+arch blocked
+x 23
+y 4
+end
+arch wall_marble1.131a
+x 23
+y 4
+end
+arch blocked
+x 23
+y 10
+end
+arch wall_marble1.131a
+x 23
+y 10
 end

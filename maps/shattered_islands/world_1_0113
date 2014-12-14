@@ -2,7 +2,7 @@ arch map
 name Brynknot
 msg
 Created:  2010-09-08 Alex Tokar
-Modified: 2014-12-08 Alex Tokar
+Modified: 2014-12-11 Alex Tokar
 endmsg
 width 24
 height 24
@@ -30,6 +30,7 @@ arch map_info
 hp 2
 sp 3
 name brynknot_bank
+cursed 1
 x 7
 y 14
 end
@@ -173,6 +174,7 @@ arch map_info
 hp 12
 sp 7
 name brynknot_bank
+cursed 1
 x 10
 y 13
 end

@@ -2,7 +2,7 @@ arch map
 name Brynknot
 msg
 Created:  2014-12-06 Alex Tokar
-Modified: 2014-12-08 Alex Tokar
+Modified: 2014-12-14 Alex Tokar
 endmsg
 width 24
 height 24
@@ -291,8 +291,8 @@ direction 5
 x 19
 y 13
 end
-arch roof_brick
-direction 7
+arch chimney2
+z 6
 x 19
 y 14
 end
