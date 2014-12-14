@@ -1,7 +1,7 @@
 Object roof_brick
 name brick roof
-face roof_brick.101
 animation roof_brick
+direction 1
 is_turnable 1
 no_pass 1
 type 77
