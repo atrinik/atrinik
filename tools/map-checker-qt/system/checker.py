@@ -5,6 +5,8 @@ import re
 
 import system.constants
 from system.constants import game
+import os
+from system import utils
 
 class AbstractChecker:
     def __init__(self, config):
@@ -504,25 +506,58 @@ class CheckerMap(AbstractChecker):
 
     def checker_tiled_maps(self, obj):
         tiles = []
+        dirname = os.path.dirname(self.path)
+        base = os.path.basename(self.path)
+        coords = utils.MapCoords(base)
+        tiled_check = os.path.realpath(self.path).startswith(
+            os.path.realpath(self.map_checker.getMapsPath()))
 
-        # Go through the attributes.
-        for attribute in obj.getAttributes():
-            if attribute.startswith("tile_path_"):
-                val = obj.getAttribute(attribute)
+        for i in range(0, system.constants.game.num_tiled):
+            attribute = "tile_path_{}".format(i + 1)
+            val = obj.getAttribute(attribute)
 
-                if obj.name[len(obj.name) - len(val):] == val:
+            if val is not None:
+                if base == val:
                     if self.fix:
                         obj.removeAttribute(attribute)
+                        val = None
 
-                    self.addError("critical", "Map is tiled into itself (tile #{})".format(attribute[len("tile_path_"):]), "Map cannot be tiled into itself.", fixed = self.fix)
+                    self.addError("critical", "Map is tiled into itself ({} tile)".format(system.constants.game.tiled_names[i]), "Map cannot be tiled into itself.", fixed = self.fix)
 
+            if val is not None:
                 for tile in tiles:
                     if tile == val:
                         if self.fix:
                             obj.removeAttribute(attribute)
+                            val = None
 
                         self.addError("critical", "Map is tiled to <b>{0}</b> more than once.".format(tile), "A map cannot have duplicate tile paths.", fixed = self.fix)
 
+            if tiled_check and val is not None:
+                if not os.path.exists(os.path.join(dirname, val)):
+                    self.addError("critical", "Map has {} tile pointing to a file that does not exist: <b>{}</b>".format(system.constants.game.tiled_names[i], val), "A map tile cannot point to an invalid file.", fixed = self.fix)
+
+                    if self.fix:
+                        obj.removeAttribute(attribute)
+                        val = None
+
+            tiled = coords.getTiledName(i)
+
+            # TODO: Should base this on something other than the map's file name
+            # beginning with "world_".
+            if tiled_check and (val is None or val != tiled) and (
+                i < system.constants.game.num_tiled_dir or
+                (base.startswith("world_") and coords.getLevel() >= 0 and (
+                    i == system.constants.game.tiled_up or
+                    coords.getLevel() > 0))):
+                if os.path.exists(os.path.join(dirname, tiled)):
+                    self.addError("high", "Map has {} tile pointing to <b>{}</b>, but it should be tiled to <b>{}</b>".format(system.constants.game.tiled_names[i], val if val is not None else "nothing", tiled), "Tiled map files follow a naming convention which allows programs to automatically determine the appropriate coordinates of a map in a mapset.", fixed = self.fix)
+
+                    if self.fix:
+                        obj.setAttribute(attribute, tiled)
+                        val = tiled
+
+            if val is not None:
                 tiles.append(val)
 
     def checker_difficulty(self, obj):
@@ -577,7 +612,8 @@ class CheckerMap(AbstractChecker):
 
                 # Our layers.
                 layers = [[0] * system.constants.game.num_sub_layers for i in range(system.constants.game.max_layers + 1)]
-                # Number of objects. Layer 0 objects are not counted.
+                # Number of objects. Layer 0 objects are not counted, and
+                # neither are hidden objects.
                 obj_count = 0
                 # Total number of objects, with layer 0 objects.
                 obj_count_all = 0
@@ -597,8 +633,9 @@ class CheckerMap(AbstractChecker):
                     # Increase number of layers.
                     layers[layer][sub_layer] += 1
 
-                    # Increase number of objects, if we're not on layer 0.
-                    if layer != 0:
+                    # Increase number of objects, if we're not on layer 0 and
+                    # the object is not hidden.
+                    if layer != 0 and not game_obj.getAttributeInt("hidden"):
                         obj_count += 1
 
                     # The total count of objects.
