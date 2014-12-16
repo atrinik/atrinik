@@ -11,6 +11,7 @@ darkness 3
 no_harm 1
 bg_music enfero.xm
 region fort_ghzal
+tile_path_10 world_0613
 end
 arch blocked
 x 2

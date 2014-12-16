@@ -110,12 +110,10 @@ x 8
 y 17
 end
 arch roof_brick
-direction 1
 x 8
 y 18
 end
 arch roof_brick
-direction 1
 x 8
 y 19
 end
@@ -153,12 +151,10 @@ x 9
 y 17
 end
 arch roof_brick
-direction 1
 x 9
 y 18
 end
 arch roof_brick
-direction 1
 x 9
 y 19
 end

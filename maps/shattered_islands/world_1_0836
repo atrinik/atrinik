@@ -16,6 +16,7 @@ tile_path_7 world_1_0735
 tile_path_8 world_1_0737
 bg_music kaitindam.mid
 region asteria
+tile_path_10 world_0836
 end
 arch floor_fs_grey1b
 z 30

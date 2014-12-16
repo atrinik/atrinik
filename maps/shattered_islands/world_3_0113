@@ -52,37 +52,30 @@ x 13
 y 13
 end
 arch roof_brick
-direction 1
 x 13
 y 14
 end
 arch roof_brick
-direction 1
 x 13
 y 15
 end
 arch roof_brick
-direction 1
 x 13
 y 16
 end
 arch roof_brick
-direction 1
 x 13
 y 17
 end
 arch roof_brick
-direction 1
 x 13
 y 18
 end
 arch roof_brick
-direction 1
 x 13
 y 19
 end
 arch roof_brick
-direction 1
 x 13
 y 20
 end
@@ -92,37 +85,30 @@ x 14
 y 13
 end
 arch roof_brick
-direction 1
 x 14
 y 14
 end
 arch roof_brick
-direction 1
 x 14
 y 15
 end
 arch roof_brick
-direction 1
 x 14
 y 16
 end
 arch roof_brick
-direction 1
 x 14
 y 17
 end
 arch roof_brick
-direction 1
 x 14
 y 18
 end
 arch roof_brick
-direction 1
 x 14
 y 19
 end
 arch roof_brick
-direction 1
 x 14
 y 20
 end
@@ -132,37 +118,30 @@ x 15
 y 13
 end
 arch roof_brick
-direction 1
 x 15
 y 14
 end
 arch roof_brick
-direction 1
 x 15
 y 15
 end
 arch roof_brick
-direction 1
 x 15
 y 16
 end
 arch roof_brick
-direction 1
 x 15
 y 17
 end
 arch roof_brick
-direction 1
 x 15
 y 18
 end
 arch roof_brick
-direction 1
 x 15
 y 19
 end
 arch roof_brick
-direction 1
 x 15
 y 20
 end
@@ -177,32 +156,26 @@ x 16
 y 14
 end
 arch roof_brick
-direction 1
 x 16
 y 15
 end
 arch roof_brick
-direction 1
 x 16
 y 16
 end
 arch roof_brick
-direction 1
 x 16
 y 17
 end
 arch roof_brick
-direction 1
 x 16
 y 18
 end
 arch roof_brick
-direction 1
 x 16
 y 19
 end
 arch roof_brick
-direction 1
 x 16
 y 20
 end
@@ -222,27 +195,22 @@ x 17
 y 15
 end
 arch roof_brick
-direction 1
 x 17
 y 16
 end
 arch roof_brick
-direction 1
 x 17
 y 17
 end
 arch roof_brick
-direction 1
 x 17
 y 18
 end
 arch roof_brick
-direction 1
 x 17
 y 19
 end
 arch roof_brick
-direction 1
 x 17
 y 20
 end
@@ -267,22 +235,18 @@ x 18
 y 16
 end
 arch roof_brick
-direction 1
 x 18
 y 17
 end
 arch roof_brick
-direction 1
 x 18
 y 18
 end
 arch roof_brick
-direction 1
 x 18
 y 19
 end
 arch roof_brick
-direction 1
 x 18
 y 20
 end
@@ -312,17 +276,14 @@ x 19
 y 17
 end
 arch roof_brick
-direction 1
 x 19
 y 18
 end
 arch roof_brick
-direction 1
 x 19
 y 19
 end
 arch roof_brick
-direction 1
 x 19
 y 20
 end
@@ -357,12 +318,10 @@ x 20
 y 18
 end
 arch roof_brick
-direction 1
 x 20
 y 19
 end
 arch roof_brick
-direction 1
 x 20
 y 20
 end
@@ -402,7 +361,6 @@ x 21
 y 19
 end
 arch roof_brick
-direction 1
 x 21
 y 20
 end

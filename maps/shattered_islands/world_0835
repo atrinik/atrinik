@@ -19,6 +19,7 @@ tile_path_7 world_0734
 tile_path_8 world_0736
 bg_music chether.mid
 region asteria
+tile_path_9 world_1_0835
 end
 arch floor_fs_grey1b
 z 50

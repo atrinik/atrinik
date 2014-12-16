@@ -45,17 +45,14 @@ x 3
 y 5
 end
 arch roof_brick_gray
-direction 1
 x 3
 y 6
 end
 arch roof_brick_gray
-direction 1
 x 3
 y 7
 end
 arch roof_brick_gray
-direction 1
 x 3
 y 8
 end
@@ -75,12 +72,10 @@ x 4
 y 6
 end
 arch roof_brick_gray
-direction 1
 x 4
 y 7
 end
 arch roof_brick_gray
-direction 1
 x 4
 y 8
 end
@@ -105,7 +100,6 @@ x 5
 y 7
 end
 arch roof_brick_gray
-direction 1
 x 5
 y 8
 end

@@ -70,37 +70,30 @@ x 1
 y 15
 end
 arch roof_thatch
-direction 1
 x 1
 y 16
 end
 arch roof_thatch
-direction 1
 x 1
 y 17
 end
 arch roof_thatch
-direction 1
 x 1
 y 18
 end
 arch roof_thatch
-direction 1
 x 1
 y 19
 end
 arch roof_thatch
-direction 1
 x 1
 y 20
 end
 arch roof_thatch
-direction 1
 x 1
 y 21
 end
 arch roof_thatch
-direction 1
 x 1
 y 22
 end
@@ -177,32 +170,26 @@ x 2
 y 16
 end
 arch roof_thatch
-direction 1
 x 2
 y 17
 end
 arch roof_thatch
-direction 1
 x 2
 y 18
 end
 arch roof_thatch
-direction 1
 x 2
 y 19
 end
 arch roof_thatch
-direction 1
 x 2
 y 20
 end
 arch roof_thatch
-direction 1
 x 2
 y 21
 end
 arch roof_thatch
-direction 1
 x 2
 y 22
 end
@@ -260,27 +247,22 @@ x 3
 y 17
 end
 arch roof_thatch
-direction 1
 x 3
 y 18
 end
 arch roof_thatch
-direction 1
 x 3
 y 19
 end
 arch roof_thatch
-direction 1
 x 3
 y 20
 end
 arch roof_thatch
-direction 1
 x 3
 y 21
 end
 arch roof_thatch
-direction 1
 x 3
 y 22
 end
@@ -350,22 +332,18 @@ x 4
 y 18
 end
 arch roof_thatch
-direction 1
 x 4
 y 19
 end
 arch roof_thatch
-direction 1
 x 4
 y 20
 end
 arch roof_thatch
-direction 1
 x 4
 y 21
 end
 arch roof_thatch
-direction 1
 x 4
 y 22
 end
@@ -433,17 +411,14 @@ x 5
 y 19
 end
 arch roof_thatch
-direction 1
 x 5
 y 20
 end
 arch roof_thatch
-direction 1
 x 5
 y 21
 end
 arch roof_thatch
-direction 1
 x 5
 y 22
 end
@@ -527,12 +502,10 @@ x 6
 y 20
 end
 arch roof_thatch
-direction 1
 x 6
 y 21
 end
 arch roof_thatch
-direction 1
 x 6
 y 22
 end
@@ -581,7 +554,6 @@ x 7
 y 21
 end
 arch roof_thatch
-direction 1
 x 7
 y 22
 end

@@ -14,6 +14,7 @@ tile_path_4 world_1_aa28
 tile_path_8 world_1_aa29
 bg_music yewtree.mid
 region centennial
+tile_path_10 world_0128
 end
 arch magic_mirror
 slaying world_0128
