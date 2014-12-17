@@ -202,14 +202,14 @@ class WindowMain(Model, QMainWindow, Ui_WindowMain):
         self.dialogs["preferences"].show()
 
     def actionOpen_selected_in_editorTrigger(self):
-        maps = [self.widgetTableMaps.item(y, 0).data["file"]["path"] for y in set([x.row() for x in self.widgetTableMaps.selectedItems()])]
+        maps = set([self.widgetTableMaps.item(y, 0).data["file"]["path"] for y in set([x.row() for x in self.widgetTableMaps.selectedItems()])])
         self.open_maps(maps)
 
     def actionSelect_allTrigger(self):
         self.getVisibleWidgetTable().selectAll()
 
     def buttonOpen_allTrigger(self):
-        maps = [self.widgetTableMaps.item(i, 0).data["file"]["path"] for i in range(self.widgetTableMaps.rowCount())]
+        maps = set([self.widgetTableMaps.item(i, 0).data["file"]["path"] for i in range(self.widgetTableMaps.rowCount())])
         self.open_maps(maps)
 
 class RichTextColumnDelegate(QStyledItemDelegate):
