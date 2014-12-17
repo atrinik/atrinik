@@ -2,7 +2,7 @@ arch map
 name Brynknot
 msg
 Created:  2011-10-02 Alex Tokar
-Modified: 2014-12-13 Alex Tokar
+Modified: 2014-12-17 atokar
 endmsg
 width 24
 height 24
@@ -200,10 +200,6 @@ arch blocked
 x 21
 y 6
 end
-arch blocked
-x 21
-y 6
-end
 arch wall_marble1.111a
 x 21
 y 6
@@ -223,10 +219,6 @@ end
 arch wall_marble1.111a
 x 21
 y 8
-end
-arch blocked
-x 21
-y 9
 end
 arch blocked
 x 21
