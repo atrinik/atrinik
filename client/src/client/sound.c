@@ -615,7 +615,7 @@ void socket_command_sound(uint8 *data, size_t len, size_t pos)
     type = packet_to_uint8(data, len, &pos);
     packet_to_string(data, len, &pos, filename, sizeof(filename));
     loop = packet_to_sint8(data, len, &pos);
-    volume = packet_to_uint8(data, len, &pos);
+    volume = packet_to_sint8(data, len, &pos);
 
     if (type == CMD_SOUND_EFFECT) {
         sint8 x, y;
@@ -646,7 +646,7 @@ void socket_command_sound(uint8 *data, size_t len, size_t pos)
             sound_start_bg_music(filename, setting_get_int(OPT_CAT_SOUND, OPT_VOLUME_MUSIC) + volume, loop);
         }
     } else if (type == CMD_SOUND_ABSOLUTE) {
-        sound_add_effect(filename, volume, loop);
+        sound_add_effect(filename, (uint8) volume, loop);
     } else {
         logger_print(LOG(BUG), "Invalid sound type: %d", type);
         return;
