@@ -7,4 +7,5 @@ direction 1
 no_pick 1
 type 9
 layer 4
+speed 0.037
 end

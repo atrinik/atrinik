@@ -19,6 +19,7 @@ tile_path_7 world_aa27
 tile_path_8 world_aa29
 bg_music yewtree.mid
 region centennial
+tile_path_9 world_1_0128
 end
 arch water_lt
 end

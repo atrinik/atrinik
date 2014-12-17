@@ -13,6 +13,7 @@ tile_path_3 dark_cave_aaaa
 tile_path_6 dark_cave_01aa
 bg_music desert_town.mid
 region dark_cave
+tile_path_5 dark_cave_0102
 end
 arch sign
 name geyser

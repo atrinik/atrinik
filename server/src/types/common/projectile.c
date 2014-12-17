@@ -144,10 +144,10 @@ void common_object_projectile_process(object *op)
 /** @copydoc object_methods::projectile_move_func */
 object *common_object_projectile_move(object *op)
 {
-    object_remove(op, 0);
-    op->x = op->x + DIRX(op);
-    op->y = op->y + DIRY(op);
-    op = insert_ob_in_map(op, op->map, op, 0);
+    if (!move_object(op, op->direction)) {
+        object_projectile_stop(op, OBJECT_PROJECTILE_STOP_WALL);
+        return NULL;
+    }
 
     return op;
 }
@@ -290,6 +290,7 @@ object *common_object_projectile_fire_missile(object *op, object *shooter, int d
 
     op->x = shooter->x;
     op->y = shooter->y;
+    op->sub_layer = shooter->sub_layer;
     op = insert_ob_in_map(op, shooter->map, op, 0);
 
     if (!op) {

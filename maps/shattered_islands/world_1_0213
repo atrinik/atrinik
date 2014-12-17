@@ -2,17 +2,19 @@ arch map
 name Brynknot Tavern
 msg
 Created:  2010-09-04 Alex Tokar
-Modified: 2014-03-02 Alex Tokar
+Modified: 2014-12-11 Alex Tokar
 endmsg
 width 24
 height 24
 difficulty 5
 darkness 3
-no_harm 1
+outdoor 1
 tile_path_3 world_1_0212
 tile_path_4 world_1_0113
 tile_path_6 world_1_0312
 tile_path_7 world_1_0112
+tile_path_9 world_2_0213
+tile_path_10 world_0213
 bg_music town_music.ogg
 region brynknot
 end
@@ -21,6 +23,14 @@ x 1
 y 12
 end
 arch wall_wood_8
+x 1
+y 12
+end
+arch map_info
+name brynknot_tavern
+hp 16
+sp 8
+cursed 1
 x 1
 y 12
 end

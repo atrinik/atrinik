@@ -56,6 +56,26 @@ class game:
     max_layers = 7
     # Number of sub-layers.
     num_sub_layers = 5
+    num_tiled = 10
+    num_tiled_dir = 8
+    tiled_up = 8
+    tiled_down = 9
+    tiled_names = ["north", "east", "south", "west", "northeast", "southeast",
+        "southwest", "northwest", "up", "down"]
+    tiled_coords = [
+        (0, 1, 0), (1, 0, 0), (0, -1, 0), (-1, 0, 0),
+        (1, 1, 0), (1, -1, 0), (-1, -1, 0), (-1, 1, 0),
+        (0, 0, 1), (0, 0, -1)
+    ]
+
+    class server_commands:
+        control = 0
+
+        control_map = 1
+        control_map_reset = 1
+
+        control_player = 2
+        control_player_teleport = 1
 
     class types:
         spawn_point = 81

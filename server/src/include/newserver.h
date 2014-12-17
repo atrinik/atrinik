@@ -46,8 +46,10 @@ typedef struct MapCell_struct {
     /* Everything below will be cleared by memset() in when the map
      * cell is no longer visible. */
 
+    uint8 cleared;
+
     /** Darkness cache. */
-    int count;
+    uint8 darkness[NUM_SUB_LAYERS];
 
     /** Faces we sent. */
     sint16 faces[NUM_REAL_LAYERS];

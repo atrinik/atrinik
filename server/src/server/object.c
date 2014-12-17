@@ -362,6 +362,11 @@ int CAN_MERGE(object *ob1, object *ob2)
         return 0;
     }
 
+    /* Do not merge objects with different layer/sub-layer. */
+    if (ob1->layer != ob2->layer || ob1->sub_layer != ob2->sub_layer) {
+        return 0;
+    }
+
     /* Do not allow merging objects if either has nrof of 0 and it's
      * not an event object (those normally have nrof of 0 but they are
      * allowed to merge). */

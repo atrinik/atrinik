@@ -11,6 +11,7 @@ darkness 4
 no_harm 1
 bg_music campfire_tales.mid
 region morliana
+tile_path_10 world_1376
 end
 arch blocked
 x 11

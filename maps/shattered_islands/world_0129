@@ -18,6 +18,7 @@ tile_path_7 world_aa28
 tile_path_8 world_aa30
 bg_music swamp.ogg
 region strakewood_island
+tile_path_9 world_1_0129
 end
 arch water_lt
 end

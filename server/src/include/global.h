@@ -209,8 +209,15 @@ typedef struct _money_block {
 #define TILED_SOUTHWEST 6
 /** Northwest. */
 #define TILED_NORTHWEST 7
+/** Up. */
+#define TILED_UP 8
+/** Down. */
+#define TILED_DOWN 9
+
 /** Maximum number of tiled maps. */
-#define TILED_NUM 8
+#define TILED_NUM 10
+/** Maximum number of direction-based tiled maps. */
+#define TILED_NUM_DIR 8
 /*@}*/
 
 #define EXP_AGILITY 1

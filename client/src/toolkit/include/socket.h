@@ -219,6 +219,8 @@ enum {
 #define MAP2_FLAG2_TARGET 8
 /** Target's HP bar. */
 #define MAP2_FLAG2_PROBE 16
+/** Priority rendering. */
+#define MAP2_FLAG2_PRIORITY 32
 /*@}*/
 
 /**
@@ -246,8 +248,8 @@ enum {
  *@{*/
 /** Clear cell, with all layers. */
 #define MAP2_MASK_CLEAR      0x2
-/** Add darkness. */
-#define MAP2_MASK_DARKNESS   0x4
+#define MAP2_MASK_DARKNESS 0x4
+#define MAP2_MASK_DARKNESS_MORE 0x8
 /*@}*/
 
 /**

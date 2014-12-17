@@ -1537,6 +1537,8 @@ static object *get_pickup_object(object *pl, object *op, int nrof)
         }
     }
 
+    op->sub_layer = 0;
+
     return op;
 }
 
@@ -1840,6 +1842,7 @@ void drop_object(object *op, object *tmp, long nrof, int no_mevent)
 
     tmp->x = op->x;
     tmp->y = op->y;
+    tmp->sub_layer = op->sub_layer;
 
     insert_ob_in_map(tmp, op->map, op, 0);
 

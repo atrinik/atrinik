@@ -11,6 +11,7 @@ darkness 2
 tile_path_3 dark_cave_0101
 bg_music desert_town.mid
 region dark_cave
+tile_path_7 dark_cave_aa01
 end
 arch floor_ruin4
 end

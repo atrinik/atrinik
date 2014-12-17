@@ -64,7 +64,7 @@ void spawn_point_enemy_signal(object *op)
     spawn_point_enemy_signal_map(op, op->map);
 
     /* Signal all the tiled maps that are in memory. */
-    for (i = 0; i < TILED_NUM; i++) {
+    for (i = 0; i < TILED_NUM_DIR; i++) {
         if (op->map->tile_map[i] != NULL && op->map->tile_map[i]->in_memory == MAP_IN_MEMORY) {
             spawn_point_enemy_signal_map(op, op->map->tile_map[i]);
         }

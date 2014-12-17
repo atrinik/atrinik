@@ -13,6 +13,7 @@ no_harm 1
 tile_path_4 world_1_0632
 bg_music chether.mid
 region asteria
+tile_path_10 world_0732
 end
 arch blocked
 y 11

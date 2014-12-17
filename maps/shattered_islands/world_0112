@@ -2,7 +2,7 @@ arch map
 name Brynknot
 msg
 Created:  2009-09-10 Alex Tokar
-Modified: 2011-10-02 Alex Tokar
+Modified: 2014-12-14 Alex Tokar
 endmsg
 width 24
 height 24
@@ -17,6 +17,7 @@ tile_path_5 world_0213
 tile_path_6 world_0211
 tile_path_7 world_aa11
 tile_path_8 world_aa13
+tile_path_9 world_1_0112
 bg_music lontala.mid
 region brynknot
 end
@@ -406,6 +407,14 @@ endmsg
 name brynknot_apartments
 sub_type 2
 stand_still 1
+x 3
+y 3
+end
+arch map_info
+name brynknot_apartments
+hp 3
+sp 7
+cursed 1
 x 3
 y 3
 end
@@ -2009,6 +2018,14 @@ arch wall_flagstone1.181
 x 14
 y 6
 end
+arch map_info
+hp 9
+sp 11
+name brynknot_barracks
+cursed 1
+x 14
+y 6
+end
 arch grassd_7
 x 14
 y 7
@@ -2372,7 +2389,6 @@ x 16
 y 8
 end
 arch floor_grey1a1
-z 18
 x 16
 y 9
 end
@@ -2383,6 +2399,7 @@ hp 16
 sp 9
 walk_on 1
 fly_on 1
+z 18
 x 16
 y 9
 end
@@ -2554,7 +2571,6 @@ x 17
 y 8
 end
 arch floor_grey1a1
-z 18
 x 17
 y 9
 end
@@ -2565,6 +2581,7 @@ hp 17
 sp 9
 walk_on 1
 fly_on 1
+z 18
 x 17
 y 9
 end

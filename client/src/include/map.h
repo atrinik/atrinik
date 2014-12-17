@@ -142,6 +142,16 @@ typedef struct _mapdata {
      * tiles (even if they are not FoW tiles).
      */
     int height_diff : 1;
+
+    /**
+     * If 1, the player is currently in a building.
+     */
+    int in_building : 1;
+
+    /**
+     * Player's current sub-layer.
+     */
+    uint8 player_sub_layer;
 } _mapdata;
 
 /**
@@ -161,7 +171,7 @@ typedef struct MapCell {
     uint8 probe[NUM_REAL_LAYERS];
 
     /** Cell darkness. */
-    uint8 darkness;
+    uint8 darkness[NUM_SUB_LAYERS];
 
     /** Object flags. */
     uint8 flags[NUM_REAL_LAYERS];
@@ -220,6 +230,8 @@ typedef struct MapCell {
      * Whether Fog of War is enabled on this cell.
      */
     uint8 fow;
+
+    uint8 priority[NUM_SUB_LAYERS];
 } MapCell;
 
 #define MAP_CELL_GET(_x, _y) (&cells[(_y) * (map_width * MAP_FOW_SIZE) + (_x)])

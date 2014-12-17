@@ -306,7 +306,7 @@ static inline int get_tiled_map_id(player *pl, struct mapdef *map)
         return 0;
     }
 
-    for (i = 0; i < TILED_NUM; i++) {
+    for (i = 0; i < TILED_NUM_DIR; i++) {
         if (pl->last_update->tile_path[i] == map->path) {
             return i + 1;
         }
@@ -554,14 +554,14 @@ void packet_append_map_weather(packet_struct *packet, object *op, object *map_in
 /** Clear a map cell. */
 #define map_clearcell(_cell_) \
     { \
-        memset((void *) ((char *) (_cell_) + offsetof(MapCell, count)), 0, sizeof(MapCell) - offsetof(MapCell, count)); \
-        (_cell_)->count = -1; \
+        memset((void *) ((char *) (_cell_) + offsetof(MapCell, cleared)), 0, sizeof(MapCell) - offsetof(MapCell, cleared)); \
+        (_cell_)->cleared = 1; \
     }
 
 /** Clear a map cell, but only if it has not been cleared before. */
 #define map_if_clearcell() \
     { \
-        if (CONTR(pl)->socket.lastmap.cells[ax][ay].count != -1) \
+        if (CONTR(pl)->socket.lastmap.cells[ax][ay].cleared != 1) \
         { \
             packet_append_uint16(packet, mask | MAP2_MASK_CLEAR); \
             map_clearcell(&CONTR(pl)->socket.lastmap.cells[ax][ay]); \
@@ -573,19 +573,22 @@ void draw_client_map2(object *pl)
 {
     static uint32 map2_count = 0;
     MapCell *mp;
-    MapSpace *msp;
-    mapstruct *m;
+    MapSpace *msp, *msp_pl, *msp_tmp;
+    mapstruct *m, *tiled;
     int x, y, ax, ay, d, nx, ny;
-    int x_start;
-    int special_vision;
+    int have_down, draw_up, blocksview;
+    int special_vision, is_building_wall;
     uint16 mask;
-    int layer, dark;
+    int layer, dark[NUM_SUB_LAYERS], dark_set[NUM_SUB_LAYERS];
     int anim_value, anim_type, ext_flags;
     int num_layers;
-    object *mirror = NULL;
+    object *mirror = NULL, *tmp;
     uint8 have_sound_ambient;
     packet_struct *packet, *packet_layer, *packet_sound;
     size_t oldpos;
+    uint8 floor_z_down, floor_z_up;
+    int sub_layer, sub_layer2, socket_layer, tiled_dir, tiled_depth, zadj;
+    int force_draw_double, priority, tiled_z, is_in_building;
 
     /* Any kind of special vision? */
     special_vision = (QUERY_FLAG(pl, FLAG_XRAYS) ? 1 : 0) | (QUERY_FLAG(pl, FLAG_SEE_IN_DARK) ? 2 : 0);
@@ -635,15 +638,20 @@ void draw_client_map2(object *pl)
         }
     }
 
+    msp_pl = GET_MAP_SPACE_PTR(pl->map, pl->x, pl->y);
+    /* Figure out whether the player is in a building, but not on a balcony. */
+    is_in_building = (msp_pl->extra_flags & (MSP_EXTRA_IS_BUILDING |
+            MSP_EXTRA_IS_BALCONY)) == MSP_EXTRA_IS_BUILDING;
+
     packet_append_uint8(packet, pl->x);
     packet_append_uint8(packet, pl->y);
-
-    x_start = (pl->x + (CONTR(pl)->socket.mapx + 1) / 2) - 1;
+    packet_append_uint8(packet, pl->sub_layer);
+    packet_append_uint8(packet, is_in_building);
 
     for (ay = CONTR(pl)->socket.mapy - 1, y = (pl->y + (CONTR(pl)->socket.mapy + 1) / 2) - 1; y >= pl->y - CONTR(pl)->socket.mapy_2; y--, ay--) {
         ax = CONTR(pl)->socket.mapx - 1;
 
-        for (x = x_start; x >= pl->x - CONTR(pl)->socket.mapx_2; x--, ax--) {
+        for (x = (pl->x + (CONTR(pl)->socket.mapx + 1) / 2) - 1; x >= pl->x - CONTR(pl)->socket.mapx_2; x--, ax--) {
             d = CONTR(pl)->blocked_los[ax][ay];
             /* Form the data packet for x and y positions. */
             mask = (ax & 0x1f) << 11 | (ay & 0x1f) << 6;
@@ -697,10 +705,18 @@ void draw_client_map2(object *pl)
                 }
             }
 
-            if (d & BLOCKED_LOS_BLOCKED) {
+            blocksview = d & BLOCKED_LOS_BLOCKED;
+
+            if (blocksview && (is_in_building || !(msp->extra_flags &
+                    MSP_EXTRA_IS_BUILDING) || (msp->map_info != NULL &&
+                    msp_pl->map_info != NULL &&
+                    msp->map_info->name != msp_pl->map_info->name))) {
                 map_if_clearcell();
                 continue;
             }
+
+            /* Any map_if_clearcell() calls should go above this line. */
+            mp->cleared = 0;
 
             /* Border tile, we can ignore every LOS change */
             if (!(d & BLOCKED_LOS_IGNORE)) {
@@ -716,59 +732,42 @@ void draw_client_map2(object *pl)
                 }
             }
 
-            d = map_get_darkness(m, nx, ny, &mirror);
+            map_get_darkness(m, nx, ny, &mirror);
 
-            if (CONTR(pl)->tli) {
-                d += global_darkness_table[MAX_DARKNESS];
-            }
-
-            /* Tile is not normally visible */
-            if (d <= 0) {
-                /* Xray or infravision? */
-                if (special_vision & 1 || (special_vision & 2 && msp->flags & (P_IS_PLAYER | P_IS_MONSTER))) {
-                    d = 100;
-                } else {
-                    map_if_clearcell();
-                    continue;
-                }
-            }
-
-            if (d > 640) {
-                d = 210;
-            } else if (d > 320) {
-                d = 180;
-            } else if (d > 160) {
-                d = 150;
-            } else if (d > 80) {
-                d = 120;
-            } else if (d > 40) {
-                d = 90;
-            } else if (d > 20) {
-                d = 60;
-            } else {
-                d = 30;
+            for (sub_layer = 0; sub_layer < NUM_SUB_LAYERS; sub_layer++) {
+                dark_set[sub_layer] = 0;
             }
 
             /* Initialize default values for some variables. */
-            dark = NO_FACE_SEND;
             ext_flags = 0;
             oldpos = packet_get_pos(packet);
             anim_type = 0;
             anim_value = 0;
+            have_down = 0;
+            floor_z_down = floor_z_up = 0;
 
-            /* Do we need to send the darkness? */
-            if (mp->count != d) {
-                mask |= MAP2_MASK_DARKNESS;
-                dark = d;
-                mp->count = d;
+            /* Check if we have a map under this tile. */
+            if (get_map_from_tiled(m, TILED_DOWN) != NULL) {
+                have_down = 1;
             }
 
-            /* Add the mask. Any mask changes should go above this line. */
-            packet_append_uint16(packet, mask);
+            draw_up = m->tile_map[TILED_UP] != NULL;
 
-            /* If we have darkness to send, send it. */
-            if (dark != NO_FACE_SEND) {
-                packet_append_uint8(packet, dark);
+            /* If the player is inside a building, and we're currently on the
+             * map square that is part of that building, do not send objects
+             * on the upper floors.
+             *
+             * This means that if a player is for example on the ground floor,
+             * anything above that will not be visible while they're in the
+             * building, *but*, only for that building - other buildings will
+             * have the upper floors. */
+            if (OBJECT_VALID(msp_pl->map_info, msp_pl->map_info_count) &&
+                    OBJECT_VALID(msp->map_info, msp->map_info_count) &&
+                    msp_pl->extra_flags & MSP_EXTRA_IS_BUILDING &&
+                    msp->extra_flags & MSP_EXTRA_IS_BUILDING &&
+                    (!(msp_pl->extra_flags & MSP_EXTRA_IS_BALCONY) ||
+                    msp_pl->map_info == msp->map_info)) {
+                draw_up = 0;
             }
 
             packet_layer = packet_new(0, 0, 128);
@@ -776,13 +775,139 @@ void draw_client_map2(object *pl)
 
             /* Go through the visible layers. */
             for (layer = LAYER_FLOOR; layer <= NUM_LAYERS; layer++) {
-                int sub_layer, socket_layer;
+                tiled_depth = 0;
+                tiled_dir = TILED_DOWN;
+                tiled = m;
 
-                for (sub_layer = 0; sub_layer < NUM_SUB_LAYERS; sub_layer++) {
-                    object *tmp = GET_MAP_SPACE_LAYER(msp, layer, sub_layer);
+                for (sub_layer = NUM_SUB_LAYERS - 1; sub_layer >= 0;
+                        sub_layer--) {
+                    tmp = NULL;
+                    zadj = 0;
+                    priority = 0;
+                    is_building_wall = 0;
+                    tiled_z = 0;
+                    /* Force drawing of double faces for walls and such if we're
+                     * sending the upper floors of a building. */
+                    force_draw_double = draw_up;
+
+                    if (sub_layer != 0 && tiled != NULL) {
+                        tiled = get_map_from_tiled(tiled, tiled_dir);
+
+                        if (tiled == NULL && tiled_dir == TILED_DOWN) {
+                            tiled_depth = 0;
+                            tiled_dir = TILED_UP;
+                            tiled = get_map_from_tiled(m, tiled_dir);
+                        }
+
+                        if (tiled != NULL && (draw_up ||
+                                tiled_dir == TILED_DOWN)) {
+                            msp_tmp = GET_MAP_SPACE_PTR(tiled, nx, ny);
+
+                            if (layer == LAYER_EFFECT) {
+                                tmp = GET_MAP_SPACE_LAYER(msp_tmp, LAYER_WALL,
+                                        0);
+                            }
+
+                            if (tmp == NULL) {
+                                for (sub_layer2 = NUM_SUB_LAYERS - 1;
+                                        sub_layer2 >= 0; sub_layer2--) {
+                                    tmp = GET_MAP_SPACE_LAYER(msp_tmp, layer,
+                                            sub_layer2);
+
+                                    if (tmp != NULL) {
+                                        break;
+                                    }
+                                }
+                            }
+
+                            tiled_depth += tiled_dir == TILED_UP ? 1 : -1;
+                            force_draw_double = 1;
+
+                            if (tmp != NULL && layer == LAYER_EFFECT &&
+                                    tmp->type != WALL && tmp->type != DOOR) {
+                                tmp = NULL;
+                            }
+
+                            if (tmp != NULL && layer == LAYER_WALL &&
+                                    tmp->sub_layer == 0 && (tmp->map != m ||
+                                    !(msp->extra_flags &
+                                    MSP_EXTRA_IS_BALCONY)) &&
+                                    ((msp_tmp->extra_flags &
+                                    MSP_EXTRA_IS_BUILDING) ||
+                                    QUERY_FLAG(tmp, FLAG_HIDDEN))) {
+                                tmp = NULL;
+                            }
+
+                            if (tmp != NULL && layer == LAYER_FLOOR &&
+                                    tiled_dir == TILED_UP &&
+                                    (msp_tmp->extra_flags &
+                                    (MSP_EXTRA_IS_BUILDING |
+                                    MSP_EXTRA_IS_BALCONY)) ==
+                                    MSP_EXTRA_IS_BUILDING) {
+                                tmp = NULL;
+                            }
+
+                            if (tmp != NULL && layer == LAYER_FLOOR &&
+                                    QUERY_FLAG(tmp, FLAG_HIDDEN)) {
+                                tmp = NULL;
+                            }
+
+                            if (tmp != NULL && tiled_dir == TILED_UP &&
+                                    is_in_building && (msp_tmp->extra_flags &
+                                    MSP_EXTRA_IS_BALCONY) &&
+                                    !(msp_pl->extra_flags &
+                                    MSP_EXTRA_IS_BALCONY)) {
+                                tmp = NULL;
+                            }
+
+                            if (tmp != NULL && layer == LAYER_FLOOR) {
+                                if (tiled_dir == TILED_DOWN) {
+                                    floor_z_down |= 1 << sub_layer;
+                                } else {
+                                    floor_z_up |= 1 << sub_layer;
+                                }
+                            }
+
+                            if (tmp != NULL && (layer != LAYER_WALL ||
+                                    tmp->sub_layer != 0) &&
+                                    layer != LAYER_FMASK) {
+                                tiled_z = 1;
+
+                                if (msp_tmp->extra_flags &
+                                        MSP_EXTRA_IS_BALCONY) {
+                                    priority = 1;
+                                }
+
+                                if (layer != LAYER_FLOOR) {
+                                    if (tiled_dir == TILED_UP &&
+                                            (floor_z_up & (1 << sub_layer))) {
+                                        tiled_z = 0;
+                                    } else if (layer != LAYER_EFFECT &&
+                                            layer != LAYER_LIVING &&
+                                            layer != LAYER_ITEM &&
+                                            layer != LAYER_ITEM2 &&
+                                            tiled_dir == TILED_DOWN &&
+                                            (floor_z_down & (1 << sub_layer))) {
+                                        tiled_z = 0;
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                    if (tmp == NULL) {
+                        tmp = GET_MAP_SPACE_LAYER(msp, layer, sub_layer);
+
+                        if (tmp != NULL) {
+                            if (have_down) {
+                                priority = 1;
+                            }
+                        }
+                    }
 
                     /* Double check that we can actually see this object. */
-                    if (tmp && QUERY_FLAG(tmp, FLAG_HIDDEN)) {
+                    if (tmp != NULL && QUERY_FLAG(tmp, FLAG_HIDDEN) &&
+                            tmp->layer != LAYER_WALL) {
                         tmp = NULL;
                     }
 
@@ -790,7 +915,9 @@ void draw_client_map2(object *pl)
                      * to the player, even if they are standing on top of
                      * another
                      * player or monster. */
-                    if (tmp && tmp->layer == pl->layer && tmp->sub_layer == pl->sub_layer && pl->x == nx && pl->y == ny) {
+                    if (tmp != NULL && layer == pl->layer &&
+                            sub_layer == pl->sub_layer &&
+                            pl->x == nx && pl->y == ny) {
                         tmp = pl;
                     }
 
@@ -818,6 +945,121 @@ void draw_client_map2(object *pl)
                              * or left quadrant or on the central square, do not
                              * show it. */
                             tmp = NULL;
+                        }
+                    }
+
+                    if (tmp != NULL && (msp_tmp = GET_MAP_SPACE_PTR(tmp->map,
+                            tmp->x, tmp->y))->extra_flags &
+                            MSP_EXTRA_IS_BUILDING &&
+                            OBJECT_VALID(msp_tmp->map_info,
+                            msp_tmp->map_info_count)) {
+                        int match_x, match_y, match_x2, match_y2, match_x3,
+                                match_y3;
+
+                        match_x = tmp->x >= msp_tmp->map_info->x && tmp->x <=
+                                msp_tmp->map_info->x +
+                                msp_tmp->map_info->stats.hp;
+                        match_y = tmp->y >= msp_tmp->map_info->y && tmp->y <=
+                                msp_tmp->map_info->y +
+                                msp_tmp->map_info->stats.sp;
+                        match_x2 = tmp->x == msp_tmp->map_info->x +
+                                msp_tmp->map_info->stats.hp;
+                        match_y2 = tmp->y == msp_tmp->map_info->y +
+                                msp_tmp->map_info->stats.sp;
+                        match_x3 = tmp->x == msp_tmp->map_info->x;
+                        match_y3 = tmp->y == msp_tmp->map_info->y;
+
+                        if (match_x == match_y2 || match_y == match_x2 ||
+                                match_x == match_y3 || match_y == match_x3) {
+                            is_building_wall = 1;
+                        }
+
+                        if (is_building_wall) {
+                            int idx;
+                            mapstruct *m2;
+                            int x2, y2;
+
+                            for (idx = 1; idx <= SIZEOFFREE1; idx++) {
+                                x2 = tmp->x + freearr_x[idx];
+                                y2 = tmp->y + freearr_y[idx];
+                                m2 = get_map_from_coord2(tmp->map, &x2, &y2);
+
+                                if (m2 == NULL) {
+                                    break;
+                                }
+
+                                msp_tmp = GET_MAP_SPACE_PTR(m2, x2, y2);
+
+                                if (!(msp_tmp->extra_flags &
+                                        MSP_EXTRA_IS_BUILDING) ||
+                                        msp_tmp->extra_flags &
+                                        MSP_EXTRA_IS_BALCONY) {
+                                    break;
+                                }
+                            }
+
+                            if (idx > SIZEOFFREE1) {
+                                is_building_wall = 0;
+                            }
+                        }
+                    }
+
+                    if (tmp != NULL && blocksview && tmp->map == m &&
+                            (layer != LAYER_FLOOR || !is_building_wall) &&
+                            (layer != LAYER_WALL || !is_building_wall) &&
+                            (layer != LAYER_EFFECT || sub_layer == 0)) {
+                        tmp = NULL;
+                    }
+
+                    if (tmp != NULL && tiled_depth != 0 && !is_building_wall &&
+                            layer == LAYER_EFFECT && sub_layer != 0 &&
+                            !QUERY_FLAG(tmp, FLAG_HIDDEN) &&
+                            !(GET_MAP_SPACE_PTR(tmp->map, tmp->x,
+                            tmp->y)->extra_flags & MSP_EXTRA_IS_BALCONY)) {
+                        tmp = NULL;
+                    }
+
+                    if (tmp != NULL && layer != LAYER_EFFECT &&
+                            sub_layer != 0 && !is_building_wall &&
+                            tmp->map != m && (GET_MAP_SPACE_PTR(tmp->map,
+                            tmp->x, tmp->y)->extra_flags &
+                            (MSP_EXTRA_IS_BUILDING | MSP_EXTRA_IS_BALCONY)) ==
+                            MSP_EXTRA_IS_BUILDING &&
+                            !(msp->extra_flags & MSP_EXTRA_IS_OVERLOOK)) {
+                        tmp = NULL;
+                    }
+
+                    if (tmp != NULL && !dark_set[sub_layer]) {
+                        dark_set[sub_layer] = 1;
+                        dark[sub_layer] = map_get_darkness(tmp->map, tmp->x,
+                                tmp->y, NULL);
+
+                        if (CONTR(pl)->tli) {
+                            dark[sub_layer] +=
+                                    global_darkness_table[MAX_DARKNESS];
+                        }
+
+                        if (dark[sub_layer] < 100) {
+                            if (QUERY_FLAG(tmp, FLAG_HIDDEN) ||
+                                    special_vision & 1 ||
+                                    (special_vision & 2 && GET_MAP_SPACE_PTR(
+                                    tmp->map, tmp->x, tmp->y)->flags &
+                                    (P_IS_PLAYER | P_IS_MONSTER))) {
+                                dark[sub_layer] = 100;
+                            }
+                        }
+                    }
+
+                    if (tmp != NULL && dark[sub_layer] <= 0) {
+                        tmp = NULL;
+                    }
+
+                    if (tmp != NULL && dark[sub_layer] !=
+                            mp->darkness[sub_layer]) {
+                        if (sub_layer == 0) {
+                            mask |= MAP2_MASK_DARKNESS;
+                        } else {
+                            mask |= MAP2_MASK_DARKNESS_MORE;
                         }
                     }
 
@@ -892,7 +1134,7 @@ void draw_client_map2(object *pl)
                         }
 
                         /* Z position set? */
-                        if (head->z) {
+                        if (head->z != 0 || zadj != 0 || tiled_z) {
                             flags |= MAP2_FLAG_HEIGHT;
                         }
 
@@ -909,7 +1151,7 @@ void draw_client_map2(object *pl)
 
                         /* Draw the object twice if set, but only if it's not
                          * in the bottom quadrant of the map. */
-                        if ((QUERY_FLAG(tmp, FLAG_DRAW_DOUBLE) && (ax < CONTR(pl)->socket.mapx_2 || ay < CONTR(pl)->socket.mapy_2)) || QUERY_FLAG(tmp, FLAG_DRAW_DOUBLE_ALWAYS)) {
+                        if ((QUERY_FLAG(tmp, FLAG_DRAW_DOUBLE) && (force_draw_double || (ax < CONTR(pl)->socket.mapx_2 || ay < CONTR(pl)->socket.mapy_2))) || QUERY_FLAG(tmp, FLAG_DRAW_DOUBLE_ALWAYS)) {
                             flags |= MAP2_FLAG_DOUBLE;
                         }
 
@@ -921,13 +1163,17 @@ void draw_client_map2(object *pl)
                             flags2 |= MAP2_FLAG2_ROTATE;
                         }
 
-                        if (QUERY_FLAG(pl, FLAG_SEE_IN_DARK) && ((head->layer == LAYER_LIVING && d < 150) || (head->type == CONTAINER && (head->sub_type & 1) == ST1_CONTAINER_CORPSE && QUERY_FLAG(head, FLAG_IS_USED_UP) && (float) head->stats.food / head->last_eat >= CORPSE_INFRAVISION_PERCENT / 100.0))) {
+                        if (QUERY_FLAG(pl, FLAG_SEE_IN_DARK) && ((head->layer == LAYER_LIVING && dark[sub_layer] < 150) || (head->type == CONTAINER && (head->sub_type & 1) == ST1_CONTAINER_CORPSE && QUERY_FLAG(head, FLAG_IS_USED_UP) && (float) head->stats.food / head->last_eat >= CORPSE_INFRAVISION_PERCENT / 100.0))) {
                             flags2 |= MAP2_FLAG2_INFRAVISION;
                         }
 
                         if (head != pl && layer == LAYER_LIVING && IS_LIVE(head)) {
                             flags2 |= MAP2_FLAG2_TARGET;
                             target_object_count = head->count;
+                        }
+
+                        if (priority) {
+                            flags2 |= MAP2_FLAG2_PRIORITY;
                         }
 
                         if (flags2) {
@@ -1011,11 +1257,23 @@ void draw_client_map2(object *pl)
 
                         /* Z position. */
                         if (flags & MAP2_FLAG_HEIGHT) {
-                            if (mirror && mirror->last_eat) {
-                                packet_append_sint16(packet_layer, head->z + mirror->last_eat);
-                            } else {
-                                packet_append_sint16(packet_layer, head->z);
+                            sint16 z;
+
+                            z = head->z;
+
+                            if (zadj) {
+                                z += zadj;
                             }
+
+                            if (mirror && mirror->last_eat) {
+                                z += mirror->last_eat;
+                            }
+
+                            if (tiled_z) {
+                                z += 46 * tiled_depth;
+                            }
+
+                            packet_append_sint16(packet_layer, z);
                         }
 
                         if (flags & MAP2_FLAG_ZOOM) {
@@ -1077,6 +1335,39 @@ void draw_client_map2(object *pl)
                         num_layers++;
                     }
                 }
+            }
+
+            /* Add the mask. Any mask changes should go above this line. */
+            packet_append_uint16(packet, mask);
+
+            for (sub_layer = 0; sub_layer < NUM_SUB_LAYERS; sub_layer++) {
+                if (sub_layer == 0 && !(mask & MAP2_MASK_DARKNESS)) {
+                    continue;
+                }
+
+                if (sub_layer != 0 && !(mask & MAP2_MASK_DARKNESS_MORE)) {
+                    break;
+                }
+
+                if (!dark_set[sub_layer]) {
+                    d = 0;
+                } else if (dark[sub_layer] > 640) {
+                    d = 210;
+                } else if (dark[sub_layer] > 320) {
+                    d = 180;
+                } else if (dark[sub_layer] > 160) {
+                    d = 150;
+                } else if (dark[sub_layer] > 80) {
+                    d = 120;
+                } else if (dark[sub_layer] > 40) {
+                    d = 90;
+                } else if (dark[sub_layer] > 20) {
+                    d = 60;
+                } else {
+                    d = 30;
+                }
+
+                packet_append_uint8(packet, d);
             }
 
             packet_append_uint8(packet, num_layers);

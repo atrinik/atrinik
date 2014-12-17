@@ -2,7 +2,7 @@ arch map
 name Brynknot
 msg
 Created:  2011-02-06 Alex Tokar
-Modified: 2011-09-30 Alex Tokar
+Modified: 2014-12-17 atokar
 endmsg
 width 24
 height 24
@@ -12,13 +12,49 @@ no_harm 1
 fixed_resettime 1
 tile_path_4 world_1_0212
 tile_path_8 world_1_0213
+tile_path_9 world_2_0312
+tile_path_10 world_0312
 bg_music town_music.ogg
 region brynknot
+end
+arch blocked
+y 4
+end
+arch wall_marble1.131a
+y 4
+end
+arch map_info
+hp 8
+sp 6
+name brynknot_church
+cursed 1
+y 4
+end
+arch map_info
+hp 3
+sp 4
+name brynknot_church
+damned 1
+cursed 1
+y 5
+end
+arch blocked
+y 10
+end
+arch wall_marble1.131a
+y 10
 end
 arch blocked
 y 13
 end
 arch wall_wood_8
+y 13
+end
+arch map_info
+hp 8
+sp 9
+name brynknot_library
+cursed 1
 y 13
 end
 arch blocked
@@ -78,6 +114,22 @@ y 22
 end
 arch wall_wood2_3
 y 22
+end
+arch blocked
+x 1
+y 4
+end
+arch wall_marble1.131
+x 1
+y 4
+end
+arch blocked
+x 1
+y 10
+end
+arch wall_marble1.131a
+x 1
+y 10
 end
 arch blocked
 x 1
@@ -204,6 +256,22 @@ y 22
 end
 arch blocked
 x 2
+y 4
+end
+arch wall_marble1.131
+x 2
+y 4
+end
+arch blocked
+x 2
+y 10
+end
+arch wall_marble1.131a
+x 2
+y 10
+end
+arch blocked
+x 2
 y 13
 end
 arch wall_wood2_1
@@ -283,6 +351,22 @@ end
 arch wall_wood2_1
 x 2
 y 22
+end
+arch blocked
+x 3
+y 4
+end
+arch wall_marble1.131a
+x 3
+y 4
+end
+arch blocked
+x 3
+y 10
+end
+arch wall_marble1.131a
+x 3
+y 10
 end
 arch blocked
 x 3
@@ -383,6 +467,74 @@ y 22
 end
 arch blocked
 x 4
+y 4
+end
+arch wall_marble1.131a
+x 4
+y 4
+end
+arch blocked
+blocksview 0
+x 4
+y 5
+end
+arch fence_metal.131
+x 4
+y 5
+end
+arch blocked
+blocksview 0
+x 4
+y 6
+end
+arch fence_metal.131
+x 4
+y 6
+end
+arch blocked
+blocksview 0
+x 4
+y 7
+end
+arch fence_metal.131
+x 4
+y 7
+end
+arch blocked
+blocksview 0
+x 4
+y 8
+end
+arch fence_metal.131
+x 4
+y 8
+end
+arch blocked
+blocksview 0
+x 4
+y 9
+end
+arch fence_metal.131
+x 4
+y 9
+end
+arch fence_metal.131
+sub_layer 1
+align -24
+z -12
+x 4
+y 9
+end
+arch blocked
+x 4
+y 10
+end
+arch wall_marble1.131
+x 4
+y 10
+end
+arch blocked
+x 4
 y 13
 end
 arch wall_wood_1
@@ -452,6 +604,60 @@ end
 arch fwall_wood1c
 x 4
 y 22
+end
+arch blocked
+x 5
+y 4
+end
+arch wall_marble1.131
+x 5
+y 4
+end
+arch floor_marble1a
+x 5
+y 5
+end
+arch ladder_up
+hp 5
+sp 5
+slaying world_2_0312
+x 5
+y 5
+end
+arch floor_marble1
+x 5
+y 6
+end
+arch floor_marble1b
+x 5
+y 7
+end
+arch floor_marble1
+x 5
+y 8
+end
+arch floor_marble1
+x 5
+y 9
+end
+arch stairs_stone_down
+slaying world_0312
+hp 5
+sp 9
+fly_on 1
+walk_on 1
+face blocked.111
+is_turnable 0
+x 5
+y 9
+end
+arch floor_marble1
+x 5
+y 10
+end
+arch wall_marble1.131a
+x 5
+y 10
 end
 arch blocked
 x 5
@@ -549,6 +755,50 @@ y 22
 end
 arch blocked
 x 6
+y 4
+end
+arch wall_marble1.131a
+x 6
+y 4
+end
+arch floor_marble1
+x 6
+y 5
+end
+arch floor_marble1a
+x 6
+y 6
+end
+arch floor_marble1
+x 6
+y 7
+end
+arch floor_marble1a
+x 6
+y 8
+end
+arch floor_marble1
+x 6
+y 9
+end
+arch stairs_stone_down
+direction 7
+slaying world_0312
+hp 5
+sp 9
+x 6
+y 9
+end
+arch floor_marble1b
+x 6
+y 10
+end
+arch wall_marble1.131a
+x 6
+y 10
+end
+arch blocked
+x 6
 y 13
 end
 arch wall_wood_1
@@ -622,6 +872,42 @@ y 22
 end
 arch blocked
 x 7
+y 4
+end
+arch wall_marble1.131a
+x 7
+y 4
+end
+arch floor_marble1
+x 7
+y 5
+end
+arch floor_marble1
+x 7
+y 6
+end
+arch floor_marble1b
+x 7
+y 7
+end
+arch floor_marble1
+x 7
+y 8
+end
+arch floor_marble1b
+x 7
+y 9
+end
+arch floor_marble1a
+x 7
+y 10
+end
+arch wall_marble1.131
+x 7
+y 10
+end
+arch blocked
+x 7
 y 13
 end
 arch wall_wood_1
@@ -691,6 +977,62 @@ end
 arch wall_wood3_1
 x 7
 y 22
+end
+arch blocked
+x 8
+y 4
+end
+arch wall_marble1.131a
+x 8
+y 4
+end
+arch floor_marble1
+x 8
+y 5
+end
+arch wall_marble1.111a
+x 8
+y 5
+end
+arch floor_marble1a
+x 8
+y 6
+end
+arch wall_marble1.111a
+x 8
+y 6
+end
+arch floor_marble1a
+x 8
+y 7
+end
+arch wall_marble1.111a
+x 8
+y 7
+end
+arch floor_marble1a
+x 8
+y 8
+end
+arch wall_marble1.111a
+x 8
+y 8
+end
+arch floor_marble1a
+x 8
+y 9
+end
+arch wall_marble1.111a
+x 8
+y 9
+end
+arch floor_marble1
+x 8
+y 10
+end
+arch wall_marble1.141
+x 8
+y 10
 end
 arch blocked
 x 8

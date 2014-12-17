@@ -1,0 +1,608 @@
+arch map
+name Brynknot
+msg
+Created:  2011-02-06 Alex Tokar
+Modified: 2014-12-14 Alex Tokar
+endmsg
+width 24
+height 24
+difficulty 25
+darkness 3
+no_harm 1
+fixed_resettime 1
+tile_path_9 world_4_0312
+tile_path_10 world_2_0312
+bg_music town_music.ogg
+region brynknot
+end
+arch roof_thatch
+direction 4
+y 13
+end
+arch roof_thatch
+direction 3
+y 14
+end
+arch roof_thatch
+direction 3
+y 15
+end
+arch roof_thatch
+direction 3
+y 16
+end
+arch roof_thatch
+direction 3
+y 17
+end
+arch roof_thatch
+direction 3
+y 18
+end
+arch roof_thatch
+direction 3
+y 19
+end
+arch roof_thatch
+direction 3
+y 20
+end
+arch roof_thatch
+direction 3
+y 21
+end
+arch roof_thatch
+direction 3
+y 22
+end
+arch roof_thatch
+direction 5
+x 1
+y 13
+end
+arch chimney2
+z -10
+x 1
+y 14
+end
+arch roof_thatch
+x 1
+y 15
+end
+arch roof_thatch
+x 1
+y 16
+end
+arch roof_thatch
+x 1
+y 17
+end
+arch roof_thatch
+x 1
+y 18
+end
+arch roof_thatch
+x 1
+y 19
+end
+arch roof_thatch
+x 1
+y 20
+end
+arch roof_thatch
+x 1
+y 21
+end
+arch roof_thatch
+x 1
+y 22
+end
+arch blocked
+blocksview 0
+x 2
+y 4
+end
+arch wall_marble1.181
+x 2
+y 4
+end
+arch map_info
+name brynknot_church
+cursed 1
+hp 4
+sp 4
+is_magical 1
+x 2
+y 4
+end
+arch blocked
+blocksview 0
+x 2
+y 5
+end
+arch fence_metal.131
+x 2
+y 5
+end
+arch blocked
+blocksview 0
+x 2
+y 6
+end
+arch fence_metal.131
+x 2
+y 6
+end
+arch blocked
+blocksview 0
+x 2
+y 7
+end
+arch fence_metal.131
+x 2
+y 7
+end
+arch blocked
+x 2
+y 8
+end
+arch wall_marble1.111
+x 2
+y 8
+end
+arch roof_thatch
+direction 5
+x 2
+y 13
+end
+arch roof_thatch
+direction 7
+x 2
+y 14
+end
+arch roof_thatch
+direction 7
+x 2
+y 15
+end
+arch roof_thatch
+x 2
+y 16
+end
+arch roof_thatch
+x 2
+y 17
+end
+arch roof_thatch
+x 2
+y 18
+end
+arch roof_thatch
+x 2
+y 19
+end
+arch roof_thatch
+x 2
+y 20
+end
+arch roof_thatch
+x 2
+y 21
+end
+arch roof_thatch
+x 2
+y 22
+end
+arch blocked
+blocksview 0
+x 3
+y 4
+end
+arch fence_metal.111
+x 3
+y 4
+end
+arch floor_marble1a
+x 3
+y 5
+end
+arch floor_marble1a
+x 3
+y 6
+end
+arch floor_marble1a
+x 3
+y 7
+end
+arch floor_marble1b
+x 3
+y 8
+end
+arch fence_metal.111
+x 3
+y 8
+end
+arch roof_thatch
+direction 5
+x 3
+y 13
+end
+arch roof_thatch
+direction 7
+x 3
+y 14
+end
+arch roof_thatch
+direction 7
+x 3
+y 15
+end
+arch roof_thatch
+direction 7
+x 3
+y 16
+end
+arch roof_thatch
+x 3
+y 17
+end
+arch roof_thatch
+x 3
+y 18
+end
+arch roof_thatch
+x 3
+y 19
+end
+arch roof_thatch
+x 3
+y 20
+end
+arch roof_thatch
+x 3
+y 21
+end
+arch roof_thatch
+x 3
+y 22
+end
+arch blocked
+blocksview 0
+x 4
+y 4
+end
+arch fence_metal.111
+x 4
+y 4
+end
+arch floor_marble1
+x 4
+y 5
+end
+arch ladder_down2
+hp 4
+sp 5
+slaying world_2_0312
+x 4
+y 5
+end
+arch floor_marble1b
+x 4
+y 6
+end
+arch floor_marble1b
+x 4
+y 7
+end
+arch floor_marble1b
+x 4
+y 8
+end
+arch fence_metal.111
+x 4
+y 8
+end
+arch roof_thatch
+direction 5
+x 4
+y 13
+end
+arch roof_thatch
+direction 7
+x 4
+y 14
+end
+arch roof_thatch
+direction 7
+x 4
+y 15
+end
+arch roof_thatch
+direction 7
+x 4
+y 16
+end
+arch roof_thatch
+direction 7
+x 4
+y 17
+end
+arch roof_thatch
+x 4
+y 18
+end
+arch roof_thatch
+x 4
+y 19
+end
+arch roof_thatch
+x 4
+y 20
+end
+arch roof_thatch
+x 4
+y 21
+end
+arch roof_thatch
+x 4
+y 22
+end
+arch blocked
+blocksview 0
+x 5
+y 4
+end
+arch fence_metal.111
+x 5
+y 4
+end
+arch floor_marble1a
+x 5
+y 5
+end
+arch floor_marble1
+x 5
+y 6
+end
+arch floor_marble1
+x 5
+y 7
+end
+arch floor_marble1
+x 5
+y 8
+end
+arch fence_metal.111
+x 5
+y 8
+end
+arch roof_thatch
+direction 5
+x 5
+y 13
+end
+arch roof_thatch
+direction 7
+x 5
+y 14
+end
+arch roof_thatch
+direction 7
+x 5
+y 15
+end
+arch roof_thatch
+direction 7
+x 5
+y 16
+end
+arch roof_thatch
+direction 7
+x 5
+y 17
+end
+arch roof_thatch
+direction 7
+x 5
+y 18
+end
+arch roof_thatch
+x 5
+y 19
+end
+arch roof_thatch
+x 5
+y 20
+end
+arch roof_thatch
+x 5
+y 21
+end
+arch roof_thatch
+x 5
+y 22
+end
+arch blocked
+x 6
+y 4
+end
+arch wall_marble1.131
+x 6
+y 4
+end
+arch floor_marble1a
+x 6
+y 5
+end
+arch fence_metal.131
+x 6
+y 5
+end
+arch floor_marble1a
+x 6
+y 6
+end
+arch fence_metal.131
+x 6
+y 6
+end
+arch floor_marble1a
+x 6
+y 7
+end
+arch fence_metal.131
+x 6
+y 7
+end
+arch floor_marble1a
+x 6
+y 8
+end
+arch wall_marble1.141
+x 6
+y 8
+end
+arch roof_thatch
+direction 5
+x 6
+y 13
+end
+arch roof_thatch
+direction 7
+x 6
+y 14
+end
+arch roof_thatch
+direction 7
+x 6
+y 15
+end
+arch roof_thatch
+direction 7
+x 6
+y 16
+end
+arch roof_thatch
+direction 7
+x 6
+y 17
+end
+arch roof_thatch
+direction 7
+x 6
+y 18
+end
+arch roof_thatch
+direction 7
+x 6
+y 19
+end
+arch roof_thatch
+x 6
+y 20
+end
+arch roof_thatch
+x 6
+y 21
+end
+arch roof_thatch
+x 6
+y 22
+end
+arch roof_thatch
+direction 5
+x 7
+y 13
+end
+arch roof_thatch
+direction 7
+x 7
+y 14
+end
+arch roof_thatch
+direction 7
+x 7
+y 15
+end
+arch roof_thatch
+direction 7
+x 7
+y 16
+end
+arch roof_thatch
+direction 7
+x 7
+y 17
+end
+arch roof_thatch
+direction 7
+x 7
+y 18
+end
+arch roof_thatch
+direction 7
+x 7
+y 19
+end
+arch roof_thatch
+direction 7
+x 7
+y 20
+end
+arch roof_thatch
+x 7
+y 21
+end
+arch roof_thatch
+x 7
+y 22
+end
+arch roof_thatch
+direction 5
+x 8
+y 13
+end
+arch roof_thatch
+direction 7
+x 8
+y 14
+end
+arch roof_thatch
+direction 7
+x 8
+y 15
+end
+arch roof_thatch
+direction 7
+x 8
+y 16
+end
+arch roof_thatch
+direction 7
+x 8
+y 17
+end
+arch roof_thatch
+direction 7
+x 8
+y 18
+end
+arch roof_thatch
+direction 7
+x 8
+y 19
+end
+arch roof_thatch
+direction 7
+x 8
+y 20
+end
+arch roof_thatch
+direction 7
+x 8
+y 21
+end
+arch roof_thatch
+x 8
+y 22
+end

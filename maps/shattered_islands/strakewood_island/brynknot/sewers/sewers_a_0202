@@ -13,6 +13,8 @@ tile_path_2 sewers_a_0302
 tile_path_5 sewers_a_0303
 bg_music escape.mid
 region brynknot
+tile_path_3 sewers_a_0201
+tile_path_7 sewers_a_0101
 end
 arch floor_earth1e
 x 1

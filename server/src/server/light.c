@@ -318,7 +318,7 @@ void check_light_source_list(mapstruct *map)
     mapstruct *m;
     MapSpace *tmp;
 
-    for (i = 0; i < TILED_NUM; i++) {
+    for (i = 0; i < TILED_NUM_DIR; i++) {
         m = map->tile_map[i];
 
         if (m && (m->in_memory == MAP_IN_MEMORY || m->in_memory == MAP_LOADING) && m->first_light) {

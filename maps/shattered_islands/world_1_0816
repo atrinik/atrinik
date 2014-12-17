@@ -10,6 +10,8 @@ difficulty 1
 darkness 3
 bg_music joyful_life.mid
 region strakewood_island
+tile_path_9 world_2_0816
+tile_path_10 world_0816
 end
 arch blocked
 x 6
