@@ -673,24 +673,30 @@ def file_copy(file, output):
 
     fp.close()
 
-# Get paths to directories inside the root directory.
-for path in find_files(paths["root"], rec = False, ignore_dirs = False, ignore_files = True):
-    paths[os.path.basename(path)] = path
+def main():
+    # Get paths to directories inside the root directory.
+    for path in find_files(paths["root"], rec = False, ignore_dirs = False, ignore_files = True):
+        paths[os.path.basename(path)] = path
 
-if not "collect_none" in what_collect:
-    # Nothing was set to collect, so by default we'll collect everything.
-    if not what_collect:
-        for entry in dict(locals()):
-            if entry.startswith("collect_"):
-                what_collect.append(entry)
+    if not "collect_none" in what_collect:
+        # Nothing was set to collect, so by default we'll collect everything.
+        if not what_collect:
+            for entry in dict(globals()):
+                if entry.startswith("collect_"):
+                    what_collect.append(entry)
 
-    # Call the collecting functions.
-    for collect in what_collect:
-        locals()[collect]()
+        # Call the collecting functions.
+        for collect in what_collect:
+            print("Collecting {0}...".format(collect.split("_")[-1]))
+            globals()[collect]()
 
-# Copy all files in the arch directory to specified directory.
-if copy_dest:
-    files = find_files(paths["arch"], rec = False)
+    # Copy all files in the arch directory to specified directory.
+    if copy_dest:
+        files = find_files(paths["arch"], rec = False)
 
-    for path in files:
-        shutil.copyfile(path, os.path.join(copy_dest, os.path.basename(path)))
+        for path in files:
+            shutil.copyfile(path, os.path.join(copy_dest, os.path.basename(path)))
+
+print("Starting resource collection...")
+main()
+print("Done!")
