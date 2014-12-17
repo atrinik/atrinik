@@ -3,6 +3,8 @@ import queue
 import subprocess
 import sys
 import webbrowser
+import socket
+import struct
 
 from PyQt5 import QtGui, QtCore, QtWidgets
 from PyQt5.QtCore import QTimer, QObject
@@ -10,6 +12,7 @@ from PyQt5.QtWidgets import QMainWindow, QTableWidgetItem, QTableWidget, \
     QStyleOptionViewItem, QLabel, QStyledItemDelegate
 
 import system.constants
+from system.constants import game
 from system.utils import html2text
 from ui.dialog_about import DialogAbout
 from ui.dialog_preferences import DialogPreferences
@@ -50,6 +53,7 @@ class WindowMain(Model, QMainWindow, Ui_WindowMain):
         self.actionPreferences.triggered.connect(self.actionPreferencesTrigger)
 
         self.actionOpen_selected_in_editor.triggered.connect(self.actionOpen_selected_in_editorTrigger)
+        self.actionOpen_selected_in_client.triggered.connect(self.actionOpen_selected_in_clientTrigger)
 
         self.actionReport_a_problem.triggered.connect(self.actionReport_a_problemTrigger)
         self.actionAbout.triggered.connect(self.actionAboutTrigger)
@@ -111,6 +115,40 @@ class WindowMain(Model, QMainWindow, Ui_WindowMain):
         envs["PATH"] += delimiter + self.map_checker.path
         # Execute Gridarta.
         subprocess.Popen(["java", "-jar", self.config.get("General", "path_file_editor")] + maps, cwd = os.path.dirname(self.config.get("General", "path_file_editor")), env = envs, shell = True)
+
+    def open_client(self, path, loc):
+        if loc is None:
+            x = y = 0
+        else:
+            x, y = loc
+
+        app_name = "Atrinik Map Checker"
+
+        packets = []
+
+        packet = struct.pack("!B", game.server_commands.control)
+        packet += app_name.encode("ascii") + b"\0"
+        packet += struct.pack("!2B", game.server_commands.control_map,
+            game.server_commands.control_map_reset)
+        packet += path.encode("ascii") + b"\0"
+        packets.append(packet)
+
+        packet = struct.pack("!B", game.server_commands.control)
+        packet += app_name.encode("ascii") + b"\0"
+        packet += struct.pack("!2B", game.server_commands.control_player,
+            game.server_commands.control_player_teleport)
+        packet += b"\0"
+        packet += path.encode("ascii") + b"\0"
+        packet += struct.pack("!2H", x, y)
+        packets.append(packet)
+
+        s = socket.create_connection(("localhost", 13327), 5.0)
+
+        for packet in packets:
+            s.sendall(struct.pack("!2B", (len(packet) >> 8) & 0xff,
+                len(packet) & 0xff) + packet)
+
+        s.close()
 
     def widgetTableTrigger(self, item):
         table = self.getVisibleWidgetTable()
@@ -204,6 +242,18 @@ class WindowMain(Model, QMainWindow, Ui_WindowMain):
     def actionOpen_selected_in_editorTrigger(self):
         maps = set([self.widgetTableMaps.item(y, 0).data["file"]["path"] for y in set([x.row() for x in self.widgetTableMaps.selectedItems()])])
         self.open_maps(maps)
+
+    def actionOpen_selected_in_clientTrigger(self):
+        selected = set([x.row() for x in self.widgetTableMaps.selectedItems()])
+
+        if len(selected) != 1:
+            return
+
+        row, = selected
+        data = self.widgetTableMaps.item(row, 0).data
+        path = "/" + os.path.relpath(data["file"]["path"],
+            self.map_checker.getMapsPath()).replace(os.path.sep, "/")
+        self.open_client(path, data["loc"])
 
     def actionSelect_allTrigger(self):
         self.getVisibleWidgetTable().selectAll()

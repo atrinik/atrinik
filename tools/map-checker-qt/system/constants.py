@@ -68,6 +68,15 @@ class game:
         (0, 0, 1), (0, 0, -1)
     ]
 
+    class server_commands:
+        control = 0
+
+        control_map = 1
+        control_map_reset = 1
+
+        control_player = 2
+        control_player_teleport = 1
+
     class types:
         spawn_point = 81
         scroll = 111
