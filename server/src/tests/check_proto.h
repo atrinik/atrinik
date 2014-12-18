@@ -23,6 +23,8 @@ extern void check_server_re_cmp(void);
 extern void check_server_shstr(void);
 /* src/tests/unit/server/check_string.c */
 extern void check_server_string(void);
-/* src/tests/unit/server/check_utils.c*/
+/* src/tests/unit/server/check_utils.c */
 extern void check_server_utils(void);
+/* src/tests/unit/types/check_sound_ambient.c */
+extern void check_types_sound_ambient(void);
 #endif

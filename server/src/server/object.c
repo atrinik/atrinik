@@ -1403,6 +1403,10 @@ void object_destroy(object *ob)
             magic_mirror_deinit(ob);
             break;
 
+        case SOUND_AMBIENT:
+            sound_ambient_deinit(ob);
+            break;
+
         default:
             logger_print(LOG(BUG), "custom attrset found in unsupported object %s (type %d)", STRING_OBJ_NAME(ob), ob->type);
         }

@@ -792,6 +792,9 @@ lex_error = 0;
     op->weapon_speed_left = 0;
 }
 ^item_power{S}       op->item_power = IVAL;
+^match{S}            {
+    sound_ambient_match_parse(op, yval());
+}
 
 <*>(^{WS})|{NL}      {}
 #.*{NL}              {}

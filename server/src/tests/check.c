@@ -52,6 +52,7 @@ void check_main(void)
     path_ensure_directories("unit/bugs/");
     path_ensure_directories("unit/commands/");
     path_ensure_directories("unit/server/");
+    path_ensure_directories("unit/types/");
 
     /* bugs */
     check_bug_85();
@@ -69,4 +70,7 @@ void check_main(void)
     check_server_shstr();
     check_server_string();
     check_server_utils();
+
+    /* unit/types */
+    check_types_sound_ambient();
 }

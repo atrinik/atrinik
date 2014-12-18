@@ -1093,7 +1093,11 @@ extern void object_type_init_skill(void);
 /* src/types/skill_item.c */
 extern void object_type_init_skill_item(void);
 /* src/types/sound_ambient.c */
+extern const char *sound_ambient_match_str(object *ob);
+extern int sound_ambient_match(object *ob);
+extern void sound_ambient_match_parse(object *ob, const char *str);
 extern void sound_ambient_init(object *ob);
+extern void sound_ambient_deinit(object *ob);
 extern void object_type_init_sound_ambient(void);
 /* src/types/spawn_point.c */
 extern void spawn_point_enemy_signal(object *op);

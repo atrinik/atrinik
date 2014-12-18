@@ -679,7 +679,9 @@ void draw_client_map2(object *pl)
             /* If there is an ambient sound effect but it cannot be heard
              * through walls due to its configuration, we will pretend
              * there is no sound effect here. */
-            if (have_sound_ambient && !QUERY_FLAG(msp->sound_ambient, FLAG_XRAYS) && d & BLOCKED_LOS_BLOCKED) {
+            if (have_sound_ambient && ((!QUERY_FLAG(msp->sound_ambient,
+                    FLAG_XRAYS) && d & BLOCKED_LOS_BLOCKED) ||
+                    !sound_ambient_match(msp->sound_ambient))) {
                 have_sound_ambient = 0;
             }
 
