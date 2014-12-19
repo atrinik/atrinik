@@ -112,41 +112,8 @@ lex_error = 0;
 
     if (tile < 1 || tile > TILED_NUM) {
         logger_print(LOG(BUG), "Tile location %d out of bounds (%s)", tile, m->path);
-    }
-    else {
-        char *value, *path;
-        shstr *path_sh;
-        mapstruct *neighbor;
-
-        value = yval();
-
-        if (m->tile_path[tile - 1]) {
-            logger_print(LOG(BUG), "Tile location %d duplicated (%s <-> %s)", tile, m->path, m->tile_path[tile - 1]);
-            FREE_AND_CLEAR_HASH(m->tile_path[tile - 1]);
-        }
-
-        if (map_path_isabs(value)) {
-            path_sh = add_string(value);
-        }
-        else {
-            path = map_get_path(m, value, m->map_flags & MAP_FLAG_UNIQUE, NULL);
-            path_sh = add_string(path);
-            efree(path);
-        }
-
-        m->tile_path[tile - 1] = path_sh;
-
-        /* If the neighboring map tile has been loaded, set up the map pointers
-         * */
-        if ((neighbor = has_been_loaded_sh(path_sh)) && (neighbor->in_memory == MAP_IN_MEMORY || neighbor->in_memory == MAP_LOADING)) {
-            int dest_tile = map_tiled_reverse[tile - 1];
-
-            m->tile_map[tile - 1] = neighbor;
-
-            if (neighbor->tile_path[dest_tile] == NULL || neighbor->tile_path[dest_tile] == m->path) {
-                neighbor->tile_map[dest_tile] = m;
-            }
-        }
+    } else {
+        map_set_tile(m, tile - 1, yval());
     }
 }
 ^msg{WS}             {

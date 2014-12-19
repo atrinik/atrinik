@@ -424,6 +424,7 @@ extern int blocked_tile(object *op, mapstruct *m, int x, int y);
 extern int arch_blocked(archetype *at, object *op, mapstruct *m, int x, int y);
 extern void set_map_darkness(mapstruct *m, int value);
 extern mapstruct *get_linked_map(void);
+extern void map_set_tile(mapstruct *m, int tile, const char *pathname);
 extern mapstruct *get_empty_map(int sizex, int sizey);
 extern mapstruct *load_original_map(const char *filename, int flags);
 extern int new_save_map(mapstruct *m, int flag);

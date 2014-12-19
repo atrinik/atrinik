@@ -51,6 +51,19 @@ int map_tiled_reverse[TILED_NUM] = {
     TILED_UP /* TILED_DOWN */
 };
 
+static int map_tiled_coords[TILED_NUM][3] = {
+    {0, 1, 0},
+    {1, 0, 0},
+    {0, -1, 0},
+    {-1, 0, 0},
+    {1, 1, 0},
+    {1, -1, 0},
+    {-1, -1, 0},
+    {-1, 1, 0},
+    {0, 0, 1},
+    {0, 0, -1},
+};
+
 #define DEBUG_OLDFLAGS 1
 
 static void load_objects(mapstruct *m, FILE *fp, int mapflags);
@@ -888,6 +901,47 @@ mapstruct *get_empty_map(int sizex, int sizey)
     return m;
 }
 
+void map_set_tile(mapstruct *m, int tile, const char *pathname)
+{
+    char *path;
+    shstr *path_sh;
+    mapstruct *neighbor;
+
+    assert(m != NULL);
+    assert(tile >= 0 && tile < TILED_NUM);
+    assert(pathname != NULL);
+
+    if (m->tile_path[tile] != NULL) {
+        log(LOG(BUG), "Tile location %d duplicated (%s <-> %s)", tile, m->path,
+                m->tile_path[tile]);
+        FREE_AND_CLEAR_HASH(m->tile_path[tile]);
+    }
+
+    if (map_path_isabs(pathname)) {
+        path_sh = add_string(pathname);
+    } else {
+        path = map_get_path(m, pathname, m->map_flags & MAP_FLAG_UNIQUE, NULL);
+        path_sh = add_string(path);
+        efree(path);
+    }
+
+    m->tile_path[tile] = path_sh;
+    neighbor = has_been_loaded_sh(path_sh);
+
+    /* If the neighboring map tile has been loaded, set up the map pointers. */
+    if (neighbor != NULL && (neighbor->in_memory == MAP_IN_MEMORY ||
+            neighbor->in_memory == MAP_LOADING)) {
+        int dest_tile = map_tiled_reverse[tile];
+
+        m->tile_map[tile] = neighbor;
+
+        if (neighbor->tile_path[dest_tile] == NULL ||
+                neighbor->tile_path[dest_tile] == m->path) {
+            neighbor->tile_map[dest_tile] = m;
+        }
+    }
+}
+
 /**
  * Opens the file "filename" and reads information about the map
  * from the given file, and stores it in a newly allocated
@@ -904,7 +958,10 @@ mapstruct *load_original_map(const char *filename, int flags)
 {
     FILE *fp;
     mapstruct *m;
-    char pathname[HUGE_BUF];
+    char pathname[HUGE_BUF], split[MAX_BUF];
+    const char *basename;
+    size_t pos, coords_idx, coords_len;
+    sint16 coords[3];
 
     /* No sense in doing this all for random maps, it will all fail anyways. */
     if (!strncmp(filename, "/random/", 8)) {
@@ -944,6 +1001,66 @@ mapstruct *load_original_map(const char *filename, int flags)
         delete_map(m);
         fclose(fp);
         return NULL;
+    }
+
+    basename = strrchr(filename, '/') + 1;
+
+    if (basename - 1 == NULL) {
+        basename = filename;
+    }
+
+    pos = coords_idx = 0;
+    coords_len = 0;
+
+    while (string_get_word(basename, &pos, '_', split, sizeof(split), 0)) {
+        if (string_isdigit(split)) {
+            coords_len += strlen(split) + 1;
+            coords[coords_idx] = atoi(split);
+            coords_idx++;
+        }
+
+        if (coords_idx >= arraysize(coords)) {
+            break;
+        }
+    }
+
+    if (coords_idx >= 2) {
+        size_t i;
+        char *cp, *cp2, path[HUGE_BUF];
+
+        if (coords_idx == 2) {
+            coords[2] = 0;
+        }
+
+        cp = string_sub(pathname, 0, -coords_len);
+
+        for (i = 0; i < TILED_NUM; i++) {
+            if (m->tile_path[i] != NULL) {
+                continue;
+            }
+
+            if ((i == TILED_DOWN && coords[2] <= 0) ||
+                    (i == TILED_UP && coords[2] < 0)) {
+                continue;
+            }
+
+            snprintf(VS(path), "%s_%d_%d", cp,
+                    coords[0] + map_tiled_coords[i][0],
+                    coords[1] + map_tiled_coords[i][1]);
+
+            if (i >= TILED_NUM_DIR || coords[2] != 0) {
+                snprintfcat(VS(path), "_%d",
+                        coords[2] + map_tiled_coords[i][2]);
+            }
+
+            if (path_exists(path)) {
+                cp2 = path_basename(path);
+                map_set_tile(m, i, cp2);
+                efree(cp2);
+            }
+        }
+
+        efree(cp);
     }
 
     allocate_map(m);
