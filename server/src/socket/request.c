@@ -763,12 +763,13 @@ void draw_client_map2(object *pl)
              * anything above that will not be visible while they're in the
              * building, *but*, only for that building - other buildings will
              * have the upper floors. */
-            if (OBJECT_VALID(msp_pl->map_info, msp_pl->map_info_count) &&
+            if (!MAP_TILE_IS_SAME_LEVEL(m, 1) || (
+                    OBJECT_VALID(msp_pl->map_info, msp_pl->map_info_count) &&
                     OBJECT_VALID(msp->map_info, msp->map_info_count) &&
                     msp_pl->extra_flags & MSP_EXTRA_IS_BUILDING &&
                     msp->extra_flags & MSP_EXTRA_IS_BUILDING &&
                     (!(msp_pl->extra_flags & MSP_EXTRA_IS_BALCONY) ||
-                    msp_pl->map_info == msp->map_info)) {
+                    msp_pl->map_info == msp->map_info))) {
                 draw_up = 0;
             }
 
