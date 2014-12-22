@@ -3142,7 +3142,7 @@ int object_enter_map(object *op, object *exit_ob, mapstruct *m, int x, int y, ui
     }
 
     /* -1,-1 marks to use the default ENTER_xx position of the map */
-    if ((x == -1 && y == -1) || MAP_FIXEDLOGIN(m)) {
+    if ((x == -1 && y == -1) || (exit_ob == NULL && MAP_FIXEDLOGIN(m))) {
         x = MAP_ENTER_X(m);
         y = MAP_ENTER_Y(m);
     }
