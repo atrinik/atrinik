@@ -659,6 +659,72 @@ typedef struct mapdef {
     ((_m)->coords[2] + (_z) >= (_m)->level_min && \
     (_m)->coords[2] + (_z) <= (_m)->level_max)
 
+#define MAP_TILES_WALK_INTERNAL(_m, _fnc, ...) \
+    if (__ret == 0) { \
+        __ret = (_fnc)((_m), (_m), ##__VA_ARGS__); \
+    } \
+\
+    for (__idx = 0; __ret == 0 && __idx < TILED_NUM_DIR; __idx++) { \
+        if ((_m)->tile_map[__idx] == NULL || \
+                (_m)->tile_map[__idx]->in_memory != MAP_IN_MEMORY) { \
+            continue; \
+        } \
+\
+        __ret = (_fnc)((_m)->tile_map[__idx], (_m), ##__VA_ARGS__); \
+    }
+
+/**
+ * Walks all the tiled maps, including up/down maps that are on the same level
+ * as the specified map, including the direction-based tiled maps of those
+ * up/down maps.
+ * @param _m The map to walk.
+ * @param _fnc Function to apply to each map. This should have 'int' return
+ * value, which indicates whether to keep going or not. Non-zero return value
+ * will stop the walk, and can be retrieved with MAP_TILES_WALK_RETVAL. Two
+ * arguments are automatically supplied to the function: the first one is the
+ * tiled map, and the second one is either whatever map was supplied through
+ * the _m parameter, or a map that is tiled up/down to that map. This means that
+ * you can use the second 'map' parameter to do things like non-recursive
+ * distance calculation (since you need the specific map level for that, but you
+ * can still re-use the X/Y map tile coordinates).
+ * @param ... Additional arguments supplied to the function.
+ */
+#define MAP_TILES_WALK_START(_m, _fnc, ...) \
+{ \
+    int __ret, __idx, __tile_id, __z; \
+    mapstruct *__tile; \
+\
+    __ret = 0; \
+\
+    if ((_m)->in_memory == MAP_IN_MEMORY) { \
+        MAP_TILES_WALK_INTERNAL(_m, _fnc, ##__VA_ARGS__); \
+    } \
+\
+    for (__tile_id = TILED_UP; \
+            __ret == 0 && __tile_id <= TILED_DOWN; \
+            __tile_id++) { \
+        for (__tile = (_m)->tile_map[__tile_id], \
+                __z = __tile_id == TILED_UP ? 1 : -1; \
+                __ret == 0 && __tile != NULL && \
+                __tile->in_memory == MAP_IN_MEMORY && \
+                MAP_TILE_IS_SAME_LEVEL(_m, __z); \
+                __tile = __tile->tile_map[__tile_id], \
+                __z += __tile_id == TILED_UP ? 1 : -1) { \
+            MAP_TILES_WALK_INTERNAL(__tile, _fnc, ##__VA_ARGS__); \
+        } \
+    }
+
+/**
+ * Acquires the return value from the user-supplied function.
+ */
+#define MAP_TILES_WALK_RETVAL __ret
+
+/**
+ * Ends map tile walking block.
+ */
+#define MAP_TILES_WALK_END \
+}
+
 /**
  * This is used by get_rangevector() to determine where the other
  * creature is. */
