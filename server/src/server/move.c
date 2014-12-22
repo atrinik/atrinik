@@ -59,7 +59,7 @@ int move_ob(object *op, int dir, object *originator)
 {
     object *tmp, *floor, *floor_tmp;
     mapstruct *m;
-    int xt, yt, flags, z, z_highest, sub_layer, found_floor;
+    int xt, yt, flags, z, z_highest, sub_layer;
 
     if (op == NULL) {
         return 0;
@@ -119,7 +119,6 @@ int move_ob(object *op, int dir, object *originator)
     z = floor != NULL ? floor->z : 0;
     z_highest = 0;
     sub_layer = 0;
-    found_floor = 0;
 
     FOR_MAP_LAYER_BEGIN(m, xt, yt, LAYER_FLOOR, -1, floor_tmp)
     {
@@ -127,18 +126,12 @@ int move_ob(object *op, int dir, object *originator)
             continue;
         }
 
-        found_floor = 1;
-
         if (floor_tmp->z > z_highest) {
             z_highest = floor_tmp->z;
             sub_layer = floor_tmp->sub_layer;
         }
     }
     FOR_MAP_LAYER_END
-
-    if (!found_floor && (op->type != PLAYER || !CONTR(op)->tcl)) {
-        return 0;
-    }
 
     object_remove(op, 0);
 
