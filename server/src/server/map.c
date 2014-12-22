@@ -1068,6 +1068,8 @@ mapstruct *load_original_map(const char *filename, int flags)
 
     if (m->level_max == 0 && m->coords[2] >= 0) {
         m->level_max = SINT8_MAX;
+    } else if (m->level_max == 0 && m->level_min == 0) {
+        m->level_min = m->level_max = m->coords[2];
     }
 
     allocate_map(m);
