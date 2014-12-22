@@ -69,10 +69,38 @@ static int move_on_func(object *op, object *victim, object *originator, int stat
     return apply_func(op, victim, 0);
 }
 
+/** @copydoc object_methods::insert_map_func */
+static void insert_map_func(object *op)
+{
+    if (EXIT_PATH(op) == NULL &&
+            op->last_heal > 0 && op->last_heal <= TILED_NUM &&
+            op->map->tile_path[op->last_heal - 1] != NULL) {
+        FREE_AND_ADD_REF_HASH(EXIT_PATH(op),
+                op->map->tile_path[op->last_heal - 1]);
+
+        EXIT_X(op) = op->x;
+        EXIT_Y(op) = op->y;
+
+        if (!QUERY_FLAG(op, FLAG_WALK_ON) && !QUERY_FLAG(op, FLAG_FLY_ON)) {
+            int dir;
+
+            if (op->last_heal - 1 == TILED_UP) {
+                dir = absdir(op->direction + 4);
+            } else {
+                dir = op->direction;
+            }
+
+            EXIT_X(op) += freearr_x[dir];
+            EXIT_Y(op) += freearr_y[dir];
+        }
+    }
+}
+
 /**
  * Initialize the exit type object methods. */
 void object_type_init_exit(void)
 {
     object_type_methods[EXIT].apply_func = apply_func;
     object_type_methods[EXIT].move_on_func = move_on_func;
+    object_type_methods[EXIT].insert_map_func = insert_map_func;
 }
