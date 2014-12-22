@@ -38,6 +38,7 @@ static void process_func(object *op)
 
     if (op->stats.hp == 0 || !get_owner(op)) {
         object_remove(op, 0);
+        object_destroy(op);
         return;
     }
 

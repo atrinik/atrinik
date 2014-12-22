@@ -676,8 +676,9 @@ int cast_cone(object *op, object *caster, int dir, int strength, int spell_type,
         /* Was not inserted */
         if (!QUERY_FLAG(tmp, FLAG_REMOVED)) {
             object_remove(tmp, 0);
-            object_destroy(tmp);
         }
+
+        object_destroy(tmp);
     }
 
     return success;
@@ -709,8 +710,6 @@ void cone_drop(object *op)
 void explode_object(object *op)
 {
     tag_t op_tag = op->count;
-    object *tmp;
-    int type;
 
     play_sound_map(op->map, CMD_SOUND_EFFECT, "explosion.ogg", op->x, op->y, 0, 0);
 
@@ -721,15 +720,8 @@ void explode_object(object *op)
         return;
     }
 
-    tmp = arch_to_object(op->other_arch);
-    type = tmp->stats.sp;
-
-    if (!type) {
-        type = op->stats.sp;
-    }
-
-    copy_owner(tmp, op);
-    cast_cone(op, op, 0, spells[type].bdur, type, op->other_arch);
+    cast_cone(op, op, 0, spells[op->stats.sp].bdur, op->stats.sp,
+            op->other_arch);
     hit_map(op, 0, 0);
 
     /* remove the firebullet */
