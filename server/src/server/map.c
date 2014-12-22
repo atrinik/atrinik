@@ -52,14 +52,14 @@ int map_tiled_reverse[TILED_NUM] = {
 };
 
 static int map_tiled_coords[TILED_NUM][3] = {
-    {0, 1, 0},
-    {1, 0, 0},
     {0, -1, 0},
+    {1, 0, 0},
+    {0, 1, 0},
     {-1, 0, 0},
-    {1, 1, 0},
     {1, -1, 0},
-    {-1, -1, 0},
+    {1, 1, 0},
     {-1, 1, 0},
+    {-1, -1, 0},
     {0, 0, 1},
     {0, 0, -1},
 };
@@ -961,7 +961,7 @@ mapstruct *load_original_map(const char *filename, int flags)
     char pathname[HUGE_BUF], split[MAX_BUF];
     const char *basename;
     size_t pos, coords_idx, coords_len;
-    sint16 coords[3];
+    sint16 old_style_z;
 
     /* No sense in doing this all for random maps, it will all fail anyways. */
     if (!strncmp(filename, "/random/", 8)) {
@@ -1011,15 +1011,25 @@ mapstruct *load_original_map(const char *filename, int flags)
 
     pos = coords_idx = 0;
     coords_len = 0;
+    old_style_z = 0;
 
     while (string_get_word(basename, &pos, '_', split, sizeof(split), 0)) {
+        if (strlen(split) == 1) {
+            old_style_z = string_isdigit(split) ? atoi(split) :
+                'a' - *split - 1;
+        } else if (strlen(split) > 3) {
+            /* TODO: remove this hack (avoids parsing old-style naming
+             * convention like map_0101) */
+            continue;
+        }
+
         if (string_isdigit(split)) {
             coords_len += strlen(split) + 1;
-            coords[coords_idx] = atoi(split);
+            m->coords[coords_idx] = atoi(split);
             coords_idx++;
         }
 
-        if (coords_idx >= arraysize(coords)) {
+        if (coords_idx >= arraysize(m->coords)) {
             break;
         }
     }
@@ -1028,10 +1038,6 @@ mapstruct *load_original_map(const char *filename, int flags)
         size_t i;
         char *cp, *cp2, path[HUGE_BUF];
 
-        if (coords_idx == 2) {
-            coords[2] = 0;
-        }
-
         cp = string_sub(pathname, 0, -coords_len);
 
         for (i = 0; i < TILED_NUM; i++) {
@@ -1039,18 +1045,13 @@ mapstruct *load_original_map(const char *filename, int flags)
                 continue;
             }
 
-            if ((i == TILED_DOWN && coords[2] <= 0) ||
-                    (i == TILED_UP && coords[2] < 0)) {
-                continue;
-            }
-
             snprintf(VS(path), "%s_%d_%d", cp,
-                    coords[0] + map_tiled_coords[i][0],
-                    coords[1] + map_tiled_coords[i][1]);
+                    m->coords[0] + map_tiled_coords[i][0],
+                    m->coords[1] + map_tiled_coords[i][1]);
 
-            if (i >= TILED_NUM_DIR || coords[2] != 0) {
+            if (i >= TILED_NUM_DIR || m->coords[2] != 0) {
                 snprintfcat(VS(path), "_%d",
-                        coords[2] + map_tiled_coords[i][2]);
+                        m->coords[2] + map_tiled_coords[i][2]);
             }
 
             if (path_exists(path)) {
@@ -1061,6 +1062,12 @@ mapstruct *load_original_map(const char *filename, int flags)
         }
 
         efree(cp);
+    } else {
+        m->coords[2] = old_style_z;
+    }
+
+    if (m->level_max == 0 && m->coords[2] >= 0) {
+        m->level_max = SINT8_MAX;
     }
 
     allocate_map(m);

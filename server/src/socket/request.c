@@ -801,6 +801,12 @@ void draw_client_map2(object *pl)
                             tiled = get_map_from_tiled(m, tiled_dir);
                         }
 
+                        if (tiled != NULL && !MAP_TILE_IS_SAME_LEVEL(m,
+                                tiled_depth + (tiled_dir == TILED_UP ?
+                                    1 : -1))) {
+                            tiled = NULL;
+                        }
+
                         if (tiled != NULL && (draw_up ||
                                 tiled_dir == TILED_DOWN)) {
                             msp_tmp = GET_MAP_SPACE_PTR(tiled, nx, ny);

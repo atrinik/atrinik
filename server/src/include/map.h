@@ -642,7 +642,22 @@ typedef struct mapdef {
      * have one set.
      * @see MAP_FLAG_FIXED_LOGIN */
     int enter_y;
+
+    sint16 coords[3]; ///< X, Y and Z coordinates.
+
+    sint8 level_min; ///< Minimum level offset that is part of this map.
+
+    sint8 level_max; ///< Maximum level offset that is part of this map.
 } mapstruct;
+
+/**
+ * Checks if the specified map level offset is part of the map.
+ * @param _m Map.
+ * @param _z Level offset.
+ */
+#define MAP_TILE_IS_SAME_LEVEL(_m, _z) \
+    ((_m)->coords[2] + (_z) >= (_m)->level_min && \
+    (_m)->coords[2] + (_z) <= (_m)->level_max)
 
 /**
  * This is used by get_rangevector() to determine where the other
