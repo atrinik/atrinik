@@ -1,0 +1,3065 @@
+arch map
+name The Underground City
+msg
+Created:  2009-09-10 Alex Tokar
+Modified: 2011-11-04 Alex Tokar
+endmsg
+width 24
+height 24
+difficulty 35
+darkness 2
+bg_music thonkdonk.ogg
+region underground_city
+end
+arch floor_stone_b1
+end
+arch wall_dungeon_3
+end
+arch floor_stone_b4
+y 1
+end
+arch wall_dungeon_3
+y 1
+end
+arch floor_stone_b1
+y 2
+end
+arch wall_dungeon_3
+y 2
+end
+arch floor_stone_b3
+y 3
+end
+arch wall_dungeon_3
+y 3
+end
+arch floor_stone_b3
+y 4
+end
+arch wall_dungeon_3
+y 4
+end
+arch floor_stone_b3
+y 7
+end
+arch wall_dungeon_8
+y 7
+end
+arch floor_stone_b3
+y 8
+end
+arch wall_dungeon_3
+y 8
+end
+arch plant1_wall.151
+direction 5
+y 8
+end
+arch floor_stone_b4
+y 9
+end
+arch wall_dungeon_3
+y 9
+end
+arch floor_stone_b2
+y 10
+end
+arch wall_dungeon_3
+y 10
+end
+arch floor_stone_b4
+y 11
+end
+arch wall_dungeon_3
+y 11
+end
+arch picture6.151
+direction 7
+y 11
+end
+arch floor_stone_b1
+y 12
+end
+arch wall_dungeon_3
+y 12
+end
+arch floor_stone_b2
+y 13
+end
+arch wall_dungeon_3
+y 13
+end
+arch picture5.151
+direction 7
+y 13
+end
+arch floor_stone_b4
+y 14
+end
+arch wall_dungeon_3
+y 14
+end
+arch floor_stone_b1
+y 15
+end
+arch wall_dungeon_3
+y 15
+end
+arch floor_stone_b1
+y 16
+end
+arch wall_dungeon_3
+y 16
+end
+arch picture6.151
+direction 7
+y 16
+end
+arch floor_stone_b2
+y 17
+end
+arch wall_dungeon_3
+y 17
+end
+arch floor_stone_b4
+y 18
+end
+arch wall_dungeon_3
+y 18
+end
+arch plant1_wall.151
+direction 5
+y 18
+end
+arch floor_stone_b1
+y 19
+end
+arch wall_dungeon_3
+y 19
+end
+arch floor_stone_b3
+x 1
+end
+arch carpet1.131
+x 1
+end
+arch floor_stone_b3
+x 1
+y 1
+end
+arch carpet1.131
+x 1
+y 1
+end
+arch candlelight1.101
+x 1
+y 1
+end
+arch light2
+x 1
+y 1
+end
+arch floor_stone_b4
+x 1
+y 2
+end
+arch carpet1.131
+x 1
+y 2
+end
+arch floor_stone_b2
+x 1
+y 3
+end
+arch candlelight4.101
+x 1
+y 3
+end
+arch light2
+x 1
+y 3
+end
+arch floor_stone_b4
+x 1
+y 4
+end
+arch wall_dungeon_1
+x 1
+y 4
+end
+arch floor_stone_b1
+x 1
+y 5
+end
+arch wall_dungeon_3
+x 1
+y 5
+end
+arch floor_stone_b2
+x 1
+y 6
+end
+arch wall_dungeon_3
+x 1
+y 6
+end
+arch floor_stone_b4
+x 1
+y 7
+end
+arch wall_dungeon_4
+x 1
+y 7
+end
+arch floor_stone_b1
+x 1
+y 8
+end
+arch floor_stone_b1
+x 1
+y 9
+end
+arch floor_stone_b2
+x 1
+y 10
+end
+arch torch_wall_1
+direction 5
+x 1
+y 10
+end
+arch floor_stone_b2
+x 1
+y 11
+end
+arch floor_stone_b2
+x 1
+y 12
+end
+arch bank1.111
+direction 5
+x 1
+y 12
+end
+arch floor_stone_b4
+x 1
+y 13
+end
+arch floor_stone_b1
+x 1
+y 14
+end
+arch bank1.111
+direction 5
+x 1
+y 14
+end
+arch floor_stone_b2
+x 1
+y 15
+end
+arch floor_stone_b2
+x 1
+y 16
+end
+arch bank1.111
+direction 5
+x 1
+y 16
+end
+arch floor_stone_b4
+x 1
+y 17
+end
+arch dirt_floor2
+x 1
+y 17
+end
+arch floor_stone_b1
+x 1
+y 18
+end
+arch torch_wall_1
+direction 5
+x 1
+y 18
+end
+arch floor_stone_b2
+x 1
+y 19
+end
+arch wall_dungeon_1
+x 1
+y 19
+end
+arch floor_stone_b3
+x 1
+y 20
+end
+arch wall_dungeon_3
+x 1
+y 20
+end
+arch floor_stone_b4
+x 1
+y 21
+end
+arch wall_dungeon_3
+x 1
+y 21
+end
+arch floor_stone_b1
+x 1
+y 22
+end
+arch wall_dungeon_3
+x 1
+y 22
+end
+arch floor_pattern_brown3
+x 2
+end
+arch blood_floor2
+x 2
+end
+arch floor_pattern_brown3
+x 2
+y 1
+end
+arch floor_pattern_brown3
+x 2
+y 2
+end
+arch floor_stone_b2
+x 2
+y 3
+end
+arch carpet1.111
+x 2
+y 3
+end
+arch floor_stone_b1
+x 2
+y 4
+end
+arch floor_stone_b2
+x 2
+y 5
+end
+arch floor_stone_b4
+x 2
+y 6
+end
+arch wall_dungeon_1
+x 2
+y 6
+end
+arch floor_stone_b1
+x 2
+y 7
+end
+arch floor_stone_b2
+x 2
+y 8
+end
+arch amphora1.101
+x 2
+y 8
+end
+arch floor_stone_b3
+x 2
+y 9
+end
+arch dirt_floor1
+x 2
+y 9
+end
+arch floor_stone_b4
+x 2
+y 10
+end
+arch floor_stone_b1
+x 2
+y 11
+end
+arch dirt_floor2
+x 2
+y 11
+end
+arch floor_stone_b4
+x 2
+y 12
+end
+arch spawn_point
+x 2
+y 12
+arch orc_warrior
+level 32
+type 83
+end
+end
+arch floor_stone_b3
+x 2
+y 13
+end
+arch blood_floor2
+x 2
+y 13
+end
+arch floor_stone_b2
+x 2
+y 14
+end
+arch dirt_floor1
+x 2
+y 14
+end
+arch floor_stone_b3
+x 2
+y 15
+end
+arch floor_stone_b4
+x 2
+y 16
+end
+arch spawn_point
+x 2
+y 16
+arch orc_warrior
+level 32
+type 83
+end
+end
+arch floor_stone_b3
+x 2
+y 17
+end
+arch floor_stone_b2
+x 2
+y 18
+end
+arch blood_floor1
+x 2
+y 18
+end
+arch floor_stone_b4
+x 2
+y 19
+end
+arch floor_stone_b2
+x 2
+y 20
+end
+arch floor_stone_b1
+x 2
+y 21
+end
+arch pottery6.101
+x 2
+y 21
+end
+arch floor_stone_b2
+x 2
+y 22
+end
+arch wall_dungeon_1
+x 2
+y 22
+end
+arch floor_stone_b4
+x 2
+y 23
+end
+arch wall_dungeon_3
+x 2
+y 23
+end
+arch floor_pattern_brown3
+x 3
+end
+arch chair1_drop_171
+x 3
+end
+arch floor_pattern_brown3
+x 3
+y 1
+end
+arch floor_pattern_brown3
+x 3
+y 2
+end
+arch blood_floor1
+x 3
+y 2
+end
+arch floor_stone_b4
+x 3
+y 3
+end
+arch carpet1.111
+x 3
+y 3
+end
+arch floor_stone_b2
+x 3
+y 4
+end
+arch floor_stone_b4
+x 3
+y 5
+end
+arch dirt_floor2
+x 3
+y 5
+end
+arch floor_stone_b3
+x 3
+y 6
+end
+arch door1_locked
+x 3
+y 6
+end
+arch floor_stone_b2
+x 3
+y 7
+end
+arch floor_stone_b4
+x 3
+y 8
+end
+arch floor_stone_b2
+x 3
+y 9
+end
+arch blood_floor1
+x 3
+y 9
+end
+arch floor_stone_b1
+x 3
+y 10
+end
+arch floor_stone_b2
+x 3
+y 11
+end
+arch floor_stone_b1
+x 3
+y 12
+end
+arch floor_stone_b4
+x 3
+y 13
+end
+arch floor_stone_b2
+x 3
+y 14
+end
+arch spawn_point
+x 3
+y 14
+arch orc_berserker
+level 32
+type 83
+end
+end
+arch floor_stone_b4
+x 3
+y 15
+end
+arch floor_stone_b3
+x 3
+y 16
+end
+arch dirt_floor2
+x 3
+y 16
+end
+arch floor_stone_b1
+x 3
+y 17
+end
+arch floor_stone_b1
+x 3
+y 18
+end
+arch floor_stone_b2
+x 3
+y 19
+end
+arch floor_stone_b1
+x 3
+y 20
+end
+arch floor_stone_b2
+x 3
+y 21
+end
+arch blood_floor2
+x 3
+y 21
+end
+arch floor_stone_b4
+x 3
+y 22
+end
+arch dirt_floor1
+x 3
+y 22
+end
+arch floor_stone_b2
+x 3
+y 23
+end
+arch torch_wall_1
+direction 5
+x 3
+y 23
+end
+arch floor_pattern_brown3
+x 4
+end
+arch floor_pattern_brown3
+x 4
+y 1
+end
+arch chair1_111
+direction 5
+x 4
+y 1
+end
+arch floor_pattern_brown3
+x 4
+y 2
+end
+arch floor_stone_b1
+x 4
+y 3
+end
+arch carpet1.111
+x 4
+y 3
+end
+arch floor_stone_b2
+x 4
+y 4
+end
+arch wall_dungeon_8
+x 4
+y 4
+end
+arch floor_stone_b3
+x 4
+y 5
+end
+arch wall_dungeon_3
+x 4
+y 5
+end
+arch floor_stone_b1
+x 4
+y 6
+end
+arch wall_dungeon_4
+x 4
+y 6
+end
+arch floor_stone_b1
+x 4
+y 7
+end
+arch wall_dungeon_3
+x 4
+y 7
+end
+arch floor_stone_b2
+x 4
+y 8
+end
+arch amphora2.101
+x 4
+y 8
+end
+arch floor_stone_b1
+x 4
+y 9
+end
+arch floor_stone_b2
+x 4
+y 10
+end
+arch floor_stone_b4
+x 4
+y 11
+end
+arch dirt_floor2
+x 4
+y 11
+end
+arch floor_stone_b4
+x 4
+y 12
+end
+arch floor_stone_b1
+x 4
+y 13
+end
+arch dirt_floor1
+x 4
+y 13
+end
+arch floor_stone_b2
+x 4
+y 14
+end
+arch floor_stone_b1
+x 4
+y 15
+end
+arch floor_stone_b2
+x 4
+y 16
+end
+arch floor_stone_b3
+x 4
+y 17
+end
+arch blood_floor2
+x 4
+y 17
+end
+arch floor_stone_b2
+x 4
+y 18
+end
+arch floor_stone_b3
+x 4
+y 19
+end
+arch dirt_floor1
+x 4
+y 19
+end
+arch floor_stone_b2
+x 4
+y 20
+end
+arch floor_stone_b3
+x 4
+y 21
+end
+arch floor_stone_b2
+x 4
+y 22
+end
+arch floor_stone_b4
+x 4
+y 23
+end
+arch floor_pattern_brown3
+x 5
+end
+arch dirt_floor1
+x 5
+end
+arch floor_pattern_brown3
+x 5
+y 1
+end
+arch floor_pattern_brown3
+x 5
+y 2
+end
+arch chair1_drop_171
+x 5
+y 2
+end
+arch floor_stone_b2
+x 5
+y 3
+end
+arch carpet1.111
+x 5
+y 3
+end
+arch floor_stone_b2
+x 5
+y 4
+end
+arch wall_dungeon_1
+x 5
+y 4
+end
+arch floor_stone_b2
+x 5
+y 7
+end
+arch wall_dungeon_1
+x 5
+y 7
+end
+arch floor_stone_b3
+x 5
+y 8
+end
+arch floor_stone_b2
+x 5
+y 9
+end
+arch dirt_floor1
+x 5
+y 9
+end
+arch floor_stone_b3
+x 5
+y 10
+end
+arch floor_stone_b2
+x 5
+y 11
+end
+arch floor_stone_b2
+x 5
+y 12
+end
+arch floor_stone_b3
+x 5
+y 13
+end
+arch floor_stone_b4
+x 5
+y 14
+end
+arch floor_stone_b2
+x 5
+y 15
+end
+arch floor_stone_b4
+x 5
+y 16
+end
+arch floor_stone_b1
+x 5
+y 17
+end
+arch floor_stone_b3
+x 5
+y 18
+end
+arch floor_stone_b1
+x 5
+y 19
+end
+arch floor_stone_b2
+x 5
+y 20
+end
+arch floor_stone_b3
+x 5
+y 21
+end
+arch floor_stone_b3
+x 5
+y 22
+end
+arch wall_dungeon_8
+x 5
+y 22
+end
+arch floor_stone_b3
+x 5
+y 23
+end
+arch wall_dungeon_3
+x 5
+y 23
+end
+arch floor_pattern_brown3
+x 6
+end
+arch floor_pattern_brown3
+x 6
+y 1
+end
+arch floor_pattern_brown3
+x 6
+y 2
+end
+arch floor_stone_b1
+x 6
+y 3
+end
+arch carpet1.111
+x 6
+y 3
+end
+arch floor_stone_b1
+x 6
+y 4
+end
+arch wall_dungeon_1
+x 6
+y 4
+end
+arch floor_stone_b3
+x 6
+y 7
+end
+arch wall_dungeon_1
+x 6
+y 7
+end
+arch floor_stone_b1
+x 6
+y 8
+end
+arch wall_dungeon_3
+x 6
+y 8
+end
+arch floor_stone_b2
+x 6
+y 9
+end
+arch floor_stone_b3
+x 6
+y 10
+end
+arch floor_stone_b3
+x 6
+y 11
+end
+arch wall_dungeon_8
+x 6
+y 11
+end
+arch floor_stone_b1
+x 6
+y 12
+end
+arch wall_dungeon_3
+x 6
+y 12
+end
+arch floor_stone_b3
+x 6
+y 13
+end
+arch wall_dungeon_3
+x 6
+y 13
+end
+arch floor_stone_b1
+x 6
+y 14
+end
+arch wall_dungeon_3
+x 6
+y 14
+end
+arch floor_stone_b2
+x 6
+y 15
+end
+arch wall_dungeon_3
+x 6
+y 15
+end
+arch floor_stone_b3
+x 6
+y 16
+end
+arch wall_dungeon_3
+x 6
+y 16
+end
+arch floor_stone_b4
+x 6
+y 17
+end
+arch wall_dungeon_3
+x 6
+y 17
+end
+arch floor_stone_b2
+x 6
+y 18
+end
+arch wall_dungeon_3
+x 6
+y 18
+end
+arch floor_stone_b1
+x 6
+y 19
+end
+arch floor_stone_b2
+x 6
+y 20
+end
+arch floor_stone_b4
+x 6
+y 21
+end
+arch wall_dungeon_8
+x 6
+y 21
+end
+arch floor_stone_b1
+x 6
+y 22
+end
+arch wall_dungeon_4
+x 6
+y 22
+end
+arch floor_stone_b1
+x 7
+end
+arch carpet1.171
+x 7
+end
+arch floor_stone_b2
+x 7
+y 1
+end
+arch carpet1.171
+x 7
+y 1
+end
+arch candlelight3.101
+x 7
+y 1
+end
+arch light2
+x 7
+y 1
+end
+arch floor_stone_b4
+x 7
+y 2
+end
+arch carpet1.171
+x 7
+y 2
+end
+arch floor_stone_b4
+x 7
+y 3
+end
+arch candlelight4.101
+x 7
+y 3
+end
+arch light2
+x 7
+y 3
+end
+arch floor_stone_b3
+x 7
+y 4
+end
+arch wall_dungeon_1
+x 7
+y 4
+end
+arch floor_stone_b1
+x 7
+y 8
+end
+arch wall_dungeon_1
+x 7
+y 8
+end
+arch floor_stone_b2
+x 7
+y 9
+end
+arch floor_stone_b4
+x 7
+y 10
+end
+arch floor_stone_b1
+x 7
+y 11
+end
+arch wall_dungeon_1
+x 7
+y 11
+end
+arch floor_stone_b2
+x 7
+y 18
+end
+arch wall_dungeon_1
+x 7
+y 18
+end
+arch floor_stone_b2
+x 7
+y 19
+end
+arch wall_dungeon_3
+x 7
+y 19
+end
+arch floor_stone_b4
+x 7
+y 20
+end
+arch door1_locked
+direction 3
+x 7
+y 20
+end
+arch floor_stone_b1
+x 7
+y 21
+end
+arch wall_dungeon_4
+x 7
+y 21
+end
+arch floor_stone_b2
+x 8
+end
+arch wall_dungeon_3
+x 8
+end
+arch floor_stone_b3
+x 8
+y 1
+end
+arch wall_dungeon_3
+x 8
+y 1
+end
+arch floor_stone_b2
+x 8
+y 2
+end
+arch wall_dungeon_3
+x 8
+y 2
+end
+arch floor_stone_b2
+x 8
+y 3
+end
+arch wall_dungeon_3
+x 8
+y 3
+end
+arch floor_stone_b4
+x 8
+y 4
+end
+arch wall_dungeon_4
+x 8
+y 4
+end
+arch floor_stone_b2
+x 8
+y 8
+end
+arch wall_dungeon_1
+x 8
+y 8
+end
+arch floor_stone_b4
+x 8
+y 9
+end
+arch wall_dungeon_3
+x 8
+y 9
+end
+arch floor_stone_b1
+x 8
+y 10
+end
+arch door1_locked
+direction 3
+x 8
+y 10
+end
+arch floor_stone_b2
+x 8
+y 11
+end
+arch wall_dungeon_4
+x 8
+y 11
+end
+arch floor_stone_b4
+x 8
+y 18
+end
+arch wall_dungeon_1
+x 8
+y 18
+end
+arch floor_stone_b4
+x 8
+y 19
+end
+arch floor_stone_b3
+x 8
+y 20
+end
+arch floor_stone_b2
+x 8
+y 21
+end
+arch wall_dungeon_1
+x 8
+y 21
+end
+arch floor_stone_b4
+x 9
+y 7
+end
+arch wall_dungeon_8
+x 9
+y 7
+end
+arch floor_stone_b4
+x 9
+y 8
+end
+arch wall_dungeon_4
+x 9
+y 8
+end
+arch floor_stone_b3
+x 9
+y 9
+end
+arch floor_stone_b4
+x 9
+y 10
+end
+arch floor_stone_b4
+x 9
+y 11
+end
+arch wall_dungeon_1
+x 9
+y 11
+end
+arch floor_stone_b1
+x 9
+y 12
+end
+arch wall_dungeon_3
+x 9
+y 12
+end
+arch floor_stone_b2
+x 9
+y 17
+end
+arch wall_dungeon_8
+x 9
+y 17
+end
+arch floor_stone_b1
+x 9
+y 18
+end
+arch wall_dungeon_4
+x 9
+y 18
+end
+arch floor_stone_b3
+x 9
+y 19
+end
+arch floor_stone_b1
+x 9
+y 20
+end
+arch floor_stone_b1
+x 9
+y 21
+end
+arch wall_dungeon_1
+x 9
+y 21
+end
+arch floor_stone_b2
+x 9
+y 22
+end
+arch wall_dungeon_3
+x 9
+y 22
+end
+arch plant1_wall.151
+direction 5
+x 9
+y 22
+end
+arch floor_stone_b3
+x 9
+y 23
+end
+arch wall_dungeon_3
+x 9
+y 23
+end
+arch floor_stone_b1
+x 10
+y 7
+end
+arch wall_dungeon_1
+x 10
+y 7
+end
+arch floor_stone_b3
+x 10
+y 8
+end
+arch torch_wall_1
+direction 5
+x 10
+y 8
+end
+arch floor_stone_b1
+x 10
+y 9
+end
+arch blood_floor2
+x 10
+y 9
+end
+arch floor_stone_b1
+x 10
+y 10
+end
+arch floor_stone_b2
+x 10
+y 11
+end
+arch dirt_floor3
+x 10
+y 11
+end
+arch floor_stone_b2
+x 10
+y 12
+end
+arch wall_dungeon_1
+x 10
+y 12
+end
+arch floor_stone_b2
+x 10
+y 17
+end
+arch wall_dungeon_1
+x 10
+y 17
+end
+arch plant1_wall.151
+x 10
+y 17
+end
+arch floor_stone_b4
+x 10
+y 18
+end
+arch floor_stone_b1
+x 10
+y 19
+end
+arch dirt_floor1
+x 10
+y 19
+end
+arch floor_stone_b1
+x 10
+y 20
+end
+arch floor_stone_b2
+x 10
+y 21
+end
+arch floor_stone_b2
+x 10
+y 22
+end
+arch floor_stone_b2
+x 10
+y 23
+end
+arch torch_wall_1
+direction 5
+x 10
+y 23
+end
+arch floor_stone_b4
+x 11
+end
+arch wall_dungeon_3
+x 11
+end
+arch picture6.151
+direction 7
+x 11
+end
+arch floor_stone_b1
+x 11
+y 1
+end
+arch wall_dungeon_3
+x 11
+y 1
+end
+arch floor_stone_b2
+x 11
+y 2
+end
+arch wall_dungeon_3
+x 11
+y 2
+end
+arch picture6.151
+direction 7
+x 11
+y 2
+end
+arch floor_stone_b1
+x 11
+y 3
+end
+arch wall_dungeon_3
+x 11
+y 3
+end
+arch floor_stone_b1
+x 11
+y 4
+end
+arch wall_dungeon_3
+x 11
+y 4
+end
+arch floor_stone_b2
+x 11
+y 7
+end
+arch wall_dungeon_1
+x 11
+y 7
+end
+arch plant1_wall.151
+x 11
+y 7
+end
+arch floor_stone_b2
+x 11
+y 8
+end
+arch floor_stone_b3
+x 11
+y 9
+end
+arch dirt_floor1
+x 11
+y 9
+end
+arch floor_stone_b2
+x 11
+y 10
+end
+arch floor_stone_b3
+x 11
+y 11
+end
+arch floor_stone_b2
+x 11
+y 12
+end
+arch wall_dungeon_1
+x 11
+y 12
+end
+arch floor_stone_b4
+x 11
+y 17
+end
+arch wall_dungeon_1
+x 11
+y 17
+end
+arch ring_wall.151
+x 11
+y 17
+end
+arch floor_stone_b1
+x 11
+y 18
+end
+arch dirt_floor3
+x 11
+y 18
+end
+arch floor_stone_b2
+x 11
+y 19
+end
+arch blood_floor2
+x 11
+y 19
+end
+arch floor_stone_b3
+x 11
+y 20
+end
+arch floor_stone_b4
+x 11
+y 21
+end
+arch dirt_floor2
+x 11
+y 21
+end
+arch floor_stone_b1
+x 11
+y 22
+end
+arch floor_stone_b4
+x 11
+y 23
+end
+arch spawn_point
+x 11
+y 23
+arch orc_warrior
+level 33
+type 83
+end
+end
+arch floor_stone_b1
+x 12
+end
+arch bed_1a.111
+x 12
+end
+arch floor_stone_b4
+x 12
+y 1
+end
+arch locker1.111
+direction 5
+x 12
+y 1
+end
+arch floor_stone_b1
+x 12
+y 2
+end
+arch bed_1a.111
+x 12
+y 2
+end
+arch floor_stone_b3
+x 12
+y 3
+end
+arch locker1.111
+direction 5
+x 12
+y 3
+end
+arch floor_stone_b3
+x 12
+y 4
+end
+arch wall_dungeon_1
+x 12
+y 4
+end
+arch floor_stone_b1
+x 12
+y 5
+end
+arch wall_dungeon_3
+x 12
+y 5
+end
+arch floor_stone_b2
+x 12
+y 6
+end
+arch wall_dungeon_3
+x 12
+y 6
+end
+arch floor_stone_b3
+x 12
+y 7
+end
+arch wall_dungeon_4
+x 12
+y 7
+end
+arch floor_stone_b3
+x 12
+y 8
+end
+arch floor_stone_b4
+x 12
+y 9
+end
+arch floor_stone_b2
+x 12
+y 10
+end
+arch floor_stone_b4
+x 12
+y 11
+end
+arch dirt_floor2
+x 12
+y 11
+end
+arch floor_stone_b1
+x 12
+y 12
+end
+arch wall_dungeon_1
+x 12
+y 12
+end
+arch floor_stone_b2
+x 12
+y 13
+end
+arch wall_dungeon_3
+x 12
+y 13
+end
+arch ring_wall.151
+direction 5
+x 12
+y 13
+end
+arch floor_stone_b4
+x 12
+y 14
+end
+arch wall_dungeon_3
+x 12
+y 14
+end
+arch plant1_wall.151
+direction 5
+x 12
+y 14
+end
+arch floor_stone_b1
+x 12
+y 15
+end
+arch wall_dungeon_3
+x 12
+y 15
+end
+arch plant1_wall.151
+direction 5
+x 12
+y 15
+end
+arch floor_stone_b4
+x 12
+y 16
+end
+arch wall_dungeon_3
+x 12
+y 16
+end
+arch floor_stone_b3
+x 12
+y 17
+end
+arch wall_dungeon_4
+x 12
+y 17
+end
+arch plant1_wall.151
+direction 5
+x 12
+y 17
+end
+arch floor_stone_b2
+x 12
+y 18
+end
+arch torch_wall_1
+x 12
+y 18
+end
+arch floor_stone_b4
+x 12
+y 19
+end
+arch spawn_point
+x 12
+y 19
+arch orc_warrior
+level 32
+type 83
+end
+end
+arch floor_stone_b2
+x 12
+y 20
+end
+arch floor_stone_b1
+x 12
+y 21
+end
+arch floor_stone_b2
+x 12
+y 22
+end
+arch floor_stone_b3
+x 12
+y 23
+end
+arch dirt_floor1
+x 12
+y 23
+end
+arch floor_stone_b3
+x 13
+end
+arch bed_1b.111
+x 13
+end
+arch floor_stone_b3
+x 13
+y 1
+end
+arch blood_floor2
+x 13
+y 1
+end
+arch spawn_point
+x 13
+y 1
+arch orc_fighter
+level 31
+type 83
+end
+end
+arch floor_stone_b4
+x 13
+y 2
+end
+arch bed_1b.111
+x 13
+y 2
+end
+arch floor_stone_b2
+x 13
+y 3
+end
+arch dirt_floor2
+x 13
+y 3
+end
+arch floor_stone_b4
+x 13
+y 4
+end
+arch torch_wall_1
+direction 5
+x 13
+y 4
+end
+arch floor_stone_b1
+x 13
+y 5
+end
+arch floor_stone_b2
+x 13
+y 6
+end
+arch wall_dungeon_1
+x 13
+y 6
+end
+arch floor_stone_b4
+x 13
+y 7
+end
+arch floor_stone_b1
+x 13
+y 8
+end
+arch floor_stone_b1
+x 13
+y 9
+end
+arch floor_stone_b2
+x 13
+y 10
+end
+arch blood_floor1
+x 13
+y 10
+end
+arch floor_stone_b2
+x 13
+y 11
+end
+arch floor_stone_b2
+x 13
+y 12
+end
+arch floor_stone_b4
+x 13
+y 13
+end
+arch chair1_drop_111
+x 13
+y 13
+end
+arch floor_stone_b1
+x 13
+y 14
+end
+arch torch_wall_1
+direction 5
+x 13
+y 14
+end
+arch floor_stone_b2
+x 13
+y 15
+end
+arch chair1_111
+direction 7
+x 13
+y 15
+end
+arch floor_stone_b3
+x 13
+y 16
+end
+arch chair1_drop_111
+x 13
+y 16
+end
+arch floor_stone_b1
+x 13
+y 17
+end
+arch chair1_111
+direction 7
+x 13
+y 17
+end
+arch floor_stone_b1
+x 13
+y 18
+end
+arch floor_stone_b2
+x 13
+y 19
+end
+arch floor_stone_b1
+x 13
+y 20
+end
+arch dirt_floor1
+x 13
+y 20
+end
+arch floor_stone_b2
+x 13
+y 21
+end
+arch floor_stone_b4
+x 13
+y 22
+end
+arch blood_floor2
+x 13
+y 22
+end
+arch spawn_point
+x 13
+y 22
+arch orc_warrior
+level 33
+type 83
+end
+end
+arch floor_stone_b1
+x 13
+y 23
+end
+arch floor_stone_b4
+x 14
+end
+arch floor_stone_b1
+x 14
+y 1
+end
+arch floor_stone_b1
+x 14
+y 2
+end
+arch floor_stone_b2
+x 14
+y 3
+end
+arch floor_stone_b1
+x 14
+y 4
+end
+arch dirt_floor1
+x 14
+y 4
+end
+arch floor_stone_b2
+x 14
+y 5
+end
+arch floor_stone_b4
+x 14
+y 6
+end
+arch door1_locked
+x 14
+y 6
+end
+arch floor_stone_b1
+x 14
+y 7
+end
+arch floor_stone_b2
+x 14
+y 8
+end
+arch blood_floor2
+x 14
+y 8
+end
+arch floor_stone_b3
+x 14
+y 9
+end
+arch floor_stone_b4
+x 14
+y 10
+end
+arch floor_stone_b1
+x 14
+y 11
+end
+arch floor_stone_b4
+x 14
+y 12
+end
+arch chair1_drop_111
+x 14
+y 12
+end
+arch floor_stone_b3
+x 14
+y 13
+end
+arch floor_stone_b2
+x 14
+y 14
+end
+arch blood_floor2
+x 14
+y 14
+end
+arch spawn_point
+x 14
+y 14
+arch orc_outlaw
+level 32
+type 83
+end
+end
+arch floor_stone_b3
+x 14
+y 15
+end
+arch floor_stone_b2
+x 14
+y 16
+end
+arch blood_floor1
+x 14
+y 16
+end
+arch floor_stone_b3
+x 14
+y 17
+end
+arch floor_stone_b2
+x 14
+y 18
+end
+arch spawn_point
+x 14
+y 18
+arch orc_warrior
+level 33
+type 83
+end
+end
+arch floor_stone_b3
+x 14
+y 19
+end
+arch floor_stone_b2
+x 14
+y 20
+end
+arch floor_stone_b3
+x 14
+y 21
+end
+arch floor_stone_b2
+x 14
+y 22
+end
+arch floor_stone_b3
+x 14
+y 23
+end
+arch floor_stone_b1
+x 15
+end
+arch floor_stone_b2
+x 15
+y 1
+end
+arch dirt_floor1
+x 15
+y 1
+end
+arch floor_stone_b3
+x 15
+y 2
+end
+arch dirt_floor2
+x 15
+y 2
+end
+arch floor_stone_b4
+x 15
+y 3
+end
+arch floor_stone_b2
+x 15
+y 4
+end
+arch wall_dungeon_8
+x 15
+y 4
+end
+arch floor_stone_b4
+x 15
+y 5
+end
+arch wall_dungeon_3
+x 15
+y 5
+end
+arch floor_stone_b3
+x 15
+y 6
+end
+arch wall_dungeon_4
+x 15
+y 6
+end
+arch floor_stone_b2
+x 15
+y 7
+end
+arch wall_dungeon_3
+x 15
+y 7
+end
+arch floor_stone_b4
+x 15
+y 8
+end
+arch floor_stone_b2
+x 15
+y 9
+end
+arch floor_stone_b1
+x 15
+y 10
+end
+arch floor_stone_b2
+x 15
+y 11
+end
+arch dirt_floor1
+x 15
+y 11
+end
+arch floor_stone_b1
+x 15
+y 12
+end
+arch floor_stone_b4
+x 15
+y 13
+end
+arch floor_stone_b2
+x 15
+y 14
+end
+arch floor_stone_b4
+x 15
+y 15
+end
+arch floor_stone_b4
+x 15
+y 16
+end
+arch dirt_floor2
+x 15
+y 16
+end
+arch spawn_point
+x 15
+y 16
+arch orc_berserker
+level 32
+type 83
+end
+end
+arch floor_stone_b1
+x 15
+y 17
+end
+arch floor_stone_b3
+x 15
+y 18
+end
+arch dirt_floor1
+x 15
+y 18
+end
+arch floor_stone_b1
+x 15
+y 19
+end
+arch floor_stone_b2
+x 15
+y 20
+end
+arch floor_stone_b3
+x 15
+y 21
+end
+arch floor_stone_b3
+x 15
+y 22
+end
+arch dirt_floor2
+x 15
+y 22
+end
+arch floor_stone_b1
+x 15
+y 23
+end
+arch floor_stone_b2
+x 16
+end
+arch floor_stone_b4
+x 16
+y 1
+end
+arch floor_stone_b2
+x 16
+y 2
+end
+arch floor_stone_b1
+x 16
+y 3
+end
+arch dirt_floor1
+x 16
+y 3
+end
+arch floor_stone_b2
+x 16
+y 4
+end
+arch wall_dungeon_1
+x 16
+y 4
+end
+arch floor_stone_b1
+x 16
+y 7
+end
+arch wall_dungeon_1
+x 16
+y 7
+end
+arch plant1_wall.151
+x 16
+y 7
+end
+arch floor_stone_b2
+x 16
+y 8
+end
+arch torch_wall_1
+x 16
+y 8
+end
+arch floor_stone_b1
+x 16
+y 9
+end
+arch dirt_floor2
+x 16
+y 9
+end
+arch floor_stone_b2
+x 16
+y 10
+end
+arch floor_stone_b4
+x 16
+y 11
+end
+arch floor_stone_b4
+x 16
+y 12
+end
+arch floor_stone_b1
+x 16
+y 13
+end
+arch spawn_point
+x 16
+y 13
+arch orc_warrior
+level 33
+type 83
+end
+end
+arch floor_stone_b2
+x 16
+y 14
+end
+arch dirt_floor1
+x 16
+y 14
+end
+arch floor_stone_b1
+x 16
+y 15
+end
+arch floor_stone_b3
+x 16
+y 16
+end
+arch floor_stone_b4
+x 16
+y 17
+end
+arch floor_stone_b2
+x 16
+y 18
+end
+arch floor_stone_b1
+x 16
+y 19
+end
+arch floor_stone_b2
+x 16
+y 20
+end
+arch floor_stone_b4
+x 16
+y 21
+end
+arch dirt_floor1
+x 16
+y 21
+end
+arch floor_stone_b1
+x 16
+y 22
+end
+arch floor_stone_b4
+x 16
+y 23
+end
+arch dirt_floor4
+x 16
+y 23
+end
+arch floor_stone_b1
+x 17
+end
+arch chair2_111
+x 17
+end
+arch floor_stone_b2
+x 17
+y 1
+end
+arch table_wood1.111
+x 17
+y 1
+end
+arch floor_stone_b1
+x 17
+y 2
+end
+arch chair2_111
+direction 5
+x 17
+y 2
+end
+arch floor_stone_b2
+x 17
+y 3
+end
+arch floor_stone_b2
+x 17
+y 4
+end
+arch wall_dungeon_1
+x 17
+y 4
+end
+arch floor_stone_b2
+x 17
+y 7
+end
+arch wall_dungeon_1
+x 17
+y 7
+end
+arch floor_stone_b3
+x 17
+y 8
+end
+arch floor_stone_b2
+x 17
+y 9
+end
+arch floor_stone_b3
+x 17
+y 10
+end
+arch floor_stone_b2
+x 17
+y 11
+end
+arch floor_stone_b2
+x 17
+y 12
+end
+arch floor_stone_b3
+x 17
+y 13
+end
+arch floor_stone_b4
+x 17
+y 14
+end
+arch floor_stone_b2
+x 17
+y 15
+end
+arch floor_stone_b1
+x 17
+y 16
+end
+arch floor_stone_b1
+x 17
+y 17
+end
+arch floor_stone_b2
+x 17
+y 18
+end
+arch floor_stone_b2
+x 17
+y 19
+end
+arch blood_floor1
+x 17
+y 19
+end
+arch floor_stone_b4
+x 17
+y 20
+end
+arch floor_stone_b1
+x 17
+y 21
+end
+arch floor_stone_b2
+x 17
+y 22
+end
+arch floor_stone_b1
+x 17
+y 23
+end
+arch floor_stone_b2
+x 18
+end
+arch dirt_floor2
+x 18
+end
+arch floor_stone_b1
+x 18
+y 1
+end
+arch floor_stone_b2
+x 18
+y 2
+end
+arch floor_stone_b1
+x 18
+y 3
+end
+arch floor_stone_b1
+x 18
+y 4
+end
+arch wall_dungeon_1
+x 18
+y 4
+end
+arch floor_stone_b3
+x 18
+y 7
+end
+arch wall_dungeon_1
+x 18
+y 7
+end
+arch floor_stone_b1
+x 18
+y 8
+end
+arch wall_dungeon_3
+x 18
+y 8
+end
+arch floor_stone_b2
+x 18
+y 9
+end
+arch wall_dungeon_3
+x 18
+y 9
+end
+arch floor_stone_b3
+x 18
+y 10
+end
+arch wall_dungeon_3
+x 18
+y 10
+end
+arch floor_stone_b3
+x 18
+y 11
+end
+arch wall_dungeon_3
+x 18
+y 11
+end
+arch floor_stone_b1
+x 18
+y 12
+end
+arch wall_dungeon_3
+x 18
+y 12
+end
+arch floor_stone_b3
+x 18
+y 13
+end
+arch wall_dungeon_3
+x 18
+y 13
+end
+arch floor_stone_b1
+x 18
+y 14
+end
+arch wall_dungeon_3
+x 18
+y 14
+end
+arch floor_stone_b2
+x 18
+y 15
+end
+arch wall_dungeon_3
+x 18
+y 15
+end
+arch floor_stone_b2
+x 18
+y 16
+end
+arch wall_dungeon_3
+x 18
+y 16
+end
+arch floor_stone_b3
+x 18
+y 17
+end
+arch wall_dungeon_3
+x 18
+y 17
+end
+arch floor_stone_b4
+x 18
+y 18
+end
+arch wall_dungeon_3
+x 18
+y 18
+end
+arch floor_stone_b4
+x 18
+y 19
+end
+arch floor_stone_b3
+x 18
+y 20
+end
+arch floor_stone_b2
+x 18
+y 21
+end
+arch wall_dungeon_8
+x 18
+y 21
+end
+arch floor_stone_b4
+x 18
+y 22
+end
+arch wall_dungeon_3
+x 18
+y 22
+end
+arch floor_stone_b1
+x 18
+y 23
+end
+arch wall_dungeon_3
+x 18
+y 23
+end
+arch floor_stone_b1
+x 19
+end
+arch wall_dungeon_3
+x 19
+end
+arch floor_stone_b2
+x 19
+y 1
+end
+arch wall_dungeon_3
+x 19
+y 1
+end
+arch floor_stone_b4
+x 19
+y 2
+end
+arch wall_dungeon_3
+x 19
+y 2
+end
+arch floor_stone_b4
+x 19
+y 3
+end
+arch wall_dungeon_3
+x 19
+y 3
+end
+arch floor_stone_b3
+x 19
+y 4
+end
+arch wall_dungeon_4
+x 19
+y 4
+end
+arch floor_stone_b1
+x 19
+y 18
+end
+arch wall_dungeon_1
+x 19
+y 18
+end
+arch floor_stone_b3
+x 19
+y 19
+end
+arch floor_stone_b1
+x 19
+y 20
+end
+arch floor_stone_b1
+x 19
+y 21
+end
+arch wall_dungeon_1
+x 19
+y 21
+end
+arch floor_stone_b2
+x 20
+y 18
+end
+arch wall_dungeon_1
+x 20
+y 18
+end
+arch floor_stone_b2
+x 20
+y 19
+end
+arch wall_dungeon_3
+x 20
+y 19
+end
+arch floor_stone_b3
+x 20
+y 20
+end
+arch door1_locked
+direction 3
+x 20
+y 20
+end
+arch floor_stone_b2
+x 20
+y 21
+end
+arch wall_dungeon_4
+x 20
+y 21
+end
+arch floor_stone_b3
+x 21
+y 6
+end
+arch wall_dungeon_8
+x 21
+y 6
+end
+arch floor_stone_b4
+x 21
+y 7
+end
+arch wall_dungeon_3
+x 21
+y 7
+end
+arch floor_stone_b4
+x 21
+y 8
+end
+arch wall_dungeon_3
+x 21
+y 8
+end
+arch plant1_wall.151
+direction 5
+x 21
+y 8
+end
+arch floor_stone_b3
+x 21
+y 9
+end
+arch wall_dungeon_3
+x 21
+y 9
+end
+arch plant1_wall.151
+direction 5
+x 21
+y 9
+end
+arch floor_stone_b2
+x 21
+y 10
+end
+arch wall_dungeon_3
+x 21
+y 10
+end
+arch floor_stone_b4
+x 21
+y 11
+end
+arch wall_dungeon_3
+x 21
+y 11
+end
+arch plant1_wall.151
+direction 5
+x 21
+y 11
+end
+arch floor_stone_b1
+x 21
+y 12
+end
+arch wall_dungeon_3
+x 21
+y 12
+end
+arch floor_stone_b2
+x 21
+y 13
+end
+arch wall_dungeon_3
+x 21
+y 13
+end
+arch floor_stone_b2
+x 21
+y 16
+end
+arch wall_dungeon_8
+x 21
+y 16
+end
+arch floor_stone_b4
+x 21
+y 17
+end
+arch wall_dungeon_3
+x 21
+y 17
+end
+arch plant1_wall.151
+direction 5
+x 21
+y 17
+end
+arch floor_stone_b1
+x 21
+y 18
+end
+arch wall_dungeon_4
+x 21
+y 18
+end
+arch floor_stone_b2
+x 21
+y 19
+end
+arch floor_stone_b4
+x 21
+y 20
+end
+arch floor_stone_b1
+x 21
+y 21
+end
+arch wall_dungeon_1
+x 21
+y 21
+end
+arch floor_stone_b4
+x 21
+y 22
+end
+arch wall_dungeon_3
+x 21
+y 22
+end
+arch floor_stone_b1
+x 21
+y 23
+end
+arch wall_dungeon_3
+x 21
+y 23
+end
+arch plant1_wall.151
+direction 5
+x 21
+y 23
+end
+arch floor_sand_d3
+x 22
+end
+arch wall_ruin1a_131
+x 22
+end
+arch floor_sand_d1
+x 22
+y 1
+end
+arch wall_ruin1a_131
+x 22
+y 1
+end
+arch plant1_wall.151
+direction 5
+x 22
+y 1
+end
+arch floor_sand_d2
+x 22
+y 2
+end
+arch wall_ruin1d_131
+x 22
+y 2
+end
+arch floor_sand_d3
+x 22
+y 3
+end
+arch wall_ruin1c_131
+x 22
+y 3
+end
+arch floor_stone_b2
+x 22
+y 6
+end
+arch wall_dungeon_1
+x 22
+y 6
+end
+arch floor_stone_b1
+x 22
+y 7
+end
+arch floor_stone_b3
+x 22
+y 8
+end
+arch dirt_floor1
+x 22
+y 8
+end
+arch floor_stone_b1
+x 22
+y 9
+end
+arch blood_floor2
+x 22
+y 9
+end
+arch floor_stone_b1
+x 22
+y 10
+end
+arch floor_stone_b2
+x 22
+y 11
+end
+arch floor_stone_b2
+x 22
+y 12
+end
+arch floor_stone_b3
+x 22
+y 13
+end
+arch wall_dungeon_1
+x 22
+y 13
+end
+arch floor_stone_b2
+x 22
+y 16
+end
+arch wall_dungeon_1
+x 22
+y 16
+end
+arch floor_stone_b2
+x 22
+y 17
+end
+arch torch_wall_1
+x 22
+y 17
+end
+arch floor_stone_b2
+x 22
+y 18
+end
+arch floor_stone_b4
+x 22
+y 19
+end
+arch dirt_floor1
+x 22
+y 19
+end
+arch floor_stone_b1
+x 22
+y 20
+end
+arch floor_stone_b2
+x 22
+y 21
+end
+arch floor_stone_b3
+x 22
+y 22
+end
+arch floor_stone_b2
+x 22
+y 23
+end
+arch floor_sand_d4
+x 23
+end
+arch blood_floor2
+x 23
+end
+arch floor_sand_d4
+x 23
+y 1
+end
+arch floor_sand_d3
+x 23
+y 2
+end
+arch dirt_floor1
+x 23
+y 2
+end
+arch floor_sand_d2
+x 23
+y 3
+end
+arch wall_ruin1d_111
+x 23
+y 3
+end
+arch floor_stone_b1
+x 23
+y 6
+end
+arch wall_dungeon_1
+x 23
+y 6
+end
+arch floor_stone_b2
+x 23
+y 7
+end
+arch floor_stone_b2
+x 23
+y 8
+end
+arch floor_stone_b3
+x 23
+y 9
+end
+arch floor_stone_b2
+x 23
+y 10
+end
+arch floor_stone_b3
+x 23
+y 11
+end
+arch dirt_floor1
+x 23
+y 11
+end
+arch floor_stone_b2
+x 23
+y 12
+end
+arch floor_stone_b2
+x 23
+y 13
+end
+arch wall_dungeon_1
+x 23
+y 13
+end
+arch floor_stone_b4
+x 23
+y 16
+end
+arch wall_dungeon_1
+x 23
+y 16
+end
+arch floor_stone_b1
+x 23
+y 17
+end
+arch dirt_floor2
+x 23
+y 17
+end
+arch floor_stone_b4
+x 23
+y 18
+end
+arch floor_stone_b3
+x 23
+y 19
+end
+arch floor_stone_b2
+x 23
+y 20
+end
+arch floor_stone_b3
+x 23
+y 21
+end
+arch blood_floor2
+x 23
+y 21
+end
+arch floor_stone_b2
+x 23
+y 22
+end
+arch floor_stone_b4
+x 23
+y 23
+end
+arch dirt_floor1
+x 23
+y 23
+end
