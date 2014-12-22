@@ -49,6 +49,7 @@ artifactlist *first_artifactlist;
 player *last_player;
 
 uint32 global_round_tag;
+int process_delay;
 
 static long shutdown_time;
 static uint8 shutdown_active = 0;
@@ -626,8 +627,6 @@ static int shutdown_timer_check(void)
  * @return 0. */
 int main(int argc, char **argv)
 {
-    int process_delay;
-
 #ifdef WIN32
     /* Open all files in binary mode by default. */
     _set_fmode(_O_BINARY);

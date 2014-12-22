@@ -1390,7 +1390,7 @@ void draw_client_map2(object *pl)
                 anim_value = GET_MAP_DAMAGE(m, nx, ny);
             }
 
-            if (ext_flags == mp->ext_flags) {
+            if (ext_flags == mp->ext_flags && process_delay != 0) {
                 ext_flags = 0;
             } else {
                 mp->ext_flags = ext_flags;
