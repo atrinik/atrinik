@@ -2,7 +2,7 @@ arch map
 name The Underground City III
 msg
 Created:  2010-06-05 Alex Tokar
-Modified: 2011-04-24 Alex Tokar
+Modified: 2014-12-22 Alex Tokar
 endmsg
 width 24
 height 24
@@ -260,16 +260,7 @@ arch floor_sand_d1
 x 4
 y 1
 end
-arch stairs_stone_down
-msg
-You start climbing down the staircase leading into darkness. You take many steps in the near complete darkness, but eventually you see a dim light. You reach the end of the staircase, and the moment you step onto the cavern floor, you hear a hissing voice, seemingly without a source...
-
-[yellow][i]Hissss[/i]... You are not welcome here... Leave... [i]Hisssss[/i].... Now...[/yellow]
-endmsg
-direction 7
-slaying underground_city_c_0207
-hp 3
-sp 1
+arch stairs_down
 x 4
 y 1
 end
@@ -277,16 +268,7 @@ arch floor_sand_d3
 x 4
 y 2
 end
-arch stairs_stone_down
-msg
-You start climbing down the staircase leading into darkness. You take many steps in the near complete darkness, but eventually you see a dim light. You reach the end of the staircase, and the moment you step onto the cavern floor, you hear a hissing voice, seemingly without a source...
-
-[yellow][i]Hissss[/i]... You are not welcome here... Leave... [i]Hisssss[/i].... Now...[/yellow]
-endmsg
-direction 7
-slaying underground_city_c_0207
-hp 3
-sp 2
+arch stairs_down
 x 4
 y 2
 end
@@ -347,11 +329,17 @@ arch floor_sand_d4
 x 5
 y 1
 end
-arch dirt_floor3
+arch stairs_stone_down
+direction 7
 x 5
 y 1
 end
 arch floor_sand_d3
+x 5
+y 2
+end
+arch stairs_stone_down
+direction 7
 x 5
 y 2
 end
@@ -451,14 +439,6 @@ arch fwall_rock1
 x 6
 end
 arch floor_sand_d3
-x 6
-y 1
-end
-arch mushroom_spot2
-x 6
-y 1
-end
-arch light4
 x 6
 y 1
 end
@@ -577,7 +557,11 @@ arch floor_sand_d2
 x 7
 y 1
 end
-arch chained_skel.111
+arch mushroom_spot2
+x 7
+y 1
+end
+arch light4
 x 7
 y 1
 end
@@ -1256,6 +1240,10 @@ x 12
 y 2
 end
 arch floor_sand_d4
+x 12
+y 3
+end
+arch chained_skel.111
 x 12
 y 3
 end

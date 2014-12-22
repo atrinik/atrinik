@@ -2,7 +2,7 @@ arch map
 name The Underground City IV
 msg
 Created:  2010-06-05 Alex Tokar
-Modified: 2011-06-07 Alex Tokar
+Modified: 2014-12-22 Alex Tokar
 endmsg
 width 24
 height 24
@@ -194,15 +194,7 @@ end
 arch fwall_rock3
 x 2
 end
-arch floor_sand_d4
-x 2
-y 1
-end
-arch mushroom_spot2
-x 2
-y 1
-end
-arch light3
+arch floor_sand_d2
 x 2
 y 1
 end
@@ -301,11 +293,11 @@ arch floor_sand_d1
 x 3
 y 1
 end
-arch stairs_stone_up
-direction 7
-slaying underground_city_b_0207
-hp 4
-sp 1
+arch mushroom_spot2
+x 3
+y 1
+end
+arch light3
 x 3
 y 1
 end
@@ -313,11 +305,7 @@ arch floor_sand_d1
 x 3
 y 2
 end
-arch stairs_stone_up
-direction 7
-slaying underground_city_b_0207
-hp 4
-sp 2
+arch dirt_floor3
 x 3
 y 2
 end
@@ -409,29 +397,31 @@ arch fwall_rock2
 x 3
 y 15
 end
-arch floor_sand_d1
-x 4
-end
-arch fwall_rock2
-x 4
-end
-arch floor_sand_d4
-x 4
-y 1
-end
-arch fwall_rock3
-x 4
-y 1
-end
 arch floor_sand_d2
 x 4
-y 2
 end
 arch fwall_rock2
 x 4
-y 2
 end
 arch floor_sand_d1
+x 4
+y 1
+end
+arch stairs_stone_up
+direction 7
+x 4
+y 1
+end
+arch floor_sand_d3
+x 4
+y 2
+end
+arch stairs_stone_up
+direction 7
+x 4
+y 2
+end
+arch floor_sand_d4
 x 4
 y 3
 end
@@ -513,6 +503,38 @@ y 16
 end
 arch floor_sand_d2
 x 5
+end
+arch fwall_rock1
+x 5
+end
+arch floor_sand_d4
+x 5
+y 1
+end
+arch stairs_stone_up2
+direction 7
+x 5
+y 1
+end
+arch floor_sand_d3
+x 5
+y 2
+end
+arch stairs_stone_up2
+direction 7
+x 5
+y 2
+end
+arch floor_sand_d2
+x 5
+y 3
+end
+arch fwall_rock2
+x 5
+y 3
+end
+arch floor_sand_d2
+x 5
 y 7
 end
 arch fwall_rock3
@@ -582,6 +604,36 @@ end
 arch fwall_rock3
 x 5
 y 16
+end
+arch floor_sand_d1
+x 6
+end
+arch fwall_rock2
+x 6
+end
+arch floor_sand_d4
+x 6
+y 1
+end
+arch fwall_rock3
+x 6
+y 1
+end
+arch floor_sand_d2
+x 6
+y 2
+end
+arch fwall_rock2
+x 6
+y 2
+end
+arch floor_sand_d1
+x 6
+y 3
+end
+arch fwall_rock2
+x 6
+y 3
 end
 arch floor_sand_d1
 x 6

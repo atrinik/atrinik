@@ -2,7 +2,7 @@ arch map
 name The Underground City II
 msg
 Created:  2009-09-10 Alex Tokar
-Modified: 2011-11-03 Alex Tokar
+Modified: 2014-12-22 Alex Tokar
 endmsg
 width 24
 height 24
@@ -766,11 +766,16 @@ arch blood_floor1
 x 7
 y 19
 end
-arch floor_sblack3b
+arch floor_sblack1b
 x 7
 y 20
 end
 arch fwall_fstone1c
+x 7
+y 20
+end
+arch ring_wall.151
+direction 7
 x 7
 y 20
 end
@@ -935,11 +940,7 @@ arch floor_sblack3b
 x 8
 y 19
 end
-arch floor_sblack2b
-x 8
-y 20
-end
-arch fwall_fstone1a
+arch floor_sblack1b
 x 8
 y 20
 end
@@ -1085,7 +1086,7 @@ arch floor_sblack2b
 x 9
 y 18
 end
-arch fwall_fstone1a
+arch fwall_fstone1b
 x 9
 y 18
 end
@@ -1093,7 +1094,11 @@ arch floor_sblack1b
 x 9
 y 19
 end
-arch floor_sblack1b
+arch fwall_fstone1c
+x 9
+y 19
+end
+arch floor_sblack2b
 x 9
 y 20
 end
@@ -1101,20 +1106,19 @@ arch fwall_fstone1c
 x 9
 y 20
 end
-arch ring_wall.151
-direction 7
-x 9
-y 20
-end
-arch floor_sblack1b
+arch floor_sblack2b
 x 9
 y 21
 end
-arch floor_sblack1b
+arch fwall_fstone1b
+x 9
+y 21
+end
+arch floor_sblack3b
 x 9
 y 22
 end
-arch fwall_fstone1b
+arch fwall_fstone1c
 x 9
 y 22
 end
@@ -1225,33 +1229,39 @@ arch wall_dungeon_1
 x 10
 y 15
 end
-arch floor_sblack2b
+arch floor_stone_b1
+x 10
+y 16
+end
+arch wall_dungeon_3
+x 10
+y 16
+end
+arch chains3.151
+direction 7
+x 10
+y 16
+end
+arch floor_stone_b2
+x 10
+y 17
+end
+arch wall_dungeon_3
+x 10
+y 17
+end
+arch plant2_wall.151
+direction 7
+x 10
+y 17
+end
+arch floor_stone_b3
 x 10
 y 18
 end
-arch fwall_fstone1c
+arch wall_dungeon_3
 x 10
 y 18
-end
-arch floor_sblack1b
-x 10
-y 19
-end
-arch floor_sblack1b
-x 10
-y 20
-end
-arch floor_sblack1b
-x 10
-y 21
-end
-arch floor_sblack2b
-x 10
-y 22
-end
-arch fwall_fstone1a
-x 10
-y 22
 end
 arch floor_cave1
 x 11
@@ -1336,49 +1346,34 @@ arch floor_stone_b1
 x 11
 y 15
 end
-arch wall_dungeon_1
+arch door1_locked
+cursed 1
 x 11
 y 15
 end
-arch floor_sblack2b
+arch floor_stone_b4
+x 11
+y 16
+end
+arch dirt_floor2
+x 11
+y 16
+end
+arch floor_stone_b3
+x 11
+y 17
+end
+arch grain2.101
+x 11
+y 17
+end
+arch floor_stone_b4
 x 11
 y 18
 end
-arch fwall_fstone1b
+arch wall_dungeon_1
 x 11
 y 18
-end
-arch floor_sblack1b
-x 11
-y 19
-end
-arch fwall_fstone1c
-x 11
-y 19
-end
-arch floor_sblack2b
-x 11
-y 20
-end
-arch fwall_fstone1c
-x 11
-y 20
-end
-arch floor_sblack2b
-x 11
-y 21
-end
-arch fwall_fstone1b
-x 11
-y 21
-end
-arch floor_sblack3b
-x 11
-y 22
-end
-arch fwall_fstone1c
-x 11
-y 22
 end
 arch floor_cave1
 x 12
@@ -1453,6 +1448,10 @@ arch floor_stone_b2
 x 12
 y 13
 end
+arch dirt_floor2
+x 12
+y 13
+end
 arch floor_stone_b3
 x 12
 y 14
@@ -1461,9 +1460,31 @@ arch floor_stone_b3
 x 12
 y 15
 end
-arch wall_dungeon_1
+arch door1_locked
+cursed 1
+direction 7
 x 12
 y 15
+end
+arch floor_stone_b2
+x 12
+y 16
+end
+arch floor_stone_b2
+x 12
+y 17
+end
+arch dirt_floor4
+x 12
+y 17
+end
+arch floor_stone_b3
+x 12
+y 18
+end
+arch wall_dungeon_1
+x 12
+y 18
 end
 arch floor_cave5
 x 13
@@ -1564,9 +1585,27 @@ arch floor_stone_b3
 x 13
 y 16
 end
-arch wall_dungeon_3
+arch stairs_stone_up
+direction 7
 x 13
 y 16
+end
+arch floor_stone_b4
+x 13
+y 17
+end
+arch stairs_stone_up
+direction 7
+x 13
+y 17
+end
+arch floor_stone_b3
+x 13
+y 18
+end
+arch wall_dungeon_1
+x 13
+y 18
 end
 arch floor_cave1
 x 14
@@ -1655,15 +1694,7 @@ arch floor_stone_b2
 x 14
 y 15
 end
-arch stairs_stone_up
-direction 1
-slaying underground_city_0501
-hp 14
-sp 15
-x 14
-y 15
-end
-arch light4
+arch wall_dungeon_1
 x 14
 y 15
 end
@@ -1671,9 +1702,35 @@ arch floor_stone_b4
 x 14
 y 16
 end
-arch wall_dungeon_1
+arch stairs_stone_up2
+direction 7
 x 14
 y 16
+end
+arch light4
+x 14
+y 16
+end
+arch floor_stone_b2
+x 14
+y 17
+end
+arch stairs_stone_up2
+direction 7
+x 14
+y 17
+end
+arch light4
+x 14
+y 17
+end
+arch floor_stone_b2
+x 14
+y 18
+end
+arch wall_dungeon_1
+x 14
+y 18
 end
 arch floor_cave5
 x 15
@@ -1786,7 +1843,7 @@ arch floor_stone_b1
 x 15
 y 15
 end
-arch wall_dungeon_3
+arch wall_dungeon_4
 x 15
 y 15
 end
@@ -1794,9 +1851,25 @@ arch floor_stone_b4
 x 15
 y 16
 end
-arch wall_dungeon_4
+arch wall_dungeon_3
 x 15
 y 16
+end
+arch floor_stone_b4
+x 15
+y 17
+end
+arch wall_dungeon_3
+x 15
+y 17
+end
+arch floor_stone_b1
+x 15
+y 18
+end
+arch wall_dungeon_4
+x 15
+y 18
 end
 arch floor_cave2
 x 16

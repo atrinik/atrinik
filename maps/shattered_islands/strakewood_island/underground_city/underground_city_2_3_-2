@@ -2,12 +2,12 @@ arch map
 name The Underground City III
 msg
 Created:  2010-06-05 Alex Tokar
-Modified: 2011-11-03 Alex Tokar
+Modified: 2014-12-22 Alex Tokar
 endmsg
 width 24
 height 24
-enter_x 17
-enter_y 3
+enter_x 19
+enter_y 2
 difficulty 60
 darkness 2
 fixed_login 1
@@ -3273,49 +3273,6 @@ arch fwall_rock3
 x 14
 y 23
 end
-arch blocked
-x 15
-end
-arch wall_dungeon_8
-x 15
-end
-arch blocked
-x 15
-y 1
-end
-arch wall_dungeon_3
-x 15
-y 1
-end
-arch blocked
-x 15
-y 2
-end
-arch wall_dungeon_3
-x 15
-y 2
-end
-arch plant2_wall.151
-direction 7
-x 15
-y 2
-end
-arch blocked
-x 15
-y 3
-end
-arch wall_dungeon_3
-x 15
-y 3
-end
-arch blocked
-x 15
-y 4
-end
-arch wall_dungeon_3
-x 15
-y 4
-end
 arch floor_sand_d1
 x 15
 y 5
@@ -3440,34 +3397,43 @@ end
 arch blocked
 x 16
 end
-arch wall_dungeon_1
+arch wall_dungeon_8
 x 16
 end
-arch floor_black1a
-x 16
-y 1
-end
-arch stairs_stone_up
-direction 5
-slaying underground_city_a_0302
-hp 16
-sp 1
+arch blocked
 x 16
 y 1
 end
-arch floor_black1d
+arch wall_dungeon_3
+x 16
+y 1
+end
+arch blocked
 x 16
 y 2
 end
-arch floor_black1b
+arch wall_dungeon_3
+x 16
+y 2
+end
+arch plant2_wall.151
+direction 7
+x 16
+y 2
+end
+arch blocked
 x 16
 y 3
 end
-arch floor_black1c
+arch wall_dungeon_3
+x 16
+y 3
+end
+arch blocked
 x 16
 y 4
 end
-arch wall_dungeon_1
+arch wall_dungeon_3
 x 16
 y 4
 end
@@ -3476,11 +3442,6 @@ x 16
 y 5
 end
 arch fwall_rock3
-x 16
-y 5
-end
-arch plant1_wall.151
-direction 7
 x 16
 y 5
 end
@@ -3574,21 +3535,11 @@ end
 arch wall_dungeon_1
 x 17
 end
-arch magic_wall
-name drow security system
-direction 5
-dam 8
-level 75
-speed -0.5
-connected 201
-last_eat 0
-x 17
-end
 arch floor_black2a
 x 17
 y 1
 end
-arch torch_wall_1
+arch amphora1.101
 x 17
 y 1
 end
@@ -3596,7 +3547,7 @@ arch floor_black2a
 x 17
 y 2
 end
-arch blood_floor1
+arch stairs_stone_up2
 x 17
 y 2
 end
@@ -3604,15 +3555,28 @@ arch floor_black1d
 x 17
 y 3
 end
+arch stairs_stone_up2
+x 17
+y 3
+end
 arch floor_black1c
 x 17
 y 4
 end
-arch door1_locked
+arch wall_dungeon_1
 x 17
 y 4
 end
 arch floor_sand_d2
+x 17
+y 5
+end
+arch fwall_rock3
+x 17
+y 5
+end
+arch plant1_wall.151
+direction 7
 x 17
 y 5
 end
@@ -3714,15 +3678,14 @@ end
 arch wall_dungeon_1
 x 18
 end
+arch plant1_wall.151
+x 18
+end
 arch floor_black1c
 x 18
 y 1
 end
-arch stairs_stone_up
-direction 5
-slaying underground_city_a_0302
-hp 18
-sp 1
+arch box1.101
 x 18
 y 1
 end
@@ -3730,7 +3693,15 @@ arch floor_black2a
 x 18
 y 2
 end
+arch stairs_stone_up
+x 18
+y 2
+end
 arch floor_black1d
+x 18
+y 3
+end
+arch stairs_stone_up
 x 18
 y 3
 end
@@ -3874,11 +3845,21 @@ end
 arch wall_dungeon_1
 x 19
 end
+arch magic_wall
+name drow security system
+direction 5
+dam 8
+level 75
+speed -0.5
+connected 201
+last_eat 0
+x 19
+end
 arch floor_black1b
 x 19
 y 1
 end
-arch wall_dungeon_3
+arch torch_wall_1
 x 19
 y 1
 end
@@ -3886,7 +3867,7 @@ arch floor_black1b
 x 19
 y 2
 end
-arch wall_dungeon_3
+arch blood_floor1
 x 19
 y 2
 end
@@ -3894,15 +3875,14 @@ arch floor_black2a
 x 19
 y 3
 end
-arch wall_dungeon_3
-x 19
-y 3
-end
 arch floor_black2b
 x 19
 y 4
 end
-arch wall_dungeon_4
+arch door1_locked
+msg
+The door appears to be blocked by something...
+endmsg
 x 19
 y 4
 end
@@ -3910,19 +3890,7 @@ arch floor_sand_d1
 x 19
 y 5
 end
-arch fwall_rock2
-x 19
-y 5
-end
-arch plant1_wall.151
-x 19
-y 5
-end
 arch floor_sand_d3
-x 19
-y 6
-end
-arch torch_wall_1
 x 19
 y 6
 end
@@ -4006,11 +3974,40 @@ arch fwall_rock2
 x 19
 y 20
 end
-arch floor_sand_d1
+arch blocked
+x 20
+end
+arch wall_dungeon_1
+x 20
+end
+arch chains2.151
+x 20
+end
+arch floor_black1b
+x 20
+y 1
+end
+arch pottery6.101
+x 20
+y 1
+end
+arch floor_black2a
+x 20
+y 2
+end
+arch floor_black2a
+x 20
+y 3
+end
+arch floor_black2a
 x 20
 y 4
 end
-arch fwall_rock2
+arch door1_locked
+msg
+The door appears to be blocked by something...
+endmsg
+direction 7
 x 20
 y 4
 end
@@ -4018,19 +4015,7 @@ arch floor_sand_d3
 x 20
 y 5
 end
-arch fwall_rock3
-x 20
-y 5
-end
 arch floor_sand_d2
-x 20
-y 6
-end
-arch fwall_rock1
-x 20
-y 6
-end
-arch plant2_wall.151
 x 20
 y 6
 end
@@ -4160,11 +4145,57 @@ arch fwall_rock2
 x 20
 y 20
 end
+arch blocked
+x 21
+end
+arch wall_dungeon_1
+x 21
+end
+arch floor_black1b
+x 21
+y 1
+end
+arch wall_dungeon_3
+x 21
+y 1
+end
+arch floor_black1b
+x 21
+y 2
+end
+arch wall_dungeon_3
+x 21
+y 2
+end
+arch floor_black1b
+x 21
+y 3
+end
+arch wall_dungeon_3
+x 21
+y 3
+end
+arch floor_black1b
+x 21
+y 4
+end
+arch wall_dungeon_4
+x 21
+y 4
+end
 arch floor_sand_d2
 x 21
-y 6
+y 5
 end
-arch fwall_rock1
+arch fwall_rock3
+x 21
+y 5
+end
+arch plant2_wall.151
+x 21
+y 5
+end
+arch floor_sand_d2
 x 21
 y 6
 end
@@ -4296,11 +4327,7 @@ arch floor_sand_d4
 x 22
 y 6
 end
-arch fwall_rock1
-x 22
-y 6
-end
-arch plant1_wall.151
+arch torch_wall_1
 x 22
 y 6
 end

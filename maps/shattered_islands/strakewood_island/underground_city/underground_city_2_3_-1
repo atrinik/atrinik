@@ -2,7 +2,7 @@ arch map
 name The Underground City II
 msg
 Created:  2009-09-10 Alex Tokar
-Modified: 2014-03-01 Alex Tokar
+Modified: 2014-12-22 Alex Tokar
 endmsg
 width 24
 height 24
@@ -2315,7 +2315,10 @@ arch floor_black1c
 x 15
 y 1
 end
-arch amphora1.101
+arch switch_wall
+exp 40
+connected 101
+direction 7
 x 15
 y 1
 end
@@ -2328,6 +2331,13 @@ x 15
 y 3
 end
 arch floor_black1b
+x 15
+y 4
+end
+arch switch_wall
+exp 40
+connected 101
+direction 7
 x 15
 y 4
 end
@@ -2466,15 +2476,14 @@ end
 arch wall_dungeon_1
 x 16
 end
+arch ring_wall.151
+x 16
+end
 arch floor_black1a
 x 16
 y 1
 end
-arch stairs_stone_down
-direction 1
-slaying underground_city_b_0302
-hp 16
-sp 1
+arch torch_wall_1
 x 16
 y 1
 end
@@ -2482,7 +2491,7 @@ arch floor_black1d
 x 16
 y 2
 end
-arch dirt_floor4
+arch blood_floor1
 x 16
 y 2
 end
@@ -2608,28 +2617,35 @@ end
 arch wall_dungeon_1
 x 17
 end
-arch floor_black1b
+arch floor_black1c
 x 17
 y 1
 end
-arch basin1.101
-no_pass 1
+arch pottery1.101
 x 17
 y 1
 end
-arch torch_wall_1
-x 17
-y 1
-end
-arch floor_black1d
+arch floor_black2a
 x 17
 y 2
 end
-arch floor_black1c
+arch stairs_stone_down
+x 17
+y 2
+end
+arch floor_black2a
 x 17
 y 3
 end
-arch floor_black1b
+arch stairs_stone_down
+x 17
+y 3
+end
+arch floor_black1c
+x 17
+y 4
+end
+arch wood_pile.101
 x 17
 y 4
 end
@@ -2748,27 +2764,35 @@ end
 arch wall_dungeon_1
 x 18
 end
-arch floor_black1c
+arch floor_black2b
 x 18
 y 1
 end
-arch stairs_stone_down
-direction 1
-slaying underground_city_b_0302
-hp 18
-sp 1
+arch amphora2.101
 x 18
 y 1
 end
-arch floor_black2a
+arch floor_black1a
 x 18
 y 2
 end
-arch floor_black2a
+arch stairs_down
+x 18
+y 2
+end
+arch floor_black1d
+x 18
+y 3
+end
+arch stairs_down
 x 18
 y 3
 end
 arch floor_black1c
+x 18
+y 4
+end
+arch amphora2.101
 x 18
 y 4
 end
@@ -2942,36 +2966,35 @@ end
 arch wall_dungeon_1
 x 19
 end
-arch floor_black2b
+arch floor_black2a
 x 19
 y 1
 end
-arch amphora1.101
+arch wall_dungeon_3
 x 19
 y 1
-end
-arch floor_black1a
-x 19
-y 2
-end
-arch floor_black1d
-x 19
-y 3
-end
-arch blood_floor2
-x 19
-y 3
 end
 arch floor_black1c
 x 19
+y 2
+end
+arch wall_dungeon_3
+x 19
+y 2
+end
+arch floor_black2a
+x 19
+y 3
+end
+arch wall_dungeon_3
+x 19
+y 3
+end
+arch floor_black1b
+x 19
 y 4
 end
-arch portal_green
-hp 10
-sp 22
-walk_on 1
-fly_on 1
-type 66
+arch wall_dungeon_3
 x 19
 y 4
 end
@@ -2979,7 +3002,7 @@ arch floor_black1c
 x 19
 y 5
 end
-arch wall_dungeon_1
+arch wall_dungeon_4
 x 19
 y 5
 end
@@ -3147,49 +3170,11 @@ arch wall_dungeon_1
 x 19
 y 23
 end
-arch floor_black2a
-x 20
-end
-arch wall_dungeon_1
-x 20
-end
-arch floor_black2b
-x 20
-y 1
-end
-arch wall_dungeon_3
-x 20
-y 1
-end
-arch floor_black1b
-x 20
-y 2
-end
-arch wall_dungeon_3
-x 20
-y 2
-end
-arch floor_black1b
-x 20
-y 3
-end
-arch wall_dungeon_3
-x 20
-y 3
-end
-arch floor_black1a
-x 20
-y 4
-end
-arch wall_dungeon_3
-x 20
-y 4
-end
 arch floor_black1b
 x 20
 y 5
 end
-arch wall_dungeon_4
+arch wall_dungeon_1
 x 20
 y 5
 end
