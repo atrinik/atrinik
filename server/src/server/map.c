@@ -1049,7 +1049,7 @@ mapstruct *load_original_map(const char *filename, int flags)
                     m->coords[0] + map_tiled_coords[i][0],
                     m->coords[1] + map_tiled_coords[i][1]);
 
-            if (i >= TILED_NUM_DIR || m->coords[2] != 0) {
+            if (m->coords[2] + map_tiled_coords[i][2] != 0) {
                 snprintfcat(VS(path), "_%d",
                         m->coords[2] + map_tiled_coords[i][2]);
             }
