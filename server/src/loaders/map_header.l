@@ -89,9 +89,8 @@ lex_error = 0;
     int v = IVAL;
 
     if (v < -1 || v > MAX_DARKNESS) {
-        logger_print(LOG(BUG), "Illegal map darkness %d (must be -1 to %d, defaulting to -1).", v, MAX_DARKNESS);
-    }
-    else {
+        logger_print(LOG(BUG), "Illegal map darkness %d (must be -1 to %d, defaulting to -1): %s", v, MAX_DARKNESS, m->path);
+    } else {
         set_map_darkness(m, v);
     }
 }
