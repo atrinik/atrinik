@@ -3168,6 +3168,25 @@ int object_enter_map(object *op, object *exit_ob, mapstruct *m, int x, int y, ui
         object_remove(op, 0);
     }
 
+    if (exit_ob != NULL) {
+        object *floor;
+        int sub_layer, sub_direction;
+
+        sub_layer = op->sub_layer;
+        sub_direction = exit_ob->last_heal - 1 == TILED_UP ? 1 : -1;
+
+        for (sub_layer = op->sub_layer;
+                sub_layer >= 0 && sub_layer < NUM_SUB_LAYERS;
+                sub_layer += sub_direction) {
+            floor = GET_MAP_OB_LAYER(m, x, y, LAYER_FLOOR, sub_layer);
+
+            if (floor != NULL) {
+                op->sub_layer = sub_layer;
+                break;
+            }
+        }
+    }
+
     if (op->map && op->type == PLAYER && op->map->events) {
         trigger_map_event(MEVENT_LEAVE, op->map, op, NULL, NULL, NULL, 0);
     }
