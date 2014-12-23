@@ -2,7 +2,7 @@ arch map
 name Cathedral of Holy Wisdom
 msg
 Created:  2011-03-20 Alex Tokar
-Modified: 2012-01-17 emperorbma
+Modified: 2014-12-23 Alex Tokar
 endmsg
 width 24
 height 24
@@ -184,6 +184,7 @@ sub_layer 1
 y 18
 end
 arch plant_flower7
+sub_layer 1
 y 18
 end
 arch grassd_5
@@ -245,6 +246,7 @@ x 1
 y 2
 end
 arch plant_flower5
+sub_layer 1
 x 1
 y 2
 end
@@ -267,6 +269,7 @@ x 1
 y 5
 end
 arch plant_flower11
+sub_layer 1
 x 1
 y 5
 end
@@ -411,6 +414,7 @@ x 2
 y 2
 end
 arch plant_flower1
+sub_layer 1
 x 2
 y 2
 end
@@ -427,6 +431,7 @@ x 2
 y 4
 end
 arch plant_flower7
+sub_layer 1
 x 2
 y 4
 end
@@ -705,6 +710,7 @@ x 4
 y 1
 end
 arch plant_flower7
+sub_layer 1
 x 4
 y 1
 end
@@ -2674,6 +2680,7 @@ x 17
 y 2
 end
 arch plant_flower7
+sub_layer 1
 x 17
 y 2
 end

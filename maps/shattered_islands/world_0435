@@ -2,7 +2,7 @@ arch map
 name Asteria
 msg
 Created:  2009-08-09 Alex Tokar
-Modified: 2011-10-07 Alex Tokar
+Modified: 2014-12-23 Alex Tokar
 endmsg
 width 24
 height 24
@@ -1730,8 +1730,8 @@ x 13
 y 8
 end
 arch picture2.151
-direction 7
 z 50
+direction 7
 x 13
 y 8
 end
@@ -1953,6 +1953,7 @@ x 14
 y 7
 end
 arch chair1_111
+sub_layer 1
 direction 7
 x 14
 y 7
@@ -1960,11 +1961,6 @@ end
 arch floor_wood2_l1
 sub_layer 1
 z 50
-x 14
-y 8
-end
-arch mirror_big.111
-direction 7
 x 14
 y 8
 end
@@ -2011,6 +2007,7 @@ x 14
 y 12
 end
 arch bed_double
+sub_layer 1
 direction 7
 x 14
 y 12
@@ -2028,6 +2025,7 @@ x 14
 y 14
 end
 arch locker2.111
+sub_layer 1
 direction 7
 x 14
 y 14
@@ -2199,6 +2197,7 @@ x 15
 y 6
 end
 arch chair1_111
+sub_layer 1
 x 15
 y 6
 end
@@ -2209,6 +2208,7 @@ x 15
 y 7
 end
 arch table_poker2
+sub_layer 1
 x 15
 y 7
 end
@@ -2224,6 +2224,7 @@ x 15
 y 8
 end
 arch chair1_111
+sub_layer 1
 direction 5
 x 15
 y 8
@@ -2334,6 +2335,7 @@ x 15
 y 20
 end
 arch kettle_table
+sub_layer 1
 x 15
 y 20
 end
@@ -2344,6 +2346,7 @@ x 15
 y 21
 end
 arch chair2_111
+sub_layer 1
 direction 5
 x 15
 y 21
@@ -2434,6 +2437,7 @@ x 16
 y 7
 end
 arch chair1_111
+sub_layer 1
 direction 3
 x 16
 y 7
@@ -2556,6 +2560,7 @@ x 16
 y 20
 end
 arch chair2_111
+sub_layer 1
 direction 3
 x 16
 y 20
@@ -2638,6 +2643,7 @@ x 17
 y 6
 end
 arch clock
+sub_layer 1
 x 17
 y 6
 end
@@ -2675,6 +2681,7 @@ x 17
 y 9
 end
 arch glower.101
+sub_layer 1
 x 17
 y 9
 end
@@ -2744,6 +2751,7 @@ x 17
 y 14
 end
 arch flag_eagle
+sub_layer 1
 direction 7
 x 17
 y 14
@@ -2804,6 +2812,7 @@ x 17
 y 20
 end
 arch beer_barrel.101
+sub_layer 1
 x 17
 y 20
 end
@@ -2894,6 +2903,7 @@ x 18
 y 6
 end
 arch amphora2.101
+sub_layer 1
 x 18
 y 6
 end
@@ -3036,6 +3046,7 @@ x 18
 y 20
 end
 arch clock
+sub_layer 1
 x 18
 y 20
 end
@@ -3118,6 +3129,7 @@ x 19
 y 6
 end
 arch metal_bucket.101
+sub_layer 1
 x 19
 y 6
 end
@@ -3244,6 +3256,7 @@ x 19
 y 20
 end
 arch barrel.101
+sub_layer 1
 x 19
 y 20
 end

@@ -2,7 +2,7 @@ arch map
 name Asteria
 msg
 Created:  2009-08-09 Alex Tokar
-Modified: 2011-10-07 Alex Tokar
+Modified: 2014-12-23 Alex Tokar
 endmsg
 width 24
 height 24
@@ -250,6 +250,7 @@ sub_layer 2
 x 1
 end
 arch plant_flower4
+sub_layer 2
 x 1
 end
 arch earth_brown3
@@ -259,6 +260,7 @@ x 1
 y 1
 end
 arch plant_flower9
+sub_layer 2
 x 1
 y 1
 end
@@ -269,6 +271,7 @@ x 1
 y 2
 end
 arch plant_flower8
+sub_layer 2
 x 1
 y 2
 end
@@ -279,6 +282,7 @@ x 1
 y 3
 end
 arch plant_flower14
+sub_layer 2
 x 1
 y 3
 end
@@ -289,6 +293,7 @@ x 1
 y 4
 end
 arch plant_flower13
+sub_layer 2
 x 1
 y 4
 end
@@ -299,6 +304,7 @@ x 1
 y 5
 end
 arch plant4
+sub_layer 2
 x 1
 y 5
 end
@@ -446,6 +452,7 @@ sub_layer 2
 x 2
 end
 arch plant_flower9
+sub_layer 2
 x 2
 end
 arch earth_brown2
@@ -455,6 +462,7 @@ x 2
 y 1
 end
 arch plant_flower3
+sub_layer 2
 x 2
 y 1
 end
@@ -465,6 +473,7 @@ x 2
 y 2
 end
 arch plant_flower1
+sub_layer 2
 x 2
 y 2
 end
@@ -475,6 +484,7 @@ x 2
 y 3
 end
 arch plant_flower11
+sub_layer 2
 x 2
 y 3
 end
@@ -485,6 +495,7 @@ x 2
 y 4
 end
 arch plant5
+sub_layer 2
 x 2
 y 4
 end
@@ -628,6 +639,7 @@ sub_layer 2
 x 3
 end
 arch plant11
+sub_layer 2
 x 3
 end
 arch earth_brown3
@@ -637,6 +649,7 @@ x 3
 y 1
 end
 arch plant10
+sub_layer 2
 x 3
 y 1
 end
@@ -647,6 +660,7 @@ x 3
 y 2
 end
 arch plant16
+sub_layer 2
 x 3
 y 2
 end
@@ -657,6 +671,7 @@ x 3
 y 3
 end
 arch plant9
+sub_layer 2
 x 3
 y 3
 end
