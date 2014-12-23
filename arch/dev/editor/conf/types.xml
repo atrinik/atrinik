@@ -1667,6 +1667,14 @@
 		The exit destinations define the map coordinates where the exit
 		leads to.
 	</attribute>
+    <attribute arch="last_heal" editor="tile direction" type="list_tile_dir">
+        If set to something other than "none", the exit will attempt to
+        automatically calculate its destination, relative to its position
+        on the current map and the specified map tile direction.
+
+        This is used for exits such as stairs, where the destination is
+        usually clear just from the tiled maps.
+    </attribute>
 	<attribute arch="walk_on" editor="apply by walking" type="bool">
 		If set, the player will apply the exit by just walking into it.
 		This must be set for the invisible exits for example. If unset,
