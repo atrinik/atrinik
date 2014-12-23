@@ -11,9 +11,9 @@ darkness -1
 outdoor 1
 no_harm 1
 fixed_resettime 1
-tile_path_10 world_3_0312
 bg_music town_music.ogg
 region brynknot
+tile_path_10 world_3_0312
 end
 arch roof_brick_gray
 direction 3

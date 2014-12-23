@@ -11,12 +11,15 @@ darkness -1
 outdoor 1
 no_harm 1
 fixed_resettime 1
+tile_path_1 world_1_0313
+tile_path_3 world_1_0311
 tile_path_4 world_1_0212
+tile_path_7 world_1_0211
 tile_path_8 world_1_0213
-tile_path_9 world_2_0312
-tile_path_10 world_0312
 bg_music town_music.ogg
 region brynknot
+tile_path_9 world_2_0312
+tile_path_10 world_0312
 end
 arch blocked
 y 4

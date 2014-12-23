@@ -9,6 +9,7 @@ height 24
 difficulty 5
 darkness -1
 outdoor 1
+tile_path_2 world_1_0313
 tile_path_3 world_1_0212
 tile_path_4 world_1_0113
 tile_path_6 world_1_0312
@@ -1159,5 +1160,172 @@ y 20
 end
 arch wall_wood_4
 x 17
+y 20
+end
+arch roof_brick_brown
+direction 3
+x 19
+y 14
+end
+arch roof_brick_brown
+direction 3
+x 19
+y 15
+end
+arch roof_brick_brown
+direction 3
+x 19
+y 16
+end
+arch roof_brick_brown
+direction 3
+x 19
+y 17
+end
+arch roof_brick_brown
+direction 3
+x 19
+y 18
+end
+arch roof_brick_brown
+direction 3
+x 19
+y 19
+end
+arch roof_brick_brown
+direction 3
+x 19
+y 20
+end
+arch roof_brick_brown
+direction 5
+x 20
+y 13
+end
+arch roof_brick_brown
+x 20
+y 14
+end
+arch roof_brick_brown
+x 20
+y 15
+end
+arch roof_brick_brown
+x 20
+y 16
+end
+arch roof_brick_brown
+x 20
+y 17
+end
+arch roof_brick_brown
+x 20
+y 18
+end
+arch roof_brick_brown
+x 20
+y 19
+end
+arch roof_brick_brown
+x 20
+y 20
+end
+arch roof_brick_brown
+direction 5
+x 21
+y 13
+end
+arch roof_brick_brown
+x 21
+y 14
+end
+arch roof_brick_brown
+x 21
+y 15
+end
+arch roof_brick_brown
+x 21
+y 16
+end
+arch roof_brick_brown
+x 21
+y 17
+end
+arch roof_brick_brown
+x 21
+y 18
+end
+arch roof_brick_brown
+x 21
+y 19
+end
+arch roof_brick_brown
+x 21
+y 20
+end
+arch roof_brick_brown
+direction 5
+x 22
+y 13
+end
+arch roof_brick_brown
+x 22
+y 14
+end
+arch roof_brick_brown
+x 22
+y 15
+end
+arch roof_brick_brown
+x 22
+y 16
+end
+arch roof_brick_brown
+x 22
+y 17
+end
+arch roof_brick_brown
+x 22
+y 18
+end
+arch roof_brick_brown
+x 22
+y 19
+end
+arch roof_brick_brown
+x 22
+y 20
+end
+arch roof_brick_brown
+direction 5
+x 23
+y 13
+end
+arch roof_brick_brown
+x 23
+y 14
+end
+arch roof_brick_brown
+x 23
+y 15
+end
+arch roof_brick_brown
+x 23
+y 16
+end
+arch roof_brick_brown
+x 23
+y 17
+end
+arch roof_brick_brown
+x 23
+y 18
+end
+arch roof_brick_brown
+x 23
+y 19
+end
+arch roof_brick_brown
+x 23
 y 20
 end

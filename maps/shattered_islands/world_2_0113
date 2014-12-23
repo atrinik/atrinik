@@ -7,12 +7,14 @@ endmsg
 width 24
 height 24
 difficulty 80
-darkness -3
+darkness -1
 outdoor 1
 no_harm 1
 tile_path_2 world_2_0213
 tile_path_3 world_2_0112
+tile_path_4 world_2_aa13
 tile_path_6 world_2_0212
+tile_path_7 world_2_aa12
 tile_path_9 world_3_0113
 tile_path_10 world_1_0113
 bg_music lontala.mid

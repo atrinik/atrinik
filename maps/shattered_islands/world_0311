@@ -19,6 +19,7 @@ tile_path_7 world_0210
 tile_path_8 world_0212
 bg_music lontala.mid
 region brynknot
+tile_path_9 world_1_0311
 end
 arch grassd_5
 end

@@ -12,12 +12,16 @@ outdoor 1
 no_harm 1
 tile_path_1 world_1_0213
 tile_path_2 world_1_0312
+tile_path_3 world_1_0211
 tile_path_4 world_1_0112
+tile_path_5 world_1_0313
+tile_path_6 world_1_0311
+tile_path_7 world_1_0111
 tile_path_8 world_1_0113
-tile_path_9 world_2_0212
-tile_path_10 world_0212
 bg_music lontala.mid
 region brynknot
+tile_path_9 world_2_0212
+tile_path_10 world_0212
 end
 arch blocked
 y 6
