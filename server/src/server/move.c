@@ -122,8 +122,9 @@ int move_ob(object *op, int dir, object *originator)
 
     FOR_MAP_LAYER_BEGIN(m, xt, yt, LAYER_FLOOR, -1, floor_tmp)
     {
-        if (abs(z - floor_tmp->z) > MOVE_MAX_HEIGHT_DIFF) {
-            continue;
+        if (floor_tmp->z - z > MOVE_MAX_HEIGHT_DIFF && (op->type != PLAYER ||
+                !CONTR(op)->tcl)) {
+            return 0;
         }
 
         if (floor_tmp->z > z_highest) {
