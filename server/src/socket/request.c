@@ -1070,6 +1070,8 @@ void draw_client_map2(object *pl)
                         } else {
                             mask |= MAP2_MASK_DARKNESS_MORE;
                         }
+
+                        mp->darkness[sub_layer] = dark[sub_layer];
                     }
 
                     socket_layer = NUM_LAYERS * sub_layer + layer - 1;
@@ -1419,7 +1421,7 @@ void draw_client_map2(object *pl)
     }
 
     /* Verify that we in fact do need to send this. */
-    if (packet->len >= 4) {
+    if (packet->len >= 6) {
         socket_send_packet(&CONTR(pl)->socket, packet);
     } else {
         packet_free(packet);

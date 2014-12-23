@@ -49,7 +49,7 @@ typedef struct MapCell_struct {
     uint8 cleared;
 
     /** Darkness cache. */
-    uint8 darkness[NUM_SUB_LAYERS];
+    uint16 darkness[NUM_SUB_LAYERS];
 
     /** Faces we sent. */
     sint16 faces[NUM_REAL_LAYERS];
