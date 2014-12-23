@@ -67,6 +67,7 @@ x 1
 y 14
 end
 arch roof_thatch
+direction 8
 x 1
 y 15
 end
@@ -167,6 +168,7 @@ x 2
 y 15
 end
 arch roof_thatch
+direction 8
 x 2
 y 16
 end
@@ -244,6 +246,7 @@ x 3
 y 16
 end
 arch roof_thatch
+direction 8
 x 3
 y 17
 end
@@ -329,6 +332,7 @@ x 4
 y 17
 end
 arch roof_thatch
+direction 8
 x 4
 y 18
 end
@@ -408,6 +412,7 @@ x 5
 y 18
 end
 arch roof_thatch
+direction 8
 x 5
 y 19
 end
@@ -499,6 +504,7 @@ x 6
 y 19
 end
 arch roof_thatch
+direction 8
 x 6
 y 20
 end
@@ -551,6 +557,7 @@ x 7
 y 20
 end
 arch roof_thatch
+direction 8
 x 7
 y 21
 end
@@ -604,6 +611,7 @@ x 8
 y 21
 end
 arch roof_thatch
+direction 8
 x 8
 y 22
 end
