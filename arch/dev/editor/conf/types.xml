@@ -5027,6 +5027,10 @@
 		similarly to client map information objects.
 	]]>
 	</description>
+    <attribute arch="name" editor="ID" type="string">
+        Used to link map info objects together (in the case of buildings, for
+        example).
+    </attribute>
 	<attribute arch="hp" editor="width" type="int">
 		Number of tiles east of the info object that the object spans.
 	</attribute>
@@ -5048,6 +5052,15 @@
 		Override darkness -- the default is -1, which means no override will happen.
 		Use -2 to enable outdoor darkness.
 	</attribute>
+    <attribute arch="cursed" editor="building" type="bool">
+        The map info defines a building's coordinates.
+    </attribute>
+    <attribute arch="is_magical" editor="balcony" type="bool">
+        Defines a balcony.
+    </attribute>
+    <attribute arch="damned" editor="overlook" type="bool">
+        Defines an overlook.
+    </attribute>
 	<attribute arch="stand_still" editor="no harmful spells" type="bool">
 		Disables harmful spells. If the map already has harmful spells disabled,
 		this setting will enable harmful spells on the area the info object spans.
