@@ -817,6 +817,11 @@ void draw_client_map2(object *pl)
                                         0);
                             }
 
+                            if (tmp != NULL && layer == LAYER_EFFECT &&
+                                    tmp->type != WALL && tmp->type != DOOR) {
+                                tmp = NULL;
+                            }
+
                             if (tmp == NULL) {
                                 for (sub_layer2 = NUM_SUB_LAYERS - 1;
                                         sub_layer2 >= 0; sub_layer2--) {
@@ -831,11 +836,6 @@ void draw_client_map2(object *pl)
 
                             tiled_depth += tiled_dir == TILED_UP ? 1 : -1;
                             force_draw_double = 1;
-
-                            if (tmp != NULL && layer == LAYER_EFFECT &&
-                                    tmp->type != WALL && tmp->type != DOOR) {
-                                tmp = NULL;
-                            }
 
                             if (tmp != NULL && layer == LAYER_WALL &&
                                     tmp->sub_layer == 0 && (tmp->map != m ||
@@ -1020,6 +1020,7 @@ void draw_client_map2(object *pl)
                     }
 
                     if (tmp != NULL && tiled_depth != 0 && !is_building_wall &&
+                            (tmp->type == WALL || tmp->type == DOOR) &&
                             layer == LAYER_EFFECT && sub_layer != 0 &&
                             !QUERY_FLAG(tmp, FLAG_HIDDEN) &&
                             !(GET_MAP_SPACE_PTR(tmp->map, tmp->x,
