@@ -878,8 +878,7 @@ void draw_client_map2(object *pl)
                             }
 
                             if (tmp != NULL && (layer != LAYER_WALL ||
-                                    tmp->sub_layer != 0) &&
-                                    layer != LAYER_FMASK) {
+                                    tmp->sub_layer != 0)) {
                                 tiled_z = 1;
 
                                 if (msp_tmp->extra_flags &
