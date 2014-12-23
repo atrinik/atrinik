@@ -2989,10 +2989,6 @@ arch grassd_2
 x 19
 y 21
 end
-arch plant_flower11
-x 19
-y 21
-end
 arch tree_big4b
 x 19
 y 21
@@ -3454,11 +3450,19 @@ arch grassd_5
 x 23
 y 1
 end
+arch reed_sm1
+x 23
+y 1
+end
 arch plant_flower14
 x 23
 y 1
 end
 arch grassd_8
+x 23
+y 2
+end
+arch reed_sm1
 x 23
 y 2
 end
