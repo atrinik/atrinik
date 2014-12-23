@@ -5087,6 +5087,11 @@
 		quest hint, etc.
 	]]>
 	</description>
+    <attribute arch="match" editor="match expression" type="string">
+        Expression that must match in order for the sound to be heard, eg:
+
+        hour &lt; 7 &amp;&amp; hour &gt; 20
+    </attribute>
 	<attribute arch="race" editor="sound effect" type="string">
 		Sound effect filename to play.
 	</attribute>
