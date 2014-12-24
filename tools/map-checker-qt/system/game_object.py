@@ -173,7 +173,7 @@ class GameObject(AbstractObjectInventory):
             return True
 
         try:
-            if float(val1) == float(val2):
+            if float(val1 or 0) == float(val2 or 0):
                 return True
         except (ValueError, TypeError):
             pass
