@@ -1648,9 +1648,6 @@ arch spawn_point
 x 9
 y 7
 arch mage_old
-msg
-
-endmsg
 name Ixovolth
 level 58
 type 83

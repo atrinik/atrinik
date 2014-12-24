@@ -124,7 +124,6 @@ x 8
 y 19
 end
 arch blocked
-blocksview 0
 x 9
 y 14
 end
@@ -361,7 +360,6 @@ x 12
 y 20
 end
 arch blocked
-blocksview 0
 x 13
 y 13
 end

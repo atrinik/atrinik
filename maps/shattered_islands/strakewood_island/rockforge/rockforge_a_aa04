@@ -201,7 +201,6 @@ y 5
 end
 arch blocked
 no_pass 0
-blocksview 0
 x 2
 y 6
 end

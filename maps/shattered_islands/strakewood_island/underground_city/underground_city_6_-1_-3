@@ -661,7 +661,6 @@ y 10
 end
 arch blocked
 player_only 1
-blocksview 0
 no_pass 0
 x 11
 y 11
@@ -682,7 +681,6 @@ y 11
 end
 arch blocked
 player_only 1
-blocksview 0
 no_pass 0
 x 11
 y 12
@@ -703,7 +701,6 @@ y 12
 end
 arch blocked
 player_only 1
-blocksview 0
 no_pass 0
 x 11
 y 13
@@ -724,7 +721,6 @@ y 13
 end
 arch blocked
 player_only 1
-blocksview 0
 no_pass 0
 x 11
 y 14
@@ -859,7 +855,6 @@ y 9
 end
 arch blocked
 player_only 1
-blocksview 0
 no_pass 0
 x 12
 y 10
@@ -880,7 +875,6 @@ y 10
 end
 arch blocked
 player_only 1
-blocksview 0
 no_pass 0
 x 12
 y 11
@@ -901,7 +895,6 @@ y 11
 end
 arch blocked
 player_only 1
-blocksview 0
 no_pass 0
 x 12
 y 12
@@ -918,7 +911,6 @@ y 12
 end
 arch blocked
 player_only 1
-blocksview 0
 no_pass 0
 x 12
 y 13
@@ -935,7 +927,6 @@ y 13
 end
 arch blocked
 player_only 1
-blocksview 0
 no_pass 0
 x 12
 y 14
@@ -1063,7 +1054,6 @@ y 8
 end
 arch blocked
 player_only 1
-blocksview 0
 no_pass 0
 x 13
 y 9
@@ -1084,7 +1074,6 @@ y 9
 end
 arch blocked
 player_only 1
-blocksview 0
 no_pass 0
 x 13
 y 10
@@ -1105,7 +1094,6 @@ y 10
 end
 arch blocked
 player_only 1
-blocksview 0
 no_pass 0
 x 13
 y 11
@@ -1122,7 +1110,6 @@ y 11
 end
 arch blocked
 player_only 1
-blocksview 0
 no_pass 0
 x 13
 y 12
@@ -1139,7 +1126,6 @@ y 12
 end
 arch blocked
 player_only 1
-blocksview 0
 no_pass 0
 x 13
 y 13
@@ -1266,7 +1252,6 @@ y 7
 end
 arch blocked
 player_only 1
-blocksview 0
 no_pass 0
 x 14
 y 8
@@ -1287,7 +1272,6 @@ y 8
 end
 arch blocked
 player_only 1
-blocksview 0
 no_pass 0
 x 14
 y 9
@@ -1308,7 +1292,6 @@ y 9
 end
 arch blocked
 player_only 1
-blocksview 0
 no_pass 0
 x 14
 y 10
@@ -1325,7 +1308,6 @@ y 10
 end
 arch blocked
 player_only 1
-blocksview 0
 no_pass 0
 x 14
 y 11
@@ -1342,7 +1324,6 @@ y 11
 end
 arch blocked
 player_only 1
-blocksview 0
 no_pass 0
 x 14
 y 12
@@ -1473,7 +1454,6 @@ y 7
 end
 arch blocked
 player_only 1
-blocksview 0
 no_pass 0
 x 15
 y 8
@@ -1494,7 +1474,6 @@ y 8
 end
 arch blocked
 player_only 1
-blocksview 0
 no_pass 0
 x 15
 y 9
@@ -1511,7 +1490,6 @@ y 9
 end
 arch blocked
 player_only 1
-blocksview 0
 no_pass 0
 x 15
 y 10
@@ -1528,7 +1506,6 @@ y 10
 end
 arch blocked
 player_only 1
-blocksview 0
 no_pass 0
 x 15
 y 11

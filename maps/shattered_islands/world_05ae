@@ -1856,7 +1856,6 @@ y 7
 end
 arch blocked
 no_pass 0
-blocksview 0
 x 9
 y 8
 end
@@ -2045,7 +2044,6 @@ y 7
 end
 arch blocked
 no_pass 0
-blocksview 0
 x 10
 y 8
 end
@@ -4463,7 +4461,6 @@ y 9
 end
 arch blocked
 no_pass 0
-blocksview 0
 x 23
 y 10
 end
@@ -4476,7 +4473,6 @@ y 10
 end
 arch blocked
 no_pass 0
-blocksview 0
 x 23
 y 11
 end

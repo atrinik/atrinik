@@ -470,7 +470,6 @@ y 6
 end
 arch blocked
 player_only 1
-blocksview 0
 no_pass 0
 x 12
 y 7
@@ -491,7 +490,6 @@ y 7
 end
 arch blocked
 player_only 1
-blocksview 0
 no_pass 0
 x 12
 y 8
@@ -638,7 +636,6 @@ y 6
 end
 arch blocked
 player_only 1
-blocksview 0
 no_pass 0
 x 13
 y 7
@@ -659,7 +656,6 @@ y 7
 end
 arch blocked
 player_only 1
-blocksview 0
 no_pass 0
 x 13
 y 8
@@ -1727,7 +1723,6 @@ y 8
 end
 arch blocked
 player_only 1
-blocksview 0
 no_pass 0
 x 21
 y 9
@@ -1748,7 +1743,6 @@ y 9
 end
 arch blocked
 player_only 1
-blocksview 0
 no_pass 0
 x 21
 y 10
@@ -1769,7 +1763,6 @@ y 10
 end
 arch blocked
 player_only 1
-blocksview 0
 no_pass 0
 x 21
 y 11
@@ -1790,7 +1783,6 @@ y 11
 end
 arch blocked
 player_only 1
-blocksview 0
 no_pass 0
 x 21
 y 12
@@ -1927,7 +1919,6 @@ end
 end
 arch blocked
 player_only 1
-blocksview 0
 no_pass 0
 x 22
 y 9
@@ -1948,7 +1939,6 @@ y 9
 end
 arch blocked
 player_only 1
-blocksview 0
 no_pass 0
 x 22
 y 10
@@ -1965,7 +1955,6 @@ y 10
 end
 arch blocked
 player_only 1
-blocksview 0
 no_pass 0
 x 22
 y 11
@@ -1982,7 +1971,6 @@ y 11
 end
 arch blocked
 player_only 1
-blocksview 0
 no_pass 0
 x 22
 y 12

@@ -2217,7 +2217,6 @@ y 23
 end
 arch blocked
 no_pass 0
-blocksview 0
 x 19
 end
 arch invis_exit

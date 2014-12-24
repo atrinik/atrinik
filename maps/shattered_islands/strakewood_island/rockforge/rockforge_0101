@@ -138,7 +138,6 @@ x 6
 y 7
 end
 arch blocked
-blocksview 0
 no_pass 0
 x 6
 y 8
@@ -238,7 +237,6 @@ x 7
 y 7
 end
 arch blocked
-blocksview 0
 no_pass 0
 x 7
 y 8
@@ -1762,7 +1760,6 @@ x 16
 y 7
 end
 arch blocked
-blocksview 0
 no_pass 0
 x 16
 y 8
@@ -1828,7 +1825,6 @@ x 17
 y 7
 end
 arch blocked
-blocksview 0
 no_pass 0
 x 17
 y 8

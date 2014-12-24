@@ -502,7 +502,6 @@ y 15
 end
 arch blocked
 player_only 1
-blocksview 0
 no_pass 0
 x 8
 y 16
@@ -523,7 +522,6 @@ y 16
 end
 arch blocked
 player_only 1
-blocksview 0
 no_pass 0
 x 8
 y 17
@@ -660,7 +658,6 @@ y 14
 end
 arch blocked
 player_only 1
-blocksview 0
 no_pass 0
 x 9
 y 15
@@ -681,7 +678,6 @@ y 15
 end
 arch blocked
 player_only 1
-blocksview 0
 no_pass 0
 x 9
 y 16
@@ -702,7 +698,6 @@ y 16
 end
 arch blocked
 player_only 1
-blocksview 0
 no_pass 0
 x 9
 y 17
@@ -861,7 +856,6 @@ y 14
 end
 arch blocked
 player_only 1
-blocksview 0
 no_pass 0
 x 10
 y 15
@@ -882,7 +876,6 @@ y 15
 end
 arch blocked
 player_only 1
-blocksview 0
 no_pass 0
 x 10
 y 16
@@ -1439,7 +1432,6 @@ y 7
 end
 arch blocked
 player_only 1
-blocksview 0
 no_pass 0
 x 14
 y 8
@@ -1460,7 +1452,6 @@ y 8
 end
 arch blocked
 player_only 1
-blocksview 0
 no_pass 0
 x 14
 y 9
@@ -1644,7 +1635,6 @@ y 7
 end
 arch blocked
 player_only 1
-blocksview 0
 no_pass 0
 x 15
 y 8
@@ -1665,7 +1655,6 @@ y 8
 end
 arch blocked
 player_only 1
-blocksview 0
 no_pass 0
 x 15
 y 9

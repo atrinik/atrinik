@@ -1374,7 +1374,6 @@ y 14
 end
 arch blocked
 no_pass 0
-blocksview 0
 x 12
 y 15
 end
@@ -1509,7 +1508,6 @@ y 14
 end
 arch blocked
 no_pass 0
-blocksview 0
 x 13
 y 15
 end

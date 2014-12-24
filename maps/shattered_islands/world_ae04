@@ -2247,7 +2247,6 @@ y 20
 end
 arch blocked
 no_pass 0
-blocksview 0
 z 4
 x 11
 y 21
@@ -2427,7 +2426,6 @@ y 19
 end
 arch blocked
 no_pass 0
-blocksview 0
 z 2
 x 12
 y 20
@@ -2447,7 +2445,6 @@ y 20
 end
 arch blocked
 no_pass 0
-blocksview 0
 z 2
 x 12
 y 21
@@ -2466,7 +2463,6 @@ y 21
 end
 arch blocked
 no_pass 0
-blocksview 0
 z 2
 x 12
 y 22

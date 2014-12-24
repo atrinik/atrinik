@@ -1522,17 +1522,11 @@ x 11
 y 21
 end
 arch spawn_point
-msg
-
-endmsg
 speed 0.05
 last_grace 0
 x 11
 y 21
 arch witch3
-msg
-
-endmsg
 name bookish student witch
 level 25
 spawn_time 16:00-8:00

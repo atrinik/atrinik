@@ -586,7 +586,6 @@ x 5
 y 22
 end
 arch blocked
-blocksview 0
 no_pass 0
 x 5
 y 23
@@ -624,7 +623,6 @@ x 6
 y 22
 end
 arch blocked
-blocksview 0
 x 6
 y 23
 end
@@ -645,7 +643,6 @@ x 7
 y 22
 end
 arch blocked
-blocksview 0
 x 7
 y 23
 end
@@ -654,7 +651,6 @@ x 8
 y 20
 end
 arch blocked
-blocksview 0
 x 8
 y 21
 end

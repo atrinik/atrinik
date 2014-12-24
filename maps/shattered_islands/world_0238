@@ -412,7 +412,6 @@ y 23
 end
 arch blocked
 no_pass 0
-blocksview 0
 x 2
 end
 arch grassd_1
@@ -426,7 +425,6 @@ x 2
 end
 arch blocked
 no_pass 0
-blocksview 0
 x 2
 y 1
 end
@@ -443,7 +441,6 @@ y 1
 end
 arch blocked
 no_pass 0
-blocksview 0
 x 2
 y 2
 end
@@ -460,7 +457,6 @@ y 2
 end
 arch blocked
 no_pass 0
-blocksview 0
 x 2
 y 3
 end
@@ -477,7 +473,6 @@ y 3
 end
 arch blocked
 no_pass 0
-blocksview 0
 x 2
 y 4
 end
@@ -494,7 +489,6 @@ y 4
 end
 arch blocked
 no_pass 0
-blocksview 0
 x 2
 y 5
 end
@@ -511,7 +505,6 @@ y 5
 end
 arch blocked
 no_pass 0
-blocksview 0
 x 2
 y 6
 end
@@ -528,7 +521,6 @@ y 6
 end
 arch blocked
 no_pass 0
-blocksview 0
 x 2
 y 7
 end
@@ -545,7 +537,6 @@ y 7
 end
 arch blocked
 no_pass 0
-blocksview 0
 x 2
 y 8
 end
@@ -562,7 +553,6 @@ y 8
 end
 arch blocked
 no_pass 0
-blocksview 0
 x 2
 y 9
 end
@@ -579,7 +569,6 @@ y 9
 end
 arch blocked
 no_pass 0
-blocksview 0
 x 2
 y 10
 end
@@ -596,7 +585,6 @@ y 10
 end
 arch blocked
 no_pass 0
-blocksview 0
 x 2
 y 11
 end
@@ -613,7 +601,6 @@ y 11
 end
 arch blocked
 no_pass 0
-blocksview 0
 x 2
 y 12
 end
@@ -630,7 +617,6 @@ y 12
 end
 arch blocked
 no_pass 0
-blocksview 0
 x 2
 y 13
 end
@@ -647,7 +633,6 @@ y 13
 end
 arch blocked
 no_pass 0
-blocksview 0
 x 2
 y 14
 end
@@ -664,7 +649,6 @@ y 14
 end
 arch blocked
 no_pass 0
-blocksview 0
 x 2
 y 15
 end
@@ -681,7 +665,6 @@ y 15
 end
 arch blocked
 no_pass 0
-blocksview 0
 x 2
 y 16
 end
@@ -698,7 +681,6 @@ y 16
 end
 arch blocked
 no_pass 0
-blocksview 0
 x 2
 y 17
 end
@@ -715,7 +697,6 @@ y 17
 end
 arch blocked
 no_pass 0
-blocksview 0
 x 2
 y 18
 end
@@ -732,7 +713,6 @@ y 18
 end
 arch blocked
 no_pass 0
-blocksview 0
 x 2
 y 19
 end
@@ -749,7 +729,6 @@ y 19
 end
 arch blocked
 no_pass 0
-blocksview 0
 x 2
 y 20
 end
@@ -766,7 +745,6 @@ y 20
 end
 arch blocked
 no_pass 0
-blocksview 0
 x 2
 y 21
 end
@@ -783,7 +761,6 @@ y 21
 end
 arch blocked
 no_pass 0
-blocksview 0
 x 2
 y 22
 end
@@ -800,7 +777,6 @@ y 22
 end
 arch blocked
 no_pass 0
-blocksview 0
 x 2
 y 23
 end
@@ -816,7 +792,6 @@ x 2
 y 23
 end
 arch blocked
-blocksview 0
 z 36
 x 3
 end
@@ -825,7 +800,6 @@ blocksview 0
 x 3
 end
 arch blocked
-blocksview 0
 z 36
 x 3
 y 1
@@ -836,7 +810,6 @@ x 3
 y 1
 end
 arch blocked
-blocksview 0
 z 36
 x 3
 y 2
@@ -847,7 +820,6 @@ x 3
 y 2
 end
 arch blocked
-blocksview 0
 z 36
 x 3
 y 3
@@ -858,7 +830,6 @@ x 3
 y 3
 end
 arch blocked
-blocksview 0
 z 36
 x 3
 y 4
@@ -869,7 +840,6 @@ x 3
 y 4
 end
 arch blocked
-blocksview 0
 z 36
 x 3
 y 5
@@ -880,7 +850,6 @@ x 3
 y 5
 end
 arch blocked
-blocksview 0
 z 36
 x 3
 y 6
@@ -891,7 +860,6 @@ x 3
 y 6
 end
 arch blocked
-blocksview 0
 z 36
 x 3
 y 7
@@ -902,7 +870,6 @@ x 3
 y 7
 end
 arch blocked
-blocksview 0
 z 36
 x 3
 y 8
@@ -913,7 +880,6 @@ x 3
 y 8
 end
 arch blocked
-blocksview 0
 z 36
 x 3
 y 9
@@ -924,7 +890,6 @@ x 3
 y 9
 end
 arch blocked
-blocksview 0
 z 36
 x 3
 y 10
@@ -935,7 +900,6 @@ x 3
 y 10
 end
 arch blocked
-blocksview 0
 z 36
 x 3
 y 11
@@ -946,7 +910,6 @@ x 3
 y 11
 end
 arch blocked
-blocksview 0
 z 36
 x 3
 y 12
@@ -957,7 +920,6 @@ x 3
 y 12
 end
 arch blocked
-blocksview 0
 z 36
 x 3
 y 13
@@ -968,7 +930,6 @@ x 3
 y 13
 end
 arch blocked
-blocksview 0
 z 36
 x 3
 y 14
@@ -979,7 +940,6 @@ x 3
 y 14
 end
 arch blocked
-blocksview 0
 z 36
 x 3
 y 15
@@ -990,7 +950,6 @@ x 3
 y 15
 end
 arch blocked
-blocksview 0
 z 36
 x 3
 y 16
@@ -1001,7 +960,6 @@ x 3
 y 16
 end
 arch blocked
-blocksview 0
 z 36
 x 3
 y 17
@@ -1012,7 +970,6 @@ x 3
 y 17
 end
 arch blocked
-blocksview 0
 z 36
 x 3
 y 18
@@ -1023,7 +980,6 @@ x 3
 y 18
 end
 arch blocked
-blocksview 0
 z 36
 x 3
 y 19
@@ -1034,7 +990,6 @@ x 3
 y 19
 end
 arch blocked
-blocksview 0
 z 36
 x 3
 y 20
@@ -1045,7 +1000,6 @@ x 3
 y 20
 end
 arch blocked
-blocksview 0
 z 36
 x 3
 y 21
@@ -1056,7 +1010,6 @@ x 3
 y 21
 end
 arch blocked
-blocksview 0
 z 36
 x 3
 y 22
@@ -1067,7 +1020,6 @@ x 3
 y 22
 end
 arch blocked
-blocksview 0
 z 36
 x 3
 y 23
@@ -1078,7 +1030,6 @@ x 3
 y 23
 end
 arch blocked
-blocksview 0
 z 26
 x 4
 end
@@ -1087,7 +1038,6 @@ blocksview 0
 x 4
 end
 arch blocked
-blocksview 0
 z 26
 x 4
 y 1
@@ -1098,7 +1048,6 @@ x 4
 y 1
 end
 arch blocked
-blocksview 0
 z 26
 x 4
 y 2
@@ -1109,7 +1058,6 @@ x 4
 y 2
 end
 arch blocked
-blocksview 0
 z 26
 x 4
 y 3
@@ -1120,7 +1068,6 @@ x 4
 y 3
 end
 arch blocked
-blocksview 0
 z 26
 x 4
 y 4
@@ -1131,7 +1078,6 @@ x 4
 y 4
 end
 arch blocked
-blocksview 0
 z 26
 x 4
 y 5
@@ -1142,7 +1088,6 @@ x 4
 y 5
 end
 arch blocked
-blocksview 0
 z 26
 x 4
 y 6
@@ -1153,7 +1098,6 @@ x 4
 y 6
 end
 arch blocked
-blocksview 0
 z 26
 x 4
 y 7
@@ -1164,7 +1108,6 @@ x 4
 y 7
 end
 arch blocked
-blocksview 0
 z 26
 x 4
 y 8
@@ -1175,7 +1118,6 @@ x 4
 y 8
 end
 arch blocked
-blocksview 0
 z 26
 x 4
 y 9
@@ -1186,7 +1128,6 @@ x 4
 y 9
 end
 arch blocked
-blocksview 0
 z 26
 x 4
 y 10
@@ -1197,7 +1138,6 @@ x 4
 y 10
 end
 arch blocked
-blocksview 0
 z 26
 x 4
 y 11
@@ -1208,7 +1148,6 @@ x 4
 y 11
 end
 arch blocked
-blocksview 0
 z 26
 x 4
 y 12
@@ -1219,7 +1158,6 @@ x 4
 y 12
 end
 arch blocked
-blocksview 0
 z 26
 x 4
 y 13
@@ -1230,7 +1168,6 @@ x 4
 y 13
 end
 arch blocked
-blocksview 0
 z 26
 x 4
 y 14
@@ -1241,7 +1178,6 @@ x 4
 y 14
 end
 arch blocked
-blocksview 0
 z 26
 x 4
 y 15
@@ -1252,7 +1188,6 @@ x 4
 y 15
 end
 arch blocked
-blocksview 0
 z 26
 x 4
 y 16
@@ -1263,7 +1198,6 @@ x 4
 y 16
 end
 arch blocked
-blocksview 0
 z 26
 x 4
 y 17
@@ -1274,7 +1208,6 @@ x 4
 y 17
 end
 arch blocked
-blocksview 0
 z 26
 x 4
 y 18
@@ -1285,7 +1218,6 @@ x 4
 y 18
 end
 arch blocked
-blocksview 0
 z 26
 x 4
 y 19
@@ -1296,7 +1228,6 @@ x 4
 y 19
 end
 arch blocked
-blocksview 0
 z 26
 x 4
 y 20
@@ -1307,7 +1238,6 @@ x 4
 y 20
 end
 arch blocked
-blocksview 0
 z 26
 x 4
 y 21
@@ -1318,7 +1248,6 @@ x 4
 y 21
 end
 arch blocked
-blocksview 0
 z 26
 x 4
 y 22
@@ -1329,7 +1258,6 @@ x 4
 y 22
 end
 arch blocked
-blocksview 0
 z 26
 x 4
 y 23
@@ -1340,7 +1268,6 @@ x 4
 y 23
 end
 arch blocked
-blocksview 0
 z 26
 x 5
 end
@@ -1349,7 +1276,6 @@ blocksview 0
 x 5
 end
 arch blocked
-blocksview 0
 z 26
 x 5
 y 1
@@ -1360,7 +1286,6 @@ x 5
 y 1
 end
 arch blocked
-blocksview 0
 z 26
 x 5
 y 2
@@ -1371,7 +1296,6 @@ x 5
 y 2
 end
 arch blocked
-blocksview 0
 z 26
 x 5
 y 3
@@ -1382,7 +1306,6 @@ x 5
 y 3
 end
 arch blocked
-blocksview 0
 z 26
 x 5
 y 4
@@ -1393,7 +1316,6 @@ x 5
 y 4
 end
 arch blocked
-blocksview 0
 z 26
 x 5
 y 5
@@ -1404,7 +1326,6 @@ x 5
 y 5
 end
 arch blocked
-blocksview 0
 z 26
 x 5
 y 6
@@ -1415,7 +1336,6 @@ x 5
 y 6
 end
 arch blocked
-blocksview 0
 z 26
 x 5
 y 7
@@ -1426,7 +1346,6 @@ x 5
 y 7
 end
 arch blocked
-blocksview 0
 z 26
 x 5
 y 8
@@ -1437,7 +1356,6 @@ x 5
 y 8
 end
 arch blocked
-blocksview 0
 z 26
 x 5
 y 9
@@ -1448,7 +1366,6 @@ x 5
 y 9
 end
 arch blocked
-blocksview 0
 z 26
 x 5
 y 10
@@ -1459,7 +1376,6 @@ x 5
 y 10
 end
 arch blocked
-blocksview 0
 z 26
 x 5
 y 11
@@ -1470,7 +1386,6 @@ x 5
 y 11
 end
 arch blocked
-blocksview 0
 z 26
 x 5
 y 12
@@ -1481,7 +1396,6 @@ x 5
 y 12
 end
 arch blocked
-blocksview 0
 z 26
 x 5
 y 13
@@ -1492,7 +1406,6 @@ x 5
 y 13
 end
 arch blocked
-blocksview 0
 z 26
 x 5
 y 14
@@ -1503,7 +1416,6 @@ x 5
 y 14
 end
 arch blocked
-blocksview 0
 z 26
 x 5
 y 15
@@ -1514,7 +1426,6 @@ x 5
 y 15
 end
 arch blocked
-blocksview 0
 z 26
 x 5
 y 16
@@ -1525,7 +1436,6 @@ x 5
 y 16
 end
 arch blocked
-blocksview 0
 z 2
 x 5
 y 17
@@ -1536,7 +1446,6 @@ x 5
 y 17
 end
 arch blocked
-blocksview 0
 z 26
 x 5
 y 18
@@ -1547,7 +1456,6 @@ x 5
 y 18
 end
 arch blocked
-blocksview 0
 z 26
 x 5
 y 19
@@ -1558,7 +1466,6 @@ x 5
 y 19
 end
 arch blocked
-blocksview 0
 z 26
 x 5
 y 20
@@ -1569,7 +1476,6 @@ x 5
 y 20
 end
 arch blocked
-blocksview 0
 z 26
 x 5
 y 21
@@ -1580,7 +1486,6 @@ x 5
 y 21
 end
 arch blocked
-blocksview 0
 z 26
 x 5
 y 22
@@ -1591,7 +1496,6 @@ x 5
 y 22
 end
 arch blocked
-blocksview 0
 z 2
 x 5
 y 23
@@ -1602,7 +1506,6 @@ x 5
 y 23
 end
 arch blocked
-blocksview 0
 z 2
 x 6
 end
@@ -1611,7 +1514,6 @@ blocksview 0
 x 6
 end
 arch blocked
-blocksview 0
 z 2
 x 6
 y 1
@@ -1622,7 +1524,6 @@ x 6
 y 1
 end
 arch blocked
-blocksview 0
 z 2
 x 6
 y 2
@@ -1633,7 +1534,6 @@ x 6
 y 2
 end
 arch blocked
-blocksview 0
 z 2
 x 6
 y 3
@@ -1644,7 +1544,6 @@ x 6
 y 3
 end
 arch blocked
-blocksview 0
 z 2
 x 6
 y 4
@@ -1655,7 +1554,6 @@ x 6
 y 4
 end
 arch blocked
-blocksview 0
 z 2
 x 6
 y 5
@@ -1666,7 +1564,6 @@ x 6
 y 5
 end
 arch blocked
-blocksview 0
 z 2
 x 6
 y 6
@@ -1677,7 +1574,6 @@ x 6
 y 6
 end
 arch blocked
-blocksview 0
 z 2
 x 6
 y 7
@@ -1688,7 +1584,6 @@ x 6
 y 7
 end
 arch blocked
-blocksview 0
 z 2
 x 6
 y 8
@@ -1699,7 +1594,6 @@ x 6
 y 8
 end
 arch blocked
-blocksview 0
 z 2
 x 6
 y 9
@@ -1710,7 +1604,6 @@ x 6
 y 9
 end
 arch blocked
-blocksview 0
 z 2
 x 6
 y 10
@@ -1721,7 +1614,6 @@ x 6
 y 10
 end
 arch blocked
-blocksview 0
 z 2
 x 6
 y 11
@@ -1732,7 +1624,6 @@ x 6
 y 11
 end
 arch blocked
-blocksview 0
 z 2
 x 6
 y 12
@@ -1743,7 +1634,6 @@ x 6
 y 12
 end
 arch blocked
-blocksview 0
 z 2
 x 6
 y 13
@@ -1754,7 +1644,6 @@ x 6
 y 13
 end
 arch blocked
-blocksview 0
 z 2
 x 6
 y 14
@@ -1765,7 +1654,6 @@ x 6
 y 14
 end
 arch blocked
-blocksview 0
 z 2
 x 6
 y 15
@@ -1776,7 +1664,6 @@ x 6
 y 15
 end
 arch blocked
-blocksview 0
 z 2
 x 6
 y 16
@@ -1787,7 +1674,6 @@ x 6
 y 16
 end
 arch blocked
-blocksview 0
 z 2
 x 6
 y 17
@@ -1798,7 +1684,6 @@ x 6
 y 17
 end
 arch blocked
-blocksview 0
 z 2
 x 6
 y 18
@@ -1809,7 +1694,6 @@ x 6
 y 18
 end
 arch blocked
-blocksview 0
 z 2
 x 6
 y 19
@@ -1820,7 +1704,6 @@ x 6
 y 19
 end
 arch blocked
-blocksview 0
 z 2
 x 6
 y 20
@@ -1831,7 +1714,6 @@ x 6
 y 20
 end
 arch blocked
-blocksview 0
 z 2
 x 6
 y 21
@@ -1842,7 +1724,6 @@ x 6
 y 21
 end
 arch blocked
-blocksview 0
 z 2
 x 6
 y 22
@@ -1853,7 +1734,6 @@ x 6
 y 22
 end
 arch blocked
-blocksview 0
 z 2
 x 6
 y 23

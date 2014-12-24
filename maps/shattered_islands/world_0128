@@ -348,9 +348,6 @@ last_grace 0
 x 2
 y 5
 arch witch1
-msg
-
-endmsg
 name Usagi
 direction 3
 level 35
@@ -410,9 +407,6 @@ last_grace 0
 x 2
 y 10
 arch witch3
-msg
-
-endmsg
 name Madoka
 direction 3
 level 32
@@ -1133,9 +1127,6 @@ last_grace 0
 x 6
 y 8
 arch witch2
-msg
-
-endmsg
 name cynical student witch
 level 28
 spawn_time 8:00-14:00
@@ -1920,7 +1911,6 @@ y 2
 end
 arch blocked
 no_pass 0
-blocksview 0
 x 11
 y 3
 end

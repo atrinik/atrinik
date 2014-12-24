@@ -1974,7 +1974,6 @@ y 17
 end
 arch blocked
 sub_layer 1
-blocksview 0
 no_pass 0
 z 50
 x 9

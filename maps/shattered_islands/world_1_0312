@@ -470,7 +470,6 @@ x 4
 y 4
 end
 arch blocked
-blocksview 0
 x 4
 y 5
 end
@@ -479,7 +478,6 @@ x 4
 y 5
 end
 arch blocked
-blocksview 0
 x 4
 y 6
 end
@@ -488,7 +486,6 @@ x 4
 y 6
 end
 arch blocked
-blocksview 0
 x 4
 y 7
 end
@@ -497,7 +494,6 @@ x 4
 y 7
 end
 arch blocked
-blocksview 0
 x 4
 y 8
 end
@@ -506,7 +502,6 @@ x 4
 y 8
 end
 arch blocked
-blocksview 0
 x 4
 y 9
 end

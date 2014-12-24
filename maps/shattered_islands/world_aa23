@@ -2800,7 +2800,6 @@ arch wall_marble1.131
 x 18
 end
 arch blocked
-blocksview 0
 no_pass 0
 x 18
 y 1
@@ -2951,7 +2950,6 @@ arch wall_marble1.131
 x 19
 end
 arch blocked
-blocksview 0
 no_pass 0
 x 19
 y 1
@@ -3405,7 +3403,6 @@ arch wall_marble1.131
 x 22
 end
 arch blocked
-blocksview 0
 no_pass 0
 x 22
 y 1
@@ -3548,7 +3545,6 @@ arch wall_marble1.131
 x 23
 end
 arch blocked
-blocksview 0
 no_pass 0
 x 23
 y 1

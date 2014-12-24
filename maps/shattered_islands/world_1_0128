@@ -1602,9 +1602,6 @@ last_grace 0
 x 9
 y 3
 arch witch5
-msg
-
-endmsg
 name Kanako
 level 35
 spawn_time 8:00-16:00
@@ -1973,9 +1970,6 @@ x 11
 y 3
 end
 arch spawn_point
-msg
-
-endmsg
 speed 0.05
 last_grace 0
 x 11
@@ -2078,7 +2072,6 @@ y 11
 end
 arch blocked
 no_pass 0
-blocksview 0
 x 11
 y 12
 end

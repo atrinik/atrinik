@@ -273,7 +273,6 @@ y 8
 end
 arch blocked
 no_pass 0
-blocksview 0
 x 7
 y 9
 end

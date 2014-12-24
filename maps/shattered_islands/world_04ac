@@ -767,7 +767,6 @@ x 5
 y 13
 end
 arch blocked
-blocksview 0
 no_pass 0
 x 5
 y 14
@@ -921,12 +920,10 @@ x 6
 y 12
 end
 arch blocked
-blocksview 0
 x 6
 y 13
 end
 arch blocked
-blocksview 0
 no_pass 0
 x 6
 y 14
@@ -1096,7 +1093,6 @@ x 7
 y 13
 end
 arch blocked
-blocksview 0
 no_pass 0
 x 7
 y 14

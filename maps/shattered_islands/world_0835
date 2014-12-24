@@ -3215,9 +3215,6 @@ x 16
 y 23
 end
 arch client_map_info
-msg
-
-endmsg
 name asteria_city_hall
 sub_type 2
 x 16

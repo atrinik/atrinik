@@ -207,9 +207,6 @@ arch spawn_point
 x 1
 y 10
 arch witch2
-msg
-
-endmsg
 name Sakura
 direction 3
 level 30

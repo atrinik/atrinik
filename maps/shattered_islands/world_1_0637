@@ -1441,7 +1441,6 @@ y 17
 end
 arch blocked
 z 30
-blocksview 0
 x 18
 y 18
 end
@@ -1461,7 +1460,6 @@ y 18
 end
 arch blocked
 z 30
-blocksview 0
 x 18
 y 19
 end
@@ -2178,7 +2176,6 @@ y 13
 end
 arch blocked
 z 30
-blocksview 0
 x 23
 y 14
 end

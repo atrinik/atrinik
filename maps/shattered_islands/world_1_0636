@@ -1691,7 +1691,6 @@ y 23
 end
 arch blocked
 z 30
-blocksview 0
 x 18
 end
 arch wall_dungeon_3
@@ -1708,7 +1707,6 @@ x 18
 end
 arch blocked
 z 30
-blocksview 0
 x 18
 y 1
 end
@@ -1769,7 +1767,6 @@ y 5
 end
 arch blocked
 z 30
-blocksview 0
 x 18
 y 6
 end
@@ -1789,7 +1786,6 @@ y 6
 end
 arch blocked
 z 30
-blocksview 0
 x 18
 y 7
 end
@@ -1868,7 +1864,6 @@ y 13
 end
 arch blocked
 z 30
-blocksview 0
 x 18
 y 14
 end
@@ -1888,7 +1883,6 @@ y 14
 end
 arch blocked
 z 30
-blocksview 0
 x 18
 y 15
 end
