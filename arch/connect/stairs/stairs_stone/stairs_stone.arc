@@ -11,6 +11,7 @@ layer 5
 hp -1
 sp -1
 last_heal 9
+xrays 1
 type 66
 no_pick 1
 end
@@ -28,6 +29,7 @@ layer 5
 hp -1
 sp -1
 last_heal 9
+xrays 1
 type 66
 no_pick 1
 walk_on 1
@@ -47,6 +49,7 @@ layer 5
 hp -1
 sp -1
 last_heal 10
+xrays 1
 type 66
 no_pick 1
 end

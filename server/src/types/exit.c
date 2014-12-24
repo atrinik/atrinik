@@ -81,7 +81,7 @@ static void insert_map_func(object *op)
         EXIT_X(op) = op->x;
         EXIT_Y(op) = op->y;
 
-        if (!QUERY_FLAG(op, FLAG_WALK_ON) && !QUERY_FLAG(op, FLAG_FLY_ON)) {
+        if (QUERY_FLAG(op, FLAG_XRAYS)) {
             int dir;
 
             if (op->last_heal - 1 == TILED_UP) {
