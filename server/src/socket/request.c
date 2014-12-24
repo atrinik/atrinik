@@ -747,6 +747,7 @@ void draw_client_map2(object *pl)
             anim_value = 0;
             have_down = 0;
             floor_z_down = floor_z_up = 0;
+            zadj = 0;
 
             /* Check if we have a map under this tile. */
             if (get_map_from_tiled(m, TILED_DOWN) != NULL) {
@@ -773,19 +774,34 @@ void draw_client_map2(object *pl)
                 draw_up = 0;
             }
 
+            for (tiled = m; tiled != NULL; tiled = get_map_from_tiled(tiled,
+                    TILED_DOWN)) {
+                for (sub_layer = 0; sub_layer < NUM_SUB_LAYERS; sub_layer++) {
+                    tmp = GET_MAP_OB_LAYER(tiled, nx, ny, LAYER_FLOOR,
+                            sub_layer);
+
+                    if (tmp == NULL) {
+                        continue;
+                    }
+
+                    if (tmp->z > zadj) {
+                        zadj = tmp->z;
+                    }
+                }
+            }
+
             packet_layer = packet_new(0, 0, 128);
             num_layers = 0;
 
             /* Go through the visible layers. */
             for (layer = LAYER_FLOOR; layer <= NUM_LAYERS; layer++) {
                 tiled_depth = 0;
-                tiled_dir = TILED_DOWN;
+                tiled_dir = TILED_UP;
                 tiled = m;
 
                 for (sub_layer = NUM_SUB_LAYERS - 1; sub_layer >= 0;
                         sub_layer--) {
                     tmp = NULL;
-                    zadj = 0;
                     priority = 0;
                     is_building_wall = 0;
                     tiled_z = 0;
@@ -796,9 +812,9 @@ void draw_client_map2(object *pl)
                     if (sub_layer != 0 && tiled != NULL) {
                         tiled = get_map_from_tiled(tiled, tiled_dir);
 
-                        if (tiled == NULL && tiled_dir == TILED_DOWN) {
+                        if (tiled == NULL && tiled_dir == TILED_UP) {
                             tiled_depth = 0;
-                            tiled_dir = TILED_UP;
+                            tiled_dir = TILED_DOWN;
                             tiled = get_map_from_tiled(m, tiled_dir);
                         }
 
@@ -1103,6 +1119,14 @@ void draw_client_map2(object *pl)
                         }
                     }
 
+                    if (tmp == NULL && layer == LAYER_FLOOR && sub_layer != 0) {
+                        if (tiled_dir == TILED_DOWN) {
+                            floor_z_down &= ~(1 << sub_layer);
+                        } else {
+                            floor_z_up &= ~(1 << sub_layer);
+                        }
+                    }
+
                     socket_layer = NUM_LAYERS * sub_layer + layer - 1;
 
                     /* Found something. */
@@ -1174,7 +1198,9 @@ void draw_client_map2(object *pl)
                         }
 
                         /* Z position set? */
-                        if (head->z != 0 || zadj != 0 || tiled_z) {
+                        if (head->z != 0 || tiled_z || (zadj != 0 &&
+                                tmp->map->coords[2] != m->level_min &&
+                                layer == LAYER_FLOOR)) {
                             flags |= MAP2_FLAG_HEIGHT;
                         }
 
@@ -1301,7 +1327,8 @@ void draw_client_map2(object *pl)
 
                             z = head->z;
 
-                            if (zadj) {
+                            if (tmp->map->coords[2] != m->level_min &&
+                                    layer == LAYER_FLOOR) {
                                 z += zadj;
                             }
 
@@ -1311,6 +1338,14 @@ void draw_client_map2(object *pl)
 
                             if (tiled_z) {
                                 z += 46 * tiled_depth;
+
+                                if (layer != LAYER_FLOOR) {
+                                    if (tiled_depth < 0) {
+                                        z += MIN(zadj, 46 * -tiled_depth);
+                                    } else {
+                                        z += zadj;
+                                    }
+                                }
                             }
 
                             packet_append_sint16(packet_layer, z);

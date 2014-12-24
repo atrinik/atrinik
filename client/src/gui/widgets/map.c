@@ -354,7 +354,7 @@ static int calc_map_cell_height(int x, int y, int w, int h, int sub_layer)
  */
 static void align_tile_stretch(int x, int y, int w, int h, int sub_layer)
 {
-    uint8 top, bottom, right, left, min_ht;
+    sint8 top, bottom, right, left, min_ht;
     uint32 stretch;
     int nw_height, n_height, ne_height, sw_height, s_height, se_height,
             w_height, e_height, my_height;
@@ -1041,7 +1041,8 @@ void map_draw_map(void)
                      * because they will be rendered later. */
                     if (layer == LAYER_EFFECT && sub_layer != 0) {
                         if (cell->height[GET_MAP_LAYER(LAYER_EFFECT,
-                                sub_layer)] >= 0) {
+                                sub_layer)] >= cell->height[GET_MAP_LAYER(
+                                LAYER_FLOOR, MapData.player_sub_layer)]) {
                             continue;
                         }
                     }
@@ -1075,7 +1076,9 @@ void map_draw_map(void)
             for (sub_layer = NUM_SUB_LAYERS - 1; sub_layer >= 1; sub_layer--) {
                 cell = MAP_CELL_GET_MIDDLE(x, y);
 
-                if (cell->height[GET_MAP_LAYER(LAYER_EFFECT, sub_layer)] < 0) {
+                if (cell->height[GET_MAP_LAYER(LAYER_EFFECT, sub_layer)] <
+                        cell->height[GET_MAP_LAYER(LAYER_FLOOR,
+                        MapData.player_sub_layer)]) {
                     continue;
                 }
 
