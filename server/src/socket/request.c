@@ -1038,7 +1038,8 @@ void draw_client_map2(object *pl)
                         tmp = NULL;
                     }
 
-                    if (tmp != NULL && !dark_set[sub_layer]) {
+                    if (tmp != NULL && (!dark_set[sub_layer] ||
+                            (layer == LAYER_EFFECT && sub_layer > 0))) {
                         dark_set[sub_layer] = 1;
                         dark[sub_layer] = map_get_darkness(tmp->map, tmp->x,
                                 tmp->y, NULL);
@@ -1050,12 +1051,27 @@ void draw_client_map2(object *pl)
 
                         if (dark[sub_layer] < 100) {
                             if (QUERY_FLAG(tmp, FLAG_HIDDEN) ||
-                                    special_vision & 1 ||
-                                    (special_vision & 2 && GET_MAP_SPACE_PTR(
-                                    tmp->map, tmp->x, tmp->y)->flags &
-                                    (P_IS_PLAYER | P_IS_MONSTER))) {
+                                    special_vision & 1) {
                                 dark[sub_layer] = 100;
                             }
+                        }
+
+                        if ((tmp->map->coords[2] != 0 || !is_building_wall) &&
+                                (GET_MAP_SPACE_PTR(tmp->map,
+                                tmp->x, tmp->y)->extra_flags &
+                                (MSP_EXTRA_IS_BUILDING |
+                                MSP_EXTRA_IS_BALCONY)) ==
+                                MSP_EXTRA_IS_BUILDING) {
+                            if (is_building_wall) {
+                                d = MAX(world_darkness,
+                                        MAP_BUILDING_DARKNESS_WALL);
+                            } else {
+                                d = MAP_BUILDING_DARKNESS;
+                            }
+
+                            dark[sub_layer] -=
+                                    global_darkness_table[world_darkness];
+                            dark[sub_layer] += global_darkness_table[d];
                         }
                     }
 
@@ -1072,6 +1088,19 @@ void draw_client_map2(object *pl)
                         }
 
                         mp->darkness[sub_layer] = dark[sub_layer];
+
+                        /* Darkness on this tile has changed, so force a rebuild
+                         * of the extended flags for each layer on this sub-
+                         * layer. This is done mostly to prevent issues with
+                         * cached infravision flag. In other words, if we don't
+                         * do this, the infravision flag will not be set/cleared
+                         * when it needs to be, because 'flags' will stay the
+                         * same, and the infravision flag is set in the extended
+                         * flags, which are not cached. */
+                        for (d = LAYER_FLOOR; d <= NUM_LAYERS; d++) {
+                            mp->flags[NUM_LAYERS * sub_layer + d - 1] &=
+                                    ~MAP2_FLAG_MORE;
+                        }
                     }
 
                     socket_layer = NUM_LAYERS * sub_layer + layer - 1;
@@ -1352,12 +1381,13 @@ void draw_client_map2(object *pl)
             packet_append_uint16(packet, mask);
 
             for (sub_layer = 0; sub_layer < NUM_SUB_LAYERS; sub_layer++) {
-                if (sub_layer == 0 && !(mask & MAP2_MASK_DARKNESS)) {
-                    continue;
-                }
+                if ((sub_layer == 0 && !(mask & MAP2_MASK_DARKNESS)) || (
+                        sub_layer != 0 && !(mask & MAP2_MASK_DARKNESS_MORE))) {
+                    if (!dark_set[sub_layer] && mp->darkness[sub_layer] != 0) {
+                        mp->darkness[sub_layer] = 0;
+                    }
 
-                if (sub_layer != 0 && !(mask & MAP2_MASK_DARKNESS_MORE)) {
-                    break;
+                    continue;
                 }
 
                 if (!dark_set[sub_layer]) {

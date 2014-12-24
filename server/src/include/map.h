@@ -784,4 +784,13 @@ typedef struct rv_vector_s {
 /** Check if 'pl' cannot see 'ob' due to it being hidden by plugin. */
 #define OBJECT_IS_HIDDEN(pl, ob) (HAS_EVENT((ob), EVENT_ASK_SHOW) && trigger_event(EVENT_ASK_SHOW, (pl), (ob), NULL, NULL, 0, 0, 0, 0) == 1)
 
+/**
+ * Maximum darkness of building walls.
+ */
+#define MAP_BUILDING_DARKNESS_WALL 4
+/**
+ * Darkness of building interiors.
+ */
+#define MAP_BUILDING_DARKNESS 3
+
 #endif
