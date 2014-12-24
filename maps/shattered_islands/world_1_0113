@@ -2,7 +2,7 @@ arch map
 name Brynknot
 msg
 Created:  2010-09-08 Alex Tokar
-Modified: 2014-12-23 Alex Tokar
+Modified: 2014-12-24 Alex Tokar
 endmsg
 width 24
 height 24
@@ -15,10 +15,10 @@ tile_path_3 world_1_0112
 tile_path_4 world_1_aa13
 tile_path_6 world_1_0212
 tile_path_7 world_1_aa12
-bg_music lontala.mid
-region brynknot
 tile_path_9 world_2_0113
 tile_path_10 world_0113
+bg_music lontala.mid
+region brynknot
 end
 arch blocked
 x 7
@@ -30,7 +30,7 @@ y 14
 end
 arch map_info
 hp 2
-sp 3
+sp 4
 name brynknot_bank
 cursed 1
 x 7
@@ -65,8 +65,11 @@ arch wall_stone_3
 x 7
 y 17
 end
-arch roof_brick
-direction 3
+arch blocked
+x 7
+y 18
+end
+arch wall_stone_3
 x 7
 y 18
 end
@@ -97,9 +100,6 @@ y 16
 end
 arch stairs_wood_down
 direction 5
-slaying world_0113
-hp 8
-sp 17
 x 8
 y 16
 end
@@ -107,11 +107,15 @@ arch floor_ostone13
 x 8
 y 17
 end
-arch wall_stone_1
+arch stairs_down
 x 8
 y 17
 end
-arch roof_brick
+arch floor_ostone13
+x 8
+y 18
+end
+arch wall_stone_1
 x 8
 y 18
 end
@@ -148,11 +152,11 @@ arch floor_ostone13
 x 9
 y 17
 end
-arch wall_stone_1
+arch floor_ostone13
 x 9
-y 17
+y 18
 end
-arch roof_brick
+arch wall_stone_1
 x 9
 y 18
 end
@@ -205,7 +209,7 @@ arch floor_ostone13
 x 10
 y 17
 end
-arch wall_stone_4
+arch wall_stone_3
 x 10
 y 17
 end
@@ -214,11 +218,11 @@ direction 7
 x 10
 y 17
 end
-arch blocked
+arch floor_ostone13
 x 10
 y 18
 end
-arch wall_stone_3
+arch wall_stone_4
 x 10
 y 18
 end
@@ -822,9 +826,6 @@ x 20
 y 16
 end
 arch ladder_up
-slaying world_2_0113
-hp 20
-sp 16
 x 20
 y 16
 end

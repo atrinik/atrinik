@@ -2,7 +2,7 @@ arch map
 name Brynknot
 msg
 Created:  2011-10-02 Alex Tokar
-Modified: 2014-12-23 Alex Tokar
+Modified: 2014-12-24 Alex Tokar
 endmsg
 width 24
 height 24
@@ -235,7 +235,7 @@ arch blocked
 x 14
 y 12
 end
-arch wall_flagstone1.131
+arch wall_flagstone1_w.131
 x 14
 y 12
 end
@@ -259,7 +259,7 @@ arch blocked
 x 14
 y 15
 end
-arch wall_flagstone1.131
+arch wall_flagstone1_w.131
 x 14
 y 15
 end
@@ -460,7 +460,7 @@ arch blocked
 x 16
 y 6
 end
-arch wall_flagstone1.111
+arch wall_flagstone1_w.111
 x 16
 y 6
 end
@@ -483,22 +483,14 @@ y 9
 end
 arch stairs_stone_down
 direction 5
-slaying world_0112
-hp 16
-sp 10
 x 16
 y 9
 end
-arch blocked
-no_pass 0
-blocksview 0
+arch floor_grey1a1
 x 16
 y 10
 end
-arch invis_exit
-slaying world_0112
-hp 16
-sp 10
+arch stairs_down
 x 16
 y 10
 end
@@ -552,7 +544,7 @@ arch floor_grey1a1
 x 16
 y 17
 end
-arch wall_flagstone1.111
+arch wall_flagstone1_w.111
 x 16
 y 17
 end
@@ -582,22 +574,14 @@ y 9
 end
 arch stairs_stone_down
 direction 5
-slaying world_0112
-hp 17
-sp 10
 x 17
 y 9
 end
-arch blocked
-no_pass 0
-blocksview 0
+arch floor_grey1a1
 x 17
 y 10
 end
-arch invis_exit
-slaying world_0112
-hp 17
-sp 10
+arch stairs_down
 x 17
 y 10
 end
@@ -1215,7 +1199,7 @@ arch blocked
 x 23
 y 6
 end
-arch wall_flagstone1.111
+arch wall_flagstone1_w.111
 x 23
 y 6
 end
@@ -1399,7 +1383,7 @@ arch floor_grey1a1
 x 23
 y 17
 end
-arch wall_flagstone1.111
+arch wall_flagstone1_w.111
 x 23
 y 17
 end

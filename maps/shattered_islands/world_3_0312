@@ -2,7 +2,7 @@ arch map
 name Brynknot
 msg
 Created:  2011-02-06 Alex Tokar
-Modified: 2014-12-23 Alex Tokar
+Modified: 2014-12-24 Alex Tokar
 endmsg
 width 24
 height 24
@@ -11,8 +11,6 @@ darkness -1
 outdoor 1
 no_harm 1
 fixed_resettime 1
-bg_music town_music.ogg
-region brynknot
 tile_path_1 world_3_0313
 tile_path_3 world_3_0311
 tile_path_4 world_3_0212
@@ -20,6 +18,8 @@ tile_path_7 world_3_0211
 tile_path_8 world_3_0213
 tile_path_9 world_4_0312
 tile_path_10 world_2_0312
+bg_music town_music.ogg
+region brynknot
 end
 arch roof_thatch
 direction 4
@@ -289,13 +289,14 @@ x 4
 y 5
 end
 arch ladder_down2
-hp 4
-sp 5
-slaying world_2_0312
 x 4
 y 5
 end
 arch floor_marble1b
+x 4
+y 6
+end
+arch light4
 x 4
 y 6
 end

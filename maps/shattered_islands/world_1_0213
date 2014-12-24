@@ -2,7 +2,7 @@ arch map
 name Brynknot Tavern
 msg
 Created:  2010-09-04 Alex Tokar
-Modified: 2014-12-23 Alex Tokar
+Modified: 2014-12-24 Alex Tokar
 endmsg
 width 24
 height 24
@@ -76,7 +76,7 @@ arch blocked
 x 1
 y 17
 end
-arch wall_wood3_3
+arch wall_wood_w_3
 x 1
 y 17
 end
@@ -168,7 +168,7 @@ arch blocked
 x 3
 y 12
 end
-arch wall_wood2_1
+arch wall_wood_w_1
 x 3
 y 12
 end
@@ -314,6 +314,10 @@ arch wall_wood2_1
 x 5
 y 12
 end
+arch picture7
+x 5
+y 12
+end
 arch floor_wood3a
 x 5
 y 13
@@ -366,11 +370,7 @@ arch blocked
 x 6
 y 12
 end
-arch wall_wood2_1
-x 6
-y 12
-end
-arch picture7
+arch wall_wood_w_1
 x 6
 y 12
 end
@@ -432,7 +432,7 @@ arch floor_wood3a
 x 6
 y 20
 end
-arch wall_wood2_1
+arch wall_wood_w_1
 x 6
 y 20
 end
@@ -565,7 +565,7 @@ arch blocked
 x 9
 y 12
 end
-arch wall_wood2_1
+arch wall_wood_w_1
 x 9
 y 12
 end
@@ -691,7 +691,7 @@ arch floor_wood3a
 x 10
 y 20
 end
-arch wall_wood3_1
+arch wall_wood_w_1
 x 10
 y 20
 end
@@ -759,7 +759,7 @@ arch blocked
 x 12
 y 12
 end
-arch wall_wood2_1
+arch wall_wood_w_1
 x 12
 y 12
 end
@@ -857,6 +857,11 @@ arch wall_wood2_3
 x 13
 y 15
 end
+arch flag_04
+direction 7
+x 13
+y 15
+end
 arch floor_wood3a
 x 13
 y 16
@@ -866,10 +871,6 @@ x 13
 y 16
 end
 arch floor_wood3a
-x 13
-y 17
-end
-arch wall_wood3_3
 x 13
 y 17
 end
@@ -893,7 +894,11 @@ arch blocked
 x 14
 y 12
 end
-arch wall_wood1_1
+arch wall_wood2_1
+x 14
+y 12
+end
+arch picture9
 x 14
 y 12
 end
@@ -932,32 +937,15 @@ arch floor_wood3a
 x 14
 y 15
 end
-arch torch_wall_1
-direction 7
-x 14
-y 15
-end
 arch floor_wood3a
 x 14
 y 16
 end
-arch stairs_wood_down
-direction 5
-slaying world_0213
-hp 14
-sp 17
+arch doorway_wood1_1
 x 14
 y 16
 end
 arch floor_wood3a
-x 14
-y 17
-end
-arch wall_wood2_1
-x 14
-y 17
-end
-arch flag_04
 x 14
 y 17
 end
@@ -973,7 +961,7 @@ arch floor_wood3a
 x 14
 y 20
 end
-arch wall_wood3_1
+arch wall_wood_w_1
 x 14
 y 20
 end
@@ -981,11 +969,7 @@ arch blocked
 x 15
 y 12
 end
-arch wall_wood2_1
-x 15
-y 12
-end
-arch picture9
+arch wall_wood_w_1
 x 15
 y 12
 end
@@ -1010,11 +994,15 @@ arch floor_wood3a
 x 15
 y 16
 end
+arch wall_wood3_1
+x 15
+y 16
+end
 arch floor_wood3a
 x 15
 y 17
 end
-arch wall_wood2_1
+arch wall_wood_3
 x 15
 y 17
 end
@@ -1022,7 +1010,7 @@ arch floor_wood3a
 x 15
 y 18
 end
-arch torch_wall_1
+arch wall_wood3_3
 x 15
 y 18
 end
@@ -1030,11 +1018,16 @@ arch floor_wood3a
 x 15
 y 19
 end
+arch chair2_111
+direction 7
+x 15
+y 19
+end
 arch floor_wood3a
 x 15
 y 20
 end
-arch wall_wood2_1
+arch wall_wood_1
 x 15
 y 20
 end
@@ -1051,6 +1044,7 @@ x 16
 y 13
 end
 arch torch_wall_1
+sub_layer 1
 x 16
 y 13
 end
@@ -1066,11 +1060,16 @@ arch floor_wood3a
 x 16
 y 16
 end
+arch stairs_wood_down
+direction 5
+x 16
+y 16
+end
 arch floor_wood3a
 x 16
 y 17
 end
-arch doorway_wood1_1
+arch stairs_down
 x 16
 y 17
 end
@@ -1078,7 +1077,30 @@ arch floor_wood3a
 x 16
 y 18
 end
+arch wall_wood2_1
+x 16
+y 18
+end
+arch picture5.151
+x 16
+y 18
+end
 arch floor_wood3a
+x 16
+y 19
+end
+arch table_round1
+x 16
+y 19
+end
+arch candle2_on
+sub_layer 1
+z 26
+align 16
+x 16
+y 19
+end
+arch light3
 x 16
 y 19
 end
@@ -1118,7 +1140,7 @@ arch floor_wood3a
 x 17
 y 15
 end
-arch wall_wood1_3
+arch wall_wood_w_3
 x 17
 y 15
 end
@@ -1134,7 +1156,7 @@ arch floor_wood3a
 x 17
 y 17
 end
-arch wall_wood_4
+arch wall_wood_w_3
 x 17
 y 17
 end
@@ -1142,7 +1164,7 @@ arch floor_wood3a
 x 17
 y 18
 end
-arch wall_wood3_3
+arch wall_wood_4
 x 17
 y 18
 end

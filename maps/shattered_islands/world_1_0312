@@ -2,7 +2,7 @@ arch map
 name Brynknot
 msg
 Created:  2011-02-06 Alex Tokar
-Modified: 2014-12-23 Alex Tokar
+Modified: 2014-12-24 Alex Tokar
 endmsg
 width 24
 height 24
@@ -16,15 +16,15 @@ tile_path_3 world_1_0311
 tile_path_4 world_1_0212
 tile_path_7 world_1_0211
 tile_path_8 world_1_0213
-bg_music town_music.ogg
-region brynknot
 tile_path_9 world_2_0312
 tile_path_10 world_0312
+bg_music town_music.ogg
+region brynknot
 end
 arch blocked
 y 4
 end
-arch wall_marble1.131a
+arch wall_marble1w2.131
 y 4
 end
 arch map_info
@@ -45,7 +45,7 @@ end
 arch blocked
 y 10
 end
-arch wall_marble1.131a
+arch wall_marble1w2.131
 y 10
 end
 arch blocked
@@ -162,22 +162,14 @@ y 15
 end
 arch stairs_wood_down
 direction 5
-slaying world_0312
-hp 1
-sp 16
 x 1
 y 15
 end
-arch blocked
-blocksview 0
-no_pass 0
+arch floor_wood2_l2
 x 1
 y 16
 end
-arch invis_exit
-slaying world_0312
-hp 1
-sp 16
+arch stairs_down
 x 1
 y 16
 end
@@ -360,7 +352,7 @@ arch blocked
 x 3
 y 4
 end
-arch wall_marble1.131a
+arch wall_marble1w2.131
 x 3
 y 4
 end
@@ -368,7 +360,7 @@ arch blocked
 x 3
 y 10
 end
-arch wall_marble1.131a
+arch wall_marble1w2.131
 x 3
 y 10
 end
@@ -465,7 +457,7 @@ arch floor_wood2_l2
 x 3
 y 22
 end
-arch wall_wood3_1
+arch wall_wood_w_1
 x 3
 y 22
 end
@@ -622,9 +614,6 @@ x 5
 y 5
 end
 arch ladder_up
-hp 5
-sp 5
-slaying world_2_0312
 x 5
 y 5
 end
@@ -644,14 +633,7 @@ arch floor_marble1
 x 5
 y 9
 end
-arch stairs_stone_down
-slaying world_0312
-hp 5
-sp 9
-fly_on 1
-walk_on 1
-face blocked.111
-is_turnable 0
+arch stairs_down
 x 5
 y 9
 end
@@ -734,18 +716,10 @@ x 5
 y 20
 end
 arch floor_wood2_l2
-z 22
 x 5
 y 21
 end
-arch stairs_wood_up
-x 5
-y 21
-end
-arch invis_exit
-slaying world_2_0312
-hp 5
-sp 21
+arch stairs_wood_up2
 x 5
 y 21
 end
@@ -761,7 +735,7 @@ arch blocked
 x 6
 y 4
 end
-arch wall_marble1.131a
+arch wall_marble1w2.131
 x 6
 y 4
 end
@@ -773,11 +747,19 @@ arch floor_marble1a
 x 6
 y 6
 end
+arch light3
+x 6
+y 6
+end
 arch floor_marble1
 x 6
 y 7
 end
 arch floor_marble1a
+x 6
+y 8
+end
+arch light3
 x 6
 y 8
 end
@@ -787,9 +769,6 @@ y 9
 end
 arch stairs_stone_down
 direction 7
-slaying world_0312
-hp 5
-sp 9
 x 6
 y 9
 end
@@ -797,7 +776,7 @@ arch floor_marble1b
 x 6
 y 10
 end
-arch wall_marble1.131a
+arch wall_marble1w2.131
 x 6
 y 10
 end
@@ -854,9 +833,6 @@ x 6
 y 21
 end
 arch stairs_wood_up
-slaying world_2_0312
-hp 5
-sp 21
 x 6
 y 21
 end
@@ -869,7 +845,7 @@ direction 7
 x 6
 y 22
 end
-arch wall_wood3_1
+arch wall_wood_w_1
 sub_layer 1
 x 6
 y 22
@@ -1002,7 +978,7 @@ arch floor_marble1a
 x 8
 y 6
 end
-arch wall_marble1.111a
+arch wall_marble1w2.111
 x 8
 y 6
 end
@@ -1026,7 +1002,7 @@ arch floor_marble1a
 x 8
 y 9
 end
-arch wall_marble1.111a
+arch wall_marble1w2.111
 x 8
 y 9
 end
@@ -1066,7 +1042,7 @@ arch floor_wood2_l2
 x 8
 y 16
 end
-arch wall_wood2_3
+arch wall_wood_w_3
 x 8
 y 16
 end
@@ -1098,7 +1074,7 @@ arch floor_wood2_l1
 x 8
 y 20
 end
-arch wall_wood2_3
+arch wall_wood_w_3
 x 8
 y 20
 end
@@ -1117,4 +1093,12 @@ end
 arch wall_wood_4
 x 8
 y 22
+end
+arch light1
+x 9
+y 15
+end
+arch light1
+x 9
+y 20
 end
