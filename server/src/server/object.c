@@ -3165,6 +3165,11 @@ int object_enter_map(object *op, object *exit_ob, mapstruct *m, int x, int y, ui
         }
     }
 
+    if (exit_ob != NULL && exit_ob->sub_type == ST1_EXIT_SOUND) {
+        play_sound_map(exit_ob->map, CMD_SOUND_EFFECT, "teleport.ogg",
+                exit_ob->x, exit_ob->y, 0, 0);
+    }
+
     if (!QUERY_FLAG(op, FLAG_REMOVED)) {
         object_remove(op, 0);
     }
@@ -3226,14 +3231,8 @@ int object_enter_map(object *op, object *exit_ob, mapstruct *m, int x, int y, ui
         door_try_open(op, op->map, op->x, op->y, 0);
     }
 
-    if (exit_ob) {
-        if (exit_ob->sub_type == ST1_EXIT_SOUND) {
-            play_sound_map(exit_ob->map, CMD_SOUND_EFFECT, "teleport.ogg", exit_ob->x, exit_ob->y, 0, 0);
-        }
-
-        if (exit_ob->stats.dam && op->type == PLAYER) {
-            hit_player(op, exit_ob->stats.dam, exit_ob, AT_INTERNAL);
-        }
+    if (exit_ob != NULL && exit_ob->stats.dam && op->type == PLAYER) {
+        hit_player(op, exit_ob->stats.dam, exit_ob, AT_INTERNAL);
     }
 
     return 1;
