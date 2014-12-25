@@ -7,6 +7,7 @@ nbproject
 traceback_*.txt
 build.user
 server/src/loaders/*.c
+timidity.cfg
 
 # The optional Atrinik sound files Git directory
 client/sound

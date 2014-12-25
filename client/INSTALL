@@ -82,7 +82,7 @@ You will need to install the following prerequisites:
     play music and sounds. Either compile these yourself, or download
     pre-compiled libraries and binaries here:
 
-    http://www.atrinik.org/download/win32/libsdl-all.zip
+    https://www.atrinik.org/download/win32/libsdl-all.zip
 
     Extract the archive and copy "lib" and "include" directories into
     C:/MinGW (or where you installed MinGW). Then copy the contents of the "bin"
@@ -95,6 +95,11 @@ You will need to install the following prerequisites:
 
     Extract the archive and copy "timidity" directory into the client's
     directory.
+
+    You will also need to download this Timidity config file and put it into
+    the client directory:
+
+    https://www.atrinik.org/download/win32/timidity.cfg
 
 Make sure you have the following paths in your PATH environment variable, in
 this order (adjust accordingly if you installed MinGW or CMake somewhere else):
