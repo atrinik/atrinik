@@ -347,7 +347,6 @@ sint64 add_exp(object *op, sint64 exp_gain, int skill_nr, int exact)
             op->stats.exp += exp_gain;
 
             if (op->stats.exp >= (sint64) MAX_EXPERIENCE) {
-                exp_gain = exp_gain - (op->stats.exp - MAX_EXPERIENCE);
                 op->stats.exp = MAX_EXPERIENCE;
             }
         }
