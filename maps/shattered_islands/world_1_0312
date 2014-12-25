@@ -2,7 +2,7 @@ arch map
 name Brynknot
 msg
 Created:  2011-02-06 Alex Tokar
-Modified: 2014-12-24 Alex Tokar
+Modified: 2014-12-25 Alex Tokar
 endmsg
 width 24
 height 24
@@ -21,7 +21,7 @@ tile_path_10 world_0312
 bg_music town_music.ogg
 region brynknot
 end
-arch blocked
+arch trans
 y 4
 end
 arch wall_marble1w2.131
@@ -42,13 +42,13 @@ damned 1
 cursed 1
 y 5
 end
-arch blocked
+arch trans
 y 10
 end
 arch wall_marble1w2.131
 y 10
 end
-arch blocked
+arch trans
 y 13
 end
 arch wall_wood_8
@@ -61,13 +61,13 @@ name brynknot_library
 cursed 1
 y 13
 end
-arch blocked
+arch trans
 y 14
 end
 arch wall_wood3_3
 y 14
 end
-arch blocked
+arch trans
 y 15
 end
 arch wall_wood3_3
@@ -77,49 +77,49 @@ arch flag_03
 direction 7
 y 15
 end
-arch blocked
+arch trans
 y 16
 end
 arch wall_wood3_3
 y 16
 end
-arch blocked
+arch trans
 y 17
 end
 arch wall_wood_3
 y 17
 end
-arch blocked
+arch trans
 y 18
 end
 arch wall_wood_3
 y 18
 end
-arch blocked
+arch trans
 y 19
 end
 arch wall_wood3_3
 y 19
 end
-arch blocked
+arch trans
 y 20
 end
 arch wall_wood_3
 y 20
 end
-arch blocked
+arch trans
 y 21
 end
 arch wall_wood_3
 y 21
 end
-arch blocked
+arch trans
 y 22
 end
 arch wall_wood2_3
 y 22
 end
-arch blocked
+arch trans
 x 1
 y 4
 end
@@ -127,7 +127,7 @@ arch wall_marble1.131
 x 1
 y 4
 end
-arch blocked
+arch trans
 x 1
 y 10
 end
@@ -135,7 +135,7 @@ arch wall_marble1.131a
 x 1
 y 10
 end
-arch blocked
+arch trans
 x 1
 y 13
 end
@@ -250,7 +250,7 @@ arch wall_wood3_1
 x 1
 y 22
 end
-arch blocked
+arch trans
 x 2
 y 4
 end
@@ -258,7 +258,7 @@ arch wall_marble1.131
 x 2
 y 4
 end
-arch blocked
+arch trans
 x 2
 y 10
 end
@@ -266,7 +266,7 @@ arch wall_marble1.131a
 x 2
 y 10
 end
-arch blocked
+arch trans
 x 2
 y 13
 end
@@ -348,7 +348,7 @@ arch wall_wood2_1
 x 2
 y 22
 end
-arch blocked
+arch trans
 x 3
 y 4
 end
@@ -356,7 +356,7 @@ arch wall_marble1w2.131
 x 3
 y 4
 end
-arch blocked
+arch trans
 x 3
 y 10
 end
@@ -364,7 +364,7 @@ arch wall_marble1w2.131
 x 3
 y 10
 end
-arch blocked
+arch trans
 x 3
 y 13
 end
@@ -461,7 +461,7 @@ arch wall_wood_w_1
 x 3
 y 22
 end
-arch blocked
+arch trans
 x 4
 y 4
 end
@@ -469,7 +469,7 @@ arch wall_marble1.131a
 x 4
 y 4
 end
-arch blocked
+arch trans
 x 4
 y 5
 end
@@ -477,7 +477,7 @@ arch fence_metal.131
 x 4
 y 5
 end
-arch blocked
+arch trans
 x 4
 y 6
 end
@@ -485,7 +485,7 @@ arch fence_metal.131
 x 4
 y 6
 end
-arch blocked
+arch trans
 x 4
 y 7
 end
@@ -493,7 +493,7 @@ arch fence_metal.131
 x 4
 y 7
 end
-arch blocked
+arch trans
 x 4
 y 8
 end
@@ -501,7 +501,7 @@ arch fence_metal.131
 x 4
 y 8
 end
-arch blocked
+arch trans
 x 4
 y 9
 end
@@ -516,7 +516,7 @@ z -12
 x 4
 y 9
 end
-arch blocked
+arch trans
 x 4
 y 10
 end
@@ -524,7 +524,7 @@ arch wall_marble1.131
 x 4
 y 10
 end
-arch blocked
+arch trans
 x 4
 y 13
 end
@@ -596,7 +596,7 @@ arch fwall_wood1c
 x 4
 y 22
 end
-arch blocked
+arch trans
 x 5
 y 4
 end
@@ -640,7 +640,7 @@ arch wall_marble1.131a
 x 5
 y 10
 end
-arch blocked
+arch trans
 x 5
 y 13
 end
@@ -726,7 +726,7 @@ arch fwall_wood1b
 x 5
 y 22
 end
-arch blocked
+arch trans
 x 6
 y 4
 end
@@ -775,7 +775,7 @@ arch wall_marble1w2.131
 x 6
 y 10
 end
-arch blocked
+arch trans
 x 6
 y 13
 end
@@ -845,7 +845,7 @@ sub_layer 1
 x 6
 y 22
 end
-arch blocked
+arch trans
 x 7
 y 4
 end
@@ -881,7 +881,7 @@ arch wall_marble1.131
 x 7
 y 10
 end
-arch blocked
+arch trans
 x 7
 y 13
 end
@@ -953,7 +953,7 @@ arch wall_wood3_1
 x 7
 y 22
 end
-arch blocked
+arch trans
 x 8
 y 4
 end
@@ -1009,7 +1009,7 @@ arch wall_marble1.141
 x 8
 y 10
 end
-arch blocked
+arch trans
 x 8
 y 13
 end

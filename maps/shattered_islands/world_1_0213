@@ -2,7 +2,7 @@ arch map
 name Brynknot Tavern
 msg
 Created:  2010-09-04 Alex Tokar
-Modified: 2014-12-24 Alex Tokar
+Modified: 2014-12-25 Alex Tokar
 endmsg
 width 24
 height 24
@@ -19,7 +19,7 @@ tile_path_10 world_0213
 bg_music town_music.ogg
 region brynknot
 end
-arch blocked
+arch trans
 x 1
 y 12
 end
@@ -35,7 +35,7 @@ cursed 1
 x 1
 y 12
 end
-arch blocked
+arch trans
 x 1
 y 13
 end
@@ -43,7 +43,7 @@ arch wall_wood3_3
 x 1
 y 13
 end
-arch blocked
+arch trans
 x 1
 y 14
 end
@@ -56,7 +56,7 @@ direction 7
 x 1
 y 14
 end
-arch blocked
+arch trans
 x 1
 y 15
 end
@@ -64,7 +64,7 @@ arch wall_wood2_3
 x 1
 y 15
 end
-arch blocked
+arch trans
 x 1
 y 16
 end
@@ -72,7 +72,7 @@ arch wall_wood3_3
 x 1
 y 16
 end
-arch blocked
+arch trans
 x 1
 y 17
 end
@@ -80,7 +80,7 @@ arch wall_wood_w_3
 x 1
 y 17
 end
-arch blocked
+arch trans
 x 1
 y 18
 end
@@ -88,7 +88,7 @@ arch wall_wood2_3
 x 1
 y 18
 end
-arch blocked
+arch trans
 x 1
 y 19
 end
@@ -96,7 +96,7 @@ arch wall_wood2_3
 x 1
 y 19
 end
-arch blocked
+arch trans
 x 1
 y 20
 end
@@ -104,7 +104,7 @@ arch wall_wood1_3
 x 1
 y 20
 end
-arch blocked
+arch trans
 x 2
 y 12
 end
@@ -164,7 +164,7 @@ arch wall_wood1_1
 x 2
 y 20
 end
-arch blocked
+arch trans
 x 3
 y 12
 end
@@ -242,7 +242,7 @@ arch wall_wood1_1
 x 3
 y 20
 end
-arch blocked
+arch trans
 x 4
 y 12
 end
@@ -306,7 +306,7 @@ arch wall_wood3_1
 x 4
 y 20
 end
-arch blocked
+arch trans
 x 5
 y 12
 end
@@ -366,7 +366,7 @@ arch wall_wood2_1
 x 5
 y 20
 end
-arch blocked
+arch trans
 x 6
 y 12
 end
@@ -436,7 +436,7 @@ arch wall_wood_w_1
 x 6
 y 20
 end
-arch blocked
+arch trans
 x 7
 y 12
 end
@@ -505,7 +505,7 @@ arch wall_wood3_1
 x 7
 y 20
 end
-arch blocked
+arch trans
 x 8
 y 12
 end
@@ -561,7 +561,7 @@ arch wall_wood2_1
 x 8
 y 20
 end
-arch blocked
+arch trans
 x 9
 y 12
 end
@@ -631,7 +631,7 @@ arch wall_wood2_1
 x 9
 y 20
 end
-arch blocked
+arch trans
 x 10
 y 12
 end
@@ -695,7 +695,7 @@ arch wall_wood_w_1
 x 10
 y 20
 end
-arch blocked
+arch trans
 x 11
 y 12
 end
@@ -755,7 +755,7 @@ arch wall_wood3_1
 x 11
 y 20
 end
-arch blocked
+arch trans
 x 12
 y 12
 end
@@ -825,7 +825,7 @@ arch wall_wood2_1
 x 12
 y 20
 end
-arch blocked
+arch trans
 x 13
 y 12
 end
@@ -890,7 +890,7 @@ arch wall_wood3_1
 x 13
 y 20
 end
-arch blocked
+arch trans
 x 14
 y 12
 end
@@ -965,7 +965,7 @@ arch wall_wood_w_1
 x 14
 y 20
 end
-arch blocked
+arch trans
 x 15
 y 12
 end
@@ -1031,7 +1031,7 @@ arch wall_wood_1
 x 15
 y 20
 end
-arch blocked
+arch trans
 x 16
 y 12
 end
@@ -1112,7 +1112,7 @@ arch wall_wood_1
 x 16
 y 20
 end
-arch blocked
+arch trans
 x 17
 y 12
 end

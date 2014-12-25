@@ -2,7 +2,7 @@ arch map
 name Brynknot
 msg
 Created:  2011-02-06 Alex Tokar
-Modified: 2014-12-24 Alex Tokar
+Modified: 2014-12-25 Alex Tokar
 endmsg
 width 24
 height 24
@@ -43,7 +43,7 @@ end
 arch roof_brick_gray
 y 10
 end
-arch blocked
+arch trans
 y 13
 end
 arch wall_wood_8
@@ -56,55 +56,55 @@ hp 8
 sp 9
 y 13
 end
-arch blocked
+arch trans
 y 14
 end
 arch wall_wood3_3
 y 14
 end
-arch blocked
+arch trans
 y 15
 end
 arch wall_wood2_3
 y 15
 end
-arch blocked
+arch trans
 y 16
 end
 arch wall_wood2_3
 y 16
 end
-arch blocked
+arch trans
 y 17
 end
 arch wall_wood3_3
 y 17
 end
-arch blocked
+arch trans
 y 18
 end
 arch wall_wood_3
 y 18
 end
-arch blocked
+arch trans
 y 19
 end
 arch wall_wood2_3
 y 19
 end
-arch blocked
+arch trans
 y 20
 end
 arch wall_wood3_3
 y 20
 end
-arch blocked
+arch trans
 y 21
 end
 arch wall_wood_3
 y 21
 end
-arch blocked
+arch trans
 y 22
 end
 arch wall_wood_3
@@ -139,7 +139,7 @@ arch roof_brick_gray
 x 1
 y 10
 end
-arch blocked
+arch trans
 x 1
 y 13
 end
@@ -271,7 +271,7 @@ arch wall_wood2_1
 x 1
 y 22
 end
-arch blocked
+arch trans
 x 2
 y 4
 end
@@ -287,7 +287,7 @@ sp 4
 x 2
 y 4
 end
-arch blocked
+arch trans
 x 2
 y 5
 end
@@ -295,7 +295,7 @@ arch wall_marble1w.111
 x 2
 y 5
 end
-arch blocked
+arch trans
 x 2
 y 6
 end
@@ -303,7 +303,7 @@ arch wall_marble1.111
 x 2
 y 6
 end
-arch blocked
+arch trans
 x 2
 y 7
 end
@@ -311,7 +311,7 @@ arch wall_marble1w.111
 x 2
 y 7
 end
-arch blocked
+arch trans
 x 2
 y 8
 end
@@ -327,7 +327,7 @@ arch roof_brick_gray
 x 2
 y 10
 end
-arch blocked
+arch trans
 x 2
 y 13
 end
@@ -379,7 +379,7 @@ arch wall_wood2_1
 x 2
 y 22
 end
-arch blocked
+arch trans
 x 3
 y 4
 end
@@ -411,7 +411,7 @@ arch roof_brick_gray
 x 3
 y 10
 end
-arch blocked
+arch trans
 x 3
 y 13
 end
@@ -487,7 +487,7 @@ arch wall_wood3_1
 x 3
 y 22
 end
-arch blocked
+arch trans
 x 4
 y 4
 end
@@ -527,7 +527,7 @@ arch roof_brick_gray
 x 4
 y 10
 end
-arch blocked
+arch trans
 x 4
 y 13
 end
@@ -597,7 +597,7 @@ arch wall_wood3_1
 x 4
 y 22
 end
-arch blocked
+arch trans
 x 5
 y 4
 end
@@ -633,7 +633,7 @@ arch roof_brick_gray
 x 5
 y 10
 end
-arch blocked
+arch trans
 x 5
 y 13
 end
@@ -713,7 +713,7 @@ arch wall_wood_1
 x 5
 y 22
 end
-arch blocked
+arch trans
 x 6
 y 4
 end
@@ -757,7 +757,7 @@ arch roof_brick_gray
 x 6
 y 10
 end
-arch blocked
+arch trans
 x 6
 y 13
 end
@@ -876,7 +876,7 @@ arch roof_brick_gray
 x 7
 y 10
 end
-arch blocked
+arch trans
 x 7
 y 13
 end
@@ -992,7 +992,7 @@ direction 8
 x 8
 y 10
 end
-arch blocked
+arch trans
 x 8
 y 13
 end
