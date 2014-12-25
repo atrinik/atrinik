@@ -181,6 +181,7 @@ struct plugin_hooklist hooklist = {
     string_sub,
     path_join,
     monster_enemy_signal,
+    map_redraw,
 
     season_name,
     weekdays,

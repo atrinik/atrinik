@@ -448,6 +448,7 @@ extern int map_get_darkness(mapstruct *m, int x, int y, object **mirror);
 extern int map_path_isabs(const char *path);
 extern char *map_get_path(mapstruct *m, const char *path, uint8 unique, const char *name);
 extern mapstruct *map_force_reset(mapstruct *m);
+extern void map_redraw(mapstruct *m, int x, int y, int layer, int sub_layer);
 /* src/server/move.c */
 extern int get_random_dir(void);
 extern int get_randomized_dir(int dir);

@@ -548,6 +548,47 @@ static PyObject *Atrinik_Map_LocateBeacon(Atrinik_Map *map, PyObject *args)
     return wrap_object(myob);
 }
 
+/**
+ * <h1>map.Redraw(int x, int y, int [layer = -1], int [sub_layer = -1])</h1>
+ * Redraw the specified tile for all players.
+ * @param x X coordinate.
+ * @param y Y coordinate.
+ * @param layer Layer to redraw, defaults to all.
+ * @param sub_layer Sub-layer to redraw, defaults to all.
+ */
+static PyObject *Atrinik_Map_Redraw(Atrinik_Map *map, PyObject *args)
+{
+    int x, y, layer, sub_layer;
+
+    layer = -1;
+    sub_layer = -1;
+
+    if (!PyArg_ParseTuple(args, "ii|ii", &x, &y, &layer, &sub_layer)) {
+        return NULL;
+    }
+
+    if (x < 0 || x >= map->map->width) {
+        RAISE("Invalid X coordinate.");
+    }
+
+    if (y < 0 || y >= map->map->height) {
+        RAISE("Invalid X coordinate.");
+    }
+
+    if (layer < -1 || layer > NUM_LAYERS) {
+        RAISE("Invalid layer.");
+    }
+
+    if (sub_layer < -1 || sub_layer >= NUM_SUB_LAYERS) {
+        RAISE("Invalid sub-layer.");
+    }
+
+    hooks->map_redraw(map->map, x, y, layer, sub_layer);
+
+    Py_INCREF(Py_None);
+    return Py_None;
+}
+
 /*@}*/
 
 /** Available Python methods for the AtrinikMap object */
@@ -568,6 +609,7 @@ static PyMethodDef MapMethods[] = {
     {"GetDarkness", (PyCFunction) Atrinik_Map_GetDarkness, METH_VARARGS, 0},
     {"GetPath", (PyCFunction) Atrinik_Map_GetPath, METH_VARARGS | METH_KEYWORDS, 0},
     {"LocateBeacon", (PyCFunction) Atrinik_Map_LocateBeacon, METH_VARARGS, 0},
+    {"Redraw", (PyCFunction) Atrinik_Map_Redraw, METH_VARARGS, 0},
     {NULL, NULL, 0, 0}
 };
 

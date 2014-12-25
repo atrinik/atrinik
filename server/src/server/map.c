@@ -2470,3 +2470,85 @@ mapstruct *map_force_reset(mapstruct *m)
 
     return m;
 }
+
+/**
+ * Internal function used by map_redraw().
+ * @param tiled Tiled map.
+ * @param map Map.
+ * @param x X coordinate.
+ * @param y Y coordinate.
+ * @param layer Layer to redraw, defaults to all.
+ * @param sub_layer Sub-layer to redraw, defaults to all.
+ * @return 0.
+ */
+static int map_redraw_internal(mapstruct *tiled, mapstruct *map, int x, int y,
+        int layer, int sub_layer)
+{
+    object *pl;
+    rv_vector rv;
+    int ax, ay, layer_start, layer_end, sub_layer_start, sub_layer_end,
+            socket_layer;
+
+    if (layer == -1) {
+        layer_start = LAYER_FLOOR;
+        layer_end = NUM_LAYERS;
+    } else {
+        layer_start = layer_end = layer;
+    }
+
+    if (sub_layer == -1) {
+        sub_layer_start = 0;
+        sub_layer_end = NUM_SUB_LAYERS - 1;
+    } else {
+        sub_layer_start = sub_layer_end = sub_layer;
+    }
+
+    for (pl = tiled->player_first; pl != NULL; pl = CONTR(pl)->map_above) {
+        if (!get_rangevector_from_mapcoords(pl->map, pl->x, pl->y, map, x, y,
+                &rv, RV_NO_DISTANCE)) {
+            continue;
+        }
+
+        ax = CONTR(pl)->socket.mapx_2 + rv.distance_x;
+        ay = CONTR(pl)->socket.mapy_2 + rv.distance_y;
+
+        if (ax < 0 || ax >= CONTR(pl)->socket.mapx ||
+                ay < 0 || ay >= CONTR(pl)->socket.mapy) {
+            continue;
+        }
+
+        for (layer = layer_start; layer <= layer_end; layer++) {
+            for (sub_layer = sub_layer_start; sub_layer <= sub_layer_end;
+                    sub_layer++) {
+                socket_layer = NUM_LAYERS * sub_layer + layer - 1;
+
+                CONTR(pl)->socket.lastmap.cells[ax][ay].faces[socket_layer] = 0;
+            }
+        }
+    }
+
+    return 0;
+}
+
+/**
+ * Force redrawing of all objects on the specified tile, for all players that
+ * can see it.
+ * @param m Map.
+ * @param x X coordinate.
+ * @param y Y coordinate.
+ * @param layer Layer to redraw, -1 for all.
+ * @param sub_layer Sub-layer to redraw, -1 for all.
+ */
+void map_redraw(mapstruct *m, int x, int y, int layer, int sub_layer)
+{
+    assert(m != NULL);
+    assert(x >= 0 && x < m->width);
+    assert(y >= 0 && y < m->height);
+    assert(layer >= -1 && layer <= NUM_LAYERS);
+    assert(sub_layer >= -1 && sub_layer < NUM_SUB_LAYERS);
+
+    MAP_TILES_WALK_START(m, map_redraw_internal, x, y, layer, sub_layer)
+    {
+    }
+    MAP_TILES_WALK_END
+}
