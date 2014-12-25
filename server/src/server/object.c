@@ -1957,6 +1957,7 @@ object *decrease_ob_nr(object *op, uint32 i)
     }
 
     if (op->nrof != 0) {
+        update_object(op, UP_OBJ_FACE);
         esrv_update_item(UPD_NROF, op);
         return op;
     }
