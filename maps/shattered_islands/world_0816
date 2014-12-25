@@ -2,7 +2,7 @@ arch map
 name Strakewood Island
 msg
 Created:  2009-08-09 Alex Tokar
-Modified: 2011-10-01 Alex Tokar
+Modified: 2014-12-25 Alex Tokar
 endmsg
 width 24
 height 24
@@ -16,9 +16,10 @@ tile_path_5 world_0917
 tile_path_6 world_0915
 tile_path_7 world_0715
 tile_path_8 world_0717
+tile_path_9 world_1_0816
+tile_path_10 world_a_0816
 bg_music jungle1.ogg
 region strakewood_island
-tile_path_9 world_1_0816
 end
 arch grassd_1
 z 50
@@ -621,6 +622,15 @@ stand_still 1
 x 6
 y 6
 end
+arch map_info
+name strakewood_mountains_inn
+hp 17
+sp 10
+slaying joyful_life.mid
+cursed 1
+x 6
+y 6
+end
 arch grassd_7
 z 50
 x 6
@@ -830,14 +840,6 @@ x 7
 y 7
 end
 arch keg_big.101
-x 7
-y 7
-end
-arch map_info
-hp 15
-sp 8
-race Inn In The Mountains
-slaying joyful_life.mid
 x 7
 y 7
 end
@@ -1369,6 +1371,10 @@ y 6
 end
 arch floor_wood2_l2
 z 50
+x 10
+y 7
+end
+arch beer_barrel.101
 x 10
 y 7
 end
@@ -1977,6 +1983,11 @@ arch plant_mushroom3
 x 13
 y 17
 end
+arch torch_wall_1
+direction 8
+x 13
+y 17
+end
 arch floor_sand_d4
 z 50
 x 13
@@ -2145,16 +2156,12 @@ z 50
 x 14
 y 16
 end
-arch wall_wood_1
+arch wall_wood_w_1
 x 14
 y 16
 end
 arch grassd_8
 z 50
-x 14
-y 17
-end
-arch torch_wall_1
 x 14
 y 17
 end
@@ -2335,12 +2342,20 @@ z 50
 x 15
 y 16
 end
-arch wall_wood_w_1
+arch wall_wood2_1
 x 15
 y 16
 end
-arch grassd_8
+arch wmask_bflag_fire1_1
+x 15
+y 16
+end
+arch floor_sand_d3
 z 50
+x 15
+y 17
+end
+arch grassd_m4
 x 15
 y 17
 end
@@ -2359,7 +2374,7 @@ z 50
 x 15
 y 18
 end
-arch grassd_m10
+arch grassd_m13
 x 15
 y 18
 end
@@ -2451,6 +2466,10 @@ z 50
 x 16
 y 8
 end
+arch wall_wood_3
+x 16
+y 8
+end
 arch floor_wood2_l1
 z 50
 x 16
@@ -2496,11 +2515,7 @@ z 50
 x 16
 y 16
 end
-arch wall_wood3_1
-x 16
-y 16
-end
-arch wmask_bflag_fire1_1
+arch door_wood1
 x 16
 y 16
 end
@@ -2509,16 +2524,8 @@ z 50
 x 16
 y 17
 end
-arch grassd_m4
-x 16
-y 17
-end
 arch floor_sand_d1
 z 50
-x 16
-y 18
-end
-arch grassd_m13
 x 16
 y 18
 end
@@ -2600,7 +2607,7 @@ z 50
 x 17
 y 7
 end
-arch wall_wood_4
+arch fwall_wood1c
 x 17
 y 7
 end
@@ -2609,12 +2616,16 @@ z 50
 x 17
 y 8
 end
-arch clock
+arch fwall_wood1b
 x 17
 y 8
 end
 arch floor_wood2_l1
 z 50
+x 17
+y 9
+end
+arch clock
 x 17
 y 9
 end
@@ -2661,7 +2672,8 @@ z 50
 x 17
 y 16
 end
-arch door_wood2
+arch door_wood1
+direction 7
 x 17
 y 16
 end
@@ -2759,10 +2771,7 @@ z 50
 x 18
 y 7
 end
-arch stairs_wood_up
-slaying world_1_0816
-hp 17
-sp 7
+arch stairs_wood_up2
 x 18
 y 7
 end
@@ -2771,17 +2780,30 @@ z 50
 x 18
 y 8
 end
-arch floor_wood2_l1
+arch fwall_wood1a
+x 18
+y 8
+end
+arch flag_04
+x 18
+y 8
+end
+arch floor_wood2_l2
 z 50
 x 18
 y 9
 end
-arch floor_wood2_l1
+arch floor_wood2_l2
 z 50
 x 18
 y 10
 end
-arch floor_wood2_l2
+arch chair1_111
+direction 7
+x 18
+y 10
+end
+arch floor_wood2_l1
 z 50
 x 18
 y 11
@@ -2930,13 +2952,7 @@ z 50
 x 19
 y 7
 end
-arch stairs_stone_down
-msg
-You climb down the long stairs, and find yourself in a smelly storage.
-endmsg
-slaying world_b_0816
-hp 21
-sp 7
+arch stairs_wood_up
 x 19
 y 7
 end
@@ -2945,18 +2961,29 @@ z 50
 x 19
 y 8
 end
+arch fwall_wood1b
+x 19
+y 8
+end
 arch floor_wood2_l2
 z 50
 x 19
 y 9
 end
-arch floor_wood2_l2
+arch chair1_111
+x 19
+y 9
+end
+arch floor_wood2_l1
 z 50
 x 19
 y 10
 end
-arch chair1_111
-direction 7
+arch table_round1
+x 19
+y 10
+end
+arch light5
 x 19
 y 10
 end
@@ -3127,30 +3154,18 @@ z 50
 x 20
 y 9
 end
-arch chair1_111
-x 20
-y 9
-end
 arch floor_wood2_l1
 z 50
 x 20
 y 10
 end
-arch table_round1
-x 20
-y 10
-end
-arch light5
+arch chair1_111
+direction 3
 x 20
 y 10
 end
 arch floor_wood2_l1
 z 50
-x 20
-y 11
-end
-arch chair1_111
-direction 5
 x 20
 y 11
 end
@@ -3159,13 +3174,16 @@ z 50
 x 20
 y 12
 end
+arch wall_wood_8
+x 20
+y 12
+end
 arch floor_wood2_l1
 z 50
 x 20
 y 13
 end
-arch chair1_111
-direction 3
+arch wall_wood3_3
 x 20
 y 13
 end
@@ -3174,8 +3192,17 @@ z 50
 x 20
 y 14
 end
+arch wall_wood2_3
+x 20
+y 14
+end
 arch floor_wood2_l1
 z 50
+x 20
+y 15
+end
+arch door_wood2
+direction 3
 x 20
 y 15
 end
@@ -3184,7 +3211,7 @@ z 50
 x 20
 y 16
 end
-arch wall_wood2_1
+arch wall_wood_4
 x 20
 y 16
 end
@@ -3318,17 +3345,12 @@ z 50
 x 21
 y 9
 end
-arch floor_wood2_l1
+arch floor_wood2_l2
 z 50
 x 21
 y 10
 end
-arch chair1_111
-direction 3
-x 21
-y 10
-end
-arch floor_wood2_l1
+arch floor_wood2_l2
 z 50
 x 21
 y 11
@@ -3338,13 +3360,37 @@ z 50
 x 21
 y 12
 end
+arch wall_wood3_1
+x 21
+y 12
+end
+arch wmask_bflag_brown_1
+x 21
+y 12
+end
 arch floor_wood2_l2
+z 50
+x 21
+y 13
+end
+arch stairs_down
+x 21
+y 13
+end
+arch torch_wall_1
+direction 7
+sub_layer 1
 z 50
 x 21
 y 13
 end
 arch floor_wood2_l2
 z 50
+x 21
+y 14
+end
+arch stairs_stone_down
+direction 1
 x 21
 y 14
 end
@@ -3505,8 +3551,20 @@ z 50
 x 22
 y 12
 end
+arch wall_wood_1
+x 22
+y 12
+end
+arch wmask_bflag_brown_1
+x 22
+y 12
+end
 arch floor_wood2_l1
 z 50
+x 22
+y 13
+end
+arch stairs_down
 x 22
 y 13
 end
@@ -3515,7 +3573,8 @@ z 50
 x 22
 y 14
 end
-arch beer_barrel.101
+arch stairs_stone_down
+direction 1
 x 22
 y 14
 end
@@ -3529,7 +3588,7 @@ z 50
 x 22
 y 16
 end
-arch wall_wood2_1
+arch wall_wood_w_1
 x 22
 y 16
 end
@@ -3686,7 +3745,7 @@ z 50
 x 23
 y 12
 end
-arch wall_wood3_3
+arch wall_wood_4
 x 23
 y 12
 end

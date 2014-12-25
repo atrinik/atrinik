@@ -2,102 +2,19 @@ arch map
 name Inn In The Mountains
 msg
 Created:  2010-08-26 Alex Tokar
-Modified: 2011-09-30 Alex Tokar
+Modified: 2014-12-25 Alex Tokar
 endmsg
 width 24
 height 24
-difficulty 1
-darkness 3
+difficulty 10
+darkness -1
+outdoor 1
+tile_path_9 world_3_0816
+tile_path_10 world_1_0816
 bg_music joyful_life.mid
 region strakewood_island
-tile_path_10 world_1_0816
 end
-arch magic_mirror
-slaying world_0816
-last_heal 70
-path_attuned 124
-x 3
-y 18
-end
-arch magic_mirror
-slaying world_0816
-last_heal 70
-path_attuned 124
-x 3
-y 19
-end
-arch magic_mirror
-slaying world_0816
-last_heal 70
-path_attuned 124
-x 3
-y 20
-end
-arch magic_mirror
-slaying world_0816
-last_heal 70
-path_attuned 124
-x 3
-y 21
-end
-arch magic_mirror
-slaying world_0816
-last_heal 70
-path_attuned 124
-x 4
-y 18
-end
-arch magic_mirror
-slaying world_0816
-last_heal 70
-path_attuned 124
-x 4
-y 19
-end
-arch magic_mirror
-slaying world_0816
-last_heal 70
-path_attuned 124
-x 4
-y 20
-end
-arch magic_mirror
-slaying world_0816
-last_heal 70
-path_attuned 124
-x 4
-y 21
-end
-arch magic_mirror
-slaying world_0816
-last_heal 70
-path_attuned 124
-x 5
-y 18
-end
-arch magic_mirror
-slaying world_0816
-last_heal 70
-path_attuned 124
-x 5
-y 19
-end
-arch magic_mirror
-slaying world_0816
-last_heal 70
-path_attuned 124
-x 5
-y 20
-end
-arch magic_mirror
-slaying world_0816
-last_heal 70
-path_attuned 124
-x 5
-y 21
-end
-arch blocked
-z 50
+arch trans
 x 6
 y 6
 end
@@ -105,8 +22,15 @@ arch wall_wood_8
 x 6
 y 6
 end
-arch blocked
-z 50
+arch map_info
+name strakewood_mountains_inn
+hp 17
+sp 10
+cursed 1
+x 6
+y 6
+end
+arch trans
 x 6
 y 7
 end
@@ -114,31 +38,28 @@ arch wall_wood2_3
 x 6
 y 7
 end
-arch blocked
-z 50
+arch trans
 x 6
 y 8
 end
 arch wall_wood3_3
 x 6
 y 8
-end
-arch blocked
-z 50
-x 6
-y 9
-end
-arch wall_wood3_3
-x 6
-y 9
 end
 arch wmask_fire_on_1
 direction 7
 x 6
+y 8
+end
+arch trans
+x 6
 y 9
 end
-arch blocked
-z 50
+arch wall_wood_w_3
+x 6
+y 9
+end
+arch trans
 x 6
 y 10
 end
@@ -146,8 +67,7 @@ arch wall_wood_3
 x 6
 y 10
 end
-arch blocked
-z 50
+arch trans
 x 6
 y 11
 end
@@ -155,8 +75,7 @@ arch wall_wood3_3
 x 6
 y 11
 end
-arch blocked
-z 50
+arch trans
 x 6
 y 12
 end
@@ -164,8 +83,7 @@ arch wall_wood_3
 x 6
 y 12
 end
-arch blocked
-z 50
+arch trans
 x 6
 y 13
 end
@@ -173,8 +91,7 @@ arch wall_wood2_3
 x 6
 y 13
 end
-arch blocked
-z 50
+arch trans
 x 6
 y 14
 end
@@ -187,8 +104,7 @@ direction 7
 x 6
 y 14
 end
-arch blocked
-z 50
+arch trans
 x 6
 y 15
 end
@@ -201,8 +117,7 @@ direction 7
 x 6
 y 15
 end
-arch blocked
-z 50
+arch trans
 x 6
 y 16
 end
@@ -210,36 +125,7 @@ arch wall_wood3_3
 x 6
 y 16
 end
-arch magic_mirror
-slaying world_0816
-last_heal 70
-path_attuned 124
-x 6
-y 18
-end
-arch magic_mirror
-slaying world_0816
-last_heal 70
-path_attuned 124
-x 6
-y 19
-end
-arch magic_mirror
-slaying world_0816
-last_heal 70
-path_attuned 124
-x 6
-y 20
-end
-arch magic_mirror
-slaying world_0816
-last_heal 70
-path_attuned 124
-x 6
-y 21
-end
-arch blocked
-z 50
+arch trans
 x 7
 y 6
 end
@@ -248,7 +134,6 @@ x 7
 y 6
 end
 arch floor_wood2_l1
-z 50
 x 7
 y 7
 end
@@ -258,7 +143,6 @@ x 7
 y 7
 end
 arch floor_wood2_l1
-z 50
 x 7
 y 8
 end
@@ -267,7 +151,6 @@ x 7
 y 8
 end
 arch floor_wood2_l2
-z 50
 x 7
 y 9
 end
@@ -280,7 +163,6 @@ x 7
 y 9
 end
 arch floor_wood2_l2
-z 50
 x 7
 y 10
 end
@@ -290,7 +172,6 @@ x 7
 y 10
 end
 arch floor_wood2_l1
-z 50
 x 7
 y 11
 end
@@ -300,7 +181,6 @@ x 7
 y 11
 end
 arch floor_wood2_l1
-z 50
 x 7
 y 12
 end
@@ -309,7 +189,6 @@ x 7
 y 12
 end
 arch floor_wood2_l1
-z 50
 x 7
 y 13
 end
@@ -318,7 +197,6 @@ x 7
 y 13
 end
 arch floor_wood2_l1
-z 50
 x 7
 y 14
 end
@@ -327,7 +205,6 @@ x 7
 y 14
 end
 arch floor_wood2_l1
-z 50
 x 7
 y 15
 end
@@ -340,7 +217,6 @@ x 7
 y 15
 end
 arch floor_wood2_l2
-z 50
 x 7
 y 16
 end
@@ -348,36 +224,7 @@ arch wall_wood2_1
 x 7
 y 16
 end
-arch magic_mirror
-slaying world_0816
-last_heal 70
-path_attuned 124
-x 7
-y 18
-end
-arch magic_mirror
-slaying world_0816
-last_heal 70
-path_attuned 124
-x 7
-y 19
-end
-arch magic_mirror
-slaying world_0816
-last_heal 70
-path_attuned 124
-x 7
-y 20
-end
-arch magic_mirror
-slaying world_0816
-last_heal 70
-path_attuned 124
-x 7
-y 21
-end
-arch blocked
-z 50
+arch trans
 x 8
 y 6
 end
@@ -390,7 +237,6 @@ x 8
 y 6
 end
 arch floor_wood2_l1
-z 50
 x 8
 y 7
 end
@@ -400,7 +246,6 @@ x 8
 y 7
 end
 arch floor_wood2_l1
-z 50
 x 8
 y 8
 end
@@ -409,7 +254,6 @@ x 8
 y 8
 end
 arch floor_wood2_l1
-z 50
 x 8
 y 9
 end
@@ -418,7 +262,6 @@ x 8
 y 9
 end
 arch floor_wood2_l2
-z 50
 x 8
 y 10
 end
@@ -427,7 +270,6 @@ x 8
 y 10
 end
 arch floor_wood2_l2
-z 50
 x 8
 y 11
 end
@@ -437,7 +279,6 @@ x 8
 y 11
 end
 arch floor_wood2_l2
-z 50
 x 8
 y 12
 end
@@ -446,7 +287,6 @@ x 8
 y 12
 end
 arch floor_wood2_l2
-z 50
 x 8
 y 13
 end
@@ -459,7 +299,6 @@ x 8
 y 13
 end
 arch floor_wood2_l2
-z 50
 x 8
 y 14
 end
@@ -468,7 +307,6 @@ x 8
 y 14
 end
 arch floor_wood2_l2
-z 50
 x 8
 y 15
 end
@@ -477,7 +315,6 @@ x 8
 y 15
 end
 arch floor_wood2_l2
-z 50
 x 8
 y 16
 end
@@ -485,36 +322,7 @@ arch wall_wood3_1
 x 8
 y 16
 end
-arch magic_mirror
-slaying world_0816
-last_heal 70
-path_attuned 124
-x 8
-y 18
-end
-arch magic_mirror
-slaying world_0816
-last_heal 70
-path_attuned 124
-x 8
-y 19
-end
-arch magic_mirror
-slaying world_0816
-last_heal 70
-path_attuned 124
-x 8
-y 20
-end
-arch magic_mirror
-slaying world_0816
-last_heal 70
-path_attuned 124
-x 8
-y 21
-end
-arch blocked
-z 50
+arch trans
 x 9
 y 6
 end
@@ -523,7 +331,6 @@ x 9
 y 6
 end
 arch floor_wood2_l2
-z 50
 x 9
 y 7
 end
@@ -534,9 +341,16 @@ end
 arch shelf3a.111
 x 9
 y 7
+arch random_treasure
+no_pick 1
+randomitems random_read
+end
+arch random_treasure
+no_pick 1
+randomitems random_read
+end
 end
 arch floor_wood2_l2
-z 50
 x 9
 y 8
 end
@@ -545,7 +359,6 @@ x 9
 y 8
 end
 arch floor_wood2_l1
-z 50
 x 9
 y 9
 end
@@ -554,7 +367,6 @@ x 9
 y 9
 end
 arch floor_wood2_l1
-z 50
 x 9
 y 10
 end
@@ -563,7 +375,6 @@ x 9
 y 10
 end
 arch floor_wood2_l2
-z 50
 x 9
 y 11
 end
@@ -572,7 +383,6 @@ x 9
 y 11
 end
 arch floor_wood2_l1
-z 50
 x 9
 y 12
 end
@@ -581,7 +391,6 @@ x 9
 y 12
 end
 arch floor_wood2_l1
-z 50
 x 9
 y 13
 end
@@ -602,7 +411,6 @@ type 83
 end
 end
 arch floor_wood2_l1
-z 50
 x 9
 y 14
 end
@@ -611,7 +419,6 @@ x 9
 y 14
 end
 arch floor_wood2_l2
-z 50
 x 9
 y 15
 end
@@ -620,44 +427,14 @@ x 9
 y 15
 end
 arch floor_wood2_l1
-z 50
 x 9
 y 16
 end
-arch wall_wood_w_1
+arch wall_wood_1
 x 9
 y 16
 end
-arch magic_mirror
-slaying world_0816
-last_heal 70
-path_attuned 124
-x 9
-y 18
-end
-arch magic_mirror
-slaying world_0816
-last_heal 70
-path_attuned 124
-x 9
-y 19
-end
-arch magic_mirror
-slaying world_0816
-last_heal 70
-path_attuned 124
-x 9
-y 20
-end
-arch magic_mirror
-slaying world_0816
-last_heal 70
-path_attuned 124
-x 9
-y 21
-end
-arch blocked
-z 50
+arch trans
 x 10
 y 6
 end
@@ -666,7 +443,6 @@ x 10
 y 6
 end
 arch floor_wood2_l1
-z 50
 x 10
 y 7
 end
@@ -677,9 +453,12 @@ end
 arch shelf3c.111
 x 10
 y 7
+arch random_treasure
+no_pick 1
+randomitems random_read
+end
 end
 arch floor_wood2_l1
-z 50
 x 10
 y 8
 end
@@ -688,7 +467,6 @@ x 10
 y 8
 end
 arch floor_wood2_l1
-z 50
 x 10
 y 9
 end
@@ -701,7 +479,6 @@ x 10
 y 9
 end
 arch floor_wood2_l2
-z 50
 x 10
 y 10
 end
@@ -718,7 +495,6 @@ type 83
 end
 end
 arch floor_wood2_l1
-z 50
 x 10
 y 11
 end
@@ -727,7 +503,6 @@ x 10
 y 11
 end
 arch floor_wood2_l2
-z 50
 x 10
 y 12
 end
@@ -740,7 +515,6 @@ x 10
 y 12
 end
 arch floor_wood2_l2
-z 50
 x 10
 y 13
 end
@@ -757,7 +531,6 @@ x 10
 y 13
 end
 arch floor_wood2_l1
-z 50
 x 10
 y 14
 end
@@ -766,7 +539,6 @@ x 10
 y 14
 end
 arch floor_wood2_l1
-z 50
 x 10
 y 15
 end
@@ -775,44 +547,14 @@ x 10
 y 15
 end
 arch floor_wood2_l2
-z 50
 x 10
 y 16
 end
-arch wall_wood3_1
+arch wall_wood_w_1
 x 10
 y 16
 end
-arch magic_mirror
-slaying world_0816
-last_heal 70
-path_attuned 124
-x 10
-y 18
-end
-arch magic_mirror
-slaying world_0816
-last_heal 70
-path_attuned 124
-x 10
-y 19
-end
-arch magic_mirror
-slaying world_0816
-last_heal 70
-path_attuned 124
-x 10
-y 20
-end
-arch magic_mirror
-slaying world_0816
-last_heal 70
-path_attuned 124
-x 10
-y 21
-end
-arch blocked
-z 50
+arch trans
 x 11
 y 6
 end
@@ -825,7 +567,6 @@ x 11
 y 6
 end
 arch floor_wood2_l1
-z 50
 x 11
 y 7
 end
@@ -834,7 +575,6 @@ x 11
 y 7
 end
 arch floor_wood2_l2
-z 50
 x 11
 y 8
 end
@@ -843,7 +583,6 @@ x 11
 y 8
 end
 arch floor_wood2_l2
-z 50
 x 11
 y 9
 end
@@ -860,7 +599,6 @@ x 11
 y 9
 end
 arch floor_wood2_l2
-z 50
 x 11
 y 10
 end
@@ -869,7 +607,6 @@ x 11
 y 10
 end
 arch floor_wood2_l1
-z 50
 x 11
 y 11
 end
@@ -878,7 +615,6 @@ x 11
 y 11
 end
 arch floor_wood2_l1
-z 50
 x 11
 y 12
 end
@@ -895,7 +631,6 @@ x 11
 y 12
 end
 arch floor_wood2_l2
-z 50
 x 11
 y 13
 end
@@ -908,7 +643,6 @@ x 11
 y 13
 end
 arch floor_wood2_l2
-z 50
 x 11
 y 14
 end
@@ -917,7 +651,6 @@ x 11
 y 14
 end
 arch floor_wood2_l2
-z 50
 x 11
 y 15
 end
@@ -926,7 +659,6 @@ x 11
 y 15
 end
 arch floor_wood2_l2
-z 50
 x 11
 y 16
 end
@@ -934,36 +666,7 @@ arch wall_wood3_1
 x 11
 y 16
 end
-arch magic_mirror
-slaying world_0816
-last_heal 70
-path_attuned 124
-x 11
-y 18
-end
-arch magic_mirror
-slaying world_0816
-last_heal 70
-path_attuned 124
-x 11
-y 19
-end
-arch magic_mirror
-slaying world_0816
-last_heal 70
-path_attuned 124
-x 11
-y 20
-end
-arch magic_mirror
-slaying world_0816
-last_heal 70
-path_attuned 124
-x 11
-y 21
-end
-arch blocked
-z 50
+arch trans
 x 12
 y 6
 end
@@ -972,11 +675,14 @@ x 12
 y 6
 end
 arch floor_wood2_l1
-z 50
 x 12
 y 7
 end
 arch candlelight3.101
+x 12
+y 7
+end
+arch wall_wood2_3
 x 12
 y 7
 end
@@ -985,16 +691,18 @@ x 12
 y 7
 end
 arch floor_wood2_l1
-z 50
 x 12
 y 8
 end
 arch carpet1.171
+x 12
+y 8
+end
+arch wall_wood3_3
 x 12
 y 8
 end
 arch floor_wood2_l1
-z 50
 x 12
 y 9
 end
@@ -1002,8 +710,11 @@ arch carpet1.171
 x 12
 y 9
 end
+arch wall_wood2_3
+x 12
+y 9
+end
 arch floor_wood2_l2
-z 50
 x 12
 y 10
 end
@@ -1012,12 +723,10 @@ x 12
 y 10
 end
 arch floor_wood2_l2
-z 50
 x 12
 y 11
 end
 arch floor_wood2_l2
-z 50
 x 12
 y 12
 end
@@ -1026,7 +735,6 @@ x 12
 y 12
 end
 arch floor_wood2_l1
-z 50
 x 12
 y 13
 end
@@ -1039,7 +747,6 @@ x 12
 y 13
 end
 arch floor_wood2_l1
-z 50
 x 12
 y 14
 end
@@ -1048,7 +755,6 @@ x 12
 y 14
 end
 arch floor_wood2_l2
-z 50
 x 12
 y 15
 end
@@ -1057,44 +763,14 @@ x 12
 y 15
 end
 arch floor_wood2_l1
-z 50
 x 12
 y 16
 end
-arch wall_wood_w_1
+arch wall_wood_1
 x 12
 y 16
 end
-arch magic_mirror
-slaying world_0816
-last_heal 70
-path_attuned 124
-x 12
-y 18
-end
-arch magic_mirror
-slaying world_0816
-last_heal 70
-path_attuned 124
-x 12
-y 19
-end
-arch magic_mirror
-slaying world_0816
-last_heal 70
-path_attuned 124
-x 12
-y 20
-end
-arch magic_mirror
-slaying world_0816
-last_heal 70
-path_attuned 124
-x 12
-y 21
-end
-arch blocked
-z 50
+arch trans
 x 13
 y 6
 end
@@ -1103,34 +779,43 @@ x 13
 y 6
 end
 arch floor_wood2_l2
-z 50
 x 13
 y 7
 end
-arch wall_wood3_3
+arch carpet1
 x 13
 y 7
 end
 arch floor_wood2_l2
-z 50
 x 13
 y 8
 end
-arch wall_wood_3
+arch carpet1
 x 13
 y 8
+end
+arch shelf1_wall.111
+direction 7
+x 13
+y 8
+arch random_treasure
+no_pick 1
+randomitems random_read
+end
 end
 arch floor_wood2_l1
-z 50
 x 13
 y 9
 end
-arch wall_wood2_3
+arch carpet1.121
+x 13
+y 9
+end
+arch wall_wood_1
 x 13
 y 9
 end
 arch floor_wood2_l2
-z 50
 x 13
 y 10
 end
@@ -1139,7 +824,6 @@ x 13
 y 10
 end
 arch floor_wood2_l2
-z 50
 x 13
 y 11
 end
@@ -1153,7 +837,6 @@ x 13
 y 11
 end
 arch floor_wood2_l2
-z 50
 x 13
 y 12
 end
@@ -1162,7 +845,6 @@ x 13
 y 12
 end
 arch floor_wood2_l2
-z 50
 x 13
 y 13
 end
@@ -1175,7 +857,6 @@ x 13
 y 13
 end
 arch floor_wood2_l2
-z 50
 x 13
 y 14
 end
@@ -1184,7 +865,6 @@ x 13
 y 14
 end
 arch floor_wood2_l2
-z 50
 x 13
 y 15
 end
@@ -1193,7 +873,6 @@ x 13
 y 15
 end
 arch floor_wood2_l2
-z 50
 x 13
 y 16
 end
@@ -1201,36 +880,7 @@ arch wall_wood2_1
 x 13
 y 16
 end
-arch magic_mirror
-slaying world_0816
-last_heal 70
-path_attuned 124
-x 13
-y 18
-end
-arch magic_mirror
-slaying world_0816
-last_heal 70
-path_attuned 124
-x 13
-y 19
-end
-arch magic_mirror
-slaying world_0816
-last_heal 70
-path_attuned 124
-x 13
-y 20
-end
-arch magic_mirror
-slaying world_0816
-last_heal 70
-path_attuned 124
-x 13
-y 21
-end
-arch blocked
-z 50
+arch trans
 x 14
 y 6
 end
@@ -1243,16 +893,14 @@ x 14
 y 6
 end
 arch floor_wood2_l2
-z 50
 x 14
 y 7
 end
-arch carpet1
+arch stairs_wood_down
 x 14
 y 7
 end
 arch floor_wood2_l1
-z 50
 x 14
 y 8
 end
@@ -1261,21 +909,14 @@ x 14
 y 8
 end
 arch floor_wood2_l1
-z 50
 x 14
 y 9
 end
 arch carpet1
-x 14
-y 9
-end
-arch shelf1_wall.111
-direction 7
 x 14
 y 9
 end
 arch floor_wood2_l2
-z 50
 x 14
 y 10
 end
@@ -1289,7 +930,6 @@ x 14
 y 10
 end
 arch floor_wood2_l1
-z 50
 x 14
 y 11
 end
@@ -1298,7 +938,6 @@ x 14
 y 11
 end
 arch floor_wood2_l1
-z 50
 x 14
 y 12
 end
@@ -1307,7 +946,6 @@ x 14
 y 12
 end
 arch floor_wood2_l1
-z 50
 x 14
 y 13
 end
@@ -1316,7 +954,6 @@ x 14
 y 13
 end
 arch floor_wood2_l1
-z 50
 x 14
 y 14
 end
@@ -1325,7 +962,6 @@ x 14
 y 14
 end
 arch floor_wood2_l2
-z 50
 x 14
 y 15
 end
@@ -1334,7 +970,6 @@ x 14
 y 15
 end
 arch floor_wood2_l2
-z 50
 x 14
 y 16
 end
@@ -1342,40 +977,11 @@ arch carpet1.111
 x 14
 y 16
 end
-arch wall_wood2_1
+arch wall_wood_w_1
 x 14
 y 16
 end
-arch magic_mirror
-slaying world_0816
-last_heal 70
-path_attuned 124
-x 14
-y 18
-end
-arch magic_mirror
-slaying world_0816
-last_heal 70
-path_attuned 124
-x 14
-y 19
-end
-arch magic_mirror
-slaying world_0816
-last_heal 70
-path_attuned 124
-x 14
-y 20
-end
-arch magic_mirror
-slaying world_0816
-last_heal 70
-path_attuned 124
-x 14
-y 21
-end
-arch blocked
-z 50
+arch trans
 x 15
 y 6
 end
@@ -1384,19 +990,14 @@ x 15
 y 6
 end
 arch floor_wood2_l2
-z 50
 x 15
 y 7
 end
-arch stairs_wood_down
-slaying world_1_0816
-hp 16
-sp 7
+arch stairs_down
 x 15
 y 7
 end
 arch floor_wood2_l2
-z 50
 x 15
 y 8
 end
@@ -1405,7 +1006,6 @@ x 15
 y 8
 end
 arch floor_wood2_l2
-z 50
 x 15
 y 9
 end
@@ -1414,7 +1014,6 @@ x 15
 y 9
 end
 arch floor_wood2_l1
-z 50
 x 15
 y 10
 end
@@ -1423,7 +1022,6 @@ x 15
 y 10
 end
 arch floor_wood2_l1
-z 50
 x 15
 y 11
 end
@@ -1432,7 +1030,6 @@ x 15
 y 11
 end
 arch floor_wood2_l1
-z 50
 x 15
 y 12
 end
@@ -1441,7 +1038,6 @@ x 15
 y 12
 end
 arch floor_wood2_l1
-z 50
 x 15
 y 13
 end
@@ -1450,7 +1046,6 @@ x 15
 y 13
 end
 arch floor_wood2_l2
-z 50
 x 15
 y 14
 end
@@ -1459,7 +1054,6 @@ x 15
 y 14
 end
 arch floor_wood2_l1
-z 50
 x 15
 y 15
 end
@@ -1468,7 +1062,6 @@ x 15
 y 15
 end
 arch floor_wood2_l1
-z 50
 x 15
 y 16
 end
@@ -1476,40 +1069,11 @@ arch carpet1.111
 x 15
 y 16
 end
-arch wall_wood_w_1
+arch wall_wood_1
 x 15
 y 16
 end
-arch magic_mirror
-slaying world_0816
-last_heal 70
-path_attuned 124
-x 15
-y 18
-end
-arch magic_mirror
-slaying world_0816
-last_heal 70
-path_attuned 124
-x 15
-y 19
-end
-arch magic_mirror
-slaying world_0816
-last_heal 70
-path_attuned 124
-x 15
-y 20
-end
-arch magic_mirror
-slaying world_0816
-last_heal 70
-path_attuned 124
-x 15
-y 21
-end
-arch blocked
-z 50
+arch trans
 x 16
 y 6
 end
@@ -1518,7 +1082,6 @@ x 16
 y 6
 end
 arch floor_wood2_l1
-z 50
 x 16
 y 7
 end
@@ -1527,7 +1090,6 @@ x 16
 y 7
 end
 arch floor_wood2_l1
-z 50
 x 16
 y 8
 end
@@ -1536,7 +1098,6 @@ x 16
 y 8
 end
 arch floor_wood2_l1
-z 50
 x 16
 y 9
 end
@@ -1550,7 +1111,6 @@ x 16
 y 9
 end
 arch floor_wood2_l2
-z 50
 x 16
 y 10
 end
@@ -1559,7 +1119,6 @@ x 16
 y 10
 end
 arch floor_wood2_l2
-z 50
 x 16
 y 11
 end
@@ -1568,7 +1127,6 @@ x 16
 y 11
 end
 arch floor_wood2_l1
-z 50
 x 16
 y 12
 end
@@ -1578,7 +1136,6 @@ x 16
 y 12
 end
 arch floor_wood2_l2
-z 50
 x 16
 y 13
 end
@@ -1587,7 +1144,6 @@ x 16
 y 13
 end
 arch floor_wood2_l2
-z 50
 x 16
 y 14
 end
@@ -1600,7 +1156,6 @@ x 16
 y 14
 end
 arch floor_wood2_l1
-z 50
 x 16
 y 15
 end
@@ -1613,7 +1168,6 @@ x 16
 y 15
 end
 arch floor_wood2_l2
-z 50
 x 16
 y 16
 end
@@ -1625,36 +1179,7 @@ arch wall_wood3_1
 x 16
 y 16
 end
-arch magic_mirror
-slaying world_0816
-last_heal 70
-path_attuned 124
-x 16
-y 18
-end
-arch magic_mirror
-slaying world_0816
-last_heal 70
-path_attuned 124
-x 16
-y 19
-end
-arch magic_mirror
-slaying world_0816
-last_heal 70
-path_attuned 124
-x 16
-y 20
-end
-arch magic_mirror
-slaying world_0816
-last_heal 70
-path_attuned 124
-x 16
-y 21
-end
-arch blocked
-z 50
+arch trans
 x 17
 y 6
 end
@@ -1663,16 +1188,18 @@ x 17
 y 6
 end
 arch floor_wood2_l2
-z 50
 x 17
 y 7
 end
 arch shelf3c.111
 x 17
 y 7
+arch random_treasure
+no_pick 1
+randomitems random_read
+end
 end
 arch floor_wood2_l2
-z 50
 x 17
 y 8
 end
@@ -1685,12 +1212,10 @@ x 17
 y 8
 end
 arch floor_wood2_l1
-z 50
 x 17
 y 9
 end
 arch floor_wood2_l1
-z 50
 x 17
 y 10
 end
@@ -1700,7 +1225,6 @@ x 17
 y 10
 end
 arch floor_wood2_l2
-z 50
 x 17
 y 11
 end
@@ -1709,12 +1233,10 @@ x 17
 y 11
 end
 arch floor_wood2_l1
-z 50
 x 17
 y 12
 end
 arch floor_wood2_l2
-z 50
 x 17
 y 13
 end
@@ -1723,7 +1245,6 @@ x 17
 y 13
 end
 arch floor_wood2_l1
-z 50
 x 17
 y 14
 end
@@ -1732,7 +1253,6 @@ x 17
 y 14
 end
 arch floor_wood2_l1
-z 50
 x 17
 y 15
 end
@@ -1745,7 +1265,6 @@ x 17
 y 15
 end
 arch floor_wood2_l1
-z 50
 x 17
 y 16
 end
@@ -1757,36 +1276,7 @@ arch wall_wood3_1
 x 17
 y 16
 end
-arch magic_mirror
-slaying world_0816
-last_heal 70
-path_attuned 124
-x 17
-y 18
-end
-arch magic_mirror
-slaying world_0816
-last_heal 70
-path_attuned 124
-x 17
-y 19
-end
-arch magic_mirror
-slaying world_0816
-last_heal 70
-path_attuned 124
-x 17
-y 20
-end
-arch magic_mirror
-slaying world_0816
-last_heal 70
-path_attuned 124
-x 17
-y 21
-end
-arch blocked
-z 50
+arch trans
 x 18
 y 6
 end
@@ -1799,17 +1289,14 @@ x 18
 y 6
 end
 arch floor_wood2_l1
-z 50
 x 18
 y 7
 end
 arch floor_wood2_l2
-z 50
 x 18
 y 8
 end
 arch floor_wood2_l1
-z 50
 x 18
 y 9
 end
@@ -1818,7 +1305,6 @@ x 18
 y 9
 end
 arch floor_wood2_l1
-z 50
 x 18
 y 10
 end
@@ -1832,7 +1318,6 @@ x 18
 y 10
 end
 arch floor_wood2_l1
-z 50
 x 18
 y 11
 end
@@ -1841,12 +1326,10 @@ x 18
 y 11
 end
 arch floor_wood2_l1
-z 50
 x 18
 y 12
 end
 arch floor_wood2_l2
-z 50
 x 18
 y 13
 end
@@ -1859,7 +1342,6 @@ x 18
 y 13
 end
 arch floor_wood2_l2
-z 50
 x 18
 y 14
 end
@@ -1872,7 +1354,6 @@ x 18
 y 14
 end
 arch floor_wood2_l1
-z 50
 x 18
 y 15
 end
@@ -1881,7 +1362,6 @@ x 18
 y 15
 end
 arch floor_wood2_l2
-z 50
 x 18
 y 16
 end
@@ -1889,40 +1369,11 @@ arch carpet1.111
 x 18
 y 16
 end
-arch wall_wood_w_1
+arch wall_wood_1
 x 18
 y 16
 end
-arch magic_mirror
-slaying world_0816
-last_heal 70
-path_attuned 124
-x 18
-y 18
-end
-arch magic_mirror
-slaying world_0816
-last_heal 70
-path_attuned 124
-x 18
-y 19
-end
-arch magic_mirror
-slaying world_0816
-last_heal 70
-path_attuned 124
-x 18
-y 20
-end
-arch magic_mirror
-slaying world_0816
-last_heal 70
-path_attuned 124
-x 18
-y 21
-end
-arch blocked
-z 50
+arch trans
 x 19
 y 6
 end
@@ -1931,7 +1382,6 @@ x 19
 y 6
 end
 arch floor_wood2_l2
-z 50
 x 19
 y 7
 end
@@ -1940,7 +1390,6 @@ x 19
 y 7
 end
 arch floor_wood2_l2
-z 50
 x 19
 y 8
 end
@@ -1949,7 +1398,6 @@ x 19
 y 8
 end
 arch floor_wood2_l1
-z 50
 x 19
 y 9
 end
@@ -1958,7 +1406,6 @@ x 19
 y 9
 end
 arch floor_wood2_l1
-z 50
 x 19
 y 10
 end
@@ -1967,7 +1414,6 @@ x 19
 y 10
 end
 arch floor_wood2_l1
-z 50
 x 19
 y 11
 end
@@ -1976,7 +1422,6 @@ x 19
 y 11
 end
 arch floor_wood2_l2
-z 50
 x 19
 y 12
 end
@@ -1985,7 +1430,6 @@ x 19
 y 12
 end
 arch floor_wood2_l1
-z 50
 x 19
 y 13
 end
@@ -1994,7 +1438,6 @@ x 19
 y 13
 end
 arch floor_wood2_l1
-z 50
 x 19
 y 14
 end
@@ -2002,16 +1445,11 @@ arch carpet1.151
 x 19
 y 14
 end
-arch candlelight3.101
-x 19
-y 14
-end
-arch light4
+arch bench1b.111
 x 19
 y 14
 end
 arch floor_wood2_l1
-z 50
 x 19
 y 15
 end
@@ -2020,7 +1458,6 @@ x 19
 y 15
 end
 arch floor_wood2_l2
-z 50
 x 19
 y 16
 end
@@ -2028,40 +1465,11 @@ arch carpet1.111
 x 19
 y 16
 end
-arch wall_wood_1
+arch wall_wood_w_1
 x 19
 y 16
 end
-arch magic_mirror
-slaying world_0816
-last_heal 70
-path_attuned 124
-x 19
-y 18
-end
-arch magic_mirror
-slaying world_0816
-last_heal 70
-path_attuned 124
-x 19
-y 19
-end
-arch magic_mirror
-slaying world_0816
-last_heal 70
-path_attuned 124
-x 19
-y 20
-end
-arch magic_mirror
-slaying world_0816
-last_heal 70
-path_attuned 124
-x 19
-y 21
-end
-arch blocked
-z 50
+arch trans
 x 20
 y 6
 end
@@ -2070,7 +1478,6 @@ x 20
 y 6
 end
 arch floor_wood2_l2
-z 50
 x 20
 y 7
 end
@@ -2079,7 +1486,6 @@ x 20
 y 7
 end
 arch floor_wood2_l2
-z 50
 x 20
 y 8
 end
@@ -2093,7 +1499,6 @@ x 20
 y 8
 end
 arch floor_wood2_l2
-z 50
 x 20
 y 9
 end
@@ -2102,7 +1507,6 @@ x 20
 y 9
 end
 arch floor_wood2_l1
-z 50
 x 20
 y 10
 end
@@ -2116,7 +1520,6 @@ x 20
 y 10
 end
 arch floor_wood2_l1
-z 50
 x 20
 y 11
 end
@@ -2133,7 +1536,6 @@ x 20
 y 11
 end
 arch floor_wood2_l1
-z 50
 x 20
 y 12
 end
@@ -2142,7 +1544,6 @@ x 20
 y 12
 end
 arch floor_wood2_l2
-z 50
 x 20
 y 13
 end
@@ -2151,7 +1552,6 @@ x 20
 y 13
 end
 arch floor_wood2_l1
-z 50
 x 20
 y 14
 end
@@ -2159,12 +1559,11 @@ arch carpet1.151
 x 20
 y 14
 end
-arch bench1b.111
+arch bench1a.111
 x 20
 y 14
 end
 arch floor_wood2_l1
-z 50
 x 20
 y 15
 end
@@ -2173,7 +1572,6 @@ x 20
 y 15
 end
 arch floor_wood2_l1
-z 50
 x 20
 y 16
 end
@@ -2185,36 +1583,7 @@ arch wall_wood3_1
 x 20
 y 16
 end
-arch magic_mirror
-slaying world_0816
-last_heal 70
-path_attuned 124
-x 20
-y 18
-end
-arch magic_mirror
-slaying world_0816
-last_heal 70
-path_attuned 124
-x 20
-y 19
-end
-arch magic_mirror
-slaying world_0816
-last_heal 70
-path_attuned 124
-x 20
-y 20
-end
-arch magic_mirror
-slaying world_0816
-last_heal 70
-path_attuned 124
-x 20
-y 21
-end
-arch blocked
-z 50
+arch trans
 x 21
 y 6
 end
@@ -2227,12 +1596,10 @@ x 21
 y 6
 end
 arch floor_wood2_l1
-z 50
 x 21
 y 7
 end
 arch floor_wood2_l2
-z 50
 x 21
 y 8
 end
@@ -2241,7 +1608,6 @@ x 21
 y 8
 end
 arch floor_wood2_l1
-z 50
 x 21
 y 9
 end
@@ -2250,7 +1616,6 @@ x 21
 y 9
 end
 arch floor_wood2_l2
-z 50
 x 21
 y 10
 end
@@ -2267,7 +1632,6 @@ type 83
 end
 end
 arch floor_wood2_l2
-z 50
 x 21
 y 11
 end
@@ -2276,7 +1640,6 @@ x 21
 y 11
 end
 arch floor_wood2_l2
-z 50
 x 21
 y 12
 end
@@ -2285,7 +1648,6 @@ x 21
 y 12
 end
 arch floor_wood2_l2
-z 50
 x 21
 y 13
 end
@@ -2294,7 +1656,6 @@ x 21
 y 13
 end
 arch floor_wood2_l1
-z 50
 x 21
 y 14
 end
@@ -2302,12 +1663,11 @@ arch carpet1.151
 x 21
 y 14
 end
-arch bench1a.111
+arch wall_wood_3
 x 21
 y 14
 end
 arch floor_wood2_l2
-z 50
 x 21
 y 15
 end
@@ -2316,7 +1676,6 @@ x 21
 y 15
 end
 arch floor_wood2_l2
-z 50
 x 21
 y 16
 end
@@ -2324,40 +1683,11 @@ arch carpet1.111
 x 21
 y 16
 end
-arch wall_wood_w_1
+arch wall_wood_1
 x 21
 y 16
 end
-arch magic_mirror
-slaying world_0816
-last_heal 70
-path_attuned 124
-x 21
-y 18
-end
-arch magic_mirror
-slaying world_0816
-last_heal 70
-path_attuned 124
-x 21
-y 19
-end
-arch magic_mirror
-slaying world_0816
-last_heal 70
-path_attuned 124
-x 21
-y 20
-end
-arch magic_mirror
-slaying world_0816
-last_heal 70
-path_attuned 124
-x 21
-y 21
-end
-arch blocked
-z 50
+arch trans
 x 22
 y 6
 end
@@ -2366,7 +1696,6 @@ x 22
 y 6
 end
 arch floor_wood2_l1
-z 50
 x 22
 y 7
 end
@@ -2375,12 +1704,10 @@ x 22
 y 7
 end
 arch floor_wood2_l1
-z 50
 x 22
 y 8
 end
 arch floor_wood2_l2
-z 50
 x 22
 y 9
 end
@@ -2389,7 +1716,6 @@ x 22
 y 9
 end
 arch floor_wood2_l2
-z 50
 x 22
 y 10
 end
@@ -2398,7 +1724,6 @@ x 22
 y 10
 end
 arch floor_wood2_l2
-z 50
 x 22
 y 11
 end
@@ -2407,30 +1732,26 @@ x 22
 y 11
 end
 arch floor_wood2_l1
-z 50
 x 22
 y 12
 end
 arch floor_wood2_l1
-z 50
-x 22
-y 13
-end
-arch wall_wood2_1
-x 22
-y 13
-end
-arch wmask_bflag_fire1_1
 x 22
 y 13
 end
 arch floor_wood2_l2
-z 50
+x 22
+y 14
+end
+arch wall_wood3_1
+x 22
+y 14
+end
+arch wmask_bflag_fire1_1
 x 22
 y 14
 end
 arch floor_wood2_l2
-z 50
 x 22
 y 15
 end
@@ -2438,45 +1759,23 @@ arch carpet1.171
 x 22
 y 15
 end
+arch candlelight3.101
+x 22
+y 15
+end
+arch light4
+x 22
+y 15
+end
 arch floor_wood2_l1
-z 50
 x 22
 y 16
 end
-arch wall_wood2_1
+arch wall_wood_w_1
 x 22
 y 16
 end
-arch magic_mirror
-slaying world_0816
-last_heal 70
-path_attuned 124
-x 22
-y 18
-end
-arch magic_mirror
-slaying world_0816
-last_heal 70
-path_attuned 124
-x 22
-y 19
-end
-arch magic_mirror
-slaying world_0816
-last_heal 70
-path_attuned 124
-x 22
-y 20
-end
-arch magic_mirror
-slaying world_0816
-last_heal 70
-path_attuned 124
-x 22
-y 21
-end
-arch blocked
-z 50
+arch trans
 x 23
 y 6
 end
@@ -2485,7 +1784,6 @@ x 23
 y 6
 end
 arch floor_wood2_l2
-z 50
 x 23
 y 7
 end
@@ -2502,7 +1800,6 @@ x 23
 y 7
 end
 arch floor_wood2_l2
-z 50
 x 23
 y 8
 end
@@ -2511,16 +1808,14 @@ x 23
 y 8
 end
 arch floor_wood2_l1
-z 50
 x 23
 y 9
 end
-arch wall_wood3_3
+arch wall_wood_w_3
 x 23
 y 9
 end
 arch floor_wood2_l2
-z 50
 x 23
 y 10
 end
@@ -2529,7 +1824,6 @@ x 23
 y 10
 end
 arch floor_wood2_l1
-z 50
 x 23
 y 11
 end
@@ -2538,7 +1832,6 @@ x 23
 y 11
 end
 arch floor_wood2_l2
-z 50
 x 23
 y 12
 end
@@ -2555,25 +1848,22 @@ x 23
 y 12
 end
 arch floor_wood2_l2
-z 50
 x 23
 y 13
 end
-arch wall_wood_4
+arch wall_wood_w_3
 x 23
 y 13
 end
 arch floor_wood2_l2
-z 50
 x 23
 y 14
 end
-arch wall_wood2_3
+arch wall_wood_4
 x 23
 y 14
 end
 arch floor_wood2_l1
-z 50
 x 23
 y 15
 end
@@ -2582,39 +1872,10 @@ x 23
 y 15
 end
 arch floor_wood2_l2
-z 50
 x 23
 y 16
 end
 arch wall_wood_4
 x 23
 y 16
-end
-arch magic_mirror
-slaying world_0816
-last_heal 70
-path_attuned 124
-x 23
-y 18
-end
-arch magic_mirror
-slaying world_0816
-last_heal 70
-path_attuned 124
-x 23
-y 19
-end
-arch magic_mirror
-slaying world_0816
-last_heal 70
-path_attuned 124
-x 23
-y 20
-end
-arch magic_mirror
-slaying world_0816
-last_heal 70
-path_attuned 124
-x 23
-y 21
 end

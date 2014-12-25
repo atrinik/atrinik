@@ -2,12 +2,13 @@ arch map
 name Inn In The Mountains
 msg
 Created:  2010-08-27 Alex Tokar
-Modified: 2011-02-26 Alex Tokar
+Modified: 2014-12-25 Alex Tokar
 endmsg
 width 24
 height 24
 difficulty 3
 darkness 1
+tile_path_9 world_a_0816
 bg_music sewers.ogg
 region strakewood_island
 end
@@ -1099,7 +1100,7 @@ arch floor_fs_grey1a
 x 19
 y 7
 end
-arch wall_dungeon_1
+arch wall_dungeon_4
 x 19
 y 7
 end
@@ -1175,7 +1176,7 @@ arch floor_fs_grey1d
 x 20
 y 7
 end
-arch wall_dungeon_4
+arch stairs_stone_up2
 x 20
 y 7
 end
@@ -1252,9 +1253,6 @@ x 21
 y 7
 end
 arch stairs_stone_up
-slaying world_0816
-hp 19
-sp 7
 x 21
 y 7
 end
