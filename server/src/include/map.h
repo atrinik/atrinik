@@ -779,6 +779,8 @@ typedef struct rv_vector_s {
 #define WEST 7
 /** Northwest. */
 #define NORTHWEST 8
+/** Maximum direction number. */
+#define NUM_DIRECTION 8
 /*@}*/
 
 /** Check if 'pl' cannot see 'ob' due to it being hidden by plugin. */

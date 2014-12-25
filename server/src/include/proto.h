@@ -451,6 +451,7 @@ extern mapstruct *map_force_reset(mapstruct *m);
 /* src/server/move.c */
 extern int get_random_dir(void);
 extern int get_randomized_dir(int dir);
+extern int object_move_to(object *op, int dir, object *originator, mapstruct *m, int x, int y);
 extern int move_ob(object *op, int dir, object *originator);
 extern int transfer_ob(object *op, int x, int y, int randomly, object *originator, object *trap);
 extern int teleport(object *teleporter, uint8 tele_type, object *user);

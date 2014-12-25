@@ -144,7 +144,20 @@ void common_object_projectile_process(object *op)
 /** @copydoc object_methods::projectile_move_func */
 object *common_object_projectile_move(object *op)
 {
-    if (!move_object(op, op->direction)) {
+    mapstruct *m;
+    int x, y;
+
+    x = op->x + freearr_x[op->direction];
+    y = op->y + freearr_y[op->direction];
+
+    m = get_map_from_coord(op->map, &x, &y);
+
+    if (m == NULL) {
+        object_projectile_stop(op, OBJECT_PROJECTILE_STOP_WALL);
+        return NULL;
+    }
+    
+    if (!object_move_to(op, op->direction, op, m, x, y)) {
         object_projectile_stop(op, OBJECT_PROJECTILE_STOP_WALL);
         return NULL;
     }

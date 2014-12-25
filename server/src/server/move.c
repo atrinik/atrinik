@@ -46,6 +46,62 @@ int get_randomized_dir(int dir)
 }
 
 /**
+ * Move the object to the specified coordinates.
+ *
+ * Will update the object's sub-layer if necessary.
+ * @param op Object.
+ * @param dir Direction the object is moving into.
+ * @param originator What caused the object to move.
+ * @param m Map.
+ * @param x X coordinate.
+ * @param y Y coordinate.
+ * @return 1 on success, 0 on failure.
+ */
+int object_move_to(object *op, int dir, object *originator, mapstruct *m,
+        int x, int y)
+{
+    object *tmp, *floor, *floor_tmp;
+    int z, z_highest, sub_layer;
+
+    assert(op != NULL);
+    assert(dir > 0 && dir <= NUM_DIRECTION);
+    assert(originator != NULL);
+    assert(m != NULL);
+    assert(x >= 0 && x < m->width);
+    assert(y >= 0 && y < m->height);
+
+    floor = GET_MAP_OB_LAYER(op->map, op->x, op->y, LAYER_FLOOR, op->sub_layer);
+    z = floor != NULL ? floor->z : 0;
+    z_highest = 0;
+    sub_layer = 0;
+
+    FOR_MAP_LAYER_BEGIN(m, x, y, LAYER_FLOOR, -1, floor_tmp)
+    {
+        if (floor_tmp->z - z > MOVE_MAX_HEIGHT_DIFF) {
+            continue;
+        }
+
+        if (floor_tmp->z > z_highest) {
+            z_highest = floor_tmp->z;
+            sub_layer = floor_tmp->sub_layer;
+        }
+    }
+    FOR_MAP_LAYER_END
+
+    object_remove(op, 0);
+
+    for (tmp = op; tmp != NULL; tmp = tmp->more) {
+        tmp->x += freearr_x[dir];
+        tmp->y += freearr_y[dir];
+        tmp->sub_layer = sub_layer;
+    }
+
+    insert_ob_in_map(op, op->map, originator, 0);
+
+    return 1;
+}
+
+/**
  * Try to move object in specified direction.
  * @param op What to move.
  * @param dir Direction to move the object to.
@@ -57,9 +113,8 @@ int get_randomized_dir(int dir)
  * deadly trap or something). */
 int move_ob(object *op, int dir, object *originator)
 {
-    object *tmp, *floor, *floor_tmp;
     mapstruct *m;
-    int xt, yt, flags, z, z_highest, sub_layer;
+    int xt, yt, flags;
 
     if (op == NULL) {
         return 0;
@@ -115,34 +170,7 @@ int move_ob(object *op, int dir, object *originator)
         }
     }
 
-    floor = GET_MAP_OB_LAYER(op->map, op->x, op->y, LAYER_FLOOR, op->sub_layer);
-    z = floor != NULL ? floor->z : 0;
-    z_highest = 0;
-    sub_layer = 0;
-
-    FOR_MAP_LAYER_BEGIN(m, xt, yt, LAYER_FLOOR, -1, floor_tmp)
-    {
-        if (floor_tmp->z - z > MOVE_MAX_HEIGHT_DIFF && (op->type != PLAYER ||
-                !CONTR(op)->tcl)) {
-            return 0;
-        }
-
-        if (floor_tmp->z > z_highest) {
-            z_highest = floor_tmp->z;
-            sub_layer = floor_tmp->sub_layer;
-        }
-    }
-    FOR_MAP_LAYER_END
-
-    object_remove(op, 0);
-
-    for (tmp = op; tmp != NULL; tmp = tmp->more) {
-        tmp->x += freearr_x[dir];
-        tmp->y += freearr_y[dir];
-        tmp->sub_layer = sub_layer;
-    }
-
-    insert_ob_in_map(op, op->map, originator, 0);
+    object_move_to(op, dir, originator, m, xt, yt);
 
     if (op->type == PLAYER) {
         CONTR(op)->stat_steps_taken++;
