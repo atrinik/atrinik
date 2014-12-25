@@ -231,7 +231,7 @@ class InterfaceBuilder(Interface):
 
     @property
     def numtofinish(self):
-        return Language.int2english(self.num2finish())
+        return Language.int2english(self.num2finish)
 
     def finish(self, d, msg):
         self.locals = d
