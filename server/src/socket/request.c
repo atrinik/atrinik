@@ -931,7 +931,7 @@ void draw_client_map2(object *pl)
 
                     /* Double check that we can actually see this object. */
                     if (tmp != NULL && QUERY_FLAG(tmp, FLAG_HIDDEN) &&
-                            tmp->layer != LAYER_WALL) {
+                            (tmp->layer != LAYER_WALL || tmp->sub_layer != 0)) {
                         tmp = NULL;
                     }
 
