@@ -80,7 +80,7 @@
 #define NUM_LAYERS 7
 /**
  * Number of sub-layers. */
-#define NUM_SUB_LAYERS 5
+#define NUM_SUB_LAYERS 7
 /**
  * Effective number of all the visible layers. */
 #define NUM_REAL_LAYERS (NUM_LAYERS * NUM_SUB_LAYERS)
