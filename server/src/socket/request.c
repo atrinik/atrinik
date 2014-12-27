@@ -711,7 +711,9 @@ void draw_client_map2(object *pl)
 
             if (blocksview && (is_in_building || !(msp->extra_flags &
                     MSP_EXTRA_IS_BUILDING) || (msp->map_info != NULL &&
+                    (msp->extra_flags & MSP_EXTRA_IS_BUILDING) &&
                     msp_pl->map_info != NULL &&
+                    (msp_pl->extra_flags & MSP_EXTRA_IS_BUILDING) &&
                     msp->map_info->name != msp_pl->map_info->name))) {
                 map_if_clearcell();
                 continue;
