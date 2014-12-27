@@ -194,8 +194,8 @@ enum {
 #define MAP2_FLAG_ANIMATION  4
 /** Tile's Z position. */
 #define MAP2_FLAG_HEIGHT     8
-/** Zoom. */
-#define MAP2_FLAG_ZOOM 16
+/** The object should be highlighted in red. */
+#define MAP2_FLAG_INFRAVISION 16
 /** X align. */
 #define MAP2_FLAG_ALIGN 32
 /** Draw the object twice. */
@@ -213,8 +213,8 @@ enum {
 #define MAP2_FLAG2_ALPHA 1
 /** Custom rotate value in degrees. */
 #define MAP2_FLAG2_ROTATE 2
-/** The object should be highlighted in red. */
-#define MAP2_FLAG2_INFRAVISION 4
+/** Zoom. */
+#define MAP2_FLAG2_ZOOM 4
 /** Possible target. */
 #define MAP2_FLAG2_TARGET 8
 /** Target's HP bar. */

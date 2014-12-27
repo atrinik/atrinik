@@ -747,15 +747,13 @@ void socket_command_map(uint8 *data, size_t len, size_t pos)
                     height = packet_to_sint16(data, len, &pos);
                 }
 
-                /* Zoom? */
-                if (flags & MAP2_FLAG_ZOOM) {
-                    zoom_x = packet_to_uint16(data, len, &pos);
-                    zoom_y = packet_to_uint16(data, len, &pos);
-                }
-
                 /* Align? */
                 if (flags & MAP2_FLAG_ALIGN) {
                     align = packet_to_sint16(data, len, &pos);
+                }
+
+                if (flags & MAP2_FLAG_INFRAVISION) {
+                    infravision = 1;
                 }
 
                 /* Double? */
@@ -776,8 +774,10 @@ void socket_command_map(uint8 *data, size_t len, size_t pos)
                         rotate = packet_to_sint16(data, len, &pos);
                     }
 
-                    if (flags2 & MAP2_FLAG2_INFRAVISION) {
-                        infravision = 1;
+                    /* Zoom? */
+                    if (flags2 & MAP2_FLAG2_ZOOM) {
+                        zoom_x = packet_to_uint16(data, len, &pos);
+                        zoom_y = packet_to_uint16(data, len, &pos);
                     }
 
                     if (flags2 & MAP2_FLAG2_TARGET) {

@@ -1104,19 +1104,6 @@ void draw_client_map2(object *pl)
                         }
 
                         mp->darkness[sub_layer] = dark[sub_layer];
-
-                        /* Darkness on this tile has changed, so force a rebuild
-                         * of the extended flags for each layer on this sub-
-                         * layer. This is done mostly to prevent issues with
-                         * cached infravision flag. In other words, if we don't
-                         * do this, the infravision flag will not be set/cleared
-                         * when it needs to be, because 'flags' will stay the
-                         * same, and the infravision flag is set in the extended
-                         * flags, which are not cached. */
-                        for (d = LAYER_FLOOR; d <= NUM_LAYERS; d++) {
-                            mp->flags[NUM_LAYERS * sub_layer + d - 1] &=
-                                    ~MAP2_FLAG_MORE;
-                        }
                     }
 
                     if (tmp == NULL && layer == LAYER_FLOOR && sub_layer != 0) {
@@ -1204,11 +1191,8 @@ void draw_client_map2(object *pl)
                             flags |= MAP2_FLAG_HEIGHT;
                         }
 
-                        /* Check if the object has zoom, or check if the magic
-                         * mirror
-                         * should affect the zoom value of this layer. */
-                        if ((head->zoom_x && head->zoom_x != 100) || (head->zoom_y && head->zoom_y != 100) || (mirror && mirror->last_heal && mirror->last_heal != 100 && mirror->path_attuned & (1U << (layer - 1)))) {
-                            flags |= MAP2_FLAG_ZOOM;
+                        if (QUERY_FLAG(pl, FLAG_SEE_IN_DARK) && ((head->layer == LAYER_LIVING && dark[sub_layer] < 150) || (head->type == CONTAINER && (head->sub_type & 1) == ST1_CONTAINER_CORPSE && QUERY_FLAG(head, FLAG_IS_USED_UP) && (float) head->stats.food / head->last_eat >= CORPSE_INFRAVISION_PERCENT / 100.0))) {
+                            flags |= MAP2_FLAG_INFRAVISION;
                         }
 
                         if (head->align || (mirror && mirror->align)) {
@@ -1229,8 +1213,11 @@ void draw_client_map2(object *pl)
                             flags2 |= MAP2_FLAG2_ROTATE;
                         }
 
-                        if (QUERY_FLAG(pl, FLAG_SEE_IN_DARK) && ((head->layer == LAYER_LIVING && dark[sub_layer] < 150) || (head->type == CONTAINER && (head->sub_type & 1) == ST1_CONTAINER_CORPSE && QUERY_FLAG(head, FLAG_IS_USED_UP) && (float) head->stats.food / head->last_eat >= CORPSE_INFRAVISION_PERCENT / 100.0))) {
-                            flags2 |= MAP2_FLAG2_INFRAVISION;
+                        /* Check if the object has zoom, or check if the magic
+                         * mirror
+                         * should affect the zoom value of this layer. */
+                        if ((head->zoom_x && head->zoom_x != 100) || (head->zoom_y && head->zoom_y != 100) || (mirror && mirror->last_heal && mirror->last_heal != 100 && mirror->path_attuned & (1U << (layer - 1)))) {
+                            flags2 |= MAP2_FLAG2_ZOOM;
                         }
 
                         if (head != pl && layer == LAYER_LIVING && IS_LIVE(head)) {
@@ -1351,18 +1338,6 @@ void draw_client_map2(object *pl)
                             packet_append_sint16(packet_layer, z);
                         }
 
-                        if (flags & MAP2_FLAG_ZOOM) {
-                            /* First check mirror, even if the object *does*
-                             * have custom zoom. */
-                            if (mirror && mirror->last_heal) {
-                                packet_append_uint16(packet_layer, mirror->last_heal);
-                                packet_append_uint16(packet_layer, mirror->last_heal);
-                            } else {
-                                packet_append_uint16(packet_layer, head->zoom_x);
-                                packet_append_uint16(packet_layer, head->zoom_y);
-                            }
-                        }
-
                         if (flags & MAP2_FLAG_ALIGN) {
                             if (mirror && mirror->align) {
                                 packet_append_sint16(packet_layer, head->align + mirror->align);
@@ -1380,6 +1355,18 @@ void draw_client_map2(object *pl)
 
                             if (flags2 & MAP2_FLAG2_ROTATE) {
                                 packet_append_sint16(packet_layer, head->rotate);
+                            }
+
+                            if (flags2 & MAP2_FLAG2_ZOOM) {
+                                /* First check mirror, even if the object *does*
+                                 * have custom zoom. */
+                                if (mirror && mirror->last_heal) {
+                                    packet_append_uint16(packet_layer, mirror->last_heal);
+                                    packet_append_uint16(packet_layer, mirror->last_heal);
+                                } else {
+                                    packet_append_uint16(packet_layer, head->zoom_x);
+                                    packet_append_uint16(packet_layer, head->zoom_y);
+                                }
                             }
 
                             if (flags2 & MAP2_FLAG2_TARGET) {
