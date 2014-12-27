@@ -1057,6 +1057,20 @@ void map_draw_map(void)
                 }
             }
 
+            for (sub_layer = NUM_SUB_LAYERS - 1; sub_layer >= 1; sub_layer--) {
+                cell = MAP_CELL_GET_MIDDLE(x, y);
+
+                if (cell->height[GET_MAP_LAYER(LAYER_EFFECT, sub_layer)] <
+                        cell->height[GET_MAP_LAYER(LAYER_FLOOR,
+                        MapData.player_sub_layer)]) {
+                    continue;
+                }
+
+                draw_map_object(x, y, LAYER_EFFECT, sub_layer,
+                        player_height_offset, &target_cell, &target_layer,
+                        &target_rect, &tiles, &tiles_num);
+            }
+
             for (layer = LAYER_FLOOR; layer <= NUM_LAYERS; layer++) {
                 for (sub_layer = 0; sub_layer < NUM_SUB_LAYERS; sub_layer++) {
                     /* Skip objects on the effect layer with non-zero sub-layer
@@ -1071,20 +1085,6 @@ void map_draw_map(void)
                             player_height_offset, &target_cell, &target_layer,
                             &target_rect, &tiles, &tiles_num);
                 }
-            }
-
-            for (sub_layer = NUM_SUB_LAYERS - 1; sub_layer >= 1; sub_layer--) {
-                cell = MAP_CELL_GET_MIDDLE(x, y);
-
-                if (cell->height[GET_MAP_LAYER(LAYER_EFFECT, sub_layer)] <
-                        cell->height[GET_MAP_LAYER(LAYER_FLOOR,
-                        MapData.player_sub_layer)]) {
-                    continue;
-                }
-
-                draw_map_object(x, y, LAYER_EFFECT, sub_layer,
-                        player_height_offset, &target_cell, &target_layer,
-                        &target_rect, &tiles, &tiles_num);
             }
         }
     }
