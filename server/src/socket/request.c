@@ -864,7 +864,9 @@ void draw_client_map2(object *pl)
                                     ((msp_tmp->extra_flags &
                                     (MSP_EXTRA_IS_BUILDING |
                                     MSP_EXTRA_IS_BALCONY)) ||
-                                    QUERY_FLAG(tmp, FLAG_HIDDEN))) {
+                                    QUERY_FLAG(tmp, FLAG_HIDDEN)) &&
+                                    !(msp->extra_flags &
+                                    MSP_EXTRA_IS_OVERLOOK)) {
                                 tmp = NULL;
                             }
 
@@ -1058,7 +1060,8 @@ void draw_client_map2(object *pl)
                             layer == LAYER_EFFECT && sub_layer != 0 &&
                             !QUERY_FLAG(tmp, FLAG_HIDDEN) &&
                             !(GET_MAP_SPACE_PTR(tmp->map, tmp->x,
-                            tmp->y)->extra_flags & MSP_EXTRA_IS_BALCONY)) {
+                            tmp->y)->extra_flags & MSP_EXTRA_IS_BALCONY) &&
+                            !(msp->extra_flags & MSP_EXTRA_IS_OVERLOOK)) {
                         tmp = NULL;
                     }
 
