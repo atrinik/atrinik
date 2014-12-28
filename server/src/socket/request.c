@@ -770,8 +770,9 @@ void draw_client_map2(object *pl)
                     OBJECT_VALID(msp_pl->map_info, msp_pl->map_info_count) &&
                     OBJECT_VALID(msp->map_info, msp->map_info_count) &&
                     msp_pl->extra_flags & MSP_EXTRA_IS_BUILDING &&
-                    msp->extra_flags & MSP_EXTRA_IS_BUILDING &&
-                    (!(msp_pl->extra_flags & MSP_EXTRA_IS_BALCONY) ||
+                    msp->extra_flags & (MSP_EXTRA_IS_BUILDING |
+                    MSP_EXTRA_IS_BALCONY) && (!(msp_pl->extra_flags &
+                    MSP_EXTRA_IS_BALCONY) ||
                     msp_pl->map_info == msp->map_info))) {
                 draw_up = 0;
             }
@@ -860,7 +861,8 @@ void draw_client_map2(object *pl)
                                     !(msp->extra_flags &
                                     MSP_EXTRA_IS_BALCONY)) &&
                                     ((msp_tmp->extra_flags &
-                                    MSP_EXTRA_IS_BUILDING) ||
+                                    (MSP_EXTRA_IS_BUILDING |
+                                    MSP_EXTRA_IS_BALCONY)) ||
                                     QUERY_FLAG(tmp, FLAG_HIDDEN))) {
                                 tmp = NULL;
                             }
@@ -899,7 +901,9 @@ void draw_client_map2(object *pl)
                                     tmp->sub_layer != 0)) {
                                 tiled_z = 1;
 
-                                if (msp_tmp->extra_flags &
+                                if ((msp_tmp->extra_flags &
+                                        (MSP_EXTRA_IS_BUILDING |
+                                        MSP_EXTRA_IS_BALCONY)) ==
                                         MSP_EXTRA_IS_BALCONY) {
                                     priority = 1;
                                 }
@@ -1032,8 +1036,17 @@ void draw_client_map2(object *pl)
 
                     if (tmp != NULL && blocksview && tmp->map == m &&
                             (layer != LAYER_FLOOR || !is_building_wall) &&
-                            (layer != LAYER_WALL || !is_building_wall) &&
-                            (layer != LAYER_EFFECT || sub_layer == 0)) {
+                            ((layer != LAYER_WALL && tmp->type != WALL) ||
+                            !is_building_wall) && (layer != LAYER_EFFECT ||
+                            sub_layer == 0)) {
+                        tmp = NULL;
+                    }
+
+                    if (tmp != NULL && ((tiled_depth > 0 && is_in_building) ||
+                            blocksview) && !QUERY_FLAG(tmp, FLAG_HIDDEN) &&
+                            !(GET_MAP_SPACE_PTR(tmp->map, tmp->x,
+                            tmp->y)->extra_flags & (MSP_EXTRA_IS_BUILDING |
+                            MSP_EXTRA_IS_BALCONY))) {
                         tmp = NULL;
                     }
 
@@ -1080,7 +1093,8 @@ void draw_client_map2(object *pl)
                                 (MSP_EXTRA_IS_BUILDING |
                                 MSP_EXTRA_IS_BALCONY)) ==
                                 MSP_EXTRA_IS_BUILDING) {
-                            if (is_building_wall) {
+                            if (is_building_wall && GET_MAP_SPACE_PTR(tmp->map,
+                                tmp->x, tmp->y)->map_info->item_power != -2) {
                                 d = MAX(world_darkness,
                                         MAP_BUILDING_DARKNESS_WALL);
                             } else {

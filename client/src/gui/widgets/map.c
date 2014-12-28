@@ -1057,8 +1057,46 @@ void map_draw_map(void)
                 }
             }
 
+            for (sub_layer = 0; sub_layer < NUM_SUB_LAYERS; sub_layer++) {
+                if (cell->height[GET_MAP_LAYER(LAYER_FLOOR, sub_layer)] >=
+                        cell->height[GET_MAP_LAYER(LAYER_FLOOR,
+                        MapData.player_sub_layer)]) {
+                    continue;
+                }
+
+                for (layer = LAYER_FLOOR; layer <= NUM_LAYERS; layer++) {
+                    if (!(cell->priority[sub_layer] & (1 << (layer - 1)))) {
+                        continue;
+                    }
+
+                    if (layer == LAYER_EFFECT && sub_layer != 0) {
+                        if (cell->height[GET_MAP_LAYER(LAYER_EFFECT,
+                                sub_layer)] >= cell->height[GET_MAP_LAYER(
+                                LAYER_FLOOR, MapData.player_sub_layer)]) {
+                            continue;
+                        }
+                    }
+
+                    draw_map_object(x, y, layer, sub_layer,
+                            player_height_offset, &target_cell, &target_layer,
+                            &target_rect, &tiles, &tiles_num);
+                }
+            }
+
+            for (layer = LAYER_FLOOR; layer <= NUM_LAYERS; layer++) {
+                if (!(cell->priority[0] & (1 << (layer - 1)))) {
+                    continue;
+                }
+
+                draw_map_object(x, y, layer, 0,
+                        player_height_offset, &target_cell, &target_layer,
+                        &target_rect, &tiles, &tiles_num);
+            }
+
             for (sub_layer = NUM_SUB_LAYERS - 1; sub_layer >= 1; sub_layer--) {
-                cell = MAP_CELL_GET_MIDDLE(x, y);
+                if (cell->priority[sub_layer] & (1 << (LAYER_EFFECT - 1))) {
+                    continue;
+                }
 
                 if (cell->height[GET_MAP_LAYER(LAYER_EFFECT, sub_layer)] <
                         cell->height[GET_MAP_LAYER(LAYER_FLOOR,
@@ -1071,14 +1109,25 @@ void map_draw_map(void)
                         &target_rect, &tiles, &tiles_num);
             }
 
-            for (layer = LAYER_FLOOR; layer <= NUM_LAYERS; layer++) {
-                for (sub_layer = 0; sub_layer < NUM_SUB_LAYERS; sub_layer++) {
-                    /* Skip objects on the effect layer with non-zero sub-layer
-                     * because they will be rendered later. */
-                    cell = MAP_CELL_GET_MIDDLE(x, y);
+            for (sub_layer = NUM_SUB_LAYERS - 1; sub_layer >= 1;
+                    sub_layer--) {
+                if (cell->height[GET_MAP_LAYER(LAYER_FLOOR, sub_layer)] <
+                        cell->height[GET_MAP_LAYER(LAYER_FLOOR,
+                        MapData.player_sub_layer)]) {
+                    continue;
+                }
 
+                for (layer = LAYER_FLOOR; layer <= NUM_LAYERS; layer++) {
                     if (!(cell->priority[sub_layer] & (1 << (layer - 1)))) {
                         continue;
+                    }
+
+                    if (layer == LAYER_EFFECT && sub_layer != 0) {
+                        if (cell->height[GET_MAP_LAYER(LAYER_EFFECT,
+                                sub_layer)] < cell->height[GET_MAP_LAYER(
+                                LAYER_FLOOR, MapData.player_sub_layer)]) {
+                            continue;
+                        }
                     }
 
                     draw_map_object(x, y, layer, sub_layer,
