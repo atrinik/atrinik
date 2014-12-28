@@ -710,7 +710,8 @@ void draw_client_map2(object *pl)
             blocksview = d & BLOCKED_LOS_BLOCKED;
 
             if (blocksview && (is_in_building || !(msp->extra_flags &
-                    MSP_EXTRA_IS_BUILDING) || (msp->map_info != NULL &&
+                    (MSP_EXTRA_IS_BUILDING | MSP_EXTRA_IS_BALCONY)) ||
+                    (msp->map_info != NULL &&
                     (msp->extra_flags & MSP_EXTRA_IS_BUILDING) &&
                     msp_pl->map_info != NULL &&
                     (msp_pl->extra_flags & MSP_EXTRA_IS_BUILDING) &&
@@ -1038,7 +1039,9 @@ void draw_client_map2(object *pl)
                             (layer != LAYER_FLOOR || !is_building_wall) &&
                             ((layer != LAYER_WALL && tmp->type != WALL) ||
                             !is_building_wall) && (layer != LAYER_EFFECT ||
-                            sub_layer == 0)) {
+                            sub_layer == 0) && !(GET_MAP_SPACE_PTR(tmp->map,
+                            tmp->x, tmp->y)->extra_flags &
+                            MSP_EXTRA_IS_BALCONY)) {
                         tmp = NULL;
                     }
 
