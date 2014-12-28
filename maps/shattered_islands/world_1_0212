@@ -2,7 +2,7 @@ arch map
 name Brynknot
 msg
 Created:  2011-10-02 Alex Tokar
-Modified: 2014-12-25 Alex Tokar
+Modified: 2014-12-28 Alex Tokar
 endmsg
 width 24
 height 24
@@ -254,7 +254,6 @@ hp 1
 sp 4
 name brynknot_church
 damned 1
-cursed 1
 x 22
 y 5
 end
