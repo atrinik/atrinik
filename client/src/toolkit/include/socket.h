@@ -137,6 +137,26 @@ enum {
  * If found in the command, will open the console with any text followed
  * by this. */
 #define CMD_INTERFACE_INPUT 4
+/**
+ * Hidden text to prepend to the final text input string, when sent to
+ * the NPC. */
+#define CMD_INTERFACE_INPUT_PREPEND 5
+/** Allow tabs to be entered. */
+#define CMD_INTERFACE_ALLOW_TAB 6
+/** Disable cleaning up text input. */
+#define CMD_INTERFACE_INPUT_CLEANUP_DISABLE 7
+/** Allow empty text input to be sent. */
+#define CMD_INTERFACE_INPUT_ALLOW_EMPTY 8
+/** Scroll to the bottom when the interface is created. */
+#define CMD_INTERFACE_SCROLL_BOTTOM 9
+/** Text to prefix for autocompletion of text. */
+#define CMD_INTERFACE_AUTOCOMPLETE 10
+/** Restore previous interface data. */
+#define CMD_INTERFACE_RESTORE 11
+/** Text to append to the existing text. */
+#define CMD_INTERFACE_APPEND_TEXT 12
+/** Animation; animated image in the upper left corner square. */
+#define CMD_INTERFACE_ANIM 13
 /*@}*/
 
 /**
