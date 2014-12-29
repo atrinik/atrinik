@@ -1048,7 +1048,11 @@ void draw_client_map2(object *pl)
                     }
 
                     if (tmp != NULL && ((tiled_depth > 0 && is_in_building) ||
-                            blocksview) && !QUERY_FLAG(tmp, FLAG_HIDDEN) &&
+                            blocksview || (tiled_depth < 0 && GET_MAP_SPACE_PTR(
+                            tmp->map, tmp->x, tmp->y)->map_info != NULL &&
+                            QUERY_FLAG(GET_MAP_SPACE_PTR(tmp->map, tmp->x,
+                            tmp->y)->map_info, FLAG_CURSED))) &&
+                            !QUERY_FLAG(tmp, FLAG_HIDDEN) &&
                             !(GET_MAP_SPACE_PTR(tmp->map, tmp->x,
                             tmp->y)->extra_flags & (MSP_EXTRA_IS_BUILDING |
                             MSP_EXTRA_IS_BALCONY))) {
