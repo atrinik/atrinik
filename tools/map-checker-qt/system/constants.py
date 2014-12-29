@@ -382,4 +382,5 @@ class game:
             "notification_action": STRING,
             "notification_shortcut": STRING,
             "notification_delay": INTEGER,
+            "match": STRING,
         }
