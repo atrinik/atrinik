@@ -1777,7 +1777,7 @@ x 13
 y 9
 end
 arch shelf3.111
-direction 5
+direction 7
 x 13
 y 9
 end
@@ -1828,7 +1828,7 @@ x 13
 y 15
 end
 arch shelf3b.111
-direction 5
+direction 7
 x 13
 y 15
 end

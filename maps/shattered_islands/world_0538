@@ -2737,7 +2737,7 @@ x 15
 y 20
 end
 arch shelf3_wall.111
-direction 5
+direction 7
 x 15
 y 20
 end
@@ -2757,7 +2757,7 @@ x 15
 y 22
 end
 arch shelf3_wall.111
-direction 5
+direction 7
 x 15
 y 22
 end

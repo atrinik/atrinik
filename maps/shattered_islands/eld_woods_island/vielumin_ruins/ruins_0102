@@ -1599,7 +1599,7 @@ x 10
 y 20
 end
 arch shelf3_dem3.111
-direction 4
+direction 7
 x 10
 y 20
 end
@@ -2523,7 +2523,7 @@ x 16
 y 13
 end
 arch shelf3_dem3.111
-direction 6
+direction 7
 x 16
 y 13
 end
@@ -2584,7 +2584,7 @@ x 16
 y 21
 end
 arch shelf3_dem2.111
-direction 4
+direction 7
 x 16
 y 21
 end
