@@ -1451,9 +1451,10 @@ int talk_to_npc(object *op, object *npc, char *txt)
             packet_append_data_len(packet, (uint8 *) cp, cp_len);
             packet_append_uint8(packet, '\0');
 
-            packet_append_uint8(packet, CMD_INTERFACE_ICON);
-            packet_append_data_len(packet, (uint8 *) npc->face->name, strlen(npc->face->name) - 1);
-            packet_append_string_terminated(packet, "1");
+            packet_append_uint8(packet, CMD_INTERFACE_ANIM);
+            packet_append_uint16(packet, npc->animation_id);
+            packet_append_uint8(packet, npc->anim_speed);
+            packet_append_uint8(packet, npc->direction);
 
             packet_append_uint8(packet, CMD_INTERFACE_TITLE);
             packet_append_string_terminated(packet, npc->name);
