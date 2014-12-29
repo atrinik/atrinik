@@ -18,6 +18,7 @@ tile_path_7 world_0815
 tile_path_8 world_0817
 bg_music jungle1.ogg
 region strakewood_island
+tile_path_9 world_1_0916
 end
 arch grassd_7
 z 50
