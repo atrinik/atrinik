@@ -55,7 +55,7 @@ class game:
     # Highest layer value any archetype can have.
     max_layers = 7
     # Number of sub-layers.
-    num_sub_layers = 5
+    num_sub_layers = 7
     num_tiled = 10
     num_tiled_dir = 8
     tiled_up = 8
