@@ -858,6 +858,7 @@ void draw_client_map2(object *pl)
                             force_draw_double = 1;
 
                             if (tmp != NULL && layer == LAYER_WALL &&
+                                    (tmp->type == WALL || tmp->type == DOOR) &&
                                     tmp->sub_layer == 0 && (tmp->map != m ||
                                     !(msp->extra_flags &
                                     MSP_EXTRA_IS_BALCONY)) &&
@@ -904,13 +905,6 @@ void draw_client_map2(object *pl)
                                     tmp->sub_layer != 0)) {
                                 tiled_z = 1;
 
-                                if ((msp_tmp->extra_flags &
-                                        (MSP_EXTRA_IS_BUILDING |
-                                        MSP_EXTRA_IS_BALCONY)) ==
-                                        MSP_EXTRA_IS_BALCONY) {
-                                    priority = 1;
-                                }
-
                                 if (layer != LAYER_FLOOR) {
                                     if (tiled_dir == TILED_UP &&
                                             (floor_z_up & (1 << sub_layer))) {
@@ -924,6 +918,13 @@ void draw_client_map2(object *pl)
                                         tiled_z = 0;
                                     }
                                 }
+                            }
+
+                            if (tmp != NULL && (msp_tmp->extra_flags &
+                                    (MSP_EXTRA_IS_BUILDING |
+                                    MSP_EXTRA_IS_BALCONY)) ==
+                                    MSP_EXTRA_IS_BALCONY) {
+                                priority = 1;
                             }
                         }
                     }
@@ -1070,7 +1071,8 @@ void draw_client_map2(object *pl)
                     }
 
                     if (tmp != NULL && layer != LAYER_EFFECT &&
-                            sub_layer != 0 && !is_building_wall &&
+                            sub_layer != 0 && tmp->type != WALL &&
+                            tmp->type != DOOR && tmp->type != FLOOR &&
                             tmp->map != m && (GET_MAP_SPACE_PTR(tmp->map,
                             tmp->x, tmp->y)->extra_flags &
                             (MSP_EXTRA_IS_BUILDING | MSP_EXTRA_IS_BALCONY)) ==
