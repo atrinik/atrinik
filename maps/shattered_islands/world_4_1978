@@ -6,7 +6,6 @@ endmsg
 width 24
 height 24
 difficulty 1
-region world
 outdoor 1
 tile_path_1 world_4_1979
 tile_path_3 world_4_1977
