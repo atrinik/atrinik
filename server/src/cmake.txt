@@ -10,6 +10,7 @@ set(SOURCES
 	src/commands/permission/opsay.c
 	src/commands/permission/password.c
 	src/commands/permission/resetmap.c
+	src/commands/permission/resetmaps.c
 	src/commands/permission/server_chat.c
 	src/commands/permission/settime.c
 	src/commands/permission/shutdown.c

@@ -173,6 +173,7 @@ void toolkit_commands_init(void)
         commands_add(COMMAND(opsay), 0.0, COMMAND_PERMISSION);
         commands_add(COMMAND(password), 0.0, COMMAND_PERMISSION);
         commands_add(COMMAND(resetmap), 0.0, COMMAND_PERMISSION);
+        commands_add(COMMAND(resetmaps), 0.0, COMMAND_PERMISSION);
         commands_add(COMMAND(server_chat), 0.0, COMMAND_PERMISSION);
         commands_add(COMMAND(settime), 0.0, COMMAND_PERMISSION);
         commands_add(COMMAND(shutdown), 0.0, COMMAND_PERMISSION);

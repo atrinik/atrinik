@@ -21,6 +21,8 @@ extern void command_opsay(object *op, const char *command, char *params);
 extern void command_password(object *op, const char *command, char *params);
 /* src/commands/permission/resetmap.c */
 extern void command_resetmap(object *op, const char *command, char *params);
+/* src/commands/permission/resetmaps.c */
+extern void command_resetmaps(object *op, const char *command, char *params);
 /* src/commands/permission/server_chat.c */
 extern void command_server_chat(object *op, const char *command, char *params);
 /* src/commands/permission/settime.c */
