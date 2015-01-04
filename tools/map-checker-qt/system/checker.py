@@ -599,7 +599,10 @@ class CheckerMap(AbstractChecker):
                 self.addError("high", "Region <b>{}</b> is not a valid region.".format(region), "Make sure the region name is spelled correctly, or add it to the regions.reg file.")
 
             if obj.isWorldMap():
-                self.addError("warning", "Empty world map has a region.", "Empty world maps typically shouldn't have a region set.")
+                if self.fix:
+                    obj.removeAttribute("region")
+
+                self.addError("warning", "Empty world map has a region.", "Empty world maps typically shouldn't have a region set.", fixed = self.fix)
         else:
             if not obj.isWorldMap() and self.config.getboolean("Errors", "map_no_region"):
                 self.addError("medium", "Region is missing.", "Typically, every map (except empty world maps) should have a region set.")
