@@ -1,0 +1,4784 @@
+arch map
+name Wizards' Tower: Daffodil
+msg
+Created:  2014-12-27 Alex Tokar
+Modified: 2015-01-04 Alex Tokar
+endmsg
+width 24
+height 24
+difficulty 60
+darkness -1
+outdoor 1
+tile_path_1 world_2_1879
+tile_path_2 world_2_1978
+tile_path_3 world_2_1877
+tile_path_4 world_2_1778
+tile_path_5 world_2_1979
+tile_path_6 world_2_1977
+tile_path_7 world_2_1777
+tile_path_8 world_2_1779
+tile_path_9 world_3_1878
+tile_path_10 world_1_1878
+bg_music campfire_tales.mid
+region lyondale_archipelago_wizard
+end
+arch trans
+y 2
+end
+arch fwall_fstone2c
+y 2
+end
+arch map_info
+name la_wizards_tower
+sp 19
+cursed 1
+y 2
+end
+arch floor_bw1
+y 3
+end
+arch wall_fstone_round.104
+y 3
+end
+arch floor_bw1
+y 4
+end
+arch wall_flagstone1_w2.131
+z 9
+align -18
+y 4
+end
+arch floor_bw1
+y 5
+end
+arch wall_flagstone1_w2.131
+z 9
+align -18
+y 5
+end
+arch floor_bw1
+y 6
+end
+arch wall_fstone_round.102
+y 6
+end
+arch floor_bw1
+y 7
+end
+arch fwall_fstone2
+y 7
+end
+arch floor_bw1
+y 8
+end
+arch fwall_fstone2
+y 8
+end
+arch floor_bw1
+y 9
+end
+arch wall_fstone_round.104
+y 9
+end
+arch floor_bw1
+y 10
+end
+arch wall_flagstone1_w2.131
+z 9
+align -18
+y 10
+end
+arch floor_bw1
+y 11
+end
+arch wall_flagstone1_w2.131
+z 9
+align -18
+y 11
+end
+arch floor_bw1
+y 12
+end
+arch wall_flagstone1_w2.131
+z 9
+align -18
+y 12
+end
+arch floor_bw1
+y 13
+end
+arch wall_flagstone1_w2.131
+z 9
+align -18
+y 13
+end
+arch floor_bw1
+y 14
+end
+arch wall_fstone_round.102
+y 14
+end
+arch floor_bw1
+y 15
+end
+arch fwall_fstone2
+y 15
+end
+arch floor_bw1
+y 16
+end
+arch fwall_fstone2
+y 16
+end
+arch floor_bw1
+y 17
+end
+arch wall_fstone_round.104
+y 17
+end
+arch floor_bw1
+y 18
+end
+arch wall_flagstone1_w2.131
+z 9
+align -18
+y 18
+end
+arch floor_bw1
+y 19
+end
+arch wall_flagstone1_w2.131
+z 9
+align -18
+y 19
+end
+arch floor_bw1
+y 20
+end
+arch wall_fstone_round.102
+y 20
+end
+arch trans
+y 21
+end
+arch fwall_fstone2b
+y 21
+end
+arch trans
+x 1
+y 1
+end
+arch fwall_fstone2c
+x 1
+y 1
+end
+arch map_info
+name la_wizards_tower
+hp 21
+sp 21
+cursed 1
+x 1
+y 1
+end
+arch floor_bw1
+x 1
+y 2
+end
+arch fwall_fstone2d
+x 1
+y 2
+end
+arch floor_bw1
+x 1
+y 3
+end
+arch floor_bw1
+x 1
+y 4
+end
+arch bench2.111
+direction 7
+x 1
+y 4
+end
+arch floor_bw1
+x 1
+y 5
+end
+arch candlelight4.101
+x 1
+y 5
+end
+arch floor_bw1
+x 1
+y 6
+end
+arch floor_bw1
+x 1
+y 7
+end
+arch fwall_fstone2
+x 1
+y 7
+end
+arch floor_bw1
+x 1
+y 8
+end
+arch shelf2.111
+x 1
+y 8
+end
+arch floor_bw1
+x 1
+y 9
+end
+arch table_stone_c
+direction 7
+x 1
+y 9
+end
+arch blackroot
+z 24
+sub_layer 1
+x 1
+y 9
+end
+arch floor_bw1
+x 1
+y 10
+end
+arch table_stone_b
+direction 7
+x 1
+y 10
+end
+arch graphite
+z 24
+sub_layer 1
+x 1
+y 10
+end
+arch floor_bw1
+x 1
+y 11
+end
+arch table_stone_b
+direction 7
+x 1
+y 11
+end
+arch true_lead
+z 24
+sub_layer 1
+x 1
+y 11
+end
+arch floor_bw1
+x 1
+y 12
+end
+arch table_stone_b
+direction 7
+x 1
+y 12
+end
+arch uf6
+z 24
+sub_layer 1
+x 1
+y 12
+end
+arch floor_bw1
+x 1
+y 13
+end
+arch table_stone_b
+direction 7
+x 1
+y 13
+end
+arch phosphorus
+z 24
+sub_layer 1
+x 1
+y 13
+end
+arch floor_bw1
+x 1
+y 14
+end
+arch table_stone_a
+direction 7
+x 1
+y 14
+end
+arch crystal_light
+z 24
+sub_layer 1
+x 1
+y 14
+end
+arch floor_bw1
+x 1
+y 15
+end
+arch floor_bw1
+x 1
+y 16
+end
+arch fwall_fstone2
+x 1
+y 16
+end
+arch floor_bw1
+x 1
+y 17
+end
+arch shelf3a.111
+x 1
+y 17
+arch random_treasure
+no_pick 1
+randomitems random_read
+end
+end
+arch floor_bw1
+x 1
+y 18
+end
+arch candlelight4.101
+x 1
+y 18
+end
+arch floor_bw1
+x 1
+y 19
+end
+arch bench2.111
+direction 7
+x 1
+y 19
+end
+arch floor_bw1
+x 1
+y 20
+end
+arch floor_bw1
+x 1
+y 21
+end
+arch fwall_fstone2a
+x 1
+y 21
+end
+arch trans
+x 1
+y 22
+end
+arch fwall_fstone2b
+x 1
+y 22
+end
+arch trans
+x 2
+end
+arch fwall_fstone2c
+x 2
+end
+arch map_info
+name la_wizards_tower
+hp 19
+cursed 1
+x 2
+end
+arch floor_bw1
+x 2
+y 1
+end
+arch fwall_fstone2d
+x 2
+y 1
+end
+arch floor_bw1
+x 2
+y 2
+end
+arch carpet7.142
+x 2
+y 2
+end
+arch floor_bw1
+x 2
+y 3
+end
+arch carpet7.131
+x 2
+y 3
+end
+arch floor_bw1
+x 2
+y 4
+end
+arch carpet7.131
+x 2
+y 4
+end
+arch floor_bw1
+x 2
+y 5
+end
+arch carpet7.131
+x 2
+y 5
+end
+arch floor_bw1
+x 2
+y 6
+end
+arch carpet7.131
+x 2
+y 6
+end
+arch floor_bw1
+x 2
+y 7
+end
+arch carpet7.131
+x 2
+y 7
+end
+arch wall_fstone_round.102
+x 2
+y 7
+end
+arch floor_bw1
+x 2
+y 8
+end
+arch carpet7.131
+x 2
+y 8
+end
+arch shelf1.111
+x 2
+y 8
+end
+arch floor_bw1
+x 2
+y 9
+end
+arch carpet7.131
+x 2
+y 9
+end
+arch table_stone_c
+direction 7
+x 2
+y 9
+end
+arch pulp_yew
+z 22
+sub_layer 1
+x 2
+y 9
+end
+arch floor_bw1
+x 2
+y 10
+end
+arch carpet7.131
+x 2
+y 10
+end
+arch table_stone_b
+direction 7
+x 2
+y 10
+end
+arch oil_mineral
+z 24
+sub_layer 1
+x 2
+y 10
+end
+arch floor_bw1
+x 2
+y 11
+end
+arch carpet7.131
+x 2
+y 11
+end
+arch table_stone_b
+direction 7
+x 2
+y 11
+end
+arch eye_newt
+z 24
+sub_layer 1
+x 2
+y 11
+end
+arch floor_bw1
+x 2
+y 12
+end
+arch carpet7.131
+x 2
+y 12
+end
+arch table_stone_b
+direction 7
+x 2
+y 12
+end
+arch uraniumoxide
+z 24
+sub_layer 1
+x 2
+y 12
+end
+arch floor_bw1
+x 2
+y 13
+end
+arch carpet7.131
+x 2
+y 13
+end
+arch table_stone_b
+direction 7
+x 2
+y 13
+end
+arch root_mandrake
+z 24
+sub_layer 1
+x 2
+y 13
+end
+arch floor_bw1
+x 2
+y 14
+end
+arch carpet7.131
+x 2
+y 14
+end
+arch table_stone_a
+direction 7
+x 2
+y 14
+end
+arch rod_heavy
+z 24
+sub_layer 1
+x 2
+y 14
+end
+arch floor_bw1
+x 2
+y 15
+end
+arch carpet7.131
+x 2
+y 15
+end
+arch floor_bw1
+x 2
+y 16
+end
+arch carpet7.131
+x 2
+y 16
+end
+arch wall_fstone_round.104
+x 2
+y 16
+end
+arch floor_bw1
+x 2
+y 17
+end
+arch carpet7.131
+x 2
+y 17
+end
+arch floor_bw1
+x 2
+y 18
+end
+arch carpet7.131
+x 2
+y 18
+end
+arch floor_bw1
+x 2
+y 19
+end
+arch carpet7.131
+x 2
+y 19
+end
+arch floor_bw1
+x 2
+y 20
+end
+arch carpet7.131
+x 2
+y 20
+end
+arch floor_bw1
+x 2
+y 21
+end
+arch carpet7.122
+x 2
+y 21
+end
+arch floor_bw1
+x 2
+y 22
+end
+arch fwall_fstone2a
+x 2
+y 22
+end
+arch trans
+x 2
+y 23
+end
+arch fwall_fstone2b
+x 2
+y 23
+end
+arch map_info
+name la_wizards_tower
+hp 19
+cursed 1
+x 2
+y 23
+end
+arch floor_bw1
+x 3
+end
+arch wall_fstone_round.104
+x 3
+end
+arch floor_bw1
+x 3
+y 1
+end
+arch floor_bw1
+x 3
+y 2
+end
+arch carpet7.151
+x 3
+y 2
+end
+arch floor_bw1
+x 3
+y 3
+end
+arch carpet7i
+x 3
+y 3
+end
+arch exit_green
+slaying world_1878
+hp 6
+sp 6
+zoom 70
+align 7
+animation portal_yellow
+x 3
+y 3
+end
+arch floor_bw1
+x 3
+y 4
+end
+arch carpet7e
+x 3
+y 4
+end
+arch light5
+x 3
+y 4
+end
+arch floor_bw1
+x 3
+y 5
+end
+arch carpet7e
+x 3
+y 5
+end
+arch floor_bw1
+x 3
+y 6
+end
+arch carpet7e
+x 3
+y 6
+end
+arch floor_bw1
+x 3
+y 7
+end
+arch carpet7e
+x 3
+y 7
+end
+arch floor_bw1
+x 3
+y 8
+end
+arch carpet7e
+x 3
+y 8
+end
+arch floor_bw1
+x 3
+y 9
+end
+arch carpet7e
+x 3
+y 9
+end
+arch light5
+x 3
+y 9
+end
+arch floor_bw1
+x 3
+y 10
+end
+arch carpet7e
+x 3
+y 10
+end
+arch light5
+x 3
+y 10
+end
+arch floor_bw1
+x 3
+y 11
+end
+arch carpet7e
+x 3
+y 11
+end
+arch floor_bw1
+x 3
+y 12
+end
+arch carpet7e
+x 3
+y 12
+end
+arch floor_bw1
+x 3
+y 13
+end
+arch carpet7e
+x 3
+y 13
+end
+arch light5
+x 3
+y 13
+end
+arch floor_bw1
+x 3
+y 14
+end
+arch carpet7e
+x 3
+y 14
+end
+arch light5
+x 3
+y 14
+end
+arch floor_bw1
+x 3
+y 15
+end
+arch carpet7e
+x 3
+y 15
+end
+arch floor_bw1
+x 3
+y 16
+end
+arch carpet7e
+x 3
+y 16
+end
+arch floor_bw1
+x 3
+y 17
+end
+arch carpet7e
+x 3
+y 17
+end
+arch floor_bw1
+x 3
+y 18
+end
+arch carpet7e
+x 3
+y 18
+end
+arch floor_bw1
+x 3
+y 19
+end
+arch carpet7e
+x 3
+y 19
+end
+arch light5
+x 3
+y 19
+end
+arch floor_bw1
+x 3
+y 20
+end
+arch carpet7j
+x 3
+y 20
+end
+arch exit_green
+slaying world_5_1878
+hp 4
+sp 19
+zoom 70
+align 7
+animation portal_big
+x 3
+y 20
+end
+arch floor_bw1
+x 3
+y 21
+end
+arch carpet7.111
+x 3
+y 21
+end
+arch floor_bw1
+x 3
+y 22
+end
+arch floor_bw1
+x 3
+y 23
+end
+arch wall_fstone_round.102
+x 3
+y 23
+end
+arch floor_bw1
+x 4
+end
+arch wall_flagstone1_w2.111
+z 9
+align 18
+x 4
+end
+arch floor_bw1
+x 4
+y 1
+end
+arch bench2.111
+x 4
+y 1
+end
+arch floor_bw1
+x 4
+y 2
+end
+arch carpet7.151
+x 4
+y 2
+end
+arch floor_bw1
+x 4
+y 3
+end
+arch carpet7f
+x 4
+y 3
+end
+arch light5
+x 4
+y 3
+end
+arch floor_bw1
+x 4
+y 4
+end
+arch carpet7g
+x 4
+y 4
+end
+arch light5
+x 4
+y 4
+end
+arch floor_bw1
+x 4
+y 5
+end
+arch carpet7c
+x 4
+y 5
+end
+arch floor_bw1
+x 4
+y 6
+end
+arch carpet7c
+x 4
+y 6
+end
+arch floor_bw1
+x 4
+y 7
+end
+arch carpet7c
+x 4
+y 7
+end
+arch floor_bw1
+x 4
+y 8
+end
+arch carpet7c
+x 4
+y 8
+end
+arch floor_bw1
+x 4
+y 9
+end
+arch carpet7c
+x 4
+y 9
+end
+arch light5
+x 4
+y 9
+end
+arch floor_bw1
+x 4
+y 10
+end
+arch carpet7c
+x 4
+y 10
+end
+arch light5
+x 4
+y 10
+end
+arch floor_bw1
+x 4
+y 11
+end
+arch carpet7c
+x 4
+y 11
+end
+arch floor_bw1
+x 4
+y 12
+end
+arch carpet7c
+x 4
+y 12
+end
+arch floor_bw1
+x 4
+y 13
+end
+arch carpet7c
+x 4
+y 13
+end
+arch light5
+x 4
+y 13
+end
+arch floor_bw1
+x 4
+y 14
+end
+arch carpet7c
+x 4
+y 14
+end
+arch light5
+x 4
+y 14
+end
+arch floor_bw1
+x 4
+y 15
+end
+arch carpet7c
+x 4
+y 15
+end
+arch floor_bw1
+x 4
+y 16
+end
+arch carpet7c
+x 4
+y 16
+end
+arch floor_bw1
+x 4
+y 17
+end
+arch carpet7c
+x 4
+y 17
+end
+arch floor_bw1
+x 4
+y 18
+end
+arch carpet7c
+x 4
+y 18
+end
+arch floor_bw1
+x 4
+y 19
+end
+arch carpet7g
+x 4
+y 19
+end
+arch light5
+x 4
+y 19
+end
+arch floor_bw1
+x 4
+y 20
+end
+arch carpet7d
+x 4
+y 20
+end
+arch light5
+x 4
+y 20
+end
+arch floor_bw1
+x 4
+y 21
+end
+arch carpet7.111
+x 4
+y 21
+end
+arch floor_bw1
+x 4
+y 22
+end
+arch bench2.111
+direction 5
+x 4
+y 22
+end
+arch floor_bw1
+x 4
+y 23
+end
+arch wall_flagstone1_w2.111
+x 4
+y 23
+end
+arch floor_bw1
+x 5
+end
+arch wall_flagstone1_w2.111
+z 9
+align 18
+x 5
+end
+arch floor_bw1
+x 5
+y 1
+end
+arch candlelight4.101
+x 5
+y 1
+end
+arch floor_bw1
+x 5
+y 2
+end
+arch carpet7.151
+x 5
+y 2
+end
+arch floor_bw1
+x 5
+y 3
+end
+arch carpet7f
+x 5
+y 3
+end
+arch floor_bw1
+x 5
+y 4
+end
+arch carpet7d
+x 5
+y 4
+end
+arch floor_bw1
+x 5
+y 5
+end
+arch carpet7.181
+x 5
+y 5
+end
+arch floor_bw1
+x 5
+y 6
+end
+arch carpet7.171
+x 5
+y 6
+end
+arch floor_bw1
+x 5
+y 7
+end
+arch carpet7.171
+x 5
+y 7
+end
+arch wall_fstone_round.108
+x 5
+y 7
+end
+arch floor_bw1
+x 5
+y 8
+end
+arch carpet7.171
+x 5
+y 8
+end
+arch table_lab1.111
+x 5
+y 8
+end
+arch floor_bw1
+x 5
+y 9
+end
+arch carpet7.171
+x 5
+y 9
+end
+arch chair2_111
+direction 5
+x 5
+y 9
+end
+arch spawn_point
+x 5
+y 9
+arch mage_old
+name Dunowen
+direction 1
+level 30
+race thelra
+type 83
+arch event_obj
+sub_type 6
+race /python/generic/spell_seller.py
+slaying firestorm,icestorm,forked lightning
+end
+end
+end
+arch floor_bw1
+x 5
+y 10
+end
+arch carpet7.171
+x 5
+y 10
+end
+arch table_lab2.111
+x 5
+y 10
+end
+arch floor_bw1
+x 5
+y 11
+end
+arch carpet7.171
+x 5
+y 11
+end
+arch chair2_111
+direction 5
+x 5
+y 11
+end
+arch floor_bw1
+x 5
+y 12
+end
+arch carpet7.171
+x 5
+y 12
+end
+arch table_lab3.111
+x 5
+y 12
+end
+arch floor_bw1
+x 5
+y 13
+end
+arch carpet7.171
+x 5
+y 13
+end
+arch floor_bw1
+x 5
+y 14
+end
+arch carpet7.171
+x 5
+y 14
+end
+arch table_lab1.111
+x 5
+y 14
+end
+arch floor_bw1
+x 5
+y 15
+end
+arch carpet7.171
+x 5
+y 15
+end
+arch chair2_111
+direction 5
+x 5
+y 15
+end
+arch floor_bw1
+x 5
+y 16
+end
+arch carpet7.171
+x 5
+y 16
+end
+arch wall_fstone_round.106
+x 5
+y 16
+end
+arch floor_bw1
+x 5
+y 17
+end
+arch carpet7.171
+x 5
+y 17
+end
+arch floor_bw1
+x 5
+y 18
+end
+arch carpet7.161
+x 5
+y 18
+end
+arch floor_bw1
+x 5
+y 19
+end
+arch carpet7f
+x 5
+y 19
+end
+arch floor_bw1
+x 5
+y 20
+end
+arch carpet7d
+x 5
+y 20
+end
+arch floor_bw1
+x 5
+y 21
+end
+arch carpet7.111
+x 5
+y 21
+end
+arch floor_bw1
+x 5
+y 22
+end
+arch candlelight4.101
+x 5
+y 22
+end
+arch floor_bw1
+x 5
+y 23
+end
+arch wall_flagstone1_w2.111
+x 5
+y 23
+end
+arch floor_bw1
+x 6
+end
+arch wall_fstone_round.106
+x 6
+end
+arch floor_bw1
+x 6
+y 1
+end
+arch broom.111
+x 6
+y 1
+end
+arch bucket_water
+sub_layer 1
+x 6
+y 1
+end
+arch floor_bw1
+x 6
+y 2
+end
+arch carpet7.151
+x 6
+y 2
+end
+arch floor_bw1
+x 6
+y 3
+end
+arch carpet7f
+x 6
+y 3
+end
+arch floor_bw1
+x 6
+y 4
+end
+arch carpet7d
+x 6
+y 4
+end
+arch floor_bw1
+x 6
+y 5
+end
+arch carpet7.111
+x 6
+y 5
+end
+arch floor_bw1
+x 6
+y 6
+end
+arch shelf3a.111
+direction 4
+x 6
+y 6
+arch random_treasure
+no_pick 1
+randomitems random_read
+end
+arch random_treasure
+no_pick 1
+randomitems random_read
+end
+end
+arch floor_bw1
+x 6
+y 7
+end
+arch fwall_fstone2
+x 6
+y 7
+end
+arch floor_bw1
+x 6
+y 8
+end
+arch table_lab2.111
+x 6
+y 8
+end
+arch floor_bw1
+x 6
+y 9
+end
+arch chair2_111
+direction 5
+x 6
+y 9
+end
+arch floor_bw1
+x 6
+y 10
+end
+arch table_lab1.111
+x 6
+y 10
+end
+arch floor_bw1
+x 6
+y 11
+end
+arch floor_bw1
+x 6
+y 12
+end
+arch table_lab2.111
+x 6
+y 12
+end
+arch floor_bw1
+x 6
+y 13
+end
+arch chair2_111
+direction 5
+x 6
+y 13
+end
+arch spawn_point
+x 6
+y 13
+arch mage_old
+msg
+@match ^hello$
+I'm working on a spell that could duplicate any item.
+
+But it's not going well...
+endmsg
+name Dornynn
+animation thelra_female
+direction 1
+level 30
+race thelra
+is_male 0
+is_female 1
+type 83
+end
+end
+arch floor_bw1
+x 6
+y 14
+end
+arch table_lab2.111
+x 6
+y 14
+end
+arch floor_bw1
+x 6
+y 15
+end
+arch floor_bw1
+x 6
+y 16
+end
+arch fwall_fstone2
+x 6
+y 16
+end
+arch floor_bw1
+x 6
+y 17
+end
+arch shelf3b.111
+direction 2
+x 6
+y 17
+arch random_treasure
+no_pick 1
+randomitems random_read
+end
+arch random_treasure
+no_pick 1
+randomitems random_read
+end
+end
+arch floor_bw1
+x 6
+y 18
+end
+arch carpet7.151
+x 6
+y 18
+end
+arch floor_bw1
+x 6
+y 19
+end
+arch carpet7f
+x 6
+y 19
+end
+arch floor_bw1
+x 6
+y 20
+end
+arch carpet7d
+x 6
+y 20
+end
+arch floor_bw1
+x 6
+y 21
+end
+arch carpet7.111
+x 6
+y 21
+end
+arch floor_bw1
+x 6
+y 22
+end
+arch floor_bw1
+x 6
+y 23
+end
+arch wall_fstone_round.108
+x 6
+y 23
+end
+arch floor_bw1
+x 7
+end
+arch fwall_fstone2
+x 7
+end
+arch floor_bw1
+x 7
+y 1
+end
+arch fwall_fstone2
+x 7
+y 1
+end
+arch floor_bw1
+x 7
+y 2
+end
+arch carpet7.151
+x 7
+y 2
+end
+arch wall_fstone_round.106
+x 7
+y 2
+end
+arch floor_bw1
+x 7
+y 3
+end
+arch carpet7f
+x 7
+y 3
+end
+arch floor_bw1
+x 7
+y 4
+end
+arch carpet7d
+x 7
+y 4
+end
+arch floor_bw1
+x 7
+y 5
+end
+arch carpet7.111
+x 7
+y 5
+end
+arch wall_fstone_round.108
+x 7
+y 5
+end
+arch floor_bw1
+x 7
+y 6
+end
+arch fwall_fstone2
+x 7
+y 6
+end
+arch floor_bw1
+x 7
+y 7
+end
+arch fwall_fstone2
+x 7
+y 7
+end
+arch floor_bw1
+x 7
+y 8
+end
+arch fwall_fstone2
+x 7
+y 8
+end
+arch floor_bw1
+x 7
+y 9
+end
+arch fwall_fstone2
+x 7
+y 9
+end
+arch floor_bw1
+x 7
+y 10
+end
+arch fwall_fstone2
+x 7
+y 10
+end
+arch floor_bw1
+x 7
+y 11
+end
+arch fwall_fstone2
+x 7
+y 11
+end
+arch floor_bw1
+x 7
+y 12
+end
+arch fwall_fstone2
+x 7
+y 12
+end
+arch floor_bw1
+x 7
+y 13
+end
+arch fwall_fstone2
+x 7
+y 13
+end
+arch floor_bw1
+x 7
+y 14
+end
+arch fwall_fstone2
+x 7
+y 14
+end
+arch floor_bw1
+x 7
+y 15
+end
+arch fwall_fstone2
+x 7
+y 15
+end
+arch floor_bw1
+x 7
+y 16
+end
+arch fwall_fstone2
+x 7
+y 16
+end
+arch floor_bw1
+x 7
+y 17
+end
+arch fwall_fstone2
+x 7
+y 17
+end
+arch floor_bw1
+x 7
+y 18
+end
+arch carpet7.151
+x 7
+y 18
+end
+arch wall_fstone_round.106
+x 7
+y 18
+end
+arch floor_bw1
+x 7
+y 19
+end
+arch carpet7f
+x 7
+y 19
+end
+arch floor_bw1
+x 7
+y 20
+end
+arch carpet7d
+x 7
+y 20
+end
+arch floor_bw1
+x 7
+y 21
+end
+arch carpet7.111
+x 7
+y 21
+end
+arch wall_fstone_round.108
+x 7
+y 21
+end
+arch floor_bw1
+x 7
+y 22
+end
+arch fwall_fstone2
+x 7
+y 22
+end
+arch floor_bw1
+x 7
+y 23
+end
+arch fwall_fstone2
+x 7
+y 23
+end
+arch floor_bw1
+x 8
+end
+arch fwall_fstone2
+x 8
+end
+arch picture7
+x 8
+end
+arch floor_bw1
+x 8
+y 1
+end
+arch table_round5
+x 8
+y 1
+end
+arch floor_bw1
+x 8
+y 2
+end
+arch carpet7.151
+x 8
+y 2
+end
+arch chair1_111
+x 8
+y 2
+end
+arch spawn_point
+x 8
+y 2
+arch mage_old
+msg
+@match ^hello$
+That amulet should belong to me, of course!
+endmsg
+name Dewynn
+animation thelra_female
+level 30
+race thelra
+is_male 0
+is_female 1
+type 83
+direction 1
+end
+end
+arch floor_bw1
+x 8
+y 3
+end
+arch carpet7f
+x 8
+y 3
+end
+arch floor_bw1
+x 8
+y 4
+end
+arch carpet7d
+x 8
+y 4
+end
+arch floor_bw1
+x 8
+y 5
+end
+arch carpet7.111
+x 8
+y 5
+end
+arch fireplace_left_off
+x 8
+y 5
+end
+arch floor_bw1
+x 8
+y 6
+end
+arch floor_bw1
+x 8
+y 7
+end
+arch fwall_fstone2
+x 8
+y 7
+end
+arch floor_bw1
+x 8
+y 8
+end
+arch fwall_fstone2
+x 8
+y 8
+end
+arch trans
+x 8
+y 9
+end
+arch fwall_fstone2d
+x 8
+y 9
+end
+arch trans
+x 8
+y 14
+end
+arch fwall_fstone2a
+x 8
+y 14
+end
+arch floor_bw1
+x 8
+y 15
+end
+arch fwall_fstone2
+x 8
+y 15
+end
+arch floor_bw1
+x 8
+y 16
+end
+arch fwall_fstone2
+x 8
+y 16
+end
+arch floor_bw1
+x 8
+y 17
+end
+arch table_lab1.111
+x 8
+y 17
+end
+arch floor_bw1
+x 8
+y 18
+end
+arch carpet7.151
+x 8
+y 18
+end
+arch shelf3_wall.111
+direction 7
+x 8
+y 18
+end
+arch floor_bw1
+x 8
+y 19
+end
+arch carpet7f
+x 8
+y 19
+end
+arch floor_bw1
+x 8
+y 20
+end
+arch carpet7d
+x 8
+y 20
+end
+arch floor_bw1
+x 8
+y 21
+end
+arch carpet7.111
+x 8
+y 21
+end
+arch table_lab2.111
+direction 7
+x 8
+y 21
+end
+arch floor_bw1
+x 8
+y 22
+end
+arch table_lab1.111
+direction 7
+x 8
+y 22
+end
+arch floor_bw1
+x 8
+y 23
+end
+arch fwall_fstone2
+x 8
+y 23
+end
+arch floor_bw1
+x 9
+end
+arch wall_fstone_round.104
+x 9
+end
+arch floor_bw1
+x 9
+y 1
+end
+arch chair1_111
+direction 5
+x 9
+y 1
+end
+arch spawn_point
+x 9
+y 1
+arch mage_old
+msg
+@match ^hello$
+We're trying to decide which one of us gets the amulet on the table, but we can never settle on the results and we have to roll again...
+endmsg
+name Galowen
+direction 7
+level 30
+race thelra
+type 83
+end
+end
+arch floor_bw1
+x 9
+y 2
+end
+arch carpet7.151
+x 9
+y 2
+end
+arch floor_bw1
+x 9
+y 3
+end
+arch carpet7f
+x 9
+y 3
+end
+arch light5
+x 9
+y 3
+end
+arch floor_bw1
+x 9
+y 4
+end
+arch carpet7d
+x 9
+y 4
+end
+arch light5
+x 9
+y 4
+end
+arch floor_bw1
+x 9
+y 5
+end
+arch carpet7.111
+x 9
+y 5
+end
+arch floor_bw1
+x 9
+y 6
+end
+arch floor_bw1
+x 9
+y 7
+end
+arch fwall_fstone2
+x 9
+y 7
+end
+arch trans
+x 9
+y 8
+end
+arch fwall_fstone2d
+x 9
+y 8
+end
+arch trans
+x 9
+y 15
+end
+arch fwall_fstone2a
+x 9
+y 15
+end
+arch floor_bw1
+x 9
+y 16
+end
+arch fwall_fstone2
+x 9
+y 16
+end
+arch picture1.151
+x 9
+y 16
+end
+arch floor_bw1
+x 9
+y 17
+end
+arch table_lab2.111
+x 9
+y 17
+end
+arch floor_bw1
+x 9
+y 18
+end
+arch carpet7.151
+x 9
+y 18
+end
+arch chair2_111
+direction 5
+x 9
+y 18
+end
+arch floor_bw1
+x 9
+y 19
+end
+arch carpet7f
+x 9
+y 19
+end
+arch light5
+x 9
+y 19
+end
+arch floor_bw1
+x 9
+y 20
+end
+arch carpet7d
+x 9
+y 20
+end
+arch light5
+x 9
+y 20
+end
+arch floor_bw1
+x 9
+y 21
+end
+arch carpet7.111
+x 9
+y 21
+end
+arch floor_bw1
+x 9
+y 22
+end
+arch chair2_111
+direction 3
+x 9
+y 22
+end
+arch spawn_point
+x 9
+y 22
+arch mage_old
+name Galion
+direction 7
+level 30
+race thelra
+type 83
+arch event_obj
+sub_type 6
+race /python/generic/spell_seller.py
+slaying firebolt,frostbolt,lightning
+end
+end
+end
+arch floor_bw1
+x 9
+y 23
+end
+arch wall_fstone_round.102
+x 9
+y 23
+end
+arch floor_bw1
+x 10
+end
+arch wall_flagstone1_w2.111
+z 9
+align 18
+x 10
+end
+arch floor_bw1
+x 10
+y 1
+end
+arch floor_bw1
+x 10
+y 2
+end
+arch carpet7.151
+x 10
+y 2
+end
+arch floor_bw1
+x 10
+y 3
+end
+arch carpet7f
+x 10
+y 3
+end
+arch light5
+x 10
+y 3
+end
+arch floor_bw1
+x 10
+y 4
+end
+arch carpet7d
+x 10
+y 4
+end
+arch light5
+x 10
+y 4
+end
+arch floor_bw1
+x 10
+y 5
+end
+arch carpet7.111
+x 10
+y 5
+end
+arch floor_bw1
+x 10
+y 6
+end
+arch floor_bw1
+x 10
+y 7
+end
+arch fwall_fstone2
+x 10
+y 7
+end
+arch floor_bw1
+x 10
+y 16
+end
+arch fwall_fstone2
+x 10
+y 16
+end
+arch floor_bw1
+x 10
+y 17
+end
+arch table_lab2.111
+x 10
+y 17
+end
+arch floor_bw1
+x 10
+y 18
+end
+arch carpet7.151
+x 10
+y 18
+end
+arch chair2_111
+direction 5
+x 10
+y 18
+end
+arch floor_bw1
+x 10
+y 19
+end
+arch carpet7f
+x 10
+y 19
+end
+arch light5
+x 10
+y 19
+end
+arch floor_bw1
+x 10
+y 20
+end
+arch carpet7d
+x 10
+y 20
+end
+arch light5
+x 10
+y 20
+end
+arch floor_bw1
+x 10
+y 21
+end
+arch carpet7.111
+x 10
+y 21
+end
+arch table_lab2.111
+x 10
+y 21
+end
+arch floor_bw1
+x 10
+y 22
+end
+arch floor_bw1
+x 10
+y 23
+end
+arch wall_flagstone1_w2.111
+x 10
+y 23
+end
+arch floor_bw1
+x 11
+end
+arch wall_flagstone1_w2.111
+z 9
+align 18
+x 11
+end
+arch floor_bw1
+x 11
+y 1
+end
+arch floor_bw1
+x 11
+y 2
+end
+arch carpet7.151
+x 11
+y 2
+end
+arch chair1_111
+direction 7
+x 11
+y 2
+end
+arch floor_bw1
+x 11
+y 3
+end
+arch carpet7f
+x 11
+y 3
+end
+arch floor_bw1
+x 11
+y 4
+end
+arch carpet7d
+x 11
+y 4
+end
+arch floor_bw1
+x 11
+y 5
+end
+arch carpet7.111
+x 11
+y 5
+end
+arch floor_bw1
+x 11
+y 6
+end
+arch chair2_111
+direction 7
+x 11
+y 6
+end
+arch floor_bw1
+x 11
+y 7
+end
+arch fwall_fstone2
+x 11
+y 7
+end
+arch floor_bw1
+x 11
+y 16
+end
+arch fwall_fstone2
+x 11
+y 16
+end
+arch floor_bw1
+x 11
+y 17
+end
+arch table_lab1.111
+x 11
+y 17
+end
+arch floor_bw1
+x 11
+y 18
+end
+arch carpet7.151
+x 11
+y 18
+end
+arch floor_bw1
+x 11
+y 19
+end
+arch carpet7f
+x 11
+y 19
+end
+arch floor_bw1
+x 11
+y 20
+end
+arch carpet7d
+x 11
+y 20
+end
+arch floor_bw1
+x 11
+y 21
+end
+arch carpet7.111
+x 11
+y 21
+end
+arch table_lab1.111
+x 11
+y 21
+end
+arch floor_bw1
+x 11
+y 22
+end
+arch chair2_111
+direction 5
+x 11
+y 22
+end
+arch floor_bw1
+x 11
+y 23
+end
+arch wall_flagstone1_w2.111
+x 11
+y 23
+end
+arch floor_bw1
+x 12
+end
+arch wall_flagstone1_w2.111
+z 9
+align 18
+x 12
+end
+arch floor_bw1
+x 12
+y 1
+end
+arch chair1_111
+x 12
+y 1
+end
+arch floor_bw1
+x 12
+y 2
+end
+arch carpet7.151
+x 12
+y 2
+end
+arch table_poker2
+x 12
+y 2
+end
+arch floor_bw1
+x 12
+y 3
+end
+arch carpet7f
+x 12
+y 3
+end
+arch floor_bw1
+x 12
+y 4
+end
+arch carpet7d
+x 12
+y 4
+end
+arch floor_bw1
+x 12
+y 5
+end
+arch carpet7.111
+x 12
+y 5
+end
+arch chair2_111
+x 12
+y 5
+end
+arch floor_bw1
+x 12
+y 6
+end
+arch table_round2
+x 12
+y 6
+end
+arch floor_bw1
+x 12
+y 7
+end
+arch fwall_fstone2
+x 12
+y 7
+end
+arch floor_bw1
+x 12
+y 16
+end
+arch fwall_fstone2
+x 12
+y 16
+end
+arch floor_bw1
+x 12
+y 17
+end
+arch table_lab3.111
+x 12
+y 17
+end
+arch floor_bw1
+x 12
+y 18
+end
+arch carpet7.151
+x 12
+y 18
+end
+arch chair2_111
+direction 5
+x 12
+y 18
+end
+arch spawn_point
+x 12
+y 18
+arch mage_old
+msg
+@match ^hello$
+Have you seen the library upstairs? You should definitely take a look, and read a book or two.
+endmsg
+name Tolann
+animation thelra_male
+direction 1
+level 30
+race thelra
+movement_type 64
+type 83
+end
+end
+arch floor_bw1
+x 12
+y 19
+end
+arch carpet7f
+x 12
+y 19
+end
+arch floor_bw1
+x 12
+y 20
+end
+arch carpet7d
+x 12
+y 20
+end
+arch floor_bw1
+x 12
+y 21
+end
+arch carpet7.111
+x 12
+y 21
+end
+arch table_lab2.111
+x 12
+y 21
+end
+arch floor_bw1
+x 12
+y 22
+end
+arch chair2_111
+direction 5
+x 12
+y 22
+end
+arch floor_bw1
+x 12
+y 23
+end
+arch wall_flagstone1_w2.111
+x 12
+y 23
+end
+arch floor_bw1
+x 13
+end
+arch wall_flagstone1_w2.111
+z 9
+align 18
+x 13
+end
+arch floor_bw1
+x 13
+y 1
+end
+arch floor_bw1
+x 13
+y 2
+end
+arch carpet7.151
+x 13
+y 2
+end
+arch chair1_111
+direction 3
+x 13
+y 2
+end
+arch floor_bw1
+x 13
+y 3
+end
+arch carpet7f
+x 13
+y 3
+end
+arch light5
+x 13
+y 3
+end
+arch floor_bw1
+x 13
+y 4
+end
+arch carpet7d
+x 13
+y 4
+end
+arch light5
+x 13
+y 4
+end
+arch floor_bw1
+x 13
+y 5
+end
+arch carpet7.111
+x 13
+y 5
+end
+arch floor_bw1
+x 13
+y 6
+end
+arch chair2_111
+direction 3
+x 13
+y 6
+end
+arch floor_bw1
+x 13
+y 7
+end
+arch fwall_fstone2
+x 13
+y 7
+end
+arch floor_bw1
+x 13
+y 16
+end
+arch fwall_fstone2
+x 13
+y 16
+end
+arch floor_bw1
+x 13
+y 17
+end
+arch table_lab1.111
+x 13
+y 17
+end
+arch floor_bw1
+x 13
+y 18
+end
+arch carpet7.151
+x 13
+y 18
+end
+arch floor_bw1
+x 13
+y 19
+end
+arch carpet7f
+x 13
+y 19
+end
+arch light5
+x 13
+y 19
+end
+arch floor_bw1
+x 13
+y 20
+end
+arch carpet7d
+x 13
+y 20
+end
+arch light5
+x 13
+y 20
+end
+arch floor_bw1
+x 13
+y 21
+end
+arch carpet7.111
+x 13
+y 21
+end
+arch table_lab3.111
+x 13
+y 21
+end
+arch floor_bw1
+x 13
+y 22
+end
+arch chair2_111
+direction 5
+x 13
+y 22
+end
+arch floor_bw1
+x 13
+y 23
+end
+arch wall_flagstone1_w2.111
+x 13
+y 23
+end
+arch floor_bw1
+x 14
+end
+arch wall_fstone_round.106
+x 14
+end
+arch floor_bw1
+x 14
+y 1
+end
+arch floor_bw1
+x 14
+y 2
+end
+arch carpet7.151
+x 14
+y 2
+end
+arch floor_bw1
+x 14
+y 3
+end
+arch carpet7f
+x 14
+y 3
+end
+arch light5
+x 14
+y 3
+end
+arch floor_bw1
+x 14
+y 4
+end
+arch carpet7d
+x 14
+y 4
+end
+arch light5
+x 14
+y 4
+end
+arch floor_bw1
+x 14
+y 5
+end
+arch carpet7.111
+x 14
+y 5
+end
+arch floor_bw1
+x 14
+y 6
+end
+arch floor_bw1
+x 14
+y 7
+end
+arch fwall_fstone2
+x 14
+y 7
+end
+arch trans
+x 14
+y 8
+end
+arch fwall_fstone2b
+x 14
+y 8
+end
+arch trans
+x 14
+y 15
+end
+arch fwall_fstone2c
+x 14
+y 15
+end
+arch floor_bw1
+x 14
+y 16
+end
+arch fwall_fstone2
+x 14
+y 16
+end
+arch picture3.151
+x 14
+y 16
+end
+arch floor_bw1
+x 14
+y 17
+end
+arch table_lab2.111
+x 14
+y 17
+end
+arch floor_bw1
+x 14
+y 18
+end
+arch carpet7.151
+x 14
+y 18
+end
+arch chair2_111
+direction 5
+x 14
+y 18
+end
+arch floor_bw1
+x 14
+y 19
+end
+arch carpet7f
+x 14
+y 19
+end
+arch light5
+x 14
+y 19
+end
+arch floor_bw1
+x 14
+y 20
+end
+arch carpet7d
+x 14
+y 20
+end
+arch light5
+x 14
+y 20
+end
+arch floor_bw1
+x 14
+y 21
+end
+arch carpet7.111
+x 14
+y 21
+end
+arch table_lab1.111
+x 14
+y 21
+end
+arch floor_bw1
+x 14
+y 22
+end
+arch floor_bw1
+x 14
+y 23
+end
+arch wall_fstone_round.108
+x 14
+y 23
+end
+arch floor_bw1
+x 15
+end
+arch fwall_fstone2
+x 15
+end
+arch floor_bw1
+x 15
+y 1
+end
+arch shelf3c.111
+x 15
+y 1
+arch random_treasure
+no_pick 1
+randomitems random_read
+end
+end
+arch floor_bw1
+x 15
+y 2
+end
+arch carpet7.151
+x 15
+y 2
+end
+arch chair1_111
+direction 3
+x 15
+y 2
+end
+arch floor_bw1
+x 15
+y 3
+end
+arch carpet7f
+x 15
+y 3
+end
+arch floor_bw1
+x 15
+y 4
+end
+arch carpet7d
+x 15
+y 4
+end
+arch floor_bw1
+x 15
+y 5
+end
+arch carpet7.111
+x 15
+y 5
+end
+arch floor_bw1
+x 15
+y 6
+end
+arch floor_bw1
+x 15
+y 7
+end
+arch fwall_fstone2
+x 15
+y 7
+end
+arch floor_bw1
+x 15
+y 8
+end
+arch fwall_fstone2
+x 15
+y 8
+end
+arch trans
+x 15
+y 9
+end
+arch fwall_fstone2b
+x 15
+y 9
+end
+arch trans
+x 15
+y 14
+end
+arch fwall_fstone2c
+x 15
+y 14
+end
+arch floor_bw1
+x 15
+y 15
+end
+arch fwall_fstone2
+x 15
+y 15
+end
+arch floor_bw1
+x 15
+y 16
+end
+arch fwall_fstone2
+x 15
+y 16
+end
+arch floor_bw1
+x 15
+y 17
+end
+arch table_lab3.111
+x 15
+y 17
+end
+arch floor_bw1
+x 15
+y 18
+end
+arch carpet7.151
+x 15
+y 18
+end
+arch chair2_111
+direction 5
+x 15
+y 18
+end
+arch floor_bw1
+x 15
+y 19
+end
+arch carpet7f
+x 15
+y 19
+end
+arch floor_bw1
+x 15
+y 20
+end
+arch carpet7d
+x 15
+y 20
+end
+arch floor_bw1
+x 15
+y 21
+end
+arch carpet7.111
+x 15
+y 21
+end
+arch floor_bw1
+x 15
+y 22
+end
+arch floor_bw1
+x 15
+y 23
+end
+arch fwall_fstone2
+x 15
+y 23
+end
+arch floor_bw1
+x 16
+end
+arch fwall_fstone2
+x 16
+end
+arch floor_bw1
+x 16
+y 1
+end
+arch fwall_fstone2
+x 16
+y 1
+end
+arch floor_bw1
+x 16
+y 2
+end
+arch carpet7.151
+x 16
+y 2
+end
+arch wall_fstone_round.104
+x 16
+y 2
+end
+arch floor_bw1
+x 16
+y 3
+end
+arch carpet7f
+x 16
+y 3
+end
+arch floor_bw1
+x 16
+y 4
+end
+arch carpet7d
+x 16
+y 4
+end
+arch floor_bw1
+x 16
+y 5
+end
+arch carpet7.111
+x 16
+y 5
+end
+arch wall_fstone_round.102
+x 16
+y 5
+end
+arch floor_bw1
+x 16
+y 6
+end
+arch fwall_fstone2
+x 16
+y 6
+end
+arch floor_bw1
+x 16
+y 7
+end
+arch fwall_fstone2
+x 16
+y 7
+end
+arch floor_bw1
+x 16
+y 8
+end
+arch fwall_fstone2
+x 16
+y 8
+end
+arch floor_bw1
+x 16
+y 9
+end
+arch fwall_fstone2
+x 16
+y 9
+end
+arch floor_bw1
+x 16
+y 10
+end
+arch fwall_fstone2
+x 16
+y 10
+end
+arch floor_bw1
+x 16
+y 11
+end
+arch fwall_fstone2
+x 16
+y 11
+end
+arch floor_bw1
+x 16
+y 12
+end
+arch fwall_fstone2
+x 16
+y 12
+end
+arch floor_bw1
+x 16
+y 13
+end
+arch fwall_fstone2
+x 16
+y 13
+end
+arch floor_bw1
+x 16
+y 14
+end
+arch fwall_fstone2
+x 16
+y 14
+end
+arch floor_bw1
+x 16
+y 15
+end
+arch fwall_fstone2
+x 16
+y 15
+end
+arch floor_bw1
+x 16
+y 16
+end
+arch fwall_fstone2
+x 16
+y 16
+end
+arch floor_bw1
+x 16
+y 17
+end
+arch fwall_fstone2
+x 16
+y 17
+end
+arch floor_bw1
+x 16
+y 18
+end
+arch carpet7.151
+x 16
+y 18
+end
+arch wall_fstone_round.104
+x 16
+y 18
+end
+arch floor_bw1
+x 16
+y 19
+end
+arch carpet7f
+x 16
+y 19
+end
+arch floor_bw1
+x 16
+y 20
+end
+arch carpet7d
+x 16
+y 20
+end
+arch floor_bw1
+x 16
+y 21
+end
+arch carpet7.111
+x 16
+y 21
+end
+arch wall_fstone_round.102
+x 16
+y 21
+end
+arch floor_bw1
+x 16
+y 22
+end
+arch fwall_fstone2
+x 16
+y 22
+end
+arch floor_bw1
+x 16
+y 23
+end
+arch fwall_fstone2
+x 16
+y 23
+end
+arch floor_bw1
+x 17
+end
+arch wall_fstone_round.104
+x 17
+end
+arch floor_bw1
+x 17
+y 1
+end
+arch shelf3_wall.111
+direction 7
+x 17
+y 1
+end
+arch floor_bw1
+x 17
+y 2
+end
+arch carpet7.151
+x 17
+y 2
+end
+arch floor_bw1
+x 17
+y 3
+end
+arch carpet7f
+x 17
+y 3
+end
+arch floor_bw1
+x 17
+y 4
+end
+arch carpet7d
+x 17
+y 4
+end
+arch floor_bw1
+x 17
+y 5
+end
+arch carpet7.111
+x 17
+y 5
+end
+arch floor_bw1
+x 17
+y 6
+end
+arch shelf3b.111
+direction 6
+x 17
+y 6
+arch random_treasure
+no_pick 1
+randomitems random_read
+end
+arch random_treasure
+no_pick 1
+randomitems random_read
+end
+end
+arch floor_bw1
+x 17
+y 7
+end
+arch fwall_fstone2
+x 17
+y 7
+end
+arch floor_bw1
+x 17
+y 8
+end
+arch shelf3c.111
+direction 8
+x 17
+y 8
+arch random_treasure
+no_pick 1
+randomitems random_read
+end
+arch random_treasure
+no_pick 1
+randomitems random_read
+end
+end
+arch floor_bw1
+x 17
+y 9
+end
+arch shelf3a.111
+direction 7
+x 17
+y 9
+arch random_treasure
+no_pick 1
+randomitems random_read
+end
+end
+arch floor_bw1
+x 17
+y 10
+end
+arch table_lab3.111
+direction 7
+x 17
+y 10
+end
+arch floor_bw1
+x 17
+y 11
+end
+arch shelf5_wall.111
+direction 7
+x 17
+y 11
+arch random_treasure
+no_pick 1
+randomitems random_read
+end
+end
+arch floor_bw1
+x 17
+y 12
+end
+arch shelf2_wall.111
+direction 7
+x 17
+y 12
+arch random_treasure
+no_pick 1
+randomitems random_read
+end
+end
+arch floor_bw1
+x 17
+y 13
+end
+arch desk2
+direction 7
+x 17
+y 13
+end
+arch floor_bw1
+x 17
+y 14
+end
+arch shelf3c.111
+direction 7
+x 17
+y 14
+arch random_treasure
+no_pick 1
+randomitems random_read
+end
+end
+arch floor_bw1
+x 17
+y 15
+end
+arch shelf3b.111
+direction 6
+x 17
+y 15
+arch random_treasure
+no_pick 1
+randomitems random_read
+end
+arch random_treasure
+no_pick 1
+randomitems random_read
+end
+end
+arch floor_bw1
+x 17
+y 16
+end
+arch fwall_fstone2
+x 17
+y 16
+end
+arch floor_bw1
+x 17
+y 17
+end
+arch shelf3c.111
+direction 8
+x 17
+y 17
+arch random_treasure
+no_pick 1
+randomitems random_read
+end
+end
+arch floor_bw1
+x 17
+y 18
+end
+arch carpet7.151
+x 17
+y 18
+end
+arch floor_bw1
+x 17
+y 19
+end
+arch carpet7f
+x 17
+y 19
+end
+arch floor_bw1
+x 17
+y 20
+end
+arch carpet7d
+x 17
+y 20
+end
+arch floor_bw1
+x 17
+y 21
+end
+arch carpet7.111
+x 17
+y 21
+end
+arch floor_bw1
+x 17
+y 22
+end
+arch floor_bw1
+x 17
+y 23
+end
+arch wall_fstone_round.102
+x 17
+y 23
+end
+arch floor_bw1
+x 18
+end
+arch wall_flagstone1_w2.111
+z 9
+align 18
+x 18
+end
+arch floor_bw1
+x 18
+y 1
+end
+arch candlelight4.101
+x 18
+y 1
+end
+arch floor_bw1
+x 18
+y 2
+end
+arch carpet7.151
+x 18
+y 2
+end
+arch floor_bw1
+x 18
+y 3
+end
+arch carpet7f
+x 18
+y 3
+end
+arch floor_bw1
+x 18
+y 4
+end
+arch carpet7d
+x 18
+y 4
+end
+arch floor_bw1
+x 18
+y 5
+end
+arch carpet7.121
+x 18
+y 5
+end
+arch floor_bw1
+x 18
+y 6
+end
+arch carpet7.131
+x 18
+y 6
+end
+arch floor_bw1
+x 18
+y 7
+end
+arch carpet7.131
+x 18
+y 7
+end
+arch wall_fstone_round.102
+x 18
+y 7
+end
+arch floor_bw1
+x 18
+y 8
+end
+arch carpet7.131
+x 18
+y 8
+end
+arch shelf3c.111
+x 18
+y 8
+arch random_treasure
+no_pick 1
+randomitems random_read
+end
+end
+arch floor_bw1
+x 18
+y 9
+end
+arch carpet7.131
+x 18
+y 9
+end
+arch floor_bw1
+x 18
+y 10
+end
+arch carpet7.131
+x 18
+y 10
+end
+arch chair2_111
+direction 3
+x 18
+y 10
+end
+arch spawn_point
+x 18
+y 10
+arch mage_old
+msg
+@match ^hello$
+The library upstairs has inspired me, so I'm trying to write a book myself.
+endmsg
+name Conuld
+direction 7
+level 30
+race thelra
+type 83
+end
+end
+arch floor_bw1
+x 18
+y 11
+end
+arch carpet7.131
+x 18
+y 11
+end
+arch floor_bw1
+x 18
+y 12
+end
+arch carpet7.131
+x 18
+y 12
+end
+arch floor_bw1
+x 18
+y 13
+end
+arch carpet7.131
+x 18
+y 13
+end
+arch chair2_111
+direction 3
+x 18
+y 13
+end
+arch spawn_point
+x 18
+y 13
+arch mage_old
+name Olain
+animation thelra_male
+direction 7
+level 30
+race thelra
+type 83
+arch event_obj
+sub_type 6
+race /python/generic/spell_seller.py
+slaying bullet storm,bullet swarm
+end
+end
+end
+arch floor_bw1
+x 18
+y 14
+end
+arch carpet7.131
+x 18
+y 14
+end
+arch floor_bw1
+x 18
+y 15
+end
+arch carpet7.131
+x 18
+y 15
+end
+arch shelf3b.111
+direction 5
+x 18
+y 15
+end
+arch floor_bw1
+x 18
+y 16
+end
+arch carpet7.131
+x 18
+y 16
+end
+arch wall_fstone_round.104
+x 18
+y 16
+end
+arch floor_bw1
+x 18
+y 17
+end
+arch carpet7.131
+x 18
+y 17
+end
+arch floor_bw1
+x 18
+y 18
+end
+arch carpet7.141
+x 18
+y 18
+end
+arch floor_bw1
+x 18
+y 19
+end
+arch carpet7f
+x 18
+y 19
+end
+arch floor_bw1
+x 18
+y 20
+end
+arch carpet7d
+x 18
+y 20
+end
+arch floor_bw1
+x 18
+y 21
+end
+arch carpet7.111
+x 18
+y 21
+end
+arch floor_bw1
+x 18
+y 22
+end
+arch candlelight4.101
+x 18
+y 22
+end
+arch floor_bw1
+x 18
+y 23
+end
+arch wall_flagstone1_w2.111
+x 18
+y 23
+end
+arch floor_bw1
+x 19
+end
+arch wall_flagstone1_w2.111
+z 9
+align 18
+x 19
+end
+arch floor_bw1
+x 19
+y 1
+end
+arch bench2.111
+x 19
+y 1
+end
+arch floor_bw1
+x 19
+y 2
+end
+arch carpet7.151
+x 19
+y 2
+end
+arch floor_bw1
+x 19
+y 3
+end
+arch carpet7f
+x 19
+y 3
+end
+arch light5
+x 19
+y 3
+end
+arch floor_bw1
+x 19
+y 4
+end
+arch carpet7g
+x 19
+y 4
+end
+arch light5
+x 19
+y 4
+end
+arch floor_bw1
+x 19
+y 5
+end
+arch carpet7e
+x 19
+y 5
+end
+arch floor_bw1
+x 19
+y 6
+end
+arch carpet7e
+x 19
+y 6
+end
+arch floor_bw1
+x 19
+y 7
+end
+arch carpet7e
+x 19
+y 7
+end
+arch floor_bw1
+x 19
+y 8
+end
+arch carpet7e
+x 19
+y 8
+end
+arch floor_bw1
+x 19
+y 9
+end
+arch carpet7e
+x 19
+y 9
+end
+arch light5
+x 19
+y 9
+end
+arch floor_bw1
+x 19
+y 10
+end
+arch carpet7e
+x 19
+y 10
+end
+arch light5
+x 19
+y 10
+end
+arch floor_bw1
+x 19
+y 11
+end
+arch carpet7e
+x 19
+y 11
+end
+arch floor_bw1
+x 19
+y 12
+end
+arch carpet7e
+x 19
+y 12
+end
+arch floor_bw1
+x 19
+y 13
+end
+arch carpet7e
+x 19
+y 13
+end
+arch light5
+x 19
+y 13
+end
+arch floor_bw1
+x 19
+y 14
+end
+arch carpet7e
+x 19
+y 14
+end
+arch light5
+x 19
+y 14
+end
+arch floor_bw1
+x 19
+y 15
+end
+arch carpet7e
+x 19
+y 15
+end
+arch floor_bw1
+x 19
+y 16
+end
+arch carpet7e
+x 19
+y 16
+end
+arch floor_bw1
+x 19
+y 17
+end
+arch carpet7e
+x 19
+y 17
+end
+arch floor_bw1
+x 19
+y 18
+end
+arch carpet7e
+x 19
+y 18
+end
+arch floor_bw1
+x 19
+y 19
+end
+arch carpet7g
+x 19
+y 19
+end
+arch light5
+x 19
+y 19
+end
+arch floor_bw1
+x 19
+y 20
+end
+arch carpet7d
+x 19
+y 20
+end
+arch light5
+x 19
+y 20
+end
+arch floor_bw1
+x 19
+y 21
+end
+arch carpet7.111
+x 19
+y 21
+end
+arch floor_bw1
+x 19
+y 22
+end
+arch bench2.111
+direction 5
+x 19
+y 22
+end
+arch floor_bw1
+x 19
+y 23
+end
+arch wall_flagstone1_w2.111
+x 19
+y 23
+end
+arch floor_bw1
+x 20
+end
+arch wall_fstone_round.106
+x 20
+end
+arch floor_bw1
+x 20
+y 1
+end
+arch floor_bw1
+x 20
+y 2
+end
+arch carpet7.151
+x 20
+y 2
+end
+arch floor_bw1
+x 20
+y 3
+end
+arch carpet7h
+x 20
+y 3
+end
+arch exit_green
+slaying world_3_1878
+hp 19
+sp 4
+zoom 70
+align 7
+animation portal_azure
+x 20
+y 3
+end
+arch floor_bw1
+x 20
+y 4
+end
+arch carpet7c
+x 20
+y 4
+end
+arch light5
+x 20
+y 4
+end
+arch floor_bw1
+x 20
+y 5
+end
+arch carpet7c
+x 20
+y 5
+end
+arch floor_bw1
+x 20
+y 6
+end
+arch carpet7c
+x 20
+y 6
+end
+arch floor_bw1
+x 20
+y 7
+end
+arch carpet7c
+x 20
+y 7
+end
+arch floor_bw1
+x 20
+y 8
+end
+arch carpet7c
+x 20
+y 8
+end
+arch floor_bw1
+x 20
+y 9
+end
+arch carpet7c
+x 20
+y 9
+end
+arch light5
+x 20
+y 9
+end
+arch floor_bw1
+x 20
+y 10
+end
+arch carpet7c
+x 20
+y 10
+end
+arch light5
+x 20
+y 10
+end
+arch floor_bw1
+x 20
+y 11
+end
+arch carpet7c
+x 20
+y 11
+end
+arch floor_bw1
+x 20
+y 12
+end
+arch carpet7c
+x 20
+y 12
+end
+arch floor_bw1
+x 20
+y 13
+end
+arch carpet7c
+x 20
+y 13
+end
+arch light5
+x 20
+y 13
+end
+arch floor_bw1
+x 20
+y 14
+end
+arch carpet7c
+x 20
+y 14
+end
+arch light5
+x 20
+y 14
+end
+arch floor_bw1
+x 20
+y 15
+end
+arch carpet7c
+x 20
+y 15
+end
+arch floor_bw1
+x 20
+y 16
+end
+arch carpet7c
+x 20
+y 16
+end
+arch floor_bw1
+x 20
+y 17
+end
+arch carpet7c
+x 20
+y 17
+end
+arch floor_bw1
+x 20
+y 18
+end
+arch carpet7c
+x 20
+y 18
+end
+arch floor_bw1
+x 20
+y 19
+end
+arch carpet7c
+x 20
+y 19
+end
+arch light5
+x 20
+y 19
+end
+arch floor_bw1
+x 20
+y 20
+end
+arch carpet7k
+x 20
+y 20
+end
+arch exit_green
+slaying world_4_1878
+hp 19
+sp 19
+zoom 70
+align 7
+animation portal_red
+x 20
+y 20
+end
+arch floor_bw1
+x 20
+y 21
+end
+arch carpet7.111
+x 20
+y 21
+end
+arch floor_bw1
+x 20
+y 22
+end
+arch floor_bw1
+x 20
+y 23
+end
+arch wall_fstone_round.108
+x 20
+y 23
+end
+arch trans
+x 21
+end
+arch fwall_fstone2a
+x 21
+end
+arch floor_bw1
+x 21
+y 1
+end
+arch fwall_fstone2b
+x 21
+y 1
+end
+arch floor_bw1
+x 21
+y 2
+end
+arch carpet7.162
+x 21
+y 2
+end
+arch floor_bw1
+x 21
+y 3
+end
+arch carpet7.171
+x 21
+y 3
+end
+arch floor_bw1
+x 21
+y 4
+end
+arch carpet7.171
+x 21
+y 4
+end
+arch floor_bw1
+x 21
+y 5
+end
+arch carpet7.171
+x 21
+y 5
+end
+arch floor_bw1
+x 21
+y 6
+end
+arch carpet7.171
+x 21
+y 6
+end
+arch floor_bw1
+x 21
+y 7
+end
+arch carpet7.171
+x 21
+y 7
+end
+arch wall_fstone_round.108
+x 21
+y 7
+end
+arch floor_bw1
+x 21
+y 8
+end
+arch carpet7.171
+x 21
+y 8
+end
+arch shelf3a.111
+x 21
+y 8
+end
+arch floor_bw1
+x 21
+y 9
+end
+arch carpet7.171
+x 21
+y 9
+end
+arch floor_bw1
+x 21
+y 10
+end
+arch carpet7.171
+x 21
+y 10
+end
+arch floor_bw1
+x 21
+y 11
+end
+arch carpet7.171
+x 21
+y 11
+end
+arch floor_bw1
+x 21
+y 12
+end
+arch carpet7.171
+x 21
+y 12
+end
+arch floor_bw1
+x 21
+y 13
+end
+arch carpet7.171
+x 21
+y 13
+end
+arch floor_bw1
+x 21
+y 14
+end
+arch carpet7.171
+x 21
+y 14
+end
+arch floor_bw1
+x 21
+y 15
+end
+arch carpet7.171
+x 21
+y 15
+end
+arch shelf3b.111
+direction 5
+x 21
+y 15
+arch random_treasure
+no_pick 1
+randomitems random_read
+end
+end
+arch floor_bw1
+x 21
+y 16
+end
+arch carpet7.171
+x 21
+y 16
+end
+arch wall_fstone_round.106
+x 21
+y 16
+end
+arch floor_bw1
+x 21
+y 17
+end
+arch carpet7.171
+x 21
+y 17
+end
+arch floor_bw1
+x 21
+y 18
+end
+arch carpet7.171
+x 21
+y 18
+end
+arch floor_bw1
+x 21
+y 19
+end
+arch carpet7.171
+x 21
+y 19
+end
+arch floor_bw1
+x 21
+y 20
+end
+arch carpet7.171
+x 21
+y 20
+end
+arch floor_bw1
+x 21
+y 21
+end
+arch carpet7.182
+x 21
+y 21
+end
+arch floor_bw1
+x 21
+y 22
+end
+arch fwall_fstone2c
+x 21
+y 22
+end
+arch trans
+x 21
+y 23
+end
+arch fwall_fstone2d
+x 21
+y 23
+end
+arch trans
+x 22
+y 1
+end
+arch fwall_fstone2a
+x 22
+y 1
+end
+arch floor_bw1
+x 22
+y 2
+end
+arch fwall_fstone2b
+x 22
+y 2
+end
+arch floor_bw1
+x 22
+y 3
+end
+arch floor_bw1
+x 22
+y 4
+end
+arch bench2.111
+direction 3
+x 22
+y 4
+end
+arch floor_bw1
+x 22
+y 5
+end
+arch candlelight4.101
+x 22
+y 5
+end
+arch floor_bw1
+x 22
+y 6
+end
+arch floor_bw1
+x 22
+y 7
+end
+arch fwall_fstone2
+x 22
+y 7
+end
+arch floor_bw1
+x 22
+y 8
+end
+arch shelf3c.111
+direction 2
+x 22
+y 8
+arch random_treasure
+no_pick 1
+randomitems random_read
+end
+end
+arch floor_bw1
+x 22
+y 9
+end
+arch floor_bw1
+x 22
+y 10
+end
+arch floor_bw1
+x 22
+y 11
+end
+arch floor_bw1
+x 22
+y 12
+end
+arch floor_bw1
+x 22
+y 13
+end
+arch floor_bw1
+x 22
+y 14
+end
+arch floor_bw1
+x 22
+y 15
+end
+arch shelf3b.111
+direction 4
+x 22
+y 15
+arch random_treasure
+no_pick 1
+randomitems random_read
+end
+arch random_treasure
+no_pick 1
+randomitems random_read
+end
+end
+arch floor_bw1
+x 22
+y 16
+end
+arch fwall_fstone2
+x 22
+y 16
+end
+arch floor_bw1
+x 22
+y 17
+end
+arch shelf5_wall.111
+x 22
+y 17
+arch random_treasure
+no_pick 1
+randomitems random_read
+end
+end
+arch floor_bw1
+x 22
+y 18
+end
+arch candlelight4.101
+x 22
+y 18
+end
+arch floor_bw1
+x 22
+y 19
+end
+arch bench2.111
+direction 4
+x 22
+y 19
+end
+arch floor_bw1
+x 22
+y 20
+end
+arch floor_bw1
+x 22
+y 21
+end
+arch fwall_fstone2c
+x 22
+y 21
+end
+arch trans
+x 22
+y 22
+end
+arch fwall_fstone2d
+x 22
+y 22
+end
+arch trans
+x 23
+y 2
+end
+arch fwall_fstone2a
+x 23
+y 2
+end
+arch map_info
+name la_wizards_tower
+sp 19
+cursed 1
+x 23
+y 2
+end
+arch floor_bw1
+x 23
+y 3
+end
+arch wall_fstone_round.106
+x 23
+y 3
+end
+arch floor_bw1
+x 23
+y 4
+end
+arch wall_flagstone1_w2.131
+x 23
+y 4
+end
+arch floor_bw1
+x 23
+y 5
+end
+arch wall_flagstone1_w2.131
+x 23
+y 5
+end
+arch floor_bw1
+x 23
+y 6
+end
+arch wall_fstone_round.108
+x 23
+y 6
+end
+arch floor_bw1
+x 23
+y 7
+end
+arch fwall_fstone2
+x 23
+y 7
+end
+arch floor_bw1
+x 23
+y 8
+end
+arch fwall_fstone2
+x 23
+y 8
+end
+arch floor_bw1
+x 23
+y 9
+end
+arch wall_fstone_round.106
+x 23
+y 9
+end
+arch floor_bw1
+x 23
+y 10
+end
+arch wall_flagstone1_w2.131
+x 23
+y 10
+end
+arch floor_bw1
+x 23
+y 11
+end
+arch wall_flagstone1_w2.131
+x 23
+y 11
+end
+arch floor_bw1
+x 23
+y 12
+end
+arch wall_flagstone1_w2.131
+x 23
+y 12
+end
+arch floor_bw1
+x 23
+y 13
+end
+arch wall_flagstone1_w2.131
+x 23
+y 13
+end
+arch floor_bw1
+x 23
+y 14
+end
+arch wall_fstone_round.108
+x 23
+y 14
+end
+arch floor_bw1
+x 23
+y 15
+end
+arch fwall_fstone2
+x 23
+y 15
+end
+arch floor_bw1
+x 23
+y 16
+end
+arch fwall_fstone2
+x 23
+y 16
+end
+arch floor_bw1
+x 23
+y 17
+end
+arch wall_fstone_round.106
+x 23
+y 17
+end
+arch floor_bw1
+x 23
+y 18
+end
+arch wall_flagstone1_w2.131
+x 23
+y 18
+end
+arch floor_bw1
+x 23
+y 19
+end
+arch wall_flagstone1_w2.131
+x 23
+y 19
+end
+arch floor_bw1
+x 23
+y 20
+end
+arch wall_fstone_round.108
+x 23
+y 20
+end
+arch trans
+x 23
+y 21
+end
+arch fwall_fstone2d
+x 23
+y 21
+end

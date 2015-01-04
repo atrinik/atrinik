@@ -1,0 +1,16 @@
+arch map
+name World
+msg
+Created:  2015-01-03 Alex Tokar
+endmsg
+width 24
+height 24
+difficulty 1
+region world
+outdoor 1
+tile_path_1 world_1_1978
+tile_path_4 world_1_1877
+tile_path_8 world_1_1878
+tile_path_9 world_2_1977
+tile_path_10 world_1977
+end

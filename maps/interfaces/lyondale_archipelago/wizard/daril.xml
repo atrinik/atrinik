@@ -2,7 +2,6 @@
 <interfaces>
     <interface>
         <dialog name="hello">
-            <message>Welcome to my shop. Here you can buy various scrolls to help you in your adventures.</message>
             <message>Have you heard about the legendary smoking pipe? They say it's the best pipe for smoking pipeweed.</message>
             <response message="Tell me more..." destination="tellmore" />
         </dialog>
