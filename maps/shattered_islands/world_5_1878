@@ -1749,7 +1749,6 @@ end
 arch map_info
 name la_wizards_tower
 is_magical 1
-damned 1
 x 7
 y 14
 end
@@ -2792,7 +2791,6 @@ end
 arch map_info
 name la_wizards_tower
 is_magical 1
-damned 1
 x 14
 y 7
 end
