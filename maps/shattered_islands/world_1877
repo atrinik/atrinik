@@ -1705,6 +1705,7 @@ x 12
 y 14
 end
 arch bridge_wood_NS.111
+sub_layer 1
 x 12
 y 14
 end
