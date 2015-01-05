@@ -53,42 +53,50 @@ static int command_resetmaps_internal(mapstruct *tiled, mapstruct *map,
 void command_resetmaps(object *op, const char *command, char *params)
 {
     mapstruct *m, **maps;
-    shstr *mappath;
     size_t maps_num, i;
     int failed, success;
 
     m = NULL;
-    mappath = NULL;
     maps = NULL;
     maps_num = 0;
     failed = success = 0;
 
-    if (params == NULL) {
-        m = op->map;
-    } else if (!map_path_isabs(params)) {
-        char *path;
-
-        path = map_get_path(op->map, params, 0, NULL);
-        mappath = add_string(path);
-        efree(path);
+    if (params != NULL && strcasecmp(params, "all") == 0) {
+        for (m = first_map; m != NULL; m = m->next) {
+            command_resetmaps_internal(m, NULL, &maps, &maps_num);
+        }
     } else {
-        mappath = add_string(params);
-    }
+        shstr *mappath;
 
-    if (mappath != NULL) {
-        m = has_been_loaded_sh(mappath);
-        free_string_shared(mappath);
-    }
+        mappath = NULL;
 
-    if (m == NULL) {
-        draw_info(COLOR_WHITE, op, "No such map.");
-        return;
-    }
+        if (params == NULL) {
+            m = op->map;
+        } else if (!map_path_isabs(params)) {
+            char *path;
 
-    MAP_TILES_WALK_START(m, command_resetmaps_internal, &maps, &maps_num)
-    {
+            path = map_get_path(op->map, params, 0, NULL);
+            mappath = add_string(path);
+            efree(path);
+        } else {
+            mappath = add_string(params);
+        }
+
+        if (mappath != NULL) {
+            m = has_been_loaded_sh(mappath);
+            free_string_shared(mappath);
+        }
+
+        if (m == NULL) {
+            draw_info(COLOR_WHITE, op, "No such map.");
+            return;
+        }
+
+        MAP_TILES_WALK_START(m, command_resetmaps_internal, &maps, &maps_num)
+        {
+        }
+        MAP_TILES_WALK_END
     }
-    MAP_TILES_WALK_END
 
     if (maps == NULL) {
         log(LOG(BUG), "Failed to find any maps to reset: %s", m->path);
