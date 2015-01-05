@@ -31,17 +31,20 @@
 #include <global.h>
 
 /**
- * Internally used by command_resetmaps() to actually perform the reset of all
- * tiled maps.
+ * Internally used by command_resetmaps() to create an array of the maps to
+ * reset.
  * @param tiled Tiled map.
  * @param map Map.
- * @return 0 on success, 1 on failure.
+ * @param[out] maps Array of maps that will be reset.
+ * @param[out] maps_num Number of maps in 'maps'.
+ * @return 0.
  */
-static int command_resetmaps_internal(mapstruct *tiled, mapstruct *map)
+static int command_resetmaps_internal(mapstruct *tiled, mapstruct *map,
+        mapstruct ***maps, size_t *maps_num)
 {
-    if (map_force_reset(tiled) == NULL) {
-        return 1;
-    }
+    *maps = erealloc(*maps, sizeof(**maps) * ((*maps_num) + 1));
+    (*maps)[*maps_num] = tiled;
+    (*maps_num)++;
 
     return 0;
 }
@@ -49,22 +52,68 @@ static int command_resetmaps_internal(mapstruct *tiled, mapstruct *map)
 /** @copydoc command_func */
 void command_resetmaps(object *op, const char *command, char *params)
 {
-    int failed;
+    mapstruct *m, **maps;
+    shstr *mappath;
+    size_t maps_num, i;
+    int failed, success;
 
-    failed = 0;
+    m = NULL;
+    mappath = NULL;
+    maps = NULL;
+    maps_num = 0;
+    failed = success = 0;
 
-    MAP_TILES_WALK_START(op->map, command_resetmaps_internal)
+    if (params == NULL) {
+        m = op->map;
+    } else if (!map_path_isabs(params)) {
+        char *path;
+
+        path = map_get_path(op->map, params, 0, NULL);
+        mappath = add_string(path);
+        efree(path);
+    } else {
+        mappath = add_string(params);
+    }
+
+    if (mappath != NULL) {
+        m = has_been_loaded_sh(mappath);
+        free_string_shared(mappath);
+    }
+
+    if (m == NULL) {
+        draw_info(COLOR_WHITE, op, "No such map.");
+        return;
+    }
+
+    MAP_TILES_WALK_START(m, command_resetmaps_internal, &maps, &maps_num)
     {
-        if (MAP_TILES_WALK_RETVAL != 0) {
-            failed++;
-        }
     }
     MAP_TILES_WALK_END
 
-    if (failed == 0) {
-        draw_info(COLOR_WHITE, op, "Successfully reset all tiled maps.");
-    } else {
-        draw_info_format(COLOR_WHITE, op, "Failed to reset %d tiled maps.",
+    if (maps == NULL) {
+        log(LOG(BUG), "Failed to find any maps to reset: %s", m->path);
+        draw_info_format(COLOR_RED, op, "Failed to find any maps to reset: %s",
+                m->path);
+        return;
+    }
+
+    for (i = 0; i < maps_num; i++) {
+        if (map_force_reset(maps[i]) != NULL) {
+            success++;
+        } else {
+            failed++;
+        }
+    }
+
+    efree(maps);
+
+    if (success != 0) {
+        draw_info_format(COLOR_WHITE, op, "Successfully reset %d maps.",
+                success);
+    }
+
+    if (failed != 0) {
+        draw_info_format(COLOR_RED, op, "Failed to reset %d maps.",
                 failed);
     }
 }
