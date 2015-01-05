@@ -2,7 +2,7 @@ arch map
 name Ship
 msg
 Created:  2010-09-28 Alex Tokar
-Modified: 2010-12-07 Alex Tokar
+Modified: 2015-01-05 Alex Tokar
 endmsg
 width 24
 height 24
@@ -524,7 +524,7 @@ y 10
 end
 arch stairs_wood_up
 direction 7
-slaying ../world_1978
+slaying ../world_1977
 hp 6
 sp 17
 x 6
