@@ -2,7 +2,7 @@ arch map
 name Morliana
 msg
 Created:  2009-08-09 Alex Tokar
-Modified: 2011-10-02 Alex Tokar
+Modified: 2015-01-04 Alex Tokar
 endmsg
 width 24
 height 24
@@ -17,10 +17,10 @@ tile_path_5 world_1477
 tile_path_6 world_1475
 tile_path_7 world_1275
 tile_path_8 world_1277
+tile_path_9 world_1_1376
 bg_music campfire_tales.mid
 region morliana
 weather snow_light
-tile_path_9 world_1_1376
 end
 arch snow4
 end
@@ -1843,6 +1843,14 @@ stand_still 1
 x 11
 y 8
 end
+arch map_info
+name morliana_tavern
+hp 8
+sp 15
+cursed 1
+x 11
+y 8
+end
 arch snow1
 x 11
 y 9
@@ -2192,7 +2200,7 @@ arch floor_wood2b
 x 12
 y 22
 end
-arch wood_pile.101
+arch barrel_water.101
 x 12
 y 22
 end
@@ -2561,7 +2569,7 @@ arch floor_wood2b
 x 14
 y 21
 end
-arch barrel_water.101
+arch wall_wood_8
 x 14
 y 21
 end
@@ -2569,7 +2577,7 @@ arch floor_wood1b
 x 14
 y 22
 end
-arch barrel.101
+arch wall_wood_3
 x 14
 y 22
 end
@@ -2577,7 +2585,7 @@ arch floor_wood1b
 x 14
 y 23
 end
-arch grain5.101
+arch wall_wood_3
 x 14
 y 23
 end
@@ -2733,7 +2741,7 @@ arch floor_wood2b
 x 15
 y 21
 end
-arch wall_wood_3
+arch wall_wood_4
 x 15
 y 21
 end
@@ -2746,7 +2754,7 @@ arch floor_wood2b
 x 15
 y 22
 end
-arch wall_wood2_3
+arch stairs_wood_up2
 x 15
 y 22
 end
@@ -2754,7 +2762,7 @@ arch floor_wood2b
 x 15
 y 23
 end
-arch wall_wood3_3
+arch fwall_wood1b
 x 15
 y 23
 end

@@ -19,6 +19,7 @@ tile_path_8 world_1575
 bg_music campfire_tales.mid
 region morliana
 weather snow_light
+tile_path_9 world_1_1674
 end
 arch snow2
 end
