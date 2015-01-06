@@ -192,7 +192,6 @@ void waypoint_compute_path(object *waypoint)
     waypoint->stats.Str = 0;
     /* Best distance */
     waypoint->stats.dam = 30000;
-    CLEAR_FLAG(waypoint, FLAG_CONFUSED);
 }
 
 /**
@@ -290,7 +289,6 @@ void waypoint_move(object *op, object *waypoint)
                 logger_print(LOG(DEBUG), "'%s' next waypoint: '%s'", op->name, waypoint->title);
 #endif
                 SET_FLAG(nextwp, FLAG_CURSED);
-                waypoint_move(op, get_active_waypoint(op));
             }
 #ifdef DEBUG_PATHFINDING
             else {
@@ -374,7 +372,8 @@ void waypoint_move(object *op, object *waypoint)
         }
     }
 
-    if (global_rv.distance > 1 && !waypoint->msg && QUERY_FLAG(waypoint, FLAG_CONFUSED)) {
+    if (global_rv.distance > 1 && !waypoint->msg && QUERY_FLAG(waypoint,
+            FLAG_WP_PATH_REQUESTED) && !QUERY_FLAG(waypoint, FLAG_DAMNED)) {
 #ifdef DEBUG_PATHFINDING
         logger_print(LOG(DEBUG), "No path found. '%s' standing still.", op->name);
 #endif
