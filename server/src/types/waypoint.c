@@ -164,7 +164,11 @@ void waypoint_compute_path(object *waypoint)
     path = path_compress(path_find(op, op->map, op->x, op->y, destmap, waypoint->stats.hp, waypoint->stats.sp));
 
     if (!path) {
-        logger_print(LOG(BUG), "No path to destination ('%s' -> '%s')", op->name, waypoint->name);
+        if (!QUERY_FLAG(waypoint, FLAG_DAMNED)) {
+            log(LOG(BUG), "No path to destination ('%s' -> '%s')", op->name,
+                    waypoint->name);
+        }
+
         return;
     }
 
