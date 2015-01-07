@@ -427,19 +427,34 @@ typedef struct MapSpace_s {
 #define MAP_DEFAULT_DARKNESS    0
 /*@}*/
 
-#define SET_MAP_TILE_VISITED(m, x, y, id)                                                    \
-    {                                                                                            \
-        if ((m)->pathfinding_id != (id))                                                         \
-        {                                                                                        \
-            (m)->pathfinding_id = (id);                                                          \
-            memset((m)->bitmap, 0, ((MAP_WIDTH(m) + 31) / 32) * MAP_HEIGHT(m) * sizeof(uint32)); \
-        }                                                                                        \
-                                                                                             \
-        (m)->bitmap[(x) / 32 + ((MAP_WIDTH(m) + 31) / 32) * (y)] |= (1U << ((x) % 32));          \
+#define PATHFINDING_CHECK_ID(m, id) \
+    if ((m)->pathfinding_id != (id)) { \
+        (m)->pathfinding_id = (id); \
+        memset((m)->bitmap, 0, ((MAP_WIDTH(m) + 31) / 32) * MAP_HEIGHT(m) * \
+                sizeof(*(m)->bitmap)); \
+        memset((m)->path_nodes, 0, MAP_WIDTH(m) * MAP_HEIGHT(m) * \
+                sizeof(*(m)->path_nodes)); \
     }
 
-#define QUERY_MAP_TILE_VISITED(m, x, y, id) \
-    ((m)->pathfinding_id == (id) && ((m)->bitmap[(x) / 32 + ((MAP_WIDTH(m) + 31) / 32) * (y)] & (1U << ((x) % 32))))
+#define PATHFINDING_SET_CLOSED(m, x, y, id) \
+    { \
+        PATHFINDING_CHECK_ID(m, id); \
+        (m)->bitmap[(x) / 32 + ((MAP_WIDTH(m) + 31) / 32) * (y)] |= \
+                (1U << ((x) % 32)); \
+    }
+
+#define PATHFINDING_QUERY_CLOSED(m, x, y, id) \
+    ((m)->pathfinding_id == (id) && ((m)->bitmap[(x) / 32 + \
+            ((MAP_WIDTH(m) + 31) / 32) * (y)] & (1U << ((x) % 32))))
+
+#define PATHFINDING_NODE_SET(m, x, y, id, node) \
+    { \
+        PATHFINDING_CHECK_ID(m, id); \
+        (m)->path_nodes[(x) + MAP_WIDTH(m) * (y)] = node; \
+    }
+#define PATHFINDING_NODE_GET(m, x, y, id) \
+    ((m)->pathfinding_id != (id) ? NULL : (m)->path_nodes[(x) + \
+            MAP_WIDTH(m) * (y)])
 
 /**
  * This is a game region.
@@ -510,6 +525,8 @@ typedef struct map_event {
     struct atrinik_plugin *plugin;
 } map_event;
 
+typedef struct path_node path_node_t;
+
 /**
  * In general, code should always use the macros above (or functions in
  * map.c) to access many of the values in the map structure. Failure to
@@ -575,6 +592,8 @@ typedef struct mapdef {
 
     /** For which traversal is @ref mapstruct::bitmap valid. */
     uint32 pathfinding_id;
+
+    path_node_t **path_nodes;
 
     /** Map flags for various map settings */
     uint32 map_flags;

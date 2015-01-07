@@ -431,7 +431,7 @@ static void dequeue_path_requests(void)
     long leftover_sec, leftover_usec;
     object *wp;
 
-    while ((wp = get_next_requested_path())) {
+    while ((wp = path_get_next_request())) {
         waypoint_compute_path(wp);
 
         (void) GETTIMEOFDAY(&new_time);
@@ -455,7 +455,7 @@ static void dequeue_path_requests(void)
         }
     }
 #else
-    object *wp = get_next_requested_path();
+    object *wp = path_get_next_request();
 
     if (wp) {
         waypoint_compute_path(wp);

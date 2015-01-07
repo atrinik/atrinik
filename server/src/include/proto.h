@@ -572,12 +572,12 @@ extern void send_party_message(party_struct *party, const char *msg, int flag, o
 extern void remove_party(party_struct *party);
 extern void party_update_who(player *pl);
 /* src/server/pathfinder.c */
-extern void request_new_path(object *waypoint);
-extern object *get_next_requested_path(void);
-extern shstr *encode_path(path_node *path);
-extern int get_path_next(shstr *buf, sint16 *off, shstr **mappath, mapstruct **map, int *x, int *y);
-extern path_node *compress_path(path_node *path);
-extern path_node *find_path(object *op, mapstruct *map1, int x, int y, mapstruct *map2, int x2, int y2);
+extern void path_request(object *waypoint);
+extern object *path_get_next_request(void);
+extern shstr *path_encode(path_node_t *path);
+extern int path_get_next(shstr *buf, sint16 *off, shstr **mappath, mapstruct **map, int *x, int *y);
+extern path_node_t *path_compress(path_node_t *path);
+extern path_node_t *path_find(object *op, mapstruct *map1, int x, int y, mapstruct *map2, int x2, int y2);
 /* src/server/plugins.c */
 extern struct plugin_hooklist hooklist;
 extern object *get_event_object(object *op, int event_nr);

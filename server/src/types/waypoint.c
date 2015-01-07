@@ -138,7 +138,7 @@ void waypoint_compute_path(object *waypoint)
 {
     object *op = waypoint->env;
     mapstruct *destmap = op->map;
-    path_node *path;
+    path_node_t *path;
 
     /* Store final path destination (used by aggro wp) */
     if (QUERY_FLAG(waypoint, FLAG_DAMNED)) {
@@ -161,7 +161,7 @@ void waypoint_compute_path(object *waypoint)
         return;
     }
 
-    path = compress_path(find_path(op, op->map, op->x, op->y, destmap, waypoint->stats.hp, waypoint->stats.sp));
+    path = path_compress(path_find(op, op->map, op->x, op->y, destmap, waypoint->stats.hp, waypoint->stats.sp));
 
     if (!path) {
         logger_print(LOG(BUG), "No path to destination ('%s' -> '%s')", op->name, waypoint->name);
@@ -180,7 +180,7 @@ void waypoint_compute_path(object *waypoint)
     /* Map file for last local path step */
     FREE_AND_CLEAR_HASH(waypoint->race);
 
-    waypoint->msg = encode_path(path);
+    waypoint->msg = path_encode(path);
     /* Path offset */
     waypoint->stats.food = 0;
     /* Msg boundary */
@@ -237,6 +237,7 @@ void waypoint_move(object *op, object *waypoint)
     }
 
     if (!get_rangevector_from_mapcoords(op->map, op->x, op->y, destmap, waypoint->stats.hp, waypoint->stats.sp, &global_rv, RV_RECURSIVE_SEARCH | RV_DIAGONAL_DISTANCE)) {
+        log(LOG(DEBUG), "Could not find rv to: %s, %d, %d", destmap->path, waypoint->stats.hp, waypoint->stats.sp);
         /* Disable this waypoint */
         CLEAR_FLAG(waypoint, FLAG_CURSED);
         return;
@@ -331,7 +332,7 @@ void waypoint_move(object *op, object *waypoint)
     if (global_rv.distance > 1) {
         if (!waypoint->msg) {
             /* Request a path if we don't have one */
-            request_new_path(waypoint);
+            path_request(waypoint);
         } else {
             /* If we have precalculated path, take direction to next subwaypoint
              * */
@@ -339,13 +340,13 @@ void waypoint_move(object *op, object *waypoint)
 
             new_offset = waypoint->stats.food;
 
-            if (new_offset < waypoint->attacked_by_distance && get_path_next(waypoint->msg, &new_offset, &waypoint->race, &destmap, &destx, &desty)) {
+            if (new_offset < waypoint->attacked_by_distance && path_get_next(waypoint->msg, &new_offset, &waypoint->race, &destmap, &destx, &desty)) {
                 get_rangevector_from_mapcoords(op->map, op->x, op->y, destmap, destx, desty, &local_rv, RV_RECURSIVE_SEARCH | RV_DIAGONAL_DISTANCE);
                 dest_rv = &local_rv;
             } else {
                 /* We seem to have an invalid path string or offset. */
                 FREE_AND_CLEAR_HASH(waypoint->msg);
-                request_new_path(waypoint);
+                path_request(waypoint);
             }
         }
     }

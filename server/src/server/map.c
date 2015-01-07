@@ -879,7 +879,8 @@ static void allocate_map(mapstruct *m)
     }
 
     m->spaces = ecalloc(1, MAP_WIDTH(m) * MAP_HEIGHT(m) * sizeof(MapSpace));
-    m->bitmap = emalloc(((MAP_WIDTH(m) + 31) / 32) * MAP_HEIGHT(m) * sizeof(uint32));
+    m->bitmap = emalloc(((MAP_WIDTH(m) + 31) / 32) * MAP_HEIGHT(m) * sizeof(*m->bitmap));
+    m->path_nodes = emalloc(MAP_WIDTH(m) * MAP_HEIGHT(m) * sizeof(*m->path_nodes));
 }
 
 /**
