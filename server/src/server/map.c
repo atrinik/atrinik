@@ -2179,12 +2179,20 @@ int get_rangevector_from_mapcoords(mapstruct *map1, int x, int y, mapstruct *map
  * @return 1 if both objects are on same map, 0 otherwise. */
 int on_same_map(object *op1, object *op2)
 {
-    if (!op1->map || !op2->map) {
+    int i;
+
+    if (op1->map == NULL || op2->map == NULL) {
         return 0;
     }
 
-    if (op1->map == op2->map || op1->map->tile_map[0] == op2->map || op1->map->tile_map[1] == op2->map || op1->map->tile_map[2] == op2->map || op1->map->tile_map[3] == op2->map || op1->map->tile_map[4] == op2->map || op1->map->tile_map[5] == op2->map || op1->map->tile_map[6] == op2->map || op1->map->tile_map[7] == op2->map) {
+    if (op1->map == op2->map) {
         return 1;
+    }
+
+    for (i = 0; i < TILED_NUM; i++) {
+        if (op1->map->tile_map[i] == op2->map) {
+            return 1;
+        }
     }
 
     return 0;
