@@ -2,7 +2,7 @@ arch map
 name Wizards' Tower: Marigold
 msg
 Created:  2014-12-27 Alex Tokar
-Modified: 2015-01-07 Alex Tokar
+Modified: 2015-01-09 Alex Tokar
 endmsg
 width 24
 height 24
@@ -2702,7 +2702,23 @@ arch key2
 slaying wizards_tower_archmage_treasury
 end
 arch waypoint
+name wp13
+slaying world_1878
+hp 11
+sp 15
+arch event_obj
+msg
+{
+    "pause": [20, 45]
+}
+endmsg
+sub_type 10
+race /python/generic/waypoint_random_next.py
+end
+end
+arch waypoint
 name wp12
+slaying world_4_1878
 hp 1
 sp 19
 arch event_obj
@@ -2717,6 +2733,7 @@ end
 end
 arch waypoint
 name wp11
+slaying world_4_1878
 hp 17
 sp 8
 arch event_obj
@@ -2731,6 +2748,7 @@ end
 end
 arch waypoint
 name wp10
+slaying world_4_1878
 hp 2
 sp 10
 arch event_obj
@@ -2745,6 +2763,7 @@ end
 end
 arch waypoint
 name wp9
+slaying world_4_1878
 hp 9
 sp 18
 arch event_obj
@@ -2759,6 +2778,7 @@ end
 end
 arch waypoint
 name wp8
+slaying world_4_1878
 hp 2
 sp 15
 arch event_obj
@@ -2773,6 +2793,7 @@ end
 end
 arch waypoint
 name wp7
+slaying world_4_1878
 hp 20
 sp 14
 arch event_obj
@@ -2787,6 +2808,7 @@ end
 end
 arch waypoint
 name wp6
+slaying world_4_1878
 hp 9
 sp 2
 arch event_obj
@@ -2801,6 +2823,7 @@ end
 end
 arch waypoint
 name wp5
+slaying world_4_1878
 hp 13
 sp 22
 arch event_obj
@@ -2815,6 +2838,7 @@ end
 end
 arch waypoint
 name wp4
+slaying world_4_1878
 hp 5
 sp 11
 arch event_obj
@@ -2829,6 +2853,7 @@ end
 end
 arch waypoint
 name wp3
+slaying world_4_1878
 hp 10
 sp 6
 arch event_obj
@@ -2843,6 +2868,7 @@ end
 end
 arch waypoint
 name wp2
+slaying world_4_1878
 hp 17
 sp 14
 arch event_obj
@@ -2857,6 +2883,7 @@ end
 end
 arch waypoint
 name wp1
+slaying world_4_1878
 hp 14
 sp 2
 cursed 1
