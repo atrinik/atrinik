@@ -172,11 +172,14 @@ void waypoint_compute_path(object *waypoint)
         return;
     }
 
-    /* Skip the first path element (always the starting position) */
-    path = path->next;
+    /* Skip the first path element (always the starting position), but only
+     * if it's not a node with an exit. */
+    if (!(path->flags & PATH_NODE_EXIT)) {
+        path = path->next;
 
-    if (!path) {
-        return;
+        if (!path) {
+            return;
+        }
     }
 
     /* Textually encoded path */
@@ -206,8 +209,9 @@ void waypoint_move(object *op, object *waypoint)
 {
     mapstruct *destmap;
     rv_vector local_rv, global_rv, *dest_rv;
-    int dir;
+    int dir, destx, desty;
     sint16 new_offset = 0;
+    uint32 destflags;
 
     if (!waypoint || !op || !op->map) {
         return;
@@ -250,7 +254,7 @@ void waypoint_move(object *op, object *waypoint)
     dest_rv = &global_rv;
 
     /* Reached the final destination? */
-    if ((int) global_rv.distance <= waypoint->stats.maxsp) {
+    if (global_rv.distance_z == 0 && (int) global_rv.distance <= waypoint->stats.maxsp) {
         object *nextwp = NULL;
 
         /* Just arrived? */
@@ -314,7 +318,7 @@ void waypoint_move(object *op, object *waypoint)
 
     /* If we finished our current path, clear it so that we can get a new one.
      * */
-    if (waypoint->msg && (waypoint->msg[waypoint->stats.food] == '\0' || global_rv.distance <= 0)) {
+    if (waypoint->msg && (waypoint->msg[waypoint->stats.food] == '\0' || (global_rv.distance_z == 0 && global_rv.distance <= 0))) {
         FREE_AND_CLEAR_HASH(waypoint->msg);
     }
 
@@ -324,7 +328,7 @@ void waypoint_move(object *op, object *waypoint)
 
         get_rangevector_from_mapcoords(destmap, waypoint->stats.hp, waypoint->stats.sp, destmap, waypoint->x, waypoint->y, &rv, RV_DIAGONAL_DISTANCE);
 
-        if (rv.distance > 1 && rv.distance > global_rv.distance) {
+        if (global_rv.distance_z != 0 || (rv.distance > 1 && rv.distance > global_rv.distance)) {
 #ifdef DEBUG_PATHFINDING
             logger_print(LOG(DEBUG), "Path distance = %d for '%s' -> '%s'. Discarding old path.", rv.distance, op->name, op->enemy->name);
 #endif
@@ -333,18 +337,19 @@ void waypoint_move(object *op, object *waypoint)
     }
 
     /* Are we far enough from the target to require a path? */
-    if (global_rv.distance > 1) {
+    if (global_rv.distance_z != 0 || global_rv.distance > 1) {
         if (!waypoint->msg) {
             /* Request a path if we don't have one */
             path_request(waypoint);
         } else {
             /* If we have precalculated path, take direction to next subwaypoint
              * */
-            int destx = waypoint->stats.hp, desty = waypoint->stats.sp;
+            destx = waypoint->stats.hp;
+            desty = waypoint->stats.sp;
 
             new_offset = waypoint->stats.food;
 
-            if (new_offset < waypoint->attacked_by_distance && path_get_next(waypoint->msg, &new_offset, &waypoint->race, &destmap, &destx, &desty)) {
+            if (new_offset < waypoint->attacked_by_distance && path_get_next(waypoint->msg, &new_offset, &waypoint->race, &destmap, &destx, &desty, &destflags)) {
                 get_rangevector_from_mapcoords(op->map, op->x, op->y, destmap, destx, desty, &local_rv, RV_RECURSIVE_SEARCH | RV_DIAGONAL_DISTANCE);
                 dest_rv = &local_rv;
             } else {
@@ -360,7 +365,7 @@ void waypoint_move(object *op, object *waypoint)
         waypoint->stats.dam = dest_rv->distance;
         /* Number of times we failed getting closer to (sub)goal */
         waypoint->stats.Str = 0;
-    } else if (waypoint->stats.Str++ > 4) {
+    } else if (dest_rv->distance_z == 0 && waypoint->stats.Str++ > 4) {
         /* Discard the current path, so that we can get a new one */
         FREE_AND_CLEAR_HASH(waypoint->msg);
 
@@ -377,8 +382,9 @@ void waypoint_move(object *op, object *waypoint)
         }
     }
 
-    if (global_rv.distance > 1 && !waypoint->msg && QUERY_FLAG(waypoint,
-            FLAG_WP_PATH_REQUESTED) && !QUERY_FLAG(waypoint, FLAG_DAMNED)) {
+    if ((global_rv.distance_z != 0 || global_rv.distance > 1) &&
+            !waypoint->msg && QUERY_FLAG(waypoint, FLAG_WP_PATH_REQUESTED) &&
+            !QUERY_FLAG(waypoint, FLAG_DAMNED)) {
 #ifdef DEBUG_PATHFINDING
         logger_print(LOG(DEBUG), "No path found. '%s' standing still.", op->name);
 #endif
@@ -394,7 +400,7 @@ void waypoint_move(object *op, object *waypoint)
 
     if (dir && !QUERY_FLAG(op, FLAG_STAND_STILL)) {
         /* Can the monster move directly toward waypoint? */
-        if (!move_object(op, dir)) {
+        if (dest_rv->distance != 0 && !move_object(op, dir)) {
             int diff;
 
             /* Try move around corners otherwise */
@@ -411,6 +417,19 @@ void waypoint_move(object *op, object *waypoint)
         /* If we had a local destination and we got close enough to it, accept
          * it. */
         if (dest_rv == &local_rv && dest_rv->distance == 1) {
+            if (destflags & PATH_NODE_EXIT && op->map == destmap &&
+                    op->x == destx && op->y == desty) {
+                object *tmp;
+
+                for (tmp = GET_MAP_OB(op->map, op->x, op->y); tmp != NULL;
+                        tmp = tmp->above) {
+                    if (tmp->type == EXIT) {
+                        object_apply(tmp, op, 0);
+                        break;
+                    }
+                }
+            }
+
             waypoint->stats.food = new_offset;
             /* Number of fails */
             waypoint->stats.Str = 0;

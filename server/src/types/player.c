@@ -878,30 +878,50 @@ void player_path_handle(player *pl)
             return;
         } else {
             int success = 0, dir = rv.direction;
+            mapstruct *map;
+            int x, y;
 
-            /* Can the player move there directly? */
-            if (move_object(pl->ob, dir)) {
+            map = pl->ob->map;
+            x = pl->ob->x;
+            y = pl->ob->y;
+
+            if (map == tmp->map && x == tmp->x && y == tmp->y) {
+                /* The player is already on the correct tile, so there's nothing
+                 * to do -- they might have been teleported, for example. */
+                success = 1;
+                dir = 0;
+            } else if (move_object(pl->ob, dir)) {
+                /* Moved to the direction directly. */
                 success = 1;
             } else {
-                int diff;
+                int diff, new_dir;
 
                 /* Try to move around corners otherwise. */
                 for (diff = 1; diff <= 2; diff++) {
                     /* Try left or right first? */
                     int m = 1 - (RANDOM() & 2);
 
-                    if (move_object(pl->ob, absdir(dir + diff * m)) || move_object(pl->ob, absdir(dir - diff * m))) {
+                    if (move_object(pl->ob, (new_dir = absdir(dir + diff *
+                            m))) || move_object(pl->ob, (new_dir = absdir(dir -
+                            diff * m)))) {
                         success = 1;
+                        dir = new_dir;
                         break;
                     }
                 }
             }
 
+            x += freearr_x[dir];
+            y += freearr_y[dir];
+
+            map = get_map_from_coord(map, &x, &y);
+
             /* See if we succeeded in moving where we wanted. */
-            if (pl->ob->map == tmp->map && pl->ob->x == tmp->x && pl->ob->y == tmp->y) {
+            if (map == tmp->map && x == tmp->x && y == tmp->y) {
                 pl->move_path = tmp->next;
                 efree(tmp);
-            } else if ((rv.distance <= 1 && success) || tmp->fails > PLAYER_PATH_MAX_FAILS) {
+            } else if ((rv.distance <= 1 && success) ||
+                    tmp->fails > PLAYER_PATH_MAX_FAILS) {
                 /* Clear all paths if we above check failed: this can happen
                  * if we got teleported somewhere else by a teleporter or a
                  * shop mat, in which case the player most likely doesn't want
@@ -909,7 +929,7 @@ void player_path_handle(player *pl)
                  * to move to destination too many times already. */
                 player_path_clear(pl);
                 return;
-            } else {
+            } else if (!success) {
                 /* Not any of the above; we failed to move where we wanted. */
                 tmp->fails++;
             }

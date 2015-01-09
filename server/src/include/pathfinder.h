@@ -31,6 +31,16 @@
 #define PATHFINDER_H
 
 /**
+ * @defgroup PATH_NODE_xxx Path node flags
+ * Flags for individual tiles in the path.
+ *@{*/
+/**
+ * The path node has an exit.
+ */
+#define PATH_NODE_EXIT 0x01
+/*@}*/
+
+/**
  * Path node.
  */
 typedef struct path_node {
@@ -41,6 +51,8 @@ typedef struct path_node {
     struct mapdef *map; ///< Pointer to the map.
     sint16 x; ///< X position on the map for this node.
     sint16 y; ///< Y position on the map for this node.
+    uint8 flags; ///< A combination of @ref PATH_NODE_xxx.
+    int distance_z; ///< Z distance from this node to the goal.
 
     double cost; ///< Cost of reaching this node (distance from origin).
     double heuristic; ///< Estimated cost of reaching the goal from this node.

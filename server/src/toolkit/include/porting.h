@@ -42,6 +42,7 @@
 #include <toolkit_cmake.h>
 #include <math.h>
 #include <stdio.h>
+#include <stdbool.h>
 #include <string.h>
 #include <ctype.h>
 #include <errno.h>

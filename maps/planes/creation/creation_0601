@@ -2,7 +2,7 @@ arch map
 name Plane of Creation
 msg
 Created:  2011-03-25 Alex Tokar
-Modified: 2011-11-18 Alex Tokar
+Modified: 2015-01-09 Alex Tokar
 endmsg
 width 24
 height 24
@@ -457,13 +457,14 @@ x 2
 y 6
 end
 arch creator
-other_arch apple
 connected 106
 connect_no_release 1
 lifesave 1
 one_drop 1
 x 2
 y 6
+arch apple
+end
 end
 arch floor_stone_b3
 x 2
@@ -602,13 +603,14 @@ x 3
 y 5
 end
 arch creator
-other_arch apple
 connected 105
 connect_no_release 1
 lifesave 1
 one_drop 1
 x 3
 y 5
+arch apple
+end
 end
 arch floor_earth1a
 x 3
@@ -628,13 +630,14 @@ x 3
 y 7
 end
 arch creator
-other_arch apple
 connected 103
 connect_no_release 1
 lifesave 1
 one_drop 1
 x 3
 y 7
+arch apple
+end
 end
 arch floor_stone_b2
 x 3
@@ -742,13 +745,14 @@ x 4
 y 6
 end
 arch creator
-other_arch apple
 connected 104
 connect_no_release 1
 lifesave 1
 one_drop 1
 x 4
 y 6
+arch apple
+end
 end
 arch floor_stone_b1
 x 4
@@ -2355,7 +2359,7 @@ arch floor_stone_b4
 x 17
 y 6
 end
-arch floor_stone_b2
+arch floor_blue2
 x 17
 y 7
 end
@@ -2768,6 +2772,14 @@ x 20
 y 5
 end
 arch floor_stone_b4
+x 20
+y 6
+end
+arch exit
+slaying creation_0501
+hp 19
+sp 19
+player_only 0
 x 20
 y 6
 end

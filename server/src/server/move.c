@@ -228,82 +228,6 @@ int transfer_ob(object *op, int x, int y, int randomly, object *originator, obje
 }
 
 /**
- * Teleport an item around a nearby random teleporter of specified type.
- * @param teleporter The teleporter.
- * @param tele_type Teleporter type.
- * @param user Object using the teleporter.
- * @return  1 if the object was destroyed, 0 otherwise. */
-int teleport(object *teleporter, uint8 tele_type, object *user)
-{
-    /* Better use c/malloc here in the future */
-    object * altern[120];
-    int i, j, k, nrofalt = 0, xt, yt;
-    object *other_teleporter, *tmp;
-    mapstruct *m;
-
-    if (user == NULL) {
-        return 0;
-    }
-
-    if (user->head != NULL) {
-        user = user->head;
-    }
-
-    /* Find all other teleporters within range. This range should really
-     * be setable by some object attribute instead of using hard coded
-     * values. */
-    for (i = -5; i < 6; i++) {
-        for (j = -5; j < 6; j++) {
-            if (i == 0 && j == 0) {
-                continue;
-            }
-
-            xt = teleporter->x + i;
-            yt = teleporter->y + j;
-
-            if (!(m = get_map_from_coord(teleporter->map, &xt, &yt))) {
-                continue;
-            }
-
-            other_teleporter = GET_MAP_OB(m, xt, yt);
-
-            while (other_teleporter) {
-                if (other_teleporter->type == tele_type) {
-                    break;
-                }
-
-                other_teleporter = other_teleporter->above;
-            }
-
-            if (other_teleporter) {
-                altern[nrofalt++] = other_teleporter;
-            }
-        }
-    }
-
-    if (!nrofalt) {
-        logger_print(LOG(BUG), "No alternative teleporters around!");
-        return 0;
-    }
-
-    other_teleporter = altern[RANDOM() % nrofalt];
-    k = find_free_spot(user->arch, user, other_teleporter->map, other_teleporter->x, other_teleporter->y, 1, 9);
-
-    if (k == -1) {
-        return 0;
-    }
-
-    object_remove(user, 0);
-
-    user->x = other_teleporter->x + freearr_x[k];
-    user->y = other_teleporter->y + freearr_y[k];
-
-    tmp = insert_ob_in_map(user, other_teleporter->map, NULL, 0);
-
-    return (tmp == NULL);
-}
-
-/**
  * An object is being pushed.
  * @param op What is being pushed.
  * @param dir Pushing direction.
@@ -351,7 +275,7 @@ int push_ob(object *op, int dir, object *pusher)
 
     /* Try to find something that would block the push. */
     for (tmp = GET_MAP_OB(m, x, y); tmp; tmp = tmp->above) {
-        if (tmp->head || IS_LIVE(tmp) || tmp->type == TELEPORTER || tmp->type == SHOP_MAT) {
+        if (tmp->head || IS_LIVE(tmp) || tmp->type == EXIT) {
             return 0;
         }
     }

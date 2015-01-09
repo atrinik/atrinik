@@ -95,13 +95,16 @@ static inline mapstruct *load_and_link_tiled_map(mapstruct *orig_map, int tile_n
  * @param map2
  * @param x
  * @param y
+ * @param z
  * @param id
  * @param level Recursion level.
  * @return
  * @todo A bidirectional breadth-first search would be more efficient. */
-static int relative_tile_position_rec(mapstruct *map1, mapstruct *map2, int *x, int *y, uint32 id, int level)
+static int relative_tile_position_rec(mapstruct *map1, mapstruct *map2, int *x, int *y, int *z, uint32 id, int level, int flags)
 {
     int i;
+    map_exit_t *exit;
+    mapstruct *m;
 
     if (map1 == map2) {
         return 1;
@@ -114,52 +117,82 @@ static int relative_tile_position_rec(mapstruct *map1, mapstruct *map2, int *x, 
     level--;
     map1->traversed = id;
 
-    /* Depth-first search for the destination map */
-    for (i = 0; i < TILED_NUM_DIR; i++) {
-        if (map1->tile_path[i]) {
-            if (!map1->tile_map[i] || map1->tile_map[i]->in_memory != MAP_IN_MEMORY) {
-                if (!load_and_link_tiled_map(map1, i)) {
-                    continue;
+    DL_FOREACH(map1->exits, exit)
+    {
+        m = exit_get_destination(exit->obj, NULL, NULL, 0);
+
+        if (m == NULL) {
+            continue;
+        }
+
+        if (m->traversed != id && (m == map2 || relative_tile_position_rec(m,
+                map2, x, y, z, id, flags,
+                flags & RV_RECURSIVE_SEARCH ? level : 1))) {
+            *z += 1;
+            return 1;
+        }
+    }
+
+    if (flags & RV_RECURSIVE_SEARCH) {
+        /* Depth-first search for the destination map */
+        for (i = 0; i < TILED_NUM; i++) {
+            if (map1->tile_path[i]) {
+                if (map1->tile_map[i] == NULL ||
+                        map1->tile_map[i]->in_memory != MAP_IN_MEMORY) {
+                    if (flags & RV_NO_LOAD || !load_and_link_tiled_map(map1,
+                            i)) {
+                        continue;
+                    }
                 }
-            }
 
-            if (map1->tile_map[i]->traversed != id && ((map1->tile_map[i] == map2) || relative_tile_position_rec(map1->tile_map[i], map2, x, y, id, level))) {
-                switch (i) {
-                case TILED_NORTH:
-                    *y -= MAP_HEIGHT(map1->tile_map[i]);
-                    return 1;
+                if (map1->tile_map[i]->traversed != id && (map1->tile_map[i] ==
+                        map2 || relative_tile_position_rec(map1->tile_map[i],
+                        map2, x, y, z, id, level, flags))) {
+                    switch (i) {
+                    case TILED_NORTH:
+                        *y -= MAP_HEIGHT(map1->tile_map[i]);
+                        return 1;
 
-                case TILED_EAST:
-                    *x += MAP_WIDTH(map1);
-                    return 1;
+                    case TILED_EAST:
+                        *x += MAP_WIDTH(map1);
+                        return 1;
 
-                case TILED_SOUTH:
-                    *y += MAP_HEIGHT(map1);
-                    return 1;
+                    case TILED_SOUTH:
+                        *y += MAP_HEIGHT(map1);
+                        return 1;
 
-                case TILED_WEST:
-                    *x -= MAP_WIDTH(map1->tile_map[i]);
-                    return 1;
+                    case TILED_WEST:
+                        *x -= MAP_WIDTH(map1->tile_map[i]);
+                        return 1;
 
-                case TILED_NORTHEAST:
-                    *y -= MAP_HEIGHT(map1->tile_map[i]);
-                    *x += MAP_WIDTH(map1);
-                    return 1;
+                    case TILED_NORTHEAST:
+                        *y -= MAP_HEIGHT(map1->tile_map[i]);
+                        *x += MAP_WIDTH(map1);
+                        return 1;
 
-                case TILED_SOUTHEAST:
-                    *y += MAP_HEIGHT(map1);
-                    *x += MAP_WIDTH(map1);
-                    return 1;
+                    case TILED_SOUTHEAST:
+                        *y += MAP_HEIGHT(map1);
+                        *x += MAP_WIDTH(map1);
+                        return 1;
 
-                case TILED_SOUTHWEST:
-                    *y += MAP_HEIGHT(map1);
-                    *x -= MAP_WIDTH(map1->tile_map[i]);
-                    return 1;
+                    case TILED_SOUTHWEST:
+                        *y += MAP_HEIGHT(map1);
+                        *x -= MAP_WIDTH(map1->tile_map[i]);
+                        return 1;
 
-                case TILED_NORTHWEST:
-                    *y -= MAP_HEIGHT(map1->tile_map[i]);
-                    *x -= MAP_WIDTH(map1->tile_map[i]);
-                    return 1;
+                    case TILED_NORTHWEST:
+                        *y -= MAP_HEIGHT(map1->tile_map[i]);
+                        *x -= MAP_WIDTH(map1->tile_map[i]);
+                        return 1;
+
+                    case TILED_UP:
+                        *z += 1;
+                        return 1;
+
+                    case TILED_DOWN:
+                        *z -= 1;
+                        return 1;
+                    }
                 }
             }
         }
@@ -187,10 +220,10 @@ static int relative_tile_position_rec(mapstruct *map1, mapstruct *map2, int *x, 
  * @param map2
  * @param x
  * @param y
+ * @param z
  * @return 1 if the two tiles are part of the same map, 0 otherwise. */
-static int relative_tile_position(mapstruct *map1, mapstruct *map2, int *x, int *y)
+static int relative_tile_position(mapstruct *map1, mapstruct *map2, int *x, int *y, int *z, int flags)
 {
-    int i;
     static uint32 traversal_id = 0;
 
     /* Save some time in the simplest cases ( very similar to on_same_map() )*/
@@ -200,56 +233,6 @@ static int relative_tile_position(mapstruct *map1, mapstruct *map2, int *x, int 
 
     if (map1 == map2) {
         return 1;
-    }
-
-    for (i = 0; i < TILED_NUM_DIR; i++) {
-        if (map1->tile_path[i]) {
-            if (!map1->tile_map[i] || map1->tile_map[i]->in_memory != MAP_IN_MEMORY) {
-                if (!load_and_link_tiled_map(map1, i)) {
-                    continue;
-                }
-            }
-
-            if (map1->tile_map[i] == map2) {
-                switch (i) {
-                case TILED_NORTH:
-                    *y -= MAP_HEIGHT(map1->tile_map[i]);
-                    return 1;
-
-                case TILED_EAST:
-                    *x += MAP_WIDTH(map1);
-                    return 1;
-
-                case TILED_SOUTH:
-                    *y += MAP_HEIGHT(map1);
-                    return 1;
-
-                case TILED_WEST:
-                    *x -= MAP_WIDTH(map1->tile_map[i]);
-                    return 1;
-
-                case TILED_NORTHEAST:
-                    *y -= MAP_HEIGHT(map1->tile_map[i]);
-                    *x += MAP_WIDTH(map1);
-                    return 1;
-
-                case TILED_SOUTHEAST:
-                    *y += MAP_HEIGHT(map1);
-                    *x += MAP_WIDTH(map1);
-                    return 1;
-
-                case TILED_SOUTHWEST:
-                    *y += MAP_HEIGHT(map1);
-                    *x -= MAP_WIDTH(map1->tile_map[i]);
-                    return 1;
-
-                case TILED_NORTHWEST:
-                    *y -= MAP_HEIGHT(map1->tile_map[i]);
-                    *x -= MAP_WIDTH(map1->tile_map[i]);
-                    return 1;
-                }
-            }
-        }
     }
 
     /* Avoid overflow of traversal_id */
@@ -266,7 +249,8 @@ static int relative_tile_position(mapstruct *map1, mapstruct *map2, int *x, int 
     }
 
     /* Recursive search */
-    return relative_tile_position_rec(map1, map2, x, y, ++traversal_id, 2);
+    return relative_tile_position_rec(map1, map2, x, y, z, ++traversal_id, 2,
+            flags);
 }
 
 /**
@@ -1623,6 +1607,10 @@ void update_position(mapstruct *m, int x, int y)
                 flags |= P_MAGIC_MIRROR;
             }
 
+            if (tmp->type == EXIT) {
+                flags |= P_IS_EXIT;
+            }
+
             if (QUERY_FLAG(tmp, FLAG_OUTDOOR)) {
                 flags |= P_OUTDOOR;
             }
@@ -2104,6 +2092,7 @@ int get_rangevector(object *op1, object *op2, rv_vector *retval, int flags)
 int get_rangevector_from_mapcoords(mapstruct *map1, int x, int y, mapstruct *map2, int x2, int y2, rv_vector *retval, int flags)
 {
     retval->part = NULL;
+    retval->distance_z = 0;
 
     if (map1 == map2) {
         retval->distance_x = x2 - x;
@@ -2132,24 +2121,33 @@ int get_rangevector_from_mapcoords(mapstruct *map1, int x, int y, mapstruct *map
     } else if (map1->tile_map[TILED_NORTHWEST] == map2) {
         retval->distance_x = -(x + (MAP_WIDTH(map2) - x2));
         retval->distance_y = -(y + (MAP_HEIGHT(map2) - y2));
-    } else if (map1->tile_map[TILED_UP] == map2 ||
-            map1->tile_map[TILED_DOWN] == map2) {
-        return 0;
-    } else if (flags & RV_RECURSIVE_SEARCH) {
+    } else if (map1->tile_map[TILED_UP] == map2) {
+        retval->distance_x = x2 - x;
+        retval->distance_y = y2 - y;
+        retval->distance_z = 1;
+    } else if (map1->tile_map[TILED_DOWN] == map2) {
+        retval->distance_x = x2 - x;
+        retval->distance_y = y2 - y;
+        retval->distance_z = -1;
+    } else {
         retval->distance_x = x2;
         retval->distance_y = y2;
 
-        if (!relative_tile_position(map1, map2, &retval->distance_x, &retval->distance_y)) {
+        if (!(flags & RV_RECURSIVE_SEARCH)) {
+            flags |= RV_NO_LOAD;
+        }
+
+        if (!relative_tile_position(map1, map2, &retval->distance_x,
+                &retval->distance_y, &retval->distance_z, flags)) {
+            log(LOG(INFO), "didn't find relative tile pos");
             return 0;
         }
 
         retval->distance_x -= x;
         retval->distance_y -= y;
-    } else {
-        return 0;
     }
 
-    switch (flags & (0x04 | 0x08)) {
+    switch (flags & (RV_EUCLIDIAN_DISTANCE | RV_DIAGONAL_DISTANCE)) {
     case RV_MANHATTAN_DISTANCE:
         retval->distance = abs(retval->distance_x) + abs(retval->distance_y);
         break;
@@ -2171,6 +2169,34 @@ int get_rangevector_from_mapcoords(mapstruct *map1, int x, int y, mapstruct *map
     return 1;
 }
 
+static int on_same_map_exits(mapstruct *map1, mapstruct *map2)
+{
+    map_exit_t *exit;
+    mapstruct *m;
+    int i;
+
+    DL_FOREACH(map1->exits, exit)
+    {
+        m = exit_get_destination(exit->obj, NULL, NULL, 0);
+
+        if (m == NULL) {
+            continue;
+        }
+
+        if (m == map2) {
+            return 1;
+        }
+
+        for (i = 0; i < TILED_NUM_DIR; i++) {
+            if (m->tile_map[i] == map2) {
+                return 1;
+            }
+        }
+    }
+
+    return 0;
+}
+
 /**
  * Checks whether two objects are on the same map, taking map tiling
  * into account.
@@ -2190,9 +2216,22 @@ int on_same_map(object *op1, object *op2)
     }
 
     for (i = 0; i < TILED_NUM; i++) {
+        if (op1->map->tile_map[i] == NULL ||
+                op1->map->tile_map[i]->in_memory != MAP_IN_MEMORY) {
+            continue;
+        }
+
         if (op1->map->tile_map[i] == op2->map) {
             return 1;
         }
+
+        if (on_same_map_exits(op1->map->tile_map[i], op2->map)) {
+            return 1;
+        }
+    }
+
+    if (on_same_map_exits(op1->map, op2->map)) {
+        return 1;
     }
 
     return 0;

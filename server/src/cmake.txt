@@ -208,7 +208,6 @@ set(SOURCES
 	src/types/scroll.c
 	src/types/shield.c
 	src/types/shop_floor.c
-	src/types/shop_mat.c
 	src/types/sign.c
 	src/types/skill.c
 	src/types/skill_item.c
@@ -220,7 +219,6 @@ set(SOURCES
 	src/types/spinner.c
 	src/types/swarm_spell.c
 	src/types/symptom.c
-	src/types/teleporter.c
 	src/types/treasure.c
 	src/types/wall.c
 	src/types/wand.c

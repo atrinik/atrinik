@@ -217,9 +217,6 @@
  * Player mover. */
 #define PLAYER_MOVER 40
 /**
- * Teleporter. */
-#define TELEPORTER 41
-/**
  * Creator object. */
 #define CREATOR 42
 /**
@@ -275,9 +272,6 @@
 /**
  * Shop floor. */
 #define SHOP_FLOOR 68
-/**
- * Shop mat. */
-#define SHOP_MAT 69
 /**
  * A ring. */
 #define RING 70
@@ -486,14 +480,6 @@
 #define ST1_CONTAINER_NORMAL_party     128
 /** Party corpse container */
 #define ST1_CONTAINER_CORPSE_party     129
-/*@}*/
-
-/**
- * @defgroup exit_sub_types Exit sub types
- * Sub types for EXIT objects. If set, a teleport sound is played.
- *@{*/
-#define ST1_EXIT_SOUND_NO       0
-#define ST1_EXIT_SOUND          1
 /*@}*/
 
 /**

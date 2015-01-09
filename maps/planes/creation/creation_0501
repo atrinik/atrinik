@@ -2,7 +2,7 @@ arch map
 name Plane of Creation
 msg
 Created:  2011-03-25 Alex Tokar
-Modified: 2015-01-06 Alex Tokar
+Modified: 2015-01-09 Alex Tokar
 endmsg
 width 24
 height 24
@@ -1616,7 +1616,7 @@ arch floor_stone_b4
 x 12
 y 4
 end
-arch floor_stone_b2
+arch floor_stone_b4
 x 12
 y 5
 end
@@ -1676,7 +1676,7 @@ arch floor_stone_b1
 x 12
 y 19
 end
-arch floor_stone_b2
+arch floor_stone_b4
 x 12
 y 20
 end
@@ -2080,11 +2080,16 @@ end
 arch wall_stone_1
 x 16
 end
-arch floor_stone_b4
+arch floor_stone_b1
 x 16
 y 1
 end
-arch floor_stone_b3
+arch shop_mat
+player_only 0
+x 16
+y 1
+end
+arch floor_stone_b2
 x 16
 y 2
 end
@@ -2237,11 +2242,23 @@ arch floor_stone_b4
 x 17
 y 1
 end
-arch floor_stone_b4
+arch grate1_3
+x 17
+y 1
+end
+arch floor_stone_b3
 x 17
 y 2
 end
-arch floor_stone_b2
+arch grate1_3
+x 17
+y 2
+end
+arch floor_stone_b1
+x 17
+y 3
+end
+arch grate1_3
 x 17
 y 3
 end
@@ -2354,6 +2371,10 @@ arch floor_stone_b4
 x 18
 y 3
 end
+arch grate1_1
+x 18
+y 3
+end
 arch floor_stone_b4
 x 18
 y 4
@@ -2451,7 +2472,7 @@ end
 arch wall_stone_1
 x 19
 end
-arch floor_stone_b4
+arch floor_blue2
 x 19
 y 1
 end
@@ -2460,6 +2481,10 @@ x 19
 y 2
 end
 arch floor_stone_b1
+x 19
+y 3
+end
+arch grate1_1
 x 19
 y 3
 end
@@ -2528,6 +2553,13 @@ x 19
 y 19
 end
 arch floor_stone_b4
+x 19
+y 20
+end
+arch exit
+slaying creation_0601
+hp 19
+sp 6
 x 19
 y 20
 end
@@ -2572,6 +2604,10 @@ arch floor_stone_b3
 x 20
 y 3
 end
+arch grate1_1
+x 20
+y 3
+end
 arch floor_stone_b1
 x 20
 y 4
@@ -2628,9 +2664,36 @@ arch floor_stone_b4
 x 20
 y 17
 end
-arch floor_stone_b3
+arch floor_blue2
 x 20
 y 18
+end
+arch spawn_point
+x 20
+y 18
+arch archer
+speed 0.5
+movement_type 176
+type 83
+arch waypoint
+name waypoint2
+slaying creation_0501
+hp 20
+sp 18
+end
+arch waypoint
+name waypoint1
+title waypoint2
+slaying creation_0601
+hp 17
+sp 7
+wc 3
+end
+arch event_obj
+sub_type 6
+race scripts/waypoint.py
+end
+end
 end
 arch floor_stone_b2
 x 20
@@ -2669,7 +2732,12 @@ end
 arch wall_stone_1
 x 21
 end
-arch floor_stone_b3
+arch floor_stone_b1
+x 21
+y 1
+end
+arch shop_mat
+player_only 0
 x 21
 y 1
 end
@@ -2681,13 +2749,42 @@ arch floor_stone_b1
 x 21
 y 3
 end
+arch grate1_1
+x 21
+y 3
+end
 arch floor_stone_b2
 x 21
 y 4
 end
-arch floor_stone_b3
+arch floor_blue2
 x 21
 y 5
+end
+arch spawn_point
+x 21
+y 5
+arch archer
+speed 0.5
+movement_type 176
+type 83
+arch waypoint
+name waypoint2
+hp 21
+sp 5
+end
+arch waypoint
+name waypoint1
+title waypoint2
+hp 19
+sp 1
+wc 3
+end
+arch event_obj
+sub_type 6
+race scripts/waypoint.py
+end
+end
 end
 arch floor_stone_b2
 x 21

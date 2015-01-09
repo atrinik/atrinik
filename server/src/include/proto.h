@@ -457,7 +457,6 @@ extern int get_randomized_dir(int dir);
 extern int object_move_to(object *op, int dir, object *originator, mapstruct *m, int x, int y);
 extern int move_ob(object *op, int dir, object *originator);
 extern int transfer_ob(object *op, int x, int y, int randomly, object *originator, object *trap);
-extern int teleport(object *teleporter, uint8 tele_type, object *user);
 extern int push_ob(object *op, int dir, object *pusher);
 /* src/server/object.c */
 extern object *active_objects;
@@ -575,7 +574,7 @@ extern void party_update_who(player *pl);
 extern void path_request(object *waypoint);
 extern object *path_get_next_request(void);
 extern shstr *path_encode(path_node_t *path);
-extern int path_get_next(shstr *buf, sint16 *off, shstr **mappath, mapstruct **map, int *x, int *y);
+extern int path_get_next(shstr *buf, sint16 *off, shstr **mappath, mapstruct **map, int *x, int *y, uint32 *flags);
 extern path_node_t *path_compress(path_node_t *path);
 extern path_node_t *path_find(object *op, mapstruct *map1, int x, int y, mapstruct *map2, int x2, int y2);
 /* src/server/plugins.c */
@@ -935,6 +934,7 @@ extern void object_type_init_duplicator(void);
 /* src/types/event_obj.c */
 extern void object_type_init_event_obj(void);
 /* src/types/exit.c */
+extern mapstruct *exit_get_destination(object *op, int *x, int *y, int do_load);
 extern void object_type_init_exit(void);
 /* src/types/experience.c */
 extern void object_type_init_experience(void);
@@ -1090,8 +1090,6 @@ extern void object_type_init_scroll(void);
 extern void object_type_init_shield(void);
 /* src/types/shop_floor.c */
 extern void object_type_init_shop_floor(void);
-/* src/types/shop_mat.c */
-extern void object_type_init_shop_mat(void);
 /* src/types/sign.c */
 extern void object_type_init_sign(void);
 /* src/types/skill.c */
@@ -1120,8 +1118,6 @@ extern void object_type_init_spinner(void);
 extern void object_type_init_swarm_spell(void);
 /* src/types/symptom.c */
 extern void object_type_init_symptom(void);
-/* src/types/teleporter.c */
-extern void object_type_init_teleporter(void);
 /* src/types/treasure.c */
 extern void object_type_init_treasure(void);
 /* src/types/wall.c */

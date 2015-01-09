@@ -244,6 +244,8 @@
 #define P_IS_PLAYER           0x08
 /** There is a monster on this square. */
 #define P_IS_MONSTER            0x10
+/** There is an exit on this tile. */
+#define P_IS_EXIT             0x20
 /**
  * Only players are allowed to enter this space. This excludes mobs
  * and golems but also spell effects and thrown / fired items.
@@ -525,6 +527,14 @@ typedef struct map_event {
     struct atrinik_plugin *plugin;
 } map_event;
 
+typedef struct map_exit {
+    struct map_exit *next;
+
+    struct map_exit *prev;
+
+    object *obj;
+} map_exit_t;
+
 typedef struct path_node path_node_t;
 
 /**
@@ -577,6 +587,8 @@ typedef struct mapdef {
 
     /** Map-wide events for this map. */
     struct map_event *events;
+
+    map_exit_t *exits;
 
     /** Linked list of linked lists of buttons */
     objectlink *buttons;
@@ -757,6 +769,9 @@ typedef struct rv_vector_s {
     /** Y distance away */
     int distance_y;
 
+    /** Z distance away */
+    int distance_z;
+
     /** Atrinik direction scheme that the creature should head */
     int direction;
 
@@ -769,13 +784,15 @@ typedef struct rv_vector_s {
  * Range vector flags, used by functions like get_rangevector() and
  * get_rangevector_from_mapcoords().
  *@{*/
-#define RV_IGNORE_MULTIPART    0x01
-#define RV_RECURSIVE_SEARCH    0x02
-
 #define RV_MANHATTAN_DISTANCE  0x00
-#define RV_EUCLIDIAN_DISTANCE  0x04
-#define RV_DIAGONAL_DISTANCE   0x08
-#define RV_NO_DISTANCE         (0x08 | 0x04)
+#define RV_EUCLIDIAN_DISTANCE  0x01
+#define RV_DIAGONAL_DISTANCE   0x02
+#define RV_NO_DISTANCE         (RV_EUCLIDIAN_DISTANCE | RV_DIAGONAL_DISTANCE)
+
+#define RV_IGNORE_MULTIPART    0x04
+#define RV_RECURSIVE_SEARCH    0x08
+#define RV_NO_LOAD             0x10
+
 /*@}*/
 
 /**

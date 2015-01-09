@@ -80,6 +80,11 @@
 #define PATH_COST_DIAG 1.01
 
 /**
+ * Path cost per z level.
+ */
+#define PATH_COST_LEVEL 1000.
+
+/**
  * The pathfinder queue.
  */
 static struct {
@@ -261,7 +266,8 @@ static path_node_t *path_node_new(mapstruct *map, sint16 x, sint16 y,
         return NULL;
     }
 
-    cross = abs(rv.distance_x * rv2.distance_y - rv2.distance_x * rv.distance_y);
+    cross = abs(rv.distance_x * rv2.distance_y - rv2.distance_x *
+            rv.distance_y);
     straight = abs(abs(rv.distance_x) - abs(rv.distance_y));
     diagonal = MAX(abs(rv.distance_x), abs(rv.distance_y)) - straight;
 
@@ -274,7 +280,10 @@ static path_node_t *path_node_new(mapstruct *map, sint16 x, sint16 y,
     node->x = x;
     node->y = y;
     node->cost = cost;
-    node->heuristic = straight + PATH_COST_DIAG * diagonal + cross * 0.001;
+    node->flags = 0;
+    node->distance_z = abs(rv.distance_z);
+    node->heuristic = straight + PATH_COST_DIAG * diagonal + cross * 0.001 +
+            abs(rv.distance_z) * PATH_COST_LEVEL;
     node->sum = (ALGORITHM * node->cost + (1 - ALGORITHM) *
             node->heuristic) / MAX(ALGORITHM, 1 - ALGORITHM);
 
@@ -475,7 +484,7 @@ shstr *path_encode(path_node_t *path)
             last_map = tmp->map;
         }
 
-        stringbuffer_append_printf(sb, " %d,%d", tmp->x, tmp->y);
+        stringbuffer_append_printf(sb, " %d,%d,%d", tmp->x, tmp->y, tmp->flags);
     }
 
     cp = stringbuffer_finish(sb);
@@ -501,12 +510,13 @@ shstr *path_encode(path_node_t *path)
  * working on currently lives on (to handle paths without map strings).
  * @param x X position.
  * @param y Y position.
+ * @param flags Flags.
  * @return If a location is found, will return 1 and update map, x, y and off
  * (off will be set to the index to use for the next call to this function).
  * Otherwise 0 will be returned and the values of map, x and y will be undefined
  * and off will not be touched. */
 int path_get_next(shstr *buf, sint16 *off, shstr **mappath, mapstruct **map,
-        int *x, int *y)
+        int *x, int *y, uint32 *flags)
 {
     const char *coord_start, *coord_end, *map_def;
 
@@ -516,6 +526,7 @@ int path_get_next(shstr *buf, sint16 *off, shstr **mappath, mapstruct **map,
     assert(map != NULL && *map != NULL);
     assert(x != NULL);
     assert(y != NULL);
+    assert(flags != NULL);
 
     map_def = coord_start = buf + *off;
 
@@ -572,7 +583,8 @@ int path_get_next(shstr *buf, sint16 *off, shstr **mappath, mapstruct **map,
     /* Get the requested coordinate pair. */
     coord_end = coord_start + strcspn(coord_start, " \n");
 
-    if (coord_end == coord_start || sscanf(coord_start, "%d,%d", x, y) != 2) {
+    if (coord_end == coord_start || sscanf(coord_start, "%d,%d,%d", x, y,
+            flags) != 3) {
         log(LOG(BUG), "Illegal coordinate pair in '%s' off %d", buf, *off);
         return 0;
     }
@@ -668,13 +680,13 @@ path_node_t *path_compress(path_node_t *path)
 path_node_t *path_find(object *op, mapstruct *map1, int x, int y,
         mapstruct *map2, int x2, int y2)
 {
-    path_node_t *open_list;
-    path_node_t *found_path, *visited, *node, *new_node;
+    path_node_t *open_list, *found_path, *visited, *node, *new_node;
     path_node_t start, goal;
     static uint32 traversal_id = 0;
-    int fail, i, nx, ny, is_diagonal;
-    mapstruct *m;
+    int i, nx, ny, is_diagonal, node_x, node_y;
+    mapstruct *m, *node_map;
     double cost;
+    rv_vector rv;
 #if TIME_PATHFINDING
     struct timeval tv1, tv2;
     int searched;
@@ -709,7 +721,6 @@ path_node_t *path_find(object *op, mapstruct *map1, int x, int y,
 #endif
 
     traversal_id++;
-    fail = 0;
     pathfinder_nodebuf_next = 0;
     found_path = NULL;
 
@@ -720,7 +731,7 @@ path_node_t *path_find(object *op, mapstruct *map1, int x, int y,
         return NULL;
     }
 
-    while (open_list != NULL && !fail) {
+    while (open_list != NULL && pathfinder_nodebuf_next < PATHFINDER_NODEBUF) {
         node = open_list;
         path_node_remove(node, &open_list);
 
@@ -735,12 +746,50 @@ path_node_t *path_find(object *op, mapstruct *map1, int x, int y,
         /* Close this tile. */
         PATHFINDING_SET_CLOSED(node->map, node->x, node->y, traversal_id);
 
-        for (i = 1; i <= SIZEOFFREE1; i++) {
-            nx = node->x + freearr_x[i];
-            ny = node->y + freearr_y[i];
-            is_diagonal = nx != node->x && ny != node->y;
+        node_map = node->map;
+        node_x = node->x;
+        node_y = node->y;
 
-            m = get_map_from_coord(node->map, &nx, &ny);
+        if (GET_MAP_FLAGS(node_map, node_x, node_y) & P_IS_EXIT) {
+            object *tmp;
+
+            for (tmp = GET_MAP_OB(node_map, node_x, node_y); tmp != NULL;
+                    tmp = tmp->above) {
+                if (tmp->type == EXIT) {
+                    m = exit_get_destination(tmp, &nx, &ny, 1);
+
+                    /* Do not enter exits that have worse z distance than the
+                     * current node. */
+                    if (m != NULL && get_rangevector_from_mapcoords(m, node_x,
+                            node_y, goal.map, goal.x, goal.y, &rv,
+                            RV_RECURSIVE_SEARCH) && abs(rv.distance_z) <=
+                            node->distance_z) {
+                        node_map = m;
+                        node_x = nx;
+                        node_y = ny;
+
+                        /* Add exit flag to the node with the exit, to indicate
+                         * that the path user needs to use an exit on that tile
+                         * (possibly having to apply it, in case it's not a
+                         * portal or the like). */
+                        node->flags |= PATH_NODE_EXIT;
+
+                        /* Close the tile that the exit leads to. */
+                        PATHFINDING_SET_CLOSED(node_map, node_x, node_y,
+                                traversal_id);
+
+                        break;
+                    }
+                }
+            }
+        }
+
+        for (i = 1; i <= SIZEOFFREE1; i++) {
+            nx = node_x + freearr_x[i];
+            ny = node_y + freearr_y[i];
+            is_diagonal = nx != node_x && ny != node_y;
+
+            m = get_map_from_coord(node_map, &nx, &ny);
 
             if (m == NULL) {
                 continue;
@@ -780,8 +829,7 @@ path_node_t *path_find(object *op, mapstruct *map1, int x, int y,
             new_node = path_node_new(m, nx, ny, cost, &start, &goal, node);
 
             if (new_node == NULL) {
-                fail = 1;
-                break;
+                continue;
             }
 
             path_node_insert_priority(new_node, &open_list);

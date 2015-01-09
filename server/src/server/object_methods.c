@@ -153,7 +153,6 @@ void object_methods_init(void)
     object_type_init_scroll();
     object_type_init_shield();
     object_type_init_shop_floor();
-    object_type_init_shop_mat();
     object_type_init_sign();
     object_type_init_skill();
     object_type_init_skill_item();
@@ -165,7 +164,6 @@ void object_methods_init(void)
     object_type_init_spinner();
     object_type_init_swarm_spell();
     object_type_init_symptom();
-    object_type_init_teleporter();
     object_type_init_treasure();
     object_type_init_wall();
     object_type_init_wand();
@@ -179,6 +177,8 @@ void object_methods_init(void)
 int object_apply(object *op, object *applier, int aflags)
 {
     object_methods *methods;
+
+    applier = HEAD(applier);
 
     for (methods = &object_type_methods[op->type]; methods; methods = methods->fallback) {
         if (methods->apply_func) {
@@ -240,6 +240,7 @@ int object_move_on(object *op, object *victim, object *originator, int state)
     int ret;
 
     op = HEAD(op);
+    victim = HEAD(victim);
 
     if (trigger_event(EVENT_TRIGGER, victim, op, originator, NULL, 0, 0, 0, SCRIPT_FIX_NOTHING)) {
         return OBJECT_METHOD_OK;

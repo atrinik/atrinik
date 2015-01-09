@@ -425,7 +425,7 @@ static void process_func(object *op)
         CLEAR_FLAG(op, FLAG_SLEEP);
         op->direction = rv.direction;
 
-        if (rv.distance <= 1) {
+        if (rv.distance <= 1 && rv.distance_z == 0) {
             op->anim_flags |= ANIM_FLAG_ATTACKING;
         }
 
@@ -647,7 +647,7 @@ static void process_func(object *op)
 
         /* If valid aggro wp (and no special attack), and not scared, use it for
          * movement */
-        if (aggro_wp && aggro_wp->enemy && aggro_wp->enemy == op->enemy && rv.distance > 1 && !QUERY_FLAG(op, FLAG_SCARED) && !QUERY_FLAG(op, FLAG_RUN_AWAY)) {
+        if (aggro_wp && aggro_wp->enemy && aggro_wp->enemy == op->enemy && (rv.distance_z != 0 || rv.distance > 1) && !QUERY_FLAG(op, FLAG_SCARED) && !QUERY_FLAG(op, FLAG_RUN_AWAY)) {
             waypoint_move(op, aggro_wp);
             return;
         } else {
@@ -890,7 +890,8 @@ static int can_hit(object *ob1, rv_vector *rv)
         return 0;
     }
 
-    return abs(rv->distance_x) < 2 && abs(rv->distance_y) < 2;
+    return rv->distance_z == 0 && abs(rv->distance_x) < 2 &&
+            abs(rv->distance_y) < 2;
 }
 
 #define MAX_KNOWN_SPELLS 20

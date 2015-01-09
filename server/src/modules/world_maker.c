@@ -185,7 +185,6 @@ static int render_object(gdImagePtr im, int x, int y, object *ob)
             (head->type != WALL || QUERY_FLAG(head, FLAG_DRAW_DIRECTION)) &&
             head->type != DOOR &&
             head->type != EXIT &&
-            head->type != SHOP_MAT &&
             head->type != HOLY_ALTAR &&
             head->type != SIGN &&
             (head->type != MISC_OBJECT || !QUERY_FLAG(head, FLAG_NO_PASS))) {

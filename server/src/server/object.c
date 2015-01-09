@@ -1170,6 +1170,10 @@ void update_object(object *op, int action)
                 newflags |= P_MAGIC_MIRROR;
             }
 
+            if (op->type == EXIT) {
+                newflags |= P_IS_EXIT;
+            }
+
             if (QUERY_FLAG(op, FLAG_OUTDOOR)) {
                 newflags |= P_OUTDOOR;
             }
@@ -3163,11 +3167,6 @@ int object_enter_map(object *op, object *exit_ob, mapstruct *m, int x, int y, ui
             x += freearr_x[i];
             y += freearr_y[i];
         }
-    }
-
-    if (exit_ob != NULL && exit_ob->sub_type == ST1_EXIT_SOUND) {
-        play_sound_map(exit_ob->map, CMD_SOUND_EFFECT, "teleport.ogg",
-                exit_ob->x, exit_ob->y, 0, 0);
     }
 
     if (!QUERY_FLAG(op, FLAG_REMOVED)) {

@@ -303,7 +303,7 @@ object *pick_joined_wall(object *the_wall, char **layout, int i, int j, RMParms 
  * @param RP Random map parameters.
  * @return Correct wall for spot.
  * @todo Merge with pick_joined_wall()? */
-object * retrofit_joined_wall(mapstruct *the_map, int i, int j, int insert_flag, RMParms *RP)
+object *retrofit_joined_wall(mapstruct *the_map, int i, int j, int insert_flag, RMParms *RP)
 {
     int surround_index = 0, l;
     object *the_wall = NULL, *new_wall = NULL;
@@ -311,7 +311,7 @@ object * retrofit_joined_wall(mapstruct *the_map, int i, int j, int insert_flag,
 
     /* First find the wall */
     for (the_wall = GET_MAP_OB(the_map, i, j); the_wall != NULL; the_wall = the_wall->above) {
-        if (QUERY_FLAG(the_wall, FLAG_NO_PASS) && the_wall->type != EXIT && the_wall->type != TELEPORTER) {
+        if (QUERY_FLAG(the_wall, FLAG_NO_PASS) && the_wall->type != EXIT) {
             break;
         }
     }
