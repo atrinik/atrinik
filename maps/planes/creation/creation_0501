@@ -2,7 +2,7 @@ arch map
 name Plane of Creation
 msg
 Created:  2011-03-25 Alex Tokar
-Modified: 2015-01-09 Alex Tokar
+Modified: 2015-01-10 Alex Tokar
 endmsg
 width 24
 height 24
@@ -1902,6 +1902,33 @@ arch floor_stone_b3
 x 14
 y 10
 end
+arch spawn_point
+x 14
+y 10
+arch archer
+speed 0.5
+can_pass_thru 1
+behavior 0
+movement_type 176
+type 83
+arch waypoint
+name waypoint2
+hp 14
+sp 10
+end
+arch waypoint
+name waypoint1
+title waypoint2
+hp 14
+sp 17
+wc 3
+end
+arch event_obj
+sub_type 6
+race scripts/waypoint.py
+end
+end
+end
 arch floor_stone_b3
 x 14
 y 11
@@ -1915,6 +1942,10 @@ x 14
 y 13
 end
 arch floor_stone_b4
+x 14
+y 14
+end
+arch door1_locked
 x 14
 y 14
 end
@@ -2024,6 +2055,11 @@ x 15
 y 13
 end
 arch floor_stone_b3
+x 15
+y 14
+end
+arch door1_locked
+direction 7
 x 15
 y 14
 end
