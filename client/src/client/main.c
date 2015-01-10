@@ -178,8 +178,6 @@ static void init_game_data(void)
 
     msg_anim.message[0] = '\0';
 
-    start_anim = NULL;
-
     cpl.state = ST_INIT;
     map_redraw_flag = 1;
     csocket.fd = -1;
@@ -675,7 +673,7 @@ int main(int argc, char *argv[])
                 update = 1;
             } else if (map_redraw_flag) {
                 update = 1;
-            } else if (anims_need_redraw()) {
+            } else if (map_anims_need_redraw()) {
                 update = 1;
             }
         } else {

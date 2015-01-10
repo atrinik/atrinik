@@ -234,6 +234,11 @@ typedef struct MapCell {
     uint8 priority[NUM_SUB_LAYERS];
 } MapCell;
 
+#define MAP_STARTX map_width * (MAP_FOW_SIZE / 2)
+#define MAP_STARTY map_height * (MAP_FOW_SIZE / 2)
+#define MAP_WIDTH map_width
+#define MAP_HEIGHT map_height
+
 #define MAP_CELL_GET(_x, _y) (&cells[(_y) * (map_width * MAP_FOW_SIZE) + (_x)])
 #define MAP_CELL_GET_MIDDLE(_x, _y) \
     (&cells[((_y) + map_height * (MAP_FOW_SIZE / 2)) * \
@@ -261,5 +266,36 @@ typedef struct map_target_struct {
  * MapData::height_diff is set.
  */
 #define HEIGHT_MAX_RENDER 50
+
+/**
+ * @defgroup ANIM_xxx Animation types
+ * Animation types.
+ *@{*/
+/** Damage animation. */
+#define ANIM_DAMAGE     1
+/** Kill animation. */
+#define ANIM_KILL       2
+/*@}*/
+
+/**
+ * Map animation structure.
+ */
+typedef struct map_anim {
+    struct map_anim *next; ///< Next animation.
+    struct map_anim *prev; ///< Previous animation.
+
+    int type; ///< Type of the animation, one of @ref ANIM_xxx.
+    int value; ///< This is the number to display.
+    int mapx; ///< Map position X.
+    int mapy; ///< Map position Y.
+
+    int x; ///< X position.
+    int y; ///< Y position.
+    double xoff; ///< Movement in X per tick.
+    double yoff; ///< Movement in Y per tick.
+
+    uint32 start_tick; ///< The time we started this anim.
+    uint32 last_tick; ///< This is the end-tick.
+} map_anim_t;
 
 #endif

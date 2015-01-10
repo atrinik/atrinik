@@ -76,58 +76,15 @@ typedef struct sprite_struct {
     SDL_Surface *dark_level[DARK_LEVELS];
 } sprite_struct;
 
-/**
- * @defgroup ANIM_xxx Animation types
- * Animation types.
- *@{*/
-/** Damage animation. */
-#define ANIM_DAMAGE     1
-/** Kill animation. */
-#define ANIM_KILL       2
-/*@}*/
-
-/** Animation structure. */
-typedef struct _anim {
-    /** Pointer to next anim in queue. */
-    struct _anim *next;
-
-    /** Pointer to anim before. */
-    struct _anim *before;
-
-    /** Type of the animation, one of @ref ANIM_xxx. */
-    int type;
-
-    /** The time we started this anim. */
-    uint32 start_tick;
-
-    /** This is the end-tick. */
-    uint32 last_tick;
-
-    /** This is the number to display. */
-    int value;
-
-    /** X position. */
-    int x;
-
-    /** Y position. */
-    int y;
-
-    /** Movement in X per tick. */
-    int xoff;
-
-    /** Movement in Y per tick. */
-    float yoff;
-
-    /** Map position X. */
-    int mapx;
-
-    /** Map position Y. */
-    int mapy;
-} _anim;
-
-#define BORDER_CREATE_TOP(_surface, _x, _y, _w, _h, _color, _thickness) border_create_line((_surface), (_x), (_y), (_w), (_thickness), (_color))
-#define BORDER_CREATE_BOTTOM(_surface, _x, _y, _w, _h, _color, _thickness) border_create_line((_surface), (_x), (_y) + (_h) - (_thickness), (_w), (_thickness), (_color))
-#define BORDER_CREATE_LEFT(_surface, _x, _y, _w, _h, _color, _thickness) border_create_line((_surface), (_x), (_y), (_thickness), (_h), (_color))
-#define BORDER_CREATE_RIGHT(_surface, _x, _y, _w, _h, _color, _thickness) border_create_line((_surface), (_x) + (_w) - (_thickness), (_y), (_thickness), (_h), (_color))
+#define BORDER_CREATE_TOP(_surface, _x, _y, _w, _h, _color, _thickness) \
+    border_create_line((_surface), (_x), (_y), (_w), (_thickness), (_color))
+#define BORDER_CREATE_BOTTOM(_surface, _x, _y, _w, _h, _color, _thickness)\
+    border_create_line((_surface), (_x), (_y) + (_h) - (_thickness), (_w), \
+            (_thickness), (_color))
+#define BORDER_CREATE_LEFT(_surface, _x, _y, _w, _h, _color, _thickness) \
+    border_create_line((_surface), (_x), (_y), (_thickness), (_h), (_color))
+#define BORDER_CREATE_RIGHT(_surface, _x, _y, _w, _h, _color, _thickness) \
+    border_create_line((_surface), (_x) + (_w) - (_thickness), (_y),\
+            (_thickness), (_h), (_color))
 
 #endif

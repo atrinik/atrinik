@@ -811,7 +811,7 @@ void socket_command_map(uint8 *data, size_t len, size_t pos)
             anim_type = packet_to_uint8(data, len, &pos);
             anim_value = packet_to_uint16(data, len, &pos);
 
-            add_anim(anim_type, xpos + x, ypos + y, anim_value);
+            map_anims_add(anim_type, x, y, anim_value);
         }
     }
 

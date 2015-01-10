@@ -47,6 +47,10 @@ static int map_height;
  * Zoomed map.
  */
 static SDL_Surface *zoomed = NULL;
+/**
+ * Map animation queue.
+ */
+static map_anim_t *first_anim = NULL;
 
 /**
  * Current shown map: mapname, length, etc
@@ -79,6 +83,194 @@ static int tiles_debug = 0;
 void clioptions_option_tiles_debug(const char *arg)
 {
     tiles_debug = 1;
+}
+
+/**
+ * Add an animation.
+ * @param type Animation type, one of @ref ANIM_xxx.
+ * @param mapx Map X.
+ * @param mapy Map Y.
+ * @param value Value to display.
+ * @return Created animation.
+ */
+struct map_anim *map_anims_add(int type, int mapx, int mapy, int value)
+{
+    map_anim_t *anim;
+    int num_ticks;
+
+    anim = ecalloc(1, sizeof(*anim));
+
+    DL_APPEND(first_anim, anim);
+
+    /* Type */
+    anim->type = type;
+
+    /* Map coordinates */
+    anim->mapx = mapx + MAP_STARTX;
+    anim->mapy = mapy + MAP_STARTY;
+
+    /* Amount of damage */
+    anim->value = value;
+
+    /* Starting Y position */
+    anim->y = -5;
+
+    /* Current time in MilliSeconds */
+    anim->start_tick = LastTick;
+
+    switch (type) {
+    case ANIM_DAMAGE:
+        /* How many ticks to display */
+        num_ticks = 850;
+        anim->last_tick = anim->start_tick + num_ticks;
+        /* 850 ticks 25 pixel move up */
+        anim->yoff = (25.0f / 850.0f);
+        break;
+
+    case ANIM_KILL:
+        /* How many ticks to display */
+        num_ticks = 850;
+        anim->last_tick = anim->start_tick + num_ticks;
+        /* 850 ticks 25 pixel move up */
+        anim->yoff = (25.0f / 850.0f);
+        break;
+    }
+
+    return anim;
+}
+
+/**
+ * Remove a map animation.
+ * @param anim The animation to remove.
+ */
+void maps_anims_remove(map_anim_t *anim)
+{
+    assert(anim != NULL);
+
+    DL_DELETE(first_anim, anim);
+
+    efree(anim);
+}
+
+/**
+ * Adjust the X/Y coordinates of map animations due to a map scroll.
+ * @param xoff X offset.
+ * @param Yoff Y offset.
+ */
+void map_anims_mapscroll(int xoff, int yoff)
+{
+    map_anim_t *anim;
+
+    DL_FOREACH(first_anim, anim)
+    {
+        anim->mapx -= xoff;
+        anim->mapy -= yoff;
+    }
+}
+
+/**
+ * Clear map animations.
+ */
+void map_anims_clear(void)
+{
+    map_anim_t *anim, *tmp;
+
+    DL_FOREACH_SAFE(first_anim, anim, tmp)
+    {
+        maps_anims_remove(anim);
+    }
+}
+
+/**
+ * Play map animations.
+ */
+void map_anims_play(void)
+{
+    map_anim_t *anim, *tmp;
+    int xpos, ypos, tmp_off;
+    int num_ticks;
+    char buf[32];
+    int tmp_y;
+
+    DL_FOREACH_SAFE(first_anim, anim, tmp)
+    {
+        /* Have we passed the last tick */
+        if (LastTick > anim->last_tick) {
+            maps_anims_remove(anim);
+            continue;
+        }
+
+        num_ticks = LastTick - anim->start_tick;
+
+        if (anim->mapx < MAP_STARTX || anim->mapx >= MAP_STARTX + MAP_WIDTH ||
+                anim->mapy < MAP_STARTY || anim->mapy >= MAP_STARTY +
+                MAP_HEIGHT) {
+            continue;
+        }
+
+        tmp_y = anim->y - (int) ((float) num_ticks * anim->yoff);
+        xpos = cur_widget[MAP_ID]->x + (int) ((MAP_START_XOFF + (anim->mapx -
+                MAP_STARTX) * MAP_TILE_YOFF - (anim->mapy - MAP_STARTY - 1) *
+                MAP_TILE_YOFF - 4) * (setting_get_int(OPT_CAT_MAP,
+                OPT_MAP_ZOOM) / 100.0));
+        ypos = cur_widget[MAP_ID]->y + (int) ((MAP_START_YOFF + (anim->mapx -
+                MAP_STARTX) * MAP_TILE_XOFF + (anim->mapy - MAP_STARTY - 1) *
+                MAP_TILE_XOFF - 34) * (setting_get_int(OPT_CAT_MAP,
+                OPT_MAP_ZOOM) / 100.0));
+
+        switch (anim->type) {
+        case ANIM_DAMAGE:
+            if (anim->value < 0) {
+                snprintf(buf, sizeof(buf), "%d", abs(anim->value));
+                text_show(ScreenSurface, FONT_MONO10, buf, xpos + anim->x + 4 -
+                        (int) strlen(buf) * 4 + 1, ypos + tmp_y + 1,
+                        COLOR_GREEN, TEXT_OUTLINE, NULL);
+            } else {
+                snprintf(buf, sizeof(buf), "%d", anim->value);
+                text_show(ScreenSurface, FONT_MONO10, buf, xpos + anim->x + 4 -
+                        (int) strlen(buf) * 4 + 1, ypos + tmp_y + 1,
+                        COLOR_ORANGE, TEXT_OUTLINE, NULL);
+            }
+
+            break;
+
+        case ANIM_KILL:
+            surface_show(ScreenSurface, xpos + anim->x - 5, ypos + tmp_y - 4,
+                    NULL, TEXTURE_CLIENT("death"));
+            snprintf(buf, sizeof(buf), "%d", anim->value);
+
+            tmp_off = 0;
+
+            /* Let's check the size of the value */
+            if (anim->value < 10) {
+                tmp_off = 6;
+            } else if (anim->value < 100) {
+                tmp_off = 0;
+            } else if (anim->value < 1000) {
+                tmp_off = -6;
+            } else if (anim->value < 10000) {
+                tmp_off = -12;
+            }
+
+            text_show(ScreenSurface, FONT_MONO10, buf, xpos + anim->x + tmp_off,
+                    ypos + tmp_y, COLOR_ORANGE, TEXT_OUTLINE, NULL);
+
+            break;
+
+        default:
+            log(LOG(BUG), "Unknown animation type");
+            break;
+        }
+    }
+}
+
+/**
+ * Check whether the damage animations need redrawing.
+ * @return 1 if the damage animations need redrawing, 0 otherwise.
+ */
+int map_anims_need_redraw(void)
+{
+    return first_anim != NULL;
 }
 
 /**
@@ -141,6 +333,7 @@ void clear_map(void)
 
     memset(cells, 0, cells_size);
     sound_ambient_clear();
+    map_anims_clear();
 }
 
 /**
@@ -228,6 +421,7 @@ void display_mapscroll(int dx, int dy, int old_w, int old_h)
     efree(cells_old);
 
     sound_ambient_mapcroll(dx, dy);
+    map_anims_mapscroll(dx, dy);
     cpl.target_object_index = 0;
 }
 
@@ -1557,7 +1751,7 @@ static void widget_draw(widgetdata *widget)
     }
 
     /* The damage numbers */
-    play_anims();
+    map_anims_play();
 
     /* Draw warning icons above player */
     if ((gfx_toggle++ & 63) < 25) {
