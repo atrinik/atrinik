@@ -3123,7 +3123,7 @@ int object_enter_map(object *op, object *exit_ob, mapstruct *m, int x, int y, ui
         y = MAP_ENTER_Y(m);
     }
 
-    if (!fixed_pos && arch_blocked(op->arch, op, m, x, y)) {
+    if (!fixed_pos && blocked(op, m, x, y, TERRAIN_ALL)) {
         int i;
 
         i = find_free_spot(op->arch, NULL, m, x, y, 1, SIZEOFFREE1 + 1);
