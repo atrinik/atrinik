@@ -3093,8 +3093,6 @@ int object_enter_map(object *op, object *exit_ob, mapstruct *m, int x, int y, ui
         }
 
         if (!m) {
-            draw_info_format(COLOR_WHITE, op, "The %s is closed.", query_name(exit_ob, op));
-            logger_print(LOG(BUG), "Exit %s on map %s (%d,%d) leads no where.", query_name(exit_ob, op), exit_ob->map ? exit_ob->map->path : "no map", exit_ob->x, exit_ob->y);
             return 0;
         }
 
