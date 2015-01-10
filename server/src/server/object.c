@@ -2587,41 +2587,6 @@ int auto_apply(object *op)
 }
 
 /**
- * Recursive routine to see if we can find a path to a certain point.
- * @param m Map we're on
- * @param x X coordinate.
- * @param y Y coordinate.
- * @param dir Direction we're going to. Must be less than SIZEOFFREE.
- * @return 1 if we can see a direct way to get it */
-int can_see_monsterP(mapstruct *m, int x, int y, int dir)
-{
-    int dx, dy;
-
-    /* Exit condition: invalid direction */
-    if (dir < 0) {
-        return 0;
-    }
-
-    dx = x + freearr_x[dir];
-    dy = y + freearr_y[dir];
-
-    if (!(m = get_map_from_coord(m, &dx, &dy))) {
-        return 0;
-    }
-
-    if (wall(m, dx, dy)) {
-        return 0;
-    }
-
-    /* Yes, can see. */
-    if (dir < 9) {
-        return 1;
-    }
-
-    return can_see_monsterP(m, x, y, reduction_dir[dir][0]) | can_see_monsterP(m, x, y, reduction_dir[dir][1]) | can_see_monsterP(m, x, y, reduction_dir[dir][2]);
-}
-
-/**
  * Zero the key_values on op, decrementing the shared-string refcounts
  * and freeing the links.
  * @param op Object to clear. */
