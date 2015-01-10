@@ -26,6 +26,12 @@
  * @file
  * Handles code related to @ref EXIT "exits".
  *
+ * @todo Somehow allow multi-part objects to pass through exits. The issue is
+ * that usually portals lead to a space next to a return portal. This means that
+ * when the multi-part object enters a portal, chances are that either its head
+ * or its tail will be on top of the return portal, causing it to teleport back
+ * to the portal it wanted to enter in the first place...
+ *
  * @author Alex Tokar */
 
 #include <global.h>
@@ -189,6 +195,11 @@ static int apply_func(object *op, object *applier, int aflags)
     (void) aflags;
 
     if (op->map == NULL) {
+        return OBJECT_METHOD_OK;
+    }
+
+    /* Do not allow multi-part objects to use exits. */
+    if (op->more != NULL) {
         return OBJECT_METHOD_OK;
     }
 
