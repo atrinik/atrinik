@@ -417,10 +417,15 @@ int blocked(object *op, mapstruct *m, int x, int y, int terrain)
 
     /* If the tile is either no_pass or has a closed door, and it's either
      * not allowed to pass_thru this tile or the object doesn't have
-     * can_pass_thru, then we cannot enter this tile. */
+     * can_pass_thru, then handle no_pass/doors. */
     if (flags & (P_NO_PASS | P_DOOR_CLOSED) && (!(flags & P_PASS_THRU) ||
             op == NULL || !QUERY_FLAG(op, FLAG_CAN_PASS_THRU))) {
-        return flags;
+        /* If the tile is either no_pass or a closed door that we cannot open,
+         * then we cannot enter the tile. */
+        if (flags & P_NO_PASS || (flags & P_DOOR_CLOSED &&
+                !door_try_open(op, m, x, y, 1))) {
+            return flags;
+        }
     }
 
     /* Below code deals specifically with object pointers, so if we don't have
@@ -497,12 +502,6 @@ int blocked_link(object *op, int xoff, int yoff)
             /* We use always head for tests - no need to copy any flags to the
              * tail */
             if ((flags = blocked(op, m, xtemp, ytemp, op->terrain_flag))) {
-                if ((flags & P_DOOR_CLOSED) && (op->behavior & BEHAVIOR_OPEN_DOORS)) {
-                    if (door_try_open(op, m, xtemp, ytemp, 0)) {
-                        continue;
-                    }
-                }
-
                 return flags;
             }
         }
@@ -550,12 +549,6 @@ int blocked_link_2(object *op, mapstruct *map, int x, int y)
             /* We use always head for tests - no need to copy any flags to the
              * tail */
             if ((flags = blocked(op, m, xtemp, ytemp, op->terrain_flag))) {
-                if ((flags & P_DOOR_CLOSED) && (op->behavior & BEHAVIOR_OPEN_DOORS)) {
-                    if (door_try_open(op, m, xtemp, ytemp, 1)) {
-                        continue;
-                    }
-                }
-
                 return flags;
             }
         }

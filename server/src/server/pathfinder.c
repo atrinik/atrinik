@@ -402,11 +402,6 @@ static int tile_is_blocked(object *op, mapstruct *map, int x, int y)
         block = blocked_link_2(op, map, x, y);
     } else {
         block = blocked(op, map, x, y, op->terrain_flag);
-
-        /* Check for possible door opening. */
-        if (block == P_DOOR_CLOSED && door_try_open(op, map, x, y, 1)) {
-            block = 0;
-        }
     }
 
     return block;

@@ -1784,6 +1784,9 @@ object *insert_ob_in_map(object *op, mapstruct *m, object *originator, int flag)
     /* Update flags for this tile. */
     update_object(op, UP_OBJ_INSERT);
 
+    /* Attempt to open doors. */
+    door_try_open(op, op->map, op->x, op->y, 0);
+
     if (!(flag & INS_NO_WALK_ON) && (mc->flags & (P_WALK_ON | P_FLY_ON) || op->more) && !op->head) {
         for (tmp = op; tmp; tmp = tmp->more) {
             if (object_check_move_on(tmp, originator)) {
@@ -3189,11 +3192,6 @@ int object_enter_map(object *op, object *exit_ob, mapstruct *m, int x, int y, ui
         if (oldmap && oldmap != m && !oldmap->player_first) {
             set_map_timeout(oldmap);
         }
-    }
-
-    /* Attempt to open a closed door. */
-    if (GET_MAP_FLAGS(op->map, op->x, op->y) & P_DOOR_CLOSED) {
-        door_try_open(op, op->map, op->x, op->y, 0);
     }
 
     if (exit_ob != NULL && exit_ob->stats.dam && op->type == PLAYER) {

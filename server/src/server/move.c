@@ -151,18 +151,13 @@ int move_ob(object *op, int dir, object *originator)
         } else {
             /* Is the spot blocked from something? */
             if ((flags = blocked(op, m, xt, yt, op->terrain_flag))) {
-                /* A closed door which we can open? */
-                if ((flags & P_DOOR_CLOSED) &&
-                        (op->behavior & BEHAVIOR_OPEN_DOORS) &&
-                        door_try_open(op, m, xt, yt, 0)) {
-                    if (op->type == PLAYER) {
-                        return 1;
-                    }
-                } else {
-                    return 0;
-                }
+                return 0;
             }
         }
+    }
+
+    if (door_try_open(op, m, xt, yt, 0)) {
+        return 1;
     }
 
     object_move_to(op, dir, originator, m, xt, yt);
@@ -232,7 +227,7 @@ int push_ob(object *op, int dir, object *pusher)
 {
     object *tmp, *floor_ob;
     mapstruct *m;
-    int x, y, flags;
+    int x, y;
 
     /* Don't allow pushing multi-arch objects. */
     if (op->head) {
@@ -258,14 +253,8 @@ int push_ob(object *op, int dir, object *pusher)
         return 0;
     }
 
-    flags = blocked(op, m, x, y, op->terrain_flag);
-
-    if (flags) {
-        if (flags & (P_NO_PASS | P_CHECK_INV) || ((flags & P_DOOR_CLOSED) && !door_try_open(op, m, x, y, 0))) {
-            return 0;
-        } else {
-            return 0;
-        }
+    if (blocked(op, m, x, y, op->terrain_flag)) {
+        return 0;
     }
 
     /* Try to find something that would block the push. */
