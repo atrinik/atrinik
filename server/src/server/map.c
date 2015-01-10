@@ -405,51 +405,54 @@ int blocked(object *op, mapstruct *m, int x, int y, int terrain)
 
     /* Flying objects can move over various terrains. */
     if (op && QUERY_FLAG(op, FLAG_FLYING)) {
-        terrain |= TERRAIN_AIRBREATH | TERRAIN_WATERWALK | TERRAIN_FIREWALK | TERRAIN_CLOUDWALK;
+        terrain |= TERRAIN_AIRBREATH | TERRAIN_WATERWALK | TERRAIN_FIREWALK |
+                TERRAIN_CLOUDWALK;
     }
 
     /* First, look at the terrain. If we don't have a valid terrain flag,
      * this is forbidden to enter. */
     if (msp->move_flags & ~terrain) {
-        return ((flags & (P_NO_PASS | P_IS_MONSTER | P_IS_PLAYER | P_CHECK_INV | P_PASS_THRU)) | P_NO_TERRAIN);
+        return flags | P_NO_TERRAIN;
     }
 
-    if (flags & P_IS_MONSTER) {
-        return (flags & (P_DOOR_CLOSED | P_NO_PASS | P_IS_MONSTER | P_IS_PLAYER | P_CHECK_INV | P_PASS_THRU));
+    /* If the tile is either no_pass or has a closed door, and it's either
+     * not allowed to pass_thru this tile or the object doesn't have
+     * can_pass_thru, then we cannot enter this tile. */
+    if (flags & (P_NO_PASS | P_DOOR_CLOSED) && (!(flags & P_PASS_THRU) ||
+            op == NULL || !QUERY_FLAG(op, FLAG_CAN_PASS_THRU))) {
+        return flags;
     }
 
-    if (flags & P_NO_PASS) {
-        if (!(flags & P_PASS_THRU) || !op || !QUERY_FLAG(op, FLAG_CAN_PASS_THRU)) {
-            return (flags & (P_DOOR_CLOSED | P_NO_PASS | P_IS_PLAYER | P_CHECK_INV | P_PASS_THRU));
-        }
+    /* Below code deals specifically with object pointers, so if we don't have
+     * one, just return here. */
+    if (op == NULL) {
+        return 0;
     }
 
-    if (flags & P_IS_PLAYER) {
-        if (!op || (m->map_flags & MAP_FLAG_PVP && !(flags & P_NO_PVP) && !(msp->extra_flags & MSP_EXTRA_NO_PVP))) {
-            return (flags & (P_DOOR_CLOSED | P_IS_PLAYER | P_CHECK_INV));
-        }
-
-        if (op->type != PLAYER) {
-            return (flags & (P_DOOR_CLOSED | P_IS_PLAYER | P_CHECK_INV));
-        }
+    /* It's forbidden for other living objects to enter tiles with a monster. */
+    if (flags & P_IS_MONSTER && IS_LIVE(op)) {
+        return flags;
     }
 
-    /* We have an object pointer - do some last checks */
-    if (op) {
-        /* Player only space and not a player - no pass and possible checker
-         * here */
-        if ((flags & P_PLAYER_ONLY) && op->type != PLAYER) {
-            return (flags & (P_DOOR_CLOSED | P_NO_PASS | P_CHECK_INV | P_PLAYER_ONLY));
-        }
-
-        if (flags & P_CHECK_INV) {
-            if (blocked_tile(op, m, x, y)) {
-                return (flags & (P_DOOR_CLOSED | P_NO_PASS | P_CHECK_INV));
-            }
-        }
+    /* Only other players can move onto tiles with a player, unless it's a PvP
+     * area, in which case they can't. */
+    if (flags & P_IS_PLAYER && IS_LIVE(op) && (op->type != PLAYER ||
+            (m->map_flags & MAP_FLAG_PVP && !(flags & P_NO_PVP) &&
+            !(msp->extra_flags & MSP_EXTRA_NO_PVP)))) {
+        return flags;
     }
 
-    return (flags & (P_DOOR_CLOSED));
+    /* Only players can move onto player-only tiles. */
+    if (flags & P_PLAYER_ONLY && op->type != PLAYER) {
+        return flags;
+    }
+
+    /* Inventory checker, see if it blocks passage. */
+    if (flags & P_CHECK_INV && blocked_tile(op, m, x, y)) {
+        return flags;
+    }
+
+    return 0;
 }
 
 /**
@@ -1582,17 +1585,7 @@ void update_position(mapstruct *m, int x, int y)
             }
 
             if (QUERY_FLAG(tmp, FLAG_NO_PASS)) {
-                if (flags & P_NO_PASS) {
-                    if (!QUERY_FLAG(tmp, FLAG_PASS_THRU)) {
-                        flags &= ~P_PASS_THRU;
-                    }
-                } else {
-                    flags |= P_NO_PASS;
-
-                    if (QUERY_FLAG(tmp, FLAG_PASS_THRU)) {
-                        flags |= P_PASS_THRU;
-                    }
-                }
+                flags |= P_NO_PASS;
             }
 
             if (QUERY_FLAG(tmp, FLAG_IS_FLOOR)) {
@@ -1613,6 +1606,14 @@ void update_position(mapstruct *m, int x, int y)
 
             if (QUERY_FLAG(tmp, FLAG_OUTDOOR)) {
                 flags |= P_OUTDOOR;
+            }
+
+            if (flags & (P_NO_PASS | P_DOOR_CLOSED)) {
+                if (!QUERY_FLAG(tmp, FLAG_PASS_THRU)) {
+                    flags &= ~P_PASS_THRU;
+                } else {
+                    flags |= P_PASS_THRU;
+                }
             }
         }
 

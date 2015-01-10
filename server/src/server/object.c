@@ -1110,7 +1110,8 @@ void update_object(object *op, int action)
         }
 
         /* This is handled a bit more complex, we must always loop the flags! */
-        if (QUERY_FLAG(op, FLAG_NO_PASS) || QUERY_FLAG(op, FLAG_PASS_THRU)) {
+        if (QUERY_FLAG(op, FLAG_NO_PASS) || QUERY_FLAG(op, FLAG_PASS_THRU) ||
+                QUERY_FLAG(op, FLAG_DOOR_CLOSED)) {
             newflags |= P_FLAGS_UPDATE;
         } else if (QUERY_FLAG(op, FLAG_IS_FLOOR)) {
             /* Floors define our node - force an update */
