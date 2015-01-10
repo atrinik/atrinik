@@ -496,7 +496,7 @@ int blocked_link(object *op, int xoff, int yoff)
 
             /* If this new node is illegal, we can skip all */
             if (!(m = get_map_from_coord(tmp->map, &xtemp, &ytemp))) {
-                return -1;
+                return P_OUT_OF_MAP;
             }
 
             /* We use always head for tests - no need to copy any flags to the
@@ -543,7 +543,7 @@ int blocked_link_2(object *op, mapstruct *map, int x, int y)
         if (!tmp2) {
             /* If this new node is illegal, we can skip all */
             if (!(m = get_map_from_coord(map, &xtemp, &ytemp))) {
-                return -1;
+                return P_OUT_OF_MAP;
             }
 
             /* We use always head for tests - no need to copy any flags to the
@@ -608,9 +608,8 @@ int blocked_tile(object *op, mapstruct *m, int x, int y)
  * @param m Map.
  * @param x X position.
  * @param y Y position.
- * @retval 0 No block.
- * @retval -1 Out of map.
- * @retval other Blocking flags from blocked(). */
+ * @return 0 if the space to check is not blocked, return value of blocked()
+ * otherwise. */
 int arch_blocked(archetype *at, object *op, mapstruct *m, int x, int y)
 {
     archetype *tmp;
@@ -625,7 +624,7 @@ int arch_blocked(archetype *at, object *op, mapstruct *m, int x, int y)
 
     if (at == NULL) {
         if (!(m = get_map_from_coord(m, &x, &y))) {
-            return -1;
+            return P_OUT_OF_MAP;
         }
 
         return blocked(op, m, x, y, t);
@@ -636,7 +635,7 @@ int arch_blocked(archetype *at, object *op, mapstruct *m, int x, int y)
         yt = y + tmp->clone.y;
 
         if (!(mt = get_map_from_coord(m, &xt, &yt))) {
-            return -1;
+            return P_OUT_OF_MAP;
         }
 
         if ((xt = blocked(op, mt, xt, yt, t))) {
