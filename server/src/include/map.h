@@ -373,9 +373,6 @@ typedef struct MapSpace_s {
     /** Terrain type flags (water, underwater,...) */
     uint16 move_flags;
 
-    /** How much light this space provides */
-    uint8 light;
-
     /** Extra flags from @ref MSP_EXTRA_xxx. */
     uint8 extra_flags;
 } MapSpace;
