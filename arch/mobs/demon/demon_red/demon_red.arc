@@ -9,7 +9,7 @@ direction 5
 corpse 1
 monster 1
 is_evil 1
-terrain_flag 1
+terrain_flag 65
 can_see_in_dark 1
 can_use_weapon 1
 int 10
@@ -45,7 +45,7 @@ More
 Object demon_red_b
 name demon
 layer 6
-terrain_flag 1
+terrain_flag 65
 mpart_id 3
 mpart_nr 1
 x 1
@@ -56,7 +56,7 @@ More
 Object demon_red_c
 name demon
 layer 6
-terrain_flag 1
+terrain_flag 65
 mpart_id 3
 mpart_nr 2
 y 1
@@ -67,7 +67,7 @@ More
 Object demon_red_d
 name demon
 layer 6
-terrain_flag 1
+terrain_flag 65
 mpart_id 3
 mpart_nr 3
 y 1

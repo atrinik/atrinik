@@ -569,6 +569,8 @@
 #define TERRAIN_FIREBREATH      16
 /** Move "on clouds" in the air - not flying. */
 #define TERRAIN_CLOUDWALK       32
+/** Shallow water. */
+#define TERRAIN_WATER_SHALLOW   64
 /** Used in blocked() when we only want know about blocked by something. */
 #define TERRAIN_ALL             0xffff
 /*@}*/

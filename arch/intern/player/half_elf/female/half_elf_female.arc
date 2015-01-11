@@ -9,7 +9,7 @@ is_female 1
 is_neutral 1
 identified 1
 direction 4
-terrain_flag 1
+terrain_flag 65
 weapon_speed 0.0125
 speed 0.85
 face halfelf_f.isw.111

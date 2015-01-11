@@ -10,7 +10,7 @@ layer 6
 direction 5
 is_neutral 1
 friendly 1
-terrain_flag 1
+terrain_flag 65
 weapon_speed 0.045
 attack_cleave 100
 type 80

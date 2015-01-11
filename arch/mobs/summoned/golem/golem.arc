@@ -7,7 +7,7 @@ is_neutral 1
 corpse 1
 behavior 2
 wc_range 20
-terrain_flag 1
+terrain_flag 65
 weapon_speed 0.039
 face golem.131
 wis 3

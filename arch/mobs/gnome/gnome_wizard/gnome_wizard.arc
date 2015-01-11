@@ -15,7 +15,7 @@ layer 6
 direction 5
 is_good 1
 friendly 1
-terrain_flag 1
+terrain_flag 65
 weapon_speed 0.035
 attack_impact 75
 attack_fire 25

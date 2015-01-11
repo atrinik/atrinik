@@ -11,7 +11,7 @@ attack_impact 75
 attack_poison 25
 is_neutral 1
 direction 5
-terrain_flag 1
+terrain_flag 65
 randomitems mob_default
 wis 3
 animation mandragora

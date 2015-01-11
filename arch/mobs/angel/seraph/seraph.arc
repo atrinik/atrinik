@@ -7,7 +7,7 @@ behavior 2
 direction 5
 wc_range 20
 is_good 1
-terrain_flag 1
+terrain_flag 65
 weapon_speed 0.038
 corpse 1
 attack_weaponmagic 100
@@ -53,7 +53,7 @@ More
 Object seraph_b
 name seraph
 layer 6
-terrain_flag 1
+terrain_flag 65
 mpart_id 3
 mpart_nr 1
 x 1
@@ -64,7 +64,7 @@ More
 Object seraph_c
 name seraph
 layer 6
-terrain_flag 1
+terrain_flag 65
 mpart_id 3
 mpart_nr 2
 y 1
@@ -76,7 +76,7 @@ More
 Object seraph_d
 name seraph
 layer 6
-terrain_flag 1
+terrain_flag 65
 mpart_id 3
 mpart_nr 3
 y 1

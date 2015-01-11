@@ -9,7 +9,7 @@ layer 6
 behavior 2
 direction 5
 is_evil 1
-terrain_flag 1
+terrain_flag 65
 weapon_speed 0.035
 attack_pierce 75
 type 80

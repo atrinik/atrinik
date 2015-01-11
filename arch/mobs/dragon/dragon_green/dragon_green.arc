@@ -8,7 +8,7 @@ corpse 1
 behavior 2
 layer 6
 direction 5
-terrain_flag 1
+terrain_flag 65
 weapon_speed 0.038
 attack_poison 60
 attack_impact 40
@@ -41,7 +41,7 @@ More
 Object dragon_green_d_b
 name green dragon
 layer 6
-terrain_flag 1
+terrain_flag 65
 mpart_id 3
 mpart_nr 1
 x 1
@@ -52,7 +52,7 @@ More
 Object dragon_green_d_c
 name green dragon
 layer 6
-terrain_flag 1
+terrain_flag 65
 mpart_id 3
 mpart_nr 2
 y 1
@@ -63,7 +63,7 @@ More
 Object dragon_green_d_d
 name green dragon
 layer 6
-terrain_flag 1
+terrain_flag 65
 mpart_id 3
 mpart_nr 3
 y 1

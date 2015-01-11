@@ -8,7 +8,7 @@ direction 5
 wc_range 20
 is_male 1
 is_good 1
-terrain_flag 1
+terrain_flag 65
 weapon_speed 0.035
 corpse 1
 attack_slash 80

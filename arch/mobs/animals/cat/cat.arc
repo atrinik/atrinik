@@ -7,7 +7,7 @@ is_female 1
 corpse 1
 layer 6
 direction 5
-terrain_flag 1
+terrain_flag 65
 weapon_speed 0.038
 attack_slash 80
 attack_pierce 20

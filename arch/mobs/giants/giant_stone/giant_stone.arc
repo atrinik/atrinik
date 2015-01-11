@@ -17,7 +17,7 @@ wc 6
 dam 64
 hp -1
 maxhp 74
-terrain_flag 1
+terrain_flag 65
 wis 3
 face giant_stone.131
 animation giant_stone

@@ -7,7 +7,7 @@ layer 6
 direction 5
 wc_range 20
 is_good 1
-terrain_flag 1
+terrain_flag 65
 weapon_speed 0.035
 attack_weaponmagic 75
 unaggressive 1

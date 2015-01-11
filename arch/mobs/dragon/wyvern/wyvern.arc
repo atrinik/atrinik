@@ -14,7 +14,7 @@ is_male 1
 is_neutral 1
 wis 4
 dex 13
-terrain_flag 1
+terrain_flag 65
 mpart_id 3
 animation wyvern
 is_animated 1
@@ -47,7 +47,7 @@ More
 Object wyvern_b
 name wyvern
 layer 6
-terrain_flag 1
+terrain_flag 65
 mpart_id 3
 mpart_nr 1
 x 1
@@ -58,7 +58,7 @@ More
 Object wyvern_c
 name wyvern
 layer 6
-terrain_flag 1
+terrain_flag 65
 mpart_id 3
 mpart_nr 2
 y 1
@@ -69,7 +69,7 @@ More
 Object wyvern_d
 name wyvern
 layer 6
-terrain_flag 1
+terrain_flag 65
 mpart_id 3
 mpart_nr 3
 y 1

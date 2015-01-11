@@ -63,6 +63,7 @@
 	<bmentry bit="3" name="Fire Surface" />
 	<bmentry bit="4" name="Under Fire" />
 	<bmentry bit="5" name="Cloud Surface" />
+    <bmentry bit="6" name="Shallow Water" />
 </bitmask>
 
 <bitmask name="mirror_layer_zoom">

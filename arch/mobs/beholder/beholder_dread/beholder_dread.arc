@@ -16,7 +16,7 @@ is_male 1
 is_evil 1
 wis 4
 dex 13
-terrain_flag 1
+terrain_flag 65
 mpart_id 3
 animation beholder_dread
 is_animated 1
@@ -48,7 +48,7 @@ More
 Object beholder_d_b
 name dread beholder
 layer 6
-terrain_flag 1
+terrain_flag 65
 mpart_id 3
 mpart_nr 1
 x 1
@@ -59,7 +59,7 @@ More
 Object beholder_d_c
 name dread beholder
 layer 6
-terrain_flag 1
+terrain_flag 65
 mpart_id 3
 mpart_nr 2
 y 1
@@ -70,7 +70,7 @@ More
 Object beholder_d_d
 name dread beholder
 layer 6
-terrain_flag 1
+terrain_flag 65
 mpart_id 3
 mpart_nr 3
 y 1

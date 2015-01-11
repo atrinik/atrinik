@@ -8,7 +8,7 @@ is_neutral 1
 behavior 2
 wc_range 20
 direction 5
-terrain_flag 1
+terrain_flag 65
 weapon_speed 0.035
 attack_cold 80
 protect_fire -35

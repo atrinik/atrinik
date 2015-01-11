@@ -12,7 +12,7 @@ identified 1
 is_neutral 1
 weapon_speed 0.0125
 speed 0.85
-terrain_flag 1
+terrain_flag 65
 animation dwarf_male
 is_animated 1
 anim_speed 3

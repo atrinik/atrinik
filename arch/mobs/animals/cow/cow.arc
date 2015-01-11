@@ -7,7 +7,7 @@ is_male 1
 corpse 1
 layer 6
 direction 5
-terrain_flag 1
+terrain_flag 65
 weapon_speed 0.038
 attack_cleave 80
 type 80

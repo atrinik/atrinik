@@ -9,7 +9,7 @@ direction 5
 corpse 1
 monster 1
 is_evil 1
-terrain_flag 1
+terrain_flag 65
 can_see_in_dark 1
 can_use_weapon 1
 can_use_armour 1

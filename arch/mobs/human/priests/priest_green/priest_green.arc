@@ -8,7 +8,7 @@ wc_range 20
 behavior 2
 is_male 1
 is_good 1
-terrain_flag 1
+terrain_flag 65
 weapon_speed 0.040
 corpse 1
 attack_weaponmagic 100

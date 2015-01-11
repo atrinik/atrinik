@@ -7,7 +7,7 @@ corpse 1
 layer 6
 direction 5
 is_neutral 1
-terrain_flag 1
+terrain_flag 65
 weapon_speed 0.037
 attack_cold 80
 protect_cold 100

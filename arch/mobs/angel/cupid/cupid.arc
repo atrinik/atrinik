@@ -7,7 +7,7 @@ behavior 2
 direction 5
 wc_range 20
 is_good 1
-terrain_flag 1
+terrain_flag 65
 weapon_speed 0.055
 corpse 1
 attack_weaponmagic 100
