@@ -2132,7 +2132,6 @@ int get_rangevector_from_mapcoords(mapstruct *map1, int x, int y, mapstruct *map
 
         if (!relative_tile_position(map1, map2, &retval->distance_x,
                 &retval->distance_y, &retval->distance_z, flags)) {
-            log(LOG(INFO), "didn't find relative tile pos");
             return 0;
         }
 
