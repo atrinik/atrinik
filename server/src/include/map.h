@@ -198,9 +198,9 @@
 #define SET_MAP_FLAGS(M, X, Y, C) \
     ((M)->spaces[(X) + (M)->width * (Y)].flags = C)
 #define GET_MAP_LIGHT(M, X, Y) \
-    ((M)->spaces[(X) + (M)->width * (Y)].light)
+    ((M)->spaces[(X) + (M)->width * (Y)].light_value)
 #define SET_MAP_LIGHT(M, X, Y, L) \
-    ((M)->spaces[(X) + (M)->width * (Y)].light = (sint8) L)
+    ((M)->spaces[(X) + (M)->width * (Y)].light_value = L)
 
 #define GET_MAP_OB(M, X, Y) \
     ((M)->spaces[(X) + (M)->width * (Y)].first)
