@@ -547,11 +547,19 @@ typedef struct oblnk {
  * @defgroup BEHAVIOR_xxx Behavior flags
  * These control what behavior the monster can do.
  *@{*/
-/** The monster will look for other friendly monsters to cast friendly spells
- * on. */
-#define BEHAVIOR_SPELL_FRIENDLY 1
-/** The monster can open doors. */
-#define BEHAVIOR_OPEN_DOORS 2
+/**
+ * The monster will look for other friendly monsters to cast friendly spells
+ * on.
+ */
+#define BEHAVIOR_SPELL_FRIENDLY 0x01
+/**
+ * The monster can open doors.
+ */
+#define BEHAVIOR_OPEN_DOORS 0x02
+/**
+ * The monster prefers low-light tiles when finding a path to its destination.
+ */
+#define BEHAVIOR_STEALTH 0x04
 /*@}*/
 
 /** Decrease an object by one. */

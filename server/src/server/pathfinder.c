@@ -804,6 +804,10 @@ path_node_t *path_find(object *op, mapstruct *map1, int x, int y,
             cost = node->cost + (is_diagonal ? PATH_COST_DIAG : PATH_COST);
             cost += GET_MAP_MOVE_FLAGS(m, nx, ny);
 
+            if (op->behavior & BEHAVIOR_STEALTH) {
+                cost += GET_MAP_LIGHT(m, nx, ny);
+            }
+
             /* Get the visited path node on this tile, if any. */
             visited = PATHFINDING_NODE_GET(m, nx, ny, traversal_id);
 
