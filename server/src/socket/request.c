@@ -1629,7 +1629,7 @@ void socket_command_move_path(socket_struct *ns, player *pl, uint8 *data, size_t
     }
 
     /* Find and compress the path to the destination. */
-    node = path_compress(path_find(pl->ob, pl->ob->map, pl->ob->x, pl->ob->y, m, xt, yt));
+    node = path_compress(path_find(pl->ob, pl->ob->map, pl->ob->x, pl->ob->y, m, xt, yt, NULL));
 
     /* No path available. */
     if (!node) {

@@ -161,7 +161,7 @@ void waypoint_compute_path(object *waypoint)
         return;
     }
 
-    path = path_compress(path_find(op, op->map, op->x, op->y, destmap, waypoint->stats.hp, waypoint->stats.sp));
+    path = path_compress(path_find(op, op->map, op->x, op->y, destmap, waypoint->stats.hp, waypoint->stats.sp, NULL));
 
     if (!path) {
         if (!QUERY_FLAG(waypoint, FLAG_DAMNED)) {

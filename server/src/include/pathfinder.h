@@ -59,6 +59,31 @@ typedef struct path_node {
     double sum; ///< Sum of ::cost and ::heuristic.
 } path_node_t;
 
+/**
+ * Used for visualization of path nodes; represents one node.
+ */
+typedef struct path_visualizer {
+    struct path_visualizer *next; ///< Next 'node'.
+    struct path_visualizer *prev; ///< Previous 'node'.
+
+    mapstruct *map; ///< Map.
+    sint16 x; ///< X position.
+    sint16 y; ///< Y position.
+
+    uint32 id; ///< UID of the node; can be used for insertion order sorting.
+    bool closed; ///< Whether the node is closed or just visited.
+} path_visualizer_t;
+
+/**
+ * Contains all the maps that were visited in a hash table, for the purposes of
+ * path visualization.
+ */
+typedef struct path_visualization {
+    shstr *path; ///< Map path. Used as key for the hash table.
+    path_visualizer_t *nodes; ///< Visited nodes on this map.
+    UT_hash_handle hh; ///< Hash handle.
+} path_visualization_t;
+
 #define PATHFINDING_CHECK_ID(m, id) \
     if ((m)->pathfinding_id != (id)) { \
         (m)->pathfinding_id = (id); \
@@ -68,9 +93,23 @@ typedef struct path_node {
                 sizeof(*(m)->path_nodes)); \
     }
 
-#define PATHFINDING_SET_CLOSED(m, x, y, id) \
+#define PATHFINDING_VISUALIZER_APPEND(visualizer, _m, _x, _y, _closed) \
+    if (visualizer != NULL) { \
+        path_visualizer_t *__tmp; \
+ \
+        __tmp = ecalloc(1, sizeof(*__tmp)); \
+        __tmp->map = (_m); \
+        __tmp->x = (_x); \
+        __tmp->y = (_y); \
+        __tmp->closed = (_closed); \
+        __tmp->id = node_id++; \
+        DL_APPEND(*visualizer, __tmp); \
+    }
+
+#define PATHFINDING_SET_CLOSED(m, x, y, id, visualizer) \
     { \
         PATHFINDING_CHECK_ID(m, id); \
+        PATHFINDING_VISUALIZER_APPEND(visualizer, m, x, y, true) \
         (m)->bitmap[(x) / 32 + ((MAP_WIDTH(m) + 31) / 32) * (y)] |= \
                 (1U << ((x) % 32)); \
     }
@@ -79,9 +118,10 @@ typedef struct path_node {
     ((m)->pathfinding_id == (id) && ((m)->bitmap[(x) / 32 + \
             ((MAP_WIDTH(m) + 31) / 32) * (y)] & (1U << ((x) % 32))))
 
-#define PATHFINDING_NODE_SET(m, x, y, id, node) \
+#define PATHFINDING_NODE_SET(m, x, y, id, node, visualizer) \
     { \
         PATHFINDING_CHECK_ID(m, id); \
+        PATHFINDING_VISUALIZER_APPEND(visualizer, m, x, y, false) \
         (m)->path_nodes[(x) + MAP_WIDTH(m) * (y)] = node; \
     }
 #define PATHFINDING_NODE_GET(m, x, y, id) \

@@ -576,7 +576,7 @@ extern object *path_get_next_request(void);
 extern shstr *path_encode(path_node_t *path);
 extern int path_get_next(shstr *buf, sint16 *off, shstr **mappath, mapstruct **map, int *x, int *y, uint32 *flags);
 extern path_node_t *path_compress(path_node_t *path);
-extern path_node_t *path_find(object *op, mapstruct *map1, int x, int y, mapstruct *map2, int x2, int y2);
+extern path_node_t *path_find(object *op, mapstruct *map1, int x, int y, mapstruct *map2, int x2, int y2, path_visualizer_t **visualizer);
 /* src/server/plugins.c */
 extern struct plugin_hooklist hooklist;
 extern object *get_event_object(object *op, int event_nr);
