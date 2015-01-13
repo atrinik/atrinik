@@ -59,6 +59,35 @@ typedef struct path_node {
     double sum; ///< Sum of ::cost and ::heuristic.
 } path_node_t;
 
+#define PATHFINDING_CHECK_ID(m, id) \
+    if ((m)->pathfinding_id != (id)) { \
+        (m)->pathfinding_id = (id); \
+        memset((m)->bitmap, 0, ((MAP_WIDTH(m) + 31) / 32) * MAP_HEIGHT(m) * \
+                sizeof(*(m)->bitmap)); \
+        memset((m)->path_nodes, 0, MAP_WIDTH(m) * MAP_HEIGHT(m) * \
+                sizeof(*(m)->path_nodes)); \
+    }
+
+#define PATHFINDING_SET_CLOSED(m, x, y, id) \
+    { \
+        PATHFINDING_CHECK_ID(m, id); \
+        (m)->bitmap[(x) / 32 + ((MAP_WIDTH(m) + 31) / 32) * (y)] |= \
+                (1U << ((x) % 32)); \
+    }
+
+#define PATHFINDING_QUERY_CLOSED(m, x, y, id) \
+    ((m)->pathfinding_id == (id) && ((m)->bitmap[(x) / 32 + \
+            ((MAP_WIDTH(m) + 31) / 32) * (y)] & (1U << ((x) % 32))))
+
+#define PATHFINDING_NODE_SET(m, x, y, id, node) \
+    { \
+        PATHFINDING_CHECK_ID(m, id); \
+        (m)->path_nodes[(x) + MAP_WIDTH(m) * (y)] = node; \
+    }
+#define PATHFINDING_NODE_GET(m, x, y, id) \
+    ((m)->pathfinding_id != (id) ? NULL : (m)->path_nodes[(x) + \
+            MAP_WIDTH(m) * (y)])
+
 /**
  * Pseudo-flag used to mark waypoints as "has requested path".
  *
