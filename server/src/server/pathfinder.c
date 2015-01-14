@@ -782,6 +782,13 @@ path_node_t *path_find(object *op, mapstruct *map1, int x, int y,
         path_node_remove(node, &open_list);
 
         if (node->heuristic <= 1.2) {
+            if (visualizer != NULL) {
+                PATHFINDING_SET_CLOSED(node->map, node->x, node->y,
+                        traversal_id, visualizer);
+                PATHFINDING_SET_CLOSED(goal.map, goal.x, goal.y,
+                        traversal_id, visualizer);
+            }
+
             for ( ; node != NULL; node = node->parent) {
                 path_node_insert(node, &found_path);
             }
@@ -923,6 +930,9 @@ path_node_t *path_find(object *op, mapstruct *map1, int x, int y,
         } else {
             path_visualization_t *visualization, *curr, *tmp;
             path_visualizer_t *visualizer_node, *visualizer_node_tmp;
+            mapstruct *m;
+            StringBuffer *sb;
+            char *cp;
 
             visualization = NULL;
             path_visualize(&visualization, visualizer);
@@ -934,21 +944,46 @@ path_node_t *path_find(object *op, mapstruct *map1, int x, int y,
 
             HASH_ITER(hh, visualization, curr, tmp)
             {
-                fprintf(fp, "\"%s\": [\n", curr->path);
+                m = has_been_loaded_sh(curr->path);
+                fprintf(fp, "\"%s\": {\"walked\": [\n", m->path);
 
                 DL_FOREACH_SAFE(curr->nodes, visualizer_node,
                         visualizer_node_tmp)
                 {
                     fprintf(fp, "{\"id\": %u, \"x\": %d, \"y\": %d, "
-                            "\"closed\": %s}%s\n", visualizer_node->id,
+                            "\"closed\": %s, \"exit\": %s}%s\n",
+                            visualizer_node->id,
                             visualizer_node->x, visualizer_node->y,
                             visualizer_node->closed ? "true" : "false",
+                            GET_MAP_FLAGS(m, visualizer_node->x,
+                            visualizer_node->y) & P_IS_EXIT ? "true" : "false",
                             visualizer_node_tmp != NULL ? "," : "");
                     DL_DELETE(curr->nodes, visualizer_node);
                     efree(visualizer_node);
                 }
 
-                fprintf(fp, "]%s\n", tmp != NULL ? "," : "");
+                sb = stringbuffer_new();
+
+                for (x = 0; x < m->width; x++) {
+                    for (y = 0; y < m->height; y++) {
+                        if (!tile_is_blocked(op, m, x, y)) {
+                            continue;
+                        }
+
+                        if (stringbuffer_length(sb) != 0) {
+                            stringbuffer_append_char(sb, ',');
+                        }
+
+                        stringbuffer_append_printf(sb, "\n{\"x\": %d, "
+                                "\"y\": %d}", x, y);
+                    }
+                }
+
+                cp = stringbuffer_finish(sb);
+                fprintf(fp, "],\n\"walls\": [%s\n]}%s\n", cp,
+                        tmp != NULL ? "," : "");
+                efree(cp);
+
                 HASH_DEL(visualization, curr);
                 FREE_ONLY_HASH(curr->path);
                 efree(curr);
@@ -956,15 +991,18 @@ path_node_t *path_find(object *op, mapstruct *map1, int x, int y,
 
             fprintf(fp, "},\n\"path\": [\n");
 
-            for (node = found_path; node != NULL; node = node->parent) {
+            for (node = found_path; node != NULL; node = node->next) {
                 fprintf(fp, "{\"map\": \"%s\", \"x\": %d, \"y\": %d}%s\n",
                         node->map->path, node->x, node->y,
-                        node->parent != NULL ? "," : "");
+                        node->next != NULL ? "," : "");
             }
 
             fprintf(fp, "]\n}\n");
 
             fclose(fp);
+
+            log(LOG(DEVEL), "Generated pathfinding visualization for '%s': %s",
+                    op->name, path);
         }
     }
 #endif
