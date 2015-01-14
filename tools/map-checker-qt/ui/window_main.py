@@ -17,6 +17,7 @@ from system.utils import html2text
 from ui.dialog_about import DialogAbout
 from ui.dialog_preferences import DialogPreferences
 from ui.dialog_table_info import DialogTableInfo
+from ui.dialog_pathfinding_visualizer import DialogPathfindingVisualizer
 from ui.model import Model
 from ui.ui_window_main import Ui_WindowMain
 
@@ -44,6 +45,7 @@ class WindowMain(Model, QMainWindow, Ui_WindowMain):
         self.dialogs["about"] = DialogAbout(self)
         self.dialogs["preferences"] = DialogPreferences(self)
         self.dialogs["table_info"] = DialogTableInfo(self)
+        self.dialogs["pathfinding_visualizer"] = DialogPathfindingVisualizer(self)
 
         self.actionScan.triggered.connect(self.actionScanTrigger)
         self.actionScan_directory.triggered.connect(self.actionScan_directoryTrigger)
@@ -54,6 +56,8 @@ class WindowMain(Model, QMainWindow, Ui_WindowMain):
 
         self.actionOpen_selected_in_editor.triggered.connect(self.actionOpen_selected_in_editorTrigger)
         self.actionOpen_selected_in_client.triggered.connect(self.actionOpen_selected_in_clientTrigger)
+
+        self.actionPathfinding_Visualizer.triggered.connect(self.actionPathfinding_VisualizerTrigger)
 
         self.actionReport_a_problem.triggered.connect(self.actionReport_a_problemTrigger)
         self.actionAbout.triggered.connect(self.actionAboutTrigger)
@@ -88,9 +92,7 @@ class WindowMain(Model, QMainWindow, Ui_WindowMain):
         for dialog in self.dialogs:
             self.dialogs[dialog].set_config(config)
             self.dialogs[dialog].main_window = self
-
-    def setMapChecker(self, map_checker):
-        self.map_checker = map_checker
+            self.dialogs[dialog].setMapChecker(self.map_checker)
 
     def getVisibleWidgetTable(self):
         if self.widgetTabs.currentIndex() == 0:
@@ -254,6 +256,9 @@ class WindowMain(Model, QMainWindow, Ui_WindowMain):
         path = "/" + os.path.relpath(data["file"]["path"],
             self.map_checker.getMapsPath()).replace(os.path.sep, "/")
         self.open_client(path, data["loc"])
+
+    def actionPathfinding_VisualizerTrigger(self):
+        self.dialogs["pathfinding_visualizer"].show()
 
     def actionSelect_allTrigger(self):
         self.getVisibleWidgetTable().selectAll()

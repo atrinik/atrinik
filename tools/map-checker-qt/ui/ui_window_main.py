@@ -2,8 +2,8 @@
 
 # Form implementation generated from reading ui file '..\ui\ui_window_main.ui'
 #
-# Created: Tue Nov 12 16:04:55 2013
-#      by: PyQt5 UI code generator 5.1.1
+# Created: Wed Jan 14 16:57:34 2015
+#      by: PyQt5 UI code generator 5.3.2
 #
 # WARNING! All changes made in this file will be lost!
 
@@ -94,6 +94,8 @@ class Ui_WindowMain(object):
         self.menuEdit.setObjectName("menuEdit")
         self.menuNavigate = QtWidgets.QMenu(self.menubar)
         self.menuNavigate.setObjectName("menuNavigate")
+        self.menuTools = QtWidgets.QMenu(self.menubar)
+        self.menuTools.setObjectName("menuTools")
         WindowMain.setMenuBar(self.menubar)
         self.statusbar = QtWidgets.QStatusBar(WindowMain)
         self.statusbar.setObjectName("statusbar")
@@ -120,6 +122,8 @@ class Ui_WindowMain(object):
         self.actionReport_a_problem.setObjectName("actionReport_a_problem")
         self.actionScan_directory = QtWidgets.QAction(WindowMain)
         self.actionScan_directory.setObjectName("actionScan_directory")
+        self.actionPathfinding_Visualizer = QtWidgets.QAction(WindowMain)
+        self.actionPathfinding_Visualizer.setObjectName("actionPathfinding_Visualizer")
         self.menuFile.addAction(self.actionScan)
         self.menuFile.addAction(self.actionScan_directory)
         self.menuFile.addSeparator()
@@ -133,9 +137,11 @@ class Ui_WindowMain(object):
         self.menuEdit.addAction(self.actionPreferences)
         self.menuNavigate.addAction(self.actionOpen_selected_in_editor)
         self.menuNavigate.addAction(self.actionOpen_selected_in_client)
+        self.menuTools.addAction(self.actionPathfinding_Visualizer)
         self.menubar.addAction(self.menuFile.menuAction())
         self.menubar.addAction(self.menuEdit.menuAction())
         self.menubar.addAction(self.menuNavigate.menuAction())
+        self.menubar.addAction(self.menuTools.menuAction())
         self.menubar.addAction(self.menuHelp.menuAction())
 
         self.retranslateUi(WindowMain)
@@ -168,6 +174,7 @@ class Ui_WindowMain(object):
         self.menuHelp.setTitle(_translate("WindowMain", "Help"))
         self.menuEdit.setTitle(_translate("WindowMain", "Edit"))
         self.menuNavigate.setTitle(_translate("WindowMain", "Navigate"))
+        self.menuTools.setTitle(_translate("WindowMain", "Tools"))
         self.actionAbout.setText(_translate("WindowMain", "About"))
         self.actionExit.setText(_translate("WindowMain", "Exit"))
         self.actionScan.setText(_translate("WindowMain", "Scan"))
@@ -179,4 +186,5 @@ class Ui_WindowMain(object):
         self.actionPreferences.setText(_translate("WindowMain", "Preferences"))
         self.actionReport_a_problem.setText(_translate("WindowMain", "Report a problem"))
         self.actionScan_directory.setText(_translate("WindowMain", "Scan directory..."))
+        self.actionPathfinding_Visualizer.setText(_translate("WindowMain", "Pathfinding Visualizer"))
 

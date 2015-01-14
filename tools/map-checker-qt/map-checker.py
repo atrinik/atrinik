@@ -137,6 +137,10 @@ class MapChecker:
         '''Returns absolute path to the maps directory.'''
         return self.config.get("General", "path_dir_maps")
 
+    def getServerPath(self):
+        '''Returns absolute path to the server directory.'''
+        return self.config.get("General", "path_dir_server")
+
     def checkers_set_fix(self, fix):
         '''Set the fix attribute for all checkers.'''
         for checker in self.checkers:
@@ -326,8 +330,8 @@ def main():
         # Create a GUI window using Qt.
         app = QApplication(sys.argv)
         window = WindowMain()
-        window.set_config(config)
         window.setMapChecker(map_checker)
+        window.set_config(config)
         window.setExitFunction(map_checker.exit)
         window.show()
 
