@@ -877,7 +877,7 @@ void player_path_handle(player *pl)
             player_path_clear(pl);
             return;
         } else {
-            int success = 0, dir = rv.direction;
+            int dir = rv.direction;
             mapstruct *map;
             int x, y;
 
@@ -888,27 +888,34 @@ void player_path_handle(player *pl)
             if (map == tmp->map && x == tmp->x && y == tmp->y) {
                 /* The player is already on the correct tile, so there's nothing
                  * to do -- they might have been teleported, for example. */
-                success = 1;
                 dir = 0;
-            } else if (move_object(pl->ob, dir)) {
-                /* Moved to the direction directly. */
-                success = 1;
             } else {
-                int diff, new_dir;
+                /* Move to the direction directly. */
+                dir = move_object(pl->ob, dir);
 
-                /* Try to move around corners otherwise. */
-                for (diff = 1; diff <= 2; diff++) {
-                    /* Try left or right first? */
-                    int m = 1 - (RANDOM() & 2);
+                if (dir == 0) {
+                    int diff;
 
-                    if (move_object(pl->ob, (new_dir = absdir(dir + diff *
-                            m))) || move_object(pl->ob, (new_dir = absdir(dir -
-                            diff * m)))) {
-                        success = 1;
-                        dir = new_dir;
-                        break;
+                    /* Try to move around corners otherwise. */
+                    for (diff = 1; diff <= 2; diff++) {
+                        /* Try left or right first? */
+                        int m = 1 - (RANDOM() & 2);
+
+                        dir = move_object(pl->ob, absdir(dir + diff * m));
+
+                        if (dir == 0) {
+                            dir = move_object(pl->ob, absdir(dir + diff * m));
+                        }
+
+                        if (dir != 0) {
+                            break;
+                        }
                     }
                 }
+            }
+
+            if (dir == -1) {
+                return;
             }
 
             x += freearr_x[dir];
@@ -920,7 +927,7 @@ void player_path_handle(player *pl)
             if (map == tmp->map && x == tmp->x && y == tmp->y) {
                 pl->move_path = tmp->next;
                 efree(tmp);
-            } else if ((rv.distance <= 1 && success) ||
+            } else if ((rv.distance <= 1 && dir != 0) ||
                     tmp->fails > PLAYER_PATH_MAX_FAILS) {
                 /* Clear all paths if we above check failed: this can happen
                  * if we got teleported somewhere else by a teleporter or a
@@ -929,7 +936,7 @@ void player_path_handle(player *pl)
                  * to move to destination too many times already. */
                 player_path_clear(pl);
                 return;
-            } else if (!success) {
+            } else if (dir == 0) {
                 /* Not any of the above; we failed to move where we wanted. */
                 tmp->fails++;
             }

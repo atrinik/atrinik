@@ -107,10 +107,11 @@ int object_move_to(object *op, int dir, object *originator, mapstruct *m,
  * @param dir Direction to move the object to.
  * @param originator Typically the same as op, but can be different if
  * originator is causing op to move (originator is pushing op).
- * @return 0 if the object is not able to move to the desired space, 1
- * otherwise (in which case we also move the object accordingly). -1 if
- * the object was destroyed in the move process (most likely when hit a
- * deadly trap or something). */
+ * @return 0 if the object is not able to move to the desired space, -1 if the
+ * object was not able to move there yet but some sort of action was performed
+ * that might allow us to move there (door opening for example), direction
+ * number that the object ended up moving in otherwise.
+ */
 int move_ob(object *op, int dir, object *originator)
 {
     mapstruct *m;
@@ -157,7 +158,7 @@ int move_ob(object *op, int dir, object *originator)
     }
 
     if (door_try_open(op, m, xt, yt, 0)) {
-        return 1;
+        return -1;
     }
 
     object_move_to(op, dir, originator, m, xt, yt);
@@ -166,7 +167,7 @@ int move_ob(object *op, int dir, object *originator)
         CONTR(op)->stat_steps_taken++;
     }
 
-    return 1;
+    return dir;
 }
 
 /**
