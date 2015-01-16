@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file '..\ui\ui_dialog_pathfinding_visualizer.ui'
 #
-# Created: Wed Jan 14 16:57:33 2015
+# Created: Fri Jan 16 17:45:55 2015
 #      by: PyQt5 UI code generator 5.3.2
 #
 # WARNING! All changes made in this file will be lost!
@@ -20,6 +20,34 @@ class Ui_DialogPathfindingVisualizer(object):
         self.gridLayout.setObjectName("gridLayout")
         self.horizontalLayout = QtWidgets.QHBoxLayout()
         self.horizontalLayout.setObjectName("horizontalLayout")
+        self.buttonPrev = QtWidgets.QPushButton(DialogPathfindingVisualizer)
+        self.buttonPrev.setEnabled(False)
+        self.buttonPrev.setAutoRepeat(True)
+        self.buttonPrev.setObjectName("buttonPrev")
+        self.horizontalLayout.addWidget(self.buttonPrev)
+        self.buttonPause = QtWidgets.QPushButton(DialogPathfindingVisualizer)
+        self.buttonPause.setEnabled(False)
+        self.buttonPause.setObjectName("buttonPause")
+        self.horizontalLayout.addWidget(self.buttonPause)
+        self.buttonNext = QtWidgets.QPushButton(DialogPathfindingVisualizer)
+        self.buttonNext.setEnabled(False)
+        self.buttonNext.setAutoRepeat(True)
+        self.buttonNext.setObjectName("buttonNext")
+        self.horizontalLayout.addWidget(self.buttonNext)
+        self.buttonRewind = QtWidgets.QPushButton(DialogPathfindingVisualizer)
+        self.buttonRewind.setEnabled(False)
+        self.buttonRewind.setObjectName("buttonRewind")
+        self.horizontalLayout.addWidget(self.buttonRewind)
+        self.label = QtWidgets.QLabel(DialogPathfindingVisualizer)
+        self.label.setObjectName("label")
+        self.horizontalLayout.addWidget(self.label)
+        self.sliderDelay = QtWidgets.QSlider(DialogPathfindingVisualizer)
+        self.sliderDelay.setMinimum(1)
+        self.sliderDelay.setMaximum(1000)
+        self.sliderDelay.setProperty("value", 100)
+        self.sliderDelay.setOrientation(QtCore.Qt.Horizontal)
+        self.sliderDelay.setObjectName("sliderDelay")
+        self.horizontalLayout.addWidget(self.sliderDelay)
         spacerItem = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
         self.horizontalLayout.addItem(spacerItem)
         self.buttonOpen = QtWidgets.QPushButton(DialogPathfindingVisualizer)
@@ -37,5 +65,10 @@ class Ui_DialogPathfindingVisualizer(object):
     def retranslateUi(self, DialogPathfindingVisualizer):
         _translate = QtCore.QCoreApplication.translate
         DialogPathfindingVisualizer.setWindowTitle(_translate("DialogPathfindingVisualizer", "Pathfinding Visualizer"))
+        self.buttonPrev.setText(_translate("DialogPathfindingVisualizer", "Previous"))
+        self.buttonPause.setText(_translate("DialogPathfindingVisualizer", "Pause"))
+        self.buttonNext.setText(_translate("DialogPathfindingVisualizer", "Next"))
+        self.buttonRewind.setText(_translate("DialogPathfindingVisualizer", "Rewind"))
+        self.label.setText(_translate("DialogPathfindingVisualizer", "Delay"))
         self.buttonOpen.setText(_translate("DialogPathfindingVisualizer", "Open"))
 

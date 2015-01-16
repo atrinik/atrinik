@@ -3,6 +3,7 @@ Implementation for the 'Pathfinding Visualizer' dialog.
 '''
 
 import json
+import math
 import os
 import time
 
@@ -25,6 +26,10 @@ class DialogPathfindingVisualizer(Model, QDialog, Ui_DialogPathfindingVisualizer
         self.nodes = None
         self.maps = {}
 
+        self.buttonPrev.clicked.connect(self.buttonPrevTrigger)
+        self.buttonPause.clicked.connect(self.buttonPauseTrigger)
+        self.buttonNext.clicked.connect(self.buttonNextTrigger)
+        self.buttonRewind.clicked.connect(self.buttonRewindTrigger)
         self.buttonOpen.clicked.connect(self.buttonOpenTrigger)
 
         self.scene = QGraphicsScene()
@@ -40,8 +45,16 @@ class DialogPathfindingVisualizer(Model, QDialog, Ui_DialogPathfindingVisualizer
         return self.maps[node["map"]][(node["x"], node["y"])]
 
     def pathfindingVisualizeTimerCallback(self):
+        if not self.buttonPause.isEnabled():
+            return
+
+        self.timer.setInterval(self.sliderDelay.value())
+
         if self.nodes_idx >= len(self.nodes):
+            self.nodes_idx -= 1
             self.timer.stop()
+
+            self.buttonPause.setEnabled(False)
 
             last_node = self.data["start"]
 
@@ -80,6 +93,9 @@ class DialogPathfindingVisualizer(Model, QDialog, Ui_DialogPathfindingVisualizer
         with open(path) as fp:
             self.data = json.load(fp)
 
+        self.pathfindingVisualizeDraw()
+
+    def pathfindingVisualizeDraw(self):
         self.scene.clear()
         self.nodes = []
         self.coords = {}
@@ -110,6 +126,15 @@ class DialogPathfindingVisualizer(Model, QDialog, Ui_DialogPathfindingVisualizer
                     self.scene.addEllipse(x + node["x"] * self.TILE_SIZE + 5, y + node["y"] * self.TILE_SIZE + 5,
                         self.TILE_SIZE - 5 * 2, self.TILE_SIZE - 5 * 2, brush = brush)
 
+                if not math.isnan(node["cost"]):
+                    rect = self.getNodeRect(node)
+                    tooltip = rect.toolTip()
+
+                    if tooltip:
+                        tooltip += "\n-----\n"
+
+                    rect.setToolTip(tooltip + "Map: {}\nCost: {}\nHeuristic: {}\nSum: {}".format(path, node["cost"], node["heuristic"], node["sum"]))
+
             x += self.MAP_SIZE * self.TILE_SIZE
 
         self.getNodeRect(self.data["start"]).setBrush(QtGui.QBrush(QtGui.QColor(0, 221, 0)))
@@ -119,7 +144,36 @@ class DialogPathfindingVisualizer(Model, QDialog, Ui_DialogPathfindingVisualizer
 
         self.timer = QTimer()
         self.timer.timeout.connect(self.pathfindingVisualizeTimerCallback)
-        self.timer.start(100)
+        self.timer.start(self.sliderDelay.value())
+
+        self.buttonPrev.setEnabled(True)
+        self.buttonPause.setEnabled(True)
+        self.buttonPause.setText("Pause")
+        self.buttonNext.setEnabled(True)
+        self.buttonRewind.setEnabled(True)
+
+    def buttonPrevTrigger(self):
+        if self.nodes_idx <= 1:
+            return
+
+        self.nodes_idx -= 1
+
+        node = self.nodes[self.nodes_idx]
+        self.maps[node["map"]][(node["x"], node["y"])].setBrush(QtGui.QBrush())
+
+    def buttonPauseTrigger(self):
+        if self.timer.isActive():
+            self.timer.stop()
+            self.buttonPause.setText("Resume")
+        else:
+            self.timer.start()
+            self.buttonPause.setText("Pause")
+
+    def buttonNextTrigger(self):
+        self.pathfindingVisualizeTimerCallback()
+
+    def buttonRewindTrigger(self):
+        self.pathfindingVisualizeDraw()
 
     def buttonOpenTrigger(self):
         if not self.last_path:
