@@ -70,6 +70,8 @@ typedef struct path_visualizer {
     sint16 x; ///< X position.
     sint16 y; ///< Y position.
 
+    path_node_t *node; ///< The actual node. Can be NULL.
+
     uint32 id; ///< UID of the node; can be used for insertion order sorting.
     bool closed; ///< Whether the node is closed or just visited.
 } path_visualizer_t;
@@ -93,7 +95,7 @@ typedef struct path_visualization {
                 sizeof(*(m)->path_nodes)); \
     }
 
-#define PATHFINDING_VISUALIZER_APPEND(visualizer, _m, _x, _y, _closed) \
+#define PATHFINDING_VISUALIZER_APPEND(visualizer, _m, _x, _y, _closed, _node) \
     if (visualizer != NULL) { \
         path_visualizer_t *__tmp; \
  \
@@ -102,6 +104,7 @@ typedef struct path_visualization {
         __tmp->x = (_x); \
         __tmp->y = (_y); \
         __tmp->closed = (_closed); \
+        __tmp->node = (_node); \
         __tmp->id = node_id++; \
         DL_APPEND(*visualizer, __tmp); \
     }
@@ -109,7 +112,7 @@ typedef struct path_visualization {
 #define PATHFINDING_SET_CLOSED(m, x, y, id, visualizer) \
     { \
         PATHFINDING_CHECK_ID(m, id); \
-        PATHFINDING_VISUALIZER_APPEND(visualizer, m, x, y, true) \
+        PATHFINDING_VISUALIZER_APPEND(visualizer, m, x, y, true, NULL); \
         (m)->bitmap[(x) / 32 + ((MAP_WIDTH(m) + 31) / 32) * (y)] |= \
                 (1U << ((x) % 32)); \
     }
@@ -121,9 +124,10 @@ typedef struct path_visualization {
 #define PATHFINDING_NODE_SET(m, x, y, id, node, visualizer) \
     { \
         PATHFINDING_CHECK_ID(m, id); \
-        PATHFINDING_VISUALIZER_APPEND(visualizer, m, x, y, false) \
+        PATHFINDING_VISUALIZER_APPEND(visualizer, m, x, y, false, node); \
         (m)->path_nodes[(x) + MAP_WIDTH(m) * (y)] = node; \
     }
+
 #define PATHFINDING_NODE_GET(m, x, y, id) \
     ((m)->pathfinding_id != (id) ? NULL : (m)->path_nodes[(x) + \
             MAP_WIDTH(m) * (y)])

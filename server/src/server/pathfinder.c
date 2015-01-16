@@ -951,13 +951,30 @@ path_node_t *path_find(object *op, mapstruct *map1, int x, int y,
                         visualizer_node_tmp)
                 {
                     fprintf(fp, "{\"id\": %u, \"x\": %d, \"y\": %d, "
-                            "\"closed\": %s, \"exit\": %s}%s\n",
-                            visualizer_node->id,
+                            "\"closed\": %s, \"exit\": %s", visualizer_node->id,
                             visualizer_node->x, visualizer_node->y,
                             visualizer_node->closed ? "true" : "false",
                             GET_MAP_FLAGS(m, visualizer_node->x,
-                            visualizer_node->y) & P_IS_EXIT ? "true" : "false",
-                            visualizer_node_tmp != NULL ? "," : "");
+                            visualizer_node->y) & P_IS_EXIT ? "true" : "false");
+
+                    if (visualizer_node->node == NULL) {
+                        fprintf(fp, ", \"cost\": NaN, \"heuristic\": NaN, "
+                                "\"sum\": NaN");
+                    } else {
+                        fprintf(fp, ", \"cost\": %f, \"heuristic\": %f, "
+                                "\"sum\": %f", visualizer_node->node->cost,
+                                visualizer_node->node->heuristic,
+                                visualizer_node->node->sum);
+                    }
+
+                    fprintf(fp, "}");
+
+                    if (visualizer_node_tmp != NULL) {
+                        fprintf(fp, ",");
+                    }
+
+                    fprintf(fp, "\n");
+
                     DL_DELETE(curr->nodes, visualizer_node);
                     efree(visualizer_node);
                 }
