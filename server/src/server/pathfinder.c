@@ -1014,9 +1014,29 @@ path_node_t *path_find(object *op, mapstruct *map1, int x, int y,
             fprintf(fp, "},\n\"path\": [\n");
 
             for (node = found_path; node != NULL; node = node->next) {
-                fprintf(fp, "{\"map\": \"%s\", \"x\": %d, \"y\": %d}%s\n",
-                        node->map->path, node->x, node->y,
-                        node->next != NULL ? "," : "");
+                m = NULL;
+
+                if (node->flags & PATH_NODE_EXIT) {
+                    object *exit;
+
+                    for (exit = GET_MAP_OB(node->map, node->x, node->y);
+                            exit != NULL; exit = exit->above) {
+                        if (exit->type == EXIT) {
+                            m = exit_get_destination(exit, &nx, &ny, 1);
+                        }
+                    }
+                }
+
+                fprintf(fp, "{\"map\": \"%s\", \"x\": %d, \"y\": %d, "
+                        "\"flags\": %d}%s\n", node->map->path, node->x, node->y,
+                        node->flags, node->next != NULL || m != NULL ? "," :
+                            "");
+
+                if (m != NULL) {
+                    fprintf(fp, "{\"map\": \"%s\", \"x\": %d, \"y\": %d}%s\n",
+                            m->path, nx, ny, node->next != NULL ? "," : "");
+
+                }
             }
 
             fprintf(fp, "]\n}\n");
