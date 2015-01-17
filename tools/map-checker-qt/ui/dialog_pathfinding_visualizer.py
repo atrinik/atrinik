@@ -67,7 +67,12 @@ class DialogPathfindingVisualizer(Model, QDialog, Ui_DialogPathfindingVisualizer
                 x2 += node["x"] * self.TILE_SIZE + self.TILE_SIZE / 2
                 y2 += node["y"] * self.TILE_SIZE + self.TILE_SIZE / 2
 
-                qpen = QtGui.QPen(QtGui.QColor(255, 255, 0))
+                if last_node.get("flags", 0) & 0x01:
+                    color = QtGui.QColor(170, 60, 255)
+                else:
+                    color = QtGui.QColor(255, 255, 0)
+
+                qpen = QtGui.QPen(color)
                 qpen.setWidth(3)
                 qpen.setCapStyle(Qt.RoundCap)
                 self.scene.addLine(x1, y1, x2, y2, qpen)
