@@ -936,7 +936,6 @@ path_node_t *path_find(object *op, mapstruct *map1, int x, int y,
         } else {
             path_visualization_t *visualization, *curr, *tmp;
             path_visualizer_t *visualizer_node, *visualizer_node_tmp;
-            mapstruct *m;
             StringBuffer *sb;
             char *cp;
 
