@@ -687,9 +687,34 @@ end
 arch wall_stone_1
 x 4
 end
-arch floor_stone_b2
+arch floor_blue2
 x 4
 y 1
+end
+arch spawn_point
+x 4
+y 1
+arch archer
+speed 0.5
+movement_type 176
+type 83
+arch waypoint
+name waypoint2
+hp 4
+sp 1
+end
+arch waypoint
+name waypoint1
+title waypoint2
+hp 14
+sp 1
+wc 3
+end
+arch event_obj
+sub_type 6
+race scripts/waypoint.py
+end
+end
 end
 arch floor_stone_b2
 x 4
@@ -962,11 +987,17 @@ arch floor_stone_b2
 x 6
 y 1
 end
+arch exit
+hp 13
+sp 1
+x 6
+y 1
+end
 arch floor_stone_b2
 x 6
 y 2
 end
-arch floor_stone_b1
+arch floor_stone_b4
 x 6
 y 3
 end
@@ -1660,6 +1691,12 @@ arch floor_stone_b2
 x 12
 y 1
 end
+arch exit
+hp 5
+sp 1
+x 12
+y 1
+end
 arch floor_stone_b4
 x 12
 y 2
@@ -1918,7 +1955,7 @@ end
 arch wall_stone_1
 x 14
 end
-arch floor_stone_b1
+arch floor_blue2
 x 14
 y 1
 end
@@ -2390,7 +2427,7 @@ arch fence_01.111
 x 17
 y 11
 end
-arch floor_stone_b2
+arch floor_blue2
 x 17
 y 12
 end
