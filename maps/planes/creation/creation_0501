@@ -2,7 +2,7 @@ arch map
 name Plane of Creation
 msg
 Created:  2011-03-25 Alex Tokar
-Modified: 2015-01-10 Alex Tokar
+Modified: 2015-01-17 Alex Tokar
 endmsg
 width 24
 height 24
@@ -247,15 +247,48 @@ end
 arch wall_stone_1
 x 1
 end
-arch floor_stone_b1
+arch floor_blue2
 x 1
 y 1
+end
+arch spawn_point
+x 1
+y 1
+arch archer
+speed 0.5
+can_pass_thru 1
+behavior 0
+movement_type 176
+type 83
+arch waypoint
+name waypoint2
+slaying creation_0501
+hp 1
+sp 1
+end
+arch waypoint
+name waypoint1
+title waypoint2
+slaying creation_0501
+hp 17
+sp 12
+wc 3
+end
+arch event_obj
+sub_type 6
+race scripts/waypoint.py
+end
+end
 end
 arch floor_stone_b2
 x 1
 y 2
 end
 arch floor_stone_b1
+x 1
+y 3
+end
+arch fence_01.151
 x 1
 y 3
 end
@@ -385,11 +418,22 @@ arch floor_stone_b2
 x 2
 y 1
 end
+arch exit_green
+slaying creation_0601
+hp 3
+sp 1
+x 2
+y 1
+end
 arch floor_stone_b3
 x 2
 y 2
 end
 arch floor_stone_b1
+x 2
+y 3
+end
+arch fence_01.151
 x 2
 y 3
 end
@@ -510,11 +554,23 @@ arch floor_stone_b3
 x 3
 y 1
 end
+arch fence_01.131
+x 3
+y 1
+end
 arch floor_stone_b4
 x 3
 y 2
 end
+arch fence_01.131
+x 3
+y 2
+end
 arch floor_stone_b4
+x 3
+y 3
+end
+arch fence_01.141
 x 3
 y 3
 end
@@ -1898,7 +1954,7 @@ arch floor_stone_b1
 x 14
 y 9
 end
-arch floor_stone_b3
+arch floor_blue2
 x 14
 y 10
 end
@@ -1957,7 +2013,7 @@ arch floor_stone_b2
 x 14
 y 16
 end
-arch floor_stone_b1
+arch floor_blue2
 x 14
 y 17
 end
@@ -2330,6 +2386,10 @@ arch floor_stone_b3
 x 17
 y 11
 end
+arch fence_01.111
+x 17
+y 11
+end
 arch floor_stone_b2
 x 17
 y 12
@@ -2338,7 +2398,18 @@ arch floor_stone_b1
 x 17
 y 13
 end
+arch exit_green
+slaying creation_0601
+hp 1
+sp 11
+x 17
+y 13
+end
 arch floor_stone_b1
+x 17
+y 14
+end
+arch fence_01.151
 x 17
 y 14
 end
@@ -2443,7 +2514,15 @@ arch floor_stone_b2
 x 18
 y 11
 end
+arch fence_01.121
+x 18
+y 11
+end
 arch floor_stone_b4
+x 18
+y 12
+end
+arch fence_01.131
 x 18
 y 12
 end
@@ -2451,7 +2530,15 @@ arch floor_stone_b3
 x 18
 y 13
 end
+arch fence_01.131
+x 18
+y 13
+end
 arch floor_stone_b3
+x 18
+y 14
+end
+arch fence_01.141
 x 18
 y 14
 end
