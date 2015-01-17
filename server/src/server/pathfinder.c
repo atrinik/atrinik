@@ -40,7 +40,7 @@
  *  - use smaller max-number-of-nodes value (we don't want a mob running away
  * across the map)
  *
- * @author Alex Tokar - new A* algorithm and heurestics
+ * @author Alex Tokar - new A* algorithm and heuristics
  * @author Bjorn Axelsson (gecko@acc.umu.se) - original algorithm, functions and
  * structures
  */
