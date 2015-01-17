@@ -55,6 +55,11 @@
 #define ALGORITHM 0.5
 
 /**
+ * Greed modifier.
+ */
+#define GREED 1.
+
+/**
  * Turns pathfinding profiling on/off.
  */
 #define TIME_PATHFINDING 0
@@ -289,6 +294,7 @@ static path_node_t *path_node_new(mapstruct *map, sint16 x, sint16 y,
     node->distance_z = abs(rv.distance_z);
     node->heuristic = straight + PATH_COST_DIAG * diagonal + cross * 0.001 +
             abs(rv.distance_z) * PATH_COST_LEVEL;
+    node->heuristic *= GREED;
     node->sum = (ALGORITHM * node->cost + (1 - ALGORITHM) *
             node->heuristic) / MAX(ALGORITHM, 1 - ALGORITHM);
 
