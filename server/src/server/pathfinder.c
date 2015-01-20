@@ -419,35 +419,6 @@ static int tile_is_blocked(object *op, mapstruct *map, int x, int y)
 }
 
 /**
- * Check if the specified node is blocked from all possible directions.
- * @param op Object.
- * @param node Node to check
- * @return 1 if the node is blocked, 0 otherwise.
- */
-static int path_is_blocked(object *op, path_node_t *node)
-{
-    int i, nx, ny;
-    mapstruct *m;
-
-    for (i = 1; i <= SIZEOFFREE1; i++) {
-        nx = node->x + freearr_x[i];
-        ny = node->y + freearr_y[i];
-
-        m = get_map_from_coord(node->map, &nx, &ny);
-
-        if (m == NULL) {
-            continue;
-        }
-
-        if (tile_is_blocked(op, m, nx, ny) == 0) {
-            return 0;
-        }
-    }
-
-    return 1;
-}
-
-/**
  * Generate a string representation of a path.
  *
  * Ideas on how to store paths:
@@ -719,7 +690,7 @@ void path_visualize(path_visualization_t **visualization,
 path_node_t *path_find(object *op, mapstruct *map1, int x, int y,
         mapstruct *map2, int x2, int y2, path_visualizer_t **visualizer)
 {
-    path_node_t *open_list, *found_path, *visited, *node, *new_node;
+    path_node_t *open_list, *found_path, *visited, *node, *new_node, *best;
     path_node_t start, goal;
     static uint32 traversal_id = 0;
     int i, nx, ny, is_diagonal, node_x, node_y;
@@ -742,12 +713,6 @@ path_node_t *path_find(object *op, mapstruct *map1, int x, int y,
     goal.x = x2;
     goal.y = y2;
     goal.map = map2;
-
-    /* Check if either the start or the goal is blocked from all possible
-     * directions. */
-    if (path_is_blocked(op, &start) || path_is_blocked(op, &goal)) {
-        return NULL;
-    }
 
     /* Avoid overflow of traversal_id */
     if (traversal_id == UINT32_MAX) {
@@ -777,7 +742,7 @@ path_node_t *path_find(object *op, mapstruct *map1, int x, int y,
 #endif
 
     /* The initial tile. */
-    open_list = path_node_new(map1, x, y, 0.0, &start, &goal, NULL);
+    open_list = best = path_node_new(map1, x, y, 0.0, &start, &goal, NULL);
 
     if (open_list == NULL) {
         return NULL;
@@ -885,6 +850,10 @@ path_node_t *path_find(object *op, mapstruct *map1, int x, int y,
             if (visited != NULL) {
                 /* Remove previously visited node from the open list. */
                 path_node_remove(visited, &open_list);
+
+                if (visited == best) {
+                    best = NULL;
+                }
             } else {
 #if TIME_PATHFINDING
                 searched++;
@@ -899,6 +868,16 @@ path_node_t *path_find(object *op, mapstruct *map1, int x, int y,
 
             path_node_insert_priority(new_node, &open_list);
             PATHFINDING_NODE_SET(m, nx, ny, traversal_id, new_node, visualizer);
+
+            if (best == NULL || new_node->sum < best->sum) {
+                best = new_node;
+            }
+        }
+    }
+
+    if (found_path == NULL) {
+        for (node = best; node != NULL; node = node->parent) {
+            path_node_insert(node, &found_path);
         }
     }
 
