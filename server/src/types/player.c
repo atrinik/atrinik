@@ -936,7 +936,7 @@ void player_path_handle(player *pl)
                  * to move to destination too many times already. */
                 player_path_clear(pl);
                 return;
-            } else if (dir == 0) {
+            } else {
                 /* Not any of the above; we failed to move where we wanted. */
                 tmp->fails++;
             }
