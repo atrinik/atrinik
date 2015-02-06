@@ -2214,7 +2214,6 @@ x 16
 y 1
 end
 arch shop_mat
-player_only 0
 x 16
 y 1
 end
@@ -2897,7 +2896,6 @@ x 21
 y 1
 end
 arch shop_mat
-player_only 0
 x 21
 y 1
 end

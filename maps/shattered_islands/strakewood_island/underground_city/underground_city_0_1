@@ -2987,7 +2987,6 @@ hp 0
 sp 7
 walk_on 1
 fly_on 1
-type 66
 x 22
 y 12
 arch event_obj

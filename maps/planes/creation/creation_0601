@@ -2793,7 +2793,6 @@ arch exit
 slaying creation_0501
 hp 19
 sp 19
-player_only 0
 x 20
 y 6
 end
