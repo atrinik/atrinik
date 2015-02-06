@@ -210,6 +210,9 @@ class CheckerObject(AbstractChecker):
                 if "unescaped-markup" in msg_errors:
                     self.addError("low", "Object contains unescaped markup in message.", "The following characters: [ and ] need to be replaced with: &amp;lsqb; and &amp;rsqb; respectively.", obj = obj)
 
+        if t in (game.types.shop_mat, game.types.teleporter):
+            self.addError("high", "Object has shop mat or teleporter object type.", "Shop mats and teleporters were merged into the exit object type.", obj = obj)
+
         # The following only applies to objects on the map.
         if not obj.map:
             return
@@ -293,8 +296,8 @@ class CheckerObject(AbstractChecker):
         if obj.getAttributeInt("type") == game.types.spawn_point:
             self.addError("high", "Spawn point object inside inventory of another object.", "Spawn points cannot work from inside an inventory of another object.", obj = obj)
 
-        if obj.getAttributeInt("type") in (game.types.exit, game.types.teleporter) and obj.env.getAttributeInt("type") != game.types.creator:
-            self.addError("high", "Exit object inside inventory of another object.", "Exit and teleporter objects can only be inside creators, as they have undefined behavior when inside any other object.", obj = obj)
+        if obj.getAttributeInt("type") == game.types.exit and obj.env.getAttributeInt("type") != game.types.creator:
+            self.addError("high", "Exit object inside inventory of another object.", "Exit objects can only be inside creators, as they have undefined behavior when inside any other object.", obj = obj)
 
         for attr in ["x", "y"]:
             if obj.getAttribute(attr) != None:
@@ -471,7 +474,7 @@ class CheckerObject(AbstractChecker):
     def checker_anim(self, obj):
         t = obj.getAttributeInt("type")
 
-        if not obj.getAttributeInt("is_used_up") and obj.getAttributeInt("anim_speed") and obj.getAttributeFloat("speed") and not t in (game.types.monster, game.types.player, game.types.god, game.types.exit, game.types.shop_mat, game.types.cone, game.types.bullet, game.types.teleporter, game.types.rod, game.types.spawn_point_mob, game.types.lightning):
+        if not obj.getAttributeInt("is_used_up") and obj.getAttributeInt("anim_speed") and obj.getAttributeFloat("speed") and not t in (game.types.monster, game.types.player, game.types.god, game.types.exit, game.types.cone, game.types.bullet, game.types.rod, game.types.spawn_point_mob, game.types.lightning):
             self.addError("warning", "Object is animated and has speed but its object type does not require speed.", "Animated objects don't require speed attribute to be set in order to be animated. Objects with speed are processed each tick server-side, using up unnecessary resources, since animations are processed client-side. Removing the speed attribute is recommended.", obj = obj)
 
 class CheckerArchetype(CheckerObject):
