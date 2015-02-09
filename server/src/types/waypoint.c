@@ -165,8 +165,10 @@ void waypoint_compute_path(object *waypoint)
 
     if (!path) {
         if (!QUERY_FLAG(waypoint, FLAG_DAMNED)) {
-            log(LOG(BUG), "No path to destination ('%s' -> '%s')", op->name,
-                    waypoint->name);
+            log(LOG(BUG), "No path to destination ('%s', %s @ %d,%d -> "
+                    "'%s', %s @ %d,%d)", op->name, op->map->path, op->x, op->y,
+                    waypoint->name, destmap->path, waypoint->stats.hp,
+                    waypoint->stats.sp);
         }
 
         return;
