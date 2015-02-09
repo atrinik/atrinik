@@ -699,7 +699,7 @@ path_node_t *path_find(object *op, mapstruct *map1, int x, int y,
     rv_vector rv;
     uint32 node_id;
 #if TIME_PATHFINDING
-    struct timeval tv1, tv2;
+    PERF_TIMER_DECLARE(1);
     int searched;
 #endif
 #if VISUALIZE_PATHFINDING
@@ -725,7 +725,7 @@ path_node_t *path_find(object *op, mapstruct *map1, int x, int y,
 
 #if TIME_PATHFINDING
     searched = 0;
-    GETTIMEOFDAY(&tv1);
+    PERF_TIMER_START(1);
 #endif
 
     traversal_id++;
@@ -882,21 +882,9 @@ path_node_t *path_find(object *op, mapstruct *map1, int x, int y,
     }
 
 #if TIME_PATHFINDING
-    {
-        int sec, usec;
-
-        GETTIMEOFDAY(&tv2);
-        sec = tv2.tv_sec - tv1.tv_sec;
-        usec = tv2.tv_usec - tv1.tv_usec;
-
-        if (usec < 0) {
-            usec += 1000000;
-            sec--;
-        }
-
-        log(LOG(DEVEL), "Pathfinding took %d.%06d seconds (searched %d nodes)",
-                sec, usec, searched);
-    }
+    PERF_TIMER_STOP(1);
+    log(LOG(DEVEL), "Pathfinding took %f seconds (searched %d nodes)",
+            PERF_TIMER_GET(1), searched);
 #endif
 
 #if VISUALIZE_PATHFINDING
