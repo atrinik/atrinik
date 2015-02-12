@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file '..\ui\ui_dialog_pathfinding_visualizer.ui'
 #
-# Created: Fri Jan 16 17:45:55 2015
+# Created: Wed Feb 11 15:36:09 2015
 #      by: PyQt5 UI code generator 5.3.2
 #
 # WARNING! All changes made in this file will be lost!
@@ -53,10 +53,22 @@ class Ui_DialogPathfindingVisualizer(object):
         self.buttonOpen = QtWidgets.QPushButton(DialogPathfindingVisualizer)
         self.buttonOpen.setObjectName("buttonOpen")
         self.horizontalLayout.addWidget(self.buttonOpen)
-        self.gridLayout.addLayout(self.horizontalLayout, 1, 0, 1, 1)
+        self.gridLayout.addLayout(self.horizontalLayout, 3, 0, 1, 1)
         self.graphicsView = QtWidgets.QGraphicsView(DialogPathfindingVisualizer)
         self.graphicsView.setObjectName("graphicsView")
         self.gridLayout.addWidget(self.graphicsView, 0, 0, 1, 1)
+        self.horizontalLayout_2 = QtWidgets.QHBoxLayout()
+        self.horizontalLayout_2.setObjectName("horizontalLayout_2")
+        self.label_2 = QtWidgets.QLabel(DialogPathfindingVisualizer)
+        self.label_2.setObjectName("label_2")
+        self.horizontalLayout_2.addWidget(self.label_2)
+        self.timeTaken = QtWidgets.QLabel(DialogPathfindingVisualizer)
+        self.timeTaken.setText("")
+        self.timeTaken.setObjectName("timeTaken")
+        self.horizontalLayout_2.addWidget(self.timeTaken)
+        spacerItem1 = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
+        self.horizontalLayout_2.addItem(spacerItem1)
+        self.gridLayout.addLayout(self.horizontalLayout_2, 1, 0, 1, 1)
         self.gridLayout_2.addLayout(self.gridLayout, 0, 0, 1, 1)
 
         self.retranslateUi(DialogPathfindingVisualizer)
@@ -71,4 +83,5 @@ class Ui_DialogPathfindingVisualizer(object):
         self.buttonRewind.setText(_translate("DialogPathfindingVisualizer", "Rewind"))
         self.label.setText(_translate("DialogPathfindingVisualizer", "Delay"))
         self.buttonOpen.setText(_translate("DialogPathfindingVisualizer", "Open"))
+        self.label_2.setText(_translate("DialogPathfindingVisualizer", "Pathfinding took:"))
 

@@ -108,6 +108,10 @@ class DialogPathfindingVisualizer(Model, QDialog, Ui_DialogPathfindingVisualizer
         x = 0
         y = 0
 
+        num_visited = 0
+        num_closed = 0
+        nodes_unique = []
+
         for path in self.data["nodes"]:
             self.maps[path] = {}
             self.coords[path] = (x, y)
@@ -126,19 +130,35 @@ class DialogPathfindingVisualizer(Model, QDialog, Ui_DialogPathfindingVisualizer
                 node["map"] = path
                 self.nodes.append(node)
 
+                nodes_unique.append((path, node["x"], node["y"]))
+
+                if node["closed"]:
+                    num_closed += 1
+                else:
+                    num_visited += 1
+
                 if node["exit"]:
                     brush = QtGui.QBrush(QtGui.QColor(170, 60, 255))
-                    self.scene.addEllipse(x + node["x"] * self.TILE_SIZE + 5, y + node["y"] * self.TILE_SIZE + 5,
-                        self.TILE_SIZE - 5 * 2, self.TILE_SIZE - 5 * 2, brush = brush)
+                    self.scene.addEllipse(x + node["x"] * self.TILE_SIZE + 5,
+                        y + node["y"] * self.TILE_SIZE + 5,
+                        self.TILE_SIZE - 5 * 2, self.TILE_SIZE - 5 * 2,
+                        brush = brush)
+
+                rect = self.getNodeRect(node)
+                tooltip = rect.toolTip()
+
+                if tooltip:
+                    tooltip += "\n-----\n"
+
+                tooltip += "Map: {}\nCoordinates: {},{} ({})".format(path,
+                    node["x"], node["y"],
+                    "closed" if node["closed"] else "visited")
 
                 if not math.isnan(node["cost"]):
-                    rect = self.getNodeRect(node)
-                    tooltip = rect.toolTip()
+                    tooltip += "\nCost: {}\nHeuristic: {}\nSum: {}".format(
+                        node["cost"], node["heuristic"], node["sum"])
 
-                    if tooltip:
-                        tooltip += "\n-----\n"
-
-                    rect.setToolTip(tooltip + "Map: {}\nCost: {}\nHeuristic: {}\nSum: {}".format(path, node["cost"], node["heuristic"], node["sum"]))
+                rect.setToolTip(tooltip)
 
             x += self.MAP_SIZE * self.TILE_SIZE
 
@@ -156,6 +176,17 @@ class DialogPathfindingVisualizer(Model, QDialog, Ui_DialogPathfindingVisualizer
         self.buttonPause.setText("Pause")
         self.buttonNext.setEnabled(True)
         self.buttonRewind.setEnabled(True)
+
+        if not math.isnan(self.data.get("time_taken", float("nan"))) and \
+            not math.isnan(self.data.get("num_searched", float("nan"))):
+            self.timeTaken.setText("{} seconds, searched <b>{}</b> nodes, "
+                "logged <b>{}</b> nodes, visited <b>{}</b>, closed <b>{}</b>, "
+                "unique nodes <b>{}</b>, path length is <b>{}</b>".format(
+                self.data["time_taken"], self.data["num_searched"],
+                num_visited + num_closed, num_visited, num_closed,
+                len(set(nodes_unique)), len(self.data["path"])))
+        else:
+            self.timeTaken.setText("")
 
     def buttonPrevTrigger(self):
         if self.nodes_idx <= 1:
