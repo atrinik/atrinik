@@ -1006,7 +1006,23 @@ path_node_t *path_find(object *op, mapstruct *map1, int x, int y,
                 }
             }
 
-            fprintf(fp, "]\n}\n");
+            fprintf(fp, "],\n\"time_taken\": ");
+
+#if TIME_PATHFINDING
+            fprintf(fp, "%f", PERF_TIMER_GET(1));
+#else
+            fprintf(fp, "NaN");
+#endif
+
+            fprintf(fp, ",\n\"num_searched\": ");
+
+#if TIME_PATHFINDING
+            fprintf(fp, "%d", searched);
+#else
+            fprintf(fp, "NaN");
+#endif
+
+            fprintf(fp, "\n}\n");
 
             fclose(fp);
 
