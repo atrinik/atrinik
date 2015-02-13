@@ -213,6 +213,9 @@ class CheckerObject(AbstractChecker):
         if t in (game.types.shop_mat, game.types.teleporter):
             self.addError("high", "Object has shop mat or teleporter object type.", "Shop mats and teleporters were merged into the exit object type.", obj = obj)
 
+        if t == game.types.creator and obj.getAttribute("other_arch"):
+            self.addError("critical", "Creator object with other_arch attribute.", "The other_arch attribute for creators was removed in favour of inventory objects.", obj = obj)
+
         # The following only applies to objects on the map.
         if not obj.map:
             return
