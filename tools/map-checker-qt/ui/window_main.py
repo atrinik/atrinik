@@ -163,9 +163,10 @@ class WindowMain(Model, QMainWindow, Ui_WindowMain):
         if self.map_checker.scan_is_running():
             self.progressBar.setVisible(True)
             self.progressBar.setValue(self.map_checker.scan_get_progress() * self.progressBar.maximum())
-            self.progressBar.setStatusTip(self.map_checker.scan_get_status())
+            self.statusLabel.setText(self.map_checker.scan_get_status())
         else:
             self.progressBar.setVisible(False)
+            self.statusLabel.setText("")
 
         text = "Stop" if self.map_checker.scan_is_running() else "Scan"
 

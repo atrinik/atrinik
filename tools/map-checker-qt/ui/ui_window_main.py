@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file '..\ui\ui_window_main.ui'
 #
-# Created: Wed Jan 14 16:57:34 2015
+# Created: Fri Feb 13 15:37:40 2015
 #      by: PyQt5 UI code generator 5.3.2
 #
 # WARNING! All changes made in this file will be lost!
@@ -19,13 +19,13 @@ class Ui_WindowMain(object):
         self.gridLayout.setObjectName("gridLayout")
         self.gridLayout_2 = QtWidgets.QGridLayout()
         self.gridLayout_2.setObjectName("gridLayout_2")
+        self.buttonOpen_all = QtWidgets.QPushButton(self.centralwidget)
+        self.buttonOpen_all.setObjectName("buttonOpen_all")
+        self.gridLayout_2.addWidget(self.buttonOpen_all, 2, 2, 1, 1)
         self.buttonScan = QtWidgets.QPushButton(self.centralwidget)
         self.buttonScan.setStyleSheet("")
         self.buttonScan.setObjectName("buttonScan")
-        self.gridLayout_2.addWidget(self.buttonScan, 1, 1, 1, 1)
-        self.buttonOpen_all = QtWidgets.QPushButton(self.centralwidget)
-        self.buttonOpen_all.setObjectName("buttonOpen_all")
-        self.gridLayout_2.addWidget(self.buttonOpen_all, 1, 2, 1, 1)
+        self.gridLayout_2.addWidget(self.buttonScan, 2, 1, 1, 1)
         spacerItem = QtWidgets.QSpacerItem(40, 0, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
         self.gridLayout_2.addItem(spacerItem, 0, 0, 1, 1)
         self.progressBar = QtWidgets.QProgressBar(self.centralwidget)
@@ -37,7 +37,7 @@ class Ui_WindowMain(object):
         self.progressBar.setOrientation(QtCore.Qt.Horizontal)
         self.progressBar.setInvertedAppearance(False)
         self.progressBar.setObjectName("progressBar")
-        self.gridLayout_2.addWidget(self.progressBar, 1, 0, 1, 1)
+        self.gridLayout_2.addWidget(self.progressBar, 2, 0, 1, 1)
         self.gridLayout.addLayout(self.gridLayout_2, 1, 1, 1, 1)
         self.widgetTabs = QtWidgets.QTabWidget(self.centralwidget)
         self.widgetTabs.setObjectName("widgetTabs")
@@ -82,6 +82,10 @@ class Ui_WindowMain(object):
         self.gridLayout_3.addWidget(self.widgetTableResources, 1, 0, 1, 1)
         self.widgetTabs.addTab(self.tab_2, "")
         self.gridLayout.addWidget(self.widgetTabs, 0, 1, 1, 1)
+        self.statusLabel = QtWidgets.QLabel(self.centralwidget)
+        self.statusLabel.setText("")
+        self.statusLabel.setObjectName("statusLabel")
+        self.gridLayout.addWidget(self.statusLabel, 2, 1, 1, 1)
         WindowMain.setCentralWidget(self.centralwidget)
         self.menubar = QtWidgets.QMenuBar(WindowMain)
         self.menubar.setGeometry(QtCore.QRect(0, 0, 745, 26))
@@ -97,9 +101,6 @@ class Ui_WindowMain(object):
         self.menuTools = QtWidgets.QMenu(self.menubar)
         self.menuTools.setObjectName("menuTools")
         WindowMain.setMenuBar(self.menubar)
-        self.statusbar = QtWidgets.QStatusBar(WindowMain)
-        self.statusbar.setObjectName("statusbar")
-        WindowMain.setStatusBar(self.statusbar)
         self.actionAbout = QtWidgets.QAction(WindowMain)
         self.actionAbout.setObjectName("actionAbout")
         self.actionExit = QtWidgets.QAction(WindowMain)
@@ -152,8 +153,8 @@ class Ui_WindowMain(object):
     def retranslateUi(self, WindowMain):
         _translate = QtCore.QCoreApplication.translate
         WindowMain.setWindowTitle(_translate("WindowMain", "Map Checker"))
-        self.buttonScan.setText(_translate("WindowMain", "Scan"))
         self.buttonOpen_all.setText(_translate("WindowMain", "Open all"))
+        self.buttonScan.setText(_translate("WindowMain", "Scan"))
         self.widgetTableMaps.setSortingEnabled(True)
         item = self.widgetTableMaps.horizontalHeaderItem(0)
         item.setText(_translate("WindowMain", "Map name"))
