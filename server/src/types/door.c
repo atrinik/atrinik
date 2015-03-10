@@ -235,7 +235,8 @@ static void process_func(object *op)
 
     /* If there's something blocking the door from closing, reset the
      * counter. */
-    if (blocked(NULL, op->map, op->x, op->y, TERRAIN_ALL) & (P_NO_PASS | P_IS_MONSTER | P_IS_PLAYER)) {
+    if (GET_MAP_FLAGS(op->map, op->x, op->y) & (P_NO_PASS | P_IS_MONSTER |
+            P_IS_PLAYER)) {
         op->last_sp = op->stats.sp;
         return;
     }
