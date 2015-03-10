@@ -33,18 +33,11 @@
 /** @copydoc object_methods::apply_func */
 static int apply_func(object *op, object *applier, int aflags)
 {
-    /* If lit and in player's inventory, handle as normal item apply. */
-    if (op->glow_radius && op->env && op->env->type == PLAYER) {
-        object_apply_item(op, applier, aflags);
-
-        /* If the light is applied now, we don't want to go on and
-         * extinguish it. */
-        if (QUERY_FLAG(op, FLAG_APPLIED)) {
-            return OBJECT_METHOD_OK;
-        }
-    }
-
-    if (op->glow_radius) {
+    if (op->glow_radius != 0 && op->env != NULL && op->env->type == PLAYER &&
+            !QUERY_FLAG(op, FLAG_APPLIED)) {
+        /* The object is lit and in player's inventory but it's not yet applied,
+         * so we just fall through and let the player equip the object. */
+    } else if (op->glow_radius) {
         op = object_stack_get_reinsert(op, 1);
 
         draw_info_format(COLOR_WHITE, applier, "You extinguish the %s.", query_name(op, applier));
@@ -65,6 +58,11 @@ static int apply_func(object *op, object *applier, int aflags)
         }
 
         op->glow_radius = 0;
+
+        /* It's not applied, nothing else to do. */
+        if (!QUERY_FLAG(op, FLAG_APPLIED)) {
+            return OBJECT_METHOD_OK;
+        }
     } else if (op->last_sp) {
         op = object_stack_get_reinsert(op, 1);
 
@@ -87,8 +85,19 @@ static int apply_func(object *op, object *applier, int aflags)
             adjust_light_source(op->map, op->x, op->y, op->glow_radius);
             update_object(op, UP_OBJ_FACE);
         }
+
+        /* It's already applied, nothing else to do. */
+        if (QUERY_FLAG(op, FLAG_APPLIED)) {
+            return OBJECT_METHOD_OK;
+        }
     } else {
         draw_info_format(COLOR_WHITE, applier, "The %s can't be lit.", query_name(op, applier));
+        return OBJECT_METHOD_OK;
+    }
+
+    if (op->env != NULL && op->env->type == PLAYER) {
+        /* Handle applying/unapplying the light.  */
+        return object_apply_item(op, applier, aflags);
     }
 
     return OBJECT_METHOD_OK;
