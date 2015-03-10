@@ -698,12 +698,12 @@ path_node_t *path_find(object *op, mapstruct *map1, int x, int y,
     double cost;
     rv_vector rv;
     uint32 node_id;
-#if TIME_PATHFINDING
-    PERF_TIMER_DECLARE(1);
-    int searched;
-#endif
 #if VISUALIZE_PATHFINDING
     path_visualizer_t *visualizer_tmp;
+#endif
+#if TIME_PATHFINDING
+    int searched;
+    PERF_TIMER_DECLARE(1);
 #endif
 
     start.x = x;
