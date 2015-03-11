@@ -45,11 +45,17 @@ START_TEST(test_run)
     for (i = 0; i < 2000; i++) {
         tmp = generate_treasure(list, 999, 100);
 
-        if (tmp && strcmp(tmp->arch->name, "amulet_shielding") == 0) {
+        if (tmp == NULL) {
+            continue;
+        }
+
+        if (strcmp(tmp->arch->name, "amulet_shielding") == 0) {
             if (QUERY_FLAG(tmp, FLAG_CURSED) || QUERY_FLAG(tmp, FLAG_DAMNED)) {
                 fail("Managed to create cursed amulet of minor shielding (i: %d).", i);
             }
         }
+
+        object_destroy(tmp);
     }
 }
 
