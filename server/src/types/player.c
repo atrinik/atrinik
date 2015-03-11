@@ -220,8 +220,6 @@ void free_player(player *pl)
         last_player = pl->prev;
     }
 
-    free_newsocket(&pl->socket);
-
     if (pl->ob) {
         SET_FLAG(pl->ob, FLAG_NO_FIX_PLAYER);
 
@@ -231,6 +229,8 @@ void free_player(player *pl)
 
         object_destroy(pl->ob);
     }
+
+    free_newsocket(&pl->socket);
 }
 
 /**
@@ -2150,6 +2150,11 @@ object *player_get_dummy(void)
     pl = get_player(NULL);
     pl->ob = get_archetype("human_male");
     pl->ob->custom_attrset = pl;
+
+    SET_FLAG(pl->ob, FLAG_NO_FIX_PLAYER);
+    give_initial_items(pl->ob, pl->ob->randomitems);
+    CLEAR_FLAG(pl->ob, FLAG_NO_FIX_PLAYER);
+    fix_player(pl->ob);
 
     return pl->ob;
 }
