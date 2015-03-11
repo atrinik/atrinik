@@ -116,7 +116,7 @@ class WindowMain(Model, QMainWindow, Ui_WindowMain):
         # Extend the PATH environment variable with the script's dir.
         envs["PATH"] += delimiter + self.map_checker.path
         # Execute Gridarta.
-        subprocess.Popen(["java", "-jar", self.config.get("General", "path_file_editor")] + maps, cwd = os.path.dirname(self.config.get("General", "path_file_editor")), env = envs, shell = True)
+        subprocess.Popen(["java", "-jar", self.config.get("General", "path_file_editor")] + list(maps), cwd = os.path.dirname(self.config.get("General", "path_file_editor")), env = envs, shell = sys.platform.startswith("win"))
 
     def open_client(self, path, loc):
         if loc is None:
