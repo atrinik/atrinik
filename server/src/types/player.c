@@ -2141,6 +2141,17 @@ static void player_create(player *pl, const char *path, archetype *at, const cha
     pl->ob->y = -1;
 }
 
+object *player_get_dummy(void)
+{
+    player *pl;
+
+    pl = get_player(NULL);
+    pl->ob = get_archetype("human_male");
+    pl->ob->custom_attrset = pl;
+
+    return pl->ob;
+}
+
 void player_login(socket_struct *ns, const char *name, archetype *at)
 {
     player *pl;

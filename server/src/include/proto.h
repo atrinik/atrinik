@@ -1059,6 +1059,7 @@ extern void drop(object *op, object *tmp, int no_mevent);
 extern char *player_make_path(const char *name, const char *ext);
 extern int player_exists(const char *name);
 extern void player_save(object *op);
+extern object *player_get_dummy(void);
 extern void player_login(socket_struct *ns, const char *name, archetype *at);
 extern void object_type_init_player(void);
 /* src/types/player_mover.c */
