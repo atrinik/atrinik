@@ -257,8 +257,13 @@ void free_newsocket(socket_struct *ns)
         efree(ns->account);
     }
 
-    packet_free(ns->packet_recv);
-    packet_free(ns->packet_recv_cmd);
+    if (ns->packet_recv != NULL) {
+        packet_free(ns->packet_recv);
+    }
+
+    if (ns->packet_recv_cmd != NULL) {
+        packet_free(ns->packet_recv_cmd);
+    }
 
     socket_buffer_clear(ns);
 
