@@ -272,8 +272,12 @@ static int reader_thread_loop(void *dummy)
     }
 
     socket_close(&csocket);
-    efree(readbuf);
-    readbuf = NULL;
+
+    if (readbuf != NULL) {
+        efree(readbuf);
+        readbuf = NULL;
+    }
+
     return -1;
 }
 
