@@ -31,9 +31,7 @@ START_TEST(test_put_object_in_sack)
     mapstruct *test_map;
     object *sack, *obj, *dummy;
 
-    dummy = get_archetype("raas");
-    dummy->custom_attrset = calloc(1, sizeof(player));
-    dummy->type = PLAYER;
+    dummy = player_get_dummy();
     SET_FLAG(dummy, FLAG_NO_FIX_PLAYER);
 
     test_map = get_empty_map(5, 5);
@@ -51,6 +49,7 @@ START_TEST(test_put_object_in_sack)
     fail_if(GET_MAP_OB(test_map, 1, 0) != obj, "Object was removed from map?");
     fail_if(sack->inv != NULL, "Sack's inventory isn't null?");
     object_remove(sack, 0);
+    object_destroy(sack);
 
     /* Basic insertion. */
     sack = get_archetype("sack");
@@ -73,6 +72,8 @@ START_TEST(test_put_object_in_sack)
     put_object_in_sack(dummy, sack, obj, 1);
     fail_if(sack->inv != NULL, "Item was put in sack even if too heavy?");
     fail_if(GET_MAP_OB(test_map, 1, 0) != obj, "Object was removed from map?");
+
+    delete_map(test_map);
 }
 
 END_TEST

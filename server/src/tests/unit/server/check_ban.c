@@ -45,12 +45,16 @@ END_TEST
 
 START_TEST(test_checkbanned)
 {
+    shstr *str1, *str2;
+
     add_ban(strdup("Noob/:127.0.0.1"));
-    fail_if(checkbanned(add_string("Noob/"), "127.0.0.1") == 0, "checkbanned() failed to match a previously banned name and IP.");
+    str1 = add_string("Noob/");
+    fail_if(checkbanned(str1, "127.0.0.1") == 0, "checkbanned() failed to match a previously banned name and IP.");
     remove_ban(strdup("Noob/:127.0.0.1"));
 
     add_ban(strdup("Tester/:*"));
-    fail_if(checkbanned(add_string("Tester/"), "127.2.0.1") == 0, "checkbanned() failed to match a previously banned name.");
+    str2 = add_string("Tester/");
+    fail_if(checkbanned(str2, "127.2.0.1") == 0, "checkbanned() failed to match a previously banned name.");
     remove_ban(strdup("Tester/:*"));
 
     add_ban(strdup("*:xxx.xxx.xxx"));
@@ -58,6 +62,9 @@ START_TEST(test_checkbanned)
     remove_ban(strdup("*:xxx.xxx.xxx"));
 
     fail_if(checkbanned(NULL, "10543./4t5vr.3546") == 1, "checkbanned() returned 1 for an IP that was not previously banned.");
+
+    free_string_shared(str1);
+    free_string_shared(str2);
 }
 
 END_TEST

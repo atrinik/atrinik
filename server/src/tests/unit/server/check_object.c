@@ -33,15 +33,19 @@ START_TEST(test_CAN_MERGE)
     ob1 = get_archetype("bolt");
     ob2 = get_archetype("bolt");
     fail_if(CAN_MERGE(ob1, ob2) == 0, "Should be able to merge 2 same objects.");
-    ob2->name = add_string("Not same name");
+    FREE_AND_COPY_HASH(ob2->name, "Not same name");
     fail_if(CAN_MERGE(ob1, ob2) == 1, "Should not be able to merge 2 objects with different names.");
+    object_destroy(ob2);
     ob2 = get_archetype("bolt");
     ob2->type++;
     fail_if(CAN_MERGE(ob1, ob2) == 1, "Should not be able to merge 2 objects with different types.");
+    object_destroy(ob2);
     ob2 = get_archetype("bolt");
     ob1->nrof = SINT32_MAX;
     ob2->nrof = 1;
     fail_if(CAN_MERGE(ob1, ob2) == 1, "Should not be able to merge 2 objects if result nrof goes to higher than SINT32_MAX");
+    object_destroy(ob1);
+    object_destroy(ob2);
 }
 
 END_TEST
@@ -68,6 +72,7 @@ START_TEST(test_sum_weight)
     insert_ob_in_ob(ob4, ob1);
     sum = sum_weight(ob1);
     fail_if(sum != 45, "Sum of object's inventory should be 45 ((6 * 10 + 7 + 8) * .6) but was %lu.", sum);
+    object_destroy(ob1);
 }
 
 END_TEST
@@ -97,6 +102,7 @@ START_TEST(test_add_weight)
     fail_if(sum != 18, "Sum of object's inventory should be 18 (30 * 0.6 + 10) but was %lu.", sum);
     add_weight(ob4, 10);
     fail_if(ob1->carrying != 24, "After call to add_weight, carrying of ob1 should be 24 but was %d.", ob1->carrying);
+    object_destroy(ob1);
 }
 
 END_TEST
@@ -126,6 +132,7 @@ START_TEST(test_sub_weight)
     fail_if(sum != 18, "Sum of object's inventory should be 18 (30 * 0.6 + 10) but was %lu.", sum);
     sub_weight(ob4, 10);
     fail_if(ob1->carrying != 12, "After call to sub_weight, carrying of ob1 should be 12 but was %d.", ob1->carrying);
+    object_destroy(ob1);
 }
 
 END_TEST
@@ -143,6 +150,7 @@ START_TEST(test_get_env_recursive)
     insert_ob_in_ob(ob4, ob3);
     result = get_env_recursive(ob4);
     fail_if(result != ob1, "Getting top level container for ob4(%p) should bring ob1(%p) but brought %p.", ob4, ob1, result);
+    object_destroy(ob1);
 }
 
 END_TEST
@@ -163,6 +171,8 @@ START_TEST(test_is_player_inv)
     ob1->type = PLAYER;
     result = is_player_inv(ob4);
     fail_if(result != ob1, "Getting containing player for ob4(%p) should bring ob1(%p) but brought %p while ob1 is player.", ob4, ob1, result);
+    ob1->type = CONTAINER;
+    object_destroy(ob1);
 }
 
 END_TEST
@@ -183,6 +193,7 @@ START_TEST(test_dump_object)
     result = stringbuffer_finish(sb);
     fail_if(strstr(result, "arch") == 0, "The object dump should contain 'arch' but was %s", result);
     free(result);
+    object_destroy(ob1);
 }
 
 END_TEST
@@ -239,6 +250,8 @@ START_TEST(test_insert_ob_in_map)
     got = insert_ob_in_map(second, map, NULL, 0);
     fail_if(got != second, "Modified bolt shouldn't disappear.");
     fail_if(second->nrof != 1, "Modified bolt should have nrof 1.");
+
+    delete_map(map);
 }
 
 END_TEST
@@ -280,6 +293,8 @@ START_TEST(test_insert_ob_in_ob)
     insert_ob_in_ob(item, container);
     fail_if(container->inv != item, "Item not inserted.");
     fail_if(container->carrying != 25, "Container should carry 25 and not %d.", container->carrying);
+
+    object_destroy(container);
 }
 
 END_TEST
@@ -288,25 +303,27 @@ START_TEST(test_can_pick)
 {
     object *pl, *ob;
 
-    pl = get_archetype("raas");
-    pl->type = PLAYER;
-    pl->custom_attrset = calloc(1, sizeof(player));
-    CLEAR_FLAG(pl, FLAG_SEE_INVISIBLE);
+    pl = player_get_dummy();
 
     ob = get_archetype("sack");
     fail_if(can_pick(pl, ob) == 0, "Player cannot pick up normal sack.");
     ob->weight = 0;
     fail_if(can_pick(pl, ob) == 1, "Player can pick up sack that weighs 0kg.");
+    object_destroy(ob);
     ob = get_archetype("sack");
     SET_FLAG(ob, FLAG_NO_PICK);
     fail_if(can_pick(pl, ob) == 1, "Player can pick up non-pickable sack.");
     SET_FLAG(ob, FLAG_UNPAID);
     fail_if(can_pick(pl, ob) == 0, "Player cannot pick up clone-shop sack.");
+    object_destroy(ob);
     ob = get_archetype("sack");
     SET_FLAG(ob, FLAG_IS_INVISIBLE);
     fail_if(can_pick(pl, ob) == 1, "Player cannot see invisible but can pick up invisible sack.");
+    object_destroy(ob);
     ob = get_archetype("raas");
     fail_if(can_pick(pl, ob) == 1, "Player can pick up a monster object.");
+
+    object_destroy(ob);
 }
 
 END_TEST
@@ -321,6 +338,9 @@ START_TEST(test_object_create_clone)
     fail_if(strcmp(clone_ob->name, ob->name) != 0, "object_create_clone() created an object with name '%s', but it should have been named '%s'.", clone_ob->name, ob->name);
     fail_if(clone_ob->inv == NULL, "object_create_clone() created a clone object with no inventory.");
     fail_if(strcmp(clone_ob->inv->name, ob->inv->name) != 0, "Object created using object_create_clone() had object '%s' in inventory, but it should have had '%s' instead.", clone_ob->inv->name, ob->inv->name);
+
+    object_destroy(ob);
+    object_destroy(clone_ob);
 }
 
 END_TEST
@@ -358,10 +378,13 @@ START_TEST(test_load_object_str)
     fail_if(ob == NULL, "load_object_str() should not return NULL.");
     fail_if(strcmp(ob->arch->name, "sack") != 0, "load_object_str() created object with arch name '%s', but it should have been 'sack'.", ob->arch->name);
 
+    object_destroy(ob);
     ob = load_object_str("arch sack\nname magic sack\nweight 129\nend\n");
     fail_if(ob == NULL, "load_object_str() should not return NULL.");
     fail_if(strcmp(ob->name, "magic sack") != 0, "load_object_str() created object with name '%s', but name should have been 'magic sack'.", ob->name);
     fail_if(ob->weight != 129, "load_object_str() created object with weight %d, but it should have had 129 weight.", ob->weight);
+
+    object_destroy(ob);
 }
 
 END_TEST
