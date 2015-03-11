@@ -25,6 +25,8 @@ extern void check_server_shstr(void);
 extern void check_server_string(void);
 /* src/tests/unit/server/check_utils.c */
 extern void check_server_utils(void);
+/* src/tests/unit/types/check_light_apply.c */
+extern void check_types_light_apply(void);
 /* src/tests/unit/types/check_sound_ambient.c */
 extern void check_types_sound_ambient(void);
 #endif

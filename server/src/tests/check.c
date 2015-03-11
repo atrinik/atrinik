@@ -72,5 +72,6 @@ void check_main(void)
     check_server_utils();
 
     /* unit/types */
+    check_types_light_apply();
     check_types_sound_ambient();
 }

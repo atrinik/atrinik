@@ -99,6 +99,7 @@ if (CHECK_LIBRARY)
         src/tests/unit/server/check_shstr.c
         src/tests/unit/server/check_string.c
         src/tests/unit/server/check_utils.c
+        src/tests/unit/types/check_light_apply.c
         src/tests/unit/types/check_sound_ambient.c)
 endif ()
 
