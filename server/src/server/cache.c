@@ -114,6 +114,7 @@ int cache_add(const char *key, void *ptr, uint32 flags)
 
     /* Sanity. */
     if (!ptr || cache_find(sh_key)) {
+        free_string_shared(sh_key);
         return 0;
     }
 
@@ -167,6 +168,8 @@ int cache_remove(shstr *key)
     if (entry->flags & CACHE_FLAG_AUTOFREE) {
         efree(entry->ptr);
     }
+
+    free_string_shared(entry->key);
 
     /* Shift the entries. */
     for (i = entry->id + 1; i < num_cache; i++) {
