@@ -184,57 +184,77 @@ void surface_show_fill(SDL_Surface *surface, int x, int y, SDL_Rect *srcsize, SD
 void surface_show_effects(SDL_Surface *surface, int x, int y, SDL_Rect *srcrect, SDL_Surface *src, uint8 alpha, uint32 stretch, sint16 zoom_x, sint16 zoom_y, sint16 rotate)
 {
     int smooth;
+    SDL_Surface *tmp, *src_gfx;
+
+    tmp = src_gfx = NULL;
 
     if (stretch) {
-        SDL_Surface *tmp;
         Uint8 n = (stretch >> 24) & 0xFF;
         Uint8 e = (stretch >> 16) & 0xFF;
         Uint8 w = (stretch >> 8) & 0xFF;
         Uint8 s = stretch & 0xFF;
 
-        tmp = tile_stretch(src, n, e, s, w);
+        src_gfx = tile_stretch(src, n, e, s, w);
 
-        if (!tmp) {
-            return;
+        if (src_gfx == NULL) {
+            goto done;
         }
 
-        y -= tmp->h - src->h;
-        src = tmp;
+        y -= src_gfx->h - src->h;
+        src = tmp = src_gfx;
+        src_gfx = NULL;
     }
 
     /* If this is just a flip with no rotate, force disabled interpolation. */
-    if (!rotate && (zoom_x == 0 || zoom_x == -100 || zoom_x == 100) && (zoom_y == 0 || zoom_y == -100 || zoom_y == 100)) {
+    if (!rotate && (zoom_x == 0 || zoom_x == -100 || zoom_x == 100) &&
+            (zoom_y == 0 || zoom_y == -100 || zoom_y == 100)) {
         smooth = 0;
     } else {
         smooth = setting_get_int(OPT_CAT_CLIENT, OPT_ZOOM_SMOOTH);
     }
 
     if (rotate) {
-        src = rotozoomSurfaceXY(src, rotate, zoom_x ? zoom_x / 100.0 : 1.0, zoom_y ? zoom_y / 100.0 : 1.0, smooth);
+        src_gfx = rotozoomSurfaceXY(src, rotate, zoom_x ? zoom_x / 100.0 : 1.0,
+                zoom_y ? zoom_y / 100.0 : 1.0, smooth);
 
-        if (!src) {
-            return;
+        if (src_gfx == NULL) {
+            goto done;
         }
     } else if ((zoom_x && zoom_x != 100) || (zoom_y && zoom_y != 100)) {
-        src = zoomSurface(src, zoom_x ? zoom_x / 100.0 : 1.0, zoom_y ? zoom_y / 100.0 : 1.0, smooth);
+        src_gfx = zoomSurface(src, zoom_x ? zoom_x / 100.0 : 1.0,
+                zoom_y ? zoom_y / 100.0 : 1.0, smooth);
 
-        if (!src) {
-            return;
+        if (src_gfx == NULL) {
+            goto done;
         }
     }
 
+    if (src_gfx != NULL) {
+        if (tmp != NULL) {
+            SDL_FreeSurface(tmp);
+        }
+
+        src = tmp = src_gfx;
+        src_gfx = NULL;
+    }
+
     if (alpha) {
-        SDL_SetAlpha(src, SDL_SRCALPHA, alpha);
+        src_gfx = SDL_DisplayFormatAlpha(src);
+        surface_set_alpha(src_gfx, 100);
+
+        if (tmp != NULL) {
+            SDL_FreeSurface(tmp);
+        }
+
+        src = tmp = src_gfx;
+        src_gfx = NULL;
     }
 
     surface_show(surface, x, y, srcrect, src);
 
-    if (alpha) {
-        SDL_SetAlpha(src, SDL_SRCALPHA, SDL_ALPHA_OPAQUE);
-    }
-
-    if (stretch || (zoom_x && zoom_x != 100) || (zoom_y && zoom_y != 100) || rotate) {
-        SDL_FreeSurface(src);
+done:
+    if (tmp != NULL) {
+        SDL_FreeSurface(tmp);
     }
 }
 
