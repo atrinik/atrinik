@@ -932,7 +932,7 @@ static uint16 map_object_get_face(struct MapCell *cell, int layer)
 static void draw_map_object(int x, int y, int layer, int sub_layer,
         int player_height_offset, struct MapCell **target_cell,
         int *target_layer, SDL_Rect *target_rect, SDL_Rect **tiles,
-        size_t *tiles_num)
+        size_t *tiles_num, uint8 alpha_forced)
 {
     struct MapCell *cell;
     sprite_struct *face_sprite;
@@ -1051,6 +1051,10 @@ static void draw_map_object(int x, int y, int layer, int sub_layer,
 
     if (cell->alpha[GET_MAP_LAYER(layer, sub_layer)]) {
         alpha = cell->alpha[GET_MAP_LAYER(layer, sub_layer)];
+    }
+
+    if (alpha_forced != 0) {
+        alpha = alpha != 0 ? MIN(alpha, alpha_forced) : alpha_forced;
     }
 
     if (layer <= 2 && cell->stretch[sub_layer]) {
@@ -1214,7 +1218,7 @@ void map_draw_map(void)
 
                 draw_map_object(x, y, layer, 0, player_height_offset,
                         &target_cell, &target_layer, &target_rect,
-                        &tiles, &tiles_num);
+                        &tiles, &tiles_num, 0);
             }
         }
     }
@@ -1247,7 +1251,7 @@ void map_draw_map(void)
 
                     draw_map_object(x, y, layer, sub_layer,
                             player_height_offset, &target_cell, &target_layer,
-                            &target_rect, &tiles, &tiles_num);
+                            &target_rect, &tiles, &tiles_num, 0);
                 }
             }
 
@@ -1273,7 +1277,7 @@ void map_draw_map(void)
 
                     draw_map_object(x, y, layer, sub_layer,
                             player_height_offset, &target_cell, &target_layer,
-                            &target_rect, &tiles, &tiles_num);
+                            &target_rect, &tiles, &tiles_num, 0);
                 }
             }
 
@@ -1284,7 +1288,7 @@ void map_draw_map(void)
 
                 draw_map_object(x, y, layer, 0,
                         player_height_offset, &target_cell, &target_layer,
-                        &target_rect, &tiles, &tiles_num);
+                        &target_rect, &tiles, &tiles_num, 0);
             }
 
             for (sub_layer = NUM_SUB_LAYERS - 1; sub_layer >= 1; sub_layer--) {
@@ -1300,7 +1304,7 @@ void map_draw_map(void)
 
                 draw_map_object(x, y, LAYER_EFFECT, sub_layer,
                         player_height_offset, &target_cell, &target_layer,
-                        &target_rect, &tiles, &tiles_num);
+                        &target_rect, &tiles, &tiles_num, 0);
             }
 
             for (sub_layer = NUM_SUB_LAYERS - 1; sub_layer >= 1;
@@ -1326,8 +1330,20 @@ void map_draw_map(void)
 
                     draw_map_object(x, y, layer, sub_layer,
                             player_height_offset, &target_cell, &target_layer,
-                            &target_rect, &tiles, &tiles_num);
+                            &target_rect, &tiles, &tiles_num, 0);
                 }
+            }
+        }
+    }
+
+    for (x = 0; x < map_width; x++) {
+        for (y = 0; y < map_height; y++) {
+            cell = MAP_CELL_GET_MIDDLE(x, y);
+
+            for (sub_layer = 0; sub_layer < NUM_SUB_LAYERS; sub_layer++) {
+                draw_map_object(x, y, LAYER_LIVING, sub_layer,
+                        player_height_offset, &target_cell, &target_layer,
+                        &target_rect, &tiles, &tiles_num, 128);
             }
         }
     }
