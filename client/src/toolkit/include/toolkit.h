@@ -119,4 +119,98 @@ typedef void (*toolkit_func)(void);
  * Takes a variable and returns the variable and its size. */
 #define VS(var) (var), sizeof((var))
 
+/**
+ * @defgroup PERF_TIMER_xxx Performance timer macros
+ *
+ * Helper macros to perform high-precision performance profiling in a
+ * platform-independent way. Ideally we want a precision of 1 ms, if possible.
+ *
+ * The typical use case is using, for example, PERF_TIMER_DECLARE(1) at the
+ * beginning of the function to declare the variables used by the timer. Then
+ * before the code you want to profile, use PERF_TIMER_START(1), and after
+ * the code, use PERF_TIMER_STOP(1). Afterwards, you can use PERF_TIMER_GET(1)
+ * to get the number of seconds the execution took as a floating point number.
+ *
+ * You can have multiple timers by changing the 1 to 2 or anything else (note
+ * that this is a compile-time feature).
+ *@{*/
+
+#define PERF_TIMER_VAR(__var, __id) (__var##_##__id)
+
+#ifdef WIN32
+
+#define PERF_TIMER_DECLARE(__id) \
+    LARGE_INTEGER PERF_TIMER_VAR(__pt_frequency, __id); \
+    LARGE_INTEGER PERF_TIMER_VAR(__pt_t1, __id), PERF_TIMER_VAR(__pt_t2, __id);
+#define PERF_TIMER_START(__id) \
+    QueryPerformanceFrequency(&PERF_TIMER_VAR(__pt_frequency, __id)); \
+    QueryPerformanceCounter(&PERF_TIMER_VAR(__pt_t1, __id));
+#define PERF_TIMER_STOP(__id) \
+    QueryPerformanceCounter(&PERF_TIMER_VAR(__pt_t2, __id));
+#define PERF_TIMER_GET(__id) \
+    ((PERF_TIMER_VAR(__pt_t2, __id).QuadPart - \
+    PERF_TIMER_VAR(__pt_t1, __id).QuadPart) * 1000.0 / \
+    PERF_TIMER_VAR(__pt_frequency, __id).QuadPart)
+
+#else
+
+#define PERF_TIMER_DECLARE(__id) \
+    struct timeval PERF_TIMER_VAR(__pt_t1, __id), PERF_TIMER_VAR(__pt_t2, __id);
+#define PERF_TIMER_START(__id) \
+    GETTIMEOFDAY(&PERF_TIMER_VAR(__pt_t1, __id));
+#define PERF_TIMER_STOP(__id) \
+    GETTIMEOFDAY(&PERF_TIMER_VAR(__pt_t2, __id));
+#define PERF_TIMER_GET(__id) \
+    (((PERF_TIMER_VAR(__pt_t2, __id).tv_sec - \
+    PERF_TIMER_VAR(__pt_t1, __id).tv_sec) * 1000.0) + \
+    ((PERF_TIMER_VAR(__pt_t2, __id).tv_usec - \
+    PERF_TIMER_VAR(__pt_t1, __id).tv_usec) / 1000.0))
+
+#endif
+/*@}*/
+
+#define SOFT_ASSERT_MSG(msg, ...) log(LOG(ERROR), (msg), __VA_ARGS__)
+
+#ifndef NDEBUG
+
+#define SOFT_ASSERT(cond, msg, ...) \
+    do { \
+        if (!(cond)) { \
+            SOFT_ASSERT_MSG(msg, ##__VA_ARGS__); \
+            assert(cond); \
+            return; \
+        } \
+    } while (0)
+
+#define SOFT_ASSERT_RC(cond, rc, msg, ...) \
+    do { \
+        if (!(cond)) { \
+            SOFT_ASSERT_MSG(msg, ##__VA_ARGS__); \
+            assert(cond); \
+            return (rc); \
+        } \
+    } while (0)
+
+#else
+
+#define SOFT_ASSERT(cond, msg, ...) \
+    do { \
+        if (!(cond)) { \
+            SOFT_ASSERT_MSG(msg, ##__VA_ARGS__); \
+            return; \
+        } \
+    } while (0)
+
+#define SOFT_ASSERT_RC(cond, rc, msg, ...) \
+    do { \
+        if (!(cond)) { \
+            SOFT_ASSERT_MSG(msg, ##__VA_ARGS__); \
+            return (rc); \
+        } \
+    } while (0)
+
+#endif
+
+#define HARD_ASSERT(cond) assert(cond)
+
 #endif
