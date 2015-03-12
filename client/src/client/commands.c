@@ -365,6 +365,10 @@ void socket_command_player(uint8 *data, size_t len, size_t pos)
 
 static void command_item_update(uint8 *data, size_t len, size_t *pos, uint32 flags, object *tmp)
 {
+    bool force_anim;
+
+    force_anim = false;
+
     if (flags & UPD_LOCATION) {
         /* Currently unused. */
         packet_to_uint32(data, len, pos);
@@ -404,11 +408,30 @@ static void command_item_update(uint8 *data, size_t len, size_t *pos, uint32 fla
     }
 
     if (flags & UPD_ANIM) {
-        tmp->animation_id = packet_to_uint16(data, len, pos);
+        uint16 animation_id;
+
+        animation_id = packet_to_uint16(data, len, pos);
+
+        /* Changing animation ID, force animation. */
+        if (tmp->animation_id != animation_id) {
+            force_anim = true;
+            tmp->anim_state = 0;
+        }
+
+        tmp->animation_id = animation_id;
     }
 
     if (flags & UPD_ANIMSPEED) {
-        tmp->anim_speed = packet_to_uint8(data, len, pos);
+        uint8 anim_speed;
+
+        anim_speed = packet_to_uint8(data, len, pos);
+
+        /* Animation was disabled and we're enabling it, force animation. */
+        if (tmp->anim_speed == 0 && anim_speed != 0) {
+            force_anim = true;
+        }
+
+        tmp->anim_speed = anim_speed;
     }
 
     if (flags & UPD_NROF) {
@@ -448,6 +471,11 @@ static void command_item_update(uint8 *data, size_t len, size_t *pos, uint32 fla
 
             widget_active_effects_update(cur_widget[ACTIVE_EFFECTS_ID], tmp, sec, msg);
         }
+    }
+
+    if (force_anim) {
+        tmp->last_anim = tmp->anim_speed;
+        object_animate(tmp);
     }
 
     object_redraw(tmp);
