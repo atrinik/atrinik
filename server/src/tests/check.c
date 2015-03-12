@@ -43,6 +43,24 @@ void check_teardown(void)
     cleanup();
 }
 
+/*
+ * Sets up environment for doing tests related to players.
+ */
+void check_setup_env_pl(mapstruct **map, object **pl)
+{
+    assert(map != NULL);
+    assert(pl != NULL);
+
+    *map = get_empty_map(24, 24);
+    fail_if(*map == NULL, "Could not allocate a map.");
+
+    *pl = player_get_dummy();
+    fail_if(*pl == NULL, "Could not create player object.");
+
+    *pl = insert_ob_in_map(*pl, *map, NULL, 0);
+    fail_if(*pl == NULL, "Could not insert player.");
+}
+
 /* The main unit test function. Calls other functions to do the unit
  * tests. */
 void check_main(void)

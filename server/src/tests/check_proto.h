@@ -2,6 +2,7 @@
 /* src/tests/check.c */
 extern void check_setup(void);
 extern void check_teardown(void);
+extern void check_setup_env_pl(mapstruct **map, object **pl);
 extern void check_main(void);
 /* src/tests/bugs/check_85.c */
 extern void check_bug_85(void);
