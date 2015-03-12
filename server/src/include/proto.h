@@ -538,6 +538,8 @@ extern int item_matched_string(object *pl, object *op, const char *name);
 extern int object_get_gender(object *op);
 extern void object_reverse_inventory(object *op);
 extern int object_enter_map(object *op, object *exit_ob, mapstruct *m, int x, int y, uint8 fixed_pos);
+extern const char *object_get_str(object *op);
+extern char *object_get_str_r(object *op, char *buf, size_t bufsize);
 /* src/server/object_methods.c */
 extern object_methods object_type_methods[160];
 extern object_methods object_methods_base;

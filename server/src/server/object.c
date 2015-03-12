@@ -3197,3 +3197,53 @@ int object_enter_map(object *op, object *exit_ob, mapstruct *m, int x, int y, ui
 
     return 1;
 }
+
+/**
+ * Acquires a string representation of the object that is suitable for debugging
+ * purposes, as it includes the object's name, archname, map, environment, etc.
+ * @param op Object.
+ * @return String representation of the object.
+ */
+const char *object_get_str(object *op)
+{
+    static char buf[HUGE_BUF * 16];
+
+    HARD_ASSERT(op != NULL);
+
+    return object_get_str_r(op, VS(buf));
+}
+
+/**
+ * Re-entrant version of object_get_str().
+ * @param op Object.
+ * @param buf Buffer to use.
+ * @param bufsize Size of 'buf'.
+ * @return 'buf'.
+ */
+char *object_get_str_r(object *op, char *buf, size_t bufsize)
+{
+    HARD_ASSERT(op != NULL);
+    HARD_ASSERT(buf != NULL);
+
+    snprintf(buf, bufsize, "%s UID: %u",
+            op->name != NULL ? op->name : "<no name>",
+            op->count);
+
+    if (op->arch != NULL && op->arch->name != NULL) {
+        snprintfcat(buf, bufsize, " arch: %s", op->arch->name);
+    }
+
+    if (op->map != NULL) {
+        snprintfcat(buf, bufsize, " map: %s [%s] @ %d,%d",
+                op->map->name != NULL ? op->map->name : "<no name>",
+                op->map->path != NULL ? op->map->path : "<no path>",
+                op->x, op->y);
+    } else if (op->env != NULL) {
+        char buf2[HUGE_BUF];
+
+        snprintfcat(buf, bufsize, " env: [%s]", object_get_str_r(op->env,
+                VS(buf2)));
+    }
+
+    return buf;
+}
