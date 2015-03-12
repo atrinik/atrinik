@@ -1980,11 +1980,11 @@ object *object_insert_into(object *op, object *where, int flag)
     object *otmp;
 
     HARD_ASSERT(op != NULL);
-    SOFT_ASSERT_RC(where != NULL, op, "Attempting to insert "OBJECT_STR" "
-            "into nothing.", OBJECT_STR_ARGS(op));
+    SOFT_ASSERT_RC(where != NULL, op, "Attempting to insert %s into nothing.",
+            object_get_str(op));
     SOFT_ASSERT_RC(QUERY_FLAG(op, FLAG_REMOVED), op, "Attempting to insert "
-            "non-removed object "OBJECT_STR" into "OBJECT_STR,
-            OBJECT_STR_ARGS(op), OBJECT_STR_ARGS(where));
+            "non-removed object %s into %s", object_get_str(op),
+            object_get_str(where));
 
     where = HEAD(where);
     op = HEAD(op);
