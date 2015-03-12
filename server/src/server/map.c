@@ -241,7 +241,8 @@ static int relative_tile_position(mapstruct *map1, mapstruct *map2, int *x, int 
 
         logger_print(LOG(DEBUG), "resetting traversal id");
 
-        for (m = first_map; m != NULL; m = m->next) {
+        DL_FOREACH(first_map, m)
+        {
             m->traversed = 0;
         }
 
@@ -272,7 +273,8 @@ mapstruct *has_been_loaded_sh(shstr *name)
         return NULL;
     }
 
-    for (map = first_map; map; map = map->next) {
+    DL_FOREACH(first_map, map)
+    {
         if (name == map->path) {
             break;
         }
@@ -817,12 +819,7 @@ mapstruct *get_linked_map(void)
 {
     mapstruct *map = ecalloc(1, sizeof(mapstruct));
 
-    if (first_map) {
-        first_map->previous = map;
-    }
-
-    map->next = first_map;
-    first_map = map;
+    DL_APPEND(first_map, map);
 
     map->in_memory = MAP_SWAPPED;
 
@@ -1369,17 +1366,7 @@ void delete_map(mapstruct *m)
         remove_light_source_list(m);
     }
 
-    /* Remove m from the global map list */
-    if (m->next) {
-        m->next->previous = m->previous;
-    }
-
-    if (m->previous) {
-        m->previous->next = m->next;
-    } else {
-        /* If there is no previous, we are first map */
-        first_map = m->next;
-    }
+    DL_DELETE(first_map, m);
 
     /* tmpname can still be needed if the map is swapped out, so we don't
      * do it in free_map(). */
@@ -1488,17 +1475,17 @@ void clean_tmp_map(mapstruct *m)
  * Free all allocated maps. */
 void free_all_maps(void)
 {
-    int real_maps = 0;
+    mapstruct *map, *tmp;
 
-    while (first_map) {
+    DL_FOREACH_SAFE(first_map, map, tmp)
+    {
         /* I think some of the callers above before it gets here set this to be
          * saving, but we still want to free this data */
-        if (first_map->in_memory == MAP_SAVING) {
-            first_map->in_memory = MAP_IN_MEMORY;
+        if (map->in_memory == MAP_SAVING) {
+            map->in_memory = MAP_IN_MEMORY;
         }
 
-        delete_map(first_map);
-        real_maps++;
+        delete_map(map);
     }
 }
 

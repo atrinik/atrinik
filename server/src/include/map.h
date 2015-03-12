@@ -514,11 +514,17 @@ typedef struct path_node path_node_t;
  * (or even through the macros), but doing so will completely break map
  * tiling. */
 typedef struct mapdef {
-    /** Previous map before. If NULL we are first_map. */
-    struct mapdef *previous;
-
-    /** Next map, linked list */
+    /**
+     * Next map in a doubly-linked list.
+     * @private
+     */
     struct mapdef *next;
+
+    /**
+     * Previous map in a doubly-linked list.
+     * @private
+     */
+    struct mapdef *prev;
 
     /** Any maps tiled together to this one */
     struct mapdef *tile_map[TILED_NUM];

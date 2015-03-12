@@ -111,7 +111,8 @@ mapstruct *load_style_map(char *style_name)
     mapstruct *style_map;
 
     /* Given a file.  See if its in memory */
-    for (style_map = styles; style_map != NULL; style_map = style_map->next) {
+    DL_FOREACH(styles, style_map)
+    {
         if (!strcmp(style_name, style_map->path)) {
             return style_map;
         }
@@ -120,22 +121,9 @@ mapstruct *load_style_map(char *style_name)
     style_map = load_original_map(style_name, MAP_STYLE);
 
     /* Remove it from global list, put it on our local list */
-    if (style_map) {
-        mapstruct *tmp;
-
-        if (style_map == first_map) {
-            first_map = style_map->next;
-        } else {
-            for (tmp = first_map; tmp && tmp->next != style_map; tmp = tmp->next) {
-            }
-
-            if (tmp) {
-                tmp->next = style_map->next;
-            }
-        }
-
-        style_map->next = styles;
-        styles = style_map;
+    if (style_map != NULL) {
+        DL_DELETE(first_map, style_map);
+        DL_APPEND(styles, style_map);
     }
 
     return style_map;
@@ -298,15 +286,12 @@ object *pick_random_object(mapstruct *style)
  * Frees cached style maps. */
 void free_style_maps(void)
 {
-    mapstruct *next;
-    int style_maps = 0;
+    mapstruct *map, *tmp;
 
     /* delete_map will try to free it from the linked list,
      * but won't find it, so we need to do it ourselves */
-    while (styles) {
-        next = styles->next;
-        delete_map(styles);
-        styles = next;
-        style_maps++;
+    DL_FOREACH_SAFE(styles, map, tmp)
+    {
+        delete_map(map);
     }
 }

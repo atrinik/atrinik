@@ -716,7 +716,8 @@ path_node_t *path_find(object *op, mapstruct *map1, int x, int y,
 
     /* Avoid overflow of traversal_id */
     if (traversal_id == UINT32_MAX) {
-        for (m = first_map; m != NULL; m = m->next) {
+        DL_FOREACH(first_map, m)
+        {
             m->pathfinding_id = 0;
         }
 

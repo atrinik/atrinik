@@ -62,7 +62,8 @@ void command_resetmaps(object *op, const char *command, char *params)
     failed = success = 0;
 
     if (params != NULL && strcasecmp(params, "all") == 0) {
-        for (m = first_map; m != NULL; m = m->next) {
+        DL_FOREACH(first_map, m)
+        {
             command_resetmaps_internal(m, NULL, &maps, &maps_num);
         }
     } else {

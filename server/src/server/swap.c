@@ -44,7 +44,8 @@ void write_map_log(void)
         return;
     }
 
-    for (map = first_map; map; map = map->next) {
+    DL_FOREACH(first_map, map)
+    {
         /* If tmpname is null, it is probably a unique player map,
          * so don't save information on it. */
         if (map->in_memory != MAP_IN_MEMORY && map->tmpname && strncmp(map->path, "/random", 7)) {
@@ -138,15 +139,12 @@ void swap_map(mapstruct *map, int force_flag)
     /* If it is immediate reset time, don't bother saving it - just get
      * rid of it right away. */
     if (map->reset_time <= (uint32) seconds()) {
-        mapstruct *oldmap = map;
-
         if (map->events) {
             /* Trigger the map reset event */
             trigger_map_event(MEVENT_RESET, map, NULL, NULL, NULL, map->path, 0);
         }
 
-        map = map->next;
-        delete_map(oldmap);
+        delete_map(map);
         return;
     }
 
@@ -165,11 +163,10 @@ void swap_map(mapstruct *map, int force_flag)
  * Check active maps and swap them out. */
 void check_active_maps(void)
 {
-    mapstruct *map, *next;
+    mapstruct *map, *tmp;
 
-    for (map = first_map; map != NULL; map = next) {
-        next = map->next;
-
+    DL_FOREACH_SAFE(first_map, map, tmp)
+    {
         if (map->in_memory != MAP_IN_MEMORY) {
             continue;
         }
@@ -197,10 +194,11 @@ void check_active_maps(void)
  * This is very useful if the tmp-disk is very full. */
 void flush_old_maps(void)
 {
-    mapstruct *m = first_map, *oldmap;
+    mapstruct *m, *tmp;
     long sec = seconds();
 
-    while (m) {
+    DL_FOREACH_SAFE(first_map, m, tmp)
+    {
         /* There can be cases (ie death) where a player leaves a map and
          * the timeout is not set so it isn't swapped out. */
         if ((m->in_memory == MAP_IN_MEMORY) && (m->timeout == 0) && !m->player_first) {
@@ -209,22 +207,22 @@ void flush_old_maps(void)
 
         /* Per player unique maps are never really reset. */
         if (MAP_UNIQUE(m) && m->in_memory == MAP_SWAPPED) {
-            oldmap = m;
-            m = m->next;
-            delete_map(oldmap);
-        } else if (m->in_memory != MAP_SWAPPED || m->tmpname == NULL || (uint32) sec < m->reset_time) {
-            /* No need to flush them if there are no resets */
-            m = m->next;
-        } else {
-            if (m->events) {
-                /* Trigger the map reset event */
-                trigger_map_event(MEVENT_RESET, m, NULL, NULL, NULL, m->path, 0);
-            }
-
-            clean_tmp_map(m);
-            oldmap = m;
-            m = m->next;
-            delete_map(oldmap);
+            delete_map(m);
+            continue;
         }
+
+        if (m->in_memory != MAP_SWAPPED || m->tmpname == NULL ||
+                (uint32) sec < m->reset_time) {
+            /* No need to flush them if there are no resets */
+            continue;
+        }
+
+        if (m->events != NULL) {
+            /* Trigger the map reset event */
+            trigger_map_event(MEVENT_RESET, m, NULL, NULL, NULL, m->path, 0);
+        }
+
+        clean_tmp_map(m);
+        delete_map(m);
     }
 }

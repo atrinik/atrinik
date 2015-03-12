@@ -36,7 +36,7 @@
  * List of the map fields and their meaning. */
 static fields_struct fields[] = {
     {"next", FIELDTYPE_MAP, offsetof(mapstruct, next), FIELDFLAG_READONLY, 0},
-    {"previous", FIELDTYPE_MAP, offsetof(mapstruct, previous), FIELDFLAG_READONLY, 0},
+    {"previous", FIELDTYPE_MAP, offsetof(mapstruct, prev), FIELDFLAG_READONLY, 0},
 
     {"name", FIELDTYPE_CSTR, offsetof(mapstruct, name), 0, 0},
     {"msg", FIELDTYPE_CSTR, offsetof(mapstruct, msg), 0, 0},

@@ -386,13 +386,12 @@ void process_events(mapstruct *map)
  * Clean temporary map files. */
 void clean_tmp_files(void)
 {
-    mapstruct *m, *next;
+    mapstruct *m, *tmp;
 
     /* We save the maps - it may not be intuitive why, but if there are
      * unique items, we need to save the map so they get saved off. */
-    for (m = first_map; m != NULL; m = next) {
-        next = m->next;
-
+    DL_FOREACH_SAFE(first_map, m, tmp)
+    {
         if (m->in_memory == MAP_IN_MEMORY) {
             if (settings.recycle_tmp_maps) {
                 swap_map(m, 0);
