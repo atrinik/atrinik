@@ -642,4 +642,10 @@ typedef struct magic_mirror_struct {
         (_ob)->race != NULL && (_ob)->sub_type == ST1_CONTAINER_QUIVER) || \
         ((_ob)->type == ARROW && !QUERY_FLAG((_ob), FLAG_IS_THROWN)))
 
+#define OBJECT_STR "%s (%s) [map: %s @ %d,%d, env: %s (%s)]"
+#define OBJECT_STR_ARGS(ob) (ob)->name, (ob)->arch->name, \
+    (ob)->map != NULL ? (ob)->map->path : "NONE", (ob)->x, (ob)->y, \
+    (ob)->env != NULL ? (ob)->env->name : "NONE", \
+    (ob)->env != NULL ? (ob)->env->arch->name : ""
+
 #endif
