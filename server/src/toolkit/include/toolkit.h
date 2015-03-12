@@ -169,4 +169,48 @@ typedef void (*toolkit_func)(void);
 #endif
 /*@}*/
 
+#define SOFT_ASSERT_MSG(msg, ...) log(LOG(ERROR), (msg), __VA_ARGS__)
+
+#ifndef NDEBUG
+
+#define SOFT_ASSERT(cond, msg, ...) \
+    do { \
+        if (!(cond)) { \
+            SOFT_ASSERT_MSG(msg, ##__VA_ARGS__); \
+            assert(cond); \
+            return; \
+        } \
+    } while (0)
+
+#define SOFT_ASSERT_RC(cond, rc, msg, ...) \
+    do { \
+        if (!(cond)) { \
+            SOFT_ASSERT_MSG(msg, ##__VA_ARGS__); \
+            assert(cond); \
+            return (rc); \
+        } \
+    } while (0)
+
+#else
+
+#define SOFT_ASSERT(cond, msg, ...) \
+    do { \
+        if (!(cond)) { \
+            SOFT_ASSERT_MSG(msg, ##__VA_ARGS__); \
+            return; \
+        } \
+    } while (0)
+
+#define SOFT_ASSERT_RC(cond, rc, msg, ...) \
+    do { \
+        if (!(cond)) { \
+            SOFT_ASSERT_MSG(msg, ##__VA_ARGS__); \
+            return (rc); \
+        } \
+    } while (0)
+
+#endif
+
+#define HARD_ASSERT(cond) assert(cond)
+
 #endif
