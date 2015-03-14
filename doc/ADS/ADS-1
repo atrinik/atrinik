@@ -526,7 +526,7 @@ return self._activator.FindObject(archname = "goldcoin") != None
   - start (string) (optional):
      Starts the specified quest part.
   - complete (string) (optional):
-     Completed the specified quest part.
+     Completes the specified quest part.
   - region_map (string) (optional):
      Give the player the specified region map.
   - enemy (string) (optional):
