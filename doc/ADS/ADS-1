@@ -325,6 +325,10 @@ def dialog(self, msg):
      a <quest> or <part> tag, the quest's UID MUST be specified as well as the
      first word in this string (thus, the quest UID and the part UID(s) are
      separated by a space in this case).
+  - options (string) (optional):
+     Checks event options.
+  - num2finish (int) (optional):
+     Precondition based on number of objects necessary to finish a quest part.
 
  Examples:
   <check region_map="incuna" />
