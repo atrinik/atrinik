@@ -136,6 +136,41 @@ class CommandDelete(Command):
             self.window.item_insert(item, *self.positions[i])
 
 
+class CommandSaveData(Command):
+    def __init__(self, item, *args):
+        super().__init__(*args)
+        self.item = item
+        self.item_data = item._data.copy()
+        self.real_redo = False
+
+    def redo(self):
+        old_data = self.item._data.copy()
+        self.item._data = self.item_data.copy()
+        self.item_data = old_data
+
+        if self.real_redo:
+            self.item.switch_to()
+            self.window.treeView.selectionModel().setCurrentIndex(
+                self.window.model.indexFromItem(self.item),
+                QtCore.QItemSelectionModel.NoUpdate)
+        else:
+            self.item.save_data()
+
+    def undo(self):
+        if self.window.last_item is not None:
+            self.window.last_item.save_data()
+
+        old_data = self.item._data.copy()
+        self.item._data = self.item_data.copy()
+        self.item_data = old_data
+        self.real_redo = True
+        self.item.switch_to()
+        self.window.treeView.selectionModel().setCurrentIndex(
+            self.window.model.indexFromItem(self.item),
+            QtCore.QItemSelectionModel.NoUpdate)
+        self.window.last_item = self.item
+
+
 class WindowInterfaceEditor(Model, QMainWindow, Ui_WindowInterfaceEditor):
     """Implements the Interface Editor window."""
 
@@ -305,7 +340,7 @@ class WindowInterfaceEditor(Model, QMainWindow, Ui_WindowInterfaceEditor):
 
     def save_last_item(self):
         if self.last_item is not None:
-            self.last_item.saveData()
+            self.last_item.save_data()
 
     def save_interface_file(self, path):
         self.save_last_item()
@@ -388,8 +423,10 @@ class WindowInterfaceEditor(Model, QMainWindow, Ui_WindowInterfaceEditor):
         index = self.treeView.selectedIndexes()[-1]
         item = self.treeView.model().itemFromIndex(index)
 
-        if self.last_item is not None:
-            self.last_item.save_data()
+        if self.last_item is not None and self.last_item.save_data(True):
+            command = CommandSaveData(self.last_item, self,
+                                      "Modify '{}'".format(self.last_item.tag))
+            self.undo_stack.push(command)
 
         item.switch_to()
         self.last_item = item
@@ -563,7 +600,7 @@ class InterfaceElement(QtGui.QStandardItem):
 
         self.update_text()
 
-    def save_data(self):
+    def save_data(self, dry=False):
         for attr in self.attributes:
             widget = self.get_widget(attr)
 
@@ -581,11 +618,19 @@ class InterfaceElement(QtGui.QStandardItem):
             val = val.strip()
 
             if not val and attr in self._data:
+                if dry:
+                    return True
+
                 del self._data[attr]
                 self.modified = True
             elif self._data.get(attr, "") != val:
+                if dry:
+                    return True
+
                 self._data[attr] = val
                 self.modified = True
+
+        return False
 
     def build_xml_element(self):
         elem = ElementTree.Element(self.tag)
