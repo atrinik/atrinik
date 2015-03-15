@@ -380,6 +380,11 @@ return self._activator.FindObject(archname = "goldcoin") != None
      its contents would be shown.
 
      If this begins with a double colon, hidden dialogues can be inherited.
+  - icon (string) (optional):
+     If set, will set the interface icon to the specified face (xxx.101). If
+     set to "player", will use the player's face.
+  - title (string) (optional):
+     If set, will set the interface title to the specified string.
 
  It can have any number of the following tags inside of it, in any order:
   - <message>...</message>:
