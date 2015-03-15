@@ -460,12 +460,24 @@ return self._activator.FindObject(archname = "goldcoin") != None
      Defines the arch-name of the object to give to the player.
   - name (string) (optional):
      Defines the name of the object to give to the player.
+  - message (string) (optional):
+     Defines a message to show next to the object's icon, instead of the
+     object's name.
+  - remove (int) (optional):
+     If set, the behavior of this tag changes and instead of the NPC giving
+     an object to the player, instead, the player's inventory is searched for
+     an object matching the name/arch, and a specified number is removed.
 
  One or both of "arch" and "name" attributes MUST be set.
 
  Example:
   <dialog name="hello">
    <object arch="silvercoin" />
+  </dialog>
+
+ Example to remove two copper coins from the player's inventory:
+  <dialog name="hello">
+   <object arch="coppercoin" remove=2" />
   </dialog>
 
 ===============================================================================
