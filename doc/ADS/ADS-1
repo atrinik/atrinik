@@ -552,6 +552,12 @@ return self._activator.FindObject(archname = "goldcoin") != None
   - enemy (string) (optional):
      If set to "player", make the player the NPC's current enemy.
      If set to "clear", will will clear the NPC's enemy.
+  - teleport (string) (optional):
+     If set, the player will be teleported to the specified location. Must
+     be in the format of "<map-path> <x> <y>".
+  - trigger (string) (optional):
+     If set, will locate a beacon with the specified name and apply the
+     object the beacon is in.
 
   <dialog name="hello">
    <message>Greetings adventurer!</message>
