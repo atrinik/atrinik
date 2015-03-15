@@ -249,7 +249,7 @@
      interfaces such as temple or bartender is also supported through the use
      of inherit="Temple.TempleGrunhilde" or inherit="Tavern.Bartender".
 
-     An empty value signifies that the default interface (no preconditions)
+     A value of "interface" says that the default interface (no preconditions)
      should be inherited. Otherwise, the specified precondition will be
      inherited; one can use for example "completed" to inherit the interface
      shown when the quest has been completed, "need_finish_kill_spiders" to
