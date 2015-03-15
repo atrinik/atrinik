@@ -190,6 +190,10 @@
   - nrof (int) (optional):
      Defines how many items the player needs. If not specified, a default of 1
      is assumed. MUST not be lower than 1.
+  - keep (int) (optional):
+     If set to 1, player will keep the quest item after completing the quest
+     part. The item will have the quest item state cleared, becoming a regular
+     item.
 
  One or both of "arch" and "name" attributes MUST be set.
 
