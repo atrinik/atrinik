@@ -4,23 +4,26 @@ Implementation for the 'Interface Editor' window.
 
 import os
 import xml.etree.ElementTree as ElementTree
-import system.utils
 import xml.dom.minidom
 
 from PyQt5 import QtWidgets, QtGui
 from PyQt5 import QtCore
 from PyQt5.QtCore import Qt, QItemSelectionModel
 from PyQt5.QtWidgets import QMainWindow
+
+import system.utils
 from ui.ui_window_interface_editor import Ui_WindowInterfaceEditor
 from ui.model import Model
 
 
 class ItemModel(QtGui.QStandardItemModel):
+    MIME_TYPE = "application/atrinik.map-checker.interface-element"
+
     def supportedDragActions(self):
         return Qt.MoveAction
 
     def mimeTypes(self):
-        return ["application/atrinik.map-checker.interface-element"]
+        return [self.MIME_TYPE]
 
     def mimeData(self, indices):
         mime_data = QtCore.QMimeData()
@@ -36,7 +39,7 @@ class ItemModel(QtGui.QStandardItemModel):
 
             parent = item.parent()
 
-            while parent:
+            while parent != self:
                 rows.append(parent.row())
                 parent = parent.parent()
 
@@ -44,8 +47,7 @@ class ItemModel(QtGui.QStandardItemModel):
             rows.append(item.row())
             stream << QtCore.QVariant(rows)
 
-        mime_data.setData("application/atrinik.map-checker.interface-element",
-                          encoded_data)
+        mime_data.setData(self.MIME_TYPE, encoded_data)
         return mime_data
 
     def dropMimeData(self, data, action, row, column, parent):
@@ -54,8 +56,7 @@ class ItemModel(QtGui.QStandardItemModel):
         else:
             target = self
 
-        encoded_data = data.data(
-            "application/atrinik.map-checker.interface-element")
+        encoded_data = data.data(self.MIME_TYPE)
         stream = QtCore.QDataStream(encoded_data, QtCore.QIODevice.ReadOnly)
 
         items = []
@@ -71,23 +72,138 @@ class ItemModel(QtGui.QStandardItemModel):
 
             items.append(item)
 
-        tree_view = self.parent().treeView
+        command = CommandMove(items, target, row, self.parent(),
+                              "Move {} elements".format(len(items)))
+        self.parent().undo_stack.push(command)
 
-        for item in items:
-            parent = item.parent()
+        return False
 
-            if not parent:
-                parent = self
 
-            expanded = []
+class Command(QtWidgets.QUndoCommand):
+    def __init__(self, window, description):
+        super().__init__(description)
+        self.window = window
 
-            if tree_view.isExpanded(self.indexFromItem(item)):
-                expanded.append(item)
 
-            for item2 in self.parent().model_items(item=item):
-                if tree_view.isExpanded(self.indexFromItem(item2)):
-                    expanded.append(item2)
+class CommandNew(Command):
+    def __init__(self, targets, cls, *args):
+        super().__init__(*args)
+        self.targets = targets
+        self.items = [cls() for target in targets]
 
+    def redo(self):
+        for i, target in enumerate(self.targets):
+            target.appendRow(self.items[i])
+
+    def undo(self):
+        for item in self.items:
+            item.parent().takeRow(item.row())
+
+
+class CommandMove(Command):
+    def __init__(self, items, target, row, *args):
+        super().__init__(*args)
+        self.items = items
+        self.target = target
+        self.row = row
+        self.positions = [(item.parent(), item.row()) for item in items]
+
+    def redo(self):
+        for item in self.items:
+            self.window.item_insert(item, self.target, self.row)
+
+    def undo(self):
+        for i, item in enumerate(self.items):
+            self.window.item_insert(item, *self.positions[i])
+
+
+class CommandDelete(Command):
+    def __init__(self, items, *args):
+        super().__init__(*args)
+        self.items = items
+        self.positions = [(item.parent(), item.row(),
+                           self.window.save_expanded(item)) for item in items]
+
+    def redo(self):
+        for item in self.items:
+            if self.window.last_item == item:
+                self.window.reset_stacked_widget()
+
+            item.parent().takeRow(item.row())
+
+    def undo(self):
+        for i, item in enumerate(self.items):
+            self.window.item_insert(item, *self.positions[i])
+
+
+class WindowInterfaceEditor(Model, QMainWindow, Ui_WindowInterfaceEditor):
+    """Implements the Interface Editor window."""
+
+    def __init__(self, parent=None):
+        super(WindowInterfaceEditor, self).__init__(parent)
+        self.setupUi(self)
+
+        self._last_path = None
+        self.last_item = None
+        self.file_path = None
+
+        self.interface_elements = InterfaceElementCollection()
+
+        self.undo_stack = QtWidgets.QUndoStack()
+        self.undo_stack.undoTextChanged.connect(self.undo_text_changed_trigger)
+        self.undo_stack.redoTextChanged.connect(self.redo_text_changed_trigger)
+
+        self.model = ItemModel(self)
+        self.treeView.setModel(self.model)
+        self.treeView.setContextMenuPolicy(Qt.CustomContextMenu)
+        self.treeView.customContextMenuRequested.connect(
+            self.tree_view_open_menu)
+        self.treeView.clicked.connect(self.tree_view_trigger)
+
+        self.actionNew.triggered.connect(self.action_new_trigger)
+        self.actionOpen.triggered.connect(self.action_open_trigger)
+        self.actionSave.triggered.connect(self.action_save_trigger)
+        self.actionSave_As.triggered.connect(self.action_save_as_trigger)
+
+        self.actionUndo.triggered.connect(self.action_undo_trigger)
+        self.actionRedo.triggered.connect(self.action_redo_trigger)
+
+        self.reset_stacked_widget()
+
+    @property
+    def last_path(self):
+        if self._last_path is None:
+            return os.path.join(self.map_checker.getMapsPath(), "interfaces")
+
+        return self._last_path
+
+    @last_path.setter
+    def last_path(self, value):
+        self._last_path = value
+
+    def save_expanded(self, item):
+        expanded = []
+
+        if self.treeView.isExpanded(self.model.indexFromItem(item)):
+            expanded.append(item)
+
+        for item2 in self.model_items(item=item):
+            if self.treeView.isExpanded(self.model.indexFromItem(item2)):
+                expanded.append(item2)
+
+        return expanded
+
+    def restore_expanded(self, expanded):
+        for item2 in expanded:
+            self.treeView.expand(self.model.indexFromItem(item2))
+
+    def item_insert(self, item, target, row, expanded=None):
+        parent = item.parent()
+
+        if expanded is None:
+            expanded = self.save_expanded(item)
+
+        if parent:
             i = item.row()
             old_row = i
             item = parent.takeRow(i)[0]
@@ -104,49 +220,11 @@ class ItemModel(QtGui.QStandardItemModel):
 
             if item.row() != old_row:
                 item.modified = True
+        else:
+            target.insertRow(row, item)
+            item.modified = True
 
-            for item2 in expanded:
-                tree_view.expand(self.indexFromItem(item2))
-
-        return False
-
-class WindowInterfaceEditor(Model, QMainWindow, Ui_WindowInterfaceEditor):
-    """Implements the Interface Editor window."""
-
-    def __init__(self, parent=None):
-        super(WindowInterfaceEditor, self).__init__(parent)
-        self.setupUi(self)
-
-        self._last_path = None
-        self.last_item = None
-        self.file_path = None
-
-        self.interface_elements = InterfaceElementCollection()
-
-        self.model = ItemModel(self)
-        self.treeView.setModel(self.model)
-        self.treeView.setContextMenuPolicy(Qt.CustomContextMenu)
-        self.treeView.customContextMenuRequested.connect(
-            self.tree_view_open_menu)
-        self.treeView.clicked.connect(self.treeViewTrigger)
-
-        self.actionNew.triggered.connect(self.action_new_trigger)
-        self.actionOpen.triggered.connect(self.action_open_trigger)
-        self.actionSave.triggered.connect(self.action_save_trigger)
-        self.actionSave_As.triggered.connect(self.action_save_as_trigger)
-
-        self.reset_stacked_widget()
-
-    @property
-    def last_path(self):
-        if self._last_path is None:
-            return os.path.join(self.map_checker.getMapsPath(), "interfaces")
-
-        return self._last_path
-
-    @last_path.setter
-    def last_path(self, value):
-        self._last_path = value
+        self.restore_expanded(expanded)
 
     def prompt_unsaved(self):
         reply = QtWidgets.QMessageBox.question(
@@ -168,6 +246,18 @@ class WindowInterfaceEditor(Model, QMainWindow, Ui_WindowInterfaceEditor):
                 return self.prompt_unsaved()
 
         return True
+
+    def action_undo_trigger(self):
+        self.undo_stack.undo()
+
+    def action_redo_trigger(self):
+        self.undo_stack.redo()
+
+    def undo_text_changed_trigger(self, text):
+        self.actionUndo.setText(self.tr("Undo {}".format(text)))
+
+    def redo_text_changed_trigger(self, text):
+        self.actionRedo.setText(self.tr("Redo {}".format(text)))
 
     def action_new_trigger(self):
         if not self.check_unsaved():
@@ -235,15 +325,13 @@ class WindowInterfaceEditor(Model, QMainWindow, Ui_WindowInterfaceEditor):
 
     def fill_model_from_xml(self, elem, parent=None):
         if parent is None:
-            parent = self.model
-
             for child in elem:
                 self.fill_model_from_xml(child, self.model)
 
             return
 
         item = self.interface_elements[elem.tag]()
-        item.fillData(elem)
+        item.fill_data(elem)
         parent.appendRow(item)
 
         for child in elem:
@@ -296,14 +384,14 @@ class WindowInterfaceEditor(Model, QMainWindow, Ui_WindowInterfaceEditor):
         parent.append(elem)
         return elem,
 
-    def treeViewTrigger(self):
+    def tree_view_trigger(self):
         index = self.treeView.selectedIndexes()[-1]
         item = self.treeView.model().itemFromIndex(index)
 
         if self.last_item is not None:
-            self.last_item.saveData()
+            self.last_item.save_data()
 
-        item.switchTo()
+        item.switch_to()
         self.last_item = item
 
     def tree_view_open_menu(self, position):
@@ -316,29 +404,30 @@ class WindowInterfaceEditor(Model, QMainWindow, Ui_WindowInterfaceEditor):
                                      self.tree_view_handle_new(cls))
             submenu.addAction(action)
 
-        deleteAction = QtWidgets.QAction(self.tr("Delete"), self)
-        deleteAction.triggered.connect(self.tree_view_handle_delete)
-        menu.addAction(deleteAction)
+        delete_action = QtWidgets.QAction(self.tr("Delete"), self)
+        delete_action.triggered.connect(self.tree_view_handle_delete)
+        menu.addAction(delete_action)
         menu.exec_(self.treeView.viewport().mapToGlobal(position))
 
     def tree_view_handle_delete(self):
+        items = []
+
         for index in self.treeView.selectedIndexes():
-            item = self.model.itemFromIndex(index)
+            items.append(self.model.itemFromIndex(index))
 
-            if self.last_item == item:
-                self.reset_stacked_widget()
-
-            parent = item.parent() or self.model
-            parent.takeRow(item.row())
+        command = CommandDelete(items, self, "Delete {} element(s)".format(
+            len(items)))
+        self.undo_stack.push(command)
 
     def tree_view_handle_new(self, cls):
         if not self.treeView.selectedIndexes():
-            self.model.appendRow(cls())
-            return
+            targets = [self.model]
+        else:
+            targets = [self.model.itemFromIndex(index) for index in
+                       self.treeView.selectedIndexes()]
 
-        for index in self.treeView.selectedIndexes():
-            item = self.model.itemFromIndex(index)
-            item.appendRow(cls())
+        command = CommandNew(targets, cls, self, "New '{}'".format(cls.tag))
+        self.undo_stack.push(command)
 
 
 class InterfaceElement(QtGui.QStandardItem):
@@ -346,11 +435,11 @@ class InterfaceElement(QtGui.QStandardItem):
     attributes = ()
     dialog_attributes = ()
 
-    def __init__ (self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+    def __init__(self, *args):
+        super().__init__(*args)
         self._data = {}
         self._modified = True
-        self.updateText()
+        self.update_text()
 
     @property
     def modified(self):
@@ -360,11 +449,19 @@ class InterfaceElement(QtGui.QStandardItem):
     def modified(self, value):
         assert isinstance(value, bool)
         self._modified = value
-        self.updateText()
+        self.update_text()
 
     @property
     def window(self):
         return self.model().parent()
+
+    def parent(self):
+        parent = super().parent()
+
+        if parent is None:
+            return self.model()
+
+        return parent
 
     def item(self, i):
         return self.child(i)
@@ -393,10 +490,10 @@ class InterfaceElement(QtGui.QStandardItem):
                 self.window.treeView.selectionModel().setCurrentIndex(
                     self.window.treeView.model().indexFromItem(item),
                     QItemSelectionModel.ClearAndSelect)
-                self.window.treeViewTrigger()
+                self.window.tree_view_trigger()
                 break
 
-    def switchTo(self):
+    def switch_to(self):
         stacked_widget = self.window.findChild(QtWidgets.QStackedWidget,
                                                "stackedWidget")
         page = stacked_widget.findChild(QtWidgets.QWidget,
@@ -431,13 +528,14 @@ class InterfaceElement(QtGui.QStandardItem):
         for child in page.findChildren(QtWidgets.QPushButton):
             if child.objectName().startswith("interface_button_dialog_"):
                 name = "_".join(child.objectName().split("_")[3:])
-                child.clicked.connect(lambda: self.dialog_button_trigger(name)) # TODO: fix me
+                child.clicked.connect(lambda ignored, dialog=name:
+                                      self.dialog_button_trigger(dialog))
 
-    def updateText(self, s=""):
+    def update_text(self, s=""):
         text = "{}{}{}".format("* " if self.modified else "", self.tag, s)
         self.setText(text)
 
-    def fillData(self, elem):
+    def fill_data(self, elem):
         self.modified = False
 
         for attr in self.attributes:
@@ -463,9 +561,9 @@ class InterfaceElement(QtGui.QStandardItem):
             print("Element {}: Attribute {} was not handled: '{}'".format(
                 elem, attr, elem.attrib[attr]))
 
-        self.updateText()
+        self.update_text()
 
-    def saveData(self):
+    def save_data(self):
         for attr in self.attributes:
             widget = self.get_widget(attr)
 
@@ -511,14 +609,14 @@ class InterfaceElementQuest(InterfaceElement):
     attributes = ("name", "repeat", "repeat_delay")
     priority = 500
 
-    def updateText(self):
+    def update_text(self, s=""):
         name = self._data.get("name")
         text = ""
 
         if name:
             text += " ({})".format(name)
 
-        super().updateText(text)
+        super().update_text(text)
 
 
 class InterfaceElementInterface(InterfaceElement):
@@ -526,10 +624,9 @@ class InterfaceElementInterface(InterfaceElement):
     attributes = ("state", "npc", "inherit")
     priority = 100
 
-    def updateText(self):
+    def update_text(self, s=""):
         state = self._data.get("state")
         npc = self._data.get("npc")
-        name = self._data.get("name")
         text = ""
 
         if npc:
@@ -538,7 +635,7 @@ class InterfaceElementInterface(InterfaceElement):
         if state:
             text += " ({})".format(state)
 
-        super().updateText(text)
+        super().update_text(text)
 
 
 class InterfaceElementDialog(InterfaceElement):
@@ -546,14 +643,14 @@ class InterfaceElementDialog(InterfaceElement):
     attributes = ("name", "regex", "inherit", "icon", "title", "animation")
     priority = 200
 
-    def updateText(self):
+    def update_text(self, s=""):
         name = self._data.get("name")
         text = ""
 
         if name:
             text += " ({})".format(name)
 
-        super().updateText(text)
+        super().update_text(text)
 
 
 class InterfaceElementMessage(InterfaceElement):
@@ -613,7 +710,7 @@ class InterfaceElementPart(InterfaceElement):
     attributes = ("uid", "name")
     priority = 600
 
-    def updateText(self):
+    def update_text(self, s=""):
         uid = self._data.get("name")
         name = self._data.get("name")
         text = ""
@@ -632,7 +729,7 @@ class InterfaceElementPart(InterfaceElement):
 
             text += ")"
 
-        super().updateText(text)
+        super().update_text(text)
 
 
 class InterfaceElementInfo(InterfaceElement):
@@ -691,6 +788,6 @@ class InterfaceElementCollection(object):
         return len(self.elements)
 
     def sorted(self):
-        for tag in sorted(self.elements,
-                          key=lambda tag: (self.elements[tag].priority, tag)):
-            yield self.elements[tag]
+        for elem in sorted(self.elements,
+                           key=lambda tag: (self.elements[tag].priority, tag)):
+            yield self.elements[elem]

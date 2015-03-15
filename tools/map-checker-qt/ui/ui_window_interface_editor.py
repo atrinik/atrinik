@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file '../ui/ui_window_interface_editor.ui'
 #
-# Created: Sun Mar 15 17:39:45 2015
+# Created: Sun Mar 15 18:12:32 2015
 #      by: PyQt5 UI code generator 5.3.2
 #
 # WARNING! All changes made in this file will be lost!
@@ -588,6 +588,8 @@ class Ui_WindowInterfaceEditor(object):
         self.menubar.setObjectName("menubar")
         self.menuTest = QtWidgets.QMenu(self.menubar)
         self.menuTest.setObjectName("menuTest")
+        self.menuEdit = QtWidgets.QMenu(self.menubar)
+        self.menuEdit.setObjectName("menuEdit")
         WindowInterfaceEditor.setMenuBar(self.menubar)
         self.statusbar = QtWidgets.QStatusBar(WindowInterfaceEditor)
         self.statusbar.setObjectName("statusbar")
@@ -600,11 +602,18 @@ class Ui_WindowInterfaceEditor(object):
         self.actionSave.setObjectName("actionSave")
         self.actionSave_As = QtWidgets.QAction(WindowInterfaceEditor)
         self.actionSave_As.setObjectName("actionSave_As")
+        self.actionUndo = QtWidgets.QAction(WindowInterfaceEditor)
+        self.actionUndo.setObjectName("actionUndo")
+        self.actionRedo = QtWidgets.QAction(WindowInterfaceEditor)
+        self.actionRedo.setObjectName("actionRedo")
         self.menuTest.addAction(self.actionNew)
         self.menuTest.addAction(self.actionOpen)
         self.menuTest.addAction(self.actionSave)
         self.menuTest.addAction(self.actionSave_As)
+        self.menuEdit.addAction(self.actionUndo)
+        self.menuEdit.addAction(self.actionRedo)
         self.menubar.addAction(self.menuTest.menuAction())
+        self.menubar.addAction(self.menuEdit.menuAction())
 
         self.retranslateUi(WindowInterfaceEditor)
         self.stackedWidget.setCurrentIndex(0)
@@ -686,6 +695,7 @@ class Ui_WindowInterfaceEditor(object):
         self.label_34.setText(_translate("WindowInterfaceEditor", "NPC"))
         self.label_36.setText(_translate("WindowInterfaceEditor", "Inherit"))
         self.menuTest.setTitle(_translate("WindowInterfaceEditor", "File"))
+        self.menuEdit.setTitle(_translate("WindowInterfaceEditor", "Edit"))
         self.actionNew.setText(_translate("WindowInterfaceEditor", "New"))
         self.actionNew.setShortcut(_translate("WindowInterfaceEditor", "Ctrl+N"))
         self.actionOpen.setText(_translate("WindowInterfaceEditor", "Open"))
@@ -694,4 +704,8 @@ class Ui_WindowInterfaceEditor(object):
         self.actionSave.setShortcut(_translate("WindowInterfaceEditor", "Ctrl+S"))
         self.actionSave_As.setText(_translate("WindowInterfaceEditor", "Save As"))
         self.actionSave_As.setShortcut(_translate("WindowInterfaceEditor", "Ctrl+Shift+S"))
+        self.actionUndo.setText(_translate("WindowInterfaceEditor", "Undo"))
+        self.actionUndo.setShortcut(_translate("WindowInterfaceEditor", "Ctrl+Z"))
+        self.actionRedo.setText(_translate("WindowInterfaceEditor", "Redo"))
+        self.actionRedo.setShortcut(_translate("WindowInterfaceEditor", "Ctrl+Shift+Z"))
 
