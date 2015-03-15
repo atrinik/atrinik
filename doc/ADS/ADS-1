@@ -385,6 +385,9 @@ return self._activator.FindObject(archname = "goldcoin") != None
      set to "player", will use the player's face.
   - title (string) (optional):
      If set, will set the interface title to the specified string.
+  - animation (string) (optional):
+     If set, will set the interface animation to the specified animation
+     (human_male). If set to "player", will use the player's animation.
 
  It can have any number of the following tags inside of it, in any order:
   - <message>...</message>:
