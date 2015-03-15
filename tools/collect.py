@@ -323,6 +323,7 @@ def _make_interface(file, parent, npcs):
 
             title = dialog.get("title")
             icon = dialog.get("icon")
+            animation = dialog.get("animation")
 
             if title:
                 class_code += " " * 4 * 2 + "self.set_title({})\n".format(repr(title))
@@ -331,6 +332,11 @@ def _make_interface(file, parent, npcs):
                 class_code += " " * 4 * 2 + "self.set_icon(self._activator.arch.clone.face[0])\n"
             elif icon:
                 class_code += " " * 4 * 2 + "self.set_icon({})\n".format(repr(icon))
+
+            if animation == "player":
+                class_code += " " * 4 * 2 + "self.set_anim(self._activator.animation[1], self._activator.anim_speed, self._activator.direction)\n"
+            elif animation:
+                class_code += " " * 4 * 2 + "self.set_anim({})\n".format(repr(animation))
 
             closed = False
 
