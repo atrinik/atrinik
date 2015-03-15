@@ -62,33 +62,6 @@
           </property>
          </widget>
         </item>
-        <item>
-         <layout class="QGridLayout" name="gridLayout_20">
-          <property name="sizeConstraint">
-           <enum>QLayout::SetDefaultConstraint</enum>
-          </property>
-          <item row="0" column="1">
-           <spacer name="horizontalSpacer_9">
-            <property name="orientation">
-             <enum>Qt::Horizontal</enum>
-            </property>
-            <property name="sizeHint" stdset="0">
-             <size>
-              <width>40</width>
-              <height>20</height>
-             </size>
-            </property>
-           </spacer>
-          </item>
-          <item row="0" column="0">
-           <widget class="QPushButton" name="button_expand_all">
-            <property name="text">
-             <string>Expand all</string>
-            </property>
-           </widget>
-          </item>
-         </layout>
-        </item>
        </layout>
       </widget>
       <widget class="QWidget" name="verticalLayoutWidget">
@@ -108,7 +81,7 @@
            </size>
           </property>
           <property name="currentIndex">
-           <number>17</number>
+           <number>15</number>
           </property>
           <widget class="QWidget" name="pageNone"/>
           <widget class="QWidget" name="pageChoice"/>
@@ -285,14 +258,21 @@
                 </property>
                </spacer>
               </item>
-              <item row="0" column="2">
-               <widget class="QLineEdit" name="interface_element_item_arch"/>
-              </item>
               <item row="1" column="2">
                <widget class="QLineEdit" name="interface_element_item_name"/>
               </item>
               <item row="2" column="2">
                <widget class="QLineEdit" name="interface_element_item_nrof"/>
+              </item>
+              <item row="0" column="2">
+               <widget class="QLineEdit" name="interface_element_item_arch"/>
+              </item>
+              <item row="3" column="2">
+               <widget class="QCheckBox" name="interface_element_item_keep">
+                <property name="text">
+                 <string>Keep item</string>
+                </property>
+               </widget>
               </item>
              </layout>
             </item>
@@ -304,7 +284,7 @@
               <property name="sizeHint" stdset="0">
                <size>
                 <width>20</width>
-                <height>417</height>
+                <height>456</height>
                </size>
               </property>
              </spacer>
@@ -328,6 +308,16 @@
                 </property>
                </spacer>
               </item>
+              <item row="1" column="0">
+               <widget class="QLabel" name="label_33">
+                <property name="text">
+                 <string>Name</string>
+                </property>
+               </widget>
+              </item>
+              <item row="1" column="2">
+               <widget class="QLineEdit" name="interface_element_object_name"/>
+              </item>
               <item row="0" column="0">
                <widget class="QLabel" name="label_32">
                 <property name="text">
@@ -338,30 +328,27 @@
               <item row="0" column="2">
                <widget class="QLineEdit" name="interface_element_object_arch"/>
               </item>
-              <item row="1" column="2">
-               <widget class="QLineEdit" name="interface_element_object_name"/>
-              </item>
-              <item row="1" column="0">
-               <widget class="QLabel" name="label_33">
+              <item row="2" column="0">
+               <widget class="QLabel" name="label_41">
                 <property name="text">
-                 <string>Name</string>
+                 <string>Number to remove</string>
                 </property>
                </widget>
+              </item>
+              <item row="2" column="2">
+               <widget class="QLineEdit" name="interface_element_object_remove"/>
               </item>
              </layout>
             </item>
             <item>
-             <spacer name="verticalSpacer_10">
-              <property name="orientation">
-               <enum>Qt::Vertical</enum>
+             <widget class="QLabel" name="label_42">
+              <property name="text">
+               <string>Message</string>
               </property>
-              <property name="sizeHint" stdset="0">
-               <size>
-                <width>20</width>
-                <height>443</height>
-               </size>
-              </property>
-             </spacer>
+             </widget>
+            </item>
+            <item>
+             <widget class="QPlainTextEdit" name="interface_element_object_message"/>
             </item>
            </layout>
           </widget>
@@ -575,8 +562,43 @@
            <layout class="QVBoxLayout" name="verticalLayout_9">
             <item>
              <layout class="QGridLayout" name="gridLayout_11">
+              <item row="4" column="2">
+               <widget class="QLineEdit" name="interface_element_action_teleport"/>
+              </item>
+              <item row="4" column="0">
+               <widget class="QLabel" name="label_40">
+                <property name="text">
+                 <string>Teleport</string>
+                </property>
+               </widget>
+              </item>
+              <item row="1" column="2">
+               <widget class="QLineEdit" name="interface_element_action_start"/>
+              </item>
+              <item row="2" column="2">
+               <widget class="QLineEdit" name="interface_element_action_complete"/>
+              </item>
               <item row="0" column="2">
                <widget class="QLineEdit" name="interface_element_action_region_map"/>
+              </item>
+              <item row="3" column="2">
+               <widget class="QComboBox" name="interface_element_action_enemy">
+                <item>
+                 <property name="text">
+                  <string/>
+                 </property>
+                </item>
+                <item>
+                 <property name="text">
+                  <string>player</string>
+                 </property>
+                </item>
+                <item>
+                 <property name="text">
+                  <string>clear</string>
+                 </property>
+                </item>
+               </widget>
               </item>
               <item row="0" column="1">
                <spacer name="horizontalSpacer_15">
@@ -619,30 +641,15 @@
                 </property>
                </widget>
               </item>
-              <item row="3" column="2">
-               <widget class="QComboBox" name="interface_element_action_enemy">
-                <item>
-                 <property name="text">
-                  <string/>
-                 </property>
-                </item>
-                <item>
-                 <property name="text">
-                  <string>player</string>
-                 </property>
-                </item>
-                <item>
-                 <property name="text">
-                  <string>clear</string>
-                 </property>
-                </item>
+              <item row="5" column="0">
+               <widget class="QLabel" name="label_45">
+                <property name="text">
+                 <string>Trigger</string>
+                </property>
                </widget>
               </item>
-              <item row="1" column="2">
-               <widget class="QLineEdit" name="interface_element_action_start"/>
-              </item>
-              <item row="2" column="2">
-               <widget class="QLineEdit" name="interface_element_action_complete"/>
+              <item row="5" column="2">
+               <widget class="QLineEdit" name="interface_element_action_trigger"/>
               </item>
              </layout>
             </item>
@@ -810,6 +817,23 @@
               </item>
               <item row="0" column="3">
                <widget class="QLineEdit" name="interface_element_quest_name"/>
+              </item>
+              <item row="1" column="3">
+               <widget class="QCheckBox" name="interface_element_quest_repeat">
+                <property name="text">
+                 <string>Repeatable</string>
+                </property>
+               </widget>
+              </item>
+              <item row="2" column="1">
+               <widget class="QLabel" name="label_46">
+                <property name="text">
+                 <string>Repeat delay</string>
+                </property>
+               </widget>
+              </item>
+              <item row="2" column="3">
+               <widget class="QLineEdit" name="interface_element_quest_repeat_delay"/>
               </item>
              </layout>
             </item>
@@ -990,12 +1014,15 @@
                 </property>
                </spacer>
               </item>
-              <item row="1" column="0">
-               <widget class="QLabel" name="label_38">
+              <item row="3" column="0">
+               <widget class="QLabel" name="label_43">
                 <property name="text">
-                 <string>Regex</string>
+                 <string>Icon</string>
                 </property>
                </widget>
+              </item>
+              <item row="2" column="2">
+               <widget class="QLineEdit" name="interface_element_dialog_inherit"/>
               </item>
               <item row="2" column="0">
                <widget class="QLabel" name="label_39">
@@ -1007,8 +1034,25 @@
               <item row="1" column="2">
                <widget class="QLineEdit" name="interface_element_dialog_regex"/>
               </item>
-              <item row="2" column="2">
-               <widget class="QLineEdit" name="interface_element_dialog_inherit"/>
+              <item row="1" column="0">
+               <widget class="QLabel" name="label_38">
+                <property name="text">
+                 <string>Regex</string>
+                </property>
+               </widget>
+              </item>
+              <item row="4" column="0">
+               <widget class="QLabel" name="label_44">
+                <property name="text">
+                 <string>Title</string>
+                </property>
+               </widget>
+              </item>
+              <item row="3" column="2">
+               <widget class="QLineEdit" name="interface_element_dialog_icon"/>
+              </item>
+              <item row="4" column="2">
+               <widget class="QLineEdit" name="interface_element_dialog_title"/>
               </item>
              </layout>
             </item>
@@ -1121,37 +1165,6 @@
           </widget>
          </widget>
         </item>
-        <item>
-         <layout class="QHBoxLayout" name="horizontalLayout_4">
-          <item>
-           <spacer name="horizontalSpacer">
-            <property name="orientation">
-             <enum>Qt::Horizontal</enum>
-            </property>
-            <property name="sizeHint" stdset="0">
-             <size>
-              <width>40</width>
-              <height>20</height>
-             </size>
-            </property>
-           </spacer>
-          </item>
-          <item>
-           <widget class="QPushButton" name="buttonSave">
-            <property name="text">
-             <string>Save</string>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QPushButton" name="buttonOpen">
-            <property name="text">
-             <string>Open</string>
-            </property>
-           </widget>
-          </item>
-         </layout>
-        </item>
        </layout>
       </widget>
      </widget>
@@ -1171,10 +1184,46 @@
     <property name="title">
      <string>File</string>
     </property>
+    <addaction name="actionNew"/>
+    <addaction name="actionOpen"/>
+    <addaction name="actionSave"/>
+    <addaction name="actionSave_As"/>
    </widget>
    <addaction name="menuTest"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
+  <action name="actionNew">
+   <property name="text">
+    <string>New</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+N</string>
+   </property>
+  </action>
+  <action name="actionOpen">
+   <property name="text">
+    <string>Open</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+O</string>
+   </property>
+  </action>
+  <action name="actionSave">
+   <property name="text">
+    <string>Save</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+S</string>
+   </property>
+  </action>
+  <action name="actionSave_As">
+   <property name="text">
+    <string>Save As</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+Shift+S</string>
+   </property>
+  </action>
  </widget>
  <resources/>
  <connections/>
