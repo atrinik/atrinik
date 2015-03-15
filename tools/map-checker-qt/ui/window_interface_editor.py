@@ -134,7 +134,7 @@ class WindowInterfaceEditor(Model, QMainWindow, Ui_WindowInterfaceEditor):
         self.actionOpen.triggered.connect(self.action_open_trigger)
         self.actionSave.triggered.connect(self.action_save_trigger)
         self.actionSave_As.triggered.connect(self.action_save_as_trigger)
-        
+
         self.reset_stacked_widget()
 
     @property
@@ -543,7 +543,7 @@ class InterfaceElementInterface(InterfaceElement):
 
 class InterfaceElementDialog(InterfaceElement):
     tag = "dialog"
-    attributes = ("name", "regex", "inherit", "icon", "title")
+    attributes = ("name", "regex", "inherit", "icon", "title", "animation")
     priority = 200
 
     def updateText(self):

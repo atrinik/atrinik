@@ -81,7 +81,7 @@
            </size>
           </property>
           <property name="currentIndex">
-           <number>15</number>
+           <number>0</number>
           </property>
           <widget class="QWidget" name="pageNone"/>
           <widget class="QWidget" name="pageChoice"/>
@@ -140,7 +140,7 @@
               <property name="sizeHint" stdset="0">
                <size>
                 <width>20</width>
-                <height>500</height>
+                <height>531</height>
                </size>
               </property>
              </spacer>
@@ -784,7 +784,7 @@
               <property name="sizeHint" stdset="0">
                <size>
                 <width>20</width>
-                <height>460</height>
+                <height>531</height>
                </size>
               </property>
              </spacer>
@@ -1021,6 +1021,12 @@
                 </property>
                </widget>
               </item>
+              <item row="3" column="2">
+               <widget class="QLineEdit" name="interface_element_dialog_icon"/>
+              </item>
+              <item row="4" column="2">
+               <widget class="QLineEdit" name="interface_element_dialog_title"/>
+              </item>
               <item row="2" column="2">
                <widget class="QLineEdit" name="interface_element_dialog_inherit"/>
               </item>
@@ -1041,6 +1047,13 @@
                 </property>
                </widget>
               </item>
+              <item row="5" column="0">
+               <widget class="QLabel" name="label_47">
+                <property name="text">
+                 <string>Animation</string>
+                </property>
+               </widget>
+              </item>
               <item row="4" column="0">
                <widget class="QLabel" name="label_44">
                 <property name="text">
@@ -1048,11 +1061,8 @@
                 </property>
                </widget>
               </item>
-              <item row="3" column="2">
-               <widget class="QLineEdit" name="interface_element_dialog_icon"/>
-              </item>
-              <item row="4" column="2">
-               <widget class="QLineEdit" name="interface_element_dialog_title"/>
+              <item row="5" column="2">
+               <widget class="QLineEdit" name="interface_element_dialog_animation"/>
               </item>
              </layout>
             </item>

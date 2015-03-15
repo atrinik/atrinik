@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file '../ui/ui_window_interface_editor.ui'
 #
-# Created: Sun Mar 15 16:33:04 2015
+# Created: Sun Mar 15 17:39:45 2015
 #      by: PyQt5 UI code generator 5.3.2
 #
 # WARNING! All changes made in this file will be lost!
@@ -90,7 +90,7 @@ class Ui_WindowInterfaceEditor(object):
         self.interface_element_kill_nrof.setObjectName("interface_element_kill_nrof")
         self.gridLayout_21.addWidget(self.interface_element_kill_nrof, 0, 2, 1, 1)
         self.verticalLayout_19.addLayout(self.gridLayout_21)
-        spacerItem1 = QtWidgets.QSpacerItem(20, 500, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding)
+        spacerItem1 = QtWidgets.QSpacerItem(20, 531, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding)
         self.verticalLayout_19.addItem(spacerItem1)
         self.stackedWidget.addWidget(self.pageKill)
         self.pageClose = QtWidgets.QWidget()
@@ -415,7 +415,7 @@ class Ui_WindowInterfaceEditor(object):
         self.interface_element_inherit_name.setObjectName("interface_element_inherit_name")
         self.gridLayout_14.addWidget(self.interface_element_inherit_name, 0, 2, 1, 1)
         self.verticalLayout_11.addLayout(self.gridLayout_14)
-        spacerItem15 = QtWidgets.QSpacerItem(20, 460, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding)
+        spacerItem15 = QtWidgets.QSpacerItem(20, 531, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding)
         self.verticalLayout_11.addItem(spacerItem15)
         self.stackedWidget.addWidget(self.pageInherit)
         self.pageQuest = QtWidgets.QWidget()
@@ -509,6 +509,12 @@ class Ui_WindowInterfaceEditor(object):
         self.label_43 = QtWidgets.QLabel(self.pageDialog)
         self.label_43.setObjectName("label_43")
         self.gridLayout.addWidget(self.label_43, 3, 0, 1, 1)
+        self.interface_element_dialog_icon = QtWidgets.QLineEdit(self.pageDialog)
+        self.interface_element_dialog_icon.setObjectName("interface_element_dialog_icon")
+        self.gridLayout.addWidget(self.interface_element_dialog_icon, 3, 2, 1, 1)
+        self.interface_element_dialog_title = QtWidgets.QLineEdit(self.pageDialog)
+        self.interface_element_dialog_title.setObjectName("interface_element_dialog_title")
+        self.gridLayout.addWidget(self.interface_element_dialog_title, 4, 2, 1, 1)
         self.interface_element_dialog_inherit = QtWidgets.QLineEdit(self.pageDialog)
         self.interface_element_dialog_inherit.setObjectName("interface_element_dialog_inherit")
         self.gridLayout.addWidget(self.interface_element_dialog_inherit, 2, 2, 1, 1)
@@ -521,15 +527,15 @@ class Ui_WindowInterfaceEditor(object):
         self.label_38 = QtWidgets.QLabel(self.pageDialog)
         self.label_38.setObjectName("label_38")
         self.gridLayout.addWidget(self.label_38, 1, 0, 1, 1)
+        self.label_47 = QtWidgets.QLabel(self.pageDialog)
+        self.label_47.setObjectName("label_47")
+        self.gridLayout.addWidget(self.label_47, 5, 0, 1, 1)
         self.label_44 = QtWidgets.QLabel(self.pageDialog)
         self.label_44.setObjectName("label_44")
         self.gridLayout.addWidget(self.label_44, 4, 0, 1, 1)
-        self.interface_element_dialog_icon = QtWidgets.QLineEdit(self.pageDialog)
-        self.interface_element_dialog_icon.setObjectName("interface_element_dialog_icon")
-        self.gridLayout.addWidget(self.interface_element_dialog_icon, 3, 2, 1, 1)
-        self.interface_element_dialog_title = QtWidgets.QLineEdit(self.pageDialog)
-        self.interface_element_dialog_title.setObjectName("interface_element_dialog_title")
-        self.gridLayout.addWidget(self.interface_element_dialog_title, 4, 2, 1, 1)
+        self.interface_element_dialog_animation = QtWidgets.QLineEdit(self.pageDialog)
+        self.interface_element_dialog_animation.setObjectName("interface_element_dialog_animation")
+        self.gridLayout.addWidget(self.interface_element_dialog_animation, 5, 2, 1, 1)
         self.verticalLayout_3.addLayout(self.gridLayout)
         spacerItem20 = QtWidgets.QSpacerItem(20, 40, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding)
         self.verticalLayout_3.addItem(spacerItem20)
@@ -601,7 +607,7 @@ class Ui_WindowInterfaceEditor(object):
         self.menubar.addAction(self.menuTest.menuAction())
 
         self.retranslateUi(WindowInterfaceEditor)
-        self.stackedWidget.setCurrentIndex(15)
+        self.stackedWidget.setCurrentIndex(0)
         QtCore.QMetaObject.connectSlotsByName(WindowInterfaceEditor)
 
     def retranslateUi(self, WindowInterfaceEditor):
@@ -672,6 +678,7 @@ class Ui_WindowInterfaceEditor(object):
         self.label_43.setText(_translate("WindowInterfaceEditor", "Icon"))
         self.label_39.setText(_translate("WindowInterfaceEditor", "Inherit"))
         self.label_38.setText(_translate("WindowInterfaceEditor", "Regex"))
+        self.label_47.setText(_translate("WindowInterfaceEditor", "Animation"))
         self.label_44.setText(_translate("WindowInterfaceEditor", "Title"))
         self.label.setText(_translate("WindowInterfaceEditor", "Interface state"))
         self.interface_element_interface_state.setItemText(1, _translate("WindowInterfaceEditor", "completed"))
