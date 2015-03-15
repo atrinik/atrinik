@@ -7,11 +7,11 @@
                     <message>Well, hello there! I am {npc.name} the kobold. Don't you think my garden is just beautiful?</message>
                     <message>Why, hello there! I am {npc.name} the kobold. Don't you think my garden is just beautiful?</message>
                 </choice>
-                <response message="Your garden?" destination="garden" />
+                <response destination="garden" message="Your garden?"/>
             </dialog>
             <dialog name="garden">
                 <message>Why yes! Just look around you! I use a specially crafted potion that keeps my garden looking nice. Do you want to see?</message>
-                <response message="Why not..." destination="whynot" />
+                <response destination="whynot" message="Why not..."/>
             </dialog>
             <dialog name="whynot">
                 <message>Here it is! Doesn't it smell wonderful?</message>
@@ -20,70 +20,63 @@
                 <message color="yellow">As the potion closes, you start feeling better again.</message>
             </dialog>
         </interface>
-
         <interface npc="Brownrott" state="completed">
             <dialog name="hello">
                 <message>Well, hello there again! My garden is just beautiful, isn't it?</message>
-                <response message="Right..." action="close" />
+                <response action="close" message="Right..."/>
             </dialog>
         </interface>
-
-        <interface npc="Gwenty" state="completed" inherit="Temple.TempleGrunhilde">
-            <dialog name="hello" inherit="::services">
+        <interface inherit="Temple.TempleGrunhilde" npc="Gwenty" state="completed">
+            <dialog inherit="::services" name="hello">
                 <message>We won't forget what you have done for us, {activator.name}.</message>
                 <message>Please, if there's anything I can do for you, just ask.</message>
-                <inherit />
+                <inherit/>
             </dialog>
         </interface>
-
         <interface npc="Fortress Guard">
             <dialog name="hello">
                 <message>Watch out, stranger. We seem to have an illness going on here.</message>
-                <response message="What sort of illness?" destination="illness" />
-                <response message="I'll keep that in mind." action="close" />
+                <response destination="illness" message="What sort of illness?"/>
+                <response action="close" message="I'll keep that in mind."/>
             </dialog>
             <dialog name="illness">
                 <message>That is part of the problem... we're not quite sure. Our local priestess, Gwenty, has been unable to find a cure for it. If you want more information, you can find her down the stairs in the main building.</message>
             </dialog>
         </interface>
-
         <interface npc="Fortress Guard" state="completed">
             <dialog name="hello">
                 <message>I'm grateful for your help with the illness. Please, if you need anything, don't hesitate to ask.</message>
             </dialog>
         </interface>
-
-        <part uid="figure" name="Poisoned Waters">
+        <part name="Poisoned Waters" uid="figure">
             <info>Gwenty, a priestess of Grunhilde has asked you to figure out why Fort Sether guards keep falling ill. She seems to suspect it's because of the water, in which case it might be work checking out the water wells.</info>
-
             <interface npc="Gwenty" state="need_start">
                 <dialog name="hello">
                     <message>Welcome, stranger. I'd like to help you by offering my usual priest services, however, the illness that is going on in the fort is keeping me rather busy, so if you'll excuse me...</message>
-                    <response message="What sort of illness?" destination="illness" />
+                    <response destination="illness" message="What sort of illness?"/>
                 </dialog>
                 <dialog name="illness">
                     <message>Well, if you're so curious, I can spare a few moments. Perhaps you might be able to help us...</message>
                     <message>Many guards are falling ill, one after another. Being the only priestess around, I'm quite busy tending the sick guards. However, I'm not able to completely cure them, as they just keep falling ill soon after I cure them...</message>
-                    <response message="Do you know the reason?" destination="reason" />
+                    <response destination="reason" message="Do you know the reason?"/>
                 </dialog>
                 <dialog name="reason">
                     <message>If only! If I wasn't so busy, I would probably be able to figure it out. But as it is...</message>
-                    <response message="Could I help?" destination="help" />
-                    <response message="I see..." destination="see" />
+                    <response destination="help" message="Could I help?"/>
+                    <response destination="see" message="I see..."/>
                 </dialog>
                 <dialog name="see">
                     <message>Would you be willing to help us? I am afraid I can't solve this problem without some assistance...</message>
-                    <response message="Sure, I'll help." destination="help" />
-                    <response message="Not interested." action="close" />
+                    <response destination="help" message="Sure, I'll help."/>
+                    <response action="close" message="Not interested."/>
                 </dialog>
                 <dialog name="help">
                     <message>Ah, yes! Thank you. Your help is much appreciated...</message>
                     <message>I'm not sure where the disease is originating from. The only thing I can think of is the water, which we get from an underground river of sorts.</message>
                     <message>It would certainly be worth investigating the river... perhaps something is going on down there. The fastest way to do that would be to climb down using one of the water wells in the fort.</message>
-                    <action start="figure" />
+                    <action start="figure"/>
                 </dialog>
             </interface>
-
             <interface npc="Gwenty" state="need_complete">
                 <dialog name="hello">
                     <message>You agreed to help us {activator.name}, no?</message>
@@ -91,112 +84,100 @@
                     <message>It would certainly be worth investigating the river... perhaps something is going on down there. The fastest way to do that would be to climb down using one of the water wells in the fort.</message>
                 </dialog>
             </interface>
-
-            <interface npc="Brownrott" state="need_complete" inherit="">
+            <interface inherit="" npc="Brownrott" state="need_complete">
                 <dialog name="whynot">
-                    <inherit />
+                    <inherit/>
                     <message color="yellow">Perhaps you should report your findings to Gwenty...</message>
-                    <action start="report" />
-                    <action complete="figure" />
+                    <action start="report"/>
+                    <action complete="figure"/>
                 </dialog>
             </interface>
         </part>
-
-        <part uid="report" name="The Kobold Gardener">
+        <part name="The Kobold Gardener" uid="report">
             <info>You found a kobold named Brownrott below Fort Sether, with a most extraordinary garden. He has shown you a potion he uses to make his garden grow well, and its smell drove you nauseous. Perhaps you should ask Gwenty, the priestess in Fort Sether, for advice.</info>
-
             <interface npc="Gwenty" state="need_complete">
                 <dialog name="hello">
                     <message>Well? Have you investigated the water wells yet?</message>
-                    <response message="Yes..." destination="yes" />
+                    <response destination="yes" message="Yes..."/>
                 </dialog>
                 <dialog name="yes">
                     <message color="yellow">You explain about Brownrott and his garden...</message>
                     <message>Indeed? So it was the water, like I thought... Well, I think I know how to mend this particular problem...</message>
-                    <object name="Gwenty's Potion" />
+                    <object name="Gwenty's Potion"/>
                     <message>Here. Take that potion, and bring it to the kobold. Tell him he needs to mix it with his own. It should cancel out the negative effects it causes to us humans, but still make it effective for his garden. It might take some persuading, however...</message>
-                    <action start="deliver_potion" />
-                    <action complete="report" />
+                    <action start="deliver_potion"/>
+                    <action complete="report"/>
                 </dialog>
             </interface>
         </part>
-
-        <part uid="deliver_potion" name="Delivery of a Cure">
+        <part name="Delivery of a Cure" uid="deliver_potion">
             <info>Gwenty, the priestess in Fort Sether, has given you a potion to mix with Brownrott's one. He may need some persuading, however...</info>
-            <item arch="bone_skull" name="Gwenty's Potion" />
-
+            <item arch="bone_skull" name="Gwenty's Potion"/>
             <interface npc="Gwenty" state="need_complete">
                 <dialog name="hello">
                     <message>So, have you convinced the kobold to mix his potion with the one I gave you?</message>
-                    <response message="Still working on it." destination="working" />
+                    <response destination="working" message="Still working on it."/>
                 </dialog>
                 <dialog name="working">
                     <message>Very well...</message>
                 </dialog>
             </interface>
-
-            <interface npc="Gwenty" state="need_finish" inherit="need_complete_deliver_potion">
+            <interface inherit="need_complete_deliver_potion" npc="Gwenty" state="need_finish">
                 <dialog name="hello">
-                    <inherit />
-                    <response message="I lost the potion you gave me..." destination="lost" />
+                    <inherit/>
+                    <response destination="lost" message="I lost the potion you gave me..."/>
                 </dialog>
                 <dialog name="lost">
                     <message>What?! Well, it's not irreplaceable, but please, don't go wasting it and just convince the kobold to mix it with his potion... Here, take this spare one I have, and be more careful with it...</message>
-                    <object name="Gwenty's Potion" />
+                    <object name="Gwenty's Potion"/>
                 </dialog>
             </interface>
-
             <interface npc="Brownrott" state="need_complete">
                 <dialog name="hello">
                     <message>Well, hello there again! My garden is just bea--</message>
                     <message color="yellow">You interrupt Brownrott and explain to him about the illness in Fort Sether and his potion...</message>
                     <message>Are you sure? Hmm... I don't know... I don't really trust anyone with my potion except myself... But perhaps... If you bring me something tasty, I might change my mind...</message>
-                    <response message="What do you want?" destination="want" />
+                    <response destination="want" message="What do you want?"/>
                 </dialog>
                 <dialog name="want">
                     <message>Spider hearts, of course, I want spider hearts - they are very tasty, but the spiders are dangerous.</message>
                     <message>Bring me 10 sword spider hearts, and I'll mix your potion with mine. You can find those spiders around in this cave. I usually stay far away from them, but their hearts sure are delicious...</message>
-                    <action start="deliver_potion::get_hearts" />
+                    <action start="deliver_potion::get_hearts"/>
                 </dialog>
             </interface>
-
-            <part uid="get_hearts" name="The Kobold Delicacy">
+            <part name="The Kobold Delicacy" uid="get_hearts">
                 <info>Just as you thought, Brownrott was very reluctant to mix his potion with yours, and has asked you to bring him 10 sword spider hearts first, which can be found by killing sword spiders below Fort Sether.</info>
-                <item arch="bone_skull" name="sword spider's heart" nrof="10" />
-
+                <item arch="bone_skull" name="sword spider's heart" nrof="10"/>
                 <interface npc="Brownrott" state="need_finish">
                     <dialog name="hello">
                         <message>Bring me 10 sword spider hearts, and I'll mix your potion with mine. You can find those spiders around in this cave. I usually stay far away from them, but their hearts sure are delicious...</message>
                     </dialog>
                 </interface>
-
                 <interface npc="Brownrott" state="need_complete">
                     <dialog name="hello">
                         <message>Mmm! Delicious sword spider hearts! I like you! Mmm! Alright, let's mix the potions then!</message>
                         <message color="yellow">You hand the 10 sword spider hearts and the potion to Brownrott.</message>
                         <message>There! All done. Thank you again for the sword spider hearts! Mmm!</message>
                         <message color="yellow">You should report the good news to Gwenty.</message>
-                        <action start="reward" />
-                        <action complete="deliver_potion::get_hearts" />
-                        <action complete="deliver_potion" />
+                        <action start="reward"/>
+                        <action complete="deliver_potion::get_hearts"/>
+                        <action complete="deliver_potion"/>
                     </dialog>
                 </interface>
             </part>
         </part>
-
-        <part uid="reward" name="The Reward">
+        <part name="The Reward" uid="reward">
             <info>After delivering the spider hearts to Brownrott, he mixed his potion with yours. You should report to Gwenty for a reward.</info>
-
             <interface npc="Gwenty" state="need_complete">
                 <dialog name="hello">
                     <message>So, have you convinced the kobold to mix his potion with the one I gave you?</message>
-                    <response message="Yes, I have." destination="yes" />
+                    <response destination="yes" message="Yes, I have."/>
                 </dialog>
                 <dialog name="yes">
                     <message>That's great news, {activator.name}! I knew I could count on you. You have my thanks, as well as that of all the people in the fort. We can now drink the water safely again...</message>
                     <message>As for your reward... Please, accept these coins from me. Also, since I'm no longer busy tending all the sick guards, I can now resume offering you my regular services.</message>
-                    <object arch="silvercoin" />
-                    <action complete="reward" />
+                    <object arch="silvercoin"/>
+                    <action complete="reward"/>
                 </dialog>
             </interface>
         </part>

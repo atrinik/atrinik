@@ -3,8 +3,8 @@
     <interface>
         <dialog name="hello">
             <message>Good day. Would you like to go in?</message>
-            <response message="Yes." destination="entry" />
-            <response message="Never mind. Bye." action="close" />
+            <response destination="entry" message="Yes."/>
+            <response action="close" message="Never mind. Bye."/>
         </dialog>
         <dialog name="entry">
             <message>Enter in peace and behold the great and powerful majesty of the Tabernacle.</message>

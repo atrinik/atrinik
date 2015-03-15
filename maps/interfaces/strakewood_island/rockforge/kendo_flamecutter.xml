@@ -3,11 +3,11 @@
     <interface>
         <dialog name="hello">
             <message>Lembas... again....</message>
-            <response message="What's wrong?" destination="whatwrong" />
+            <response destination="whatwrong" message="What's wrong?"/>
         </dialog>
         <dialog name="whatwrong">
             <message>The cooks just keep purchasing waybread from the elves...</message>
-            <response message="How come?" destination="howcome" />
+            <response destination="howcome" message="How come?"/>
         </dialog>
         <dialog name="howcome">
             <message color="yellow">{npc.name} grumbles.</message>

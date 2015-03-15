@@ -3,16 +3,16 @@
     <interface>
         <dialog name="hello">
             <message>Hello there, adventurer. I'm {npc.name}, the mage. Are you, like myself, interested in this extraordinary hole?</message>
-            <response message="Yes..." destination="yes" />
-            <response message="No." action="close" />
+            <response destination="yes" message="Yes..."/>
+            <response action="close" message="No."/>
         </dialog>
         <dialog name="yes">
             <message>I see... Well, the hole has appeared quite recently after a strong earthquake hit the area... I dare not go in just yet, but there seems to be a lot of static in the air down there.</message>
-            <response message="Static?" destination="static" />
+            <response destination="static" message="Static?"/>
         </dialog>
         <dialog name="static">
             <message>Yes, electricity... It is quite possible there are the mythical crystals down there.</message>
-            <response message="Tell me about these crystals..." destination="crystals" />
+            <response destination="crystals" message="Tell me about these crystals..."/>
         </dialog>
         <dialog name="crystals">
             <message>The crystals are said to transform air around them into electricity over time, then release the electricity all at once... This is supposedly to give energy to the main crystal, which will also harden, making it nearly impossible to shatter...</message>

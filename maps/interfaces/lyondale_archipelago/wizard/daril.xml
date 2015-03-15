@@ -3,17 +3,17 @@
     <interface>
         <dialog name="hello">
             <message>Have you heard about the legendary smoking pipe? They say it's the best pipe for smoking pipeweed.</message>
-            <response message="Tell me more..." destination="tellmore" />
+            <response destination="tellmore" message="Tell me more..."/>
         </dialog>
         <dialog name="tellmore">
             <message>If you smoke some pipeweed using that smoking pipe, you will be granted confusion and weapon magic protection, or so the rumour says.</message>
             <message>It has long been lost, however...</message>
-            <response message="Any ideas where it could be?" destination="location" />
+            <response destination="location" message="Any ideas where it could be?"/>
         </dialog>
         <dialog name="location">
             <message>Well, some rumours say that the fierce dragon leader Scursaur has it in his possession.</message>
             <message>Of course, that's just a silly rumour... a dragon with a smoking pipe...</message>
-            <response message="Tell me about Scursaur." destination="aboutleader" />
+            <response destination="aboutleader" message="Tell me about Scursaur."/>
         </dialog>
         <dialog name="aboutleader">
             <message>He is the leader of the dragons on the Dragons Island. Apparently it's possible to get to Dragons Island by completing the Underground Maze under Promethia Island.</message>

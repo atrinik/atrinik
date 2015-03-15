@@ -3,14 +3,14 @@
     <interface>
         <dialog name="hello">
             <message>Welcome to the Wizards' Tower. This island is part of Lyondale Archipelago, mostly inhabited by Thelras.</message>
-            <response message="Tell me about Thelras." destination="tellthelras" />
+            <response destination="tellthelras" message="Tell me about Thelras."/>
         </dialog>
         <dialog name="tellthelras">
             <message>Thelras are a powerful, tall and fierce race. They excel in magic, where they can overpower even the strongest elvish spellcasters.</message>
             <message>Long ago, we Thelras decided to help the Thraal army in the fight against Moroch.</message>
             <message>Since most Thelras excel in magic as wizards, this tower was built for those who wanted to practice in the arts of magic.</message>
-            <response message="Tell me about the fight." destination="tellfight" />
-            <response message="Tell me about the tower." destination="telltower" />
+            <response destination="tellfight" message="Tell me about the fight."/>
+            <response destination="telltower" message="Tell me about the tower."/>
         </dialog>
         <dialog name="tellfight">
             <message>We fought - and still do - together against Moroch, and became friends with the other races.</message>

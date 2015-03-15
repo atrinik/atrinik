@@ -9,7 +9,7 @@
         <dialog name="kinomoto" regex="kinomoto|sakura kinomoto">
             <message>Oh, fine... I'll say it.</message>
             <message color="yellow">{npc.name} grabs a baton with a star on it and does a dance.</message>
-            <message color="pink">"Keiyaku no moto Sakura ga mejiru. Release!"</message>
+            <message color="pink">&quot;Keiyaku no moto Sakura ga mejiru. Release!&quot;</message>
             <message>There. Happy?</message>
         </dialog>
     </interface>

@@ -3,13 +3,12 @@
     <interface>
         <dialog name="hello">
             <message>Eye'm the strongest!</message>
-            <response message="You're the strongest?" destination="the strongest" />
-            <response message="No way, that's impossible!" destination="not the strongest" />
-            <response message="You're the strongest fairy... maybe." destination="strongest fairy" />
-            <response message="What?  Are you dumb or something?" destination="idiot" />
-            <response message="Goodbye." action="close" />
+            <response destination="the strongest" message="You're the strongest?"/>
+            <response destination="not the strongest" message="No way, that's impossible!"/>
+            <response destination="strongest fairy" message="You're the strongest fairy... maybe."/>
+            <response destination="idiot" message="What?  Are you dumb or something?"/>
+            <response action="close" message="Goodbye."/>
         </dialog>
-
         <dialog name="the strongest">
             <choice>
                 <message>Yay!</message>
@@ -18,12 +17,11 @@
                 <message>Eye'm a genius!</message>
                 <message>So, what was I doing, again...?</message>
             </choice>
-            <response message="OK." destination="hello" />
-            <response message="Well, that was stupid." destination="idiot" />
-            <response message="Goodbye." action="close" />
+            <response destination="hello" message="OK."/>
+            <response destination="idiot" message="Well, that was stupid."/>
+            <response action="close" message="Goodbye."/>
         </dialog>
-        <dialog regex="(strong|cirno)" inherit="the strongest" />
-
+        <dialog inherit="the strongest" regex="(strong|cirno)"/>
         <dialog name="not the strongest">
             <choice>
                 <message>Eye said Eye'm the strongest!</message>
@@ -32,21 +30,20 @@
                 <message>I'm going to beat you for that.</message>
                 <message>Freeze to death! Freeze to death!</message>
             </choice>
-            <response message="Whatever." destination="hello" />
-            <response message="You must be stupid or something." destination="idiot" />
-            <response message="Goodbye." action="close" />
+            <response destination="hello" message="Whatever."/>
+            <response destination="idiot" message="You must be stupid or something."/>
+            <response action="close" message="Goodbye."/>
         </dialog>
-        <dialog regex="(weak|strongest fairy)" inherit="not the strongest" />
-
+        <dialog inherit="not the strongest" regex="(weak|strongest fairy)"/>
         <dialog name="idiot">
             <choice>
                 <message>Hey!  Eye'm not dumb.</message>
-                <message>The one saying "idiot" is an idiot.</message>
+                <message>The one saying &quot;idiot&quot; is an idiot.</message>
             </choice>
-            <response message="OK." destination="hello" />
-            <response message="That was childish." destination="idiot" />
-            <response message="Goodbye." action="close" />
+            <response destination="hello" message="OK."/>
+            <response destination="idiot" message="That was childish."/>
+            <response action="close" message="Goodbye."/>
         </dialog>
-        <dialog regex="(baka|nineball|marukyuu|\(9\))" inherit="idiot" />
+        <dialog inherit="idiot" regex="(baka|nineball|marukyuu|\(9\))"/>
     </interface>
 </interfaces>

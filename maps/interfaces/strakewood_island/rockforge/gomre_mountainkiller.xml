@@ -3,11 +3,11 @@
     <interface>
         <dialog name="hello">
             <message color="yellow">*hic* *hic* *hic*</message>
-            <response message="Excuse me?" destination="excuse" />
+            <response destination="excuse" message="Excuse me?"/>
         </dialog>
         <dialog name="excuse">
             <message color="yellow">*HIC* *hic* *HIC* *HIC* *HIC*</message>
-            <response message="... bye, then." action="close" />
+            <response action="close" message="... bye, then."/>
         </dialog>
     </interface>
 </interfaces>

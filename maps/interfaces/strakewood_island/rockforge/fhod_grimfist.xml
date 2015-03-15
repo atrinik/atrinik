@@ -4,17 +4,17 @@
         <dialog name="hello">
             <message color="yellow">*grumbles*</message>
             <message>Another customer... Very well... I am {npc.name}. What do you need? Make it quick, though.</message>
-            <inherit name="::stock" />
+            <inherit name="::stock"/>
         </dialog>
         <dialog name="::buyitem">
             <message>Very well...</message>
-            <inherit name="::buy" />
+            <inherit name="::buy"/>
             <message>How many do you want?</message>
-            <inherit name="::stockitem" />
+            <inherit name="::stockitem"/>
         </dialog>
         <dialog name="::boughtitem">
             <message>There you go.</message>
-            <inherit name="::boughtitem" />
+            <inherit name="::boughtitem"/>
             <message>Now off with ya.</message>
         </dialog>
         <dialog name="::fail_weight">

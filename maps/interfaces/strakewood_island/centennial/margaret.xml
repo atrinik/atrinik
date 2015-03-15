@@ -3,7 +3,7 @@
     <interface>
         <dialog name="hello">
             <message>Welcome to the Centennial Witch Academy. How can I help you, {activator.name}?</message>
-            <response message="Ask for some help." destination="help" />
+            <response destination="help" message="Ask for some help."/>
         </dialog>
         <dialog name="help">
             <message>As the headmistress of the school, it is my duty to ensure all of our guests are taken care of. Let me know if you need something specific.</message>

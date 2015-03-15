@@ -3,18 +3,18 @@
     <interface>
         <dialog name="hello">
             <message>I see someone has found their way down here. Tell me, what can my shipping company do for you?</message>
-            <response message="Shipping?" destination="shipping" />
-            <response message="I have some questions..." destination="questions" />
-            <response message="Goodbye." action="close" />
+            <response destination="shipping" message="Shipping?"/>
+            <response destination="questions" message="I have some questions..."/>
+            <response action="close" message="Goodbye."/>
         </dialog>
         <dialog name="shipping">
             <message>Sure, we ship lots of goods for the right price.</message>
-            <response message="I have some questions..." destination="questions" />
-            <response message="Goodbye." action="close" />
+            <response destination="questions" message="I have some questions..."/>
+            <response action="close" message="Goodbye."/>
         </dialog>
         <dialog name="questions">
             <message>Some questions have answers that people don't like. Unless you have some business here, you should probably go.</message>
-            <response message="Goodbye." action="close" />
+            <response action="close" message="Goodbye."/>
         </dialog>
     </interface>
 </interfaces>

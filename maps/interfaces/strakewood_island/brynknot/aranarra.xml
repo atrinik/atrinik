@@ -3,7 +3,7 @@
     <interface>
         <dialog name="hello">
             <message>Oh hello there! Did you happen to see my cat around here somewhere?</message>
-            <response message="Your cat?" destination="cat" />
+            <response destination="cat" message="Your cat?"/>
         </dialog>
         <dialog name="cat">
             <message>Sadly, my cat has been missing since this giant hole formed... It may have something to do with it...</message>

@@ -5,47 +5,42 @@
             <dialog name="hello">
                 <message>Ah, good! You seem much more confident now - almost the same person I have seen in you when you first came to me and hired me to transport you to Strakewood.</message>
                 <message>Very well then. Are you packed up and ready to go?</message>
-                <response message="I'm ready." destination="ready" />
-                <response message="Not just yet..." action="close" />
+                <response destination="ready" message="I'm ready."/>
+                <response action="close" message="Not just yet..."/>
             </dialog>
             <dialog name="ready">
-                <close />
+                <close/>
             </dialog>
         </interface>
-
         <interface npc="Sam Goodberry">
             <dialog name="hello">
                 <message>Hmmm... You don't seem ready yet, {activator.name}. I am sorry, but unless you regain at least part of your memory, there's no reason for us to sail to Strakewood...</message>
             </dialog>
         </interface>
-
-        <interface npc="Brelend Lee" inherit="Temple.TempleTabernacle" />
-
-        <part uid="speak_priest" name="The Priest">
+        <interface inherit="Temple.TempleTabernacle" npc="Brelend Lee"/>
+        <part name="The Priest" uid="speak_priest">
             <info>You have reached Incuna, and have started the attempt to get back your lost memories. Sam Goodberry has suggested that you go speak to the local church priest, who may be able to help you.</info>
-
             <interface npc="Sam Goodberry" state="need_start">
                 <dialog name="hello">
                     <message>There you are! I didn't wake you up when we arrived in Incuna, because it seemed like you needed a good rest. You certainly did - you've been sleeping for quite a while now.</message>
                     <message>At any rate, we did it - we managed to reach Incuna. We should resupply and head to Strakewood at last - but don't worry, I'll handle that and anything else we may need.</message>
                     <message>However... there's still the question of what to do about your memory loss. Say, has it improved?</message>
-                    <response message="I feel I'm starting to remember..." destination="remember" />
-                    <response message="Not really..." destination="remember" />
+                    <response destination="remember" message="I feel I'm starting to remember..."/>
+                    <response destination="remember" message="Not really..."/>
                 </dialog>
                 <dialog name="remember">
                     <message>Well, at any rate, I think you should visit the local church priest. Brelend Lee is his name, if I remember correctly. You should be able to find directions to him easily, perhaps by asking around the local townsfolk. A map would come in handy, hmm... I know, go visit Gulliver in the dock house. He's an old friend of mine, he might have a spare map for you.</message>
                     <message>Ah, one last thing! Here, take the rest of our mushroom supplies - I'll get us something better. No offense, but I feel I wouldn't be able to stomach any more of those things...</message>
-                    <object arch="sack" message="sack with mushroom supplies" />
-                    <notification message="Tutorial Available: Containers" action="/help basics_containers" shortcut="?HELP" delay="90000" />
-                    <action start="speak_priest" />
-                    <response message="I'll do that." action="close" />
+                    <object arch="sack" message="sack with mushroom supplies"/>
+                    <notification action="/help basics_containers" delay="90000" message="Tutorial Available: Containers" shortcut="?HELP"/>
+                    <action start="speak_priest"/>
+                    <response action="close" message="I'll do that."/>
                 </dialog>
             </interface>
-
-            <interface npc="Brelend Lee" state="need_complete" inherit="">
+            <interface inherit="" npc="Brelend Lee" state="need_complete">
                 <dialog name="hello">
-                    <response message="I need help recovering my memories." destination="helprecover" />
-                    <inherit />
+                    <response destination="helprecover" message="I need help recovering my memories."/>
+                    <inherit/>
                 </dialog>
                 <dialog name="helprecover">
                     <message>Recovering your memories, you say? Hmm. That is quite difficult business indeed, and often near impossible.</message>

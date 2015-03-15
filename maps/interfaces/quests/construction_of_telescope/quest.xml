@@ -6,214 +6,192 @@
                 <message>Hello there. I am {npc.name}. I'm sorry, but I'm rather busy at the moment, so please excuse me...</message>
             </dialog>
         </interface>
-
         <interface npc="Silmedsen">
             <dialog name="hello">
                 <message color="yellow">The tree doesn't seem to notice your presence...</message>
             </dialog>
         </interface>
-
         <interface npc="Albar" state="completed">
             <dialog name="hello">
                 <message>The telescope is now finished and I can study the sky, all thanks to you, my friend!</message>
             </dialog>
         </interface>
-
-        <part uid="get_shard" name="The Shard">
+        <part name="The Shard" uid="get_shard">
             <info>Albar from the Morliana Research Center asked you to go to Brynknot and find a shard from the Great Blue Crystal. He suspects an alchemist or mage might have found such a shard.</info>
-            <item arch="blue_crystal_fragment" name="blue crystal fragment" />
-
+            <item arch="blue_crystal_fragment" name="blue crystal fragment"/>
             <interface npc="Albar" state="need_start">
                 <dialog name="hello">
                     <message>Well, hello there! Isn't this experiment simply fascinating?</message>
-                    <response message="Tell me more about the experiment." destination="experiment" />
+                    <response destination="experiment" message="Tell me more about the experiment."/>
                 </dialog>
                 <dialog name="experiment">
                     <message>You don't know about it? We are trying to figure out the exact properties of this shard, which came from the Great Blue Crystal. But I assume you know all about that already.</message>
-                    <response message="How's it going?" destination="going" />
+                    <response destination="going" message="How's it going?"/>
                 </dialog>
                 <dialog name="going">
                     <message>Well... not very well, actually. We have been looking for more shards of the Great Blue Crystal, but we can't find any. There have been reports about some blue crystal shards in Brynknot, but we have been unable to locate any there. However, it sounds plausible, as there was huge earthquake in Brynknot recently, just like the one that happened on this island when the Great Blue Crystal fell here... Hm...</message>
-                    <response message="Could I help you?" destination="help" />
-                    <response message="Goodbye." action="close" />
+                    <response destination="help" message="Could I help you?"/>
+                    <response action="close" message="Goodbye."/>
                 </dialog>
                 <dialog name="help">
                     <message>Hm... Sorry? Oh, do you really want to help me? Very well then. Please go to Brynknot and find someone who collected a shard of the crystal, and bring it back to me. The owner will probably be a mage or alchemist. I heard there was an alchemist in Brynknot, it could be him...</message>
-                    <action start="get_shard" />
+                    <action start="get_shard"/>
                 </dialog>
             </interface>
-
             <interface npc="Albar" state="need_finish">
                 <dialog name="hello">
                     <message>Have you found the crystal shard yet?</message>
-                    <response message="Working on it..." action="close" />
+                    <response action="close" message="Working on it..."/>
                 </dialog>
             </interface>
-
             <interface npc="Albar" state="need_complete">
                 <dialog name="hello">
                     <message>Have you found the crystal shard yet?</message>
-                    <response message="Yes, here you go." destination="herego" />
+                    <response destination="herego" message="Yes, here you go."/>
                 </dialog>
                 <dialog name="herego">
                     <message color="yellow">You hand the blue crystal fragment to {npc.name} and tell him about the earthquake and the investigation...</message>
                     <message>Thank you {activator.name}. That is indeed very interesting report you have from Jonaslen... And the fragment! My piece and this fragment look very much alike. It is odd... My piece came from the sky, and the fragment came from the ground?... Hmmm... This is very confusing indeed. Hm... </message>
                     <message>Please, go back to Brynknot and ask Jonaslen whether there were reports of a flash in the sky just before the earthquake.</message>
-                    <action start="ask_flash" />
-                    <action complete="get_shard" />
+                    <action start="ask_flash"/>
+                    <action complete="get_shard"/>
                 </dialog>
             </interface>
-
-            <interface npc="Jonaslen" state="need_finish" inherit="">
+            <interface inherit="" npc="Jonaslen" state="need_finish">
                 <dialog name="hello">
-                    <inherit />
-                    <response message="Have you seen any blue crystal shards around?" destination="shards" />
+                    <inherit/>
+                    <response destination="shards" message="Have you seen any blue crystal shards around?"/>
                 </dialog>
                 <dialog name="shards">
                     <message>Why yes, I have. The recent earthquake opened up a huge hole north of Brynknot, and there were blue shards all around the place. I collected most of them for my own research. But why are you asking this?</message>
-                    <response message="Albar from Morliana Research Center sent me to look for a blue crystal shard." destination="lookfor" />
+                    <response destination="lookfor" message="Albar from Morliana Research Center sent me to look for a blue crystal shard."/>
                 </dialog>
                 <dialog name="lookfor">
                     <message>I see. I have heard of the Morliana Research Center. Hm... Very well then.</message>
                     <message>Go back to Albar and tell him that the day the earthquake happened, we went to investigate the hole. Inside was a crystal charged with a tremendous amount of energy, with which it seemed to be protecting itself. We decided to investigate the hole more, but when we came back to look at the crystal, it was shattered completely, and only a few fragments were left.</message>
                     <message>Here, take this fragment and bring it safely to Albar.</message>
-                    <object arch="blue_crystal_fragment" />
+                    <object arch="blue_crystal_fragment"/>
                 </dialog>
             </interface>
         </part>
-
-        <part uid="ask_flash" name="Information Gathering">
+        <part name="Information Gathering" uid="ask_flash">
             <info>Albar was very pleased - and confused - with the fragment and the report you received from Jonaslen the mage in Brynknot. He has asked you to go back to Brynknot and ask Jonaslen whether there were reports of a flash in the sky just before the earthquake.</info>
-
             <interface npc="Jonaslen" state="need_complete">
                 <dialog name="hello">
                     <message>Hello again, {activator.name}. I'm still rather busy, so please excuse me...</message>
-                    <response message="Have there been reports about a flash in the sky just before the earthquake?" destination="reports" />
+                    <response destination="reports" message="Have there been reports about a flash in the sky just before the earthquake?"/>
                 </dialog>
                 <dialog name="reports">
                     <message>Hm... Why yes... Many of the townsfolk, including the guards on duty that day, swore they saw a flash in the sky just before the earthquake... In fact, I think it's possible the crystal that shattered here fell from the sky, which caused the earthquake and the hole.</message>
                     <message>Perhaps you should take this information to Albar, it might help him.</message>
-                    <action start="report_flash" />
-                    <action complete="ask_flash" />
+                    <action start="report_flash"/>
+                    <action complete="ask_flash"/>
                 </dialog>
             </interface>
-
             <interface npc="Albar" state="need_complete">
                 <dialog name="hello">
                     <message>Did you ask Jonaslen whether there were reports of a flash in the sky just before the earthquake?</message>
-                    <response message="Working on it..." action="close" />
+                    <response action="close" message="Working on it..."/>
                 </dialog>
             </interface>
         </part>
-
-        <part uid="report_flash" name="The Flash">
+        <part name="The Flash" uid="report_flash">
             <info>Jonaslen the mage from Brynknot has told you there were reports about a flash in the sky just before the earthquake from many of the townsfolk, including the guards on duty that day. He also thinks the crystal fell from the sky, which would explain the earthquake and the hole.</info>
-
             <interface npc="Albar" state="need_complete">
                 <dialog name="hello">
                     <message>Did you ask Jonaslen whether there were reports of a flash in the sky just before the earthquake?</message>
-                    <response message="Yes..." destination="yes" />
+                    <response destination="yes" message="Yes..."/>
                 </dialog>
                 <dialog name="yes">
                     <message>That makes sense... Quite interesting, it seems the crystal that shattered in Brynknot was the same as the one here in Morliana, the Great Blue Crystal, and both fell from the sky...</message>
                     <message>Well, I need to construct a telescope so I can study the sky to see if there are any more crystals we should know about. But I need some special glass lens crystal first... Would you get it for me, please?</message>
-                    <response message="Sure." destination="sure" />
+                    <response destination="sure" message="Sure."/>
                 </dialog>
                 <dialog name="sure">
                     <message>Great! I have heard Morg'eean the kobold trader south of Asteria trades clear crystals, you should be able to find one in his little shop.</message>
-                    <action start="get_clear_crystal" />
-                    <action complete="report_flash" />
+                    <action start="get_clear_crystal"/>
+                    <action complete="report_flash"/>
                 </dialog>
             </interface>
         </part>
-
-        <part uid="get_clear_crystal" name="A Clear Crystal">
+        <part name="A Clear Crystal" uid="get_clear_crystal">
             <info>Albar has asked you to find a clear crystal for his telescope. He thinks Morg'eean the kobold trader south of Asteria might have some for sale in his little shop.</info>
-            <item arch="jewel_generic" name="clear crystal" />
-
+            <item arch="jewel_generic" name="clear crystal"/>
             <interface npc="Albar" state="need_finish">
                 <dialog name="hello">
                     <message>Have you got the clear crystal from Morg'eean the kobold trader south of Asteria yet?</message>
-                    <response message="Not yet..." action="close" />
+                    <response action="close" message="Not yet..."/>
                 </dialog>
             </interface>
-
             <interface npc="Albar" state="need_complete">
                 <dialog name="hello">
                     <message>Have you got the clear crystal from Morg'eean the kobold trader south of Asteria yet?</message>
-                    <response message="Yes, here you go." destination="herego" />
+                    <response destination="herego" message="Yes, here you go."/>
                 </dialog>
                 <dialog name="herego">
                     <message>You hand one clear crystal to {npc.name}.</message>
                     <message>That's a perfect clear crystal, thank you! Now, I need a stand to mount the telescope on. It needs to be a very sturdy one... The wood from the ancient tree Silmedsen should do. I have heard he was located south of Asteria Swamp, near Fort Sether...</message>
-                    <action start="get_wood" />
-                    <action complete="get_clear_crystal" />
+                    <action start="get_wood"/>
+                    <action complete="get_clear_crystal"/>
                 </dialog>
             </interface>
         </part>
-
-        <part uid="get_wood" name="Ancient Wood">
+        <part name="Ancient Wood" uid="get_wood">
             <info>After delivering the clear crystal to Albar, he has asked to find him wood from the ancient tree Silmedsen who should be south of the Asteria Swamp.</info>
-            <item arch="silmedsen_branches" name="Silmedsen's branches" />
-
+            <item arch="silmedsen_branches" name="Silmedsen's branches"/>
             <interface npc="Albar" state="need_finish">
                 <dialog name="hello">
                     <message>Have you found the wood from the ancient tree Silmedsen yet? I have heard he was located south of Asteria Swamp, near Fort Sether...</message>
-                    <response message="Working on it..." action="close" />
+                    <response action="close" message="Working on it..."/>
                 </dialog>
             </interface>
-
             <interface npc="Albar" state="need_complete">
                 <dialog name="hello">
                     <message>Have you found the wood from the ancient tree Silmedsen yet? I have heard he was located south of Asteria Swamp, near Fort Sether...</message>
-                    <response message="Yes, here you go." destination="herego" />
+                    <response destination="herego" message="Yes, here you go."/>
                 </dialog>
                 <dialog name="herego">
                     <message>That's great wood, just perfect, thank you. Now I can finish the telescope... Please, accept this gift from me. It's some protection against the winter here in the cold North.</message>
-                    <object arch="boots_cold_north" />
-                    <object arch="ring_nourishment" />
-                    <object arch="silvercoin" />
-                    <action complete="get_wood" />
+                    <object arch="boots_cold_north"/>
+                    <object arch="ring_nourishment"/>
+                    <object arch="silvercoin"/>
+                    <action complete="get_wood"/>
                 </dialog>
             </interface>
-
-            <part uid="get_morliana_water" name="The Thirsty Tree">
+            <part name="The Thirsty Tree" uid="get_morliana_water">
                 <info>The ancient tree Silmedsen south of Asteria Swamp has asked you to fill an empty bottle - which he has given you - with water that surrounds the Great Blue Crystal in Morliana.</info>
-                <item arch="silmedsen_potion_bottle_filled" name="Silmedsen's potion bottle" />
-
-                <interface npc="Silmedsen" state="need_start" inherit="">
+                <item arch="silmedsen_potion_bottle_filled" name="Silmedsen's potion bottle"/>
+                <interface inherit="" npc="Silmedsen" state="need_start">
                     <dialog name="hello">
-                        <inherit />
-                        <response message="Can I have some of your branches?" destination="havesome" />
+                        <inherit/>
+                        <response destination="havesome" message="Can I have some of your branches?"/>
                     </dialog>
                     <dialog name="havesome">
                         <message color="yellow">The tree shifts slightly, then starts speaking in a deep voice...</message>
                         <message>Ho-hum... No... You cannot have my branches... Unless... Unless you could bring me some refreshing water... The swamp water here is not very healthy...</message>
-                        <response message="Alright..." destination="alright" />
+                        <response destination="alright" message="Alright..."/>
                     </dialog>
                     <dialog name="alright">
                         <message>Good... I have heard the water that surrounds the Great Blue Crystal in Morliana is clean and fresh... Bring me some in this empty potion bottle and you can have some of my branches...</message>
-                        <object arch="silmedsen_potion_bottle" />
-                        <action start="get_wood::get_morliana_water" />
+                        <object arch="silmedsen_potion_bottle"/>
+                        <action start="get_wood::get_morliana_water"/>
                     </dialog>
                 </interface>
-
                 <interface npc="Silmedsen" state="need_finish">
                     <dialog name="hello">
                         <message>Ho-hum... Do you have the potion bottle with water that surrounds the Great Blue Crystal in Morliana yet?</message>
-                        <response message="Not yet..." action="close" />
+                        <response action="close" message="Not yet..."/>
                     </dialog>
                 </interface>
-
                 <interface npc="Silmedsen" state="need_complete">
                     <dialog name="hello">
                         <message>Ho-hum... Do you have the potion bottle with water that surrounds the Great Blue Crystal in Morliana yet?</message>
-                        <response message="Here it is." destination="hereis" />
+                        <response destination="hereis" message="Here it is."/>
                     </dialog>
                     <dialog name="hereis">
                         <message>Good... Thank you... Now I can go back to resting... Accept these branches as my gift to you...</message>
-                        <object arch="silmedsen_branches" />
-                        <action complete="get_wood::get_morliana_water" />
+                        <object arch="silmedsen_branches"/>
+                        <action complete="get_wood::get_morliana_water"/>
                     </dialog>
                 </interface>
             </part>
