@@ -8,7 +8,7 @@
     </interface>
 
     <interface state="has_enemy">
-        <and><check enemy="" /></and>
+        <and><check enemy="any" /></and>
         <dialog name="hello">
             <close />
         </dialog>
