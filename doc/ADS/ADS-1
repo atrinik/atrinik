@@ -315,8 +315,8 @@ def dialog(self, msg):
      Will match if the player has the specified region map UID in their known
      region maps.
   - enemy (string) (optional):
-     If empty, will match when the NPC has an enemy. If set to "player", will
-     match if the NPC's enemy is the player who activated the interface.
+     If set to "any", will match when the NPC has an enemy. If set to "player",
+     will match if the NPC's enemy is the player who activated the interface.
   - started (string) (optional):
   - finished (string) (optional):
   - completed (string) (optional):
@@ -534,8 +534,8 @@ return self._activator.FindObject(archname = "goldcoin") != None
   - region_map (string) (optional):
      Give the player the specified region map.
   - enemy (string) (optional):
-     If set to "player", make the player the NPC's current enemy. Anything else
-     will clear the NPC's enemy.
+     If set to "player", make the player the NPC's current enemy.
+     If set to "clear", will will clear the NPC's enemy.
 
   <dialog name="hello">
    <message>Greetings adventurer!</message>
