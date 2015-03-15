@@ -18,6 +18,7 @@ from ui.dialog_about import DialogAbout
 from ui.dialog_preferences import DialogPreferences
 from ui.dialog_table_info import DialogTableInfo
 from ui.dialog_pathfinding_visualizer import DialogPathfindingVisualizer
+from ui.window_interface_editor import WindowInterfaceEditor
 from ui.model import Model
 from ui.ui_window_main import Ui_WindowMain
 
@@ -46,6 +47,7 @@ class WindowMain(Model, QMainWindow, Ui_WindowMain):
         self.dialogs["preferences"] = DialogPreferences(self)
         self.dialogs["table_info"] = DialogTableInfo(self)
         self.dialogs["pathfinding_visualizer"] = DialogPathfindingVisualizer(self)
+        self.dialogs["interface_editor"] = WindowInterfaceEditor(self)
 
         self.actionScan.triggered.connect(self.actionScanTrigger)
         self.actionScan_directory.triggered.connect(self.actionScan_directoryTrigger)
@@ -58,6 +60,7 @@ class WindowMain(Model, QMainWindow, Ui_WindowMain):
         self.actionOpen_selected_in_client.triggered.connect(self.actionOpen_selected_in_clientTrigger)
 
         self.actionPathfinding_Visualizer.triggered.connect(self.actionPathfinding_VisualizerTrigger)
+        self.actionInterface_Editor.triggered.connect(self.actionInterface_EditorTrigger)
 
         self.actionReport_a_problem.triggered.connect(self.actionReport_a_problemTrigger)
         self.actionAbout.triggered.connect(self.actionAboutTrigger)
@@ -260,6 +263,9 @@ class WindowMain(Model, QMainWindow, Ui_WindowMain):
 
     def actionPathfinding_VisualizerTrigger(self):
         self.dialogs["pathfinding_visualizer"].show()
+
+    def actionInterface_EditorTrigger(self):
+        self.dialogs["interface_editor"].show()
 
     def actionSelect_allTrigger(self):
         self.getVisibleWidgetTable().selectAll()

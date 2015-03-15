@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file '..\ui\ui_window_main.ui'
+# Form implementation generated from reading ui file '../ui/ui_window_main.ui'
 #
-# Created: Fri Feb 13 15:37:40 2015
+# Created: Sat Mar 14 15:35:37 2015
 #      by: PyQt5 UI code generator 5.3.2
 #
 # WARNING! All changes made in this file will be lost!
@@ -125,6 +125,8 @@ class Ui_WindowMain(object):
         self.actionScan_directory.setObjectName("actionScan_directory")
         self.actionPathfinding_Visualizer = QtWidgets.QAction(WindowMain)
         self.actionPathfinding_Visualizer.setObjectName("actionPathfinding_Visualizer")
+        self.actionInterface_Editor = QtWidgets.QAction(WindowMain)
+        self.actionInterface_Editor.setObjectName("actionInterface_Editor")
         self.menuFile.addAction(self.actionScan)
         self.menuFile.addAction(self.actionScan_directory)
         self.menuFile.addSeparator()
@@ -139,6 +141,7 @@ class Ui_WindowMain(object):
         self.menuNavigate.addAction(self.actionOpen_selected_in_editor)
         self.menuNavigate.addAction(self.actionOpen_selected_in_client)
         self.menuTools.addAction(self.actionPathfinding_Visualizer)
+        self.menuTools.addAction(self.actionInterface_Editor)
         self.menubar.addAction(self.menuFile.menuAction())
         self.menubar.addAction(self.menuEdit.menuAction())
         self.menubar.addAction(self.menuNavigate.menuAction())
@@ -188,4 +191,5 @@ class Ui_WindowMain(object):
         self.actionReport_a_problem.setText(_translate("WindowMain", "Report a problem"))
         self.actionScan_directory.setText(_translate("WindowMain", "Scan directory..."))
         self.actionPathfinding_Visualizer.setText(_translate("WindowMain", "Pathfinding Visualizer"))
+        self.actionInterface_Editor.setText(_translate("WindowMain", "Interface Editor"))
 

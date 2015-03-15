@@ -219,6 +219,7 @@
      <string>Tools</string>
     </property>
     <addaction name="actionPathfinding_Visualizer"/>
+    <addaction name="actionInterface_Editor"/>
    </widget>
    <addaction name="menuFile"/>
    <addaction name="menuEdit"/>
@@ -284,6 +285,11 @@
   <action name="actionPathfinding_Visualizer">
    <property name="text">
     <string>Pathfinding Visualizer</string>
+   </property>
+  </action>
+  <action name="actionInterface_Editor">
+   <property name="text">
+    <string>Interface Editor</string>
    </property>
   </action>
  </widget>
