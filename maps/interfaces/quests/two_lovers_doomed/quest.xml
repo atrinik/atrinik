@@ -52,7 +52,7 @@
                     <message>Please, deliver it to my wife, Rienn Howell in Fort Ghzal...</message>
                 </dialog>
             </interface>
-            <interface inherit="" npc="Rienn Howell" state="need_complete">
+            <interface inherit="interface" npc="Rienn Howell" state="need_complete">
                 <dialog name="hello">
                     <inherit/>
                     <response destination="takeletter" message="Here, take this letter from your husband..."/>

@@ -45,7 +45,7 @@
         <part name="Deliver the Shipment" uid="deliver">
             <info>Steve Bruck has asked you to deliver a shipment of Charob Beer to the bartender in Asterian Arms Tavern.</info>
             <item arch="barrel2.101" name="shipment of Charob Beer"/>
-            <interface inherit="" npc="Steve Bruck" state="need_start">
+            <interface inherit="interface" npc="Steve Bruck" state="need_start">
                 <dialog name="hello">
                     <inherit/>
                     <message>I also have this shipment of beer gathering dust here.</message>
@@ -60,7 +60,7 @@
                     <action start="deliver"/>
                 </dialog>
             </interface>
-            <interface inherit="" npc="Steve Bruck" state="need_complete">
+            <interface inherit="interface" npc="Steve Bruck" state="need_complete">
                 <dialog name="hello">
                     <inherit/>
                     <message>Well, have you delivered the shipment to Gashir at the Asterian Arms Tavern yet?</message>
@@ -79,7 +79,7 @@
                     <message>You can find the shipment in a chest in the other room.</message>
                 </dialog>
             </interface>
-            <interface inherit="" npc="Gashir" state="need_start">
+            <interface inherit="interface" npc="Gashir" state="need_start">
                 <dialog name="hello">
                     <inherit/>
                     <message>Unfortunately, it appears we are fresh out of our local specialty, the Charob Beer. If you want to buy some, you'll have to wait until the shipment arrives. In the meantime, maybe you could check down at the brewery to see what is holding my shipment up...</message>

@@ -454,8 +454,8 @@ def main():
     print("Generating maps...")
     generate_maps(directory, start)
     print("Maps saved to {0}.".format(directory))
-    print("Connecting maps...")
-    connect_maps(directory)
-    print("Done!")
+#    print("Connecting maps...")
+#    connect_maps(directory)
+#    print("Done!")
 
 main()

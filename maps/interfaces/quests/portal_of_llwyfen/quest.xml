@@ -25,7 +25,7 @@
         </interface>
         <part name="A Strange Portal" uid="portal_found">
             <info>You have found a portal sealed by the power of the elven god Llwyfen. Perhaps you should find a priest of Llwyfen to learn more.</info>
-            <interface inherit="" npc="Maplevale" state="need_complete">
+            <interface inherit="interface" npc="Maplevale" state="need_complete">
                 <dialog name="hello">
                     <inherit/>
                     <response destination="sealedportal" message="I have found a portal sealed by the powers of Llwyfen."/>

@@ -11,7 +11,7 @@
             <message>Neko Miko Reimu. Aishite'ru...</message>
         </dialog>
     </interface>
-    <interface inherit="" state="class">
+    <interface inherit="interface" state="class">
         <and>
             <check options="classTime"/>
         </and>
@@ -20,7 +20,7 @@
             <inherit/>
         </dialog>
     </interface>
-    <interface inherit="" state="club">
+    <interface inherit="interface" state="club">
         <and>
             <check options="clubTime"/>
         </and>

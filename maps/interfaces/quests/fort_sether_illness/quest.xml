@@ -84,7 +84,7 @@
                     <message>It would certainly be worth investigating the river... perhaps something is going on down there. The fastest way to do that would be to climb down using one of the water wells in the fort.</message>
                 </dialog>
             </interface>
-            <interface inherit="" npc="Brownrott" state="need_complete">
+            <interface inherit="interface" npc="Brownrott" state="need_complete">
                 <dialog name="whynot">
                     <inherit/>
                     <message color="yellow">Perhaps you should report your findings to Gwenty...</message>

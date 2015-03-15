@@ -37,7 +37,7 @@
                     <response action="close" message="I'll do that."/>
                 </dialog>
             </interface>
-            <interface inherit="" npc="Brelend Lee" state="need_complete">
+            <interface inherit="interface" npc="Brelend Lee" state="need_complete">
                 <dialog name="hello">
                     <response destination="helprecover" message="I need help recovering my memories."/>
                     <inherit/>

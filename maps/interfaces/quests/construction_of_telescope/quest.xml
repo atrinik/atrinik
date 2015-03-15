@@ -57,7 +57,7 @@
                     <action complete="get_shard"/>
                 </dialog>
             </interface>
-            <interface inherit="" npc="Jonaslen" state="need_finish">
+            <interface inherit="interface" npc="Jonaslen" state="need_finish">
                 <dialog name="hello">
                     <inherit/>
                     <response destination="shards" message="Have you seen any blue crystal shards around?"/>
@@ -161,7 +161,7 @@
             <part name="The Thirsty Tree" uid="get_morliana_water">
                 <info>The ancient tree Silmedsen south of Asteria Swamp has asked you to fill an empty bottle - which he has given you - with water that surrounds the Great Blue Crystal in Morliana.</info>
                 <item arch="silmedsen_potion_bottle_filled" name="Silmedsen's potion bottle"/>
-                <interface inherit="" npc="Silmedsen" state="need_start">
+                <interface inherit="interface" npc="Silmedsen" state="need_start">
                     <dialog name="hello">
                         <inherit/>
                         <response destination="havesome" message="Can I have some of your branches?"/>
