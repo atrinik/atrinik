@@ -170,13 +170,14 @@ def _make_precond(parent, npc):
                 elif attr == "options":
                     code += "GetOptions() == " + repr(elem.attrib["options"])
                 elif attr == "enemy":
-                    code += "self._npc.enemy"
-
                     if elem.attrib["enemy"]:
-                        code += " == "
+                        code += "self._npc.enemy"
 
-                        if elem.attrib["enemy"] == "player":
-                            code += "self._activator"
+                        if elem.attrib["enemy"] != "any":
+                            code += " == "
+
+                            if elem.attrib["enemy"] == "player":
+                                code += "self._activator"
                 elif attr == "num2finish":
                     code += "self.num2finish == " + elem.attrib[attr]
                 elif attr in ("started", "finished", "completed"):
@@ -406,7 +407,12 @@ def _make_interface(file, parent, npcs):
                         if attr == "region_map":
                             class_code += " " * 4 * 2 + "self._activator.Controller().region_maps.append(\"{}\")\n".format(val)
                         elif attr == "enemy":
-                            class_code += " " * 4 * 2 + "self._npc.enemy = {}\n".format("self._activator" if val == "player" else "None")
+                            if val == "player":
+                                enemy = "self._activator"
+                            elif val == "clear":
+                                enemy = "None"
+
+                            class_code += " " * 4 * 2 + "self._npc.enemy = {}\n".format(enemy)
                         elif attr == "teleport":
                             match = re.match("([^ ]+)\s*(\d+)?\s*(\d+)?", val)
 
