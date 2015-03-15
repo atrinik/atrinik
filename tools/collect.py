@@ -253,7 +253,7 @@ def _make_interface(file, parent, npcs):
 
         if inherit == None:
             interface_inherit = "InterfaceBuilder"
-        elif inherit == "":
+        elif inherit == "interface":
             interface_inherit = "InterfaceDialog"
         elif inherit.find(".") != -1:
             interface_inherit = inherit[inherit.find(".") + 1:]
