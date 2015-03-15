@@ -294,12 +294,16 @@ class WindowInterfaceEditor(Model, QMainWindow, Ui_WindowInterfaceEditor):
     def redo_text_changed_trigger(self, text):
         self.actionRedo.setText(self.tr("Redo {}".format(text)))
 
+    def model_clear(self):
+        self.reset_stacked_widget()
+        self.model.clear()
+        self.undo_stack.clear()
+
     def action_new_trigger(self):
         if not self.check_unsaved():
             return
 
-        self.reset_stacked_widget()
-        self.model.clear()
+        self.model_clear()
         self.file_path = None
 
     def action_open_trigger(self):
@@ -373,8 +377,7 @@ class WindowInterfaceEditor(Model, QMainWindow, Ui_WindowInterfaceEditor):
             self.fill_model_from_xml(child, item)
 
     def load_interface_file(self, path):
-        self.reset_stacked_widget()
-        self.model.clear()
+        self.model_clear()
         self.file_path = path
 
         try:
