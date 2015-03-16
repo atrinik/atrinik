@@ -5,6 +5,7 @@ Implementation for the 'Interface Editor' window.
 import os
 import xml.etree.ElementTree as ElementTree
 import xml.dom.minidom
+import logging
 
 from PyQt5 import QtWidgets, QtGui
 from PyQt5 import QtCore
@@ -92,10 +93,16 @@ class CommandNew(Command):
         self.items = [cls() for target in targets]
 
     def redo(self):
+        self.window.logger.debug("Redo new command: %s, %s", self.targets,
+                                 self.items)
+
         for i, target in enumerate(self.targets):
             target.appendRow(self.items[i])
 
     def undo(self):
+        self.window.logger.debug("Undo new command: %s, %s", self.targets,
+                                 self.items)
+
         for item in self.items:
             item.parent().takeRow(item.row())
 
@@ -109,10 +116,18 @@ class CommandMove(Command):
         self.positions = [(item.parent(), item.row()) for item in items]
 
     def redo(self):
+        self.window.logger.debug("Redo move command: %s, %s, %s, %s",
+                                 self.items, self.target, self.row,
+                                 self.positions)
+
         for item in self.items:
             self.window.item_insert(item, self.target, self.row)
 
     def undo(self):
+        self.window.logger.debug("Redo move command: %s, %s, %s, %s",
+                                 self.items, self.target, self.row,
+                                 self.positions)
+
         for i, item in enumerate(self.items):
             self.window.item_insert(item, *self.positions[i])
 
@@ -125,6 +140,9 @@ class CommandDelete(Command):
                            self.window.save_expanded(item)) for item in items]
 
     def redo(self):
+        self.window.logger.debug("Redo delete command: %s, %s", self.items,
+                                 self.positions)
+
         for item in self.items:
             if self.window.last_item == item:
                 self.window.reset_stacked_widget()
@@ -132,6 +150,9 @@ class CommandDelete(Command):
             item.parent().takeRow(item.row())
 
     def undo(self):
+        self.window.logger.debug("Undo delete command: %s, %s", self.items,
+                                 self.positions)
+
         for i, item in enumerate(self.items):
             self.window.item_insert(item, *self.positions[i])
 
@@ -144,6 +165,9 @@ class CommandSaveData(Command):
         self.real_redo = False
 
     def redo(self):
+        self.window.logger.debug("Redo save data command: %s, %s", self.item,
+                                 self.item_data)
+
         old_data = self.item._data.copy()
         self.item._data = self.item_data.copy()
         self.item_data = old_data
@@ -157,6 +181,9 @@ class CommandSaveData(Command):
             self.item.save_data()
 
     def undo(self):
+        self.window.logger.debug("Undo save data command: %s, %s", self.item,
+                                 self.item_data)
+
         if self.window.last_item is not None:
             self.window.last_item.save_data()
 
@@ -177,6 +204,8 @@ class WindowInterfaceEditor(Model, QMainWindow, Ui_WindowInterfaceEditor):
     def __init__(self, parent=None):
         super(WindowInterfaceEditor, self).__init__(parent)
         self.setupUi(self)
+
+        self.logger = logging.getLogger("interface-editor")
 
         self._last_path = None
         self.last_item = None
@@ -283,9 +312,11 @@ class WindowInterfaceEditor(Model, QMainWindow, Ui_WindowInterfaceEditor):
         return True
 
     def action_undo_trigger(self):
+        self.logger.debug("Undo trigger")
         self.undo_stack.undo()
 
     def action_redo_trigger(self):
+        self.logger.debug("Redo trigger")
         self.undo_stack.redo()
 
     def undo_text_changed_trigger(self, text):
@@ -295,6 +326,7 @@ class WindowInterfaceEditor(Model, QMainWindow, Ui_WindowInterfaceEditor):
         self.actionRedo.setText(self.tr("Redo {}".format(text)))
 
     def model_clear(self):
+        self.logger.debug("Clearing the model")
         self.reset_stacked_widget()
         self.model.clear()
         self.undo_stack.clear()
@@ -349,6 +381,8 @@ class WindowInterfaceEditor(Model, QMainWindow, Ui_WindowInterfaceEditor):
     def save_interface_file(self, path):
         self.save_last_item()
 
+        self.logger.debug("Saving %s", path)
+
         elem = ElementTree.Element("interfaces")
         self.model_items_apply(self.model_items_apply_to_xml, (elem,))
 
@@ -385,6 +419,8 @@ class WindowInterfaceEditor(Model, QMainWindow, Ui_WindowInterfaceEditor):
         except ElementTree.ParseError as e:
             print("Error parsing {}: {}".format(path, e))
             return
+
+        self.logger.debug("Loading %s", path)
 
         self.fill_model_from_xml(tree.getroot())
         self.treeView.expandAll()

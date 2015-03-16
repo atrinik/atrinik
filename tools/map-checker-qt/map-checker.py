@@ -10,6 +10,8 @@ import queue
 import sys
 from threading import Thread
 import time
+import logging
+import logging.handlers
 
 from system.checker import CheckerMap, CheckerObject, CheckerArchetype, \
     AbstractChecker
@@ -280,8 +282,29 @@ class MapChecker:
         '''Called when the application exits. Stops the scan, if any.'''
         self.scan_stop()
 
+def excepthook(type, value, tback):
+    logger = logging.getLogger("interface-editor")
+    logger.error("Logging an uncaught exception",
+                 exc_info=(type, value, tback))
+    sys.__excepthook__(type, value, tback)
+
 def main():
     from PyQt5.QtWidgets import QApplication
+
+    sys.excepthook = excepthook
+
+    logger = logging.getLogger('interface-editor')
+    logger.setLevel(logging.DEBUG)
+    formatter = logging.Formatter(
+        "%(asctime)s - %(name)s - %(levelname)s - %(message)s")
+
+    handler = logging.handlers.RotatingFileHandler(filename='map-checker.log',
+                                                   maxBytes=1000*1000*10,
+                                                   backupCount=5)
+    handler.setLevel(logging.DEBUG)
+    handler.setFormatter(formatter)
+
+    logger.addHandler(handler)
 
     config = Config()
 
