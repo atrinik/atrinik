@@ -759,7 +759,7 @@ class InterfaceElementPart(InterfaceElement):
     priority = 600
 
     def update_text(self, s=""):
-        uid = self._data.get("name")
+        uid = self._data.get("uid")
         name = self._data.get("name")
         text = ""
 
