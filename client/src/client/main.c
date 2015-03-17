@@ -47,6 +47,7 @@ int cursor_y = -1;
 
 /* update map area */
 int map_redraw_flag;
+int minimap_redraw_flag;
 
 /** The stored "anim commands" we created out of anims.tmp. */
 _anim_table *anim_table = NULL;
@@ -179,7 +180,7 @@ static void init_game_data(void)
     msg_anim.message[0] = '\0';
 
     cpl.state = ST_INIT;
-    map_redraw_flag = 1;
+    map_redraw_flag = minimap_redraw_flag = 1;
     csocket.fd = -1;
 
     metaserver_init();
@@ -222,7 +223,7 @@ static int game_status_chain(void)
         }
 
         clear_map();
-        map_redraw_flag = 1;
+        map_redraw_flag = minimap_redraw_flag = 1;
         cpl.state = ST_WAITLOOP;
     } else if (cpl.state == ST_STARTCONNECT) {
         draw_info_format(COLOR_GREEN, "Trying server %s (%d)...", selected_server->name, selected_server->port);
@@ -671,7 +672,7 @@ int main(int argc, char *argv[])
                 update = 1;
             } else if (tooltip_need_redraw()) {
                 update = 1;
-            } else if (map_redraw_flag) {
+            } else if (map_redraw_flag || minimap_redraw_flag) {
                 update = 1;
             } else if (map_anims_need_redraw()) {
                 update = 1;

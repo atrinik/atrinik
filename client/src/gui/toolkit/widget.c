@@ -48,6 +48,7 @@ static const char *const widget_names[TOTAL_SUBWIDGETS] = {
     "belowinv", "playerinfo", "maininv", "mapname",
     "input", "fps", "mplayer", "spells", "skills", "party", "notification",
     "container", "label", "texture", "buddy", "active_effects", "protections",
+    "minimap",
 
     "container_strip", "menu", "menuitem"
 };
@@ -246,6 +247,7 @@ void toolkit_widget_init(void)
     widget_initializers[MAP_ID] = widget_map_init;
     widget_initializers[MAPNAME_ID] = widget_mapname_init;
     widget_initializers[MENU_B_ID] = widget_menu_buttons_init;
+    widget_initializers[MINIMAP_ID] = widget_minimap_init;
     widget_initializers[MPLAYER_ID] = widget_mplayer_init;
     widget_initializers[NOTIFICATION_ID] = widget_notification_init;
     widget_initializers[PARTY_ID] = widget_party_init;

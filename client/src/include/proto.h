@@ -94,6 +94,7 @@ extern texture_struct *cursor_texture;
 extern int cursor_x;
 extern int cursor_y;
 extern int map_redraw_flag;
+extern int minimap_redraw_flag;
 extern _anim_table *anim_table;
 extern Animations *animations;
 extern size_t animations_num;
@@ -694,7 +695,7 @@ extern void map_set_data(int x, int y, int layer, sint16 face, uint8 quick_pos, 
 extern void map_clear_cell(int x, int y);
 extern void map_set_darkness(int x, int y, int sub_layer, uint8 darkness);
 extern void map_animate(void);
-extern void map_draw_map(void);
+extern void map_draw_map(SDL_Surface *surface);
 extern void map_draw_one(int x, int y, SDL_Surface *surface);
 extern void map_target_handle(uint8 is_friend);
 extern int mouse_to_tile_coords(int mx, int my, int *tx, int *ty);
@@ -705,6 +706,8 @@ extern void widget_mapname_init(widgetdata *widget);
 extern void widget_highlight_menu(widgetdata *widget);
 /* src/gui/widgets/menu_buttons.c */
 extern void widget_menu_buttons_init(widgetdata *widget);
+/* src/gui/widgets/minimap.c */
+extern void widget_minimap_init(widgetdata *widget);
 /* src/gui/widgets/mplayer.c */
 extern void widget_mplayer_init(widgetdata *widget);
 /* src/gui/widgets/notification.c */

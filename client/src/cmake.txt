@@ -67,6 +67,7 @@ set(SOURCES
 	src/gui/widgets/mapname.c
 	src/gui/widgets/menu.c
 	src/gui/widgets/menu_buttons.c
+	src/gui/widgets/minimap.c
 	src/gui/widgets/mplayer.c
 	src/gui/widgets/notification.c
 	src/gui/widgets/party.c

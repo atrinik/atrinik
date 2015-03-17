@@ -61,7 +61,7 @@
  * example, if the value is 3, the grid will be 3x3, which means 9 "maps", and
  * the middle one is the currently displayed one.
  */
-#define MAP_FOW_SIZE 3
+#define MAP_FOW_SIZE 7
 
 /**
  * The number of our dark levels.

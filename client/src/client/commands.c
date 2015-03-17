@@ -111,7 +111,7 @@ void socket_command_image(uint8 *data, size_t len, size_t pos)
     }
 
     FaceList[facenum].sprite = sprite_tryload_file(buf, 0, NULL);
-    map_redraw_flag = 1;
+    map_redraw_flag = minimap_redraw_flag = 1;
 
     book_redraw();
     interface_redraw();
@@ -845,7 +845,7 @@ void socket_command_map(uint8 *data, size_t len, size_t pos)
 
     adjust_tile_stretch();
     map_update_in_building(in_building);
-    map_redraw_flag = 1;
+    map_redraw_flag = minimap_redraw_flag = 1;
 }
 
 /** @copydoc socket_command_struct::handle_func */
