@@ -42,6 +42,7 @@ enum {
     BUTTON_MPLAYER, ///< Music player.
     BUTTON_BUDDY, ///< Buddy list.
     BUTTON_IGNORE, ///< Ignore list.
+    BUTTON_MINIMAP, ///< Minimap.
     BUTTON_MAP, ///< Region map.
     BUTTON_QUEST, ///< Quest list.
     BUTTON_HELP, ///< Help.
@@ -58,22 +59,22 @@ static button_struct buttons[NUM_BUTTONS];
  * Images to render on top of the buttons, NULL for none.
  */
 static const char *button_images[NUM_BUTTONS] = {
-    "magic", "skill", "protections", "party", "music", "buddy", "ignore", "map",
-    "quest", NULL, "cogs"
+    "magic", "skill", "protections", "party", "music", "buddy", "ignore",
+    "minimap", "map", "quest", NULL, "cogs"
 };
 /**
  * Tooltip texts for the buttons.
  */
 static const char *const button_tooltips[NUM_BUTTONS] = {
     "Spells", "Skills", "Protections", "Party", "Music player", "Buddy List",
-    "Ignore List", "Region map", "Quest list", "Help", "Settings"
+    "Ignore List", "Minimap", "Region map", "Quest list", "Help", "Settings"
 };
 /**
  * Widgets associated with the buttons, -1 for none.
  */
 static int button_widgets[NUM_BUTTONS] = {
     SPELLS_ID, SKILLS_ID, PROTECTIONS_ID, PARTY_ID, MPLAYER_ID, BUDDY_ID,
-    BUDDY_ID, -1, -1, -1, -1
+    BUDDY_ID, MINIMAP_ID, -1, -1, -1, -1
 };
 
 /** @copydoc widgetdata::draw_func */
