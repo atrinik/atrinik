@@ -243,7 +243,7 @@ void intro_show(void)
     /* No list yet, make one and start downloading the data. */
     if (!list_news) {
         /* Start downloading. */
-        news_data = curl_download_start(clioption_settings.game_news_url);
+        news_data = curl_download_start(clioption_settings.game_news_url, NULL);
 
         list_news = list_create(18, 1, 8);
         list_news->focus = 0;

@@ -37,8 +37,17 @@ typedef struct curl_data {
     /** Size of the data. */
     size_t size;
 
+    /** HTTP headers. */
+    char *header;
+
+    /** Size of HTTP headers. */
+    size_t header_size;
+
     /** URL used. */
     char *url;
+
+    /** Path to cached file. */
+    char *path;
 
     /**
      * Mutex to protect the data in this structure when accessed across

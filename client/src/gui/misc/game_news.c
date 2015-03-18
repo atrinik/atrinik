@@ -204,5 +204,5 @@ void game_news_open(const char *title)
     curl_easy_cleanup(curl);
 
     /* Start downloading. */
-    game_news->data = curl_download_start(url);
+    game_news->data = curl_download_start(url, NULL);
 }

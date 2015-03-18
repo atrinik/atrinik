@@ -140,7 +140,7 @@ static void updater_download_start(void)
     curl_easy_cleanup(curl);
 
     /* Start downloading the list of available updates. */
-    dl_data = curl_download_start(url);
+    dl_data = curl_download_start(url, NULL);
 
     progress_dots_create(&progress);
 }
@@ -320,7 +320,7 @@ static int popup_draw_post(popup_struct *popup)
 
                     /* Construct the URL. */
                     snprintf(url, sizeof(url), UPDATER_PATH_URL "/%s", download_packages[download_package_next].filename);
-                    dl_data = curl_download_start(url);
+                    dl_data = curl_download_start(url, NULL);
                     download_package_next++;
                 }
             }

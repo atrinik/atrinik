@@ -31,8 +31,8 @@ extern void socket_command_compressed(uint8 *data, size_t len, size_t pos);
 extern void socket_command_control(uint8 *data, size_t len, size_t pos);
 /* src/client/curl.c */
 extern int curl_connect(void *c_data);
-extern curl_data *curl_data_new(const char *url);
-extern curl_data *curl_download_start(const char *url);
+extern curl_data *curl_data_new(const char *url, const char *path);
+extern curl_data *curl_download_start(const char *url, const char *path);
 extern sint8 curl_download_finished(curl_data *data);
 extern double curl_download_sizeinfo(curl_data *data, CURLINFO info);
 extern char *curl_download_speedinfo(curl_data *data, char *buf, size_t bufsize);

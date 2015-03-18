@@ -717,7 +717,8 @@ static int popup_event_func(popup_struct *popup, SDL_Event *event)
 /** @copydoc socket_command_struct::handle_func */
 void socket_command_region_map(uint8 *data, size_t len, size_t pos)
 {
-    char region[MAX_BUF], url_base[HUGE_BUF], url[HUGE_BUF], text[HUGE_BUF];
+    char region[MAX_BUF], url_base[HUGE_BUF], url[HUGE_BUF], text[HUGE_BUF],
+            cache[HUGE_BUF], *path;
     popup_struct *popup;
     uint8 type;
 
@@ -771,6 +772,8 @@ void socket_command_region_map(uint8 *data, size_t len, size_t pos)
 
     /* Construct URL for the image. */
     snprintf(url, sizeof(url), "%s/%s.png", url_base, region);
+    snprintf(VS(cache), "client-maps/%s.png", region);
+    path = player_make_path(cache);
 
     /* Free old map surface. */
     if (region_map_png) {
@@ -812,7 +815,11 @@ void socket_command_region_map(uint8 *data, size_t len, size_t pos)
     region_map_clear();
 
     /* Start the downloads. */
-    data_png = curl_download_start(url);
+    data_png = curl_download_start(url, path);
+    efree(path);
     snprintf(url, sizeof(url), "%s/%s.def", url_base, region);
-    data_def = curl_download_start(url);
+    snprintf(VS(cache), "client-maps/%s.def", region);
+    path = player_make_path(cache);
+    data_def = curl_download_start(url, path);
+    efree(path);
 }

@@ -203,7 +203,7 @@ void server_files_listing_retrieve(void)
         curl_data_free(listing_data);
     }
 
-    listing_data = curl_download_start(url);
+    listing_data = curl_download_start(url, NULL);
 }
 
 /**
@@ -298,7 +298,7 @@ static int server_file_process(server_files_struct *tmp)
 
         log(LOG(DEVEL), "Beginning download: %s, URL: %s", tmp->name, url);
 
-        tmp->dl_data = curl_download_start(url);
+        tmp->dl_data = curl_download_start(url, NULL);
         tmp->update = -1;
         return 1;
     }

@@ -196,7 +196,7 @@ int metaserver_thread(void *dummy)
 
     /* Go through all the metaservers in the list */
     for (i = clioption_settings.metaservers_num; i > 0; i--) {
-        data = curl_data_new(clioption_settings.metaservers[i - 1]);
+        data = curl_data_new(clioption_settings.metaservers[i - 1], NULL);
 
         /* If the connection succeeded, break out. */
         if (curl_connect(data) == 1 && data->memory) {
