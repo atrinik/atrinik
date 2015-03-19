@@ -989,8 +989,8 @@ extern size_t stringbuffer_length(StringBuffer *sb);
 extern ssize_t stringbuffer_index(StringBuffer *sb, char c);
 extern ssize_t stringbuffer_rindex(StringBuffer *sb, char c);
 /* src/toolkit/toolkit.c */
-extern void toolkit_import_register(toolkit_func func);
-extern int toolkit_check_imported(toolkit_func func);
+extern void toolkit_import_register(const char *name, toolkit_func func);
+extern _Bool toolkit_check_imported(toolkit_func func);
 extern void toolkit_deinit(void);
 /* src/toolkit/x11.c */
 extern void toolkit_x11_init(void);
