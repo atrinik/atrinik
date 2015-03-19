@@ -2478,11 +2478,11 @@ mapstruct *map_force_reset(mapstruct *m)
     path = add_refcount(m->path);
     flags = MAP_NAME_SHARED | (MAP_UNIQUE(m) ? MAP_PLAYER_UNIQUE : 0);
 
+    clean_tmp_map(m);
+
     if (m->in_memory == MAP_IN_MEMORY) {
         swap_map(m, 1);
     }
-
-    clean_tmp_map(m);
 
     m = ready_map_name(path, flags);
     free_string_shared(path);
