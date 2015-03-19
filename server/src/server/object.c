@@ -3042,10 +3042,6 @@ int object_enter_map(object *op, object *exit_ob, mapstruct *m, int x, int y, ui
             static uint64 reference_number = 0;
             RMParms rp;
 
-            if (op->type != PLAYER) {
-                return 0;
-            }
-
             memset(&rp, 0, sizeof(RMParms));
             rp.Xsize = -1;
             rp.Ysize = -1;
