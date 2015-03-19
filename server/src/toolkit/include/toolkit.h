@@ -169,6 +169,9 @@ typedef void (*toolkit_func)(void);
 #endif
 /*@}*/
 
+#define _STRINGIFY(_X_) #_X_
+#define STRINGIFY(_X_) _STRINGIFY(_X_)
+
 #define SOFT_ASSERT_MSG(msg, ...) log(LOG(ERROR), (msg), __VA_ARGS__)
 
 #ifndef NDEBUG
