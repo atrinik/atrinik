@@ -1712,7 +1712,7 @@ object *insert_ob_in_map(object *op, mapstruct *m, object *originator, int flag)
 
     mc = GET_MAP_SPACE_PTR(op->map, op->x, op->y);
 
-    if (op->layer && !QUERY_FLAG(op, FLAG_IS_INVISIBLE)) {
+    if (op->layer) {
         top = GET_MAP_SPACE_LAYER(mc, op->layer, op->sub_layer);
 
         /* Do we have another object on this layer? */

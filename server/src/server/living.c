@@ -444,6 +444,10 @@ int change_abil(object *op, object *tmp)
         } else {
             draw_info(COLOR_GRAY, op, "You can see yourself.");
         }
+
+        if (op->type == PLAYER) {
+            CONTR(op)->socket.ext_title_flag = 1;
+        }
     }
 
     /* Blinded you can tell if more blinded since blinded player has minimal
@@ -673,6 +677,14 @@ static void living_apply_flags(object *op, object *tmp)
         SET_FLAG(op, FLAG_IS_ETHEREAL);
     }
 
+    if (QUERY_FLAG(tmp, FLAG_MAKE_INVISIBLE)) {
+        SET_FLAG(op, FLAG_IS_INVISIBLE);
+    }
+
+    if (QUERY_FLAG(tmp, FLAG_SEE_INVISIBLE)) {
+        SET_FLAG(op, FLAG_SEE_INVISIBLE);
+    }
+
     if (QUERY_FLAG(tmp, FLAG_FLYING)) {
         SET_FLAG(op, FLAG_FLYING);
     }
@@ -789,6 +801,14 @@ void fix_player(object *op)
 
     if (!QUERY_FLAG(&op->arch->clone, FLAG_SEE_IN_DARK)) {
         CLEAR_FLAG(op, FLAG_SEE_IN_DARK);
+    }
+
+    if (!QUERY_FLAG(&op->arch->clone, FLAG_IS_INVISIBLE)) {
+        CLEAR_FLAG(op, FLAG_IS_INVISIBLE);
+    }
+
+    if (!QUERY_FLAG(&op->arch->clone, FLAG_SEE_INVISIBLE)) {
+        CLEAR_FLAG(op, FLAG_SEE_INVISIBLE);
     }
 
     memset(&protect_boni, 0, sizeof(protect_boni));

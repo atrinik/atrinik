@@ -582,7 +582,7 @@ void draw_client_map2(object *pl)
     int layer, dark[NUM_SUB_LAYERS], dark_set[NUM_SUB_LAYERS];
     int anim_value, anim_type, ext_flags;
     int num_layers;
-    object *mirror = NULL, *tmp;
+    object *mirror = NULL, *tmp, *tmp2;
     uint8 have_sound_ambient;
     packet_struct *packet, *packet_layer, *packet_sound;
     size_t oldpos;
@@ -963,6 +963,22 @@ void draw_client_map2(object *pl)
 
                         if (m_data && (mirror_map = magic_mirror_get_map(mirror)) && !OUT_OF_MAP(mirror_map, m_data->x, m_data->y)) {
                             tmp = GET_MAP_SPACE_LAYER(GET_MAP_SPACE_PTR(mirror_map, m_data->x, m_data->y), layer, sub_layer);
+                        }
+                    }
+
+                    /* If the object is invisible but the player cannot see
+                     * invisible tiles, attempt to find a different object
+                     * that is not invisible on the same layer and sub-layer. */
+                    if (tmp != NULL && QUERY_FLAG(tmp, FLAG_IS_INVISIBLE) &&
+                            !QUERY_FLAG(pl, FLAG_SEE_INVISIBLE)) {
+                        for (tmp2 = tmp, tmp = NULL; tmp2 != NULL &&
+                                tmp2->layer == layer &&
+                                tmp2->sub_layer == sub_layer;
+                                tmp2 = tmp2->above) {
+                            if (!QUERY_FLAG(tmp2, FLAG_IS_INVISIBLE)) {
+                                tmp = tmp2;
+                                break;
+                            }
                         }
                     }
 

@@ -1052,6 +1052,8 @@ static void draw_map_object(SDL_Surface *surface, struct MapCell *cell,
         flags |= SPRITE_FLAG_FOW;
     } else if (cell->infravision[GET_MAP_LAYER(layer, sub_layer)]) {
         flags |= SPRITE_FLAG_RED;
+    } else if (cell->flags[GET_MAP_LAYER(layer, sub_layer)] & FFLAG_INVISIBLE) {
+        flags |= SPRITE_FLAG_GRAY;
     } else {
         flags |= SPRITE_FLAG_DARK;
     }
