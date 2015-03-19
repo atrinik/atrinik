@@ -27,6 +27,7 @@
  * Client main related functions. */
 
 #include <global.h>
+#include <gitversion.h>
 
 /** The main screen surface. */
 SDL_Surface *ScreenSurface;

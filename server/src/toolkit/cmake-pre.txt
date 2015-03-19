@@ -140,3 +140,32 @@ set(SOURCES_TOOLKIT
     src/toolkit/stringbuffer.c
     src/toolkit/toolkit.c
     src/toolkit/x11.c)
+
+find_program(GIT_SCM git DOC "Git version control")
+mark_as_advanced(GIT_SCM)
+find_file(GITDIR NAMES .git PATHS ../ NO_DEFAULT_PATH)
+set(GITVERSION_H src/toolkit/include/gitversion.h)
+
+if (GIT_SCM AND GITDIR)
+    add_custom_command(OUTPUT ${GITVERSION_H}
+        COMMAND ${CMAKE_COMMAND} -E echo "#ifndef GITVERSION_H" > ${GITVERSION_H}
+        COMMAND ${CMAKE_COMMAND} -E echo_append "#define GITVERSION " >> ${GITVERSION_H}
+        COMMAND ${GIT_SCM} log -1 "--pretty=format:%h" >> ${GITVERSION_H}
+        COMMAND ${CMAKE_COMMAND} -E echo "" >> ${GITVERSION_H}
+        COMMAND ${CMAKE_COMMAND} -E echo_append "#define GITAUTHOR " >> ${GITVERSION_H}
+        COMMAND ${GIT_SCM} log -1 "--pretty=format:%an" >> ${GITVERSION_H}
+        COMMAND ${CMAKE_COMMAND} -E echo "" >> ${GITVERSION_H}
+        COMMAND ${CMAKE_COMMAND} -E echo_append "#define GITBRANCH " >> ${GITVERSION_H}
+        COMMAND ${GIT_SCM} rev-parse --abbrev-ref HEAD >> ${GITVERSION_H}
+        COMMAND ${CMAKE_COMMAND} -E echo "#endif" >> ${GITVERSION_H}
+        DEPENDS ${GITDIR}/logs/HEAD
+        VERBATIM
+    )
+else ()
+    add_custom_command(OUTPUT ${GITVERSION_H}
+        COMMAND ${CMAKE_COMMAND} -E echo_append "" > ${GITVERSION_H}
+        VERBATIM
+    )
+endif ()
+
+add_custom_target(git_branch DEPENDS ${GITVERSION_H})

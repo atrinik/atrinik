@@ -35,3 +35,5 @@ if (HAVE_X11_XMU)
 endif ()
 
 target_link_libraries(${EXECUTABLE} ${OPENSSL_LIBRARIES})
+
+add_dependencies(${EXECUTABLE} git_branch)
