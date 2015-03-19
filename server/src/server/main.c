@@ -28,6 +28,7 @@
 
 #include <global.h>
 #include <check_proto.h>
+#include <gitversion.h>
 
 /** Object used in process_events(). */
 static object marker;
@@ -65,18 +66,18 @@ static void do_specials(void);
  * shown to the player object using draw_info_format(). */
 void version(object *op)
 {
-    if (op) {
-        int revision;
+    char buf[HUGE_BUF];
 
-        revision = bzr_get_revision();
+    snprintf(VS(buf), "This is Atrinik v%s", PACKAGE_VERSION);
+#ifdef GITVERSION
+    snprintfcat(VS(buf), "%s", " (" STRINGIFY(GITBRANCH) "/"
+            STRINGIFY(GITVERSION) " by " STRINGIFY(GITAUTHOR) ")");
+#endif
 
-        if (revision) {
-            draw_info_format(COLOR_WHITE, op, "This is Atrinik v%s (r%d)", PACKAGE_VERSION, revision);
-        } else {
-            draw_info_format(COLOR_WHITE, op, "This is Atrinik v%s", PACKAGE_VERSION);
-        }
+    if (op != NULL) {
+        draw_info(COLOR_WHITE, op, buf);
     } else {
-        logger_print(LOG(INFO), "This is Atrinik v%s.", PACKAGE_VERSION);
+        logger_print(LOG(INFO), "%s", buf);
     }
 }
 
