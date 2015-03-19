@@ -76,7 +76,7 @@ typedef void (*toolkit_func)(void);
 /**
  * End toolkit API initialization function. */
 #define TOOLKIT_INIT_FUNC_END() \
-    toolkit_import_register(__deinit_func); \
+    toolkit_import_register(STRINGIFY(API_NAME), __deinit_func); \
     }
 
 /**

@@ -528,7 +528,6 @@ extern object *object_create_clone(object *asrc);
 extern int was_destroyed(object *op, tag_t old_tag);
 extern object *load_object_str(char *obstr);
 extern int auto_apply(object *op);
-extern int can_see_monsterP(mapstruct *m, int x, int y, int dir);
 extern void free_key_values(object *op);
 extern key_value *object_get_key_link(const object *ob, const char *key);
 extern const char *object_get_value(const object *op, const char *const key);
@@ -578,6 +577,7 @@ extern object *path_get_next_request(void);
 extern shstr *path_encode(path_node_t *path);
 extern int path_get_next(shstr *buf, sint16 *off, shstr **mappath, mapstruct **map, int *x, int *y, uint32 *flags);
 extern path_node_t *path_compress(path_node_t *path);
+extern void path_visualize(path_visualization_t **visualization, path_visualizer_t **visualizer);
 extern path_node_t *path_find(object *op, mapstruct *map1, int x, int y, mapstruct *map2, int x2, int y2, path_visualizer_t **visualizer);
 /* src/server/plugins.c */
 extern struct plugin_hooklist hooklist;
@@ -1358,8 +1358,8 @@ extern size_t stringbuffer_length(StringBuffer *sb);
 extern ssize_t stringbuffer_index(StringBuffer *sb, char c);
 extern ssize_t stringbuffer_rindex(StringBuffer *sb, char c);
 /* src/toolkit/toolkit.c */
-extern void toolkit_import_register(toolkit_func func);
-extern int toolkit_check_imported(toolkit_func func);
+extern void toolkit_import_register(const char *name, toolkit_func func);
+extern _Bool toolkit_check_imported(toolkit_func func);
 extern void toolkit_deinit(void);
 /* src/toolkit/x11.c */
 extern void toolkit_x11_init(void);
