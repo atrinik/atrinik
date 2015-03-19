@@ -123,6 +123,7 @@ mapstruct *load_style_map(char *style_name)
     /* Remove it from global list, put it on our local list */
     if (style_map != NULL) {
         DL_DELETE(first_map, style_map);
+        style_map->global_removed = true;
         DL_APPEND(styles, style_map);
     }
 
@@ -292,6 +293,7 @@ void free_style_maps(void)
      * but won't find it, so we need to do it ourselves */
     DL_FOREACH_SAFE(styles, map, tmp)
     {
+        DL_DELETE(styles, map);
         delete_map(map);
     }
 }

@@ -653,6 +653,8 @@ typedef struct mapdef {
     sint8 level_min; ///< Minimum level offset that is part of this map.
 
     sint8 level_max; ///< Maximum level offset that is part of this map.
+
+    bool global_removed; ///< If true, the map was removed from the global list.
 } mapstruct;
 
 /**

@@ -1353,9 +1353,7 @@ void free_map(mapstruct *m, int flag)
  * @param m The map to delete. */
 void delete_map(mapstruct *m)
 {
-    if (!m) {
-        return;
-    }
+    HARD_ASSERT(m != NULL);
 
     if (m->in_memory == MAP_IN_MEMORY) {
         /* Change to MAP_SAVING, even though we are not,
@@ -1366,7 +1364,9 @@ void delete_map(mapstruct *m)
         remove_light_source_list(m);
     }
 
-    DL_DELETE(first_map, m);
+    if (!m->global_removed) {
+        DL_DELETE(first_map, m);
+    }
 
     /* tmpname can still be needed if the map is swapped out, so we don't
      * do it in free_map(). */
