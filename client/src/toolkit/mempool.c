@@ -95,9 +95,13 @@ void toolkit_mempool_deinit(void)
     {
         size_t i;
 
-        for (i = 0; i < pools_num; i++) {
+        /* The first memory pool ever created is the puddles pool, so
+         * avoid freeing it until all the other ones are feed. */
+        for (i = 1; i < pools_num; i++) {
             mempool_free(pools[i]);
         }
+
+        mempool_free(pool_puddle);
 
         efree(pools);
     }
