@@ -123,6 +123,15 @@ typedef struct _mapdata {
     /** New map name. */
     char name_new[HUGE_BUF];
 
+    /** Region's name. */
+    char region_name[MAX_BUF];
+
+    /** Region's long name. */
+    char region_longname[MAX_BUF];
+
+    /** Map path. */
+    char map_path[HUGE_BUF];
+
     uint32 name_fadeout_start;
 
     /** X length. */

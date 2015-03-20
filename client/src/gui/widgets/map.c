@@ -452,6 +452,33 @@ void update_map_height_diff(uint8 height_diff)
 }
 
 /**
+ * Update map's region name.
+ * @param region_name New region name.
+ */
+void update_map_region_name(const char *region_name)
+{
+    snprintf(VS(MapData.region_name), "%s", region_name);
+}
+
+/**
+ * Update map's region long name.
+ * @param region_longname New region long name.
+ */
+void update_map_region_longname(const char *region_longname)
+{
+    snprintf(VS(MapData.region_longname), "%s", region_longname);
+}
+
+/**
+ * Update map's path.
+ * @param map_path New map path.
+ */
+void update_map_path(const char *map_path)
+{
+    snprintf(VS(MapData.map_path), "%s", map_path);
+}
+
+/**
  * Updates the map's in_building state flag.
  *
  * When entering a building, clears FoW objects from effect layer with non-zero

@@ -636,13 +636,18 @@ void socket_command_map(uint8 *data, size_t len, size_t pos)
     mapstat = packet_to_uint8(data, len, &pos);
 
     if (mapstat != MAP_UPDATE_CMD_SAME) {
-        char mapname[HUGE_BUF], bg_music[HUGE_BUF], weather[MAX_BUF];
+        char mapname[HUGE_BUF], bg_music[HUGE_BUF], weather[MAX_BUF],
+                region_name[MAX_BUF], region_longname[MAX_BUF],
+                mappath[HUGE_BUF];
         uint8 height_diff;
 
         packet_to_string(data, len, &pos, mapname, sizeof(mapname));
         packet_to_string(data, len, &pos, bg_music, sizeof(bg_music));
         packet_to_string(data, len, &pos, weather, sizeof(weather));
         height_diff = packet_to_uint8(data, len, &pos);
+        packet_to_string(data, len, &pos, VS(region_name));
+        packet_to_string(data, len, &pos, VS(region_longname));
+        packet_to_string(data, len, &pos, VS(mappath));
 
         if (mapstat == MAP_UPDATE_CMD_NEW) {
             int map_w, map_h;
@@ -673,6 +678,9 @@ void socket_command_map(uint8 *data, size_t len, size_t pos)
         update_map_bg_music(bg_music);
         update_map_weather(weather);
         update_map_height_diff(height_diff);
+        update_map_region_name(region_name);
+        update_map_region_longname(region_longname);
+        update_map_path(mappath);
     } else {
         xpos = packet_to_uint8(data, len, &pos);
         ypos = packet_to_uint8(data, len, &pos);
