@@ -602,6 +602,7 @@ void draw_client_map2(object *pl)
 
     if (CONTR(pl)->map_update_cmd != MAP_UPDATE_CMD_SAME) {
         object *map_info;
+        region_struct *region;
 
         msp = GET_MAP_SPACE_PTR(pl->map, pl->x, pl->y);
         map_info = msp->map_info && OBJECT_VALID(msp->map_info, msp->map_info_count) ? msp->map_info : NULL;
@@ -626,6 +627,17 @@ void draw_client_map2(object *pl)
                 strncpy(CONTR(pl)->map_info_weather, map_info->title, sizeof(CONTR(pl)->map_info_weather) - 1);
                 CONTR(pl)->map_info_weather[sizeof(CONTR(pl)->map_info_weather) - 1] = '\0';
             }
+        }
+
+        region = pl->map->region != NULL ?
+            region_find_with_map(pl->map->region) : NULL;
+
+        if (CONTR(pl)->socket.socket_version >= 1059) {
+            packet_append_string_terminated(packet,
+                    region != NULL ? region->name : NULL);
+            packet_append_string_terminated(packet,
+                    region != NULL ? region->longname : NULL);
+            packet_append_string_terminated(packet, pl->map->path);
         }
 
         if (CONTR(pl)->map_update_cmd == MAP_UPDATE_CMD_CONNECTED) {
