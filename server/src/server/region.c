@@ -269,6 +269,24 @@ region_struct *region_find_by_name(const char *region_name)
 }
 
 /**
+ * Find a region that has a generated client map, searching parents as well.
+ * @param region Region to start at.
+ * @return Region or NULL if none found.
+ */
+const region_struct *region_find_with_map(const region_struct *region)
+{
+    HARD_ASSERT(region != NULL);
+
+    for ( ; region != NULL; region = region->parent) {
+        if (region->map_first != NULL) {
+            break;
+        }
+    }
+
+    return region;
+}
+
+/**
  * Gets the longname of a region.
  *
  * The longname of a region is not a required field, any given region may want

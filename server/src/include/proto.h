@@ -613,6 +613,7 @@ extern region_struct *first_region;
 extern void regions_init(void);
 extern void regions_free(void);
 extern region_struct *region_find_by_name(const char *region_name);
+extern const region_struct *region_find_with_map(const region_struct *region);
 extern char *region_get_longname(const region_struct *region);
 extern char *region_get_msg(const region_struct *region);
 extern int region_enter_jail(object *op);
