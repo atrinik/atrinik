@@ -220,12 +220,17 @@ static bool curl_load_cache(curl_data *data)
     struct stat statbuf;
     char *memory;
     size_t size;
+    bool ret;
 
     HARD_ASSERT(data != NULL);
+    SDL_LockMutex(data->mutex);
+
+    fp = NULL;
+    memory = NULL;
 
     if (data->path == NULL) {
         log(LOG(BUG), "No cache location specified for %s", data->url);
-        return false;
+        goto fail;
     }
 
     fp = fopen_wrapper(data->path, "rb");
@@ -233,33 +238,46 @@ static bool curl_load_cache(curl_data *data)
     if (fp == NULL) {
         log(LOG(BUG), "Could not open %s: %d (%s)", data->path, errno,
                 strerror(errno));
-        return false;
+        goto fail;
     }
 
     if (fstat(fileno(fp), &statbuf) == -1) {
         log(LOG(BUG), "Could not stat %s: %d (%s)", data->path, errno,
                 strerror(errno));
-        fclose(fp);
-        return false;
+        goto fail;
     }
 
     size = statbuf.st_size;
-    memory = emalloc(size);
+    memory = emalloc(size + 1);
 
     if (!fread(memory, 1, size, fp)) {
         log(LOG(BUG), "Could not read %s: %d (%s)", data->path, errno,
                 strerror(errno));
-        fclose(fp);
-        efree(memory);
-        return false;
+        goto fail;
     }
 
     data->size = size;
     data->memory = memory;
+    data->memory[size] = '\0';
+    memory = NULL;
 
-    fclose(fp);
+    ret = true;
+    goto done;
 
-    return true;
+fail:
+    ret = false;
+done:
+    if (fp != NULL) {
+        fclose(fp);
+    }
+
+    if (memory != NULL) {
+        efree(memory);
+    }
+
+    SDL_UnlockMutex(data->mutex);
+
+    return ret;
 }
 
 /**
@@ -354,7 +372,9 @@ int curl_connect(void *c_data)
     }
 
     curl_easy_getinfo(data->handle, CURLINFO_HTTP_CODE, &http_code);
+    SDL_LockMutex(data->mutex);
     data->http_code = http_code;
+    SDL_UnlockMutex(data->mutex);
 
     if (http_code != 200 && http_code != 304) {
         status = -1;
@@ -362,6 +382,8 @@ int curl_connect(void *c_data)
     }
 
     if (http_code == 200) {
+        SDL_LockMutex(data->mutex);
+
         /* If we have a cache path, and we managed to retrieve some data, update
          * the cached file. */
         if (data->path != NULL && data->header != NULL &&
@@ -420,6 +442,8 @@ int curl_connect(void *c_data)
                 }
             }
         }
+
+        SDL_UnlockMutex(data->mutex);
     } else if (http_code == 304) {
         if (!curl_load_cache(data)) {
             status = -1;
@@ -581,7 +605,9 @@ void curl_data_free(curl_data *data)
 
     /* Still downloading? Kill the thread. */
     if (curl_download_finished(data) == 0) {
+        SDL_LockMutex(data->mutex);
         SDL_KillThread(data->thread);
+        SDL_UnlockMutex(data->mutex);
     }
 
     if (data->memory != NULL) {
