@@ -458,17 +458,13 @@ int change_abil(object *op, object *tmp)
         if (flag > 0) {
             draw_info(COLOR_GRAY, op, "You are blinded.");
             SET_FLAG(op, FLAG_BLIND);
-
-            if (op->type == PLAYER) {
-                CONTR(op)->update_los = 1;
-            }
         } else {
             draw_info(COLOR_WHITE, op, "Your vision returns.");
             CLEAR_FLAG(op, FLAG_BLIND);
+        }
 
-            if (op->type == PLAYER) {
-                CONTR(op)->update_los = 1;
-            }
+        if (op->type == PLAYER) {
+            CONTR(op)->update_los = 1;
         }
     }
 
@@ -487,16 +483,12 @@ int change_abil(object *op, object *tmp)
 
         if (flag > 0) {
             draw_info(COLOR_GRAY, op, "Everything becomes transparent.");
-
-            if (op->type == PLAYER) {
-                CONTR(op)->update_los = 1;
-            }
         } else {
             draw_info(COLOR_GRAY, op, "Everything suddenly looks very solid.");
+        }
 
-            if (op->type == PLAYER) {
-                CONTR(op)->update_los = 1;
-            }
+        if (op->type == PLAYER) {
+            CONTR(op)->update_los = 1;
         }
     }
 
