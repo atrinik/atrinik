@@ -602,7 +602,7 @@ void draw_client_map2(object *pl)
 
     if (CONTR(pl)->map_update_cmd != MAP_UPDATE_CMD_SAME) {
         object *map_info;
-        region_struct *region;
+        const region_struct *region;
 
         msp = GET_MAP_SPACE_PTR(pl->map, pl->x, pl->y);
         map_info = msp->map_info && OBJECT_VALID(msp->map_info, msp->map_info_count) ? msp->map_info : NULL;
