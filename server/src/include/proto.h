@@ -69,8 +69,6 @@ extern void command_my(object *op, const char *command, char *params);
 extern void command_party(object *op, const char *command, char *params);
 /* src/commands/player/push.c */
 extern void command_push(object *op, const char *command, char *params);
-/* src/commands/player/region_map.c */
-extern void command_region_map(object *op, const char *command, char *params);
 /* src/commands/player/rename.c */
 extern void command_rename(object *op, const char *command, char *params);
 /* src/commands/player/reply.c */

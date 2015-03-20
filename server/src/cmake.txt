@@ -34,7 +34,6 @@ set(SOURCES
 	src/commands/player/my.c
 	src/commands/player/party.c
 	src/commands/player/push.c
-	src/commands/player/region_map.c
 	src/commands/player/rename.c
 	src/commands/player/reply.c
 	src/commands/player/right.c

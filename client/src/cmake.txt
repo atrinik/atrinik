@@ -12,6 +12,7 @@ set(SOURCES
 	src/client/metaserver.c
 	src/client/misc.c
 	src/client/player.c
+	src/client/region_map.c
 	src/client/server_files.c
 	src/client/server_settings.c
 	src/client/settings.c

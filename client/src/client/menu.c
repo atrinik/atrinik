@@ -333,6 +333,9 @@ int client_command_check(const char *cmd)
     } else if (string_startswith(cmd, "/ping")) {
         keepalive_ping_stats();
         return 1;
+    } else if (string_startswith(cmd, "/region_map")) {
+        region_map_open();
+        return 1;
     }
 
     return 0;

@@ -28,6 +28,7 @@
 
 #include <global.h>
 #include <gitversion.h>
+#include <region_map.h>
 
 /** The main screen surface. */
 SDL_Surface *ScreenSurface;
@@ -178,6 +179,9 @@ static void init_game_data(void)
     memset(&cpl, 0, sizeof(cpl));
     clear_player();
 
+    memset(&MapData, 0, sizeof(MapData));
+    MapData.region_map = region_map_create();
+
     msg_anim.message[0] = '\0';
 
     cpl.state = ST_INIT;
@@ -240,7 +244,6 @@ static int game_status_chain(void)
         }
 
         socket_thread_start();
-        region_map_clear();
         clear_player();
 
         packet = packet_new(SERVER_CMD_VERSION, 16, 0);
@@ -436,7 +439,7 @@ int main(int argc, char *argv[])
     uint32 anim_tick, frame_start_time, elapsed_time, fps_limit,
             last_frame_ticks;
     int fps_limits[] = {30, 60, 120, 0};
-    char version[MAX_BUF];
+    char version[MAX_BUF], buf[HUGE_BUF];
 
     toolkit_import(signals);
 
@@ -590,8 +593,13 @@ int main(int argc, char *argv[])
     server_files_init();
     toolkit_widget_init();
 
-    draw_info_format(COLOR_HGOLD, "Welcome to Atrinik version %s.", package_get_version_full(version, sizeof(version)));
-    draw_info(COLOR_GREEN, "Init network...");
+    snprintf(VS(buf), "Welcome to Atrinik version %s",
+            package_get_version_full(version, sizeof(version)));
+#ifdef GITVERSION
+    snprintfcat(VS(buf), "%s", " (" STRINGIFY(GITBRANCH) "/"
+            STRINGIFY(GITVERSION) " by " STRINGIFY(GITAUTHOR) ")");
+#endif
+    draw_info(COLOR_HGOLD, buf);
 
     if (!socket_initialize()) {
         exit(1);

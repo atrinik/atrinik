@@ -30,6 +30,7 @@
  */
 
 #include <global.h>
+#include <region_map.h>
 
 /**
  * Map cells.
@@ -457,7 +458,12 @@ void update_map_height_diff(uint8 height_diff)
  */
 void update_map_region_name(const char *region_name)
 {
+    if (strcmp(MapData.region_name, region_name) == 0) {
+        return;
+    }
+
     snprintf(VS(MapData.region_name), "%s", region_name);
+    region_map_update(MapData.region_map, region_name);
 }
 
 /**
@@ -511,6 +517,28 @@ void map_update_in_building(uint8 in_building)
     }
 
     MapData.in_building = in_building;
+}
+
+/**
+ * Get player's direction.
+ * @return Player's direction.
+ */
+int map_get_player_direction(void)
+{
+    struct MapCell *cell;
+    int direction;
+
+    cell = MAP_CELL_GET_MIDDLE(map_width - (map_width / 2) - 1,
+            map_height - (map_height / 2) - 1);
+
+    direction = cell->anim_facing[GET_MAP_LAYER(LAYER_LIVING,
+            MapData.player_sub_layer)];
+
+    if (direction == 0) {
+        return 1;
+    }
+
+    return direction - 1;
 }
 
 /**

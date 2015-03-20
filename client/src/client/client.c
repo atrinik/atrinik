@@ -74,7 +74,7 @@ static socket_command_struct commands[CLIENT_CMD_NROF] = {
     {socket_command_party},
     {socket_command_quickslots},
     {socket_command_compressed},
-    {socket_command_region_map},
+    {NULL},
     {socket_command_sound_ambient},
     {socket_command_interface},
     {socket_command_notification},

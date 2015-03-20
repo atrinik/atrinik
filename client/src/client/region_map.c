@@ -1,0 +1,548 @@
+/*************************************************************************
+ *           Atrinik, a Multiplayer Online Role Playing Game             *
+ *                                                                       *
+ *   Copyright (C) 2009-2014 Alex Tokar and Atrinik Development Team     *
+ *                                                                       *
+ * Fork from Crossfire (Multiplayer game for X-windows).                 *
+ *                                                                       *
+ * This program is free software; you can redistribute it and/or modify  *
+ * it under the terms of the GNU General Public License as published by  *
+ * the Free Software Foundation; either version 2 of the License, or     *
+ * (at your option) any later version.                                   *
+ *                                                                       *
+ * This program is distributed in the hope that it will be useful,       *
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of        *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
+ * GNU General Public License for more details.                          *
+ *                                                                       *
+ * You should have received a copy of the GNU General Public License     *
+ * along with this program; if not, write to the Free Software           *
+ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.             *
+ *                                                                       *
+ * The author can be reached at admin@atrinik.org                        *
+ ************************************************************************/
+
+/**
+ * @file
+ * Region map API.
+ *
+ * @author Alex Tokar
+ */
+
+#include <global.h>
+#include <region_map.h>
+
+#ifndef __CPROTO__
+
+static void region_map_def_load(region_map_def_t *def, const char *str);
+static void region_map_def_free(region_map_def_t *def);
+
+/**
+ * Allocates and initializes a new region map structure.
+ * @return Region map.
+ */
+region_map_t *region_map_create(void)
+{
+    region_map_t *region_map;
+
+    region_map = ecalloc(1, sizeof(*region_map));
+    region_map->zoom = 100;
+    region_map->def = ecalloc(1, sizeof(*region_map->def));
+    region_map->def->refcount = 1;
+    region_map->fow = ecalloc(1, sizeof(*region_map->fow));
+    region_map->fow->refcount = 1;
+
+    return region_map;
+}
+
+/**
+ * Clone a region map structure.
+ * @param region_map
+ * @return
+ */
+region_map_t *region_map_clone(region_map_t *region_map)
+{
+    region_map_t *clone;
+
+    clone = ecalloc(1, sizeof(*clone));
+    clone->zoom = 100;
+    clone->surface = SDL_DisplayFormat(region_map->surface);
+    clone->def = region_map->def;
+    clone->def->refcount++;
+    clone->fow = region_map->fow;
+    clone->fow->refcount++;
+
+    return clone;
+}
+
+/**
+ * Frees a region map and all data associated with it.
+ * @param region_map Region map.
+ */
+void region_map_free(region_map_t *region_map)
+{
+    HARD_ASSERT(region_map != NULL);
+    HARD_ASSERT(region_map->def != NULL);
+    HARD_ASSERT(region_map->fow != NULL);
+
+    region_map_reset(region_map);
+    efree(region_map->def);
+    efree(region_map->fow);
+    efree(region_map);
+}
+
+/**
+ * Resets data associated with the region map.
+ * @param region_map Region map.
+ */
+void region_map_reset(region_map_t *region_map)
+{
+    HARD_ASSERT(region_map != NULL);
+    HARD_ASSERT(region_map->def != NULL);
+    HARD_ASSERT(region_map->fow != NULL);
+
+    memset(&region_map->pos, 0, sizeof(region_map->pos));
+
+    if (region_map->surface != NULL) {
+        SDL_FreeSurface(region_map->surface);
+        region_map->surface = NULL;
+    }
+
+    if (region_map->zoomed != NULL) {
+        SDL_FreeSurface(region_map->zoomed);
+        region_map->zoomed = NULL;
+    }
+
+    if (region_map->data_png != NULL) {
+        curl_data_free(region_map->data_png);
+        region_map->data_png = NULL;
+    }
+
+    if (region_map->data_def != NULL) {
+        curl_data_free(region_map->data_def);
+        region_map->data_def = NULL;
+    }
+
+    if (--region_map->def->refcount == 0) {
+        region_map_def_free(region_map->def);
+        efree(region_map->def);
+    }
+
+    region_map->def = ecalloc(1, sizeof(*region_map->def));
+    region_map->def->refcount = 1;
+
+    if (--region_map->fow->refcount == 0) {
+        efree(region_map->fow);
+    }
+
+    region_map->fow = ecalloc(1, sizeof(*region_map->fow));
+    region_map->fow->refcount = 1;
+}
+
+/*
+ * Updates the specified region map, resetting it and scheduling
+ * a re-download of the image and definition files.
+ * @param region_map Region map.
+ * @param region_name Region name.
+ */
+void region_map_update(region_map_t *region_map, const char *region_name)
+{
+    char url[HUGE_BUF], cache[HUGE_BUF], *path;
+
+    region_map_reset(region_map);
+
+    /* Download the image. */
+    snprintf(VS(url), "%s/client-maps/%s.png", cpl.http_url, region_name);
+    snprintf(VS(cache), "client-maps/%s.png", region_name);
+    path = player_make_path(cache);
+    region_map->data_png = curl_download_start(url, path);
+    efree(path);
+
+    /* Download the definitions. */
+    snprintf(VS(url), "%s/client-maps/%s.def", cpl.http_url, region_name);
+    snprintf(VS(cache), "client-maps/%s.def", region_name);
+    path = player_make_path(cache);
+    region_map->data_def = curl_download_start(url, path);
+    efree(path);
+}
+
+/**
+ * Checks if the specified region map is ready to be rendered.
+ * @param region_map Region map.
+ * @return Whether the region map is ready to be rendered.
+ */
+bool region_map_ready(region_map_t *region_map)
+{
+    SDL_Surface *img;
+    size_t i;
+
+    HARD_ASSERT(region_map != NULL);
+
+    if (region_map->surface != NULL) {
+        return true;
+    }
+
+    SOFT_ASSERT_RC(region_map->data_png != NULL, false,
+            "Region map's data_png is NULL.");
+    SOFT_ASSERT_RC(region_map->data_def != NULL, false,
+            "Region map's data_def is NULL.");
+    SOFT_ASSERT_RC(region_map->surface == NULL, false,
+            "Region map already has a surface.");
+    SOFT_ASSERT_RC(region_map->zoomed == NULL, false,
+            "Region map already has a zoomed surface.");
+
+    if (curl_download_finished(region_map->data_png) != 1) {
+        return false;
+    }
+
+    if (curl_download_finished(region_map->data_def) != 1) {
+        return false;
+    }
+
+    img = IMG_Load_RW(SDL_RWFromMem(region_map->data_png->memory,
+            region_map->data_png->size), 1);
+    region_map->surface = SDL_DisplayFormat(img);
+    SDL_FreeSurface(img);
+
+    region_map_pan(region_map);
+
+    /* Draw the labels. */
+    for (i = 0; i < region_map->def->num_labels; i++) {
+        text_show(region_map->surface, FONT_SERIF20,
+                region_map->def->labels[i].text,
+                region_map->def->labels[i].x, region_map->def->labels[i].y,
+                COLOR_HGOLD, TEXT_MARKUP | TEXT_OUTLINE, NULL);
+    }
+
+    for (i = 0; i < region_map->def->num_tooltips; i++) {
+        if (!region_map->def->tooltips[i].outline) {
+            continue;
+        }
+
+        border_create(region_map->surface,
+                region_map->def->tooltips[i].x, region_map->def->tooltips[i].y,
+                region_map->def->tooltips[i].w, region_map->def->tooltips[i].h,
+                SDL_MapRGB(region_map->surface->format,
+                region_map->def->tooltips[i].outline_color.r,
+                region_map->def->tooltips[i].outline_color.g,
+                region_map->def->tooltips[i].outline_color.b),
+                region_map->def->tooltips[i].outline_size);
+    }
+
+    region_map_def_load(region_map->def, region_map->data_def->memory);
+
+    curl_data_free(region_map->data_png);
+    region_map->data_png = NULL;
+
+    curl_data_free(region_map->data_def);
+    region_map->data_def = NULL;
+
+    return true;
+}
+
+/**
+ * Find a map identified by its path in the region map's definitions.
+ * @param region_map Region map to search in.
+ * @param map_path Map path to find.
+ * @return Pointer to the map if found, NULL otherwise.
+ */
+region_map_def_map_t *region_map_find_map(region_map_t *region_map,
+        const char *map_path)
+{
+    size_t i;
+
+    HARD_ASSERT(region_map != NULL);
+    HARD_ASSERT(map_path != NULL);
+
+    SOFT_ASSERT_RC(region_map->def != NULL, NULL,
+            "Region map's definitions are NULL.");
+
+    for (i = 0; i < region_map->def->num_maps; i++) {
+        if (strcmp(region_map->def->maps[i].path, map_path) == 0) {
+            return &region_map->def->maps[i];
+        }
+    }
+
+    return NULL;
+}
+
+/**
+ * Get the region map image surface.
+ * @param region_map Region map.
+ * @return Image surface, never NULL.
+ */
+SDL_Surface *region_map_surface(region_map_t *region_map)
+{
+    HARD_ASSERT(region_map != NULL);
+    HARD_ASSERT(region_map->surface != NULL);
+
+    if (region_map->zoomed != NULL) {
+        return region_map->zoomed;
+    }
+
+    return region_map->surface;
+}
+
+void region_map_pan(region_map_t *region_map)
+{
+    region_map_def_map_t *map;
+
+    map = region_map_find_map(region_map, MapData.map_path);
+
+    if (map != NULL) {
+        region_map->pos.x = (map->xpos + MapData.posx *
+                region_map->def->pixel_size) - region_map->pos.w / 2;
+        region_map->pos.y = (map->ypos + MapData.posy *
+                region_map->def->pixel_size) - region_map->pos.h / 2;
+    } else {
+        region_map->pos.x = region_map->surface->w / 2 - region_map->pos.w / 2;
+        region_map->pos.y = region_map->surface->h / 2 - region_map->pos.h / 2;
+    }
+
+    surface_pan(region_map->surface, &region_map->pos);
+}
+
+/**
+ * Resize the region map.
+ * @param region_map Region map to resize.
+ * @param adjust How much to zoom by.
+ */
+void region_map_resize(region_map_t *region_map, int adjust)
+{
+    float delta;
+
+    HARD_ASSERT(region_map != NULL);
+    SOFT_ASSERT(region_map->surface != NULL, "Region map's surface is NULL.");
+
+    region_map->zoom += adjust;
+
+    if (region_map->zoomed != NULL) {
+        SDL_FreeSurface(region_map->zoomed);
+        region_map->zoomed = NULL;
+    }
+
+    if (region_map->zoom != 100) {
+        /* Zoom the surface. */
+        region_map->zoomed = zoomSurface(region_map->surface,
+                region_map->zoom / 100.0, region_map->zoom / 100.0, 0);
+    }
+
+    if (adjust > 0) {
+        delta = (region_map->zoom / 100.0 - 0.1f);
+    } else {
+        delta = (region_map->zoom / 100.0 + 0.1f);
+    }
+
+    region_map->pos.x += region_map->pos.x / delta * (adjust / 100.0) +
+            region_map->pos.w / delta * (adjust / 100.0) / 2;
+    region_map->pos.y += region_map->pos.y / delta * (adjust / 100.0) +
+            region_map->pos.h / delta * (adjust / 100.0) / 2;
+
+    surface_pan(region_map_surface(region_map), &region_map->pos);
+}
+
+/**
+ * Render a region map marker, showing the player's position on the region map.
+ * @param region_map Region map.
+ * @param surface Where to render.
+ * @param x X coordinate.
+ * @param y Y coordinate.
+ */
+void region_map_render_marker(region_map_t *region_map, SDL_Surface *surface,
+        int x, int y)
+{
+    SDL_Surface *marker;
+    SDL_Rect box, srcbox;
+    region_map_def_map_t *map;
+
+    map = region_map_find_map(region_map, MapData.map_path);
+
+    if (map == NULL) {
+        return;
+    }
+
+    /* TODO: Could cache this */
+    marker = rotozoomSurface(TEXTURE_CLIENT("map_marker"),
+            -((map_get_player_direction() - 1) * 45), 1.0, 1);
+    /* Calculate the player's marker position. */
+    box.x = x + (map->xpos + MapData.posx * region_map->def->pixel_size -
+            marker->w / 2) * (region_map->zoom / 100.0) +
+            region_map->def->pixel_size / 2 - region_map->pos.x;
+    box.y = y + (map->ypos + MapData.posy * region_map->def->pixel_size -
+            marker->h / 2) * (region_map->zoom / 100.0) +
+            region_map->def->pixel_size / 2 - region_map->pos.y;
+
+    srcbox.x = MAX(0, x - box.x);
+    srcbox.y = MAX(0, y - box.y);
+    srcbox.w = MAX(0, region_map->pos.w - (box.x - x));
+    srcbox.h = MAX(0, region_map->pos.h - (box.y - y));
+
+    box.x += srcbox.x;
+    box.y += srcbox.y;
+
+    SDL_BlitSurface(marker, &srcbox, surface, &box);
+    SDL_FreeSurface(marker);
+}
+
+/**
+ * Loads region map definitions from a string.
+ * @param def Definitions structure to load into.
+ * @param str String to load from.
+ */
+static void region_map_def_load(region_map_def_t *def, const char *str)
+{
+    char line[HUGE_BUF], *cps[10];
+    size_t pos;
+
+    def->pixel_size = 1;
+    def->map_size_x = 24;
+    def->map_size_y = 24;
+
+    pos = 0;
+
+    while (string_get_word(str, &pos, '\n', VS(line), 0)) {
+        if (strcmp(line, "t_outline") == 0) {
+            if (def->num_tooltips == 0) {
+                log(LOG(ERROR), "No tooltips defined.");
+                continue;
+            }
+
+            def->tooltips[def->num_tooltips - 1].outline = 1;
+            def->tooltips[def->num_tooltips - 1].outline_size = 1;
+            def->tooltips[def->num_tooltips - 1].outline_color.r = 255;
+            def->tooltips[def->num_tooltips - 1].outline_color.g = 0;
+            def->tooltips[def->num_tooltips - 1].outline_color.b = 0;
+            continue;
+        }
+
+        if (string_split(line, cps, 2, ' ') != 2) {
+            log(LOG(ERROR), "Invalid line in definitions file: %s", line);
+            continue;
+        }
+
+        if (strcmp(cps[0], "pixel_size") == 0) {
+            def->pixel_size = atoi(cps[1]);
+        } else if (strcmp(cps[0], "map_size_x") == 0) {
+            def->map_size_x = atoi(cps[1]);
+        } else if (strcmp(cps[0], "map_size_y") == 0) {
+            def->map_size_y = atoi(cps[1]);
+        } else if (strcmp(cps[0], "map") == 0) {
+            if (string_split(cps[1], cps, 3, ' ') != 3) {
+                log(LOG(ERROR), "Invalid map in definitions file: %s", cps[1]);
+                continue;
+            }
+
+            def->maps = erealloc(def->maps, sizeof(*def->maps) *
+                    (def->num_maps + 1));
+            def->maps[def->num_maps].xpos = strtoul(cps[0], NULL, 16);
+            def->maps[def->num_maps].ypos = strtoul(cps[1], NULL, 16);
+            def->maps[def->num_maps].path = estrdup(cps[2]);
+            def->num_maps++;
+        } else if (strcmp(cps[0], "label") == 0) {
+            if (string_split(cps[1], cps, 4, ' ') != 4) {
+                log(LOG(ERROR), "Invalid label in definitions file: %s",
+                        cps[1]);
+                continue;
+            }
+
+            def->labels = erealloc(def->labels, sizeof(*def->labels) *
+                    (def->num_labels + 1));
+            def->labels[def->num_labels].x = strtoul(cps[0], NULL, 16);
+            def->labels[def->num_labels].y = strtoul(cps[1], NULL, 16);
+            def->labels[def->num_labels].name = estrdup(cps[2]);
+            def->labels[def->num_labels].text = estrdup(cps[3]);
+            string_newline_to_literal(def->labels[def->num_labels].text);
+            def->num_labels++;
+        } else if (strcmp(cps[0], "label_hide") == 0) {
+
+        } else if (strcmp(cps[0], "tooltip") == 0) {
+            if (string_split(cps[1], cps, 6, ' ') != 6) {
+                log(LOG(ERROR), "Invalid tooltip in definitions file: %s",
+                        cps[1]);
+                continue;
+            }
+
+            def->tooltips = erealloc(def->tooltips, sizeof(*def->tooltips) *
+                    (def->num_tooltips + 1));
+            def->tooltips[def->num_tooltips].outline = 0;
+            def->tooltips[def->num_tooltips].x = strtoul(cps[0], NULL, 16);
+            def->tooltips[def->num_tooltips].y = strtoul(cps[1], NULL, 16);
+            def->tooltips[def->num_tooltips].w = strtoul(cps[2], NULL, 16);
+            def->tooltips[def->num_tooltips].h = strtoul(cps[3], NULL, 16);
+            def->tooltips[def->num_tooltips].name = estrdup(cps[4]);
+            def->tooltips[def->num_tooltips].text = estrdup(cps[5]);
+            string_newline_to_literal(def->tooltips[def->num_tooltips].name);
+            def->num_tooltips++;
+        } else if (strcmp(cps[0], "t_outline") == 0) {
+            if (string_split(cps[1], cps, 2, ' ') != 2) {
+                log(LOG(ERROR), "Invalid t_outline in definitions file: %s",
+                        cps[1]);
+                continue;
+            }
+
+            if (def->num_tooltips == 0) {
+                log(LOG(ERROR), "No tooltips defined.");
+                continue;
+            }
+
+            if (!text_color_parse(cps[0],
+                    &def->tooltips[def->num_tooltips - 1].outline_color)) {
+                log(LOG(ERROR), "Color in invalid format: %s", cps[0]);
+                continue;
+            }
+
+            def->tooltips[def->num_tooltips - 1].outline = 1;
+            def->tooltips[def->num_tooltips - 1].outline_size = atoi(cps[1]);
+        }
+    }
+}
+
+/**
+ * Frees data inside a region_map_def_t structure.
+ *
+ * Note that the structure itself is not freed.
+ * @param def Region map definitions structure.
+ */
+static void region_map_def_free(region_map_def_t *def)
+{
+    size_t i;
+
+    HARD_ASSERT(def != NULL);
+
+    /* Free all maps. */
+    for (i = 0; i < def->num_maps; i++) {
+        efree(def->maps[i].path);
+    }
+
+    if (def->maps != NULL) {
+        efree(def->maps);
+        def->maps = NULL;
+        def->num_maps = 0;
+    }
+
+    /* Free labels. */
+    for (i = 0; i < def->num_labels; i++) {
+        efree(def->labels[i].name);
+        efree(def->labels[i].text);
+    }
+
+    if (def->labels != NULL) {
+        efree(def->labels);
+        def->labels = NULL;
+        def->num_labels = 0;
+    }
+
+    /* Free tooltips. */
+    for (i = 0; i < def->num_tooltips; i++) {
+        efree(def->tooltips[i].name);
+        efree(def->tooltips[i].text);
+    }
+
+    if (def->tooltips != NULL) {
+        efree(def->tooltips);
+        def->tooltips = NULL;
+        def->num_tooltips = 0;
+    }
+}
+
+#endif

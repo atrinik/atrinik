@@ -161,6 +161,11 @@ typedef struct _mapdata {
      * Player's current sub-layer.
      */
     uint8 player_sub_layer;
+
+    /**
+     * Region map.
+     */
+    struct region_map *region_map;
 } _mapdata;
 
 /**

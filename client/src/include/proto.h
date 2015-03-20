@@ -143,6 +143,7 @@ extern void init_player_data(void);
 extern int gender_to_id(const char *gender);
 extern void player_draw_exp_progress(SDL_Surface *surface, int x, int y, sint64 xp, uint8 level);
 extern char *player_make_path(const char *path);
+/* src/client/region_map.c */
 /* src/client/server_files.c */
 extern void server_files_init(void);
 extern void server_files_deinit(void);
@@ -347,8 +348,7 @@ extern void interface_redraw(void);
 /* src/gui/popups/login.c */
 extern void login_start(void);
 /* src/gui/popups/region_map.c */
-extern void region_map_clear(void);
-extern void socket_command_region_map(uint8 *data, size_t len, size_t pos);
+extern void region_map_open(void);
 /* src/gui/popups/server_add.c */
 extern void server_add_open(void);
 /* src/gui/popups/settings.c */
@@ -692,6 +692,7 @@ extern void update_map_region_name(const char *region_name);
 extern void update_map_region_longname(const char *region_longname);
 extern void update_map_path(const char *map_path);
 extern void map_update_in_building(uint8 in_building);
+extern int map_get_player_direction(void);
 extern void init_map_data(int xl, int yl, int px, int py);
 extern void adjust_tile_stretch(void);
 extern void map_set_data(int x, int y, int layer, sint16 face, uint8 quick_pos, uint8 obj_flags, const char *name, const char *name_color, sint16 height, uint8 probe, sint16 zoom_x, sint16 zoom_y, sint16 align, uint8 draw_double, uint8 alpha, sint16 rotate, uint8 infravision, uint32 target_object_count, uint8 target_is_friend, uint8 anim_speed, uint8 anim_facing, uint8 anim_flags, uint8 anim_state, uint8 priority);
