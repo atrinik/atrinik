@@ -512,8 +512,15 @@ void world_maker(void)
             }
 
             /* Store the map path, labels, etc. */
-            fprintf(def_fp, "map %x %x %s\n", wm_r->maps[i].xpos,
-                    wm_r->maps[i].ypos, wm_r->maps[i].m->path);
+            for (m = wm_r->maps[i].m; m != NULL; m = get_map_from_tiled(m,
+                    TILED_UP)) {
+                if (m->region != wm_r->maps[i].m->region) {
+                    break;
+                }
+
+                fprintf(def_fp, "map %x %x %s\n", wm_r->maps[i].xpos,
+                        wm_r->maps[i].ypos, m->path);
+            }
         }
 
         /* Create the image. */
