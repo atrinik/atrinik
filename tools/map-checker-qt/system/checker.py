@@ -477,7 +477,7 @@ class CheckerObject(AbstractChecker):
     def checker_anim(self, obj):
         t = obj.getAttributeInt("type")
 
-        if not obj.getAttributeInt("is_used_up") and obj.getAttributeInt("anim_speed") and obj.getAttributeFloat("speed") and not t in (game.types.monster, game.types.player, game.types.god, game.types.exit, game.types.cone, game.types.bullet, game.types.rod, game.types.spawn_point_mob, game.types.lightning):
+        if not obj.getAttributeInt("is_used_up") and obj.getAttributeInt("anim_speed") and obj.getAttributeFloat("speed") and not t in (game.types.monster, game.types.player, game.types.god, game.types.exit, game.types.cone, game.types.bullet, game.types.rod, game.types.spawn_point_mob, game.types.lightning, game.types.light_source):
             self.addError("warning", "Object is animated and has speed but its object type does not require speed.", "Animated objects don't require speed attribute to be set in order to be animated. Objects with speed are processed each tick server-side, using up unnecessary resources, since animations are processed client-side. Removing the speed attribute is recommended.", obj = obj)
 
 class CheckerArchetype(CheckerObject):
