@@ -648,6 +648,7 @@ void socket_command_map(uint8 *data, size_t len, size_t pos)
         packet_to_string(data, len, &pos, bg_music, sizeof(bg_music));
         packet_to_string(data, len, &pos, weather, sizeof(weather));
         height_diff = packet_to_uint8(data, len, &pos);
+        MapData.region_has_map = packet_to_uint8(data, len, &pos);
         packet_to_string(data, len, &pos, VS(region_name));
         packet_to_string(data, len, &pos, VS(region_longname));
         packet_to_string(data, len, &pos, VS(mappath));

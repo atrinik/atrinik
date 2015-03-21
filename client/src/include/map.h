@@ -126,6 +126,9 @@ typedef struct _mapdata {
     /** Region's name. */
     char region_name[MAX_BUF];
 
+    /** Whether the region itself actually has map. */
+    bool region_has_map;
+
     /** Region's long name. */
     char region_longname[MAX_BUF];
 
