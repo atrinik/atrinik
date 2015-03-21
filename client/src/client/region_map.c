@@ -250,6 +250,8 @@ bool region_map_ready(region_map_t *region_map)
     curl_data_free(region_map->data_def);
     region_map->data_def = NULL;
 
+    minimap_redraw_flag = 1;
+
     return true;
 }
 
