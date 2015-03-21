@@ -636,7 +636,7 @@ void draw_client_map2(object *pl)
             packet_append_string_terminated(packet,
                     region != NULL ? region->name : "");
             packet_append_string_terminated(packet,
-                    region != NULL ? region->longname : "");
+                    region != NULL ? region_get_longname(region) : "");
             packet_append_string_terminated(packet, pl->map->path);
         }
 
