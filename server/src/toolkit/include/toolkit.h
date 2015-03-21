@@ -106,7 +106,7 @@ typedef void (*toolkit_func)(void);
         } \
     }
 #else
-#define TOOLKIT_FUNC_PROTECTOR
+#define TOOLKIT_FUNC_PROTECTOR(__api_name)
 #endif
 
 /* Map the error-checking string duplicating functions into the toolkit

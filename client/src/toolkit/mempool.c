@@ -281,7 +281,11 @@ static void mempool_free(mempool_struct *pool)
 
     assert(pool != NULL);
 
+#ifndef NDEBUG
     if (pool->debugger == NULL) {
+#else
+    {
+#endif
         snprintf(VS(buf), "no debug information available");
     }
 
@@ -301,9 +305,11 @@ static void mempool_free(mempool_struct *pool)
                     continue;
                 }
 
+#ifndef NDEBUG
                 if (pool->debugger != NULL) {
                     pool->debugger(data, VS(buf));
                 }
+#endif
 
                 log(LOG(ERROR), "Chunk %p (%p) in pool %s has not been freed: "
                         "%s", chunk, data, pool->chunk_description, buf);
