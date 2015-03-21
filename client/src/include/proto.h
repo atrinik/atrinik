@@ -693,6 +693,7 @@ extern void update_map_region_longname(const char *region_longname);
 extern void update_map_path(const char *map_path);
 extern void map_update_in_building(uint8 in_building);
 extern int map_get_player_direction(void);
+extern void map_get_real_coords(int *x, int *y);
 extern void init_map_data(int xl, int yl, int px, int py);
 extern void adjust_tile_stretch(void);
 extern void map_set_data(int x, int y, int layer, sint16 face, uint8 quick_pos, uint8 obj_flags, const char *name, const char *name_color, sint16 height, uint8 probe, sint16 zoom_x, sint16 zoom_y, sint16 align, uint8 draw_double, uint8 alpha, sint16 rotate, uint8 infravision, uint32 target_object_count, uint8 target_is_friend, uint8 anim_speed, uint8 anim_facing, uint8 anim_flags, uint8 anim_state, uint8 priority);

@@ -542,6 +542,17 @@ int map_get_player_direction(void)
 }
 
 /**
+ * Get real map X/Y coordinates adjusted for player's position.
+ * @param[out] x Will contain X coordinate.
+ * @param[out] y Will contain Y coordinate.
+ */
+void map_get_real_coords(int *x, int *y)
+{
+    *x = MapData.posx - (map_width / 2) - 1;
+    *y = MapData.posy - (map_height / 2) - 1;
+}
+
+/**
  * Initialize map's data.
  * @param xl Map width.
  * @param yl Map height.
@@ -1980,12 +1991,21 @@ static int widget_event(widgetdata *widget, SDL_Event *event)
     return 0;
 }
 
+/** @copydoc widgetdata::background_func */
+void widget_background(widgetdata *widget, int draw)
+{
+    if (!widget->redraw) {
+        region_map_ready(MapData.region_map);
+    }
+}
+
 /**
  * Initialize one map widget.
  */
 void widget_map_init(widgetdata *widget)
 {
     widget->draw_func = widget_draw;
+    widget->background_func = widget_background;
     widget->event_func = widget_event;
     widget->menu_handle_func = NULL;
 

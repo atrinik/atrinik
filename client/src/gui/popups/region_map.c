@@ -256,6 +256,7 @@ static int popup_draw_post_func(popup_struct *popup)
 
     /* Actually draw the map. */
     SDL_BlitSurface(surface, &region_map->pos, ScreenSurface, &dest);
+    region_map_render_fow(region_map, ScreenSurface, dest.x, dest.y);
     region_map_render_marker(region_map, ScreenSurface, dest.x, dest.y);
 
     return 1;
@@ -434,8 +435,10 @@ static int popup_event_func(popup_struct *popup, SDL_Event *event)
 /** @copydoc popup_struct::destroy_callback_func */
 static int popup_destroy_callback(popup_struct *popup)
 {
-    region_map_free(region_map);
-    region_map = NULL;
+    if (region_map != NULL) {
+        region_map_free(region_map);
+        region_map = NULL;
+    }
 
     return 1;
 }

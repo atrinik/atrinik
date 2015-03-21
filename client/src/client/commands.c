@@ -28,6 +28,7 @@
  * handle all the commands - some might be in other files. */
 
 #include <global.h>
+#include <region_map.h>
 
 /** @copydoc socket_command_struct::handle_func */
 void socket_command_book(uint8 *data, size_t len, size_t pos)
@@ -627,11 +628,13 @@ void socket_command_mapstats(uint8 *data, size_t len, size_t pos)
 void socket_command_map(uint8 *data, size_t len, size_t pos)
 {
     static int mx = 0, my = 0;
-    int mask, x, y;
+    int mask, x, y, rx, ry;
     int mapstat;
     int xpos, ypos;
     int layer, ext_flags;
     uint8 num_layers, in_building;
+    region_map_def_map_t *def_map;
+    bool region_map_fow_need_update;
 
     mapstat = packet_to_uint8(data, len, &pos);
 
@@ -698,8 +701,12 @@ void socket_command_map(uint8 *data, size_t len, size_t pos)
     MapData.posx = xpos;
     MapData.posy = ypos;
     MapData.player_sub_layer = packet_to_uint8(data, len, &pos);
+    def_map = region_map_find_map(MapData.region_map, MapData.map_path);
 
     in_building = packet_to_uint8(data, len, &pos);
+
+    map_get_real_coords(&rx, &ry);
+    region_map_fow_need_update = false;
 
     while (pos < len) {
         mask = packet_to_uint16(data, len, &pos);
@@ -710,6 +717,13 @@ void socket_command_map(uint8 *data, size_t len, size_t pos)
         if (mask & MAP2_MASK_CLEAR) {
             map_clear_cell(x, y);
             continue;
+        }
+
+        if (MapData.region_name[0] != '\0') {
+            if (region_map_fow_set_visited(MapData.region_map, def_map,
+                    MapData.map_path, rx + x, ry + y)) {
+                region_map_fow_need_update = true;
+            }
         }
 
         /* Do we have darkness information? */
@@ -854,6 +868,10 @@ void socket_command_map(uint8 *data, size_t len, size_t pos)
     adjust_tile_stretch();
     map_update_in_building(in_building);
     map_redraw_flag = minimap_redraw_flag = 1;
+
+    if (region_map_fow_need_update) {
+        region_map_fow_update(MapData.region_map);
+    }
 }
 
 /** @copydoc socket_command_struct::handle_func */

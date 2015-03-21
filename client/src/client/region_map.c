@@ -34,8 +34,15 @@
 
 #ifndef __CPROTO__
 
+static UT_icd icd = {sizeof(region_map_fow_tile_t), NULL, NULL, NULL};
+
+static region_map_def_t *region_map_def_new(void);
 static void region_map_def_load(region_map_def_t *def, const char *str);
 static void region_map_def_free(region_map_def_t *def);
+static region_map_fow_t *region_map_fow_new(void);
+static void region_map_fow_create(region_map_t *region_map);
+static void region_map_fow_free(region_map_t *region_map);
+static void region_map_fow_reset(region_map_t *region_map);
 
 /**
  * Allocates and initializes a new region map structure.
@@ -47,10 +54,8 @@ region_map_t *region_map_create(void)
 
     region_map = ecalloc(1, sizeof(*region_map));
     region_map->zoom = 100;
-    region_map->def = ecalloc(1, sizeof(*region_map->def));
-    region_map->def->refcount = 1;
-    region_map->fow = ecalloc(1, sizeof(*region_map->fow));
-    region_map->fow->refcount = 1;
+    region_map->def = region_map_def_new();
+    region_map->fow = region_map_fow_new();
 
     return region_map;
 }
@@ -128,15 +133,14 @@ void region_map_reset(region_map_t *region_map)
         efree(region_map->def);
     }
 
-    region_map->def = ecalloc(1, sizeof(*region_map->def));
-    region_map->def->refcount = 1;
+    region_map->def = region_map_def_new();
 
     if (--region_map->fow->refcount == 0) {
+        region_map_fow_free(region_map);
         efree(region_map->fow);
     }
 
-    region_map->fow = ecalloc(1, sizeof(*region_map->fow));
-    region_map->fow->refcount = 1;
+    region_map->fow = region_map_fow_new();
 }
 
 /*
@@ -147,23 +151,26 @@ void region_map_reset(region_map_t *region_map)
  */
 void region_map_update(region_map_t *region_map, const char *region_name)
 {
-    char url[HUGE_BUF], cache[HUGE_BUF], *path;
+    char url[HUGE_BUF], buf[HUGE_BUF], *path;
 
     region_map_reset(region_map);
 
     /* Download the image. */
     snprintf(VS(url), "%s/client-maps/%s.png", cpl.http_url, region_name);
-    snprintf(VS(cache), "client-maps/%s.png", region_name);
-    path = player_make_path(cache);
+    snprintf(VS(buf), "client-maps/%s.png", region_name);
+    path = player_make_path(buf);
     region_map->data_png = curl_download_start(url, path);
     efree(path);
 
     /* Download the definitions. */
     snprintf(VS(url), "%s/client-maps/%s.def", cpl.http_url, region_name);
-    snprintf(VS(cache), "client-maps/%s.def", region_name);
-    path = player_make_path(cache);
+    snprintf(VS(buf), "client-maps/%s.def", region_name);
+    path = player_make_path(buf);
     region_map->data_def = curl_download_start(url, path);
     efree(path);
+
+    snprintf(VS(buf), "client-maps/%s.tiles", region_name);
+    region_map->fow->path = player_make_path(buf);
 }
 
 /**
@@ -231,6 +238,13 @@ bool region_map_ready(region_map_t *region_map)
 
     region_map_def_load(region_map->def, region_map->data_def->memory);
 
+    if (region_map->fow->surface == NULL ||
+            region_map->fow->surface->w != region_map->surface->w ||
+            region_map->fow->surface->h != region_map->surface->h) {
+        region_map_fow_reset(region_map);
+        region_map_fow_create(region_map);
+    }
+
     curl_data_free(region_map->data_png);
     region_map->data_png = NULL;
 
@@ -253,9 +267,6 @@ region_map_def_map_t *region_map_find_map(region_map_t *region_map,
 
     HARD_ASSERT(region_map != NULL);
     HARD_ASSERT(map_path != NULL);
-
-    SOFT_ASSERT_RC(region_map->def != NULL, NULL,
-            "Region map's definitions are NULL.");
 
     for (i = 0; i < region_map->def->num_maps; i++) {
         if (strcmp(region_map->def->maps[i].path, map_path) == 0) {
@@ -312,6 +323,7 @@ void region_map_resize(region_map_t *region_map, int adjust)
     float delta;
 
     HARD_ASSERT(region_map != NULL);
+    HARD_ASSERT(region_map->fow != NULL);
     SOFT_ASSERT(region_map->surface != NULL, "Region map's surface is NULL.");
 
     region_map->zoom += adjust;
@@ -321,10 +333,19 @@ void region_map_resize(region_map_t *region_map, int adjust)
         region_map->zoomed = NULL;
     }
 
+    if (region_map->fow->zoomed != NULL) {
+        SDL_FreeSurface(region_map->fow->zoomed);
+        region_map->fow->zoomed = NULL;
+    }
+
     if (region_map->zoom != 100) {
         /* Zoom the surface. */
         region_map->zoomed = zoomSurface(region_map->surface,
                 region_map->zoom / 100.0, region_map->zoom / 100.0, 0);
+        region_map->fow->zoomed = zoomSurface(region_map->fow->surface,
+                region_map->zoom / 100.0, region_map->zoom / 100.0, 0);
+        SDL_SetColorKey(region_map->fow->zoomed, SDL_SRCCOLORKEY,
+                SDL_MapRGB(region_map->fow->zoomed->format, 255, 255, 255));
     }
 
     if (adjust > 0) {
@@ -382,6 +403,35 @@ void region_map_render_marker(region_map_t *region_map, SDL_Surface *surface,
 
     SDL_BlitSurface(marker, &srcbox, surface, &box);
     SDL_FreeSurface(marker);
+}
+
+void region_map_render_fow(region_map_t *region_map, SDL_Surface *surface,
+        int x, int y)
+{
+    SDL_Rect box;
+
+    if (region_map->fow->surface == NULL) {
+        return;
+    }
+
+    box.x = x;
+    box.y = y;
+    SDL_BlitSurface(region_map_fow_surface(region_map->fow), &region_map->pos,
+            surface, &box);
+}
+
+/**
+ * Allocates a new ::region_map_def_t structure.
+ * @return The allocated structure.
+ */
+static region_map_def_t *region_map_def_new(void)
+{
+    region_map_def_t *def;
+
+    def = ecalloc(1, sizeof(*def));
+    def->refcount = 1;
+
+    return def;
 }
 
 /**
@@ -543,6 +593,198 @@ static void region_map_def_free(region_map_def_t *def)
         def->tooltips = NULL;
         def->num_tooltips = 0;
     }
+}
+
+/**
+ * Allocates a new ::region_map_fow_t structure.
+ * @return The allocated structure.
+ */
+static region_map_fow_t *region_map_fow_new(void)
+{
+    region_map_fow_t *fow;
+
+    fow = ecalloc(1, sizeof(*fow));
+    fow->refcount = 1;
+    utarray_new(fow->tiles, &icd);
+
+    return fow;
+}
+
+static void region_map_fow_create(region_map_t *region_map)
+{
+    FILE *fp;
+    char buf[HUGE_BUF * 16];
+
+    HARD_ASSERT(region_map->fow != NULL);
+    HARD_ASSERT(region_map->fow->path != NULL);
+    HARD_ASSERT(region_map->fow->bitmap == NULL);
+
+    region_map->fow->bitmap = ecalloc(1, RM_MAP_FOW_BITMAP_SIZE(region_map));
+
+    fp = fopen(region_map->fow->path, "r");
+
+    if (fp != NULL) {
+        while (fgets(VS(buf), fp)) {
+
+        }
+
+        fclose(fp);
+    }
+
+    region_map_fow_update(region_map);
+}
+
+static void region_map_fow_free(region_map_t *region_map)
+{
+    unsigned i;
+    region_map_fow_tile_t *tile;
+
+    region_map_fow_reset(region_map);
+
+    for (i = 0; i < utarray_len(region_map->fow->tiles); i++) {
+        tile = (region_map_fow_tile_t *) utarray_eltptr(region_map->fow->tiles,
+                i);
+        efree(tile->path);
+    }
+
+    utarray_free(region_map->fow->tiles);
+}
+
+static void region_map_fow_reset(region_map_t *region_map)
+{
+    if (region_map->fow->surface != NULL) {
+        SDL_FreeSurface(region_map->fow->surface);
+        region_map->fow->surface = NULL;
+    }
+
+    if (region_map->fow->bitmap != NULL) {
+        FILE *fp;
+
+        fp = fopen(region_map->fow->path, "w");
+
+        if (fp != NULL) {
+            fwrite(region_map->fow->bitmap, 1,
+                    RM_MAP_FOW_BITMAP_SIZE(region_map), fp);
+            fclose(fp);
+        }
+
+        efree(region_map->fow->bitmap);
+        region_map->fow->bitmap = NULL;
+    }
+}
+
+void region_map_fow_update(region_map_t *region_map)
+{
+    SDL_Surface *surface;
+    unsigned i;
+    region_map_fow_tile_t *tile;
+    region_map_def_map_t *def_map;
+    SDL_Rect box;
+    int rowsize, x, y;
+    uint32 color;
+
+    HARD_ASSERT(region_map != NULL);
+    HARD_ASSERT(region_map->fow != NULL);
+    HARD_ASSERT(region_map->def != NULL);
+
+    if (region_map->surface == NULL) {
+        /* Not yet loaded, nothing to do. */
+        return;
+    }
+
+    surface = region_map_surface(region_map);
+
+    for (i = 0; i < utarray_len(region_map->fow->tiles); i++) {
+        tile = (region_map_fow_tile_t *) utarray_eltptr(region_map->fow->tiles,
+                i);
+        def_map = region_map_find_map(region_map, tile->path);
+        efree(tile->path);
+
+        if (def_map != NULL) {
+            region_map_fow_set_visited(region_map, def_map, NULL,
+                    tile->x, tile->y);
+        }
+    }
+
+    utarray_clear(region_map->fow->tiles);
+    utarray_done(region_map->fow->tiles);
+
+    if (region_map->fow->surface == NULL) {
+        region_map->fow->surface = SDL_CreateRGBSurface(get_video_flags(),
+                surface->w, surface->h, video_get_bpp(), 0, 0, 0, 0);
+    }
+
+    SDL_FillRect(region_map->fow->surface, NULL, 0);
+    rowsize = (region_map->surface->w / region_map->def->pixel_size + 31) / 32;
+    color = SDL_MapRGB(surface->format, 255, 255, 255);
+
+    for (y = 0; y < region_map->surface->h / region_map->def->pixel_size; y++) {
+        for (x = 0; x < region_map->surface->w / region_map->def->pixel_size; x++) {
+            if (region_map->fow->bitmap[(x / 32) + rowsize * y] &
+                    (1U << (x % 32))) {
+                box.x = x * region_map->def->pixel_size;
+                box.y = y * region_map->def->pixel_size;
+                box.w = region_map->def->pixel_size;
+                box.h = region_map->def->pixel_size;
+                SDL_FillRect(region_map->fow->surface, &box, color);
+            }
+        }
+    }
+
+    SDL_SetColorKey(region_map->fow->surface, SDL_SRCCOLORKEY, color);
+    surface = SDL_DisplayFormat(region_map->fow->surface);
+    SDL_FreeSurface(region_map->fow->surface);
+    region_map->fow->surface = surface;
+}
+
+bool region_map_fow_set_visited(region_map_t *region_map,
+        region_map_def_map_t *map, const char *map_path, int x, int y)
+{
+    int rowsize;
+
+    HARD_ASSERT(region_map != NULL);
+    HARD_ASSERT(region_map->fow != NULL);
+    HARD_ASSERT(map != NULL || map_path != NULL);
+
+    if (map == NULL) {
+        region_map_fow_tile_t tile;
+
+        tile.path = estrdup(map_path);
+        tile.x = x;
+        tile.y = y;
+        utarray_push_back(region_map->fow->tiles, &tile);
+        return false;
+    }
+
+    HARD_ASSERT(region_map->fow->bitmap != NULL);
+
+    rowsize = (region_map->surface->w / region_map->def->pixel_size + 31) / 32;
+    x += map->xpos / region_map->def->pixel_size;
+    y += map->ypos / region_map->def->pixel_size;
+
+    if (region_map->fow->bitmap[(x / 32) + rowsize * y] & (1U << (x % 32))) {
+        return false;
+    }
+
+    region_map->fow->bitmap[(x / 32) + rowsize * y] |= (1U << (x % 32));
+    return true;
+}
+
+/**
+ * Get the region map fow image surface.
+ * @param fow Region map fow.
+ * @return Image surface, never NULL.
+ */
+SDL_Surface *region_map_fow_surface(region_map_fow_t *fow)
+{
+    HARD_ASSERT(fow != NULL);
+    HARD_ASSERT(fow->surface != NULL);
+
+    if (fow->zoomed != NULL) {
+        return fow->zoomed;
+    }
+
+    return fow->surface;
 }
 
 #endif

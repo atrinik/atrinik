@@ -140,11 +140,31 @@ typedef struct region_map_def {
 } region_map_def_t;
 
 /**
+ * Tile entry array. Used as a buffer to store visited locations in the region
+ * while the region map is still being downloaded.
+ */
+typedef struct region_map_fow_tile {
+    char *path; ///< Map path.
+    int x; ///< X coordinate.
+    int y; ///< Y coordinate.
+} region_map_fow_tile_t;
+
+/**
  * Fog of war.
  */
 typedef struct region_map_fow {
     /** Reference count. */
     int refcount;
+
+    char *path;
+
+    SDL_Surface *surface;
+
+    SDL_Surface *zoomed;
+
+    uint32 *bitmap;
+
+    UT_array *tiles;
 } region_map_fow_t;
 
 /**
@@ -201,6 +221,11 @@ typedef struct region_map {
     curl_data *data_def;
 } region_map_t;
 
+#define RM_MAP_FOW_BITMAP_SIZE(region_map) \
+    (sizeof(*(region_map)->fow->bitmap) * \
+    (((region_map)->surface->w / (region_map)->def->pixel_size + 31) / 32) * \
+    ((region_map)->surface->h / (region_map)->def->pixel_size))
+
 /* Prototypes */
 
 region_map_def_map_t *region_map_find_map(region_map_t *region_map,
@@ -210,11 +235,17 @@ bool region_map_ready(region_map_t *region_map);
 void region_map_pan(region_map_t *region_map);
 void region_map_render_marker(region_map_t *region_map, SDL_Surface *surface,
         int x, int y);
+void region_map_render_fow(region_map_t *region, SDL_Surface *surface,
+        int x, int y);
 SDL_Surface *region_map_surface(region_map_t *region_map);
 void region_map_reset(region_map_t *region_map);
 region_map_t *region_map_create(void);
 region_map_t *region_map_clone(region_map_t *region_map);
 void region_map_free(region_map_t *region_map);
 void region_map_update(region_map_t *region_map, const char *region_name);
+void region_map_fow_update(region_map_t *region_map);
+bool region_map_fow_set_visited(region_map_t *region_map,
+        region_map_def_map_t *map, const char *map_path, int x, int y);
+SDL_Surface *region_map_fow_surface(region_map_fow_t *fow);
 
 #endif
