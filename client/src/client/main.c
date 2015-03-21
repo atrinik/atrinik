@@ -180,7 +180,6 @@ static void init_game_data(void)
     clear_player();
 
     memset(&MapData, 0, sizeof(MapData));
-    MapData.region_map = region_map_create();
 
     msg_anim.message[0] = '\0';
 

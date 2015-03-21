@@ -335,6 +335,9 @@ void clear_map(void)
     memset(cells, 0, cells_size);
     sound_ambient_clear();
     map_anims_clear();
+    region_map_reset(MapData.region_map);
+    MapData.region_name[0] = '\0';
+    MapData.region_longname[0] = '\0';
 }
 
 /**
@@ -706,15 +709,17 @@ static void align_tile_stretch(int x, int y, int w, int h, int sub_layer)
  */
 void adjust_tile_stretch(void)
 {
-    int w2, h2, x, y, sub_layer;
+    int xoff, yoff, w, h, x, y, sub_layer;
 
-    w2 = map_width * MAP_FOW_SIZE;
-    h2 = map_height * MAP_FOW_SIZE;
+    xoff = map_width * (MAP_FOW_SIZE / 2);
+    yoff = map_height * (MAP_FOW_SIZE / 2);
+    w = map_width * MAP_FOW_SIZE;
+    h = map_height * MAP_FOW_SIZE;
 
-    for (x = map_width; x < map_width * 2; x++) {
-        for (y = map_height; y < map_height * 2; y++) {
+    for (x = xoff; x < xoff + map_width; x++) {
+        for (y = yoff; y < yoff + map_height; y++) {
             for (sub_layer = 0; sub_layer < NUM_SUB_LAYERS; sub_layer++) {
-                align_tile_stretch(x, y, w2, h2, sub_layer);
+                align_tile_stretch(x, y, w, h, sub_layer);
             }
         }
     }
@@ -1999,14 +2004,26 @@ void widget_background(widgetdata *widget, int draw)
     }
 }
 
+/** @copydoc widgetdata::deinit_func */
+void widget_deinit(widgetdata *widget)
+{
+    region_map_free(MapData.region_map);
+    MapData.region_map = NULL;
+}
+
 /**
  * Initialize one map widget.
  */
 void widget_map_init(widgetdata *widget)
 {
+    HARD_ASSERT(MapData.region_map == NULL);
+
+    MapData.region_map = region_map_create();
+
     widget->draw_func = widget_draw;
-    widget->background_func = widget_background;
     widget->event_func = widget_event;
+    widget->background_func = widget_background;
+    widget->deinit_func = widget_deinit;
     widget->menu_handle_func = NULL;
 
     SetPriorityWidget_reverse(widget);

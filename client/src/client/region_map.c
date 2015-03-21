@@ -108,16 +108,6 @@ void region_map_reset(region_map_t *region_map)
 
     memset(&region_map->pos, 0, sizeof(region_map->pos));
 
-    if (region_map->surface != NULL) {
-        SDL_FreeSurface(region_map->surface);
-        region_map->surface = NULL;
-    }
-
-    if (region_map->zoomed != NULL) {
-        SDL_FreeSurface(region_map->zoomed);
-        region_map->zoomed = NULL;
-    }
-
     if (region_map->data_png != NULL) {
         curl_data_free(region_map->data_png);
         region_map->data_png = NULL;
@@ -128,19 +118,31 @@ void region_map_reset(region_map_t *region_map)
         region_map->data_def = NULL;
     }
 
-    if (--region_map->def->refcount == 0) {
-        region_map_def_free(region_map->def);
-        efree(region_map->def);
-    }
-
-    region_map->def = region_map_def_new();
-
+    /* The fog of war freeing makes use of region_map->surface, so it must
+     * be freed before the surface... */
     if (--region_map->fow->refcount == 0) {
         region_map_fow_free(region_map);
         efree(region_map->fow);
     }
 
     region_map->fow = region_map_fow_new();
+
+    if (region_map->surface != NULL) {
+        SDL_FreeSurface(region_map->surface);
+        region_map->surface = NULL;
+    }
+
+    if (region_map->zoomed != NULL) {
+        SDL_FreeSurface(region_map->zoomed);
+        region_map->zoomed = NULL;
+    }
+
+    if (--region_map->def->refcount == 0) {
+        region_map_def_free(region_map->def);
+        efree(region_map->def);
+    }
+
+    region_map->def = region_map_def_new();
 }
 
 /*
@@ -189,12 +191,10 @@ bool region_map_ready(region_map_t *region_map)
         return true;
     }
 
-    SOFT_ASSERT_RC(region_map->data_png != NULL, false,
-            "Region map's data_png is NULL.");
-    SOFT_ASSERT_RC(region_map->data_def != NULL, false,
-            "Region map's data_def is NULL.");
-    SOFT_ASSERT_RC(region_map->surface == NULL, false,
-            "Region map already has a surface.");
+    if (region_map->data_png == NULL || region_map->data_def == NULL) {
+        return false;
+    }
+
     SOFT_ASSERT_RC(region_map->zoomed == NULL, false,
             "Region map already has a zoomed surface.");
 
@@ -613,22 +613,39 @@ static region_map_fow_t *region_map_fow_new(void)
 static void region_map_fow_create(region_map_t *region_map)
 {
     FILE *fp;
-    char buf[HUGE_BUF * 16];
 
     HARD_ASSERT(region_map->fow != NULL);
     HARD_ASSERT(region_map->fow->path != NULL);
     HARD_ASSERT(region_map->fow->bitmap == NULL);
 
-    region_map->fow->bitmap = ecalloc(1, RM_MAP_FOW_BITMAP_SIZE(region_map));
-
-    fp = fopen(region_map->fow->path, "r");
+    fp = fopen_wrapper(region_map->fow->path, "r");
 
     if (fp != NULL) {
-        while (fgets(VS(buf), fp)) {
+        struct stat statbuf;
 
+        if (fstat(fileno(fp), &statbuf) == -1) {
+            log(LOG(ERROR), "Could not stat %s: %d (%s)", region_map->fow->path,
+                    errno, strerror(errno));
+        } else if ((size_t) statbuf.st_size ==
+                RM_MAP_FOW_BITMAP_SIZE(region_map)) {
+            region_map->fow->bitmap = emalloc(statbuf.st_size);
+
+            if (fread(region_map->fow->bitmap, 1, statbuf.st_size, fp) !=
+                    (size_t) statbuf.st_size) {
+                log(LOG(ERROR), "Could not read %"FMT64U" bytes from %s: %d "
+                        "(%s)", (uint64) statbuf.st_size, region_map->fow->path,
+                        errno, strerror(errno));
+                efree(region_map->fow->bitmap);
+                region_map->fow->bitmap = NULL;
+            }
         }
 
         fclose(fp);
+    }
+
+    if (region_map->fow->bitmap == NULL) {
+        region_map->fow->bitmap = ecalloc(1,
+                RM_MAP_FOW_BITMAP_SIZE(region_map));
     }
 
     region_map_fow_update(region_map);
@@ -639,6 +656,10 @@ static void region_map_fow_free(region_map_t *region_map)
     unsigned i;
     region_map_fow_tile_t *tile;
 
+    HARD_ASSERT(region_map != NULL);
+    HARD_ASSERT(region_map->fow != NULL);
+    HARD_ASSERT(region_map->fow->tiles != NULL);
+
     region_map_fow_reset(region_map);
 
     for (i = 0; i < utarray_len(region_map->fow->tiles); i++) {
@@ -648,19 +669,31 @@ static void region_map_fow_free(region_map_t *region_map)
     }
 
     utarray_free(region_map->fow->tiles);
+    region_map->fow->tiles = NULL;
 }
 
 static void region_map_fow_reset(region_map_t *region_map)
 {
+    HARD_ASSERT(region_map != NULL);
+    HARD_ASSERT(region_map->fow != NULL);
+
     if (region_map->fow->surface != NULL) {
         SDL_FreeSurface(region_map->fow->surface);
         region_map->fow->surface = NULL;
     }
 
+    if (region_map->fow->zoomed != NULL) {
+        SDL_FreeSurface(region_map->fow->zoomed);
+        region_map->fow->zoomed = NULL;
+    }
+
     if (region_map->fow->bitmap != NULL) {
         FILE *fp;
 
-        fp = fopen(region_map->fow->path, "w");
+        HARD_ASSERT(region_map->surface != NULL);
+        HARD_ASSERT(region_map->fow->path != NULL);
+
+        fp = fopen_wrapper(region_map->fow->path, "w");
 
         if (fp != NULL) {
             fwrite(region_map->fow->bitmap, 1,
@@ -675,13 +708,13 @@ static void region_map_fow_reset(region_map_t *region_map)
 
 void region_map_fow_update(region_map_t *region_map)
 {
-    SDL_Surface *surface;
     unsigned i;
     region_map_fow_tile_t *tile;
     region_map_def_map_t *def_map;
     SDL_Rect box;
     int rowsize, x, y;
     uint32 color;
+    SDL_Surface *surface;
 
     HARD_ASSERT(region_map != NULL);
     HARD_ASSERT(region_map->fow != NULL);
@@ -692,8 +725,8 @@ void region_map_fow_update(region_map_t *region_map)
         return;
     }
 
-    surface = region_map_surface(region_map);
-
+    /* Now that the definitions are loaded, we can go back through the tiles
+     * data and actually set the visited tiles. */
     for (i = 0; i < utarray_len(region_map->fow->tiles); i++) {
         tile = (region_map_fow_tile_t *) utarray_eltptr(region_map->fow->tiles,
                 i);
@@ -711,23 +744,36 @@ void region_map_fow_update(region_map_t *region_map)
 
     if (region_map->fow->surface == NULL) {
         region_map->fow->surface = SDL_CreateRGBSurface(get_video_flags(),
-                surface->w, surface->h, video_get_bpp(), 0, 0, 0, 0);
+                region_map->surface->w, region_map->surface->h, video_get_bpp(),
+                0, 0, 0, 0);
     }
 
     SDL_FillRect(region_map->fow->surface, NULL, 0);
     rowsize = (region_map->surface->w / region_map->def->pixel_size + 31) / 32;
-    color = SDL_MapRGB(surface->format, 255, 255, 255);
+    color = SDL_MapRGB(region_map->fow->surface->format, 255, 255, 255);
 
     for (y = 0; y < region_map->surface->h / region_map->def->pixel_size; y++) {
-        for (x = 0; x < region_map->surface->w / region_map->def->pixel_size; x++) {
-            if (region_map->fow->bitmap[(x / 32) + rowsize * y] &
-                    (1U << (x % 32))) {
+        for (x = 0; x < region_map->surface->w / region_map->def->pixel_size;
+                x++) {
+            if (x % 32 == 0 && (region_map->fow->bitmap[(x / 32) + rowsize *
+                    y] == 0xffffffff)) {
+                /* If this entire 32 tiles area is visible, then we just
+                 * draw one wide rectangle. */
                 box.x = x * region_map->def->pixel_size;
-                box.y = y * region_map->def->pixel_size;
+                box.w = region_map->def->pixel_size * 32;
+                x += 32 - 1;
+            } else if (region_map->fow->bitmap[(x / 32) + rowsize * y] &
+                    (1U << (x % 32))) {
+                /* The tile is visible */
+                box.x = x * region_map->def->pixel_size;
                 box.w = region_map->def->pixel_size;
-                box.h = region_map->def->pixel_size;
-                SDL_FillRect(region_map->fow->surface, &box, color);
+            } else {
+                continue;
             }
+
+            box.y = y * region_map->def->pixel_size;
+            box.h = region_map->def->pixel_size;
+            SDL_FillRect(region_map->fow->surface, &box, color);
         }
     }
 
