@@ -255,5 +255,6 @@ void region_map_fow_update(region_map_t *region_map);
 bool region_map_fow_set_visited(region_map_t *region_map,
         region_map_def_map_t *map, const char *map_path, int x, int y);
 SDL_Surface *region_map_fow_surface(region_map_t *region_map);
+bool region_map_fow_is_visited(region_map_t *region_map, int x, int y);
 
 #endif

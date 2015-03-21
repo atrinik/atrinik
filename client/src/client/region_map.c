@@ -821,6 +821,18 @@ bool region_map_fow_set_visited(region_map_t *region_map,
     return true;
 }
 
+bool region_map_fow_is_visited(region_map_t *region_map, int x, int y)
+{
+    int rowsize;
+
+    HARD_ASSERT(region_map != NULL);
+    HARD_ASSERT(region_map->fow != NULL);
+
+    rowsize = (region_map->surface->w / region_map->def->pixel_size + 31) / 32;
+
+    return region_map->fow->bitmap[(x / 32) + rowsize * y] & (1U << (x % 32));
+}
+
 /**
  * Get the region map fow image surface.
  * @param region_map Region map.
