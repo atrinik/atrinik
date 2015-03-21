@@ -198,7 +198,7 @@ static void init_game_data(void)
 static int game_status_chain(void)
 {
     if (cpl.state == ST_INIT) {
-        clear_map();
+        clear_map(true);
         effect_stop();
         sound_ambient_clear();
         cpl.state = ST_META;
@@ -226,7 +226,7 @@ static int game_status_chain(void)
             socket_close(&csocket);
         }
 
-        clear_map();
+        clear_map(true);
         map_redraw_flag = minimap_redraw_flag = 1;
         cpl.state = ST_WAITLOOP;
     } else if (cpl.state == ST_STARTCONNECT) {
@@ -282,7 +282,7 @@ static int game_status_chain(void)
             cpl.state = ST_LOGIN;
         }
     } else if (cpl.state == ST_WAITFORPLAY) {
-        clear_map();
+        clear_map(true);
     }
 
     return 1;

@@ -682,7 +682,7 @@ extern void map_anims_clear(void);
 extern void map_anims_play(void);
 extern int map_anims_need_redraw(void);
 extern void load_mapdef_dat(void);
-extern void clear_map(void);
+extern void clear_map(_Bool hard);
 extern void map_update_size(int w, int h);
 extern void display_mapscroll(int dx, int dy, int old_w, int old_h);
 extern void update_map_name(const char *name);

@@ -316,8 +316,9 @@ void load_mapdef_dat(void)
 
 /**
  * Clear the map.
+ * @param hard Hard reset
  */
-void clear_map(void)
+void clear_map(bool hard)
 {
     size_t cells_size;
 
@@ -335,9 +336,13 @@ void clear_map(void)
     memset(cells, 0, cells_size);
     sound_ambient_clear();
     map_anims_clear();
-    region_map_reset(MapData.region_map);
-    MapData.region_name[0] = '\0';
-    MapData.region_longname[0] = '\0';
+
+    if (hard) {
+        region_map_reset(MapData.region_map);
+        MapData.region_name[0] = '\0';
+        MapData.region_longname[0] = '\0';
+        MapData.region_has_map = false;
+    }
 }
 
 /**
@@ -581,7 +586,7 @@ void init_map_data(int xl, int yl, int px, int py)
     }
 
     if (xl > 0) {
-        clear_map();
+        clear_map(false);
     }
 }
 
