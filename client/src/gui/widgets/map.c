@@ -551,8 +551,8 @@ int map_get_player_direction(void)
  */
 void map_get_real_coords(int *x, int *y)
 {
-    *x = MapData.posx - (map_width / 2) - 1;
-    *y = MapData.posy - (map_height / 2) - 1;
+    *x = MapData.posx - (map_width / 2);
+    *y = MapData.posy - (map_height / 2);
 }
 
 /**
