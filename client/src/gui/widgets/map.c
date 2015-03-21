@@ -1997,7 +1997,7 @@ static int widget_event(widgetdata *widget, SDL_Event *event)
 }
 
 /** @copydoc widgetdata::background_func */
-void widget_background(widgetdata *widget, int draw)
+static void widget_background(widgetdata *widget, int draw)
 {
     if (!widget->redraw) {
         region_map_ready(MapData.region_map);
@@ -2005,7 +2005,7 @@ void widget_background(widgetdata *widget, int draw)
 }
 
 /** @copydoc widgetdata::deinit_func */
-void widget_deinit(widgetdata *widget)
+static void widget_deinit(widgetdata *widget)
 {
     region_map_free(MapData.region_map);
     MapData.region_map = NULL;
