@@ -297,6 +297,9 @@ void region_map_pan(region_map_t *region_map)
 {
     region_map_def_map_t *map;
 
+    HARD_ASSERT(region_map != NULL);
+    HARD_ASSERT(region_map->surface != NULL);
+
     map = region_map_find_map(region_map, MapData.map_path);
 
     if (map != NULL) {
