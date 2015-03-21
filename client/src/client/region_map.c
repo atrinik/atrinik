@@ -388,13 +388,14 @@ void region_map_render_marker(region_map_t *region_map, SDL_Surface *surface,
 
     /* TODO: Could cache this */
     marker = rotozoomSurface(TEXTURE_CLIENT("map_marker"),
-            -((map_get_player_direction() - 1) * 45), 1.0, 1);
+            -((map_get_player_direction() - 1) * 45),
+            region_map->zoom / 100.0, 1);
     /* Calculate the player's marker position. */
-    box.x = x + (map->xpos + MapData.posx * region_map->def->pixel_size -
-            marker->w / 2) * (region_map->zoom / 100.0) +
+    box.x = x + (map->xpos + MapData.posx * region_map->def->pixel_size) *
+            (region_map->zoom / 100.0) - marker->w / 2 +
             region_map->def->pixel_size / 2 - region_map->pos.x;
-    box.y = y + (map->ypos + MapData.posy * region_map->def->pixel_size -
-            marker->h / 2) * (region_map->zoom / 100.0) +
+    box.y = y + (map->ypos + MapData.posy * region_map->def->pixel_size) *
+            (region_map->zoom / 100.0) - marker->h / 2 +
             region_map->def->pixel_size / 2 - region_map->pos.y;
 
     srcbox.x = MAX(0, x - box.x);
