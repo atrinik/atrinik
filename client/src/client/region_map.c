@@ -663,18 +663,19 @@ static void region_map_fow_free(region_map_t *region_map)
 
     HARD_ASSERT(region_map != NULL);
     HARD_ASSERT(region_map->fow != NULL);
-    HARD_ASSERT(region_map->fow->tiles != NULL);
 
     region_map_fow_reset(region_map);
 
-    for (i = 0; i < utarray_len(region_map->fow->tiles); i++) {
-        tile = (region_map_fow_tile_t *) utarray_eltptr(region_map->fow->tiles,
-                i);
-        efree(tile->path);
-    }
+    if (region_map->fow->tiles != NULL) {
+        for (i = 0; i < utarray_len(region_map->fow->tiles); i++) {
+            tile = (region_map_fow_tile_t *) utarray_eltptr(
+                    region_map->fow->tiles, i);
+            efree(tile->path);
+        }
 
-    utarray_free(region_map->fow->tiles);
-    region_map->fow->tiles = NULL;
+        utarray_free(region_map->fow->tiles);
+        region_map->fow->tiles = NULL;
+    }
 }
 
 static void region_map_fow_reset(region_map_t *region_map)
@@ -713,8 +714,6 @@ static void region_map_fow_reset(region_map_t *region_map)
 
 void region_map_fow_update(region_map_t *region_map)
 {
-    unsigned i;
-    region_map_fow_tile_t *tile;
     region_map_def_map_t *def_map;
     SDL_Rect box;
     int rowsize, x, y;
@@ -730,22 +729,27 @@ void region_map_fow_update(region_map_t *region_map)
         return;
     }
 
-    /* Now that the definitions are loaded, we can go back through the tiles
-     * data and actually set the visited tiles. */
-    for (i = 0; i < utarray_len(region_map->fow->tiles); i++) {
-        tile = (region_map_fow_tile_t *) utarray_eltptr(region_map->fow->tiles,
-                i);
-        def_map = region_map_find_map(region_map, tile->path);
-        efree(tile->path);
+    if (region_map->fow->tiles != NULL) {
+        unsigned i;
+        region_map_fow_tile_t *tile;
 
-        if (def_map != NULL) {
-            region_map_fow_set_visited(region_map, def_map, NULL,
-                    tile->x, tile->y);
+        /* Now that the definitions are loaded, we can go back through the tiles
+         * data and actually set the visited tiles. */
+        for (i = 0; i < utarray_len(region_map->fow->tiles); i++) {
+            tile = (region_map_fow_tile_t *) utarray_eltptr(
+                    region_map->fow->tiles, i);
+            def_map = region_map_find_map(region_map, tile->path);
+            efree(tile->path);
+
+            if (def_map != NULL) {
+                region_map_fow_set_visited(region_map, def_map, NULL,
+                        tile->x, tile->y);
+            }
         }
-    }
 
-    utarray_clear(region_map->fow->tiles);
-    utarray_done(region_map->fow->tiles);
+        utarray_free(region_map->fow->tiles);
+        region_map->fow->tiles = NULL;
+    }
 
     if (region_map->fow->surface == NULL) {
         region_map->fow->surface = SDL_CreateRGBSurface(get_video_flags(),
@@ -799,6 +803,10 @@ bool region_map_fow_set_visited(region_map_t *region_map,
 
     if (map == NULL) {
         region_map_fow_tile_t tile;
+
+        if (region_map->fow->tiles == NULL) {
+            return false;
+        }
 
         tile.path = estrdup(map_path);
         tile.x = x;
