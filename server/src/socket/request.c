@@ -633,6 +633,26 @@ void draw_client_map2(object *pl)
             region_find_with_map(pl->map->region) : NULL;
 
         if (CONTR(pl)->socket.socket_version >= 1059) {
+            bool has_map;
+
+            has_map = false;
+
+            /* TODO: This should be improved once maps have a real basename */
+            if (region != NULL) {
+                char *basename, *underscore, *basename_region;
+
+                basename = strrchr(pl->map->path, '/') + 1;
+                underscore = basename ? strchr(basename, '_') : NULL;
+                basename_region = strrchr(region->map_first, '/') + 1;
+
+                if (basename != NULL && basename_region != NULL &&
+                        underscore != NULL && strncmp(basename, basename_region,
+                        underscore - basename) == 0) {
+                    has_map = true;
+                }
+            }
+
+            packet_append_uint8(packet, has_map);
             packet_append_string_terminated(packet,
                     region != NULL ? region->name : "");
             packet_append_string_terminated(packet,
