@@ -304,9 +304,11 @@ void region_map_pan(region_map_t *region_map)
 
     if (map != NULL) {
         region_map->pos.x = (map->xpos + MapData.posx *
-                region_map->def->pixel_size) - region_map->pos.w / 2;
+                region_map->def->pixel_size) * (region_map->zoom / 100.0) -
+                region_map->pos.w / 2;
         region_map->pos.y = (map->ypos + MapData.posy *
-                region_map->def->pixel_size) - region_map->pos.h / 2;
+                region_map->def->pixel_size) * (region_map->zoom / 100.0) -
+                region_map->pos.h / 2;
     } else {
         region_map->pos.x = region_map->surface->w / 2 - region_map->pos.w / 2;
         region_map->pos.y = region_map->surface->h / 2 - region_map->pos.h / 2;
