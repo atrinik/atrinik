@@ -386,10 +386,15 @@ static int popup_event_func(popup_struct *popup, SDL_Event *event)
                     continue;
                 }
 
-                tooltip_create(event->motion.x, event->motion.y, FONT_ARIAL11,
-                        region_map->def->tooltips[i].text);
-                tooltip_multiline(200);
-                tooltip_enable_delay(100);
+                if (region_map_fow_is_visited(MapData.region_map,
+                        xpos / region_map->def->pixel_size / zoomfactor,
+                        ypos / region_map->def->pixel_size / zoomfactor)) {
+                    tooltip_create(event->motion.x, event->motion.y,
+                            FONT_ARIAL11, region_map->def->tooltips[i].text);
+                    tooltip_multiline(200);
+                    tooltip_enable_delay(100);
+                }
+
                 break;
             }
         }
