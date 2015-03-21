@@ -212,6 +212,7 @@ bool region_map_ready(region_map_t *region_map)
     SDL_FreeSurface(img);
 
     region_map_pan(region_map);
+    region_map_def_load(region_map->def, region_map->data_def->memory);
 
     /* Draw the labels. */
     for (i = 0; i < region_map->def->num_labels; i++) {
@@ -235,8 +236,6 @@ bool region_map_ready(region_map_t *region_map)
                 region_map->def->tooltips[i].outline_color.b),
                 region_map->def->tooltips[i].outline_size);
     }
-
-    region_map_def_load(region_map->def, region_map->data_def->memory);
 
     if (region_map->fow->surface == NULL ||
             region_map->fow->surface->w != region_map->surface->w ||
