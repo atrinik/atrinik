@@ -108,7 +108,8 @@ static int texture_data_new(texture_struct *tmp)
         surface = IMG_Load_wrapper(path);
 
         if (!surface) {
-            logger_print(LOG(BUG), "Could not load texture: %s", path);
+            logger_print(LOG(BUG), "Could not load texture %s: %s", path,
+                    IMG_GetError());
             return 0;
         }
 
