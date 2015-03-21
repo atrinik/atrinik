@@ -160,8 +160,6 @@ typedef struct region_map_fow {
 
     SDL_Surface *surface;
 
-    SDL_Surface *zoomed;
-
     uint32 *bitmap;
 
     UT_array *tiles;
@@ -184,6 +182,16 @@ typedef struct region_map {
      * @internal
      */
     SDL_Surface *zoomed;
+
+    /**
+     * Zoomed version of the region map's fog of war state.
+     *
+     * Not in the region_map_fow_t structure because that structure is
+     * refcounted, and different GUI elements may have different zoom levels.
+     *
+     * @internal
+     */
+    SDL_Surface *fow_zoomed;
 
     /**
      * Parsed definitions.
@@ -246,6 +254,6 @@ void region_map_update(region_map_t *region_map, const char *region_name);
 void region_map_fow_update(region_map_t *region_map);
 bool region_map_fow_set_visited(region_map_t *region_map,
         region_map_def_map_t *map, const char *map_path, int x, int y);
-SDL_Surface *region_map_fow_surface(region_map_fow_t *fow);
+SDL_Surface *region_map_fow_surface(region_map_t *region_map);
 
 #endif

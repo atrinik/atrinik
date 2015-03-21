@@ -337,19 +337,19 @@ void region_map_resize(region_map_t *region_map, int adjust)
         region_map->zoomed = NULL;
     }
 
-    if (region_map->fow->zoomed != NULL) {
-        SDL_FreeSurface(region_map->fow->zoomed);
-        region_map->fow->zoomed = NULL;
+    if (region_map->fow_zoomed != NULL) {
+        SDL_FreeSurface(region_map->fow_zoomed);
+        region_map->fow_zoomed = NULL;
     }
 
     if (region_map->zoom != 100) {
         /* Zoom the surface. */
         region_map->zoomed = zoomSurface(region_map->surface,
                 region_map->zoom / 100.0, region_map->zoom / 100.0, 0);
-        region_map->fow->zoomed = zoomSurface(region_map->fow->surface,
+        region_map->fow_zoomed = zoomSurface(region_map->fow->surface,
                 region_map->zoom / 100.0, region_map->zoom / 100.0, 0);
-        SDL_SetColorKey(region_map->fow->zoomed, SDL_SRCCOLORKEY,
-                SDL_MapRGB(region_map->fow->zoomed->format, 255, 255, 255));
+        SDL_SetColorKey(region_map->fow_zoomed, SDL_SRCCOLORKEY,
+                SDL_MapRGB(region_map->fow_zoomed->format, 255, 255, 255));
     }
 
     if (adjust > 0) {
@@ -421,7 +421,7 @@ void region_map_render_fow(region_map_t *region_map, SDL_Surface *surface,
 
     box.x = x;
     box.y = y;
-    SDL_BlitSurface(region_map_fow_surface(region_map->fow), &region_map->pos,
+    SDL_BlitSurface(region_map_fow_surface(region_map), &region_map->pos,
             surface, &box);
 }
 
@@ -687,9 +687,9 @@ static void region_map_fow_reset(region_map_t *region_map)
         region_map->fow->surface = NULL;
     }
 
-    if (region_map->fow->zoomed != NULL) {
-        SDL_FreeSurface(region_map->fow->zoomed);
-        region_map->fow->zoomed = NULL;
+    if (region_map->fow_zoomed != NULL) {
+        SDL_FreeSurface(region_map->fow_zoomed);
+        region_map->fow_zoomed = NULL;
     }
 
     if (region_map->fow->bitmap != NULL) {
@@ -823,19 +823,20 @@ bool region_map_fow_set_visited(region_map_t *region_map,
 
 /**
  * Get the region map fow image surface.
- * @param fow Region map fow.
+ * @param region_map Region map.
  * @return Image surface, never NULL.
  */
-SDL_Surface *region_map_fow_surface(region_map_fow_t *fow)
+SDL_Surface *region_map_fow_surface(region_map_t *region_map)
 {
-    HARD_ASSERT(fow != NULL);
-    HARD_ASSERT(fow->surface != NULL);
+    HARD_ASSERT(region_map->fow != NULL);
+    HARD_ASSERT(region_map->fow != NULL);
+    HARD_ASSERT(region_map->fow->surface != NULL);
 
-    if (fow->zoomed != NULL) {
-        return fow->zoomed;
+    if (region_map->fow_zoomed != NULL) {
+        return region_map->fow_zoomed;
     }
 
-    return fow->surface;
+    return region_map->fow->surface;
 }
 
 #endif
