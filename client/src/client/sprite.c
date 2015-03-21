@@ -240,7 +240,7 @@ void surface_show_effects(SDL_Surface *surface, int x, int y, SDL_Rect *srcrect,
 
     if (alpha) {
         src_gfx = SDL_DisplayFormatAlpha(src);
-        surface_set_alpha(src_gfx, 100);
+        surface_set_alpha(src_gfx, alpha);
 
         if (tmp != NULL) {
             SDL_FreeSurface(tmp);

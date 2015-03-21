@@ -4,17 +4,18 @@ import os, sys, hashlib
 
 # py3k
 try:
-    from socketserver import TCPServer
-    from http.server import SimpleHTTPRequestHandler
+    from http.server import HTTPServer, SimpleHTTPRequestHandler
     import configparser
     from urllib.parse import urlparse
+    import socketserver
 
     config = configparser.ConfigParser(strict = False)
 except:
-    from BaseHTTPServer import HTTPServer as TCPServer
+    from BaseHTTPServer import HTTPServer
     from SimpleHTTPServer import SimpleHTTPRequestHandler
     import ConfigParser as configparser
     from urlparse import urlparse
+    import SocketServer as socketserver
 
     config = configparser.ConfigParser()
 
@@ -76,9 +77,14 @@ class HTTPRequestHandler(SimpleHTTPRequestHandler):
             f.close()
             raise
 
+class ForkingHTTPServer(socketserver.ForkingMixIn, HTTPServer):
+    def finish_request(self, request, client_address):
+        request.settimeout(60)
+        HTTPServer.finish_request(self, request, client_address)
+
 if __name__ == '__main__':
     if config.getboolean("general", "http_server"):
         os.chdir(config.get("general", "httppath"))
         o = urlparse(config.get("general", "http_url"))
-        server = TCPServer(("", o.port), HTTPRequestHandler)
+        server = ForkingHTTPServer(("", o.port), HTTPRequestHandler)
         server.serve_forever()

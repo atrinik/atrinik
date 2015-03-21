@@ -297,6 +297,8 @@ int curl_connect(void *c_data)
     sint8 status;
 
     HARD_ASSERT(c_data != NULL);
+    
+    chunk = NULL;
 
     package_get_version_full(version, sizeof(version));
 
@@ -321,7 +323,6 @@ int curl_connect(void *c_data)
         goto done;
     }
 
-    chunk = NULL;
     etag = curl_load_etag(data);
 
     if (etag != NULL) {

@@ -215,7 +215,15 @@ void init_ericserver(void)
  * Frees all the memory that ericserver allocates. */
 void free_all_newserver(void)
 {
+    int i;
+
     free_socket_images();
+
+    for (i = 1; i < socket_info.allocated_sockets; i++) {
+        if (init_sockets[i].state != ST_AVAILABLE) {
+            free_newsocket(&init_sockets[i]);
+        }
+    }
 
 #ifndef WIN32
     close(init_sockets[0].fd);
