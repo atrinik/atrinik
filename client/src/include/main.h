@@ -50,6 +50,9 @@ typedef struct server_struct {
     /** Name of the server. */
     char *name;
 
+    /** Hostname of the server. */
+    char *hostname;
+
     /** Server version. */
     char *version;
 

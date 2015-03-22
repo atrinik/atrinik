@@ -117,7 +117,7 @@ extern server_struct *server_get_id(size_t num);
 extern size_t server_get_count(void);
 extern int ms_connecting(int val);
 extern void metaserver_clear_data(void);
-extern void metaserver_add(const char *ip, int port, const char *name, int player, const char *version, const char *desc);
+extern void metaserver_add(const char *ip, int port, const char *name, const char *hostname, int player, const char *version, const char *desc);
 extern int metaserver_thread(void *dummy);
 extern void metaserver_get_servers(void);
 /* src/client/misc.c */
