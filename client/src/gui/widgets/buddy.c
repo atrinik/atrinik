@@ -168,7 +168,7 @@ static void widget_buddy_load(widgetdata *widget)
     }
 
     snprintf(buf, sizeof(buf), "%s.dat", widget->id);
-    tmp->path = player_make_path(buf);
+    tmp->path = file_path_player(buf);
 
     fp = fopen_wrapper(tmp->path, "r");
 
