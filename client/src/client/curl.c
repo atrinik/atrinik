@@ -297,7 +297,7 @@ int curl_connect(void *c_data)
     sint8 status;
 
     HARD_ASSERT(c_data != NULL);
-    
+
     chunk = NULL;
 
     package_get_version_full(version, sizeof(version));
@@ -432,14 +432,14 @@ int curl_connect(void *c_data)
 
                 if (fp != NULL) {
                     if (!fputs(etag, fp)) {
-                        log(LOG(BUG), "Failed to save %s: %d (%s)", data->path,
-                                errno, strerror(errno));
+                        log(LOG(BUG), "Failed to save %s: %d (%s)", path, errno,
+                                strerror(errno));
                     }
 
                     fclose(fp);
                 } else {
-                    log(LOG(BUG), "Failed to open %s: %d (%s)", data->path,
-                            errno, strerror(errno));
+                    log(LOG(BUG), "Failed to open %s: %d (%s)", path, errno,
+                            strerror(errno));
                 }
             }
         }
