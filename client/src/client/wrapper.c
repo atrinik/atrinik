@@ -356,6 +356,67 @@ char *file_path(const char *fname, const char *mode)
 }
 
 /**
+ * Constructs a path leading to the chosen server settings directory. Used
+ * internally by file_path_player() and file_path_server().
+ * @return
+ */
+static StringBuffer *file_path_server_internal(void)
+{
+    StringBuffer *sb;
+
+    sb = stringbuffer_new();
+    stringbuffer_append_string(sb, "settings/");
+
+    SOFT_ASSERT_RC(selected_server != NULL, sb, "Selected server is NULL.");
+    SOFT_ASSERT_RC(!string_isempty(selected_server->hostname), sb,
+            "Selected server has empty hostname.");
+
+    stringbuffer_append_printf(sb, "servers/%s-%d/", selected_server->hostname,
+            selected_server->port);
+
+    return sb;
+}
+
+/**
+ * Create a path to the per-player settings directory.
+ * @param path Path inside the per-player settings directory.
+ * @return New path. Must be freed.
+ */
+char *file_path_player(const char *path)
+{
+    StringBuffer *sb;
+
+    HARD_ASSERT(path != NULL);
+
+    sb = file_path_server_internal();
+
+    SOFT_ASSERT_LABEL(*cpl.account != '\0', done, "Account name is empty.");
+    SOFT_ASSERT_LABEL(*cpl.name != '\0', done, "Player name is empty.");
+
+    stringbuffer_append_printf(sb, "%s/%s/%s", cpl.account, cpl.name, path);
+
+done:
+    return stringbuffer_finish(sb);
+}
+
+/**
+ * Create a path to the per-server settings directory.
+ * @param path Path inside the per-server settings directory.
+ * @return New path. Must be freed.
+ */
+char *file_path_server(const char *path)
+{
+    StringBuffer *sb;
+
+    HARD_ASSERT(path != NULL);
+
+    sb = file_path_server_internal();
+    stringbuffer_append_printf(sb, ".common/%s", path);
+
+    return stringbuffer_finish(sb);
+}
+
+/**
  * @defgroup file_wrapper_functions File wrapper functions
  * These functions are used as replacement to common C and SDL functions
  * that are related to file opening and reading/writing.
