@@ -142,7 +142,6 @@ extern void send_command(const char *command);
 extern void init_player_data(void);
 extern int gender_to_id(const char *gender);
 extern void player_draw_exp_progress(SDL_Surface *surface, int x, int y, sint64 xp, uint8 level);
-extern char *player_make_path(const char *path);
 /* src/client/region_map.c */
 /* src/client/server_files.c */
 extern void server_files_init(void);

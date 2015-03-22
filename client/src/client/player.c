@@ -225,17 +225,3 @@ void player_draw_exp_progress(SDL_Surface *surface, int x, int y, sint64 xp, uin
     box.h /= 2;
     rectangle_create(surface, box.x, box.y, box.w, box.h, "4040ff");
 }
-
-char *player_make_path(const char *path)
-{
-    StringBuffer *sb;
-    char *server_name;
-
-    sb = stringbuffer_new();
-    server_name = estrdup(selected_server->name);
-    string_replace_char(server_name, "/\\", ' ');
-    stringbuffer_append_printf(sb, "settings/servers/%s/%s/%s/%s", server_name, cpl.account, cpl.name, path);
-    efree(server_name);
-
-    return stringbuffer_finish(sb);
-}
