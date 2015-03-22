@@ -2,7 +2,7 @@
 /************************************************************************
 *            Atrinik, a Multiplayer Online Role Playing Game            *
 *                                                                       *
-*    Copyright (C) 2009-2014 Alex Tokar and Atrinik Development Team    *
+*    Copyright (C) 2009-2015 Alex Tokar and Atrinik Development Team    *
 *                                                                       *
 * Fork from Crossfire (Multiplayer game for X-windows).                 *
 *                                                                       *
@@ -87,6 +87,14 @@ function db_affected_rows()
 function db_sanitize($input)
 {
 	return mysql_real_escape_string($input);
+}
+
+// Closes the DB connection.
+function db_close()
+{
+	global $db_connection;
+
+	mysql_close($db_connection);
 }
 
 ?>

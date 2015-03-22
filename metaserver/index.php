@@ -2,7 +2,7 @@
 /************************************************************************
 *            Atrinik, a Multiplayer Online Role Playing Game            *
 *                                                                       *
-*    Copyright (C) 2009-2014 Alex Tokar and Atrinik Development Team    *
+*    Copyright (C) 2009-2015 Alex Tokar and Atrinik Development Team    *
 *                                                                       *
 * Fork from Crossfire (Multiplayer game for X-windows).                 *
 *                                                                       *
@@ -49,6 +49,7 @@ if ($num_rows < 1)
 }
 
 $is_legacy_client = substr($_SERVER['HTTP_USER_AGENT'], -1, 1) != ')';
+$matched = preg_match('/Atrinik Client \((.+)\)\/(.+) \((\d+)\)/', $_SERVER['HTTP_USER_AGENT'], $matches);
 $i = 0;
 
 // Now go through the rows
@@ -61,8 +62,15 @@ while ($row = db_fetch_assoc($request))
 		echo $row['ip_address'], ':', $row['port'], ':', $row['hostname'], ':', $row['num_players'], ':', $row['version'], ':', $row['text_comment'];
 	}
 	else
-	{
-		echo $row['ip_address'], ':', $row['port'], ':', $row['name'], ':', $row['num_players'], ':', $row['version'], ':', $row['text_comment'];
+    {
+        if ($matched && (int) $matches[3] >= 1059)
+        {
+		    echo $row['ip_address'], ':', $row['port'], ':', $row['name'], ':', $row['hostname'], ':', $row['num_players'], ':', $row['version'], ':', $row['text_comment'];
+        }
+        else
+        {
+            echo $row['ip_address'], ':', $row['port'], ':', $row['name'], ':', $row['num_players'], ':', $row['version'], ':', $row['text_comment'];
+        }
 	}
 
 	$i++;
@@ -76,6 +84,8 @@ while ($row = db_fetch_assoc($request))
 
 // Free the request
 db_free_result($request);
+
+db_close();
 
 ?>
 
