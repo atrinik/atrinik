@@ -160,19 +160,19 @@ void region_map_update(region_map_t *region_map, const char *region_name)
     /* Download the image. */
     snprintf(VS(url), "%s/client-maps/%s.png", cpl.http_url, region_name);
     snprintf(VS(buf), "client-maps/%s.png", region_name);
-    path = player_make_path(buf);
+    path = file_path_server(buf);
     region_map->data_png = curl_download_start(url, path);
     efree(path);
 
     /* Download the definitions. */
     snprintf(VS(url), "%s/client-maps/%s.def", cpl.http_url, region_name);
     snprintf(VS(buf), "client-maps/%s.def", region_name);
-    path = player_make_path(buf);
+    path = file_path_server(buf);
     region_map->data_def = curl_download_start(url, path);
     efree(path);
 
     snprintf(VS(buf), "client-maps/%s.tiles", region_name);
-    region_map->fow->path = player_make_path(buf);
+    region_map->fow->path = file_path_player(buf);
 }
 
 /**
