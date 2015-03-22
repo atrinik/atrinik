@@ -55,6 +55,17 @@ typedef enum {
 } minimap_type_t;
 
 /**
+ * Number of pixels from the border to the circle in the minimap texture.
+ */
+#define MINIMAP_CIRCLE_PADDING(widget) (10. * ((double) (widget)->w / \
+    TEXTURE_CLIENT(minimap_texture_names[MINIMAP_TEXTURE_BG])->w))
+/**
+ * Radius of the minimap's circle.
+ */
+#define MINIMAP_CIRCLE_RADIUS(widget) \
+    (((widget->w) - MINIMAP_CIRCLE_PADDING(widget) * 2) / 2)
+
+/**
  * Minimap widget sub-structure.
  */
 typedef struct minimap_widget {
@@ -141,16 +152,39 @@ static void widget_draw(widgetdata *widget)
             }
 
             if (region_map_ready(MapData.region_map)) {
-                MapData.region_map->pos.w = widget->surface->w;
-                MapData.region_map->pos.h = widget->surface->h;
+                int cx, cy, side, half;
+                SDL_Rect rect;
+                SDL_Surface *surface;
+
+                cx = (widget->w - MINIMAP_CIRCLE_PADDING(widget) * 2) / 2;
+                cy = (widget->h - MINIMAP_CIRCLE_PADDING(widget) * 2) / 2;
+                side = isqrt(MINIMAP_CIRCLE_RADIUS(widget) *
+                        MINIMAP_CIRCLE_RADIUS(widget) * 2);
+                half = side * 0.5;
+
+                rect.x = cx - half + MINIMAP_CIRCLE_PADDING(widget);
+                rect.y = cy - half + MINIMAP_CIRCLE_PADDING(widget);
+                rect.w = side;
+                rect.h = side;
+
+                MapData.region_map->pos.h = rect.h + rect.y;
+                MapData.region_map->pos.w = rect.w + rect.x;
                 region_map_resize(MapData.region_map, 0);
                 region_map_pan(MapData.region_map);
-                SDL_BlitSurface(region_map_surface(MapData.region_map),
-                        &MapData.region_map->pos, widget->surface, NULL);
+                MapData.region_map->pos.w = widget->surface->w;
+                MapData.region_map->pos.h = widget->surface->h;
+
+                surface = region_map_surface(MapData.region_map);
+
+                rect.x = MAX(rect.x - MapData.region_map->pos.x, 0);
+                rect.y = MAX(rect.y - MapData.region_map->pos.y, 0);
+
+                SDL_BlitSurface(surface, &MapData.region_map->pos,
+                        widget->surface, &rect);
                 region_map_render_fow(MapData.region_map,
-                        widget->surface, 0, 0);
+                        widget->surface, rect.x, rect.y);
                 region_map_render_marker(MapData.region_map,
-                        widget->surface, 0, 0);
+                        widget->surface, rect.x, rect.y);
             } else {
                 SDL_Rect tmp;
 
