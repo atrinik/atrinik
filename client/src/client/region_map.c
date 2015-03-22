@@ -316,7 +316,7 @@ void region_map_pan(region_map_t *region_map)
         region_map->pos.y = region_map->surface->h / 2 - region_map->pos.h / 2;
     }
 
-    surface_pan(region_map->surface, &region_map->pos);
+    surface_pan(region_map_surface(region_map), &region_map->pos);
 }
 
 /**
