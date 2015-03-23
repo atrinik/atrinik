@@ -1,26 +1,26 @@
-/************************************************************************
-*            Atrinik, a Multiplayer Online Role Playing Game            *
-*                                                                       *
-*    Copyright (C) 2009-2012 Alex Tokar and Atrinik Development Team    *
-*                                                                       *
-* Fork from Crossfire (Multiplayer game for X-windows).                 *
-*                                                                       *
-* This program is free software; you can redistribute it and/or modify  *
-* it under the terms of the GNU General Public License as published by  *
-* the Free Software Foundation; either version 2 of the License, or     *
-* (at your option) any later version.                                   *
-*                                                                       *
-* This program is distributed in the hope that it will be useful,       *
-* but WITHOUT ANY WARRANTY; without even the implied warranty of        *
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
-* GNU General Public License for more details.                          *
-*                                                                       *
-* You should have received a copy of the GNU General Public License     *
-* along with this program; if not, write to the Free Software           *
-* Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.             *
-*                                                                       *
-* The author can be reached at admin@atrinik.org                        *
-************************************************************************/
+/*************************************************************************
+ *           Atrinik, a Multiplayer Online Role Playing Game             *
+ *                                                                       *
+ *   Copyright (C) 2009-2014 Alex Tokar and Atrinik Development Team     *
+ *                                                                       *
+ * Fork from Crossfire (Multiplayer game for X-windows).                 *
+ *                                                                       *
+ * This program is free software; you can redistribute it and/or modify  *
+ * it under the terms of the GNU General Public License as published by  *
+ * the Free Software Foundation; either version 2 of the License, or     *
+ * (at your option) any later version.                                   *
+ *                                                                       *
+ * This program is distributed in the hope that it will be useful,       *
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of        *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
+ * GNU General Public License for more details.                          *
+ *                                                                       *
+ * You should have received a copy of the GNU General Public License     *
+ * along with this program; if not, write to the Free Software           *
+ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.             *
+ *                                                                       *
+ * The author can be reached at admin@atrinik.org                        *
+ ************************************************************************/
 
 /**
  * @file
@@ -38,8 +38,7 @@
  * mass-change blacklist status. */
 #define BLACKLIST_ALL_DELAY 1500
 
-enum
-{
+enum {
     BUTTON_PLAY,
     BUTTON_SHUFFLE,
     BUTTON_BLACKLIST,
@@ -47,7 +46,7 @@ enum
     BUTTON_HELP,
 
     BUTTON_NUM
-};
+} ;
 
 /**
  * Is shuffle enabled? */
@@ -110,7 +109,7 @@ static void mplayer_do_shuffle(list_struct *list)
 
     /* Build a list containing non-blacklisted row IDs. */
     row_num = 0;
-    row_ids = malloc(sizeof(*row_ids) * (list->rows - 1));
+    row_ids = emalloc(sizeof(*row_ids) * (list->rows - 1));
 
     for (i = 0; i < list->rows - 1; i++) {
         if (!shuffle_blacklist[i]) {
@@ -161,9 +160,9 @@ static void mplayer_blacklist_toggle(list_struct *list)
         /* Clear blacklist status. */
         if (shuffle_blacklist[list->row_selected - 1]) {
             shuffle_blacklist[list->row_selected - 1] = 0;
-        }
-        /* Enable blacklist status. */
-        else {
+        } else {
+            /* Enable blacklist status. */
+
             shuffle_blacklist[list->row_selected - 1] = 1;
 
             /* Shuffle mode and we're playing the music we just
@@ -211,7 +210,7 @@ static void mplayer_blacklist_save(list_struct *list)
 
     if (fp == NULL) {
         logger_print(LOG(ERROR), "Failed to open file: %s",
-                     FILE_MPLAYER_BLACKLIST);
+                FILE_MPLAYER_BLACKLIST);
         return;
     }
 
@@ -371,7 +370,7 @@ static void widget_draw(widgetdata *widget)
         box.w = widget->w / 2;
 
         /* Store the background music file name in temporary buffer and
-        * make sure it won't overflow by truncating it if necessary. */
+         * make sure it won't overflow by truncating it if necessary. */
         if (bg_music) {
             strncpy(buf, bg_music, sizeof(buf) - 1);
             buf[sizeof(buf) - 1] = '\0';
@@ -386,8 +385,8 @@ static void widget_draw(widgetdata *widget)
         scrollbar_show(&scrollbar_progress, widget->surface, 170, 50);
 
         box.h = 120;
-        box.w -= 6;
-        text_show(widget->surface, FONT_ARIAL10, "You can use the music player to play your favorite tunes from the game, or play them all one-by-one in random order (shuffle).\n\nNote that if you use the music player, in-game areas won't change your music until you click [b]Stop[/b].", widget->w / 2, 62, COLOR_WHITE, TEXT_WORD_WRAP | TEXT_MARKUP, &box);
+        box.w -= 6 * 2;
+        text_show(widget->surface, FONT_ARIAL10, "You can use the music player to play your favorite tunes from the game, or play them all one-by-one in random order (shuffle).\n\nNote that if you use the music player, in-game areas won't change your music until you click [b]Stop[/b].", widget->w / 2 + 6, 62, COLOR_WHITE, TEXT_WORD_WRAP | TEXT_MARKUP, &box);
 
         for (i = 0; i < BUTTON_NUM; i++) {
             buttons[i].surface = widget->surface;
@@ -421,7 +420,7 @@ static void widget_draw(widgetdata *widget)
 }
 
 /** @copydoc widgetdata::background_func */
-static void widget_background(widgetdata *widget)
+static void widget_background(widgetdata *widget, int draw)
 {
     uint32 duration, num_lines;
 
@@ -445,8 +444,7 @@ static void widget_background(widgetdata *widget)
             sound_music_seek(scrollbar_progress_info.scroll_offset + 1);
             scrollbar_progress_info.redraw = 0;
             widget->redraw = 1;
-        }
-        else {
+        } else {
             uint32 offset;
 
             offset = scrollbar_progress_info.scroll_offset;
@@ -493,8 +491,7 @@ static int widget_event(widgetdata *widget, SDL_Event *event)
         if (list_handle_mouse(list_mplayer, event)) {
             widget->redraw = 1;
             return 1;
-        }
-        else if (scrollbar_event(&scrollbar_progress, event)) {
+        } else if (scrollbar_event(&scrollbar_progress, event)) {
             widget->redraw = 1;
             return 1;
         }
@@ -503,46 +500,44 @@ static int widget_event(widgetdata *widget, SDL_Event *event)
     for (i = 0; i < BUTTON_NUM; i++) {
         if (button_event(&buttons[i], event)) {
             switch (i) {
-                case BUTTON_PLAY:
+            case BUTTON_PLAY:
 
-                    if (sound_map_background(-1)) {
-                        sound_start_bg_music("no_music", 0, 0);
-                        sound_map_background(0);
-                        shuffle = 0;
-                    }
-                    else {
-                        list_handle_enter(list_mplayer, event);
-                    }
+                if (sound_map_background(-1)) {
+                    sound_start_bg_music("no_music", 0, 0);
+                    sound_map_background(0);
+                    shuffle = 0;
+                } else {
+                    list_handle_enter(list_mplayer, event);
+                }
 
-                    break;
+                break;
 
-                case BUTTON_SHUFFLE:
-                    shuffle = !shuffle;
+            case BUTTON_SHUFFLE:
+                shuffle = !shuffle;
 
-                    if (shuffle) {
-                        mplayer_do_shuffle(list_mplayer);
-                        sound_map_background(1);
-                    }
-                    else {
-                        sound_start_bg_music("no_music", 0, 0);
-                        sound_map_background(0);
-                    }
+                if (shuffle) {
+                    mplayer_do_shuffle(list_mplayer);
+                    sound_map_background(1);
+                } else {
+                    sound_start_bg_music("no_music", 0, 0);
+                    sound_map_background(0);
+                }
 
-                    break;
+                break;
 
-                case BUTTON_BLACKLIST:
-                    /* Toggle the blacklist state of the selected row. */
-                    mplayer_blacklist_toggle(list_mplayer);
-                    mplayer_blacklist_save(list_mplayer);
-                    break;
+            case BUTTON_BLACKLIST:
+                /* Toggle the blacklist state of the selected row. */
+                mplayer_blacklist_toggle(list_mplayer);
+                mplayer_blacklist_save(list_mplayer);
+                break;
 
-                case BUTTON_CLOSE:
-                    widget->show = 0;
-                    break;
+            case BUTTON_CLOSE:
+                widget->show = 0;
+                break;
 
-                case BUTTON_HELP:
-                    help_show("music player");
-                    break;
+            case BUTTON_HELP:
+                help_show("music player");
+                break;
             }
 
             widget->redraw = 1;

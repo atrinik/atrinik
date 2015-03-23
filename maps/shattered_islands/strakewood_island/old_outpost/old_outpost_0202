@@ -175,7 +175,7 @@ y 1
 arch worm_purple
 type 83
 level 18
-Wis 3
+wis 3
 direction 3
 end
 end
@@ -283,7 +283,7 @@ arch lavagolem
 type 83
 glow_radius 3
 level 16
-Wis 2
+wis 2
 direction 3
 end
 end
@@ -311,7 +311,7 @@ arch lavagolem
 type 83
 glow_radius 3
 level 16
-Wis 2
+wis 2
 direction 3
 end
 end
@@ -556,7 +556,7 @@ arch lavagolem
 type 83
 glow_radius 3
 level 16
-Wis 2
+wis 2
 end
 end
 arch floor_stone3d
@@ -947,7 +947,7 @@ arch lavagolem
 type 83
 glow_radius 3
 level 16
-Wis 2
+wis 2
 end
 end
 arch floor_stone3b
@@ -2819,7 +2819,7 @@ level 18
 random_move 1
 item_race 2
 item_level 6
-Wis 3
+wis 3
 direction 3
 end
 end
@@ -2845,7 +2845,7 @@ level 18
 random_move 1
 item_race 2
 item_level 6
-Wis 3
+wis 3
 direction 3
 end
 end

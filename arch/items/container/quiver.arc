@@ -1,7 +1,7 @@
 Object quiver
 name arrow quiver
 race arrows
-food 13
+sub_type 3
 other_arch close_quiver
 face quiver.101
 level 1

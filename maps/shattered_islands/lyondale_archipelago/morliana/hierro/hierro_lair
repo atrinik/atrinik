@@ -1828,7 +1828,7 @@ dam 57
 wc 7
 maxhp 400
 ac 3
-Con 0
+con 0
 attack_cleave 0
 attack_force 50
 attack_chaos 50
@@ -1836,7 +1836,7 @@ attack_confusion 5
 can_cast_spell 1
 can_use_weapon 0
 can_use_armour 0
-Wis 10
+wis 10
 attack_move_type 3
 run_away 5
 protect_impact 5

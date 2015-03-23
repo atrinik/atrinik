@@ -1,0 +1,566 @@
+arch map
+name Brynknot
+msg
+Created:  2011-10-02 Alex Tokar
+Modified: 2014-12-23 Alex Tokar
+endmsg
+width 24
+height 24
+difficulty 1
+darkness -1
+outdoor 1
+no_harm 1
+tile_path_1 world_2_0113
+tile_path_2 world_2_0212
+tile_path_3 world_2_0111
+tile_path_4 world_2_aa12
+tile_path_5 world_2_0213
+tile_path_6 world_2_0211
+tile_path_7 world_2_aa11
+tile_path_8 world_2_aa13
+bg_music lontala.mid
+region brynknot
+tile_path_9 world_3_0112
+tile_path_10 world_1_0112
+end
+arch roof_brick_brown
+direction 3
+x 14
+y 7
+end
+arch roof_brick_brown
+direction 3
+x 14
+y 8
+end
+arch roof_brick_brown
+direction 3
+x 14
+y 9
+end
+arch roof_brick_brown
+direction 3
+x 14
+y 10
+end
+arch roof_brick_brown
+direction 3
+x 14
+y 11
+end
+arch roof_brick_brown
+direction 3
+x 14
+y 12
+end
+arch roof_brick_brown
+direction 3
+x 14
+y 13
+end
+arch roof_brick_brown
+direction 3
+x 14
+y 14
+end
+arch roof_brick_brown
+direction 3
+x 14
+y 15
+end
+arch roof_brick_brown
+direction 3
+x 14
+y 16
+end
+arch roof_brick_brown
+direction 3
+x 14
+y 17
+end
+arch roof_brick_brown
+direction 5
+x 15
+y 6
+end
+arch roof_brick_brown
+direction 8
+x 15
+y 7
+end
+arch roof_brick_brown
+x 15
+y 8
+end
+arch roof_brick_brown
+x 15
+y 9
+end
+arch roof_brick_brown
+x 15
+y 10
+end
+arch roof_brick_brown
+x 15
+y 11
+end
+arch roof_brick_brown
+x 15
+y 12
+end
+arch roof_brick_brown
+x 15
+y 13
+end
+arch roof_brick_brown
+x 15
+y 14
+end
+arch roof_brick_brown
+x 15
+y 15
+end
+arch roof_brick_brown
+x 15
+y 16
+end
+arch roof_brick_brown
+x 15
+y 17
+end
+arch roof_brick_brown
+direction 5
+x 16
+y 6
+end
+arch roof_brick_brown
+direction 7
+x 16
+y 7
+end
+arch roof_brick_brown
+direction 8
+x 16
+y 8
+end
+arch roof_brick_brown
+x 16
+y 9
+end
+arch roof_brick_brown
+x 16
+y 10
+end
+arch roof_brick_brown
+x 16
+y 11
+end
+arch roof_brick_brown
+x 16
+y 12
+end
+arch roof_brick_brown
+x 16
+y 13
+end
+arch roof_brick_brown
+x 16
+y 14
+end
+arch roof_brick_brown
+x 16
+y 15
+end
+arch roof_brick_brown
+x 16
+y 16
+end
+arch roof_brick_brown
+x 16
+y 17
+end
+arch roof_brick_brown
+direction 5
+x 17
+y 6
+end
+arch roof_brick_brown
+direction 7
+x 17
+y 7
+end
+arch roof_brick_brown
+direction 7
+x 17
+y 8
+end
+arch roof_brick_brown
+direction 8
+x 17
+y 9
+end
+arch roof_brick_brown
+x 17
+y 10
+end
+arch roof_brick_brown
+x 17
+y 11
+end
+arch roof_brick_brown
+x 17
+y 12
+end
+arch roof_brick_brown
+x 17
+y 13
+end
+arch roof_brick_brown
+x 17
+y 14
+end
+arch roof_brick_brown
+x 17
+y 15
+end
+arch roof_brick_brown
+x 17
+y 16
+end
+arch roof_brick_brown
+x 17
+y 17
+end
+arch roof_brick_brown
+direction 5
+x 18
+y 6
+end
+arch roof_brick_brown
+direction 7
+x 18
+y 7
+end
+arch roof_brick_brown
+direction 7
+x 18
+y 8
+end
+arch roof_brick_brown
+direction 7
+x 18
+y 9
+end
+arch roof_brick_brown
+direction 8
+x 18
+y 10
+end
+arch roof_brick_brown
+x 18
+y 11
+end
+arch roof_brick_brown
+x 18
+y 12
+end
+arch roof_brick_brown
+x 18
+y 13
+end
+arch roof_brick_brown
+x 18
+y 14
+end
+arch roof_brick_brown
+x 18
+y 15
+end
+arch roof_brick_brown
+x 18
+y 16
+end
+arch roof_brick_brown
+x 18
+y 17
+end
+arch roof_brick_brown
+direction 5
+x 19
+y 6
+end
+arch roof_brick_brown
+direction 7
+x 19
+y 7
+end
+arch roof_brick_brown
+direction 7
+x 19
+y 8
+end
+arch roof_brick_brown
+direction 7
+x 19
+y 9
+end
+arch roof_brick_brown
+direction 7
+x 19
+y 10
+end
+arch roof_brick_brown
+direction 8
+x 19
+y 11
+end
+arch roof_brick_brown
+x 19
+y 12
+end
+arch roof_brick_brown
+x 19
+y 13
+end
+arch roof_brick_brown
+x 19
+y 14
+end
+arch roof_brick_brown
+x 19
+y 15
+end
+arch roof_brick_brown
+x 19
+y 16
+end
+arch roof_brick_brown
+x 19
+y 17
+end
+arch roof_brick_brown
+direction 5
+x 20
+y 6
+end
+arch roof_brick_brown
+direction 7
+x 20
+y 7
+end
+arch roof_brick_brown
+direction 7
+x 20
+y 8
+end
+arch roof_brick_brown
+direction 7
+x 20
+y 9
+end
+arch roof_brick_brown
+direction 7
+x 20
+y 10
+end
+arch roof_brick_brown
+direction 7
+x 20
+y 11
+end
+arch roof_brick_brown
+direction 8
+x 20
+y 12
+end
+arch roof_brick_brown
+x 20
+y 13
+end
+arch roof_brick_brown
+x 20
+y 14
+end
+arch roof_brick_brown
+x 20
+y 15
+end
+arch roof_brick_brown
+x 20
+y 16
+end
+arch roof_brick_brown
+x 20
+y 17
+end
+arch roof_brick_brown
+direction 5
+x 21
+y 6
+end
+arch roof_brick_brown
+direction 7
+x 21
+y 7
+end
+arch roof_brick_brown
+direction 7
+x 21
+y 8
+end
+arch roof_brick_brown
+direction 7
+x 21
+y 9
+end
+arch roof_brick_brown
+direction 7
+x 21
+y 10
+end
+arch roof_brick_brown
+direction 7
+x 21
+y 11
+end
+arch roof_brick_brown
+direction 7
+x 21
+y 12
+end
+arch roof_brick_brown
+direction 8
+x 21
+y 13
+end
+arch roof_brick_brown
+x 21
+y 14
+end
+arch roof_brick_brown
+x 21
+y 15
+end
+arch roof_brick_brown
+x 21
+y 16
+end
+arch roof_brick_brown
+x 21
+y 17
+end
+arch roof_brick_brown
+direction 5
+x 22
+y 6
+end
+arch roof_brick_brown
+direction 7
+x 22
+y 7
+end
+arch roof_brick_brown
+direction 7
+x 22
+y 8
+end
+arch roof_brick_brown
+direction 7
+x 22
+y 9
+end
+arch roof_brick_brown
+direction 7
+x 22
+y 10
+end
+arch roof_brick_brown
+direction 7
+x 22
+y 11
+end
+arch roof_brick_brown
+direction 7
+x 22
+y 12
+end
+arch roof_brick_brown
+direction 7
+x 22
+y 13
+end
+arch roof_brick_brown
+direction 8
+x 22
+y 14
+end
+arch roof_brick_brown
+x 22
+y 15
+end
+arch roof_brick_brown
+x 22
+y 16
+end
+arch roof_brick_brown
+x 22
+y 17
+end
+arch roof_brick_brown
+direction 5
+x 23
+y 6
+end
+arch roof_brick_brown
+direction 7
+x 23
+y 7
+end
+arch roof_brick_brown
+direction 7
+x 23
+y 8
+end
+arch roof_brick_brown
+direction 7
+x 23
+y 9
+end
+arch roof_brick_brown
+direction 7
+x 23
+y 10
+end
+arch roof_brick_brown
+direction 7
+x 23
+y 11
+end
+arch roof_brick_brown
+direction 7
+x 23
+y 12
+end
+arch roof_brick_brown
+direction 7
+x 23
+y 13
+end
+arch roof_brick_brown
+direction 7
+x 23
+y 14
+end
+arch roof_brick_brown
+direction 8
+x 23
+y 15
+end
+arch roof_brick_brown
+x 23
+y 16
+end
+arch roof_brick_brown
+x 23
+y 17
+end

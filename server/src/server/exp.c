@@ -1,26 +1,26 @@
-/************************************************************************
-*            Atrinik, a Multiplayer Online Role Playing Game            *
-*                                                                       *
-*    Copyright (C) 2009-2012 Alex Tokar and Atrinik Development Team    *
-*                                                                       *
-* Fork from Crossfire (Multiplayer game for X-windows).                 *
-*                                                                       *
-* This program is free software; you can redistribute it and/or modify  *
-* it under the terms of the GNU General Public License as published by  *
-* the Free Software Foundation; either version 2 of the License, or     *
-* (at your option) any later version.                                   *
-*                                                                       *
-* This program is distributed in the hope that it will be useful,       *
-* but WITHOUT ANY WARRANTY; without even the implied warranty of        *
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
-* GNU General Public License for more details.                          *
-*                                                                       *
-* You should have received a copy of the GNU General Public License     *
-* along with this program; if not, write to the Free Software           *
-* Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.             *
-*                                                                       *
-* The author can be reached at admin@atrinik.org                        *
-************************************************************************/
+/*************************************************************************
+ *           Atrinik, a Multiplayer Online Role Playing Game             *
+ *                                                                       *
+ *   Copyright (C) 2009-2014 Alex Tokar and Atrinik Development Team     *
+ *                                                                       *
+ * Fork from Crossfire (Multiplayer game for X-windows).                 *
+ *                                                                       *
+ * This program is free software; you can redistribute it and/or modify  *
+ * it under the terms of the GNU General Public License as published by  *
+ * the Free Software Foundation; either version 2 of the License, or     *
+ * (at your option) any later version.                                   *
+ *                                                                       *
+ * This program is distributed in the hope that it will be useful,       *
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of        *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
+ * GNU General Public License for more details.                          *
+ *                                                                       *
+ * You should have received a copy of the GNU General Public License     *
+ * along with this program; if not, write to the Free Software           *
+ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.             *
+ *                                                                       *
+ * The author can be reached at admin@atrinik.org                        *
+ ************************************************************************/
 
 /**
  * @file
@@ -30,8 +30,7 @@
 
 /**
  * Experience needed for each level. */
-uint64 new_levels[MAXLEVEL + 2] =
-{
+uint64 new_levels[MAXLEVEL + 2] = {
     0, 0, 2000, 4000, 8000, 16000, 32000, 64000, 125000, 250000, 500000,
     900000, 1400000, 2000000, 2600000,
     3300000, 4100000, 4900000, 5700000, 6600000, 7500000,
@@ -59,8 +58,7 @@ uint64 new_levels[MAXLEVEL + 2] =
 
 /**
  * Level colors. */
-_level_color level_color[201] =
-{
+_level_color level_color[201] = {
     {-2, -1, 0, 1, 2, 3},
     {-1, 0, 1, 2, 3, 4},
     {0, 1, 2, 3, 4, 5},
@@ -339,8 +337,7 @@ sint64 add_exp(object *op, sint64 exp_gain, int skill_nr, int exact)
     if (exp_skill->stats.exp > (sint64) MAX_EXPERIENCE) {
         exp_gain = exp_gain - (exp_skill->stats.exp - MAX_EXPERIENCE);
         exp_skill->stats.exp = MAX_EXPERIENCE;
-    }
-    else if (exp_skill->stats.exp < 0) {
+    } else if (exp_skill->stats.exp < 0) {
         exp_gain += exp_skill->stats.exp;
         exp_skill->stats.exp = 0;
     }
@@ -350,14 +347,12 @@ sint64 add_exp(object *op, sint64 exp_gain, int skill_nr, int exact)
             op->stats.exp += exp_gain;
 
             if (op->stats.exp >= (sint64) MAX_EXPERIENCE) {
-                exp_gain = exp_gain - (op->stats.exp - MAX_EXPERIENCE);
                 op->stats.exp = MAX_EXPERIENCE;
             }
         }
 
         CONTR(op)->stat_exp_gained += exp_gain;
-    }
-    else if (exp_gain < 0) {
+    } else if (exp_gain < 0) {
         link_player_skills(op);
         CONTR(op)->stat_exp_lost += -exp_gain;
     }
@@ -365,8 +360,7 @@ sint64 add_exp(object *op, sint64 exp_gain, int skill_nr, int exact)
     /* Notify the player of the exp gain/loss. */
     if (exp_gain > 0) {
         draw_info_format(COLOR_WHITE, op, "You got %"FMT64 " exp in skill %s.", exp_gain, skills[skill_nr].name);
-    }
-    else {
+    } else {
         draw_info_format(COLOR_WHITE, op, "You lost %"FMT64 " exp in skill %s.", -exp_gain, skills[skill_nr].name);
     }
 
@@ -417,21 +411,18 @@ int exp_lvl_adj(object *who, object *op)
 
         if (op->level > 1 && op->type == SKILL) {
             draw_info_format(COLOR_RED, who, "You are now level %d in the skill %s.", op->level, op->name);
-        }
-        else {
+        } else {
             draw_info_format(COLOR_RED, who, "You are now level %d.", op->level);
         }
 
         /* To increase more levels. */
         return exp_lvl_adj(who, op) + 1;
-    }
-    else if (op->level > 1 && op->stats.exp < (sint64) level_exp(op->level, 1.0)) {
+    } else if (op->level > 1 && op->stats.exp < (sint64) level_exp(op->level, 1.0)) {
         op->level--;
 
         if (op->type == SKILL) {
             draw_info_format(COLOR_RED, who, "-You are now level %d in the skill %s.", op->level, op->name);
-        }
-        else {
+        } else {
             draw_info_format(COLOR_RED, who, "-You are now level %d.", op->level);
         }
 
@@ -490,8 +481,7 @@ float calc_level_difference(int who_lvl, int op_lvl)
 
             v = 0.2f / (float) r;
             tmp = 1.0f - (v * (float) (who_lvl - op_lvl));
-        }
-        else if (op_lvl >= level_color[who_lvl].blue) {
+        } else if (op_lvl >= level_color[who_lvl].blue) {
             r = level_color[who_lvl].yellow - level_color[who_lvl].blue;
 
             if (r < 1) {
@@ -500,9 +490,9 @@ float calc_level_difference(int who_lvl, int op_lvl)
 
             v = 0.3f / (float) r;
             tmp = 0.4f + (v * (float) (op_lvl - level_color[who_lvl].blue + 1));
-        }
-        /* Green */
-        else {
+        } else {
+            /* Green */
+
             r = level_color[who_lvl].blue - level_color[who_lvl].green;
 
             if (r < 1) {
@@ -512,9 +502,9 @@ float calc_level_difference(int who_lvl, int op_lvl)
             v = 0.05f / (float) r;
             tmp = 0.25f + (v * (float) (op_lvl - level_color[who_lvl].green + 1));
         }
-    }
-    /* Yellow, orange, red, purple */
-    else if (who_lvl < op_lvl) {
+    } else if (who_lvl < op_lvl) {
+        /* Yellow, orange, red, purple */
+
         /* Still yellow */
         if (op_lvl < level_color[who_lvl].orange) {
             r = level_color[who_lvl].orange - who_lvl - 1;
@@ -526,9 +516,9 @@ float calc_level_difference(int who_lvl, int op_lvl)
             v = 0.1f / (float) r;
             tmp = 1.0f + (v * (float) (op_lvl - who_lvl));
 
-        }
-        /* Orange */
-        else if (op_lvl < level_color[who_lvl].red) {
+        } else if (op_lvl < level_color[who_lvl].red) {
+            /* Orange */
+
             r = level_color[who_lvl].red - who_lvl - 1;
 
             if (r < 1) {
@@ -537,9 +527,9 @@ float calc_level_difference(int who_lvl, int op_lvl)
 
             v = 0.2f / (float) r;
             tmp = 1.2f + (v * (float) (op_lvl - who_lvl));
-        }
-        /* Red or purple */
-        else {
+        } else {
+            /* Red or purple */
+
             r = (op_lvl + 1) - level_color[who_lvl].red;
             v = 0.1f * (float) r;
             tmp = 1.4f + v;

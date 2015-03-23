@@ -190,6 +190,10 @@
   - nrof (int) (optional):
      Defines how many items the player needs. If not specified, a default of 1
      is assumed. MUST not be lower than 1.
+  - keep (int) (optional):
+     If set to 1, player will keep the quest item after completing the quest
+     part. The item will have the quest item state cleared, becoming a regular
+     item.
 
  One or both of "arch" and "name" attributes MUST be set.
 
@@ -249,7 +253,7 @@
      interfaces such as temple or bartender is also supported through the use
      of inherit="Temple.TempleGrunhilde" or inherit="Tavern.Bartender".
 
-     An empty value signifies that the default interface (no preconditions)
+     A value of "interface" says that the default interface (no preconditions)
      should be inherited. Otherwise, the specified precondition will be
      inherited; one can use for example "completed" to inherit the interface
      shown when the quest has been completed, "need_finish_kill_spiders" to
@@ -315,8 +319,8 @@ def dialog(self, msg):
      Will match if the player has the specified region map UID in their known
      region maps.
   - enemy (string) (optional):
-     If empty, will match when the NPC has an enemy. If set to "player", will
-     match if the NPC's enemy is the player who activated the interface.
+     If set to "any", will match when the NPC has an enemy. If set to "player",
+     will match if the NPC's enemy is the player who activated the interface.
   - started (string) (optional):
   - finished (string) (optional):
   - completed (string) (optional):
@@ -325,6 +329,10 @@ def dialog(self, msg):
      a <quest> or <part> tag, the quest's UID MUST be specified as well as the
      first word in this string (thus, the quest UID and the part UID(s) are
      separated by a space in this case).
+  - options (string) (optional):
+     Checks event options.
+  - num2finish (int) (optional):
+     Precondition based on number of objects necessary to finish a quest part.
 
  Examples:
   <check region_map="incuna" />
@@ -372,6 +380,14 @@ return self._activator.FindObject(archname = "goldcoin") != None
      its contents would be shown.
 
      If this begins with a double colon, hidden dialogues can be inherited.
+  - icon (string) (optional):
+     If set, will set the interface icon to the specified face (xxx.101). If
+     set to "player", will use the player's face.
+  - title (string) (optional):
+     If set, will set the interface title to the specified string.
+  - animation (string) (optional):
+     If set, will set the interface animation to the specified animation
+     (human_male). If set to "player", will use the player's animation.
 
  It can have any number of the following tags inside of it, in any order:
   - <message>...</message>:
@@ -452,12 +468,24 @@ return self._activator.FindObject(archname = "goldcoin") != None
      Defines the arch-name of the object to give to the player.
   - name (string) (optional):
      Defines the name of the object to give to the player.
+  - message (string) (optional):
+     Defines a message to show next to the object's icon, instead of the
+     object's name.
+  - remove (int) (optional):
+     If set, the behavior of this tag changes and instead of the NPC giving
+     an object to the player, instead, the player's inventory is searched for
+     an object matching the name/arch, and a specified number is removed.
 
  One or both of "arch" and "name" attributes MUST be set.
 
  Example:
   <dialog name="hello">
    <object arch="silvercoin" />
+  </dialog>
+
+ Example to remove two copper coins from the player's inventory:
+  <dialog name="hello">
+   <object arch="coppercoin" remove=2" />
   </dialog>
 
 ===============================================================================
@@ -526,12 +554,18 @@ return self._activator.FindObject(archname = "goldcoin") != None
   - start (string) (optional):
      Starts the specified quest part.
   - complete (string) (optional):
-     Completed the specified quest part.
+     Completes the specified quest part.
   - region_map (string) (optional):
      Give the player the specified region map.
   - enemy (string) (optional):
-     If set to "player", make the player the NPC's current enemy. Anything else
-     will clear the NPC's enemy.
+     If set to "player", make the player the NPC's current enemy.
+     If set to "clear", will will clear the NPC's enemy.
+  - teleport (string) (optional):
+     If set, the player will be teleported to the specified location. Must
+     be in the format of "<map-path> <x> <y>".
+  - trigger (string) (optional):
+     If set, will locate a beacon with the specified name and apply the
+     object the beacon is in.
 
   <dialog name="hello">
    <message>Greetings adventurer!</message>

@@ -1,26 +1,26 @@
-/************************************************************************
-*            Atrinik, a Multiplayer Online Role Playing Game            *
-*                                                                       *
-*    Copyright (C) 2009-2012 Alex Tokar and Atrinik Development Team    *
-*                                                                       *
-* Fork from Crossfire (Multiplayer game for X-windows).                 *
-*                                                                       *
-* This program is free software; you can redistribute it and/or modify  *
-* it under the terms of the GNU General Public License as published by  *
-* the Free Software Foundation; either version 2 of the License, or     *
-* (at your option) any later version.                                   *
-*                                                                       *
-* This program is distributed in the hope that it will be useful,       *
-* but WITHOUT ANY WARRANTY; without even the implied warranty of        *
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
-* GNU General Public License for more details.                          *
-*                                                                       *
-* You should have received a copy of the GNU General Public License     *
-* along with this program; if not, write to the Free Software           *
-* Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.             *
-*                                                                       *
-* The author can be reached at admin@atrinik.org                        *
-************************************************************************/
+/*************************************************************************
+ *           Atrinik, a Multiplayer Online Role Playing Game             *
+ *                                                                       *
+ *   Copyright (C) 2009-2014 Alex Tokar and Atrinik Development Team     *
+ *                                                                       *
+ * Fork from Crossfire (Multiplayer game for X-windows).                 *
+ *                                                                       *
+ * This program is free software; you can redistribute it and/or modify  *
+ * it under the terms of the GNU General Public License as published by  *
+ * the Free Software Foundation; either version 2 of the License, or     *
+ * (at your option) any later version.                                   *
+ *                                                                       *
+ * This program is distributed in the hope that it will be useful,       *
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of        *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
+ * GNU General Public License for more details.                          *
+ *                                                                       *
+ * You should have received a copy of the GNU General Public License     *
+ * along with this program; if not, write to the Free Software           *
+ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.             *
+ *                                                                       *
+ * The author can be reached at admin@atrinik.org                        *
+ ************************************************************************/
 
 /**
  * @file
@@ -39,11 +39,9 @@ int socket_recv(socket_struct *ns)
 #ifdef WIN32
     stat_ret = recv(ns->fd, ns->packet_recv->data + ns->packet_recv->len, ns->packet_recv->size - ns->packet_recv->len, 0);
 #else
-    do
-    {
+    do {
         stat_ret = read(ns->fd, ns->packet_recv->data + ns->packet_recv->len, ns->packet_recv->size - ns->packet_recv->len);
-    }
-    while (stat_ret == -1 && errno == EINTR);
+    }    while (stat_ret == -1 && errno == EINTR);
 #endif
 
     if (stat_ret == 0) {
@@ -52,15 +50,13 @@ int socket_recv(socket_struct *ns)
 
     if (stat_ret > 0) {
         ns->packet_recv->len += stat_ret;
-    }
-    else if (stat_ret < 0) {
+    } else if (stat_ret < 0) {
 #ifdef WIN32
 
         if (WSAGetLastError() != WSAEWOULDBLOCK) {
             if (WSAGetLastError() == WSAECONNRESET) {
                 logger_print(LOG(DEBUG), "Connection closed by client.");
-            }
-            else {
+            } else {
                 logger_print(LOG(DEBUG), "got error %d, returning %d.", WSAGetLastError(), stat_ret);
             }
 
@@ -107,8 +103,7 @@ static void socket_packet_enqueue(socket_struct *ns, packet_struct *packet)
     if (!ns->packet_head) {
         ns->packet_head = packet;
         packet->prev = NULL;
-    }
-    else {
+    } else {
         ns->packet_tail->next = packet;
         packet->prev = ns->packet_tail;
     }
@@ -121,15 +116,13 @@ static void socket_packet_dequeue(socket_struct *ns, packet_struct *packet)
 {
     if (!packet->prev) {
         ns->packet_head = packet->next;
-    }
-    else {
+    } else {
         packet->prev->next = packet->next;
     }
 
     if (!packet->next) {
         ns->packet_tail = packet->prev;
-    }
-    else {
+    } else {
         packet->next->prev = packet->prev;
     }
 
@@ -141,13 +134,9 @@ static void socket_packet_dequeue(socket_struct *ns, packet_struct *packet)
  * @param ns Socket to clear the socket buffers for. */
 void socket_buffer_clear(socket_struct *ns)
 {
-    pthread_mutex_lock(&ns->packet_mutex);
-
     while (ns->packet_head) {
         socket_packet_dequeue(ns, ns->packet_head);
     }
-
-    pthread_mutex_unlock(&ns->packet_mutex);
 }
 
 /**
@@ -156,8 +145,6 @@ void socket_buffer_clear(socket_struct *ns)
 void socket_buffer_write(socket_struct *ns)
 {
     int amt, max;
-
-    pthread_mutex_lock(&ns->packet_mutex);
 
     while (ns->packet_head) {
         if (ns->packet_head->ndelay) {
@@ -175,11 +162,10 @@ void socket_buffer_write(socket_struct *ns)
 
         if (!amt) {
             amt = max;
-        }
-        else
+        } else
 #endif
 
-        if (amt < 0) {
+            if (amt < 0) {
 #ifdef WIN32
 
             if (WSAGetLastError() != WSAEWOULDBLOCK) {
@@ -191,9 +177,8 @@ void socket_buffer_write(socket_struct *ns)
 #endif
                 ns->state = ST_DEAD;
                 break;
-            }
-            /* EWOULDBLOCK: We can't write because socket is busy. */
-            else {
+            } else {
+                /* EWOULDBLOCK: We can't write because socket is busy. */
                 break;
             }
         }
@@ -204,8 +189,6 @@ void socket_buffer_write(socket_struct *ns)
             socket_packet_dequeue(ns, ns->packet_head);
         }
     }
-
-    pthread_mutex_unlock(&ns->packet_mutex);
 }
 
 void socket_send_packet(socket_struct *ns, packet_struct *packet)
@@ -225,14 +208,13 @@ void socket_send_packet(socket_struct *ns, packet_struct *packet)
     toread = packet->len + 1;
 
     if (toread > 32 * 1024 - 1) {
-        log(LOG(DEVEL), "Sending packet with size > 32KB: %lu, type: %d",
-            toread, packet->type);
+        log(LOG(PACKET), "Sending packet with size > 32KB: %"FMT64U", type: %d",
+                (uint64) toread, packet->type);
         tmp->data[0] = ((toread >> 16) & 0xff) | 0x80;
         tmp->data[1] = (toread >> 8) & 0xff;
         tmp->data[2] = (toread) & 0xff;
         tmp->len = 3;
-    }
-    else {
+    } else {
         tmp->data[0] = (toread >> 8) & 0xff;
         tmp->data[1] = (toread) & 0xff;
         tmp->len = 2;
@@ -240,8 +222,6 @@ void socket_send_packet(socket_struct *ns, packet_struct *packet)
 
     packet_append_uint8(tmp, packet->type);
 
-    pthread_mutex_lock(&ns->packet_mutex);
     socket_packet_enqueue(ns, tmp);
     socket_packet_enqueue(ns, packet);
-    pthread_mutex_unlock(&ns->packet_mutex);
 }

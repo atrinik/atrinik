@@ -1,26 +1,26 @@
-/************************************************************************
-*            Atrinik, a Multiplayer Online Role Playing Game            *
-*                                                                       *
-*    Copyright (C) 2009-2012 Alex Tokar and Atrinik Development Team    *
-*                                                                       *
-* Fork from Crossfire (Multiplayer game for X-windows).                 *
-*                                                                       *
-* This program is free software; you can redistribute it and/or modify  *
-* it under the terms of the GNU General Public License as published by  *
-* the Free Software Foundation; either version 2 of the License, or     *
-* (at your option) any later version.                                   *
-*                                                                       *
-* This program is distributed in the hope that it will be useful,       *
-* but WITHOUT ANY WARRANTY; without even the implied warranty of        *
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
-* GNU General Public License for more details.                          *
-*                                                                       *
-* You should have received a copy of the GNU General Public License     *
-* along with this program; if not, write to the Free Software           *
-* Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.             *
-*                                                                       *
-* The author can be reached at admin@atrinik.org                        *
-************************************************************************/
+/*************************************************************************
+ *           Atrinik, a Multiplayer Online Role Playing Game             *
+ *                                                                       *
+ *   Copyright (C) 2009-2014 Alex Tokar and Atrinik Development Team     *
+ *                                                                       *
+ * Fork from Crossfire (Multiplayer game for X-windows).                 *
+ *                                                                       *
+ * This program is free software; you can redistribute it and/or modify  *
+ * it under the terms of the GNU General Public License as published by  *
+ * the Free Software Foundation; either version 2 of the License, or     *
+ * (at your option) any later version.                                   *
+ *                                                                       *
+ * This program is distributed in the hope that it will be useful,       *
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of        *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
+ * GNU General Public License for more details.                          *
+ *                                                                       *
+ * You should have received a copy of the GNU General Public License     *
+ * along with this program; if not, write to the Free Software           *
+ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.             *
+ *                                                                       *
+ * The author can be reached at admin@atrinik.org                        *
+ ************************************************************************/
 
 /**
  * @file
@@ -44,8 +44,7 @@
 /*@}*/
 
 /** One effect definition in a linked list. */
-typedef struct effect_struct
-{
+typedef struct effect_struct {
     /** Next effect in the list. */
     struct effect_struct *next;
 
@@ -115,8 +114,7 @@ typedef struct effect_struct
 } effect_struct;
 
 /** One sprite currently shown. */
-typedef struct effect_sprite
-{
+typedef struct effect_sprite {
     /** Next sprite. */
     struct effect_sprite *next;
 
@@ -140,8 +138,7 @@ typedef struct effect_sprite
 } effect_sprite;
 
 /** Sprite definition; holds various settings of a single sprite. */
-typedef struct effect_sprite_def
-{
+typedef struct effect_sprite_def {
     /** Next sprite definition in a linked list. */
     struct effect_sprite_def *next;
 
@@ -250,8 +247,7 @@ typedef struct effect_sprite_def
 } effect_sprite_def;
 
 /** One single color in the overlay configuration. */
-typedef struct effect_overlay_col
-{
+typedef struct effect_overlay_col {
     /** Initial value; if -1, will use the original color value. */
     sint16 val;
 
@@ -267,8 +263,7 @@ typedef struct effect_overlay_col
 
 /**
  * Holds information about effect overlay. */
-typedef struct effect_overlay
-{
+typedef struct effect_overlay {
     /** Array of the configuration; R(ed), G(reen), B(lue), A(lpha). */
     effect_overlay_col col[4];
 } effect_overlay;

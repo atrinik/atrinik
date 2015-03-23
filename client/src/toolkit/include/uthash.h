@@ -455,7 +455,7 @@ typedef unsigned char uint8_t;
             hashv    += get16bits (_sfh_key);                                            \
             _sfh_tmp       = (get16bits (_sfh_key+2) << 11) ^ hashv;                     \
             hashv     = (hashv << 16) ^ _sfh_tmp;                                        \
-            _sfh_key += 2*sizeof (uint16_t);                                             \
+            _sfh_key += 2*sizeof(uint16_t);                                             \
             hashv    += hashv >> 11;                                                     \
         }                                                                              \
                                                                                  \
@@ -463,7 +463,7 @@ typedef unsigned char uint8_t;
         switch (_sfh_rem) {                                                            \
             case 3: hashv += get16bits (_sfh_key);                                       \
                 hashv ^= hashv << 16;                                                \
-                hashv ^= _sfh_key[sizeof (uint16_t)] << 18;                          \
+                hashv ^= _sfh_key[sizeof(uint16_t)] << 18;                          \
                 hashv += hashv >> 11;                                                \
                 break;                                                               \
             case 2: hashv += get16bits (_sfh_key);                                       \
@@ -898,13 +898,13 @@ typedef struct UT_hash_table {
 
 typedef struct UT_hash_handle {
     struct UT_hash_table *tbl;
-    void *prev;                      /* prev element in app order      */
-    void *next;                      /* next element in app order      */
-    struct UT_hash_handle *hh_prev;  /* previous hh in bucket order    */
-    struct UT_hash_handle *hh_next;  /* next hh in bucket order        */
-    void *key;                       /* ptr to enclosing struct's key  */
-    unsigned keylen;                 /* enclosing struct's key len     */
-    unsigned hashv;                  /* result of hash-fcn(key)        */
+    void *prev; /* prev element in app order      */
+    void *next; /* next element in app order      */
+    struct UT_hash_handle *hh_prev; /* previous hh in bucket order    */
+    struct UT_hash_handle *hh_next; /* next hh in bucket order        */
+    void *key; /* ptr to enclosing struct's key  */
+    unsigned keylen; /* enclosing struct's key len     */
+    unsigned hashv; /* result of hash-fcn(key)        */
 } UT_hash_handle;
 
 #endif /* UTHASH_H */

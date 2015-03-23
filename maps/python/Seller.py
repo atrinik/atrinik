@@ -4,6 +4,7 @@ from Atrinik import *
 from Interface import InterfaceBuilder
 from Language import int2english
 import json
+import random
 import re
 
 class Seller(InterfaceBuilder):
@@ -23,8 +24,15 @@ class Seller(InterfaceBuilder):
         if event.msg:
             # Parse data, create the treasure.
             for (treasure, num, a_chance) in json.loads(event.msg):
-                for i in range(num):
-                    obj = event.CreateTreasure(treasure, self._npc.level, GT_ONLY_GOOD, a_chance)
+                if treasure:
+                    for i in range(num):
+                        event.CreateTreasure(treasure, self._npc.level, GT_ONLY_GOOD, a_chance)
+                else:
+                    for obj in event.inv:
+                        obj.nrof = num
+
+                        if a_chance:
+                            obj.nrof += random.randint(1, a_chance)
 
             event.msg = None
 

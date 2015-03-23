@@ -1,26 +1,26 @@
-/************************************************************************
-*            Atrinik, a Multiplayer Online Role Playing Game            *
-*                                                                       *
-*    Copyright (C) 2009-2012 Alex Tokar and Atrinik Development Team    *
-*                                                                       *
-* Fork from Crossfire (Multiplayer game for X-windows).                 *
-*                                                                       *
-* This program is free software; you can redistribute it and/or modify  *
-* it under the terms of the GNU General Public License as published by  *
-* the Free Software Foundation; either version 2 of the License, or     *
-* (at your option) any later version.                                   *
-*                                                                       *
-* This program is distributed in the hope that it will be useful,       *
-* but WITHOUT ANY WARRANTY; without even the implied warranty of        *
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
-* GNU General Public License for more details.                          *
-*                                                                       *
-* You should have received a copy of the GNU General Public License     *
-* along with this program; if not, write to the Free Software           *
-* Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.             *
-*                                                                       *
-* The author can be reached at admin@atrinik.org                        *
-************************************************************************/
+/*************************************************************************
+ *           Atrinik, a Multiplayer Online Role Playing Game             *
+ *                                                                       *
+ *   Copyright (C) 2009-2014 Alex Tokar and Atrinik Development Team     *
+ *                                                                       *
+ * Fork from Crossfire (Multiplayer game for X-windows).                 *
+ *                                                                       *
+ * This program is free software; you can redistribute it and/or modify  *
+ * it under the terms of the GNU General Public License as published by  *
+ * the Free Software Foundation; either version 2 of the License, or     *
+ * (at your option) any later version.                                   *
+ *                                                                       *
+ * This program is distributed in the hope that it will be useful,       *
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of        *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
+ * GNU General Public License for more details.                          *
+ *                                                                       *
+ * You should have received a copy of the GNU General Public License     *
+ * along with this program; if not, write to the Free Software           *
+ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.             *
+ *                                                                       *
+ * The author can be reached at admin@atrinik.org                        *
+ ************************************************************************/
 
 /**
  * @file
@@ -48,9 +48,8 @@ int manual_apply(object *op, object *tmp, int aflag)
         if (op->type == PLAYER) {
             draw_info(COLOR_WHITE, op, "You should pay for it first.");
             return OBJECT_METHOD_OK;
-        }
-        /* Monsters just skip unpaid items */
-        else {
+        } else {
+            /* Monsters just skip unpaid items */
             return OBJECT_METHOD_UNHANDLED;
         }
     }
@@ -81,8 +80,7 @@ int manual_apply(object *op, object *tmp, int aflag)
 
         if (tmp->item_skill && op->type == PLAYER) {
             tmp_lev = CONTR(op)->skill_ptr[tmp->item_skill - 1]->level;
-        }
-        else {
+        } else {
             tmp_lev = op->level;
         }
 
@@ -125,8 +123,7 @@ int player_apply(object *pl, object *op, int aflag, int quiet)
     if (!quiet) {
         if (tmp == OBJECT_METHOD_UNHANDLED) {
             draw_info_format(COLOR_WHITE, pl, "I don't know how to apply the %s.", query_name(op, NULL));
-        }
-        else if (tmp == OBJECT_METHOD_ERROR) {
+        } else if (tmp == OBJECT_METHOD_ERROR) {
             if (op->env != pl) {
                 draw_info_format(COLOR_WHITE, pl, "You must get it first!\n");
             }
@@ -163,9 +160,8 @@ void player_apply_below(object *pl)
 
         if (QUERY_FLAG(tmp, FLAG_IS_FLOOR)) {
             floors++;
-        }
-        /* Process only floor objects after first floor object */
-        else if (floors > 0) {
+        } else if (floors > 0) {
+            /* Process only floor objects after first floor object */
             return;
         }
 

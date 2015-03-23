@@ -8,11 +8,11 @@ behavior 2
 layer 6
 direction 5
 is_neutral 1
-terrain_flag 1
+terrain_flag 65
 weapon_speed 0.038
 attack_cleave 80
 type 80
-Wis 3
+wis 3
 randomitems mob_ant_queen
 animation ant_queen
 is_animated 1

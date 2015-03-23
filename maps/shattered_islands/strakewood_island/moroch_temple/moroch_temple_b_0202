@@ -2,7 +2,7 @@ arch map
 name Moroch Temple
 msg
 Created:  2009-09-22 Alex Tokar
-Modified: 2011-11-03 Alex Tokar
+Modified: 2014-12-04 atokar
 endmsg
 width 24
 height 24
@@ -12,7 +12,7 @@ tile_path_3 moroch_temple_b_0201
 tile_path_4 moroch_temple_b_0102
 tile_path_7 moroch_temple_b_0101
 bg_music evil_temple.ogg
-region moroch_temple
+region moroch_temple_b
 end
 arch floor_sblack2b
 end
@@ -371,10 +371,6 @@ arch plant1_wall.151
 x 2
 y 11
 end
-arch plant1_wall.151
-x 2
-y 11
-end
 arch floor_sblack2b
 x 2
 y 12
@@ -475,8 +471,8 @@ level 85
 can_cast_spell 1
 sp -1
 maxsp 30
-Pow 2
-Dex 3
+pow 2
+dex 3
 type 83
 arch ability_firestorm
 end
@@ -1014,8 +1010,8 @@ level 84
 can_cast_spell 1
 sp -1
 maxsp 30
-Pow 2
-Dex 3
+pow 2
+dex 3
 type 83
 arch ability_icestorm
 end
@@ -2125,7 +2121,7 @@ arch skel_fighter3
 name skeleton archer
 type 83
 level 82
-Dex 2
+dex 2
 can_use_bow 1
 direction 7
 arch ability_stone_throw

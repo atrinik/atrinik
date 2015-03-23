@@ -1,36 +1,36 @@
-/************************************************************************
-*            Atrinik, a Multiplayer Online Role Playing Game            *
-*                                                                       *
-*    Copyright (C) 2009-2012 Alex Tokar and Atrinik Development Team    *
-*                                                                       *
-* Fork from Crossfire (Multiplayer game for X-windows).                 *
-*                                                                       *
-* This program is free software; you can redistribute it and/or modify  *
-* it under the terms of the GNU General Public License as published by  *
-* the Free Software Foundation; either version 2 of the License, or     *
-* (at your option) any later version.                                   *
-*                                                                       *
-* This program is distributed in the hope that it will be useful,       *
-* but WITHOUT ANY WARRANTY; without even the implied warranty of        *
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
-* GNU General Public License for more details.                          *
-*                                                                       *
-* You should have received a copy of the GNU General Public License     *
-* along with this program; if not, write to the Free Software           *
-* Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.             *
-*                                                                       *
-* The author can be reached at admin@atrinik.org                        *
-************************************************************************/
+/*************************************************************************
+ *           Atrinik, a Multiplayer Online Role Playing Game             *
+ *                                                                       *
+ *   Copyright (C) 2009-2014 Alex Tokar and Atrinik Development Team     *
+ *                                                                       *
+ * Fork from Crossfire (Multiplayer game for X-windows).                 *
+ *                                                                       *
+ * This program is free software; you can redistribute it and/or modify  *
+ * it under the terms of the GNU General Public License as published by  *
+ * the Free Software Foundation; either version 2 of the License, or     *
+ * (at your option) any later version.                                   *
+ *                                                                       *
+ * This program is distributed in the hope that it will be useful,       *
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of        *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
+ * GNU General Public License for more details.                          *
+ *                                                                       *
+ * You should have received a copy of the GNU General Public License     *
+ * along with this program; if not, write to the Free Software           *
+ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.             *
+ *                                                                       *
+ * The author can be reached at admin@atrinik.org                        *
+ ************************************************************************/
 
 /**
  * @file
- * Header file for the region map code. */
+ * Header file for the region map code.
+ *
+ * @author Alex Tokar
+ */
 
 #ifndef REGION_MAP_H
 #define REGION_MAP_H
-
-/** Size of the book GUI borders. */
-#define RM_BORDER_SIZE 25
 
 /** Default zoom level. */
 #define RM_ZOOM_DEFAULT 100
@@ -41,14 +41,10 @@
 /** How much to progress the zoom level with a single mouse wheel event. */
 #define RM_ZOOM_PROGRESS 10
 
-/** Number of pixels to scroll using the keyboard arrows. */
-#define RM_SCROLL 10
-/** Number of pixels to scroll using the keyboard arrows when shift is held. */
-#define RM_SCROLL_SHIFT 50
-
-/** Single map. */
-typedef struct region_map_struct
-{
+/**
+ * Single map.
+ */
+typedef struct region_map_def_map {
     /** The map path. */
     char *path;
 
@@ -57,11 +53,12 @@ typedef struct region_map_struct
 
     /** Y position. */
     int ypos;
-} region_map_struct;
+} region_map_def_map_t;
 
-/** Single map label. */
-typedef struct region_label_struct
-{
+/**
+ * Single map label.
+ */
+typedef struct region_map_def_label {
     /** X position. */
     int x;
 
@@ -73,19 +70,12 @@ typedef struct region_label_struct
 
     /** Text of the label (markup allowed). */
     char *text;
+} region_map_def_label_t;
 
-    /**
-     * The 'hidden' status of this label:
-     *
-     * <b>-1</b>: Shown by default.
-     * <b>0</b>: Was hidden using label_hide but server told us to show it.
-     * <b>1</b>: Hidden by label_hide command. */
-    int hidden;
-} region_label_struct;
-
-/** Map tooltips. */
-typedef struct region_map_tooltip
-{
+/**
+ * Map tooltips.
+ */
+typedef struct region_map_def_tooltip {
     /** X position. */
     int x;
 
@@ -104,9 +94,6 @@ typedef struct region_map_tooltip
     /** Tooltip text. */
     char *text;
 
-    /** Same as region_label_struct::hidden. */
-    int hidden;
-
     /** Show an outline? */
     uint8 outline;
 
@@ -115,25 +102,26 @@ typedef struct region_map_tooltip
 
     /** Size of the outline. */
     uint8 outline_size;
-} region_map_tooltip;
+} region_map_def_tooltip_t;
 
-/** Map region definitions. */
-typedef struct region_map_def
-{
+/*
+ *  Map region definitions.
+ */
+typedef struct region_map_def {
     /** The maps. */
-    region_map_struct *maps;
+    region_map_def_map_t *maps;
 
     /** Number of maps. */
     size_t num_maps;
 
     /** The tooltips. */
-    region_map_tooltip *tooltips;
+    region_map_def_tooltip_t *tooltips;
 
     /** Number of tooltips. */
     size_t num_tooltips;
 
     /** The map labels. */
-    region_label_struct *labels;
+    region_map_def_label_t *labels;
 
     /** Number of labels. */
     size_t num_labels;
@@ -146,96 +134,127 @@ typedef struct region_map_def
 
     /** Y Size of the map. */
     int map_size_y;
-} region_map_def;
+
+    /** Reference count. */
+    int refcount;
+} region_map_def_t;
 
 /**
- * @defgroup RM_TYPE_xxx Region map command types
- * Leftover text data types in region map command.
- *@{*/
-/** Show previously hidden label. */
-#define RM_TYPE_LABEL 1
-/** Show previously hidden tooltip. */
-#define RM_TYPE_TOOLTIP 2
-/*@}*/
+ * Tile entry array. Used as a buffer to store visited locations in the region
+ * while the region map is still being downloaded.
+ */
+typedef struct region_map_fow_tile {
+    char *path; ///< Map path.
+    int x; ///< X coordinate.
+    int y; ///< Y coordinate.
+} region_map_fow_tile_t;
 
 /**
- * @defgroup RM_MAP_xxx Region map content coords
- * Region map content coordinates.
- *@{*/
-/** The map X position. */
-#define RM_MAP_STARTX 25
-/** The map Y position. */
-#define RM_MAP_STARTY 60
-/** Maximum width of the map. */
-#define RM_MAP_WIDTH 630
-/** Maximum height of the map. */
-#define RM_MAP_HEIGHT 345
-/*@}*/
+ * Fog of war.
+ */
+typedef struct region_map_fow {
+    /** Reference count. */
+    int refcount;
+
+    char *path;
+
+    SDL_Surface *surface;
+
+    uint32 *bitmap;
+
+    UT_array *tiles;
+} region_map_fow_t;
 
 /**
- * @defgroup RM_BUTTON_LEFT_xxx Region map left button coords
- * Region map left button coordinates.
- *@{*/
-/** X position of the left button. */
-#define RM_BUTTON_LEFT_STARTX 25
-/** Y position of the left button. */
-#define RM_BUTTON_LEFT_STARTY 25
-/*@}*/
+ * Region map structure.
+ */
+typedef struct region_map {
+    /**
+     * Region map image.
+     *
+     * @internal
+     */
+    SDL_Surface *surface;
 
-/**
- * @defgroup RM_BUTTON_RIGHT_xxx Region map right button coords
- * Region map right button coordinates.
- *@{*/
-/** X position of the right button. */
-#define RM_BUTTON_RIGHT_STARTX 649
-/** Y position of the right button. */
-#define RM_BUTTON_RIGHT_STARTY 25
-/*@}*/
+    /**
+     * Zoomed version of the region map image.
+     *
+     * @internal
+     */
+    SDL_Surface *zoomed;
 
-/**
- * @defgroup RM_TITLE_xxx Region map title coords
- * Region map title coordinates.
- *@{*/
-/** X position of the title text. */
-#define RM_TITLE_STARTX 60
-/** Y position of the title text. */
-#define RM_TITLE_STARTY 27
-/** Maximum width of the title text. */
-#define RM_TITLE_WIDTH 580
-/** Maximum height of the title text. */
-#define RM_TITLE_HEIGHT 22
-/*@}*/
+    /**
+     * Zoomed version of the region map's fog of war state.
+     *
+     * Not in the region_map_fow_t structure because that structure is
+     * refcounted, and different GUI elements may have different zoom levels.
+     *
+     * @internal
+     */
+    SDL_Surface *fow_zoomed;
 
-/**
- * @defgroup RM_SCROLLBAR_xxx Region map scrollbar coords
- * Region map scrollbar coordinates.
- *@{*/
-/** X position of the vertical scrollbar. */
-#define RM_SCROLLBAR_STARTX 662
-/** Y position of the vertical scrollbar. */
-#define RM_SCROLLBAR_STARTY 60
-/** Width of the vertical scrollbar. */
-#define RM_SCROLLBAR_WIDTH 13
-/** Height of the vertical scrollbar. */
-#define RM_SCROLLBAR_HEIGHT 345
-/*@}*/
+    /**
+     * Parsed definitions.
+     *
+     * @warning This structure is refcounted.
+     */
+    region_map_def_t *def;
 
-/**
- * @defgroup RM_SCROLLBARH_xxx Region map horizontal scrollbar coords
- * Region map horizontal scrollbar coordinates.
- *@{*/
-/** X position of the horizontal scrollbar. */
-#define RM_SCROLLBARH_STARTX 25
-/** Y position of the horizontal scrollbar. */
-#define RM_SCROLLBARH_STARTY 412
-/** Width of the horizontal scrollbar. */
-#define RM_SCROLLBARH_WIDTH 630
-/** Height of the horizontal scrollbar. */
-#define RM_SCROLLBARH_HEIGHT 13
-/*@}*/
+    /*
+     * Fog of war.
+     *
+     * @internal
+     * @warning This structure is refcounted.
+     */
+    region_map_fow_t *fow;
 
-/**
- * Check whether the mouse is inside the region map. */
-#define RM_IN_MAP(_popup, _mx, _my) ((_mx) >= (_popup)->x + RM_MAP_STARTX && (_mx) < (_popup)->x + RM_MAP_STARTX + RM_MAP_WIDTH && (_my) >= (_popup)->y + RM_MAP_STARTY && (_my) < (_popup)->y + RM_MAP_STARTY + RM_MAP_HEIGHT)
+    /**
+     * Current zoom levels.
+     */
+    int zoom;
+
+    /**
+     * Coordinates for the region map image.
+     */
+    SDL_Rect pos;
+
+    /**
+     * cURL pointer for downloading the region map image.
+     */
+    curl_data *data_png;
+
+    /**
+     * cURL pointer for downloading the region definitions.
+     */
+    curl_data *data_def;
+} region_map_t;
+
+#define RM_MAP_FOW_BITMAP_SIZE(region_map) \
+    (sizeof(*(region_map)->fow->bitmap) * \
+    (((region_map)->surface->w / (region_map)->def->pixel_size + 31) / 32) * \
+    ((region_map)->surface->h / (region_map)->def->pixel_size))
+
+/* Prototypes */
+
+region_map_def_map_t *region_map_find_map(region_map_t *region_map,
+        const char *map_path);
+void region_map_resize(region_map_t *region_map, int adjust);
+bool region_map_ready(region_map_t *region_map);
+void region_map_pan(region_map_t *region_map);
+void region_map_render_marker(region_map_t *region_map, SDL_Surface *surface,
+        int x, int y);
+void region_map_render_fow(region_map_t *region, SDL_Surface *surface,
+        int x, int y);
+SDL_Surface *region_map_surface(region_map_t *region_map);
+void region_map_reset(region_map_t *region_map);
+region_map_t *region_map_create(void);
+region_map_t *region_map_clone(region_map_t *region_map);
+void region_map_free(region_map_t *region_map);
+void region_map_update(region_map_t *region_map, const char *region_name);
+void region_map_fow_update(region_map_t *region_map);
+bool region_map_fow_set_visited(region_map_t *region_map,
+        region_map_def_map_t *map, const char *map_path, int x, int y);
+SDL_Surface *region_map_fow_surface(region_map_t *region_map);
+bool region_map_fow_is_visited(region_map_t *region_map, int x, int y);
 
 #endif

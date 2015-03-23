@@ -201,7 +201,7 @@ x 1
 y 4
 end
 arch shelf3_dem3.111
-direction 4
+direction 7
 x 1
 y 4
 end
@@ -210,7 +210,7 @@ x 1
 y 5
 end
 arch shelf3_dem2.111
-direction 4
+direction 7
 x 1
 y 5
 end
@@ -219,7 +219,7 @@ x 1
 y 6
 end
 arch shelf3_dem1.111
-direction 4
+direction 7
 x 1
 y 6
 end
@@ -3682,9 +3682,9 @@ level 48
 can_cast_spell 1
 sp -1
 maxsp 16
-Pow 20
+pow 20
 magic 5
-Dex 3
+dex 3
 random_move 1
 item_race 5
 item_level 5

@@ -2,8 +2,8 @@
 
 # Form implementation generated from reading ui file '..\ui\ui_dialog_preferences.ui'
 #
-# Created: Tue Nov 12 16:04:55 2013
-#      by: PyQt5 UI code generator 5.1.1
+# Created: Wed Jan 14 16:57:33 2015
+#      by: PyQt5 UI code generator 5.3.2
 #
 # WARNING! All changes made in this file will be lost!
 
@@ -48,6 +48,16 @@ class Ui_DialogPreferences(object):
         self.scrollAreaWidgetContents_4.setObjectName("scrollAreaWidgetContents_4")
         self.gridLayout_6 = QtWidgets.QGridLayout(self.scrollAreaWidgetContents_4)
         self.gridLayout_6.setObjectName("gridLayout_6")
+        spacerItem1 = QtWidgets.QSpacerItem(20, 40, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding)
+        self.gridLayout_6.addItem(spacerItem1, 4, 0, 1, 1)
+        self.label_9 = QtWidgets.QLabel(self.scrollAreaWidgetContents_4)
+        font = QtGui.QFont()
+        font.setPointSize(9)
+        font.setBold(False)
+        font.setWeight(50)
+        self.label_9.setFont(font)
+        self.label_9.setObjectName("label_9")
+        self.gridLayout_6.addWidget(self.label_9, 2, 0, 1, 1)
         self.label_2 = QtWidgets.QLabel(self.scrollAreaWidgetContents_4)
         font = QtGui.QFont()
         font.setPointSize(9)
@@ -86,8 +96,10 @@ class Ui_DialogPreferences(object):
         self.fileChooser_pref_general_path_dir_arch.setObjectName("fileChooser_pref_general_path_dir_arch")
         self.gridLayout_3.addWidget(self.fileChooser_pref_general_path_dir_arch, 0, 2, 1, 1)
         self.gridLayout_6.addLayout(self.gridLayout_3, 1, 0, 1, 1)
-        spacerItem1 = QtWidgets.QSpacerItem(20, 40, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding)
-        self.gridLayout_6.addItem(spacerItem1, 2, 0, 1, 1)
+        self.pref_general_fix = QtWidgets.QCheckBox(self.scrollAreaWidgetContents_4)
+        self.pref_general_fix.setStyleSheet("margin-left: 10;")
+        self.pref_general_fix.setObjectName("pref_general_fix")
+        self.gridLayout_6.addWidget(self.pref_general_fix, 3, 0, 1, 1)
         self.scrollArea_2.setWidget(self.scrollAreaWidgetContents_4)
         self.gridLayout_2.addWidget(self.scrollArea_2, 0, 0, 1, 1)
         self.tabWidget.addTab(self.tab_general, "")
@@ -152,7 +164,7 @@ class Ui_DialogPreferences(object):
         self.scrollArea_3.setWidgetResizable(True)
         self.scrollArea_3.setObjectName("scrollArea_3")
         self.scrollAreaWidgetContents_5 = QtWidgets.QWidget()
-        self.scrollAreaWidgetContents_5.setGeometry(QtCore.QRect(0, 0, 385, 233))
+        self.scrollAreaWidgetContents_5.setGeometry(QtCore.QRect(0, -12, 364, 245))
         self.scrollAreaWidgetContents_5.setObjectName("scrollAreaWidgetContents_5")
         self.gridLayout_8 = QtWidgets.QGridLayout(self.scrollAreaWidgetContents_5)
         self.gridLayout_8.setObjectName("gridLayout_8")
@@ -191,13 +203,17 @@ class Ui_DialogPreferences(object):
         self.label_8 = QtWidgets.QLabel(self.scrollAreaWidgetContents_5)
         self.label_8.setObjectName("label_8")
         self.gridLayout_8.addWidget(self.label_8, 0, 0, 1, 1)
+        self.pref_errors_unknown_attribute = QtWidgets.QCheckBox(self.scrollAreaWidgetContents_5)
+        self.pref_errors_unknown_attribute.setStyleSheet("margin-left: 10;")
+        self.pref_errors_unknown_attribute.setObjectName("pref_errors_unknown_attribute")
+        self.gridLayout_8.addWidget(self.pref_errors_unknown_attribute, 9, 0, 1, 1)
         self.scrollArea_3.setWidget(self.scrollAreaWidgetContents_5)
         self.gridLayout_7.addWidget(self.scrollArea_3, 0, 0, 1, 1)
         self.tabWidget.addTab(self.tab, "")
         self.gridLayout.addWidget(self.tabWidget, 0, 1, 1, 1)
 
         self.retranslateUi(DialogPreferences)
-        self.tabWidget.setCurrentIndex(0)
+        self.tabWidget.setCurrentIndex(2)
         self.buttonClose.clicked.connect(DialogPreferences.close)
         QtCore.QMetaObject.connectSlotsByName(DialogPreferences)
 
@@ -207,6 +223,7 @@ class Ui_DialogPreferences(object):
         self.buttonOk.setText(_translate("DialogPreferences", "Ok"))
         self.buttonClose.setText(_translate("DialogPreferences", "Cancel"))
         self.buttonApply.setText(_translate("DialogPreferences", "Apply"))
+        self.label_9.setText(_translate("DialogPreferences", "<html><head/><body><p><span style=\" font-weight:600;\">Scan options</span></p></body></html>"))
         self.label_2.setText(_translate("DialogPreferences", "<html><head/><body><p><span style=\" font-weight:600;\">Paths</span></p></body></html>"))
         self.label_4.setText(_translate("DialogPreferences", "Arch"))
         self.label.setText(_translate("DialogPreferences", "Maps"))
@@ -214,6 +231,7 @@ class Ui_DialogPreferences(object):
         self.fileChooser_pref_general_path_file_editor.setText(_translate("DialogPreferences", "..."))
         self.label_3.setText(_translate("DialogPreferences", "Editor"))
         self.fileChooser_pref_general_path_dir_arch.setText(_translate("DialogPreferences", "..."))
+        self.pref_general_fix.setText(_translate("DialogPreferences", "Automatically attempt to fix errors"))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_general), _translate("DialogPreferences", "General"))
         self.pref_filters_error_level_low.setText(_translate("DialogPreferences", "Low"))
         self.label_5.setText(_translate("DialogPreferences", "<b>Error levels</b>"))
@@ -234,5 +252,6 @@ class Ui_DialogPreferences(object):
         self.pref_errors_map_no_music.setText(_translate("DialogPreferences", "Map with no music"))
         self.pref_errors_map_no_region.setText(_translate("DialogPreferences", "Map with no region"))
         self.label_8.setText(_translate("DialogPreferences", "Configure what kind of errors to check for."))
+        self.pref_errors_unknown_attribute.setText(_translate("DialogPreferences", "Unrecognized attribute"))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab), _translate("DialogPreferences", "Errors"))
 

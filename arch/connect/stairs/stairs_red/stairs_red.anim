@@ -11,6 +11,19 @@ stairs_red_up.171
 stairs_red_up.171
 mina
 
+anim stairs_red_up2
+facings 9
+dummy.111
+stairs_red_up2.111
+stairs_red_up2.111
+stairs_red_up2.131
+stairs_red_up2.131
+stairs_red_up2.151
+stairs_red_up2.151
+stairs_red_up2.171
+stairs_red_up2.171
+mina
+
 anim stairs_red_down
 facings 9
 dummy.111

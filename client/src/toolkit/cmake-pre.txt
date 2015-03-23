@@ -1,7 +1,15 @@
-# Compiling on GNU/Linux.
-set(LINUX true)
-# Plugin suffix.
-set(PLUGIN_SUFFIX ".so")
+if (MINGW)
+    add_definitions(-DCURL_STATICLIB -DPTW32_STATIC_LIB -DBGDWIN32 -DNONDLL)
+    set(CURL_STATICLIB true)
+    set(CMAKE_EXE_LINKER_FLAGS "-static -static-libgcc")
+    set(PLUGIN_SUFFIX ".dll")
+    set(CMAKE_PREFIX_PATH "C:\\MinGW\\msys\\1.0;C:\\MinGW")
+    set(CMAKE_FIND_LIBRARY_SUFFIXES ".a;.so;.dll.a")
+else ()
+    # Compiling on GNU/Linux.
+    set(LINUX true)
+    set(PLUGIN_SUFFIX ".so")
+endif ()
 
 # cURL is required by the metaserver.
 find_package(CURL REQUIRED)
@@ -14,48 +22,51 @@ set(HAVE_ZLIB true)
 
 # Try to find some GNU/Linux libraries.
 if (UNIX)
-	find_library(MATH_LIBRARY m)
-	find_library(CRYPT_LIBRARY crypt)
+    find_library(MATH_LIBRARY m)
 
-	if (NOT MATH_LIBRARY)
-		message(FATAL_ERROR "Could not find math library.")
-	endif (NOT MATH_LIBRARY)
+    if (NOT MATH_LIBRARY)
+        message(FATAL_ERROR "Could not find math library.")
+    endif ()
 
-	if (CRYPT_LIBRARY)
-		set(HAVE_CRYPT true)
-	elseif (CRYPT_LIBRARY)
-		message(STATUS "Could not find crypt library, encryption of strings such as passwords will be disabled.")
-	endif (CRYPT_LIBRARY)
-endif (UNIX)
+    find_package(X11)
+
+    if (X11_FOUND)
+        include_directories(${X11_INCLUDE_DIR})
+        set(HAVE_X11 true)
+
+        # Try to find X11 XMU.
+        find_library(X11_XMU_LIBRARY Xmu /usr/openwin/lib)
+
+        if (X11_XMU_LIBRARY)
+            set(HAVE_X11_XMU true)
+        else ()
+            message(STATUS "Warning: X11 XMU not found, some features may be disabled")
+        endif ()
+    else ()
+        message(STATUS "Warning: X11 not found, some features may be disabled")
+    endif ()
+endif ()
+
+find_library(CRYPT_LIBRARY crypt)
+
+if (CRYPT_LIBRARY)
+    set(HAVE_CRYPT true)
+else ()
+    message(STATUS "Could not find crypt library, encryption of strings such as passwords will be disabled.")
+endif ()
 
 find_library(READLINE_LIBRARY readline)
 
 if (READLINE_LIBRARY)
-	set(HAVE_READLINE true)
-elseif (READLINE_LIBRARY)
-	message(STATUS "Could not find readline library, simple interactive console will be compiled instead.")
-endif (READLINE_LIBRARY)
-
-find_package(X11)
-
-if (X11_FOUND)
-	include_directories(${X11_INCLUDE_DIR})
-	set(HAVE_X11 true)
-
-	# Try to find X11 XMU.
-	find_library(X11_XMU_LIBRARY Xmu /usr/openwin/lib)
-
-	if (X11_XMU_LIBRARY)
-		set(HAVE_X11_XMU true)
-	else (X11_XMU_LIBRARY)
-		message(STATUS "Warning: X11 XMU not found, some features may be disabled")
-	endif (X11_XMU_LIBRARY)
-else (X11_FOUND)
-	message(STATUS "Warning: X11 not found, some features may be disabled")
-endif (X11_FOUND)
+    set(HAVE_READLINE true)
+else ()
+    message(STATUS "Could not find readline library, simple interactive console will be compiled instead.")
+endif ()
 
 find_package(OpenSSL REQUIRED)
 include_directories(${OPENSSL_INCLUDE_DIR})
+
+find_package(Threads REQUIRED)
 
 include(CheckIncludeFiles)
 include(CheckFunctionExists)
@@ -69,6 +80,7 @@ check_include_files(stddef.h HAVE_STDDEF_H)
 check_include_files(dirent.h HAVE_DIRENT_H)
 check_include_files(sys/ndir.h HAVE_SYS_NDIR_H)
 check_include_files(sys/dir.h HAVE_SYS_DIR_H)
+check_include_files(sys/socket.h HAVE_SYS_SOCKET_H)
 check_include_files(ndir.h HAVE_NDIR_H)
 check_include_files(crypt.h HAVE_CRYPT_H)
 check_include_files(arpa/inet.h HAVE_ARPA_INET_H)
@@ -106,25 +118,54 @@ configure_file(src/toolkit/include/toolkit_cmake.h.def src/toolkit/include/toolk
 include_directories(src/toolkit/include)
 
 set(SOURCES_TOOLKIT
-	src/toolkit/binreloc.c
-	src/toolkit/bzr.c
-	src/toolkit/clioptions.c
-	src/toolkit/colorspace.c
-	src/toolkit/console.c
-	src/toolkit/datetime.c
-	src/toolkit/logger.c
-	src/toolkit/math.c
-	src/toolkit/memory.c
-	src/toolkit/mempool.c
-	src/toolkit/packet.c
-	src/toolkit/path.c
-	src/toolkit/pbkdf2.c
-	src/toolkit/porting.c
-	src/toolkit/sha1.c
-	src/toolkit/shstr.c
-	src/toolkit/signals.c
-	src/toolkit/socket.c
-	src/toolkit/string.c
-	src/toolkit/stringbuffer.c
-	src/toolkit/toolkit.c
-	src/toolkit/x11.c)
+    src/toolkit/binreloc.c
+    src/toolkit/bzr.c
+    src/toolkit/clioptions.c
+    src/toolkit/colorspace.c
+    src/toolkit/console.c
+    src/toolkit/datetime.c
+    src/toolkit/logger.c
+    src/toolkit/math.c
+    src/toolkit/memory.c
+    src/toolkit/mempool.c
+    src/toolkit/packet.c
+    src/toolkit/path.c
+    src/toolkit/pbkdf2.c
+    src/toolkit/porting.c
+    src/toolkit/sha1.c
+    src/toolkit/shstr.c
+    src/toolkit/signals.c
+    src/toolkit/socket.c
+    src/toolkit/string.c
+    src/toolkit/stringbuffer.c
+    src/toolkit/toolkit.c
+    src/toolkit/x11.c)
+
+find_program(GIT_SCM git DOC "Git version control")
+mark_as_advanced(GIT_SCM)
+find_file(GITDIR NAMES .git PATHS ../ NO_DEFAULT_PATH)
+set(GITVERSION_H src/toolkit/include/gitversion.h)
+
+if (GIT_SCM AND GITDIR)
+    add_custom_command(OUTPUT ${GITVERSION_H}
+        COMMAND ${CMAKE_COMMAND} -E echo "#ifndef GITVERSION_H" > ${GITVERSION_H}
+        COMMAND ${CMAKE_COMMAND} -E echo_append "#define GITVERSION " >> ${GITVERSION_H}
+        COMMAND ${GIT_SCM} log -1 "--pretty=format:%h" >> ${GITVERSION_H}
+        COMMAND ${CMAKE_COMMAND} -E echo "" >> ${GITVERSION_H}
+        COMMAND ${CMAKE_COMMAND} -E echo_append "#define GITAUTHOR " >> ${GITVERSION_H}
+        COMMAND ${GIT_SCM} log -1 "--pretty=format:%an" >> ${GITVERSION_H}
+        COMMAND ${CMAKE_COMMAND} -E echo "" >> ${GITVERSION_H}
+        COMMAND ${CMAKE_COMMAND} -E echo_append "#define GITBRANCH " >> ${GITVERSION_H}
+        COMMAND ${GIT_SCM} rev-parse --abbrev-ref HEAD >> ${GITVERSION_H}
+        COMMAND ${CMAKE_COMMAND} -E echo "#endif" >> ${GITVERSION_H}
+        DEPENDS ${GITDIR}/logs/HEAD
+        VERBATIM
+    )
+else ()
+    add_custom_command(OUTPUT ${GITVERSION_H}
+        COMMAND ${CMAKE_COMMAND} -E echo_append "" > ${GITVERSION_H}
+        VERBATIM
+    )
+endif ()
+
+add_custom_target(git_branch DEPENDS ${GITVERSION_H})

@@ -1,26 +1,26 @@
-/************************************************************************
-*            Atrinik, a Multiplayer Online Role Playing Game            *
-*                                                                       *
-*    Copyright (C) 2009-2012 Alex Tokar and Atrinik Development Team    *
-*                                                                       *
-* Fork from Crossfire (Multiplayer game for X-windows).                 *
-*                                                                       *
-* This program is free software; you can redistribute it and/or modify  *
-* it under the terms of the GNU General Public License as published by  *
-* the Free Software Foundation; either version 2 of the License, or     *
-* (at your option) any later version.                                   *
-*                                                                       *
-* This program is distributed in the hope that it will be useful,       *
-* but WITHOUT ANY WARRANTY; without even the implied warranty of        *
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
-* GNU General Public License for more details.                          *
-*                                                                       *
-* You should have received a copy of the GNU General Public License     *
-* along with this program; if not, write to the Free Software           *
-* Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.             *
-*                                                                       *
-* The author can be reached at admin@atrinik.org                        *
-************************************************************************/
+/*************************************************************************
+ *           Atrinik, a Multiplayer Online Role Playing Game             *
+ *                                                                       *
+ *   Copyright (C) 2009-2014 Alex Tokar and Atrinik Development Team     *
+ *                                                                       *
+ * Fork from Crossfire (Multiplayer game for X-windows).                 *
+ *                                                                       *
+ * This program is free software; you can redistribute it and/or modify  *
+ * it under the terms of the GNU General Public License as published by  *
+ * the Free Software Foundation; either version 2 of the License, or     *
+ * (at your option) any later version.                                   *
+ *                                                                       *
+ * This program is distributed in the hope that it will be useful,       *
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of        *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
+ * GNU General Public License for more details.                          *
+ *                                                                       *
+ * You should have received a copy of the GNU General Public License     *
+ * along with this program; if not, write to the Free Software           *
+ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.             *
+ *                                                                       *
+ * The author can be reached at admin@atrinik.org                        *
+ ************************************************************************/
 
 /**
  * @file
@@ -30,187 +30,117 @@
 #define TEXT_H
 
 /** One font. */
-typedef struct font_struct
-{
-    /** The font's path. */
-    const char *path;
+typedef struct font_struct {
+    /** Key of the font (name@size) */
+    char *key;
+
+    /** Name of the font. */
+    char *name;
 
     /** Size of the font. */
-    size_t size;
+    uint8 size;
 
     /** The actual font used by SDL_ttf. */
     TTF_Font *font;
 
     /** Maximum line height. */
     int height;
+
+    /** Number of references. */
+    unsigned int ref;
+
+    /** When the font was last used. */
+    time_t last_used;
+
+    /** UT hash handle. */
+    UT_hash_handle hh;
 } font_struct;
 
 /**
- * @anchor FONT_xxx
- * The font IDs. */
-enum
-{
-    /** Sans, 7px. */
-    FONT_SANS7,
-    /** Sans, 8px. */
-    FONT_SANS8,
-    /** Sans, 9px. */
-    FONT_SANS9,
-    /** Sans, 10px. */
-    FONT_SANS10,
-    /** Sans, 11px. */
-    FONT_SANS11,
-    /** Sans, 12px. */
-    FONT_SANS12,
-    /** Sans, 13px. */
-    FONT_SANS13,
-    /** Sans, 14px. */
-    FONT_SANS14,
-    /** Sans, 15px. */
-    FONT_SANS15,
-    /** Sans, 16px. */
-    FONT_SANS16,
-    /** Sans, 18px. */
-    FONT_SANS18,
-    /** Sans, 20px. */
-    FONT_SANS20,
-    /** Serif, 8px. */
-    FONT_SERIF8,
-    /** Serif, 10px. */
-    FONT_SERIF10,
-    /** Serif, 12px. */
-    FONT_SERIF12,
-    /** Serif, 14px. */
-    FONT_SERIF14,
-    /** Serif, 16px. */
-    FONT_SERIF16,
-    /** Serif, 18px. */
-    FONT_SERIF18,
-    /** Serif, 20px. */
-    FONT_SERIF20,
-    /** Serif, 22px. */
-    FONT_SERIF22,
-    /** Serif, 24px. */
-    FONT_SERIF24,
-    /** Serif, 26px. */
-    FONT_SERIF26,
-    /** Serif, 28px. */
-    FONT_SERIF28,
-    /** Serif, 30px. */
-    FONT_SERIF30,
-    /** Serif, 32px. */
-    FONT_SERIF32,
-    /** Serif, 34px. */
-    FONT_SERIF34,
-    /** Serif, 36px. */
-    FONT_SERIF36,
-    /** Serif, 38px. */
-    FONT_SERIF38,
-    /** Serif, 40px. */
-    FONT_SERIF40,
-    /** Mono, 8px. */
-    FONT_MONO8,
-    /** Mono, 9px. */
-    FONT_MONO9,
-    /** Mono, 10px. */
-    FONT_MONO10,
-    /** Mono, 12px. */
-    FONT_MONO12,
-    /** Mono, 14px. */
-    FONT_MONO14,
-    /** Mono, 16px. */
-    FONT_MONO16,
-    /** Mono, 18px. */
-    FONT_MONO18,
-    /** Mono, 20px. */
-    FONT_MONO20,
-    /** Arial, 8px. */
-    FONT_ARIAL8,
-    /** Arial, 10px, good for general drawing (looks the same across systems).
-     * */
-    FONT_ARIAL10,
-    /** Arial, 11px. */
-    FONT_ARIAL11,
-    /** Arial, 12px. */
-    FONT_ARIAL12,
-    /** Arial, 13px. */
-    FONT_ARIAL13,
-    /** Arial, 14px. */
-    FONT_ARIAL14,
-    /** Arial, 15px. */
-    FONT_ARIAL15,
-    /** Arial, 16px. */
-    FONT_ARIAL16,
-    /** Arial, 18px. */
-    FONT_ARIAL18,
-    /** Arial, 20px. */
-    FONT_ARIAL20,
-    /** Logisoso, 8px. */
-    FONT_LOGISOSO8,
-    /** Logisoso, 10px. */
-    FONT_LOGISOSO10,
-    /** Logisoso, 12px. */
-    FONT_LOGISOSO12,
-    /** Logisoso, 14px. */
-    FONT_LOGISOSO14,
-    /** Logisoso, 16px. */
-    FONT_LOGISOSO16,
-    /** Logisoso, 18px. */
-    FONT_LOGISOSO18,
-    /** Logisoso, 20px. */
-    FONT_LOGISOSO20,
-    /** Fanwood, 8px. */
-    FONT_FANWOOD8,
-    /** Fanwood, 10px. */
-    FONT_FANWOOD10,
-    /** Fanwood, 12px. */
-    FONT_FANWOOD12,
-    /** Fanwood, 14px. */
-    FONT_FANWOOD14,
-    /** Fanwood, 16px. */
-    FONT_FANWOOD16,
-    /** Fanwood, 18px. */
-    FONT_FANWOOD18,
-    /** Fanwood, 20px. */
-    FONT_FANWOOD20,
-    /** Courier, 8px. */
-    FONT_COURIER8,
-    /** Courier, 10px. */
-    FONT_COURIER10,
-    /** Courier, 12px. */
-    FONT_COURIER12,
-    /** Courier, 14px. */
-    FONT_COURIER14,
-    /** Courier, 16px. */
-    FONT_COURIER16,
-    /** Courier, 18px. */
-    FONT_COURIER18,
-    /** Courier, 20px. */
-    FONT_COURIER20,
-    /** Pecita, 8px. */
-    FONT_PECITA8,
-    /** Pecita, 10px. */
-    FONT_PECITA10,
-    /** Pecita, 12px. */
-    FONT_PECITA12,
-    /** Pecita, 14px. */
-    FONT_PECITA14,
-    /** Pecita, 16px. */
-    FONT_PECITA16,
-    /** Pecita, 18px. */
-    FONT_PECITA18,
-    /** Pecita, 20px. */
-    FONT_PECITA20,
+ * Shortcut macro for getting a weak reference to the specified font.
+ */
+#define FONT(font_name, font_size) font_get_weak(font_name, font_size)
+/**
+ * Increase reference count of the specified font.
+ */
+#define FONT_INCREF(font) (font)->ref++;
+/**
+ * Decrease reference count of the specified font.
+ * @warning Only use this if you know *exactly* what you're doing; almost always
+ * you should use font_free() instead.
+ */
+#define FONT_DECREF(font) (font)->ref--;
 
-    /** Number of the fonts. */
-    FONTS_MAX
-};
+/**
+ * Maximum amount of time the font_gc() function can spend attempting to free
+ * fonts.
+ */
+#define FONT_GC_MAX_TIME 100000
+/**
+ * The font_gc() routine will execute once in X number of times.
+ */
+#define FONT_GC_CHANCE 500
+/**
+ * Number of seconds that must pass after the last registered usage of a font
+ * before it's garbage-collected.
+ */
+#define FONT_GC_FREE_TIME 60 * 30
+
+#define FONT_SANS7 FONT("sans", 7)
+#define FONT_SANS8 FONT("sans", 8)
+#define FONT_SANS9 FONT("sans", 9)
+#define FONT_SANS10 FONT("sans", 10)
+#define FONT_SANS11 FONT("sans", 11)
+#define FONT_SANS12 FONT("sans", 12)
+#define FONT_SANS13 FONT("sans", 13)
+#define FONT_SANS14 FONT("sans", 14)
+#define FONT_SANS15 FONT("sans", 15)
+#define FONT_SANS16 FONT("sans", 16)
+#define FONT_SANS18 FONT("sans", 18)
+#define FONT_SANS20 FONT("sans", 20)
+
+#define FONT_SERIF8 FONT("serif", 8)
+#define FONT_SERIF10 FONT("serif", 10)
+#define FONT_SERIF12 FONT("serif", 12)
+#define FONT_SERIF14 FONT("serif", 14)
+#define FONT_SERIF16 FONT("serif", 16)
+#define FONT_SERIF18 FONT("serif", 18)
+#define FONT_SERIF20 FONT("serif", 20)
+#define FONT_SERIF22 FONT("serif", 22)
+#define FONT_SERIF24 FONT("serif", 24)
+#define FONT_SERIF26 FONT("serif", 26)
+#define FONT_SERIF28 FONT("serif", 28)
+#define FONT_SERIF30 FONT("serif", 30)
+#define FONT_SERIF32 FONT("serif", 32)
+#define FONT_SERIF34 FONT("serif", 34)
+#define FONT_SERIF36 FONT("serif", 36)
+#define FONT_SERIF38 FONT("serif", 38)
+#define FONT_SERIF40 FONT("serif", 40)
+
+#define FONT_MONO8 FONT("mono", 8)
+#define FONT_MONO9 FONT("mono", 9)
+#define FONT_MONO10 FONT("mono", 10)
+#define FONT_MONO12 FONT("mono", 12)
+#define FONT_MONO14 FONT("mono", 14)
+#define FONT_MONO16 FONT("mono", 16)
+#define FONT_MONO18 FONT("mono", 18)
+#define FONT_MONO20 FONT("mono", 20)
+
+#define FONT_ARIAL8 FONT("arial", 8)
+#define FONT_ARIAL10 FONT("arial", 10)
+#define FONT_ARIAL11 FONT("arial", 11)
+#define FONT_ARIAL12 FONT("arial", 12)
+#define FONT_ARIAL13 FONT("arial", 13)
+#define FONT_ARIAL14 FONT("arial", 14)
+#define FONT_ARIAL15 FONT("arial", 15)
+#define FONT_ARIAL16 FONT("arial", 16)
+#define FONT_ARIAL18 FONT("arial", 18)
+#define FONT_ARIAL20 FONT("arial", 20)
 
 /**
  * Structure that holds information about markup and other things when
  * drawing. */
-typedef struct text_info_struct
-{
+typedef struct text_info_struct {
     /** Anchor tag position. */
     const char *anchor_tag;
 
@@ -252,7 +182,7 @@ typedef struct text_info_struct
     /**
      * Whether font width (font changed using a tag) is being
      * calculated. */
-    int calc_font;
+    font_struct *calc_font;
 
     /**
      * Used for calculations by the 'hcenter' tag. */
@@ -374,9 +304,9 @@ typedef struct text_info_struct
 /*@}*/
 
 /** Get font's maximum height. */
-#define FONT_HEIGHT(font) (fonts[(font)].height)
+#define FONT_HEIGHT(font) ((font)->height)
 
-#define FONT_TRY_INFO(_font, _info, _surface) ((_info).calc_font != -1 && !(_surface) && !(_info).obscured ? (_info).calc_font : (_font))
+#define FONT_TRY_INFO(_font, _info, _surface) ((_info).calc_font != NULL && !(_surface) && !(_info).obscured ? (_info).calc_font : (_font))
 
 /**
  * Anchor handler function to try and execute before the defaults.

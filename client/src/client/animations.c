@@ -1,26 +1,26 @@
-/************************************************************************
-*            Atrinik, a Multiplayer Online Role Playing Game            *
-*                                                                       *
-*    Copyright (C) 2009-2012 Alex Tokar and Atrinik Development Team    *
-*                                                                       *
-* Fork from Crossfire (Multiplayer game for X-windows).                 *
-*                                                                       *
-* This program is free software; you can redistribute it and/or modify  *
-* it under the terms of the GNU General Public License as published by  *
-* the Free Software Foundation; either version 2 of the License, or     *
-* (at your option) any later version.                                   *
-*                                                                       *
-* This program is distributed in the hope that it will be useful,       *
-* but WITHOUT ANY WARRANTY; without even the implied warranty of        *
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
-* GNU General Public License for more details.                          *
-*                                                                       *
-* You should have received a copy of the GNU General Public License     *
-* along with this program; if not, write to the Free Software           *
-* Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.             *
-*                                                                       *
-* The author can be reached at admin@atrinik.org                        *
-************************************************************************/
+/*************************************************************************
+ *           Atrinik, a Multiplayer Online Role Playing Game             *
+ *                                                                       *
+ *   Copyright (C) 2009-2014 Alex Tokar and Atrinik Development Team     *
+ *                                                                       *
+ * Fork from Crossfire (Multiplayer game for X-windows).                 *
+ *                                                                       *
+ * This program is free software; you can redistribute it and/or modify  *
+ * it under the terms of the GNU General Public License as published by  *
+ * the Free Software Foundation; either version 2 of the License, or     *
+ * (at your option) any later version.                                   *
+ *                                                                       *
+ * This program is distributed in the hope that it will be useful,       *
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of        *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
+ * GNU General Public License for more details.                          *
+ *                                                                       *
+ * You should have received a copy of the GNU General Public License     *
+ * along with this program; if not, write to the Free Software           *
+ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.             *
+ *                                                                       *
+ * The author can be reached at admin@atrinik.org                        *
+ ************************************************************************/
 
 /**
  * @file
@@ -61,7 +61,7 @@ void read_anims(void)
         animations_num = 0;
     }
 
-    anim_table = malloc(sizeof(_anim_table));
+    anim_table = emalloc(sizeof(_anim_table));
 
     /* Animation #0 is like face id #0. */
     anim_cmd[0] = (uint8) ((count >> 8) & 0xff);
@@ -71,7 +71,7 @@ void read_anims(void)
     anim_cmd[4] = 0;
     anim_cmd[5] = 0;
 
-    anim_table[count].anim_cmd = malloc(6);
+    anim_table[count].anim_cmd = emalloc(6);
     memcpy(anim_table[count].anim_cmd, anim_cmd, 6);
     anim_table[count].len = 6;
     count++;
@@ -88,32 +88,27 @@ void read_anims(void)
             if (!strncmp(buf, "anim ", 5)) {
                 new_anim = 0;
                 faces = 0;
-                anim_cmd[0] = (uint8)((count >> 8) & 0xff);
-                anim_cmd[1] = (uint8)(count & 0xff);
+                anim_cmd[0] = (uint8) ((count >> 8) & 0xff);
+                anim_cmd[1] = (uint8) (count & 0xff);
                 faces = 1;
                 anim_len = 4;
-            }
-            /* we should never hit this point */
-            else {
+            } else {
+                /* we should never hit this point */
                 logger_print(LOG(BUG), "Error parsing anims.tmp - unknown cmd: >%s<!", buf);
             }
-        }
-        /* No, we are inside! */
-        else {
+        } else {
             if (!strncmp(buf, "facings ", 8)) {
                 faces = atoi(buf + 8);
-            }
-            else if (!strncmp(buf, "mina", 4)) {
-                anim_table = realloc(anim_table, sizeof(_anim_table) * (count + 1));
+            } else if (!strncmp(buf, "mina", 4)) {
+                anim_table = erealloc(anim_table, sizeof(_anim_table) * (count + 1));
                 anim_cmd[2] = 0;
                 anim_cmd[3] = faces;
                 anim_table[count].len = anim_len;
-                anim_table[count].anim_cmd = malloc(anim_len);
+                anim_table[count].anim_cmd = emalloc(anim_len);
                 memcpy(anim_table[count].anim_cmd, anim_cmd, anim_len);
                 count++;
                 new_anim = 1;
-            }
-            else {
+            } else {
                 uint16 face_id = atoi(buf);
 
                 anim_cmd[anim_len++] = (uint8) ((face_id >> 8) & 0xff);

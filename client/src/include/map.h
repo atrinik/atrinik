@@ -1,26 +1,26 @@
-/************************************************************************
-*            Atrinik, a Multiplayer Online Role Playing Game            *
-*                                                                       *
-*    Copyright (C) 2009-2012 Alex Tokar and Atrinik Development Team    *
-*                                                                       *
-* Fork from Crossfire (Multiplayer game for X-windows).                 *
-*                                                                       *
-* This program is free software; you can redistribute it and/or modify  *
-* it under the terms of the GNU General Public License as published by  *
-* the Free Software Foundation; either version 2 of the License, or     *
-* (at your option) any later version.                                   *
-*                                                                       *
-* This program is distributed in the hope that it will be useful,       *
-* but WITHOUT ANY WARRANTY; without even the implied warranty of        *
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
-* GNU General Public License for more details.                          *
-*                                                                       *
-* You should have received a copy of the GNU General Public License     *
-* along with this program; if not, write to the Free Software           *
-* Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.             *
-*                                                                       *
-* The author can be reached at admin@atrinik.org                        *
-************************************************************************/
+/*************************************************************************
+ *           Atrinik, a Multiplayer Online Role Playing Game             *
+ *                                                                       *
+ *   Copyright (C) 2009-2014 Alex Tokar and Atrinik Development Team     *
+ *                                                                       *
+ * Fork from Crossfire (Multiplayer game for X-windows).                 *
+ *                                                                       *
+ * This program is free software; you can redistribute it and/or modify  *
+ * it under the terms of the GNU General Public License as published by  *
+ * the Free Software Foundation; either version 2 of the License, or     *
+ * (at your option) any later version.                                   *
+ *                                                                       *
+ * This program is distributed in the hope that it will be useful,       *
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of        *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
+ * GNU General Public License for more details.                          *
+ *                                                                       *
+ * You should have received a copy of the GNU General Public License     *
+ * along with this program; if not, write to the Free Software           *
+ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.             *
+ *                                                                       *
+ * The author can be reached at admin@atrinik.org                        *
+ ************************************************************************/
 
 /**
  * @file
@@ -80,7 +80,7 @@
 #define NUM_LAYERS 7
 /**
  * Number of sub-layers. */
-#define NUM_SUB_LAYERS 5
+#define NUM_SUB_LAYERS 7
 /**
  * Effective number of all the visible layers. */
 #define NUM_REAL_LAYERS (NUM_LAYERS * NUM_SUB_LAYERS)
@@ -89,8 +89,7 @@
     (NUM_LAYERS * (_sub_layer) + (_layer) - 1)
 
 /** Multi part object tile structure */
-typedef struct _multi_part_tile
-{
+typedef struct _multi_part_tile {
     /** X-offset */
     int xoff;
 
@@ -105,8 +104,7 @@ typedef struct _multi_part_tile
  * The way of determinate the starting and shift points is explained
  * in the dev/multi_arch folder of the arches, where the multi arch templates &
  * masks are. */
-typedef struct _multi_part_obj
-{
+typedef struct _multi_part_obj {
     /** Natural xlen of the whole multi arch */
     int xlen;
 
@@ -118,13 +116,24 @@ typedef struct _multi_part_obj
 } _multi_part_obj;
 
 /** Map data structure */
-typedef struct _mapdata
-{
+typedef struct _mapdata {
     /** Map name. */
     char name[HUGE_BUF];
 
     /** New map name. */
     char name_new[HUGE_BUF];
+
+    /** Region's name. */
+    char region_name[MAX_BUF];
+
+    /** Whether the region itself actually has map. */
+    bool region_has_map;
+
+    /** Region's long name. */
+    char region_longname[MAX_BUF];
+
+    /** Map path. */
+    char map_path[HUGE_BUF];
 
     uint32 name_fadeout_start;
 
@@ -139,22 +148,47 @@ typedef struct _mapdata
 
     /** Position Y. */
     int posy;
+
+    /**
+     * If set, height difference will be taken into account when rendering
+     * tiles (even if they are not FoW tiles).
+     */
+    int height_diff : 1;
+
+    /**
+     * If 1, the player is currently in a building.
+     */
+    int in_building : 1;
+
+    /**
+     * Player's current sub-layer.
+     */
+    uint8 player_sub_layer;
+
+    /**
+     * Region map.
+     */
+    struct region_map *region_map;
 } _mapdata;
 
-/** Map cell structure. */
-typedef struct MapCell
-{
-    /** Position. */
-    uint8 quick_pos[NUM_REAL_LAYERS];
+/**
+ * Map cell structure.
+ */
+typedef struct MapCell {
+    /** Name of player on this cell. */
+    char pname[NUM_REAL_LAYERS][64];
 
     /** Player name color on this cell. */
     char pcolor[NUM_REAL_LAYERS][COLOR_BUF];
+
+    /** Position. */
+    uint8 quick_pos[NUM_REAL_LAYERS];
 
     /** If this is where our enemy is. */
     uint8 probe[NUM_REAL_LAYERS];
 
     /** Cell darkness. */
-    uint8 darkness;
+    uint8 darkness[NUM_SUB_LAYERS];
 
     /** Object flags. */
     uint8 flags[NUM_REAL_LAYERS];
@@ -189,23 +223,45 @@ typedef struct MapCell
     /** How we stretch this is really 8 char for N S E W. */
     uint32 stretch[NUM_SUB_LAYERS];
 
-    /** Name of player on this cell. */
-    char pname[NUM_REAL_LAYERS][64];
-
+    /**
+     * Target object.
+     */
     uint32 target_object_count[NUM_REAL_LAYERS];
 
+    /**
+     * Whether the target is a friend.
+     */
     uint8 target_is_friend[NUM_REAL_LAYERS];
+
+    uint8 anim_last[NUM_REAL_LAYERS];
+
+    uint8 anim_speed[NUM_REAL_LAYERS];
+
+    uint8 anim_facing[NUM_REAL_LAYERS];
+
+    uint8 anim_state[NUM_REAL_LAYERS];
+
+    uint8 anim_flags[NUM_SUB_LAYERS];
+
+    /**
+     * Whether Fog of War is enabled on this cell.
+     */
+    uint8 fow;
+
+    uint8 priority[NUM_SUB_LAYERS];
 } MapCell;
 
-/** Map structure. */
-typedef struct Map
-{
-    /** Map cells. */
-    struct MapCell cells[MAP_MAX_SIZE][MAP_MAX_SIZE];
-} Map;
+#define MAP_STARTX map_width * (MAP_FOW_SIZE / 2)
+#define MAP_STARTY map_height * (MAP_FOW_SIZE / 2)
+#define MAP_WIDTH map_width
+#define MAP_HEIGHT map_height
 
-typedef struct map_target_struct
-{
+#define MAP_CELL_GET(_x, _y) (&cells[(_y) * (map_width * MAP_FOW_SIZE) + (_x)])
+#define MAP_CELL_GET_MIDDLE(_x, _y) \
+    (&cells[((_y) + map_height * (MAP_FOW_SIZE / 2)) * \
+    (map_width * MAP_FOW_SIZE) + (_x) + map_width * (MAP_FOW_SIZE / 2)])
+
+typedef struct map_target_struct {
     uint32 count;
     int x;
     int y;
@@ -216,5 +272,47 @@ typedef struct map_target_struct
 
 /** Time in milliseconds for fade out/in effect of the map name. */
 #define MAP_NAME_FADEOUT 500
+
+/**
+ * Maximum height difference between the rendered tile and the player's tile.
+ *
+ * Tiles that are lower/higher than this (relative to the player) will not
+ * be rendered.
+ *
+ * Only applicable to tiles that are in the Fog of War, or if
+ * MapData::height_diff is set.
+ */
+#define HEIGHT_MAX_RENDER 50
+
+/**
+ * @defgroup ANIM_xxx Animation types
+ * Animation types.
+ *@{*/
+/** Damage animation. */
+#define ANIM_DAMAGE     1
+/** Kill animation. */
+#define ANIM_KILL       2
+/*@}*/
+
+/**
+ * Map animation structure.
+ */
+typedef struct map_anim {
+    struct map_anim *next; ///< Next animation.
+    struct map_anim *prev; ///< Previous animation.
+
+    int type; ///< Type of the animation, one of @ref ANIM_xxx.
+    int value; ///< This is the number to display.
+    int mapx; ///< Map position X.
+    int mapy; ///< Map position Y.
+
+    int x; ///< X position.
+    int y; ///< Y position.
+    double xoff; ///< Movement in X per tick.
+    double yoff; ///< Movement in Y per tick.
+
+    uint32 start_tick; ///< The time we started this anim.
+    uint32 last_tick; ///< This is the end-tick.
+} map_anim_t;
 
 #endif

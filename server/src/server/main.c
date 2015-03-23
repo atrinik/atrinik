@@ -1,26 +1,26 @@
-/************************************************************************
-*            Atrinik, a Multiplayer Online Role Playing Game            *
-*                                                                       *
-*    Copyright (C) 2009-2012 Alex Tokar and Atrinik Development Team    *
-*                                                                       *
-* Fork from Crossfire (Multiplayer game for X-windows).                 *
-*                                                                       *
-* This program is free software; you can redistribute it and/or modify  *
-* it under the terms of the GNU General Public License as published by  *
-* the Free Software Foundation; either version 2 of the License, or     *
-* (at your option) any later version.                                   *
-*                                                                       *
-* This program is distributed in the hope that it will be useful,       *
-* but WITHOUT ANY WARRANTY; without even the implied warranty of        *
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
-* GNU General Public License for more details.                          *
-*                                                                       *
-* You should have received a copy of the GNU General Public License     *
-* along with this program; if not, write to the Free Software           *
-* Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.             *
-*                                                                       *
-* The author can be reached at admin@atrinik.org                        *
-************************************************************************/
+/*************************************************************************
+ *           Atrinik, a Multiplayer Online Role Playing Game             *
+ *                                                                       *
+ *   Copyright (C) 2009-2014 Alex Tokar and Atrinik Development Team     *
+ *                                                                       *
+ * Fork from Crossfire (Multiplayer game for X-windows).                 *
+ *                                                                       *
+ * This program is free software; you can redistribute it and/or modify  *
+ * it under the terms of the GNU General Public License as published by  *
+ * the Free Software Foundation; either version 2 of the License, or     *
+ * (at your option) any later version.                                   *
+ *                                                                       *
+ * This program is distributed in the hope that it will be useful,       *
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of        *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
+ * GNU General Public License for more details.                          *
+ *                                                                       *
+ * You should have received a copy of the GNU General Public License     *
+ * along with this program; if not, write to the Free Software           *
+ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.             *
+ *                                                                       *
+ * The author can be reached at admin@atrinik.org                        *
+ ************************************************************************/
 
 /**
  * @file
@@ -28,6 +28,7 @@
 
 #include <global.h>
 #include <check_proto.h>
+#include <gitversion.h>
 
 /** Object used in process_events(). */
 static object marker;
@@ -49,6 +50,7 @@ artifactlist *first_artifactlist;
 player *last_player;
 
 uint32 global_round_tag;
+int process_delay;
 
 static long shutdown_time;
 static uint8 shutdown_active = 0;
@@ -64,20 +66,18 @@ static void do_specials(void);
  * shown to the player object using draw_info_format(). */
 void version(object *op)
 {
-    if (op) {
-        int revision;
+    char buf[HUGE_BUF];
 
-        revision = bzr_get_revision();
+    snprintf(VS(buf), "This is Atrinik v%s", PACKAGE_VERSION);
+#ifdef GITVERSION
+    snprintfcat(VS(buf), "%s", " (" STRINGIFY(GITBRANCH) "/"
+            STRINGIFY(GITVERSION) " by " STRINGIFY(GITAUTHOR) ")");
+#endif
 
-        if (revision) {
-            draw_info_format(COLOR_WHITE, op, "This is Atrinik v%s (r%d)", PACKAGE_VERSION, revision);
-        }
-        else {
-            draw_info_format(COLOR_WHITE, op, "This is Atrinik v%s", PACKAGE_VERSION);
-        }
-    }
-    else {
-        logger_print(LOG(INFO), "This is Atrinik v%s.", PACKAGE_VERSION);
+    if (op != NULL) {
+        draw_info(COLOR_WHITE, op, buf);
+    } else {
+        logger_print(LOG(INFO), "%s", buf);
     }
 }
 
@@ -149,7 +149,7 @@ static void process_players1(void)
             if (followed && followed->ob && followed->ob->map) {
                 rv_vector rv;
 
-                if (!on_same_map(pl->ob, followed->ob) || (get_rangevector(pl->ob, followed->ob, &rv, 0) && rv.distance > 4)) {
+                if (!on_same_map(pl->ob, followed->ob) || (get_rangevector(pl->ob, followed->ob, &rv, 0) && (rv.distance > 4 || rv.distance_z != 0))) {
                     int space = find_free_spot(pl->ob->arch, pl->ob, followed->ob->map, followed->ob->x, followed->ob->y, 1, SIZEOFFREE2 + 1);
 
                     if (space != -1 && followed->ob->x + freearr_x[space] >= 0 && followed->ob->y + freearr_y[space] >= 0 && followed->ob->x + freearr_x[space] < MAP_WIDTH(followed->ob->map) && followed->ob->y + freearr_y[space] < MAP_HEIGHT(followed->ob->map)) {
@@ -159,8 +159,7 @@ static void process_players1(void)
                         insert_ob_in_map(pl->ob, followed->ob->map, NULL, 0);
                     }
                 }
-            }
-            else {
+            } else {
                 draw_info_format(COLOR_RED, pl->ob, "Player %s left.", pl->followed_player);
                 pl->followed_player[0] = '\0';
             }
@@ -176,14 +175,12 @@ static void process_players1(void)
 
                 if (!OBJECT_VALID(pl->ob->enemy, pl->ob->enemy_count) || pl->ob->enemy->owner == pl->ob) {
                     pl->ob->enemy = NULL;
-                }
-                else if (is_melee_range(pl->ob, pl->ob->enemy)) {
+                } else if (is_melee_range(pl->ob, pl->ob->enemy)) {
                     if (!OBJECT_VALID(pl->ob->enemy->enemy, pl->ob->enemy->enemy_count)) {
                         set_npc_enemy(pl->ob->enemy, pl->ob, NULL);
-                    }
-                    /* Our target already has an enemy - then note we had
-                     * attacked */
-                    else {
+                    } else {
+                        /* Our target already has an enemy - then note we had
+                         * attacked */
                         pl->ob->enemy->attacked_by = pl->ob;
                         pl->ob->enemy->attacked_by_distance = 1;
                     }
@@ -192,7 +189,7 @@ static void process_players1(void)
 
                     pl->action_attack = global_round_tag + pl->ob->weapon_speed;
 
-                    pl->action_timer = (float) (pl->action_attack - global_round_tag) / (1000000 / MAX_TIME) * 1000.0;
+                    pl->action_timer = (float) (pl->action_attack - global_round_tag) / MAX_TICKS;
                     pl->last_action_timer = 0;
                 }
             }
@@ -221,8 +218,7 @@ static void process_players1(void)
 
             if (pl->afk) {
                 pl->stat_time_afk++;
-            }
-            else {
+            } else {
                 pl->stat_time_played++;
             }
         }
@@ -277,8 +273,7 @@ void process_events(mapstruct *map)
 
         if (op->active_prev) {
             op->active_prev->active_next = op;
-        }
-        else {
+        } else {
             active_objects = op;
         }
 
@@ -336,34 +331,39 @@ void process_events(mapstruct *map)
             }
         }
 
+        if (op->anim_flags & ANIM_FLAG_STOP_MOVING) {
+            op->anim_flags &= ~(ANIM_FLAG_MOVING | ANIM_FLAG_STOP_MOVING);
+        }
+
+        if (op->anim_flags & ANIM_FLAG_STOP_ATTACKING) {
+            if (op->enemy == NULL || !is_melee_range(op, op->enemy)) {
+                op->anim_flags &= ~ANIM_FLAG_ATTACKING;
+            }
+
+            op->anim_flags &= ~ANIM_FLAG_STOP_ATTACKING;
+        }
+
         /* Handle archetype-field anim_speed differently when it comes to
          * the animation. If we have a value on this we don't animate it
          * at speed-events. */
         if (QUERY_FLAG(op, FLAG_ANIMATE)) {
             if (op->last_anim >= op->anim_speed) {
-                animate_object(op, 1);
-
-                /* Check for direction changing */
-                if (op->type == PLAYER && NUM_FACINGS(op) >= 25) {
-                    if (op->anim_moving_dir != -1) {
-                        op->anim_last_facing = op->anim_moving_dir;
-                        op->anim_moving_dir = -1;
-                    }
-
-                    if (op->anim_enemy_dir != -1) {
-                        op->anim_last_facing = op->anim_enemy_dir;
-                        op->anim_enemy_dir = -1;
-                    }
-                }
-
+                animate_object(op);
                 op->last_anim = 1;
-            }
-            else {
-                /* Check for direction changing */
-                if (NUM_FACINGS(op) >= 25) {
-                    animate_object(op, 0);
+
+                if (op->anim_flags & ANIM_FLAG_ATTACKING) {
+                    op->anim_flags |= ANIM_FLAG_STOP_ATTACKING;
                 }
 
+                if (op->anim_flags & ANIM_FLAG_MOVING) {
+                    if ((op->anim_flags & ANIM_FLAG_ATTACKING &&
+                            !(op->anim_flags & ANIM_FLAG_STOP_ATTACKING)) ||
+                            op->type == PLAYER ||
+                            !OBJECT_VALID(op->enemy, op->enemy_count)) {
+                        op->anim_flags |= ANIM_FLAG_STOP_MOVING;
+                    }
+                }
+            } else {
                 op->last_anim++;
             }
         }
@@ -376,8 +376,7 @@ void process_events(mapstruct *map)
     /* Remove marker object from active list */
     if (marker.active_prev) {
         marker.active_prev->active_next = NULL;
-    }
-    else {
+    } else {
         active_objects = NULL;
     }
 
@@ -388,18 +387,16 @@ void process_events(mapstruct *map)
  * Clean temporary map files. */
 void clean_tmp_files(void)
 {
-    mapstruct *m, *next;
+    mapstruct *m, *tmp;
 
     /* We save the maps - it may not be intuitive why, but if there are
      * unique items, we need to save the map so they get saved off. */
-    for (m = first_map; m != NULL; m = next) {
-        next = m->next;
-
+    DL_FOREACH_SAFE(first_map, m, tmp)
+    {
         if (m->in_memory == MAP_IN_MEMORY) {
             if (settings.recycle_tmp_maps) {
                 swap_map(m, 0);
-            }
-            else {
+            } else {
                 new_save_map(m, 0);
                 clean_tmp_map(m);
             }
@@ -434,7 +431,7 @@ static void dequeue_path_requests(void)
     long leftover_sec, leftover_usec;
     object *wp;
 
-    while ((wp = get_next_requested_path())) {
+    while ((wp = path_get_next_request())) {
         waypoint_compute_path(wp);
 
         (void) GETTIMEOFDAY(&new_time);
@@ -458,7 +455,7 @@ static void dequeue_path_requests(void)
         }
     }
 #else
-    object *wp = get_next_requested_path();
+    object *wp = path_get_next_request();
 
     if (wp) {
         waypoint_compute_path(wp);
@@ -531,9 +528,9 @@ int swap_apartments(const char *mapold, const char *mapnew, int x, int y, object
                     ob->x = x;
                     ob->y = y;
                     insert_ob_in_map(ob, newmap, NULL, INS_NO_MERGE | INS_NO_WALK_ON);
-                }
-                /* Fixed part of map */
-                else {
+                } else {
+                    /* Fixed part of map */
+
                     /* Now we test for containers, because player
                      * can have items stored in it. So, go through
                      * the container and look for things to transfer. */
@@ -597,7 +594,7 @@ static void do_specials(void)
 
 void shutdown_timer_start(long secs)
 {
-    shutdown_time = pticks + secs * (1000000 / max_time);
+    shutdown_time = pticks + secs * MAX_TICKS;
     shutdown_active = 1;
 }
 
@@ -616,8 +613,8 @@ static int shutdown_timer_check(void)
         return 1;
     }
 
-    if (!((shutdown_time - pticks) % (60 * (1000000 / max_time))) || pticks == shutdown_time - 5 * (1000000 / max_time)) {
-        draw_info_type_format(CHAT_TYPE_CHAT, NULL, COLOR_GREEN, NULL, "[Server]: Server will shut down in %02"FMT64U ":%02"FMT64U " minutes.", (uint64) ((shutdown_time - pticks) / (1000000 / max_time) / 60), (uint64) ((shutdown_time - pticks) / (1000000 / max_time) % 60));
+    if (!((shutdown_time - pticks) % (60 * MAX_TICKS)) || pticks == shutdown_time - 5 * MAX_TICKS) {
+        draw_info_type_format(CHAT_TYPE_CHAT, NULL, COLOR_GREEN, NULL, "[Server]: Server will shut down in %02"FMT64U ":%02"FMT64U " minutes.", (uint64) ((shutdown_time - pticks) / MAX_TICKS / 60), (uint64) ((shutdown_time - pticks) / MAX_TICKS % 60));
     }
 
     return 0;
@@ -664,10 +661,11 @@ int main(int argc, char **argv)
 
     console_start_thread();
     memset(&marker, 0, sizeof(struct obj));
+    process_delay = 0;
 
     logger_print(LOG(INFO), "Server ready. Waiting for connections...");
 
-    for (;; ) {
+    for (; ; ) {
         if (shutdown_timer_check()) {
             break;
         }
@@ -676,17 +674,24 @@ int main(int argc, char **argv)
 
         doeric_server();
 
-        /* Global round ticker. */
-        global_round_tag++;
+        if (++process_delay >= max_time_multiplier) {
+            process_delay = 0;
 
-        /* "do" something with objects with speed */
-        process_events(NULL);
+            /* Global round ticker. */
+            global_round_tag++;
+            pticks++;
 
-        /* Removes unused maps after a certain timeout */
-        check_active_maps();
+            /* "do" something with objects with speed */
+            process_events(NULL);
 
-        /* Routines called from time to time. */
-        do_specials();
+            /* Removes unused maps after a certain timeout */
+            check_active_maps();
+
+            /* Routines called from time to time. */
+            do_specials();
+
+            trigger_global_event(GEVENT_TICK, NULL, NULL);
+        }
 
         doeric_server_write();
 

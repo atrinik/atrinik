@@ -1,26 +1,26 @@
-/************************************************************************
-*            Atrinik, a Multiplayer Online Role Playing Game            *
-*                                                                       *
-*    Copyright (C) 2009-2012 Alex Tokar and Atrinik Development Team    *
-*                                                                       *
-* Fork from Crossfire (Multiplayer game for X-windows).                 *
-*                                                                       *
-* This program is free software; you can redistribute it and/or modify  *
-* it under the terms of the GNU General Public License as published by  *
-* the Free Software Foundation; either version 2 of the License, or     *
-* (at your option) any later version.                                   *
-*                                                                       *
-* This program is distributed in the hope that it will be useful,       *
-* but WITHOUT ANY WARRANTY; without even the implied warranty of        *
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
-* GNU General Public License for more details.                          *
-*                                                                       *
-* You should have received a copy of the GNU General Public License     *
-* along with this program; if not, write to the Free Software           *
-* Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.             *
-*                                                                       *
-* The author can be reached at admin@atrinik.org                        *
-************************************************************************/
+/*************************************************************************
+ *           Atrinik, a Multiplayer Online Role Playing Game             *
+ *                                                                       *
+ *   Copyright (C) 2009-2014 Alex Tokar and Atrinik Development Team     *
+ *                                                                       *
+ * Fork from Crossfire (Multiplayer game for X-windows).                 *
+ *                                                                       *
+ * This program is free software; you can redistribute it and/or modify  *
+ * it under the terms of the GNU General Public License as published by  *
+ * the Free Software Foundation; either version 2 of the License, or     *
+ * (at your option) any later version.                                   *
+ *                                                                       *
+ * This program is distributed in the hope that it will be useful,       *
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of        *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
+ * GNU General Public License for more details.                          *
+ *                                                                       *
+ * You should have received a copy of the GNU General Public License     *
+ * along with this program; if not, write to the Free Software           *
+ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.             *
+ *                                                                       *
+ * The author can be reached at admin@atrinik.org                        *
+ ************************************************************************/
 
 /**
  * @file
@@ -119,8 +119,7 @@ static void commands_permissions_read(const char *path)
 
             tmp = ecalloc(1, sizeof(*tmp));
             tmp->name = estrdup(buf);
-        }
-        else if (tmp) {
+        } else if (tmp) {
             char *cps[2];
 
             if (string_split(buf, cps, arraysize(cps), '=') == 2) {
@@ -148,6 +147,7 @@ static void commands_permissions_read(const char *path)
  * @internal */
 void toolkit_commands_init(void)
 {
+
     TOOLKIT_INIT_FUNC_START(commands)
     {
         toolkit_import(path);
@@ -167,13 +167,17 @@ void toolkit_commands_init(void)
         commands_add(COMMAND(follow), 0.0, COMMAND_PERMISSION);
         commands_add(COMMAND(freeze), 0.0, COMMAND_PERMISSION);
         commands_add(COMMAND(kick), 0.0, COMMAND_PERMISSION);
+        commands_add(COMMAND(memfree), 0.0, COMMAND_PERMISSION);
         commands_add(COMMAND(mod_chat), 0.0, COMMAND_PERMISSION);
         commands_add(COMMAND(no_chat), 0.0, COMMAND_PERMISSION);
         commands_add(COMMAND(opsay), 0.0, COMMAND_PERMISSION);
+        commands_add(COMMAND(password), 0.0, COMMAND_PERMISSION);
         commands_add(COMMAND(resetmap), 0.0, COMMAND_PERMISSION);
+        commands_add(COMMAND(resetmaps), 0.0, COMMAND_PERMISSION);
         commands_add(COMMAND(server_chat), 0.0, COMMAND_PERMISSION);
         commands_add(COMMAND(settime), 0.0, COMMAND_PERMISSION);
         commands_add(COMMAND(shutdown), 0.0, COMMAND_PERMISSION);
+        commands_add(COMMAND(stats), 0.0, COMMAND_PERMISSION);
         commands_add(COMMAND(tcl), 0.0, COMMAND_PERMISSION);
         commands_add(COMMAND(tgm), 0.0, COMMAND_PERMISSION);
         commands_add(COMMAND(tli), 0.0, COMMAND_PERMISSION);
@@ -195,7 +199,6 @@ void toolkit_commands_init(void)
         commands_add(COMMAND(my), 1.0, 0);
         commands_add(COMMAND(party), 1.0, 0);
         commands_add(COMMAND(push), 1.0, 0);
-        commands_add(COMMAND(region_map), 1.0, 0);
         commands_add(COMMAND(rename), 1.0, 0);
         commands_add(COMMAND(reply), 1.0, 0);
         commands_add(COMMAND(right), 1.0, 0);
@@ -216,6 +219,7 @@ void toolkit_commands_init(void)
  * @internal */
 void toolkit_commands_deinit(void)
 {
+
     TOOLKIT_DEINIT_FUNC_START(commands)
     {
         command_struct *curr, *tmp;
@@ -295,8 +299,7 @@ int commands_check_permission(player *pl, const char *command)
 
         if (string_startswith(pl->cmd_permissions[i], "[") && string_endswith(pl->cmd_permissions[i], "]") && commands_check_permission_group(pl->cmd_permissions[i], strlen(pl->cmd_permissions[i]), command)) {
             return 1;
-        }
-        else if (strcmp(pl->cmd_permissions[i], command) == 0) {
+        } else if (strcmp(pl->cmd_permissions[i], command) == 0) {
             return 1;
         }
     }
@@ -322,8 +325,7 @@ void commands_handle(object *op, char *cmd)
             if (*params == '\0') {
                 params = NULL;
             }
-        }
-        else {
+        } else {
             params = NULL;
         }
 

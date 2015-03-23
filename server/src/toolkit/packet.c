@@ -1,26 +1,26 @@
-/************************************************************************
-*            Atrinik, a Multiplayer Online Role Playing Game            *
-*                                                                       *
-*    Copyright (C) 2009-2012 Alex Tokar and Atrinik Development Team    *
-*                                                                       *
-* Fork from Crossfire (Multiplayer game for X-windows).                 *
-*                                                                       *
-* This program is free software; you can redistribute it and/or modify  *
-* it under the terms of the GNU General Public License as published by  *
-* the Free Software Foundation; either version 2 of the License, or     *
-* (at your option) any later version.                                   *
-*                                                                       *
-* This program is distributed in the hope that it will be useful,       *
-* but WITHOUT ANY WARRANTY; without even the implied warranty of        *
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
-* GNU General Public License for more details.                          *
-*                                                                       *
-* You should have received a copy of the GNU General Public License     *
-* along with this program; if not, write to the Free Software           *
-* Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.             *
-*                                                                       *
-* The author can be reached at admin@atrinik.org                        *
-************************************************************************/
+/*************************************************************************
+ *           Atrinik, a Multiplayer Online Role Playing Game             *
+ *                                                                       *
+ *   Copyright (C) 2009-2014 Alex Tokar and Atrinik Development Team     *
+ *                                                                       *
+ * Fork from Crossfire (Multiplayer game for X-windows).                 *
+ *                                                                       *
+ * This program is free software; you can redistribute it and/or modify  *
+ * it under the terms of the GNU General Public License as published by  *
+ * the Free Software Foundation; either version 2 of the License, or     *
+ * (at your option) any later version.                                   *
+ *                                                                       *
+ * This program is distributed in the hope that it will be useful,       *
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of        *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
+ * GNU General Public License for more details.                          *
+ *                                                                       *
+ * You should have received a copy of the GNU General Public License     *
+ * along with this program; if not, write to the Free Software           *
+ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.             *
+ *                                                                       *
+ * The author can be reached at admin@atrinik.org                        *
+ ************************************************************************/
 
 /**
  * @file
@@ -41,17 +41,42 @@ static uint8 did_init = 0;
 
 /**
  * The packets memory pool. */
-static mempool_struct *pool_packets;
+static mempool_struct *pool_packet;
+
+/** @copydoc chunk_debugger */
+static void packet_debugger(packet_struct *packet, char *buf, size_t size)
+{
+    snprintf(buf, size, "type: %d length: %"FMT64U" size: %"FMT64U,
+            packet->type, (uint64) packet->len, (uint64) packet->size);
+
+    if (packet->data != NULL && packet->len != 0) {
+#define MAXHEXLEN 256
+        char hexbuf[MAXHEXLEN * 2 + 1];
+
+        string_tohex(packet->data, packet->len, hexbuf, sizeof(hexbuf));
+        snprintfcat(buf, size, " data: %s", hexbuf);
+
+        if (packet->len > MAXHEXLEN) {
+            snprintfcat(buf, size, " (%"FMT64" bytes follow)",
+                    (uint64) (packet->len - MAXHEXLEN));
+        }
+#undef MAXHEXLEN
+    }
+}
 
 /**
  * Initialize the packet API.
  * @internal */
 void toolkit_packet_init(void)
 {
+
     TOOLKIT_INIT_FUNC_START(packet)
     {
         toolkit_import(mempool);
-        pool_packets = mempool_create("packets", PACKET_EXPAND, sizeof(packet_struct), 0, NULL, NULL, NULL, NULL);
+        pool_packet = mempool_create("packets", PACKET_EXPAND,
+                sizeof(packet_struct), MEMPOOL_ALLOW_FREEING,
+                NULL, NULL, NULL, NULL);
+        mempool_set_debugger(pool_packet, (chunk_debugger) packet_debugger);
     }
     TOOLKIT_INIT_FUNC_END()
 }
@@ -61,9 +86,9 @@ void toolkit_packet_init(void)
  * @internal */
 void toolkit_packet_deinit(void)
 {
+
     TOOLKIT_DEINIT_FUNC_START(packet)
     {
-        mempool_free(pool_packets);
     }
     TOOLKIT_DEINIT_FUNC_END()
 }
@@ -82,20 +107,15 @@ packet_struct *packet_new(uint8 type, size_t size, size_t expand)
 
     TOOLKIT_FUNC_PROTECTOR(API_NAME);
 
-    packet = get_poolchunk(pool_packets);
-    packet->next = packet->prev = NULL;
-    packet->pos = 0;
+    packet = mempool_get(pool_packet);
     packet->size = size;
     packet->expand = expand;
-    packet->len = 0;
-    packet->data = NULL;
 
     /* Allocate the initial data block. */
     if (packet->size) {
         packet->data = emalloc(packet->size);
     }
 
-    packet->ndelay = 0;
     packet->type = type;
 
     return packet;
@@ -112,7 +132,7 @@ void packet_free(packet_struct *packet)
         efree(packet->data);
     }
 
-    return_poolchunk(packet, pool_packets);
+    mempool_return(pool_packet, packet);
 }
 
 /**
@@ -137,7 +157,7 @@ void packet_compress(packet_struct *packet)
         dest[4] = (packet->len) & 0xff;
         packet->size = new_size + 5;
         /* Compress it. */
-        compress2((Bytef *) dest + 5, (uLong *) &new_size, (const unsigned char FAR *) packet->data, packet->len, Z_BEST_COMPRESSION);
+        compress2((Bytef *) dest + 5, (uLong *) & new_size, (const unsigned char FAR *) packet->data, packet->len, Z_BEST_COMPRESSION);
 
         efree(packet->data);
         packet->data = dest;
@@ -302,6 +322,26 @@ void packet_append_sint64(packet_struct *packet, sint64 data)
     packet->data[packet->len++] = data & 0xff;
 }
 
+void packet_append_float(packet_struct *packet, float data)
+{
+    uint32 val;
+
+    TOOLKIT_FUNC_PROTECTOR(API_NAME);
+
+    memcpy(&val, &data, sizeof(val));
+    packet_append_uint32(packet, val);
+}
+
+void packet_append_double(packet_struct *packet, double data)
+{
+    uint64 val;
+
+    TOOLKIT_FUNC_PROTECTOR(API_NAME);
+
+    memcpy(&val, &data, sizeof(val));
+    packet_append_uint64(packet, val);
+}
+
 void packet_append_data_len(packet_struct *packet, uint8 *data, size_t len)
 {
     TOOLKIT_FUNC_PROTECTOR(API_NAME);
@@ -460,6 +500,32 @@ sint64 packet_to_sint64(uint8 *data, size_t len, size_t *pos)
 
     ret = ((sint64) data[*pos] << 56) + ((sint64) data[*pos + 1] << 48) + ((sint64) data[*pos + 2] << 40) + ((sint64) data[*pos + 3] << 32) + ((sint64) data[*pos + 4] << 24) + ((sint64) data[*pos + 5] << 16) + ((sint64) data[*pos + 6] << 8) + (sint64) data[*pos + 7];
     *pos += 8;
+
+    return ret;
+}
+
+float packet_to_float(uint8 *data, size_t len, size_t *pos)
+{
+    uint32 val;
+    float ret;
+
+    TOOLKIT_FUNC_PROTECTOR(API_NAME);
+
+    val = packet_to_uint32(data, len, pos);
+    memcpy(&ret, &val, sizeof(ret));
+
+    return ret;
+}
+
+double packet_to_double(uint8 *data, size_t len, size_t *pos)
+{
+    uint64 val;
+    double ret;
+
+    TOOLKIT_FUNC_PROTECTOR(API_NAME);
+
+    val = packet_to_uint64(data, len, pos);
+    memcpy(&ret, &val, sizeof(ret));
 
     return ret;
 }

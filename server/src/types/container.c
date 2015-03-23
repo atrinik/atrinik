@@ -1,26 +1,26 @@
-/************************************************************************
-*            Atrinik, a Multiplayer Online Role Playing Game            *
-*                                                                       *
-*    Copyright (C) 2009-2012 Alex Tokar and Atrinik Development Team    *
-*                                                                       *
-* Fork from Crossfire (Multiplayer game for X-windows).                 *
-*                                                                       *
-* This program is free software; you can redistribute it and/or modify  *
-* it under the terms of the GNU General Public License as published by  *
-* the Free Software Foundation; either version 2 of the License, or     *
-* (at your option) any later version.                                   *
-*                                                                       *
-* This program is distributed in the hope that it will be useful,       *
-* but WITHOUT ANY WARRANTY; without even the implied warranty of        *
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
-* GNU General Public License for more details.                          *
-*                                                                       *
-* You should have received a copy of the GNU General Public License     *
-* along with this program; if not, write to the Free Software           *
-* Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.             *
-*                                                                       *
-* The author can be reached at admin@atrinik.org                        *
-************************************************************************/
+/*************************************************************************
+ *           Atrinik, a Multiplayer Online Role Playing Game             *
+ *                                                                       *
+ *   Copyright (C) 2009-2014 Alex Tokar and Atrinik Development Team     *
+ *                                                                       *
+ * Fork from Crossfire (Multiplayer game for X-windows).                 *
+ *                                                                       *
+ * This program is free software; you can redistribute it and/or modify  *
+ * it under the terms of the GNU General Public License as published by  *
+ * the Free Software Foundation; either version 2 of the License, or     *
+ * (at your option) any later version.                                   *
+ *                                                                       *
+ * This program is distributed in the hope that it will be useful,       *
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of        *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
+ * GNU General Public License for more details.                          *
+ *                                                                       *
+ * You should have received a copy of the GNU General Public License     *
+ * along with this program; if not, write to the Free Software           *
+ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.             *
+ *                                                                       *
+ * The author can be reached at admin@atrinik.org                        *
+ ************************************************************************/
 
 /**
  * @file
@@ -40,7 +40,7 @@
 int check_magical_container(object *op, object *container)
 {
     if (op->type == CONTAINER && container->type == CONTAINER &&
-        op->weapon_speed != 1.0f && container->weapon_speed != 1.0f) {
+            op->weapon_speed != 1.0f && container->weapon_speed != 1.0f) {
         return 1;
     }
 
@@ -71,11 +71,14 @@ static void container_open(object *applier, object *op)
 
     /* Check for quest containers. */
     if (HAS_EVENT(op, EVENT_QUEST)) {
-        FOR_INV_PREPARE(op, inv) {
+
+        FOR_INV_PREPARE(op, inv)
+        {
             if (inv->type == QUEST_CONTAINER) {
-                check_quest(applier, inv);
+                quest_handle(applier, inv);
             }
-        } FOR_INV_FINISH();
+        }
+        FOR_INV_FINISH();
     }
 
     pl->container = op;
@@ -85,9 +88,9 @@ static void container_open(object *applier, object *op)
     /* Already opened. */
     if (op->attacked_by) {
         CONTR(op->attacked_by)->container_below = applier;
-    }
-    /* Not open yet. */
-    else {
+    } else {
+        /* Not open yet. */
+
         SET_FLAG(op, FLAG_APPLIED);
 
         if (op->other_arch) {
@@ -95,25 +98,24 @@ static void container_open(object *applier, object *op)
             op->animation_id = op->other_arch->clone.animation_id;
             SET_ANIMATION_STATE(op);
             esrv_update_item(UPD_FACE | UPD_ANIM | UPD_FLAGS, op);
-        }
-        else {
+        } else {
             esrv_update_item(UPD_FLAGS, op);
         }
 
         update_object(op, UP_OBJ_FACE);
 
-        FOR_INV_PREPARE(op, inv) {
+        FOR_INV_PREPARE(op, inv)
+        {
             if (inv->type == RUNE) {
                 rune_spring(inv, applier);
-            }
-            else if (inv->type == MONSTER) {
+            } else if (inv->type == MONSTER) {
                 int i;
 
                 object_remove(inv, 0);
                 inv->x = op->x;
                 inv->y = op->y;
                 i = find_free_spot(inv->arch, inv, applier->map, inv->x,
-                                   inv->y, 0, SIZEOFFREE1 + 1);
+                        inv->y, 0, SIZEOFFREE1 + 1);
 
                 if (i != -1) {
                     inv->x += freearr_x[i];
@@ -125,13 +127,14 @@ static void container_open(object *applier, object *op)
                 if (inv) {
                     fix_monster(inv);
                     draw_info_format(
-                        COLOR_WHITE, applier, "A %s jumps out of the %s.",
-                        query_name(inv, applier),
-                        query_base_name(op, applier)
-                    );
+                            COLOR_WHITE, applier, "A %s jumps out of the %s.",
+                            query_name(inv, applier),
+                            query_base_name(op, applier)
+                            );
                 }
             }
-        } FOR_INV_FINISH();
+        }
+        FOR_INV_FINISH();
     }
 
     esrv_send_inventory(applier, op);
@@ -140,14 +143,6 @@ static void container_open(object *applier, object *op)
     op->attacked_by_count = applier->count;
 }
 
-/**
- * Remove a player from the container list.
- *
- * Unlinking is a bit more tricky - pl OR sack can be NULL.
- * @param pl The player object. If NULL, we unlink all players from the
- * container identified by 'sack'.
- * @param sack The container object. If NULL, unlink this container from
- * player object identified by 'pl'. */
 /**
  * Close a container and remove player from the container's linked list.
  *
@@ -191,14 +186,14 @@ int container_close(object *applier, object *op)
             pl->container->attacked_by = pl->container_above;
             pl->container->attacked_by_count = pl->container_above->count;
             CONTR(pl->container_above)->container_below = NULL;
-        }
-        /* Elsewhere in the list. */
-        else {
+        } else {
+            /* Elsewhere in the list. */
+
             CONTR(pl->container_below)->container_above = pl->container_above;
 
             if (pl->container_above) {
                 CONTR(pl->container_above)->container_below =
-                    pl->container_below;
+                        pl->container_below;
             }
         }
 
@@ -207,9 +202,12 @@ int container_close(object *applier, object *op)
         pl->container = NULL;
         pl->container_count = 0;
         esrv_close_container(applier);
-    }
-    else if (op) {
+    } else if (op) {
         object *tmp, *next;
+
+        if (op->attacked_by == NULL) {
+            return 0;
+        }
 
         CLEAR_FLAG(op, FLAG_APPLIED);
 
@@ -218,8 +216,7 @@ int container_close(object *applier, object *op)
             op->animation_id = op->arch->clone.animation_id;
             SET_ANIMATION_STATE(op);
             esrv_update_item(UPD_FACE | UPD_ANIM | UPD_FLAGS, op);
-        }
-        else {
+        } else {
             esrv_update_item(UPD_FLAGS, op);
         }
 
@@ -237,6 +234,10 @@ int container_close(object *applier, object *op)
 
         op->attacked_by = NULL;
         op->attacked_by_count = 0;
+
+        if (op->env != NULL && op->env->type == PLAYER && OBJECT_IS_AMMO(op)) {
+            fix_player(op->env);
+        }
 
         return 1;
     }
@@ -258,7 +259,7 @@ static int apply_func(object *op, object *applier, int aflags)
     container = CONTR(applier)->container;
 
     if (op == NULL || op->type != CONTAINER ||
-        (container && container->type != CONTAINER)) {
+            (container && container->type != CONTAINER)) {
         return OBJECT_METHOD_UNHANDLED;
     }
 
@@ -267,17 +268,16 @@ static int apply_func(object *op, object *applier, int aflags)
     if (container) {
         /* Trigger the CLOSE event. */
         if (trigger_event(EVENT_CLOSE, applier, container, NULL, NULL, 0, 0, 0,
-                          SCRIPT_FIX_ALL)) {
+                SCRIPT_FIX_ALL)) {
             return OBJECT_METHOD_OK;
         }
 
         if (container_close(applier, container)) {
             draw_info_format(COLOR_WHITE, applier, "You close %s.",
-                             query_base_name(container, applier));
-        }
-        else {
+                    query_base_name(container, applier));
+        } else {
             draw_info_format(COLOR_WHITE, applier, "You leave %s.",
-                             query_base_name(container, applier));
+                    query_base_name(container, applier));
         }
 
         /* Applied the one we just closed, no need to go on. */
@@ -297,35 +297,32 @@ static int apply_func(object *op, object *applier, int aflags)
             if (tmp) {
                 if (tmp->type == KEY) {
                     draw_info_format(
-                        COLOR_WHITE, applier, "You unlock %s with %s.",
-                        query_base_name(op, applier), query_name(tmp, applier)
-                    );
-                }
-                else if (tmp->type == FORCE) {
+                            COLOR_WHITE, applier, "You unlock %s with %s.",
+                            query_base_name(op, applier), query_name(tmp, applier)
+                            );
+                } else if (tmp->type == FORCE) {
                     draw_info_format(
-                        COLOR_WHITE, applier, "The %s is unlocked for you.",
-                        query_base_name(op, applier)
-                    );
+                            COLOR_WHITE, applier, "The %s is unlocked for you.",
+                            query_base_name(op, applier)
+                            );
                 }
-            }
-            else {
+            } else {
                 draw_info_format(
-                    COLOR_WHITE, applier, "You don't have the key to unlock "
-                    "%s.", query_base_name(op, applier)
-                );
+                        COLOR_WHITE, applier, "You don't have the key to unlock "
+                        "%s.", query_base_name(op, applier)
+                        );
                 return OBJECT_METHOD_OK;
             }
-        }
-        /* Personalized container. */
-        else {
+        } else {
+            /* Personalized container. */
+
             /* Party corpse. */
             if (op->sub_type == ST1_CONTAINER_CORPSE_party &&
-                !party_can_open_corpse(applier, op)) {
+                    !party_can_open_corpse(applier, op)) {
                 return OBJECT_METHOD_OK;
-            }
-            /* Normal player-only corpse. */
-            else if (op->sub_type == ST1_CONTAINER_CORPSE_player &&
-                     op->slaying != applier->name) {
+            } else if (op->sub_type == ST1_CONTAINER_CORPSE_player &&
+                    op->slaying != applier->name) {
+                /* Normal player-only corpse. */
                 draw_info(COLOR_WHITE, applier, "It's not your bounty.");
                 return OBJECT_METHOD_OK;
             }
@@ -338,35 +335,38 @@ static int apply_func(object *op, object *applier, int aflags)
          * can't open it. */
         if (op->env) {
             draw_info_format(COLOR_WHITE, applier, "You can't open %s.",
-                             query_base_name(op, applier));
+                    query_base_name(op, applier));
             return OBJECT_METHOD_OK;
         }
 
         draw_info_format(COLOR_WHITE, applier, "You open %s.",
-                         query_base_name(op, applier));
+                query_base_name(op, applier));
         container_open(applier, op);
 
         /* Handle party corpses. */
         if (op->slaying && op->sub_type == ST1_CONTAINER_CORPSE_party) {
             party_handle_corpse(applier, op);
         }
-    }
-    /* Container is in player's inventory. */
-    else {
+    } else {
+        /* Container is in player's inventory. */
+
         /* If it's readied, open it. */
         if (QUERY_FLAG(op, FLAG_APPLIED)) {
             draw_info_format(COLOR_WHITE, applier, "You open %s.",
-                             query_base_name(op, applier));
+                    query_base_name(op, applier));
             container_open(applier, op);
-        }
-        /* Otherwise ready it. */
-        else {
-            draw_info_format(COLOR_WHITE, applier, "You readied %s.",
-                             query_base_name(op, applier));
-            SET_FLAG(op, FLAG_APPLIED);
+        } else {
+            /* Otherwise ready it. */
+            if (OBJECT_IS_AMMO(op)) {
+                object_apply_item(op, applier, aflags);
+            } else {
+                draw_info_format(COLOR_WHITE, applier, "You ready %s.",
+                        query_base_name(op, applier));
+                SET_FLAG(op, FLAG_APPLIED);
 
-            update_object(op, UP_OBJ_FACE);
-            esrv_update_item(UPD_FLAGS, op);
+                update_object(op, UP_OBJ_FACE);
+                esrv_update_item(UPD_FLAGS, op);
+            }
         }
     }
 
@@ -374,7 +374,7 @@ static int apply_func(object *op, object *applier, int aflags)
      * player's statistics. */
     if ((op->sub_type == ST1_CONTAINER_CORPSE_party ||
             op->sub_type == ST1_CONTAINER_CORPSE_player) &&
-        !QUERY_FLAG(op, FLAG_BEEN_APPLIED)) {
+            !QUERY_FLAG(op, FLAG_BEEN_APPLIED)) {
         CONTR(applier)->stat_corpses_searched++;
     }
 
@@ -385,10 +385,24 @@ static int apply_func(object *op, object *applier, int aflags)
     return 1;
 }
 
+/** @copydoc object_methods::remove_inv_func */
+static void remove_inv_func(object *op)
+{
+    container_close(NULL, op);
+}
+
+/** @copydoc object_methods::remove_map_func */
+static void remove_map_func(object *op)
+{
+    remove_inv_func(op);
+}
+
 /**
  * Initialize the container type object methods.
  */
 void object_type_init_container(void)
 {
     object_type_methods[CONTAINER].apply_func = apply_func;
+    object_type_methods[CONTAINER].remove_inv_func = remove_inv_func;
+    object_type_methods[CONTAINER].remove_map_func = remove_map_func;
 }

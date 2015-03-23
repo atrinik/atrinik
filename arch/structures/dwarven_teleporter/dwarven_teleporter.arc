@@ -7,7 +7,6 @@ face dwarven_teleporter.101
 animation dwarven_teleporter
 is_animated 1
 anim_speed 1
-speed 0.02
 no_pass 1
 no_pick 1
 end

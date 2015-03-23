@@ -1,26 +1,26 @@
-/************************************************************************
-*            Atrinik, a Multiplayer Online Role Playing Game            *
-*                                                                       *
-*    Copyright (C) 2009-2012 Alex Tokar and Atrinik Development Team    *
-*                                                                       *
-* Fork from Crossfire (Multiplayer game for X-windows).                 *
-*                                                                       *
-* This program is free software; you can redistribute it and/or modify  *
-* it under the terms of the GNU General Public License as published by  *
-* the Free Software Foundation; either version 2 of the License, or     *
-* (at your option) any later version.                                   *
-*                                                                       *
-* This program is distributed in the hope that it will be useful,       *
-* but WITHOUT ANY WARRANTY; without even the implied warranty of        *
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
-* GNU General Public License for more details.                          *
-*                                                                       *
-* You should have received a copy of the GNU General Public License     *
-* along with this program; if not, write to the Free Software           *
-* Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.             *
-*                                                                       *
-* The author can be reached at admin@atrinik.org                        *
-************************************************************************/
+/*************************************************************************
+ *           Atrinik, a Multiplayer Online Role Playing Game             *
+ *                                                                       *
+ *   Copyright (C) 2009-2014 Alex Tokar and Atrinik Development Team     *
+ *                                                                       *
+ * Fork from Crossfire (Multiplayer game for X-windows).                 *
+ *                                                                       *
+ * This program is free software; you can redistribute it and/or modify  *
+ * it under the terms of the GNU General Public License as published by  *
+ * the Free Software Foundation; either version 2 of the License, or     *
+ * (at your option) any later version.                                   *
+ *                                                                       *
+ * This program is distributed in the hope that it will be useful,       *
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of        *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
+ * GNU General Public License for more details.                          *
+ *                                                                       *
+ * You should have received a copy of the GNU General Public License     *
+ * along with this program; if not, write to the Free Software           *
+ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.             *
+ *                                                                       *
+ * The author can be reached at admin@atrinik.org                        *
+ ************************************************************************/
 
 /**
  * @file
@@ -42,8 +42,7 @@
 
 /**
  * Structure that holds the game news popup data. */
-typedef struct game_news_struct
-{
+typedef struct game_news_struct {
     /**
      * Title of the game news entry to read about. */
     char *title;
@@ -90,15 +89,15 @@ static int popup_draw(popup_struct *popup)
     if (ret == -1) {
         text_show(popup->surface, FONT_SERIF12, "Connection timed out.", 0, 0, COLOR_WHITE, TEXT_ALIGN_CENTER | TEXT_VALIGN_CENTER, &box);
         return 1;
-    }
-    else if (ret == 0) {
+    } else if (ret == 0) {
         text_show(popup->surface, FONT_SERIF12, "Downloading news, please wait...", 0, 0, COLOR_WHITE, TEXT_ALIGN_CENTER | TEXT_VALIGN_CENTER, &box);
         return 1;
-    }
-    else if (ret == 1) {
+    } else if (ret == 1) {
         if (!game_news->msg) {
             game_news->msg = estrdup(game_news->data->memory ? game_news->data->memory : "???");
 
+            box.w = NEWS_MAX_WIDTH;
+            box.h = NEWS_MAX_HEIGHT;
             text_show(NULL, NEWS_FONT, game_news->msg, 10, 40, COLOR_WHITE, TEXT_WORD_WRAP | TEXT_MARKUP | TEXT_LINES_CALC, &box);
             game_news->num_lines = box.h;
             scrollbar_create(&game_news->scrollbar, 15, 240, &game_news->scroll_offset, &game_news->num_lines, box.y);
@@ -137,27 +136,22 @@ static int popup_event(popup_struct *popup, SDL_Event *event)
         if (event->key.keysym.sym == SDLK_DOWN) {
             scrollbar_scroll_adjust(&game_news->scrollbar, 1);
             return 1;
-        }
-        else if (event->key.keysym.sym == SDLK_UP) {
+        } else if (event->key.keysym.sym == SDLK_UP) {
             scrollbar_scroll_adjust(&game_news->scrollbar, -1);
             return 1;
-        }
-        else if (event->key.keysym.sym == SDLK_PAGEUP) {
+        } else if (event->key.keysym.sym == SDLK_PAGEUP) {
             scrollbar_scroll_adjust(&game_news->scrollbar, -game_news->scrollbar.max_lines);
             return 1;
-        }
-        else if (event->key.keysym.sym == SDLK_PAGEDOWN) {
+        } else if (event->key.keysym.sym == SDLK_PAGEDOWN) {
             scrollbar_scroll_adjust(&game_news->scrollbar, game_news->scrollbar.max_lines);
             return 1;
         }
-    }
-    /* Mouse wheel? */
+    }/* Mouse wheel? */
     else if (event->type == SDL_MOUSEBUTTONDOWN) {
         if (event->button.button == SDL_BUTTON_WHEELDOWN) {
             scrollbar_scroll_adjust(&game_news->scrollbar, 1);
             return 1;
-        }
-        else if (event->button.button == SDL_BUTTON_WHEELUP) {
+        } else if (event->button.button == SDL_BUTTON_WHEELUP) {
             scrollbar_scroll_adjust(&game_news->scrollbar, -1);
             return 1;
         }
@@ -210,5 +204,5 @@ void game_news_open(const char *title)
     curl_easy_cleanup(curl);
 
     /* Start downloading. */
-    game_news->data = curl_download_start(url);
+    game_news->data = curl_download_start(url, NULL);
 }

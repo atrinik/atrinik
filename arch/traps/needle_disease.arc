@@ -17,6 +17,6 @@ no_pick 1
 walk_on 1
 attack_pierce 100
 dam 1
-Cha 20
+cha 20
 sp -1
 end

@@ -1,26 +1,26 @@
-/************************************************************************
-*            Atrinik, a Multiplayer Online Role Playing Game            *
-*                                                                       *
-*    Copyright (C) 2009-2012 Alex Tokar and Atrinik Development Team    *
-*                                                                       *
-* Fork from Crossfire (Multiplayer game for X-windows).                 *
-*                                                                       *
-* This program is free software; you can redistribute it and/or modify  *
-* it under the terms of the GNU General Public License as published by  *
-* the Free Software Foundation; either version 2 of the License, or     *
-* (at your option) any later version.                                   *
-*                                                                       *
-* This program is distributed in the hope that it will be useful,       *
-* but WITHOUT ANY WARRANTY; without even the implied warranty of        *
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
-* GNU General Public License for more details.                          *
-*                                                                       *
-* You should have received a copy of the GNU General Public License     *
-* along with this program; if not, write to the Free Software           *
-* Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.             *
-*                                                                       *
-* The author can be reached at admin@atrinik.org                        *
-************************************************************************/
+/*************************************************************************
+ *           Atrinik, a Multiplayer Online Role Playing Game             *
+ *                                                                       *
+ *   Copyright (C) 2009-2014 Alex Tokar and Atrinik Development Team     *
+ *                                                                       *
+ * Fork from Crossfire (Multiplayer game for X-windows).                 *
+ *                                                                       *
+ * This program is free software; you can redistribute it and/or modify  *
+ * it under the terms of the GNU General Public License as published by  *
+ * the Free Software Foundation; either version 2 of the License, or     *
+ * (at your option) any later version.                                   *
+ *                                                                       *
+ * This program is distributed in the hope that it will be useful,       *
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of        *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
+ * GNU General Public License for more details.                          *
+ *                                                                       *
+ * You should have received a copy of the GNU General Public License     *
+ * along with this program; if not, write to the Free Software           *
+ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.             *
+ *                                                                       *
+ * The author can be reached at admin@atrinik.org                        *
+ ************************************************************************/
 
 /**
  * @file
@@ -34,10 +34,9 @@
  * @page plugin_python_map_fields Python map fields
  * <h2>Python map fields</h2>
  * List of the map fields and their meaning. */
-static fields_struct fields[] =
-{
+static fields_struct fields[] = {
     {"next", FIELDTYPE_MAP, offsetof(mapstruct, next), FIELDFLAG_READONLY, 0},
-    {"previous", FIELDTYPE_MAP, offsetof(mapstruct, previous), FIELDFLAG_READONLY, 0},
+    {"previous", FIELDTYPE_MAP, offsetof(mapstruct, prev), FIELDFLAG_READONLY, 0},
 
     {"name", FIELDTYPE_CSTR, offsetof(mapstruct, name), 0, 0},
     {"msg", FIELDTYPE_CSTR, offsetof(mapstruct, msg), 0, 0},
@@ -64,11 +63,10 @@ static fields_struct fields[] =
  * @page plugin_python_map_flags Python map flags
  * <h2>Python map flags</h2>
  * List of the map flags and their meaning. */
-static char *mapflag_names[] =
-{
+static char *mapflag_names[] = {
     "f_outdoor", "f_unique", "f_fixed_rtime", "f_nomagic",
-    NULL, "f_noharm", "f_nosummon", "f_fixed_login",
-    "f_player_no_save", "f_unused2", "f_unused3", "f_pvp",
+    "f_height_diff", "f_noharm", "f_nosummon", "f_fixed_login",
+    "f_player_no_save", NULL, NULL, NULL, "f_pvp",
     "f_no_save"
 };
 /* @endcparser */
@@ -540,8 +538,7 @@ static PyObject *Atrinik_Map_LocateBeacon(Atrinik_Map *map, PyObject *args)
         free(joined);
         free(pl_name);
         free(filedir);
-    }
-    else {
+    } else {
         FREE_AND_COPY_HASH(beacon_name, name);
     }
 
@@ -551,11 +548,51 @@ static PyObject *Atrinik_Map_LocateBeacon(Atrinik_Map *map, PyObject *args)
     return wrap_object(myob);
 }
 
+/**
+ * <h1>map.Redraw(int x, int y, int [layer = -1], int [sub_layer = -1])</h1>
+ * Redraw the specified tile for all players.
+ * @param x X coordinate.
+ * @param y Y coordinate.
+ * @param layer Layer to redraw, defaults to all.
+ * @param sub_layer Sub-layer to redraw, defaults to all.
+ */
+static PyObject *Atrinik_Map_Redraw(Atrinik_Map *map, PyObject *args)
+{
+    int x, y, layer, sub_layer;
+
+    layer = -1;
+    sub_layer = -1;
+
+    if (!PyArg_ParseTuple(args, "ii|ii", &x, &y, &layer, &sub_layer)) {
+        return NULL;
+    }
+
+    if (x < 0 || x >= map->map->width) {
+        RAISE("Invalid X coordinate.");
+    }
+
+    if (y < 0 || y >= map->map->height) {
+        RAISE("Invalid X coordinate.");
+    }
+
+    if (layer < -1 || layer > NUM_LAYERS) {
+        RAISE("Invalid layer.");
+    }
+
+    if (sub_layer < -1 || sub_layer >= NUM_SUB_LAYERS) {
+        RAISE("Invalid sub-layer.");
+    }
+
+    hooks->map_redraw(map->map, x, y, layer, sub_layer);
+
+    Py_INCREF(Py_None);
+    return Py_None;
+}
+
 /*@}*/
 
 /** Available Python methods for the AtrinikMap object */
-static PyMethodDef MapMethods[] =
-{
+static PyMethodDef MapMethods[] = {
     {"GetFirstObject", (PyCFunction) Atrinik_Map_GetFirstObject, METH_VARARGS, 0},
     {"GetLastObject", (PyCFunction) Atrinik_Map_GetLastObject, METH_VARARGS, 0},
     {"GetLayer", (PyCFunction) Atrinik_Map_GetLayer, METH_VARARGS, 0},
@@ -572,6 +609,7 @@ static PyMethodDef MapMethods[] =
     {"GetDarkness", (PyCFunction) Atrinik_Map_GetDarkness, METH_VARARGS, 0},
     {"GetPath", (PyCFunction) Atrinik_Map_GetPath, METH_VARARGS | METH_KEYWORDS, 0},
     {"LocateBeacon", (PyCFunction) Atrinik_Map_LocateBeacon, METH_VARARGS, 0},
+    {"Redraw", (PyCFunction) Atrinik_Map_Redraw, METH_VARARGS, 0},
     {NULL, NULL, 0, 0}
 };
 
@@ -642,11 +680,9 @@ static int Map_SetFlag(Atrinik_Map *map, PyObject *val, void *context)
 
     if (val == Py_True) {
         map->map->map_flags |= (1U << flagno);
-    }
-    else if (val == Py_False) {
+    } else if (val == Py_False) {
         map->map->map_flags &= ~(1U << flagno);
-    }
-    else {
+    } else {
         PyErr_SetString(PyExc_TypeError, "Flag value must be either True or False.");
         return -1;
     }
@@ -720,8 +756,7 @@ static PyObject *Atrinik_Map_RichCompare(Atrinik_Map *left, Atrinik_Map *right, 
 static PyGetSetDef getseters[NUM_FIELDS + NUM_MAPFLAGS + 1];
 
 /** Our actual Python MapType. */
-PyTypeObject Atrinik_MapType =
-{
+PyTypeObject Atrinik_MapType = {
 #ifdef IS_PY3K
     PyVarObject_HEAD_INIT(NULL, 0)
 #else
@@ -755,6 +790,9 @@ PyTypeObject Atrinik_MapType =
 #ifndef IS_PY_LEGACY
     , 0
 #endif
+#ifdef Py_TPFLAGS_HAVE_FINALIZE
+    , NULL
+#endif
 };
 
 /**
@@ -778,7 +816,13 @@ int Atrinik_Map_init(PyObject *module)
 
     /* Flag getters */
     for (flagno = 0; flagno < NUM_MAPFLAGS; flagno++) {
-        PyGetSetDef *def = &getseters[i++];
+        PyGetSetDef *def;
+
+        if (mapflag_names[flagno] == NULL) {
+            continue;
+        }
+
+        def = &getseters[i++];
 
         def->name = mapflag_names[flagno];
         def->get = (getter) Map_GetFlag;
@@ -796,7 +840,7 @@ int Atrinik_Map_init(PyObject *module)
     }
 
     Py_INCREF(&Atrinik_MapType);
-    PyModule_AddObject(module, "Map", (PyObject *) &Atrinik_MapType);
+    PyModule_AddObject(module, "Map", (PyObject *) & Atrinik_MapType);
 
     return 1;
 }

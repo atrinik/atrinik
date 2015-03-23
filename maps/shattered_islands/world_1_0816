@@ -2,16 +2,27 @@ arch map
 name Inn In The Mountains
 msg
 Created:  2010-08-26 Alex Tokar
-Modified: 2011-07-22 Alex Tokar
+Modified: 2014-12-25 Alex Tokar
 endmsg
 width 24
 height 24
-difficulty 1
-darkness 3
+difficulty 10
+darkness -1
+outdoor 1
+tile_path_1 world_1_0817
+tile_path_2 world_1_0916
+tile_path_3 world_1_0815
+tile_path_4 world_1_0716
+tile_path_5 world_1_0917
+tile_path_6 world_1_0915
+tile_path_7 world_1_0715
+tile_path_8 world_1_0717
 bg_music joyful_life.mid
 region strakewood_island
+tile_path_9 world_2_0816
+tile_path_10 world_0816
 end
-arch blocked
+arch trans
 x 6
 y 6
 end
@@ -19,7 +30,15 @@ arch wall_wood_8
 x 6
 y 6
 end
-arch blocked
+arch map_info
+name strakewood_mountains_inn
+hp 17
+sp 10
+cursed 1
+x 6
+y 6
+end
+arch trans
 x 6
 y 7
 end
@@ -27,7 +46,7 @@ arch wall_wood_3
 x 6
 y 7
 end
-arch blocked
+arch trans
 x 6
 y 8
 end
@@ -35,7 +54,7 @@ arch wall_wood2_3
 x 6
 y 8
 end
-arch blocked
+arch trans
 x 6
 y 9
 end
@@ -43,7 +62,7 @@ arch wall_wood2_3
 x 6
 y 9
 end
-arch blocked
+arch trans
 x 6
 y 10
 end
@@ -51,7 +70,7 @@ arch wall_wood2_3
 x 6
 y 10
 end
-arch blocked
+arch trans
 x 6
 y 11
 end
@@ -64,7 +83,7 @@ direction 7
 x 6
 y 11
 end
-arch blocked
+arch trans
 x 6
 y 12
 end
@@ -77,7 +96,7 @@ direction 7
 x 6
 y 12
 end
-arch blocked
+arch trans
 x 6
 y 13
 end
@@ -85,7 +104,7 @@ arch wall_wood_3
 x 6
 y 13
 end
-arch blocked
+arch trans
 x 6
 y 14
 end
@@ -93,7 +112,7 @@ arch wall_wood3_3
 x 6
 y 14
 end
-arch blocked
+arch trans
 x 6
 y 15
 end
@@ -101,7 +120,7 @@ arch wall_wood_3
 x 6
 y 15
 end
-arch blocked
+arch trans
 x 6
 y 16
 end
@@ -109,7 +128,7 @@ arch wall_wood_3
 x 6
 y 16
 end
-arch blocked
+arch trans
 x 7
 y 6
 end
@@ -204,7 +223,7 @@ arch wall_wood2_1
 x 7
 y 16
 end
-arch blocked
+arch trans
 x 8
 y 6
 end
@@ -259,6 +278,10 @@ end
 arch shelf2_wall.111
 x 8
 y 14
+arch random_treasure
+no_pick 1
+randomitems random_read
+end
 end
 arch light5
 x 8
@@ -280,7 +303,7 @@ arch wall_wood2_1
 x 8
 y 16
 end
-arch blocked
+arch trans
 x 9
 y 6
 end
@@ -348,7 +371,7 @@ arch wall_wood3_1
 x 9
 y 16
 end
-arch blocked
+arch trans
 x 10
 y 6
 end
@@ -424,11 +447,11 @@ arch floor_wood2_l1
 x 10
 y 16
 end
-arch wall_wood_1
+arch wall_wood_w_1
 x 10
 y 16
 end
-arch blocked
+arch trans
 x 11
 y 6
 end
@@ -441,6 +464,8 @@ x 11
 y 7
 end
 arch wall_wood3_3
+no_pass 0
+name fake wall
 x 11
 y 7
 end
@@ -525,7 +550,28 @@ arch wall_wood3_1
 x 11
 y 16
 end
-arch floor_wood2_l1
+arch trans
+x 12
+y 6
+end
+arch wall_wood3_1
+x 12
+y 6
+end
+arch floor_wood2_l2
+x 12
+y 7
+end
+arch chest_4.111
+name secret stash
+x 12
+y 7
+arch random_treasure
+identified 1
+randomitems random_coin
+end
+end
+arch floor_wood2_l2
 x 12
 y 8
 end
@@ -604,11 +650,27 @@ arch wall_wood_1
 x 12
 y 16
 end
+arch trans
+x 13
+y 6
+end
+arch wall_wood_1
+x 13
+y 6
+end
+arch floor_wood2_l1
+x 13
+y 7
+end
+arch wall_wood2_3
+x 13
+y 7
+end
 arch floor_wood2_l1
 x 13
 y 8
 end
-arch wall_wood3_1
+arch wall_wood_4
 x 13
 y 8
 end
@@ -655,6 +717,22 @@ end
 arch wall_wood3_1
 x 13
 y 16
+end
+arch trans
+x 14
+y 6
+end
+arch wall_wood3_1
+x 14
+y 6
+end
+arch floor_wood2_l2
+x 14
+y 7
+end
+arch stairs_wood_up2
+x 14
+y 7
 end
 arch floor_wood2_l2
 x 14
@@ -713,15 +791,15 @@ arch floor_wood2_l1
 x 14
 y 16
 end
-arch wall_wood_1
+arch wall_wood_w_1
 x 14
 y 16
 end
-arch blocked
+arch trans
 x 15
 y 6
 end
-arch wall_wood_8
+arch wall_wood_1
 x 15
 y 6
 end
@@ -729,7 +807,7 @@ arch floor_wood2_l1
 x 15
 y 7
 end
-arch wall_wood_3
+arch stairs_wood_up
 x 15
 y 7
 end
@@ -737,12 +815,7 @@ arch floor_wood2_l1
 x 15
 y 8
 end
-arch wall_wood_4
-x 15
-y 8
-end
-arch wmask_fire_on_1
-direction 7
+arch wall_wood2_1
 x 15
 y 8
 end
@@ -829,7 +902,7 @@ arch wall_wood_4
 x 15
 y 16
 end
-arch blocked
+arch trans
 x 16
 y 6
 end
@@ -837,14 +910,11 @@ arch wall_wood_1
 x 16
 y 6
 end
-arch floor_wood2_l2
+arch wmask_fire_on_1
 x 16
-y 7
+y 6
 end
-arch stairs_wood_up
-slaying world_2_0816
-hp 15
-sp 7
+arch floor_wood2_l2
 x 16
 y 7
 end
@@ -869,6 +939,10 @@ arch shelf1_wall.111
 direction 7
 x 16
 y 10
+arch random_treasure
+no_pick 1
+randomitems random_read
+end
 end
 arch floor_wood2_l2
 x 16
@@ -898,7 +972,7 @@ arch wall_wood_1
 x 16
 y 16
 end
-arch blocked
+arch trans
 x 17
 y 6
 end
@@ -906,14 +980,11 @@ arch wall_wood_1
 x 17
 y 6
 end
-arch floor_wood2_l2
+arch wmask_fire_on_1
 x 17
-y 7
+y 6
 end
-arch stairs_wood_down
-slaying world_0816
-hp 18
-sp 7
+arch floor_wood2_l2
 x 17
 y 7
 end
@@ -957,7 +1028,7 @@ arch wall_wood_1
 x 17
 y 16
 end
-arch blocked
+arch trans
 x 18
 y 6
 end
@@ -969,7 +1040,7 @@ arch floor_wood2_l2
 x 18
 y 7
 end
-arch wall_wood2_3
+arch stairs_wood_down
 x 18
 y 7
 end
@@ -977,7 +1048,7 @@ arch floor_wood2_l2
 x 18
 y 8
 end
-arch wall_wood3_3
+arch wall_wood_8
 x 18
 y 8
 end
@@ -1047,11 +1118,11 @@ arch wall_wood_4
 x 18
 y 16
 end
-arch blocked
+arch trans
 x 19
 y 6
 end
-arch wall_wood3_1
+arch wall_wood_1
 x 19
 y 6
 end
@@ -1059,15 +1130,15 @@ arch floor_wood2_l2
 x 19
 y 7
 end
-arch candlelight3.101
-x 19
-y 7
-end
-arch light4
+arch stairs_down
 x 19
 y 7
 end
 arch floor_wood2_l2
+x 19
+y 8
+end
+arch wall_wood2_1
 x 19
 y 8
 end
@@ -1127,11 +1198,11 @@ arch floor_wood2_l1
 x 19
 y 16
 end
-arch wall_wood_1
+arch wall_wood_w_1
 x 19
 y 16
 end
-arch blocked
+arch trans
 x 20
 y 6
 end
@@ -1143,7 +1214,7 @@ arch floor_wood2_l2
 x 20
 y 7
 end
-arch shelf4_wall.111
+arch wall_wood3_3
 x 20
 y 7
 end
@@ -1151,7 +1222,20 @@ arch floor_wood2_l2
 x 20
 y 8
 end
+arch wall_wood_4
+x 20
+y 8
+end
+arch picture5.151
+direction 7
+x 20
+y 8
+end
 arch floor_wood2_l2
+x 20
+y 9
+end
+arch torch_wall_1
 x 20
 y 9
 end
@@ -1196,7 +1280,7 @@ arch wall_wood2_1
 x 20
 y 16
 end
-arch blocked
+arch trans
 x 21
 y 6
 end
@@ -1204,11 +1288,12 @@ arch wall_wood_1
 x 21
 y 6
 end
-arch picture5.151
-x 21
-y 6
-end
 arch floor_wood2_l2
+x 21
+y 7
+end
+arch shelf4_wall.111
+direction 7
 x 21
 y 7
 end
@@ -1260,7 +1345,7 @@ arch wall_wood3_1
 x 21
 y 16
 end
-arch blocked
+arch trans
 x 22
 y 6
 end
@@ -1365,11 +1450,11 @@ arch floor_wood2_l2
 x 22
 y 16
 end
-arch wall_wood3_1
+arch wall_wood_w_1
 x 22
 y 16
 end
-arch blocked
+arch trans
 x 23
 y 6
 end
@@ -1381,7 +1466,15 @@ arch floor_wood2_l1
 x 23
 y 7
 end
+arch candlelight3.101
+x 23
+y 7
+end
 arch wall_wood2_3
+x 23
+y 7
+end
+arch light4
 x 23
 y 7
 end
@@ -1397,7 +1490,7 @@ arch floor_wood2_l1
 x 23
 y 9
 end
-arch wall_wood_3
+arch wall_wood_w_3
 x 23
 y 9
 end
@@ -1429,7 +1522,7 @@ arch floor_wood2_l1
 x 23
 y 13
 end
-arch wall_wood2_3
+arch wall_wood_w_3
 x 23
 y 13
 end

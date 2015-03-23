@@ -9,7 +9,7 @@ is_female 1
 is_neutral 1
 identified 1
 direction 4
-terrain_flag 1
+terrain_flag 65
 weapon_speed 0.0125
 speed 0.85
 face human_f.isw.111
@@ -30,9 +30,9 @@ can_use_weapon 1
 is_player 1
 weight 55000
 food 750
-Str 13
-Dex 13
-Con 13
-Int 13
-Pow 13
+str 13
+dex 13
+con 13
+int 13
+pow 13
 end

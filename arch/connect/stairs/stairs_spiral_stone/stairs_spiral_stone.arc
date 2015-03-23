@@ -5,6 +5,7 @@ no_teleport 1
 layer 5
 hp -1
 sp -1
+last_heal 10
 type 66
 no_pick 1
 end
@@ -16,6 +17,7 @@ no_teleport 1
 layer 5
 hp -1
 sp -1
+last_heal 9
 type 66
 no_pick 1
 end

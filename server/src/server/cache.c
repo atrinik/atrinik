@@ -1,26 +1,26 @@
-/************************************************************************
-*            Atrinik, a Multiplayer Online Role Playing Game            *
-*                                                                       *
-*    Copyright (C) 2009-2012 Alex Tokar and Atrinik Development Team    *
-*                                                                       *
-* Fork from Crossfire (Multiplayer game for X-windows).                 *
-*                                                                       *
-* This program is free software; you can redistribute it and/or modify  *
-* it under the terms of the GNU General Public License as published by  *
-* the Free Software Foundation; either version 2 of the License, or     *
-* (at your option) any later version.                                   *
-*                                                                       *
-* This program is distributed in the hope that it will be useful,       *
-* but WITHOUT ANY WARRANTY; without even the implied warranty of        *
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
-* GNU General Public License for more details.                          *
-*                                                                       *
-* You should have received a copy of the GNU General Public License     *
-* along with this program; if not, write to the Free Software           *
-* Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.             *
-*                                                                       *
-* The author can be reached at admin@atrinik.org                        *
-************************************************************************/
+/*************************************************************************
+ *           Atrinik, a Multiplayer Online Role Playing Game             *
+ *                                                                       *
+ *   Copyright (C) 2009-2014 Alex Tokar and Atrinik Development Team     *
+ *                                                                       *
+ * Fork from Crossfire (Multiplayer game for X-windows).                 *
+ *                                                                       *
+ * This program is free software; you can redistribute it and/or modify  *
+ * it under the terms of the GNU General Public License as published by  *
+ * the Free Software Foundation; either version 2 of the License, or     *
+ * (at your option) any later version.                                   *
+ *                                                                       *
+ * This program is distributed in the hope that it will be useful,       *
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of        *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
+ * GNU General Public License for more details.                          *
+ *                                                                       *
+ * You should have received a copy of the GNU General Public License     *
+ * along with this program; if not, write to the Free Software           *
+ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.             *
+ *                                                                       *
+ * The author can be reached at admin@atrinik.org                        *
+ ************************************************************************/
 
 /**
  * @file
@@ -69,18 +69,15 @@ static int cache_compare(const void *one, const void *two)
 
     if (one == NULL) {
         return -1;
-    }
-    else if (two == NULL) {
+    } else if (two == NULL) {
         return 1;
     }
 
     if (one_cache->key < two_cache->key) {
         return -1;
-    }
-    else if (one_cache->key > two_cache->key) {
+    } else if (one_cache->key > two_cache->key) {
         return 1;
-    }
-    else {
+    } else {
         return 0;
     }
 }
@@ -117,6 +114,7 @@ int cache_add(const char *key, void *ptr, uint32 flags)
 
     /* Sanity. */
     if (!ptr || cache_find(sh_key)) {
+        free_string_shared(sh_key);
         return 0;
     }
 
@@ -163,13 +161,15 @@ int cache_remove(shstr *key)
 
     /* The entry wants global events, so send one about it being removed. */
     if (entry->flags & CACHE_FLAG_GEVENT) {
-        trigger_global_event(GEVENT_CACHE_REMOVED, entry->ptr, (uint32 *) &entry->flags);
+        trigger_global_event(GEVENT_CACHE_REMOVED, entry->ptr, (uint32 *) & entry->flags);
     }
 
     /* Does it want to be freed automatically? */
     if (entry->flags & CACHE_FLAG_AUTOFREE) {
         efree(entry->ptr);
     }
+
+    free_string_shared(entry->key);
 
     /* Shift the entries. */
     for (i = entry->id + 1; i < num_cache; i++) {

@@ -180,7 +180,7 @@ x 1
 y 3
 end
 arch shelf3_dem3.111
-direction 6
+direction 7
 x 1
 y 3
 end
@@ -189,7 +189,7 @@ x 1
 y 4
 end
 arch shelf3_dem2.111
-direction 6
+direction 7
 x 1
 y 4
 end
@@ -198,7 +198,7 @@ x 1
 y 5
 end
 arch shelf3_dem1.111
-direction 6
+direction 7
 x 1
 y 5
 end
@@ -207,7 +207,7 @@ x 1
 y 6
 end
 arch shelf3.111
-direction 4
+direction 7
 x 1
 y 6
 end
@@ -216,7 +216,7 @@ x 1
 y 7
 end
 arch shelf3b.111
-direction 4
+direction 7
 x 1
 y 7
 arch random_treasure
@@ -233,7 +233,7 @@ x 1
 y 8
 end
 arch shelf3c.111
-direction 4
+direction 7
 x 1
 y 8
 arch random_treasure
@@ -254,7 +254,7 @@ x 1
 y 9
 end
 arch shelf3b.111
-direction 4
+direction 7
 x 1
 y 9
 end
@@ -263,7 +263,7 @@ x 1
 y 10
 end
 arch shelf3_dem3.111
-direction 6
+direction 7
 x 1
 y 10
 end
@@ -294,7 +294,7 @@ x 1
 y 14
 end
 arch shelf3_wall.111
-direction 4
+direction 7
 x 1
 y 14
 end
@@ -312,7 +312,7 @@ x 1
 y 16
 end
 arch shelf3_wall.111
-direction 4
+direction 7
 x 1
 y 16
 end
@@ -338,7 +338,7 @@ x 1
 y 18
 end
 arch shelf3_wall.111
-direction 4
+direction 7
 x 1
 y 18
 end
@@ -399,7 +399,7 @@ y 4
 arch drow_captain
 name rebel drow commander
 level 57
-Wis 4
+wis 4
 type 83
 end
 end
@@ -446,10 +446,10 @@ arch drow_sorcerer
 name rebel drow researcher
 level 59
 maxsp 16
-Pow 20
+pow 20
 magic 3
-Dex 3
-Wis 4
+dex 3
+wis 4
 type 83
 arch ability_icestorm
 end
@@ -590,10 +590,10 @@ arch drow_sorcerer
 name rebel drow alchemist
 level 59
 maxsp 16
-Pow 20
+pow 20
 magic 3
-Dex 3
-Wis 4
+dex 3
+wis 4
 type 83
 arch ability_icestorm
 end
@@ -785,7 +785,6 @@ x 5
 y 6
 end
 arch shelf3.111
-direction 2
 x 5
 y 6
 end
@@ -893,7 +892,7 @@ y 1
 arch drow_captain
 name rebel drow commander
 level 57
-Wis 4
+wis 4
 type 83
 end
 end
@@ -918,7 +917,6 @@ x 6
 y 6
 end
 arch shelf3a.111
-direction 2
 x 6
 y 6
 end
@@ -933,10 +931,10 @@ arch drow_sorcerer
 name rebel drow warlock
 level 58
 maxsp 16
-Pow 20
+pow 20
 magic 3
-Dex 3
-Wis 4
+dex 3
+wis 4
 type 83
 arch ability_firestorm
 end
@@ -1197,7 +1195,6 @@ x 8
 y 6
 end
 arch shelf3c.111
-direction 2
 x 8
 y 6
 arch random_treasure
@@ -1340,7 +1337,6 @@ x 9
 y 6
 end
 arch shelf3b.111
-direction 2
 x 9
 y 6
 end
@@ -1619,10 +1615,10 @@ arch drow_sorcerer
 name rebel drow researcher
 level 58
 maxsp 16
-Pow 20
+pow 20
 magic 3
-Dex 3
-Wis 4
+dex 3
+wis 4
 type 83
 arch ability_mbullet
 end
@@ -1686,10 +1682,10 @@ name porlit the alchemist
 level 60
 exp 135
 maxsp 16
-Pow 20
+pow 20
 magic 3
-Dex 3
-Wis 4
+dex 3
+wis 4
 attack_move_type 1
 type 83
 arch ability_icestorm
@@ -2099,7 +2095,7 @@ y 1
 arch drow_captain
 name rebel drow commander
 level 57
-Wis 4
+wis 4
 type 83
 end
 end
@@ -2264,10 +2260,10 @@ arch drow_sorcerer
 name rebel drow warlock
 level 58
 maxsp 16
-Pow 20
+pow 20
 magic 3
-Dex 3
-Wis 4
+dex 3
+wis 4
 type 83
 arch ability_mbullet
 end
@@ -2776,7 +2772,7 @@ y 3
 arch drow_captain
 name rebel drow commander
 level 58
-Wis 4
+wis 4
 type 83
 end
 end
@@ -2823,10 +2819,10 @@ arch drow_sorcerer
 name rebel drow researcher
 level 59
 maxsp 16
-Pow 20
+pow 20
 magic 3
-Dex 3
-Wis 4
+dex 3
+wis 4
 type 83
 arch ability_icestorm
 end
@@ -2873,10 +2869,10 @@ arch drow_sorcerer
 name rebel drow alchemist
 level 60
 maxsp 16
-Pow 20
+pow 20
 magic 3
-Dex 3
-Wis 4
+dex 3
+wis 4
 type 83
 arch ability_icestorm
 end

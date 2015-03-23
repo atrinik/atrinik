@@ -1,26 +1,26 @@
-/************************************************************************
-*            Atrinik, a Multiplayer Online Role Playing Game            *
-*                                                                       *
-*    Copyright (C) 2009-2012 Alex Tokar and Atrinik Development Team    *
-*                                                                       *
-* Fork from Crossfire (Multiplayer game for X-windows).                 *
-*                                                                       *
-* This program is free software; you can redistribute it and/or modify  *
-* it under the terms of the GNU General Public License as published by  *
-* the Free Software Foundation; either version 2 of the License, or     *
-* (at your option) any later version.                                   *
-*                                                                       *
-* This program is distributed in the hope that it will be useful,       *
-* but WITHOUT ANY WARRANTY; without even the implied warranty of        *
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
-* GNU General Public License for more details.                          *
-*                                                                       *
-* You should have received a copy of the GNU General Public License     *
-* along with this program; if not, write to the Free Software           *
-* Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.             *
-*                                                                       *
-* The author can be reached at admin@atrinik.org                        *
-************************************************************************/
+/*************************************************************************
+ *           Atrinik, a Multiplayer Online Role Playing Game             *
+ *                                                                       *
+ *   Copyright (C) 2009-2014 Alex Tokar and Atrinik Development Team     *
+ *                                                                       *
+ * Fork from Crossfire (Multiplayer game for X-windows).                 *
+ *                                                                       *
+ * This program is free software; you can redistribute it and/or modify  *
+ * it under the terms of the GNU General Public License as published by  *
+ * the Free Software Foundation; either version 2 of the License, or     *
+ * (at your option) any later version.                                   *
+ *                                                                       *
+ * This program is distributed in the hope that it will be useful,       *
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of        *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
+ * GNU General Public License for more details.                          *
+ *                                                                       *
+ * You should have received a copy of the GNU General Public License     *
+ * along with this program; if not, write to the Free Software           *
+ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.             *
+ *                                                                       *
+ * The author can be reached at admin@atrinik.org                        *
+ ************************************************************************/
 
 /**
  * @file
@@ -296,60 +296,59 @@ int cast_heal_around(object *op, int level, int type)
     int success = 0;
 
     switch (type) {
-        case SP_RAIN_HEAL:
-        {
-            int i, x, y;
-            mapstruct *m;
-            object *tmp;
+    case SP_RAIN_HEAL:
+    {
+        int i, x, y;
+        mapstruct *m;
+        object *tmp;
 
-            for (i = 0; i <= SIZEOFFREE1; i++) {
-                x = op->x + freearr_x[i];
-                y = op->y + freearr_y[i];
+        for (i = 0; i <= SIZEOFFREE1; i++) {
+            x = op->x + freearr_x[i];
+            y = op->y + freearr_y[i];
 
-                if (!(m = get_map_from_coord(op->map, &x, &y))) {
+            if (!(m = get_map_from_coord(op->map, &x, &y))) {
+                continue;
+            }
+
+            if (!(GET_MAP_FLAGS(m, x, y) & (P_IS_MONSTER | P_IS_PLAYER))) {
+                continue;
+            }
+
+            for (tmp = GET_MAP_OB_LAYER(m, x, y, LAYER_LIVING, 0); tmp && tmp->layer == LAYER_LIVING; tmp = tmp->above) {
+                tmp = HEAD(tmp);
+
+                if (tmp == op || !IS_LIVE(tmp) || !is_friend_of(op, tmp)) {
                     continue;
                 }
 
-                if (!(GET_MAP_FLAGS(m, x, y) & (P_IS_MONSTER | P_IS_PLAYER))) {
-                    continue;
-                }
-
-                for (tmp = GET_MAP_OB_LAYER(m, x, y, LAYER_LIVING, 0); tmp && tmp->layer == LAYER_LIVING; tmp = tmp->above) {
-                    tmp = HEAD(tmp);
-
-                    if (tmp == op || !IS_LIVE(tmp) || !is_friend_of(op, tmp)) {
-                        continue;
-                    }
-
-                    cast_heal(op, level, tmp, SP_MINOR_HEAL);
-                    success = 1;
-                }
+                cast_heal(op, level, tmp, SP_MINOR_HEAL);
+                success = 1;
             }
-
-            break;
         }
 
-        case SP_PARTY_HEAL:
-        {
-            objectlink *ol;
+        break;
+    }
 
-            if (op->type != PLAYER) {
-                return 0;
-            }
-            else if (!CONTR(op)->party) {
-                draw_info(COLOR_WHITE, op, "You need to be in a party to cast this spell.");
-                return 0;
-            }
+    case SP_PARTY_HEAL:
+    {
+        objectlink *ol;
 
-            for (ol = CONTR(op)->party->members; ol; ol = ol->next) {
-                if (on_same_map(ol->objlink.ob, op)) {
-                    cast_heal(op, level, ol->objlink.ob, SP_MINOR_HEAL);
-                }
-            }
-
-            success = 1;
-            break;
+        if (op->type != PLAYER) {
+            return 0;
+        } else if (!CONTR(op)->party) {
+            draw_info(COLOR_WHITE, op, "You need to be in a party to cast this spell.");
+            return 0;
         }
+
+        for (ol = CONTR(op)->party->members; ol; ol = ol->next) {
+            if (on_same_map(ol->objlink.ob, op)) {
+                cast_heal(op, level, ol->objlink.ob, SP_MINOR_HEAL);
+            }
+        }
+
+        success = 1;
+        break;
+    }
     }
 
     return success;
@@ -373,164 +372,158 @@ int cast_heal(object *op, int level, object *target, int spell_type)
     }
 
     switch (spell_type) {
-        case SP_CURE_DISEASE:
+    case SP_CURE_DISEASE:
 
-            if (cure_disease(target, op)) {
+        if (cure_disease(target, op)) {
+            success = 1;
+        }
+
+        break;
+
+    case SP_CURE_POISON:
+        at = find_archetype("poisoning");
+
+        if (op != target && target->type == PLAYER) {
+            draw_info_format(COLOR_WHITE, target, "%s casts cure poison on you!", op->name ? op->name : "Someone");
+        }
+
+        if (op != target && op->type == PLAYER) {
+            draw_info_format(COLOR_WHITE, op, "You cast cure poison on %s!", target->name ? target->name : "someone");
+        }
+
+        for (temp = target->inv; temp != NULL; temp = temp->below) {
+            if (temp->arch == at) {
                 success = 1;
+                temp->stats.food = 1;
             }
+        }
 
-            break;
-
-        case SP_CURE_POISON:
-            at = find_archetype("poisoning");
-
-            if (op != target && target->type == PLAYER) {
-                draw_info_format(COLOR_WHITE, target, "%s casts cure poison on you!", op->name ? op->name : "Someone");
+        if (success) {
+            if (target->type == PLAYER) {
+                draw_info(COLOR_WHITE, target, "Your body feels cleansed.");
             }
 
             if (op != target && op->type == PLAYER) {
-                draw_info_format(COLOR_WHITE, op, "You cast cure poison on %s!", target->name ? target->name : "someone");
+                draw_info_format(COLOR_WHITE, op, "%s's body seems cleansed.", target->name ? target->name : "Someone");
             }
-
-            for (temp = target->inv; temp != NULL; temp = temp->below) {
-                if (temp->arch == at) {
-                    success = 1;
-                    temp->stats.food = 1;
-                }
-            }
-
-            if (success) {
-                if (target->type == PLAYER) {
-                    draw_info(COLOR_WHITE, target, "Your body feels cleansed.");
-                }
-
-                if (op != target && op->type == PLAYER) {
-                    draw_info_format(COLOR_WHITE, op, "%s's body seems cleansed.", target->name ? target->name : "Someone");
-                }
-            }
-            else {
-                if (target->type == PLAYER) {
-                    draw_info(COLOR_WHITE, target, "You are not poisoned.");
-                }
-
-                if (op != target && op->type == PLAYER) {
-                    draw_info_format(COLOR_WHITE, op, "%s is not poisoned.", target->name ? target->name : "Someone");
-                }
-            }
-
-            break;
-
-        case SP_CURE_CONFUSION:
-            at = find_archetype("confusion");
-
-            if (op != target && target->type == PLAYER) {
-                draw_info_format(COLOR_WHITE, target, "%s casts cure confusion on you!", op->name ? op->name : "Someone");
+        } else {
+            if (target->type == PLAYER) {
+                draw_info(COLOR_WHITE, target, "You are not poisoned.");
             }
 
             if (op != target && op->type == PLAYER) {
-                draw_info_format(COLOR_WHITE, op, "You cast cure confusion on %s!", target->name ? target->name : "someone");
+                draw_info_format(COLOR_WHITE, op, "%s is not poisoned.", target->name ? target->name : "Someone");
+            }
+        }
+
+        break;
+
+    case SP_CURE_CONFUSION:
+        at = find_archetype("confusion");
+
+        if (op != target && target->type == PLAYER) {
+            draw_info_format(COLOR_WHITE, target, "%s casts cure confusion on you!", op->name ? op->name : "Someone");
+        }
+
+        if (op != target && op->type == PLAYER) {
+            draw_info_format(COLOR_WHITE, op, "You cast cure confusion on %s!", target->name ? target->name : "someone");
+        }
+
+        for (temp = target->inv; temp != NULL; temp = temp->below) {
+            if (temp->arch == at) {
+                success = 1;
+                temp->stats.food = 1;
+            }
+        }
+
+        if (success) {
+            if (target->type == PLAYER) {
+                draw_info(COLOR_WHITE, target, "Your mind feels clearer.");
             }
 
-            for (temp = target->inv; temp != NULL; temp = temp->below) {
-                if (temp->arch == at) {
-                    success = 1;
-                    temp->stats.food = 1;
-                }
+            if (op != target && op->type == PLAYER) {
+                draw_info_format(COLOR_WHITE, op, "%s's mind seems clearer.", target->name ? target->name : "Someone");
+            }
+        } else {
+            if (target->type == PLAYER) {
+                draw_info(COLOR_WHITE, target, "You are not confused.");
             }
 
-            if (success) {
-                if (target->type == PLAYER) {
-                    draw_info(COLOR_WHITE, target, "Your mind feels clearer.");
-                }
-
-                if (op != target && op->type == PLAYER) {
-                    draw_info_format(COLOR_WHITE, op, "%s's mind seems clearer.", target->name ? target->name : "Someone");
-                }
+            if (op != target && op->type == PLAYER) {
+                draw_info_format(COLOR_WHITE, op, "%s is not confused.", target->name ? target->name : "Someone");
             }
-            else {
-                if (target->type == PLAYER) {
-                    draw_info(COLOR_WHITE, target, "You are not confused.");
-                }
+        }
 
-                if (op != target && op->type == PLAYER) {
-                    draw_info_format(COLOR_WHITE, op, "%s is not confused.", target->name ? target->name : "Someone");
-                }
+        break;
+
+    case SP_MINOR_HEAL:
+        success = 1;
+        heal = rndm(2, 5 + level) + 6;
+
+        if (op->type == PLAYER) {
+            if (heal > 0) {
+                draw_info_format(COLOR_WHITE, op, "The spell heals %s for %d hp!", op == target ? "you" : (target ? target->name : "NULL"), heal);
+            } else {
+                draw_info(COLOR_WHITE, op, "The healing spell fails!");
             }
+        }
 
-            break;
+        if (op != target && target->type == PLAYER) {
+            if (heal > 0) {
+                draw_info_format(COLOR_WHITE, target, "%s casts minor healing on you healing %d hp!", op->name, heal);
+            } else {
+                draw_info_format(COLOR_WHITE, target, "%s casts minor healing on you but it fails!", op->name);
+            }
+        }
 
-        case SP_MINOR_HEAL:
+        break;
+
+    case SP_GREATER_HEAL:
+        success = 1;
+        heal = rndm(4, 5 + level) + rndm(4, 5 + level) + 12;
+
+        if (op->type == PLAYER) {
+            if (heal > 0) {
+                draw_info_format(COLOR_WHITE, op, "The spell heals %s for %d hp!", op == target ? "you" : (target ? target->name : "NULL"), heal);
+            } else {
+                draw_info(COLOR_WHITE, op, "The healing spell fails!");
+            }
+        }
+
+        if (op != target && target->type == PLAYER) {
+            if (heal > 0) {
+                draw_info_format(COLOR_WHITE, target, "%s casts greater healing on you healing %d hp!", op->name, heal);
+            } else {
+                draw_info_format(COLOR_WHITE, target, "%s casts greater healing on you but it fails!", op->name);
+            }
+        }
+
+        break;
+
+    case SP_RESTORATION:
+
+        if (cast_heal(op, level, target, SP_CURE_POISON)) {
             success = 1;
-            heal = rndm(2, 5 + level) + 6;
+        }
 
-            if (op->type == PLAYER) {
-                if (heal > 0) {
-                    draw_info_format(COLOR_WHITE, op, "The spell heals %s for %d hp!", op == target ? "you" : (target ? target->name : "NULL"), heal);
-                }
-                else {
-                    draw_info(COLOR_WHITE, op, "The healing spell fails!");
-                }
-            }
-
-            if (op != target && target->type == PLAYER) {
-                if (heal > 0) {
-                    draw_info_format(COLOR_WHITE, target, "%s casts minor healing on you healing %d hp!", op->name, heal);
-                }
-                else {
-                    draw_info_format(COLOR_WHITE, target, "%s casts minor healing on you but it fails!", op->name);
-                }
-            }
-
-            break;
-
-        case SP_GREATER_HEAL:
+        if (cast_heal(op, level, target, SP_CURE_CONFUSION)) {
             success = 1;
-            heal = rndm(4, 5 + level) + rndm(4, 5 + level) + 12;
+        }
 
-            if (op->type == PLAYER) {
-                if (heal > 0) {
-                    draw_info_format(COLOR_WHITE, op, "The spell heals %s for %d hp!", op == target ? "you" : (target ? target->name : "NULL"), heal);
-                }
-                else {
-                    draw_info(COLOR_WHITE, op, "The healing spell fails!");
-                }
-            }
+        if (cast_heal(op, level, target, SP_CURE_DISEASE)) {
+            success = 1;
+        }
 
-            if (op != target && target->type == PLAYER) {
-                if (heal > 0) {
-                    draw_info_format(COLOR_WHITE, target, "%s casts greater healing on you healing %d hp!", op->name, heal);
-                }
-                else {
-                    draw_info_format(COLOR_WHITE, target, "%s casts greater healing on you but it fails!", op->name);
-                }
-            }
+        if (target->stats.food < 999) {
+            success = 1;
+            target->stats.food = 999;
+        }
 
-            break;
+        if (cast_heal(op, level, target, SP_MINOR_HEAL)) {
+            success = 1;
+        }
 
-        case SP_RESTORATION:
-
-            if (cast_heal(op, level, target, SP_CURE_POISON)) {
-                success = 1;
-            }
-
-            if (cast_heal(op, level, target, SP_CURE_CONFUSION)) {
-                success = 1;
-            }
-
-            if (cast_heal(op, level, target, SP_CURE_DISEASE)) {
-                success = 1;
-            }
-
-            if (target->stats.food < 999) {
-                success = 1;
-                target->stats.food = 999;
-            }
-
-            if (cast_heal(op, level, target, SP_MINOR_HEAL)) {
-                success = 1;
-            }
-
-            return success;
+        return success;
     }
 
     if (heal > 0) {
@@ -543,8 +536,7 @@ int cast_heal(object *op, int level, object *target, int spell_type)
                 if (op->type == PLAYER) {
                     CONTR(op)->stat_damage_healed += MIN(heal, target->stats.maxhp - target->stats.hp);
                 }
-            }
-            else {
+            } else {
                 if (op->type == PLAYER) {
                     CONTR(op)->stat_damage_healed_other += MIN(heal, target->stats.maxhp - target->stats.hp);
                 }
@@ -619,51 +611,50 @@ int cast_change_attr(object *op, object *caster, object *target, int spell_type)
     force->value = spell_type;
 
     switch (spell_type) {
-        case SP_STRENGTH:
-            force->speed_left = -1;
+    case SP_STRENGTH:
+        force->speed_left = -1;
+
+        if (op->type == PLAYER && op != tmp) {
+            draw_info_format(COLOR_WHITE, tmp, "%s casts strength on you!", op->name ? op->name : "Someone");
+        }
+
+        if (force->stats.Str < 2) {
+            force->stats.Str++;
 
             if (op->type == PLAYER && op != tmp) {
-                draw_info_format(COLOR_WHITE, tmp, "%s casts strength on you!", op->name ? op->name : "Someone");
+                draw_info_format(COLOR_WHITE, op, "%s gets stronger.", tmp->name ? tmp->name : "Someone");
             }
+        } else {
+            msg_flag = 0;
+            draw_info(COLOR_WHITE, tmp, "You don't grow stronger but the spell is refreshed.");
 
-            if (force->stats.Str < 2) {
-                force->stats.Str++;
-
-                if (op->type == PLAYER && op != tmp) {
-                    draw_info_format(COLOR_WHITE, op, "%s gets stronger.", tmp->name ? tmp->name : "Someone");
-                }
+            if (op->type == PLAYER && op != tmp) {
+                draw_info_format(COLOR_WHITE, op, "%s doesn't grow stronger but the spell is refreshed.", tmp->name ? tmp->name : "Someone");
             }
-            else {
-                msg_flag = 0;
-                draw_info(COLOR_WHITE, tmp, "You don't grow stronger but the spell is refreshed.");
+        }
 
-                if (op->type == PLAYER && op != tmp) {
-                    draw_info_format(COLOR_WHITE, op, "%s doesn't grow stronger but the spell is refreshed.", tmp->name ? tmp->name : "Someone");
-                }
-            }
+        if (insert_spell_effect(spells[SP_STRENGTH].archname, target->map, target->x, target->y)) {
+            logger_print(LOG(DEBUG), "failed: spell:%d, obj:%s caster:%s target:%s", spell_type, query_name(op, NULL), query_name(caster, NULL), query_name(target, NULL));
+        }
 
-            if (insert_spell_effect(spells[SP_STRENGTH].archname, target->map, target->x, target->y)) {
-                logger_print(LOG(DEBUG), "failed: spell:%d, obj:%s caster:%s target:%s", spell_type, query_name(op, NULL), query_name(caster, NULL), query_name(target, NULL));
-            }
-
-            break;
+        break;
 
         /* Attacktype protection spells */
-        case SP_PROT_COLD:
-            i = ATNR_COLD;
-            break;
+    case SP_PROT_COLD:
+        i = ATNR_COLD;
+        break;
 
-        case SP_PROT_FIRE:
-            i = ATNR_FIRE;
-            break;
+    case SP_PROT_FIRE:
+        i = ATNR_FIRE;
+        break;
 
-        case SP_PROT_ELEC:
-            i = ATNR_ELECTRICITY;
-            break;
+    case SP_PROT_ELEC:
+        i = ATNR_ELECTRICITY;
+        break;
 
-        case SP_PROT_POISON:
-            i = ATNR_POISON;
-            break;
+    case SP_PROT_POISON:
+        i = ATNR_POISON;
+        break;
     }
 
     if (i) {
@@ -684,8 +675,7 @@ int cast_change_attr(object *op, object *caster, object *target, int spell_type)
         }
 
         force = insert_ob_in_ob(force, tmp);
-    }
-    else {
+    } else {
         esrv_update_item(UPD_EXTRA, force);
     }
 
@@ -719,8 +709,7 @@ int remove_curse(object *op, object *target, int type, int src)
     if (op != target) {
         if (op->type == PLAYER) {
             draw_info_format(COLOR_WHITE, op, "You cast remove %s on %s.", type == SP_REMOVE_CURSE ? "curse" : "damnation", query_base_name(target, NULL));
-        }
-        else if (target->type == PLAYER) {
+        } else if (target->type == PLAYER) {
             draw_info_format(COLOR_WHITE, target, "%s casts remove %s on you.", query_base_name(op, NULL), type == SP_REMOVE_CURSE ? "curse" : "damnation");
         }
     }
@@ -737,13 +726,12 @@ int remove_curse(object *op, object *target, int type, int src)
 
                 CLEAR_FLAG(tmp, FLAG_CURSED);
                 esrv_send_item(tmp);
-            }
-            /* Level of the items is too high for this remove curse */
-            else {
+            } else {
+                /* Level of the items is too high for this remove curse */
+
                 if (target->type == PLAYER) {
                     draw_info_format(COLOR_WHITE, target, "The %s's curse is stronger than the spell!", query_base_name(tmp, NULL));
-                }
-                else if (op != target && op->type == PLAYER) {
+                } else if (op != target && op->type == PLAYER) {
                     draw_info_format(COLOR_WHITE, op, "The %s's curse of %s is stronger than your spell!", query_base_name(tmp, NULL), query_base_name(target, NULL));
                 }
             }
@@ -753,8 +741,7 @@ int remove_curse(object *op, object *target, int type, int src)
     if (op != target && op->type == PLAYER) {
         if (success) {
             draw_info(COLOR_WHITE, op, "Your spell removes some curses.");
-        }
-        else {
+        } else {
             draw_info_format(COLOR_WHITE, op, "%s's items seem uncursed.", query_base_name(target, NULL));
         }
     }
@@ -762,12 +749,10 @@ int remove_curse(object *op, object *target, int type, int src)
     if (target->type == PLAYER) {
         if (success) {
             draw_info(COLOR_WHITE, target, "You feel like someone is helping you.");
-        }
-        else {
+        } else {
             if (src == CAST_NORMAL) {
                 draw_info(COLOR_WHITE, target, "You are not using any cursed items.");
-            }
-            else {
+            } else {
                 draw_info(COLOR_WHITE, target, "You hear maniacal laughter in the distance.");
             }
         }
@@ -796,8 +781,7 @@ int do_cast_identify(object *tmp, object *op, int mode, int *done, int level)
         if (op->type == PLAYER) {
             draw_info_format(COLOR_WHITE, op, "The %s is too powerful for this identify!", query_base_name(tmp, NULL));
         }
-    }
-    else {
+    } else {
         identify(tmp);
 
         if (op->type == PLAYER) {
@@ -836,8 +820,7 @@ int cast_identify(object *op, int level, object *single_ob, int mode)
 
     if (mode == IDENTIFY_MARKED) {
         do_cast_identify(single_ob, op, mode, &done, level);
-    }
-    else {
+    } else {
         object *tmp = op->inv;
 
         if (single_ob && single_ob->type == CONTAINER) {
@@ -884,12 +867,10 @@ int cast_consecrate(object *op)
             if (tmp->level > SK_level(op)) {
                 draw_info_format(COLOR_WHITE, op, "You are not powerful enough to reconsecrate the %s.", tmp->name);
                 return 0;
-            }
-            else if (tmp->other_arch == god->arch) {
+            } else if (tmp->other_arch == god->arch) {
                 draw_info_format(COLOR_WHITE, op, "That altar is already consecrated to %s.", god->name);
                 return 0;
-            }
-            else {
+            } else {
                 char buf[MAX_BUF], *cp;
                 object *new_altar;
 
@@ -1029,8 +1010,7 @@ int cast_cause_disease(object *op, object *caster, int dir, archetype *disease_a
             if (disease->stats.dam) {
                 if (disease->stats.dam > 0) {
                     disease->stats.dam += dam;
-                }
-                else {
+                } else {
                     disease->stats.dam -= dam;
                 }
             }
@@ -1046,8 +1026,7 @@ int cast_cause_disease(object *op, object *caster, int dir, archetype *disease_a
             if (disease->stats.maxsp) {
                 if (disease->stats.maxsp > 0) {
                     disease->stats.maxsp += dam;
-                }
-                else {
+                } else {
                     disease->stats.maxsp -= dam;
                 }
             }

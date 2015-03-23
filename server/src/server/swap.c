@@ -1,26 +1,26 @@
-/************************************************************************
-*            Atrinik, a Multiplayer Online Role Playing Game            *
-*                                                                       *
-*    Copyright (C) 2009-2012 Alex Tokar and Atrinik Development Team    *
-*                                                                       *
-* Fork from Crossfire (Multiplayer game for X-windows).                 *
-*                                                                       *
-* This program is free software; you can redistribute it and/or modify  *
-* it under the terms of the GNU General Public License as published by  *
-* the Free Software Foundation; either version 2 of the License, or     *
-* (at your option) any later version.                                   *
-*                                                                       *
-* This program is distributed in the hope that it will be useful,       *
-* but WITHOUT ANY WARRANTY; without even the implied warranty of        *
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
-* GNU General Public License for more details.                          *
-*                                                                       *
-* You should have received a copy of the GNU General Public License     *
-* along with this program; if not, write to the Free Software           *
-* Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.             *
-*                                                                       *
-* The author can be reached at admin@atrinik.org                        *
-************************************************************************/
+/*************************************************************************
+ *           Atrinik, a Multiplayer Online Role Playing Game             *
+ *                                                                       *
+ *   Copyright (C) 2009-2014 Alex Tokar and Atrinik Development Team     *
+ *                                                                       *
+ * Fork from Crossfire (Multiplayer game for X-windows).                 *
+ *                                                                       *
+ * This program is free software; you can redistribute it and/or modify  *
+ * it under the terms of the GNU General Public License as published by  *
+ * the Free Software Foundation; either version 2 of the License, or     *
+ * (at your option) any later version.                                   *
+ *                                                                       *
+ * This program is distributed in the hope that it will be useful,       *
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of        *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
+ * GNU General Public License for more details.                          *
+ *                                                                       *
+ * You should have received a copy of the GNU General Public License     *
+ * along with this program; if not, write to the Free Software           *
+ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.             *
+ *                                                                       *
+ * The author can be reached at admin@atrinik.org                        *
+ ************************************************************************/
 
 /**
  * @file
@@ -44,7 +44,8 @@ void write_map_log(void)
         return;
     }
 
-    for (map = first_map; map; map = map->next) {
+    DL_FOREACH(first_map, map)
+    {
         /* If tmpname is null, it is probably a unique player map,
          * so don't save information on it. */
         if (map->in_memory != MAP_IN_MEMORY && map->tmpname && strncmp(map->path, "/random", 7)) {
@@ -99,31 +100,35 @@ void read_map_log(void)
 }
 
 /**
+ * Checks if the specified map can be swapped.
+ * @param tiled The tiled map.
+ * @param map Map on the Z axis.
+ * @return 1 if the map cannot be swapped, 0 otherwise.
+ */
+static int swap_map_check(mapstruct *tiled, mapstruct *map)
+{
+    return tiled->player_first != NULL;
+}
+
+/**
  * Swaps a map to disk.
  * @param map Map to swap.
  * @param force_flag Force flag. If set, will not check for players. */
 void swap_map(mapstruct *map, int force_flag)
 {
-    int i;
-
     if (map->in_memory != MAP_IN_MEMORY) {
         logger_print(LOG(BUG), "Tried to swap out map which was not in memory (%s).", map->path);
         return;
     }
 
-    /* Test for players. */
     if (!force_flag) {
-        if (map->player_first) {
-            return;
-        }
-
-        for (i = 0; i < TILED_NUM; i++) {
-            /* If there is a map, is loaded and in memory, has players, then no
-             * swap */
-            if (map->tile_map[i] && map->tile_map[i]->in_memory == MAP_IN_MEMORY && map->tile_map[i]->player_first) {
+        MAP_TILES_WALK_START(map, swap_map_check)
+        {
+            if (MAP_TILES_WALK_RETVAL != 0) {
                 return;
             }
         }
+        MAP_TILES_WALK_END
     }
 
     /* Update the reset time. */
@@ -134,15 +139,12 @@ void swap_map(mapstruct *map, int force_flag)
     /* If it is immediate reset time, don't bother saving it - just get
      * rid of it right away. */
     if (map->reset_time <= (uint32) seconds()) {
-        mapstruct *oldmap = map;
-
         if (map->events) {
             /* Trigger the map reset event */
             trigger_map_event(MEVENT_RESET, map, NULL, NULL, NULL, map->path, 0);
         }
 
-        map = map->next;
-        delete_map(oldmap);
+        delete_map(map);
         return;
     }
 
@@ -152,8 +154,7 @@ void swap_map(mapstruct *map, int force_flag)
          * free the objects with it. */
         map->in_memory = MAP_IN_MEMORY;
         delete_map(map);
-    }
-    else {
+    } else {
         free_map(map, 1);
     }
 }
@@ -162,11 +163,10 @@ void swap_map(mapstruct *map, int force_flag)
  * Check active maps and swap them out. */
 void check_active_maps(void)
 {
-    mapstruct *map, *next;
+    mapstruct *map, *tmp;
 
-    for (map = first_map; map != NULL; map = next) {
-        next = map->next;
-
+    DL_FOREACH_SAFE(first_map, map, tmp)
+    {
         if (map->in_memory != MAP_IN_MEMORY) {
             continue;
         }
@@ -194,10 +194,11 @@ void check_active_maps(void)
  * This is very useful if the tmp-disk is very full. */
 void flush_old_maps(void)
 {
-    mapstruct *m = first_map, *oldmap;
+    mapstruct *m, *tmp;
     long sec = seconds();
 
-    while (m) {
+    DL_FOREACH_SAFE(first_map, m, tmp)
+    {
         /* There can be cases (ie death) where a player leaves a map and
          * the timeout is not set so it isn't swapped out. */
         if ((m->in_memory == MAP_IN_MEMORY) && (m->timeout == 0) && !m->player_first) {
@@ -206,24 +207,22 @@ void flush_old_maps(void)
 
         /* Per player unique maps are never really reset. */
         if (MAP_UNIQUE(m) && m->in_memory == MAP_SWAPPED) {
-            oldmap = m;
-            m = m->next;
-            delete_map(oldmap);
+            delete_map(m);
+            continue;
         }
-        /* No need to flush them if there are no resets */
-        else if (m->in_memory != MAP_SWAPPED || m->tmpname == NULL || (uint32) sec < m->reset_time) {
-            m = m->next;
-        }
-        else {
-            if (m->events) {
-                /* Trigger the map reset event */
-                trigger_map_event(MEVENT_RESET, m, NULL, NULL, NULL, m->path, 0);
-            }
 
-            clean_tmp_map(m);
-            oldmap = m;
-            m = m->next;
-            delete_map(oldmap);
+        if (m->in_memory != MAP_SWAPPED || m->tmpname == NULL ||
+                (uint32) sec < m->reset_time) {
+            /* No need to flush them if there are no resets */
+            continue;
         }
+
+        if (m->events != NULL) {
+            /* Trigger the map reset event */
+            trigger_map_event(MEVENT_RESET, m, NULL, NULL, NULL, m->path, 0);
+        }
+
+        clean_tmp_map(m);
+        delete_map(m);
     }
 }

@@ -1,26 +1,26 @@
-/************************************************************************
-*            Atrinik, a Multiplayer Online Role Playing Game            *
-*                                                                       *
-*    Copyright (C) 2009-2012 Alex Tokar and Atrinik Development Team    *
-*                                                                       *
-* Fork from Crossfire (Multiplayer game for X-windows).                 *
-*                                                                       *
-* This program is free software; you can redistribute it and/or modify  *
-* it under the terms of the GNU General Public License as published by  *
-* the Free Software Foundation; either version 2 of the License, or     *
-* (at your option) any later version.                                   *
-*                                                                       *
-* This program is distributed in the hope that it will be useful,       *
-* but WITHOUT ANY WARRANTY; without even the implied warranty of        *
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
-* GNU General Public License for more details.                          *
-*                                                                       *
-* You should have received a copy of the GNU General Public License     *
-* along with this program; if not, write to the Free Software           *
-* Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.             *
-*                                                                       *
-* The author can be reached at admin@atrinik.org                        *
-************************************************************************/
+/*************************************************************************
+ *           Atrinik, a Multiplayer Online Role Playing Game             *
+ *                                                                       *
+ *   Copyright (C) 2009-2014 Alex Tokar and Atrinik Development Team     *
+ *                                                                       *
+ * Fork from Crossfire (Multiplayer game for X-windows).                 *
+ *                                                                       *
+ * This program is free software; you can redistribute it and/or modify  *
+ * it under the terms of the GNU General Public License as published by  *
+ * the Free Software Foundation; either version 2 of the License, or     *
+ * (at your option) any later version.                                   *
+ *                                                                       *
+ * This program is distributed in the hope that it will be useful,       *
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of        *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
+ * GNU General Public License for more details.                          *
+ *                                                                       *
+ * You should have received a copy of the GNU General Public License     *
+ * along with this program; if not, write to the Free Software           *
+ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.             *
+ *                                                                       *
+ * The author can be reached at admin@atrinik.org                        *
+ ************************************************************************/
 
 /**
  * @file
@@ -29,8 +29,7 @@
 #include <global.h>
 
 /** Word representations of numbers used by get_number() */
-static char numbers[21][20] =
-{
+static char numbers[21][20] = {
     "no",
     "",
     "two",
@@ -55,8 +54,7 @@ static char numbers[21][20] =
 };
 
 /** Tens */
-static char numbers_10[10][20] =
-{
+static char numbers_10[10][20] = {
     "zero",
     "ten",
     "twenty",
@@ -70,8 +68,7 @@ static char numbers_10[10][20] =
 };
 
 /** Levels as a full name and not a number. */
-static char levelnumbers[21][20] =
-{
+static char levelnumbers[21][20] = {
     "zeroth",
     "first",
     "second",
@@ -96,8 +93,7 @@ static char levelnumbers[21][20] =
 };
 
 /** Tens for levels */
-static char levelnumbers_10[11][20] =
-{
+static char levelnumbers_10[11][20] = {
     "zeroth",
     "tenth",
     "twentieth",
@@ -141,8 +137,7 @@ static char *describe_attack(object *op, int newline)
                 }
 
                 snprintf(buf1, sizeof(buf1), "%s %+d%%", attack_name[tmpvar], op->attack[tmpvar]);
-            }
-            else {
+            } else {
                 snprintf(buf1, sizeof(buf1), "%s %+d%%\n", attack_name[tmpvar], op->attack[tmpvar]);
             }
 
@@ -186,8 +181,7 @@ char *describe_protections(object *op, int newline)
                 }
 
                 snprintf(buf1, sizeof(buf1), "%s %+d%%", attack_name[tmpvar], op->protection[tmpvar]);
-            }
-            else {
+            } else {
                 snprintf(buf1, sizeof(buf1), "%s %d%%\n", attack_name[tmpvar], op->protection[tmpvar]);
             }
 
@@ -218,8 +212,7 @@ char *query_weight(object *op)
 
     if (i % 1000) {
         snprintf(buf, sizeof(buf), "%6.1f", (float) i / 1000.0f);
-    }
-    else {
+    } else {
         snprintf(buf, sizeof(buf), "%4d  ", i / 1000);
     }
 
@@ -265,8 +258,7 @@ static char *get_number(int i)
 {
     if (i <= 20) {
         return numbers[i];
-    }
-    else {
+    } else {
         static char buf[MAX_BUF];
         snprintf(buf, sizeof(buf), "%d", i);
         return buf;
@@ -330,10 +322,10 @@ char *query_short_name(object *op, object *caller)
                 safe_strcat(buf, buf2, &len, sizeof(buf));
             }
         }
-    }
-    /* If nrof is 0, the object is not mergable, and thus, op->name
-     * should contain the name to be used. */
-    else {
+    } else {
+        /* If nrof is 0, the object is not mergable, and thus, op->name
+         * should contain the name to be used. */
+
         if (!QUERY_FLAG(op, FLAG_IS_NAMED)) {
             if (!IS_LIVE(op) && op->type != BASE_INFO) {
                 safe_strcat(buf, item_races[op->item_race], &len, sizeof(buf));
@@ -348,128 +340,120 @@ char *query_short_name(object *op, object *caller)
     }
 
     switch (op->type) {
-        case CONTAINER:
+    case CONTAINER:
 
-            if (QUERY_FLAG(op, FLAG_IDENTIFIED)) {
-                if (op->title) {
-                    safe_strcat(buf, " ", &len, sizeof(buf));
-                    safe_strcat(buf, op->title, &len, sizeof(buf));
-                }
+        if (QUERY_FLAG(op, FLAG_IDENTIFIED)) {
+            if (op->title) {
+                safe_strcat(buf, " ", &len, sizeof(buf));
+                safe_strcat(buf, op->title, &len, sizeof(buf));
             }
+        }
 
-            if (op->sub_type >= ST1_CONTAINER_NORMAL_party) {
-                if (op->sub_type == ST1_CONTAINER_CORPSE_party) {
-                    if (op->slaying) {
-                        if (!caller || caller->type != PLAYER) {
-                            safe_strcat(buf, " (bounty of a party)", &len, sizeof(buf));
-                        }
-                        else if (CONTR(caller)->party && CONTR(caller)->party->name == op->slaying) {
-                            safe_strcat(buf, " (bounty of your party", &len, sizeof(buf));
-
-                            /* A searched bounty */
-                            if (QUERY_FLAG(op, FLAG_BEEN_APPLIED)) {
-                                safe_strcat(buf, ", searched", &len, sizeof(buf));
-                            }
-
-                            safe_strcat(buf, ")", &len, sizeof(buf));
-                        }
-                        /* It's a different party */
-                        else {
-                            safe_strcat(buf, " (bounty of another party)", &len, sizeof(buf));
-                        }
-                    }
-                    else if (QUERY_FLAG(op, FLAG_BEEN_APPLIED)) {
-                        safe_strcat(buf, " (searched)", &len, sizeof(buf));
-                    }
-                }
-            }
-            else if (op->sub_type >= ST1_CONTAINER_NORMAL_player) {
-                if (op->sub_type == ST1_CONTAINER_CORPSE_player) {
-                    if (op->slaying) {
-                        safe_strcat(buf, " (bounty of ", &len, sizeof(buf));
-                        safe_strcat(buf, op->slaying, &len, sizeof(buf));
+        if (op->sub_type >= ST1_CONTAINER_NORMAL_party) {
+            if (op->sub_type == ST1_CONTAINER_CORPSE_party) {
+                if (op->slaying) {
+                    if (!caller || caller->type != PLAYER) {
+                        safe_strcat(buf, " (bounty of a party)", &len, sizeof(buf));
+                    } else if (CONTR(caller)->party && CONTR(caller)->party->name == op->slaying) {
+                        safe_strcat(buf, " (bounty of your party", &len, sizeof(buf));
 
                         /* A searched bounty */
-                        if ((caller && caller->name == op->slaying) && QUERY_FLAG(op, FLAG_BEEN_APPLIED)) {
+                        if (QUERY_FLAG(op, FLAG_BEEN_APPLIED)) {
                             safe_strcat(buf, ", searched", &len, sizeof(buf));
                         }
 
-                        safe_strcat(buf,")", &len, sizeof(buf));
+                        safe_strcat(buf, ")", &len, sizeof(buf));
+                    } else {
+                        /* It's a different party */
+                        safe_strcat(buf, " (bounty of another party)", &len, sizeof(buf));
                     }
-                    else if (QUERY_FLAG(op, FLAG_BEEN_APPLIED)) {
-                        safe_strcat(buf, " (searched)", &len, sizeof(buf));
-                    }
+                } else if (QUERY_FLAG(op, FLAG_BEEN_APPLIED)) {
+                    safe_strcat(buf, " (searched)", &len, sizeof(buf));
                 }
             }
+        } else if (op->sub_type >= ST1_CONTAINER_NORMAL_player) {
+            if (op->sub_type == ST1_CONTAINER_CORPSE_player) {
+                if (op->slaying) {
+                    safe_strcat(buf, " (bounty of ", &len, sizeof(buf));
+                    safe_strcat(buf, op->slaying, &len, sizeof(buf));
 
-            break;
-
-        case SCROLL:
-        case WAND:
-        case ROD:
-        case POTION:
-
-            if (QUERY_FLAG(op, FLAG_IDENTIFIED) || QUERY_FLAG(op, FLAG_BEEN_APPLIED)) {
-                if (!op->title) {
-                    if (op->stats.sp != SP_NO_SPELL) {
-                        safe_strcat(buf, " of ", &len, sizeof(buf));
-                        safe_strcat(buf, spells[op->stats.sp].name, &len, sizeof(buf));
+                    /* A searched bounty */
+                    if ((caller && caller->name == op->slaying) && QUERY_FLAG(op, FLAG_BEEN_APPLIED)) {
+                        safe_strcat(buf, ", searched", &len, sizeof(buf));
                     }
-                    else {
-                        safe_strcat(buf, " of nothing", &len, sizeof(buf));
-                    }
-                }
-                else {
-                    safe_strcat(buf, " ", &len, sizeof(buf));
-                    safe_strcat(buf, op->title, &len, sizeof(buf));
-                }
 
-                sprintf(buf2, " (lvl %d)", op->level);
-                safe_strcat(buf, buf2, &len, sizeof(buf));
-            }
-
-            break;
-
-        case SKILL:
-        case AMULET:
-        case RING:
-
-            if (QUERY_FLAG(op, FLAG_IDENTIFIED)) {
-                if (!op->title) {
-                    /* If ring has a title, full description isn't so useful */
-                    char *s = describe_item(op);
-
-                    if (s[0]) {
-                        safe_strcat(buf, " ", &len, sizeof(buf));
-                        safe_strcat(buf, s, &len, sizeof(buf));
-                    }
-                }
-                else {
-                    safe_strcat(buf, " ", &len, sizeof(buf));
-                    safe_strcat(buf, op->title, &len, sizeof(buf));
+                    safe_strcat(buf, ")", &len, sizeof(buf));
+                } else if (QUERY_FLAG(op, FLAG_BEEN_APPLIED)) {
+                    safe_strcat(buf, " (searched)", &len, sizeof(buf));
                 }
             }
+        }
 
-            break;
+        break;
 
-        default:
+    case SCROLL:
+    case WAND:
+    case ROD:
+    case POTION:
 
-            if (op->magic && (!need_identify(op) || QUERY_FLAG(op, FLAG_BEEN_APPLIED) || QUERY_FLAG(op, FLAG_IDENTIFIED))) {
-                if (!IS_LIVE(op) && op->type != BASE_INFO) {
-                    sprintf(buf2, " %+d", op->magic);
-                    safe_strcat(buf, buf2, &len, sizeof(buf));
+        if (QUERY_FLAG(op, FLAG_IDENTIFIED) || QUERY_FLAG(op, FLAG_BEEN_APPLIED)) {
+            if (!op->title) {
+                if (op->stats.sp != SP_NO_SPELL) {
+                    safe_strcat(buf, " of ", &len, sizeof(buf));
+                    safe_strcat(buf, spells[op->stats.sp].name, &len, sizeof(buf));
+                } else {
+                    safe_strcat(buf, " of nothing", &len, sizeof(buf));
                 }
-            }
-
-            if (op->title && QUERY_FLAG(op, FLAG_IDENTIFIED)) {
+            } else {
                 safe_strcat(buf, " ", &len, sizeof(buf));
                 safe_strcat(buf, op->title, &len, sizeof(buf));
             }
 
-            if ((op->type == ARROW || op->type == WEAPON) && op->slaying && QUERY_FLAG(op, FLAG_IDENTIFIED)) {
+            sprintf(buf2, " (lvl %d)", op->level);
+            safe_strcat(buf, buf2, &len, sizeof(buf));
+        }
+
+        break;
+
+    case SKILL:
+    case AMULET:
+    case RING:
+
+        if (QUERY_FLAG(op, FLAG_IDENTIFIED)) {
+            if (!op->title) {
+                /* If ring has a title, full description isn't so useful */
+                char *s = describe_item(op);
+
+                if (s[0]) {
+                    safe_strcat(buf, " ", &len, sizeof(buf));
+                    safe_strcat(buf, s, &len, sizeof(buf));
+                }
+            } else {
                 safe_strcat(buf, " ", &len, sizeof(buf));
-                safe_strcat(buf, op->slaying, &len, sizeof(buf));
+                safe_strcat(buf, op->title, &len, sizeof(buf));
             }
+        }
+
+        break;
+
+    default:
+
+        if (op->magic && (!need_identify(op) || QUERY_FLAG(op, FLAG_BEEN_APPLIED) || QUERY_FLAG(op, FLAG_IDENTIFIED))) {
+            if (!IS_LIVE(op) && op->type != BASE_INFO) {
+                sprintf(buf2, " %+d", op->magic);
+                safe_strcat(buf, buf2, &len, sizeof(buf));
+            }
+        }
+
+        if (op->title && QUERY_FLAG(op, FLAG_IDENTIFIED)) {
+            safe_strcat(buf, " ", &len, sizeof(buf));
+            safe_strcat(buf, op->title, &len, sizeof(buf));
+        }
+
+        if ((op->type == ARROW || op->type == WEAPON) && op->slaying && QUERY_FLAG(op, FLAG_IDENTIFIED)) {
+            safe_strcat(buf, " ", &len, sizeof(buf));
+            safe_strcat(buf, op->slaying, &len, sizeof(buf));
+        }
     }
 
     return buf;
@@ -506,8 +490,7 @@ char *query_name(object *op, object *caller)
 
     if (QUERY_FLAG(op, FLAG_ONE_DROP)) {
         safe_strcat(buf[use_buf], " (one-drop)", &len, HUGE_BUF);
-    }
-    else if (QUERY_FLAG(op, FLAG_QUEST_ITEM)) {
+    } else if (QUERY_FLAG(op, FLAG_QUEST_ITEM)) {
         safe_strcat(buf[use_buf], " (quest)", &len, HUGE_BUF);
     }
 
@@ -518,8 +501,7 @@ char *query_name(object *op, object *caller)
     if (op->type == CONTAINER && QUERY_FLAG(op, FLAG_APPLIED)) {
         if (op->attacked_by && op->attacked_by->type == PLAYER) {
             safe_strcat(buf[use_buf], " (open)", &len, HUGE_BUF);
-        }
-        else {
+        } else {
             safe_strcat(buf[use_buf], " (ready)", &len, HUGE_BUF);
         }
     }
@@ -527,14 +509,11 @@ char *query_name(object *op, object *caller)
     if (QUERY_FLAG(op, FLAG_IDENTIFIED) || QUERY_FLAG(op, FLAG_APPLIED)) {
         if (QUERY_FLAG(op, FLAG_PERM_DAMNED)) {
             safe_strcat(buf[use_buf], " (perm. damned)", &len, HUGE_BUF);
-        }
-        else if (QUERY_FLAG(op, FLAG_DAMNED)) {
+        } else if (QUERY_FLAG(op, FLAG_DAMNED)) {
             safe_strcat(buf[use_buf], " (damned)", &len, HUGE_BUF);
-        }
-        else if (QUERY_FLAG(op, FLAG_PERM_CURSED)) {
+        } else if (QUERY_FLAG(op, FLAG_PERM_CURSED)) {
             safe_strcat(buf[use_buf], " (perm. cursed)", &len, HUGE_BUF);
-        }
-        else if (QUERY_FLAG(op, FLAG_CURSED)) {
+        } else if (QUERY_FLAG(op, FLAG_CURSED)) {
             safe_strcat(buf[use_buf], " (cursed)", &len, HUGE_BUF);
         }
     }
@@ -545,37 +524,37 @@ char *query_name(object *op, object *caller)
 
     if (QUERY_FLAG(op, FLAG_APPLIED)) {
         switch (op->type) {
-            case BOW:
-            case WAND:
-            case ROD:
-                safe_strcat(buf[use_buf], " (readied)", &len, HUGE_BUF);
-                break;
+        case BOW:
+        case WAND:
+        case ROD:
+            safe_strcat(buf[use_buf], " (readied)", &len, HUGE_BUF);
+            break;
 
-            case WEAPON:
-                safe_strcat(buf[use_buf], " (wielded)", &len, HUGE_BUF);
-                break;
+        case WEAPON:
+            safe_strcat(buf[use_buf], " (wielded)", &len, HUGE_BUF);
+            break;
 
-            case ARMOUR:
-            case HELMET:
-            case SHIELD:
-            case RING:
-            case BOOTS:
-            case GLOVES:
-            case AMULET:
-            case GIRDLE:
-            case BRACERS:
-            case CLOAK:
-                safe_strcat(buf[use_buf], " (worn)", &len, HUGE_BUF);
-                break;
+        case ARMOUR:
+        case HELMET:
+        case SHIELD:
+        case RING:
+        case BOOTS:
+        case GLOVES:
+        case AMULET:
+        case GIRDLE:
+        case BRACERS:
+        case CLOAK:
+            safe_strcat(buf[use_buf], " (worn)", &len, HUGE_BUF);
+            break;
 
-            case CONTAINER:
-                safe_strcat(buf[use_buf], " (active)", &len, HUGE_BUF);
-                break;
+        case CONTAINER:
+            safe_strcat(buf[use_buf], " (active)", &len, HUGE_BUF);
+            break;
 
-            case SKILL:
-            case SKILL_ITEM:
-            default:
-                safe_strcat(buf[use_buf], " (applied)", &len, HUGE_BUF);
+        case SKILL:
+        case SKILL_ITEM:
+        default:
+            safe_strcat(buf[use_buf], " (applied)", &len, HUGE_BUF);
         }
     }
 
@@ -669,128 +648,120 @@ char *query_base_name(object *op, object *caller)
     len = strlen(buf);
 
     switch (op->type) {
-        case CONTAINER:
+    case CONTAINER:
 
-            if (QUERY_FLAG(op, FLAG_IDENTIFIED)) {
-                if (op->title) {
-                    safe_strcat(buf, " ", &len, sizeof(buf));
-                    safe_strcat(buf, op->title, &len, sizeof(buf));
-                }
+        if (QUERY_FLAG(op, FLAG_IDENTIFIED)) {
+            if (op->title) {
+                safe_strcat(buf, " ", &len, sizeof(buf));
+                safe_strcat(buf, op->title, &len, sizeof(buf));
             }
+        }
 
-            if (op->sub_type >= ST1_CONTAINER_NORMAL_party) {
-                if (op->sub_type == ST1_CONTAINER_CORPSE_party) {
-                    if (op->slaying) {
-                        if (!caller || caller->type != PLAYER) {
-                            safe_strcat(buf, " (bounty of a party)", &len, sizeof(buf));
-                        }
-                        else if (CONTR(caller)->party && CONTR(caller)->party->name == op->slaying) {
-                            safe_strcat(buf, " (bounty of your party", &len, sizeof(buf));
-
-                            /* A searched bounty */
-                            if (QUERY_FLAG(op, FLAG_BEEN_APPLIED)) {
-                                safe_strcat(buf, ", searched", &len, sizeof(buf));
-                            }
-
-                            safe_strcat(buf, ")", &len, sizeof(buf));
-                        }
-                        /* It's a different party */
-                        else {
-                            safe_strcat(buf, " (bounty of another party)", &len, sizeof(buf));
-                        }
-                    }
-                    else if (QUERY_FLAG(op, FLAG_BEEN_APPLIED)) {
-                        safe_strcat(buf, " (searched)", &len, sizeof(buf));
-                    }
-                }
-            }
-            else if (op->sub_type >= ST1_CONTAINER_NORMAL_player) {
-                if (op->sub_type == ST1_CONTAINER_CORPSE_player) {
-                    if (op->slaying) {
-                        safe_strcat(buf, " (bounty of ", &len, sizeof(buf));
-                        safe_strcat(buf, op->slaying, &len, sizeof(buf));
+        if (op->sub_type >= ST1_CONTAINER_NORMAL_party) {
+            if (op->sub_type == ST1_CONTAINER_CORPSE_party) {
+                if (op->slaying) {
+                    if (!caller || caller->type != PLAYER) {
+                        safe_strcat(buf, " (bounty of a party)", &len, sizeof(buf));
+                    } else if (CONTR(caller)->party && CONTR(caller)->party->name == op->slaying) {
+                        safe_strcat(buf, " (bounty of your party", &len, sizeof(buf));
 
                         /* A searched bounty */
-                        if ((caller && caller->name == op->slaying) && QUERY_FLAG(op, FLAG_BEEN_APPLIED)) {
+                        if (QUERY_FLAG(op, FLAG_BEEN_APPLIED)) {
                             safe_strcat(buf, ", searched", &len, sizeof(buf));
                         }
 
                         safe_strcat(buf, ")", &len, sizeof(buf));
+                    } else {
+                        /* It's a different party */
+                        safe_strcat(buf, " (bounty of another party)", &len, sizeof(buf));
                     }
-                    else if (QUERY_FLAG(op, FLAG_BEEN_APPLIED)) {
-                        safe_strcat(buf, " (searched)", &len, sizeof(buf));
-                    }
+                } else if (QUERY_FLAG(op, FLAG_BEEN_APPLIED)) {
+                    safe_strcat(buf, " (searched)", &len, sizeof(buf));
                 }
             }
+        } else if (op->sub_type >= ST1_CONTAINER_NORMAL_player) {
+            if (op->sub_type == ST1_CONTAINER_CORPSE_player) {
+                if (op->slaying) {
+                    safe_strcat(buf, " (bounty of ", &len, sizeof(buf));
+                    safe_strcat(buf, op->slaying, &len, sizeof(buf));
 
-            break;
-
-        case SCROLL:
-        case WAND:
-        case ROD:
-        case POTION:
-
-            if (QUERY_FLAG(op, FLAG_IDENTIFIED)) {
-                if (!op->title) {
-                    if (op->stats.sp != SP_NO_SPELL) {
-                        safe_strcat(buf, " of ", &len, sizeof(buf));
-                        safe_strcat(buf, spells[op->stats.sp].name, &len, sizeof(buf));
+                    /* A searched bounty */
+                    if ((caller && caller->name == op->slaying) && QUERY_FLAG(op, FLAG_BEEN_APPLIED)) {
+                        safe_strcat(buf, ", searched", &len, sizeof(buf));
                     }
-                    else {
-                        safe_strcat(buf, " of nothing", &len, sizeof(buf));
-                    }
-                }
-                else {
-                    safe_strcat(buf, " ", &len, sizeof(buf));
-                    safe_strcat(buf, op->title, &len, sizeof(buf));
-                }
 
-                sprintf(buf2, " (lvl %d)", op->level);
-                safe_strcat(buf, buf2, &len, sizeof(buf));
-            }
-
-            break;
-
-        case SKILL:
-        case AMULET:
-        case RING:
-
-            if (QUERY_FLAG(op, FLAG_IDENTIFIED)) {
-                if (!op->title) {
-                    /* If ring has a title, full description isn't so useful */
-                    char *s = describe_item(op);
-
-                    if (s[0]) {
-                        safe_strcat (buf, " ", &len, sizeof(buf));
-                        safe_strcat (buf, s, &len, sizeof(buf));
-                    }
-                }
-                else {
-                    safe_strcat(buf, " ", &len, sizeof(buf));
-                    safe_strcat(buf, op->title, &len, sizeof(buf));
+                    safe_strcat(buf, ")", &len, sizeof(buf));
+                } else if (QUERY_FLAG(op, FLAG_BEEN_APPLIED)) {
+                    safe_strcat(buf, " (searched)", &len, sizeof(buf));
                 }
             }
+        }
 
-            break;
+        break;
 
-        default:
+    case SCROLL:
+    case WAND:
+    case ROD:
+    case POTION:
 
-            if (op->magic && (!need_identify(op) || QUERY_FLAG(op, FLAG_BEEN_APPLIED) || QUERY_FLAG(op, FLAG_IDENTIFIED))) {
-                if (!IS_LIVE(op) && op->type != BASE_INFO) {
-                    sprintf(buf2, " %+d", op->magic);
-                    safe_strcat(buf, buf2, &len, sizeof(buf));
+        if (QUERY_FLAG(op, FLAG_IDENTIFIED)) {
+            if (!op->title) {
+                if (op->stats.sp != SP_NO_SPELL) {
+                    safe_strcat(buf, " of ", &len, sizeof(buf));
+                    safe_strcat(buf, spells[op->stats.sp].name, &len, sizeof(buf));
+                } else {
+                    safe_strcat(buf, " of nothing", &len, sizeof(buf));
                 }
-            }
-
-            if (op->title && QUERY_FLAG(op, FLAG_IDENTIFIED)) {
+            } else {
                 safe_strcat(buf, " ", &len, sizeof(buf));
                 safe_strcat(buf, op->title, &len, sizeof(buf));
             }
 
-            if ((op->type == ARROW || op->type == WEAPON) && op->slaying && QUERY_FLAG(op, FLAG_IDENTIFIED)) {
+            sprintf(buf2, " (lvl %d)", op->level);
+            safe_strcat(buf, buf2, &len, sizeof(buf));
+        }
+
+        break;
+
+    case SKILL:
+    case AMULET:
+    case RING:
+
+        if (QUERY_FLAG(op, FLAG_IDENTIFIED)) {
+            if (!op->title) {
+                /* If ring has a title, full description isn't so useful */
+                char *s = describe_item(op);
+
+                if (s[0]) {
+                    safe_strcat (buf, " ", &len, sizeof(buf));
+                    safe_strcat (buf, s, &len, sizeof(buf));
+                }
+            } else {
                 safe_strcat(buf, " ", &len, sizeof(buf));
-                safe_strcat(buf, op->slaying, &len, sizeof(buf));
+                safe_strcat(buf, op->title, &len, sizeof(buf));
             }
+        }
+
+        break;
+
+    default:
+
+        if (op->magic && (!need_identify(op) || QUERY_FLAG(op, FLAG_BEEN_APPLIED) || QUERY_FLAG(op, FLAG_IDENTIFIED))) {
+            if (!IS_LIVE(op) && op->type != BASE_INFO) {
+                sprintf(buf2, " %+d", op->magic);
+                safe_strcat(buf, buf2, &len, sizeof(buf));
+            }
+        }
+
+        if (op->title && QUERY_FLAG(op, FLAG_IDENTIFIED)) {
+            safe_strcat(buf, " ", &len, sizeof(buf));
+            safe_strcat(buf, op->title, &len, sizeof(buf));
+        }
+
+        if ((op->type == ARROW || op->type == WEAPON) && op->slaying && QUERY_FLAG(op, FLAG_IDENTIFIED)) {
+            safe_strcat(buf, " ", &len, sizeof(buf));
+            safe_strcat(buf, op->slaying, &len, sizeof(buf));
+        }
     }
 
     return buf;
@@ -846,7 +817,7 @@ static void describe_terrain(object *op, char *retbuf)
  * @return The described information. */
 char *describe_item(object *op)
 {
-    int attr,val, more_info = 0, id_true = 0;
+    int attr, val, more_info = 0, id_true = 0;
     char buf[MAX_BUF];
     static char retbuf[VERY_BIG_BUF * 3];
 
@@ -859,8 +830,7 @@ char *describe_item(object *op)
         if (CONTR(op)->digestion) {
             if (CONTR(op)->digestion > 0) {
                 sprintf(buf, "(sustenance%+d)", CONTR(op)->digestion);
-            }
-            else if (CONTR(op)->digestion < 0) {
+            } else if (CONTR(op)->digestion < 0) {
                 sprintf(buf, "(hunger%+d)", -CONTR(op)->digestion);
             }
 
@@ -876,9 +846,9 @@ char *describe_item(object *op)
             sprintf(buf, "(mana reg. %3.1f)", (float) CONTR(op)->gen_client_sp / 10);
             strcat(retbuf, buf);
         }
-    }
-    /* And then monsters */
-    else if (QUERY_FLAG(op, FLAG_MONSTER)) {
+    } else if (QUERY_FLAG(op, FLAG_MONSTER)) {
+        /* And then monsters */
+
         describe_terrain(op, retbuf);
 
         if (QUERY_FLAG(op, FLAG_UNDEAD)) {
@@ -923,43 +893,43 @@ char *describe_item(object *op)
 
         if (FABS(op->speed) > MIN_ACTIVE_SPEED) {
             switch ((int) ((FABS(op->speed)) * 15)) {
-                case 0:
-                    strcat(retbuf, "(very slow movement)");
-                    break;
+            case 0:
+                strcat(retbuf, "(very slow movement)");
+                break;
 
-                case 1:
-                    strcat(retbuf, "(slow movement)");
-                    break;
+            case 1:
+                strcat(retbuf, "(slow movement)");
+                break;
 
-                case 2:
-                    strcat(retbuf, "(normal movement)");
-                    break;
+            case 2:
+                strcat(retbuf, "(normal movement)");
+                break;
 
-                case 3:
-                case 4:
-                    strcat(retbuf, "(fast movement)");
-                    break;
+            case 3:
+            case 4:
+                strcat(retbuf, "(fast movement)");
+                break;
 
-                case 5:
-                case 6:
-                    strcat(retbuf, "(very fast movement)");
-                    break;
+            case 5:
+            case 6:
+                strcat(retbuf, "(very fast movement)");
+                break;
 
-                case 7:
-                case 8:
-                case 9:
-                case 10:
-                    strcat(retbuf, "(extremely fast movement)");
-                    break;
+            case 7:
+            case 8:
+            case 9:
+            case 10:
+                strcat(retbuf, "(extremely fast movement)");
+                break;
 
-                default:
-                    strcat(retbuf, "(lightning fast movement)");
-                    break;
+            default:
+                strcat(retbuf, "(lightning fast movement)");
+                break;
             }
         }
-    }
-    /* Here we handle items */
-    else {
+    } else {
+        /* Here we handle items */
+
         /* We only need calculate this once */
         if (QUERY_FLAG(op, FLAG_IDENTIFIED) || QUERY_FLAG(op, FLAG_BEEN_APPLIED) || !need_identify(op)) {
             id_true = 1;
@@ -975,143 +945,141 @@ char *describe_item(object *op)
 
             /* Deal with special cases */
             switch (op->type) {
-                case WAND:
-                case ROD:
-                    sprintf(buf, "(delay%+2.1fs)", ((float) op->last_grace / (1000000 / MAX_TIME)));
-                    strcat(retbuf, buf);
-                    break;
+            case WAND:
+            case ROD:
+                sprintf(buf, "(delay%+2.1fs)", ((float) op->last_grace / MAX_TICKS));
+                strcat(retbuf, buf);
+                break;
 
                 /* Armour type objects */
-                case ARMOUR:
-                case HELMET:
-                case SHIELD:
-                case BOOTS:
-                case GLOVES:
-                case GIRDLE:
-                case BRACERS:
-                case CLOAK:
+            case ARMOUR:
+            case HELMET:
+            case SHIELD:
+            case BOOTS:
+            case GLOVES:
+            case GIRDLE:
+            case BRACERS:
+            case CLOAK:
 
-                    if (ARMOUR_SPEED(op)) {
-                        sprintf(buf, "(speed cap %1.2f)", ARMOUR_SPEED(op) / 10.0);
-                        strcat(retbuf, buf);
-                    }
-
-                    /* Do this in all cases - otherwise it gets confusing - does
-                     * that
-                     * item have no penalty, or is it not fully identified for
-                     * example. */
-                    if (ARMOUR_SPELLS(op)) {
-                        sprintf(buf, "(armour mana reg %d)", -1 * ARMOUR_SPELLS(op));
-                        strcat(retbuf, buf);
-                    }
-
-                case WEAPON:
-                case RING:
-                case AMULET:
-                case FORCE:
-                    more_info = 1;
-
-                case BOW:
-                case ARROW:
-
-                    if (op->type == BOW) {
-                        sprintf(buf, "(delay%+2.1fs)", ((float) op->stats.sp / (1000000 / MAX_TIME)));
-                        strcat(retbuf, buf);
-                    }
-                    else if (op->type == ARROW) {
-                        sprintf(buf, "(delay%+2.1fs)", ((float) op->last_grace / (1000000 / MAX_TIME)));
-                        strcat(retbuf, buf);
-                    }
-
-                    if (op->last_sp && !IS_ARMOR(op)) {
-                        sprintf(buf, "(range%+d)", op->last_sp);
-                        strcat(retbuf, buf);
-                    }
-
-                    if (op->stats.wc) {
-                        sprintf(buf, "(wc%+d)", op->stats.wc);
-                        strcat(retbuf, buf);
-                    }
-
-                    if (op->stats.dam) {
-                        sprintf(buf, "(dam%+d)", op->stats.dam);
-                        strcat(retbuf, buf);
-                    }
-
-                    if (op->stats.ac) {
-                        sprintf(buf, "(ac%+d)", op->stats.ac);
-                        strcat(retbuf, buf);
-                    }
-
-                    if (op->type == WEAPON) {
-                        sprintf(buf, "(%3.2f sec)", ((float) op->last_grace / (1000000 / MAX_TIME)));
-                        strcat(retbuf, buf);
-
-                        if (op->level > 0) {
-                            sprintf(buf, "(improved %d/%d)", op->last_eat, op->level);
-                            strcat(retbuf, buf);
-                        }
-                    }
-
-                    break;
-
-                case FOOD:
-                case FLESH:
-                case DRINK:
-                {
-                    int curse_multiplier = 1;
-
-                    sprintf(buf, "(food%s%d)", op->stats.food >= 0 ? "+" : "", op->stats.food);
+                if (ARMOUR_SPEED(op)) {
+                    sprintf(buf, "(speed cap %1.2f)", ARMOUR_SPEED(op) / 10.0);
                     strcat(retbuf, buf);
-
-                    if (QUERY_FLAG(op, FLAG_CURSED)) {
-                        curse_multiplier = 2;
-                    }
-
-                    if (QUERY_FLAG(op, FLAG_DAMNED)) {
-                        curse_multiplier = 3;
-                    }
-
-                    if (op->stats.hp) {
-                        snprintf(buf, sizeof(buf), "(hp%s%d)", curse_multiplier == 1 ? "+" : "", op->stats.hp * curse_multiplier);
-                        strcat(retbuf, buf);
-                    }
-
-                    if (op->stats.sp) {
-                        snprintf(buf, sizeof(buf), "(mana%s%d)", curse_multiplier == 1 ? "+" : "", op->stats.sp * curse_multiplier);
-                        strcat(retbuf, buf);
-                    }
-
-                    break;
                 }
 
-                case POTION:
+                /* Do this in all cases - otherwise it gets confusing - does
+                 * that
+                 * item have no penalty, or is it not fully identified for
+                 * example. */
+                if (ARMOUR_SPELLS(op)) {
+                    sprintf(buf, "(armour mana reg %d)", -1 * ARMOUR_SPELLS(op));
+                    strcat(retbuf, buf);
+                }
 
-                    if (op->last_sp) {
-                        sprintf(buf, "(range%+d)", op->last_sp);
+            case WEAPON:
+            case RING:
+            case AMULET:
+            case FORCE:
+                more_info = 1;
+
+            case BOW:
+            case ARROW:
+
+                if (op->type == BOW) {
+                    sprintf(buf, "(delay%+2.1fs)", ((float) op->stats.sp / MAX_TICKS));
+                    strcat(retbuf, buf);
+                } else if (op->type == ARROW) {
+                    sprintf(buf, "(delay%+2.1fs)", ((float) op->last_grace / MAX_TICKS));
+                    strcat(retbuf, buf);
+                }
+
+                if (op->last_sp && !IS_ARMOR(op)) {
+                    sprintf(buf, "(range%+d)", op->last_sp);
+                    strcat(retbuf, buf);
+                }
+
+                if (op->stats.wc) {
+                    sprintf(buf, "(wc%+d)", op->stats.wc);
+                    strcat(retbuf, buf);
+                }
+
+                if (op->stats.dam) {
+                    sprintf(buf, "(dam%+d)", op->stats.dam);
+                    strcat(retbuf, buf);
+                }
+
+                if (op->stats.ac) {
+                    sprintf(buf, "(ac%+d)", op->stats.ac);
+                    strcat(retbuf, buf);
+                }
+
+                if (op->type == WEAPON) {
+                    sprintf(buf, "(%3.2f sec)", ((float) op->last_grace / MAX_TICKS));
+                    strcat(retbuf, buf);
+
+                    if (op->level > 0) {
+                        sprintf(buf, "(improved %d/%d)", op->last_eat, op->level);
                         strcat(retbuf, buf);
                     }
+                }
 
-                    break;
+                break;
 
-                case BOOK:
+            case FOOD:
+            case FLESH:
+            case DRINK:
+            {
+                int curse_multiplier = 1;
 
-                    if (op->level) {
-                        sprintf(buf, "(lvl %d)", op->level);
-                        strcat(retbuf, buf);
+                sprintf(buf, "(food%s%d)", op->stats.food >= 0 ? "+" : "", op->stats.food);
+                strcat(retbuf, buf);
+
+                if (QUERY_FLAG(op, FLAG_CURSED)) {
+                    curse_multiplier = 2;
+                }
+
+                if (QUERY_FLAG(op, FLAG_DAMNED)) {
+                    curse_multiplier = 3;
+                }
+
+                if (op->stats.hp) {
+                    snprintf(buf, sizeof(buf), "(hp%s%d)", curse_multiplier == 1 ? "+" : "", op->stats.hp * curse_multiplier);
+                    strcat(retbuf, buf);
+                }
+
+                if (op->stats.sp) {
+                    snprintf(buf, sizeof(buf), "(mana%s%d)", curse_multiplier == 1 ? "+" : "", op->stats.sp * curse_multiplier);
+                    strcat(retbuf, buf);
+                }
+
+                break;
+            }
+
+            case POTION:
+
+                if (op->last_sp) {
+                    sprintf(buf, "(range%+d)", op->last_sp);
+                    strcat(retbuf, buf);
+                }
+
+                break;
+
+            case BOOK:
+
+                if (op->level) {
+                    sprintf(buf, "(lvl %d)", op->level);
+                    strcat(retbuf, buf);
+                }
+
+                if (op->msg) {
+                    if (QUERY_FLAG(op, FLAG_NO_SKILL_IDENT)) {
+                        strcat(retbuf, "(read)");
+                    } else {
+                        strcat(retbuf, "(unread)");
                     }
+                }
 
-                    if (op->msg) {
-                        if (QUERY_FLAG(op, FLAG_NO_SKILL_IDENT)) {
-                            strcat(retbuf, "(read)");
-                        }
-                        else {
-                            strcat(retbuf, "(unread)");
-                        }
-                    }
-
-                default:
-                    return retbuf;
+            default:
+                return retbuf;
             }
 
             /* These count for every "normal" item player deals with - mostly
@@ -1140,8 +1108,7 @@ char *describe_item(object *op)
         if (op->stats.food) {
             if (op->stats.food > 0) {
                 sprintf(buf, "(sustenance%+d)", op->stats.food);
-            }
-            else if (op->stats.food < 0) {
+            } else if (op->stats.food < 0) {
                 sprintf(buf, "(hunger%+d)", -op->stats.food);
             }
 
@@ -1245,37 +1212,37 @@ char *describe_item(object *op)
 int need_identify(object *op)
 {
     switch (op->type) {
-        case RING:
-        case WAND:
-        case ROD:
-        case SCROLL:
-        case FOOD:
-        case POTION:
-        case BOW:
-        case ARROW:
-        case WEAPON:
-        case ARMOUR:
-        case SHIELD:
-        case HELMET:
-        case AMULET:
-        case BOOTS:
-        case GLOVES:
-        case BRACERS:
-        case GIRDLE:
-        case CONTAINER:
-        case DRINK:
-        case FLESH:
-        case INORGANIC:
-        case CLOAK:
-        case GEM:
-        case JEWEL:
-        case NUGGET:
-        case PEARL:
-        case POWER_CRYSTAL:
-        case BOOK:
-        case LIGHT_APPLY:
-        case LIGHT_REFILL:
-            return 1;
+    case RING:
+    case WAND:
+    case ROD:
+    case SCROLL:
+    case FOOD:
+    case POTION:
+    case BOW:
+    case ARROW:
+    case WEAPON:
+    case ARMOUR:
+    case SHIELD:
+    case HELMET:
+    case AMULET:
+    case BOOTS:
+    case GLOVES:
+    case BRACERS:
+    case GIRDLE:
+    case CONTAINER:
+    case DRINK:
+    case FLESH:
+    case INORGANIC:
+    case CLOAK:
+    case GEM:
+    case JEWEL:
+    case NUGGET:
+    case PEARL:
+    case POWER_CRYSTAL:
+    case BOOK:
+    case LIGHT_APPLY:
+    case LIGHT_REFILL:
+        return 1;
     }
 
     return 0;
@@ -1296,8 +1263,7 @@ void identify(object *op)
     /* The shop identifies items before they hit the ground */
     if (op->map) {
         update_object(op, UP_OBJ_FACE);
-    }
-    else {
+    } else {
         esrv_send_item(op);
     }
 }
@@ -1334,8 +1300,7 @@ void set_trapped_flag(object *op)
     if (QUERY_FLAG(op, FLAG_IS_TRAPPED) != flag) {
         if (op->env) {
             esrv_update_item(UPD_FLAGS, op);
-        }
-        else {
+        } else {
             update_object(op, UP_OBJ_FACE);
         }
     }

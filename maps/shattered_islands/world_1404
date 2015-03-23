@@ -236,7 +236,7 @@ type 83
 level 16
 maxhp 70
 terrain_flag 3
-Wis 4
+wis 4
 end
 end
 arch grassd_6
@@ -1157,7 +1157,7 @@ arch crocodile
 level 15
 maxhp 70
 terrain_flag 3
-Wis 4
+wis 4
 type 83
 end
 end

@@ -2,8 +2,8 @@
 
 # Form implementation generated from reading ui file '..\ui\ui_dialog_table_info.ui'
 #
-# Created: Tue Nov 12 16:04:55 2013
-#      by: PyQt5 UI code generator 5.1.1
+# Created: Wed Jan 14 16:57:34 2015
+#      by: PyQt5 UI code generator 5.3.2
 #
 # WARNING! All changes made in this file will be lost!
 

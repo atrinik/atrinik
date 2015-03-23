@@ -1,26 +1,26 @@
-/************************************************************************
-*            Atrinik, a Multiplayer Online Role Playing Game            *
-*                                                                       *
-*    Copyright (C) 2009-2012 Alex Tokar and Atrinik Development Team    *
-*                                                                       *
-* Fork from Crossfire (Multiplayer game for X-windows).                 *
-*                                                                       *
-* This program is free software; you can redistribute it and/or modify  *
-* it under the terms of the GNU General Public License as published by  *
-* the Free Software Foundation; either version 2 of the License, or     *
-* (at your option) any later version.                                   *
-*                                                                       *
-* This program is distributed in the hope that it will be useful,       *
-* but WITHOUT ANY WARRANTY; without even the implied warranty of        *
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
-* GNU General Public License for more details.                          *
-*                                                                       *
-* You should have received a copy of the GNU General Public License     *
-* along with this program; if not, write to the Free Software           *
-* Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.             *
-*                                                                       *
-* The author can be reached at admin@atrinik.org                        *
-************************************************************************/
+/*************************************************************************
+ *           Atrinik, a Multiplayer Online Role Playing Game             *
+ *                                                                       *
+ *   Copyright (C) 2009-2014 Alex Tokar and Atrinik Development Team     *
+ *                                                                       *
+ * Fork from Crossfire (Multiplayer game for X-windows).                 *
+ *                                                                       *
+ * This program is free software; you can redistribute it and/or modify  *
+ * it under the terms of the GNU General Public License as published by  *
+ * the Free Software Foundation; either version 2 of the License, or     *
+ * (at your option) any later version.                                   *
+ *                                                                       *
+ * This program is distributed in the hope that it will be useful,       *
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of        *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
+ * GNU General Public License for more details.                          *
+ *                                                                       *
+ * You should have received a copy of the GNU General Public License     *
+ * along with this program; if not, write to the Free Software           *
+ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.             *
+ *                                                                       *
+ * The author can be reached at admin@atrinik.org                        *
+ ************************************************************************/
 
 /**
  * @file
@@ -69,13 +69,14 @@ void metaserver_disable(void)
  * @param info The data to parse. */
 static void parse_metaserver_data(char *info)
 {
-    char *tmp[6];
+    char *tmp[7];
 
-    if (!info || string_split(info, tmp, arraysize(tmp), ':') != 6) {
+    if (!info || string_split(info, tmp, arraysize(tmp), ':') != 7) {
         return;
     }
 
-    metaserver_add(tmp[0], atoi(tmp[1]), tmp[2], atoi(tmp[3]), tmp[4], tmp[5]);
+    metaserver_add(tmp[0], atoi(tmp[1]), tmp[2], tmp[3], atoi(tmp[4]), tmp[5],
+            tmp[6]);
 }
 
 /**
@@ -145,6 +146,7 @@ void metaserver_clear_data(void)
         DL_DELETE(server_head, node);
         efree(node->ip);
         efree(node->name);
+        efree(node->hostname);
         efree(node->version);
         efree(node->desc);
         efree(node);
@@ -160,10 +162,12 @@ void metaserver_clear_data(void)
  * @param ip The server IP.
  * @param port Server port.
  * @param name Server's name.
+ * @param hostname Server's hostname.
  * @param player Number of players.
  * @param version Server version.
  * @param desc Description of the server. */
-void metaserver_add(const char *ip, int port, const char *name, int player, const char *version, const char *desc)
+void metaserver_add(const char *ip, int port, const char *name,
+        const char *hostname, int player, const char *version, const char *desc)
 {
     server_struct *node;
 
@@ -172,6 +176,7 @@ void metaserver_add(const char *ip, int port, const char *name, int player, cons
     node->port = port;
     node->ip = estrdup(ip);
     node->name = estrdup(name);
+    node->hostname = estrdup(hostname);
     node->version = estrdup(version);
     node->desc = estrdup(desc);
 
@@ -196,7 +201,7 @@ int metaserver_thread(void *dummy)
 
     /* Go through all the metaservers in the list */
     for (i = clioption_settings.metaservers_num; i > 0; i--) {
-        data = curl_data_new(clioption_settings.metaservers[i - 1]);
+        data = curl_data_new(clioption_settings.metaservers[i - 1], NULL);
 
         /* If the connection succeeded, break out. */
         if (curl_connect(data) == 1 && data->memory) {

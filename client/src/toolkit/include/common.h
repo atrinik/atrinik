@@ -1,7 +1,7 @@
-/************************************************************************
- *            Atrinik, a Multiplayer Online Role Playing Game            *
+/*************************************************************************
+ *           Atrinik, a Multiplayer Online Role Playing Game             *
  *                                                                       *
- *    Copyright (C) 2009-2012 Alex Tokar and Atrinik Development Team    *
+ *   Copyright (C) 2009-2014 Alex Tokar and Atrinik Development Team     *
  *                                                                       *
  * Fork from Crossfire (Multiplayer game for X-windows).                 *
  *                                                                       *

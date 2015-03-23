@@ -2,20 +2,180 @@ arch map
 name Brynknot
 msg
 Created:  2011-10-02 Alex Tokar
-Modified: 2011-10-02 Alex Tokar
+Modified: 2014-12-25 Alex Tokar
 endmsg
 width 24
 height 24
 difficulty 1
-darkness 3
+darkness -1
+outdoor 1
 no_harm 1
 tile_path_1 world_1_0113
 tile_path_2 world_1_0212
+tile_path_3 world_1_0111
+tile_path_4 world_1_aa12
 tile_path_5 world_1_0213
+tile_path_6 world_1_0211
+tile_path_7 world_1_aa11
+tile_path_8 world_1_aa13
+tile_path_9 world_2_0112
+tile_path_10 world_0112
 bg_music lontala.mid
 region brynknot
 end
-arch blocked
+arch roof_brick
+direction 3
+x 3
+y 4
+end
+arch roof_brick
+direction 3
+x 3
+y 5
+end
+arch roof_brick
+direction 3
+x 3
+y 6
+end
+arch roof_brick
+direction 3
+x 3
+y 7
+end
+arch roof_brick
+direction 3
+x 3
+y 8
+end
+arch roof_brick
+direction 3
+x 3
+y 9
+end
+arch roof_brick
+direction 3
+x 3
+y 10
+end
+arch roof_brick
+direction 5
+x 4
+y 3
+end
+arch roof_brick
+direction 7
+x 4
+y 4
+end
+arch roof_brick
+direction 7
+x 4
+y 5
+end
+arch roof_brick
+direction 7
+x 4
+y 6
+end
+arch roof_brick
+direction 7
+x 4
+y 7
+end
+arch roof_brick
+direction 8
+x 4
+y 8
+end
+arch roof_brick
+x 4
+y 9
+end
+arch roof_brick
+x 4
+y 10
+end
+arch roof_brick
+direction 5
+x 5
+y 3
+end
+arch roof_brick
+direction 7
+x 5
+y 4
+end
+arch roof_brick
+direction 7
+x 5
+y 5
+end
+arch roof_brick
+direction 7
+x 5
+y 6
+end
+arch roof_brick
+direction 7
+x 5
+y 7
+end
+arch roof_brick
+direction 7
+x 5
+y 8
+end
+arch roof_brick
+direction 8
+x 5
+y 9
+end
+arch roof_brick
+x 5
+y 10
+end
+arch roof_brick
+direction 5
+x 6
+y 3
+end
+arch roof_brick
+direction 7
+x 6
+y 4
+end
+arch roof_brick
+direction 7
+x 6
+y 5
+end
+arch roof_brick
+direction 7
+x 6
+y 6
+end
+arch roof_brick
+direction 7
+x 6
+y 7
+end
+arch roof_brick
+direction 7
+x 6
+y 8
+end
+arch roof_brick
+direction 7
+x 6
+y 9
+end
+arch roof_brick
+direction 8
+x 6
+y 10
+end
+arch trans
 x 14
 y 6
 end
@@ -23,7 +183,15 @@ arch wall_flagstone1.181
 x 14
 y 6
 end
-arch blocked
+arch map_info
+hp 9
+sp 11
+name brynknot_barracks
+cursed 1
+x 14
+y 6
+end
+arch trans
 x 14
 y 7
 end
@@ -31,7 +199,7 @@ arch wall_flagstone1.131
 x 14
 y 7
 end
-arch blocked
+arch trans
 x 14
 y 8
 end
@@ -39,7 +207,7 @@ arch wall_flagstone1.131
 x 14
 y 8
 end
-arch blocked
+arch trans
 x 14
 y 9
 end
@@ -47,7 +215,7 @@ arch wall_flagstone1.131
 x 14
 y 9
 end
-arch blocked
+arch trans
 x 14
 y 10
 end
@@ -55,7 +223,7 @@ arch wall_flagstone1.131
 x 14
 y 10
 end
-arch blocked
+arch trans
 x 14
 y 11
 end
@@ -63,19 +231,15 @@ arch wall_flagstone1.131
 x 14
 y 11
 end
-arch blocked
+arch trans
 x 14
 y 12
 end
-arch grassd_m6
+arch wall_flagstone1_w.131
 x 14
 y 12
 end
-arch wall_flagstone1.131
-x 14
-y 12
-end
-arch blocked
+arch trans
 x 14
 y 13
 end
@@ -83,7 +247,7 @@ arch wall_flagstone1.131
 x 14
 y 13
 end
-arch blocked
+arch trans
 x 14
 y 14
 end
@@ -91,19 +255,15 @@ arch wall_flagstone1.131
 x 14
 y 14
 end
-arch blocked
+arch trans
 x 14
 y 15
 end
-arch grassd_m5
+arch wall_flagstone1_w.131
 x 14
 y 15
 end
-arch wall_flagstone1.131
-x 14
-y 15
-end
-arch blocked
+arch trans
 x 14
 y 16
 end
@@ -111,7 +271,7 @@ arch wall_flagstone1.131
 x 14
 y 16
 end
-arch blocked
+arch trans
 x 14
 y 17
 end
@@ -119,7 +279,7 @@ arch wall_flagstone1.131
 x 14
 y 17
 end
-arch blocked
+arch trans
 x 15
 y 6
 end
@@ -296,11 +456,11 @@ arch wall_flagstone1.111
 x 15
 y 17
 end
-arch blocked
+arch trans
 x 16
 y 6
 end
-arch wall_flagstone1.111
+arch wall_flagstone1_w.111
 x 16
 y 6
 end
@@ -323,22 +483,14 @@ y 9
 end
 arch stairs_stone_down
 direction 5
-slaying world_0112
-hp 16
-sp 10
 x 16
 y 9
 end
-arch blocked
-no_pass 0
-blocksview 0
+arch floor_grey1a1
 x 16
 y 10
 end
-arch invis_exit
-slaying world_0112
-hp 16
-sp 10
+arch stairs_down
 x 16
 y 10
 end
@@ -392,11 +544,11 @@ arch floor_grey1a1
 x 16
 y 17
 end
-arch wall_flagstone1.111
+arch wall_flagstone1_w.111
 x 16
 y 17
 end
-arch blocked
+arch trans
 x 17
 y 6
 end
@@ -422,22 +574,14 @@ y 9
 end
 arch stairs_stone_down
 direction 5
-slaying world_0112
-hp 17
-sp 10
 x 17
 y 9
 end
-arch blocked
-no_pass 0
-blocksview 0
+arch floor_grey1a1
 x 17
 y 10
 end
-arch invis_exit
-slaying world_0112
-hp 17
-sp 10
+arch stairs_down
 x 17
 y 10
 end
@@ -573,7 +717,7 @@ arch wall_flagstone1.111
 x 17
 y 17
 end
-arch blocked
+arch trans
 x 18
 y 6
 end
@@ -663,7 +807,7 @@ arch wall_flagstone1.111
 x 18
 y 17
 end
-arch blocked
+arch trans
 x 19
 y 6
 end
@@ -779,7 +923,7 @@ arch wall_flagstone1.111
 x 19
 y 17
 end
-arch blocked
+arch trans
 x 20
 y 6
 end
@@ -844,7 +988,7 @@ arch wall_flagstone1.111
 x 20
 y 17
 end
-arch blocked
+arch trans
 x 21
 y 6
 end
@@ -973,7 +1117,7 @@ arch wall_flagstone1.111
 x 21
 y 17
 end
-arch blocked
+arch trans
 x 22
 y 6
 end
@@ -1051,11 +1195,11 @@ arch wall_flagstone1.111
 x 22
 y 17
 end
-arch blocked
+arch trans
 x 23
 y 6
 end
-arch wall_flagstone1.111
+arch wall_flagstone1_w.111
 x 23
 y 6
 end
@@ -1102,7 +1246,7 @@ name Talthor Redeye
 direction 1
 arch event_obj
 sub_type 6
-race scripts/strakewood_island/brynknot/talthor_redeye.py
+race /interfaces/quests/portal_of_llwyfen/quest.xml
 end
 arch key_brynknot_sewer_maze
 end
@@ -1239,7 +1383,7 @@ arch floor_grey1a1
 x 23
 y 17
 end
-arch wall_flagstone1.111
+arch wall_flagstone1_w.111
 x 23
 y 17
 end

@@ -19,6 +19,7 @@ tile_path_7 world_0736
 tile_path_8 world_0738
 bg_music chether.mid
 region asteria
+tile_path_9 world_1_0837
 end
 arch grassd_8
 z 50
@@ -2485,7 +2486,6 @@ x 14
 y 2
 end
 arch shelf3a.111
-direction 3
 x 14
 y 2
 arch edict_asteria_temples

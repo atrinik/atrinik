@@ -1,26 +1,26 @@
-/************************************************************************
-*            Atrinik, a Multiplayer Online Role Playing Game            *
-*                                                                       *
-*    Copyright (C) 2009-2012 Alex Tokar and Atrinik Development Team    *
-*                                                                       *
-* Fork from Crossfire (Multiplayer game for X-windows).                 *
-*                                                                       *
-* This program is free software; you can redistribute it and/or modify  *
-* it under the terms of the GNU General Public License as published by  *
-* the Free Software Foundation; either version 2 of the License, or     *
-* (at your option) any later version.                                   *
-*                                                                       *
-* This program is distributed in the hope that it will be useful,       *
-* but WITHOUT ANY WARRANTY; without even the implied warranty of        *
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
-* GNU General Public License for more details.                          *
-*                                                                       *
-* You should have received a copy of the GNU General Public License     *
-* along with this program; if not, write to the Free Software           *
-* Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.             *
-*                                                                       *
-* The author can be reached at admin@atrinik.org                        *
-************************************************************************/
+/*************************************************************************
+ *           Atrinik, a Multiplayer Online Role Playing Game             *
+ *                                                                       *
+ *   Copyright (C) 2009-2014 Alex Tokar and Atrinik Development Team     *
+ *                                                                       *
+ * Fork from Crossfire (Multiplayer game for X-windows).                 *
+ *                                                                       *
+ * This program is free software; you can redistribute it and/or modify  *
+ * it under the terms of the GNU General Public License as published by  *
+ * the Free Software Foundation; either version 2 of the License, or     *
+ * (at your option) any later version.                                   *
+ *                                                                       *
+ * This program is distributed in the hope that it will be useful,       *
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of        *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
+ * GNU General Public License for more details.                          *
+ *                                                                       *
+ * You should have received a copy of the GNU General Public License     *
+ * along with this program; if not, write to the Free Software           *
+ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.             *
+ *                                                                       *
+ * The author can be reached at admin@atrinik.org                        *
+ ************************************************************************/
 
 /**
  * @file
@@ -46,18 +46,74 @@ int get_randomized_dir(int dir)
 }
 
 /**
+ * Move the object to the specified coordinates.
+ *
+ * Will update the object's sub-layer if necessary.
+ * @param op Object.
+ * @param dir Direction the object is moving into.
+ * @param originator What caused the object to move.
+ * @param m Map.
+ * @param x X coordinate.
+ * @param y Y coordinate.
+ * @return 1 on success, 0 on failure.
+ */
+int object_move_to(object *op, int dir, object *originator, mapstruct *m,
+        int x, int y)
+{
+    object *tmp, *floor, *floor_tmp;
+    int z, z_highest, sub_layer;
+
+    assert(op != NULL);
+    assert(dir > 0 && dir <= NUM_DIRECTION);
+    assert(originator != NULL);
+    assert(m != NULL);
+    assert(x >= 0 && x < m->width);
+    assert(y >= 0 && y < m->height);
+
+    floor = GET_MAP_OB_LAYER(op->map, op->x, op->y, LAYER_FLOOR, op->sub_layer);
+    z = floor != NULL ? floor->z : 0;
+    z_highest = 0;
+    sub_layer = 0;
+
+    FOR_MAP_LAYER_BEGIN(m, x, y, LAYER_FLOOR, -1, floor_tmp)
+    {
+        if (floor_tmp->z - z > MOVE_MAX_HEIGHT_DIFF) {
+            continue;
+        }
+
+        if (floor_tmp->z > z_highest) {
+            z_highest = floor_tmp->z;
+            sub_layer = floor_tmp->sub_layer;
+        }
+    }
+    FOR_MAP_LAYER_END
+
+    object_remove(op, 0);
+
+    for (tmp = op; tmp != NULL; tmp = tmp->more) {
+        tmp->x += freearr_x[dir];
+        tmp->y += freearr_y[dir];
+        tmp->sub_layer = sub_layer;
+    }
+
+    insert_ob_in_map(op, op->map, originator, 0);
+
+    return 1;
+}
+
+/**
  * Try to move object in specified direction.
  * @param op What to move.
  * @param dir Direction to move the object to.
  * @param originator Typically the same as op, but can be different if
  * originator is causing op to move (originator is pushing op).
- * @return 0 if the object is not able to move to the desired space, 1
- * otherwise (in which case we also move the object accordingly). -1 if
- * the object was destroyed in the move process (most likely when hit a
- * deadly trap or something). */
+ * @return 0 if the object is not able to move to the desired space, -1 if the
+ * object was not able to move there yet but some sort of action was performed
+ * that might allow us to move there (door opening for example), direction
+ * number that the object ended up moving in otherwise.
+ */
 int move_ob(object *op, int dir, object *originator)
 {
-    object *tmp;
     mapstruct *m;
     int xt, yt, flags;
 
@@ -76,10 +132,8 @@ int move_ob(object *op, int dir, object *originator)
         dir = get_randomized_dir(dir);
     }
 
-    op->anim_moving_dir = dir;
-    op->anim_enemy_dir = dir;
-    op->anim_last_facing = -1;
-    op->facing = dir;
+    op->anim_flags |= ANIM_FLAG_MOVING;
+    op->anim_flags &= ~ANIM_FLAG_STOP_MOVING;
     op->direction = dir;
 
     xt = op->x + freearr_x[dir];
@@ -90,59 +144,30 @@ int move_ob(object *op, int dir, object *originator)
         return 0;
     }
 
-    /* Don't allow non-players to move onto player-only tiles. */
-    if (op->type != PLAYER && GET_MAP_FLAGS(m, xt, yt) & P_PLAYER_ONLY) {
-        return 0;
-    }
-
-    /* multi arch objects... */
-    if (op->more) {
-        /* Look in single tile move to see how we handle doors.
-         * This needs to be done before we allow multi tile mobs to do
-         * more fancy things. */
-        if (blocked_link(op, freearr_x[dir], freearr_y[dir])) {
-            return 0;
-        }
-
-        object_remove(op, 0);
-
-        for (tmp = op; tmp != NULL; tmp = tmp->more) {
-            tmp->x += freearr_x[dir], tmp->y += freearr_y[dir];
-        }
-
-        insert_ob_in_map(op, op->map, op, 0);
-
-        return 1;
-    }
-
-    /* Single arch */
     if (op->type != PLAYER || !CONTR(op)->tcl) {
-        /* Is the spot blocked from something? */
-        if ((flags = blocked(op, m, xt, yt, op->terrain_flag))) {
-            /* A closed door which we can open? */
-            if ((flags & P_DOOR_CLOSED) && (op->behavior & BEHAVIOR_OPEN_DOORS) && door_try_open(op, m, xt, yt, 0)) {
-                if (op->type == PLAYER) {
-                    return 1;
-                }
+        if (op->more != NULL) {
+            if (blocked_link(op, freearr_x[dir], freearr_y[dir])) {
+                return 0;
             }
-            else {
+        } else {
+            /* Is the spot blocked from something? */
+            if ((flags = blocked(op, m, xt, yt, op->terrain_flag))) {
                 return 0;
             }
         }
     }
 
-    object_remove(op, 0);
+    if (door_try_open(op, m, xt, yt, 0)) {
+        return -1;
+    }
 
-    op->x += freearr_x[dir];
-    op->y += freearr_y[dir];
-
-    insert_ob_in_map(op, op->map, originator, 0);
+    object_move_to(op, dir, originator, m, xt, yt);
 
     if (op->type == PLAYER) {
         CONTR(op)->stat_steps_taken++;
     }
 
-    return 1;
+    return dir;
 }
 
 /**
@@ -168,11 +193,9 @@ int transfer_ob(object *op, int x, int y, int randomly, object *originator, obje
 
         object_enter_map(op, trap, NULL, 0, 0, 0);
         return 1;
-    }
-    else if (randomly) {
+    } else if (randomly) {
         i = find_free_spot(op->arch, NULL, op->map, x, y, 0, SIZEOFFREE);
-    }
-    else {
+    } else {
         i = find_first_free_spot(op->arch, op, op->map, x, y);
     }
 
@@ -196,82 +219,6 @@ int transfer_ob(object *op, int x, int y, int randomly, object *originator, obje
 }
 
 /**
- * Teleport an item around a nearby random teleporter of specified type.
- * @param teleporter The teleporter.
- * @param tele_type Teleporter type.
- * @param user Object using the teleporter.
- * @return  1 if the object was destroyed, 0 otherwise. */
-int teleport(object *teleporter, uint8 tele_type, object *user)
-{
-    /* Better use c/malloc here in the future */
-    object *altern[120];
-    int i, j, k, nrofalt = 0, xt, yt;
-    object *other_teleporter, *tmp;
-    mapstruct *m;
-
-    if (user == NULL) {
-        return 0;
-    }
-
-    if (user->head != NULL) {
-        user = user->head;
-    }
-
-    /* Find all other teleporters within range. This range should really
-     * be setable by some object attribute instead of using hard coded
-     * values. */
-    for (i = -5; i < 6; i++) {
-        for (j = -5; j < 6; j++) {
-            if (i == 0 && j == 0) {
-                continue;
-            }
-
-            xt = teleporter->x + i;
-            yt = teleporter->y + j;
-
-            if (!(m = get_map_from_coord(teleporter->map, &xt, &yt))) {
-                continue;
-            }
-
-            other_teleporter = GET_MAP_OB(m, xt, yt);
-
-            while (other_teleporter) {
-                if (other_teleporter->type == tele_type) {
-                    break;
-                }
-
-                other_teleporter = other_teleporter->above;
-            }
-
-            if (other_teleporter) {
-                altern[nrofalt++] = other_teleporter;
-            }
-        }
-    }
-
-    if (!nrofalt) {
-        logger_print(LOG(BUG), "No alternative teleporters around!");
-        return 0;
-    }
-
-    other_teleporter = altern[RANDOM() % nrofalt];
-    k = find_free_spot(user->arch, user, other_teleporter->map, other_teleporter->x, other_teleporter->y, 1, 9);
-
-    if (k == -1) {
-        return 0;
-    }
-
-    object_remove(user, 0);
-
-    user->x = other_teleporter->x + freearr_x[k];
-    user->y = other_teleporter->y + freearr_y[k];
-
-    tmp = insert_ob_in_map(user, other_teleporter->map, NULL, 0);
-
-    return (tmp == NULL);
-}
-
-/**
  * An object is being pushed.
  * @param op What is being pushed.
  * @param dir Pushing direction.
@@ -281,7 +228,7 @@ int push_ob(object *op, int dir, object *pusher)
 {
     object *tmp, *floor_ob;
     mapstruct *m;
-    int x, y, flags;
+    int x, y;
 
     /* Don't allow pushing multi-arch objects. */
     if (op->head) {
@@ -307,20 +254,13 @@ int push_ob(object *op, int dir, object *pusher)
         return 0;
     }
 
-    flags = blocked(op, m, x, y, op->terrain_flag);
-
-    if (flags) {
-        if (flags & (P_NO_PASS | P_CHECK_INV) || ((flags & P_DOOR_CLOSED) && !door_try_open(op, m, x, y, 0))) {
-            return 0;
-        }
-        else {
-            return 0;
-        }
+    if (blocked(op, m, x, y, op->terrain_flag)) {
+        return 0;
     }
 
     /* Try to find something that would block the push. */
     for (tmp = GET_MAP_OB(m, x, y); tmp; tmp = tmp->above) {
-        if (tmp->head || IS_LIVE(tmp) || tmp->type == TELEPORTER || tmp->type == SHOP_MAT) {
+        if (tmp->head || IS_LIVE(tmp) || tmp->type == EXIT) {
             return 0;
         }
     }

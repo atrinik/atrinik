@@ -406,7 +406,6 @@ x 9
 y 7
 end
 arch blocked
-blocksview 0
 x 9
 y 8
 end
@@ -433,8 +432,6 @@ x 9
 y 8
 end
 arch blocked
-hidden 1
-blocksview 0
 x 9
 y 9
 end
@@ -537,8 +534,6 @@ x 10
 y 7
 end
 arch blocked
-hidden 1
-blocksview 0
 x 10
 y 8
 end
@@ -560,8 +555,6 @@ x 10
 y 8
 end
 arch blocked
-hidden 1
-blocksview 0
 x 10
 y 9
 end

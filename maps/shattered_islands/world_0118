@@ -2769,7 +2769,7 @@ y 9
 arch mud_hand
 randomitems mob_fighter_l9
 level 5
-Wis 5
+wis 5
 type 83
 end
 end

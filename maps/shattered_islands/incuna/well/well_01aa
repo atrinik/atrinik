@@ -882,7 +882,6 @@ x 4
 y 18
 end
 arch blocked
-blocksview 0
 no_pass 0
 x 5
 end

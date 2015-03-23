@@ -1,26 +1,26 @@
-/************************************************************************
-*            Atrinik, a Multiplayer Online Role Playing Game            *
-*                                                                       *
-*    Copyright (C) 2009-2012 Alex Tokar and Atrinik Development Team    *
-*                                                                       *
-* Fork from Crossfire (Multiplayer game for X-windows).                 *
-*                                                                       *
-* This program is free software; you can redistribute it and/or modify  *
-* it under the terms of the GNU General Public License as published by  *
-* the Free Software Foundation; either version 2 of the License, or     *
-* (at your option) any later version.                                   *
-*                                                                       *
-* This program is distributed in the hope that it will be useful,       *
-* but WITHOUT ANY WARRANTY; without even the implied warranty of        *
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
-* GNU General Public License for more details.                          *
-*                                                                       *
-* You should have received a copy of the GNU General Public License     *
-* along with this program; if not, write to the Free Software           *
-* Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.             *
-*                                                                       *
-* The author can be reached at admin@atrinik.org                        *
-************************************************************************/
+/*************************************************************************
+ *           Atrinik, a Multiplayer Online Role Playing Game             *
+ *                                                                       *
+ *   Copyright (C) 2009-2014 Alex Tokar and Atrinik Development Team     *
+ *                                                                       *
+ * Fork from Crossfire (Multiplayer game for X-windows).                 *
+ *                                                                       *
+ * This program is free software; you can redistribute it and/or modify  *
+ * it under the terms of the GNU General Public License as published by  *
+ * the Free Software Foundation; either version 2 of the License, or     *
+ * (at your option) any later version.                                   *
+ *                                                                       *
+ * This program is distributed in the hope that it will be useful,       *
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of        *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
+ * GNU General Public License for more details.                          *
+ *                                                                       *
+ * You should have received a copy of the GNU General Public License     *
+ * along with this program; if not, write to the Free Software           *
+ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.             *
+ *                                                                       *
+ * The author can be reached at admin@atrinik.org                        *
+ ************************************************************************/
 
 /**
  * @file
@@ -79,8 +79,7 @@ static int mkdir_recurse(const char *path)
 
     p = copy = estrdup(path);
 
-    do
-    {
+    do {
         p = strchr(p + 1, '/');
 
         if (p) {
@@ -97,8 +96,7 @@ static int mkdir_recurse(const char *path)
         if (p) {
             *p = '/';
         }
-    }
-    while (p);
+    }    while (p);
 
     efree(copy);
 
@@ -211,8 +209,7 @@ void rmrf(const char *path)
 
         if (S_ISDIR(st.st_mode)) {
             rmrf(buf);
-        }
-        else if (S_ISREG(st.st_mode)) {
+        } else if (S_ISREG(st.st_mode)) {
             unlink(buf);
         }
     }
@@ -262,9 +259,7 @@ void copy_rec(const char *src, const char *dst)
         }
 
         closedir(dir);
-    }
-    /* Copy file. */
-    else {
+    } else {
         copy_file(src, dst);
     }
 }
@@ -276,7 +271,7 @@ const char *get_config_dir(void)
 {
     const char *desc;
 
-#ifdef LINUX
+#ifndef WIN32
     desc = getenv("HOME");
 #else
     desc = getenv("APPDATA");
@@ -336,8 +331,7 @@ char *file_path(const char *fname, const char *mode)
             mkdir_recurse(tmp);
             stmp[0] = ctmp;
         }
-    }
-    else if (strchr(mode, '+') || strchr(mode, 'a')) {
+    } else if (strchr(mode, '+') || strchr(mode, 'a')) {
         if (access(tmp, W_OK)) {
             char otmp[HUGE_BUF];
 
@@ -352,14 +346,74 @@ char *file_path(const char *fname, const char *mode)
 
             copy_file(otmp, tmp);
         }
-    }
-    else {
+    } else {
         if (access(tmp, R_OK)) {
             get_data_dir_file(tmp, sizeof(tmp), fname);
         }
     }
 
     return tmp;
+}
+
+/**
+ * Constructs a path leading to the chosen server settings directory. Used
+ * internally by file_path_player() and file_path_server().
+ * @return
+ */
+static StringBuffer *file_path_server_internal(void)
+{
+    StringBuffer *sb;
+
+    sb = stringbuffer_new();
+    stringbuffer_append_string(sb, "settings/");
+
+    SOFT_ASSERT_RC(selected_server != NULL, sb, "Selected server is NULL.");
+    SOFT_ASSERT_RC(!string_isempty(selected_server->hostname), sb,
+            "Selected server has empty hostname.");
+
+    stringbuffer_append_printf(sb, "servers/%s-%d/", selected_server->hostname,
+            selected_server->port);
+
+    return sb;
+}
+
+/**
+ * Create a path to the per-player settings directory.
+ * @param path Path inside the per-player settings directory.
+ * @return New path. Must be freed.
+ */
+char *file_path_player(const char *path)
+{
+    StringBuffer *sb;
+
+    HARD_ASSERT(path != NULL);
+
+    sb = file_path_server_internal();
+
+    SOFT_ASSERT_LABEL(*cpl.account != '\0', done, "Account name is empty.");
+    SOFT_ASSERT_LABEL(*cpl.name != '\0', done, "Player name is empty.");
+
+    stringbuffer_append_printf(sb, "%s/%s/%s", cpl.account, cpl.name, path);
+
+done:
+    return stringbuffer_finish(sb);
+}
+
+/**
+ * Create a path to the per-server settings directory.
+ * @param path Path inside the per-server settings directory.
+ * @return New path. Must be freed.
+ */
+char *file_path_server(const char *path)
+{
+    StringBuffer *sb;
+
+    HARD_ASSERT(path != NULL);
+
+    sb = file_path_server_internal();
+    stringbuffer_append_printf(sb, ".common/%s", path);
+
+    return stringbuffer_finish(sb);
 }
 
 /**

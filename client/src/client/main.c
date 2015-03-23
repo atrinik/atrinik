@@ -1,32 +1,34 @@
-/************************************************************************
-*            Atrinik, a Multiplayer Online Role Playing Game            *
-*                                                                       *
-*    Copyright (C) 2009-2012 Alex Tokar and Atrinik Development Team    *
-*                                                                       *
-* Fork from Crossfire (Multiplayer game for X-windows).                 *
-*                                                                       *
-* This program is free software; you can redistribute it and/or modify  *
-* it under the terms of the GNU General Public License as published by  *
-* the Free Software Foundation; either version 2 of the License, or     *
-* (at your option) any later version.                                   *
-*                                                                       *
-* This program is distributed in the hope that it will be useful,       *
-* but WITHOUT ANY WARRANTY; without even the implied warranty of        *
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
-* GNU General Public License for more details.                          *
-*                                                                       *
-* You should have received a copy of the GNU General Public License     *
-* along with this program; if not, write to the Free Software           *
-* Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.             *
-*                                                                       *
-* The author can be reached at admin@atrinik.org                        *
-************************************************************************/
+/*************************************************************************
+ *           Atrinik, a Multiplayer Online Role Playing Game             *
+ *                                                                       *
+ *   Copyright (C) 2009-2014 Alex Tokar and Atrinik Development Team     *
+ *                                                                       *
+ * Fork from Crossfire (Multiplayer game for X-windows).                 *
+ *                                                                       *
+ * This program is free software; you can redistribute it and/or modify  *
+ * it under the terms of the GNU General Public License as published by  *
+ * the Free Software Foundation; either version 2 of the License, or     *
+ * (at your option) any later version.                                   *
+ *                                                                       *
+ * This program is distributed in the hope that it will be useful,       *
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of        *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
+ * GNU General Public License for more details.                          *
+ *                                                                       *
+ * You should have received a copy of the GNU General Public License     *
+ * along with this program; if not, write to the Free Software           *
+ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.             *
+ *                                                                       *
+ * The author can be reached at admin@atrinik.org                        *
+ ************************************************************************/
 
 /**
  * @file
  * Client main related functions. */
 
 #include <global.h>
+#include <gitversion.h>
+#include <region_map.h>
 
 /** The main screen surface. */
 SDL_Surface *ScreenSurface;
@@ -47,6 +49,7 @@ int cursor_y = -1;
 
 /* update map area */
 int map_redraw_flag;
+int minimap_redraw_flag;
 
 /** The stored "anim commands" we created out of anims.tmp. */
 _anim_table *anim_table = NULL;
@@ -70,6 +73,102 @@ static uint32 last_keepalive;
 clioption_settings_struct clioption_settings;
 
 /**
+ * Used to keep track of keepalive commands.
+ */
+typedef struct keepalive_data_struct {
+    struct keepalive_data_struct *next; ///< Next keepalive data.
+
+    uint32 ticks; ///< When the keepalive command was sent.
+    uint32 id; ///< ID of the keepalive command.
+} keepalive_data_struct;
+
+static keepalive_data_struct *keepalive_data; ///< Keepalive data.
+static int keepalive_id; ///< UID for sending keepalives.
+static int keepalive_ping; ///< Last keepalive ping time.
+static int keepalive_ping_avg; ///< Average keepalive ping time.
+static int keepalive_ping_num; ///< Number of keepalive pings.
+
+/**
+ * Reset keepalive data.
+ */
+static void keepalive_reset(void)
+{
+    keepalive_data_struct *keepalive, *tmp;
+
+    last_keepalive = SDL_GetTicks();
+    keepalive_id = 0;
+    keepalive_ping = 0;
+    keepalive_ping_avg = 0;
+    keepalive_ping_num = 0;
+
+    LL_FOREACH_SAFE(keepalive_data, keepalive, tmp)
+    {
+        LL_DELETE(keepalive_data, keepalive);
+        efree(keepalive);
+    }
+}
+
+/**
+ * Send a keepalive packet.
+ */
+static void keepalive_send(void)
+{
+    keepalive_data_struct *keepalive;
+    packet_struct *packet;
+
+    keepalive = emalloc(sizeof(*keepalive));
+    keepalive->ticks = SDL_GetTicks();
+    keepalive->id = ++keepalive_id;
+    LL_PREPEND(keepalive_data, keepalive);
+
+    packet = packet_new(SERVER_CMD_KEEPALIVE, 0, 0);
+    packet_append_uint32(packet, keepalive->id);
+    packet_enable_ndelay(packet);
+    socket_send_packet(packet);
+    last_keepalive = keepalive->ticks;
+}
+
+/**
+ * Display ping statistics.
+ */
+void keepalive_ping_stats(void)
+{
+    draw_info(COLOR_WHITE, "\nPing statistics this session:");
+    draw_info_format(COLOR_WHITE, "Keepalive TX: %d, RX: %d, missed: %d",
+            keepalive_id, keepalive_ping_num,
+            keepalive_id - keepalive_ping_num);
+    draw_info_format(COLOR_WHITE, "Average ping: %d", keepalive_ping_avg);
+    draw_info_format(COLOR_WHITE, "Last ping: %d", keepalive_ping);
+}
+
+/** @copydoc socket_command_struct::handle_func */
+void socket_command_keepalive(uint8 *data, size_t len, size_t pos)
+{
+    uint32 id, ticks;
+    keepalive_data_struct *keepalive, *tmp;
+
+    id = packet_to_uint32(data, len, &pos);
+    ticks = SDL_GetTicks();
+
+    LL_FOREACH_SAFE(keepalive_data, keepalive, tmp)
+    {
+        if (id == keepalive->id) {
+            LL_DELETE(keepalive_data, keepalive);
+
+            keepalive_ping = ticks - keepalive->ticks;
+            keepalive_ping_num++;
+            keepalive_ping_avg = keepalive_ping_avg + ((keepalive_ping -
+                    keepalive_ping_avg) / keepalive_ping_num);
+            efree(keepalive);
+
+            return;
+        }
+    }
+
+    log(LOG(BUG), "Received unknown keepalive ID: %d", id);
+}
+
+/**
  * Initialize game data. */
 static void init_game_data(void)
 {
@@ -80,12 +179,12 @@ static void init_game_data(void)
     memset(&cpl, 0, sizeof(cpl));
     clear_player();
 
+    memset(&MapData, 0, sizeof(MapData));
+
     msg_anim.message[0] = '\0';
 
-    start_anim = NULL;
-
     cpl.state = ST_INIT;
-    map_redraw_flag = 1;
+    map_redraw_flag = minimap_redraw_flag = 1;
     csocket.fd = -1;
 
     metaserver_init();
@@ -99,46 +198,42 @@ static void init_game_data(void)
 static int game_status_chain(void)
 {
     if (cpl.state == ST_INIT) {
-        clear_map();
+        clear_map(true);
         effect_stop();
         sound_ambient_clear();
         cpl.state = ST_META;
-    }
-    else if (cpl.state == ST_META) {
+    } else if (cpl.state == ST_META) {
         size_t i, pos;
         char host[MAX_BUF], port[MAX_BUF];
         uint16 port_num;
 
         metaserver_clear_data();
 
-        metaserver_add("127.0.0.1", 13327, "Localhost", -1, "local", "Localhost. Start server before you try to connect.");
+        metaserver_add("127.0.0.1", 13327, "Localhost", "localhost", -1, "local", "Localhost. Start server before you try to connect.");
 
         for (i = 0; i < clioption_settings.servers_num; i++) {
             pos = 0;
             string_get_word(clioption_settings.servers[i], &pos, ':', host, sizeof(host), 0);
             string_get_word(clioption_settings.servers[i], &pos, ':', port, sizeof(port), 0);
             port_num = atoi(port);
-            metaserver_add(host, port_num ? port_num : 13327, host, -1, "user server", "Server from command line --server option.");
+            metaserver_add(host, port_num ? port_num : 13327, host, host, -1, "user server", "Server from command line --server option.");
         }
 
         metaserver_get_servers();
         cpl.state = ST_START;
-    }
-    else if (cpl.state == ST_START) {
+    } else if (cpl.state == ST_START) {
         if (csocket.fd != -1) {
             socket_close(&csocket);
         }
 
-        clear_map();
-        map_redraw_flag = 1;
+        clear_map(true);
+        map_redraw_flag = minimap_redraw_flag = 1;
         cpl.state = ST_WAITLOOP;
-    }
-    else if (cpl.state == ST_STARTCONNECT) {
+    } else if (cpl.state == ST_STARTCONNECT) {
         draw_info_format(COLOR_GREEN, "Trying server %s (%d)...", selected_server->name, selected_server->port);
-        last_keepalive = SDL_GetTicks();
+        keepalive_reset();
         cpl.state = ST_CONNECT;
-    }
-    else if (cpl.state == ST_CONNECT) {
+    } else if (cpl.state == ST_CONNECT) {
         packet_struct *packet;
 
         if (!socket_open(&csocket, selected_server->ip, selected_server->port)) {
@@ -148,16 +243,16 @@ static int game_status_chain(void)
         }
 
         socket_thread_start();
-        region_map_clear();
         clear_player();
 
         packet = packet_new(SERVER_CMD_VERSION, 16, 0);
         packet_append_uint32(packet, SOCKET_VERSION);
         socket_send_packet(packet);
 
+        keepalive_send();
+
         cpl.state = ST_WAITVERSION;
-    }
-    else if (cpl.state == ST_VERSION) {
+    } else if (cpl.state == ST_VERSION) {
         packet_struct *packet;
 
         packet = packet_new(SERVER_CMD_SETUP, 256, 256);
@@ -171,27 +266,23 @@ static int game_status_chain(void)
         socket_send_packet(packet);
 
         cpl.state = ST_WAITSETUP;
-    }
-    else if (cpl.state == ST_REQUEST_FILES_LISTING) {
+    } else if (cpl.state == ST_REQUEST_FILES_LISTING) {
         /* Retrieve the server files listing. */
         server_files_listing_retrieve();
         /* Load up the existing server files. */
         server_files_load(0);
         cpl.state = ST_WAITREQUEST_FILES_LISTING;
-    }
-    else if (cpl.state == ST_WAITREQUEST_FILES_LISTING) {
+    } else if (cpl.state == ST_WAITREQUEST_FILES_LISTING) {
         if (server_files_listing_processed()) {
             cpl.state = ST_REQUEST_FILES;
         }
-    }
-    else if (cpl.state == ST_REQUEST_FILES) {
+    } else if (cpl.state == ST_REQUEST_FILES) {
         if (server_files_processed()) {
             server_files_load(1);
             cpl.state = ST_LOGIN;
         }
-    }
-    else if (cpl.state == ST_WAITFORPLAY) {
-        clear_map();
+    } else if (cpl.state == ST_WAITFORPLAY) {
+        clear_map(true);
     }
 
     return 1;
@@ -214,8 +305,7 @@ static void play_action_sounds(void)
     if (cpl.warn_hp) {
         if (cpl.warn_hp == 2) {
             sound_play_effect("warning_hp2.ogg", 100);
-        }
-        else {
+        } else {
             sound_play_effect("warning_hp.ogg", 100);
         }
 
@@ -275,14 +365,14 @@ void clioption_settings_deinit(void)
 
 static void clioptions_option_server(const char *arg)
 {
-    clioption_settings.servers = realloc(clioption_settings.servers, sizeof(*clioption_settings.servers) * (clioption_settings.servers_num + 1));
+    clioption_settings.servers = erealloc(clioption_settings.servers, sizeof(*clioption_settings.servers) * (clioption_settings.servers_num + 1));
     clioption_settings.servers[clioption_settings.servers_num] = estrdup(arg);
     clioption_settings.servers_num++;
 }
 
 static void clioptions_option_metaserver(const char *arg)
 {
-    clioption_settings.metaservers = realloc(clioption_settings.metaservers, sizeof(*clioption_settings.metaservers) * (clioption_settings.metaservers_num + 1));
+    clioption_settings.metaservers = erealloc(clioption_settings.metaservers, sizeof(*clioption_settings.metaservers) * (clioption_settings.metaservers_num + 1));
     clioption_settings.metaservers[clioption_settings.metaservers_num] = estrdup(arg);
     clioption_settings.metaservers_num++;
 }
@@ -309,6 +399,11 @@ static void clioptions_option_nometa(const char *arg)
 static void clioptions_option_text_debug(const char *arg)
 {
     text_enable_debug();
+}
+
+static void clioptions_option_widget_render_debug(const char *arg)
+{
+    widget_render_enable_debug();
 }
 
 static void clioptions_option_game_news_url(const char *arg)
@@ -339,10 +434,13 @@ static void clioptions_option_logger_filter_logfile(const char *arg)
 int main(int argc, char *argv[])
 {
     char *path;
-    int done = 0;
-    uint32 anim_tick, frame_start_time, elapsed_time, fps_limit;
+    int done = 0, update, frames;
+    uint32 anim_tick, frame_start_time, elapsed_time, fps_limit,
+            last_frame_ticks;
     int fps_limits[] = {30, 60, 120, 0};
-    char version[MAX_BUF];
+    char version[MAX_BUF], buf[HUGE_BUF];
+
+    toolkit_import(signals);
 
     toolkit_import(binreloc);
     toolkit_import(clioptions);
@@ -359,85 +457,103 @@ int main(int argc, char *argv[])
     toolkit_import(x11);
 
     clioptions_add(
-        "server",
-        NULL,
-        clioptions_option_server,
-        1,
-        "",
-        ""
-        );
+            "server",
+            NULL,
+            clioptions_option_server,
+            1,
+            "",
+            ""
+            );
 
     clioptions_add(
-        "metaserver",
-        NULL,
-        clioptions_option_metaserver,
-        1,
-        "",
-        ""
-        );
+            "metaserver",
+            NULL,
+            clioptions_option_metaserver,
+            1,
+            "",
+            ""
+            );
 
     clioptions_add(
-        "connect",
-        NULL,
-        clioptions_option_connect,
-        1,
-        "",
-        ""
-        );
+            "connect",
+            NULL,
+            clioptions_option_connect,
+            1,
+            "",
+            ""
+            );
 
     clioptions_add(
-        "nometa",
-        NULL,
-        clioptions_option_nometa,
-        0,
-        "",
-        ""
-        );
+            "nometa",
+            NULL,
+            clioptions_option_nometa,
+            0,
+            "",
+            ""
+            );
 
     clioptions_add(
-        "text_debug",
-        NULL,
-        clioptions_option_text_debug,
-        0,
-        "",
-        ""
-        );
+            "text_debug",
+            NULL,
+            clioptions_option_text_debug,
+            0,
+            "",
+            ""
+            );
 
     clioptions_add(
-        "game_news_url",
-        NULL,
-        clioptions_option_game_news_url,
-        0,
-        "",
-        ""
-    );
+            "widget_render_debug",
+            NULL,
+            clioptions_option_widget_render_debug,
+            0,
+            "",
+            ""
+            );
 
     clioptions_add(
-        "reconnect",
-        NULL,
-        clioptions_option_reconnect,
-        0,
-        "",
-        ""
-    );
+            "tiles_debug",
+            NULL,
+            clioptions_option_tiles_debug,
+            0,
+            "",
+            ""
+            );
 
     clioptions_add(
-        "logger_filter_stdout",
-        NULL,
-        clioptions_option_logger_filter_stdout,
-        1,
-        "",
-        ""
-    );
+            "game_news_url",
+            NULL,
+            clioptions_option_game_news_url,
+            0,
+            "",
+            ""
+            );
 
     clioptions_add(
-        "logger_filter_logfile",
-        NULL,
-        clioptions_option_logger_filter_logfile,
-        1,
-        "",
-        ""
-    );
+            "reconnect",
+            NULL,
+            clioptions_option_reconnect,
+            0,
+            "",
+            ""
+            );
+
+    clioptions_add(
+            "logger_filter_stdout",
+            NULL,
+            clioptions_option_logger_filter_stdout,
+            1,
+            "",
+            ""
+            );
+
+    clioptions_add(
+            "logger_filter_logfile",
+            NULL,
+            clioptions_option_logger_filter_logfile,
+            1,
+            "",
+            ""
+            );
 
     memset(&clioption_settings, 0, sizeof(clioption_settings));
     clioptions_load_config(file_path("client.cfg", "r"), "[General]");
@@ -476,8 +592,13 @@ int main(int argc, char *argv[])
     server_files_init();
     toolkit_widget_init();
 
-    draw_info_format(COLOR_HGOLD, "Welcome to Atrinik version %s.", package_get_version_full(version, sizeof(version)));
-    draw_info(COLOR_GREEN, "Init network...");
+    snprintf(VS(buf), "Welcome to Atrinik version %s",
+            package_get_version_full(version, sizeof(version)));
+#ifdef GITVERSION
+    snprintfcat(VS(buf), "%s", " (" STRINGIFY(GITBRANCH) "/"
+            STRINGIFY(GITVERSION) " by " STRINGIFY(GITAUTHOR) ")");
+#endif
+    draw_info(COLOR_HGOLD, buf);
 
     if (!socket_initialize()) {
         exit(1);
@@ -491,12 +612,15 @@ int main(int argc, char *argv[])
     scrollbar_init();
     button_init();
 
+    atexit(system_end);
+
     SDL_ShowCursor(0);
     cursor_texture = texture_get(TEXTURE_TYPE_CLIENT, "cursor_default");
 
     sound_background_hook_register(sound_background_hook);
 
-    LastTick = anim_tick = SDL_GetTicks();
+    LastTick = anim_tick = last_frame_ticks = SDL_GetTicks();
+    frames = 0;
 
     while (!done) {
         frame_start_time = SDL_GetTicks();
@@ -516,11 +640,7 @@ int main(int argc, char *argv[])
         if (cpl.state > ST_CONNECT) {
             /* Send keepalive command every 2 minutes. */
             if (SDL_GetTicks() - last_keepalive > (2 * 60) * 1000) {
-                packet_struct *packet;
-
-                packet = packet_new(SERVER_CMD_KEEPALIVE, 0, 0);
-                socket_send_packet(packet);
-                last_keepalive = SDL_GetTicks();
+                keepalive_send();
             }
 
             DoClient();
@@ -532,53 +652,92 @@ int main(int argc, char *argv[])
             if (!game_status_chain()) {
                 logger_print(LOG(BUG), "Error connecting: cpl.state: %d  SocketError: %d", cpl.state, socket_get_error());
             }
-        }
-
-        if (SDL_GetAppState() & SDL_APPACTIVE) {
-            if (cpl.state == ST_PLAY) {
-                if (LastTick - anim_tick > 110) {
-                    anim_tick = LastTick;
-                    animate_objects();
-                }
-
-                play_action_sounds();
+        } else if (SDL_GetAppState() & SDL_APPACTIVE) {
+            if (LastTick - anim_tick > 125) {
+                anim_tick = LastTick;
+                animate_objects();
+                map_animate();
             }
 
+            play_action_sounds();
+        }
+
+        update = 0;
+
+        if (!(SDL_GetAppState() & SDL_APPACTIVE)) {
+        } else if (cpl.state == ST_PLAY) {
+            static int old_cursor_x = -1, old_cursor_y = -1;
+
+            if (widgets_need_redraw()) {
+                update = 1;
+            } else if (cursor_x != old_cursor_x || cursor_y != old_cursor_y) {
+                update = 1;
+                old_cursor_x = cursor_x;
+                old_cursor_y = cursor_y;
+            } else if (event_dragging_need_redraw()) {
+                update = 1;
+            } else if (popup_need_redraw()) {
+                update = 1;
+            } else if (tooltip_need_redraw()) {
+                update = 1;
+            } else if (map_redraw_flag || minimap_redraw_flag) {
+                update = 1;
+            } else if (map_anims_need_redraw()) {
+                update = 1;
+            }
+        } else {
+            update = 1;
+        }
+
+        if (update) {
             SDL_FillRect(ScreenSurface, NULL, 0);
-
-            if (cpl.state == ST_PLAY) {
-                process_widgets(1);
-            }
-
-            /* Show the currently dragged item. */
-            if (event_dragging_check()) {
-                int mx, my;
-
-                SDL_GetMouseState(&mx, &my);
-                object_show_centered(ScreenSurface, object_find(cpl.dragging_tag), mx, my);
-            }
-
-            if (cpl.state <= ST_WAITFORPLAY) {
-                intro_show();
-            }
-
-            popup_render_all();
-            tooltip_show();
-
-            if (cursor_x != -1 && cursor_y != -1 && SDL_GetAppState() & SDL_APPMOUSEFOCUS) {
-                surface_show(ScreenSurface, cursor_x - (texture_surface(cursor_texture)->w / 2), cursor_y - (texture_surface(cursor_texture)->h / 2), NULL, texture_surface(cursor_texture));
-            }
         }
-        else {
-            if (cpl.state == ST_PLAY) {
-                process_widgets(0);
-            }
+
+        if (cpl.state <= ST_WAITFORPLAY) {
+            intro_show();
+        } else if (cpl.state == ST_PLAY) {
+            process_widgets(update);
+        }
+
+        popup_render_all();
+        tooltip_show();
+
+        /* Show the currently dragged item. */
+        if (event_dragging_check()) {
+            int mx, my;
+
+            SDL_GetMouseState(&mx, &my);
+            object_show_centered(ScreenSurface, object_find(cpl.dragging_tag),
+                    mx, my, INVENTORY_ICON_SIZE, INVENTORY_ICON_SIZE);
+        }
+
+        if (cursor_x != -1 && cursor_y != -1 &&
+                SDL_GetAppState() & SDL_APPMOUSEFOCUS) {
+            surface_show(ScreenSurface,
+                    cursor_x - (texture_surface(cursor_texture)->w / 2),
+                    cursor_y - (texture_surface(cursor_texture)->h / 2),
+                    NULL, texture_surface(cursor_texture));
         }
 
         texture_gc();
-        SDL_Flip(ScreenSurface);
+        font_gc();
+
+        if (update) {
+            SDL_Flip(ScreenSurface);
+        }
 
         LastTick = SDL_GetTicks();
+
+        if (SDL_GetAppState() & SDL_APPACTIVE) {
+            frames++;
+
+            if (LastTick - last_frame_ticks >= 1000) {
+                last_frame_ticks = LastTick;
+                effect_frames(frames);
+                frames = 0;
+            }
+        }
+
         elapsed_time = SDL_GetTicks() - frame_start_time;
         fps_limit = fps_limits[setting_get_int(OPT_CAT_CLIENT, OPT_FPS_LIMIT)];
 
@@ -597,8 +756,6 @@ int main(int argc, char *argv[])
             }
         }
     }
-
-    system_end();
 
     return 0;
 }

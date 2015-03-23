@@ -1,26 +1,26 @@
-/************************************************************************
-*            Atrinik, a Multiplayer Online Role Playing Game            *
-*                                                                       *
-*    Copyright (C) 2009-2012 Alex Tokar and Atrinik Development Team    *
-*                                                                       *
-* Fork from Crossfire (Multiplayer game for X-windows).                 *
-*                                                                       *
-* This program is free software; you can redistribute it and/or modify  *
-* it under the terms of the GNU General Public License as published by  *
-* the Free Software Foundation; either version 2 of the License, or     *
-* (at your option) any later version.                                   *
-*                                                                       *
-* This program is distributed in the hope that it will be useful,       *
-* but WITHOUT ANY WARRANTY; without even the implied warranty of        *
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
-* GNU General Public License for more details.                          *
-*                                                                       *
-* You should have received a copy of the GNU General Public License     *
-* along with this program; if not, write to the Free Software           *
-* Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.             *
-*                                                                       *
-* The author can be reached at admin@atrinik.org                        *
-************************************************************************/
+/*************************************************************************
+ *           Atrinik, a Multiplayer Online Role Playing Game             *
+ *                                                                       *
+ *   Copyright (C) 2009-2014 Alex Tokar and Atrinik Development Team     *
+ *                                                                       *
+ * Fork from Crossfire (Multiplayer game for X-windows).                 *
+ *                                                                       *
+ * This program is free software; you can redistribute it and/or modify  *
+ * it under the terms of the GNU General Public License as published by  *
+ * the Free Software Foundation; either version 2 of the License, or     *
+ * (at your option) any later version.                                   *
+ *                                                                       *
+ * This program is distributed in the hope that it will be useful,       *
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of        *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
+ * GNU General Public License for more details.                          *
+ *                                                                       *
+ * You should have received a copy of the GNU General Public License     *
+ * along with this program; if not, write to the Free Software           *
+ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.             *
+ *                                                                       *
+ * The author can be reached at admin@atrinik.org                        *
+ ************************************************************************/
 
 /**
  * @file
@@ -86,8 +86,7 @@ void common_object_projectile_process(object *op)
         if (QUERY_FLAG(op, FLAG_REFLECTING)) {
             if (op->direction & 1) {
                 op->direction = absdir(op->direction + 4);
-            }
-            else {
+            } else {
                 int left, right;
 
                 left = wall(op->map, op->x + freearr_x[absdir(op->direction - 1)], op->y + freearr_y[absdir(op->direction - 1)]);
@@ -95,18 +94,15 @@ void common_object_projectile_process(object *op)
 
                 if (left == right) {
                     op->direction = absdir(op->direction + 4);
-                }
-                else if (left) {
+                } else if (left) {
                     op->direction = absdir(op->direction + 2);
-                }
-                else if (right) {
+                } else if (right) {
                     op->direction = absdir(op->direction - 2);
                 }
             }
 
             SET_ANIMATION_STATE(op);
-        }
-        else {
+        } else {
             object_projectile_stop(op, OBJECT_PROJECTILE_STOP_WALL);
             return;
         }
@@ -130,15 +126,13 @@ void common_object_projectile_process(object *op)
                 op->direction = absdir(op->direction + 4);
                 SET_ANIMATION_STATE(op);
                 FOR_MAP_LAYER_BREAK;
-            }
-            else {
+            } else {
                 ret = object_projectile_hit(op, tmp);
 
                 if (ret == OBJECT_METHOD_OK) {
                     object_projectile_stop(op, OBJECT_PROJECTILE_STOP_HIT);
                     return;
-                }
-                else if (ret == OBJECT_METHOD_ERROR) {
+                } else if (ret == OBJECT_METHOD_ERROR) {
                     return;
                 }
             }
@@ -150,10 +144,23 @@ void common_object_projectile_process(object *op)
 /** @copydoc object_methods::projectile_move_func */
 object *common_object_projectile_move(object *op)
 {
-    object_remove(op, 0);
-    op->x = op->x + DIRX(op);
-    op->y = op->y + DIRY(op);
-    op = insert_ob_in_map(op, op->map, op, 0);
+    mapstruct *m;
+    int x, y;
+
+    x = op->x + freearr_x[op->direction];
+    y = op->y + freearr_y[op->direction];
+
+    m = get_map_from_coord(op->map, &x, &y);
+
+    if (m == NULL) {
+        object_projectile_stop(op, OBJECT_PROJECTILE_STOP_WALL);
+        return NULL;
+    }
+    
+    if (!object_move_to(op, op->direction, op, m, x, y)) {
+        object_projectile_stop(op, OBJECT_PROJECTILE_STOP_WALL);
+        return NULL;
+    }
 
     return op;
 }
@@ -223,10 +230,10 @@ object *common_object_projectile_stop_missile(object *op, int reason)
         update_ob_speed(op);
 
         op = object_merge(op);
-    }
-    /* Not an arrow, the object has payload instead. */
-    else if (op->inv) {
+    } else if (op->inv) {
         object *payload;
+
+        /* Not an arrow, the object has payload instead. */
 
         payload = op->inv;
 
@@ -238,9 +245,9 @@ object *common_object_projectile_stop_missile(object *op, int reason)
         payload = insert_ob_in_map(payload, op->map, op, 0);
 
         return payload;
-    }
-    /* Should not happen... */
-    else {
+    } else {
+        /* Should not happen... */
+
         object_remove(op, 0);
         object_destroy(op);
         return NULL;
@@ -258,8 +265,7 @@ object *common_object_projectile_stop_spell(object *op, int reason)
 
     if (op->other_arch) {
         explode_object(op);
-    }
-    else {
+    } else {
         object_remove(op, 0);
         object_destroy(op);
     }
@@ -297,6 +303,7 @@ object *common_object_projectile_fire_missile(object *op, object *shooter, int d
 
     op->x = shooter->x;
     op->y = shooter->y;
+    op->sub_layer = shooter->sub_layer;
     op = insert_ob_in_map(op, shooter->map, op, 0);
 
     if (!op) {

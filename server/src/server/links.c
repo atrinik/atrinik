@@ -1,26 +1,26 @@
-/************************************************************************
-*            Atrinik, a Multiplayer Online Role Playing Game            *
-*                                                                       *
-*    Copyright (C) 2009-2012 Alex Tokar and Atrinik Development Team    *
-*                                                                       *
-* Fork from Crossfire (Multiplayer game for X-windows).                 *
-*                                                                       *
-* This program is free software; you can redistribute it and/or modify  *
-* it under the terms of the GNU General Public License as published by  *
-* the Free Software Foundation; either version 2 of the License, or     *
-* (at your option) any later version.                                   *
-*                                                                       *
-* This program is distributed in the hope that it will be useful,       *
-* but WITHOUT ANY WARRANTY; without even the implied warranty of        *
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
-* GNU General Public License for more details.                          *
-*                                                                       *
-* You should have received a copy of the GNU General Public License     *
-* along with this program; if not, write to the Free Software           *
-* Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.             *
-*                                                                       *
-* The author can be reached at admin@atrinik.org                        *
-************************************************************************/
+/*************************************************************************
+ *           Atrinik, a Multiplayer Online Role Playing Game             *
+ *                                                                       *
+ *   Copyright (C) 2009-2014 Alex Tokar and Atrinik Development Team     *
+ *                                                                       *
+ * Fork from Crossfire (Multiplayer game for X-windows).                 *
+ *                                                                       *
+ * This program is free software; you can redistribute it and/or modify  *
+ * it under the terms of the GNU General Public License as published by  *
+ * the Free Software Foundation; either version 2 of the License, or     *
+ * (at your option) any later version.                                   *
+ *                                                                       *
+ * This program is distributed in the hope that it will be useful,       *
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of        *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
+ * GNU General Public License for more details.                          *
+ *                                                                       *
+ * You should have received a copy of the GNU General Public License     *
+ * along with this program; if not, write to the Free Software           *
+ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.             *
+ *                                                                       *
+ * The author can be reached at admin@atrinik.org                        *
+ ************************************************************************/
 
 /**
  * @file
@@ -36,14 +36,14 @@ mempool_struct *pool_objectlink;
  * Initialize the objectlink API. */
 void objectlink_init(void)
 {
-    pool_objectlink = mempool_create("object links", 500, sizeof(objectlink), 0, NULL, NULL, NULL, NULL);
+    pool_objectlink = mempool_create("object links", 500, sizeof(objectlink),
+            MEMPOOL_ALLOW_FREEING, NULL, NULL, NULL, NULL);
 }
 
 /**
  * Deinitialize the objectlink API. */
 void objectlink_deinit(void)
 {
-    mempool_free(pool_objectlink);
 }
 
 /**
@@ -51,9 +51,8 @@ void objectlink_deinit(void)
  * @return Pointer to the new objectlink */
 objectlink *get_objectlink(void)
 {
-    objectlink *ol = get_poolchunk(pool_objectlink);
+    objectlink *ol = mempool_get(pool_objectlink);
 
-    memset(ol, 0, sizeof(objectlink));
     return ol;
 }
 
@@ -128,9 +127,9 @@ objectlink *objectlink_link(objectlink **startptr, objectlink **endptr, objectli
         if (endptr && (!*endptr || *endptr == afterptr)) {
             *endptr = objptr;
         }
-    }
-    /* Link it before beforeptr */
-    else if (!afterptr) {
+    } else if (!afterptr) {
+        /* Link it before beforeptr */
+
         if (beforeptr->prev) {
             objptr->prev = beforeptr->prev;
             beforeptr->prev->next = objptr;
@@ -143,9 +142,9 @@ objectlink *objectlink_link(objectlink **startptr, objectlink **endptr, objectli
         if (startptr && (!*startptr || *startptr == beforeptr)) {
             *startptr = objptr;
         }
-    }
-    /* Special: link together two lists/objects */
-    else {
+    } else {
+        /* Special: link together two lists/objects */
+
         beforeptr->prev = objptr;
         afterptr->next = objptr;
         objptr->next = beforeptr;

@@ -1,26 +1,26 @@
-/************************************************************************
-*            Atrinik, a Multiplayer Online Role Playing Game            *
-*                                                                       *
-*    Copyright (C) 2009-2012 Alex Tokar and Atrinik Development Team    *
-*                                                                       *
-* Fork from Crossfire (Multiplayer game for X-windows).                 *
-*                                                                       *
-* This program is free software; you can redistribute it and/or modify  *
-* it under the terms of the GNU General Public License as published by  *
-* the Free Software Foundation; either version 2 of the License, or     *
-* (at your option) any later version.                                   *
-*                                                                       *
-* This program is distributed in the hope that it will be useful,       *
-* but WITHOUT ANY WARRANTY; without even the implied warranty of        *
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
-* GNU General Public License for more details.                          *
-*                                                                       *
-* You should have received a copy of the GNU General Public License     *
-* along with this program; if not, write to the Free Software           *
-* Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.             *
-*                                                                       *
-* The author can be reached at admin@atrinik.org                        *
-************************************************************************/
+/*************************************************************************
+ *           Atrinik, a Multiplayer Online Role Playing Game             *
+ *                                                                       *
+ *   Copyright (C) 2009-2014 Alex Tokar and Atrinik Development Team     *
+ *                                                                       *
+ * Fork from Crossfire (Multiplayer game for X-windows).                 *
+ *                                                                       *
+ * This program is free software; you can redistribute it and/or modify  *
+ * it under the terms of the GNU General Public License as published by  *
+ * the Free Software Foundation; either version 2 of the License, or     *
+ * (at your option) any later version.                                   *
+ *                                                                       *
+ * This program is distributed in the hope that it will be useful,       *
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of        *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
+ * GNU General Public License for more details.                          *
+ *                                                                       *
+ * You should have received a copy of the GNU General Public License     *
+ * along with this program; if not, write to the Free Software           *
+ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.             *
+ *                                                                       *
+ * The author can be reached at admin@atrinik.org                        *
+ ************************************************************************/
 
 /**
  * @file
@@ -41,6 +41,7 @@ static uint8 did_init = 0;
  * @internal */
 void toolkit_path_init(void)
 {
+
     TOOLKIT_INIT_FUNC_START(path)
     {
         toolkit_import(logger);
@@ -55,6 +56,7 @@ void toolkit_path_init(void)
  * @internal */
 void toolkit_path_deinit(void)
 {
+
     TOOLKIT_DEINIT_FUNC_START(path)
     {
     }
@@ -186,8 +188,7 @@ char *path_normalize(const char *path)
 
     if (string_startswith(path, "/")) {
         stringbuffer_append_string(sb, "/");
-    }
-    else if (string_startswith(path, "./")) {
+    } else if (string_startswith(path, "./")) {
         stringbuffer_append_string(sb, "./");
     }
 
@@ -209,8 +210,7 @@ char *path_normalize(const char *path)
 
                 sb->pos = last_slash;
             }
-        }
-        else {
+        } else {
             if (sb->pos == 0 || sb->buf[sb->pos - 1] != '/') {
                 stringbuffer_append_string(sb, "/");
             }
@@ -249,13 +249,13 @@ void path_ensure_directories(const char *path)
 
         if (mkdir(buf, 0777) != 0 && errno != EEXIST) {
             log(LOG(BUG), "Cannot mkdir %s (path: %s): %s", buf, path,
-                strerror(errno));
+                    strerror(errno));
             return;
         }
 
         if (stat(buf, &statbuf) != 0) {
             log(LOG(BUG), "Cannot stat %s (path: %s): %s", buf, path,
-                strerror(errno));
+                    strerror(errno));
             return;
         }
 

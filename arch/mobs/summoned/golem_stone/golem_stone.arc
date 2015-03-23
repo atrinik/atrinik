@@ -9,11 +9,11 @@ behavior 2
 is_neutral 1
 wc_range 20
 direction 5
-terrain_flag 1
+terrain_flag 65
 weapon_speed 0.035
 attack_impact 80
 type 80
-Wis 3
+wis 3
 randomitems mob_default
 animation golem_stone
 is_animated 1

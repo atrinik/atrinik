@@ -1,33 +1,33 @@
-/************************************************************************
-*            Atrinik, a Multiplayer Online Role Playing Game            *
-*                                                                       *
-*    Copyright (C) 2009-2012 Alex Tokar and Atrinik Development Team    *
-*                                                                       *
-* Fork from Crossfire (Multiplayer game for X-windows).                 *
-*                                                                       *
-* This program is free software; you can redistribute it and/or modify  *
-* it under the terms of the GNU General Public License as published by  *
-* the Free Software Foundation; either version 2 of the License, or     *
-* (at your option) any later version.                                   *
-*                                                                       *
-* This program is distributed in the hope that it will be useful,       *
-* but WITHOUT ANY WARRANTY; without even the implied warranty of        *
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
-* GNU General Public License for more details.                          *
-*                                                                       *
-* You should have received a copy of the GNU General Public License     *
-* along with this program; if not, write to the Free Software           *
-* Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.             *
-*                                                                       *
-* The author can be reached at admin@atrinik.org                        *
-************************************************************************/
+/*************************************************************************
+ *           Atrinik, a Multiplayer Online Role Playing Game             *
+ *                                                                       *
+ *   Copyright (C) 2009-2014 Alex Tokar and Atrinik Development Team     *
+ *                                                                       *
+ * Fork from Crossfire (Multiplayer game for X-windows).                 *
+ *                                                                       *
+ * This program is free software; you can redistribute it and/or modify  *
+ * it under the terms of the GNU General Public License as published by  *
+ * the Free Software Foundation; either version 2 of the License, or     *
+ * (at your option) any later version.                                   *
+ *                                                                       *
+ * This program is distributed in the hope that it will be useful,       *
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of        *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
+ * GNU General Public License for more details.                          *
+ *                                                                       *
+ * You should have received a copy of the GNU General Public License     *
+ * along with this program; if not, write to the Free Software           *
+ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.             *
+ *                                                                       *
+ * The author can be reached at admin@atrinik.org                        *
+ ************************************************************************/
 
 /**
  * @file
  * Atrinik python plugin. */
 
 #ifdef WIN32
-#   include <fcntl.h>
+#include <fcntl.h>
 #endif
 
 #include <plugin_python.h>
@@ -55,13 +55,32 @@ PythonContext *current_context;
 static PyObject *py_globals_dict = NULL;
 
 /**
+ * Structure used to evaluate code in the main thread after a specified delay.
+ *
+ * Can also be used to execute code from other threads with no ill effects.
+ */
+typedef struct python_eval_struct {
+    struct python_eval_struct *next; ///< Next pointer.
+    struct python_eval_struct *prev; ///< Previous pointer.
+
+    PyObject *globals; ///< Globals dictionary.
+    PyObject *locals; ///< Locals dictionary.
+    PyCodeObject *code; ///< Compiled code to execute.
+    double seconds; ///< When to execute.
+} python_eval_struct;
+
+/**
+ * The first code to evaluate.
+ */
+static python_eval_struct *python_eval;
+
+/**
  * Useful constants */
 /* @cparser
  * @page plugin_python_constants Python constants
  * <h2>Python constants</h2>
  * List of the Python plugin constants and their meaning. */
-static const Atrinik_Constant constants[] =
-{
+static const Atrinik_Constant constants[] = {
     {"NORTH", NORTH},
     {"NORTHEAST", NORTHEAST},
     {"EAST", EAST},
@@ -293,8 +312,7 @@ static const Atrinik_Constant constants[] =
  * @page plugin_python_constants_types Python game object type constants
  * <h2>Python game object type constants</h2>
  * List of the Python plugin game object type constants and their meaning. */
-static const Atrinik_Constant constants_types[] =
-{
+static const Atrinik_Constant constants_types[] = {
     {"PLAYER", PLAYER},
     {"BULLET", BULLET},
     {"ROD", ROD},
@@ -325,7 +343,6 @@ static const Atrinik_Constant constants_types[] =
     {"GRAVESTONE", GRAVESTONE},
     {"AMULET", AMULET},
     {"PLAYER_MOVER", PLAYER_MOVER},
-    {"TELEPORTER", TELEPORTER},
     {"CREATOR", CREATOR},
     {"SKILL", SKILL},
     {"BLINDNESS", BLINDNESS},
@@ -343,7 +360,6 @@ static const Atrinik_Constant constants_types[] =
     {"CHECK_INV", CHECK_INV},
     {"EXIT", EXIT},
     {"SHOP_FLOOR", SHOP_FLOOR},
-    {"SHOP_MAT", SHOP_MAT},
     {"RING", RING},
     {"FLOOR", FLOOR},
     {"FLESH", FLESH},
@@ -408,8 +424,7 @@ static const Atrinik_Constant constants_types[] =
  * @page plugin_python_constants_gender Python gender constants
  * <h2>Python gender constants</h2>
  * List of the Python plugin gender constants and their meaning. */
-static const Atrinik_Constant constants_gender[] =
-{
+static const Atrinik_Constant constants_gender[] = {
     {"NEUTER", GENDER_NEUTER},
     {"MALE", GENDER_MALE},
     {"FEMALE", GENDER_FEMALE},
@@ -425,8 +440,7 @@ static const Atrinik_Constant constants_gender[] =
  * @page plugin_python_constants_colors Python color constants
  * <h2>Python color constants</h2>
  * List of the Python plugin color constants and their meaning. */
-static const char *const constants_colors[][2] =
-{
+static const char *const constants_colors[][2] = {
     {"COLOR_WHITE", COLOR_WHITE},
     {"COLOR_ORANGE", COLOR_ORANGE},
     {"COLOR_NAVY", COLOR_NAVY},
@@ -466,8 +480,7 @@ static void pushContext(PythonContext *context)
     if (current_context == NULL) {
         context_stack = context;
         context->down = NULL;
-    }
-    else {
+    } else {
         context->down = current_context;
     }
 
@@ -579,8 +592,7 @@ static void PyErr_LOG(void)
 
     if (ptraceback) {
         PyDict_SetItemString(locals, "exc_traceback", ptraceback ? ptraceback : Py_None);
-    }
-    else {
+    } else {
         Py_INCREF(Py_None);
         PyDict_SetItemString(locals, "exc_traceback", Py_None);
     }
@@ -715,8 +727,7 @@ static int do_script(PythonContext *context, const char *filename)
             dirname = hooks->path_dirname(filename);
             path = hooks->path_join(dirname, inf_filename);
             free(dirname);
-        }
-        else {
+        } else {
             char *cp;
 
             cp = hooks->string_sub(filename, 0, -3);
@@ -771,8 +782,7 @@ static int do_script(PythonContext *context, const char *filename)
 
         if (context->text) {
             PyDict_SetItemString(dict, "msg", Py_BuildValue("s", context->text));
-        }
-        else if (context->event && context->event->sub_type == EVENT_SAY) {
+        } else if (context->event && context->event->sub_type == EVENT_SAY) {
             PyDict_SetItemString(dict, "msg", Py_BuildValue(""));
         }
 
@@ -1259,7 +1269,7 @@ static PyObject *Atrinik_Logger(PyObject *self, PyObject *args)
     }
 
     hooks->logger_print(hooks->logger_get_level(mode), __FUNCTION__, __LINE__,
-                        string);
+            string);
 
     Py_INCREF(Py_None);
     return Py_None;
@@ -1394,8 +1404,7 @@ static PyObject *Atrinik_CacheGet(PyObject *self, PyObject *args)
     if (!sh_key || !(result = hooks->cache_find(sh_key)) || !(result->flags & CACHE_FLAG_PYOBJ)) {
         PyErr_SetString(PyExc_ValueError, "No such cache entry.");
         return NULL;
-    }
-    else {
+    } else {
         Py_INCREF((PyObject *) result->ptr);
         return result->ptr;
     }
@@ -1426,8 +1435,7 @@ static PyObject *Atrinik_CacheRemove(PyObject *self, PyObject *args)
     if (!sh_key || !hooks->cache_remove(sh_key)) {
         PyErr_SetString(PyExc_ValueError, "No such cache entry.");
         return NULL;
-    }
-    else {
+    } else {
         Py_INCREF(Py_True);
         return Py_True;
     }
@@ -1455,17 +1463,13 @@ static PyObject *Atrinik_GetFirst(PyObject *self, PyObject *args)
 
     if (!strcmp(what, "player")) {
         return wrap_player(*hooks->first_player);
-    }
-    else if (!strcmp(what, "map")) {
+    } else if (!strcmp(what, "map")) {
         return wrap_map(*hooks->first_map);
-    }
-    else if (!strcmp(what, "archetype")) {
+    } else if (!strcmp(what, "archetype")) {
         return wrap_archetype(*hooks->first_archetype);
-    }
-    else if (!strcmp(what, "party")) {
+    } else if (!strcmp(what, "party")) {
         return wrap_party(*hooks->first_party);
-    }
-    else if (!strcmp(what, "region")) {
+    } else if (!strcmp(what, "region")) {
         return wrap_region(*hooks->first_region);
     }
 
@@ -1606,13 +1610,68 @@ static PyObject *Atrinik_print(PyObject *self, PyObject *args)
     return Py_None;
 }
 
+/**
+ * <h1>Eval(string code, float [seconds = 0])</h1>
+ * Executes the specified code from the main thread after the specified delay
+ * in seconds.
+ * @param code The code to compile and execute.
+ * @param seconds How long to wait. 0.5 for half a second, 10.0 for 10 seconds,
+ * etc.
+ */
+static PyObject *Atrinik_Eval(PyObject *self, PyObject *args)
+{
+    double seconds = 0.0f;
+    const char *s;
+    struct _node *n;
+    PyCodeObject *code = NULL;
+
+    if (!PyArg_ParseTuple(args, "s|d", &s, &seconds)) {
+        return NULL;
+    }
+
+    n = PyParser_SimpleParseString(s, Py_file_input);
+
+    if (n != NULL) {
+        code = PyNode_Compile(n, "eval'd code");
+        PyNode_Free(n);
+    }
+
+    if (PyErr_Occurred()) {
+        PyErr_LOG();
+        return NULL;
+    }
+
+    if (code != NULL) {
+        python_eval_struct *tmp;
+        PyGILState_STATE gilstate;
+        struct timeval tv;
+
+        gettimeofday(&tv, NULL);
+
+        tmp = malloc(sizeof(*tmp));
+        tmp->globals = PyEval_GetGlobals();
+        Py_INCREF(tmp->globals);
+        tmp->locals = PyEval_GetLocals();
+        Py_INCREF(tmp->locals);
+        tmp->code = code;
+        tmp->seconds = tv.tv_sec + tv.tv_usec / 1000000. + seconds;
+        DL_APPEND(python_eval, tmp);
+
+        gilstate = PyGILState_Ensure();
+        DL_APPEND(python_eval, tmp);
+        PyGILState_Release(gilstate);
+    }
+
+    Py_INCREF(Py_None);
+    return Py_None;
+}
+
 /*@}*/
 
 /**
  * Here is the Python Declaration Table, used by the interpreter to make
  * an interface with the C code. */
-static PyMethodDef AtrinikMethods[] =
-{
+static PyMethodDef AtrinikMethods[] = {
     {"LoadObject", Atrinik_LoadObject, METH_VARARGS, 0},
     {"ReadyMap", Atrinik_ReadyMap, METH_VARARGS, 0},
     {"FindPlayer", Atrinik_FindPlayer, METH_VARARGS, 0},
@@ -1643,6 +1702,7 @@ static PyMethodDef AtrinikMethods[] =
     {"GetTicks", Atrinik_GetTicks, METH_NOARGS, 0},
     {"GetArchetype", Atrinik_GetArchetype, METH_VARARGS, 0},
     {"print", Atrinik_print, METH_VARARGS, 0},
+    {"Eval", Atrinik_Eval, METH_VARARGS, 0},
     {NULL, NULL, 0, 0}
 };
 
@@ -1688,8 +1748,7 @@ static int handle_event(va_list args)
         if (context->activator && IS_LIVE(context->activator)) {
             hooks->fix_player(context->activator);
         }
-    }
-    else if (context->parms[3] == SCRIPT_FIX_ACTIVATOR && IS_LIVE(context->activator)) {
+    } else if (context->parms[3] == SCRIPT_FIX_ACTIVATOR && IS_LIVE(context->activator)) {
         hooks->fix_player(context->activator);
     }
 
@@ -1740,35 +1799,83 @@ static int handle_global_event(int event_type, va_list args)
     PythonContext *context;
 
     switch (event_type) {
-        case GEVENT_CACHE_REMOVED:
-        {
-            void *ptr = va_arg(args, void *);
-            uint32 flags = *(uint32 *) va_arg(args, void *);
+    case GEVENT_CACHE_REMOVED:
+    {
+        void *ptr = va_arg(args, void *);
+        uint32 flags = *(uint32 *) va_arg(args, void *);
 
-            if (flags & CACHE_FLAG_PYOBJ) {
-                PyObject *retval;
-                PyGILState_STATE gilstate;
+        if (flags & CACHE_FLAG_PYOBJ) {
+            PyObject *retval;
+            PyGILState_STATE gilstate;
 
-                gilstate = PyGILState_Ensure();
+            gilstate = PyGILState_Ensure();
 
-                /* Attempt to close file/database/etc objects. */
-                retval = PyObject_CallMethod(ptr, "close", "");
+            /* Attempt to close file/database/etc objects. */
+            retval = PyObject_CallMethod(ptr, "close", "");
 
-                /* No close() method, ignore the exception. */
-                if (PyErr_Occurred() && PyErr_ExceptionMatches(PyExc_AttributeError)) {
-                    PyErr_Clear();
-                }
-
-                Py_XDECREF(retval);
-
-                /* Decrease the reference count. */
-                Py_DECREF((PyObject *) ptr);
-
-                PyGILState_Release(gilstate);
+            /* No close() method, ignore the exception. */
+            if (PyErr_Occurred() && PyErr_ExceptionMatches(PyExc_AttributeError)) {
+                PyErr_Clear();
             }
 
-            return 0;
+            Py_XDECREF(retval);
+
+            /* Decrease the reference count. */
+            Py_DECREF((PyObject *) ptr);
+
+            PyGILState_Release(gilstate);
         }
+
+        return 0;
+    }
+
+    case GEVENT_TICK:
+    {
+        python_eval_struct *eval, *tmp;
+        PyGILState_STATE gilstate;
+        PyObject *ret;
+        double seconds;
+
+        gilstate = PyGILState_Ensure();
+
+        if (python_eval != NULL) {
+            struct timeval tv;
+
+            gettimeofday(&tv, NULL);
+            seconds = tv.tv_sec + tv.tv_usec / 1000000.;
+        }
+
+        DL_FOREACH_SAFE(python_eval, eval, tmp)
+        {
+            if (seconds < eval->seconds) {
+                continue;
+            }
+
+            DL_DELETE(python_eval, eval);
+
+#if PY_MAJOR_VERSION >= 3 && PY_MINOR_VERSION >= 2
+            ret = PyEval_EvalCode((PyObject *) eval->code, eval->globals,
+                    eval->locals);
+#else
+            ret = PyEval_EvalCode(eval->code, eval->globals, eval->locals);
+#endif
+
+            if (PyErr_Occurred()) {
+                PyErr_LOG();
+            }
+
+            Py_XDECREF(ret);
+            Py_DECREF(eval->globals);
+            Py_DECREF(eval->locals);
+            Py_DECREF(eval->code);
+
+            free(eval);
+        }
+
+        PyGILState_Release(gilstate);
+
+        return 0;
+    }
     }
 
     context = malloc(sizeof(PythonContext));
@@ -1785,22 +1892,22 @@ static int handle_global_event(int event_type, va_list args)
     context->returnvalue = 0;
 
     switch (event_type) {
-        case GEVENT_BORN:
-            context->activator = va_arg(args, void *);
-            break;
+    case GEVENT_BORN:
+        context->activator = va_arg(args, void *);
+        break;
 
-        case GEVENT_LOGIN:
-            context->activator = ((player *) va_arg(args, void *))->ob;
-            context->text = va_arg(args, void *);
-            break;
+    case GEVENT_LOGIN:
+        context->activator = ((player *) va_arg(args, void *))->ob;
+        context->text = va_arg(args, void *);
+        break;
 
-        case GEVENT_LOGOUT:
-            context->activator = ((player *) va_arg(args, void *))->ob;
-            context->text = va_arg(args, void *);
-            break;
+    case GEVENT_LOGOUT:
+        context->activator = ((player *) va_arg(args, void *))->ob;
+        context->text = va_arg(args, void *);
+        break;
 
-        case GEVENT_PLAYER_DEATH:
-            break;
+    case GEVENT_PLAYER_DEATH:
+        break;
     }
 
     if (!do_script(context, "/python/events/python_event.py")) {
@@ -1825,21 +1932,21 @@ MODULEAPI void *triggerEvent(int *type, ...)
     eventcode = va_arg(args, int);
 
     switch (event_type) {
-        case PLUGIN_EVENT_NORMAL:
-            result = handle_event(args);
-            break;
+    case PLUGIN_EVENT_NORMAL:
+        result = handle_event(args);
+        break;
 
-        case PLUGIN_EVENT_MAP:
-            result = handle_map_event(args);
-            break;
+    case PLUGIN_EVENT_MAP:
+        result = handle_map_event(args);
+        break;
 
-        case PLUGIN_EVENT_GLOBAL:
-            result = handle_global_event(eventcode, args);
-            break;
+    case PLUGIN_EVENT_GLOBAL:
+        result = handle_global_event(eventcode, args);
+        break;
 
-        default:
-            hooks->logger_print(LOG(BUG), "Python: Requested unknown event type %d.", event_type);
-            break;
+    default:
+        hooks->logger_print(LOG(BUG), "Python: Requested unknown event type %d.", event_type);
+        break;
     }
 
     va_end(args);
@@ -1862,8 +1969,7 @@ MODULEAPI void *getPluginProperty(int *type, ...)
         va_end(args);
         snprintf(buf, size, PLUGIN_NAME);
         return NULL;
-    }
-    else if (!strcmp(propname, "FullName")) {
+    } else if (!strcmp(propname, "FullName")) {
         buf = va_arg(args, char *);
         size = va_arg(args, int);
         va_end(args);
@@ -1880,6 +1986,7 @@ MODULEAPI void postinitPlugin(void)
     PyGILState_STATE gilstate;
 
     hooks->register_global_event(PLUGIN_NAME, GEVENT_CACHE_REMOVED);
+    hooks->register_global_event(PLUGIN_NAME, GEVENT_TICK);
     initContextStack();
 
     gilstate = PyGILState_Ensure();
@@ -1888,8 +1995,7 @@ MODULEAPI void postinitPlugin(void)
 }
 
 #ifdef IS_PY3K
-static PyModuleDef AtrinikModule =
-{
+static PyModuleDef AtrinikModule = {
     PyModuleDef_HEAD_INIT,
     "Atrinik",
     NULL,
@@ -1962,8 +2068,7 @@ static void module_add_array(PyObject *module, const char *name, void *array, si
     for (i = 0; i < array_size; i++) {
         if (type == FIELDTYPE_SINT32) {
             PyList_Append(list, Py_BuildValue("i", ((sint32 *) array)[i]));
-        }
-        else if (type == FIELDTYPE_CSTR) {
+        } else if (type == FIELDTYPE_CSTR) {
             PyList_Append(list, Py_BuildValue("s", ((char **) array)[i]));
         }
     }
@@ -2100,432 +2205,388 @@ int generic_field_setter(fields_struct *field, void *ptr, PyObject *value)
     field_ptr = (char *) ptr + field->offset;
 
     switch (field->type) {
-        case FIELDTYPE_SHSTR:
-
-            if (value == Py_None) {
-                FREE_AND_CLEAR_HASH(*(shstr **) field_ptr);
-            }
-            else if (PyString_Check(value)) {
-                FREE_AND_CLEAR_HASH(*(shstr **) field_ptr);
-                FREE_AND_COPY_HASH(*(shstr **) field_ptr, PyString_AsString(value));
-            }
-            else {
-                INTRAISE("Illegal value for shared string field.");
-            }
-
-            break;
-
-        case FIELDTYPE_CSTR:
-
-            if (value == Py_None || PyString_Check(value)) {
-                if (*(char **) field_ptr != NULL) {
-                    free(*(char **) field_ptr);
-                }
-
-                if (value == Py_None) {
-                    *(char **) field_ptr = NULL;
-                }
-                else {
-                    *(char **) field_ptr = strdup(PyString_AsString(value));
-                }
-            }
-            else {
-                INTRAISE("Illegal value for C string field.");
-            }
-
-            break;
-
-        case FIELDTYPE_CARY:
-
-            if (value == Py_None) {
-                ((char *) field_ptr)[0] = '\0';
-            }
-            else if (PyString_Check(value)) {
-                memcpy(field_ptr, PyString_AsString(value), field->extra_data);
-                ((char *) field_ptr)[field->extra_data] = '\0';
-            }
-            else {
-                INTRAISE("Illegal value for C char array field.");
-            }
-
-            break;
-
-        case FIELDTYPE_UINT8:
-
-            if (PyInt_Check(value)) {
-                long val = PyLong_AsLong(value);
-
-                if (val < 0 || (unsigned long) val > UINT8_MAX) {
-                    PyErr_SetString(PyExc_OverflowError, "Invalid integer value for uint8 field.");
-                    return -1;
-                }
-
-                *(uint8 *) field_ptr = (uint8) val;
-            }
-            else {
-                INTRAISE("Illegal value for uint8 field.");
-            }
-
-            break;
-
-        case FIELDTYPE_SINT8:
-
-            if (PyInt_Check(value)) {
-                long val = PyLong_AsLong(value);
-
-                if (val < SINT8_MIN || val > SINT8_MAX) {
-                    PyErr_SetString(PyExc_OverflowError, "Invalid integer value for sint8 field.");
-                    return -1;
-                }
-
-                *(sint8 *) field_ptr = (sint8) val;
-            }
-            else {
-                INTRAISE("Illegal value for sint8 field.");
-            }
-
-            break;
-
-        case FIELDTYPE_UINT16:
-
-            if (PyInt_Check(value)) {
-                long val = PyLong_AsLong(value);
-
-                if (val < 0 || (unsigned long) val > UINT16_MAX) {
-                    PyErr_SetString(PyExc_OverflowError, "Invalid integer value for uint16 field.");
-                    return -1;
-                }
-
-                *(uint16 *) field_ptr = (uint16) val;
-            }
-            else {
-                INTRAISE("Illegal value for uint16 field.");
-            }
-
-            break;
-
-        case FIELDTYPE_SINT16:
-
-            if (PyInt_Check(value)) {
-                long val = PyLong_AsLong(value);
-
-                if (val < SINT16_MIN || val > SINT16_MAX) {
-                    PyErr_SetString(PyExc_OverflowError, "Invalid integer value for sint16 field.");
-                    return -1;
-                }
-
-                *(sint16 *) field_ptr = (sint16) val;
-            }
-            else {
-                INTRAISE("Illegal value for sint16 field.");
-            }
-
-            break;
-
-        case FIELDTYPE_UINT32:
-
-            if (PyInt_Check(value)) {
-                long val = PyLong_AsLong(value);
-
-                if (val < 0 || (unsigned long) val > UINT32_MAX) {
-                    PyErr_SetString(PyExc_OverflowError, "Invalid integer value for uint32 field.");
-                    return -1;
-                }
-
-                *(uint32 *) field_ptr = (uint32) val;
-            }
-            else {
-                INTRAISE("Illegal value for uint32 field.");
-            }
-
-            break;
-
-        case FIELDTYPE_SINT32:
-
-            if (PyInt_Check(value)) {
-                long val = PyLong_AsLong(value);
-
-                if (val < SINT32_MIN || val > SINT32_MAX) {
-                    PyErr_SetString(PyExc_OverflowError, "Invalid integer value for sint32 field.");
-                    return -1;
-                }
-
-                *(sint32 *) field_ptr = (sint32) val;
-            }
-            else {
-                INTRAISE("Illegal value for sint32 field.");
-            }
-
-            break;
-
-        case FIELDTYPE_UINT64:
-
-            if (PyInt_Check(value)) {
-                unsigned PY_LONG_LONG val = PyLong_AsUnsignedLongLong(value);
-
-                if (PyErr_Occurred()) {
-                    PyErr_SetString(PyExc_OverflowError, "Invalid integer value for uint64 field.");
-                    return -1;
-                }
-
-                *(uint64 *) field_ptr = (uint64) val;
-            }
-            else {
-                INTRAISE("Illegal value for uint64 field.");
-            }
-
-            break;
-
-        case FIELDTYPE_SINT64:
-
-            if (PyInt_Check(value)) {
-                PY_LONG_LONG val = PyLong_AsLongLong(value);
-
-                if (PyErr_Occurred()) {
-                    PyErr_SetString(PyExc_OverflowError, "Invalid integer value for sint64 field.");
-                    return -1;
-                }
-
-                *(sint64 *) field_ptr = (sint64) val;
-            }
-            else {
-                INTRAISE("Illegal value for sint64 field.");
-            }
-
-            break;
-
-        case FIELDTYPE_FLOAT:
-
-            if (PyFloat_Check(value)) {
-                *(float *) field_ptr = PyFloat_AsDouble(value) * 1.0;
-            }
-            else if (PyInt_Check(value)) {
-                *(float *) field_ptr = PyLong_AsLong(value) * 1.0;
-            }
-            else {
-                INTRAISE("Illegal value for float field.");
-            }
-
-            break;
-
-        case FIELDTYPE_OBJECT:
-
-            if (value == Py_None) {
-                *(object **) field_ptr = NULL;
-            }
-            else if (PyObject_TypeCheck(value, &Atrinik_ObjectType)) {
-                OBJEXISTCHECK_INT((Atrinik_Object *) value);
-                *(object **) field_ptr = (object *) ((Atrinik_Object *) value)->obj;
-            }
-            else {
-                INTRAISE("Illegal value for object field.");
-            }
-
-            break;
-
-        case FIELDTYPE_OBJECT2:
-            INTRAISE("Field type not implemented.");
-            break;
-
-        case FIELDTYPE_MAP:
-
-            if (value == Py_None) {
-                *(mapstruct **) field_ptr = NULL;
-            }
-            else if (PyObject_TypeCheck(value, &Atrinik_MapType)) {
-                *(mapstruct **) field_ptr = (mapstruct *) ((Atrinik_Map *) value)->map;
-            }
-            else {
-                INTRAISE("Illegal value for map field.");
-            }
-
-            break;
-
-        case FIELDTYPE_OBJECTREF:
-        {
-            void *field_ptr2 = (char *) ptr + field->extra_data;
-
-            if (value == Py_None) {
-                *(object **) field_ptr = NULL;
-                *(tag_t *) field_ptr2 = 0;
-            }
-            else if (PyObject_TypeCheck(value, &Atrinik_ObjectType)) {
-                object *tmp;
-
-                OBJEXISTCHECK_INT((Atrinik_Object *) value);
-
-                tmp = (object *) ((Atrinik_Object *) value)->obj;
-                *(object **) field_ptr = tmp;
-                *(tag_t *) field_ptr2 = tmp->count;
-            }
-            else {
-                INTRAISE("Illegal value for object+reference field.");
-            }
-
-            break;
+    case FIELDTYPE_SHSTR:
+
+        if (value == Py_None) {
+            FREE_AND_CLEAR_HASH(*(shstr **) field_ptr);
+        } else if (PyString_Check(value)) {
+            FREE_AND_CLEAR_HASH(*(shstr **) field_ptr);
+            FREE_AND_COPY_HASH(*(shstr **) field_ptr, PyString_AsString(value));
+        } else {
+            INTRAISE("Illegal value for shared string field.");
         }
 
-        case FIELDTYPE_REGION:
+        break;
+
+    case FIELDTYPE_CSTR:
+
+        if (value == Py_None || PyString_Check(value)) {
+            if (*(char **) field_ptr != NULL) {
+                free(*(char **) field_ptr);
+            }
 
             if (value == Py_None) {
-                *(region_struct **) field_ptr = NULL;
+                *(char **) field_ptr = NULL;
+            } else {
+                *(char **) field_ptr = strdup(PyString_AsString(value));
             }
-            else if (PyObject_TypeCheck(value, &Atrinik_RegionType)) {
-                *(region_struct **) field_ptr = (region_struct *) ((Atrinik_Region *) value)->region;
-            }
-            else {
-                INTRAISE("Illegal value for region field.");
-            }
+        } else {
+            INTRAISE("Illegal value for C string field.");
+        }
 
-            break;
+        break;
 
-        case FIELDTYPE_PARTY:
+    case FIELDTYPE_CARY:
 
-            if (value == Py_None) {
-                *(party_struct **) field_ptr = NULL;
-            }
-            else if (PyObject_TypeCheck(value, &Atrinik_PartyType)) {
-                *(party_struct **) field_ptr = (party_struct *) ((Atrinik_Party *) value)->party;
-            }
-            else {
-                INTRAISE("Illegal value for party field.");
-            }
+        if (value == Py_None) {
+            ((char *) field_ptr)[0] = '\0';
+        } else if (PyString_Check(value)) {
+            memcpy(field_ptr, PyString_AsString(value), field->extra_data);
+            ((char *) field_ptr)[field->extra_data] = '\0';
+        } else {
+            INTRAISE("Illegal value for C char array field.");
+        }
 
-            break;
+        break;
 
-        case FIELDTYPE_ARCH:
+    case FIELDTYPE_UINT8:
 
-            if (value == Py_None) {
-                *(archetype **) field_ptr = NULL;
-            }
-            else if (PyObject_TypeCheck(value, &Atrinik_ArchetypeType)) {
-                *(archetype **) field_ptr = (archetype *) ((Atrinik_Archetype *) value)->at;
-            }
-            else if (PyString_Check(value)) {
-                const char *archname;
-                archetype *arch;
+        if (PyInt_Check(value)) {
+            long val = PyLong_AsLong(value);
 
-                archname = PyString_AsString(value);
-                arch = hooks->find_archetype(archname);
-
-                if (!arch) {
-                    PyErr_Format(AtrinikError, "Could not find archetype '%s'.", archname);
-                    return -1;
-                }
-                else {
-                    *(archetype **) field_ptr = arch;
-                }
-            }
-            else {
-                INTRAISE("Illegal value for archetype field.");
+            if (val < 0 || (unsigned long) val > UINT8_MAX) {
+                PyErr_SetString(PyExc_OverflowError, "Invalid integer value for uint8 field.");
+                return -1;
             }
 
-            break;
+            *(uint8 *) field_ptr = (uint8) val;
+        } else {
+            INTRAISE("Illegal value for uint8 field.");
+        }
 
-        case FIELDTYPE_PLAYER:
+        break;
 
-            if (value == Py_None) {
-                *(player **) field_ptr = NULL;
-            }
-            else if (PyObject_TypeCheck(value, &Atrinik_PlayerType)) {
-                *(player **) field_ptr = (player *) ((Atrinik_Player *) value)->pl;
-            }
-            else {
-                INTRAISE("Illegal value for player field.");
-            }
+    case FIELDTYPE_SINT8:
 
-            break;
+        if (PyInt_Check(value)) {
+            long val = PyLong_AsLong(value);
 
-        case FIELDTYPE_FACE:
-
-            if (PyTuple_Check(value)) {
-                if (PyTuple_GET_SIZE(value) != 2) {
-                    PyErr_Format(PyExc_ValueError, "Tuple for face field must have exactly two values.");
-                    return -1;
-                }
-                else if (!PyInt_Check(PyTuple_GET_ITEM(value, 1))) {
-                    PyErr_SetString(PyExc_ValueError, "Second value of tuple used for face field is not an integer.");
-                    return -1;
-                }
-
-                return set_face_field(field_ptr, PyLong_AsLong(PyTuple_GET_ITEM(value, 1)));
-            }
-            else if (PyInt_Check(value)) {
-                return set_face_field(field_ptr, PyLong_AsLong(value));
-            }
-            else if (PyString_Check(value)) {
-                return set_face_field(field_ptr, hooks->find_face(PyString_AsString(value), 0));
-            }
-            else {
-                INTRAISE("Illegal value for face field.");
+            if (val < SINT8_MIN || val > SINT8_MAX) {
+                PyErr_SetString(PyExc_OverflowError, "Invalid integer value for sint8 field.");
+                return -1;
             }
 
-            break;
+            *(sint8 *) field_ptr = (sint8) val;
+        } else {
+            INTRAISE("Illegal value for sint8 field.");
+        }
 
-        case FIELDTYPE_ANIMATION:
+        break;
 
-            if (PyTuple_Check(value)) {
-                if (PyTuple_GET_SIZE(value) != 2) {
-                    PyErr_Format(PyExc_ValueError, "Tuple for animation field must have exactly two values.");
-                    return -1;
-                }
-                else if (!PyInt_Check(PyTuple_GET_ITEM(value, 1))) {
-                    PyErr_SetString(PyExc_ValueError, "Second value of tuple used for animation field is not an integer.");
-                    return -1;
-                }
+    case FIELDTYPE_UINT16:
 
-                return set_animation_field(field_ptr, PyLong_AsLong(PyTuple_GET_ITEM(value, 1)));
-            }
-            else if (PyInt_Check(value)) {
-                return set_animation_field(field_ptr, PyLong_AsLong(value));
-            }
-            else if (PyString_Check(value)) {
-                return set_animation_field(field_ptr, hooks->find_animation(PyString_AsString(value)));
-            }
-            else {
-                INTRAISE("Illegal value for animation field.");
+        if (PyInt_Check(value)) {
+            long val = PyLong_AsLong(value);
+
+            if (val < 0 || (unsigned long) val > UINT16_MAX) {
+                PyErr_SetString(PyExc_OverflowError, "Invalid integer value for uint16 field.");
+                return -1;
             }
 
-            break;
+            *(uint16 *) field_ptr = (uint16) val;
+        } else {
+            INTRAISE("Illegal value for uint16 field.");
+        }
 
-        case FIELDTYPE_BOOLEAN:
+        break;
 
-            if (value == Py_True) {
-                *(uint8 *) field_ptr = 1;
-            }
-            else if (value == Py_False) {
-                *(uint8 *) field_ptr = 0;
-            }
-            else {
-                INTRAISE("Illegal value for boolean field.");
-            }
+    case FIELDTYPE_SINT16:
 
-            break;
+        if (PyInt_Check(value)) {
+            long val = PyLong_AsLong(value);
 
-        case FIELDTYPE_CONNECTION:
-
-            if (PyInt_Check(value)) {
-                hooks->connection_object_add(ptr, ((object *) ptr)->map, PyLong_AsLong(value));
-            }
-            else {
-                INTRAISE("Illegal value for connection field.");
+            if (val < SINT16_MIN || val > SINT16_MAX) {
+                PyErr_SetString(PyExc_OverflowError, "Invalid integer value for sint16 field.");
+                return -1;
             }
 
-            break;
+            *(sint16 *) field_ptr = (sint16) val;
+        } else {
+            INTRAISE("Illegal value for sint16 field.");
+        }
 
-        case FIELDTYPE_TREASURELIST:
+        break;
 
-            if (PyString_Check(value)) {
-                *(treasurelist **) field_ptr = hooks->find_treasurelist(PyString_AsString(value));
+    case FIELDTYPE_UINT32:
+
+        if (PyInt_Check(value)) {
+            long val = PyLong_AsLong(value);
+
+            if (val < 0 || (unsigned long) val > UINT32_MAX) {
+                PyErr_SetString(PyExc_OverflowError, "Invalid integer value for uint32 field.");
+                return -1;
             }
-            else {
-                INTRAISE("Illegal value for treasure list field.");
+
+            *(uint32 *) field_ptr = (uint32) val;
+        } else {
+            INTRAISE("Illegal value for uint32 field.");
+        }
+
+        break;
+
+    case FIELDTYPE_SINT32:
+
+        if (PyInt_Check(value)) {
+            long val = PyLong_AsLong(value);
+
+            if (val < SINT32_MIN || val > SINT32_MAX) {
+                PyErr_SetString(PyExc_OverflowError, "Invalid integer value for sint32 field.");
+                return -1;
             }
 
-            break;
+            *(sint32 *) field_ptr = (sint32) val;
+        } else {
+            INTRAISE("Illegal value for sint32 field.");
+        }
 
-        default:
-            break;
+        break;
+
+    case FIELDTYPE_UINT64:
+
+        if (PyInt_Check(value)) {
+            unsigned PY_LONG_LONG val = PyLong_AsUnsignedLongLong(value);
+
+            if (PyErr_Occurred()) {
+                PyErr_SetString(PyExc_OverflowError, "Invalid integer value for uint64 field.");
+                return -1;
+            }
+
+            *(uint64 *) field_ptr = (uint64) val;
+        } else {
+            INTRAISE("Illegal value for uint64 field.");
+        }
+
+        break;
+
+    case FIELDTYPE_SINT64:
+
+        if (PyInt_Check(value)) {
+            PY_LONG_LONG val = PyLong_AsLongLong(value);
+
+            if (PyErr_Occurred()) {
+                PyErr_SetString(PyExc_OverflowError, "Invalid integer value for sint64 field.");
+                return -1;
+            }
+
+            *(sint64 *) field_ptr = (sint64) val;
+        } else {
+            INTRAISE("Illegal value for sint64 field.");
+        }
+
+        break;
+
+    case FIELDTYPE_FLOAT:
+
+        if (PyFloat_Check(value)) {
+            *(float *) field_ptr = PyFloat_AsDouble(value) * 1.0;
+        } else if (PyInt_Check(value)) {
+            *(float *) field_ptr = PyLong_AsLong(value) * 1.0;
+        } else {
+            INTRAISE("Illegal value for float field.");
+        }
+
+        break;
+
+    case FIELDTYPE_OBJECT:
+
+        if (value == Py_None) {
+            *(object **) field_ptr = NULL;
+        } else if (PyObject_TypeCheck(value, &Atrinik_ObjectType)) {
+            OBJEXISTCHECK_INT((Atrinik_Object *) value);
+            *(object **) field_ptr = (object *) ((Atrinik_Object *) value)->obj;
+        } else {
+            INTRAISE("Illegal value for object field.");
+        }
+
+        break;
+
+    case FIELDTYPE_OBJECT2:
+        INTRAISE("Field type not implemented.");
+        break;
+
+    case FIELDTYPE_MAP:
+
+        if (value == Py_None) {
+            *(mapstruct **) field_ptr = NULL;
+        } else if (PyObject_TypeCheck(value, &Atrinik_MapType)) {
+            *(mapstruct **) field_ptr = (mapstruct *) ((Atrinik_Map *) value)->map;
+        } else {
+            INTRAISE("Illegal value for map field.");
+        }
+
+        break;
+
+    case FIELDTYPE_OBJECTREF:
+    {
+        void *field_ptr2 = (char *) ptr + field->extra_data;
+
+        if (value == Py_None) {
+            *(object **) field_ptr = NULL;
+            *(tag_t *) field_ptr2 = 0;
+        } else if (PyObject_TypeCheck(value, &Atrinik_ObjectType)) {
+            object *tmp;
+
+            OBJEXISTCHECK_INT((Atrinik_Object *) value);
+
+            tmp = (object *) ((Atrinik_Object *) value)->obj;
+            *(object **) field_ptr = tmp;
+            *(tag_t *) field_ptr2 = tmp->count;
+        } else {
+            INTRAISE("Illegal value for object+reference field.");
+        }
+
+        break;
+    }
+
+    case FIELDTYPE_REGION:
+
+        if (value == Py_None) {
+            *(region_struct **) field_ptr = NULL;
+        } else if (PyObject_TypeCheck(value, &Atrinik_RegionType)) {
+            *(region_struct **) field_ptr = (region_struct *) ((Atrinik_Region *) value)->region;
+        } else {
+            INTRAISE("Illegal value for region field.");
+        }
+
+        break;
+
+    case FIELDTYPE_PARTY:
+
+        if (value == Py_None) {
+            *(party_struct **) field_ptr = NULL;
+        } else if (PyObject_TypeCheck(value, &Atrinik_PartyType)) {
+            *(party_struct **) field_ptr = (party_struct *) ((Atrinik_Party *) value)->party;
+        } else {
+            INTRAISE("Illegal value for party field.");
+        }
+
+        break;
+
+    case FIELDTYPE_ARCH:
+
+        if (value == Py_None) {
+            *(archetype **) field_ptr = NULL;
+        } else if (PyObject_TypeCheck(value, &Atrinik_ArchetypeType)) {
+            *(archetype **) field_ptr = (archetype *) ((Atrinik_Archetype *) value)->at;
+        } else if (PyString_Check(value)) {
+            const char *archname;
+            archetype *arch;
+
+            archname = PyString_AsString(value);
+            arch = hooks->find_archetype(archname);
+
+            if (!arch) {
+                PyErr_Format(AtrinikError, "Could not find archetype '%s'.", archname);
+                return -1;
+            } else {
+                *(archetype **) field_ptr = arch;
+            }
+        } else {
+            INTRAISE("Illegal value for archetype field.");
+        }
+
+        break;
+
+    case FIELDTYPE_PLAYER:
+
+        if (value == Py_None) {
+            *(player **) field_ptr = NULL;
+        } else if (PyObject_TypeCheck(value, &Atrinik_PlayerType)) {
+            *(player **) field_ptr = (player *) ((Atrinik_Player *) value)->pl;
+        } else {
+            INTRAISE("Illegal value for player field.");
+        }
+
+        break;
+
+    case FIELDTYPE_FACE:
+
+        if (PyTuple_Check(value)) {
+            if (PyTuple_GET_SIZE(value) != 2) {
+                PyErr_Format(PyExc_ValueError, "Tuple for face field must have exactly two values.");
+                return -1;
+            } else if (!PyInt_Check(PyTuple_GET_ITEM(value, 1))) {
+                PyErr_SetString(PyExc_ValueError, "Second value of tuple used for face field is not an integer.");
+                return -1;
+            }
+
+            return set_face_field(field_ptr, PyLong_AsLong(PyTuple_GET_ITEM(value, 1)));
+        } else if (PyInt_Check(value)) {
+            return set_face_field(field_ptr, PyLong_AsLong(value));
+        } else if (PyString_Check(value)) {
+            return set_face_field(field_ptr, hooks->find_face(PyString_AsString(value), 0));
+        } else {
+            INTRAISE("Illegal value for face field.");
+        }
+
+        break;
+
+    case FIELDTYPE_ANIMATION:
+
+        if (PyTuple_Check(value)) {
+            if (PyTuple_GET_SIZE(value) != 2) {
+                PyErr_Format(PyExc_ValueError, "Tuple for animation field must have exactly two values.");
+                return -1;
+            } else if (!PyInt_Check(PyTuple_GET_ITEM(value, 1))) {
+                PyErr_SetString(PyExc_ValueError, "Second value of tuple used for animation field is not an integer.");
+                return -1;
+            }
+
+            return set_animation_field(field_ptr, PyLong_AsLong(PyTuple_GET_ITEM(value, 1)));
+        } else if (PyInt_Check(value)) {
+            return set_animation_field(field_ptr, PyLong_AsLong(value));
+        } else if (PyString_Check(value)) {
+            return set_animation_field(field_ptr, hooks->find_animation(PyString_AsString(value)));
+        } else {
+            INTRAISE("Illegal value for animation field.");
+        }
+
+        break;
+
+    case FIELDTYPE_BOOLEAN:
+
+        if (value == Py_True) {
+            *(uint8 *) field_ptr = 1;
+        } else if (value == Py_False) {
+            *(uint8 *) field_ptr = 0;
+        } else {
+            INTRAISE("Illegal value for boolean field.");
+        }
+
+        break;
+
+    case FIELDTYPE_CONNECTION:
+
+        if (PyInt_Check(value)) {
+            hooks->connection_object_add(ptr, ((object *) ptr)->map, PyLong_AsLong(value));
+        } else {
+            INTRAISE("Illegal value for connection field.");
+        }
+
+        break;
+
+    case FIELDTYPE_TREASURELIST:
+
+        if (PyString_Check(value)) {
+            *(treasurelist **) field_ptr = hooks->find_treasurelist(PyString_AsString(value));
+        } else {
+            INTRAISE("Illegal value for treasure list field.");
+        }
+
+        break;
+
+    default:
+        break;
     }
 
     return 0;
@@ -2545,109 +2606,109 @@ PyObject *generic_field_getter(fields_struct *field, void *ptr)
     field_ptr = (char *) ptr + field->offset;
 
     switch (field->type) {
-        case FIELDTYPE_SHSTR:
-        case FIELDTYPE_CSTR:
-        {
-            char *str = *(char **) field_ptr;
+    case FIELDTYPE_SHSTR:
+    case FIELDTYPE_CSTR:
+    {
+        char *str = *(char **) field_ptr;
 
-            if (str == NULL) {
-                Py_INCREF(Py_None);
-                return Py_None;
-            }
-
-            return Py_BuildValue("s", str);
+        if (str == NULL) {
+            Py_INCREF(Py_None);
+            return Py_None;
         }
 
-        case FIELDTYPE_CARY:
-            return Py_BuildValue("s", (char *) field_ptr);
+        return Py_BuildValue("s", str);
+    }
 
-        case FIELDTYPE_UINT8:
-            return Py_BuildValue("b", *(uint8 *) field_ptr);
+    case FIELDTYPE_CARY:
+        return Py_BuildValue("s", (char *) field_ptr);
 
-        case FIELDTYPE_SINT8:
-            return Py_BuildValue("B", *(sint8 *) field_ptr);
+    case FIELDTYPE_UINT8:
+        return Py_BuildValue("b", *(uint8 *) field_ptr);
 
-        case FIELDTYPE_UINT16:
-            return Py_BuildValue("H", *(uint16 *) field_ptr);
+    case FIELDTYPE_SINT8:
+        return Py_BuildValue("B", *(sint8 *) field_ptr);
 
-        case FIELDTYPE_SINT16:
-            return Py_BuildValue("h", *(sint16 *) field_ptr);
+    case FIELDTYPE_UINT16:
+        return Py_BuildValue("H", *(uint16 *) field_ptr);
 
-        case FIELDTYPE_UINT32:
-            return Py_BuildValue("I", *(uint32 *) field_ptr);
+    case FIELDTYPE_SINT16:
+        return Py_BuildValue("h", *(sint16 *) field_ptr);
 
-        case FIELDTYPE_SINT32:
-            return Py_BuildValue("i", *(sint32 *) field_ptr);
+    case FIELDTYPE_UINT32:
+        return Py_BuildValue("I", *(uint32 *) field_ptr);
 
-        case FIELDTYPE_UINT64:
-            return Py_BuildValue("K", *(uint64 *) field_ptr);
+    case FIELDTYPE_SINT32:
+        return Py_BuildValue("i", *(sint32 *) field_ptr);
 
-        case FIELDTYPE_SINT64:
-            return Py_BuildValue("L", *(sint64 *) field_ptr);
+    case FIELDTYPE_UINT64:
+        return Py_BuildValue("K", *(uint64 *) field_ptr);
 
-        case FIELDTYPE_FLOAT:
-            return Py_BuildValue("f", *(float *) field_ptr);
+    case FIELDTYPE_SINT64:
+        return Py_BuildValue("L", *(sint64 *) field_ptr);
 
-        case FIELDTYPE_MAP:
-            return wrap_map(*(mapstruct **) field_ptr);
+    case FIELDTYPE_FLOAT:
+        return Py_BuildValue("f", *(float *) field_ptr);
 
-        case FIELDTYPE_OBJECT:
-            return wrap_object(*(object **) field_ptr);
+    case FIELDTYPE_MAP:
+        return wrap_map(*(mapstruct **) field_ptr);
 
-        case FIELDTYPE_OBJECT2:
-            return wrap_object(field_ptr);
+    case FIELDTYPE_OBJECT:
+        return wrap_object(*(object **) field_ptr);
 
-        case FIELDTYPE_OBJECTREF:
-        {
-            object *obj = *(object **) field_ptr;
-            tag_t tag = *(tag_t *) (void *) ((char *) ptr + field->extra_data);
+    case FIELDTYPE_OBJECT2:
+        return wrap_object(field_ptr);
 
-            return wrap_object(OBJECT_VALID(obj, tag) ? obj : NULL);
+    case FIELDTYPE_OBJECTREF:
+    {
+        object *obj = *(object **) field_ptr;
+        tag_t tag = *(tag_t *) (void *) ((char *) ptr + field->extra_data);
+
+        return wrap_object(OBJECT_VALID(obj, tag) ? obj : NULL);
+    }
+
+    case FIELDTYPE_REGION:
+        return wrap_region(*(region_struct **) field_ptr);
+
+    case FIELDTYPE_PARTY:
+        return wrap_party(*(party_struct **) field_ptr);
+
+    case FIELDTYPE_ARCH:
+        return wrap_archetype(*(archetype **) field_ptr);
+
+    case FIELDTYPE_PLAYER:
+        return wrap_player(*(player **) field_ptr);
+
+    case FIELDTYPE_FACE:
+        return Py_BuildValue("(sH)", (*(New_Face **) field_ptr)->name, (*(New_Face **) field_ptr)->number);
+
+    case FIELDTYPE_ANIMATION:
+        return Py_BuildValue("(sH)", (&(*hooks->animations)[*(uint16 *) field_ptr])->name, *(uint16 *) field_ptr);
+
+    case FIELDTYPE_BOOLEAN:
+        Py_ReturnBoolean(*(uint8 *) field_ptr);
+
+    case FIELDTYPE_LIST:
+        return wrap_attr_list(ptr, field->offset, field->extra_data);
+
+    case FIELDTYPE_CONNECTION:
+        return Py_BuildValue("i", hooks->connection_object_get_value(ptr));
+
+    case FIELDTYPE_TREASURELIST:
+    {
+        treasurelist *tl;
+
+        tl = *(treasurelist **) field_ptr;
+
+        if (!tl) {
+            Py_INCREF(Py_None);
+            return Py_None;
         }
 
-        case FIELDTYPE_REGION:
-            return wrap_region(*(region_struct **) field_ptr);
+        return Py_BuildValue("s", tl->name);
+    }
 
-        case FIELDTYPE_PARTY:
-            return wrap_party(*(party_struct **) field_ptr);
-
-        case FIELDTYPE_ARCH:
-            return wrap_archetype(*(archetype **) field_ptr);
-
-        case FIELDTYPE_PLAYER:
-            return wrap_player(*(player **) field_ptr);
-
-        case FIELDTYPE_FACE:
-            return Py_BuildValue("(sH)", (*(New_Face **) field_ptr)->name, (*(New_Face **) field_ptr)->number);
-
-        case FIELDTYPE_ANIMATION:
-            return Py_BuildValue("(sH)", (&(*hooks->animations)[*(uint16 *) field_ptr])->name, *(uint16 *) field_ptr);
-
-        case FIELDTYPE_BOOLEAN:
-            Py_ReturnBoolean(*(uint8 *) field_ptr);
-
-        case FIELDTYPE_LIST:
-            return wrap_attr_list(ptr, field->offset, field->extra_data);
-
-        case FIELDTYPE_CONNECTION:
-            return Py_BuildValue("i", hooks->connection_object_get_value(ptr));
-
-        case FIELDTYPE_TREASURELIST:
-        {
-            treasurelist *tl;
-
-            tl = *(treasurelist **) field_ptr;
-
-            if (!tl) {
-                Py_INCREF(Py_None);
-                return Py_None;
-            }
-
-            return Py_BuildValue("s", tl->name);
-        }
-
-        default:
-            break;
+    default:
+        break;
     }
 
     RAISE("Unknown field type.");
@@ -2663,24 +2724,24 @@ PyObject *generic_rich_compare(int op, int result)
     /* Based on how Python 3.0 (GPL compatible) implements it for internal
      * types. */
     switch (op) {
-        case Py_EQ:
-            result = (result == 0);
-            break;
-        case Py_NE:
-            result = (result != 0);
-            break;
-        case Py_LE:
-            result = (result <= 0);
-            break;
-        case Py_GE:
-            result = (result >= 0);
-            break;
-        case Py_LT:
-            result = (result == -1);
-            break;
-        case Py_GT:
-            result = (result == 1);
-            break;
+    case Py_EQ:
+        result = (result == 0);
+        break;
+    case Py_NE:
+        result = (result != 0);
+        break;
+    case Py_LE:
+        result = (result <= 0);
+        break;
+    case Py_GE:
+        result = (result >= 0);
+        break;
+    case Py_LT:
+        result = (result == -1);
+        break;
+    case Py_GT:
+        result = (result == 1);
+        break;
     }
 
     return PyBool_FromLong(result);

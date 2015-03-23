@@ -14,11 +14,12 @@ commands = [
     ("stime", 1, 0),
     ("console", 1, COMMAND_PERMISSION | COMMAND_ALLOW_MARKUP),
     ("create", 1, COMMAND_PERMISSION),
+    ("patch", 1, COMMAND_PERMISSION),
     ("mapinfo", 1, COMMAND_PERMISSION),
     ("rainbow", 1, COMMAND_PERMISSION),
     ("addexp", 1, COMMAND_PERMISSION),
     ("tpto", 1, COMMAND_PERMISSION),
-    ("cmd_permission", 1, COMMAND_PERMISSION),
+    ("cmd_permission", 1, COMMAND_PERMISSION | COMMAND_ALLOW_MARKUP),
 #    ("pirate_say", 1, 0),
 #    ("pirate_shout", 1, 0),
 ]

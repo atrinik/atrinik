@@ -7,13 +7,13 @@ corpse 1
 layer 6
 direction 5
 is_neutral 1
-terrain_flag 1
+terrain_flag 65
 weapon_speed 0.037
 attack_fire 80
 protect_fire 100
 protect_cold -25
 type 80
-Wis 3
+wis 3
 animation elemental_fire
 is_animated 1
 anim_speed 4

@@ -9,7 +9,7 @@ corpse 1
 layer 6
 direction 5
 is_neutral 1
-terrain_flag 1
+terrain_flag 65
 weapon_speed 0.031
 attack_impact 100
 protect_cold 30
@@ -22,7 +22,7 @@ protect_cleave -10
 protect_impact 10
 protect_pierce 5
 type 80
-Wis 3
+wis 3
 animation wose_ancient
 is_animated 1
 anim_speed 4
@@ -35,7 +35,7 @@ dam 63
 hp -1
 maxhp 93
 level 1
-Con 10
+con 10
 speed -0.036
 weight 823000
 end

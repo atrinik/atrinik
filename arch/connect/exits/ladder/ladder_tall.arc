@@ -3,6 +3,7 @@ layer 4
 name ladder going up
 hp -1
 sp -1
+last_heal 9
 face ladder_tall.111
 animation ladder_tall
 is_turnable 1

@@ -1,26 +1,26 @@
-/************************************************************************
-*            Atrinik, a Multiplayer Online Role Playing Game            *
-*                                                                       *
-*    Copyright (C) 2009-2012 Alex Tokar and Atrinik Development Team    *
-*                                                                       *
-* Fork from Crossfire (Multiplayer game for X-windows).                 *
-*                                                                       *
-* This program is free software; you can redistribute it and/or modify  *
-* it under the terms of the GNU General Public License as published by  *
-* the Free Software Foundation; either version 2 of the License, or     *
-* (at your option) any later version.                                   *
-*                                                                       *
-* This program is distributed in the hope that it will be useful,       *
-* but WITHOUT ANY WARRANTY; without even the implied warranty of        *
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
-* GNU General Public License for more details.                          *
-*                                                                       *
-* You should have received a copy of the GNU General Public License     *
-* along with this program; if not, write to the Free Software           *
-* Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.             *
-*                                                                       *
-* The author can be reached at admin@atrinik.org                        *
-************************************************************************/
+/*************************************************************************
+ *           Atrinik, a Multiplayer Online Role Playing Game             *
+ *                                                                       *
+ *   Copyright (C) 2009-2014 Alex Tokar and Atrinik Development Team     *
+ *                                                                       *
+ * Fork from Crossfire (Multiplayer game for X-windows).                 *
+ *                                                                       *
+ * This program is free software; you can redistribute it and/or modify  *
+ * it under the terms of the GNU General Public License as published by  *
+ * the Free Software Foundation; either version 2 of the License, or     *
+ * (at your option) any later version.                                   *
+ *                                                                       *
+ * This program is distributed in the hope that it will be useful,       *
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of        *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
+ * GNU General Public License for more details.                          *
+ *                                                                       *
+ * You should have received a copy of the GNU General Public License     *
+ * along with this program; if not, write to the Free Software           *
+ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.             *
+ *                                                                       *
+ * The author can be reached at admin@atrinik.org                        *
+ ************************************************************************/
 
 /**
  * @file
@@ -28,6 +28,7 @@
  * handle all the commands - some might be in other files. */
 
 #include <global.h>
+#include <region_map.h>
 
 /** @copydoc socket_command_struct::handle_func */
 void socket_command_book(uint8 *data, size_t len, size_t pos)
@@ -46,8 +47,7 @@ void socket_command_setup(uint8 *data, size_t len, size_t pos)
 
         if (type == CMD_SETUP_SOUND) {
             packet_to_uint8(data, len, &pos);
-        }
-        else if (type == CMD_SETUP_MAPSIZE) {
+        } else if (type == CMD_SETUP_MAPSIZE) {
             int x, y;
 
             x = packet_to_uint8(data, len, &pos);
@@ -55,10 +55,9 @@ void socket_command_setup(uint8 *data, size_t len, size_t pos)
 
             setting_set_int(OPT_CAT_MAP, OPT_MAP_WIDTH, x);
             setting_set_int(OPT_CAT_MAP, OPT_MAP_HEIGHT, y);
-        }
-        else if (type == CMD_SETUP_DATA_URL) {
+        } else if (type == CMD_SETUP_DATA_URL) {
             packet_to_string(data, len, &pos, cpl.http_url,
-                             sizeof(cpl.http_url));
+                    sizeof(cpl.http_url));
         }
     }
 
@@ -80,8 +79,7 @@ void socket_command_anim(uint8 *data, size_t len, size_t pos)
 
     if (animations[anim_id].facings > 1) {
         animations[anim_id].frame = animations[anim_id].num_animations / animations[anim_id].facings;
-    }
-    else {
+    } else {
         animations[anim_id].frame = animations[anim_id].num_animations;
     }
 
@@ -114,10 +112,17 @@ void socket_command_image(uint8 *data, size_t len, size_t pos)
     }
 
     FaceList[facenum].sprite = sprite_tryload_file(buf, 0, NULL);
-    map_redraw_flag = 1;
+    map_redraw_flag = minimap_redraw_flag = 1;
 
     book_redraw();
     interface_redraw();
+
+    /* TODO: this could be a bit more intelligent to detect whether any of
+     * these widgets actually contain an object with the updated face. */
+    WIDGET_REDRAW_ALL(PDOLL_ID);
+    WIDGET_REDRAW_ALL(QUICKSLOT_ID);
+    WIDGET_REDRAW_ALL(MAIN_INV_ID);
+    WIDGET_REDRAW_ALL(BELOW_INV_ID);
 }
 
 /** @copydoc socket_command_struct::handle_func */
@@ -161,162 +166,168 @@ void socket_command_stats(uint8 *data, size_t len, size_t pos)
         if (type >= CS_STAT_EQUIP_START && type <= CS_STAT_EQUIP_END) {
             cpl.equipment[type - CS_STAT_EQUIP_START] = packet_to_uint32(data, len, &pos);
             WIDGET_REDRAW_ALL(PDOLL_ID);
-        }
-        else {
+        } else if (type >= CS_STAT_PROT_START && type <= CS_STAT_PROT_END) {
+            cpl.stats.protection[type - CS_STAT_PROT_START] =
+                    packet_to_sint8(data, len, &pos);
+            WIDGET_REDRAW_ALL(PROTECTIONS_ID);
+        } else {
             switch (type) {
-                case CS_STAT_TARGET_HP:
-                    cpl.target_hp = packet_to_uint8(data, len, &pos);
-                    break;
+            case CS_STAT_TARGET_HP:
+                cpl.target_hp = packet_to_uint8(data, len, &pos);
+                break;
 
-                case CS_STAT_REG_HP:
-                    cpl.gen_hp = abs(packet_to_uint16(data, len, &pos)) / 10.0f;
-                    widget_redraw_type_id(STAT_ID, "health");
-                    break;
+            case CS_STAT_REG_HP:
+                cpl.gen_hp = abs(packet_to_uint16(data, len, &pos)) / 10.0f;
+                widget_redraw_type_id(STAT_ID, "health");
+                break;
 
-                case CS_STAT_REG_MANA:
-                    cpl.gen_sp = abs(packet_to_uint16(data, len, &pos)) / 10.0f;
-                    widget_redraw_type_id(STAT_ID, "mana");
-                    break;
+            case CS_STAT_REG_MANA:
+                cpl.gen_sp = abs(packet_to_uint16(data, len, &pos)) / 10.0f;
+                widget_redraw_type_id(STAT_ID, "mana");
+                break;
 
-                case CS_STAT_HP:
-                    temp = packet_to_sint32(data, len, &pos);
+            case CS_STAT_HP:
+                temp = packet_to_sint32(data, len, &pos);
 
-                    if (temp < cpl.stats.hp && cpl.stats.food) {
-                        cpl.warn_hp = 1;
+                if (temp < cpl.stats.hp && cpl.stats.food) {
+                    cpl.warn_hp = 1;
 
-                        if (cpl.stats.maxhp / 12 <= cpl.stats.hp - temp) {
-                            cpl.warn_hp = 2;
-                        }
+                    if (cpl.stats.maxhp / 12 <= cpl.stats.hp - temp) {
+                        cpl.warn_hp = 2;
                     }
-
-                    cpl.stats.hp = temp;
-                    widget_redraw_type_id(STAT_ID, "health");
-                    break;
-
-                case CS_STAT_MAXHP:
-                    cpl.stats.maxhp = packet_to_sint32(data, len, &pos);
-                    widget_redraw_type_id(STAT_ID, "health");
-                    break;
-
-                case CS_STAT_SP:
-                    cpl.stats.sp = packet_to_sint16(data, len, &pos);
-                    widget_redraw_type_id(STAT_ID, "mana");
-                    break;
-
-                case CS_STAT_MAXSP:
-                    cpl.stats.maxsp = packet_to_sint16(data, len, &pos);
-                    widget_redraw_type_id(STAT_ID, "mana");
-                    break;
-
-                case CS_STAT_STR:
-                case CS_STAT_INT:
-                case CS_STAT_POW:
-                case CS_STAT_DEX:
-                case CS_STAT_CON:
-                {
-                    sint8 *stat_curr;
-                    uint8 stat_new;
-
-                    stat_curr = &(cpl.stats.Str) + (sizeof(cpl.stats.Str) * (type - CS_STAT_STR));
-                    stat_new = packet_to_uint8(data, len, &pos);
-
-                    if (*stat_curr != -1) {
-                        if (stat_new > *stat_curr) {
-                            cpl.warn_statup = 1;
-                        }
-                        else if (stat_new < *stat_curr) {
-                            cpl.warn_statdown = 1;
-                        }
-                    }
-
-                    *stat_curr = stat_new;
-                    break;
                 }
 
-                case CS_STAT_PATH_ATTUNED:
-                    cpl.path_attuned = packet_to_uint32(data, len, &pos);
-                    WIDGET_REDRAW_ALL(SPELLS_ID);
-                    break;
+                cpl.stats.hp = temp;
+                widget_redraw_type_id(STAT_ID, "health");
+                break;
 
-                case CS_STAT_PATH_REPELLED:
-                    cpl.path_repelled = packet_to_uint32(data, len, &pos);
-                    WIDGET_REDRAW_ALL(SPELLS_ID);
-                    break;
+            case CS_STAT_MAXHP:
+                cpl.stats.maxhp = packet_to_sint32(data, len, &pos);
+                widget_redraw_type_id(STAT_ID, "health");
+                break;
 
-                case CS_STAT_PATH_DENIED:
-                    cpl.path_denied = packet_to_uint32(data, len, &pos);
-                    WIDGET_REDRAW_ALL(SPELLS_ID);
-                    break;
+            case CS_STAT_SP:
+                cpl.stats.sp = packet_to_sint16(data, len, &pos);
+                widget_redraw_type_id(STAT_ID, "mana");
+                break;
 
-                case CS_STAT_EXP:
-                    cpl.stats.exp = packet_to_uint64(data, len, &pos);
-                    WIDGET_REDRAW_ALL(MAIN_LVL_ID);
-                    widget_redraw_type_id(STAT_ID, "exp");
-                    break;
+            case CS_STAT_MAXSP:
+                cpl.stats.maxsp = packet_to_sint16(data, len, &pos);
+                widget_redraw_type_id(STAT_ID, "mana");
+                break;
 
-                case CS_STAT_LEVEL:
-                    cpl.stats.level = packet_to_uint8(data, len, &pos);
-                    WIDGET_REDRAW_ALL(MAIN_LVL_ID);
-                    break;
+            case CS_STAT_STR:
+            case CS_STAT_INT:
+            case CS_STAT_POW:
+            case CS_STAT_DEX:
+            case CS_STAT_CON:
+            {
+                sint8 *stat_curr;
+                uint8 stat_new;
 
-                case CS_STAT_WC:
-                    cpl.stats.wc = packet_to_uint16(data, len, &pos);
-                    break;
+                stat_curr = &(cpl.stats.Str) + (sizeof(cpl.stats.Str) * (type - CS_STAT_STR));
+                stat_new = packet_to_uint8(data, len, &pos);
 
-                case CS_STAT_AC:
-                    cpl.stats.ac = packet_to_uint16(data, len, &pos);
-                    break;
+                if (*stat_curr != -1) {
+                    if (stat_new > *stat_curr) {
+                        cpl.warn_statup = 1;
+                    } else if (stat_new < *stat_curr) {
+                        cpl.warn_statdown = 1;
+                    }
+                }
 
-                case CS_STAT_DAM:
-                    cpl.stats.dam = packet_to_uint16(data, len, &pos);
-                    break;
+                *stat_curr = stat_new;
+                WIDGET_REDRAW_ALL(PDOLL_ID);
+                break;
+            }
 
-                case CS_STAT_SPEED:
-                    cpl.stats.speed = packet_to_uint32(data, len, &pos);
-                    break;
+            case CS_STAT_PATH_ATTUNED:
+                cpl.path_attuned = packet_to_uint32(data, len, &pos);
+                WIDGET_REDRAW_ALL(SPELLS_ID);
+                break;
 
-                case CS_STAT_FOOD:
-                    cpl.stats.food = packet_to_uint16(data, len, &pos);
-                    widget_redraw_type_id(STAT_ID, "food");
-                    break;
+            case CS_STAT_PATH_REPELLED:
+                cpl.path_repelled = packet_to_uint32(data, len, &pos);
+                WIDGET_REDRAW_ALL(SPELLS_ID);
+                break;
 
-                case CS_STAT_WEAPON_SPEED:
-                    cpl.stats.weapon_speed = abs(packet_to_uint32(data, len, &pos)) / FLOAT_MULTF;
-                    break;
+            case CS_STAT_PATH_DENIED:
+                cpl.path_denied = packet_to_uint32(data, len, &pos);
+                WIDGET_REDRAW_ALL(SPELLS_ID);
+                break;
 
-                case CS_STAT_FLAGS:
-                    cpl.stats.flags = packet_to_uint16(data, len, &pos);
-                    break;
+            case CS_STAT_EXP:
+                cpl.stats.exp = packet_to_uint64(data, len, &pos);
+                widget_redraw_type_id(STAT_ID, "exp");
+                break;
 
-                case CS_STAT_WEIGHT_LIM:
-                    cpl.weight_limit = abs(packet_to_uint32(data, len, &pos)) / 1000.0;
-                    break;
+            case CS_STAT_LEVEL:
+                cpl.stats.level = packet_to_uint8(data, len, &pos);
+                WIDGET_REDRAW_ALL(PLAYER_INFO_ID);
+                break;
 
-                case CS_STAT_ACTION_TIME:
-                    cpl.action_timer = abs(packet_to_uint32(data, len, &pos)) / 1000.0;
-                    WIDGET_REDRAW_ALL(SKILL_EXP_ID);
-                    break;
+            case CS_STAT_WC:
+                cpl.stats.wc = packet_to_uint16(data, len, &pos);
+                WIDGET_REDRAW_ALL(PDOLL_ID);
+                break;
 
-                case CS_STAT_GENDER:
-                    cpl.gender = packet_to_uint8(data, len, &pos);
-                    break;
+            case CS_STAT_AC:
+                cpl.stats.ac = packet_to_uint16(data, len, &pos);
+                WIDGET_REDRAW_ALL(PDOLL_ID);
+                break;
 
-                case CS_STAT_EXT_TITLE:
-                    packet_to_string(data, len, &pos, cpl.ext_title, sizeof(cpl.ext_title));
-                    WIDGET_REDRAW_ALL(PLAYER_INFO_ID);
-                    break;
+            case CS_STAT_DAM:
+                cpl.stats.dam = packet_to_uint16(data, len, &pos);
+                WIDGET_REDRAW_ALL(PDOLL_ID);
+                break;
 
-                case CS_STAT_RANGED_DAM:
-                    cpl.stats.ranged_dam = packet_to_uint16(data, len, &pos);
-                    break;
+            case CS_STAT_SPEED:
+                cpl.stats.speed = packet_to_float(data, len, &pos);
+                WIDGET_REDRAW_ALL(PDOLL_ID);
+                break;
 
-                case CS_STAT_RANGED_WC:
-                    cpl.stats.ranged_wc = packet_to_uint16(data, len, &pos);
-                    break;
+            case CS_STAT_FOOD:
+                cpl.stats.food = packet_to_uint16(data, len, &pos);
+                widget_redraw_type_id(STAT_ID, "food");
+                break;
 
-                case CS_STAT_RANGED_WS:
-                    cpl.stats.ranged_ws = packet_to_uint32(data, len, &pos);
-                    break;
+            case CS_STAT_WEAPON_SPEED:
+                cpl.stats.weapon_speed = packet_to_float(data, len, &pos);
+                WIDGET_REDRAW_ALL(PDOLL_ID);
+                break;
+
+            case CS_STAT_FLAGS:
+                cpl.stats.flags = packet_to_uint16(data, len, &pos);
+                break;
+
+            case CS_STAT_WEIGHT_LIM:
+                cpl.weight_limit = abs(packet_to_uint32(data, len, &pos)) / 1000.0;
+                break;
+
+            case CS_STAT_ACTION_TIME:
+                cpl.action_timer = packet_to_float(data, len, &pos);
+                WIDGET_REDRAW_ALL(PLAYER_INFO_ID);
+                break;
+
+            case CS_STAT_GENDER:
+                cpl.gender = packet_to_uint8(data, len, &pos);
+                WIDGET_REDRAW_ALL(PDOLL_ID);
+                break;
+
+            case CS_STAT_RANGED_DAM:
+                cpl.stats.ranged_dam = packet_to_uint16(data, len, &pos);
+                WIDGET_REDRAW_ALL(PDOLL_ID);
+                break;
+
+            case CS_STAT_RANGED_WC:
+                cpl.stats.ranged_wc = packet_to_uint16(data, len, &pos);
+                WIDGET_REDRAW_ALL(PDOLL_ID);
+                break;
+
+            case CS_STAT_RANGED_WS:
+                cpl.stats.ranged_ws = packet_to_float(data, len, &pos);
+                WIDGET_REDRAW_ALL(PDOLL_ID);
+                break;
             }
         }
     }
@@ -355,6 +366,10 @@ void socket_command_player(uint8 *data, size_t len, size_t pos)
 
 static void command_item_update(uint8 *data, size_t len, size_t *pos, uint32 flags, object *tmp)
 {
+    bool force_anim;
+
+    force_anim = false;
+
     if (flags & UPD_LOCATION) {
         /* Currently unused. */
         packet_to_uint32(data, len, pos);
@@ -394,11 +409,30 @@ static void command_item_update(uint8 *data, size_t len, size_t *pos, uint32 fla
     }
 
     if (flags & UPD_ANIM) {
-        tmp->animation_id = packet_to_uint16(data, len, pos);
+        uint16 animation_id;
+
+        animation_id = packet_to_uint16(data, len, pos);
+
+        /* Changing animation ID, force animation. */
+        if (tmp->animation_id != animation_id) {
+            force_anim = true;
+            tmp->anim_state = 0;
+        }
+
+        tmp->animation_id = animation_id;
     }
 
     if (flags & UPD_ANIMSPEED) {
-        tmp->anim_speed = packet_to_uint8(data, len, pos);
+        uint8 anim_speed;
+
+        anim_speed = packet_to_uint8(data, len, pos);
+
+        /* Animation was disabled and we're enabling it, force animation. */
+        if (tmp->anim_speed == 0 && anim_speed != 0) {
+            force_anim = true;
+        }
+
+        tmp->anim_speed = anim_speed;
     }
 
     if (flags & UPD_NROF) {
@@ -421,8 +455,7 @@ static void command_item_update(uint8 *data, size_t len, size_t *pos, uint32 fla
             packet_to_string(data, len, pos, spell_msg, sizeof(spell_msg));
 
             spells_update(tmp, spell_cost, spell_path, spell_flags, spell_msg);
-        }
-        else if (tmp->itype == TYPE_SKILL) {
+        } else if (tmp->itype == TYPE_SKILL) {
             uint8 skill_level;
             sint64 skill_exp;
 
@@ -430,8 +463,7 @@ static void command_item_update(uint8 *data, size_t len, size_t *pos, uint32 fla
             skill_exp = packet_to_sint64(data, len, pos);
 
             skills_update(tmp, skill_level, skill_exp);
-        }
-        else if (tmp->itype == TYPE_FORCE || tmp->itype == TYPE_POISONING) {
+        } else if (tmp->itype == TYPE_FORCE || tmp->itype == TYPE_POISONING) {
             sint32 sec;
             char msg[HUGE_BUF];
 
@@ -441,6 +473,13 @@ static void command_item_update(uint8 *data, size_t len, size_t *pos, uint32 fla
             widget_active_effects_update(cur_widget[ACTIVE_EFFECTS_ID], tmp, sec, msg);
         }
     }
+
+    if (force_anim) {
+        tmp->last_anim = tmp->anim_speed;
+        object_animate(tmp);
+    }
+
+    object_redraw(tmp);
 }
 
 /** @copydoc socket_command_struct::handle_func */
@@ -458,15 +497,12 @@ void socket_command_item(uint8 *data, size_t len, size_t pos)
         object_remove_inventory(object_find(loc));
     }
 
-    /* send item flag */
-    if (dmode == -4) {
+    if (dmode == -4) { /* send item flag */
         /* and redirect it to our invisible sack */
         if (loc == cpl.container_tag) {
             loc = -1;
         }
-    }
-    /* container flag! */
-    else if (dmode == -1) {
+    } else if (dmode == -1) { /* container flag! */
         /* we catch the REAL container tag */
         cpl.container_tag = loc;
         object_remove_inventory(object_find(-1));
@@ -549,8 +585,7 @@ static void map_play_footstep(void)
 
         if (step % 2) {
             sound_play_effect("step1.ogg", 100);
-        }
-        else {
+        } else {
             step = 0;
             sound_play_effect("step2.ogg", 100);
         }
@@ -569,22 +604,19 @@ void socket_command_mapstats(uint8 *data, size_t len, size_t pos)
         /* Get the type of this command... */
         type = packet_to_uint8(data, len, &pos);
 
-        /* Change map name. */
         if (type == CMD_MAPSTATS_NAME) {
+            /* Change map name. */
             packet_to_string(data, len, &pos, buf, sizeof(buf));
             update_map_name(buf);
-        }
-        /* Change map music. */
-        else if (type == CMD_MAPSTATS_MUSIC) {
+        } else if (type == CMD_MAPSTATS_MUSIC) {
+            /* Change map music. */
             packet_to_string(data, len, &pos, buf, sizeof(buf));
             update_map_bg_music(buf);
-        }
-        /* Change map weather. */
-        else if (type == CMD_MAPSTATS_WEATHER) {
+        } else if (type == CMD_MAPSTATS_WEATHER) {
+            /* Change map weather. */
             packet_to_string(data, len, &pos, buf, sizeof(buf));
             update_map_weather(buf);
-        }
-        else if (type == CMD_MAPSTATS_TEXT_ANIM) {
+        } else if (type == CMD_MAPSTATS_TEXT_ANIM) {
             packet_to_string(data, len, &pos, msg_anim.color, sizeof(msg_anim.color));
             packet_to_string(data, len, &pos, msg_anim.message, sizeof(msg_anim.message));
             msg_anim.tick = SDL_GetTicks();
@@ -596,20 +628,30 @@ void socket_command_mapstats(uint8 *data, size_t len, size_t pos)
 void socket_command_map(uint8 *data, size_t len, size_t pos)
 {
     static int mx = 0, my = 0;
-    int mask, x, y;
+    int mask, x, y, rx, ry;
     int mapstat;
     int xpos, ypos;
     int layer, ext_flags;
-    uint8 num_layers;
+    uint8 num_layers, in_building;
+    region_map_def_map_t *def_map;
+    bool region_map_fow_need_update;
 
     mapstat = packet_to_uint8(data, len, &pos);
 
     if (mapstat != MAP_UPDATE_CMD_SAME) {
-        char mapname[HUGE_BUF], bg_music[HUGE_BUF], weather[MAX_BUF];
+        char mapname[HUGE_BUF], bg_music[HUGE_BUF], weather[MAX_BUF],
+                region_name[MAX_BUF], region_longname[MAX_BUF],
+                mappath[HUGE_BUF];
+        uint8 height_diff;
 
         packet_to_string(data, len, &pos, mapname, sizeof(mapname));
         packet_to_string(data, len, &pos, bg_music, sizeof(bg_music));
         packet_to_string(data, len, &pos, weather, sizeof(weather));
+        height_diff = packet_to_uint8(data, len, &pos);
+        MapData.region_has_map = packet_to_uint8(data, len, &pos);
+        packet_to_string(data, len, &pos, VS(region_name));
+        packet_to_string(data, len, &pos, VS(region_longname));
+        packet_to_string(data, len, &pos, VS(mappath));
 
         if (mapstat == MAP_UPDATE_CMD_NEW) {
             int map_w, map_h;
@@ -621,8 +663,7 @@ void socket_command_map(uint8 *data, size_t len, size_t pos)
             mx = xpos;
             my = ypos;
             init_map_data(map_w, map_h, xpos, ypos);
-        }
-        else {
+        } else {
             int xoff, yoff;
 
             mapstat = packet_to_uint8(data, len, &pos);
@@ -632,7 +673,7 @@ void socket_command_map(uint8 *data, size_t len, size_t pos)
             ypos = packet_to_uint8(data, len, &pos);
             mx = xpos;
             my = ypos;
-            display_mapscroll(xoff, yoff);
+            display_mapscroll(xoff, yoff, 0, 0);
 
             map_play_footstep();
         }
@@ -640,14 +681,17 @@ void socket_command_map(uint8 *data, size_t len, size_t pos)
         update_map_name(mapname);
         update_map_bg_music(bg_music);
         update_map_weather(weather);
-    }
-    else {
+        update_map_height_diff(height_diff);
+        update_map_region_name(region_name);
+        update_map_region_longname(region_longname);
+        update_map_path(mappath);
+    } else {
         xpos = packet_to_uint8(data, len, &pos);
         ypos = packet_to_uint8(data, len, &pos);
 
         /* Have we moved? */
         if ((xpos - mx || ypos - my)) {
-            display_mapscroll(xpos - mx, ypos - my);
+            display_mapscroll(xpos - mx, ypos - my, 0, 0);
             map_play_footstep();
         }
 
@@ -657,6 +701,13 @@ void socket_command_map(uint8 *data, size_t len, size_t pos)
 
     MapData.posx = xpos;
     MapData.posy = ypos;
+    MapData.player_sub_layer = packet_to_uint8(data, len, &pos);
+    def_map = region_map_find_map(MapData.region_map, MapData.map_path);
+
+    in_building = packet_to_uint8(data, len, &pos);
+
+    map_get_real_coords(&rx, &ry);
+    region_map_fow_need_update = false;
 
     while (pos < len) {
         mask = packet_to_uint16(data, len, &pos);
@@ -669,9 +720,25 @@ void socket_command_map(uint8 *data, size_t len, size_t pos)
             continue;
         }
 
+        if (MapData.region_name[0] != '\0') {
+            if (region_map_fow_set_visited(MapData.region_map, def_map,
+                    MapData.map_path, rx + x, ry + y)) {
+                region_map_fow_need_update = true;
+            }
+        }
+
         /* Do we have darkness information? */
         if (mask & MAP2_MASK_DARKNESS) {
-            map_set_darkness(x, y, packet_to_uint8(data, len, &pos));
+            map_set_darkness(x, y, 0, packet_to_uint8(data, len, &pos));
+        }
+
+        if (mask & MAP2_MASK_DARKNESS_MORE) {
+            int sub_layer;
+
+            for (sub_layer = 1; sub_layer < NUM_SUB_LAYERS; sub_layer++) {
+                map_set_darkness(x, y, sub_layer, packet_to_uint8(data, len,
+                        &pos));
+            }
         }
 
         num_layers = packet_to_uint8(data, len, &pos);
@@ -684,21 +751,21 @@ void socket_command_map(uint8 *data, size_t len, size_t pos)
 
             /* Clear this layer. */
             if (type == MAP2_LAYER_CLEAR) {
-                map_set_data(x, y, packet_to_uint8(data, len, &pos), 0, 0, 0, "", "", 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
-            }
-            /* We have some data. */
-            else {
+                map_set_data(x, y, packet_to_uint8(data, len, &pos), 0, 0, 0, "", "", 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
+            } else { /* We have some data. */
                 sint16 face, height = 0, zoom_x = 0, zoom_y = 0, align = 0, rotate = 0;
                 uint8 flags, obj_flags, quick_pos = 0, probe = 0, draw_double = 0, alpha = 0, infravision = 0, target_is_friend = 0;
+                uint8 anim_speed, anim_facing, anim_flags, anim_state, priority;
                 char player_name[64], player_color[COLOR_BUF];
                 uint32 target_object_count = 0;
+
+                anim_speed = anim_facing = anim_flags = anim_state = 0;
+                priority = 0;
 
                 player_name[0] = '\0';
                 player_color[0] = '\0';
 
                 face = packet_to_uint16(data, len, &pos);
-                /* Request the face. */
-                request_face(face);
                 /* Object flags. */
                 obj_flags = packet_to_uint8(data, len, &pos);
                 /* Flags of this layer. */
@@ -715,9 +782,15 @@ void socket_command_map(uint8 *data, size_t len, size_t pos)
                     packet_to_string(data, len, &pos, player_color, sizeof(player_color));
                 }
 
-                /* Target's HP? */
-                if (flags & MAP2_FLAG_PROBE) {
-                    probe = packet_to_uint8(data, len, &pos);
+                /* Animation? */
+                if (flags & MAP2_FLAG_ANIMATION) {
+                    anim_speed = packet_to_uint8(data, len, &pos);
+                    anim_facing = packet_to_uint8(data, len, &pos);
+                    anim_flags = packet_to_uint8(data, len, &pos);
+
+                    if (anim_flags & ANIM_FLAG_MOVING) {
+                        anim_state = packet_to_uint8(data, len, &pos);
+                    }
                 }
 
                 /* Z position? */
@@ -725,15 +798,13 @@ void socket_command_map(uint8 *data, size_t len, size_t pos)
                     height = packet_to_sint16(data, len, &pos);
                 }
 
-                /* Zoom? */
-                if (flags & MAP2_FLAG_ZOOM) {
-                    zoom_x = packet_to_uint16(data, len, &pos);
-                    zoom_y = packet_to_uint16(data, len, &pos);
-                }
-
                 /* Align? */
                 if (flags & MAP2_FLAG_ALIGN) {
                     align = packet_to_sint16(data, len, &pos);
+                }
+
+                if (flags & MAP2_FLAG_INFRAVISION) {
+                    infravision = 1;
                 }
 
                 /* Double? */
@@ -754,18 +825,29 @@ void socket_command_map(uint8 *data, size_t len, size_t pos)
                         rotate = packet_to_sint16(data, len, &pos);
                     }
 
-                    if (flags2 & MAP2_FLAG2_INFRAVISION) {
-                        infravision = 1;
+                    /* Zoom? */
+                    if (flags2 & MAP2_FLAG2_ZOOM) {
+                        zoom_x = packet_to_uint16(data, len, &pos);
+                        zoom_y = packet_to_uint16(data, len, &pos);
                     }
 
                     if (flags2 & MAP2_FLAG2_TARGET) {
                         target_object_count = packet_to_uint32(data, len, &pos);
                         target_is_friend = packet_to_uint8(data, len, &pos);
                     }
+
+                    /* Target's HP? */
+                    if (flags2 & MAP2_FLAG2_PROBE) {
+                        probe = packet_to_uint8(data, len, &pos);
+                    }
+
+                    if (flags2 & MAP2_FLAG2_PRIORITY) {
+                        priority = 1;
+                    }
                 }
 
                 /* Set the data we figured out. */
-                map_set_data(x, y, type, face, quick_pos, obj_flags, player_name, player_color, height, probe, zoom_x, zoom_y, align, draw_double, alpha, rotate, infravision, target_object_count, target_is_friend);
+                map_set_data(x, y, type, face, quick_pos, obj_flags, player_name, player_color, height, probe, zoom_x, zoom_y, align, draw_double, alpha, rotate, infravision, target_object_count, target_is_friend, anim_speed, anim_facing, anim_flags, anim_state, priority);
             }
         }
 
@@ -780,12 +862,17 @@ void socket_command_map(uint8 *data, size_t len, size_t pos)
             anim_type = packet_to_uint8(data, len, &pos);
             anim_value = packet_to_uint16(data, len, &pos);
 
-            add_anim(anim_type, xpos + x, ypos + y, anim_value);
+            map_anims_add(anim_type, x, y, anim_value);
         }
     }
 
     adjust_tile_stretch();
-    map_redraw_flag = 1;
+    map_update_in_building(in_building);
+    map_redraw_flag = minimap_redraw_flag = 1;
+
+    if (region_map_fow_need_update) {
+        region_map_fow_update(MapData.region_map);
+    }
 }
 
 /** @copydoc socket_command_struct::handle_func */
@@ -793,7 +880,7 @@ void socket_command_version(uint8 *data, size_t len, size_t pos)
 {
     if (cpl.state != ST_WAITVERSION) {
         logger_print(LOG(BUG), "Received version command when not in proper "
-            "state: %d, should be: %d.", cpl.state, ST_WAITVERSION);
+                "state: %d, should be: %d.", cpl.state, ST_WAITVERSION);
         return;
     }
 
@@ -807,7 +894,6 @@ void socket_command_compressed(uint8 *data, size_t len, size_t pos)
     unsigned long ucomp_len;
     uint8 type, *dest;
     size_t dest_size;
-    command_buffer *buf;
 
     type = packet_to_uint8(data, len, &pos);
     ucomp_len = packet_to_uint32(data, len, &pos);
@@ -815,10 +901,14 @@ void socket_command_compressed(uint8 *data, size_t len, size_t pos)
     dest_size = ucomp_len + 1;
     dest = emalloc(dest_size);
     dest[0] = type;
-    uncompress((Bytef *) dest + 1, (uLongf *) &ucomp_len, (const Bytef *) data + pos, (uLong) len - pos);
 
-    buf = command_buffer_new(ucomp_len + 1, dest);
-    add_input_command(buf);
+    if (uncompress((Bytef *) dest + 1, (uLongf *) & ucomp_len,
+            (const Bytef *) data + pos, (uLong) len - pos) == Z_OK) {
+        command_buffer *buf;
+
+        buf = command_buffer_new(ucomp_len + 1, dest);
+        add_input_command(buf);
+    }
 
     efree(dest);
 }

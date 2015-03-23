@@ -6,7 +6,6 @@ layer 5
 animation brazier_lit
 is_animated 1
 anim_speed 2
-speed 0.02
 no_pick 1
 no_pass 1
 end

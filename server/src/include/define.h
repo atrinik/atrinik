@@ -1,26 +1,26 @@
-/************************************************************************
-*            Atrinik, a Multiplayer Online Role Playing Game            *
-*                                                                       *
-*    Copyright (C) 2009-2012 Alex Tokar and Atrinik Development Team    *
-*                                                                       *
-* Fork from Crossfire (Multiplayer game for X-windows).                 *
-*                                                                       *
-* This program is free software; you can redistribute it and/or modify  *
-* it under the terms of the GNU General Public License as published by  *
-* the Free Software Foundation; either version 2 of the License, or     *
-* (at your option) any later version.                                   *
-*                                                                       *
-* This program is distributed in the hope that it will be useful,       *
-* but WITHOUT ANY WARRANTY; without even the implied warranty of        *
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
-* GNU General Public License for more details.                          *
-*                                                                       *
-* You should have received a copy of the GNU General Public License     *
-* along with this program; if not, write to the Free Software           *
-* Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.             *
-*                                                                       *
-* The author can be reached at admin@atrinik.org                        *
-************************************************************************/
+/*************************************************************************
+ *           Atrinik, a Multiplayer Online Role Playing Game             *
+ *                                                                       *
+ *   Copyright (C) 2009-2014 Alex Tokar and Atrinik Development Team     *
+ *                                                                       *
+ * Fork from Crossfire (Multiplayer game for X-windows).                 *
+ *                                                                       *
+ * This program is free software; you can redistribute it and/or modify  *
+ * it under the terms of the GNU General Public License as published by  *
+ * the Free Software Foundation; either version 2 of the License, or     *
+ * (at your option) any later version.                                   *
+ *                                                                       *
+ * This program is distributed in the hope that it will be useful,       *
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of        *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
+ * GNU General Public License for more details.                          *
+ *                                                                       *
+ * You should have received a copy of the GNU General Public License     *
+ * along with this program; if not, write to the Free Software           *
+ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.             *
+ *                                                                       *
+ * The author can be reached at admin@atrinik.org                        *
+ ************************************************************************/
 
 /**
  * @file
@@ -38,7 +38,7 @@
 #define DEFINE_H
 
 #ifndef NAME_MAX
-#   define NAME_MAX 255
+#define NAME_MAX 255
 #endif
 
 /** The maximum legal value of any stat. */
@@ -217,9 +217,6 @@
  * Player mover. */
 #define PLAYER_MOVER 40
 /**
- * Teleporter. */
-#define TELEPORTER 41
-/**
  * Creator object. */
 #define CREATOR 42
 /**
@@ -275,9 +272,6 @@
 /**
  * Shop floor. */
 #define SHOP_FLOOR 68
-/**
- * Shop mat. */
-#define SHOP_MAT 69
 /**
  * A ring. */
 #define RING 70
@@ -474,6 +468,8 @@
 #define ST1_CONTAINER_CORPSE           1
 /** Player container */
 #define ST1_CONTAINER_DEAD_PL          2
+/** Quiver. */
+#define ST1_CONTAINER_QUIVER           3
 
 /** Personalized normal container */
 #define ST1_CONTAINER_NORMAL_player    64
@@ -484,14 +480,6 @@
 #define ST1_CONTAINER_NORMAL_party     128
 /** Party corpse container */
 #define ST1_CONTAINER_CORPSE_party     129
-/*@}*/
-
-/**
- * @defgroup exit_sub_types Exit sub types
- * Sub types for EXIT objects. If set, a teleport sound is played.
- *@{*/
-#define ST1_EXIT_SOUND_NO       0
-#define ST1_EXIT_SOUND          1
 /*@}*/
 
 /**
@@ -581,6 +569,8 @@
 #define TERRAIN_FIREBREATH      16
 /** Move "on clouds" in the air - not flying. */
 #define TERRAIN_CLOUDWALK       32
+/** Shallow water. */
+#define TERRAIN_WATER_SHALLOW   64
 /** Used in blocked() when we only want know about blocked by something. */
 #define TERRAIN_ALL             0xffff
 /*@}*/
@@ -1308,8 +1298,7 @@ static inline void safe_strcat(char *dest, const char *orig, size_t *curlen, siz
  * Flags for object_apply_item().
  *
  * @anchor AP_xxx */
-enum apply_flag
-{
+enum apply_flag {
     /* Basic flags, always use one of these */
     AP_NULL = 0,
     AP_APPLY = 1,
@@ -1401,6 +1390,13 @@ enum apply_flag
 #define QUEST_CONTAINER_ARCHETYPE "quest_container"
 
 /**
+ * Acquire the name of a specified quest. If the quest name is not set, uses the
+ * UID of the quest.
+ */
+#define QUEST_NAME(_quest) \
+    ((_quest)->race != NULL ? (_quest)->race : (_quest)->name)
+
+/**
  * @defgroup quest_statuses Quest statuses
  * Quest statuses. Stored in object::magic.
  *@{*/
@@ -1483,6 +1479,11 @@ enum apply_flag
 /** Purple. */
 #define SPAWN_RELATIVE_LEVEL_PURPLE 6
 /*@}*/
+
+/**
+ * Maximum height difference between two tiles to be able to move between them.
+ */
+#define MOVE_MAX_HEIGHT_DIFF 12
 
 /**
  * @defgroup FOR_MAP_LAYER_xxx Map layer looping macros
@@ -1675,7 +1676,7 @@ enum apply_flag
 #define FOR_OB_FINISH()                                         \
         }                                                       \
     } while(0)
-    
+
 /*@}*/
 
 #endif

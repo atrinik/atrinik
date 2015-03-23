@@ -17,7 +17,6 @@ face fix_mercury.101
 animation fix_mercury
 is_animated 1
 anim_speed 4
-speed 0.5
 material 512
 item_condition 100
 item_quality 100

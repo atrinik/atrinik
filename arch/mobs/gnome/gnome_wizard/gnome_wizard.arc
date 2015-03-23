@@ -6,8 +6,8 @@ is_male 1
 can_cast_spell 1
 maxsp 20
 behavior 2
-Pow 2
-Dex 3
+pow 2
+dex 3
 magic 5
 wc_range 20
 corpse 1
@@ -15,12 +15,12 @@ layer 6
 direction 5
 is_good 1
 friendly 1
-terrain_flag 1
+terrain_flag 65
 weapon_speed 0.035
 attack_impact 75
 attack_fire 25
 type 80
-Wis 3
+wis 3
 randomitems mob_mage_l9
 animation gnome_wizard
 is_animated 1

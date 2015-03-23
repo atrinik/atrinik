@@ -2,18 +2,34 @@
 ## Deals with markup-related operations.
 
 from Atrinik import *
+import re
 
 ## The markup escape table.
 _markup_escape_table = {
     "]": "&rsqb;",
     "[": "&lsqb;",
 }
+## The markup unescape table.
+_markup_unescape_table = {
+    "[]": "[",
+    "&rsqb;": "]",
+    "&lsqb;": "[",
+}
+_markup_unescape_expr = re.compile("({0})".format("|".join(re.escape(s) for s
+        in _markup_unescape_table)))
 
 ## Escapes markup in the specified string.
 ## @param text The string.
 ## @return Escaped string.
 def markup_escape(text):
     return "".join(_markup_escape_table.get(c, c) for c in text)
+
+## Unescapes markup in the specified string.
+## @param text The string.
+## @return Unescaped string.
+def markup_unescape(text):
+    return _markup_unescape_expr.sub(lambda match:
+            _markup_unescape_table[match.group(1)], text)
 
 class Map2Markup:
     def __init__(self, m, x, y):

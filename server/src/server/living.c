@@ -1,26 +1,26 @@
-/************************************************************************
-*            Atrinik, a Multiplayer Online Role Playing Game            *
-*                                                                       *
-*    Copyright (C) 2009-2012 Alex Tokar and Atrinik Development Team    *
-*                                                                       *
-* Fork from Crossfire (Multiplayer game for X-windows).                 *
-*                                                                       *
-* This program is free software; you can redistribute it and/or modify  *
-* it under the terms of the GNU General Public License as published by  *
-* the Free Software Foundation; either version 2 of the License, or     *
-* (at your option) any later version.                                   *
-*                                                                       *
-* This program is distributed in the hope that it will be useful,       *
-* but WITHOUT ANY WARRANTY; without even the implied warranty of        *
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
-* GNU General Public License for more details.                          *
-*                                                                       *
-* You should have received a copy of the GNU General Public License     *
-* along with this program; if not, write to the Free Software           *
-* Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.             *
-*                                                                       *
-* The author can be reached at admin@atrinik.org                        *
-************************************************************************/
+/*************************************************************************
+ *           Atrinik, a Multiplayer Online Role Playing Game             *
+ *                                                                       *
+ *   Copyright (C) 2009-2014 Alex Tokar and Atrinik Development Team     *
+ *                                                                       *
+ * Fork from Crossfire (Multiplayer game for X-windows).                 *
+ *                                                                       *
+ * This program is free software; you can redistribute it and/or modify  *
+ * it under the terms of the GNU General Public License as published by  *
+ * the Free Software Foundation; either version 2 of the License, or     *
+ * (at your option) any later version.                                   *
+ *                                                                       *
+ * This program is distributed in the hope that it will be useful,       *
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of        *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
+ * GNU General Public License for more details.                          *
+ *                                                                       *
+ * You should have received a copy of the GNU General Public License     *
+ * along with this program; if not, write to the Free Software           *
+ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.             *
+ *                                                                       *
+ * The author can be reached at admin@atrinik.org                        *
+ ************************************************************************/
 
 /**
  * @file
@@ -34,16 +34,14 @@
 
 /**
  * dam_bonus, thaco_bonus, weight limit all are based on strength. */
-int dam_bonus[MAX_STAT + 1] =
-{
+int dam_bonus[MAX_STAT + 1] = {
     -5, -4, -4, -3, -3, -3, -2, -2, -2, -1, -1,
     0, 0, 0, 0, 0,
     1, 1, 2, 2, 3, 3, 3, 4, 4, 5, 6, 7, 8, 10, 12
 };
 
 /** THAC0 bonus - WC bonus */
-int thaco_bonus[MAX_STAT + 1] =
-{
+int thaco_bonus[MAX_STAT + 1] = {
     -5, -4, -4, -3, -3, -3, -2, -2, -2, -1, -1,
     0, 0, 0, 0, 0,
     1, 1, 2, 2, 3, 3, 3, 4, 4, 5, 5, 5, 6, 7, 8
@@ -51,8 +49,7 @@ int thaco_bonus[MAX_STAT + 1] =
 
 /**
  * Constitution bonus. */
-static float con_bonus[MAX_STAT + 1] =
-{
+static float con_bonus[MAX_STAT + 1] = {
     -0.8f, -0.6f, -0.5f, -0.4f, -0.35f, -0.3f, -0.25f, -0.2f, -0.15f, -0.11f, -0.07f,
     0.0f, 0.0f, 0.0f, 0.0f, 0.0f,
     0.1f, 0.15f, 0.2f, 0.25f, 0.3f, 0.35f, 0.4f, 0.45f, 0.5f, 0.55f, 0.6f, 0.7f, 0.8f, 0.9f, 1.0f
@@ -60,8 +57,7 @@ static float con_bonus[MAX_STAT + 1] =
 
 /**
  * Power bonus. */
-static float pow_bonus[MAX_STAT + 1] =
-{
+static float pow_bonus[MAX_STAT + 1] = {
     -0.8f, -0.6f, -0.5f, -0.4f, -0.35f, -0.3f, -0.25f, -0.2f, -0.15f, -0.11f, -0.07f,
     0.0f, 0.0f, 0.0f, 0.0f, 0.0f,
     0.1f, 0.2f, 0.3f, 0.4f, 0.5f, 0.6f, 0.7f, 0.8f, 0.9f, 1.0f, 1.1f, 1.4f, 1.6f, 1.8f, 2.0f
@@ -69,8 +65,7 @@ static float pow_bonus[MAX_STAT + 1] =
 
 /**
  * Speed bonus. Uses dexterity as its stat. */
-float speed_bonus[MAX_STAT + 1] =
-{
+float speed_bonus[MAX_STAT + 1] = {
     -0.4f, -0.4f, -0.3f, -0.3f, -0.2f,
     -0.2f, -0.2f, -0.1f, -0.1f, -0.1f,
     -0.05f, 0.0, 0.0f, 0.0f, 0.025f, 0.05f,
@@ -87,8 +82,7 @@ float speed_bonus[MAX_STAT + 1] =
  *
  * These limits are probably overly generous, but being there were no
  * values before, you need to start someplace. */
-uint32 weight_limit[MAX_STAT + 1] =
-{
+uint32 weight_limit[MAX_STAT + 1] = {
     20000,
     25000,  30000,  35000,  40000,  50000,
     60000,  70000,  80000,  90000,  100000,
@@ -101,16 +95,14 @@ uint32 weight_limit[MAX_STAT + 1] =
 /**
  * Probability to learn a spell or skill, based on intelligence or
  * wisdom. */
-int learn_spell[MAX_STAT + 1] =
-{
+int learn_spell[MAX_STAT + 1] = {
     0, 0, 0, 1, 2, 4, 8, 12, 16, 25, 36, 45, 55, 65, 70, 75, 80, 85, 90, 95, 100, 100, 100, 100, 100,
     100, 100, 100, 100, 100, 100
 };
 
 /**
  * Probability to avoid something. */
-int savethrow[MAXLEVEL + 1] =
-{
+int savethrow[MAXLEVEL + 1] = {
     18,
     18, 17, 16, 15, 14, 14, 13, 13, 12, 12, 12, 11, 11, 11, 11, 10, 10, 10, 10, 9,
     9, 9, 9, 9, 8, 8, 8, 8, 8, 8, 7, 7, 7, 7, 7, 7, 7, 6, 6, 6,
@@ -121,8 +113,7 @@ int savethrow[MAXLEVEL + 1] =
 };
 
 /** Message when a player is drained of a stat. */
-static const char *const drain_msg[NUM_STATS] =
-{
+static const char *const drain_msg[NUM_STATS] = {
     "Oh no! You are weakened!",
     "You're feeling clumsy!",
     "You feel less healthy",
@@ -133,8 +124,7 @@ static const char *const drain_msg[NUM_STATS] =
 };
 
 /** Message when a player has a stat restored. */
-const char *const restore_msg[NUM_STATS] =
-{
+const char *const restore_msg[NUM_STATS] = {
     "You feel your strength return.",
     "You feel your agility return.",
     "You feel your health return.",
@@ -145,8 +135,7 @@ const char *const restore_msg[NUM_STATS] =
 };
 
 /** Message when a player increases a stat. */
-static const char *const gain_msg[NUM_STATS] =
-{
+static const char *const gain_msg[NUM_STATS] = {
     "You feel stronger.",
     "You feel more agile.",
     "You feel healthy.",
@@ -157,8 +146,7 @@ static const char *const gain_msg[NUM_STATS] =
 };
 
 /** Message when a player decreases a stat. */
-const char *const lose_msg[NUM_STATS] =
-{
+const char *const lose_msg[NUM_STATS] = {
     "You feel weaker!",
     "You feel clumsy!",
     "You feel less healthy!",
@@ -169,8 +157,7 @@ const char *const lose_msg[NUM_STATS] =
 };
 
 /** Names of stats. */
-const char *const statname[NUM_STATS] =
-{
+const char *const statname[NUM_STATS] = {
     "strength",
     "dexterity",
     "constitution",
@@ -181,8 +168,7 @@ const char *const statname[NUM_STATS] =
 };
 
 /** Short names of stats. */
-const char *const short_stat_name[NUM_STATS] =
-{
+const char *const short_stat_name[NUM_STATS] = {
     "Str",
     "Dex",
     "Con",
@@ -201,33 +187,33 @@ const char *const short_stat_name[NUM_STATS] =
 void set_attr_value(living *stats, int attr, sint8 value)
 {
     switch (attr) {
-        case STR:
-            stats->Str = value;
-            break;
+    case STR:
+        stats->Str = value;
+        break;
 
-        case DEX:
-            stats->Dex = value;
-            break;
+    case DEX:
+        stats->Dex = value;
+        break;
 
-        case CON:
-            stats->Con = value;
-            break;
+    case CON:
+        stats->Con = value;
+        break;
 
-        case WIS:
-            stats->Wis = value;
-            break;
+    case WIS:
+        stats->Wis = value;
+        break;
 
-        case POW:
-            stats->Pow = value;
-            break;
+    case POW:
+        stats->Pow = value;
+        break;
 
-        case CHA:
-            stats->Cha = value;
-            break;
+    case CHA:
+        stats->Cha = value;
+        break;
 
-        case INT:
-            stats->Int = value;
-            break;
+    case INT:
+        stats->Int = value;
+        break;
     }
 }
 
@@ -267,26 +253,26 @@ void change_attr_value(living *stats, int attr, sint8 value)
 sint8 get_attr_value(living *stats, int attr)
 {
     switch (attr) {
-        case STR:
-            return stats->Str;
+    case STR:
+        return stats->Str;
 
-        case DEX:
-            return stats->Dex;
+    case DEX:
+        return stats->Dex;
 
-        case CON:
-            return stats->Con;
+    case CON:
+        return stats->Con;
 
-        case WIS:
-            return stats->Wis;
+    case WIS:
+        return stats->Wis;
 
-        case CHA:
-            return stats->Cha;
+    case CHA:
+        return stats->Cha;
 
-        case INT:
-            return stats->Int;
+    case INT:
+        return stats->Int;
 
-        case POW:
-            return stats->Pow;
+    case POW:
+        return stats->Pow;
     }
 
     return 0;
@@ -305,8 +291,7 @@ void check_stat_bounds(living *stats)
 
         if (v > MAX_STAT) {
             set_attr_value(stats, i, MAX_STAT);
-        }
-        else if (v < MIN_STAT) {
+        } else if (v < MIN_STAT) {
             set_attr_value(stats, i, MIN_STAT);
         }
     }
@@ -347,8 +332,7 @@ int change_abil(object *op, object *tmp)
 
         if (flag > 0) {
             draw_info(COLOR_WHITE, op, "Your hands begin to glow red.");
-        }
-        else {
+        } else {
             draw_info(COLOR_GRAY, op, "Your hands stop glowing red.");
         }
     }
@@ -358,8 +342,7 @@ int change_abil(object *op, object *tmp)
 
         if (flag > 0) {
             draw_info(COLOR_WHITE, op, "You feel very protected.");
-        }
-        else {
+        } else {
             draw_info(COLOR_GRAY, op, "You don't feel protected anymore.");
         }
     }
@@ -369,8 +352,7 @@ int change_abil(object *op, object *tmp)
 
         if (flag > 0) {
             draw_info(COLOR_WHITE, op, "A magic force shimmers around you.");
-        }
-        else {
+        } else {
             draw_info(COLOR_GRAY, op, "The magic force fades away.");
         }
     }
@@ -380,8 +362,7 @@ int change_abil(object *op, object *tmp)
 
         if (flag > 0) {
             draw_info(COLOR_WHITE, op, "You feel more safe now, somehow.");
-        }
-        else {
+        } else {
             draw_info(COLOR_GRAY, op, "Suddenly you feel less safe, somehow.");
         }
     }
@@ -393,8 +374,7 @@ int change_abil(object *op, object *tmp)
             /* If we're already flying then fly higher */
             if (QUERY_FLAG(op, FLAG_FLYING) == QUERY_FLAG(&refop, FLAG_FLYING)) {
                 draw_info(COLOR_WHITE, op, "You float a little higher in the air.");
-            }
-            else {
+            } else {
                 draw_info(COLOR_GRAY, op, "You start to float in the air!");
 
                 SET_MULTI_FLAG(op, FLAG_FLYING);
@@ -403,15 +383,13 @@ int change_abil(object *op, object *tmp)
                     op->speed = 1;
                 }
             }
-        }
-        else {
+        } else {
             success = 1;
 
             /* If we're already flying then fly lower */
             if (QUERY_FLAG(op, FLAG_FLYING) == QUERY_FLAG(&refop, FLAG_FLYING)) {
                 draw_info(COLOR_WHITE, op, "You float a little lower in the air.");
-            }
-            else {
+            } else {
                 draw_info(COLOR_GRAY, op, "You float down to the ground.");
             }
         }
@@ -426,8 +404,7 @@ int change_abil(object *op, object *tmp)
             if (flag > 0) {
                 FREE_AND_COPY_HASH(op->race, "undead");
                 draw_info(COLOR_GRAY, op, "Your lifeforce drains away!");
-            }
-            else {
+            } else {
                 FREE_AND_CLEAR_HASH(op->race);
 
                 if (op->arch->clone.race) {
@@ -444,8 +421,7 @@ int change_abil(object *op, object *tmp)
 
         if (flag > 0) {
             draw_info(COLOR_WHITE, op, "You walk more quietly.");
-        }
-        else {
+        } else {
             draw_info(COLOR_GRAY, op, "You walk more noisily.");
         }
     }
@@ -455,8 +431,7 @@ int change_abil(object *op, object *tmp)
 
         if (flag > 0) {
             draw_info(COLOR_WHITE, op, "You see invisible things.");
-        }
-        else {
+        } else {
             draw_info(COLOR_GRAY, op, "Your vision becomes less clear.");
         }
     }
@@ -466,9 +441,12 @@ int change_abil(object *op, object *tmp)
 
         if (flag > 0) {
             draw_info(COLOR_WHITE, op, "You become transparent.");
-        }
-        else {
+        } else {
             draw_info(COLOR_GRAY, op, "You can see yourself.");
+        }
+
+        if (op->type == PLAYER) {
+            CONTR(op)->socket.ext_title_flag = 1;
         }
     }
 
@@ -480,18 +458,13 @@ int change_abil(object *op, object *tmp)
         if (flag > 0) {
             draw_info(COLOR_GRAY, op, "You are blinded.");
             SET_FLAG(op, FLAG_BLIND);
-
-            if (op->type == PLAYER) {
-                CONTR(op)->update_los = 1;
-            }
-        }
-        else {
+        } else {
             draw_info(COLOR_WHITE, op, "Your vision returns.");
             CLEAR_FLAG(op, FLAG_BLIND);
+        }
 
-            if (op->type == PLAYER) {
-                CONTR(op)->update_los = 1;
-            }
+        if (op->type == PLAYER) {
+            CONTR(op)->update_los = 1;
         }
     }
 
@@ -500,8 +473,7 @@ int change_abil(object *op, object *tmp)
 
         if (flag > 0) {
             draw_info(COLOR_WHITE, op, "Your vision is better in the dark.");
-        }
-        else {
+        } else {
             draw_info(COLOR_GRAY, op, "You see less well in the dark.");
         }
     }
@@ -511,17 +483,12 @@ int change_abil(object *op, object *tmp)
 
         if (flag > 0) {
             draw_info(COLOR_GRAY, op, "Everything becomes transparent.");
-
-            if (op->type == PLAYER) {
-                CONTR(op)->update_los = 1;
-            }
-        }
-        else {
+        } else {
             draw_info(COLOR_GRAY, op, "Everything suddenly looks very solid.");
+        }
 
-            if (op->type == PLAYER) {
-                CONTR(op)->update_los = 1;
-            }
+        if (op->type == PLAYER) {
+            CONTR(op)->update_los = 1;
         }
     }
 
@@ -530,8 +497,7 @@ int change_abil(object *op, object *tmp)
 
         if ((flag * tmp->stats.hp) > 0 || (flag * tmp->stats.maxhp) > 0) {
             draw_info(COLOR_WHITE, op, "You feel much more healthy!");
-        }
-        else {
+        } else {
             draw_info(COLOR_GRAY, op, "You feel much less healthy!");
         }
     }
@@ -541,8 +507,7 @@ int change_abil(object *op, object *tmp)
 
         if ((flag * tmp->stats.sp) > 0 || (flag * tmp->stats.maxsp) > 0) {
             draw_info(COLOR_WHITE, op, "You feel one with the powers of magic!");
-        }
-        else {
+        } else {
             draw_info(COLOR_GRAY, op, "You suddenly feel very mundane.");
         }
     }
@@ -552,8 +517,7 @@ int change_abil(object *op, object *tmp)
 
         if ((tmp->stats.food * flag) > 0) {
             draw_info(COLOR_WHITE, op, "You feel your digestion slowing down.");
-        }
-        else {
+        } else {
             draw_info(COLOR_GRAY, op, "You feel your digestion speeding up.");
         }
     }
@@ -565,8 +529,7 @@ int change_abil(object *op, object *tmp)
 
             if (op->protection[i] > refop.protection[i]) {
                 draw_info_format(COLOR_GREEN, op, "Your protection to %s rises to %d%%.", attack_name[i], op->protection[i]);
-            }
-            else {
+            } else {
                 draw_info_format(COLOR_BLUE, op, "Your protection to %s drops to %d%%.", attack_name[i], op->protection[i]);
             }
         }
@@ -581,22 +544,19 @@ int change_abil(object *op, object *tmp)
 
             if ((op->path_attuned & path) && !(refop.path_attuned & path)) {
                 draw_info_format(COLOR_WHITE, op, "You feel your magical powers attuned towards the path of %s.", spellpathnames[i]);
-            }
-            else if ((refop.path_attuned & path) && !(op->path_attuned & path)) {
+            } else if ((refop.path_attuned & path) && !(op->path_attuned & path)) {
                 draw_info_format(COLOR_GRAY, op, "You no longer feel your magical powers attuned towards the path of %s.", spellpathnames[i]);
             }
 
             if ((op->path_repelled & path) && !(refop.path_repelled & path)) {
                 draw_info_format(COLOR_WHITE, op, "You feel your magical powers repelled from the path of %s.", spellpathnames[i]);
-            }
-            else if ((refop.path_repelled & path) && !(op->path_repelled & path)) {
+            } else if ((refop.path_repelled & path) && !(op->path_repelled & path)) {
                 draw_info_format(COLOR_GRAY, op, "You no longer feel your magical powers repelled from the path of %s.", spellpathnames[i]);
             }
 
             if ((op->path_denied & path) && !(refop.path_denied & path)) {
                 draw_info_format(COLOR_WHITE, op, "You feel your magical powers shift, and become unable to cast spells from the path of %s.", spellpathnames[i]);
-            }
-            else if ((refop.path_denied & path) && !(op->path_denied & path)) {
+            } else if ((refop.path_denied & path) && !(op->path_denied & path)) {
                 draw_info_format(COLOR_GRAY, op, "You feel your magical powers shift, and become able to cast spells from the path of %s.", spellpathnames[i]);
             }
         }
@@ -607,8 +567,7 @@ int change_abil(object *op, object *tmp)
 
         if (flag > 0) {
             draw_info(COLOR_WHITE, op, "You feel very sick...");
-        }
-        else {
+        } else {
             draw_info(COLOR_WHITE, op, "You feel much better now.");
         }
     }
@@ -620,8 +579,7 @@ int change_abil(object *op, object *tmp)
 
                 if ((i * flag) > 0) {
                     draw_info(COLOR_WHITE, op, gain_msg[j]);
-                }
-                else {
+                } else {
                     draw_info(COLOR_GRAY, op, lose_msg[j]);
                 }
             }
@@ -651,8 +609,7 @@ void drain_specific_stat(object *op, int deplete_stats)
     if (!at) {
         logger_print(LOG(BUG), "Couldn't find archetype depletion.");
         return;
-    }
-    else {
+    } else {
         tmp = present_arch_in_ob(at, op);
 
         if (!tmp) {
@@ -710,6 +667,14 @@ static void living_apply_flags(object *op, object *tmp)
     if (QUERY_FLAG(tmp, FLAG_MAKE_ETHEREAL)) {
         SET_FLAG(op, FLAG_CAN_PASS_THRU);
         SET_FLAG(op, FLAG_IS_ETHEREAL);
+    }
+
+    if (QUERY_FLAG(tmp, FLAG_MAKE_INVISIBLE)) {
+        SET_FLAG(op, FLAG_IS_INVISIBLE);
+    }
+
+    if (QUERY_FLAG(tmp, FLAG_SEE_INVISIBLE)) {
+        SET_FLAG(op, FLAG_SEE_INVISIBLE);
     }
 
     if (QUERY_FLAG(tmp, FLAG_FLYING)) {
@@ -830,6 +795,14 @@ void fix_player(object *op)
         CLEAR_FLAG(op, FLAG_SEE_IN_DARK);
     }
 
+    if (!QUERY_FLAG(&op->arch->clone, FLAG_IS_INVISIBLE)) {
+        CLEAR_FLAG(op, FLAG_IS_INVISIBLE);
+    }
+
+    if (!QUERY_FLAG(&op->arch->clone, FLAG_SEE_INVISIBLE)) {
+        CLEAR_FLAG(op, FLAG_SEE_INVISIBLE);
+    }
+
     memset(&protect_boni, 0, sizeof(protect_boni));
     memset(&protect_mali, 0, sizeof(protect_mali));
     memset(&protect_exact_boni, 0, sizeof(protect_exact_boni));
@@ -850,7 +823,9 @@ void fix_player(object *op)
             continue;
         }
 
-        if (tmp->type == SCROLL || tmp->type == POTION || tmp->type == CONTAINER || tmp->type == LIGHT_REFILL) {
+        if (tmp->type == SCROLL || tmp->type == POTION ||
+                (tmp->type == CONTAINER && !OBJECT_IS_AMMO(tmp)) ||
+                tmp->type == LIGHT_REFILL) {
             continue;
         }
 
@@ -873,8 +848,7 @@ void fix_player(object *op)
                 for (i = 0; i < NROFATTACKS; i++) {
                     if (tmp->protection[i] > potion_protection_bonus[i]) {
                         potion_protection_bonus[i] = tmp->protection[i];
-                    }
-                    else if (tmp->protection[i] < potion_protection_malus[i]) {
+                    } else if (tmp->protection[i] < potion_protection_malus[i]) {
                         potion_protection_malus[i] = tmp->protection[i];
                     }
 
@@ -884,8 +858,7 @@ void fix_player(object *op)
                 }
 
                 living_apply_flags(op, tmp);
-            }
-            else if (tmp->type == CLASS || tmp->type == FORCE || tmp->type == POISONING || tmp->type == DISEASE || tmp->type == SYMPTOM) {
+            } else if (tmp->type == CLASS || tmp->type == FORCE || tmp->type == POISONING || tmp->type == DISEASE || tmp->type == SYMPTOM) {
                 if (tmp->type == CLASS) {
                     pl->class_ob = tmp;
                 }
@@ -926,8 +899,7 @@ void fix_player(object *op)
                 for (i = 0; i < NROFATTACKS; i++) {
                     if (tmp->protection[i] > protect_exact_boni[i]) {
                         protect_exact_boni[i] = tmp->protection[i];
-                    }
-                    else if (tmp->protection[i] < 0) {
+                    } else if (tmp->protection[i] < 0) {
                         protect_exact_mali[i] += (-tmp->protection[i]);
                     }
 
@@ -939,58 +911,41 @@ void fix_player(object *op)
                 }
 
                 living_apply_flags(op, tmp);
-            }
-            else if (tmp->type == ARROW && !QUERY_FLAG(tmp, FLAG_IS_THROWN)) {
+            } else if (OBJECT_IS_AMMO(tmp)) {
                 pl->equipment[PLAYER_EQUIP_AMMO] = tmp;
-            }
-            else if (tmp->type == AMULET) {
+            } else if (tmp->type == AMULET) {
                 pl->equipment[PLAYER_EQUIP_AMULET] = tmp;
-            }
-            else if (tmp->type == WEAPON) {
+            } else if (tmp->type == WEAPON) {
                 pl->equipment[PLAYER_EQUIP_WEAPON] = tmp;
-            }
-            else if (OBJECT_IS_RANGED(tmp)) {
+            } else if (OBJECT_IS_RANGED(tmp)) {
                 pl->equipment[PLAYER_EQUIP_WEAPON_RANGED] = tmp;
-            }
-            else if (tmp->type == GLOVES) {
+            } else if (tmp->type == GLOVES) {
                 pl->equipment[PLAYER_EQUIP_GAUNTLETS] = tmp;
-            }
-            else if (tmp->type == RING && ring_count == 0) {
+            } else if (tmp->type == RING && ring_count == 0) {
                 pl->equipment[PLAYER_EQUIP_RING_RIGHT] = tmp;
                 ring_count++;
-            }
-            else if (tmp->type == HELMET) {
+            } else if (tmp->type == HELMET) {
                 pl->equipment[PLAYER_EQUIP_HELM] = tmp;
-            }
-            else if (tmp->type == ARMOUR) {
+            } else if (tmp->type == ARMOUR) {
                 pl->equipment[PLAYER_EQUIP_ARMOUR] = tmp;
-            }
-            else if (tmp->type == GIRDLE) {
+            } else if (tmp->type == GIRDLE) {
                 pl->equipment[PLAYER_EQUIP_BELT] = tmp;
-            }
-            else if (tmp->type == GREAVES) {
+            } else if (tmp->type == GREAVES) {
                 pl->equipment[PLAYER_EQUIP_GREAVES] = tmp;
-            }
-            else if (tmp->type == BOOTS) {
+            } else if (tmp->type == BOOTS) {
                 pl->equipment[PLAYER_EQUIP_BOOTS] = tmp;
-            }
-            else if (tmp->type == CLOAK) {
+            } else if (tmp->type == CLOAK) {
                 pl->equipment[PLAYER_EQUIP_CLOAK] = tmp;
-            }
-            else if (tmp->type == BRACERS) {
+            } else if (tmp->type == BRACERS) {
                 pl->equipment[PLAYER_EQUIP_BRACERS] = tmp;
-            }
-            else if (tmp->type == SHIELD) {
+            } else if (tmp->type == SHIELD) {
                 pl->equipment[PLAYER_EQUIP_SHIELD] = tmp;
-            }
-            else if (tmp->type == LIGHT_APPLY) {
+            } else if (tmp->type == LIGHT_APPLY) {
                 pl->equipment[PLAYER_EQUIP_LIGHT] = tmp;
-            }
-            else if (tmp->type == RING && ring_count == 1) {
+            } else if (tmp->type == RING && ring_count == 1) {
                 pl->equipment[PLAYER_EQUIP_RING_LEFT] = tmp;
                 ring_count++;
-            }
-            else {
+            } else {
                 logger_print(LOG(BUG), "Unexpected applied object ('%s' in %s).", query_name(tmp, op), op->name);
                 CLEAR_FLAG(tmp, FLAG_APPLIED);
             }
@@ -1004,10 +959,10 @@ void fix_player(object *op)
 
         /* No bonuses from the shield, if a two-handed weapon or ranged weapon
          * is equipped. */
-        if (i == PLAYER_EQUIP_SHIELD &&(
+        if (i == PLAYER_EQUIP_SHIELD && (
                 (pl->equipment[PLAYER_EQUIP_WEAPON]        && QUERY_FLAG(pl->equipment[PLAYER_EQUIP_WEAPON],        FLAG_TWO_HANDED)) ||
                 (pl->equipment[PLAYER_EQUIP_WEAPON_RANGED] && QUERY_FLAG(pl->equipment[PLAYER_EQUIP_WEAPON_RANGED], FLAG_TWO_HANDED))
-            )) {
+                )) {
             continue;
         }
 
@@ -1036,8 +991,7 @@ void fix_player(object *op)
             for (j = 0; j < NROFATTACKS; j++) {
                 if (pl->equipment[i]->protection[j] > 0) {
                     protect_boni[j] += ((100 - protect_boni[j]) * (int) ((float) pl->equipment[i]->protection[j] * ((float) pl->equipment[i]->item_condition / 100.0f))) / 100;
-                }
-                else if (pl->equipment[i]->protection[j] < 0) {
+                } else if (pl->equipment[i]->protection[j] < 0) {
                     protect_mali[j] += ((100 - protect_mali[j]) * (-pl->equipment[i]->protection[j])) / 100;
                 }
 
@@ -1050,8 +1004,7 @@ void fix_player(object *op)
                 if (pl->equipment[i]->stats.exp > 0) {
                     added_speed += (float) pl->equipment[i]->stats.exp / 3.0f;
                     bonus_speed += 1.0f + (float) pl->equipment[i]->stats.exp / 3.0f;
-                }
-                else {
+                } else {
                     added_speed += (float) pl->equipment[i]->stats.exp;
                 }
             }
@@ -1105,8 +1058,7 @@ void fix_player(object *op)
 
     if (added_speed >= 0) {
         op->speed += added_speed / 10.0f;
-    }
-    else {
+    } else {
         op->speed /= 1.0f - added_speed;
     }
 
@@ -1118,22 +1070,20 @@ void fix_player(object *op)
     op->speed += bonus_speed / 10.0f;
 
     /* Put a lower limit on speed. Note with this speed, you move once every
-    * 100 ticks or so. This amounts to once every 12 seconds of realtime. */
+     * 100 ticks or so. This amounts to once every 12 seconds of realtime. */
     op->speed = op->speed * speed_reduce_from_disease;
 
     /* Don't reduce under this value */
     if (op->speed < 0.01f) {
         op->speed = 0.01f;
-    }
-    else if (!pl->tgm) {
+    } else if (!pl->tgm) {
         /* Max kg we can carry */
         double f = ((double) weight_limit[op->stats.Str] / 100.0f) * ENCUMBRANCE_LIMIT;
 
         if (((sint32) f) <= op->carrying) {
             if (op->carrying >= (sint32) weight_limit[op->stats.Str]) {
                 op->speed = 0.01f;
-            }
-            else {
+            } else {
                 /* Total encumbrance weight part */
                 f = ((double) weight_limit[op->stats.Str] - f);
                 /* Value from 0.0 to 1.0 encumbrance */
@@ -1141,8 +1091,7 @@ void fix_player(object *op)
 
                 if (f < 0.0f) {
                     f = 0.0f;
-                }
-                else if (f > 1.0f) {
+                } else if (f > 1.0f) {
                     f = 1.0f;
                 }
 
@@ -1213,8 +1162,7 @@ void fix_player(object *op)
         op->stats.wc += SKILL_LEVEL(pl, pl->equipment[PLAYER_EQUIP_WEAPON]->item_skill - 1);
         op->stats.dam = (float) op->stats.dam * LEVEL_DAMAGE(SKILL_LEVEL(pl, pl->equipment[PLAYER_EQUIP_WEAPON]->item_skill - 1));
         op->stats.dam *= (float) (pl->equipment[PLAYER_EQUIP_WEAPON]->item_condition) / 100.0f;
-    }
-    else {
+    } else {
         if (pl->skill_ptr[SK_UNARMED]) {
             op->weapon_speed = pl->skill_ptr[SK_UNARMED]->last_grace;
 
@@ -1292,9 +1240,8 @@ void fix_monster(object *op)
 
     if (base->stats.wc_range) {
         op->stats.wc_range = base->stats.wc_range;
-    }
-    /* Default value if not set in arch */
-    else {
+    } else {
+        /* Default value if not set in arch */
         op->stats.wc_range = 20;
     }
 
@@ -1304,15 +1251,12 @@ void fix_monster(object *op)
             if (QUERY_FLAG(op, FLAG_USE_BOW)) {
                 SET_FLAG(tmp, FLAG_APPLIED);
                 SET_FLAG(op, FLAG_READY_BOW);
-            }
-            else {
+            } else {
                 CLEAR_FLAG(tmp, FLAG_APPLIED);
             }
-        }
-        else if (QUERY_FLAG(op, FLAG_USE_ARMOUR) && IS_ARMOR(tmp) && check_good_armour(op, tmp)) {
+        } else if (QUERY_FLAG(op, FLAG_USE_ARMOUR) && IS_ARMOR(tmp) && check_good_armour(op, tmp)) {
             SET_FLAG(tmp, FLAG_APPLIED);
-        }
-        else if (QUERY_FLAG(op, FLAG_USE_WEAPON) && tmp->type == WEAPON && check_good_weapon(op, tmp)) {
+        } else if (QUERY_FLAG(op, FLAG_USE_WEAPON) && tmp->type == WEAPON && check_good_weapon(op, tmp)) {
             SET_FLAG(tmp, FLAG_APPLIED);
         }
 
@@ -1322,8 +1266,7 @@ void fix_monster(object *op)
             if (tmp->type == WEAPON) {
                 op->stats.dam += tmp->stats.dam;
                 op->stats.wc += tmp->stats.wc;
-            }
-            else if (IS_ARMOR(tmp)) {
+            } else if (IS_ARMOR(tmp)) {
                 for (i = 0; i < NROFATTACKS; i++) {
                     op->protection[i] = MIN(op->protection[i] + tmp->protection[i], 15);
                 }
@@ -1365,10 +1308,6 @@ void fix_monster(object *op)
     }
 
     set_mobile_speed(op, 0);
-
-    if (QUERY_FLAG(op, FLAG_ANIMATE)) {
-        animate_object(op, 0);
-    }
 }
 
 /**
@@ -1459,9 +1398,9 @@ void set_mobile_speed(object *op, int idx)
 
     if (idx) {
         op->speed = speed * idx;
-    }
-    /* We will generate the speed by setting of the monster */
-    else {
+    } else {
+        /* We will generate the speed by setting of the monster */
+
         /* If not slowed... */
         if (!QUERY_FLAG(op, FLAG_SLOW_MOVE)) {
             speed += base->speed_left;

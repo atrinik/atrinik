@@ -2,20 +2,25 @@ arch map
 name Brynknot
 msg
 Created:  2010-09-08 Alex Tokar
-Modified: 2011-05-13 Alex Tokar
+Modified: 2014-12-25 Alex Tokar
 endmsg
 width 24
 height 24
 difficulty 1
-darkness 3
+darkness -1
+outdoor 1
 no_harm 1
 tile_path_2 world_1_0213
 tile_path_3 world_1_0112
+tile_path_4 world_1_aa13
 tile_path_6 world_1_0212
+tile_path_7 world_1_aa12
+tile_path_9 world_2_0113
+tile_path_10 world_0113
 bg_music lontala.mid
 region brynknot
 end
-arch blocked
+arch trans
 x 7
 y 14
 end
@@ -23,7 +28,15 @@ arch wall_stone_8
 x 7
 y 14
 end
-arch blocked
+arch map_info
+hp 2
+sp 4
+name brynknot_bank
+cursed 1
+x 7
+y 14
+end
+arch trans
 x 7
 y 15
 end
@@ -31,7 +44,7 @@ arch wall_stone_3
 x 7
 y 15
 end
-arch blocked
+arch trans
 x 7
 y 16
 end
@@ -44,7 +57,7 @@ direction 7
 x 7
 y 16
 end
-arch blocked
+arch trans
 x 7
 y 17
 end
@@ -52,7 +65,20 @@ arch wall_stone_3
 x 7
 y 17
 end
-arch blocked
+arch trans
+x 7
+y 18
+end
+arch wall_stone_3
+x 7
+y 18
+end
+arch roof_brick
+direction 3
+x 7
+y 19
+end
+arch trans
 x 8
 y 14
 end
@@ -74,9 +100,6 @@ y 16
 end
 arch stairs_wood_down
 direction 5
-slaying world_0113
-hp 8
-sp 17
 x 8
 y 16
 end
@@ -84,15 +107,27 @@ arch floor_ostone13
 x 8
 y 17
 end
-arch wall_stone_1
+arch stairs_down
 x 8
 y 17
 end
-arch blocked
+arch floor_ostone13
+x 8
+y 18
+end
+arch wall_stone_1
+x 8
+y 18
+end
+arch roof_brick
+x 8
+y 19
+end
+arch trans
 x 9
 y 14
 end
-arch wall_stone_1
+arch wall_stone_w.111
 x 9
 y 14
 end
@@ -116,11 +151,19 @@ arch floor_ostone13
 x 9
 y 17
 end
+arch floor_ostone13
+x 9
+y 18
+end
 arch wall_stone_1
 x 9
-y 17
+y 18
 end
-arch blocked
+arch roof_brick
+x 9
+y 19
+end
+arch trans
 x 10
 y 13
 end
@@ -128,7 +171,15 @@ arch wall_stone_8
 x 10
 y 13
 end
-arch blocked
+arch map_info
+hp 12
+sp 7
+name brynknot_bank
+cursed 1
+x 10
+y 13
+end
+arch trans
 x 10
 y 14
 end
@@ -157,7 +208,7 @@ arch floor_ostone13
 x 10
 y 17
 end
-arch wall_stone_4
+arch wall_stone_3
 x 10
 y 17
 end
@@ -166,15 +217,15 @@ direction 7
 x 10
 y 17
 end
-arch blocked
+arch floor_ostone13
 x 10
 y 18
 end
-arch wall_stone_3
+arch wall_stone_4
 x 10
 y 18
 end
-arch blocked
+arch trans
 x 10
 y 19
 end
@@ -187,7 +238,7 @@ direction 7
 x 10
 y 19
 end
-arch blocked
+arch trans
 x 10
 y 20
 end
@@ -195,7 +246,7 @@ arch wall_stone_3
 x 10
 y 20
 end
-arch blocked
+arch trans
 x 11
 y 13
 end
@@ -243,11 +294,15 @@ arch wall_stone_1
 x 11
 y 20
 end
-arch blocked
+arch trans
 x 12
 y 13
 end
 arch wall_stone_1
+x 12
+y 13
+end
+arch picture1.151
 x 12
 y 13
 end
@@ -300,19 +355,15 @@ arch floor_ostone13
 x 12
 y 20
 end
-arch wall_stone_1
+arch wall_stone_w.111
 x 12
 y 20
 end
-arch blocked
+arch trans
 x 13
 y 13
 end
-arch wall_stone_1
-x 13
-y 13
-end
-arch picture1.151
+arch wall_stone_w.111
 x 13
 y 13
 end
@@ -356,7 +407,7 @@ arch wall_stone_1
 x 13
 y 20
 end
-arch blocked
+arch trans
 x 14
 y 13
 end
@@ -417,7 +468,7 @@ arch wall_stone_1
 x 14
 y 20
 end
-arch blocked
+arch trans
 x 15
 y 13
 end
@@ -461,11 +512,11 @@ arch floor_ostone13
 x 15
 y 20
 end
-arch wall_stone_1
+arch wall_stone_w.111
 x 15
 y 20
 end
-arch blocked
+arch trans
 x 16
 y 13
 end
@@ -535,7 +586,7 @@ arch wall_stone_1
 x 16
 y 20
 end
-arch blocked
+arch trans
 x 17
 y 13
 end
@@ -611,7 +662,7 @@ arch wall_stone_4
 x 17
 y 20
 end
-arch blocked
+arch trans
 x 18
 y 13
 end
@@ -678,19 +729,11 @@ arch floor_ostone13
 x 18
 y 20
 end
-arch candlelight3.101
+arch wall_stone_w.111
 x 18
 y 20
 end
-arch wall_stone_1
-x 18
-y 20
-end
-arch light5
-x 18
-y 20
-end
-arch blocked
+arch trans
 x 19
 y 13
 end
@@ -739,11 +782,19 @@ arch floor_ostone13
 x 19
 y 20
 end
+arch candlelight3.101
+x 19
+y 20
+end
 arch wall_stone_1
 x 19
 y 20
 end
-arch blocked
+arch light5
+x 19
+y 20
+end
+arch trans
 x 20
 y 13
 end
@@ -772,18 +823,15 @@ arch floor_ostone13
 x 20
 y 16
 end
-arch floor_ostone13
-x 20
-y 17
-end
 arch ladder_up
-slaying world_2_0113
-hp 20
-sp 17
 x 20
-y 17
+y 16
 end
 arch light3
+x 20
+y 16
+end
+arch floor_ostone13
 x 20
 y 17
 end
@@ -808,7 +856,7 @@ arch wall_stone_1
 x 20
 y 20
 end
-arch blocked
+arch trans
 x 21
 y 13
 end
@@ -878,11 +926,11 @@ arch floor_ostone13
 x 21
 y 20
 end
-arch wall_stone_1
+arch wall_stone_w.111
 x 21
 y 20
 end
-arch blocked
+arch trans
 x 22
 y 13
 end
@@ -894,7 +942,15 @@ arch floor_ostone13
 x 22
 y 14
 end
+arch candlelight3.101
+x 22
+y 14
+end
 arch wall_stone_3
+x 22
+y 14
+end
+arch light5
 x 22
 y 14
 end
@@ -902,15 +958,7 @@ arch floor_ostone13
 x 22
 y 15
 end
-arch candlelight3.101
-x 22
-y 15
-end
-arch wall_stone_3
-x 22
-y 15
-end
-arch light5
+arch wall_stone_w.131
 x 22
 y 15
 end
@@ -926,7 +974,15 @@ arch floor_ostone13
 x 22
 y 17
 end
+arch candlelight3.101
+x 22
+y 17
+end
 arch wall_stone_3
+x 22
+y 17
+end
+arch light5
 x 22
 y 17
 end
@@ -934,15 +990,7 @@ arch floor_ostone13
 x 22
 y 18
 end
-arch candlelight3.101
-x 22
-y 18
-end
-arch wall_stone_3
-x 22
-y 18
-end
-arch light5
+arch wall_stone_w.131
 x 22
 y 18
 end

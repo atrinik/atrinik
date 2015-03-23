@@ -1,26 +1,26 @@
-/************************************************************************
-*            Atrinik, a Multiplayer Online Role Playing Game            *
-*                                                                       *
-*    Copyright (C) 2009-2012 Alex Tokar and Atrinik Development Team    *
-*                                                                       *
-* Fork from Crossfire (Multiplayer game for X-windows).                 *
-*                                                                       *
-* This program is free software; you can redistribute it and/or modify  *
-* it under the terms of the GNU General Public License as published by  *
-* the Free Software Foundation; either version 2 of the License, or     *
-* (at your option) any later version.                                   *
-*                                                                       *
-* This program is distributed in the hope that it will be useful,       *
-* but WITHOUT ANY WARRANTY; without even the implied warranty of        *
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
-* GNU General Public License for more details.                          *
-*                                                                       *
-* You should have received a copy of the GNU General Public License     *
-* along with this program; if not, write to the Free Software           *
-* Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.             *
-*                                                                       *
-* The author can be reached at admin@atrinik.org                        *
-************************************************************************/
+/*************************************************************************
+ *           Atrinik, a Multiplayer Online Role Playing Game             *
+ *                                                                       *
+ *   Copyright (C) 2009-2014 Alex Tokar and Atrinik Development Team     *
+ *                                                                       *
+ * Fork from Crossfire (Multiplayer game for X-windows).                 *
+ *                                                                       *
+ * This program is free software; you can redistribute it and/or modify  *
+ * it under the terms of the GNU General Public License as published by  *
+ * the Free Software Foundation; either version 2 of the License, or     *
+ * (at your option) any later version.                                   *
+ *                                                                       *
+ * This program is distributed in the hope that it will be useful,       *
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of        *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
+ * GNU General Public License for more details.                          *
+ *                                                                       *
+ * You should have received a copy of the GNU General Public License     *
+ * along with this program; if not, write to the Free Software           *
+ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.             *
+ *                                                                       *
+ * The author can be reached at admin@atrinik.org                        *
+ ************************************************************************/
 
 /**
  * @file
@@ -30,16 +30,14 @@
 
 #include <global.h>
 
-typedef union list_settings_graphic_union
-{
+typedef union list_settings_graphic_union {
     /**
      * Button buffer. */
     button_struct button[2];
 
     /**
      * Text-related buffers. */
-    struct
-    {
+    struct {
         /**
          * Text input buffer. */
         text_input_struct text_input;
@@ -77,8 +75,7 @@ static void setting_change_value(int cat, int set, sint64 val)
 
     if (setting->type == OPT_TYPE_BOOL) {
         setting_set_int(cat, set, !setting_get_int(cat, set));
-    }
-    else if (setting->type == OPT_TYPE_SELECT || setting->type == OPT_TYPE_RANGE) {
+    } else if (setting->type == OPT_TYPE_SELECT || setting->type == OPT_TYPE_RANGE) {
         sint64 old_val, new_val, advance;
 
         if (!val) {
@@ -99,12 +96,10 @@ static void setting_change_value(int cat, int set, sint64 val)
 
             if (new_val >= (sint64) s_select->options_len) {
                 new_val = 0;
-            }
-            else if (new_val < 0) {
+            } else if (new_val < 0) {
                 new_val = s_select->options_len - 1;
             }
-        }
-        else if (setting->type == OPT_TYPE_RANGE) {
+        } else if (setting->type == OPT_TYPE_RANGE) {
             setting_range *range = SETTING_RANGE(setting);
 
             new_val = MAX(range->min, MIN(range->max, new_val));
@@ -160,8 +155,7 @@ static void settings_list_button_repeat(button_struct *button)
                 setting_change_value(setting_category_selected, row, 0);
                 break;
             }
-        }
-        else if (setting->type == OPT_TYPE_SELECT || setting->type == OPT_TYPE_RANGE) {
+        } else if (setting->type == OPT_TYPE_SELECT || setting->type == OPT_TYPE_RANGE) {
             button_struct *button_left, *button_right;
 
             button_left = &((list_settings_graphic_union *) list_settings->data)[row].button[0];
@@ -169,8 +163,7 @@ static void settings_list_button_repeat(button_struct *button)
 
             if (button == button_left) {
                 setting_change_value(setting_category_selected, row, -1);
-            }
-            else if (button == button_right) {
+            } else if (button == button_right) {
                 setting_change_value(setting_category_selected, row, 1);
             }
         }
@@ -210,8 +203,7 @@ static void settings_list_reload(void)
             button_checkbox->flags = TEXT_MARKUP;
             button_checkbox->center = 0;
             button_checkbox->color_shadow = button_checkbox->color_over_shadow = NULL;
-        }
-        else if (setting->type == OPT_TYPE_SELECT || setting->type == OPT_TYPE_RANGE) {
+        } else if (setting->type == OPT_TYPE_SELECT || setting->type == OPT_TYPE_RANGE) {
             button_struct *button_left, *button_right;
 
             button_left = &((list_settings_graphic_union *) list_settings->data)[i].button[0];
@@ -223,15 +215,14 @@ static void settings_list_reload(void)
             button_left->texture_over = button_right->texture_over = texture_get(TEXTURE_TYPE_CLIENT, "button_round_over");
             button_left->texture_pressed = button_right->texture_pressed = texture_get(TEXTURE_TYPE_CLIENT, "button_round_down");
             button_left->repeat_func = button_right->repeat_func = settings_list_button_repeat;
-        }
-        else if (setting->type == OPT_TYPE_INPUT_TEXT || setting->type == OPT_TYPE_COLOR) {
+        } else if (setting->type == OPT_TYPE_INPUT_TEXT || setting->type == OPT_TYPE_COLOR) {
             text_input_struct *text_input;
 
             text_input = &((list_settings_graphic_union *) list_settings->data)[i].text.text_input;
             text_input_create(text_input);
             text_input_set(text_input, setting_get_str(setting_category_selected, i));
+            text_input_set_font(text_input, FONT_ARIAL10);
             text_input->coords.w = 100;
-            text_input->font = FONT_ARIAL10;
             text_input->focus = 0;
 
             if (setting->type == OPT_TYPE_COLOR) {
@@ -269,7 +260,6 @@ static void list_post_column(list_struct *list, uint32 row, uint32 col)
 
     SDL_GetMouseState(&mx, &my);
 
-    /* Checkbox. */
     if (setting->type == OPT_TYPE_BOOL) {
         button_struct *button_checkbox;
         SDL_Rect box;
@@ -291,13 +281,10 @@ static void list_post_column(list_struct *list, uint32 row, uint32 col)
 
         if (button_checkbox->mouse_over) {
             border_create_color(list->surface, &box, 1, "b09a9a");
-        }
-        else {
+        } else {
             border_create_color(list->surface, &box, 1, "8c7a7a");
         }
-    }
-    /* Select or range. */
-    else if (setting->type == OPT_TYPE_SELECT || setting->type == OPT_TYPE_RANGE) {
+    } else if (setting->type == OPT_TYPE_SELECT || setting->type == OPT_TYPE_RANGE) {
         button_struct *button_left, *button_right;
         sint64 val;
         SDL_Rect dst;
@@ -315,8 +302,7 @@ static void list_post_column(list_struct *list, uint32 row, uint32 col)
 
         if (setting->type == OPT_TYPE_SELECT) {
             text_show(list->surface, FONT_ARIAL10, SETTING_SELECT(setting)->options[val], dst.x, dst.y, COLOR_WHITE, TEXT_ALIGN_CENTER, &dst);
-        }
-        else if (setting->type == OPT_TYPE_RANGE) {
+        } else if (setting->type == OPT_TYPE_RANGE) {
             text_show_format(list->surface, FONT_ARIAL10, dst.x, dst.y, COLOR_WHITE, TEXT_ALIGN_CENTER, &dst, "%"FMT64, val);
         }
 
@@ -331,8 +317,7 @@ static void list_post_column(list_struct *list, uint32 row, uint32 col)
         button_right->y = dst.y;
         button_set_parent(button_right, list->px, list->py);
         button_show(button_right, ">");
-    }
-    else if (setting->type == OPT_TYPE_INPUT_TEXT || setting->type == OPT_TYPE_COLOR) {
+    } else if (setting->type == OPT_TYPE_INPUT_TEXT || setting->type == OPT_TYPE_COLOR) {
         text_input_struct *text_input;
         SDL_Rect dst;
 
@@ -355,8 +340,7 @@ static void list_post_column(list_struct *list, uint32 row, uint32 col)
 
             if (text_color_parse(setting_get_str(setting_category_selected, row), &color)) {
                 snprintf(color_notation, sizeof(color_notation), "%.2X%.2X%.2X", 255 - color.r, 255 - color.g, 255 - color.b);
-            }
-            else {
+            } else {
                 color.r = color.g = color.b = 0;
                 snprintf(color_notation, sizeof(color_notation), "%.2X%.2X%.2X", 255, 255, 255);
             }
@@ -373,7 +357,7 @@ static void list_post_column(list_struct *list, uint32 row, uint32 col)
         dst.x -= text_input->coords.w;
         text_input->focus = text_input_focused == text_input;
         text_input_set_parent(text_input, list->px, list->py);
-        text_input_show(text_input, list->surface, dst.x, dst.y + 1);
+        text_input_show(text_input, list->surface, dst.x, dst.y - 1);
         text_input->focus = 0;
     }
 }
@@ -381,8 +365,24 @@ static void list_post_column(list_struct *list, uint32 row, uint32 col)
 /** @copydoc list_struct::handle_enter_func */
 static void list_handle_enter(list_struct *list, SDL_Event *event)
 {
-    if (list->row_selected) {
-        setting_change_value(setting_category_selected, list->row_selected - 1, 0);
+    uint32 row;
+    setting_struct *setting;
+
+    if (list->row_selected == 0) {
+        return;
+    }
+
+    row = list->row_selected - 1;
+    setting = setting_categories[setting_category_selected]->settings[row];
+
+    if (setting->type == OPT_TYPE_INPUT_TEXT ||
+            setting->type == OPT_TYPE_COLOR) {
+        list_settings_graphic_union *settings_graphic;
+
+        settings_graphic = list_settings->data;
+        text_input_focused = &settings_graphic[row].text.text_input;
+    } else {
+        setting_change_value(setting_category_selected, row, 0);
     }
 }
 
@@ -422,16 +422,13 @@ static void button_repeat(button_struct *button)
     if (button == &button_category_right) {
         if (new_cat == setting_categories_num - 1) {
             new_cat = 0;
-        }
-        else {
+        } else {
             new_cat++;
         }
-    }
-    else if (button == &button_category_left) {
+    } else if (button == &button_category_left) {
         if (new_cat == 0) {
             new_cat = setting_categories_num - 1;
-        }
-        else {
+        } else {
             new_cat--;
         }
     }
@@ -504,8 +501,7 @@ static int popup_event(popup_struct *popup, SDL_Event *event)
             if (event->key.keysym.sym == SDLK_ESCAPE) {
                 text_input_focused = NULL;
                 return 1;
-            }
-            else if (IS_ENTER(event->key.keysym.sym)) {
+            } else if (IS_ENTER(event->key.keysym.sym)) {
                 int i;
                 text_input_struct *text_input;
 
@@ -526,8 +522,7 @@ static int popup_event(popup_struct *popup, SDL_Event *event)
 
                 setting_set_str(setting_category_selected, i, text_input->str);
                 return 1;
-            }
-            else if (text_input_event(text_input_focused, event)) {
+            } else if (text_input_event(text_input_focused, event)) {
                 return 1;
             }
         }
@@ -535,22 +530,18 @@ static int popup_event(popup_struct *popup, SDL_Event *event)
         if (event->key.keysym.sym == SDLK_ESCAPE) {
             popup_destroy(popup);
             return 1;
-        }
-        else if (event->key.keysym.sym == SDLK_RIGHT) {
+        } else if (event->key.keysym.sym == SDLK_RIGHT) {
             if (event->key.keysym.mod & KMOD_SHIFT) {
                 button_repeat(&button_category_right);
-            }
-            else {
+            } else {
                 setting_change_value(setting_category_selected, list_settings->row_selected - 1, 1);
             }
 
             return 1;
-        }
-        else if (event->key.keysym.sym == SDLK_LEFT) {
+        } else if (event->key.keysym.sym == SDLK_LEFT) {
             if (event->key.keysym.mod & KMOD_SHIFT) {
                 button_repeat(&button_category_left);
-            }
-            else {
+            } else {
                 setting_change_value(setting_category_selected, list_settings->row_selected - 1, -1);
             }
 
@@ -578,8 +569,7 @@ static int popup_event(popup_struct *popup, SDL_Event *event)
                 settings_list_button_repeat(button_checkbox);
                 return 1;
             }
-        }
-        else if (setting->type == OPT_TYPE_SELECT || setting->type == OPT_TYPE_RANGE) {
+        } else if (setting->type == OPT_TYPE_SELECT || setting->type == OPT_TYPE_RANGE) {
             button_struct *button_left, *button_right;
 
             button_left = &((list_settings_graphic_union *) list_settings->data)[row].button[0];
@@ -588,13 +578,11 @@ static int popup_event(popup_struct *popup, SDL_Event *event)
             if (button_event(button_left, event)) {
                 settings_list_button_repeat(button_left);
                 return 1;
-            }
-            else if (button_event(button_right, event)) {
+            } else if (button_event(button_right, event)) {
                 settings_list_button_repeat(button_right);
                 return 1;
             }
-        }
-        else if (setting->type == OPT_TYPE_INPUT_TEXT || setting->type == OPT_TYPE_COLOR) {
+        } else if (setting->type == OPT_TYPE_INPUT_TEXT || setting->type == OPT_TYPE_COLOR) {
             text_input_struct *text_input;
 
             text_input = &((list_settings_graphic_union *) list_settings->data)[row].text.text_input;
@@ -617,7 +605,7 @@ static int popup_event(popup_struct *popup, SDL_Event *event)
                 }
             }
 
-            if ((event->type == SDL_MOUSEBUTTONDOWN && event->button.button == SDL_BUTTON_LEFT && text_input_mouse_over(text_input, event->motion.x, event->motion.y)) || (event->type == SDL_KEYDOWN && IS_ENTER(event->key.keysym.sym))) {
+            if ((event->type == SDL_MOUSEBUTTONDOWN && event->button.button == SDL_BUTTON_LEFT && text_input_mouse_over(text_input, event->motion.x, event->motion.y))) {
                 text_input_focused = text_input;
                 return 1;
             }
@@ -627,23 +615,18 @@ static int popup_event(popup_struct *popup, SDL_Event *event)
     if (button_event(&button_category_left, event)) {
         button_repeat(&button_category_left);
         return 1;
-    }
-    else if (button_event(&button_category_right, event)) {
+    } else if (button_event(&button_category_right, event)) {
         button_repeat(&button_category_right);
         return 1;
-    }
-    else if (button_event(&button_apply, event)) {
+    } else if (button_event(&button_apply, event)) {
         settings_apply_change();
         return 1;
-    }
-    else if (button_event(&button_done, event)) {
+    } else if (button_event(&button_done, event)) {
         popup_destroy(popup);
         return 1;
-    }
-    else if (list_handle_keyboard(list_settings, event)) {
+    } else if (list_handle_keyboard(list_settings, event)) {
         return 1;
-    }
-    else if (list_handle_mouse(list_settings, event)) {
+    } else if (list_handle_mouse(list_settings, event)) {
         return 1;
     }
 

@@ -1,26 +1,26 @@
-/************************************************************************
-*            Atrinik, a Multiplayer Online Role Playing Game            *
-*                                                                       *
-*    Copyright (C) 2009-2012 Alex Tokar and Atrinik Development Team    *
-*                                                                       *
-* Fork from Crossfire (Multiplayer game for X-windows).                 *
-*                                                                       *
-* This program is free software; you can redistribute it and/or modify  *
-* it under the terms of the GNU General Public License as published by  *
-* the Free Software Foundation; either version 2 of the License, or     *
-* (at your option) any later version.                                   *
-*                                                                       *
-* This program is distributed in the hope that it will be useful,       *
-* but WITHOUT ANY WARRANTY; without even the implied warranty of        *
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
-* GNU General Public License for more details.                          *
-*                                                                       *
-* You should have received a copy of the GNU General Public License     *
-* along with this program; if not, write to the Free Software           *
-* Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.             *
-*                                                                       *
-* The author can be reached at admin@atrinik.org                        *
-************************************************************************/
+/*************************************************************************
+ *           Atrinik, a Multiplayer Online Role Playing Game             *
+ *                                                                       *
+ *   Copyright (C) 2009-2014 Alex Tokar and Atrinik Development Team     *
+ *                                                                       *
+ * Fork from Crossfire (Multiplayer game for X-windows).                 *
+ *                                                                       *
+ * This program is free software; you can redistribute it and/or modify  *
+ * it under the terms of the GNU General Public License as published by  *
+ * the Free Software Foundation; either version 2 of the License, or     *
+ * (at your option) any later version.                                   *
+ *                                                                       *
+ * This program is distributed in the hope that it will be useful,       *
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of        *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
+ * GNU General Public License for more details.                          *
+ *                                                                       *
+ * You should have received a copy of the GNU General Public License     *
+ * along with this program; if not, write to the Free Software           *
+ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.             *
+ *                                                                       *
+ * The author can be reached at admin@atrinik.org                        *
+ ************************************************************************/
 
 /**
  * @file
@@ -46,6 +46,7 @@ static uint8 did_init = 0;
  * @internal */
 void toolkit_x11_init(void)
 {
+
     TOOLKIT_INIT_FUNC_START(x11)
     {
     }
@@ -57,6 +58,7 @@ void toolkit_x11_init(void)
  * @internal */
 void toolkit_x11_deinit(void)
 {
+
     TOOLKIT_DEINIT_FUNC_START(x11)
     {
     }
@@ -83,6 +85,7 @@ x11_window_type x11_window_get_parent(x11_display_type display, x11_window_type 
 }
 
 #if defined(HAVE_X11)
+
 /**
  * Sends event to X11.
  * @param display Display to send event to.
@@ -184,10 +187,10 @@ void x11_window_activate(x11_display_type display, x11_window_type win, uint8 sw
 #if defined(HAVE_X11)
 
     if (switch_desktop) {
-        unsigned long *desktop;
+        char *desktop;
 
-        if (!(desktop = (unsigned long *) x11_get_property(display, win, XA_CARDINAL, "_NET_WM_DESKTOP", NULL))) {
-            if (!(desktop = (unsigned long *) x11_get_property(display, win, XA_CARDINAL, "_WIN_WORKSPACE", NULL))) {
+        if (!(desktop = x11_get_property(display, win, XA_CARDINAL, "_NET_WM_DESKTOP", NULL))) {
+            if (!(desktop = x11_get_property(display, win, XA_CARDINAL, "_WIN_WORKSPACE", NULL))) {
                 logger_print(LOG(BUG), "Cannot find desktop ID of the window.");
             }
         }
@@ -210,6 +213,7 @@ void x11_window_activate(x11_display_type display, x11_window_type win, uint8 sw
 }
 
 #if defined(HAVE_X11) && defined(HAVE_SDL)
+
 static int x11_clipboard_filter(const SDL_Event *event)
 {
     /* Post all non-window manager specific events */
@@ -220,41 +224,41 @@ static int x11_clipboard_filter(const SDL_Event *event)
     /* Handle window-manager specific clipboard events. */
     switch (event->syswm.msg->event.xevent.type) {
         /* Copy the selection from XA_CUT_BUFFER0 to the requested property. */
-        case SelectionRequest:
-        {
-            XSelectionRequestEvent *req;
-            XEvent sevent;
-            int seln_format;
-            unsigned long nbytes, overflow;
-            unsigned char *seln_data;
+    case SelectionRequest:
+    {
+        XSelectionRequestEvent *req;
+        XEvent sevent;
+        int seln_format;
+        unsigned long nbytes, overflow;
+        unsigned char *seln_data;
 
-            req = &event->syswm.msg->event.xevent.xselectionrequest;
-            sevent.xselection.type = SelectionNotify;
-            sevent.xselection.display = req->display;
-            sevent.xselection.selection = req->selection;
-            sevent.xselection.target = None;
-            sevent.xselection.property = None;
-            sevent.xselection.requestor = req->requestor;
-            sevent.xselection.time = req->time;
+        req = &event->syswm.msg->event.xevent.xselectionrequest;
+        sevent.xselection.type = SelectionNotify;
+        sevent.xselection.display = req->display;
+        sevent.xselection.selection = req->selection;
+        sevent.xselection.target = None;
+        sevent.xselection.property = None;
+        sevent.xselection.requestor = req->requestor;
+        sevent.xselection.time = req->time;
 
-            if (XGetWindowProperty(SDL_display, DefaultRootWindow(SDL_display), XA_CUT_BUFFER0, 0, INT_MAX / 4, False, req->target, &sevent.xselection.target, &seln_format, &nbytes, &overflow, &seln_data) == Success) {
-                if (sevent.xselection.target == req->target) {
-                    if (sevent.xselection.target == XA_STRING) {
-                        if (seln_data[nbytes - 1] == '\0') {
-                            nbytes--;
-                        }
+        if (XGetWindowProperty(SDL_display, DefaultRootWindow(SDL_display), XA_CUT_BUFFER0, 0, INT_MAX / 4, False, req->target, &sevent.xselection.target, &seln_format, &nbytes, &overflow, &seln_data) == Success) {
+            if (sevent.xselection.target == req->target) {
+                if (sevent.xselection.target == XA_STRING) {
+                    if (seln_data[nbytes - 1] == '\0') {
+                        nbytes--;
                     }
-
-                    XChangeProperty(SDL_display, req->requestor, req->property, sevent.xselection.target, seln_format, PropModeReplace, seln_data, nbytes);
-                    sevent.xselection.property = req->property;
                 }
 
-                XFree(seln_data);
+                XChangeProperty(SDL_display, req->requestor, req->property, sevent.xselection.target, seln_format, PropModeReplace, seln_data, nbytes);
+                sevent.xselection.property = req->property;
             }
 
-            XSendEvent(SDL_display, req->requestor, False, 0, &sevent);
-            XSync(SDL_display, False);
+            XFree(seln_data);
         }
+
+        XSendEvent(SDL_display, req->requestor, False, 0, &sevent);
+        XSync(SDL_display, False);
+    }
 
         break;
     }
@@ -406,8 +410,7 @@ char *x11_clipboard_get(x11_display_type display, x11_window_type win)
     if (owner == None || owner == win) {
         owner = DefaultRootWindow(display);
         selection = XA_CUT_BUFFER0;
-    }
-    else {
+    } else {
 #if defined(HAVE_SDL)
         int selection_response = 0;
         SDL_Event event;

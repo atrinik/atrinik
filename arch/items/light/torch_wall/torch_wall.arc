@@ -7,7 +7,6 @@ other_arch torch_wall_1_unlit
 glow_radius 5
 is_animated 1
 animation torch_wall_1
-speed -0.02
 is_turnable 1
 anim_speed 4
 direction 1

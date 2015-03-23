@@ -1,26 +1,26 @@
-/************************************************************************
-*            Atrinik, a Multiplayer Online Role Playing Game            *
-*                                                                       *
-*    Copyright (C) 2009-2012 Alex Tokar and Atrinik Development Team    *
-*                                                                       *
-* Fork from Crossfire (Multiplayer game for X-windows).                 *
-*                                                                       *
-* This program is free software; you can redistribute it and/or modify  *
-* it under the terms of the GNU General Public License as published by  *
-* the Free Software Foundation; either version 2 of the License, or     *
-* (at your option) any later version.                                   *
-*                                                                       *
-* This program is distributed in the hope that it will be useful,       *
-* but WITHOUT ANY WARRANTY; without even the implied warranty of        *
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
-* GNU General Public License for more details.                          *
-*                                                                       *
-* You should have received a copy of the GNU General Public License     *
-* along with this program; if not, write to the Free Software           *
-* Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.             *
-*                                                                       *
-* The author can be reached at admin@atrinik.org                        *
-************************************************************************/
+/*************************************************************************
+ *           Atrinik, a Multiplayer Online Role Playing Game             *
+ *                                                                       *
+ *   Copyright (C) 2009-2014 Alex Tokar and Atrinik Development Team     *
+ *                                                                       *
+ * Fork from Crossfire (Multiplayer game for X-windows).                 *
+ *                                                                       *
+ * This program is free software; you can redistribute it and/or modify  *
+ * it under the terms of the GNU General Public License as published by  *
+ * the Free Software Foundation; either version 2 of the License, or     *
+ * (at your option) any later version.                                   *
+ *                                                                       *
+ * This program is distributed in the hope that it will be useful,       *
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of        *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
+ * GNU General Public License for more details.                          *
+ *                                                                       *
+ * You should have received a copy of the GNU General Public License     *
+ * along with this program; if not, write to the Free Software           *
+ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.             *
+ *                                                                       *
+ * The author can be reached at admin@atrinik.org                        *
+ ************************************************************************/
 
 /**
  * @file
@@ -43,13 +43,12 @@
 #include <global.h>
 
 static widgetdata def_widget[TOTAL_SUBWIDGETS];
-static const char *const widget_names[TOTAL_SUBWIDGETS] =
-{
-    "map", "stat", "main_lvl", "skill_exp",
-    "menu_buttons", "quickslots", "textwin", "playerdoll",
+static const char *const widget_names[TOTAL_SUBWIDGETS] = {
+    "map", "stat", "menu_buttons", "quickslots", "textwin", "playerdoll",
     "belowinv", "playerinfo", "maininv", "mapname",
     "input", "fps", "mplayer", "spells", "skills", "party", "notification",
-    "container", "label", "texture", "buddy", "active_effects",
+    "container", "label", "texture", "buddy", "active_effects", "protections",
+    "minimap",
 
     "container_strip", "menu", "menuitem"
 };
@@ -74,20 +73,17 @@ static widgetdata *type_list_foot[TOTAL_SUBWIDGETS];
 /**
  * Determines which widget has mouse focus
  * This value is determined in the mouse routines for the widgets */
-widgetevent widget_mouse_event =
-{
+widgetevent widget_mouse_event = {
     NULL, 0, 0
 };
 
 /** This is used when moving a widget with the mouse. */
-static widgetmove widget_event_move =
-{
+static widgetmove widget_event_move = {
     0, NULL, 0, 0
 };
 
 /** This is used when resizing a widget with the mouse. */
-static widgetresize widget_event_resize =
-{
+static widgetresize widget_event_resize = {
     0, NULL, 0, 0
 };
 
@@ -97,7 +93,12 @@ static widgetresize widget_event_resize =
  * */
 static int IsMouseExclusive = 0;
 
-static int widget_id_from_name(const char *name)
+/**
+ * Whether widget rendering debugging is turned on or off.
+ */
+static int widget_render_debug = 0;
+
+int widget_id_from_name(const char *name)
 {
     int i;
 
@@ -158,6 +159,9 @@ static int widget_load(const char *path, uint8 defaults, widgetdata *widgets[])
             efree(cp);
 
             if (id == -1) {
+                /* Reset to NULL in case there was a valid widget previously,
+                 * so that we don't load into it from this invalid one. */
+                widget = NULL;
                 logger_print(LOG(DEBUG), "Invalid widget: %s", line);
                 continue;
             }
@@ -169,8 +173,7 @@ static int widget_load(const char *path, uint8 defaults, widgetdata *widgets[])
                 widget->required = 1;
                 widget->save = 1;
             }
-        }
-        else if (widget) {
+        } else if (widget) {
             char *cps[2];
 
             if (string_split(line, cps, arraysize(cps), '=') != arraysize(cps)) {
@@ -183,50 +186,35 @@ static int widget_load(const char *path, uint8 defaults, widgetdata *widgets[])
 
             if (strcmp(cps[0], "id") == 0) {
                 widget->id = estrdup(cps[1]);
-            }
-            else if (strcmp(cps[0], "texture_type") == 0) {
+            } else if (strcmp(cps[0], "texture_type") == 0) {
                 widget->texture_type = atoi(cps[1]);
-            }
-            else if (strcmp(cps[0], "bg") == 0) {
+            } else if (strcmp(cps[0], "bg") == 0) {
                 strncpy(widget->bg, cps[1], sizeof(widget->bg) - 1);
                 widget->bg[sizeof(widget->bg) - 1] = '\0';
-            }
-            else if (strcmp(cps[0], "moveable") == 0) {
+            } else if (strcmp(cps[0], "moveable") == 0) {
                 KEYWORD_TO_BOOLEAN(cps[1], widget->moveable);
-            }
-            else if (strcmp(cps[0], "shown") == 0) {
+            } else if (strcmp(cps[0], "shown") == 0) {
                 KEYWORD_TO_BOOLEAN(cps[1], widget->show);
-            }
-            else if (strcmp(cps[0], "resizeable") == 0) {
+            } else if (strcmp(cps[0], "resizeable") == 0) {
                 KEYWORD_TO_BOOLEAN(cps[1], widget->resizeable);
-            }
-            else if (strcmp(cps[0], "required") == 0) {
+            } else if (strcmp(cps[0], "required") == 0) {
                 KEYWORD_TO_BOOLEAN(cps[1], widget->required);
-            }
-            else if (strcmp(cps[0], "save") == 0) {
+            } else if (strcmp(cps[0], "save") == 0) {
                 KEYWORD_TO_BOOLEAN(cps[1], widget->save);
-            }
-            else if (strcmp(cps[0], "x") == 0) {
+            } else if (strcmp(cps[0], "x") == 0) {
                 widget->x = atoi(cps[1]);
-            }
-            else if (strcmp(cps[0], "y") == 0) {
+            } else if (strcmp(cps[0], "y") == 0) {
                 widget->y = atoi(cps[1]);
-            }
-            else if (strcmp(cps[0], "w") == 0) {
+            } else if (strcmp(cps[0], "w") == 0) {
                 resize_widget(widget, RESIZE_RIGHT, atoi(cps[1]));
-            }
-            else if (strcmp(cps[0], "h") == 0) {
+            } else if (strcmp(cps[0], "h") == 0) {
                 resize_widget(widget, RESIZE_BOTTOM, atoi(cps[1]));
-            }
-            else if (strcmp(cps[0], "min_w") == 0) {
+            } else if (strcmp(cps[0], "min_w") == 0) {
                 widget->min_w = atoi(cps[1]);
-            }
-            else if (strcmp(cps[0], "min_h") == 0) {
+            } else if (strcmp(cps[0], "min_h") == 0) {
                 widget->min_h = atoi(cps[1]);
-            }
-            else if (widget->load_func && widget->load_func(widget, cps[0], cps[1])) {
-            }
-            else {
+            } else if (widget->load_func && widget->load_func(widget, cps[0], cps[1])) {
+            } else {
                 logger_print(LOG(BUG), "Invalid line: %s = %s", cps[0], cps[1]);
             }
         }
@@ -246,7 +234,7 @@ static int widget_load(const char *path, uint8 defaults, widgetdata *widgets[])
  * On failure, initialize the widgets with init_widgets_fromDefault() */
 void toolkit_widget_init(void)
 {
-    widgetdata *widgets[100];
+    widgetdata * widgets[100];
 
     widget_initializers[ACTIVE_EFFECTS_ID] = widget_active_effects_init;
     widget_initializers[BUDDY_ID] = widget_buddy_init;
@@ -256,17 +244,17 @@ void toolkit_widget_init(void)
     widget_initializers[MAIN_INV_ID] = widget_inventory_init;
     widget_initializers[BELOW_INV_ID] = widget_inventory_init;
     widget_initializers[LABEL_ID] = widget_label_init;
-    widget_initializers[MAIN_LVL_ID] = widget_main_lvl_init;
     widget_initializers[MAP_ID] = widget_map_init;
     widget_initializers[MAPNAME_ID] = widget_mapname_init;
     widget_initializers[MENU_B_ID] = widget_menu_buttons_init;
+    widget_initializers[MINIMAP_ID] = widget_minimap_init;
     widget_initializers[MPLAYER_ID] = widget_mplayer_init;
     widget_initializers[NOTIFICATION_ID] = widget_notification_init;
     widget_initializers[PARTY_ID] = widget_party_init;
     widget_initializers[PDOLL_ID] = widget_playerdoll_init;
     widget_initializers[PLAYER_INFO_ID] = widget_playerinfo_init;
+    widget_initializers[PROTECTIONS_ID] = widget_protections_init;
     widget_initializers[QUICKSLOT_ID] = widget_quickslots_init;
-    widget_initializers[SKILL_EXP_ID] = widget_skill_exp_init;
     widget_initializers[SKILLS_ID] = widget_skills_init;
     widget_initializers[SPELLS_ID] = widget_spells_init;
     widget_initializers[STAT_ID] = widget_stat_init;
@@ -304,6 +292,7 @@ static int widget_menu_handle(widgetdata *widget, SDL_Event *event)
         add_menuitem(menu, "Examine", &menu_inventory_examine, MENU_NORMAL, 0);
 
         if (setting_get_int(OPT_CAT_DEVEL, OPT_OPERATOR)) {
+            add_menuitem(menu, "Patch", &menu_inventory_patch, MENU_NORMAL, 0);
             add_menuitem(menu, "Load to console", &menu_inventory_loadtoconsole, MENU_NORMAL, 0);
         }
 
@@ -314,8 +303,7 @@ static int widget_menu_handle(widgetdata *widget, SDL_Event *event)
         /* Process the right click event so the correct item is
          * selected. */
         widget->event_func(widget, event);
-    }
-    else {
+    } else {
         widget_menu_standard_items(widget, menu);
 
         if (widget->sub_type == MAIN_INV_ID) {
@@ -376,12 +364,10 @@ void menu_container_background_change(widgetdata *widget, widgetdata *menuitem, 
             if (strcmp(label->text, "Blank") == 0) {
                 strncpy(container->bg, "#000000", sizeof(container->bg) - 1);
                 container->bg[sizeof(container->bg) - 1] = '\0';
-            }
-            else if (strcmp(label->text, "Texturised") == 0) {
+            } else if (strcmp(label->text, "Texturised") == 0) {
                 strncpy(container->bg, "widget_bg", sizeof(container->bg) - 1);
                 container->bg[sizeof(container->bg) - 1] = '\0';
-            }
-            else if (strcmp(label->text, "Transparent") == 0) {
+            } else if (strcmp(label->text, "Transparent") == 0) {
                 container->texture_type = WIDGET_TEXTURE_TYPE_NONE;
             }
 
@@ -420,8 +406,7 @@ static void menu_container(widgetdata *widget, widgetdata *menuitem, SDL_Event *
 
     if (widget != outermost) {
         add_menuitem(submenu, "Detach", &menu_container_detach, MENU_NORMAL, 0);
-    }
-    else if (widget->type != CONTAINER_ID) {
+    } else if (widget->type != CONTAINER_ID) {
         add_menuitem(submenu, "Attach", &menu_container_attach, MENU_NORMAL, 0);
     }
 }
@@ -456,15 +441,15 @@ widgetdata *create_widget_object(int widget_subtype_id)
     /* map the widget subtype to widget type */
     if (widget_subtype_id >= TOTAL_WIDGETS) {
         switch (widget_subtype_id) {
-            case CONTAINER_STRIP_ID:
-            case MENU_ID:
-            case MENUITEM_ID:
-                widget_type_id = CONTAINER_ID;
-                break;
+        case CONTAINER_STRIP_ID:
+        case MENU_ID:
+        case MENUITEM_ID:
+            widget_type_id = CONTAINER_ID;
+            break;
 
             /* no subtype was found, so get out of here */
-            default:
-                return NULL;
+        default:
+            return NULL;
         }
     }
 
@@ -570,9 +555,8 @@ void remove_widget_object_intern(widgetdata *widget)
         if (tmp->inv) {
             resize_widget(tmp->inv, RESIZE_RIGHT, tmp->inv->w);
             resize_widget(tmp->inv, RESIZE_BOTTOM, tmp->inv->h);
-        }
-        /* otherwise if its inventory is empty, resize it to its default size */
-        else {
+        } else {
+            /* otherwise if its inventory is empty, resize it to its default size */
             resize_widget(tmp, RESIZE_RIGHT, cur_widget[tmp->sub_type]->w);
             resize_widget(tmp, RESIZE_BOTTOM, cur_widget[tmp->sub_type]->h);
         }
@@ -615,30 +599,25 @@ void kill_widgets(void)
     /* kick off the chain reaction, there's no turning back now :) */
     if (widget_list_head) {
         kill_widget_tree(widget_list_head);
+        widget_list_head = NULL;
     }
 }
 
 /**
- * Resets widget's coordinates from default.
- * @param name Widget name to reset. If NULL, will reset all. */
-void reset_widget(const char *name)
+ * Resets all the widgets, and the user's widget configuration as well.
+ */
+void widgets_reset(void)
 {
-    widgetdata *tmp;
+    char *path;
 
-    for (tmp = widget_list_head; tmp; tmp = tmp->next) {
-        if (!tmp->moveable) {
-            continue;
-        }
+    toolkit_widget_deinit();
+    path = file_path("settings/interface.cfg", "w");
 
-        if (!name || !strcasecmp(tmp->name, name)) {
-            tmp->x = def_widget[tmp->type].x;
-            tmp->y = def_widget[tmp->type].y;
-            tmp->w = def_widget[tmp->type].w;
-            tmp->h = def_widget[tmp->type].h;
-            tmp->show = def_widget[tmp->type].show;
-            WIDGET_REDRAW(tmp);
-        }
+    if (path_exists(path)) {
+        unlink(path);
     }
+
+    toolkit_widget_init();
 }
 
 /**
@@ -651,15 +630,13 @@ static void widget_ensure_onscreen(widgetdata *widget)
     if (!setting_get_int(OPT_CAT_CLIENT, OPT_OFFSCREEN_WIDGETS)) {
         if (widget->x < 0) {
             dx = -widget->x;
-        }
-        else if (widget->x + widget->w > setting_get_int(OPT_CAT_CLIENT, OPT_RESOLUTION_X)) {
+        } else if (widget->x + widget->w > setting_get_int(OPT_CAT_CLIENT, OPT_RESOLUTION_X)) {
             dx = setting_get_int(OPT_CAT_CLIENT, OPT_RESOLUTION_X) - widget->w - widget->x;
         }
 
         if (widget->y < 0) {
             dy = -widget->y;
-        }
-        else if (widget->y + widget->h > setting_get_int(OPT_CAT_CLIENT, OPT_RESOLUTION_Y)) {
+        } else if (widget->y + widget->h > setting_get_int(OPT_CAT_CLIENT, OPT_RESOLUTION_Y)) {
             dy = setting_get_int(OPT_CAT_CLIENT, OPT_RESOLUTION_Y) - widget->h - widget->y;
         }
     }
@@ -667,15 +644,13 @@ static void widget_ensure_onscreen(widgetdata *widget)
     if (widget->env) {
         if (widget->x < widget->env->x) {
             dx = widget->env->x - widget->x;
-        }
-        else if (widget->x + widget->w > widget->env->x + widget->env->w) {
+        } else if (widget->x + widget->w > widget->env->x + widget->env->w) {
             dx = (widget->env->x + widget->env->w) - (widget->w + widget->x);
         }
 
         if (widget->y < widget->env->y) {
             dy = widget->env->y - widget->y;
-        }
-        else if (widget->y + widget->h > widget->env->y + widget->env->h) {
+        } else if (widget->y + widget->h > widget->env->y + widget->env->h) {
             dy = (widget->env->y + widget->env->h) - (widget->h + widget->y);
         }
     }
@@ -699,8 +674,7 @@ void kill_widget_tree(widgetdata *widget)
 {
     widgetdata *tmp;
 
-    do
-    {
+    do {
         /* we want to process the widgets starting from the left hand side of
          * the tree first */
         if (widget->inv) {
@@ -717,8 +691,7 @@ void kill_widget_tree(widgetdata *widget)
 
         /* get the next sibling for our next loop */
         widget = tmp;
-    }
-    while (widget);
+    }    while (widget);
 }
 
 /**
@@ -761,9 +734,8 @@ widgetdata *create_widget(int widget_id)
      * */
     if (!cur_widget[widget_id]) {
         cur_widget[widget_id] = type_list_foot[widget_id] = node;
-    }
-    /* otherwise, link the node in to the existing type list */
-    else {
+    } else {
+        /* otherwise, link the node in to the existing type list */
         type_list_foot[widget_id]->type_next = node;
         node->type_prev = type_list_foot[widget_id];
         type_list_foot[widget_id] = node;
@@ -795,40 +767,36 @@ void remove_widget(widgetdata *widget)
         widget_list_foot = NULL;
         cur_widget[widget->sub_type] = NULL;
         type_list_foot[widget->sub_type] = NULL;
-    }
-    else {
+    } else {
         /* node to delete is the head, move the pointer to next node */
         if (widget == widget_list_head) {
             widget_list_head = widget_list_head->next;
             widget_list_head->prev = NULL;
-        }
-        /* node to delete is the foot, move the pointer to the previous node */
-        else if (widget == widget_list_foot) {
+        } else if (widget == widget_list_foot) {
+            /* node to delete is the foot, move the pointer to the previous node */
+
             widget_list_foot = widget_list_foot->prev;
             widget_list_foot->next = NULL;
-        }
-        /* node is first sibling, and should have a parent since it is not the
-         * root node */
-        else if (!widget->prev) {
+        } else if (!widget->prev) {
+            /* node is first sibling, and should have a parent since it is not the
+             * root node */
+
             /* node is also the last sibling, so NULL the parent's inventory */
             if (!widget->next) {
                 widget->env->inv = NULL;
                 widget->env->inv_rev = NULL;
-            }
-            /* or else make it the parent's first child */
-            else {
+            } else {
+                /* or else make it the parent's first child */
                 widget->env->inv = widget->next;
                 widget->next->prev = NULL;
             }
-        }
-        /* node is last sibling and should have a parent, move the inv_rev
-         * pointer to the previous sibling */
-        else if (!widget->next) {
+        } else if (!widget->next) {
+            /* node is last sibling and should have a parent, move the inv_rev
+             * pointer to the previous sibling */
             widget->env->inv_rev = widget->prev;
             widget->prev->next = NULL;
-        }
-        /* node to delete is in the middle of the tree somewhere */
-        else {
+        } else {
+            /* node to delete is in the middle of the tree somewhere */
             widget->next->prev = widget->prev;
             widget->prev->next = widget->next;
         }
@@ -846,19 +814,16 @@ void remove_widget(widgetdata *widget)
         /* if widget type list has only one node, kill it */
         if (cur_widget[widget->sub_type] == type_list_foot[widget->sub_type]) {
             cur_widget[widget->sub_type] = type_list_foot[widget->sub_type] = NULL;
-        }
-        /* widget is head node */
-        else if (widget == cur_widget[widget->sub_type]) {
+        } else if (widget == cur_widget[widget->sub_type]) {
+            /* widget is head node */
             cur_widget[widget->sub_type] = cur_widget[widget->sub_type]->type_next;
             cur_widget[widget->sub_type]->type_prev = NULL;
-        }
-        /* widget is foot node */
-        else if (widget == type_list_foot[widget->sub_type]) {
+        } else if (widget == type_list_foot[widget->sub_type]) {
+            /* widget is foot node */
             type_list_foot[widget->sub_type] = type_list_foot[widget->sub_type]->type_prev;
             type_list_foot[widget->sub_type]->type_next = NULL;
-        }
-        /* widget is in middle of type list */
-        else {
+        } else {
+            /* widget is in middle of type list */
             widget->type_prev->type_next = widget->type_next;
             widget->type_next->type_prev = widget->type_prev;
         }
@@ -898,19 +863,16 @@ void detach_widget(widgetdata *widget)
     if (!widget->prev && !widget->next) {
         widget->env->inv = NULL;
         widget->env->inv_rev = NULL;
-    }
-    /* widget is first sibling */
-    else if (!widget->prev) {
+    } else if (!widget->prev) {
+        /* widget is first sibling */
         widget->env->inv = widget->next;
         widget->next->prev = NULL;
-    }
-    /* widget is last sibling */
-    else if (!widget->next) {
+    } else if (!widget->next) {
+        /* widget is last sibling */
         widget->env->inv_rev = widget->prev;
         widget->prev->next = NULL;
-    }
-    /* widget is a middle sibling */
-    else {
+    } else {
+        /* widget is a middle sibling */
         widget->prev->next = widget->next;
         widget->next->prev = widget->prev;
     }
@@ -920,9 +882,8 @@ void detach_widget(widgetdata *widget)
     if (widget->env->inv) {
         resize_widget(widget->env->inv, RESIZE_RIGHT, widget->env->inv->w);
         resize_widget(widget->env->inv, RESIZE_BOTTOM, widget->env->inv->h);
-    }
-    /* otherwise if its inventory is empty, resize it to its default size */
-    else {
+    } else {
+        /* otherwise if its inventory is empty, resize it to its default size */
         resize_widget(widget->env, RESIZE_RIGHT, cur_widget[widget->env->sub_type]->w);
         resize_widget(widget->env, RESIZE_BOTTOM, cur_widget[widget->env->sub_type]->h);
     }
@@ -937,13 +898,13 @@ void detach_widget(widgetdata *widget)
 }
 
 #ifdef DEBUG_WIDGET
+
 /** A debug function to count the number of widget nodes that exist. */
 int debug_count_nodes_rec(widgetdata *widget, int i, int j, int output)
 {
     int tmp = 0;
 
-    do
-    {
+    do {
         /* we print out the top node, and then go down a level, rather than go
          * down first */
         if (output) {
@@ -965,8 +926,7 @@ int debug_count_nodes_rec(widgetdata *widget, int i, int j, int output)
 
         /* get the next sibling for our next loop */
         widget = widget->next;
-    }
-    while (widget);
+    }    while (widget);
 
     return i;
 }
@@ -1202,22 +1162,20 @@ int widgets_event(SDL_Event *event)
 
             move_widget_rec(widget, nx - widget->x, ny - widget->y);
             widget_ensure_onscreen(widget);
-        }
-        else if (event->type == SDL_MOUSEBUTTONDOWN) {
+        } else if (event->type == SDL_MOUSEBUTTONDOWN) {
             return widget_event_move_stop(event->motion.x, event->motion.y);
         }
 
         return 1;
-    }
-    /* Widget is being resized. */
-    else if (widget_event_resize.active) {
+    } else if (widget_event_resize.active) {
+        /* Widget is being resized. */
+
         widget = widget_event_resize.owner;
 
         if (event->type == SDL_MOUSEBUTTONUP) {
             widget_event_resize.active = 0;
             widget_event_resize.owner = NULL;
-        }
-        else if (event->type == SDL_MOUSEMOTION) {
+        } else if (event->type == SDL_MOUSEMOTION) {
             if (widget->resize_flags & (RESIZE_LEFT | RESIZE_RIGHT)) {
                 resize_widget(widget, widget->resize_flags & (RESIZE_LEFT | RESIZE_RIGHT), MAX(MAX(5, widget->min_w), widget->w + (event->motion.x - widget_event_resize.xoff) * (widget->resize_flags & RESIZE_LEFT ? -1 : 1)));
             }
@@ -1244,34 +1202,28 @@ int widgets_event(SDL_Event *event)
             if (widget->resizeable) {
                 widget->resize_flags = 0;
 
-#               define WIDGET_RESIZE_CHECK(coord, upper_adj, lower_adj) (event->motion.coord >= widget->coord + (upper_adj) && event->motion.coord <= widget->coord + (lower_adj))
+#define WIDGET_RESIZE_CHECK(coord, upper_adj, lower_adj) (event->motion.coord >= widget->coord + (upper_adj) && event->motion.coord <= widget->coord + (lower_adj))
 
                 if (WIDGET_RESIZE_CHECK(y, 0, 2)) {
                     widget->resize_flags = RESIZE_TOP;
-                }
-                else if (WIDGET_RESIZE_CHECK(y, widget->h - 2, widget->h)) {
+                } else if (WIDGET_RESIZE_CHECK(y, widget->h - 2, widget->h)) {
                     widget->resize_flags = RESIZE_BOTTOM;
-                }
-                else if (WIDGET_RESIZE_CHECK(x, 0, 2)) {
+                } else if (WIDGET_RESIZE_CHECK(x, 0, 2)) {
                     widget->resize_flags = RESIZE_LEFT;
-                }
-                else if (WIDGET_RESIZE_CHECK(x, widget->w - 2, widget->w)) {
+                } else if (WIDGET_RESIZE_CHECK(x, widget->w - 2, widget->w)) {
                     widget->resize_flags = RESIZE_RIGHT;
                 }
 
                 if (widget->resize_flags & (RESIZE_TOP | RESIZE_BOTTOM)) {
                     if (WIDGET_RESIZE_CHECK(x, 0, widget->w * 0.05)) {
                         widget->resize_flags |= RESIZE_LEFT;
-                    }
-                    else if (WIDGET_RESIZE_CHECK(x, widget->w - widget->w * 0.05, widget->w)) {
+                    } else if (WIDGET_RESIZE_CHECK(x, widget->w - widget->w * 0.05, widget->w)) {
                         widget->resize_flags |= RESIZE_RIGHT;
                     }
-                }
-                else if (widget->resize_flags & (RESIZE_LEFT | RESIZE_RIGHT)) {
+                } else if (widget->resize_flags & (RESIZE_LEFT | RESIZE_RIGHT)) {
                     if (WIDGET_RESIZE_CHECK(y, 0, widget->h * 0.05)) {
                         widget->resize_flags |= RESIZE_TOP;
-                    }
-                    else if (WIDGET_RESIZE_CHECK(y, widget->h - widget->h * 0.05, widget->h)) {
+                    } else if (WIDGET_RESIZE_CHECK(y, widget->h - widget->h * 0.05, widget->h)) {
                         widget->resize_flags |= RESIZE_BOTTOM;
                     }
                 }
@@ -1280,17 +1232,15 @@ int widgets_event(SDL_Event *event)
                     return 1;
                 }
             }
-        }
-        else if (event->type == SDL_MOUSEBUTTONDOWN) {
+        } else if (event->type == SDL_MOUSEBUTTONDOWN) {
             /* Set the priority to this widget. */
             SetPriorityWidget(widget);
 
             /* Right mouse button was clicked, try to create menu. */
             if (event->button.button == SDL_BUTTON_RIGHT && !cur_widget[MENU_ID] && widget->menu_handle_func && widget->menu_handle_func(widget, event)) {
                 return 1;
-            }
-            /* Start resizing. */
-            else if (widget->resize_flags && event->button.button == SDL_BUTTON_LEFT) {
+            } else if (widget->resize_flags && event->button.button == SDL_BUTTON_LEFT) {
+                /* Start resizing. */
                 widget_event_resize.active = 1;
                 widget_event_resize.owner = widget;
                 widget_event_resize.xoff = event->motion.x;
@@ -1319,8 +1269,7 @@ int widgets_event(SDL_Event *event)
         }
 
         return ret;
-    }
-    else {
+    } else {
         for (widget = widget_list_head; widget; widget = widget->next) {
             if (widget->event_func && widget->event_func(widget, event)) {
                 return 1;
@@ -1446,8 +1395,7 @@ widgetdata *get_widget_owner_rec(int x, int y, widgetdata *widget, widgetdata *e
 {
     widgetdata *success = NULL;
 
-    do
-    {
+    do {
         /* skip if widget is hidden */
         if (!widget->show) {
             widget = widget->next;
@@ -1467,19 +1415,50 @@ widgetdata *get_widget_owner_rec(int x, int y, widgetdata *widget, widgetdata *e
         }
 
         switch (widget->type) {
-            default:
+        default:
 
-                if (x >= widget->x && x <= (widget->x + widget->w) && y >= widget->y && y <= (widget->y + widget->h)) {
-                    return widget;
-                }
+            if (x >= widget->x && x <= (widget->x + widget->w) && y >= widget->y && y <= (widget->y + widget->h)) {
+                return widget;
+            }
         }
 
         /* get the next sibling for our next loop */
         widget = widget->next;
-    }
-    while (widget || widget != end);
+    }    while (widget || widget != end);
 
     return NULL;
+}
+
+/**
+ * Used by widgets_need_redraw() to check if any widget needs redrawing.
+ * @param widget Widget.
+ * @return 1 if any widget needs redrawing, 0 otherwise.
+ */
+static int widgets_need_redraw_rec(widgetdata *widget)
+{
+    for ( ; widget != NULL; widget = widget->next) {
+        if (widget->show && !widget->hidden && widget->draw_func &&
+                widget->redraw) {
+            return 1;
+        }
+
+        if (widget->inv) {
+            if (widgets_need_redraw_rec(widget->inv)) {
+                return 1;
+            }
+        }
+    }
+
+    return 0;
+}
+
+/**
+ * Check if any widget need redrawing.
+ * @return 1 if any widget needs redrawing, 0 otherwise.
+ */
+int widgets_need_redraw(void)
+{
+    return widgets_need_redraw_rec(widget_list_head);
 }
 
 /**
@@ -1494,7 +1473,7 @@ static void process_widgets_rec(int draw, widgetdata *widget)
 
     for (; widget; widget = widget->prev) {
         if (widget->background_func) {
-            widget->background_func(widget);
+            widget->background_func(widget, draw);
         }
 
         if (draw && widget->show && !widget->hidden && widget->draw_func) {
@@ -1505,14 +1484,11 @@ static void process_widgets_rec(int draw, widgetdata *widget)
 
                 if (widget->resize_flags == (RESIZE_TOP | RESIZE_LEFT) || widget->resize_flags == (RESIZE_BOTTOM | RESIZE_RIGHT)) {
                     cursor_texture = texture_get(TEXTURE_TYPE_CLIENT, "cursor_resize_tl2br");
-                }
-                else if (widget->resize_flags == (RESIZE_TOP | RESIZE_RIGHT) || widget->resize_flags == (RESIZE_BOTTOM | RESIZE_LEFT)) {
+                } else if (widget->resize_flags == (RESIZE_TOP | RESIZE_RIGHT) || widget->resize_flags == (RESIZE_BOTTOM | RESIZE_LEFT)) {
                     cursor_texture = texture_get(TEXTURE_TYPE_CLIENT, "cursor_resize_tr2bl");
-                }
-                else if (widget->resize_flags & (RESIZE_LEFT | RESIZE_RIGHT)) {
+                } else if (widget->resize_flags & (RESIZE_LEFT | RESIZE_RIGHT)) {
                     cursor_texture = texture_get(TEXTURE_TYPE_CLIENT, "cursor_resize_hor");
-                }
-                else if (widget->resize_flags & (RESIZE_TOP | RESIZE_BOTTOM)) {
+                } else if (widget->resize_flags & (RESIZE_TOP | RESIZE_BOTTOM)) {
                     cursor_texture = texture_get(TEXTURE_TYPE_CLIENT, "cursor_resize_ver");
                 }
             }
@@ -1556,6 +1532,19 @@ static void process_widgets_rec(int draw, widgetdata *widget)
                 box.w = 0;
                 box.h = 0;
                 SDL_BlitSurface(widget->surface, NULL, ScreenSurface, &box);
+            }
+
+            if (redraw != 0 && widget_render_debug) {
+                texture_struct *texture_debug;
+                SDL_Rect box;
+
+                box.w = widget->w;
+                box.h = widget->h;
+
+                texture_debug = texture_get(TEXTURE_TYPE_SOFTWARE,
+                        "rectangle:50,50,127;[bar=#ff66ff]");
+                surface_show_fill(ScreenSurface, widget->x, widget->y, NULL,
+                        texture_surface(texture_debug), &box);
             }
 
             widget->redraw -= redraw;
@@ -1609,6 +1598,12 @@ void SetPriorityWidget(widgetdata *node)
         return;
     }
 
+    /* TODO: add callback function? could also block the above if with it */
+    if (node->type == MAIN_INV_ID || node->type == BELOW_INV_ID) {
+        cpl.inventory_focus = node->type;
+        node->redraw = 1;
+    }
+
 #ifdef DEBUG_WIDGET
     logger_print(LOG(DEBUG), "..BEFORE:");
     logger_print(LOG(DEBUG), "....node: %p - %s", node, node->name);
@@ -1626,10 +1621,10 @@ void SetPriorityWidget(widgetdata *node)
          * This means we don't need to bother moving the node to the front
          * inside the container. */
         switch (node->env->sub_type) {
-            case CONTAINER_STRIP_ID:
-            case MENU_ID:
-            case MENUITEM_ID:
-                return;
+        case CONTAINER_STRIP_ID:
+        case MENU_ID:
+        case MENUITEM_ID:
+            return;
         }
     }
 
@@ -1650,16 +1645,14 @@ void SetPriorityWidget(widgetdata *node)
          * the previous sibling */
         if (node->env) {
             node->env->inv_rev = node->prev;
-        }
-        /* no parent, this must be the foot then, so move it to the previous
-         * node */
-        else {
+        } else {
+            /* no parent, this must be the foot then, so move it to the previous
+             * node */
             widget_list_foot = node->prev;
         }
 
         node->prev->next = NULL;
-    }
-    else {
+    } else {
         /* link up the adjacent nodes */
         node->prev->next = node->next;
         node->next->prev = node->prev;
@@ -1672,10 +1665,9 @@ void SetPriorityWidget(widgetdata *node)
     if (node->env) {
         node->next = node->env->inv;
         node->env->inv = node;
-    }
-    /* We are out of containers and this node is about to become the first
-     * sibling, which means it's taking the place of the root node. */
-    else {
+    } else {
+        /* We are out of containers and this node is about to become the first
+         * sibling, which means it's taking the place of the root node. */
         node->next = widget_list_head;
         widget_list_head = node;
     }
@@ -1712,14 +1704,12 @@ void SetPriorityWidget_reverse(widgetdata *node)
     if (!node->prev) {
         if (node->env) {
             node->env->inv_rev = node->next;
-        }
-        else {
+        } else {
             widget_list_head = node->next;
         }
 
         node->next->prev = NULL;
-    }
-    else {
+    } else {
         node->next->prev = node->prev;
         node->prev->next = node->next;
     }
@@ -1727,8 +1717,7 @@ void SetPriorityWidget_reverse(widgetdata *node)
     if (node->env) {
         node->prev = node->env->inv;
         node->env->inv = node;
-    }
-    else {
+    } else {
         node->prev = widget_list_foot;
         widget_list_foot = node;
     }
@@ -1775,27 +1764,25 @@ void insert_widget_in_container(widgetdata *widget_container, widgetdata *widget
     /* snap the widget into the widget container if it is a strip container */
     if (widget_container->inv) {
         switch (widget_container->sub_type) {
-            case CONTAINER_STRIP_ID:
-            case MENU_ID:
-            case MENUITEM_ID:
-                container_strip = CONTAINER_STRIP(widget_container);
+        case CONTAINER_STRIP_ID:
+        case MENU_ID:
+        case MENUITEM_ID:
+            container_strip = CONTAINER_STRIP(widget_container);
 
-                /* container is horizontal, insert the widget to the right of
-                 * the first widget in its inventory */
-                if (container_strip->horizontal) {
-                    move_widget_rec(widget, widget_container->inv->x + widget_container->inv->w + container_strip->inner_padding - widget->x, widget_container->y + container->outer_padding_top - widget->y);
-                }
+            /* container is horizontal, insert the widget to the right of
+             * the first widget in its inventory */
+            if (container_strip->horizontal) {
+                move_widget_rec(widget, widget_container->inv->x + widget_container->inv->w + container_strip->inner_padding - widget->x, widget_container->y + container->outer_padding_top - widget->y);
+            } else {
                 /* otherwise the container is vertical, so insert the widget
                  * below the first child widget */
-                else {
-                    move_widget_rec(widget, widget_container->x + container->outer_padding_left - widget->x, widget_container->inv->y + widget_container->inv->h + container_strip->inner_padding - widget->y);
-                }
+                move_widget_rec(widget, widget_container->x + container->outer_padding_left - widget->x, widget_container->inv->y + widget_container->inv->h + container_strip->inner_padding - widget->y);
+            }
 
-                break;
+            break;
         }
-    }
-    /* no widgets inside it yet, so snap it to the bounds of the container */
-    else if (!absolute) {
+    } else if (!absolute) {
+        /* no widgets inside it yet, so snap it to the bounds of the container */
         move_widget(widget, widget_container->x + container->outer_padding_left - widget->x, widget_container->y + container->outer_padding_top - widget->y);
     }
 
@@ -1808,16 +1795,14 @@ void insert_widget_in_container(widgetdata *widget_container, widgetdata *widget
         }
 
         widget->next->prev = NULL;
-    }
-    else if (!widget->next) {
+    } else if (!widget->next) {
         /* widget is no longer the foot, move it to the previous widget */
         if (widget == widget_list_foot) {
             widget_list_foot = widget->prev;
         }
 
         widget->prev->next = NULL;
-    }
-    else {
+    } else {
         widget->prev->next = widget->next;
         widget->next->prev = widget->prev;
     }
@@ -1832,10 +1817,9 @@ void insert_widget_in_container(widgetdata *widget_container, widgetdata *widget
     /* if inventory doesn't exist, set the end child pointer too */
     if (!widget_container->inv) {
         widget_container->inv_rev = widget;
-    }
-    /* otherwise, link the first child in the inventory to the widget about to
-     * be inserted */
-    else {
+    } else {
+        /* otherwise, link the first child in the inventory to the widget about to
+         * be inserted */
         widget_container->inv->prev = widget;
     }
 
@@ -1899,7 +1883,7 @@ widgetdata *widget_find(widgetdata *where, int type, const char *id, SDL_Surface
     }
 
     for (tmp = where; tmp; tmp = tmp->next) {
-        if ((type == -1 || tmp->type == type) && (id == NULL || strcmp(tmp->id, id) == 0) && (surface == NULL || tmp->surface == surface)) {
+        if ((type == -1 || tmp->type == type) && (id == NULL || (tmp->id != NULL && strcmp(tmp->id, id) == 0)) && (surface == NULL || tmp->surface == surface)) {
             return tmp;
         }
 
@@ -1974,16 +1958,14 @@ void resize_widget(widgetdata *widget, int side, int offset)
     if (side & RESIZE_LEFT) {
         x = widget->x + widget->w - offset;
         width = offset;
-    }
-    else if (side & RESIZE_RIGHT) {
+    } else if (side & RESIZE_RIGHT) {
         width = offset;
     }
 
     if (side & RESIZE_TOP) {
         y = widget->y + widget->h - offset;
         height = offset;
-    }
-    else if (side & RESIZE_BOTTOM) {
+    } else if (side & RESIZE_BOTTOM) {
         height = offset;
     }
 
@@ -2024,55 +2006,73 @@ void resize_widget_rec(widgetdata *widget, int x, int width, int y, int height)
 
         /* special case for strip containers */
         switch (widget_container->sub_type) {
-            case CONTAINER_STRIP_ID:
-            case MENU_ID:
-            case MENUITEM_ID:
-                container_strip = CONTAINER_STRIP(widget_container);
+        case CONTAINER_STRIP_ID:
+        case MENU_ID:
+        case MENUITEM_ID:
+            container_strip = CONTAINER_STRIP(widget_container);
 
-                /* we move all the widgets before or after the widget that got
-                 * resized, depending on which side got the resize */
-                if (container_strip->horizontal) {
-                    /* now move everything we come across */
-                    move_widget_rec(widget, 0, widget_container->y + container->outer_padding_top - widget->y);
+            /* we move all the widgets before or after the widget that got
+             * resized, depending on which side got the resize */
+            if (container_strip->horizontal) {
+                /* now move everything we come across */
+                move_widget_rec(widget, 0, widget_container->y + container->outer_padding_top - widget->y);
 
-                    /* every node before the widget we push right */
-                    for (tmp = widget->prev; tmp; tmp = tmp->prev) {
-                        move_widget_rec(tmp, tmp->next->x + tmp->next->w - tmp->x + container_strip->inner_padding, widget_container->y + container->outer_padding_top - tmp->y);
-                    }
-
-                    /* while every node after the widget we push left */
-                    for (tmp = widget->next; tmp; tmp = tmp->next) {
-                        move_widget_rec(tmp, tmp->prev->x - tmp->x - tmp->w - container_strip->inner_padding, widget_container->y + container->outer_padding_top - tmp->y);
-                    }
-
-                    /* we have to set this, otherwise stupid things happen */
-                    x = widget_container->inv_rev->x;
-                    /* we don't want the container moving up or down in this
-                     * case */
-                    y = widget_container->y + container->outer_padding_top;
-                }
-                else {
-                    /* now move everything we come across */
-                    move_widget_rec(widget, widget_container->x + container->outer_padding_left - widget->x, 0);
-
-                    /* every node before the widget we push downwards */
-                    for (tmp = widget->prev; tmp; tmp = tmp->prev) {
-                        move_widget_rec(tmp, widget_container->x + container->outer_padding_left - tmp->x, tmp->next->y + tmp->next->h - tmp->y + container_strip->inner_padding);
-                    }
-
-                    /* while every node after the widget we push upwards */
-                    for (tmp = widget->next; tmp; tmp = tmp->next) {
-                        move_widget_rec(tmp, widget_container->x + container->outer_padding_left - tmp->x, tmp->prev->y - tmp->y - tmp->h - container_strip->inner_padding);
-                    }
-
-                    /* we don't want the container moving sideways in this case
-                     * */
-                    x = widget_container->x + container->outer_padding_left;
-                    /* we have to set this, otherwise stupid things happen */
-                    y = widget_container->inv_rev->y;
+                /* every node before the widget we push right */
+                for (tmp = widget->prev; tmp; tmp = tmp->prev) {
+                    move_widget_rec(tmp, tmp->next->x + tmp->next->w - tmp->x + container_strip->inner_padding, widget_container->y + container->outer_padding_top - tmp->y);
                 }
 
-                break;
+                /* while every node after the widget we push left */
+                for (tmp = widget->next; tmp; tmp = tmp->next) {
+                    move_widget_rec(tmp, tmp->prev->x - tmp->x - tmp->w - container_strip->inner_padding, widget_container->y + container->outer_padding_top - tmp->y);
+                }
+
+                /* we have to set this, otherwise stupid things happen */
+                x = widget_container->inv_rev->x;
+                /* we don't want the container moving up or down in this
+                 * case */
+                y = widget_container->y + container->outer_padding_top;
+            } else {
+                /* now move everything we come across */
+                move_widget_rec(widget, widget_container->x + container->outer_padding_left - widget->x, 0);
+
+                /* every node before the widget we push downwards */
+                for (tmp = widget->prev; tmp; tmp = tmp->prev) {
+                    move_widget_rec(tmp, widget_container->x + container->outer_padding_left - tmp->x, tmp->next->y + tmp->next->h - tmp->y + container_strip->inner_padding);
+                }
+
+                /* while every node after the widget we push upwards */
+                for (tmp = widget->next; tmp; tmp = tmp->next) {
+                    move_widget_rec(tmp, widget_container->x + container->outer_padding_left - tmp->x, tmp->prev->y - tmp->y - tmp->h - container_strip->inner_padding);
+                }
+
+                /* we don't want the container moving sideways in this case
+                 * */
+                x = widget_container->x + container->outer_padding_left;
+                /* we have to set this, otherwise stupid things happen */
+                y = widget_container->inv_rev->y;
+            }
+
+            break;
+        }
+
+        if (!widget->show) {
+            for (tmp = widget_container->inv; tmp != NULL; tmp = tmp->next) {
+                if (tmp->show) {
+                    break;
+                }
+            }
+
+            widget = tmp;
+
+            if (widget) {
+                x = widget->x;
+                y = widget->y;
+                width = widget->w;
+                height = widget->h;
+            } else {
+                x = y = width = height = 0;
+            }
         }
 
         /* TODO: add the buffer system so that this mess of code will only need
@@ -2080,6 +2080,10 @@ void resize_widget_rec(widgetdata *widget, int x, int width, int y, int height)
         cmp1 = cmp2 = cmp3 = cmp4 = widget;
 
         for (tmp = widget_container->inv; tmp; tmp = tmp->next) {
+            if (!tmp->show) {
+                continue;
+            }
+
             /* widget's left x co-ordinate becomes greater than tmp's left x
              * coordinate */
             if (cmp1->x > tmp->x) {
@@ -2126,7 +2130,7 @@ void resize_widget_rec(widgetdata *widget, int x, int width, int y, int height)
 
 /** Creates a label with the given text, font and colour, and sets the size of
  * the widget to the correct boundaries. */
-widgetdata *add_label(const char *text, int font, const char *color)
+widgetdata *add_label(const char *text, font_struct *font, const char *color)
 {
     widgetdata *widget;
     _widget_label *label;
@@ -2136,6 +2140,7 @@ widgetdata *add_label(const char *text, int font, const char *color)
 
     label->text = estrdup(text);
 
+    FONT_INCREF(font);
     label->font = font;
     label->color = color;
 
@@ -2211,8 +2216,7 @@ void add_menuitem(widgetdata *menu, const char *text, void (*menu_func_ptr)(widg
     if (menu_type == MENU_CHECKBOX) {
         widget_texture = add_texture(val ? "checkbox_on" : "checkbox_off");
         insert_widget_in_container(widget_menuitem, widget_texture, 0);
-    }
-    else if (menu_type == MENU_RADIO) {
+    } else if (menu_type == MENU_RADIO) {
         widget_texture = add_texture(val ? "radio_on" : "radio_off");
         insert_widget_in_container(widget_menuitem, widget_texture, 0);
     }
@@ -2237,8 +2241,7 @@ void add_menuitem(widgetdata *menu, const char *text, void (*menu_func_ptr)(widg
 
                 if (menu_type == MENU_CHECKBOX || menu_type == MENU_RADIO) {
                     resize_widget(tmp->inv, RESIZE_RIGHT, menu->w - tmp->inv_rev->w - container_strip_menuitem->inner_padding - container_menu->outer_padding_left - container_menu->outer_padding_right - container_menuitem->outer_padding_left - container_menuitem->outer_padding_right);
-                }
-                else {
+                } else {
                     resize_widget(tmp->inv, RESIZE_RIGHT, menu->w - container_menu->outer_padding_left - container_menu->outer_padding_right - container_menuitem->outer_padding_left - container_menuitem->outer_padding_right);
                 }
             }
@@ -2279,9 +2282,8 @@ void menu_finalize(widgetdata *widget)
         /* Submenu, shift it up, so all of it can appear. */
         if (widget->type_prev && widget->type_prev->sub_type == MENU_ID) {
             yoff = ScreenSurface->h - widget->h - widget->y - 1;
-        }
-        /* Will appear above the cursor. */
-        else {
+        } else {
+            /* Will appear above the cursor. */
             yoff = -widget->h;
         }
     }
@@ -2310,6 +2312,54 @@ void widget_redraw_type_id(int type, const char *id)
     }
 }
 
+/**
+ * Sets visibility of the specified widget.
+ * @param widget Widget to show.
+ * @param show 1 to show the widget, 0 to hide it.
+ */
+void widget_show(widgetdata *widget, int show)
+{
+    /* Visibility is already the same, nothing to do. */
+    if (widget->show == show) {
+        return;
+    }
+
+    widget->show = show;
+
+    if (show) {
+        widget->showed_ticks = SDL_GetTicks();
+    }
+
+    /* So that containers can factor in the widget's visibility */
+    resize_widget(widget, 0, 0);
+
+    /* TODO: make a callback function for this? seems a bit hacky ATM */
+    if (widget->type == MAIN_INV_ID || widget->type == BELOW_INV_ID) {
+        if (!show) {
+            int type;
+
+            type = widget->type == MAIN_INV_ID ? BELOW_INV_ID : MAIN_INV_ID;
+            widget = widget_find(NULL, type, NULL, NULL);
+            assert(widget != NULL);
+        }
+
+        SetPriorityWidget(widget);
+        widget->redraw = 1;
+    }
+}
+
+/**
+ * Toggles visibility of all widgets of a particular type.
+ * @param type_id The type. */
+void widget_show_toggle_all(int type_id)
+{
+    widgetdata *widget;
+
+    for (widget = cur_widget[type_id]; widget; widget = widget->type_next) {
+        WIDGET_SHOW_TOGGLE(widget);
+    }
+}
+
 void menu_move_widget(widgetdata *widget, widgetdata *menuitem, SDL_Event *event)
 {
     widget_event_start_move(widget);
@@ -2335,54 +2385,13 @@ void menu_detach_widget(widgetdata *widget, widgetdata *menuitem, SDL_Event *eve
     detach_widget(widget);
 }
 
-void menu_inv_filter_all(widgetdata *widget, widgetdata *menuitem, SDL_Event *event)
-{
-    inventory_filter_set(INVENTORY_FILTER_ALL);
-}
-
-void menu_inv_filter_applied(widgetdata *widget, widgetdata *menuitem, SDL_Event *event)
-{
-    inventory_filter_toggle(INVENTORY_FILTER_APPLIED);
-}
-
-void menu_inv_filter_containers(widgetdata *widget, widgetdata *menuitem, SDL_Event *event)
-{
-    inventory_filter_toggle(INVENTORY_FILTER_CONTAINER);
-}
-
-void menu_inv_filter_magical(widgetdata *widget, widgetdata *menuitem, SDL_Event *event)
-{
-    inventory_filter_toggle(INVENTORY_FILTER_MAGICAL);
-}
-
-void menu_inv_filter_cursed(widgetdata *widget, widgetdata *menuitem, SDL_Event *event)
-{
-    inventory_filter_toggle(INVENTORY_FILTER_CURSED);
-}
-
-void menu_inv_filter_unidentified(widgetdata *widget, widgetdata *menuitem, SDL_Event *event)
-{
-    inventory_filter_toggle(INVENTORY_FILTER_UNIDENTIFIED);
-}
-
-void menu_inv_filter_locked(widgetdata *widget, widgetdata *menuitem, SDL_Event *event)
-{
-    inventory_filter_toggle(INVENTORY_FILTER_LOCKED);
-}
-
-void menu_inv_filter_unapplied(widgetdata *widget, widgetdata *menuitem, SDL_Event *event)
-{
-    inventory_filter_toggle(INVENTORY_FILTER_UNAPPLIED);
-}
-
-void menu_inv_filter_submenu(widgetdata *widget, widgetdata *menuitem, SDL_Event *event)
-{
-}
-
-void menu_inventory_submenu_more(widgetdata *widget, widgetdata *menuitem, SDL_Event *event)
-{
-}
-
 void menu_inventory_submenu_quickslots(widgetdata *widget, widgetdata *menuitem, SDL_Event *event)
 {
+}
+
+/**
+ * Enable widget rendering debugging. */
+void widget_render_enable_debug(void)
+{
+    widget_render_debug = 1;
 }

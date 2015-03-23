@@ -1,26 +1,26 @@
-/************************************************************************
-*            Atrinik, a Multiplayer Online Role Playing Game            *
-*                                                                       *
-*    Copyright (C) 2009-2012 Alex Tokar and Atrinik Development Team    *
-*                                                                       *
-* Fork from Crossfire (Multiplayer game for X-windows).                 *
-*                                                                       *
-* This program is free software; you can redistribute it and/or modify  *
-* it under the terms of the GNU General Public License as published by  *
-* the Free Software Foundation; either version 2 of the License, or     *
-* (at your option) any later version.                                   *
-*                                                                       *
-* This program is distributed in the hope that it will be useful,       *
-* but WITHOUT ANY WARRANTY; without even the implied warranty of        *
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
-* GNU General Public License for more details.                          *
-*                                                                       *
-* You should have received a copy of the GNU General Public License     *
-* along with this program; if not, write to the Free Software           *
-* Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.             *
-*                                                                       *
-* The author can be reached at admin@atrinik.org                        *
-************************************************************************/
+/*************************************************************************
+ *           Atrinik, a Multiplayer Online Role Playing Game             *
+ *                                                                       *
+ *   Copyright (C) 2009-2014 Alex Tokar and Atrinik Development Team     *
+ *                                                                       *
+ * Fork from Crossfire (Multiplayer game for X-windows).                 *
+ *                                                                       *
+ * This program is free software; you can redistribute it and/or modify  *
+ * it under the terms of the GNU General Public License as published by  *
+ * the Free Software Foundation; either version 2 of the License, or     *
+ * (at your option) any later version.                                   *
+ *                                                                       *
+ * This program is distributed in the hope that it will be useful,       *
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of        *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
+ * GNU General Public License for more details.                          *
+ *                                                                       *
+ * You should have received a copy of the GNU General Public License     *
+ * along with this program; if not, write to the Free Software           *
+ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.             *
+ *                                                                       *
+ * The author can be reached at admin@atrinik.org                        *
+ ************************************************************************/
 
 /**
  * @file
@@ -28,8 +28,7 @@
 
 #include <global.h>
 
-typedef struct
-{
+typedef struct {
     /* coordinates of room centers */
     int x;
     int y;
@@ -39,7 +38,7 @@ typedef struct
     int sy;
 
     /* coordinates of extrema of the rectangle */
-    int ax,ay,zx,zy;
+    int ax, ay, zx, zy;
 
     /* Circle or rectangular */
     int rtype;
@@ -121,7 +120,7 @@ char **roguelike_layout_gen(int xsize, int ysize, int options)
             }
         }
 
-        maze[i / 2][j / 2]= '>';
+        maze[i / 2][j / 2] = '>';
         maze[i / 2][j / 2 + 1] = '<';
 
         return maze;
@@ -138,8 +137,7 @@ char **roguelike_layout_gen(int xsize, int ysize, int options)
         /* Try to place the room */
         if (!roguelike_place_room(Rooms, xsize, ysize, nrooms)) {
             tries++;
-        }
-        else {
+        } else {
             i++;
         }
     }
@@ -300,23 +298,22 @@ static void roguelike_make_rooms(Room *Rooms, char **maze, int options)
     for (walk = Rooms; walk->x != 0; walk++) {
         /* First decide what shape to make */
         switch (options) {
-            case 1:
-                making_circle = 0;
-                break;
+        case 1:
+            making_circle = 0;
+            break;
 
-            case 2:
-                making_circle = 1;
-                break;
+        case 2:
+            making_circle = 1;
+            break;
 
-            default:
-                making_circle = ((RANDOM() % 3 == 0) ? 1 : 0);
+        default:
+            making_circle = ((RANDOM() % 3 == 0) ? 1 : 0);
 
-                if (walk->sx < walk->sy) {
-                    R = walk->sx / 2;
-                }
-                else {
-                    R = walk->sy / 2;
-                }
+            if (walk->sx < walk->sy) {
+                R = walk->sx / 2;
+            } else {
+                R = walk->sy / 2;
+            }
         }
 
         /* Enscribe a rectangle */
@@ -369,12 +366,10 @@ static void roguelike_link_rooms(Room *Rooms, char **maze)
                 if (in_wall == 0 && maze[i][j] == '#') {
                     in_wall = 1;
                     maze[i][j] = 'D';
-                }
-                else if (in_wall && maze[i][j] == '.') {
+                } else if (in_wall && maze[i][j] == '.') {
                     in_wall = 0;
                     maze[i - 1][j] = 'D';
-                }
-                else if (maze[i][j] != 'D' && maze[i][j] != '.') {
+                } else if (maze[i][j] != 'D' && maze[i][j] != '.') {
                     maze[i][j] = 0;
                 }
             }
@@ -393,18 +388,16 @@ static void roguelike_link_rooms(Room *Rooms, char **maze)
                 if (in_wall == 0 && maze[i][j] == '#') {
                     in_wall = 1;
                     maze[i][j] = 'D';
-                }
-                else if (in_wall && maze[i][j] == '.') {
+                } else if (in_wall && maze[i][j] == '.') {
                     in_wall = 0;
                     maze[i][j - 1] = 'D';
-                }
-                else if (maze[i][j] != 'D' && maze[i][j] != '.') {
+                } else if (maze[i][j] != 'D' && maze[i][j] != '.') {
                     maze[i][j] = 0;
                 }
             }
-        }
-        /* Connect in y direction first */
-        else {
+        } else {
+            /* Connect in y direction first */
+
             in_wall = 0;
 
             /* Swap if necessary */
@@ -424,12 +417,10 @@ static void roguelike_link_rooms(Room *Rooms, char **maze)
                 if (in_wall == 0 && maze[i][j] == '#') {
                     in_wall = 1;
                     maze[i][j] = 'D';
-                }
-                else if (in_wall && maze[i][j] == '.') {
+                } else if (in_wall && maze[i][j] == '.') {
                     in_wall = 0;
                     maze[i][j - 1] = 'D';
-                }
-                else if (maze[i][j] != 'D' && maze[i][j] != '.') {
+                } else if (maze[i][j] != 'D' && maze[i][j] != '.') {
                     maze[i][j] = 0;
                 }
             }
@@ -448,12 +439,10 @@ static void roguelike_link_rooms(Room *Rooms, char **maze)
                 if (in_wall == 0 && maze[i][j] == '#') {
                     in_wall = 1;
                     maze[i][j] = 'D';
-                }
-                else if (in_wall && maze[i][j] == '.') {
+                } else if (in_wall && maze[i][j] == '.') {
                     in_wall = 0;
                     maze[i - 1][j] = 'D';
-                }
-                else if (maze[i][j] != 'D' && maze[i][j] != '.') {
+                } else if (maze[i][j] != 'D' && maze[i][j] != '.') {
                     maze[i][j] = 0;
                 }
             }

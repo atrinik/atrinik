@@ -340,10 +340,6 @@
 		If enabled, it is impossible for players to use spells on that
 		spot.
 	</attribute>
-	<attribute arch="no_cleric" editor="no prayers" type="bool">
-		If enabled, it is impossible for players to use prayers on that
-		spot.
-	</attribute>
 	<attribute arch="unpaid" editor="unpaid" type="bool">
 		An &lt;unpaid&gt; item cannot be used unless the player carried
 		it over a shop mat, paying the demanded price. Setting this flag
@@ -719,13 +715,13 @@
 		<attribute arch="protect_internal" editor="internal protect %" length="15" type="int" min="-100" max="100" />
 	</section>
 	<section name="stats">
-		<attribute arch="Str" editor="strength" type="int" min="-30" max="30" />
-		<attribute arch="Dex" editor="dexterity" type="int" min="-30" max="30" />
-		<attribute arch="Con" editor="constitution" type="int" min="-30" max="30" />
-		<attribute arch="Int" editor="intelligence" type="int" min="-30" max="30" />
-		<attribute arch="Pow" editor="power" type="int" min="-30" max="30" />
-		<attribute arch="Wis" editor="wisdom" type="int" min="-30" max="30" />
-		<attribute arch="Cha" editor="charisma" type="int" min="-30" max="30" />
+		<attribute arch="str" editor="strength" type="int" min="-30" max="30" />
+		<attribute arch="dex" editor="dexterity" type="int" min="-30" max="30" />
+		<attribute arch="con" editor="constitution" type="int" min="-30" max="30" />
+		<attribute arch="int" editor="intelligence" type="int" min="-30" max="30" />
+		<attribute arch="pow" editor="power" type="int" min="-30" max="30" />
+		<attribute arch="wis" editor="wisdom" type="int" min="-30" max="30" />
+		<attribute arch="cha" editor="charisma" type="int" min="-30" max="30" />
 	</section>
 
 	<section name="quality">
@@ -1580,13 +1576,13 @@
 		<attribute arch="attack_internal" editor="internal attack %" length="15" type="int" min="-100" max="100" />
 	</section>
 	<section name="disability">
-		<attribute arch="Str" editor="strength" type="int" min="-30" max="30" />
-		<attribute arch="Dex" editor="dexterity" type="int" min="-30" max="30" />
-		<attribute arch="Con" editor="constitution" type="int" min="-30" max="30" />
-		<attribute arch="Int" editor="intelligence" type="int" min="-30" max="30" />
-		<attribute arch="Pow" editor="power" type="int" min="-30" max="30" />
-		<attribute arch="Wis" editor="wisdom" type="int" min="-30" max="30" />
-		<attribute arch="Cha" editor="charisma" type="int" min="-30" max="30" />
+		<attribute arch="str" editor="strength" type="int" min="-30" max="30" />
+		<attribute arch="dex" editor="dexterity" type="int" min="-30" max="30" />
+		<attribute arch="con" editor="constitution" type="int" min="-30" max="30" />
+		<attribute arch="int" editor="intelligence" type="int" min="-30" max="30" />
+		<attribute arch="pow" editor="power" type="int" min="-30" max="30" />
+		<attribute arch="wis" editor="wisdom" type="int" min="-30" max="30" />
+		<attribute arch="cha" editor="charisma" type="int" min="-30" max="30" />
 	</section>
 	<attribute arch_begin="msg" arch_end="endmsg" editor="message" type="text">
 		This text is displayed to the player every time the symptoms
@@ -1671,6 +1667,14 @@
 		The exit destinations define the map coordinates where the exit
 		leads to.
 	</attribute>
+    <attribute arch="last_heal" editor="tile direction" type="list_tile_dir">
+        If set to something other than "none", the exit will attempt to
+        automatically calculate its destination, relative to its position
+        on the current map and the specified map tile direction.
+
+        This is used for exits such as stairs, where the destination is
+        usually clear just from the tiled maps.
+    </attribute>
 	<attribute arch="walk_on" editor="apply by walking" type="bool">
 		If set, the player will apply the exit by just walking into it.
 		This must be set for the invisible exits for example. If unset,
@@ -1944,13 +1948,13 @@
 		ground.
 	</attribute>
 	<section name="Force Effects">
-		<attribute arch="Str" editor="strength" type="int" min="-30" max="30" />
-		<attribute arch="Dex" editor="dexterity" type="int" min="-30" max="30" />
-		<attribute arch="Con" editor="constitution" type="int" min="-30" max="30" />
-		<attribute arch="Int" editor="intelligence" type="int" min="-30" max="30" />
-		<attribute arch="Pow" editor="power" type="int" min="-30" max="30" />
-		<attribute arch="Wis" editor="wisdom" type="int" min="-30" max="30" />
-		<attribute arch="Cha" editor="charisma" type="int" min="-30" max="30" />
+		<attribute arch="str" editor="strength" type="int" min="-30" max="30" />
+		<attribute arch="dex" editor="dexterity" type="int" min="-30" max="30" />
+		<attribute arch="con" editor="constitution" type="int" min="-30" max="30" />
+		<attribute arch="int" editor="intelligence" type="int" min="-30" max="30" />
+		<attribute arch="pow" editor="power" type="int" min="-30" max="30" />
+		<attribute arch="wis" editor="wisdom" type="int" min="-30" max="30" />
+		<attribute arch="cha" editor="charisma" type="int" min="-30" max="30" />
 		<attribute arch="protect_impact" editor="impact protect %" length="15" type="int" min="-100" max="100" />
 		<attribute arch="protect_slash" editor="slash protect %" length="15" type="int" min="-100" max="100" />
 		<attribute arch="protect_cleave" editor="cleave protect %" length="15" type="int" min="-100" max="100" />
@@ -2873,7 +2877,7 @@
 			Note that the monster's level further improves armour class:
 			"real armour class" = &lt;armour class&gt; + &lt;level&gt;
 		</attribute>
-		<attribute arch="Con" editor="healing rate" type="int">
+		<attribute arch="con" editor="healing rate" type="int">
 			Monster regenerates this many hit points each move. Each time
 			the monster has a move, it gets &lt;healing rate&gt; health
 			points back. Hence, &lt;movement speed&gt; has great effect
@@ -2944,7 +2948,7 @@
 			effect unless the monster has a decent
 			&lt;spellpoint regen.&gt;, or the spell "regenerate mana" at it's disposal.
 		</attribute>
-		<attribute arch="Pow" editor="spellpoint regen." type="int">
+		<attribute arch="pow" editor="spellpoint regen." type="int">
 			Monsters regenerate this many spellpoints each move. Each
 			time the monster has a move, it gets
 			&lt;spellpoint regen.&gt; spellpoints back. Hence,
@@ -2981,7 +2985,7 @@
 			can move. If nothing is set, the creature can walk on land
 			surface.
 		</attribute>
-		<attribute arch="Dex" editor="use ability 1/" type="int">
+		<attribute arch="dex" editor="use ability 1/" type="int">
 			The &lt;use ability&gt; value is a 1/x chance that the
 			monster *tries* to use per active tick a special ability like
 			spellcasting, throwing, etc.
@@ -3072,7 +3076,7 @@
 			then the creature will pick up the matching items even if
 			this is not set here.
 		</attribute>
-		<attribute arch="Wis" editor="sensing range" type="int">
+		<attribute arch="wis" editor="sensing range" type="int">
 			&lt;sensing range&gt; determines how close a player needs to
 			be before the creature notices him. This is done as a square,
 			for reasons of speed. If the player has stealth, the size of
@@ -3558,13 +3562,13 @@
 		ground.
 	</attribute>
 	<section name="stats">
-		<attribute arch="Str" editor="strength" type="int" min="-30" max="30" />
-		<attribute arch="Dex" editor="dexterity" type="int" min="-30" max="30" />
-		<attribute arch="Con" editor="constitution" type="int" min="-30" max="30" />
-		<attribute arch="Int" editor="intelligence" type="int" min="-30" max="30" />
-		<attribute arch="Pow" editor="power" type="int" min="-30" max="30" />
-		<attribute arch="Wis" editor="wisdom" type="int" min="-30" max="30" />
-		<attribute arch="Cha" editor="charisma" type="int" min="-30" max="30" />
+		<attribute arch="str" editor="strength" type="int" min="-30" max="30" />
+		<attribute arch="dex" editor="dexterity" type="int" min="-30" max="30" />
+		<attribute arch="con" editor="constitution" type="int" min="-30" max="30" />
+		<attribute arch="int" editor="intelligence" type="int" min="-30" max="30" />
+		<attribute arch="pow" editor="power" type="int" min="-30" max="30" />
+		<attribute arch="wis" editor="wisdom" type="int" min="-30" max="30" />
+		<attribute arch="cha" editor="charisma" type="int" min="-30" max="30" />
 	</section>
 	<section name="attack">
 		<attribute arch="attack_impact" editor="impact attack %" length="15" type="int" min="-100" max="100" />
@@ -3765,7 +3769,7 @@
 		High level runes can be quite a cheap source of experience! So
 		either make them tough, or keep the level low.
 	</attribute>
-	<attribute arch="Cha" editor="visibility" type="int">
+	<attribute arch="cha" editor="visibility" type="int">
 		Affects how easily the trap may be found.
 	</attribute>
 	<attribute arch="hp" editor="number of charges" type="int">
@@ -3963,13 +3967,13 @@
 		ground.
 	</attribute>
 	<section name="stats">
-		<attribute arch="Str" editor="strength" type="int" min="-30" max="30" />
-		<attribute arch="Dex" editor="dexterity" type="int" min="-30" max="30" />
-		<attribute arch="Con" editor="constitution" type="int" min="-30" max="30" />
-		<attribute arch="Int" editor="intelligence" type="int" min="-30" max="30" />
-		<attribute arch="Pow" editor="power" type="int" min="-30" max="30" />
-		<attribute arch="Wis" editor="wisdom" type="int" min="-30" max="30" />
-		<attribute arch="Cha" editor="charisma" type="int" min="-30" max="30" />
+		<attribute arch="str" editor="strength" type="int" min="-30" max="30" />
+		<attribute arch="dex" editor="dexterity" type="int" min="-30" max="30" />
+		<attribute arch="con" editor="constitution" type="int" min="-30" max="30" />
+		<attribute arch="int" editor="intelligence" type="int" min="-30" max="30" />
+		<attribute arch="pow" editor="power" type="int" min="-30" max="30" />
+		<attribute arch="wis" editor="wisdom" type="int" min="-30" max="30" />
+		<attribute arch="cha" editor="charisma" type="int" min="-30" max="30" />
 	</section>
 	<section name="bonus">
 		<attribute arch="magic" editor="magic bonus" type="int">
@@ -4541,13 +4545,13 @@
 		<attribute arch="attack_internal" editor="internal attack %" length="15" type="int" min="-100" max="100" />
 	</section>
 	<section name="stats">
-		<attribute arch="Str" editor="strength" type="int" min="-30" max="30" />
-		<attribute arch="Dex" editor="dexterity" type="int" min="-30" max="30" />
-		<attribute arch="Con" editor="constitution" type="int" min="-30" max="30" />
-		<attribute arch="Int" editor="intelligence" type="int" min="-30" max="30" />
-		<attribute arch="Pow" editor="power" type="int" min="-30" max="30" />
-		<attribute arch="Wis" editor="wisdom" type="int" min="-30" max="30" />
-		<attribute arch="Cha" editor="charisma" type="int" min="-30" max="30" />
+		<attribute arch="str" editor="strength" type="int" min="-30" max="30" />
+		<attribute arch="dex" editor="dexterity" type="int" min="-30" max="30" />
+		<attribute arch="con" editor="constitution" type="int" min="-30" max="30" />
+		<attribute arch="int" editor="intelligence" type="int" min="-30" max="30" />
+		<attribute arch="pow" editor="power" type="int" min="-30" max="30" />
+		<attribute arch="wis" editor="wisdom" type="int" min="-30" max="30" />
+		<attribute arch="cha" editor="charisma" type="int" min="-30" max="30" />
 	</section>
 	<section name="misc">
 		<attribute arch="exp" editor="speed bonus" type="int">
@@ -5023,6 +5027,10 @@
 		similarly to client map information objects.
 	]]>
 	</description>
+    <attribute arch="name" editor="ID" type="string">
+        Used to link map info objects together (in the case of buildings, for
+        example).
+    </attribute>
 	<attribute arch="hp" editor="width" type="int">
 		Number of tiles east of the info object that the object spans.
 	</attribute>
@@ -5044,15 +5052,21 @@
 		Override darkness -- the default is -1, which means no override will happen.
 		Use -2 to enable outdoor darkness.
 	</attribute>
+    <attribute arch="cursed" editor="building" type="bool">
+        The map info defines a building's coordinates.
+    </attribute>
+    <attribute arch="is_magical" editor="balcony" type="bool">
+        Defines a balcony.
+    </attribute>
+    <attribute arch="damned" editor="overlook" type="bool">
+        Defines an overlook.
+    </attribute>
 	<attribute arch="stand_still" editor="no harmful spells" type="bool">
 		Disables harmful spells. If the map already has harmful spells disabled,
 		this setting will enable harmful spells on the area the info object spans.
 	</attribute>
 	<attribute arch="no_magic" editor="no magic" type="bool">
 		Disables magic.
-	</attribute>
-	<attribute arch="no_cleric" editor="no prayers" type="bool">
-		Disables prayers.
 	</attribute>
 	<attribute arch="no_pvp" editor="no PvP" type="bool">
 		Disables PvP.
@@ -5073,6 +5087,11 @@
 		quest hint, etc.
 	]]>
 	</description>
+    <attribute arch="match" editor="match expression" type="string">
+        Expression that must match in order for the sound to be heard, eg:
+
+        hour &lt; 7 &amp;&amp; hour &gt; 20
+    </attribute>
 	<attribute arch="race" editor="sound effect" type="string">
 		Sound effect filename to play.
 	</attribute>

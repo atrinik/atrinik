@@ -8,6 +8,6 @@ no_drop 1
 applied 1
 hp 10
 sp 10
-Str 1
-Wis 2
+str 1
+wis 2
 end

@@ -1266,7 +1266,6 @@ y 16
 end
 arch blocked
 no_pass 0
-blocksview 0
 x 11
 y 17
 end

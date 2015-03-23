@@ -12,130 +12,203 @@ class AbstractObject:
     '''
     An abstract object, implementing properties shared by some other objects.
     '''
-    
+
     def __init__(self, name):
         self.name = name
-        self.attributes = OrderedDict()
-        
-    def setAttribute(self, attribute, value):
+        self._attributes = OrderedDict()
+        self.modified = False
+
+    def setModified(self, val = True):
+        if val is not True:
+            return
+
+        self.modified = True
+
+    def isModified(self):
+        return self.modified
+
+    def getAttributes(self):
+        return self._attributes.keys()
+
+    def setAttribute(self, attribute, value, modified = True):
         '''Set object's attribute to value.'''
-        self.attributes[attribute] = str(value)
-        
+        self.setModified(modified)
+        self._attributes[attribute] = str(value)
+
+    def replaceAttribute(self, attribute_old, attribute, value, modified = True):
+        '''Replace attribute with the specified one.'''
+        self.setModified(modified)
+
+        attributes = self._attributes
+        self._attributes = OrderedDict()
+
+        for attr in attributes:
+            if attr == attribute_old:
+                self._attributes[attribute] = value
+            else:
+                self._attributes[attr] = attributes[attr]
+
+    def removeAttribute(self, attribute, modified = True):
+        '''
+        Delete object's attribute. It's an error if the attribute does not
+        exist.
+        '''
+        self.setModified(modified)
+        del self._attributes[attribute]
+
     def getAttribute(self, attribute, default = None):
         '''Get object's attribute, return default if attribute doesn't exist.'''
         try:
-            return self.attributes[attribute]
+            return self._attributes[attribute]
         except KeyError:
             return default
-        
+
     def getAttributeInt(self, attribute):
         '''Get object's attribute as an integer.'''
         return int(self.getAttribute(attribute, 0))
-        
-    def setName(self, name):
+
+    def getAttributeFloat(self, attribute):
+        '''Get object's attribute as a float.'''
+        return float(self.getAttribute(attribute, 0.0))
+
+    def setName(self, name, modified = True):
         '''Change object's name.'''
+        self.setModified(modified)
         self.name = name
-        
+
     def save(self):
         '''Save object's data as human-readable string.'''
         l = []
-        
-        for attribute in self.attributes:
+
+        for attribute in self._attributes:
             if attribute == "msg":
-                l.append("msg\n{0}\nendmsg\n".format(self.attributes[attribute]))
+                l.append("msg\n{0}\nendmsg\n".format(self._attributes[attribute]))
             else:
-                l.append("{0} {1}\n".format(attribute, self.attributes[attribute]))
-            
+                l.append("{0} {1}\n".format(attribute, self._attributes[attribute]))
+
         return "".join(l)
-    
+
 class AbstractObjectInventory(AbstractObject):
     '''Abstract object with inventory support functions.'''
-    
+
     def __init__(self, *args):
         super().__init__(*args)
-        
+
         # Links for parent object (if any) and inventory objects
         self.env = None
         self.inv = []
-        
-    def inventoryAdd(self, obj):
+
+    def setModified(self, *args):
+        '''
+        Set the modified state of an abstract inventory object. The object's
+        environment object is also marked as modified, if it exists.
+        '''
+        super().setModified(*args)
+
+        if self.env is not None:
+            self.env.setModified(*args)
+
+    def inventoryAdd(self, obj, modified = True):
         '''Add an object to current object's inventory.'''
+        self.setModified(modified)
         self.inv.append(obj)
-        
-    def setParent(self, obj):
+
+    def setParent(self, obj, modified = True):
         '''Set this object's parent object.'''
+        self.setModified(modified)
         self.env = obj
-        
+
     def getParentTop(self):
         ret = self
-        
+
         while ret.env:
             ret = ret.env
-            
+
         return ret
 
 class GameObject(AbstractObjectInventory):
     '''Game object implementation.'''
-    
+
     def __init__(self, *args):
         super().__init__(*args)
-        
+
         self.map = None
         self.arch = None
-        self.deleted = False
-        
+        self._deleted = False
+
     def setArch(self, arch):
         self.arch = arch
-        
+
+    def setModified(self, *args):
+        super().setModified(*args)
+
+        if self.map is not None:
+            self.map.setModified(*args)
+
+    def setAttribute(self, attribute, value, modified = True):
+        if self.arch and modified and self.arch.getAttribute(attribute) == value:
+            if super().getAttribute(attribute) != None:
+                self.removeAttribute(attribute)
+
+            return
+
+        super().setAttribute(attribute, value, modified)
+
     def getAttribute(self, attribute, default = None):
         val = super().getAttribute(attribute, default)
-        
+
         if val == default and self.arch:
             val = self.arch.getAttribute(attribute, default)
-            
+
         if val == default and attribute == "name":
             return self.name
-        
+
         return val
-    
+
     def isSameArchAttribute(self, attr):
         val1 = self.getAttribute(attr)
         val2 = self.arch.getAttribute(attr)
-        
+
         if val1 == val2:
             return True
-        
+
         try:
-            if float(val1) == float(val2):
+            if float(val1 or 0) == float(val2 or 0):
                 return True
         except (ValueError, TypeError):
             pass
-        
+
         return False
-        
-    @property 
+
+    @property
     def x(self):
         '''Get X property of this object.'''
         return self.getAttributeInt("x")
-        
-    @property 
+
+    @property
     def y(self):
         '''Get Y property of this object.'''
         return self.getAttributeInt("y")
-    
+
     def delete(self):
-        self.deleted = True
-    
+        self.setModified()
+        self._deleted = True
+
+    def deleted(self):
+        return self._deleted
+
 class MapObject(AbstractObject):
     '''Map object implementation.'''
-    
+
     def __init__(self, *args):
         super(MapObject, self).__init__(*args)
-        
+
         self.tiles = OrderedDict()
-        
-    def addObject(self, obj):
+
+    def addObject(self, obj, modified = True):
         '''Add object to the map.'''
+        self.setModified(modified)
+
         if not obj.x in self.tiles:
             self.tiles[obj.x] = OrderedDict()
 
@@ -143,43 +216,39 @@ class MapObject(AbstractObject):
             self.tiles[obj.x][obj.y] = []
 
         self.tiles[obj.x][obj.y].append(obj)
-        
+
     @property
     def width(self):
         '''Get map's width.'''
         return self.getAttributeInt("width")
-    
+
     @property
     def height(self):
         '''Get map's height.'''
         return self.getAttributeInt("height")
-    
+
     def isWorldMap(self):
         return self.getAttribute("name") == system.constants.game.world_map_name
-    
+
 class ArchObject(GameObject):
     '''Implements an archetype object.'''
-    
+
     def __init__(self, *args):
         super(ArchObject, self).__init__(*args)
-        
+
         self.head = None
         self.more = None
-        
+
     def setHead(self, obj):
         self.head = obj
-        
+
     def setMore(self, obj):
         '''Link a multi-part object.'''
         self.more = obj
 
 class ArtifactObject(ArchObject):
     '''Implements artifact object.'''
-    
-    def setArtifactAttributes(self, attributes):
-        '''Set artifact attributes.'''
-        self.artifact_attributes = attributes
-        
+
 class RegionObject(AbstractObjectInventory):
     @property
     def parent(self):
@@ -187,10 +256,10 @@ class RegionObject(AbstractObjectInventory):
 
 class AbstractObjectCollection(UserDict):
     '''Implements a collection of objects.'''
-    
+
     def __init__(self, name):
         super().__init__()
-        
+
         self.name = name
         self.linked_collections = []
         self.path = None
@@ -206,7 +275,7 @@ class AbstractObjectCollection(UserDict):
         collection. If the name is not found in any collection, None will be
         returned.
         '''
-        
+
         try:
             return self[key]
         except KeyError:
@@ -215,13 +284,13 @@ class AbstractObjectCollection(UserDict):
                     return collection[key]
             except KeyError:
                 pass
-            
+
         return None
-        
+
     def addLinkedCollection(self, collection):
         '''Links a collection to this one.'''
         self.linked_collections.append(collection)
-    
+
     def setLastRead(self, path):
         '''Sets the time that the archetypes file was last parsed.'''
         self.last_read = os.path.getmtime(path)

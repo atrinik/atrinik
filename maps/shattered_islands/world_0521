@@ -2873,7 +2873,7 @@ x 18
 end
 arch client_map_info
 msg
-[font=serif.ttf 18]Aris[/font]
+[font=serif 18]Aris[/font]
 endmsg
 name aris
 sub_type 1

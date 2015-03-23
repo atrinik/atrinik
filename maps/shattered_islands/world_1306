@@ -264,7 +264,7 @@ arch ettin
 direction 3
 randomitems mob_fighter_l9
 level 23
-Wis 4
+wis 4
 type 83
 end
 end
@@ -382,7 +382,7 @@ arch ettin
 direction 3
 randomitems mob_fighter_l9
 level 22
-Wis 4
+wis 4
 type 83
 end
 end
@@ -400,7 +400,7 @@ y 14
 arch giant_stone
 type 83
 level 23
-Wis 4
+wis 4
 direction 3
 end
 end
@@ -563,7 +563,7 @@ direction 3
 randomitems mob_fighter_l9
 level 22
 wc 5
-Wis 4
+wis 4
 type 83
 end
 end
@@ -853,7 +853,7 @@ direction 3
 randomitems mob_fighter_l9
 level 22
 wc 5
-Wis 4
+wis 4
 type 83
 end
 end
@@ -1034,7 +1034,7 @@ level 22
 dam 61
 maxhp 70
 ac 10
-Wis 4
+wis 4
 type 83
 end
 end
@@ -1470,7 +1470,7 @@ level 21
 dam 61
 maxhp 70
 ac 10
-Wis 4
+wis 4
 type 83
 end
 end
@@ -1504,7 +1504,7 @@ level 22
 dam 61
 maxhp 70
 ac 10
-Wis 4
+wis 4
 type 83
 end
 end

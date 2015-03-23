@@ -1,26 +1,26 @@
-/************************************************************************
-*            Atrinik, a Multiplayer Online Role Playing Game            *
-*                                                                       *
-*    Copyright (C) 2009-2012 Alex Tokar and Atrinik Development Team    *
-*                                                                       *
-* Fork from Crossfire (Multiplayer game for X-windows).                 *
-*                                                                       *
-* This program is free software; you can redistribute it and/or modify  *
-* it under the terms of the GNU General Public License as published by  *
-* the Free Software Foundation; either version 2 of the License, or     *
-* (at your option) any later version.                                   *
-*                                                                       *
-* This program is distributed in the hope that it will be useful,       *
-* but WITHOUT ANY WARRANTY; without even the implied warranty of        *
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
-* GNU General Public License for more details.                          *
-*                                                                       *
-* You should have received a copy of the GNU General Public License     *
-* along with this program; if not, write to the Free Software           *
-* Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.             *
-*                                                                       *
-* The author can be reached at admin@atrinik.org                        *
-************************************************************************/
+/*************************************************************************
+ *           Atrinik, a Multiplayer Online Role Playing Game             *
+ *                                                                       *
+ *   Copyright (C) 2009-2014 Alex Tokar and Atrinik Development Team     *
+ *                                                                       *
+ * Fork from Crossfire (Multiplayer game for X-windows).                 *
+ *                                                                       *
+ * This program is free software; you can redistribute it and/or modify  *
+ * it under the terms of the GNU General Public License as published by  *
+ * the Free Software Foundation; either version 2 of the License, or     *
+ * (at your option) any later version.                                   *
+ *                                                                       *
+ * This program is distributed in the hope that it will be useful,       *
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of        *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
+ * GNU General Public License for more details.                          *
+ *                                                                       *
+ * You should have received a copy of the GNU General Public License     *
+ * along with this program; if not, write to the Free Software           *
+ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.             *
+ *                                                                       *
+ * The author can be reached at admin@atrinik.org                        *
+ ************************************************************************/
 
 /**
  * @file
@@ -31,8 +31,7 @@
 
 static fd_set tmp_read, tmp_exceptions, tmp_write;
 
-typedef struct socket_command_struct
-{
+typedef struct socket_command_struct {
     void (*handle_func)(socket_struct *, player *, uint8 *, size_t, size_t);
 
     int flags;
@@ -40,8 +39,7 @@ typedef struct socket_command_struct
 
 #define SOCKET_CMD_PLAYER_ONLY 1
 
-static const socket_command_struct socket_commands[SERVER_CMD_NROF] =
-{
+static const socket_command_struct socket_commands[SERVER_CMD_NROF] = {
     {socket_command_control, 0},
     {socket_command_ask_face, 0},
     {socket_command_setup, 0},
@@ -96,27 +94,25 @@ static void fill_command_buffer(socket_struct *ns)
 {
     size_t toread;
 
-    do
-    {
-        toread = 0;
-
+    while (ns->packet_recv->len >= 2) {
         if (ns->state == ST_DEAD) {
             break;
         }
 
-        if (ns->packet_recv->len >= 2) {
-            toread = 2 + (ns->packet_recv->data[0] << 8) + ns->packet_recv->data[1];
+        toread = 2 + (ns->packet_recv->data[0] << 8) + ns->packet_recv->data[1];
 
-            if (toread <= ns->packet_recv->len) {
-                if (socket_command_check(ns, NULL, ns->packet_recv->data, toread) == 0) {
-                    packet_append_data_len(ns->packet_recv_cmd, ns->packet_recv->data, toread);
-                }
-
-                packet_delete(ns->packet_recv, 0, toread);
-            }
+        if (toread > ns->packet_recv->len) {
+            break;
         }
+
+        if (socket_command_check(ns, NULL, ns->packet_recv->data,
+                toread) == 0) {
+            packet_append_data_len(ns->packet_recv_cmd, ns->packet_recv->data,
+                    toread);
+        }
+
+        packet_delete(ns->packet_recv, 0, toread);
     }
-    while (toread);
 }
 
 /**
@@ -138,7 +134,7 @@ void handle_client(socket_struct *ns, player *pl)
         }
 
         /* If it is a player, and they don't have any speed left, we
-        * return, and will parse the data when they do have time. */
+         * return, and will parse the data when they do have time. */
         if (ns->state == ST_ZOMBIE || ns->state == ST_DEAD || (pl && pl->socket.state == ST_PLAYING && pl->ob && pl->ob->speed_left < 0)) {
             break;
         }
@@ -245,15 +241,13 @@ void doeric_server(void)
 
         if (init_sockets[i].state == ST_DEAD) {
             FREE_SOCKET(i);
-        }
-        else if (init_sockets[i].state == ST_ZOMBIE) {
-            if (init_sockets[i].login_count++ >= 1000000 / MAX_TIME) {
+        } else if (init_sockets[i].state == ST_ZOMBIE) {
+            if (init_sockets[i].login_count++ >= MAX_TICKS_MULTIPLIER) {
                 init_sockets[i].state = ST_DEAD;
             }
-        }
-        else if (init_sockets[i].state != ST_AVAILABLE) {
+        } else if (init_sockets[i].state != ST_AVAILABLE) {
             if (init_sockets[i].state > ST_WAITING) {
-                if (init_sockets[i].keepalive++ >= (uint32) SOCKET_KEEPALIVE_TIMEOUT * (1000000 / max_time)) {
+                if (init_sockets[i].keepalive++ >= (uint32) SOCKET_KEEPALIVE_TIMEOUT * MAX_TICKS_MULTIPLIER) {
                     logger_print(LOG(INFO), "Keepalive: disconnecting %s: %d", init_sockets[i].host ? init_sockets[i].host : "(unknown ip?)", init_sockets[i].fd);
                     FREE_SOCKET(i);
                     continue;
@@ -268,33 +262,29 @@ void doeric_server(void)
 
     /* Go through the players. Let the loop set the next pl value, since
      * we may remove some. */
-    for (pl = first_player; pl != NULL; ) {
+    for (pl = first_player; pl != NULL; pl = next) {
+        next = pl->next;
+
         if (pl->socket.state != ST_DEAD && !is_fd_valid(pl->socket.fd)) {
             logger_print(LOG(DEBUG), "Invalid file descriptor for player %s [%s]: %d", (pl->ob && pl->ob->name) ? pl->ob->name : "(unnamed player?)", (pl->socket.host) ? pl->socket.host : "(unknown ip?)", pl->socket.fd);
             pl->socket.state = ST_DEAD;
         }
 
-        if (pl->socket.state != ST_DEAD && pl->socket.keepalive++ >= (uint32) SOCKET_KEEPALIVE_TIMEOUT * (1000000 / max_time)) {
+        if (pl->socket.state != ST_DEAD && pl->socket.keepalive++ >= (uint32) SOCKET_KEEPALIVE_TIMEOUT * MAX_TICKS_MULTIPLIER) {
             logger_print(LOG(INFO), "Keepalive: disconnecting %s [%s]: %d", (pl->ob && pl->ob->name) ? pl->ob->name : "(unnamed player?)", (pl->socket.host) ? pl->socket.host : "(unknown ip?)", pl->socket.fd);
             pl->socket.state = ST_DEAD;
         }
 
         if (pl->socket.state == ST_DEAD) {
-            player *npl = pl->next;
-
             remove_ns_dead_player(pl);
-            pl = npl;
-        }
-        else if (pl->socket.state == ST_ZOMBIE) {
-            if (pl->socket.login_count++ >= 1000000 / MAX_TIME) {
+        } else if (pl->socket.state == ST_ZOMBIE) {
+            if (pl->socket.login_count++ >= MAX_TICKS_MULTIPLIER) {
                 pl->socket.state = ST_DEAD;
             }
-        }
-        else {
+        } else {
             FD_SET((uint32) pl->socket.fd, &tmp_read);
             FD_SET((uint32) pl->socket.fd, &tmp_write);
             FD_SET((uint32) pl->socket.fd, &tmp_exceptions);
-            pl = pl->next;
         }
     }
 
@@ -318,8 +308,7 @@ void doeric_server(void)
             newsocknum = socket_info.allocated_sockets;
             socket_info.allocated_sockets++;
             init_sockets[newsocknum].state = ST_AVAILABLE;
-        }
-        else {
+        } else {
             int j;
 
             for (j = 1; j < socket_info.allocated_sockets; j++) {
@@ -334,8 +323,7 @@ void doeric_server(void)
 
         if (init_sockets[newsocknum].fd == -1) {
             logger_print(LOG(DEBUG), "accept failed: %s", strerror(errno));
-        }
-        else {
+        } else {
             char buf[MAX_BUF];
             long ip = ntohl(addr.sin_addr.s_addr);
 
@@ -350,8 +338,7 @@ void doeric_server(void)
                 closesocket(init_sockets[newsocknum].fd);
 #endif
                 init_sockets[newsocknum].fd = -1;
-            }
-            else {
+            } else {
                 init_connection(&init_sockets[newsocknum], buf);
                 socket_info.nconns++;
             }
@@ -376,8 +363,7 @@ void doeric_server(void)
                 if (rr < 0) {
                     logger_print(LOG(INFO), "Drop connection: %s", STRING_SAFE(init_sockets[i].host));
                     init_sockets[i].state = ST_DEAD;
-                }
-                else {
+                } else {
                     fill_command_buffer(&init_sockets[i]);
                 }
             }
@@ -417,8 +403,7 @@ void doeric_server(void)
             if (rr < 0) {
                 logger_print(LOG(INFO), "Drop connection: %s (%s)", STRING_OBJ_NAME(pl->ob), STRING_SAFE(pl->socket.host));
                 pl->socket.state = ST_DEAD;
-            }
-            else {
+            } else {
                 fill_command_buffer(&pl->socket);
             }
         }
@@ -450,6 +435,16 @@ void doeric_server_write(void)
         if (pl->socket.state == ST_DEAD || FD_ISSET(pl->socket.fd, &tmp_exceptions)) {
             remove_ns_dead_player(pl);
             continue;
+        }
+
+        /* The removal of ext_title_flag is done in two steps because we might
+         * be somewhere in the middle of the loop right now, which would mean
+         * that the previous players in the list would not get the update. */
+        if (pl->socket.ext_title_flag == 1) {
+            generate_quick_name(pl);
+            pl->socket.ext_title_flag = 2;
+        } else if (pl->socket.ext_title_flag == 2) {
+            pl->socket.ext_title_flag = 0;
         }
 
         esrv_update_stats(pl);

@@ -8,6 +8,6 @@ face info.101
 no_drop 1
 applied 1
 sp 20
-Wis 3
-Int 2
+wis 3
+int 2
 end

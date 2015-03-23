@@ -45,7 +45,7 @@ class PlayerClass:
 
         # If the class object already exists, remove it.
         if class_ob:
-            class_ob.Remove()
+            class_ob.Destroy()
 
         # Create new class object.
         self._activator.CreateObject("class_" + name)

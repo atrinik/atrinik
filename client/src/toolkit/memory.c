@@ -1,26 +1,26 @@
-/************************************************************************
-*            Atrinik, a Multiplayer Online Role Playing Game            *
-*                                                                       *
-*    Copyright (C) 2009-2012 Alex Tokar and Atrinik Development Team    *
-*                                                                       *
-* Fork from Crossfire (Multiplayer game for X-windows).                 *
-*                                                                       *
-* This program is free software; you can redistribute it and/or modify  *
-* it under the terms of the GNU General Public License as published by  *
-* the Free Software Foundation; either version 2 of the License, or     *
-* (at your option) any later version.                                   *
-*                                                                       *
-* This program is distributed in the hope that it will be useful,       *
-* but WITHOUT ANY WARRANTY; without even the implied warranty of        *
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
-* GNU General Public License for more details.                          *
-*                                                                       *
-* You should have received a copy of the GNU General Public License     *
-* along with this program; if not, write to the Free Software           *
-* Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.             *
-*                                                                       *
-* The author can be reached at admin@atrinik.org                        *
-************************************************************************/
+/*************************************************************************
+ *           Atrinik, a Multiplayer Online Role Playing Game             *
+ *                                                                       *
+ *   Copyright (C) 2009-2014 Alex Tokar and Atrinik Development Team     *
+ *                                                                       *
+ * Fork from Crossfire (Multiplayer game for X-windows).                 *
+ *                                                                       *
+ * This program is free software; you can redistribute it and/or modify  *
+ * it under the terms of the GNU General Public License as published by  *
+ * the Free Software Foundation; either version 2 of the License, or     *
+ * (at your option) any later version.                                   *
+ *                                                                       *
+ * This program is distributed in the hope that it will be useful,       *
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of        *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
+ * GNU General Public License for more details.                          *
+ *                                                                       *
+ * You should have received a copy of the GNU General Public License     *
+ * along with this program; if not, write to the Free Software           *
+ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.             *
+ *                                                                       *
+ * The author can be reached at admin@atrinik.org                        *
+ ************************************************************************/
 
 /**
  * @file
@@ -41,6 +41,7 @@ static uint8 did_init = 0;
  * @internal */
 void toolkit_memory_init(void)
 {
+
     TOOLKIT_INIT_FUNC_START(memory)
     {
     }
@@ -52,6 +53,7 @@ void toolkit_memory_init(void)
  * @internal */
 void toolkit_memory_deinit(void)
 {
+
     TOOLKIT_DEINIT_FUNC_START(memory)
     {
     }
@@ -71,7 +73,7 @@ void *memory_emalloc(size_t size)
     ptr = malloc(size);
 
     if (ptr == NULL) {
-        logger_print(LOG(ERROR), "OOM.");
+        logger_print(LOG(ERROR), "OOM (size: %"FMT64U").", (uint64) size);
         abort();
     }
 
@@ -107,7 +109,8 @@ void *memory_ecalloc(size_t nmemb, size_t size)
     ptr = calloc(nmemb, size);
 
     if (ptr == NULL) {
-        logger_print(LOG(ERROR), "OOM.");
+        logger_print(LOG(ERROR), "OOM (nmemb: %"FMT64U", size: %"FMT64U").",
+                (uint64) nmemb, (uint64) size);
         abort();
     }
 
@@ -128,7 +131,8 @@ void *memory_erealloc(void *ptr, size_t size)
     newptr = realloc(ptr, size);
 
     if (newptr == NULL && size != 0) {
-        logger_print(LOG(ERROR), "OOM.");
+        logger_print(LOG(ERROR), "OOM (ptr: %p, size: %"FMT64U".", ptr,
+                (uint64) size);
         abort();
     }
 

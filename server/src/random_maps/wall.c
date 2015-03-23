@@ -1,26 +1,26 @@
-/************************************************************************
-*            Atrinik, a Multiplayer Online Role Playing Game            *
-*                                                                       *
-*    Copyright (C) 2009-2012 Alex Tokar and Atrinik Development Team    *
-*                                                                       *
-* Fork from Crossfire (Multiplayer game for X-windows).                 *
-*                                                                       *
-* This program is free software; you can redistribute it and/or modify  *
-* it under the terms of the GNU General Public License as published by  *
-* the Free Software Foundation; either version 2 of the License, or     *
-* (at your option) any later version.                                   *
-*                                                                       *
-* This program is distributed in the hope that it will be useful,       *
-* but WITHOUT ANY WARRANTY; without even the implied warranty of        *
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
-* GNU General Public License for more details.                          *
-*                                                                       *
-* You should have received a copy of the GNU General Public License     *
-* along with this program; if not, write to the Free Software           *
-* Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.             *
-*                                                                       *
-* The author can be reached at admin@atrinik.org                        *
-************************************************************************/
+/*************************************************************************
+ *           Atrinik, a Multiplayer Online Role Playing Game             *
+ *                                                                       *
+ *   Copyright (C) 2009-2014 Alex Tokar and Atrinik Development Team     *
+ *                                                                       *
+ * Fork from Crossfire (Multiplayer game for X-windows).                 *
+ *                                                                       *
+ * This program is free software; you can redistribute it and/or modify  *
+ * it under the terms of the GNU General Public License as published by  *
+ * the Free Software Foundation; either version 2 of the License, or     *
+ * (at your option) any later version.                                   *
+ *                                                                       *
+ * This program is distributed in the hope that it will be useful,       *
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of        *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
+ * GNU General Public License for more details.                          *
+ *                                                                       *
+ * You should have received a copy of the GNU General Public License     *
+ * along with this program; if not, write to the Free Software           *
+ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.             *
+ *                                                                       *
+ * The author can be reached at admin@atrinik.org                        *
+ ************************************************************************/
 
 /**
  * @file
@@ -109,7 +109,7 @@ int surround_flag3(mapstruct *map, int i, int j, RMParms *RP)
 {
     int surround_index = 0;
 
-    if ((i > 0) && blocked(NULL, map, i -1, j, TERRAIN_ALL)) {
+    if ((i > 0) && blocked(NULL, map, i - 1, j, TERRAIN_ALL)) {
         surround_index |= 1;
     }
 
@@ -153,7 +153,7 @@ int surround_flag4(mapstruct *map, int i, int j, RMParms *RP)
         surround_index |= 2;
     }
 
-    if ((j > 0) && wall_blocked(map, i, j- 1)) {
+    if ((j > 0) && wall_blocked(map, i, j - 1)) {
         surround_index |= 4;
     }
 
@@ -236,6 +236,7 @@ object *pick_joined_wall(object *the_wall, char **layout, int i, int j, RMParms 
     archetype *wall_arch = 0;
 
     strncpy(wall_name, the_wall->arch->name, sizeof(wall_name) - 1);
+    wall_name[sizeof(wall_name) - 1] = '\0';
 
     /* conventionally, walls are named like this:
      *     wallname_wallcode, where wallcode indicates
@@ -254,44 +255,43 @@ object *pick_joined_wall(object *the_wall, char **layout, int i, int j, RMParms 
     surround_index = surround_flag2(layout, i, j, RP);
 
     switch (surround_index) {
-        case 0:
-            strcat(wall_name, "_0");
-            break;
+    case 0:
+        strcat(wall_name, "_0");
+        break;
 
-        case 10:
-        case 8:
-        case 2:
-            strcat(wall_name, "_8");
-            break;
+    case 10:
+    case 8:
+    case 2:
+        strcat(wall_name, "_8");
+        break;
 
-        case 11:
-        case 9:
-        case 3:
-            strcat(wall_name, "_1");
-            break;
+    case 11:
+    case 9:
+    case 3:
+        strcat(wall_name, "_1");
+        break;
 
-        case 12:
-        case 4:
-        case 14:
-        case 6:
-            strcat(wall_name, "_3");
-            break;
+    case 12:
+    case 4:
+    case 14:
+    case 6:
+        strcat(wall_name, "_3");
+        break;
 
-        case 1:
-        case 5:
-        case 7:
-        case 13:
-        case 15:
-            strcat(wall_name, "_4");
-            break;
+    case 1:
+    case 5:
+    case 7:
+    case 13:
+    case 15:
+        strcat(wall_name, "_4");
+        break;
     }
 
     wall_arch = find_archetype(wall_name);
 
     if (wall_arch) {
         return arch_to_object(wall_arch);
-    }
-    else {
+    } else {
         return arch_to_object(the_wall->arch);
     }
 }
@@ -304,7 +304,7 @@ object *pick_joined_wall(object *the_wall, char **layout, int i, int j, RMParms 
  * @param RP Random map parameters.
  * @return Correct wall for spot.
  * @todo Merge with pick_joined_wall()? */
-object * retrofit_joined_wall(mapstruct *the_map, int i, int j, int insert_flag, RMParms *RP)
+object *retrofit_joined_wall(mapstruct *the_map, int i, int j, int insert_flag, RMParms *RP)
 {
     int surround_index = 0, l;
     object *the_wall = NULL, *new_wall = NULL;
@@ -312,7 +312,7 @@ object * retrofit_joined_wall(mapstruct *the_map, int i, int j, int insert_flag,
 
     /* First find the wall */
     for (the_wall = GET_MAP_OB(the_map, i, j); the_wall != NULL; the_wall = the_wall->above) {
-        if (QUERY_FLAG(the_wall, FLAG_NO_PASS) && the_wall->type != EXIT && the_wall->type != TELEPORTER) {
+        if (QUERY_FLAG(the_wall, FLAG_NO_PASS) && the_wall->type != EXIT) {
             break;
         }
     }
@@ -327,8 +327,7 @@ object * retrofit_joined_wall(mapstruct *the_map, int i, int j, int insert_flag,
         if (insert_flag == 0) {
             return NULL;
         }
-    }
-    else if (the_wall == NULL) {
+    } else if (the_wall == NULL) {
         return NULL;
     }
 
@@ -343,36 +342,36 @@ object * retrofit_joined_wall(mapstruct *the_map, int i, int j, int insert_flag,
     surround_index = surround_flag4(the_map, i, j, RP);
 
     switch (surround_index) {
-        case 0:
-            strcat(RP->wall_name, "_0");
-            break;
+    case 0:
+        strcat(RP->wall_name, "_0");
+        break;
 
-        case 10:
-        case 8:
-        case 2:
-            strcat(RP->wall_name, "_8");
-            break;
+    case 10:
+    case 8:
+    case 2:
+        strcat(RP->wall_name, "_8");
+        break;
 
-        case 11:
-        case 9:
-        case 3:
-            strcat(RP->wall_name, "_1");
-            break;
+    case 11:
+    case 9:
+    case 3:
+        strcat(RP->wall_name, "_1");
+        break;
 
-        case 12:
-        case 4:
-        case 14:
-        case 6:
-            strcat(RP->wall_name, "_3");
-            break;
+    case 12:
+    case 4:
+    case 14:
+    case 6:
+        strcat(RP->wall_name, "_3");
+        break;
 
-        case 1:
-        case 5:
-        case 7:
-        case 13:
-        case 15:
-            strcat(RP->wall_name, "_4");
-            break;
+    case 1:
+    case 5:
+    case 7:
+    case 13:
+    case 15:
+        strcat(RP->wall_name, "_4");
+        break;
     }
 
     wall_arch = find_archetype(RP->wall_name);

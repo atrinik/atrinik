@@ -9,20 +9,28 @@ extern void command_follow(object *op, const char *command, char *params);
 extern void command_freeze(object *op, const char *command, char *params);
 /* src/commands/permission/kick.c */
 extern void command_kick(object *op, const char *command, char *params);
+/* src/commands/permission/memfree.c */
+extern void command_memfree(object *op, const char *command, char *params);
 /* src/commands/permission/mod_chat.c */
 extern void command_mod_chat(object *op, const char *command, char *params);
 /* src/commands/permission/no_chat.c */
 extern void command_no_chat(object *op, const char *command, char *params);
 /* src/commands/permission/opsay.c */
 extern void command_opsay(object *op, const char *command, char *params);
+/* src/commands/permission/password.c */
+extern void command_password(object *op, const char *command, char *params);
 /* src/commands/permission/resetmap.c */
 extern void command_resetmap(object *op, const char *command, char *params);
+/* src/commands/permission/resetmaps.c */
+extern void command_resetmaps(object *op, const char *command, char *params);
 /* src/commands/permission/server_chat.c */
 extern void command_server_chat(object *op, const char *command, char *params);
 /* src/commands/permission/settime.c */
 extern void command_settime(object *op, const char *command, char *params);
 /* src/commands/permission/shutdown.c */
 extern void command_shutdown(object *op, const char *command, char *params);
+/* src/commands/permission/stats.c */
+extern void command_stats(object *op, const char *command, char *params);
 /* src/commands/permission/tcl.c */
 extern void command_tcl(object *op, const char *command, char *params);
 /* src/commands/permission/tgm.c */
@@ -61,8 +69,6 @@ extern void command_my(object *op, const char *command, char *params);
 extern void command_party(object *op, const char *command, char *params);
 /* src/commands/player/push.c */
 extern void command_push(object *op, const char *command, char *params);
-/* src/commands/player/region_map.c */
-extern void command_region_map(object *op, const char *command, char *params);
 /* src/commands/player/rename.c */
 extern void command_rename(object *op, const char *command, char *params);
 /* src/commands/player/reply.c */
@@ -86,7 +92,6 @@ extern void command_whereami(object *op, const char *command, char *params);
 /* src/commands/player/who.c */
 extern void command_who(object *op, const char *command, char *params);
 /* src/loaders/map_header.c */
-extern int yy_map_headerleng;
 extern FILE *yy_map_headerin;
 extern FILE *yy_map_headerout;
 extern int yy_map_headerlineno;
@@ -98,7 +103,6 @@ extern void yy_map_headerpop_buffer_state(void);
 extern int yy_map_headerget_lineno(void);
 extern FILE *yy_map_headerget_in(void);
 extern FILE *yy_map_headerget_out(void);
-extern int yy_map_headerget_leng(void);
 extern char *yy_map_headerget_text(void);
 extern void yy_map_headerset_lineno(int line_number);
 extern void yy_map_headerset_in(FILE *in_str);
@@ -112,7 +116,6 @@ extern void free_map_header_loader(void);
 extern int load_map_header(mapstruct *m, FILE *fp);
 extern void save_map_header(mapstruct *m, FILE *fp, int flag);
 /* src/loaders/object.c */
-extern int yy_objectleng;
 extern FILE *yy_objectin;
 extern FILE *yy_objectout;
 extern int yy_objectlineno;
@@ -124,7 +127,6 @@ extern void yy_objectpop_buffer_state(void);
 extern int yy_objectget_lineno(void);
 extern FILE *yy_objectget_in(void);
 extern FILE *yy_objectget_out(void);
-extern int yy_objectget_leng(void);
 extern char *yy_objectget_text(void);
 extern void yy_objectset_lineno(int line_number);
 extern void yy_objectset_in(FILE *in_str);
@@ -142,7 +144,6 @@ extern int set_variable(object *op, const char *buf);
 extern void get_ob_diff(StringBuffer *sb, object *op, object *op2);
 extern void save_object(FILE *fp, object *op);
 /* src/loaders/random_map.c */
-extern int yy_random_mapleng;
 extern FILE *yy_random_mapin;
 extern FILE *yy_random_mapout;
 extern int yy_random_maplineno;
@@ -154,7 +155,6 @@ extern void yy_random_mappop_buffer_state(void);
 extern int yy_random_mapget_lineno(void);
 extern FILE *yy_random_mapget_in(void);
 extern FILE *yy_random_mapget_out(void);
-extern int yy_random_mapget_leng(void);
 extern char *yy_random_mapget_text(void);
 extern void yy_random_mapset_lineno(int line_number);
 extern void yy_random_mapset_in(FILE *in_str);
@@ -237,6 +237,7 @@ extern void account_new_char(socket_struct *ns, char *name, char *archname);
 extern void account_login_char(socket_struct *ns, char *name);
 extern void account_logout_char(socket_struct *ns, player *pl);
 extern void account_password_change(socket_struct *ns, char *password, char *password_new, char *password_new2);
+extern void account_password_force(object *op, char *name, const char *password);
 /* src/server/anim.c */
 extern Animations *animations;
 extern int num_animations;
@@ -244,7 +245,7 @@ extern int animations_allocated;
 extern void free_all_anim(void);
 extern void init_anim(void);
 extern int find_animation(char *name);
-extern void animate_object(object *op, int count);
+extern void animate_object(object *op);
 extern void animate_turning(object *op);
 /* src/server/apply.c */
 extern int manual_apply(object *op, object *tmp, int aflag);
@@ -330,6 +331,7 @@ extern struct settings_struct settings;
 extern shstr_constants shstr_cons;
 extern int world_darkness;
 extern unsigned long todtick;
+extern archetype *level_up_arch;
 extern char first_map_path[256];
 extern void free_strings(void);
 extern void cleanup(void);
@@ -397,6 +399,7 @@ extern treasurelist *first_treasurelist;
 extern artifactlist *first_artifactlist;
 extern player *last_player;
 extern uint32 global_round_tag;
+extern int process_delay;
 extern void version(object *op);
 extern void leave_map(object *op);
 extern void set_map_timeout(mapstruct *map);
@@ -409,7 +412,7 @@ extern void shutdown_timer_stop(void);
 extern int main(int argc, char **argv);
 /* src/server/map.c */
 extern int global_darkness_table[7 + 1];
-extern int map_tiled_reverse[8];
+extern int map_tiled_reverse[10];
 extern mapstruct *has_been_loaded_sh(shstr *name);
 extern char *create_pathname(const char *name);
 extern int wall(mapstruct *m, int x, int y);
@@ -423,6 +426,7 @@ extern int arch_blocked(archetype *at, object *op, mapstruct *m, int x, int y);
 extern void set_map_darkness(mapstruct *m, int value);
 extern mapstruct *get_linked_map(void);
 extern mapstruct *get_empty_map(int sizex, int sizey);
+extern void map_set_tile(mapstruct *m, int tile, const char *pathname);
 extern mapstruct *load_original_map(const char *filename, int flags);
 extern int new_save_map(mapstruct *m, int flag);
 extern void free_map(mapstruct *m, int flag);
@@ -432,6 +436,7 @@ extern void clean_tmp_map(mapstruct *m);
 extern void free_all_maps(void);
 extern void update_position(mapstruct *m, int x, int y);
 extern void set_map_reset_time(mapstruct *map);
+extern mapstruct *get_map_from_tiled(mapstruct *m, int tiled);
 extern mapstruct *get_map_from_coord(mapstruct *m, int *x, int *y);
 extern mapstruct *get_map_from_coord2(mapstruct *m, int *x, int *y);
 extern int get_rangevector(object *op1, object *op2, rv_vector *retval, int flags);
@@ -443,12 +448,13 @@ extern int map_get_darkness(mapstruct *m, int x, int y, object **mirror);
 extern int map_path_isabs(const char *path);
 extern char *map_get_path(mapstruct *m, const char *path, uint8 unique, const char *name);
 extern mapstruct *map_force_reset(mapstruct *m);
+extern void map_redraw(mapstruct *m, int x, int y, int layer, int sub_layer);
 /* src/server/move.c */
 extern int get_random_dir(void);
 extern int get_randomized_dir(int dir);
+extern int object_move_to(object *op, int dir, object *originator, mapstruct *m, int x, int y);
 extern int move_ob(object *op, int dir, object *originator);
 extern int transfer_ob(object *op, int x, int y, int randomly, object *originator, object *trap);
-extern int teleport(object *teleporter, uint8 tele_type, object *user);
 extern int push_ob(object *op, int dir, object *pusher);
 /* src/server/object.c */
 extern object *active_objects;
@@ -480,7 +486,6 @@ extern object *get_owner(object *op);
 extern void clear_owner(object *op);
 extern void set_owner(object *op, object *owner);
 extern void copy_owner(object *op, object *clone_ob);
-extern void initialize_object(object *op);
 extern void copy_object(object *op2, object *op, int no_speed);
 extern void copy_object_with_inv(object *src_ob, object *dest_ob);
 extern void object_init(void);
@@ -521,7 +526,6 @@ extern object *object_create_clone(object *asrc);
 extern int was_destroyed(object *op, tag_t old_tag);
 extern object *load_object_str(char *obstr);
 extern int auto_apply(object *op);
-extern int can_see_monsterP(mapstruct *m, int x, int y, int dir);
 extern void free_key_values(object *op);
 extern key_value *object_get_key_link(const object *ob, const char *key);
 extern const char *object_get_value(const object *op, const char *const key);
@@ -531,6 +535,8 @@ extern int item_matched_string(object *pl, object *op, const char *name);
 extern int object_get_gender(object *op);
 extern void object_reverse_inventory(object *op);
 extern int object_enter_map(object *op, object *exit_ob, mapstruct *m, int x, int y, uint8 fixed_pos);
+extern const char *object_get_str(object *op);
+extern char *object_get_str_r(object *op, char *buf, size_t bufsize);
 /* src/server/object_methods.c */
 extern object_methods object_type_methods[160];
 extern object_methods object_methods_base;
@@ -564,12 +570,13 @@ extern void send_party_message(party_struct *party, const char *msg, int flag, o
 extern void remove_party(party_struct *party);
 extern void party_update_who(player *pl);
 /* src/server/pathfinder.c */
-extern void request_new_path(object *waypoint);
-extern object *get_next_requested_path(void);
-extern shstr *encode_path(path_node *path);
-extern int get_path_next(shstr *buf, sint16 *off, shstr **mappath, mapstruct **map, int *x, int *y);
-extern path_node *compress_path(path_node *path);
-extern path_node *find_path(object *op, mapstruct *map1, int x, int y, mapstruct *map2, int x2, int y2);
+extern void path_request(object *waypoint);
+extern object *path_get_next_request(void);
+extern shstr *path_encode(path_node_t *path);
+extern int path_get_next(shstr *buf, sint16 *off, shstr **mappath, mapstruct **map, int *x, int *y, uint32 *flags);
+extern path_node_t *path_compress(path_node_t *path);
+extern void path_visualize(path_visualization_t **visualization, path_visualizer_t **visualizer);
+extern path_node_t *path_find(object *op, mapstruct *map1, int x, int y, mapstruct *map2, int x2, int y2, path_visualizer_t **visualizer);
 /* src/server/plugins.c */
 extern struct plugin_hooklist hooklist;
 extern object *get_event_object(object *op, int event_nr);
@@ -584,7 +591,7 @@ extern int trigger_map_event(int event_id, mapstruct *m, object *activator, obje
 extern void trigger_global_event(int event_type, void *parm1, void *parm2);
 extern int trigger_event(int event_type, object *const activator, object *const me, object *const other, const char *msg, int parm1, int parm2, int parm3, int flags);
 /* src/server/quest.c */
-extern void check_quest(object *op, object *quest_container);
+extern void quest_handle(object *op, object *quest);
 /* src/server/race.c */
 extern const char *item_races[13];
 extern ob_race *race_find(shstr *name);
@@ -604,6 +611,7 @@ extern region_struct *first_region;
 extern void regions_init(void);
 extern void regions_free(void);
 extern region_struct *region_find_by_name(const char *region_name);
+extern const region_struct *region_find_with_map(const region_struct *region);
 extern char *region_get_longname(const region_struct *region);
 extern char *region_get_msg(const region_struct *region);
 extern int region_enter_jail(object *op);
@@ -695,6 +703,7 @@ extern void check_active_maps(void);
 extern void flush_old_maps(void);
 /* src/server/time.c */
 extern long max_time;
+extern int max_time_multiplier;
 extern long pticks;
 extern struct timeval last_time;
 extern const char *season_name[4];
@@ -705,6 +714,7 @@ extern const int periodsofday_hours[24];
 extern void reset_sleep(void);
 extern void sleep_delta(void);
 extern void set_max_time(long t);
+extern void set_max_time_multiplier(long t);
 extern void get_tod(timeofday_t *tod);
 extern void print_tod(object *op);
 extern void time_info(object *op);
@@ -790,6 +800,7 @@ extern void socket_send_packet(socket_struct *ns, packet_struct *packet);
 /* src/socket/metaserver.c */
 extern void metaserver_info_update(void);
 extern void metaserver_init(void);
+extern void metaserver_stats(char *buf, size_t size);
 /* src/socket/request.c */
 extern void socket_command_setup(socket_struct *ns, player *pl, uint8 *data, size_t len, size_t pos);
 extern void socket_command_player_cmd(socket_struct *ns, player *pl, uint8 *data, size_t len, size_t pos);
@@ -811,7 +822,7 @@ extern void socket_command_keepalive(socket_struct *ns, player *pl, uint8 *data,
 extern void socket_command_move(socket_struct *ns, player *pl, uint8 *data, size_t len, size_t pos);
 extern void send_target_command(player *pl);
 extern void socket_command_account(socket_struct *ns, player *pl, uint8 *data, size_t len, size_t pos);
-extern void generate_ext_title(player *pl);
+extern void generate_quick_name(player *pl);
 extern void socket_command_target(socket_struct *ns, player *pl, uint8 *data, size_t len, size_t pos);
 extern void socket_command_talk(socket_struct *ns, player *pl, uint8 *data, size_t len, size_t pos);
 extern void socket_command_control(socket_struct *ns, player *pl, uint8 *data, size_t len, size_t pos);
@@ -846,7 +857,7 @@ extern void object_type_init_book(void);
 /* src/types/boots.c */
 extern void object_type_init_boots(void);
 /* src/types/bow.c */
-extern sint32 bow_get_ws(object *bow, object *arrow);
+extern float bow_get_ws(object *bow, object *arrow);
 extern int bow_get_skill(object *bow);
 extern void object_type_init_bow(void);
 /* src/types/bracers.c */
@@ -924,6 +935,7 @@ extern void object_type_init_duplicator(void);
 /* src/types/event_obj.c */
 extern void object_type_init_event_obj(void);
 /* src/types/exit.c */
+extern mapstruct *exit_get_destination(object *op, int *x, int *y, int do_load);
 extern void object_type_init_exit(void);
 /* src/types/experience.c */
 extern void object_type_init_experience(void);
@@ -1048,6 +1060,7 @@ extern void drop(object *op, object *tmp, int no_mevent);
 extern char *player_make_path(const char *name, const char *ext);
 extern int player_exists(const char *name);
 extern void player_save(object *op);
+extern object *player_get_dummy(void);
 extern void player_login(socket_struct *ns, const char *name, archetype *at);
 extern void object_type_init_player(void);
 /* src/types/player_mover.c */
@@ -1079,8 +1092,6 @@ extern void object_type_init_scroll(void);
 extern void object_type_init_shield(void);
 /* src/types/shop_floor.c */
 extern void object_type_init_shop_floor(void);
-/* src/types/shop_mat.c */
-extern void object_type_init_shop_mat(void);
 /* src/types/sign.c */
 extern void object_type_init_sign(void);
 /* src/types/skill.c */
@@ -1088,7 +1099,11 @@ extern void object_type_init_skill(void);
 /* src/types/skill_item.c */
 extern void object_type_init_skill_item(void);
 /* src/types/sound_ambient.c */
+extern const char *sound_ambient_match_str(object *ob);
+extern int sound_ambient_match(object *ob);
+extern void sound_ambient_match_parse(object *ob, const char *str);
 extern void sound_ambient_init(object *ob);
+extern void sound_ambient_deinit(object *ob);
 extern void object_type_init_sound_ambient(void);
 /* src/types/spawn_point.c */
 extern void spawn_point_enemy_signal(object *op);
@@ -1105,8 +1120,6 @@ extern void object_type_init_spinner(void);
 extern void object_type_init_swarm_spell(void);
 /* src/types/symptom.c */
 extern void object_type_init_symptom(void);
-/* src/types/teleporter.c */
-extern void object_type_init_teleporter(void);
 /* src/types/treasure.c */
 extern void object_type_init_treasure(void);
 /* src/types/wall.c */
@@ -1184,6 +1197,8 @@ extern void toolkit_math_deinit(void);
 extern unsigned long isqrt(unsigned long n);
 extern int rndm(int min, int max);
 extern int rndm_chance(uint32 n);
+extern void *sort_linked_list(void *p, unsigned index, int (*compare)(void *, void *, void *), void *pointer, unsigned long *pcount, void *end_marker);
+extern size_t nearest_pow_two_exp(size_t n);
 /* src/toolkit/memory.c */
 extern void toolkit_memory_init(void);
 extern void toolkit_memory_deinit(void);
@@ -1193,15 +1208,16 @@ extern void *memory_ecalloc(size_t nmemb, size_t size);
 extern void *memory_erealloc(void *ptr, size_t size);
 extern void *memory_reallocz(void *ptr, size_t old_size, size_t new_size);
 /* src/toolkit/mempool.c */
-extern mempool_chunk_struct end_marker;
+extern size_t pools_num;
 extern void toolkit_mempool_init(void);
 extern void toolkit_mempool_deinit(void);
-extern uint32 nearest_pow_two_exp(uint32 n);
-extern void setup_poolfunctions(mempool_struct *pool, chunk_constructor constructor, chunk_destructor destructor);
-extern mempool_struct *mempool_create(const char *description, uint32 expand, uint32 size, uint32 flags, chunk_initialisator initialisator, chunk_deinitialisator deinitialisator, chunk_constructor constructor, chunk_destructor destructor);
-extern void mempool_free(mempool_struct *pool);
-extern void *get_poolchunk_array_real(mempool_struct *pool, uint32 arraysize_exp);
-extern void return_poolchunk_array_real(void *data, uint32 arraysize_exp, mempool_struct *pool);
+extern mempool_struct *mempool_create(const char *description, size_t expand, size_t size, uint32 flags, chunk_initialisator initialisator, chunk_deinitialisator deinitialisator, chunk_constructor constructor, chunk_destructor destructor);
+extern void mempool_set_debugger(mempool_struct *pool, chunk_debugger debugger);
+extern void mempool_stats(const char *name, char *buf, size_t size);
+extern mempool_struct *mempool_find(const char *name);
+extern void *mempool_get_chunk(mempool_struct *pool, size_t arraysize_exp);
+extern void mempool_return_chunk(mempool_struct *pool, size_t arraysize_exp, void *data);
+extern size_t mempool_reclaim(mempool_struct *pool);
 /* src/toolkit/packet.c */
 extern void toolkit_packet_init(void);
 extern void toolkit_packet_deinit(void);
@@ -1222,6 +1238,8 @@ extern void packet_append_uint32(packet_struct *packet, uint32 data);
 extern void packet_append_sint32(packet_struct *packet, sint32 data);
 extern void packet_append_uint64(packet_struct *packet, uint64 data);
 extern void packet_append_sint64(packet_struct *packet, sint64 data);
+extern void packet_append_float(packet_struct *packet, float data);
+extern void packet_append_double(packet_struct *packet, double data);
 extern void packet_append_data_len(packet_struct *packet, uint8 *data, size_t len);
 extern void packet_append_string(packet_struct *packet, const char *data);
 extern void packet_append_string_terminated(packet_struct *packet, const char *data);
@@ -1233,6 +1251,8 @@ extern uint32 packet_to_uint32(uint8 *data, size_t len, size_t *pos);
 extern sint32 packet_to_sint32(uint8 *data, size_t len, size_t *pos);
 extern uint64 packet_to_uint64(uint8 *data, size_t len, size_t *pos);
 extern sint64 packet_to_sint64(uint8 *data, size_t len, size_t *pos);
+extern float packet_to_float(uint8 *data, size_t len, size_t *pos);
+extern double packet_to_double(uint8 *data, size_t len, size_t *pos);
 extern char *packet_to_string(uint8 *data, size_t len, size_t *pos, char *dest, size_t dest_size);
 extern void packet_to_stringbuffer(uint8 *data, size_t len, size_t *pos, StringBuffer *sb);
 /* src/toolkit/path.c */
@@ -1274,6 +1294,7 @@ extern shstr *add_refcount(shstr *str);
 extern int query_refcount(shstr *str);
 extern shstr *find_string(const char *str);
 extern void free_string_shared(shstr *str);
+extern void shstr_stats(char *buf, size_t size);
 /* src/toolkit/signals.c */
 extern void toolkit_signals_init(void);
 extern void toolkit_signals_deinit(void);
@@ -1320,6 +1341,7 @@ extern char *string_repeat(const char *str, size_t num);
 extern size_t snprintfcat(char *buf, size_t size, const char *fmt, ...) __attribute__((format(printf, 3, 4)));
 extern size_t string_tohex(const unsigned char *str, size_t len, char *result, size_t resultsize);
 extern size_t string_fromhex(char *str, size_t len, unsigned char *result, size_t resultsize);
+extern const char *string_skip_whitespace(const char *str);
 /* src/toolkit/stringbuffer.c */
 extern void toolkit_stringbuffer_init(void);
 extern void toolkit_stringbuffer_deinit(void);
@@ -1335,8 +1357,8 @@ extern size_t stringbuffer_length(StringBuffer *sb);
 extern ssize_t stringbuffer_index(StringBuffer *sb, char c);
 extern ssize_t stringbuffer_rindex(StringBuffer *sb, char c);
 /* src/toolkit/toolkit.c */
-extern void toolkit_import_register(toolkit_func func);
-extern int toolkit_check_imported(toolkit_func func);
+extern void toolkit_import_register(const char *name, toolkit_func func);
+extern _Bool toolkit_check_imported(toolkit_func func);
 extern void toolkit_deinit(void);
 /* src/toolkit/x11.c */
 extern void toolkit_x11_init(void);
@@ -1347,13 +1369,17 @@ extern int x11_clipboard_register_events(void);
 extern int x11_clipboard_set(x11_display_type display, x11_window_type win, const char *str);
 extern char *x11_clipboard_get(x11_display_type display, x11_window_type win);
 /* src/loaders/map_header.c */
+extern FILE *yy_map_headerin;
+extern FILE *yy_map_headerout;
+extern int yy_map_headerlineno;
+extern int yy_map_header_flex_debug;
+extern char *yy_map_headertext;
 extern int map_lex_load(mapstruct *m);
 extern void yy_map_headerrestart(FILE *input_file);
 extern void yy_map_headerpop_buffer_state(void);
 extern int yy_map_headerget_lineno(void);
 extern FILE *yy_map_headerget_in(void);
 extern FILE *yy_map_headerget_out(void);
-extern int yy_map_headerget_leng(void);
 extern char *yy_map_headerget_text(void);
 extern void yy_map_headerset_lineno(int line_number);
 extern void yy_map_headerset_in(FILE *in_str);
@@ -1367,13 +1393,17 @@ extern void free_map_header_loader(void);
 extern int load_map_header(mapstruct *m, FILE *fp);
 extern void save_map_header(mapstruct *m, FILE *fp, int flag);
 /* src/loaders/object.c */
+extern FILE *yy_objectin;
+extern FILE *yy_objectout;
+extern int yy_objectlineno;
+extern int yy_object_flex_debug;
+extern char *yy_objecttext;
 extern int lex_load(int *depth, object **items, int maxdepth, int map_flags, int linemode);
 extern void yy_objectrestart(FILE *input_file);
 extern void yy_objectpop_buffer_state(void);
 extern int yy_objectget_lineno(void);
 extern FILE *yy_objectget_in(void);
 extern FILE *yy_objectget_out(void);
-extern int yy_objectget_leng(void);
 extern char *yy_objectget_text(void);
 extern void yy_objectset_lineno(int line_number);
 extern void yy_objectset_in(FILE *in_str);
@@ -1390,14 +1420,18 @@ extern int load_object(void *fp, object *op, void *mybuffer, int bufstate, int m
 extern int set_variable(object *op, const char *buf);
 extern void get_ob_diff(StringBuffer *sb, object *op, object *op2);
 extern void save_object(FILE *fp, object *op);
-/* src/loaders/random_map.c*/
+/* src/loaders/random_map.c */
+extern FILE *yy_random_mapin;
+extern FILE *yy_random_mapout;
+extern int yy_random_maplineno;
+extern int yy_random_map_flex_debug;
+extern char *yy_random_maptext;
 extern int rmap_lex_read(RMParms *RP);
 extern void yy_random_maprestart(FILE *input_file);
 extern void yy_random_mappop_buffer_state(void);
 extern int yy_random_mapget_lineno(void);
 extern FILE *yy_random_mapget_in(void);
 extern FILE *yy_random_mapget_out(void);
-extern int yy_random_mapget_leng(void);
 extern char *yy_random_mapget_text(void);
 extern void yy_random_mapset_lineno(int line_number);
 extern void yy_random_mapset_in(FILE *in_str);

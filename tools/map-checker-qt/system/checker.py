@@ -5,6 +5,8 @@ import re
 
 import system.constants
 from system.constants import game
+import os
+from system import utils
 
 class AbstractChecker:
     def __init__(self, config):
@@ -57,6 +59,7 @@ class AbstractChecker:
                  "severity": "fixed" if fixed else severity,
                  "description": description,
                  "explanation": explanation,
+                 "loc": loc,
         }
 
         self.errors.append(error)
@@ -64,7 +67,13 @@ class AbstractChecker:
 class CheckerObject(AbstractChecker):
     def check(self, obj):
         super().check(obj, False)
+        self._check_obj(obj)
+
+    def _check_obj(self, obj):
         self._check(obj)
+
+        for tmp in obj.inv:
+            self._check_obj(tmp)
 
     def addError(self, *args, obj, fixed = False):
         env = obj.getParentTop()
@@ -74,7 +83,7 @@ class CheckerObject(AbstractChecker):
         errors = []
         has_hello = False
 
-        test_msg = re.sub(r"<(\/?[a-z_]+)([^>]*)>", r"\1\2", msg)
+        test_msg = re.sub(r"\[(\/?[a-z_]+)([^\]]*)\]", r"\1\2", msg)
 
         if test_msg.find("[") != -1 or test_msg.find("]") != -1:
             errors.append("unescaped-markup")
@@ -98,7 +107,7 @@ class CheckerObject(AbstractChecker):
                     if part[:1] != "^" or part[-1:] != "$":
                         errors.append("suspicious-regex")
             else:
-                if line.find("<a") != -1:
+                if line.find("[a") != -1:
                     errors.append("link-in-msg")
 
                 if re.search(r"\^[^\^]*\^", line) or re.search(r"\|[^\|]*\|", line) or re.search(r"\~[^\~]*\~", line):
@@ -121,14 +130,20 @@ class CheckerObject(AbstractChecker):
             if obj.getAttributeInt("direction") in (5, 6, 4, 3, 2, 8):
                 self.addError("low", "Object has wrong direction set.", "Object with draw_direction flag set must be facing either west or north.", obj = obj)
 
-        if self.config.getboolean("Errors", "layer_changed") and not obj.isSameArchAttribute("layer"):
-            self.addError("warning", "Object with a modified layer.", "Changing layer of objects is generally not recommended, unless you know what you're doing.", obj = obj)
+        if obj.getAttribute("material") and not (obj.getAttribute("material_real") or obj.getAttribute("item_quality")) and obj.getAttributeInt("no_pick") == 0:
+            self.addError("low", "Archetype has material set but no material_real or item_quality.", "Material requires material_real or item_quality to be set in order to work properly.", obj = obj)
 
         if obj.getAttribute("carrying"):
             self.addError("warning", "Object has carrying attribute set.", "Typically, the carrying attribute is reserved by the system, and map files should not contain it.", obj = obj)
 
         if obj.getAttribute("animation") == "NONE":
             self.addError("warning", "Object with animation set to NONE.", "Changing an object's animation to nothing is generally not recommended - setting is_animated to 0 is usually preferable.", obj = obj)
+
+        if not obj.arch:
+            return
+
+        if self.config.getboolean("Errors", "layer_changed") and not obj.isSameArchAttribute("layer"):
+            self.addError("warning", "Object with a modified layer.", "Changing layer of objects is generally not recommended, unless you know what you're doing.", obj = obj)
 
         if not obj.isSameArchAttribute("face"):
             if obj.getAttributeInt("is_turnable") == 1 or obj.getAttributeInt("is_animated") == 1:
@@ -140,65 +155,23 @@ class CheckerObject(AbstractChecker):
     def checker_types(self, obj):
         t = obj.getAttributeInt("type")
 
-        # Spawn points.
-        if t == game.types.spawn_point and not obj.inv:
-            if self.fix:
-                obj.delete()
-            else:
-                self.addError("medium", "Empty spawn point object.", "Spawn point objects should generally have a monster inside their inventory that they will spawn.", obj = obj)
+        if not t:
+            if not obj.head:
+                self.addError("critical", "Object has no type attribute set.", "All objects should have a type set.", obj = obj)
 
-        # Players.
-        if t == game.types.player:
-            if self.fix:
-                obj.delete()
-            else:
-                self.addError("critical", "Player object on map.", "Player type objects are reserved system objects, and putting them on map will cause undefined behavior.", obj = obj)
+            return
 
-        # Monsters.
-        if t == game.types.monster:
-            self.addError("medium", "Monster type object on map.", "Generally, monsters should never be put directly on the map. Instead, they should be put into a spawn point's inventory, and their type changed to spawn point monster.", obj = obj)
+        if t in (game.types.floor, game.types.shop_floor) and not obj.getAttributeInt("is_floor"):
+            self.addError("low", "Floor archetype doesn't have is_floor set.", "All floor archetypes should have the is_floor attribute flag set to 1.", obj = obj)
 
-        # Random drop.
-        if t == game.types.random_drop:
-            # Cannot be outside of inventory.
-            if not obj.env:
-                self.addError("high", "Random drop is outside of inventory.", "Random drops do not activate unless they are inside of an inventory.", obj = obj)
-
-        # Quest container.
-        if t == game.types.quest_container:
-            # Cannot be outside of inventory.
-            if not obj.env:
-                self.addError("high", "Quest container is outside of inventory.", "Quest containers do not trigger unless they are inside of an inventory.", obj = obj)
-
-            # Quest containers require a quest name to be set.
-            if obj.getAttribute("name") == obj.name:
-                self.addError("high", "Quest container has no quest name.", "Quest containers should always have a quest name set.", obj = obj)
+        if t == game.types.magic_mirror and not obj.getAttributeInt("sys_object"):
+            self.addError("medium", "Magic mirror archetype doesn't have sys_object set.", "All magic mirror archetypes should have the sys_object attribute flag tset to 1.", obj = obj)
 
         # Signs.
         if t == game.types.sign:
             if obj.getAttributeInt("walk_on") == 1 or obj.getAttributeInt("fly_on") == 1:
                 if obj.getAttributeInt("splitting") == 1 and not obj.getAttributeInt("direction"):
                     self.addError("warning", "Magic mouth has adjacent direction setting set but has no actual direction.", "In order for the adjacent direction setting to work, a facing direction must be configured. The magic mouth will then activate for only the direction it's facing, and the two directions which are immediately adjacent to it.", obj = obj)
-
-        # Event objects.
-        if t in (game.types.event_object, game.types.map_event_object):
-            if obj.getAttribute("name") == obj.name:
-                self.addError("high", "Event object is missing plugin name.", "Event objects must have name set to the plugin they should trigger.", obj = obj)
-            elif not obj.getAttribute("name") in game.plugins:
-                self.addError("critical", "Event object has unknown plugin: <b>{}</b>".format(obj.getAttribute("name")), "The following are valid plugin names: {}".format(", ".join(["<b>" + s + "</b>" for s in game.plugins])), obj = obj)
-
-            if obj.getAttribute("race"):
-                if obj.getAttribute("race").startswith("..") and obj.getAttribute("race").find("/python") != -1:
-                    self.addError("warning", "Event object is using a relative path to the global /python directory.", "In general, it is recommended to use an absolute path to refer to scripts in the /python directory, such as, /python/generic/guard.py.", obj = obj)
-
-        # Beacons.
-        if t == game.types.beacon:
-            if obj.getAttribute("name") == obj.name:
-                self.addError("critical", "Beacon with no name set.", "Every beacon must have a unique name set.", obj = obj)
-            elif obj.getAttribute("name") in self.map_checker.global_objects[game.types.beacon]:
-                self.addError("critical", "Beacon with non-unique name.", "Beacon with the name <b>{}</b> already exists.".format(obj.getAttribute("name")), obj = obj)
-            else:
-                self.map_checker.global_objects[game.types.beacon].append(obj.getAttribute("name"))
 
         if t in (game.types.door, game.types.gate, game.types.wall):
             if obj.getAttributeInt("damned") == 1:
@@ -237,6 +210,83 @@ class CheckerObject(AbstractChecker):
                 if "unescaped-markup" in msg_errors:
                     self.addError("low", "Object contains unescaped markup in message.", "The following characters: [ and ] need to be replaced with: &amp;lsqb; and &amp;rsqb; respectively.", obj = obj)
 
+        if t in (game.types.shop_mat, game.types.teleporter):
+            self.addError("high", "Object has shop mat or teleporter object type.", "Shop mats and teleporters were merged into the exit object type.", obj = obj)
+
+        if t == game.types.creator and obj.getAttribute("other_arch"):
+            self.addError("critical", "Creator object with other_arch attribute.", "The other_arch attribute for creators was removed in favour of inventory objects.", obj = obj)
+
+        # The following only applies to objects on the map.
+        if not obj.map:
+            return
+
+        # Spawn points.
+        if t == game.types.spawn_point and not obj.inv:
+            if self.fix:
+                obj.delete()
+
+            self.addError("medium", "Empty spawn point object.", "Spawn point objects should generally have a monster inside their inventory that they will spawn.", obj = obj, fixed = self.fix)
+
+        # Players.
+        if t == game.types.player:
+            if self.fix:
+                obj.delete()
+
+            self.addError("critical", "Player object on map.", "Player type objects are reserved system objects, and putting them on map will cause undefined behavior.", obj = obj, fixed = self.fix)
+
+        # Monsters.
+        if t == game.types.monster:
+            self.addError("medium", "Monster type object on map.", "Generally, monsters should never be put directly on the map. Instead, they should be put into a spawn point's inventory, and their type changed to spawn point monster.", obj = obj)
+
+        # Random drop.
+        if t == game.types.random_drop:
+            # Cannot be outside of inventory.
+            if not obj.env:
+                self.addError("high", "Random drop is outside of inventory.", "Random drops do not activate unless they are inside of an inventory.", obj = obj)
+
+        # Quest container.
+        if t == game.types.quest_container:
+            sub_type = obj.getAttributeInt("sub_type")
+
+            # Cannot be outside of inventory.
+            if not obj.env:
+                self.addError("high", "Quest container is outside of inventory.", "Quest containers do not trigger unless they are inside of an inventory.", obj = obj)
+
+            need_name = sub_type != game.quest_container_sub_types.item_drop
+
+            if not need_name:
+                for tmp in obj.inv:
+                    if tmp.getAttributeInt("one_drop") == 1:
+                        need_name = True
+                        break
+
+            if obj.getAttribute("name") == obj.name:
+                if need_name:
+                    self.addError("high", "Quest container has no quest name.", "Quest containers should always have a quest name set, unless they're item drop quest type or they have a one_drop item.", obj = obj)
+            else:
+                if not need_name:
+                    self.addError("low", "Quest container has a name.", "Quest containers with item drop quest type and no one_drop items should not have a quest name.", obj = obj)
+
+        # Event objects.
+        if t in (game.types.event_object, game.types.map_event_object):
+            if obj.getAttribute("name") == obj.name:
+                self.addError("high", "Event object is missing plugin name.", "Event objects must have name set to the plugin they should trigger.", obj = obj)
+            elif not obj.getAttribute("name") in game.plugins:
+                self.addError("critical", "Event object has unknown plugin: <b>{}</b>".format(obj.getAttribute("name")), "The following are valid plugin names: {}".format(", ".join(["<b>" + s + "</b>" for s in game.plugins])), obj = obj)
+
+            if obj.getAttribute("race"):
+                if obj.getAttribute("race").startswith("..") and obj.getAttribute("race").find("/python") != -1:
+                    self.addError("warning", "Event object is using a relative path to the global /python directory.", "In general, it is recommended to use an absolute path to refer to scripts in the /python directory, such as, /python/generic/guard.py.", obj = obj)
+
+        # Beacons.
+        if t == game.types.beacon:
+            if obj.getAttribute("name") == obj.name:
+                self.addError("critical", "Beacon with no name set.", "Every beacon must have a unique name set.", obj = obj)
+            elif obj.getAttribute("name") in self.map_checker.global_objects[game.types.beacon]:
+                self.addError("critical", "Beacon with non-unique name.", "Beacon with the name <b>{}</b> already exists.".format(obj.getAttribute("name")), obj = obj)
+            else:
+                self.map_checker.global_objects[game.types.beacon].append(obj.getAttribute("name"))
+
     def checker_inventory_obj(self, obj):
         '''Checks attributes of objects that are inside another object.'''
 
@@ -249,8 +299,8 @@ class CheckerObject(AbstractChecker):
         if obj.getAttributeInt("type") == game.types.spawn_point:
             self.addError("high", "Spawn point object inside inventory of another object.", "Spawn points cannot work from inside an inventory of another object.", obj = obj)
 
-        if obj.getAttributeInt("type") in (game.types.exit, game.types.teleporter) and obj.env.getAttributeInt("type") != game.types.creator:
-            self.addError("high", "Exit object inside inventory of another object.", "Exit and teleporter objects can only be inside creators, as they have undefined behavior when inside any other object.", obj = obj)
+        if obj.getAttributeInt("type") == game.types.exit and obj.env.getAttributeInt("type") != game.types.creator:
+            self.addError("high", "Exit object inside inventory of another object.", "Exit objects can only be inside creators, as they have undefined behavior when inside any other object.", obj = obj)
 
         for attr in ["x", "y"]:
             if obj.getAttribute(attr) != None:
@@ -278,18 +328,6 @@ class CheckerObject(AbstractChecker):
                 self.addError("low", "Object has events with two or more events with the same event type.", "It is generally recommended to only use one event maximum per event type.", obj = obj)
                 break
 
-        if obj.getAttributeInt("can_cast_spell") == 1:
-            if not objs[game.types.ability]:
-                self.addError("low", "NPC can cast spells but has no ability objects.", "In order for the NPC to cast spells, ability objects that define which spells it can cast must be added to its inventory.", obj = obj)
-
-            if obj.getAttributeInt("maxsp") == 0:
-                self.addError("medium", "NPC can cast spells but has zero maximum mana.", "NPCs without any maximum mana will not be able to cast spells.", obj = obj)
-
-            if obj.getAttributeInt("Dex") == 0:
-                self.addError("medium", "NPC can cast spells but has unset ability usage.", "In order for NPCs to cast their spells, they must have ability usage configured - this controls how often they will cast their spells or use their other abilities.", obj = obj)
-        elif objs[game.types.ability]:
-            self.addError("warning", "NPC cannot cast spells but has ability objects.", "In order for the NPC to be able to cast spells, it must have the 'can_cast_spell' flag on.", obj = obj)
-
         # Waypoints movement.
         if obj.getAttributeInt("movement_type") == 176:
             if not objs[game.types.waypoint]:
@@ -314,36 +352,85 @@ class CheckerObject(AbstractChecker):
         elif objs[game.types.waypoint]:
             self.addError("warning", "NPC has waypoint movement disabled, but has waypoint objects in inventory.", "In order for NPC to use waypoints, waypoint movement must be enabled in movement settings.", obj = obj)
 
+        if not obj.map:
+            return
+
+        if obj.getAttributeInt("can_cast_spell") == 1:
+            if not objs[game.types.ability]:
+                self.addError("low", "NPC can cast spells but has no ability objects.", "In order for the NPC to cast spells, ability objects that define which spells it can cast must be added to its inventory.", obj = obj)
+
+            if obj.getAttributeInt("maxsp") == 0:
+                self.addError("medium", "NPC can cast spells but has zero maximum mana.", "NPCs without any maximum mana will not be able to cast spells.", obj = obj)
+
+            if obj.getAttributeInt("dex") == 0:
+                self.addError("medium", "NPC can cast spells but has unset ability usage.", "In order for NPCs to cast their spells, they must have ability usage configured - this controls how often they will cast their spells or use their other abilities.", obj = obj)
+        elif objs[game.types.ability]:
+            self.addError("warning", "NPC cannot cast spells but has ability objects.", "In order for the NPC to be able to cast spells, it must have the 'can_cast_spell' flag on.", obj = obj)
+
     def checker_attributes(self, obj):
         artifact = self.map_checker.artifacts.get(obj.name)
+        fix = obj.map is not None
 
-        for attr in obj.attributes:
+        for attr in obj.getAttributes():
+            val = obj.getAttribute(attr)
+
+            if not attr.islower():
+                self.addError("medium", "Attribute is not all lowercase: <b>{}</b>.".format(attr), "Officially, only lowercase attribute names are supported. Even though mixed-case attribute names still work today, they may not work in the future or on different platforms.", obj = obj, fixed = fix)
+
+                if fix:
+                    attr_old = attr
+                    attr = attr.lower()
+                    obj.replaceAttribute(attr_old, attr, val)
+
+            game_attr = game.attributes.attrs.get(attr)
+
+            if game_attr:
+                if game_attr == game.attributes.INTEGER:
+                    try:
+                        int(val)
+                    except:
+                        self.addError("critical", "Attribute <b>{}</b> is supposed to be an integer, but is: {}".format(attr, val), "Attributes that do not have the correct data type could have highly unwanted side effects.", obj = obj)
+                elif game_attr == game.attributes.BOOLEAN:
+                    if not val in ("1", "0"):
+                        self.addError("critical", "Attribute <b>{}</b> is supposed to be a boolean, but is: {}".format(attr, val), "Attributes that do not have the correct data type could have highly unwanted side effects.", obj = obj)
+                elif game_attr == game.attributes.FLOAT:
+                    try:
+                        float(val)
+                    except:
+                        self.addError("critical", "Attribute <b>{}</b> is supposed to be a float, but is: {}".format(attr, val), "Attributes that do not have the correct data type could have highly unwanted side effects.", obj = obj)
+            else:
+                if self.config.getboolean("Errors", "unknown_attribute"):
+                    self.addError("warning", "Attribute <b>{}</b> is not recognized.".format(attr), "Unrecognized attributes are loaded as custom attributes and can have special meaning in some object types. However, they could also be typos.", obj = obj)
+
+            if not obj.map:
+                continue
+
             if artifact and not attr in ("x", "y", "identified", "unpaid", "no_pick", "level", "nrof", "value", "can_stack", "layer", "sub_layer", "z", "zoom", "zoom_x", "zoom_y", "alpha", "align"):
                 self.addError("high", "Artifact with modified attribute: <b>{}</b>.".format(attr), "Directly modifying attributes of most artifacts is not recommended, as it can result in artifacts with different statistics, found in different regions of the world, for example.<br><br>It is recommended to create a new artifact, rather than modifying an existing one on the map.", obj = obj)
 
             if obj.isSameArchAttribute(attr):
-                self.addError("low", "Attribute <b>{}</b> is same as arch default.".format(attr), "This is often due to a change in archetypes, when the default value changes to something that has been set the same on a map.", obj = obj)
+                if self.fix:
+                    obj.removeAttribute(attr)
+
+                self.addError("low", "Attribute <b>{}</b> is same as arch default.".format(attr), "This is often due to a change in archetypes, when the default value changes to something that has been set the same on a map.", obj = obj, fixed = self.fix)
 
     def checker_sys_object(self, obj):
-        if obj.getAttributeInt("sys_object") == 1 and obj.getAttributeInt("layer") > 0:
-            if not obj.env or obj.env.getAttributeInt("type") != game.types.spawn_point_mob:
+        if obj.getAttributeInt("sys_object") == 1 and obj.getAttributeInt("layer") != 0:
+            if not obj.env or not obj.env.getAttributeInt("type") in (game.types.spawn_point_mob, game.types.monster):
                 if self.fix:
                     obj.setAttribute("layer", "0")
 
-                self.addError("low", "System object has a non-zero layer set.", "System objects should always have layer 0.", obj = obj, fixed = True)
+                self.addError("low", "System object has a non-zero layer set.", "System objects should always have layer 0.", obj = obj, fixed = self.fix)
+
+        if obj.getAttributeInt("sys_object") == 0 and obj.getAttributeInt("layer") == 0:
+            if self.fix:
+                obj.setAttribute("sys_object", "1")
+
+            self.addError("low", "Layer 0 object doesn't have sys_object set.", "Layer 0 objects should always have sys_object set.", obj = obj, fixed = self.fix)
 
     def checker_monster(self, obj):
         if not obj.getAttributeInt("type") in (game.types.spawn_point_mob, game.types.monster):
             return
-
-        level = obj.getAttributeInt("level")
-
-        if level == None:
-            self.addError("high", "Monster has unset level.", "All monsters should have a level set.", obj = obj)
-        elif level < 1 or level > system.constants.game.max_level:
-            self.addError("high", "Monster has invalid level: <b>{}</b>".format(level), "Valid levels are between 1 and {}.".format(system.constants.game.max_level), obj = obj)
-        elif obj.getAttributeInt("friendly") == 0 and level >= 10 and obj.map.getAttributeInt("difficulty") <= 1:
-            self.addError("medium", "Monster is level {} but map's difficulty is {}.".format(level, obj.map.getAttributeInt("difficulty")), "Generally, maps should have their difficulty set to average level of monsters it contains.", obj = obj)
 
         race = obj.getAttribute("race")
 
@@ -351,6 +438,19 @@ class CheckerObject(AbstractChecker):
             self.addError("medium", "Monster without race set.", "All monsters should belong to a race.", obj = obj)
         elif race == "undead" and obj.getAttributeInt("undead") != 1:
             self.addError("medium", "Monster is of race <b>{}</b>, but doesn't have the undead flag set.".format(race), "Monsters that have their race set as undead should also have the undead flag set.", obj = obj)
+
+        level = obj.getAttributeInt("level")
+
+        if level == None:
+            self.addError("high", "Monster has unset level.", "All monsters should have a level set.", obj = obj)
+        elif level < 1 or level > system.constants.game.max_level:
+            self.addError("high", "Monster has invalid level: <b>{}</b>".format(level), "Valid levels are between 1 and {}.".format(system.constants.game.max_level), obj = obj)
+
+        if not obj.map:
+            return
+
+        if obj.getAttributeInt("friendly") == 0 and level >= 10 and obj.map.getAttributeInt("difficulty") <= 1:
+            self.addError("medium", "Monster is level {} but map's difficulty is {}.".format(level, obj.map.getAttributeInt("difficulty")), "Generally, maps should have their difficulty set to average level of monsters it contains.", obj = obj)
 
         if obj.getAttributeInt("friendly") == 1 and not obj.getAttribute("name") in ("guard", "knight"):
             if obj.isSameArchAttribute("name") and obj.map.getAttribute("region") != "creation":
@@ -374,32 +474,20 @@ class CheckerObject(AbstractChecker):
         if not obj.env or obj.env.getAttributeInt("type") != game.types.spawn_point:
             self.addError("critical", "Monster is not inside a spawn point.", "All monsters should always be inside a spawn point.", obj = obj)
 
-class CheckerArchetype(AbstractChecker):
-    def check(self, obj):
-        super().check(obj)
-        self._check(obj)
-
-    def addError(self, *args, obj):
-        super().addError(*args, arch = obj)
-
-    def checker_types(self, obj):
+    def checker_anim(self, obj):
         t = obj.getAttributeInt("type")
 
-        if not t:
-            if not obj.head:
-                self.addError("critical", "Archetype has no type attribute set.", "All archetypes should have a type set.", obj = obj)
+        if not obj.getAttributeInt("is_used_up") and obj.getAttributeInt("anim_speed") and obj.getAttributeFloat("speed") and not t in (game.types.monster, game.types.player, game.types.god, game.types.exit, game.types.cone, game.types.bullet, game.types.rod, game.types.spawn_point_mob, game.types.lightning, game.types.light_source):
+            self.addError("warning", "Object is animated and has speed but its object type does not require speed.", "Animated objects don't require speed attribute to be set in order to be animated. Objects with speed are processed each tick server-side, using up unnecessary resources, since animations are processed client-side. Removing the speed attribute is recommended.", obj = obj)
 
-            return
+class CheckerArchetype(CheckerObject):
+    def check(self, obj):
+        self.fix = False
+        AbstractChecker.check(self, obj)
+        super().check(obj)
 
-        if t in (game.types.floor, game.types.shop_floor) and not obj.getAttributeInt("is_floor"):
-            self.addError("low", "Floor archetype doesn't have is_floor set.", "All floor archetypes should have the is_floor attribute flag set to 1.", obj = obj)
-
-        if t == game.types.magic_mirror and not obj.getAttributeInt("sys_object"):
-            self.addError("medium", "Magic mirror archetype doesn't have sys_object set.", "All magic mirror archetypes should have the sys_object attribute flag tset to 1.", obj = obj)
-
-    def checker_misc(self, obj):
-        if obj.getAttribute("material") and not (obj.getAttribute("material_real") or obj.getAttribute("item_quality")) and obj.getAttributeInt("no_pick") == 0:
-            self.addError("low", "Archetype has material set but no material_real or item_quality.", "Material requires material_real or item_quality to be set in order to work properly.")
+    def addError(self, *args, obj, fixed = False):
+        AbstractChecker.addError(self, *args, arch = obj)
 
 class CheckerMap(AbstractChecker):
     def check(self, obj):
@@ -420,29 +508,63 @@ class CheckerMap(AbstractChecker):
         self.map_checker.checker_object.check(game_obj)
         errors += self.map_checker.checker_object.errors
 
-        for obj in game_obj.inv:
-            errors += self._checker_game_object(obj)
-
         return errors
 
     def checker_tiled_maps(self, obj):
         tiles = []
+        dirname = os.path.dirname(self.path)
+        base = os.path.basename(self.path)
+        coords = utils.MapCoords(base)
+        tiled_check = os.path.realpath(self.path).startswith(
+            os.path.realpath(self.map_checker.getMapsPath()))
 
-        # Go through the attributes.
-        for attribute in obj.attributes:
-            if attribute.startswith("tile_path_"):
-                if obj.name[len(obj.name) - len(obj.attributes[attribute]):] == obj.attributes[attribute]:
+        for i in range(0, system.constants.game.num_tiled):
+            attribute = "tile_path_{}".format(i + 1)
+            val = obj.getAttribute(attribute)
+
+            if val is not None:
+                if base == val:
                     if self.fix:
-                        del obj.attributes[attribute]
-                    else:
-                        self.addError("critical", "Map is tiled into itself (tile #{})".format(attribute[len("tile_path_"):]), "Map cannot be tiled into itself.")
+                        obj.removeAttribute(attribute)
+                        val = None
 
+                    self.addError("critical", "Map is tiled into itself ({} tile)".format(system.constants.game.tiled_names[i]), "Map cannot be tiled into itself.", fixed = self.fix)
+
+            if val is not None:
                 for tile in tiles:
-                    if tile == obj.attributes[attribute]:
+                    if tile == val:
                         if self.fix:
-                            del obj.attributes[attribute]
-                        else:
-                            self.addError("critical", "Map is tiled to <b>{0}</b> more than once.".format(tile), "A map cannot have duplicate tile paths.")
+                            obj.removeAttribute(attribute)
+                            val = None
+
+                        self.addError("critical", "Map is tiled to <b>{0}</b> more than once.".format(tile), "A map cannot have duplicate tile paths.", fixed = self.fix)
+
+            if tiled_check and val is not None:
+                if not os.path.exists(os.path.join(dirname, val)):
+                    self.addError("critical", "Map has {} tile pointing to a file that does not exist: <b>{}</b>".format(system.constants.game.tiled_names[i], val), "A map tile cannot point to an invalid file.", fixed = self.fix)
+
+                    if self.fix:
+                        obj.removeAttribute(attribute)
+                        val = None
+
+            tiled = coords.getTiledName(i)
+
+            # TODO: Should base this on something other than the map's file name
+            # beginning with "world_".
+            if tiled_check and (val is None or val != tiled) and (
+                i < system.constants.game.num_tiled_dir or
+                (base.startswith("world_") and coords.getLevel() >= 0 and (
+                    i == system.constants.game.tiled_up or
+                    coords.getLevel() > 0))):
+                if os.path.exists(os.path.join(dirname, tiled)):
+                    self.addError("high", "Map has {} tile pointing to <b>{}</b>, but it should be tiled to <b>{}</b>".format(system.constants.game.tiled_names[i], val if val is not None else "nothing", tiled), "Tiled map files follow a naming convention which allows programs to automatically determine the appropriate coordinates of a map in a mapset.", fixed = self.fix)
+
+                    if self.fix:
+                        obj.setAttribute(attribute, tiled)
+                        val = tiled
+
+            if val is not None:
+                tiles.append(val)
 
     def checker_difficulty(self, obj):
         difficulty = obj.getAttributeInt("difficulty")
@@ -450,13 +572,13 @@ class CheckerMap(AbstractChecker):
         if difficulty == None:
             if self.fix:
                 obj.setAttribute("difficulty", 1)
-            else:
-                self.addError("low", "Map is missing difficulty.", "This could indicate an old map. Difficulty should be set between 1 and {}.".format(system.constants.game.max_level))
+
+            self.addError("low", "Map is missing difficulty.", "This could indicate an old map. Difficulty should be set between 1 and {}.".format(system.constants.game.max_level), fixed = self.fix)
         elif difficulty < 1 or difficulty > system.constants.game.max_level:
             if self.fix:
                 obj.setAttribute("difficulty", 1 if difficulty < 1 else system.constants.game.max_level)
-            else:
-                self.addError("low", "Map has invalid difficulty set (<b>{}</b>).".format(difficulty), "Difficulty should be set between 1 and {}.".format(system.constants.game.max_level))
+
+            self.addError("low", "Map has invalid difficulty set (<b>{}</b>).".format(difficulty), "Difficulty should be set between 1 and {}.".format(system.constants.game.max_level), fixed = self.fix)
 
     def checker_bg_music(self, obj):
         bg_music = obj.getAttribute("bg_music")
@@ -483,7 +605,10 @@ class CheckerMap(AbstractChecker):
                 self.addError("high", "Region <b>{}</b> is not a valid region.".format(region), "Make sure the region name is spelled correctly, or add it to the regions.reg file.")
 
             if obj.isWorldMap():
-                self.addError("warning", "Empty world map has a region.", "Empty world maps typically shouldn't have a region set.")
+                if self.fix:
+                    obj.removeAttribute("region")
+
+                self.addError("warning", "Empty world map has a region.", "Empty world maps typically shouldn't have a region set.", fixed = self.fix)
         else:
             if not obj.isWorldMap() and self.config.getboolean("Errors", "map_no_region"):
                 self.addError("medium", "Region is missing.", "Typically, every map (except empty world maps) should have a region set.")
@@ -496,7 +621,8 @@ class CheckerMap(AbstractChecker):
 
                 # Our layers.
                 layers = [[0] * system.constants.game.num_sub_layers for i in range(system.constants.game.max_layers + 1)]
-                # Number of objects. Layer 0 objects are not counted.
+                # Number of objects. Layer 0 objects are not counted, and
+                # neither are hidden objects.
                 obj_count = 0
                 # Total number of objects, with layer 0 objects.
                 obj_count_all = 0
@@ -507,21 +633,22 @@ class CheckerMap(AbstractChecker):
 
                 # Go through the objects on this map space.
                 for game_obj in obj.tiles[x][y]:
+                    # Recursively check the object.
+                    self.errors += self._checker_game_object(game_obj)
+
                     # Get our layer and sub-layer.
                     layer = game_obj.getAttributeInt("layer")
                     sub_layer = game_obj.getAttributeInt("sub_layer")
                     # Increase number of layers.
                     layers[layer][sub_layer] += 1
 
-                    # Increase number of objects, if we're not on layer 0.
-                    if layer != 0:
+                    # Increase number of objects, if we're not on layer 0 and
+                    # the object is not hidden.
+                    if layer != 0 and not game_obj.getAttributeInt("hidden"):
                         obj_count += 1
 
                     # The total count of objects.
                     obj_count_all += 1
-
-                    # Now recursively check the object.
-                    self.errors += self._checker_game_object(game_obj)
 
                     if game_obj.getAttributeInt("type") == game.types.shop_floor:
                         is_shop = True
@@ -540,7 +667,7 @@ class CheckerMap(AbstractChecker):
 
                 # Go through the layers (ignoring layer 0), and check if we have more than one
                 # object of the same layer on this space.
-                for i in range(1, system.constants.game.max_layers):
+                for i in range(1, system.constants.game.max_layers + 1):
                     for j in range(0, system.constants.game.num_sub_layers):
                         if layers[i][j] > 1:
                             self.addError("warning", "More than 1 object ({}) with layer {}, sub-layer {} on same tile.".format(layers[i][j], i, j), "It is not recommended to place more than one object with the same layer and sub-layer on a single tile, as only one of them will appear on map in the client, and which one will appear is undefined.", loc = [x, y])

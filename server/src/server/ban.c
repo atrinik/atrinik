@@ -1,26 +1,26 @@
-/************************************************************************
-*            Atrinik, a Multiplayer Online Role Playing Game            *
-*                                                                       *
-*    Copyright (C) 2009-2012 Alex Tokar and Atrinik Development Team    *
-*                                                                       *
-* Fork from Crossfire (Multiplayer game for X-windows).                 *
-*                                                                       *
-* This program is free software; you can redistribute it and/or modify  *
-* it under the terms of the GNU General Public License as published by  *
-* the Free Software Foundation; either version 2 of the License, or     *
-* (at your option) any later version.                                   *
-*                                                                       *
-* This program is distributed in the hope that it will be useful,       *
-* but WITHOUT ANY WARRANTY; without even the implied warranty of        *
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
-* GNU General Public License for more details.                          *
-*                                                                       *
-* You should have received a copy of the GNU General Public License     *
-* along with this program; if not, write to the Free Software           *
-* Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.             *
-*                                                                       *
-* The author can be reached at admin@atrinik.org                        *
-************************************************************************/
+/*************************************************************************
+ *           Atrinik, a Multiplayer Online Role Playing Game             *
+ *                                                                       *
+ *   Copyright (C) 2009-2014 Alex Tokar and Atrinik Development Team     *
+ *                                                                       *
+ * Fork from Crossfire (Multiplayer game for X-windows).                 *
+ *                                                                       *
+ * This program is free software; you can redistribute it and/or modify  *
+ * it under the terms of the GNU General Public License as published by  *
+ * the Free Software Foundation; either version 2 of the License, or     *
+ * (at your option) any later version.                                   *
+ *                                                                       *
+ * This program is distributed in the hope that it will be useful,       *
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of        *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
+ * GNU General Public License for more details.                          *
+ *                                                                       *
+ * You should have received a copy of the GNU General Public License     *
+ * along with this program; if not, write to the Free Software           *
+ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.             *
+ *                                                                       *
+ * The author can be reached at admin@atrinik.org                        *
+ ************************************************************************/
 
 /**
  * @file
@@ -48,14 +48,14 @@ static mempool_struct *pool_ban;
  * Initialize the ban API. */
 void ban_init(void)
 {
-    pool_ban = mempool_create("bans", 25, sizeof(_ban_struct), 0, NULL, NULL, NULL, NULL);
+    pool_ban = mempool_create("bans", 25, sizeof(_ban_struct),
+            MEMPOOL_ALLOW_FREEING, NULL, NULL, NULL, NULL);
 }
 
 /**
  * Deinitialize the ban API. */
 void ban_deinit(void)
 {
-    mempool_free(pool_ban);
 }
 
 /**
@@ -65,9 +65,8 @@ void ban_deinit(void)
 static void add_ban_entry(char *name, char *ip)
 {
     objectlink *ol = get_objectlink();
-    _ban_struct *gptr = get_poolchunk(pool_ban);
+    _ban_struct *gptr = mempool_get(pool_ban);
 
-    memset(gptr, 0, sizeof(_ban_struct));
     ol->objlink.ban = gptr;
 
     ol->objlink.ban->ip = estrdup(ip);
@@ -83,8 +82,8 @@ static void remove_ban_entry(objectlink *ol)
     efree(ol->objlink.ban->ip);
     FREE_AND_CLEAR_HASH(ol->objlink.ban->name);
     objectlink_unlink(&ban_list, NULL, ol);
-    return_poolchunk(ol->objlink.ban, pool_ban);
-    return_poolchunk(ol, pool_objectlink);
+    mempool_return(pool_ban, ol->objlink.ban);
+    mempool_return(pool_objectlink, ol);
 }
 
 /**
@@ -108,8 +107,7 @@ void load_bans_file(void)
 
         if (sscanf(buf, "%s %s", name, ip) == 2) {
             add_ban_entry(name, ip);
-        }
-        else {
+        } else {
             logger_print(LOG(BUG), "Malformed line in bans file: %s", buf);
         }
     }

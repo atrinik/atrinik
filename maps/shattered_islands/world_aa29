@@ -15,6 +15,7 @@ tile_path_5 world_0130
 tile_path_6 world_0128
 tile_path_7 world_ab28
 tile_path_8 world_ab30
+tile_path_9 world_1_aa29
 end
 arch water_lt2
 end

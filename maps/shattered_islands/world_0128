@@ -19,6 +19,7 @@ tile_path_7 world_aa27
 tile_path_8 world_aa29
 bg_music yewtree.mid
 region centennial
+tile_path_9 world_1_0128
 end
 arch water_lt
 end
@@ -347,9 +348,6 @@ last_grace 0
 x 2
 y 5
 arch witch1
-msg
-
-endmsg
 name Usagi
 direction 3
 level 35
@@ -357,8 +355,8 @@ spawn_time 8:00-16:00
 can_cast_spell 1
 sp -1
 maxsp 15
-Pow 4
-Dex 2
+pow 4
+dex 2
 type 83
 arch ability_mbullet
 name ability lightning
@@ -409,9 +407,6 @@ last_grace 0
 x 2
 y 10
 arch witch3
-msg
-
-endmsg
 name Madoka
 direction 3
 level 32
@@ -419,8 +414,8 @@ spawn_time 8:00-16:00
 can_cast_spell 1
 sp -1
 maxsp 15
-Pow 4
-Dex 2
+pow 4
+dex 2
 type 83
 arch ability_firestorm
 end
@@ -852,7 +847,7 @@ spawn_time 8:00-14:00
 can_cast_spell 1
 sp -1
 maxsp 12
-Dex 3
+dex 3
 type 83
 arch ability_cause_lig_wound
 end
@@ -898,7 +893,7 @@ spawn_time 8:00-14:00
 can_cast_spell 1
 sp -1
 maxsp 12
-Dex 3
+dex 3
 type 83
 arch ability_cause_lig_wound
 end
@@ -969,7 +964,7 @@ spawn_time 8:00-14:00
 can_cast_spell 1
 sp -1
 maxsp 12
-Dex 3
+dex 3
 type 83
 arch ability_cause_lig_wound
 end
@@ -1132,16 +1127,13 @@ last_grace 0
 x 6
 y 8
 arch witch2
-msg
-
-endmsg
 name cynical student witch
 level 28
 spawn_time 8:00-14:00
 can_cast_spell 1
 sp -1
 maxsp 12
-Dex 3
+dex 3
 type 83
 arch ability_cause_lig_wound
 end
@@ -1550,7 +1542,7 @@ level 32
 can_cast_spell 1
 sp -1
 maxsp 12
-Dex 3
+dex 3
 type 83
 arch ability_cause_lig_wound
 end
@@ -1919,7 +1911,6 @@ y 2
 end
 arch blocked
 no_pass 0
-blocksview 0
 x 11
 y 3
 end

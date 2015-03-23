@@ -2,7 +2,7 @@ arch map
 name Brynknot
 msg
 Created:  2009-09-10 Alex Tokar
-Modified: 2014-03-12 Alex Tokar
+Modified: 2015-03-20 Alex Tokar
 endmsg
 width 24
 height 24
@@ -17,6 +17,7 @@ tile_path_5 world_0214
 tile_path_6 world_0212
 tile_path_7 world_aa12
 tile_path_8 world_aa14
+tile_path_9 world_1_0113
 bg_music lontala.mid
 region brynknot
 end
@@ -172,7 +173,7 @@ y 5
 arch ranger
 direction 3
 level 73
-Dex 1
+dex 1
 can_use_bow 1
 unaggressive 0
 type 83
@@ -859,7 +860,7 @@ y 5
 arch ranger
 direction 3
 level 73
-Dex 1
+dex 1
 can_use_bow 1
 unaggressive 0
 type 83
@@ -1260,6 +1261,14 @@ arch wall_stone_8
 x 7
 y 14
 end
+arch map_info
+hp 2
+sp 5
+name brynknot_bank
+cursed 1
+x 7
+y 14
+end
 arch grassd_4
 x 7
 y 15
@@ -1434,7 +1443,8 @@ arch floor_ostone13
 x 8
 y 16
 end
-arch fwall_flagstone1a
+arch stairs_wood_up2
+direction 5
 x 8
 y 16
 end
@@ -1449,9 +1459,6 @@ y 17
 end
 arch stairs_wood_up
 direction 5
-slaying world_1_0113
-hp 8
-sp 16
 x 8
 y 17
 end
@@ -1739,6 +1746,14 @@ x 10
 y 13
 end
 arch wall_stone_8
+x 10
+y 13
+end
+arch map_info
+hp 12
+sp 7
+name brynknot_bank
+cursed 1
 x 10
 y 13
 end
@@ -2917,7 +2932,6 @@ y 23
 end
 arch blocked
 no_pass 0
-blocksview 0
 x 18
 end
 arch grassd_m3
@@ -3084,7 +3098,6 @@ y 23
 end
 arch blocked
 no_pass 0
-blocksview 0
 x 19
 end
 arch grassd_m14
@@ -3099,7 +3112,6 @@ x 19
 end
 arch blocked
 no_pass 0
-blocksview 0
 x 19
 y 1
 end
@@ -3266,7 +3278,6 @@ y 23
 end
 arch blocked
 no_pass 0
-blocksview 0
 x 20
 end
 arch invis_exit
@@ -3278,7 +3289,6 @@ x 20
 end
 arch blocked
 no_pass 0
-blocksview 0
 x 20
 y 1
 end
@@ -3296,7 +3306,6 @@ y 1
 end
 arch blocked
 no_pass 0
-blocksview 0
 x 20
 y 2
 end
@@ -3314,7 +3323,6 @@ y 2
 end
 arch blocked
 no_pass 0
-blocksview 0
 x 20
 y 3
 end
@@ -3482,7 +3490,6 @@ y 23
 end
 arch blocked
 no_pass 0
-blocksview 0
 x 21
 end
 arch grassd_m12
@@ -3497,7 +3504,6 @@ x 21
 end
 arch blocked
 no_pass 0
-blocksview 0
 x 21
 y 1
 end
@@ -3511,7 +3517,6 @@ y 1
 end
 arch blocked
 no_pass 0
-blocksview 0
 x 21
 y 2
 end
@@ -3529,7 +3534,6 @@ y 2
 end
 arch blocked
 no_pass 0
-blocksview 0
 x 21
 y 3
 end
@@ -3681,7 +3685,6 @@ y 23
 end
 arch blocked
 no_pass 0
-blocksview 0
 x 22
 end
 arch grassd_m6
@@ -3696,7 +3699,6 @@ x 22
 end
 arch blocked
 no_pass 0
-blocksview 0
 x 22
 y 1
 end
@@ -3714,7 +3716,6 @@ y 1
 end
 arch blocked
 no_pass 0
-blocksview 0
 x 22
 y 2
 end

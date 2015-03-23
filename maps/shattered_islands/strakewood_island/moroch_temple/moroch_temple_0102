@@ -555,7 +555,7 @@ y 16
 arch skel_fighter2
 type 83
 level 53
-Dex 2
+dex 2
 can_use_bow 1
 direction 1
 name skeleton archer

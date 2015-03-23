@@ -12,7 +12,7 @@ identified 1
 is_neutral 1
 weapon_speed 0.0125
 speed 0.85
-terrain_flag 1
+terrain_flag 65
 animation thelra_male
 is_animated 1
 anim_speed 3
@@ -30,9 +30,9 @@ can_use_weapon 1
 is_player 1
 weight 70000
 food 750
-Str 11
-Dex 13
-Con 11
-Int 15
-Pow 15
+str 11
+dex 13
+con 11
+int 15
+pow 15
 end

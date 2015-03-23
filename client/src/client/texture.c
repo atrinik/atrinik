@@ -1,26 +1,26 @@
-/************************************************************************
-*            Atrinik, a Multiplayer Online Role Playing Game            *
-*                                                                       *
-*    Copyright (C) 2009-2012 Alex Tokar and Atrinik Development Team    *
-*                                                                       *
-* Fork from Crossfire (Multiplayer game for X-windows).                 *
-*                                                                       *
-* This program is free software; you can redistribute it and/or modify  *
-* it under the terms of the GNU General Public License as published by  *
-* the Free Software Foundation; either version 2 of the License, or     *
-* (at your option) any later version.                                   *
-*                                                                       *
-* This program is distributed in the hope that it will be useful,       *
-* but WITHOUT ANY WARRANTY; without even the implied warranty of        *
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
-* GNU General Public License for more details.                          *
-*                                                                       *
-* You should have received a copy of the GNU General Public License     *
-* along with this program; if not, write to the Free Software           *
-* Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.             *
-*                                                                       *
-* The author can be reached at admin@atrinik.org                        *
-************************************************************************/
+/*************************************************************************
+ *           Atrinik, a Multiplayer Online Role Playing Game             *
+ *                                                                       *
+ *   Copyright (C) 2009-2014 Alex Tokar and Atrinik Development Team     *
+ *                                                                       *
+ * Fork from Crossfire (Multiplayer game for X-windows).                 *
+ *                                                                       *
+ * This program is free software; you can redistribute it and/or modify  *
+ * it under the terms of the GNU General Public License as published by  *
+ * the Free Software Foundation; either version 2 of the License, or     *
+ * (at your option) any later version.                                   *
+ *                                                                       *
+ * This program is distributed in the hope that it will be useful,       *
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of        *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
+ * GNU General Public License for more details.                          *
+ *                                                                       *
+ * You should have received a copy of the GNU General Public License     *
+ * along with this program; if not, write to the Free Software           *
+ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.             *
+ *                                                                       *
+ * The author can be reached at admin@atrinik.org                        *
+ ************************************************************************/
 
 /**
  * @file
@@ -65,8 +65,7 @@ static int texture_data_new(texture_struct *tmp)
             box.w = surface->w;
             box.h = surface->h;
             border_create_color(surface, &box, 1, "950000");
-        }
-        else if (strncmp(tmp->name, "rectangle:", 10) == 0) {
+        } else if (strncmp(tmp->name, "rectangle:", 10) == 0) {
             int w, h, alpha;
 
             alpha = 255;
@@ -89,13 +88,11 @@ static int texture_data_new(texture_struct *tmp)
                     box.h = h;
                     text_show(surface, FONT_ARIAL11, cp + 1, 0, 0, COLOR_WHITE, TEXT_MARKUP, &box);
                 }
-            }
-            else {
+            } else {
                 logger_print(LOG(BUG), "Invalid parameters for rectangle texture: %s", tmp->name);
                 return 0;
             }
-        }
-        else {
+        } else {
             logger_print(LOG(BUG), "Invalid name for software texture: %s", tmp->name);
             return 0;
         }
@@ -103,8 +100,7 @@ static int texture_data_new(texture_struct *tmp)
         texture_data_free(tmp);
         tmp->surface = SDL_DisplayFormatAlpha(surface);
         SDL_FreeSurface(surface);
-    }
-    else if (tmp->type == TEXTURE_TYPE_CLIENT) {
+    } else if (tmp->type == TEXTURE_TYPE_CLIENT) {
         char path[HUGE_BUF];
         SDL_Surface *surface;
 
@@ -112,7 +108,8 @@ static int texture_data_new(texture_struct *tmp)
         surface = IMG_Load_wrapper(path);
 
         if (!surface) {
-            logger_print(LOG(BUG), "Could not load texture: %s", path);
+            logger_print(LOG(BUG), "Could not load texture %s: %s", path,
+                    IMG_GetError());
             return 0;
         }
 
@@ -180,6 +177,7 @@ void texture_deinit(void)
     texture_struct *curr, *tmp;
 
     for (type = 0; type < TEXTURE_TYPE_NUM; type++) {
+
         HASH_ITER(hh, textures[type], curr, tmp)
         {
             HASH_DEL(textures[type], curr);
@@ -208,6 +206,7 @@ void texture_reload(void)
     texture_struct *curr, *tmp;
 
     for (type = 0; type < TEXTURE_TYPE_NUM; type++) {
+
         HASH_ITER(hh, textures[type], curr, tmp)
         {
             texture_data_new(curr);
@@ -234,6 +233,7 @@ void texture_gc(void)
     done = 0;
 
     for (type = 0; type < TEXTURE_TYPE_NUM && !done; type++) {
+
         HASH_ITER(hh, textures[type], curr, tmp)
         {
             if (curr->surface && now - curr->last_used >= TEXTURE_GC_FREE_TIME) {

@@ -12,7 +12,7 @@ identified 1
 is_neutral 1
 weapon_speed 0.0125
 speed 0.85
-terrain_flag 1
+terrain_flag 65
 animation human_male
 is_animated 1
 anim_speed 3
@@ -30,9 +30,9 @@ can_use_weapon 1
 is_player 1
 weight 70000
 food 750
-Str 13
-Dex 13
-Con 13
-Int 13
-Pow 13
+str 13
+dex 13
+con 13
+int 13
+pow 13
 end

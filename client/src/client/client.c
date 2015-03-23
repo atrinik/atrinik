@@ -1,26 +1,26 @@
-/************************************************************************
-*            Atrinik, a Multiplayer Online Role Playing Game            *
-*                                                                       *
-*    Copyright (C) 2009-2012 Alex Tokar and Atrinik Development Team    *
-*                                                                       *
-* Fork from Crossfire (Multiplayer game for X-windows).                 *
-*                                                                       *
-* This program is free software; you can redistribute it and/or modify  *
-* it under the terms of the GNU General Public License as published by  *
-* the Free Software Foundation; either version 2 of the License, or     *
-* (at your option) any later version.                                   *
-*                                                                       *
-* This program is distributed in the hope that it will be useful,       *
-* but WITHOUT ANY WARRANTY; without even the implied warranty of        *
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
-* GNU General Public License for more details.                          *
-*                                                                       *
-* You should have received a copy of the GNU General Public License     *
-* along with this program; if not, write to the Free Software           *
-* Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.             *
-*                                                                       *
-* The author can be reached at admin@atrinik.org                        *
-************************************************************************/
+/*************************************************************************
+ *           Atrinik, a Multiplayer Online Role Playing Game             *
+ *                                                                       *
+ *   Copyright (C) 2009-2014 Alex Tokar and Atrinik Development Team     *
+ *                                                                       *
+ * Fork from Crossfire (Multiplayer game for X-windows).                 *
+ *                                                                       *
+ * This program is free software; you can redistribute it and/or modify  *
+ * it under the terms of the GNU General Public License as published by  *
+ * the Free Software Foundation; either version 2 of the License, or     *
+ * (at your option) any later version.                                   *
+ *                                                                       *
+ * This program is distributed in the hope that it will be useful,       *
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of        *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
+ * GNU General Public License for more details.                          *
+ *                                                                       *
+ * You should have received a copy of the GNU General Public License     *
+ * along with this program; if not, write to the Free Software           *
+ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.             *
+ *                                                                       *
+ * The author can be reached at admin@atrinik.org                        *
+ ************************************************************************/
 
 /**
  * @file
@@ -49,8 +49,7 @@ Client_Player cpl;
 ClientSocket csocket;
 
 /** Structure of all the socket commands */
-static socket_command_struct commands[CLIENT_CMD_NROF] =
-{
+static socket_command_struct commands[CLIENT_CMD_NROF] = {
     {socket_command_map},
     {socket_command_drawinfo},
     {socket_command_file_update},
@@ -75,10 +74,11 @@ static socket_command_struct commands[CLIENT_CMD_NROF] =
     {socket_command_party},
     {socket_command_quickslots},
     {socket_command_compressed},
-    {socket_command_region_map},
+    {NULL},
     {socket_command_sound_ambient},
     {socket_command_interface},
-    {socket_command_notification}
+    {socket_command_notification},
+    {socket_command_keepalive},
 };
 
 /**
@@ -92,8 +92,7 @@ void DoClient(void)
     while ((cmd = get_next_input_command())) {
         if (cmd->data[0] >= CLIENT_CMD_NROF || !commands[cmd->data[0]].handle_func) {
             logger_print(LOG(BUG), "Bad command from server (%d)", cmd->data[0]);
-        }
-        else {
+        } else {
             commands[cmd->data[0]].handle_func(cmd->data + 1, cmd->len - 1, 0);
         }
 

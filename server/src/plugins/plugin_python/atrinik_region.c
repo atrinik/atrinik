@@ -1,26 +1,26 @@
-/************************************************************************
-*            Atrinik, a Multiplayer Online Role Playing Game            *
-*                                                                       *
-*    Copyright (C) 2009-2012 Alex Tokar and Atrinik Development Team    *
-*                                                                       *
-* Fork from Crossfire (Multiplayer game for X-windows).                 *
-*                                                                       *
-* This program is free software; you can redistribute it and/or modify  *
-* it under the terms of the GNU General Public License as published by  *
-* the Free Software Foundation; either version 2 of the License, or     *
-* (at your option) any later version.                                   *
-*                                                                       *
-* This program is distributed in the hope that it will be useful,       *
-* but WITHOUT ANY WARRANTY; without even the implied warranty of        *
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
-* GNU General Public License for more details.                          *
-*                                                                       *
-* You should have received a copy of the GNU General Public License     *
-* along with this program; if not, write to the Free Software           *
-* Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.             *
-*                                                                       *
-* The author can be reached at admin@atrinik.org                        *
-************************************************************************/
+/*************************************************************************
+ *           Atrinik, a Multiplayer Online Role Playing Game             *
+ *                                                                       *
+ *   Copyright (C) 2009-2014 Alex Tokar and Atrinik Development Team     *
+ *                                                                       *
+ * Fork from Crossfire (Multiplayer game for X-windows).                 *
+ *                                                                       *
+ * This program is free software; you can redistribute it and/or modify  *
+ * it under the terms of the GNU General Public License as published by  *
+ * the Free Software Foundation; either version 2 of the License, or     *
+ * (at your option) any later version.                                   *
+ *                                                                       *
+ * This program is distributed in the hope that it will be useful,       *
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of        *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
+ * GNU General Public License for more details.                          *
+ *                                                                       *
+ * You should have received a copy of the GNU General Public License     *
+ * along with this program; if not, write to the Free Software           *
+ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.             *
+ *                                                                       *
+ * The author can be reached at admin@atrinik.org                        *
+ ************************************************************************/
 
 /**
  * @file
@@ -34,8 +34,7 @@
  * @page plugin_python_region_fields Python region fields
  * <h2>Python region fields</h2>
  * List of the region fields and their meaning. */
-static fields_struct fields[] =
-{
+static fields_struct fields[] = {
     {"next", FIELDTYPE_REGION, offsetof(region_struct, next), 0, 0},
     {"parent", FIELDTYPE_REGION, offsetof(region_struct, parent), 0, 0},
     {"name", FIELDTYPE_CSTR, offsetof(region_struct, name), 0, 0},
@@ -121,8 +120,7 @@ static PyObject *Atrinik_Region_RichCompare(Atrinik_Region *left, Atrinik_Region
 static PyGetSetDef getseters[NUM_FIELDS + 1];
 
 /** Our actual Python RegionType. */
-PyTypeObject Atrinik_RegionType =
-{
+PyTypeObject Atrinik_RegionType = {
 #ifdef IS_PY3K
     PyVarObject_HEAD_INIT(NULL, 0)
 #else
@@ -156,6 +154,9 @@ PyTypeObject Atrinik_RegionType =
 #ifndef IS_PY_LEGACY
     , 0
 #endif
+#ifdef Py_TPFLAGS_HAVE_FINALIZE
+    , NULL
+#endif
 };
 
 /**
@@ -186,7 +187,7 @@ int Atrinik_Region_init(PyObject *module)
     }
 
     Py_INCREF(&Atrinik_RegionType);
-    PyModule_AddObject(module, "Region", (PyObject *) &Atrinik_RegionType);
+    PyModule_AddObject(module, "Region", (PyObject *) & Atrinik_RegionType);
 
     return 1;
 }

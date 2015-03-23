@@ -1,26 +1,26 @@
-/************************************************************************
-*            Atrinik, a Multiplayer Online Role Playing Game            *
-*                                                                       *
-*    Copyright (C) 2009-2012 Alex Tokar and Atrinik Development Team    *
-*                                                                       *
-* Fork from Crossfire (Multiplayer game for X-windows).                 *
-*                                                                       *
-* This program is free software; you can redistribute it and/or modify  *
-* it under the terms of the GNU General Public License as published by  *
-* the Free Software Foundation; either version 2 of the License, or     *
-* (at your option) any later version.                                   *
-*                                                                       *
-* This program is distributed in the hope that it will be useful,       *
-* but WITHOUT ANY WARRANTY; without even the implied warranty of        *
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
-* GNU General Public License for more details.                          *
-*                                                                       *
-* You should have received a copy of the GNU General Public License     *
-* along with this program; if not, write to the Free Software           *
-* Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.             *
-*                                                                       *
-* The author can be reached at admin@atrinik.org                        *
-************************************************************************/
+/*************************************************************************
+ *           Atrinik, a Multiplayer Online Role Playing Game             *
+ *                                                                       *
+ *   Copyright (C) 2009-2014 Alex Tokar and Atrinik Development Team     *
+ *                                                                       *
+ * Fork from Crossfire (Multiplayer game for X-windows).                 *
+ *                                                                       *
+ * This program is free software; you can redistribute it and/or modify  *
+ * it under the terms of the GNU General Public License as published by  *
+ * the Free Software Foundation; either version 2 of the License, or     *
+ * (at your option) any later version.                                   *
+ *                                                                       *
+ * This program is distributed in the hope that it will be useful,       *
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of        *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
+ * GNU General Public License for more details.                          *
+ *                                                                       *
+ * You should have received a copy of the GNU General Public License     *
+ * along with this program; if not, write to the Free Software           *
+ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.             *
+ *                                                                       *
+ * The author can be reached at admin@atrinik.org                        *
+ ************************************************************************/
 
 /**
  * Color picker API.
@@ -166,14 +166,12 @@ static int color_picker_element_show(SDL_Surface *surface, color_picker_struct *
             if (my >= box.y + box.h) {
                 my = box.y + box.h - 1;
             }
-        }
-        else if (event->type == SDL_MOUSEMOTION) {
+        } else if (event->type == SDL_MOUSEMOTION) {
             return 0;
         }
-    }
-    /* If the element says it's being dragged, but the mouse state says
-     * otherwise, stop dragging. */
-    else if (color_picker->elements[type].dragging && SDL_GetMouseState(NULL, NULL) != SDL_BUTTON_LEFT) {
+    } else if (color_picker->elements[type].dragging && SDL_GetMouseState(NULL, NULL) != SDL_BUTTON_LEFT) {
+        /* If the element says it's being dragged, but the mouse state says
+         * otherwise, stop dragging. */
         color_picker->elements[type].dragging = 0;
     }
 
@@ -238,8 +236,7 @@ static int color_picker_element_show(SDL_Surface *surface, color_picker_struct *
                 putpixel(surface, box.x + selx, box.y + y, SDL_MapRGB(surface->format, 255 - r, 255 - g, 255 - b));
             }
         }
-    }
-    else if (type == COLOR_PICKER_ELEM_HUE) {
+    } else if (type == COLOR_PICKER_ELEM_HUE) {
         hsv[1] = hsv[2] = 1.0;
 
         for (y = 0; y < box.h; y++) {

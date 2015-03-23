@@ -1,26 +1,26 @@
-/************************************************************************
-*            Atrinik, a Multiplayer Online Role Playing Game            *
-*                                                                       *
-*    Copyright (C) 2009-2012 Alex Tokar and Atrinik Development Team    *
-*                                                                       *
-* Fork from Crossfire (Multiplayer game for X-windows).                 *
-*                                                                       *
-* This program is free software; you can redistribute it and/or modify  *
-* it under the terms of the GNU General Public License as published by  *
-* the Free Software Foundation; either version 2 of the License, or     *
-* (at your option) any later version.                                   *
-*                                                                       *
-* This program is distributed in the hope that it will be useful,       *
-* but WITHOUT ANY WARRANTY; without even the implied warranty of        *
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
-* GNU General Public License for more details.                          *
-*                                                                       *
-* You should have received a copy of the GNU General Public License     *
-* along with this program; if not, write to the Free Software           *
-* Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.             *
-*                                                                       *
-* The author can be reached at admin@atrinik.org                        *
-************************************************************************/
+/*************************************************************************
+ *           Atrinik, a Multiplayer Online Role Playing Game             *
+ *                                                                       *
+ *   Copyright (C) 2009-2014 Alex Tokar and Atrinik Development Team     *
+ *                                                                       *
+ * Fork from Crossfire (Multiplayer game for X-windows).                 *
+ *                                                                       *
+ * This program is free software; you can redistribute it and/or modify  *
+ * it under the terms of the GNU General Public License as published by  *
+ * the Free Software Foundation; either version 2 of the License, or     *
+ * (at your option) any later version.                                   *
+ *                                                                       *
+ * This program is distributed in the hope that it will be useful,       *
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of        *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
+ * GNU General Public License for more details.                          *
+ *                                                                       *
+ * You should have received a copy of the GNU General Public License     *
+ * along with this program; if not, write to the Free Software           *
+ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.             *
+ *                                                                       *
+ * The author can be reached at admin@atrinik.org                        *
+ ************************************************************************/
 
 /**
  * @file
@@ -48,6 +48,11 @@ archetype *empty_archetype;
 archetype *base_info_archetype;
 /** Pointer to level up effect archetype. */
 archetype *level_up_arch;
+/**
+ * Used to create archetype's clone object in get_archetype_struct(), to avoid
+ * a lot of calls to object_get().
+ */
+static object *clone_op;
 
 static void load_archetypes(void);
 
@@ -87,6 +92,7 @@ void init_archetypes(void)
         return;
     }
 
+    clone_op = get_object();
     arch_init = 1;
     load_archetypes();
     arch_init = 0;
@@ -122,8 +128,7 @@ void free_all_archs(void)
     for (at = first_archetype; at != NULL; at = next) {
         if (at->more) {
             next = at->more;
-        }
-        else {
+        } else {
             next = at->next;
         }
 
@@ -138,6 +143,8 @@ void free_all_archs(void)
         efree(at);
         i++;
     }
+
+    object_destroy(clone_op);
 }
 
 /**
@@ -149,9 +156,7 @@ static archetype *get_archetype_struct(void)
     archetype *new;
 
     new = ecalloc(1, sizeof(archetype));
-
-    /* To initial state other also */
-    initialize_object(&new->clone);
+    memcpy(&new->clone, clone_op, sizeof(new->clone));
 
     return new;
 }
@@ -163,62 +168,56 @@ static archetype *get_archetype_struct(void)
  * archetypes. */
 static void first_arch_pass(FILE *fp)
 {
-    object *op;
     void *mybuffer;
-    archetype *at,*prev = NULL, *last_more = NULL;
+    archetype *at, *prev = NULL, *last_more = NULL;
     int i, first = 2;
 
-    op = get_object();
-    op->arch = first_archetype = at = get_archetype_struct();
+    first_archetype = at = get_archetype_struct();
+    at->clone.arch = at;
     mybuffer = create_loader_buffer(fp);
 
-    while ((i = load_object(fp, op, mybuffer, first, MAP_STYLE))) {
+    while ((i = load_object(fp, &at->clone, mybuffer, first, MAP_STYLE))) {
         first = 0;
-
-        copy_object(op, &at->clone, 1);
 
         /* Now we have the right speed_left value for out object.
          * copy_object() now will track down negative speed values, to
          * alter speed_left to guarantee a random & sensible start value. */
         switch (i) {
             /* A new archetype, just link it with the previous */
-            case LL_NORMAL:
+        case LL_NORMAL:
 
-                if (last_more != NULL) {
-                    last_more->next = at;
-                }
+            if (last_more != NULL) {
+                last_more->next = at;
+            }
 
-                if (prev != NULL) {
-                    prev->next = at;
-                }
+            if (prev != NULL) {
+                prev->next = at;
+            }
 
-                prev = last_more = at;
+            prev = last_more = at;
 
-                break;
+            break;
 
             /* Another part of the previous archetype, link it correctly */
-            case LL_MORE:
-                at->head = prev;
-                at->clone.head = &prev->clone;
+        case LL_MORE:
+            at->head = prev;
+            at->clone.head = &prev->clone;
 
-                if (last_more != NULL) {
-                    last_more->more = at;
-                    last_more->clone.more = &at->clone;
-                }
+            if (last_more != NULL) {
+                last_more->more = at;
+                last_more->clone.more = &at->clone;
+            }
 
-                last_more = at;
+            last_more = at;
 
-                break;
+            break;
         }
 
         at = get_archetype_struct();
-        initialize_object(op);
-        op->arch = at;
+        at->clone.arch = at;
     }
 
     delete_loader_buffer(mybuffer);
-    SET_FLAG(op, FLAG_REMOVED);
-    object_destroy(op);
     efree(at);
 }
 
@@ -252,37 +251,31 @@ static void second_arch_pass(FILE *fp_start)
             if ((at = find_archetype(argument)) == NULL) {
                 logger_print(LOG(BUG), "Failed to find arch %s", STRING_SAFE(argument));
             }
-        }
-        else if (!strcmp("other_arch", variable)) {
+        } else if (!strcmp("other_arch", variable)) {
             if (at != NULL && at->clone.other_arch == NULL) {
                 if ((other = find_archetype(argument)) == NULL) {
                     logger_print(LOG(BUG), "Failed to find other_arch %s", STRING_SAFE(argument));
-                }
-                else if (at != NULL) {
+                } else if (at != NULL) {
                     at->clone.other_arch = other;
                 }
             }
-        }
-        else if (!strcmp("randomitems", variable)) {
+        } else if (!strcmp("randomitems", variable)) {
             if (at != NULL) {
                 treasurelist *tl = find_treasurelist(argument);
 
                 if (tl == NULL) {
                     logger_print(LOG(BUG), "Failed to link treasure to arch. (arch: %s ->%s", STRING_OBJ_NAME(&at->clone), STRING_SAFE(argument));
-                }
-                else {
+                } else {
                     at->clone.randomitems = tl;
                 }
             }
-        }
-        else if (!strcmp("arch", variable)) {
+        } else if (!strcmp("arch", variable)) {
             inv = get_archetype(argument);
             load_object(fp, inv, NULL, LO_LINEMODE, 0);
 
             if (at) {
                 insert_ob_in_ob(inv, &at->clone);
-            }
-            else {
+            } else {
                 logger_print(LOG(ERROR), "Got an arch %s not inside an Object.", argument);
                 exit(1);
             }
@@ -322,31 +315,25 @@ static void second_arch_pass(FILE *fp_start)
             if ((at = find_archetype(argument)) == NULL) {
                 logger_print(LOG(BUG), "Second artifacts pass: Failed to find artifact %s", STRING_SAFE(argument));
             }
-        }
-        else if (!strcmp("def_arch", variable)) {
+        } else if (!strcmp("def_arch", variable)) {
             if ((other = find_archetype(argument)) == NULL) {
                 logger_print(LOG(BUG), "Second artifacts pass: Failed to find def_arch %s from artifact %s", STRING_SAFE(argument), STRING_ARCH_NAME(at));
-            }
-            else if (at != NULL) {
+            } else if (at != NULL) {
                 at->clone.other_arch = other->clone.other_arch;
                 at->clone.randomitems = other->clone.randomitems;
             }
-        }
-        else if (!strcmp("other_arch", variable)) {
+        } else if (!strcmp("other_arch", variable)) {
             if ((other = find_archetype(argument)) == NULL) {
                 logger_print(LOG(BUG), "Second artifacts pass: Failed to find other_arch %s", STRING_SAFE(argument));
-            }
-            else if (at != NULL) {
+            } else if (at != NULL) {
                 at->clone.other_arch = other;
             }
-        }
-        else if (!strcmp("randomitems", variable)) {
+        } else if (!strcmp("randomitems", variable)) {
             treasurelist *tl = find_treasurelist(argument);
 
             if (tl == NULL) {
                 logger_print(LOG(BUG), "Second artifacts pass: Failed to link treasure to arch. (arch: %s ->%s)", STRING_OBJ_NAME(&at->clone), STRING_SAFE(argument));
-            }
-            else if (at != NULL) {
+            } else if (at != NULL) {
                 at->clone.randomitems = tl;
             }
         }

@@ -1,26 +1,26 @@
-/************************************************************************
-*            Atrinik, a Multiplayer Online Role Playing Game            *
-*                                                                       *
-*    Copyright (C) 2009-2012 Alex Tokar and Atrinik Development Team    *
-*                                                                       *
-* Fork from Crossfire (Multiplayer game for X-windows).                 *
-*                                                                       *
-* This program is free software; you can redistribute it and/or modify  *
-* it under the terms of the GNU General Public License as published by  *
-* the Free Software Foundation; either version 2 of the License, or     *
-* (at your option) any later version.                                   *
-*                                                                       *
-* This program is distributed in the hope that it will be useful,       *
-* but WITHOUT ANY WARRANTY; without even the implied warranty of        *
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
-* GNU General Public License for more details.                          *
-*                                                                       *
-* You should have received a copy of the GNU General Public License     *
-* along with this program; if not, write to the Free Software           *
-* Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.             *
-*                                                                       *
-* The author can be reached at admin@atrinik.org                        *
-************************************************************************/
+/*************************************************************************
+ *           Atrinik, a Multiplayer Online Role Playing Game             *
+ *                                                                       *
+ *   Copyright (C) 2009-2014 Alex Tokar and Atrinik Development Team     *
+ *                                                                       *
+ * Fork from Crossfire (Multiplayer game for X-windows).                 *
+ *                                                                       *
+ * This program is free software; you can redistribute it and/or modify  *
+ * it under the terms of the GNU General Public License as published by  *
+ * the Free Software Foundation; either version 2 of the License, or     *
+ * (at your option) any later version.                                   *
+ *                                                                       *
+ * This program is distributed in the hope that it will be useful,       *
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of        *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
+ * GNU General Public License for more details.                          *
+ *                                                                       *
+ * You should have received a copy of the GNU General Public License     *
+ * along with this program; if not, write to the Free Software           *
+ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.             *
+ *                                                                       *
+ * The author can be reached at admin@atrinik.org                        *
+ ************************************************************************/
 
 #include <global.h>
 #include <check.h>
@@ -40,16 +40,21 @@ START_TEST(test_add_ban)
     fail_if(add_ban(strdup("Tester/:xxx.x.x.x:11")) == 1, "Successfully added a new ban with add_ban(), but the IP had colons in it.");
     remove_ban(strdup("Tester/:xxx.x.x.x:11"));
 }
+
 END_TEST
 
 START_TEST(test_checkbanned)
 {
+    shstr *str1, *str2;
+
     add_ban(strdup("Noob/:127.0.0.1"));
-    fail_if(checkbanned(add_string("Noob/"), "127.0.0.1") == 0, "checkbanned() failed to match a previously banned name and IP.");
+    str1 = add_string("Noob/");
+    fail_if(checkbanned(str1, "127.0.0.1") == 0, "checkbanned() failed to match a previously banned name and IP.");
     remove_ban(strdup("Noob/:127.0.0.1"));
 
     add_ban(strdup("Tester/:*"));
-    fail_if(checkbanned(add_string("Tester/"), "127.2.0.1") == 0, "checkbanned() failed to match a previously banned name.");
+    str2 = add_string("Tester/");
+    fail_if(checkbanned(str2, "127.2.0.1") == 0, "checkbanned() failed to match a previously banned name.");
     remove_ban(strdup("Tester/:*"));
 
     add_ban(strdup("*:xxx.xxx.xxx"));
@@ -57,7 +62,11 @@ START_TEST(test_checkbanned)
     remove_ban(strdup("*:xxx.xxx.xxx"));
 
     fail_if(checkbanned(NULL, "10543./4t5vr.3546") == 1, "checkbanned() returned 1 for an IP that was not previously banned.");
+
+    free_string_shared(str1);
+    free_string_shared(str2);
 }
+
 END_TEST
 
 START_TEST(test_remove_ban)
@@ -67,6 +76,7 @@ START_TEST(test_remove_ban)
 
     fail_if(remove_ban(strdup("Tester~$#@:127.0.0.1")) == 1, "remove_ban() managed to remove nonexistent ban.");
 }
+
 END_TEST
 
 static Suite *ban_suite(void)

@@ -1,26 +1,26 @@
-/************************************************************************
-*            Atrinik, a Multiplayer Online Role Playing Game            *
-*                                                                       *
-*    Copyright (C) 2009-2012 Alex Tokar and Atrinik Development Team    *
-*                                                                       *
-* Fork from Crossfire (Multiplayer game for X-windows).                 *
-*                                                                       *
-* This program is free software; you can redistribute it and/or modify  *
-* it under the terms of the GNU General Public License as published by  *
-* the Free Software Foundation; either version 2 of the License, or     *
-* (at your option) any later version.                                   *
-*                                                                       *
-* This program is distributed in the hope that it will be useful,       *
-* but WITHOUT ANY WARRANTY; without even the implied warranty of        *
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
-* GNU General Public License for more details.                          *
-*                                                                       *
-* You should have received a copy of the GNU General Public License     *
-* along with this program; if not, write to the Free Software           *
-* Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.             *
-*                                                                       *
-* The author can be reached at admin@atrinik.org                        *
-************************************************************************/
+/*************************************************************************
+ *           Atrinik, a Multiplayer Online Role Playing Game             *
+ *                                                                       *
+ *   Copyright (C) 2009-2014 Alex Tokar and Atrinik Development Team     *
+ *                                                                       *
+ * Fork from Crossfire (Multiplayer game for X-windows).                 *
+ *                                                                       *
+ * This program is free software; you can redistribute it and/or modify  *
+ * it under the terms of the GNU General Public License as published by  *
+ * the Free Software Foundation; either version 2 of the License, or     *
+ * (at your option) any later version.                                   *
+ *                                                                       *
+ * This program is distributed in the hope that it will be useful,       *
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of        *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
+ * GNU General Public License for more details.                          *
+ *                                                                       *
+ * You should have received a copy of the GNU General Public License     *
+ * along with this program; if not, write to the Free Software           *
+ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.             *
+ *                                                                       *
+ * The author can be reached at admin@atrinik.org                        *
+ ************************************************************************/
 
 /**
  * @file
@@ -49,8 +49,8 @@
 static uint8 did_init = 0;
 
 #ifdef HAVE_READLINE
-#   include <readline/readline.h>
-#   include <readline/history.h>
+#include <readline/readline.h>
+#include <readline/history.h>
 #endif
 
 /**
@@ -73,14 +73,12 @@ static pthread_mutex_t command_process_queue_mutex;
  * The thread's ID. */
 static pthread_t thread_id;
 
-/**
- * If 1, the thread is done executing. */
-static uint8 thread_done;
-
 #ifdef HAVE_READLINE
 /**
  * Prompt for readline. */
 static const char *current_prompt;
+
+static pthread_mutex_t rl_mutex; ///< Mutex for readline in general.
 #endif
 
 /**
@@ -110,9 +108,8 @@ static void console_command_help(const char *params)
         }
 
         logger_print(LOG(INFO), "No such command '%s'.", params);
-    }
-    /* Otherwise brief information about all available commands. */
-    else {
+    } else {
+        /* Otherwise brief information about all available commands. */
         logger_print(LOG(INFO), "List of available commands:");
         logger_print(LOG(INFO), " ");
 
@@ -213,6 +210,8 @@ static void console_print(const char *str)
     char *saved_line;
     int saved_point;
 
+    pthread_mutex_lock(&rl_mutex);
+
     saved_line = rl_copy_text(0, rl_end);
     saved_point = rl_point;
 
@@ -228,6 +227,8 @@ static void console_print(const char *str)
     rl_redisplay();
 
     efree(saved_line);
+
+    pthread_mutex_unlock(&rl_mutex);
 }
 
 #endif
@@ -242,11 +243,23 @@ static void *do_thread(void *dummy)
     char *line;
     ssize_t numread;
     size_t len;
+#else
+    fd_set fds;
+
+    FD_ZERO(&fds);
+    FD_SET(STDIN_FILENO, &fds);
 #endif
 
-    while (!thread_done) {
+    pthread_setcanceltype(PTHREAD_CANCEL_ASYNCHRONOUS, NULL);
+
+    for ( ; ; ) {
 #ifdef HAVE_READLINE
-        rl_callback_read_char();
+        if (select(STDIN_FILENO + 1, &fds, NULL, NULL, NULL) != -1 &&
+                FD_ISSET(STDIN_FILENO, &fds)) {
+            pthread_mutex_lock(&rl_mutex);
+            rl_callback_read_char();
+            pthread_mutex_unlock(&rl_mutex);
+        }
 #else
         line = NULL;
         numread = getline(&line, &len, stdin);
@@ -271,6 +284,7 @@ static void *do_thread(void *dummy)
  * @internal */
 void toolkit_console_init(void)
 {
+
     TOOLKIT_INIT_FUNC_START(console)
     {
         toolkit_import(logger);
@@ -282,12 +296,12 @@ void toolkit_console_init(void)
 
         /* Add the 'help' command. */
         console_command_add(
-            "help",
-            console_command_help,
-            "Displays this help.",
-            "Displays the help, listing available console commands, etc.\n\n"
-            "'help <command>' can be used to get more detailed help about the specified command."
-        );
+                "help",
+                console_command_help,
+                "Displays this help.",
+                "Displays the help, listing available console commands, etc.\n\n"
+                "'help <command>' can be used to get more detailed help about the specified command."
+                );
     }
     TOOLKIT_INIT_FUNC_END()
 }
@@ -314,9 +328,9 @@ int console_start_thread(void)
 
     rl_callback_handler_install(current_prompt, handle_line_fake);
     logger_set_print_func(console_print);
+    pthread_mutex_init(&rl_mutex, NULL);
 #endif
 
-    thread_done = 0;
     pthread_mutex_init(&command_process_queue_mutex, NULL);
     ret = pthread_create(&thread_id, NULL, do_thread, NULL);
 
@@ -332,11 +346,11 @@ int console_start_thread(void)
  * @internal */
 void toolkit_console_deinit(void)
 {
+
     TOOLKIT_DEINIT_FUNC_START(console)
     {
         size_t i;
 
-        thread_done = 1;
         pthread_cancel(thread_id);
 
         for (i = 0; i < console_commands_num; i++) {
@@ -356,11 +370,13 @@ void toolkit_console_deinit(void)
         logger_set_print_func(logger_do_print);
 
 #ifdef HAVE_READLINE
+        pthread_mutex_lock(&rl_mutex);
         rl_unbind_key(RETURN);
         rl_callback_handler_remove();
 
         rl_set_prompt("");
         rl_redisplay();
+        pthread_mutex_unlock(&rl_mutex);
 #endif
     }
     TOOLKIT_DEINIT_FUNC_END()

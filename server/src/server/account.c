@@ -1,26 +1,26 @@
-/************************************************************************
-*            Atrinik, a Multiplayer Online Role Playing Game            *
-*                                                                       *
-*    Copyright (C) 2009-2012 Alex Tokar and Atrinik Development Team    *
-*                                                                       *
-* Fork from Crossfire (Multiplayer game for X-windows).                 *
-*                                                                       *
-* This program is free software; you can redistribute it and/or modify  *
-* it under the terms of the GNU General Public License as published by  *
-* the Free Software Foundation; either version 2 of the License, or     *
-* (at your option) any later version.                                   *
-*                                                                       *
-* This program is distributed in the hope that it will be useful,       *
-* but WITHOUT ANY WARRANTY; without even the implied warranty of        *
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
-* GNU General Public License for more details.                          *
-*                                                                       *
-* You should have received a copy of the GNU General Public License     *
-* along with this program; if not, write to the Free Software           *
-* Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.             *
-*                                                                       *
-* The author can be reached at admin@atrinik.org                        *
-************************************************************************/
+/*************************************************************************
+ *           Atrinik, a Multiplayer Online Role Playing Game             *
+ *                                                                       *
+ *   Copyright (C) 2009-2014 Alex Tokar and Atrinik Development Team     *
+ *                                                                       *
+ * Fork from Crossfire (Multiplayer game for X-windows).                 *
+ *                                                                       *
+ * This program is free software; you can redistribute it and/or modify  *
+ * it under the terms of the GNU General Public License as published by  *
+ * the Free Software Foundation; either version 2 of the License, or     *
+ * (at your option) any later version.                                   *
+ *                                                                       *
+ * This program is distributed in the hope that it will be useful,       *
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of        *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
+ * GNU General Public License for more details.                          *
+ *                                                                       *
+ * You should have received a copy of the GNU General Public License     *
+ * along with this program; if not, write to the Free Software           *
+ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.             *
+ *                                                                       *
+ * The author can be reached at admin@atrinik.org                        *
+ ************************************************************************/
 
 /**
  * @file
@@ -34,8 +34,7 @@
 #define ACCOUNT_PASSWORD_SIZE 32
 #define ACCOUNT_PASSWORD_ITERATIONS 4096
 
-typedef struct account_struct
-{
+typedef struct account_struct {
     unsigned char password[ACCOUNT_PASSWORD_SIZE];
 
     unsigned char salt[ACCOUNT_PASSWORD_SIZE];
@@ -46,8 +45,7 @@ typedef struct account_struct
 
     time_t last_time;
 
-    struct
-    {
+    struct {
         archetype *at;
 
         char *name;
@@ -91,60 +89,8 @@ static void account_free(account_struct *account)
 
 static char *account_old_crypt(char *str, const char *salt)
 {
-#if defined(HAVE_CRYPT)
+#if defined(HAVE_CRYPT) && defined(HAVE_CRYPT_H)
     return crypt(str, salt);
-#elif defined(WIN32)
-    HCRYPTPROV provider;
-    HCRYPTHASH hash;
-    DWORD resultlen = 0, i;
-    BYTE *result;
-    static char hashresult[HUGE_BUF];
-    char tmp[6];
-
-    if (!CryptAcquireContext(&provider, NULL, NULL, PROV_RSA_FULL, CRYPT_VERIFYCONTEXT)) {
-        return str;
-    }
-
-    if (!CryptCreateHash(provider, CALG_SHA1, 0, 0, &hash)) {
-        CryptReleaseContext(provider, 0);
-        return str;
-    }
-
-    if (!CryptHashData(hash, (BYTE *) str, strlen(str), 0)) {
-        CryptDestroyHash(hash);
-        CryptReleaseContext(provider, 0);
-        return str;
-    }
-
-    if (!CryptGetHashParam(hash, HP_HASHVAL, NULL, &resultlen, 0)) {
-        CryptDestroyHash(hash);
-        CryptReleaseContext(provider, 0);
-        return str;
-    }
-
-    result = ecalloc(1, sizeof(BYTE) * resultlen);
-
-    if (!CryptGetHashParam(hash, HP_HASHVAL, result, &resultlen, 0)) {
-        efree(result);
-        CryptDestroyHash(hash);
-        CryptReleaseContext(provider, 0);
-        return str;
-    }
-
-    CryptDestroyHash(hash);
-    CryptReleaseContext(provider, 0);
-
-    hashresult[0] = '\0';
-
-    for (i = 0; i < resultlen; i++) {
-        snprintf(tmp, sizeof(tmp), "%.2x", result[i]);
-        strncat(hashresult, tmp, sizeof(hashresult) - strlen(hashresult) - 1);
-        hashresult[sizeof(hashresult) - strlen(hashresult) - 1] = '\0';
-    }
-
-    efree(result);
-
-    return hashresult;
 #else
     return str;
 #endif
@@ -236,25 +182,20 @@ static int account_load(account_struct *account, const char *path)
 
             if (len == 13 || len == 40) {
                 account->password_old = estrdup(buf + 5);
-            }
-            else if (string_fromhex(buf + 5, len, account->password, ACCOUNT_PASSWORD_SIZE) != ACCOUNT_PASSWORD_SIZE) {
+            } else if (string_fromhex(buf + 5, len, account->password, ACCOUNT_PASSWORD_SIZE) != ACCOUNT_PASSWORD_SIZE) {
                 logger_print(LOG(BUG), "Invalid password entry in file: %s", path);
                 memset(account->password, 0, sizeof(account->password));
             }
-        }
-        else if (strncmp(buf, "salt ", 5) == 0) {
+        } else if (strncmp(buf, "salt ", 5) == 0) {
             if (string_fromhex(buf + 5, strlen(buf + 5), account->salt, ACCOUNT_PASSWORD_SIZE) != ACCOUNT_PASSWORD_SIZE) {
                 logger_print(LOG(BUG), "Invalid salt entry in file: %s", path);
                 memset(account->salt, 0, sizeof(account->salt));
             }
-        }
-        else if (strncmp(buf, "host ", 5) == 0) {
+        } else if (strncmp(buf, "host ", 5) == 0) {
             account->last_host = estrdup(buf + 5);
-        }
-        else if (strncmp(buf, "time ", 5) == 0) {
+        } else if (strncmp(buf, "time ", 5) == 0) {
             account->last_time = atoll(buf + 5);
-        }
-        else if (strncmp(buf, "char ", 5) == 0) {
+        } else if (strncmp(buf, "char ", 5) == 0) {
             char *cps[4];
 
             if (string_split(buf + 5, cps, arraysize(cps), ':') != arraysize(cps)) {
@@ -636,9 +577,61 @@ void account_password_change(socket_struct *ns, char *password, char *password_n
 
     if (account_save(&account, path)) {
         draw_info_send(CHAT_TYPE_GAME, NULL, COLOR_GREEN, ns, "Password changed successfully.");
-    }
-    else {
+    } else {
         draw_info_send(CHAT_TYPE_GAME, NULL, COLOR_RED, ns, "Save error occurred, please contact server administrator.");
+    }
+
+    account_free(&account);
+    efree(path);
+}
+
+void account_password_force(object *op, char *name, const char *password)
+{
+    size_t password_len;
+    char *path;
+    account_struct account;
+
+    assert(op != NULL);
+    assert(name != NULL);
+    assert(password != NULL);
+
+    if (*password == '\0' || string_contains_other(password,
+            settings.allowed_chars[ALLOWED_CHARS_PASSWORD])) {
+        draw_info(COLOR_RED, op, "Invalid password.");
+        return;
+    }
+
+    password_len = strlen(password);
+
+    if (password_len < settings.limits[ALLOWED_CHARS_PASSWORD][0] ||
+            password_len > settings.limits[ALLOWED_CHARS_PASSWORD][1]) {
+        draw_info(COLOR_RED, op, "Invalid length for password.");
+        return;
+    }
+
+    string_tolower(name);
+    path = account_make_path(name);
+
+    if (!path_exists(path)) {
+        draw_info(COLOR_RED, op, "No such account.");
+        efree(path);
+        return;
+    }
+
+    if (!account_load(&account, path)) {
+        draw_info(COLOR_RED, op, "Read error occurred, please contact server "
+                "administrator.");
+        efree(path);
+        return;
+    }
+
+    account_set_password(&account, password);
+
+    if (account_save(&account, path)) {
+        draw_info(COLOR_GREEN, op, "Password changed successfully.");
+    } else {
+        draw_info(COLOR_RED, op, "Save error occurred, please contact server "
+                "administrator.");
     }
 
     account_free(&account);

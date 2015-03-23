@@ -14,6 +14,7 @@ tile_path_4 world_1_0737
 tile_path_7 world_1_0736
 bg_music kaitindam.mid
 region asteria
+tile_path_10 world_0837
 end
 arch magic_mirror
 slaying world_0837

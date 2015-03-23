@@ -1,26 +1,26 @@
-/************************************************************************
-*            Atrinik, a Multiplayer Online Role Playing Game            *
-*                                                                       *
-*    Copyright (C) 2009-2012 Alex Tokar and Atrinik Development Team    *
-*                                                                       *
-* Fork from Crossfire (Multiplayer game for X-windows).                 *
-*                                                                       *
-* This program is free software; you can redistribute it and/or modify  *
-* it under the terms of the GNU General Public License as published by  *
-* the Free Software Foundation; either version 2 of the License, or     *
-* (at your option) any later version.                                   *
-*                                                                       *
-* This program is distributed in the hope that it will be useful,       *
-* but WITHOUT ANY WARRANTY; without even the implied warranty of        *
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
-* GNU General Public License for more details.                          *
-*                                                                       *
-* You should have received a copy of the GNU General Public License     *
-* along with this program; if not, write to the Free Software           *
-* Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.             *
-*                                                                       *
-* The author can be reached at admin@atrinik.org                        *
-************************************************************************/
+/*************************************************************************
+ *           Atrinik, a Multiplayer Online Role Playing Game             *
+ *                                                                       *
+ *   Copyright (C) 2009-2014 Alex Tokar and Atrinik Development Team     *
+ *                                                                       *
+ * Fork from Crossfire (Multiplayer game for X-windows).                 *
+ *                                                                       *
+ * This program is free software; you can redistribute it and/or modify  *
+ * it under the terms of the GNU General Public License as published by  *
+ * the Free Software Foundation; either version 2 of the License, or     *
+ * (at your option) any later version.                                   *
+ *                                                                       *
+ * This program is distributed in the hope that it will be useful,       *
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of        *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
+ * GNU General Public License for more details.                          *
+ *                                                                       *
+ * You should have received a copy of the GNU General Public License     *
+ * along with this program; if not, write to the Free Software           *
+ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.             *
+ *                                                                       *
+ * The author can be reached at admin@atrinik.org                        *
+ ************************************************************************/
 
 /**
  * @file
@@ -41,8 +41,8 @@ static void spawn_point_enemy_signal_map(object *op, mapstruct *map)
 
     for (ol = map->linked_spawn_points; ol != NULL; ol = ol->next) {
         if (ol->objlink.ob != op && ol->objlink.ob->title == op->title &&
-            OBJECT_VALID(ol->objlink.ob->enemy, ol->objlink.ob->enemy_count) &&
-            !OBJECT_VALID(ol->objlink.ob->enemy->enemy, ol->objlink.ob->enemy->enemy_count)) {
+                OBJECT_VALID(ol->objlink.ob->enemy, ol->objlink.ob->enemy_count) &&
+                !OBJECT_VALID(ol->objlink.ob->enemy->enemy, ol->objlink.ob->enemy->enemy_count)) {
             set_npc_enemy(ol->objlink.ob->enemy, op->enemy->enemy, NULL);
         }
     }
@@ -64,7 +64,7 @@ void spawn_point_enemy_signal(object *op)
     spawn_point_enemy_signal_map(op, op->map);
 
     /* Signal all the tiled maps that are in memory. */
-    for (i = 0; i < TILED_NUM; i++) {
+    for (i = 0; i < TILED_NUM_DIR; i++) {
         if (op->map->tile_map[i] != NULL && op->map->tile_map[i]->in_memory == MAP_IN_MEMORY) {
             spawn_point_enemy_signal_map(op, op->map->tile_map[i]);
         }
@@ -102,39 +102,39 @@ static object *spawn_point_generate(object *op, object *monster)
         diff = op->map->difficulty;
 
         switch (tmp->item_condition) {
-            case SPAWN_RELATIVE_LEVEL_GREEN:
-                min = level_color[diff].green;
-                max = level_color[diff].blue - 1;
-                break;
+        case SPAWN_RELATIVE_LEVEL_GREEN:
+            min = level_color[diff].green;
+            max = level_color[diff].blue - 1;
+            break;
 
-            case SPAWN_RELATIVE_LEVEL_BLUE:
-                min = level_color[diff].blue;
-                max = level_color[diff].yellow - 1;
-                break;
+        case SPAWN_RELATIVE_LEVEL_BLUE:
+            min = level_color[diff].blue;
+            max = level_color[diff].yellow - 1;
+            break;
 
-            case SPAWN_RELATIVE_LEVEL_YELLOW:
-                min = level_color[diff].yellow;
-                max = level_color[diff].orange - 1;
-                break;
+        case SPAWN_RELATIVE_LEVEL_YELLOW:
+            min = level_color[diff].yellow;
+            max = level_color[diff].orange - 1;
+            break;
 
-            case SPAWN_RELATIVE_LEVEL_ORANGE:
-                min = level_color[diff].orange;
-                max = level_color[diff].red - 1;
-                break;
+        case SPAWN_RELATIVE_LEVEL_ORANGE:
+            min = level_color[diff].orange;
+            max = level_color[diff].red - 1;
+            break;
 
-            case SPAWN_RELATIVE_LEVEL_RED:
-                min = level_color[diff].red;
-                max = level_color[diff].purple - 1;
-                break;
+        case SPAWN_RELATIVE_LEVEL_RED:
+            min = level_color[diff].red;
+            max = level_color[diff].purple - 1;
+            break;
 
-            case SPAWN_RELATIVE_LEVEL_PURPLE:
-                min = level_color[diff].purple;
-                max = min + 1;
-                break;
+        case SPAWN_RELATIVE_LEVEL_PURPLE:
+            min = level_color[diff].purple;
+            max = min + 1;
+            break;
 
-            default:
-                min = level;
-                max = min;
+        default:
+            min = level;
+            max = min;
         }
 
         tmp->level = rndm(MAX(level, MIN(min, MAXLEVEL)), MAX(level, MIN(max, MAXLEVEL)));
@@ -176,9 +176,8 @@ static int spawn_point_can_generate(object *op, object *monster)
                 if (tod.hour < hour || tod.hour > hour2) {
                     return 0;
                 }
-            }
-            /* Overnight. */
-            else {
+            } else {
+                /* Overnight. */
                 if (tod.hour < hour && tod.hour > hour2) {
                     return 0;
                 }
@@ -190,8 +189,7 @@ static int spawn_point_can_generate(object *op, object *monster)
             }
 
             return 1;
-        }
-        else {
+        } else {
             logger_print(LOG(BUG), "Syntax error in spawn_time attribute: %s", spawn_time);
         }
     }
@@ -288,8 +286,7 @@ static void process_func(object *op)
                 copy_object_with_inv(tmp2, copy);
                 insert_ob_in_ob(copy, monster);
             }
-        }
-        else {
+        } else {
             copy = get_object();
             copy_object_with_inv(tmp, copy);
             insert_ob_in_ob(copy, monster);
@@ -341,6 +338,7 @@ static void remove_map_func(object *op)
     for (ol = op->map->linked_spawn_points; ol; ol = ol->next) {
         if (ol->objlink.ob == op) {
             objectlink_unlink(&op->map->linked_spawn_points, NULL, ol);
+            free_objectlink_simple(ol);
             break;
         }
     }

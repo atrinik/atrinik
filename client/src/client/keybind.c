@@ -1,26 +1,26 @@
-/************************************************************************
-*            Atrinik, a Multiplayer Online Role Playing Game            *
-*                                                                       *
-*    Copyright (C) 2009-2012 Alex Tokar and Atrinik Development Team    *
-*                                                                       *
-* Fork from Crossfire (Multiplayer game for X-windows).                 *
-*                                                                       *
-* This program is free software; you can redistribute it and/or modify  *
-* it under the terms of the GNU General Public License as published by  *
-* the Free Software Foundation; either version 2 of the License, or     *
-* (at your option) any later version.                                   *
-*                                                                       *
-* This program is distributed in the hope that it will be useful,       *
-* but WITHOUT ANY WARRANTY; without even the implied warranty of        *
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
-* GNU General Public License for more details.                          *
-*                                                                       *
-* You should have received a copy of the GNU General Public License     *
-* along with this program; if not, write to the Free Software           *
-* Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.             *
-*                                                                       *
-* The author can be reached at admin@atrinik.org                        *
-************************************************************************/
+/*************************************************************************
+ *           Atrinik, a Multiplayer Online Role Playing Game             *
+ *                                                                       *
+ *   Copyright (C) 2009-2014 Alex Tokar and Atrinik Development Team     *
+ *                                                                       *
+ * Fork from Crossfire (Multiplayer game for X-windows).                 *
+ *                                                                       *
+ * This program is free software; you can redistribute it and/or modify  *
+ * it under the terms of the GNU General Public License as published by  *
+ * the Free Software Foundation; either version 2 of the License, or     *
+ * (at your option) any later version.                                   *
+ *                                                                       *
+ * This program is distributed in the hope that it will be useful,       *
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of        *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
+ * GNU General Public License for more details.                          *
+ *                                                                       *
+ * You should have received a copy of the GNU General Public License     *
+ * along with this program; if not, write to the Free Software           *
+ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.             *
+ *                                                                       *
+ * The author can be reached at admin@atrinik.org                        *
+ ************************************************************************/
 
 /**
  * @file
@@ -77,8 +77,7 @@ void keybind_load(void)
         while (*cp != '\0') {
             if (isspace(*cp)) {
                 cp++;
-            }
-            else {
+            } else {
                 break;
             }
         }
@@ -89,28 +88,22 @@ void keybind_load(void)
 
         /* End of a single keybinding definition, add it to the list. */
         if (!strcmp(cp, "end")) {
-            keybindings = realloc(keybindings, sizeof(*keybindings) * (keybindings_num + 1));
+            keybindings = erealloc(keybindings, sizeof(*keybindings) * (keybindings_num + 1));
             keybindings[keybindings_num] = keybind;
             keybindings_num++;
             keybind = NULL;
-        }
-        /* Are we inside a keybinding definition? */
-        else if (keybind) {
+        } else if (keybind) {
             if (!strncmp(cp, "command ", 8)) {
                 keybind->command = estrdup(cp + 8);
-            }
-            else if (!strncmp(cp, "key ", 4)) {
+            } else if (!strncmp(cp, "key ", 4)) {
                 keybind->key = atoi(cp + 4);
-            }
-            else if (!strncmp(cp, "mod ", 4)) {
+            } else if (!strncmp(cp, "mod ", 4)) {
                 keybind->mod = atoi(cp + 4);
-            }
-            else if (!strncmp(cp, "repeat ", 7)) {
+            } else if (!strncmp(cp, "repeat ", 7)) {
                 keybind->repeat = atoi(cp + 7);
             }
-        }
-        /* Keybinding definition start. */
-        else if (!strcmp(cp, "bind")) {
+        } else if (!strcmp(cp, "bind")) {
+            /* Keybinding definition start. */
             keybind = ecalloc(1, sizeof(*keybind));
         }
     }
@@ -232,7 +225,7 @@ keybind_struct *keybind_add(SDLKey key, SDLMod mod, const char *command)
     keybind->command = estrdup(command);
 
     /* Expand the keybindings array, and store the new keybinding. */
-    keybindings = realloc(keybindings, sizeof(*keybindings) * (keybindings_num + 1));
+    keybindings = erealloc(keybindings, sizeof(*keybindings) * (keybindings_num + 1));
     keybindings[keybindings_num] = keybind;
     keybindings_num++;
 
@@ -281,7 +274,7 @@ void keybind_remove(size_t i)
 
     /* Shrink the array. */
     keybindings_num--;
-    keybindings = realloc(keybindings, sizeof(*keybindings) * keybindings_num);
+    keybindings = erealloc(keybindings, sizeof(*keybindings) * keybindings_num);
 }
 
 /**
@@ -442,8 +435,7 @@ void keybind_process(keybind_struct *keybind, uint8 type)
 
         if (type == SDL_KEYDOWN) {
             keybind_process_command(cp);
-        }
-        else {
+        } else {
             keybind_process_command_up(cp);
         }
 
@@ -465,11 +457,9 @@ int keybind_process_command_up(const char *cmd)
         if (!strcmp(cmd, "RUNON")) {
             cpl.run_on = 0;
             move_keys(0);
-        }
-        else if (!strcmp(cmd, "FIREON")) {
+        } else if (!strcmp(cmd, "FIREON")) {
             cpl.fire_on = 0;
-        }
-        else if (!strncmp(cmd, "MOVE_", 5)) {
+        } else if (!strncmp(cmd, "MOVE_", 5)) {
             keybind_struct *keybind;
 
             cmd += 5;
@@ -517,88 +507,63 @@ int keybind_process_command(const char *cmd)
 
             if (!strcmp(cmd, "N")) {
                 move_keys(8);
-            }
-            else if (!strcmp(cmd, "NE")) {
+            } else if (!strcmp(cmd, "NE")) {
                 move_keys(9);
-            }
-            else if (!strcmp(cmd, "E")) {
+            } else if (!strcmp(cmd, "E")) {
                 move_keys(6);
-            }
-            else if (!strcmp(cmd, "SE")) {
+            } else if (!strcmp(cmd, "SE")) {
                 move_keys(3);
-            }
-            else if (!strcmp(cmd, "S")) {
+            } else if (!strcmp(cmd, "S")) {
                 move_keys(2);
-            }
-            else if (!strcmp(cmd, "SW")) {
+            } else if (!strcmp(cmd, "SW")) {
                 move_keys(1);
-            }
-            else if (!strcmp(cmd, "W")) {
+            } else if (!strcmp(cmd, "W")) {
                 move_keys(4);
-            }
-            else if (!strcmp(cmd, "NW")) {
+            } else if (!strcmp(cmd, "NW")) {
                 move_keys(7);
-            }
-            else if (!strcmp(cmd, "N")) {
+            } else if (!strcmp(cmd, "N")) {
                 move_keys(8);
-            }
-            else if (!strcmp(cmd, "STAY")) {
+            } else if (!strcmp(cmd, "STAY")) {
                 move_keys(5);
             }
-        }
-        else if (!strcmp(cmd, "CONSOLE")) {
+        } else if (!strcmp(cmd, "CONSOLE")) {
             widget_textwin_handle_console(NULL);
-        }
-        else if (!strcmp(cmd, "APPLY")) {
+        } else if (!strcmp(cmd, "APPLY")) {
             widget_inventory_handle_apply(cur_widget[cpl.inventory_focus]);
-        }
-        else if (!strcmp(cmd, "EXAMINE")) {
-            widget_inventory_handle_examine(cur_widget[cpl.inventory_focus]);
-        }
-        else if (!strcmp(cmd, "MARK")) {
-            widget_inventory_handle_mark(cur_widget[cpl.inventory_focus]);
-        }
-        else if (!strcmp(cmd, "LOCK")) {
-            widget_inventory_handle_lock(cur_widget[cpl.inventory_focus]);
-        }
-        else if (!strcmp(cmd, "GET")) {
-            widget_inventory_handle_get(cur_widget[cpl.inventory_focus]);
-        }
-        else if (!strcmp(cmd, "DROP")) {
-            widget_inventory_handle_drop(cur_widget[cpl.inventory_focus]);
-        }
-        else if (!strcmp(cmd, "HELP")) {
+        } else if (!strcmp(cmd, "EXAMINE")) {
+            menu_inventory_examine(cur_widget[cpl.inventory_focus], NULL, NULL);
+        } else if (!strcmp(cmd, "MARK")) {
+            menu_inventory_mark(cur_widget[cpl.inventory_focus], NULL, NULL);
+        } else if (!strcmp(cmd, "LOCK")) {
+            menu_inventory_lock(cur_widget[cpl.inventory_focus], NULL, NULL);
+        } else if (!strcmp(cmd, "GET")) {
+            menu_inventory_get(cur_widget[cpl.inventory_focus], NULL, NULL);
+        } else if (!strcmp(cmd, "DROP")) {
+            menu_inventory_drop(cur_widget[cpl.inventory_focus], NULL, NULL);
+        } else if (!strcmp(cmd, "HELP")) {
             help_show("main");
-        }
-        else if (!strcmp(cmd, "QLIST")) {
+        } else if (!strcmp(cmd, "QLIST")) {
             packet_struct *packet;
 
             packet = packet_new(SERVER_CMD_QUESTLIST, 0, 0);
             socket_send_packet(packet);
-        }
-        else if (!strcmp(cmd, "TARGET_ENEMY")) {
+        } else if (!strcmp(cmd, "TARGET_ENEMY")) {
             map_target_handle(0);
-        }
-        else if (!strcmp(cmd, "TARGET_FRIEND")) {
+        } else if (!strcmp(cmd, "TARGET_FRIEND")) {
             map_target_handle(1);
-        }
-        else if (!strcmp(cmd, "SPELL_LIST")) {
+        } else if (!strcmp(cmd, "SPELL_LIST")) {
             cur_widget[SPELLS_ID]->show = !cur_widget[SPELLS_ID]->show;
             SetPriorityWidget(cur_widget[SPELLS_ID]);
-        }
-        else if (!strcmp(cmd, "SKILL_LIST")) {
+        } else if (!strcmp(cmd, "SKILL_LIST")) {
             cur_widget[SKILLS_ID]->show = !cur_widget[SKILLS_ID]->show;
             SetPriorityWidget(cur_widget[SKILLS_ID]);
-        }
-        else if (!strcmp(cmd, "PARTY_LIST")) {
+        } else if (!strcmp(cmd, "PARTY_LIST")) {
             if (cur_widget[PARTY_ID]->show) {
                 cur_widget[PARTY_ID]->show = 0;
-            }
-            else {
+            } else {
                 send_command("/party list");
             }
-        }
-        else if (!strncmp(cmd, "MCON", 4)) {
+        } else if (!strncmp(cmd, "MCON", 4)) {
             cmd += 4;
 
             while (*cmd == ' ') {
@@ -606,43 +571,31 @@ int keybind_process_command(const char *cmd)
             }
 
             widget_textwin_handle_console(cmd);
-        }
-        else if (!strcmp(cmd, "UP")) {
+        } else if (!strcmp(cmd, "UP")) {
             widget_inventory_handle_arrow_key(cur_widget[cpl.inventory_focus], SDLK_UP);
-        }
-        else if (!strcmp(cmd, "DOWN")) {
+        } else if (!strcmp(cmd, "DOWN")) {
             widget_inventory_handle_arrow_key(cur_widget[cpl.inventory_focus], SDLK_DOWN);
-        }
-        else if (!strcmp(cmd, "LEFT")) {
+        } else if (!strcmp(cmd, "LEFT")) {
             widget_inventory_handle_arrow_key(cur_widget[cpl.inventory_focus], SDLK_LEFT);
-        }
-        else if (!strcmp(cmd, "RIGHT")) {
+        } else if (!strcmp(cmd, "RIGHT")) {
             widget_inventory_handle_arrow_key(cur_widget[cpl.inventory_focus], SDLK_RIGHT);
-        }
-        else if (!strncmp(cmd, "INVENTORY", 9)) {
-            inventory_toggle_display();
-        }
-        else if (!strncmp(cmd, "RUNON", 5)) {
+        } else if (!strncmp(cmd, "RUNON", 5)) {
             if (!strcmp(cmd + 5, "_TOGGLE")) {
                 if (cpl.run_on) {
                     move_keys(5);
                 }
 
                 cpl.run_on = !cpl.run_on;
-            }
-            else {
+            } else {
                 cpl.run_on = 1;
             }
-        }
-        else if (!strncmp(cmd, "FIREON", 6)) {
+        } else if (!strncmp(cmd, "FIREON", 6)) {
             if (!strcmp(cmd + 6, "_TOGGLE")) {
                 cpl.fire_on = !cpl.fire_on;
-            }
-            else {
+            } else {
                 cpl.fire_on = 1;
             }
-        }
-        else if (!strncmp(cmd, "QUICKSLOT_", 10)) {
+        } else if (!strncmp(cmd, "QUICKSLOT_", 10)) {
             cmd += 10;
 
             if (string_startswith(cmd, "GROUP_")) {
@@ -653,27 +606,25 @@ int keybind_process_command(const char *cmd)
 
                 if (strcmp(cmd, "NEXT") == 0) {
                     quickslots_scroll(widget, 0, 1);
-                }
-                else if (strcmp(cmd, "PREV") == 0) {
+                } else if (strcmp(cmd, "PREV") == 0) {
                     quickslots_scroll(widget, 1, 1);
+                } else if (strcmp(cmd, "CYCLE") == 0) {
+                    quickslots_cycle(widget);
                 }
-            }
-            else if (string_isdigit(cmd)) {
+            } else if (string_isdigit(cmd)) {
                 quickslots_handle_key(MAX(1, MIN(8, atoi(cmd))) - 1);
             }
-        }
-        else if (!strcmp(cmd, "COPY")) {
+        } else if (!strcmp(cmd, "COPY")) {
             textwin_handle_copy(NULL);
-        }
-        else if (!strcmp(cmd, "HELLO")) {
+        } else if (!strcmp(cmd, "HELLO")) {
             send_command_check("/talk 1 hello");
         }
 
         return 1;
-    }
-    else {
-        draw_info(COLOR_DGOLD, cmd);
-        send_command_check(cmd);
+    } else {
+        if (send_command_check(cmd)) {
+            draw_info(COLOR_DGOLD, cmd);
+        }
     }
 
     return 0;

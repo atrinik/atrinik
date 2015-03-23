@@ -1,26 +1,26 @@
-/************************************************************************
-*            Atrinik, a Multiplayer Online Role Playing Game            *
-*                                                                       *
-*    Copyright (C) 2009-2012 Alex Tokar and Atrinik Development Team    *
-*                                                                       *
-* Fork from Crossfire (Multiplayer game for X-windows).                 *
-*                                                                       *
-* This program is free software; you can redistribute it and/or modify  *
-* it under the terms of the GNU General Public License as published by  *
-* the Free Software Foundation; either version 2 of the License, or     *
-* (at your option) any later version.                                   *
-*                                                                       *
-* This program is distributed in the hope that it will be useful,       *
-* but WITHOUT ANY WARRANTY; without even the implied warranty of        *
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
-* GNU General Public License for more details.                          *
-*                                                                       *
-* You should have received a copy of the GNU General Public License     *
-* along with this program; if not, write to the Free Software           *
-* Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.             *
-*                                                                       *
-* The author can be reached at admin@atrinik.org                        *
-************************************************************************/
+/*************************************************************************
+ *           Atrinik, a Multiplayer Online Role Playing Game             *
+ *                                                                       *
+ *   Copyright (C) 2009-2014 Alex Tokar and Atrinik Development Team     *
+ *                                                                       *
+ * Fork from Crossfire (Multiplayer game for X-windows).                 *
+ *                                                                       *
+ * This program is free software; you can redistribute it and/or modify  *
+ * it under the terms of the GNU General Public License as published by  *
+ * the Free Software Foundation; either version 2 of the License, or     *
+ * (at your option) any later version.                                   *
+ *                                                                       *
+ * This program is distributed in the hope that it will be useful,       *
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of        *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
+ * GNU General Public License for more details.                          *
+ *                                                                       *
+ * You should have received a copy of the GNU General Public License     *
+ * along with this program; if not, write to the Free Software           *
+ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.             *
+ *                                                                       *
+ * The author can be reached at admin@atrinik.org                        *
+ ************************************************************************/
 
 /**
  * @file
@@ -79,7 +79,7 @@ static int popup_event(popup_struct *popup, SDL_Event *event)
 
         snprintf(buf, sizeof(buf), "%s:%s", text_input_server_host.str, text_input_server_port.str);
 
-        clioption_settings.servers = realloc(clioption_settings.servers, sizeof(*clioption_settings.servers) * (clioption_settings.servers_num + 1));
+        clioption_settings.servers = erealloc(clioption_settings.servers, sizeof(*clioption_settings.servers) * (clioption_settings.servers_num + 1));
         clioption_settings.servers[clioption_settings.servers_num] = estrdup(buf);
         clioption_settings.servers_num++;
 
@@ -99,13 +99,11 @@ static int popup_event(popup_struct *popup, SDL_Event *event)
         if (text_input_mouse_over(&text_input_server_host, event->button.x, event->button.y)) {
             text_input_server_port.focus = 0;
             text_input_server_host.focus = 1;
-        }
-        else if (text_input_mouse_over(&text_input_server_port, event->button.x, event->button.y)) {
+        } else if (text_input_mouse_over(&text_input_server_port, event->button.x, event->button.y)) {
             text_input_server_host.focus = 0;
             text_input_server_port.focus = 1;
         }
-    }
-    else if (event->type == SDL_KEYDOWN) {
+    } else if (event->type == SDL_KEYDOWN) {
         if (event->key.keysym.sym == SDLK_TAB) {
             text_input_server_host.focus = !text_input_server_host.focus;
             text_input_server_port.focus = !text_input_server_port.focus;

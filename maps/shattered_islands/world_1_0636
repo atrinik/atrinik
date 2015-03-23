@@ -16,6 +16,7 @@ tile_path_5 world_1_0737
 tile_path_6 world_1_0735
 bg_music kaitindam.mid
 region asteria
+tile_path_10 world_0636
 end
 arch magic_mirror
 slaying world_0636
@@ -1690,7 +1691,6 @@ y 23
 end
 arch blocked
 z 30
-blocksview 0
 x 18
 end
 arch wall_dungeon_3
@@ -1707,7 +1707,6 @@ x 18
 end
 arch blocked
 z 30
-blocksview 0
 x 18
 y 1
 end
@@ -1768,7 +1767,6 @@ y 5
 end
 arch blocked
 z 30
-blocksview 0
 x 18
 y 6
 end
@@ -1788,7 +1786,6 @@ y 6
 end
 arch blocked
 z 30
-blocksview 0
 x 18
 y 7
 end
@@ -1867,7 +1864,6 @@ y 13
 end
 arch blocked
 z 30
-blocksview 0
 x 18
 y 14
 end
@@ -1887,7 +1883,6 @@ y 14
 end
 arch blocked
 z 30
-blocksview 0
 x 18
 y 15
 end

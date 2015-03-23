@@ -1,26 +1,26 @@
-/************************************************************************
-*            Atrinik, a Multiplayer Online Role Playing Game            *
-*                                                                       *
-*    Copyright (C) 2009-2012 Alex Tokar and Atrinik Development Team    *
-*                                                                       *
-* Fork from Crossfire (Multiplayer game for X-windows).                 *
-*                                                                       *
-* This program is free software; you can redistribute it and/or modify  *
-* it under the terms of the GNU General Public License as published by  *
-* the Free Software Foundation; either version 2 of the License, or     *
-* (at your option) any later version.                                   *
-*                                                                       *
-* This program is distributed in the hope that it will be useful,       *
-* but WITHOUT ANY WARRANTY; without even the implied warranty of        *
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
-* GNU General Public License for more details.                          *
-*                                                                       *
-* You should have received a copy of the GNU General Public License     *
-* along with this program; if not, write to the Free Software           *
-* Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.             *
-*                                                                       *
-* The author can be reached at admin@atrinik.org                        *
-************************************************************************/
+/*************************************************************************
+ *           Atrinik, a Multiplayer Online Role Playing Game             *
+ *                                                                       *
+ *   Copyright (C) 2009-2014 Alex Tokar and Atrinik Development Team     *
+ *                                                                       *
+ * Fork from Crossfire (Multiplayer game for X-windows).                 *
+ *                                                                       *
+ * This program is free software; you can redistribute it and/or modify  *
+ * it under the terms of the GNU General Public License as published by  *
+ * the Free Software Foundation; either version 2 of the License, or     *
+ * (at your option) any later version.                                   *
+ *                                                                       *
+ * This program is distributed in the hope that it will be useful,       *
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of        *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
+ * GNU General Public License for more details.                          *
+ *                                                                       *
+ * You should have received a copy of the GNU General Public License     *
+ * along with this program; if not, write to the Free Software           *
+ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.             *
+ *                                                                       *
+ * The author can be reached at admin@atrinik.org                        *
+ ************************************************************************/
 
 /**
  * @file
@@ -73,7 +73,7 @@ bmap_struct *bmap_find(const char *name)
 
     idx = bmap_hash(name);
 
-    for (;; ) {
+    for (; ; ) {
         bmap = bmaps_default[idx];
 
         /* Not in the array. */
@@ -98,7 +98,7 @@ void bmap_add(bmap_struct *bmap)
 {
     unsigned long idx = bmap_hash(bmap->name), orig_idx = idx;
 
-    for (;; ) {
+    for (; ; ) {
         if (bmaps_default[idx] && !strcmp(bmaps_default[idx]->name, bmap->name)) {
             logger_print(LOG(BUG), "Double use of bmap name %s.", bmap->name);
         }
@@ -138,7 +138,7 @@ void read_bmaps_p0(void)
     }
 
     tmp_buf_size = 24 * 1024;
-    tmp_buf = malloc(tmp_buf_size);
+    tmp_buf = emalloc(tmp_buf_size);
 
     while (fgets(buf, sizeof(buf) - 1, fp) != NULL) {
         if (strncmp(buf, "IMAGE ", 6)) {
@@ -159,7 +159,7 @@ void read_bmaps_p0(void)
         /* Adjust the buffer if necessary. */
         if (len > tmp_buf_size) {
             tmp_buf_size = len;
-            tmp_buf = realloc(tmp_buf, tmp_buf_size);
+            tmp_buf = erealloc(tmp_buf, tmp_buf_size);
         }
 
         pos = ftell(fp);
@@ -180,7 +180,7 @@ void read_bmaps_p0(void)
             cp++;
         }
 
-        bmap = malloc(sizeof(bmap_struct));
+        bmap = emalloc(sizeof(bmap_struct));
         bmap->name = estrdup(cp);
         bmap->crc32 = crc32(1L, (const unsigned char FAR *) tmp_buf, len);
         bmap->len = len;
@@ -239,14 +239,13 @@ void read_bmaps(void)
         /* Find the bmap. */
         bmap = bmap_find(name);
         /* Expand the array. */
-        bmaps = realloc(bmaps, sizeof(*bmaps) * (bmaps_size + 1));
+        bmaps = erealloc(bmaps, sizeof(*bmaps) * (bmaps_size + 1));
 
         /* Does it exist, and the lengths and checksums match? */
         if (bmap && bmap->len == len && bmap->crc32 == crc) {
             bmaps[bmaps_size].pos = bmap->pos;
-        }
-        /* It doesn't exist in the atrinik.p0 file. */
-        else {
+        } else {
+            /* It doesn't exist in the atrinik.p0 file. */
             bmaps[bmaps_size].pos = -1;
         }
 
@@ -290,9 +289,7 @@ void finish_face_cmd(int facenum, uint32 checksum, char *face)
     }
 
     snprintf(buf, sizeof(buf), "%s.png", face);
-    FaceList[facenum].name = malloc(strlen(buf) + 1);
-    strcpy(FaceList[facenum].name, buf);
-
+    FaceList[facenum].name = estrdup(buf);
     FaceList[facenum].checksum = checksum;
 
     /* Check private cache first */
@@ -301,7 +298,7 @@ void finish_face_cmd(int facenum, uint32 checksum, char *face)
     if ((fp = fopen_wrapper(buf, "rb")) != NULL) {
         fstat(fileno (fp), &statbuf);
         len = statbuf.st_size;
-        data = malloc(len);
+        data = emalloc(len);
         len = fread(data, 1, len, fp);
         fclose(fp);
         newsum = 0;
@@ -310,9 +307,8 @@ void finish_face_cmd(int facenum, uint32 checksum, char *face)
         if (len <= 0) {
             unlink(buf);
             checksum = 1;
-        }
-        /* Checksum check */
-        else {
+        } else {
+            /* Checksum check */
             newsum = crc32(1L, data, len);
         }
 
@@ -348,7 +344,7 @@ static int load_picture_from_pack(int num)
 
     lseek(fileno(stream), bmaps[num].pos, SEEK_SET);
 
-    pbuf = malloc(bmaps[num].len);
+    pbuf = emalloc(bmaps[num].len);
 
     if (!fread(pbuf, bmaps[num].len, 1, stream)) {
         efree(pbuf);
@@ -386,7 +382,7 @@ static int load_gfx_user_face(uint16 num)
     if ((stream = fopen_wrapper(buf, "rb")) != NULL) {
         fstat(fileno(stream), &statbuf);
         len = statbuf.st_size;
-        data = malloc(len);
+        data = emalloc(len);
         len = fread(data, 1, len, stream);
         fclose(stream);
 
@@ -405,8 +401,7 @@ static int load_gfx_user_face(uint16 num)
 
             if (FaceList[num].sprite) {
                 snprintf(buf, sizeof(buf), DIRECTORY_GFX_USER "/%s.png", bmaps[num].name);
-                FaceList[num].name = malloc(strlen(buf) + 1);
-                strcpy(FaceList[num].name, buf);
+                FaceList[num].name = estrdup(buf);
                 FaceList[num].checksum = crc32(1L, data, len);
                 efree(data);
                 return 1;
@@ -448,16 +443,14 @@ int request_face(int pnum)
         return 1;
     }
 
-    /* Best case - we have it in atrinik.p0 */
     if (bmaps[num].pos != -1) {
+        /* Best case - we have it in atrinik.p0 */
         snprintf(buf, sizeof(buf), "%s.png", bmaps[num].name);
-        FaceList[num].name = malloc(strlen(buf) + 1);
-        strcpy(FaceList[num].name, buf);
+        FaceList[num].name = estrdup(buf);
         FaceList[num].checksum = bmaps[num].crc32;
         load_picture_from_pack(num);
-    }
-    /* Second best case - check the cache for it, or request it. */
-    else {
+    } else {
+        /* Second best case - check the cache for it, or request it. */
         FaceList[num].flags |= FACE_REQUESTED;
         finish_face_cmd(num, bmaps[num].crc32, bmaps[num].name);
     }
@@ -482,11 +475,9 @@ int get_bmap_id(char *name)
 
         if (cmp < 0) {
             r = x - 1;
-        }
-        else if (cmp > 0) {
+        } else if (cmp > 0) {
             l = x + 1;
-        }
-        else {
+        } else {
             request_face(x);
             return x;
         }

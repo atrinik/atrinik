@@ -1,26 +1,26 @@
-/************************************************************************
-*            Atrinik, a Multiplayer Online Role Playing Game            *
-*                                                                       *
-*    Copyright (C) 2009-2012 Alex Tokar and Atrinik Development Team    *
-*                                                                       *
-* Fork from Crossfire (Multiplayer game for X-windows).                 *
-*                                                                       *
-* This program is free software; you can redistribute it and/or modify  *
-* it under the terms of the GNU General Public License as published by  *
-* the Free Software Foundation; either version 2 of the License, or     *
-* (at your option) any later version.                                   *
-*                                                                       *
-* This program is distributed in the hope that it will be useful,       *
-* but WITHOUT ANY WARRANTY; without even the implied warranty of        *
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
-* GNU General Public License for more details.                          *
-*                                                                       *
-* You should have received a copy of the GNU General Public License     *
-* along with this program; if not, write to the Free Software           *
-* Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.             *
-*                                                                       *
-* The author can be reached at admin@atrinik.org                        *
-************************************************************************/
+/*************************************************************************
+ *           Atrinik, a Multiplayer Online Role Playing Game             *
+ *                                                                       *
+ *   Copyright (C) 2009-2014 Alex Tokar and Atrinik Development Team     *
+ *                                                                       *
+ * Fork from Crossfire (Multiplayer game for X-windows).                 *
+ *                                                                       *
+ * This program is free software; you can redistribute it and/or modify  *
+ * it under the terms of the GNU General Public License as published by  *
+ * the Free Software Foundation; either version 2 of the License, or     *
+ * (at your option) any later version.                                   *
+ *                                                                       *
+ * This program is distributed in the hope that it will be useful,       *
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of        *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
+ * GNU General Public License for more details.                          *
+ *                                                                       *
+ * You should have received a copy of the GNU General Public License     *
+ * along with this program; if not, write to the Free Software           *
+ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.             *
+ *                                                                       *
+ * The author can be reached at admin@atrinik.org                        *
+ ************************************************************************/
 
 /**
  * @file
@@ -122,8 +122,7 @@ static mapstruct *waypoint_load_dest(object *op, object *waypoint)
 
     if (waypoint->slaying == op->map->path) {
         destmap = op->map;
-    }
-    else {
+    } else {
         destmap = ready_map_name(waypoint->slaying, MAP_NAME_SHARED);
     }
 
@@ -139,7 +138,7 @@ void waypoint_compute_path(object *waypoint)
 {
     object *op = waypoint->env;
     mapstruct *destmap = op->map;
-    path_node *path;
+    path_node_t *path;
 
     /* Store final path destination (used by aggro wp) */
     if (QUERY_FLAG(waypoint, FLAG_DAMNED)) {
@@ -147,8 +146,7 @@ void waypoint_compute_path(object *waypoint)
             FREE_AND_COPY_HASH(waypoint->slaying, waypoint->enemy->map->path);
             waypoint->x = waypoint->stats.hp = waypoint->enemy->x;
             waypoint->y = waypoint->stats.sp = waypoint->enemy->y;
-        }
-        else {
+        } else {
             logger_print(LOG(BUG), "Dynamic waypoint without valid target: '%s'", waypoint->name);
             return;
         }
@@ -163,18 +161,27 @@ void waypoint_compute_path(object *waypoint)
         return;
     }
 
-    path = compress_path(find_path(op, op->map, op->x, op->y, destmap, waypoint->stats.hp, waypoint->stats.sp));
+    path = path_compress(path_find(op, op->map, op->x, op->y, destmap, waypoint->stats.hp, waypoint->stats.sp, NULL));
 
     if (!path) {
-        logger_print(LOG(BUG), "No path to destination ('%s' -> '%s')", op->name, waypoint->name);
+        if (!QUERY_FLAG(waypoint, FLAG_DAMNED)) {
+            log(LOG(BUG), "No path to destination ('%s', %s @ %d,%d -> "
+                    "'%s', %s @ %d,%d)", op->name, op->map->path, op->x, op->y,
+                    waypoint->name, destmap->path, waypoint->stats.hp,
+                    waypoint->stats.sp);
+        }
+
         return;
     }
 
-    /* Skip the first path element (always the starting position) */
-    path = path->next;
+    /* Skip the first path element (always the starting position), but only
+     * if it's not a node with an exit. */
+    if (!(path->flags & PATH_NODE_EXIT)) {
+        path = path->next;
 
-    if (!path) {
-        return;
+        if (!path) {
+            return;
+        }
     }
 
     /* Textually encoded path */
@@ -182,7 +189,7 @@ void waypoint_compute_path(object *waypoint)
     /* Map file for last local path step */
     FREE_AND_CLEAR_HASH(waypoint->race);
 
-    waypoint->msg = encode_path(path);
+    waypoint->msg = path_encode(path);
     /* Path offset */
     waypoint->stats.food = 0;
     /* Msg boundary */
@@ -194,7 +201,6 @@ void waypoint_compute_path(object *waypoint)
     waypoint->stats.Str = 0;
     /* Best distance */
     waypoint->stats.dam = 30000;
-    CLEAR_FLAG(waypoint, FLAG_CONFUSED);
 }
 
 /**
@@ -205,8 +211,9 @@ void waypoint_move(object *op, object *waypoint)
 {
     mapstruct *destmap;
     rv_vector local_rv, global_rv, *dest_rv;
-    int dir;
+    int dir, destx, desty;
     sint16 new_offset = 0;
+    uint32 destflags;
 
     if (!waypoint || !op || !op->map) {
         return;
@@ -221,8 +228,7 @@ void waypoint_move(object *op, object *waypoint)
             destmap = waypoint->enemy->map;
             waypoint->stats.hp = waypoint->enemy->x;
             waypoint->stats.sp = waypoint->enemy->y;
-        }
-        else {
+        } else {
             /* Owner has either switched or lost enemy. This should work for
              * both cases.
              * switched -> similar to if target moved
@@ -231,8 +237,7 @@ void waypoint_move(object *op, object *waypoint)
             waypoint->enemy_count = op->enemy_count;
             return;
         }
-    }
-    else if (waypoint->slaying) {
+    } else if (waypoint->slaying) {
         destmap = waypoint_load_dest(op, waypoint);
     }
 
@@ -242,6 +247,7 @@ void waypoint_move(object *op, object *waypoint)
     }
 
     if (!get_rangevector_from_mapcoords(op->map, op->x, op->y, destmap, waypoint->stats.hp, waypoint->stats.sp, &global_rv, RV_RECURSIVE_SEARCH | RV_DIAGONAL_DISTANCE)) {
+        log(LOG(DEBUG), "Could not find rv to: %s, %d, %d", destmap->path, waypoint->stats.hp, waypoint->stats.sp);
         /* Disable this waypoint */
         CLEAR_FLAG(waypoint, FLAG_CURSED);
         return;
@@ -250,7 +256,7 @@ void waypoint_move(object *op, object *waypoint)
     dest_rv = &global_rv;
 
     /* Reached the final destination? */
-    if ((int) global_rv.distance <= waypoint->stats.maxsp) {
+    if (global_rv.distance_z == 0 && (int) global_rv.distance <= waypoint->stats.maxsp) {
         object *nextwp = NULL;
 
         /* Just arrived? */
@@ -294,7 +300,6 @@ void waypoint_move(object *op, object *waypoint)
                 logger_print(LOG(DEBUG), "'%s' next waypoint: '%s'", op->name, waypoint->title);
 #endif
                 SET_FLAG(nextwp, FLAG_CURSED);
-                waypoint_move(op, get_active_waypoint(op));
             }
 #ifdef DEBUG_PATHFINDING
             else {
@@ -315,7 +320,7 @@ void waypoint_move(object *op, object *waypoint)
 
     /* If we finished our current path, clear it so that we can get a new one.
      * */
-    if (waypoint->msg && (waypoint->msg[waypoint->stats.food] == '\0' || global_rv.distance <= 0)) {
+    if (waypoint->msg && (waypoint->msg[waypoint->stats.food] == '\0' || (global_rv.distance_z == 0 && global_rv.distance <= 0))) {
         FREE_AND_CLEAR_HASH(waypoint->msg);
     }
 
@@ -325,7 +330,7 @@ void waypoint_move(object *op, object *waypoint)
 
         get_rangevector_from_mapcoords(destmap, waypoint->stats.hp, waypoint->stats.sp, destmap, waypoint->x, waypoint->y, &rv, RV_DIAGONAL_DISTANCE);
 
-        if (rv.distance > 1 && rv.distance > global_rv.distance) {
+        if (global_rv.distance_z != 0 || (rv.distance > 1 && rv.distance > global_rv.distance)) {
 #ifdef DEBUG_PATHFINDING
             logger_print(LOG(DEBUG), "Path distance = %d for '%s' -> '%s'. Discarding old path.", rv.distance, op->name, op->enemy->name);
 #endif
@@ -334,26 +339,25 @@ void waypoint_move(object *op, object *waypoint)
     }
 
     /* Are we far enough from the target to require a path? */
-    if (global_rv.distance > 1) {
+    if (global_rv.distance_z != 0 || global_rv.distance > 1) {
         if (!waypoint->msg) {
             /* Request a path if we don't have one */
-            request_new_path(waypoint);
-        }
-        else {
+            path_request(waypoint);
+        } else {
             /* If we have precalculated path, take direction to next subwaypoint
              * */
-            int destx = waypoint->stats.hp, desty = waypoint->stats.sp;
+            destx = waypoint->stats.hp;
+            desty = waypoint->stats.sp;
 
             new_offset = waypoint->stats.food;
 
-            if (new_offset < waypoint->attacked_by_distance && get_path_next(waypoint->msg, &new_offset, &waypoint->race, &destmap, &destx, &desty)) {
+            if (new_offset < waypoint->attacked_by_distance && path_get_next(waypoint->msg, &new_offset, &waypoint->race, &destmap, &destx, &desty, &destflags)) {
                 get_rangevector_from_mapcoords(op->map, op->x, op->y, destmap, destx, desty, &local_rv, RV_RECURSIVE_SEARCH | RV_DIAGONAL_DISTANCE);
                 dest_rv = &local_rv;
-            }
-            else {
+            } else {
                 /* We seem to have an invalid path string or offset. */
                 FREE_AND_CLEAR_HASH(waypoint->msg);
-                request_new_path(waypoint);
+                path_request(waypoint);
             }
         }
     }
@@ -363,8 +367,7 @@ void waypoint_move(object *op, object *waypoint)
         waypoint->stats.dam = dest_rv->distance;
         /* Number of times we failed getting closer to (sub)goal */
         waypoint->stats.Str = 0;
-    }
-    else if (waypoint->stats.Str++ > 4) {
+    } else if (dest_rv->distance_z == 0 && waypoint->stats.Str++ > 4) {
         /* Discard the current path, so that we can get a new one */
         FREE_AND_CLEAR_HASH(waypoint->msg);
 
@@ -381,7 +384,9 @@ void waypoint_move(object *op, object *waypoint)
         }
     }
 
-    if (global_rv.distance > 1 && !waypoint->msg && QUERY_FLAG(waypoint, FLAG_CONFUSED)) {
+    if ((global_rv.distance_z != 0 || global_rv.distance > 1) &&
+            !waypoint->msg && QUERY_FLAG(waypoint, FLAG_WP_PATH_REQUESTED) &&
+            !QUERY_FLAG(waypoint, FLAG_DAMNED)) {
 #ifdef DEBUG_PATHFINDING
         logger_print(LOG(DEBUG), "No path found. '%s' standing still.", op->name);
 #endif
@@ -397,7 +402,7 @@ void waypoint_move(object *op, object *waypoint)
 
     if (dir && !QUERY_FLAG(op, FLAG_STAND_STILL)) {
         /* Can the monster move directly toward waypoint? */
-        if (!move_object(op, dir)) {
+        if (dest_rv->distance != 0 && !move_object(op, dir)) {
             int diff;
 
             /* Try move around corners otherwise */
@@ -414,6 +419,19 @@ void waypoint_move(object *op, object *waypoint)
         /* If we had a local destination and we got close enough to it, accept
          * it. */
         if (dest_rv == &local_rv && dest_rv->distance == 1) {
+            if (destflags & PATH_NODE_EXIT && op->map == destmap &&
+                    op->x == destx && op->y == desty) {
+                object *tmp;
+
+                for (tmp = GET_MAP_OB(op->map, op->x, op->y); tmp != NULL;
+                        tmp = tmp->above) {
+                    if (tmp->type == EXIT) {
+                        object_apply(tmp, op, 0);
+                        break;
+                    }
+                }
+            }
+
             waypoint->stats.food = new_offset;
             /* Number of fails */
             waypoint->stats.Str = 0;

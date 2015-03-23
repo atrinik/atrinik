@@ -1847,7 +1847,7 @@ arch ogre
 name ogre rock thrower
 type 83
 level 6
-Dex 2
+dex 2
 can_use_bow 1
 arch ability_stone_throw
 end
@@ -1927,7 +1927,7 @@ arch ogre
 name ogre rock thrower
 type 83
 level 7
-Dex 2
+dex 2
 can_use_bow 1
 arch ability_stone_throw
 end

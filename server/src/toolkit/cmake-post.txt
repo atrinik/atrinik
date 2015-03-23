@@ -1,29 +1,39 @@
-target_link_libraries(${EXECUTABLE} ${CURL_LIBRARY})
-target_link_libraries(${EXECUTABLE} ${ZLIB_LIBRARY})
+target_link_libraries(${EXECUTABLE} ${CURL_LIBRARIES})
+
+target_link_libraries(${EXECUTABLE} ${CMAKE_THREAD_LIBS_INIT})
+
+if (MINGW)
+    target_link_libraries(${EXECUTABLE} wsock32 idn wldap32 ssh2 rtmp winmm
+            ws2_32 imagehlp)
+endif ()
+
+target_link_libraries(${EXECUTABLE} ${ZLIB_LIBRARIES})
 
 # Link math...
 if (MATH_LIBRARY)
-	target_link_libraries(${EXECUTABLE} ${MATH_LIBRARY})
-endif (MATH_LIBRARY)
+    target_link_libraries(${EXECUTABLE} ${MATH_LIBRARY})
+endif ()
 
 # Link crypt.
 if (CRYPT_LIBRARY)
-	target_link_libraries(${EXECUTABLE} ${CRYPT_LIBRARY})
-endif (CRYPT_LIBRARY)
+    target_link_libraries(${EXECUTABLE} ${CRYPT_LIBRARY})
+endif ()
 
 # Link readline if available.
 if (HAVE_READLINE)
-	target_link_libraries(${EXECUTABLE} ${READLINE_LIBRARY})
-endif (HAVE_READLINE)
+    target_link_libraries(${EXECUTABLE} ${READLINE_LIBRARY})
+endif ()
 
 # Link X11 if available.
 if (HAVE_X11)
-	target_link_libraries(${EXECUTABLE} ${X11_LIBRARIES})
-endif (HAVE_X11)
+    target_link_libraries(${EXECUTABLE} ${X11_LIBRARIES})
+endif ()
 
 # Link X11 XMU if available.
 if (HAVE_X11_XMU)
-	target_link_libraries(${EXECUTABLE} ${X11_XMU_LIBRARY})
-endif (HAVE_X11_XMU)
+    target_link_libraries(${EXECUTABLE} ${X11_XMU_LIBRARY})
+endif ()
 
 target_link_libraries(${EXECUTABLE} ${OPENSSL_LIBRARIES})
+
+add_dependencies(${EXECUTABLE} git_branch)

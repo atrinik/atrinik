@@ -1502,7 +1502,7 @@ y 5
 end
 arch client_map_info
 msg
-[font=serif.ttf 40]Strakewood Island[/font]
+[font=serif 40]Strakewood Island[/font]
 endmsg
 name strakewood_island
 sub_type 1

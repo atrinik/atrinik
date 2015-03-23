@@ -1,26 +1,26 @@
-/************************************************************************
-*            Atrinik, a Multiplayer Online Role Playing Game            *
-*                                                                       *
-*    Copyright (C) 2009-2012 Alex Tokar and Atrinik Development Team    *
-*                                                                       *
-* Fork from Crossfire (Multiplayer game for X-windows).                 *
-*                                                                       *
-* This program is free software; you can redistribute it and/or modify  *
-* it under the terms of the GNU General Public License as published by  *
-* the Free Software Foundation; either version 2 of the License, or     *
-* (at your option) any later version.                                   *
-*                                                                       *
-* This program is distributed in the hope that it will be useful,       *
-* but WITHOUT ANY WARRANTY; without even the implied warranty of        *
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
-* GNU General Public License for more details.                          *
-*                                                                       *
-* You should have received a copy of the GNU General Public License     *
-* along with this program; if not, write to the Free Software           *
-* Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.             *
-*                                                                       *
-* The author can be reached at admin@atrinik.org                        *
-************************************************************************/
+/*************************************************************************
+ *           Atrinik, a Multiplayer Online Role Playing Game             *
+ *                                                                       *
+ *   Copyright (C) 2009-2014 Alex Tokar and Atrinik Development Team     *
+ *                                                                       *
+ * Fork from Crossfire (Multiplayer game for X-windows).                 *
+ *                                                                       *
+ * This program is free software; you can redistribute it and/or modify  *
+ * it under the terms of the GNU General Public License as published by  *
+ * the Free Software Foundation; either version 2 of the License, or     *
+ * (at your option) any later version.                                   *
+ *                                                                       *
+ * This program is distributed in the hope that it will be useful,       *
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of        *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
+ * GNU General Public License for more details.                          *
+ *                                                                       *
+ * You should have received a copy of the GNU General Public License     *
+ * along with this program; if not, write to the Free Software           *
+ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.             *
+ *                                                                       *
+ * The author can be reached at admin@atrinik.org                        *
+ ************************************************************************/
 
 /**
  * @file
@@ -49,8 +49,7 @@
 
 #define EXP_PROGRESS_BUBBLES 10
 
-typedef struct Stat_struct
-{
+typedef struct Stat_struct {
     sint8 Str, Dex, Con, Int, Pow;
 
     /** Weapon class. */
@@ -83,17 +82,17 @@ typedef struct Stat_struct
     /** How much damage the player does when hitting. */
     sint16 dam;
 
-    /** Player's speed; gets converted to a float for display. */
-    sint32 speed;
+    /** Player's speed. */
+    float speed;
 
     /** Weapon speed. */
-    double weapon_speed;
+    float weapon_speed;
 
     /** Contains fire on/run on flags. */
     uint16 flags;
 
     /** Protections. */
-    sint16 protection[20];
+    sint8 protection[CS_STAT_PROT_END - CS_STAT_PROT_START + 1];
 
     /** Ranged weapon damage. */
     sint16 ranged_dam;
@@ -102,12 +101,11 @@ typedef struct Stat_struct
     sint16 ranged_wc;
 
     /** Ranged weapon speed. */
-    sint32 ranged_ws;
+    float ranged_ws;
 } Stats;
 
 /** The player structure. */
-typedef struct Player_Struct
-{
+typedef struct Player_Struct {
     /** Player object. */
     object *ob;
 
@@ -121,7 +119,7 @@ typedef struct Player_Struct
     sint32 container_tag;
 
     /** Player's weight limit. */
-    double weight_limit;
+    float weight_limit;
 
     /** Are we a DM? */
     int dm;
@@ -169,9 +167,6 @@ typedef struct Player_Struct
 
     /** Player's name. */
     char name[40];
-
-    /** Rank and name of char. */
-    char ext_title[MAX_BUF];
 
     /** Party name this player is member of. */
     char partyname[MAX_BUF];

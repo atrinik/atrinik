@@ -1,26 +1,26 @@
-/************************************************************************
-*            Atrinik, a Multiplayer Online Role Playing Game            *
-*                                                                       *
-*    Copyright (C) 2009-2012 Alex Tokar and Atrinik Development Team    *
-*                                                                       *
-* Fork from Crossfire (Multiplayer game for X-windows).                 *
-*                                                                       *
-* This program is free software; you can redistribute it and/or modify  *
-* it under the terms of the GNU General Public License as published by  *
-* the Free Software Foundation; either version 2 of the License, or     *
-* (at your option) any later version.                                   *
-*                                                                       *
-* This program is distributed in the hope that it will be useful,       *
-* but WITHOUT ANY WARRANTY; without even the implied warranty of        *
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
-* GNU General Public License for more details.                          *
-*                                                                       *
-* You should have received a copy of the GNU General Public License     *
-* along with this program; if not, write to the Free Software           *
-* Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.             *
-*                                                                       *
-* The author can be reached at admin@atrinik.org                        *
-************************************************************************/
+/*************************************************************************
+ *           Atrinik, a Multiplayer Online Role Playing Game             *
+ *                                                                       *
+ *   Copyright (C) 2009-2014 Alex Tokar and Atrinik Development Team     *
+ *                                                                       *
+ * Fork from Crossfire (Multiplayer game for X-windows).                 *
+ *                                                                       *
+ * This program is free software; you can redistribute it and/or modify  *
+ * it under the terms of the GNU General Public License as published by  *
+ * the Free Software Foundation; either version 2 of the License, or     *
+ * (at your option) any later version.                                   *
+ *                                                                       *
+ * This program is distributed in the hope that it will be useful,       *
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of        *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
+ * GNU General Public License for more details.                          *
+ *                                                                       *
+ * You should have received a copy of the GNU General Public License     *
+ * along with this program; if not, write to the Free Software           *
+ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.             *
+ *                                                                       *
+ * The author can be reached at admin@atrinik.org                        *
+ ************************************************************************/
 
 /**
  * @file
@@ -49,8 +49,7 @@ void find_in_layout(int mode, char target, int *fx, int *fy, char **layout, RMPa
     /* if a starting point isn't given, pick one */
     if (mode < 1 || mode > 4) {
         M = RANDOM() % 4 + 1;
-    }
-    else {
+    } else {
         M = mode;
     }
 
@@ -59,72 +58,72 @@ void find_in_layout(int mode, char target, int *fx, int *fy, char **layout, RMPa
      *    the same damned thing every time. */
     switch (M) {
         /* Search from top left down/right */
-        case 1:
-        {
-            for (x = 1; x < RP->Xsize; x++) {
-                for (y = 1; y < RP->Ysize; y++) {
-                    if (layout[x][y] == target) {
-                        *fx = x;
-                        *fy = y;
+    case 1:
+    {
+        for (x = 1; x < RP->Xsize; x++) {
+            for (y = 1; y < RP->Ysize; y++) {
+                if (layout[x][y] == target) {
+                    *fx = x;
+                    *fy = y;
 
-                        return;
-                    }
+                    return;
                 }
             }
-
-            break;
         }
+
+        break;
+    }
 
         /* Search from top right down/left */
-        case 2:
-        {
-            for (x = RP->Xsize - 2; x > 0; x--) {
-                for (y = 1; y < RP->Ysize - 1; y++) {
-                    if (layout[x][y] == target) {
-                        *fx = x;
-                        *fy = y;
+    case 2:
+    {
+        for (x = RP->Xsize - 2; x > 0; x--) {
+            for (y = 1; y < RP->Ysize - 1; y++) {
+                if (layout[x][y] == target) {
+                    *fx = x;
+                    *fy = y;
 
-                        return;
-                    }
+                    return;
                 }
             }
-
-            break;
         }
+
+        break;
+    }
 
         /* Search from bottom-left up-right */
-        case 3:
-        {
-            for (x = 1; x < RP->Xsize - 1; x++) {
-                for (y = RP->Ysize - 2; y > 0; y--) {
-                    if (layout[x][y] == target) {
-                        *fx = x;
-                        *fy = y;
+    case 3:
+    {
+        for (x = 1; x < RP->Xsize - 1; x++) {
+            for (y = RP->Ysize - 2; y > 0; y--) {
+                if (layout[x][y] == target) {
+                    *fx = x;
+                    *fy = y;
 
-                        return;
-                    }
+                    return;
                 }
             }
-
-            break;
         }
+
+        break;
+    }
 
         /* Search from bottom-right up-left */
-        case 4:
-        {
-            for (x = RP->Xsize - 2; x > 0; x--) {
-                for (y = RP->Ysize - 2; y > 0; y--) {
-                    if (layout[x][y] == target) {
-                        *fx = x;
-                        *fy = y;
+    case 4:
+    {
+        for (x = RP->Xsize - 2; x > 0; x--) {
+            for (y = RP->Ysize - 2; y > 0; y--) {
+                if (layout[x][y] == target) {
+                    *fx = x;
+                    *fy = y;
 
-                        return;
-                    }
+                    return;
                 }
             }
-
-            break;
         }
+
+        break;
+    }
     }
 }
 
@@ -156,29 +155,28 @@ void place_exits(mapstruct *map, char **maze, char *exitstyle, int orientation, 
     }
 
     switch (orientation) {
-        case 1:
-            style_map_up = find_style("/styles/exitstyles/up", exitstyle, -1);
-            style_map_down = find_style("/styles/exitstyles/down", exitstyle, -1);
+    case 1:
+        style_map_up = find_style("/styles/exitstyles/up", exitstyle, -1);
+        style_map_down = find_style("/styles/exitstyles/down", exitstyle, -1);
 
-            break;
+        break;
 
-        case 2:
-            style_map_up = find_style("/styles/exitstyles/down", exitstyle, -1);
-            style_map_down = find_style("/styles/exitstyles/up", exitstyle, -1);
+    case 2:
+        style_map_up = find_style("/styles/exitstyles/down", exitstyle, -1);
+        style_map_down = find_style("/styles/exitstyles/up", exitstyle, -1);
 
-            break;
+        break;
 
-        default:
-            style_map_up = find_style("/styles/exitstyles/generic", exitstyle, -1);
-            style_map_down = style_map_up;
+    default:
+        style_map_up = find_style("/styles/exitstyles/generic", exitstyle, -1);
+        style_map_down = style_map_up;
 
-            break;
+        break;
     }
 
     if (style_map_up == NULL) {
         the_exit_up = arch_to_object(find_archetype("exit"));
-    }
-    else {
+    } else {
         object *tmp = pick_random_object(style_map_up);
         the_exit_up = arch_to_object(tmp->arch);
     }
@@ -187,13 +185,11 @@ void place_exits(mapstruct *map, char **maze, char *exitstyle, int orientation, 
     if (RP->dungeon_level < RP->dungeon_depth || RP->final_map[0] != 0) {
         if (style_map_down == NULL) {
             the_exit_down = arch_to_object(find_archetype("exit"));
-        }
-        else {
+        } else {
             object *tmp = pick_random_object(style_map_down);
             the_exit_down = arch_to_object(tmp->arch);
         }
-    }
-    else {
+    } else {
         the_exit_down = NULL;
     }
 
@@ -214,29 +210,24 @@ void place_exits(mapstruct *map, char **maze, char *exitstyle, int orientation, 
     if (upx == -1 && cx != -1) {
         if (cx > RP->Xsize / 2) {
             upx = 1;
-        }
-        else {
+        } else {
             upx = RP->Xsize - 2;
         }
 
         if (cy > RP->Ysize / 2) {
             upy = 1;
-        }
-        else {
+        } else {
             upy = RP->Ysize - 2;
         }
 
         /* find an empty place far from the center */
         if (upx == 1 && upy == 1) {
             find_in_layout(1, 0, &upx, &upy, maze, RP);
-        }
-        else if (upx == 1 && upy > 1) {
+        } else if (upx == 1 && upy > 1) {
             find_in_layout(3, 0, &upx, &upy, maze, RP);
-        }
-        else if (upx > 1 && upy == 1) {
+        } else if (upx > 1 && upy == 1) {
             find_in_layout(2, 0, &upx, &upy, maze, RP);
-        }
-        else if (upx > 1 && upy > 1) {
+        } else if (upx > 1 && upy > 1) {
             find_in_layout(4, 0, &upx, &upy, maze, RP);
         }
     }
@@ -287,29 +278,24 @@ void place_exits(mapstruct *map, char **maze, char *exitstyle, int orientation, 
     if (downx == -1) {
         if (upx > RP->Xsize / 2) {
             downx = 1;
-        }
-        else {
+        } else {
             downx = RP->Xsize - 2;
         }
 
         if (upy > RP->Ysize / 2) {
             downy = 1;
-        }
-        else {
+        } else {
             downy = RP->Ysize - 2;
         }
 
         /* find an empty place far from the entrance */
         if (downx == 1 && downy == 1) {
             find_in_layout(1, 0, &downx, &downy, maze, RP);
-        }
-        else if (downx == 1 && downy > 1) {
+        } else if (downx == 1 && downy > 1) {
             find_in_layout(3, 0, &downx, &downy, maze, RP);
-        }
-        else if (downx > 1 && downy == 1) {
+        } else if (downx > 1 && downy == 1) {
             find_in_layout(2, 0, &downx, &downy, maze, RP);
-        }
-        else if (downx > 1 && downy > 1) {
+        } else if (downx > 1 && downy > 1) {
             find_in_layout(4, 0, &downx, &downy, maze, RP);
         }
     }
@@ -368,8 +354,7 @@ void place_exits(mapstruct *map, char **maze, char *exitstyle, int orientation, 
 
             /* So it gets swapped out */
             set_map_timeout(new_map);
-        }
-        else {
+        } else {
             char buf[2048];
 
             write_map_parameters_to_string(buf, RP);

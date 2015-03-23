@@ -694,7 +694,6 @@ x 6
 y 4
 end
 arch blocked
-blocksview 0
 x 6
 y 5
 end
@@ -715,8 +714,6 @@ x 6
 y 5
 end
 arch blocked
-hidden 1
-blocksview 0
 no_pass 0
 x 6
 y 6
@@ -837,8 +834,6 @@ x 7
 y 4
 end
 arch blocked
-hidden 1
-blocksview 0
 no_pass 0
 x 7
 y 5
@@ -872,9 +867,7 @@ x 7
 y 5
 end
 arch blocked
-hidden 1
 no_pass 0
-blocksview 0
 x 7
 y 6
 end

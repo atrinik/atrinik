@@ -31,8 +31,8 @@ extern void socket_command_compressed(uint8 *data, size_t len, size_t pos);
 extern void socket_command_control(uint8 *data, size_t len, size_t pos);
 /* src/client/curl.c */
 extern int curl_connect(void *c_data);
-extern curl_data *curl_data_new(const char *url);
-extern curl_data *curl_download_start(const char *url);
+extern curl_data *curl_data_new(const char *url, const char *path);
+extern curl_data *curl_download_start(const char *url, const char *path);
 extern sint8 curl_download_finished(curl_data *data);
 extern double curl_download_sizeinfo(curl_data *data, CURLINFO info);
 extern char *curl_download_speedinfo(curl_data *data, char *buf, size_t bufsize);
@@ -58,10 +58,12 @@ extern void object_remove_inventory(object *op);
 extern object *object_create(object *env, sint32 tag, int bflag);
 extern void toggle_locked(object *op);
 extern void object_send_mark(object *op);
+extern void object_redraw(object *op);
 extern void objects_deinit(void);
 extern void objects_init(void);
+extern int object_animate(object *ob);
 extern void animate_objects(void);
-extern void object_show_centered(SDL_Surface *surface, object *tmp, int x, int y);
+extern void object_show_centered(SDL_Surface *surface, object *tmp, int x, int y, int w, int h);
 /* src/client/keybind.c */
 extern keybind_struct **keybindings;
 extern size_t keybindings_num;
@@ -85,12 +87,14 @@ extern int keybind_process_command(const char *cmd);
 /* src/client/main.c */
 extern SDL_Surface *ScreenSurface;
 extern struct sockaddr_in insock;
+extern ClientSocket csocket;
 extern server_struct *selected_server;
 extern uint32 LastTick;
 extern texture_struct *cursor_texture;
 extern int cursor_x;
 extern int cursor_y;
 extern int map_redraw_flag;
+extern int minimap_redraw_flag;
 extern _anim_table *anim_table;
 extern Animations *animations;
 extern size_t animations_num;
@@ -98,12 +102,14 @@ extern struct screensize *Screensize;
 extern _face_struct FaceList[32767];
 extern struct msg_anim_struct msg_anim;
 extern clioption_settings_struct clioption_settings;
+extern void keepalive_ping_stats(void);
+extern void socket_command_keepalive(uint8 *data, size_t len, size_t pos);
 extern void list_vid_modes(void);
 extern void clioption_settings_deinit(void);
 extern int main(int argc, char *argv[]);
 /* src/client/menu.c */
 extern int client_command_check(const char *cmd);
-extern void send_command_check(const char *cmd);
+extern int send_command_check(const char *cmd);
 /* src/client/metaserver.c */
 extern void metaserver_init(void);
 extern void metaserver_disable(void);
@@ -111,7 +117,7 @@ extern server_struct *server_get_id(size_t num);
 extern size_t server_get_count(void);
 extern int ms_connecting(int val);
 extern void metaserver_clear_data(void);
-extern void metaserver_add(const char *ip, int port, const char *name, int player, const char *version, const char *desc);
+extern void metaserver_add(const char *ip, int port, const char *name, const char *hostname, int player, const char *version, const char *desc);
 extern int metaserver_thread(void *dummy);
 extern void metaserver_get_servers(void);
 /* src/client/misc.c */
@@ -136,7 +142,7 @@ extern void send_command(const char *command);
 extern void init_player_data(void);
 extern int gender_to_id(const char *gender);
 extern void player_draw_exp_progress(SDL_Surface *surface, int x, int y, sint64 xp, uint8 level);
-extern char *player_make_path(const char *path);
+/* src/client/region_map.c */
 /* src/client/server_files.c */
 extern void server_files_init(void);
 extern void server_files_deinit(void);
@@ -211,7 +217,6 @@ extern void sound_ambient_clear(void);
 extern void socket_command_sound_ambient(uint8 *data, size_t len, size_t pos);
 extern int sound_playing_music(void);
 /* src/client/sprite.c */
-extern struct _anim *start_anim;
 extern SDL_Surface *FormatHolder;
 extern void sprite_init_system(void);
 extern sprite_struct *sprite_load_file(char *fname, uint32 flags);
@@ -224,9 +229,6 @@ extern void map_sprite_show(SDL_Surface *surface, int x, int y, SDL_Rect *srcrec
 extern Uint32 getpixel(SDL_Surface *surface, int x, int y);
 extern void putpixel(SDL_Surface *surface, int x, int y, Uint32 pixel);
 extern int surface_borders_get(SDL_Surface *surface, int *top, int *bottom, int *left, int *right, uint32 color);
-extern struct _anim *add_anim(int type, int mapx, int mapy, int value);
-extern void remove_anim(struct _anim *anim);
-extern void play_anims(void);
 extern int sprite_collision(int x, int y, int x2, int y2, sprite_struct *sprite1, sprite_struct *sprite2);
 extern void surface_pan(SDL_Surface *surface, SDL_Rect *box);
 extern void draw_frame(SDL_Surface *surface, int x, int y, int w, int h);
@@ -237,6 +239,7 @@ extern void border_create_color(SDL_Surface *surface, SDL_Rect *coords, int thic
 extern void border_create_texture(SDL_Surface *surface, SDL_Rect *coords, int thickness, SDL_Surface *texture);
 extern void rectangle_create(SDL_Surface *surface, int x, int y, int w, int h, const char *color_notation);
 extern void surface_set_alpha(SDL_Surface *surface, uint8 alpha);
+extern int polygon_check_coords(double x, double y, double corners_x[], double corners_y[], int corners_num);
 /* src/client/texture.c */
 extern void texture_init(void);
 extern void texture_deinit(void);
@@ -246,6 +249,7 @@ extern void texture_gc(void);
 extern texture_struct *texture_get(texture_type_t type, const char *name);
 extern SDL_Surface *texture_surface(texture_struct *texture);
 /* src/client/tilestretcher.c */
+extern int tilestretcher_coords_in_tile(uint32 stretch, int x, int y);
 extern int add_color_to_surface(SDL_Surface *dest, Uint8 red, Uint8 green, Uint8 blue);
 extern int copy_pixel_to_pixel(SDL_Surface *src, SDL_Surface *dest, int x, int y, int x2, int y2, float brightness);
 extern int copy_vertical_line(SDL_Surface *src, SDL_Surface *dest, int src_x, int src_sy, int src_ey, int dest_x, int dest_sy, int dest_ey, float brightness, int extra);
@@ -276,13 +280,16 @@ extern void copy_rec(const char *src, const char *dst);
 extern const char *get_config_dir(void);
 extern void get_data_dir_file(char *buf, size_t len, const char *fname);
 extern char *file_path(const char *fname, const char *mode);
+extern char *file_path_player(const char *path);
+extern char *file_path_server(const char *path);
 extern FILE *fopen_wrapper(const char *fname, const char *mode);
 extern SDL_Surface *IMG_Load_wrapper(const char *file);
 extern TTF_Font *TTF_OpenFont_wrapper(const char *file, int ptsize);
 /* src/events/event.c */
-extern int old_mouse_y;
 extern int event_dragging_check(void);
+extern int event_dragging_need_redraw(void);
 extern void event_dragging_start(int tag, int mx, int my);
+extern void event_dragging_set_callback(event_drag_cb_fnc fnc);
 extern void event_dragging_stop(void);
 extern void resize_window(int width, int height);
 extern int Event_PollInputDevice(void);
@@ -306,6 +313,7 @@ extern void effect_sprite_def_free(effect_sprite_def *sprite_def);
 extern void effect_sprite_free(effect_sprite *sprite);
 extern void effect_sprite_remove(effect_sprite *sprite);
 extern void effect_sprites_play(void);
+extern void effect_frames(int frames);
 extern int effect_start(const char *name);
 extern void effect_debug(const char *type);
 extern void effect_stop(void);
@@ -341,8 +349,7 @@ extern void interface_redraw(void);
 /* src/gui/popups/login.c */
 extern void login_start(void);
 /* src/gui/popups/region_map.c */
-extern void region_map_clear(void);
-extern void socket_command_region_map(uint8 *data, size_t len, size_t pos);
+extern void region_map_open(void);
 /* src/gui/popups/server_add.c */
 extern void server_add_open(void);
 /* src/gui/popups/settings.c */
@@ -450,11 +457,12 @@ extern SDL_Surface *shrinkSurface(SDL_Surface *src, int factorx, int factory);
 /* src/gui/toolkit/button.c */
 extern void button_init(void);
 extern void button_create(button_struct *button);
+extern void button_destroy(button_struct *button);
 extern void button_set_parent(button_struct *button, int px, int py);
+extern void button_set_font(button_struct *button, font_struct *font);
 extern int button_need_redraw(button_struct *button);
 extern void button_show(button_struct *button, const char *text);
 extern int button_event(button_struct *button, SDL_Event *event);
-extern void button_tooltip(button_struct *button, int font, const char *text);
 /* src/gui/toolkit/color_picker.c */
 extern void color_picker_create(color_picker_struct *color_picker, int size);
 extern void color_picker_set_parent(color_picker_struct *color_picker, int px, int py);
@@ -469,7 +477,7 @@ extern list_struct *list_create(uint32 max_rows, uint32 cols, int spacing);
 extern void list_add(list_struct *list, uint32 row, uint32 col, const char *str);
 extern void list_remove_row(list_struct *list, uint32 row);
 extern void list_set_column(list_struct *list, uint32 col, int width, int spacing, const char *name, int centered);
-extern void list_set_font(list_struct *list, int font);
+extern void list_set_font(list_struct *list, font_struct *font);
 extern void list_scrollbar_enable(list_struct *list);
 extern int list_need_redraw(list_struct *list);
 extern void list_show(list_struct *list, int x, int y);
@@ -483,6 +491,7 @@ extern int list_handle_mouse(list_struct *list, SDL_Event *event);
 extern int list_mouse_get_pos(list_struct *list, int mx, int my, uint32 *row, uint32 *col);
 extern void list_sort(list_struct *list, int type);
 extern int list_set_selected(list_struct *list, const char *str, uint32 col);
+extern const char *list_get_selected(list_struct *list, uint32 col);
 /* src/gui/toolkit/popup.c */
 extern popup_struct *popup_create(texture_struct *texture);
 extern void popup_destroy(popup_struct *popup);
@@ -492,6 +501,7 @@ extern void popup_render_all(void);
 extern int popup_handle_event(SDL_Event *event);
 extern popup_struct *popup_get_head(void);
 extern void popup_button_set_text(popup_button *button, const char *text);
+extern int popup_need_redraw(void);
 /* src/gui/toolkit/progress.c */
 extern void progress_dots_create(progress_dots *progress);
 extern void progress_dots_show(progress_dots *progress, SDL_Surface *surface, int x, int y);
@@ -509,7 +519,11 @@ extern void scrollbar_show(scrollbar_struct *scrollbar, SDL_Surface *surface, in
 extern int scrollbar_event(scrollbar_struct *scrollbar, SDL_Event *event);
 extern int scrollbar_get_width(scrollbar_struct *scrollbar);
 /* src/gui/toolkit/text.c */
-extern font_struct fonts[FONTS_MAX];
+extern font_struct *font_get_weak(const char *name, uint8 size);
+extern font_struct *font_get(const char *name, uint8 size);
+extern font_struct *font_get_size(font_struct *font, sint8 size);
+extern void font_free(font_struct *font);
+extern void font_gc(void);
 extern void text_init(void);
 extern void text_deinit(void);
 extern void text_offset_set(int x, int y);
@@ -518,31 +532,29 @@ extern void text_color_set(int r, int g, int b);
 extern void text_set_selection(sint64 *start, sint64 *end, uint8 *started);
 extern void text_set_anchor_handle(text_anchor_handle_func func);
 extern void text_set_anchor_info(void *ptr);
-extern const char *get_font_filename(int font);
-extern int get_font_id(const char *name, size_t size);
 extern char *text_strip_markup(char *buf, size_t *buf_len, uint8 do_free);
 extern char *text_escape_markup(const char *buf);
 extern int text_color_parse(const char *color_notation, SDL_Color *color);
 extern void text_anchor_execute(text_info_struct *info, void *custom_data);
 extern void text_show_character_init(text_info_struct *info);
-extern int text_show_character(int *font, int orig_font, SDL_Surface *surface, SDL_Rect *dest, const char *cp, SDL_Color *color, SDL_Color *orig_color, uint64 flags, SDL_Rect *box, int *x_adjust, text_info_struct *info);
-extern int glyph_get_width(int font, char c);
-extern int glyph_get_height(int font, char c);
-extern void text_show(SDL_Surface *surface, int font, const char *text, int x, int y, const char *color_notation, uint64 flags, SDL_Rect *box);
-extern void text_show_shadow(SDL_Surface *surface, int font, const char *text, int x, int y, const char *color_notation, const char *color_shadow_notation, uint64 flags, SDL_Rect *box);
-extern void text_show_format(SDL_Surface *surface, int font, int x, int y, const char *color_notation, uint64 flags, SDL_Rect *box, const char *format, ...) __attribute__((format(printf, 8, 9)));
-extern void text_show_shadow_format(SDL_Surface *surface, int font, int x, int y, const char *color_notation, const char *color_shadow_notation, uint64 flags, SDL_Rect *box, const char *format, ...) __attribute__((format(printf, 9, 10)));
-extern int text_get_width(int font, const char *text, uint64 flags);
-extern int text_get_height(int font, const char *text, uint64 flags);
-extern void text_get_width_height(int font, const char *text, uint64 flags, SDL_Rect *box, int *w, int *h);
-extern void text_truncate_overflow(int font, char *text, int max_width);
+extern int text_show_character(font_struct **font, font_struct *orig_font, SDL_Surface *surface, SDL_Rect *dest, const char *cp, SDL_Color *color, SDL_Color *orig_color, uint64 flags, SDL_Rect *box, int *x_adjust, text_info_struct *info);
+extern int glyph_get_width(font_struct *font, char c);
+extern int glyph_get_height(font_struct *font, char c);
+extern void text_show(SDL_Surface *surface, font_struct *font, const char *text, int x, int y, const char *color_notation, uint64 flags, SDL_Rect *box);
+extern void text_show_shadow(SDL_Surface *surface, font_struct *font, const char *text, int x, int y, const char *color_notation, const char *color_shadow_notation, uint64 flags, SDL_Rect *box);
+extern void text_show_format(SDL_Surface *surface, font_struct *font, int x, int y, const char *color_notation, uint64 flags, SDL_Rect *box, const char *format, ...) __attribute__((format(printf, 8, 9)));
+extern void text_show_shadow_format(SDL_Surface *surface, font_struct *font, int x, int y, const char *color_notation, const char *color_shadow_notation, uint64 flags, SDL_Rect *box, const char *format, ...) __attribute__((format(printf, 9, 10)));
+extern int text_get_width(font_struct *font, const char *text, uint64 flags);
+extern int text_get_height(font_struct *font, const char *text, uint64 flags);
+extern void text_get_width_height(font_struct *font, const char *text, uint64 flags, SDL_Rect *box, uint16 *w, uint16 *h);
+extern void text_truncate_overflow(font_struct *font, char *text, int max_width);
 extern void text_anchor_parse(text_info_struct *info, const char *text);
 extern void text_enable_debug(void);
 /* src/gui/toolkit/text_input.c */
 extern text_input_history_struct *text_input_history_create(void);
 extern void text_input_history_free(text_input_history_struct *history);
 extern void text_input_create(text_input_struct *text_input);
-extern void text_input_set_font(text_input_struct *text_input, int font);
+extern void text_input_set_font(text_input_struct *text_input, font_struct *font);
 extern void text_input_reset(text_input_struct *text_input);
 extern void text_input_set_history(text_input_struct *text_input, text_input_history_struct *history);
 extern void text_input_set(text_input_struct *text_input, const char *str);
@@ -554,14 +566,16 @@ extern void text_input_show(text_input_struct *text_input, SDL_Surface *surface,
 extern void text_input_add_char(text_input_struct *text_input, char c);
 extern int text_input_event(text_input_struct *text_input, SDL_Event *event);
 /* src/gui/toolkit/tooltip.c */
-extern void tooltip_create(int mx, int my, int font, const char *text);
+extern void tooltip_create(int mx, int my, font_struct *font, const char *text);
 extern void tooltip_enable_delay(uint32 delay);
 extern void tooltip_multiline(int max_width);
 extern void tooltip_show(void);
 extern void tooltip_dismiss(void);
+extern int tooltip_need_redraw(void);
 /* src/gui/toolkit/widget.c */
 extern widgetdata *cur_widget[TOTAL_SUBWIDGETS];
 extern widgetevent widget_mouse_event;
+extern int widget_id_from_name(const char *name);
 extern void toolkit_widget_init(void);
 extern void menu_container_move(widgetdata *widget, widgetdata *menuitem, SDL_Event *event);
 extern void menu_container_detach(widgetdata *widget, widgetdata *menuitem, SDL_Event *event);
@@ -574,7 +588,7 @@ extern void remove_widget_object(widgetdata *widget);
 extern void remove_widget_object_intern(widgetdata *widget);
 extern void remove_widget_inv(widgetdata *widget);
 extern void kill_widgets(void);
-extern void reset_widget(const char *name);
+extern void widgets_reset(void);
 extern void widgets_ensure_onscreen(void);
 extern void kill_widget_tree(widgetdata *widget);
 extern widgetdata *create_widget(int widget_id);
@@ -587,6 +601,7 @@ extern int widget_event_move_stop(int x, int y);
 extern int widget_event_respond(int x, int y);
 extern widgetdata *get_widget_owner(int x, int y, widgetdata *start, widgetdata *end);
 extern widgetdata *get_widget_owner_rec(int x, int y, widgetdata *widget, widgetdata *end);
+extern int widgets_need_redraw(void);
 extern void process_widgets(int draw);
 extern void SetPriorityWidget(widgetdata *node);
 extern void SetPriorityWidget_reverse(widgetdata *node);
@@ -599,7 +614,7 @@ extern void move_widget(widgetdata *widget, int x, int y);
 extern void move_widget_rec(widgetdata *widget, int x, int y);
 extern void resize_widget(widgetdata *widget, int side, int offset);
 extern void resize_widget_rec(widgetdata *widget, int x, int width, int y, int height);
-extern widgetdata *add_label(const char *text, int font, const char *color);
+extern widgetdata *add_label(const char *text, font_struct *font, const char *color);
 extern widgetdata *add_texture(const char *texture);
 extern widgetdata *create_menu(int x, int y, widgetdata *owner);
 extern void add_menuitem(widgetdata *menu, const char *text, void (*menu_func_ptr)(widgetdata *, widgetdata *, SDL_Event *event), int menu_type, int val);
@@ -607,21 +622,14 @@ extern void add_separator(widgetdata *widget);
 extern void menu_finalize(widgetdata *widget);
 extern void widget_redraw_all(int widget_type_id);
 extern void widget_redraw_type_id(int type, const char *id);
+extern void widget_show(widgetdata *widget, int show);
+extern void widget_show_toggle_all(int type_id);
 extern void menu_move_widget(widgetdata *widget, widgetdata *menuitem, SDL_Event *event);
 extern void menu_create_widget(widgetdata *widget, widgetdata *menuitem, SDL_Event *event);
 extern void menu_remove_widget(widgetdata *widget, widgetdata *menuitem, SDL_Event *event);
 extern void menu_detach_widget(widgetdata *widget, widgetdata *menuitem, SDL_Event *event);
-extern void menu_inv_filter_all(widgetdata *widget, widgetdata *menuitem, SDL_Event *event);
-extern void menu_inv_filter_applied(widgetdata *widget, widgetdata *menuitem, SDL_Event *event);
-extern void menu_inv_filter_containers(widgetdata *widget, widgetdata *menuitem, SDL_Event *event);
-extern void menu_inv_filter_magical(widgetdata *widget, widgetdata *menuitem, SDL_Event *event);
-extern void menu_inv_filter_cursed(widgetdata *widget, widgetdata *menuitem, SDL_Event *event);
-extern void menu_inv_filter_unidentified(widgetdata *widget, widgetdata *menuitem, SDL_Event *event);
-extern void menu_inv_filter_locked(widgetdata *widget, widgetdata *menuitem, SDL_Event *event);
-extern void menu_inv_filter_unapplied(widgetdata *widget, widgetdata *menuitem, SDL_Event *event);
-extern void menu_inv_filter_submenu(widgetdata *widget, widgetdata *menuitem, SDL_Event *event);
-extern void menu_inventory_submenu_more(widgetdata *widget, widgetdata *menuitem, SDL_Event *event);
 extern void menu_inventory_submenu_quickslots(widgetdata *widget, widgetdata *menuitem, SDL_Event *event);
+extern void widget_render_enable_debug(void);
 /* src/gui/widgets/active_effects.c */
 extern void widget_active_effects_update(widgetdata *widget, object *op, sint32 sec, const char *msg);
 extern void widget_active_effects_remove(widgetdata *widget, object *op);
@@ -639,9 +647,10 @@ extern void widget_fps_init(widgetdata *widget);
 extern void widget_input_init(widgetdata *widget);
 /* src/gui/widgets/inventory.c */
 extern uint64 inventory_filter;
+extern const char *inventory_filter_names[7];
 extern void inventory_filter_set(uint64 filter);
 extern void inventory_filter_toggle(uint64 filter);
-extern void inventory_toggle_display(void);
+extern void inventory_filter_set_names(const char *filter);
 extern void widget_inventory_init(widgetdata *widget);
 extern uint32 widget_inventory_num_items(widgetdata *widget);
 extern object *widget_inventory_get_selected(widgetdata *widget);
@@ -653,36 +662,48 @@ extern void menu_inventory_get(widgetdata *widget, widgetdata *menuitem, SDL_Eve
 extern void menu_inventory_getall(widgetdata *widget, widgetdata *menuitem, SDL_Event *event);
 extern void menu_inventory_examine(widgetdata *widget, widgetdata *menuitem, SDL_Event *event);
 extern void menu_inventory_loadtoconsole(widgetdata *widget, widgetdata *menuitem, SDL_Event *event);
+extern void menu_inventory_patch(widgetdata *widget, widgetdata *menuitem, SDL_Event *event);
 extern void menu_inventory_mark(widgetdata *widget, widgetdata *menuitem, SDL_Event *event);
 extern void menu_inventory_lock(widgetdata *widget, widgetdata *menuitem, SDL_Event *event);
 extern void menu_inventory_drag(widgetdata *widget, widgetdata *menuitem, SDL_Event *event);
 extern void widget_inventory_handle_apply(widgetdata *widget);
-extern void widget_inventory_handle_examine(widgetdata *widget);
-extern void widget_inventory_handle_mark(widgetdata *widget);
-extern void widget_inventory_handle_lock(widgetdata *widget);
-extern void widget_inventory_handle_get(widgetdata *widget);
-extern void widget_inventory_handle_drop(widgetdata *widget);
+extern void menu_inv_filter(widgetdata *widget, widgetdata *menuitem, SDL_Event *event);
+extern void menu_inv_filter_submenu(widgetdata *widget, widgetdata *menuitem, SDL_Event *event);
+extern void menu_inventory_submenu_more(widgetdata *widget, widgetdata *menuitem, SDL_Event *event);
 /* src/gui/widgets/label.c */
 extern void widget_label_init(widgetdata *widget);
-/* src/gui/widgets/main_lvl.c */
-extern void widget_main_lvl_init(widgetdata *widget);
 /* src/gui/widgets/map.c */
 extern _mapdata MapData;
 extern _multi_part_obj MultiArchs[16];
+extern void clioptions_option_tiles_debug(const char *arg);
+extern struct map_anim *map_anims_add(int type, int mapx, int mapy, int value);
+extern void maps_anims_remove(map_anim_t *anim);
+extern void map_anims_mapscroll(int xoff, int yoff);
+extern void map_anims_clear(void);
+extern void map_anims_play(void);
+extern int map_anims_need_redraw(void);
 extern void load_mapdef_dat(void);
-extern void clear_map(void);
-extern void display_mapscroll(int dx, int dy);
+extern void clear_map(_Bool hard);
+extern void map_update_size(int w, int h);
+extern void display_mapscroll(int dx, int dy, int old_w, int old_h);
 extern void update_map_name(const char *name);
 extern void update_map_weather(const char *weather);
+extern void update_map_height_diff(uint8 height_diff);
+extern void update_map_region_name(const char *region_name);
+extern void update_map_region_longname(const char *region_longname);
+extern void update_map_path(const char *map_path);
+extern void map_update_in_building(uint8 in_building);
+extern int map_get_player_direction(void);
+extern void map_get_real_coords(int *x, int *y);
 extern void init_map_data(int xl, int yl, int px, int py);
 extern void adjust_tile_stretch(void);
-extern void map_set_data(int x, int y, int layer, sint16 face, uint8 quick_pos, uint8 obj_flags, const char *name, const char *name_color, sint16 height, uint8 probe, sint16 zoom_x, sint16 zoom_y, sint16 align, uint8 draw_double, uint8 alpha, sint16 rotate, uint8 infravision, uint32 target_object_count, uint8 target_is_friend);
+extern void map_set_data(int x, int y, int layer, sint16 face, uint8 quick_pos, uint8 obj_flags, const char *name, const char *name_color, sint16 height, uint8 probe, sint16 zoom_x, sint16 zoom_y, sint16 align, uint8 draw_double, uint8 alpha, sint16 rotate, uint8 infravision, uint32 target_object_count, uint8 target_is_friend, uint8 anim_speed, uint8 anim_facing, uint8 anim_flags, uint8 anim_state, uint8 priority);
 extern void map_clear_cell(int x, int y);
-extern void map_set_darkness(int x, int y, uint8 darkness);
-extern void map_draw_map(void);
+extern void map_set_darkness(int x, int y, int sub_layer, uint8 darkness);
+extern void map_animate(void);
+extern void map_draw_map(SDL_Surface *surface);
 extern void map_draw_one(int x, int y, SDL_Surface *surface);
 extern void map_target_handle(uint8 is_friend);
-extern const char tile_off[24][48];
 extern int mouse_to_tile_coords(int mx, int my, int *tx, int *ty);
 extern void widget_map_init(widgetdata *widget);
 /* src/gui/widgets/mapname.c */
@@ -691,6 +712,8 @@ extern void widget_mapname_init(widgetdata *widget);
 extern void widget_highlight_menu(widgetdata *widget);
 /* src/gui/widgets/menu_buttons.c */
 extern void widget_menu_buttons_init(widgetdata *widget);
+/* src/gui/widgets/minimap.c */
+extern void widget_minimap_init(widgetdata *widget);
 /* src/gui/widgets/mplayer.c */
 extern void widget_mplayer_init(widgetdata *widget);
 /* src/gui/widgets/notification.c */
@@ -702,17 +725,19 @@ extern void widget_notification_init(widgetdata *widget);
 extern void socket_command_party(uint8 *data, size_t len, size_t pos);
 extern void widget_party_init(widgetdata *widget);
 /* src/gui/widgets/playerdoll.c */
+extern object *playerdoll_get_equipment(int i, int *xpos, int *ypos);
 extern void widget_playerdoll_init(widgetdata *widget);
 /* src/gui/widgets/playerinfo.c */
 extern void widget_playerinfo_init(widgetdata *widget);
+/* src/gui/widgets/protections.c */
+extern void widget_protections_init(widgetdata *widget);
 /* src/gui/widgets/quickslots.c */
 extern void quickslots_init(void);
 extern void quickslots_scroll(widgetdata *widget, int up, int scroll);
+extern void quickslots_cycle(widgetdata *widget);
 extern void quickslots_handle_key(int slot);
 extern void widget_quickslots_init(widgetdata *widget);
 extern void socket_command_quickslots(uint8 *data, size_t len, size_t pos);
-/* src/gui/widgets/skill_exp.c */
-extern void widget_skill_exp_init(widgetdata *widget);
 /* src/gui/widgets/skills.c */
 extern void skills_init(void);
 extern int skill_find(const char *name, size_t *id);
@@ -725,7 +750,6 @@ extern void widget_skills_init(widgetdata *widget);
 extern void spells_init(void);
 extern int spell_find(const char *name, size_t *spell_path, size_t *spell_id);
 extern int spell_find_object(object *op, size_t *spell_path, size_t *spell_id);
-extern int spell_find_path_selected(const char *name, size_t *spell_id);
 extern spell_entry_struct *spell_get(size_t spell_path, size_t spell_id);
 extern void spells_update(object *op, uint16 cost, uint32 path, uint32 flags, const char *msg);
 extern void spells_remove(object *op);
@@ -811,6 +835,8 @@ extern void toolkit_math_deinit(void);
 extern unsigned long isqrt(unsigned long n);
 extern int rndm(int min, int max);
 extern int rndm_chance(uint32 n);
+extern void *sort_linked_list(void *p, unsigned index, int (*compare)(void *, void *, void *), void *pointer, unsigned long *pcount, void *end_marker);
+extern size_t nearest_pow_two_exp(size_t n);
 /* src/toolkit/memory.c */
 extern void toolkit_memory_init(void);
 extern void toolkit_memory_deinit(void);
@@ -820,15 +846,16 @@ extern void *memory_ecalloc(size_t nmemb, size_t size);
 extern void *memory_erealloc(void *ptr, size_t size);
 extern void *memory_reallocz(void *ptr, size_t old_size, size_t new_size);
 /* src/toolkit/mempool.c */
-extern mempool_chunk_struct end_marker;
+extern size_t pools_num;
 extern void toolkit_mempool_init(void);
 extern void toolkit_mempool_deinit(void);
-extern uint32 nearest_pow_two_exp(uint32 n);
-extern void setup_poolfunctions(mempool_struct *pool, chunk_constructor constructor, chunk_destructor destructor);
-extern mempool_struct *mempool_create(const char *description, uint32 expand, uint32 size, uint32 flags, chunk_initialisator initialisator, chunk_deinitialisator deinitialisator, chunk_constructor constructor, chunk_destructor destructor);
-extern void mempool_free(mempool_struct *pool);
-extern void *get_poolchunk_array_real(mempool_struct *pool, uint32 arraysize_exp);
-extern void return_poolchunk_array_real(void *data, uint32 arraysize_exp, mempool_struct *pool);
+extern mempool_struct *mempool_create(const char *description, size_t expand, size_t size, uint32 flags, chunk_initialisator initialisator, chunk_deinitialisator deinitialisator, chunk_constructor constructor, chunk_destructor destructor);
+extern void mempool_set_debugger(mempool_struct *pool, chunk_debugger debugger);
+extern void mempool_stats(const char *name, char *buf, size_t size);
+extern mempool_struct *mempool_find(const char *name);
+extern void *mempool_get_chunk(mempool_struct *pool, size_t arraysize_exp);
+extern void mempool_return_chunk(mempool_struct *pool, size_t arraysize_exp, void *data);
+extern size_t mempool_reclaim(mempool_struct *pool);
 /* src/toolkit/packet.c */
 extern void toolkit_packet_init(void);
 extern void toolkit_packet_deinit(void);
@@ -849,6 +876,8 @@ extern void packet_append_uint32(packet_struct *packet, uint32 data);
 extern void packet_append_sint32(packet_struct *packet, sint32 data);
 extern void packet_append_uint64(packet_struct *packet, uint64 data);
 extern void packet_append_sint64(packet_struct *packet, sint64 data);
+extern void packet_append_float(packet_struct *packet, float data);
+extern void packet_append_double(packet_struct *packet, double data);
 extern void packet_append_data_len(packet_struct *packet, uint8 *data, size_t len);
 extern void packet_append_string(packet_struct *packet, const char *data);
 extern void packet_append_string_terminated(packet_struct *packet, const char *data);
@@ -860,6 +889,8 @@ extern uint32 packet_to_uint32(uint8 *data, size_t len, size_t *pos);
 extern sint32 packet_to_sint32(uint8 *data, size_t len, size_t *pos);
 extern uint64 packet_to_uint64(uint8 *data, size_t len, size_t *pos);
 extern sint64 packet_to_sint64(uint8 *data, size_t len, size_t *pos);
+extern float packet_to_float(uint8 *data, size_t len, size_t *pos);
+extern double packet_to_double(uint8 *data, size_t len, size_t *pos);
 extern char *packet_to_string(uint8 *data, size_t len, size_t *pos, char *dest, size_t dest_size);
 extern void packet_to_stringbuffer(uint8 *data, size_t len, size_t *pos, StringBuffer *sb);
 /* src/toolkit/path.c */
@@ -901,6 +932,7 @@ extern shstr *add_refcount(shstr *str);
 extern int query_refcount(shstr *str);
 extern shstr *find_string(const char *str);
 extern void free_string_shared(shstr *str);
+extern void shstr_stats(char *buf, size_t size);
 /* src/toolkit/signals.c */
 extern void toolkit_signals_init(void);
 extern void toolkit_signals_deinit(void);
@@ -947,6 +979,7 @@ extern char *string_repeat(const char *str, size_t num);
 extern size_t snprintfcat(char *buf, size_t size, const char *fmt, ...) __attribute__((format(printf, 3, 4)));
 extern size_t string_tohex(const unsigned char *str, size_t len, char *result, size_t resultsize);
 extern size_t string_fromhex(char *str, size_t len, unsigned char *result, size_t resultsize);
+extern const char *string_skip_whitespace(const char *str);
 /* src/toolkit/stringbuffer.c */
 extern void toolkit_stringbuffer_init(void);
 extern void toolkit_stringbuffer_deinit(void);
@@ -962,10 +995,10 @@ extern size_t stringbuffer_length(StringBuffer *sb);
 extern ssize_t stringbuffer_index(StringBuffer *sb, char c);
 extern ssize_t stringbuffer_rindex(StringBuffer *sb, char c);
 /* src/toolkit/toolkit.c */
-extern void toolkit_import_register(toolkit_func func);
-extern int toolkit_check_imported(toolkit_func func);
+extern void toolkit_import_register(const char *name, toolkit_func func);
+extern _Bool toolkit_check_imported(toolkit_func func);
 extern void toolkit_deinit(void);
-/* src/toolkit/x11.c*/
+/* src/toolkit/x11.c */
 extern void toolkit_x11_init(void);
 extern void toolkit_x11_deinit(void);
 extern x11_window_type x11_window_get_parent(x11_display_type display, x11_window_type win);

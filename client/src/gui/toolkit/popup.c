@@ -1,26 +1,26 @@
-/************************************************************************
-*            Atrinik, a Multiplayer Online Role Playing Game            *
-*                                                                       *
-*    Copyright (C) 2009-2012 Alex Tokar and Atrinik Development Team    *
-*                                                                       *
-* Fork from Crossfire (Multiplayer game for X-windows).                 *
-*                                                                       *
-* This program is free software; you can redistribute it and/or modify  *
-* it under the terms of the GNU General Public License as published by  *
-* the Free Software Foundation; either version 2 of the License, or     *
-* (at your option) any later version.                                   *
-*                                                                       *
-* This program is distributed in the hope that it will be useful,       *
-* but WITHOUT ANY WARRANTY; without even the implied warranty of        *
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
-* GNU General Public License for more details.                          *
-*                                                                       *
-* You should have received a copy of the GNU General Public License     *
-* along with this program; if not, write to the Free Software           *
-* Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.             *
-*                                                                       *
-* The author can be reached at admin@atrinik.org                        *
-************************************************************************/
+/*************************************************************************
+ *           Atrinik, a Multiplayer Online Role Playing Game             *
+ *                                                                       *
+ *   Copyright (C) 2009-2014 Alex Tokar and Atrinik Development Team     *
+ *                                                                       *
+ * Fork from Crossfire (Multiplayer game for X-windows).                 *
+ *                                                                       *
+ * This program is free software; you can redistribute it and/or modify  *
+ * it under the terms of the GNU General Public License as published by  *
+ * the Free Software Foundation; either version 2 of the License, or     *
+ * (at your option) any later version.                                   *
+ *                                                                       *
+ * This program is distributed in the hope that it will be useful,       *
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of        *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
+ * GNU General Public License for more details.                          *
+ *                                                                       *
+ * You should have received a copy of the GNU General Public License     *
+ * along with this program; if not, write to the Free Software           *
+ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.             *
+ *                                                                       *
+ * The author can be reached at admin@atrinik.org                        *
+ ************************************************************************/
 
 /**
  * @file
@@ -259,27 +259,24 @@ int popup_handle_event(SDL_Event *event)
 
             /* Get the string to copy, depending on the start and end positions.
              * */
-            str = malloc(sizeof(char) * (end - start + 1 + 1));
+            str = emalloc(sizeof(char) * (end - start + 1 + 1));
             memcpy(str, contents + start, end - start + 1);
             str[end - start + 1] = '\0';
             x11_clipboard_set(SDL_display, SDL_window, str);
             efree(str);
 
             return 1;
-        }
-        else if ((event->type == SDL_MOUSEBUTTONDOWN || event->type == SDL_MOUSEBUTTONUP || event->type == SDL_MOUSEMOTION) && event->motion.x >= popup_head->x && event->motion.x < popup_head->x + texture_surface(popup_head->texture)->w && event->motion.y >= popup_head->y && event->motion.y < popup_head->y + texture_surface(popup_head->texture)->h) {
+        } else if ((event->type == SDL_MOUSEBUTTONDOWN || event->type == SDL_MOUSEBUTTONUP || event->type == SDL_MOUSEMOTION) && event->motion.x >= popup_head->x && event->motion.x < popup_head->x + texture_surface(popup_head->texture)->w && event->motion.y >= popup_head->y && event->motion.y < popup_head->y + texture_surface(popup_head->texture)->h) {
             if (event->type == SDL_MOUSEMOTION) {
                 popup_head->redraw = 1;
 
                 if (event->button.button == SDL_BUTTON_LEFT) {
                     popup_head->selection_started = 1;
                 }
-            }
-            else if (event->button.button == SDL_BUTTON_LEFT) {
+            } else if (event->button.button == SDL_BUTTON_LEFT) {
                 if (event->type == SDL_MOUSEBUTTONUP) {
                     popup_head->selection_started = 0;
-                }
-                else if (event->type == SDL_MOUSEBUTTONDOWN) {
+                } else if (event->type == SDL_MOUSEBUTTONDOWN) {
                     popup_head->selection_started = 0;
                     popup_head->selection_start = -1;
                     popup_head->selection_end = -1;
@@ -304,11 +301,9 @@ int popup_handle_event(SDL_Event *event)
         if (event->key.keysym.sym == SDLK_ESCAPE) {
             popup_destroy(popup_head);
         }
-    }
-    else if ((ret = popup_button_handle_event(&popup_head->button_left, event))) {
+    } else if ((ret = popup_button_handle_event(&popup_head->button_left, event))) {
         return 1;
-    }
-    else if ((ret = popup_button_handle_event(&popup_head->button_right, event))) {
+    } else if ((ret = popup_button_handle_event(&popup_head->button_right, event))) {
         if (ret == 1) {
             popup_destroy(popup_head);
         }
@@ -338,4 +333,14 @@ void popup_button_set_text(popup_button *button, const char *text)
     }
 
     button->text = text ? estrdup(text) : NULL;
+}
+
+/**
+ * Check whether any popup needs redrawing.
+ * @return 1 if any popup needs redrawing, 0 otherwise.
+ * @todo Actual redrawing logic in popups.
+ */
+int popup_need_redraw(void)
+{
+    return popup_get_head() != NULL;
 }

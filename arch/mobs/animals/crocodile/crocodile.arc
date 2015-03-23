@@ -8,12 +8,12 @@ corpse 1
 behavior 2
 layer 6
 direction 5
-terrain_flag 1
+terrain_flag 65
 weapon_speed 0.038
 attack_slash 35
 attack_pierce 65
 type 80
-Wis 3
+wis 3
 animation crocodile
 is_animated 1
 anim_speed 4

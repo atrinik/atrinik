@@ -4,8 +4,8 @@
         <dialog name="hello">
             <message>Welcome! I am Morg'eean the kobold trader. I trade various goods between Asteria and Brynknot using my ship.</message>
             <message>I also have a small shop in my cellar.</message>
-            <response message="Can I use your ship?" destination="useship" />
-            <response message="Tell me about your shop." destination="aboutshop" />
+            <response destination="useship" message="Can I use your ship?"/>
+            <response destination="aboutshop" message="Tell me about your shop."/>
         </dialog>
         <dialog name="useship">
             <message>Hmm... well, the business is slow right now, so I don't need it at the moment. Feel free to use it to sail to Brynknot.</message>

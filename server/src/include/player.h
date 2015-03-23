@@ -1,26 +1,26 @@
-/************************************************************************
-*            Atrinik, a Multiplayer Online Role Playing Game            *
-*                                                                       *
-*    Copyright (C) 2009-2012 Alex Tokar and Atrinik Development Team    *
-*                                                                       *
-* Fork from Crossfire (Multiplayer game for X-windows).                 *
-*                                                                       *
-* This program is free software; you can redistribute it and/or modify  *
-* it under the terms of the GNU General Public License as published by  *
-* the Free Software Foundation; either version 2 of the License, or     *
-* (at your option) any later version.                                   *
-*                                                                       *
-* This program is distributed in the hope that it will be useful,       *
-* but WITHOUT ANY WARRANTY; without even the implied warranty of        *
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
-* GNU General Public License for more details.                          *
-*                                                                       *
-* You should have received a copy of the GNU General Public License     *
-* along with this program; if not, write to the Free Software           *
-* Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.             *
-*                                                                       *
-* The author can be reached at admin@atrinik.org                        *
-************************************************************************/
+/*************************************************************************
+ *           Atrinik, a Multiplayer Online Role Playing Game             *
+ *                                                                       *
+ *   Copyright (C) 2009-2014 Alex Tokar and Atrinik Development Team     *
+ *                                                                       *
+ * Fork from Crossfire (Multiplayer game for X-windows).                 *
+ *                                                                       *
+ * This program is free software; you can redistribute it and/or modify  *
+ * it under the terms of the GNU General Public License as published by  *
+ * the Free Software Foundation; either version 2 of the License, or     *
+ * (at your option) any later version.                                   *
+ *                                                                       *
+ * This program is distributed in the hope that it will be useful,       *
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of        *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
+ * GNU General Public License for more details.                          *
+ *                                                                       *
+ * You should have received a copy of the GNU General Public License     *
+ * along with this program; if not, write to the Free Software           *
+ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.             *
+ *                                                                       *
+ * The author can be reached at admin@atrinik.org                        *
+ ************************************************************************/
 
 /**
  * @file
@@ -30,8 +30,7 @@
 #define PLAYER_H
 
 /** Level color structure. */
-typedef struct _level_color
-{
+typedef struct _level_color {
     /** Green level. */
     int green;
 
@@ -49,11 +48,10 @@ typedef struct _level_color
 
     /** Purple level. */
     int purple;
-}_level_color;
+} _level_color;
 
 /** Fire modes submitted from client. */
-enum
-{
+enum {
     /** No fire mode. */
     FIRE_MODE_NONE = -1,
     /** Bow. */
@@ -89,8 +87,7 @@ enum
 #define PLAYER_PATH_MAX_FAILS 15
 
 /** One path player is attempting to reach. */
-typedef struct player_path
-{
+typedef struct player_path {
     /** Next path in linked list. */
     struct player_path *next;
 
@@ -113,8 +110,7 @@ typedef struct player_path
 #define SKILL_LEVEL(_pl, _skill) ((_pl)->skill_ptr[(_skill)] ? (_pl)->skill_ptr[(_skill)]->level : 1)
 
 /** The player structure. */
-typedef struct pl_player
-{
+typedef struct pl_player {
     /** Pointer to previous player, NULL if this is first. */
     struct pl_player *prev;
 
@@ -137,9 +133,6 @@ typedef struct pl_player
 
     /** Map where player will respawn after death. */
     char savebed_map[MAX_BUF];
-
-    /** For client: \<Rank\> \<Name\>\n\<Gender\> \<Race\> \<Profession\> */
-    char ext_title[MAX_EXT_TITLE];
 
     /** Who killed this player. */
     char killer[BIG_NAME];
@@ -262,10 +255,10 @@ typedef struct pl_player
     uint32 action_attack;
 
     /** weapon_speed_left * 1000 and cast from float to int for client. */
-    uint32 action_timer;
+    float action_timer;
 
     /** Previous value of action timer sent to the client. */
-    uint32 last_action_timer;
+    float last_action_timer;
 
     /** Last speed value sent to client. */
     float last_speed;
@@ -289,7 +282,10 @@ typedef struct pl_player
     signed char gen_sp;
 
     /** Player should keep moving in dir until run is off. */
-    unsigned char run_on;
+    unsigned int run_on : 1;
+
+    /** Direction (minus one) the player should keep running in. */
+    unsigned int run_on_dir : 3;
 
 #ifdef AUTOSAVE
     /** Last tick the player was saved. */

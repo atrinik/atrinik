@@ -7,7 +7,7 @@ def main():
     for (m, x, y) in activator.SquaresAround(1):
         for obj in m.GetLayer(x, y, LAYER_FLOOR):
             if obj.type == Type.FLOOR and obj.name == "Morliana water":
-                me.Remove()
+                me.Destroy()
                 activator.CreateObject("silmedsen_potion_bottle_filled")
                 pl.DrawInfo("You fill the bottle to the brim with the clear water.", COLOR_GREEN)
                 return

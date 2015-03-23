@@ -3469,7 +3469,7 @@ y 16
 arch ogre
 name ogre rock thrower
 level 8
-Dex 2
+dex 2
 can_use_bow 1
 type 83
 arch ability_stone_throw

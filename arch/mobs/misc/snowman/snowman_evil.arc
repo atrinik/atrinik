@@ -10,11 +10,11 @@ behavior 2
 layer 6
 direction 5
 is_neutral 1
-terrain_flag 1
+terrain_flag 65
 weapon_speed 0.038
 attack_cleave 80
 type 80
-Wis 3
+wis 3
 animation snowman_evil
 is_animated 1
 anim_speed 4

@@ -229,7 +229,7 @@ y 8
 arch icegolem
 type 83
 level 12
-Wis 2
+wis 2
 direction 3
 end
 end
@@ -256,7 +256,7 @@ y 11
 arch icegolem
 type 83
 level 12
-Wis 2
+wis 2
 direction 3
 end
 end
@@ -290,7 +290,7 @@ y 15
 arch icegolem
 type 83
 level 12
-Wis 2
+wis 2
 direction 3
 end
 end
@@ -317,7 +317,7 @@ y 18
 arch icegolem
 type 83
 level 12
-Wis 2
+wis 2
 direction 3
 end
 end
@@ -343,7 +343,7 @@ y 22
 arch icegolem
 type 83
 level 12
-Wis 2
+wis 2
 direction 1
 end
 end
@@ -720,7 +720,7 @@ y 22
 arch icegolem
 type 83
 level 12
-Wis 2
+wis 2
 direction 1
 end
 end
@@ -1087,7 +1087,7 @@ y 2
 arch icegolem
 type 83
 level 12
-Wis 2
+wis 2
 direction 7
 end
 end
@@ -1109,7 +1109,7 @@ y 5
 arch icegolem
 type 83
 level 12
-Wis 2
+wis 2
 direction 7
 end
 end
@@ -1143,7 +1143,7 @@ y 10
 arch icegolem
 type 83
 level 12
-Wis 2
+wis 2
 direction 7
 end
 end
@@ -1165,7 +1165,7 @@ y 13
 arch icegolem
 type 83
 level 12
-Wis 2
+wis 2
 direction 7
 end
 end
@@ -1437,7 +1437,7 @@ arch lavagolem
 type 83
 glow_radius 3
 level 13
-Wis 2
+wis 2
 direction 3
 end
 end
@@ -1456,7 +1456,7 @@ arch lavagolem
 type 83
 glow_radius 3
 level 13
-Wis 2
+wis 2
 direction 3
 end
 end
@@ -1492,7 +1492,7 @@ arch lavagolem
 type 83
 glow_radius 3
 level 13
-Wis 2
+wis 2
 direction 3
 end
 end
@@ -1515,7 +1515,7 @@ arch lavagolem
 type 83
 glow_radius 3
 level 13
-Wis 2
+wis 2
 direction 3
 end
 end
@@ -1572,7 +1572,7 @@ arch lavagolem
 type 83
 glow_radius 3
 level 13
-Wis 2
+wis 2
 end
 end
 arch floor_stone3d
@@ -2270,7 +2270,7 @@ arch lavagolem
 type 83
 glow_radius 3
 level 13
-Wis 2
+wis 2
 direction 7
 end
 end
@@ -2293,7 +2293,7 @@ arch lavagolem
 type 83
 glow_radius 3
 level 13
-Wis 2
+wis 2
 direction 7
 end
 end
@@ -2616,7 +2616,7 @@ arch lavagolem
 type 83
 glow_radius 3
 level 13
-Wis 2
+wis 2
 end
 end
 arch floor_stone3d
@@ -2983,7 +2983,7 @@ arch lavagolem
 type 83
 glow_radius 3
 level 13
-Wis 2
+wis 2
 direction 7
 end
 end
@@ -3022,7 +3022,7 @@ arch lavagolem
 type 83
 glow_radius 3
 level 13
-Wis 2
+wis 2
 direction 7
 end
 end
@@ -3041,7 +3041,7 @@ arch lavagolem
 type 83
 glow_radius 3
 level 13
-Wis 2
+wis 2
 direction 7
 end
 end
@@ -3077,10 +3077,10 @@ name enslaved skeleton mage
 type 83
 level 14
 maxsp 16
-Pow 20
+pow 20
 magic 0
-Dex 2
-Wis 4
+dex 2
+wis 4
 arch ability_icestorm
 last_grace 30
 end

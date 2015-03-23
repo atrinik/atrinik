@@ -44,6 +44,7 @@
 <bitmask name="behavior">
 	<bmentry bit="0" name="Find friends for friendly spells" />
 	<bmentry bit="1" name="Open Doors" />
+    <bmentry bit="2" name="Stealth" />
 </bitmask>
 
 <bitmask name="pick_up">
@@ -63,6 +64,7 @@
 	<bmentry bit="3" name="Fire Surface" />
 	<bmentry bit="4" name="Under Fire" />
 	<bmentry bit="5" name="Cloud Surface" />
+    <bmentry bit="6" name="Shallow Water" />
 </bitmask>
 
 <bitmask name="mirror_layer_zoom">

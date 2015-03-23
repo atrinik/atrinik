@@ -1,26 +1,26 @@
-/************************************************************************
-*            Atrinik, a Multiplayer Online Role Playing Game            *
-*                                                                       *
-*    Copyright (C) 2009-2012 Alex Tokar and Atrinik Development Team    *
-*                                                                       *
-* Fork from Crossfire (Multiplayer game for X-windows).                 *
-*                                                                       *
-* This program is free software; you can redistribute it and/or modify  *
-* it under the terms of the GNU General Public License as published by  *
-* the Free Software Foundation; either version 2 of the License, or     *
-* (at your option) any later version.                                   *
-*                                                                       *
-* This program is distributed in the hope that it will be useful,       *
-* but WITHOUT ANY WARRANTY; without even the implied warranty of        *
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
-* GNU General Public License for more details.                          *
-*                                                                       *
-* You should have received a copy of the GNU General Public License     *
-* along with this program; if not, write to the Free Software           *
-* Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.             *
-*                                                                       *
-* The author can be reached at admin@atrinik.org                        *
-************************************************************************/
+/*************************************************************************
+ *           Atrinik, a Multiplayer Online Role Playing Game             *
+ *                                                                       *
+ *   Copyright (C) 2009-2014 Alex Tokar and Atrinik Development Team     *
+ *                                                                       *
+ * Fork from Crossfire (Multiplayer game for X-windows).                 *
+ *                                                                       *
+ * This program is free software; you can redistribute it and/or modify  *
+ * it under the terms of the GNU General Public License as published by  *
+ * the Free Software Foundation; either version 2 of the License, or     *
+ * (at your option) any later version.                                   *
+ *                                                                       *
+ * This program is distributed in the hope that it will be useful,       *
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of        *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
+ * GNU General Public License for more details.                          *
+ *                                                                       *
+ * You should have received a copy of the GNU General Public License     *
+ * along with this program; if not, write to the Free Software           *
+ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.             *
+ *                                                                       *
+ * The author can be reached at admin@atrinik.org                        *
+ ************************************************************************/
 
 /**
  * @file
@@ -29,6 +29,7 @@
 #include <global.h>
 
 long max_time = MAX_TIME;
+int max_time_multiplier = MAX_TIME_MULTIPLIER;
 
 /** Size of history buffer. */
 #define PBUFLEN 100
@@ -48,8 +49,7 @@ static long process_utime_long_count;
 struct timeval last_time;
 
 /** In-game seasons. */
-const char *season_name[SEASONS_PER_YEAR] =
-{
+const char *season_name[SEASONS_PER_YEAR] = {
     "Season of the Blizzard",
     "Season of Growth",
     "Season of Harvest",
@@ -57,8 +57,7 @@ const char *season_name[SEASONS_PER_YEAR] =
 };
 
 /** Days of the week. */
-const char *weekdays[DAYS_PER_WEEK] =
-{
+const char *weekdays[DAYS_PER_WEEK] = {
     "Day of the Moon",
     "Day of the Bull",
     "Day of the Deception",
@@ -69,8 +68,7 @@ const char *weekdays[DAYS_PER_WEEK] =
 };
 
 /** Months. */
-const char *month_name[MONTHS_PER_YEAR] =
-{
+const char *month_name[MONTHS_PER_YEAR] = {
     "Month of the Winter",
     "Month of the Ice Dragon",
     "Month of the Frost Giant",
@@ -86,8 +84,7 @@ const char *month_name[MONTHS_PER_YEAR] =
 };
 
 /** Periods of day. */
-const char *periodsofday[PERIODS_PER_DAY] =
-{
+const char *periodsofday[PERIODS_PER_DAY] = {
     "midnight",
     "late night",
     "dawn",
@@ -102,8 +99,7 @@ const char *periodsofday[PERIODS_PER_DAY] =
 
 /**
  * Period of the day at each hour in the day. */
-const int periodsofday_hours[HOURS_PER_DAY] =
-{
+const int periodsofday_hours[HOURS_PER_DAY] = {
     /* 24: Midnight */
     0,
     /* 1 - 4: Late night */
@@ -149,8 +145,6 @@ void reset_sleep(void)
  * Adds time to our history list. */
 static void log_time(long process_utime)
 {
-    pticks++;
-
     if (++psaveind >= PBUFLEN) {
         psaveind = 0;
     }
@@ -180,7 +174,7 @@ void sleep_delta(void)
     GETTIMEOFDAY(&new_time);
 
     sleep_sec = last_time.tv_sec - new_time.tv_sec;
-    sleep_usec = max_time - (new_time.tv_usec - last_time.tv_usec);
+    sleep_usec = max_time / max_time_multiplier - (new_time.tv_usec - last_time.tv_usec);
 
     /* This is very ugly, but probably the fastest for our use: */
     while (sleep_usec < 0) {
@@ -211,13 +205,12 @@ void sleep_delta(void)
 
         Sleep((int) (sleep_time.tv_usec / 1000.0));
 #endif
-    }
-    else {
+    } else {
         process_utime_long_count++;
     }
 
     /* Set last_time to when we're expected to wake up: */
-    last_time.tv_usec += max_time;
+    last_time.tv_usec += max_time / max_time_multiplier;
 
     while (last_time.tv_usec > 1000000) {
         last_time.tv_usec -= 1000000;
@@ -239,6 +232,15 @@ void sleep_delta(void)
 void set_max_time(long t)
 {
     max_time = t;
+}
+
+/**
+ * Sets the max speed multiplier.
+ * @param t New speed multiplier.
+ */
+void set_max_time_multiplier(long t)
+{
+    max_time_multiplier = t;
 }
 
 /**
@@ -277,14 +279,11 @@ void print_tod(object *op)
 
     if (day == 1 || ((day % 10) == 1 && day > 20)) {
         suf = "st";
-    }
-    else if (day == 2 || ((day % 10) == 2 && day > 20)) {
+    } else if (day == 2 || ((day % 10) == 2 && day > 20)) {
         suf = "nd";
-    }
-    else if (day == 3 || ((day % 10) == 3 && day > 20)) {
+    } else if (day == 3 || ((day % 10) == 3 && day > 20)) {
         suf = "rd";
-    }
-    else {
+    } else {
         suf = "th";
     }
 

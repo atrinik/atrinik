@@ -2,7 +2,7 @@ arch map
 name Brynknot
 msg
 Created:  2009-09-10 Alex Tokar
-Modified: 2014-03-08 Alex Tokar
+Modified: 2015-03-12 Alex Tokar
 endmsg
 width 24
 height 24
@@ -18,6 +18,7 @@ tile_path_5 world_0413
 tile_path_6 world_0411
 tile_path_7 world_0211
 tile_path_8 world_0213
+tile_path_9 world_1_0312
 bg_music lontala.mid
 region brynknot
 end
@@ -39,6 +40,13 @@ arch grassd_2
 y 4
 end
 arch wall_marble1w.131
+y 4
+end
+arch map_info
+hp 8
+sp 6
+cursed 1
+name brynknot_church
 y 4
 end
 arch floor_marble1
@@ -89,6 +97,13 @@ endmsg
 name brynknot_library
 sub_type 2
 stand_still 1
+y 13
+end
+arch map_info
+hp 8
+sp 9
+name brynknot_library
+cursed 1
 y 13
 end
 arch grassd_1
@@ -256,19 +271,11 @@ x 1
 y 14
 end
 arch floor_wood2_l1
-z 22
 x 1
 y 15
 end
-arch stairs_wood_up
+arch stairs_wood_up2
 direction 5
-x 1
-y 15
-end
-arch invis_exit
-slaying world_1_0312
-hp 1
-sp 15
 x 1
 y 15
 end
@@ -278,9 +285,6 @@ y 16
 end
 arch stairs_wood_up
 direction 5
-slaying world_1_0312
-hp 1
-sp 15
 x 1
 y 16
 end
@@ -737,6 +741,8 @@ race /interfaces/quests/lairwenn_notes/quest.xml
 arch writing_pen
 end
 end
+arch writing_pen
+end
 end
 end
 arch floor_wood2_l1
@@ -812,11 +818,6 @@ x 4
 y 8
 end
 arch floor_marble1b
-x 4
-y 9
-end
-arch shrine1.111
-direction 5
 x 4
 y 9
 end
@@ -989,11 +990,24 @@ arch floor_marble1b
 x 5
 y 7
 end
+arch clock_sys
+x 5
+y 7
+end
 arch floor_marble1
 x 5
 y 8
 end
+arch wall_marble1.181
+x 5
+y 8
+end
 arch floor_marble1a
+x 5
+y 9
+end
+arch stairs_stone_up
+direction 7
 x 5
 y 9
 end
@@ -1175,7 +1189,16 @@ arch floor_marble1a
 x 6
 y 8
 end
+arch wall_marble1.131
+x 6
+y 8
+end
 arch floor_marble1
+x 6
+y 9
+end
+arch stairs_stone_up2
+direction 7
 x 6
 y 9
 end
@@ -1328,7 +1351,16 @@ arch floor_marble1
 x 7
 y 8
 end
+arch wall_marble1.131a
+x 7
+y 8
+end
 arch floor_marble1b
+x 7
+y 9
+end
+arch fwall_marble2c
+draw_double_always 1
 x 7
 y 9
 end
@@ -1469,7 +1501,8 @@ arch floor_marble1a
 x 8
 y 6
 end
-arch wall_marble1.111a
+arch door1_locked
+direction 3
 x 8
 y 6
 end
@@ -1478,7 +1511,7 @@ x 8
 y 7
 end
 arch door1_locked
-direction 3
+direction 5
 x 8
 y 7
 end
@@ -1486,8 +1519,7 @@ arch floor_marble1a
 x 8
 y 8
 end
-arch door1_locked
-direction 5
+arch wall_marble1.141
 x 8
 y 8
 end
@@ -1495,7 +1527,7 @@ arch floor_marble1a
 x 8
 y 9
 end
-arch wall_marble1.111a
+arch fwall_marble2b
 x 8
 y 9
 end
@@ -1642,24 +1674,24 @@ arch plant6
 x 9
 y 4
 end
-arch grassd_4
+arch floor_flagm3
 x 9
 y 5
 end
-arch floor_flagm3
-x 9
-y 6
-end
 arch grassd_m4
 x 9
-y 6
+y 5
 end
 arch lantern2_magic.131
 direction 5
 x 9
-y 6
+y 5
 end
 arch light6
+x 9
+y 5
+end
+arch floor_flagm2
 x 9
 y 6
 end
@@ -1667,24 +1699,24 @@ arch floor_flagm2
 x 9
 y 7
 end
-arch floor_flagm2
+arch floor_flagm3
 x 9
 y 8
 end
-arch floor_flagm3
-x 9
-y 9
-end
 arch grassd_m3
 x 9
-y 9
+y 8
 end
 arch lantern2_magic.131
 direction 5
 x 9
-y 9
+y 8
 end
 arch light6
+x 9
+y 8
+end
+arch grassd_2
 x 9
 y 9
 end
@@ -1823,19 +1855,15 @@ arch grassd_m9
 x 10
 y 4
 end
-arch floor_flagm2
-x 10
-y 5
-end
-arch grassd_m9
-x 10
-y 5
-end
 arch floor_flagm1
 x 10
-y 6
+y 5
 end
 arch grassd_m13
+x 10
+y 5
+end
+arch floor_flagm2
 x 10
 y 6
 end
@@ -1847,11 +1875,15 @@ arch floor_flagm1
 x 10
 y 8
 end
-arch floor_flagm1
+arch grassd_m14
+x 10
+y 8
+end
+arch floor_flagm4
 x 10
 y 9
 end
-arch grassd_m14
+arch grassd_m9
 x 10
 y 9
 end

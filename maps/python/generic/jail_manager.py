@@ -82,7 +82,7 @@ def main():
         if not force:
             inf.add_msg("{} is not in jail... yet.".format(pl.name))
         else:
-            force.Remove()
+            force.Destroy()
             inf.add_msg("{} has been released early.".format(pl.name))
             pl.Controller().DrawInfo("You have been released early.", COLOR_GREEN)
 

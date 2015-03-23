@@ -1795,9 +1795,6 @@ x 10
 y 22
 end
 arch client_map_info
-msg
-
-endmsg
 name asteria_parliament
 sub_type 2
 x 10

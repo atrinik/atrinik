@@ -1,26 +1,26 @@
-/************************************************************************
-*            Atrinik, a Multiplayer Online Role Playing Game            *
-*                                                                       *
-*    Copyright (C) 2009-2012 Alex Tokar and Atrinik Development Team    *
-*                                                                       *
-* Fork from Crossfire (Multiplayer game for X-windows).                 *
-*                                                                       *
-* This program is free software; you can redistribute it and/or modify  *
-* it under the terms of the GNU General Public License as published by  *
-* the Free Software Foundation; either version 2 of the License, or     *
-* (at your option) any later version.                                   *
-*                                                                       *
-* This program is distributed in the hope that it will be useful,       *
-* but WITHOUT ANY WARRANTY; without even the implied warranty of        *
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
-* GNU General Public License for more details.                          *
-*                                                                       *
-* You should have received a copy of the GNU General Public License     *
-* along with this program; if not, write to the Free Software           *
-* Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.             *
-*                                                                       *
-* The author can be reached at admin@atrinik.org                        *
-************************************************************************/
+/*************************************************************************
+ *           Atrinik, a Multiplayer Online Role Playing Game             *
+ *                                                                       *
+ *   Copyright (C) 2009-2014 Alex Tokar and Atrinik Development Team     *
+ *                                                                       *
+ * Fork from Crossfire (Multiplayer game for X-windows).                 *
+ *                                                                       *
+ * This program is free software; you can redistribute it and/or modify  *
+ * it under the terms of the GNU General Public License as published by  *
+ * the Free Software Foundation; either version 2 of the License, or     *
+ * (at your option) any later version.                                   *
+ *                                                                       *
+ * This program is distributed in the hope that it will be useful,       *
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of        *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
+ * GNU General Public License for more details.                          *
+ *                                                                       *
+ * You should have received a copy of the GNU General Public License     *
+ * along with this program; if not, write to the Free Software           *
+ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.             *
+ *                                                                       *
+ * The author can be reached at admin@atrinik.org                        *
+ ************************************************************************/
 
 /**
  * @file
@@ -30,19 +30,17 @@
 
 #include <global.h>
 
-enum
-{
+enum {
     BUTTON_ADD,
     BUTTON_CLOSE,
     BUTTON_HELP,
 
     BUTTON_NUM
-};
+} ;
 
 /**
  * Buddy data structure. */
-typedef struct buddy_struct
-{
+typedef struct buddy_struct {
     /**
      * The character names. */
     UT_array *names;
@@ -170,7 +168,7 @@ static void widget_buddy_load(widgetdata *widget)
     }
 
     snprintf(buf, sizeof(buf), "%s.dat", widget->id);
-    tmp->path = player_make_path(buf);
+    tmp->path = file_path_player(buf);
 
     fp = fopen_wrapper(tmp->path, "r");
 
@@ -210,8 +208,7 @@ static void widget_buddy_save(widgetdata *widget)
 
     if (!fp) {
         logger_print(LOG(BUG), "Could not open file for writing: %s", tmp->path);
-    }
-    else {
+    } else {
         char **p;
 
         p = NULL;
@@ -272,7 +269,7 @@ static void widget_draw(widgetdata *widget)
 }
 
 /** @copydoc widgetdata::background_func */
-static void widget_background(widgetdata *widget)
+static void widget_background(widgetdata *widget, int draw)
 {
     buddy_struct *tmp;
 
@@ -295,8 +292,7 @@ static void widget_background(widgetdata *widget)
 
     if (cpl.state == ST_PLAY) {
         widget_buddy_load(widget);
-    }
-    else {
+    } else {
         widget_buddy_save(widget);
     }
 }
@@ -317,34 +313,33 @@ static int widget_event(widgetdata *widget, SDL_Event *event)
     for (i = 0; i < BUTTON_NUM; i++) {
         if (button_event(&tmp->buttons[i], event)) {
             switch (i) {
-                case BUTTON_ADD:
+            case BUTTON_ADD:
 
-                    if (tmp->text_input.focus) {
-                        if (*tmp->text_input.str != '\0') {
-                            widget_buddy_add(widget, tmp->text_input.str, 1);
-                            text_input_set(&tmp->text_input, NULL);
-                        }
-
-                        tmp->text_input.focus = 0;
-                    }
-                    else {
-                        tmp->text_input.focus = 1;
+                if (tmp->text_input.focus) {
+                    if (*tmp->text_input.str != '\0') {
+                        widget_buddy_add(widget, tmp->text_input.str, 1);
+                        text_input_set(&tmp->text_input, NULL);
                     }
 
-                    break;
-
-                case BUTTON_CLOSE:
-                    widget->show = 0;
-                    break;
-
-                case BUTTON_HELP:
-                {
-                    char buf[MAX_BUF];
-
-                    snprintf(buf, sizeof(buf), "%s list", widget->id);
-                    help_show(buf);
-                    break;
+                    tmp->text_input.focus = 0;
+                } else {
+                    tmp->text_input.focus = 1;
                 }
+
+                break;
+
+            case BUTTON_CLOSE:
+                widget->show = 0;
+                break;
+
+            case BUTTON_HELP:
+            {
+                char buf[MAX_BUF];
+
+                snprintf(buf, sizeof(buf), "%s list", widget->id);
+                help_show(buf);
+                break;
+            }
             }
 
             widget->redraw = 1;

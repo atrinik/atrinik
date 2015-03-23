@@ -1,26 +1,26 @@
-/************************************************************************
-*            Atrinik, a Multiplayer Online Role Playing Game            *
-*                                                                       *
-*    Copyright (C) 2009-2012 Alex Tokar and Atrinik Development Team    *
-*                                                                       *
-* Fork from Crossfire (Multiplayer game for X-windows).                 *
-*                                                                       *
-* This program is free software; you can redistribute it and/or modify  *
-* it under the terms of the GNU General Public License as published by  *
-* the Free Software Foundation; either version 2 of the License, or     *
-* (at your option) any later version.                                   *
-*                                                                       *
-* This program is distributed in the hope that it will be useful,       *
-* but WITHOUT ANY WARRANTY; without even the implied warranty of        *
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
-* GNU General Public License for more details.                          *
-*                                                                       *
-* You should have received a copy of the GNU General Public License     *
-* along with this program; if not, write to the Free Software           *
-* Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.             *
-*                                                                       *
-* The author can be reached at admin@atrinik.org                        *
-************************************************************************/
+/*************************************************************************
+ *           Atrinik, a Multiplayer Online Role Playing Game             *
+ *                                                                       *
+ *   Copyright (C) 2009-2014 Alex Tokar and Atrinik Development Team     *
+ *                                                                       *
+ * Fork from Crossfire (Multiplayer game for X-windows).                 *
+ *                                                                       *
+ * This program is free software; you can redistribute it and/or modify  *
+ * it under the terms of the GNU General Public License as published by  *
+ * the Free Software Foundation; either version 2 of the License, or     *
+ * (at your option) any later version.                                   *
+ *                                                                       *
+ * This program is distributed in the hope that it will be useful,       *
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of        *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
+ * GNU General Public License for more details.                          *
+ *                                                                       *
+ * You should have received a copy of the GNU General Public License     *
+ * along with this program; if not, write to the Free Software           *
+ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.             *
+ *                                                                       *
+ * The author can be reached at admin@atrinik.org                        *
+ ************************************************************************/
 
 /**
  * @file
@@ -37,38 +37,32 @@
 
 /**
  * Gender nouns. */
-const char *gender_noun[GENDER_MAX] =
-{
+const char *gender_noun[GENDER_MAX] = {
     "neuter", "male", "female", "hermaphrodite"
 };
 /**
  * Subjective pronouns. */
-const char *gender_subjective[GENDER_MAX] =
-{
+const char *gender_subjective[GENDER_MAX] = {
     "it", "he", "she", "it"
 };
 /**
  * Subjective pronouns, with first letter in uppercase. */
-const char *gender_subjective_upper[GENDER_MAX] =
-{
+const char *gender_subjective_upper[GENDER_MAX] = {
     "It", "He", "She", "It"
 };
 /**
  * Objective pronouns. */
-const char *gender_objective[GENDER_MAX] =
-{
+const char *gender_objective[GENDER_MAX] = {
     "it", "him", "her", "it"
 };
 /**
  * Possessive pronouns. */
-const char *gender_possessive[GENDER_MAX] =
-{
+const char *gender_possessive[GENDER_MAX] = {
     "its", "his", "her", "its"
 };
 /**
  * Reflexive pronouns. */
-const char *gender_reflexive[GENDER_MAX] =
-{
+const char *gender_reflexive[GENDER_MAX] = {
     "itself", "himself", "herself", "itself"
 };
 
@@ -84,7 +78,7 @@ void clear_player(void)
     quickslots_init();
     init_player_data();
     skills_init();
-    WIDGET_REDRAW_ALL(SKILL_EXP_ID);
+    WIDGET_REDRAW_ALL(PLAYER_INFO_ID);
 }
 
 /**
@@ -167,7 +161,7 @@ void init_player_data(void)
     cpl.stats.maxsp = 1;
     cpl.stats.maxhp = 1;
 
-    cpl.stats.speed = 1;
+    cpl.stats.speed = 1.0;
 
     cpl.ob->nrof = 1;
     cpl.partyname[0] = cpl.partyjoin[0] = '\0';
@@ -230,18 +224,4 @@ void player_draw_exp_progress(SDL_Surface *surface, int x, int y, sint64 xp, uin
     box.y += offset / 4;
     box.h /= 2;
     rectangle_create(surface, box.x, box.y, box.w, box.h, "4040ff");
-}
-
-char *player_make_path(const char *path)
-{
-    StringBuffer *sb;
-    char *server_name;
-
-    sb = stringbuffer_new();
-    server_name = estrdup(selected_server->name);
-    string_replace_char(server_name, "/\\", ' ');
-    stringbuffer_append_printf(sb, "settings/servers/%s/%s/%s/%s", server_name, cpl.account, cpl.name, path);
-    efree(server_name);
-
-    return stringbuffer_finish(sb);
 }

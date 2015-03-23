@@ -2,6 +2,7 @@
 /* src/tests/check.c */
 extern void check_setup(void);
 extern void check_teardown(void);
+extern void check_setup_env_pl(mapstruct **map, object **pl);
 extern void check_main(void);
 /* src/tests/bugs/check_85.c */
 extern void check_bug_85(void);
@@ -23,6 +24,10 @@ extern void check_server_re_cmp(void);
 extern void check_server_shstr(void);
 /* src/tests/unit/server/check_string.c */
 extern void check_server_string(void);
-/* src/tests/unit/server/check_utils.c*/
+/* src/tests/unit/server/check_utils.c */
 extern void check_server_utils(void);
+/* src/tests/unit/types/check_light_apply.c */
+extern void check_types_light_apply(void);
+/* src/tests/unit/types/check_sound_ambient.c */
+extern void check_types_sound_ambient(void);
 #endif

@@ -715,8 +715,8 @@ x 6
 y 2
 arch snowman_evil
 level 21
-Con 3
-Dex 2
+con 3
+dex 2
 can_use_weapon 1
 can_use_bow 1
 unaggressive 1
@@ -992,8 +992,8 @@ x 8
 y 8
 arch snowman_evil
 level 22
-Con 3
-Dex 2
+con 3
+dex 2
 can_use_weapon 1
 can_use_bow 1
 unaggressive 1
@@ -1186,8 +1186,8 @@ x 9
 y 22
 arch snowman_evil
 level 24
-Con 3
-Dex 2
+con 3
+dex 2
 can_use_weapon 1
 can_use_bow 1
 unaggressive 1
@@ -1375,8 +1375,8 @@ x 11
 y 12
 arch snowman_evil
 level 23
-Con 3
-Dex 2
+con 3
+dex 2
 can_use_weapon 1
 can_use_bow 1
 unaggressive 1
@@ -1485,8 +1485,8 @@ x 12
 y 9
 arch snowman_evil
 level 22
-Con 3
-Dex 2
+con 3
+dex 2
 can_use_weapon 1
 can_use_bow 1
 unaggressive 1
@@ -1869,8 +1869,8 @@ x 15
 y 19
 arch snowman_evil
 level 24
-Con 3
-Dex 2
+con 3
+dex 2
 can_use_weapon 1
 can_use_bow 1
 unaggressive 1
@@ -2374,8 +2374,8 @@ x 20
 y 9
 arch snowman_evil
 level 23
-Con 3
-Dex 2
+con 3
+dex 2
 can_use_weapon 1
 can_use_bow 1
 unaggressive 1
@@ -2639,8 +2639,8 @@ x 22
 y 17
 arch snowman_evil
 level 23
-Con 3
-Dex 2
+con 3
+dex 2
 can_use_weapon 1
 can_use_bow 1
 unaggressive 1

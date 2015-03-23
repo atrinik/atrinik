@@ -19,6 +19,7 @@ tile_path_8 world_1576
 bg_music campfire_tales.mid
 region morliana
 weather snow_light
+tile_path_9 world_1_1675
 end
 arch snow2
 end
@@ -127,8 +128,8 @@ x 1
 y 4
 arch snowman_evil
 level 33
-Con 3
-Dex 2
+con 3
+dex 2
 can_use_weapon 1
 can_use_bow 1
 unaggressive 1
@@ -728,8 +729,8 @@ x 6
 y 14
 arch snowman_evil
 level 33
-Con 3
-Dex 2
+con 3
+dex 2
 can_use_weapon 1
 can_use_bow 1
 unaggressive 1
@@ -775,8 +776,8 @@ x 6
 y 20
 arch snowman_evil
 level 32
-Con 3
-Dex 2
+con 3
+dex 2
 can_use_weapon 1
 can_use_bow 1
 unaggressive 1
@@ -812,8 +813,8 @@ arch spawn_point
 x 7
 arch snowman_evil
 level 34
-Con 3
-Dex 2
+con 3
+dex 2
 can_use_weapon 1
 can_use_bow 1
 unaggressive 1
@@ -871,8 +872,8 @@ x 7
 y 8
 arch snowman_evil
 level 33
-Con 3
-Dex 2
+con 3
+dex 2
 can_use_weapon 1
 can_use_bow 1
 unaggressive 1

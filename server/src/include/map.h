@@ -1,26 +1,26 @@
-/************************************************************************
-*            Atrinik, a Multiplayer Online Role Playing Game            *
-*                                                                       *
-*    Copyright (C) 2009-2012 Alex Tokar and Atrinik Development Team    *
-*                                                                       *
-* Fork from Crossfire (Multiplayer game for X-windows).                 *
-*                                                                       *
-* This program is free software; you can redistribute it and/or modify  *
-* it under the terms of the GNU General Public License as published by  *
-* the Free Software Foundation; either version 2 of the License, or     *
-* (at your option) any later version.                                   *
-*                                                                       *
-* This program is distributed in the hope that it will be useful,       *
-* but WITHOUT ANY WARRANTY; without even the implied warranty of        *
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
-* GNU General Public License for more details.                          *
-*                                                                       *
-* You should have received a copy of the GNU General Public License     *
-* along with this program; if not, write to the Free Software           *
-* Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.             *
-*                                                                       *
-* The author can be reached at admin@atrinik.org                        *
-************************************************************************/
+/*************************************************************************
+ *           Atrinik, a Multiplayer Online Role Playing Game             *
+ *                                                                       *
+ *   Copyright (C) 2009-2014 Alex Tokar and Atrinik Development Team     *
+ *                                                                       *
+ * Fork from Crossfire (Multiplayer game for X-windows).                 *
+ *                                                                       *
+ * This program is free software; you can redistribute it and/or modify  *
+ * it under the terms of the GNU General Public License as published by  *
+ * the Free Software Foundation; either version 2 of the License, or     *
+ * (at your option) any later version.                                   *
+ *                                                                       *
+ * This program is distributed in the hope that it will be useful,       *
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of        *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
+ * GNU General Public License for more details.                          *
+ *                                                                       *
+ * You should have received a copy of the GNU General Public License     *
+ * along with this program; if not, write to the Free Software           *
+ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.             *
+ *                                                                       *
+ * The author can be reached at admin@atrinik.org                        *
+ ************************************************************************/
 
 /**
  * @file
@@ -63,7 +63,7 @@
 #define NUM_LAYERS 7
 /**
  * Number of sub-layers. */
-#define NUM_SUB_LAYERS 5
+#define NUM_SUB_LAYERS 7
 /**
  * Effective number of all the visible layers. */
 #define NUM_REAL_LAYERS (NUM_LAYERS * NUM_SUB_LAYERS)
@@ -94,6 +94,10 @@
 #define MAP_NOSAVE(m)          ((m)->map_flags & MAP_FLAG_NO_SAVE)
 /** Does the map disallow magic? */
 #define MAP_NOMAGIC(m)         ((m)->map_flags & MAP_FLAG_NOMAGIC)
+/*
+ * Height difference will be taken into account when rendering the map.
+ */
+#define MAP_HEIGHT_DIFF(m)     ((m)->map_flags & MAP_FLAG_HEIGHT_DIFF)
 /** Does the map disallow harmful spells? */
 #define MAP_NOHARM(m)          ((m)->map_flags & MAP_FLAG_NOHARM)
 /** Does the map disallow summoning spells? */
@@ -194,9 +198,9 @@
 #define SET_MAP_FLAGS(M, X, Y, C) \
     ((M)->spaces[(X) + (M)->width * (Y)].flags = C)
 #define GET_MAP_LIGHT(M, X, Y) \
-    ((M)->spaces[(X) + (M)->width * (Y)].light)
+    ((M)->spaces[(X) + (M)->width * (Y)].light_value)
 #define SET_MAP_LIGHT(M, X, Y, L) \
-    ((M)->spaces[(X) + (M)->width * (Y)].light = (sint8) L)
+    ((M)->spaces[(X) + (M)->width * (Y)].light_value = L)
 
 #define GET_MAP_OB(M, X, Y) \
     ((M)->spaces[(X) + (M)->width * (Y)].first)
@@ -240,6 +244,8 @@
 #define P_IS_PLAYER           0x08
 /** There is a monster on this square. */
 #define P_IS_MONSTER            0x10
+/** There is an exit on this tile. */
+#define P_IS_EXIT             0x20
 /**
  * Only players are allowed to enter this space. This excludes mobs
  * and golems but also spell effects and thrown / fired items.
@@ -305,11 +311,16 @@
 #define MSP_EXTRA_NO_PVP 2
 /** No magic. */
 #define MSP_EXTRA_NO_MAGIC 4
+/** The tile is part of a building. */
+#define MSP_EXTRA_IS_BUILDING 8
+/** The tile is a balcony. */
+#define MSP_EXTRA_IS_BALCONY 16
+/** The tile shows objects under it in a building. */
+#define MSP_EXTRA_IS_OVERLOOK 32
 /*@}*/
 
 /** Single tile on a map */
-typedef struct MapSpace_s
-{
+typedef struct MapSpace_s {
     /** Start of the objects on this map tile */
     object *first;
 
@@ -362,9 +373,6 @@ typedef struct MapSpace_s
     /** Terrain type flags (water, underwater,...) */
     uint16 move_flags;
 
-    /** How much light this space provides */
-    uint8 light;
-
     /** Extra flags from @ref MSP_EXTRA_xxx. */
     uint8 extra_flags;
 } MapSpace;
@@ -383,6 +391,10 @@ typedef struct MapSpace_s
 #define MAP_FLAG_FIXED_RTIME 4
 /** No wizardry based spells */
 #define MAP_FLAG_NOMAGIC 8
+/**
+ * Height difference will be taken into account when rendering the map.
+ */
+#define MAP_FLAG_HEIGHT_DIFF 16
 /** No harmful spells like fireball, magic bullet, etc. */
 #define MAP_FLAG_NOHARM 32
 /**
@@ -414,27 +426,12 @@ typedef struct MapSpace_s
 #define MAP_DEFAULT_DARKNESS    0
 /*@}*/
 
-#define SET_MAP_TILE_VISITED(m, x, y, id)                                                    \
-    {                                                                                            \
-        if ((m)->pathfinding_id != (id))                                                         \
-        {                                                                                        \
-            (m)->pathfinding_id = (id);                                                          \
-            memset((m)->bitmap, 0, ((MAP_WIDTH(m) + 31) / 32) * MAP_HEIGHT(m) * sizeof(uint32)); \
-        }                                                                                        \
-                                                                                             \
-        (m)->bitmap[(x) / 32 + ((MAP_WIDTH(m) + 31) / 32) * (y)] |= (1U << ((x) % 32));          \
-    }
-
-#define QUERY_MAP_TILE_VISITED(m, x, y, id) \
-    ((m)->pathfinding_id == (id) && ((m)->bitmap[(x) / 32 + ((MAP_WIDTH(m) + 31) / 32) * (y)] & (1U << ((x) % 32))))
-
 /**
  * This is a game region.
  *
  * Each map is in a given region of the game world and links to a region
  * definition. */
-typedef struct region_struct
-{
+typedef struct region_struct {
     /** Pointer to next region, NULL for the last one */
     struct region_struct *next;
 
@@ -486,8 +483,7 @@ typedef struct region_struct
 
 /**
  * A single map event, holding a pointer to map event object on map. */
-typedef struct map_event
-{
+typedef struct map_event {
     /** Next map event in linked list. */
     struct map_event *next;
 
@@ -499,6 +495,16 @@ typedef struct map_event
     struct atrinik_plugin *plugin;
 } map_event;
 
+typedef struct map_exit {
+    struct map_exit *next;
+
+    struct map_exit *prev;
+
+    object *obj;
+} map_exit_t;
+
+typedef struct path_node path_node_t;
+
 /**
  * In general, code should always use the macros above (or functions in
  * map.c) to access many of the values in the map structure. Failure to
@@ -507,13 +513,18 @@ typedef struct map_event
  * You may think it is safe to look at width and height values directly
  * (or even through the macros), but doing so will completely break map
  * tiling. */
-typedef struct mapdef
-{
-    /** Previous map before. If NULL we are first_map. */
-    struct mapdef *previous;
-
-    /** Next map, linked list */
+typedef struct mapdef {
+    /**
+     * Next map in a doubly-linked list.
+     * @private
+     */
     struct mapdef *next;
+
+    /**
+     * Previous map in a doubly-linked list.
+     * @private
+     */
+    struct mapdef *prev;
 
     /** Any maps tiled together to this one */
     struct mapdef *tile_map[TILED_NUM];
@@ -551,6 +562,8 @@ typedef struct mapdef
     /** Map-wide events for this map. */
     struct map_event *events;
 
+    map_exit_t *exits;
+
     /** Linked list of linked lists of buttons */
     objectlink *buttons;
 
@@ -565,6 +578,8 @@ typedef struct mapdef
 
     /** For which traversal is @ref mapstruct::bitmap valid. */
     uint32 pathfinding_id;
+
+    path_node_t **path_nodes;
 
     /** Map flags for various map settings */
     uint32 map_flags;
@@ -632,13 +647,95 @@ typedef struct mapdef
      * have one set.
      * @see MAP_FLAG_FIXED_LOGIN */
     int enter_y;
+
+    sint16 coords[3]; ///< X, Y and Z coordinates.
+
+    sint8 level_min; ///< Minimum level offset that is part of this map.
+
+    sint8 level_max; ///< Maximum level offset that is part of this map.
+
+    bool global_removed; ///< If true, the map was removed from the global list.
 } mapstruct;
+
+/**
+ * Checks if the specified map level offset is part of the map.
+ * @param _m Map.
+ * @param _z Level offset.
+ */
+#define MAP_TILE_IS_SAME_LEVEL(_m, _z) \
+    ((_m)->coords[2] + (_z) >= (_m)->level_min && \
+    (_m)->coords[2] + (_z) <= (_m)->level_max)
+
+#define MAP_TILES_WALK_INTERNAL(_m, _fnc, ...) \
+    if (__ret == 0) { \
+        __ret = (_fnc)((_m), (_m), ##__VA_ARGS__); \
+    } \
+\
+    for (__idx = 0; __ret == 0 && __idx < TILED_NUM_DIR; __idx++) { \
+        if ((_m)->tile_map[__idx] == NULL || \
+                (_m)->tile_map[__idx]->in_memory != MAP_IN_MEMORY) { \
+            continue; \
+        } \
+\
+        __ret = (_fnc)((_m)->tile_map[__idx], (_m), ##__VA_ARGS__); \
+    }
+
+/**
+ * Walks all the tiled maps, including up/down maps that are on the same level
+ * as the specified map, including the direction-based tiled maps of those
+ * up/down maps.
+ * @param _m The map to walk.
+ * @param _fnc Function to apply to each map. This should have 'int' return
+ * value, which indicates whether to keep going or not. Non-zero return value
+ * will stop the walk, and can be retrieved with MAP_TILES_WALK_RETVAL. Two
+ * arguments are automatically supplied to the function: the first one is the
+ * tiled map, and the second one is either whatever map was supplied through
+ * the _m parameter, or a map that is tiled up/down to that map. This means that
+ * you can use the second 'map' parameter to do things like non-recursive
+ * distance calculation (since you need the specific map level for that, but you
+ * can still re-use the X/Y map tile coordinates).
+ * @param ... Additional arguments supplied to the function.
+ */
+#define MAP_TILES_WALK_START(_m, _fnc, ...) \
+{ \
+    int __ret, __idx, __tile_id, __z; \
+    mapstruct *__tile; \
+\
+    __ret = 0; \
+\
+    if ((_m)->in_memory == MAP_IN_MEMORY) { \
+        MAP_TILES_WALK_INTERNAL(_m, _fnc, ##__VA_ARGS__); \
+    } \
+\
+    for (__tile_id = TILED_UP; \
+            __ret == 0 && __tile_id <= TILED_DOWN; \
+            __tile_id++) { \
+        for (__tile = (_m)->tile_map[__tile_id], \
+                __z = __tile_id == TILED_UP ? 1 : -1; \
+                __ret == 0 && __tile != NULL && \
+                __tile->in_memory == MAP_IN_MEMORY && \
+                MAP_TILE_IS_SAME_LEVEL(_m, __z); \
+                __tile = __tile->tile_map[__tile_id], \
+                __z += __tile_id == TILED_UP ? 1 : -1) { \
+            MAP_TILES_WALK_INTERNAL(__tile, _fnc, ##__VA_ARGS__); \
+        } \
+    }
+
+/**
+ * Acquires the return value from the user-supplied function.
+ */
+#define MAP_TILES_WALK_RETVAL __ret
+
+/**
+ * Ends map tile walking block.
+ */
+#define MAP_TILES_WALK_END \
+}
 
 /**
  * This is used by get_rangevector() to determine where the other
  * creature is. */
-typedef struct rv_vector_s
-{
+typedef struct rv_vector_s {
     /** The distance away */
     unsigned int distance;
 
@@ -647,6 +744,9 @@ typedef struct rv_vector_s
 
     /** Y distance away */
     int distance_y;
+
+    /** Z distance away */
+    int distance_z;
 
     /** Atrinik direction scheme that the creature should head */
     int direction;
@@ -660,13 +760,15 @@ typedef struct rv_vector_s
  * Range vector flags, used by functions like get_rangevector() and
  * get_rangevector_from_mapcoords().
  *@{*/
-#define RV_IGNORE_MULTIPART    0x01
-#define RV_RECURSIVE_SEARCH    0x02
-
 #define RV_MANHATTAN_DISTANCE  0x00
-#define RV_EUCLIDIAN_DISTANCE  0x04
-#define RV_DIAGONAL_DISTANCE   0x08
-#define RV_NO_DISTANCE         (0x08 | 0x04)
+#define RV_EUCLIDIAN_DISTANCE  0x01
+#define RV_DIAGONAL_DISTANCE   0x02
+#define RV_NO_DISTANCE         (RV_EUCLIDIAN_DISTANCE | RV_DIAGONAL_DISTANCE)
+
+#define RV_IGNORE_MULTIPART    0x04
+#define RV_RECURSIVE_SEARCH    0x08
+#define RV_NO_LOAD             0x10
+
 /*@}*/
 
 /**
@@ -689,9 +791,20 @@ typedef struct rv_vector_s
 #define WEST 7
 /** Northwest. */
 #define NORTHWEST 8
+/** Maximum direction number. */
+#define NUM_DIRECTION 8
 /*@}*/
 
 /** Check if 'pl' cannot see 'ob' due to it being hidden by plugin. */
 #define OBJECT_IS_HIDDEN(pl, ob) (HAS_EVENT((ob), EVENT_ASK_SHOW) && trigger_event(EVENT_ASK_SHOW, (pl), (ob), NULL, NULL, 0, 0, 0, 0) == 1)
+
+/**
+ * Maximum darkness of building walls.
+ */
+#define MAP_BUILDING_DARKNESS_WALL 4
+/**
+ * Darkness of building interiors.
+ */
+#define MAP_BUILDING_DARKNESS 3
 
 #endif

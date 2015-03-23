@@ -1,26 +1,26 @@
-/************************************************************************
-*            Atrinik, a Multiplayer Online Role Playing Game            *
-*                                                                       *
-*    Copyright (C) 2009-2012 Alex Tokar and Atrinik Development Team    *
-*                                                                       *
-* Fork from Crossfire (Multiplayer game for X-windows).                 *
-*                                                                       *
-* This program is free software; you can redistribute it and/or modify  *
-* it under the terms of the GNU General Public License as published by  *
-* the Free Software Foundation; either version 2 of the License, or     *
-* (at your option) any later version.                                   *
-*                                                                       *
-* This program is distributed in the hope that it will be useful,       *
-* but WITHOUT ANY WARRANTY; without even the implied warranty of        *
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
-* GNU General Public License for more details.                          *
-*                                                                       *
-* You should have received a copy of the GNU General Public License     *
-* along with this program; if not, write to the Free Software           *
-* Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.             *
-*                                                                       *
-* The author can be reached at admin@atrinik.org                        *
-************************************************************************/
+/*************************************************************************
+ *           Atrinik, a Multiplayer Online Role Playing Game             *
+ *                                                                       *
+ *   Copyright (C) 2009-2014 Alex Tokar and Atrinik Development Team     *
+ *                                                                       *
+ * Fork from Crossfire (Multiplayer game for X-windows).                 *
+ *                                                                       *
+ * This program is free software; you can redistribute it and/or modify  *
+ * it under the terms of the GNU General Public License as published by  *
+ * the Free Software Foundation; either version 2 of the License, or     *
+ * (at your option) any later version.                                   *
+ *                                                                       *
+ * This program is distributed in the hope that it will be useful,       *
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of        *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
+ * GNU General Public License for more details.                          *
+ *                                                                       *
+ * You should have received a copy of the GNU General Public License     *
+ * along with this program; if not, write to the Free Software           *
+ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.             *
+ *                                                                       *
+ * The author can be reached at admin@atrinik.org                        *
+ ************************************************************************/
 
 /**
  * @file
@@ -34,8 +34,7 @@
  * @page plugin_python_archetype_fields Python archetype fields
  * <h2>Python archetype fields</h2>
  * List of the archetype fields and their meaning. */
-static fields_struct fields[] =
-{
+static fields_struct fields[] = {
     {"name", FIELDTYPE_SHSTR, offsetof(archetype, name), 0, 0},
     {"next", FIELDTYPE_ARCH, offsetof(archetype, next), 0, 0},
     {"head", FIELDTYPE_ARCH, offsetof(archetype, head), 0, 0},
@@ -118,8 +117,7 @@ static PyObject *Atrinik_Archetype_RichCompare(Atrinik_Archetype *left, Atrinik_
 static PyGetSetDef getseters[NUM_FIELDS + 1];
 
 /** Our actual Python ArchetypeType. */
-PyTypeObject Atrinik_ArchetypeType =
-{
+PyTypeObject Atrinik_ArchetypeType = {
 #ifdef IS_PY3K
     PyVarObject_HEAD_INIT(NULL, 0)
 #else
@@ -153,6 +151,9 @@ PyTypeObject Atrinik_ArchetypeType =
 #ifndef IS_PY_LEGACY
     , 0
 #endif
+#ifdef Py_TPFLAGS_HAVE_FINALIZE
+    , NULL
+#endif
 };
 
 /**
@@ -183,7 +184,7 @@ int Atrinik_Archetype_init(PyObject *module)
     }
 
     Py_INCREF(&Atrinik_ArchetypeType);
-    PyModule_AddObject(module, "Archetype", (PyObject *) &Atrinik_ArchetypeType);
+    PyModule_AddObject(module, "Archetype", (PyObject *) & Atrinik_ArchetypeType);
 
     return 1;
 }

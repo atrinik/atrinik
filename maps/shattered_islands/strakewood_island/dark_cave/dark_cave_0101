@@ -305,7 +305,7 @@ arch worm_purple
 name small purple worm
 type 83
 level 12
-Wis 3
+wis 3
 end
 end
 arch floor_ruin4
@@ -1072,14 +1072,14 @@ arch worm_purple
 name small purple worm
 level 12
 object_int1 80
-Wis 3
+wis 3
 type 83
 end
 arch worm_purple
 name Yrchhhh
 level 13
 object_int1 20
-Wis 3
+wis 3
 type 83
 arch rand_drop
 container 50
@@ -2147,7 +2147,7 @@ arch worm_purple
 name small purple worm
 type 83
 level 13
-Wis 3
+wis 3
 end
 end
 arch floor_ruin4
@@ -2600,7 +2600,7 @@ arch skel_fighter1
 name forgotten skeleton warrior
 type 83
 level 13
-Wis 2
+wis 2
 end
 end
 arch floor_ruin4
@@ -2713,7 +2713,7 @@ arch skel_fighter1
 name forgotten skeleton warrior
 type 83
 level 13
-Wis 2
+wis 2
 end
 end
 arch floor_ruin4

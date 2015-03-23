@@ -3,35 +3,35 @@
     <interface>
         <dialog name="hello">
             <message>Hi, there {activator.name}. Welcome to the school library. Please try to keep quiet so others can study in peace.</message>
-            <response message="Find a book." destination="book" />
+            <response destination="book" message="Find a book."/>
         </dialog>
         <dialog name="book">
             <message>We have plenty of books. Please feel free to ask Ruri if you need some assistance.</message>
-            <response message="Ask about Ruri." destination="ruri" />
-            <response message="Ask about the Eastern Project series." destination="touhou" />
-            <response message="Ask about something else." destination="main_menu" />
+            <response destination="ruri" message="Ask about Ruri."/>
+            <response destination="touhou" message="Ask about the Eastern Project series."/>
+            <response destination="main_menu" message="Ask about something else."/>
         </dialog>
         <dialog name="main_menu">
             <message>Was there anything else you wanted to talk about {activator.name}?</message>
-            <response message="Find a book." destination="book" />
-            <response message="Ask about Ruri." destination="ruri" />
-            <response message="Goodbye." action="close" />
+            <response destination="book" message="Find a book."/>
+            <response destination="ruri" message="Ask about Ruri."/>
+            <response action="close" message="Goodbye."/>
         </dialog>
         <dialog name="touhou">
             <message>This name is, of course, translated from its original language, but it basically means the same thing. You should be able to find a copy in the library but it's very popular here so someone may be reading them right now.</message>
-            <response message="Ask about something else." destination="main_menu" />
+            <response destination="main_menu" message="Ask about something else."/>
         </dialog>
         <dialog name="ruri">
             <message>Don't mind her. She knows a bit too much but she's a hard worker. You wouldn't really expect most fairies to be that smart, though... it's kind of weird. I wonder if maybe I should ask the summoning instructor to look into the spell I used to summon her.</message>
-            <response message="Ask about something else." destination="main_menu" />
+            <response destination="main_menu" message="Ask about something else."/>
         </dialog>
         <dialog name="nanoha" regex="lindy harlaown|harlaown|nanoha|lyrical">
             <message>Excellent deduction. Yes, my parents were, indeed, quite the fans of the Nanoha series.</message>
-            <response message="Ask about something else." destination="main_menu" />
+            <response destination="main_menu" message="Ask about something else."/>
         </dialog>
         <dialog name="patchouli" regex="patchouli|patchouli knowledge">
             <message>Ah, I see you like the Eastern Project series, too. It's fairly obvious why I should be a fan of her, don't you think?</message>
-            <response message="Ask about something else." destination="main_menu" />
+            <response destination="main_menu" message="Ask about something else."/>
         </dialog>
     </interface>
 </interfaces>

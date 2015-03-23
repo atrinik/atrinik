@@ -1,26 +1,26 @@
-/************************************************************************
-*            Atrinik, a Multiplayer Online Role Playing Game            *
-*                                                                       *
-*    Copyright (C) 2009-2012 Alex Tokar and Atrinik Development Team    *
-*                                                                       *
-* Fork from Crossfire (Multiplayer game for X-windows).                 *
-*                                                                       *
-* This program is free software; you can redistribute it and/or modify  *
-* it under the terms of the GNU General Public License as published by  *
-* the Free Software Foundation; either version 2 of the License, or     *
-* (at your option) any later version.                                   *
-*                                                                       *
-* This program is distributed in the hope that it will be useful,       *
-* but WITHOUT ANY WARRANTY; without even the implied warranty of        *
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
-* GNU General Public License for more details.                          *
-*                                                                       *
-* You should have received a copy of the GNU General Public License     *
-* along with this program; if not, write to the Free Software           *
-* Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.             *
-*                                                                       *
-* The author can be reached at admin@atrinik.org                        *
-************************************************************************/
+/*************************************************************************
+ *           Atrinik, a Multiplayer Online Role Playing Game             *
+ *                                                                       *
+ *   Copyright (C) 2009-2014 Alex Tokar and Atrinik Development Team     *
+ *                                                                       *
+ * Fork from Crossfire (Multiplayer game for X-windows).                 *
+ *                                                                       *
+ * This program is free software; you can redistribute it and/or modify  *
+ * it under the terms of the GNU General Public License as published by  *
+ * the Free Software Foundation; either version 2 of the License, or     *
+ * (at your option) any later version.                                   *
+ *                                                                       *
+ * This program is distributed in the hope that it will be useful,       *
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of        *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
+ * GNU General Public License for more details.                          *
+ *                                                                       *
+ * You should have received a copy of the GNU General Public License     *
+ * along with this program; if not, write to the Free Software           *
+ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.             *
+ *                                                                       *
+ * The author can be reached at admin@atrinik.org                        *
+ ************************************************************************/
 
 /**
  * @file
@@ -140,7 +140,7 @@ static void updater_download_start(void)
     curl_easy_cleanup(curl);
 
     /* Start downloading the list of available updates. */
-    dl_data = curl_download_start(url);
+    dl_data = curl_download_start(url, NULL);
 
     progress_dots_create(&progress);
 }
@@ -199,8 +199,7 @@ static int popup_draw_post(popup_struct *popup)
         /* Downloading list of updates? */
         if (!strncmp(dl_data->url, UPDATER_CHECK_URL, strlen(UPDATER_CHECK_URL))) {
             text_show_shadow(ScreenSurface, FONT_ARIAL11, "Downloading list of updates...", box.x, box.y, COLOR_WHITE, COLOR_BLACK, TEXT_ALIGN_CENTER, &box);
-        }
-        else {
+        } else {
             text_show_shadow_format(ScreenSurface, FONT_ARIAL11, box.x, box.y, COLOR_WHITE, COLOR_BLACK, TEXT_ALIGN_CENTER, &box, "Downloading update #%"FMT64 " out of %"FMT64 "...", (uint64) download_package_next, (uint64) download_packages_num);
         }
     }
@@ -225,9 +224,9 @@ static int popup_draw_post(popup_struct *popup)
             button_retry.x = box.x + box.w / 2 - texture_surface(button_retry.texture)->w / 2;
             button_retry.y = box.y;
             button_show(&button_retry, "Retry");
-        }
-        /* Finished downloading. */
-        else if (ret == 1) {
+        } else if (ret == 1) {
+            /* Finished downloading. */
+
             /* Is it the list of updates? */
             if (!strncmp(dl_data->url, UPDATER_CHECK_URL, strlen(UPDATER_CHECK_URL))) {
                 if (dl_data->memory) {
@@ -239,7 +238,7 @@ static int popup_draw_post(popup_struct *popup)
 
                     while (line) {
                         if (string_split(line, tmp, arraysize(tmp), '\t') == 2) {
-                            download_packages = realloc(download_packages, sizeof(*download_packages) * (download_packages_num + 1));
+                            download_packages = erealloc(download_packages, sizeof(*download_packages) * (download_packages_num + 1));
                             download_packages[download_packages_num].filename = estrdup(tmp[0]);
                             download_packages[download_packages_num].sha1 = estrdup(tmp[1]);
                             download_packages_num++;
@@ -305,10 +304,9 @@ static int popup_draw_post(popup_struct *popup)
                             fclose(fp);
                             download_packages_downloaded++;
                         }
-                    }
-                    /* Did not match, stop downloading, even if there are more.
-                     * */
-                    else {
+                    } else {
+                        /* Did not match, stop downloading, even if there are
+                         * more. */
                         download_package_next = download_packages_num;
                     }
 
@@ -322,14 +320,14 @@ static int popup_draw_post(popup_struct *popup)
 
                     /* Construct the URL. */
                     snprintf(url, sizeof(url), UPDATER_PATH_URL "/%s", download_packages[download_package_next].filename);
-                    dl_data = curl_download_start(url);
+                    dl_data = curl_download_start(url, NULL);
                     download_package_next++;
                 }
             }
         }
-    }
-    /* Finished all downloads. */
-    else {
+    } else {
+        /* Finished all downloads. */
+
         progress.done = 1;
 
         /* No packages, so the client is up-to-date. */
@@ -340,8 +338,7 @@ static int popup_draw_post(popup_struct *popup)
             button_close.x = box.x + box.w / 2 - texture_surface(button_close.texture)->w / 2;
             button_close.y = box.y;
             button_show(&button_close, "Close");
-        }
-        else {
+        } else {
 #ifdef WIN32
             text_show_shadow_format(ScreenSurface, FONT_ARIAL11, box.x, box.y, COLOR_WHITE, COLOR_BLACK, TEXT_ALIGN_CENTER, &box, "%"FMT64 " update(s) downloaded successfully.", (uint64) download_packages_downloaded);
             box.y += 20;
@@ -377,8 +374,7 @@ static int popup_event(popup_struct *popup, SDL_Event *event)
     if (button_event(&button_close, event)) {
         popup_destroy(popup);
         return 1;
-    }
-    else if (button_event(&button_retry, event)) {
+    } else if (button_event(&button_retry, event)) {
         updater_download_clean();
         updater_download_start();
         return 1;
@@ -387,9 +383,8 @@ static int popup_event(popup_struct *popup, SDL_Event *event)
     else if (button_event(&button_restart, event)) {
         char path[HUGE_BUF], wdir[HUGE_BUF];
 
-        snprintf(path, sizeof(path), "%s\\up_dater.exe", getcwd(wdir, sizeof(wdir) - 1));
+        snprintf(path, sizeof(path), "%s\\atrinik2.exe", getcwd(wdir, sizeof(wdir) - 1));
         ShellExecute(NULL, "open", path, NULL, NULL, SW_SHOWNORMAL);
-        system_end();
         exit(0);
         return 1;
     }

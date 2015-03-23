@@ -23,7 +23,6 @@ material 64
 item_condition 100
 item_quality 100
 type 73
-speed -0.35
 value 1100
 weight 500
 end
@@ -39,7 +38,6 @@ anim_speed 4
 material 64
 item_condition 100
 item_quality 100
-speed -0.45
 type 73
 value 3500
 weight 100
@@ -58,7 +56,6 @@ item_condition 100
 item_quality 100
 type 6
 food 7
-speed -0.30
 value 800
 weight 500
 end

@@ -4,7 +4,7 @@
         <dialog name="hello">
             <message>Very impressive, adventurer! You found out about the illusionary wall, did you? Very well then.</message>
             <message>I'm {npc.name}, the president for Banks Inc.</message>
-            <response message="Tell me about Banks Inc..." destination="tellbanks" />
+            <response destination="tellbanks" message="Tell me about Banks Inc..."/>
         </dialog>
         <dialog name="tellbanks">
             <message>Our job is to provide citizens of this world a way to access their funds from anywhere, including when paying from shops or when paying for various services.</message>

@@ -7,7 +7,6 @@ other_arch lamp_wall_1_unlit
 glow_radius 5
 is_animated 1
 animation lamp_wall
-speed -0.02
 is_turnable 1
 anim_speed 100
 direction 1

@@ -1,26 +1,26 @@
-/************************************************************************
-*            Atrinik, a Multiplayer Online Role Playing Game            *
-*                                                                       *
-*    Copyright (C) 2009-2012 Alex Tokar and Atrinik Development Team    *
-*                                                                       *
-* Fork from Crossfire (Multiplayer game for X-windows).                 *
-*                                                                       *
-* This program is free software; you can redistribute it and/or modify  *
-* it under the terms of the GNU General Public License as published by  *
-* the Free Software Foundation; either version 2 of the License, or     *
-* (at your option) any later version.                                   *
-*                                                                       *
-* This program is distributed in the hope that it will be useful,       *
-* but WITHOUT ANY WARRANTY; without even the implied warranty of        *
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
-* GNU General Public License for more details.                          *
-*                                                                       *
-* You should have received a copy of the GNU General Public License     *
-* along with this program; if not, write to the Free Software           *
-* Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.             *
-*                                                                       *
-* The author can be reached at admin@atrinik.org                        *
-************************************************************************/
+/*************************************************************************
+ *           Atrinik, a Multiplayer Online Role Playing Game             *
+ *                                                                       *
+ *   Copyright (C) 2009-2014 Alex Tokar and Atrinik Development Team     *
+ *                                                                       *
+ * Fork from Crossfire (Multiplayer game for X-windows).                 *
+ *                                                                       *
+ * This program is free software; you can redistribute it and/or modify  *
+ * it under the terms of the GNU General Public License as published by  *
+ * the Free Software Foundation; either version 2 of the License, or     *
+ * (at your option) any later version.                                   *
+ *                                                                       *
+ * This program is distributed in the hope that it will be useful,       *
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of        *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
+ * GNU General Public License for more details.                          *
+ *                                                                       *
+ * You should have received a copy of the GNU General Public License     *
+ * along with this program; if not, write to the Free Software           *
+ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.             *
+ *                                                                       *
+ * The author can be reached at admin@atrinik.org                        *
+ ************************************************************************/
 
 /**
  * @file
@@ -33,8 +33,7 @@
 /**
  * One active effect.
  */
-typedef struct active_effect_struct
-{
+typedef struct active_effect_struct {
     /**
      * Next active effect in a doubly-linked list.
      */
@@ -63,8 +62,7 @@ typedef struct active_effect_struct
 
 /**
  * Active effects widget data. */
-typedef struct widget_active_effects_struct
-{
+typedef struct widget_active_effects_struct {
     active_effect_struct *active_effects;
 
     uint32 update_ticks;
@@ -148,8 +146,7 @@ static void widget_draw(widgetdata *widget)
 
                 if (effect->sec > 60) {
                     snprintf(buf, sizeof(buf), "%d:%02d", effect->sec / 60, effect->sec % 60);
-                }
-                else {
+                } else {
                     snprintf(buf, sizeof(buf), "%d", effect->sec);
                 }
 
@@ -205,7 +202,7 @@ static int widget_event(widgetdata *widget, SDL_Event *event)
         }
     }
 
-    return -1;
+    return 0;
 }
 
 void widget_active_effects_update(widgetdata *widget, object *op, sint32 sec, const char *msg)
@@ -229,8 +226,7 @@ void widget_active_effects_update(widgetdata *widget, object *op, sint32 sec, co
     if (!effect) {
         effect = ecalloc(1, sizeof(*effect));
         DL_APPEND(tmp->active_effects, effect);
-    }
-    else {
+    } else {
         efree(effect->msg);
     }
 

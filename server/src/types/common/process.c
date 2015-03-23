@@ -1,26 +1,26 @@
-/************************************************************************
-*            Atrinik, a Multiplayer Online Role Playing Game            *
-*                                                                       *
-*    Copyright (C) 2009-2012 Alex Tokar and Atrinik Development Team    *
-*                                                                       *
-* Fork from Crossfire (Multiplayer game for X-windows).                 *
-*                                                                       *
-* This program is free software; you can redistribute it and/or modify  *
-* it under the terms of the GNU General Public License as published by  *
-* the Free Software Foundation; either version 2 of the License, or     *
-* (at your option) any later version.                                   *
-*                                                                       *
-* This program is distributed in the hope that it will be useful,       *
-* but WITHOUT ANY WARRANTY; without even the implied warranty of        *
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
-* GNU General Public License for more details.                          *
-*                                                                       *
-* You should have received a copy of the GNU General Public License     *
-* along with this program; if not, write to the Free Software           *
-* Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.             *
-*                                                                       *
-* The author can be reached at admin@atrinik.org                        *
-************************************************************************/
+/*************************************************************************
+ *           Atrinik, a Multiplayer Online Role Playing Game             *
+ *                                                                       *
+ *   Copyright (C) 2009-2014 Alex Tokar and Atrinik Development Team     *
+ *                                                                       *
+ * Fork from Crossfire (Multiplayer game for X-windows).                 *
+ *                                                                       *
+ * This program is free software; you can redistribute it and/or modify  *
+ * it under the terms of the GNU General Public License as published by  *
+ * the Free Software Foundation; either version 2 of the License, or     *
+ * (at your option) any later version.                                   *
+ *                                                                       *
+ * This program is distributed in the hope that it will be useful,       *
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of        *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
+ * GNU General Public License for more details.                          *
+ *                                                                       *
+ * You should have received a copy of the GNU General Public License     *
+ * along with this program; if not, write to the Free Software           *
+ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.             *
+ *                                                                       *
+ * The author can be reached at admin@atrinik.org                        *
+ ************************************************************************/
 
 /**
  * @file
@@ -57,8 +57,7 @@ static void common_object_process_changing(object *op)
             if (op->other_arch && op->other_arch->clone.sub_type & 1) {
                 op->animation_id = op->other_arch->clone.animation_id;
                 SET_ANIMATION(op, (NUM_ANIMATIONS(op) / NUM_FACINGS(op)) * op->direction);
-            }
-            else {
+            } else {
                 CLEAR_FLAG(op, FLAG_ANIMATE);
                 op->face = op->arch->clone.face;
             }
@@ -73,9 +72,9 @@ static void common_object_process_changing(object *op)
                     /* Will take care about adjusting light masks. */
                     fix_player(op->env);
                 }
-            }
-            /* Object is on map. */
-            else {
+            } else {
+                /* Object is on map. */
+
                 /* Remove light mask from map. */
                 adjust_light_source(op->map, op->x, op->y, -(op->glow_radius));
                 update_object(op, UP_OBJ_FACE);
@@ -98,8 +97,7 @@ static void common_object_process_changing(object *op)
 
     if (env) {
         insert_ob_in_ob(tmp, env);
-    }
-    else {
+    } else {
         tmp->x = op->x;
         tmp->y = op->y;
         insert_ob_in_map(tmp, op->map, op, 0);
@@ -141,9 +139,8 @@ int common_object_process_pre(object *op)
                 op->stats.food = op->arch->clone.stats.food;
                 return 1;
             }
-        }
-        /* If it's a force or such in player's inventory, unapply it. */
-        else if (op->env && op->env->type == PLAYER && QUERY_FLAG(op, FLAG_APPLIED)) {
+        } else if (op->env && op->env->type == PLAYER && QUERY_FLAG(op, FLAG_APPLIED)) {
+            /* If it's a force or such in player's inventory, unapply it. */
             CLEAR_FLAG(op, FLAG_APPLIED);
             change_abil(op->env, op);
             fix_player(op->env);

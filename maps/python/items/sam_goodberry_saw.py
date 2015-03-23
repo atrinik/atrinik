@@ -1,7 +1,7 @@
-from QuestManager import QuestManagerMulti
+from QuestManager import QuestManager
 from InterfaceQuests import escaping_deserted_island
 
-qm = QuestManagerMulti(activator, escaping_deserted_island)
+qm = QuestManager(activator, escaping_deserted_island)
 
 def main():
     SetReturnValue(1)

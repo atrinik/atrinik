@@ -41,7 +41,7 @@ def main():
             inf.add_msg("You pay {}.".format(CostString(cost)), COLOR_YELLOW)
             post.send_item(marked, name)
             inf.add_msg("The '{}' has been sent to {} successfully.".format(marked.GetName(), name))
-            marked.Remove()
+            marked.Destroy()
         else:
             inf.add_msg("You don't have enough money.")
 

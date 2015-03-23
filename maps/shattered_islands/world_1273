@@ -2262,8 +2262,8 @@ x 23
 y 2
 arch snowman_evil
 level 28
-Con 3
-Dex 2
+con 3
+dex 2
 can_use_weapon 1
 can_use_bow 1
 unaggressive 1

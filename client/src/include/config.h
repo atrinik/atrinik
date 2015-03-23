@@ -1,26 +1,26 @@
-/************************************************************************
-*            Atrinik, a Multiplayer Online Role Playing Game            *
-*                                                                       *
-*    Copyright (C) 2009-2012 Alex Tokar and Atrinik Development Team    *
-*                                                                       *
-* Fork from Crossfire (Multiplayer game for X-windows).                 *
-*                                                                       *
-* This program is free software; you can redistribute it and/or modify  *
-* it under the terms of the GNU General Public License as published by  *
-* the Free Software Foundation; either version 2 of the License, or     *
-* (at your option) any later version.                                   *
-*                                                                       *
-* This program is distributed in the hope that it will be useful,       *
-* but WITHOUT ANY WARRANTY; without even the implied warranty of        *
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
-* GNU General Public License for more details.                          *
-*                                                                       *
-* You should have received a copy of the GNU General Public License     *
-* along with this program; if not, write to the Free Software           *
-* Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.             *
-*                                                                       *
-* The author can be reached at admin@atrinik.org                        *
-************************************************************************/
+/*************************************************************************
+ *           Atrinik, a Multiplayer Online Role Playing Game             *
+ *                                                                       *
+ *   Copyright (C) 2009-2014 Alex Tokar and Atrinik Development Team     *
+ *                                                                       *
+ * Fork from Crossfire (Multiplayer game for X-windows).                 *
+ *                                                                       *
+ * This program is free software; you can redistribute it and/or modify  *
+ * it under the terms of the GNU General Public License as published by  *
+ * the Free Software Foundation; either version 2 of the License, or     *
+ * (at your option) any later version.                                   *
+ *                                                                       *
+ * This program is distributed in the hope that it will be useful,       *
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of        *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
+ * GNU General Public License for more details.                          *
+ *                                                                       *
+ * You should have received a copy of the GNU General Public License     *
+ * along with this program; if not, write to the Free Software           *
+ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.             *
+ *                                                                       *
+ * The author can be reached at admin@atrinik.org                        *
+ ************************************************************************/
 
 /**
  * @file
@@ -30,7 +30,7 @@
 #define CONFIG_H
 
 /** Socket version. */
-#define SOCKET_VERSION 1058
+#define SOCKET_VERSION 1059
 
 /** File the the arch definitions. */
 #define ARCHDEF_FILE "data/archdef.dat"
@@ -54,6 +54,16 @@
 #define MAP_MAX_SIZE 17
 
 /**
+ * Size of the Fog of War cache. Setting this to 1 will decrease memory usage
+ * somewhat, but make Fog of War less useful when moving across maps.
+ *
+ * Basically this value represents how big grid of maps to keep in memory. For
+ * example, if the value is 3, the grid will be 3x3, which means 9 "maps", and
+ * the middle one is the currently displayed one.
+ */
+#define MAP_FOW_SIZE 5
+
+/**
  * The number of our dark levels.
  *
  * For each level we store an own bitmap copy. */
@@ -65,8 +75,10 @@
 #define DIRECTORY_MEDIA "sound/background"
 
 /**
- * If 1, used memory is freed on shutdown, allowing easier memory leak
- * checking with tools like Valgrind. */
-#define MEMORY_DEBUG 0
+ * This is the minimum server version required to connect, represented as
+ * hexadecimal and backwards. Thus, 0x0503 requires at least 3.5, and 0x010503
+ * requires at least 3.5.1.
+ */
+#define SERVER_VERSION 0x0503
 
 #endif

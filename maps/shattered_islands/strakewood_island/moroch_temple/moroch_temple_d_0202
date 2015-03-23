@@ -12,7 +12,7 @@ tile_path_3 moroch_temple_d_0201
 tile_path_4 moroch_temple_d_0102
 tile_path_7 moroch_temple_d_0101
 bg_music evil_temple.ogg
-region moroch_temple
+region moroch_temple_d
 end
 arch floor_sblack2b
 y 2
@@ -3162,15 +3162,15 @@ dam 80
 wc 7
 maxhp 150
 ac 15
-Con 15
+con 15
 attack_impact 60
 attack_chaos 40
 can_cast_spell 1
 sp -1
 maxsp 152
-Pow 4
+pow 4
 magic 4
-Dex 2
+dex 2
 can_see_in_dark 1
 protect_impact 50
 protect_slash 50

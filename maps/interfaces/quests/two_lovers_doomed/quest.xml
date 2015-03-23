@@ -6,86 +6,79 @@
                 <message color="yellow">{npc.name} doesn't seem to notice you and continues to stare in the direction of the ruins north...</message>
             </dialog>
         </interface>
-
         <interface npc="Tortwald Howell" state="completed">
             <dialog name="hello">
                 <message>Thank you...</message>
             </dialog>
         </interface>
-
-        <part uid="deliver_tortwalds_letter" name="Tortwald's Letter">
+        <part name="Tortwald's Letter" uid="deliver_tortwalds_letter">
             <info>You have found the guard Tortwald Howell imprisoned deep inside the Underground City. He has asked you to deliver a letter to his love, Rienn Howell, in Fort Ghzal.</info>
-            <item arch="two_lovers_doomed_letter1" name="Tortwald's letter" />
-
+            <item arch="two_lovers_doomed_letter1" name="Tortwald's letter"/>
             <interface npc="Tortwald Howell" state="need_start">
                 <dialog name="hello">
                     <message>*sob*... Hello there...</message>
-                    <response message="Who are you?" destination="who" />
+                    <response destination="who" message="Who are you?"/>
                 </dialog>
                 <dialog name="who">
                     <message>I'm {npc.name}, a guard from Fort Ghzal...</message>
-                    <response message="What are you doing here?" destination="doing" />
+                    <response destination="doing" message="What are you doing here?"/>
                 </dialog>
                 <dialog name="doing">
                     <message>I was captured by the creatures living in this terrible place... I don't know what they want to do with me...</message>
-                    <response message="Can I help you?" destination="help" />
+                    <response destination="help" message="Can I help you?"/>
                 </dialog>
                 <dialog name="help">
                     <message>No... I'm too weak to escape... And these bars are impervious to everything I have tried... But... Would you, please, deliver a letter to my wife in Fort Ghzal for me...?</message>
-                    <response message="Sure." destination="sure" />
-                    <response message="No, too busy." destination="no" />
+                    <response destination="sure" message="Sure."/>
+                    <response destination="no" message="No, too busy."/>
                 </dialog>
                 <dialog name="no">
                     <message>*sobs*... Please?</message>
-                    <response message="Alright then." destination="sure" />
-                    <response message="I said no! I don't have time for your sniveling." action="close" />
+                    <response destination="sure" message="Alright then."/>
+                    <response action="close" message="I said no! I don't have time for your sniveling."/>
                 </dialog>
                 <dialog name="sure">
                     <message>Thank you... Here's the letter. Please, deliver it to my wife, Rienn Howell in Fort Ghzal...</message>
-                    <object arch="two_lovers_doomed_letter1" />
-                    <action start="deliver_tortwalds_letter" />
+                    <object arch="two_lovers_doomed_letter1"/>
+                    <action start="deliver_tortwalds_letter"/>
                 </dialog>
             </interface>
-
             <interface npc="Tortwald Howell" state="need_complete">
                 <dialog name="hello">
                     <message>*sobs*... Have you delivered the letter yet?</message>
-                    <response message="Working on it." destination="working" />
+                    <response destination="working" message="Working on it."/>
                 </dialog>
                 <dialog name="working">
                     <message>Please, deliver it to my wife, Rienn Howell in Fort Ghzal...</message>
                 </dialog>
             </interface>
-
-            <interface npc="Rienn Howell" state="need_complete" inherit="">
+            <interface inherit="interface" npc="Rienn Howell" state="need_complete">
                 <dialog name="hello">
-                    <inherit />
-                    <response message="Here, take this letter from your husband..." destination="takeletter" />
+                    <inherit/>
+                    <response destination="takeletter" message="Here, take this letter from your husband..."/>
                 </dialog>
                 <dialog name="takeletter">
                     <message>Oh! He has been gone for a long time now...</message>
                     <message>Thank you, adventurer... Please, take this letter and deliver it to him...</message>
-                    <object arch="two_lovers_doomed_letter2" />
-                    <action start="deliver_rienns_letter" />
-                    <action complete="deliver_tortwalds_letter" />
+                    <object arch="two_lovers_doomed_letter2"/>
+                    <action start="deliver_rienns_letter"/>
+                    <action complete="deliver_tortwalds_letter"/>
                 </dialog>
             </interface>
         </part>
-
-        <part uid="deliver_rienns_letter" name="Rienn's Letter">
+        <part name="Rienn's Letter" uid="deliver_rienns_letter">
             <info>After delivering Tortwald Howell's letter to Rienn Howell, she has asked you to deliver a letter of her own to Tortwald.</info>
-            <item arch="two_lovers_doomed_letter2" name="Rienn's letter" />
-
+            <item arch="two_lovers_doomed_letter2" name="Rienn's letter"/>
             <interface npc="Tortwald Howell" state="need_complete">
                 <dialog name="hello">
                     <message>*sobs*... Have you delivered the letter yet?</message>
-                    <response message="Yes, take this letter from your wife." destination="takeletter" />
+                    <response destination="takeletter" message="Yes, take this letter from your wife."/>
                 </dialog>
                 <dialog name="takeletter">
                     <message>You have a letter for me from my dear Rienn? Oh... thank you...</message>
                     <message>Here, take this key... it supposedly opens something around here, but before I could figure it out, I was captured... and... thank you again.</message>
-                    <object arch="uc_ii_skull_key" />
-                    <action complete="deliver_rienns_letter" />
+                    <object arch="uc_ii_skull_key"/>
+                    <action complete="deliver_rienns_letter"/>
                 </dialog>
             </interface>
         </part>

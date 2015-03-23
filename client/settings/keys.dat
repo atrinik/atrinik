@@ -199,7 +199,7 @@ end
 bind
 	# tab
 	key 9
-	command ?INVENTORY
+	command /widget_toggle maininv
 end
 bind
 	# left alt
@@ -272,23 +272,27 @@ bind
 	command ?QUICKSLOT_8
 end
 bind
-	# unknown key
-	key 0
+	# q
+	key 113
+	mod 3
 	command /invfilter all
 end
 bind
-	# unknown key
-	key 0
+	# w
+	key 119
+	mod 3
 	command /invfilter applied
 end
 bind
-	# unknown key
-	key 0
+	# e
+	key 101
+	mod 3
 	command /invfilter locked
 end
 bind
-	# unknown key
-	key 0
+	# r
+	key 114
+	mod 3
 	command /invfilter unidentified
 end
 bind
@@ -307,4 +311,24 @@ bind
 	# t
 	key 116
 	command ?HELLO
+end
+bind
+	# `
+	key 96
+	command ?QUICKSLOT_GROUP_CYCLE
+end
+bind
+	# end
+	key 279
+	command ?QUICKSLOT_GROUP_NEXT
+end
+bind
+	# home
+	key 278
+	command ?QUICKSLOT_GROUP_PREV
+end
+bind
+	# left shift
+	key 304
+	command ?QUICKSLOT_SET_KEY
 end

@@ -31,7 +31,7 @@ def main():
                 # Is the object an apple?
                 if obj.type == Type.FOOD and obj.arch.name == "apple":
                     # Remove the apple, inform the map and return.
-                    obj.Remove()
+                    obj.Destroy()
                     activator.Say("Omnomnomnomnom!")
                     return
 
@@ -53,7 +53,7 @@ def main():
                 return
             # Inactive, so remove it (we'll create a new one)
             else:
-                apple_wp.Remove()
+                apple_wp.Destroy()
 
         # Makes guard move towards an apple he can see.
         def go_apple(m, x, y):

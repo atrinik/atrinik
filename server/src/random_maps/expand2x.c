@@ -1,26 +1,26 @@
-/************************************************************************
-*            Atrinik, a Multiplayer Online Role Playing Game            *
-*                                                                       *
-*    Copyright (C) 2009-2012 Alex Tokar and Atrinik Development Team    *
-*                                                                       *
-* Fork from Crossfire (Multiplayer game for X-windows).                 *
-*                                                                       *
-* This program is free software; you can redistribute it and/or modify  *
-* it under the terms of the GNU General Public License as published by  *
-* the Free Software Foundation; either version 2 of the License, or     *
-* (at your option) any later version.                                   *
-*                                                                       *
-* This program is distributed in the hope that it will be useful,       *
-* but WITHOUT ANY WARRANTY; without even the implied warranty of        *
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
-* GNU General Public License for more details.                          *
-*                                                                       *
-* You should have received a copy of the GNU General Public License     *
-* along with this program; if not, write to the Free Software           *
-* Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.             *
-*                                                                       *
-* The author can be reached at admin@atrinik.org                        *
-************************************************************************/
+/*************************************************************************
+ *           Atrinik, a Multiplayer Online Role Playing Game             *
+ *                                                                       *
+ *   Copyright (C) 2009-2014 Alex Tokar and Atrinik Development Team     *
+ *                                                                       *
+ * Fork from Crossfire (Multiplayer game for X-windows).                 *
+ *                                                                       *
+ * This program is free software; you can redistribute it and/or modify  *
+ * it under the terms of the GNU General Public License as published by  *
+ * the Free Software Foundation; either version 2 of the License, or     *
+ * (at your option) any later version.                                   *
+ *                                                                       *
+ * This program is distributed in the hope that it will be useful,       *
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of        *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
+ * GNU General Public License for more details.                          *
+ *                                                                       *
+ * You should have received a copy of the GNU General Public License     *
+ * along with this program; if not, write to the Free Software           *
+ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.             *
+ *                                                                       *
+ * The author can be reached at admin@atrinik.org                        *
+ ************************************************************************/
 
 #include <global.h>
 
@@ -37,7 +37,7 @@ static void expand_door(char **newlayout, int i, int j, char **layout, int xsize
  * @return New layout. Must be freed by caller. */
 char **expand2x(char **layout, int xsize, int ysize)
 {
-    int i,j;
+    int i, j;
     int nxsize = xsize * 2 - 1;
     int nysize = ysize * 2 - 1;
 
@@ -51,16 +51,16 @@ char **expand2x(char **layout, int xsize, int ysize)
     for (i = 0; i < xsize; i++) {
         for (j = 0; j < ysize; j++) {
             switch (layout[i][j]) {
-                case '#':
-                    expand_wall(newlayout, i, j, layout, xsize, ysize);
-                    break;
+            case '#':
+                expand_wall(newlayout, i, j, layout, xsize, ysize);
+                break;
 
-                case 'D':
-                    expand_door(newlayout, i, j, layout, xsize, ysize);
-                    break;
+            case 'D':
+                expand_door(newlayout, i, j, layout, xsize, ysize);
+                break;
 
-                default:
-                    expand_misc(newlayout, i, j, layout);
+            default:
+                expand_misc(newlayout, i, j, layout);
             }
         }
     }
@@ -186,8 +186,7 @@ static void expand_door(char **newlayout, int i, int j, char **layout, int xsize
      * disconnect from the other door. */
     if (wall_pattern & 3) {
         join_pattern = wall_pattern;
-    }
-    else {
+    } else {
         join_pattern = door_pattern;
     }
 

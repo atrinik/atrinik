@@ -1,26 +1,26 @@
-/************************************************************************
-*            Atrinik, a Multiplayer Online Role Playing Game            *
-*                                                                       *
-*    Copyright (C) 2009-2012 Alex Tokar and Atrinik Development Team    *
-*                                                                       *
-* Fork from Crossfire (Multiplayer game for X-windows).                 *
-*                                                                       *
-* This program is free software; you can redistribute it and/or modify  *
-* it under the terms of the GNU General Public License as published by  *
-* the Free Software Foundation; either version 2 of the License, or     *
-* (at your option) any later version.                                   *
-*                                                                       *
-* This program is distributed in the hope that it will be useful,       *
-* but WITHOUT ANY WARRANTY; without even the implied warranty of        *
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
-* GNU General Public License for more details.                          *
-*                                                                       *
-* You should have received a copy of the GNU General Public License     *
-* along with this program; if not, write to the Free Software           *
-* Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.             *
-*                                                                       *
-* The author can be reached at admin@atrinik.org                        *
-************************************************************************/
+/*************************************************************************
+ *           Atrinik, a Multiplayer Online Role Playing Game             *
+ *                                                                       *
+ *   Copyright (C) 2009-2014 Alex Tokar and Atrinik Development Team     *
+ *                                                                       *
+ * Fork from Crossfire (Multiplayer game for X-windows).                 *
+ *                                                                       *
+ * This program is free software; you can redistribute it and/or modify  *
+ * it under the terms of the GNU General Public License as published by  *
+ * the Free Software Foundation; either version 2 of the License, or     *
+ * (at your option) any later version.                                   *
+ *                                                                       *
+ * This program is distributed in the hope that it will be useful,       *
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of        *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
+ * GNU General Public License for more details.                          *
+ *                                                                       *
+ * You should have received a copy of the GNU General Public License     *
+ * along with this program; if not, write to the Free Software           *
+ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.             *
+ *                                                                       *
+ * The author can be reached at admin@atrinik.org                        *
+ ************************************************************************/
 
 /**
  * @file
@@ -75,16 +75,14 @@
  + -                   \\//                x - >
  +    @endverbatim
  */
-static int std_tile_half_len[] =
-{
+static int std_tile_half_len[] = {
     0, 0, 1, 1, 2, 2, 3, 3, 4, 4, 5, 5, 6, 6, 7, 7, 8, 8, 9, 9,
     10, 10, 11, 11, 11, 11, 10, 10, 9, 9, 8, 8, 7, 7, 6, 6, 5,
     5, 4, 4, 3, 3, 2, 2, 1, 1, 0, 0
 };
 
 /** Line information structure. */
-typedef struct line_and_slope
-{
+typedef struct line_and_slope {
     /** Starting X coordinate. */
     int sx;
 
@@ -119,22 +117,19 @@ static void determine_line(line_and_slope *dest, int sx, int sy, int ex, int ey)
 
     if (sy > ey) {
         y_diff = sy - ey;
-    }
-    else {
+    } else {
         y_diff = ey - sy;
     }
 
     if (sx > ex) {
         x_diff = sx - ex;
-    }
-    else {
+    } else {
         x_diff = ex - sx;
     }
 
     if (x_diff == 0) {
         slope = 0.0;
-    }
-    else {
+    } else {
         slope = y_diff / x_diff;
     }
 
@@ -143,6 +138,81 @@ static void determine_line(line_and_slope *dest, int sx, int sy, int ex, int ey)
     dest->end_x = ex;
     dest->end_y = ey;
     dest->slope = slope;
+}
+
+/**
+ * Calculate the information about the lines which will form the
+ * edge of the stretched tile (see the comments above
+ * std_tile_half_len for a picture).
+ *
+ * In the isometric view, closer objects are displayed lower down
+ * on the VDU (smaller y co-ordinate) and further objects are
+ * displayed higher up (larger y co-ordinate).
+ *
+ * The SW corner moves closer the more West the tile is stretched.
+ * The NE corner moves closer the more East the tile is stretched.
+ * Both the SW and NE corners move further away the more North the
+ * tile is stretched.
+ * Both the SE and NW corners move close the more South and further
+ * away the more North the tile is stretched
+ */
+static void determine_lines(line_and_slope *dest, int n, int e, int s, int w)
+{
+    /* 0: Western edge: SW to NW corner  */
+    determine_line(&dest[0], 2, 10 - w + n, 22, 0);
+    /* 1: Southern edge: SW to SE corner */
+    determine_line(&dest[1], 2, 12 - w + n, 22, 22 + n - s);
+    /* 2: Northern edge: NE to NW corner */
+    determine_line(&dest[2], 45, 10 - e + n, 25, 0);
+    /* 3: Eastern edge: NE to SE corner */
+    determine_line(&dest[3], 45, 12 - e + n, 25, 22 + n - s);
+}
+
+/**
+ * Checks whether the supplied coordinates (relative to the tile size, so for
+ * example: 0,0, 47,0, etc) are inside the (possibly stretched) isometric map
+ * tile shape.
+ * @param stretch Calculated stretch factor.
+ * @param x X coordinate.
+ * @param y Y coordinate.
+ * @return 1 if the supplied coordinates are within the isometric map tile
+ * shape, 0 otherwise.
+ */
+int tilestretcher_coords_in_tile(uint32 stretch, int x, int y)
+{
+    uint8 n, e, s, w;
+    double corners_x[8], corners_y[8];
+    line_and_slope lines[4];
+
+    n = (stretch >> 24) & 0xff;
+    e = (stretch >> 16) & 0xff;
+    w = (stretch >> 8) & 0xff;
+    s = stretch & 0xff;
+
+    determine_lines(lines, n, e, s, w);
+
+    /* The following creates an array of points for coords_in_polygon().
+     * Basically, adjusts the coordinates returned by determine_lines() so that
+     * the isometric map tile shape would be entirely surrounded. */
+    corners_x[0] = lines[0].end_x - 1;
+    corners_y[0] = lines[0].end_y - 1;
+    corners_x[1] = lines[2].end_x + 1;
+    corners_y[1] = lines[2].end_y - 1;
+    corners_x[2] = lines[2].sx + 3;
+    corners_y[2] = lines[2].sy - 1;
+    corners_x[3] = lines[3].sx + 3;
+    corners_y[3] = lines[3].sy + 1;
+    corners_x[4] = lines[3].end_x + 1;
+    corners_y[4] = lines[3].end_y + 2;
+    corners_x[5] = lines[1].end_x - 1;
+    corners_y[5] = lines[1].end_y + 2;
+    corners_x[6] = lines[1].sx - 3;
+    corners_y[6] = lines[1].sy + 1;
+    corners_x[7] = lines[0].sx - 3;
+    corners_y[7] = lines[0].sy - 1;
+
+    return polygon_check_coords(x, y, corners_x, corners_y,
+            arraysize(corners_x));
 }
 
 /**
@@ -294,8 +364,7 @@ int copy_vertical_line(SDL_Surface *src, SDL_Surface *dest, int src_x, int src_s
             SDL_UnlockSurface(src);
             SDL_UnlockSurface(dest);
             return 0;
-        }
-        else {
+        } else {
             copy_pixel_to_pixel(src, dest, src_x, (src_ey - src_sy) / 2, dest_x, dest_sy, brightness);
 
             SDL_UnlockSurface(src);
@@ -368,7 +437,6 @@ SDL_Surface *tile_stretch(SDL_Surface *src, int n, int e, int s, int w)
     /* If set, copy_vertical_line will attempt to extend the line further
      * by 1 pixel (no idea why this is named "flat") */
     int flat;
-    int sx, sy, ex, ey;
     int ln_num;
     int dest_sx, dest_sy, dest_ex, dest_ey;
     float dest_slope;
@@ -382,8 +450,7 @@ SDL_Surface *tile_stretch(SDL_Surface *src, int n, int e, int s, int w)
     int src_len;
     Uint32 color;
     Uint8 red, green, blue, alpha;
-    /* Only index numbers 0-3 are actually used */
-    line_and_slope dest_lines[10];
+    line_and_slope dest_lines[4];
 
     /* Initialisation and housekeeping */
     SDL_LockSurface(src);
@@ -414,8 +481,7 @@ SDL_Surface *tile_stretch(SDL_Surface *src, int n, int e, int s, int w)
      * to try to extent the line by 1 pixel */
     if (n == 0 && e == 0 && w == 0 && s == 0) {
         flat = 0;
-    }
-    else {
+    } else {
         flat = 1;
     }
 
@@ -436,55 +502,9 @@ SDL_Surface *tile_stretch(SDL_Surface *src, int n, int e, int s, int w)
         }
     }
 
-    /* Calculate the information about the lines which will form the
-     * edge of the stretched tile (see the comments above
-     * std_tile_half_len for a picture).
-     *
-     * In the isometric view, closer objects are displayed lower down
-     * on the VDU (smaller y co-ordinate) and further objects are
-     * displayed higher up (larger y co-ordinate).
-     *
-     * The SW corner moves closer the more West the tile is stretched.
-     * The NE corner moves closer the more East the tile is stretched.
-     * Both the SW and NE corners move further away the more North the
-     * tile is stretched.
-     * Both the SE and NW corners move close the more South and further
-     * away the more North the tile is stretched */
+    determine_lines(dest_lines, n, e, s, w);
 
-    /* 0: Southern edge: SW to SE corner */
-    sx = 2;
-    sy = (10 - w) + n;
-    ex = 22;
-    ey = 0;
-    determine_line(&dest_lines[0], sx, sy, ex, ey);
-    /* 1: Western edge: SW to NW corner */
-    sx = 2;
-    sy = (12 - w) + n;
-    ex = 22;
-    ey = 22 + n - s;
-    determine_line(&dest_lines[1], sx, sy, ex, ey);
-    /* 2: Eastern edge: NE to SE corner */
-    sx = 45;
-    sy = (10 - e) + n;
-    ex = 25;
-    ey = 0;
-    determine_line(&dest_lines[2], sx, sy, ex, ey);
-    /* 3: Northern edge: NE to NW corner */
-    sx = 45;
-    sy = (12 - e) + n;
-    ex = 25;
-    ey = 22 + n - s;
-    determine_line(&dest_lines[3], sx, sy, ex, ey);
-
-    /* loop information:
-     * effective loop control:
-     * for (ln_num = 0; ln_num < 4; ln_num += 2) */
-    for (ln_num = 0; ln_num < 4; ln_num++) {
-        /* see "effective loop control" */
-        if (ln_num == 1 || ln_num == 3) {
-            continue;
-        }
-
+    for (ln_num = 0; ln_num < 4; ln_num += 2) {
         /* Extract the information for the first, i.e. bottom, line (S or E
          * edge) */
         dest_sx = dest_lines[ln_num].sx;
@@ -493,43 +513,30 @@ SDL_Surface *tile_stretch(SDL_Surface *src, int n, int e, int s, int w)
         dest_ey = dest_lines[ln_num].end_y;
         dest_slope = dest_lines[ln_num].slope;
 
-        /* ln_num is always either 0 or 2 here */
-        if (ln_num == 0 || ln_num == 2) {
-            /* Extract the information for the second, i.e. top, line (W or N
-             * edge) */
-            dest_sy_2 = dest_lines[ln_num + 1].sy;
-            dest_ey_2 = dest_lines[ln_num + 1].end_y;
-            dest_slope_2 = dest_lines[ln_num + 1].slope;
-        }
-        else {
-            /* Dead code: information about the second line is the same as the
-             * first! */
-            dest_sy_2 = dest_lines[ln_num].sy;
-            dest_ey_2 = dest_lines[ln_num].end_y;
-            dest_slope_2 = dest_lines[ln_num].slope;
-        }
+        /* Extract the information for the second, i.e. top, line (W or N
+         * edge) */
+        dest_sy_2 = dest_lines[ln_num + 1].sy;
+        dest_ey_2 = dest_lines[ln_num + 1].end_y;
+        dest_slope_2 = dest_lines[ln_num + 1].slope;
 
         /* Calculate the direction of the y co-ordinate */
         if (dest_sy > dest_ey) {
             dest_y_inc = -1;
-        }
-        else {
+        } else {
             dest_y_inc = 1;
         }
 
         /* Calculate the direction of the x co-ordinate */
         if (dest_sx > dest_ex) {
             dest_x_inc = -1;
-        }
-        else {
+        } else {
             dest_x_inc = 1;
         }
 
         /* Calculate the direction of the 2nd y co-ordinate */
         if (dest_sy_2 > dest_ey_2) {
             dest_y_inc_2 = -1;
-        }
-        else {
+        } else {
             dest_y_inc_2 = 1;
         }
 
@@ -572,8 +579,7 @@ SDL_Surface *tile_stretch(SDL_Surface *src, int n, int e, int s, int w)
 
             if (ln_num < 2) {
                 copy_vertical_line(src, destination, x, 11 + src_len, 11 - src_len, x, y, y2, w_dark, flat);
-            }
-            else {
+            } else {
                 copy_vertical_line(src, destination, x, 11 + src_len, 11 - src_len, x, y, y2, e_dark, flat);
             }
 
@@ -593,7 +599,7 @@ SDL_Surface *tile_stretch(SDL_Surface *src, int n, int e, int s, int w)
     }
 
     for (x = 0; x < 2; x++) {
-        copy_pixel_to_pixel(src,destination, x, 11, x, 11 + n - w, w_dark);
+        copy_pixel_to_pixel(src, destination, x, 11, x, 11 + n - w, w_dark);
     }
 
     for (x = 46; x < 48; x++) {

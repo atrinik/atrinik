@@ -1,26 +1,26 @@
-/************************************************************************
-*            Atrinik, a Multiplayer Online Role Playing Game            *
-*                                                                       *
-*    Copyright (C) 2009-2012 Alex Tokar and Atrinik Development Team    *
-*                                                                       *
-* Fork from Crossfire (Multiplayer game for X-windows).                 *
-*                                                                       *
-* This program is free software; you can redistribute it and/or modify  *
-* it under the terms of the GNU General Public License as published by  *
-* the Free Software Foundation; either version 2 of the License, or     *
-* (at your option) any later version.                                   *
-*                                                                       *
-* This program is distributed in the hope that it will be useful,       *
-* but WITHOUT ANY WARRANTY; without even the implied warranty of        *
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
-* GNU General Public License for more details.                          *
-*                                                                       *
-* You should have received a copy of the GNU General Public License     *
-* along with this program; if not, write to the Free Software           *
-* Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.             *
-*                                                                       *
-* The author can be reached at admin@atrinik.org                        *
-************************************************************************/
+/*************************************************************************
+ *           Atrinik, a Multiplayer Online Role Playing Game             *
+ *                                                                       *
+ *   Copyright (C) 2009-2014 Alex Tokar and Atrinik Development Team     *
+ *                                                                       *
+ * Fork from Crossfire (Multiplayer game for X-windows).                 *
+ *                                                                       *
+ * This program is free software; you can redistribute it and/or modify  *
+ * it under the terms of the GNU General Public License as published by  *
+ * the Free Software Foundation; either version 2 of the License, or     *
+ * (at your option) any later version.                                   *
+ *                                                                       *
+ * This program is distributed in the hope that it will be useful,       *
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of        *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
+ * GNU General Public License for more details.                          *
+ *                                                                       *
+ * You should have received a copy of the GNU General Public License     *
+ * along with this program; if not, write to the Free Software           *
+ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.             *
+ *                                                                       *
+ * The author can be reached at admin@atrinik.org                        *
+ ************************************************************************/
 
 /**
  * @file
@@ -70,8 +70,7 @@ static void notification_action_do(void)
         /* Macro or command? */
         if (*notification->action == '?') {
             keybind_process_command(notification->action);
-        }
-        else {
+        } else {
             send_command_check(notification->action);
         }
 
@@ -107,6 +106,7 @@ void socket_command_notification(uint8 *data, size_t len, size_t pos)
     notification_destroy();
     /* Show the widget... */
     cur_widget[NOTIFICATION_ID]->show = 1;
+    SetPriorityWidget(cur_widget[NOTIFICATION_ID]);
     /* Create the data structure and initialize default values. */
     notification = ecalloc(1, sizeof(*notification));
     notification->start_ticks = SDL_GetTicks();
@@ -119,39 +119,39 @@ void socket_command_notification(uint8 *data, size_t len, size_t pos)
         type = packet_to_uint8(data, len, &pos);
 
         switch (type) {
-            case CMD_NOTIFICATION_TEXT:
-            {
-                char message[HUGE_BUF];
+        case CMD_NOTIFICATION_TEXT:
+        {
+            char message[HUGE_BUF];
 
-                packet_to_string(data, len, &pos, message, sizeof(message));
-                stringbuffer_append_string(sb, message);
-                break;
-            }
+            packet_to_string(data, len, &pos, message, sizeof(message));
+            stringbuffer_append_string(sb, message);
+            break;
+        }
 
-            case CMD_NOTIFICATION_ACTION:
-            {
-                char action[HUGE_BUF];
+        case CMD_NOTIFICATION_ACTION:
+        {
+            char action[HUGE_BUF];
 
-                packet_to_string(data, len, &pos, action, sizeof(action));
-                notification->action = estrdup(action);
-                break;
-            }
+            packet_to_string(data, len, &pos, action, sizeof(action));
+            notification->action = estrdup(action);
+            break;
+        }
 
-            case CMD_NOTIFICATION_SHORTCUT:
-            {
-                char shortcut[HUGE_BUF];
+        case CMD_NOTIFICATION_SHORTCUT:
+        {
+            char shortcut[HUGE_BUF];
 
-                packet_to_string(data, len, &pos, shortcut, sizeof(shortcut));
-                notification->shortcut = estrdup(shortcut);
-                break;
-            }
+            packet_to_string(data, len, &pos, shortcut, sizeof(shortcut));
+            notification->shortcut = estrdup(shortcut);
+            break;
+        }
 
-            case CMD_NOTIFICATION_DELAY:
-                notification->delay = MAX(NOTIFICATION_DEFAULT_FADEOUT, packet_to_uint32(data, len, &pos));
-                break;
+        case CMD_NOTIFICATION_DELAY:
+            notification->delay = MAX(NOTIFICATION_DEFAULT_FADEOUT, packet_to_uint32(data, len, &pos));
+            break;
 
-            default:
-                break;
+        default:
+            break;
         }
     }
 
@@ -167,9 +167,8 @@ void socket_command_notification(uint8 *data, size_t len, size_t pos)
             string_toupper(key_buf);
             stringbuffer_append_printf(sb, " (click or [b]%s[/b])", key_buf);
         }
-    }
-    /* No shortcut, clicking is the best one can do... */
-    else if (notification->action) {
+    } else if (notification->action) {
+        /* No shortcut, clicking is the best one can do... */
         stringbuffer_append_string(sb, " (click)");
     }
 

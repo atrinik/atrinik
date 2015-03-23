@@ -18,6 +18,7 @@ tile_path_7 world_0816
 tile_path_8 world_0818
 bg_music jungle1.ogg
 region strakewood_island
+tile_path_9 world_1_0917
 end
 arch grassd_2
 z 22
@@ -2774,7 +2775,7 @@ arch ogre
 name ogre rock thrower
 type 83
 level 13
-Dex 2
+dex 2
 can_use_bow 1
 arch ability_stone_throw
 end
@@ -3227,7 +3228,7 @@ arch ogre
 name ogre rock thrower
 type 83
 level 10
-Dex 2
+dex 2
 can_use_bow 1
 arch ability_stone_throw
 end
@@ -3414,7 +3415,7 @@ arch ogre
 name ogre rock thrower
 type 83
 level 11
-Dex 2
+dex 2
 can_use_bow 1
 arch ability_stone_throw
 end

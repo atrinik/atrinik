@@ -43,6 +43,7 @@ static uint8 did_init = 0;
  * @internal */
 void toolkit_sha1_init(void)
 {
+
     TOOLKIT_INIT_FUNC_START(sha1)
     {
     }
@@ -54,6 +55,7 @@ void toolkit_sha1_init(void)
  * @internal */
 void toolkit_sha1_deinit(void)
 {
+
     TOOLKIT_DEINIT_FUNC_START(sha1)
     {
     }
@@ -262,8 +264,7 @@ void sha1_update( sha1_context *ctx, const unsigned char *input, size_t ilen )
     size_t fill;
     unsigned long left;
 
-    if( ilen <= 0 )
-    {
+    if ( ilen <= 0 ) {
         return;
     }
 
@@ -273,34 +274,32 @@ void sha1_update( sha1_context *ctx, const unsigned char *input, size_t ilen )
     ctx->total[0] += (unsigned long) ilen;
     ctx->total[0] &= 0xFFFFFFFF;
 
-    if( ctx->total[0] < (unsigned long) ilen )
-    {
+    if ( ctx->total[0] < (unsigned long) ilen ) {
         ctx->total[1]++;
     }
 
-    if( left && ilen >= fill ) {
+    if ( left && ilen >= fill ) {
         memcpy(ctx->buffer + left,
-            input, fill );
+                input, fill );
         sha1_process( ctx, ctx->buffer );
         input += fill;
         ilen  -= fill;
         left = 0;
     }
 
-    while( ilen >= 64 ) {
+    while ( ilen >= 64 ) {
         sha1_process( ctx, input );
         input += 64;
         ilen  -= 64;
     }
 
-    if( ilen > 0 ) {
+    if ( ilen > 0 ) {
         memcpy(ctx->buffer + left,
-            input, ilen );
+                input, ilen );
     }
 }
 
-static const unsigned char sha1_padding[64] =
-{
+static const unsigned char sha1_padding[64] = {
     0x80, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
@@ -316,8 +315,8 @@ void sha1_finish( sha1_context *ctx, unsigned char output[20] )
     unsigned long high, low;
     unsigned char msglen[8];
 
-    high = ( ctx->total[0] >> 29 )|
-           ( ctx->total[1] <<  3 );
+    high = ( ctx->total[0] >> 29 ) |
+            ( ctx->total[1] <<  3 );
     low  = ( ctx->total[0] <<  3 );
 
     PUT_ULONG_BE( high, msglen, 0 );
@@ -360,14 +359,13 @@ int sha1_file( const char *path, unsigned char output[20] )
     sha1_context ctx;
     unsigned char buf[1024];
 
-    if( ( f = fopen( path, "rb" ) ) == NULL )
-    {
-        return( 1 );
+    if ( ( f = fopen( path, "rb" ) ) == NULL ) {
+        return ( 1 );
     }
 
     sha1_starts( &ctx );
 
-    while( ( n = fread( buf, 1, sizeof( buf ), f ) ) > 0 ) {
+    while ( ( n = fread( buf, 1, sizeof( buf ), f ) ) > 0 ) {
         sha1_update( &ctx, buf, n );
     }
 
@@ -375,13 +373,13 @@ int sha1_file( const char *path, unsigned char output[20] )
 
     memset( &ctx, 0, sizeof( sha1_context ) );
 
-    if( ferror( f ) != 0 ) {
+    if ( ferror( f ) != 0 ) {
         fclose( f );
-        return( 2 );
+        return ( 2 );
     }
 
     fclose( f );
-    return( 0 );
+    return ( 0 );
 }
 
 /*
@@ -392,7 +390,7 @@ void sha1_hmac_starts( sha1_context *ctx, const unsigned char *key, size_t keyle
     size_t i;
     unsigned char sum[20];
 
-    if( keylen > 64 ) {
+    if ( keylen > 64 ) {
         sha1( key, keylen, sum );
         keylen = 20;
         key = sum;
@@ -401,9 +399,9 @@ void sha1_hmac_starts( sha1_context *ctx, const unsigned char *key, size_t keyle
     memset( ctx->ipad, 0x36, 64 );
     memset( ctx->opad, 0x5C, 64 );
 
-    for( i = 0; i < keylen; i++ ) {
-        ctx->ipad[i] = (unsigned char)( ctx->ipad[i] ^ key[i] );
-        ctx->opad[i] = (unsigned char)( ctx->opad[i] ^ key[i] );
+    for ( i = 0; i < keylen; i++ ) {
+        ctx->ipad[i] = (unsigned char) ( ctx->ipad[i] ^ key[i] );
+        ctx->opad[i] = (unsigned char) ( ctx->opad[i] ^ key[i] );
     }
 
     sha1_starts( ctx );
@@ -449,8 +447,8 @@ void sha1_hmac_reset( sha1_context *ctx )
  * output = HMAC-SHA-1( hmac key, input buffer )
  */
 void sha1_hmac( const unsigned char *key, size_t keylen,
-                const unsigned char *input, size_t ilen,
-                unsigned char output[20] )
+        const unsigned char *input, size_t ilen,
+        unsigned char output[20] )
 {
     sha1_context ctx;
 

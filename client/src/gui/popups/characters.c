@@ -1,26 +1,26 @@
-/************************************************************************
-*            Atrinik, a Multiplayer Online Role Playing Game            *
-*                                                                       *
-*    Copyright (C) 2009-2012 Alex Tokar and Atrinik Development Team    *
-*                                                                       *
-* Fork from Crossfire (Multiplayer game for X-windows).                 *
-*                                                                       *
-* This program is free software; you can redistribute it and/or modify  *
-* it under the terms of the GNU General Public License as published by  *
-* the Free Software Foundation; either version 2 of the License, or     *
-* (at your option) any later version.                                   *
-*                                                                       *
-* This program is distributed in the hope that it will be useful,       *
-* but WITHOUT ANY WARRANTY; without even the implied warranty of        *
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
-* GNU General Public License for more details.                          *
-*                                                                       *
-* You should have received a copy of the GNU General Public License     *
-* along with this program; if not, write to the Free Software           *
-* Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.             *
-*                                                                       *
-* The author can be reached at admin@atrinik.org                        *
-************************************************************************/
+/*************************************************************************
+ *           Atrinik, a Multiplayer Online Role Playing Game             *
+ *                                                                       *
+ *   Copyright (C) 2009-2014 Alex Tokar and Atrinik Development Team     *
+ *                                                                       *
+ * Fork from Crossfire (Multiplayer game for X-windows).                 *
+ *                                                                       *
+ * This program is free software; you can redistribute it and/or modify  *
+ * it under the terms of the GNU General Public License as published by  *
+ * the Free Software Foundation; either version 2 of the License, or     *
+ * (at your option) any later version.                                   *
+ *                                                                       *
+ * This program is distributed in the hope that it will be useful,       *
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of        *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
+ * GNU General Public License for more details.                          *
+ *                                                                       *
+ * You should have received a copy of the GNU General Public License     *
+ * along with this program; if not, write to the Free Software           *
+ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.             *
+ *                                                                       *
+ * The author can be reached at admin@atrinik.org                        *
+ ************************************************************************/
 
 /**
  * @file
@@ -30,15 +30,14 @@
 
 #include <global.h>
 
-enum
-{
+enum {
     TEXT_INPUT_CHARNAME,
     TEXT_INPUT_PASSWORD,
     TEXT_INPUT_PASSWORD_NEW,
     TEXT_INPUT_PASSWORD_NEW2,
 
     TEXT_INPUT_NUM
-};
+} ;
 
 /**
  * Progress dots buffer. */
@@ -70,8 +69,7 @@ static void button_tab_switch(button_struct *button)
     if (button == &button_tab_characters) {
         button_tab_new.pressed_forced = button_tab_password.pressed_forced = 0;
         button_tab_characters.pressed_forced = 1;
-    }
-    else if (button == &button_tab_new) {
+    } else if (button == &button_tab_new) {
         button_tab_characters.pressed_forced = button_tab_password.pressed_forced = 0;
         button_tab_new.pressed_forced = 1;
 
@@ -80,8 +78,7 @@ static void button_tab_switch(button_struct *button)
 
         character_race = 0;
         character_gender = GENDER_MALE;
-    }
-    else if (button == &button_tab_password) {
+    } else if (button == &button_tab_password) {
         size_t i;
 
         button_tab_characters.pressed_forced = button_tab_new.pressed_forced = 0;
@@ -101,8 +98,7 @@ static int text_input_character_check(text_input_struct *text_input, char c)
 {
     if (text_input == &text_inputs[TEXT_INPUT_CHARNAME] && !char_contains(c, s_settings->text[SERVER_TEXT_ALLOWED_CHARS_CHARNAME])) {
         return 0;
-    }
-    else if (!char_contains(c, s_settings->text[SERVER_TEXT_ALLOWED_CHARS_PASSWORD])) {
+    } else if (!char_contains(c, s_settings->text[SERVER_TEXT_ALLOWED_CHARS_PASSWORD])) {
         return 0;
     }
 
@@ -142,8 +138,7 @@ static void list_post_column(list_struct *list, uint32 row, uint32 col)
 
         if (list->row_selected - 1 == row) {
             face = animations[anim_id].faces[(animations[anim_id].num_animations / animations[anim_id].facings) * (5 + 8) + state[idx]];
-        }
-        else {
+        } else {
             face = animations[anim_id].faces[(animations[anim_id].num_animations / animations[anim_id].facings) * 5 + state[idx]];
         }
 
@@ -208,8 +203,7 @@ static int popup_draw(popup_struct *popup)
         box.h = popup->surface->h;
         text_show_shadow(popup->surface, FONT_SERIF12, "Logging in, please wait...", 0, 0, COLOR_HGOLD, COLOR_BLACK, TEXT_ALIGN_CENTER | TEXT_VALIGN_CENTER, &box);
         return 1;
-    }
-    else if (cpl.state == ST_PLAY || cpl.state < ST_STARTCONNECT) {
+    } else if (cpl.state == ST_PLAY || cpl.state < ST_STARTCONNECT) {
         return 0;
     }
 
@@ -251,8 +245,7 @@ static int popup_draw(popup_struct *popup)
         button_login.x = list_characters->x + LIST_WIDTH_FULL(list_characters) / 2 - texture_surface(button_login.texture)->w / 2;
         button_login.y = list_characters->y + LIST_HEIGHT_FULL(list_characters) + 8;
         button_show(&button_login, "[b]Login[/b]");
-    }
-    else if (button_tab_new.pressed_forced) {
+    } else if (button_tab_new.pressed_forced) {
         int max_width, width;
 
         max_width = 0;
@@ -294,8 +287,7 @@ static int popup_draw(popup_struct *popup)
         button_done.x = text_inputs[TEXT_INPUT_CHARNAME].coords.x + text_inputs[TEXT_INPUT_CHARNAME].coords.w - texture_surface(button_done.texture)->w;
         button_done.y = 210;
         button_show(&button_done, "Done");
-    }
-    else if (button_tab_password.pressed_forced) {
+    } else if (button_tab_password.pressed_forced) {
         box.w = text_inputs[TEXT_INPUT_PASSWORD].coords.w;
         text_show(popup->surface, FONT_ARIAL12, "Current password &lsqb;[tooltip=Enter your current password.][h=#"COLOR_HGOLD "]?[/h][/tooltip]&rsqb;", 50, 92, COLOR_WHITE, TEXT_MARKUP | TEXT_ALIGN_CENTER, &box);
         text_show(popup->surface, FONT_ARIAL12, "New password &lsqb;[tooltip=Enter your new password.][h=#"COLOR_HGOLD "]?[/h][/tooltip]&rsqb;", 50, 132, COLOR_WHITE, TEXT_MARKUP | TEXT_ALIGN_CENTER, &box);
@@ -328,16 +320,13 @@ static int popup_event(popup_struct *popup, SDL_Event *event)
     if (button_event(&button_tab_characters, event)) {
         button_tab_switch(&button_tab_characters);
         return 1;
-    }
-    else if (button_event(&button_tab_new, event)) {
+    } else if (button_event(&button_tab_new, event)) {
         button_tab_switch(&button_tab_new);
         return 1;
-    }
-    else if (button_event(&button_tab_password, event)) {
+    } else if (button_event(&button_tab_password, event)) {
         button_tab_switch(&button_tab_password);
         return 1;
-    }
-    else if (button_event(button_tab_characters.pressed_forced ? &button_login : &button_done, event)) {
+    } else if (button_event(button_tab_characters.pressed_forced ? &button_login : &button_done, event)) {
         event_push_key_once(SDLK_RETURN, 0);
         return 1;
     }
@@ -346,8 +335,7 @@ static int popup_event(popup_struct *popup, SDL_Event *event)
         if (list_handle_keyboard(list_characters, event) || list_handle_mouse(list_characters, event)) {
             return 1;
         }
-    }
-    else if (button_tab_new.pressed_forced) {
+    } else if (button_tab_new.pressed_forced) {
         if (event->type == SDL_KEYDOWN) {
             if (IS_ENTER(event->key.keysym.sym)) {
                 uint32 lower, upper;
@@ -356,8 +344,7 @@ static int popup_event(popup_struct *popup, SDL_Event *event)
                 if (*text_inputs[TEXT_INPUT_CHARNAME].str == '\0') {
                     draw_info(COLOR_RED, "You must enter a character name.");
                     return 1;
-                }
-                else if (sscanf(s_settings->text[SERVER_TEXT_ALLOWED_CHARS_CHARNAME_MAX], "%u-%u", &lower, &upper) == 2 && (text_inputs[TEXT_INPUT_CHARNAME].num < lower || text_inputs[TEXT_INPUT_CHARNAME].num > upper)) {
+                } else if (sscanf(s_settings->text[SERVER_TEXT_ALLOWED_CHARS_CHARNAME_MAX], "%u-%u", &lower, &upper) == 2 && (text_inputs[TEXT_INPUT_CHARNAME].num < lower || text_inputs[TEXT_INPUT_CHARNAME].num > upper)) {
                     draw_info_format(COLOR_RED, "Character name must be between %d and %d characters long.", lower, upper);
                     return 1;
                 }
@@ -376,33 +363,26 @@ static int popup_event(popup_struct *popup, SDL_Event *event)
 
         if (text_input_event(&text_inputs[TEXT_INPUT_CHARNAME], event)) {
             return 1;
-        }
-        else if (button_event(&button_character_male, event)) {
+        } else if (button_event(&button_character_male, event)) {
             character_gender = GENDER_MALE;
             return 1;
-        }
-        else if (button_event(&button_character_female, event)) {
+        } else if (button_event(&button_character_female, event)) {
             character_gender = GENDER_FEMALE;
             return 1;
-        }
-        else if (button_event(&button_character_left, event)) {
+        } else if (button_event(&button_character_left, event)) {
             if (character_race == 0) {
                 character_race = s_settings->num_characters - 1;
-            }
-            else {
+            } else {
                 character_race--;
             }
-        }
-        else if (button_event(&button_character_right, event)) {
+        } else if (button_event(&button_character_right, event)) {
             if (character_race == s_settings->num_characters - 1) {
                 character_race = 0;
-            }
-            else {
+            } else {
                 character_race++;
             }
         }
-    }
-    else if (button_tab_password.pressed_forced) {
+    } else if (button_tab_password.pressed_forced) {
         if (event->type == SDL_KEYDOWN) {
             if (IS_NEXT(event->key.keysym.sym)) {
                 if (IS_ENTER(event->key.keysym.sym) && text_input_current == TEXT_INPUT_PASSWORD_NEW2) {
@@ -422,8 +402,7 @@ static int popup_event(popup_struct *popup, SDL_Event *event)
                             draw_info(COLOR_RED, "You must enter a valid value for all text inputs.");
                             packet_free(packet);
                             return 1;
-                        }
-                        else if (sscanf(s_settings->text[SERVER_TEXT_ALLOWED_CHARS_PASSWORD_MAX], "%u-%u", &lower, &upper) == 2 && (text_inputs[i].num < lower || text_inputs[i].num > upper)) {
+                        } else if (sscanf(s_settings->text[SERVER_TEXT_ALLOWED_CHARS_PASSWORD_MAX], "%u-%u", &lower, &upper) == 2 && (text_inputs[i].num < lower || text_inputs[i].num > upper)) {
                             draw_info_format(COLOR_RED, "Password must be between %d and %d characters long.", lower, upper);
                             packet_free(packet);
                             return 1;
@@ -456,8 +435,7 @@ static int popup_event(popup_struct *popup, SDL_Event *event)
 
                 return 1;
             }
-        }
-        else if (event->type == SDL_MOUSEBUTTONDOWN) {
+        } else if (event->type == SDL_MOUSEBUTTONDOWN) {
             if (event->button.button == SDL_BUTTON_LEFT) {
                 for (i = TEXT_INPUT_PASSWORD; i < TEXT_INPUT_NUM; i++) {
                     if (text_input_mouse_over(&text_inputs[i], event->motion.x, event->motion.y)) {
@@ -486,6 +464,8 @@ static int popup_destroy_callback(popup_struct *popup)
     if (cpl.state != ST_PLAY) {
         cpl.state = ST_START;
     }
+
+    button_destroy(&button_login);
 
     return 1;
 }
@@ -525,7 +505,7 @@ void characters_open(void)
     button_login.texture_over = texture_get(TEXTURE_TYPE_CLIENT, "button_large_over");
     button_login.texture_pressed = texture_get(TEXTURE_TYPE_CLIENT, "button_large_down");
     button_login.flags = TEXT_MARKUP;
-    button_login.font = FONT_SERIF14;
+    button_set_font(&button_login, FONT_SERIF14);
 
     for (i = 0; i < TEXT_INPUT_NUM; i++) {
         text_input_create(&text_inputs[i]);
@@ -606,15 +586,14 @@ void socket_command_characters(uint8 *data, size_t len, size_t pos)
         /* If it's a valid player arch, add race and gender information. */
         if (archname_to_character(archname, &race, &gender)) {
             snprintf(race_gender, sizeof(race_gender), "%s %s\n", s_settings->characters[race].name, gender_noun[gender]);
-        }
-        else {
+        } else {
             *race_gender = '\0';
         }
 
         /* If we have specified a character in '--connect' command line
          * option, update the selected row and create an enter event. */
         if ((string_isempty(clioption_settings.connect[0]) || strcasecmp(selected_server->name, clioption_settings.connect[0]) == 0) &&
-            clioption_settings.connect[3] && (strcasecmp(clioption_settings.connect[3], name) == 0 ||
+                clioption_settings.connect[3] && (strcasecmp(clioption_settings.connect[3], name) == 0 ||
                 (string_isdigit(clioption_settings.connect[3]) && (uint32) atoi(clioption_settings.connect[3]) == list_characters->rows + 1))) {
             list_characters->row_selected = list_characters->rows + 1;
 
@@ -635,8 +614,7 @@ void socket_command_characters(uint8 *data, size_t len, size_t pos)
     /* No characters yet, so switch to the character creation tab. */
     if (list_characters->rows == 0) {
         button_tab_switch(&button_tab_new);
-    }
-    /* Characters tab otherwise. */
+    }/* Characters tab otherwise. */
     else {
         button_tab_switch(&button_tab_characters);
     }

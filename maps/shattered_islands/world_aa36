@@ -2,7 +2,7 @@ arch map
 name Asteria
 msg
 Created:  2011-03-20 Alex Tokar
-Modified: 2011-10-09 emperorbma
+Modified: 2014-12-23 Alex Tokar
 endmsg
 width 24
 height 24
@@ -1618,6 +1618,10 @@ end
 arch stairs_stone_up
 z 32
 direction 5
+hp 10
+sp 8
+walk_on 1
+fly_on 1
 x 10
 y 6
 end
@@ -1629,6 +1633,10 @@ end
 arch stairs_stone_up
 z 2
 direction 5
+hp 10
+sp 5
+walk_on 1
+fly_on 1
 x 10
 y 7
 end
@@ -1751,6 +1759,10 @@ end
 arch stairs_stone_up
 z 32
 direction 5
+hp 11
+sp 8
+walk_on 1
+fly_on 1
 x 11
 y 6
 end
@@ -1762,6 +1774,10 @@ end
 arch stairs_stone_up
 z 2
 direction 5
+hp 11
+sp 5
+walk_on 1
+fly_on 1
 x 11
 y 7
 end

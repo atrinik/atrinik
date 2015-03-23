@@ -19,6 +19,7 @@ tile_path_7 world_0535
 tile_path_8 world_0537
 bg_music chether.mid
 region asteria
+tile_path_9 world_1_0636
 end
 arch grassd_2
 z 50
@@ -2636,7 +2637,7 @@ y 21
 end
 arch client_map_info
 msg
-[font=serif.ttf 14]Asteria     Palace[/font]
+[font=serif 14]Asteria     Palace[/font]
 endmsg
 name asteria_palace
 sub_type 1

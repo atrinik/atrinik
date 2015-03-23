@@ -1,26 +1,26 @@
-/************************************************************************
-*            Atrinik, a Multiplayer Online Role Playing Game            *
-*                                                                       *
-*    Copyright (C) 2009-2012 Alex Tokar and Atrinik Development Team    *
-*                                                                       *
-* Fork from Crossfire (Multiplayer game for X-windows).                 *
-*                                                                       *
-* This program is free software; you can redistribute it and/or modify  *
-* it under the terms of the GNU General Public License as published by  *
-* the Free Software Foundation; either version 2 of the License, or     *
-* (at your option) any later version.                                   *
-*                                                                       *
-* This program is distributed in the hope that it will be useful,       *
-* but WITHOUT ANY WARRANTY; without even the implied warranty of        *
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
-* GNU General Public License for more details.                          *
-*                                                                       *
-* You should have received a copy of the GNU General Public License     *
-* along with this program; if not, write to the Free Software           *
-* Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.             *
-*                                                                       *
-* The author can be reached at admin@atrinik.org                        *
-************************************************************************/
+/*************************************************************************
+ *           Atrinik, a Multiplayer Online Role Playing Game             *
+ *                                                                       *
+ *   Copyright (C) 2009-2014 Alex Tokar and Atrinik Development Team     *
+ *                                                                       *
+ * Fork from Crossfire (Multiplayer game for X-windows).                 *
+ *                                                                       *
+ * This program is free software; you can redistribute it and/or modify  *
+ * it under the terms of the GNU General Public License as published by  *
+ * the Free Software Foundation; either version 2 of the License, or     *
+ * (at your option) any later version.                                   *
+ *                                                                       *
+ * This program is distributed in the hope that it will be useful,       *
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of        *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
+ * GNU General Public License for more details.                          *
+ *                                                                       *
+ * You should have received a copy of the GNU General Public License     *
+ * along with this program; if not, write to the Free Software           *
+ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.             *
+ *                                                                       *
+ * The author can be reached at admin@atrinik.org                        *
+ ************************************************************************/
 
 /**
  * @file
@@ -47,8 +47,7 @@ static void list_row_color(list_struct *list, int row, SDL_Rect box)
 {
     if (row & 1) {
         SDL_FillRect(list->surface, &box, SDL_MapRGB(list->surface->format, 0x55, 0x55, 0x55));
-    }
-    else {
+    } else {
         SDL_FillRect(list->surface, &box, SDL_MapRGB(list->surface->format, 0x45, 0x45, 0x45));
     }
 }
@@ -101,7 +100,6 @@ list_struct *list_create(uint32 max_rows, uint32 cols, int spacing)
     list->max_rows = max_rows;
     list->cols = cols;
     list->spacing = spacing;
-    list->font = FONT_SANS10;
     list->surface = ScreenSurface;
     list->focus = 1;
 
@@ -121,6 +119,8 @@ list_struct *list_create(uint32 max_rows, uint32 cols, int spacing)
     list->col_spacings = ecalloc(1, sizeof(*list->col_spacings) * list->cols);
     list->col_names = ecalloc(1, sizeof(*list->col_names) * list->cols);
     list->col_centered = ecalloc(1, sizeof(*list->col_centered) * list->cols);
+
+    list_set_font(list, FONT_SANS10);
 
     return list;
 }
@@ -149,7 +149,7 @@ void list_add(list_struct *list, uint32 row, uint32 col, const char *str)
 
         /* Update rows count and resize the array of rows. */
         list->rows = row + 1;
-        list->text = realloc(list->text, sizeof(*list->text) * list->rows);
+        list->text = erealloc(list->text, sizeof(*list->text) * list->rows);
 
         /* Allocate columns for the new row(s). */
         for (i = row; i < list->rows; i++) {
@@ -187,7 +187,7 @@ void list_remove_row(list_struct *list, uint32 row)
     }
 
     list->rows--;
-    list->text = realloc(list->text, sizeof(*list->text) * list->rows);
+    list->text = erealloc(list->text, sizeof(*list->text) * list->rows);
 }
 
 /**
@@ -238,8 +238,16 @@ void list_set_column(list_struct *list, uint32 col, int width, int spacing, cons
  * Change list's font.
  * @param list Which list to change font for.
  * @param font Font to use. */
-void list_set_font(list_struct *list, int font)
+void list_set_font(list_struct *list, font_struct *font)
 {
+    if (list->font != NULL) {
+        font_free(list->font);
+    }
+
+    if (font != NULL) {
+        FONT_INCREF(font);
+    }
+
     list->font = font;
 }
 
@@ -333,13 +341,12 @@ void list_show(list_struct *list, int x, int y)
             break;
         }
 
-        /* Color selected row. */
         if (list->row_selected_func && (row + 1) == list->row_selected) {
+            /* Color selected row. */
             box.y = LIST_ROWS_START(list) + (LIST_ROW_OFFSET(row, list) * LIST_ROW_HEIGHT(list));
             list->row_selected_func(list, box);
-        }
-        /* Color highlighted row. */
-        else if (list->row_highlight_func && (row + 1) == list->row_highlighted) {
+        } else if (list->row_highlight_func && (row + 1) == list->row_highlighted) {
+            /* Color highlighted row. */
             box.y = LIST_ROWS_START(list) + (LIST_ROW_OFFSET(row, list) * LIST_ROW_HEIGHT(list));
             list->row_highlight_func(list, box);
         }
@@ -349,7 +356,7 @@ void list_show(list_struct *list, int x, int y)
         /* Show all the columns. */
         for (col = 0; col < list->cols; col++) {
             /* Is there any text to show? */
-            if (list->text[row][col] && list->font != -1) {
+            if (list->text[row][col] && list->font != NULL) {
                 const char *text_color, *text_color_shadow;
                 SDL_Rect text_rect;
 
@@ -376,8 +383,7 @@ void list_show(list_struct *list, int x, int y)
                 /* Output the text. */
                 if (text_color_shadow) {
                     text_show_shadow(list->surface, list->font, list->text[row][col], text_rect.x, text_rect.y, text_color, text_color_shadow, TEXT_WORD_WRAP | list->text_flags, &text_rect);
-                }
-                else if (text_color) {
+                } else if (text_color) {
                     text_show(list->surface, list->font, list->text[row][col], text_rect.x, text_rect.y, text_color, TEXT_WORD_WRAP | list->text_flags, &text_rect);
                 }
             }
@@ -442,8 +448,7 @@ void list_offsets_ensure(list_struct *list)
 
     if (list->rows < list->max_rows) {
         list->row_offset = 0;
-    }
-    else if (list->row_offset >= list->rows - list->max_rows) {
+    } else if (list->row_offset >= list->rows - list->max_rows) {
         list->row_offset = list->rows - list->max_rows;
     }
 }
@@ -498,17 +503,16 @@ void list_scroll(list_struct *list, int up, int scroll)
     /* Number of visible rows. */
     max_rows = list->max_rows;
 
-    /* Scrolling upward. */
     if (up) {
+        /* Scrolling upward. */
         row_selected -= scroll;
 
         /* Adjust row offset if needed. */
         if (row_offset >= (row_selected - 1)) {
             row_offset -= scroll;
         }
-    }
-    /* Downward otherwise. */
-    else {
+    } else {
+        /* Downward otherwise. */
         row_selected += scroll;
 
         /* Adjust row offset if needed. */
@@ -520,16 +524,14 @@ void list_scroll(list_struct *list, int up, int scroll)
     /* Make sure row offset is within bounds. */
     if (row_offset < 0 || rows < max_rows) {
         row_offset = 0;
-    }
-    else if (row_offset >= rows - max_rows) {
+    } else if (row_offset >= rows - max_rows) {
         row_offset = rows - max_rows;
     }
 
     /* Make sure selected row is within bounds. */
     if (row_selected < 1) {
         row_selected = 1;
-    }
-    else if (row_selected >= rows) {
+    } else if (row_selected >= rows) {
         row_selected = list->rows;
     }
 
@@ -563,47 +565,47 @@ int list_handle_keyboard(list_struct *list, SDL_Event *event)
 
     switch (event->key.keysym.sym) {
         /* Up arrow. */
-        case SDLK_UP:
-            list_scroll(list, 1, 1);
-            return 1;
+    case SDLK_UP:
+        list_scroll(list, 1, 1);
+        return 1;
 
         /* Down arrow. */
-        case SDLK_DOWN:
-            list_scroll(list, 0, 1);
-            return 1;
+    case SDLK_DOWN:
+        list_scroll(list, 0, 1);
+        return 1;
 
         /* Page up. */
-        case SDLK_PAGEUP:
-            list_scroll(list, 1, list->max_rows);
-            return 1;
+    case SDLK_PAGEUP:
+        list_scroll(list, 1, list->max_rows);
+        return 1;
 
         /* Page down. */
-        case SDLK_PAGEDOWN:
-            list_scroll(list, 0, list->max_rows);
-            return 1;
+    case SDLK_PAGEDOWN:
+        list_scroll(list, 0, list->max_rows);
+        return 1;
 
         /* Esc, let the list creator handle this if they want to. */
-        case SDLK_ESCAPE:
+    case SDLK_ESCAPE:
 
-            if (list->handle_esc_func) {
-                list->handle_esc_func(list);
-            }
+        if (list->handle_esc_func) {
+            list->handle_esc_func(list);
+        }
 
-            return 1;
+        return 1;
 
         /* Enter. */
-        case SDLK_RETURN:
-        case SDLK_KP_ENTER:
+    case SDLK_RETURN:
+    case SDLK_KP_ENTER:
 
-            if (list->handle_enter_func) {
-                list->handle_enter_func(list, event);
-            }
+        if (list->handle_enter_func) {
+            list->handle_enter_func(list, event);
+        }
 
-            return 1;
+        return 1;
 
         /* Unhandled key. */
-        default:
-            break;
+    default:
+        break;
     }
 
     return 0;
@@ -671,17 +673,14 @@ int list_handle_mouse(list_struct *list, SDL_Event *event)
                  * function did not actually jump to another GUI,
                  * thus removing the need for this list). */
                 list->row_selected = row + 1;
-            }
-            /* Normal click. */
-            else {
+            } else { /* Normal click. */
                 /* Update selected row and click ticks for above
                  * double click calculation. */
                 list->row_selected = row + 1;
                 list->click_tick = SDL_GetTicks();
             }
-        }
-        /* Not a mouse click, so update highlighted row. */
-        else {
+        } else {
+            /* Not a mouse click, so update highlighted row. */
             list->row_highlighted = row + 1;
         }
     }
@@ -776,4 +775,19 @@ int list_set_selected(list_struct *list, const char *str, uint32 col)
     }
 
     return 0;
+}
+
+/**
+ * Acquire text at the specified column of the currently selected row.
+ * @param list List.
+ * @param col Column to get text at.
+ * @return Pointer to column's text, NULL if there is no row selected.
+ */
+const char *list_get_selected(list_struct *list, uint32 col)
+{
+    if (list->text == NULL) {
+        return NULL;
+    }
+
+    return list->text[list->row_selected - 1][col];
 }

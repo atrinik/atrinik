@@ -1,26 +1,26 @@
-/************************************************************************
-*            Atrinik, a Multiplayer Online Role Playing Game            *
-*                                                                       *
-*    Copyright (C) 2009-2012 Alex Tokar and Atrinik Development Team    *
-*                                                                       *
-* Fork from Crossfire (Multiplayer game for X-windows).                 *
-*                                                                       *
-* This program is free software; you can redistribute it and/or modify  *
-* it under the terms of the GNU General Public License as published by  *
-* the Free Software Foundation; either version 2 of the License, or     *
-* (at your option) any later version.                                   *
-*                                                                       *
-* This program is distributed in the hope that it will be useful,       *
-* but WITHOUT ANY WARRANTY; without even the implied warranty of        *
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
-* GNU General Public License for more details.                          *
-*                                                                       *
-* You should have received a copy of the GNU General Public License     *
-* along with this program; if not, write to the Free Software           *
-* Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.             *
-*                                                                       *
-* The author can be reached at admin@atrinik.org                        *
-************************************************************************/
+/*************************************************************************
+ *           Atrinik, a Multiplayer Online Role Playing Game             *
+ *                                                                       *
+ *   Copyright (C) 2009-2014 Alex Tokar and Atrinik Development Team     *
+ *                                                                       *
+ * Fork from Crossfire (Multiplayer game for X-windows).                 *
+ *                                                                       *
+ * This program is free software; you can redistribute it and/or modify  *
+ * it under the terms of the GNU General Public License as published by  *
+ * the Free Software Foundation; either version 2 of the License, or     *
+ * (at your option) any later version.                                   *
+ *                                                                       *
+ * This program is distributed in the hope that it will be useful,       *
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of        *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
+ * GNU General Public License for more details.                          *
+ *                                                                       *
+ * You should have received a copy of the GNU General Public License     *
+ * along with this program; if not, write to the Free Software           *
+ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.             *
+ *                                                                       *
+ * The author can be reached at admin@atrinik.org                        *
+ ************************************************************************/
 
 /**
  * @file
@@ -30,12 +30,11 @@
 
 #include <global.h>
 
-enum
-{
+enum {
     KEYBINDING_STATE_LIST,
     KEYBINDING_STATE_ADD,
     KEYBINDING_STATE_EDIT
-};
+} ;
 
 /**
  * Button buffer. */
@@ -84,8 +83,7 @@ static void keybinding_apply(void)
         /* It'll be added to the end, so select it. */
         list_keybindings->row_selected = list_keybindings->rows + 1;
         list_keybindings->row_offset = MIN(list_keybindings->rows + 1 - list_keybindings->max_rows, list_keybindings->row_selected - 1);
-    }
-    else if (keybinding_state == KEYBINDING_STATE_EDIT) {
+    } else if (keybinding_state == KEYBINDING_STATE_EDIT) {
         keybind_edit(keybinding_id, key, mod, text_input_command.str);
     }
 
@@ -99,23 +97,21 @@ static void keybinding_apply(void)
  * @return 1 if the key was handled, 0 otherwise. */
 static int keybinding_action(SDLKey key)
 {
-    /* Create a new keybinding. */
     if (key == SDLK_n) {
+        /* Create a new keybinding. */
         keybinding_state = KEYBINDING_STATE_ADD;
         text_input_command.focus = 1;
         text_input_set(&text_input_command, NULL);
         text_input_key.focus = 0;
         text_input_set(&text_input_key, "0 0");
         return 1;
-    }
-    /* Delete existing keybinding. */
-    else if (key == SDLK_DELETE) {
+    } else if (key == SDLK_DELETE) {
+        /* Delete existing keybinding. */
         keybind_remove(list_keybindings->row_selected - 1);
         keybinding_list_reload();
         return 1;
-    }
-    /* Toggle repeat on/off. */
-    else if (key == SDLK_r) {
+    } else if (key == SDLK_r) {
+        /* Toggle repeat on/off. */
         keybind_repeat_toggle(list_keybindings->row_selected - 1);
         keybinding_list_reload();
         return 1;
@@ -193,8 +189,7 @@ static int popup_draw(popup_struct *popup)
 
             keybind_get_key_shortcut(key, mod, buf, sizeof(buf));
             text_show(popup->surface, text_input_key.font, buf, text_input_key.coords.x, text_input_key.coords.y + TEXT_INPUT_PADDING, COLOR_WHITE, TEXT_ALIGN_CENTER, &box);
-        }
-        else if (text_input_key.focus) {
+        } else if (text_input_key.focus) {
             text_show(popup->surface, text_input_key.font, "Press keyboard shortcut", text_input_key.coords.x, text_input_key.coords.y + TEXT_INPUT_PADDING, COLOR_WHITE, TEXT_ALIGN_CENTER, &box);
         }
 
@@ -221,8 +216,7 @@ static int popup_event(popup_struct *popup, SDL_Event *event)
             }
 
             return 1;
-        }
-        else if (event->type == SDL_KEYUP) {
+        } else if (event->type == SDL_KEYUP) {
             if (text_input_command.focus) {
                 if (IS_NEXT(event->key.keysym.sym)) {
                     text_input_command.focus = 0;
@@ -234,21 +228,18 @@ static int popup_event(popup_struct *popup, SDL_Event *event)
 
                     return 1;
                 }
-            }
-            else if (text_input_key.focus) {
+            } else if (text_input_key.focus) {
                 if (strcmp(text_input_key.str, "0 0") == 0) {
                     char buf[MAX_BUF];
 
                     snprintf(buf, sizeof(buf), "%d %d", event->key.keysym.sym, event->key.keysym.mod);
                     text_input_set(&text_input_key, buf);
                     return 1;
-                }
-                else if (IS_ENTER(event->key.keysym.sym)) {
+                } else if (IS_ENTER(event->key.keysym.sym)) {
                     keybinding_apply();
                     return 1;
                 }
-            }
-            else if (IS_ENTER(event->key.keysym.sym)) {
+            } else if (IS_ENTER(event->key.keysym.sym)) {
                 text_input_command.focus = 1;
                 return 1;
             }
@@ -259,12 +250,10 @@ static int popup_event(popup_struct *popup, SDL_Event *event)
         if (event->key.keysym.sym == SDLK_ESCAPE) {
             popup_destroy(popup);
             return 1;
-        }
-        else if (keybinding_action(event->key.keysym.sym)) {
+        } else if (keybinding_action(event->key.keysym.sym)) {
             return 1;
         }
-    }
-    else if (event->type == SDL_MOUSEBUTTONDOWN) {
+    } else if (event->type == SDL_MOUSEBUTTONDOWN) {
         if (event->button.button == SDL_BUTTON_LEFT) {
             uint32 row, col;
 
@@ -282,14 +271,12 @@ static int popup_event(popup_struct *popup, SDL_Event *event)
                 }
 
                 return 1;
-            }
-            else if (text_input_mouse_over(&text_input_key, event->motion.x, event->motion.y)) {
+            } else if (text_input_mouse_over(&text_input_key, event->motion.x, event->motion.y)) {
                 text_input_set(&text_input_key, "0 0");
                 text_input_key.focus = 1;
                 text_input_command.focus = 0;
                 return 1;
-            }
-            else if (list_mouse_get_pos(list_keybindings, event->motion.x, event->motion.y, &row, &col)) {
+            } else if (list_mouse_get_pos(list_keybindings, event->motion.x, event->motion.y, &row, &col)) {
                 if (col == 2) {
                     keybind_repeat_toggle(row);
                     keybinding_list_reload();
@@ -301,19 +288,15 @@ static int popup_event(popup_struct *popup, SDL_Event *event)
     if (button_event(&button_new, event)) {
         keybinding_action(SDLK_n);
         return 1;
-    }
-    else if (button_event(&button_remove, event)) {
+    } else if (button_event(&button_remove, event)) {
         keybinding_action(SDLK_DELETE);
         return 1;
-    }
-    else if (button_event(&button_apply, event)) {
+    } else if (button_event(&button_apply, event)) {
         keybinding_apply();
         return 1;
-    }
-    else if (list_handle_keyboard(list_keybindings, event)) {
+    } else if (list_handle_keyboard(list_keybindings, event)) {
         return 1;
-    }
-    else if (list_handle_mouse(list_keybindings, event)) {
+    } else if (list_handle_mouse(list_keybindings, event)) {
         return 1;
     }
 

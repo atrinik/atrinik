@@ -8,7 +8,6 @@ animation grave_fire.101
 is_animated 0
 anim_speed 15
 material 64
-speed 0.02
 last_sp 5
 weight 100000
 food 1

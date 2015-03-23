@@ -710,7 +710,7 @@ x 13
 y 19
 arch drow_priestess
 level 37
-Dex 7
+dex 7
 unaggressive 1
 type 83
 arch event_obj

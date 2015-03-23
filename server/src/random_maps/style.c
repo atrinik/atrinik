@@ -1,26 +1,26 @@
-/************************************************************************
-*            Atrinik, a Multiplayer Online Role Playing Game            *
-*                                                                       *
-*    Copyright (C) 2009-2012 Alex Tokar and Atrinik Development Team    *
-*                                                                       *
-* Fork from Crossfire (Multiplayer game for X-windows).                 *
-*                                                                       *
-* This program is free software; you can redistribute it and/or modify  *
-* it under the terms of the GNU General Public License as published by  *
-* the Free Software Foundation; either version 2 of the License, or     *
-* (at your option) any later version.                                   *
-*                                                                       *
-* This program is distributed in the hope that it will be useful,       *
-* but WITHOUT ANY WARRANTY; without even the implied warranty of        *
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
-* GNU General Public License for more details.                          *
-*                                                                       *
-* You should have received a copy of the GNU General Public License     *
-* along with this program; if not, write to the Free Software           *
-* Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.             *
-*                                                                       *
-* The author can be reached at admin@atrinik.org                        *
-************************************************************************/
+/*************************************************************************
+ *           Atrinik, a Multiplayer Online Role Playing Game             *
+ *                                                                       *
+ *   Copyright (C) 2009-2014 Alex Tokar and Atrinik Development Team     *
+ *                                                                       *
+ * Fork from Crossfire (Multiplayer game for X-windows).                 *
+ *                                                                       *
+ * This program is free software; you can redistribute it and/or modify  *
+ * it under the terms of the GNU General Public License as published by  *
+ * the Free Software Foundation; either version 2 of the License, or     *
+ * (at your option) any later version.                                   *
+ *                                                                       *
+ * This program is distributed in the hope that it will be useful,       *
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of        *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
+ * GNU General Public License for more details.                          *
+ *                                                                       *
+ * You should have received a copy of the GNU General Public License     *
+ * along with this program; if not, write to the Free Software           *
+ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.             *
+ *                                                                       *
+ * The author can be reached at admin@atrinik.org                        *
+ ************************************************************************/
 
 /**
  * @file
@@ -111,7 +111,8 @@ mapstruct *load_style_map(char *style_name)
     mapstruct *style_map;
 
     /* Given a file.  See if its in memory */
-    for (style_map = styles; style_map != NULL; style_map = style_map->next) {
+    DL_FOREACH(styles, style_map)
+    {
         if (!strcmp(style_name, style_map->path)) {
             return style_map;
         }
@@ -120,23 +121,10 @@ mapstruct *load_style_map(char *style_name)
     style_map = load_original_map(style_name, MAP_STYLE);
 
     /* Remove it from global list, put it on our local list */
-    if (style_map) {
-        mapstruct *tmp;
-
-        if (style_map == first_map) {
-            first_map = style_map->next;
-        }
-        else {
-            for (tmp = first_map; tmp && tmp->next != style_map; tmp = tmp->next) {
-            }
-
-            if (tmp) {
-                tmp->next = style_map->next;
-            }
-        }
-
-        style_map->next = styles;
-        styles = style_map;
+    if (style_map != NULL) {
+        DL_DELETE(first_map, style_map);
+        style_map->global_removed = true;
+        DL_APPEND(styles, style_map);
     }
 
     return style_map;
@@ -168,9 +156,8 @@ mapstruct *find_style(char *dirname, char *stylename, int difficulty)
     /* If stylename exists, set style_file_path to that file.*/
     if (stylename && strlen(stylename) > 0) {
         snprintf(style_file_path, sizeof(style_file_path), "%s/%s", dirname, stylename);
-    }
-    /* Otherwise, just use the dirname.  We'll pick a random stylefile.*/
-    else {
+    } else {
+        /* Otherwise, just use the dirname.  We'll pick a random stylefile.*/
         snprintf(style_file_path, sizeof(style_file_path), "%s", dirname);
     }
 
@@ -211,17 +198,16 @@ mapstruct *find_style(char *dirname, char *stylename, int difficulty)
         if (difficulty == -1) {
             if (only_subdirs) {
                 style_map = NULL;
-            }
-            else {
+            } else {
                 strcat(style_file_path, "/");
                 strcat(style_file_path, namelist[RANDOM() % n]);
 
                 style_map = load_style_map(style_file_path);
             }
-        }
-        /* find the map closest in difficulty */
-        else {
+        } else {
             int min_dist = 32000, min_index = -1;
+
+            /* find the map closest in difficulty */
 
             for (i = 0; i < n; i++) {
                 int dist;
@@ -241,8 +227,7 @@ mapstruct *find_style(char *dirname, char *stylename, int difficulty)
                     efree(namelist);
 
                     return style_map;
-                }
-                else {
+                } else {
                     dist = abs(difficulty - atoi(mfile_name));
 
                     if (dist < min_dist) {
@@ -283,20 +268,17 @@ object *pick_random_object(mapstruct *style)
     /* If someone makes a style map that is empty, this will loop forever,
      * but the callers will crash if we return a NULL object, so either
      * way is not good. */
-    do
-    {
+    do {
         i = RANDOM () % (MAP_WIDTH(style) * MAP_HEIGHT(style));
 
         x = i / MAP_HEIGHT(style);
         y = i % MAP_HEIGHT(style);
         new_obj = GET_MAP_OB(style, x, y);
-    }
-    while (new_obj == NULL);
+    }    while (new_obj == NULL);
 
     if (new_obj->head) {
         return new_obj->head;
-    }
-    else {
+    } else {
         return new_obj;
     }
 }
@@ -305,15 +287,13 @@ object *pick_random_object(mapstruct *style)
  * Frees cached style maps. */
 void free_style_maps(void)
 {
-    mapstruct *next;
-    int style_maps = 0;
+    mapstruct *map, *tmp;
 
     /* delete_map will try to free it from the linked list,
      * but won't find it, so we need to do it ourselves */
-    while (styles) {
-        next = styles->next;
-        delete_map(styles);
-        styles = next;
-        style_maps++;
+    DL_FOREACH_SAFE(styles, map, tmp)
+    {
+        DL_DELETE(styles, map);
+        delete_map(map);
     }
 }

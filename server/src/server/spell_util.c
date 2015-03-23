@@ -1,26 +1,26 @@
-/************************************************************************
-*            Atrinik, a Multiplayer Online Role Playing Game            *
-*                                                                       *
-*    Copyright (C) 2009-2012 Alex Tokar and Atrinik Development Team    *
-*                                                                       *
-* Fork from Crossfire (Multiplayer game for X-windows).                 *
-*                                                                       *
-* This program is free software; you can redistribute it and/or modify  *
-* it under the terms of the GNU General Public License as published by  *
-* the Free Software Foundation; either version 2 of the License, or     *
-* (at your option) any later version.                                   *
-*                                                                       *
-* This program is distributed in the hope that it will be useful,       *
-* but WITHOUT ANY WARRANTY; without even the implied warranty of        *
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
-* GNU General Public License for more details.                          *
-*                                                                       *
-* You should have received a copy of the GNU General Public License     *
-* along with this program; if not, write to the Free Software           *
-* Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.             *
-*                                                                       *
-* The author can be reached at admin@atrinik.org                        *
-************************************************************************/
+/*************************************************************************
+ *           Atrinik, a Multiplayer Online Role Playing Game             *
+ *                                                                       *
+ *   Copyright (C) 2009-2014 Alex Tokar and Atrinik Development Team     *
+ *                                                                       *
+ * Fork from Crossfire (Multiplayer game for X-windows).                 *
+ *                                                                       *
+ * This program is free software; you can redistribute it and/or modify  *
+ * it under the terms of the GNU General Public License as published by  *
+ * the Free Software Foundation; either version 2 of the License, or     *
+ * (at your option) any later version.                                   *
+ *                                                                       *
+ * This program is distributed in the hope that it will be useful,       *
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of        *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
+ * GNU General Public License for more details.                          *
+ *                                                                       *
+ * You should have received a copy of the GNU General Public License     *
+ * along with this program; if not, write to the Free Software           *
+ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.             *
+ *                                                                       *
+ * The author can be reached at admin@atrinik.org                        *
+ ************************************************************************/
 
 /**
  * @file
@@ -70,8 +70,7 @@ void init_spells(void)
                 logger_print(LOG(ERROR), "Spell %s needs arch %s, your archetypes file is out of date.", spells[i].name, spells[i].archname);
                 exit(1);
             }
-        }
-        else {
+        } else {
             spellarch[i] = NULL;
         }
     }
@@ -154,11 +153,9 @@ int cast_spell(object *op, object *caster, int dir, int type, int ability, int i
 
     if (op == NULL && caster != NULL) {
         op = caster;
-    }
-    else if (caster == NULL && op != NULL) {
+    } else if (caster == NULL && op != NULL) {
         caster = op;
-    }
-    else if (op == NULL && caster == NULL) {
+    } else if (op == NULL && caster == NULL) {
         logger_print(LOG(BUG), "Both 'op' and 'caster' are NULL.");
         return 0;
     }
@@ -179,8 +176,7 @@ int cast_spell(object *op, object *caster, int dir, int type, int ability, int i
          * and caster is the NPC and op the target. */
         target = op;
         op = caster;
-    }
-    else {
+    } else {
         /* It looks like the only properties we ever care about from the casting
          * object (caster) is spell paths and level. */
         object *cast_op = op;
@@ -230,8 +226,7 @@ int cast_spell(object *op, object *caster, int dir, int type, int ability, int i
                 target = op;
                 dir = 0;
             }
-        }
-        else if (find_target_for_spell(op, &target, spells[type].flags) == 0) {
+        } else if (find_target_for_spell(op, &target, spells[type].flags) == 0) {
             draw_info_format(COLOR_WHITE, op, "You can't cast that spell on %s!", target ? target->name : "yourself");
             return 0;
         }
@@ -257,8 +252,7 @@ int cast_spell(object *op, object *caster, int dir, int type, int ability, int i
 
             if (caster == op) {
                 draw_info(COLOR_WHITE, op, "Something blocks your spellcasting.");
-            }
-            else {
+            } else {
                 draw_info_format(COLOR_WHITE, op, "Something blocks the magic of your %s.", query_base_name(caster, op));
             }
 
@@ -300,135 +294,134 @@ int cast_spell(object *op, object *caster, int dir, int type, int ability, int i
     }
 
     switch ((enum spellnrs) type) {
-        case SP_RESTORATION:
-        case SP_CURE_CONFUSION:
-        case SP_MINOR_HEAL:
-        case SP_GREATER_HEAL:
-        case SP_CURE_POISON:
-        case SP_CURE_DISEASE:
-            success = cast_heal(op, SK_level(caster), target, type);
-            break;
+    case SP_RESTORATION:
+    case SP_CURE_CONFUSION:
+    case SP_MINOR_HEAL:
+    case SP_GREATER_HEAL:
+    case SP_CURE_POISON:
+    case SP_CURE_DISEASE:
+        success = cast_heal(op, SK_level(caster), target, type);
+        break;
 
-        case SP_REMOVE_CURSE:
-        case SP_REMOVE_DAMNATION:
-            success = remove_curse(op, target, type, item);
-            break;
+    case SP_REMOVE_CURSE:
+    case SP_REMOVE_DAMNATION:
+        success = remove_curse(op, target, type, item);
+        break;
 
-        case SP_STRENGTH:
-        case SP_PROT_COLD:
-        case SP_PROT_FIRE:
-        case SP_PROT_ELEC:
-        case SP_PROT_POISON:
-            success = cast_change_attr(op, caster, target, type);
-            break;
+    case SP_STRENGTH:
+    case SP_PROT_COLD:
+    case SP_PROT_FIRE:
+    case SP_PROT_ELEC:
+    case SP_PROT_POISON:
+        success = cast_change_attr(op, caster, target, type);
+        break;
 
-        case SP_IDENTIFY:
-            success = cast_identify(target, SK_level(caster), NULL, IDENTIFY_NORMAL);
-            break;
+    case SP_IDENTIFY:
+        success = cast_identify(target, SK_level(caster), NULL, IDENTIFY_NORMAL);
+        break;
 
         /* Spells after this use direction and not a target */
-        case SP_ICESTORM:
-        case SP_FIRESTORM:
-        case SP_HOLYWORD:
-            success = cast_cone(op, caster, dir, duration, type, spellarch[type]);
-            break;
+    case SP_ICESTORM:
+    case SP_FIRESTORM:
+    case SP_HOLYWORD:
+        success = cast_cone(op, caster, dir, duration, type, spellarch[type]);
+        break;
 
-        case SP_PROBE:
+    case SP_PROBE:
 
-            if (!dir) {
-                examine(op, op, NULL);
-                success = 1;
-            }
-            else {
-                success = fire_arch_from_position(op, caster, op->x, op->y, dir, spellarch[type], type, NULL);
-            }
-
-            break;
-
-        case SP_BULLET:
-        case SP_CAUSE_LIGHT:
-        case SP_MAGIC_MISSILE:
-            success = fire_arch_from_position(op, caster, op->x, op->y, dir, spellarch[type], type, target);
-            break;
-
-        case SP_WOR:
-            success = cast_wor(op, caster);
-            break;
-
-        case SP_CREATE_FOOD:
-            success = cast_create_food(op, caster, dir, stringarg);
-            break;
-
-        case SP_CHARGING:
-            success = recharge(op);
-            break;
-
-        case SP_CONSECRATE:
-            success = cast_consecrate(op);
-            break;
-
-        case SP_CAUSE_COLD:
-        case SP_CAUSE_FLU:
-        case SP_CAUSE_LEPROSY:
-        case SP_CAUSE_SMALLPOX:
-        case SP_CAUSE_PNEUMONIC_PLAGUE:
-            success = cast_cause_disease(op, caster, dir, spellarch[type], type);
-            break;
-
-        case SP_FINGER_DEATH:
-            success = finger_of_death(op, target);
-            break;
-
-        case SP_POISON_FOG:
-        case SP_METEOR:
-        case SP_ASTEROID:
+        if (!dir) {
+            examine(op, op, NULL);
+            success = 1;
+        } else {
             success = fire_arch_from_position(op, caster, op->x, op->y, dir, spellarch[type], type, NULL);
-            break;
+        }
 
-        case SP_METEOR_SWARM:
-            success = 1;
-            fire_swarm(op, caster, dir, spellarch[type], SP_METEOR, 3, 0);
-            break;
+        break;
 
-        case SP_FROST_NOVA:
-            success = 1;
-            fire_swarm(op, caster, dir, spellarch[type], SP_ASTEROID, 3, 0);
-            break;
+    case SP_BULLET:
+    case SP_CAUSE_LIGHT:
+    case SP_MAGIC_MISSILE:
+        success = fire_arch_from_position(op, caster, op->x, op->y, dir, spellarch[type], type, target);
+        break;
 
-        case SP_BULLET_SWARM:
-            success = 1;
-            fire_swarm(op, caster, dir, spellarch[type], SP_BULLET, 5, 0);
-            break;
+    case SP_WOR:
+        success = cast_wor(op, caster);
+        break;
 
-        case SP_BULLET_STORM:
-            success = 1;
-            fire_swarm(op, caster, dir, spellarch[type], SP_BULLET, 3, 0);
-            break;
+    case SP_CREATE_FOOD:
+        success = cast_create_food(op, caster, dir, stringarg);
+        break;
 
-        case SP_DESTRUCTION:
-            success = cast_destruction(op, caster, 5 + op->stats.Int, AT_MAGIC);
-            break;
+    case SP_CHARGING:
+        success = recharge(op);
+        break;
 
-        case SP_TRANSFORM_WEALTH:
-            success = cast_transform_wealth(op);
-            break;
+    case SP_CONSECRATE:
+        success = cast_consecrate(op);
+        break;
 
-        case SP_RAIN_HEAL:
-        case SP_PARTY_HEAL:
-            success = cast_heal_around(op, SK_level(caster), type);
-            break;
+    case SP_CAUSE_COLD:
+    case SP_CAUSE_FLU:
+    case SP_CAUSE_LEPROSY:
+    case SP_CAUSE_SMALLPOX:
+    case SP_CAUSE_PNEUMONIC_PLAGUE:
+        success = cast_cause_disease(op, caster, dir, spellarch[type], type);
+        break;
 
-        case SP_FROSTBOLT:
-        case SP_FIREBOLT:
-        case SP_LIGHTNING:
-        case SP_FORKED_LIGHTNING:
-        case SP_NEGABOLT:
-            success = fire_bolt(op, caster, dir, type);
-            break;
+    case SP_FINGER_DEATH:
+        success = finger_of_death(op, target);
+        break;
 
-        default:
-            logger_print(LOG(BUG), "Invalid spell: %d", type);
-            break;
+    case SP_POISON_FOG:
+    case SP_METEOR:
+    case SP_ASTEROID:
+        success = fire_arch_from_position(op, caster, op->x, op->y, dir, spellarch[type], type, NULL);
+        break;
+
+    case SP_METEOR_SWARM:
+        success = 1;
+        fire_swarm(op, caster, dir, spellarch[type], SP_METEOR, 3, 0);
+        break;
+
+    case SP_FROST_NOVA:
+        success = 1;
+        fire_swarm(op, caster, dir, spellarch[type], SP_ASTEROID, 3, 0);
+        break;
+
+    case SP_BULLET_SWARM:
+        success = 1;
+        fire_swarm(op, caster, dir, spellarch[type], SP_BULLET, 5, 0);
+        break;
+
+    case SP_BULLET_STORM:
+        success = 1;
+        fire_swarm(op, caster, dir, spellarch[type], SP_BULLET, 3, 0);
+        break;
+
+    case SP_DESTRUCTION:
+        success = cast_destruction(op, caster, 5 + op->stats.Int, AT_MAGIC);
+        break;
+
+    case SP_TRANSFORM_WEALTH:
+        success = cast_transform_wealth(op);
+        break;
+
+    case SP_RAIN_HEAL:
+    case SP_PARTY_HEAL:
+        success = cast_heal_around(op, SK_level(caster), type);
+        break;
+
+    case SP_FROSTBOLT:
+    case SP_FIREBOLT:
+    case SP_LIGHTNING:
+    case SP_FORKED_LIGHTNING:
+    case SP_NEGABOLT:
+        success = fire_bolt(op, caster, dir, type);
+        break;
+
+    default:
+        logger_print(LOG(BUG), "Invalid spell: %d", type);
+        break;
     }
 
     play_sound_map(op->map, CMD_SOUND_EFFECT, spells[type].sound, op->x, op->y, 0, 0);
@@ -579,8 +572,7 @@ int fire_arch_from_position(object *op, object *caster, sint16 x, sint16 y, int 
 
     if (get_owner(op) != NULL) {
         copy_owner(tmp, op);
-    }
-    else {
+    } else {
         set_owner(tmp, op);
     }
 
@@ -652,8 +644,7 @@ int cast_cone(object *op, object *caster, int dir, int strength, int spell_type,
 
         if (dir) {
             tmp->stats.sp = dir;
-        }
-        else {
+        } else {
             tmp->stats.sp = i;
         }
 
@@ -686,6 +677,8 @@ int cast_cone(object *op, object *caster, int dir, int strength, int spell_type,
         if (!QUERY_FLAG(tmp, FLAG_REMOVED)) {
             object_remove(tmp, 0);
         }
+
+        object_destroy(tmp);
     }
 
     return success;
@@ -717,26 +710,18 @@ void cone_drop(object *op)
 void explode_object(object *op)
 {
     tag_t op_tag = op->count;
-    object *tmp;
-    int type;
 
     play_sound_map(op->map, CMD_SOUND_EFFECT, "explosion.ogg", op->x, op->y, 0, 0);
 
     if (op->other_arch == NULL) {
         logger_print(LOG(BUG), "op %s without other_arch", query_name(op, NULL));
         object_remove(op, 0);
+        object_destroy(op);
         return;
     }
 
-    tmp = arch_to_object(op->other_arch);
-    type = tmp->stats.sp;
-
-    if (!type) {
-        type = op->stats.sp;
-    }
-
-    copy_owner(tmp, op);
-    cast_cone(op, op, 0, spells[type].bdur, type, op->other_arch);
+    cast_cone(op, op, 0, spells[op->stats.sp].bdur, op->stats.sp,
+            op->other_arch);
     hit_map(op, 0, 0);
 
     /* remove the firebullet */
@@ -772,8 +757,7 @@ void check_fired_arch(object *op)
 
     if (!hitter) {
         hitter = op;
-    }
-    else if (hitter->head) {
+    } else if (hitter->head) {
         hitter = hitter->head;
     }
 
@@ -800,7 +784,7 @@ void check_fired_arch(object *op)
         if (was_destroyed(op, op_tag) || !was_destroyed(tmp, tmp_tag) || (op->stats.dam -= dam) < 0) {
             if (!QUERY_FLAG(op, FLAG_REMOVED)) {
                 object_remove(op, 0);
-
+                object_destroy(op);
                 return;
             }
         }
@@ -846,9 +830,9 @@ int find_target_for_spell(object *op, object **target, uint32 flags)
                 *target = op;
                 return 1;
             }
-        }
-        /* We have a target and it's not self */
-        else {
+        } else {
+            /* We have a target and it's not self */
+
             if (is_friend_of(op, tmp)) {
                 if (flags & SPELL_DESC_FRIENDLY) {
                     *target = tmp;
@@ -867,8 +851,7 @@ int find_target_for_spell(object *op, object **target, uint32 flags)
                     *target = tmp;
                     return 0;
                 }
-            }
-            else {
+            } else {
                 if (flags & SPELL_DESC_ENEMY) {
                     *target = tmp;
                     return 1;
@@ -880,18 +863,16 @@ int find_target_for_spell(object *op, object **target, uint32 flags)
                 }
             }
         }
-    }
-    /* A monster or rune/firewall/etc */
-    else {
+    } else {
+        /* A monster or rune/firewall/etc */
+
         if ((flags & SPELL_DESC_SELF) && !(flags & (SPELL_DESC_ENEMY | SPELL_DESC_FRIENDLY))) {
             *target = op;
             return 1;
-        }
-        else if ((flags & SPELL_DESC_ENEMY) && op->enemy && OBJECT_ACTIVE(op->enemy) && op->enemy->count == op->enemy_count) {
+        } else if ((flags & SPELL_DESC_ENEMY) && op->enemy && OBJECT_ACTIVE(op->enemy) && op->enemy->count == op->enemy_count) {
             *target = op->enemy;
             return 1;
-        }
-        else {
+        } else {
             *target = op;
             return 1;
         }
@@ -919,8 +900,7 @@ int SP_level_dam_adjust(object *caster, int spell_type, int base_dam, int exact)
 
         if (level <= 0) {
             level = 1;
-        }
-        else {
+        } else {
             level = MAXLEVEL;
         }
     }
@@ -955,8 +935,7 @@ int SP_level_strength_adjust(object *caster, int spell_type)
 
     if (spells[spell_type].ldur) {
         adj /= spells[spell_type].ldur;
-    }
-    else {
+    } else {
         adj = 0;
     }
 
@@ -980,8 +959,7 @@ int SP_level_spellpoint_cost(object *caster, int spell_type, int caster_level)
 
     if (spells[spell_type].spl) {
         sp = (int) (spells[spell_type].sp * (1.0 + (MAX(0, (float) (level) / (float) spells[spell_type].spl))));
-    }
-    else {
+    } else {
         sp = spells[spell_type].sp;
     }
 

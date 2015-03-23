@@ -1,26 +1,26 @@
-/************************************************************************
-*            Atrinik, a Multiplayer Online Role Playing Game            *
-*                                                                       *
-*    Copyright (C) 2009-2012 Alex Tokar and Atrinik Development Team    *
-*                                                                       *
-* Fork from Crossfire (Multiplayer game for X-windows).                 *
-*                                                                       *
-* This program is free software; you can redistribute it and/or modify  *
-* it under the terms of the GNU General Public License as published by  *
-* the Free Software Foundation; either version 2 of the License, or     *
-* (at your option) any later version.                                   *
-*                                                                       *
-* This program is distributed in the hope that it will be useful,       *
-* but WITHOUT ANY WARRANTY; without even the implied warranty of        *
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
-* GNU General Public License for more details.                          *
-*                                                                       *
-* You should have received a copy of the GNU General Public License     *
-* along with this program; if not, write to the Free Software           *
-* Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.             *
-*                                                                       *
-* The author can be reached at admin@atrinik.org                        *
-************************************************************************/
+/*************************************************************************
+ *           Atrinik, a Multiplayer Online Role Playing Game             *
+ *                                                                       *
+ *   Copyright (C) 2009-2014 Alex Tokar and Atrinik Development Team     *
+ *                                                                       *
+ * Fork from Crossfire (Multiplayer game for X-windows).                 *
+ *                                                                       *
+ * This program is free software; you can redistribute it and/or modify  *
+ * it under the terms of the GNU General Public License as published by  *
+ * the Free Software Foundation; either version 2 of the License, or     *
+ * (at your option) any later version.                                   *
+ *                                                                       *
+ * This program is distributed in the hope that it will be useful,       *
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of        *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
+ * GNU General Public License for more details.                          *
+ *                                                                       *
+ * You should have received a copy of the GNU General Public License     *
+ * along with this program; if not, write to the Free Software           *
+ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.             *
+ *                                                                       *
+ * The author can be reached at admin@atrinik.org                        *
+ ************************************************************************/
 
 /**
  * @file
@@ -31,8 +31,7 @@
 
 /**
  * Interface data. */
-typedef struct interface_struct
-{
+typedef struct interface_struct {
     /** Message contents. */
     char *message;
 
@@ -46,7 +45,7 @@ typedef struct interface_struct
     char *text_input_prepend;
 
     /** Font used. */
-    int font;
+    font_struct *font;
 
     /** Array of the shortcut-supporting links. */
     UT_array *links;
@@ -88,45 +87,17 @@ typedef struct interface_struct
      * Text to prefix for autocompleting text. If NULL, autocompletion
      * will be disabled. */
     char *text_autocomplete;
-} interface_struct;
 
-/**
- * @defgroup CMD_INTERFACE_xxx Interface command types
- * Interface command types.
- *@{*/
-/** Text; the NPC message contents. */
-#define CMD_INTERFACE_TEXT 0
-/**
- * Link, follows the actual text, but is a special command in order to
- * support link shortcuts. */
-#define CMD_INTERFACE_LINK 1
-/** Icon; the image in the upper left corner square. */
-#define CMD_INTERFACE_ICON 2
-/** Title; text next to the icon. */
-#define CMD_INTERFACE_TITLE 3
-/**
- * If found in the command, will open the console with any text followed
- * by this. */
-#define CMD_INTERFACE_INPUT 4
-/**
- * Hidden text to prepend to the final text input string, when sent to
- * the NPC. */
-#define CMD_INTERFACE_INPUT_PREPEND 5
-/** Allow tabs to be entered. */
-#define CMD_INTERFACE_ALLOW_TAB 6
-/** Disable cleaning up text input. */
-#define CMD_INTERFACE_INPUT_CLEANUP_DISABLE 7
-/** Allow empty text input to be sent. */
-#define CMD_INTERFACE_INPUT_ALLOW_EMPTY 8
-/** Scroll to the bottom when the interface is created. */
-#define CMD_INTERFACE_SCROLL_BOTTOM 9
-/** Text to prefix for autocompletion of text. */
-#define CMD_INTERFACE_AUTOCOMPLETE 10
-/** Restore previous interface data. */
-#define CMD_INTERFACE_RESTORE 11
-/** Text to append to the existing text. */
-#define CMD_INTERFACE_APPEND_TEXT 12
-/*@}*/
+    /**
+     * Animated object.
+     */
+    object *anim;
+
+    /**
+     * Ticks of the last animation.
+     */
+    uint32 last_anim;
+} interface_struct;
 
 /**
  * @defgroup INTERFACE_ICON_xxx Interface icon coords

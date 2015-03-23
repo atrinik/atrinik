@@ -66,7 +66,6 @@ title of light
 is_magical 1
 type 74
 value 254500
-speed 0.15
 last_sp 5
 end
 
@@ -1304,11 +1303,11 @@ type 87
 cursed_perm 1
 cursed 1
 is_magical 1
-Str -1
-Con -1
-Dex -1
-Int -1
-Pow -1
+str -1
+con -1
+dex -1
+int -1
+pow -1
 value 50
 item_power 1
 end
@@ -1393,11 +1392,11 @@ type 87
 is_magical 1
 cursed_perm 1
 cursed 1
-Str -1
-Con -1
-Dex -1
-Int -1
-Pow -1
+str -1
+con -1
+dex -1
+int -1
+pow -1
 value 50
 item_power 1
 end
@@ -1409,7 +1408,7 @@ def_arch robe
 Object
 title of minor strength
 type 87
-Str 1
+str 1
 face robe_red.101
 is_magical 1
 value 2500
@@ -1423,7 +1422,7 @@ def_arch robe
 Object
 title of minor dexterity
 type 87
-Dex 1
+dex 1
 face robe_black.101
 is_magical 1
 value 2500
@@ -1439,7 +1438,7 @@ title of minor constitution
 type 87
 is_magical 1
 face robe_purple.101
-Con 1
+con 1
 value 2500
 item_power 1
 end
@@ -1451,7 +1450,7 @@ def_arch robe
 Object
 title of minor intelligence
 type 87
-Int 1
+int 1
 face robe_white.101
 is_magical 1
 value 2500
@@ -1465,7 +1464,7 @@ def_arch robe
 Object
 title of minor power
 type 87
-Pow 1
+pow 1
 is_magical 1
 value 2500
 item_power 1
@@ -1481,11 +1480,11 @@ type 87
 is_magical 1
 cursed_perm 1
 cursed 1
-Str -1
-Con -1
-Dex -1
-Int -1
-Pow -1
+str -1
+con -1
+dex -1
+int -1
+pow -1
 value 50
 item_power 1
 end
@@ -1631,11 +1630,11 @@ type 16
 is_magical 1
 damned 1
 damned_perm 1
-Str -5
-Con -5
-Dex -5
-Int -5
-Pow -5
+str -5
+con -5
+dex -5
+int -5
+pow -5
 value 40
 item_power 1
 end
@@ -1651,7 +1650,7 @@ is_magical 1
 cursed 1
 cursed_perm 1
 value 15
-Dex -1
+dex -1
 item_power 1
 end
 
@@ -1846,7 +1845,7 @@ def_arch chain_mail
 Object
 title of Irial
 type 16
-Dex 1
+dex 1
 is_magical 1
 msg
 This armour, which is of elven origin, is beautifully decorated with ancient emblems.
@@ -1883,11 +1882,11 @@ type 33
 is_magical 1
 damned 1
 damned_perm 1
-Str -5
-Con -5
-Dex -5
-Int -5
-Pow -5
+str -5
+con -5
+dex -5
+int -5
+pow -5
 value 3000
 item_power 1
 end
@@ -2065,7 +2064,7 @@ artifact girdle_min_str
 def_arch girdle
 Object
 title of minor strength
-Str 1
+str 1
 item_level_art 2
 face girdle2.101
 type 113
@@ -2081,7 +2080,7 @@ artifact girdle_min_dex
 def_arch girdle
 Object
 title of minor dexterity
-Dex 1
+dex 1
 face girdle2.101
 item_level_art 2
 type 113
@@ -2098,7 +2097,7 @@ def_arch girdle
 Object
 title of minor constitution
 face girdle2.101
-Con 1
+con 1
 item_level_art 2
 type 113
 is_magical 1
@@ -2113,7 +2112,7 @@ artifact girdle_min_int
 def_arch girdle
 Object
 title of minor intelligence
-Int 1
+int 1
 item_level_art 2
 face girdle_yellow.101
 type 113
@@ -2129,7 +2128,7 @@ artifact girdle_min_pow
 def_arch girdle
 Object
 title of minor power
-Pow 1
+pow 1
 item_level_art 2
 face girdle_yellow.101
 type 113
@@ -2148,7 +2147,7 @@ artifact gauntlet_min_str
 def_arch gauntlets
 Object
 title of minor strength
-Str 1
+str 1
 item_level_art 2
 type 100
 is_magical 1
@@ -2164,7 +2163,7 @@ def_arch gauntlets
 Object
 item_level_art 2
 title of minor dexterity
-Dex 1
+dex 1
 type 100
 is_magical 1
 value 5000
@@ -2178,7 +2177,7 @@ artifact gauntlet_min_con
 def_arch gauntlets
 Object
 title of minor constitution
-Con 1
+con 1
 item_level_art 2
 type 100
 is_magical 1
@@ -2193,7 +2192,7 @@ artifact gauntlet_min_int
 def_arch gauntlets
 Object
 title of minor intelligence
-Int 1
+int 1
 type 100
 item_level_art 2
 is_magical 1
@@ -2208,7 +2207,7 @@ artifact gauntlet_pow
 def_arch gauntlets
 Object
 title of minor power
-Pow 1
+pow 1
 item_level_art 2
 type 100
 is_magical 1
@@ -2304,7 +2303,7 @@ Object
 title of minor strength
 type 34
 is_magical 1
-Str 1
+str 1
 item_level_art 3
 value 3000
 item_power 1
@@ -2320,7 +2319,7 @@ title of minor dexterity
 type 34
 is_magical 1
 item_level_art 3
-Dex 1
+dex 1
 value 3000
 item_power 1
 end
@@ -2335,7 +2334,7 @@ title of minor intelligence
 item_level_art 3
 type 34
 is_magical 1
-Int 1
+int 1
 value 3000
 item_power 1
 end
@@ -2350,7 +2349,7 @@ title of minor power
 item_level_art 3
 type 34
 is_magical 1
-Pow 1
+pow 1
 value 3000
 item_power 1
 end
@@ -2365,7 +2364,7 @@ title of minor constitution
 item_level_art 3
 type 34
 is_magical 1
-Con 1
+con 1
 value 3000
 item_power 1
 end
@@ -2461,8 +2460,8 @@ item_level_art 35
 type 34
 is_magical 1
 ac_add 1
-Con 1
-Str 1
+con 1
+str 1
 protect_fire 17
 value 2500
 msg
@@ -2529,8 +2528,8 @@ type 34
 is_magical 1
 value 5000
 sp 2
-Int 2
-Pow 2
+int 2
+pow 2
 item_power 15
 end
 
@@ -2546,8 +2545,8 @@ item_level_art 10
 type 34
 is_magical 1
 value 1000
-Pow 1
-Int 1
+pow 1
+int 1
 item_power 2
 end
 
@@ -2563,8 +2562,8 @@ item_level_art 25
 type 34
 is_magical 1
 value 6400
-Int 2
-Pow 2
+int 2
+pow 2
 item_power 5
 end
 
@@ -2579,7 +2578,7 @@ item_level_art 5
 type 34
 is_magical 1
 value 50
-Int -10
+int -10
 damned 1
 damned_perm 1
 item_power 1
@@ -2598,7 +2597,7 @@ title of minor dexterity
 face bracers2.101
 item_level_art 2
 type 104
-Dex 1
+dex 1
 is_magical 1
 value 5000
 item_power 1
@@ -2613,7 +2612,7 @@ Object
 title of minor strength
 face bracers3.101
 item_level_art 2
-Str 1
+str 1
 type 104
 is_magical 1
 value 5000
@@ -2629,7 +2628,7 @@ Object
 title of minor constitution
 face bracers4.101
 item_level_art 2
-Con 1
+con 1
 type 104
 is_magical 1
 value 5000
@@ -2645,7 +2644,7 @@ Object
 title of minor intelligence
 face bracers5.101
 item_level_art 2
-Int 1
+int 1
 type 104
 is_magical 1
 value 5000
@@ -2661,7 +2660,7 @@ Object
 title of minor power
 face bracers6.101
 item_level_art 2
-Pow 1
+pow 1
 type 104
 is_magical 1
 value 5000
@@ -2978,7 +2977,7 @@ artifact weapon_strength
 def_arch sword
 Object
 title of strength
-Str 1
+str 1
 type 15
 is_magical 1
 value 4500
@@ -2991,7 +2990,7 @@ artifact weapon_dexterity
 def_arch sword
 Object
 title of dexterity
-Dex 1
+dex 1
 type 15
 is_magical 1
 value 4500
@@ -3004,7 +3003,7 @@ artifact weapon_const
 def_arch sword
 Object
 title of constitution
-Con 1
+con 1
 type 15
 is_magical 1
 value 4500
@@ -3017,7 +3016,7 @@ artifact weapon_int
 def_arch sword
 Object
 title of intelligence
-Int 1
+int 1
 type 15
 is_magical 1
 value 4500
@@ -3030,7 +3029,7 @@ artifact weapon_power
 def_arch sword
 Object
 title of power
-Pow 1
+pow 1
 type 15
 is_magical 1
 value 4500
@@ -3095,7 +3094,7 @@ title of Crolmi
 attack_weaponmagic 5
 type 15
 is_magical 1
-Str 1
+str 1
 msg
 This weapon shares with its owner a bit of the strength of Crolmi, the Dwarven Spirit of Rocks and Mountains.
 endmsg
@@ -3113,8 +3112,8 @@ Object
 title of Rhyz
 type 15
 is_magical 1
-Str 1
-Dex 1
+str 1
+dex 1
 msg
 The Archmage Rhyz devised many items that increased the strength and dexterity of their owners.
 endmsg
@@ -3142,7 +3141,7 @@ Allowed ring_normal
 chance 100
 difficulty 1
 artifact ring_brass
-copy_artifact yes
+copy_artifact true
 def_arch ring_generic
 Object
 value 4500
@@ -3156,7 +3155,7 @@ Allowed ring_normal
 chance 90
 difficulty 1
 artifact ring_copper
-copy_artifact yes
+copy_artifact true
 def_arch ring_generic
 Object
 value 4650
@@ -3170,7 +3169,7 @@ Allowed ring_normal
 chance 80
 difficulty 1
 artifact ring_bronze
-copy_artifact yes
+copy_artifact true
 def_arch ring_generic
 Object
 value 4750
@@ -3184,7 +3183,7 @@ Allowed ring_normal
 chance 70
 difficulty 3
 artifact ring_silver
-copy_artifact yes
+copy_artifact true
 def_arch ring_generic
 Object
 value 4950
@@ -3198,7 +3197,7 @@ Allowed ring_normal
 chance 50
 difficulty 8
 artifact ring_gold
-copy_artifact yes
+copy_artifact true
 def_arch ring_generic
 Object
 value 5150
@@ -3212,7 +3211,7 @@ Allowed ring_normal
 chance 40
 difficulty 20
 artifact ring_platinum
-copy_artifact yes
+copy_artifact true
 def_arch ring_generic
 Object
 value 5250
@@ -3226,7 +3225,7 @@ Allowed ring_normal
 chance 30
 difficulty 25
 artifact ring_adamant
-copy_artifact yes
+copy_artifact true
 def_arch ring_generic
 Object
 value 5550
@@ -3241,7 +3240,7 @@ Allowed ring_normal
 chance 20
 difficulty 50
 artifact ring_mithril
-copy_artifact yes
+copy_artifact true
 def_arch ring_generic
 Object
 value 5750
@@ -3261,7 +3260,7 @@ Allowed ring_generic
 chance 25
 difficulty 22
 artifact ring_thieves
-copy_artifact yes
+copy_artifact true
 def_arch ring_generic
 Object
 title of Thieves
@@ -3275,7 +3274,7 @@ material_real 0
 face ring_green_inv.101
 exp 5
 is_magical 1
-Dex 3
+dex 3
 stealth 1
 can_see_in_dark 1
 item_power 10
@@ -3286,7 +3285,7 @@ Allowed ring_generic
 chance 40
 difficulty 12
 artifact ring_ice
-copy_artifact yes
+copy_artifact true
 def_arch ring_generic
 Object
 is_magical 1
@@ -3317,7 +3316,7 @@ Allowed ring_generic
 chance 40
 difficulty 12
 artifact ring_fire
-copy_artifact yes
+copy_artifact true
 def_arch ring_generic
 Object
 title of Fire
@@ -3350,7 +3349,7 @@ Allowed ring_generic
 chance 40
 difficulty 12
 artifact ring_storm
-copy_artifact yes
+copy_artifact true
 def_arch ring_generic
 Object
 title of Storm
@@ -3382,7 +3381,7 @@ Allowed ring_generic
 chance 40
 difficulty 35
 artifact ring_storm_great
-copy_artifact yes
+copy_artifact true
 def_arch ring_generic
 Object
 title of Greater Storm
@@ -3416,7 +3415,7 @@ Allowed ring_generic
 chance 40
 difficulty 35
 artifact ring_fire_great
-copy_artifact yes
+copy_artifact true
 def_arch ring_generic
 Object
 title of Greater Fire
@@ -3450,7 +3449,7 @@ Allowed ring_generic
 chance 40
 difficulty 35
 artifact ring_ice_great
-copy_artifact yes
+copy_artifact true
 def_arch ring_generic
 Object
 title of Greater Ice
@@ -3484,7 +3483,7 @@ Allowed ring_generic
 chance 40
 difficulty 26
 artifact ring_life
-copy_artifact yes
+copy_artifact true
 def_arch ring_generic
 Object
 title of Life
@@ -3511,7 +3510,7 @@ Allowed ring_generic
 chance 20
 difficulty 18
 artifact ring_yordan
-copy_artifact yes
+copy_artifact true
 def_arch ring_generic
 Object
 title of Yordan
@@ -3525,7 +3524,7 @@ type 70
 value 225000
 wc 2
 is_magical 1
-Dex 2
+dex 2
 dam 2
 item_power 12
 end
@@ -3534,7 +3533,7 @@ Allowed ring_generic
 chance 30
 difficulty 7
 artifact ring_ghost
-copy_artifact yes
+copy_artifact true
 def_arch ring_generic
 Object
 title of the Ghost
@@ -3548,7 +3547,7 @@ type 70
 value 125000
 wc 1
 is_magical 1
-Dex 1
+dex 1
 dam 1
 item_power 5
 end
@@ -3557,7 +3556,7 @@ Allowed ring_generic
 chance 30
 difficulty 18
 artifact ring_combat
-copy_artifact yes
+copy_artifact true
 def_arch ring_generic
 Object
 title of Combat
@@ -3572,8 +3571,8 @@ value 209000
 item_level 25
 wc 1
 is_magical 1
-Str 1
-Con 1
+str 1
+con 1
 dam 1
 material 0
 item_power 10
@@ -3583,7 +3582,7 @@ Allowed ring_generic
 chance 15
 difficulty 25
 artifact ring_strife
-copy_artifact yes
+copy_artifact true
 def_arch ring_generic
 Object
 title of Strife
@@ -3598,8 +3597,8 @@ value 229000
 wc 1
 item_level 35
 is_magical 1
-Str 2
-Con 1
+str 2
+con 1
 dam 2
 material 0
 item_power 11
@@ -3609,7 +3608,7 @@ Allowed ring_generic
 chance 40
 difficulty 10
 artifact ring_magic
-copy_artifact yes
+copy_artifact true
 def_arch ring_generic
 Object
 title of Magic
@@ -3624,7 +3623,7 @@ type 70
 value 138000
 is_magical 1
 sp 1
-Pow 1
+pow 1
 protect_weaponmagic 10
 msg
   Most highlevel wizards receive one of these from
@@ -3637,7 +3636,7 @@ Allowed ring_generic
 chance 30
 difficulty 20
 artifact ring_ancient_magic
-copy_artifact yes
+copy_artifact true
 def_arch ring_generic
 Object
 title of Ancient Magic
@@ -3652,8 +3651,8 @@ type 70
 value 164000
 is_magical 1
 sp 2
-Int 1
-Pow 1
+int 1
+pow 1
 protect_weaponmagic 15
 item_power 10
 end
@@ -3662,7 +3661,7 @@ Allowed ring_generic
 chance 20
 difficulty 30
 artifact ring_high_magic
-copy_artifact yes
+copy_artifact true
 def_arch ring_generic
 Object
 title of High Magic
@@ -3677,8 +3676,8 @@ type 70
 value 191000
 is_magical 1
 sp 2
-Int 2
-Pow 2
+int 2
+pow 2
 protect_weaponmagic 20
 item_power 12
 end
@@ -3687,7 +3686,7 @@ Allowed ring_generic
 chance 20
 difficulty 18
 artifact ring_healer
-copy_artifact yes
+copy_artifact true
 def_arch ring_generic
 Object
 title of the Healer
@@ -3705,8 +3704,8 @@ maxhp 50
 stealth 1
 path_attuned 256
 path_repelled 131072
-Int 1
-Pow 3
+int 1
+pow 3
 sp 1
 material 0
 item_power 10
@@ -3716,7 +3715,7 @@ Allowed ring_generic
 chance 40
 difficulty 10
 artifact ring_paladin
-copy_artifact yes
+copy_artifact true
 def_arch ring_generic
 Object
 title of the Paladin
@@ -3733,7 +3732,7 @@ is_magical 1
 path_attuned 65536
 path_repelled 64
 sp 1
-Pow 1
+pow 1
 item_power 5
 end
 
@@ -3741,7 +3740,7 @@ Allowed ring_generic
 chance 30
 difficulty 20
 artifact ring_prelate
-copy_artifact yes
+copy_artifact true
 def_arch ring_generic
 Object
 title of the Prelate
@@ -3756,9 +3755,9 @@ type 70
 value 151000
 is_magical 1
 sp 2
-Int 1
+int 1
 path_attuned 65664
-Pow 1
+pow 1
 item_power 10
 end
 
@@ -3766,7 +3765,7 @@ Allowed ring_generic
 chance 20
 difficulty 30
 artifact ring_benevolence
-copy_artifact yes
+copy_artifact true
 def_arch ring_generic
 Object
 title of Benevolence
@@ -3780,8 +3779,8 @@ material 0
 type 70
 value 224000
 is_magical 1
-Pow 2
-Int 2
+pow 2
+int 2
 sp 2
 path_attuned 257
 path_repelled 131072
@@ -3797,7 +3796,7 @@ end
 Allowed ring_generic
 chance 15
 artifact ring_woe
-copy_artifact yes
+copy_artifact true
 def_arch ring_generic
 Object
 title of Woe
@@ -3805,11 +3804,11 @@ type 70
 cursed_perm 1
 cursed 1
 is_magical 1
-Str -1
-Con -1
-Dex -1
-Int -1
-Pow -1
+str -1
+con -1
+dex -1
+int -1
+pow -1
 value 50
 item_power 1
 end
@@ -3817,7 +3816,7 @@ end
 Allowed ring_generic
 chance 15
 artifact ring_doom
-copy_artifact yes
+copy_artifact true
 def_arch ring_generic
 Object
 title of Doom
@@ -3826,11 +3825,11 @@ face sr_ring1.101
 is_magical 1
 damned 1
 damned_perm 1
-Str -5
-Con -5
-Dex -5
-Int -5
-Pow -5
+str -5
+con -5
+dex -5
+int -5
+pow -5
 value 30
 is_named 1
 item_power 1
@@ -3839,7 +3838,7 @@ end
 Allowed ring_generic
 chance 15
 artifact ring_woe1
-copy_artifact yes
+copy_artifact true
 def_arch ring_generic
 Object
 title of Woe
@@ -3852,11 +3851,11 @@ face ring_silver_red.101
 cursed_perm 1
 cursed 1
 is_magical 1
-Str -1
-Con -1
-Dex -1
-Int -1
-Pow -1
+str -1
+con -1
+dex -1
+int -1
+pow -1
 value 50
 item_power 1
 end
@@ -3864,7 +3863,7 @@ end
 Allowed ring_generic
 chance 15
 artifact ring_woe2
-copy_artifact yes
+copy_artifact true
 def_arch ring_generic
 Object
 title of Woe
@@ -3877,11 +3876,11 @@ material_real 0
 item_condition 100
 item_quality 100
 is_magical 1
-Str -1
-Con -1
-Dex -1
-Int -1
-Pow -1
+str -1
+con -1
+dex -1
+int -1
+pow -1
 value 50
 item_power 1
 end
@@ -3889,7 +3888,7 @@ end
 Allowed ring_generic
 chance 20
 artifact ring_woe3
-copy_artifact yes
+copy_artifact true
 def_arch ring_generic
 Object
 title of Woe
@@ -3902,11 +3901,11 @@ material_real 0
 item_condition 100
 item_quality 100
 is_magical 1
-Str -1
-Con -1
-Dex -1
-Int -1
-Pow -1
+str -1
+con -1
+dex -1
+int -1
+pow -1
 value 50
 item_power 1
 end
@@ -3925,7 +3924,7 @@ sp -1
 is_magical 1
 level 1
 value 50
-Int -2
+int -2
 damned_perm 1
 damned 1
 end
@@ -3949,7 +3948,7 @@ Allowed amulet_normal
 chance 100
 difficulty 1
 artifact amulet_brass
-copy_artifact yes
+copy_artifact true
 def_arch amulet_generic
 Object
 value 4050
@@ -3963,7 +3962,7 @@ Allowed amulet_normal
 chance 90
 difficulty 1
 artifact amulet_copper
-copy_artifact yes
+copy_artifact true
 def_arch amulet_generic
 Object
 value 4185
@@ -3977,7 +3976,7 @@ Allowed amulet_normal
 chance 80
 difficulty 1
 artifact amulet_bronze
-copy_artifact yes
+copy_artifact true
 def_arch amulet_generic
 Object
 value 4275
@@ -3991,7 +3990,7 @@ Allowed amulet_normal
 chance 70
 difficulty 3
 artifact amulet_silver
-copy_artifact yes
+copy_artifact true
 def_arch amulet_generic
 Object
 value 4455
@@ -4005,7 +4004,7 @@ Allowed amulet_normal
 chance 50
 difficulty 8
 artifact amulet_gold
-copy_artifact yes
+copy_artifact true
 def_arch amulet_generic
 Object
 value 4635
@@ -4019,7 +4018,7 @@ Allowed amulet_normal
 chance 40
 difficulty 20
 artifact amulet_platinum
-copy_artifact yes
+copy_artifact true
 def_arch amulet_generic
 Object
 value 4725
@@ -4033,7 +4032,7 @@ Allowed amulet_normal
 chance 30
 difficulty 25
 artifact amulet_adamant
-copy_artifact yes
+copy_artifact true
 def_arch amulet_generic
 Object
 value 4995
@@ -4048,7 +4047,7 @@ Allowed amulet_normal
 chance 20
 difficulty 50
 artifact amulet_mithril
-copy_artifact yes
+copy_artifact true
 def_arch amulet_generic
 Object
 value 5175
@@ -4066,7 +4065,7 @@ Allowed amulet_generic
 chance 15
 difficulty 10
 artifact amulet_shielding
-copy_artifact yes
+copy_artifact true
 def_arch amulet_generic
 Object
 title of minor shielding
@@ -4087,7 +4086,7 @@ Allowed amulet_generic
 chance 15
 difficulty 25
 artifact amulet_melee_balance
-copy_artifact yes
+copy_artifact true
 def_arch amulet_generic
 Object
 title of Melee Balance
@@ -4108,7 +4107,7 @@ Allowed amulet_generic
 chance 15
 difficulty 6
 artifact amulet_sorrow
-copy_artifact yes
+copy_artifact true
 def_arch amulet_generic
 Object
 title of Sorrow
@@ -4129,7 +4128,7 @@ Allowed amulet_generic
 chance 15
 difficulty 4
 artifact amulet_calling_death
-copy_artifact yes
+copy_artifact true
 def_arch amulet_generic
 Object
 title of Calling Death
@@ -4158,7 +4157,7 @@ Allowed amulet_generic
 chance 15
 difficulty 15
 artifact amulet_sustenance
-copy_artifact yes
+copy_artifact true
 def_arch amulet_generic
 Object
 title of Sustenance
@@ -4177,7 +4176,7 @@ Allowed amulet_generic
 chance 15
 difficulty 38
 artifact amulet_deflection
-copy_artifact yes
+copy_artifact true
 def_arch amulet_generic
 Object
 title of Deflection
@@ -4203,7 +4202,7 @@ Allowed amulet_generic
 chance 15
 difficulty 42
 artifact amulet_empowerment
-copy_artifact yes
+copy_artifact true
 def_arch amulet_generic
 Object
 title of Empowerment
@@ -4212,7 +4211,7 @@ is_magical 1
 type 39
 material 256
 sp 1
-Int 1
+int 1
 value 38500
 item_quality 100
 item_condition 100
@@ -4225,7 +4224,7 @@ Allowed amulet_generic
 chance 15
 difficulty 72
 artifact amulet_power
-copy_artifact yes
+copy_artifact true
 def_arch amulet_generic
 Object
 title of Power
@@ -4234,8 +4233,8 @@ is_magical 1
 type 39
 material 256
 sp 3
-Pow 1
-Int 1
+pow 1
+int 1
 value 47800
 item_quality 100
 item_condition 100
@@ -4248,7 +4247,7 @@ Allowed amulet_generic
 chance 15
 difficulty 56
 artifact amulet_shielded_mind
-copy_artifact yes
+copy_artifact true
 def_arch amulet_generic
 Object
 title of Shielded Mind
@@ -4271,7 +4270,7 @@ Allowed amulet_generic
 chance 15
 difficulty 38
 artifact amulet_free_action
-copy_artifact yes
+copy_artifact true
 def_arch amulet_generic
 Object
 title of Free Action
@@ -4294,7 +4293,7 @@ Allowed amulet_generic
 chance 15
 difficulty 24
 artifact amulet_holiness
-copy_artifact yes
+copy_artifact true
 def_arch amulet_generic
 Object
 title of Holiness
@@ -4302,7 +4301,7 @@ face amulet_lif.101
 is_magical 1
 type 39
 material 256
-Pow 1
+pow 1
 value 26000
 path_attuned 385
 item_quality 100
@@ -4316,7 +4315,7 @@ Allowed amulet_generic
 chance 15
 difficulty 24
 artifact amulet_magi
-copy_artifact yes
+copy_artifact true
 def_arch amulet_generic
 Object
 title of the Magi
@@ -4324,8 +4323,8 @@ face amulet_lif.101
 is_magical 1
 type 39
 material 256
-Int 1
-Pow 2
+int 1
+pow 2
 value 28000
 item_quality 100
 item_condition 100
@@ -4338,7 +4337,7 @@ Allowed amulet_generic
 chance 13
 difficulty 24
 artifact amulet_unholiness
-copy_artifact yes
+copy_artifact true
 def_arch amulet_generic
 Object
 title of Unholiness
@@ -4362,7 +4361,7 @@ Allowed all
 chance 10
 artifact range_accuracy
 def_arch bow
-Object Accuracy
+Object
 title of accuracy
 type 14
 value 5500
@@ -4378,7 +4377,7 @@ Allowed all
 chance 10
 artifact crossbow_accuracy
 def_arch crossbow
-Object Accuracy
+Object
 title of accuracy
 type 14
 value 5500
@@ -4394,7 +4393,7 @@ Allowed all
 chance 10
 artifact sling_accuracy
 def_arch sling
-Object Accuracy
+Object
 title of accuracy
 type 14
 value 5500
@@ -4649,7 +4648,7 @@ title of minor strength
 face potion_ruby.101
 level 1
 type 5
-Str 2
+str 2
 is_magical 1
 last_eat -1
 value 135
@@ -4665,7 +4664,7 @@ title of minor dexterity
 face potion_yellow.101
 level 1
 type 5
-Dex 2
+dex 2
 is_magical 1
 last_eat -1
 value 135
@@ -4680,7 +4679,7 @@ Object
 title of minor constitution
 level 1
 type 5
-Con 2
+con 2
 is_magical 1
 last_eat -1
 value 135
@@ -4696,10 +4695,10 @@ title of evil liquid
 face potion_silver.101
 level 1
 type 5
-Dex -2
-Str -2
-Pow -2
-Con -2
+dex -2
+str -2
+pow -2
+con -2
 protect_poison -50
 protect_acid -50
 is_magical 1
@@ -4820,8 +4819,8 @@ Object
 title of king Rhun
 protect_acid 8
 protect_poison 8
-Str 1
-Dex 1
+str 1
+dex 1
 ac 2
 material_real 0
 item_level_art 26
@@ -4840,8 +4839,8 @@ artifact armour_skel_lord
 def_arch bone_armour
 Object
 name skeletal dragon armour
-Con 2
-Dex 1
+con 2
+dex 1
 ac 7
 is_named 1
 item_level 35
@@ -4876,7 +4875,7 @@ protect_impact 4
 protect_slash 4
 protect_cleave 4
 protect_pierce 4
-Str 2
+str 2
 item_quality 90
 item_condition 90
 msg
@@ -4959,8 +4958,8 @@ def_arch shield_high
 Object
 title of Holy Light
 ac_add 1
-Int 2
-Pow 2
+int 2
+pow 2
 reflect_spell 1
 protect_fire 25
 protect_cold 25
@@ -5174,8 +5173,8 @@ protect_pierce 3
 # Leather, magic material
 material 264
 ac 0
-Str -1
-Con -4
+str -1
+con -4
 # Hunger +1
 food -1
 msg
@@ -5218,17 +5217,15 @@ artifact hat_cornuthaum
 def_arch hat_blue
 Object
 name cornuthaum
-face hat_cornuthaum.101
 animation hat_cornuthaum
 is_animated 1
 anim_speed 5
-speed 0.02
 item_level 20
 item_quality 85
 item_condition 85
 is_magical 1
-Int 1
-Pow 1
+int 1
+pow 1
 reflect_spell 1
 sp 1
 value 100000

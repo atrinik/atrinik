@@ -1,26 +1,26 @@
-/************************************************************************
-*            Atrinik, a Multiplayer Online Role Playing Game            *
-*                                                                       *
-*    Copyright (C) 2009-2012 Alex Tokar and Atrinik Development Team    *
-*                                                                       *
-* Fork from Crossfire (Multiplayer game for X-windows).                 *
-*                                                                       *
-* This program is free software; you can redistribute it and/or modify  *
-* it under the terms of the GNU General Public License as published by  *
-* the Free Software Foundation; either version 2 of the License, or     *
-* (at your option) any later version.                                   *
-*                                                                       *
-* This program is distributed in the hope that it will be useful,       *
-* but WITHOUT ANY WARRANTY; without even the implied warranty of        *
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
-* GNU General Public License for more details.                          *
-*                                                                       *
-* You should have received a copy of the GNU General Public License     *
-* along with this program; if not, write to the Free Software           *
-* Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.             *
-*                                                                       *
-* The author can be reached at admin@atrinik.org                        *
-************************************************************************/
+/*************************************************************************
+ *           Atrinik, a Multiplayer Online Role Playing Game             *
+ *                                                                       *
+ *   Copyright (C) 2009-2014 Alex Tokar and Atrinik Development Team     *
+ *                                                                       *
+ * Fork from Crossfire (Multiplayer game for X-windows).                 *
+ *                                                                       *
+ * This program is free software; you can redistribute it and/or modify  *
+ * it under the terms of the GNU General Public License as published by  *
+ * the Free Software Foundation; either version 2 of the License, or     *
+ * (at your option) any later version.                                   *
+ *                                                                       *
+ * This program is distributed in the hope that it will be useful,       *
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of        *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
+ * GNU General Public License for more details.                          *
+ *                                                                       *
+ * You should have received a copy of the GNU General Public License     *
+ * along with this program; if not, write to the Free Software           *
+ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.             *
+ *                                                                       *
+ * The author can be reached at admin@atrinik.org                        *
+ ************************************************************************/
 
 /**
  * @file
@@ -36,8 +36,7 @@
  * .4 or less lets you see through walls.  .5 is about right. */
 #define SPACE_BLOCK 0.5
 
-typedef struct blstr
-{
+typedef struct blstr {
     int x[4], y[4];
     int index;
 } blocks;
@@ -87,13 +86,11 @@ void init_block(void)
                     set_block(x, y, dx, dy);
 
                     if (x == MAP_CLIENT_X / 2) {
-                        set_block(x, MAP_CLIENT_Y - y -1, dx, MAP_CLIENT_Y - dy - 1);
+                        set_block(x, MAP_CLIENT_Y - y - 1, dx, MAP_CLIENT_Y - dy - 1);
+                    } else if (y == MAP_CLIENT_Y / 2) {
+                        set_block(MAP_CLIENT_X - x - 1, y, MAP_CLIENT_X - dx - 1, dy);
                     }
-                    else if (y == MAP_CLIENT_Y / 2) {
-                        set_block(MAP_CLIENT_X - x -1, y, MAP_CLIENT_X - dx - 1, dy);
-                    }
-                }
-                else {
+                } else {
                     float d1, s, l;
 
                     /* We use the algorithm that found out how close the point
@@ -112,8 +109,8 @@ void init_block(void)
                          * the other
                          * quadrants. */
                         set_block(x, y, dx, dy);
-                        set_block(MAP_CLIENT_X - x -1, y, MAP_CLIENT_X - dx - 1, dy);
-                        set_block(x, MAP_CLIENT_Y - y -1, dx, MAP_CLIENT_Y - dy - 1);
+                        set_block(MAP_CLIENT_X - x - 1, y, MAP_CLIENT_X - dx - 1, dy);
+                        set_block(x, MAP_CLIENT_Y - y - 1, dx, MAP_CLIENT_Y - dy - 1);
                         set_block(MAP_CLIENT_X - x - 1, MAP_CLIENT_Y - y - 1, MAP_CLIENT_X - dx - 1, MAP_CLIENT_Y - dy - 1);
                     }
                 }
@@ -182,8 +179,8 @@ static void set_wall(object *op, int x, int y)
         }
 
         /* We need to adjust to the fact that the socket
-        * code wants the los to start from the 0, 0
-        * and not be relative to middle of los array. */
+         * code wants the los to start from the 0, 0
+         * and not be relative to middle of los array. */
 
         /* This tile can't be seen */
         if (!(CONTR(op)->blocked_los[ax][ay] & BLOCKED_LOS_OUT_OF_MAP)) {
@@ -219,11 +216,10 @@ static void check_wall(object *op, int x, int y)
          * blockview changes to this tiles will have no effect. */
 
         /* mark the space as OUT_OF_MAP. */
-        if (blocks_view(op->map,op->x + x - MAP_CLIENT_X / 2, op->y + y - MAP_CLIENT_Y / 2) & P_OUT_OF_MAP) {
+        if (blocks_view(op->map, op->x + x - MAP_CLIENT_X / 2, op->y + y - MAP_CLIENT_Y / 2) & P_OUT_OF_MAP) {
             CONTR(op)->blocked_los[ax][ay] = BLOCKED_LOS_OUT_OF_MAP;
-        }
-        /* ignore means ignore for LOS */
-        else {
+        } else {
+            /* ignore means ignore for LOS */
             CONTR(op)->blocked_los[ax][ay] |= BLOCKED_LOS_IGNORE;
         }
 
@@ -248,8 +244,7 @@ static void check_wall(object *op, int x, int y)
                 /* mark the space as OUT_OF_MAP. */
                 if (flags & P_OUT_OF_MAP) {
                     CONTR(op)->blocked_los[ax][ay] = BLOCKED_LOS_OUT_OF_MAP;
-                }
-                else {
+                } else {
                     CONTR(op)->blocked_los[ax][ay] |= BLOCKED_LOS_BLOCKSVIEW;
                 }
             }
@@ -265,8 +260,7 @@ static void check_wall(object *op, int x, int y)
         /* Mark the space as OUT_OF_MAP. */
         if (flags & P_OUT_OF_MAP) {
             CONTR(op)->blocked_los[ax][ay] = BLOCKED_LOS_OUT_OF_MAP;
-        }
-        else {
+        } else {
             CONTR(op)->blocked_los[ax][ay] |= BLOCKED_LOS_BLOCKSVIEW;
         }
     }
@@ -320,8 +314,7 @@ void update_los(object *op)
 
     if (QUERY_FLAG(op, FLAG_BLIND)) {
         blinded_sight(op);
-    }
-    else {
+    } else {
         expand_sight(op);
 
         /* Give us an area we can look through when we have xray - this

@@ -2,7 +2,7 @@ arch map
 name Lyondale Archipelago
 msg
 Created:  2009-08-09 Alex Tokar
-Modified: 2014-03-01 Alex Tokar
+Modified: 2015-01-04 Alex Tokar
 endmsg
 width 24
 height 24
@@ -16,2038 +16,1673 @@ tile_path_5 world_1979
 tile_path_6 world_1977
 tile_path_7 world_1777
 tile_path_8 world_1779
+tile_path_9 world_1_1878
 bg_music campfire_tales.mid
 region lyondale_archipelago_wizard
 weather snow_light
 end
 arch snow3
 end
-arch snow2
+arch snow3
 y 1
 end
-arch snow2
+arch snow3
 y 2
 end
-arch snow2
+arch fwall_fstone2c
+y 2
+end
+arch map_info
+name la_wizards_tower
+sp 19
+race Wizards' Tower
+title none
+cursed 1
+y 2
+end
+arch floor_sand_d2
 y 3
 end
-arch snow4
+arch fwall_fstone2
+y 3
+end
+arch floor_sand_d1
 y 4
 end
-arch snow2
+arch fwall_fstone2
+y 4
+end
+arch floor_sand_d3
 y 5
 end
-arch snow1
+arch fwall_fstone2
+y 5
+end
+arch floor_sand_d2
 y 6
 end
-arch snow3
+arch fwall_fstone2
+y 6
+end
+arch floor_sand_d1
 y 7
 end
-arch snow4
+arch fwall_fstone2
+y 7
+end
+arch floor_sand_d2
 y 8
 end
-arch snow4
+arch fwall_fstone2
+y 8
+end
+arch floor_sand_d3
 y 9
 end
-arch snow3
+arch fwall_fstone2
+y 9
+end
+arch fstone1c
 y 10
 end
-arch snow4
+arch snow_fmask.114
+y 10
+end
+arch wall_fstone_round.106
+y 10
+end
+arch fstone1b
+player_only 1
 y 11
 end
-arch snow2
+arch fstone1b
+player_only 1
 y 12
 end
-arch snow4
+arch fstone1b
 y 13
 end
-arch snowy_tree_big1
+arch snow_fmask.112
 y 13
 end
-arch snow1
+arch wall_fstone_round.108
+y 13
+end
+arch floor_sand_d3
 y 14
 end
-arch tree_branch2
+arch fwall_fstone2
 y 14
 end
-arch snow3
+arch floor_sand_d3
 y 15
 end
-arch water_lt4
+arch fwall_fstone2
+y 15
+end
+arch floor_sand_d2
 y 16
 end
-arch snow_fmask.105
+arch fwall_fstone2
 y 16
 end
-arch water_lt4
+arch floor_sand_d1
 y 17
 end
-arch water_lt4
+arch fwall_fstone2
+y 17
+end
+arch floor_sand_d2
 y 18
 end
-arch water_lt2
-y 19
-end
-arch water_lt4
-y 20
-end
-arch water_lt2
-y 21
-end
-arch water_lt
-y 22
-end
-arch water_lt
-y 23
-end
-arch floor_sand_d3
-x 1
-end
 arch fwall_fstone2
-x 1
-end
-arch floor_sand_d2
-x 1
-y 1
-end
-arch fwall_fstone2
-x 1
-y 1
-end
-arch floor_sand_d2
-x 1
-y 2
-end
-arch fwall_fstone2
-x 1
-y 2
-end
-arch floor_sand_d3
-x 1
-y 3
-end
-arch fwall_fstone2
-x 1
-y 3
-end
-arch floor_sand_d2
-x 1
-y 4
-end
-arch fwall_fstone2
-x 1
-y 4
+y 18
 end
 arch floor_sand_d4
-x 1
-y 5
+y 19
 end
 arch fwall_fstone2
-x 1
-y 5
+y 19
 end
-arch floor_sand_d2
-x 1
-y 6
+arch floor_sand_d1
+y 20
 end
 arch fwall_fstone2
-x 1
-y 6
+y 20
 end
-arch floor_sand_d2
-x 1
-y 7
+arch snow1
+y 21
 end
-arch fwall_fstone2
+arch fwall_fstone2b
+y 21
+end
+arch snow4
+y 22
+end
+arch snow1
+y 23
+end
+arch snow1
 x 1
-y 7
 end
 arch snow4
 x 1
+y 1
+end
+arch fwall_fstone2c
+x 1
+y 1
+end
+arch map_info
+name la_wizards_tower
+hp 21
+sp 21
+race Wizards' Tower
+title none
+cursed 1
+x 1
+y 1
+end
+arch grassd_3
+x 1
+y 2
+end
+arch fwall_fstone2d
+x 1
+y 2
+end
+arch grassd_1
+x 1
+y 3
+end
+arch plant_flower1
+x 1
+y 3
+end
+arch flagwall_short_brick1.111
+x 1
+y 3
+end
+arch grassd_6
+x 1
+y 4
+end
+arch plant_flower13
+x 1
+y 4
+end
+arch flagwall_short_brick1.131
+x 1
+y 4
+end
+arch grassd_8
+x 1
+y 5
+end
+arch plant_flower9
+x 1
+y 5
+end
+arch flagwall_short_brick1.131
+x 1
+y 5
+end
+arch grassd_2
+x 1
+y 6
+end
+arch plant_flower8
+x 1
+y 6
+end
+arch flagwall_short_brick1.131
+x 1
+y 6
+end
+arch grassd_1
+x 1
+y 7
+end
+arch plant_flower5
+x 1
+y 7
+end
+arch flagwall_short_brick1.141
+x 1
+y 7
+end
+arch grassd_4
+x 1
 y 8
+end
+arch plant_flower6
+x 1
+y 8
+end
+arch grassd_5
+x 1
+y 9
+end
+arch wall_fstone_round.102
+x 1
+y 9
+end
+arch fstone1b
+x 1
+y 10
+end
+arch wall_fstone_round.104
+x 1
+y 10
+end
+arch fstone1c
+x 1
+y 11
+end
+arch fstone1b
+x 1
+y 12
+end
+arch fstone1b
+x 1
+y 13
+end
+arch wall_fstone_round.102
+x 1
+y 13
+end
+arch grassd_4
+x 1
+y 14
+end
+arch wall_fstone_round.104
+x 1
+y 14
+end
+arch grassd_8
+x 1
+y 15
+end
+arch plant_flower6
+x 1
+y 15
+end
+arch flagwall_short_brick1.111
+x 1
+y 15
+end
+arch grassd_5
+x 1
+y 16
+end
+arch plant_flower11
+x 1
+y 16
+end
+arch flagwall_short_brick1.131
+x 1
+y 16
+end
+arch grassd_2
+x 1
+y 17
+end
+arch plant_flower9
+x 1
+y 17
+end
+arch flagwall_short_brick1.131
+x 1
+y 17
+end
+arch grassd_8
+x 1
+y 18
+end
+arch plant_flower8
+x 1
+y 18
+end
+arch flagwall_short_brick1.131
+x 1
+y 18
+end
+arch grassd_6
+x 1
+y 19
+end
+arch plant_flower14
+x 1
+y 19
+end
+arch flagwall_short_brick1.141
+x 1
+y 19
+end
+arch grassd_8
+x 1
+y 20
+end
+arch plant_flower1
+x 1
+y 20
+end
+arch grassd_2
+x 1
+y 21
+end
+arch fwall_fstone2a
+x 1
+y 21
+end
+arch snow2
+x 1
+y 22
 end
 arch fwall_fstone2b
 x 1
-y 8
-end
-arch snow4
-x 1
-y 9
-end
-arch snow1
-x 1
-y 10
-end
-arch snow4
-x 1
-y 11
-end
-arch tree_branch3
-x 1
-y 11
-end
-arch snow3
-x 1
-y 12
-end
-arch snow3
-x 1
-y 13
+y 22
 end
 arch snow2
 x 1
-y 14
-end
-arch water_lt3
-x 1
-y 15
-end
-arch snow_fmask.104
-x 1
-y 15
-end
-arch water_lt4
-x 1
-y 16
-end
-arch snow_fmask.114
-x 1
-y 16
-end
-arch water_lt4
-x 1
-y 17
-end
-arch water_lt3
-x 1
-y 18
-end
-arch water_lt3
-x 1
-y 19
-end
-arch water_lt4
-x 1
-y 20
-end
-arch water_lt3
-x 1
-y 21
-end
-arch water_lt3
-x 1
-y 22
-end
-arch water_lt
-x 1
 y 23
 end
-arch floor_sand_d3
+arch snow1
+x 2
+end
+arch fwall_fstone2c
 x 2
 end
 arch map_info
-hp 21
-sp 7
+name la_wizards_tower
+hp 19
+race Wizards' Tower
 title none
+cursed 1
 x 2
 end
-arch floor_sand_d3
+arch grassd_6
 x 2
 y 1
 end
-arch floor_sand_d3
+arch fwall_fstone2d
+x 2
+y 1
+end
+arch fstone1b
 x 2
 y 2
 end
-arch small_stones
+arch grassd_m4
 x 2
 y 2
 end
-arch floor_sand_d2
+arch fstone1b
 x 2
 y 3
 end
-arch rock2
+arch grassd_m9
 x 2
 y 3
 end
-arch floor_sand_d4
+arch fstone1b
 x 2
 y 4
 end
-arch mushroom_giant2
+arch grassd_m9
 x 2
 y 4
 end
-arch floor_sand_d3
+arch fstone1c
 x 2
 y 5
 end
-arch floor_sand_d2
+arch grassd_m9
+x 2
+y 5
+end
+arch fstone1c
 x 2
 y 6
 end
-arch small_stones
+arch grassd_m9
 x 2
 y 6
 end
-arch floor_sand_d4
+arch fstone1c
 x 2
 y 7
 end
-arch floor_sand_d1
+arch grassd_m9
 x 2
-y 8
-end
-arch fwall_fstone2
-x 2
-y 8
-end
-arch snow4
-x 2
-y 9
-end
-arch snow4
-x 2
-y 10
-end
-arch snowy_tree_bigb1
-x 2
-y 10
-end
-arch snow3
-x 2
-y 11
-end
-arch snow1
-x 2
-y 12
-end
-arch snow4
-x 2
-y 13
-end
-arch snow2
-x 2
-y 14
-end
-arch water_lt3
-x 2
-y 15
-end
-arch snow_fmask.105
-x 2
-y 15
-end
-arch water_lt2
-x 2
-y 16
-end
-arch water_lt3
-x 2
-y 17
-end
-arch water_lt3
-x 2
-y 18
-end
-arch client_map_info
-msg
-Wizards' Tower
-endmsg
-name lyondale_archipelago_wizards
-sub_type 1
-last_heal -14
-last_sp 5
-x 2
-y 18
-end
-arch water_lt
-x 2
-y 19
-end
-arch water_lt4
-x 2
-y 20
-end
-arch water_lt2
-x 2
-y 21
-end
-arch water_lt3
-x 2
-y 22
-end
-arch water_lt2
-x 2
-y 23
-end
-arch floor_sand_d1
-x 3
-end
-arch wall_stone14_3
-x 3
-end
-arch flag_01
-direction 7
-x 3
-end
-arch floor_sand_d1
-x 3
-y 1
-end
-arch wall_stone14_3
-x 3
-y 1
-end
-arch floor_sand_d4
-x 3
-y 2
-end
-arch wall_stone14_3
-x 3
-y 2
-end
-arch floor_sand_d3
-x 3
-y 3
-end
-arch wall_stone14_3
-x 3
-y 3
-end
-arch floor_sand_d4
-x 3
-y 4
-end
-arch wall_stone14_3
-x 3
-y 4
-end
-arch flag_01
-direction 7
-x 3
-y 4
-end
-arch floor_sand_d3
-x 3
-y 5
-end
-arch wall_stone14_3
-x 3
-y 5
-end
-arch floor_sand_d2
-x 3
-y 6
-end
-arch wall_stone14_3
-x 3
-y 6
-end
-arch floor_sand_d3
-x 3
 y 7
 end
-arch floor_sand_d1
-x 3
+arch fstone1c
+x 2
 y 8
 end
-arch fwall_fstone2
-x 3
+arch grassd_m9
+x 2
 y 8
 end
-arch snow4
-x 3
+arch fstone1c
+x 2
 y 9
 end
-arch snow1
-x 3
+arch grassd_m9
+x 2
+y 9
+end
+arch fstone1b
+x 2
 y 10
 end
-arch snow1
-x 3
+arch grassd_m13
+x 2
+y 10
+end
+arch fstone1b
+x 2
 y 11
-end
-arch snow1
-x 3
-y 12
-end
-arch snow2
-x 3
-y 13
-end
-arch water_lt
-x 3
-y 14
-end
-arch snow_fmask.104
-x 3
-y 14
-end
-arch water_lt4
-x 3
-y 15
-end
-arch snow_fmask.114
-x 3
-y 15
-end
-arch water_lt3
-x 3
-y 16
-end
-arch water_lt
-x 3
-y 17
-end
-arch water_lt
-x 3
-y 18
-end
-arch client_map_info
-msg
-Lyondale Archipelago
-endmsg
-name lyondale_archipelago
-sub_type 1
-last_heal -120
-last_sp -25
-x 3
-y 18
-end
-arch water_lt
-x 3
-y 19
-end
-arch water_lt
-x 3
-y 20
-end
-arch water_lt
-x 3
-y 21
-end
-arch water_lt2
-x 3
-y 22
-end
-arch water_lt
-x 3
-y 23
-end
-arch floor_bw1
-x 4
 end
 arch light3
-x 4
+x 2
+y 11
 end
-arch floor_bw1
-x 4
-y 1
-end
-arch stairs_stone_up
-slaying lyondale_archipelago/wizard/wizards_tower_1
-hp 1
-sp 6
-x 4
-y 1
-end
-arch floor_bw1
-x 4
-y 2
-end
-arch stairs_stone_up
-slaying lyondale_archipelago/wizard/wizards_tower_1
-hp 1
-sp 7
-x 4
-y 2
-end
-arch floor_bw1
-x 4
-y 3
-end
-arch stairs_stone_up
-slaying lyondale_archipelago/wizard/wizards_tower_1
-hp 1
-sp 8
-x 4
-y 3
-end
-arch floor_bw1
-x 4
-y 4
-end
-arch candlelight4.101
-x 4
-y 4
+arch fstone1b
+x 2
+y 12
 end
 arch light3
-x 4
-y 4
+x 2
+y 12
 end
-arch floor_bw1
-x 4
-y 5
+arch fstone1c
+x 2
+y 13
 end
-arch amphora2.101
-x 4
-y 5
+arch grassd_m14
+x 2
+y 13
 end
-arch floor_bw1
-x 4
-y 6
+arch fstone1b
+x 2
+y 14
 end
-arch wall_stone14_1
-x 4
-y 6
+arch grassd_m9
+x 2
+y 14
 end
-arch floor_sand_d2
-x 4
-y 7
+arch fstone1c
+x 2
+y 15
+end
+arch grassd_m9
+x 2
+y 15
+end
+arch fstone1b
+x 2
+y 16
+end
+arch grassd_m9
+x 2
+y 16
+end
+arch fstone1c
+x 2
+y 17
+end
+arch grassd_m9
+x 2
+y 17
+end
+arch fstone1b
+x 2
+y 18
+end
+arch grassd_m9
+x 2
+y 18
+end
+arch fstone1c
+x 2
+y 19
+end
+arch grassd_m9
+x 2
+y 19
+end
+arch fstone1b
+x 2
+y 20
+end
+arch grassd_m9
+x 2
+y 20
+end
+arch fstone1c
+x 2
+y 21
+end
+arch grassd_m3
+x 2
+y 21
+end
+arch grassd_8
+x 2
+y 22
+end
+arch fwall_fstone2a
+x 2
+y 22
+end
+arch snow3
+x 2
+y 23
+end
+arch fwall_fstone2b
+x 2
+y 23
+end
+arch map_info
+name la_wizards_tower
+hp 19
+race Wizards' Tower
+title none
+cursed 1
+x 2
+y 23
 end
 arch floor_sand_d1
-x 4
-y 8
+x 3
 end
 arch fwall_fstone2
-x 4
-y 8
+x 3
 end
-arch snow3
-x 4
-y 9
-end
-arch snow3
-x 4
-y 10
-end
-arch snow3
-x 4
-y 11
-end
-arch snow2
-x 4
-y 12
-end
-arch tree_branch2
-x 4
-y 12
-end
-arch snow3
-x 4
-y 13
-end
-arch water_lt
-x 4
-y 14
-end
-arch snow_fmask.105
-x 4
-y 14
-end
-arch water_lt
-x 4
-y 15
-end
-arch water_lt3
-x 4
-y 16
-end
-arch water_lt2
-x 4
-y 17
-end
-arch water_lt4
-x 4
-y 18
-end
-arch water_lt3
-x 4
-y 19
-end
-arch water_lt
-x 4
-y 20
-end
-arch water_lt4
-x 4
-y 21
-end
-arch water_lt4
-x 4
-y 22
-end
-arch water_lt2
-x 4
-y 23
-end
-arch floor_bw1
-x 5
-end
-arch chair2_111
-direction 5
-x 5
-end
-arch floor_bw1
-x 5
+arch grassd_1
+x 3
 y 1
 end
-arch carpet1.131
-x 5
+arch plant_flower2
+x 3
 y 1
 end
-arch floor_bw1
-x 5
+arch flagwall_short_brick1.131
+x 3
+y 1
+end
+arch fstone1c
+x 3
 y 2
 end
-arch carpet1.131
-x 5
+arch grassd_m10
+x 3
 y 2
 end
-arch floor_bw1
-x 5
+arch fstone1c
+x 3
 y 3
 end
-arch carpet1.131
-x 5
+arch grassd_m11
+x 3
 y 3
 end
-arch floor_bw1
-x 5
+arch fstone1b
+x 3
 y 4
 end
-arch floor_bw1
-x 5
+arch grassd_m8
+x 3
+y 4
+end
+arch light2
+x 3
+y 4
+end
+arch fstone1b
+x 3
 y 5
 end
-arch floor_bw1
-x 5
+arch grassd_m8
+x 3
+y 5
+end
+arch fstone1b
+x 3
 y 6
 end
-arch wall_stone14_1
-x 5
+arch grassd_m8
+x 3
 y 6
 end
-arch floor_sand_d4
-x 5
+arch fstone1c
+x 3
 y 7
+end
+arch grassd_m8
+x 3
+y 7
+end
+arch fstone1b
+x 3
+y 8
+end
+arch grassd_m8
+x 3
+y 8
+end
+arch fstone1b
+x 3
+y 9
+end
+arch grassd_m8
+x 3
+y 9
+end
+arch fstone1b
+x 3
+y 10
+end
+arch grassd_m8
+x 3
+y 10
+end
+arch fstone1b
+x 3
+y 11
+end
+arch grassd_m12
+x 3
+y 11
+end
+arch fstone1b
+x 3
+y 12
+end
+arch grassd_m11
+x 3
+y 12
+end
+arch fstone1b
+x 3
+y 13
+end
+arch grassd_m8
+x 3
+y 13
+end
+arch fstone1c
+x 3
+y 14
+end
+arch grassd_m8
+x 3
+y 14
+end
+arch fstone1b
+x 3
+y 15
+end
+arch grassd_m8
+x 3
+y 15
+end
+arch fstone1b
+x 3
+y 16
+end
+arch grassd_m8
+x 3
+y 16
+end
+arch fstone1c
+x 3
+y 17
+end
+arch grassd_m8
+x 3
+y 17
+end
+arch fstone1c
+x 3
+y 18
+end
+arch grassd_m8
+x 3
+y 18
+end
+arch fstone1c
+x 3
+y 19
+end
+arch grassd_m8
+x 3
+y 19
+end
+arch light2
+x 3
+y 19
+end
+arch fstone1b
+x 3
+y 20
+end
+arch grassd_m12
+x 3
+y 20
+end
+arch fstone1b
+x 3
+y 21
+end
+arch grassd_m7
+x 3
+y 21
+end
+arch grassd_2
+x 3
+y 22
+end
+arch plant11
+x 3
+y 22
 end
 arch floor_sand_d2
-x 5
-y 8
-end
-arch fwall_fstone2
-x 5
-y 8
-end
-arch snow1
-x 5
-y 9
-end
-arch snow1
-x 5
-y 10
-end
-arch tree_burned2
-x 5
-y 10
-end
-arch snow3
-x 5
-y 11
-end
-arch snow1
-x 5
-y 12
-end
-arch water_lt4
-x 5
-y 13
-end
-arch snow_fmask.104
-x 5
-y 13
-end
-arch water_lt2
-x 5
-y 14
-end
-arch snow_fmask.114
-x 5
-y 14
-end
-arch water_lt4
-x 5
-y 15
-end
-arch water_lt
-x 5
-y 16
-end
-arch water_lt4
-x 5
-y 17
-end
-arch water_lt4
-x 5
-y 18
-end
-arch water_lt3
-x 5
-y 19
-end
-arch water_lt4
-x 5
-y 20
-end
-arch water_lt2
-x 5
-y 21
-end
-arch water_lt2
-x 5
-y 22
-end
-arch water_lt2
-x 5
+x 3
 y 23
 end
-arch floor_bw1
-x 6
-end
-arch carpet1.151
-x 6
-end
-arch floor_bw1
-x 6
-y 1
-end
-arch carpet1
-x 6
-y 1
-end
-arch floor_bw1
-x 6
-y 2
-end
-arch carpet1
-x 6
-y 2
-end
-arch floor_bw1
-x 6
-y 3
-end
-arch carpet1
-x 6
-y 3
-end
-arch floor_bw1
-x 6
-y 4
-end
-arch carpet1.111
-x 6
-y 4
-end
-arch floor_bw1
-x 6
-y 5
-end
-arch spawn_point
-x 6
-y 5
-arch mage_old
-name Teldach
-level 30
-race thelra
-movement_type 64
-type 83
-arch event_obj
-sub_type 6
-race /interfaces/lyondale_archipelago/wizard/teldach.xml
-end
-end
-end
-arch floor_bw1
-x 6
-y 6
-end
-arch wall_stone14_1
-x 6
-y 6
-end
-arch floor_sand_d2
-x 6
-y 7
-end
-arch floor_sand_d1
-x 6
-y 8
-end
 arch fwall_fstone2
-x 6
-y 8
-end
-arch snow4
-x 6
-y 9
-end
-arch snow1
-x 6
-y 10
-end
-arch tree_branch3
-x 6
-y 10
-end
-arch snow1
-x 6
-y 11
-end
-arch water_lt3
-x 6
-y 12
-end
-arch snow_fmask.104
-x 6
-y 12
-end
-arch water_lt3
-x 6
-y 13
-end
-arch snow_fmask.114
-x 6
-y 13
-end
-arch water_lt3
-x 6
-y 14
-end
-arch water_lt
-x 6
-y 15
-end
-arch water_lt2
-x 6
-y 16
-end
-arch water_lt4
-x 6
-y 17
-end
-arch water_lt4
-x 6
-y 18
-end
-arch water_lt3
-x 6
-y 19
-end
-arch water_lt3
-x 6
-y 20
-end
-arch water_lt3
-x 6
-y 21
-end
-arch water_lt
-x 6
-y 22
-end
-arch water_lt
-x 6
+x 3
 y 23
-end
-arch floor_bw1
-x 7
-end
-arch carpet1.151
-x 7
-end
-arch chair2_111
-direction 5
-x 7
-end
-arch floor_bw1
-x 7
-y 1
-end
-arch carpet1
-x 7
-y 1
-end
-arch light5
-x 7
-y 1
-end
-arch floor_bw1
-x 7
-y 2
-end
-arch carpet1
-x 7
-y 2
-end
-arch floor_bw1
-x 7
-y 3
-end
-arch carpet1
-x 7
-y 3
-end
-arch floor_bw1
-x 7
-y 4
-end
-arch carpet1.111
-x 7
-y 4
-end
-arch light5
-x 7
-y 4
-end
-arch floor_bw1
-x 7
-y 5
-end
-arch floor_bw1
-x 7
-y 6
-end
-arch wall_stone14_1
-x 7
-y 6
-end
-arch floor_sand_d1
-x 7
-y 7
-end
-arch floor_sand_d4
-x 7
-y 8
-end
-arch fwall_fstone2
-x 7
-y 8
-end
-arch snow2
-x 7
-y 9
-end
-arch snow4
-x 7
-y 10
-end
-arch snow4
-x 7
-y 11
-end
-arch water_lt4
-x 7
-y 12
-end
-arch snow_fmask.105
-x 7
-y 12
-end
-arch water_lt2
-x 7
-y 13
-end
-arch water_lt3
-x 7
-y 14
-end
-arch water_lt4
-x 7
-y 15
-end
-arch water_lt3
-x 7
-y 16
-end
-arch client_map_info
-msg
-Ship to Asteria.
-endmsg
-name wizards_tower_ship_asteria
-sub_type 2
-stand_still 1
-x 7
-y 16
-end
-arch ship_floor_we_1
-x 7
-y 17
-end
-arch ship_rail_nw
-x 7
-y 17
-end
-arch ship_floor_we_2
-x 7
-y 18
-end
-arch ship_rail_w_hole
-x 7
-y 18
-end
-arch spawn_point
-x 7
-y 18
-arch peasant
-msg
-@match ^hello$
-Hello! This ship will take you back to Asteria on Strakewood Island.
-endmsg
-name Ship Captain
-type 83
-direction 3
-end
-end
-arch ship_floor_we_1
-x 7
-y 19
-end
-arch ship_rail_sw
-x 7
-y 19
-end
-arch water_lt4
-x 7
-y 20
-end
-arch ship_hull_s_high_corner_w
-x 7
-y 20
-end
-arch water_lt3
-x 7
-y 21
-end
-arch client_map_info
-name wizards_tower_ship_asteria
-sub_type 2
-x 7
-y 21
-end
-arch water_lt2
-x 7
-y 22
-end
-arch water_lt4
-x 7
-y 23
-end
-arch floor_bw1
-x 8
-end
-arch carpet1.151
-x 8
-end
-arch floor_bw1
-x 8
-y 1
-end
-arch carpet1
-x 8
-y 1
-end
-arch floor_bw1
-x 8
-y 2
-end
-arch carpet1
-x 8
-y 2
-end
-arch floor_bw1
-x 8
-y 3
-end
-arch carpet1
-x 8
-y 3
-end
-arch floor_bw1
-x 8
-y 4
-end
-arch carpet1.111
-x 8
-y 4
-end
-arch floor_bw1
-x 8
-y 5
-end
-arch floor_bw1
-x 8
-y 6
-end
-arch wall_stone14_1
-x 8
-y 6
-end
-arch floor_sand_d2
-x 8
-y 7
 end
 arch floor_sand_d3
-x 8
-y 8
+x 4
 end
 arch fwall_fstone2
-x 8
-y 8
+x 4
 end
-arch snow4
-x 8
-y 9
-end
-arch snow1
-x 8
-y 10
-end
-arch snow2
-x 8
-y 11
-end
-arch water_lt3
-x 8
-y 12
-end
-arch snow_fmask.106
-x 8
-y 12
-end
-arch water_lt3
-x 8
-y 13
-end
-arch snow_fmask.116
-x 8
-y 13
-end
-arch water_lt2
-x 8
-y 14
-end
-arch water_lt2
-x 8
-y 15
-end
-arch ship_floor_we_3
-x 8
-y 16
-end
-arch ship_rail_nw
-x 8
-y 16
-end
-arch light3
-x 8
-y 16
-end
-arch ship_floor_we_1
-x 8
-y 17
-end
-arch ship_rail_n
-x 8
-y 17
-end
-arch light4
-x 8
-y 17
-end
-arch ship_floor_we_2
-x 8
-y 18
-end
-arch ship_w_steering_wheel_double
-x 8
-y 18
-end
-arch ship_rail_e_high
-x 8
-y 18
-end
-arch ship_floor_we_1
-x 8
-y 19
-end
-arch ship_rail_s
-x 8
-y 19
-end
-arch light4
-x 8
-y 19
-end
-arch ship_floor_we_1
-x 8
-y 20
-end
-arch ship_rail_sw
-x 8
-y 20
-end
-arch light3
-x 8
-y 20
-end
-arch water_lt3
-x 8
-y 21
-end
-arch ship_hull_s_high_corner_w
-x 8
-y 21
-end
-arch water_lt2
-x 8
-y 22
-end
-arch water_lt4
-x 8
-y 23
-end
-arch floor_bw1
-x 9
-end
-arch carpet1.151
-x 9
-end
-arch chair2_111
-direction 5
-x 9
-end
-arch floor_bw1
-x 9
+arch grassd_5
+x 4
 y 1
 end
-arch carpet1
-x 9
+arch plant_flower14
+x 4
 y 1
 end
-arch floor_bw1
-x 9
+arch flagwall_short_brick1.111
+x 4
+y 1
+end
+arch fstone1c
+x 4
 y 2
 end
-arch carpet1
-x 9
+arch grassd_m10
+x 4
 y 2
 end
-arch floor_bw1
-x 9
+arch fstone1c
+x 4
 y 3
 end
-arch carpet1
-x 9
+arch grassd_m7
+x 4
 y 3
 end
-arch floor_bw1
-x 9
+arch light2
+x 4
+y 3
+end
+arch floor_marble1a
+x 4
 y 4
 end
-arch carpet1.111
-x 9
+arch border_top_nw2
+x 4
 y 4
 end
-arch floor_bw1
-x 9
+arch light6
+x 4
+y 4
+end
+arch floor_marble1b
+x 4
 y 5
 end
-arch floor_bw1
-x 9
+arch border_top_w1
+x 4
+y 5
+end
+arch floor_marble1b
+x 4
 y 6
 end
-arch wall_stone14_1
-x 9
+arch border_top_w1
+x 4
 y 6
 end
-arch floor_sand_d4
-x 9
+arch floor_marble1a
+x 4
 y 7
 end
-arch floor_sand_d4
-x 9
-y 8
+arch border_top_w1
+x 4
+y 7
 end
-arch fwall_fstone2
-x 9
-y 8
-end
-arch snow4
-x 9
-y 9
-end
-arch snow1
-x 9
-y 10
-end
-arch snow3
-x 9
-y 11
-end
-arch snow3
-x 9
-y 12
-end
-arch tree_branch2_winter
-x 9
-y 12
-end
-arch water_lt2
-x 9
-y 13
-end
-arch snow_fmask.106
-x 9
-y 13
-end
-arch water_lt3
-x 9
-y 14
-end
-arch snow_fmask.116
-x 9
-y 14
-end
-arch water_lt
-x 9
-y 15
-end
-arch ship_floor_we_3
-x 9
-y 16
-end
-arch tackelage_n_low
-x 9
-y 16
-end
-arch ship_floor_we_1
-x 9
-y 17
-end
-arch ship_rail_n
-x 9
-y 17
-end
-arch tackelage_n_high
+arch border_top_se1
 sub_layer 1
-x 9
-y 17
-end
-arch ship_floor_we_2
-x 9
-y 18
-end
-arch mast_e_long
-x 9
-y 18
-end
-arch ship_floor_we_2
-x 9
-y 19
-end
-arch tackelage_s_high
-x 9
-y 19
-end
-arch ship_rail_s
-x 9
-y 19
-end
-arch ship_floor_we_3
-x 9
-y 20
-end
-arch tackelage_s_low
-x 9
-y 20
-end
-arch water_lt2
-x 9
-y 21
-end
-arch ship_hull_s_high
-x 9
-y 21
-end
-arch water_lt2
-x 9
-y 22
-end
-arch water_lt
-x 9
-y 23
-end
-arch floor_bw1
-x 10
-end
-arch floor_bw1
-x 10
-y 1
-end
-arch carpet1.171
-x 10
-y 1
-end
-arch floor_bw1
-x 10
-y 2
-end
-arch carpet1.171
-x 10
-y 2
-end
-arch floor_bw1
-x 10
-y 3
-end
-arch carpet1.171
-x 10
-y 3
-end
-arch floor_bw1
-x 10
-y 4
-end
-arch floor_bw1
-x 10
-y 5
-end
-arch candlelight3.101
-x 10
-y 5
-end
-arch light3
-x 10
-y 5
-end
-arch floor_bw1
-x 10
-y 6
-end
-arch wall_stone14_1
-x 10
-y 6
-end
-arch floor_sand_d4
-x 10
+x 4
 y 7
 end
-arch floor_sand_d2
-x 10
+arch floor_marble1b
+x 4
 y 8
 end
-arch fwall_fstone2
-x 10
+arch border_top_se2
+x 4
 y 8
 end
-arch snow3
-x 10
+arch border_top_sw2
+sub_layer 1
+x 4
+y 8
+end
+arch grassd_3
+x 4
 y 9
 end
-arch snowy_tree_bigb2
-x 10
+arch border_wall_n2
+x 4
 y 9
 end
-arch snow1
-x 10
+arch grassd_8
+x 4
 y 10
 end
-arch snow4
-x 10
-y 11
-end
-arch snow2
-x 10
-y 12
-end
-arch snow3
-x 10
-y 13
-end
-arch water_lt3
-x 10
-y 14
-end
-arch snow_fmask.105
-x 10
-y 14
-end
-arch water_lt4
-x 10
-y 15
-end
-arch ship_floor_we_2
-x 10
-y 16
-end
-arch ship_rail_n
-x 10
-y 16
-end
-arch ship_floor_we_3
-x 10
-y 17
-end
-arch ship_rail_n_hole
-x 10
-y 17
-end
-arch sail_reffed_e
-sub_layer 1
-x 10
-y 17
-end
-arch ship_floor_we_1
-x 10
-y 18
-end
-arch sail_reffed_e
-x 10
-y 18
+arch wall_fstone_pillar
+x 4
+y 10
 end
 arch light7
-x 10
-y 18
-end
-arch ship_floor_we_1
-x 10
-y 19
-end
-arch sail_reffed_e
-x 10
-y 19
-end
-arch ship_rail_s_hole
-x 10
-y 19
-end
-arch ship_floor_we_3
-x 10
-y 20
-end
-arch sail_reffed_e_over_rail
-x 10
-y 20
-end
-arch water_lt
-x 10
-y 21
-end
-arch ship_hull_s_high
-x 10
-y 21
-end
-arch sail_reffed_e
-x 10
-y 21
-end
-arch water_lt2
-x 10
-y 22
-end
-arch water_lt4
-x 10
-y 23
-end
-arch floor_bw1
-x 11
-end
-arch wall_stone14_3
-x 11
-end
-arch floor_bw1
-x 11
-y 1
-end
-arch wall_stone14_3
-x 11
-y 1
-end
-arch floor_bw1
-x 11
-y 2
-end
-arch door1_locked
-direction 3
-x 11
-y 2
-end
-arch floor_bw1
-x 11
-y 3
-end
-arch wall_stone14_3
-x 11
-y 3
-end
-arch floor_bw1
-x 11
-y 4
-end
-arch wall_stone14_3
-x 11
-y 4
-end
-arch floor_bw1
-x 11
-y 5
-end
-arch wall_stone14_3
-x 11
-y 5
-end
-arch floor_bw1
-x 11
-y 6
-end
-arch wall_stone14_4
-x 11
-y 6
-end
-arch floor_sand_d3
-x 11
-y 7
-end
-arch floor_sand_d2
-x 11
-y 8
-end
-arch fwall_fstone2
-x 11
-y 8
-end
-arch snow1
-x 11
-y 9
-end
-arch tree_branch1
-x 11
-y 9
-end
-arch snow2
-x 11
+x 4
 y 10
 end
-arch floor_sand_d1
-x 11
+arch fstone1c
+x 4
 y 11
 end
-arch snow_fmask.104
-x 11
+arch grassd_m10
+x 4
 y 11
 end
-arch floor_sand_d3
-x 11
+arch fstone1c
+x 4
 y 12
 end
-arch snow_fmask.103
-x 11
+arch grassd_m7
+x 4
 y 12
 end
-arch floor_sand_d3
-x 11
+arch grassd_6
+x 4
 y 13
 end
-arch snow_fmask.102
-x 11
+arch wall_fstone_pillar
+x 4
 y 13
 end
-arch water_lt
-x 11
+arch light7
+x 4
+y 13
+end
+arch floor_marble1b
+x 4
 y 14
 end
-arch snow_fmask.106
-x 11
+arch border_top_ne2
+x 4
 y 14
 end
-arch water_lt3
-x 11
+arch border_top_nw2
+sub_layer 1
+x 4
+y 14
+end
+arch floor_marble1a
+x 4
 y 15
 end
-arch snow_fmask.116
-x 11
+arch border_top_w1
+x 4
 y 15
 end
-arch ship_floor_we_2
-x 11
+arch border_top_ne1
+sub_layer 1
+x 4
+y 15
+end
+arch floor_marble1b
+x 4
 y 16
 end
-arch ship_rail_n
-x 11
+arch border_top_w1
+x 4
 y 16
 end
-arch ship_floor_we_2
-x 11
+arch floor_marble1b
+x 4
 y 17
 end
-arch ship_rail_s_hole
-x 11
+arch border_top_w1
+x 4
 y 17
 end
-arch ship_floor_we_1
-x 11
+arch floor_marble1
+x 4
 y 18
 end
-arch stairs_wood_down
-slaying ships/ship_1
-hp 17
-sp 2
-x 11
+arch border_top_sw2
+x 4
 y 18
 end
-arch ship_floor_we_1
-x 11
+arch light6
+x 4
+y 18
+end
+arch grassd_1
+x 4
 y 19
 end
-arch ship_rail_n_hole
-x 11
+arch border_wall_n2
+x 4
 y 19
 end
-arch ship_floor_we_1
-x 11
+arch fstone1c
+x 4
 y 20
 end
-arch ship_rail_s
-x 11
+arch grassd_m10
+x 4
 y 20
 end
-arch water_lt4
-x 11
+arch light2
+x 4
+y 20
+end
+arch fstone1c
+x 4
 y 21
 end
-arch ship_hull_s_high
-x 11
+arch grassd_m7
+x 4
 y 21
 end
-arch water_lt3
-x 11
+arch grassd_5
+x 4
 y 22
 end
-arch water_lt2
-x 11
+arch plant_flower7
+x 4
+y 22
+end
+arch floor_sand_d4
+x 4
+y 23
+end
+arch fwall_fstone2
+x 4
 y 23
 end
 arch floor_sand_d4
-x 12
+x 5
 end
-arch lantern2_magic.131
-direction 7
-x 12
+arch fwall_fstone2
+x 5
 end
-arch light5
-x 12
-end
-arch floor_sand_d1
-x 12
+arch grassd_6
+x 5
 y 1
 end
-arch fstone1m8
-x 12
+arch plant_flower9
+x 5
+y 1
+end
+arch flagwall_short_brick1.111
+x 5
+y 1
+end
+arch fstone1b
+x 5
+y 2
+end
+arch grassd_m10
+x 5
+y 2
+end
+arch fstone1c
+x 5
+y 3
+end
+arch grassd_m7
+x 5
+y 3
+end
+arch floor_marble1
+x 5
+y 4
+end
+arch border_top_n1
+x 5
+y 4
+end
+arch floor_marble1b
+x 5
+y 5
+end
+arch exit_green
+slaying world_2_1878
+hp 4
+sp 4
+zoom 70
+align 7
+animation portal_yellow
+x 5
+y 5
+end
+arch light7
+x 5
+y 5
+end
+arch floor_marble1b
+x 5
+y 6
+end
+arch border_top_se1
+x 5
+y 6
+end
+arch floor_marble1a
+x 5
+y 7
+end
+arch border_top_se2
+x 5
+y 7
+end
+arch light7
+x 5
+y 7
+end
+arch grassd_8
+x 5
+y 8
+end
+arch border_wall_nw1
+x 5
+y 8
+end
+arch grassd_6
+x 5
+y 9
+end
+arch border_wall_nw2
+x 5
+y 9
+end
+arch fstone1c
+x 5
+y 10
+end
+arch grassd_m4
+x 5
+y 10
+end
+arch fstone1b
+x 5
+y 11
+end
+arch fstone1c
+x 5
+y 12
+end
+arch fstone1c
+x 5
+y 13
+end
+arch grassd_m3
+x 5
+y 13
+end
+arch grassd_2
+x 5
+y 14
+end
+arch border_wall_w2
+x 5
+y 14
+end
+arch floor_marble1b
+x 5
+y 15
+end
+arch border_top_ne2
+x 5
+y 15
+end
+arch light7
+x 5
+y 15
+end
+arch floor_marble1
+x 5
+y 16
+end
+arch border_top_ne1
+x 5
+y 16
+end
+arch floor_marble1b
+x 5
+y 17
+end
+arch exit_green
+slaying world_5_1878
+hp 4
+sp 19
+zoom 70
+align 7
+animation portal_big
+x 5
+y 17
+end
+arch light7
+x 5
+y 17
+end
+arch floor_marble1a
+x 5
+y 18
+end
+arch border_top_s1
+x 5
+y 18
+end
+arch grassd_3
+x 5
+y 19
+end
+arch border_wall_n1
+x 5
+y 19
+end
+arch fstone1b
+x 5
+y 20
+end
+arch grassd_m10
+x 5
+y 20
+end
+arch fstone1c
+x 5
+y 21
+end
+arch grassd_m7
+x 5
+y 21
+end
+arch grassd_6
+x 5
+y 22
+end
+arch plant_flower1
+x 5
+y 22
+end
+arch floor_sand_d3
+x 5
+y 23
+end
+arch fwall_fstone2
+x 5
+y 23
+end
+arch floor_sand_d1
+x 6
+end
+arch fwall_fstone2
+x 6
+end
+arch grassd_4
+x 6
+y 1
+end
+arch plant_flower8
+x 6
+y 1
+end
+arch flagwall_short_brick1.111
+x 6
+y 1
+end
+arch fstone1b
+x 6
+y 2
+end
+arch grassd_m10
+x 6
+y 2
+end
+arch fstone1b
+x 6
+y 3
+end
+arch grassd_m7
+x 6
+y 3
+end
+arch floor_marble1
+x 6
+y 4
+end
+arch border_top_n1
+x 6
+y 4
+end
+arch floor_marble1b
+x 6
+y 5
+end
+arch border_top_se1
+x 6
+y 5
+end
+arch floor_marble1
+x 6
+y 6
+end
+arch border_top_se2
+x 6
+y 6
+end
+arch grassd_1
+x 6
+y 7
+end
+arch border_wall_nw1
+x 6
+y 7
+end
+arch grassd_4
+x 6
+y 8
+end
+arch border_wall_nw2
+x 6
+y 8
+end
+arch fstone1c
+x 6
+y 9
+end
+arch grassd_m4
+x 6
+y 9
+end
+arch fstone1b
+x 6
+y 10
+end
+arch fstone1b
+x 6
+y 11
+end
+arch grassd_m8
+x 6
+y 11
+end
+arch fstone1c
+x 6
+y 12
+end
+arch grassd_m8
+x 6
+y 12
+end
+arch fstone1c
+x 6
+y 13
+end
+arch fstone1c
+x 6
+y 14
+end
+arch grassd_m3
+x 6
+y 14
+end
+arch grassd_4
+x 6
+y 15
+end
+arch border_wall_w2
+x 6
+y 15
+end
+arch floor_marble1
+x 6
+y 16
+end
+arch border_top_ne2
+x 6
+y 16
+end
+arch floor_marble1b
+x 6
+y 17
+end
+arch border_top_ne1
+x 6
+y 17
+end
+arch floor_marble1a
+x 6
+y 18
+end
+arch border_top_s1
+x 6
+y 18
+end
+arch grassd_7
+x 6
+y 19
+end
+arch border_wall_n1
+x 6
+y 19
+end
+arch fstone1c
+x 6
+y 20
+end
+arch grassd_m10
+x 6
+y 20
+end
+arch fstone1b
+x 6
+y 21
+end
+arch grassd_m7
+x 6
+y 21
+end
+arch grassd_8
+x 6
+y 22
+end
+arch plant_flower6
+x 6
+y 22
+end
+arch floor_sand_d2
+x 6
+y 23
+end
+arch fwall_fstone2
+x 6
+y 23
+end
+arch floor_sand_d1
+x 7
+end
+arch fwall_fstone2
+x 7
+end
+arch grassd_3
+x 7
+y 1
+end
+arch plant_flower11
+x 7
+y 1
+end
+arch flagwall_short_brick1.141
+x 7
+y 1
+end
+arch fstone1b
+x 7
+y 2
+end
+arch grassd_m10
+x 7
+y 2
+end
+arch fstone1c
+x 7
+y 3
+end
+arch grassd_m7
+x 7
+y 3
+end
+arch floor_marble1b
+x 7
+y 4
+end
+arch border_top_n1
+x 7
+y 4
+end
+arch border_top_se1
+sub_layer 1
+x 7
+y 4
+end
+arch floor_marble1b
+x 7
+y 5
+end
+arch border_top_se2
+x 7
+y 5
+end
+arch light7
+x 7
+y 5
+end
+arch grassd_3
+x 7
+y 6
+end
+arch border_wall_nw1
+x 7
+y 6
+end
+arch grassd_7
+x 7
+y 7
+end
+arch border_wall_nw2
+x 7
+y 7
+end
+arch fstone1c
+x 7
+y 8
+end
+arch grassd_m4
+x 7
+y 8
+end
+arch fstone1b
+x 7
+y 9
+end
+arch fstone1c
+x 7
+y 10
+end
+arch grassd_m5
+x 7
+y 10
+end
+arch grassd_3
+x 7
+y 11
+end
+arch grassd_8
+x 7
+y 12
+end
+arch fstone1c
+x 7
+y 13
+end
+arch grassd_m6
+x 7
+y 13
+end
+arch fstone1c
+x 7
+y 14
+end
+arch fstone1c
+x 7
+y 15
+end
+arch grassd_m3
+x 7
+y 15
+end
+arch grassd_2
+x 7
+y 16
+end
+arch border_wall_w2
+x 7
+y 16
+end
+arch floor_marble1b
+x 7
+y 17
+end
+arch border_top_ne2
+x 7
+y 17
+end
+arch light7
+x 7
+y 17
+end
+arch floor_marble1b
+x 7
+y 18
+end
+arch border_top_s1
+x 7
+y 18
+end
+arch border_top_ne1
+sub_layer 1
+x 7
+y 18
+end
+arch grassd_1
+x 7
+y 19
+end
+arch border_wall_n1
+x 7
+y 19
+end
+arch fstone1c
+x 7
+y 20
+end
+arch grassd_m10
+x 7
+y 20
+end
+arch fstone1b
+x 7
+y 21
+end
+arch grassd_m7
+x 7
+y 21
+end
+arch grassd_5
+x 7
+y 22
+end
+arch plant_flower7
+x 7
+y 22
+end
+arch floor_sand_d3
+x 7
+y 23
+end
+arch fwall_fstone2
+x 7
+y 23
+end
+arch floor_sand_d3
+x 8
+end
+arch fwall_fstone2
+x 8
+end
+arch grassd_2
+x 8
+y 1
+end
+arch plant_flower7
+x 8
 y 1
 end
 arch fstone1c
-x 12
+x 8
 y 2
 end
-arch floor_sand_d1
-x 12
-y 3
-end
-arch fstone1m12
-x 12
-y 3
-end
-arch floor_sand_d2
-x 12
-y 4
-end
-arch lantern2_magic.131
-direction 7
-x 12
-y 4
-end
-arch light5
-x 12
-y 4
-end
-arch floor_sand_d1
-x 12
-y 5
-end
-arch floor_sand_d4
-x 12
-y 6
-end
-arch small_stones
-x 12
-y 6
-end
-arch floor_sand_d2
-x 12
-y 7
-end
-arch floor_sand_d4
-x 12
-y 8
-end
-arch fwall_fstone2
-x 12
-y 8
-end
-arch snow2
-x 12
-y 9
-end
-arch floor_sand_d3
-x 12
-y 10
-end
-arch snow_fmask.104
-x 12
-y 10
-end
-arch floor_sand_d1
-x 12
-y 11
-end
-arch snow_fmask.114
-x 12
-y 11
-end
-arch floor_sand_d1
-x 12
-y 12
-end
-arch floor_sand_d4
-x 12
-y 13
-end
-arch snow_fmask.101
-x 12
-y 13
-end
-arch snow4
-x 12
-y 14
-end
-arch bridge_wood_NS.111
-x 12
-y 14
-end
-arch bridge_wood_NS.101
-x 12
-y 15
-end
-arch ship_floor_we_3
-x 12
-y 16
-end
-arch bridge_wood_NS.151
-x 12
-y 16
-end
-arch ship_floor_we_2
-x 12
-y 17
-end
-arch ship_rail_s_hole
-x 12
-y 17
-end
-arch blocked
-x 12
-y 18
-end
-arch ship_floor_we_1
-x 12
-y 19
-end
-arch ship_rail_n_hole
-x 12
-y 19
-end
-arch ship_floor_we_1
-x 12
-y 20
-end
-arch ship_rail_s
-x 12
-y 20
-end
-arch water_lt4
-x 12
-y 21
-end
-arch ship_hull_s_high
-x 12
-y 21
-end
-arch water_lt2
-x 12
-y 22
-end
-arch water_lt3
-x 12
-y 23
-end
-arch floor_sand_d2
-x 13
-end
-arch fstone1m11
-x 13
-end
-arch floor_sand_d4
-x 13
-y 1
-end
-arch fstone1m2
-x 13
-y 1
-end
-arch fstone1c
-x 13
+arch grassd_m10
+x 8
 y 2
 end
-arch floor_sand_d1
-x 13
+arch fstone1b
+x 8
 y 3
 end
-arch fstone1m4
-x 13
+arch grassd_m7
+x 8
 y 3
 end
-arch floor_sand_d4
-x 13
+arch floor_marble1b
+x 8
 y 4
 end
-arch fstone1m11
-x 13
+arch border_top_se2
+x 8
 y 4
 end
-arch floor_sand_d2
-x 13
+arch border_top_ne2
+sub_layer 1
+x 8
+y 4
+end
+arch grassd_7
+x 8
 y 5
 end
-arch fstone1m11
-x 13
+arch border_wall_nw1
+x 8
 y 5
 end
 arch spawn_point
-x 13
+x 8
 y 5
 arch mage_old
 name Baldoth
@@ -2055,8 +1690,8 @@ animation thelra_male
 level 30
 race thelra
 random_move 1
-item_race 1
-item_level 1
+item_race 3
+item_level 3
 type 83
 arch event_obj
 sub_type 6
@@ -2064,1724 +1699,2861 @@ race /interfaces/lyondale_archipelago/wizard/baldoth.xml
 end
 end
 end
-arch floor_sand_d1
-x 13
-y 6
-end
-arch fstone1m10
-x 13
-y 6
-end
-arch tree27
-x 13
-y 6
-end
-arch floor_sand_d4
-x 13
-y 7
-end
-arch floor_sand_d1
-x 13
-y 8
-end
-arch fwall_fstone2
-x 13
-y 8
-end
-arch snow2
-x 13
-y 9
-end
-arch floor_sand_d2
-x 13
-y 10
-end
-arch snow_fmask.105
-x 13
-y 10
-end
-arch floor_sand_d3
-x 13
-y 11
-end
-arch floor_sand_d4
-x 13
-y 12
-end
-arch snow_fmask.118
-x 13
-y 12
-end
-arch floor_sand_d4
-x 13
-y 13
-end
-arch snow_fmask.108
-x 13
-y 13
-end
-arch snow3
-x 13
-y 14
-end
-arch bollard_tied_n_1
-x 13
-y 14
-end
-arch water_lt2
-x 13
-y 15
-end
-arch snow_fmask.105
-x 13
-y 15
-end
-arch bollard_tied_n_2
-x 13
-y 15
-end
-arch ship_floor_we_2
-x 13
-y 16
-end
-arch bollard_tied_n_3
-x 13
-y 16
-end
-arch light3
-x 13
-y 16
-end
-arch ship_floor_we_2
-x 13
-y 17
-end
-arch barrel_water.101
-x 13
-y 17
-end
-arch ship_floor_we_1
-x 13
-y 18
-end
-arch ship_rail_w_hole
-x 13
-y 18
-end
-arch barrel_water.101
-sub_layer 1
-layer 5
-x 13
-y 18
-end
-arch ship_floor_we_2
-x 13
-y 19
-end
-arch ship_floor_we_1
-x 13
-y 20
-end
-arch ship_rail_s_hole
-x 13
-y 20
-end
-arch light3
-x 13
-y 20
-end
-arch water_lt4
-x 13
-y 21
-end
-arch ship_hull_s_high
-x 13
-y 21
-end
-arch water_lt4
-x 13
-y 22
-end
-arch water_lt4
-x 13
-y 23
-end
-arch fstone1b
-x 14
-end
-arch fstone1c
-x 14
-y 1
-end
-arch fstone1c
-x 14
-y 2
-end
-arch fstone1c
-x 14
-y 3
-end
-arch fstone1c
-x 14
-y 4
-end
-arch fstone1b
-x 14
-y 5
-end
-arch floor_sand_d3
-x 14
-y 6
-end
-arch fstone1m12
-x 14
-y 6
-end
-arch floor_sand_d3
-x 14
-y 7
-end
-arch floor_sand_d4
-x 14
-y 8
-end
-arch fwall_fstone2
-x 14
-y 8
-end
-arch snow1
-x 14
-y 9
-end
-arch floor_sand_d3
-x 14
-y 10
-end
-arch snow_fmask.105
-x 14
-y 10
-end
-arch floor_sand_d4
-x 14
-y 11
-end
-arch floor_sand_d3
-x 14
-y 12
-end
-arch snow_fmask.101
-x 14
-y 12
-end
-arch snow3
-x 14
-y 13
-end
-arch snow2
-x 14
-y 14
-end
-arch water_lt4
-x 14
-y 15
-end
-arch snow_fmask.105
-x 14
-y 15
-end
-arch ship_floor_we_3
-x 14
-y 16
-end
-arch tackelage_n_low
-x 14
-y 16
-end
-arch ship_floor_we_1
-x 14
-y 17
-end
-arch tackelage_n_high
-x 14
-y 17
-end
-arch ship_floor_we_2
-x 14
-y 18
-end
-arch mast_e_long
-x 14
-y 18
-end
-arch light7
-x 14
-y 18
-end
-arch ship_floor_we_2
-x 14
-y 19
-end
-arch tackelage_s_high
-x 14
-y 19
-end
-arch ship_floor_we_3
-x 14
-y 20
-end
-arch tackelage_s_low
-x 14
-y 20
-end
-arch water_lt
-x 14
-y 21
-end
-arch ship_hull_s_high
-x 14
-y 21
-end
-arch water_lt
-x 14
-y 22
-end
-arch water_lt4
-x 14
-y 23
-end
-arch fstone1c
-x 15
-end
-arch fstone1b
-x 15
-y 1
-end
-arch light3
-x 15
-y 1
-end
-arch fstone1b
-x 15
-y 2
-end
-arch fstone1b
-x 15
-y 3
-end
-arch fstone1b
-x 15
-y 4
-end
-arch fstone1b
-x 15
-y 5
-end
-arch light3
-x 15
-y 5
-end
-arch floor_sand_d2
-x 15
-y 6
-end
-arch fstone1m12
-x 15
-y 6
-end
-arch floor_sand_d3
-x 15
-y 7
-end
-arch floor_sand_d2
-x 15
-y 8
-end
-arch fwall_fstone2
-x 15
-y 8
-end
-arch snow2
-x 15
-y 9
-end
-arch floor_sand_d4
-x 15
-y 10
-end
-arch snow_fmask.105
-x 15
-y 10
-end
-arch floor_sand_d3
-x 15
-y 11
-end
-arch floor_sand_d1
-x 15
-y 12
-end
-arch snow_fmask.112
-x 15
-y 12
-end
-arch floor_sand_d3
-x 15
-y 13
-end
-arch snow_fmask.102
-x 15
-y 13
-end
-arch snow3
-x 15
-y 14
-end
-arch water_lt3
-x 15
-y 15
-end
-arch snow_fmask.105
-x 15
-y 15
-end
-arch ship_floor_we_2
-x 15
-y 16
-end
-arch ship_rail_n
-x 15
-y 16
-end
-arch ship_floor_we_3
-x 15
-y 17
-end
-arch sail_reffed_e
-x 15
-y 17
-end
-arch barrel_water.101
-x 15
-y 17
-end
-arch ship_floor_we_1
-x 15
-y 18
-end
-arch sail_reffed_e
-x 15
-y 18
-end
-arch barrel.101
-x 15
-y 18
-end
-arch ship_floor_we_1
-x 15
-y 19
-end
-arch sail_reffed_e
-x 15
-y 19
-end
-arch barrel.101
-x 15
-y 19
-end
-arch ship_floor_we_3
-x 15
-y 20
-end
-arch sail_reffed_e_over_rail
-x 15
-y 20
-end
-arch water_lt3
-x 15
-y 21
-end
-arch ship_hull_s_high
-x 15
-y 21
-end
-arch sail_reffed_e
-x 15
-y 21
-end
-arch water_lt2
-x 15
-y 22
-end
-arch water_lt2
-x 15
-y 23
-end
-arch fstone1c
-x 16
-end
-arch fstone1c
-x 16
-y 1
-end
-arch fstone1c
-x 16
-y 2
-end
-arch fstone1b
-x 16
-y 3
-end
-arch fstone1b
-x 16
-y 4
-end
-arch fstone1b
-x 16
-y 5
-end
-arch floor_sand_d4
-x 16
-y 6
-end
-arch fstone1m12
-x 16
-y 6
-end
-arch floor_sand_d1
-x 16
-y 7
-end
-arch floor_sand_d1
-x 16
-y 8
-end
-arch fwall_fstone2
-x 16
-y 8
-end
-arch snow4
-x 16
-y 9
-end
-arch tree_branch2
-x 16
-y 9
-end
-arch floor_sand_d3
-x 16
-y 10
-end
-arch snow_fmask.106
-x 16
-y 10
-end
-arch floor_sand_d1
-x 16
-y 11
-end
-arch snow_fmask.116
-x 16
-y 11
-end
-arch floor_sand_d1
-x 16
-y 12
-end
-arch floor_sand_d2
-x 16
-y 13
-end
-arch snow_fmask.101
-x 16
-y 13
-end
-arch snow4
-x 16
-y 14
-end
-arch bollard_tied_n_1
-x 16
-y 14
-end
-arch water_lt3
-x 16
-y 15
-end
-arch snow_fmask.105
-x 16
-y 15
-end
-arch bollard_tied_n_2
-x 16
-y 15
-end
-arch ship_floor_we_4
-x 16
-y 16
-end
-arch bollard_tied_n_3
-x 16
-y 16
-end
-arch ship_floor_we_3
-x 16
-y 17
-end
-arch barrel_water.101
-x 16
-y 17
-end
-arch ship_floor_we_4
-x 16
-y 18
-end
-arch barrel2.101
-x 16
-y 18
-end
-arch ship_floor_we_3
-x 16
-y 19
-end
-arch ship_floor_we_2
-x 16
-y 20
-end
-arch ship_rail_s_hole
-x 16
-y 20
-end
-arch water_lt4
-x 16
-y 21
-end
-arch ship_hull_s_high
-x 16
-y 21
-end
-arch water_lt4
-x 16
-y 22
-end
-arch water_lt3
-x 16
-y 23
-end
-arch floor_sand_d4
-x 17
-end
-arch fstone1m9
-x 17
-end
-arch flagwall_short_brick1.131
-x 17
-end
-arch floor_sand_d4
-x 17
-y 1
-end
-arch fstone1m9
-x 17
-y 1
-end
-arch flagwall_short_brick1.131
-x 17
-y 1
-end
-arch floor_sand_d1
-x 17
-y 2
-end
-arch fstone1m9
-x 17
-y 2
-end
-arch flagwall_short_brick1.131
-x 17
-y 2
-end
-arch floor_sand_d2
-x 17
-y 3
-end
-arch fstone1m9
-x 17
-y 3
-end
-arch flagwall_short_brick1.131
-x 17
-y 3
-end
-arch floor_sand_d2
-x 17
-y 4
-end
-arch fstone1m9
-x 17
-y 4
-end
-arch flagwall_short_brick1.131
-x 17
-y 4
-end
-arch floor_sand_d1
-x 17
-y 5
-end
-arch fstone1m9
-x 17
-y 5
-end
-arch flagwall_short_brick1.131
-x 17
-y 5
-end
-arch floor_sand_d1
-x 17
-y 6
-end
-arch fstone1m5
-x 17
-y 6
-end
-arch flagwall_short_brick1.131
-x 17
-y 6
-end
-arch floor_sand_d1
-x 17
-y 7
-end
-arch small_stones
-x 17
-y 7
-end
-arch floor_sand_d1
-x 17
-y 8
-end
-arch fwall_fstone2
-x 17
-y 8
-end
-arch snow1
-x 17
-y 9
-end
-arch snow1
-x 17
-y 10
-end
-arch floor_sand_d4
-x 17
-y 11
-end
-arch snow_fmask.105
-x 17
-y 11
-end
-arch floor_sand_d1
-x 17
-y 12
-end
-arch floor_sand_d2
-x 17
-y 13
-end
-arch snow_fmask.101
-x 17
-y 13
-end
-arch snow4
-x 17
-y 14
-end
-arch tree_branch1
-x 17
-y 14
-end
-arch water_lt2
-x 17
-y 15
-end
-arch snow_fmask.105
-x 17
-y 15
-end
-arch water_lt2
-x 17
-y 16
-end
-arch ship_prow_e_strokeside_a
-x 17
-y 16
-end
-arch ship_hull_prow_e_front_strokeside_1
-x 17
-y 16
-end
-arch light3
-x 17
-y 16
-end
-arch ship_floor_we_1
-x 17
-y 17
-end
-arch ship_floor_we_1
-x 17
-y 18
-end
-arch sail_short_mast_e_3
-x 17
-y 18
-end
-arch ship_floor_we_2
-x 17
-y 19
-end
-arch ship_floor_we_3
-x 17
-y 20
-end
-arch ship_prow_e_starboard_a
-x 17
-y 20
-end
-arch ship_hull_prow_e_rear_2
-x 17
-y 20
-end
-arch light3
-x 17
-y 20
-end
-arch water_lt
-x 17
-y 21
-end
-arch ship_hull_prow_e_rear_1
-x 17
-y 21
-end
-arch water_lt
-x 17
-y 22
-end
-arch water_lt3
-x 17
-y 23
-end
-arch grassd_4
-no_pass 1
-x 18
-end
-arch plant_flower10
-x 18
-end
-arch grassd_1
-no_pass 1
-x 18
-y 1
-end
-arch plant_flower12
-x 18
-y 1
-end
-arch grassd_8
-no_pass 1
-x 18
-y 2
-end
-arch plant_flower5
-x 18
-y 2
-end
 arch grassd_7
-no_pass 1
-x 18
-y 3
-end
-arch plant_flower8
-x 18
-y 3
-end
-arch grassd_4
-no_pass 1
-x 18
-y 4
-end
-arch grassd_3
-no_pass 1
-x 18
-y 5
-end
-arch plant_flower13
-x 18
-y 5
-end
-arch grassd_5
-no_pass 1
-x 18
+x 8
 y 6
 end
-arch plant13
-x 18
+arch border_wall_nw2
+x 8
 y 6
 end
-arch flagwall_short_brick1.111
-no_pass 1
-x 18
-y 6
-end
-arch floor_sand_d2
-x 18
+arch fstone1b
+x 8
 y 7
 end
-arch floor_sand_d3
-x 18
-y 8
-end
-arch fwall_fstone2
-x 18
-y 8
-end
-arch snow3
-x 18
-y 9
-end
-arch snow1
-x 18
-y 10
-end
-arch snowy_pinetree1
-x 18
-y 10
-end
-arch floor_sand_d3
-x 18
-y 11
-end
-arch snow_fmask.105
-x 18
-y 11
-end
-arch floor_sand_d4
-x 18
-y 12
-end
-arch floor_sand_d3
-x 18
-y 13
-end
-arch snow_fmask.101
-x 18
-y 13
-end
-arch snow2
-x 18
-y 14
-end
-arch water_lt4
-x 18
-y 15
-end
-arch snow_fmask.105
-x 18
-y 15
-end
-arch water_lt3
-x 18
-y 16
-end
-arch ship_prow_e_strokeside_b
-x 18
-y 16
-end
-arch ship_hull_prow_e_front_strokeside_2
-x 18
-y 16
-end
-arch ship_floor_we_2
-x 18
-y 17
-end
-arch ship_prow_e_strokeside_c
-x 18
-y 17
-end
-arch ship_floor_we_1
-x 18
-y 18
-end
-arch sail_short_mast_e_2
-x 18
-y 18
-end
-arch light4
-x 18
-y 18
-end
-arch ship_floor_we_2
-x 18
-y 19
-end
-arch ship_prow_e_starboard_c
-x 18
-y 19
-end
-arch ship_floor_we_2
-x 18
-y 20
-end
-arch ship_prow_e_starboard_b
-x 18
-y 20
-end
-arch ship_hull_prow_e_rear_4
-x 18
-y 20
-end
-arch water_lt4
-x 18
-y 21
-end
-arch ship_hull_prow_e_rear_3
-x 18
-y 21
-end
-arch water_lt3
-x 18
-y 22
-end
-arch water_lt4
-x 18
-y 23
-end
-arch water_lt2
-x 19
-end
-arch grassd_m9
-x 19
-end
-arch light5
-x 19
-end
-arch water_lt2
-x 19
-y 1
-end
-arch grassd_m9
-x 19
-y 1
-end
-arch water_lt3
-x 19
-y 2
-end
-arch grassd_m9
-x 19
-y 2
-end
-arch water_lt3
-x 19
-y 3
-end
-arch grassd_m9
-x 19
-y 3
-end
-arch water_lt
-x 19
-y 4
-end
-arch grassd_m9
-x 19
-y 4
-end
-arch light5
-x 19
-y 4
-end
-arch water_lt2
-x 19
-y 5
-end
-arch grassd_m3
-x 19
-y 5
-end
-arch grassd_4
-x 19
-y 6
-end
-arch plant_flower4
-x 19
-y 6
-end
-arch flagwall_short_brick1.111
-no_pass 1
-x 19
-y 6
-end
-arch floor_sand_d1
-x 19
+arch grassd_m4
+x 8
 y 7
 end
-arch floor_sand_d4
-x 19
+arch fstone1c
+x 8
 y 8
 end
-arch fwall_fstone2
-x 19
-y 8
-end
-arch snow4
-x 19
+arch fstone1c
+x 8
 y 9
-end
-arch floor_sand_d3
-x 19
-y 10
-end
-arch snow_fmask.104
-x 19
-y 10
-end
-arch floor_sand_d3
-x 19
-y 11
-end
-arch snow_fmask.114
-x 19
-y 11
-end
-arch floor_sand_d1
-x 19
-y 12
-end
-arch floor_sand_d2
-x 19
-y 13
-end
-arch snow_fmask.101
-x 19
-y 13
-end
-arch water_lt3
-x 19
-y 14
-end
-arch snow_fmask.104
-x 19
-y 14
-end
-arch water_lt2
-x 19
-y 15
-end
-arch snow_fmask.114
-x 19
-y 15
-end
-arch water_lt2
-x 19
-y 16
-end
-arch water_lt
-x 19
-y 17
-end
-arch ship_prow_e_strokeside_a
-x 19
-y 17
-end
-arch ship_hull_prow_e_front_strokeside_1
-x 19
-y 17
-end
-arch ship_floor_we_2
-x 19
-y 18
-end
-arch sail_short_mast_e_1
-x 19
-y 18
-end
-arch ship_floor_we_4
-x 19
-y 19
-end
-arch ship_prow_e_starboard_a
-x 19
-y 19
-end
-arch ship_hull_prow_e_rear_2
-x 19
-y 19
-end
-arch water_lt4
-x 19
-y 20
-end
-arch ship_hull_prow_e_rear_6
-x 19
-y 20
-end
-arch water_lt
-x 19
-y 21
-end
-arch ship_hull_prow_e_rear_5
-x 19
-y 21
-end
-arch water_lt
-x 19
-y 22
-end
-arch water_lt2
-x 19
-y 23
-end
-arch water_lt4
-x 20
-end
-arch water_lt
-x 20
-y 1
-end
-arch grassd_m11
-x 20
-y 1
-end
-arch water_lt4
-x 20
-y 2
-end
-arch grassd_m8
-x 20
-y 2
-end
-arch water_lt3
-x 20
-y 3
-end
-arch grassd_m8
-x 20
-y 3
-end
-arch water_lt2
-x 20
-y 4
-end
-arch grassd_m12
-x 20
-y 4
-end
-arch water_lt2
-x 20
-y 5
-end
-arch grassd_m7
-x 20
-y 5
-end
-arch grassd_4
-x 20
-y 6
-end
-arch flagwall_short_brick1.111
-no_pass 1
-x 20
-y 6
-end
-arch floor_sand_d2
-x 20
-y 7
-end
-arch floor_sand_d4
-x 20
-y 8
-end
-arch fwall_fstone2
-x 20
-y 8
-end
-arch snow4
-x 20
-y 9
-end
-arch floor_sand_d1
-x 20
-y 10
-end
-arch snow_fmask.105
-x 20
-y 10
-end
-arch floor_sand_d4
-x 20
-y 11
-end
-arch floor_sand_d4
-x 20
-y 12
-end
-arch floor_sand_d1
-x 20
-y 13
-end
-arch snow_fmask.101
-x 20
-y 13
-end
-arch water_lt4
-x 20
-y 14
-end
-arch snow_fmask.106
-x 20
-y 14
-end
-arch water_lt3
-x 20
-y 15
-end
-arch snow_fmask.116
-x 20
-y 15
-end
-arch water_lt4
-x 20
-y 16
-end
-arch water_lt2
-x 20
-y 17
-end
-arch ship_prow_e_strokeside_b
-x 20
-y 17
-end
-arch ship_hull_prow_e_front_strokeside_2
-x 20
-y 17
-end
-arch ship_floor_we_1
-x 20
-y 18
-end
-arch ship_prow_e_midship
-x 20
-y 18
-end
-arch ship_floor_we_2
-x 20
-y 19
-end
-arch ship_prow_e_starboard_b
-x 20
-y 19
-end
-arch ship_hull_prow_e_rear_4
-x 20
-y 19
-end
-arch water_lt2
-x 20
-y 20
-end
-arch ship_hull_prow_e_rear_3
-x 20
-y 20
-end
-arch water_lt4
-x 20
-y 21
-end
-arch water_lt4
-x 20
-y 22
-end
-arch water_lt4
-x 20
-y 23
-end
-arch water_lt
-x 21
-end
-arch grassd_m8
-x 21
-end
-arch water_lt2
-x 21
-y 1
 end
 arch grassd_m5
-x 21
-y 1
+x 8
+y 9
 end
-arch light2
-x 21
-y 1
+arch grassd_4
+x 8
+y 10
 end
 arch grassd_6
-x 21
-y 2
-end
-arch plant_flower8
-x 21
-y 2
-end
-arch grassd_3
-x 21
-y 3
-end
-arch tree28
-x 21
-y 3
-end
-arch water_lt3
-x 21
-y 4
-end
-arch grassd_m6
-x 21
-y 4
-end
-arch water_lt
-x 21
-y 5
-end
-arch grassd_m5
-x 21
-y 5
-end
-arch light2
-x 21
-y 5
-end
-arch grassd_3
-x 21
-y 6
-end
-arch plant_flower2
-x 21
-y 6
-end
-arch flagwall_short_brick1.111
-no_pass 1
-x 21
-y 6
-end
-arch floor_sand_d1
-x 21
-y 7
-end
-arch floor_sand_d3
-x 21
-y 8
-end
-arch fwall_fstone2
-x 21
-y 8
-end
-arch snow1
-x 21
-y 9
-end
-arch floor_sand_d2
-x 21
-y 10
-end
-arch snow_fmask.105
-x 21
-y 10
-end
-arch floor_sand_d1
-x 21
+x 8
 y 11
 end
-arch floor_sand_d3
-x 21
+arch plant_mushroom2
+x 8
+y 11
+end
+arch grassd_1
+x 8
 y 12
 end
-arch floor_sand_d3
-x 21
+arch plant_flower8
+x 8
+y 12
+end
+arch grassd_2
+x 8
 y 13
 end
-arch snow_fmask.101
-x 21
+arch plant_flower13
+x 8
 y 13
 end
-arch snow3
-x 21
+arch fstone1c
+x 8
 y 14
 end
-arch tree_branch3_winter
-x 21
+arch grassd_m6
+x 8
 y 14
 end
-arch water_lt3
-x 21
+arch spawn_point
+x 8
+y 14
+arch mage_old
+msg
+@match ^hello$
+Welcome to the Wizards' Tower. The area is protected by magic; monsters outside cannot touch you. No snow can fall here, but it's still pretty cold.
+
+The grass around the lake you can see from here is also magically enchanted.
+endmsg
+name Airllew
+animation thelra_female
+level 30
+race thelra
+is_male 0
+is_female 1
+movement_type 32
+type 83
+end
+end
+arch fstone1c
+x 8
 y 15
 end
-arch snow_fmask.106
-x 21
-y 15
-end
-arch water_lt
-x 21
+arch fstone1b
+x 8
 y 16
 end
-arch snow_fmask.116
-x 21
+arch grassd_m3
+x 8
 y 16
-end
-arch water_lt4
-x 21
-y 17
-end
-arch water_lt3
-x 21
-y 18
-end
-arch ship_hull_prow_e_front_3
-x 21
-y 18
-end
-arch ship_prow_e_long
-x 21
-y 18
-end
-arch light3
-x 21
-y 18
-end
-arch water_lt2
-x 21
-y 19
-end
-arch ship_hull_prow_e_rear_6
-x 21
-y 19
-end
-arch water_lt3
-x 21
-y 20
-end
-arch ship_hull_prow_e_rear_5
-x 21
-y 20
-end
-arch water_lt
-x 21
-y 21
-end
-arch water_lt2
-x 21
-y 22
-end
-arch water_lt
-x 21
-y 23
-end
-arch grassd_3
-x 22
-end
-arch flagwall_short_brick1.131
-no_pass 1
-x 22
-end
-arch grassd_3
-x 22
-y 1
-end
-arch plant_flower4
-x 22
-y 1
-end
-arch flagwall_short_brick1.131
-no_pass 1
-x 22
-y 1
 end
 arch grassd_8
-x 22
+x 8
+y 17
+end
+arch border_wall_w2
+x 8
+y 17
+end
+arch floor_marble1b
+x 8
+y 18
+end
+arch border_top_ne2
+x 8
+y 18
+end
+arch border_top_se2
+sub_layer 1
+x 8
+y 18
+end
+arch grassd_1
+x 8
+y 19
+end
+arch border_wall_n1
+x 8
+y 19
+end
+arch fstone1b
+x 8
+y 20
+end
+arch grassd_m10
+x 8
+y 20
+end
+arch fstone1c
+x 8
+y 21
+end
+arch grassd_m7
+x 8
+y 21
+end
+arch grassd_8
+x 8
+y 22
+end
+arch plant15
+x 8
+y 22
+end
+arch floor_sand_d2
+x 8
+y 23
+end
+arch fwall_fstone2
+x 8
+y 23
+end
+arch floor_sand_d2
+x 9
+end
+arch fwall_fstone2
+x 9
+end
+arch grassd_1
+x 9
+y 1
+end
+arch wall_fstone_round.106
+x 9
+y 1
+end
+arch fstone1c
+x 9
 y 2
 end
-arch plant9
-x 22
+arch grassd_m10
+x 9
 y 2
 end
-arch flagwall_short_brick1.131
-no_pass 1
-x 22
-y 2
+arch fstone1b
+x 9
+y 3
+end
+arch grassd_m7
+x 9
+y 3
+end
+arch grassd_8
+x 9
+y 4
+end
+arch border_wall_w2
+x 9
+y 4
+end
+arch grassd_8
+x 9
+y 5
+end
+arch border_wall_nw2
+x 9
+y 5
+end
+arch fstone1c
+x 9
+y 6
+end
+arch grassd_m4
+x 9
+y 6
+end
+arch fstone1c
+x 9
+y 7
+end
+arch fstone1b
+x 9
+y 8
+end
+arch grassd_m5
+x 9
+y 8
+end
+arch grassd_4
+x 9
+y 9
+end
+arch water_lt2
+x 9
+y 10
+end
+arch grassd_m4
+x 9
+y 10
+end
+arch water_lt4
+x 9
+y 11
+end
+arch grassd_m9
+x 9
+y 11
+end
+arch water_lt
+x 9
+y 12
+end
+arch grassd_m9
+x 9
+y 12
+end
+arch water_lt4
+x 9
+y 13
+end
+arch grassd_m3
+x 9
+y 13
+end
+arch grassd_3
+x 9
+y 14
+end
+arch fstone1b
+x 9
+y 15
+end
+arch grassd_m6
+x 9
+y 15
+end
+arch fstone1b
+x 9
+y 16
+end
+arch fstone1c
+x 9
+y 17
+end
+arch grassd_m3
+x 9
+y 17
+end
+arch grassd_3
+x 9
+y 18
+end
+arch border_wall_w2
+x 9
+y 18
 end
 arch grassd_5
-x 22
+x 9
+y 19
+end
+arch border_wall_nw2
+x 9
+y 19
+end
+arch fstone1c
+x 9
+y 20
+end
+arch grassd_m10
+x 9
+y 20
+end
+arch fstone1b
+x 9
+y 21
+end
+arch grassd_m7
+x 9
+y 21
+end
+arch grassd_1
+x 9
+y 22
+end
+arch wall_fstone_round.108
+x 9
+y 22
+end
+arch floor_sand_d2
+x 9
+y 23
+end
+arch fwall_fstone2
+x 9
+y 23
+end
+arch fstone1c
+x 10
+end
+arch snow_fmask.114
+x 10
+end
+arch wall_fstone_round.102
+x 10
+end
+arch fstone1c
+x 10
+y 1
+end
+arch wall_fstone_round.104
+x 10
+y 1
+end
+arch fstone1b
+x 10
+y 2
+end
+arch grassd_m13
+x 10
+y 2
+end
+arch fstone1b
+x 10
 y 3
 end
-arch plant_flower2
-x 22
+arch grassd_m7
+x 10
 y 3
 end
-arch flagwall_short_brick1.131
-no_pass 1
-x 22
+arch grassd_4
+x 10
+y 4
+end
+arch wall_fstone_pillar
+x 10
+y 4
+end
+arch light7
+x 10
+y 4
+end
+arch fstone1b
+x 10
+y 5
+end
+arch grassd_m4
+x 10
+y 5
+end
+arch fstone1b
+x 10
+y 6
+end
+arch fstone1b
+x 10
+y 7
+end
+arch grassd_m5
+x 10
+y 7
+end
+arch grassd_3
+x 10
+y 8
+end
+arch water_lt4
+x 10
+y 9
+end
+arch grassd_m4
+x 10
+y 9
+end
+arch water_lt
+x 10
+y 10
+end
+arch grassd_m11
+x 10
+y 10
+end
+arch water_lt2
+x 10
+y 11
+end
+arch grassd_m8
+x 10
+y 11
+end
+arch water_lt
+x 10
+y 12
+end
+arch grassd_m8
+x 10
+y 12
+end
+arch water_lt
+x 10
+y 13
+end
+arch grassd_m12
+x 10
+y 13
+end
+arch water_lt3
+x 10
+y 14
+end
+arch grassd_m3
+x 10
+y 14
+end
+arch grassd_2
+x 10
+y 15
+end
+arch plant_flower5
+x 10
+y 15
+end
+arch fstone1c
+x 10
+y 16
+end
+arch grassd_m6
+x 10
+y 16
+end
+arch fstone1c
+x 10
+y 17
+end
+arch fstone1c
+x 10
+y 18
+end
+arch grassd_m3
+x 10
+y 18
+end
+arch grassd_8
+x 10
+y 19
+end
+arch wall_fstone_pillar
+x 10
+y 19
+end
+arch light7
+x 10
+y 19
+end
+arch fstone1c
+x 10
+y 20
+end
+arch grassd_m10
+x 10
+y 20
+end
+arch fstone1b
+x 10
+y 21
+end
+arch grassd_m14
+x 10
+y 21
+end
+arch fstone1c
+x 10
+y 22
+end
+arch wall_fstone_round.102
+x 10
+y 22
+end
+arch fstone1c
+x 10
+y 23
+end
+arch snow_fmask.112
+x 10
+y 23
+end
+arch wall_fstone_round.104
+x 10
+y 23
+end
+arch fstone1b
+player_only 1
+x 11
+end
+arch fstone1c
+x 11
+y 1
+end
+arch fstone1b
+x 11
+y 2
+end
+arch light3
+x 11
+y 2
+end
+arch fstone1c
+x 11
+y 3
+end
+arch grassd_m14
+x 11
+y 3
+end
+arch fstone1b
+x 11
+y 4
+end
+arch grassd_m9
+x 11
+y 4
+end
+arch fstone1b
+x 11
+y 5
+end
+arch fstone1b
+x 11
+y 6
+end
+arch grassd_m7
+x 11
+y 6
+end
+arch grassd_1
+x 11
+y 7
+end
+arch plant10
+x 11
+y 7
+end
+arch grassd_5
+x 11
+y 8
+end
+arch plant_flower9
+x 11
+y 8
+end
+arch water_lt3
+x 11
+y 9
+end
+arch grassd_m10
+x 11
+y 9
+end
+arch water_lt2
+x 11
+y 10
+end
+arch grassd_m7
+x 11
+y 10
+end
+arch grassd_3
+x 11
+y 11
+end
+arch lo_tree6
+blocksview 0
+x 11
+y 11
+end
+arch light9
+x 11
+y 11
+end
+arch grassd_5
+x 11
+y 12
+end
+arch light9
+x 11
+y 12
+end
+arch water_lt3
+x 11
+y 13
+end
+arch grassd_m10
+x 11
+y 13
+end
+arch water_lt
+x 11
+y 14
+end
+arch grassd_m7
+x 11
+y 14
+end
+arch grassd_5
+x 11
+y 15
+end
+arch plant_mushroom4
+x 11
+y 15
+end
+arch grassd_8
+x 11
+y 16
+end
+arch fstone1c
+x 11
+y 17
+end
+arch grassd_m10
+x 11
+y 17
+end
+arch fstone1c
+x 11
+y 18
+end
+arch fstone1c
+x 11
+y 19
+end
+arch grassd_m9
+x 11
+y 19
+end
+arch fstone1b
+x 11
+y 20
+end
+arch grassd_m13
+x 11
+y 20
+end
+arch fstone1b
+x 11
+y 21
+end
+arch light3
+x 11
+y 21
+end
+arch fstone1c
+x 11
+y 22
+end
+arch fstone1b
+player_only 1
+x 11
+y 23
+end
+arch fstone1b
+player_only 1
+x 12
+end
+arch fstone1b
+x 12
+y 1
+end
+arch fstone1b
+x 12
+y 2
+end
+arch light3
+x 12
+y 2
+end
+arch fstone1b
+x 12
+y 3
+end
+arch grassd_m11
+x 12
+y 3
+end
+arch fstone1c
+x 12
+y 4
+end
+arch grassd_m8
+x 12
+y 4
+end
+arch fstone1b
+x 12
+y 5
+end
+arch fstone1c
+x 12
+y 6
+end
+arch grassd_m7
+x 12
+y 6
+end
+arch grassd_1
+x 12
+y 7
+end
+arch grassd_6
+x 12
+y 8
+end
+arch plant1
+x 12
+y 8
+end
+arch water_lt2
+x 12
+y 9
+end
+arch grassd_m10
+x 12
+y 9
+end
+arch water_lt4
+x 12
+y 10
+end
+arch grassd_m7
+x 12
+y 10
+end
+arch grassd_6
+x 12
+y 11
+end
+arch light9
+x 12
+y 11
+end
+arch grassd_2
+x 12
+y 12
+end
+arch light9
+x 12
+y 12
+end
+arch water_lt4
+x 12
+y 13
+end
+arch grassd_m10
+x 12
+y 13
+end
+arch water_lt3
+x 12
+y 14
+end
+arch grassd_m7
+x 12
+y 14
+end
+arch grassd_1
+x 12
+y 15
+end
+arch stone1
+x 12
+y 15
+end
+arch grassd_8
+x 12
+y 16
+end
+arch fstone1b
+x 12
+y 17
+end
+arch grassd_m10
+x 12
+y 17
+end
+arch fstone1c
+x 12
+y 18
+end
+arch fstone1c
+x 12
+y 19
+end
+arch grassd_m8
+x 12
+y 19
+end
+arch fstone1b
+x 12
+y 20
+end
+arch grassd_m12
+x 12
+y 20
+end
+arch fstone1c
+x 12
+y 21
+end
+arch light3
+x 12
+y 21
+end
+arch fstone1b
+x 12
+y 22
+end
+arch fstone1c
+player_only 1
+x 12
+y 23
+end
+arch fstone1b
+x 13
+end
+arch snow_fmask.116
+x 13
+end
+arch wall_fstone_round.108
+x 13
+end
+arch fstone1b
+x 13
+y 1
+end
+arch wall_fstone_round.106
+x 13
+y 1
+end
+arch fstone1c
+x 13
+y 2
+end
+arch grassd_m12
+x 13
+y 2
+end
+arch fstone1c
+x 13
+y 3
+end
+arch grassd_m7
+x 13
 y 3
 end
 arch grassd_2
-x 22
+x 13
 y 4
 end
-arch plant_flower7
-x 22
+arch wall_fstone_pillar
+x 13
 y 4
 end
-arch flagwall_short_brick1.131
-no_pass 1
-x 22
+arch light7
+x 13
 y 4
 end
-arch grassd_3
-x 22
+arch fstone1b
+x 13
 y 5
 end
-arch flagwall_short_brick1.131
-no_pass 1
-x 22
+arch grassd_m6
+x 13
 y 5
 end
-arch grassd_1
-x 22
+arch fstone1c
+x 13
 y 6
 end
-arch flagwall_short_brick1.141
-no_pass 1
-x 22
-y 6
-end
-arch floor_sand_d4
-x 22
+arch fstone1c
+x 13
 y 7
 end
-arch floor_sand_d2
-x 22
+arch grassd_m3
+x 13
+y 7
+end
+arch grassd_3
+x 13
 y 8
 end
-arch fwall_fstone2
-x 22
+arch plant_flower14
+x 13
 y 8
 end
-arch snow3
-x 22
+arch water_lt4
+x 13
 y 9
 end
-arch floor_sand_d2
-x 22
+arch grassd_m6
+x 13
+y 9
+end
+arch water_lt3
+x 13
 y 10
 end
-arch snow_fmask.105
-x 22
+arch grassd_m14
+x 13
 y 10
 end
-arch floor_sand_d3
-x 22
+arch water_lt3
+x 13
 y 11
 end
-arch floor_sand_d1
-x 22
+arch grassd_m9
+x 13
+y 11
+end
+arch water_lt2
+x 13
 y 12
 end
-arch floor_sand_d4
-x 22
+arch grassd_m9
+x 13
+y 12
+end
+arch water_lt3
+x 13
 y 13
 end
-arch snow_fmask.112
-x 22
+arch grassd_m13
+x 13
 y 13
 end
-arch floor_sand_d3
-x 22
+arch water_lt2
+x 13
 y 14
 end
-arch snow_fmask.103
-x 22
+arch grassd_m5
+x 13
 y 14
 end
-arch floor_sand_d3
-x 22
+arch grassd_3
+x 13
 y 15
 end
-arch snow_fmask.102
-x 22
-y 15
-end
-arch water_lt
-x 22
+arch fstone1c
+x 13
 y 16
 end
-arch snow_fmask.105
-x 22
+arch grassd_m4
+x 13
 y 16
 end
-arch client_map_info
-name wizards_tower_ship_asteria
-sub_type 2
-x 22
-y 16
-end
-arch water_lt
-x 22
+arch fstone1b
+x 13
 y 17
 end
-arch water_lt2
-x 22
+arch fstone1c
+x 13
 y 18
 end
-arch ship_hull_prow_e_front_2
-x 22
+arch grassd_m5
+x 13
 y 18
 end
-arch water_lt3
-x 22
+arch grassd_7
+x 13
 y 19
 end
-arch ship_hull_prow_e_front_1
-x 22
+arch wall_fstone_pillar
+x 13
 y 19
 end
-arch water_lt
-x 22
+arch light7
+x 13
+y 19
+end
+arch fstone1b
+x 13
 y 20
 end
-arch water_lt3
-x 22
+arch grassd_m10
+x 13
+y 20
+end
+arch fstone1b
+x 13
 y 21
 end
-arch water_lt
-x 22
+arch grassd_m11
+x 13
+y 21
+end
+arch fstone1b
+x 13
 y 22
 end
-arch water_lt2
-x 22
+arch wall_fstone_round.108
+x 13
+y 22
+end
+arch fstone1c
+x 13
+y 23
+end
+arch snow_fmask.118
+x 13
+y 23
+end
+arch wall_fstone_round.106
+x 13
 y 23
 end
 arch floor_sand_d1
-x 23
+x 14
 end
-arch floor_sand_d4
-x 23
+arch fwall_fstone2
+x 14
+end
+arch grassd_4
+x 14
 y 1
 end
-arch small_stones
-x 23
+arch wall_fstone_round.104
+x 14
 y 1
+end
+arch fstone1b
+x 14
+y 2
+end
+arch grassd_m10
+x 14
+y 2
+end
+arch fstone1c
+x 14
+y 3
+end
+arch grassd_m7
+x 14
+y 3
+end
+arch floor_marble1
+x 14
+y 4
+end
+arch border_top_sw2
+x 14
+y 4
+end
+arch border_top_n1
+sub_layer 1
+x 14
+y 4
+end
+arch grassd_7
+x 14
+y 5
+end
+arch border_wall_n2
+x 14
+y 5
+end
+arch fstone1b
+x 14
+y 6
+end
+arch grassd_m6
+x 14
+y 6
+end
+arch fstone1b
+x 14
+y 7
+end
+arch fstone1c
+x 14
+y 8
+end
+arch grassd_m3
+x 14
+y 8
+end
+arch grassd_3
+x 14
+y 9
+end
+arch plant9
+x 14
+y 9
+end
+arch water_lt2
+x 14
+y 10
+end
+arch grassd_m6
+x 14
+y 10
+end
+arch water_lt2
+x 14
+y 11
+end
+arch grassd_m8
+x 14
+y 11
+end
+arch water_lt3
+x 14
+y 12
+end
+arch grassd_m8
+x 14
+y 12
+end
+arch water_lt
+x 14
+y 13
+end
+arch grassd_m5
+x 14
+y 13
+end
+arch grassd_8
+x 14
+y 14
+end
+arch plant13
+x 14
+y 14
+end
+arch fstone1b
+x 14
+y 15
+end
+arch grassd_m4
+x 14
+y 15
+end
+arch fstone1b
+x 14
+y 16
+end
+arch fstone1c
+x 14
+y 17
+end
+arch grassd_m5
+x 14
+y 17
+end
+arch floor_marble1b
+x 14
+y 18
+end
+arch border_top_nw2
+x 14
+y 18
+end
+arch border_top_sw2
+sub_layer 1
+x 14
+y 18
+end
+arch grassd_8
+x 14
+y 19
+end
+arch border_wall_n2
+x 14
+y 19
+end
+arch fstone1c
+x 14
+y 20
+end
+arch grassd_m10
+x 14
+y 20
+end
+arch fstone1b
+x 14
+y 21
+end
+arch grassd_m7
+x 14
+y 21
+end
+arch grassd_4
+x 14
+y 22
+end
+arch wall_fstone_round.102
+x 14
+y 22
+end
+arch floor_sand_d2
+x 14
+y 23
+end
+arch fwall_fstone2
+x 14
+y 23
 end
 arch floor_sand_d1
+x 15
+end
+arch fwall_fstone2
+x 15
+end
+arch grassd_3
+x 15
+y 1
+end
+arch flagwall_short_brick1.131
+x 15
+y 1
+end
+arch fstone1b
+x 15
+y 2
+end
+arch grassd_m10
+x 15
+y 2
+end
+arch fstone1c
+x 15
+y 3
+end
+arch grassd_m7
+x 15
+y 3
+end
+arch floor_marble1
+x 15
+y 4
+end
+arch border_top_n1
+x 15
+y 4
+end
+arch border_top_sw1
+sub_layer 1
+x 15
+y 4
+end
+arch floor_marble1
+x 15
+y 5
+end
+arch border_top_sw2
+x 15
+y 5
+end
+arch light7
+x 15
+y 5
+end
+arch grassd_6
+x 15
+y 6
+end
+arch border_wall_n2
+x 15
+y 6
+end
+arch fstone1b
+x 15
+y 7
+end
+arch grassd_m6
+x 15
+y 7
+end
+arch fstone1b
+x 15
+y 8
+end
+arch fstone1b
+x 15
+y 9
+end
+arch grassd_m3
+x 15
+y 9
+end
+arch spawn_point
+x 15
+y 9
+arch mage_old
+name Teldach
+level 30
+race thelra
+movement_type 144
+type 83
+arch event_obj
+sub_type 6
+race /interfaces/lyondale_archipelago/wizard/teldach.xml
+end
+end
+end
+arch grassd_6
+x 15
+y 10
+end
+arch grassd_2
+x 15
+y 11
+end
+arch stone1
+x 15
+y 11
+end
+arch grassd_7
+x 15
+y 12
+end
+arch plant10
+x 15
+y 12
+end
+arch grassd_6
+x 15
+y 13
+end
+arch plant_flower9
+x 15
+y 13
+end
+arch fstone1b
+x 15
+y 14
+end
+arch grassd_m4
+x 15
+y 14
+end
+arch fstone1c
+x 15
+y 15
+end
+arch fstone1c
+x 15
+y 16
+end
+arch grassd_m5
+x 15
+y 16
+end
+arch floor_marble1b
+x 15
+y 17
+end
+arch border_top_nw2
+x 15
+y 17
+end
+arch light7
+x 15
+y 17
+end
+arch floor_marble1b
+x 15
+y 18
+end
+arch border_top_s1
+x 15
+y 18
+end
+arch border_top_nw1
+sub_layer 1
+x 15
+y 18
+end
+arch grassd_8
+x 15
+y 19
+end
+arch border_wall_n1
+x 15
+y 19
+end
+arch fstone1b
+x 15
+y 20
+end
+arch grassd_m10
+x 15
+y 20
+end
+arch fstone1c
+x 15
+y 21
+end
+arch grassd_m7
+x 15
+y 21
+end
+arch grassd_5
+x 15
+y 22
+end
+arch plant15
+x 15
+y 22
+end
+arch floor_sand_d4
+x 15
+y 23
+end
+arch fwall_fstone2
+x 15
+y 23
+end
+arch floor_sand_d1
+x 16
+end
+arch fwall_fstone2
+x 16
+end
+arch grassd_7
+x 16
+y 1
+end
+arch plant_flower12
+x 16
+y 1
+end
+arch flagwall_short_brick1.111
+x 16
+y 1
+end
+arch fstone1b
+x 16
+y 2
+end
+arch grassd_m10
+x 16
+y 2
+end
+arch fstone1b
+x 16
+y 3
+end
+arch grassd_m7
+x 16
+y 3
+end
+arch floor_marble1a
+x 16
+y 4
+end
+arch border_top_n1
+x 16
+y 4
+end
+arch floor_marble1b
+x 16
+y 5
+end
+arch border_top_sw1
+x 16
+y 5
+end
+arch floor_marble1b
+x 16
+y 6
+end
+arch border_top_sw2
+x 16
+y 6
+end
+arch grassd_8
+x 16
+y 7
+end
+arch border_wall_n2
+x 16
+y 7
+end
+arch fstone1b
+x 16
+y 8
+end
+arch grassd_m6
+x 16
+y 8
+end
+arch fstone1c
+x 16
+y 9
+end
+arch fstone1c
+x 16
+y 10
+end
+arch grassd_m3
+x 16
+y 10
+end
+arch grassd_5
+x 16
+y 11
+end
+arch plant_flower7
+x 16
+y 11
+end
+arch grassd_2
+x 16
+y 12
+end
+arch fstone1b
+x 16
+y 13
+end
+arch grassd_m4
+x 16
+y 13
+end
+arch fstone1b
+x 16
+y 14
+end
+arch fstone1b
+x 16
+y 15
+end
+arch grassd_m5
+x 16
+y 15
+end
+arch floor_marble1
+x 16
+y 16
+end
+arch border_top_nw2
+x 16
+y 16
+end
+arch floor_marble1b
+x 16
+y 17
+end
+arch border_top_nw1
+x 16
+y 17
+end
+arch floor_marble1
+x 16
+y 18
+end
+arch border_top_s1
+x 16
+y 18
+end
+arch grassd_2
+x 16
+y 19
+end
+arch border_wall_n1
+x 16
+y 19
+end
+arch fstone1c
+x 16
+y 20
+end
+arch grassd_m10
+x 16
+y 20
+end
+arch fstone1b
+x 16
+y 21
+end
+arch grassd_m7
+x 16
+y 21
+end
+arch grassd_7
+x 16
+y 22
+end
+arch stone1
+x 16
+y 22
+end
+arch floor_sand_d2
+x 16
+y 23
+end
+arch fwall_fstone2
+x 16
+y 23
+end
+arch floor_sand_d2
+x 17
+end
+arch fwall_fstone2
+x 17
+end
+arch grassd_6
+x 17
+y 1
+end
+arch plant_flower9
+x 17
+y 1
+end
+arch flagwall_short_brick1.111
+x 17
+y 1
+end
+arch fstone1b
+x 17
+y 2
+end
+arch grassd_m10
+x 17
+y 2
+end
+arch fstone1b
+x 17
+y 3
+end
+arch grassd_m7
+x 17
+y 3
+end
+arch floor_marble1
+x 17
+y 4
+end
+arch border_top_n1
+x 17
+y 4
+end
+arch floor_marble1a
+x 17
+y 5
+end
+arch exit_green
+slaying world_3_1878
+hp 19
+sp 4
+zoom 70
+align 7
+animation portal_azure
+x 17
+y 5
+end
+arch light7
+x 17
+y 5
+end
+arch floor_marble1b
+x 17
+y 6
+end
+arch border_top_sw1
+x 17
+y 6
+end
+arch floor_marble1
+x 17
+y 7
+end
+arch border_top_sw2
+x 17
+y 7
+end
+arch light7
+x 17
+y 7
+end
+arch grassd_3
+x 17
+y 8
+end
+arch border_wall_n2
+x 17
+y 8
+end
+arch fstone1c
+x 17
+y 9
+end
+arch grassd_m6
+x 17
+y 9
+end
+arch fstone1c
+x 17
+y 10
+end
+arch fstone1b
+x 17
+y 11
+end
+arch grassd_m9
+x 17
+y 11
+end
+arch fstone1c
+x 17
+y 12
+end
+arch grassd_m9
+x 17
+y 12
+end
+arch fstone1b
+x 17
+y 13
+end
+arch fstone1b
+x 17
+y 14
+end
+arch grassd_m5
+x 17
+y 14
+end
+arch floor_marble1a
+x 17
+y 15
+end
+arch border_top_nw2
+x 17
+y 15
+end
+arch light7
+x 17
+y 15
+end
+arch floor_marble1
+x 17
+y 16
+end
+arch border_top_nw1
+x 17
+y 16
+end
+arch floor_marble1a
+x 17
+y 17
+end
+arch exit_green
+slaying world_4_1878
+hp 19
+sp 19
+zoom 70
+align 7
+animation portal_red
+x 17
+y 17
+end
+arch light7
+x 17
+y 17
+end
+arch floor_marble1b
+x 17
+y 18
+end
+arch border_top_s1
+x 17
+y 18
+end
+arch grassd_5
+x 17
+y 19
+end
+arch border_wall_n1
+x 17
+y 19
+end
+arch fstone1b
+x 17
+y 20
+end
+arch grassd_m10
+x 17
+y 20
+end
+arch fstone1b
+x 17
+y 21
+end
+arch grassd_m7
+x 17
+y 21
+end
+arch grassd_4
+x 17
+y 22
+end
+arch plant_mushroom3
+x 17
+y 22
+end
+arch floor_sand_d4
+x 17
+y 23
+end
+arch fwall_fstone2
+x 17
+y 23
+end
+arch floor_sand_d4
+x 18
+end
+arch fwall_fstone2
+x 18
+end
+arch grassd_5
+x 18
+y 1
+end
+arch plant_flower8
+x 18
+y 1
+end
+arch flagwall_short_brick1.111
+x 18
+y 1
+end
+arch fstone1c
+x 18
+y 2
+end
+arch grassd_m10
+x 18
+y 2
+end
+arch fstone1c
+x 18
+y 3
+end
+arch grassd_m7
+x 18
+y 3
+end
+arch light2
+x 18
+y 3
+end
+arch floor_marble1b
+x 18
+y 4
+end
+arch border_top_ne2
+x 18
+y 4
+end
+arch light6
+x 18
+y 4
+end
+arch floor_marble1
+x 18
+y 5
+end
+arch border_top_e1
+x 18
+y 5
+end
+arch floor_marble1a
+x 18
+y 6
+end
+arch border_top_e1
+x 18
+y 6
+end
+arch floor_marble1a
+x 18
+y 7
+end
+arch border_top_e1
+x 18
+y 7
+end
+arch border_top_sw1
+sub_layer 1
+x 18
+y 7
+end
+arch floor_marble1b
+x 18
+y 8
+end
+arch border_top_se2
+x 18
+y 8
+end
+arch border_top_sw2
+sub_layer 1
+x 18
+y 8
+end
+arch grassd_7
+x 18
+y 9
+end
+arch border_wall_n2
+x 18
+y 9
+end
+arch fstone1b
+x 18
+y 10
+end
+arch grassd_m6
+x 18
+y 10
+end
+arch fstone1c
+x 18
+y 11
+end
+arch fstone1c
+x 18
+y 12
+end
+arch fstone1b
+x 18
+y 13
+end
+arch grassd_m5
+x 18
+y 13
+end
+arch floor_marble1a
+x 18
+y 14
+end
+arch border_top_nw2
+x 18
+y 14
+end
+arch border_top_ne2
+sub_layer 1
+x 18
+y 14
+end
+arch floor_marble1b
+x 18
+y 15
+end
+arch border_top_e1
+x 18
+y 15
+end
+arch border_top_nw1
+sub_layer 1
+x 18
+y 15
+end
+arch floor_marble1a
+x 18
+y 16
+end
+arch border_top_e1
+x 18
+y 16
+end
+arch floor_marble1b
+x 18
+y 17
+end
+arch border_top_e1
+x 18
+y 17
+end
+arch floor_marble1a
+x 18
+y 18
+end
+arch border_top_se2
+x 18
+y 18
+end
+arch light6
+x 18
+y 18
+end
+arch grassd_7
+x 18
+y 19
+end
+arch border_wall_n1
+x 18
+y 19
+end
+arch fstone1c
+x 18
+y 20
+end
+arch grassd_m10
+x 18
+y 20
+end
+arch fstone1b
+x 18
+y 21
+end
+arch grassd_m7
+x 18
+y 21
+end
+arch grassd_2
+x 18
+y 22
+end
+arch plant_flower7
+x 18
+y 22
+end
+arch floor_sand_d3
+x 18
+y 23
+end
+arch fwall_fstone2
+x 18
+y 23
+end
+arch floor_sand_d2
+x 19
+end
+arch fwall_fstone2
+x 19
+end
+arch grassd_2
+x 19
+y 1
+end
+arch plant_flower14
+x 19
+y 1
+end
+arch flagwall_short_brick1.141
+x 19
+y 1
+end
+arch fstone1c
+x 19
+y 2
+end
+arch grassd_m10
+x 19
+y 2
+end
+arch fstone1b
+x 19
+y 3
+end
+arch grassd_m7
+x 19
+y 3
+end
+arch grassd_7
+x 19
+y 4
+end
+arch border_wall_w2
+x 19
+y 4
+end
+arch light2
+x 19
+y 4
+end
+arch grassd_5
+x 19
+y 5
+end
+arch border_wall_w1
+x 19
+y 5
+end
+arch grassd_1
+x 19
+y 6
+end
+arch border_wall_w1
+x 19
+y 6
+end
+arch grassd_3
+x 19
+y 7
+end
+arch border_wall_w1
+x 19
+y 7
+end
+arch grassd_5
+x 19
+y 8
+end
+arch border_wall_w1
+x 19
+y 8
+end
+arch grassd_6
+x 19
+y 9
+end
+arch border_wall_nw2
+x 19
+y 9
+end
+arch grassd_7
+x 19
+y 10
+end
+arch wall_fstone_pillar
+x 19
+y 10
+end
+arch light7
+x 19
+y 10
+end
+arch fstone1b
+x 19
+y 11
+end
+arch grassd_m10
+x 19
+y 11
+end
+arch fstone1b
+x 19
+y 12
+end
+arch grassd_m7
+x 19
+y 12
+end
+arch grassd_1
+x 19
+y 13
+end
+arch wall_fstone_pillar
+x 19
+y 13
+end
+arch light7
+x 19
+y 13
+end
+arch grassd_5
+x 19
+y 14
+end
+arch border_wall_w2
+x 19
+y 14
+end
+arch grassd_4
+x 19
+y 15
+end
+arch border_wall_w1
+x 19
+y 15
+end
+arch grassd_7
+x 19
+y 16
+end
+arch border_wall_w1
+x 19
+y 16
+end
+arch grassd_8
+x 19
+y 17
+end
+arch border_wall_w1
+x 19
+y 17
+end
+arch grassd_4
+x 19
+y 18
+end
+arch border_wall_w1
+x 19
+y 18
+end
+arch grassd_2
+x 19
+y 19
+end
+arch border_wall_nw2
+x 19
+y 19
+end
+arch fstone1c
+x 19
+y 20
+end
+arch grassd_m10
+x 19
+y 20
+end
+arch light2
+x 19
+y 20
+end
+arch fstone1b
+x 19
+y 21
+end
+arch grassd_m7
+x 19
+y 21
+end
+arch grassd_3
+x 19
+y 22
+end
+arch plant16
+x 19
+y 22
+end
+arch floor_sand_d4
+x 19
+y 23
+end
+arch fwall_fstone2
+x 19
+y 23
+end
+arch floor_sand_d2
+x 20
+end
+arch fwall_fstone2
+x 20
+end
+arch grassd_8
+x 20
+y 1
+end
+arch plant_flower1
+x 20
+y 1
+end
+arch fstone1b
+x 20
+y 2
+end
+arch grassd_m10
+x 20
+y 2
+end
+arch fstone1c
+x 20
+y 3
+end
+arch grassd_m14
+x 20
+y 3
+end
+arch fstone1c
+x 20
+y 4
+end
+arch grassd_m9
+x 20
+y 4
+end
+arch fstone1b
+x 20
+y 5
+end
+arch grassd_m9
+x 20
+y 5
+end
+arch fstone1c
+x 20
+y 6
+end
+arch grassd_m9
+x 20
+y 6
+end
+arch fstone1b
+x 20
+y 7
+end
+arch grassd_m9
+x 20
+y 7
+end
+arch fstone1c
+x 20
+y 8
+end
+arch grassd_m9
+x 20
+y 8
+end
+arch fstone1b
+x 20
+y 9
+end
+arch grassd_m9
+x 20
+y 9
+end
+arch fstone1b
+x 20
+y 10
+end
+arch grassd_m9
+x 20
+y 10
+end
+arch fstone1c
+x 20
+y 11
+end
+arch grassd_m13
+x 20
+y 11
+end
+arch fstone1b
+x 20
+y 12
+end
+arch grassd_m14
+x 20
+y 12
+end
+arch fstone1b
+x 20
+y 13
+end
+arch grassd_m9
+x 20
+y 13
+end
+arch fstone1b
+x 20
+y 14
+end
+arch grassd_m9
+x 20
+y 14
+end
+arch fstone1b
+x 20
+y 15
+end
+arch grassd_m9
+x 20
+y 15
+end
+arch fstone1b
+x 20
+y 16
+end
+arch grassd_m9
+x 20
+y 16
+end
+arch fstone1b
+x 20
+y 17
+end
+arch grassd_m9
+x 20
+y 17
+end
+arch fstone1b
+x 20
+y 18
+end
+arch grassd_m9
+x 20
+y 18
+end
+arch fstone1c
+x 20
+y 19
+end
+arch grassd_m9
+x 20
+y 19
+end
+arch light2
+x 20
+y 19
+end
+arch fstone1c
+x 20
+y 20
+end
+arch grassd_m13
+x 20
+y 20
+end
+arch fstone1b
+x 20
+y 21
+end
+arch grassd_m7
+x 20
+y 21
+end
+arch grassd_8
+x 20
+y 22
+end
+arch plant_flower7
+x 20
+y 22
+end
+arch floor_sand_d1
+x 20
+y 23
+end
+arch fwall_fstone2
+x 20
+y 23
+end
+arch snow4
+x 21
+end
+arch fwall_fstone2a
+x 21
+end
+arch grassd_1
+x 21
+y 1
+end
+arch fwall_fstone2b
+x 21
+y 1
+end
+arch fstone1b
+x 21
+y 2
+end
+arch grassd_m6
+x 21
+y 2
+end
+arch fstone1b
+x 21
+y 3
+end
+arch grassd_m8
+x 21
+y 3
+end
+arch fstone1c
+x 21
+y 4
+end
+arch grassd_m8
+x 21
+y 4
+end
+arch fstone1c
+x 21
+y 5
+end
+arch grassd_m8
+x 21
+y 5
+end
+arch fstone1c
+x 21
+y 6
+end
+arch grassd_m8
+x 21
+y 6
+end
+arch fstone1b
+x 21
+y 7
+end
+arch grassd_m8
+x 21
+y 7
+end
+arch fstone1b
+x 21
+y 8
+end
+arch grassd_m8
+x 21
+y 8
+end
+arch fstone1b
+x 21
+y 9
+end
+arch grassd_m8
+x 21
+y 9
+end
+arch fstone1c
+x 21
+y 10
+end
+arch grassd_m12
+x 21
+y 10
+end
+arch fstone1c
+x 21
+y 11
+end
+arch light3
+x 21
+y 11
+end
+arch fstone1b
+x 21
+y 12
+end
+arch light3
+x 21
+y 12
+end
+arch fstone1b
+x 21
+y 13
+end
+arch grassd_m11
+x 21
+y 13
+end
+arch fstone1b
+x 21
+y 14
+end
+arch grassd_m8
+x 21
+y 14
+end
+arch fstone1c
+x 21
+y 15
+end
+arch grassd_m8
+x 21
+y 15
+end
+arch fstone1b
+x 21
+y 16
+end
+arch grassd_m8
+x 21
+y 16
+end
+arch fstone1c
+x 21
+y 17
+end
+arch grassd_m8
+x 21
+y 17
+end
+arch fstone1c
+x 21
+y 18
+end
+arch grassd_m8
+x 21
+y 18
+end
+arch fstone1b
+x 21
+y 19
+end
+arch grassd_m8
+x 21
+y 19
+end
+arch fstone1b
+x 21
+y 20
+end
+arch grassd_m8
+x 21
+y 20
+end
+arch fstone1b
+x 21
+y 21
+end
+arch grassd_m5
+x 21
+y 21
+end
+arch grassd_2
+x 21
+y 22
+end
+arch fwall_fstone2c
+x 21
+y 22
+end
+arch snow4
+x 21
+y 23
+end
+arch fwall_fstone2d
+x 21
+y 23
+end
+arch snow4
+x 22
+end
+arch snow1
+x 22
+y 1
+end
+arch fwall_fstone2a
+x 22
+y 1
+end
+arch grassd_5
+x 22
+y 2
+end
+arch fwall_fstone2b
+x 22
+y 2
+end
+arch grassd_1
+x 22
+y 3
+end
+arch plant_flower5
+x 22
+y 3
+end
+arch grassd_1
+x 22
+y 4
+end
+arch plant_mushroom5
+x 22
+y 4
+end
+arch grassd_4
+x 22
+y 5
+end
+arch plant11
+x 22
+y 5
+end
+arch grassd_5
+x 22
+y 6
+end
+arch plant_flower1
+x 22
+y 6
+end
+arch grassd_2
+x 22
+y 7
+end
+arch plant11
+x 22
+y 7
+end
+arch grassd_5
+x 22
+y 8
+end
+arch small_stones
+x 22
+y 8
+end
+arch grassd_8
+x 22
+y 9
+end
+arch wall_fstone_round.108
+x 22
+y 9
+end
+arch fstone1b
+x 22
+y 10
+end
+arch wall_fstone_round.106
+x 22
+y 10
+end
+arch fstone1b
+x 22
+y 11
+end
+arch fstone1c
+x 22
+y 12
+end
+arch fstone1b
+x 22
+y 13
+end
+arch wall_fstone_round.108
+x 22
+y 13
+end
+arch grassd_8
+x 22
+y 14
+end
+arch wall_fstone_round.106
+x 22
+y 14
+end
+arch grassd_6
+x 22
+y 15
+end
+arch plant_flower6
+x 22
+y 15
+end
+arch grassd_5
+x 22
+y 16
+end
+arch plant17
+x 22
+y 16
+end
+arch grassd_3
+x 22
+y 17
+end
+arch plant15
+x 22
+y 17
+end
+arch grassd_6
+x 22
+y 18
+end
+arch plant_flower5
+x 22
+y 18
+end
+arch grassd_2
+x 22
+y 19
+end
+arch plant10
+x 22
+y 19
+end
+arch grassd_6
+x 22
+y 20
+end
+arch plant11
+x 22
+y 20
+end
+arch grassd_2
+x 22
+y 21
+end
+arch fwall_fstone2c
+x 22
+y 21
+end
+arch snow3
+x 22
+y 22
+end
+arch fwall_fstone2d
+x 22
+y 22
+end
+arch snow2
+x 22
+y 23
+end
+arch snow1
+x 23
+end
+arch snow3
+x 23
+y 1
+end
+arch snow3
+x 23
+y 2
+end
+arch fwall_fstone2a
+x 23
+y 2
+end
+arch map_info
+name la_wizards_tower
+sp 19
+race Wizards' Tower
+title none
+cursed 1
 x 23
 y 2
 end
@@ -3789,27 +4561,43 @@ arch floor_sand_d4
 x 23
 y 3
 end
-arch floor_sand_d4
+arch fwall_fstone2
+x 23
+y 3
+end
+arch floor_sand_d2
 x 23
 y 4
 end
-arch floor_sand_d1
+arch fwall_fstone2
+x 23
+y 4
+end
+arch floor_sand_d3
 x 23
 y 5
 end
-arch small_stones
+arch fwall_fstone2
 x 23
 y 5
 end
-arch floor_sand_d4
+arch floor_sand_d3
 x 23
 y 6
 end
-arch floor_sand_d4
+arch fwall_fstone2
+x 23
+y 6
+end
+arch floor_sand_d3
 x 23
 y 7
 end
-arch floor_sand_d1
+arch fwall_fstone2
+x 23
+y 7
+end
+arch floor_sand_d3
 x 23
 y 8
 end
@@ -3817,87 +4605,117 @@ arch fwall_fstone2
 x 23
 y 8
 end
-arch snow3
+arch floor_sand_d2
 x 23
 y 9
 end
-arch floor_sand_d4
+arch fwall_fstone2
+x 23
+y 9
+end
+arch fstone1c
 x 23
 y 10
 end
-arch snow_fmask.105
+arch snow_fmask.116
 x 23
 y 10
 end
-arch floor_sand_d4
+arch wall_fstone_round.104
+x 23
+y 10
+end
+arch fstone1c
+player_only 1
 x 23
 y 11
 end
-arch floor_sand_d2
+arch fstone1b
+player_only 1
 x 23
 y 12
+end
+arch fstone1b
+x 23
+y 13
 end
 arch snow_fmask.118
 x 23
-y 12
+y 13
+end
+arch wall_fstone_round.102
+x 23
+y 13
 end
 arch floor_sand_d4
 x 23
-y 13
+y 14
 end
-arch snow_fmask.107
+arch fwall_fstone2
 x 23
-y 13
+y 14
 end
 arch floor_sand_d2
 x 23
-y 14
+y 15
 end
-arch snow_fmask.107
+arch fwall_fstone2
 x 23
-y 14
+y 15
 end
 arch floor_sand_d1
 x 23
-y 15
+y 16
 end
-arch snow_fmask.108
-x 23
-y 15
-end
-arch water_lt
+arch fwall_fstone2
 x 23
 y 16
 end
-arch snow_fmask.105
-x 23
-y 16
-end
-arch water_lt2
+arch floor_sand_d2
 x 23
 y 17
 end
-arch water_lt2
+arch fwall_fstone2
+x 23
+y 17
+end
+arch floor_sand_d4
 x 23
 y 18
 end
-arch water_lt4
+arch fwall_fstone2
+x 23
+y 18
+end
+arch floor_sand_d2
 x 23
 y 19
 end
-arch water_lt4
+arch fwall_fstone2
+x 23
+y 19
+end
+arch floor_sand_d4
 x 23
 y 20
 end
-arch water_lt
+arch fwall_fstone2
+x 23
+y 20
+end
+arch snow4
 x 23
 y 21
 end
-arch water_lt2
+arch fwall_fstone2d
+x 23
+y 21
+end
+arch snow4
 x 23
 y 22
 end
-arch water_lt3
+arch snow1
 x 23
 y 23
 end

@@ -1,18 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <interfaces>
     <quest name="Lairwenn's Notes">
-        <interface npc="Lairwenn" state="completed" inherit="Seller.Seller">
+        <interface inherit="Seller.Seller" npc="Lairwenn" state="completed">
             <dialog name="hello">
                 <message>Thank you for finding my notes earlier. Would you be interested in an extra writing pen?</message>
-                <response message="Sure, tell me more." destination="buy writing pen" />
-                <response message="No thanks." action="close" />
+                <response destination="buy writing pen" message="Sure, tell me more."/>
+                <response action="close" message="No thanks."/>
             </dialog>
             <dialog name="::buyitem">
                 <message>Ah, good choice!</message>
-                <inherit name="::buy" />
+                <inherit name="::buy"/>
                 <message>Would you like to buy this top-quality writing pen?</message>
-                <response message="Sure." destination="buy 1 writing pen" />
-                <response message="No thanks." action="close" />
+                <response destination="buy 1 writing pen" message="Sure."/>
+                <response action="close" message="No thanks."/>
             </dialog>
             <dialog name="::boughtitem">
                 <message>Here you go dear, a top-quality writing pen!</message>
@@ -24,34 +24,30 @@
                 <message>Oh dear, you're not strong enough to hold this tiny writing pen?</message>
             </dialog>
         </interface>
-
-        <part uid="get_notes" name="Finding the Notes">
+        <part name="Finding the Notes" uid="get_notes">
             <info>Lairwenn has lost her notes somewhere in the Brynknot Library and she has asked you to find them for her, as she can't finish the document she is working on without them.</info>
-            <item arch="note" name="Lairwenn's Notes" />
-
+            <item arch="note" name="Lairwenn's Notes"/>
             <interface npc="Lairwenn" state="need_start">
                 <dialog name="hello">
                     <message>Welcome to the Brynknot Library... I'm {npc.name}, the librarian.</message>
                     <message>Please excuse me, I seem to have lost my notes somewhere...</message>
-                    <response message="You lost your notes?" destination="lostnotes" />
+                    <response destination="lostnotes" message="You lost your notes?"/>
                 </dialog>
                 <dialog name="lostnotes">
                     <message>I hurriedly put them away while searching for this book, and then a while later I remembered about the notes but I can't find them now! And I really need them to finish this document I'm working on...</message>
-                    <response message="Can I help you in your search?" destination="helpsearch" />
+                    <response destination="helpsearch" message="Can I help you in your search?"/>
                 </dialog>
                 <dialog name="helpsearch">
                     <message>I would certainly appreciate it my dear! The notes are somewhere in this library, I just can't seem to find them...</message>
-                    <action start="get_notes" />
+                    <action start="get_notes"/>
                 </dialog>
             </interface>
-
             <interface npc="Lairwenn" state="need_finish">
                 <dialog name="hello">
                     <message color="yellow">{npc.name} sighs.</message>
                     <message>I'm trying to remember where I put them, but I just can't... Please continue your search my dear, they should be somewhere in this library...</message>
                 </dialog>
             </interface>
-
             <interface npc="Lairwenn" state="need_complete">
                 <dialog name="hello">
                     <message>You found my notes!</message>
@@ -59,8 +55,8 @@
                     <message>They were in the luggage on the top floor? How curious... Well, thank you my dear! I think I have something here that may be useful on your adventures... Now, where did I put it...</message>
                     <message color="yellow">{npc.name} thinks for a moment.</message>
                     <message>Just pulling your leg my dear! Here it is, a writing pen will be useful, will it not?</message>
-                    <object name="writing pen" />
-                    <action complete="get_notes" />
+                    <object name="writing pen"/>
+                    <action complete="get_notes"/>
                 </dialog>
             </interface>
         </part>

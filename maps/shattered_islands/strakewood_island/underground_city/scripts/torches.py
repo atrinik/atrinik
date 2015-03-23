@@ -1,7 +1,31 @@
 ## @file
 ## Script for the torches in the first room of Underground City II.
 
-import threading
+## The threading timer function for the effect.
+## @param progress Progress in the effect.
+def timer(progress, torches):
+    if progress == 0:
+        # Find the gate closer spawn point.
+        beacon = ReadyMap(me.map.GetPath("underground_city_5_3_-1")).LocateBeacon("uc_torch_gate_closer")
+
+        # If the gate closer spawn point has the monster spawned, make it go
+        # close the gate.
+        if beacon.env.enemy:
+            beacon.env.enemy.FindObject(archname = "waypoint", name = "wp1").f_cursed = True
+
+    # Go through the torches.
+    for torch in torches:
+        # Light/extinguish the torch.
+        torch.Apply(torch, APPLY_NO_EVENT)
+
+        # If the effect is ending, make the torches applyable again.
+        if progress == 6:
+            torch.f_splitting = False
+
+    if progress == 6:
+        return
+
+    Eval("timer(progress + 1, torches)", 0.5)
 
 def main():
     # The effect is going on, do not allow apply the torches.
@@ -35,41 +59,12 @@ def main():
     for torch in torches:
         torch.f_splitting = True
 
-    ## The threading timer function for the effect.
-    ## @param progress Progress in the effect.
-    def timer(progress):
-        if progress == 0:
-            # Find the gate closer spawn point.
-            beacon = ReadyMap(me.map.GetPath("underground_city_a_0602")).LocateBeacon("uc_torch_gate_closer")
-
-            # If the gate closer spawn point has the monster spawned, make it go
-            # close the gate.
-            if beacon.env.enemy:
-                beacon.env.enemy.FindObject(archname = "waypoint", name = "wp1").f_cursed = True
-
-        # Go through the torches.
-        for torch in torches:
-            # Light/extinguish the torch.
-            torch.Apply(torch, APPLY_NO_EVENT)
-
-            # If the effect is ending, make the torches applyable again.
-            if progress == 6:
-                torch.f_splitting = False
-
-        if progress == 6:
-            return
-
-        t = threading.Timer(0.5, timer, [progress + 1])
-        t.start()
-
     pl.Sound("gate_open.ogg")
     pl.DrawInfo("You hear the sound of old gears turning...", COLOR_YELLOW)
 
     # Apply the switch that opens the gate.
-    me.Apply(ReadyMap(me.map.GetPath("underground_city_a_0602")).LocateBeacon("uc_torch_switch").env, APPLY_TOGGLE)
+    me.Apply(ReadyMap(me.map.GetPath("underground_city_5_3_-1")).LocateBeacon("uc_torch_switch").env, APPLY_TOGGLE)
 
-    # Start the torches effect.
-    t = threading.Timer(0.5, timer, [0])
-    t.start()
+    Eval("timer(0, torches)", 0.5)
 
 main()

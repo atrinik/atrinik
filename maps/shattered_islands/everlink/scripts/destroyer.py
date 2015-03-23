@@ -12,7 +12,7 @@ def main():
         # Randomly calculate when to destroy an item.
         if random.random() <= 0.10:
             activator.map.Message(activator.x, activator.y, 5, "The {} destroys the {}!".format(activator.name, ob.GetName()), COLOR_RED)
-            ob.Remove()
+            ob.Destroy()
 
 # Whatever is triggering the destroyer must have an owner and the owner's
 # name must be 'magic wall'.

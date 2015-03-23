@@ -1,26 +1,26 @@
-/************************************************************************
-*            Atrinik, a Multiplayer Online Role Playing Game            *
-*                                                                       *
-*    Copyright (C) 2009-2012 Alex Tokar and Atrinik Development Team    *
-*                                                                       *
-* Fork from Crossfire (Multiplayer game for X-windows).                 *
-*                                                                       *
-* This program is free software; you can redistribute it and/or modify  *
-* it under the terms of the GNU General Public License as published by  *
-* the Free Software Foundation; either version 2 of the License, or     *
-* (at your option) any later version.                                   *
-*                                                                       *
-* This program is distributed in the hope that it will be useful,       *
-* but WITHOUT ANY WARRANTY; without even the implied warranty of        *
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
-* GNU General Public License for more details.                          *
-*                                                                       *
-* You should have received a copy of the GNU General Public License     *
-* along with this program; if not, write to the Free Software           *
-* Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.             *
-*                                                                       *
-* The author can be reached at admin@atrinik.org                        *
-************************************************************************/
+/*************************************************************************
+ *           Atrinik, a Multiplayer Online Role Playing Game             *
+ *                                                                       *
+ *   Copyright (C) 2009-2014 Alex Tokar and Atrinik Development Team     *
+ *                                                                       *
+ * Fork from Crossfire (Multiplayer game for X-windows).                 *
+ *                                                                       *
+ * This program is free software; you can redistribute it and/or modify  *
+ * it under the terms of the GNU General Public License as published by  *
+ * the Free Software Foundation; either version 2 of the License, or     *
+ * (at your option) any later version.                                   *
+ *                                                                       *
+ * This program is distributed in the hope that it will be useful,       *
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of        *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
+ * GNU General Public License for more details.                          *
+ *                                                                       *
+ * You should have received a copy of the GNU General Public License     *
+ * along with this program; if not, write to the Free Software           *
+ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.             *
+ *                                                                       *
+ * The author can be reached at admin@atrinik.org                        *
+ ************************************************************************/
 
 /**
  * @file
@@ -69,8 +69,7 @@ void objects_free(object *op)
     while (op) {
         if (op->itype == TYPE_SPELL) {
             spells_remove(op);
-        }
-        else if (op->itype == TYPE_SKILL) {
+        } else if (op->itype == TYPE_SKILL) {
             skills_remove(op);
         }
 
@@ -83,6 +82,7 @@ void objects_free(object *op)
         op = next;
     }
 }
+
 /**
  * Find an object inside another object, but not inside inventories.
  * @param op Object to search in.
@@ -111,8 +111,7 @@ object *object_find_object(object *op, sint32 tag)
     for (; op; op = op->next) {
         if (op->tag == tag) {
             return op;
-        }
-        else if (op->inv) {
+        } else if (op->inv) {
             object *tmp = object_find_object(op->inv, tag);
 
             if (tmp) {
@@ -167,46 +166,46 @@ object *object_find(sint32 tag)
  * @param op What to remove. */
 void object_remove(object *op)
 {
-    if (!op || op == cpl.ob || op == cpl.below || op == cpl.sack) {
+    if (op == NULL || op == cpl.ob || op == cpl.below || op == cpl.sack) {
         return;
     }
 
     if (op->itype == TYPE_SPELL) {
         spells_remove(op);
-    }
-    else if (op->itype == TYPE_SKILL) {
+    } else if (op->itype == TYPE_SKILL) {
         skills_remove(op);
-    }
-    else if (op->itype == TYPE_FORCE || op->itype == TYPE_POISONING) {
+    } else if (op->itype == TYPE_FORCE || op->itype == TYPE_POISONING) {
         widget_active_effects_remove(cur_widget[ACTIVE_EFFECTS_ID], op);
     }
 
-    if (op->inv) {
+    object_redraw(op);
+
+    if (op->inv != NULL) {
         object_remove_inventory(op);
     }
 
-    if (op->prev) {
+    if (op->prev != NULL) {
         op->prev->next = op->next;
-    }
-    else {
+    } else if (op->env != NULL) {
         op->env->inv = op->next;
     }
 
-    if (op->next) {
+    if (op->next != NULL) {
         op->next->prev = op->prev;
     }
 
     /* Add object to the list of free objects. */
     op->next = free_objects;
 
-    if (op->next) {
+    if (op->next != NULL) {
         op->next->prev = op;
     }
 
     free_objects = op;
 
     /* Clear the object so it can be reused. */
-    memset((char *) op + offsetof(object, prev), 0, sizeof(object) - offsetof(object, prev));
+    memset((char *) op + offsetof(object, prev), 0,
+            sizeof(object) - offsetof(object, prev));
 }
 
 /**
@@ -217,6 +216,8 @@ void object_remove_inventory(object *op)
     if (!op) {
         return;
     }
+
+    object_redraw(op);
 
     while (op->inv) {
         object_remove(op->inv);
@@ -247,8 +248,7 @@ static void object_add(object *env, object *op, int bflag)
         op->prev = NULL;
         env->inv = op;
         op->env = env;
-    }
-    else {
+    } else {
         for (tmp = env->inv; tmp && tmp->next; tmp = tmp->next) {
         }
 
@@ -258,8 +258,7 @@ static void object_add(object *env, object *op, int bflag)
 
         if (!tmp) {
             env->inv = op;
-        }
-        else {
+        } else {
             if (tmp->next) {
                 tmp->next->prev = op;
             }
@@ -299,6 +298,8 @@ object *object_create(object *env, sint32 tag, int bflag)
         object_add(env, op, bflag);
     }
 
+    object_redraw(op);
+
     return op;
 }
 
@@ -333,14 +334,46 @@ void object_send_mark(object *op)
 
     if (cpl.mark_count == op->tag) {
         cpl.mark_count = -1;
-    }
-    else {
+    } else {
         cpl.mark_count = op->tag;
     }
+
+    object_redraw(op);
 
     packet = packet_new(SERVER_CMD_ITEM_MARK, 8, 0);
     packet_append_uint32(packet, op->tag);
     socket_send_packet(packet);
+}
+
+void object_redraw(object *op)
+{
+    object *env;
+
+    assert(op != NULL);
+
+    if (op->env == NULL) {
+        return;
+    }
+
+    env = op->env;
+
+    if (env == cpl.sack) {
+        object *sack;
+
+        sack = object_find(cpl.container_tag);
+
+        if (sack != NULL) {
+            env = sack->env;
+        }
+    }
+
+    if (env == cpl.below) {
+        WIDGET_REDRAW_ALL(BELOW_INV_ID);
+    } else {
+        WIDGET_REDRAW_ALL(MAIN_INV_ID);
+        /* TODO: This could be more sophisticated... */
+        WIDGET_REDRAW_ALL(QUICKSLOT_ID);
+    }
 }
 
 /**
@@ -366,8 +399,9 @@ void objects_init(void)
 
 /**
  * Animate one object.
- * @param ob The object to animate. */
-static void animate_object(object *ob)
+ * @param ob The object to animate.
+ * @return 1 if the object changed face, 0 otherwise. */
+int object_animate(object *ob)
 {
     if (ob->animation_id > 0) {
         check_animation_status(ob->animation_id);
@@ -383,13 +417,39 @@ static void animate_object(object *ob)
 
             if (ob->direction > animations[ob->animation_id].facings) {
                 ob->face = animations[ob->animation_id].faces[ob->anim_state];
-            }
-            else {
+            } else {
                 ob->face = animations[ob->animation_id].faces[animations[ob->animation_id].frame * ob->direction + ob->anim_state];
             }
 
             ob->last_anim = 0;
+
+            return 1;
         }
+    }
+
+    return 0;
+}
+
+/**
+ * Animate the inventory of an object.
+ * @param op The object, such as cpl.ob, cpl.below, etc.
+ */
+static void animate_inventory(object *op)
+{
+    object *tmp;
+
+    for (tmp = op->inv; tmp != NULL; tmp = tmp->next) {
+        if (!object_animate(tmp)) {
+            continue;
+        }
+
+        /* Applied item inside the player, redraw the player doll -- most items
+         * that can be applied are visible in the player doll. */
+        if (op == cpl.ob && tmp->flags & CS_FLAG_APPLIED) {
+            WIDGET_REDRAW_ALL(PDOLL_ID);
+        }
+
+        object_redraw(tmp);
     }
 }
 
@@ -397,26 +457,9 @@ static void animate_object(object *ob)
  * Animate all possible objects. */
 void animate_objects(void)
 {
-    object *ob;
-
-    if (cpl.ob) {
-        /* For now, only the players inventory needs to be animated */
-        for (ob = cpl.ob->inv; ob; ob = ob->next) {
-            animate_object(ob);
-        }
-    }
-
-    if (cpl.below) {
-        for (ob = cpl.below->inv; ob; ob = ob->next) {
-            animate_object(ob);
-        }
-    }
-
-    if (cpl.sack) {
-        for (ob = cpl.sack->inv; ob; ob = ob->next) {
-            animate_object(ob);
-        }
-    }
+    animate_inventory(cpl.ob);
+    animate_inventory(cpl.below);
+    animate_inventory(cpl.sack);
 }
 
 /**
@@ -426,10 +469,11 @@ void animate_objects(void)
  * @param tmp Object to show.
  * @param x X position.
  * @param y Y position. */
-void object_show_centered(SDL_Surface *surface, object *tmp, int x, int y)
+void object_show_centered(SDL_Surface *surface, object *tmp, int x, int y,
+        int w, int h)
 {
     int temp, xstart, xlen, ystart, ylen;
-    sint16 face;
+    uint16 face;
     SDL_Rect box;
 
     if (!FaceList[tmp->face].sprite) {
@@ -440,12 +484,18 @@ void object_show_centered(SDL_Surface *surface, object *tmp, int x, int y)
     face = tmp->face;
 
     /* If the item is animated, try to use the first animation face for
-    * coordinate calculations to prevent 'jumping' of the animation. */
+     * coordinate calculations to prevent 'jumping' of the animation. */
     if (tmp->animation_id > 0) {
         check_animation_status(tmp->animation_id);
 
-        if (animations[tmp->animation_id].num_animations && animations[tmp->animation_id].facings <= 1 && FaceList[animations[tmp->animation_id].faces[0]].sprite) {
-            face = animations[tmp->animation_id].faces[0];
+        if (animations[tmp->animation_id].num_animations) {
+            uint16 face_id;
+
+            face_id = animations[tmp->animation_id].frame * tmp->direction;
+
+            if (FaceList[animations[tmp->animation_id].faces[face_id]].sprite) {
+                face = animations[tmp->animation_id].faces[face_id];
+            }
         }
     }
 
@@ -454,28 +504,26 @@ void object_show_centered(SDL_Surface *surface, object *tmp, int x, int y)
     ystart = FaceList[face].sprite->border_up;
     ylen = FaceList[face].sprite->bitmap->h - ystart - FaceList[face].sprite->border_down;
 
-    if (xlen > INVENTORY_ICON_SIZE) {
-        box.w = INVENTORY_ICON_SIZE;
-        temp = (xlen - INVENTORY_ICON_SIZE) / 2;
+    if (xlen > w) {
+        box.w = w;
+        temp = (xlen - w) / 2;
         box.x = xstart + temp;
         xstart = 0;
-    }
-    else {
+    } else {
         box.w = xlen;
         box.x = xstart;
-        xstart = (INVENTORY_ICON_SIZE - xlen) / 2;
+        xstart = (w - xlen) / 2;
     }
 
-    if (ylen > INVENTORY_ICON_SIZE) {
-        box.h = INVENTORY_ICON_SIZE;
-        temp = (ylen - INVENTORY_ICON_SIZE) / 2;
+    if (ylen > h) {
+        box.h = h;
+        temp = (ylen - h) / 2;
         box.y = ystart + temp;
         ystart = 0;
-    }
-    else {
+    } else {
         box.h = ylen;
         box.y = ystart;
-        ystart = (INVENTORY_ICON_SIZE - ylen) / 2;
+        ystart = (h - ylen) / 2;
     }
 
     if (face != tmp->face) {
@@ -494,15 +542,14 @@ void object_show_centered(SDL_Surface *surface, object *tmp, int x, int y)
             box.x = -xstart;
             box.w = FaceList[tmp->face].sprite->bitmap->w + xstart;
 
-            if (box.w > INVENTORY_ICON_SIZE) {
-                box.w = INVENTORY_ICON_SIZE;
+            if (box.w > w) {
+                box.w = w;
             }
 
             xstart = 0;
-        }
-        else {
-            if (box.w + xstart > INVENTORY_ICON_SIZE) {
-                box.w -= ((box.w + xstart) - INVENTORY_ICON_SIZE);
+        } else {
+            if (box.w + xstart > w) {
+                box.w -= ((box.w + xstart) - w);
             }
         }
 
@@ -510,15 +557,14 @@ void object_show_centered(SDL_Surface *surface, object *tmp, int x, int y)
             box.y = -ystart;
             box.h = FaceList[tmp->face].sprite->bitmap->h + ystart;
 
-            if (box.h > INVENTORY_ICON_SIZE) {
-                box.h = INVENTORY_ICON_SIZE;
+            if (box.h > h) {
+                box.h = h;
             }
 
             ystart = 0;
-        }
-        else {
-            if (box.h + ystart > INVENTORY_ICON_SIZE) {
-                box.h -= ((box.h + ystart) - INVENTORY_ICON_SIZE);
+        } else {
+            if (box.h + ystart > h) {
+                box.h -= ((box.h + ystart) - h);
             }
         }
     }

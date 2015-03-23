@@ -1,26 +1,26 @@
-/************************************************************************
-*            Atrinik, a Multiplayer Online Role Playing Game            *
-*                                                                       *
-*    Copyright (C) 2009-2012 Alex Tokar and Atrinik Development Team    *
-*                                                                       *
-* Fork from Crossfire (Multiplayer game for X-windows).                 *
-*                                                                       *
-* This program is free software; you can redistribute it and/or modify  *
-* it under the terms of the GNU General Public License as published by  *
-* the Free Software Foundation; either version 2 of the License, or     *
-* (at your option) any later version.                                   *
-*                                                                       *
-* This program is distributed in the hope that it will be useful,       *
-* but WITHOUT ANY WARRANTY; without even the implied warranty of        *
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
-* GNU General Public License for more details.                          *
-*                                                                       *
-* You should have received a copy of the GNU General Public License     *
-* along with this program; if not, write to the Free Software           *
-* Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.             *
-*                                                                       *
-* The author can be reached at admin@atrinik.org                        *
-************************************************************************/
+/*************************************************************************
+ *           Atrinik, a Multiplayer Online Role Playing Game             *
+ *                                                                       *
+ *   Copyright (C) 2009-2014 Alex Tokar and Atrinik Development Team     *
+ *                                                                       *
+ * Fork from Crossfire (Multiplayer game for X-windows).                 *
+ *                                                                       *
+ * This program is free software; you can redistribute it and/or modify  *
+ * it under the terms of the GNU General Public License as published by  *
+ * the Free Software Foundation; either version 2 of the License, or     *
+ * (at your option) any later version.                                   *
+ *                                                                       *
+ * This program is distributed in the hope that it will be useful,       *
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of        *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
+ * GNU General Public License for more details.                          *
+ *                                                                       *
+ * You should have received a copy of the GNU General Public License     *
+ * along with this program; if not, write to the Free Software           *
+ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.             *
+ *                                                                       *
+ * The author can be reached at admin@atrinik.org                        *
+ ************************************************************************/
 
 /**
  * @file
@@ -50,8 +50,7 @@ sint16 arrow_get_wc(object *op, object *bow, object *arrow)
         }
 
         level = skill->level;
-    }
-    else {
+    } else {
         level = op->level;
     }
 
@@ -81,8 +80,7 @@ sint16 arrow_get_damage(object *op, object *bow, object *arrow)
         }
 
         level = skill->level;
-    }
-    else {
+    } else {
         level = op->level;
     }
 
@@ -92,8 +90,7 @@ sint16 arrow_get_damage(object *op, object *bow, object *arrow)
 
     if (bow->item_condition > arrow->item_condition) {
         dam = (sint16) (((float) dam / 100.0f) * (float) bow->item_condition);
-    }
-    else {
+    } else {
         dam = (sint16) (((float) dam / 100.0f) * (float) arrow->item_condition);
     }
 
@@ -118,8 +115,7 @@ object *arrow_find(object *op, shstr *type)
         for (tmp = op->inv; tmp; tmp = tmp->below) {
             if (tmp->type == ARROW && tmp->race == type) {
                 return tmp;
-            }
-            else if (tmp->type == CONTAINER && tmp->race == type && QUERY_FLAG(tmp, FLAG_APPLIED)) {
+            } else if (tmp->type == CONTAINER && tmp->race == type && QUERY_FLAG(tmp, FLAG_APPLIED)) {
                 tmp2 = arrow_find(tmp, type);
 
                 if (tmp2) {
@@ -146,9 +142,8 @@ object *arrow_find(object *op, shstr *type)
     /* The readied item is an arrow, so simply return it. */
     if (tmp->type == ARROW) {
         return tmp;
-    }
-    /* A quiver, search through it for arrows. */
-    else if (tmp->type == CONTAINER) {
+    } else if (tmp->type == CONTAINER) {
+        /* A quiver, search through it for arrows. */
         return arrow_find(tmp, type);
     }
 
@@ -208,8 +203,7 @@ static int ranged_fire_func(object *op, object *shooter, int dir, double *delay)
     if (shooter->type == PLAYER) {
         op->stats.dam += dam_bonus[shooter->stats.Str] / 2;
         op->stats.wc += thaco_bonus[shooter->stats.Dex];
-    }
-    else {
+    } else {
         op->stats.wc += 5;
     }
 

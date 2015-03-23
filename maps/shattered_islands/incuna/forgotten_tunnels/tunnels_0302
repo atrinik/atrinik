@@ -224,7 +224,7 @@ y 21
 arch slug_giant
 type 83
 level 3
-Wis 2
+wis 2
 direction 3
 end
 end
@@ -386,7 +386,7 @@ x 3
 y 4
 arch kobold_guard
 level 3
-Wis 2
+wis 2
 type 83
 end
 end
@@ -428,7 +428,7 @@ y 15
 arch kobold_guard
 name kobold mushroom protector
 level 2
-Wis 2
+wis 2
 type 83
 end
 end
@@ -823,7 +823,7 @@ name kobold mushroom collector
 randomitems mob_mage_l9
 wc_range 12
 unaggressive 1
-Wis 2
+wis 2
 type 83
 end
 end
@@ -893,7 +893,7 @@ name kobold mushroom collector
 randomitems mob_mage_l9
 wc_range 12
 unaggressive 1
-Wis 2
+wis 2
 type 83
 end
 end
@@ -1093,7 +1093,7 @@ arch kobold
 name kobold hunter
 level 3
 unaggressive 1
-Wis 2
+wis 2
 type 83
 end
 end
@@ -1139,7 +1139,7 @@ y 10
 arch cube_gel
 type 83
 level 3
-Wis 2
+wis 2
 end
 end
 arch floor_sand_d2
@@ -1314,7 +1314,7 @@ name kobold mushroom collector
 randomitems mob_mage_l9
 wc_range 12
 unaggressive 1
-Wis 2
+wis 2
 type 83
 end
 end
@@ -1486,7 +1486,7 @@ name kobold mushroom collector
 randomitems mob_mage_l9
 wc_range 12
 unaggressive 1
-Wis 2
+wis 2
 type 83
 end
 end
@@ -1783,7 +1783,7 @@ x 13
 y 4
 arch kobold_fighter
 level 3
-Wis 2
+wis 2
 type 83
 end
 end
@@ -2002,7 +2002,7 @@ x 15
 y 9
 arch kobold_fighter
 level 3
-Wis 2
+wis 2
 type 83
 end
 end
@@ -2166,7 +2166,7 @@ x 16
 y 14
 arch kobold_guard
 level 3
-Wis 2
+wis 2
 type 83
 end
 end
@@ -2348,7 +2348,7 @@ x 17
 y 20
 arch cube_gel
 level 3
-Wis 2
+wis 2
 type 83
 end
 end

@@ -576,7 +576,7 @@ level 24
 can_cast_spell 0
 sp 0
 maxsp 0
-Pow 0
+pow 0
 magic 0
 friendly 1
 type 83

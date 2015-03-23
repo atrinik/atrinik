@@ -9,7 +9,5 @@ no_pick 1
 walk_on 1
 fly_on 1
 animation spinner
-is_animated 1
 is_turnable 1
-anim_speed 3
 end

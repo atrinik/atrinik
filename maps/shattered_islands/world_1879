@@ -2,7 +2,7 @@ arch map
 name Lyondale Archipelago
 msg
 Created:  2009-08-09 Alex Tokar
-Modified: 2011-11-03 Alex Tokar
+Modified: 2015-01-04 Alex Tokar
 endmsg
 width 24
 height 24
@@ -16,6 +16,7 @@ tile_path_5 world_1980
 tile_path_6 world_1978
 tile_path_7 world_1778
 tile_path_8 world_1780
+tile_path_9 world_1_1879
 bg_music campfire_tales.mid
 region lyondale_archipelago_wizard
 weather snow_light
@@ -82,19 +83,22 @@ end
 arch snow2
 y 18
 end
-arch snow4
+arch fstone1b
 y 19
 end
-arch tree_branch1_winter
+arch snow_fmask.105
 y 19
 end
-arch snow1
+arch fstone1b
 y 20
 end
-arch snow1
+arch fstone1c
 y 21
 end
-arch snow4
+arch fstone1c
+y 22
+end
+arch snow_fmask.101
 y 22
 end
 arch snow3
@@ -180,8 +184,8 @@ x 1
 y 16
 arch snowman_evil
 level 22
-Con 3
-Dex 2
+con 3
+dex 2
 can_use_weapon 1
 can_use_bow 1
 unaggressive 1
@@ -206,39 +210,39 @@ arch snow1
 x 1
 y 18
 end
-arch snow3
+arch small_stones
+x 1
+y 18
+end
+arch fstone1c
 x 1
 y 19
 end
+arch snow_fmask.105
+x 1
+y 19
+end
+arch fstone1c
+x 1
+y 20
+end
+arch fstone1c
+x 1
+y 21
+end
+arch fstone1b
+x 1
+y 22
+end
+arch snow_fmask.101
+x 1
+y 22
+end
 arch snow4
-x 1
-y 20
-end
-arch fwall_fstone2c
-x 1
-y 20
-end
-arch floor_sand_d2
-x 1
-y 21
-end
-arch fwall_fstone2
-x 1
-y 21
-end
-arch floor_sand_d4
-x 1
-y 22
-end
-arch fwall_fstone2
-x 1
-y 22
-end
-arch floor_sand_d4
 x 1
 y 23
 end
-arch fwall_fstone2
+arch tree_branch1
 x 1
 y 23
 end
@@ -333,38 +337,39 @@ arch tree_branch1
 x 2
 y 17
 end
-arch snow4
+arch fstone1c
 x 2
 y 18
 end
-arch snow1
+arch snow_fmask.104
+x 2
+y 18
+end
+arch fstone1c
 x 2
 y 19
 end
-arch floor_sand_d2
+arch snow_fmask.114
+x 2
+y 19
+end
+arch fstone1c
 x 2
 y 20
 end
-arch fwall_fstone2
-x 2
-y 20
-end
-arch floor_sand_d2
+arch fstone1c
 x 2
 y 21
 end
-arch map_info
-hp 21
-sp 2
-title none
-x 2
-y 21
-end
-arch floor_sand_d2
+arch fstone1c
 x 2
 y 22
 end
-arch floor_sand_d2
+arch snow_fmask.101
+x 2
+y 22
+end
+arch snow3
 x 2
 y 23
 end
@@ -443,43 +448,39 @@ arch snow2
 x 3
 y 17
 end
-arch snow1
+arch small_stones
+x 3
+y 17
+end
+arch fstone1b
 x 3
 y 18
 end
-arch snow2
+arch snow_fmask.105
+x 3
+y 18
+end
+arch fstone1c
 x 3
 y 19
 end
-arch floor_sand_d2
+arch fstone1b
 x 3
 y 20
 end
-arch fwall_fstone2
-x 3
-y 20
-end
-arch floor_sand_d1
+arch fstone1c
 x 3
 y 21
 end
-arch small_stones
-x 3
-y 21
-end
-arch floor_sand_d4
+arch fstone1c
 x 3
 y 22
 end
-arch wall_stone14_8
+arch snow_fmask.101
 x 3
 y 22
 end
-arch floor_sand_d2
-x 3
-y 23
-end
-arch wall_stone14_3
+arch snow4
 x 3
 y 23
 end
@@ -566,43 +567,35 @@ arch snow2
 x 4
 y 17
 end
-arch snow3
+arch fstone1c
 x 4
 y 18
 end
-arch snow2
+arch snow_fmask.105
+x 4
+y 18
+end
+arch fstone1c
 x 4
 y 19
 end
-arch floor_sand_d1
+arch fstone1b
 x 4
 y 20
 end
-arch fwall_fstone2
-x 4
-y 20
-end
-arch floor_sand_d1
+arch fstone1c
 x 4
 y 21
 end
-arch floor_sand_d1
+arch fstone1b
 x 4
 y 22
 end
-arch wall_stone14_1
+arch snow_fmask.101
 x 4
 y 22
 end
-arch floor_bw1
-x 4
-y 23
-end
-arch candlelight1.101
-x 4
-y 23
-end
-arch light3
+arch snow3
 x 4
 y 23
 end
@@ -685,43 +678,39 @@ arch snow3
 x 5
 y 17
 end
-arch snow3
+arch fstone1b
 x 5
 y 18
 end
-arch snow1
+arch snow_fmask.105
+x 5
+y 18
+end
+arch fstone1c
 x 5
 y 19
 end
-arch tree_branch1
-x 5
-y 19
-end
-arch floor_sand_d4
+arch fstone1b
 x 5
 y 20
 end
-arch fwall_fstone2
-x 5
-y 20
-end
-arch floor_sand_d3
+arch fstone1c
 x 5
 y 21
 end
-arch floor_sand_d1
+arch snow_fmask.118
+x 5
+y 21
+end
+arch fstone1c
 x 5
 y 22
 end
-arch wall_stone14_1
+arch snow_fmask.108
 x 5
 y 22
 end
-arch floor_bw1
-x 5
-y 23
-end
-arch table_lab1.111
+arch snow2
 x 5
 y 23
 end
@@ -808,39 +797,39 @@ arch snow2
 x 6
 y 17
 end
-arch snow1
+arch fstone1c
 x 6
 y 18
 end
-arch snow1
+arch snow_fmask.105
+x 6
+y 18
+end
+arch fstone1c
 x 6
 y 19
 end
-arch floor_sand_d4
+arch fstone1c
 x 6
 y 20
 end
-arch fwall_fstone2
-x 6
-y 20
-end
-arch floor_sand_d4
+arch fstone1c
 x 6
 y 21
 end
-arch floor_sand_d3
+arch snow_fmask.101
+x 6
+y 21
+end
+arch snow2
 x 6
 y 22
 end
-arch wall_stone14_1
-x 6
-y 22
-end
-arch floor_bw1
+arch snow4
 x 6
 y 23
 end
-arch table_lab2.111
+arch tree_branch3
 x 6
 y 23
 end
@@ -903,7 +892,7 @@ arch snow4
 x 7
 y 13
 end
-arch snowy_pinetree2
+arch snowy_autree2
 x 7
 y 13
 end
@@ -927,43 +916,39 @@ arch snow2
 x 7
 y 17
 end
-arch snow2
+arch fstone1b
 x 7
 y 18
 end
-arch snow2
+arch snow_fmask.105
+x 7
+y 18
+end
+arch fstone1b
 x 7
 y 19
 end
-arch floor_sand_d4
+arch fstone1b
 x 7
 y 20
 end
-arch fwall_fstone2
-x 7
-y 20
-end
-arch floor_sand_d2
+arch fstone1c
 x 7
 y 21
 end
-arch floor_sand_d4
+arch snow_fmask.101
+x 7
+y 21
+end
+arch snow4
 x 7
 y 22
 end
-arch wall_stone14_1
-x 7
-y 22
-end
-arch picture6.151
-x 7
-y 22
-end
-arch floor_bw1
+arch snow4
 x 7
 y 23
 end
-arch table_lab3.111
+arch snowy_autree2
 x 7
 y 23
 end
@@ -1054,43 +1039,43 @@ arch snow2
 x 8
 y 17
 end
-arch snow4
+arch fstone1c
 x 8
 y 18
 end
-arch tree_burned2
+arch snow_fmask.105
 x 8
 y 18
 end
-arch snow2
+arch fstone1c
 x 8
 y 19
 end
-arch floor_sand_d3
+arch fstone1c
 x 8
 y 20
 end
-arch fwall_fstone2
-x 8
-y 20
-end
-arch floor_sand_d4
+arch fstone1b
 x 8
 y 21
 end
-arch floor_sand_d4
+arch snow_fmask.112
+x 8
+y 21
+end
+arch fstone1b
 x 8
 y 22
 end
-arch wall_stone14_1
+arch snow_fmask.102
 x 8
 y 22
 end
-arch floor_bw1
+arch snow1
 x 8
 y 23
 end
-arch table_lab3.111
+arch small_stones
 x 8
 y 23
 end
@@ -1157,7 +1142,7 @@ arch snow2
 x 9
 y 14
 end
-arch snowy_tree_bigb1
+arch snowy_tree_big2
 x 9
 y 14
 end
@@ -1177,43 +1162,39 @@ arch snow4
 x 9
 y 17
 end
-arch snow4
+arch fstone1b
 x 9
 y 18
 end
-arch snow1
+arch snow_fmask.105
+x 9
+y 18
+end
+arch fstone1b
 x 9
 y 19
 end
-arch floor_sand_d2
+arch fstone1b
 x 9
 y 20
 end
-arch fwall_fstone2
-x 9
-y 20
-end
-arch floor_sand_d3
+arch fstone1b
 x 9
 y 21
 end
-arch rock1
-x 9
-y 21
-end
-arch floor_sand_d1
+arch fstone1c
 x 9
 y 22
 end
-arch wall_stone14_1
+arch snow_fmask.112
 x 9
 y 22
 end
-arch floor_bw1
+arch fstone1b
 x 9
 y 23
 end
-arch table_lab1.111
+arch snow_fmask.102
 x 9
 y 23
 end
@@ -1268,11 +1249,15 @@ arch snow3
 x 10
 y 11
 end
-arch snowy_tree_big2
+arch snowy_tree_bigb1
 x 10
 y 11
 end
 arch snow3
+x 10
+y 12
+end
+arch small_stones
 x 10
 y 12
 end
@@ -1296,51 +1281,39 @@ arch snow3
 x 10
 y 17
 end
-arch snow1
+arch fstone1b
 x 10
 y 18
 end
-arch snow1
+arch snow_fmask.106
+x 10
+y 18
+end
+arch fstone1b
 x 10
 y 19
 end
-arch floor_sand_d4
+arch snow_fmask.116
+x 10
+y 19
+end
+arch fstone1c
 x 10
 y 20
 end
-arch fwall_fstone2
-x 10
-y 20
-end
-arch floor_sand_d4
+arch fstone1c
 x 10
 y 21
 end
-arch small_stones
-x 10
-y 21
-end
-arch floor_sand_d1
+arch fstone1c
 x 10
 y 22
 end
-arch wall_stone14_1
-x 10
-y 22
-end
-arch wmask_fire_on_1
-x 10
-y 22
-end
-arch floor_bw1
+arch fstone1b
 x 10
 y 23
 end
-arch candlelight3.101
-x 10
-y 23
-end
-arch light3
+arch snow_fmask.112
 x 10
 y 23
 end
@@ -1435,35 +1408,27 @@ arch snow3
 x 11
 y 18
 end
-arch snow2
+arch fstone1c
 x 11
 y 19
 end
-arch floor_sand_d1
+arch snow_fmask.105
+x 11
+y 19
+end
+arch fstone1b
 x 11
 y 20
 end
-arch fwall_fstone2
-x 11
-y 20
-end
-arch floor_sand_d4
+arch fstone1c
 x 11
 y 21
 end
-arch floor_sand_d1
+arch fstone1b
 x 11
 y 22
 end
-arch wall_stone14_1
-x 11
-y 22
-end
-arch floor_bw1
-x 11
-y 23
-end
-arch wall_stone14_3
+arch fstone1c
 x 11
 y 23
 end
@@ -1546,39 +1511,39 @@ arch snow1
 x 12
 y 17
 end
+arch small_stones
+x 12
+y 17
+end
 arch snow3
 x 12
 y 18
 end
-arch snow1
+arch fstone1c
 x 12
 y 19
 end
-arch floor_sand_d3
+arch snow_fmask.105
+x 12
+y 19
+end
+arch fstone1c
 x 12
 y 20
 end
-arch fwall_fstone2
-x 12
-y 20
-end
-arch floor_sand_d3
+arch fstone1c
 x 12
 y 21
 end
-arch tree27
-x 12
-y 21
-end
-arch floor_sand_d2
+arch fstone1c
 x 12
 y 22
 end
-arch floor_sand_d2
+arch fstone1c
 x 12
 y 23
 end
-arch small_stones
+arch snow_fmask.118
 x 12
 y 23
 end
@@ -1633,7 +1598,7 @@ arch snow3
 x 13
 y 11
 end
-arch snowy_tree_big1
+arch snowy_tree1
 x 13
 y 11
 end
@@ -1649,7 +1614,7 @@ arch snow4
 x 13
 y 14
 end
-arch snowy_tree_big1
+arch snowy_treeb1
 x 13
 y 14
 end
@@ -1669,58 +1634,31 @@ arch snow3
 x 13
 y 18
 end
-arch snow3
+arch fstone1b
 x 13
 y 19
 end
-arch floor_sand_d2
+arch snow_fmask.105
+x 13
+y 19
+end
+arch fstone1c
 x 13
 y 20
 end
-arch fwall_fstone2
-x 13
-y 20
-end
-arch floor_sand_d1
+arch fstone1b
 x 13
 y 21
 end
-arch fstone1m11
-x 13
-y 21
-end
-arch spawn_point
-x 13
-y 21
-arch mage_old
-msg
-@match ^hello$
-Welcome to the Wizards' Tower. The area is protected by magic; monsters outside cannot touch you. No snow can fall here, but it's still pretty cold.
-
-The grass around the lake you can see from here is also magically enchanted.
-endmsg
-name Airllew
-animation thelra_female
-level 30
-race thelra
-is_male 0
-is_female 1
-type 83
-end
-end
-arch floor_sand_d4
+arch fstone1c
 x 13
 y 22
 end
-arch fstone1m11
-x 13
-y 22
-end
-arch floor_sand_d4
+arch fstone1c
 x 13
 y 23
 end
-arch fstone1m11
+arch snow_fmask.101
 x 13
 y 23
 end
@@ -1787,67 +1725,78 @@ arch snow3
 x 14
 y 13
 end
+arch spawn_point
+x 14
+y 13
+arch snowman_evil
+level 22
+con 3
+dex 2
+can_use_weapon 1
+can_use_bow 1
+unaggressive 1
+random_move 1
+item_race 3
+item_level 3
+type 83
+arch snowball2
+sys_object 1
+sub_type 132
+race rock
+end
+arch ability_stone_throw
+end
+end
+end
 arch snow4
 x 14
 y 14
 end
-arch snow2
+arch snow1
 x 14
 y 15
 end
-arch snow1
+arch snow2
 x 14
 y 16
 end
-arch floor_sand_d4
+arch snow4
 x 14
 y 17
-end
-arch snow_fmask.104
-x 14
-y 17
-end
-arch floor_sand_d3
-x 14
-y 18
-end
-arch snow_fmask.103
-x 14
-y 18
-end
-arch floor_sand_d3
-x 14
-y 19
-end
-arch snow_fmask.103
-x 14
-y 19
-end
-arch floor_sand_d4
-x 14
-y 20
-end
-arch fwall_fstone2
-x 14
-y 20
-end
-arch fstone1b
-x 14
-y 21
-end
-arch lantern2_magic.131
-x 14
-y 21
-end
-arch light5
-x 14
-y 21
 end
 arch fstone1c
 x 14
-y 22
+y 18
+end
+arch snow_fmask.104
+x 14
+y 18
 end
 arch fstone1b
+x 14
+y 19
+end
+arch snow_fmask.114
+x 14
+y 19
+end
+arch fstone1b
+x 14
+y 20
+end
+arch fstone1b
+x 14
+y 21
+end
+arch fstone1b
+x 14
+y 22
+end
+arch fstone1c
+x 14
+y 23
+end
+arch snow_fmask.101
 x 14
 y 23
 end
@@ -1894,7 +1843,7 @@ arch snow4
 x 15
 y 9
 end
-arch snowy_tree_big2
+arch snowy_burnedtree2
 x 15
 y 9
 end
@@ -1918,40 +1867,31 @@ arch snow4
 x 15
 y 14
 end
-arch snow2
+arch snow4
 x 15
 y 15
 end
-arch floor_sand_d4
+arch snow2
 x 15
 y 16
 end
-arch snow_fmask.104
-x 15
-y 16
-end
-arch floor_sand_d2
+arch snow2
 x 15
 y 17
 end
-arch snow_fmask.114
-x 15
-y 17
-end
-arch floor_sand_d4
+arch fstone1b
 x 15
 y 18
 end
-arch floor_sand_d4
+arch snow_fmask.105
+x 15
+y 18
+end
+arch fstone1c
 x 15
 y 19
 end
-arch floor_sand_d1
-player_only 1
-x 15
-y 20
-end
-arch gate1_locked
+arch fstone1c
 x 15
 y 20
 end
@@ -1959,118 +1899,118 @@ arch fstone1b
 x 15
 y 21
 end
-arch fstone1c
-x 15
-y 22
-end
 arch fstone1b
 x 15
-y 23
-end
-arch water_lt2
-x 16
-end
-arch water_lt2
-x 16
-y 1
-end
-arch water_lt
-x 16
-y 2
-end
-arch water_lt2
-x 16
-y 3
-end
-arch water_lt4
-x 16
-y 4
-end
-arch water_lt4
-x 16
-y 5
-end
-arch water_lt4
-x 16
-y 6
-end
-arch water_lt
-x 16
-y 7
-end
-arch snow_fmask.101
-x 16
-y 7
-end
-arch snow3
-x 16
-y 8
-end
-arch snow4
-x 16
-y 9
-end
-arch snow1
-x 16
-y 10
-end
-arch snow1
-x 16
-y 11
-end
-arch snow3
-x 16
-y 12
-end
-arch snow1
-x 16
-y 13
-end
-arch snow4
-x 16
-y 14
-end
-arch floor_sand_d2
-x 16
-y 15
-end
-arch snow_fmask.104
-x 16
-y 15
-end
-arch floor_sand_d2
-x 16
-y 16
-end
-arch snow_fmask.114
-x 16
-y 16
-end
-arch floor_sand_d2
-x 16
-y 17
-end
-arch floor_sand_d2
-x 16
-y 18
+y 22
 end
 arch snow_fmask.118
+x 15
+y 22
+end
+arch fstone1c
+x 15
+y 23
+end
+arch snow_fmask.108
+x 15
+y 23
+end
+arch water_lt2
+x 16
+end
+arch water_lt2
+x 16
+y 1
+end
+arch water_lt
+x 16
+y 2
+end
+arch water_lt2
+x 16
+y 3
+end
+arch water_lt4
+x 16
+y 4
+end
+arch water_lt4
+x 16
+y 5
+end
+arch water_lt4
+x 16
+y 6
+end
+arch water_lt
+x 16
+y 7
+end
+arch snow_fmask.101
+x 16
+y 7
+end
+arch snow3
+x 16
+y 8
+end
+arch snow4
+x 16
+y 9
+end
+arch snow1
+x 16
+y 10
+end
+arch snow1
+x 16
+y 11
+end
+arch small_stones
+x 16
+y 11
+end
+arch snow3
+x 16
+y 12
+end
+arch snow1
+x 16
+y 13
+end
+arch snow4
+x 16
+y 14
+end
+arch snow4
+x 16
+y 15
+end
+arch snow4
+x 16
+y 16
+end
+arch tree_branch3
+x 16
+y 16
+end
+arch snow1
+x 16
+y 17
+end
+arch fstone1b
 x 16
 y 18
 end
-arch floor_sand_d4
+arch snow_fmask.105
+x 16
+y 18
+end
+arch fstone1c
 x 16
 y 19
 end
-arch snow_fmask.107
-x 16
-y 19
-end
-arch floor_sand_d4
-x 16
-y 20
-end
-arch fwall_fstone2
+arch fstone1c
 x 16
 y 20
 end
@@ -2078,19 +2018,15 @@ arch fstone1c
 x 16
 y 21
 end
-arch lantern2_magic.131
-x 16
-y 21
-end
-arch light5
-x 16
-y 21
-end
-arch fstone1b
+arch fstone1c
 x 16
 y 22
 end
-arch fstone1b
+arch snow_fmask.101
+x 16
+y 22
+end
+arch snow1
 x 16
 y 23
 end
@@ -2153,7 +2089,7 @@ arch snow2
 x 17
 y 12
 end
-arch snowy_pinetree2
+arch snowy_tree_bigb1
 x 17
 y 12
 end
@@ -2165,75 +2101,59 @@ arch snow3
 x 17
 y 14
 end
-arch floor_sand_d4
+arch snow4
 x 17
 y 15
 end
-arch snow_fmask.105
-x 17
-y 15
-end
-arch floor_sand_d2
+arch snow1
 x 17
 y 16
 end
-arch floor_sand_d2
+arch snow3
 x 17
 y 17
 end
-arch floor_sand_d3
+arch small_stones
+x 17
+y 17
+end
+arch fstone1b
 x 17
 y 18
 end
-arch snow_fmask.101
+arch snow_fmask.105
 x 17
 y 18
 end
-arch snow2
+arch fstone1b
 x 17
 y 19
 end
-arch floor_sand_d4
+arch fstone1c
 x 17
 y 20
 end
-arch fwall_fstone2
-x 17
-y 20
-end
-arch floor_sand_d1
+arch fstone1b
 x 17
 y 21
 end
-arch fstone1m9
+arch snow_fmask.118
 x 17
 y 21
 end
-arch flagwall_short_brick1.181
-x 17
-y 21
-end
-arch floor_sand_d1
+arch fstone1c
 x 17
 y 22
 end
-arch fstone1m9
+arch snow_fmask.108
 x 17
 y 22
 end
-arch flagwall_short_brick1.131
-x 17
-y 22
-end
-arch floor_sand_d2
+arch snow1
 x 17
 y 23
 end
-arch fstone1m9
-x 17
-y 23
-end
-arch flagwall_short_brick1.131
+arch small_stones
 x 17
 y 23
 end
@@ -2284,7 +2204,7 @@ arch snow4
 x 18
 y 10
 end
-arch snowy_burnedtree1
+arch snowy_treeb1
 x 18
 y 10
 end
@@ -2304,65 +2224,55 @@ arch snow2
 x 18
 y 14
 end
-arch floor_sand_d3
+arch snow1
 x 18
 y 15
-end
-arch snow_fmask.105
-x 18
-y 15
-end
-arch floor_sand_d3
-x 18
-y 16
-end
-arch floor_sand_d1
-x 18
-y 17
-end
-arch snow_fmask.118
-x 18
-y 17
-end
-arch floor_sand_d2
-x 18
-y 18
-end
-arch snow_fmask.108
-x 18
-y 18
 end
 arch snow3
 x 18
+y 16
+end
+arch snowy_pinetree2
+x 18
+y 16
+end
+arch snow3
+x 18
+y 17
+end
+arch fstone1c
+x 18
+y 18
+end
+arch snow_fmask.105
+x 18
+y 18
+end
+arch fstone1c
+x 18
 y 19
 end
-arch floor_sand_d1
+arch fstone1c
 x 18
 y 20
 end
-arch fwall_fstone2
-x 18
-y 20
-end
-arch floor_sand_d2
+arch fstone1c
 x 18
 y 21
 end
-arch flagwall_short_brick1.111
+arch snow_fmask.101
 x 18
 y 21
 end
-arch grassd_3
-no_pass 1
+arch snow4
 x 18
 y 22
 end
-arch plant_flower3
+arch snow2
 x 18
-y 22
+y 23
 end
-arch grassd_6
-no_pass 1
+arch tree_branch1_winter
 x 18
 y 23
 end
@@ -2437,64 +2347,51 @@ arch snow4
 x 19
 y 14
 end
-arch floor_sand_d1
-x 19
-y 15
-end
-arch snow_fmask.105
-x 19
-y 15
-end
-arch floor_sand_d3
-x 19
-y 16
-end
-arch floor_sand_d3
-x 19
-y 17
-end
-arch snow_fmask.101
-x 19
-y 17
-end
 arch snow1
 x 19
-y 18
+y 15
 end
 arch snow3
 x 19
+y 16
+end
+arch snow3
+x 19
+y 17
+end
+arch fstone1b
+x 19
+y 18
+end
+arch snow_fmask.105
+x 19
+y 18
+end
+arch fstone1c
+x 19
 y 19
 end
-arch floor_sand_d2
+arch fstone1c
 x 19
 y 20
 end
-arch fwall_fstone2
-x 19
-y 20
-end
-arch floor_sand_d4
+arch fstone1b
 x 19
 y 21
 end
-arch flagwall_short_brick1.111
+arch snow_fmask.101
 x 19
 y 21
 end
-arch grassd_3
-no_pass 1
+arch snow1
 x 19
 y 22
 end
-arch plant_flower12
+arch snowy_autree2
 x 19
 y 22
 end
-arch water_lt
-x 19
-y 23
-end
-arch grassd_m4
+arch snow3
 x 19
 y 23
 end
@@ -2557,72 +2454,59 @@ arch snow4
 x 20
 y 13
 end
+arch small_stones
+x 20
+y 13
+end
 arch snow4
 x 20
 y 14
 end
-arch floor_sand_d1
+arch snow1
 x 20
 y 15
 end
-arch snow_fmask.105
-x 20
-y 15
-end
-arch floor_sand_d4
+arch snow4
 x 20
 y 16
 end
-arch floor_sand_d3
-x 20
-y 17
-end
-arch snow_fmask.112
-x 20
-y 17
-end
-arch floor_sand_d3
-x 20
-y 18
-end
-arch snow_fmask.102
-x 20
-y 18
-end
 arch snow1
+x 20
+y 17
+end
+arch fstone1b
+x 20
+y 18
+end
+arch snow_fmask.105
+x 20
+y 18
+end
+arch fstone1c
 x 20
 y 19
 end
-arch floor_sand_d3
+arch fstone1b
 x 20
 y 20
 end
-arch fwall_fstone2
-x 20
-y 20
-end
-arch floor_sand_d2
+arch fstone1c
 x 20
 y 21
 end
-arch flagwall_short_brick1.111
+arch snow_fmask.112
 x 20
 y 21
 end
-arch grassd_7
-no_pass 1
+arch fstone1b
 x 20
 y 22
 end
-arch plant_flower8
+arch snow_fmask.102
 x 20
 y 22
 end
-arch water_lt3
-x 20
-y 23
-end
-arch grassd_m10
+arch snow1
 x 20
 y 23
 end
@@ -2681,11 +2565,11 @@ arch snow2
 x 21
 y 11
 end
-arch snowy_tree_bigb1
-x 21
-y 11
-end
 arch snow3
+x 21
+y 12
+end
+arch snowy_tree2
 x 21
 y 12
 end
@@ -2697,68 +2581,55 @@ arch snow2
 x 21
 y 14
 end
-arch floor_sand_d3
+arch snow3
 x 21
 y 15
 end
-arch snow_fmask.106
-x 21
-y 15
-end
-arch floor_sand_d1
+arch snow4
 x 21
 y 16
 end
-arch snow_fmask.116
+arch snowy_tree_big1
 x 21
 y 16
 end
-arch floor_sand_d3
+arch snow1
 x 21
 y 17
 end
-arch floor_sand_d3
+arch fstone1c
 x 21
 y 18
 end
-arch snow_fmask.101
+arch snow_fmask.105
 x 21
 y 18
 end
-arch snow3
+arch fstone1c
 x 21
 y 19
 end
-arch floor_sand_d2
+arch fstone1b
 x 21
 y 20
 end
-arch fwall_fstone2
-x 21
-y 20
-end
-arch floor_sand_d4
+arch fstone1b
 x 21
 y 21
 end
-arch flagwall_short_brick1.111
-x 21
-y 21
-end
-arch grassd_6
-no_pass 1
+arch fstone1b
 x 21
 y 22
 end
-arch water_lt
+arch snow_fmask.101
+x 21
+y 22
+end
+arch snow3
 x 21
 y 23
 end
-arch grassd_m6
-x 21
-y 23
-end
-arch light2
+arch small_stones
 x 21
 y 23
 end
@@ -2829,70 +2700,51 @@ arch snow1
 x 22
 y 15
 end
-arch floor_sand_d1
+arch snow4
 x 22
 y 16
 end
-arch snow_fmask.105
+arch tree_branch3_winter
 x 22
 y 16
 end
-arch floor_sand_d1
+arch snow2
 x 22
 y 17
 end
-arch floor_sand_d3
+arch fstone1c
 x 22
 y 18
 end
-arch snow_fmask.101
+arch snow_fmask.105
 x 22
 y 18
 end
-arch snow3
+arch fstone1b
 x 22
 y 19
 end
-arch floor_sand_d4
+arch fstone1b
 x 22
 y 20
 end
-arch fwall_fstone2
-x 22
-y 20
-end
-arch floor_sand_d4
+arch fstone1c
 x 22
 y 21
 end
-arch flagwall_short_brick1.111
-x 22
-y 21
-end
-arch grassd_6
-no_pass 1
+arch fstone1b
 x 22
 y 22
 end
-arch plant13
+arch snow_fmask.101
 x 22
 y 22
 end
-arch flagwall_short_brick1.131
-no_pass 1
-x 22
-y 22
-end
-arch grassd_8
+arch snow2
 x 22
 y 23
 end
-arch plant_flower14
-x 22
-y 23
-end
-arch flagwall_short_brick1.131
-no_pass 1
+arch tree_branch2_winter
 x 22
 y 23
 end
@@ -2963,59 +2815,82 @@ arch snow1
 x 23
 y 13
 end
+arch spawn_point
+x 23
+y 13
+arch snowman_evil
+level 21
+con 3
+dex 2
+can_use_weapon 1
+can_use_bow 1
+unaggressive 1
+random_move 1
+item_race 3
+item_level 3
+type 83
+arch snowball2
+sys_object 1
+sub_type 132
+race rock
+end
+arch ability_stone_throw
+end
+end
+end
 arch snow4
 x 23
 y 14
 end
-arch snow2
+arch snowy_tree_bigb1
 x 23
-y 15
-end
-arch floor_sand_d3
-x 23
-y 16
-end
-arch snow_fmask.105
-x 23
-y 16
-end
-arch floor_sand_d1
-x 23
-y 17
-end
-arch floor_sand_d3
-x 23
-y 18
-end
-arch snow_fmask.101
-x 23
-y 18
+y 14
 end
 arch snow4
 x 23
+y 15
+end
+arch snow1
+x 23
+y 16
+end
+arch snow4
+x 23
+y 17
+end
+arch fstone1b
+x 23
+y 18
+end
+arch snow_fmask.106
+x 23
+y 18
+end
+arch fstone1b
+x 23
 y 19
 end
-arch floor_sand_d4
+arch snow_fmask.116
+x 23
+y 19
+end
+arch fstone1b
 x 23
 y 20
 end
-arch fwall_fstone2
-x 23
-y 20
-end
-arch floor_sand_d4
+arch fstone1c
 x 23
 y 21
 end
-arch small_stones
-x 23
-y 21
-end
-arch floor_sand_d3
+arch fstone1b
 x 23
 y 22
 end
-arch floor_sand_d4
+arch snow_fmask.101
+x 23
+y 22
+end
+arch snow4
 x 23
 y 23
 end

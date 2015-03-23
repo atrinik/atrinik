@@ -1,26 +1,26 @@
-/************************************************************************
-*            Atrinik, a Multiplayer Online Role Playing Game            *
-*                                                                       *
-*    Copyright (C) 2009-2012 Alex Tokar and Atrinik Development Team    *
-*                                                                       *
-* Fork from Crossfire (Multiplayer game for X-windows).                 *
-*                                                                       *
-* This program is free software; you can redistribute it and/or modify  *
-* it under the terms of the GNU General Public License as published by  *
-* the Free Software Foundation; either version 2 of the License, or     *
-* (at your option) any later version.                                   *
-*                                                                       *
-* This program is distributed in the hope that it will be useful,       *
-* but WITHOUT ANY WARRANTY; without even the implied warranty of        *
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
-* GNU General Public License for more details.                          *
-*                                                                       *
-* You should have received a copy of the GNU General Public License     *
-* along with this program; if not, write to the Free Software           *
-* Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.             *
-*                                                                       *
-* The author can be reached at admin@atrinik.org                        *
-************************************************************************/
+/*************************************************************************
+ *           Atrinik, a Multiplayer Online Role Playing Game             *
+ *                                                                       *
+ *   Copyright (C) 2009-2014 Alex Tokar and Atrinik Development Team     *
+ *                                                                       *
+ * Fork from Crossfire (Multiplayer game for X-windows).                 *
+ *                                                                       *
+ * This program is free software; you can redistribute it and/or modify  *
+ * it under the terms of the GNU General Public License as published by  *
+ * the Free Software Foundation; either version 2 of the License, or     *
+ * (at your option) any later version.                                   *
+ *                                                                       *
+ * This program is distributed in the hope that it will be useful,       *
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of        *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
+ * GNU General Public License for more details.                          *
+ *                                                                       *
+ * You should have received a copy of the GNU General Public License     *
+ * along with this program; if not, write to the Free Software           *
+ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.             *
+ *                                                                       *
+ * The author can be reached at admin@atrinik.org                        *
+ ************************************************************************/
 
 /**
  * @file
@@ -153,7 +153,6 @@ void object_methods_init(void)
     object_type_init_scroll();
     object_type_init_shield();
     object_type_init_shop_floor();
-    object_type_init_shop_mat();
     object_type_init_sign();
     object_type_init_skill();
     object_type_init_skill_item();
@@ -165,7 +164,6 @@ void object_methods_init(void)
     object_type_init_spinner();
     object_type_init_swarm_spell();
     object_type_init_symptom();
-    object_type_init_teleporter();
     object_type_init_treasure();
     object_type_init_wall();
     object_type_init_wand();
@@ -179,6 +177,8 @@ void object_methods_init(void)
 int object_apply(object *op, object *applier, int aflags)
 {
     object_methods *methods;
+
+    applier = HEAD(applier);
 
     for (methods = &object_type_methods[op->type]; methods; methods = methods->fallback) {
         if (methods->apply_func) {
@@ -240,6 +240,7 @@ int object_move_on(object *op, object *victim, object *originator, int state)
     int ret;
 
     op = HEAD(op);
+    victim = HEAD(victim);
 
     if (trigger_event(EVENT_TRIGGER, victim, op, originator, NULL, 0, 0, 0, SCRIPT_FIX_NOTHING)) {
         return OBJECT_METHOD_OK;
@@ -389,7 +390,7 @@ int object_ranged_fire(object *op, object *shooter, int dir, double *delay)
     }
 
     if (dir == 0) {
-        dir = shooter->facing;
+        dir = shooter->direction;
 
         /* Should not happen... */
         if (dir == 0) {
@@ -401,10 +402,7 @@ int object_ranged_fire(object *op, object *shooter, int dir, double *delay)
         dir = get_randomized_dir(dir);
     }
 
-    shooter->facing = dir;
-    shooter->anim_moving_dir = -1;
-    shooter->anim_last_facing = -1;
-    shooter->anim_enemy_dir = dir;
+    shooter->direction = dir;
 
     for (methods = &object_type_methods[op->type]; methods; methods = methods->fallback) {
         if (methods->ranged_fire_func) {

@@ -1,26 +1,26 @@
-/************************************************************************
-*            Atrinik, a Multiplayer Online Role Playing Game            *
-*                                                                       *
-*    Copyright (C) 2009-2012 Alex Tokar and Atrinik Development Team    *
-*                                                                       *
-* Fork from Crossfire (Multiplayer game for X-windows).                 *
-*                                                                       *
-* This program is free software; you can redistribute it and/or modify  *
-* it under the terms of the GNU General Public License as published by  *
-* the Free Software Foundation; either version 2 of the License, or     *
-* (at your option) any later version.                                   *
-*                                                                       *
-* This program is distributed in the hope that it will be useful,       *
-* but WITHOUT ANY WARRANTY; without even the implied warranty of        *
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
-* GNU General Public License for more details.                          *
-*                                                                       *
-* You should have received a copy of the GNU General Public License     *
-* along with this program; if not, write to the Free Software           *
-* Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.             *
-*                                                                       *
-* The author can be reached at admin@atrinik.org                        *
-************************************************************************/
+/*************************************************************************
+ *           Atrinik, a Multiplayer Online Role Playing Game             *
+ *                                                                       *
+ *   Copyright (C) 2009-2014 Alex Tokar and Atrinik Development Team     *
+ *                                                                       *
+ * Fork from Crossfire (Multiplayer game for X-windows).                 *
+ *                                                                       *
+ * This program is free software; you can redistribute it and/or modify  *
+ * it under the terms of the GNU General Public License as published by  *
+ * the Free Software Foundation; either version 2 of the License, or     *
+ * (at your option) any later version.                                   *
+ *                                                                       *
+ * This program is distributed in the hope that it will be useful,       *
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of        *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
+ * GNU General Public License for more details.                          *
+ *                                                                       *
+ * You should have received a copy of the GNU General Public License     *
+ * along with this program; if not, write to the Free Software           *
+ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.             *
+ *                                                                       *
+ * The author can be reached at admin@atrinik.org                        *
+ ************************************************************************/
 
 /**
  * @file
@@ -59,8 +59,7 @@ unsigned int query_flags(object *op)
     if (QUERY_FLAG(op, FLAG_IDENTIFIED) || QUERY_FLAG(op, FLAG_APPLIED)) {
         if (QUERY_FLAG(op, FLAG_DAMNED)) {
             flags |= CS_FLAG_DAMNED;
-        }
-        else if (QUERY_FLAG(op, FLAG_CURSED)) {
+        } else if (QUERY_FLAG(op, FLAG_CURSED)) {
             flags |= CS_FLAG_CURSED;
         }
     }
@@ -109,14 +108,13 @@ static void add_object_to_packet(packet_struct *packet, object *op, object *pl, 
     if (flags & UPD_FACE) {
         if (op->inv_face && QUERY_FLAG(op, FLAG_IDENTIFIED)) {
             packet_append_uint16(packet, op->inv_face->number);
-        }
-        else {
+        } else {
             packet_append_uint16(packet, op->face->number);
         }
     }
 
     if (flags & UPD_DIRECTION) {
-        packet_append_uint8(packet, op->facing);
+        packet_append_uint8(packet, op->direction);
     }
 
     if (flags & UPD_TYPE) {
@@ -130,12 +128,10 @@ static void add_object_to_packet(packet_struct *packet, object *op, object *pl, 
 
             if (op->item_skill && CONTR(pl)->skill_ptr[op->item_skill - 1]) {
                 packet_append_uint32(packet, CONTR(pl)->skill_ptr[op->item_skill - 1]->count);
-            }
-            else {
+            } else {
                 packet_append_uint32(packet, 0);
             }
-        }
-        else {
+        } else {
             packet_append_uint8(packet, 255);
         }
     }
@@ -154,15 +150,12 @@ static void add_object_to_packet(packet_struct *packet, object *op, object *pl, 
         if (QUERY_FLAG(op, FLAG_ANIMATE)) {
             if (op->anim_speed) {
                 anim_speed = op->anim_speed;
-            }
-            else {
+            } else {
                 if (FABS(op->speed) < 0.001) {
                     anim_speed = 255;
-                }
-                else if (FABS(op->speed) >= 1.0) {
+                } else if (FABS(op->speed) >= 1.0) {
                     anim_speed = 1;
-                }
-                else {
+                } else {
                     anim_speed = (int) (1.0 / FABS(op->speed));
                 }
             }
@@ -185,20 +178,17 @@ static void add_object_to_packet(packet_struct *packet, object *op, object *pl, 
             packet_append_uint32(packet, spells[op->stats.sp].path);
             packet_append_uint32(packet, spells[op->stats.sp].flags);
             packet_append_string_terminated(packet, op->msg ? op->msg : "");
-        }
-        else if (op->type == SKILL) {
+        } else if (op->type == SKILL) {
             packet_append_uint8(packet, op->level);
             packet_append_sint64(packet, op->stats.exp);
-        }
-        else if (op->type == FORCE || op->type == POISONING) {
+        } else if (op->type == FORCE || op->type == POISONING) {
             sint32 sec;
 
             sec = -1;
 
             if (QUERY_FLAG(op, FLAG_IS_USED_UP)) {
-                sec = (int) (op->speed_left / op->speed / (float) (1000000 / max_time) + (1.0 / op->speed / (float) (1000000 / max_time) * (float) op->stats.food - 1));
+                sec = (int) (op->speed_left / op->speed / (float) MAX_TICKS + (1.0 / op->speed / (float) MAX_TICKS * (float) op->stats.food - 1));
                 sec = ABS(sec);
-
             }
 
             packet_append_sint32(packet, sec);
@@ -265,6 +255,7 @@ void esrv_draw_look(object *pl)
     tmp = GET_MAP_OB_LAST(pl->map, pl->x, pl->y);
 
     packet = packet_new(CLIENT_CMD_ITEM, 512, 256);
+    packet_enable_ndelay(packet);
     packet_append_uint32(packet, 0);
     packet_append_uint32(packet, 0);
     packet_append_uint8(packet, 1);
@@ -329,6 +320,7 @@ void esrv_close_container(object *op)
     packet_struct *packet;
 
     packet = packet_new(CLIENT_CMD_ITEM, 32, 0);
+    packet_enable_ndelay(packet);
     packet_append_sint32(packet, -1);
     packet_append_sint32(packet, -1);
     socket_send_packet(&CONTR(op)->socket, packet);
@@ -345,13 +337,13 @@ void esrv_send_inventory(object *pl, object *op)
     object *tmp;
 
     packet = packet_new(CLIENT_CMD_ITEM, 128, 256);
+    packet_enable_ndelay(packet);
 
     /* In this case we're sending a container inventory */
     if (pl != op) {
         /* Container mode flag */
         packet_append_sint32(packet, -1);
-    }
-    else {
+    } else {
         packet_append_sint32(packet, op->count);
     }
 
@@ -388,6 +380,7 @@ static void esrv_update_item_send(int flags, object *pl, object *op)
     }
 
     packet = packet_new(CLIENT_CMD_ITEM_UPDATE, 64, 128);
+    packet_enable_ndelay(packet);
     packet_append_uint16(packet, flags);
     add_object_to_packet(packet, op, pl, flags);
     socket_send_packet(&CONTR(pl)->socket, packet);
@@ -402,16 +395,14 @@ void esrv_update_item(int flags, object *op)
 {
     if (op->type == PLAYER) {
         esrv_update_item_send(flags, op, op);
-    }
-    else if (op->env) {
+    } else if (op->env) {
         if (op->env->type == CONTAINER) {
             object *tmp;
 
             for (tmp = op->env->attacked_by; tmp; tmp = CONTR(tmp)->container_above) {
                 esrv_update_item_send(flags, tmp, op);
             }
-        }
-        else if (op->env->type == PLAYER) {
+        } else if (op->env->type == PLAYER) {
             esrv_update_item_send(flags, op->env, op);
         }
     }
@@ -435,6 +426,7 @@ static void esrv_send_item_send(object *pl, object *op)
     }
 
     packet = packet_new(CLIENT_CMD_ITEM, 64, 128);
+    packet_enable_ndelay(packet);
     packet_append_sint32(packet, -4);
     packet_append_uint32(packet, op->env->count);
     packet_append_uint8(packet, 0);
@@ -460,8 +452,7 @@ void esrv_send_item(object *op)
         for (tmp = op->env->attacked_by; tmp; tmp = CONTR(tmp)->container_above) {
             esrv_send_item_send(tmp, op);
         }
-    }
-    else if (op->env->type == PLAYER) {
+    } else if (op->env->type == PLAYER) {
         esrv_send_item_send(op->env, op);
     }
 }
@@ -484,6 +475,7 @@ static void esrv_del_item_send(object *pl, object *op)
     }
 
     packet = packet_new(CLIENT_CMD_ITEM_DELETE, 16, 0);
+    packet_enable_ndelay(packet);
     packet_append_uint32(packet, op->count);
     socket_send_packet(&CONTR(pl)->socket, packet);
 }
@@ -504,8 +496,7 @@ void esrv_del_item(object *op)
         for (tmp = op->env->attacked_by; tmp; tmp = CONTR(tmp)->container_above) {
             esrv_del_item_send(tmp, op);
         }
-    }
-    else if (op->env->type == PLAYER) {
+    } else if (op->env->type == PLAYER) {
         esrv_del_item_send(op->env, op);
     }
 }
@@ -521,8 +512,7 @@ static object *get_ob_from_count_rec(object *pl, object *where, tag_t count)
 
         if (head->count == count) {
             return head;
-        }
-        else if (head->inv && (CONTR(pl)->tsi || (head->type == CONTAINER && CONTR(pl)->container == head))) {
+        } else if (head->inv && (CONTR(pl)->tsi || (head->type == CONTAINER && CONTR(pl)->container == head))) {
             tmp2 = get_ob_from_count_rec(pl, head->inv, count);
 
             if (tmp2) {
@@ -739,8 +729,7 @@ void socket_command_item_mark(socket_struct *ns, player *pl, uint8 *data, size_t
         draw_info_format(COLOR_WHITE, pl->ob, "Unmarked item %s.", query_name(op, NULL));
         pl->mark = NULL;
         pl->mark_count = 0;
-    }
-    else {
+    } else {
         draw_info_format(COLOR_WHITE, pl->ob, "Marked item %s.", query_name(op, NULL));
         pl->mark_count = op->count;
         pl->mark = op;
@@ -774,20 +763,18 @@ void esrv_move_object(object *pl, tag_t to, tag_t tag, long nrof)
 
         if ((tmp = check_container(pl, op))) {
             draw_info(COLOR_WHITE, pl, "First remove all god-given items from this container!");
-        }
-        else if (QUERY_FLAG(pl, FLAG_INV_LOCKED)) {
+        } else if (QUERY_FLAG(pl, FLAG_INV_LOCKED)) {
             draw_info(COLOR_WHITE, pl, "You can't drop a container with locked items inside!");
-        }
-        else {
+        } else {
             drop_object(pl, op, nrof, 0);
         }
 
         CLEAR_FLAG(pl, FLAG_INV_LOCKED);
 
         return;
-    }
-    /* Pick it up to the inventory */
-    else if (to == pl->count || (to == op->count && !op->env)) {
+    } else if (to == pl->count || (to == op->count && !op->env)) {
+        /* Pick it up to the inventory */
+
         /* Return if player has already picked it up */
         if (op->env == pl) {
             return;
@@ -816,14 +803,11 @@ void esrv_move_object(object *pl, tag_t to, tag_t tag, long nrof)
 
         if (QUERY_FLAG(pl, FLAG_INV_LOCKED) && env->env != pl) {
             draw_info(COLOR_WHITE, pl, "You can't drop a container with locked items inside!");
-        }
-        else if (tmp && env->env != pl) {
+        } else if (tmp && env->env != pl) {
             draw_info(COLOR_WHITE, pl, "First remove all god-given items from this container!");
-        }
-        else if (QUERY_FLAG(op, FLAG_STARTEQUIP) && env->env != pl) {
+        } else if (QUERY_FLAG(op, FLAG_STARTEQUIP) && env->env != pl) {
             draw_info(COLOR_WHITE, pl, "You can't store god-given items outside your inventory!");
-        }
-        else {
+        } else {
             put_object_in_sack(pl, env, op, nrof);
         }
 

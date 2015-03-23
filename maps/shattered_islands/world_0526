@@ -1776,7 +1776,7 @@ y 2
 end
 arch client_map_info
 msg
-[font=serif.ttf 14]Fort Sether[/font]
+[font=serif 14]Fort Sether[/font]
 endmsg
 name fort_sether
 sub_type 1

@@ -1,26 +1,26 @@
-/************************************************************************
-*            Atrinik, a Multiplayer Online Role Playing Game            *
-*                                                                       *
-*    Copyright (C) 2009-2012 Alex Tokar and Atrinik Development Team    *
-*                                                                       *
-* Fork from Crossfire (Multiplayer game for X-windows).                 *
-*                                                                       *
-* This program is free software; you can redistribute it and/or modify  *
-* it under the terms of the GNU General Public License as published by  *
-* the Free Software Foundation; either version 2 of the License, or     *
-* (at your option) any later version.                                   *
-*                                                                       *
-* This program is distributed in the hope that it will be useful,       *
-* but WITHOUT ANY WARRANTY; without even the implied warranty of        *
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
-* GNU General Public License for more details.                          *
-*                                                                       *
-* You should have received a copy of the GNU General Public License     *
-* along with this program; if not, write to the Free Software           *
-* Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.             *
-*                                                                       *
-* The author can be reached at admin@atrinik.org                        *
-************************************************************************/
+/*************************************************************************
+ *           Atrinik, a Multiplayer Online Role Playing Game             *
+ *                                                                       *
+ *   Copyright (C) 2009-2014 Alex Tokar and Atrinik Development Team     *
+ *                                                                       *
+ * Fork from Crossfire (Multiplayer game for X-windows).                 *
+ *                                                                       *
+ * This program is free software; you can redistribute it and/or modify  *
+ * it under the terms of the GNU General Public License as published by  *
+ * the Free Software Foundation; either version 2 of the License, or     *
+ * (at your option) any later version.                                   *
+ *                                                                       *
+ * This program is distributed in the hope that it will be useful,       *
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of        *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
+ * GNU General Public License for more details.                          *
+ *                                                                       *
+ * You should have received a copy of the GNU General Public License     *
+ * along with this program; if not, write to the Free Software           *
+ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.             *
+ *                                                                       *
+ * The author can be reached at admin@atrinik.org                        *
+ ************************************************************************/
 
 /**
  * @file
@@ -72,118 +72,257 @@ static text_anchor_handle_func text_anchor_handle = NULL;
  * argument. */
 static void *text_anchor_info_ptr = NULL;
 
-/** All the usable fonts. */
-font_struct fonts[FONTS_MAX] =
+/**
+ * The usable fonts.
+ */
+static font_struct *fonts;
+
+/**
+ * Get a hash table key for a font.
+ * @param name Name of the font.
+ * @param size Size of the font.
+ * @param buf Where to store the result.
+ * @param buf_size Size of 'buf'.
+ * @return 'buf'.
+ */
+static char *font_get_hash_key(const char *name, uint8 size, char *buf,
+        size_t buf_size)
 {
-    {"fonts/vera/sans.ttf", 7, NULL, 0},
-    {"fonts/vera/sans.ttf", 8, NULL, 0},
-    {"fonts/vera/sans.ttf", 9, NULL, 0},
-    {"fonts/vera/sans.ttf", 10, NULL, 0},
-    {"fonts/vera/sans.ttf", 11, NULL, 0},
-    {"fonts/vera/sans.ttf", 12, NULL, 0},
-    {"fonts/vera/sans.ttf", 13, NULL, 0},
-    {"fonts/vera/sans.ttf", 14, NULL, 0},
-    {"fonts/vera/sans.ttf", 15, NULL, 0},
-    {"fonts/vera/sans.ttf", 16, NULL, 0},
-    {"fonts/vera/sans.ttf", 18, NULL, 0},
-    {"fonts/vera/sans.ttf", 20, NULL, 0},
-    {"fonts/vera/serif.ttf", 8, NULL, 0},
-    {"fonts/vera/serif.ttf", 10, NULL, 0},
-    {"fonts/vera/serif.ttf", 12, NULL, 0},
-    {"fonts/vera/serif.ttf", 14, NULL, 0},
-    {"fonts/vera/serif.ttf", 16, NULL, 0},
-    {"fonts/vera/serif.ttf", 18, NULL, 0},
-    {"fonts/vera/serif.ttf", 20, NULL, 0},
-    {"fonts/vera/serif.ttf", 22, NULL, 0},
-    {"fonts/vera/serif.ttf", 24, NULL, 0},
-    {"fonts/vera/serif.ttf", 26, NULL, 0},
-    {"fonts/vera/serif.ttf", 28, NULL, 0},
-    {"fonts/vera/serif.ttf", 30, NULL, 0},
-    {"fonts/vera/serif.ttf", 32, NULL, 0},
-    {"fonts/vera/serif.ttf", 34, NULL, 0},
-    {"fonts/vera/serif.ttf", 36, NULL, 0},
-    {"fonts/vera/serif.ttf", 38, NULL, 0},
-    {"fonts/vera/serif.ttf", 40, NULL, 0},
-    {"fonts/vera/mono.ttf", 8, NULL, 0},
-    {"fonts/vera/mono.ttf", 9, NULL, 0},
-    {"fonts/vera/mono.ttf", 10, NULL, 0},
-    {"fonts/vera/mono.ttf", 12, NULL, 0},
-    {"fonts/vera/mono.ttf", 14, NULL, 0},
-    {"fonts/vera/mono.ttf", 16, NULL, 0},
-    {"fonts/vera/mono.ttf", 18, NULL, 0},
-    {"fonts/vera/mono.ttf", 20, NULL, 0},
-    {"fonts/arial.ttf", 8, NULL, 0},
-    {"fonts/arial.ttf", 10, NULL, 0},
-    {"fonts/arial.ttf", 11, NULL, 0},
-    {"fonts/arial.ttf", 12, NULL, 0},
-    {"fonts/arial.ttf", 13, NULL, 0},
-    {"fonts/arial.ttf", 14, NULL, 0},
-    {"fonts/arial.ttf", 15, NULL, 0},
-    {"fonts/arial.ttf", 16, NULL, 0},
-    {"fonts/arial.ttf", 18, NULL, 0},
-    {"fonts/arial.ttf", 20, NULL, 0},
-    {"fonts/logisoso.ttf", 8, NULL, 0},
-    {"fonts/logisoso.ttf", 10, NULL, 0},
-    {"fonts/logisoso.ttf", 12, NULL, 0},
-    {"fonts/logisoso.ttf", 14, NULL, 0},
-    {"fonts/logisoso.ttf", 16, NULL, 0},
-    {"fonts/logisoso.ttf", 18, NULL, 0},
-    {"fonts/logisoso.ttf", 20, NULL, 0},
-    {"fonts/fanwood.otf", 8, NULL, 0},
-    {"fonts/fanwood.otf", 10, NULL, 0},
-    {"fonts/fanwood.otf", 12, NULL, 0},
-    {"fonts/fanwood.otf", 14, NULL, 0},
-    {"fonts/fanwood.otf", 16, NULL, 0},
-    {"fonts/fanwood.otf", 18, NULL, 0},
-    {"fonts/fanwood.otf", 20, NULL, 0},
-    {"fonts/courier.otf", 8, NULL, 0},
-    {"fonts/courier.otf", 10, NULL, 0},
-    {"fonts/courier.otf", 12, NULL, 0},
-    {"fonts/courier.otf", 14, NULL, 0},
-    {"fonts/courier.otf", 16, NULL, 0},
-    {"fonts/courier.otf", 18, NULL, 0},
-    {"fonts/courier.otf", 20, NULL, 0},
-    {"fonts/pecita.otf", 8, NULL, 0},
-    {"fonts/pecita.otf", 10, NULL, 0},
-    {"fonts/pecita.otf", 12, NULL, 0},
-    {"fonts/pecita.otf", 14, NULL, 0},
-    {"fonts/pecita.otf", 16, NULL, 0},
-    {"fonts/pecita.otf", 18, NULL, 0},
-    {"fonts/pecita.otf", 20, NULL, 0}
-};
+    snprintf(buf, buf_size, "%s@%d", name, size);
+    return buf;
+}
+
+/**
+ * Attempt to open a TTF font. Will attempt various paths/extensions until
+ * giving up.
+ * @param name Name of the font.
+ * @param size Size of the font.
+ * @return Opened font on success, NULL on failure.
+ */
+static TTF_Font *font_open(const char *name, uint8 size)
+{
+    char path[MAX_BUF];
+    TTF_Font *ttf_font;
+
+    snprintf(path, sizeof(path), "fonts/%s.ttf", name);
+    ttf_font = TTF_OpenFont_wrapper(path, size);
+
+    if (ttf_font == NULL) {
+        snprintf(path, sizeof(path), "fonts/%s.otf", name);
+        ttf_font = TTF_OpenFont_wrapper(path, size);
+    }
+
+    if (ttf_font == NULL) {
+        logger_print(LOG(ERROR), "Unable to load font (%s, %d): %s", name, size,
+                TTF_GetError());
+    }
+
+    return ttf_font;
+}
+
+/**
+ * Allocate a new font structure.
+ * @param name Name of the font.
+ * @param size Size of the font.
+ * @return The allocated font; NULL on failure. */
+static font_struct *font_new(const char *name, uint8 size)
+{
+    TTF_Font *ttf_font;
+    font_struct *font;
+    char key[MAX_BUF];
+
+    ttf_font = font_open(name, size);
+
+    if (ttf_font == NULL) {
+        return NULL;
+    }
+
+    font = ecalloc(1, sizeof(*font));
+    font->key = estrdup(font_get_hash_key(name, size, key, sizeof(key)));
+    font->name = estrdup(name);
+    font->size = size;
+    font->last_used = time(NULL);
+    font->font = ttf_font;
+    font->height = TTF_FontLineSkip(ttf_font);
+    font->ref = 1; /* One because we're inserting it into a hash table. */
+
+    HASH_ADD_KEYPTR(hh, fonts, font->key, strlen(font->key), font);
+
+    return font;
+}
+
+/**
+ * Acquires a weak reference to the font of the specified name and size. Do NOT
+ * store a reference to this pointer without explicit FONT_INCREF. If in doubt,
+ * use font_get() instead.
+ *
+ * This function will attempt to find the specified font with the specified
+ * size in a hash table, and, failing that, it will attempt to initialized
+ * such font.
+ * @param name Name of the font to get.
+ * @param size Size of the font to get.
+ * @return Font; can be NULL in case of failure.
+ */
+font_struct *font_get_weak(const char *name, uint8 size)
+{
+    char key[MAX_BUF];
+    font_struct *font;
+
+    assert(name != NULL);
+    assert(size != 0);
+
+    font_get_hash_key(name, size, key, sizeof(key));
+    HASH_FIND_STR(fonts, key, font);
+
+    if (font == NULL) {
+        font = font_new(name, size);
+    } else {
+        font->last_used = time(NULL);
+    }
+
+    return font;
+}
+
+/**
+ * Like font_get_weak(), but the returned pointer will have increased reference
+ * count, so remember to use font_free() in your cleanup function.
+ * @param name Name of the font to get.
+ * @param size Size of the font to get.
+ * @return Font; can be NULL in case of failure.
+ */
+font_struct *font_get(const char *name, uint8 size)
+{
+    font_struct *font;
+
+    assert(name != NULL);
+    assert(size != 0);
+
+    font = font_get_weak(name, size);
+
+    if (font) {
+        font->ref++;
+    }
+
+    return font;
+}
+
+/**
+ * Acquire a weak reference to a font of a larger or smaller size.
+ * @param font Font.
+ * @param size Size adjustment; 1 for a bigger one, -1 for a smaller one.
+ * @return The font. NULL if the size is not in an acceptable range or some
+ * other failure occurs.
+ */
+font_struct *font_get_size(font_struct *font, sint8 size)
+{
+    int size_desired;
+
+    assert(font != NULL);
+
+    size_desired = font->size + size;
+
+    if (size_desired < 1 || size_desired > UINT8_MAX) {
+        return NULL;
+    }
+
+    return font_get_weak(font->name, size_desired);
+}
+
+/**
+ * Free a font.
+ * @param font Font to free. */
+void font_free(font_struct *font)
+{
+    assert(font != NULL);
+
+    if (font->ref > 1) {
+        font->ref--;
+        return;
+    }
+
+#ifndef NDEBUG
+    {
+        char key[MAX_BUF];
+        font_struct *tmp;
+
+        font_get_hash_key(font->name, font->size, key, sizeof(key));
+        HASH_FIND_STR(fonts, key, tmp);
+
+        if (tmp != NULL) {
+            logger_print(LOG(ERROR), "Attempted to free a font that was still "
+                    "in the hash table! Font name: %s, "
+                    "size: %d", font->name, font->size);
+            abort();
+        }
+    }
+#endif
+
+    efree(font->name);
+    efree(font->key);
+    TTF_CloseFont(font->font);
+    efree(font);
+}
+
+/**
+ * Garbage-collect fonts.
+ */
+void font_gc(void)
+{
+    time_t now;
+    struct timeval tv1, tv2;
+    font_struct *font, *next;
+
+    if (!rndm_chance(FONT_GC_CHANCE)) {
+        return;
+    }
+
+    now = time(NULL);
+    gettimeofday(&tv1, NULL);
+
+    HASH_ITER(hh, fonts, font, next)
+    {
+        if (gettimeofday(&tv2, NULL) == 0 &&
+                tv2.tv_usec - tv1.tv_usec >= FONT_GC_MAX_TIME) {
+            break;
+        }
+
+        /* If this is not the only reference, skip it. */
+        if (font->ref > 1) {
+            continue;
+        }
+
+        /* If not enough time has passed, skip it. */
+        if (now - font->last_used < FONT_GC_FREE_TIME) {
+            continue;
+        }
+
+        HASH_DEL(fonts, font);
+        FONT_DECREF(font);
+        font_free(font);
+    }
+}
 
 /**
  * Initialize the text API. Should only be done once. */
 void text_init(void)
 {
-    size_t i;
-    TTF_Font *font;
-
     TTF_Init();
-
-    for (i = 0; i < FONTS_MAX; i++) {
-        font = TTF_OpenFont_wrapper(fonts[i].path, fonts[i].size);
-
-        if (!font) {
-            logger_print(LOG(ERROR), "Unable to load font (%s): %s", fonts[i].path, TTF_GetError());
-            exit(1);
-        }
-
-        fonts[i].font = font;
-        fonts[i].height = TTF_FontLineSkip(font);
-    }
+    fonts = NULL;
 
     text_link_color = text_link_color_default;
 }
 
 /**
- * Deinitializes the text API. */
+ * Deinitialize the text API. */
 void text_deinit(void)
 {
-    size_t i;
+    font_struct *font, *next;
 
-    for (i = 0; i < FONTS_MAX; i++) {
-        TTF_CloseFont(fonts[i].font);
+    HASH_ITER(hh, fonts, font, next)
+    {
+        HASH_DEL(fonts, font);
+        FONT_DECREF(font);
+        font_free(font);
     }
 
     TTF_Quit();
@@ -258,57 +397,6 @@ void text_set_anchor_info(void *ptr)
 }
 
 /**
- * Get font's filename; removes the path/to/fontdir part from the font's
- * path and returns it.
- * @param font Font ID.
- * @return The filename. */
-const char *get_font_filename(int font)
-{
-    const char *cp;
-
-    cp = strrchr(fonts[font].path, '/');
-
-    if (!cp) {
-        cp = fonts[font].path;
-    }
-    else {
-        cp++;
-    }
-
-    return cp;
-}
-
-/**
- * Get font's ID from its xxx.ttf name (not including path) and the pixel
- * size.
- * @param name The font name.
- * @param size The size.
- * @return The font ID, -1 if there is no such font. */
-int get_font_id(const char *name, size_t size)
-{
-    size_t i;
-    const char *cp;
-    uint8 ext = strstr(name, ".ttf") || strstr(name, ".otf") ? 1 : 0;
-
-    for (i = 0; i < FONTS_MAX; i++) {
-        cp = strrchr(fonts[i].path, '/');
-
-        if (!cp) {
-            cp = fonts[i].path;
-        }
-        else {
-            cp++;
-        }
-
-        if ((!strcmp(cp, name) || (!ext && !strncmp(cp, name, strlen(cp) - 4))) && fonts[i].size == size) {
-            return i;
-        }
-    }
-
-    return -1;
-}
-
-/**
  * Remove all markup tags, including their contents.
  *
  * Entities will also be replaced with their proper replacements.
@@ -328,44 +416,35 @@ char *text_strip_markup(char *buf, size_t *buf_len, uint8 do_free)
 
     if (buf_len) {
         len = *buf_len;
-    }
-    else {
+    } else {
         len = strlen(buf);
     }
 
-    cp = malloc(sizeof(char) * (len + 1));
+    cp = emalloc(sizeof(char) * (len + 1));
 
     while (pos < len) {
         if (buf[pos] == '[') {
             in_tag = 1;
-        }
-        else if (buf[pos] == ']') {
+        } else if (buf[pos] == ']') {
             in_tag = 0;
-        }
-        else if (buf[pos] == '<') {
+        } else if (buf[pos] == '<') {
             in_tag = 1;
-        }
-        else if (buf[pos] == '>') {
+        } else if (buf[pos] == '>') {
             in_tag = 0;
-        }
-        else if (!in_tag) {
+        } else if (!in_tag) {
             if (!strncmp(buf + pos, "&lsqb;", 6)) {
                 cp[cp_pos++] = '[';
                 pos += 5;
-            }
-            else if (!strncmp(buf + pos, "&rsqb;", 6)) {
+            } else if (!strncmp(buf + pos, "&rsqb;", 6)) {
                 cp[cp_pos++] = ']';
                 pos += 5;
-            }
-            else if (!strncmp(buf + pos, "&lbrack;", 7)) {
+            } else if (!strncmp(buf + pos, "&lbrack;", 7)) {
                 cp[cp_pos++] = '[';
                 pos += 6;
-            }
-            else if (!strncmp(buf + pos, "&rbrack;", 7)) {
+            } else if (!strncmp(buf + pos, "&rbrack;", 7)) {
                 cp[cp_pos++] = ']';
                 pos += 6;
-            }
-            else {
+            } else {
                 cp[cp_pos++] = buf[pos];
             }
         }
@@ -399,11 +478,9 @@ char *text_escape_markup(const char *buf)
     while (*buf != '\0') {
         if (*buf == '[') {
             stringbuffer_append_string(sb, "&lsqb;");
-        }
-        else if (*buf == ']') {
+        } else if (*buf == ']') {
             stringbuffer_append_string(sb, "&rsqb;");
-        }
-        else {
+        } else {
             stringbuffer_append_char(sb, *buf);
         }
 
@@ -438,8 +515,7 @@ static int text_adjust_coords(SDL_Surface *surface, int *mx, int *my)
         if (text_offset_my != -1) {
             *my -= text_offset_my;
         }
-    }
-    else {
+    } else {
         widgetdata *widget = widget_find(NULL, -1, NULL, surface);
 
         if (widget) {
@@ -499,8 +575,7 @@ void text_anchor_execute(text_info_struct *info, void *custom_data)
         buf = estrdup(pos + 1);
         len = strlen(buf);
         info->anchor_action[pos - info->anchor_action] = '\0';
-    }
-    else {
+    } else {
         char *tag;
 
         tag = strstr(info->anchor_tag, "[/a]");
@@ -513,7 +588,7 @@ void text_anchor_execute(text_info_struct *info, void *custom_data)
         len = tag - info->anchor_tag;
         /* Allocate a temporary buffer and copy the text until the
          * ending [/a], so we have the text between the anchor tags. */
-        buf = malloc(len + 1);
+        buf = emalloc(len + 1);
         memcpy(buf, info->anchor_tag, len);
         buf[len] = '\0';
     }
@@ -521,14 +596,14 @@ void text_anchor_execute(text_info_struct *info, void *custom_data)
     buf = text_strip_markup(buf, &len, 1);
 
     if (text_anchor_handle && text_anchor_handle(info->anchor_action, buf, len, custom_data)) {
-    }
-    /* No action specified. */
-    else if (info->anchor_action[0] == '\0') {
+    } else if (info->anchor_action[0] == '\0') {
+        /* No action specified. */
+
         if (cpl.state == ST_PLAY) {
             /* It's not a command, so prepend "/say " to it. */
             if (buf[0] != '/') {
                 /* Resize the buffer so it can hold 5 more bytes. */
-                buf = realloc(buf, len + 5 + 1);
+                buf = erealloc(buf, len + 5 + 1);
                 /* Copy the existing bytes to the end, so we have 5
                  * we can use in the front. */
                 memmove(buf + 5, buf, len + 1);
@@ -538,14 +613,12 @@ void text_anchor_execute(text_info_struct *info, void *custom_data)
 
             send_command_check(buf);
         }
-    }
-    /* Help GUI. */
-    else if (!strcmp(info->anchor_action, "help")) {
+    } else if (!strcmp(info->anchor_action, "help")) {
+        /* Help GUI. */
         strncpy(text_anchor_help, buf, sizeof(text_anchor_help) - 1);
         text_anchor_help[sizeof(text_anchor_help) - 1] = '\0';
         text_anchor_help_clicked = 1;
-    }
-    else if (!strcmp(info->anchor_action, "url")) {
+    } else if (!strcmp(info->anchor_action, "url")) {
         browser_open(buf);
     }
 
@@ -567,7 +640,7 @@ void text_show_character_init(text_info_struct *info)
     info->in_bold = info->in_italic = info->in_underline = info->in_strikethrough = 0;
     info->obscured = 0;
     info->calc_bold = 0;
-    info->calc_font = -1;
+    info->calc_font = NULL;
     info->hcenter_y = 0;
     info->height = 0;
     info->start_x = 0;
@@ -593,9 +666,10 @@ void text_show_character_init(text_info_struct *info)
  * @return How many characters to jump. Usually 1, but can be more in
  * case of markup tags that need to be jumped over, since they are not
  * actually drawn. */
-int text_show_character(int *font, int orig_font, SDL_Surface *surface, SDL_Rect *dest, const char *cp, SDL_Color *color, SDL_Color *orig_color, uint64 flags, SDL_Rect *box, int *x_adjust, text_info_struct *info)
+int text_show_character(font_struct **font, font_struct *orig_font, SDL_Surface *surface, SDL_Rect *dest, const char *cp, SDL_Color *color, SDL_Color *orig_color, uint64 flags, SDL_Rect *box, int *x_adjust, text_info_struct *info)
 {
-    int width, minx, ret = 1, restore_font = -1, new_style;
+    int width, minx, ret = 1, new_style;
+    font_struct *restore_font = NULL;
     char c = *cp;
     uint8 remove_bold = 0;
 
@@ -616,9 +690,9 @@ int text_show_character(int *font, int orig_font, SDL_Surface *surface, SDL_Rect
         tag_len = MAX(0, ret - 2);
 
         if (tag_len == 0) {
-        }
-        /* Color tag: [c=#RRGGBB] */
-        else if (tag_len >= 3 && strncmp(tag, "c=#", 3) == 0) {
+        } else if (tag_len >= 3 && strncmp(tag, "c=#", 3) == 0) {
+            /* Color tag: [c=#RRGGBB] */
+
             if (color && (surface || info->obscured) && !(flags & TEXT_NO_COLOR_CHANGE)) {
                 uint32 r, g, b;
                 int change_orig = 0;
@@ -634,174 +708,154 @@ int text_show_character(int *font, int orig_font, SDL_Surface *surface, SDL_Rect
                     }
                 }
             }
-        }
-        /* End of color tag. */
-        else if (tag_len == 2 && strncmp(tag, "/c", tag_len) == 0) {
+        } else if (tag_len == 2 && strncmp(tag, "/c", tag_len) == 0) {
+            /* End of color tag. */
+
             if (color && (surface || info->obscured)) {
                 SDL_color_copy(color, orig_color);
             }
-        }
-        /* Convenience tag to make string green. */
-        else if (tag_len == 5 && strncmp(tag, "green", tag_len) == 0) {
+        } else if (tag_len == 5 && strncmp(tag, "green", tag_len) == 0) {
+            /* Convenience tag to make string green. */
+
             if (color && (surface || info->obscured) && !(flags & TEXT_NO_COLOR_CHANGE)) {
                 color->r = 0;
                 color->g = 255;
                 color->b = 0;
             }
-        }
-        else if (tag_len == 6 && strncmp(tag, "/green", tag_len) == 0) {
+        } else if (tag_len == 6 && strncmp(tag, "/green", tag_len) == 0) {
             if (color && (surface || info->obscured)) {
                 SDL_color_copy(color, orig_color);
             }
-        }
-        /* Convenience tag to make string yellow. */
-        else if (tag_len == 6 && strncmp(tag, "yellow", tag_len) == 0) {
+        } else if (tag_len == 6 && strncmp(tag, "yellow", tag_len) == 0) {
+            /* Convenience tag to make string yellow. */
+
             if (color && (surface || info->obscured) && !(flags & TEXT_NO_COLOR_CHANGE)) {
                 color->r = 255;
                 color->g = 255;
                 color->b = 0;
             }
-        }
-        else if (tag_len == 7 && strncmp(tag, "/yellow", tag_len) == 0) {
+        } else if (tag_len == 7 && strncmp(tag, "/yellow", tag_len) == 0) {
             if (color && (surface || info->obscured)) {
                 SDL_color_copy(color, orig_color);
             }
-        }
-        /* Convenience tag to make string red. */
-        else if (tag_len == 3 && strncmp(tag, "red", tag_len) == 0) {
+        } else if (tag_len == 3 && strncmp(tag, "red", tag_len) == 0) {
+            /* Convenience tag to make string red. */
+
             if (color && (surface || info->obscured) && !(flags & TEXT_NO_COLOR_CHANGE)) {
                 color->r = 255;
                 color->g = 0;
                 color->b = 0;
             }
-        }
-        else if (tag_len == 4 && strncmp(tag, "/red", tag_len) == 0) {
+        } else if (tag_len == 4 && strncmp(tag, "/red", tag_len) == 0) {
             if (color && (surface || info->obscured)) {
                 SDL_color_copy(color, orig_color);
             }
-        }
-        /* Convenience tag to make string blue. */
-        else if (tag_len == 4 && strncmp(tag, "blue", tag_len) == 0) {
+        } else if (tag_len == 4 && strncmp(tag, "blue", tag_len) == 0) {
+            /* Convenience tag to make string blue. */
+
             if (color && (surface || info->obscured) && !(flags & TEXT_NO_COLOR_CHANGE)) {
                 color->r = 0;
                 color->g = 0;
                 color->b = 255;
             }
-        }
-        else if (tag_len == 5 && strncmp(tag, "/blue", tag_len) == 0) {
+        } else if (tag_len == 5 && strncmp(tag, "/blue", tag_len) == 0) {
             if (color && (surface || info->obscured)) {
                 SDL_color_copy(color, orig_color);
             }
-        }
-        /* Bold. */
-        else if (tag_len == 1 && strncmp(tag, "b", tag_len) == 0) {
+        } else if (tag_len == 1 && strncmp(tag, "b", tag_len) == 0) {
+            /* Bold. */
+
             if (surface || info->obscured) {
                 info->in_bold = 1;
-            }
-            else {
+            } else {
                 info->calc_bold = 1;
             }
-        }
-        else if (tag_len == 2 && strncmp(tag, "/b", tag_len) == 0) {
+        } else if (tag_len == 2 && strncmp(tag, "/b", tag_len) == 0) {
             if (surface || info->obscured) {
                 info->in_bold = 0;
-            }
-            else {
+            } else {
                 info->calc_bold = 0;
             }
-        }
-        /* Italic. */
-        else if (tag_len == 1 && strncmp(tag, "i", tag_len) == 0) {
+        } else if (tag_len == 1 && strncmp(tag, "i", tag_len) == 0) {
+            /* Italic. */
+
             if (surface || info->obscured) {
                 info->in_italic = 1;
             }
-        }
-        else if (tag_len == 2 && strncmp(tag, "/i", tag_len) == 0) {
+        } else if (tag_len == 2 && strncmp(tag, "/i", tag_len) == 0) {
             if (surface || info->obscured) {
                 info->in_italic = 0;
             }
-        }
-        /* Underscore. */
-        else if (tag_len == 1 && strncmp(tag, "u", tag_len) == 0) {
+        } else if (tag_len == 1 && strncmp(tag, "u", tag_len) == 0) {
+            /* Underscore. */
+
             if (surface || info->obscured) {
                 info->in_underline = 1;
             }
-        }
-        else if (tag_len == 2 && strncmp(tag, "/u", tag_len) == 0) {
+        } else if (tag_len == 2 && strncmp(tag, "/u", tag_len) == 0) {
             if (surface || info->obscured) {
                 info->in_underline = 0;
             }
-        }
-        /* Strikethrough. */
-        else if (tag_len == 1 && strncmp(tag, "s", tag_len) == 0) {
+        } else if (tag_len == 1 && strncmp(tag, "s", tag_len) == 0) {
+            /* Strikethrough. */
+
             if (surface || info->obscured) {
                 info->in_strikethrough = 1;
             }
-        }
-        else if (tag_len == 2 && strncmp(tag, "/s", tag_len) == 0) {
+        } else if (tag_len == 2 && strncmp(tag, "/s", tag_len) == 0) {
             if (surface || info->obscured) {
                 info->in_strikethrough = 0;
             }
-        }
-        /* Font change. */
-        else if (tag_len >= 5 && strncmp(tag, "font=", 5) == 0) {
+        } else if (tag_len >= 5 && strncmp(tag, "font=", 5) == 0) {
             int font_size = 10;
             char font_name[MAX_BUF];
 
+            /* Font change. */
+
             if (!(flags & TEXT_NO_FONT_CHANGE) && sscanf(tag + 5, "%64[^] >] %d", font_name, &font_size) >= 1) {
-                int font_id = get_font_id(font_name, font_size);
+                font_struct *font_new = font_get_weak(font_name, font_size);
 
-                if (font_id != -1) {
+                if (font_new != NULL) {
                     if (surface || info->obscured) {
-                        *font = font_id;
-                    }
-                    else {
-                        info->calc_font = font_id;
+                        *font = font_new;
+                    } else {
+                        info->calc_font = font_new;
                     }
                 }
             }
-        }
-        else if (tag_len >= 5 && !strncmp(tag, "size=", 5)) {
+        } else if (!(flags & TEXT_NO_FONT_CHANGE) && tag_len >= 5 &&
+                strncmp(tag, "size=", 5) == 0) {
             int font_size;
+            font_struct *font_new;
 
-            if (!(flags & TEXT_NO_FONT_CHANGE) && sscanf(tag + 5, "%d", &font_size) == 1) {
-                const char *tmp = strrchr(fonts[*font].path, '/');
-                int font_id;
+            font_new = NULL;
 
-                if (!tmp) {
-                    tmp = fonts[*font].path;
-                }
-                else {
-                    tmp++;
-                }
+            if (strncmp(tag + 5, "+", 1) == 0 ||
+                    strncmp(tag + 5, "-", 1) == 0) {
+                font_new = font_get_size(*font, atoi(tag + 5));
+            } else if (sscanf(tag + 5, "%d", &font_size) == 1) {
+                font_new = font_get_weak((*font)->name, font_size);
+            }
 
-                font_id = get_font_id(tmp, font_size);
-
-                if (font_id != -1) {
-                    if (surface || info->obscured) {
-                        *font = font_id;
-                    }
-                    else {
-                        info->calc_font = font_id;
-                    }
+            if (font_new != NULL) {
+                if (surface || info->obscured) {
+                    *font = font_new;
+                } else {
+                    info->calc_font = font_new;
                 }
             }
-        }
-        else if (tag_len == 5 && (strncmp(tag, "/font", tag_len) == 0 || strncmp(tag, "/size", tag_len) == 0)) {
+        } else if (tag_len == 5 && (strncmp(tag, "/font", tag_len) == 0 || strncmp(tag, "/size", tag_len) == 0)) {
             if (surface || info->obscured) {
                 *font = orig_font;
+            } else {
+                info->calc_font = NULL;
             }
-            else {
-                info->calc_font = -1;
-            }
-        }
-        /* Make text centered. */
-        else if (tag_len == 6 && strncmp(tag, "center", tag_len) == 0) {
+        } else if (tag_len == 6 && strncmp(tag, "center", tag_len) == 0) {
             /* Find the ending tag. */
             tag2 = strstr(tag + tag_len, "[/center]");
 
             if (tag2 && box && box->w) {
-                char *buf = malloc(tag2 - cp - 8 + 1);
+                char *buf = emalloc(tag2 - cp - 8 + 1);
                 int w;
 
                 /* Copy the string between [center] and [/center] to a
@@ -815,11 +869,30 @@ int text_show_character(int *font, int orig_font, SDL_Surface *surface, SDL_Rect
                     dest->x = w;
                 }
             }
-        }
-        else if (tag_len == 7 && strncmp(tag, "/center", tag_len) == 0) {
-        }
-        /* Anchor tag. */
-        else if ((tag_len == 1 && strncmp(tag, "a", tag_len) == 0) || (tag_len >= 2 && strncmp(tag, "a=", 2) == 0)) {
+        } else if (tag_len == 7 && strncmp(tag, "/center", tag_len) == 0) {
+        } else if (tag_len == 5 && strncmp(tag, "right", tag_len) == 0) {
+            /* Find the ending tag. */
+            tag2 = strstr(tag + tag_len, "[/right]");
+
+            if (tag2 && box && box->w) {
+                char *buf = emalloc(tag2 - cp - 7 + 1);
+                int w;
+
+                /* Copy the string between [right] and [/right] to a
+                 * temporary buffer so we can calculate its width. */
+                memcpy(buf, cp + 7, tag2 - cp - 7);
+                buf[tag2 - cp - 7] = '\0';
+                w = info->start_x + box->w - text_get_width(*font, buf, flags);
+                efree(buf);
+
+                if (surface) {
+                    if (w > dest->x) {
+                        dest->x = w;
+                    }
+                }
+            }
+        } else if (tag_len == 6 && strncmp(tag, "/right", tag_len) == 0) {
+        } else if ((tag_len == 1 && strncmp(tag, "a", tag_len) == 0) || (tag_len >= 2 && strncmp(tag, "a=", 2) == 0)) {
             /* Scan for action other than the default. */
             if (sscanf(tag, "a=%1024[^]>]", info->anchor_action) != 1) {
                 info->anchor_action[0] = '\0';
@@ -836,8 +909,7 @@ int text_show_character(int *font, int orig_font, SDL_Surface *surface, SDL_Rect
 
                 info->anchor_tag = pos + 1;
             }
-        }
-        else if (tag_len == 2 && strncmp(tag, "/a", tag_len) == 0) {
+        } else if (tag_len == 2 && strncmp(tag, "/a", tag_len) == 0) {
             if (surface || info->obscured) {
                 if (color) {
                     SDL_color_copy(color, orig_color);
@@ -845,8 +917,7 @@ int text_show_character(int *font, int orig_font, SDL_Surface *surface, SDL_Rect
 
                 info->anchor_tag = NULL;
             }
-        }
-        else if (tag_len >= 2 && strncmp(tag, "y=", 2) == 0) {
+        } else if (tag_len >= 2 && strncmp(tag, "y=", 2) == 0) {
             if (surface) {
                 int height;
 
@@ -854,8 +925,7 @@ int text_show_character(int *font, int orig_font, SDL_Surface *surface, SDL_Rect
                     dest->y += height;
                 }
             }
-        }
-        else if (tag_len >= 2 && !strncmp(tag, "x=", 2)) {
+        } else if (tag_len >= 2 && !strncmp(tag, "x=", 2)) {
             if (surface) {
                 int w;
 
@@ -863,8 +933,7 @@ int text_show_character(int *font, int orig_font, SDL_Surface *surface, SDL_Rect
                     dest->x += w;
                 }
             }
-        }
-        else if (tag_len >= 4 && strncmp(tag, "img=", 4) == 0) {
+        } else if (tag_len >= 4 && strncmp(tag, "img=", 4) == 0) {
             if (surface) {
                 char face[MAX_BUF];
                 int x = 0, y = 0, alpha = 0, align = 0, zoom_x = 0, zoom_y = 0, rotate = 0, wd = 0, ht = 0, sprite_flags = 0, dark_level = 0, quick_pos = 0;
@@ -884,8 +953,7 @@ int text_show_character(int *font, int orig_font, SDL_Surface *surface, SDL_Rect
 
                         if (rotate) {
                             rotozoomSurfaceSizeXY(w, h, rotate, zoom_x ? zoom_x / 100.0 : 1.0, zoom_y ? zoom_y / 100.0 : 1.0, &w, &h);
-                        }
-                        else if ((zoom_x && zoom_x != 100) || (zoom_y && zoom_y != 100)) {
+                        } else if ((zoom_x && zoom_x != 100) || (zoom_y && zoom_y != 100)) {
                             zoomSurfaceSize(w, h, zoom_x ? zoom_x / 100.0 : 1.0, zoom_y ? zoom_y / 100.0 : 1.0, &w, &h);
                         }
 
@@ -910,8 +978,7 @@ int text_show_character(int *font, int orig_font, SDL_Surface *surface, SDL_Rect
                                 if (w > MultiArchs[mid].xlen) {
                                     x += (MultiArchs[mid].xlen - w) >> 1;
                                 }
-                            }
-                            else {
+                            } else {
                                 y = (y + MAP_TILE_POS_YOFF) - h;
 
                                 if (w > MAP_TILE_POS_XOFF) {
@@ -931,27 +998,22 @@ int text_show_character(int *font, int orig_font, SDL_Surface *surface, SDL_Rect
                     }
                 }
             }
-        }
-        else if (tag_len >= 3 && strncmp(tag, "o=#", 3) == 0) {
-            if (surface || info->obscured) {
-                uint32 r, g, b;
+        } else if (tag_len >= 3 && strncmp(tag, "o=#", 3) == 0) {
+            uint32 r, g, b;
 
-                /* Parse the r,g,b colors. */
-                if (sscanf(tag + 3, "%2X%2X%2X", &r, &g, &b) == 3) {
-                    info->outline_color.r = r;
-                    info->outline_color.g = g;
-                    info->outline_color.b = b;
-                    info->outline_show = 1;
-                }
+            /* Parse the r,g,b colors. */
+            if (sscanf(tag + 3, "%2X%2X%2X", &r, &g, &b) == 3) {
+                info->outline_color.r = r;
+                info->outline_color.g = g;
+                info->outline_color.b = b;
+                info->outline_show = 1;
             }
-        }
-        else if (tag_len == 2 && strncmp(tag, "/o", tag_len) == 0) {
+        } else if (tag_len == 2 && strncmp(tag, "/o", tag_len) == 0) {
             if (surface || info->obscured) {
                 info->outline_color.r = info->outline_color.g = info->outline_color.b = 0;
                 info->outline_show = 0;
             }
-        }
-        else if (tag_len >= 6 && strncmp(tag, "alpha=", 6) == 0) {
+        } else if (tag_len >= 6 && strncmp(tag, "alpha=", 6) == 0) {
             if (surface || info->obscured) {
                 int alpha;
 
@@ -959,11 +1021,9 @@ int text_show_character(int *font, int orig_font, SDL_Surface *surface, SDL_Rect
                     info->used_alpha = alpha;
                 }
             }
-        }
-        else if (tag_len == 6 && strncmp(tag, "/alpha", tag_len) == 0) {
+        } else if (tag_len == 6 && strncmp(tag, "/alpha", tag_len) == 0) {
             info->used_alpha = 255;
-        }
-        else if (tag_len == 4 && strncmp(tag, "book", tag_len) == 0) {
+        } else if (tag_len == 4 && strncmp(tag, "book", tag_len) == 0) {
             tag2 = strstr(tag + tag_len, "[/book]");
 
             if (tag2) {
@@ -973,10 +1033,8 @@ int text_show_character(int *font, int orig_font, SDL_Surface *surface, SDL_Rect
 
                 ret += tag2 - tag - 5;
             }
-        }
-        else if (tag_len == 5 && strncmp(tag, "/book", tag_len) == 0) {
-        }
-        else if (tag_len == 1 && strncmp(tag, "p", tag_len) == 0) {
+        } else if (tag_len == 5 && strncmp(tag, "/book", tag_len) == 0) {
+        } else if (tag_len == 1 && strncmp(tag, "p", tag_len) == 0) {
             if (surface && box && box->w) {
                 SDL_Rect rect;
 
@@ -997,13 +1055,11 @@ int text_show_character(int *font, int orig_font, SDL_Surface *surface, SDL_Rect
                 rect.y++;
                 SDL_FillRect(surface, &rect, SDL_MapRGB(surface->format, 96, 96, 96));
             }
-        }
-        else if (tag_len == 5 && strncmp(tag, "title", tag_len) == 0) {
+        } else if (tag_len == 5 && strncmp(tag, "title", tag_len) == 0) {
             if (!(flags & TEXT_NO_FONT_CHANGE)) {
                 if (surface || info->obscured) {
                     *font = FONT_SERIF14;
-                }
-                else {
+                } else {
                     info->calc_font = FONT_SERIF14;
                 }
             }
@@ -1011,17 +1067,14 @@ int text_show_character(int *font, int orig_font, SDL_Surface *surface, SDL_Rect
             if (surface || info->obscured) {
                 info->in_underline = 1;
             }
-        }
-        else if (tag_len == 6 && strncmp(tag, "/title", tag_len) == 0) {
+        } else if (tag_len == 6 && strncmp(tag, "/title", tag_len) == 0) {
             if (surface || info->obscured) {
                 info->in_underline = 0;
                 *font = orig_font;
+            } else {
+                info->calc_font = NULL;
             }
-            else {
-                info->calc_font = -1;
-            }
-        }
-        else if (tag_len >= 8 && strncmp(tag, "padding=", 8) == 0) {
+        } else if (tag_len >= 8 && strncmp(tag, "padding=", 8) == 0) {
             int val;
 
             if (x_adjust && sscanf(tag + 8, "%d", &val) == 1) {
@@ -1032,13 +1085,11 @@ int text_show_character(int *font, int orig_font, SDL_Surface *surface, SDL_Rect
                 dest->w += val;
                 *x_adjust = val;
             }
-        }
-        else if (tag_len == 8 && strncmp(tag, "/padding", tag_len) == 0) {
+        } else if (tag_len == 8 && strncmp(tag, "/padding", tag_len) == 0) {
             if (x_adjust) {
                 *x_adjust = 0;
             }
-        }
-        else if (tag_len >= 4 && strncmp(tag, "bar=", 4) == 0) {
+        } else if (tag_len >= 4 && strncmp(tag, "bar=", 4) == 0) {
             if (surface && !(flags & TEXT_NO_COLOR_CHANGE)) {
                 char texture[MAX_BUF];
                 int bar_w, bar_h;
@@ -1057,14 +1108,12 @@ int text_show_character(int *font, int orig_font, SDL_Surface *surface, SDL_Rect
 
                     if (*texture == '#' && text_color_parse(texture, &bar_color)) {
                         SDL_FillRect(surface, &bar_dst, SDL_MapRGB(surface->format, bar_color.r, bar_color.g, bar_color.b));
-                    }
-                    else {
+                    } else {
                         surface_show_fill(surface, bar_dst.x, bar_dst.y, NULL, TEXTURE_CLIENT(texture), &bar_dst);
                     }
                 }
             }
-        }
-        else if (tag_len >= 7 && strncmp(tag, "border=", 7) == 0) {
+        } else if (tag_len >= 7 && strncmp(tag, "border=", 7) == 0) {
             if (surface && !(flags & TEXT_NO_COLOR_CHANGE)) {
                 char texture[MAX_BUF];
                 int wd, ht, thickness = 1;
@@ -1083,14 +1132,12 @@ int text_show_character(int *font, int orig_font, SDL_Surface *surface, SDL_Rect
 
                     if (*texture == '#' && text_color_parse(texture, &border_color)) {
                         border_create(surface, border_dst.x, border_dst.y, border_dst.w, border_dst.h, SDL_MapRGB(surface->format, border_color.r, border_color.g, border_color.b), thickness);
-                    }
-                    else {
+                    } else {
                         border_create_texture(surface, &border_dst, thickness, TEXTURE_CLIENT(texture));
                     }
                 }
             }
-        }
-        else if (tag_len >= 8 && strncmp(tag, "hcenter=", 8) == 0) {
+        } else if (tag_len >= 8 && strncmp(tag, "hcenter=", 8) == 0) {
             if (surface) {
                 int ht;
 
@@ -1102,7 +1149,7 @@ int text_show_character(int *font, int orig_font, SDL_Surface *surface, SDL_Rect
                     SDL_Rect hcenter_box;
 
                     len = tag2 - (tag + tag_len + 1);
-                    tmpbuf = malloc(len + 1);
+                    tmpbuf = emalloc(len + 1);
                     memcpy(tmpbuf, tag + tag_len + 1, len);
                     tmpbuf[len] = '\0';
 
@@ -1115,13 +1162,11 @@ int text_show_character(int *font, int orig_font, SDL_Surface *surface, SDL_Rect
                     efree(tmpbuf);
                 }
             }
-        }
-        else if (tag_len == 8 && strncmp(tag, "/hcenter", tag_len) == 0) {
+        } else if (tag_len == 8 && strncmp(tag, "/hcenter", tag_len) == 0) {
             if (surface) {
                 dest->y += info->hcenter_y;
             }
-        }
-        else if (tag_len >= 5 && strncmp(tag, "icon=", 5) == 0) {
+        } else if (tag_len >= 5 && strncmp(tag, "icon=", 5) == 0) {
             if (surface) {
                 char face[MAX_BUF];
                 int wd, ht, fit_to_size, flip;
@@ -1164,8 +1209,7 @@ int text_show_character(int *font, int orig_font, SDL_Surface *surface, SDL_Rect
                             border_down = icon_sprite->border_down;
                             border_left = icon_sprite->border_left;
                             border_right = icon_sprite->border_right;
-                        }
-                        else {
+                        } else {
                             surface_borders_get(icon_surface, &border_up, &border_down, &border_left, &border_right, icon_surface->format->colorkey);
                         }
 
@@ -1232,24 +1276,21 @@ int text_show_character(int *font, int orig_font, SDL_Surface *surface, SDL_Rect
                             // Left to right
                             if (show_percentage >= 6.0) {
                                 icon_box.w *= show_percentage - 6.0;
-                            }
-                            // Bottom to top
+                            }// Bottom to top
                             else if (show_percentage >= 4.0) {
                                 int offset;
 
                                 offset = icon_box.h - ((float) icon_box.h * (show_percentage - 4.0));
                                 icon_box.y += offset;
                                 icon_dst.y += offset;
-                            }
-                            // Right to left
+                            }// Right to left
                             else if (show_percentage >= 2.0) {
                                 int offset;
 
                                 offset = icon_box.w - ((float) icon_box.w * (show_percentage - 2.0));
                                 icon_box.x += offset;
                                 icon_dst.x += offset;
-                            }
-                            // Top to bottom
+                            }// Top to bottom
                             else {
                                 icon_box.h *= show_percentage;
                             }
@@ -1262,15 +1303,13 @@ int text_show_character(int *font, int orig_font, SDL_Surface *surface, SDL_Rect
 
                             SDL_BlitSurface(tmp_icon, &icon_box, surface, &icon_dst);
                             SDL_FreeSurface(tmp_icon);
-                        }
-                        else {
+                        } else {
                             SDL_BlitSurface(icon_surface, &icon_box, surface, &icon_dst);
                         }
                     }
                 }
             }
-        }
-        else if (tag_len >= 9 && strncmp(tag, "ctooltip=", 9) == 0) {
+        } else if (tag_len >= 9 && strncmp(tag, "ctooltip=", 9) == 0) {
             if (surface || info->obscured) {
                 int mx, my;
                 char tooltip_width[MAX_BUF], tooltip_height[MAX_BUF], tooltip_text[HUGE_BUF];
@@ -1283,15 +1322,13 @@ int text_show_character(int *font, int orig_font, SDL_Surface *surface, SDL_Rect
 
                     if (string_startswith(tooltip_width, "w:")) {
                         wd = text_get_width(*font, tooltip_width + 2, 0);
-                    }
-                    else {
+                    } else {
                         wd = atoi(tooltip_width);
                     }
 
                     if (string_startswith(tooltip_height, "h:")) {
                         ht = text_get_height(*font, tooltip_height + 2, 0);
-                    }
-                    else {
+                    } else {
                         ht = atoi(tooltip_height);
                     }
 
@@ -1319,19 +1356,16 @@ int text_show_character(int *font, int orig_font, SDL_Surface *surface, SDL_Rect
                     }
                 }
             }
-        }
-        else if (tag_len >= 8 && strncmp(tag, "tooltip=", 8) == 0) {
+        } else if (tag_len >= 8 && strncmp(tag, "tooltip=", 8) == 0) {
             if (surface || info->obscured) {
                 if (sscanf(tag + 8, "%512[^]>]", info->tooltip_text) == 1) {
                 }
             }
-        }
-        else if (tag_len == 8 && strncmp(tag, "/tooltip", tag_len) == 0) {
+        } else if (tag_len == 8 && strncmp(tag, "/tooltip", tag_len) == 0) {
             if (surface || info->obscured) {
                 info->tooltip_text[0] = '\0';
             }
-        }
-        else if (tag_len >= 3 && strncmp(tag, "h=#", 3) == 0) {
+        } else if (tag_len >= 3 && strncmp(tag, "h=#", 3) == 0) {
             int r, g, b;
 
             if ((surface || info->obscured) && sscanf(tag + 3, "%2X%2X%2X", &r, &g, &b) == 3) {
@@ -1341,7 +1375,7 @@ int text_show_character(int *font, int orig_font, SDL_Surface *surface, SDL_Rect
                 if (tag2) {
                     char *buf;
 
-                    buf = malloc(tag2 - cp - 11 + 1);
+                    buf = emalloc(tag2 - cp - 11 + 1);
                     memcpy(buf, cp + 11, tag2 - cp - 11);
                     buf[tag2 - cp - 11] = '\0';
                     info->highlight_rect.x = dest->x;
@@ -1356,13 +1390,11 @@ int text_show_character(int *font, int orig_font, SDL_Surface *surface, SDL_Rect
                     info->highlight_color.b = b;
                 }
             }
-        }
-        else if (tag_len == 2 && strncmp(tag, "/h", tag_len) == 0) {
+        } else if (tag_len == 2 && strncmp(tag, "/h", tag_len) == 0) {
             if (surface || info->obscured) {
                 info->highlight = 0;
             }
-        }
-        else if (tag_len >= 5 && strncmp(tag, "line=", 5) == 0) {
+        } else if (tag_len >= 5 && strncmp(tag, "line=", 5) == 0) {
             int x, y, x2, y2;
 
             if ((surface || info->obscured) && sscanf(tag + 5, "%d,%d,%d,%d", &x, &y, &x2, &y2) == 4) {
@@ -1375,30 +1407,25 @@ int text_show_character(int *font, int orig_font, SDL_Surface *surface, SDL_Rect
                     lineRGBA(surface, dest->x + x, dest->y + y, dest->x + x2, dest->y + y2, color->r, color->g, color->b, info->used_alpha);
                 }
             }
-        }
-        else if (tag_len >= 5 && strncmp(tag, "flip=", 5) == 0) {
+        } else if (tag_len >= 5 && strncmp(tag, "flip=", 5) == 0) {
             if (surface || info->obscured) {
                 char flip_type[MAX_BUF];
 
                 if (sscanf(tag + 5, "%64[^]>]", flip_type) == 1) {
                     if (strcmp(flip_type, "horizontal") == 0) {
                         info->flip = TEXT_FLIP_HORIZONTAL;
-                    }
-                    else if (strcmp(flip_type, "vertical") == 0) {
+                    } else if (strcmp(flip_type, "vertical") == 0) {
                         info->flip = TEXT_FLIP_VERTICAL;
-                    }
-                    else if (strcmp(flip_type, "both") == 0) {
+                    } else if (strcmp(flip_type, "both") == 0) {
                         info->flip = TEXT_FLIP_BOTH;
                     }
                 }
             }
-        }
-        else if (tag_len == 4 && strncmp(tag, "/flip", tag_len) == 0) {
+        } else if (tag_len == 4 && strncmp(tag, "/flip", tag_len) == 0) {
             if (surface || info->obscured) {
                 info->flip = 0;
             }
-        }
-        else {
+        } else {
             char *cp2;
 
             cp2 = text_escape_markup(cp);
@@ -1416,16 +1443,13 @@ int text_show_character(int *font, int orig_font, SDL_Surface *surface, SDL_Rect
         if (!strncmp(cp, "&lsqb;", 6)) {
             c = '[';
             ret = 6;
-        }
-        else if (!strncmp(cp, "&rsqb;", 6)) {
+        } else if (!strncmp(cp, "&rsqb;", 6)) {
             c = ']';
             ret = 6;
-        }
-        else if (!strncmp(cp, "&lbrack;", 7)) {
+        } else if (!strncmp(cp, "&lbrack;", 7)) {
             c = '[';
             ret = 7;
-        }
-        else if (!strncmp(cp, "&rbrack;", 7)) {
+        } else if (!strncmp(cp, "&rbrack;", 7)) {
             c = ']';
             ret = 7;
         }
@@ -1447,47 +1471,46 @@ int text_show_character(int *font, int orig_font, SDL_Surface *surface, SDL_Rect
             new_style |= TTF_STYLE_UNDERLINE;
         }
 
-        if (TTF_GetFontStyle(fonts[*font].font) != new_style) {
-            TTF_SetFontStyle(fonts[*font].font, new_style);
+        if (TTF_GetFontStyle((*font)->font) != new_style) {
+            TTF_SetFontStyle((*font)->font, new_style);
         }
-    }
-    /* Deals with the case when calculating width. */
-    else {
+    } else {
         uint8 is_bold;
+
+        /* Deals with the case when calculating width. */
 
         /* Different font sizes affect the width, so we need to
          * temporarily change the current font. */
-        if (info->calc_font != -1) {
-            restore_font = *font;
-            *font = info->calc_font;
+        if (info->calc_font != NULL) {
+            restore_font = (*font);
+            (*font) = info->calc_font;
         }
 
-        is_bold = TTF_GetFontStyle(fonts[*font].font) & TTF_STYLE_BOLD;
+        is_bold = TTF_GetFontStyle((*font)->font) & TTF_STYLE_BOLD;
 
         /* Bold style also slightly affects the width. */
         if (info->calc_bold && !is_bold) {
-            TTF_SetFontStyle(fonts[*font].font, TTF_GetFontStyle(fonts[*font].font) | TTF_STYLE_BOLD);
+            TTF_SetFontStyle((*font)->font, TTF_GetFontStyle((*font)->font) | TTF_STYLE_BOLD);
             remove_bold = 1;
-        }
-        else if (!info->calc_bold && is_bold) {
-            TTF_SetFontStyle(fonts[*font].font, TTF_GetFontStyle(fonts[*font].font) & ~TTF_STYLE_BOLD);
+        } else if (!info->calc_bold && is_bold) {
+            TTF_SetFontStyle((*font)->font, TTF_GetFontStyle((*font)->font) & ~TTF_STYLE_BOLD);
         }
     }
 
     /* Get the glyph's metrics. */
-    if (TTF_GlyphMetrics(fonts[*font].font, c == '\t' ? ' ' : c, &minx, NULL, NULL, NULL, &width) == -1) {
+    if (TTF_GlyphMetrics((*font)->font, c == '\t' ? ' ' : c, &minx, NULL, NULL, NULL, &width) == -1) {
         return ret;
     }
 
     /* Remove temporary bold style. */
     if (remove_bold) {
-        TTF_SetFontStyle(fonts[*font].font, TTF_GetFontStyle(fonts[*font].font) & ~TTF_STYLE_BOLD);
+        TTF_SetFontStyle((*font)->font, TTF_GetFontStyle((*font)->font) & ~TTF_STYLE_BOLD);
     }
 
     /* Restore font. */
-    if (restore_font != -1) {
+    if (restore_font != NULL) {
         *font = restore_font;
-        restore_font = -1;
+        restore_font = NULL;
     }
 
     if (minx < 0) {
@@ -1535,8 +1558,7 @@ int text_show_character(int *font, int orig_font, SDL_Surface *surface, SDL_Rect
                         if (state == SDL_BUTTON_LEFT && (!selection_start || !selection_end || *selection_start == -1 || *selection_end == -1) && (!ticks || SDL_GetTicks() - ticks > 125)) {
                             ticks = SDL_GetTicks();
                             text_anchor_execute(info, NULL);
-                        }
-                        else {
+                        } else {
                             cursor_texture = texture_get(TEXTURE_TYPE_CLIENT, "cursor_pointer");
                         }
                     }
@@ -1559,14 +1581,21 @@ int text_show_character(int *font, int orig_font, SDL_Surface *surface, SDL_Rect
 
             for (outline_x = -1; outline_x < 2; outline_x++) {
                 for (outline_y = -1; outline_y < 2; outline_y++) {
+                    if (outline_x == 0 && outline_y == 0) {
+                        continue;
+                    }
+
                     outline_box.x = dest->x + outline_x;
                     outline_box.y = dest->y + outline_y + MAX(info->start_y - dest->y + outline_y, 0);
 
                     if (flags & TEXT_SOLID) {
-                        ttf_surface = TTF_RenderText_Solid(fonts[*font].font, buf, info->outline_color);
+                        ttf_surface = TTF_RenderText_Solid((*font)->font, buf, info->outline_color);
+                    } else {
+                        ttf_surface = TTF_RenderText_Blended((*font)->font, buf, info->outline_color);
                     }
-                    else {
-                        ttf_surface = TTF_RenderText_Blended(fonts[*font].font, buf, info->outline_color);
+
+                    if (info->used_alpha != 255) {
+                        surface_set_alpha(ttf_surface, info->used_alpha);
                     }
 
                     srcrect.x = 0;
@@ -1582,7 +1611,7 @@ int text_show_character(int *font, int orig_font, SDL_Surface *surface, SDL_Rect
 
         /* Render the character. */
         if (flags & TEXT_SOLID) {
-            ttf_surface = TTF_RenderText_Solid(fonts[*font].font, buf, *use_color);
+            ttf_surface = TTF_RenderText_Solid((*font)->font, buf, *use_color);
 
             /* Opacity. */
             if (info->used_alpha != 255) {
@@ -1598,9 +1627,8 @@ int text_show_character(int *font, int orig_font, SDL_Surface *surface, SDL_Rect
                 SDL_FreeSurface(ttf_surface);
                 ttf_surface = new_ttf_surface;
             }
-        }
-        else {
-            ttf_surface = TTF_RenderText_Blended(fonts[*font].font, buf, *use_color);
+        } else {
+            ttf_surface = TTF_RenderText_Blended((*font)->font, buf, *use_color);
 
             if (info->used_alpha != 255) {
                 surface_set_alpha(ttf_surface, info->used_alpha);
@@ -1610,7 +1638,7 @@ int text_show_character(int *font, int orig_font, SDL_Surface *surface, SDL_Rect
         if (info->in_strikethrough) {
             int font_height;
 
-            font_height = TTF_FontHeight(fonts[*font].font);
+            font_height = TTF_FontHeight((*font)->font);
             lineRGBA(ttf_surface, 0, font_height / 2, ttf_surface->w - 1, font_height / 2, use_color->r, use_color->g, use_color->b, 255);
         }
 
@@ -1650,11 +1678,11 @@ int text_show_character(int *font, int orig_font, SDL_Surface *surface, SDL_Rect
  * @param font Font of the glyph.
  * @param c The glyph.
  * @return The width. */
-int glyph_get_width(int font, char c)
+int glyph_get_width(font_struct *font, char c)
 {
     int minx, width;
 
-    if (TTF_GlyphMetrics(fonts[font].font, c == '\t' ? ' ' : c, &minx, NULL, NULL, NULL, &width) != -1) {
+    if (TTF_GlyphMetrics(font->font, c == '\t' ? ' ' : c, &minx, NULL, NULL, NULL, &width) != -1) {
         if (minx < 0) {
             width -= minx;
         }
@@ -1674,11 +1702,11 @@ int glyph_get_width(int font, char c)
  * @param font Font of the glyph.
  * @param c The glyph.
  * @return The height. */
-int glyph_get_height(int font, char c)
+int glyph_get_height(font_struct *font, char c)
 {
     int miny, maxy;
 
-    if (TTF_GlyphMetrics(fonts[font].font, c, NULL, NULL, &miny, &maxy, NULL) != -1) {
+    if (TTF_GlyphMetrics(font->font, c, NULL, NULL, &miny, &maxy, NULL) != -1) {
         if (miny) {
             maxy -= miny;
         }
@@ -1763,13 +1791,13 @@ int glyph_get_height(int font, char c)
  * one of the 'flags', this is used to get the max width from. Also even
  * if word wrap is disabled, this is used to get the max height from, if
  * set (both box->w and box->h can be 0 to indicate unlimited). */
-void text_show(SDL_Surface *surface, int font, const char *text, int x, int y, const char *color_notation, uint64 flags, SDL_Rect *box)
+void text_show(SDL_Surface *surface, font_struct *font, const char *text, int x, int y, const char *color_notation, uint64 flags, SDL_Rect *box)
 {
     const char *cp = text;
     SDL_Rect dest;
     int pos = 0, last_space = 0, is_lf, ret, skip, max_height, max_width, height = 0;
     SDL_Color color, orig_color, select_color_orig;
-    int orig_font = font, lines = 1, width = 0;
+    int lines = 1, width = 0;
     uint16 *heights = NULL;
     size_t num_heights = 0;
     int x_adjust = 0;
@@ -1777,11 +1805,11 @@ void text_show(SDL_Surface *surface, int font, const char *text, int x, int y, c
     sint64 select_start = 0, select_end = 0;
     uint8 select_color_changed = 0;
     text_info_struct info;
+    font_struct *orig_font = font;
 
     if (text_color_parse(color_notation, &color)) {
         orig_color = color;
-    }
-    else {
+    } else {
         logger_print(LOG(BUG), "Invalid color: %s, text: %s", color_notation, text);
         return;
     }
@@ -1796,7 +1824,7 @@ void text_show(SDL_Surface *surface, int font, const char *text, int x, int y, c
 
     /* Align to the center. */
     if (box && flags & (TEXT_ALIGN_CENTER | TEXT_VALIGN_CENTER)) {
-        int w, h;
+        uint16 w, h;
 
         text_get_width_height(font, text, flags & ~(TEXT_ALIGN_CENTER | TEXT_VALIGN_CENTER), box, flags & TEXT_ALIGN_CENTER ? &w : NULL, flags & TEXT_VALIGN_CENTER ? &h : NULL);
 
@@ -1835,13 +1863,12 @@ void text_show(SDL_Surface *surface, int font, const char *text, int x, int y, c
 
     while (cp[pos] != '\0') {
         /* Have we gone over the height limit yet? */
-        if (box && box->h && dest.y + (flags & TEXT_LINES_CALC ? FONT_HEIGHT(FONT_TRY_INFO(font, info, surface)) : 0) - y > box->h) {
+        if (box && box->h && dest.y + (flags & (TEXT_LINES_CALC | TEXT_LINES_SKIP) ? FONT_HEIGHT(FONT_TRY_INFO(font, info, surface)) : 0) - y > box->h) {
             /* We are calculating height/lines, keep going on but without
              * any more drawing. */
             if ((flags & TEXT_LINES_CALC) || (flags & TEXT_HEIGHT && box->y == 0)) {
                 surface = NULL;
-            }
-            else {
+            } else {
                 return;
             }
         }
@@ -1866,8 +1893,7 @@ void text_show(SDL_Surface *surface, int font, const char *text, int x, int y, c
             /* See if we should skip drawing. */
             if (flags & TEXT_MAX_WIDTH) {
                 skip = 1;
-            }
-            else if (flags & TEXT_LINES_SKIP) {
+            } else if (flags & TEXT_LINES_SKIP) {
                 skip = box->y && lines - 1 < box->y;
             }
 
@@ -1897,8 +1923,7 @@ void text_show(SDL_Surface *surface, int font, const char *text, int x, int y, c
             if (selection_start && selection_end && mstate == SDL_BUTTON_LEFT && box && my >= dest.y && my <= dest.y + FONT_HEIGHT(FONT_TRY_INFO(font, info, surface)) && mx >= dest.x && mx <= dest.x + (box->w - (dest.x - info.start_x))) {
                 if (*selection_started) {
                     *selection_end = cp - text;
-                }
-                else {
+                } else {
                     *selection_start = cp - text;
                 }
             }
@@ -1917,7 +1942,7 @@ void text_show(SDL_Surface *surface, int font, const char *text, int x, int y, c
 
             /* Calculating lines, store the height of this line. */
             if (flags & TEXT_LINES_CALC) {
-                heights = realloc(heights, sizeof(*heights) * (num_heights + 1));
+                heights = erealloc(heights, sizeof(*heights) * (num_heights + 1));
                 heights[num_heights] = max_height;
                 num_heights++;
             }
@@ -1929,8 +1954,7 @@ void text_show(SDL_Surface *surface, int font, const char *text, int x, int y, c
             /* Jump over the newline, if any. */
             if (is_lf) {
                 cp++;
-            }
-            else {
+            } else {
                 /* Strip leading spaces. */
                 while (*cp != '\0' && *cp == ' ') {
                     cp++;
@@ -1942,8 +1966,7 @@ void text_show(SDL_Surface *surface, int font, const char *text, int x, int y, c
             dest.w = x_adjust;
             dest.x = x + x_adjust;
             max_height = 0;
-        }
-        else {
+        } else {
             /* Store last space position. */
             if (cp[pos] == ' ') {
                 last_space = pos;
@@ -1985,8 +2008,7 @@ void text_show(SDL_Surface *surface, int font, const char *text, int x, int y, c
     if (selection_start && selection_end && mstate == SDL_BUTTON_LEFT && box && my >= dest.y + max_height && my <= dest.y + max_height + (box->h - ((dest.y + max_height) - info.start_y))) {
         if (*selection_started) {
             *selection_end = cp - text;
-        }
-        else {
+        } else {
             *selection_start = cp - text;
         }
     }
@@ -2012,7 +2034,7 @@ void text_show(SDL_Surface *surface, int font, const char *text, int x, int y, c
     if (box && flags & TEXT_LINES_CALC) {
         int total_height = 0, i, last_lines = 0;
 
-        heights = realloc(heights, sizeof(*heights) * (num_heights + 1));
+        heights = erealloc(heights, sizeof(*heights) * (num_heights + 1));
         heights[num_heights] = max_height;
         num_heights++;
 
@@ -2054,7 +2076,7 @@ void text_show(SDL_Surface *surface, int font, const char *text, int x, int y, c
  * one of the 'flags', this is used to get the max width from. Also even
  * if word wrap is disabled, this is used to get the max height from, if
  * set (both box->w and box->h can be 0 to indicate unlimited). */
-void text_show_shadow(SDL_Surface *surface, int font, const char *text, int x, int y, const char *color_notation, const char *color_shadow_notation, uint64 flags, SDL_Rect *box)
+void text_show_shadow(SDL_Surface *surface, font_struct *font, const char *text, int x, int y, const char *color_notation, const char *color_shadow_notation, uint64 flags, SDL_Rect *box)
 {
     text_show(surface, font, text, x + 1, y + 1, color_shadow_notation, flags | TEXT_NO_COLOR_CHANGE, box);
     text_show(surface, font, text, x, y, color_notation, flags, box);
@@ -2064,7 +2086,7 @@ void text_show_shadow(SDL_Surface *surface, int font, const char *text, int x, i
  * Like text_show(), but allows using printf-like format specifiers.
  *
  * @copydoc text_show() */
-void text_show_format(SDL_Surface *surface, int font, int x, int y, const char *color_notation, uint64 flags, SDL_Rect *box, const char *format, ...)
+void text_show_format(SDL_Surface *surface, font_struct *font, int x, int y, const char *color_notation, uint64 flags, SDL_Rect *box, const char *format, ...)
 {
     char buf[HUGE_BUF * 4];
     va_list ap;
@@ -2079,7 +2101,7 @@ void text_show_format(SDL_Surface *surface, int font, int x, int y, const char *
  * Like text_show_shadow(), but allows using printf-like format specifiers.
  *
  * @copydoc text_show_shadow() */
-void text_show_shadow_format(SDL_Surface *surface, int font, int x, int y, const char *color_notation, const char *color_shadow_notation, uint64 flags, SDL_Rect *box, const char *format, ...)
+void text_show_shadow_format(SDL_Surface *surface, font_struct *font, int x, int y, const char *color_notation, const char *color_shadow_notation, uint64 flags, SDL_Rect *box, const char *format, ...)
 {
     char buf[HUGE_BUF * 4];
     va_list ap;
@@ -2097,14 +2119,14 @@ void text_show_shadow_format(SDL_Surface *surface, int font, int x, int y, const
  * @param text String to get width of.
  * @param flags One or a combination of @ref TEXT_xxx.
  * @return The string's width. */
-int text_get_width(int font, const char *text, uint64 flags)
+int text_get_width(font_struct *font, const char *text, uint64 flags)
 {
     SDL_Rect dest;
     const char *cp = text;
     text_info_struct info;
 
     text_show_character_init(&info);
-    TTF_SetFontStyle(fonts[font].font, TTF_STYLE_NORMAL);
+    TTF_SetFontStyle(font->font, TTF_STYLE_NORMAL);
 
     dest.w = 0;
 
@@ -2126,7 +2148,7 @@ int text_get_width(int font, const char *text, uint64 flags)
  * @param text String to get height of.
  * @param flags One or a combination of @ref TEXT_xxx.
  * @return The string's height. */
-int text_get_height(int font, const char *text, uint64 flags)
+int text_get_height(font_struct *font, const char *text, uint64 flags)
 {
     SDL_Rect dest;
     const char *cp;
@@ -2165,7 +2187,7 @@ int text_get_height(int font, const char *text, uint64 flags)
  * for example).
  * @param[out] w Will contain the calculated width.
  * @param[out] h Will contain the calculated height. */
-void text_get_width_height(int font, const char *text, uint64 flags, SDL_Rect *box, int *w, int *h)
+void text_get_width_height(font_struct *font, const char *text, uint64 flags, SDL_Rect *box, uint16 *w, uint16 *h)
 {
     SDL_Rect box2;
 
@@ -2197,7 +2219,7 @@ void text_get_width_height(int font, const char *text, uint64 flags, SDL_Rect *b
  * @param font Font used for the text.
  * @param text The text.
  * @param max_width Maximum possible width. */
-void text_truncate_overflow(int font, char *text, int max_width)
+void text_truncate_overflow(font_struct *font, char *text, int max_width)
 {
     size_t pos = 0;
     int width = 0;
@@ -2223,7 +2245,7 @@ void text_anchor_parse(text_info_struct *info, const char *text)
 {
     const char *cp = text;
     SDL_Rect dest;
-    int font = FONT_ARIAL10;
+    font_struct *font = FONT_ARIAL10;
 
     text_show_character_init(info);
     info->obscured = 1;

@@ -1,0 +1,108 @@
+======================
+= Installing Atrinik =
+======================
+
+This document explains how to compile the Atrinik server.
+
+For compiling on GNU/Linux, see section 1.1.
+For compiling on Windows, see section 1.2.
+
+================================================
+= 1.1 Compiling the Atrinik server (GNU/Linux) =
+================================================
+
+TODO
+
+==============================================
+= 1.2 Compiling the Atrinik server (Windows) =
+==============================================
+
+You will need to install the following prerequisites:
+
+ - MinGW
+    The compiler that you will use for compiling. Download it here:
+    http://sourceforge.net/projects/mingw/files/latest/download?source=files
+
+    After installing, execute the mingw-install-prereq.bat script in "tools"
+    directory (located in Atrinik root directory).
+ - Python
+    Download and install the latest Python 3 from here:
+
+    https://www.python.org/downloads/
+
+    For example this one:
+    https://www.python.org/ftp/python/3.4.2/python-3.4.2.msi
+ - CMake
+    Required to build makefiles. Download it here:
+
+    http://www.cmake.org/files/v3.0/cmake-3.0.2-win32-x86.exe
+ - Microsoft Visual C++ Redistributables 2008
+    This is required for OpenSSL to work properly. Download it here:
+    http://www.microsoft.com/en-us/download/details.aspx?id=29
+ - OpenSSL
+    Atrinik requires OpenSSL. Download it here:
+
+    http://slproweb.com/download/Win32OpenSSL-1_0_1j.exe
+
+    The installer will ask where to copy OpenSSL DLL files. Make sure this is
+    set to the system directory.
+ - cURL
+    Atrinik requires cURL. Download it here:
+
+    http://curl.haxx.se/gknw.net/7.39.0/dist-w32/curl-7.39.0-devel-mingw32.zip
+
+    Extract the archive and copy "lib" and "include" directories into
+    C:/MinGW (or where you installed MinGW).
+ - GD Graphics Library (optional, recommended):
+    If you want to generate client maps you will need to install this library.
+
+    Download libpng sources from here:
+    http://sourceforge.net/projects/libpng/files/libpng16/1.6.14/libpng-1.6.14.tar.gz/download
+
+    Extract to C:/MinGW/msys/1.0/home/<your username> and open bash through the
+    Windows run dialog in start menu (C:\MinGW\msys\1.0\bin\bash.exe). In the
+    extracted directory run the following (adjust the prefix if necessary):
+
+    export PATH=/usr/bin:$PATH
+    ./configure --prefix=/c/MinGW
+    make && make install
+
+    Download GD sources from here:
+    https://bitbucket.org/libgd/gd-libgd/downloads/libgd-2.1.0.tar.gz
+
+    Extract to C:/MinGW/msys/1.0/home/<your username> and open bash through the
+    Windows run dialog in start menu (C:\MinGW\msys\1.0\bin\bash.exe). In the
+    extracted directory run the following (adjust the prefix if necessary):
+
+    export PATH=/usr/bin:$PATH
+    ./configure --prefix=/c/MinGW --with-png=/c/MinGW
+    make && make install
+ - Check (optional)
+    This is only needed if you want to do development and is used to run unit
+    tests. Download it here:
+
+    http://sourceforge.net/projects/check/files/latest/download
+
+    Extract to C:/MinGW/msys/1.0/home/<your username> and open bash through the
+    Windows run dialog in start menu (C:\MinGW\msys\1.0\bin\bash.exe). In the
+    extracted directory run the following (adjust the prefix if necessary):
+
+    export PATH=/usr/bin:$PATH
+    export CFLAGS="-DPTW32_STATIC_LIB"
+    ./configure --prefix=/c/MinGW
+    make && make check && make install
+
+ Make sure you have the following paths in your PATH environment variable, in
+ this order (adjust accordingly if you installed MinGW or CMake somewhere else):
+
+ C:\MinGW\bin;C:/MinGW/msys/1.0/bin;C:\Program Files (x86)\CMake\bin
+
+ Install Netbeans for C/C++. Download it here:
+
+ https://netbeans.org/downloads/start.html?platform=windows&lang=en&option=cpp
+
+ Go to Tools -> Options -> C/C++ -> Build Tools and click the Add button. Enter
+ C:\MinGW\bin (or where you installed MinGW) into the "base directory" box.
+
+ Go to File -> New Project -> C/C++ Project with Existing Sources and select the
+ server directory. Click "Finish" and the project should build automatically.

@@ -2,7 +2,7 @@
 <interfaces>
     <interface>
         <dialog name="hello">
-            <response message="Ask about fairies." destination="fairy" />
+            <response destination="fairy" message="Ask about fairies."/>
         </dialog>
         <dialog name="fairy">
             <message>Fairies are kinda cute.</message>
@@ -11,20 +11,22 @@
             <message>Neko Miko Reimu. Aishite'ru...</message>
         </dialog>
     </interface>
-
-    <interface state="class" inherit="">
-        <and><check options="classTime" /></and>
+    <interface inherit="interface" state="class">
+        <and>
+            <check options="classTime"/>
+        </and>
         <dialog name="hello">
             <message>Whoa. Hey! Maybe I can learn to summon a fairy!</message>
-            <inherit />
+            <inherit/>
         </dialog>
     </interface>
-
-    <interface state="club" inherit="">
-        <and><check options="clubTime" /></and>
+    <interface inherit="interface" state="club">
+        <and>
+            <check options="clubTime"/>
+        </and>
         <dialog name="hello">
             <message>Aww, maybe tomorrow I'll learn how to summon a fairy.</message>
-            <inherit />
+            <inherit/>
         </dialog>
     </interface>
 </interfaces>

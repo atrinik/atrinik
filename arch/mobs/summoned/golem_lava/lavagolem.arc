@@ -9,13 +9,13 @@ behavior 2
 is_neutral 1
 wc_range 20
 direction 5
-terrain_flag 1
+terrain_flag 65
 weapon_speed 0.035
 attack_fire 80
 protect_cold -35
 protect_fire 100
 type 80
-Wis 3
+wis 3
 randomitems mob_fire
 animation lavagolem
 is_animated 1

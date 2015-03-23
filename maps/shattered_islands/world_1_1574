@@ -1,0 +1,288 @@
+arch map
+name Morliana
+msg
+Created:  2015-01-04 Alex Tokar
+Modified: 2015-01-04 Alex Tokar
+endmsg
+width 24
+height 24
+difficulty 1
+outdoor 1
+tile_path_1 world_1_1575
+tile_path_2 world_1_1674
+tile_path_4 world_1_1474
+tile_path_5 world_1_1675
+tile_path_8 world_1_1475
+tile_path_10 world_1574
+bg_music campfire_tales.mid
+region morliana
+end
+arch roof_brick
+direction 7
+end
+arch roof_brick
+direction 7
+y 1
+end
+arch roof_brick
+direction 7
+y 2
+end
+arch roof_brick
+direction 7
+y 3
+end
+arch roof_brick
+direction 8
+y 4
+end
+arch roof_brick
+y 5
+end
+arch roof_brick
+y 6
+end
+arch roof_brick
+y 7
+end
+arch roof_brick
+y 8
+end
+arch roof_brick
+y 9
+end
+arch roof_brick
+direction 7
+x 1
+end
+arch roof_brick
+direction 7
+x 1
+y 1
+end
+arch roof_brick
+direction 7
+x 1
+y 2
+end
+arch roof_brick
+direction 7
+x 1
+y 3
+end
+arch roof_brick
+direction 7
+x 1
+y 4
+end
+arch roof_brick
+direction 8
+x 1
+y 5
+end
+arch roof_brick
+x 1
+y 6
+end
+arch roof_brick
+x 1
+y 7
+end
+arch roof_brick
+x 1
+y 8
+end
+arch roof_brick
+x 1
+y 9
+end
+arch roof_brick
+direction 7
+x 2
+end
+arch roof_brick
+direction 7
+x 2
+y 1
+end
+arch roof_brick
+direction 7
+x 2
+y 2
+end
+arch roof_brick
+direction 7
+x 2
+y 3
+end
+arch roof_brick
+direction 7
+x 2
+y 4
+end
+arch roof_brick
+direction 7
+x 2
+y 5
+end
+arch roof_brick
+direction 8
+x 2
+y 6
+end
+arch roof_brick
+x 2
+y 7
+end
+arch roof_brick
+x 2
+y 8
+end
+arch roof_brick
+x 2
+y 9
+end
+arch roof_brick
+direction 7
+x 3
+end
+arch roof_brick
+direction 7
+x 3
+y 1
+end
+arch roof_brick
+direction 7
+x 3
+y 2
+end
+arch roof_brick
+direction 7
+x 3
+y 3
+end
+arch roof_brick
+direction 7
+x 3
+y 4
+end
+arch roof_brick
+direction 7
+x 3
+y 5
+end
+arch roof_brick
+direction 7
+x 3
+y 6
+end
+arch roof_brick
+direction 8
+x 3
+y 7
+end
+arch roof_brick
+x 3
+y 8
+end
+arch roof_brick
+x 3
+y 9
+end
+arch roof_brick
+direction 7
+x 4
+end
+arch roof_brick
+direction 7
+x 4
+y 1
+end
+arch roof_brick
+direction 7
+x 4
+y 2
+end
+arch roof_brick
+direction 7
+x 4
+y 3
+end
+arch roof_brick
+direction 7
+x 4
+y 4
+end
+arch roof_brick
+direction 7
+x 4
+y 5
+end
+arch roof_brick
+direction 7
+x 4
+y 6
+end
+arch roof_brick
+direction 7
+x 4
+y 7
+end
+arch roof_brick
+direction 8
+x 4
+y 8
+end
+arch roof_brick
+x 4
+y 9
+end
+arch roof_brick
+direction 7
+x 5
+end
+arch roof_brick
+direction 7
+x 5
+y 1
+end
+arch roof_brick
+direction 7
+x 5
+y 2
+end
+arch roof_brick
+direction 7
+x 5
+y 3
+end
+arch roof_brick
+direction 7
+x 5
+y 4
+end
+arch roof_brick
+direction 7
+x 5
+y 5
+end
+arch roof_brick
+direction 7
+x 5
+y 6
+end
+arch roof_brick
+direction 7
+x 5
+y 7
+end
+arch roof_brick
+direction 7
+x 5
+y 8
+end
+arch roof_brick
+direction 8
+x 5
+y 9
+end

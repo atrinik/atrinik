@@ -3,20 +3,20 @@
     <interface>
         <dialog name="hello">
             <message>Welcome, welcome... Heh-heh-heh...</message>
-            <response message="Why do you have two brooms?" destination="havetwo" />
+            <response destination="havetwo" message="Why do you have two brooms?"/>
         </dialog>
         <dialog name="havetwo">
             <message>That is none of your concern! Now go away before I get really mad!</message>
-            <response message="Did you steal one?" destination="stealone" />
+            <response destination="stealone" message="Did you steal one?"/>
         </dialog>
         <dialog name="stealone">
             <message>Keep it up, and you'll get more than you bargained for!</message>
-            <response message="You stole it, didn't you." destination="stoleit" />
+            <response destination="stoleit" message="You stole it, didn't you."/>
         </dialog>
         <dialog name="stoleit">
             <say>Now you've done it!</say>
-            <close />
-            <action enemy="player" />
+            <close/>
+            <action enemy="player"/>
         </dialog>
     </interface>
 </interfaces>

@@ -1,26 +1,26 @@
-/************************************************************************
-*            Atrinik, a Multiplayer Online Role Playing Game            *
-*                                                                       *
-*    Copyright (C) 2009-2012 Alex Tokar and Atrinik Development Team    *
-*                                                                       *
-* Fork from Crossfire (Multiplayer game for X-windows).                 *
-*                                                                       *
-* This program is free software; you can redistribute it and/or modify  *
-* it under the terms of the GNU General Public License as published by  *
-* the Free Software Foundation; either version 2 of the License, or     *
-* (at your option) any later version.                                   *
-*                                                                       *
-* This program is distributed in the hope that it will be useful,       *
-* but WITHOUT ANY WARRANTY; without even the implied warranty of        *
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
-* GNU General Public License for more details.                          *
-*                                                                       *
-* You should have received a copy of the GNU General Public License     *
-* along with this program; if not, write to the Free Software           *
-* Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.             *
-*                                                                       *
-* The author can be reached at admin@atrinik.org                        *
-************************************************************************/
+/*************************************************************************
+ *           Atrinik, a Multiplayer Online Role Playing Game             *
+ *                                                                       *
+ *   Copyright (C) 2009-2014 Alex Tokar and Atrinik Development Team     *
+ *                                                                       *
+ * Fork from Crossfire (Multiplayer game for X-windows).                 *
+ *                                                                       *
+ * This program is free software; you can redistribute it and/or modify  *
+ * it under the terms of the GNU General Public License as published by  *
+ * the Free Software Foundation; either version 2 of the License, or     *
+ * (at your option) any later version.                                   *
+ *                                                                       *
+ * This program is distributed in the hope that it will be useful,       *
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of        *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
+ * GNU General Public License for more details.                          *
+ *                                                                       *
+ * You should have received a copy of the GNU General Public License     *
+ * along with this program; if not, write to the Free Software           *
+ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.             *
+ *                                                                       *
+ * The author can be reached at admin@atrinik.org                        *
+ ************************************************************************/
 
 /**
  * @file
@@ -32,13 +32,11 @@
 
 /**
  * Names of the text window tabs. */
-const char *const textwin_tab_names[] =
-{
+const char *const textwin_tab_names[] = {
     "[ALL]", "[GAME]", "[CHAT]", "[LOCAL]", "[PRIVATE]", "[GUILD]", "[PARTY]", "[OPERATOR]"
 };
 
-const char *const textwin_tab_commands[] =
-{
+const char *const textwin_tab_commands[] = {
     "say", NULL, "chat", "say", "reply", "guild", "party say", "opsay"
 };
 
@@ -53,6 +51,8 @@ void textwin_readjust(widgetdata *widget)
     if (!textwin->tabs) {
         return;
     }
+
+    textwin->tabs[textwin->tab_selected].unread = 0;
 
     if (textwin->tabs[textwin->tab_selected].entries) {
         SDL_Rect box;
@@ -75,16 +75,27 @@ void textwin_readjust(widgetdata *widget)
 /** @copydoc text_anchor_handle_func */
 static int text_anchor_handle(const char *anchor_action, const char *buf, size_t len, void *custom_data)
 {
-    if (custom_data && strcmp(anchor_action, "#charname") == 0) {
+    if (strcmp(anchor_action, "#charname") == 0) {
         StringBuffer *sb;
 
-        sb = custom_data;
+        if (custom_data != NULL) {
+            sb = custom_data;
 
-        if (sb->pos) {
-            stringbuffer_append_char(sb, ':');
+            if (sb->pos != 0) {
+                stringbuffer_append_char(sb, ':');
+            }
+
+            stringbuffer_append_string(sb, buf);
+        } else {
+            char *cp;
+
+            sb = stringbuffer_new();
+            stringbuffer_append_printf(sb, "/tell \"%s\" ", buf);
+            cp = stringbuffer_finish(sb);
+            widget_textwin_handle_console(cp);
+            efree(cp);
         }
 
-        stringbuffer_append_string(sb, buf);
         return 1;
     }
 
@@ -112,25 +123,25 @@ static void textwin_tab_append(widgetdata *widget, uint8 id, uint8 type, const c
 
         switch (setting_get_int(OPT_CAT_GENERAL, OPT_CHAT_TIMESTAMPS)) {
             /* HH:MM */
-            case 1:
-            default:
-                format = "%H:%M";
-                break;
+        case 1:
+        default:
+            format = "%H:%M";
+            break;
 
             /* HH:MM:SS */
-            case 2:
-                format = "%H:%M:%S";
-                break;
+        case 2:
+            format = "%H:%M:%S";
+            break;
 
             /* H:MM AM/PM */
-            case 3:
-                format = "%I:%M %p";
-                break;
+        case 3:
+            format = "%I:%M %p";
+            break;
 
             /* H:MM:SS AM/PM */
-            case 4:
-                format = "%I:%M:%S %p";
-                break;
+        case 4:
+            format = "%I:%M:%S %p";
+            break;
         }
 
         timelen = strftime(tmptimebuf, sizeof(tmptimebuf), format, tm);
@@ -144,12 +155,14 @@ static void textwin_tab_append(widgetdata *widget, uint8 id, uint8 type, const c
         cp = text_escape_markup(textwin_tab_names[type - 1]);
         snprintf(tabname, sizeof(tabname), "%s ", cp);
         efree(cp);
+    } else if (textwin->tabs[textwin->tab_selected].type != CHAT_TYPE_ALL) {
+        textwin->tabs[id].unread = 1;
     }
 
     cp = string_join("", "[c=#", color, " 1]", timebuf, tabname, str, "\n", NULL);
     len = strlen(cp);
     /* Resize the characters array as needed. */
-    textwin->tabs[id].entries = realloc(textwin->tabs[id].entries, textwin->tabs[id].entries_size + len + 1);
+    textwin->tabs[id].entries = erealloc(textwin->tabs[id].entries, textwin->tabs[id].entries_size + len + 1);
     memcpy(textwin->tabs[id].entries + textwin->tabs[id].entries_size, cp, len);
     textwin->tabs[id].entries[textwin->tabs[id].entries_size + len] = '\0';
     textwin->tabs[id].entries_size += len;
@@ -168,7 +181,7 @@ static void textwin_tab_append(widgetdata *widget, uint8 id, uint8 type, const c
     if (textwin->tabs[id].entries && textwin->tabs[id].num_lines >= (size_t) setting_get_int(OPT_CAT_GENERAL, OPT_MAX_CHAT_LINES)) {
         while (textwin->tabs[id].num_lines >= (size_t) setting_get_int(OPT_CAT_GENERAL, OPT_MAX_CHAT_LINES) && (cp = strchr(textwin->tabs[id].entries, '\n'))) {
             size_t pos = cp - textwin->tabs[id].entries + 1;
-            char *buf = malloc(pos + 1);
+            char *buf = emalloc(pos + 1);
 
             /* Copy the string together with the newline to a temporary
              * buffer. */
@@ -203,11 +216,9 @@ static int textwin_tab_compare(const void *a, const void *b)
 
     if (tab_one->name && !tab_two->name) {
         return 1;
-    }
-    else if (!tab_one->name && tab_two->name) {
+    } else if (!tab_one->name && tab_two->name) {
         return -1;
-    }
-    else if (tab_one->name && tab_two->name) {
+    } else if (tab_one->name && tab_two->name) {
         return strcmp(tab_one->name, tab_two->name);
     }
 
@@ -261,7 +272,7 @@ void textwin_tab_remove(widgetdata *widget, const char *name)
             textwin->tabs[i - 1] = textwin->tabs[i];
         }
 
-        textwin->tabs = realloc(textwin->tabs, sizeof(*textwin->tabs) * (textwin->tabs_num - 1));
+        textwin->tabs = erealloc(textwin->tabs, sizeof(*textwin->tabs) * (textwin->tabs_num - 1));
         textwin->tabs_num--;
         textwin->tab_selected = MIN(textwin->tab_selected, textwin->tabs_num - 1);
         textwin_readjust(widget);
@@ -328,8 +339,7 @@ void textwin_tab_open(widgetdata *widget, const char *name)
     if (textwin_tab_find(widget, CHAT_TYPE_PRIVATE, name, &i)) {
         textwin->tab_selected = i;
         textwin_readjust(widget);
-    }
-    else {
+    } else {
         textwin_tab_add(widget, name);
     }
 }
@@ -457,11 +467,11 @@ void textwin_handle_copy(widgetdata *widget)
     }
 
     /* Get the string to copy, depending on the start and end positions. */
-    str = malloc(sizeof(char) * (end - start + 1 + 1));
+    str = emalloc(sizeof(char) * (end - start + 1 + 1));
     memcpy(str, textwin->tabs[textwin->tab_selected].entries + start, end - start + 1);
     str[end - start + 1] = '\0';
 
-    cp = malloc(sizeof(char) * (end - start + 1 + 1));
+    cp = emalloc(sizeof(char) * (end - start + 1 + 1));
     i = 0;
 
     /* Remove the special \r color changers. */
@@ -497,7 +507,8 @@ void textwin_show(SDL_Surface *surface, int x, int y, int w, int h)
         textwin = TEXTWIN(widget);
 
         for (i = 0; i < textwin->tabs_num; i++) {
-            if (textwin->tabs[i].type == CHAT_TYPE_GAME) {
+            if (textwin->tabs[i].type == CHAT_TYPE_GAME &&
+                    textwin->tabs[i].entries != NULL) {
                 box.w = w - 3;
                 box.h = 0;
                 box.x = 0;
@@ -612,6 +623,12 @@ static void widget_draw(widgetdata *widget)
                         button_y += TEXTWIN_TAB_HEIGHT - 1;
                     }
 
+                    if (textwin->tabs[i].unread) {
+                        textwin->tabs[i].button.color = COLOR_NAVY;
+                    } else {
+                        textwin->tabs[i].button.color = COLOR_WHITE;
+                    }
+
                     textwin->tabs[i].button.x = button_x;
                     textwin->tabs[i].button.y = button_y;
                     textwin->tabs[i].button.surface = widget->surface;
@@ -682,6 +699,21 @@ static void widget_draw(widgetdata *widget)
     border_create_texture(ScreenSurface, &box, 1, TEXTURE_CLIENT("widget_border"));
 }
 
+/** @copydoc widgetdata::background_func */
+static void widget_background(widgetdata *widget, int draw)
+{
+    textwin_struct *textwin;
+    size_t i;
+
+    textwin = TEXTWIN(widget);
+
+    for (i = 0; i < textwin->tabs_num; i++) {
+        if (button_need_redraw(&textwin->tabs[i].button)) {
+            WIDGET_REDRAW(widget);
+        }
+    }
+}
+
 /** @copydoc widgetdata::event_func */
 static int widget_event(widgetdata *widget, SDL_Event *event)
 {
@@ -721,10 +753,6 @@ static int widget_event(widgetdata *widget, SDL_Event *event)
                 textwin_readjust(widget);
                 return 1;
             }
-
-            if (textwin->tabs[i].button.redraw) {
-                WIDGET_REDRAW(widget);
-            }
         }
     }
 
@@ -738,8 +766,7 @@ static int widget_event(widgetdata *widget, SDL_Event *event)
             if (*(textwin->tabs[textwin->tab_selected].text_input.str) != '/') {
                 if (textwin->tabs[textwin->tab_selected].name != NULL) {
                     stringbuffer_append_printf(sb, "/tell \"%s\" ", textwin->tabs[textwin->tab_selected].name);
-                }
-                else {
+                } else {
                     stringbuffer_append_printf(sb, "/%s ", textwin_tab_commands[textwin->tabs[textwin->tab_selected].type - 1]);
                 }
             }
@@ -758,13 +785,11 @@ static int widget_event(widgetdata *widget, SDL_Event *event)
             text_input_reset(&textwin->tabs[textwin->tab_selected].text_input);
             WIDGET_REDRAW(widget);
             return 1;
-        }
-        else if (event->key.keysym.sym == SDLK_TAB) {
+        } else if (event->key.keysym.sym == SDLK_TAB) {
             help_handle_tabulator(&textwin->tabs[textwin->tab_selected].text_input);
             WIDGET_REDRAW(widget);
             return 1;
-        }
-        else if (text_input_event(&textwin->tabs[textwin->tab_selected].text_input, event)) {
+        } else if (text_input_event(&textwin->tabs[textwin->tab_selected].text_input, event)) {
             if (IS_ENTER(event->key.keysym.sym)) {
                 text_input_reset(&textwin->tabs[textwin->tab_selected].text_input);
                 textwin->tabs[textwin->tab_selected].text_input.focus = 0;
@@ -787,15 +812,13 @@ static int widget_event(widgetdata *widget, SDL_Event *event)
     if (event->button.button == SDL_BUTTON_LEFT) {
         if (event->type == SDL_MOUSEBUTTONUP) {
             return 1;
-        }
-        else if (event->type == SDL_MOUSEBUTTONDOWN) {
+        } else if (event->type == SDL_MOUSEBUTTONDOWN) {
             textwin->selection_started = 0;
             textwin->selection_start = -1;
             textwin->selection_end = -1;
             WIDGET_REDRAW(widget);
             return 1;
-        }
-        else if (event->type == SDL_MOUSEMOTION) {
+        } else if (event->type == SDL_MOUSEMOTION) {
             textwin->selection_started = 1;
             return 1;
         }
@@ -805,8 +828,7 @@ static int widget_event(widgetdata *widget, SDL_Event *event)
         if (event->button.button == SDL_BUTTON_WHEELUP) {
             scrollbar_scroll_adjust(&textwin->scrollbar, -1);
             return 1;
-        }
-        else if (event->button.button == SDL_BUTTON_WHEELDOWN) {
+        } else if (event->button.button == SDL_BUTTON_WHEELDOWN) {
             scrollbar_scroll_adjust(&textwin->scrollbar, 1);
             return 1;
         }
@@ -816,8 +838,7 @@ static int widget_event(widgetdata *widget, SDL_Event *event)
         if (event->key.keysym.sym == SDLK_PAGEUP) {
             scrollbar_scroll_adjust(&textwin->scrollbar, -TEXTWIN_ROWS_VISIBLE(widget));
             return 1;
-        }
-        else if (event->key.keysym.sym == SDLK_PAGEDOWN) {
+        } else if (event->key.keysym.sym == SDLK_PAGEDOWN) {
             scrollbar_scroll_adjust(&textwin->scrollbar, TEXTWIN_ROWS_VISIBLE(widget));
             return 1;
         }
@@ -841,6 +862,8 @@ static void widget_deinit(widgetdata *widget)
     if (textwin->tabs) {
         efree(textwin->tabs);
     }
+
+    font_free(textwin->font);
 }
 
 /** @copydoc widgetdata::load_func */
@@ -852,14 +875,14 @@ static int widget_load(widgetdata *widget, const char *keyword, const char *para
 
     if (strcmp(keyword, "font") == 0) {
         char font_name[MAX_BUF];
-        int font_size, font_id;
+        int font_size;
 
-        if (sscanf(parameter, "%s %d", font_name, &font_size) == 2 && (font_id = get_font_id(font_name, font_size)) != -1) {
-            textwin->font = font_id;
+        if (sscanf(parameter, "%s %d", font_name, &font_size) == 2) {
+            font_free(textwin->font);
+            textwin->font = font_get(font_name, font_size);
             return 1;
         }
-    }
-    else if (strcmp(keyword, "tabs") == 0) {
+    } else if (strcmp(keyword, "tabs") == 0) {
         size_t pos;
         char word[MAX_BUF];
 
@@ -868,24 +891,21 @@ static int widget_load(widgetdata *widget, const char *keyword, const char *para
         while (string_get_word(parameter, &pos, ':', word, sizeof(word), 0)) {
             if (string_startswith(word, "/")) {
                 textwin_tab_remove(widget, word + 1);
-            }
-            else {
+            } else {
                 if (strcmp(word, "*") == 0) {
                     size_t i;
 
                     for (i = 0; i < arraysize(textwin_tab_names); i++) {
                         textwin_tab_add(widget, textwin_tab_names[i]);
                     }
-                }
-                else {
+                } else {
                     textwin_tab_add(widget, word);
                 }
             }
         }
 
         return 1;
-    }
-    else if (strcmp(keyword, "timestamps") == 0) {
+    } else if (strcmp(keyword, "timestamps") == 0) {
         KEYWORD_TO_BOOLEAN(parameter, textwin->timestamps);
         return 1;
     }
@@ -900,7 +920,7 @@ static void widget_save(widgetdata *widget, FILE *fp, const char *padding)
 
     textwin = TEXTWIN(widget);
 
-    fprintf(fp, "%sfont = %s %"FMT64U "\n", padding, get_font_filename(textwin->font), (uint64) fonts[textwin->font].size);
+    fprintf(fp, "%sfont = %s %d\n", padding, textwin->font->name, textwin->font->size);
     fprintf(fp, "%stimestamps = %s\n", padding, textwin->timestamps ? "yes" : "no");
 
     if (textwin->tabs_num) {
@@ -935,22 +955,25 @@ static void menu_textwin_copy(widgetdata *widget, widgetdata *menuitem, SDL_Even
 static void textwin_font_adjust(widgetdata *widget, int adjust)
 {
     textwin_struct *textwin;
-    int font;
+    font_struct *font;
+    size_t i;
 
     textwin = TEXTWIN(widget);
-    font = MAX(FONT_ARIAL10, MIN(FONT_ARIAL16, textwin->font + adjust));
+    font = font_get_size(textwin->font, adjust);
 
-    if (textwin->font != font) {
-        size_t i;
-
-        for (i = 0; i < textwin->tabs_num; i++) {
-            text_input_set_font(&textwin->tabs[i].text_input, font);
-        }
-
-        textwin->font = font;
-        textwin_readjust(widget);
-        WIDGET_REDRAW(widget);
+    if (font == NULL) {
+        return;
     }
+
+    for (i = 0; i < textwin->tabs_num; i++) {
+        text_input_set_font(&textwin->tabs[i].text_input, font);
+    }
+
+    font_free(textwin->font);
+    FONT_INCREF(font);
+    textwin->font = font;
+    textwin_readjust(widget);
+    WIDGET_REDRAW(widget);
 }
 
 static void menu_textwin_font_inc(widgetdata *widget, widgetdata *menuitem, SDL_Event *event)
@@ -968,18 +991,20 @@ static void menu_textwin_tabs_one(widgetdata *widget, widgetdata *menuitem, SDL_
     widgetdata *tmp;
     _widget_label *label;
     size_t id;
+    char *cp;
 
     for (tmp = menuitem->inv; tmp; tmp = tmp->next) {
         if (tmp->type == LABEL_ID) {
             label = LABEL(menuitem->inv);
+            cp = text_strip_markup(label->text, NULL, 0);
 
-            if (textwin_tab_find(widget, textwin_tab_name_to_id(label->text), label->text, &id)) {
-                textwin_tab_remove(widget, label->text);
-            }
-            else {
-                textwin_tab_add(widget, label->text);
+            if (textwin_tab_find(widget, textwin_tab_name_to_id(cp), cp, &id)) {
+                textwin_tab_remove(widget, cp);
+            } else {
+                textwin_tab_add(widget, cp);
             }
 
+            efree(cp);
             WIDGET_REDRAW(widget);
             break;
         }
@@ -993,6 +1018,7 @@ static void menu_textwin_tabs(widgetdata *widget, widgetdata *menuitem, SDL_Even
     size_t i, id;
     uint8 found;
     _widget_label *label;
+    char *cp;
 
     submenu = MENU(menuitem->env)->submenu;
 
@@ -1001,7 +1027,9 @@ static void menu_textwin_tabs(widgetdata *widget, widgetdata *menuitem, SDL_Even
             continue;
         }
 
-        add_menuitem(submenu, textwin_tab_names[i], &menu_textwin_tabs_one, MENU_CHECKBOX, textwin_tab_find(widget, i + 1, NULL, &id));
+        cp = text_escape_markup(textwin_tab_names[i]);
+        add_menuitem(submenu, cp, &menu_textwin_tabs_one, MENU_CHECKBOX, textwin_tab_find(widget, i + 1, NULL, &id));
+        efree(cp);
     }
 
     for (tmp = cur_widget[CHATWIN_ID]; tmp; tmp = tmp->type_next) {
@@ -1042,14 +1070,12 @@ static int text_anchor_handle_players_tab(const char *anchor_action, const char 
 
         if (widget_buddy_check(widget, buf) == -1) {
             widget_buddy_add(widget, buf, 1);
-        }
-        else {
+        } else {
             widget_buddy_remove(widget, buf);
         }
 
         return 1;
-    }
-    else if (strcmp(anchor_action, "#opentab") == 0) {
+    } else if (strcmp(anchor_action, "#opentab") == 0) {
         widget = widget_find(NULL, CHATWIN_ID, NULL, NULL);
         textwin_tab_open(widget, buf);
 
@@ -1172,11 +1198,12 @@ void widget_textwin_init(widgetdata *widget)
     textwin_struct *textwin;
 
     textwin = ecalloc(1, sizeof(*textwin));
-    textwin->font = FONT_ARIAL11;
+    textwin->font = font_get("arial", 11);
     textwin->selection_start = -1;
     textwin->selection_end = -1;
 
     widget->draw_func = widget_draw;
+    widget->background_func = widget_background;
     widget->event_func = widget_event;
     widget->save_func = widget_save;
     widget->load_func = widget_load;

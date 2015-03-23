@@ -17,8 +17,8 @@ wc 3
 dam 52
 hp -1
 maxhp 64
-terrain_flag 1
-Wis 3
+terrain_flag 65
+wis 3
 face cyclops.151
 animation cyclops
 is_animated 1

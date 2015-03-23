@@ -1,7 +1,7 @@
 Object quiver_b
 name bolt quiver
 race crossbow bolts
-food 13
+sub_type 3
 other_arch close_quiver_b
 face quiver_b.101
 layer 3

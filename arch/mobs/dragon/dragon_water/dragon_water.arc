@@ -14,7 +14,7 @@ is_neutral 1
 direction 5
 terrain_flag 2
 randomitems mob_dragon_water
-Wis 3
+wis 3
 animation dragon_water_small
 is_animated 1
 anim_speed 4

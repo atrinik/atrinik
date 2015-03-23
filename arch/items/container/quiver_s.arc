@@ -1,7 +1,7 @@
 Object quiver_s
 name stone quiver
 race sling stones
-food 13
+sub_type 3
 layer 3
 other_arch close_quiver_s
 face quiver_s.101

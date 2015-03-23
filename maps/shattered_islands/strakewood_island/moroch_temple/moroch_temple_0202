@@ -1520,7 +1520,7 @@ arch skel_fighter3
 name skeleton novice archer
 type 83
 level 55
-Dex 2
+dex 2
 can_use_bow 1
 direction 7
 arch ability_stone_throw

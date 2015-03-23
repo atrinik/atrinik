@@ -1,26 +1,26 @@
-/************************************************************************
-*            Atrinik, a Multiplayer Online Role Playing Game            *
-*                                                                       *
-*    Copyright (C) 2009-2012 Alex Tokar and Atrinik Development Team    *
-*                                                                       *
-* Fork from Crossfire (Multiplayer game for X-windows).                 *
-*                                                                       *
-* This program is free software; you can redistribute it and/or modify  *
-* it under the terms of the GNU General Public License as published by  *
-* the Free Software Foundation; either version 2 of the License, or     *
-* (at your option) any later version.                                   *
-*                                                                       *
-* This program is distributed in the hope that it will be useful,       *
-* but WITHOUT ANY WARRANTY; without even the implied warranty of        *
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
-* GNU General Public License for more details.                          *
-*                                                                       *
-* You should have received a copy of the GNU General Public License     *
-* along with this program; if not, write to the Free Software           *
-* Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.             *
-*                                                                       *
-* The author can be reached at admin@atrinik.org                        *
-************************************************************************/
+/*************************************************************************
+ *           Atrinik, a Multiplayer Online Role Playing Game             *
+ *                                                                       *
+ *   Copyright (C) 2009-2014 Alex Tokar and Atrinik Development Team     *
+ *                                                                       *
+ * Fork from Crossfire (Multiplayer game for X-windows).                 *
+ *                                                                       *
+ * This program is free software; you can redistribute it and/or modify  *
+ * it under the terms of the GNU General Public License as published by  *
+ * the Free Software Foundation; either version 2 of the License, or     *
+ * (at your option) any later version.                                   *
+ *                                                                       *
+ * This program is distributed in the hope that it will be useful,       *
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of        *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
+ * GNU General Public License for more details.                          *
+ *                                                                       *
+ * You should have received a copy of the GNU General Public License     *
+ * along with this program; if not, write to the Free Software           *
+ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.             *
+ *                                                                       *
+ * The author can be reached at admin@atrinik.org                        *
+ ************************************************************************/
 
 /**
  * @file
@@ -57,7 +57,7 @@ static command_buffer *output_queue_start = NULL, *output_queue_end = NULL;
  * @return A new command buffer or NULL in case of an error. */
 command_buffer *command_buffer_new(size_t len, uint8 *data)
 {
-    command_buffer *buf = malloc(sizeof(command_buffer) + len + 1);
+    command_buffer *buf = emalloc(sizeof(command_buffer) + len + 1);
 
     buf->next = buf->prev = NULL;
     buf->len = len;
@@ -125,8 +125,7 @@ static command_buffer *command_buffer_dequeue(command_buffer **queue_start, comm
 
         if (buf->next) {
             buf->next->prev = NULL;
-        }
-        else {
+        } else {
             *queue_end = NULL;
         }
     }
@@ -190,7 +189,7 @@ static int reader_thread_loop(void *dummy)
     int cmd_len = -1;
 
     if (!readbuf) {
-        readbuf = malloc(readbuf_size);
+        readbuf = emalloc(readbuf_size);
     }
 
     while (!abort_thread) {
@@ -202,15 +201,12 @@ static int reader_thread_loop(void *dummy)
             /* Three-byte length? */
             if (readbuf_len > 0 && (readbuf[0] & 0x80)) {
                 toread = 3 - readbuf_len;
-            }
-            else {
+            } else {
                 toread = 2 - readbuf_len;
             }
-        }
-        else if (readbuf_len == 2 && (readbuf[0] & 0x80)) {
+        } else if (readbuf_len == 2 && (readbuf[0] & 0x80)) {
             toread = 1;
-        }
-        else {
+        } else {
             /* If we have a finished header, get the packet size from it. */
             if (readbuf_len <= 3) {
                 uint8 *p = readbuf;
@@ -232,7 +228,7 @@ static int reader_thread_loop(void *dummy)
                 uint8 *tmp = readbuf;
 
                 readbuf_size = readbuf_len + toread;
-                readbuf = malloc(readbuf_size);
+                readbuf = emalloc(readbuf_size);
                 memcpy(readbuf, tmp, readbuf_len);
                 efree(tmp);
             }
@@ -244,8 +240,7 @@ static int reader_thread_loop(void *dummy)
         if (ret == 0) {
             logger_print(LOG(INFO), "Reader thread got EOF trying to read %d bytes.", toread);
             break;
-        }
-        else if (ret == -1) {
+        } else if (ret == -1) {
             /* IO error */
 #ifdef WIN32
             logger_print(LOG(INFO), "Reader thread got error %d", WSAGetLastError());
@@ -253,8 +248,7 @@ static int reader_thread_loop(void *dummy)
             logger_print(LOG(INFO), "Reader thread got error %d: %s", errno, strerror(errno));
 #endif
             break;
-        }
-        else {
+        } else {
             readbuf_len += ret;
         }
 
@@ -278,8 +272,12 @@ static int reader_thread_loop(void *dummy)
     }
 
     socket_close(&csocket);
-    efree(readbuf);
-    readbuf = NULL;
+
+    if (readbuf != NULL) {
+        efree(readbuf);
+        readbuf = NULL;
+    }
+
     return -1;
 }
 
@@ -311,8 +309,7 @@ static int writer_thread_loop(void *dummy)
             if (ret == 0) {
                 logger_print(LOG(INFO), "Writer thread got EOF.");
                 break;
-            }
-            else if (ret == -1) {
+            } else if (ret == -1) {
                 /* IO error */
 #ifdef WIN32
                 logger_print(LOG(INFO), "Writer thread got error %d", WSAGetLastError());
@@ -320,8 +317,7 @@ static int writer_thread_loop(void *dummy)
                 logger_print(LOG(INFO), "Writer thread got error %d: %s", errno, strerror(errno));
 #endif
                 break;
-            }
-            else {
+            } else {
                 written += ret;
             }
         }
@@ -434,7 +430,7 @@ int socket_close(struct ClientSocket *csock)
         return 1;
     }
 
-#ifdef LINUX
+#ifndef WIN32
 
     if (shutdown(csock->fd, SHUT_RDWR)) {
         perror("shutdown");
@@ -550,8 +546,7 @@ static int client_socket_create(int *fd, char *host, int port)
 
     if (isdigit(*host)) {
         addr.sin_addr.s_addr = inet_addr(host);
-    }
-    else {
+    } else {
         struct hostent *hostbn = gethostbyname(host);
 
         if (!hostbn) {

@@ -3,8 +3,8 @@
     <interface>
         <dialog name="hello">
             <message>Hello there! My name is {npc.name}, but please excuse me, I'm about to start eating.</message>
-            <response message="Are you?" destination="eating" />
-            <response message="Sorry." action="close" />
+            <response destination="eating" message="Are you?"/>
+            <response action="close" message="Sorry."/>
         </dialog>
         <dialog name="eating">
             <message>Well, since this is the Dining Hall, yes! Well, as soon as the cooks quit being lazy and bring me my meal...</message>

@@ -1,0 +1,954 @@
+arch map
+name Wizards' Tower: The Secret?
+msg
+Created:  2014-12-27 Alex Tokar
+Modified: 2015-01-03 Alex Tokar
+endmsg
+width 24
+height 24
+difficulty 1
+darkness -1
+outdoor 1
+tile_path_9 world_2_1878
+tile_path_10 world_1878
+bg_music campfire_tales.mid
+region lyondale_archipelago_wizard
+tile_path_1 world_1_1879
+tile_path_2 world_1_1978
+tile_path_3 world_1_1877
+tile_path_4 world_1_1778
+tile_path_5 world_1_1979
+tile_path_6 world_1_1977
+tile_path_7 world_1_1777
+tile_path_8 world_1_1779
+end
+arch trans
+y 2
+end
+arch fwall_fstone2c
+y 2
+end
+arch map_info
+name la_wizards_tower
+sp 19
+cursed 1
+y 2
+end
+arch trans
+y 3
+end
+arch fwall_fstone2
+y 3
+end
+arch trans
+y 4
+end
+arch fwall_fstone2
+y 4
+end
+arch trans
+y 5
+end
+arch fwall_fstone2
+y 5
+end
+arch trans
+y 6
+end
+arch fwall_fstone2
+y 6
+end
+arch trans
+y 7
+end
+arch fwall_fstone2
+y 7
+end
+arch trans
+y 8
+end
+arch fwall_fstone2
+y 8
+end
+arch trans
+y 9
+end
+arch fwall_fstone2
+y 9
+end
+arch trans
+y 10
+end
+arch wall_fstone_round.106
+y 10
+end
+arch trans
+y 13
+end
+arch wall_fstone_round.108
+y 13
+end
+arch trans
+y 14
+end
+arch fwall_fstone2
+y 14
+end
+arch trans
+y 15
+end
+arch fwall_fstone2
+y 15
+end
+arch trans
+y 16
+end
+arch fwall_fstone2
+y 16
+end
+arch trans
+y 17
+end
+arch fwall_fstone2
+y 17
+end
+arch trans
+y 18
+end
+arch fwall_fstone2
+y 18
+end
+arch trans
+y 19
+end
+arch fwall_fstone2
+y 19
+end
+arch trans
+y 20
+end
+arch fwall_fstone2
+y 20
+end
+arch trans
+y 21
+end
+arch fwall_fstone2b
+y 21
+end
+arch trans
+x 1
+y 1
+end
+arch fwall_fstone2c
+x 1
+y 1
+end
+arch map_info
+name la_wizards_tower
+hp 21
+sp 21
+cursed 1
+x 1
+y 1
+end
+arch trans
+x 1
+y 2
+end
+arch fwall_fstone2d
+x 1
+y 2
+end
+arch trans
+x 1
+y 9
+end
+arch wall_fstone_round.102
+x 1
+y 9
+end
+arch map_info
+sp 1
+cursed 1
+name la_wizards_tower
+x 1
+y 9
+end
+arch trans
+x 1
+y 10
+end
+arch wall_fstone_round.104
+x 1
+y 10
+end
+arch trans
+x 1
+y 13
+end
+arch wall_fstone_round.102
+x 1
+y 13
+end
+arch map_info
+sp 1
+cursed 1
+name la_wizards_tower
+x 1
+y 13
+end
+arch trans
+x 1
+y 14
+end
+arch wall_fstone_round.104
+x 1
+y 14
+end
+arch trans
+x 1
+y 21
+end
+arch fwall_fstone2a
+x 1
+y 21
+end
+arch trans
+x 1
+y 22
+end
+arch fwall_fstone2b
+x 1
+y 22
+end
+arch trans
+x 2
+end
+arch fwall_fstone2c
+x 2
+end
+arch map_info
+name la_wizards_tower
+hp 19
+cursed 1
+x 2
+end
+arch trans
+x 2
+y 1
+end
+arch fwall_fstone2d
+x 2
+y 1
+end
+arch trans
+x 2
+y 22
+end
+arch fwall_fstone2a
+x 2
+y 22
+end
+arch trans
+x 2
+y 23
+end
+arch fwall_fstone2b
+x 2
+y 23
+end
+arch map_info
+name la_wizards_tower
+hp 19
+cursed 1
+x 2
+y 23
+end
+arch trans
+x 3
+end
+arch fwall_fstone2
+x 3
+end
+arch trans
+x 3
+y 23
+end
+arch fwall_fstone2
+x 3
+y 23
+end
+arch trans
+x 4
+end
+arch fwall_fstone2
+x 4
+end
+arch trans
+x 4
+y 10
+end
+arch wall_fstone_pillar
+x 4
+y 10
+end
+arch map_info
+cursed 1
+name la_wizards_tower
+x 4
+y 10
+end
+arch trans
+x 4
+y 13
+end
+arch wall_fstone_pillar
+x 4
+y 13
+end
+arch map_info
+cursed 1
+name la_wizards_tower
+x 4
+y 13
+end
+arch trans
+x 4
+y 23
+end
+arch fwall_fstone2
+x 4
+y 23
+end
+arch trans
+x 5
+end
+arch fwall_fstone2
+x 5
+end
+arch trans
+x 5
+y 23
+end
+arch fwall_fstone2
+x 5
+y 23
+end
+arch trans
+x 6
+end
+arch fwall_fstone2
+x 6
+end
+arch trans
+x 6
+y 23
+end
+arch fwall_fstone2
+x 6
+y 23
+end
+arch trans
+x 7
+end
+arch fwall_fstone2
+x 7
+end
+arch trans
+x 7
+y 23
+end
+arch fwall_fstone2
+x 7
+y 23
+end
+arch trans
+x 8
+end
+arch fwall_fstone2
+x 8
+end
+arch trans
+x 8
+y 23
+end
+arch fwall_fstone2
+x 8
+y 23
+end
+arch trans
+x 9
+end
+arch fwall_fstone2
+x 9
+end
+arch trans
+x 9
+y 1
+end
+arch wall_fstone_round.106
+x 9
+y 1
+end
+arch map_info
+hp 1
+cursed 1
+name la_wizards_tower
+x 9
+y 1
+end
+arch trans
+x 9
+y 22
+end
+arch wall_fstone_round.108
+x 9
+y 22
+end
+arch map_info
+hp 1
+cursed 1
+name la_wizards_tower
+x 9
+y 22
+end
+arch trans
+x 9
+y 23
+end
+arch fwall_fstone2
+x 9
+y 23
+end
+arch trans
+x 10
+end
+arch wall_fstone_round.102
+x 10
+end
+arch trans
+x 10
+y 1
+end
+arch wall_fstone_round.104
+x 10
+y 1
+end
+arch trans
+x 10
+y 4
+end
+arch wall_fstone_pillar
+x 10
+y 4
+end
+arch map_info
+cursed 1
+name la_wizards_tower
+x 10
+y 4
+end
+arch trans
+x 10
+y 19
+end
+arch wall_fstone_pillar
+x 10
+y 19
+end
+arch map_info
+cursed 1
+name la_wizards_tower
+x 10
+y 19
+end
+arch trans
+x 10
+y 22
+end
+arch wall_fstone_round.102
+x 10
+y 22
+end
+arch trans
+x 10
+y 23
+end
+arch wall_fstone_round.104
+x 10
+y 23
+end
+arch trans
+x 13
+end
+arch wall_fstone_round.108
+x 13
+end
+arch trans
+x 13
+y 1
+end
+arch wall_fstone_round.106
+x 13
+y 1
+end
+arch map_info
+hp 1
+cursed 1
+name la_wizards_tower
+x 13
+y 1
+end
+arch trans
+x 13
+y 4
+end
+arch wall_fstone_pillar
+x 13
+y 4
+end
+arch map_info
+cursed 1
+name la_wizards_tower
+x 13
+y 4
+end
+arch trans
+x 13
+y 19
+end
+arch wall_fstone_pillar
+x 13
+y 19
+end
+arch map_info
+cursed 1
+name la_wizards_tower
+x 13
+y 19
+end
+arch trans
+x 13
+y 22
+end
+arch wall_fstone_round.108
+x 13
+y 22
+end
+arch map_info
+hp 1
+cursed 1
+name la_wizards_tower
+x 13
+y 22
+end
+arch trans
+x 13
+y 23
+end
+arch wall_fstone_round.106
+x 13
+y 23
+end
+arch trans
+x 14
+end
+arch fwall_fstone2
+x 14
+end
+arch trans
+x 14
+y 1
+end
+arch wall_fstone_round.104
+x 14
+y 1
+end
+arch trans
+x 14
+y 22
+end
+arch wall_fstone_round.102
+x 14
+y 22
+end
+arch trans
+x 14
+y 23
+end
+arch fwall_fstone2
+x 14
+y 23
+end
+arch trans
+x 15
+end
+arch fwall_fstone2
+x 15
+end
+arch trans
+x 15
+y 23
+end
+arch fwall_fstone2
+x 15
+y 23
+end
+arch trans
+x 16
+end
+arch fwall_fstone2
+x 16
+end
+arch trans
+x 16
+y 23
+end
+arch fwall_fstone2
+x 16
+y 23
+end
+arch trans
+x 17
+end
+arch fwall_fstone2
+x 17
+end
+arch trans
+x 17
+y 23
+end
+arch fwall_fstone2
+x 17
+y 23
+end
+arch trans
+x 18
+end
+arch fwall_fstone2
+x 18
+end
+arch trans
+x 18
+y 23
+end
+arch fwall_fstone2
+x 18
+y 23
+end
+arch trans
+x 19
+end
+arch fwall_fstone2
+x 19
+end
+arch trans
+x 19
+y 10
+end
+arch wall_fstone_pillar
+x 19
+y 10
+end
+arch map_info
+cursed 1
+name la_wizards_tower
+x 19
+y 10
+end
+arch trans
+x 19
+y 13
+end
+arch wall_fstone_pillar
+x 19
+y 13
+end
+arch map_info
+cursed 1
+name la_wizards_tower
+x 19
+y 13
+end
+arch trans
+x 19
+y 23
+end
+arch fwall_fstone2
+x 19
+y 23
+end
+arch trans
+x 20
+end
+arch fwall_fstone2
+x 20
+end
+arch trans
+x 20
+y 23
+end
+arch fwall_fstone2
+x 20
+y 23
+end
+arch trans
+x 21
+end
+arch fwall_fstone2a
+x 21
+end
+arch trans
+x 21
+y 1
+end
+arch fwall_fstone2b
+x 21
+y 1
+end
+arch trans
+x 21
+y 22
+end
+arch fwall_fstone2c
+x 21
+y 22
+end
+arch trans
+x 21
+y 23
+end
+arch fwall_fstone2d
+x 21
+y 23
+end
+arch trans
+x 22
+y 1
+end
+arch fwall_fstone2a
+x 22
+y 1
+end
+arch trans
+x 22
+y 2
+end
+arch fwall_fstone2b
+x 22
+y 2
+end
+arch trans
+x 22
+y 9
+end
+arch wall_fstone_round.108
+x 22
+y 9
+end
+arch map_info
+sp 1
+cursed 1
+name la_wizards_tower
+x 22
+y 9
+end
+arch trans
+x 22
+y 10
+end
+arch wall_fstone_round.106
+x 22
+y 10
+end
+arch trans
+x 22
+y 13
+end
+arch wall_fstone_round.108
+x 22
+y 13
+end
+arch map_info
+sp 1
+cursed 1
+name la_wizards_tower
+x 22
+y 13
+end
+arch trans
+x 22
+y 14
+end
+arch wall_fstone_round.106
+x 22
+y 14
+end
+arch trans
+x 22
+y 21
+end
+arch fwall_fstone2c
+x 22
+y 21
+end
+arch trans
+x 22
+y 22
+end
+arch fwall_fstone2d
+x 22
+y 22
+end
+arch trans
+x 23
+y 2
+end
+arch fwall_fstone2a
+x 23
+y 2
+end
+arch map_info
+name la_wizards_tower
+sp 19
+cursed 1
+x 23
+y 2
+end
+arch trans
+x 23
+y 3
+end
+arch fwall_fstone2
+x 23
+y 3
+end
+arch trans
+x 23
+y 4
+end
+arch fwall_fstone2
+x 23
+y 4
+end
+arch trans
+x 23
+y 5
+end
+arch fwall_fstone2
+x 23
+y 5
+end
+arch trans
+x 23
+y 6
+end
+arch fwall_fstone2
+x 23
+y 6
+end
+arch trans
+x 23
+y 7
+end
+arch fwall_fstone2
+x 23
+y 7
+end
+arch trans
+x 23
+y 8
+end
+arch fwall_fstone2
+x 23
+y 8
+end
+arch trans
+x 23
+y 9
+end
+arch fwall_fstone2
+x 23
+y 9
+end
+arch trans
+x 23
+y 10
+end
+arch wall_fstone_round.104
+x 23
+y 10
+end
+arch trans
+x 23
+y 13
+end
+arch wall_fstone_round.102
+x 23
+y 13
+end
+arch trans
+x 23
+y 14
+end
+arch fwall_fstone2
+x 23
+y 14
+end
+arch trans
+x 23
+y 15
+end
+arch fwall_fstone2
+x 23
+y 15
+end
+arch trans
+x 23
+y 16
+end
+arch fwall_fstone2
+x 23
+y 16
+end
+arch trans
+x 23
+y 17
+end
+arch fwall_fstone2
+x 23
+y 17
+end
+arch trans
+x 23
+y 18
+end
+arch fwall_fstone2
+x 23
+y 18
+end
+arch trans
+x 23
+y 19
+end
+arch fwall_fstone2
+x 23
+y 19
+end
+arch trans
+x 23
+y 20
+end
+arch fwall_fstone2
+x 23
+y 20
+end
+arch trans
+x 23
+y 21
+end
+arch fwall_fstone2d
+x 23
+y 21
+end

@@ -4,13 +4,17 @@ set(SOURCES
 	src/commands/permission/follow.c
 	src/commands/permission/freeze.c
 	src/commands/permission/kick.c
+	src/commands/permission/memfree.c
 	src/commands/permission/mod_chat.c
 	src/commands/permission/no_chat.c
 	src/commands/permission/opsay.c
+	src/commands/permission/password.c
 	src/commands/permission/resetmap.c
+	src/commands/permission/resetmaps.c
 	src/commands/permission/server_chat.c
 	src/commands/permission/settime.c
 	src/commands/permission/shutdown.c
+	src/commands/permission/stats.c
 	src/commands/permission/tcl.c
 	src/commands/permission/tgm.c
 	src/commands/permission/tli.c
@@ -30,7 +34,6 @@ set(SOURCES
 	src/commands/player/my.c
 	src/commands/player/party.c
 	src/commands/player/push.c
-	src/commands/player/region_map.c
 	src/commands/player/rename.c
 	src/commands/player/reply.c
 	src/commands/player/right.c
@@ -204,7 +207,6 @@ set(SOURCES
 	src/types/scroll.c
 	src/types/shield.c
 	src/types/shop_floor.c
-	src/types/shop_mat.c
 	src/types/sign.c
 	src/types/skill.c
 	src/types/skill_item.c
@@ -216,7 +218,6 @@ set(SOURCES
 	src/types/spinner.c
 	src/types/swarm_spell.c
 	src/types/symptom.c
-	src/types/teleporter.c
 	src/types/treasure.c
 	src/types/wall.c
 	src/types/wand.c

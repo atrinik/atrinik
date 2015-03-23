@@ -8,6 +8,7 @@ type 66
 no_teleport 1
 hp -1
 sp -1
+last_heal 10
 layer 5
 no_pick 1
 end
@@ -24,6 +25,7 @@ type 66
 no_teleport 1
 hp -1
 sp -1
+last_heal 10
 layer 5
 no_pick 1
 end
@@ -40,6 +42,7 @@ type 66
 no_teleport 1
 hp -1
 sp -1
+last_heal 10
 layer 5
 no_pick 1
 end
@@ -49,6 +52,7 @@ layer 4
 name ladder going up
 hp -1
 sp -1
+last_heal 9
 face ladder_up.111
 animation ladder_up
 is_turnable 1

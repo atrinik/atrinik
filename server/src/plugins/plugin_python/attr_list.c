@@ -1,26 +1,26 @@
-/************************************************************************
-*            Atrinik, a Multiplayer Online Role Playing Game            *
-*                                                                       *
-*    Copyright (C) 2009-2012 Alex Tokar and Atrinik Development Team    *
-*                                                                       *
-* Fork from Crossfire (Multiplayer game for X-windows).                 *
-*                                                                       *
-* This program is free software; you can redistribute it and/or modify  *
-* it under the terms of the GNU General Public License as published by  *
-* the Free Software Foundation; either version 2 of the License, or     *
-* (at your option) any later version.                                   *
-*                                                                       *
-* This program is distributed in the hope that it will be useful,       *
-* but WITHOUT ANY WARRANTY; without even the implied warranty of        *
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
-* GNU General Public License for more details.                          *
-*                                                                       *
-* You should have received a copy of the GNU General Public License     *
-* along with this program; if not, write to the Free Software           *
-* Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.             *
-*                                                                       *
-* The author can be reached at admin@atrinik.org                        *
-************************************************************************/
+/*************************************************************************
+ *           Atrinik, a Multiplayer Online Role Playing Game             *
+ *                                                                       *
+ *   Copyright (C) 2009-2014 Alex Tokar and Atrinik Development Team     *
+ *                                                                       *
+ * Fork from Crossfire (Multiplayer game for X-windows).                 *
+ *                                                                       *
+ * This program is free software; you can redistribute it and/or modify  *
+ * it under the terms of the GNU General Public License as published by  *
+ * the Free Software Foundation; either version 2 of the License, or     *
+ * (at your option) any later version.                                   *
+ *                                                                       *
+ * This program is distributed in the hope that it will be useful,       *
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of        *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
+ * GNU General Public License for more details.                          *
+ *                                                                       *
+ * You should have received a copy of the GNU General Public License     *
+ * along with this program; if not, write to the Free Software           *
+ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.             *
+ *                                                                       *
+ * The author can be reached at admin@atrinik.org                        *
+ ************************************************************************/
 
 /**
  * @file
@@ -70,11 +70,9 @@ static void *attr_list_len_ptr(Atrinik_AttrList *al)
 {
     if (al->field == FIELDTYPE_CMD_PERMISSIONS) {
         return (char *) al->ptr + offsetof(player, num_cmd_permissions);
-    }
-    else if (al->field == FIELDTYPE_FACTIONS) {
+    } else if (al->field == FIELDTYPE_FACTIONS) {
         return (char *) al->ptr + offsetof(player, num_faction_ids);
-    }
-    else if (al->field == FIELDTYPE_REGION_MAPS) {
+    } else if (al->field == FIELDTYPE_REGION_MAPS) {
         return (char *) al->ptr + offsetof(player, num_region_maps);
     }
 
@@ -117,8 +115,7 @@ static PyObject *attr_list_get(Atrinik_AttrList *al, PyObject *key, unsigned PY_
 
         field.type = FIELDTYPE_CSTR;
         ptr = &(*(char ***) ptr)[idx];
-    }
-    else if (al->field == FIELDTYPE_FACTIONS) {
+    } else if (al->field == FIELDTYPE_FACTIONS) {
         unsigned PY_LONG_LONG len, i;
 
         if (key) {
@@ -214,10 +211,10 @@ static int attr_list_set(Atrinik_AttrList *al, PyObject *key, unsigned PY_LONG_L
 
         field.type = FIELDTYPE_CSTR;
         ptr = &(*(char ***) ptr)[i];
-    }
-    /* Factions. */
-    else if (al->field == FIELDTYPE_FACTIONS) {
+    } else if (al->field == FIELDTYPE_FACTIONS) {
         char *str;
+
+        /* Factions. */
 
         str = PyString_AsString(key);
         field.type = FIELDTYPE_SINT64;
@@ -233,7 +230,7 @@ static int attr_list_set(Atrinik_AttrList *al, PyObject *key, unsigned PY_LONG_L
         if (i == len) {
             (*(int *) attr_list_len_ptr(al))++;
             *(shstr ***) ((void *) ((char *) al->ptr + al->offset)) = realloc(*(shstr ***) ((void *) ((char *) al->ptr + al->offset)), sizeof(shstr *) * attr_list_len(al));
-            *(shstr **) (&(*(shstr ***) ptr)[i]) = hooks->add_string((const char *) (char *) idx);
+            *(shstr **) (&(*(shstr ***) ptr)[i]) = hooks->add_string(str);
             *(sint64 **) ((void *) ((char *) al->ptr + offsetof(player, faction_reputation))) = realloc(*(sint64 **) ((void *) ((char *) al->ptr + offsetof(player, faction_reputation))), sizeof(sint64) * attr_list_len(al));
             /* Make sure ptr points to the right memory... */
             ptr = (char *) al->ptr + offsetof(player, faction_reputation);
@@ -242,8 +239,7 @@ static int attr_list_set(Atrinik_AttrList *al, PyObject *key, unsigned PY_LONG_L
         }
 
         ptr = &(*(sint64 **) ((void *) ((char *) al->ptr + offsetof(player, faction_reputation))))[i];
-    }
-    else {
+    } else {
         PyErr_SetString(PyExc_NotImplementedError, "The attribute list does not implement support for write operations.");
         return -1;
     }
@@ -255,9 +251,9 @@ static int attr_list_set(Atrinik_AttrList *al, PyObject *key, unsigned PY_LONG_L
         if (al->field == FIELDTYPE_CMD_PERMISSIONS) {
             ((socket_struct *) (&(*(socket_struct **) ((void *) ((char *) al->ptr + offsetof(player, socket))))))->ext_title_flag = 1;
         }
-    }
-    /* Failure; overflow, invalid value or some other kind of error. */
-    else if (ret == -1) {
+    } else if (ret == -1) {
+        /* Failure; overflow, invalid value or some other kind of error. */
+
         if (i >= len) {
             /* We tried to add a new command permission and we have already
              * resized the array, so shrink it back now, as we failed. */
@@ -266,8 +262,7 @@ static int attr_list_set(Atrinik_AttrList *al, PyObject *key, unsigned PY_LONG_L
                 (*(int *) attr_list_len_ptr(al))--;
                 /* And resize it. */
                 *(char ***) ((void *) ((char *) al->ptr + al->offset)) = realloc(*(char ***) ((void *) ((char *) al->ptr + al->offset)), sizeof(char *) * attr_list_len(al));
-            }
-            else if (al->field == FIELDTYPE_FACTIONS) {
+            } else if (al->field == FIELDTYPE_FACTIONS) {
                 (*(int *) attr_list_len_ptr(al))--;
                 *(shstr ***) ((void *) ((char *) al->ptr + al->offset)) = realloc(*(shstr ***) ((void *) ((char *) al->ptr + al->offset)), sizeof(shstr *) * attr_list_len(al));
                 *(sint64 **) ((void *) ((char *) al->ptr + offsetof(player, faction_reputation))) = realloc(*(sint64 **) ((void *) ((char *) al->ptr + offsetof(player, faction_reputation))), sizeof(sint64) * attr_list_len(al));
@@ -290,8 +285,7 @@ static PyObject *__getsetitem__(Atrinik_AttrList *al, PyObject *key)
             PyErr_SetString(PyExc_ValueError, "__getitem__() failed; key must be a string.");
             return NULL;
         }
-    }
-    else {
+    } else {
         unsigned PY_LONG_LONG i, len;
 
         /* The key must be an integer. */
@@ -412,8 +406,7 @@ static PyObject *attr_list_clear(Atrinik_AttrList *al)
 
             ((socket_struct *) (&(*(socket_struct **) ((void *) ((char *) al->ptr + offsetof(player, socket))))))->ext_title_flag = 1;
         }
-    }
-    else {
+    } else {
         PyErr_SetString(PyExc_NotImplementedError, "This attribute list does not implement clear method.");
         return NULL;
     }
@@ -423,8 +416,7 @@ static PyObject *attr_list_clear(Atrinik_AttrList *al)
 }
 
 /** Available Python methods for the AtrinikPlayer type. */
-static PyMethodDef methods[] =
-{
+static PyMethodDef methods[] = {
     {"__getitem__", (PyCFunction) __getitem__, METH_O | METH_COEXIST, 0},
     {"append", (PyCFunction) append, METH_O, 0},
     {"remove", (PyCFunction) attr_list_remove, METH_O, 0},
@@ -521,8 +513,7 @@ static int __contains__(Atrinik_AttrList *al, PyObject *value)
 }
 
 /** Common sequence methods. */
-static PySequenceMethods SequenceMethods =
-{
+static PySequenceMethods SequenceMethods = {
     (lenfunc) __len__,
     NULL, NULL, NULL, NULL, NULL, NULL,
     (objobjproc) __contains__,
@@ -532,16 +523,14 @@ static PySequenceMethods SequenceMethods =
 /**
  * Defines what to map some common methods (len(), __setitem__() and
  * __getitem__()) to. */
-static PyMappingMethods MappingMethods =
-{
+static PyMappingMethods MappingMethods = {
     (lenfunc) __len__,
     (binaryfunc) __getitem__,
     (objobjargproc) __setitem__,
 };
 
 /** AttrListType definition. */
-PyTypeObject Atrinik_AttrListType =
-{
+PyTypeObject Atrinik_AttrListType = {
 #ifdef IS_PY3K
     PyVarObject_HEAD_INIT(NULL, 0)
 #else
@@ -581,6 +570,9 @@ PyTypeObject Atrinik_AttrListType =
 #ifndef IS_PY_LEGACY
     , 0
 #endif
+#ifdef Py_TPFLAGS_HAVE_FINALIZE
+    , NULL
+#endif
 };
 
 /**
@@ -596,7 +588,7 @@ int Atrinik_AttrList_init(PyObject *module)
     }
 
     Py_INCREF(&Atrinik_AttrListType);
-    PyModule_AddObject(module, "AtrrList", (PyObject *) &Atrinik_AttrListType);
+    PyModule_AddObject(module, "AtrrList", (PyObject *) & Atrinik_AttrListType);
 
     return 1;
 }

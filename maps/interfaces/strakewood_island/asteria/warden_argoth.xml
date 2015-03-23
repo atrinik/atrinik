@@ -1,62 +1,64 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <interfaces>
     <interface state="player_is_enemy">
-        <and><check enemy="player" /></and>
+        <and>
+            <check enemy="player"/>
+        </and>
         <dialog name="hello">
             <say>Now you die!</say>
         </dialog>
     </interface>
-
     <interface state="has_enemy">
-        <and><check enemy="" /></and>
+        <and>
+            <check enemy="any"/>
+        </and>
         <dialog name="hello">
-            <close />
+            <close/>
         </dialog>
     </interface>
-
     <interface>
         <dialog name="hello">
             <message color="yellow">{npc.name} yawns sleepily.</message>
             <message>Hello {activator.name}, I am {npc.name}. So what brings you here?</message>
-            <response message="Just exploring around..." destination="exploring" />
+            <response destination="exploring" message="Just exploring around..."/>
         </dialog>
         <dialog name="exploring">
             <message>*HIC* I see... I don't suppose you've come about the key. Sorry, I can't give that to you...</message>
-            <response message="What key?" destination="key" />
-            <response message="Have you been drinking?" destination="drinking" />
+            <response destination="key" message="What key?"/>
+            <response destination="drinking" message="Have you been drinking?"/>
         </dialog>
         <dialog name="key">
             <message>I told you, can't give it to you. Don't even ask about it.</message>
-            <response message="Have you been drinking?" destination="drinking" />
+            <response destination="drinking" message="Have you been drinking?"/>
         </dialog>
         <dialog name="drinking">
             <message>... of course not, I'm on duty. What makes you think that?</message>
-            <response message="You drunkard." destination="drunkard1" />
+            <response destination="drunkard1" message="You drunkard."/>
         </dialog>
         <dialog name="drunkard1">
             <message>What did you call me? I'm on duty here.</message>
-            <response message="A drunk." destination="drunkard2" />
+            <response destination="drunkard2" message="A drunk."/>
         </dialog>
         <dialog name="drunkard2">
             <message>I'm [b]NOT[/b] a drunk!</message>
-            <response message="Yes you are." destination="drunkard3" />
+            <response destination="drunkard3" message="Yes you are."/>
         </dialog>
         <dialog name="drunkard3">
             <message>NO! I'm on DUTY here! I haven't been *HIC* drinking!</message>
-            <response message="You're a drunkard." destination="drunkard4" />
+            <response destination="drunkard4" message="You're a drunkard."/>
         </dialog>
         <dialog name="drunkard4">
             <message>You can't prove that I'm a drunkard!</message>
-            <response message="There's a beer barrel right next to you." destination="drunkard5" />
+            <response destination="drunkard5" message="There's a beer barrel right next to you."/>
         </dialog>
         <dialog name="drunkard5">
             <message>That's *HIC* it! Call me a drunkard again and you'll die!</message>
-            <response message="You're such a drunkard..." destination="drunkard6" />
+            <response destination="drunkard6" message="You're such a drunkard..."/>
         </dialog>
         <dialog name="drunkard6">
-            <close />
+            <close/>
             <say>Now you've done it! Prepare to die!</say>
-            <action enemy="player" />
+            <action enemy="player"/>
         </dialog>
     </interface>
 </interfaces>

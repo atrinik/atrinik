@@ -18,6 +18,7 @@ tile_path_7 world_aa28
 tile_path_8 world_aa30
 bg_music swamp.ogg
 region strakewood_island
+tile_path_9 world_1_0129
 end
 arch water_lt
 end
@@ -1521,24 +1522,18 @@ x 11
 y 21
 end
 arch spawn_point
-msg
-
-endmsg
 speed 0.05
 last_grace 0
 x 11
 y 21
 arch witch3
-msg
-
-endmsg
 name bookish student witch
 level 25
 spawn_time 16:00-8:00
 can_cast_spell 1
 sp -1
 maxsp 12
-Dex 3
+dex 3
 type 83
 arch ability_cause_lig_wound
 end
@@ -2589,7 +2584,7 @@ spawn_time 16:00-8:00
 can_cast_spell 1
 sp -1
 maxsp 12
-Dex 3
+dex 3
 type 83
 arch ability_cause_lig_wound
 end

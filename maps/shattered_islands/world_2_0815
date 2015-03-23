@@ -1,0 +1,17 @@
+arch map
+name Strakewood Island
+msg
+Created:  2014-12-29 Alex Tokar
+endmsg
+width 24
+height 24
+difficulty 1
+region strakewood_island
+outdoor 1
+tile_path_1 world_2_0816
+tile_path_2 world_2_0915
+tile_path_4 world_2_0715
+tile_path_5 world_2_0916
+tile_path_8 world_2_0716
+tile_path_10 world_1_0815
+end

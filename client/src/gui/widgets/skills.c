@@ -1,26 +1,26 @@
-/************************************************************************
-*            Atrinik, a Multiplayer Online Role Playing Game            *
-*                                                                       *
-*    Copyright (C) 2009-2012 Alex Tokar and Atrinik Development Team    *
-*                                                                       *
-* Fork from Crossfire (Multiplayer game for X-windows).                 *
-*                                                                       *
-* This program is free software; you can redistribute it and/or modify  *
-* it under the terms of the GNU General Public License as published by  *
-* the Free Software Foundation; either version 2 of the License, or     *
-* (at your option) any later version.                                   *
-*                                                                       *
-* This program is distributed in the hope that it will be useful,       *
-* but WITHOUT ANY WARRANTY; without even the implied warranty of        *
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
-* GNU General Public License for more details.                          *
-*                                                                       *
-* You should have received a copy of the GNU General Public License     *
-* along with this program; if not, write to the Free Software           *
-* Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.             *
-*                                                                       *
-* The author can be reached at admin@atrinik.org                        *
-************************************************************************/
+/*************************************************************************
+ *           Atrinik, a Multiplayer Online Role Playing Game             *
+ *                                                                       *
+ *   Copyright (C) 2009-2014 Alex Tokar and Atrinik Development Team     *
+ *                                                                       *
+ * Fork from Crossfire (Multiplayer game for X-windows).                 *
+ *                                                                       *
+ * This program is free software; you can redistribute it and/or modify  *
+ * it under the terms of the GNU General Public License as published by  *
+ * the Free Software Foundation; either version 2 of the License, or     *
+ * (at your option) any later version.                                   *
+ *                                                                       *
+ * This program is distributed in the hope that it will be useful,       *
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of        *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
+ * GNU General Public License for more details.                          *
+ *                                                                       *
+ * You should have received a copy of the GNU General Public License     *
+ * along with this program; if not, write to the Free Software           *
+ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.             *
+ *                                                                       *
+ * The author can be reached at admin@atrinik.org                        *
+ ************************************************************************/
 
 /**
  * @file
@@ -30,13 +30,12 @@
 
 #include <global.h>
 
-enum
-{
+enum {
     BUTTON_CLOSE,
     BUTTON_HELP,
 
     BUTTON_NUM
-};
+} ;
 
 /**
  * Button buffer. */
@@ -184,12 +183,11 @@ void skills_update(object *op, uint8 level, sint64 xp)
 
     if (skill_find_object(op, &skill_id)) {
         skill = skill_get(skill_id);
-    }
-    else {
+    } else {
         skill = ecalloc(1, sizeof(*skill));
         skill->skill = op;
 
-        skill_list = realloc(skill_list, sizeof(*skill_list) * (skill_list_num + 1));
+        skill_list = erealloc(skill_list, sizeof(*skill_list) * (skill_list_num + 1));
         skill_list[skill_list_num] = skill;
         skill_list_num++;
     }
@@ -215,7 +213,7 @@ void skills_remove(object *op)
         skill_list[i - 1] = skill_list[i];
     }
 
-    skill_list = realloc(skill_list, sizeof(*skill_list) * (skill_list_num - 1));
+    skill_list = erealloc(skill_list, sizeof(*skill_list) * (skill_list_num - 1));
     skill_list_num--;
 
     skill_list_reload();
@@ -236,7 +234,7 @@ static void widget_draw(widgetdata *widget)
         list_skills->row_highlight_func = NULL;
         list_skills->surface = widget->surface;
         list_skills->row_height_adjust = INVENTORY_ICON_SIZE;
-        list_set_font(list_skills, -1);
+        list_set_font(list_skills, NULL);
         list_scrollbar_enable(list_skills);
         list_set_column(list_skills, 0, INVENTORY_ICON_SIZE, 0, NULL, -1);
         list_set_column(list_skills, 1, INVENTORY_ICON_SIZE, 0, NULL, -1);
@@ -275,7 +273,7 @@ static void widget_draw(widgetdata *widget)
 }
 
 /** @copydoc widgetdata::background_func */
-static void widget_background(widgetdata *widget)
+static void widget_background(widgetdata *widget, int draw)
 {
     if (!widget->redraw) {
         widget->redraw = list_need_redraw(list_skills);
@@ -311,8 +309,7 @@ static int widget_event(widgetdata *widget, SDL_Event *event)
                     widget->redraw = 1;
                     return 1;
                 }
-            }
-            else if (event->type == SDL_MOUSEBUTTONDOWN) {
+            } else if (event->type == SDL_MOUSEBUTTONDOWN) {
                 event_dragging_start(skill_list[skill_id]->skill->tag, event->motion.x, event->motion.y);
                 return 1;
             }
@@ -330,13 +327,13 @@ static int widget_event(widgetdata *widget, SDL_Event *event)
     for (i = 0; i < BUTTON_NUM; i++) {
         if (button_event(&buttons[i], event)) {
             switch (i) {
-                case BUTTON_CLOSE:
-                    widget->show = 0;
-                    break;
+            case BUTTON_CLOSE:
+                widget->show = 0;
+                break;
 
-                case BUTTON_HELP:
-                    help_show("skill list");
-                    break;
+            case BUTTON_HELP:
+                help_show("skill list");
+                break;
             }
 
             widget->redraw = 1;

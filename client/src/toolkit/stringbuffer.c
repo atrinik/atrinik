@@ -1,26 +1,26 @@
-/************************************************************************
-*            Atrinik, a Multiplayer Online Role Playing Game            *
-*                                                                       *
-*    Copyright (C) 2009-2012 Alex Tokar and Atrinik Development Team    *
-*                                                                       *
-* Fork from Crossfire (Multiplayer game for X-windows).                 *
-*                                                                       *
-* This program is free software; you can redistribute it and/or modify  *
-* it under the terms of the GNU General Public License as published by  *
-* the Free Software Foundation; either version 2 of the License, or     *
-* (at your option) any later version.                                   *
-*                                                                       *
-* This program is distributed in the hope that it will be useful,       *
-* but WITHOUT ANY WARRANTY; without even the implied warranty of        *
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
-* GNU General Public License for more details.                          *
-*                                                                       *
-* You should have received a copy of the GNU General Public License     *
-* along with this program; if not, write to the Free Software           *
-* Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.             *
-*                                                                       *
-* The author can be reached at admin@atrinik.org                        *
-************************************************************************/
+/*************************************************************************
+ *           Atrinik, a Multiplayer Online Role Playing Game             *
+ *                                                                       *
+ *   Copyright (C) 2009-2014 Alex Tokar and Atrinik Development Team     *
+ *                                                                       *
+ * Fork from Crossfire (Multiplayer game for X-windows).                 *
+ *                                                                       *
+ * This program is free software; you can redistribute it and/or modify  *
+ * it under the terms of the GNU General Public License as published by  *
+ * the Free Software Foundation; either version 2 of the License, or     *
+ * (at your option) any later version.                                   *
+ *                                                                       *
+ * This program is distributed in the hope that it will be useful,       *
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of        *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
+ * GNU General Public License for more details.                          *
+ *                                                                       *
+ * You should have received a copy of the GNU General Public License     *
+ * along with this program; if not, write to the Free Software           *
+ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.             *
+ *                                                                       *
+ * The author can be reached at admin@atrinik.org                        *
+ ************************************************************************/
 
 /**
  * @file
@@ -60,6 +60,7 @@ static void stringbuffer_ensure(StringBuffer *sb, size_t len);
  * @internal */
 void toolkit_stringbuffer_init(void)
 {
+
     TOOLKIT_INIT_FUNC_START(stringbuffer)
     {
     }
@@ -71,6 +72,7 @@ void toolkit_stringbuffer_init(void)
  * @internal */
 void toolkit_stringbuffer_deinit(void)
 {
+
     TOOLKIT_DEINIT_FUNC_START(stringbuffer)
     {
     }
@@ -163,7 +165,7 @@ void stringbuffer_append_printf(StringBuffer *sb, const char *format, ...)
 
     TOOLKIT_FUNC_PROTECTOR(API_NAME);
 
-    for (;; ) {
+    for (; ; ) {
         int n;
         va_list arg;
 
@@ -181,9 +183,8 @@ void stringbuffer_append_printf(StringBuffer *sb, const char *format, ...)
         /* Precisely what is needed */
         if (n > -1) {
             size = n + 1;
-        }
-        /* Twice the old size */
-        else {
+        } else {
+            /* Twice the old size */
             size *= 2;
         }
     }

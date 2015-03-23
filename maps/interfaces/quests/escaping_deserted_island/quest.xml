@@ -1,108 +1,99 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <interfaces>
     <quest name="Escaping the Deserted Island">
-        <part uid="explore" name="Clean Water Source">
+        <part name="Clean Water Source" uid="explore">
             <info>Explore the deserted island and look for a clean water source.</info>
-
             <interface npc="Sam Goodberry" state="need_start">
                 <dialog name="hello">
                     <message>There you are, [i]{activator.name}[/i]! You're finally awake I see, good, good. I was beginning to worry about you, but you seem to be alright now... unlike my boat.</message>
-                    <response message="Who are you?" destination="who" />
+                    <response destination="who" message="Who are you?"/>
                 </dialog>
                 <dialog name="who">
                     <message>Huh? Surely you know who I am! Unless... unless the head injury you received during the terrible storm caused you to lose part of your memory... I hope that is not the case.</message>
-                    <response message="I don't remember much... what storm?" destination="storm" />
+                    <response destination="storm" message="I don't remember much... what storm?"/>
                 </dialog>
                 <dialog name="storm">
                     <message>This is bad luck... First the storm, now this... Well... Let me start from the beginning.</message>
                     <message>My name is {npc.name} and you hired me and my boat to transport you to Strakewood Island. You didn't tell me why you had to travel there so urgently, but you offered me a generous sum of gold so I accepted.</message>
                     <message>Unfortunately, a terrible storm caught us while on our way to Strakewood, and you were knocked unconscious. The storm caused large amounts of damage to the boat, but we survived, and got washed up on this small, deserted island...</message>
-                    <response message="Deserted island?" destination="deserted" />
+                    <response destination="deserted" message="Deserted island?"/>
                 </dialog>
                 <dialog name="deserted">
                     <message>That is what it appears like. No civilization or animals that I can see from here, and we have no source of food or clean water.</message>
-                    <response message="Should we take a look around?" destination="takelook" />
+                    <response destination="takelook" message="Should we take a look around?"/>
                 </dialog>
                 <dialog name="takelook">
                     <message>Feel free to, but be careful out there. Try and see if you can find some clean water, as that is the most important thing we need right now. A spring or a small lake would suffice. I'll stay here and examine the damage on the boat. Perhaps we could be able to fix it...</message>
-                    <response message="What if I get lost?" destination="getlost" />
+                    <response destination="getlost" message="What if I get lost?"/>
                 </dialog>
                 <dialog name="getlost">
                     <message>Hm, good point. We have to be careful out here... Well, take this compass then. We seem to be on the western shore, so you should be able to find your way back. Also, take these torches, as it can get quite dark out there.</message>
-                    <object arch="compass" />
-                    <object arch="torch" />
-                    <notification message="Tutorial Available: Inventory Interaction" action="/help basics_inventory_interaction" shortcut="?HELP" delay="90000" />
-                    <action start="explore" />
+                    <object arch="compass"/>
+                    <object arch="torch"/>
+                    <notification action="/help basics_inventory_interaction" delay="90000" message="Tutorial Available: Inventory Interaction" shortcut="?HELP"/>
+                    <action start="explore"/>
                 </dialog>
             </interface>
-
             <interface npc="Sam Goodberry" state="need_complete">
                 <dialog name="hello">
                     <message>Well? Have you found a source of clean water yet? No? Well hurry up then, there has to be a source here somewhere!</message>
                 </dialog>
             </interface>
         </part>
-
-        <part uid="explore_report" name="Reporting To Sam Goodberry">
+        <part name="Reporting To Sam Goodberry" uid="explore_report">
             <info>You have found a source of clean water. You should report your findings to Sam Goodberry on the western shore of the deserted island.</info>
-
             <interface npc="Sam Goodberry" state="need_complete">
                 <dialog name="hello">
                     <message>Well? Have you found a source of clean water yet?</message>
                     <message color="yellow">You tell {npc.name} about the lake.</message>
                     <message>Fantastic! Here, take this empty barrel and go fill it up with the water from that lake. We will need it if we are to escape this island.</message>
-                    <object arch="deserted_island_empty_barrel" />
-                    <notification message="Tutorial Available: Quest List" action="/help basics_quest_list" shortcut="?HELP" delay="90000" />
-                    <action start="fill_barrel" />
-                    <action complete="explore_report" />
+                    <object arch="deserted_island_empty_barrel"/>
+                    <notification action="/help basics_quest_list" delay="90000" message="Tutorial Available: Quest List" shortcut="?HELP"/>
+                    <action start="fill_barrel"/>
+                    <action complete="explore_report"/>
                 </dialog>
             </interface>
         </part>
-
-        <part uid="fill_barrel" name="Collecting Clean Water">
+        <part name="Collecting Clean Water" uid="fill_barrel">
             <info>Sam Goodberry has given you an empty barrel and asked you to fill it up with clean water from the lake you found, near the eastern shore of the deserted island.</info>
-            <item arch="deserted_island_filled_barrel" name="water barrel" />
-
+            <item arch="deserted_island_filled_barrel" name="water barrel"/>
             <interface npc="Sam Goodberry" state="need_finish">
                 <dialog name="hello">
                     <message>Please, take the empty barrel I have given you to the lake you found and fill it up with water.</message>
                 </dialog>
             </interface>
-
             <interface npc="Sam Goodberry" state="need_complete">
                 <dialog name="hello">
                     <message>Good job, {activator.name}!</message>
                     <message>We may be able to escape this island yet. However... we need food as a priority as well. And there is no source of food on the island as far as the eye can see, except some roots, mushrooms, berries and the rare bits of fruit, such as apples.</message>
-                    <response message="Can't we gather some mushrooms?" destination="mushrooms" />
+                    <response destination="mushrooms" message="Can't we gather some mushrooms?"/>
                 </dialog>
                 <dialog name="mushrooms">
                     <message>Well, we could, but the amount on the surface would not be enough I fear. We would need many dozens, and big ones as well. Most of the surface ones are not edible either...</message>
-                    <response message="What about below the surface?" destination="belowsurface" />
+                    <response destination="belowsurface" message="What about below the surface?"/>
                 </dialog>
                 <dialog name="belowsurface">
                     <message>We would need to find a cavern entrance to go underground - one can't just dig out the beach sand or the island dirt and hope they will eventually discover something on a deserted island, that would be very laborious indeed. However, you said the lake was atop a small hill - perhaps there is a cavern entrance somewhere on the side of the hill. If so, it would be the correct conditions for mushrooms to grow as well.</message>
-                    <response message="I'll go have a look around." destination="havelook" />
+                    <response destination="havelook" message="I'll go have a look around."/>
                 </dialog>
                 <dialog name="havelook">
                     <message>Very well. However, be careful. Even if this looks like a deserted island, you never know... Here, take some more torches, just in case.</message>
-                    <object arch="torch" />
+                    <object arch="torch"/>
                     <message color="yellow">You give the water barrel to {npc.name}.</message>
-                    <action start="get_mushrooms" />
-                    <action complete="fill_barrel" />
+                    <action start="get_mushrooms"/>
+                    <action complete="fill_barrel"/>
                 </dialog>
             </interface>
         </part>
-
-        <part uid="get_mushrooms" name="Collecting Mushrooms">
+        <part name="Collecting Mushrooms" uid="get_mushrooms">
             <info>You have agreed to explore the area around the lake for a cavern, which, if it exists, should have an abundance of edible mushrooms due to the right conditions.</info>
-            <item arch="deserted_island_white_mushroom" name="wild white mushroom" nrof="70" />
-
+            <item arch="deserted_island_white_mushroom" name="wild white mushroom" nrof="70"/>
             <interface npc="Sam Goodberry" state="need_finish">
                 <dialog name="hello">
                     <message>Ah, you're back soon, it seems! But have you found any mushrooms?</message>
                     <message color="yellow">{npc.name} checks how many mushrooms you have found.</message>
                     <and>
-                        <check num2finish="70" />
+                        <check num2finish="70"/>
                         <message>None? Well, keep looking, there are sure to be some edible ones around here somewhere, perhaps in a nearby cavern...</message>
                     </and>
                     <and>
@@ -110,58 +101,54 @@
                     </and>
                 </dialog>
             </interface>
-
             <interface npc="Sam Goodberry" state="need_complete">
                 <dialog name="hello">
                     <message>Ah, very good! We have enough mushrooms to last us for a while now. Now, we should think about leaving this island.</message>
-                    <response message="How do we do that?" destination="dothat" />
+                    <response destination="dothat" message="How do we do that?"/>
                 </dialog>
                 <dialog name="dothat">
                     <message>Obviously we need to repair the boat. Luckily this saw survived the storm we went through, however, our wood supplies did not. Which means we need to find some trees, but I can't see anything around here apart from palm trees, which are no good for repairing a boat.</message>
-                    <response message="I saw some trees next to the lake." destination="sawtrees" />
+                    <response destination="sawtrees" message="I saw some trees next to the lake."/>
                 </dialog>
                 <dialog name="sawtrees">
                     <message>We are in luck then! This is good. Here, take this saw then, and bring me some thick branches from those trees. Ten really thick branches should be enough. Also, keep some of those mushrooms, while I store the rest. There we go.</message>
                     <message color="yellow">You can interact with the saw while standing next to a tree in order to cut down some branches.</message>
-                    <object arch="sam_goodberry_saw" />
-                    <object arch="mushroom1" />
-                    <notification message="Tutorial Available: Hunger" action="/help basics_hunger" shortcut="?HELP" delay="90000" />
-                    <action start="get_branches" />
-                    <action complete="get_mushrooms" />
+                    <object arch="sam_goodberry_saw"/>
+                    <object arch="mushroom1"/>
+                    <notification action="/help basics_hunger" delay="90000" message="Tutorial Available: Hunger" shortcut="?HELP"/>
+                    <action start="get_branches"/>
+                    <action complete="get_mushrooms"/>
                 </dialog>
             </interface>
         </part>
-
-        <part uid="get_branches" name="Collecting Branches">
+        <part name="Collecting Branches" uid="get_branches">
             <info>In order to escape the Deserted Island, you will need to repair the boat. In order to do this, Sam Goodberry has asked you to collect some branches from the trees next to the lake using his saw.</info>
-            <item arch="deserted_island_branch" name="thick tree branch" nrof="10" />
-
+            <item arch="deserted_island_branch" name="thick tree branch" nrof="10"/>
             <interface npc="Sam Goodberry" state="need_finish">
                 <dialog name="hello">
                     <message>We need some thick branches to repair the boat, {activator.name}.</message>
                 </dialog>
             </interface>
-
             <interface npc="Sam Goodberry" state="need_complete">
                 <dialog name="hello">
                     <message>Ah, perfect! If you can lend me a hand, we can repair this boat in no time at all with the tree branches that you collected, and then we can set sail.</message>
-                    <response message="Where are we heading though?" destination="heading" />
+                    <response destination="heading" message="Where are we heading though?"/>
                 </dialog>
                 <dialog name="heading">
                     <message>I think we should head for Incuna - we should be close by, as I saw the island in the distance, before the storm hit us. We could take refuge there for a little while, and resupply, in order to continue the journey to Strakewood. And you need to regain your memory... Perhaps learning some basic fighting in Incuna from the townsfolk would refresh your memory.</message>
-                    <response message="Let's go then." destination="go" />
+                    <response destination="go" message="Let's go then."/>
                 </dialog>
                 <dialog name="go">
                     <message>It's decided then! Now, help me with repairing this boat, and then we can be off.</message>
-                    <response message="Alright then." destination="alright" />
+                    <response destination="alright" message="Alright then."/>
                 </dialog>
-                <dialog name="alright" title="Sailing the Ocean" icon="player">
-                    <object arch="sam_goodberry_saw" remove="1" />
+                <dialog icon="player" name="alright" title="Sailing the Ocean">
+                    <object arch="sam_goodberry_saw" remove="1"/>
                     <message color="yellow">You return the saw to {npc.name} and help him repair the boat.</message>
                     <message color="yellow">After patching up the boat and setting everything in order, you set sail.</message>
                     <message color="yellow">You feel tired after all that hard work, perhaps you should speak to {npc.name}...</message>
-                    <action complete="get_branches" />
-                    <action teleport="/shattered_islands/world_af01 4 6" />
+                    <action complete="get_branches"/>
+                    <action teleport="/shattered_islands/world_af01 4 6"/>
                 </dialog>
             </interface>
         </part>

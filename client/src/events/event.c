@@ -1,26 +1,26 @@
-/************************************************************************
-*            Atrinik, a Multiplayer Online Role Playing Game            *
-*                                                                       *
-*    Copyright (C) 2009-2012 Alex Tokar and Atrinik Development Team    *
-*                                                                       *
-* Fork from Crossfire (Multiplayer game for X-windows).                 *
-*                                                                       *
-* This program is free software; you can redistribute it and/or modify  *
-* it under the terms of the GNU General Public License as published by  *
-* the Free Software Foundation; either version 2 of the License, or     *
-* (at your option) any later version.                                   *
-*                                                                       *
-* This program is distributed in the hope that it will be useful,       *
-* but WITHOUT ANY WARRANTY; without even the implied warranty of        *
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
-* GNU General Public License for more details.                          *
-*                                                                       *
-* You should have received a copy of the GNU General Public License     *
-* along with this program; if not, write to the Free Software           *
-* Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.             *
-*                                                                       *
-* The author can be reached at admin@atrinik.org                        *
-************************************************************************/
+/*************************************************************************
+ *           Atrinik, a Multiplayer Online Role Playing Game             *
+ *                                                                       *
+ *   Copyright (C) 2009-2014 Alex Tokar and Atrinik Development Team     *
+ *                                                                       *
+ * Fork from Crossfire (Multiplayer game for X-windows).                 *
+ *                                                                       *
+ * This program is free software; you can redistribute it and/or modify  *
+ * it under the terms of the GNU General Public License as published by  *
+ * the Free Software Foundation; either version 2 of the License, or     *
+ * (at your option) any later version.                                   *
+ *                                                                       *
+ * This program is distributed in the hope that it will be useful,       *
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of        *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
+ * GNU General Public License for more details.                          *
+ *                                                                       *
+ * You should have received a copy of the GNU General Public License     *
+ * along with this program; if not, write to the Free Software           *
+ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.             *
+ *                                                                       *
+ * The author can be reached at admin@atrinik.org                        *
+ ************************************************************************/
 
 /**
  * @file
@@ -29,7 +29,10 @@
 
 #include <global.h>
 
-int old_mouse_y = 0;
+/** @copydoc event_drag_cb_fnc */
+static event_drag_cb_fnc event_drag_cb = NULL;
+
+static int dragging_old_mx = -1, dragging_old_my = -1;
 
 int event_dragging_check(void)
 {
@@ -48,16 +51,55 @@ int event_dragging_check(void)
     return 1;
 }
 
+int event_dragging_need_redraw(void)
+{
+    int mx, my;
+
+    if (!event_dragging_check()) {
+        return 0;
+    }
+
+    SDL_GetMouseState(&mx, &my);
+
+    if (mx != dragging_old_mx || my != dragging_old_my) {
+        dragging_old_mx = mx;
+        dragging_old_my = my;
+
+        return 1;
+    }
+
+    return 0;
+}
+
 void event_dragging_start(int tag, int mx, int my)
 {
+    dragging_old_mx = -1;
+    dragging_old_my = -1;
+
     cpl.dragging_tag = tag;
     cpl.dragging_startx = mx;
     cpl.dragging_starty = my;
+
+    event_dragging_set_callback(NULL);
+}
+
+void event_dragging_set_callback(event_drag_cb_fnc fnc)
+{
+    event_drag_cb = fnc;
 }
 
 void event_dragging_stop(void)
 {
     cpl.dragging_tag = 0;
+}
+
+static void event_dragging_stop_internal(void)
+{
+    if (event_dragging_check() && event_drag_cb != NULL) {
+        event_drag_cb();
+    }
+
+    event_dragging_stop();
 }
 
 /**
@@ -115,11 +157,9 @@ int Event_PollInputDevice(void)
                 keys[event.key.keysym.sym].pressed = 1;
                 keys[event.key.keysym.sym].time = LastTick + KEY_REPEAT_TIME_INIT;
             }
-        }
-        else if (event.type == SDL_KEYUP) {
+        } else if (event.type == SDL_KEYUP) {
             keys[event.key.keysym.sym].pressed = 0;
-        }
-        else if (event.type == SDL_MOUSEMOTION) {
+        } else if (event.type == SDL_MOUSEMOTION) {
             tooltip_dismiss();
         }
 
@@ -130,66 +170,63 @@ int Event_PollInputDevice(void)
 
         switch (event.type) {
             /* Screen has been resized, update screen size. */
-            case SDL_VIDEORESIZE:
-                ScreenSurface = SDL_SetVideoMode(event.resize.w, event.resize.h, video_get_bpp(), get_video_flags());
+        case SDL_VIDEORESIZE:
+            ScreenSurface = SDL_SetVideoMode(event.resize.w, event.resize.h, video_get_bpp(), get_video_flags());
 
-                if (!ScreenSurface) {
-                    logger_print(LOG(ERROR), "Unable to grab surface after resize event: %s", SDL_GetError());
-                    exit(1);
-                }
+            if (!ScreenSurface) {
+                logger_print(LOG(ERROR), "Unable to grab surface after resize event: %s", SDL_GetError());
+                exit(1);
+            }
 
-                /* Set resolution to custom. */
-                setting_set_int(OPT_CAT_CLIENT, OPT_RESOLUTION, 0);
-                resize_window(event.resize.w, event.resize.h);
+            /* Set resolution to custom. */
+            setting_set_int(OPT_CAT_CLIENT, OPT_RESOLUTION, 0);
+            resize_window(event.resize.w, event.resize.h);
+            break;
+
+        case SDL_MOUSEBUTTONDOWN:
+        case SDL_MOUSEBUTTONUP:
+        case SDL_MOUSEMOTION:
+        case SDL_KEYUP:
+        case SDL_KEYDOWN:
+
+            if (event.type == SDL_MOUSEMOTION) {
+                cursor_x = x;
+                cursor_y = y;
+                cursor_texture = texture_get(TEXTURE_TYPE_CLIENT, "cursor_default");
+            }
+
+            if (popup_handle_event(&event)) {
                 break;
+            }
 
-            case SDL_MOUSEBUTTONDOWN:
-            case SDL_MOUSEBUTTONUP:
-            case SDL_MOUSEMOTION:
-            case SDL_KEYUP:
-            case SDL_KEYDOWN:
-
-                if (event.type == SDL_MOUSEMOTION) {
-                    cursor_x = x;
-                    cursor_y = y;
-                    cursor_texture = texture_get(TEXTURE_TYPE_CLIENT, "cursor_default");
-                }
-
-                if (popup_handle_event(&event)) {
-                    break;
-                }
-
-                if (event_dragging_check() && event.type != SDL_MOUSEBUTTONUP) {
-                    break;
-                }
-
-                if (cpl.state <= ST_WAITFORPLAY && intro_event(&event)) {
-                    break;
-                }
-                else if (cpl.state == ST_PLAY && widgets_event(&event)) {
-                    break;
-                }
-
-                if (cpl.state == ST_PLAY && (event.type == SDL_KEYDOWN || event.type == SDL_KEYUP)) {
-                    key_handle_event(&event.key);
-                    break;
-                }
-
+            if (event_dragging_check() && event.type != SDL_MOUSEBUTTONUP) {
                 break;
+            }
 
-            case SDL_QUIT:
-                done = 1;
+            if (cpl.state <= ST_WAITFORPLAY && intro_event(&event)) {
                 break;
+            } else if (cpl.state == ST_PLAY && widgets_event(&event)) {
+                break;
+            }
 
-            default:
+            if (cpl.state == ST_PLAY && (event.type == SDL_KEYDOWN || event.type == SDL_KEYUP)) {
+                key_handle_event(&event.key);
                 break;
+            }
+
+            break;
+
+        case SDL_QUIT:
+            done = 1;
+            break;
+
+        default:
+            break;
         }
 
         if (event.type == SDL_MOUSEBUTTONUP) {
-            event_dragging_stop();
+            event_dragging_stop_internal();
         }
-
-        old_mouse_y = y;
     }
 
     for (key = 0; key < SDLK_LAST; key++) {

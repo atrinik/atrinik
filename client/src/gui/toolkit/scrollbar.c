@@ -1,26 +1,26 @@
-/************************************************************************
-*            Atrinik, a Multiplayer Online Role Playing Game            *
-*                                                                       *
-*    Copyright (C) 2009-2012 Alex Tokar and Atrinik Development Team    *
-*                                                                       *
-* Fork from Crossfire (Multiplayer game for X-windows).                 *
-*                                                                       *
-* This program is free software; you can redistribute it and/or modify  *
-* it under the terms of the GNU General Public License as published by  *
-* the Free Software Foundation; either version 2 of the License, or     *
-* (at your option) any later version.                                   *
-*                                                                       *
-* This program is distributed in the hope that it will be useful,       *
-* but WITHOUT ANY WARRANTY; without even the implied warranty of        *
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
-* GNU General Public License for more details.                          *
-*                                                                       *
-* You should have received a copy of the GNU General Public License     *
-* along with this program; if not, write to the Free Software           *
-* Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.             *
-*                                                                       *
-* The author can be reached at admin@atrinik.org                        *
-************************************************************************/
+/*************************************************************************
+ *           Atrinik, a Multiplayer Online Role Playing Game             *
+ *                                                                       *
+ *   Copyright (C) 2009-2014 Alex Tokar and Atrinik Development Team     *
+ *                                                                       *
+ * Fork from Crossfire (Multiplayer game for X-windows).                 *
+ *                                                                       *
+ * This program is free software; you can redistribute it and/or modify  *
+ * it under the terms of the GNU General Public License as published by  *
+ * the Free Software Foundation; either version 2 of the License, or     *
+ * (at your option) any later version.                                   *
+ *                                                                       *
+ * This program is distributed in the hope that it will be useful,       *
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of        *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
+ * GNU General Public License for more details.                          *
+ *                                                                       *
+ * You should have received a copy of the GNU General Public License     *
+ * along with this program; if not, write to the Free Software           *
+ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.             *
+ *                                                                       *
+ * The author can be reached at admin@atrinik.org                        *
+ ************************************************************************/
 
 /**
  * @file
@@ -87,8 +87,7 @@ static void scrollbar_element_render_arrow_up(SDL_Surface *surface, SDL_Rect *bo
         lineRGBA(surface, box->x + 2, box->y + box->h / 2, box->x + box->w - 3, box->y + box->h / 2, color->r, color->g, color->b, 255);
         lineRGBA(surface, box->x + 2, box->y + box->h / 2, box->x + box->w / 2, box->y + 2, color->r, color->g, color->b, 255);
         lineRGBA(surface, box->x + 2, box->y + box->h / 2, box->x + box->w / 2, box->y + box->h - 2 - 1, color->r, color->g, color->b, 255);
-    }
-    else {
+    } else {
         lineRGBA(surface, box->x + box->w / 2, box->y + 2, box->x + box->w / 2, box->y + box->h - 3, color->r, color->g, color->b, 255);
         lineRGBA(surface, box->x + box->w / 2, box->y + 2, box->x + 2, box->y + box->h / 2, color->r, color->g, color->b, 255);
         lineRGBA(surface, box->x + box->w / 2, box->y + 2, box->x + box->w - 2 - 1, box->y + box->h / 2, color->r, color->g, color->b, 255);
@@ -112,8 +111,7 @@ static void scrollbar_element_render_arrow_down(SDL_Surface *surface, SDL_Rect *
         lineRGBA(surface, box->x + box->w - 3, box->y + box->h / 2, box->x + 2, box->y + box->h / 2, color->r, color->g, color->b, 255);
         lineRGBA(surface, box->x + box->w - 3, box->y + box->h / 2, box->x + box->w / 2, box->y + 2, color->r, color->g, color->b, 255);
         lineRGBA(surface, box->x + box->w - 3, box->y + box->h / 2, box->x + box->w / 2, box->y + box->h - 3, color->r, color->g, color->b, 255);
-    }
-    else {
+    } else {
         lineRGBA(surface, box->x + box->w / 2, box->y + box->h - 3, box->x + box->w / 2, box->y + 2, color->r, color->g, color->b, 255);
         lineRGBA(surface, box->x + box->w / 2, box->y + box->h - 3, box->x + 2, box->y + box->h / 2, color->r, color->g, color->b, 255);
         lineRGBA(surface, box->x + box->w / 2, box->y + box->h - 3, box->x + box->w - 2 - 1, box->y + box->h / 2, color->r, color->g, color->b, 255);
@@ -152,8 +150,7 @@ static int scrollbar_element_highlight_check(scrollbar_struct *scrollbar, scroll
 
     if (mx >= box.x && mx < box.x + box.w && my >= box.y && my < box.y + box.h) {
         elem->highlight = 1;
-    }
-    else {
+    } else {
         elem->highlight = 0;
     }
 
@@ -201,32 +198,30 @@ static int scrollbar_click_scroll(scrollbar_struct *scrollbar, int test)
         return 0;
     }
 
-    /* Mouse over the up arrow. */
     if (scrollbar->arrow_up.highlight) {
+        /* Mouse over the up arrow. */
         if (!test) {
             scrollbar_scroll_adjust(scrollbar, -scrollbar->arrow_adjust);
         }
 
         return 1;
-    }
-    /* Mouse over the down arrow. */
-    else if (scrollbar->arrow_down.highlight) {
+    } else if (scrollbar->arrow_down.highlight) {
+        /* Mouse over the down arrow. */
         if (!test) {
             scrollbar_scroll_adjust(scrollbar, scrollbar->arrow_adjust);
         }
 
         return 1;
-    }
-    /* Mouse over the background and there's a known scroll direction. */
-    else if (scrollbar->background.highlight && scrollbar->scroll_direction != SCROLL_DIRECTION_NONE) {
+    } else if (scrollbar->background.highlight && scrollbar->scroll_direction != SCROLL_DIRECTION_NONE) {
+        /* Mouse over the background and there's a known scroll direction. */
+
         if (scrollbar->scroll_direction == SCROLL_DIRECTION_UP) {
             if (!test) {
                 scrollbar_scroll_adjust(scrollbar, -scrollbar->max_lines);
             }
 
             return 1;
-        }
-        else if (scrollbar->scroll_direction == SCROLL_DIRECTION_DOWN) {
+        } else if (scrollbar->scroll_direction == SCROLL_DIRECTION_DOWN) {
             if (!test) {
                 scrollbar_scroll_adjust(scrollbar, scrollbar->max_lines);
             }
@@ -259,8 +254,7 @@ static int scrollbar_slider_startx(scrollbar_struct *scrollbar)
 {
     if (scrollbar->background.w > scrollbar->background.h) {
         return scrollbar->background.h + 1;
-    }
-    else {
+    } else {
         return 2;
     }
 }
@@ -273,8 +267,7 @@ static int scrollbar_slider_starty(scrollbar_struct *scrollbar)
 {
     if (scrollbar->background.w > scrollbar->background.h) {
         return 2;
-    }
-    else {
+    } else {
         return scrollbar->background.w + 1;
     }
 }
@@ -287,8 +280,7 @@ static int scrollbar_slider_width(scrollbar_struct *scrollbar)
 {
     if (scrollbar->background.w > scrollbar->background.h) {
         return scrollbar->background.w - (scrollbar->background.h + 1) * 2;
-    }
-    else {
+    } else {
         return scrollbar->background.w - 2 * 2;
     }
 }
@@ -301,8 +293,7 @@ static int scrollbar_slider_height(scrollbar_struct *scrollbar)
 {
     if (scrollbar->background.w > scrollbar->background.h) {
         return scrollbar->background.h - 2 * 2;
-    }
-    else {
+    } else {
         return scrollbar->background.h - (scrollbar->background.w + 1) * 2;
     }
 }
@@ -329,8 +320,7 @@ void scrollbar_create(scrollbar_struct *scrollbar, int w, int h, uint32 *scroll_
     if (w > h) {
         scrollbar_element_init(&scrollbar->arrow_up, 0, 0, h, h);
         scrollbar_element_init(&scrollbar->arrow_down, w - h, 0, h, h);
-    }
-    else {
+    } else {
         scrollbar_element_init(&scrollbar->arrow_up, 0, 0, w, w);
         scrollbar_element_init(&scrollbar->arrow_down, 0, h - w, w, w);
     }
@@ -361,8 +351,7 @@ void scrollbar_scroll_to(scrollbar_struct *scrollbar, int scroll)
     /* Make sure the scroll offset is in a valid range. */
     if (scroll < SCROLL_TOP(scrollbar)) {
         scroll = SCROLL_TOP(scrollbar);
-    }
-    else if ((uint32) scroll > SCROLL_BOTTOM(scrollbar)) {
+    } else if ((uint32) scroll > SCROLL_BOTTOM(scrollbar)) {
         scroll = SCROLL_BOTTOM(scrollbar);
     }
 
@@ -435,8 +424,7 @@ void scrollbar_show(scrollbar_struct *scrollbar, SDL_Surface *surface, int x, in
             if (scroll - scrollbar->max_lines > 0 && scrollbar->slider.x + scrollbar->slider.w < scrollbar_slider_width(scrollbar)) {
                 scrollbar->slider.x++;
             }
-        }
-        else {
+        } else {
             scrollbar->slider.h = scrollbar_slider_height(scrollbar) * scrollbar->max_lines / *scrollbar->num_lines;
             scrollbar->slider.y = ((scroll - scrollbar->max_lines) * scrollbar_slider_height(scrollbar)) / *scrollbar->num_lines;
 
@@ -448,14 +436,13 @@ void scrollbar_show(scrollbar_struct *scrollbar, SDL_Surface *surface, int x, in
                 scrollbar->slider.y++;
             }
         }
-    }
-    /* Not necessary to calculate, so full slider height. */
-    else {
+    } else {
+        /* Not necessary to calculate, so full slider height. */
+
         if (horizontal) {
             scrollbar->slider.w = scrollbar_slider_width(scrollbar);
             scrollbar->slider.x = 0;
-        }
-        else {
+        } else {
             scrollbar->slider.h = scrollbar_slider_height(scrollbar);
             scrollbar->slider.y = 0;
         }
@@ -463,8 +450,7 @@ void scrollbar_show(scrollbar_struct *scrollbar, SDL_Surface *surface, int x, in
 
     if (horizontal) {
         scrollbar->slider.x += scrollbar_slider_startx(scrollbar);
-    }
-    else {
+    } else {
         scrollbar->slider.y += scrollbar_slider_starty(scrollbar);
     }
 
@@ -499,20 +485,17 @@ int scrollbar_event(scrollbar_struct *scrollbar, SDL_Event *event)
 
                 if (slider_pos > scrollbar_slider_width(scrollbar) - scrollbar->slider.w) {
                     slider_pos = scrollbar_slider_width(scrollbar) - scrollbar->slider.w;
-                }
-                else if (slider_pos < 0) {
+                } else if (slider_pos < 0) {
                     slider_pos = 0;
                 }
 
                 scroll_offset = MIN(*scrollbar->num_lines - scrollbar->max_lines, MAX(0, slider_pos) * *scrollbar->num_lines / scrollbar_slider_width(scrollbar));
-            }
-            else {
+            } else {
                 slider_pos = event->motion.y - scrollbar->py - scrollbar->old_slider_pos;
 
                 if (slider_pos > scrollbar_slider_height(scrollbar) - scrollbar->slider.h) {
                     slider_pos = scrollbar_slider_height(scrollbar) - scrollbar->slider.h;
-                }
-                else if (slider_pos < 0) {
+                } else if (slider_pos < 0) {
                     slider_pos = 0;
                 }
 
@@ -529,49 +512,39 @@ int scrollbar_event(scrollbar_struct *scrollbar, SDL_Event *event)
             }
 
             return 1;
-        }
-        /* Check highlight. */
-        else if (scrollbar_element_highlight_check(scrollbar, &scrollbar->arrow_up, event->motion.x - scrollbar->px, event->motion.y - scrollbar->py)) {
+        } else if (scrollbar_element_highlight_check(scrollbar, &scrollbar->arrow_up, event->motion.x - scrollbar->px, event->motion.y - scrollbar->py)) {
+            return 1;
+        } else if (scrollbar_element_highlight_check(scrollbar, &scrollbar->arrow_down, event->motion.x - scrollbar->px, event->motion.y - scrollbar->py)) {
+            return 1;
+        } else if (scrollbar_element_highlight_check(scrollbar, &scrollbar->slider, event->motion.x - scrollbar->px, event->motion.y - scrollbar->py)) {
+            return 1;
+        } else if (scrollbar_element_highlight_check(scrollbar, &scrollbar->background, event->motion.x - scrollbar->px, event->motion.y - scrollbar->py)) {
             return 1;
         }
-        else if (scrollbar_element_highlight_check(scrollbar, &scrollbar->arrow_down, event->motion.x - scrollbar->px, event->motion.y - scrollbar->py)) {
-            return 1;
-        }
-        else if (scrollbar_element_highlight_check(scrollbar, &scrollbar->slider, event->motion.x - scrollbar->px, event->motion.y - scrollbar->py)) {
-            return 1;
-        }
-        else if (scrollbar_element_highlight_check(scrollbar, &scrollbar->background, event->motion.x - scrollbar->px, event->motion.y - scrollbar->py)) {
-            return 1;
-        }
-    }
-    else if (event->type == SDL_MOUSEBUTTONDOWN && event->button.button == SDL_BUTTON_LEFT) {
+    } else if (event->type == SDL_MOUSEBUTTONDOWN && event->button.button == SDL_BUTTON_LEFT) {
         /* Start dragging the slider. */
         if (scrollbar->slider.highlight) {
             if (scrollbar->background.w > scrollbar->background.h) {
                 scrollbar->old_slider_pos = event->motion.x - scrollbar->px - scrollbar->slider.x + scrollbar_slider_startx(scrollbar);
-            }
-            else {
+            } else {
                 scrollbar->old_slider_pos = event->motion.y - scrollbar->py - scrollbar->slider.y + scrollbar_slider_starty(scrollbar);
             }
 
             scrollbar->dragging = 1;
             return 1;
-        }
-        /* Set scroll direction if clicked on the background. */
-        else if (scrollbar->background.highlight) {
+        } else if (scrollbar->background.highlight) {
+            /* Set scroll direction if clicked on the background. */
+
             if (scrollbar->background.w > scrollbar->background.h) {
                 if (event->motion.x - scrollbar->px < scrollbar->x + scrollbar->slider.x) {
                     scrollbar->scroll_direction = SCROLL_DIRECTION_UP;
-                }
-                else if (event->motion.x - scrollbar->px > scrollbar->x + scrollbar->slider.x + scrollbar->slider.w) {
+                } else if (event->motion.x - scrollbar->px > scrollbar->x + scrollbar->slider.x + scrollbar->slider.w) {
                     scrollbar->scroll_direction = SCROLL_DIRECTION_DOWN;
                 }
-            }
-            else {
+            } else {
                 if (event->motion.y - scrollbar->py < scrollbar->y + scrollbar->slider.y) {
                     scrollbar->scroll_direction = SCROLL_DIRECTION_UP;
-                }
-                else if (event->motion.y - scrollbar->py > scrollbar->y + scrollbar->slider.y + scrollbar->slider.h) {
+                } else if (event->motion.y - scrollbar->py > scrollbar->y + scrollbar->slider.y + scrollbar->slider.h) {
                     scrollbar->scroll_direction = SCROLL_DIRECTION_DOWN;
                 }
             }

@@ -2,7 +2,6 @@ Object oil_pool
 name pool of oil
 face oil_pool.101
 animation oil_pool
-speed 0.02
 is_animated 1
 anim_speed 10
 no_teleport 1

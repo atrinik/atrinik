@@ -3,12 +3,12 @@
     <interface>
         <dialog name="hello">
             <message>Oi. What are you doing down here?</message>
-            <response message="I have some questions..." destination="questions" />
-            <response message="Goodbye." action="close" />
+            <response destination="questions" message="I have some questions..."/>
+            <response action="close" message="Goodbye."/>
         </dialog>
         <dialog name="questions">
             <message>Some questions are dangerous, friend. Unless you have some business here, you should probably go.</message>
-            <response message="Goodbye." action="close" />
+            <response action="close" message="Goodbye."/>
         </dialog>
     </interface>
 </interfaces>

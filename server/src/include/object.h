@@ -1,26 +1,26 @@
-/************************************************************************
-*            Atrinik, a Multiplayer Online Role Playing Game            *
-*                                                                       *
-*    Copyright (C) 2009-2012 Alex Tokar and Atrinik Development Team    *
-*                                                                       *
-* Fork from Crossfire (Multiplayer game for X-windows).                 *
-*                                                                       *
-* This program is free software; you can redistribute it and/or modify  *
-* it under the terms of the GNU General Public License as published by  *
-* the Free Software Foundation; either version 2 of the License, or     *
-* (at your option) any later version.                                   *
-*                                                                       *
-* This program is distributed in the hope that it will be useful,       *
-* but WITHOUT ANY WARRANTY; without even the implied warranty of        *
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
-* GNU General Public License for more details.                          *
-*                                                                       *
-* You should have received a copy of the GNU General Public License     *
-* along with this program; if not, write to the Free Software           *
-* Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.             *
-*                                                                       *
-* The author can be reached at admin@atrinik.org                        *
-************************************************************************/
+/*************************************************************************
+ *           Atrinik, a Multiplayer Online Role Playing Game             *
+ *                                                                       *
+ *   Copyright (C) 2009-2014 Alex Tokar and Atrinik Development Team     *
+ *                                                                       *
+ * Fork from Crossfire (Multiplayer game for X-windows).                 *
+ *                                                                       *
+ * This program is free software; you can redistribute it and/or modify  *
+ * it under the terms of the GNU General Public License as published by  *
+ * the Free Software Foundation; either version 2 of the License, or     *
+ * (at your option) any later version.                                   *
+ *                                                                       *
+ * This program is distributed in the hope that it will be useful,       *
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of        *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
+ * GNU General Public License for more details.                          *
+ *                                                                       *
+ * You should have received a copy of the GNU General Public License     *
+ * along with this program; if not, write to the Free Software           *
+ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.             *
+ *                                                                       *
+ * The author can be reached at admin@atrinik.org                        *
+ ************************************************************************/
 
 /**
  * @file
@@ -68,8 +68,7 @@
 /**
  * This structure allows any object to have extra fields the Flex loader
  * does not know about. */
-typedef struct key_value_struct
-{
+typedef struct key_value_struct {
     /** Name of this extra field. Shared string. */
     const char *key;
 
@@ -82,8 +81,7 @@ typedef struct key_value_struct
 
 /**
  * Object structure. */
-typedef struct obj
-{
+typedef struct obj {
     /* These variables are not changed by copy_object(): */
 
     /**
@@ -323,9 +321,6 @@ typedef struct obj
     /** Means the object is moving that way. */
     sint8 direction;
 
-    /** Object is oriented/facing that way. */
-    sint8 facing;
-
     /**
      * quick pos is 0 for single arch, xxxx0000 for a head
      * or x/y offset packed to 4 bits for a tail
@@ -362,28 +357,13 @@ typedef struct obj
     /** What kind of attack movement */
     uint8 attack_move_type;
 
-    /** special shadow variable: show dir to targeted enemy */
-    sint8 anim_enemy_dir;
-
-    /** sic: shows moving dir or -1 when object do something else */
-    sint8 anim_moving_dir;
-
-    /** if we change facing in movement, we must test for update the anim*/
-    sint8 anim_enemy_dir_last;
-
-    /** sic: */
-    sint8 anim_moving_dir_last;
-
-    /** The last direction this monster was facing */
-    sint8 anim_last_facing;
-
-    /** The last direction this monster was facing backbuffer */
-    sint8 anim_last_facing_last;
+    /** Combination of @ref anim_flags "animation flags". */
+    uint8 anim_flags;
 
     /** Animation speed in ticks */
     uint8 anim_speed;
 
-    /** Ticks between animation-frames */
+    /** Last animated tick. */
     uint8 last_anim;
 
     /** Various @ref BEHAVIOR_xxx "behavior flags". */
@@ -463,11 +443,10 @@ typedef struct obj
 } object;
 
 /** Used to link together several objects. */
-typedef struct oblnk
-{
+typedef struct oblnk {
+
     /** The object link. */
-    union
-    {
+    union {
         /** Link. */
         struct oblnk *link;
 
@@ -491,7 +470,7 @@ typedef struct oblnk
     long value;
 } objectlink;
 
-#define free_objectlink_simple(_chunk_) return_poolchunk((_chunk_), pool_objectlink);
+#define free_objectlink_simple(_chunk_) mempool_return(pool_objectlink, (_chunk_));
 
 #define CONTR(ob) ((player *) ((ob)->custom_attrset))
 
@@ -568,11 +547,19 @@ typedef struct oblnk
  * @defgroup BEHAVIOR_xxx Behavior flags
  * These control what behavior the monster can do.
  *@{*/
-/** The monster will look for other friendly monsters to cast friendly spells
- * on. */
-#define BEHAVIOR_SPELL_FRIENDLY 1
-/** The monster can open doors. */
-#define BEHAVIOR_OPEN_DOORS 2
+/**
+ * The monster will look for other friendly monsters to cast friendly spells
+ * on.
+ */
+#define BEHAVIOR_SPELL_FRIENDLY 0x01
+/**
+ * The monster can open doors.
+ */
+#define BEHAVIOR_OPEN_DOORS 0x02
+/**
+ * The monster prefers low-light tiles when finding a path to its destination.
+ */
+#define BEHAVIOR_STEALTH 0x04
 /*@}*/
 
 /** Decrease an object by one. */
@@ -608,8 +595,7 @@ typedef struct oblnk
 
 /**
  * Structure used for object::custom_attrset of magic mirrors. */
-typedef struct magic_mirror_struct
-{
+typedef struct magic_mirror_struct {
     /** Map the magic mirror is pointing to. */
     struct mapdef *map;
 
@@ -648,5 +634,12 @@ typedef struct magic_mirror_struct
 /**
  * Check whether the object is a ranged weapon. */
 #define OBJECT_IS_RANGED(_ob) ((_ob)->type == WAND || (_ob)->type == ROD || (_ob)->type == BOW || (_ob)->type == SPELL || (_ob)->type == SKILL || ((_ob)->type == ARROW && QUERY_FLAG((_ob), FLAG_IS_THROWN)))
+
+/**
+ * Check whether the object is ammunition (quiver, arrow, bolt, etc).
+ */
+#define OBJECT_IS_AMMO(_ob) (((_ob)->type == CONTAINER && \
+        (_ob)->race != NULL && (_ob)->sub_type == ST1_CONTAINER_QUIVER) || \
+        ((_ob)->type == ARROW && !QUERY_FLAG((_ob), FLAG_IS_THROWN)))
 
 #endif

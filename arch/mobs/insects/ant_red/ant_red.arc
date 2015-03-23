@@ -8,13 +8,13 @@ layer 6
 direction 5
 wc_range 20
 is_neutral 1
-terrain_flag 1
+terrain_flag 65
 weapon_speed 0.035
 attack_cleave 75
 unaggressive 1
 random_move 1
 type 80
-Wis 3
+wis 3
 randomitems mob_ant
 animation ant_red
 is_animated 1

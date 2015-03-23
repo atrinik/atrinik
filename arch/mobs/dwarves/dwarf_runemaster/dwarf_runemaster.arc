@@ -10,7 +10,7 @@ layer 6
 direction 5
 is_neutral 1
 friendly 1
-terrain_flag 1
+terrain_flag 65
 weapon_speed 0.035
 attack_cleave 95
 protect_impact 10
@@ -18,7 +18,7 @@ protect_slash 10
 protect_cleave 10
 protect_pierce 10
 type 80
-Wis 3
+wis 3
 animation dwarf_runemaster
 is_animated 1
 anim_speed 4

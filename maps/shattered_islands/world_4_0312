@@ -1,0 +1,131 @@
+arch map
+name Brynknot
+msg
+Created:  2011-02-06 Alex Tokar
+Modified: 2014-12-23 Alex Tokar
+endmsg
+width 24
+height 24
+difficulty 1
+darkness -1
+outdoor 1
+no_harm 1
+fixed_resettime 1
+bg_music town_music.ogg
+region brynknot
+tile_path_10 world_3_0312
+end
+arch roof_brick_gray
+direction 3
+x 2
+y 5
+end
+arch roof_brick_gray
+direction 3
+x 2
+y 6
+end
+arch roof_brick_gray
+direction 3
+x 2
+y 7
+end
+arch roof_brick_gray
+direction 3
+x 2
+y 8
+end
+arch roof_brick_gray
+direction 5
+x 3
+y 4
+end
+arch roof_brick_gray
+direction 8
+x 3
+y 5
+end
+arch roof_brick_gray
+x 3
+y 6
+end
+arch roof_brick_gray
+x 3
+y 7
+end
+arch roof_brick_gray
+x 3
+y 8
+end
+arch roof_brick_gray
+direction 5
+x 4
+y 4
+end
+arch roof_brick_gray
+direction 7
+x 4
+y 5
+end
+arch roof_brick_gray
+direction 8
+x 4
+y 6
+end
+arch roof_brick_gray
+x 4
+y 7
+end
+arch roof_brick_gray
+x 4
+y 8
+end
+arch roof_brick_gray
+direction 5
+x 5
+y 4
+end
+arch roof_brick_gray
+direction 7
+x 5
+y 5
+end
+arch roof_brick_gray
+direction 7
+x 5
+y 6
+end
+arch roof_brick_gray
+direction 8
+x 5
+y 7
+end
+arch roof_brick_gray
+x 5
+y 8
+end
+arch roof_brick_gray
+direction 5
+x 6
+y 4
+end
+arch roof_brick_gray
+direction 7
+x 6
+y 5
+end
+arch roof_brick_gray
+direction 7
+x 6
+y 6
+end
+arch roof_brick_gray
+direction 7
+x 6
+y 7
+end
+arch roof_brick_gray
+direction 8
+x 6
+y 8
+end

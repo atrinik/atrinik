@@ -1,26 +1,26 @@
-/************************************************************************
-*            Atrinik, a Multiplayer Online Role Playing Game            *
-*                                                                       *
-*    Copyright (C) 2009-2012 Alex Tokar and Atrinik Development Team    *
-*                                                                       *
-* Fork from Crossfire (Multiplayer game for X-windows).                 *
-*                                                                       *
-* This program is free software; you can redistribute it and/or modify  *
-* it under the terms of the GNU General Public License as published by  *
-* the Free Software Foundation; either version 2 of the License, or     *
-* (at your option) any later version.                                   *
-*                                                                       *
-* This program is distributed in the hope that it will be useful,       *
-* but WITHOUT ANY WARRANTY; without even the implied warranty of        *
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
-* GNU General Public License for more details.                          *
-*                                                                       *
-* You should have received a copy of the GNU General Public License     *
-* along with this program; if not, write to the Free Software           *
-* Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.             *
-*                                                                       *
-* The author can be reached at admin@atrinik.org                        *
-************************************************************************/
+/*************************************************************************
+ *           Atrinik, a Multiplayer Online Role Playing Game             *
+ *                                                                       *
+ *   Copyright (C) 2009-2014 Alex Tokar and Atrinik Development Team     *
+ *                                                                       *
+ * Fork from Crossfire (Multiplayer game for X-windows).                 *
+ *                                                                       *
+ * This program is free software; you can redistribute it and/or modify  *
+ * it under the terms of the GNU General Public License as published by  *
+ * the Free Software Foundation; either version 2 of the License, or     *
+ * (at your option) any later version.                                   *
+ *                                                                       *
+ * This program is distributed in the hope that it will be useful,       *
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of        *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
+ * GNU General Public License for more details.                          *
+ *                                                                       *
+ * You should have received a copy of the GNU General Public License     *
+ * along with this program; if not, write to the Free Software           *
+ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.             *
+ *                                                                       *
+ * The author can be reached at admin@atrinik.org                        *
+ ************************************************************************/
 
 /**
  * @file
@@ -33,7 +33,9 @@
  * @param url URL to open. */
 void browser_open(const char *url)
 {
-#if defined(LINUX)
+#if defined(WIN32)
+    ShellExecute(NULL, "open", url, NULL, NULL, SW_SHOWDEFAULT);
+#elif defined(__GNUC__)
     char buf[HUGE_BUF];
 
     snprintf(buf, sizeof(buf), "xdg-open \"%s\"", url);
@@ -45,8 +47,6 @@ void browser_open(const char *url)
             logger_print(LOG(BUG), "Could not open '%s'.", url);
         }
     }
-#elif defined(WIN32)
-    ShellExecute(NULL, "open", url, NULL, NULL, SW_SHOWDEFAULT);
 #else
     logger_print(LOG(DEBUG), "Unknown platform, cannot open '%s'.", url);
 #endif
@@ -93,7 +93,7 @@ char *package_get_version_partial(char *dst, size_t dstlen)
  * @return 1 if the file was converted to PNG, 0 otherwise. */
 int bmp2png(const char *path)
 {
-#if defined(LINUX)
+#if defined(__GNUC__) && !defined(WIN32)
     char buf[HUGE_BUF];
 
     snprintf(buf, sizeof(buf), "convert \"%s\" \"`echo \"%s\" | sed -e 's/.bmp/.png/'`\" && rm \"%s\"", path, path, path);
@@ -131,8 +131,7 @@ void screenshot_create(SDL_Surface *surface)
 
         strftime(timebuf2, sizeof(timebuf2), "%Y-%m-%d-%H-%M-%S", tm);
         snprintf(timebuf, sizeof(timebuf), "%s-%06"FMT64U, timebuf2, (uint64) tv.tv_usec);
-    }
-    else {
+    } else {
         draw_info(COLOR_RED, "Could not get time information.");
         return;
     }
@@ -146,8 +145,7 @@ void screenshot_create(SDL_Surface *surface)
         if (bmp2png(path)) {
             draw_info(COLOR_GREEN, "Converted to PNG successfully.");
         }
-    }
-    else {
+    } else {
         draw_info_format(COLOR_RED, "Failed to write screenshot data (path: %s).", path);
     }
 }

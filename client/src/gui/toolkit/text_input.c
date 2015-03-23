@@ -1,26 +1,26 @@
-/************************************************************************
-*            Atrinik, a Multiplayer Online Role Playing Game            *
-*                                                                       *
-*    Copyright (C) 2009-2012 Alex Tokar and Atrinik Development Team    *
-*                                                                       *
-* Fork from Crossfire (Multiplayer game for X-windows).                 *
-*                                                                       *
-* This program is free software; you can redistribute it and/or modify  *
-* it under the terms of the GNU General Public License as published by  *
-* the Free Software Foundation; either version 2 of the License, or     *
-* (at your option) any later version.                                   *
-*                                                                       *
-* This program is distributed in the hope that it will be useful,       *
-* but WITHOUT ANY WARRANTY; without even the implied warranty of        *
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
-* GNU General Public License for more details.                          *
-*                                                                       *
-* You should have received a copy of the GNU General Public License     *
-* along with this program; if not, write to the Free Software           *
-* Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.             *
-*                                                                       *
-* The author can be reached at admin@atrinik.org                        *
-************************************************************************/
+/*************************************************************************
+ *           Atrinik, a Multiplayer Online Role Playing Game             *
+ *                                                                       *
+ *   Copyright (C) 2009-2014 Alex Tokar and Atrinik Development Team     *
+ *                                                                       *
+ * Fork from Crossfire (Multiplayer game for X-windows).                 *
+ *                                                                       *
+ * This program is free software; you can redistribute it and/or modify  *
+ * it under the terms of the GNU General Public License as published by  *
+ * the Free Software Foundation; either version 2 of the License, or     *
+ * (at your option) any later version.                                   *
+ *                                                                       *
+ * This program is distributed in the hope that it will be useful,       *
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of        *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
+ * GNU General Public License for more details.                          *
+ *                                                                       *
+ * You should have received a copy of the GNU General Public License     *
+ * along with this program; if not, write to the Free Software           *
+ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.             *
+ *                                                                       *
+ * The author can be reached at admin@atrinik.org                        *
+ ************************************************************************/
 
 /**
  * @file
@@ -81,8 +81,13 @@ void text_input_create(text_input_struct *text_input)
     text_input_set_font(text_input, FONT_ARIAL11);
 }
 
-void text_input_set_font(text_input_struct *text_input, int font)
+void text_input_set_font(text_input_struct *text_input, font_struct *font)
 {
+    if (text_input->font != NULL) {
+        font_free(text_input->font);
+    }
+
+    FONT_INCREF(font);
     text_input->font = font;
     text_input->coords.h = FONT_HEIGHT(font) + TEXT_INPUT_PADDING * 2;
 }
@@ -120,9 +125,9 @@ int text_input_mouse_over(text_input_struct *text_input, int mx, int my)
     my -= text_input->py;
 
     if (mx >= text_input->coords.x &&
-        my >= text_input->coords.y &&
-        mx < text_input->coords.x + text_input->coords.w &&
-        my < text_input->coords.y + text_input->coords.h) {
+            my >= text_input->coords.y &&
+            mx < text_input->coords.x + text_input->coords.w &&
+            my < text_input->coords.y + text_input->coords.h) {
         return 1;
     }
 
@@ -140,7 +145,7 @@ int text_input_number_character_check(text_input_struct *text_input, char c)
 }
 
 void text_input_show(text_input_struct *text_input, SDL_Surface *surface,
-                     int x, int y)
+        int x, int y)
 {
     text_info_struct info;
     int underscore_width;
@@ -153,7 +158,7 @@ void text_input_show(text_input_struct *text_input, SDL_Surface *surface,
     text_input->coords.y = y;
 
     rectangle_create(surface, text_input->coords.x, text_input->coords.y,
-                     text_input->coords.w, text_input->coords.h, "000000");
+            text_input->coords.w, text_input->coords.h, "000000");
     border_create_color(surface, &text_input->coords, 1, "303030");
 
     cp = NULL;
@@ -172,18 +177,18 @@ void text_input_show(text_input_struct *text_input, SDL_Surface *surface,
         /* Reached the maximum yet? */
         if (box.w + glyph_get_width(text_input->font,
                 *(text_input->str + pos)) +
-            underscore_width > text_input->coords.w - TEXT_INPUT_PADDING * 2) {
+                underscore_width > text_input->coords.w - TEXT_INPUT_PADDING * 2) {
             break;
         }
 
         text_show_character(&text_input->font, text_input->font, NULL, &box,
-                            text_input->str + pos, NULL, NULL, 0, NULL, NULL,
-                            &info);
+                text_input->str + pos, NULL, NULL, 0, NULL, NULL,
+                &info);
     }
 
     sb = stringbuffer_new();
     stringbuffer_append_string_len(sb, text_input->str + pos,
-                                   text_input->pos - pos);
+            text_input->pos - pos);
 
     if (text_input->focus) {
         stringbuffer_append_char(sb, '_');
@@ -191,7 +196,7 @@ void text_input_show(text_input_struct *text_input, SDL_Surface *surface,
 
     if ((text_input->str + pos) + (text_input->pos - pos)) {
         stringbuffer_append_string(sb,
-            (text_input->str + pos) + (text_input->pos - pos));
+                (text_input->str + pos) + (text_input->pos - pos));
     }
 
     box.w = text_input->coords.w - TEXT_INPUT_PADDING * 2;
@@ -199,9 +204,9 @@ void text_input_show(text_input_struct *text_input, SDL_Surface *surface,
 
     cp2 = stringbuffer_finish(sb);
     text_show(surface, text_input->font, cp2,
-              text_input->coords.x + TEXT_INPUT_PADDING,
-              text_input->coords.y + TEXT_INPUT_PADDING,
-              COLOR_WHITE, text_input->text_flags | TEXT_WIDTH, &box);
+            text_input->coords.x + TEXT_INPUT_PADDING,
+            text_input->coords.y + TEXT_INPUT_PADDING,
+            COLOR_WHITE, text_input->text_flags | TEXT_WIDTH, &box);
     efree(cp2);
 
     if (cp) {
@@ -256,15 +261,13 @@ int text_input_event(text_input_struct *text_input, SDL_Event *event)
             }
 
             return 1;
-        }
-        else if (IS_ENTER(event->key.keysym.sym)) {
+        } else if (IS_ENTER(event->key.keysym.sym)) {
             if (*text_input->str != '\0') {
                 text_input_history_add(text_input->history, text_input->str);
             }
 
             return 1;
-        }
-        else if (event->key.keysym.sym == SDLK_BACKSPACE) {
+        } else if (event->key.keysym.sym == SDLK_BACKSPACE) {
             if (text_input->num && text_input->pos) {
                 size_t i, j;
 
@@ -272,8 +275,7 @@ int text_input_event(text_input_struct *text_input, SDL_Event *event)
 
                 if (event->key.keysym.mod & KMOD_CTRL) {
                     string_skip_word(text_input->str, &i, -1);
-                }
-                else {
+                } else {
                     i--;
                 }
 
@@ -286,8 +288,7 @@ int text_input_event(text_input_struct *text_input, SDL_Event *event)
             }
 
             return 1;
-        }
-        else if (event->key.keysym.sym == SDLK_DELETE) {
+        } else if (event->key.keysym.sym == SDLK_DELETE) {
             if (text_input->pos != text_input->num) {
                 size_t i, j;
 
@@ -295,8 +296,7 @@ int text_input_event(text_input_struct *text_input, SDL_Event *event)
 
                 if (event->key.keysym.mod & KMOD_CTRL) {
                     string_skip_word(text_input->str, &i, 1);
-                }
-                else {
+                } else {
                     i++;
                 }
 
@@ -308,36 +308,31 @@ int text_input_event(text_input_struct *text_input, SDL_Event *event)
             }
 
             return 1;
-        }
-        else if (event->key.keysym.sym == SDLK_LEFT) {
+        } else if (event->key.keysym.sym == SDLK_LEFT) {
             if (event->key.keysym.mod & KMOD_CTRL) {
                 size_t i;
 
                 i = text_input->pos;
                 string_skip_word(text_input->str, &i, -1);
                 text_input->pos = i;
-            }
-            else if (text_input->pos != 0) {
+            } else if (text_input->pos != 0) {
                 text_input->pos--;
             }
 
             return 1;
-        }
-        else if (event->key.keysym.sym == SDLK_RIGHT) {
+        } else if (event->key.keysym.sym == SDLK_RIGHT) {
             if (event->key.keysym.mod & KMOD_CTRL) {
                 size_t i;
 
                 i = text_input->pos;
                 string_skip_word(text_input->str, &i, 1);
                 text_input->pos = i;
-            }
-            else if (text_input->pos < text_input->num) {
+            } else if (text_input->pos < text_input->num) {
                 text_input->pos++;
             }
 
             return 1;
-        }
-        else if (event->key.keysym.sym == SDLK_UP) {
+        } else if (event->key.keysym.sym == SDLK_UP) {
             if (text_input->history) {
                 char **p;
 
@@ -355,8 +350,7 @@ int text_input_event(text_input_struct *text_input, SDL_Event *event)
             }
 
             return 1;
-        }
-        else if (event->key.keysym.sym == SDLK_DOWN) {
+        } else if (event->key.keysym.sym == SDLK_DOWN) {
             if (text_input->history) {
                 if (text_input->history->pos > 0) {
                     text_input->history->pos--;
@@ -364,8 +358,7 @@ int text_input_event(text_input_struct *text_input, SDL_Event *event)
                     if (text_input->history->pos == 0) {
                         text_input_set(text_input, text_input->str_editing);
                         text_input->str_editing[0] = '\0';
-                    }
-                    else {
+                    } else {
                         char **p;
 
                         p = (char **) utarray_eltptr(text_input->history->history, utarray_len(text_input->history->history) - text_input->history->pos);
@@ -374,27 +367,22 @@ int text_input_event(text_input_struct *text_input, SDL_Event *event)
                             text_input_set(text_input, *p);
                         }
                     }
-                }
-                else if (*text_input->str != '\0') {
+                } else if (*text_input->str != '\0') {
                     text_input_history_add(text_input->history, text_input->str);
                     text_input_set(text_input, NULL);
                 }
             }
 
             return 1;
-        }
-        else if (event->key.keysym.sym == SDLK_HOME) {
+        } else if (event->key.keysym.sym == SDLK_HOME) {
             text_input->pos = 0;
             return 1;
-        }
-        else if (event->key.keysym.sym == SDLK_END) {
+        } else if (event->key.keysym.sym == SDLK_END) {
             text_input->pos = text_input->num;
             return 1;
-        }
-        else if (event->key.keysym.sym == SDLK_RSHIFT || event->key.keysym.sym == SDLK_LSHIFT) {
+        } else if (event->key.keysym.sym == SDLK_RSHIFT || event->key.keysym.sym == SDLK_LSHIFT) {
             return 1;
-        }
-        else {
+        } else {
             char c;
 
             c = event->key.keysym.unicode & 0xff;

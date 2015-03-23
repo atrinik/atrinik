@@ -2,7 +2,7 @@ arch map
 name Asteria
 msg
 Created:  2009-08-09 Alex Tokar
-Modified: 2011-10-07 Alex Tokar
+Modified: 2014-12-23 Alex Tokar
 endmsg
 width 24
 height 24
@@ -256,6 +256,7 @@ sub_layer 2
 x 1
 end
 arch plant_flower6
+sub_layer 2
 x 1
 end
 arch earth_brown2
@@ -265,6 +266,7 @@ x 1
 y 1
 end
 arch plant_flower14
+sub_layer 2
 x 1
 y 1
 end
@@ -275,6 +277,7 @@ x 1
 y 2
 end
 arch plant_flower14
+sub_layer 2
 x 1
 y 2
 end
@@ -285,6 +288,7 @@ x 1
 y 3
 end
 arch plant_flower1
+sub_layer 2
 x 1
 y 3
 end
@@ -295,6 +299,7 @@ x 1
 y 4
 end
 arch plant15
+sub_layer 2
 x 1
 y 4
 end
@@ -305,6 +310,7 @@ x 1
 y 5
 end
 arch plant11
+sub_layer 2
 x 1
 y 5
 end
@@ -315,6 +321,7 @@ x 1
 y 6
 end
 arch plant12
+sub_layer 2
 x 1
 y 6
 end
@@ -325,6 +332,7 @@ x 1
 y 7
 end
 arch plant14
+sub_layer 2
 x 1
 y 7
 end
@@ -335,6 +343,7 @@ x 1
 y 8
 end
 arch plant2
+sub_layer 2
 x 1
 y 8
 end
@@ -345,6 +354,7 @@ x 1
 y 9
 end
 arch plant13
+sub_layer 2
 x 1
 y 9
 end
@@ -355,6 +365,7 @@ x 1
 y 10
 end
 arch plant_flower9
+sub_layer 2
 x 1
 y 10
 end
@@ -365,6 +376,7 @@ x 1
 y 11
 end
 arch plant_flower7
+sub_layer 2
 x 1
 y 11
 end
@@ -375,6 +387,7 @@ x 1
 y 12
 end
 arch plant_flower11
+sub_layer 2
 x 1
 y 12
 end
@@ -385,6 +398,7 @@ x 1
 y 13
 end
 arch plant_flower13
+sub_layer 2
 x 1
 y 13
 end
@@ -395,6 +409,7 @@ x 1
 y 14
 end
 arch plant_flower12
+sub_layer 2
 x 1
 y 14
 end
@@ -405,6 +420,7 @@ x 1
 y 15
 end
 arch plant_flower14
+sub_layer 2
 x 1
 y 15
 end
@@ -415,6 +431,7 @@ x 1
 y 16
 end
 arch plant_flower7
+sub_layer 2
 x 1
 y 16
 end
@@ -425,6 +442,7 @@ x 1
 y 17
 end
 arch plant_flower9
+sub_layer 2
 x 1
 y 17
 end
@@ -435,6 +453,7 @@ x 1
 y 18
 end
 arch plant_flower1
+sub_layer 2
 x 1
 y 18
 end
@@ -445,6 +464,7 @@ x 1
 y 19
 end
 arch plant_flower11
+sub_layer 2
 x 1
 y 19
 end
@@ -455,11 +475,17 @@ x 1
 y 20
 end
 arch plant_flower13
+sub_layer 2
 x 1
 y 20
 end
 arch earth_brown3
 z 50
+sub_layer 2
+x 1
+y 21
+end
+arch plant_flower12
 sub_layer 2
 x 1
 y 21
@@ -471,6 +497,7 @@ x 1
 y 22
 end
 arch plant_flower4
+sub_layer 2
 x 1
 y 22
 end
@@ -481,6 +508,7 @@ x 1
 y 23
 end
 arch plant_flower1
+sub_layer 2
 x 1
 y 23
 end
@@ -490,6 +518,7 @@ sub_layer 2
 x 2
 end
 arch plant_flower11
+sub_layer 2
 x 2
 end
 arch earth_brown3
@@ -499,6 +528,7 @@ x 2
 y 1
 end
 arch plant_flower8
+sub_layer 2
 x 2
 y 1
 end
@@ -509,6 +539,7 @@ x 2
 y 2
 end
 arch plant_flower9
+sub_layer 2
 x 2
 y 2
 end
@@ -519,6 +550,7 @@ x 2
 y 3
 end
 arch plant15
+sub_layer 2
 x 2
 y 3
 end
@@ -587,6 +619,7 @@ x 2
 y 10
 end
 arch plant12
+sub_layer 2
 x 2
 y 10
 end
@@ -597,6 +630,7 @@ x 2
 y 11
 end
 arch plant_flower2
+sub_layer 2
 x 2
 y 11
 end
@@ -607,6 +641,7 @@ x 2
 y 12
 end
 arch plant_flower11
+sub_layer 2
 x 2
 y 12
 end
@@ -617,6 +652,7 @@ x 2
 y 13
 end
 arch plant_flower5
+sub_layer 2
 x 2
 y 13
 end
@@ -627,6 +663,7 @@ x 2
 y 14
 end
 arch plant_flower9
+sub_layer 2
 x 2
 y 14
 end
@@ -637,6 +674,7 @@ x 2
 y 15
 end
 arch plant_flower2
+sub_layer 2
 x 2
 y 15
 end
@@ -647,6 +685,7 @@ x 2
 y 16
 end
 arch plant_flower13
+sub_layer 2
 x 2
 y 16
 end
@@ -657,6 +696,7 @@ x 2
 y 17
 end
 arch plant_flower12
+sub_layer 2
 x 2
 y 17
 end
@@ -667,6 +707,7 @@ x 2
 y 18
 end
 arch plant_flower14
+sub_layer 2
 x 2
 y 18
 end
@@ -677,6 +718,7 @@ x 2
 y 19
 end
 arch plant_flower12
+sub_layer 2
 x 2
 y 19
 end
@@ -687,6 +729,7 @@ x 2
 y 20
 end
 arch plant_flower7
+sub_layer 2
 x 2
 y 20
 end
@@ -697,6 +740,7 @@ x 2
 y 21
 end
 arch plant_flower2
+sub_layer 2
 x 2
 y 21
 end
@@ -707,6 +751,7 @@ x 2
 y 22
 end
 arch plant_flower3
+sub_layer 2
 x 2
 y 22
 end
@@ -717,6 +762,7 @@ x 2
 y 23
 end
 arch plant_flower9
+sub_layer 2
 x 2
 y 23
 end
@@ -726,6 +772,7 @@ sub_layer 2
 x 3
 end
 arch plant15
+sub_layer 2
 x 3
 end
 arch earth_brown1
@@ -735,6 +782,7 @@ x 3
 y 1
 end
 arch plant2
+sub_layer 2
 x 3
 y 1
 end
@@ -745,6 +793,7 @@ x 3
 y 2
 end
 arch plant11
+sub_layer 2
 x 3
 y 2
 end
@@ -815,6 +864,7 @@ x 3
 y 11
 end
 arch plant2
+sub_layer 2
 x 3
 y 11
 end
@@ -825,6 +875,7 @@ x 3
 y 12
 end
 arch plant12
+sub_layer 2
 x 3
 y 12
 end
@@ -835,6 +886,7 @@ x 3
 y 13
 end
 arch plant1
+sub_layer 2
 x 3
 y 13
 end
@@ -845,6 +897,7 @@ x 3
 y 14
 end
 arch plant13
+sub_layer 2
 x 3
 y 14
 end
@@ -855,6 +908,7 @@ x 3
 y 15
 end
 arch plant10
+sub_layer 2
 x 3
 y 15
 end
@@ -865,6 +919,7 @@ x 3
 y 16
 end
 arch plant11
+sub_layer 2
 x 3
 y 16
 end
@@ -875,6 +930,7 @@ x 3
 y 17
 end
 arch plant13
+sub_layer 2
 x 3
 y 17
 end
@@ -885,6 +941,7 @@ x 3
 y 18
 end
 arch plant13
+sub_layer 2
 x 3
 y 18
 end
@@ -895,6 +952,7 @@ x 3
 y 19
 end
 arch plant2
+sub_layer 2
 x 3
 y 19
 end
@@ -905,6 +963,7 @@ x 3
 y 20
 end
 arch plant16
+sub_layer 2
 x 3
 y 20
 end
@@ -915,6 +974,7 @@ x 3
 y 21
 end
 arch plant1
+sub_layer 2
 x 3
 y 21
 end
@@ -925,6 +985,7 @@ x 3
 y 22
 end
 arch plant11
+sub_layer 2
 x 3
 y 22
 end
@@ -935,6 +996,7 @@ x 3
 y 23
 end
 arch plant12
+sub_layer 2
 x 3
 y 23
 end

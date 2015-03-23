@@ -1,26 +1,26 @@
-/************************************************************************
-*            Atrinik, a Multiplayer Online Role Playing Game            *
-*                                                                       *
-*    Copyright (C) 2009-2012 Alex Tokar and Atrinik Development Team    *
-*                                                                       *
-* Fork from Crossfire (Multiplayer game for X-windows).                 *
-*                                                                       *
-* This program is free software; you can redistribute it and/or modify  *
-* it under the terms of the GNU General Public License as published by  *
-* the Free Software Foundation; either version 2 of the License, or     *
-* (at your option) any later version.                                   *
-*                                                                       *
-* This program is distributed in the hope that it will be useful,       *
-* but WITHOUT ANY WARRANTY; without even the implied warranty of        *
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
-* GNU General Public License for more details.                          *
-*                                                                       *
-* You should have received a copy of the GNU General Public License     *
-* along with this program; if not, write to the Free Software           *
-* Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.             *
-*                                                                       *
-* The author can be reached at admin@atrinik.org                        *
-************************************************************************/
+/*************************************************************************
+ *           Atrinik, a Multiplayer Online Role Playing Game             *
+ *                                                                       *
+ *   Copyright (C) 2009-2014 Alex Tokar and Atrinik Development Team     *
+ *                                                                       *
+ * Fork from Crossfire (Multiplayer game for X-windows).                 *
+ *                                                                       *
+ * This program is free software; you can redistribute it and/or modify  *
+ * it under the terms of the GNU General Public License as published by  *
+ * the Free Software Foundation; either version 2 of the License, or     *
+ * (at your option) any later version.                                   *
+ *                                                                       *
+ * This program is distributed in the hope that it will be useful,       *
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of        *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
+ * GNU General Public License for more details.                          *
+ *                                                                       *
+ * You should have received a copy of the GNU General Public License     *
+ * along with this program; if not, write to the Free Software           *
+ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.             *
+ *                                                                       *
+ * The author can be reached at admin@atrinik.org                        *
+ ************************************************************************/
 
 /**
  * @file
@@ -94,7 +94,6 @@ void init_connection(socket_struct *ns, const char *from_ip)
     memset(&ns->lastmap, 0, sizeof(struct Map));
     ns->packet_head = NULL;
     ns->packet_tail = NULL;
-    pthread_mutex_init(&ns->packet_mutex, NULL);
 
     ns->host = estrdup(from_ip);
 }
@@ -109,15 +108,15 @@ void init_ericserver(void)
 #ifndef WIN32
     struct protoent *protox;
 
-#   ifdef HAVE_SYSCONF
+#ifdef HAVE_SYSCONF
     socket_info.max_filedescriptor = sysconf(_SC_OPEN_MAX);
-#   else
-#       ifdef HAVE_GETDTABLESIZE
+#else
+#ifdef HAVE_GETDTABLESIZE
     socket_info.max_filedescriptor = getdtablesize();
-#       else
+#else
     "Unable to find usable function to get max filedescriptors";
-#       endif
-#   endif
+#endif
+#endif
 #else
     WSADATA w;
 
@@ -216,7 +215,15 @@ void init_ericserver(void)
  * Frees all the memory that ericserver allocates. */
 void free_all_newserver(void)
 {
+    int i;
+
     free_socket_images();
+
+    for (i = 1; i < socket_info.allocated_sockets; i++) {
+        if (init_sockets[i].state != ST_AVAILABLE) {
+            free_newsocket(&init_sockets[i]);
+        }
+    }
 
 #ifndef WIN32
     close(init_sockets[0].fd);
@@ -258,8 +265,13 @@ void free_newsocket(socket_struct *ns)
         efree(ns->account);
     }
 
-    packet_free(ns->packet_recv);
-    packet_free(ns->packet_recv_cmd);
+    if (ns->packet_recv != NULL) {
+        packet_free(ns->packet_recv);
+    }
+
+    if (ns->packet_recv_cmd != NULL) {
+        packet_free(ns->packet_recv_cmd);
+    }
 
     socket_buffer_clear(ns);
 
@@ -300,13 +312,14 @@ static void load_srv_file(char *fname, FILE *listing)
     numread = compressBound(fsize);
     /* Allocate a buffer to hold the compressed file. */
     compressed = emalloc(numread);
-    compress2((Bytef *) compressed, (uLong *) &numread,
-              (const unsigned char FAR *) contents, fsize, Z_BEST_COMPRESSION);
+    compress2((Bytef *) compressed, (uLong *) & numread,
+            (const unsigned char FAR *) contents, fsize, Z_BEST_COMPRESSION);
 
     sb = stringbuffer_new();
     cp = path_basename(fname);
     stringbuffer_append_printf(sb, "%s/http/data/%s.zz", settings.datapath, cp);
-    fprintf(listing, "%s:%"FMT64HEX":%"FMT64HEX"\n", cp, crc, fsize);
+    fprintf(listing, "%s:%"FMT64HEX":%"FMT64HEX"\n", cp, (uint64) crc,
+            (uint64) fsize);
 
     efree(cp);
     cp = stringbuffer_finish(sb);
@@ -396,10 +409,10 @@ static void create_server_animations(void)
         /* Copy anything but face names. */
         if (!strncmp(buf, "anim ", 5) || !strcmp(buf, "mina\n") || !strncmp(buf, "facings ", 8)) {
             fputs(buf, fp);
-        }
-        /* Transform face names into IDs. */
-        else {
+        } else {
             char *end = strchr(buf, '\n');
+
+            /* Transform face names into IDs. */
 
             *end = '\0';
             fprintf(fp, "%d\n", find_face(buf, 0));

@@ -500,7 +500,7 @@ type 83
 randomitems mob_fighter_l9
 level 6
 spawn_time 19:00 - 7:00
-Wis 5
+wis 5
 end
 end
 arch floor_earth1a

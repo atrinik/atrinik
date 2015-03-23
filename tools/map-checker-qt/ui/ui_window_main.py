@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file '..\ui\ui_window_main.ui'
+# Form implementation generated from reading ui file '../ui/ui_window_main.ui'
 #
-# Created: Tue Nov 12 16:04:55 2013
-#      by: PyQt5 UI code generator 5.1.1
+# Created: Sat Mar 14 15:35:37 2015
+#      by: PyQt5 UI code generator 5.3.2
 #
 # WARNING! All changes made in this file will be lost!
 
@@ -19,13 +19,13 @@ class Ui_WindowMain(object):
         self.gridLayout.setObjectName("gridLayout")
         self.gridLayout_2 = QtWidgets.QGridLayout()
         self.gridLayout_2.setObjectName("gridLayout_2")
+        self.buttonOpen_all = QtWidgets.QPushButton(self.centralwidget)
+        self.buttonOpen_all.setObjectName("buttonOpen_all")
+        self.gridLayout_2.addWidget(self.buttonOpen_all, 2, 2, 1, 1)
         self.buttonScan = QtWidgets.QPushButton(self.centralwidget)
         self.buttonScan.setStyleSheet("")
         self.buttonScan.setObjectName("buttonScan")
-        self.gridLayout_2.addWidget(self.buttonScan, 1, 1, 1, 1)
-        self.buttonOpen_all = QtWidgets.QPushButton(self.centralwidget)
-        self.buttonOpen_all.setObjectName("buttonOpen_all")
-        self.gridLayout_2.addWidget(self.buttonOpen_all, 1, 2, 1, 1)
+        self.gridLayout_2.addWidget(self.buttonScan, 2, 1, 1, 1)
         spacerItem = QtWidgets.QSpacerItem(40, 0, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
         self.gridLayout_2.addItem(spacerItem, 0, 0, 1, 1)
         self.progressBar = QtWidgets.QProgressBar(self.centralwidget)
@@ -37,7 +37,7 @@ class Ui_WindowMain(object):
         self.progressBar.setOrientation(QtCore.Qt.Horizontal)
         self.progressBar.setInvertedAppearance(False)
         self.progressBar.setObjectName("progressBar")
-        self.gridLayout_2.addWidget(self.progressBar, 1, 0, 1, 1)
+        self.gridLayout_2.addWidget(self.progressBar, 2, 0, 1, 1)
         self.gridLayout.addLayout(self.gridLayout_2, 1, 1, 1, 1)
         self.widgetTabs = QtWidgets.QTabWidget(self.centralwidget)
         self.widgetTabs.setObjectName("widgetTabs")
@@ -82,6 +82,10 @@ class Ui_WindowMain(object):
         self.gridLayout_3.addWidget(self.widgetTableResources, 1, 0, 1, 1)
         self.widgetTabs.addTab(self.tab_2, "")
         self.gridLayout.addWidget(self.widgetTabs, 0, 1, 1, 1)
+        self.statusLabel = QtWidgets.QLabel(self.centralwidget)
+        self.statusLabel.setText("")
+        self.statusLabel.setObjectName("statusLabel")
+        self.gridLayout.addWidget(self.statusLabel, 2, 1, 1, 1)
         WindowMain.setCentralWidget(self.centralwidget)
         self.menubar = QtWidgets.QMenuBar(WindowMain)
         self.menubar.setGeometry(QtCore.QRect(0, 0, 745, 26))
@@ -94,10 +98,9 @@ class Ui_WindowMain(object):
         self.menuEdit.setObjectName("menuEdit")
         self.menuNavigate = QtWidgets.QMenu(self.menubar)
         self.menuNavigate.setObjectName("menuNavigate")
+        self.menuTools = QtWidgets.QMenu(self.menubar)
+        self.menuTools.setObjectName("menuTools")
         WindowMain.setMenuBar(self.menubar)
-        self.statusbar = QtWidgets.QStatusBar(WindowMain)
-        self.statusbar.setObjectName("statusbar")
-        WindowMain.setStatusBar(self.statusbar)
         self.actionAbout = QtWidgets.QAction(WindowMain)
         self.actionAbout.setObjectName("actionAbout")
         self.actionExit = QtWidgets.QAction(WindowMain)
@@ -120,6 +123,10 @@ class Ui_WindowMain(object):
         self.actionReport_a_problem.setObjectName("actionReport_a_problem")
         self.actionScan_directory = QtWidgets.QAction(WindowMain)
         self.actionScan_directory.setObjectName("actionScan_directory")
+        self.actionPathfinding_Visualizer = QtWidgets.QAction(WindowMain)
+        self.actionPathfinding_Visualizer.setObjectName("actionPathfinding_Visualizer")
+        self.actionInterface_Editor = QtWidgets.QAction(WindowMain)
+        self.actionInterface_Editor.setObjectName("actionInterface_Editor")
         self.menuFile.addAction(self.actionScan)
         self.menuFile.addAction(self.actionScan_directory)
         self.menuFile.addSeparator()
@@ -133,9 +140,12 @@ class Ui_WindowMain(object):
         self.menuEdit.addAction(self.actionPreferences)
         self.menuNavigate.addAction(self.actionOpen_selected_in_editor)
         self.menuNavigate.addAction(self.actionOpen_selected_in_client)
+        self.menuTools.addAction(self.actionPathfinding_Visualizer)
+        self.menuTools.addAction(self.actionInterface_Editor)
         self.menubar.addAction(self.menuFile.menuAction())
         self.menubar.addAction(self.menuEdit.menuAction())
         self.menubar.addAction(self.menuNavigate.menuAction())
+        self.menubar.addAction(self.menuTools.menuAction())
         self.menubar.addAction(self.menuHelp.menuAction())
 
         self.retranslateUi(WindowMain)
@@ -146,8 +156,8 @@ class Ui_WindowMain(object):
     def retranslateUi(self, WindowMain):
         _translate = QtCore.QCoreApplication.translate
         WindowMain.setWindowTitle(_translate("WindowMain", "Map Checker"))
-        self.buttonScan.setText(_translate("WindowMain", "Scan"))
         self.buttonOpen_all.setText(_translate("WindowMain", "Open all"))
+        self.buttonScan.setText(_translate("WindowMain", "Scan"))
         self.widgetTableMaps.setSortingEnabled(True)
         item = self.widgetTableMaps.horizontalHeaderItem(0)
         item.setText(_translate("WindowMain", "Map name"))
@@ -168,6 +178,7 @@ class Ui_WindowMain(object):
         self.menuHelp.setTitle(_translate("WindowMain", "Help"))
         self.menuEdit.setTitle(_translate("WindowMain", "Edit"))
         self.menuNavigate.setTitle(_translate("WindowMain", "Navigate"))
+        self.menuTools.setTitle(_translate("WindowMain", "Tools"))
         self.actionAbout.setText(_translate("WindowMain", "About"))
         self.actionExit.setText(_translate("WindowMain", "Exit"))
         self.actionScan.setText(_translate("WindowMain", "Scan"))
@@ -179,4 +190,6 @@ class Ui_WindowMain(object):
         self.actionPreferences.setText(_translate("WindowMain", "Preferences"))
         self.actionReport_a_problem.setText(_translate("WindowMain", "Report a problem"))
         self.actionScan_directory.setText(_translate("WindowMain", "Scan directory..."))
+        self.actionPathfinding_Visualizer.setText(_translate("WindowMain", "Pathfinding Visualizer"))
+        self.actionInterface_Editor.setText(_translate("WindowMain", "Interface Editor"))
 

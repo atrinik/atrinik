@@ -3,21 +3,21 @@
     <interface>
         <dialog name="hello">
             <message>Well, hello there! I'm a traveller looking for interesting artifacts and treasures. Have you seen the leftovers of a shop in the Brynknot sewers?</message>
-            <response message="Yes." destination="shop" />
-            <response message="Yeah, sure." destination="shop" />
-            <response message="Not yet..." destination="shop" />
+            <response destination="shop" message="Yes."/>
+            <response destination="shop" message="Yeah, sure."/>
+            <response destination="shop" message="Not yet..."/>
         </dialog>
         <dialog name="shop">
             <message>Well, the shop has once been active, with various treasures being sold there for high prices, but now there's not much left of it. I used to buy stuff there and venture down the sewers you know...</message>
-            <response message="Tell me about the sewers." destination="sewers" />
+            <response destination="sewers" message="Tell me about the sewers."/>
         </dialog>
         <dialog name="sewers">
             <message>Yes, use any of the sewer holes around the town to enter the Brynknot sewer system. It's bigger than it looks and sometimes you need to push your way through. One time I was attacked by a terrible monster!</message>
-            <response message="Tell me more..." destination="tellmore" />
+            <response destination="tellmore" message="Tell me more..."/>
         </dialog>
         <dialog name="tellmore">
             <message>You see this scar? That's not all it did to me, it also ate my magical pouch filled with gems and jewels!</message>
-            <response message="A magical pouch?" destination="magicalpouch" />
+            <response destination="magicalpouch" message="A magical pouch?"/>
         </dialog>
         <dialog name="magicalpouch">
             <message>Yes, a magical pouch with my costly collection of gems and jewels. If you ever happen to find it, do as you please and keep it all or sell the jewels and gems to a regular shop.</message>

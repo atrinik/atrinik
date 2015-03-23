@@ -4,7 +4,6 @@ face fountain_stream.101
 animation fountain_stream
 is_animated 1
 anim_speed 2
-speed 0.02
 type 79
 mpart_id 6
 layer 7

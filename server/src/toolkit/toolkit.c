@@ -1,70 +1,115 @@
-/************************************************************************
-*            Atrinik, a Multiplayer Online Role Playing Game            *
-*                                                                       *
-*    Copyright (C) 2009-2012 Alex Tokar and Atrinik Development Team    *
-*                                                                       *
-* Fork from Crossfire (Multiplayer game for X-windows).                 *
-*                                                                       *
-* This program is free software; you can redistribute it and/or modify  *
-* it under the terms of the GNU General Public License as published by  *
-* the Free Software Foundation; either version 2 of the License, or     *
-* (at your option) any later version.                                   *
-*                                                                       *
-* This program is distributed in the hope that it will be useful,       *
-* but WITHOUT ANY WARRANTY; without even the implied warranty of        *
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
-* GNU General Public License for more details.                          *
-*                                                                       *
-* You should have received a copy of the GNU General Public License     *
-* along with this program; if not, write to the Free Software           *
-* Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.             *
-*                                                                       *
-* The author can be reached at admin@atrinik.org                        *
-************************************************************************/
+/*************************************************************************
+ *           Atrinik, a Multiplayer Online Role Playing Game             *
+ *                                                                       *
+ *   Copyright (C) 2009-2014 Alex Tokar and Atrinik Development Team     *
+ *                                                                       *
+ * Fork from Crossfire (Multiplayer game for X-windows).                 *
+ *                                                                       *
+ * This program is free software; you can redistribute it and/or modify  *
+ * it under the terms of the GNU General Public License as published by  *
+ * the Free Software Foundation; either version 2 of the License, or     *
+ * (at your option) any later version.                                   *
+ *                                                                       *
+ * This program is distributed in the hope that it will be useful,       *
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of        *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
+ * GNU General Public License for more details.                          *
+ *                                                                       *
+ * You should have received a copy of the GNU General Public License     *
+ * along with this program; if not, write to the Free Software           *
+ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.             *
+ *                                                                       *
+ * The author can be reached at admin@atrinik.org                        *
+ ************************************************************************/
 
 /**
  * @file
  * Toolkit system.
  *
- * @author Alex Tokar */
+ * @author Alex Tokar
+ */
 
 #include <global.h>
 
-static toolkit_func *deinit_funcs = NULL;
-static size_t deinit_funcs_num = 0;
+/**
+ * One toolkit API entry.
+ */
+typedef struct toolkit_api {
+    char *name; ///< Name of the API.
+    toolkit_func deinit_fnc; ///< Deinit function.
+} toolkit_api_t;
 
-void toolkit_import_register(toolkit_func func)
+/**
+ * All the registered APIs.
+ */
+static toolkit_api_t *apis = NULL;
+/**
+ * Number of ::apis.
+ */
+static size_t apis_num = 0;
+
+/**
+ * Registers an API import.
+ * @param name Name of the API to register.
+ * @param func Deinitialization function.
+ */
+void toolkit_import_register(const char *name, toolkit_func func)
 {
-    deinit_funcs = erealloc(deinit_funcs, sizeof(*deinit_funcs) * (deinit_funcs_num + 1));
-    deinit_funcs[deinit_funcs_num] = func;
-    deinit_funcs_num++;
+    HARD_ASSERT(name != NULL);
+    HARD_ASSERT(func != NULL);
+    HARD_ASSERT(!toolkit_check_imported(func));
+
+    apis = erealloc(apis, sizeof(*apis) * (apis_num + 1));
+    apis[apis_num].name = estrdup(name);
+    apis[apis_num].deinit_fnc = func;
+    apis_num++;
 }
 
-int toolkit_check_imported(toolkit_func func)
+/**
+ * Checks if the specified API was registered, identified by its
+ * deinitialization function.
+ * @param func Deinitialization function.
+ * @return Whether the API was registered.
+ */
+bool toolkit_check_imported(toolkit_func func)
 {
     size_t i;
 
-    for (i = 0; i < deinit_funcs_num; i++) {
-        if (deinit_funcs[i] == func) {
-            return 1;
+    for (i = 0; i < apis_num; i++) {
+        if (apis[i].deinit_fnc == func) {
+            return true;
         }
     }
 
-    return 0;
+    return false;
 }
 
+/**
+ * Deinitializes all the registered APIs.
+ */
 void toolkit_deinit(void)
 {
     size_t i;
+    char buf[HUGE_BUF];
 
-    for (i = deinit_funcs_num; i > 0; i--) {
-        deinit_funcs[i - 1]();
+    buf[0] = '\0';
+
+    for (i = apis_num; i > 0; i--) {
+        snprintfcat(VS(buf), "%s%s", buf[0] != '\0' ? ", " : "",
+                apis[i - 1].name);
     }
 
-    if (deinit_funcs) {
-        free(deinit_funcs);
-        deinit_funcs = NULL;
+    log(LOG(DEVEL), "Deinitializing APIs in the following order: %s", buf);
+
+    for (i = apis_num; i > 0; i--) {
+        apis[i - 1].deinit_fnc();
+        efree(apis[i - 1].name);
     }
 
-    deinit_funcs_num = 0;
+    if (apis != NULL) {
+        free(apis);
+        apis = NULL;
+    }
+
+    apis_num = 0;
 }

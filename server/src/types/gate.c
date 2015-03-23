@@ -1,26 +1,26 @@
-/************************************************************************
-*            Atrinik, a Multiplayer Online Role Playing Game            *
-*                                                                       *
-*    Copyright (C) 2009-2012 Alex Tokar and Atrinik Development Team    *
-*                                                                       *
-* Fork from Crossfire (Multiplayer game for X-windows).                 *
-*                                                                       *
-* This program is free software; you can redistribute it and/or modify  *
-* it under the terms of the GNU General Public License as published by  *
-* the Free Software Foundation; either version 2 of the License, or     *
-* (at your option) any later version.                                   *
-*                                                                       *
-* This program is distributed in the hope that it will be useful,       *
-* but WITHOUT ANY WARRANTY; without even the implied warranty of        *
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
-* GNU General Public License for more details.                          *
-*                                                                       *
-* You should have received a copy of the GNU General Public License     *
-* along with this program; if not, write to the Free Software           *
-* Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.             *
-*                                                                       *
-* The author can be reached at admin@atrinik.org                        *
-************************************************************************/
+/*************************************************************************
+ *           Atrinik, a Multiplayer Online Role Playing Game             *
+ *                                                                       *
+ *   Copyright (C) 2009-2014 Alex Tokar and Atrinik Development Team     *
+ *                                                                       *
+ * Fork from Crossfire (Multiplayer game for X-windows).                 *
+ *                                                                       *
+ * This program is free software; you can redistribute it and/or modify  *
+ * it under the terms of the GNU General Public License as published by  *
+ * the Free Software Foundation; either version 2 of the License, or     *
+ * (at your option) any later version.                                   *
+ *                                                                       *
+ * This program is distributed in the hope that it will be useful,       *
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of        *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
+ * GNU General Public License for more details.                          *
+ *                                                                       *
+ * You should have received a copy of the GNU General Public License     *
+ * along with this program; if not, write to the Free Software           *
+ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.             *
+ *                                                                       *
+ * The author can be reached at admin@atrinik.org                        *
+ ************************************************************************/
 
 /**
  * @file
@@ -37,8 +37,7 @@ static void process_func(object *op)
         if (--op->stats.hp == 0) {
             op->value = !op->value;
             op->stats.food = 0;
-        }
-        else {
+        } else {
             return;
         }
     }
@@ -50,8 +49,7 @@ static void process_func(object *op)
 
             if (op->stats.food) {
                 op->stats.hp = op->stats.maxhp;
-            }
-            else {
+            } else {
                 op->speed = 0;
                 update_ob_speed(op);
             }
@@ -65,9 +63,9 @@ static void process_func(object *op)
             CLEAR_FLAG(op, FLAG_NO_PASS);
             update_object(op, UP_OBJ_FLAGS);
         }
-    }
-    /* Going up. */
-    else {
+    } else {
+        /* Going up. */
+
         if (++op->stats.wc >= (NUM_ANIMATIONS(op) / NUM_FACINGS(op)) / 2) {
             object *tmp, *next;
             uint8 is_blocked = 0;
@@ -93,9 +91,8 @@ static void process_func(object *op)
                         tmp->x += freearr_x[i];
                         tmp->y += freearr_y[i];
                         insert_ob_in_map(tmp, op->map, op, 0);
-                    }
-                    /* No free spot, so the gate is blocked. */
-                    else {
+                    } else {
+                        /* No free spot, so the gate is blocked. */
                         is_blocked = 1;
                     }
                 }
@@ -103,8 +100,7 @@ static void process_func(object *op)
 
             if (is_blocked) {
                 op->stats.wc--;
-            }
-            else if (!QUERY_FLAG(op, FLAG_NO_PASS)) {
+            } else if (!QUERY_FLAG(op, FLAG_NO_PASS)) {
                 if (op->stats.ac) {
                     SET_FLAG(op, FLAG_BLOCKSVIEW);
                 }
@@ -118,8 +114,7 @@ static void process_func(object *op)
 
                 if (op->stats.food) {
                     op->stats.hp = op->stats.maxhp;
-                }
-                else {
+                } else {
                     op->speed = 0;
                     update_ob_speed(op);
                 }
@@ -147,8 +142,7 @@ static int trigger_func(object *op, object *cause, int state)
     if (op->stats.maxhp) {
         op->stats.food = 1;
         op->value = !op->value;
-    }
-    else {
+    } else {
         op->value = op->stats.maxsp ? !state : state;
     }
 

@@ -1,26 +1,26 @@
-/************************************************************************
-*            Atrinik, a Multiplayer Online Role Playing Game            *
-*                                                                       *
-*    Copyright (C) 2009-2012 Alex Tokar and Atrinik Development Team    *
-*                                                                       *
-* Fork from Crossfire (Multiplayer game for X-windows).                 *
-*                                                                       *
-* This program is free software; you can redistribute it and/or modify  *
-* it under the terms of the GNU General Public License as published by  *
-* the Free Software Foundation; either version 2 of the License, or     *
-* (at your option) any later version.                                   *
-*                                                                       *
-* This program is distributed in the hope that it will be useful,       *
-* but WITHOUT ANY WARRANTY; without even the implied warranty of        *
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
-* GNU General Public License for more details.                          *
-*                                                                       *
-* You should have received a copy of the GNU General Public License     *
-* along with this program; if not, write to the Free Software           *
-* Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.             *
-*                                                                       *
-* The author can be reached at admin@atrinik.org                        *
-************************************************************************/
+/*************************************************************************
+ *           Atrinik, a Multiplayer Online Role Playing Game             *
+ *                                                                       *
+ *   Copyright (C) 2009-2014 Alex Tokar and Atrinik Development Team     *
+ *                                                                       *
+ * Fork from Crossfire (Multiplayer game for X-windows).                 *
+ *                                                                       *
+ * This program is free software; you can redistribute it and/or modify  *
+ * it under the terms of the GNU General Public License as published by  *
+ * the Free Software Foundation; either version 2 of the License, or     *
+ * (at your option) any later version.                                   *
+ *                                                                       *
+ * This program is distributed in the hope that it will be useful,       *
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of        *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
+ * GNU General Public License for more details.                          *
+ *                                                                       *
+ * You should have received a copy of the GNU General Public License     *
+ * along with this program; if not, write to the Free Software           *
+ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.             *
+ *                                                                       *
+ * The author can be reached at admin@atrinik.org                        *
+ ************************************************************************/
 
 /**
  * @file
@@ -33,8 +33,7 @@
 /**
  * Client versions we know about. The process how these are checked is
  * explained in upgrader_init(). */
-static const char *const client_versions[] =
-{
+static const char *const client_versions[] = {
     "2.0", "2.5", "3.0"
 };
 
@@ -76,14 +75,12 @@ static void upgrade_20_to_25(const char *from, const char *to)
                     /* Does not exist yet, add it. */
                     if (!keybind) {
                         keybind = keybind_add(keycode, 0, command);
-                    }
-                    else {
+                    } else {
                         keybind->key = keycode;
                     }
 
                     keybind->repeat = repeat;
-                }
-                else if (!strncmp(command, "?M_MCON", 7)) {
+                } else if (!strncmp(command, "?M_MCON", 7)) {
                     char mcon_buf[HUGE_BUF];
 
                     snprintf(mcon_buf, sizeof(mcon_buf), "?MCON %s", command + 7);
@@ -92,77 +89,54 @@ static void upgrade_20_to_25(const char *from, const char *to)
                         keybind = keybind_add(keycode, 0, mcon_buf);
                         keybind->repeat = repeat;
                     }
-                }
-                else if (*command == '?') {
+                } else if (*command == '?') {
                     const char *new_cmd = command;
 
                     if (!strcmp(command, "?M_NORTH")) {
                         new_cmd = "?MOVE_N";
-                    }
-                    else if (!strcmp(command, "?M_NORTHEAST")) {
+                    } else if (!strcmp(command, "?M_NORTHEAST")) {
                         new_cmd = "?MOVE_NE";
-                    }
-                    else if (!strcmp(command, "?M_EAST")) {
+                    } else if (!strcmp(command, "?M_EAST")) {
                         new_cmd = "?MOVE_E";
-                    }
-                    else if (!strcmp(command, "?M_SOUTHEAST")) {
+                    } else if (!strcmp(command, "?M_SOUTHEAST")) {
                         new_cmd = "?MOVE_SE";
-                    }
-                    else if (!strcmp(command, "?M_SOUTH")) {
+                    } else if (!strcmp(command, "?M_SOUTH")) {
                         new_cmd = "?MOVE_S";
-                    }
-                    else if (!strcmp(command, "?M_SOUTHWEST")) {
+                    } else if (!strcmp(command, "?M_SOUTHWEST")) {
                         new_cmd = "?MOVE_SW";
-                    }
-                    else if (!strcmp(command, "?M_WEST")) {
+                    } else if (!strcmp(command, "?M_WEST")) {
                         new_cmd = "?MOVE_W";
-                    }
-                    else if (!strcmp(command, "?M_NORTHWEST")) {
+                    } else if (!strcmp(command, "?M_NORTHWEST")) {
                         new_cmd = "?MOVE_NW";
-                    }
-                    else if (!strcmp(command, "?M_STAY")) {
+                    } else if (!strcmp(command, "?M_STAY")) {
                         new_cmd = "?MOVE_STAY";
-                    }
-                    else if (!strcmp(command, "?M_UP")) {
+                    } else if (!strcmp(command, "?M_UP")) {
                         new_cmd = "?UP";
-                    }
-                    else if (!strcmp(command, "?M_DOWN")) {
+                    } else if (!strcmp(command, "?M_DOWN")) {
                         new_cmd = "?DOWN";
-                    }
-                    else if (!strcmp(command, "?M_LEFT")) {
+                    } else if (!strcmp(command, "?M_LEFT")) {
                         new_cmd = "?LEFT";
-                    }
-                    else if (!strcmp(command, "?M_RIGHT")) {
+                    } else if (!strcmp(command, "?M_RIGHT")) {
                         new_cmd = "?RIGHT";
-                    }
-                    else if (!strcmp(command, "?M_SPELL_LIST")) {
+                    } else if (!strcmp(command, "?M_SPELL_LIST")) {
                         new_cmd = "?SPELL_LIST";
-                    }
-                    else if (!strcmp(command, "?M_SKILL_LIST")) {
+                    } else if (!strcmp(command, "?M_SKILL_LIST")) {
                         new_cmd = "?SKILL_LIST";
-                    }
-                    else if (!strcmp(command, "?M_HELP")) {
+                    } else if (!strcmp(command, "?M_HELP")) {
                         new_cmd = "?HELP";
-                    }
-                    else if (!strcmp(command, "?M_KEYBIND")) {
+                    } else if (!strcmp(command, "?M_KEYBIND")) {
                         new_cmd = "?PARTY_LIST";
-                    }
-                    else if (!strcmp(command, "?M_QLIST")) {
+                    } else if (!strcmp(command, "?M_QLIST")) {
                         new_cmd = "?QLIST";
-                    }
-                    else if (!strcmp(command, "?M_RANGE")) {
+                    } else if (!strcmp(command, "?M_RANGE")) {
                         new_cmd = "?RANGE";
-                    }
-                    else if (!strcmp(command, "?M_FIRE_READY")) {
+                    } else if (!strcmp(command, "?M_FIRE_READY")) {
                         new_cmd = "?FIRE_READY";
-                    }
-                    else if (!strcmp(command, "?M_TARGET_ENEMY")) {
+                    } else if (!strcmp(command, "?M_TARGET_ENEMY")) {
                         new_cmd = "?TARGET_ENEMY";
-                    }
-                    else if (!strcmp(command, "?M_TARGET_FRIEND")) {
+                    } else if (!strcmp(command, "?M_TARGET_FRIEND")) {
                         new_cmd = "?TARGET_FRIEND";
-                    }
-                    else {
+                    } else {
                         continue;
                     }
 
@@ -195,8 +169,7 @@ static void upgrade_20_to_25(const char *from, const char *to)
             if (!strncmp(buf, "%3x ", 4)) {
                 setting_set_int(OPT_CAT_CLIENT, OPT_RESOLUTION_X, atoi(buf + 4));
                 continue;
-            }
-            else if (!strncmp(buf, "%3y ", 4)) {
+            } else if (!strncmp(buf, "%3y ", 4)) {
                 setting_set_int(OPT_CAT_CLIENT, OPT_RESOLUTION_Y, atoi(buf + 4));
                 continue;
             }
@@ -208,60 +181,46 @@ static void upgrade_20_to_25(const char *from, const char *to)
                 if (!strcmp(option_name, "Show yourself targeted")) {
                     cat = OPT_CAT_GENERAL;
                     setting = OPT_TARGET_SELF;
-                }
-                else if (!strcmp(option_name, "Collect mode")) {
+                } else if (!strcmp(option_name, "Collect mode")) {
                     cat = OPT_CAT_GENERAL;
                     setting = OPT_COLLECT_MODE;
-                }
-                else if (!strcmp(option_name, "Exp display")) {
+                } else if (!strcmp(option_name, "Exp display")) {
                     cat = OPT_CAT_GENERAL;
                     setting = OPT_EXP_DISPLAY;
-                }
-                else if (!strcmp(option_name, "Chat Timestamps")) {
+                } else if (!strcmp(option_name, "Chat Timestamps")) {
                     cat = OPT_CAT_GENERAL;
                     setting = OPT_CHAT_TIMESTAMPS;
-                }
-                else if (!strcmp(option_name, "Maximum chat lines")) {
+                } else if (!strcmp(option_name, "Maximum chat lines")) {
                     cat = OPT_CAT_GENERAL;
                     setting = OPT_MAX_CHAT_LINES;
-                }
-                else if (!strcmp(option_name, "Fullscreen")) {
+                } else if (!strcmp(option_name, "Fullscreen")) {
                     cat = OPT_CAT_CLIENT;
                     setting = OPT_FULLSCREEN;
-                }
-                else if (!strcmp(option_name, "Resolution")) {
+                } else if (!strcmp(option_name, "Resolution")) {
                     cat = OPT_CAT_CLIENT;
                     setting = OPT_RESOLUTION;
-                }
-                else if (!strcmp(option_name, "Player Names")) {
+                } else if (!strcmp(option_name, "Player Names")) {
                     cat = OPT_CAT_MAP;
                     setting = OPT_PLAYER_NAMES;
-                }
-                else if (!strcmp(option_name, "Playfield zoom")) {
+                } else if (!strcmp(option_name, "Playfield zoom")) {
                     cat = OPT_CAT_MAP;
                     setting = OPT_MAP_ZOOM;
-                }
-                else if (!strcmp(option_name, "Low health warning")) {
+                } else if (!strcmp(option_name, "Low health warning")) {
                     cat = OPT_CAT_MAP;
                     setting = OPT_HEALTH_WARNING;
-                }
-                else if (!strcmp(option_name, "Low food warning")) {
+                } else if (!strcmp(option_name, "Low food warning")) {
                     cat = OPT_CAT_MAP;
                     setting = OPT_FOOD_WARNING;
-                }
-                else if (!strcmp(option_name, "Sound volume")) {
+                } else if (!strcmp(option_name, "Sound volume")) {
                     cat = OPT_CAT_SOUND;
                     setting = OPT_VOLUME_SOUND;
-                }
-                else if (!strcmp(option_name, "Music volume")) {
+                } else if (!strcmp(option_name, "Music volume")) {
                     cat = OPT_CAT_SOUND;
                     setting = OPT_VOLUME_MUSIC;
-                }
-                else if (!strcmp(option_name, "Show Framerate")) {
+                } else if (!strcmp(option_name, "Show Framerate")) {
                     cat = OPT_CAT_DEVEL;
                     setting = OPT_SHOW_FPS;
-                }
-                else if (!strcmp(option_name, "Enable quickport")) {
+                } else if (!strcmp(option_name, "Enable quickport")) {
                     cat = OPT_CAT_DEVEL;
                     setting = OPT_OPERATOR;
                 }
@@ -344,8 +303,7 @@ void upgrader_init(void)
         /* Migrate 2.0 to 2.5. */
         if (!strcmp(client_versions[i], "2.0")) {
             upgrade_20_to_25(tmp, tmp2);
-        }
-        else if (!strcmp(client_versions[i], "2.5")) {
+        } else if (!strcmp(client_versions[i], "2.5")) {
             upgrade_25_to_30(tmp, tmp2);
         }
     }

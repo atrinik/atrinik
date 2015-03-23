@@ -15,7 +15,5 @@ try:
 
     if not re.match(options, floor.arch.name):
         SetReturnValue(1)
-        # Stop showing the moving animation.
-        me.anim_moving_dir = -1
 except:
     pass

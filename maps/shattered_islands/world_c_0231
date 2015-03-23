@@ -941,7 +941,7 @@ x 20
 y 11
 arch drow_captain
 name drow commander
-Wis 2
+wis 2
 level 35
 type 83
 unaggressive 1

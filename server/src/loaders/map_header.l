@@ -1,27 +1,27 @@
 %{
-/************************************************************************
-*            Atrinik, a Multiplayer Online Role Playing Game            *
-*                                                                       *
-*    Copyright (C) 2009-2012 Alex Tokar and Atrinik Development Team    *
-*                                                                       *
-* Fork from Crossfire (Multiplayer game for X-windows).                 *
-*                                                                       *
-* This program is free software; you can redistribute it and/or modify  *
-* it under the terms of the GNU General Public License as published by  *
-* the Free Software Foundation; either version 2 of the License, or     *
-* (at your option) any later version.                                   *
-*                                                                       *
-* This program is distributed in the hope that it will be useful,       *
-* but WITHOUT ANY WARRANTY; without even the implied warranty of        *
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
-* GNU General Public License for more details.                          *
-*                                                                       *
-* You should have received a copy of the GNU General Public License     *
-* along with this program; if not, write to the Free Software           *
-* Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.             *
-*                                                                       *
-* The author can be reached at admin@atrinik.org                        *
-************************************************************************/
+/*************************************************************************
+ *           Atrinik, a Multiplayer Online Role Playing Game             *
+ *                                                                       *
+ *   Copyright (C) 2009-2014 Alex Tokar and Atrinik Development Team     *
+ *                                                                       *
+ * Fork from Crossfire (Multiplayer game for X-windows).                 *
+ *                                                                       *
+ * This program is free software; you can redistribute it and/or modify  *
+ * it under the terms of the GNU General Public License as published by  *
+ * the Free Software Foundation; either version 2 of the License, or     *
+ * (at your option) any later version.                                   *
+ *                                                                       *
+ * This program is distributed in the hope that it will be useful,       *
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of        *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
+ * GNU General Public License for more details.                          *
+ *                                                                       *
+ * You should have received a copy of the GNU General Public License     *
+ * along with this program; if not, write to the Free Software           *
+ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.             *
+ *                                                                       *
+ * The author can be reached at admin@atrinik.org                        *
+ ************************************************************************/
 
 #include <global.h>
 #include <loader.h>
@@ -89,9 +89,8 @@ lex_error = 0;
     int v = IVAL;
 
     if (v < -1 || v > MAX_DARKNESS) {
-        logger_print(LOG(BUG), "Illegal map darkness %d (must be -1 to %d, defaulting to -1).", v, MAX_DARKNESS);
-    }
-    else {
+        logger_print(LOG(BUG), "Illegal map darkness %d (must be -1 to %d, defaulting to -1): %s", v, MAX_DARKNESS, m->path);
+    } else {
         set_map_darkness(m, v);
     }
 }
@@ -99,6 +98,7 @@ lex_error = 0;
 ^no_save{S}          SET_OR_CLEAR_MAP_FLAG(m, MAP_FLAG_NO_SAVE, IVAL);
 ^no_magic{S}         SET_OR_CLEAR_MAP_FLAG(m, MAP_FLAG_NOMAGIC, IVAL);
 ^no_harm{S}          SET_OR_CLEAR_MAP_FLAG(m, MAP_FLAG_NOHARM, IVAL);
+^height_diff{S}      SET_OR_CLEAR_MAP_FLAG(m, MAP_FLAG_HEIGHT_DIFF, IVAL);
 ^no_summon{S}        SET_OR_CLEAR_MAP_FLAG(m, MAP_FLAG_NOSUMMON, IVAL);
 ^fixed_login{S}      SET_OR_CLEAR_MAP_FLAG(m, MAP_FLAG_FIXED_LOGIN, IVAL);
 ^player_no_save{S}   SET_OR_CLEAR_MAP_FLAG(m, MAP_FLAG_PLAYER_NO_SAVE, IVAL);
@@ -106,46 +106,13 @@ lex_error = 0;
 ^outdoor{S}          SET_OR_CLEAR_MAP_FLAG(m, MAP_FLAG_OUTDOOR, IVAL);
 ^unique{S}           SET_OR_CLEAR_MAP_FLAG(m, MAP_FLAG_UNIQUE, IVAL);
 ^fixed_resettime{S}  SET_OR_CLEAR_MAP_FLAG(m, MAP_FLAG_FIXED_RTIME, IVAL);
-^tile_path_[1-8]{S}  {
+^tile_path_[0-9]{1,2}{S}  {
     int tile = atoi(yytext + 10);
 
     if (tile < 1 || tile > TILED_NUM) {
         logger_print(LOG(BUG), "Tile location %d out of bounds (%s)", tile, m->path);
-    }
-    else {
-        char *value, *path;
-        shstr *path_sh;
-        mapstruct *neighbor;
-
-        value = yval();
-
-        if (m->tile_path[tile - 1]) {
-            logger_print(LOG(BUG), "Tile location %d duplicated (%s <-> %s)", tile, m->path, m->tile_path[tile - 1]);
-            FREE_AND_CLEAR_HASH(m->tile_path[tile - 1]);
-        }
-
-        if (map_path_isabs(value)) {
-            path_sh = add_string(value);
-        }
-        else {
-            path = map_get_path(m, value, m->map_flags & MAP_FLAG_UNIQUE, NULL);
-            path_sh = add_string(path);
-            efree(path);
-        }
-
-        m->tile_path[tile - 1] = path_sh;
-
-        /* If the neighboring map tile has been loaded, set up the map pointers
-         * */
-        if ((neighbor = has_been_loaded_sh(path_sh)) && (neighbor->in_memory == MAP_IN_MEMORY || neighbor->in_memory == MAP_LOADING)) {
-            int dest_tile = map_tiled_reverse[tile - 1];
-
-            m->tile_map[tile - 1] = neighbor;
-
-            if (neighbor->tile_path[dest_tile] == NULL || neighbor->tile_path[dest_tile] == m->path) {
-                neighbor->tile_map[dest_tile] = m;
-            }
-        }
+    } else {
+        map_set_tile(m, tile - 1, yval());
     }
 }
 ^msg{WS}             {
@@ -208,7 +175,7 @@ static char *yval(void)
     }
 
     /* Get last character before null and strip
-        * off trailing whitespace. */
+     * off trailing whitespace. */
     for (end = cp + strlen(cp) - 1; *end == ' ' || *end == 0x0A || *end == 0x0D; end--) {
         if (end == cp) {
             return em;
@@ -244,7 +211,9 @@ int map_set_variable(mapstruct *m, char *buf)
  * Frees all memory allocated by the map header loader. */
 void free_map_header_loader(void)
 {
+#ifndef WIN32
     yylex_destroy();
+#endif
 }
 
 /**
@@ -355,6 +324,10 @@ void save_map_header(mapstruct *m, FILE *fp, int flag)
 
     if (MAP_NOMAGIC(m)) {
         fprintf(fp, "no_magic 1\n");
+    }
+
+    if (MAP_HEIGHT_DIFF(m)) {
+        fprintf(fp, "height_diff 1\n");
     }
 
     if (MAP_NOHARM(m)) {

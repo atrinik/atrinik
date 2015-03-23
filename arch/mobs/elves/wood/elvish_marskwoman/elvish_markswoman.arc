@@ -10,12 +10,12 @@ layer 6
 direction 5
 is_neutral 1
 friendly 1
-terrain_flag 1
+terrain_flag 65
 weapon_speed 0.035
 attack_slash 95
 attack_magic 5
 type 80
-Wis 3
+wis 3
 animation elvish_markswoman
 is_animated 1
 anim_speed 4
@@ -31,7 +31,7 @@ level 1
 speed -0.05
 weight 81500
 can_use_bow 1
-Dex 3
+dex 3
 arch ability_stone_throw
 name arrow shooter
 race arrows

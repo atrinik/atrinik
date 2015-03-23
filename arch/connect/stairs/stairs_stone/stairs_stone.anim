@@ -11,6 +11,19 @@ stairs_stone_up.171
 stairs_stone_up.171
 mina
 
+anim stairs_stone_up2
+facings 9
+dummy.111
+stairs_stone_up2.111
+stairs_stone_up2.111
+stairs_stone_up2.131
+stairs_stone_up2.131
+stairs_stone_up2.151
+stairs_stone_up2.151
+stairs_stone_up2.171
+stairs_stone_up2.171
+mina
+
 anim stairs_stone_down
 facings 9
 dummy.111

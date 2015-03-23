@@ -1,26 +1,26 @@
-/************************************************************************
-*            Atrinik, a Multiplayer Online Role Playing Game            *
-*                                                                       *
-*    Copyright (C) 2009-2012 Alex Tokar and Atrinik Development Team    *
-*                                                                       *
-* Fork from Crossfire (Multiplayer game for X-windows).                 *
-*                                                                       *
-* This program is free software; you can redistribute it and/or modify  *
-* it under the terms of the GNU General Public License as published by  *
-* the Free Software Foundation; either version 2 of the License, or     *
-* (at your option) any later version.                                   *
-*                                                                       *
-* This program is distributed in the hope that it will be useful,       *
-* but WITHOUT ANY WARRANTY; without even the implied warranty of        *
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
-* GNU General Public License for more details.                          *
-*                                                                       *
-* You should have received a copy of the GNU General Public License     *
-* along with this program; if not, write to the Free Software           *
-* Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.             *
-*                                                                       *
-* The author can be reached at admin@atrinik.org                        *
-************************************************************************/
+/*************************************************************************
+ *           Atrinik, a Multiplayer Online Role Playing Game             *
+ *                                                                       *
+ *   Copyright (C) 2009-2014 Alex Tokar and Atrinik Development Team     *
+ *                                                                       *
+ * Fork from Crossfire (Multiplayer game for X-windows).                 *
+ *                                                                       *
+ * This program is free software; you can redistribute it and/or modify  *
+ * it under the terms of the GNU General Public License as published by  *
+ * the Free Software Foundation; either version 2 of the License, or     *
+ * (at your option) any later version.                                   *
+ *                                                                       *
+ * This program is distributed in the hope that it will be useful,       *
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of        *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
+ * GNU General Public License for more details.                          *
+ *                                                                       *
+ * You should have received a copy of the GNU General Public License     *
+ * along with this program; if not, write to the Free Software           *
+ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.             *
+ *                                                                       *
+ * The author can be reached at admin@atrinik.org                        *
+ ************************************************************************/
 
 /**
  * @file
@@ -30,8 +30,7 @@
 #define SERVER_SETTINGS_H
 
 /** Text IDs from server_settings file. */
-enum
-{
+enum {
     SERVER_TEXT_PROTECTION_GROUPS,
     SERVER_TEXT_PROTECTION_LETTERS,
     SERVER_TEXT_PROTECTION_FULL,
@@ -47,8 +46,7 @@ enum
 };
 
 /** One character. */
-typedef struct char_struct
-{
+typedef struct char_struct {
     /** The race name. */
     char *name;
 
@@ -65,8 +63,7 @@ typedef struct char_struct
 /**
  * Server settings structure, initialized from the server_settings srv
  * file. */
-typedef struct server_settings
-{
+typedef struct server_settings {
     /** Maximum reachable level. */
     uint8 max_level;
 
@@ -81,6 +78,9 @@ typedef struct server_settings
 
     /** Server-configured strings. */
     char *text[SERVER_TEXT_MAX];
+
+    /** Protection group names. */
+    char protection_groups[5][MAX_BUF];
 
     /** Protection few-letter acronyms. */
     char protection_letters[20][MAX_BUF];

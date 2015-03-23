@@ -1,26 +1,26 @@
-/************************************************************************
-*            Atrinik, a Multiplayer Online Role Playing Game            *
-*                                                                       *
-*    Copyright (C) 2009-2012 Alex Tokar and Atrinik Development Team    *
-*                                                                       *
-* Fork from Crossfire (Multiplayer game for X-windows).                 *
-*                                                                       *
-* This program is free software; you can redistribute it and/or modify  *
-* it under the terms of the GNU General Public License as published by  *
-* the Free Software Foundation; either version 2 of the License, or     *
-* (at your option) any later version.                                   *
-*                                                                       *
-* This program is distributed in the hope that it will be useful,       *
-* but WITHOUT ANY WARRANTY; without even the implied warranty of        *
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
-* GNU General Public License for more details.                          *
-*                                                                       *
-* You should have received a copy of the GNU General Public License     *
-* along with this program; if not, write to the Free Software           *
-* Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.             *
-*                                                                       *
-* The author can be reached at admin@atrinik.org                        *
-************************************************************************/
+/*************************************************************************
+ *           Atrinik, a Multiplayer Online Role Playing Game             *
+ *                                                                       *
+ *   Copyright (C) 2009-2014 Alex Tokar and Atrinik Development Team     *
+ *                                                                       *
+ * Fork from Crossfire (Multiplayer game for X-windows).                 *
+ *                                                                       *
+ * This program is free software; you can redistribute it and/or modify  *
+ * it under the terms of the GNU General Public License as published by  *
+ * the Free Software Foundation; either version 2 of the License, or     *
+ * (at your option) any later version.                                   *
+ *                                                                       *
+ * This program is distributed in the hope that it will be useful,       *
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of        *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
+ * GNU General Public License for more details.                          *
+ *                                                                       *
+ * You should have received a copy of the GNU General Public License     *
+ * along with this program; if not, write to the Free Software           *
+ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.             *
+ *                                                                       *
+ * The author can be reached at admin@atrinik.org                        *
+ ************************************************************************/
 
 /**
  * @file
@@ -61,7 +61,8 @@ static const char *const logger_names[LOG_MAX] = {
     "ERROR",
     "BUG",
     "DEBUG",
-    "DEVEL"
+    "DEVEL",
+    "PACKET"
 };
 
 /**
@@ -80,6 +81,7 @@ static uint64 logger_filter_logfile;
  */
 void toolkit_logger_init(void)
 {
+
     TOOLKIT_INIT_FUNC_START(logger)
     {
         toolkit_import(string);
@@ -99,6 +101,7 @@ void toolkit_logger_init(void)
  */
 void toolkit_logger_deinit(void)
 {
+
     TOOLKIT_DEINIT_FUNC_START(logger)
     {
         if (log_fp != NULL) {
@@ -172,7 +175,7 @@ static void logger_set_filter(uint64 *filter, const char *str)
     pos = 0;
 
     while ((cp = string_get_word(str, &pos, ',', word,
-                                 sizeof(word), 0)) != NULL) {
+            sizeof(word), 0)) != NULL) {
         oper = -1;
 
         if (*cp == '-' || *cp == '+') {
@@ -187,8 +190,7 @@ static void logger_set_filter(uint64 *filter, const char *str)
 
             if (oper == 1) {
                 *filter = UINT64_MAX;
-            }
-            else {
+            } else {
                 *filter = 0;
             }
 
@@ -203,11 +205,9 @@ static void logger_set_filter(uint64 *filter, const char *str)
 
         if (oper == -1) {
             *filter ^= 1U << level;
-        }
-        else if (oper == 0) {
+        } else if (oper == 0) {
             *filter &= ~(1U << level);
-        }
-        else if (oper == 1) {
+        } else if (oper == 1) {
             *filter |= 1U << level;
         }
     }
@@ -258,7 +258,7 @@ void logger_do_print(const char *str)
  * @param ... Format arguments.
  */
 void logger_print(logger_level level, const char *function, uint64 line,
-                  const char *format, ...)
+        const char *format, ...)
 {
     char formatted[HUGE_BUF], timebuf[HUGE_BUF], buf[sizeof(formatted) * 2];
     va_list ap;
@@ -274,7 +274,7 @@ void logger_print(logger_level level, const char *function, uint64 line,
 
     /* If the log level is unwanted, bail out. */
     if (!((1U << level) & logger_filter_stdout) &&
-        !((1U << level) & logger_filter_logfile)) {
+            !((1U << level) & logger_filter_logfile)) {
         return;
     }
 
@@ -290,21 +290,20 @@ void logger_print(logger_level level, const char *function, uint64 line,
 
         strftime(VS(timebuf2), "%H:%M:%S", tm);
         snprintf(VS(timebuf), "[%s.%06"FMT64U "] ", timebuf2,
-                 (uint64) tv.tv_usec);
-    }
-    else {
+                (uint64) tv.tv_usec);
+    } else {
         timebuf[0] = '\0';
     }
 
     if ((1U << level) & logger_filter_stdout) {
         snprintf(
-            VS(buf),
-            LOGGER_ESC_SEQ_BOLD "%s" LOGGER_ESC_SEQ_END
-            LOGGER_ESC_SEQ_RED "%-6s" LOGGER_ESC_SEQ_END " "
-            LOGGER_ESC_SEQ_CYAN "[%s:%"FMT64U "]" LOGGER_ESC_SEQ_END " "
-            LOGGER_ESC_SEQ_YELLOW "%s" LOGGER_ESC_SEQ_END "\n",
-            timebuf, logger_names[level], function, line, formatted
-        );
+                VS(buf),
+                LOGGER_ESC_SEQ_BOLD "%s" LOGGER_ESC_SEQ_END
+                LOGGER_ESC_SEQ_RED "%-6s" LOGGER_ESC_SEQ_END " "
+                LOGGER_ESC_SEQ_CYAN "[%s:%"FMT64U "]" LOGGER_ESC_SEQ_END " "
+                LOGGER_ESC_SEQ_YELLOW "%s" LOGGER_ESC_SEQ_END "\n",
+                timebuf, logger_names[level], function, line, formatted
+                );
         print_func(buf);
     }
 

@@ -415,7 +415,7 @@ arch skel_mage
 type 83
 level 20
 spawn_time 19:00 - 7:00
-Wis 2
+wis 2
 arch ability_firestorm
 end
 arch ability_mbullet
@@ -665,7 +665,7 @@ y 10
 arch skel_mage
 level 19
 spawn_time 19:00 - 7:00
-Wis 4
+wis 4
 type 83
 arch ability_firestorm
 end
@@ -909,7 +909,7 @@ y 8
 arch skel_mage
 level 20
 spawn_time 19:00 - 7:00
-Wis 5
+wis 5
 type 83
 arch ability_icestorm
 end
@@ -1310,7 +1310,7 @@ arch skel_fighter1
 type 83
 level 19
 spawn_time 19:00 - 7:00
-Wis 5
+wis 5
 end
 end
 arch floor_earth1d
@@ -1348,7 +1348,7 @@ arch skel_fighter3
 type 83
 level 17
 spawn_time 19:00 - 7:00
-Wis 5
+wis 5
 end
 end
 arch floor_earth1d
@@ -1960,7 +1960,7 @@ arch skel_fighter2
 type 83
 level 18
 spawn_time 19:00 - 7:00
-Wis 5
+wis 5
 end
 end
 arch floor_earth1c
@@ -2122,7 +2122,7 @@ arch skel_fighter3
 type 83
 level 18
 spawn_time 19:00 - 7:00
-Wis 5
+wis 5
 end
 end
 arch floor_earth1d
@@ -2152,7 +2152,7 @@ arch skel_mage
 type 83
 level 19
 spawn_time 19:00 - 7:00
-Wis 5
+wis 5
 arch ability_firestorm
 end
 arch ability_mbullet
@@ -2415,7 +2415,7 @@ arch skel_mage
 type 83
 level 21
 spawn_time 19:00 - 7:00
-Wis 5
+wis 5
 arch ability_mbullet
 end
 arch ability_icestorm

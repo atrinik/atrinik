@@ -1,26 +1,26 @@
-/************************************************************************
-*            Atrinik, a Multiplayer Online Role Playing Game            *
-*                                                                       *
-*    Copyright (C) 2009-2012 Alex Tokar and Atrinik Development Team    *
-*                                                                       *
-* Fork from Crossfire (Multiplayer game for X-windows).                 *
-*                                                                       *
-* This program is free software; you can redistribute it and/or modify  *
-* it under the terms of the GNU General Public License as published by  *
-* the Free Software Foundation; either version 2 of the License, or     *
-* (at your option) any later version.                                   *
-*                                                                       *
-* This program is distributed in the hope that it will be useful,       *
-* but WITHOUT ANY WARRANTY; without even the implied warranty of        *
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
-* GNU General Public License for more details.                          *
-*                                                                       *
-* You should have received a copy of the GNU General Public License     *
-* along with this program; if not, write to the Free Software           *
-* Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.             *
-*                                                                       *
-* The author can be reached at admin@atrinik.org                        *
-************************************************************************/
+/*************************************************************************
+ *           Atrinik, a Multiplayer Online Role Playing Game             *
+ *                                                                       *
+ *   Copyright (C) 2009-2014 Alex Tokar and Atrinik Development Team     *
+ *                                                                       *
+ * Fork from Crossfire (Multiplayer game for X-windows).                 *
+ *                                                                       *
+ * This program is free software; you can redistribute it and/or modify  *
+ * it under the terms of the GNU General Public License as published by  *
+ * the Free Software Foundation; either version 2 of the License, or     *
+ * (at your option) any later version.                                   *
+ *                                                                       *
+ * This program is distributed in the hope that it will be useful,       *
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of        *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
+ * GNU General Public License for more details.                          *
+ *                                                                       *
+ * You should have received a copy of the GNU General Public License     *
+ * along with this program; if not, write to the Free Software           *
+ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.             *
+ *                                                                       *
+ * The author can be reached at admin@atrinik.org                        *
+ ************************************************************************/
 
 /**
  * @file
@@ -90,11 +90,6 @@ static int popup_draw_func(popup_struct *popup)
 static int popup_draw_post_func(popup_struct *popup)
 {
     scrollbar_show(&scrollbar, ScreenSurface, popup->x + BOOK_SCROLLBAR_STARTX, popup->y + BOOK_SCROLLBAR_STARTY);
-
-    if (book_help_history_enabled) {
-        button_tooltip(&popup->button_left.button, FONT_ARIAL10, "Go back");
-    }
-
     surface_show(ScreenSurface, popup->x, popup->y, NULL, TEXTURE_CLIENT("book_border"));
 
     return 1;
@@ -120,8 +115,7 @@ static int popup_button_event_func(popup_button *button)
             help_show(*p);
             utarray_erase(book_help_history, pos, 2);
         }
-    }
-    else {
+    } else {
         utarray_clear(book_help_history);
         help_show("main");
     }
@@ -136,33 +130,35 @@ static int popup_event_func(popup_struct *popup, SDL_Event *event)
         return 1;
     }
 
+    if (book_help_history_enabled &&
+            BUTTON_CHECK_TOOLTIP(&popup->button_left.button)) {
+        tooltip_create(event->motion.x, event->motion.y, FONT_ARIAL11,
+                "Go back");
+        tooltip_enable_delay(300);
+    }
+
     /* Mouse event and the mouse is inside the book. */
     if (event->type == SDL_MOUSEBUTTONDOWN && event->motion.x >= popup->x && event->motion.x < popup->x + popup->surface->w && event->motion.y >= popup->y && event->motion.y < popup->y + popup->surface->h) {
         /* Scroll the book. */
         if (event->button.button == SDL_BUTTON_WHEELDOWN) {
             scrollbar_scroll_adjust(&scrollbar, 1);
             return 1;
-        }
-        else if (event->button.button == SDL_BUTTON_WHEELUP) {
+        } else if (event->button.button == SDL_BUTTON_WHEELUP) {
             scrollbar_scroll_adjust(&scrollbar, -1);
             return 1;
         }
-    }
-    else if (event->type == SDL_KEYDOWN) {
+    } else if (event->type == SDL_KEYDOWN) {
         /* Scrolling. */
         if (event->key.keysym.sym == SDLK_DOWN) {
             scrollbar_scroll_adjust(&scrollbar, 1);
             return 1;
-        }
-        else if (event->key.keysym.sym == SDLK_UP) {
+        } else if (event->key.keysym.sym == SDLK_UP) {
             scrollbar_scroll_adjust(&scrollbar, -1);
             return 1;
-        }
-        else if (event->key.keysym.sym == SDLK_PAGEDOWN) {
+        } else if (event->key.keysym.sym == SDLK_PAGEDOWN) {
             scrollbar_scroll_adjust(&scrollbar, book_scroll_lines);
             return 1;
-        }
-        else if (event->key.keysym.sym == SDLK_PAGEUP) {
+        } else if (event->key.keysym.sym == SDLK_PAGEUP) {
             scrollbar_scroll_adjust(&scrollbar, -book_scroll_lines);
             return 1;
         }

@@ -2,7 +2,7 @@
 #*************************************************************************
 #*            Atrinik, a Multiplayer Online Role Playing Game            *
 #*                                                                       *
-#*    Copyright (C) 2009-2012 Alex Tokar and Atrinik Development Team    *
+#*    Copyright (C) 2009-2014 Alex Tokar and Atrinik Development Team    *
 #*                                                                       *
 #* Fork from Crossfire (Multiplayer game for X-windows).                 *
 #*                                                                       *
@@ -170,13 +170,14 @@ def _make_precond(parent, npc):
                 elif attr == "options":
                     code += "GetOptions() == " + repr(elem.attrib["options"])
                 elif attr == "enemy":
-                    code += "self._npc.enemy"
-
                     if elem.attrib["enemy"]:
-                        code += " == "
+                        code += "self._npc.enemy"
 
-                        if elem.attrib["enemy"] == "player":
-                            code += "self._activator"
+                        if elem.attrib["enemy"] != "any":
+                            code += " == "
+
+                            if elem.attrib["enemy"] == "player":
+                                code += "self._activator"
                 elif attr == "num2finish":
                     code += "self.num2finish == " + elem.attrib[attr]
                 elif attr in ("started", "finished", "completed"):
@@ -252,7 +253,7 @@ def _make_interface(file, parent, npcs):
 
         if inherit == None:
             interface_inherit = "InterfaceBuilder"
-        elif inherit == "":
+        elif inherit == "interface":
             interface_inherit = "InterfaceDialog"
         elif inherit.find(".") != -1:
             interface_inherit = inherit[inherit.find(".") + 1:]
@@ -322,6 +323,7 @@ def _make_interface(file, parent, npcs):
 
             title = dialog.get("title")
             icon = dialog.get("icon")
+            animation = dialog.get("animation")
 
             if title:
                 class_code += " " * 4 * 2 + "self.set_title({})\n".format(repr(title))
@@ -330,6 +332,11 @@ def _make_interface(file, parent, npcs):
                 class_code += " " * 4 * 2 + "self.set_icon(self._activator.arch.clone.face[0])\n"
             elif icon:
                 class_code += " " * 4 * 2 + "self.set_icon({})\n".format(repr(icon))
+
+            if animation == "player":
+                class_code += " " * 4 * 2 + "self.set_anim(self._activator.animation[1], self._activator.anim_speed, self._activator.direction)\n"
+            elif animation:
+                class_code += " " * 4 * 2 + "self.set_anim({})\n".format(repr(animation))
 
             closed = False
 
@@ -406,7 +413,12 @@ def _make_interface(file, parent, npcs):
                         if attr == "region_map":
                             class_code += " " * 4 * 2 + "self._activator.Controller().region_maps.append(\"{}\")\n".format(val)
                         elif attr == "enemy":
-                            class_code += " " * 4 * 2 + "self._npc.enemy = {}\n".format("self._activator" if val == "player" else "None")
+                            if val == "player":
+                                enemy = "self._activator"
+                            elif val == "clear":
+                                enemy = "None"
+
+                            class_code += " " * 4 * 2 + "self._npc.enemy = {}\n".format(enemy)
                         elif attr == "teleport":
                             match = re.match("([^ ]+)\s*(\d+)?\s*(\d+)?", val)
 
@@ -673,24 +685,30 @@ def file_copy(file, output):
 
     fp.close()
 
-# Get paths to directories inside the root directory.
-for path in find_files(paths["root"], rec = False, ignore_dirs = False, ignore_files = True):
-    paths[os.path.basename(path)] = path
+def main():
+    # Get paths to directories inside the root directory.
+    for path in find_files(paths["root"], rec = False, ignore_dirs = False, ignore_files = True):
+        paths[os.path.basename(path)] = path
 
-if not "collect_none" in what_collect:
-    # Nothing was set to collect, so by default we'll collect everything.
-    if not what_collect:
-        for entry in dict(locals()):
-            if entry.startswith("collect_"):
-                what_collect.append(entry)
+    if not "collect_none" in what_collect:
+        # Nothing was set to collect, so by default we'll collect everything.
+        if not what_collect:
+            for entry in dict(globals()):
+                if entry.startswith("collect_"):
+                    what_collect.append(entry)
 
-    # Call the collecting functions.
-    for collect in what_collect:
-        locals()[collect]()
+        # Call the collecting functions.
+        for collect in what_collect:
+            print("Collecting {0}...".format(collect.split("_")[-1]))
+            globals()[collect]()
 
-# Copy all files in the arch directory to specified directory.
-if copy_dest:
-    files = find_files(paths["arch"], rec = False)
+    # Copy all files in the arch directory to specified directory.
+    if copy_dest:
+        files = find_files(paths["arch"], rec = False)
 
-    for path in files:
-        shutil.copyfile(path, os.path.join(copy_dest, os.path.basename(path)))
+        for path in files:
+            shutil.copyfile(path, os.path.join(copy_dest, os.path.basename(path)))
+
+print("Starting resource collection...")
+main()
+print("Done!")

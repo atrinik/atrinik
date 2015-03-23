@@ -1,0 +1,220 @@
+arch map
+name The Underground City II
+msg
+Created:  2009-09-10 Alex Tokar
+Modified: 2010-04-12 Alex Tokar
+endmsg
+width 24
+height 24
+difficulty 50
+darkness 2
+bg_music thonkdonk.ogg
+region underground_city_a
+end
+arch floor_cave6
+x 17
+end
+arch fwall_flagstone2a
+x 17
+end
+arch floor_cave1
+x 17
+y 1
+end
+arch fwall_flagstone2a
+x 17
+y 1
+end
+arch floor_cave5
+x 17
+y 2
+end
+arch fwall_flagstone2a
+x 17
+y 2
+end
+arch plant1_wall.151
+direction 7
+x 17
+y 2
+end
+arch floor_cave5
+x 17
+y 3
+end
+arch fwall_flagstone2a
+x 17
+y 3
+end
+arch floor_cave5
+x 17
+y 4
+end
+arch fwall_flagstone2a
+x 17
+y 4
+end
+arch floor_cave2
+x 18
+end
+arch dirt_floor4
+x 18
+end
+arch floor_cave5
+x 18
+y 1
+end
+arch torch_wall_1
+direction 7
+x 18
+y 1
+end
+arch floor_cave5
+x 18
+y 2
+end
+arch floor_cave6
+x 18
+y 3
+end
+arch floor_cave5
+x 18
+y 4
+end
+arch fwall_flagstone2a
+x 18
+y 4
+end
+arch floor_cave6
+x 19
+end
+arch floor_cave1
+x 19
+y 1
+end
+arch floor_cave6
+x 19
+y 2
+end
+arch floor_cave2
+x 19
+y 3
+end
+arch floor_cave2
+x 19
+y 4
+end
+arch fwall_flagstone2a
+x 19
+y 4
+end
+arch floor_cave2
+x 20
+end
+arch floor_cave6
+x 20
+y 1
+end
+arch floor_cave2
+x 20
+y 2
+end
+arch dirt_floor1
+x 20
+y 2
+end
+arch floor_cave5
+x 20
+y 3
+end
+arch floor_cave2
+x 20
+y 4
+end
+arch fwall_flagstone2a
+x 20
+y 4
+end
+arch floor_cave6
+x 21
+end
+arch floor_cave1
+x 21
+y 1
+end
+arch floor_cave5
+x 21
+y 2
+end
+arch floor_cave6
+x 21
+y 3
+end
+arch floor_cave6
+x 21
+y 4
+end
+arch fwall_flagstone2a
+x 21
+y 4
+end
+arch floor_cave1
+x 22
+end
+arch fwall_flagstone2a
+x 22
+end
+arch floor_cave1
+x 22
+y 1
+end
+arch torch_wall_1
+x 22
+y 1
+end
+arch floor_cave1
+x 22
+y 2
+end
+arch floor_cave2
+x 22
+y 3
+end
+arch floor_cave2
+x 22
+y 4
+end
+arch fwall_flagstone2a
+x 22
+y 4
+end
+arch floor_cave6
+x 23
+end
+arch fwall_flagstone2a
+x 23
+end
+arch floor_cave1
+x 23
+y 1
+end
+arch blood_floor1
+x 23
+y 1
+end
+arch floor_cave5
+x 23
+y 2
+end
+arch floor_cave2
+x 23
+y 3
+end
+arch floor_cave2
+x 23
+y 4
+end
+arch fwall_flagstone2a
+x 23
+y 4
+end

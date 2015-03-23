@@ -4,13 +4,13 @@
         <dialog name="hello">
             <message>Greetings adventurer. I'm {npc.name}, the captain of this outpost.</message>
             <message>Well, not really much of an outpost to be honest. We're here guarding this tunnel that connects Brynknot and Aris.</message>
-            <response message="Why is there no bridge?" destination="bridge" />
+            <response destination="bridge" message="Why is there no bridge?"/>
         </dialog>
         <dialog name="bridge">
             <message>We first tried building a bridge further east, but we have been unsuccessful because of the swift current. We didn't get much progress done, apart from some unstable foundation, which we have been unable to finish.</message>
             <message>If you're agile enough I suppose you could try using the foundation platforms to get from one side to the other. However, be careful, the current often gets stronger than usual, and it could catch you unaware and send you drowning into the river!</message>
             <message>So instead we built a tunnel here, after determining that the current is too swift even here.</message>
-            <response message="How safe is the tunnel?" destination="safe" />
+            <response destination="safe" message="How safe is the tunnel?"/>
         </dialog>
         <dialog name="safe">
             <message>Very safe! We are closely guarding it so no monsters can pass or take the tunnel as their own. Of course, there's the issue of some spider infestation. No one has seen the spiders so we've been unable to get rid of them, but the cobwebs just keep appearing after we remove them!</message>

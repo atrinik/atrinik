@@ -1,26 +1,26 @@
-/************************************************************************
-*            Atrinik, a Multiplayer Online Role Playing Game            *
-*                                                                       *
-*    Copyright (C) 2009-2012 Alex Tokar and Atrinik Development Team    *
-*                                                                       *
-* Fork from Crossfire (Multiplayer game for X-windows).                 *
-*                                                                       *
-* This program is free software; you can redistribute it and/or modify  *
-* it under the terms of the GNU General Public License as published by  *
-* the Free Software Foundation; either version 2 of the License, or     *
-* (at your option) any later version.                                   *
-*                                                                       *
-* This program is distributed in the hope that it will be useful,       *
-* but WITHOUT ANY WARRANTY; without even the implied warranty of        *
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
-* GNU General Public License for more details.                          *
-*                                                                       *
-* You should have received a copy of the GNU General Public License     *
-* along with this program; if not, write to the Free Software           *
-* Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.             *
-*                                                                       *
-* The author can be reached at admin@atrinik.org                        *
-************************************************************************/
+/*************************************************************************
+ *           Atrinik, a Multiplayer Online Role Playing Game             *
+ *                                                                       *
+ *   Copyright (C) 2009-2014 Alex Tokar and Atrinik Development Team     *
+ *                                                                       *
+ * Fork from Crossfire (Multiplayer game for X-windows).                 *
+ *                                                                       *
+ * This program is free software; you can redistribute it and/or modify  *
+ * it under the terms of the GNU General Public License as published by  *
+ * the Free Software Foundation; either version 2 of the License, or     *
+ * (at your option) any later version.                                   *
+ *                                                                       *
+ * This program is distributed in the hope that it will be useful,       *
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of        *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
+ * GNU General Public License for more details.                          *
+ *                                                                       *
+ * You should have received a copy of the GNU General Public License     *
+ * along with this program; if not, write to the Free Software           *
+ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.             *
+ *                                                                       *
+ * The author can be reached at admin@atrinik.org                        *
+ ************************************************************************/
 
 /**
  * @file
@@ -32,8 +32,7 @@
 
 /**
  * FPS widget data. */
-typedef struct widget_fps_struct
-{
+typedef struct widget_fps_struct {
     /**
      * Last time the FPS was calculated. */
     uint32 lasttime;
@@ -43,8 +42,18 @@ typedef struct widget_fps_struct
     uint32 current;
 
     /**
-     * Number of frames drawn since last calculation. */
+     * Real number of frames rendered in the last second.
+     */
+    uint32 current_real;
+
+    /**
+     * Number of main loop iterations since last calculation. */
     uint32 frames;
+
+    /**
+     * Real number of frames drawn since last calculation.
+     */
+    uint32 frames_real;
 } widget_fps_struct;
 
 /** @copydoc widgetdata::draw_func */
@@ -52,33 +61,38 @@ static void widget_draw(widgetdata *widget)
 {
     widget_fps_struct *tmp;
 
+    if (!widget->redraw) {
+        return;
+    }
+
     tmp = widget->subwidget;
 
-    if (widget->redraw) {
-        char buf[MAX_BUF];
-
-        snprintf(buf, sizeof(buf), "%d", tmp->current);
-        text_show(widget->surface, FONT_ARIAL11, "fps:", 5, 4, COLOR_WHITE, 0, NULL);
-        text_show(widget->surface, FONT_ARIAL11, buf, widget->w - 5 - text_get_width(FONT_ARIAL11, buf, 0), 4, COLOR_WHITE, 0, NULL);
-    }
+    text_show_format(widget->surface, FONT_ARIAL11, 4, 4, COLOR_WHITE, 0, NULL,
+            "%d (%d)", tmp->current, tmp->current_real);
 }
 
 /** @copydoc widgetdata::background_func */
-static void widget_background(widgetdata *widget)
+static void widget_background(widgetdata *widget, int draw)
 {
     widget_fps_struct *tmp;
+    uint32 ticks;
 
     tmp = widget->subwidget;
     tmp->frames++;
+    tmp->frames_real += draw;
+    ticks = SDL_GetTicks();
 
-    if (tmp->lasttime < SDL_GetTicks() - 1000) {
-        if (tmp->current != tmp->frames) {
+    if (tmp->lasttime < ticks - 1000) {
+        if (tmp->current != tmp->frames ||
+                tmp->current_real != tmp->frames_real) {
             widget->redraw = 1;
         }
 
-        tmp->lasttime = SDL_GetTicks();
+        tmp->lasttime = ticks;
         tmp->current = tmp->frames;
+        tmp->current_real = tmp->frames_real;
         tmp->frames = 0;
+        tmp->frames_real = 0;
     }
 }
 

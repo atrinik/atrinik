@@ -23,6 +23,6 @@ wc 200
 wc_range 20
 dam 5
 flying 1
-Dex 30
-Con 50
+dex 30
+con 50
 end

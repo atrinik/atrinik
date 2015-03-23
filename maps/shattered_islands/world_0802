@@ -517,7 +517,7 @@ y 15
 end
 arch client_map_info
 msg
-[font=serif.ttf 14]Clearhaven[/font]
+[font=serif 14]Clearhaven[/font]
 endmsg
 name clearhaven
 sub_type 1

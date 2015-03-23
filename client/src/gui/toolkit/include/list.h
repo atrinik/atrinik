@@ -1,26 +1,26 @@
-/************************************************************************
-*            Atrinik, a Multiplayer Online Role Playing Game            *
-*                                                                       *
-*    Copyright (C) 2009-2012 Alex Tokar and Atrinik Development Team    *
-*                                                                       *
-* Fork from Crossfire (Multiplayer game for X-windows).                 *
-*                                                                       *
-* This program is free software; you can redistribute it and/or modify  *
-* it under the terms of the GNU General Public License as published by  *
-* the Free Software Foundation; either version 2 of the License, or     *
-* (at your option) any later version.                                   *
-*                                                                       *
-* This program is distributed in the hope that it will be useful,       *
-* but WITHOUT ANY WARRANTY; without even the implied warranty of        *
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
-* GNU General Public License for more details.                          *
-*                                                                       *
-* You should have received a copy of the GNU General Public License     *
-* along with this program; if not, write to the Free Software           *
-* Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.             *
-*                                                                       *
-* The author can be reached at admin@atrinik.org                        *
-************************************************************************/
+/*************************************************************************
+ *           Atrinik, a Multiplayer Online Role Playing Game             *
+ *                                                                       *
+ *   Copyright (C) 2009-2014 Alex Tokar and Atrinik Development Team     *
+ *                                                                       *
+ * Fork from Crossfire (Multiplayer game for X-windows).                 *
+ *                                                                       *
+ * This program is free software; you can redistribute it and/or modify  *
+ * it under the terms of the GNU General Public License as published by  *
+ * the Free Software Foundation; either version 2 of the License, or     *
+ * (at your option) any later version.                                   *
+ *                                                                       *
+ * This program is distributed in the hope that it will be useful,       *
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of        *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
+ * GNU General Public License for more details.                          *
+ *                                                                       *
+ * You should have received a copy of the GNU General Public License     *
+ * along with this program; if not, write to the Free Software           *
+ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.             *
+ *                                                                       *
+ * The author can be reached at admin@atrinik.org                        *
+ ************************************************************************/
 
 /**
  * @file
@@ -30,8 +30,7 @@
 #define LIST_H
 
 /** One list. */
-typedef struct list_struct
-{
+typedef struct list_struct {
     /** X position of the list. */
     int x;
 
@@ -124,7 +123,7 @@ typedef struct list_struct
     scrollbar_struct scrollbar;
 
     /** Font used, one of @ref FONT_xxx. Default is @ref FONT_SANS10. */
-    int font;
+    font_struct *font;
 
     /** Surface used to draw the list on. */
     SDL_Surface *surface;
@@ -212,7 +211,7 @@ typedef struct list_struct
 } list_struct;
 
 /** Calculate list's row height. */
-#define LIST_ROW_HEIGHT(list) (((list)->font != -1 ? FONT_HEIGHT((list)->font) : 0) + (list)->row_height_adjust)
+#define LIST_ROW_HEIGHT(list) (((list)->font != NULL ? FONT_HEIGHT((list)->font) : 0) + (list)->row_height_adjust)
 /** Figure out Y position where rows should actually start. */
 #define LIST_ROWS_START(list) ((list)->y + (list)->header_height + (list)->spacing + (list)->frame_offset)
 /** Figure out maximum visible rows. */

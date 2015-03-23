@@ -1,26 +1,26 @@
-/************************************************************************
-*            Atrinik, a Multiplayer Online Role Playing Game            *
-*                                                                       *
-*    Copyright (C) 2009-2012 Alex Tokar and Atrinik Development Team    *
-*                                                                       *
-* Fork from Crossfire (Multiplayer game for X-windows).                 *
-*                                                                       *
-* This program is free software; you can redistribute it and/or modify  *
-* it under the terms of the GNU General Public License as published by  *
-* the Free Software Foundation; either version 2 of the License, or     *
-* (at your option) any later version.                                   *
-*                                                                       *
-* This program is distributed in the hope that it will be useful,       *
-* but WITHOUT ANY WARRANTY; without even the implied warranty of        *
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
-* GNU General Public License for more details.                          *
-*                                                                       *
-* You should have received a copy of the GNU General Public License     *
-* along with this program; if not, write to the Free Software           *
-* Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.             *
-*                                                                       *
-* The author can be reached at admin@atrinik.org                        *
-************************************************************************/
+/*************************************************************************
+ *           Atrinik, a Multiplayer Online Role Playing Game             *
+ *                                                                       *
+ *   Copyright (C) 2009-2014 Alex Tokar and Atrinik Development Team     *
+ *                                                                       *
+ * Fork from Crossfire (Multiplayer game for X-windows).                 *
+ *                                                                       *
+ * This program is free software; you can redistribute it and/or modify  *
+ * it under the terms of the GNU General Public License as published by  *
+ * the Free Software Foundation; either version 2 of the License, or     *
+ * (at your option) any later version.                                   *
+ *                                                                       *
+ * This program is distributed in the hope that it will be useful,       *
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of        *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
+ * GNU General Public License for more details.                          *
+ *                                                                       *
+ * You should have received a copy of the GNU General Public License     *
+ * along with this program; if not, write to the Free Software           *
+ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.             *
+ *                                                                       *
+ * The author can be reached at admin@atrinik.org                        *
+ ************************************************************************/
 
 /**
  * @file
@@ -47,11 +47,10 @@ static int **wm_face_colors;
 #define MAX_PIXELS 3
 
 /** Region. */
-typedef struct wm_region
-{
+typedef struct wm_region {
+
     /** Maps in the region. */
-    struct
-    {
+    struct {
         /** The map. */
         mapstruct *m;
 
@@ -109,7 +108,7 @@ static void wm_images_init(void)
 
         im2 = gdImageCreateTrueColor(im->sx, im->sy);
         gdImageCopyResized(im2, im, 0, 0, 0, 0, im2->sx, im2->sy, im->sx,
-                           im->sy);
+                im->sy);
 
         wm_face_colors[i] = ecalloc(1, sizeof(**wm_face_colors) * 5);
 
@@ -134,8 +133,8 @@ static void wm_images_init(void)
             b /= total;
             wm_face_colors[i][0] = gdImageColorResolve(im2, r, g, b);
             wm_face_colors[i][1] = gdImageColorResolve(im2, MIN(r + 10, 255),
-                                                            MIN(g + 10, 255),
-                                                            MIN(b + 10, 255));
+                    MIN(g + 10, 255),
+                    MIN(b + 10, 255));
             wm_face_colors[i][2] = r;
             wm_face_colors[i][3] = g;
             wm_face_colors[i][4] = b;
@@ -156,13 +155,19 @@ static void wm_images_init(void)
  */
 static int render_object(gdImagePtr im, int x, int y, object *ob)
 {
+    object *head, *tmp;
+    int i, color, r, g, b, num, j, start, max, k, mx, my, z, num_z;
+    mapstruct *m;
+
     /* Sanity check. */
-    if (!ob) {
+    if (ob == NULL) {
         return 0;
     }
 
-    /* No need to do this for tail parts. */
-    if (ob->head) {
+    head = HEAD(ob);
+
+    /* Do not render system objects. */
+    if (QUERY_FLAG(head, FLAG_SYS_OBJECT)) {
         return 0;
     }
 
@@ -176,51 +181,136 @@ static int render_object(gdImagePtr im, int x, int y, object *ob)
      * - signs
      * - misc objects blocking passage (rocks, trees, etc)
      */
-    if (ob->layer == LAYER_FLOOR ||
-        ob->type == WALL ||
-        ob->type == DOOR ||
-        ob->type == EXIT ||
-        ob->type == SHOP_MAT ||
-        ob->type == HOLY_ALTAR ||
-        ob->type == SIGN ||
-        (ob->type == MISC_OBJECT && QUERY_FLAG(ob, FLAG_NO_PASS))) {
-        int px, py, j = 0, max, color;
+    if (head->layer != LAYER_FLOOR &&
+            (head->type != WALL || QUERY_FLAG(head, FLAG_DRAW_DIRECTION)) &&
+            head->type != DOOR &&
+            head->type != EXIT &&
+            head->type != HOLY_ALTAR &&
+            head->type != SIGN &&
+            (head->type != MISC_OBJECT || !QUERY_FLAG(head, FLAG_NO_PASS))) {
+        return 0;
+    }
 
-        max = MAX_PIXELS;
-
-        /* Adjust the maximum position if this is a multi-arch object. */
-        if (ob->quick_pos) {
-            max *= ((ob->quick_pos >> 4) + 1) / 2;
-        }
-
-        /* Draw the pixels. */
-        for (px = 0; px < max; px++) {
-            for (py = 0; py < max; py++) {
-                /* Do shading based on the floor's z. */
-                if (ob->type == FLOOR && ob->z) {
-                    color = gdImageColorResolve(
-                        im,
-                        MAX(0, wm_face_colors[ob->face->number][2] - ob->z /
-                            2.5),
-                        MAX(0, wm_face_colors[ob->face->number][3] - ob->z /
-                            2.5),
-                        MAX(0, wm_face_colors[ob->face->number][4] - ob->z /
-                            2.5)
-                    );
-                }
-                else {
-                    color = wm_face_colors[ob->face->number][0];
-                }
-
-                gdImageSetPixel(im, x + px, y + py, color);
-                j++;
-            }
-        }
-
+    /* No image, so we don't want to render anything, and only check whether
+     * the object is renderable. */
+    if (im == NULL) {
         return 1;
     }
 
-    return 0;
+    for (i = 0; i <= SIZEOFFREE1; i++) {
+        color = wm_face_colors[head->face->number][0];
+        r = wm_face_colors[head->face->number][2];
+        g = wm_face_colors[head->face->number][3];
+        b = wm_face_colors[head->face->number][4];
+        z = 0;
+        num = 1;
+        num_z = 0;
+
+        if (i > 0) {
+            start = i - ((i - 1) % 2);
+            max = i + ((i - 1) % 2);
+
+            /* Try to look for objects on adjacent tiles for a smoother
+             * color transition. */
+            for (j = start; j <= max; j++) {
+                k = (((j + SIZEOFFREE1) - 1) % SIZEOFFREE1) + 1;
+
+                mx = ob->x + freearr_x[k];
+                my = ob->y + freearr_y[k];
+
+                m = get_map_from_coord(ob->map, &mx, &my);
+
+                if (m == NULL) {
+                    continue;
+                }
+
+                tmp = GET_MAP_OB_LAYER(m, mx, my, LAYER_WALL, 0);
+
+                if (tmp != NULL && tmp->type == WALL) {
+                    continue;
+                }
+
+                /* Try to find something renderable on the adjacent tile,
+                 * that has the same layer as the object being rendered. */
+                for (tmp = GET_MAP_OB_LAST(m, mx, my); tmp != NULL;
+                            tmp = tmp->below) {
+                    if (tmp->layer == head->layer) {
+                        break;
+                    }
+                }
+
+                if (tmp == NULL) {
+                    /* Didn't find anything on the same layer and sub-layer,
+                     * so try to find anything at all that is renderable. */
+                    for (tmp = GET_MAP_OB_LAST(m, mx, my); tmp != NULL;
+                            tmp = tmp->below) {
+                        if (render_object(NULL, 0, 0, tmp)) {
+                            break;
+                        }
+                    }
+
+                    /* If there's nothing on this tile, increase num for
+                     * a smoother transition to black. */
+                    if (tmp == NULL) {
+                        num++;
+                        continue;
+                    }
+                }
+
+                tmp = HEAD(tmp);
+
+                if (tmp == head) {
+                    continue;
+                }
+
+                if (tmp->type == FLOOR && tmp->z != 0) {
+                    z += tmp->z;
+                    num_z++;
+                }
+
+                r += wm_face_colors[tmp->face->number][2];
+                g += wm_face_colors[tmp->face->number][3];
+                b += wm_face_colors[tmp->face->number][4];
+                num++;
+            }
+        }
+
+        if (num != 1) {
+            r /= num;
+            g /= num;
+            b /= num;
+
+            if (r != wm_face_colors[head->face->number][2] ||
+                    g != wm_face_colors[head->face->number][3] ||
+                    b != wm_face_colors[head->face->number][4]) {
+                color = -1;
+            }
+        }
+
+        if (head->type == FLOOR && head->z != 0) {
+            z += head->z;
+            num_z++;
+        }
+
+        if (num_z != 0) {
+            r -= z / num_z / 2.5;
+            g -= z / num_z / 2.5;
+            b -= z / num_z / 2.5;
+            color = -1;
+        }
+
+        if (color == -1) {
+            r = MAX(0, MIN(255, r));
+            g = MAX(0, MIN(255, g));
+            b = MAX(0, MIN(255, b));
+            color = gdImageColorResolve(im, r, g, b);
+        }
+
+        gdImageSetPixel(im, x + 1 + freearr_x[i], y + 1 + freearr_y[i],
+                color);
+    }
+
+    return 1;
 }
 
 /**
@@ -293,21 +383,21 @@ static void region_add_rec(wm_region *r, mapstruct *m, const char *region_name)
             /* Is the map in region? */
             if (map_in_region(m->tile_map[i], region_name)) {
                 switch (i) {
-                    case 0:
-                        r->ypos -= MAP_HEIGHT(m->tile_map[i]) * MAX_PIXELS;
-                        break;
+                case 0:
+                    r->ypos -= MAP_HEIGHT(m->tile_map[i]) * MAX_PIXELS;
+                    break;
 
-                    case 1:
-                        r->xpos += MAP_WIDTH(m->tile_map[i]) * MAX_PIXELS;
-                        break;
+                case 1:
+                    r->xpos += MAP_WIDTH(m->tile_map[i]) * MAX_PIXELS;
+                    break;
 
-                    case 2:
-                        r->ypos += MAP_HEIGHT(m->tile_map[i]) * MAX_PIXELS;
-                        break;
+                case 2:
+                    r->ypos += MAP_HEIGHT(m->tile_map[i]) * MAX_PIXELS;
+                    break;
 
-                    case 3:
-                        r->xpos -= MAP_WIDTH(m->tile_map[i]) * MAX_PIXELS;
-                        break;
+                case 3:
+                    r->xpos -= MAP_WIDTH(m->tile_map[i]) * MAX_PIXELS;
+                    break;
                 }
 
                 /* Store the lowest x/y positions to do adjustments later. */
@@ -323,21 +413,21 @@ static void region_add_rec(wm_region *r, mapstruct *m, const char *region_name)
                 region_add_rec(r, m->tile_map[i], region_name);
 
                 switch (i) {
-                    case 0:
-                        r->ypos += MAP_HEIGHT(m->tile_map[i]) * MAX_PIXELS;
-                        break;
+                case 0:
+                    r->ypos += MAP_HEIGHT(m->tile_map[i]) * MAX_PIXELS;
+                    break;
 
-                    case 1:
-                        r->xpos -= MAP_WIDTH(m->tile_map[i]) * MAX_PIXELS;
-                        break;
+                case 1:
+                    r->xpos -= MAP_WIDTH(m->tile_map[i]) * MAX_PIXELS;
+                    break;
 
-                    case 2:
-                        r->ypos -= MAP_HEIGHT(m->tile_map[i]) * MAX_PIXELS;
-                        break;
+                case 2:
+                    r->ypos -= MAP_HEIGHT(m->tile_map[i]) * MAX_PIXELS;
+                    break;
 
-                    case 3:
-                        r->xpos += MAP_WIDTH(m->tile_map[i]) * MAX_PIXELS;
-                        break;
+                case 3:
+                    r->xpos += MAP_WIDTH(m->tile_map[i]) * MAX_PIXELS;
+                    break;
                 }
             }
         }
@@ -382,7 +472,7 @@ void world_maker(void)
 
         if (!def_fp) {
             logger_print(LOG(ERROR), "Could not open '%s': %s", buf,
-                         strerror(errno));
+                    strerror(errno));
             exit(1);
         }
 
@@ -422,12 +512,20 @@ void world_maker(void)
             }
 
             /* Store the map path, labels, etc. */
-            fprintf(def_fp, "map %x %x %s\n", wm_r->maps[i].xpos,
-                    wm_r->maps[i].ypos, wm_r->maps[i].m->path);
+            for (m = wm_r->maps[i].m; m != NULL; m = get_map_from_tiled(m,
+                    TILED_UP)) {
+                if (m->region != wm_r->maps[i].m->region) {
+                    break;
+                }
+
+                fprintf(def_fp, "map %x %x %s\n", wm_r->maps[i].xpos,
+                        wm_r->maps[i].ypos, m->path);
+            }
         }
 
         /* Create the image. */
         im = gdImageCreateTrueColor(wm_r->w, wm_r->h);
+        gdImageAlphaBlending(im, 1);
 
         /* Custom background to use? */
         if (r->map_bg) {
@@ -436,12 +534,10 @@ void world_maker(void)
             /* Parse HTML color and fill the image with it. */
             if (sscanf(r->map_bg, "#%2X%2X%2X", &im_r, &im_g, &im_b) == 3) {
                 gdImageFill(im, 0, 0,
-                            gdImageColorAllocate(im, im_r, im_g, im_b));
+                        gdImageColorAllocate(im, im_r, im_g, im_b));
             }
-        }
-        /* Transparency otherwise. */
-        else {
-            gdImageAlphaBlending(im, 1);
+        } else {
+            /* Transparency otherwise. */
             gdImageSaveAlpha(im, 1);
             gdImageFill(im, 0, 0, gdTransparent);
         }
@@ -461,8 +557,8 @@ void world_maker(void)
 
                     /* Look for map info objects. */
                     for (tmp = GET_MAP_OB(m, x, y);
-                         tmp && tmp->layer == LAYER_SYS;
-                         tmp = tmp->above) {
+                            tmp && tmp->layer == LAYER_SYS;
+                            tmp = tmp->above) {
                         if (tmp->type != CLIENT_MAP_INFO) {
                             continue;
                         }
@@ -479,7 +575,7 @@ void world_maker(void)
                             char msg[HUGE_BUF * 4];
 
                             string_replace(tmp->msg, "\n", "\\n", msg,
-                                           sizeof(msg));
+                                    sizeof(msg));
                             FREE_AND_COPY_HASH(tmp->msg, msg);
                         }
 
@@ -493,27 +589,26 @@ void world_maker(void)
                             if (QUERY_FLAG(tmp, FLAG_CURSED)) {
                                 fprintf(def_fp, "label_hide\n");
                             }
-                        }
-                        else {
+                        } else {
                             info_objects = erealloc(
-                                info_objects,
-                                sizeof(*info_objects) * (num_info_objects + 1)
-                            );
+                                    info_objects,
+                                    sizeof(*info_objects) * (num_info_objects + 1)
+                                    );
                             info_objects[num_info_objects] = tmp;
                             num_info_objects++;
                         }
                     }
 
                     for (layer = LAYER_FLOOR;
-                         layer <= LAYER_FMASK;
-                         layer++) {
+                            layer <= LAYER_FMASK;
+                            layer++) {
                         for (sub_layer = 0;
-                             sub_layer < NUM_SUB_LAYERS;
-                             sub_layer++) {
+                                sub_layer < NUM_SUB_LAYERS;
+                                sub_layer++) {
                             if (render_object(
                                     im, xpos, ypos,
                                     GET_MAP_OB_LAYER(m, x, y, layer, sub_layer)
-                                )) {
+                                    )) {
                                 got_one = 1;
                             }
                         }
@@ -522,11 +617,11 @@ void world_maker(void)
                     /* Didn't get an object, fill this square with black. */
                     if (!got_one) {
                         gdImageFilledRectangle(
-                            im, xpos, ypos,
-                            xpos + MAX_PIXELS - 1,
-                            ypos + MAX_PIXELS - 1,
-                            gdImageColorAllocate(im, 0, 0, 0)
-                        );
+                                im, xpos, ypos,
+                                xpos + MAX_PIXELS - 1,
+                                ypos + MAX_PIXELS - 1,
+                                gdImageColorAllocate(im, 0, 0, 0)
+                                );
                     }
                 }
             }
@@ -538,15 +633,15 @@ void world_maker(void)
                     ypos = y * MAX_PIXELS + wm_r->maps[i].ypos;
 
                     for (layer = LAYER_ITEM;
-                         layer < NUM_LAYERS;
-                         layer++) {
+                            layer <= NUM_LAYERS;
+                            layer++) {
                         for (sub_layer = 0;
-                             sub_layer < NUM_SUB_LAYERS;
-                             sub_layer++) {
+                                sub_layer < NUM_SUB_LAYERS;
+                                sub_layer++) {
                             render_object(
-                                im, xpos, ypos,
-                                GET_MAP_OB_LAYER(m, x, y, layer, sub_layer)
-                            );
+                                    im, xpos, ypos,
+                                    GET_MAP_OB_LAYER(m, x, y, layer, sub_layer)
+                                    );
                         }
                     }
                 }
@@ -575,22 +670,22 @@ void world_maker(void)
             /* Hiding part of the map. */
             if (tmp->sub_type == CLIENT_MAP_HIDE) {
                 gdImageFilledRectangle(
-                    im, xpos, ypos,
-                    MIN(xpos + ((tmp->path_attuned + 1) * MAX_PIXELS),
+                        im, xpos, ypos,
+                        MIN(xpos + ((tmp->path_attuned + 1) * MAX_PIXELS),
                         (uint32) wm_r->w),
-                    MIN(ypos + ((tmp->path_repelled + 1) * MAX_PIXELS),
+                        MIN(ypos + ((tmp->path_repelled + 1) * MAX_PIXELS),
                         (uint32) wm_r->h),
-                    gdImageColorAllocate(im, 0, 0, 0)
-                );
+                        gdImageColorAllocate(im, 0, 0, 0)
+                        );
             }
 
             /* Tooltip. */
             if (tmp->msg && tmp->sub_type == CLIENT_MAP_TOOLTIP) {
                 /* Tooltip with automatic width/height detection? */
                 if (!tmp->path_attuned &&
-                    !tmp->path_repelled &&
-                    !tmp->item_level &&
-                    QUERY_FLAG(tmp, FLAG_STAND_STILL)) {
+                        !tmp->path_repelled &&
+                        !tmp->item_level &&
+                        QUERY_FLAG(tmp, FLAG_STAND_STILL)) {
                     for (j = 0; j < num_info_objects; j++) {
                         rv_vector rv;
 
@@ -608,7 +703,7 @@ void world_maker(void)
                         /* Get range vector from the master info object to this
                          * one. */
                         if (!get_rangevector(tmp, info_objects[j], &rv,
-                                             RV_RECURSIVE_SEARCH)) {
+                                RV_RECURSIVE_SEARCH)) {
                             continue;
                         }
 
@@ -631,12 +726,12 @@ void world_maker(void)
                         MAX(0, xpos - ((tmp->item_level) * MAX_PIXELS)),
                         MAX(0, ypos - ((tmp->item_level) * MAX_PIXELS)),
                         MIN(xpos + ((tmp->item_level * 2) * MAX_PIXELS +
-                            MAX_PIXELS) + (tmp->path_attuned * MAX_PIXELS),
-                            (uint32) wm_r->w
+                        MAX_PIXELS) + (tmp->path_attuned * MAX_PIXELS),
+                        (uint32) wm_r->w
                         ) - xpos,
                         MIN(ypos + ((tmp->item_level * 2) * MAX_PIXELS +
-                            MAX_PIXELS) + (tmp->path_repelled * MAX_PIXELS),
-                            (uint32) wm_r->h
+                        MAX_PIXELS) + (tmp->path_repelled * MAX_PIXELS),
+                        (uint32) wm_r->h
                         ) - ypos,
                         tmp->name, tmp->msg);
 
@@ -647,10 +742,9 @@ void world_maker(void)
                     /* Store outline's color, if any. */
                     if (tmp->slaying) {
                         fprintf(def_fp, " %s", tmp->slaying);
-                    }
-                    /* No outline color, but there is non-standard size,
-                     * so we must include the default color as well. */
-                    else if (tmp->item_skill != 1) {
+                    } else if (tmp->item_skill != 1) {
+                        /* No outline color, but there is non-standard size,
+                         * so we must include the default color as well. */
                         fprintf(def_fp, " #ff0000");
                     }
 
@@ -682,7 +776,7 @@ void world_maker(void)
 
         if (out == NULL) {
             logger_print(LOG(ERROR), "Could not open '%s': %s", buf,
-                         strerror(errno));
+                    strerror(errno));
             exit(1);
         }
 

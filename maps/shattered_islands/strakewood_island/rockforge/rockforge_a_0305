@@ -14,14 +14,12 @@ tile_path_7 rockforge_a_0204
 region rockforge
 end
 arch blocked
-blocksview 0
 x 1
 end
 arch wall_marble1.181
 x 1
 end
 arch blocked
-blocksview 0
 x 1
 y 1
 end
@@ -30,7 +28,6 @@ x 1
 y 1
 end
 arch blocked
-blocksview 0
 x 1
 y 2
 end
@@ -39,7 +36,6 @@ x 1
 y 2
 end
 arch blocked
-blocksview 0
 x 1
 y 3
 end
@@ -48,7 +44,6 @@ x 1
 y 3
 end
 arch blocked
-blocksview 0
 x 1
 y 4
 end
@@ -57,7 +52,6 @@ x 1
 y 4
 end
 arch blocked
-blocksview 0
 x 1
 y 5
 end
@@ -66,7 +60,6 @@ x 1
 y 5
 end
 arch blocked
-blocksview 0
 x 1
 y 6
 end
@@ -75,7 +68,6 @@ x 1
 y 6
 end
 arch blocked
-blocksview 0
 x 1
 y 7
 end
@@ -84,7 +76,6 @@ x 1
 y 7
 end
 arch blocked
-blocksview 0
 x 1
 y 8
 end
@@ -93,7 +84,6 @@ x 1
 y 8
 end
 arch blocked
-blocksview 0
 x 1
 y 9
 end
@@ -102,7 +92,6 @@ x 1
 y 9
 end
 arch blocked
-blocksview 0
 x 1
 y 10
 end
@@ -111,7 +100,6 @@ x 1
 y 10
 end
 arch blocked
-blocksview 0
 x 1
 y 11
 end
@@ -120,7 +108,6 @@ x 1
 y 11
 end
 arch blocked
-blocksview 0
 x 1
 y 12
 end
@@ -129,7 +116,6 @@ x 1
 y 12
 end
 arch blocked
-blocksview 0
 x 1
 y 13
 end
@@ -138,7 +124,6 @@ x 1
 y 13
 end
 arch blocked
-blocksview 0
 x 1
 y 14
 end
@@ -147,7 +132,6 @@ x 1
 y 14
 end
 arch blocked
-blocksview 0
 x 1
 y 15
 end
@@ -156,7 +140,6 @@ x 1
 y 15
 end
 arch blocked
-blocksview 0
 x 1
 y 16
 end
@@ -165,7 +148,6 @@ x 1
 y 16
 end
 arch blocked
-blocksview 0
 x 1
 y 17
 end
@@ -174,7 +156,6 @@ x 1
 y 17
 end
 arch blocked
-blocksview 0
 x 1
 y 18
 end
@@ -183,7 +164,6 @@ x 1
 y 18
 end
 arch blocked
-blocksview 0
 x 1
 y 19
 end
@@ -192,7 +172,6 @@ x 1
 y 19
 end
 arch blocked
-blocksview 0
 x 1
 y 20
 end
@@ -201,7 +180,6 @@ x 1
 y 20
 end
 arch blocked
-blocksview 0
 x 1
 y 21
 end
@@ -210,7 +188,6 @@ x 1
 y 21
 end
 arch blocked
-blocksview 0
 x 2
 end
 arch wall_marble1.131
@@ -406,7 +383,6 @@ x 2
 y 21
 end
 arch blocked
-blocksview 0
 x 3
 end
 arch wall_marble1.131a
@@ -593,7 +569,6 @@ x 3
 y 21
 end
 arch blocked
-blocksview 0
 x 4
 end
 arch wall_marble1.131a
@@ -768,7 +743,6 @@ x 4
 y 21
 end
 arch blocked
-blocksview 0
 x 5
 end
 arch wall_marble1.131a
@@ -931,7 +905,6 @@ x 5
 y 21
 end
 arch blocked
-blocksview 0
 x 6
 end
 arch wall_marble1.131
@@ -1078,7 +1051,6 @@ x 6
 y 21
 end
 arch blocked
-blocksview 0
 x 7
 end
 arch wall_marble1.131a
@@ -1229,7 +1201,6 @@ x 7
 y 21
 end
 arch blocked
-blocksview 0
 x 8
 end
 arch wall_marble1.131
@@ -1382,7 +1353,6 @@ x 8
 y 21
 end
 arch blocked
-blocksview 0
 x 9
 end
 arch wall_marble1.131
@@ -1515,7 +1485,6 @@ x 9
 y 21
 end
 arch blocked
-blocksview 0
 x 10
 end
 arch wall_marble1.131
@@ -1680,7 +1649,6 @@ x 10
 y 23
 end
 arch blocked
-blocksview 0
 x 11
 end
 arch wall_marble1.131
@@ -1867,7 +1835,6 @@ x 11
 y 23
 end
 arch blocked
-blocksview 0
 x 12
 end
 arch wall_marble1.131
@@ -2016,7 +1983,6 @@ x 12
 y 23
 end
 arch blocked
-blocksview 0
 x 13
 end
 arch wall_marble1.131
@@ -2186,7 +2152,6 @@ x 13
 y 23
 end
 arch blocked
-blocksview 0
 x 14
 end
 arch wall_marble1.131
@@ -2343,7 +2308,6 @@ x 14
 y 23
 end
 arch blocked
-blocksview 0
 x 15
 end
 arch wall_marble1.131
@@ -2512,7 +2476,6 @@ x 15
 y 23
 end
 arch blocked
-blocksview 0
 x 16
 end
 arch wall_marble1.131
@@ -2653,7 +2616,6 @@ x 16
 y 21
 end
 arch blocked
-blocksview 0
 x 17
 end
 arch wall_marble1.131
@@ -2810,7 +2772,6 @@ x 17
 y 21
 end
 arch blocked
-blocksview 0
 x 18
 end
 arch wall_marble1.131
@@ -2967,7 +2928,6 @@ x 18
 y 21
 end
 arch blocked
-blocksview 0
 x 19
 end
 arch wall_marble1.131
@@ -3136,7 +3096,6 @@ x 19
 y 21
 end
 arch blocked
-blocksview 0
 x 20
 end
 arch wall_marble1.131
@@ -3309,7 +3268,6 @@ x 20
 y 21
 end
 arch blocked
-blocksview 0
 x 21
 end
 arch wall_marble1.131
@@ -3482,7 +3440,6 @@ x 21
 y 21
 end
 arch blocked
-blocksview 0
 x 22
 end
 arch wall_marble1.131
@@ -3639,7 +3596,6 @@ x 22
 y 21
 end
 arch blocked
-blocksview 0
 x 23
 end
 arch wall_marble1.131

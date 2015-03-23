@@ -19,6 +19,7 @@ tile_path_7 world_ac12
 tile_path_8 world_ac14
 bg_music lontala.mid
 region brynknot
+tile_path_9 world_1_ab13
 end
 arch water_lt4
 end

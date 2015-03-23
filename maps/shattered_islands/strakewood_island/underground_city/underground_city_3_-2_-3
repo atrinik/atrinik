@@ -1,0 +1,3356 @@
+arch map
+name The Underground City IV
+msg
+Created:  2010-06-05 Alex Tokar
+Modified: 2011-09-30 Alex Tokar
+endmsg
+width 24
+height 24
+difficulty 105
+darkness 1
+bg_music thonkdonk.ogg
+region underground_city_c
+end
+arch floor_lava_3
+glow_radius 3
+terrain_type 1
+end
+arch fwall_lava1e
+end
+arch floor_lava_4
+glow_radius 3
+terrain_type 1
+y 1
+end
+arch damager
+name lava
+dam 10000
+speed 1.0
+attack_internal 100
+slow_move 1
+exp 2
+y 1
+end
+arch floor_lava_3
+glow_radius 3
+terrain_type 1
+y 2
+end
+arch damager
+name lava
+dam 10000
+speed 1.0
+attack_internal 100
+slow_move 1
+exp 2
+y 2
+end
+arch floor_lava_3
+glow_radius 3
+terrain_type 1
+y 3
+end
+arch damager
+name lava
+dam 10000
+speed 1.0
+attack_internal 100
+slow_move 1
+exp 2
+y 3
+end
+arch floor_lava_4
+glow_radius 3
+terrain_type 1
+y 4
+end
+arch damager
+name lava
+dam 10000
+speed 1.0
+attack_internal 100
+slow_move 1
+exp 2
+y 4
+end
+arch floor_lava_3
+glow_radius 3
+terrain_type 1
+y 5
+end
+arch border_lava_se2
+y 5
+end
+arch damager
+name lava's heat
+dam 20
+attack_internal 100
+y 5
+end
+arch floor_lava_3
+glow_radius 3
+terrain_type 1
+y 6
+end
+arch border_lava_e1
+y 6
+end
+arch damager
+name lava's heat
+dam 20
+attack_internal 100
+y 6
+end
+arch floor_lava_4
+glow_radius 3
+terrain_type 1
+y 7
+end
+arch border_lava_ne21
+y 7
+end
+arch damager
+name lava's heat
+dam 20
+attack_internal 100
+y 7
+end
+arch floor_lava_4
+glow_radius 3
+terrain_type 1
+y 8
+end
+arch damager
+name lava
+dam 10000
+speed 1.0
+attack_internal 100
+slow_move 1
+exp 2
+y 8
+end
+arch floor_lava_3
+glow_radius 3
+terrain_type 1
+y 9
+end
+arch border_lava_s1
+y 9
+end
+arch damager
+name lava's heat
+dam 20
+attack_internal 100
+y 9
+end
+arch floor_volcano_2
+y 10
+end
+arch floor_volcano_3
+y 11
+end
+arch floor_lava_3
+glow_radius 3
+terrain_type 1
+y 12
+end
+arch border_lava_n1
+y 12
+end
+arch damager
+name lava's heat
+dam 20
+attack_internal 100
+y 12
+end
+arch floor_lava_4
+glow_radius 3
+terrain_type 1
+y 13
+end
+arch damager
+name lava
+dam 10000
+speed 1.0
+attack_internal 100
+slow_move 1
+exp 2
+y 13
+end
+arch floor_lava_3
+glow_radius 3
+terrain_type 1
+y 14
+end
+arch damager
+name lava
+dam 10000
+speed 1.0
+attack_internal 100
+slow_move 1
+exp 2
+y 14
+end
+arch floor_lava_4
+glow_radius 3
+terrain_type 1
+y 15
+end
+arch border_lava_se2
+y 15
+end
+arch damager
+name lava's heat
+dam 20
+attack_internal 100
+y 15
+end
+arch floor_lava_3
+glow_radius 3
+terrain_type 1
+y 16
+end
+arch border_lava_e1
+y 16
+end
+arch damager
+name lava's heat
+dam 20
+attack_internal 100
+y 16
+end
+arch floor_lava_4
+glow_radius 3
+terrain_type 1
+y 17
+end
+arch border_lava_ne21
+y 17
+end
+arch damager
+name lava's heat
+dam 20
+attack_internal 100
+y 17
+end
+arch floor_lava_3
+glow_radius 3
+terrain_type 1
+y 18
+end
+arch damager
+name lava
+dam 10000
+speed 1.0
+attack_internal 100
+slow_move 1
+exp 2
+y 18
+end
+arch floor_lava_3
+glow_radius 3
+terrain_type 1
+y 19
+end
+arch damager
+name lava
+dam 10000
+speed 1.0
+attack_internal 100
+slow_move 1
+exp 2
+y 19
+end
+arch floor_lava_3
+glow_radius 3
+terrain_type 1
+y 20
+end
+arch damager
+name lava
+dam 10000
+speed 1.0
+attack_internal 100
+slow_move 1
+exp 2
+y 20
+end
+arch floor_lava_3
+glow_radius 3
+terrain_type 1
+y 21
+end
+arch damager
+name lava
+dam 10000
+speed 1.0
+attack_internal 100
+slow_move 1
+exp 2
+y 21
+end
+arch floor_lava_3
+glow_radius 3
+terrain_type 1
+y 22
+end
+arch damager
+name lava
+dam 10000
+speed 1.0
+attack_internal 100
+slow_move 1
+exp 2
+y 22
+end
+arch floor_lava_3
+glow_radius 3
+terrain_type 1
+y 23
+end
+arch damager
+name lava
+dam 10000
+speed 1.0
+attack_internal 100
+slow_move 1
+exp 2
+y 23
+end
+arch floor_lava_4
+glow_radius 3
+terrain_type 1
+x 1
+end
+arch fwall_lava1e
+x 1
+end
+arch floor_lava_3
+glow_radius 3
+terrain_type 1
+x 1
+y 1
+end
+arch damager
+name lava
+dam 10000
+speed 1.0
+attack_internal 100
+slow_move 1
+exp 2
+x 1
+y 1
+end
+arch floor_lava_3
+glow_radius 3
+terrain_type 1
+x 1
+y 2
+end
+arch damager
+name lava
+dam 10000
+speed 1.0
+attack_internal 100
+slow_move 1
+exp 2
+x 1
+y 2
+end
+arch floor_lava_3
+glow_radius 3
+terrain_type 1
+x 1
+y 3
+end
+arch damager
+name lava
+dam 10000
+speed 1.0
+attack_internal 100
+slow_move 1
+exp 2
+x 1
+y 3
+end
+arch floor_lava_4
+glow_radius 3
+terrain_type 1
+x 1
+y 4
+end
+arch damager
+name lava
+dam 10000
+speed 1.0
+attack_internal 100
+slow_move 1
+exp 2
+x 1
+y 4
+end
+arch floor_lava_3
+glow_radius 3
+terrain_type 1
+x 1
+y 5
+end
+arch border_lava_s1
+x 1
+y 5
+end
+arch damager
+name lava's heat
+dam 20
+attack_internal 100
+x 1
+y 5
+end
+arch floor_volcano_3
+x 1
+y 6
+end
+arch cave_pillar4
+x 1
+y 6
+end
+arch floor_lava_4
+glow_radius 3
+terrain_type 1
+x 1
+y 7
+end
+arch border_lava_n1
+x 1
+y 7
+end
+arch damager
+name lava's heat
+dam 20
+attack_internal 100
+x 1
+y 7
+end
+arch floor_lava_4
+glow_radius 3
+terrain_type 1
+x 1
+y 8
+end
+arch damager
+name lava
+dam 10000
+speed 1.0
+attack_internal 100
+slow_move 1
+exp 2
+x 1
+y 8
+end
+arch floor_lava_3
+glow_radius 3
+terrain_type 1
+x 1
+y 9
+end
+arch border_lava_s1
+x 1
+y 9
+end
+arch damager
+name lava's heat
+dam 20
+attack_internal 100
+x 1
+y 9
+end
+arch floor_volcano_4
+x 1
+y 10
+end
+arch floor_volcano_4
+x 1
+y 11
+end
+arch bone_broken
+x 1
+y 11
+end
+arch floor_lava_4
+glow_radius 3
+terrain_type 1
+x 1
+y 12
+end
+arch border_lava_ne1
+x 1
+y 12
+end
+arch damager
+name lava's heat
+dam 20
+attack_internal 100
+x 1
+y 12
+end
+arch floor_lava_4
+glow_radius 3
+terrain_type 1
+x 1
+y 13
+end
+arch border_lava_ne21
+x 1
+y 13
+end
+arch damager
+name lava's heat
+dam 20
+attack_internal 100
+x 1
+y 13
+end
+arch floor_lava_4
+glow_radius 3
+terrain_type 1
+x 1
+y 14
+end
+arch damager
+name lava
+dam 10000
+speed 1.0
+attack_internal 100
+slow_move 1
+exp 2
+x 1
+y 14
+end
+arch floor_lava_4
+glow_radius 3
+terrain_type 1
+x 1
+y 15
+end
+arch border_lava_s1
+x 1
+y 15
+end
+arch damager
+name lava's heat
+dam 20
+attack_internal 100
+x 1
+y 15
+end
+arch spawn_point
+x 1
+y 15
+arch demon_fire
+name balrog
+randomitems mob_balrog
+level 112
+exp 142
+wc 4
+ac 10
+con 5
+attack_cleave 20
+attack_fire 80
+can_cast_spell 1
+sp -1
+maxsp 30
+pow 10
+dex 2
+wis 4
+type 83
+arch ability_firestorm
+sp 38
+hp 38
+end
+arch ability_firestorm
+end
+end
+end
+arch floor_volcano_4
+x 1
+y 16
+end
+arch cave_pillar5
+x 1
+y 16
+end
+arch floor_lava_3
+glow_radius 3
+terrain_type 1
+x 1
+y 17
+end
+arch border_lava_n1
+x 1
+y 17
+end
+arch damager
+name lava's heat
+dam 20
+attack_internal 100
+x 1
+y 17
+end
+arch floor_lava_3
+glow_radius 3
+terrain_type 1
+x 1
+y 18
+end
+arch damager
+name lava
+dam 10000
+speed 1.0
+attack_internal 100
+slow_move 1
+exp 2
+x 1
+y 18
+end
+arch floor_lava_4
+glow_radius 3
+terrain_type 1
+x 1
+y 19
+end
+arch damager
+name lava
+dam 10000
+speed 1.0
+attack_internal 100
+slow_move 1
+exp 2
+x 1
+y 19
+end
+arch floor_lava_4
+glow_radius 3
+terrain_type 1
+x 1
+y 20
+end
+arch border_lava_se2
+x 1
+y 20
+end
+arch damager
+name lava's heat
+dam 20
+attack_internal 100
+x 1
+y 20
+end
+arch floor_lava_4
+glow_radius 3
+terrain_type 1
+x 1
+y 21
+end
+arch border_lava_e1
+x 1
+y 21
+end
+arch damager
+name lava's heat
+dam 20
+attack_internal 100
+x 1
+y 21
+end
+arch floor_lava_3
+glow_radius 3
+terrain_type 1
+x 1
+y 22
+end
+arch border_lava_ne21
+x 1
+y 22
+end
+arch damager
+name lava's heat
+dam 20
+attack_internal 100
+x 1
+y 22
+end
+arch floor_lava_3
+glow_radius 3
+terrain_type 1
+x 1
+y 23
+end
+arch damager
+name lava
+dam 10000
+speed 1.0
+attack_internal 100
+slow_move 1
+exp 2
+x 1
+y 23
+end
+arch floor_lava_3
+glow_radius 3
+terrain_type 1
+x 2
+end
+arch fwall_lava1f
+x 2
+end
+arch floor_lava_3
+glow_radius 3
+terrain_type 1
+x 2
+y 1
+end
+arch damager
+name lava
+dam 10000
+speed 1.0
+attack_internal 100
+slow_move 1
+exp 2
+x 2
+y 1
+end
+arch floor_lava_4
+glow_radius 3
+terrain_type 1
+x 2
+y 2
+end
+arch border_lava_se2
+x 2
+y 2
+end
+arch damager
+name lava's heat
+dam 20
+attack_internal 100
+x 2
+y 2
+end
+arch floor_lava_4
+glow_radius 3
+terrain_type 1
+x 2
+y 3
+end
+arch border_lava_e1
+x 2
+y 3
+end
+arch damager
+name lava's heat
+dam 20
+attack_internal 100
+x 2
+y 3
+end
+arch floor_lava_4
+glow_radius 3
+terrain_type 1
+x 2
+y 4
+end
+arch border_lava_ne21
+x 2
+y 4
+end
+arch damager
+name lava's heat
+dam 20
+attack_internal 100
+x 2
+y 4
+end
+arch floor_lava_3
+glow_radius 3
+terrain_type 1
+x 2
+y 5
+end
+arch border_lava_sw2
+x 2
+y 5
+end
+arch damager
+name lava's heat
+dam 20
+attack_internal 100
+x 2
+y 5
+end
+arch floor_lava_4
+glow_radius 3
+terrain_type 1
+x 2
+y 6
+end
+arch border_lava_w1
+x 2
+y 6
+end
+arch damager
+name lava's heat
+dam 20
+attack_internal 100
+x 2
+y 6
+end
+arch floor_lava_4
+glow_radius 3
+terrain_type 1
+x 2
+y 7
+end
+arch border_lava_nw2
+x 2
+y 7
+end
+arch damager
+name lava's heat
+dam 20
+attack_internal 100
+x 2
+y 7
+end
+arch spawn_point
+x 2
+y 7
+arch demon_fire
+name balrog
+randomitems mob_balrog
+level 111
+exp 162
+wc 4
+ac 10
+con 5
+attack_cleave 20
+attack_fire 80
+can_cast_spell 1
+sp -1
+maxsp 30
+pow 10
+dex 2
+wis 4
+type 83
+arch ability_firestorm
+sp 35
+hp 35
+end
+arch ability_firestorm
+end
+end
+end
+arch floor_lava_3
+glow_radius 3
+terrain_type 1
+x 2
+y 8
+end
+arch damager
+name lava
+dam 10000
+speed 1.0
+attack_internal 100
+slow_move 1
+exp 2
+x 2
+y 8
+end
+arch floor_lava_3
+glow_radius 3
+terrain_type 1
+x 2
+y 9
+end
+arch border_lava_s1
+x 2
+y 9
+end
+arch damager
+name lava's heat
+dam 20
+attack_internal 100
+x 2
+y 9
+end
+arch floor_volcano_1
+x 2
+y 10
+end
+arch floor_volcano_1
+x 2
+y 11
+end
+arch dirt_floor2
+x 2
+y 11
+end
+arch floor_volcano_4
+x 2
+y 12
+end
+arch floor_lava_4
+glow_radius 3
+terrain_type 1
+x 2
+y 13
+end
+arch border_lava_ne1
+x 2
+y 13
+end
+arch damager
+name lava's heat
+dam 20
+attack_internal 100
+x 2
+y 13
+end
+arch floor_lava_4
+glow_radius 3
+terrain_type 1
+x 2
+y 14
+end
+arch border_lava_ne21
+x 2
+y 14
+end
+arch damager
+name lava's heat
+dam 20
+attack_internal 100
+x 2
+y 14
+end
+arch floor_lava_4
+glow_radius 3
+terrain_type 1
+x 2
+y 15
+end
+arch border_lava_sw2
+x 2
+y 15
+end
+arch damager
+name lava's heat
+dam 20
+attack_internal 100
+x 2
+y 15
+end
+arch floor_lava_4
+glow_radius 3
+terrain_type 1
+x 2
+y 16
+end
+arch border_lava_w1
+x 2
+y 16
+end
+arch damager
+name lava's heat
+dam 20
+attack_internal 100
+x 2
+y 16
+end
+arch floor_lava_4
+glow_radius 3
+terrain_type 1
+x 2
+y 17
+end
+arch border_lava_nw2
+x 2
+y 17
+end
+arch damager
+name lava's heat
+dam 20
+attack_internal 100
+x 2
+y 17
+end
+arch floor_lava_3
+glow_radius 3
+terrain_type 1
+x 2
+y 18
+end
+arch damager
+name lava
+dam 10000
+speed 1.0
+attack_internal 100
+slow_move 1
+exp 2
+x 2
+y 18
+end
+arch floor_lava_3
+glow_radius 3
+terrain_type 1
+x 2
+y 19
+end
+arch damager
+name lava
+dam 10000
+speed 1.0
+attack_internal 100
+slow_move 1
+exp 2
+x 2
+y 19
+end
+arch floor_lava_3
+glow_radius 3
+terrain_type 1
+x 2
+y 20
+end
+arch border_lava_s1
+x 2
+y 20
+end
+arch damager
+name lava's heat
+dam 20
+attack_internal 100
+x 2
+y 20
+end
+arch floor_volcano_3
+x 2
+y 21
+end
+arch cave_pillar3
+x 2
+y 21
+end
+arch floor_lava_4
+glow_radius 3
+terrain_type 1
+x 2
+y 22
+end
+arch border_lava_n1
+x 2
+y 22
+end
+arch damager
+name lava's heat
+dam 20
+attack_internal 100
+x 2
+y 22
+end
+arch floor_lava_4
+glow_radius 3
+terrain_type 1
+x 2
+y 23
+end
+arch damager
+name lava
+dam 10000
+speed 1.0
+attack_internal 100
+slow_move 1
+exp 2
+x 2
+y 23
+end
+arch floor_lava_3
+glow_radius 3
+terrain_type 1
+x 3
+end
+arch fwall_lava1e
+x 3
+end
+arch floor_lava_4
+glow_radius 3
+terrain_type 1
+x 3
+y 1
+end
+arch damager
+name lava
+dam 10000
+speed 1.0
+attack_internal 100
+slow_move 1
+exp 2
+x 3
+y 1
+end
+arch floor_lava_4
+glow_radius 3
+terrain_type 1
+x 3
+y 2
+end
+arch border_lava_s1
+x 3
+y 2
+end
+arch damager
+name lava's heat
+dam 20
+attack_internal 100
+x 3
+y 2
+end
+arch floor_volcano_4
+x 3
+y 3
+end
+arch cave_pillar4
+x 3
+y 3
+end
+arch floor_lava_4
+glow_radius 3
+terrain_type 1
+x 3
+y 4
+end
+arch border_lava_n1
+x 3
+y 4
+end
+arch damager
+name lava's heat
+dam 20
+attack_internal 100
+x 3
+y 4
+end
+arch floor_lava_3
+glow_radius 3
+terrain_type 1
+x 3
+y 5
+end
+arch damager
+name lava
+dam 10000
+speed 1.0
+attack_internal 100
+slow_move 1
+exp 2
+x 3
+y 5
+end
+arch floor_lava_4
+glow_radius 3
+terrain_type 1
+x 3
+y 6
+end
+arch damager
+name lava
+dam 10000
+speed 1.0
+attack_internal 100
+slow_move 1
+exp 2
+x 3
+y 6
+end
+arch floor_lava_4
+glow_radius 3
+terrain_type 1
+x 3
+y 7
+end
+arch damager
+name lava
+dam 10000
+speed 1.0
+attack_internal 100
+slow_move 1
+exp 2
+x 3
+y 7
+end
+arch floor_lava_4
+glow_radius 3
+terrain_type 1
+x 3
+y 8
+end
+arch damager
+name lava
+dam 10000
+speed 1.0
+attack_internal 100
+slow_move 1
+exp 2
+x 3
+y 8
+end
+arch floor_lava_3
+glow_radius 3
+terrain_type 1
+x 3
+y 9
+end
+arch border_lava_s1
+x 3
+y 9
+end
+arch damager
+name lava's heat
+dam 20
+attack_internal 100
+x 3
+y 9
+end
+arch floor_volcano_2
+x 3
+y 10
+end
+arch floor_volcano_2
+x 3
+y 11
+end
+arch floor_volcano_3
+x 3
+y 12
+end
+arch floor_volcano_2
+x 3
+y 13
+end
+arch floor_lava_4
+glow_radius 3
+terrain_type 1
+x 3
+y 14
+end
+arch border_lava_ne1
+x 3
+y 14
+end
+arch damager
+name lava's heat
+dam 20
+attack_internal 100
+x 3
+y 14
+end
+arch floor_lava_4
+glow_radius 3
+terrain_type 1
+x 3
+y 15
+end
+arch border_lava_e1
+x 3
+y 15
+end
+arch damager
+name lava's heat
+dam 20
+attack_internal 100
+x 3
+y 15
+end
+arch floor_lava_4
+glow_radius 3
+terrain_type 1
+x 3
+y 16
+end
+arch border_lava_e1
+x 3
+y 16
+end
+arch damager
+name lava's heat
+dam 20
+attack_internal 100
+x 3
+y 16
+end
+arch floor_lava_3
+glow_radius 3
+terrain_type 1
+x 3
+y 17
+end
+arch border_lava_ne21
+x 3
+y 17
+end
+arch damager
+name lava's heat
+dam 20
+attack_internal 100
+x 3
+y 17
+end
+arch floor_lava_3
+glow_radius 3
+terrain_type 1
+x 3
+y 18
+end
+arch damager
+name lava
+dam 10000
+speed 1.0
+attack_internal 100
+slow_move 1
+exp 2
+x 3
+y 18
+end
+arch floor_lava_4
+glow_radius 3
+terrain_type 1
+x 3
+y 19
+end
+arch damager
+name lava
+dam 10000
+speed 1.0
+attack_internal 100
+slow_move 1
+exp 2
+x 3
+y 19
+end
+arch floor_lava_3
+glow_radius 3
+terrain_type 1
+x 3
+y 20
+end
+arch border_lava_sw2
+x 3
+y 20
+end
+arch damager
+name lava's heat
+dam 20
+attack_internal 100
+x 3
+y 20
+end
+arch spawn_point
+x 3
+y 20
+arch demon_fire
+name balrog
+randomitems mob_balrog
+level 113
+exp 172
+wc 4
+ac 10
+con 5
+attack_cleave 20
+attack_fire 80
+can_cast_spell 1
+sp -1
+maxsp 30
+pow 10
+dex 2
+wis 4
+type 83
+arch ability_firestorm
+sp 50
+hp 50
+end
+arch ability_firestorm
+end
+end
+end
+arch floor_lava_3
+glow_radius 3
+terrain_type 1
+x 3
+y 21
+end
+arch border_lava_w1
+x 3
+y 21
+end
+arch damager
+name lava's heat
+dam 20
+attack_internal 100
+x 3
+y 21
+end
+arch floor_lava_4
+glow_radius 3
+terrain_type 1
+x 3
+y 22
+end
+arch border_lava_nw2
+x 3
+y 22
+end
+arch damager
+name lava's heat
+dam 20
+attack_internal 100
+x 3
+y 22
+end
+arch floor_lava_3
+glow_radius 3
+terrain_type 1
+x 3
+y 23
+end
+arch damager
+name lava
+dam 10000
+speed 1.0
+attack_internal 100
+slow_move 1
+exp 2
+x 3
+y 23
+end
+arch floor_lava_4
+glow_radius 3
+terrain_type 1
+x 4
+end
+arch fwall_lava1f
+x 4
+end
+arch floor_lava_4
+glow_radius 3
+terrain_type 1
+x 4
+y 1
+end
+arch damager
+name lava
+dam 10000
+speed 1.0
+attack_internal 100
+slow_move 1
+exp 2
+x 4
+y 1
+end
+arch floor_lava_4
+glow_radius 3
+terrain_type 1
+x 4
+y 2
+end
+arch border_lava_sw2
+x 4
+y 2
+end
+arch damager
+name lava's heat
+dam 20
+attack_internal 100
+x 4
+y 2
+end
+arch floor_lava_4
+glow_radius 3
+terrain_type 1
+x 4
+y 3
+end
+arch border_lava_w1
+x 4
+y 3
+end
+arch damager
+name lava's heat
+dam 20
+attack_internal 100
+x 4
+y 3
+end
+arch floor_lava_4
+glow_radius 3
+terrain_type 1
+x 4
+y 4
+end
+arch border_lava_nw2
+x 4
+y 4
+end
+arch damager
+name lava's heat
+dam 20
+attack_internal 100
+x 4
+y 4
+end
+arch floor_lava_3
+glow_radius 3
+terrain_type 1
+x 4
+y 5
+end
+arch damager
+name lava
+dam 10000
+speed 1.0
+attack_internal 100
+slow_move 1
+exp 2
+x 4
+y 5
+end
+arch floor_lava_3
+glow_radius 3
+terrain_type 1
+x 4
+y 6
+end
+arch damager
+name lava
+dam 10000
+speed 1.0
+attack_internal 100
+slow_move 1
+exp 2
+x 4
+y 6
+end
+arch floor_lava_4
+glow_radius 3
+terrain_type 1
+x 4
+y 7
+end
+arch damager
+name lava
+dam 10000
+speed 1.0
+attack_internal 100
+slow_move 1
+exp 2
+x 4
+y 7
+end
+arch floor_lava_3
+glow_radius 3
+terrain_type 1
+x 4
+y 8
+end
+arch damager
+name lava
+dam 10000
+speed 1.0
+attack_internal 100
+slow_move 1
+exp 2
+x 4
+y 8
+end
+arch floor_lava_3
+glow_radius 3
+terrain_type 1
+x 4
+y 9
+end
+arch border_lava_sw2
+x 4
+y 9
+end
+arch damager
+name lava's heat
+dam 20
+attack_internal 100
+x 4
+y 9
+end
+arch floor_lava_4
+glow_radius 3
+terrain_type 1
+x 4
+y 10
+end
+arch border_lava_sw1
+x 4
+y 10
+end
+arch damager
+name lava's heat
+dam 20
+attack_internal 100
+x 4
+y 10
+end
+arch floor_volcano_3
+x 4
+y 11
+end
+arch floor_volcano_3
+x 4
+y 12
+end
+arch floor_volcano_2
+x 4
+y 13
+end
+arch floor_volcano_4
+x 4
+y 14
+end
+arch dirt_floor2
+x 4
+y 14
+end
+arch floor_volcano_1
+x 4
+y 15
+end
+arch floor_volcano_2
+x 4
+y 16
+end
+arch obstacle_volcano_1
+x 4
+y 16
+end
+arch floor_lava_4
+glow_radius 3
+terrain_type 1
+x 4
+y 17
+end
+arch border_lava_ne1
+x 4
+y 17
+end
+arch damager
+name lava's heat
+dam 20
+attack_internal 100
+x 4
+y 17
+end
+arch floor_lava_4
+glow_radius 3
+terrain_type 1
+x 4
+y 18
+end
+arch border_lava_e1
+x 4
+y 18
+end
+arch damager
+name lava's heat
+dam 20
+attack_internal 100
+x 4
+y 18
+end
+arch floor_lava_3
+glow_radius 3
+terrain_type 1
+x 4
+y 19
+end
+arch border_lava_e1
+x 4
+y 19
+end
+arch damager
+name lava's heat
+dam 20
+attack_internal 100
+x 4
+y 19
+end
+arch floor_lava_4
+glow_radius 3
+terrain_type 1
+x 4
+y 20
+end
+arch border_lava_ne21
+x 4
+y 20
+end
+arch damager
+name lava's heat
+dam 20
+attack_internal 100
+x 4
+y 20
+end
+arch floor_lava_4
+glow_radius 3
+terrain_type 1
+x 4
+y 21
+end
+arch damager
+name lava
+dam 10000
+speed 1.0
+attack_internal 100
+slow_move 1
+exp 2
+x 4
+y 21
+end
+arch floor_lava_3
+glow_radius 3
+terrain_type 1
+x 4
+y 22
+end
+arch damager
+name lava
+dam 10000
+speed 1.0
+attack_internal 100
+slow_move 1
+exp 2
+x 4
+y 22
+end
+arch floor_lava_4
+glow_radius 3
+terrain_type 1
+x 4
+y 23
+end
+arch damager
+name lava
+dam 10000
+speed 1.0
+attack_internal 100
+slow_move 1
+exp 2
+x 4
+y 23
+end
+arch floor_lava_4
+glow_radius 3
+terrain_type 1
+x 5
+end
+arch fwall_lava1e
+x 5
+end
+arch floor_lava_3
+glow_radius 3
+terrain_type 1
+x 5
+y 1
+end
+arch fwall_lava1f
+x 5
+y 1
+end
+arch floor_lava_3
+glow_radius 3
+terrain_type 1
+x 5
+y 2
+end
+arch damager
+name lava
+dam 10000
+speed 1.0
+attack_internal 100
+slow_move 1
+exp 2
+x 5
+y 2
+end
+arch floor_lava_4
+glow_radius 3
+terrain_type 1
+x 5
+y 3
+end
+arch damager
+name lava
+dam 10000
+speed 1.0
+attack_internal 100
+slow_move 1
+exp 2
+x 5
+y 3
+end
+arch floor_lava_3
+glow_radius 3
+terrain_type 1
+x 5
+y 4
+end
+arch damager
+name lava
+dam 10000
+speed 1.0
+attack_internal 100
+slow_move 1
+exp 2
+x 5
+y 4
+end
+arch floor_lava_4
+glow_radius 3
+terrain_type 1
+x 5
+y 5
+end
+arch damager
+name lava
+dam 10000
+speed 1.0
+attack_internal 100
+slow_move 1
+exp 2
+x 5
+y 5
+end
+arch floor_lava_3
+glow_radius 3
+terrain_type 1
+x 5
+y 6
+end
+arch damager
+name lava
+dam 10000
+speed 1.0
+attack_internal 100
+slow_move 1
+exp 2
+x 5
+y 6
+end
+arch floor_lava_3
+glow_radius 3
+terrain_type 1
+x 5
+y 7
+end
+arch damager
+name lava
+dam 10000
+speed 1.0
+attack_internal 100
+slow_move 1
+exp 2
+x 5
+y 7
+end
+arch floor_lava_4
+glow_radius 3
+terrain_type 1
+x 5
+y 8
+end
+arch border_lava_se2
+x 5
+y 8
+end
+arch damager
+name lava's heat
+dam 20
+attack_internal 100
+x 5
+y 8
+end
+arch floor_lava_3
+glow_radius 3
+terrain_type 1
+x 5
+y 9
+end
+arch border_lava_e1
+x 5
+y 9
+end
+arch damager
+name lava's heat
+dam 20
+attack_internal 100
+x 5
+y 9
+end
+arch floor_lava_3
+glow_radius 3
+terrain_type 1
+x 5
+y 10
+end
+arch border_lava_sw2
+x 5
+y 10
+end
+arch border_lava_ne21
+sub_layer 1
+x 5
+y 10
+end
+arch damager
+name lava's heat
+dam 20
+attack_internal 100
+x 5
+y 10
+end
+arch floor_lava_4
+glow_radius 3
+terrain_type 1
+x 5
+y 11
+end
+arch border_lava_sw1
+x 5
+y 11
+end
+arch damager
+name lava's heat
+dam 20
+attack_internal 100
+x 5
+y 11
+end
+arch floor_volcano_1
+x 5
+y 12
+end
+arch floor_volcano_4
+x 5
+y 13
+end
+arch floor_volcano_1
+x 5
+y 14
+end
+arch floor_volcano_2
+x 5
+y 15
+end
+arch floor_volcano_2
+x 5
+y 16
+end
+arch floor_volcano_2
+x 5
+y 17
+end
+arch floor_volcano_2
+x 5
+y 18
+end
+arch floor_volcano_4
+x 5
+y 19
+end
+arch floor_lava_3
+glow_radius 3
+terrain_type 1
+x 5
+y 20
+end
+arch border_lava_ne1
+x 5
+y 20
+end
+arch damager
+name lava's heat
+dam 20
+attack_internal 100
+x 5
+y 20
+end
+arch floor_lava_3
+glow_radius 3
+terrain_type 1
+x 5
+y 21
+end
+arch border_lava_e1
+x 5
+y 21
+end
+arch damager
+name lava's heat
+dam 20
+attack_internal 100
+x 5
+y 21
+end
+arch floor_lava_4
+glow_radius 3
+terrain_type 1
+x 5
+y 22
+end
+arch border_lava_e1
+x 5
+y 22
+end
+arch damager
+name lava's heat
+dam 20
+attack_internal 100
+x 5
+y 22
+end
+arch floor_lava_3
+glow_radius 3
+terrain_type 1
+x 5
+y 23
+end
+arch border_lava_ne21
+x 5
+y 23
+end
+arch damager
+name lava's heat
+dam 20
+attack_internal 100
+x 5
+y 23
+end
+arch floor_lava_3
+glow_radius 3
+terrain_type 1
+x 6
+y 1
+end
+arch fwall_lava1e
+x 6
+y 1
+end
+arch floor_lava_3
+glow_radius 3
+terrain_type 1
+x 6
+y 2
+end
+arch fwall_lava1f
+x 6
+y 2
+end
+arch floor_lava_4
+glow_radius 3
+terrain_type 1
+x 6
+y 3
+end
+arch fwall_lava1e
+x 6
+y 3
+end
+arch floor_lava_3
+glow_radius 3
+terrain_type 1
+x 6
+y 4
+end
+arch fwall_lava1d
+x 6
+y 4
+end
+arch floor_lava_3
+glow_radius 3
+terrain_type 1
+x 6
+y 5
+end
+arch damager
+name lava
+dam 10000
+speed 1.0
+attack_internal 100
+slow_move 1
+exp 2
+x 6
+y 5
+end
+arch floor_lava_4
+glow_radius 3
+terrain_type 1
+x 6
+y 6
+end
+arch damager
+name lava
+dam 10000
+speed 1.0
+attack_internal 100
+slow_move 1
+exp 2
+x 6
+y 6
+end
+arch floor_lava_4
+glow_radius 3
+terrain_type 1
+x 6
+y 7
+end
+arch damager
+name lava
+dam 10000
+speed 1.0
+attack_internal 100
+slow_move 1
+exp 2
+x 6
+y 7
+end
+arch floor_lava_3
+glow_radius 3
+terrain_type 1
+x 6
+y 8
+end
+arch border_lava_s1
+x 6
+y 8
+end
+arch damager
+name lava's heat
+dam 20
+attack_internal 100
+x 6
+y 8
+end
+arch floor_volcano_2
+x 6
+y 9
+end
+arch cave_pillar5
+x 6
+y 9
+end
+arch floor_lava_3
+glow_radius 3
+terrain_type 1
+x 6
+y 10
+end
+arch border_lava_n1
+x 6
+y 10
+end
+arch damager
+name lava's heat
+dam 20
+attack_internal 100
+x 6
+y 10
+end
+arch floor_lava_3
+glow_radius 3
+terrain_type 1
+x 6
+y 11
+end
+arch border_lava_sw2
+x 6
+y 11
+end
+arch damager
+name lava's heat
+dam 20
+attack_internal 100
+x 6
+y 11
+end
+arch floor_lava_4
+glow_radius 3
+terrain_type 1
+x 6
+y 12
+end
+arch border_lava_sw1
+x 6
+y 12
+end
+arch damager
+name lava's heat
+dam 20
+attack_internal 100
+x 6
+y 12
+end
+arch floor_volcano_2
+x 6
+y 13
+end
+arch obstacle_volcano_4
+x 6
+y 13
+end
+arch floor_volcano_2
+x 6
+y 14
+end
+arch floor_volcano_3
+x 6
+y 15
+end
+arch bones1
+x 6
+y 15
+end
+arch floor_volcano_3
+x 6
+y 16
+end
+arch dirt_floor3
+x 6
+y 16
+end
+arch floor_volcano_4
+x 6
+y 17
+end
+arch bone_skull
+x 6
+y 17
+end
+arch floor_volcano_1
+x 6
+y 18
+end
+arch floor_volcano_2
+x 6
+y 19
+end
+arch floor_volcano_3
+x 6
+y 20
+end
+arch floor_volcano_3
+x 6
+y 21
+end
+arch floor_volcano_2
+x 6
+y 22
+end
+arch obstacle_volcano_3
+x 6
+y 22
+end
+arch floor_lava_4
+glow_radius 3
+terrain_type 1
+x 6
+y 23
+end
+arch border_lava_ne1
+x 6
+y 23
+end
+arch damager
+name lava's heat
+dam 20
+attack_internal 100
+x 6
+y 23
+end
+arch floor_lava_4
+glow_radius 3
+terrain_type 1
+x 7
+y 4
+end
+arch fwall_lava1d
+x 7
+y 4
+end
+arch floor_lava_3
+glow_radius 3
+terrain_type 1
+x 7
+y 5
+end
+arch fwall_lava1e
+x 7
+y 5
+end
+arch floor_lava_3
+glow_radius 3
+terrain_type 1
+x 7
+y 6
+end
+arch fwall_lava1f
+x 7
+y 6
+end
+arch floor_lava_4
+glow_radius 3
+terrain_type 1
+x 7
+y 7
+end
+arch fwall_lava1d
+x 7
+y 7
+end
+arch floor_lava_3
+glow_radius 3
+terrain_type 1
+x 7
+y 8
+end
+arch border_lava_sw2
+x 7
+y 8
+end
+arch damager
+name lava's heat
+dam 20
+attack_internal 100
+x 7
+y 8
+end
+arch floor_lava_4
+glow_radius 3
+terrain_type 1
+x 7
+y 9
+end
+arch border_lava_w1
+x 7
+y 9
+end
+arch damager
+name lava's heat
+dam 20
+attack_internal 100
+x 7
+y 9
+end
+arch floor_lava_3
+glow_radius 3
+terrain_type 1
+x 7
+y 10
+end
+arch border_lava_nw2
+x 7
+y 10
+end
+arch damager
+name lava's heat
+dam 20
+attack_internal 100
+x 7
+y 10
+end
+arch floor_lava_3
+glow_radius 3
+terrain_type 1
+x 7
+y 11
+end
+arch damager
+name lava
+dam 10000
+speed 1.0
+attack_internal 100
+slow_move 1
+exp 2
+x 7
+y 11
+end
+arch spawn_point
+x 7
+y 11
+arch demon_fire
+name balrog
+randomitems mob_balrog
+level 112
+exp 137
+wc 4
+ac 10
+con 5
+attack_cleave 20
+attack_fire 80
+can_cast_spell 1
+sp -1
+maxsp 30
+pow 10
+dex 2
+wis 4
+type 83
+arch ability_firestorm
+sp 47
+hp 47
+end
+arch ability_firestorm
+end
+end
+end
+arch floor_lava_4
+glow_radius 3
+terrain_type 1
+x 7
+y 12
+end
+arch border_lava_sw2
+x 7
+y 12
+end
+arch damager
+name lava's heat
+dam 20
+attack_internal 100
+x 7
+y 12
+end
+arch floor_lava_4
+glow_radius 3
+terrain_type 1
+x 7
+y 13
+end
+arch border_lava_w1
+x 7
+y 13
+end
+arch damager
+name lava's heat
+dam 20
+attack_internal 100
+x 7
+y 13
+end
+arch floor_lava_4
+glow_radius 3
+terrain_type 1
+x 7
+y 14
+end
+arch border_lava_w1
+x 7
+y 14
+end
+arch damager
+name lava's heat
+dam 20
+attack_internal 100
+x 7
+y 14
+end
+arch floor_lava_3
+glow_radius 3
+terrain_type 1
+x 7
+y 15
+end
+arch border_lava_sw1
+x 7
+y 15
+end
+arch damager
+name lava's heat
+dam 20
+attack_internal 100
+x 7
+y 15
+end
+arch floor_volcano_4
+x 7
+y 16
+end
+arch floor_volcano_3
+x 7
+y 17
+end
+arch floor_volcano_3
+x 7
+y 18
+end
+arch floor_volcano_2
+x 7
+y 19
+end
+arch dirt_floor2
+x 7
+y 19
+end
+arch floor_volcano_1
+x 7
+y 20
+end
+arch floor_volcano_3
+x 7
+y 21
+end
+arch bones1
+x 7
+y 21
+end
+arch floor_volcano_2
+x 7
+y 22
+end
+arch floor_volcano_4
+x 7
+y 23
+end
+arch floor_lava_4
+glow_radius 3
+terrain_type 1
+x 8
+y 7
+end
+arch fwall_lava1d
+x 8
+y 7
+end
+arch floor_lava_3
+glow_radius 3
+terrain_type 1
+x 8
+y 8
+end
+arch fwall_lava1d
+x 8
+y 8
+end
+arch floor_lava_3
+glow_radius 3
+terrain_type 1
+x 8
+y 9
+end
+arch fwall_lava1d
+x 8
+y 9
+end
+arch floor_lava_4
+glow_radius 3
+terrain_type 1
+x 8
+y 10
+end
+arch damager
+name lava
+dam 10000
+speed 1.0
+attack_internal 100
+slow_move 1
+exp 2
+x 8
+y 10
+end
+arch floor_lava_4
+glow_radius 3
+terrain_type 1
+x 8
+y 11
+end
+arch damager
+name lava
+dam 10000
+speed 1.0
+attack_internal 100
+slow_move 1
+exp 2
+x 8
+y 11
+end
+arch floor_lava_4
+glow_radius 3
+terrain_type 1
+x 8
+y 12
+end
+arch damager
+name lava
+dam 10000
+speed 1.0
+attack_internal 100
+slow_move 1
+exp 2
+x 8
+y 12
+end
+arch floor_lava_3
+glow_radius 3
+terrain_type 1
+x 8
+y 13
+end
+arch damager
+name lava
+dam 10000
+speed 1.0
+attack_internal 100
+slow_move 1
+exp 2
+x 8
+y 13
+end
+arch floor_lava_3
+glow_radius 3
+terrain_type 1
+x 8
+y 14
+end
+arch damager
+name lava
+dam 10000
+speed 1.0
+attack_internal 100
+slow_move 1
+exp 2
+x 8
+y 14
+end
+arch floor_lava_4
+glow_radius 3
+terrain_type 1
+x 8
+y 15
+end
+arch border_lava_sw2
+x 8
+y 15
+end
+arch damager
+name lava's heat
+dam 20
+attack_internal 100
+x 8
+y 15
+end
+arch floor_lava_3
+glow_radius 3
+terrain_type 1
+x 8
+y 16
+end
+arch border_lava_w1
+x 8
+y 16
+end
+arch damager
+name lava's heat
+dam 20
+attack_internal 100
+x 8
+y 16
+end
+arch floor_lava_4
+glow_radius 3
+terrain_type 1
+x 8
+y 17
+end
+arch border_lava_w1
+x 8
+y 17
+end
+arch damager
+name lava's heat
+dam 20
+attack_internal 100
+x 8
+y 17
+end
+arch floor_lava_3
+glow_radius 3
+terrain_type 1
+x 8
+y 18
+end
+arch border_lava_sw1
+x 8
+y 18
+end
+arch damager
+name lava's heat
+dam 20
+attack_internal 100
+x 8
+y 18
+end
+arch floor_volcano_1
+x 8
+y 19
+end
+arch floor_volcano_2
+x 8
+y 20
+end
+arch floor_volcano_3
+x 8
+y 21
+end
+arch floor_volcano_3
+x 8
+y 22
+end
+arch dirt_floor2
+x 8
+y 22
+end
+arch floor_volcano_4
+x 8
+y 23
+end
+arch floor_lava_3
+glow_radius 3
+terrain_type 1
+x 9
+y 9
+end
+arch fwall_lava1d
+x 9
+y 9
+end
+arch floor_lava_3
+glow_radius 3
+terrain_type 1
+x 9
+y 10
+end
+arch fwall_lava1d
+x 9
+y 10
+end
+arch floor_lava_4
+glow_radius 3
+terrain_type 1
+x 9
+y 11
+end
+arch fwall_lava1f
+x 9
+y 11
+end
+arch floor_lava_3
+glow_radius 3
+terrain_type 1
+x 9
+y 12
+end
+arch fwall_lava1f
+x 9
+y 12
+end
+arch floor_lava_4
+glow_radius 3
+terrain_type 1
+x 9
+y 13
+end
+arch damager
+name lava
+dam 10000
+speed 1.0
+attack_internal 100
+slow_move 1
+exp 2
+x 9
+y 13
+end
+arch floor_lava_4
+glow_radius 3
+terrain_type 1
+x 9
+y 14
+end
+arch damager
+name lava
+dam 10000
+speed 1.0
+attack_internal 100
+slow_move 1
+exp 2
+x 9
+y 14
+end
+arch floor_lava_3
+glow_radius 3
+terrain_type 1
+x 9
+y 15
+end
+arch damager
+name lava
+dam 10000
+speed 1.0
+attack_internal 100
+slow_move 1
+exp 2
+x 9
+y 15
+end
+arch spawn_point
+x 9
+y 15
+arch demon_fire
+name balrog
+randomitems mob_balrog
+level 113
+exp 172
+wc 4
+ac 10
+con 5
+attack_cleave 20
+attack_fire 80
+can_cast_spell 1
+sp -1
+maxsp 30
+pow 10
+dex 2
+wis 4
+type 83
+arch ability_firestorm
+sp 50
+hp 50
+end
+arch ability_firestorm
+end
+end
+end
+arch floor_lava_3
+glow_radius 3
+terrain_type 1
+x 9
+y 16
+end
+arch damager
+name lava
+dam 10000
+speed 1.0
+attack_internal 100
+slow_move 1
+exp 2
+x 9
+y 16
+end
+arch floor_lava_3
+glow_radius 3
+terrain_type 1
+x 9
+y 17
+end
+arch damager
+name lava
+dam 10000
+speed 1.0
+attack_internal 100
+slow_move 1
+exp 2
+x 9
+y 17
+end
+arch floor_lava_3
+glow_radius 3
+terrain_type 1
+x 9
+y 18
+end
+arch border_lava_sw2
+x 9
+y 18
+end
+arch damager
+name lava's heat
+dam 20
+attack_internal 100
+x 9
+y 18
+end
+arch floor_lava_3
+glow_radius 3
+terrain_type 1
+x 9
+y 19
+end
+arch border_lava_w1
+x 9
+y 19
+end
+arch damager
+name lava's heat
+dam 20
+attack_internal 100
+x 9
+y 19
+end
+arch floor_lava_4
+glow_radius 3
+terrain_type 1
+x 9
+y 20
+end
+arch border_lava_w1
+x 9
+y 20
+end
+arch damager
+name lava's heat
+dam 20
+attack_internal 100
+x 9
+y 20
+end
+arch floor_lava_4
+glow_radius 3
+terrain_type 1
+x 9
+y 21
+end
+arch border_lava_sw1
+x 9
+y 21
+end
+arch damager
+name lava's heat
+dam 20
+attack_internal 100
+x 9
+y 21
+end
+arch floor_volcano_4
+x 9
+y 22
+end
+arch floor_volcano_2
+x 9
+y 23
+end
+arch floor_lava_3
+glow_radius 3
+terrain_type 1
+x 10
+y 12
+end
+arch fwall_lava1e
+x 10
+y 12
+end
+arch floor_lava_4
+glow_radius 3
+terrain_type 1
+x 10
+y 13
+end
+arch fwall_lava1e
+x 10
+y 13
+end
+arch floor_lava_3
+glow_radius 3
+terrain_type 1
+x 10
+y 14
+end
+arch fwall_lava1d
+x 10
+y 14
+end
+arch floor_lava_3
+glow_radius 3
+terrain_type 1
+x 10
+y 15
+end
+arch fwall_lava1f
+x 10
+y 15
+end
+arch floor_lava_3
+glow_radius 3
+terrain_type 1
+x 10
+y 16
+end
+arch damager
+name lava
+dam 10000
+speed 1.0
+attack_internal 100
+slow_move 1
+exp 2
+x 10
+y 16
+end
+arch floor_lava_4
+glow_radius 3
+terrain_type 1
+x 10
+y 17
+end
+arch damager
+name lava
+dam 10000
+speed 1.0
+attack_internal 100
+slow_move 1
+exp 2
+x 10
+y 17
+end
+arch floor_lava_4
+glow_radius 3
+terrain_type 1
+x 10
+y 18
+end
+arch damager
+name lava
+dam 10000
+speed 1.0
+attack_internal 100
+slow_move 1
+exp 2
+x 10
+y 18
+end
+arch floor_lava_3
+glow_radius 3
+terrain_type 1
+x 10
+y 19
+end
+arch damager
+name lava
+dam 10000
+speed 1.0
+attack_internal 100
+slow_move 1
+exp 2
+x 10
+y 19
+end
+arch floor_lava_4
+glow_radius 3
+terrain_type 1
+x 10
+y 20
+end
+arch damager
+name lava
+dam 10000
+speed 1.0
+attack_internal 100
+slow_move 1
+exp 2
+x 10
+y 20
+end
+arch floor_lava_3
+glow_radius 3
+terrain_type 1
+x 10
+y 21
+end
+arch border_lava_sw2
+x 10
+y 21
+end
+arch damager
+name lava's heat
+dam 20
+attack_internal 100
+x 10
+y 21
+end
+arch floor_lava_4
+glow_radius 3
+terrain_type 1
+x 10
+y 22
+end
+arch border_lava_w1
+x 10
+y 22
+end
+arch damager
+name lava's heat
+dam 20
+attack_internal 100
+x 10
+y 22
+end
+arch floor_lava_3
+glow_radius 3
+terrain_type 1
+x 10
+y 23
+end
+arch border_lava_w1
+x 10
+y 23
+end
+arch damager
+name lava's heat
+dam 20
+attack_internal 100
+x 10
+y 23
+end
+arch floor_lava_4
+glow_radius 3
+terrain_type 1
+x 11
+y 15
+end
+arch fwall_lava1e
+x 11
+y 15
+end
+arch floor_lava_3
+glow_radius 3
+terrain_type 1
+x 11
+y 16
+end
+arch fwall_lava1e
+x 11
+y 16
+end
+arch floor_lava_3
+glow_radius 3
+terrain_type 1
+x 11
+y 17
+end
+arch fwall_lava1f
+x 11
+y 17
+end
+arch floor_lava_4
+glow_radius 3
+terrain_type 1
+x 11
+y 18
+end
+arch fwall_lava1e
+x 11
+y 18
+end
+arch floor_lava_4
+glow_radius 3
+terrain_type 1
+x 11
+y 19
+end
+arch fwall_lava1d
+x 11
+y 19
+end
+arch floor_lava_3
+glow_radius 3
+terrain_type 1
+x 11
+y 20
+end
+arch damager
+name lava
+dam 10000
+speed 1.0
+attack_internal 100
+slow_move 1
+exp 2
+x 11
+y 20
+end
+arch floor_lava_3
+glow_radius 3
+terrain_type 1
+x 11
+y 21
+end
+arch damager
+name lava
+dam 10000
+speed 1.0
+attack_internal 100
+slow_move 1
+exp 2
+x 11
+y 21
+end
+arch spawn_point
+x 11
+y 21
+arch demon_fire
+name balrog
+randomitems mob_balrog
+level 114
+exp 142
+wc 4
+ac 10
+con 5
+attack_cleave 20
+attack_fire 80
+can_cast_spell 1
+sp -1
+maxsp 30
+pow 10
+dex 2
+wis 4
+type 83
+arch ability_firestorm
+sp 38
+hp 38
+end
+arch ability_firestorm
+end
+end
+end
+arch floor_lava_3
+glow_radius 3
+terrain_type 1
+x 11
+y 22
+end
+arch damager
+name lava
+dam 10000
+speed 1.0
+attack_internal 100
+slow_move 1
+exp 2
+x 11
+y 22
+end
+arch floor_lava_3
+glow_radius 3
+terrain_type 1
+x 11
+y 23
+end
+arch damager
+name lava
+dam 10000
+speed 1.0
+attack_internal 100
+slow_move 1
+exp 2
+x 11
+y 23
+end
+arch floor_lava_3
+glow_radius 3
+terrain_type 1
+x 12
+y 19
+end
+arch fwall_lava1f
+x 12
+y 19
+end
+arch floor_lava_4
+glow_radius 3
+terrain_type 1
+x 12
+y 20
+end
+arch fwall_lava1d
+x 12
+y 20
+end
+arch floor_lava_4
+glow_radius 3
+terrain_type 1
+x 12
+y 21
+end
+arch fwall_lava1f
+x 12
+y 21
+end
+arch floor_lava_4
+glow_radius 3
+terrain_type 1
+x 12
+y 22
+end
+arch damager
+name lava
+dam 10000
+speed 1.0
+attack_internal 100
+slow_move 1
+exp 2
+x 12
+y 22
+end
+arch floor_lava_4
+glow_radius 3
+terrain_type 1
+x 12
+y 23
+end
+arch damager
+name lava
+dam 10000
+speed 1.0
+attack_internal 100
+slow_move 1
+exp 2
+x 12
+y 23
+end
+arch floor_lava_4
+glow_radius 3
+terrain_type 1
+x 13
+y 21
+end
+arch fwall_lava1d
+x 13
+y 21
+end
+arch floor_lava_3
+glow_radius 3
+terrain_type 1
+x 13
+y 22
+end
+arch fwall_lava1f
+x 13
+y 22
+end
+arch floor_lava_4
+glow_radius 3
+terrain_type 1
+x 13
+y 23
+end
+arch fwall_lava1e
+x 13
+y 23
+end

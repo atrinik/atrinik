@@ -1,26 +1,26 @@
-/************************************************************************
-*            Atrinik, a Multiplayer Online Role Playing Game            *
-*                                                                       *
-*    Copyright (C) 2009-2012 Alex Tokar and Atrinik Development Team    *
-*                                                                       *
-* Fork from Crossfire (Multiplayer game for X-windows).                 *
-*                                                                       *
-* This program is free software; you can redistribute it and/or modify  *
-* it under the terms of the GNU General Public License as published by  *
-* the Free Software Foundation; either version 2 of the License, or     *
-* (at your option) any later version.                                   *
-*                                                                       *
-* This program is distributed in the hope that it will be useful,       *
-* but WITHOUT ANY WARRANTY; without even the implied warranty of        *
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
-* GNU General Public License for more details.                          *
-*                                                                       *
-* You should have received a copy of the GNU General Public License     *
-* along with this program; if not, write to the Free Software           *
-* Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.             *
-*                                                                       *
-* The author can be reached at admin@atrinik.org                        *
-************************************************************************/
+/*************************************************************************
+ *           Atrinik, a Multiplayer Online Role Playing Game             *
+ *                                                                       *
+ *   Copyright (C) 2009-2014 Alex Tokar and Atrinik Development Team     *
+ *                                                                       *
+ * Fork from Crossfire (Multiplayer game for X-windows).                 *
+ *                                                                       *
+ * This program is free software; you can redistribute it and/or modify  *
+ * it under the terms of the GNU General Public License as published by  *
+ * the Free Software Foundation; either version 2 of the License, or     *
+ * (at your option) any later version.                                   *
+ *                                                                       *
+ * This program is distributed in the hope that it will be useful,       *
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of        *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
+ * GNU General Public License for more details.                          *
+ *                                                                       *
+ * You should have received a copy of the GNU General Public License     *
+ * along with this program; if not, write to the Free Software           *
+ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.             *
+ *                                                                       *
+ * The author can be reached at admin@atrinik.org                        *
+ ************************************************************************/
 
 /**
  * @file
@@ -30,22 +30,26 @@
 #ifndef NEWSERVER_H
 #define NEWSERVER_H
 
+#include "map.h"
+
+
 /** How many items to show in the below window. Used in esrv_draw_look(). */
 #define NUM_LOOK_OBJECTS 15
 
 /**
  * One map cell. Used to hold 'cache' of faces we already sent
  * to the client. */
-typedef struct MapCell_struct
-{
+typedef struct MapCell_struct {
     /** Cache of last sent ambient sound. */
     tag_t sound_ambient_count;
 
     /* Everything below will be cleared by memset() in when the map
      * cell is no longer visible. */
 
+    uint8 cleared;
+
     /** Darkness cache. */
-    int count;
+    uint16 darkness[NUM_SUB_LAYERS];
 
     /** Faces we sent. */
     sint16 faces[NUM_REAL_LAYERS];
@@ -56,6 +60,12 @@ typedef struct MapCell_struct
     /** Flags cache. */
     uint8 flags[NUM_REAL_LAYERS];
 
+    uint8 anim_speed[NUM_REAL_LAYERS];
+
+    uint8 anim_facing[NUM_REAL_LAYERS];
+
+    uint8 anim_flags[NUM_SUB_LAYERS];
+
     /**
      * Probe cache. No need for an array, since this only appears
      * for players or monsters, both on layer 6. */
@@ -64,18 +74,18 @@ typedef struct MapCell_struct
     /**
      * Possible target object UID cache. */
     tag_t target_object_count;
+
+    uint8 ext_flags; ///< Last ext flags.
 } MapCell;
 
 /** One map for a player. */
-struct Map
-{
+struct Map {
     /** The map cells. */
     struct MapCell_struct cells[MAP_CLIENT_X][MAP_CLIENT_Y];
 };
 
 /** Possible socket statuses. */
-enum
-{
+enum {
     ST_AVAILABLE,
     ST_WAITING,
     ST_LOGIN,
@@ -85,8 +95,7 @@ enum
 };
 
 /** This contains basic information on the socket structure. */
-typedef struct socket_struct
-{
+typedef struct socket_struct {
     /** The actual file descriptor we are using. */
     int fd;
 
@@ -151,7 +160,6 @@ typedef struct socket_struct
 
     struct packet_struct *packet_head;
     struct packet_struct *packet_tail;
-    pthread_mutex_t packet_mutex;
 
     /**
      * Buffer for how many ticks have passed since the last keep alive
@@ -171,8 +179,7 @@ typedef struct socket_struct
 #define SOCKET_KEEPALIVE_TIMEOUT (60 * 10)
 
 /** Holds some system related information. */
-typedef struct Socket_Info_struct
-{
+typedef struct Socket_Info_struct {
     /** Timeout for select. */
     struct timeval timeout;
 
@@ -189,8 +196,7 @@ typedef struct Socket_Info_struct
 /**
  * A single file loaded from the updates directory that the client can
  * request. */
-typedef struct update_file_struct
-{
+typedef struct update_file_struct {
     /** File's CRC32. */
     unsigned long checksum;
 

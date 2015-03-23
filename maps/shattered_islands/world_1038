@@ -197,7 +197,6 @@ x 1
 y 15
 end
 arch blocked
-blocksview 0
 x 1
 y 16
 end
@@ -209,7 +208,6 @@ x 1
 y 16
 end
 arch blocked
-blocksview 0
 x 1
 y 17
 end
@@ -326,7 +324,6 @@ x 2
 y 15
 end
 arch blocked
-blocksview 0
 x 2
 y 16
 end
@@ -337,7 +334,6 @@ x 2
 y 16
 end
 arch blocked
-blocksview 0
 x 2
 y 17
 end
@@ -449,7 +445,6 @@ x 3
 y 15
 end
 arch blocked
-blocksview 0
 x 3
 y 16
 end
@@ -460,7 +455,6 @@ x 3
 y 16
 end
 arch blocked
-blocksview 0
 x 3
 y 17
 end
@@ -579,7 +573,6 @@ x 4
 y 15
 end
 arch blocked
-blocksview 0
 x 4
 y 16
 end
@@ -590,7 +583,6 @@ x 4
 y 16
 end
 arch blocked
-blocksview 0
 x 4
 y 17
 end
@@ -704,7 +696,6 @@ x 5
 y 15
 end
 arch blocked
-blocksview 0
 x 5
 y 16
 end
@@ -715,7 +706,6 @@ x 5
 y 16
 end
 arch blocked
-blocksview 0
 x 5
 y 17
 end
@@ -825,7 +815,6 @@ x 6
 y 15
 end
 arch blocked
-blocksview 0
 x 6
 y 16
 end
@@ -836,7 +825,6 @@ x 6
 y 16
 end
 arch blocked
-blocksview 0
 x 6
 y 17
 end
@@ -959,7 +947,6 @@ x 7
 y 16
 end
 arch blocked
-blocksview 0
 x 7
 y 17
 end
@@ -1112,7 +1099,6 @@ x 8
 y 15
 end
 arch blocked
-blocksview 0
 x 8
 y 16
 end
@@ -1124,7 +1110,6 @@ x 8
 y 16
 end
 arch blocked
-blocksview 0
 x 8
 y 17
 end
@@ -1275,7 +1260,6 @@ x 9
 y 15
 end
 arch blocked
-blocksview 0
 x 9
 y 16
 end
@@ -1429,7 +1413,6 @@ x 10
 y 14
 end
 arch blocked
-blocksview 0
 x 10
 y 15
 end
@@ -1441,7 +1424,6 @@ x 10
 y 15
 end
 arch blocked
-blocksview 0
 x 10
 y 16
 end
@@ -1587,7 +1569,6 @@ x 11
 y 13
 end
 arch blocked
-blocksview 0
 x 11
 y 14
 end
@@ -1599,7 +1580,6 @@ x 11
 y 14
 end
 arch blocked
-blocksview 0
 x 11
 y 15
 end
@@ -1744,7 +1724,6 @@ x 12
 y 12
 end
 arch blocked
-blocksview 0
 x 12
 y 13
 end
@@ -1756,7 +1735,6 @@ x 12
 y 13
 end
 arch blocked
-blocksview 0
 x 12
 y 14
 end
@@ -1895,7 +1873,6 @@ x 13
 y 12
 end
 arch blocked
-blocksview 0
 x 13
 y 13
 end
@@ -2048,7 +2025,6 @@ x 14
 y 12
 end
 arch blocked
-blocksview 0
 x 14
 y 13
 end
@@ -2208,7 +2184,6 @@ x 15
 y 12
 end
 arch blocked
-blocksview 0
 x 15
 y 13
 end
@@ -2372,7 +2347,6 @@ x 16
 y 12
 end
 arch blocked
-blocksview 0
 x 16
 y 13
 end
@@ -2508,7 +2482,6 @@ x 17
 y 11
 end
 arch blocked
-blocksview 0
 x 17
 y 12
 end
@@ -2520,7 +2493,6 @@ x 17
 y 12
 end
 arch blocked
-blocksview 0
 x 17
 y 13
 end
@@ -2662,7 +2634,6 @@ x 18
 y 10
 end
 arch blocked
-blocksview 0
 x 18
 y 11
 end
@@ -2674,7 +2645,6 @@ x 18
 y 11
 end
 arch blocked
-blocksview 0
 x 18
 y 12
 end
@@ -2826,7 +2796,6 @@ x 19
 y 10
 end
 arch blocked
-blocksview 0
 x 19
 y 11
 end
@@ -2981,7 +2950,6 @@ x 20
 y 10
 end
 arch blocked
-blocksview 0
 x 20
 y 11
 end
@@ -3153,7 +3121,6 @@ x 21
 y 10
 end
 arch blocked
-blocksview 0
 x 21
 y 11
 end
@@ -3321,7 +3288,6 @@ x 22
 y 10
 end
 arch blocked
-blocksview 0
 x 22
 y 11
 end
@@ -3486,7 +3452,6 @@ x 23
 y 10
 end
 arch blocked
-blocksview 0
 x 23
 y 11
 end

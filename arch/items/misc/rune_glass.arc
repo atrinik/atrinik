@@ -4,7 +4,6 @@ face rune_glass.101
 animation rune_glass
 is_animated 1
 anim_speed 1
-speed -0.25
 type 79
 layer 3
 material_real 65

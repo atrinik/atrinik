@@ -7,7 +7,7 @@ behavior 2
 direction 5
 wc_range 20
 is_good 1
-terrain_flag 1
+terrain_flag 65
 weapon_speed 0.038
 corpse 1
 attack_weaponmagic 100
@@ -19,10 +19,10 @@ is_animated 1
 anim_speed 4
 speed -0.060
 monster 1
-Wis 4
-Dex 3
-Int 10
-Pow 10
+wis 4
+dex 3
+int 10
+pow 10
 magic 1
 see_invisible 1
 can_see_in_dark 1
@@ -37,7 +37,7 @@ randomitems mob_lom_lobon
 reflect_missile 1
 reflect_spell 1
 glow_radius 5
-Con 15
+con 15
 exp 113
 hp -1
 maxhp 100
@@ -53,7 +53,7 @@ More
 Object seraph_b
 name seraph
 layer 6
-terrain_flag 1
+terrain_flag 65
 mpart_id 3
 mpart_nr 1
 x 1
@@ -64,7 +64,7 @@ More
 Object seraph_c
 name seraph
 layer 6
-terrain_flag 1
+terrain_flag 65
 mpart_id 3
 mpart_nr 2
 y 1
@@ -76,7 +76,7 @@ More
 Object seraph_d
 name seraph
 layer 6
-terrain_flag 1
+terrain_flag 65
 mpart_id 3
 mpart_nr 3
 y 1

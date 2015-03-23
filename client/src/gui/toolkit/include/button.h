@@ -1,26 +1,26 @@
-/************************************************************************
-*            Atrinik, a Multiplayer Online Role Playing Game            *
-*                                                                       *
-*    Copyright (C) 2009-2012 Alex Tokar and Atrinik Development Team    *
-*                                                                       *
-* Fork from Crossfire (Multiplayer game for X-windows).                 *
-*                                                                       *
-* This program is free software; you can redistribute it and/or modify  *
-* it under the terms of the GNU General Public License as published by  *
-* the Free Software Foundation; either version 2 of the License, or     *
-* (at your option) any later version.                                   *
-*                                                                       *
-* This program is distributed in the hope that it will be useful,       *
-* but WITHOUT ANY WARRANTY; without even the implied warranty of        *
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
-* GNU General Public License for more details.                          *
-*                                                                       *
-* You should have received a copy of the GNU General Public License     *
-* along with this program; if not, write to the Free Software           *
-* Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.             *
-*                                                                       *
-* The author can be reached at admin@atrinik.org                        *
-************************************************************************/
+/*************************************************************************
+ *           Atrinik, a Multiplayer Online Role Playing Game             *
+ *                                                                       *
+ *   Copyright (C) 2009-2014 Alex Tokar and Atrinik Development Team     *
+ *                                                                       *
+ * Fork from Crossfire (Multiplayer game for X-windows).                 *
+ *                                                                       *
+ * This program is free software; you can redistribute it and/or modify  *
+ * it under the terms of the GNU General Public License as published by  *
+ * the Free Software Foundation; either version 2 of the License, or     *
+ * (at your option) any later version.                                   *
+ *                                                                       *
+ * This program is distributed in the hope that it will be useful,       *
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of        *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
+ * GNU General Public License for more details.                          *
+ *                                                                       *
+ * You should have received a copy of the GNU General Public License     *
+ * along with this program; if not, write to the Free Software           *
+ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.             *
+ *                                                                       *
+ * The author can be reached at admin@atrinik.org                        *
+ ************************************************************************/
 
 /**
  * @file
@@ -31,12 +31,14 @@
 
 /** Determine whether the x,y position is over the specified button. */
 #define BUTTON_MOUSE_OVER(button, mx, my, texture) ((mx) - (button)->px >= (button)->x && (mx) - (button)->px < (button)->x + (texture)->w && (my) - (button)->py >= (button)->y && (my) - (button)->py < (button)->y + (texture)->h)
-/** Delay in milliseconds for the tooltip to appear (if any). */
-#define BUTTON_TOOLTIP_DELAY 750
+/**
+ * Checks if a tooltip can be generated for the specified button.
+ */
+#define BUTTON_CHECK_TOOLTIP(button) \
+    ((button)->mouse_over && !(button)->pressed)
 
 /** Button structure. */
-typedef struct button_struct
-{
+typedef struct button_struct {
     /**
      * Surface to use for rendering. */
     SDL_Surface *surface;
@@ -66,7 +68,7 @@ typedef struct button_struct
     texture_struct *texture_pressed;
 
     /** Font used for the text. */
-    int font;
+    font_struct *font;
 
     /** Text flags. */
     uint64 flags;

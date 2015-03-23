@@ -1,26 +1,26 @@
-/************************************************************************
-*            Atrinik, a Multiplayer Online Role Playing Game            *
-*                                                                       *
-*    Copyright (C) 2009-2012 Alex Tokar and Atrinik Development Team    *
-*                                                                       *
-* Fork from Crossfire (Multiplayer game for X-windows).                 *
-*                                                                       *
-* This program is free software; you can redistribute it and/or modify  *
-* it under the terms of the GNU General Public License as published by  *
-* the Free Software Foundation; either version 2 of the License, or     *
-* (at your option) any later version.                                   *
-*                                                                       *
-* This program is distributed in the hope that it will be useful,       *
-* but WITHOUT ANY WARRANTY; without even the implied warranty of        *
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
-* GNU General Public License for more details.                          *
-*                                                                       *
-* You should have received a copy of the GNU General Public License     *
-* along with this program; if not, write to the Free Software           *
-* Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.             *
-*                                                                       *
-* The author can be reached at admin@atrinik.org                        *
-************************************************************************/
+/*************************************************************************
+ *           Atrinik, a Multiplayer Online Role Playing Game             *
+ *                                                                       *
+ *   Copyright (C) 2009-2014 Alex Tokar and Atrinik Development Team     *
+ *                                                                       *
+ * Fork from Crossfire (Multiplayer game for X-windows).                 *
+ *                                                                       *
+ * This program is free software; you can redistribute it and/or modify  *
+ * it under the terms of the GNU General Public License as published by  *
+ * the Free Software Foundation; either version 2 of the License, or     *
+ * (at your option) any later version.                                   *
+ *                                                                       *
+ * This program is distributed in the hope that it will be useful,       *
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of        *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
+ * GNU General Public License for more details.                          *
+ *                                                                       *
+ * You should have received a copy of the GNU General Public License     *
+ * along with this program; if not, write to the Free Software           *
+ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.             *
+ *                                                                       *
+ * The author can be reached at admin@atrinik.org                        *
+ ************************************************************************/
 
 /**
  * @file
@@ -45,11 +45,9 @@ static texture_struct *button_determine_texture(button_struct *button)
 {
     if (button->pressed && button->texture_pressed) {
         return button->texture_pressed;
-    }
-    else if (button->mouse_over && button->texture_over) {
+    } else if (button->mouse_over && button->texture_over) {
         return button->texture_over;
-    }
-    else {
+    } else {
         return button->texture;
     }
 }
@@ -59,13 +57,14 @@ static texture_struct *button_determine_texture(button_struct *button)
  * @param button Button. */
 void button_create(button_struct *button)
 {
+    memset(button, 0, sizeof(*button));
+
     /* Initialize default values. */
     button->surface = ScreenSurface;
     button->x = button->y = 0;
     button->texture = texture_get(TEXTURE_TYPE_CLIENT, "button");
     button->texture_pressed = texture_get(TEXTURE_TYPE_CLIENT, "button_down");
-    button->texture_over = texture_get(TEXTURE_TYPE_CLIENT, "button_over");;
-    button->font = FONT_ARIAL10;
+    button->texture_over = texture_get(TEXTURE_TYPE_CLIENT, "button_over");
     button->flags = 0;
     button->center = 1;
     button->color = COLOR_WHITE;
@@ -75,12 +74,44 @@ void button_create(button_struct *button)
     button->mouse_over = button->pressed = button->pressed_forced = button->disabled = 0;
     button->pressed_ticks = button->hover_ticks = button->pressed_repeat_ticks = 0;
     button->repeat_func = NULL;
+
+    button_set_font(button, FONT_ARIAL10);
+}
+
+/**
+ * Destroy data associated with the specified button. The button structure
+ * itself is not freed.
+ * @param button Button to destroy.
+ */
+void button_destroy(button_struct *button)
+{
+    if (button->font) {
+        font_free(button->font);
+    }
 }
 
 void button_set_parent(button_struct *button, int px, int py)
 {
     button->px = px;
     button->py = py;
+}
+
+/**
+ * Set font of the specified button.
+ * @param button Button.
+ * @param font Font to set.
+ */
+void button_set_font(button_struct *button, font_struct *font)
+{
+    if (button->font) {
+        font_free(button->font);
+    }
+
+    if (font) {
+        FONT_INCREF(font);
+    }
+
+    button->font = font;
 }
 
 int button_need_redraw(button_struct *button)
@@ -100,7 +131,8 @@ int button_need_redraw(button_struct *button)
             ret = 1;
         }
 
-        if (button->pressed && (!mover || state != SDL_BUTTON_LEFT)) {
+        if (button->pressed && !button->pressed_forced &&
+                (!mover || state != SDL_BUTTON_LEFT)) {
             button->pressed = 0;
             ret = 1;
         }
@@ -133,8 +165,7 @@ void button_show(button_struct *button, const char *text)
         if (button->mouse_over) {
             color = button->color_over;
             color_shadow = button->color_over_shadow;
-        }
-        else {
+        } else {
             color = button->color;
             color_shadow = button->color_shadow;
         }
@@ -149,8 +180,7 @@ void button_show(button_struct *button, const char *text)
 
         if (!color_shadow) {
             text_show(button->surface, button->font, text, x, y, color, button->flags, NULL);
-        }
-        else {
+        } else {
             text_show_shadow(button->surface, button->font, text, x, y - 2, color, color_shadow, button->flags, NULL);
         }
     }
@@ -208,8 +238,7 @@ int button_event(button_struct *button, SDL_Event *event)
             button->pressed_repeat_ticks = 750;
             button->redraw = 1;
             return 1;
-        }
-        else {
+        } else {
             button->mouse_over = 1;
 
             /* Do not reset hover ticks if the previous state was already
@@ -225,28 +254,4 @@ int button_event(button_struct *button, SDL_Event *event)
     }
 
     return 0;
-}
-
-/**
- * Render a tooltip, if possible.
- * @param button Button.
- * @param font Font to use for the tooltip text.
- * @param text Tooltip text. */
-void button_tooltip(button_struct *button, int font, const char *text)
-{
-    /* Sanity check. */
-    if (!button || !text) {
-        return;
-    }
-
-    /* Render the tooltip if the mouse is over the button, it's not
-     * pressed, and enough time has passed since the button was
-     * highlighted. */
-    if (button->mouse_over && !button->pressed && SDL_GetTicks() - button->hover_ticks > BUTTON_TOOLTIP_DELAY) {
-        int mx, my;
-
-        SDL_GetMouseState(&mx, &my);
-
-        tooltip_create(mx, my, font, text);
-    }
 }

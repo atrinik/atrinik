@@ -1,26 +1,26 @@
-/************************************************************************
-*            Atrinik, a Multiplayer Online Role Playing Game            *
-*                                                                       *
-*    Copyright (C) 2009-2012 Alex Tokar and Atrinik Development Team    *
-*                                                                       *
-* Fork from Crossfire (Multiplayer game for X-windows).                 *
-*                                                                       *
-* This program is free software; you can redistribute it and/or modify  *
-* it under the terms of the GNU General Public License as published by  *
-* the Free Software Foundation; either version 2 of the License, or     *
-* (at your option) any later version.                                   *
-*                                                                       *
-* This program is distributed in the hope that it will be useful,       *
-* but WITHOUT ANY WARRANTY; without even the implied warranty of        *
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
-* GNU General Public License for more details.                          *
-*                                                                       *
-* You should have received a copy of the GNU General Public License     *
-* along with this program; if not, write to the Free Software           *
-* Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.             *
-*                                                                       *
-* The author can be reached at admin@atrinik.org                        *
-************************************************************************/
+/*************************************************************************
+ *           Atrinik, a Multiplayer Online Role Playing Game             *
+ *                                                                       *
+ *   Copyright (C) 2009-2014 Alex Tokar and Atrinik Development Team     *
+ *                                                                       *
+ * Fork from Crossfire (Multiplayer game for X-windows).                 *
+ *                                                                       *
+ * This program is free software; you can redistribute it and/or modify  *
+ * it under the terms of the GNU General Public License as published by  *
+ * the Free Software Foundation; either version 2 of the License, or     *
+ * (at your option) any later version.                                   *
+ *                                                                       *
+ * This program is distributed in the hope that it will be useful,       *
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of        *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
+ * GNU General Public License for more details.                          *
+ *                                                                       *
+ * You should have received a copy of the GNU General Public License     *
+ * along with this program; if not, write to the Free Software           *
+ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.             *
+ *                                                                       *
+ * The author can be reached at admin@atrinik.org                        *
+ ************************************************************************/
 
 /**
  * @file
@@ -39,7 +39,8 @@ static void process_func(object *op)
 
     op->value = pticks;
 
-    if (!(blocked(NULL, op->map, op->x, op->y, TERRAIN_NOTHING) & (P_IS_MONSTER | P_IS_PLAYER))) {
+    if (!(GET_MAP_FLAGS(op->map, op->x, op->y) & (P_IS_MONSTER |
+            P_IS_PLAYER))) {
         return;
     }
 
@@ -79,7 +80,7 @@ static void process_func(object *op)
              * this object is being moved onto, disable the mover on that
              * square, if any. This is done so the object doesn't rocket
              * across a bunch of movers. */
-            if (!(blocked(NULL, mt, xt, yt, TERRAIN_NOTHING) & (P_IS_MONSTER | P_IS_PLAYER))) {
+            if (!(GET_MAP_FLAGS(mt, xt, yt) & (P_IS_MONSTER | P_IS_PLAYER))) {
                 object *nextmover;
 
                 for (nextmover = GET_MAP_OB(mt, xt, yt); nextmover; nextmover = nextmover->above) {
@@ -100,15 +101,12 @@ static void process_func(object *op)
                     /* Clear player's path; they probably can't move there
                      * any more after being pushed, or might not want to. */
                     player_path_clear(CONTR(victim));
-                }
-                else {
+                } else {
                     continue;
                 }
-            }
-            else if (op->stats.hp) {
+            } else if (op->stats.hp) {
                 move_object(victim, dir);
-            }
-            else {
+            } else {
                 continue;
             }
 

@@ -11,6 +11,7 @@ darkness 2
 tile_path_3 dark_cave_0101
 bg_music desert_town.mid
 region dark_cave
+tile_path_7 dark_cave_aa01
 end
 arch floor_ruin4
 end
@@ -226,7 +227,7 @@ arch pudding_red
 name big red pudding
 type 83
 level 10
-Wis 2
+wis 2
 end
 end
 arch floor_ruin4
@@ -390,7 +391,7 @@ arch wyvern
 name elder wyvern
 type 83
 level 12
-Wis 3
+wis 3
 end
 end
 arch floor_ruin4
@@ -482,7 +483,7 @@ arch pudding_red
 name big red pudding
 type 83
 level 10
-Wis 2
+wis 2
 end
 end
 arch floor_ruin4
@@ -1310,7 +1311,7 @@ arch blob_quivering
 name quivering blob breeder
 type 83
 level 10
-Wis 2
+wis 2
 end
 end
 arch floor_ruin4
@@ -1339,7 +1340,7 @@ y 14
 arch jelly_spotted
 type 83
 level 11
-Wis 2
+wis 2
 end
 end
 arch floor_ruin4
@@ -1569,7 +1570,7 @@ arch blob_quivering
 name quivering blob breeder
 type 83
 level 10
-Wis 2
+wis 2
 end
 end
 arch floor_ruin4
@@ -1834,7 +1835,7 @@ y 12
 arch pudding_black
 type 83
 level 11
-Wis 2
+wis 2
 end
 end
 arch floor_ruin4

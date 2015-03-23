@@ -2,7 +2,6 @@ Object lava
 name lava
 face lava.101
 animation lava
-speed 0.02
 is_animated 1
 anim_speed 10
 no_teleport 1

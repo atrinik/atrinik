@@ -1,26 +1,26 @@
-/************************************************************************
-*            Atrinik, a Multiplayer Online Role Playing Game            *
-*                                                                       *
-*    Copyright (C) 2009-2012 Alex Tokar and Atrinik Development Team    *
-*                                                                       *
-* Fork from Crossfire (Multiplayer game for X-windows).                 *
-*                                                                       *
-* This program is free software; you can redistribute it and/or modify  *
-* it under the terms of the GNU General Public License as published by  *
-* the Free Software Foundation; either version 2 of the License, or     *
-* (at your option) any later version.                                   *
-*                                                                       *
-* This program is distributed in the hope that it will be useful,       *
-* but WITHOUT ANY WARRANTY; without even the implied warranty of        *
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
-* GNU General Public License for more details.                          *
-*                                                                       *
-* You should have received a copy of the GNU General Public License     *
-* along with this program; if not, write to the Free Software           *
-* Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.             *
-*                                                                       *
-* The author can be reached at admin@atrinik.org                        *
-************************************************************************/
+/*************************************************************************
+ *           Atrinik, a Multiplayer Online Role Playing Game             *
+ *                                                                       *
+ *   Copyright (C) 2009-2014 Alex Tokar and Atrinik Development Team     *
+ *                                                                       *
+ * Fork from Crossfire (Multiplayer game for X-windows).                 *
+ *                                                                       *
+ * This program is free software; you can redistribute it and/or modify  *
+ * it under the terms of the GNU General Public License as published by  *
+ * the Free Software Foundation; either version 2 of the License, or     *
+ * (at your option) any later version.                                   *
+ *                                                                       *
+ * This program is distributed in the hope that it will be useful,       *
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of        *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
+ * GNU General Public License for more details.                          *
+ *                                                                       *
+ * You should have received a copy of the GNU General Public License     *
+ * along with this program; if not, write to the Free Software           *
+ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.             *
+ *                                                                       *
+ * The author can be reached at admin@atrinik.org                        *
+ ************************************************************************/
 
 /**
  * @file
@@ -30,8 +30,7 @@
 
 /**
  * The score structure is used when treating new high-scores */
-typedef struct scr
-{
+typedef struct scr {
     /** Name. */
     char name[BIG_NAME];
 
@@ -56,8 +55,7 @@ typedef struct scr
 
 /**
  * The highscore table. */
-typedef struct
-{
+typedef struct {
     /** Filename of the backing file. */
     char fname[MAX_BUF];
 
@@ -107,8 +105,7 @@ static void hiscore_save(const score_table *table)
     if (ferror(fp)) {
         logger_print(LOG(BUG), "Cannot write to highscore file %s: %s", table->fname, strerror(errno));
         fclose(fp);
-    }
-    else if (fclose(fp) != 0) {
+    } else if (fclose(fp) != 0) {
         logger_print(LOG(BUG), "Cannot write to highscore file %s: %s", table->fname, strerror(errno));
     }
 }
@@ -162,15 +159,13 @@ static char *draw_one_high_score(const score *sc, char *buf, size_t size)
 {
     if (sc->killer[0] == '\0') {
         snprintf(buf, size, "[green]%3d[/green] %s [green]%s[/green] the %s (%s) <%d><%d>.", sc->position, string_format_number_comma(sc->exp), sc->name, sc->title, sc->maplevel, sc->maxhp, sc->maxsp);
-    }
-    else {
+    } else {
         const char *s1, *s2;
 
         if (!strcmp(sc->killer, "left")) {
             s1 = sc->killer;
             s2 = "the game";
-        }
-        else {
+        } else {
             s1 = "was killed by";
             s2 = sc->killer;
         }
@@ -256,10 +251,11 @@ static void hiscore_load(score_table *table)
 
     fp = fopen(table->fname, "r");
 
-    if (!fp) {
-        logger_print(LOG(BUG), "Cannot open highscore file %s: %s", table->fname, strerror(errno));
-    }
-    else {
+    if (fp == NULL) {
+        if (errno != ENOENT) {
+            logger_print(LOG(ERROR), "Cannot open highscore file %s: %s", table->fname, strerror(errno));
+        }
+    } else {
         while (i < HIGHSCORE_LENGTH) {
             char buf[MAX_BUF];
 
@@ -324,8 +320,7 @@ void hiscore_check(object *op, int quiet)
 
     if (op->map == NULL) {
         *new_score.maplevel = '\0';
-    }
-    else {
+    } else {
         size_t i;
 
         strncpy(new_score.maplevel, op->map->name ? op->map->name : op->map->path, sizeof(new_score.maplevel) - 1);
@@ -354,19 +349,15 @@ void hiscore_check(object *op, int quiet)
     if (old_score.position == -1) {
         if (new_score.position > HIGHSCORE_LENGTH) {
             message = "You didn't enter the highscore list:";
-        }
-        else {
+        } else {
             message = "You entered the highscore list:";
         }
-    }
-    else {
+    } else {
         if (new_score.position > HIGHSCORE_LENGTH) {
             message = "You left the highscore list:";
-        }
-        else if (new_score.exp  > old_score.exp) {
+        } else if (new_score.exp  > old_score.exp) {
             message = "You beat your last score:";
-        }
-        else {
+        } else {
             message = "You didn't beat your last score:";
         }
     }

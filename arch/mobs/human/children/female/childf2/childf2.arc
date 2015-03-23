@@ -8,7 +8,7 @@ direction 5
 wc_range 20
 is_female 1
 is_good 1
-terrain_flag 1
+terrain_flag 65
 weapon_speed 0.038
 corpse 1
 attack_slash 80
@@ -18,7 +18,7 @@ is_animated 1
 anim_speed 4
 speed -0.047
 monster 1
-Wis 4
+wis 4
 no_pick 1
 exp 89
 hp -1

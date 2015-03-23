@@ -1,26 +1,26 @@
-/************************************************************************
-*            Atrinik, a Multiplayer Online Role Playing Game            *
-*                                                                       *
-*    Copyright (C) 2009-2012 Alex Tokar and Atrinik Development Team    *
-*                                                                       *
-* Fork from Crossfire (Multiplayer game for X-windows).                 *
-*                                                                       *
-* This program is free software; you can redistribute it and/or modify  *
-* it under the terms of the GNU General Public License as published by  *
-* the Free Software Foundation; either version 2 of the License, or     *
-* (at your option) any later version.                                   *
-*                                                                       *
-* This program is distributed in the hope that it will be useful,       *
-* but WITHOUT ANY WARRANTY; without even the implied warranty of        *
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
-* GNU General Public License for more details.                          *
-*                                                                       *
-* You should have received a copy of the GNU General Public License     *
-* along with this program; if not, write to the Free Software           *
-* Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.             *
-*                                                                       *
-* The author can be reached at admin@atrinik.org                        *
-************************************************************************/
+/*************************************************************************
+ *           Atrinik, a Multiplayer Online Role Playing Game             *
+ *                                                                       *
+ *   Copyright (C) 2009-2014 Alex Tokar and Atrinik Development Team     *
+ *                                                                       *
+ * Fork from Crossfire (Multiplayer game for X-windows).                 *
+ *                                                                       *
+ * This program is free software; you can redistribute it and/or modify  *
+ * it under the terms of the GNU General Public License as published by  *
+ * the Free Software Foundation; either version 2 of the License, or     *
+ * (at your option) any later version.                                   *
+ *                                                                       *
+ * This program is distributed in the hope that it will be useful,       *
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of        *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
+ * GNU General Public License for more details.                          *
+ *                                                                       *
+ * You should have received a copy of the GNU General Public License     *
+ * along with this program; if not, write to the Free Software           *
+ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.             *
+ *                                                                       *
+ * The author can be reached at admin@atrinik.org                        *
+ ************************************************************************/
 
 /**
  * @file
@@ -33,7 +33,7 @@
 /** Tooltip's text. */
 static char tooltip_text[HUGE_BUF * 4];
 /** Font of the tooltip text. */
-static int tooltip_font;
+static font_struct *tooltip_font;
 /** Tooltip's X position. */
 static int tooltip_x = -1;
 /** Tooltip's Y position. */
@@ -51,9 +51,10 @@ static uint8 tooltip_opacity = 0;
  * @param my Mouse Y.
  * @param font Font to use, one of @ref FONT_xxx.
  * @param text The text to show in the tooltip. */
-void tooltip_create(int mx, int my, int font, const char *text)
+void tooltip_create(int mx, int my, font_struct *font, const char *text)
 {
     tooltip_delay = 0;
+    FONT_INCREF(font);
     tooltip_font = font;
     tooltip_x = mx;
     tooltip_y = my;
@@ -111,30 +112,21 @@ void tooltip_show(void)
         }
 
         tooltip_created = SDL_GetTicks() + tooltip_delay;
-    }
-    else {
+    } else {
         tooltip_opacity = 255;
     }
 
-    if (tooltip_w != -1) {
-        text_box.w = tooltip_w;
-    }
-    else {
-        text_box.w = text_get_width(tooltip_font, tooltip_text, TEXT_MARKUP);
-    }
+    text_box.w = tooltip_w;
+    text_box.h = tooltip_h;
 
-    if (tooltip_h != -1) {
-        text_box.h = tooltip_h;
-    }
-    else {
-        text_box.h = FONT_HEIGHT(tooltip_font);
-    }
+    text_get_width_height(tooltip_font, tooltip_text, TEXT_MARKUP, &text_box,
+            &text_box.w, &text_box.h);
 
     /* Generate the tooltip's background. */
     box.x = tooltip_x + 9;
     box.y = tooltip_y + 17;
-    box.w = text_box.w + 6;
-    box.h = text_box.h + 1;
+    box.w = text_box.w + 4;
+    box.h = text_box.h;
 
     /* Push the tooltip to the left if it would go beyond maximum screen
      * size. */
@@ -162,4 +154,25 @@ void tooltip_dismiss(void)
     tooltip_y = -1;
     tooltip_w = -1;
     tooltip_h = -1;
+
+    if (tooltip_font != NULL) {
+        font_free(tooltip_font);
+        tooltip_font = NULL;
+    }
+}
+
+/**
+ * Check whether the tooltip needs redrawing.
+ * @return 1 if the tooltip needs redrawing, 0 otherwise.
+ * @todo This needs some actual redrawing check logic. Need various checks like
+ * whether the x/y is the same, text/font is the same (in other words, reset
+ * old x/y when creating if text/font has changed)
+ */
+int tooltip_need_redraw(void)
+{
+    if (tooltip_x == -1 || tooltip_y == -1) {
+        return 0;
+    }
+
+    return 1;
 }

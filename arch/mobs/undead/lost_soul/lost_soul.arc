@@ -8,12 +8,12 @@ corpse 1
 layer 6
 direction 5
 is_evil 1
-terrain_flag 1
+terrain_flag 65
 weapon_speed 0.035
 attack_slash 65
 attack_drain 25
 type 80
-Wis 3
+wis 3
 randomitems mob_lost_soul
 animation lost_soul
 is_animated 1

@@ -2,7 +2,7 @@ arch map
 name Brynknot
 msg
 Created:  2009-09-10 Alex Tokar
-Modified: 2011-10-02 Alex Tokar
+Modified: 2014-12-14 Alex Tokar
 endmsg
 width 24
 height 24
@@ -19,6 +19,7 @@ tile_path_7 world_ac10
 tile_path_8 world_ac12
 bg_music lontala.mid
 region brynknot
+tile_path_9 world_1_ab11
 end
 arch grassd_4
 end
@@ -883,7 +884,7 @@ y 21
 arch ranger
 direction 3
 level 73
-Dex 1
+dex 1
 can_use_bow 1
 unaggressive 0
 type 83
@@ -2798,6 +2799,10 @@ arch grassd_3
 x 17
 y 13
 end
+arch tree_big2
+x 17
+y 13
+end
 arch grassd_7
 x 17
 y 14
@@ -2965,7 +2970,7 @@ arch floor_flagm4
 x 18
 y 12
 end
-arch grassd_m13
+arch grassd_m9
 x 18
 y 12
 end
@@ -2973,11 +2978,15 @@ arch floor_flagm2
 x 18
 y 13
 end
+arch grassd_m9
+x 18
+y 13
+end
 arch floor_flagm4
 x 18
 y 14
 end
-arch grassd_m14
+arch grassd_m9
 x 18
 y 14
 end

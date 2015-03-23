@@ -212,7 +212,7 @@ dam 80
 wc 13
 maxhp 100
 ac 13
-Wis 2
+wis 2
 direction 3
 end
 end
@@ -270,7 +270,7 @@ dam 80
 wc 13
 maxhp 100
 ac 13
-Wis 2
+wis 2
 direction 3
 end
 end
@@ -864,7 +864,7 @@ dam 80
 wc 13
 maxhp 100
 ac 13
-Wis 2
+wis 2
 end
 end
 arch floor_stone3b
@@ -902,7 +902,7 @@ dam 80
 wc 13
 maxhp 100
 ac 13
-Wis 3
+wis 3
 direction 3
 end
 end
@@ -1276,7 +1276,7 @@ dam 80
 wc 13
 maxhp 100
 ac 13
-Wis 2
+wis 2
 end
 end
 arch floor_stone3b
@@ -1449,7 +1449,7 @@ dam 80
 wc 13
 maxhp 100
 ac 13
-Wis 3
+wis 3
 direction 3
 end
 end
@@ -1484,7 +1484,7 @@ dam 80
 wc 13
 maxhp 100
 ac 13
-Wis 3
+wis 3
 direction 3
 end
 end
@@ -1735,7 +1735,7 @@ dam 80
 wc 13
 maxhp 100
 ac 13
-Wis 2
+wis 2
 end
 end
 arch floor_stone3d

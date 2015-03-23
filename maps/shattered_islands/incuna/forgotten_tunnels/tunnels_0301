@@ -148,7 +148,7 @@ x 2
 y 3
 arch kobold_fighter
 level 2
-Wis 2
+wis 2
 type 83
 end
 end
@@ -298,7 +298,7 @@ name kobold sneaker
 level 2
 wc_range 12
 unaggressive 1
-Wis 2
+wis 2
 type 83
 end
 end
@@ -376,7 +376,7 @@ x 3
 y 16
 arch kobold_fighter
 level 2
-Wis 2
+wis 2
 type 83
 end
 end
@@ -701,7 +701,7 @@ x 6
 y 9
 arch kobold_fighter
 level 2
-Wis 2
+wis 2
 type 83
 end
 end
@@ -730,7 +730,7 @@ x 6
 y 13
 arch kobold_guard
 level 2
-Wis 2
+wis 2
 type 83
 end
 end
@@ -812,7 +812,7 @@ x 7
 y 3
 arch kobold_fighter
 level 2
-Wis 2
+wis 2
 type 83
 end
 end
@@ -1260,7 +1260,7 @@ y 17
 arch kobold_fighter
 direction 3
 level 3
-Wis 2
+wis 2
 type 83
 end
 end
@@ -1389,7 +1389,7 @@ y 19
 arch kobold_fighter
 direction 3
 level 3
-Wis 2
+wis 2
 type 83
 end
 end
@@ -1480,7 +1480,7 @@ x 12
 y 16
 arch kobold_guard
 level 3
-Wis 2
+wis 2
 type 83
 end
 end
@@ -1559,7 +1559,7 @@ x 13
 y 3
 arch kobold_guard
 level 3
-Wis 2
+wis 2
 type 83
 end
 end
@@ -1634,7 +1634,7 @@ arch kobold_guard
 name kobold fighter leader
 level 3
 attack_slash 80
-Wis 2
+wis 2
 type 83
 end
 end
@@ -1718,7 +1718,7 @@ name kobold sneaker
 level 2
 wc_range 12
 unaggressive 1
-Wis 2
+wis 2
 type 83
 end
 end
@@ -2094,7 +2094,7 @@ x 16
 y 15
 arch kobold_fighter
 level 3
-Wis 2
+wis 2
 type 83
 end
 end
@@ -2344,8 +2344,8 @@ direction 3
 level 2
 maxsp 10
 magic 1
-Dex 10
-Wis 2
+dex 10
+wis 2
 type 83
 arch ability_cause_lig_wound
 last_grace 14
@@ -2416,7 +2416,7 @@ name kobold mushroom keeper
 direction 7
 level 2
 wc_range 12
-Wis 2
+wis 2
 type 83
 end
 end
@@ -2476,7 +2476,7 @@ x 19
 y 5
 arch kobold_fighter
 level 3
-Wis 2
+wis 2
 type 83
 end
 end
@@ -2515,8 +2515,8 @@ arch kobold_shaman
 level 3
 maxsp 10
 magic 1
-Dex 10
-Wis 2
+dex 10
+wis 2
 type 83
 arch ability_cause_lig_wound
 last_grace 14
@@ -2853,7 +2853,7 @@ name kobold mushroom keeper
 direction 7
 level 2
 wc_range 12
-Wis 2
+wis 2
 type 83
 end
 end

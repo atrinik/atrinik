@@ -1,26 +1,26 @@
-/************************************************************************
-*            Atrinik, a Multiplayer Online Role Playing Game            *
-*                                                                       *
-*    Copyright (C) 2009-2012 Alex Tokar and Atrinik Development Team    *
-*                                                                       *
-* Fork from Crossfire (Multiplayer game for X-windows).                 *
-*                                                                       *
-* This program is free software; you can redistribute it and/or modify  *
-* it under the terms of the GNU General Public License as published by  *
-* the Free Software Foundation; either version 2 of the License, or     *
-* (at your option) any later version.                                   *
-*                                                                       *
-* This program is distributed in the hope that it will be useful,       *
-* but WITHOUT ANY WARRANTY; without even the implied warranty of        *
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
-* GNU General Public License for more details.                          *
-*                                                                       *
-* You should have received a copy of the GNU General Public License     *
-* along with this program; if not, write to the Free Software           *
-* Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.             *
-*                                                                       *
-* The author can be reached at admin@atrinik.org                        *
-************************************************************************/
+/*************************************************************************
+ *           Atrinik, a Multiplayer Online Role Playing Game             *
+ *                                                                       *
+ *   Copyright (C) 2009-2014 Alex Tokar and Atrinik Development Team     *
+ *                                                                       *
+ * Fork from Crossfire (Multiplayer game for X-windows).                 *
+ *                                                                       *
+ * This program is free software; you can redistribute it and/or modify  *
+ * it under the terms of the GNU General Public License as published by  *
+ * the Free Software Foundation; either version 2 of the License, or     *
+ * (at your option) any later version.                                   *
+ *                                                                       *
+ * This program is distributed in the hope that it will be useful,       *
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of        *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
+ * GNU General Public License for more details.                          *
+ *                                                                       *
+ * You should have received a copy of the GNU General Public License     *
+ * along with this program; if not, write to the Free Software           *
+ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.             *
+ *                                                                       *
+ * The author can be reached at admin@atrinik.org                        *
+ ************************************************************************/
 
 /**
  * @file
@@ -33,8 +33,7 @@ static void *metaserver_thread(void *junk);
 
 /**
  * Metaserver update information structure. */
-typedef struct ms_update_info
-{
+typedef struct ms_update_info {
     /**
      * Number of players in the game. */
     char num_players[MAX_BUF];
@@ -55,6 +54,19 @@ static pthread_mutex_t ms_info_mutex;
 /**
  * The actual metaserver information. */
 static ms_update_info metaserver_info;
+
+/**
+ * Used to hold metaserver statistics.
+ */
+static struct {
+    uint64 num; ///< Number of successful updates.
+
+    uint64 num_failed; ///< Number of failed updates.
+
+    time_t last; ///< Last successful update.
+
+    time_t last_failed; ///< Last failed update.
+} stats;
 
 /**
  * Updates the ::metaserver_info. */
@@ -113,6 +125,29 @@ void metaserver_init(void)
 }
 
 /**
+ * Construct metaserver statistics.
+ * @param[out] buf Buffer to use for writing. Must end with a NUL.
+ * @param size Size of 'buf'.
+ */
+void metaserver_stats(char *buf, size_t size)
+{
+    snprintfcat(buf, size, "\n=== METASERVER ===\n");
+    snprintfcat(buf, size, "\nUpdates: %"FMT64U, stats.num);
+    snprintfcat(buf, size, "\nFailed: %"FMT64U, stats.num_failed);
+
+    if (stats.last != 0) {
+        snprintfcat(buf, size, "\nLast update: %.19s", ctime(&stats.last));
+    }
+
+    if (stats.last_failed != 0) {
+        snprintfcat(buf, size, "\nLast failure: %.19s",
+                ctime(&stats.last_failed));
+    }
+
+    snprintfcat(buf, size, "\n");
+}
+
+/**
  * Function to call when receiving data from the metaserver.
  * @param ptr Pointer to the actual data
  * @param size Size of the data
@@ -125,7 +160,7 @@ static size_t metaserver_writer(void *ptr, size_t size, size_t nmemb, void *data
 
     (void) data;
 
-    logger_print(LOG(DEBUG), "Returned data: %s", (const char *) ptr);
+    logger_print(LOG(INFO), "Returned data: %s", (const char *) ptr);
 
     return realsize;
 }
@@ -175,8 +210,10 @@ static void metaserver_update(void)
         curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, metaserver_writer);
         res = curl_easy_perform(curl);
 
-        if (res) {
-            logger_print(LOG(DEBUG), "easy_perform got error %d (%s).", res, curl_easy_strerror(res));
+        if (res != 0) {
+            logger_print(LOG(ERROR), "easy_perform got error %d (%s).", res, curl_easy_strerror(res));
+            stats.last_failed = time(NULL);
+            stats.num_failed++;
         }
 
         /* Always cleanup */
@@ -187,10 +224,9 @@ static void metaserver_update(void)
     curl_formfree(formpost);
 
     /* Output info that the data was updated. */
-    if (!res) {
-        time_t now = time(NULL);
-
-        logger_print(LOG(DEBUG), "Sent data at %.19s.", ctime(&now));
+    if (res == 0) {
+        stats.last = time(NULL);
+        stats.num++;
     }
 }
 

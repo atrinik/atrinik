@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <interfaces>
     <interface state="class">
-        <and><check options="classTime" /></and>
+        <and>
+            <check options="classTime"/>
+        </and>
         <dialog name="hello">
             <message>Shh, I'm trying to learn here.</message>
         </dialog>
@@ -9,22 +11,21 @@
             <message>C'mon. Let me listen to the teacher, man...</message>
         </dialog>
     </interface>
-
     <interface>
         <dialog name="hello">
             <message>Shh, I'm trying to study.</message>
         </dialog>
         <dialog name="patchouli" regex="patchouli|patchouli knowledge">
-            <message>Hmm. I'm in a good mood today. Maybe I'll just have to show you "Sun Sign: Royal Flare..."</message>
-            <response message="Ooh! Royal Flare? What's that?" destination="royal flare" />
+            <message>Hmm. I'm in a good mood today. Maybe I'll just have to show you &quot;Sun Sign: Royal Flare...&quot;</message>
+            <response destination="royal flare" message="Ooh! Royal Flare? What's that?"/>
         </dialog>
         <dialog name="royal flare">
             <message>Grr... take a hint or I'll show you to the basement. Kihihihihihi.</message>
-            <response message="Cool! What's in the basement?" destination="basement" />
+            <response destination="basement" message="Cool! What's in the basement?"/>
         </dialog>
         <dialog name="basement">
             <message>Geez. You must be as dumb as that fairy.</message>
-            <response message="Hey! Wait, who is &quot;that fairy?&quot;" destination="fairy" />
+            <response destination="fairy" message="Hey! Wait, who is &quot;that fairy?&quot;"/>
         </dialog>
         <dialog name="fairy" regex="fairy|cirno">
             <message>C'mon. Let me study, man...</message>

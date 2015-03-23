@@ -1,8 +1,8 @@
 arch map
-name Strakewood Island
+name Centennial
 msg
 Created:  2011-03-20 Alex Tokar
-Modified: 2014-03-09 Alex Tokar
+Modified: 2015-03-21 Alex Tokar
 endmsg
 width 24
 height 24
@@ -16,8 +16,9 @@ tile_path_5 world_0129
 tile_path_6 world_0127
 tile_path_7 world_ab27
 tile_path_8 world_ab29
+tile_path_9 world_1_aa28
 bg_music jungle1.ogg
-region strakewood_island
+region centennial
 end
 arch water_lt
 end
@@ -2209,8 +2210,8 @@ level 30
 can_cast_spell 1
 sp -1
 maxsp 15
-Pow 4
-Dex 2
+pow 4
+dex 2
 type 83
 arch ability_mbullet
 name ability lightning

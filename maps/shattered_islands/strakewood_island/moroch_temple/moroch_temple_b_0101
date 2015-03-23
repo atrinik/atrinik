@@ -12,7 +12,7 @@ tile_path_1 moroch_temple_b_0102
 tile_path_2 moroch_temple_b_0201
 tile_path_5 moroch_temple_b_0202
 bg_music evil_temple.ogg
-region moroch_temple
+region moroch_temple_b
 end
 arch floor_sblack1b
 y 5
@@ -1285,7 +1285,7 @@ arch skel_fighter2
 name skeleton archer
 type 83
 level 74
-Dex 2
+dex 2
 can_use_bow 1
 direction 1
 arch ability_stone_throw
@@ -2128,7 +2128,7 @@ x 16
 y 12
 end
 arch shelf3_dem2.111
-direction 6
+direction 7
 x 16
 y 12
 end

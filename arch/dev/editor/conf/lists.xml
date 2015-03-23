@@ -285,4 +285,18 @@
 	<listentry value="3" name="Hide" />
 </list>
 
+<list name="tile_dir">
+    <listentry value="0" name="&lt;none&gt;" />
+    <listentry value="1" name="North" />
+    <listentry value="2" name="East" />
+    <listentry value="3" name="South" />
+    <listentry value="4" name="West" />
+    <listentry value="5" name="Northeast" />
+    <listentry value="6" name="Southeast" />
+    <listentry value="7" name="Southwest" />
+    <listentry value="8" name="Northwest" />
+    <listentry value="9" name="Up" />
+    <listentry value="10" name="Down" />
+</list>
+
 </lists>

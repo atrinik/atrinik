@@ -1118,9 +1118,6 @@ x 7
 y 23
 end
 arch client_map_info
-msg
-
-endmsg
 name asteria_casino
 sub_type 2
 x 7

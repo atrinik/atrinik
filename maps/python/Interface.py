@@ -11,10 +11,12 @@ class Interface:
         self._npc = npc
         self._restore = False
         self._append_text = None
+        self._icon = None
+        self._anim = None
 
         if npc:
-            self._icon = npc.face[0][:-1] + "1"
-            self._title = npc.name
+            self.set_anim(npc.animation[1], npc.anim_speed, npc.direction)
+            self.set_title(npc.name)
 
     def add_msg(self, msg, color = None, newline = True, **keywds):
         if newline and self._msg:
@@ -74,6 +76,11 @@ class Interface:
     def set_icon(self, icon):
         self._icon = icon
 
+    def set_anim(self, anim, anim_speed = 1, direction = 0):
+        self._anim = anim
+        self._anim_speed = anim_speed
+        self._direction = direction
+
     def set_title(self, title):
         self._title = title
 
@@ -119,8 +126,15 @@ class Interface:
         if not self._restore:
             # Construct the base data packet; contains the interface message,
             # the icon and the title.
-            fmt = "BsBsBs"
-            data = [0, self._msg, 2, self._icon, 3, self._title]
+            fmt = "BsBs"
+            data = [0, self._msg, 3, self._title]
+
+            if self._icon != None:
+                fmt += "Bs"
+                data += [2, self._icon]
+            elif self._anim != None:
+                fmt += "BHBB"
+                data += [13, self._anim, self._anim_speed, self._direction]
         else:
             fmt = "B"
             data = [11]
@@ -217,7 +231,7 @@ class InterfaceBuilder(Interface):
 
     @property
     def numtofinish(self):
-        return Language.int2english(self.num2finish())
+        return Language.int2english(self.num2finish)
 
     def finish(self, d, msg):
         self.locals = d

@@ -5,7 +5,6 @@ type 74
 sub_type 1
 face lamp_wall.110
 animation lamp_wall_1_unlit
-speed -0.02
 is_animated 1
 is_turnable 1
 anim_speed 4

@@ -11,7 +11,6 @@ no_pick 1
 animation rock_big2_waterfall
 is_animated 1
 anim_speed 4
-speed -0.02
 end
 
 Object rock_big2_waterfall2
@@ -27,5 +26,4 @@ no_pick 1
 animation rock_big2_waterfall2
 is_animated 1
 anim_speed 4
-speed -0.02
 end

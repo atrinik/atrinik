@@ -1,26 +1,26 @@
-/************************************************************************
-*            Atrinik, a Multiplayer Online Role Playing Game            *
-*                                                                       *
-*    Copyright (C) 2009-2012 Alex Tokar and Atrinik Development Team    *
-*                                                                       *
-* Fork from Crossfire (Multiplayer game for X-windows).                 *
-*                                                                       *
-* This program is free software; you can redistribute it and/or modify  *
-* it under the terms of the GNU General Public License as published by  *
-* the Free Software Foundation; either version 2 of the License, or     *
-* (at your option) any later version.                                   *
-*                                                                       *
-* This program is distributed in the hope that it will be useful,       *
-* but WITHOUT ANY WARRANTY; without even the implied warranty of        *
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
-* GNU General Public License for more details.                          *
-*                                                                       *
-* You should have received a copy of the GNU General Public License     *
-* along with this program; if not, write to the Free Software           *
-* Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.             *
-*                                                                       *
-* The author can be reached at admin@atrinik.org                        *
-************************************************************************/
+/*************************************************************************
+ *           Atrinik, a Multiplayer Online Role Playing Game             *
+ *                                                                       *
+ *   Copyright (C) 2009-2014 Alex Tokar and Atrinik Development Team     *
+ *                                                                       *
+ * Fork from Crossfire (Multiplayer game for X-windows).                 *
+ *                                                                       *
+ * This program is free software; you can redistribute it and/or modify  *
+ * it under the terms of the GNU General Public License as published by  *
+ * the Free Software Foundation; either version 2 of the License, or     *
+ * (at your option) any later version.                                   *
+ *                                                                       *
+ * This program is distributed in the hope that it will be useful,       *
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of        *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
+ * GNU General Public License for more details.                          *
+ *                                                                       *
+ * You should have received a copy of the GNU General Public License     *
+ * along with this program; if not, write to the Free Software           *
+ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.             *
+ *                                                                       *
+ * The author can be reached at admin@atrinik.org                        *
+ ************************************************************************/
 
 /**
  * @file
@@ -31,8 +31,7 @@
 
 /**
  * Commands used for sending data from client to server. */
-enum
-{
+enum {
     SERVER_CMD_CONTROL,
     SERVER_CMD_ASK_FACE,
     SERVER_CMD_SETUP,
@@ -66,8 +65,7 @@ enum
 
 /**
  * All the possible socket commands. */
-enum
-{
+enum {
     CLIENT_CMD_MAP,
     CLIENT_CMD_DRAWINFO,
     CLIENT_CMD_FILE_UPDATE,
@@ -95,10 +93,12 @@ enum
     CLIENT_CMD_PARTY,
     CLIENT_CMD_QUICKSLOT,
     CLIENT_CMD_COMPRESSED,
+    /** @deprecated */
     CLIENT_CMD_REGION_MAP,
     CLIENT_CMD_SOUND_AMBIENT,
     CLIENT_CMD_INTERFACE,
     CLIENT_CMD_NOTIFICATION,
+    CLIENT_CMD_KEEPALIVE,
 
     CLIENT_CMD_NROF
 };
@@ -138,6 +138,26 @@ enum
  * If found in the command, will open the console with any text followed
  * by this. */
 #define CMD_INTERFACE_INPUT 4
+/**
+ * Hidden text to prepend to the final text input string, when sent to
+ * the NPC. */
+#define CMD_INTERFACE_INPUT_PREPEND 5
+/** Allow tabs to be entered. */
+#define CMD_INTERFACE_ALLOW_TAB 6
+/** Disable cleaning up text input. */
+#define CMD_INTERFACE_INPUT_CLEANUP_DISABLE 7
+/** Allow empty text input to be sent. */
+#define CMD_INTERFACE_INPUT_ALLOW_EMPTY 8
+/** Scroll to the bottom when the interface is created. */
+#define CMD_INTERFACE_SCROLL_BOTTOM 9
+/** Text to prefix for autocompletion of text. */
+#define CMD_INTERFACE_AUTOCOMPLETE 10
+/** Restore previous interface data. */
+#define CMD_INTERFACE_RESTORE 11
+/** Text to append to the existing text. */
+#define CMD_INTERFACE_APPEND_TEXT 12
+/** Animation; animated image in the upper left corner square. */
+#define CMD_INTERFACE_ANIM 13
 /*@}*/
 
 /**
@@ -191,12 +211,12 @@ enum
 #define MAP2_FLAG_MULTI      1
 /** Player name. */
 #define MAP2_FLAG_NAME       2
-/** Target's HP bar. */
-#define MAP2_FLAG_PROBE      4
+/** Animation instead of a face. */
+#define MAP2_FLAG_ANIMATION  4
 /** Tile's Z position. */
 #define MAP2_FLAG_HEIGHT     8
-/** Zoom. */
-#define MAP2_FLAG_ZOOM 16
+/** The object should be highlighted in red. */
+#define MAP2_FLAG_INFRAVISION 16
 /** X align. */
 #define MAP2_FLAG_ALIGN 32
 /** Draw the object twice. */
@@ -214,10 +234,14 @@ enum
 #define MAP2_FLAG2_ALPHA 1
 /** Custom rotate value in degrees. */
 #define MAP2_FLAG2_ROTATE 2
-/** The object should be highlighted in red. */
-#define MAP2_FLAG2_INFRAVISION 4
+/** Zoom. */
+#define MAP2_FLAG2_ZOOM 4
 /** Possible target. */
 #define MAP2_FLAG2_TARGET 8
+/** Target's HP bar. */
+#define MAP2_FLAG2_PROBE 16
+/** Priority rendering. */
+#define MAP2_FLAG2_PRIORITY 32
 /*@}*/
 
 /**
@@ -245,8 +269,8 @@ enum
  *@{*/
 /** Clear cell, with all layers. */
 #define MAP2_MASK_CLEAR      0x2
-/** Add darkness. */
-#define MAP2_MASK_DARKNESS   0x4
+#define MAP2_MASK_DARKNESS 0x4
+#define MAP2_MASK_DARKNESS_MORE 0x8
 /*@}*/
 
 /**
@@ -466,7 +490,6 @@ enum
 #define CS_STAT_TITLE           21
 #define CS_STAT_FLAGS           25
 #define CS_STAT_WEIGHT_LIM      26
-#define CS_STAT_EXT_TITLE       27
 #define CS_STAT_REG_HP          28
 #define CS_STAT_REG_MANA        29
 #define CS_STAT_TARGET_HP       31
@@ -503,6 +526,9 @@ enum
 
 #define CS_STAT_EQUIP_START 100
 #define CS_STAT_EQUIP_END 115
+
+#define CS_STAT_PROT_START 130
+#define CS_STAT_PROT_END 149
 /*@}*/
 
 /**
@@ -515,17 +541,6 @@ enum
 #define SF_BLIND            4
 #define SF_XRAYS            8
 #define SF_INFRAVISION      16
-/*@}*/
-
-/**
- * @defgroup FLOAT_MULTx Float multiplication
- * These are multiplication values that should be used when changing
- * floats to ints, and vice versa.
- *@{*/
-/** Integer representation (float to int) */
-#define FLOAT_MULTI 100000
-/** Float representation (int to float) */
-#define FLOAT_MULTF 100000.0
 /*@}*/
 
 /**
@@ -554,6 +569,16 @@ enum
 #define FFLAG_ETHEREAL  0x40
 /** Object is probed */
 #define FFLAG_PROBE     0x80
+/*@}*/
+
+/**
+ * @defgroup anim_flags Animation flags
+ * Used to indicate what stage the animation is in.
+ *@{*/
+#define ANIM_FLAG_MOVING 0x01 ///< Moving.
+#define ANIM_FLAG_ATTACKING 0x02 ///< Attacking.
+#define ANIM_FLAG_STOP_MOVING 0x04 ///< Stop moving.
+#define ANIM_FLAG_STOP_ATTACKING 0x08 ///< Stop attacking.
 /*@}*/
 
 #define CHAT_TYPE_ALL 1
@@ -602,8 +627,7 @@ enum
 /**
  * Player equipment.
  * @anchor PLAYER_EQUIP_xxx */
-enum
-{
+enum {
     /**
      * Ammunition. */
     PLAYER_EQUIP_AMMO,
@@ -614,8 +638,8 @@ enum
      * Weapon. */
     PLAYER_EQUIP_WEAPON,
     /**
-     * Ranged weapon. */
-    PLAYER_EQUIP_WEAPON_RANGED,
+     * Shield. */
+    PLAYER_EQUIP_SHIELD,
     /**
      * Gauntlets. */
     PLAYER_EQUIP_GAUNTLETS,
@@ -644,8 +668,8 @@ enum
      * Bracers. */
     PLAYER_EQUIP_BRACERS,
     /**
-     * Shield. */
-    PLAYER_EQUIP_SHIELD,
+     * Ranged weapon. */
+    PLAYER_EQUIP_WEAPON_RANGED,
     /**
      * Light (lantern, torch). */
     PLAYER_EQUIP_LIGHT,
@@ -658,8 +682,7 @@ enum
     PLAYER_EQUIP_MAX
 };
 
-typedef struct socket_t
-{
+typedef struct socket_t {
     /**
      * Actual socket handle, as returned by socket() call. */
     int handle;

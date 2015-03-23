@@ -1,26 +1,26 @@
-/************************************************************************
-*            Atrinik, a Multiplayer Online Role Playing Game            *
-*                                                                       *
-*    Copyright (C) 2009-2012 Alex Tokar and Atrinik Development Team    *
-*                                                                       *
-* Fork from Crossfire (Multiplayer game for X-windows).                 *
-*                                                                       *
-* This program is free software; you can redistribute it and/or modify  *
-* it under the terms of the GNU General Public License as published by  *
-* the Free Software Foundation; either version 2 of the License, or     *
-* (at your option) any later version.                                   *
-*                                                                       *
-* This program is distributed in the hope that it will be useful,       *
-* but WITHOUT ANY WARRANTY; without even the implied warranty of        *
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
-* GNU General Public License for more details.                          *
-*                                                                       *
-* You should have received a copy of the GNU General Public License     *
-* along with this program; if not, write to the Free Software           *
-* Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.             *
-*                                                                       *
-* The author can be reached at admin@atrinik.org                        *
-************************************************************************/
+/*************************************************************************
+ *           Atrinik, a Multiplayer Online Role Playing Game             *
+ *                                                                       *
+ *   Copyright (C) 2009-2014 Alex Tokar and Atrinik Development Team     *
+ *                                                                       *
+ * Fork from Crossfire (Multiplayer game for X-windows).                 *
+ *                                                                       *
+ * This program is free software; you can redistribute it and/or modify  *
+ * it under the terms of the GNU General Public License as published by  *
+ * the Free Software Foundation; either version 2 of the License, or     *
+ * (at your option) any later version.                                   *
+ *                                                                       *
+ * This program is distributed in the hope that it will be useful,       *
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of        *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
+ * GNU General Public License for more details.                          *
+ *                                                                       *
+ * You should have received a copy of the GNU General Public License     *
+ * along with this program; if not, write to the Free Software           *
+ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.             *
+ *                                                                       *
+ * The author can be reached at admin@atrinik.org                        *
+ ************************************************************************/
 
 /**
  * @file
@@ -28,15 +28,11 @@
 
 #include <global.h>
 
-/** Anim queue of current active map */
-struct _anim *start_anim;
-
 /** Format holder for red_scale(), fow_scale() and grey_scale() functions. */
 SDL_Surface *FormatHolder;
 
 /** Darkness alpha values. */
-static int dark_alpha[DARK_LEVELS] =
-{
+static int dark_alpha[DARK_LEVELS] = {
     0, 44, 80, 117, 153, 190, 226
 };
 
@@ -85,12 +81,11 @@ sprite_struct *sprite_tryload_file(char *fname, uint32 flag, SDL_RWops *rwop)
         if (!(bitmap = IMG_Load_wrapper(fname))) {
             return NULL;
         }
-    }
-    else {
+    } else {
         bitmap = IMG_LoadPNG_RW(rwop);
     }
 
-    if (!(sprite = malloc(sizeof(sprite_struct)))) {
+    if (!(sprite = emalloc(sizeof(sprite_struct)))) {
         return NULL;
     }
 
@@ -100,9 +95,8 @@ sprite_struct *sprite_tryload_file(char *fname, uint32 flag, SDL_RWops *rwop)
 
     if (bitmap->format->palette) {
         SDL_SetColorKey(bitmap, ckflags, (tmp = bitmap->format->colorkey));
-    }
-    /* We force a true color png to colorkey. Default colkey is black (0). */
-    else if (flag & SURFACE_FLAG_COLKEY_16M) {
+    } else if (flag & SURFACE_FLAG_COLKEY_16M) {
+        /* We force a true color png to colorkey. Default colkey is black (0). */
         SDL_SetColorKey(bitmap, ckflags, 0);
     }
 
@@ -114,8 +108,7 @@ sprite_struct *sprite_tryload_file(char *fname, uint32 flag, SDL_RWops *rwop)
     if (flag & SURFACE_FLAG_DISPLAYFORMATALPHA) {
         sprite->bitmap = SDL_DisplayFormatAlpha(bitmap);
         SDL_FreeSurface(bitmap);
-    }
-    else if (flag & SURFACE_FLAG_DISPLAYFORMAT) {
+    } else if (flag & SURFACE_FLAG_DISPLAYFORMAT) {
         sprite->bitmap = SDL_DisplayFormat(bitmap);
         SDL_FreeSurface(bitmap);
     }
@@ -191,59 +184,77 @@ void surface_show_fill(SDL_Surface *surface, int x, int y, SDL_Rect *srcsize, SD
 void surface_show_effects(SDL_Surface *surface, int x, int y, SDL_Rect *srcrect, SDL_Surface *src, uint8 alpha, uint32 stretch, sint16 zoom_x, sint16 zoom_y, sint16 rotate)
 {
     int smooth;
+    SDL_Surface *tmp, *src_gfx;
+
+    tmp = src_gfx = NULL;
 
     if (stretch) {
-        SDL_Surface *tmp;
         Uint8 n = (stretch >> 24) & 0xFF;
         Uint8 e = (stretch >> 16) & 0xFF;
         Uint8 w = (stretch >> 8) & 0xFF;
         Uint8 s = stretch & 0xFF;
 
-        tmp = tile_stretch(src, n, e, s, w);
+        src_gfx = tile_stretch(src, n, e, s, w);
 
-        if (!tmp) {
-            return;
+        if (src_gfx == NULL) {
+            goto done;
         }
 
-        y -= tmp->h - src->h;
-        src = tmp;
+        y -= src_gfx->h - src->h;
+        src = tmp = src_gfx;
+        src_gfx = NULL;
     }
 
     /* If this is just a flip with no rotate, force disabled interpolation. */
-    if (!rotate && (zoom_x == 0 || zoom_x == -100 || zoom_x == 100) && (zoom_y == 0 || zoom_y == -100 || zoom_y == 100)) {
+    if (!rotate && (zoom_x == 0 || zoom_x == -100 || zoom_x == 100) &&
+            (zoom_y == 0 || zoom_y == -100 || zoom_y == 100)) {
         smooth = 0;
-    }
-    else {
+    } else {
         smooth = setting_get_int(OPT_CAT_CLIENT, OPT_ZOOM_SMOOTH);
     }
 
     if (rotate) {
-        src = rotozoomSurfaceXY(src, rotate, zoom_x ? zoom_x / 100.0 : 1.0, zoom_y ? zoom_y / 100.0 : 1.0, smooth);
+        src_gfx = rotozoomSurfaceXY(src, rotate, zoom_x ? zoom_x / 100.0 : 1.0,
+                zoom_y ? zoom_y / 100.0 : 1.0, smooth);
 
-        if (!src) {
-            return;
+        if (src_gfx == NULL) {
+            goto done;
+        }
+    } else if ((zoom_x && zoom_x != 100) || (zoom_y && zoom_y != 100)) {
+        src_gfx = zoomSurface(src, zoom_x ? zoom_x / 100.0 : 1.0,
+                zoom_y ? zoom_y / 100.0 : 1.0, smooth);
+
+        if (src_gfx == NULL) {
+            goto done;
         }
     }
-    else if ((zoom_x && zoom_x != 100) || (zoom_y && zoom_y != 100)) {
-        src = zoomSurface(src, zoom_x ? zoom_x / 100.0 : 1.0, zoom_y ? zoom_y / 100.0 : 1.0, smooth);
 
-        if (!src) {
-            return;
+    if (src_gfx != NULL) {
+        if (tmp != NULL) {
+            SDL_FreeSurface(tmp);
         }
+
+        src = tmp = src_gfx;
+        src_gfx = NULL;
     }
 
     if (alpha) {
-        SDL_SetAlpha(src, SDL_SRCALPHA, alpha);
+        src_gfx = SDL_DisplayFormatAlpha(src);
+        surface_set_alpha(src_gfx, alpha);
+
+        if (tmp != NULL) {
+            SDL_FreeSurface(tmp);
+        }
+
+        src = tmp = src_gfx;
+        src_gfx = NULL;
     }
 
     surface_show(surface, x, y, srcrect, src);
 
-    if (alpha) {
-        SDL_SetAlpha(src, SDL_SRCALPHA, SDL_ALPHA_OPAQUE);
-    }
-
-    if (stretch || (zoom_x && zoom_x != 100) || (zoom_y && zoom_y != 100) || rotate) {
-        SDL_FreeSurface(src);
+done:
+    if (tmp != NULL) {
+        SDL_FreeSurface(tmp);
     }
 }
 
@@ -266,12 +277,12 @@ void map_sprite_show(SDL_Surface *surface, int x, int y, SDL_Rect *srcrect, spri
         }
 
         src = sprite->effect;
-    }
-    /* No overlay, but the image was previously overlayed; need to
-     * free the dark surfaces so they can be re-rendered, without the
-     * overlay. */
-    else if (sprite->effect) {
+    } else if (sprite->effect) {
         uint8 i;
+
+        /* No overlay, but the image was previously overlayed; need to
+         * free the dark surfaces so they can be re-rendered, without the
+         * overlay. */
 
         SDL_FreeSurface(sprite->effect);
         sprite->effect = NULL;
@@ -292,8 +303,7 @@ void map_sprite_show(SDL_Surface *surface, int x, int y, SDL_Rect *srcrect, spri
 
         if (sprite->dark_level[dark_level]) {
             src = sprite->dark_level[dark_level];
-        }
-        else {
+        } else {
             char buf[MAX_BUF];
 
             src = SDL_DisplayFormatAlpha(src);
@@ -301,22 +311,19 @@ void map_sprite_show(SDL_Surface *surface, int x, int y, SDL_Rect *srcrect, spri
             SDL_BlitSurface(texture_surface(texture_get(TEXTURE_TYPE_SOFTWARE, buf)), NULL, src, NULL);
             sprite->dark_level[dark_level] = src;
         }
-    }
-    else if (flags & SPRITE_FLAG_FOW) {
+    } else if (flags & SPRITE_FLAG_FOW) {
         if (!sprite->fog_of_war) {
             fow_scale(sprite);
         }
 
         src = sprite->fog_of_war;
-    }
-    else if (flags & SPRITE_FLAG_RED) {
+    } else if (flags & SPRITE_FLAG_RED) {
         if (!sprite->red) {
             red_scale(sprite);
         }
 
         src = sprite->red;
-    }
-    else if (flags & SPRITE_FLAG_GRAY) {
+    } else if (flags & SPRITE_FLAG_GRAY) {
         if (!sprite->grey) {
             grey_scale(sprite);
         }
@@ -340,23 +347,22 @@ Uint32 getpixel(SDL_Surface *surface, int x, int y)
     Uint8 *p = (Uint8 *) surface->pixels + y * surface->pitch + x * bpp;
 
     switch (bpp) {
-        case 1:
-            return *p;
+    case 1:
+        return *p;
 
-        case 2:
-            return *(Uint16 *) p;
+    case 2:
+        return *(Uint16 *) p;
 
-        case 3:
+    case 3:
 
-            if (SDL_BYTEORDER == SDL_BIG_ENDIAN) {
-                return p[0] << 16 | p[1] << 8 | p[2];
-            }
-            else {
-                return p[0] | p[1] << 8 | p[2] << 16;
-            }
+        if (SDL_BYTEORDER == SDL_BIG_ENDIAN) {
+            return p[0] << 16 | p[1] << 8 | p[2];
+        } else {
+            return p[0] | p[1] << 8 | p[2] << 16;
+        }
 
-        case 4:
-            return *(Uint32 *) p;
+    case 4:
+        return *(Uint32 *) p;
     }
 
     return 0;
@@ -375,32 +381,31 @@ void putpixel(SDL_Surface *surface, int x, int y, Uint32 pixel)
     Uint8 *p = (Uint8 *) surface->pixels + y * surface->pitch + x * bpp;
 
     switch (bpp) {
-        case 1:
-            *p = pixel;
-            break;
+    case 1:
+        *p = pixel;
+        break;
 
-        case 2:
-            *(Uint16 *) p = pixel;
-            break;
+    case 2:
+        *(Uint16 *) p = pixel;
+        break;
 
-        case 3:
+    case 3:
 
-            if (SDL_BYTEORDER == SDL_BIG_ENDIAN) {
-                p[0] = (pixel >> 16) & 0xff;
-                p[1] = (pixel >> 8) & 0xff;
-                p[2] = pixel & 0xff;
-            }
-            else {
-                p[0] = pixel & 0xff;
-                p[1] = (pixel >> 8) & 0xff;
-                p[2] = (pixel >> 16) & 0xff;
-            }
+        if (SDL_BYTEORDER == SDL_BIG_ENDIAN) {
+            p[0] = (pixel >> 16) & 0xff;
+            p[1] = (pixel >> 8) & 0xff;
+            p[2] = pixel & 0xff;
+        } else {
+            p[0] = pixel & 0xff;
+            p[1] = (pixel >> 8) & 0xff;
+            p[2] = (pixel >> 16) & 0xff;
+        }
 
-            break;
+        break;
 
-        case 4:
-            *(Uint32 *) p = pixel;
-            break;
+    case 4:
+        *(Uint32 *) p = pixel;
+        break;
     }
 }
 
@@ -593,186 +598,6 @@ int surface_borders_get(SDL_Surface *surface, int *top, int *bottom, int *left, 
 }
 
 /**
- * Add an animation.
- * @param type
- * @param mapx
- * @param mapy
- * @param value
- * @return  */
-struct _anim *add_anim(int type, int mapx, int mapy, int value)
-{
-    struct _anim *tmp, *anim;
-    int num_ticks;
-
-    for (tmp = start_anim; tmp; tmp = tmp->next) {
-        if (!tmp->next) {
-            break;
-        }
-    }
-
-    /* tmp == null - no anim in que, else tmp = last anim */
-    anim = malloc(sizeof(struct _anim));
-
-    if (!tmp) {
-        start_anim = anim;
-    }
-    else {
-        tmp->next = anim;
-    }
-
-    anim->before = tmp;
-    anim->next = NULL;
-
-    anim->type = type;
-
-    /* Starting X position */
-    anim->x = 0;
-
-    /* Starting Y position */
-    anim->y = -5;
-    anim->xoff = 0;
-
-    /* This looks like it makes it move up the screen -- was 0 */
-    anim->yoff = 1;
-
-    /* Map coordinates */
-    anim->mapx = mapx;
-    anim->mapy = mapy;
-
-    /* Amount of damage */
-    anim->value = value;
-
-    /* Current time in MilliSeconds */
-    anim->start_tick = LastTick;
-
-    switch (type) {
-        case ANIM_DAMAGE:
-            /* How many ticks to display */
-            num_ticks = 850;
-            anim->last_tick = anim->start_tick + num_ticks;
-            /* 850 ticks 25 pixel move up */
-            anim->yoff = (25.0f / 850.0f);
-            break;
-
-        case ANIM_KILL:
-            /* How many ticks to display */
-            num_ticks = 850;
-            anim->last_tick = anim->start_tick + num_ticks;
-            /* 850 ticks 25 pixel move up */
-            anim->yoff = (25.0f / 850.0f);
-            break;
-    }
-
-    return anim;
-}
-
-/**
- * Remove an animation.
- * @param anim The animation to remove. */
-void remove_anim(struct _anim *anim)
-{
-    struct _anim *tmp, *tmp_next;
-
-    if (!anim) {
-        return;
-    }
-
-    tmp = anim->before;
-    tmp_next = anim->next;
-    efree(anim);
-
-    if (tmp) {
-        tmp->next = tmp_next;
-    }
-    else {
-        start_anim = tmp_next;
-    }
-
-    if (tmp_next) {
-        tmp_next->before = tmp;
-    }
-}
-
-/**
- * Walk through the map anim list, and display the anims. */
-void play_anims(void)
-{
-    struct _anim *anim, *tmp;
-    int xpos, ypos, tmp_off;
-    int num_ticks;
-    char buf[32];
-    int tmp_y;
-
-    for (anim = start_anim; anim; anim = tmp) {
-        tmp = anim->next;
-
-        /* Have we passed the last tick */
-        if (LastTick > anim->last_tick) {
-            remove_anim(anim);
-        }
-        else {
-            num_ticks = LastTick - anim->start_tick;
-
-            switch (anim->type) {
-                case ANIM_DAMAGE:
-                    tmp_y = anim->y - (int) ((float) num_ticks * anim->yoff);
-
-                    if (anim->mapx >= MapData.posx && anim->mapx < MapData.posx + setting_get_int(OPT_CAT_MAP, OPT_MAP_WIDTH) && anim->mapy >= MapData.posy && anim->mapy < MapData.posy + setting_get_int(OPT_CAT_MAP, OPT_MAP_HEIGHT)) {
-                        xpos = cur_widget[MAP_ID]->x + (int) ((MAP_START_XOFF + (anim->mapx - MapData.posx) * MAP_TILE_YOFF - (anim->mapy - MapData.posy - 1) * MAP_TILE_YOFF - 4) * (setting_get_int(OPT_CAT_MAP, OPT_MAP_ZOOM) / 100.0));
-                        ypos = cur_widget[MAP_ID]->y + (int) ((MAP_START_YOFF + (anim->mapx - MapData.posx) * MAP_TILE_XOFF + (anim->mapy - MapData.posy - 1) * MAP_TILE_XOFF - 34) * (setting_get_int(OPT_CAT_MAP, OPT_MAP_ZOOM) / 100.0));
-
-                        if (anim->value < 0) {
-                            snprintf(buf, sizeof(buf), "%d", abs(anim->value));
-                            text_show(ScreenSurface, FONT_MONO10, buf, xpos + anim->x + 4 - (int) strlen(buf) * 4 + 1, ypos + tmp_y + 1, COLOR_GREEN, TEXT_OUTLINE, NULL);
-                        }
-                        else {
-                            snprintf(buf, sizeof(buf), "%d", anim->value);
-                            text_show(ScreenSurface, FONT_MONO10, buf, xpos + anim->x + 4 - (int) strlen(buf) * 4 + 1, ypos + tmp_y + 1, COLOR_ORANGE, TEXT_OUTLINE, NULL);
-                        }
-                    }
-
-                    break;
-
-                case ANIM_KILL:
-                    tmp_y = anim->y - (int) ((float) num_ticks * anim->yoff);
-
-                    if (anim->mapx >= MapData.posx && anim->mapx < MapData.posx + setting_get_int(OPT_CAT_MAP, OPT_MAP_WIDTH) && anim->mapy >= MapData.posy && anim->mapy < MapData.posy + setting_get_int(OPT_CAT_MAP, OPT_MAP_HEIGHT)) {
-                        xpos = cur_widget[MAP_ID]->x + (int) ((MAP_START_XOFF + (anim->mapx - MapData.posx) * MAP_TILE_YOFF - (anim->mapy - MapData.posy - 1) * MAP_TILE_YOFF - 4) * (setting_get_int(OPT_CAT_MAP, OPT_MAP_ZOOM) / 100.0));
-                        ypos = cur_widget[MAP_ID]->y + (int) ((MAP_START_YOFF + (anim->mapx - MapData.posx) * MAP_TILE_XOFF + (anim->mapy - MapData.posy - 1) * MAP_TILE_XOFF - 34) * (setting_get_int(OPT_CAT_MAP, OPT_MAP_ZOOM) / 100.0));
-
-                        surface_show(ScreenSurface, xpos + anim->x - 5, ypos + tmp_y - 4, NULL, TEXTURE_CLIENT("death"));
-                        snprintf(buf, sizeof(buf), "%d", anim->value);
-
-                        tmp_off = 0;
-
-                        /* Let's check the size of the value */
-                        if (anim->value < 10) {
-                            tmp_off = 6;
-                        }
-                        else if (anim->value < 100) {
-                            tmp_off = 0;
-                        }
-                        else if (anim->value < 1000) {
-                            tmp_off = -6;
-                        }
-                        else if (anim->value < 10000) {
-                            tmp_off = -12;
-                        }
-
-                        text_show(ScreenSurface, FONT_MONO10, buf, xpos + anim->x + tmp_off, ypos + tmp_y, COLOR_ORANGE, TEXT_OUTLINE, NULL);
-                    }
-
-                    break;
-
-                default:
-                    logger_print(LOG(BUG), "Unknown animation type");
-                    break;
-            }
-        }
-    }
-}
-
-/**
  * Check for possible sprite collision.
  *
  * Used to make the player overlapping objects transparent.
@@ -864,7 +689,7 @@ void draw_frame(SDL_Surface *surface, int x, int y, int w, int h)
     box.h++;
     SDL_FillRect(surface, &box, SDL_MapRGB(surface->format, 0x55, 0x55, 0x55));
     box.x = x;
-    box.y+= h;
+    box.y += h;
     box.w = w;
     box.h = 1;
     SDL_FillRect(surface, &box, SDL_MapRGB(surface->format, 0x60, 0x60, 0x60));
@@ -983,8 +808,7 @@ void surface_set_alpha(SDL_Surface *surface, uint8 alpha)
 
     if (fmt->Amask == 0) {
         SDL_SetAlpha(surface, SDL_SRCALPHA, alpha);
-    }
-    else {
+    } else {
         int x, y;
         uint8 bpp = fmt->BytesPerPixel;
         float scale = alpha / 255.0f;
@@ -1005,4 +829,38 @@ void surface_set_alpha(SDL_Surface *surface, uint8 alpha)
 
         SDL_UnlockSurface(surface);
     }
+}
+
+/**
+ * Checks whether the given coordinates are within the specified polygon.
+ *
+ * The arrays corners_x/corners_y should contain every single corner point of
+ * the polygon that you want to test.
+ * @param x X coordinate.
+ * @param y Y coordinate.
+ * @param corners_x Array of X corner coordinates.
+ * @param corners_y Array of Y corner coordinates.
+ * @param corners_num Number of corner coordinate entries.
+ * @return 1 if the coordinates are in the polygon, 0 otherwise.
+ */
+int polygon_check_coords(double x, double y,
+        double corners_x[], double corners_y[], int corners_num)
+{
+    int i, j, odd_nodes;
+
+    j = corners_num - 1;
+    odd_nodes = 0;
+
+    for (i = 0; i < corners_num; i++) {
+        if (((corners_y[i] < y && corners_y[j] >= y) ||
+                (corners_y[j] < y && corners_y[i] >= y)) &&
+                (corners_x[i] <= x || corners_x[j] <= x)) {
+            odd_nodes ^= (corners_x[i] + (y - corners_y[i]) / (corners_y[j] -
+                    corners_y[i]) * (corners_x[j] - corners_x[i]) < x);
+        }
+
+        j = i;
+    }
+
+    return odd_nodes;
 }

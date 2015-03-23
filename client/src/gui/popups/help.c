@@ -1,26 +1,26 @@
-/************************************************************************
-*            Atrinik, a Multiplayer Online Role Playing Game            *
-*                                                                       *
-*    Copyright (C) 2009-2012 Alex Tokar and Atrinik Development Team    *
-*                                                                       *
-* Fork from Crossfire (Multiplayer game for X-windows).                 *
-*                                                                       *
-* This program is free software; you can redistribute it and/or modify  *
-* it under the terms of the GNU General Public License as published by  *
-* the Free Software Foundation; either version 2 of the License, or     *
-* (at your option) any later version.                                   *
-*                                                                       *
-* This program is distributed in the hope that it will be useful,       *
-* but WITHOUT ANY WARRANTY; without even the implied warranty of        *
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
-* GNU General Public License for more details.                          *
-*                                                                       *
-* You should have received a copy of the GNU General Public License     *
-* along with this program; if not, write to the Free Software           *
-* Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.             *
-*                                                                       *
-* The author can be reached at admin@atrinik.org                        *
-************************************************************************/
+/*************************************************************************
+ *           Atrinik, a Multiplayer Online Role Playing Game             *
+ *                                                                       *
+ *   Copyright (C) 2009-2014 Alex Tokar and Atrinik Development Team     *
+ *                                                                       *
+ * Fork from Crossfire (Multiplayer game for X-windows).                 *
+ *                                                                       *
+ * This program is free software; you can redistribute it and/or modify  *
+ * it under the terms of the GNU General Public License as published by  *
+ * the Free Software Foundation; either version 2 of the License, or     *
+ * (at your option) any later version.                                   *
+ *                                                                       *
+ * This program is distributed in the hope that it will be useful,       *
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of        *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
+ * GNU General Public License for more details.                          *
+ *                                                                       *
+ * You should have received a copy of the GNU General Public License     *
+ * along with this program; if not, write to the Free Software           *
+ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.             *
+ *                                                                       *
+ * The author can be reached at admin@atrinik.org                        *
+ ************************************************************************/
 
 /**
  * @file
@@ -57,10 +57,10 @@ static void hfile_free(hfile_struct *hfile)
     efree(hfile->key);
 
     if (hfile->msg != NULL) {
-        free(hfile->msg);
+        efree(hfile->msg);
     }
 
-    free(hfile);
+    efree(hfile);
 }
 
 /**
@@ -135,13 +135,11 @@ void hfiles_init(void)
             if (strcmp(key, "help") == 0 && !string_isempty(value)) {
                 hfile = ecalloc(1, sizeof(*hfile));
                 hfile->key = estrdup(value);
-            }
-            else {
+            } else {
                 log(LOG(DEVEL), "Unrecognised line: %s %s", buf,
-                    value ? value : "");
+                        value ? value : "");
             }
-        }
-        else if (value == NULL) {
+        } else if (value == NULL) {
             if (strcmp(key, "msg") == 0) {
                 sb = stringbuffer_new();
 
@@ -159,35 +157,29 @@ void hfiles_init(void)
                 }
 
                 hfile->msg = stringbuffer_finish(sb);
-            }
-            else if (strcmp(key, "end") == 0) {
+            } else if (strcmp(key, "end") == 0) {
                 if (hfile->msg != NULL) {
                     hfile->msg_len = strlen(hfile->msg);
                 }
 
                 HASH_ADD_KEYPTR(hh, hfiles, hfile->key, strlen(hfile->key),
-                                hfile);
+                        hfile);
                 hfile = NULL;
-            }
-            else {
+            } else {
                 log(LOG(DEVEL), "Unrecognised line: %s %s", buf,
-                    value ? value : "");
+                        value ? value : "");
             }
-        }
-        else if (strcmp(key, "autocomplete") == 0) {
+        } else if (strcmp(key, "autocomplete") == 0) {
             hfile->autocomplete = atoi(value);
-        }
-        else if (strcmp(key, "autocomplete_wiz") == 0) {
+        } else if (strcmp(key, "autocomplete_wiz") == 0) {
             hfile->autocomplete_wiz = atoi(value);
-        }
-        else if (strcmp(key, "title") == 0) {
+        } else if (strcmp(key, "title") == 0) {
             sb = stringbuffer_new();
             stringbuffer_append_printf(sb, "[book]%s[/book]", value);
             hfile->msg = stringbuffer_finish(sb);
-        }
-        else {
+        } else {
             log(LOG(DEVEL), "Unrecognised line: %s %s", buf,
-                value ? value : "");
+                    value ? value : "");
         }
     }
 
@@ -231,11 +223,10 @@ void help_show(const char *name)
         char buf[HUGE_BUF];
 
         snprintf(VS(buf), "[book]Help not found[/book][title]\n[center]The "
-                          "specified help file could not be found.[/center]"
-                          "[/title]");
+                "specified help file could not be found.[/center]"
+                "[/title]");
         book_load(buf, strlen(buf));
-    }
-    else {
+    } else {
         book_load(hfile->msg, hfile->msg_len);
     }
 }
@@ -274,12 +265,13 @@ void help_handle_tabulator(text_input_struct *text_input)
 
         utarray_clear(command_matches);
 
-        HASH_ITER(hh, hfiles, hfile, tmp) {
+        HASH_ITER(hh, hfiles, hfile, tmp)
+        {
             if ((hfile->autocomplete ||
-                 (setting_get_int(OPT_CAT_DEVEL, OPT_OPERATOR) &&
-                  hfile->autocomplete_wiz)
-                ) && strncasecmp(hfile->key, text_input->str + 1,
-                                 text_input->num - 1) == 0) {
+                    (setting_get_int(OPT_CAT_DEVEL, OPT_OPERATOR) &&
+                    hfile->autocomplete_wiz)
+                    ) && strncasecmp(hfile->key, text_input->str + 1,
+                    text_input->num - 1) == 0) {
 
                 utarray_push_back(command_matches, &hfile->key);
             }
@@ -298,7 +290,7 @@ void help_handle_tabulator(text_input_struct *text_input)
     }
 
     snprintf(VS(buf), "/%s ", *((char **) utarray_eltptr(command_matches,
-                                                         command_index)));
+            command_index)));
     text_input_set(text_input, buf);
     snprintf(VS(command_buf), "%s", buf);
 

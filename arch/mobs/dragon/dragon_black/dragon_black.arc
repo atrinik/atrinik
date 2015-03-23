@@ -8,7 +8,7 @@ corpse 1
 behavior 2
 layer 6
 direction 5
-terrain_flag 1
+terrain_flag 65
 weapon_speed 0.038
 attack_fire 35
 attack_cold 35
@@ -20,7 +20,7 @@ protect_pierce 5
 protect_fire 75
 protect_cold 75
 type 80
-Wis 3
+wis 3
 mpart_id 3
 animation dragon_black
 is_animated 1
@@ -42,7 +42,7 @@ More
 Object dragon_black_d_b
 name black dragon
 layer 6
-terrain_flag 1
+terrain_flag 65
 mpart_id 3
 mpart_nr 1
 x 1
@@ -53,7 +53,7 @@ More
 Object dragon_black_d_c
 name black dragon
 layer 6
-terrain_flag 1
+terrain_flag 65
 mpart_id 3
 mpart_nr 2
 y 1
@@ -64,7 +64,7 @@ More
 Object dragon_black_d_d
 name black dragon
 layer 6
-terrain_flag 1
+terrain_flag 65
 mpart_id 3
 mpart_nr 3
 y 1

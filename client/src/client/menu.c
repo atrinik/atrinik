@@ -1,26 +1,26 @@
-/************************************************************************
-*            Atrinik, a Multiplayer Online Role Playing Game            *
-*                                                                       *
-*    Copyright (C) 2009-2012 Alex Tokar and Atrinik Development Team    *
-*                                                                       *
-* Fork from Crossfire (Multiplayer game for X-windows).                 *
-*                                                                       *
-* This program is free software; you can redistribute it and/or modify  *
-* it under the terms of the GNU General Public License as published by  *
-* the Free Software Foundation; either version 2 of the License, or     *
-* (at your option) any later version.                                   *
-*                                                                       *
-* This program is distributed in the hope that it will be useful,       *
-* but WITHOUT ANY WARRANTY; without even the implied warranty of        *
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
-* GNU General Public License for more details.                          *
-*                                                                       *
-* You should have received a copy of the GNU General Public License     *
-* along with this program; if not, write to the Free Software           *
-* Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.             *
-*                                                                       *
-* The author can be reached at admin@atrinik.org                        *
-************************************************************************/
+/*************************************************************************
+ *           Atrinik, a Multiplayer Online Role Playing Game             *
+ *                                                                       *
+ *   Copyright (C) 2009-2014 Alex Tokar and Atrinik Development Team     *
+ *                                                                       *
+ * Fork from Crossfire (Multiplayer game for X-windows).                 *
+ *                                                                       *
+ * This program is free software; you can redistribute it and/or modify  *
+ * it under the terms of the GNU General Public License as published by  *
+ * the Free Software Foundation; either version 2 of the License, or     *
+ * (at your option) any later version.                                   *
+ *                                                                       *
+ * This program is distributed in the hope that it will be useful,       *
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of        *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
+ * GNU General Public License for more details.                          *
+ *                                                                       *
+ * You should have received a copy of the GNU General Public License     *
+ * along with this program; if not, write to the Free Software           *
+ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.             *
+ *                                                                       *
+ * The author can be reached at admin@atrinik.org                        *
+ ************************************************************************/
 
 /**
  * @file
@@ -39,15 +39,13 @@ int client_command_check(const char *cmd)
 {
     if (cmd_aliases_handle(cmd)) {
         return 1;
-    }
-    else if (strncasecmp(cmd, "/ready_spell", 12) == 0) {
+    } else if (strncasecmp(cmd, "/ready_spell", 12) == 0) {
         cmd = strchr(cmd, ' ');
 
         if (!cmd || *++cmd == '\0') {
             draw_info(COLOR_RED, "Usage: /ready_spell <spell name>");
             return 1;
-        }
-        else {
+        } else {
             object *tmp;
 
             for (tmp = cpl.ob->inv; tmp; tmp = tmp->next) {
@@ -63,15 +61,13 @@ int client_command_check(const char *cmd)
 
         draw_info(COLOR_RED, "Unknown spell.");
         return 1;
-    }
-    else if (strncasecmp(cmd, "/ready_skill", 12) == 0) {
+    } else if (strncasecmp(cmd, "/ready_skill", 12) == 0) {
         cmd = strchr(cmd, ' ');
 
         if (!cmd || *++cmd == '\0') {
             draw_info(COLOR_RED, "Usage: /ready_skill <skill name>");
             return 1;
-        }
-        else {
+        } else {
             object *tmp;
 
             for (tmp = cpl.ob->inv; tmp; tmp = tmp->next) {
@@ -87,36 +83,20 @@ int client_command_check(const char *cmd)
 
         draw_info(COLOR_RED, "Unknown skill.");
         return 1;
-    }
-    else if (!strncmp(cmd, "/help", 5)) {
+    } else if (!strncmp(cmd, "/help", 5)) {
         cmd += 5;
 
         if (!cmd || *cmd == '\0') {
             help_show("main");
-        }
-        else {
+        } else {
             help_show(cmd + 1);
         }
 
         return 1;
-    }
-    else if (!strncmp(cmd, "/resetwidgets", 13)) {
-        reset_widget(NULL);
+    } else if (!strncmp(cmd, "/resetwidgets", 13)) {
+        widgets_reset();
         return 1;
-    }
-    else if (!strncmp(cmd, "/resetwidget", 12)) {
-        cmd = strchr(cmd, ' ');
-
-        if (!cmd || *++cmd == '\0') {
-            draw_info(COLOR_RED, "Usage: /resetwidget <name>");
-        }
-        else {
-            reset_widget(cmd);
-        }
-
-        return 1;
-    }
-    else if (!strncmp(cmd, "/effect ", 8)) {
+    } else if (!strncmp(cmd, "/effect ", 8)) {
         if (!strcmp(cmd + 8, "none")) {
             effect_stop();
             draw_info(COLOR_GREEN, "Stopped effect.");
@@ -125,26 +105,21 @@ int client_command_check(const char *cmd)
 
         if (effect_start(cmd + 8)) {
             draw_info_format(COLOR_GREEN, "Started effect %s.", cmd + 8);
-        }
-        else {
+        } else {
             draw_info_format(COLOR_RED, "No such effect %s.", cmd + 8);
         }
 
         return 1;
-    }
-    else if (!strncmp(cmd, "/d_effect ", 10)) {
+    } else if (!strncmp(cmd, "/d_effect ", 10)) {
         effect_debug(cmd + 10);
         return 1;
-    }
-    else if (!strncmp(cmd, "/music_pause", 12)) {
+    } else if (!strncmp(cmd, "/music_pause", 12)) {
         sound_pause_music();
         return 1;
-    }
-    else if (!strncmp(cmd, "/music_resume", 13)) {
+    } else if (!strncmp(cmd, "/music_resume", 13)) {
         sound_resume_music();
         return 1;
-    }
-    else if (!strncmp(cmd, "/party joinpassword ", 20)) {
+    } else if (!strncmp(cmd, "/party joinpassword ", 20)) {
         cmd += 20;
 
         if (cpl.partyjoin[0] != '\0') {
@@ -155,46 +130,17 @@ int client_command_check(const char *cmd)
         }
 
         return 1;
-    }
-    else if (!strncmp(cmd, "/invfilter ", 11)) {
-        cmd += 11;
-
-        if (!strcmp(cmd, "all")) {
-            inventory_filter_set(INVENTORY_FILTER_ALL);
-        }
-        else if (!strcmp(cmd, "applied")) {
-            inventory_filter_set(INVENTORY_FILTER_APPLIED);
-        }
-        else if (!strcmp(cmd, "container")) {
-            inventory_filter_set(INVENTORY_FILTER_CONTAINER);
-        }
-        else if (!strcmp(cmd, "magical")) {
-            inventory_filter_set(INVENTORY_FILTER_MAGICAL);
-        }
-        else if (!strcmp(cmd, "cursed")) {
-            inventory_filter_set(INVENTORY_FILTER_CURSED);
-        }
-        else if (!strcmp(cmd, "unidentified")) {
-            inventory_filter_set(INVENTORY_FILTER_UNIDENTIFIED);
-        }
-        else if (!strcmp(cmd, "unapplied")) {
-            inventory_filter_set(INVENTORY_FILTER_UNAPPLIED);
-        }
-        else if (!strcmp(cmd, "locked")) {
-            inventory_filter_set(INVENTORY_FILTER_LOCKED);
-        }
-
+    } else if (!strncmp(cmd, "/invfilter ", 11)) {
+        inventory_filter_set_names(cmd + 11);
         return 1;
-    }
-    else if (!strncasecmp(cmd, "/screenshot", 11)) {
+    } else if (!strncasecmp(cmd, "/screenshot", 11)) {
         SDL_Surface *surface_save;
 
         cmd += 11;
 
         if (!strncasecmp(cmd, " map", 4)) {
             surface_save = cur_widget[MAP_ID]->surface;
-        }
-        else {
+        } else {
             surface_save = ScreenSurface;
         }
 
@@ -205,8 +151,7 @@ int client_command_check(const char *cmd)
 
         screenshot_create(surface_save);
         return 1;
-    }
-    else if (!strncasecmp(cmd, "/console-load ", 14)) {
+    } else if (!strncasecmp(cmd, "/console-load ", 14)) {
         FILE *fp;
         char path[HUGE_BUF], buf[HUGE_BUF * 4], *cp;
         StringBuffer *sb;
@@ -244,22 +189,14 @@ int client_command_check(const char *cmd)
         fclose(fp);
 
         return 1;
-    }
-    else if (strncasecmp(cmd, "/console-obj", 11) == 0) {
-        object *ob;
-
-        ob = widget_inventory_get_selected(cur_widget[cpl.inventory_focus]);
-
-        if (ob) {
-            char buf[HUGE_BUF];
-
-            snprintf(buf, sizeof(buf), "/console noinf::obj = find_obj(me, count = %d)", ob->tag);
-            send_command(buf);
-        }
-
+    } else if (strncasecmp(cmd, "/console-obj", 11) == 0) {
+        menu_inventory_loadtoconsole(cur_widget[cpl.inventory_focus], NULL,
+                NULL);
         return 1;
-    }
-    else if (string_startswith(cmd, "/cast ") || string_startswith(cmd, "/use_skill ")) {
+    } else if (strncasecmp(cmd, "/patch-obj", 11) == 0) {
+        menu_inventory_patch(cur_widget[cpl.inventory_focus], NULL, NULL);
+        return 1;
+    } else if (string_startswith(cmd, "/cast ") || string_startswith(cmd, "/use_skill ")) {
         object *tmp;
         uint8 type;
 
@@ -279,8 +216,7 @@ int client_command_check(const char *cmd)
 
         draw_info_format(COLOR_RED, "Unknown %s.", type == TYPE_SPELL ? "spell" : "skill");
         return 1;
-    }
-    else if (strncasecmp(cmd, "/clearcache", 11) == 0) {
+    } else if (strncasecmp(cmd, "/clearcache", 11) == 0) {
         cmd += 12;
 
         if (string_isempty(cmd)) {
@@ -290,15 +226,13 @@ int client_command_check(const char *cmd)
         if (strcasecmp(cmd, "sound") == 0) {
             sound_clear_cache();
             draw_info(COLOR_GREEN, "Sound cache cleared.");
-        }
-        else if (strcasecmp(cmd, "textures") == 0) {
+        } else if (strcasecmp(cmd, "textures") == 0) {
             texture_reload();
             draw_info(COLOR_GREEN, "Textures reloaded.");
         }
 
         return 1;
-    }
-    else if (string_startswith(cmd, "/droptag ") || string_startswith(cmd, "/gettag ")) {
+    } else if (string_startswith(cmd, "/droptag ") || string_startswith(cmd, "/gettag ")) {
         char *cps[3];
         tag_t loc, tag;
         uint32 num;
@@ -315,14 +249,12 @@ int client_command_check(const char *cmd)
 
         if (string_startswith(cmd, "/gettag ")) {
             sound_play_effect("get.ogg", 100);
-        }
-        else {
+        } else {
             sound_play_effect("drop.ogg", 100);
         }
 
         return 1;
-    }
-    else if (string_startswith(cmd, "/talk")) {
+    } else if (string_startswith(cmd, "/talk")) {
         char type[MAX_BUF], npc_name[MAX_BUF];
         size_t pos;
         uint8 type_num;
@@ -349,8 +281,7 @@ int client_command_check(const char *cmd)
             }
 
             packet_append_string_terminated(packet, cmd + pos);
-        }
-        else {
+        } else {
             char tag[MAX_BUF];
 
             if (!string_get_word(cmd, &pos, ' ', tag, sizeof(tag), 0) || string_isempty(cmd + pos)) {
@@ -365,6 +296,46 @@ int client_command_check(const char *cmd)
         socket_send_packet(packet);
 
         return 1;
+    } else if (string_startswith(cmd, "/widget_toggle")) {
+        size_t pos;
+        char word[MAX_BUF], *cps[2];
+        int widget_id;
+
+        pos = 14;
+
+        while (string_get_word(cmd, &pos, ' ', word, sizeof(word), 0)) {
+            if (string_split(word, cps, arraysize(cps), ':') < 1) {
+                continue;
+            }
+
+            widget_id = widget_id_from_name(cps[0]);
+
+            /* Invalid widget ID */
+            if (widget_id == -1) {
+                continue;
+            }
+
+            /* Redraw all or a specific one identified by its UID */
+            if (cps[1] == NULL) {
+                WIDGET_SHOW_TOGGLE_ALL(widget_id);
+            } else {
+                widgetdata *widget;
+
+                widget = widget_find(NULL, widget_id, cps[1], NULL);
+
+                if (widget) {
+                    WIDGET_SHOW_TOGGLE(widget);
+                }
+            }
+        }
+
+        return 1;
+    } else if (string_startswith(cmd, "/ping")) {
+        keepalive_ping_stats();
+        return 1;
+    } else if (string_startswith(cmd, "/region_map")) {
+        region_map_open();
+        return 1;
     }
 
     return 0;
@@ -373,9 +344,12 @@ int client_command_check(const char *cmd)
 /**
  * Same as send_command(), but also check client commands.
  * @param cmd Command to send. */
-void send_command_check(const char *cmd)
+int send_command_check(const char *cmd)
 {
     if (!client_command_check(cmd)) {
         send_command(cmd);
+        return 1;
     }
+
+    return 0;
 }

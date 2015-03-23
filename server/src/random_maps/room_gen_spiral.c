@@ -1,26 +1,26 @@
-/************************************************************************
-*            Atrinik, a Multiplayer Online Role Playing Game            *
-*                                                                       *
-*    Copyright (C) 2009-2012 Alex Tokar and Atrinik Development Team    *
-*                                                                       *
-* Fork from Crossfire (Multiplayer game for X-windows).                 *
-*                                                                       *
-* This program is free software; you can redistribute it and/or modify  *
-* it under the terms of the GNU General Public License as published by  *
-* the Free Software Foundation; either version 2 of the License, or     *
-* (at your option) any later version.                                   *
-*                                                                       *
-* This program is distributed in the hope that it will be useful,       *
-* but WITHOUT ANY WARRANTY; without even the implied warranty of        *
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
-* GNU General Public License for more details.                          *
-*                                                                       *
-* You should have received a copy of the GNU General Public License     *
-* along with this program; if not, write to the Free Software           *
-* Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.             *
-*                                                                       *
-* The author can be reached at admin@atrinik.org                        *
-************************************************************************/
+/*************************************************************************
+ *           Atrinik, a Multiplayer Online Role Playing Game             *
+ *                                                                       *
+ *   Copyright (C) 2009-2014 Alex Tokar and Atrinik Development Team     *
+ *                                                                       *
+ * Fork from Crossfire (Multiplayer game for X-windows).                 *
+ *                                                                       *
+ * This program is free software; you can redistribute it and/or modify  *
+ * it under the terms of the GNU General Public License as published by  *
+ * the Free Software Foundation; either version 2 of the License, or     *
+ * (at your option) any later version.                                   *
+ *                                                                       *
+ * This program is distributed in the hope that it will be useful,       *
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of        *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
+ * GNU General Public License for more details.                          *
+ *                                                                       *
+ * You should have received a copy of the GNU General Public License     *
+ * along with this program; if not, write to the Free Software           *
+ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.             *
+ *                                                                       *
+ * The author can be reached at admin@atrinik.org                        *
+ ************************************************************************/
 
 /**
  * @file
@@ -56,7 +56,7 @@
 char **map_gen_spiral(int xsize, int ysize, int option)
 {
     int i, j, ic, jc;
-    float parm = 0, x = 0, y = 0, SizeX, SizeY, xscale,yscale;
+    float parm = 0, x = 0, y = 0, SizeX, SizeY, xscale, yscale;
 
     /* Allocate that array, set it up */
     char **maze = ecalloc(sizeof(char *), xsize);
@@ -91,14 +91,13 @@ char **map_gen_spiral(int xsize, int ysize, int option)
         /* unset REGULAR_SPIRAL half the time */
         if (RANDOM() % 2 && (option & REGULAR_SPIRAL)) {
             option -= REGULAR_SPIRAL;
-        }
-        else {
+        } else {
             option -= FIT_SPIRAL;
         }
     }
 
     /* fine spiral */
-    xscale = yscale= ( float) MAX_FINE;
+    xscale = yscale = ( float) MAX_FINE;
 
     /* choose the spiral pitch */
     if (!(option & FINE_SPIRAL)) {
@@ -110,8 +109,7 @@ char **map_gen_spiral(int xsize, int ysize, int option)
     if ((option & FIT_SPIRAL) && (xsize != ysize)) {
         if (xsize > ysize) {
             xscale *= (float) xsize / (float) ysize;
-        }
-        else {
+        } else {
             yscale *= (float) ysize / (float) xsize;
         }
     }

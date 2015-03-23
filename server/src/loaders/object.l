@@ -1,27 +1,27 @@
 %{
-/************************************************************************
-*            Atrinik, a Multiplayer Online Role Playing Game            *
-*                                                                       *
-*    Copyright (C) 2009-2012 Alex Tokar and Atrinik Development Team    *
-*                                                                       *
-* Fork from Crossfire (Multiplayer game for X-windows).                 *
-*                                                                       *
-* This program is free software; you can redistribute it and/or modify  *
-* it under the terms of the GNU General Public License as published by  *
-* the Free Software Foundation; either version 2 of the License, or     *
-* (at your option) any later version.                                   *
-*                                                                       *
-* This program is distributed in the hope that it will be useful,       *
-* but WITHOUT ANY WARRANTY; without even the implied warranty of        *
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
-* GNU General Public License for more details.                          *
-*                                                                       *
-* You should have received a copy of the GNU General Public License     *
-* along with this program; if not, write to the Free Software           *
-* Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.             *
-*                                                                       *
-* The author can be reached at admin@atrinik.org                        *
-************************************************************************/
+/*************************************************************************
+ *           Atrinik, a Multiplayer Online Role Playing Game             *
+ *                                                                       *
+ *   Copyright (C) 2009-2014 Alex Tokar and Atrinik Development Team     *
+ *                                                                       *
+ * Fork from Crossfire (Multiplayer game for X-windows).                 *
+ *                                                                       *
+ * This program is free software; you can redistribute it and/or modify  *
+ * it under the terms of the GNU General Public License as published by  *
+ * the Free Software Foundation; either version 2 of the License, or     *
+ * (at your option) any later version.                                   *
+ *                                                                       *
+ * This program is distributed in the hope that it will be useful,       *
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of        *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
+ * GNU General Public License for more details.                          *
+ *                                                                       *
+ * You should have received a copy of the GNU General Public License     *
+ * along with this program; if not, write to the Free Software           *
+ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.             *
+ *                                                                       *
+ * The author can be reached at admin@atrinik.org                        *
+ ************************************************************************/
 
 /**
  * @file
@@ -253,14 +253,13 @@ lex_error = 0;
             if (QUERY_FLAG(tmp, FLAG_AUTO_APPLY)) {
                 /* auto_apply() will clear FLAG_AUTO_APPLY */
                 auto_apply(tmp);
-            }
-            /* Here we can have an interesting problem when we have kind of
-             * creators (like spawn points) which use the inv object as a clone
-             * kind object. Then we don't want substitute the treasure here or
-             * the
-             * generator will clone objects with same treasures over and over.
-             * */
-            else if (tmp->randomitems && (map_flags & MAP_ORIGINAL) && (op->type != SPAWN_POINT)) {
+            } else if (tmp->randomitems && (map_flags & MAP_ORIGINAL) && (op->type != SPAWN_POINT)) {
+                /* Here we can have an interesting problem when we have kind of
+                 * creators (like spawn points) which use the inv object as a clone
+                 * kind object. Then we don't want substitute the treasure here or
+                 * the
+                 * generator will clone objects with same treasures over and over.
+                 * */
                 create_treasure(tmp->randomitems, tmp, 0, get_environment_level(tmp), T_STYLE_UNSET, ART_CHANCE_UNSET, 0, NULL);
             }
 
@@ -268,9 +267,8 @@ lex_error = 0;
                 object_initializers[tmp->type](tmp);
             }
         }
-    }
-    /* This is the actual archetype definition */
-    else {
+    } else {
+        /* This is the actual archetype definition */
         op->arch = find_archetype(yval());
 
         if (op->arch != NULL) {
@@ -459,7 +457,7 @@ lex_error = 0;
 ^rotate{S}           op->rotate = IVAL;
 ^nrof{S}             op->nrof = atol(yval());
 ^level{S}            op->level = IVAL;
-^direction{S}        op->facing = op->anim_last_facing = op->direction = (IVAL % 9);
+^direction{S}        op->direction = (IVAL % 9);
 ^type{S}             op->type = IVAL;
 ^material{S}         op->material = IVAL;
 ^value{S}            op->value = atoll(yval());
@@ -794,6 +792,9 @@ lex_error = 0;
     op->weapon_speed_left = 0;
 }
 ^item_power{S}       op->item_power = IVAL;
+^match{S}            {
+    sound_ambient_match_parse(op, yval());
+}
 
 <*>(^{WS})|{NL}      {}
 #.*{NL}              {}
@@ -865,7 +866,9 @@ static char *yval(void)
  * Frees all memory allocated by the object loader. */
 void free_object_loader(void)
 {
+#ifndef WIN32
     yylex_destroy();
+#endif
 }
 
 /* Buffer functions - needed to make load_object() recursive save. */
@@ -1019,9 +1022,9 @@ int load_object(void *fp, object *op, void *mybuffer, int bufstate, int map_flag
                     op->speed_left = op->speed_left + (float) (RANDOM() % 90) / 100.0f;
                 }
             }
-        }
-        /* arch load... perhaps a map */
-        else {
+        } else {
+            /* arch load... perhaps a map */
+
             /* Only do this when we have not loaded a fix speed_left and
              * speed is lower than zero. */
             if (op->speed < 0.0f && op->speed_left == op->arch->clone.speed_left) {

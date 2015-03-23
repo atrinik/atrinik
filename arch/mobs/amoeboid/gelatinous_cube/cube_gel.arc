@@ -14,8 +14,8 @@ wc 1
 dam 40
 hp -1
 maxhp 40
-terrain_flag 1
-Wis 5
+terrain_flag 65
+wis 5
 can_see_in_dark 1
 face gel_cube.111
 animation cube_gel

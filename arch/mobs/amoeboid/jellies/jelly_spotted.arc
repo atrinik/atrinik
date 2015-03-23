@@ -17,8 +17,8 @@ wc 2
 dam 62
 hp -1
 maxhp 62
-terrain_flag 1
-Wis 3
+terrain_flag 65
+wis 3
 can_see_in_dark 1
 face spotted_jelly.111
 animation jelly_spotted

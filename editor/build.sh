@@ -58,7 +58,7 @@ if [[ -z $GRIDARTA_PATH ]]; then
     exit 1
 fi
 
-command -v svn >/dev/null 2>&1 || { echo "WARNING: Subversion not found, will not update repository" >&2; }
+command -v git >/dev/null 2>&1 || { echo "WARNING: git not found, will not update repository" >&2; }
 
 if [[ ! -z $SYNC ]]; then
     command -v rsync >/dev/null 2>&1 || { echo "ERROR  : Synchronization requested but rsync is not installed" >&2; exit 1; }
@@ -69,8 +69,8 @@ echo "INFO   : Gridarta build started: $(date)"
 echo "INFO   : Entering Gridarta directory..."
 cd $GRIDARTA_PATH || exit 1
 
-echo "INFO   : Updating SVN..."
-svn up || echo "ERROR  : Could not update SVN." >&2
+echo "INFO   : Updating git..."
+git pull || echo "ERROR  : Could not update git." >&2
 
 if [ -h AtrinikEditor.jar ]; then
     echo "INFO   : Removing old AtrinikEditor.jar symlink..."

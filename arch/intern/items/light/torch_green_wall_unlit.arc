@@ -5,7 +5,6 @@ type 74
 sub_type 1
 face torch_wall_green.110
 animation torch_wall_green_unlit
-speed -0.02
 is_animated 1
 is_turnable 1
 anim_speed 4

@@ -12,7 +12,7 @@
         </dialog>
         <dialog name="contract">
             <message>What? Are you trying to pretend to be Kyubey or something?</message>
-            <response message="Where is Kyubey?" destination="kyubey" />
+            <response destination="kyubey" message="Where is Kyubey?"/>
         </dialog>
         <dialog name="kyubey">
             <message>No, we don't have a Kyubey...</message>

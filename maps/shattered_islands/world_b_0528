@@ -461,7 +461,7 @@ name sword spider
 level 11
 exp 97
 attack_cleave 90
-Wis 4
+wis 4
 protect_impact 5
 protect_slash 5
 protect_cleave 5
@@ -808,7 +808,7 @@ name sword spider
 level 15
 exp 97
 attack_cleave 90
-Wis 4
+wis 4
 protect_impact 5
 protect_slash 5
 protect_cleave 5
@@ -1448,7 +1448,7 @@ name sword spider
 level 13
 exp 97
 attack_cleave 90
-Wis 4
+wis 4
 protect_impact 5
 protect_slash 5
 protect_cleave 5
@@ -1813,7 +1813,7 @@ name sword spider
 level 13
 exp 97
 attack_cleave 90
-Wis 4
+wis 4
 protect_impact 5
 protect_slash 5
 protect_cleave 5
@@ -2175,7 +2175,7 @@ name sword spider
 level 14
 exp 97
 attack_cleave 90
-Wis 4
+wis 4
 protect_impact 5
 protect_slash 5
 protect_cleave 5
@@ -2555,7 +2555,7 @@ name sword spider
 level 11
 exp 97
 attack_cleave 90
-Wis 4
+wis 4
 protect_impact 5
 protect_slash 5
 protect_cleave 5

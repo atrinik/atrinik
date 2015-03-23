@@ -2,7 +2,7 @@ arch map
 name Moroch Temple
 msg
 Created:  2009-09-22 Alex Tokar
-Modified: 2011-11-03 Alex Tokar
+Modified: 2014-12-04 atokar
 endmsg
 width 24
 height 24
@@ -576,7 +576,7 @@ x 5
 y 6
 end
 arch shelf3_dem1.111
-direction 6
+direction 7
 x 5
 y 6
 end
@@ -866,7 +866,7 @@ y 20
 arch skel_fighter1
 type 83
 level 62
-Dex 2
+dex 2
 can_use_bow 1
 direction 1
 arch ability_stone_throw
@@ -1216,11 +1216,6 @@ x 9
 y 7
 end
 arch fwall_fstone1c
-x 9
-y 7
-end
-arch plant1_wall.151
-direction 7
 x 9
 y 7
 end

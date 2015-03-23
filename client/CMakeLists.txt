@@ -3,13 +3,40 @@
 project(atrinik C)
 cmake_minimum_required(VERSION 2.6)
 set(EXECUTABLE atrinik)
+set(EXECUTABLE_UPDATER atrinik2)
 
 # Include build configuration.
 include(build.config)
 
 if (EXISTS build.user)
-	include(build.user)
-endif (EXISTS build.user)
+    include(build.user)
+endif ()
+
+# Add some useful compile flags.
+add_definitions(-Wall -Wextra -Wno-unused-parameter)
+add_definitions(${CUSTOM_WARNINGS})
+
+if (ENABLE_EXTRA_WARNINGS)
+    add_definitions(-ftree-vrp -Wdeclaration-after-statement -Wundef -Wpointer-arith -Wbad-function-cast -Wcast-align -Wlogical-op -Waggregate-return -Wnested-externs -Wunreachable-code -Wstack-protector -D_POSIX_C_SOURCE=200112L -D_GNU_SOURCE -fbounds-check -ftrapv -fstack-protector-all -Wformat -Wformat-security -Winit-self -Wshadow -Wunsafe-loop-optimizations -Wbad-function-cast)
+endif ()
+
+if (ENABLE_AGGRESSIVE_WARNINGS)
+    add_definitions(-Wcast-qual -Wmissing-declarations -Wformat=2)
+endif ()
+
+# Turn warnings into errors?
+if (ENABLE_WARNING_ERRORS)
+    add_definitions(-Werror)
+endif ()
+
+# Add our includes.
+include_directories(src/include)
+include_directories(src/gui/toolkit/include)
+include(src/toolkit/cmake-pre.txt)
+
+if (MINGW)
+    set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -mwindows")
+endif ()
 
 # SDL is required to run the client.
 find_package(SDL REQUIRED)
@@ -31,48 +58,27 @@ set(HAVE_SDL_TTF true)
 find_package(SDL_mixer)
 
 if (SDLMIXER_FOUND)
-	include_directories(${SDLMIXER_INCLUDE_DIR})
-	set(HAVE_SDL_MIXER true)
-else (SDLMIXER_FOUND)
-	message(STATUS "Warning: SDL_mixer not found - sound support will be disabled")
-endif (SDLMIXER_FOUND)
-
-# Add some useful compile flags.
-add_definitions(-Wall -Wextra -Wno-unused-parameter)
-add_definitions(${CUSTOM_WARNINGS})
-
-if (ENABLE_EXTRA_WARNINGS)
-	add_definitions(-ftree-vrp -Wdeclaration-after-statement -Wundef -Wpointer-arith -Wbad-function-cast -Wcast-align -Wlogical-op -Waggregate-return -Wnested-externs -Wunreachable-code -Wstack-protector -D_POSIX_C_SOURCE=200112L -D_GNU_SOURCE -fbounds-check -ftrapv -fstack-protector-all -Wformat -Wformat-security -Winit-self -Wshadow -Wunsafe-loop-optimizations -Wbad-function-cast)
-endif (ENABLE_EXTRA_WARNINGS)
-
-if (ENABLE_AGGRESSIVE_WARNINGS)
-	add_definitions(-Wcast-qual -Wmissing-declarations -Wformat=2)
-endif (ENABLE_AGGRESSIVE_WARNINGS)
-
-# Turn warnings into errors?
-if (ENABLE_WARNING_ERRORS)
-	add_definitions(-Werror)
-endif (ENABLE_WARNING_ERRORS)
-
-# Disable optimization?
-if (DISABLE_OPTIMIZING)
-	add_definitions(-O0)
-endif (DISABLE_OPTIMIZING)
-
-if (ENABLE_DEBUG)
-	add_definitions(-g)
-endif (ENABLE_DEBUG)
-
-# Add our includes.
-include_directories(src/include)
-include_directories(src/gui/toolkit/include)
-include(src/toolkit/cmake-pre.txt)
+    include_directories(${SDLMIXER_INCLUDE_DIR})
+    set(HAVE_SDL_MIXER true)
+else ()
+    message(STATUS "Warning: SDL_mixer not found - sound support will be disabled")
+endif ()
 
 # Add sources.
 include(src/cmake.txt)
 
+if (MINGW)
+    ADD_CUSTOM_COMMAND(OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/atrinikrc.o
+            COMMAND windres.exe -I${CMAKE_CURRENT_SOURCE_DIR}
+            -i${CMAKE_CURRENT_SOURCE_DIR}/atrinik.rc
+            -o ${CMAKE_CURRENT_BINARY_DIR}/atrinikrc.o)
+    SET(SOURCES ${SOURCES} ${CMAKE_CURRENT_BINARY_DIR}/atrinikrc.o)
+    add_executable(${EXECUTABLE_UPDATER}
+        src/updater/main.c ${CMAKE_CURRENT_BINARY_DIR}/atrinikrc.o)
+endif ()
+
 # Compile the sources into an executable.
-add_executable(${EXECUTABLE} ${SOURCES})
+add_executable(${EXECUTABLE} WIN32 ${SOURCES})
 include(src/toolkit/cmake-post.txt)
 
 # Link all the available libraries.
@@ -82,86 +88,106 @@ target_link_libraries(${EXECUTABLE} ${SDLTTF_LIBRARY})
 
 # Link SDL_mixer if available.
 if (HAVE_SDL_MIXER)
-	target_link_libraries(${EXECUTABLE} ${SDLMIXER_LIBRARY})
-endif (HAVE_SDL_MIXER)
+    target_link_libraries(${EXECUTABLE} ${SDLMIXER_LIBRARY})
+endif ()
 
 # Get all the include directories used to compile the client.
 get_directory_property(INCLUDES INCLUDE_DIRECTORIES)
 
 # Go through the include directories and construct a string.
 foreach (var ${INCLUDES})
-	string(REPLACE "${CMAKE_CURRENT_SOURCE_DIR}/" "" var ${var})
-	set(INCLUDES_STRING "${INCLUDES_STRING} -I${var}")
-endforeach (var)
+    string(REPLACE "${CMAKE_CURRENT_SOURCE_DIR}/" "" var ${var})
+    set(INCLUDES_STRING "${INCLUDES_STRING} -I${var}")
+endforeach ()
 
 # Go through the source files and construct a string.
 foreach (var ${SOURCES})
-	string(REPLACE "${CMAKE_CURRENT_SOURCE_DIR}/" "" var ${var})
-	set(SOURCES_STRING "${SOURCES_STRING} "${var}"")
-endforeach (var)
+    string(REPLACE "${CMAKE_CURRENT_SOURCE_DIR}/" "" var ${var})
+    set(SOURCES_STRING "${SOURCES_STRING};${var}")
+endforeach ()
 
 # Create a 'proto' build target, which generates the proto.h file.
 add_custom_target(proto
-	cproto -ve -o src/include/proto.h.bak -D__CPROTO__${INCLUDES_STRING}${SOURCES_STRING}
-	COMMAND cmake -E echo "#ifndef __CPROTO__" > src/include/proto.h
-	COMMAND sed -e "s/#if __STDC__/#ifdef __STDC__/" -e "s/__signed/signed/g" -e "/__inline/d" -e "s/\"\" //g" < src/include/proto.h.bak >> src/include/proto.h
-	COMMAND cmake -E echo "#endif" >> src/include/proto.h
-	COMMAND cmake -E remove -f src/include/proto.h.bak
-	COMMAND python src/toolkit/adjust_proto.py src/include/proto.h || exit 5
-	WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
-	COMMENT "Generating prototypes..."
-	VERBATIM)
+    cproto -ve -o src/include/proto.h.bak -D__CPROTO__${INCLUDES_STRING}${SOURCES_STRING}
+    COMMAND cmake -E echo "#ifndef __CPROTO__" > src/include/proto.h
+    COMMAND sed -e "s/#if __STDC__/#ifdef __STDC__/" -e "s/__signed/signed/g" -e "/__inline/d" -e "s/\"\" //g" < src/include/proto.h.bak >> src/include/proto.h
+    COMMAND cmake -E echo "#endif" >> src/include/proto.h
+    COMMAND cmake -E remove -f src/include/proto.h.bak
+    COMMAND python src/toolkit/adjust_proto.py src/include/proto.h || exit 5
+    WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
+    COMMENT "Generating prototypes..."
+    VERBATIM)
 
 # Installer.
 if (WIN32 AND NOT UNIX)
-	set(INSTALL_SUBDIR_BIN ".")
-	set(INSTALL_SUBDIR_SHARE ".")
-	set(INSTALL_SUBDIR_DOC ".")
+    set(INSTALL_SUBDIR_BIN ".")
+    set(INSTALL_SUBDIR_SHARE ".")
+    set(INSTALL_SUBDIR_DOC ".")
 
-	file(GLOB DLLS "${CMAKE_CURRENT_SOURCE_DIR}/*.dll")
-	install(FILES ${DLLS} DESTINATION ${INSTALL_SUBDIR_BIN})
-else (WIN32 AND NOT UNIX)
-	set(INSTALL_SUBDIR_BIN "games")
-	set(INSTALL_SUBDIR_SHARE "share/games/atrinik")
-	set(INSTALL_SUBDIR_DOC "share/doc/atrinik")
+    file(GLOB DLLS "${CMAKE_CURRENT_SOURCE_DIR}/*.dll")
+    set(EXES gunzip.exe tar.exe atrinik.bat ca-bundle.crt timidity.cfg)
+    install(FILES ${DLLS} DESTINATION ${INSTALL_SUBDIR_BIN})
+    install(TARGETS atrinik2 DESTINATION ${INSTALL_SUBDIR_BIN})
+    install(FILES ${EXES} DESTINATION ${INSTALL_SUBDIR_BIN})
+    install(DIRECTORY timidity DESTINATION ${INSTALL_SUBDIR_BIN})
+else ()
+    set(INSTALL_SUBDIR_BIN "games")
+    set(INSTALL_SUBDIR_SHARE "share/games/atrinik")
+    set(INSTALL_SUBDIR_DOC "share/doc/atrinik")
 
-	install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/atrinik.desktop DESTINATION "share/applications")
-	install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/bitmaps/icon.png DESTINATION "share/pixmaps" RENAME "atrinik.png")
-endif (WIN32 AND NOT UNIX)
+    install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/atrinik.desktop DESTINATION "share/applications")
+    install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/bitmaps/icon.png DESTINATION "share/pixmaps" RENAME "atrinik.png")
+endif ()
 
 install(TARGETS atrinik DESTINATION ${INSTALL_SUBDIR_BIN})
-install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/INSTALL ${CMAKE_CURRENT_SOURCE_DIR}/README ${CMAKE_CURRENT_SOURCE_DIR}/COPYING DESTINATION ${INSTALL_SUBDIR_DOC})
-install(DIRECTORY bitmaps cache data fonts gfx_user media settings sfx srv_files DESTINATION ${INSTALL_SUBDIR_SHARE})
+install(FILES
+        ${CMAKE_CURRENT_SOURCE_DIR}/INSTALL
+        ${CMAKE_CURRENT_SOURCE_DIR}/README
+        ${CMAKE_CURRENT_SOURCE_DIR}/COPYING
+        ${CMAKE_CURRENT_SOURCE_DIR}/client.cfg
+        DESTINATION ${INSTALL_SUBDIR_DOC})
+install(DIRECTORY textures cache data fonts gfx_user sound settings srv_files DESTINATION ${INSTALL_SUBDIR_SHARE} PATTERN ".git" EXCLUDE)
 
 include(InstallRequiredSystemLibraries)
+
 set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "Fantasy multiplayer online role-playing game")
 set(CPACK_PACKAGE_VENDOR "Atrinik Development Team")
 set(CPACK_PACKAGE_CONTACT "Atrinik Development Team <admin@atrinik.org>")
+set(CPACK_PACKAGE_DESCRIPTION_FILE "${CMAKE_CURRENT_SOURCE_DIR}/README")
+set(CPACK_RESOURCE_FILE_LICENSE "${CMAKE_CURRENT_SOURCE_DIR}/COPYING")
+set(CPACK_PACKAGE_VERSION_MAJOR "3")
+set(CPACK_PACKAGE_VERSION_MINOR "5")
+set(CPACK_PACKAGE_VERSION_PATCH "0")
+set(CPACK_PACKAGE_INSTALL_DIRECTORY "Atrinik")
+
+if (MINGW)
+    set(CPACK_PACKAGE_EXECUTABLES "atrinik2" "Atrinik")
+    set(CPACK_CREATE_DESKTOP_LINKS "atrinik2")
+endif ()
+
 set(CPACK_DEBIAN_PACKAGE_NAME "atrinik")
 set(CPACK_DEBIAN_PACKAGE_DEPENDS "libc6 (>= 2.5), libgcc1 (>= 1:4.1), libsdl-image1.2 (>= 1.2.5), libsdl1.2debian (>= 1.2.10-1), libcurl3 (>= 7.16), libsdl-mixer1.2 (>= 1), libsdl-ttf2.0-0 (>= 1), timidity (>= 1), zlib1g (>= 1), libx11-6, libxmu6")
 set(CPACK_DEBIAN_PACKAGE_DESCRIPTION "Fantasy multiplayer online role-playing game with 2.5D graphics\n .\n Homepage: http://www.atrinik.org/")
 set(CPACK_DEBIAN_PACKAGE_SECTION "games")
+
 set(CPACK_RPM_PACKAGE_NAME "atrinik")
 set(CPACK_RPM_PACKAGE_DESCRIPTION "Fantasy multiplayer online role-playing game with 2.5D graphics\n .\n Homepage: http://www.atrinik.org/")
 set(CPACK_RPM_PACKAGE_LICENSE "GNU General Public License (GPL)")
 set(CPACK_RPM_PACKAGE_GROUP "Games")
-set(CPACK_PACKAGE_DESCRIPTION_FILE "${CMAKE_CURRENT_SOURCE_DIR}/README")
-set(CPACK_RESOURCE_FILE_LICENSE "${CMAKE_CURRENT_SOURCE_DIR}/COPYING")
-set(CPACK_PACKAGE_VERSION_MAJOR "2")
-set(CPACK_PACKAGE_VERSION_MINOR "0")
-set(CPACK_PACKAGE_VERSION_PATCH "0")
-set(CPACK_PACKAGE_INSTALL_DIRECTORY "Atrinik ${CPACK_PACKAGE_VERSION_MAJOR}.${CPACK_PACKAGE_VERSION_MINOR}.${CPACK_PACKAGE_VERSION_PATCH}")
-set(CPACK_INSTALL_DIRECTORIES "media")
-set(CPACK_PACKAGE_EXECUTABLES "atrinik" "Atrinik ${CPACK_PACKAGE_VERSION_MAJOR}.${CPACK_PACKAGE_VERSION_MINOR}.${CPACK_PACKAGE_VERSION_PATCH}")
+
 set(CPACK_NSIS_INSTALLED_ICON_NAME "atrinik")
-set(CPACK_NSIS_DISPLAY_NAME "Atrinik ${CPACK_PACKAGE_VERSION_MAJOR}.${CPACK_PACKAGE_VERSION_MINOR}.${CPACK_PACKAGE_VERSION_PATCH}")
+set(CPACK_NSIS_MUI_ICON "${CMAKE_CURRENT_SOURCE_DIR}/textures/icon.ico")
+set(CPACK_NSIS_MUI_UNIICON "${CMAKE_CURRENT_SOURCE_DIR}/textures/icon.ico")
+set(CPACK_NSIS_DISPLAY_NAME "Atrinik")
+set(CPACK_NSIS_MODIFY_PATH "ON")
+set(CPACK_NSIS_EXECUTABLES_DIRECTORY ".")
 
 if (${PACKAGE_TYPE} STREQUAL "deb")
-	set(CPACK_BINARY_DEB "ON")
+    set(CPACK_BINARY_DEB "ON")
 elseif (${PACKAGE_TYPE} STREQUAL "nsis")
-	set(CPACK_BINARY_NSIS "ON")
+    set(CPACK_BINARY_NSIS "ON")
 elseif (${PACKAGE_TYPE} STREQUAL "rpm")
-	set(CPACK_BINARY_RPM "ON")
+    set(CPACK_BINARY_RPM "ON")
 endif (${PACKAGE_TYPE} STREQUAL "deb")
 
 set(CPACK_BINARY_STGZ "OFF")

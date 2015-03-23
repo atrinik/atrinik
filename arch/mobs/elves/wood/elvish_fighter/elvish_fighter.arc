@@ -10,12 +10,12 @@ layer 6
 direction 5
 is_neutral 1
 friendly 1
-terrain_flag 1
+terrain_flag 65
 weapon_speed 0.035
 attack_slash 95
 attack_magic 5
 type 80
-Wis 3
+wis 3
 animation elvish_fighter
 is_animated 1
 anim_speed 4

@@ -90,7 +90,7 @@ unaggressive 1
 random_move 1
 item_race 4
 item_level 4
-Wis 4
+wis 4
 end
 end
 arch grassd_3
@@ -116,7 +116,7 @@ unaggressive 1
 random_move 1
 item_race 4
 item_level 4
-Wis 4
+wis 4
 type 83
 end
 end
@@ -338,7 +338,7 @@ unaggressive 1
 random_move 1
 item_race 4
 item_level 4
-Wis 4
+wis 4
 end
 end
 arch grassd_6
@@ -631,7 +631,7 @@ unaggressive 1
 random_move 1
 item_race 4
 item_level 4
-Wis 4
+wis 4
 type 83
 end
 end
@@ -882,7 +882,7 @@ unaggressive 1
 random_move 1
 item_race 4
 item_level 4
-Wis 4
+wis 4
 end
 end
 arch grassd_4
@@ -1057,7 +1057,7 @@ unaggressive 1
 random_move 1
 item_race 4
 item_level 4
-Wis 4
+wis 4
 end
 end
 arch grassd_6
@@ -1318,7 +1318,7 @@ unaggressive 1
 random_move 1
 item_race 4
 item_level 4
-Wis 4
+wis 4
 type 83
 end
 end
@@ -1347,7 +1347,7 @@ unaggressive 1
 random_move 1
 item_race 4
 item_level 4
-Wis 4
+wis 4
 end
 end
 arch grassd_2
@@ -1633,7 +1633,7 @@ unaggressive 1
 random_move 1
 item_race 4
 item_level 4
-Wis 4
+wis 4
 end
 end
 arch grassd_6

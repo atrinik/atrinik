@@ -26,13 +26,13 @@ def main():
     me.map.DrawInfo(me.x, me.y, "Noooooooooooooooo! Curse you {}, curse yoouuu!...".format(activator.race), color = COLOR_RED, distance = 20)
 
     # Remove the spawn point... no more Hierro for this player.
-    me.FindObject(type = Type.SPAWN_POINT_INFO).owner.Remove()
+    me.FindObject(type = Type.SPAWN_POINT_INFO).owner.Destroy()
 
     for (x, y) in locations:
         for obj in me.map.GetFirstObject(x, y):
             # Remove markers, inventory checkers and signs (magic mouths).
             if obj.type in (Type.MARKER, Type.CHECK_INV, Type.SIGN):
-                obj.Remove()
+                obj.Destroy()
             # Unlock doors.
             elif obj.type == Type.DOOR:
                 obj.slaying = None
@@ -42,7 +42,7 @@ def main():
                     obj.Apply(obj, APPLY_TOGGLE)
             # Remove the map event objects.
             elif obj.type == Type.MAP_EVENT_OBJ:
-                obj.Remove()
+                obj.Destroy()
             # Adjust stairs message.
             elif obj.type == Type.EXIT:
                 obj.msg = "As you go up the stairs to the surface, there is a great rumble, and rocks fall from the ceiling, blocking the passage!\nIt seems you won't be able to go back..."

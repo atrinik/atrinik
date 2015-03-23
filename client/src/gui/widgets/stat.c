@@ -1,26 +1,26 @@
-/************************************************************************
-*            Atrinik, a Multiplayer Online Role Playing Game            *
-*                                                                       *
-*    Copyright (C) 2009-2012 Alex Tokar and Atrinik Development Team    *
-*                                                                       *
-* Fork from Crossfire (Multiplayer game for X-windows).                 *
-*                                                                       *
-* This program is free software; you can redistribute it and/or modify  *
-* it under the terms of the GNU General Public License as published by  *
-* the Free Software Foundation; either version 2 of the License, or     *
-* (at your option) any later version.                                   *
-*                                                                       *
-* This program is distributed in the hope that it will be useful,       *
-* but WITHOUT ANY WARRANTY; without even the implied warranty of        *
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
-* GNU General Public License for more details.                          *
-*                                                                       *
-* You should have received a copy of the GNU General Public License     *
-* along with this program; if not, write to the Free Software           *
-* Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.             *
-*                                                                       *
-* The author can be reached at admin@atrinik.org                        *
-************************************************************************/
+/*************************************************************************
+ *           Atrinik, a Multiplayer Online Role Playing Game             *
+ *                                                                       *
+ *   Copyright (C) 2009-2014 Alex Tokar and Atrinik Development Team     *
+ *                                                                       *
+ * Fork from Crossfire (Multiplayer game for X-windows).                 *
+ *                                                                       *
+ * This program is free software; you can redistribute it and/or modify  *
+ * it under the terms of the GNU General Public License as published by  *
+ * the Free Software Foundation; either version 2 of the License, or     *
+ * (at your option) any later version.                                   *
+ *                                                                       *
+ * This program is distributed in the hope that it will be useful,       *
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of        *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
+ * GNU General Public License for more details.                          *
+ *                                                                       *
+ * You should have received a copy of the GNU General Public License     *
+ * along with this program; if not, write to the Free Software           *
+ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.             *
+ *                                                                       *
+ * The author can be reached at admin@atrinik.org                        *
+ ************************************************************************/
 
 /**
  * @file
@@ -39,29 +39,25 @@ static const char *const display_modes[] = {
 /**
  * Get data for the stat widget.
  */
-static void stat_get_data(widgetdata *widget, int *curr, int *max, float *regen)
+static void stat_get_data(widgetdata *widget, sint64 *curr, sint64 *max, float *regen)
 {
     if (strcmp(widget->id, "health") == 0) {
         *curr = cpl.stats.hp;
         *max = cpl.stats.maxhp;
         *regen = cpl.gen_hp;
-    }
-    else if (strcmp(widget->id, "mana") == 0) {
+    } else if (strcmp(widget->id, "mana") == 0) {
         *curr = cpl.stats.sp;
         *max = cpl.stats.maxsp;
         *regen = cpl.gen_sp;
-    }
-    else if (strcmp(widget->id, "food") == 0) {
+    } else if (strcmp(widget->id, "food") == 0) {
         *curr = cpl.stats.food;
         *max = 999;
         *regen = 0;
-    }
-    else if (strcmp(widget->id, "exp") == 0) {
+    } else if (strcmp(widget->id, "exp") == 0) {
         *curr = cpl.stats.exp - s_settings->level_exp[cpl.stats.level];
         *max = s_settings->level_exp[cpl.stats.level + 1] - s_settings->level_exp[cpl.stats.level];
         *regen = 0;
-    }
-    else {
+    } else {
         *curr = *max = *regen = 1;
     }
 }
@@ -74,7 +70,7 @@ static void widget_draw(widgetdata *widget)
     tmp = widget->subwidget;
 
     if (widget->redraw) {
-        int curr, max;
+        sint64 curr, max;
         float regen;
         char buf[MAX_BUF];
         SDL_Rect box;
@@ -82,7 +78,8 @@ static void widget_draw(widgetdata *widget)
         stat_get_data(widget, &curr, &max, &regen);
 
         if (strcmp(tmp->texture, "text") == 0) {
-            snprintf(buf, sizeof(buf), "%s: %d/%d", widget->id, curr, max);
+            snprintf(buf, sizeof(buf), "%s: %"FMT64"/%"FMT64, widget->id, curr,
+                    max);
             string_title(buf);
 
             if (regen) {
@@ -92,17 +89,17 @@ static void widget_draw(widgetdata *widget)
             box.w = widget->surface->w;
             box.h = widget->surface->h;
             text_show(widget->surface, FONT_ARIAL11, buf, 0, 0, COLOR_WHITE, TEXT_ALIGN_CENTER | TEXT_VALIGN_CENTER, &box);
-        }
-        else if (strcmp(tmp->texture, "sphere") == 0) {
+        } else if (strcmp(tmp->texture, "sphere") == 0) {
             box.x = 0;
             box.y = 0;
             box.w = widget->w - WIDGET_BORDER_SIZE * 2;
             box.h = widget->h - WIDGET_BORDER_SIZE * 2;
-            text_show_format(widget->surface, FONT_ARIAL11, WIDGET_BORDER_SIZE, WIDGET_BORDER_SIZE, COLOR_WHITE, TEXT_MARKUP, NULL, "[icon=stat_sphere_back %d %d 1]", widget->w - WIDGET_BORDER_SIZE * 2, widget->h - WIDGET_BORDER_SIZE * 2);
-            text_show_format(widget->surface, FONT_ARIAL11, WIDGET_BORDER_SIZE + 2, WIDGET_BORDER_SIZE + 2, COLOR_WHITE, TEXT_MARKUP, NULL, "[icon=stat_sphere_%s %d %d 1 0 %f]", widget->id, widget->w - WIDGET_BORDER_SIZE * 2 - 2 * 2, widget->h - WIDGET_BORDER_SIZE * 2 - 2 * 2, 4.0 + ((double) MAX(0, curr) / (double) max));
-            text_show_format(widget->surface, FONT_ARIAL11, WIDGET_BORDER_SIZE, WIDGET_BORDER_SIZE, COLOR_WHITE, TEXT_MARKUP, &box, "[icon=stat_sphere %d %d 1]", widget->w - WIDGET_BORDER_SIZE * 2, widget->h - WIDGET_BORDER_SIZE * 2);
-        }
-        else {
+#define SPHERE_PADDING 2
+            text_show_format(widget->surface, FONT_ARIAL11, WIDGET_BORDER_SIZE + SPHERE_PADDING, WIDGET_BORDER_SIZE + SPHERE_PADDING, COLOR_WHITE, TEXT_MARKUP, NULL, "[icon=stat_sphere_back %d %d 1]", widget->w - WIDGET_BORDER_SIZE * 2 - SPHERE_PADDING * 2, widget->h - WIDGET_BORDER_SIZE * 2 - SPHERE_PADDING * 2);
+            text_show_format(widget->surface, FONT_ARIAL11, WIDGET_BORDER_SIZE + 2 + SPHERE_PADDING, WIDGET_BORDER_SIZE + 2 + SPHERE_PADDING, COLOR_WHITE, TEXT_MARKUP, NULL, "[icon=stat_sphere_%s %d %d 1 0 %f]", widget->id, widget->w - WIDGET_BORDER_SIZE * 2 - 2 * 2 - SPHERE_PADDING * 2, widget->h - WIDGET_BORDER_SIZE * 2 - 2 * 2 - SPHERE_PADDING * 2, 4.0 + ((double) MAX(0, curr) / (double) max));
+            text_show_format(widget->surface, FONT_ARIAL11, WIDGET_BORDER_SIZE + SPHERE_PADDING, WIDGET_BORDER_SIZE + SPHERE_PADDING, COLOR_WHITE, TEXT_MARKUP, &box, "[icon=stat_sphere %d %d 1]", widget->w - WIDGET_BORDER_SIZE * 2 - SPHERE_PADDING * 2, widget->h - WIDGET_BORDER_SIZE * 2 - SPHERE_PADDING * 2);
+#undef SPHERE_PADDING
+        } else {
             int thickness;
 
             thickness = (double) MIN(widget->w, widget->h) * 0.15;
@@ -120,8 +117,7 @@ static void widget_draw(widgetdata *widget)
 
             if (widget->w > widget->h) {
                 box.w *= ((double) MAX(0, curr) / (double) max);
-            }
-            else {
+            } else {
                 int h;
 
                 h = box.h * ((double) MAX(0, curr) / (double) max);
@@ -139,7 +135,7 @@ static void widget_draw(widgetdata *widget)
 static int widget_event(widgetdata *widget, SDL_Event *event)
 {
     if (event->type == SDL_MOUSEMOTION) {
-        int curr, max;
+        sint64 curr, max;
         float regen;
 
         stat_get_data(widget, &curr, &max, &regen);
@@ -147,7 +143,9 @@ static int widget_event(widgetdata *widget, SDL_Event *event)
         if (regen) {
             char buf[MAX_BUF];
 
-            snprintf(buf, sizeof(buf), "Regen: %2.1f/s", regen);
+            snprintf(VS(buf), "%s ", widget->id);
+            string_title(buf);
+            snprintfcat(VS(buf), "regen: %2.1f/s", regen);
             tooltip_create(event->motion.x, event->motion.y, FONT_ARIAL11, buf);
             tooltip_enable_delay(300);
         }

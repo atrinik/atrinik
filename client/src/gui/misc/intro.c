@@ -1,26 +1,26 @@
-/************************************************************************
-*            Atrinik, a Multiplayer Online Role Playing Game            *
-*                                                                       *
-*    Copyright (C) 2009-2012 Alex Tokar and Atrinik Development Team    *
-*                                                                       *
-* Fork from Crossfire (Multiplayer game for X-windows).                 *
-*                                                                       *
-* This program is free software; you can redistribute it and/or modify  *
-* it under the terms of the GNU General Public License as published by  *
-* the Free Software Foundation; either version 2 of the License, or     *
-* (at your option) any later version.                                   *
-*                                                                       *
-* This program is distributed in the hope that it will be useful,       *
-* but WITHOUT ANY WARRANTY; without even the implied warranty of        *
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
-* GNU General Public License for more details.                          *
-*                                                                       *
-* You should have received a copy of the GNU General Public License     *
-* along with this program; if not, write to the Free Software           *
-* Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.             *
-*                                                                       *
-* The author can be reached at admin@atrinik.org                        *
-************************************************************************/
+/*************************************************************************
+ *           Atrinik, a Multiplayer Online Role Playing Game             *
+ *                                                                       *
+ *   Copyright (C) 2009-2014 Alex Tokar and Atrinik Development Team     *
+ *                                                                       *
+ * Fork from Crossfire (Multiplayer game for X-windows).                 *
+ *                                                                       *
+ * This program is free software; you can redistribute it and/or modify  *
+ * it under the terms of the GNU General Public License as published by  *
+ * the Free Software Foundation; either version 2 of the License, or     *
+ * (at your option) any later version.                                   *
+ *                                                                       *
+ * This program is distributed in the hope that it will be useful,       *
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of        *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
+ * GNU General Public License for more details.                          *
+ *                                                                       *
+ * You should have received a copy of the GNU General Public License     *
+ * along with this program; if not, write to the Free Software           *
+ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.             *
+ *                                                                       *
+ * The author can be reached at admin@atrinik.org                        *
+ ************************************************************************/
 
 /**
  * @file
@@ -31,7 +31,7 @@
 #include <global.h>
 
 /** How often to blink the eyes in ticks. */
-#define EYES_BLINK_TIME (10 * 1000)
+#define EYES_BLINK_TIME (15 * 1000)
 /** How long the eyes remain 'closed' (not drawn). */
 #define EYES_BLINK_DELAY (200)
 
@@ -49,7 +49,7 @@ static uint32 eyes_blink_ticks = 0;
 /** Whether to draw the eyes. */
 static uint8 eyes_draw = 1;
 /** Button buffer. */
-static button_struct button_play, button_refresh, button_server, button_settings, button_update, button_help, button_credits, button_quit;
+static button_struct button_play, button_refresh, button_server, button_settings, button_update, button_help, button_credits, button_quit, button_crash;
 
 /** The news list. */
 static list_struct *list_news = NULL;
@@ -63,16 +63,31 @@ static void list_handle_enter(list_struct *list, SDL_Event *event)
 {
     /* Servers list? */
     if (list == list_servers) {
+        char number[16];
+        uint32 version, i;
+        size_t pos;
+
         /* Get selected server. */
         selected_server = server_get_id(list->row_selected - 1);
 
-        /* Valid server, start connecting. */
-        if (selected_server) {
-            login_start();
+        if (selected_server == NULL) {
             return;
         }
-    }
-    else if (list == list_news) {
+
+        for (pos = 0, i = 0, version = 0;
+                string_get_word(selected_server->version, &pos, '.', number,
+                sizeof(number), 0); i++) {
+            version += atoi(number) << (i * CHAR_BIT);
+        }
+
+        if (version != 0 && version < SERVER_VERSION) {
+            draw_info(COLOR_RED, "The server is outdated; "
+                    "choose a different one.");
+            return;
+        }
+
+        login_start();
+    } else if (list == list_news) {
         if (list->text && list->text[list->row_selected - 1]) {
             game_news_open(list->text[list->row_selected - 1][0]);
         }
@@ -84,7 +99,6 @@ static void list_handle_esc(list_struct *list)
 {
     (void) list;
 
-    system_end();
     exit(0);
 }
 
@@ -113,11 +127,25 @@ void intro_show(void)
      * showing the eyes again. */
     if (SDL_GetTicks() - eyes_blink_ticks >= (eyes_draw ? EYES_BLINK_TIME : EYES_BLINK_DELAY)) {
         eyes_blink_ticks = SDL_GetTicks();
-        eyes_draw = !eyes_draw;
+        eyes_draw++;
     }
 
     if (eyes_draw) {
-        surface_show(ScreenSurface, texture->w - 90, 310, NULL, TEXTURE_CLIENT("eyes"));
+        SDL_Rect src_box;
+
+        src_box.x = 0;
+        src_box.y = eyes_draw - 1;
+        src_box.w = TEXTURE_CLIENT("eyes")->w;
+        src_box.h = TEXTURE_CLIENT("eyes")->h;
+        surface_show(ScreenSurface, texture->w - 90, 310 + src_box.y, &src_box, TEXTURE_CLIENT("eyes"));
+
+        if (eyes_draw > 1) {
+            eyes_draw++;
+
+            if (eyes_draw > src_box.h) {
+                eyes_draw = 1;
+            }
+        }
     }
 
     texture = TEXTURE_CLIENT("servers_bg");
@@ -137,6 +165,7 @@ void intro_show(void)
         button_create(&button_help);
         button_create(&button_credits);
         button_create(&button_quit);
+        button_create(&button_crash);
     }
 
     /* List doesn't exist or the count changed? Create new list. */
@@ -167,8 +196,7 @@ void intro_show(void)
 
             if (node->player >= 0) {
                 snprintf(buf, sizeof(buf), "%d", node->player);
-            }
-            else {
+            } else {
                 strcpy(buf, "-");
             }
 
@@ -197,8 +225,7 @@ void intro_show(void)
     /* Show whether we are connecting to the metaserver or not. */
     if (ms_connecting(-1)) {
         text_show_shadow(ScreenSurface, FONT_ARIAL10, "Connecting to metaserver, please wait...", x + 105, y + 8, COLOR_HGOLD, COLOR_BLACK, 0, NULL);
-    }
-    else {
+    } else {
         text_show_shadow(ScreenSurface, FONT_ARIAL10, "Select a server.", x + 226, y + 8, COLOR_GREEN, COLOR_BLACK, 0, NULL);
     }
 
@@ -216,7 +243,7 @@ void intro_show(void)
     /* No list yet, make one and start downloading the data. */
     if (!list_news) {
         /* Start downloading. */
-        news_data = curl_download_start(clioption_settings.game_news_url);
+        news_data = curl_download_start(clioption_settings.game_news_url, NULL);
 
         list_news = list_create(18, 1, 8);
         list_news->focus = 0;
@@ -258,7 +285,7 @@ void intro_show(void)
     /* Show the news list. */
     list_show(list_news, x + 13, y + 10);
 
-    button_play.x = button_refresh.x = button_server.x = button_settings.x = button_update.x = button_help.x = button_credits.x = button_quit.x = 489;
+    button_play.x = button_refresh.x = button_server.x = button_settings.x = button_update.x = button_help.x = button_credits.x = button_quit.x = button_crash.x = 489;
     y += 2;
 
     button_play.y = y + 10;
@@ -284,6 +311,9 @@ void intro_show(void)
 
     button_quit.y = y + 224;
     button_show(&button_quit, "Quit");
+
+    button_crash.y = y + 185;
+    button_show(&button_crash, "Crash me!");
 
     if (clioption_settings.connect[0] && cpl.state < ST_STARTCONNECT) {
         size_t i;
@@ -320,8 +350,7 @@ int intro_event(SDL_Event *event)
         if (LIST_MOUSE_OVER(list_news, event->motion.x, event->motion.y)) {
             list_news->focus = 1;
             list_servers->focus = 0;
-        }
-        else if (LIST_MOUSE_OVER(list_servers, event->motion.x, event->motion.y)) {
+        } else if (LIST_MOUSE_OVER(list_servers, event->motion.x, event->motion.y)) {
             list_servers->focus = 1;
             list_news->focus = 0;
         }
@@ -330,40 +359,35 @@ int intro_event(SDL_Event *event)
     if (button_event(&button_play, event)) {
         list_handle_enter(list_servers, event);
         return 1;
-    }
-    else if (button_event(&button_refresh, event)) {
+    } else if (button_event(&button_refresh, event)) {
         if (!ms_connecting(-1)) {
             cpl.state = ST_META;
         }
 
         return 1;
-    }
-    else if (button_event(&button_server, event)) {
+    } else if (button_event(&button_server, event)) {
         server_add_open();
         return 1;
-    }
-    else if (button_event(&button_settings, event)) {
+    } else if (button_event(&button_settings, event)) {
         settings_open();
         return 1;
-    }
-    else if (button_event(&button_update, event)) {
+    } else if (button_event(&button_update, event)) {
         updater_open();
         return 1;
-    }
-    else if (button_event(&button_help, event)) {
+    } else if (button_event(&button_help, event)) {
         help_show("main screen");
         return 1;
-    }
-    else if (button_event(&button_credits, event)) {
+    } else if (button_event(&button_credits, event)) {
         credits_show();
         return 1;
-    }
-    else if (button_event(&button_quit, event)) {
-        system_end();
+    } else if (button_event(&button_quit, event)) {
         exit(0);
         return 1;
-    }
-    else if (event->type == SDL_KEYDOWN && event->key.keysym.sym == SDLK_TAB && list_news) {
+    } else if (button_event(&button_crash, event)) {
+        int *xx = NULL;
+        *xx = 10;
+        return 1;
+    } else if (event->type == SDL_KEYDOWN && event->key.keysym.sym == SDLK_TAB && list_news) {
         int news_focus = 0;
 
         if (list_servers->focus) {
@@ -372,14 +396,11 @@ int intro_event(SDL_Event *event)
 
         list_news->focus = news_focus;
         list_servers->focus = !news_focus;
-    }
-    else if (list_handle_keyboard(list_news && list_news->focus ? list_news : list_servers, event)) {
+    } else if (list_handle_keyboard(list_news && list_news->focus ? list_news : list_servers, event)) {
         return 1;
-    }
-    else if (list_handle_mouse(list_news, event)) {
+    } else if (list_handle_mouse(list_news, event)) {
         return 1;
-    }
-    else if (list_handle_mouse(list_servers, event)) {
+    } else if (list_handle_mouse(list_servers, event)) {
         return 1;
     }
 

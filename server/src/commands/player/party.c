@@ -1,26 +1,26 @@
-/************************************************************************
-*            Atrinik, a Multiplayer Online Role Playing Game            *
-*                                                                       *
-*    Copyright (C) 2009-2012 Alex Tokar and Atrinik Development Team    *
-*                                                                       *
-* Fork from Crossfire (Multiplayer game for X-windows).                 *
-*                                                                       *
-* This program is free software; you can redistribute it and/or modify  *
-* it under the terms of the GNU General Public License as published by  *
-* the Free Software Foundation; either version 2 of the License, or     *
-* (at your option) any later version.                                   *
-*                                                                       *
-* This program is distributed in the hope that it will be useful,       *
-* but WITHOUT ANY WARRANTY; without even the implied warranty of        *
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
-* GNU General Public License for more details.                          *
-*                                                                       *
-* You should have received a copy of the GNU General Public License     *
-* along with this program; if not, write to the Free Software           *
-* Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.             *
-*                                                                       *
-* The author can be reached at admin@atrinik.org                        *
-************************************************************************/
+/*************************************************************************
+ *           Atrinik, a Multiplayer Online Role Playing Game             *
+ *                                                                       *
+ *   Copyright (C) 2009-2014 Alex Tokar and Atrinik Development Team     *
+ *                                                                       *
+ * Fork from Crossfire (Multiplayer game for X-windows).                 *
+ *                                                                       *
+ * This program is free software; you can redistribute it and/or modify  *
+ * it under the terms of the GNU General Public License as published by  *
+ * the Free Software Foundation; either version 2 of the License, or     *
+ * (at your option) any later version.                                   *
+ *                                                                       *
+ * This program is distributed in the hope that it will be useful,       *
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of        *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
+ * GNU General Public License for more details.                          *
+ *                                                                       *
+ * You should have received a copy of the GNU General Public License     *
+ * along with this program; if not, write to the Free Software           *
+ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.             *
+ *                                                                       *
+ * The author can be reached at admin@atrinik.org                        *
+ ************************************************************************/
 
 /**
  * @file
@@ -39,12 +39,10 @@ void command_party(object *op, const char *command, char *params)
         if (!CONTR(op)->party) {
             draw_info(COLOR_WHITE, op, "You are not a member of any party.");
             draw_info(COLOR_WHITE, op, "For help try: /party help");
-        }
-        else {
+        } else {
             draw_info_format(COLOR_WHITE, op, "You are a member of party %s (leader: %s).", CONTR(op)->party->name, CONTR(op)->party->leader);
         }
-    }
-    else if (!strcmp(params, "help")) {
+    } else if (!strcmp(params, "help")) {
         draw_info(COLOR_WHITE, op, "To form a party type: /party form <partyname>");
         draw_info(COLOR_WHITE, op, "To join a party type: /party join <partyname>");
         draw_info(COLOR_WHITE, op, "If the party has a password, it will prompt you for it.");
@@ -57,8 +55,7 @@ void command_party(object *op, const char *command, char *params)
         draw_info(COLOR_WHITE, op, "To change the party's looting mode: /party loot mode");
         draw_info(COLOR_WHITE, op, "To kick another player from your party: /party kick <name>");
         draw_info(COLOR_WHITE, op, "To change party leader: /party leader <name>");
-    }
-    else if (!strncmp(params, "say ", 4)) {
+    } else if (!strncmp(params, "say ", 4)) {
         if (!CONTR(op)->party) {
             draw_info(COLOR_WHITE, op, "You are not a member of any party.");
             return;
@@ -73,8 +70,7 @@ void command_party(object *op, const char *command, char *params)
         snprintf(buf, sizeof(buf), "[%s] %s says: %s", CONTR(op)->party->name, op->name, params);
         send_party_message(CONTR(op)->party, buf, PARTY_MESSAGE_CHAT, op, NULL);
         logger_print(LOG(CHAT), "[PARTY] [%s] [%s] %s", op->name, CONTR(op)->party->name, params);
-    }
-    else if (!strcmp(params, "leave")) {
+    } else if (!strcmp(params, "leave")) {
         if (!CONTR(op)->party) {
             draw_info(COLOR_WHITE, op, "You are not a member of any party.");
             return;
@@ -85,8 +81,7 @@ void command_party(object *op, const char *command, char *params)
         send_party_message(CONTR(op)->party, buf, PARTY_MESSAGE_STATUS, op, op);
 
         remove_party_member(CONTR(op)->party, op);
-    }
-    else if (!strncmp(params, "password ", 9)) {
+    } else if (!strncmp(params, "password ", 9)) {
         if (!CONTR(op)->party) {
             draw_info(COLOR_RED, op, "You are not a member of any party.");
             return;
@@ -100,8 +95,7 @@ void command_party(object *op, const char *command, char *params)
         strncpy(CONTR(op)->party->passwd, params + 9, sizeof(CONTR(op)->party->passwd) - 1);
         snprintf(buf, sizeof(buf), "The password for party %s changed to '%s'.", CONTR(op)->party->name, CONTR(op)->party->passwd);
         send_party_message(CONTR(op)->party, buf, PARTY_MESSAGE_STATUS, op, NULL);
-    }
-    else if (!strncmp(params, "form ", 5)) {
+    } else if (!strncmp(params, "form ", 5)) {
         params = player_sanitize_input(params + 5);
 
         if (!params) {
@@ -120,8 +114,7 @@ void command_party(object *op, const char *command, char *params)
         }
 
         form_party(op, params);
-    }
-    else if (!strncmp(params, "loot", 4)) {
+    } else if (!strncmp(params, "loot", 4)) {
         size_t i;
 
         if (!CONTR(op)->party) {
@@ -155,8 +148,7 @@ void command_party(object *op, const char *command, char *params)
         for (i = 0; i < PARTY_LOOT_MAX; i++) {
             draw_info_format(COLOR_WHITE, op, "[green]%s[/green]: %s.", party_loot_modes[i], party_loot_modes_help[i]);
         }
-    }
-    else if (!strncmp(params, "kick", 4)) {
+    } else if (!strncmp(params, "kick", 4)) {
         objectlink *ol;
 
         if (!CONTR(op)->party) {
@@ -192,8 +184,7 @@ void command_party(object *op, const char *command, char *params)
         }
 
         draw_info(COLOR_RED, op, "There's no player with that name in your party.");
-    }
-    else if (!strncmp(params, "leader ", 7)) {
+    } else if (!strncmp(params, "leader ", 7)) {
         player *pl;
 
         if (!CONTR(op)->party) {
@@ -226,8 +217,7 @@ void command_party(object *op, const char *command, char *params)
         FREE_AND_ADD_REF_HASH(pl->party->leader, pl->ob->name);
         draw_info_format(COLOR_WHITE, pl->ob, "You are the new leader of party %s!", pl->party->name);
         draw_info_format(COLOR_GREEN, op, "%s is the new leader of your party.", pl->ob->name);
-    }
-    else {
+    } else {
         packet_struct *packet;
         party_struct *party;
 
@@ -241,8 +231,7 @@ void command_party(object *op, const char *command, char *params)
             }
 
             socket_send_packet(&CONTR(op)->socket, packet);
-        }
-        else if (!strcmp(params, "who")) {
+        } else if (!strcmp(params, "who")) {
             objectlink *ol;
 
             if (!CONTR(op)->party) {
@@ -260,8 +249,7 @@ void command_party(object *op, const char *command, char *params)
             }
 
             socket_send_packet(&CONTR(op)->socket, packet);
-        }
-        else if (!strncmp(params, "join ", 5)) {
+        } else if (!strncmp(params, "join ", 5)) {
             char *cps[2];
 
             if (CONTR(op)->party) {
@@ -285,14 +273,12 @@ void command_party(object *op, const char *command, char *params)
                 snprintf(buf, sizeof(buf), "%s joined party %s.", op->name, party->name);
                 send_party_message(party, buf, PARTY_MESSAGE_STATUS, op, op);
                 return;
-            }
-            /* Party password was typed but it wasn't correct. */
-            else if (cps[1]) {
+            } else if (cps[1]) {
+                /* Party password was typed but it wasn't correct. */
                 draw_info(COLOR_RED, op, "Incorrect party password.");
                 return;
-            }
-            /* Otherwise ask them to type the password */
-            else {
+            } else {
+                /* Otherwise ask them to type the password */
                 draw_info(COLOR_YELLOW, op, "That party requires a password. Type it now, or press ESC to cancel joining.");
                 packet = packet_new(CLIENT_CMD_PARTY, 64, 64);
                 packet_append_uint8(packet, CMD_PARTY_PASSWORD);

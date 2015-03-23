@@ -10,11 +10,11 @@ layer 6
 direction 5
 is_evil 1
 is_male 1
-terrain_flag 1
+terrain_flag 65
 weapon_speed 0.037
 attack_pierce 85
 type 80
-Wis 3
+wis 3
 animation beholder_small
 is_animated 1
 anim_speed 4
@@ -29,12 +29,12 @@ maxhp 74
 level 1
 speed -0.047
 weight 13500
-Con 2
+con 2
 sp -1
 maxsp 10
-Pow 2
+pow 2
 run_away 8
-Dex 5
+dex 5
 magic 8
 can_cast_spell 1
 end

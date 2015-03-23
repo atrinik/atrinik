@@ -1,6 +1,7 @@
 Object poisoning
 name poison
 type 105
+layer 3
 face poisoning.101
 identified 1
 food 6

@@ -1,26 +1,26 @@
-/************************************************************************
-*            Atrinik, a Multiplayer Online Role Playing Game            *
-*                                                                       *
-*    Copyright (C) 2009-2012 Alex Tokar and Atrinik Development Team    *
-*                                                                       *
-* Fork from Crossfire (Multiplayer game for X-windows).                 *
-*                                                                       *
-* This program is free software; you can redistribute it and/or modify  *
-* it under the terms of the GNU General Public License as published by  *
-* the Free Software Foundation; either version 2 of the License, or     *
-* (at your option) any later version.                                   *
-*                                                                       *
-* This program is distributed in the hope that it will be useful,       *
-* but WITHOUT ANY WARRANTY; without even the implied warranty of        *
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
-* GNU General Public License for more details.                          *
-*                                                                       *
-* You should have received a copy of the GNU General Public License     *
-* along with this program; if not, write to the Free Software           *
-* Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.             *
-*                                                                       *
-* The author can be reached at admin@atrinik.org                        *
-************************************************************************/
+/*************************************************************************
+ *           Atrinik, a Multiplayer Online Role Playing Game             *
+ *                                                                       *
+ *   Copyright (C) 2009-2014 Alex Tokar and Atrinik Development Team     *
+ *                                                                       *
+ * Fork from Crossfire (Multiplayer game for X-windows).                 *
+ *                                                                       *
+ * This program is free software; you can redistribute it and/or modify  *
+ * it under the terms of the GNU General Public License as published by  *
+ * the Free Software Foundation; either version 2 of the License, or     *
+ * (at your option) any later version.                                   *
+ *                                                                       *
+ * This program is distributed in the hope that it will be useful,       *
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of        *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
+ * GNU General Public License for more details.                          *
+ *                                                                       *
+ * You should have received a copy of the GNU General Public License     *
+ * along with this program; if not, write to the Free Software           *
+ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.             *
+ *                                                                       *
+ * The author can be reached at admin@atrinik.org                        *
+ ************************************************************************/
 
 /**
  * @file
@@ -39,10 +39,20 @@
 static uint8 did_init = 0;
 
 /**
+ * Used by nearest_pow_two_exp() for a fast lookup.
+ */
+static const size_t exp_lookup[65] = {
+    0, 0, 1, 2, 2, 3, 3, 3, 3, 4, 4, 4, 4, 4, 4, 4, 4, 5, 5, 5, 5, 5,
+    5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6,
+    6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6
+};
+
+/**
  * Initialize the math API.
  * @internal */
 void toolkit_math_init(void)
 {
+
     TOOLKIT_INIT_FUNC_START(math)
     {
         SRANDOM(time(NULL));
@@ -55,6 +65,7 @@ void toolkit_math_init(void)
  * @internal */
 void toolkit_math_deinit(void)
 {
+
     TOOLKIT_DEINIT_FUNC_START(math)
     {
     }
@@ -129,4 +140,162 @@ int rndm_chance(uint32 n)
     }
 
     return (uint32) RANDOM() < (RAND_MAX + 1U) / n;
+}
+
+/**
+ * A Linked-List Memory Sort
+ * by Philip J. Erdelsky <pje@efgh.com>
+ * http://www.alumni.caltech.edu/~pje/
+ * (Public Domain)
+ *
+ * The function sort_linked_list() will sort virtually any kind of singly-linked
+ * list, using a comparison function supplied by the calling program. It has
+ * several advantages over qsort().
+ *
+ * The function sorts only singly linked lists. If a list is doubly linked, the
+ * backward pointers can be restored after the sort by a few lines of code.
+ *
+ * Each element of a linked list to be sorted must contain, as its first
+ * members, one or more pointers. One of the pointers, which must be in the same
+ * relative position in each element, is a pointer to the next element. This
+ * pointer is <end_marker> (usually NULL) in the last element.
+ *
+ * The index is the position of this pointer in each element. It is 0 for the
+ * first pointer, 1 for the second pointer, etc.
+ *
+ * Let n = compare(p, q, pointer) be a comparison function that compares two
+ * elements p and q as follows:
+ *
+ * void *pointer; user-defined pointer passed to compare() by sort_linked_list()
+ * int n;         result of comparing *p and *q
+ *                     >0 if *p is to be after *q in sorted order
+ *                     <0 if *p is to be before *q in sorted order
+ *                      0 if the order of *p and *q is irrelevant
+ *
+ *
+ * The fourth argument (pointer) is passed to compare() without change. It can
+ * be an invaluable feature if two or more comparison methods share a
+ * substantial amount of code and differ only in one or more parameter values.
+ *
+ * The last argument (pcount) is of type (unsigned long *). If it is not NULL,
+ * then *pcount is set equal to the number of records in the list.
+ *
+ * It is permissible to sort an empty list. If first == end_marker, the returned
+ * value will also be end_marker.
+ */
+void *sort_linked_list(void *p, unsigned index,
+        int (*compare) (void *, void *, void *) , void *pointer,
+        unsigned long *pcount, void *end_marker)
+{
+    unsigned base;
+    unsigned long block_size;
+    struct record {
+        struct record *next[1];
+        /* other members not directly accessed by this function */
+    };
+    struct tape {
+        struct record *first, *last;
+        unsigned long count;
+    } tape[4];
+
+    /* Distribute the records alternately to tape[0] and tape[1]. */
+    tape[0].count = tape[1].count = 0L;
+    tape[0].first = NULL;
+    base = 0;
+
+    while (p != end_marker) {
+        struct record  *next = ((struct record *) p)->next[index];
+        ((struct record *) p)->next[index] = tape[base].first;
+        tape[base].first = ((struct record *) p);
+        tape[base].count++;
+        p = next;
+        base ^= 1;
+    }
+
+    /* If the list is empty or contains only a single record, then */
+    /* tape[1].count == 0L and this part is vacuous.               */
+    for (base = 0, block_size = 1L; tape[base + 1].count != 0L;
+            base ^= 2, block_size <<= 1) {
+        int dest;
+        struct tape *tape0, *tape1;
+
+        tape0 = tape + base;
+        tape1 = tape + base + 1;
+        dest = base ^ 2;
+        tape[dest].count = tape[dest + 1].count = 0;
+
+        for (; tape0->count != 0; dest ^= 1) {
+            unsigned long n0, n1;
+            struct tape *output_tape = tape + dest;
+
+            n0 = n1 = block_size;
+
+            while (1) {
+                struct record *chosen_record;
+                struct tape *chosen_tape;
+
+                if (n0 == 0 || tape0->count == 0) {
+                    if (n1 == 0 || tape1->count == 0) {
+                        break;
+                    }
+
+                    chosen_tape = tape1;
+                    n1--;
+                } else if (n1 == 0 || tape1->count == 0) {
+                    chosen_tape = tape0;
+                    n0--;
+                } else if ((*compare) (tape0->first, tape1->first,
+                        pointer) > 0) {
+                    chosen_tape = tape1;
+                    n1--;
+                } else {
+                    chosen_tape = tape0;
+                    n0--;
+                }
+
+                chosen_tape->count--;
+                chosen_record = chosen_tape->first;
+                chosen_tape->first = chosen_record->next[index];
+
+                if (output_tape->count == 0) {
+                    output_tape->first = chosen_record;
+                } else {
+                    output_tape->last->next[index] = chosen_record;
+                }
+
+                output_tape->last = chosen_record;
+                output_tape->count++;
+            }
+        }
+    }
+
+    if (tape[base].count > 1L) {
+        tape[base].last->next[index] = end_marker;
+    }
+
+    if (pcount != NULL) {
+        *pcount = tape[base].count;
+    }
+
+    return tape[base].first;
+}
+
+/**
+ * Return the exponent exp needed to round n up to the nearest power of two, so
+ * that (1 << exp) >= n and (1 << (exp - 1)) \< n
+ */
+size_t nearest_pow_two_exp(size_t n)
+{
+    size_t i;
+
+    TOOLKIT_FUNC_PROTECTOR(API_NAME);
+
+    if (n <= 64) {
+        return exp_lookup[n];
+    }
+
+    for (i = 7; (1U << i) < n; i++) {
+    }
+
+    return i;
 }

@@ -2,7 +2,7 @@ arch map
 name The City of Greyton
 msg
 Created:  2009-09-10 Alex Tokar
-Modified: 2011-02-24 Alex Tokar
+Modified: 2014-12-04 atokar
 endmsg
 width 24
 height 24
@@ -1203,7 +1203,6 @@ arch map_info
 hp 5
 sp 5
 no_magic 1
-no_cleric 1
 no_pvp 1
 x 9
 y 9

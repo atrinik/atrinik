@@ -62,7 +62,6 @@ Uint32 _colorkey(SDL_Surface *src)
     return key;
 }
 
-
 /*!
  *    \brief Internal 32 bit integer-factor averaging Shrinker.
  *
@@ -103,14 +102,14 @@ int _shrinkSurfaceRGBA(SDL_Surface * src, SDL_Surface * dst, int factorx, int fa
 
     for (y = 0; y < dst->h; y++) {
 
-        osp=sp;
+        osp = sp;
         for (x = 0; x < dst->w; x++) {
 
             /* Trace out source box and accumulate */
-            oosp=sp;
-            ra=ga=ba=aa=0;
-            for (dy=0; dy < factory; dy++) {
-                for (dx=0; dx < factorx; dx++) {
+            oosp = sp;
+            ra = ga = ba = aa = 0;
+            for (dy = 0; dy < factory; dy++) {
+                for (dx = 0; dx < factorx; dx++) {
                     ra += sp->r;
                     ga += sp->g;
                     ba += sp->b;
@@ -119,7 +118,7 @@ int _shrinkSurfaceRGBA(SDL_Surface * src, SDL_Surface * dst, int factorx, int fa
                     sp++;
                 }
                 /* src dx loop */
-                sp = (tColorRGBA *)((Uint8*)sp + (src->pitch - 4*factorx)); /*
+                sp = (tColorRGBA *) ((Uint8*) sp + (src->pitch - 4 * factorx)); /*
                                                                              *
                                                                              *next
                                                                              * y
@@ -129,13 +128,13 @@ int _shrinkSurfaceRGBA(SDL_Surface * src, SDL_Surface * dst, int factorx, int fa
             /* src dy loop */
 
             /* next box-x */
-            sp = (tColorRGBA *)((Uint8*)oosp + 4*factorx);
+            sp = (tColorRGBA *) ((Uint8*) oosp + 4 * factorx);
 
             /* Store result in destination */
-            dp->r = ra/n_average;
-            dp->g = ga/n_average;
-            dp->b = ba/n_average;
-            dp->a = aa/n_average;
+            dp->r = ra / n_average;
+            dp->g = ga / n_average;
+            dp->b = ba / n_average;
+            dp->a = aa / n_average;
 
             /*
              * Advance destination pointer
@@ -145,7 +144,7 @@ int _shrinkSurfaceRGBA(SDL_Surface * src, SDL_Surface * dst, int factorx, int fa
         /* dst x loop */
 
         /* next box-y */
-        sp = (tColorRGBA *)((Uint8*)osp + src->pitch*factory);
+        sp = (tColorRGBA *) ((Uint8*) osp + src->pitch * factory);
 
         /*
          * Advance destination pointers
@@ -197,29 +196,29 @@ int _shrinkSurfaceY(SDL_Surface * src, SDL_Surface * dst, int factorx, int facto
 
     for (y = 0; y < dst->h; y++) {
 
-        osp=sp;
+        osp = sp;
         for (x = 0; x < dst->w; x++) {
 
             /* Trace out source box and accumulate */
-            oosp=sp;
-            a=0;
-            for (dy=0; dy < factory; dy++) {
-                for (dx=0; dx < factorx; dx++) {
+            oosp = sp;
+            a = 0;
+            for (dy = 0; dy < factory; dy++) {
+                for (dx = 0; dx < factorx; dx++) {
                     a += (*sp);
                     /* next x */
                     sp++;
                 }
                 /* end src dx loop */
                 /* next y */
-                sp = (Uint8 *)((Uint8*)sp + (src->pitch - factorx));
+                sp = (Uint8 *) ((Uint8*) sp + (src->pitch - factorx));
             }
             /* end src dy loop */
 
             /* next box-x */
-            sp = (Uint8 *)((Uint8*)oosp + factorx);
+            sp = (Uint8 *) ((Uint8*) oosp + factorx);
 
             /* Store result in destination */
-            *dp = a/n_average;
+            *dp = a / n_average;
 
             /*
              * Advance destination pointer
@@ -229,12 +228,12 @@ int _shrinkSurfaceY(SDL_Surface * src, SDL_Surface * dst, int factorx, int facto
         /* end dst x loop */
 
         /* next box-y */
-        sp = (Uint8 *)((Uint8*)osp + src->pitch*factory);
+        sp = (Uint8 *) ((Uint8*) osp + src->pitch * factory);
 
         /*
          * Advance destination pointers
          */
-        dp = (Uint8 *)((Uint8 *)dp + dgap);
+        dp = (Uint8 *) ((Uint8 *) dp + dgap);
     }
     /* end dst y loop */
 
@@ -274,8 +273,7 @@ int _zoomSurfaceRGBA(SDL_Surface * src, SDL_Surface * dst, int flipx, int flipy,
          */
         sx = (int) (65536.0 * (float) (src->w - 1) / (float) dst->w);
         sy = (int) (65536.0 * (float) (src->h - 1) / (float) dst->h);
-    }
-    else {
+    } else {
         sx = (int) (65536.0 * (float) src->w / (float) dst->w);
         sy = (int) (65536.0 * (float) src->h / (float) dst->h);
     }
@@ -298,9 +296,13 @@ int _zoomSurfaceRGBA(SDL_Surface * src, SDL_Surface * dst, int flipx, int flipy,
     sp = csp = src->pixels;
     dp = dst->pixels;
 
-    if (flipx) { csp += (src->w-1); }
+    if (flipx) {
+        csp += (src->w - 1);
+    }
 
-    if (flipy) { csp += ((src->pitch/4)*(src->h-1)); }
+    if (flipy) {
+        csp += ((src->pitch / 4)*(src->h - 1));
+    }
 
     csx = 0;
     csax = sax;
@@ -343,18 +345,26 @@ int _zoomSurfaceRGBA(SDL_Surface * src, SDL_Surface * dst, int flipx, int flipy,
             c01 = csp;
             c01++;
             c10 = csp;
-            c10 += src->pitch/4;
+            c10 += src->pitch / 4;
             c11 = c10;
             c11++;
 
             if (flipx) {
-                cswap = c00; c00=c01; c01=cswap;
-                cswap = c10; c10=c11; c11=cswap;
+                cswap = c00;
+                c00 = c01;
+                c01 = cswap;
+                cswap = c10;
+                c10 = c11;
+                c11 = cswap;
             }
 
             if (flipy) {
-                cswap = c00; c00=c10; c10=cswap;
-                cswap = c01; c01=c11; c11=cswap;
+                cswap = c00;
+                c00 = c10;
+                c10 = cswap;
+                cswap = c01;
+                c01 = c11;
+                c11 = cswap;
             }
 
             csax = sax;
@@ -387,7 +397,9 @@ int _zoomSurfaceRGBA(SDL_Surface * src, SDL_Surface * dst, int flipx, int flipy,
                     sstep = (*csax >> 16);
                     lx += sstep;
 
-                    if (flipx) { sstep = -sstep; }
+                    if (flipx) {
+                        sstep = -sstep;
+                    }
 
                     if (lx <= src->w) {
                         c00 += sstep;
@@ -412,10 +424,12 @@ int _zoomSurfaceRGBA(SDL_Surface * src, SDL_Surface * dst, int flipx, int flipy,
                 sstep = (*csay >> 16);
                 ly += sstep;
 
-                if (flipy) { sstep = -sstep; }
+                if (flipy) {
+                    sstep = -sstep;
+                }
 
                 if (ly < src->h) {
-                    csp += (sstep * (src->pitch/4));
+                    csp += (sstep * (src->pitch / 4));
                 }
             }
 
@@ -424,8 +438,7 @@ int _zoomSurfaceRGBA(SDL_Surface * src, SDL_Surface * dst, int flipx, int flipy,
              */
             dp = (tColorRGBA *) ((Uint8 *) dp + dgap);
         }
-    }
-    else {
+    } else {
 
         /*
          * Non-Interpolating Zoom
@@ -447,7 +460,9 @@ int _zoomSurfaceRGBA(SDL_Surface * src, SDL_Surface * dst, int flipx, int flipy,
                 if (*csax > 0) {
                     sstep = (*csax >> 16);
 
-                    if (flipx) { sstep = -sstep; }
+                    if (flipx) {
+                        sstep = -sstep;
+                    }
                     sp += sstep;
                 }
                 /*
@@ -461,9 +476,11 @@ int _zoomSurfaceRGBA(SDL_Surface * src, SDL_Surface * dst, int flipx, int flipy,
             csay++;
 
             if (*csay > 0) {
-                sstep = (*csay >> 16) * (src->pitch/4);
+                sstep = (*csay >> 16) * (src->pitch / 4);
 
-                if (flipy) { sstep = -sstep; }
+                if (flipy) {
+                    sstep = -sstep;
+                }
                 csp += sstep;
             }
 
@@ -525,9 +542,13 @@ int _zoomSurfaceY(SDL_Surface * src, SDL_Surface * dst, int flipx, int flipy)
     dp = dst->pixels;
     dgap = dst->pitch - dst->w;
 
-    if (flipx) { csp += (src->w-1); }
+    if (flipx) {
+        csp += (src->w - 1);
+    }
 
-    if (flipy) { csp  = ( (Uint8*)csp + src->pitch*(src->h-1) ); }
+    if (flipy) {
+        csp  = ( (Uint8*) csp + src->pitch * (src->h - 1) );
+    }
 
     /*
      * Precalculate row increments
@@ -650,30 +671,43 @@ void _transformSurfaceRGBA(SDL_Surface * src, SDL_Surface * dst, int cx, int cy,
                 dx = (sdx >> 16);
                 dy = (sdy >> 16);
 
-                if (flipx) { dx = sw - dx; }
+                if (flipx) {
+                    dx = sw - dx;
+                }
 
-                if (flipy) { dy = sh - dy; }
+                if (flipy) {
+                    dy = sh - dy;
+                }
 
-                if ((dx > -1) && (dy > -1) && (dx < (src->w-1)) && (dy < (src->h-1))) {
-                    sp = src->pixels;;
-                    sp += ((src->pitch/4) * dy);
+                if ((dx > -1) && (dy > -1) && (dx < (src->w - 1)) && (dy < (src->h - 1))) {
+                    sp = src->pixels;
+                    ;
+                    sp += ((src->pitch / 4) * dy);
                     sp += dx;
                     c00 = *sp;
                     sp += 1;
                     c01 = *sp;
-                    sp += (src->pitch/4);
+                    sp += (src->pitch / 4);
                     c11 = *sp;
                     sp -= 1;
                     c10 = *sp;
 
                     if (flipx) {
-                        cswap = c00; c00=c01; c01=cswap;
-                        cswap = c10; c10=c11; c11=cswap;
+                        cswap = c00;
+                        c00 = c01;
+                        c01 = cswap;
+                        cswap = c10;
+                        c10 = c11;
+                        c11 = cswap;
                     }
 
                     if (flipy) {
-                        cswap = c00; c00=c10; c10=cswap;
-                        cswap = c01; c01=c11; c11=cswap;
+                        cswap = c00;
+                        c00 = c10;
+                        c10 = cswap;
+                        cswap = c01;
+                        c01 = c11;
+                        c11 = cswap;
                     }
                     /*
                      * Interpolate colors
@@ -699,8 +733,7 @@ void _transformSurfaceRGBA(SDL_Surface * src, SDL_Surface * dst, int cx, int cy,
             }
             pc = (tColorRGBA *) ((Uint8 *) pc + gap);
         }
-    }
-    else {
+    } else {
         for (y = 0; y < dst->h; y++) {
             dy = cy - y;
             sdx = (ax + (isin * dy)) + xd;
@@ -709,9 +742,13 @@ void _transformSurfaceRGBA(SDL_Surface * src, SDL_Surface * dst, int cx, int cy,
                 dx = (short) (sdx >> 16);
                 dy = (short) (sdy >> 16);
 
-                if (flipx) { dx = (src->w-1)-dx; }
+                if (flipx) {
+                    dx = (src->w - 1) - dx;
+                }
 
-                if (flipy) { dy = (src->h-1)-dy; }
+                if (flipy) {
+                    dy = (src->h - 1) - dy;
+                }
 
                 if ((dx >= 0) && (dy >= 0) && (dx < src->w) && (dy < src->h)) {
                     sp = (tColorRGBA *) ((Uint8 *) src->pixels + src->pitch * dy);
@@ -777,9 +814,13 @@ void transformSurfaceY(SDL_Surface * src, SDL_Surface * dst, int cx, int cy, int
             dx = (short) (sdx >> 16);
             dy = (short) (sdy >> 16);
 
-            if (flipx) { dx = (src->w-1)-dx; }
+            if (flipx) {
+                dx = (src->w - 1) - dx;
+            }
 
-            if (flipy) { dy = (src->h-1)-dy; }
+            if (flipy) {
+                dy = (src->h - 1) - dy;
+            }
 
             if ((dx >= 0) && (dy >= 0) && (dx < src->w) && (dy < src->h)) {
                 sp = src->pixels;
@@ -823,7 +864,7 @@ SDL_Surface* rotateSurface90Degrees(SDL_Surface* src, int numClockwiseTurns)
     }
 
     /* normalize numClockwiseTurns */
-    while(numClockwiseTurns < 0) {
+    while (numClockwiseTurns < 0) {
         numClockwiseTurns += 4;
     }
     numClockwiseTurns = (numClockwiseTurns % 4);
@@ -832,12 +873,12 @@ SDL_Surface* rotateSurface90Degrees(SDL_Surface* src, int numClockwiseTurns)
     newWidth = (numClockwiseTurns % 2) ? (src->h) : (src->w);
     newHeight = (numClockwiseTurns % 2) ? (src->w) : (src->h);
     dst = SDL_CreateRGBSurface( src->flags, newWidth, newHeight, src->format->BitsPerPixel,
-        src->format->Rmask,
-        src->format->Gmask,
-        src->format->Bmask,
-        src->format->Amask);
+            src->format->Rmask,
+            src->format->Gmask,
+            src->format->Bmask,
+            src->format->Amask);
 
-    if(!dst) {
+    if (!dst) {
         return NULL;
     }
 
@@ -854,74 +895,73 @@ SDL_Surface* rotateSurface90Degrees(SDL_Surface* src, int numClockwiseTurns)
     src_ipr = src->pitch / bpp;
     dst_ipr = dst->pitch / bpp;
 
-    switch(numClockwiseTurns) {
-        case 0: /* Make a copy of the surface */
-        {
-            /* Unfortunately SDL_BlitSurface cannot be used to make a copy of
-             * the surface
-             *    since it does not preserve alpha. */
+    switch (numClockwiseTurns) {
+    case 0: /* Make a copy of the surface */
+    {
+        /* Unfortunately SDL_BlitSurface cannot be used to make a copy of
+         * the surface
+         *    since it does not preserve alpha. */
 
-            if (src->pitch == dst->pitch) {
-                /* If the pitch is the same for both surfaces, the memory can be
-                 * copied all at once. */
-                memcpy(dst->pixels, src->pixels, (src->h * src->pitch));
-            }
-            else {
-                /* If the pitch differs, copy each row separately */
-                srcBuf = src->pixels;
-                dstBuf = dst->pixels;
-                for (row = 0; row < src->h; row++) {
-                    memcpy(dstBuf, srcBuf, dst->w * bpp);
-                    srcBuf += src_ipr;
-                    dstBuf += dst_ipr;
-                }     /* end for(col) */
-            }     /* end for(row) */
-        }
+        if (src->pitch == dst->pitch) {
+            /* If the pitch is the same for both surfaces, the memory can be
+             * copied all at once. */
+            memcpy(dst->pixels, src->pixels, (src->h * src->pitch));
+        } else {
+            /* If the pitch differs, copy each row separately */
+            srcBuf = src->pixels;
+            dstBuf = dst->pixels;
+            for (row = 0; row < src->h; row++) {
+                memcpy(dstBuf, srcBuf, dst->w * bpp);
+                srcBuf += src_ipr;
+                dstBuf += dst_ipr;
+            }     /* end for(col) */
+        }     /* end for(row) */
+    }
         break;
 
         /* rotate clockwise */
-        case 1: /* rotated 90 degrees clockwise */
-        {
-            for (row = 0; row < src->h; ++row) {
-                srcBuf = (Uint32*)(src->pixels) + (row * src_ipr);
-                dstBuf = (Uint32*)(dst->pixels) + (dst->w - row - 1);
-                for (col = 0; col < src->w; ++col) {
-                    *dstBuf = *srcBuf;
-                    ++srcBuf;
-                    dstBuf += dst_ipr;
-                }
-                /* end for(col) */
+    case 1: /* rotated 90 degrees clockwise */
+    {
+        for (row = 0; row < src->h; ++row) {
+            srcBuf = (Uint32*) (src->pixels) + (row * src_ipr);
+            dstBuf = (Uint32*) (dst->pixels) + (dst->w - row - 1);
+            for (col = 0; col < src->w; ++col) {
+                *dstBuf = *srcBuf;
+                ++srcBuf;
+                dstBuf += dst_ipr;
             }
-            /* end for(row) */
+            /* end for(col) */
         }
+        /* end for(row) */
+    }
         break;
 
-        case 2: /* rotated 180 degrees clockwise */
-        {
-            for (row = 0; row < src->h; ++row) {
-                srcBuf = (Uint32*)(src->pixels) + (row * src_ipr);
-                dstBuf = (Uint32*)(dst->pixels) + ((dst->h - row - 1) * dst_ipr) + (dst->w - 1);
-                for (col = 0; col < src->w; ++col) {
-                    *dstBuf = *srcBuf;
-                    ++srcBuf;
-                    --dstBuf;
-                }
+    case 2: /* rotated 180 degrees clockwise */
+    {
+        for (row = 0; row < src->h; ++row) {
+            srcBuf = (Uint32*) (src->pixels) + (row * src_ipr);
+            dstBuf = (Uint32*) (dst->pixels) + ((dst->h - row - 1) * dst_ipr) + (dst->w - 1);
+            for (col = 0; col < src->w; ++col) {
+                *dstBuf = *srcBuf;
+                ++srcBuf;
+                --dstBuf;
             }
         }
+    }
         break;
 
-        case 3:
-        {
-            for (row = 0; row < src->h; ++row) {
-                srcBuf = (Uint32*)(src->pixels) + (row * src_ipr);
-                dstBuf = (Uint32*)(dst->pixels) + row + ((dst->h - 1) * dst_ipr);
-                for (col = 0; col < src->w; ++col) {
-                    *dstBuf = *srcBuf;
-                    ++srcBuf;
-                    dstBuf -= dst_ipr;
-                }
+    case 3:
+    {
+        for (row = 0; row < src->h; ++row) {
+            srcBuf = (Uint32*) (src->pixels) + (row * src_ipr);
+            dstBuf = (Uint32*) (dst->pixels) + row + ((dst->h - 1) * dst_ipr);
+            for (col = 0; col < src->w; ++col) {
+                *dstBuf = *srcBuf;
+                ++srcBuf;
+                dstBuf -= dst_ipr;
             }
         }
+    }
         break;
     }
     /* end switch */
@@ -936,7 +976,6 @@ SDL_Surface* rotateSurface90Degrees(SDL_Surface* src, int numClockwiseTurns)
 
     return dst;
 }
-
 
 /*!
  *    \brief Internal target surface sizing function for rotozooms with trig
@@ -954,8 +993,8 @@ SDL_Surface* rotateSurface90Degrees(SDL_Surface* src, int numClockwiseTurns)
  *
  */
 void _rotozoomSurfaceSizeTrig(int width, int height, double angle, double zoomx, double zoomy,
-                              int *dstwidth, int *dstheight,
-                              double *canglezoom, double *sanglezoom)
+        int *dstwidth, int *dstheight,
+        double *canglezoom, double *sanglezoom)
 {
     double x, y, cx, cy, sx, sy;
     double radangle;
@@ -1079,8 +1118,8 @@ SDL_Surface *rotozoomSurfaceXY(SDL_Surface * src, double angle, double zoomx, do
     int dstwidthhalf, dstwidth, dstheighthalf, dstheight;
     int is32bit;
     int i, src_converted;
-    int flipx,flipy;
-    Uint8 r,g,b;
+    int flipx, flipy;
+    Uint8 r, g, b;
     Uint32 colorkey = 0;
     int colorKeyAvailable = 0;
 
@@ -1107,13 +1146,12 @@ SDL_Surface *rotozoomSurfaceXY(SDL_Surface * src, double angle, double zoomx, do
          */
         rz_src = src;
         src_converted = 0;
-    }
-    else {
+    } else {
         /*
          * New source surface is 32bit with a defined RGBA ordering
          */
         rz_src =
-            SDL_CreateRGBSurface(SDL_SWSURFACE, src->w, src->h, 32,
+                SDL_CreateRGBSurface(SDL_SWSURFACE, src->w, src->h, 32,
 #if SDL_BYTEORDER == SDL_LIL_ENDIAN
                 0x000000ff, 0x0000ff00, 0x00ff0000, 0xff000000
 #else
@@ -1121,13 +1159,13 @@ SDL_Surface *rotozoomSurfaceXY(SDL_Surface * src, double angle, double zoomx, do
 #endif
                 );
 
-        if(colorKeyAvailable) {
+        if (colorKeyAvailable) {
             SDL_SetColorKey(src, 0, 0);
         }
 
         SDL_BlitSurface(src, NULL, rz_src, NULL);
 
-        if(colorKeyAvailable) {
+        if (colorKeyAvailable) {
             SDL_SetColorKey(src, SDL_SRCCOLORKEY, colorkey);
         }
         src_converted = 1;
@@ -1137,16 +1175,24 @@ SDL_Surface *rotozoomSurfaceXY(SDL_Surface * src, double angle, double zoomx, do
     /*
      * Sanity check zoom factor
      */
-    flipx = (zoomx<0.0);
+    flipx = (zoomx < 0.0);
 
-    if (flipx) { zoomx=-zoomx; }
-    flipy = (zoomy<0.0);
+    if (flipx) {
+        zoomx = -zoomx;
+    }
+    flipy = (zoomy < 0.0);
 
-    if (flipy) { zoomy=-zoomy; }
+    if (flipy) {
+        zoomy = -zoomy;
+    }
 
-    if (zoomx < VALUE_LIMIT) { zoomx = VALUE_LIMIT; }
+    if (zoomx < VALUE_LIMIT) {
+        zoomx = VALUE_LIMIT;
+    }
 
-    if (zoomy < VALUE_LIMIT) { zoomy = VALUE_LIMIT; }
+    if (zoomy < VALUE_LIMIT) {
+        zoomy = VALUE_LIMIT;
+    }
     zoominv = 65536.0 / (zoomx * zoomx);
 
     /*
@@ -1186,11 +1232,10 @@ SDL_Surface *rotozoomSurfaceXY(SDL_Surface * src, double angle, double zoomx, do
              * Target surface is 32bit with source RGBA/ABGR ordering
              */
             rz_dst =
-                SDL_CreateRGBSurface(SDL_SWSURFACE, dstwidth, dstheight + GUARD_ROWS, 32,
+                    SDL_CreateRGBSurface(SDL_SWSURFACE, dstwidth, dstheight + GUARD_ROWS, 32,
                     rz_src->format->Rmask, rz_src->format->Gmask,
                     rz_src->format->Bmask, rz_src->format->Amask);
-        }
-        else {
+        } else {
             /*
              * Target surface is 8bit
              */
@@ -1227,16 +1272,15 @@ SDL_Surface *rotozoomSurfaceXY(SDL_Surface * src, double angle, double zoomx, do
              * alpha)
              */
             _transformSurfaceRGBA(rz_src, rz_dst, dstwidthhalf, dstheighthalf,
-                (int) (sanglezoominv), (int) (canglezoominv),
-                flipx, flipy,
-                smooth);
+                    (int) (sanglezoominv), (int) (canglezoominv),
+                    flipx, flipy,
+                    smooth);
             /*
              * Turn on source-alpha support
              */
             SDL_SetAlpha(rz_dst, SDL_SRCALPHA, 255);
             SDL_SetColorKey(rz_dst, SDL_SRCCOLORKEY | SDL_RLEACCEL, _colorkey(rz_src));
-        }
-        else {
+        } else {
             /*
              * Copy palette and colorkey info
              */
@@ -1248,8 +1292,8 @@ SDL_Surface *rotozoomSurfaceXY(SDL_Surface * src, double angle, double zoomx, do
              * Call the 8bit transformation routine to do the rotation
              */
             transformSurfaceY(rz_src, rz_dst, dstwidthhalf, dstheighthalf,
-                (int) (sanglezoominv), (int) (canglezoominv),
-                flipx, flipy);
+                    (int) (sanglezoominv), (int) (canglezoominv),
+                    flipx, flipy);
             SDL_SetColorKey(rz_dst, SDL_SRCCOLORKEY | SDL_RLEACCEL, _colorkey(rz_src));
         }
 
@@ -1260,8 +1304,7 @@ SDL_Surface *rotozoomSurfaceXY(SDL_Surface * src, double angle, double zoomx, do
             SDL_UnlockSurface(rz_src);
         }
 
-    }
-    else {
+    } else {
 
         /*
          * Angle=0: Just a zoom
@@ -1285,11 +1328,10 @@ SDL_Surface *rotozoomSurfaceXY(SDL_Surface * src, double angle, double zoomx, do
              * Target surface is 32bit with source RGBA/ABGR ordering
              */
             rz_dst =
-                SDL_CreateRGBSurface(SDL_SWSURFACE, dstwidth, dstheight + GUARD_ROWS, 32,
+                    SDL_CreateRGBSurface(SDL_SWSURFACE, dstwidth, dstheight + GUARD_ROWS, 32,
                     rz_src->format->Rmask, rz_src->format->Gmask,
                     rz_src->format->Bmask, rz_src->format->Amask);
-        }
-        else {
+        } else {
             /*
              * Target surface is 8bit
              */
@@ -1332,8 +1374,7 @@ SDL_Surface *rotozoomSurfaceXY(SDL_Surface * src, double angle, double zoomx, do
              */
             SDL_SetAlpha(rz_dst, SDL_SRCALPHA, 255);
             SDL_SetColorKey(rz_dst, SDL_SRCCOLORKEY | SDL_RLEACCEL, _colorkey(rz_src));
-        }
-        else {
+        } else {
             /*
              * Copy palette and colorkey info
              */
@@ -1391,12 +1432,16 @@ void zoomSurfaceSize(int width, int height, double zoomx, double zoomy, int *dst
      * Make zoom factors positive
      */
     int flipx, flipy;
-    flipx = (zoomx<0.0);
+    flipx = (zoomx < 0.0);
 
-    if (flipx) { zoomx = -zoomx; }
-    flipy = (zoomy<0.0);
+    if (flipx) {
+        zoomx = -zoomx;
+    }
+    flipy = (zoomy < 0.0);
 
-    if (flipy) { zoomy = -zoomy; }
+    if (flipy) {
+        zoomy = -zoomy;
+    }
 
     /*
      * Sanity check zoom factors
@@ -1471,13 +1516,12 @@ SDL_Surface *zoomSurface(SDL_Surface * src, double zoomx, double zoomy, int smoo
          */
         rz_src = src;
         src_converted = 0;
-    }
-    else {
+    } else {
         /*
          * New source surface is 32bit with a defined RGBA ordering
          */
         rz_src =
-            SDL_CreateRGBSurface(SDL_SWSURFACE, src->w, src->h, 32,
+                SDL_CreateRGBSurface(SDL_SWSURFACE, src->w, src->h, 32,
 #if SDL_BYTEORDER == SDL_LIL_ENDIAN
                 0x000000ff, 0x0000ff00, 0x00ff0000, 0xff000000
 #else
@@ -1489,12 +1533,16 @@ SDL_Surface *zoomSurface(SDL_Surface * src, double zoomx, double zoomy, int smoo
         is32bit = 1;
     }
 
-    flipx = (zoomx<0.0);
+    flipx = (zoomx < 0.0);
 
-    if (flipx) { zoomx = -zoomx; }
-    flipy = (zoomy<0.0);
+    if (flipx) {
+        zoomx = -zoomx;
+    }
+    flipy = (zoomy < 0.0);
 
-    if (flipy) { zoomy = -zoomy; }
+    if (flipy) {
+        zoomy = -zoomy;
+    }
 
     /* Get size if target */
     zoomSurfaceSize(rz_src->w, rz_src->h, zoomx, zoomy, &dstwidth, &dstheight);
@@ -1509,11 +1557,10 @@ SDL_Surface *zoomSurface(SDL_Surface * src, double zoomx, double zoomy, int smoo
          * Target surface is 32bit with source RGBA/ABGR ordering
          */
         rz_dst =
-            SDL_CreateRGBSurface(SDL_SWSURFACE, dstwidth, dstheight + GUARD_ROWS, 32,
+                SDL_CreateRGBSurface(SDL_SWSURFACE, dstwidth, dstheight + GUARD_ROWS, 32,
                 rz_src->format->Rmask, rz_src->format->Gmask,
                 rz_src->format->Bmask, rz_src->format->Amask);
-    }
-    else {
+    } else {
         /*
          * Target surface is 8bit
          */
@@ -1547,8 +1594,7 @@ SDL_Surface *zoomSurface(SDL_Surface * src, double zoomx, double zoomy, int smoo
          * Turn on source-alpha support
          */
         SDL_SetAlpha(rz_dst, SDL_SRCALPHA, 255);
-    }
-    else {
+    } else {
         /*
          * Copy palette and colorkey info
          */
@@ -1626,13 +1672,12 @@ SDL_Surface *shrinkSurface(SDL_Surface *src, int factorx, int factory)
          */
         rz_src = src;
         src_converted = 0;
-    }
-    else {
+    } else {
         /*
          * New source surface is 32bit with a defined RGBA ordering
          */
         rz_src =
-            SDL_CreateRGBSurface(SDL_SWSURFACE, src->w, src->h, 32,
+                SDL_CreateRGBSurface(SDL_SWSURFACE, src->w, src->h, 32,
 #if SDL_BYTEORDER == SDL_LIL_ENDIAN
                 0x000000ff, 0x0000ff00, 0x00ff0000, 0xff000000
 #else
@@ -1645,12 +1690,12 @@ SDL_Surface *shrinkSurface(SDL_Surface *src, int factorx, int factory)
     }
 
     /* Get size for target */
-    dstwidth=rz_src->w/factorx;
-    while (dstwidth*factorx>rz_src->w) {
+    dstwidth = rz_src->w / factorx;
+    while (dstwidth * factorx > rz_src->w) {
         dstwidth--;
     }
-    dstheight=rz_src->h/factory;
-    while (dstheight*factory>rz_src->h) {
+    dstheight = rz_src->h / factory;
+    while (dstheight * factory > rz_src->h) {
         dstheight--;
     }
 
@@ -1665,11 +1710,10 @@ SDL_Surface *shrinkSurface(SDL_Surface *src, int factorx, int factory)
          * Target surface is 32bit with source RGBA/ABGR ordering
          */
         rz_dst =
-            SDL_CreateRGBSurface(SDL_SWSURFACE, dstwidth, dstheight + GUARD_ROWS, 32,
+                SDL_CreateRGBSurface(SDL_SWSURFACE, dstwidth, dstheight + GUARD_ROWS, 32,
                 rz_src->format->Rmask, rz_src->format->Gmask,
                 rz_src->format->Bmask, rz_src->format->Amask);
-    }
-    else {
+    } else {
         /*
          * Target surface is 8bit
          */
@@ -1704,8 +1748,7 @@ SDL_Surface *shrinkSurface(SDL_Surface *src, int factorx, int factory)
          * Turn on source-alpha support
          */
         SDL_SetAlpha(rz_dst, SDL_SRCALPHA, 255);
-    }
-    else {
+    } else {
         /*
          * Copy palette and colorkey info
          */

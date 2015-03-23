@@ -1,26 +1,26 @@
-/************************************************************************
-*            Atrinik, a Multiplayer Online Role Playing Game            *
-*                                                                       *
-*    Copyright (C) 2009-2012 Alex Tokar and Atrinik Development Team    *
-*                                                                       *
-* Fork from Crossfire (Multiplayer game for X-windows).                 *
-*                                                                       *
-* This program is free software; you can redistribute it and/or modify  *
-* it under the terms of the GNU General Public License as published by  *
-* the Free Software Foundation; either version 2 of the License, or     *
-* (at your option) any later version.                                   *
-*                                                                       *
-* This program is distributed in the hope that it will be useful,       *
-* but WITHOUT ANY WARRANTY; without even the implied warranty of        *
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
-* GNU General Public License for more details.                          *
-*                                                                       *
-* You should have received a copy of the GNU General Public License     *
-* along with this program; if not, write to the Free Software           *
-* Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.             *
-*                                                                       *
-* The author can be reached at admin@atrinik.org                        *
-************************************************************************/
+/*************************************************************************
+ *           Atrinik, a Multiplayer Online Role Playing Game             *
+ *                                                                       *
+ *   Copyright (C) 2009-2014 Alex Tokar and Atrinik Development Team     *
+ *                                                                       *
+ * Fork from Crossfire (Multiplayer game for X-windows).                 *
+ *                                                                       *
+ * This program is free software; you can redistribute it and/or modify  *
+ * it under the terms of the GNU General Public License as published by  *
+ * the Free Software Foundation; either version 2 of the License, or     *
+ * (at your option) any later version.                                   *
+ *                                                                       *
+ * This program is distributed in the hope that it will be useful,       *
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of        *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
+ * GNU General Public License for more details.                          *
+ *                                                                       *
+ * You should have received a copy of the GNU General Public License     *
+ * along with this program; if not, write to the Free Software           *
+ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.             *
+ *                                                                       *
+ * The author can be reached at admin@atrinik.org                        *
+ ************************************************************************/
 
 /**
  * @file
@@ -93,8 +93,7 @@ static int apply_func(object *op, object *applier, int aflags)
 
             insert_spell_effect("meffect_purple", applier->map, applier->x, applier->y);
             play_sound_map(applier->map, CMD_SOUND_EFFECT, "poison.ogg", applier->x, applier->y, 0, 0);
-        }
-        else {
+        } else {
             memcpy(force->protection, op->protection, sizeof(op->protection));
             memcpy(force->attack, op->attack, sizeof(op->attack));
 
@@ -136,10 +135,10 @@ static int apply_func(object *op, object *applier, int aflags)
         if (!change_abil(applier, force)) {
             draw_info(COLOR_WHITE, applier, "Nothing happened.");
         }
-    }
-    /* Potion of minor restoration (removes depletion). */
-    else if (op->last_eat == 1) {
+    } else if (op->last_eat == 1) {
         int i;
+
+        /* Potion of minor restoration (removes depletion). */
 
         /* Cursed potion of minor restoration; reverse effects (stats are
          * depleted). */
@@ -151,8 +150,7 @@ static int apply_func(object *op, object *applier, int aflags)
 
             insert_spell_effect("meffect_purple", applier->map, applier->x, applier->y);
             play_sound_map(applier->map, CMD_SOUND_EFFECT, "poison.ogg", applier->x, applier->y, 0, 0);
-        }
-        else {
+        } else {
             archetype *at;
             object *depletion;
 
@@ -170,22 +168,20 @@ static int apply_func(object *op, object *applier, int aflags)
                 object_remove(depletion, 0);
                 object_destroy(depletion);
                 fix_player(applier);
-            }
-            else {
+            } else {
                 draw_info(COLOR_WHITE, applier, "You are not depleted.");
             }
 
             insert_spell_effect("meffect_green", applier->map, applier->x, applier->y);
             play_sound_map(applier->map, CMD_SOUND_EFFECT, "magic_default.ogg", applier->x, applier->y, 0, 0);
         }
-    }
-    /* Spell potion. */
-    else if (op->stats.sp != SP_NO_SPELL) {
+    } else if (op->stats.sp != SP_NO_SPELL) {
+        /* Spell potion. */
+
         /* Fire in the player's facing direction, unless the spell is
          * something like healing or cure disease. */
-        cast_spell(applier, op, spells[op->stats.sp].flags & SPELL_DESC_SELF ? 0 : applier->facing, op->stats.sp, 1, CAST_POTION, NULL);
-    }
-    else {
+        cast_spell(applier, op, spells[op->stats.sp].flags & SPELL_DESC_SELF ? 0 : applier->direction, op->stats.sp, 1, CAST_POTION, NULL);
+    } else {
         draw_info(COLOR_WHITE, applier, "Nothing happens as you apply it.");
     }
 

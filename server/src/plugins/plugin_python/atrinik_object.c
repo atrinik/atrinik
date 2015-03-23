@@ -1,26 +1,26 @@
-/************************************************************************
-*            Atrinik, a Multiplayer Online Role Playing Game            *
-*                                                                       *
-*    Copyright (C) 2009-2012 Alex Tokar and Atrinik Development Team    *
-*                                                                       *
-* Fork from Crossfire (Multiplayer game for X-windows).                 *
-*                                                                       *
-* This program is free software; you can redistribute it and/or modify  *
-* it under the terms of the GNU General Public License as published by  *
-* the Free Software Foundation; either version 2 of the License, or     *
-* (at your option) any later version.                                   *
-*                                                                       *
-* This program is distributed in the hope that it will be useful,       *
-* but WITHOUT ANY WARRANTY; without even the implied warranty of        *
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
-* GNU General Public License for more details.                          *
-*                                                                       *
-* You should have received a copy of the GNU General Public License     *
-* along with this program; if not, write to the Free Software           *
-* Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.             *
-*                                                                       *
-* The author can be reached at admin@atrinik.org                        *
-************************************************************************/
+/*************************************************************************
+ *           Atrinik, a Multiplayer Online Role Playing Game             *
+ *                                                                       *
+ *   Copyright (C) 2009-2014 Alex Tokar and Atrinik Development Team     *
+ *                                                                       *
+ * Fork from Crossfire (Multiplayer game for X-windows).                 *
+ *                                                                       *
+ * This program is free software; you can redistribute it and/or modify  *
+ * it under the terms of the GNU General Public License as published by  *
+ * the Free Software Foundation; either version 2 of the License, or     *
+ * (at your option) any later version.                                   *
+ *                                                                       *
+ * This program is distributed in the hope that it will be useful,       *
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of        *
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
+ * GNU General Public License for more details.                          *
+ *                                                                       *
+ * You should have received a copy of the GNU General Public License     *
+ * along with this program; if not, write to the Free Software           *
+ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.             *
+ *                                                                       *
+ * The author can be reached at admin@atrinik.org                        *
+ ************************************************************************/
 
 /**
  * @file
@@ -34,8 +34,7 @@
  * @page plugin_python_object_fields Python object fields
  * <h2>Python object fields</h2>
  * List of the object fields and their meaning. */
-static fields_struct fields[] =
-{
+static fields_struct fields[] = {
     {"below", FIELDTYPE_OBJECT, offsetof(object, below), FIELDFLAG_READONLY, 0},
     {"above", FIELDTYPE_OBJECT, offsetof(object, above), FIELDFLAG_READONLY, 0},
     {"inv", FIELDTYPE_OBJECT, offsetof(object, inv), FIELDFLAG_READONLY, 0},
@@ -83,11 +82,10 @@ static fields_struct fields[] =
     {"state", FIELDTYPE_UINT8, offsetof(object, state), 0, 0},
     {"level", FIELDTYPE_SINT8, offsetof(object, level), FIELDFLAG_PLAYER_READONLY, 0},
     {"direction", FIELDTYPE_SINT8, offsetof(object, direction), 0, 0},
-    {"facing", FIELDTYPE_SINT8, offsetof(object, facing), 0, 0},
     {"quick_pos", FIELDTYPE_UINT8, offsetof(object, quick_pos), 0, 0},
     {"quickslot", FIELDTYPE_UINT8, offsetof(object, quickslot), FIELDFLAG_READONLY, 0},
 
-    {"type", FIELDTYPE_UINT8, offsetof(object, type), FIELDFLAG_PLAYER_READONLY, 0},
+    {"type", FIELDTYPE_UINT8, offsetof(object, type), 0, 0},
     {"sub_type", FIELDTYPE_UINT8, offsetof(object, sub_type), 0, 0},
     {"item_quality", FIELDTYPE_UINT8, offsetof(object, item_quality), 0, 0},
     {"item_condition", FIELDTYPE_UINT8, offsetof(object, item_condition), 0, 0},
@@ -98,14 +96,7 @@ static fields_struct fields[] =
     {"move_status", FIELDTYPE_SINT8, offsetof(object, move_status), 0, 0},
     {"move_type", FIELDTYPE_UINT8, offsetof(object, move_type), 0, 0},
 
-    {"anim_enemy_dir", FIELDTYPE_SINT8, offsetof(object, anim_enemy_dir), 0, 0},
-    {"anim_moving_dir", FIELDTYPE_SINT8, offsetof(object, anim_moving_dir), 0, 0},
-    {"anim_enemy_dir_last", FIELDTYPE_SINT8, offsetof(object, anim_enemy_dir_last), 0, 0},
-    {"anim_moving_dir_last", FIELDTYPE_SINT8, offsetof(object, anim_moving_dir_last), 0, 0},
-    {"anim_last_facing", FIELDTYPE_SINT8, offsetof(object, anim_last_facing), 0, 0},
-    {"anim_last_facing_last", FIELDTYPE_SINT8, offsetof(object, anim_last_facing_last), 0, 0},
     {"anim_speed", FIELDTYPE_UINT8, offsetof(object, anim_speed), 0, 0},
-    {"last_anim", FIELDTYPE_UINT8, offsetof(object, last_anim), 0, 0},
     {"behavior", FIELDTYPE_UINT8, offsetof(object, behavior), 0, 0},
     {"run_away", FIELDTYPE_UINT8, offsetof(object, run_away), 0, 0},
 
@@ -293,11 +284,9 @@ static PyObject *Atrinik_Object_Take(Atrinik_Object *obj, PyObject *what)
     if (PyObject_TypeCheck(what, &Atrinik_ObjectType)) {
         OBJEXISTCHECK((Atrinik_Object *) what);
         hooks->pick_up(obj->obj, ((Atrinik_Object *) what)->obj, 0);
-    }
-    else if (PyString_Check(what)) {
+    } else if (PyString_Check(what)) {
         hooks->command_take(obj->obj, "take", PyString_AsString(what));
-    }
-    else {
+    } else {
         PyErr_SetString(PyExc_TypeError, "Argument 'what' must be either Atrinik object or string.");
         return NULL;
     }
@@ -319,11 +308,9 @@ static PyObject *Atrinik_Object_Drop(Atrinik_Object *obj, PyObject *what)
     if (PyObject_TypeCheck(what, &Atrinik_ObjectType)) {
         OBJEXISTCHECK((Atrinik_Object *) what);
         hooks->drop(obj->obj, ((Atrinik_Object *) what)->obj, 0);
-    }
-    else if (PyString_Check(what)) {
+    } else if (PyString_Check(what)) {
         hooks->command_drop(obj->obj, "drop", PyString_AsString(what));
-    }
-    else {
+    } else {
         PyErr_SetString(PyExc_TypeError, "Argument 'what' must be either Atrinik object or string.");
         return NULL;
     }
@@ -449,9 +436,8 @@ static PyObject *Atrinik_Object_Hit(Atrinik_Object *obj, PyObject *args)
     if (damage == -1) {
         target->obj->stats.hp = -1;
         hooks->kill_object(target->obj, 0, obj->obj, 0);
-    }
-    /* Do damage. */
-    else {
+    } else {
+        /* Do damage. */
         hooks->hit_player(target->obj, damage, obj->obj, 0);
     }
 
@@ -492,13 +478,11 @@ static PyObject *Atrinik_Object_Cast(Atrinik_Object *obj, PyObject *args, PyObje
     if (mode == -1) {
         if (obj->obj->type != PLAYER) {
             mode = CAST_NPC;
-        }
-        else {
+        } else {
             mode = CAST_NORMAL;
         }
-    }
-    /* Ensure the mode is valid. */
-    else if (mode == CAST_NORMAL && target && target != obj && obj->obj->type != PLAYER) {
+    } else if (mode == CAST_NORMAL && target && target != obj && obj->obj->type != PLAYER) {
+        /* Ensure the mode is valid. */
         mode = CAST_NPC;
     }
 
@@ -533,8 +517,7 @@ static PyObject *Atrinik_Object_CreateForce(Atrinik_Object *obj, PyObject *args)
         SET_FLAG(force, FLAG_IS_USED_UP);
         force->stats.food = expire_time;
         force->speed = 0.02f;
-    }
-    else {
+    } else {
         force->speed = 0.0;
     }
 
@@ -597,6 +580,7 @@ static PyObject *Atrinik_Object_CreateObject(Atrinik_Object *obj, PyObject *args
 }
 
 /** @cond */
+
 /**
  * Helper function for Atrinik_Object_FindObject() to recursively
  * check inventories. */
@@ -608,8 +592,7 @@ static object *object_find_object(object *tmp, int mode, shstr *archname, shstr 
         if ((!archname || tmp->arch->name == archname) && (!name || tmp->name == name) && (!title || tmp->title == title) && (type == -1 || tmp->type == type) && (!unpaid || QUERY_FLAG(tmp, FLAG_UNPAID))) {
             if (list) {
                 PyList_Append(list, wrap_object(tmp));
-            }
-            else {
+            } else {
                 return tmp;
             }
         }
@@ -912,8 +895,7 @@ static PyObject *Atrinik_Object_Clone(Atrinik_Object *obj, PyObject *args)
 
     if (!mode) {
         clone_ob = hooks->object_create_clone(obj->obj);
-    }
-    else {
+    } else {
         clone_ob = hooks->get_object();
         hooks->copy_object(obj->obj, clone_ob, 0);
     }
@@ -1239,10 +1221,9 @@ static PyObject *Atrinik_Object_SquaresAround(Atrinik_Object *what, PyObject *ar
             /* We want all squares. */
             if (type == AROUND_ALL && !callable) {
                 SQUARES_AROUND_ADD(m, xt, yt);
-            }
-            /* Only those that are not blocked by view, or beyond a wall, etc,
-             * so use the Bresenham algorithm. */
-            else if (beyond) {
+            } else if (beyond) {
+                /* Only those that are not blocked by view, or beyond a wall, etc,
+                 * so use the Bresenham algorithm. */
                 int xt2, yt2, fraction, dx2, dy2, stepx, stepy;
                 mapstruct *m2;
                 rv_vector rv;
@@ -1270,10 +1251,9 @@ static PyObject *Atrinik_Object_SquaresAround(Atrinik_Object *what, PyObject *ar
                         break;
                     }
                 }
-            }
-            /* We only want to ignore squares that either block view, or have
-             * a wall, etc, but not any squares behind them. */
-            else {
+            } else {
+                /* We only want to ignore squares that either block view, or have
+                 * a wall, etc, but not any squares behind them. */
                 if ((type & AROUND_BLOCKSVIEW && GET_MAP_FLAGS(m, xt, yt) & P_BLOCKSVIEW) || (type & AROUND_PLAYER_ONLY && GET_MAP_FLAGS(m, xt, yt) & P_PLAYER_ONLY) || (type & AROUND_WALL && hooks->wall(m, xt, yt)) || (callable && python_call_int(callable, Py_BuildValue("(OiiO)", wrap_map(m), xt, yt, wrap_object(what->obj))))) {
                     continue;
                 }
@@ -1357,8 +1337,7 @@ static PyObject *Atrinik_Object_CreateTreasure(Atrinik_Object *obj, PyObject *ar
     /* Figure out the treasure list. */
     if (treasure_name) {
         t = hooks->find_treasurelist(treasure_name);
-    }
-    else {
+    } else {
         t = obj->obj->randomitems;
     }
 
@@ -1366,8 +1345,7 @@ static PyObject *Atrinik_Object_CreateTreasure(Atrinik_Object *obj, PyObject *ar
     if (!t) {
         if (treasure_name) {
             PyErr_Format(PyExc_ValueError, "'%s' is not a valid treasure list.", treasure_name);
-        }
-        else {
+        } else {
             PyErr_SetString(PyExc_ValueError, "Object has no treasure list.");
         }
 
@@ -1379,13 +1357,11 @@ static PyObject *Atrinik_Object_CreateTreasure(Atrinik_Object *obj, PyObject *ar
         /* Try the object's level first. */
         if (obj->obj->level) {
             level = obj->obj->level;
-        }
-        /* Otherwise the map's difficulty. */
-        else if (obj->obj->map) {
+        } else if (obj->obj->map) {
+            /* Otherwise the map's difficulty. */
             level = obj->obj->map->difficulty;
-        }
-        /* Default to MAXLEVEL. */
-        else {
+        } else {
+            /* Default to MAXLEVEL. */
             level = MAXLEVEL;
         }
     }
@@ -1441,8 +1417,7 @@ static PyObject *Atrinik_Object_ConnectionTrigger(Atrinik_Object *obj, PyObject 
 
     if (button) {
         hooks->connection_trigger_button(obj->obj, push);
-    }
-    else {
+    } else {
         hooks->connection_trigger(obj->obj, push);
     }
 
@@ -1519,8 +1494,7 @@ static PyObject *Atrinik_Object_Load(Atrinik_Object *obj, PyObject *args)
 /*@}*/
 
 /** Available Python methods for the AtrinikObject object */
-static PyMethodDef methods[] =
-{
+static PyMethodDef methods[] = {
     {"ActivateRune", (PyCFunction) Atrinik_Object_ActivateRune, METH_VARARGS, 0},
     {"TeleportTo", (PyCFunction) Atrinik_Object_TeleportTo, METH_VARARGS | METH_KEYWORDS, 0},
     {"InsertInto", (PyCFunction) Atrinik_Object_InsertInto, METH_VARARGS, 0},
@@ -1601,6 +1575,11 @@ static int Object_SetAttribute(Atrinik_Object *obj, PyObject *value, void *conte
         INTRAISE("Trying to modify a field that is read-only for player objects.");
     }
 
+    if (field->offset == offsetof(object, type) &&
+            obj->obj->custom_attrset != NULL) {
+        INTRAISE("Cannot modify type of object that has custom_attrset.");
+    }
+
     if (obj->obj->map != NULL && (field->offset == offsetof(object, layer) || field->offset == offsetof(object, sub_layer))) {
         hooks->object_remove(obj->obj, 0);
     }
@@ -1636,9 +1615,9 @@ static int Object_SetAttribute(Atrinik_Object *obj, PyObject *value, void *conte
     /* Update object's speed. */
     if (field->offset == offsetof(object, speed)) {
         hooks->update_ob_speed(obj->obj);
-    }
-    /* Handle object's type changing. */
-    else if (field->offset == offsetof(object, type)) {
+    } else if (field->offset == offsetof(object, type)) {
+        /* Handle object's type changing. */
+
         /* Changing to a spawn point monster requires special handling:
          * as the object was most likely created and put on active list,
          * we must remove it from the active list, as spawn point monsters
@@ -1659,17 +1638,14 @@ static int Object_SetAttribute(Atrinik_Object *obj, PyObject *value, void *conte
             obj->obj->speed = old_speed;
             obj->obj->type = SPAWN_POINT_MOB;
         }
-    }
-    /* Direction, update object's facing. */
-    else if (field->offset == offsetof(object, direction)) {
-        obj->obj->anim_last_facing = obj->obj->anim_last_facing_last = obj->obj->facing = obj->obj->direction;
+    } else if (field->offset == offsetof(object, direction)) {
+        /* Direction. */
 
-        /* If the object is animated and turnable, updated its face as well. */
+        /* If the object is animated and turnable, update its face. */
         if (obj->obj->animation_id && QUERY_FLAG(obj->obj, FLAG_IS_TURNABLE)) {
             SET_ANIMATION(obj->obj, (NUM_ANIMATIONS(obj->obj) / NUM_FACINGS(obj->obj)) * obj->obj->direction + obj->obj->state);
         }
-    }
-    else if (field->offset == offsetof(object, enemy)) {
+    } else if (field->offset == offsetof(object, enemy)) {
         if (QUERY_FLAG(obj->obj, FLAG_MONSTER)) {
             hooks->monster_enemy_signal(obj->obj, obj->obj->enemy);
         }
@@ -1720,11 +1696,9 @@ static int Object_SetFlag(Atrinik_Object *obj, PyObject *val, void *context)
 
     if (val == Py_True) {
         SET_FLAG(obj->obj, flagno);
-    }
-    else if (val == Py_False) {
+    } else if (val == Py_False) {
         CLEAR_FLAG(obj->obj, flagno);
-    }
-    else {
+    } else {
         PyErr_SetString(PyExc_TypeError, "Flag value must be either True or False.");
         return -1;
     }
@@ -1823,12 +1797,11 @@ static PyObject *object_iter(PyObject *seq)
     obj->iter_type = OBJ_ITER_TYPE_ONE;
 
     /* Select which iteration type we're doing. It's possible that
-    * an object has both below and above set (it's not the first and
-    * not the last object), in which case we will prefer below. */
+     * an object has both below and above set (it's not the first and
+     * not the last object), in which case we will prefer below. */
     if (orig_obj->obj->below) {
         obj->iter_type = OBJ_ITER_TYPE_BELOW;
-    }
-    else if (orig_obj->obj->above) {
+    } else if (orig_obj->obj->above) {
         obj->iter_type = OBJ_ITER_TYPE_ABOVE;
     }
 
@@ -1851,11 +1824,9 @@ static PyObject *object_iternext(Atrinik_Object *obj)
         /* Check which way we're iterating. */
         if (obj->iter_type == OBJ_ITER_TYPE_BELOW) {
             obj->iter->obj = tmp->below;
-        }
-        else if (obj->iter_type == OBJ_ITER_TYPE_ABOVE) {
+        } else if (obj->iter_type == OBJ_ITER_TYPE_ABOVE) {
             obj->iter->obj = tmp->above;
-        }
-        else if (obj->iter_type == OBJ_ITER_TYPE_ONE) {
+        } else if (obj->iter_type == OBJ_ITER_TYPE_ONE) {
             obj->iter->obj = NULL;
         }
 
@@ -1889,11 +1860,13 @@ static PyGetSetDef getseters[NUM_FIELDS + NUM_FLAGS + 1];
 
 /**
  * The number protocol for Atrinik objects. */
-static PyNumberMethods AtrinikObjectNumber =
-{
+static PyNumberMethods AtrinikObjectNumber = {
     NULL,
     NULL,
     NULL,
+#ifndef IS_PY3K
+    NULL, /* nb_divide */
+#endif
     NULL,
     NULL,
     NULL,
@@ -1906,12 +1879,22 @@ static PyNumberMethods AtrinikObjectNumber =
     NULL,
     NULL,
     NULL,
+#ifndef IS_PY3K
+    NULL, /* nb_coerce */
+#endif
     NULL,
     NULL,
     NULL,
+#ifndef IS_PY3K
+    NULL, /* nb_oct */
+    NULL, /* nb_hex */
+#endif
     NULL,
     NULL,
     NULL,
+#ifndef IS_PY3K
+    NULL, /* nb_inplace_divide */
+#endif
     NULL,
     NULL,
     NULL,
@@ -1928,8 +1911,7 @@ static PyNumberMethods AtrinikObjectNumber =
 };
 
 /** Our actual Python ObjectType. */
-PyTypeObject Atrinik_ObjectType =
-{
+PyTypeObject Atrinik_ObjectType = {
 #ifdef IS_PY3K
     PyVarObject_HEAD_INIT(NULL, 0)
 #else
@@ -1966,6 +1948,9 @@ PyTypeObject Atrinik_ObjectType =
     0, 0, 0, 0, 0, 0, 0, 0
 #ifndef IS_PY_LEGACY
     , 0
+#endif
+#ifdef Py_TPFLAGS_HAVE_FINALIZE
+    , NULL
 #endif
 };
 
@@ -2014,7 +1999,7 @@ int Atrinik_Object_init(PyObject *module)
     }
 
     Py_INCREF(&Atrinik_ObjectType);
-    PyModule_AddObject(module, "Object", (PyObject *) &Atrinik_ObjectType);
+    PyModule_AddObject(module, "Object", (PyObject *) & Atrinik_ObjectType);
 
     return 1;
 }

@@ -10,9 +10,9 @@ weapon_speed 0.035
 attack_cleave 80
 is_evil 1
 direction 5
-terrain_flag 1
+terrain_flag 65
 randomitems mob_quickwood
-Wis 3
+wis 3
 animation quickwood
 is_animated 1
 anim_speed 4

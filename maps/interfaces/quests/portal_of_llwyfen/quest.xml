@@ -7,126 +7,111 @@
                 <message>I'm also the mayor of Brynknot, and I'm currently attending to some business here in Greyton.</message>
             </dialog>
         </interface>
-
         <interface npc="Maplevale" state="completed">
             <dialog name="hello">
                 <message>I deeply appreciate you helping us get rid of that threat. If not for you, it is likely that Brynknot would have been overrun by the demons.</message>
             </dialog>
         </interface>
-
         <interface npc="Talthor Redeye">
             <dialog name="hello">
                 <message>Greetings citizen. I'm the {npc.name}, the captain of the Brynknot Guards, and our duty as guards is to protect the citizens of Brynknot.</message>
                 <message>Be careful if you're going out of the city.</message>
             </dialog>
         </interface>
-
         <interface npc="Talthor Redeye" state="completed">
             <dialog name="hello">
                 <message>Welcome, welcome. We won't forget what you have done for Brynknot, {activator.name}.</message>
             </dialog>
         </interface>
-
-        <part uid="portal_found" name="A Strange Portal">
+        <part name="A Strange Portal" uid="portal_found">
             <info>You have found a portal sealed by the power of the elven god Llwyfen. Perhaps you should find a priest of Llwyfen to learn more.</info>
-
-            <interface npc="Maplevale" state="need_complete" inherit="">
+            <interface inherit="interface" npc="Maplevale" state="need_complete">
                 <dialog name="hello">
-                    <inherit />
-                    <response message="I have found a portal sealed by the powers of Llwyfen." destination="sealedportal" />
+                    <inherit/>
+                    <response destination="sealedportal" message="I have found a portal sealed by the powers of Llwyfen."/>
                 </dialog>
                 <dialog name="sealedportal">
                     <message>Hmm... So you're saying you found a portal in Underground City that is sealed by the powers of the elven god Llwyfen, which I'm a priest of? That is the most unsettling news I have heard about that area recently...</message>
                     <message>If you like, I can give you an amulet that should break the seal, but please come back to me once you learn what's beyond that portal.</message>
-                    <response message="Alright." destination="alright" />
+                    <response destination="alright" message="Alright."/>
                 </dialog>
                 <dialog name="alright">
                     <message>Very well then. Take the amulet, and go investigate what's beyond that strange portal.</message>
-                    <object arch="amulet_llwyfen" />
-                    <action start="portal_investigate" />
-                    <action complete="portal_found" />
+                    <object arch="amulet_llwyfen"/>
+                    <action start="portal_investigate"/>
+                    <action complete="portal_found"/>
                 </dialog>
             </interface>
         </part>
-
-        <part uid="portal_investigate" name="Investigation of the Portal">
+        <part name="Investigation of the Portal" uid="portal_investigate">
             <info>Maplevale, a priest of Llwyfen and the mayor of Brynknot, has asked you to investigate what's beyond the strange portal in Underground City and has given you an amulet of Llwyfen, which should allow you to pass through the portal.</info>
-            <item arch="llwyfen_portal_nyhelobo_note" name="Letter from Nyhelobo to oty captain" />
-
+            <item arch="llwyfen_portal_nyhelobo_note" name="Letter from Nyhelobo to oty captain"/>
             <interface npc="Maplevale" state="need_finish">
                 <dialog name="hello">
                     <message>I have asked you to investigate the area beyond the strange portal that you told me about in the Underground City. Have you learned anything yet?</message>
-                    <response message="Not yet." action="close" />
+                    <response action="close" message="Not yet."/>
                 </dialog>
             </interface>
-
             <interface npc="Maplevale" state="need_complete">
                 <dialog name="hello">
                     <message>I have asked you to investigate the area beyond the strange portal that you told me about in the Underground City. Have you learned anything yet?</message>
-                    <response message="Yes, I found this note." destination="foundnote" />
+                    <response destination="foundnote" message="Yes, I found this note."/>
                 </dialog>
                 <dialog name="foundnote">
                     <message color="yellow">You hand over the note...</message>
                     <message>Hmm! This note is most troubling indeed.</message>
                     <message>Please go see Talthor Redeye, the captain of the Brynknot guards, immediately. I'll send a runner to explain the situation to him, but he'll likely have some orders for you. You should be able to find him in his office, above the guard barracks.</message>
-                    <action start="speak_captain" />
-                    <action complete="portal_investigate" />
+                    <action start="speak_captain"/>
+                    <action complete="portal_investigate"/>
                 </dialog>
             </interface>
         </part>
-
-        <part uid="speak_captain" name="Talthor Redeye">
+        <part name="Talthor Redeye" uid="speak_captain">
             <info>You have delivered the note you found in the passage beyond the portal in Underground City to Maplevale. After reading it, Maplevale told you to go speak to Talthor Redeye, the captain of the Brynknot guards, immediately.</info>
-
             <interface npc="Maplevale" state="need_complete">
                 <dialog name="hello">
                     <message>Time is of the essence. Please follow Talthor Redeye's orders. You should be able to find him in his office, above the guard barracks in Brynknot.</message>
                 </dialog>
             </interface>
-
             <interface npc="Talthor Redeye" state="need_complete">
                 <dialog name="hello">
                     <message>So you're the adventurer Maplevale sent word of. The runner said that there are enemies beneath Brynknot, somewhere in the sewers, is that correct?</message>
-                    <response message="Yes, I found them through a portal in Underground City." destination="yesuc" />
+                    <response destination="yesuc" message="Yes, I found them through a portal in Underground City."/>
                 </dialog>
                 <dialog name="yesuc">
                     <message>Hmm. According to the information the mayor sent me, your description of the place beyond the portal matches that of a part of the Brynknot sewer system that has been sealed off. It leads to a maze-like part of the sewers, dug out by monsters, and not by humans. But I don't know who is responsible for all of this.</message>
-                    <response message="How can I get to that part of the sewers?" destination="getto" />
+                    <response destination="getto" message="How can I get to that part of the sewers?"/>
                 </dialog>
                 <dialog name="getto">
                     <message>Here, you'll need this key. The gate is sealed shut, but this key should still be able to open it.</message>
-                    <object arch="key_brynknot_sewer_maze" />
+                    <object arch="key_brynknot_sewer_maze"/>
                     <message>Go through the portal once again, open the gate, and please find whoever is responsible for all this.</message>
-                    <action start="kill_boss" />
-                    <action complete="speak_captain" />
+                    <action start="kill_boss"/>
+                    <action complete="speak_captain"/>
                 </dialog>
             </interface>
         </part>
-
-        <part uid="kill_boss" name="The Attack">
+        <part name="The Attack" uid="kill_boss">
             <info>Talthor Redeye has given you the key to the lower levels of Brynknot Sewers, and instructed you to find and kill whoever is responsible for the planned attack on Brynknot.</info>
-            <kill nrof="1" />
-
-            <interface npc="Maplevale" state="need_finish" inherit="need_complete_speak_captain" />
-            <interface npc="Maplevale" state="need_complete" inherit="need_complete_speak_captain" />
-
+            <kill nrof="1"/>
+            <interface inherit="need_complete_speak_captain" npc="Maplevale" state="need_finish"/>
+            <interface inherit="need_complete_speak_captain" npc="Maplevale" state="need_complete"/>
             <interface npc="Talthor Redeye" state="need_finish">
                 <dialog name="hello">
                     <message>Have you found whoever is responsible for the attack?</message>
-                    <response message="Working on it..." action="close" />
+                    <response action="close" message="Working on it..."/>
                 </dialog>
             </interface>
-
             <interface npc="Talthor Redeye" state="need_complete">
                 <dialog name="hello">
                     <message>Have you found whoever is responsible for the attack?</message>
-                    <response message="Yes, the beholder Nyhelobo has been taken care of." destination="takencare" />
+                    <response destination="takencare" message="Yes, the beholder Nyhelobo has been taken care of."/>
                 </dialog>
                 <dialog name="takencare">
                     <message>That's excellent news, {activator.name}.</message>
                     <message>You're not one of my guards, but you still deserve to be paid for your service. Who knows, if not for you, Brynknot might have been overrun by demons or worse... So, please accept this payment.</message>
-                    <object arch="goldcoin" />
-                    <action complete="kill_boss" />
+                    <object arch="goldcoin"/>
+                    <action complete="kill_boss"/>
                 </dialog>
             </interface>
         </part>
