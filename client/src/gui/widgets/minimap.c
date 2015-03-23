@@ -129,8 +129,8 @@ static void widget_draw(widgetdata *widget)
 
             texture = TEXTURE_CLIENT(minimap_texture_names[i]);
             minimap->textures[i] = zoomSurface(texture,
-                    (double) widget->w / texture->w,
-                    (double) widget->h / texture->h,
+                    (double) widget->w / texture->w + 0.001,
+                    (double) widget->h / texture->h + 0.001,
                     setting_get_int(OPT_CAT_CLIENT, OPT_ZOOM_SMOOTH));
         }
     }
