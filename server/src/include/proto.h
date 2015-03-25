@@ -419,8 +419,6 @@ extern int wall(mapstruct *m, int x, int y);
 extern int blocks_view(mapstruct *m, int x, int y);
 extern int blocks_magic(mapstruct *m, int x, int y);
 extern int blocked(object *op, mapstruct *m, int x, int y, int terrain);
-extern int blocked_link(object *op, int xoff, int yoff);
-extern int blocked_link_2(object *op, mapstruct *map, int x, int y);
 extern int blocked_tile(object *op, mapstruct *m, int x, int y);
 extern int arch_blocked(archetype *at, object *op, mapstruct *m, int x, int y);
 extern void set_map_darkness(mapstruct *m, int value);
