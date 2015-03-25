@@ -928,6 +928,7 @@ extern void object_type_init_disease(void);
 /* src/types/door.c */
 extern int door_try_open(object *op, mapstruct *m, int x, int y, int test);
 extern object *find_key(object *op, object *door);
+extern void door_show_message(object *op, mapstruct *m, int x, int y);
 extern void object_type_init_door(void);
 /* src/types/drink.c */
 extern void object_type_init_drink(void);

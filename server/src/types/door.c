@@ -225,6 +225,27 @@ object *find_key(object *op, object *door)
     return NULL;
 }
 
+/**
+ * Print the locked door message to the specified player.
+ * @param op Player.
+ * @param m Map where the locked door is.
+ * @param x X position.
+ * @param y Y position.
+ */
+void door_show_message(object *op, mapstruct *m, int x, int y)
+{
+    object *tmp;
+
+    FOR_MAP_LAYER_BEGIN(m, x, y, LAYER_WALL, -1, tmp)
+    {
+        if (tmp->type == DOOR) {
+            draw_info(COLOR_NAVY, op, tmp->msg);
+            return;
+        }
+    }
+    FOR_MAP_LAYER_END
+}
+
 /** @copydoc object_methods::process_func */
 static void process_func(object *op)
 {

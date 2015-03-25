@@ -145,15 +145,14 @@ int move_ob(object *op, int dir, object *originator)
     }
 
     if (op->type != PLAYER || !CONTR(op)->tcl) {
-        if (op->more != NULL) {
-            if (blocked_link(op, freearr_x[dir], freearr_y[dir])) {
-                return 0;
+        flags = object_blocked(op, m, xt, yt);
+
+        if (flags != 0) {
+            if (flags & P_DOOR_CLOSED) {
+                door_show_message(op, m, xt, yt);
             }
-        } else {
-            /* Is the spot blocked from something? */
-            if ((flags = blocked(op, m, xt, yt, op->terrain_flag))) {
-                return 0;
-            }
+
+            return 0;
         }
     }
 
