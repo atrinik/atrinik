@@ -1106,6 +1106,10 @@ void fix_player(object *op)
 
     update_ob_speed(op);
 
+    if (QUERY_FLAG(op, FLAG_IS_INVISIBLE)) {
+        light = 0;
+    }
+
     op->glow_radius = light;
 
     if (op->map && old_glow != light) {
