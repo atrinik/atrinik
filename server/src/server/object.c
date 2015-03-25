@@ -3243,3 +3243,61 @@ char *object_get_str_r(object *op, char *buf, size_t bufsize)
 
     return buf;
 }
+
+/**
+ * Checks if the specified coordinates are blocked for the specified object.
+ *
+ * Takes multi-part objects into account.
+ * @param op Object to check.
+ * @param m Map.
+ * @param x X coordinate.
+ * @param y Y coordinate.
+ * @return 0 if the tile is not blocked, a combination of @ref map_look_flags
+ * otherwise.
+ */
+int object_blocked(object *op, mapstruct *m, int x, int y)
+{
+    object *tmp, *tmp2;
+    int xt, yt, flags;
+    mapstruct *map;
+
+    HARD_ASSERT(op != NULL);
+    HARD_ASSERT(m != NULL);
+    HARD_ASSERT(!OUT_OF_MAP(m, x, y));
+
+    op = HEAD(op);
+
+    if (op->more == NULL) {
+        return blocked(op, m, x, y, op->terrain_flag);
+    }
+
+    for (tmp = op; tmp != NULL; tmp = tmp->more) {
+        xt = x + tmp->arch->clone.x;
+        yt = y + tmp->arch->clone.y;
+        map = get_map_from_coord(m, &xt, &yt);
+
+        if (map == NULL) {
+            return P_OUT_OF_MAP;
+        }
+
+        /* If this part is a different part of the head, then skip checking
+         * this tile. */
+        for (tmp2 = op; tmp2 != NULL; tmp2 = tmp2->more) {
+            if (tmp2->map == map && tmp2->x == xt && tmp2->y == yt) {
+                break;
+            }
+        }
+
+        if (tmp2 != NULL) {
+            continue;
+        }
+
+        flags = blocked(op, map, xt, yt, op->terrain_flag);
+
+        if (flags != 0) {
+            return flags;
+        }
+    }
+
+    return 0;
+}
