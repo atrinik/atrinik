@@ -132,6 +132,7 @@ int object_apply_item(object *op, object *applier, int aflags)
         case SKILL:
         case ARROW:
         case CONTAINER:
+            change_abil(applier, op);
             draw_info_format(COLOR_WHITE, applier, "You unready %s.", query_name(op, applier));
             break;
 
@@ -223,6 +224,7 @@ int object_apply_item(object *op, object *applier, int aflags)
 
         draw_info_format(COLOR_WHITE, applier, "You ready %s.", query_name(op, applier));
         SET_FLAG(op, FLAG_APPLIED);
+        change_abil(applier, op);
 
         if (op->type == BOW) {
             draw_info_format(COLOR_WHITE, applier, "You will now fire %s with %s.", op->race ? op->race : "nothing", query_name(op, applier));
