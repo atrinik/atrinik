@@ -1337,20 +1337,20 @@ void examine(object *op, object *tmp, StringBuffer *sb_capture)
                 } else {
                     draw_info_full_format(CHAT_TYPE_GAME, NULL, COLOR_WHITE, sb_capture, op, "It can hold only %s.", tmp->race);
                 }
-
-                /* Has magic modifier? */
-                if (tmp->weapon_speed != 1.0f) {
-                    /* Bad */
-                    if (tmp->weapon_speed > 1.0f) {
-                        draw_info_full_format(CHAT_TYPE_GAME, NULL, COLOR_WHITE, sb_capture, op, "It increases the weight of items inside by %.1f%%.", tmp->weapon_speed * 100.0f);
-                    } else {
-                        /* Good */
-                        draw_info_full_format(CHAT_TYPE_GAME, NULL, COLOR_WHITE, sb_capture, op, "It decreases the weight of items inside by %.1f%%.", 100.0f - (tmp->weapon_speed * 100.0f));
-                    }
-                }
             } else {
                 if (tmp->weight_limit) {
                     draw_info_full_format(CHAT_TYPE_GAME, NULL, COLOR_WHITE, sb_capture, op, "Its weight limit is %.1f kg.", (float) tmp->weight_limit / 1000.0f);
+                }
+            }
+
+            /* Has magic modifier? */
+            if (tmp->weapon_speed != 1.0f) {
+                /* Bad */
+                if (tmp->weapon_speed > 1.0f) {
+                    draw_info_full_format(CHAT_TYPE_GAME, NULL, COLOR_WHITE, sb_capture, op, "It increases the weight of items inside by %.1f%%.", tmp->weapon_speed * 100.0f);
+                } else {
+                    /* Good */
+                    draw_info_full_format(CHAT_TYPE_GAME, NULL, COLOR_WHITE, sb_capture, op, "It decreases the weight of items inside by %.1f%%.", 100.0f - (tmp->weapon_speed * 100.0f));
                 }
             }
 
