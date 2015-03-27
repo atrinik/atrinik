@@ -164,7 +164,7 @@ int object_apply_item(object *op, object *applier, int aflags)
 
         if (tmp->type == RING && !ring_left) {
             ring_left = 1;
-        } else if (object_apply_item(tmp, applier, AP_UNAPPLY) != OBJECT_METHOD_OK) {
+        } else if (object_apply(tmp, applier, AP_UNAPPLY) != OBJECT_METHOD_OK) {
             return OBJECT_METHOD_ERROR;
         }
     }
