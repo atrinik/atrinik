@@ -32,6 +32,10 @@
 #include <global.h>
 #include <stdarg.h>
 
+#ifndef WIN32
+#include <execinfo.h>
+#endif
+
 /**
  * Name of the API. */
 #define API_NAME logger
@@ -312,4 +316,28 @@ void logger_print(logger_level level, const char *function, uint64 line,
                 logger_names[level], function, line, formatted);
         fflush(log_fp);
     }
+}
+
+/**
+ * Print a traceback.
+ */
+void logger_traceback(void)
+{
+#ifndef WIN32
+    void *bt[1024];
+    int bt_size;
+    char **bt_syms;
+    int i;
+
+    bt_size = backtrace(bt, 1024);
+    bt_syms = backtrace_symbols(bt, bt_size);
+    log(LOG(ERROR), "------------ TRACEBACK ------------");
+
+    for (i = 1; i < bt_size; i++) {
+        log(LOG(ERROR), "%s", bt_syms[i]);
+    }
+
+    log(LOG(ERROR), "-----------------------------------");
+    efree(bt_syms);
+#endif
 }

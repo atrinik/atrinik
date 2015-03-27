@@ -51,6 +51,11 @@ typedef enum logger_level {
 } logger_level;
 
 #define log logger_print
+#define log_error(...) \
+    do { \
+        logger_traceback(); \
+        log(LOG(ERROR), ##__VA_ARGS__); \
+    } while (0)
 
 #ifdef WIN32
 #define LOGGER_ESC_SEQ_BOLD ""
