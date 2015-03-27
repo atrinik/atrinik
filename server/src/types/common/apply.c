@@ -181,10 +181,6 @@ int object_apply_item(object *op, object *applier, int aflags)
             return OBJECT_METHOD_ERROR;
         }
 
-        if (CONTR(applier)->equipment[PLAYER_EQUIP_WEAPON] && OBJECT_IS_RANGED(CONTR(applier)->equipment[PLAYER_EQUIP_WEAPON])) {
-            object_apply_item(CONTR(applier)->equipment[PLAYER_EQUIP_WEAPON], applier, AP_UNAPPLY);
-        }
-
         draw_info_format(COLOR_WHITE, applier, "You wield %s.", query_name(op, applier));
         SET_FLAG(op, FLAG_APPLIED);
         SET_FLAG(applier, FLAG_READY_WEAPON);
