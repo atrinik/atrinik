@@ -267,11 +267,11 @@ int check_skill_to_fire(object *op, object *weapon)
  * @param pl Player. */
 void link_player_skills(object *pl)
 {
-    uint8 fix;
+    bool fix;
     int i;
     object *tmp;
 
-    fix = 0;
+    fix = false;
     pl->stats.exp = 0;
 
     for (i = 0; i < NROFSKILLS; i++) {
@@ -295,16 +295,16 @@ void link_player_skills(object *pl)
         }
 
         if (exp_lvl_adj(pl, CONTR(pl)->skill_ptr[i]) != 0) {
-            fix = 1;
+            fix = true;
         }
     }
 
     if (exp_lvl_adj(pl, NULL) != 0) {
-        fix = 1;
+        fix = true;
     }
 
-    if (fix == 1) {
-        fix_player(pl);
+    if (fix) {
+        living_update(pl);
     }
 }
 

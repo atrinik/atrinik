@@ -132,7 +132,7 @@ static int apply_func(object *op, object *applier, int aflags)
         force = insert_ob_in_ob(force, applier);
         SET_FLAG(force, FLAG_APPLIED);
 
-        if (!change_abil(applier, force)) {
+        if (!living_update(applier)) {
             draw_info(COLOR_WHITE, applier, "Nothing happened.");
         }
     } else if (op->last_eat == 1) {
@@ -167,7 +167,6 @@ static int apply_func(object *op, object *applier, int aflags)
 
                 object_remove(depletion, 0);
                 object_destroy(depletion);
-                fix_player(applier);
             } else {
                 draw_info(COLOR_WHITE, applier, "You are not depleted.");
             }

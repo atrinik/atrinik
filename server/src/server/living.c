@@ -298,298 +298,6 @@ void check_stat_bounds(living *stats)
 }
 
 /**
- * Permanently alters an object's stats/flags based on another object.
- * @return 1 if we successfully changed a stat, 0 if nothing was changed.
- * @note Flag is set to 1 if we are applying the object, -1 if we are
- * removing the object.
- * @note
- * It is the calling functions responsibility to check to see if the object
- * can be applied or not. */
-int change_abil(object *op, object *tmp)
-{
-    int flag = QUERY_FLAG(tmp, FLAG_APPLIED) ? 1 : -1, i, j, success = 0;
-    object refop;
-    int potion_max = 0;
-
-    /* Remember what object was like before it was changed. Note that
-     * refop is a local copy of op only to be used for detecting changes
-     * found by fix_player. refop is not a real object. */
-    memcpy(&refop, op, sizeof(object));
-
-    /* Reset attributes that fix_player doesn't reset since it doesn't search
-     * everything to set */
-    if (flag == -1) {
-        op->path_attuned &= ~tmp->path_attuned, op->path_repelled &= ~tmp->path_repelled, op->path_denied &= ~tmp->path_denied;
-    }
-
-    /* call fix_player since op object could have whatever attribute due
-     * to multiple items.  if fix_player always has to be called after
-     * change_ability then might as well call it from here */
-    fix_player(op);
-
-    if (tmp->attack[ATNR_CONFUSION]) {
-        success = 1;
-
-        if (flag > 0) {
-            draw_info(COLOR_WHITE, op, "Your hands begin to glow red.");
-        } else {
-            draw_info(COLOR_GRAY, op, "Your hands stop glowing red.");
-        }
-    }
-
-    if (QUERY_FLAG(op, FLAG_LIFESAVE) != QUERY_FLAG(&refop, FLAG_LIFESAVE)) {
-        success = 1;
-
-        if (flag > 0) {
-            draw_info(COLOR_WHITE, op, "You feel very protected.");
-        } else {
-            draw_info(COLOR_GRAY, op, "You don't feel protected anymore.");
-        }
-    }
-
-    if (QUERY_FLAG(op, FLAG_REFL_MISSILE) != QUERY_FLAG(&refop, FLAG_REFL_MISSILE)) {
-        success = 1;
-
-        if (flag > 0) {
-            draw_info(COLOR_WHITE, op, "A magic force shimmers around you.");
-        } else {
-            draw_info(COLOR_GRAY, op, "The magic force fades away.");
-        }
-    }
-
-    if (QUERY_FLAG(op, FLAG_REFL_SPELL) != QUERY_FLAG(&refop, FLAG_REFL_SPELL)) {
-        success = 1;
-
-        if (flag > 0) {
-            draw_info(COLOR_WHITE, op, "You feel more safe now, somehow.");
-        } else {
-            draw_info(COLOR_GRAY, op, "Suddenly you feel less safe, somehow.");
-        }
-    }
-
-    if (QUERY_FLAG(tmp, FLAG_FLYING)) {
-        if (flag > 0) {
-            success = 1;
-
-            /* If we're already flying then fly higher */
-            if (QUERY_FLAG(op, FLAG_FLYING) == QUERY_FLAG(&refop, FLAG_FLYING)) {
-                draw_info(COLOR_WHITE, op, "You float a little higher in the air.");
-            } else {
-                draw_info(COLOR_GRAY, op, "You start to float in the air!");
-
-                SET_MULTI_FLAG(op, FLAG_FLYING);
-
-                if (op->speed > 1) {
-                    op->speed = 1;
-                }
-            }
-        } else {
-            success = 1;
-
-            /* If we're already flying then fly lower */
-            if (QUERY_FLAG(op, FLAG_FLYING) == QUERY_FLAG(&refop, FLAG_FLYING)) {
-                draw_info(COLOR_WHITE, op, "You float a little lower in the air.");
-            } else {
-                draw_info(COLOR_GRAY, op, "You float down to the ground.");
-            }
-        }
-    }
-
-    /* Becoming UNDEAD... a special treatment for this flag. Only those not
-     * originally undead may change their status */
-    if (!QUERY_FLAG(&op->arch->clone, FLAG_UNDEAD)) {
-        if (QUERY_FLAG(op, FLAG_UNDEAD) != QUERY_FLAG(&refop, FLAG_UNDEAD)) {
-            success = 1;
-
-            if (flag > 0) {
-                FREE_AND_COPY_HASH(op->race, "undead");
-                draw_info(COLOR_GRAY, op, "Your lifeforce drains away!");
-            } else {
-                FREE_AND_CLEAR_HASH(op->race);
-
-                if (op->arch->clone.race) {
-                    FREE_AND_COPY_HASH(op->race, op->arch->clone.race);
-                }
-
-                draw_info(COLOR_WHITE, op, "Your lifeforce returns!");
-            }
-        }
-    }
-
-    if (QUERY_FLAG(op, FLAG_STEALTH) != QUERY_FLAG(&refop, FLAG_STEALTH)) {
-        success = 1;
-
-        if (flag > 0) {
-            draw_info(COLOR_WHITE, op, "You walk more quietly.");
-        } else {
-            draw_info(COLOR_GRAY, op, "You walk more noisily.");
-        }
-    }
-
-    if (QUERY_FLAG(op, FLAG_SEE_INVISIBLE) != QUERY_FLAG(&refop, FLAG_SEE_INVISIBLE)) {
-        success = 1;
-
-        if (flag > 0) {
-            draw_info(COLOR_WHITE, op, "You see invisible things.");
-        } else {
-            draw_info(COLOR_GRAY, op, "Your vision becomes less clear.");
-        }
-    }
-
-    if (QUERY_FLAG(op, FLAG_IS_INVISIBLE) != QUERY_FLAG(&refop, FLAG_IS_INVISIBLE)) {
-        success = 1;
-
-        if (flag > 0) {
-            draw_info(COLOR_WHITE, op, "You become transparent.");
-        } else {
-            draw_info(COLOR_GRAY, op, "You can see yourself.");
-        }
-
-        if (op->type == PLAYER) {
-            CONTR(op)->socket.ext_title_flag = 1;
-        }
-    }
-
-    /* Blinded you can tell if more blinded since blinded player has minimal
-     * vision */
-    if (QUERY_FLAG(tmp, FLAG_BLIND)) {
-        success = 1;
-
-        if (flag > 0) {
-            draw_info(COLOR_GRAY, op, "You are blinded.");
-            SET_FLAG(op, FLAG_BLIND);
-        } else {
-            draw_info(COLOR_WHITE, op, "Your vision returns.");
-            CLEAR_FLAG(op, FLAG_BLIND);
-        }
-
-        if (op->type == PLAYER) {
-            CONTR(op)->update_los = 1;
-        }
-    }
-
-    if (QUERY_FLAG(op, FLAG_SEE_IN_DARK) != QUERY_FLAG(&refop, FLAG_SEE_IN_DARK)) {
-        success = 1;
-
-        if (flag > 0) {
-            draw_info(COLOR_WHITE, op, "Your vision is better in the dark.");
-        } else {
-            draw_info(COLOR_GRAY, op, "You see less well in the dark.");
-        }
-    }
-
-    if (QUERY_FLAG(op, FLAG_XRAYS) != QUERY_FLAG(&refop, FLAG_XRAYS)) {
-        success = 1;
-
-        if (flag > 0) {
-            draw_info(COLOR_GRAY, op, "Everything becomes transparent.");
-        } else {
-            draw_info(COLOR_GRAY, op, "Everything suddenly looks very solid.");
-        }
-
-        if (op->type == PLAYER) {
-            CONTR(op)->update_los = 1;
-        }
-    }
-
-    if ((tmp->stats.hp || tmp->stats.maxhp) && op->type == PLAYER) {
-        success = 1;
-
-        if ((flag * tmp->stats.hp) > 0 || (flag * tmp->stats.maxhp) > 0) {
-            draw_info(COLOR_WHITE, op, "You feel much more healthy!");
-        } else {
-            draw_info(COLOR_GRAY, op, "You feel much less healthy!");
-        }
-    }
-
-    if ((tmp->stats.sp || tmp->stats.maxsp) && op->type == PLAYER && tmp->type != SKILL) {
-        success = 1;
-
-        if ((flag * tmp->stats.sp) > 0 || (flag * tmp->stats.maxsp) > 0) {
-            draw_info(COLOR_WHITE, op, "You feel one with the powers of magic!");
-        } else {
-            draw_info(COLOR_GRAY, op, "You suddenly feel very mundane.");
-        }
-    }
-
-    if (tmp->stats.food && !QUERY_FLAG(tmp, FLAG_IS_USED_UP)) {
-        success = 1;
-
-        if ((tmp->stats.food * flag) > 0) {
-            draw_info(COLOR_WHITE, op, "You feel your digestion slowing down.");
-        } else {
-            draw_info(COLOR_GRAY, op, "You feel your digestion speeding up.");
-        }
-    }
-
-    /* Messages for changed protections */
-    for (i = 0; i < NROFATTACKS; i++) {
-        if (op->protection[i] != refop.protection[i]) {
-            success = 1;
-
-            if (op->protection[i] > refop.protection[i]) {
-                draw_info_format(COLOR_GREEN, op, "Your protection to %s rises to %d%%.", attack_name[i], op->protection[i]);
-            } else {
-                draw_info_format(COLOR_BLUE, op, "Your protection to %s drops to %d%%.", attack_name[i], op->protection[i]);
-            }
-        }
-    }
-
-    /* Messages for changed attuned/repelled/denied paths. */
-    if (op->path_attuned != refop.path_attuned || op->path_repelled != refop.path_repelled || op->path_denied != refop.path_denied) {
-        uint32 path;
-
-        for (i = 0; i < PATH_NUM; i++) {
-            path = 1U << i;
-
-            if ((op->path_attuned & path) && !(refop.path_attuned & path)) {
-                draw_info_format(COLOR_WHITE, op, "You feel your magical powers attuned towards the path of %s.", spellpathnames[i]);
-            } else if ((refop.path_attuned & path) && !(op->path_attuned & path)) {
-                draw_info_format(COLOR_GRAY, op, "You no longer feel your magical powers attuned towards the path of %s.", spellpathnames[i]);
-            }
-
-            if ((op->path_repelled & path) && !(refop.path_repelled & path)) {
-                draw_info_format(COLOR_WHITE, op, "You feel your magical powers repelled from the path of %s.", spellpathnames[i]);
-            } else if ((refop.path_repelled & path) && !(op->path_repelled & path)) {
-                draw_info_format(COLOR_GRAY, op, "You no longer feel your magical powers repelled from the path of %s.", spellpathnames[i]);
-            }
-
-            if ((op->path_denied & path) && !(refop.path_denied & path)) {
-                draw_info_format(COLOR_WHITE, op, "You feel your magical powers shift, and become unable to cast spells from the path of %s.", spellpathnames[i]);
-            } else if ((refop.path_denied & path) && !(op->path_denied & path)) {
-                draw_info_format(COLOR_GRAY, op, "You feel your magical powers shift, and become able to cast spells from the path of %s.", spellpathnames[i]);
-            }
-        }
-    }
-
-    if (tmp->type == POISONING) {
-        success = 1;
-
-        if (flag > 0) {
-            draw_info(COLOR_WHITE, op, "You feel very sick...");
-        } else {
-            draw_info(COLOR_WHITE, op, "You feel much better now.");
-        }
-    }
-
-    if (!potion_max) {
-        for (j = 0; j < NUM_STATS; j++) {
-            if ((i = get_attr_value(&(tmp->stats), j)) != 0) {
-                success = 1;
-
-                if ((i * flag) > 0) {
-                    draw_info(COLOR_WHITE, op, gain_msg[j]);
-                } else {
-                    draw_info(COLOR_GRAY, op, lose_msg[j]);
-                }
-            }
-        }
-    }
-
-    return success;
-}
-
-/**
  * Drains a random stat from op.
  * @param op Object to drain. */
 void drain_stat(object *op)
@@ -621,7 +329,7 @@ void drain_specific_stat(object *op, int deplete_stats)
 
     draw_info(COLOR_WHITE, op, drain_msg[deplete_stats]);
     change_attr_value(&tmp->stats, deplete_stats, -1);
-    fix_player(op);
+    living_update(op);
 }
 
 static void living_apply_flags(object *op, object *tmp)
@@ -650,10 +358,18 @@ static void living_apply_flags(object *op, object *tmp)
 
     if (QUERY_FLAG(tmp, FLAG_XRAYS)) {
         SET_FLAG(op, FLAG_XRAYS);
+
+        if (op->type == PLAYER) {
+            CONTR(op)->update_los = 1;
+        }
     }
 
     if (QUERY_FLAG(tmp, FLAG_BLIND)) {
         SET_FLAG(op, FLAG_BLIND);
+
+        if (op->type == PLAYER) {
+            CONTR(op)->update_los = 1;
+        }
     }
 
     if (QUERY_FLAG(tmp, FLAG_SEE_IN_DARK)) {
@@ -671,6 +387,10 @@ static void living_apply_flags(object *op, object *tmp)
 
     if (QUERY_FLAG(tmp, FLAG_MAKE_INVISIBLE)) {
         SET_FLAG(op, FLAG_IS_INVISIBLE);
+
+        if (op->type == PLAYER) {
+            CONTR(op)->socket.ext_title_flag = 1;
+        }
     }
 
     if (QUERY_FLAG(tmp, FLAG_SEE_INVISIBLE)) {
@@ -680,40 +400,38 @@ static void living_apply_flags(object *op, object *tmp)
     if (QUERY_FLAG(tmp, FLAG_FLYING)) {
         SET_FLAG(op, FLAG_FLYING);
     }
+
+    if (QUERY_FLAG(tmp, FLAG_UNDEAD)) {
+        SET_FLAG(op, FLAG_UNDEAD);
+    }
 }
 
 /**
- * Updates all abilities given by applied objects in the inventory
- * of the given object.
- *
- * This functions starts from base values (archetype or player object)
- * and then adjusts them according to what the player/monster has equipped.
- *
- * Note that a player always has stats reset to their initial value.
- * @param op Object to reset.
- * @todo This function is too long, and should be cleaned / split. */
-void fix_player(object *op)
+ * Updates player object based on the applied items in their inventory.
+ * @param op Player to update.
+ */
+void living_update_player(object *op)
 {
     int ring_count = 0;
     int old_glow, max_boni_hp = 0, max_boni_sp = 0;
     int i, j, light;
-    int protect_boni[NROFATTACKS], protect_mali[NROFATTACKS], protect_exact_boni[NROFATTACKS], protect_exact_mali[NROFATTACKS];
-    int potion_protection_bonus[NROFATTACKS], potion_protection_malus[NROFATTACKS], potion_attack[NROFATTACKS];
+    int protect_boni[NROFATTACKS], protect_mali[NROFATTACKS],
+            protect_exact_boni[NROFATTACKS], protect_exact_mali[NROFATTACKS];
+    int potion_protection_bonus[NROFATTACKS],
+            potion_protection_malus[NROFATTACKS], potion_attack[NROFATTACKS];
     object *tmp;
-    float max = 9, added_speed = 0, bonus_speed = 0, speed_reduce_from_disease = 1;
+    float max = 9, added_speed = 0, bonus_speed = 0,
+            speed_reduce_from_disease = 1;
     player *pl;
 
+    HARD_ASSERT(op != NULL);
+
+    op = HEAD(op);
+
+    SOFT_ASSERT(op->type == PLAYER, "Called with non-player: %s",
+            object_get_str(op));
+
     if (QUERY_FLAG(op, FLAG_NO_FIX_PLAYER)) {
-        return;
-    }
-
-    if (QUERY_FLAG(op, FLAG_MONSTER) && op->type != PLAYER) {
-        fix_monster(op);
-        return;
-    }
-
-    /* For secure */
-    if (op->type != PLAYER) {
         return;
     }
 
@@ -726,7 +444,8 @@ void fix_player(object *op)
     pl->item_power = 0;
 
     for (i = 0; i < NUM_STATS; i++) {
-        set_attr_value(&op->stats, i, get_attr_value(&op->arch->clone.stats, i));
+        set_attr_value(&op->stats, i,
+                get_attr_value(&op->arch->clone.stats, i));
     }
 
     op->stats.wc = op->arch->clone.stats.wc;
@@ -811,10 +530,11 @@ void fix_player(object *op)
     memset(&potion_protection_malus, 0, sizeof(potion_protection_malus));
     memset(&potion_attack, 0, sizeof(potion_attack));
 
-    /* Initializing player arrays from the values in player archetype clone:  */
+    /* Initializing player arrays from the values in player archetype clone */
     memset(&pl->equipment, 0, sizeof(pl->equipment));
     memset(&pl->skill_ptr, 0, sizeof(pl->skill_ptr));
-    memcpy(&op->protection, &op->arch->clone.protection, sizeof(op->protection));
+    memcpy(&op->protection, &op->arch->clone.protection,
+            sizeof(op->protection));
     memcpy(&op->attack, &op->arch->clone.attack, sizeof(op->attack));
 
     for (tmp = op->inv; tmp; tmp = tmp->below) {
@@ -842,13 +562,15 @@ void fix_player(object *op)
         if (QUERY_FLAG(tmp, FLAG_APPLIED)) {
             if (tmp->type == POTION_EFFECT) {
                 for (i = 0; i < NUM_STATS; i++) {
-                    change_attr_value(&op->stats, i, get_attr_value(&tmp->stats, i));
+                    change_attr_value(&op->stats, i,
+                            get_attr_value(&tmp->stats, i));
                 }
 
                 for (i = 0; i < NROFATTACKS; i++) {
                     if (tmp->protection[i] > potion_protection_bonus[i]) {
                         potion_protection_bonus[i] = tmp->protection[i];
-                    } else if (tmp->protection[i] < potion_protection_malus[i]) {
+                    } else if (tmp->protection[i] <
+                            potion_protection_malus[i]) {
                         potion_protection_malus[i] = tmp->protection[i];
                     }
 
@@ -858,20 +580,25 @@ void fix_player(object *op)
                 }
 
                 living_apply_flags(op, tmp);
-            } else if (tmp->type == CLASS || tmp->type == FORCE || tmp->type == POISONING || tmp->type == DISEASE || tmp->type == SYMPTOM) {
+            } else if (tmp->type == CLASS || tmp->type == FORCE ||
+                    tmp->type == POISONING || tmp->type == DISEASE ||
+                    tmp->type == SYMPTOM) {
                 if (tmp->type == CLASS) {
                     pl->class_ob = tmp;
                 }
 
-                if (ARMOUR_SPEED(tmp) && (float) ARMOUR_SPEED(tmp) / 10.0f < max) {
+                if (ARMOUR_SPEED(tmp) &&
+                        (float) ARMOUR_SPEED(tmp) / 10.0f < max) {
                     max = ARMOUR_SPEED(tmp) / 10.0f;
                 }
 
                 for (i = 0; i < NUM_STATS; i++) {
-                    change_attr_value(&op->stats, i, get_attr_value(&tmp->stats, i));
+                    change_attr_value(&op->stats, i,
+                            get_attr_value(&tmp->stats, i));
                 }
 
-                if (tmp->type != DISEASE && tmp->type != SYMPTOM && tmp->type != POISONING) {
+                if (tmp->type != DISEASE && tmp->type != SYMPTOM &&
+                        tmp->type != POISONING) {
                     if (tmp->stats.wc) {
                         op->stats.wc += tmp->stats.wc + tmp->magic;
                     }
@@ -903,9 +630,11 @@ void fix_player(object *op)
                         protect_exact_mali[i] += (-tmp->protection[i]);
                     }
 
-                    if (tmp->type != DISEASE && tmp->type != SYMPTOM && tmp->type != POISONING) {
+                    if (tmp->type != DISEASE && tmp->type != SYMPTOM &&
+                            tmp->type != POISONING) {
                         if (tmp->attack[i] > 0) {
-                            op->attack[i] = MIN(UINT8_MAX, op->attack[i] + tmp->attack[i]);
+                            op->attack[i] = MIN(UINT8_MAX, op->attack[i] +
+                                    tmp->attack[i]);
                         }
                     }
                 }
@@ -946,23 +675,27 @@ void fix_player(object *op)
                 pl->equipment[PLAYER_EQUIP_RING_LEFT] = tmp;
                 ring_count++;
             } else {
-                logger_print(LOG(BUG), "Unexpected applied object ('%s' in %s).", query_name(tmp, op), op->name);
+                logger_print(LOG(BUG), "Unexpected applied object: %s",
+                        object_get_str(tmp));
                 CLEAR_FLAG(tmp, FLAG_APPLIED);
             }
         }
     }
 
     for (i = 0; i < PLAYER_EQUIP_MAX; i++) {
-        if (!pl->equipment[i]) {
+        if (pl->equipment[i] == NULL) {
             continue;
         }
 
         /* No bonuses from the shield, if a two-handed weapon or ranged weapon
          * is equipped. */
-        if (i == PLAYER_EQUIP_SHIELD && (
-                (pl->equipment[PLAYER_EQUIP_WEAPON]        && QUERY_FLAG(pl->equipment[PLAYER_EQUIP_WEAPON],        FLAG_TWO_HANDED)) ||
-                (pl->equipment[PLAYER_EQUIP_WEAPON_RANGED] && QUERY_FLAG(pl->equipment[PLAYER_EQUIP_WEAPON_RANGED], FLAG_TWO_HANDED))
-                )) {
+        if (i == PLAYER_EQUIP_SHIELD &&
+                ((pl->equipment[PLAYER_EQUIP_WEAPON] != NULL &&
+                QUERY_FLAG(pl->equipment[PLAYER_EQUIP_WEAPON],
+                FLAG_TWO_HANDED)) ||
+                (pl->equipment[PLAYER_EQUIP_WEAPON_RANGED] != NULL &&
+                QUERY_FLAG(pl->equipment[PLAYER_EQUIP_WEAPON_RANGED],
+                FLAG_TWO_HANDED)))) {
             continue;
         }
 
@@ -971,46 +704,59 @@ void fix_player(object *op)
         }
 
         /* Used for ALL armours except rings and amulets */
-        if (IS_ARMOR(pl->equipment[i]) && ARMOUR_SPEED(pl->equipment[i]) && (float) ARMOUR_SPEED(pl->equipment[i]) / 10.0f < max) {
+        if (IS_ARMOR(pl->equipment[i]) && ARMOUR_SPEED(pl->equipment[i]) &&
+                (float) ARMOUR_SPEED(pl->equipment[i]) / 10.0f < max) {
             max = ARMOUR_SPEED(pl->equipment[i]) / 10.0f;
         }
 
         if (pl->equipment[i]->stats.ac) {
-            op->stats.ac += pl->equipment[i]->stats.ac + pl->equipment[i]->magic;
+            op->stats.ac += pl->equipment[i]->stats.ac +
+                    pl->equipment[i]->magic;
         }
 
         if (!OBJECT_IS_RANGED(pl->equipment[i])) {
             if (pl->equipment[i]->stats.wc) {
-                op->stats.wc += pl->equipment[i]->stats.wc + pl->equipment[i]->magic;
+                op->stats.wc += pl->equipment[i]->stats.wc +
+                        pl->equipment[i]->magic;
             }
 
             if (pl->equipment[i]->stats.dam) {
-                op->stats.dam += pl->equipment[i]->stats.dam + pl->equipment[i]->magic;
+                op->stats.dam += pl->equipment[i]->stats.dam +
+                        pl->equipment[i]->magic;
             }
 
             for (j = 0; j < NROFATTACKS; j++) {
                 if (pl->equipment[i]->protection[j] > 0) {
-                    protect_boni[j] += ((100 - protect_boni[j]) * (int) ((float) pl->equipment[i]->protection[j] * ((float) pl->equipment[i]->item_condition / 100.0f))) / 100;
+                    protect_boni[j] += ((100 - protect_boni[j]) * (int)
+                            ((float) pl->equipment[i]->protection[j] *
+                            ((float) pl->equipment[i]->item_condition /
+                            100.0f))) / 100;
                 } else if (pl->equipment[i]->protection[j] < 0) {
-                    protect_mali[j] += ((100 - protect_mali[j]) * (-pl->equipment[i]->protection[j])) / 100;
+                    protect_mali[j] += ((100 - protect_mali[j]) *
+                            (-pl->equipment[i]->protection[j])) / 100;
                 }
 
                 if (pl->equipment[i]->attack[j] > 0) {
-                    op->attack[j] = MIN(UINT8_MAX, op->attack[j] + (int) ((float) pl->equipment[i]->attack[j] * ((float) pl->equipment[i]->item_condition / 100.0f)));
+                    op->attack[j] = MIN(UINT8_MAX, op->attack[j] + (int)
+                            ((float) pl->equipment[i]->attack[j] * ((float)
+                            pl->equipment[i]->item_condition / 100.0f)));
                 }
             }
 
-            if (pl->equipment[i]->stats.exp && pl->equipment[i]->type != SKILL) {
+            if (pl->equipment[i]->stats.exp &&
+                    pl->equipment[i]->type != SKILL) {
                 if (pl->equipment[i]->stats.exp > 0) {
                     added_speed += (float) pl->equipment[i]->stats.exp / 3.0f;
-                    bonus_speed += 1.0f + (float) pl->equipment[i]->stats.exp / 3.0f;
+                    bonus_speed += 1.0f + (float) pl->equipment[i]->stats.exp /
+                            3.0f;
                 } else {
                     added_speed += (float) pl->equipment[i]->stats.exp;
                 }
             }
         }
 
-        if (!IS_WEAPON(pl->equipment[i]) && !OBJECT_IS_RANGED(pl->equipment[i])) {
+        if (!IS_WEAPON(pl->equipment[i]) &&
+                !OBJECT_IS_RANGED(pl->equipment[i])) {
             max_boni_hp += pl->equipment[i]->stats.maxhp;
             max_boni_sp += pl->equipment[i]->stats.maxsp;
 
@@ -1023,7 +769,8 @@ void fix_player(object *op)
         pl->item_power += pl->equipment[i]->item_power;
 
         for (j = 0; j < NUM_STATS; j++) {
-            change_attr_value(&op->stats, j, get_attr_value(&pl->equipment[i]->stats, j));
+            change_attr_value(&op->stats, j,
+                    get_attr_value(&pl->equipment[i]->stats, j));
         }
 
         living_apply_flags(op, pl->equipment[i]);
@@ -1040,14 +787,17 @@ void fix_player(object *op)
 
         /* Add in the potion protections. */
         if (potion_protection_bonus[i] > 0) {
-            protect_boni[i] += ((100 - protect_boni[i]) * potion_protection_bonus[i]) / 100;
+            protect_boni[i] += ((100 - protect_boni[i]) *
+                    potion_protection_bonus[i]) / 100;
         }
 
         if (potion_protection_malus[i] < 0) {
-            protect_mali[i] += ((100 - protect_mali[i]) * (-potion_protection_malus[i])) / 100;
+            protect_mali[i] += ((100 - protect_mali[i]) *
+                    (-potion_protection_malus[i])) / 100;
         }
 
-        ptemp = protect_boni[i] + protect_exact_boni[i] - protect_mali[i] - protect_exact_mali[i];
+        ptemp = protect_boni[i] + protect_exact_boni[i] - protect_mali[i] -
+                protect_exact_mali[i];
         op->protection[i] = MIN(100, MAX(-100, ptemp));
     }
 
@@ -1078,7 +828,8 @@ void fix_player(object *op)
         op->speed = 0.01f;
     } else if (!pl->tgm) {
         /* Max kg we can carry */
-        double f = ((double) weight_limit[op->stats.Str] / 100.0f) * ENCUMBRANCE_LIMIT;
+        double f = ((double) weight_limit[op->stats.Str] / 100.0f) *
+        ENCUMBRANCE_LIMIT;
 
         if (((sint32) f) <= op->carrying) {
             if (op->carrying >= (sint32) weight_limit[op->stats.Str]) {
@@ -1119,20 +870,25 @@ void fix_player(object *op)
     op->stats.ac += op->level;
 
     op->stats.maxhp *= op->level + 3;
-    op->stats.maxsp *= pl->skill_ptr[SK_WIZARDRY_SPELLS] ? pl->skill_ptr[SK_WIZARDRY_SPELLS]->level : 1 + 3;
+    op->stats.maxsp *= pl->skill_ptr[SK_WIZARDRY_SPELLS] != NULL ?
+        pl->skill_ptr[SK_WIZARDRY_SPELLS]->level : 1 + 3;
 
     /* Now adjust with the % of the stats mali/boni. */
-    op->stats.maxhp += (int) ((float) op->stats.maxhp * con_bonus[op->stats.Con]) + max_boni_hp;
-    op->stats.maxsp += (int) ((float) op->stats.maxsp * pow_bonus[op->stats.Pow]) + max_boni_sp;
+    op->stats.maxhp += (int) ((float) op->stats.maxhp *
+            con_bonus[op->stats.Con]) + max_boni_hp;
+    op->stats.maxsp += (int) ((float) op->stats.maxsp *
+            pow_bonus[op->stats.Pow]) + max_boni_sp;
 
     /* HP/SP adjustments coming from class-defining object. */
     if (CONTR(op)->class_ob) {
         if (CONTR(op)->class_ob->stats.hp) {
-            op->stats.maxhp += ((float) op->stats.maxhp / 100.0f) * (float) CONTR(op)->class_ob->stats.hp;
+            op->stats.maxhp += ((float) op->stats.maxhp / 100.0f) *
+                    (float) CONTR(op)->class_ob->stats.hp;
         }
 
         if (CONTR(op)->class_ob->stats.sp) {
-            op->stats.maxsp += ((float) op->stats.maxsp / 100.0f) * (float) CONTR(op)->class_ob->stats.sp;
+            op->stats.maxsp += ((float) op->stats.maxsp / 100.0f) *
+                    (float) CONTR(op)->class_ob->stats.sp;
         }
     }
 
@@ -1161,24 +917,31 @@ void fix_player(object *op)
         op->stats.sp = op->stats.maxsp;
     }
 
-    if (pl->equipment[PLAYER_EQUIP_WEAPON] && pl->equipment[PLAYER_EQUIP_WEAPON]->type == WEAPON && pl->equipment[PLAYER_EQUIP_WEAPON]->item_skill) {
+    if (pl->equipment[PLAYER_EQUIP_WEAPON] != NULL &&
+            pl->equipment[PLAYER_EQUIP_WEAPON]->type == WEAPON &&
+            pl->equipment[PLAYER_EQUIP_WEAPON]->item_skill) {
         op->weapon_speed = pl->equipment[PLAYER_EQUIP_WEAPON]->last_grace;
-        op->stats.wc += SKILL_LEVEL(pl, pl->equipment[PLAYER_EQUIP_WEAPON]->item_skill - 1);
-        op->stats.dam = (float) op->stats.dam * LEVEL_DAMAGE(SKILL_LEVEL(pl, pl->equipment[PLAYER_EQUIP_WEAPON]->item_skill - 1));
-        op->stats.dam *= (float) (pl->equipment[PLAYER_EQUIP_WEAPON]->item_condition) / 100.0f;
+        op->stats.wc += SKILL_LEVEL(pl,
+                pl->equipment[PLAYER_EQUIP_WEAPON]->item_skill - 1);
+        op->stats.dam = (float) op->stats.dam * LEVEL_DAMAGE(SKILL_LEVEL(pl,
+                pl->equipment[PLAYER_EQUIP_WEAPON]->item_skill - 1));
+        op->stats.dam *= (float)
+                (pl->equipment[PLAYER_EQUIP_WEAPON]->item_condition) / 100.0f;
     } else {
         if (pl->skill_ptr[SK_UNARMED]) {
             op->weapon_speed = pl->skill_ptr[SK_UNARMED]->last_grace;
 
             for (i = 0; i < NROFATTACKS; i++) {
                 if (pl->skill_ptr[SK_UNARMED]->attack[i]) {
-                    op->attack[i] = MIN(UINT8_MAX, op->attack[i] + pl->skill_ptr[SK_UNARMED]->attack[i]);
+                    op->attack[i] = MIN(UINT8_MAX, op->attack[i] +
+                            pl->skill_ptr[SK_UNARMED]->attack[i]);
                 }
             }
         }
 
         op->stats.wc += SKILL_LEVEL(pl, SK_UNARMED);
-        op->stats.dam = (float) op->stats.dam * LEVEL_DAMAGE(SKILL_LEVEL(pl, SK_UNARMED)) / 2;
+        op->stats.dam = (float) op->stats.dam * LEVEL_DAMAGE(SKILL_LEVEL(pl,
+                SK_UNARMED)) / 2;
     }
 
     /* Now the last adds - stat bonus to damage and WC */
@@ -1190,24 +953,33 @@ void fix_player(object *op)
 
     op->stats.wc += thaco_bonus[op->stats.Dex];
 
-    if (!pl->quest_container) {
+    if (pl->quest_container == NULL) {
         object *quest_container = get_archetype(QUEST_CONTAINER_ARCHETYPE);
 
-        logger_print(LOG(BUG), "Player %s had no quest container, fixing.", op->name);
+        logger_print(LOG(BUG), "Player %s had no quest container, fixing.",
+                op->name);
         insert_ob_in_ob(quest_container, op);
         pl->quest_container = quest_container;
     }
 }
 
 /**
- * Like fix_player(), but for monsters.
- * @param op The monster. */
-void fix_monster(object *op)
+ * Like living_update_player(), but for monsters.
+ * @param op The monster.
+ */
+void living_update_monster(object *op)
 {
     object *base, *tmp;
     float tmp_add;
 
-    if (op->head) {
+    HARD_ASSERT(op != NULL);
+
+    op = HEAD(op);
+
+    SOFT_ASSERT(op->type == MONSTER, "Called with non-monster: %s",
+            object_get_str(op));
+
+    if (QUERY_FLAG(op, FLAG_NO_FIX_PLAYER)) {
         return;
     }
 
@@ -1216,7 +988,8 @@ void fix_monster(object *op)
 
     CLEAR_FLAG(op, FLAG_READY_BOW);
 
-    op->stats.maxhp = (base->stats.maxhp * (op->level + 3) + (op->level / 2) * base->stats.maxhp) / 10;
+    op->stats.maxhp = (base->stats.maxhp * (op->level + 3) + (op->level / 2) *
+            base->stats.maxhp) / 10;
     op->stats.maxsp = base->stats.maxsp * (op->level + 1);
 
     if (op->stats.hp == -1) {
@@ -1258,9 +1031,11 @@ void fix_monster(object *op)
             } else {
                 CLEAR_FLAG(tmp, FLAG_APPLIED);
             }
-        } else if (QUERY_FLAG(op, FLAG_USE_ARMOUR) && IS_ARMOR(tmp) && check_good_armour(op, tmp)) {
+        } else if (QUERY_FLAG(op, FLAG_USE_ARMOUR) && IS_ARMOR(tmp) &&
+                check_good_armour(op, tmp)) {
             SET_FLAG(tmp, FLAG_APPLIED);
-        } else if (QUERY_FLAG(op, FLAG_USE_WEAPON) && tmp->type == WEAPON && check_good_weapon(op, tmp)) {
+        } else if (QUERY_FLAG(op, FLAG_USE_WEAPON) && tmp->type == WEAPON &&
+                check_good_weapon(op, tmp)) {
             SET_FLAG(tmp, FLAG_APPLIED);
         }
 
@@ -1272,7 +1047,8 @@ void fix_monster(object *op)
                 op->stats.wc += tmp->stats.wc;
             } else if (IS_ARMOR(tmp)) {
                 for (i = 0; i < NROFATTACKS; i++) {
-                    op->protection[i] = MIN(op->protection[i] + tmp->protection[i], 15);
+                    op->protection[i] = MIN(op->protection[i] +
+                            tmp->protection[i], 15);
                 }
 
                 op->stats.ac += tmp->stats.ac;
@@ -1288,7 +1064,9 @@ void fix_monster(object *op)
         SET_MULTI_FLAG(op, FLAG_FRIENDLY);
     }
 
-    op->stats.dam = (sint16) (((float) op->stats.dam * ((LEVEL_DAMAGE(op->level < 0 ? 0 : op->level) + tmp_add) * (0.925f + 0.05 * (op->level / 10)))) / 10.0f);
+    op->stats.dam = (sint16) (((float) op->stats.dam *
+            ((LEVEL_DAMAGE(op->level < 0 ? 0 : op->level) + tmp_add) *
+            (0.925f + 0.05 * (op->level / 10)))) / 10.0f);
 
     /* Add a special decrease of power for monsters level 1-5 */
     if (op->level <= 5) {
@@ -1312,6 +1090,351 @@ void fix_monster(object *op)
     }
 
     set_mobile_speed(op, 0);
+}
+
+/**
+ * Displays information about the object's updated stats.
+ * @param op Object.
+ * @param refop Old state of the object.
+ * @param refpl Old state of the player.
+ * @return Number of stats changed (approximate).
+ */
+static int living_update_display(object *op, object *refop, player *refpl)
+{
+    int ret, i, stat_new, stat_old;
+    player *pl;
+
+    HARD_ASSERT(op != NULL);
+    HARD_ASSERT(refop != NULL);
+    HARD_ASSERT(refpl != NULL);
+
+    /* Only players for now. */
+    HARD_ASSERT(op->type == PLAYER);
+
+    pl = CONTR(op);
+
+    ret = 0;
+
+    if (MIN(op->attack[ATNR_CONFUSION], 1) !=
+            MIN(refop->attack[ATNR_CONFUSION], 1)) {
+        ret++;
+
+        if (op->attack[ATNR_CONFUSION] != 0) {
+            draw_info(COLOR_WHITE, op, "Your hands begin to glow red.");
+        } else {
+            draw_info(COLOR_GRAY, op, "Your hands stop glowing red.");
+        }
+    }
+
+    if (QUERY_FLAG(op, FLAG_LIFESAVE) != QUERY_FLAG(refop, FLAG_LIFESAVE)) {
+        ret++;
+
+        if (QUERY_FLAG(op, FLAG_LIFESAVE)) {
+            draw_info(COLOR_WHITE, op, "You feel very protected.");
+        } else {
+            draw_info(COLOR_GRAY, op, "You don't feel protected anymore.");
+        }
+    }
+
+    if (QUERY_FLAG(op, FLAG_REFL_MISSILE) !=
+            QUERY_FLAG(refop, FLAG_REFL_MISSILE)) {
+        ret++;
+
+        if (QUERY_FLAG(op, FLAG_REFL_MISSILE)) {
+            draw_info(COLOR_WHITE, op, "You feel more safe now, somehow.");
+        } else {
+            draw_info(COLOR_GRAY, op, "Suddenly you feel less safe, somehow.");
+        }
+    }
+
+    if (QUERY_FLAG(op, FLAG_REFL_SPELL) !=
+            QUERY_FLAG(refop, FLAG_REFL_SPELL)) {
+        ret++;
+
+        if (QUERY_FLAG(op, FLAG_REFL_SPELL)) {
+            draw_info(COLOR_WHITE, op, "A magic force shimmers around you.");
+        } else {
+            draw_info(COLOR_GRAY, op, "The magic force fades away.");
+        }
+    }
+
+    if (QUERY_FLAG(op, FLAG_FLYING) != QUERY_FLAG(refop, FLAG_FLYING)) {
+        ret++;
+
+        if (QUERY_FLAG(op, FLAG_FLYING)) {
+            draw_info(COLOR_WHITE, op, "You start to float in the air!");
+        } else {
+            draw_info(COLOR_GRAY, op, "You float down to the ground.");
+        }
+    }
+
+    /* Becoming UNDEAD... a special treatment for this flag. Only those not
+     * originally undead may change their status */
+    if (QUERY_FLAG(op, FLAG_UNDEAD) != QUERY_FLAG(refop, FLAG_UNDEAD) &&
+            !QUERY_FLAG(&op->arch->clone, FLAG_UNDEAD)) {
+        ret++;
+
+        if (QUERY_FLAG(op, FLAG_UNDEAD)) {
+            FREE_AND_COPY_HASH(op->race, "undead");
+            draw_info(COLOR_GRAY, op, "Your lifeforce drains away!");
+        } else {
+            FREE_AND_CLEAR_HASH(op->race);
+
+            if (op->arch->clone.race) {
+                FREE_AND_COPY_HASH(op->race, op->arch->clone.race);
+            }
+
+            draw_info(COLOR_WHITE, op, "Your lifeforce returns!");
+        }
+    }
+
+    if (QUERY_FLAG(op, FLAG_STEALTH) != QUERY_FLAG(refop, FLAG_STEALTH)) {
+        ret++;
+
+        if (QUERY_FLAG(op, FLAG_STEALTH)) {
+            draw_info(COLOR_WHITE, op, "You walk quieter.");
+        } else {
+            draw_info(COLOR_GRAY, op, "You walk noisier.");
+        }
+    }
+
+    if (QUERY_FLAG(op, FLAG_SEE_INVISIBLE) !=
+            QUERY_FLAG(refop, FLAG_SEE_INVISIBLE)) {
+        ret++;
+
+        if (QUERY_FLAG(op, FLAG_SEE_INVISIBLE)) {
+            draw_info(COLOR_WHITE, op, "You see invisible things.");
+        } else {
+            draw_info(COLOR_GRAY, op, "Your vision becomes less clear.");
+        }
+    }
+
+    if (QUERY_FLAG(op, FLAG_IS_INVISIBLE) !=
+            QUERY_FLAG(refop, FLAG_IS_INVISIBLE)) {
+        ret++;
+
+        if (QUERY_FLAG(op, FLAG_IS_INVISIBLE)) {
+            draw_info(COLOR_WHITE, op, "You become transparent.");
+        } else {
+            draw_info(COLOR_GRAY, op, "You can see yourself.");
+        }
+    }
+
+    if (QUERY_FLAG(op, FLAG_BLIND) !=
+            QUERY_FLAG(refop, FLAG_BLIND)) {
+        ret++;
+
+        if (QUERY_FLAG(op, FLAG_BLIND)) {
+            draw_info(COLOR_GRAY, op, "You are blinded.");
+        } else {
+            draw_info(COLOR_WHITE, op, "Your vision returns.");
+        }
+    }
+
+    if (QUERY_FLAG(op, FLAG_SEE_IN_DARK) !=
+            QUERY_FLAG(refop, FLAG_SEE_IN_DARK)) {
+        ret++;
+
+        if (QUERY_FLAG(op, FLAG_SEE_IN_DARK)) {
+            draw_info(COLOR_WHITE, op, "Your vision is better in the dark.");
+        } else {
+            draw_info(COLOR_GRAY, op, "You see less well in the dark.");
+        }
+    }
+
+    if (QUERY_FLAG(op, FLAG_XRAYS) != QUERY_FLAG(refop, FLAG_XRAYS)) {
+        ret++;
+
+        if (QUERY_FLAG(op, FLAG_XRAYS)) {
+            draw_info(COLOR_GRAY, op, "Everything becomes transparent.");
+        } else {
+            draw_info(COLOR_GRAY, op, "Everything suddenly looks very solid.");
+        }
+    }
+
+    if (op->stats.maxhp != refop->stats.maxhp) {
+        ret++;
+
+        if (op->stats.maxhp > refop->stats.maxhp) {
+            draw_info(COLOR_WHITE, op, "You feel more healthy!");
+        } else {
+            draw_info(COLOR_GRAY, op, "You feel much less healthy!");
+        }
+    }
+
+    if (op->stats.maxsp != refop->stats.maxsp) {
+        ret++;
+
+        if (op->stats.maxsp > refop->stats.maxsp) {
+            draw_info(COLOR_WHITE, op, "You feel one with the powers of "
+                    "magic!");
+        } else {
+            draw_info(COLOR_GRAY, op, "You suddenly feel more mundane.");
+        }
+    }
+
+    if (pl->gen_hp != refpl->gen_hp) {
+        ret++;
+
+        if (pl->gen_hp > refpl->gen_hp) {
+            draw_info(COLOR_WHITE, op, "You feel your health regeneration "
+                    "speeding up.");
+        } else {
+            draw_info(COLOR_GRAY, op, "You feel your health regeneration "
+                    "slowing down.");
+        }
+    }
+
+    if (pl->gen_sp != refpl->gen_sp) {
+        ret++;
+
+        if (pl->gen_sp > refpl->gen_sp) {
+            draw_info(COLOR_WHITE, op, "You feel your mana regeneration "
+                    "speeding up.");
+        } else {
+            draw_info(COLOR_GRAY, op, "You feel your mana regeneration "
+                    "slowing down.");
+        }
+    }
+
+    if (pl->gen_sp_armour != refpl->gen_sp_armour) {
+        ret++;
+
+        if (pl->gen_sp_armour > refpl->gen_sp_armour) {
+            draw_info(COLOR_GRAY, op, "You feel the weight of your armour "
+                    "impairing your ability to concentrate on magic.");
+        } else {
+            draw_info(COLOR_WHITE, op, "You feel able to concentrate clearer.");
+        }
+    }
+
+    if (pl->digestion != refpl->digestion) {
+        ret++;
+
+        if (pl->digestion > refpl->digestion) {
+            draw_info(COLOR_WHITE, op, "You feel your digestion slowing down.");
+        } else {
+            draw_info(COLOR_GRAY, op, "You feel your digestion speeding up.");
+        }
+    }
+
+    /* Messages for changed protections */
+    for (i = 0; i < NROFATTACKS; i++) {
+        if (op->protection[i] != refop->protection[i]) {
+            ret++;
+
+            if (op->protection[i] > refop->protection[i]) {
+                draw_info_format(COLOR_GREEN, op, "Your protection to %s rises "
+                        "to %d%%.", attack_name[i], op->protection[i]);
+            } else {
+                draw_info_format(COLOR_BLUE, op, "Your protection to %s drops "
+                        "to %d%%.", attack_name[i], op->protection[i]);
+            }
+        }
+    }
+
+    /* Messages for changed attuned/repelled/denied paths. */
+    if (op->path_attuned != refop->path_attuned ||
+            op->path_repelled != refop->path_repelled ||
+            op->path_denied != refop->path_denied) {
+        uint32 path;
+
+        for (i = 0; i < PATH_NUM; i++) {
+            path = 1U << i;
+
+            if ((op->path_attuned & path) && !(refop->path_attuned & path)) {
+                draw_info_format(COLOR_WHITE, op, "You feel your magical "
+                        "powers attuned towards the path of %s.",
+                        spellpathnames[i]);
+            } else if ((refop->path_attuned & path) &&
+                    !(op->path_attuned & path)) {
+                draw_info_format(COLOR_GRAY, op, "You no longer feel your "
+                        "magical powers attuned towards the path of %s.",
+                        spellpathnames[i]);
+            }
+
+            if ((op->path_repelled & path) && !(refop->path_repelled & path)) {
+                draw_info_format(COLOR_WHITE, op, "You feel your magical "
+                        "powers repelled from the path of %s.",
+                        spellpathnames[i]);
+            } else if ((refop->path_repelled & path) &&
+                    !(op->path_repelled & path)) {
+                draw_info_format(COLOR_GRAY, op, "You no longer feel your "
+                        "magical powers repelled from the path of %s.",
+                        spellpathnames[i]);
+            }
+
+            if ((op->path_denied & path) && !(refop->path_denied & path)) {
+                draw_info_format(COLOR_WHITE, op, "You feel your magical "
+                        "powers shift, and become unable to cast spells from "
+                        "the path of %s.", spellpathnames[i]);
+            } else if ((refop->path_denied & path) &&
+                    !(op->path_denied & path)) {
+                draw_info_format(COLOR_GRAY, op, "You feel your magical powers "
+                        "shift, and become able to cast spells from the path "
+                        "of %s.", spellpathnames[i]);
+            }
+        }
+    }
+
+    for (i = 0; i < NUM_STATS; i++) {
+        stat_new = get_attr_value(&op->stats, i);
+        stat_old = get_attr_value(&refop->stats, i);
+
+        if (stat_new != stat_old) {
+            ret++;
+
+            if (stat_new > stat_old) {
+                draw_info(COLOR_WHITE, op, gain_msg[i]);
+            } else {
+                draw_info(COLOR_GRAY, op, lose_msg[i]);
+            }
+        }
+    }
+
+    return ret;
+}
+
+/**
+ * Updates all abilities given by applied objects in the inventory of the given
+ * object.
+ * @param op Object to update.
+ * @return Approximate number of changed stats.
+ */
+int living_update(object *op)
+{
+    HARD_ASSERT(op != NULL);
+
+    op = HEAD(op);
+
+    if (QUERY_FLAG(op, FLAG_NO_FIX_PLAYER)) {
+        return 0;
+    }
+
+    if (op->type == PLAYER) {
+        object refop;
+        player refpl, *pl;
+
+        pl = CONTR(op);
+
+        /* Remember both the old state of the object and the player. */
+        memcpy(&refop, op, sizeof(refop));
+        memcpy(&refpl, pl, sizeof(refpl));
+
+        /* Update player. */
+        living_update_player(op);
+
+        return living_update_display(op, &refop, &refpl);
+    }
+
+    if (QUERY_FLAG(op, FLAG_MONSTER)) {
+        /* Update monster. */
+        living_update_monster(op);
+        return 0;
+    }
+
+    log(LOG(DEVEL), "Updating unhandled object: %s", object_get_str(op));
+    return 0;
 }
 
 /**

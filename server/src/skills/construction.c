@@ -534,7 +534,7 @@ static void construction_builder(object *op, int x, int y)
 
     if (built) {
         decrease_ob(material);
-        fix_player(op);
+        living_update(op);
     }
 }
 

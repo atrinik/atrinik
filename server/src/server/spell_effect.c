@@ -584,7 +584,7 @@ int cast_heal(object *op, int level, object *target, int spell_type)
 int cast_change_attr(object *op, object *caster, object *target, int spell_type)
 {
     object *tmp = target, *tmp2 = NULL, *force = NULL;
-    int is_refresh = 0, msg_flag = 1, i = 0;
+    int is_refresh = 0, i = 0;
 
     if (tmp == NULL) {
         return 0;
@@ -625,7 +625,6 @@ int cast_change_attr(object *op, object *caster, object *target, int spell_type)
                 draw_info_format(COLOR_WHITE, op, "%s gets stronger.", tmp->name ? tmp->name : "Someone");
             }
         } else {
-            msg_flag = 0;
             draw_info(COLOR_WHITE, tmp, "You don't grow stronger but the spell is refreshed.");
 
             if (op->type == PLAYER && op != tmp) {
@@ -677,13 +676,6 @@ int cast_change_attr(object *op, object *caster, object *target, int spell_type)
         force = insert_ob_in_ob(force, tmp);
     } else {
         esrv_update_item(UPD_EXTRA, force);
-    }
-
-    if (msg_flag) {
-        /* Mostly to display any messages */
-        change_abil(tmp, force);
-        /* This takes care of some stuff that change_abil() */
-        fix_player(tmp);
     }
 
     return 1;

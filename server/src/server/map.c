@@ -592,7 +592,7 @@ static void load_objects(mapstruct *m, FILE *fp, int mapflags)
         }
 
         if (op->type == MONSTER) {
-            fix_monster(op);
+            living_update_monster(op);
         }
 
         /* Important pre set for the animation/face of a object */

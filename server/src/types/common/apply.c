@@ -106,7 +106,6 @@ int object_apply_item(object *op, object *applier, int aflags)
 
         switch (op->type) {
         case WEAPON:
-            change_abil(applier, op);
             CLEAR_FLAG(applier, FLAG_READY_WEAPON);
             draw_info_format(COLOR_WHITE, applier, "You unwield %s.", query_name(op, applier));
             break;
@@ -121,7 +120,6 @@ int object_apply_item(object *op, object *applier, int aflags)
         case GIRDLE:
         case BRACERS:
         case CLOAK:
-            change_abil(applier, op);
             draw_info_format(COLOR_WHITE, applier, "You unwear %s.", query_name(op, applier));
             break;
 
@@ -132,7 +130,6 @@ int object_apply_item(object *op, object *applier, int aflags)
         case SKILL:
         case ARROW:
         case CONTAINER:
-            change_abil(applier, op);
             draw_info_format(COLOR_WHITE, applier, "You unready %s.", query_name(op, applier));
             break;
 
@@ -141,7 +138,7 @@ int object_apply_item(object *op, object *applier, int aflags)
             break;
         }
 
-        fix_player(applier);
+        living_update(applier);
 
         if (!(aflags & AP_NO_MERGE)) {
             object_merge(op);
@@ -185,7 +182,6 @@ int object_apply_item(object *op, object *applier, int aflags)
         draw_info_format(COLOR_WHITE, applier, "You wield %s.", query_name(op, applier));
         SET_FLAG(op, FLAG_APPLIED);
         SET_FLAG(applier, FLAG_READY_WEAPON);
-        change_abil(applier, op);
         break;
 
     case SHIELD:
@@ -206,7 +202,6 @@ int object_apply_item(object *op, object *applier, int aflags)
     case AMULET:
         draw_info_format(COLOR_WHITE, applier, "You wear %s.", query_name(op, applier));
         SET_FLAG(op, FLAG_APPLIED);
-        change_abil(applier, op);
         break;
 
     case WAND:
@@ -224,7 +219,6 @@ int object_apply_item(object *op, object *applier, int aflags)
 
         draw_info_format(COLOR_WHITE, applier, "You ready %s.", query_name(op, applier));
         SET_FLAG(op, FLAG_APPLIED);
-        change_abil(applier, op);
 
         if (op->type == BOW) {
             draw_info_format(COLOR_WHITE, applier, "You will now fire %s with %s.", op->race ? op->race : "nothing", query_name(op, applier));
@@ -240,7 +234,7 @@ int object_apply_item(object *op, object *applier, int aflags)
         SET_FLAG(op, FLAG_APPLIED);
     }
 
-    fix_player(applier);
+    living_update(applier);
     SET_FLAG(op, FLAG_BEEN_APPLIED);
 
     if (QUERY_FLAG(op, FLAG_PERM_CURSED)) {

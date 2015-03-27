@@ -1739,18 +1739,18 @@ static int handle_event(va_list args)
 
     if (context->parms[3] == SCRIPT_FIX_ALL) {
         if (context->other && IS_LIVE(context->other)) {
-            hooks->fix_player(context->other);
+            hooks->living_update(context->other);
         }
 
         if (context->who && IS_LIVE(context->who)) {
-            hooks->fix_player(context->who);
+            hooks->living_update(context->who);
         }
 
         if (context->activator && IS_LIVE(context->activator)) {
-            hooks->fix_player(context->activator);
+            hooks->living_update(context->activator);
         }
     } else if (context->parms[3] == SCRIPT_FIX_ACTIVATOR && IS_LIVE(context->activator)) {
-        hooks->fix_player(context->activator);
+        hooks->living_update(context->activator);
     }
 
     rv = context->returnvalue;

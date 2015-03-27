@@ -1775,8 +1775,6 @@ void put_object_in_sack(object *op, object *sack, object *tmp, long nrof)
     snprintf(buf, sizeof(buf), "You put the %s in %s.", query_name(tmp, NULL), query_name(sack, NULL));
     insert_ob_in_ob(tmp, sack);
     draw_info(COLOR_WHITE, op, buf);
-    /* This is overkill, fix_player() is called somewhere in object.c */
-    fix_player(op);
 }
 
 /**
@@ -1838,7 +1836,6 @@ void drop_object(object *op, object *tmp, long nrof, int no_mevent)
             }
         }
 
-        fix_player(op);
         return;
     }
 
@@ -1864,7 +1861,6 @@ void drop_object(object *op, object *tmp, long nrof, int no_mevent)
                 draw_info(COLOR_WHITE, op, "The shop magic put it to the storage.");
             }
 
-            fix_player(op);
             return;
         }
     }
@@ -1879,11 +1875,6 @@ void drop_object(object *op, object *tmp, long nrof, int no_mevent)
     object_remove(op, 0);
     insert_ob_in_map(op, op->map, op, INS_NO_MERGE | INS_NO_WALK_ON);
     CLEAR_FLAG(op, FLAG_NO_APPLY);
-
-    /* Need to update the weight for the player */
-    if (op->type == PLAYER) {
-        fix_player(op);
-    }
 }
 
 /**
@@ -2154,7 +2145,7 @@ object *player_get_dummy(void)
     SET_FLAG(pl->ob, FLAG_NO_FIX_PLAYER);
     give_initial_items(pl->ob, pl->ob->randomitems);
     CLEAR_FLAG(pl->ob, FLAG_NO_FIX_PLAYER);
-    fix_player(pl->ob);
+    living_update_player(pl->ob);
 
     return pl->ob;
 }
@@ -2218,7 +2209,7 @@ void player_login(socket_struct *ns, const char *name, archetype *at)
     pl->ob->speed_left = 0.5;
 
     sum_weight(pl->ob);
-    fix_player(pl->ob);
+    living_update_player(pl->ob);
     link_player_skills(pl->ob);
 
     pl->socket.state = ST_PLAYING;

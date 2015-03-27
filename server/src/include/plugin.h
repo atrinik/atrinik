@@ -183,7 +183,7 @@ struct plugin_hooklist {
     const char *(*add_string)(const char *);
     void (*object_remove)(object *, int);
     void (*object_destroy)(object *);
-    void (*fix_player)(object *);
+    int (*living_update)(object *);
     object *(*insert_ob_in_ob)(object *, object *);
     void (*draw_info_map)(uint8, const char *, const char *, mapstruct *, int, int, int, object *, object *, const char *);
     void (*rune_spring)(object *, object *);
@@ -248,7 +248,6 @@ struct plugin_hooklist {
     void (*play_sound_player_only)(player *, int, const char *, int, int, int, int);
     int (*was_destroyed)(object *, tag_t);
     int (*object_get_gender)(object *);
-    int (*change_abil)(object *, object *);
     object *(*decrease_ob_nr)(object *, uint32);
     int (*wall)(mapstruct *, int, int);
     int (*blocked)(object *, mapstruct *, int, int, int);

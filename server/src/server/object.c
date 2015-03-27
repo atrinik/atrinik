@@ -1350,6 +1350,8 @@ void object_destroy_inv(object *ob)
 {
     object *tmp, *next;
 
+    SET_FLAG(ob, FLAG_NO_FIX_PLAYER);
+
     for (tmp = ob->inv; tmp; tmp = next) {
         next = tmp->below;
 
@@ -1445,6 +1447,8 @@ void object_destroy(object *ob)
  * @param op Object to destruct. */
 void destruct_ob(object *op)
 {
+    SET_FLAG(op, FLAG_NO_FIX_PLAYER);
+    
     if (op->inv) {
         drop_ob_inv(op);
     }
@@ -1508,7 +1512,7 @@ static void object_check_move_off(object *op)
  *
  * @note If you want to remove a lot of items in player's inventory,
  * set FLAG_NO_FIX_PLAYER on the player first and then explicitly call
- * fix_player() on the player.
+ * living_update() on the player.
  * @param op Object to remove.
  * @param flags Combination of @ref REMOVAL_xxx. */
 void object_remove(object *op, int flags)
@@ -1529,20 +1533,13 @@ void object_remove(object *op, int flags)
     /* In this case, the object to be removed is in someone's
      * inventory. */
     if (op->env) {
-        object *pl;
+        object *env;
 
         if (!QUERY_FLAG(op, FLAG_SYS_OBJECT) && !(flags & REMOVE_NO_WEIGHT)) {
             sub_weight(op->env, WEIGHT_NROF(op, op->nrof));
         }
 
-        pl = is_player_inv(op->env);
-
-        /* NO_FIX_PLAYER is set when a great many changes are being made
-         * to player's inventory. If set, avoid the call to save CPU
-         * time. */
-        if (pl && !QUERY_FLAG(pl, FLAG_NO_FIX_PLAYER)) {
-            fix_player(pl);
-        }
+        env = get_env_recursive(op);
 
         if (op->above) {
             op->above->below = op->below;
@@ -1565,6 +1562,10 @@ void object_remove(object *op, int flags)
 
         op->above = NULL, op->below = NULL;
         op->env = NULL;
+
+        if (env != op && IS_LIVE(env) && env->map != NULL) {
+            living_update(env);
+        }
     } else if (op->map) {
         /* The object is on map. */
         MapSpace *msp;
@@ -1977,7 +1978,7 @@ object *decrease_ob_nr(object *op, uint32 i)
 
 object *object_insert_into(object *op, object *where, int flag)
 {
-    object *otmp;
+    object *env;
 
     HARD_ASSERT(op != NULL);
     SOFT_ASSERT_RC(where != NULL, op, "Attempting to insert %s into nothing.",
@@ -2054,12 +2055,10 @@ object *object_insert_into(object *op, object *where, int flag)
     }
 
     /* If player, fix player if not marked as no fix. */
-    otmp = is_player_inv(where);
+    env = get_env_recursive(op);
 
-    if (otmp && CONTR(otmp) != NULL) {
-        if (!QUERY_FLAG(otmp, FLAG_NO_FIX_PLAYER)) {
-            fix_player(otmp);
-        }
+    if (env != op && IS_LIVE(env) && env->map != NULL) {
+        living_update(env);
     }
 
     if (where->type == PLAYER || where->type == CONTAINER) {

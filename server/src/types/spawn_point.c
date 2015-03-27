@@ -302,7 +302,7 @@ static void process_func(object *op)
 
     /* Insert the generated monster into the map. */
     insert_ob_in_map(monster, op->map, op, 0);
-    fix_monster(monster);
+    living_update_monster(monster);
 }
 
 /** @copydoc object_methods::trigger_func */

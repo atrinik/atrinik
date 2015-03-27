@@ -392,15 +392,15 @@ static PyObject *Atrinik_Object_SetGender(Atrinik_Object *obj, PyObject *args)
 }
 
 /**
- * <h1>object.Fix()</h1>
+ * <h1>object.Update()</h1>
  * Recalculate player's or monster's stats depending on equipment, forces,
  * skills, etc. */
-static PyObject *Atrinik_Object_Fix(Atrinik_Object *obj, PyObject *args)
+static PyObject *Atrinik_Object_Update(Atrinik_Object *obj, PyObject *args)
 {
     (void) args;
     OBJEXISTCHECK(obj);
 
-    hooks->fix_player(obj->obj);
+    hooks->living_update(obj->obj);
 
     Py_INCREF(Py_None);
     return Py_None;
@@ -1097,26 +1097,6 @@ static PyObject *Atrinik_Object_SetAttack(Atrinik_Object *what, PyObject *args)
 }
 
 /**
- * <h1>object.ChangeAbil(object what)</h1>
- * Permanently alters an object's stats/flags based on another what.
- * @param what Object that is giving bonuses/penalties to 'object'.
- * @return True if we successfully changed a stat, False if nothing was changed.
- * */
-static PyObject *Atrinik_Object_ChangeAbil(Atrinik_Object *obj, PyObject *args)
-{
-    Atrinik_Object *what;
-
-    if (!PyArg_ParseTuple(args, "O!", &Atrinik_ObjectType, &what)) {
-        return NULL;
-    }
-
-    OBJEXISTCHECK(obj);
-    OBJEXISTCHECK(what);
-
-    Py_ReturnBoolean(hooks->change_abil(obj->obj, what->obj));
-}
-
-/**
  * <h1>object.Decrease(int [num = 1])</h1>
  * Decreases an object, removing it if there's nothing left to decrease.
  * @param num How much to decrease the object by.
@@ -1504,7 +1484,7 @@ static PyMethodDef methods[] = {
     {"Say", (PyCFunction) Atrinik_Object_Say, METH_VARARGS, 0},
     {"GetGender", (PyCFunction) Atrinik_Object_GetGender, METH_NOARGS, 0},
     {"SetGender", (PyCFunction) Atrinik_Object_SetGender, METH_VARARGS, 0},
-    {"Fix", (PyCFunction) Atrinik_Object_Fix, METH_NOARGS, 0},
+    {"Update", (PyCFunction) Atrinik_Object_Update, METH_NOARGS, 0},
     {"Hit", (PyCFunction) Atrinik_Object_Hit, METH_VARARGS, 0},
     {"Cast", (PyCFunction) Atrinik_Object_Cast, METH_VARARGS | METH_KEYWORDS, 0},
     {"CreateForce", (PyCFunction) Atrinik_Object_CreateForce, METH_VARARGS, 0},
@@ -1527,7 +1507,6 @@ static PyMethodDef methods[] = {
     {"SetProtection", (PyCFunction) Atrinik_Object_SetProtection, METH_VARARGS, 0},
     {"Attack", (PyCFunction) Atrinik_Object_Attack, METH_VARARGS, 0},
     {"SetAttack", (PyCFunction) Atrinik_Object_SetAttack, METH_VARARGS, 0},
-    {"ChangeAbil", (PyCFunction) Atrinik_Object_ChangeAbil, METH_VARARGS, 0},
     {"Decrease", (PyCFunction) Atrinik_Object_Decrease, METH_VARARGS, 0},
     {"SquaresAround", (PyCFunction) Atrinik_Object_SquaresAround, METH_VARARGS | METH_KEYWORDS, 0},
     {"GetRangeVector", (PyCFunction) Atrinik_Object_GetRangeVector, METH_VARARGS, 0},
@@ -1608,7 +1587,7 @@ static int Object_SetAttribute(Atrinik_Object *obj, PyObject *value, void *conte
     /* Special handling for some player stuff. */
     if (obj->obj->type == PLAYER) {
         if (field->flags & FIELDFLAG_PLAYER_FIX) {
-            hooks->fix_player(obj->obj);
+            hooks->living_update(obj->obj);
         }
     }
 

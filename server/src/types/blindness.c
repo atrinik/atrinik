@@ -37,12 +37,6 @@ static void process_func(object *op)
         return;
     }
 
-    if (op->env) {
-        CLEAR_FLAG(op, FLAG_APPLIED);
-        change_abil(op->env, op);
-        fix_player(op->env);
-    }
-
     object_remove(op, 0);
     object_destroy(op);
 }

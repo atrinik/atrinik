@@ -69,7 +69,7 @@ void command_drop(object *op, const char *command, char *params)
     CLEAR_FLAG(op, FLAG_NO_FIX_PLAYER);
 
     if (did_one) {
-        fix_player(op);
+        living_update(op);
     } else if (!missed) {
         draw_info(COLOR_WHITE, op, "Nothing to drop.");
     }
