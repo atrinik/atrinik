@@ -27,6 +27,7 @@
  * Object management. */
 
 #include <global.h>
+#include <region_map.h>
 
 /** The list of free (unused) objects */
 static object *free_objects = NULL;
@@ -71,6 +72,8 @@ void objects_free(object *op)
             spells_remove(op);
         } else if (op->itype == TYPE_SKILL) {
             skills_remove(op);
+        } else if (op->itype == TYPE_REGION_MAP) {
+            region_map_fow_update(MapData.region_map);
         }
 
         if (op->inv) {
@@ -176,6 +179,8 @@ void object_remove(object *op)
         skills_remove(op);
     } else if (op->itype == TYPE_FORCE || op->itype == TYPE_POISONING) {
         widget_active_effects_remove(cur_widget[ACTIVE_EFFECTS_ID], op);
+    } else if (op->itype == TYPE_REGION_MAP) {
+        region_map_fow_update(MapData.region_map);
     }
 
     object_redraw(op);

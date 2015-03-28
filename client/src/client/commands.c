@@ -471,6 +471,8 @@ static void command_item_update(uint8 *data, size_t len, size_t *pos, uint32 fla
             packet_to_string(data, len, pos, msg, sizeof(msg));
 
             widget_active_effects_update(cur_widget[ACTIVE_EFFECTS_ID], tmp, sec, msg);
+        } else if (tmp->itype == TYPE_REGION_MAP) {
+            region_map_fow_update(MapData.region_map);
         }
     }
 
