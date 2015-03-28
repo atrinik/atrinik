@@ -42,7 +42,8 @@ static fields_struct fields[] = {
     {"msg", FIELDTYPE_CSTR, offsetof(region_struct, msg), 0, 0},
     {"jailmap", FIELDTYPE_CSTR, offsetof(region_struct, jailmap), 0, 0},
     {"jailx", FIELDTYPE_SINT16, offsetof(region_struct, jailx), 0, 0},
-    {"jaily", FIELDTYPE_SINT16, offsetof(region_struct, jaily), 0, 0}
+    {"jaily", FIELDTYPE_SINT16, offsetof(region_struct, jaily), 0, 0},
+    {"map_first", FIELDTYPE_CSTR, offsetof(region_struct, map_first), 0, 0}
 };
 /* @endcparser */
 
