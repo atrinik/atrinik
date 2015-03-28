@@ -233,5 +233,9 @@ static void utarray_str_dtor(void *elt)
 static const UT_icd ut_str_icd _UNUSED_ = {sizeof(char*), NULL, utarray_str_cpy, utarray_str_dtor};
 static const UT_icd ut_int_icd _UNUSED_ = {sizeof(int), NULL, NULL, NULL};
 
+static inline int ut_str_sort(const void *a, const void *b) {
+    return strcmp(*(char **) a, *(char **) b);
+}
+
 
 #endif /* UTARRAY_H */
