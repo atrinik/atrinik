@@ -247,8 +247,6 @@ typedef enum {
     FIELDTYPE_CMD_PERMISSIONS,
     /** Player's faction reputations. */
     FIELDTYPE_FACTIONS,
-    /** Player's region maps. */
-    FIELDTYPE_REGION_MAPS,
     /** Object's connection value. */
     FIELDTYPE_CONNECTION,
     /** Treasure list. */
@@ -373,7 +371,7 @@ typedef struct {
 
     /**
      * Type of the array being handled; for example,
-     * @ref FIELDTYPE_REGION_MAPS. */
+     * @ref FIELDTYPE_FACTIONS. */
     field_type field;
 
     /** Used to keep track of iteration index. */

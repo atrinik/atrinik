@@ -149,9 +149,6 @@ typedef struct pl_player {
     /** Faction IDs. */
     shstr **faction_ids;
 
-    /** Available region maps. */
-    char **region_maps;
-
     /** Last map info name sent. */
     char map_info_name[HUGE_BUF];
 
@@ -242,9 +239,6 @@ typedef struct pl_player {
 
     /** Number of faction IDs. */
     int num_faction_ids;
-
-    /** Number of available region maps. */
-    int num_region_maps;
 
     /** Reputations with the various factions. */
     sint64 *faction_reputation;

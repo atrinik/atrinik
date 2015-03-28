@@ -1046,7 +1046,6 @@ extern void player_path_clear(player *pl);
 extern void player_path_handle(player *pl);
 extern sint64 player_faction_reputation(player *pl, shstr *faction);
 extern void player_faction_reputation_update(player *pl, shstr *faction, sint64 add);
-extern int player_has_region_map(player *pl, region_struct *r);
 extern char *player_sanitize_input(char *str);
 extern void player_cleanup_name(char *str);
 extern object *find_marked_object(object *op);

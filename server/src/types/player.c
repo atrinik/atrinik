@@ -193,18 +193,6 @@ void free_player(player *pl)
         efree(pl->faction_reputation);
     }
 
-    if (pl->region_maps) {
-        int i;
-
-        for (i = 0; i < pl->num_region_maps; i++) {
-            if (pl->region_maps[i]) {
-                efree(pl->region_maps[i]);
-            }
-        }
-
-        efree(pl->region_maps);
-    }
-
     player_path_clear(pl);
 
     /* Now remove from list of players. */
@@ -988,25 +976,6 @@ void player_faction_reputation_update(player *pl, shstr *faction, sint64 add)
     pl->faction_ids[pl->num_faction_ids] = add_string(faction);
     pl->faction_reputation[pl->num_faction_ids] = add;
     pl->num_faction_ids++;
-}
-
-/**
- * Check whether player has a region map of the specified region.
- * @param pl The player.
- * @param r The region to check.
- * @return 1 if the player has region map of the specified region, 0
- * otherwise. */
-int player_has_region_map(player *pl, region_struct *r)
-{
-    int i;
-
-    for (i = 0; i < pl->num_region_maps; i++) {
-        if (pl->region_maps[i] && !strcmp(r->name, pl->region_maps[i])) {
-            return 1;
-        }
-    }
-
-    return 0;
 }
 
 /**
@@ -2002,12 +1971,6 @@ void player_save(object *op)
         }
     }
 
-    for (i = 0; i < pl->num_region_maps; i++) {
-        if (pl->region_maps[i]) {
-            fprintf(fp, "rmap %s\n", pl->region_maps[i]);
-        }
-    }
-
     fprintf(fp, "fame %"FMT64 "\n", pl->fame);
     fprintf(fp, "endplst\n");
 
@@ -2096,10 +2059,6 @@ static int player_load(player *pl, const char *path)
             }
         } else if (strncmp(buf, "fame ", 5) == 0) {
             pl->fame = atoi(buf + 5);
-        } else if (strncmp(buf, "rmap ", 5) == 0) {
-            pl->region_maps = erealloc(pl->region_maps, sizeof(*pl->region_maps) * (pl->num_region_maps + 1));
-            pl->region_maps[pl->num_region_maps] = estrdup(buf + 5);
-            pl->num_region_maps++;
         }
     }
 
