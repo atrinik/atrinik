@@ -733,11 +733,15 @@ static void region_map_fow_reset(region_map_t *region_map)
 
 void region_map_fow_update(region_map_t *region_map)
 {
-    region_map_def_map_t *def_map;
+    region_map_def_map_t *def_map, *def_map_regions;
     SDL_Rect box;
     int rowsize, x, y;
     uint32 color;
     SDL_Surface *surface;
+    object *op;
+    size_t i, j;
+    UT_array *regions;
+    char *cp;
 
     HARD_ASSERT(region_map != NULL);
     HARD_ASSERT(region_map->fow != NULL);
@@ -749,7 +753,6 @@ void region_map_fow_update(region_map_t *region_map)
     }
 
     if (region_map->fow->tiles != NULL) {
-        unsigned i;
         region_map_fow_tile_t *tile;
 
         /* Now that the definitions are loaded, we can go back through the tiles
@@ -804,6 +807,48 @@ void region_map_fow_update(region_map_t *region_map)
             SDL_FillRect(region_map->fow->surface, &box, color);
         }
     }
+
+    utarray_new(regions, &ut_str_icd);
+
+    for (op = cpl.ob->inv; op != NULL; op = op->next) {
+        if (op->itype != TYPE_REGION_MAP) {
+            continue;
+        }
+
+        cp = op->s_name;
+        utarray_push_back(regions, &cp);
+    }
+
+    utarray_sort(regions, ut_str_sort);
+
+    def_map_regions = NULL;
+
+    for (i = 0; i < region_map->def->num_maps; i++) {
+        def_map = &region_map->def->maps[i];
+
+        if (def_map->regions != NULL) {
+            def_map_regions = def_map;
+        }
+
+        if (def_map_regions == NULL) {
+            continue;
+        }
+
+        for (j = 0; j < def_map_regions->regions_num; j++) {
+            if (utarray_find(regions, &def_map_regions->regions[j],
+                    ut_str_sort) != NULL) {
+                box.x = def_map->xpos;
+                box.y = def_map->ypos;
+                box.w = region_map->def->map_size_x *
+                        region_map->def->pixel_size;
+                box.h = region_map->def->map_size_y *
+                        region_map->def->pixel_size;
+                SDL_FillRect(region_map->fow->surface, &box, color);
+            }
+        }
+    }
+
+    utarray_free(regions);
 
     SDL_SetColorKey(region_map->fow->surface, SDL_SRCCOLORKEY, color);
     surface = SDL_DisplayFormat(region_map->fow->surface);
