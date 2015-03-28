@@ -194,7 +194,7 @@ static int widget_event(widgetdata *widget, SDL_Event *event)
             break;
 
         case BUTTON_MAP:
-            send_command("/region_map");
+            send_command_check("/region_map");
             break;
 
         case BUTTON_QUEST:
