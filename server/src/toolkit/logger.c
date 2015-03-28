@@ -29,6 +29,8 @@
  * @author Alex Tokar
  */
 
+#ifndef __CPROTO__
+
 #include <global.h>
 #include <stdarg.h>
 
@@ -341,3 +343,5 @@ void logger_traceback(void)
     efree(bt_syms);
 #endif
 }
+
+#endif
