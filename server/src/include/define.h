@@ -147,6 +147,10 @@
  * Food. */
 #define FOOD 6
 /**
+ * Region map.
+ */
+#define REGION_MAP 7
+/**
  * Book. */
 #define BOOK 8
 /**

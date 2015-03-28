@@ -58,7 +58,8 @@ static int inventory_matches_filter(object *op)
 
     /* Never show spell/skill/force objects in the inventory. */
     if (op->itype == TYPE_SPELL || op->itype == TYPE_SKILL ||
-            op->itype == TYPE_FORCE || op->itype == TYPE_POISONING) {
+            op->itype == TYPE_FORCE || op->itype == TYPE_POISONING ||
+            op->itype == TYPE_REGION_MAP) {
         return 0;
     }
 
