@@ -48,6 +48,9 @@ typedef struct region_map_def_map {
     /** The map path. */
     char *path;
 
+    char **regions; ///< Regions this map belongs to.
+    size_t regions_num; ///< Number of entries in 'regions'.
+
     /** X position. */
     int xpos;
 

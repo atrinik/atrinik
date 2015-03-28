@@ -448,8 +448,9 @@ static region_map_def_t *region_map_def_new(void)
  */
 static void region_map_def_load(region_map_def_t *def, const char *str)
 {
-    char line[HUGE_BUF], *cps[10];
-    size_t pos;
+    char line[HUGE_BUF], *cps[10], region[MAX_BUF];
+    size_t pos, pos2;
+    region_map_def_map_t *def_map;
 
     def->pixel_size = 1;
     def->map_size_x = 24;
@@ -484,17 +485,33 @@ static void region_map_def_load(region_map_def_t *def, const char *str)
         } else if (strcmp(cps[0], "map_size_y") == 0) {
             def->map_size_y = atoi(cps[1]);
         } else if (strcmp(cps[0], "map") == 0) {
-            if (string_split(cps[1], cps, 3, ' ') != 3) {
+            if (string_split(cps[1], cps, 4, ' ') < 3) {
                 log(LOG(ERROR), "Invalid map in definitions file: %s", cps[1]);
                 continue;
             }
 
             def->maps = erealloc(def->maps, sizeof(*def->maps) *
                     (def->num_maps + 1));
-            def->maps[def->num_maps].xpos = strtoul(cps[0], NULL, 16);
-            def->maps[def->num_maps].ypos = strtoul(cps[1], NULL, 16);
-            def->maps[def->num_maps].path = estrdup(cps[2]);
+            def_map = &def->maps[def->num_maps];
             def->num_maps++;
+
+            def_map->xpos = strtoul(cps[0], NULL, 16);
+            def_map->ypos = strtoul(cps[1], NULL, 16);
+            def_map->path = estrdup(cps[2]);
+            def_map->regions = NULL;
+            def_map->regions_num = 0;
+
+            if (cps[3] != NULL) {
+                pos2 = 0;
+
+                while (string_get_word(cps[3], &pos2, ',', VS(region), 0)) {
+                    def_map->regions = erealloc(def_map->regions,
+                            sizeof(*def_map->regions) *
+                            (def_map->regions_num + 1));
+                    def_map->regions[def_map->regions_num] = estrdup(region);
+                    def_map->regions_num++;
+                }
+            }
         } else if (strcmp(cps[0], "label") == 0) {
             if (string_split(cps[1], cps, 4, ' ') != 4) {
                 log(LOG(ERROR), "Invalid label in definitions file: %s",
