@@ -72,8 +72,6 @@ void objects_free(object *op)
             spells_remove(op);
         } else if (op->itype == TYPE_SKILL) {
             skills_remove(op);
-        } else if (op->itype == TYPE_REGION_MAP) {
-            region_map_fow_update(MapData.region_map);
         }
 
         if (op->inv) {
@@ -179,8 +177,6 @@ void object_remove(object *op)
         skills_remove(op);
     } else if (op->itype == TYPE_FORCE || op->itype == TYPE_POISONING) {
         widget_active_effects_remove(cur_widget[ACTIVE_EFFECTS_ID], op);
-    } else if (op->itype == TYPE_REGION_MAP) {
-        region_map_fow_update(MapData.region_map);
     }
 
     object_redraw(op);
@@ -207,6 +203,11 @@ void object_remove(object *op)
     }
 
     free_objects = op;
+
+    if (op->itype == TYPE_REGION_MAP) {
+        region_map_fow_update(MapData.region_map);
+        minimap_redraw_flag = 1;
+    }
 
     /* Clear the object so it can be reused. */
     memset((char *) op + offsetof(object, prev), 0,
