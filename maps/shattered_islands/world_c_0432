@@ -12,7 +12,7 @@ tile_path_3 world_c_0431
 tile_path_4 world_c_0332
 tile_path_7 world_c_0331
 bg_music unexpected.mid
-region strakewood_island
+region strakewood_island_underground
 end
 arch floor_cave6
 y 16

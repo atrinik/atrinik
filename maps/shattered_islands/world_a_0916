@@ -15,7 +15,7 @@ tile_path_6 world_a_1015
 tile_path_7 world_a_0815
 tile_path_8 world_a_0817
 bg_music unexpected.mid
-region strakewood_island
+region strakewood_island_underground
 end
 arch water_lt4
 x 3

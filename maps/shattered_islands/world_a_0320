@@ -10,7 +10,7 @@ difficulty 1
 darkness 1
 tile_path_3 world_a_0319
 bg_music thonkdonk.ogg
-region strakewood_island
+region strakewood_island_underground
 end
 arch floor_sand_d3
 x 6

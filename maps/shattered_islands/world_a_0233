@@ -10,7 +10,7 @@ difficulty 30
 darkness 2
 tile_path_2 world_a_0333
 bg_music treasure.mid
-region strakewood_island
+region strakewood_island_underground
 end
 arch fstone1b
 x 2

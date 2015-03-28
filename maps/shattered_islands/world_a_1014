@@ -10,7 +10,7 @@ difficulty 1
 darkness 3
 tile_path_1 world_a_1015
 bg_music unexpected.mid
-region strakewood_island
+region strakewood_island_underground
 end
 arch water_lt2
 end
