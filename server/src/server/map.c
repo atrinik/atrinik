@@ -1114,24 +1114,46 @@ int new_save_map(mapstruct *m, int flag)
         }
 
         path_ensure_directories(filename);
+
+        fp = fopen(filename, "w");
     } else {
         if (m->tmpname == NULL) {
             char path[MAX_BUF];
+            int fd;
 
-            snprintf(path, sizeof(path), "%s/tmp", settings.datapath);
-            m->tmpname = tempnam(path, NULL);
+            snprintf(path, sizeof(path), "%s/tmp/XXXXXX", settings.datapath);
+            m->tmpname = estrdup(path);
+
+            fd = mkstemp(m->tmpname);
+
+            if (fd == -1) {
+                log(LOG(ERROR), "Can't create a temporary file: %d (%s)", errno,
+                        strerror(errno));
+                return -1;
+            }
+
+            fp = fdopen(fd, "w");
+
+            if (fp == NULL) {
+                log(LOG(ERROR), "Can't open file %s for saving: %d (%s)",
+                        filename, errno, strerror(errno));
+                close(fd);
+                return -1;
+            }
+        } else {
+            fp = fopen(m->tmpname, "w");
         }
 
-        snprintf(filename, sizeof(filename), "%s", m->tmpname);
+        snprintf(VS(filename), "%s", m->tmpname);
+    }
+
+    if (fp == NULL) {
+        log(LOG(ERROR), "Can't open file %s for saving: %d (%s)", filename,
+                errno, strerror(errno));
+        return -1;
     }
 
     m->in_memory = MAP_SAVING;
-    fp = fopen(filename, "w");
-
-    if (!fp) {
-        logger_print(LOG(ERROR), "Can't open file %s for saving.", filename);
-        exit(1);
-    }
 
     save_map_header(m, fp, flag);
 
