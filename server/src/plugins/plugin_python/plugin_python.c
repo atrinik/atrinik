@@ -320,6 +320,7 @@ static const Atrinik_Constant constants_types[] = {
     {"TREASURE", TREASURE},
     {"POTION", POTION},
     {"FOOD", FOOD},
+    {"REGION_MAP", REGION_MAP},
     {"BOOK", BOOK},
     {"CLOCK", CLOCK},
     {"MATERIAL", MATERIAL},
