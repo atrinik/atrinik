@@ -3,6 +3,7 @@ name imp
 face imp.131
 race demon
 randomitems mob_default
+behavior 8
 type 80
 layer 6
 direction 5

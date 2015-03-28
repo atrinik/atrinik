@@ -3,7 +3,7 @@ name dwarf runemaster
 face dwarf_runemaster.151
 race dwarf
 is_male 1
-behavior 2
+behavior 10
 wc_range 20
 corpse 1
 layer 6

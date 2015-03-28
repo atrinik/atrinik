@@ -3,7 +3,7 @@ race human
 face human_m.isw.111
 randomitems player
 layer 6
-behavior 2
+behavior 10
 friendly 1
 is_male 1
 no_pick 1

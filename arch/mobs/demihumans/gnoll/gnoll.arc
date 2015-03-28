@@ -5,7 +5,7 @@ race gnoll
 is_male 1
 wc_range 20
 corpse 1
-behavior 2
+behavior 10
 layer 6
 direction 5
 is_evil 1

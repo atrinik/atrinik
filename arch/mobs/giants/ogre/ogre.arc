@@ -4,7 +4,7 @@ race giant
 randomitems mob_ogre
 is_evil 1
 is_male 1
-behavior 2
+behavior 10
 weight 153250
 wc_range 20
 exp 105

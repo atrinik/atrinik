@@ -5,7 +5,7 @@ race elemental
 randomitems mob_mage_l9
 is_female 1
 corpse 1
-behavior 2
+behavior 10
 layer 6
 direction 5
 terrain_flag 65

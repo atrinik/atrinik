@@ -4,7 +4,7 @@ face demilich.131
 race undead
 is_evil 1
 corpse 1
-behavior 2
+behavior 10
 glow_radius 2
 wc_range 20
 layer 6

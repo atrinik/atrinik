@@ -3,6 +3,7 @@ name lost soul
 face lost_soul.131
 race undead
 is_male 1
+behavior 8
 wc_range 20
 corpse 1
 layer 6

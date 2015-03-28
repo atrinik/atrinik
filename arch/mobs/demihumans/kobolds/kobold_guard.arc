@@ -7,7 +7,7 @@ wc_range 20
 corpse 1
 layer 6
 direction 5
-behavior 2
+behavior 14
 is_evil 1
 terrain_flag 65
 weapon_speed 0.035

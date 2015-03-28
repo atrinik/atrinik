@@ -3,7 +3,7 @@ name kobold
 face kobold.131
 race kobold
 is_male 1
-behavior 2
+behavior 14
 corpse 1
 wc_range 20
 layer 6

@@ -2,7 +2,7 @@ Object cyclops
 name cyclops
 race giant
 randomitems mob_giant_stone
-behavior 2
+behavior 10
 is_evil 1
 is_male 1
 wc_range 20

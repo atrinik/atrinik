@@ -5,7 +5,7 @@ layer 6
 randomitems mob_wyvern
 face wyvern.141
 direction 5
-behavior 2
+behavior 10
 speed -0.06
 corpse 1
 wc_range 20

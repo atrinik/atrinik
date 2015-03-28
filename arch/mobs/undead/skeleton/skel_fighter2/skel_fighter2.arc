@@ -4,7 +4,7 @@ face skel_fighter2.131
 race undead
 is_male 1
 corpse 1
-behavior 2
+behavior 10
 wc_range 20
 layer 6
 direction 5

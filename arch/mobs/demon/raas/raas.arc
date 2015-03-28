@@ -3,6 +3,7 @@ name raas
 face raas.131
 race demon
 randomitems mob_raas
+behavior 14
 type 80
 layer 6
 direction 5

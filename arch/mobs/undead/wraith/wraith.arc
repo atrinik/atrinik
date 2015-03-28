@@ -2,6 +2,7 @@ Object wraith
 name wraith
 face wraith.131
 race undead
+behavior 8
 is_male 1
 can_pass_thru 1
 wc_range 20

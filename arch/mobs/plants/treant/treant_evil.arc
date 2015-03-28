@@ -3,6 +3,7 @@ name evil treant
 type 80
 face treant_evil.131
 layer 6
+behavior 8
 race tree
 wc_range 20
 corpse 1

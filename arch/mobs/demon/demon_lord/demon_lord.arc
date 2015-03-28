@@ -3,6 +3,7 @@ name demon lord
 face demon_lord.151
 race demon
 randomitems mob_raas
+behavior 10
 type 80
 layer 6
 direction 5

@@ -6,7 +6,7 @@ randomitems mob_default
 is_female 1
 is_male 1
 corpse 1
-behavior 2
+behavior 10
 can_see_in_dark 1
 layer 6
 direction 5

@@ -3,7 +3,7 @@ name elvish lady
 face elvish_lady.151
 race elf
 is_female 1
-behavior 2
+behavior 10
 wc_range 20
 corpse 1
 layer 6

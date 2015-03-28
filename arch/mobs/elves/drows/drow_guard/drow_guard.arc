@@ -4,7 +4,7 @@ face drow_guard.131
 race drows
 is_male 1
 wc_range 20
-behavior 2
+behavior 14
 corpse 1
 layer 6
 direction 5
