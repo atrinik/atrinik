@@ -166,7 +166,7 @@ def _make_precond(parent, npc):
                 code = "not " if elem.tag == "ncheck" else ""
 
                 if attr == "region_map":
-                    code += "{} in self._activator.Controller().region_maps".format(repr(elem.attrib["region_map"]))
+                    code += "self._activator.FindObject(type=Type.REGION_MAP, name={})".format(repr(elem.attrib["region_map"]))
                 elif attr == "options":
                     code += "GetOptions() == " + repr(elem.attrib["options"])
                 elif attr == "enemy":
@@ -411,7 +411,7 @@ def _make_interface(file, parent, npcs):
                             continue
 
                         if attr == "region_map":
-                            class_code += " " * 4 * 2 + "self._activator.Controller().region_maps.append(\"{}\")\n".format(val)
+                            class_code += " " * 4 * 2 + "self._activator.CreateObject(\"region_map\").name = \"{}\"\n".format(val)
                         elif attr == "enemy":
                             if val == "player":
                                 enemy = "self._activator"
