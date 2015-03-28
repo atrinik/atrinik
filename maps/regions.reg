@@ -33,6 +33,10 @@ map_first /shattered_islands/world_0540
 map_bg #009ffb
 end
 
+region strakewood_island_underground
+parent strakewood_island
+end
+
 # Giant Mountains.
 region strakewood_island_gm
 parent strakewood_island
