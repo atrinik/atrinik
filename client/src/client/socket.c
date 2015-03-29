@@ -328,10 +328,6 @@ static int writer_thread_loop(void *dummy)
         }
     }
 
-    if (buf) {
-        command_buffer_free(buf);
-    }
-
     socket_close(&csocket);
     return 0;
 }
