@@ -250,7 +250,7 @@ static bool curl_load_cache(curl_data *data)
     size = statbuf.st_size;
     memory = emalloc(size + 1);
 
-    if (!fread(memory, 1, size, fp)) {
+    if (fread(memory, 1, size, fp) != size) {
         log(LOG(BUG), "Could not read %s: %d (%s)", data->path, errno,
                 strerror(errno));
         goto fail;
