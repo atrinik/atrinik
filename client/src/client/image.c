@@ -164,7 +164,7 @@ void read_bmaps_p0(void)
 
         pos = ftell(fp);
 
-        if (!fread(tmp_buf, 1, len, fp)) {
+        if (fread(tmp_buf, 1, len, fp) != len) {
             break;
         }
 
