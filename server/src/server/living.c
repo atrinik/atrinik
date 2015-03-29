@@ -674,6 +674,8 @@ void living_update_player(object *op)
             } else if (tmp->type == RING && ring_count == 1) {
                 pl->equipment[PLAYER_EQUIP_RING_LEFT] = tmp;
                 ring_count++;
+            } else if (tmp->type == SKILL_ITEM) {
+                pl->equipment[PLAYER_EQUIP_SKILL_ITEM] = tmp;
             } else {
                 logger_print(LOG(BUG), "Unexpected applied object: %s",
                         object_get_str(tmp));
@@ -699,7 +701,8 @@ void living_update_player(object *op)
             continue;
         }
 
-        if (i == PLAYER_EQUIP_AMMO || i == PLAYER_EQUIP_LIGHT) {
+        if (i == PLAYER_EQUIP_AMMO || i == PLAYER_EQUIP_LIGHT ||
+                i == PLAYER_EQUIP_SKILL_ITEM) {
             continue;
         }
 
