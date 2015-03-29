@@ -213,7 +213,6 @@ void make_map_walls(mapstruct *map, char **layout, char *w_style, RMParms *RP)
                     /* Make SURE it's a wall */
                     SET_FLAG(thiswall, FLAG_NO_PASS);
 
-                    wall(map, i, j);
                     insert_ob_in_map(thiswall, map, thiswall, INS_NO_MERGE | INS_NO_WALK_ON);
                 }
             }
