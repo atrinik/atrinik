@@ -237,6 +237,7 @@ static void quest_check_item(object *op, object *quest, object *quest_pl,
 
     /* Make sure we haven't found a suitable number of these items yet. */
     if (quest_pl->last_grace > 1) {
+        num = 0;
         quest_item_check(op, item, FLAG_QUEST_ITEM, &num);
 
         if (num >= quest_pl->last_grace) {
