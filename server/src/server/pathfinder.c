@@ -834,6 +834,7 @@ path_node_t *path_find(object *op, mapstruct *map1, int x, int y,
              * that is not chasing an enemy, and this tile is a secret passage,
              * skip it. */
             if (!(GET_MAP_FLAGS(m, nx, ny) & P_DOOR_CLOSED) &&
+                    (op->type != PLAYER || !CONTR(op)->tcl) &&
                     !(op->behavior & BEHAVIOR_SECRET_PASSAGES) &&
                     (op->type == PLAYER || !OBJECT_VALID(op->enemy,
                     op->enemy_count)) && blocks_view(m, nx, ny)) {
