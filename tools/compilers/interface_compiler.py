@@ -193,22 +193,24 @@ class TagCompilerInfo(BaseTagCompiler):
 
 class TagCompilerItem(BaseTagCompiler):
     def compile(self, elem):
-        self.parent.data["arch"] = elem.get("arch")
-        self.parent.data["name"] = elem.get("name")
+        self.parent.data["item"] = {}
+        self.parent.data["item"]["arch"] = elem.get("arch")
+        self.parent.data["item"]["name"] = elem.get("name")
 
         for attr in ("nrof", "keep"):
             val = elem.get(attr)
 
             if val:
-                self.parent.data[attr] = int(val)
+                self.parent.data["item"][attr] = int(val)
 
 
 class TagCompilerKill(BaseTagCompiler):
     def compile(self, elem):
+        self.parent.data["kill"] = {}
         nrof = elem.get("nrof")
 
         if nrof:
-            self.parent.data["nrof"] = int(nrof)
+            self.parent.data["kill"]["nrof"] = int(nrof)
 
 
 class TagCompilerInterface(BaseTagCompiler):
