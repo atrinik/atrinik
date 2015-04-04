@@ -901,7 +901,7 @@ bool region_map_fow_set_visited(region_map_t *region_map,
     SOFT_ASSERT_RC(idx >= 0 && (size_t) idx < RM_MAP_FOW_BITMAP_SIZE(
             region_map) / sizeof(*region_map->fow->bitmap), false,
             "Attempt to write at an invalid position: %"FMT64U" max: %"FMT64U,
-            idx, RM_MAP_FOW_BITMAP_SIZE(region_map) /
+            (uint64_t) idx, (uint64_t) RM_MAP_FOW_BITMAP_SIZE(region_map) /
             sizeof(*region_map->fow->bitmap));
 
     region_map->fow->bitmap[idx] |= (1U << (x % 32));
@@ -922,7 +922,7 @@ bool region_map_fow_is_visited(region_map_t *region_map, int x, int y)
     SOFT_ASSERT_RC(idx >= 0 && (size_t) idx < RM_MAP_FOW_BITMAP_SIZE(
             region_map) / sizeof(*region_map->fow->bitmap), false,
             "Attempt to read at an invalid position: %"FMT64U" max: %"FMT64U,
-            idx, RM_MAP_FOW_BITMAP_SIZE(region_map) /
+            (uint64_t) idx, (uint64_t) RM_MAP_FOW_BITMAP_SIZE(region_map) /
             sizeof(*region_map->fow->bitmap));
 
     return region_map->fow->bitmap[idx] & (1U << (x % 32));
