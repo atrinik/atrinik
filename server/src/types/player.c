@@ -1799,12 +1799,14 @@ void drop_object(object *op, object *tmp, long nrof, int no_mevent)
                     tmp->x = op->x;
                     tmp->y = op->y;
                     insert_ob_in_map(tmp, op->map, op, 0);
+                    return;
                 }
             } else {
                 draw_info(COLOR_WHITE, op, "The god-given item vanishes to nowhere as you drop it!");
             }
         }
 
+        object_destroy(tmp);
         return;
     }
 
