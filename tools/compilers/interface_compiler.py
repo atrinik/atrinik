@@ -4,6 +4,7 @@ import os.path
 import re
 
 import utils
+from compilers import BaseCompiler
 
 
 try:
@@ -83,7 +84,7 @@ class NPC(object):
         self.tail.write("ib.finish(locals(), msg)")
 
 
-class AbstractTagCompiler(object):
+class BaseTagCompiler(object):
     def __init__(self, compiler, parent=None):
         self.compiler = compiler
         self.handlers = {}
@@ -123,15 +124,15 @@ class AbstractTagCompiler(object):
         pass
 
 
-class TagCompiler(AbstractTagCompiler):
+class TagCompiler(BaseTagCompiler):
     def register_handlers(self):
         self.handlers["quest"] = TagCompilerQuest
         self.handlers["interface"] = TagCompilerInterface
 
 
-class TagCompilerQuest(AbstractTagCompiler):
+class TagCompilerQuest(BaseTagCompiler):
     def __init__(self, *args):
-        AbstractTagCompiler.__init__(self, *args)
+        BaseTagCompiler.__init__(self, *args)
         self.data = {}
 
     def register_handlers(self):
@@ -148,15 +149,15 @@ class TagCompilerQuest(AbstractTagCompiler):
             if val:
                 self.data[attr] = int(val)
 
-        AbstractTagCompiler.compile(self, elem)
+        BaseTagCompiler.compile(self, elem)
 
         self.compiler.quests.write("{uid} = {d}", uid=self.data["uid"],
                                    d=utils.dump_dict(self.data))
 
 
-class TagCompilerPart(AbstractTagCompiler):
+class TagCompilerPart(BaseTagCompiler):
     def __init__(self, *args):
-        AbstractTagCompiler.__init__(self, *args)
+        BaseTagCompiler.__init__(self, *args)
         self.data = {}
 
     def register_handlers(self):
@@ -174,15 +175,15 @@ class TagCompilerPart(AbstractTagCompiler):
         self.data["name"] = elem.get("name", self.data["uid"])
         self.parent.data["parts"][self.data["uid"]] = self.data
 
-        AbstractTagCompiler.compile(self, elem)
+        BaseTagCompiler.compile(self, elem)
 
 
-class TagCompilerInfo(AbstractTagCompiler):
+class TagCompilerInfo(BaseTagCompiler):
     def compile(self, elem):
         self.parent.data["info"] = elem.text
 
 
-class TagCompilerItem(AbstractTagCompiler):
+class TagCompilerItem(BaseTagCompiler):
     def compile(self, elem):
         self.parent.data["arch"] = elem.get("arch")
         self.parent.data["name"] = elem.get("name")
@@ -194,7 +195,7 @@ class TagCompilerItem(AbstractTagCompiler):
                 self.parent.data[attr] = int(val)
 
 
-class TagCompilerKill(AbstractTagCompiler):
+class TagCompilerKill(BaseTagCompiler):
     def compile(self, elem):
         nrof = elem.get("nrof")
 
@@ -202,9 +203,9 @@ class TagCompilerKill(AbstractTagCompiler):
             self.parent.data["nrof"] = int(nrof)
 
 
-class TagCompilerInterface(AbstractTagCompiler):
+class TagCompilerInterface(BaseTagCompiler):
     def __init__(self, *args):
-        AbstractTagCompiler.__init__(self, *args)
+        BaseTagCompiler.__init__(self, *args)
         self.inherit = None
         self.interface_inherit = None
         self.regex_matchers = []
@@ -275,7 +276,7 @@ class TagCompilerInterface(AbstractTagCompiler):
         self.npc.body.indent()
 
         self.old_pos = self.npc.body.tell()
-        AbstractTagCompiler.compile(self, elem)
+        BaseTagCompiler.compile(self, elem)
 
     def finish(self, tag):
         if self.npc.body.tell() == self.old_pos:
@@ -291,9 +292,9 @@ class TagCompilerInterface(AbstractTagCompiler):
         self.npc.body.unindent()
 
 
-class TagCompilerDialog(AbstractTagCompiler):
+class TagCompilerDialog(BaseTagCompiler):
     def __init__(self, *args):
-        AbstractTagCompiler.__init__(self, *args)
+        BaseTagCompiler.__init__(self, *args)
         self.was_inherited = False
         self.inherit = None
         self.inherit2 = None
@@ -405,7 +406,7 @@ class TagCompilerDialog(AbstractTagCompiler):
                                 animation=repr(animation))
 
         self.old_pos = self.npc.body.tell()
-        AbstractTagCompiler.compile(self, elem)
+        BaseTagCompiler.compile(self, elem)
 
     def do_inherit(self):
         self.was_inherited = True
@@ -429,9 +430,9 @@ class TagCompilerDialog(AbstractTagCompiler):
         self.npc.body.unindent()
 
 
-class TagCompilerAnd(AbstractTagCompiler):
+class TagCompilerAnd(BaseTagCompiler):
     def __init__(self, *args):
-        AbstractTagCompiler.__init__(self, *args)
+        BaseTagCompiler.__init__(self, *args)
         self.precond = InterfaceIO(raw=True)
 
     def register_handlers(self):
@@ -458,7 +459,7 @@ class TagCompilerAnd(AbstractTagCompiler):
         self.precond.write("(")
         self.npc.body.indent()
         old_pos = self.npc.body.tell()
-        AbstractTagCompiler.compile(self, elem)
+        BaseTagCompiler.compile(self, elem)
         self.npc.body.unindent()
         self.precond.write(")")
 
@@ -573,18 +574,18 @@ class TagCompilerNcheck(TagCompilerCheck):
     pass
 
 
-class TagCompilerSay(AbstractTagCompiler):
+class TagCompilerSay(BaseTagCompiler):
     def compile(self, elem):
         self.npc.body.write("self._npc.Say({text})", text=repr(elem.text))
 
 
-class TagCompilerClose(AbstractTagCompiler):
+class TagCompilerClose(BaseTagCompiler):
     def compile(self, elem):
         self.npc.body.write("self.dialog_close()")
         self.npc.closed = True
 
 
-class TagCompilerAction(AbstractTagCompiler):
+class TagCompilerAction(BaseTagCompiler):
     def compile(self, elem):
         if elem.text:
             self.npc.body.write("{text}", text=elem.text())
@@ -637,7 +638,7 @@ class TagCompilerAction(AbstractTagCompiler):
                 self.npc.body.write("self.qm.{attr}({val})", attr=attr, val=val)
 
 
-class TagCompilerNotification(AbstractTagCompiler):
+class TagCompilerNotification(BaseTagCompiler):
     def compile(self, elem):
         if "Packet.Notification" not in self.npc.imports:
             self.npc.imports.append("Packet.Notification")
@@ -651,7 +652,7 @@ class TagCompilerNotification(AbstractTagCompiler):
         )
 
 
-class TagCompilerObject(AbstractTagCompiler):
+class TagCompilerObject(BaseTagCompiler):
     def compile(self, elem):
         item_args = []
 
@@ -691,7 +692,7 @@ class TagCompilerObject(AbstractTagCompiler):
             )
 
 
-class TagCompilerInherit(AbstractTagCompiler):
+class TagCompilerInherit(BaseTagCompiler):
     def compile(self, elem):
         name = elem.get("name")
 
@@ -708,7 +709,7 @@ class TagCompilerInherit(AbstractTagCompiler):
             self.parent.do_inherit()
 
 
-class TagCompilerChoice(AbstractTagCompiler):
+class TagCompilerChoice(BaseTagCompiler):
     def register_handlers(self):
         self.handlers["message"] = TagCompilerMessage
 
@@ -720,7 +721,7 @@ class TagCompilerChoice(AbstractTagCompiler):
         self.npc.body.write("self.add_msg(choice([{msgs}]))", msgs=msgs)
 
 
-class TagCompilerMessage(AbstractTagCompiler):
+class TagCompilerMessage(BaseTagCompiler):
     def compile(self, elem):
         color = elem.get("color", "")
         msg = repr(elem.text)
@@ -743,7 +744,7 @@ class TagCompilerMessage(AbstractTagCompiler):
             )
 
 
-class TagCompilerResponse(AbstractTagCompiler):
+class TagCompilerResponse(BaseTagCompiler):
     def compile(self, elem):
         message = elem.get("message")
         link_args = ""
@@ -759,12 +760,12 @@ class TagCompilerResponse(AbstractTagCompiler):
                             message=repr(message), link_args=link_args)
 
 
-class TagCompilerCode(AbstractTagCompiler):
+class TagCompilerCode(BaseTagCompiler):
     def compile(self, elem):
         self.npc.body.write("{text}", text=elem.text)
 
 
-class TagCompilerPrecond(AbstractTagCompiler):
+class TagCompilerPrecond(BaseTagCompiler):
     def compile(self, elem):
         self.npc.body.write("def precond(self):")
         self.npc.body.indent()
@@ -772,9 +773,9 @@ class TagCompilerPrecond(AbstractTagCompiler):
         self.npc.body.unindent()
 
 
-class InterfaceCompiler(object):
-    def __init__(self, paths):
-        self.paths = paths
+class InterfaceCompiler(BaseCompiler):
+    def __init__(self, *args):
+        BaseCompiler.__init__(self, *args)
         self.npc = None
         self.npcs = {}
         self.path = None
