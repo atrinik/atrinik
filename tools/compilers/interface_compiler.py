@@ -1,3 +1,11 @@
+__author__ = "Alex Tokar"
+__copyright__ = "Copyright (c) 2009-2015 Atrinik Development Team"
+__credits__ = ["Alex Tokar"]
+__license__ = "GPL"
+__version__ = "2.0"
+__maintainer__ = "Alex Tokar"
+__email__ = "admin@atokar.net"
+
 from xml.etree import ElementTree
 from collections import OrderedDict
 import os.path
@@ -819,5 +827,3 @@ class InterfaceCompiler(BaseCompiler):
                 npc_file.write(self.npcs[npc].head.getvalue().encode())
                 npc_file.write(self.npcs[npc].body.getvalue().encode())
                 npc_file.write(self.npcs[npc].tail.getvalue().encode())
-
-__author__ = 'Alex Tokar'

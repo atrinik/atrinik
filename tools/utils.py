@@ -1,3 +1,11 @@
+__author__ = "Alex Tokar"
+__copyright__ = "Copyright (c) 2009-2015 Atrinik Development Team"
+__credits__ = ["Alex Tokar"]
+__license__ = "GPL"
+__version__ = "2.0"
+__maintainer__ = "Alex Tokar"
+__email__ = "admin@atokar.net"
+
 import os
 from collections import OrderedDict
 
@@ -116,5 +124,3 @@ def file_copy(path, output):
                 continue
 
             output.write("{}\n".format(line.rstrip()).encode())
-
-__author__ = 'Alex Tokar'
