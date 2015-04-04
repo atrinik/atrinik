@@ -1,6 +1,6 @@
 #!/usr/bin/python
 
-import os, sys, hashlib
+import os, sys, hashlib, platform
 
 # py3k
 try:
@@ -18,6 +18,11 @@ except:
     import SocketServer as socketserver
 
     config = configparser.ConfigParser()
+
+if any(platform.win32_ver()):
+    SocketServerMixIn = socketserver.ThreadingMixIn
+else:
+    SocketServerMixIn = socketserver.ForkingMixIn
 
 config.readfp(open("server.cfg"))
 config.read(["server-custom.cfg"])
@@ -77,7 +82,7 @@ class HTTPRequestHandler(SimpleHTTPRequestHandler):
             f.close()
             raise
 
-class ForkingHTTPServer(socketserver.ForkingMixIn, HTTPServer):
+class ForkingHTTPServer(SocketServerMixIn, HTTPServer):
     def finish_request(self, request, client_address):
         request.settimeout(60)
         HTTPServer.finish_request(self, request, client_address)
