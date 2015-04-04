@@ -106,6 +106,7 @@ check_function_exists(sigaction HAVE_SIGACTION)
 check_function_exists(getline HAVE_GETLINE)
 check_function_exists(usleep HAVE_USLEEP)
 check_function_exists(strnlen HAVE_STRNLEN)
+check_function_exists(mkstemp HAVE_MKSTEMP)
 
 # Check sizes of 'long' and 'long long' to determine architecture (32-bit
 # or 64-bit)
