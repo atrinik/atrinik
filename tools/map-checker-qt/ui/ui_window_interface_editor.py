@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file '../ui/ui_window_interface_editor.ui'
+# Form implementation generated from reading ui file '..\ui\ui_window_interface_editor.ui'
 #
-# Created: Sun Mar 15 18:12:32 2015
+# Created: Tue Apr  7 15:52:55 2015
 #      by: PyQt5 UI code generator 5.3.2
 #
 # WARNING! All changes made in this file will be lost!
@@ -352,6 +352,12 @@ class Ui_WindowInterfaceEditor(object):
         self.interface_element_action_trigger = QtWidgets.QLineEdit(self.pageAction)
         self.interface_element_action_trigger.setObjectName("interface_element_action_trigger")
         self.gridLayout_11.addWidget(self.interface_element_action_trigger, 5, 2, 1, 1)
+        self.label_48 = QtWidgets.QLabel(self.pageAction)
+        self.label_48.setObjectName("label_48")
+        self.gridLayout_11.addWidget(self.label_48, 6, 0, 1, 1)
+        self.interface_element_action_cast = QtWidgets.QLineEdit(self.pageAction)
+        self.interface_element_action_cast.setObjectName("interface_element_action_cast")
+        self.gridLayout_11.addWidget(self.interface_element_action_cast, 6, 2, 1, 1)
         self.verticalLayout_9.addLayout(self.gridLayout_11)
         self.gridLayout_12 = QtWidgets.QGridLayout()
         self.gridLayout_12.setObjectName("gridLayout_12")
@@ -584,7 +590,7 @@ class Ui_WindowInterfaceEditor(object):
         self.verticalLayout_2.addWidget(self.splitter)
         WindowInterfaceEditor.setCentralWidget(self.centralwidget)
         self.menubar = QtWidgets.QMenuBar(WindowInterfaceEditor)
-        self.menubar.setGeometry(QtCore.QRect(0, 0, 969, 21))
+        self.menubar.setGeometry(QtCore.QRect(0, 0, 969, 26))
         self.menubar.setObjectName("menubar")
         self.menuTest = QtWidgets.QMenu(self.menubar)
         self.menuTest.setObjectName("menuTest")
@@ -656,6 +662,7 @@ class Ui_WindowInterfaceEditor(object):
         self.label_17.setText(_translate("WindowInterfaceEditor", "Start"))
         self.label_19.setText(_translate("WindowInterfaceEditor", "Enemy"))
         self.label_45.setText(_translate("WindowInterfaceEditor", "Trigger"))
+        self.label_48.setText(_translate("WindowInterfaceEditor", "Cast"))
         self.label_20.setText(_translate("WindowInterfaceEditor", "Code"))
         self.label_24.setText(_translate("WindowInterfaceEditor", "Delay"))
         self.label_21.setText(_translate("WindowInterfaceEditor", "Message"))

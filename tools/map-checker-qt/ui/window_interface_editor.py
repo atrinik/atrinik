@@ -765,7 +765,7 @@ class InterfaceElementResponse(InterfaceElement):
 class InterfaceElementAction(InterfaceElement):
     tag = "action"
     attributes = ("region_map", "start", "complete", "enemy", "text",
-                  "teleport", "trigger")
+                  "teleport", "trigger", "cast")
     priority = 1000
 
     def build_xml_element(self):
