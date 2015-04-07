@@ -22,7 +22,7 @@
             <info>You have reached Incuna, and have started the attempt to get back your lost memories. Sam Goodberry has suggested that you go speak to the local church priest, who may be able to help you.</info>
             <interface npc="Sam Goodberry" state="need_start">
                 <dialog name="hello">
-                    <message>There you are! I didn't wake you up when we arrived in Incuna, because it seemed like you needed a good rest. You certainly did - you've been sleeping for quite a while now.</message>
+                    <message>There you are! I didn't wake you up when we arrived in Incuna, because it seemed like you needed a good rest. You certainly did - you've been sleeping for quite a while now. I even had time to replace the cabin door down in the lower deck!</message>
                     <message>At any rate, we did it - we managed to reach Incuna. We should resupply and head to Strakewood at last - but don't worry, I'll handle that and anything else we may need.</message>
                     <message>However... there's still the question of what to do about your memory loss. Say, has it improved?</message>
                     <response destination="remember" message="I feel I'm starting to remember..."/>
