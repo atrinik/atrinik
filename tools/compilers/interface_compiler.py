@@ -601,7 +601,7 @@ class TagCompilerAction(BaseTagCompiler):
             self.npc.body.write("{text}", text=elem.text())
 
         for attr in ["start", "complete", "region_map", "enemy", "teleport",
-                     "trigger"]:
+                     "trigger", "cast"]:
             val = elem.get(attr)
 
             if not val:
@@ -637,6 +637,11 @@ class TagCompilerAction(BaseTagCompiler):
                     "beacon.env.Apply(beacon.env, APPLY_TOGGLE)",
                     name=repr(val)
                 )
+            elif attr == "cast":
+                self.npc.body.write("self._npc.Cast(GetArchetype({spell})."
+                                    "clone.sp, self._activator)",
+                                    spell=repr("spell_" +
+                                               val.replace(" ", "_")))
             else:
                 split = val.split("::")
 
