@@ -176,6 +176,18 @@ arch ship_floor_we_1
 x 4
 y 1
 end
+arch magic_mouth
+msg
+
+You don't recall this pristine looking door...
+endmsg
+notification_message Tutorial Available: Doors
+notification_action /help basics_doors
+notification_shortcut ?HELP
+notification_delay 600000
+x 4
+y 1
+end
 arch ship_floor_we_1
 x 4
 y 2
