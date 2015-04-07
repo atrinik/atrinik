@@ -1582,3 +1582,12 @@ The region map allows you to see the whole map of the region you're located in, 
 In order to bring up the map of the current region, either press the [b]R[/b] key, or click the button with map icon near the top right.
 endmsg
 end
+
+help basics_doors
+title Basics: Doors
+msg
+[title]Doors[/title]
+
+Doors can be opened by walking into them with your character and will stay open for a short amount of time. Note that some doors require keys to open.
+endmsg
+end
