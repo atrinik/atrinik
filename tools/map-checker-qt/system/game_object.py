@@ -152,7 +152,7 @@ class GameObject(AbstractObjectInventory):
     def setAttribute(self, attribute, value, modified=True):
         if self.arch and modified and self.arch.getAttribute(
                 attribute) == value:
-            if super().getAttribute(attribute) != None:
+            if super().getAttribute(attribute) is not None:
                 self.removeAttribute(attribute)
 
             return
