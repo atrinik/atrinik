@@ -88,7 +88,7 @@ class CheckerObject(AbstractChecker):
                                      env.getAttributeInt("y")],
                          is_map_file=True, game_obj=obj, fixed=fixed)
 
-    def _checker_msg(self, obj, msg):
+    def _checker_msg(self, msg):
         errors = []
         has_hello = False
 
@@ -276,7 +276,7 @@ class CheckerObject(AbstractChecker):
                 is_ear_dialogue = t == game.types.magic_ear
                 is_dialogue = is_mob_dialogue or is_ear_dialogue
 
-                msg_errors = self._checker_msg(obj, msg)
+                msg_errors = self._checker_msg(msg)
 
                 if is_mob_dialogue:
                     if "missing-hello" in msg_errors:
