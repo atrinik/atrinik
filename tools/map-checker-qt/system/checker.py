@@ -491,7 +491,7 @@ class CheckerObject(AbstractChecker):
                           obj=obj)
 
         for attr in ["x", "y"]:
-            if obj.getAttribute(attr) != None:
+            if obj.getAttribute(attr) is not None:
                 self.addError("medium", "Object has {} attribute set but is "
                                         "inside inventory of another "
                                         "object.".format(attr.upper()),
@@ -744,7 +744,7 @@ class CheckerObject(AbstractChecker):
 
         level = obj.getAttributeInt("level")
 
-        if level == None:
+        if level is None:
             self.addError("high", "Monster has unset level.",
                           "All monsters should have a level set.", obj=obj)
         elif level < 1 or level > system.constants.game.max_level:
@@ -942,7 +942,7 @@ class CheckerMap(AbstractChecker):
     def checker_difficulty(self, obj):
         difficulty = obj.getAttributeInt("difficulty")
 
-        if difficulty == None:
+        if difficulty is None:
             if self.fix:
                 obj.setAttribute("difficulty", 1)
 
@@ -964,7 +964,7 @@ class CheckerMap(AbstractChecker):
     def checker_bg_music(self, obj):
         bg_music = obj.getAttribute("bg_music")
 
-        if bg_music != None:
+        if bg_music is not None:
             if not re.match(r"([a-zA-Z0-9_\-]+)\.(\w+)[ 0-9\-]?", bg_music):
                 self.addError("high", "Background music attribute (<b>{}</b>) "
                                       "is not in a valid "
@@ -979,12 +979,12 @@ class CheckerMap(AbstractChecker):
                               "should have some sort of background music set.")
 
     def checker_dimensions(self, obj):
-        if obj.getAttribute("width") == None:
+        if obj.getAttribute("width") is None:
             self.addError("critical", "Map is missing width.",
                           "A map without width attribute set is most "
                           "likely corrupt.")
 
-        if obj.getAttribute("width") == None:
+        if obj.getAttribute("width") is None:
             self.addError("critical", "Map is missing width.",
                           "A map without height attribute set is most "
                           "likely corrupt.")
@@ -992,8 +992,8 @@ class CheckerMap(AbstractChecker):
     def checker_region(self, obj):
         region = obj.getAttribute("region")
 
-        if region != None:
-            if self.map_checker.regions.get(region) == None:
+        if region is not None:
+            if self.map_checker.regions.get(region) is None:
                 self.addError("high", "Region <b>{}</b> is not a valid"
                                       "region.".format(region),
                               "Make sure the region name is spelled correctly, "
