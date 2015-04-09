@@ -275,15 +275,15 @@ class AbstractObjectCollection(UserDict):
         self.path = None
         self.last_mtime = 0
 
-    def get(self, key):
+    def get(self, key, default=None):
         """
         Custom get implementation. This supports linked collections, so for
         example, the artifacts collection is linked to the archetypes
         collection, and if you use, for example, archetypes["amulet_copper"],
         it will first search the archetypes for the name 'amulet_copper',
         and if it's not found, it will search for the name in the artifacts
-        collection. If the name is not found in any collection, None will be
-        returned.
+        collection. If the name is not found in any collection, 'default' will
+        be returned.
         """
 
         try:
@@ -295,7 +295,7 @@ class AbstractObjectCollection(UserDict):
             except KeyError:
                 pass
 
-        return None
+        return default
 
     def addLinkedCollection(self, collection):
         """Links a collection to this one."""
