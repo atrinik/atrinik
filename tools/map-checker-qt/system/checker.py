@@ -88,7 +88,8 @@ class CheckerObject(AbstractChecker):
                                      env.getAttributeInt("y")],
                          is_map_file=True, game_obj=obj, fixed=fixed)
 
-    def _checker_msg(self, msg):
+    @staticmethod
+    def _checker_msg(msg):
         errors = []
         has_hello = False
 
