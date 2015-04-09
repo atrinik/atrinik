@@ -2,10 +2,10 @@
 Implements the various object checkers.
 '''
 import re
+import os
 
 import system.constants
 from system.constants import game
-import os
 from system import utils
 
 class AbstractChecker:

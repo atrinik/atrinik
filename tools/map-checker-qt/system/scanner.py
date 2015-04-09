@@ -3,7 +3,9 @@ Implements functions related to scanning the filesystem for various purposes.
 '''
 
 import os
+
 from system import parser
+
 
 class ScannerMap:
     '''

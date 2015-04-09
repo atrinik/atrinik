@@ -9,7 +9,6 @@ import os
 import queue
 import sys
 from threading import Thread
-import time
 import logging
 import logging.handlers
 

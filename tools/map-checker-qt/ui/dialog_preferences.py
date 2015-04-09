@@ -2,8 +2,6 @@
 Implements the preferences dialog.
 '''
 
-import os
-
 from PyQt5.QtWidgets import QDialog, QWidget, QLineEdit, QToolButton, \
     QFileDialog, QCheckBox
 

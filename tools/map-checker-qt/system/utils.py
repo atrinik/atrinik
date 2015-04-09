@@ -5,7 +5,9 @@ Utility functions.
 from html.parser import HTMLParser
 from html import entities
 import re
+
 import system
+
 
 PATTERN_MAPNAME = re.compile(r"((?:(?!_(?:[\d]{1,2}|[a-z])_)[\w_])+)(?:_([\d]{1,2}|[a-z]))?_(\d{2}|[a-z]{2})(\d{2}|[a-z]{2})")
 

@@ -3,7 +3,9 @@ Implements parsing of various files, such as maps, archetypes, artifacts, etc.
 '''
 
 import os
+
 from system.game_object import GameObject, MapObject, ArchObject, ArtifactObject, RegionObject
+
 
 # File header that identifies map files.
 mapFileIdentifier = "arch map\n"

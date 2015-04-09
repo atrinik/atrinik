@@ -7,7 +7,7 @@ import socket
 import struct
 
 from PyQt5 import QtGui, QtCore, QtWidgets
-from PyQt5.QtCore import QTimer, QObject
+from PyQt5.QtCore import QTimer
 from PyQt5.QtWidgets import QMainWindow, QTableWidgetItem, QTableWidget, \
     QStyleOptionViewItem, QLabel, QStyledItemDelegate
 

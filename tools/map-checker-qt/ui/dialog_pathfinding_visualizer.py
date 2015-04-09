@@ -5,13 +5,14 @@ Implementation for the 'Pathfinding Visualizer' dialog.
 import json
 import math
 import os
-import time
 
 from PyQt5 import QtWidgets, QtGui
 from PyQt5.QtCore import QTimer, Qt
-from PyQt5.QtWidgets import QDialog, QGraphicsScene, QApplication
+from PyQt5.QtWidgets import QDialog, QGraphicsScene
+
 from ui.ui_dialog_pathfinding_visualizer import Ui_DialogPathfindingVisualizer
 from ui.model import Model
+
 
 class DialogPathfindingVisualizer(Model, QDialog, Ui_DialogPathfindingVisualizer):
     TILE_SIZE = 20

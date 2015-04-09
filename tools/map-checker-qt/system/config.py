@@ -2,7 +2,8 @@
 Implements configuration related functions.  
 '''
 
-import configparser, os
+import configparser
+import os
 
 # Path to configuration file of this program.
 __CONFIG_PATH__ = "~/.map_checker.cfg"
