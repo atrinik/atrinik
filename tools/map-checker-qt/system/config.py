@@ -33,8 +33,9 @@ class Config(configparser.ConfigParser):
                 if option.startswith("path_"):
                     path = self.get(section, option)
 
-                    # If the path is not absolute, it means it's default relative path
-                    # from defaults.cfg config file. Thus, we want to make it absolute.
+                    # If the path is not absolute, it means it's default
+                    # relative path from defaults.cfg config file. Thus, we want
+                    # to make it absolute.
                     if not os.path.isabs(path):
                         self.set(section, option,
                                  os.path.normpath(os.path.join(appdir, path)))
