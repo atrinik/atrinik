@@ -92,7 +92,7 @@ class MapChecker:
 
         self.queue = queue.Queue()
 
-        self._scan_running = False
+        self._thread_running = False
         self._scan_status = ""
         self._scan_progress = 0
 
