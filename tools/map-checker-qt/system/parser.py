@@ -73,7 +73,7 @@ class Parser:
         on its appropriate tile in a multi-dimensional map array, for example.
         """
 
-        if self.collection != None:
+        if self.collection is not None:
             self.collection[obj.name] = obj
 
     def objectCreatedHandler(self, obj):
@@ -127,7 +127,7 @@ class Parser:
         self.line_number = 0
         self.errors = []
 
-        if self.collection != None:
+        if self.collection is not None:
             self.collection.clear()
 
     def _parse(self, f, obj=None, retval=False, cls=GameObject):
@@ -161,7 +161,7 @@ class Parser:
                 if type(newobj) == GameObject:
                     arch = self.map_checker.archetypes.get(name)
 
-                    if arch == None:
+                    if arch is None:
                         self.addError(
                             "Unknown archetype: <b>{}</b>".format(name), line)
                     else:
@@ -280,7 +280,7 @@ class ParserArtifact(Parser):
                 arch = self.map_checker.archetypes.get(
                     obj.getAttribute("def_arch"))
 
-                if arch == None:
+                if arch is None:
                     self.addError("Unknown archetype: <b>{}</b>".format(
                         obj.getAttribute("def_arch")), line)
                 else:
