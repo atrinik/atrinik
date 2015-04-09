@@ -72,7 +72,7 @@ class AbstractChecker:
 
 
 class CheckerObject(AbstractChecker):
-    def check(self, obj):
+    def check(self, obj, set_name=True):
         super().check(obj, False)
         self._check_obj(obj)
 
@@ -830,7 +830,7 @@ class CheckerObject(AbstractChecker):
 
 
 class CheckerArchetype(CheckerObject):
-    def check(self, obj):
+    def check(self, obj, set_name=True):
         self.fix = False
         AbstractChecker.check(self, obj)
         super().check(obj)
