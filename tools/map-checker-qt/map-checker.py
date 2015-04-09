@@ -1,7 +1,7 @@
 #!/usr/bin/python3
-'''
+"""
 Main file of the map checker program.
-'''
+"""
 
 from collections import OrderedDict
 import getopt
@@ -26,10 +26,10 @@ from ui.window_main import WindowMain
 
 
 class MapChecker:
-    '''
+    """
     Implements the map checker class, which handles things such as
     calling the map parser, actually checking for errors, etc.
-    '''
+    """
 
     definitionFilesData = OrderedDict([
         [
@@ -100,7 +100,7 @@ class MapChecker:
 
     @property
     def collections(self):
-        '''Returns all the available object collections.'''
+        """Returns all the available object collections."""
         return sorted([self.__dict__[obj] for obj in self.__dict__ if
                        isinstance(self.__dict__[obj],
                                   AbstractObjectCollection)],
@@ -109,16 +109,16 @@ class MapChecker:
 
     @property
     def checkers(self):
-        '''Returns all the available checkers.'''
+        """Returns all the available checkers."""
         return [self.__dict__[obj] for obj in self.__dict__ if
                 isinstance(self.__dict__[obj], AbstractChecker)]
 
     def collection_parser(self, collection):
-        '''Returns a parser object for the specified collection.'''
+        """Returns a parser object for the specified collection."""
         return self.__dict__["parser_" + collection.name]
 
     def collection_checker(self, collection):
-        '''Returns a checker object for the specified collection.'''
+        """Returns a checker object for the specified collection."""
 
         try:
             return self.__dict__["checker_" + collection.name]
@@ -126,7 +126,7 @@ class MapChecker:
             return None
 
     def getDefinitionsPath(self, name):
-        '''Returns absolute path to the specified definitions file.'''
+        """Returns absolute path to the specified definitions file."""
 
         try:
             path = self.definitionFilesData[name]["path"]
@@ -137,25 +137,25 @@ class MapChecker:
         return os.path.join(path, self.definitionFilesData[name]["filename"])
 
     def getMapsPath(self):
-        '''Returns absolute path to the maps directory.'''
+        """Returns absolute path to the maps directory."""
         return self.config.get("General", "path_dir_maps")
 
     def getServerPath(self):
-        '''Returns absolute path to the server directory.'''
+        """Returns absolute path to the server directory."""
         return self.config.get("General", "path_dir_server")
 
     def checkers_set_fix(self, fix):
-        '''Set the fix attribute for all checkers.'''
+        """Set the fix attribute for all checkers."""
         for checker in self.checkers:
             checker.fix = fix
 
     def _scan(self, path, files, rec, fix):
-        '''
+        """
         Internal function for actually performing the scan. Used by scan,
         in both threading and non-threading mode. Changes things such as
         _scan_status, _scan_progress, etc. Puts info about errors into
         the queue object
-        '''
+        """
 
         self.checkers_set_fix(fix)
 
@@ -247,7 +247,7 @@ class MapChecker:
 
     def scan(self, path=None, files=None, rec=True, fix=False,
              threading=True):
-        '''Perform a new scan for errors.'''
+        """Perform a new scan for errors."""
         if self._thread and self._thread.is_alive():
             return
 
@@ -261,28 +261,28 @@ class MapChecker:
             self._scan(path, files, rec, fix)
 
     def scan_stop(self):
-        '''Stop current scan, if any.'''
+        """Stop current scan, if any."""
         if self._thread and self._thread.is_alive():
             self._thread_running = False
             self._scan_status = "Stopping..."
 
     def scan_is_running(self):
-        '''Check if there is currently a scan running.'''
+        """Check if there is currently a scan running."""
         if self._thread:
             return self._thread.is_alive()
 
         return False
 
     def scan_get_progress(self):
-        '''Get progress of the current scan.'''
+        """Get progress of the current scan."""
         return self._scan_progress
 
     def scan_get_status(self):
-        '''Get status of the current scan.'''
+        """Get status of the current scan."""
         return self._scan_status
 
     def exit(self):
-        '''Called when the application exits. Stops the scan, if any.'''
+        """Called when the application exits. Stops the scan, if any."""
         self.scan_stop()
 
 
