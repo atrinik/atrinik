@@ -343,6 +343,7 @@ class WindowInterfaceEditor(Model, QMainWindow, Ui_WindowInterfaceEditor):
         self.restore_expanded(expanded)
 
     def prompt_unsaved(self):
+        # noinspection PyTypeChecker,PyCallByClass
         reply = QtWidgets.QMessageBox.question(
             self, self.tr("Are you sure?"),
             self.tr("You have unsaved changes in the current interface file. "
@@ -443,6 +444,7 @@ class WindowInterfaceEditor(Model, QMainWindow, Ui_WindowInterfaceEditor):
         if not self.check_unsaved():
             return
 
+        # noinspection PyTypeChecker,PyCallByClass
         path = QtWidgets.QFileDialog.getOpenFileName(
             self, self.tr("Select Interface File"), self.last_path,
             self.tr("Interface files (*.xml)"))
@@ -462,6 +464,7 @@ class WindowInterfaceEditor(Model, QMainWindow, Ui_WindowInterfaceEditor):
         self.save_interface_file(self.file_path)
 
     def action_save_as_trigger(self):
+        # noinspection PyTypeChecker,PyCallByClass
         path = QtWidgets.QFileDialog.getSaveFileName(
             self, self.tr("Save Interface File"),
             self.file_path or self.last_path,
