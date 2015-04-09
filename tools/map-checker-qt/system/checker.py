@@ -119,9 +119,9 @@ class CheckerObject(AbstractChecker):
                 if line.find("[a") != -1:
                     errors.append("link-in-msg")
 
-                if re.search(r"\^[^\^]*\^", line) or re.search(r"\|[^\|]*\|",
-                                                               line) or re.search(
-                        r"\~[^\~]*\~", line):
+                if re.search(r"\^[^\^]*\^", line) or \
+                        re.search(r"\|[^\|]*\|", line) or \
+                        re.search(r"~[^~]*~", line):
                     errors.append("control-chars")
 
         if not has_hello:
