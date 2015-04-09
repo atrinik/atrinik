@@ -45,13 +45,13 @@ class ErrorLevelCollection:
                                                 ErrorLevel) else None
 
 
-class urls:
+class URLs:
     """URLs to links."""
 
     report_bug = "http://bugzilla.atrinik.org/"
 
 
-class game:
+class Game:
     """Game related constants."""
 
     max_level = 115
@@ -73,7 +73,7 @@ class game:
         (0, 0, 1), (0, 0, -1)
     ]
 
-    class server_commands:
+    class ServerCommands:
         control = 0
 
         control_map = 1
@@ -82,7 +82,7 @@ class game:
         control_player = 2
         control_player_teleport = 1
 
-    class types:
+    class Types:
         spawn_point = 81
         scroll = 111
         potion = 5
@@ -117,14 +117,14 @@ class game:
         rod = 3
         lightning = 12
 
-    class quest_container_sub_types:
+    class QuestContainerSubTypes:
         none = 0
         kill = 1
         item = 2
         item_drop = 3
         special = 4
 
-    class attributes:
+    class Attributes:
         STRING = 1
         INTEGER = 2
         BOOLEAN = 3

@@ -234,7 +234,7 @@ class MapObject(AbstractObject):
         return self.getAttributeInt("height")
 
     def isWorldMap(self):
-        return self.getAttribute("name") == system.constants.game.world_map_name
+        return self.getAttribute("name") == system.constants.Game.world_map_name
 
 
 class ArchObject(GameObject):

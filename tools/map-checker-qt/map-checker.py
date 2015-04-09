@@ -73,7 +73,7 @@ class MapChecker:
         self.parser_artifact = ParserArtifact(config)
         self.parser_region = ParserRegion(config)
         self.global_objects = {
-            system.constants.game.types.beacon: [],
+            system.constants.Game.Types.beacon: [],
         }
 
         for collection in self.collections:

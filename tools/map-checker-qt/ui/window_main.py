@@ -12,7 +12,7 @@ from PyQt5.QtWidgets import QMainWindow, QTableWidgetItem, QTableWidget, \
     QStyleOptionViewItem, QLabel, QStyledItemDelegate
 
 import system.constants
-from system.constants import game
+from system.constants import Game
 from system.utils import html2text
 from ui.dialog_about import DialogAbout
 from ui.dialog_preferences import DialogPreferences
@@ -142,17 +142,17 @@ class WindowMain(Model, QMainWindow, Ui_WindowMain):
 
         packets = []
 
-        packet = struct.pack("!B", game.server_commands.control)
+        packet = struct.pack("!B", Game.ServerCommands.control)
         packet += app_name.encode("ascii") + b"\0"
-        packet += struct.pack("!2B", game.server_commands.control_map,
-                              game.server_commands.control_map_reset)
+        packet += struct.pack("!2B", Game.ServerCommands.control_map,
+                              Game.ServerCommands.control_map_reset)
         packet += path.encode("ascii") + b"\0"
         packets.append(packet)
 
-        packet = struct.pack("!B", game.server_commands.control)
+        packet = struct.pack("!B", Game.ServerCommands.control)
         packet += app_name.encode("ascii") + b"\0"
-        packet += struct.pack("!2B", game.server_commands.control_player,
-                              game.server_commands.control_player_teleport)
+        packet += struct.pack("!2B", Game.ServerCommands.control_player,
+                              Game.ServerCommands.control_player_teleport)
         packet += b"\0"
         packet += path.encode("ascii") + b"\0"
         packet += struct.pack("!2H", x, y)
@@ -259,7 +259,7 @@ class WindowMain(Model, QMainWindow, Ui_WindowMain):
         self.actionScanTrigger(path)
 
     def actionReport_a_problemTrigger(self):
-        webbrowser.open(system.constants.urls.report_bug)
+        webbrowser.open(system.constants.URLs.report_bug)
 
     def actionAboutTrigger(self):
         self.dialogs["about"].show()

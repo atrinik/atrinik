@@ -5,7 +5,7 @@ import re
 import os
 
 import system.constants
-from system.constants import game
+from system.constants import Game
 from system import utils
 
 
@@ -205,7 +205,7 @@ class CheckerObject(AbstractChecker):
                               "case of turnable objects).",
                               obj=obj)
 
-            if obj.getAttributeInt("type") == game.types.light_source:
+            if obj.getAttributeInt("type") == Game.Types.light_source:
                 self.addError("warning",
                               "Light source has had its face changed.",
                               "Light sources automatically change their face, "
@@ -222,14 +222,14 @@ class CheckerObject(AbstractChecker):
 
             return
 
-        if t in (game.types.floor, game.types.shop_floor) and \
+        if t in (Game.Types.floor, Game.Types.shop_floor) and \
                 not obj.getAttributeInt("is_floor"):
             self.addError("low", "Floor archetype doesn't have is_floor set.",
                           "All floor archetypes should have the is_floor "
                           "attribute flag set to 1.",
                           obj=obj)
 
-        if t == game.types.magic_mirror and not obj.getAttributeInt(
+        if t == Game.Types.magic_mirror and not obj.getAttributeInt(
                 "sys_object"):
             self.addError("medium",
                           "Magic mirror archetype doesn't have sys_object set.",
@@ -238,7 +238,7 @@ class CheckerObject(AbstractChecker):
                           obj=obj)
 
         # Signs.
-        if t == game.types.sign:
+        if t == Game.Types.sign:
             if obj.getAttributeInt("walk_on") == 1 or obj.getAttributeInt(
                     "fly_on") == 1:
                 if obj.getAttributeInt(
@@ -255,7 +255,7 @@ class CheckerObject(AbstractChecker):
                                   "immediately adjacent to it.",
                                   obj=obj)
 
-        if t in (game.types.door, game.types.gate, game.types.wall):
+        if t in (Game.Types.door, Game.Types.gate, Game.Types.wall):
             if obj.getAttributeInt("damned") == 1:
                 self.addError("low", "Object has the damned flag set.",
                               "This flag is not supported on this object and "
@@ -268,13 +268,13 @@ class CheckerObject(AbstractChecker):
                               "it is likely an error on this object.",
                               obj=obj)
 
-        if t in (game.types.spawn_point_mob, game.types.magic_ear,
-                 game.types.book, game.types.sign):
+        if t in (Game.Types.spawn_point_mob, Game.Types.magic_ear,
+                 Game.Types.book, Game.Types.sign):
             msg = obj.getAttribute("msg")
 
             if msg:
-                is_mob_dialogue = t == game.types.spawn_point_mob
-                is_ear_dialogue = t == game.types.magic_ear
+                is_mob_dialogue = t == Game.Types.spawn_point_mob
+                is_ear_dialogue = t == Game.Types.magic_ear
                 is_dialogue = is_mob_dialogue or is_ear_dialogue
 
                 msg_errors = self._checker_msg(msg)
@@ -321,14 +321,14 @@ class CheckerObject(AbstractChecker):
                                   "&amp;rsqb; respectively.",
                                   obj=obj)
 
-        if t in (game.types.shop_mat, game.types.teleporter):
+        if t in (Game.Types.shop_mat, Game.Types.teleporter):
             self.addError("high", "Object has shop mat or teleporter object "
                                   "type.",
                           "Shop mats and teleporters were merged into the "
                           "exit object type.",
                           obj=obj)
 
-        if t == game.types.creator and obj.getAttribute("other_arch"):
+        if t == Game.Types.creator and obj.getAttribute("other_arch"):
             self.addError("critical", "Creator object with other_arch "
                                       "attribute.",
                           "The other_arch attribute for creators was removed "
@@ -340,7 +340,7 @@ class CheckerObject(AbstractChecker):
             return
 
         # Spawn points.
-        if t == game.types.spawn_point and not obj.inv:
+        if t == Game.Types.spawn_point and not obj.inv:
             if self.fix:
                 obj.delete()
 
@@ -350,7 +350,7 @@ class CheckerObject(AbstractChecker):
                           obj=obj, fixed=self.fix)
 
         # Players.
-        if t == game.types.player:
+        if t == Game.Types.player:
             if self.fix:
                 obj.delete()
 
@@ -361,7 +361,7 @@ class CheckerObject(AbstractChecker):
                           obj=obj, fixed=self.fix)
 
         # Monsters.
-        if t == game.types.monster:
+        if t == Game.Types.monster:
             self.addError("medium", "Monster type object on map.",
                           "Generally, monsters should never be put directly on "
                           "the map. Instead, they should be put into a "
@@ -370,7 +370,7 @@ class CheckerObject(AbstractChecker):
                           obj=obj)
 
         # Random drop.
-        if t == game.types.random_drop:
+        if t == Game.Types.random_drop:
             # Cannot be outside of inventory.
             if not obj.env:
                 self.addError("high", "Random drop is outside of inventory.",
@@ -379,7 +379,7 @@ class CheckerObject(AbstractChecker):
                               obj=obj)
 
         # Quest container.
-        if t == game.types.quest_container:
+        if t == Game.Types.quest_container:
             sub_type = obj.getAttributeInt("sub_type")
 
             # Cannot be outside of inventory.
@@ -390,7 +390,7 @@ class CheckerObject(AbstractChecker):
                               "inside of an inventory.",
                               obj=obj)
 
-            need_name = sub_type != game.quest_container_sub_types.item_drop
+            need_name = sub_type != Game.QuestContainerSubTypes.item_drop
 
             if not need_name:
                 for tmp in obj.inv:
@@ -414,19 +414,19 @@ class CheckerObject(AbstractChecker):
                                   obj=obj)
 
         # Event objects.
-        if t in (game.types.event_object, game.types.map_event_object):
+        if t in (Game.Types.event_object, Game.Types.map_event_object):
             if obj.getAttribute("name") == obj.name:
                 self.addError("high", "Event object is missing plugin name.",
                               "Event objects must have name set to the plugin "
                               "they should trigger.",
                               obj=obj)
-            elif not obj.getAttribute("name") in game.plugins:
+            elif not obj.getAttribute("name") in Game.plugins:
                 self.addError("critical",
                               "Event object has unknown plugin: "
                               "<b>{}</b>".format(obj.getAttribute("name")),
                               "The following are valid plugin names: {}".format(
                                   ", ".join(["<b>" + s + "</b>" for s in
-                                             game.plugins])),
+                                             Game.plugins])),
                               obj=obj)
 
             if obj.getAttribute("race"):
@@ -443,19 +443,19 @@ class CheckerObject(AbstractChecker):
                                   obj=obj)
 
         # Beacons.
-        if t == game.types.beacon:
+        if t == Game.Types.beacon:
             if obj.getAttribute("name") == obj.name:
                 self.addError("critical", "Beacon with no name set.",
                               "Every beacon must have a unique name set.",
                               obj=obj)
             elif obj.getAttribute("name") in self.map_checker.global_objects[
-                    game.types.beacon]:
+                    Game.Types.beacon]:
                 self.addError("critical", "Beacon with non-unique name.",
                               "Beacon with the name <b>{}</b> already "
                               "exists.".format(obj.getAttribute("name")),
                               obj=obj)
             else:
-                self.map_checker.global_objects[game.types.beacon].append(
+                self.map_checker.global_objects[Game.Types.beacon].append(
                     obj.getAttribute("name"))
 
     def checker_inventory_obj(self, obj):
@@ -465,16 +465,16 @@ class CheckerObject(AbstractChecker):
             return
 
         if obj.env.getAttributeInt(
-                "type") == game.types.spawn_point and not obj.getAttributeInt(
-                "type") in (game.types.spawn_point_mob, game.types.beacon,
-                            game.types.event_object):
+                "type") == Game.Types.spawn_point and not obj.getAttributeInt(
+                "type") in (Game.Types.spawn_point_mob, Game.Types.beacon,
+                            Game.Types.event_object):
             self.addError("high", "Incompatible object inside of a spawn "
                                   "point.",
                           "Spawn points objects can only contain monsters, "
                           "beacons and event objects.",
                           obj=obj)
 
-        if obj.getAttributeInt("type") == game.types.spawn_point:
+        if obj.getAttributeInt("type") == Game.Types.spawn_point:
             self.addError("high", "Spawn point object inside inventory of "
                                   "another object.",
                           "Spawn points cannot work from inside an inventory "
@@ -482,8 +482,8 @@ class CheckerObject(AbstractChecker):
                           obj=obj)
 
         if obj.getAttributeInt(
-                "type") == game.types.exit and obj.env.getAttributeInt(
-                "type") != game.types.creator:
+                "type") == Game.Types.exit and obj.env.getAttributeInt(
+                "type") != Game.Types.creator:
             self.addError("high", "Exit object inside inventory of another"
                                   "object.",
                           "Exit objects can only be inside creators, as they "
@@ -503,19 +503,19 @@ class CheckerObject(AbstractChecker):
 
     def checker_inventory(self, obj):
         objs = {
-            game.types.ability: [],
-            game.types.waypoint: [],
-            game.types.event_object: [],
+            Game.Types.ability: [],
+            Game.Types.waypoint: [],
+            Game.Types.event_object: [],
         }
 
         for tmp in obj.inv:
             if tmp.getAttributeInt("type") in objs:
                 objs[tmp.getAttributeInt("type")].append(tmp)
 
-        for event in objs[game.types.event_object]:
+        for event in objs[Game.Types.event_object]:
             num = 0
 
-            for event2 in objs[game.types.event_object]:
+            for event2 in objs[Game.Types.event_object]:
                 if event.getAttributeInt("sub_type") == event2.getAttributeInt(
                         "sub_type"):
                     num += 1
@@ -530,7 +530,7 @@ class CheckerObject(AbstractChecker):
 
         # Waypoints movement.
         if obj.getAttributeInt("movement_type") == 176:
-            if not objs[game.types.waypoint]:
+            if not objs[Game.Types.waypoint]:
                 self.addError("medium", "NPC has waypoint movement enabled but "
                                         "no waypoints configured.",
                               "In order for NPCs to use waypoint movement, "
@@ -538,7 +538,7 @@ class CheckerObject(AbstractChecker):
                               "inventory, which are properly configured.",
                               obj=obj)
             else:
-                for wp in objs[game.types.waypoint]:
+                for wp in objs[Game.Types.waypoint]:
                     if wp.getAttribute("name") == wp.name:
                         self.addError("medium", "Waypoint has no name.",
                                       "Waypoints should always have unique "
@@ -553,7 +553,7 @@ class CheckerObject(AbstractChecker):
                     if title:
                         found = False
 
-                        for wp_next in objs[game.types.waypoint]:
+                        for wp_next in objs[Game.Types.waypoint]:
                             if wp_next.getAttribute("name") == title:
                                 found = True
                                 break
@@ -567,7 +567,7 @@ class CheckerObject(AbstractChecker):
                                           "exist.".format(
                                               wp.getAttribute("name"), title),
                                           obj=obj)
-        elif objs[game.types.waypoint]:
+        elif objs[Game.Types.waypoint]:
             self.addError("warning", "NPC has waypoint movement disabled, but "
                                      "has waypoint objects in inventory.",
                           "In order for NPC to use waypoints, waypoint "
@@ -578,7 +578,7 @@ class CheckerObject(AbstractChecker):
             return
 
         if obj.getAttributeInt("can_cast_spell") == 1:
-            if not objs[game.types.ability]:
+            if not objs[Game.Types.ability]:
                 self.addError("low", "NPC can cast spells but has no ability "
                                      "objects.",
                               "In order for the NPC to cast spells, ability "
@@ -601,7 +601,7 @@ class CheckerObject(AbstractChecker):
                               "controls how often they will cast their spells "
                               "or use their other abilities.",
                               obj=obj)
-        elif objs[game.types.ability]:
+        elif objs[Game.Types.ability]:
             self.addError("warning", "NPC cannot cast spells but has ability"
                                      "objects.",
                           "In order for the NPC to be able to cast spells, it "
@@ -629,10 +629,10 @@ class CheckerObject(AbstractChecker):
                     attr = attr.lower()
                     obj.replaceAttribute(attr_old, attr, val)
 
-            game_attr = game.attributes.attrs.get(attr)
+            game_attr = Game.Attributes.attrs.get(attr)
 
             if game_attr:
-                if game_attr == game.attributes.INTEGER:
+                if game_attr == Game.Attributes.INTEGER:
                     try:
                         int(val)
                     except ValueError:
@@ -644,7 +644,7 @@ class CheckerObject(AbstractChecker):
                                       "data type could have highly unwanted "
                                       "side effects.",
                                       obj=obj)
-                elif game_attr == game.attributes.BOOLEAN:
+                elif game_attr == Game.Attributes.BOOLEAN:
                     if val not in ("1", "0"):
                         self.addError("critical", "Attribute <b>{}</b> is "
                                                   "supposed to be a boolean, "
@@ -654,7 +654,7 @@ class CheckerObject(AbstractChecker):
                                       "data type could have highly unwanted "
                                       "side effects.",
                                       obj=obj)
-                elif game_attr == game.attributes.FLOAT:
+                elif game_attr == Game.Attributes.FLOAT:
                     try:
                         float(val)
                     except ValueError:
@@ -709,7 +709,7 @@ class CheckerObject(AbstractChecker):
         if obj.getAttributeInt("sys_object") == 1 and obj.getAttributeInt(
                 "layer") != 0:
             if not obj.env or not obj.env.getAttributeInt("type") in (
-                    game.types.spawn_point_mob, game.types.monster):
+                    Game.Types.spawn_point_mob, Game.Types.monster):
                 if self.fix:
                     obj.setAttribute("layer", "0")
 
@@ -727,8 +727,8 @@ class CheckerObject(AbstractChecker):
                           obj=obj, fixed=self.fix)
 
     def checker_monster(self, obj):
-        if not obj.getAttributeInt("type") in (game.types.spawn_point_mob,
-                                               game.types.monster):
+        if not obj.getAttributeInt("type") in (Game.Types.spawn_point_mob,
+                                               Game.Types.monster):
             return
 
         race = obj.getAttribute("race")
@@ -748,11 +748,11 @@ class CheckerObject(AbstractChecker):
         if level is None:
             self.addError("high", "Monster has unset level.",
                           "All monsters should have a level set.", obj=obj)
-        elif level < 1 or level > system.constants.game.max_level:
+        elif level < 1 or level > system.constants.Game.max_level:
             self.addError("high", "Monster has invalid level: "
                                   "<b>{}</b>".format(level),
                           "Valid levels are between 1 and {}.".format(
-                              system.constants.game.max_level),
+                              system.constants.Game.max_level),
                           obj=obj)
 
         if not obj.map:
@@ -778,7 +778,7 @@ class CheckerObject(AbstractChecker):
 
                 for tmp in obj.inv:
                     if tmp.getAttributeInt(
-                            "type") == game.types.event_object and \
+                            "type") == Game.Types.event_object and \
                             tmp.getAttributeInt("sub_type") == 6:
                         if tmp.getAttribute(
                                 "race") == "/python/generic/guard.py":
@@ -804,7 +804,7 @@ class CheckerObject(AbstractChecker):
                               obj=obj)
 
         if not obj.env or obj.env.getAttributeInt(
-                "type") != game.types.spawn_point:
+                "type") != Game.Types.spawn_point:
             self.addError("critical", "Monster is not inside a spawn point.",
                           "All monsters should always be inside a spawn point.",
                           obj=obj)
@@ -814,10 +814,10 @@ class CheckerObject(AbstractChecker):
 
         if not obj.getAttributeInt("is_used_up") and obj.getAttributeInt(
                 "anim_speed") and obj.getAttributeFloat("speed") and t not in (
-                game.types.monster, game.types.player, game.types.god,
-                game.types.exit, game.types.cone, game.types.bullet,
-                game.types.rod, game.types.spawn_point_mob,
-                game.types.lightning, game.types.light_source):
+                Game.Types.monster, Game.Types.player, Game.Types.god,
+                Game.Types.exit, Game.Types.cone, Game.Types.bullet,
+                Game.Types.rod, Game.Types.spawn_point_mob,
+                Game.Types.lightning, Game.Types.light_source):
             self.addError("warning", "Object is animated and has speed but its "
                                      "object type does not require speed.",
                           "Animated objects don't require speed attribute to "
@@ -869,10 +869,10 @@ class CheckerMap(AbstractChecker):
         tiled_check = os.path.realpath(self.path).startswith(
             os.path.realpath(self.map_checker.get_maps_path()))
 
-        for i in range(0, system.constants.game.num_tiled):
+        for i in range(0, system.constants.Game.num_tiled):
             attribute = "tile_path_{}".format(i + 1)
             val = obj.getAttribute(attribute)
-            tile_name = system.constants.game.tiled_names[i]
+            tile_name = system.constants.Game.tiled_names[i]
 
             if val is not None:
                 if base == val:
@@ -916,9 +916,9 @@ class CheckerMap(AbstractChecker):
             # TODO: Should base this on something other than the map's file name
             # beginning with "world_".
             if tiled_check and (val is None or val != tiled) and (
-                    i < system.constants.game.num_tiled_dir or (base.startswith(
+                    i < system.constants.Game.num_tiled_dir or (base.startswith(
                     "world_") and coords.getLevel() >= 0 and (
-                    i == system.constants.game.tiled_up or
+                    i == system.constants.Game.tiled_up or
                     coords.getLevel() > 0))):
                 if os.path.exists(os.path.join(dirname, tiled)):
                     tile_dst = val if val is not None else "nothing"
@@ -950,17 +950,17 @@ class CheckerMap(AbstractChecker):
             self.addError("low", "Map is missing difficulty.",
                           "This could indicate an old map. Difficulty should "
                           "be set between 1 and {}.".format(
-                              system.constants.game.max_level), fixed=self.fix)
-        elif difficulty < 1 or difficulty > system.constants.game.max_level:
+                              system.constants.Game.max_level), fixed=self.fix)
+        elif difficulty < 1 or difficulty > system.constants.Game.max_level:
             if self.fix:
                 obj.setAttribute("difficulty",
                                  1 if difficulty < 1 else
-                                 system.constants.game.max_level)
+                                 system.constants.Game.max_level)
 
             self.addError("low", "Map has invalid difficulty set "
                                  "(<b>{}</b>).".format(difficulty),
                           "Difficulty should be set between 1 and {}.".format(
-                              system.constants.game.max_level), fixed=self.fix)
+                              system.constants.Game.max_level), fixed=self.fix)
 
     def checker_bg_music(self, obj):
         bg_music = obj.getAttribute("bg_music")
@@ -1023,8 +1023,8 @@ class CheckerMap(AbstractChecker):
 
                 # Our layers.
                 # noinspection PyUnusedLocal
-                layers = [[0] * system.constants.game.num_sub_layers for i in
-                          range(system.constants.game.max_layers + 1)]
+                layers = [[0] * system.constants.Game.num_sub_layers for i in
+                          range(system.constants.Game.max_layers + 1)]
                 # Number of objects. Layer 0 objects are not counted, and
                 # neither are hidden objects.
                 obj_count = 0
@@ -1055,7 +1055,7 @@ class CheckerMap(AbstractChecker):
                     obj_count_all += 1
 
                     if game_obj.getAttributeInt(
-                            "type") == game.types.shop_floor:
+                            "type") == Game.Types.shop_floor:
                         is_shop = True
 
                     if layer == 0:
@@ -1079,8 +1079,8 @@ class CheckerMap(AbstractChecker):
 
                 # Go through the layers (ignoring layer 0), and check if we
                 # have more than one object of the same layer on this space.
-                for i in range(1, system.constants.game.max_layers + 1):
-                    for j in range(0, system.constants.game.num_sub_layers):
+                for i in range(1, system.constants.Game.max_layers + 1):
+                    for j in range(0, system.constants.Game.num_sub_layers):
                         if layers[i][j] > 1:
                             self.addError("warning",
                                           "More than 1 object ({}) with layer "
