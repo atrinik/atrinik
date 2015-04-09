@@ -645,7 +645,7 @@ class CheckerObject(AbstractChecker):
                                       "side effects.",
                                       obj=obj)
                 elif game_attr == game.attributes.BOOLEAN:
-                    if not val in ("1", "0"):
+                    if val not in ("1", "0"):
                         self.addError("critical", "Attribute <b>{}</b> is "
                                                   "supposed to be a boolean, "
                                                   "but is: {}".format(attr,
@@ -678,7 +678,7 @@ class CheckerObject(AbstractChecker):
             if not obj.map:
                 continue
 
-            if artifact and not attr in ("x", "y", "identified", "unpaid",
+            if artifact and attr not in ("x", "y", "identified", "unpaid",
                                          "no_pick", "level", "nrof", "value",
                                          "can_stack", "layer", "sub_layer", "z",
                                          "zoom", "zoom_x", "zoom_y", "alpha",
@@ -813,7 +813,7 @@ class CheckerObject(AbstractChecker):
         t = obj.getAttributeInt("type")
 
         if not obj.getAttributeInt("is_used_up") and obj.getAttributeInt(
-                "anim_speed") and obj.getAttributeFloat("speed") and not t in (
+                "anim_speed") and obj.getAttributeFloat("speed") and t not in (
                 game.types.monster, game.types.player, game.types.god,
                 game.types.exit, game.types.cone, game.types.bullet,
                 game.types.rod, game.types.spawn_point_mob,
@@ -1018,7 +1018,7 @@ class CheckerMap(AbstractChecker):
     def checker_tiles(self, obj):
         for x in range(obj.getAttributeInt("width")):
             for y in range(obj.getAttributeInt("height")):
-                if not x in obj.tiles or not y in obj.tiles[x]:
+                if x not in obj.tiles or y not in obj.tiles[x]:
                     continue
 
                 # Our layers.
@@ -1141,4 +1141,3 @@ class CheckerMap(AbstractChecker):
                                           "may be picked up from the shop "
                                           "without paying for them.",
                                           loc=[x, y], game_obj=game_obj)
-
