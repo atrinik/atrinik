@@ -209,7 +209,7 @@ class CommandPaste(Command):
         super().__init__(*args)
         self.targets = targets
         self.items = []
-        
+
         # noinspection PyUnusedLocal
         for target in targets:
             self.items.append([item.clone() for item in items])
