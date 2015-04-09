@@ -81,8 +81,8 @@ def itersubclasses(cls, _seen=None):
             _seen.add(sub)
             yield sub
 
-            for sub in itersubclasses(sub, _seen):
-                yield sub
+            for sub2 in itersubclasses(sub, _seen):
+                yield sub2
 
 
 class MapCoords(object):
