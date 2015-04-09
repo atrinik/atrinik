@@ -1022,6 +1022,7 @@ class CheckerMap(AbstractChecker):
                     continue
 
                 # Our layers.
+                # noinspection PyUnusedLocal
                 layers = [[0] * system.constants.game.num_sub_layers for i in
                           range(system.constants.game.max_layers + 1)]
                 # Number of objects. Layer 0 objects are not counted, and
