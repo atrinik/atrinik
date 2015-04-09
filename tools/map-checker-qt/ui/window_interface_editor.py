@@ -248,7 +248,7 @@ class WindowInterfaceEditor(Model, QMainWindow, Ui_WindowInterfaceEditor):
         self._last_path = None
         self.last_item = None
         self.file_path = None
-        self.to_paste = None
+        self.to_paste = []
 
         self.interface_elements = InterfaceElementCollection()
 
@@ -394,6 +394,9 @@ class WindowInterfaceEditor(Model, QMainWindow, Ui_WindowInterfaceEditor):
         self.to_paste = items
 
     def action_paste_trigger(self):
+        if not self.to_paste:
+            return
+
         self.logger.debug("Paste trigger")
 
         if not self.treeView.selectedIndexes():
