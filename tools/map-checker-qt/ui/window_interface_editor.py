@@ -208,8 +208,11 @@ class CommandPaste(Command):
     def __init__(self, targets, items, *args):
         super().__init__(*args)
         self.targets = targets
+        self.items = []
+        
         # noinspection PyUnusedLocal
-        self.items = [[item.clone() for item in items] for target in targets]
+        for target in targets:
+            self.items.append([item.clone() for item in items])
 
     def redo(self):
         self.window.logger.debug("Redo paste command: %s, %s", self.targets,
@@ -598,6 +601,14 @@ class InterfaceElement(QtGui.QStandardItem):
         self.update_text()
 
     def clone(self):
+        """
+        Creates a new interface element, copying the element data, attributes,
+        flags, etc.
+
+        This is necessary because Qt Widgets cannot be deep-copied.
+        :return: Cloned InterfaceElement.
+        :rtype InterfaceElement
+        """
         obj = type(self)()
         obj._modified = self._modified
         obj.elem_data = self.elem_data.copy()
