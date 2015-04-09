@@ -840,7 +840,7 @@ class CheckerArchetype(CheckerObject):
 
 
 class CheckerMap(AbstractChecker):
-    def check(self, obj):
+    def check(self, obj, set_name=True):
         super().check(obj)
         self.setName(obj.getAttribute("name"))
 
