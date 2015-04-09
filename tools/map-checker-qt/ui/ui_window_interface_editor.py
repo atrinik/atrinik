@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file '..\ui\ui_window_interface_editor.ui'
+# Form implementation generated from reading ui file '../ui/ui_window_interface_editor.ui'
 #
-# Created: Tue Apr  7 15:52:55 2015
+# Created: Thu Apr  9 20:02:24 2015
 #      by: PyQt5 UI code generator 5.3.2
 #
 # WARNING! All changes made in this file will be lost!
@@ -590,7 +590,7 @@ class Ui_WindowInterfaceEditor(object):
         self.verticalLayout_2.addWidget(self.splitter)
         WindowInterfaceEditor.setCentralWidget(self.centralwidget)
         self.menubar = QtWidgets.QMenuBar(WindowInterfaceEditor)
-        self.menubar.setGeometry(QtCore.QRect(0, 0, 969, 26))
+        self.menubar.setGeometry(QtCore.QRect(0, 0, 969, 21))
         self.menubar.setObjectName("menubar")
         self.menuTest = QtWidgets.QMenu(self.menubar)
         self.menuTest.setObjectName("menuTest")
@@ -612,12 +612,28 @@ class Ui_WindowInterfaceEditor(object):
         self.actionUndo.setObjectName("actionUndo")
         self.actionRedo = QtWidgets.QAction(WindowInterfaceEditor)
         self.actionRedo.setObjectName("actionRedo")
+        self.actionCut = QtWidgets.QAction(WindowInterfaceEditor)
+        self.actionCut.setObjectName("actionCut")
+        self.actionCopy = QtWidgets.QAction(WindowInterfaceEditor)
+        self.actionCopy.setObjectName("actionCopy")
+        self.actionPaste = QtWidgets.QAction(WindowInterfaceEditor)
+        self.actionPaste.setObjectName("actionPaste")
+        self.actionDelete = QtWidgets.QAction(WindowInterfaceEditor)
+        self.actionDelete.setObjectName("actionDelete")
+        self.actionSelect_All = QtWidgets.QAction(WindowInterfaceEditor)
+        self.actionSelect_All.setObjectName("actionSelect_All")
         self.menuTest.addAction(self.actionNew)
         self.menuTest.addAction(self.actionOpen)
         self.menuTest.addAction(self.actionSave)
         self.menuTest.addAction(self.actionSave_As)
         self.menuEdit.addAction(self.actionUndo)
         self.menuEdit.addAction(self.actionRedo)
+        self.menuEdit.addSeparator()
+        self.menuEdit.addAction(self.actionCut)
+        self.menuEdit.addAction(self.actionCopy)
+        self.menuEdit.addAction(self.actionPaste)
+        self.menuEdit.addAction(self.actionDelete)
+        self.menuEdit.addAction(self.actionSelect_All)
         self.menubar.addAction(self.menuTest.menuAction())
         self.menubar.addAction(self.menuEdit.menuAction())
 
@@ -715,4 +731,14 @@ class Ui_WindowInterfaceEditor(object):
         self.actionUndo.setShortcut(_translate("WindowInterfaceEditor", "Ctrl+Z"))
         self.actionRedo.setText(_translate("WindowInterfaceEditor", "Redo"))
         self.actionRedo.setShortcut(_translate("WindowInterfaceEditor", "Ctrl+Shift+Z"))
+        self.actionCut.setText(_translate("WindowInterfaceEditor", "Cut"))
+        self.actionCut.setShortcut(_translate("WindowInterfaceEditor", "Ctrl+X"))
+        self.actionCopy.setText(_translate("WindowInterfaceEditor", "Copy"))
+        self.actionCopy.setShortcut(_translate("WindowInterfaceEditor", "Ctrl+C"))
+        self.actionPaste.setText(_translate("WindowInterfaceEditor", "Paste"))
+        self.actionPaste.setShortcut(_translate("WindowInterfaceEditor", "Ctrl+V"))
+        self.actionDelete.setText(_translate("WindowInterfaceEditor", "Delete"))
+        self.actionDelete.setShortcut(_translate("WindowInterfaceEditor", "Del"))
+        self.actionSelect_All.setText(_translate("WindowInterfaceEditor", "Select All"))
+        self.actionSelect_All.setShortcut(_translate("WindowInterfaceEditor", "Ctrl+A"))
 

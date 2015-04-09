@@ -90,6 +90,7 @@ class CommandNew(Command):
     def __init__(self, targets, cls, *args):
         super().__init__(*args)
         self.targets = targets
+        # noinspection PyUnusedLocal
         self.items = [cls() for target in targets]
 
     def redo(self):
@@ -98,6 +99,11 @@ class CommandNew(Command):
 
         for i, target in enumerate(self.targets):
             target.appendRow(self.items[i])
+
+            if target == self.window.model:
+                continue
+
+            self.window.treeView.expand(self.window.model.indexFromItem(target))
 
     def undo(self):
         self.window.logger.debug("Undo new command: %s, %s", self.targets,
@@ -198,6 +204,35 @@ class CommandSaveData(Command):
         self.window.last_item = self.item
 
 
+class CommandPaste(Command):
+    def __init__(self, targets, items, *args):
+        super().__init__(*args)
+        self.targets = targets
+        # noinspection PyUnusedLocal
+        self.items = [[item.clone() for item in items] for target in targets]
+
+    def redo(self):
+        self.window.logger.debug("Redo paste command: %s, %s", self.targets,
+                                 self.items)
+
+        for i, target in enumerate(self.targets):
+            for item in self.items[i]:
+                target.appendRow(item)
+
+            if target == self.window.model:
+                continue
+
+            self.window.treeView.expand(self.window.model.indexFromItem(target))
+
+    def undo(self):
+        self.window.logger.debug("Undo paste command: %s, %s", self.targets,
+                                 self.items)
+
+        for i, target in enumerate(self.targets):
+            for item in self.items[i]:
+                item.parent().takeRow(item.row())
+
+
 class WindowInterfaceEditor(Model, QMainWindow, Ui_WindowInterfaceEditor):
     """Implements the Interface Editor window."""
 
@@ -210,6 +245,7 @@ class WindowInterfaceEditor(Model, QMainWindow, Ui_WindowInterfaceEditor):
         self._last_path = None
         self.last_item = None
         self.file_path = None
+        self.to_paste = None
 
         self.interface_elements = InterfaceElementCollection()
 
@@ -231,6 +267,11 @@ class WindowInterfaceEditor(Model, QMainWindow, Ui_WindowInterfaceEditor):
 
         self.actionUndo.triggered.connect(self.action_undo_trigger)
         self.actionRedo.triggered.connect(self.action_redo_trigger)
+        self.actionCut.triggered.connect(self.action_cut_trigger)
+        self.actionCopy.triggered.connect(self.action_copy_trigger)
+        self.actionPaste.triggered.connect(self.action_paste_trigger)
+        self.actionDelete.triggered.connect(self.action_delete_trigger)
+        self.actionSelect_All.triggered.connect(self.action_select_all_trigger)
 
         self.reset_stacked_widget()
 
@@ -318,6 +359,55 @@ class WindowInterfaceEditor(Model, QMainWindow, Ui_WindowInterfaceEditor):
     def action_redo_trigger(self):
         self.logger.debug("Redo trigger")
         self.undo_stack.redo()
+
+    def action_cut_trigger(self):
+        self.logger.debug("Cut trigger")
+        items = []
+
+        for index in self.treeView.selectedIndexes():
+            items.append(self.model.itemFromIndex(index))
+
+        command = CommandDelete(items, self, "Cut {} element(s)".format(
+            len(items)))
+        self.undo_stack.push(command)
+        self.to_paste = items
+
+    def action_copy_trigger(self):
+        self.logger.debug("Copy trigger")
+        items = []
+
+        for index in self.treeView.selectedIndexes():
+            items.append(self.model.itemFromIndex(index))
+
+        self.to_paste = items
+
+    def action_paste_trigger(self):
+        self.logger.debug("Paste trigger")
+
+        if not self.treeView.selectedIndexes():
+            targets = [self.model]
+        else:
+            targets = [self.model.itemFromIndex(index) for index in
+                       self.treeView.selectedIndexes()]
+
+        command = CommandPaste(targets, self.to_paste, self,
+                               "Paste {} element(s)".format(len(self.to_paste)))
+        self.undo_stack.push(command)
+
+    def action_delete_trigger(self):
+        self.logger.debug("Delete trigger")
+        items = []
+
+        for index in self.treeView.selectedIndexes():
+            items.append(self.model.itemFromIndex(index))
+
+        command = CommandDelete(items, self, "Delete {} element(s)".format(
+            len(items)))
+        self.undo_stack.push(command)
+
+    def action_select_all_trigger(self):
+        self.logger.debug("Select All trigger")
+        self.treeView.selectAll()
 
     def undo_text_changed_trigger(self, text):
         self.actionUndo.setText(self.tr("Undo {}".format(text)))
@@ -481,19 +571,9 @@ class WindowInterfaceEditor(Model, QMainWindow, Ui_WindowInterfaceEditor):
             submenu.addAction(action)
 
         delete_action = QtWidgets.QAction(self.tr("Delete"), self)
-        delete_action.triggered.connect(self.tree_view_handle_delete)
+        delete_action.triggered.connect(self.action_delete_trigger)
         menu.addAction(delete_action)
         menu.exec_(self.treeView.viewport().mapToGlobal(position))
-
-    def tree_view_handle_delete(self):
-        items = []
-
-        for index in self.treeView.selectedIndexes():
-            items.append(self.model.itemFromIndex(index))
-
-        command = CommandDelete(items, self, "Delete {} element(s)".format(
-            len(items)))
-        self.undo_stack.push(command)
 
     def tree_view_handle_new(self, cls):
         if not self.treeView.selectedIndexes():
@@ -516,6 +596,12 @@ class InterfaceElement(QtGui.QStandardItem):
         self._data = {}
         self._modified = True
         self.update_text()
+
+    def clone(self):
+        obj = type(self)()
+        obj._modified = self._modified
+        obj._data = self._data.copy()
+        return obj
 
     @property
     def modified(self):
