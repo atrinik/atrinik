@@ -13,11 +13,11 @@ class ErrorLevel:
         self.name = name
         self.colors = {}
 
-    def setColor(self, colorType, value):
+    def set_color(self, colorType, value):
         """Sets the error level's color."""
         self.colors[colorType] = value
 
-    def getColor(self, colorType):
+    def get_color(self, colorType):
         """Acquire error level's color."""
         return self.colors[colorType]
 
@@ -33,12 +33,12 @@ class ErrorLevelCollection:
         self.critical = ErrorLevel("critical")
         self.fixed = ErrorLevel("fixed")
 
-        self.warning.setColor("qt", "#000000")
-        self.low.setColor("qt", "#FF00FF")
-        self.medium.setColor("qt", "#00FFFF")
-        self.high.setColor("qt", "#0000FF")
-        self.critical.setColor("qt", "#ff0000")
-        self.fixed.setColor("qt", "#00ff00")
+        self.warning.set_color("qt", "#000000")
+        self.low.set_color("qt", "#FF00FF")
+        self.medium.set_color("qt", "#00FFFF")
+        self.high.set_color("qt", "#0000FF")
+        self.critical.set_color("qt", "#ff0000")
+        self.fixed.set_color("qt", "#00ff00")
 
     def __getitem__(self, key):
         return self.__dict__[key] if isinstance(self.__dict__[key],

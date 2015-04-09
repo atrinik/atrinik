@@ -213,7 +213,7 @@ class WindowMain(Model, QMainWindow, Ui_WindowMain):
                               WidgetTableItem(error["file"]["name"], error))
                 table.setItem(row, 1, WidgetTableItem(
                     "<font color='{}'>{}</font>".format(
-                        self.error_levels[error["severity"]].getColor("qt"),
+                        self.error_levels[error["severity"]].get_color("qt"),
                         error["severity"])))
                 table.setItem(row, 2,
                               WidgetTableItem(html2text(error["description"])))
