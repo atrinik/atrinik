@@ -167,15 +167,15 @@ class CommandSaveData(Command):
     def __init__(self, item, *args):
         super().__init__(*args)
         self.item = item
-        self.item_data = item._data.copy()
+        self.item_data = item.elem_data.copy()
         self.real_redo = False
 
     def redo(self):
         self.window.logger.debug("Redo save data command: %s, %s", self.item,
                                  self.item_data)
 
-        old_data = self.item._data.copy()
-        self.item._data = self.item_data.copy()
+        old_data = self.item.elem_data.copy()
+        self.item.elem_data = self.item_data.copy()
         self.item_data = old_data
 
         if self.real_redo:
@@ -193,8 +193,8 @@ class CommandSaveData(Command):
         if self.window.last_item is not None:
             self.window.last_item.save_data()
 
-        old_data = self.item._data.copy()
-        self.item._data = self.item_data.copy()
+        old_data = self.item.elem_data.copy()
+        self.item.elem_data = self.item_data.copy()
         self.item_data = old_data
         self.real_redo = True
         self.item.switch_to()
@@ -593,14 +593,14 @@ class InterfaceElement(QtGui.QStandardItem):
 
     def __init__(self, *args):
         super().__init__(*args)
-        self._data = {}
+        self.elem_data = {}
         self._modified = True
         self.update_text()
 
     def clone(self):
         obj = type(self)()
         obj._modified = self._modified
-        obj._data = self._data.copy()
+        obj.elem_data = self.elem_data.copy()
         return obj
 
     @property
@@ -648,7 +648,7 @@ class InterfaceElement(QtGui.QStandardItem):
         name = widget.currentText()
 
         for item in self.get_dialogs():
-            if item._data.get("name") == name:
+            if item.elem_data.get("name") == name:
                 self.window.treeView.selectionModel().setCurrentIndex(
                     self.window.treeView.model().indexFromItem(item),
                     QItemSelectionModel.ClearAndSelect)
@@ -667,11 +667,11 @@ class InterfaceElement(QtGui.QStandardItem):
             widget.clear()
 
             for item in self.get_dialogs():
-                widget.addItem(item._data.get("name"))
+                widget.addItem(item.elem_data.get("name"))
 
         for attr in self.attributes:
             widget = self.get_widget(attr)
-            val = self._data.get(attr)
+            val = self.elem_data.get(attr)
 
             if isinstance(widget, QtWidgets.QPlainTextEdit):
                 widget.setPlainText(val)
@@ -713,7 +713,7 @@ class InterfaceElement(QtGui.QStandardItem):
             if val is None:
                 continue
 
-            self._data[attr] = val.strip()
+            self.elem_data[attr] = val.strip()
 
         if elem.text and elem.text.strip():
             print("Element {}: XML tag text was not handled: '{}'".format(
@@ -742,17 +742,17 @@ class InterfaceElement(QtGui.QStandardItem):
 
             val = val.strip()
 
-            if not val and attr in self._data:
+            if not val and attr in self.elem_data:
                 if dry:
                     return True
 
-                del self._data[attr]
+                del self.elem_data[attr]
                 self.modified = True
-            elif self._data.get(attr, "") != val:
+            elif self.elem_data.get(attr, "") != val:
                 if dry:
                     return True
 
-                self._data[attr] = val
+                self.elem_data[attr] = val
                 self.modified = True
 
         return False
@@ -761,7 +761,7 @@ class InterfaceElement(QtGui.QStandardItem):
         elem = ElementTree.Element(self.tag)
 
         for attr in self.attributes:
-            val = self._data.get(attr)
+            val = self.elem_data.get(attr)
 
             if not val:
                 continue
@@ -780,7 +780,7 @@ class InterfaceElementQuest(InterfaceElement):
     priority = 500
 
     def update_text(self, s=""):
-        name = self._data.get("name")
+        name = self.elem_data.get("name")
         text = ""
 
         if name:
@@ -795,8 +795,8 @@ class InterfaceElementInterface(InterfaceElement):
     priority = 100
 
     def update_text(self, s=""):
-        state = self._data.get("state")
-        npc = self._data.get("npc")
+        state = self.elem_data.get("state")
+        npc = self.elem_data.get("npc")
         text = ""
 
         if npc:
@@ -814,7 +814,7 @@ class InterfaceElementDialog(InterfaceElement):
     priority = 200
 
     def update_text(self, s=""):
-        name = self._data.get("name")
+        name = self.elem_data.get("name")
         text = ""
 
         if name:
@@ -881,8 +881,8 @@ class InterfaceElementPart(InterfaceElement):
     priority = 600
 
     def update_text(self, s=""):
-        uid = self._data.get("uid")
-        name = self._data.get("name")
+        uid = self.elem_data.get("uid")
+        name = self.elem_data.get("name")
         text = ""
 
         if uid or name:
