@@ -635,7 +635,7 @@ class CheckerObject(AbstractChecker):
                 if game_attr == game.attributes.INTEGER:
                     try:
                         int(val)
-                    except:
+                    except ValueError:
                         self.addError("critical", "Attribute <b>{}</b> is "
                                                   "supposed to be an integer, "
                                                   "but is: {}".format(attr,
@@ -657,7 +657,7 @@ class CheckerObject(AbstractChecker):
                 elif game_attr == game.attributes.FLOAT:
                     try:
                         float(val)
-                    except:
+                    except ValueError:
                         self.addError("critical", "Attribute <b>{}</b> is "
                                                   "supposed to be a float, but "
                                                   "is: {}".format(attr, val),
