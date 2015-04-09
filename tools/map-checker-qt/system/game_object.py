@@ -215,10 +215,10 @@ class MapObject(AbstractObject):
         """Add object to the map."""
         self.setModified(modified)
 
-        if not obj.x in self.tiles:
+        if obj.x not in self.tiles:
             self.tiles[obj.x] = OrderedDict()
 
-        if not obj.y in self.tiles[obj.x]:
+        if obj.y not in self.tiles[obj.x]:
             self.tiles[obj.x][obj.y] = []
 
         self.tiles[obj.x][obj.y].append(obj)
