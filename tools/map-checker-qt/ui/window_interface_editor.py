@@ -253,14 +253,24 @@ class WindowInterfaceEditor(Model, QMainWindow, Ui_WindowInterfaceEditor):
         self.interface_elements = InterfaceElementCollection()
 
         self.undo_stack = QtWidgets.QUndoStack()
-        self.undo_stack.undoTextChanged.connect(self.undo_text_changed_trigger)
-        self.undo_stack.redoTextChanged.connect(self.redo_text_changed_trigger)
 
         self.model = ItemModel(self)
         self.treeView.setModel(self.model)
         self.treeView.setContextMenuPolicy(Qt.CustomContextMenu)
+
+        self.reset_stacked_widget()
+        self.setup_connections()
+
+    # noinspection PyUnresolvedReferences
+    def setup_connections(self):
+        """Sets up action (click, trigger, etc) connections."""
+
+        self.undo_stack.undoTextChanged.connect(self.undo_text_changed_trigger)
+        self.undo_stack.redoTextChanged.connect(self.redo_text_changed_trigger)
+
         self.treeView.customContextMenuRequested.connect(
-            self.tree_view_open_menu)
+            self.tree_view_open_menu
+        )
         self.treeView.clicked.connect(self.tree_view_trigger)
 
         self.actionNew.triggered.connect(self.action_new_trigger)
@@ -275,8 +285,6 @@ class WindowInterfaceEditor(Model, QMainWindow, Ui_WindowInterfaceEditor):
         self.actionPaste.triggered.connect(self.action_paste_trigger)
         self.actionDelete.triggered.connect(self.action_delete_trigger)
         self.actionSelect_All.triggered.connect(self.action_select_all_trigger)
-
-        self.reset_stacked_widget()
 
     @property
     def last_path(self):
@@ -569,11 +577,13 @@ class WindowInterfaceEditor(Model, QMainWindow, Ui_WindowInterfaceEditor):
 
         for element in self.interface_elements.sorted():
             action = QtWidgets.QAction(self.tr(element.tag.capitalize()), self)
+            # noinspection PyUnresolvedReferences
             action.triggered.connect(lambda ignored, cls=element:
                                      self.tree_view_handle_new(cls))
             submenu.addAction(action)
 
         delete_action = QtWidgets.QAction(self.tr("Delete"), self)
+        # noinspection PyUnresolvedReferences
         delete_action.triggered.connect(self.action_delete_trigger)
         menu.addAction(delete_action)
         menu.exec_(self.treeView.viewport().mapToGlobal(position))
