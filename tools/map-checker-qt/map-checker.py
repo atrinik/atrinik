@@ -231,16 +231,11 @@ class MapChecker:
             self.checker_map.check(m)
 
             if m.isModified():
-                os.rename(file, file + ".tmp")
+                with open(file + ".tmp", "w", newline="\n") as f:
+                    self.saver_map.save(m, f)
 
-                try:
-                    with open(file, "w", newline="\n") as f:
-                        self.saver_map.save(m, f)
-                except:
-                    os.unlink(file)
-                    os.rename(file + ".tmp", file)
-                else:
-                    os.unlink(file + ".tmp")
+                os.unlink(file)
+                os.rename(file + ".tmp", file)
 
             for error in self.checker_map.errors:
                 self.queue.put(error)
