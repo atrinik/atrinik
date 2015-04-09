@@ -47,4 +47,3 @@ class SaverMap(Saver):
                         super(SaverMap, self).save(obj, f)
                 except KeyError:
                     pass
-

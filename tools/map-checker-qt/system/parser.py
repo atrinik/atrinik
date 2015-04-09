@@ -97,9 +97,8 @@ class Parser:
             if obj:
                 obj.setAttribute("msg", self.msg[:-1], modified=False)
             else:
-                self.addError(
-                    "Tried to add attribute, but object definition was missing.",
-                    line)
+                self.addError("Tried to add attribute, but object definition "
+                              "was missing.", line)
         elif self.in_msg:
             self.msg += line
         # Skip empty and comment lines.
@@ -151,9 +150,10 @@ class Parser:
             self.line_number += 1
             space = line.find(" ")
 
-            # If there are any object identifiers, try to look for that in the line.
-            if self.objectIdentifiers and space != -1 and line[
-                                                          :space] in self.objectIdentifiers:
+            # If there are any object identifiers, try to look for that in the
+            # line.
+            if self.objectIdentifiers and space != -1 and \
+                    line[:space] in self.objectIdentifiers:
                 name = line[space:].strip()
                 newobj = cls(name)
                 self.objectCreatedHandler(newobj)
@@ -193,9 +193,8 @@ class Parser:
             # the appropriate handling.
             elif line == "end\n":
                 if not obj:
-                    self.addError(
-                        "Found end keyword but there was no object definition preceding it.",
-                        line)
+                    self.addError("Found end keyword but there was no object "
+                                  "definition preceding it.", line)
 
                 if retval:
                     return obj
@@ -344,10 +343,12 @@ class ParserRegion(Parser):
             try:
                 parent = self.collection[region.parent]
             except KeyError:
-                self.addError(
-                    "Region <b>{}</b> (<b>{}</b>) defines region <b>{}</b> as its parent, but no such region exists.".format(
-                        region.name, region.getAttribute("longname", ""),
-                        region.parent))
+                self.addError("Region <b>{}</b> (<b>{}</b>) defines region "
+                              "<b>{}</b> as its parent, but no such region "
+                              "exists.".format(region.name,
+                                               region.getAttribute("longname",
+                                                                   ""),
+                                               region.parent))
                 continue
 
             region.setParent(parent)

@@ -28,8 +28,8 @@ class ScannerMap:
 
             if os.path.isdir(filepath) and rec:
                 # Ignore events directories if we are configured to do so.
-                if file == "events" and self.config.getboolean("Filters",
-                                                               "ignore_event_maps"):
+                if file == "events" and self.config.getboolean(
+                        "Filters", "ignore_event_maps"):
                     continue
 
                 # Ignore common non-map directories
@@ -46,7 +46,10 @@ class ScannerMap:
         return files
 
     def filter_map_files(self, files):
-        """Checks that the specified files, are, in fact, map files. Returns a new list."""
+        """
+        Checks that the specified files, are, in fact, map files.
+        Returns a new list.
+        """
         maps = []
 
         for file in files:
