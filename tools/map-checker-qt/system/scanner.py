@@ -45,7 +45,8 @@ class ScannerMap:
 
         return files
 
-    def filter_map_files(self, files):
+    @staticmethod
+    def filter_map_files(files):
         """
         Checks that the specified files, are, in fact, map files.
         Returns a new list.
