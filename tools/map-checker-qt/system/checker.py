@@ -1,6 +1,6 @@
-'''
+"""
 Implements the various object checkers.
-'''
+"""
 import re
 import os
 
@@ -406,7 +406,7 @@ class CheckerObject(AbstractChecker):
                     obj.getAttribute("name"))
 
     def checker_inventory_obj(self, obj):
-        '''Checks attributes of objects that are inside another object.'''
+        """Checks attributes of objects that are inside another object."""
 
         if not obj.env:
             return
