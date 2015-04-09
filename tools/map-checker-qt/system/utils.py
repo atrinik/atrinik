@@ -6,7 +6,7 @@ from html.parser import HTMLParser
 from html import entities
 import re
 
-import system
+import system.constants
 
 
 PATTERN_MAPNAME = re.compile(
@@ -107,7 +107,6 @@ class MapCoords(object):
             return int(coord)
         except ValueError:
             values = []
-            ret = 0
 
             for c in coord:
                 values.append(ord(c) - (ord("1") if c.isdigit() else ord("a")))
@@ -149,7 +148,7 @@ class MapCoords(object):
     def getTiledName(self, idx):
         ret = [self.name]
         pos = tuple(map(sum, zip(self.pos,
-                                 system.constants.game.tiled_coords[idx])))
+                                 system.constants.Game.tiled_coords[idx])))
 
         if pos[2] != 0:
             ret.append(self.coord2str(pos[2], True))
