@@ -1,6 +1,6 @@
-'''
+"""
 Implementation for the 'Pathfinding Visualizer' dialog.
-'''
+"""
 
 import json
 import math
@@ -19,7 +19,7 @@ class DialogPathfindingVisualizer(Model, QDialog,
     TILE_SIZE = 20
     MAP_SIZE = 24
 
-    '''Implements the Pathfinding Visualizer dialog.'''
+    """Implements the Pathfinding Visualizer dialog."""
 
     def __init__(self, parent=None):
         super(DialogPathfindingVisualizer, self).__init__(parent)

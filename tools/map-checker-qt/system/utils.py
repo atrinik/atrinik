@@ -1,6 +1,6 @@
-'''
+"""
 Utility functions.
-'''
+"""
 
 from html.parser import HTMLParser
 from html import entities

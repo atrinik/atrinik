@@ -1,29 +1,29 @@
-'''
+"""
 Implements general use constants.
-'''
+"""
 
 
 class ErrorLevel:
-    '''
+    """
     Implements the error level class; used for defining an error level,
     and its settings, such as color, etc.
-    '''
+    """
 
     def __init__(self, name):
         self.name = name
         self.colors = {}
 
     def setColor(self, colorType, value):
-        '''Sets the error level's color.'''
+        """Sets the error level's color."""
         self.colors[colorType] = value
 
     def getColor(self, colorType):
-        '''Acquire error level's color.'''
+        """Acquire error level's color."""
         return self.colors[colorType]
 
 
 class ErrorLevelCollection:
-    '''Collection of error levels.'''
+    """Collection of error levels."""
 
     def __init__(self):
         self.warning = ErrorLevel("warning")
@@ -46,13 +46,13 @@ class ErrorLevelCollection:
 
 
 class urls:
-    '''URLs to links.'''
+    """URLs to links."""
 
     report_bug = "http://bugzilla.atrinik.org/"
 
 
 class game:
-    '''Game related constants.'''
+    """Game related constants."""
 
     max_level = 115
     world_map_name = "World"

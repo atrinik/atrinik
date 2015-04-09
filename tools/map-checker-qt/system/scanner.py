@@ -1,6 +1,6 @@
-'''
+"""
 Implements functions related to scanning the filesystem for various purposes.
-'''
+"""
 
 import os
 
@@ -8,19 +8,19 @@ from system import parser
 
 
 class ScannerMap:
-    '''
+    """
     Implements class that provides scanning for map files.
-    '''
+    """
 
     def __init__(self, config):
         self.config = config
 
     def scan(self, path, rec=True):
-        '''
+        """
         Scans the specified path for map files. Note that this only guesses
         what are map files and what are not. Use filter_map_files to
         thoroughly filter out non-map files.
-        '''
+        """
         files = []
 
         for file in os.listdir(path):
@@ -46,7 +46,7 @@ class ScannerMap:
         return files
 
     def filter_map_files(self, files):
-        '''Checks that the specified files, are, in fact, map files. Returns a new list.'''
+        """Checks that the specified files, are, in fact, map files. Returns a new list."""
         maps = []
 
         for file in files:

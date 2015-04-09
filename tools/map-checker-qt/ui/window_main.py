@@ -303,7 +303,7 @@ class WindowMain(Model, QMainWindow, Ui_WindowMain):
 
 
 class RichTextColumnDelegate(QStyledItemDelegate):
-    '''Implements delegate for showing error level column in tables.'''
+    """Implements delegate for showing error level column in tables."""
 
     def paint(self, painter, option, index):
         text = str(index.model().data(index, QtCore.Qt.DisplayRole))
@@ -344,7 +344,7 @@ class RichTextColumnDelegate(QStyledItemDelegate):
 
 
 class WidgetTableItem(QTableWidgetItem):
-    '''Implements custom item class for table widget items.'''
+    """Implements custom item class for table widget items."""
 
     def __init__(self, text, data=None):
         super(WidgetTableItem, self).__init__(text)

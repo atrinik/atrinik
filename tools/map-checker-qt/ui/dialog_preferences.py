@@ -1,6 +1,6 @@
-'''
+"""
 Implements the preferences dialog.
-'''
+"""
 
 from PyQt5.QtWidgets import QDialog, QWidget, QLineEdit, QToolButton, \
     QFileDialog, QCheckBox
@@ -10,7 +10,7 @@ from ui.ui_dialog_preferences import Ui_DialogPreferences
 
 
 class DialogPreferences(Model, QDialog, Ui_DialogPreferences):
-    '''Preferences dialog implementation.'''
+    """Preferences dialog implementation."""
 
     def __init__(self, parent=None):
         super(DialogPreferences, self).__init__(parent)

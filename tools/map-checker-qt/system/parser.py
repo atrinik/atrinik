@@ -1,6 +1,6 @@
-'''
+"""
 Implements parsing of various files, such as maps, archetypes, artifacts, etc.
-'''
+"""
 
 import os
 
@@ -13,7 +13,7 @@ mapFileIdentifier = "arch map\n"
 
 
 class Parser:
-    '''
+    """
     General-use parser. Implements logic that allows it to parse game
     objects in archetypes, map files, etc. Works recursively, so
     inventories are parsed correctly as well.
@@ -22,7 +22,7 @@ class Parser:
     in a file, and put its properties into the specified object as
     attributes. However, this does not handle inventories, so using
     _parse in some way or another is generally recommended.
-    '''
+    """
 
     # Object start identification, for example, in 'arch chair ... end'.
     objectIdentifiers = ["arch"]
@@ -59,19 +59,19 @@ class Parser:
         self.errors.append(error)
 
     def setCollection(self, collection):
-        '''Data structure where objects will be stored.'''
+        """Data structure where objects will be stored."""
         self.collection = collection
 
     def set_map_checker(self, map_checker):
         self.map_checker = map_checker
 
     def objectLoadedHandler(self, obj):
-        '''
+        """
         This function is called from inside _parse when an object has been
         successfully loaded, and the 'end' keyword was reached. This allows
         one to do post-processing of the loaded object, such as putting it
         on its appropriate tile in a multi-dimensional map array, for example.
-        '''
+        """
 
         if self.collection != None:
             self.collection[obj.name] = obj
@@ -80,12 +80,12 @@ class Parser:
         pass
 
     def handle_line(self, line, obj):
-        '''
+        """
         Implements handling for one line. This handles things such as
         adding attributes to the specified object (for example, 'x 10'
         or 'name orc slayer'). Also implements handling multi-line
         strings (msg ... endmsg).
-        '''
+        """
 
         # Handle 'msg ... endmsg'
         if line == "msg\n":
@@ -122,7 +122,7 @@ class Parser:
                     line)
 
     def _parse_setup(self, f):
-        '''Performs routines/cleanup prior to parsing. Must be called.'''
+        """Performs routines/cleanup prior to parsing. Must be called."""
         self.path = f.name
         self.line_number = 0
         self.errors = []
@@ -131,7 +131,7 @@ class Parser:
             self.collection.clear()
 
     def _parse(self, f, obj=None, retval=False, cls=GameObject):
-        '''
+        """
         Implements general parsing of objects on map, in artifacts
         definitions, archetypes, etc.
         @param f File handle to read from.
@@ -142,7 +142,7 @@ class Parser:
         instead of calling objectLoadedHandler on it. Mostly used for
         recursion in this function, to load inventories.
         @param cls What class to initiate objects as.
-        '''
+        """
 
         # Last processed object.
         last_obj = None
@@ -209,17 +209,17 @@ class Parser:
                 self.handle_line(line, obj)
 
     def parse(self, f):
-        '''
+        """
         Just a wrapper for _parse. Parsers that inherit this class are
         free to override this method with their own parsing logic, and
         then call _parse directly when needed.
-        '''
+        """
         self._parse_setup(f)
         self._parse(f)
 
 
 class ParserArchetype(Parser):
-    '''Archetype parser.'''
+    """Archetype parser."""
 
     # 'Object beholder' is used to mark an archetype, but
     # 'arch eye_of_beholder' is used to put a beholder eye in
@@ -227,7 +227,7 @@ class ParserArchetype(Parser):
     objectIdentifiers = ["Object", "arch"]
 
     def parse(self, f):
-        '''Perform parsing of the archetype file.'''
+        """Perform parsing of the archetype file."""
 
         self._parse_setup(f)
         self._parse(f, cls=ArchObject)
@@ -244,14 +244,14 @@ class ParserArchetype(Parser):
 
 
 class ParserArtifact(Parser):
-    '''Artifacts parser.'''
+    """Artifacts parser."""
 
     # The artifact definitions have a very unique syntax, and there is
     # no such thing as 'Object ring_of_thieves', for example.
     objectIdentifiers = []
 
     def parse(self, f):
-        '''Parse the artifacts file.'''
+        """Parse the artifacts file."""
 
         self._parse_setup(f)
         obj = None
@@ -292,17 +292,17 @@ class ParserArtifact(Parser):
 
 
 class ParserMap(Parser):
-    '''Map file parser.'''
+    """Map file parser."""
 
     def objectLoadedHandler(self, obj):
-        '''Adds the fully loaded object to the appropriate map tile.'''
+        """Adds the fully loaded object to the appropriate map tile."""
         self.map.addObject(obj, modified=False)
 
     def objectCreatedHandler(self, obj):
         obj.map = self.map
 
     def parse(self, f):
-        '''Performs map file parsing.'''
+        """Performs map file parsing."""
 
         self._parse_setup(f)
         self.map = None
@@ -326,7 +326,7 @@ class ParserMap(Parser):
 
 
 class ParserRegion(Parser):
-    '''Region file parser.'''
+    """Region file parser."""
 
     objectIdentifiers = ["region"]
 
