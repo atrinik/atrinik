@@ -36,7 +36,7 @@ class Parser:
         self.in_msg = False
         self.msg = ""
 
-        self.collection = None
+        self.collection = {}
         self.errors = []
 
     def addError(self, explanation, line=None, is_map_file=False):
