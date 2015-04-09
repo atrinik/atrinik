@@ -102,7 +102,8 @@ class MapCoords(object):
             self.pos = (self.str2coord(match.group(3)),
                         self.str2coord(match.group(4)), level)
 
-    def str2coord(self, coord):
+    @staticmethod
+    def str2coord(coord):
         try:
             return int(coord)
         except ValueError:
@@ -128,7 +129,8 @@ class MapCoords(object):
 
             return ret + 100
 
-    def coord2str(self, coord, simple=False):
+    @staticmethod
+    def coord2str(coord, simple=False):
         if coord > 0:
             if simple:
                 return "{}".format(coord)
