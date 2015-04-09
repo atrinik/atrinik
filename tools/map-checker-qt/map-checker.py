@@ -32,28 +32,28 @@ class MapChecker:
     '''
 
     definitionFilesData = OrderedDict([
-                                       [
-                                        "archetype",
-                                        {
-                                         "filename": "archetypes",
-                                         "option": "path_dir_arch"
-                                        }
-                                        ],
-                                       [
-                                        "artifact",
-                                        {
-                                         "filename": "artifacts",
-                                         "option": "path_dir_arch"
-                                        }
-                                        ],
-                                       [
-                                        "region",
-                                        {
-                                         "filename": "regions.reg",
-                                         "option": "path_dir_maps"
-                                        }
-                                        ],
-                                       ])
+        [
+            "archetype",
+            {
+                "filename": "archetypes",
+                "option": "path_dir_arch"
+            }
+        ],
+        [
+            "artifact",
+            {
+                "filename": "artifacts",
+                "option": "path_dir_arch"
+            }
+        ],
+        [
+            "region",
+            {
+                "filename": "regions.reg",
+                "option": "path_dir_maps"
+            }
+        ],
+    ])
 
     def __init__(self, config):
         self.config = config
@@ -73,8 +73,8 @@ class MapChecker:
         self.parser_artifact = ParserArtifact(config)
         self.parser_region = ParserRegion(config)
         self.global_objects = {
-                               system.constants.game.types.beacon: [],
-                               }
+            system.constants.game.types.beacon: [],
+        }
 
         for collection in self.collections:
             self.collection_parser(collection).setCollection(collection)
@@ -102,14 +102,16 @@ class MapChecker:
     def collections(self):
         '''Returns all the available object collections.'''
         return sorted([self.__dict__[obj] for obj in self.__dict__ if
-            isinstance(self.__dict__[obj], AbstractObjectCollection)],
-            key = lambda x: list(self.definitionFilesData.keys()).index(x.name))
+                       isinstance(self.__dict__[obj],
+                                  AbstractObjectCollection)],
+                      key=lambda x: list(self.definitionFilesData.keys()).index(
+                          x.name))
 
     @property
     def checkers(self):
         '''Returns all the available checkers.'''
         return [self.__dict__[obj] for obj in self.__dict__ if
-            isinstance(self.__dict__[obj], AbstractChecker)]
+                isinstance(self.__dict__[obj], AbstractChecker)]
 
     def collection_parser(self, collection):
         '''Returns a parser object for the specified collection.'''
@@ -130,7 +132,7 @@ class MapChecker:
             path = self.definitionFilesData[name]["path"]
         except KeyError:
             path = self.config.get("General",
-                self.definitionFilesData[name]["option"])
+                                   self.definitionFilesData[name]["option"])
 
         return os.path.join(path, self.definitionFilesData[name]["filename"])
 
@@ -184,7 +186,8 @@ class MapChecker:
             checker = self.collection_checker(collection)
 
             if collection.needReload(path):
-                self._scan_status = "Parsing {} definitions...".format(collection.name)
+                self._scan_status = "Parsing {} definitions...".format(
+                    collection.name)
 
                 with open(path, "r") as f:
                     self.collection_parser(collection).parse(f)
@@ -194,7 +197,8 @@ class MapChecker:
                     self.queue.put(error)
 
                 if checker:
-                    self._scan_status = "Checking {} definitions...".format(collection.name)
+                    self._scan_status = "Checking {} definitions...".format(
+                        collection.name)
                     checker.setPath(path)
 
                     for obj in collection:
@@ -230,7 +234,7 @@ class MapChecker:
                 os.rename(file, file + ".tmp")
 
                 try:
-                    with open(file, "w", newline = "\n") as f:
+                    with open(file, "w", newline="\n") as f:
                         self.saver_map.save(m, f)
                 except:
                     os.unlink(file)
@@ -241,8 +245,8 @@ class MapChecker:
             for error in self.checker_map.errors:
                 self.queue.put(error)
 
-    def scan(self, path = None, files = None, rec = True, fix = False,
-        threading = True):
+    def scan(self, path=None, files=None, rec=True, fix=False,
+             threading=True):
         '''Perform a new scan for errors.'''
         if self._thread and self._thread.is_alive():
             return
@@ -250,8 +254,8 @@ class MapChecker:
         self._thread_running = True
 
         if threading:
-            self._thread = Thread(target = self._scan,
-                args = (path, files, rec, fix))
+            self._thread = Thread(target=self._scan,
+                                  args=(path, files, rec, fix))
             self._thread.start()
         else:
             self._scan(path, files, rec, fix)
@@ -281,11 +285,13 @@ class MapChecker:
         '''Called when the application exits. Stops the scan, if any.'''
         self.scan_stop()
 
+
 def excepthook(type, value, tback):
     logger = logging.getLogger("interface-editor")
     logger.error("Logging an uncaught exception",
                  exc_info=(type, value, tback))
     sys.__excepthook__(type, value, tback)
+
 
 def main():
     from PyQt5.QtWidgets import QApplication
@@ -298,7 +304,7 @@ def main():
         "%(asctime)s - %(name)s - %(levelname)s - %(message)s")
 
     handler = logging.handlers.RotatingFileHandler(filename='map-checker.log',
-                                                   maxBytes=1000*1000*10,
+                                                   maxBytes=1000 * 1000 * 10,
                                                    backupCount=5)
     handler.setLevel(logging.DEBUG)
     handler.setFormatter(formatter)
@@ -315,7 +321,12 @@ def main():
     # Try to parse our command line options.
     try:
         opts, args = getopt.getopt(sys.argv[1:], "hcfd:m:a:r:", ["help", "cli",
-            "fix", "directory=", "map=", "arch=", "regions=", "text-only"])
+                                                                 "fix",
+                                                                 "directory=",
+                                                                 "map=",
+                                                                 "arch=",
+                                                                 "regions=",
+                                                                 "text-only"])
     except getopt.GetoptError as err:
         # Invalid option, show the error and exit.
         print(err)
@@ -359,8 +370,8 @@ def main():
 
         ret = app.exec_()
     else:
-        map_checker.scan(path = path, files = files, fix = fix,
-            threading = False)
+        map_checker.scan(path=path, files=files, fix=fix,
+                         threading=False)
         ret = 0
 
         while map_checker.queue.qsize():
@@ -385,6 +396,7 @@ def main():
     # Save configuration on exit.
     config.save()
     sys.exit(ret)
+
 
 if __name__ == "__main__":
     main()

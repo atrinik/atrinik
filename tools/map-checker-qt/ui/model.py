@@ -2,6 +2,7 @@
 UI model implementation, inherited by all dialogs/windows/etc.
 '''
 
+
 class Model:
     '''The UI model.'''
 

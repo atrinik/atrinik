@@ -2,6 +2,7 @@
 Implements general use constants.
 '''
 
+
 class ErrorLevel:
     '''
     Implements the error level class; used for defining an error level,
@@ -19,6 +20,7 @@ class ErrorLevel:
     def getColor(self, colorType):
         '''Acquire error level's color.'''
         return self.colors[colorType]
+
 
 class ErrorLevelCollection:
     '''Collection of error levels.'''
@@ -39,12 +41,15 @@ class ErrorLevelCollection:
         self.fixed.setColor("qt", "#00ff00")
 
     def __getitem__(self, key):
-        return self.__dict__[key] if isinstance(self.__dict__[key], ErrorLevel) else None
+        return self.__dict__[key] if isinstance(self.__dict__[key],
+                                                ErrorLevel) else None
+
 
 class urls:
     '''URLs to links.'''
 
     report_bug = "http://bugzilla.atrinik.org/"
+
 
 class game:
     '''Game related constants.'''
@@ -61,7 +66,7 @@ class game:
     tiled_up = 8
     tiled_down = 9
     tiled_names = ["north", "east", "south", "west", "northeast", "southeast",
-        "southwest", "northwest", "up", "down"]
+                   "southwest", "northwest", "up", "down"]
     tiled_coords = [
         (0, 1, 0), (1, 0, 0), (0, -1, 0), (-1, 0, 0),
         (1, 1, 0), (1, -1, 0), (-1, -1, 0), (-1, 1, 0),

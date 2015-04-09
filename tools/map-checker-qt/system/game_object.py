@@ -18,7 +18,7 @@ class AbstractObject:
         self._attributes = OrderedDict()
         self.modified = False
 
-    def setModified(self, val = True):
+    def setModified(self, val=True):
         if val is not True:
             return
 
@@ -30,12 +30,12 @@ class AbstractObject:
     def getAttributes(self):
         return self._attributes.keys()
 
-    def setAttribute(self, attribute, value, modified = True):
+    def setAttribute(self, attribute, value, modified=True):
         '''Set object's attribute to value.'''
         self.setModified(modified)
         self._attributes[attribute] = str(value)
 
-    def replaceAttribute(self, attribute_old, attribute, value, modified = True):
+    def replaceAttribute(self, attribute_old, attribute, value, modified=True):
         '''Replace attribute with the specified one.'''
         self.setModified(modified)
 
@@ -48,7 +48,7 @@ class AbstractObject:
             else:
                 self._attributes[attr] = attributes[attr]
 
-    def removeAttribute(self, attribute, modified = True):
+    def removeAttribute(self, attribute, modified=True):
         '''
         Delete object's attribute. It's an error if the attribute does not
         exist.
@@ -56,7 +56,7 @@ class AbstractObject:
         self.setModified(modified)
         del self._attributes[attribute]
 
-    def getAttribute(self, attribute, default = None):
+    def getAttribute(self, attribute, default=None):
         '''Get object's attribute, return default if attribute doesn't exist.'''
         try:
             return self._attributes[attribute]
@@ -71,7 +71,7 @@ class AbstractObject:
         '''Get object's attribute as a float.'''
         return float(self.getAttribute(attribute, 0.0))
 
-    def setName(self, name, modified = True):
+    def setName(self, name, modified=True):
         '''Change object's name.'''
         self.setModified(modified)
         self.name = name
@@ -82,11 +82,14 @@ class AbstractObject:
 
         for attribute in self._attributes:
             if attribute == "msg":
-                l.append("msg\n{0}\nendmsg\n".format(self._attributes[attribute]))
+                l.append(
+                    "msg\n{0}\nendmsg\n".format(self._attributes[attribute]))
             else:
-                l.append("{0} {1}\n".format(attribute, self._attributes[attribute]))
+                l.append(
+                    "{0} {1}\n".format(attribute, self._attributes[attribute]))
 
         return "".join(l)
+
 
 class AbstractObjectInventory(AbstractObject):
     '''Abstract object with inventory support functions.'''
@@ -108,12 +111,12 @@ class AbstractObjectInventory(AbstractObject):
         if self.env is not None:
             self.env.setModified(*args)
 
-    def inventoryAdd(self, obj, modified = True):
+    def inventoryAdd(self, obj, modified=True):
         '''Add an object to current object's inventory.'''
         self.setModified(modified)
         self.inv.append(obj)
 
-    def setParent(self, obj, modified = True):
+    def setParent(self, obj, modified=True):
         '''Set this object's parent object.'''
         self.setModified(modified)
         self.env = obj
@@ -125,6 +128,7 @@ class AbstractObjectInventory(AbstractObject):
             ret = ret.env
 
         return ret
+
 
 class GameObject(AbstractObjectInventory):
     '''Game object implementation.'''
@@ -145,8 +149,9 @@ class GameObject(AbstractObjectInventory):
         if self.map is not None:
             self.map.setModified(*args)
 
-    def setAttribute(self, attribute, value, modified = True):
-        if self.arch and modified and self.arch.getAttribute(attribute) == value:
+    def setAttribute(self, attribute, value, modified=True):
+        if self.arch and modified and self.arch.getAttribute(
+                attribute) == value:
             if super().getAttribute(attribute) != None:
                 self.removeAttribute(attribute)
 
@@ -154,7 +159,7 @@ class GameObject(AbstractObjectInventory):
 
         super().setAttribute(attribute, value, modified)
 
-    def getAttribute(self, attribute, default = None):
+    def getAttribute(self, attribute, default=None):
         val = super().getAttribute(attribute, default)
 
         if val == default and self.arch:
@@ -197,6 +202,7 @@ class GameObject(AbstractObjectInventory):
     def deleted(self):
         return self._deleted
 
+
 class MapObject(AbstractObject):
     '''Map object implementation.'''
 
@@ -205,7 +211,7 @@ class MapObject(AbstractObject):
 
         self.tiles = OrderedDict()
 
-    def addObject(self, obj, modified = True):
+    def addObject(self, obj, modified=True):
         '''Add object to the map.'''
         self.setModified(modified)
 
@@ -230,6 +236,7 @@ class MapObject(AbstractObject):
     def isWorldMap(self):
         return self.getAttribute("name") == system.constants.game.world_map_name
 
+
 class ArchObject(GameObject):
     '''Implements an archetype object.'''
 
@@ -246,13 +253,16 @@ class ArchObject(GameObject):
         '''Link a multi-part object.'''
         self.more = obj
 
+
 class ArtifactObject(ArchObject):
     '''Implements artifact object.'''
+
 
 class RegionObject(AbstractObjectInventory):
     @property
     def parent(self):
         return self.getAttribute("parent")
+
 
 class AbstractObjectCollection(UserDict):
     '''Implements a collection of objects.'''
@@ -300,13 +310,16 @@ class AbstractObjectCollection(UserDict):
         '''Checks if the collection needs to be reloaded.'''
         return self.path != path or os.path.getmtime(path) > self.last_read
 
+
 class ArchObjectCollection(AbstractObjectCollection):
     '''Implements a collection of archetypes.'''
     pass
 
+
 class ArtifactObjectCollection(AbstractObjectCollection):
     '''Implements a collection of artifacts.'''
     pass
+
 
 class RegionObjectCollection(AbstractObjectCollection):
     '''Implements a collection of regions.'''

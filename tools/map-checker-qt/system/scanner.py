@@ -11,10 +11,11 @@ class ScannerMap:
     '''
     Implements class that provides scanning for map files.
     '''
+
     def __init__(self, config):
         self.config = config
 
-    def scan(self, path, rec = True):
+    def scan(self, path, rec=True):
         '''
         Scans the specified path for map files. Note that this only guesses
         what are map files and what are not. Use filter_map_files to
@@ -27,7 +28,8 @@ class ScannerMap:
 
             if os.path.isdir(filepath) and rec:
                 # Ignore events directories if we are configured to do so.
-                if file == "events" and self.config.getboolean("Filters", "ignore_event_maps"):
+                if file == "events" and self.config.getboolean("Filters",
+                                                               "ignore_event_maps"):
                     continue
 
                 # Ignore common non-map directories

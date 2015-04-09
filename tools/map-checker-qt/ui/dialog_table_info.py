@@ -15,16 +15,17 @@ class DialogTableInfo(Model, QDialog, Ui_DialogTableInfo):
     '''
     Implements the table row info dialog.
     '''
-    def __init__(self, parent = None):
+
+    def __init__(self, parent=None):
         super(DialogTableInfo, self).__init__(parent)
         self.setupUi(self)
-        
+
     def update_data(self, items):
         '''
         Updates the dialog with info about the clicked table row.
         @param items List of row items.
         '''
-         
+
         self.infoFile_name.setText(items[0].data["file"]["name"])
         self.infoFile_path.setText(items[0].data["file"]["path"])
         self.infoSeverity.setText(items[1].text())

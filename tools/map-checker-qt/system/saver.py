@@ -4,8 +4,10 @@ Implements classes that save objects such as game objects, maps, etc.
 This makes it possible to implement auto-fixing.
 '''
 
+
 class Saver:
     '''Generic saver for game objects.'''
+
     def __init__(self, config):
         self.config = config
 
@@ -29,8 +31,10 @@ class Saver:
         '''Saves an object to the specified file handle. Uses _save.'''
         self._save(obj, f)
 
+
 class SaverMap(Saver):
     '''Saver for map files. Saves map header and all objects on the map.'''
+
     def save(self, m, f):
         f.write("arch map\n")
         f.write(m.save())
