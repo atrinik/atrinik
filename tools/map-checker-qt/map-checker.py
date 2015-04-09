@@ -320,13 +320,9 @@ def main():
 
     # Try to parse our command line options.
     try:
-        opts, args = getopt.getopt(sys.argv[1:], "hcfd:m:a:r:", ["help", "cli",
-                                                                 "fix",
-                                                                 "directory=",
-                                                                 "map=",
-                                                                 "arch=",
-                                                                 "regions=",
-                                                                 "text-only"])
+        opts, args = getopt.getopt(sys.argv[1:], "hcfd:m:a:r:",
+                                   ["help", "cli", "fix", "directory=",
+                                    "map=", "arch=", "regions=", "text-only"])
     except getopt.GetoptError as err:
         # Invalid option, show the error and exit.
         print(err)
@@ -340,7 +336,7 @@ def main():
     # Parse options.
     for o, a in opts:
         if o in ("-h", "--help"):
-            ##usage()
+            # usage()
             sys.exit()
         elif o in ("-c", "--cli"):
             cli = True
