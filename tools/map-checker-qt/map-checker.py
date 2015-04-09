@@ -286,11 +286,11 @@ class MapChecker:
         self.scan_stop()
 
 
-def excepthook(type, value, tback):
+def excepthook(exc_type, exc_value, exc_tback):
     logger = logging.getLogger("interface-editor")
     logger.error("Logging an uncaught exception",
-                 exc_info=(type, value, tback))
-    sys.__excepthook__(type, value, tback)
+                 exc_info=(exc_type, exc_value, exc_tback))
+    sys.__excepthook__(exc_type, exc_value, exc_tback)
 
 
 def main():
