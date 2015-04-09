@@ -9,7 +9,7 @@ import os
 __CONFIG_PATH__ = "~/.map_checker.cfg"
 
 
-class Config(configparser.SafeConfigParser):
+class Config(configparser.ConfigParser):
     """
     The Config class is a wrapper around configparser.SafeConfigParserto
     provide convenient loading and saving of the config file.
