@@ -760,7 +760,7 @@ class CheckerMap(AbstractChecker):
         base = os.path.basename(self.path)
         coords = utils.MapCoords(base)
         tiled_check = os.path.realpath(self.path).startswith(
-            os.path.realpath(self.map_checker.getMapsPath()))
+            os.path.realpath(self.map_checker.get_maps_path()))
 
         for i in range(0, system.constants.game.num_tiled):
             attribute = "tile_path_{}".format(i + 1)

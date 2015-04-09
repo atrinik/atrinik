@@ -229,7 +229,7 @@ class DialogPathfindingVisualizer(Model, QDialog,
 
     def buttonOpenTrigger(self):
         if not self.last_path:
-            self.last_path = os.path.join(self.map_checker.getServerPath(),
+            self.last_path = os.path.join(self.map_checker.get_server_path(),
                 "data", "pathfinding")
 
         path = QtWidgets.QFileDialog.getOpenFileName(self,

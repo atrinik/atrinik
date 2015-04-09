@@ -289,7 +289,7 @@ class WindowInterfaceEditor(Model, QMainWindow, Ui_WindowInterfaceEditor):
     @property
     def last_path(self):
         if self._last_path is None:
-            return os.path.join(self.map_checker.getMapsPath(), "interfaces")
+            return os.path.join(self.map_checker.get_maps_path(), "interfaces")
 
         return self._last_path
 

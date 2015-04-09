@@ -245,7 +245,7 @@ class WindowMain(Model, QMainWindow, Ui_WindowMain):
 
     def actionScan_directoryTrigger(self):
         if not self.last_scan_directory:
-            self.last_scan_directory = self.map_checker.getMapsPath()
+            self.last_scan_directory = self.map_checker.get_maps_path()
 
         path = QtWidgets.QFileDialog.getExistingDirectory(self,
                                                           "Select Directory",
@@ -282,7 +282,7 @@ class WindowMain(Model, QMainWindow, Ui_WindowMain):
         row, = selected
         data = self.widgetTableMaps.item(row, 0).data
         path = "/" + os.path.relpath(data["file"]["path"],
-                                     self.map_checker.getMapsPath()).replace(
+                                     self.map_checker.get_maps_path()).replace(
             os.path.sep, "/")
         self.open_client(path, data["loc"])
 

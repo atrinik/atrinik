@@ -125,7 +125,7 @@ class MapChecker:
         except KeyError:
             return None
 
-    def getDefinitionsPath(self, name):
+    def get_definitions_path(self, name):
         """Returns absolute path to the specified definitions file."""
 
         try:
@@ -136,11 +136,11 @@ class MapChecker:
 
         return os.path.join(path, self.definitionFilesData[name]["filename"])
 
-    def getMapsPath(self):
+    def get_maps_path(self):
         """Returns absolute path to the maps directory."""
         return self.config.get("General", "path_dir_maps")
 
-    def getServerPath(self):
+    def get_server_path(self):
         """Returns absolute path to the server directory."""
         return self.config.get("General", "path_dir_server")
 
@@ -160,7 +160,7 @@ class MapChecker:
         self.checkers_set_fix(fix)
 
         if not path:
-            path = self.getMapsPath()
+            path = self.get_maps_path()
 
         for key in self.global_objects:
             self.global_objects[key] = []
@@ -182,7 +182,7 @@ class MapChecker:
             if not self._thread_running:
                 return
 
-            path = self.getDefinitionsPath(collection.name)
+            path = self.get_definitions_path(collection.name)
             checker = self.collection_checker(collection)
 
             if collection.needReload(path):
