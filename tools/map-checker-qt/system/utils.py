@@ -9,8 +9,9 @@ import re
 import system.constants
 
 
-PATTERN_MAPNAME = re.compile(
-    r"((?:(?!_(?:[\d]{1,2}|[a-z])_)[\w_])+)(?:_([\d]{1,2}|[a-z]))?_(\d{2}|[a-z]{2})(\d{2}|[a-z]{2})")
+PATTERN_MAPNAME = re.compile(r"((?:(?!_(?:[\d]{1,2}|[a-z])_)[\w_])+)"
+                             r"(?:_([\d]{1,2}|[a-z]))?_(\d{2}|[a-z]{2})"
+                             r"(\d{2}|[a-z]{2})")
 
 
 class HTMLTextExtractor(HTMLParser):
