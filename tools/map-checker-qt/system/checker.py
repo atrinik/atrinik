@@ -14,6 +14,7 @@ class AbstractChecker:
         self.config = config
         self.errors = []
         self.fix = False
+        self.map_checker = None
 
     def set_map_checker(self, map_checker):
         self.map_checker = map_checker
