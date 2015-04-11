@@ -1345,6 +1345,7 @@ extern void stringbuffer_append_char(StringBuffer *sb, const char c);
 extern size_t stringbuffer_length(StringBuffer *sb);
 extern ssize_t stringbuffer_index(StringBuffer *sb, char c);
 extern ssize_t stringbuffer_rindex(StringBuffer *sb, char c);
+extern char *stringbuffer_sub(StringBuffer *sb, ssize_t start, ssize_t end);
 /* src/toolkit/toolkit.c */
 extern void toolkit_import_register(const char *name, toolkit_func func);
 extern _Bool toolkit_check_imported(toolkit_func func);

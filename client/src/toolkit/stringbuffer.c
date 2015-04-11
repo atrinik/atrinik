@@ -292,3 +292,23 @@ ssize_t stringbuffer_rindex(StringBuffer *sb, char c)
 
     return -1;
 }
+
+/**
+ * Creates a substring from the specified StringBuffer instance.
+ *
+ * Special values for start/end indexes can be used just like in string_sub().
+ * @param sb StringBuffer instance.
+ * @param start Starting index, eg, 0 for the beginning.
+ * @param end Ending index, eg, strlen(end) for the end.
+ * @return Substring. Must be freed.
+ */
+char *stringbuffer_sub(StringBuffer *sb, ssize_t start, ssize_t end)
+{
+    TOOLKIT_FUNC_PROTECTOR(API_NAME);
+
+    HARD_ASSERT(sb != NULL);
+
+    sb->buf[sb->pos] = '\0';
+
+    return string_sub(sb->buf, start, end);
+}
