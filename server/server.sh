@@ -24,5 +24,5 @@ cp ../arch/* lib > /dev/null 2>&1
 if [ -t 1 ]; then
 	./atrinik-server "$@"
 else
-	./atrinik-server -logfile logfile.log
+	./atrinik-server --logfile=logfile.log
 fi
