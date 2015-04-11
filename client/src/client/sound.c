@@ -125,12 +125,13 @@ static void sound_free(sound_data_struct *tmp)
  * @return The duration. */
 static uint32 sound_music_file_get_duration(const char *filename)
 {
-    char path[HUGE_BUF];
-    char *contents;
+    char path[HUGE_BUF], *contents, *cp;
     uint32 duration;
 
     snprintf(path, sizeof(path), DIRECTORY_MEDIA "/durations/%s", filename);
-    contents = path_file_contents(file_path(path, "r"));
+    cp = file_path(path, "r");
+    contents = path_file_contents(cp);
+    efree(cp);
 
     if (!contents) {
         return 0;
@@ -316,10 +317,12 @@ static int sound_add_effect(const char *filename, int volume, int loop)
  * @param volume Volume to play at. */
 void sound_play_effect(const char *filename, int volume)
 {
-    char path[HUGE_BUF];
+    char path[HUGE_BUF], *cp;
 
     snprintf(path, sizeof(path), DIRECTORY_SFX "/%s", filename);
-    sound_add_effect(file_path(path, "r"), volume, 0);
+    cp = file_path(path, "r");
+    sound_add_effect(cp, volume, 0);
+    efree(cp);
 }
 
 /**
@@ -332,10 +335,15 @@ void sound_play_effect(const char *filename, int volume)
  * @return Channel the sound effect will be playing on, -1 on failure. */
 int sound_play_effect_loop(const char *filename, int volume, int loop)
 {
-    char path[HUGE_BUF];
+    char path[HUGE_BUF], *cp;
+    int ret;
 
     snprintf(path, sizeof(path), DIRECTORY_SFX "/%s", filename);
-    return sound_add_effect(file_path(path, "r"), volume, loop);
+    cp = file_path(path, "r");
+    ret = sound_add_effect(cp, volume, loop);
+    efree(cp);
+
+    return ret;
 }
 
 /**
@@ -369,9 +377,14 @@ void sound_start_bg_music(const char *filename, int volume, int loop)
     HASH_FIND_STR(sound_data, path, tmp);
 
     if (!tmp) {
-        Mix_Music *music = Mix_LoadMUS(file_path(path, "r"));
+        char *cp;
+        Mix_Music *music;
 
-        if (!music) {
+        cp = file_path(path, "r");
+        music = Mix_LoadMUS(cp);
+        efree(cp);
+
+        if (music == NULL) {
             logger_print(LOG(BUG), "Could not load '%s'. Reason: %s.", path, Mix_GetError());
             return;
         }

@@ -617,6 +617,8 @@ void widgets_reset(void)
         unlink(path);
     }
 
+    efree(path);
+
     toolkit_widget_init();
 }
 

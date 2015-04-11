@@ -556,12 +556,16 @@ int main(int argc, char *argv[])
             );
 
     memset(&clioption_settings, 0, sizeof(clioption_settings));
-    clioptions_load_config(file_path("client.cfg", "r"), "[General]");
+    path = file_path("client.cfg", "r");
+    clioptions_load_config(path, "[General]");
+    efree(path);
     path = file_path("client-custom.cfg", "r");
 
     if (path_exists(path)) {
         clioptions_load_config(path, "[General]");
     }
+
+    efree(path);
 
     clioptions_parse(argc, argv);
 
