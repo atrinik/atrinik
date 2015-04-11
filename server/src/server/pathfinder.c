@@ -409,10 +409,8 @@ static int tile_is_blocked(object *op, mapstruct *map, int x, int y)
 
     if (op->type == PLAYER && CONTR(op)->tcl) {
         block = 0;
-    } else if (op->head != NULL || op->more != NULL) {
-        block = blocked_link_2(op, map, x, y);
     } else {
-        block = blocked(op, map, x, y, op->terrain_flag);
+        block = object_blocked(op, map, x, y);
     }
 
     return block;
@@ -776,7 +774,8 @@ path_node_t *path_find(object *op, mapstruct *map1, int x, int y,
         node_x = node->x;
         node_y = node->y;
 
-        if (GET_MAP_FLAGS(node_map, node_x, node_y) & P_IS_EXIT) {
+        if (GET_MAP_FLAGS(node_map, node_x, node_y) & P_IS_EXIT &&
+                op->behavior & BEHAVIOR_EXITS) {
             object *tmp;
 
             for (tmp = GET_MAP_OB(node_map, node_x, node_y); tmp != NULL;
@@ -828,6 +827,17 @@ path_node_t *path_find(object *op, mapstruct *map1, int x, int y,
 
             /* Skip blocked tiles. */
             if (tile_is_blocked(op, m, nx, ny) != 0) {
+                continue;
+            }
+
+            /* If the object can't use secret passages and they're a player or a
+             * that is not chasing an enemy, and this tile is a secret passage,
+             * skip it. */
+            if (!(GET_MAP_FLAGS(m, nx, ny) & P_DOOR_CLOSED) &&
+                    (op->type != PLAYER || !CONTR(op)->tcl) &&
+                    !(op->behavior & BEHAVIOR_SECRET_PASSAGES) &&
+                    (op->type == PLAYER || !OBJECT_VALID(op->enemy,
+                    op->enemy_count)) && blocks_view(m, nx, ny)) {
                 continue;
             }
 

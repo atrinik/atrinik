@@ -3,6 +3,7 @@ name lom lobon
 face lom_lobon.131
 race demon
 randomitems mob_lom_lobon
+behavior 10
 type 80
 layer 6
 direction 5

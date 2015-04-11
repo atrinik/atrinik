@@ -147,6 +147,10 @@
  * Food. */
 #define FOOD 6
 /**
+ * Region map.
+ */
+#define REGION_MAP 7
+/**
  * Book. */
 #define BOOK 8
 /**
@@ -862,7 +866,7 @@
  * Wizard-like spells cannot pass this tile. */
 #define FLAG_NO_MAGIC 41
 /**
- * fix_player() won't be called. */
+ * living_update() won't be called. */
 #define FLAG_NO_FIX_PLAYER 42
 /**
  * The object is evil. */

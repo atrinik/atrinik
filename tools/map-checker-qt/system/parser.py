@@ -1,15 +1,19 @@
-'''
+"""
 Implements parsing of various files, such as maps, archetypes, artifacts, etc.
-'''
+"""
 
 import os
-from system.game_object import GameObject, MapObject, ArchObject, ArtifactObject, RegionObject
+
+from system.game_object import GameObject, MapObject, ArchObject, \
+    ArtifactObject, RegionObject
+
 
 # File header that identifies map files.
 mapFileIdentifier = "arch map\n"
 
+
 class Parser:
-    '''
+    """
     General-use parser. Implements logic that allows it to parse game
     objects in archetypes, map files, etc. Works recursively, so
     inventories are parsed correctly as well.
@@ -18,7 +22,7 @@ class Parser:
     in a file, and put its properties into the specified object as
     attributes. However, this does not handle inventories, so using
     _parse in some way or another is generally recommended.
-    '''
+    """
 
     # Object start identification, for example, in 'arch chair ... end'.
     objectIdentifiers = ["arch"]
@@ -32,54 +36,56 @@ class Parser:
         self.in_msg = False
         self.msg = ""
 
-        self.collection = None
+        self.collection = {}
         self.errors = []
 
-    def addError(self, explanation, line = None, is_map_file = False):
+    def addError(self, explanation, line=None, is_map_file=False):
         if line:
-            explanation = "{}<br><br><b>Line contents:</b><br>{}".format(explanation, line)
+            explanation = "{}<br><br><b>Line contents:</b><br>{}".format(
+                explanation, line)
 
         error = {
-                 "file": {
-                         "name": os.path.basename(self.path).split(".")[0].capitalize(),
-                         "path": self.path,
-                         "is_map": is_map_file
-                         },
-                 "severity": "critical",
-                 "description": "Parsing error on line {}.".format(self.line_number if line else "???"),
-                 "explanation": explanation
+            "file": {
+                "name": os.path.basename(self.path).split(".")[0].capitalize(),
+                "path": self.path,
+                "is_map": is_map_file
+            },
+            "severity": "critical",
+            "description": "Parsing error on line {}.".format(
+                self.line_number if line else "???"),
+            "explanation": explanation
         }
 
         self.errors.append(error)
 
     def setCollection(self, collection):
-        '''Data structure where objects will be stored.'''
+        """Data structure where objects will be stored."""
         self.collection = collection
 
     def set_map_checker(self, map_checker):
         self.map_checker = map_checker
 
     def objectLoadedHandler(self, obj):
-        '''
+        """
         This function is called from inside _parse when an object has been
         successfully loaded, and the 'end' keyword was reached. This allows
         one to do post-processing of the loaded object, such as putting it
         on its appropriate tile in a multi-dimensional map array, for example.
-        '''
+        """
 
-        if self.collection != None:
+        if self.collection is not None:
             self.collection[obj.name] = obj
 
     def objectCreatedHandler(self, obj):
         pass
 
     def handle_line(self, line, obj):
-        '''
+        """
         Implements handling for one line. This handles things such as
         adding attributes to the specified object (for example, 'x 10'
         or 'name orc slayer'). Also implements handling multi-line
         strings (msg ... endmsg).
-        '''
+        """
 
         # Handle 'msg ... endmsg'
         if line == "msg\n":
@@ -89,9 +95,10 @@ class Parser:
             self.in_msg = False
 
             if obj:
-                obj.setAttribute("msg", self.msg[:-1], modified = False)
+                obj.setAttribute("msg", self.msg[:-1], modified=False)
             else:
-                self.addError("Tried to add attribute, but object definition was missing.", line)
+                self.addError("Tried to add attribute, but object definition "
+                              "was missing.", line)
         elif self.in_msg:
             self.msg += line
         # Skip empty and comment lines.
@@ -106,21 +113,24 @@ class Parser:
             attribute = line.split(" ")[0]
 
             if obj:
-                obj.setAttribute(attribute, line[len(attribute):].strip(), modified = False)
+                obj.setAttribute(attribute, line[len(attribute):].strip(),
+                                 modified=False)
             else:
-                self.addError("Tried to add attribute, but object definition was missing.", line)
+                self.addError(
+                    "Tried to add attribute, but object definition was missing.",
+                    line)
 
     def _parse_setup(self, f):
-        '''Performs routines/cleanup prior to parsing. Must be called.'''
+        """Performs routines/cleanup prior to parsing. Must be called."""
         self.path = f.name
         self.line_number = 0
         self.errors = []
 
-        if self.collection != None:
+        if self.collection is not None:
             self.collection.clear()
 
-    def _parse(self, f, obj = None, retval = False, cls = GameObject):
-        '''
+    def _parse(self, f, obj=None, retval=False, cls=GameObject):
+        """
         Implements general parsing of objects on map, in artifacts
         definitions, archetypes, etc.
         @param f File handle to read from.
@@ -131,7 +141,7 @@ class Parser:
         instead of calling objectLoadedHandler on it. Mostly used for
         recursion in this function, to load inventories.
         @param cls What class to initiate objects as.
-        '''
+        """
 
         # Last processed object.
         last_obj = None
@@ -140,8 +150,10 @@ class Parser:
             self.line_number += 1
             space = line.find(" ")
 
-            # If there are any object identifiers, try to look for that in the line.
-            if self.objectIdentifiers and space != -1 and line[:space] in self.objectIdentifiers:
+            # If there are any object identifiers, try to look for that in the
+            # line.
+            if self.objectIdentifiers and space != -1 and \
+                    line[:space] in self.objectIdentifiers:
                 name = line[space:].strip()
                 newobj = cls(name)
                 self.objectCreatedHandler(newobj)
@@ -149,8 +161,9 @@ class Parser:
                 if type(newobj) == GameObject:
                     arch = self.map_checker.archetypes.get(name)
 
-                    if arch == None:
-                        self.addError("Unknown archetype: <b>{}</b>".format(name), line)
+                    if arch is None:
+                        self.addError(
+                            "Unknown archetype: <b>{}</b>".format(name), line)
                     else:
                         newobj.setArch(arch)
 
@@ -161,8 +174,8 @@ class Parser:
                     ret = self._parse(f, newobj, True, cls)
 
                     if ret:
-                        obj.inventoryAdd(ret, modified = False)
-                        ret.setParent(obj, modified = False)
+                        obj.inventoryAdd(ret, modified=False)
+                        ret.setParent(obj, modified=False)
                     else:
                         self.addError("Failed to load object.", line)
                 # Otherwise just create new object.
@@ -180,7 +193,8 @@ class Parser:
             # the appropriate handling.
             elif line == "end\n":
                 if not obj:
-                    self.addError("Found end keyword but there was no object definition preceding it.", line)
+                    self.addError("Found end keyword but there was no object "
+                                  "definition preceding it.", line)
 
                 if retval:
                     return obj
@@ -194,16 +208,17 @@ class Parser:
                 self.handle_line(line, obj)
 
     def parse(self, f):
-        '''
+        """
         Just a wrapper for _parse. Parsers that inherit this class are
         free to override this method with their own parsing logic, and
         then call _parse directly when needed.
-        '''
+        """
         self._parse_setup(f)
         self._parse(f)
 
+
 class ParserArchetype(Parser):
-    '''Archetype parser.'''
+    """Archetype parser."""
 
     # 'Object beholder' is used to mark an archetype, but
     # 'arch eye_of_beholder' is used to put a beholder eye in
@@ -211,10 +226,10 @@ class ParserArchetype(Parser):
     objectIdentifiers = ["Object", "arch"]
 
     def parse(self, f):
-        '''Perform parsing of the archetype file.'''
+        """Perform parsing of the archetype file."""
 
         self._parse_setup(f)
-        self._parse(f, cls = ArchObject)
+        self._parse(f, cls=ArchObject)
 
         for obj in self.collection:
             for tmp in self.collection[obj].inv:
@@ -226,15 +241,16 @@ class ParserArchetype(Parser):
         for tmp in obj.inv:
             self._link_inventory_arches(tmp, arch)
 
+
 class ParserArtifact(Parser):
-    '''Artifacts parser.'''
+    """Artifacts parser."""
 
     # The artifact definitions have a very unique syntax, and there is
     # no such thing as 'Object ring_of_thieves', for example.
     objectIdentifiers = []
 
     def parse(self, f):
-        '''Parse the artifacts file.'''
+        """Parse the artifacts file."""
 
         self._parse_setup(f)
         obj = None
@@ -257,12 +273,15 @@ class ParserArtifact(Parser):
             # settings (such as drop chance, difficulty, etc) to a unique
             # dataset of the artifact object.
             elif line == "Object\n" or line.startswith("Object "):
-                artifact = super(ParserArtifact, self)._parse(f, ArtifactObject(obj.name), True, ArtifactObject)
+                artifact = super(ParserArtifact, self)._parse(f, ArtifactObject(
+                    obj.name), True, ArtifactObject)
 
-                arch = self.map_checker.archetypes.get(obj.getAttribute("def_arch"))
+                arch = self.map_checker.archetypes.get(
+                    obj.getAttribute("def_arch"))
 
-                if arch == None:
-                    self.addError("Unknown archetype: <b>{}</b>".format(obj.getAttribute("def_arch")), line)
+                if arch is None:
+                    self.addError("Unknown archetype: <b>{}</b>".format(
+                        obj.getAttribute("def_arch")), line)
                 else:
                     artifact.setArch(arch)
 
@@ -270,18 +289,19 @@ class ParserArtifact(Parser):
             else:
                 self.handle_line(line, obj)
 
+
 class ParserMap(Parser):
-    '''Map file parser.'''
+    """Map file parser."""
 
     def objectLoadedHandler(self, obj):
-        '''Adds the fully loaded object to the appropriate map tile.'''
-        self.map.addObject(obj, modified = False)
+        """Adds the fully loaded object to the appropriate map tile."""
+        self.map.addObject(obj, modified=False)
 
     def objectCreatedHandler(self, obj):
         obj.map = self.map
 
     def parse(self, f):
-        '''Performs map file parsing.'''
+        """Performs map file parsing."""
 
         self._parse_setup(f)
         self.map = None
@@ -303,14 +323,15 @@ class ParserMap(Parser):
 
         return self.map
 
+
 class ParserRegion(Parser):
-    '''Region file parser.'''
+    """Region file parser."""
 
     objectIdentifiers = ["region"]
 
     def parse(self, f):
         self._parse_setup(f)
-        self._parse(f, cls = RegionObject)
+        self._parse(f, cls=RegionObject)
 
         # Links regions to parents, if any.
         for region in self.collection:
@@ -322,7 +343,12 @@ class ParserRegion(Parser):
             try:
                 parent = self.collection[region.parent]
             except KeyError:
-                self.addError("Region <b>{}</b> (<b>{}</b>) defines region <b>{}</b> as its parent, but no such region exists.".format(region.name, region.getAttribute("longname", ""), region.parent))
+                self.addError("Region <b>{}</b> (<b>{}</b>) defines region "
+                              "<b>{}</b> as its parent, but no such region "
+                              "exists.".format(region.name,
+                                               region.getAttribute("longname",
+                                                                   ""),
+                                               region.parent))
                 continue
 
             region.setParent(parent)

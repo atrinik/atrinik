@@ -463,103 +463,6 @@ int blocked(object *op, mapstruct *m, int x, int y, int terrain)
 }
 
 /**
- * Returns true if the given coordinate is blocked except by the object
- * passed is not blocking. This is used with multipart monsters - if we
- * want to see if a 2x2 monster can move 1 space to the left, we don't
- * want its own area to block it from moving there.
- * @param op The monster object.
- * @param xoff X position offset.
- * @param yoff Y position offset.
- * @return 0 if the space to check is not blocked by anything other than
- * the monster, return value of blocked() otherwise. */
-int blocked_link(object *op, int xoff, int yoff)
-{
-    object *tmp, *tmp2;
-    mapstruct *m;
-    int xtemp, ytemp, flags;
-
-    for (tmp = op; tmp; tmp = tmp->more) {
-        /* We search for this new position */
-        xtemp = tmp->arch->clone.x + xoff;
-        ytemp = tmp->arch->clone.y + yoff;
-
-        /* Check if match is a different part of us */
-        for (tmp2 = op; tmp2; tmp2 = tmp2->more) {
-            /* If this is true, we can be sure this position is valid */
-            if (xtemp == tmp2->arch->clone.x && ytemp == tmp2->arch->clone.y) {
-                break;
-            }
-        }
-
-        /* If this is NULL, tmp will move in a new node */
-        if (!tmp2) {
-            xtemp = tmp->x + xoff;
-            ytemp = tmp->y + yoff;
-
-            /* If this new node is illegal, we can skip all */
-            if (!(m = get_map_from_coord(tmp->map, &xtemp, &ytemp))) {
-                return P_OUT_OF_MAP;
-            }
-
-            /* We use always head for tests - no need to copy any flags to the
-             * tail */
-            if ((flags = blocked(op, m, xtemp, ytemp, op->terrain_flag))) {
-                return flags;
-            }
-        }
-    }
-
-    return 0;
-}
-
-/**
- * Same as blocked_link(), but using an absolute coordinate (map, x, y).
- * @param op The monster object.
- * @param map The map.
- * @param x X coordinate on the map.
- * @param y Y coordinate on the map.
- * @return 0 if the space to check is not blocked by anything other than
- * the monster, return value of blocked() otherwise.
- * @todo This function should really be combined with the above to reduce
- * code duplication. */
-int blocked_link_2(object *op, mapstruct *map, int x, int y)
-{
-    object *tmp, *tmp2;
-    int xtemp, ytemp, flags;
-    mapstruct *m;
-
-    for (tmp = op; tmp; tmp = tmp->more) {
-        /* We search for this new position */
-        xtemp = x + tmp->arch->clone.x;
-        ytemp = y + tmp->arch->clone.y;
-
-        /* Check if match is a different part of us */
-        for (tmp2 = op; tmp2; tmp2 = tmp2->more) {
-            /* If this is true, we can be sure this position is valid */
-            if (xtemp == tmp2->x && ytemp == tmp2->y) {
-                break;
-            }
-        }
-
-        /* If this is NULL, tmp will move in a new node */
-        if (!tmp2) {
-            /* If this new node is illegal, we can skip all */
-            if (!(m = get_map_from_coord(map, &xtemp, &ytemp))) {
-                return P_OUT_OF_MAP;
-            }
-
-            /* We use always head for tests - no need to copy any flags to the
-             * tail */
-            if ((flags = blocked(op, m, xtemp, ytemp, op->terrain_flag))) {
-                return flags;
-            }
-        }
-    }
-
-    return 0;
-}
-
-/**
  * This is used for any action which needs to browse through the objects
  * of the tile node, for special objects like inventory checkers.
  * @param op Object trying to move to map at x, y.
@@ -689,7 +592,7 @@ static void load_objects(mapstruct *m, FILE *fp, int mapflags)
         }
 
         if (op->type == MONSTER) {
-            fix_monster(op);
+            living_update_monster(op);
         }
 
         /* Important pre set for the animation/face of a object */
@@ -1211,24 +1114,46 @@ int new_save_map(mapstruct *m, int flag)
         }
 
         path_ensure_directories(filename);
+
+        fp = fopen(filename, "w");
     } else {
         if (m->tmpname == NULL) {
             char path[MAX_BUF];
+            int fd;
 
-            snprintf(path, sizeof(path), "%s/tmp", settings.datapath);
-            m->tmpname = tempnam(path, NULL);
+            snprintf(path, sizeof(path), "%s/tmp/XXXXXX", settings.datapath);
+            m->tmpname = estrdup(path);
+
+            fd = mkstemp(m->tmpname);
+
+            if (fd == -1) {
+                log(LOG(ERROR), "Can't create a temporary file: %d (%s)", errno,
+                        strerror(errno));
+                return -1;
+            }
+
+            fp = fdopen(fd, "w");
+
+            if (fp == NULL) {
+                log(LOG(ERROR), "Can't open file %s for saving: %d (%s)",
+                        filename, errno, strerror(errno));
+                close(fd);
+                return -1;
+            }
+        } else {
+            fp = fopen(m->tmpname, "w");
         }
 
-        snprintf(filename, sizeof(filename), "%s", m->tmpname);
+        snprintf(VS(filename), "%s", m->tmpname);
+    }
+
+    if (fp == NULL) {
+        log(LOG(ERROR), "Can't open file %s for saving: %d (%s)", filename,
+                errno, strerror(errno));
+        return -1;
     }
 
     m->in_memory = MAP_SAVING;
-    fp = fopen(filename, "w");
-
-    if (!fp) {
-        logger_print(LOG(ERROR), "Can't open file %s for saving.", filename);
-        exit(1);
-    }
 
     save_map_header(m, fp, flag);
 

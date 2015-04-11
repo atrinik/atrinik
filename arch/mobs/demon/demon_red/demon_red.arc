@@ -5,6 +5,7 @@ race demon
 randomitems mob_lom_lobon
 type 80
 layer 6
+behavior 10
 direction 5
 corpse 1
 monster 1

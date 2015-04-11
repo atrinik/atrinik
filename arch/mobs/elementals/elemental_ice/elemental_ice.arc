@@ -4,6 +4,7 @@ face elemental_ice.151
 race elemental
 wc_range 20
 corpse 1
+behavior 8
 layer 6
 direction 5
 is_neutral 1

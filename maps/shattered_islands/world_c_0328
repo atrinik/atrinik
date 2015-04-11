@@ -12,7 +12,7 @@ tile_path_1 world_c_0329
 tile_path_4 world_c_0228
 tile_path_8 world_c_0229
 bg_music eranasp.mod
-region strakewood_island
+region strakewood_island_underground
 end
 arch floor_sand_d2
 z 38

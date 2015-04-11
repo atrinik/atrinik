@@ -55,7 +55,7 @@ static void process_func(object *op)
             }
         }
 
-        fix_player(op->env);
+        living_update(op->env);
     }
 }
 

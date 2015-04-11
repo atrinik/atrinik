@@ -11,7 +11,7 @@ darkness 2
 tile_path_1 world_b_0424
 tile_path_2 world_b_0523
 bg_music eranasp.mod
-region strakewood_island
+region strakewood_island_underground
 end
 arch floor_sand_d1
 x 9

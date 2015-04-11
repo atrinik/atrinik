@@ -27,6 +27,7 @@
  * Object management. */
 
 #include <global.h>
+#include <region_map.h>
 
 /** The list of free (unused) objects */
 static object *free_objects = NULL;
@@ -202,6 +203,11 @@ void object_remove(object *op)
     }
 
     free_objects = op;
+
+    if (op->itype == TYPE_REGION_MAP) {
+        region_map_fow_update(MapData.region_map);
+        minimap_redraw_flag = 1;
+    }
 
     /* Clear the object so it can be reused. */
     memset((char *) op + offsetof(object, prev), 0,

@@ -164,7 +164,7 @@ void read_bmaps_p0(void)
 
         pos = ftell(fp);
 
-        if (!fread(tmp_buf, 1, len, fp)) {
+        if (fread(tmp_buf, 1, len, fp) != len) {
             break;
         }
 
@@ -346,7 +346,7 @@ static int load_picture_from_pack(int num)
 
     pbuf = emalloc(bmaps[num].len);
 
-    if (!fread(pbuf, bmaps[num].len, 1, stream)) {
+    if (fread(pbuf, bmaps[num].len, 1, stream) != bmaps[num].len) {
         efree(pbuf);
         fclose(stream);
         return 0;

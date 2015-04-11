@@ -560,6 +560,14 @@ typedef struct oblnk {
  * The monster prefers low-light tiles when finding a path to its destination.
  */
 #define BEHAVIOR_STEALTH 0x04
+/**
+ * Use exits.
+ */
+#define BEHAVIOR_EXITS 0x08
+/**
+ * Use secret passages.
+ */
+#define BEHAVIOR_SECRET_PASSAGES 0x10
 /*@}*/
 
 /** Decrease an object by one. */

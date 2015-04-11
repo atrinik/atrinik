@@ -2,6 +2,7 @@ Object spider_widow
 name black widow
 face spider_widow.151
 race spider
+behavior 4
 is_female 1
 corpse 1
 layer 6

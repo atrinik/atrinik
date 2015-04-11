@@ -5,7 +5,7 @@ race human
 randomitems mob_default
 is_male 1
 corpse 1
-behavior 2
+behavior 10
 layer 6
 direction 5
 is_neutral 1

@@ -7,7 +7,7 @@ corpse 1
 layer 6
 dex 13
 can_cast_spell 1
-behavior 2
+behavior 14
 sp -1
 maxsp 6
 pow 2

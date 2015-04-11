@@ -5,7 +5,7 @@ race gnome
 is_male 1
 can_cast_spell 1
 maxsp 20
-behavior 2
+behavior 10
 pow 2
 dex 3
 magic 5

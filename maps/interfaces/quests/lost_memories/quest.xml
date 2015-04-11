@@ -22,7 +22,7 @@
             <info>You have reached Incuna, and have started the attempt to get back your lost memories. Sam Goodberry has suggested that you go speak to the local church priest, who may be able to help you.</info>
             <interface npc="Sam Goodberry" state="need_start">
                 <dialog name="hello">
-                    <message>There you are! I didn't wake you up when we arrived in Incuna, because it seemed like you needed a good rest. You certainly did - you've been sleeping for quite a while now.</message>
+                    <message>There you are! I didn't wake you up when we arrived in Incuna, because it seemed like you needed a good rest. You certainly did - you've been sleeping for quite a while now. I even had time to replace the cabin door down in the lower deck!</message>
                     <message>At any rate, we did it - we managed to reach Incuna. We should resupply and head to Strakewood at last - but don't worry, I'll handle that and anything else we may need.</message>
                     <message>However... there's still the question of what to do about your memory loss. Say, has it improved?</message>
                     <response destination="remember" message="I feel I'm starting to remember..."/>
@@ -44,8 +44,72 @@
                 </dialog>
                 <dialog name="helprecover">
                     <message>Recovering your memories, you say? Hmm. That is quite difficult business indeed, and often near impossible.</message>
+                    <message>Say, how did you come to lose your memories?</message>
+                    <response destination="storm" message="Last thing I remember is a terrible storm..."/>
+                </dialog>
+                <dialog name="storm">
+                    <message>Ah yes. We saw the storm raging on the horizon from here. It started around... hmm... yes, exactly seventeen days ago and it lasted for three nights straight! People say they saw a great number of blue-colored streaks of light in the skies then, but I believe it was just lightning...</message>
+                    <message>Quite an unnatural sight, if you ask me... hmm...</message>
+                    <message color="yellow">{npc.name} mumbles something that gets lost in his beard...</message>
+                    <message>At any rate. I need to know whether your loss of memory was caused by physical or mental injury. The former I can heal, the latter, well, might require some more... finesse.</message>
+                    <response destination="bumped" message="I don't remember..."/>
+                    <response destination="bumped" message="Sam said I bumped my head in the storm..."/>
+                    <response destination="bumped" message="I'm not sure..."/>
+                </dialog>
+                <dialog name="bumped">
+                    <message>Well, I can try casting a spell on you that can heal any injury of the flesh. It might help in your case, and it might not. Are you ready?</message>
+                    <response destination="heal" message="Sure, let's give it a shot."/>
+                    <response action="close" message="Not yet, give me a moment..."/>
+                </dialog>
+                <dialog name="heal">
+                    <message>Let's try this then!</message>
+                    <message color="yellow">{npc.name} mutters an incantation, and you feel the powers of magic cruising through your body, repairing what was once broken...</message>
+                    <action cast="minor healing"/>
+                    <action start="healed_body"/>
+                    <action complete="speak_priest"/>
+                    <notification action="/help basics_priests" delay="90000" message="Tutorial Available: Priests" shortcut="?HELP"/>
+                    <message>Phew, that was one of a difficult spell! You know, it doesn't get any easier casting spells as you get older...</message>
+                    <message>So, do you feel any better?</message>
+                    <response destination="headhealed" message="My head doesn't hurt anymore!"/>
+                    <response destination="nodifferent" message="No different..."/>
                 </dialog>
             </interface>
+        </part>
+        <part name="Healed Body..." uid="healed_body">
+            <info>You have visited the local priest, Brelend Lee, and agreed to let him try and heal you with a spell.</info>
+            <interface inherit="interface" npc="Brelend Lee" state="need_complete">
+                <dialog name="hello">
+                    <response destination="headhealed" message="My head doesn't hurt anymore!"/>
+                    <response destination="nodifferent" message="No different..."/>
+                    <inherit/>
+                    <message>Say, how do you feel now?</message>
+                </dialog>
+                <dialog name="headhealed">
+                    <message>Ah, I knew I still have my healing touch! But what about your memories, do you feel anything? Do you remember what happened before the storm?</message>
+                    <response destination="noremember" message="... I still don't remember."/>
+                    <response destination="noremember" message="... not at all."/>
+                </dialog>
+                <dialog name="nodifferent">
+                    <message>Hm, that's unfortunate... but what about your memories, do you feel anything? Do you remember what happened before the storm?</message>
+                    <response destination="noremember" message="... I still don't remember."/>
+                    <response destination="noremember" message="... not at all."/>
+                </dialog>
+                <dialog name="noremember">
+                    <message>Blast it!... Excuse me.</message>
+                    <message>This is a serious case of mental injury... of what sort, I don't know. Your memories might have been erased by magic against your will, your mind might have been meddled with by some dark magic, or there might be something even more sinister at work here...</message>
+                    <message color="yellow">{npc.name} mumbles something about spirit tampering into his beard...</message>
+                    <message>One thing is certain. Something - or someone - doesn't want you to remember your original purpose and intent.</message>
+                    <message>I will ponder some methods of breaking this, this curse, if you will, and I will get back to you soon. I might need some help collecting ingredients and such...</message>
+                    <message>For now, I think you should go speak to Sam. He might have something for you to do while I think about this...</message>
+                    <response action="close" message="I'll do that, thanks. See you for now."/>
+                    <response action="close" message="Goodbye."/>
+                    <action start="broken_spirit"/>
+                    <action complete="healed_body"/>
+                </dialog>
+            </interface>
+        </part>
+        <part name="... Broken Spirit" uid="broken_spirit">
+            <info>Brelend Lee has tried to recover your memories, but he was only successful in healing the wounds of the flesh. He has suggested that you go speak to Sam Goodberry while he ponders what to do next...</info>
         </part>
     </quest>
 </interfaces>

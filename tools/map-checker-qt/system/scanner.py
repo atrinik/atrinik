@@ -1,23 +1,26 @@
-'''
+"""
 Implements functions related to scanning the filesystem for various purposes.
-'''
+"""
 
 import os
+
 from system import parser
 
+
 class ScannerMap:
-    '''
+    """
     Implements class that provides scanning for map files.
-    '''
+    """
+
     def __init__(self, config):
         self.config = config
 
-    def scan(self, path, rec = True):
-        '''
+    def scan(self, path, rec=True):
+        """
         Scans the specified path for map files. Note that this only guesses
         what are map files and what are not. Use filter_map_files to
         thoroughly filter out non-map files.
-        '''
+        """
         files = []
 
         for file in os.listdir(path):
@@ -25,7 +28,8 @@ class ScannerMap:
 
             if os.path.isdir(filepath) and rec:
                 # Ignore events directories if we are configured to do so.
-                if file == "events" and self.config.getboolean("Filters", "ignore_event_maps"):
+                if file == "events" and self.config.getboolean(
+                        "Filters", "ignore_event_maps"):
                     continue
 
                 # Ignore common non-map directories
@@ -41,8 +45,12 @@ class ScannerMap:
 
         return files
 
-    def filter_map_files(self, files):
-        '''Checks that the specified files, are, in fact, map files. Returns a new list.'''
+    @staticmethod
+    def filter_map_files(files):
+        """
+        Checks that the specified files, are, in fact, map files.
+        Returns a new list.
+        """
         maps = []
 
         for file in files:

@@ -897,19 +897,12 @@ static void poison_player(object *op, object *hitter, float dam)
         tmp->stats.dam = dam2;
         /* So we get credit for poisoning kills */
         copy_owner(tmp, hitter);
+        SET_FLAG(tmp, FLAG_APPLIED);
+        insert_ob_in_ob(tmp, op);
 
         if (op->type == PLAYER) {
             draw_info_format(COLOR_WHITE, op, "%s has poisoned you!", query_name(hitter, NULL));
-            SET_FLAG(tmp, FLAG_APPLIED);
-            insert_ob_in_ob(tmp, op);
-            fix_player(op);
         } else {
-            /* It's a monster */
-
-            SET_FLAG(tmp, FLAG_APPLIED);
-            insert_ob_in_ob(tmp, op);
-            fix_monster(op);
-
             if (hitter->type == PLAYER) {
                 draw_info_format(COLOR_WHITE, hitter, "You poisoned %s!", query_name(op, NULL));
             } else if (get_owner(hitter) && hitter->owner->type == PLAYER) {
@@ -951,7 +944,6 @@ static void slow_living(object *op)
 
     SET_FLAG(tmp, FLAG_APPLIED);
     tmp->speed_left = 0;
-    fix_player(op);
 }
 
 /**
@@ -1011,10 +1003,6 @@ static void blind_living(object *op, object *hitter, int dam)
         tmp->speed = tmp->speed * ((float) 100.0 - (float) op->protection[ATNR_BLIND]) / (float) 100;
 
         tmp = insert_ob_in_ob(tmp, op);
-        /* Mostly to display any messages */
-        change_abil(op, tmp);
-        /* This takes care of some other stuff */
-        fix_player(op);
 
         if (hitter->owner) {
             owner = get_owner(hitter);

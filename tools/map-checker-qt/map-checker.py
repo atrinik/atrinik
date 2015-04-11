@@ -1,7 +1,7 @@
 #!/usr/bin/python3
-'''
+"""
 Main file of the map checker program.
-'''
+"""
 
 from collections import OrderedDict
 import getopt
@@ -9,7 +9,6 @@ import os
 import queue
 import sys
 from threading import Thread
-import time
 import logging
 import logging.handlers
 
@@ -27,34 +26,34 @@ from ui.window_main import WindowMain
 
 
 class MapChecker:
-    '''
+    """
     Implements the map checker class, which handles things such as
     calling the map parser, actually checking for errors, etc.
-    '''
+    """
 
     definitionFilesData = OrderedDict([
-                                       [
-                                        "archetype",
-                                        {
-                                         "filename": "archetypes",
-                                         "option": "path_dir_arch"
-                                        }
-                                        ],
-                                       [
-                                        "artifact",
-                                        {
-                                         "filename": "artifacts",
-                                         "option": "path_dir_arch"
-                                        }
-                                        ],
-                                       [
-                                        "region",
-                                        {
-                                         "filename": "regions.reg",
-                                         "option": "path_dir_maps"
-                                        }
-                                        ],
-                                       ])
+        [
+            "archetype",
+            {
+                "filename": "archetypes",
+                "option": "path_dir_arch"
+            }
+        ],
+        [
+            "artifact",
+            {
+                "filename": "artifacts",
+                "option": "path_dir_arch"
+            }
+        ],
+        [
+            "region",
+            {
+                "filename": "regions.reg",
+                "option": "path_dir_maps"
+            }
+        ],
+    ])
 
     def __init__(self, config):
         self.config = config
@@ -74,8 +73,8 @@ class MapChecker:
         self.parser_artifact = ParserArtifact(config)
         self.parser_region = ParserRegion(config)
         self.global_objects = {
-                               system.constants.game.types.beacon: [],
-                               }
+            system.constants.Game.Types.beacon: [],
+        }
 
         for collection in self.collections:
             self.collection_parser(collection).setCollection(collection)
@@ -93,7 +92,7 @@ class MapChecker:
 
         self.queue = queue.Queue()
 
-        self._scan_running = False
+        self._thread_running = False
         self._scan_status = ""
         self._scan_progress = 0
 
@@ -101,65 +100,67 @@ class MapChecker:
 
     @property
     def collections(self):
-        '''Returns all the available object collections.'''
+        """Returns all the available object collections."""
         return sorted([self.__dict__[obj] for obj in self.__dict__ if
-            isinstance(self.__dict__[obj], AbstractObjectCollection)],
-            key = lambda x: list(self.definitionFilesData.keys()).index(x.name))
+                       isinstance(self.__dict__[obj],
+                                  AbstractObjectCollection)],
+                      key=lambda x: list(self.definitionFilesData.keys()).index(
+                          x.name))
 
     @property
     def checkers(self):
-        '''Returns all the available checkers.'''
+        """Returns all the available checkers."""
         return [self.__dict__[obj] for obj in self.__dict__ if
-            isinstance(self.__dict__[obj], AbstractChecker)]
+                isinstance(self.__dict__[obj], AbstractChecker)]
 
     def collection_parser(self, collection):
-        '''Returns a parser object for the specified collection.'''
+        """Returns a parser object for the specified collection."""
         return self.__dict__["parser_" + collection.name]
 
     def collection_checker(self, collection):
-        '''Returns a checker object for the specified collection.'''
+        """Returns a checker object for the specified collection."""
 
         try:
             return self.__dict__["checker_" + collection.name]
         except KeyError:
             return None
 
-    def getDefinitionsPath(self, name):
-        '''Returns absolute path to the specified definitions file.'''
+    def get_definitions_path(self, name):
+        """Returns absolute path to the specified definitions file."""
 
         try:
             path = self.definitionFilesData[name]["path"]
         except KeyError:
             path = self.config.get("General",
-                self.definitionFilesData[name]["option"])
+                                   self.definitionFilesData[name]["option"])
 
         return os.path.join(path, self.definitionFilesData[name]["filename"])
 
-    def getMapsPath(self):
-        '''Returns absolute path to the maps directory.'''
+    def get_maps_path(self):
+        """Returns absolute path to the maps directory."""
         return self.config.get("General", "path_dir_maps")
 
-    def getServerPath(self):
-        '''Returns absolute path to the server directory.'''
+    def get_server_path(self):
+        """Returns absolute path to the server directory."""
         return self.config.get("General", "path_dir_server")
 
     def checkers_set_fix(self, fix):
-        '''Set the fix attribute for all checkers.'''
+        """Set the fix attribute for all checkers."""
         for checker in self.checkers:
             checker.fix = fix
 
     def _scan(self, path, files, rec, fix):
-        '''
+        """
         Internal function for actually performing the scan. Used by scan,
         in both threading and non-threading mode. Changes things such as
         _scan_status, _scan_progress, etc. Puts info about errors into
         the queue object
-        '''
+        """
 
         self.checkers_set_fix(fix)
 
         if not path:
-            path = self.getMapsPath()
+            path = self.get_maps_path()
 
         for key in self.global_objects:
             self.global_objects[key] = []
@@ -181,11 +182,12 @@ class MapChecker:
             if not self._thread_running:
                 return
 
-            path = self.getDefinitionsPath(collection.name)
+            path = self.get_definitions_path(collection.name)
             checker = self.collection_checker(collection)
 
             if collection.needReload(path):
-                self._scan_status = "Parsing {} definitions...".format(collection.name)
+                self._scan_status = "Parsing {} definitions...".format(
+                    collection.name)
 
                 with open(path, "r") as f:
                     self.collection_parser(collection).parse(f)
@@ -195,7 +197,8 @@ class MapChecker:
                     self.queue.put(error)
 
                 if checker:
-                    self._scan_status = "Checking {} definitions...".format(collection.name)
+                    self._scan_status = "Checking {} definitions...".format(
+                        collection.name)
                     checker.setPath(path)
 
                     for obj in collection:
@@ -228,65 +231,62 @@ class MapChecker:
             self.checker_map.check(m)
 
             if m.isModified():
-                os.rename(file, file + ".tmp")
+                with open(file + ".tmp", "w", newline="\n") as f:
+                    self.saver_map.save(m, f)
 
-                try:
-                    with open(file, "w", newline = "\n") as f:
-                        self.saver_map.save(m, f)
-                except:
-                    os.unlink(file)
-                    os.rename(file + ".tmp", file)
-                else:
-                    os.unlink(file + ".tmp")
+                os.unlink(file)
+                os.rename(file + ".tmp", file)
 
             for error in self.checker_map.errors:
                 self.queue.put(error)
 
-    def scan(self, path = None, files = None, rec = True, fix = False,
-        threading = True):
-        '''Perform a new scan for errors.'''
+    def scan(self, path=None, files=None, rec=True, fix=False,
+             threading=True):
+        """Perform a new scan for errors."""
         if self._thread and self._thread.is_alive():
             return
 
         self._thread_running = True
 
         if threading:
-            self._thread = Thread(target = self._scan,
-                args = (path, files, rec, fix))
+            self._thread = Thread(target=self._scan,
+                                  args=(path, files, rec, fix))
             self._thread.start()
         else:
             self._scan(path, files, rec, fix)
 
     def scan_stop(self):
-        '''Stop current scan, if any.'''
+        """Stop current scan, if any."""
         if self._thread and self._thread.is_alive():
             self._thread_running = False
             self._scan_status = "Stopping..."
 
     def scan_is_running(self):
-        '''Check if there is currently a scan running.'''
+        """Check if there is currently a scan running."""
         if self._thread:
             return self._thread.is_alive()
 
         return False
 
     def scan_get_progress(self):
-        '''Get progress of the current scan.'''
+        """Get progress of the current scan."""
         return self._scan_progress
 
     def scan_get_status(self):
-        '''Get status of the current scan.'''
+        """Get status of the current scan."""
         return self._scan_status
 
     def exit(self):
-        '''Called when the application exits. Stops the scan, if any.'''
+        """Called when the application exits. Stops the scan, if any."""
         self.scan_stop()
 
-def excepthook(type, value, tback):
+
+def excepthook(exc_type, exc_value, exc_tback):
     logger = logging.getLogger("interface-editor")
     logger.error("Logging an uncaught exception",
-                 exc_info=(type, value, tback))
-    sys.__excepthook__(type, value, tback)
+                 exc_info=(exc_type, exc_value, exc_tback))
+    sys.__excepthook__(exc_type, exc_value, exc_tback)
+
 
 def main():
     from PyQt5.QtWidgets import QApplication
@@ -299,7 +299,7 @@ def main():
         "%(asctime)s - %(name)s - %(levelname)s - %(message)s")
 
     handler = logging.handlers.RotatingFileHandler(filename='map-checker.log',
-                                                   maxBytes=1000*1000*10,
+                                                   maxBytes=1000 * 1000 * 10,
                                                    backupCount=5)
     handler.setLevel(logging.DEBUG)
     handler.setFormatter(formatter)
@@ -315,8 +315,9 @@ def main():
 
     # Try to parse our command line options.
     try:
-        opts, args = getopt.getopt(sys.argv[1:], "hcfd:m:a:r:", ["help", "cli",
-            "fix", "directory=", "map=", "arch=", "regions=", "text-only"])
+        opts, args = getopt.getopt(sys.argv[1:], "hcfd:m:a:r:",
+                                   ["help", "cli", "fix", "directory=",
+                                    "map=", "arch=", "regions=", "text-only"])
     except getopt.GetoptError as err:
         # Invalid option, show the error and exit.
         print(err)
@@ -330,7 +331,7 @@ def main():
     # Parse options.
     for o, a in opts:
         if o in ("-h", "--help"):
-            ##usage()
+            # usage()
             sys.exit()
         elif o in ("-c", "--cli"):
             cli = True
@@ -360,8 +361,8 @@ def main():
 
         ret = app.exec_()
     else:
-        map_checker.scan(path = path, files = files, fix = fix,
-            threading = False)
+        map_checker.scan(path=path, files=files, fix=fix,
+                         threading=False)
         ret = 0
 
         while map_checker.queue.qsize():
@@ -386,6 +387,7 @@ def main():
     # Save configuration on exit.
     config.save()
     sys.exit(ret)
+
 
 if __name__ == "__main__":
     main()

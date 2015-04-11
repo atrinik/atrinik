@@ -3,7 +3,7 @@ name small beholder
 face beholder_small.151
 race beholder
 randomitems mob_mage_l9
-behavior 2
+behavior 10
 wc_range 20
 corpse 1
 layer 6

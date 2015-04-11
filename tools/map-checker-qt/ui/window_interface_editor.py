@@ -90,6 +90,7 @@ class CommandNew(Command):
     def __init__(self, targets, cls, *args):
         super().__init__(*args)
         self.targets = targets
+        # noinspection PyUnusedLocal
         self.items = [cls() for target in targets]
 
     def redo(self):
@@ -98,6 +99,11 @@ class CommandNew(Command):
 
         for i, target in enumerate(self.targets):
             target.appendRow(self.items[i])
+
+            if target == self.window.model:
+                continue
+
+            self.window.treeView.expand(self.window.model.indexFromItem(target))
 
     def undo(self):
         self.window.logger.debug("Undo new command: %s, %s", self.targets,
@@ -161,15 +167,15 @@ class CommandSaveData(Command):
     def __init__(self, item, *args):
         super().__init__(*args)
         self.item = item
-        self.item_data = item._data.copy()
+        self.item_data = item.elem_data.copy()
         self.real_redo = False
 
     def redo(self):
         self.window.logger.debug("Redo save data command: %s, %s", self.item,
                                  self.item_data)
 
-        old_data = self.item._data.copy()
-        self.item._data = self.item_data.copy()
+        old_data = self.item.elem_data.copy()
+        self.item.elem_data = self.item_data.copy()
         self.item_data = old_data
 
         if self.real_redo:
@@ -187,8 +193,8 @@ class CommandSaveData(Command):
         if self.window.last_item is not None:
             self.window.last_item.save_data()
 
-        old_data = self.item._data.copy()
-        self.item._data = self.item_data.copy()
+        old_data = self.item.elem_data.copy()
+        self.item.elem_data = self.item_data.copy()
         self.item_data = old_data
         self.real_redo = True
         self.item.switch_to()
@@ -196,6 +202,38 @@ class CommandSaveData(Command):
             self.window.model.indexFromItem(self.item),
             QtCore.QItemSelectionModel.NoUpdate)
         self.window.last_item = self.item
+
+
+class CommandPaste(Command):
+    def __init__(self, targets, items, *args):
+        super().__init__(*args)
+        self.targets = targets
+        self.items = []
+
+        # noinspection PyUnusedLocal
+        for target in targets:
+            self.items.append([item.clone() for item in items])
+
+    def redo(self):
+        self.window.logger.debug("Redo paste command: %s, %s", self.targets,
+                                 self.items)
+
+        for i, target in enumerate(self.targets):
+            for item in self.items[i]:
+                target.appendRow(item)
+
+            if target == self.window.model:
+                continue
+
+            self.window.treeView.expand(self.window.model.indexFromItem(target))
+
+    def undo(self):
+        self.window.logger.debug("Undo paste command: %s, %s", self.targets,
+                                 self.items)
+
+        for i, target in enumerate(self.targets):
+            for item in self.items[i]:
+                item.parent().takeRow(item.row())
 
 
 class WindowInterfaceEditor(Model, QMainWindow, Ui_WindowInterfaceEditor):
@@ -210,18 +248,29 @@ class WindowInterfaceEditor(Model, QMainWindow, Ui_WindowInterfaceEditor):
         self._last_path = None
         self.last_item = None
         self.file_path = None
+        self.to_paste = []
 
         self.interface_elements = InterfaceElementCollection()
 
         self.undo_stack = QtWidgets.QUndoStack()
-        self.undo_stack.undoTextChanged.connect(self.undo_text_changed_trigger)
-        self.undo_stack.redoTextChanged.connect(self.redo_text_changed_trigger)
 
         self.model = ItemModel(self)
         self.treeView.setModel(self.model)
         self.treeView.setContextMenuPolicy(Qt.CustomContextMenu)
+
+        self.reset_stacked_widget()
+        self.setup_connections()
+
+    # noinspection PyUnresolvedReferences
+    def setup_connections(self):
+        """Sets up action (click, trigger, etc) connections."""
+
+        self.undo_stack.undoTextChanged.connect(self.undo_text_changed_trigger)
+        self.undo_stack.redoTextChanged.connect(self.redo_text_changed_trigger)
+
         self.treeView.customContextMenuRequested.connect(
-            self.tree_view_open_menu)
+            self.tree_view_open_menu
+        )
         self.treeView.clicked.connect(self.tree_view_trigger)
 
         self.actionNew.triggered.connect(self.action_new_trigger)
@@ -231,13 +280,16 @@ class WindowInterfaceEditor(Model, QMainWindow, Ui_WindowInterfaceEditor):
 
         self.actionUndo.triggered.connect(self.action_undo_trigger)
         self.actionRedo.triggered.connect(self.action_redo_trigger)
-
-        self.reset_stacked_widget()
+        self.actionCut.triggered.connect(self.action_cut_trigger)
+        self.actionCopy.triggered.connect(self.action_copy_trigger)
+        self.actionPaste.triggered.connect(self.action_paste_trigger)
+        self.actionDelete.triggered.connect(self.action_delete_trigger)
+        self.actionSelect_All.triggered.connect(self.action_select_all_trigger)
 
     @property
     def last_path(self):
         if self._last_path is None:
-            return os.path.join(self.map_checker.getMapsPath(), "interfaces")
+            return os.path.join(self.map_checker.get_maps_path(), "interfaces")
 
         return self._last_path
 
@@ -291,6 +343,7 @@ class WindowInterfaceEditor(Model, QMainWindow, Ui_WindowInterfaceEditor):
         self.restore_expanded(expanded)
 
     def prompt_unsaved(self):
+        # noinspection PyTypeChecker,PyCallByClass
         reply = QtWidgets.QMessageBox.question(
             self, self.tr("Are you sure?"),
             self.tr("You have unsaved changes in the current interface file. "
@@ -319,6 +372,58 @@ class WindowInterfaceEditor(Model, QMainWindow, Ui_WindowInterfaceEditor):
         self.logger.debug("Redo trigger")
         self.undo_stack.redo()
 
+    def action_cut_trigger(self):
+        self.logger.debug("Cut trigger")
+        items = []
+
+        for index in self.treeView.selectedIndexes():
+            items.append(self.model.itemFromIndex(index))
+
+        command = CommandDelete(items, self, "Cut {} element(s)".format(
+            len(items)))
+        self.undo_stack.push(command)
+        self.to_paste = items
+
+    def action_copy_trigger(self):
+        self.logger.debug("Copy trigger")
+        items = []
+
+        for index in self.treeView.selectedIndexes():
+            items.append(self.model.itemFromIndex(index))
+
+        self.to_paste = items
+
+    def action_paste_trigger(self):
+        if not self.to_paste:
+            return
+
+        self.logger.debug("Paste trigger")
+
+        if not self.treeView.selectedIndexes():
+            targets = [self.model]
+        else:
+            targets = [self.model.itemFromIndex(index) for index in
+                       self.treeView.selectedIndexes()]
+
+        command = CommandPaste(targets, self.to_paste, self,
+                               "Paste {} element(s)".format(len(self.to_paste)))
+        self.undo_stack.push(command)
+
+    def action_delete_trigger(self):
+        self.logger.debug("Delete trigger")
+        items = []
+
+        for index in self.treeView.selectedIndexes():
+            items.append(self.model.itemFromIndex(index))
+
+        command = CommandDelete(items, self, "Delete {} element(s)".format(
+            len(items)))
+        self.undo_stack.push(command)
+
+    def action_select_all_trigger(self):
+        self.logger.debug("Select All trigger")
+        self.treeView.selectAll()
+
     def undo_text_changed_trigger(self, text):
         self.actionUndo.setText(self.tr("Undo {}".format(text)))
 
@@ -342,6 +447,7 @@ class WindowInterfaceEditor(Model, QMainWindow, Ui_WindowInterfaceEditor):
         if not self.check_unsaved():
             return
 
+        # noinspection PyTypeChecker,PyCallByClass
         path = QtWidgets.QFileDialog.getOpenFileName(
             self, self.tr("Select Interface File"), self.last_path,
             self.tr("Interface files (*.xml)"))
@@ -361,6 +467,7 @@ class WindowInterfaceEditor(Model, QMainWindow, Ui_WindowInterfaceEditor):
         self.save_interface_file(self.file_path)
 
     def action_save_as_trigger(self):
+        # noinspection PyTypeChecker,PyCallByClass
         path = QtWidgets.QFileDialog.getSaveFileName(
             self, self.tr("Save Interface File"),
             self.file_path or self.last_path,
@@ -476,24 +583,16 @@ class WindowInterfaceEditor(Model, QMainWindow, Ui_WindowInterfaceEditor):
 
         for element in self.interface_elements.sorted():
             action = QtWidgets.QAction(self.tr(element.tag.capitalize()), self)
+            # noinspection PyUnresolvedReferences
             action.triggered.connect(lambda ignored, cls=element:
                                      self.tree_view_handle_new(cls))
             submenu.addAction(action)
 
         delete_action = QtWidgets.QAction(self.tr("Delete"), self)
-        delete_action.triggered.connect(self.tree_view_handle_delete)
+        # noinspection PyUnresolvedReferences
+        delete_action.triggered.connect(self.action_delete_trigger)
         menu.addAction(delete_action)
         menu.exec_(self.treeView.viewport().mapToGlobal(position))
-
-    def tree_view_handle_delete(self):
-        items = []
-
-        for index in self.treeView.selectedIndexes():
-            items.append(self.model.itemFromIndex(index))
-
-        command = CommandDelete(items, self, "Delete {} element(s)".format(
-            len(items)))
-        self.undo_stack.push(command)
 
     def tree_view_handle_new(self, cls):
         if not self.treeView.selectedIndexes():
@@ -513,9 +612,23 @@ class InterfaceElement(QtGui.QStandardItem):
 
     def __init__(self, *args):
         super().__init__(*args)
-        self._data = {}
+        self.elem_data = {}
         self._modified = True
         self.update_text()
+
+    def clone(self):
+        """
+        Creates a new interface element, copying the element data, attributes,
+        flags, etc.
+
+        This is necessary because Qt Widgets cannot be deep-copied.
+        :return: Cloned InterfaceElement.
+        :rtype InterfaceElement
+        """
+        obj = type(self)()
+        obj._modified = self._modified
+        obj.elem_data = self.elem_data.copy()
+        return obj
 
     @property
     def modified(self):
@@ -562,7 +675,7 @@ class InterfaceElement(QtGui.QStandardItem):
         name = widget.currentText()
 
         for item in self.get_dialogs():
-            if item._data.get("name") == name:
+            if item.elem_data.get("name") == name:
                 self.window.treeView.selectionModel().setCurrentIndex(
                     self.window.treeView.model().indexFromItem(item),
                     QItemSelectionModel.ClearAndSelect)
@@ -581,11 +694,11 @@ class InterfaceElement(QtGui.QStandardItem):
             widget.clear()
 
             for item in self.get_dialogs():
-                widget.addItem(item._data.get("name"))
+                widget.addItem(item.elem_data.get("name"))
 
         for attr in self.attributes:
             widget = self.get_widget(attr)
-            val = self._data.get(attr)
+            val = self.elem_data.get(attr)
 
             if isinstance(widget, QtWidgets.QPlainTextEdit):
                 widget.setPlainText(val)
@@ -627,7 +740,7 @@ class InterfaceElement(QtGui.QStandardItem):
             if val is None:
                 continue
 
-            self._data[attr] = val.strip()
+            self.elem_data[attr] = val.strip()
 
         if elem.text and elem.text.strip():
             print("Element {}: XML tag text was not handled: '{}'".format(
@@ -656,17 +769,17 @@ class InterfaceElement(QtGui.QStandardItem):
 
             val = val.strip()
 
-            if not val and attr in self._data:
+            if not val and attr in self.elem_data:
                 if dry:
                     return True
 
-                del self._data[attr]
+                del self.elem_data[attr]
                 self.modified = True
-            elif self._data.get(attr, "") != val:
+            elif self.elem_data.get(attr, "") != val:
                 if dry:
                     return True
 
-                self._data[attr] = val
+                self.elem_data[attr] = val
                 self.modified = True
 
         return False
@@ -675,7 +788,7 @@ class InterfaceElement(QtGui.QStandardItem):
         elem = ElementTree.Element(self.tag)
 
         for attr in self.attributes:
-            val = self._data.get(attr)
+            val = self.elem_data.get(attr)
 
             if not val:
                 continue
@@ -694,7 +807,7 @@ class InterfaceElementQuest(InterfaceElement):
     priority = 500
 
     def update_text(self, s=""):
-        name = self._data.get("name")
+        name = self.elem_data.get("name")
         text = ""
 
         if name:
@@ -709,8 +822,8 @@ class InterfaceElementInterface(InterfaceElement):
     priority = 100
 
     def update_text(self, s=""):
-        state = self._data.get("state")
-        npc = self._data.get("npc")
+        state = self.elem_data.get("state")
+        npc = self.elem_data.get("npc")
         text = ""
 
         if npc:
@@ -728,7 +841,7 @@ class InterfaceElementDialog(InterfaceElement):
     priority = 200
 
     def update_text(self, s=""):
-        name = self._data.get("name")
+        name = self.elem_data.get("name")
         text = ""
 
         if name:
@@ -765,7 +878,7 @@ class InterfaceElementResponse(InterfaceElement):
 class InterfaceElementAction(InterfaceElement):
     tag = "action"
     attributes = ("region_map", "start", "complete", "enemy", "text",
-                  "teleport", "trigger")
+                  "teleport", "trigger", "cast")
     priority = 1000
 
     def build_xml_element(self):
@@ -795,8 +908,8 @@ class InterfaceElementPart(InterfaceElement):
     priority = 600
 
     def update_text(self, s=""):
-        uid = self._data.get("uid")
-        name = self._data.get("name")
+        uid = self.elem_data.get("uid")
+        name = self.elem_data.get("name")
         text = ""
 
         if uid or name:

@@ -285,7 +285,6 @@ int pay_for_amount(sint64 to_pay, object *pl)
         }
     }
 
-    fix_player(pl);
     return 1;
 }
 
@@ -318,7 +317,6 @@ int pay_for_item(object *op, object *pl)
         }
     }
 
-    fix_player(pl);
     return 1;
 }
 
@@ -758,7 +756,6 @@ int bank_deposit(object *op, const char *text, sint64 *value)
         bank = bank_get_create_info(op);
         *value = remove_money_type(op, op, -1, 0);
         bank->value += *value;
-        fix_player(op);
     } else {
         if (money.mithril) {
             if (query_money_type(op, coins_arch[0]->clone.value) < money.mithril) {
@@ -803,7 +800,6 @@ int bank_deposit(object *op, const char *text, sint64 *value)
         bank = bank_get_create_info(op);
         *value = money.mithril * coins_arch[0]->clone.value + money.gold * coins_arch[1]->clone.value + money.silver * coins_arch[2]->clone.value + money.copper * coins_arch[3]->clone.value;
         bank->value += *value;
-        fix_player(op);
     }
 
     return BANK_SUCCESS;
@@ -837,7 +833,6 @@ int bank_withdraw(object *op, const char *text, sint64 *value)
         *value = bank->value;
         sell_item(NULL, op, bank->value);
         bank->value = 0;
-        fix_player(op);
     } else {
         /* Just to set a border. */
         if (money.mithril > 100000 || money.gold > 100000 || money.silver > 1000000 || money.copper > 1000000) {
@@ -872,7 +867,6 @@ int bank_withdraw(object *op, const char *text, sint64 *value)
 
         *value = big_value;
         bank->value -= big_value;
-        fix_player(op);
     }
 
     return BANK_SUCCESS;

@@ -5,7 +5,7 @@ face dragon_water.131
 layer 6
 race dragon
 corpse 1
-behavior 2
+behavior 10
 wc_range 20
 weapon_speed 0.035
 attack_cleave 80

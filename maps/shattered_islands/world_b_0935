@@ -11,7 +11,7 @@ darkness 3
 tile_path_1 world_b_0936
 tile_path_8 world_b_0836
 bg_music unexpected.mid
-region strakewood_island
+region strakewood_island_underground
 end
 arch earth_brown4
 x 2

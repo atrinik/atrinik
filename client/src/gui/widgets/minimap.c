@@ -59,11 +59,6 @@ typedef enum {
  */
 #define MINIMAP_CIRCLE_PADDING(widget) (10. * ((double) (widget)->w / \
     TEXTURE_CLIENT(minimap_texture_names[MINIMAP_TEXTURE_BG])->w))
-/**
- * Radius of the minimap's circle.
- */
-#define MINIMAP_CIRCLE_RADIUS(widget) \
-    (((widget->w) - MINIMAP_CIRCLE_PADDING(widget) * 2) / 2)
 
 /**
  * Minimap widget sub-structure.
@@ -129,8 +124,8 @@ static void widget_draw(widgetdata *widget)
 
             texture = TEXTURE_CLIENT(minimap_texture_names[i]);
             minimap->textures[i] = zoomSurface(texture,
-                    (double) widget->w / texture->w,
-                    (double) widget->h / texture->h,
+                    (double) widget->w / texture->w + 0.001,
+                    (double) widget->h / texture->h + 0.001,
                     setting_get_int(OPT_CAT_CLIENT, OPT_ZOOM_SMOOTH));
         }
     }
@@ -152,39 +147,43 @@ static void widget_draw(widgetdata *widget)
             }
 
             if (region_map_ready(MapData.region_map)) {
-                int cx, cy, side, half;
+                int cx, cy, sx, sy;
+                double rad;
                 SDL_Rect rect;
                 SDL_Surface *surface;
 
                 cx = (widget->w - MINIMAP_CIRCLE_PADDING(widget) * 2) / 2;
                 cy = (widget->h - MINIMAP_CIRCLE_PADDING(widget) * 2) / 2;
-                side = isqrt(MINIMAP_CIRCLE_RADIUS(widget) *
-                        MINIMAP_CIRCLE_RADIUS(widget) * 2);
-                half = side * 0.5;
+                rad = 45.0 * (M_PI / 180.0);
+                sx = cx * cos(rad);
+                sy = cy * sin(rad);
 
-                rect.x = cx - half + MINIMAP_CIRCLE_PADDING(widget);
-                rect.y = cy - half + MINIMAP_CIRCLE_PADDING(widget);
-                rect.w = side;
-                rect.h = side;
+                rect.x = cx - sx + MINIMAP_CIRCLE_PADDING(widget);
+                rect.y = cy - sy + MINIMAP_CIRCLE_PADDING(widget);
+                rect.w = widget->surface->w - MINIMAP_CIRCLE_PADDING(widget) *
+                        2 - (cx - sx) * 2;
+                rect.h = widget->surface->h - MINIMAP_CIRCLE_PADDING(widget) *
+                        2 - (cy - sy) * 2;
 
-                MapData.region_map->pos.h = rect.h + rect.y;
-                MapData.region_map->pos.w = rect.w + rect.x;
+                MapData.region_map->pos.x += rect.x;
+                MapData.region_map->pos.y += rect.y;
+                MapData.region_map->pos.w = rect.w;
+                MapData.region_map->pos.h = rect.h;
                 region_map_resize(MapData.region_map, 0);
                 region_map_pan(MapData.region_map);
+                MapData.region_map->pos.x -= rect.x;
+                MapData.region_map->pos.y -= rect.y;
                 MapData.region_map->pos.w = widget->surface->w;
                 MapData.region_map->pos.h = widget->surface->h;
 
                 surface = region_map_surface(MapData.region_map);
 
-                rect.x = MAX(rect.x - MapData.region_map->pos.x, 0);
-                rect.y = MAX(rect.y - MapData.region_map->pos.y, 0);
-
                 SDL_BlitSurface(surface, &MapData.region_map->pos,
-                        widget->surface, &rect);
+                        widget->surface, NULL);
                 region_map_render_fow(MapData.region_map,
-                        widget->surface, rect.x, rect.y);
+                        widget->surface, 0, 0);
                 region_map_render_marker(MapData.region_map,
-                        widget->surface, rect.x, rect.y);
+                        widget->surface, 0, 0);
             } else {
                 SDL_Rect tmp;
 

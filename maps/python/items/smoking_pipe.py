@@ -38,7 +38,6 @@ def main():
         force.SetProtection(ATNR_CONFUSION, 25)
         force.SetProtection(ATNR_WEAPON_MAGIC, 20)
 
-    activator.ChangeAbil(force)
     # Decrease number of pipeweeds.
     marked.Decrease()
 

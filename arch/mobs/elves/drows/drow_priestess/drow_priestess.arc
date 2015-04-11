@@ -1,7 +1,7 @@
 Object drow_priestess
 name drow priestess
 face drow_priestess.131
-behavior 2
+behavior 14
 race drows
 is_female 1
 wc_range 20

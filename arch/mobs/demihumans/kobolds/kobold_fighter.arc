@@ -5,7 +5,7 @@ race kobold
 is_male 1
 corpse 1
 wc_range 20
-behavior 2
+behavior 14
 layer 6
 direction 5
 is_evil 1

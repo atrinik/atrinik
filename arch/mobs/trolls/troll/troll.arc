@@ -7,7 +7,7 @@ face troll.131
 wc_range 20
 direction 5
 speed -0.061
-behavior 2
+behavior 10
 corpse 1
 type 80
 is_male 1

@@ -5,7 +5,7 @@ race undead
 is_male 1
 can_cast_spell 1
 maxsp 6
-behavior 2
+behavior 10
 pow 2
 dex 13
 magic 5

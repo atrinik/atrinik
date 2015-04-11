@@ -6,7 +6,7 @@ endmsg
 width 24
 height 24
 difficulty 3
-region strakewood_island
+region strakewood_island_underground
 darkness 2
 bg_music eranasp.mod
 tile_path_1 world_b_0728

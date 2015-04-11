@@ -5,7 +5,7 @@ layer 6
 direction 5
 is_neutral 1
 corpse 1
-behavior 2
+behavior 10
 wc_range 20
 terrain_flag 65
 weapon_speed 0.039

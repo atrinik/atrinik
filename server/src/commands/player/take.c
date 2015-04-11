@@ -87,7 +87,7 @@ void command_take(object *op, const char *command, char *params)
     CLEAR_FLAG(op, FLAG_NO_FIX_PLAYER);
 
     if (did_one) {
-        fix_player(op);
+        living_update(op);
 
         /* Update below inventory positions for all players on this tile. */
         for (tmp = GET_MAP_OB_LAYER(op->map, op->x, op->y, LAYER_LIVING, 0); tmp && tmp->layer == LAYER_LIVING; tmp = tmp->above) {

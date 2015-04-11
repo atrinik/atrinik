@@ -47,7 +47,7 @@ def main():
 
         if obj.f_monster:
             activator.map.Insert(obj, activator.x, activator.y)
-            obj.Fix()
+            obj.Update()
 
             if obj.randomitems:
                 obj.CreateTreasure(obj.randomitems, obj.level)

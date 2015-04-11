@@ -2,17 +2,17 @@ arch map
 name Asteria Auction House
 msg
 Created:  2011-01-09 Alex Tokar
-Modified: 2011-01-29 Alex Tokar
+Modified: 2015-04-07 Alex Tokar
 endmsg
 width 24
 height 24
 difficulty 1
 darkness 6
 no_harm 1
-bg_music fuego.ogg
-region asteria
 tile_path_9 world_4_1036
 tile_path_10 world_2_1036
+bg_music fuego.ogg
+region asteria
 end
 arch map_event_obj
 sub_type 13
@@ -43,13 +43,20 @@ sub_type 9
 race /python/auction/mevent.py
 y 5
 end
-arch blocked
+arch trans
 x 5
 end
 arch wall_stone_8
 x 5
 end
-arch blocked
+arch map_info
+name asteria_auction_house
+hp 14
+sp 21
+cursed 1
+x 5
+end
+arch trans
 x 5
 y 1
 end
@@ -57,7 +64,7 @@ arch wall_stone_3
 x 5
 y 1
 end
-arch blocked
+arch trans
 x 5
 y 2
 end
@@ -65,7 +72,7 @@ arch wall_stone_3
 x 5
 y 2
 end
-arch blocked
+arch trans
 x 5
 y 3
 end
@@ -73,7 +80,7 @@ arch wall_stone_3
 x 5
 y 3
 end
-arch blocked
+arch trans
 x 5
 y 4
 end
@@ -81,7 +88,7 @@ arch wall_stone_3
 x 5
 y 4
 end
-arch blocked
+arch trans
 x 5
 y 5
 end
@@ -89,7 +96,7 @@ arch wall_stone_3
 x 5
 y 5
 end
-arch blocked
+arch trans
 x 5
 y 6
 end
@@ -97,7 +104,7 @@ arch wall_stone_3
 x 5
 y 6
 end
-arch blocked
+arch trans
 x 5
 y 7
 end
@@ -105,7 +112,7 @@ arch wall_stone_3
 x 5
 y 7
 end
-arch blocked
+arch trans
 x 5
 y 8
 end
@@ -113,7 +120,7 @@ arch wall_stone_3
 x 5
 y 8
 end
-arch blocked
+arch trans
 x 5
 y 9
 end
@@ -121,7 +128,7 @@ arch wall_stone_3
 x 5
 y 9
 end
-arch blocked
+arch trans
 x 5
 y 10
 end
@@ -129,7 +136,7 @@ arch wall_stone_3
 x 5
 y 10
 end
-arch blocked
+arch trans
 x 5
 y 11
 end
@@ -137,7 +144,7 @@ arch wall_stone_3
 x 5
 y 11
 end
-arch blocked
+arch trans
 x 5
 y 12
 end
@@ -150,7 +157,7 @@ direction 7
 x 5
 y 12
 end
-arch blocked
+arch trans
 x 5
 y 13
 end
@@ -158,7 +165,7 @@ arch wall_stone_3
 x 5
 y 13
 end
-arch blocked
+arch trans
 x 5
 y 14
 end
@@ -166,7 +173,7 @@ arch wall_stone_3
 x 5
 y 14
 end
-arch blocked
+arch trans
 x 5
 y 15
 end
@@ -174,7 +181,7 @@ arch wall_stone_3
 x 5
 y 15
 end
-arch blocked
+arch trans
 x 5
 y 16
 end
@@ -182,7 +189,7 @@ arch wall_stone_3
 x 5
 y 16
 end
-arch blocked
+arch trans
 x 5
 y 17
 end
@@ -190,7 +197,7 @@ arch wall_stone_3
 x 5
 y 17
 end
-arch blocked
+arch trans
 x 5
 y 18
 end
@@ -203,7 +210,7 @@ direction 7
 x 5
 y 18
 end
-arch blocked
+arch trans
 x 5
 y 19
 end
@@ -211,7 +218,7 @@ arch wall_stone_3
 x 5
 y 19
 end
-arch blocked
+arch trans
 x 5
 y 20
 end
@@ -219,7 +226,7 @@ arch wall_stone_3
 x 5
 y 20
 end
-arch blocked
+arch trans
 x 5
 y 21
 end
@@ -227,7 +234,7 @@ arch wall_stone_3
 x 5
 y 21
 end
-arch blocked
+arch trans
 x 6
 end
 arch wall_stone_1
@@ -383,7 +390,7 @@ arch wall_stone_1
 x 6
 y 21
 end
-arch blocked
+arch trans
 x 7
 end
 arch wall_stone_1
@@ -535,7 +542,7 @@ arch wall_stone_1
 x 7
 y 21
 end
-arch blocked
+arch trans
 x 8
 end
 arch wall_stone_1
@@ -665,7 +672,7 @@ arch wall_stone_1
 x 8
 y 21
 end
-arch blocked
+arch trans
 x 9
 end
 arch wall_stone_1
@@ -816,7 +823,7 @@ arch wall_stone_1
 x 9
 y 21
 end
-arch blocked
+arch trans
 x 10
 end
 arch wall_stone_1
@@ -953,7 +960,7 @@ arch wall_stone_1
 x 10
 y 21
 end
-arch blocked
+arch trans
 x 11
 end
 arch wall_stone_1
@@ -1169,7 +1176,7 @@ arch wall_stone_4
 x 11
 y 21
 end
-arch blocked
+arch trans
 x 12
 end
 arch wall_stone_1
@@ -1340,7 +1347,7 @@ arch wall_stone_1
 x 12
 y 21
 end
-arch blocked
+arch trans
 x 13
 end
 arch wall_stone_1
@@ -1474,7 +1481,7 @@ arch wall_stone_1
 x 13
 y 21
 end
-arch blocked
+arch trans
 x 14
 end
 arch wall_stone_1
@@ -1608,7 +1615,7 @@ arch wall_stone_1
 x 14
 y 21
 end
-arch blocked
+arch trans
 x 15
 end
 arch wall_stone_1
@@ -1758,7 +1765,7 @@ arch wall_stone_1
 x 15
 y 21
 end
-arch blocked
+arch trans
 x 16
 end
 arch wall_stone_1
@@ -1906,7 +1913,7 @@ arch wall_stone_1
 x 16
 y 21
 end
-arch blocked
+arch trans
 x 17
 end
 arch wall_stone_1
@@ -2058,7 +2065,7 @@ arch wall_stone_1
 x 17
 y 21
 end
-arch blocked
+arch trans
 x 18
 end
 arch wall_stone_1
@@ -2209,7 +2216,7 @@ arch wall_stone_1
 x 18
 y 21
 end
-arch blocked
+arch trans
 x 19
 end
 arch wall_stone_1

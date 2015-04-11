@@ -2,7 +2,7 @@ arch map
 name Incuna
 msg
 Created:  2010-08-22 Edwin Miltenburg
-Modified: 2014-03-16 Alex Tokar
+Modified: 2015-04-07 Alex Tokar
 endmsg
 width 24
 height 24
@@ -1077,6 +1077,11 @@ x 7
 y 13
 end
 arch stairs_wood_down
+msg
+You don't see the need to go back down to the lower deck...
+endmsg
+hp 7
+sp 13
 x 7
 y 13
 end

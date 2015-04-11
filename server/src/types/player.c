@@ -193,18 +193,6 @@ void free_player(player *pl)
         efree(pl->faction_reputation);
     }
 
-    if (pl->region_maps) {
-        int i;
-
-        for (i = 0; i < pl->num_region_maps; i++) {
-            if (pl->region_maps[i]) {
-                efree(pl->region_maps[i]);
-            }
-        }
-
-        efree(pl->region_maps);
-    }
-
     player_path_clear(pl);
 
     /* Now remove from list of players. */
@@ -991,25 +979,6 @@ void player_faction_reputation_update(player *pl, shstr *faction, sint64 add)
 }
 
 /**
- * Check whether player has a region map of the specified region.
- * @param pl The player.
- * @param r The region to check.
- * @return 1 if the player has region map of the specified region, 0
- * otherwise. */
-int player_has_region_map(player *pl, region_struct *r)
-{
-    int i;
-
-    for (i = 0; i < pl->num_region_maps; i++) {
-        if (pl->region_maps[i] && !strcmp(r->name, pl->region_maps[i])) {
-            return 1;
-        }
-    }
-
-    return 0;
-}
-
-/**
  * Sanitize player's text input, removing extraneous whitespace,
  * unprintable characters, etc.
  * @param str Input to sanitize.
@@ -1337,20 +1306,20 @@ void examine(object *op, object *tmp, StringBuffer *sb_capture)
                 } else {
                     draw_info_full_format(CHAT_TYPE_GAME, NULL, COLOR_WHITE, sb_capture, op, "It can hold only %s.", tmp->race);
                 }
-
-                /* Has magic modifier? */
-                if (tmp->weapon_speed != 1.0f) {
-                    /* Bad */
-                    if (tmp->weapon_speed > 1.0f) {
-                        draw_info_full_format(CHAT_TYPE_GAME, NULL, COLOR_WHITE, sb_capture, op, "It increases the weight of items inside by %.1f%%.", tmp->weapon_speed * 100.0f);
-                    } else {
-                        /* Good */
-                        draw_info_full_format(CHAT_TYPE_GAME, NULL, COLOR_WHITE, sb_capture, op, "It decreases the weight of items inside by %.1f%%.", 100.0f - (tmp->weapon_speed * 100.0f));
-                    }
-                }
             } else {
                 if (tmp->weight_limit) {
                     draw_info_full_format(CHAT_TYPE_GAME, NULL, COLOR_WHITE, sb_capture, op, "Its weight limit is %.1f kg.", (float) tmp->weight_limit / 1000.0f);
+                }
+            }
+
+            /* Has magic modifier? */
+            if (tmp->weapon_speed != 1.0f) {
+                /* Bad */
+                if (tmp->weapon_speed > 1.0f) {
+                    draw_info_full_format(CHAT_TYPE_GAME, NULL, COLOR_WHITE, sb_capture, op, "It increases the weight of items inside by %.1f%%.", tmp->weapon_speed * 100.0f);
+                } else {
+                    /* Good */
+                    draw_info_full_format(CHAT_TYPE_GAME, NULL, COLOR_WHITE, sb_capture, op, "It decreases the weight of items inside by %.1f%%.", 100.0f - (tmp->weapon_speed * 100.0f));
                 }
             }
 
@@ -1775,8 +1744,6 @@ void put_object_in_sack(object *op, object *sack, object *tmp, long nrof)
     snprintf(buf, sizeof(buf), "You put the %s in %s.", query_name(tmp, NULL), query_name(sack, NULL));
     insert_ob_in_ob(tmp, sack);
     draw_info(COLOR_WHITE, op, buf);
-    /* This is overkill, fix_player() is called somewhere in object.c */
-    fix_player(op);
 }
 
 /**
@@ -1832,13 +1799,14 @@ void drop_object(object *op, object *tmp, long nrof, int no_mevent)
                     tmp->x = op->x;
                     tmp->y = op->y;
                     insert_ob_in_map(tmp, op->map, op, 0);
+                    return;
                 }
             } else {
                 draw_info(COLOR_WHITE, op, "The god-given item vanishes to nowhere as you drop it!");
             }
         }
 
-        fix_player(op);
+        object_destroy(tmp);
         return;
     }
 
@@ -1864,7 +1832,6 @@ void drop_object(object *op, object *tmp, long nrof, int no_mevent)
                 draw_info(COLOR_WHITE, op, "The shop magic put it to the storage.");
             }
 
-            fix_player(op);
             return;
         }
     }
@@ -1879,11 +1846,6 @@ void drop_object(object *op, object *tmp, long nrof, int no_mevent)
     object_remove(op, 0);
     insert_ob_in_map(op, op->map, op, INS_NO_MERGE | INS_NO_WALK_ON);
     CLEAR_FLAG(op, FLAG_NO_APPLY);
-
-    /* Need to update the weight for the player */
-    if (op->type == PLAYER) {
-        fix_player(op);
-    }
 }
 
 /**
@@ -2011,12 +1973,6 @@ void player_save(object *op)
         }
     }
 
-    for (i = 0; i < pl->num_region_maps; i++) {
-        if (pl->region_maps[i]) {
-            fprintf(fp, "rmap %s\n", pl->region_maps[i]);
-        }
-    }
-
     fprintf(fp, "fame %"FMT64 "\n", pl->fame);
     fprintf(fp, "endplst\n");
 
@@ -2105,10 +2061,6 @@ static int player_load(player *pl, const char *path)
             }
         } else if (strncmp(buf, "fame ", 5) == 0) {
             pl->fame = atoi(buf + 5);
-        } else if (strncmp(buf, "rmap ", 5) == 0) {
-            pl->region_maps = erealloc(pl->region_maps, sizeof(*pl->region_maps) * (pl->num_region_maps + 1));
-            pl->region_maps[pl->num_region_maps] = estrdup(buf + 5);
-            pl->num_region_maps++;
         }
     }
 
@@ -2154,7 +2106,7 @@ object *player_get_dummy(void)
     SET_FLAG(pl->ob, FLAG_NO_FIX_PLAYER);
     give_initial_items(pl->ob, pl->ob->randomitems);
     CLEAR_FLAG(pl->ob, FLAG_NO_FIX_PLAYER);
-    fix_player(pl->ob);
+    living_update_player(pl->ob);
 
     return pl->ob;
 }
@@ -2218,7 +2170,7 @@ void player_login(socket_struct *ns, const char *name, archetype *at)
     pl->ob->speed_left = 0.5;
 
     sum_weight(pl->ob);
-    fix_player(pl->ob);
+    living_update_player(pl->ob);
     link_player_skills(pl->ob);
 
     pl->socket.state = ST_PLAYING;

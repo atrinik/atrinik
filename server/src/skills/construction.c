@@ -534,7 +534,7 @@ static void construction_builder(object *op, int x, int y)
 
     if (built) {
         decrease_ob(material);
-        fix_player(op);
+        living_update(op);
     }
 }
 
@@ -601,7 +601,7 @@ void construction_do(object *op, int dir)
         return;
     }
 
-    skill_item = NULL;
+    skill_item = CONTR(op)->equipment[PLAYER_EQUIP_SKILL_ITEM];
 
     if (!skill_item) {
         draw_info(COLOR_WHITE, op, "You need to apply a skill item to use this skill.");

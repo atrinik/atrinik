@@ -122,12 +122,7 @@ static void remove_symptoms(object *disease)
     object *symptom = find_symptom(disease);
 
     if (symptom != NULL) {
-        object *victim = symptom->env;
         destruct_ob(symptom);
-
-        if (victim) {
-            fix_player(victim);
-        }
     }
 }
 
@@ -432,7 +427,7 @@ static void do_symptoms(object *disease)
     }
 
     SET_FLAG(symptom, FLAG_APPLIED);
-    fix_player(victim);
+    living_update(victim);
 }
 
 /**

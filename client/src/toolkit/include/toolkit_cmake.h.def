@@ -170,6 +170,10 @@
 #cmakedefine HAVE_USLEEP
 #endif
 
+#ifndef HAVE_MKSTEMP
+#cmakedefine HAVE_MKSTEMP
+#endif
+
 /* The size of 'long'. */
 #define SIZEOF_LONG @SIZEOF_LONG@
 

@@ -119,11 +119,11 @@ endif ()
 
 # Link check.
 if (CHECK_LIBRARY)
+    target_link_libraries(${EXECUTABLE} ${CHECK_LIBRARY})
+
     if (UNIX AND NOT APPLE)
         target_link_libraries(${EXECUTABLE} rt)
     endif ()
-
-    target_link_libraries(${EXECUTABLE} ${CHECK_LIBRARY})
 endif ()
 
 # Link GD.

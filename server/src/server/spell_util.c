@@ -147,7 +147,7 @@ spell_struct *find_spell(int spelltype)
  * drain mana. */
 int cast_spell(object *op, object *caster, int dir, int type, int ability, int item, const char *stringarg)
 {
-    spell_struct *s = find_spell(type);
+    spell_struct *s;
     object *target = NULL;
     int success = 0, duration, spell_cost = 0;
 

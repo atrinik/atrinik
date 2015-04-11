@@ -12,7 +12,7 @@ tile_path_2 world_b_1137
 tile_path_4 world_b_0937
 tile_path_7 world_b_0936
 bg_music unexpected.mid
-region strakewood_island
+region strakewood_island_underground
 end
 arch earth_brown3
 y 2

@@ -5,7 +5,7 @@ race elf
 is_female 1
 can_cast_spell 1
 maxsp 20
-behavior 3
+behavior 11
 pow 2
 dex 3
 magic 5

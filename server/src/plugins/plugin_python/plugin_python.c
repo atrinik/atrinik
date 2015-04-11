@@ -169,6 +169,7 @@ static const Atrinik_Constant constants[] = {
     {"PLAYER_EQUIP_AMMO", PLAYER_EQUIP_AMMO},
     {"PLAYER_EQUIP_AMULET", PLAYER_EQUIP_AMULET},
     {"PLAYER_EQUIP_WEAPON", PLAYER_EQUIP_WEAPON},
+    {"PLAYER_EQUIP_SHIELD", PLAYER_EQUIP_SHIELD},
     {"PLAYER_EQUIP_GAUNTLETS", PLAYER_EQUIP_GAUNTLETS},
     {"PLAYER_EQUIP_RING_RIGHT", PLAYER_EQUIP_RING_RIGHT},
     {"PLAYER_EQUIP_HELM", PLAYER_EQUIP_HELM},
@@ -178,9 +179,10 @@ static const Atrinik_Constant constants[] = {
     {"PLAYER_EQUIP_BOOTS", PLAYER_EQUIP_BOOTS},
     {"PLAYER_EQUIP_CLOAK", PLAYER_EQUIP_CLOAK},
     {"PLAYER_EQUIP_BRACERS", PLAYER_EQUIP_BRACERS},
-    {"PLAYER_EQUIP_SHIELD", PLAYER_EQUIP_SHIELD},
+    {"PLAYER_EQUIP_WEAPON_RANGED", PLAYER_EQUIP_WEAPON_RANGED},
     {"PLAYER_EQUIP_LIGHT", PLAYER_EQUIP_LIGHT},
     {"PLAYER_EQUIP_RING_LEFT", PLAYER_EQUIP_RING_LEFT},
+    {"PLAYER_EQUIP_SKILL_ITEM", PLAYER_EQUIP_SKILL_ITEM},
 
     {"QUEST_TYPE_KILL", QUEST_TYPE_KILL},
     {"QUEST_TYPE_ITEM", QUEST_TYPE_ITEM},
@@ -319,6 +321,7 @@ static const Atrinik_Constant constants_types[] = {
     {"TREASURE", TREASURE},
     {"POTION", POTION},
     {"FOOD", FOOD},
+    {"REGION_MAP", REGION_MAP},
     {"BOOK", BOOK},
     {"CLOCK", CLOCK},
     {"MATERIAL", MATERIAL},
@@ -1738,18 +1741,18 @@ static int handle_event(va_list args)
 
     if (context->parms[3] == SCRIPT_FIX_ALL) {
         if (context->other && IS_LIVE(context->other)) {
-            hooks->fix_player(context->other);
+            hooks->living_update(context->other);
         }
 
         if (context->who && IS_LIVE(context->who)) {
-            hooks->fix_player(context->who);
+            hooks->living_update(context->who);
         }
 
         if (context->activator && IS_LIVE(context->activator)) {
-            hooks->fix_player(context->activator);
+            hooks->living_update(context->activator);
         }
     } else if (context->parms[3] == SCRIPT_FIX_ACTIVATOR && IS_LIVE(context->activator)) {
-        hooks->fix_player(context->activator);
+        hooks->living_update(context->activator);
     }
 
     rv = context->returnvalue;

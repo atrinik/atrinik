@@ -116,10 +116,6 @@ static void create_food_force(object* who, object *food, object *force)
     SET_FLAG(force, FLAG_APPLIED);
 
     force = insert_ob_in_ob(force, who);
-    /* Mostly to display any messages */
-    change_abil(who, force);
-    /* This takes care of some stuff that change_abil() */
-    fix_player(who);
 }
 
 /**

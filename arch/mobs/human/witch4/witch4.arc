@@ -3,7 +3,7 @@ name witch
 race human
 type 80
 layer 6
-behavior 2
+behavior 10
 direction 5
 wc_range 20
 is_female 1

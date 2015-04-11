@@ -4,7 +4,7 @@ face necromancer.151
 race undead
 can_cast_spell 1
 maxsp 10
-behavior 2
+behavior 10
 pow 2
 dex 4
 magic 5

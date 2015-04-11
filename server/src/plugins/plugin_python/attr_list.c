@@ -72,8 +72,6 @@ static void *attr_list_len_ptr(Atrinik_AttrList *al)
         return (char *) al->ptr + offsetof(player, num_cmd_permissions);
     } else if (al->field == FIELDTYPE_FACTIONS) {
         return (char *) al->ptr + offsetof(player, num_faction_ids);
-    } else if (al->field == FIELDTYPE_REGION_MAPS) {
-        return (char *) al->ptr + offsetof(player, num_region_maps);
     }
 
     /* Not reached. */
@@ -86,7 +84,7 @@ static void *attr_list_len_ptr(Atrinik_AttrList *al)
  * @return The length of the provided AttrList. */
 static unsigned PY_LONG_LONG attr_list_len(Atrinik_AttrList *al)
 {
-    if (al->field == FIELDTYPE_CMD_PERMISSIONS || al->field == FIELDTYPE_FACTIONS || al->field == FIELDTYPE_REGION_MAPS) {
+    if (al->field == FIELDTYPE_CMD_PERMISSIONS || al->field == FIELDTYPE_FACTIONS) {
         return *(int *) attr_list_len_ptr(al);
     }
 
@@ -108,7 +106,7 @@ static PyObject *attr_list_get(Atrinik_AttrList *al, PyObject *key, unsigned PY_
 
     ptr = (char *) al->ptr + al->offset;
 
-    if (al->field == FIELDTYPE_CMD_PERMISSIONS || al->field == FIELDTYPE_REGION_MAPS) {
+    if (al->field == FIELDTYPE_CMD_PERMISSIONS) {
         if (key) {
             idx = PyLong_AsUnsignedLongLong(key);
         }
@@ -194,7 +192,7 @@ static int attr_list_set(Atrinik_AttrList *al, PyObject *key, unsigned PY_LONG_L
     ptr = (char *) al->ptr + al->offset;
 
     /* Command permissions. */
-    if (al->field == FIELDTYPE_CMD_PERMISSIONS || al->field == FIELDTYPE_REGION_MAPS) {
+    if (al->field == FIELDTYPE_CMD_PERMISSIONS) {
         i = key ? PyLong_AsUnsignedLongLong(key) : idx;
 
         /* Over the maximum size; resize the array, as it's dynamic. */
@@ -257,7 +255,7 @@ static int attr_list_set(Atrinik_AttrList *al, PyObject *key, unsigned PY_LONG_L
         if (i >= len) {
             /* We tried to add a new command permission and we have already
              * resized the array, so shrink it back now, as we failed. */
-            if (al->field == FIELDTYPE_CMD_PERMISSIONS || al->field == FIELDTYPE_REGION_MAPS) {
+            if (al->field == FIELDTYPE_CMD_PERMISSIONS) {
                 /* Decrease the number of commands... */
                 (*(int *) attr_list_len_ptr(al))--;
                 /* And resize it. */
@@ -398,7 +396,7 @@ static PyObject *attr_list_remove(Atrinik_AttrList *al, PyObject *value)
  * @return None. */
 static PyObject *attr_list_clear(Atrinik_AttrList *al)
 {
-    if (al->field == FIELDTYPE_CMD_PERMISSIONS || al->field == FIELDTYPE_REGION_MAPS) {
+    if (al->field == FIELDTYPE_CMD_PERMISSIONS) {
         if (*(char ***) ((void *) ((char *) al->ptr + al->offset)) != NULL) {
             free(*(char ***) ((void *) ((char *) al->ptr + al->offset)));
             *(char ***) ((void *) ((char *) al->ptr + al->offset)) = NULL;
@@ -598,7 +596,7 @@ int Atrinik_AttrList_init(PyObject *module)
  * @param ptr Pointer to the structure the array is in.
  * @param offset Where the array is in the structure.
  * @param field Type of the array being handled; for example,
- * @ref FIELDTYPE_REGION_MAPS.
+ * @ref FIELDTYPE_FACTIONS.
  * @return The new wrapper object. */
 PyObject *wrap_attr_list(void *ptr, size_t offset, field_type field)
 {

@@ -84,6 +84,26 @@ typedef struct wm_region {
 } wm_region;
 
 /**
+ * Temporary structure used to hold data about the maps that will be stored
+ * in the definitions file.
+ */
+typedef struct region_map_def {
+    int xpos; ///< X position of the map.
+    int ypos; ///< Y position of the map.
+    char *path; ///< Map path.
+    char *regions; ///< Comma-separated list of all regions this map belongs to.
+} region_map_def_t;
+
+/**
+ * Sorts an array of region_map_def_t elements.
+ */
+static int region_map_def_sort(const void *a, const void *b)
+{
+    return strcmp(((region_map_def_t *) a)->regions,
+            ((region_map_def_t *) b)->regions);
+}
+
+/**
  * Initialize the face colors.
  */
 static void wm_images_init(void)
@@ -443,7 +463,7 @@ void world_maker(void)
     gdImagePtr im;
     FILE *out;
     size_t i;
-    region_struct *r;
+    region_struct *r, *r2;
     wm_region *wm_r;
     char buf[MAX_BUF];
     int x, y, layer, sub_layer, got_one;
@@ -451,6 +471,10 @@ void world_maker(void)
     FILE *def_fp;
     object **info_objects = NULL;
     size_t num_info_objects = 0;
+    UT_icd icd = {sizeof(region_map_def_t), NULL, NULL, NULL};
+    UT_array *def_maps;
+    region_map_def_t def_map, *def_map_curr, *def_map_prev;
+    StringBuffer *sb;
 
     /* Initialize the image colors. */
     wm_images_init();
@@ -489,6 +513,8 @@ void world_maker(void)
         fprintf(def_fp, "map_size_x %d\n", MAP_WIDTH(m));
         fprintf(def_fp, "map_size_y %d\n", MAP_HEIGHT(m));
 
+        utarray_new(def_maps, &icd);
+
         /* Go through the loaded maps. */
         for (i = 0; i < wm_r->num_maps; i++) {
             int map_w, map_h;
@@ -518,10 +544,50 @@ void world_maker(void)
                     break;
                 }
 
-                fprintf(def_fp, "map %x %x %s\n", wm_r->maps[i].xpos,
-                        wm_r->maps[i].ypos, m->path);
+                sb = stringbuffer_new();
+
+                for (r2 = m->region; r2 != NULL; r2 = r2->parent) {
+                    if (stringbuffer_length(sb) != 0) {
+                        stringbuffer_append_char(sb, ',');
+                    }
+
+                    stringbuffer_append_string(sb, r2->name);
+                }
+
+                def_map.xpos = wm_r->maps[i].xpos;
+                def_map.ypos = wm_r->maps[i].ypos;
+                def_map.path = estrdup(m->path);
+                def_map.regions = stringbuffer_finish(sb);
+                utarray_push_back(def_maps, &def_map);
             }
         }
+
+        utarray_sort(def_maps, region_map_def_sort);
+
+        def_map_prev = NULL;
+
+        for (i = 0; i < utarray_len(def_maps); i++) {
+            def_map_curr = (region_map_def_t *) utarray_eltptr(def_maps, i);
+            fprintf(def_fp, "map %x %x %s", def_map_curr->xpos,
+                    def_map_curr->ypos, def_map_curr->path);
+
+            if (def_map_prev == NULL || strcmp(def_map_curr->regions,
+                    def_map_prev->regions) != 0) {
+                fprintf(def_fp, " %s", def_map_curr->regions);
+            }
+
+            fprintf(def_fp, "\n");
+
+            def_map_prev = def_map_curr;
+        }
+
+        for (i = 0; i < utarray_len(def_maps); i++) {
+            def_map_curr = (region_map_def_t *) utarray_eltptr(def_maps, i);
+            efree(def_map_curr->path);
+            efree(def_map_curr->regions);
+        }
+
+        utarray_free(def_maps);
 
         /* Create the image. */
         im = gdImageCreateTrueColor(wm_r->w, wm_r->h);

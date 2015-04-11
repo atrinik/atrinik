@@ -448,8 +448,9 @@ static region_map_def_t *region_map_def_new(void)
  */
 static void region_map_def_load(region_map_def_t *def, const char *str)
 {
-    char line[HUGE_BUF], *cps[10];
-    size_t pos;
+    char line[HUGE_BUF], *cps[10], region[MAX_BUF];
+    size_t pos, pos2;
+    region_map_def_map_t *def_map;
 
     def->pixel_size = 1;
     def->map_size_x = 24;
@@ -484,17 +485,33 @@ static void region_map_def_load(region_map_def_t *def, const char *str)
         } else if (strcmp(cps[0], "map_size_y") == 0) {
             def->map_size_y = atoi(cps[1]);
         } else if (strcmp(cps[0], "map") == 0) {
-            if (string_split(cps[1], cps, 3, ' ') != 3) {
+            if (string_split(cps[1], cps, 4, ' ') < 3) {
                 log(LOG(ERROR), "Invalid map in definitions file: %s", cps[1]);
                 continue;
             }
 
             def->maps = erealloc(def->maps, sizeof(*def->maps) *
                     (def->num_maps + 1));
-            def->maps[def->num_maps].xpos = strtoul(cps[0], NULL, 16);
-            def->maps[def->num_maps].ypos = strtoul(cps[1], NULL, 16);
-            def->maps[def->num_maps].path = estrdup(cps[2]);
+            def_map = &def->maps[def->num_maps];
             def->num_maps++;
+
+            def_map->xpos = strtoul(cps[0], NULL, 16);
+            def_map->ypos = strtoul(cps[1], NULL, 16);
+            def_map->path = estrdup(cps[2]);
+            def_map->regions = NULL;
+            def_map->regions_num = 0;
+
+            if (cps[3] != NULL) {
+                pos2 = 0;
+
+                while (string_get_word(cps[3], &pos2, ',', VS(region), 0)) {
+                    def_map->regions = erealloc(def_map->regions,
+                            sizeof(*def_map->regions) *
+                            (def_map->regions_num + 1));
+                    def_map->regions[def_map->regions_num] = estrdup(region);
+                    def_map->regions_num++;
+                }
+            }
         } else if (strcmp(cps[0], "label") == 0) {
             if (string_split(cps[1], cps, 4, ' ') != 4) {
                 log(LOG(ERROR), "Invalid label in definitions file: %s",
@@ -716,11 +733,15 @@ static void region_map_fow_reset(region_map_t *region_map)
 
 void region_map_fow_update(region_map_t *region_map)
 {
-    region_map_def_map_t *def_map;
+    region_map_def_map_t *def_map, *def_map_regions;
     SDL_Rect box;
     int rowsize, x, y;
     uint32 color;
     SDL_Surface *surface;
+    object *op;
+    size_t i, j;
+    UT_array *regions;
+    char *cp;
 
     HARD_ASSERT(region_map != NULL);
     HARD_ASSERT(region_map->fow != NULL);
@@ -732,7 +753,6 @@ void region_map_fow_update(region_map_t *region_map)
     }
 
     if (region_map->fow->tiles != NULL) {
-        unsigned i;
         region_map_fow_tile_t *tile;
 
         /* Now that the definitions are loaded, we can go back through the tiles
@@ -788,6 +808,48 @@ void region_map_fow_update(region_map_t *region_map)
         }
     }
 
+    utarray_new(regions, &ut_str_icd);
+
+    for (op = cpl.ob->inv; op != NULL; op = op->next) {
+        if (op->itype != TYPE_REGION_MAP) {
+            continue;
+        }
+
+        cp = op->s_name;
+        utarray_push_back(regions, &cp);
+    }
+
+    utarray_sort(regions, ut_str_sort);
+
+    def_map_regions = NULL;
+
+    for (i = 0; i < region_map->def->num_maps; i++) {
+        def_map = &region_map->def->maps[i];
+
+        if (def_map->regions != NULL) {
+            def_map_regions = def_map;
+        }
+
+        if (def_map_regions == NULL) {
+            continue;
+        }
+
+        for (j = 0; j < def_map_regions->regions_num; j++) {
+            if (utarray_find(regions, &def_map_regions->regions[j],
+                    ut_str_sort) != NULL) {
+                box.x = def_map->xpos;
+                box.y = def_map->ypos;
+                box.w = region_map->def->map_size_x *
+                        region_map->def->pixel_size;
+                box.h = region_map->def->map_size_y *
+                        region_map->def->pixel_size;
+                SDL_FillRect(region_map->fow->surface, &box, color);
+            }
+        }
+    }
+
+    utarray_free(regions);
+
     SDL_SetColorKey(region_map->fow->surface, SDL_SRCCOLORKEY, color);
     surface = SDL_DisplayFormat(region_map->fow->surface);
     SDL_FreeSurface(region_map->fow->surface);
@@ -839,7 +901,7 @@ bool region_map_fow_set_visited(region_map_t *region_map,
     SOFT_ASSERT_RC(idx >= 0 && (size_t) idx < RM_MAP_FOW_BITMAP_SIZE(
             region_map) / sizeof(*region_map->fow->bitmap), false,
             "Attempt to write at an invalid position: %"FMT64U" max: %"FMT64U,
-            idx, RM_MAP_FOW_BITMAP_SIZE(region_map) /
+            (uint64_t) idx, (uint64_t) RM_MAP_FOW_BITMAP_SIZE(region_map) /
             sizeof(*region_map->fow->bitmap));
 
     region_map->fow->bitmap[idx] |= (1U << (x % 32));
@@ -860,7 +922,7 @@ bool region_map_fow_is_visited(region_map_t *region_map, int x, int y)
     SOFT_ASSERT_RC(idx >= 0 && (size_t) idx < RM_MAP_FOW_BITMAP_SIZE(
             region_map) / sizeof(*region_map->fow->bitmap), false,
             "Attempt to read at an invalid position: %"FMT64U" max: %"FMT64U,
-            idx, RM_MAP_FOW_BITMAP_SIZE(region_map) /
+            (uint64_t) idx, (uint64_t) RM_MAP_FOW_BITMAP_SIZE(region_map) /
             sizeof(*region_map->fow->bitmap));
 
     return region_map->fow->bitmap[idx] & (1U << (x % 32));

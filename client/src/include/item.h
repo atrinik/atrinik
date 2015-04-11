@@ -110,7 +110,7 @@ typedef struct obj {
 #define TYPE_TREASURE               4
 #define TYPE_POTION                 5
 #define TYPE_FOOD                   6
-#define TYPE_POISON                 7
+#define TYPE_REGION_MAP             7
 #define TYPE_BOOK                   8
 #define TYPE_CLOCK                  9
 #define TYPE_FBULLET                10

@@ -156,7 +156,7 @@ END_TEST
 /*
  * Player applies stacked torches, ensure a new torch is created and lit and
  * the original is not lit. Then apply the original and ensure it's lit and
- * applied, and that the old one remains lit but not applied.
+ * applied, and that the old one gets extinguished and not applied.
  */
 START_TEST(test_light_apply_apply_6)
 {
@@ -190,7 +190,7 @@ START_TEST(test_light_apply_apply_6)
             "Torch2 is not assigned to player's equipment array.");
 
     fail_if(QUERY_FLAG(torch, FLAG_APPLIED), "Torch is applied.");
-    fail_if(torch->glow_radius == 0, "Torch is not lit.");
+    fail_if(torch->glow_radius != 0, "Torch is lit.");
 }
 END_TEST
 

@@ -2,6 +2,7 @@ Object spider
 name spider
 face spider.151
 race spider
+behavior 4
 is_male 1
 corpse 1
 layer 6

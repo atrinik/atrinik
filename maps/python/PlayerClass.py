@@ -50,6 +50,6 @@ class PlayerClass:
         # Create new class object.
         self._activator.CreateObject("class_" + name)
         # Make sure the activator gets the bonuses.
-        self._activator.Fix()
+        self._activator.Update()
         # Mark the player's title for update.
         self._activator.Controller().s_ext_title_flag = True

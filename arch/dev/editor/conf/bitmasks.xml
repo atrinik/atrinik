@@ -45,6 +45,8 @@
 	<bmentry bit="0" name="Find friends for friendly spells" />
 	<bmentry bit="1" name="Open Doors" />
     <bmentry bit="2" name="Stealth" />
+    <bmentry bit="3" name="Use exits" />
+    <bmentry bit="4" name="Use secret passages" />
 </bitmask>
 
 <bitmask name="pick_up">

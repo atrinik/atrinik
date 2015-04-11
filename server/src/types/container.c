@@ -125,7 +125,7 @@ static void container_open(object *applier, object *op)
                 inv = insert_ob_in_map(inv, applier->map, inv, 0);
 
                 if (inv) {
-                    fix_monster(inv);
+                    living_update_monster(inv);
                     draw_info_format(
                             COLOR_WHITE, applier, "A %s jumps out of the %s.",
                             query_name(inv, applier),
@@ -236,7 +236,7 @@ int container_close(object *applier, object *op)
         op->attacked_by_count = 0;
 
         if (op->env != NULL && op->env->type == PLAYER && OBJECT_IS_AMMO(op)) {
-            fix_player(op->env);
+            living_update(op->env);
         }
 
         return 1;

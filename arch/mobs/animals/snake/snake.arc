@@ -5,7 +5,7 @@ race reptile
 randomitems mob_snake
 is_female 1
 corpse 1
-behavior 2
+behavior 8
 layer 6
 direction 5
 terrain_flag 65

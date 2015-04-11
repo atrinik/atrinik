@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file '../ui/ui_window_interface_editor.ui'
 #
-# Created: Sun Mar 15 18:12:32 2015
+# Created: Thu Apr  9 20:02:24 2015
 #      by: PyQt5 UI code generator 5.3.2
 #
 # WARNING! All changes made in this file will be lost!
@@ -352,6 +352,12 @@ class Ui_WindowInterfaceEditor(object):
         self.interface_element_action_trigger = QtWidgets.QLineEdit(self.pageAction)
         self.interface_element_action_trigger.setObjectName("interface_element_action_trigger")
         self.gridLayout_11.addWidget(self.interface_element_action_trigger, 5, 2, 1, 1)
+        self.label_48 = QtWidgets.QLabel(self.pageAction)
+        self.label_48.setObjectName("label_48")
+        self.gridLayout_11.addWidget(self.label_48, 6, 0, 1, 1)
+        self.interface_element_action_cast = QtWidgets.QLineEdit(self.pageAction)
+        self.interface_element_action_cast.setObjectName("interface_element_action_cast")
+        self.gridLayout_11.addWidget(self.interface_element_action_cast, 6, 2, 1, 1)
         self.verticalLayout_9.addLayout(self.gridLayout_11)
         self.gridLayout_12 = QtWidgets.QGridLayout()
         self.gridLayout_12.setObjectName("gridLayout_12")
@@ -606,12 +612,28 @@ class Ui_WindowInterfaceEditor(object):
         self.actionUndo.setObjectName("actionUndo")
         self.actionRedo = QtWidgets.QAction(WindowInterfaceEditor)
         self.actionRedo.setObjectName("actionRedo")
+        self.actionCut = QtWidgets.QAction(WindowInterfaceEditor)
+        self.actionCut.setObjectName("actionCut")
+        self.actionCopy = QtWidgets.QAction(WindowInterfaceEditor)
+        self.actionCopy.setObjectName("actionCopy")
+        self.actionPaste = QtWidgets.QAction(WindowInterfaceEditor)
+        self.actionPaste.setObjectName("actionPaste")
+        self.actionDelete = QtWidgets.QAction(WindowInterfaceEditor)
+        self.actionDelete.setObjectName("actionDelete")
+        self.actionSelect_All = QtWidgets.QAction(WindowInterfaceEditor)
+        self.actionSelect_All.setObjectName("actionSelect_All")
         self.menuTest.addAction(self.actionNew)
         self.menuTest.addAction(self.actionOpen)
         self.menuTest.addAction(self.actionSave)
         self.menuTest.addAction(self.actionSave_As)
         self.menuEdit.addAction(self.actionUndo)
         self.menuEdit.addAction(self.actionRedo)
+        self.menuEdit.addSeparator()
+        self.menuEdit.addAction(self.actionCut)
+        self.menuEdit.addAction(self.actionCopy)
+        self.menuEdit.addAction(self.actionPaste)
+        self.menuEdit.addAction(self.actionDelete)
+        self.menuEdit.addAction(self.actionSelect_All)
         self.menubar.addAction(self.menuTest.menuAction())
         self.menubar.addAction(self.menuEdit.menuAction())
 
@@ -656,6 +678,7 @@ class Ui_WindowInterfaceEditor(object):
         self.label_17.setText(_translate("WindowInterfaceEditor", "Start"))
         self.label_19.setText(_translate("WindowInterfaceEditor", "Enemy"))
         self.label_45.setText(_translate("WindowInterfaceEditor", "Trigger"))
+        self.label_48.setText(_translate("WindowInterfaceEditor", "Cast"))
         self.label_20.setText(_translate("WindowInterfaceEditor", "Code"))
         self.label_24.setText(_translate("WindowInterfaceEditor", "Delay"))
         self.label_21.setText(_translate("WindowInterfaceEditor", "Message"))
@@ -708,4 +731,14 @@ class Ui_WindowInterfaceEditor(object):
         self.actionUndo.setShortcut(_translate("WindowInterfaceEditor", "Ctrl+Z"))
         self.actionRedo.setText(_translate("WindowInterfaceEditor", "Redo"))
         self.actionRedo.setShortcut(_translate("WindowInterfaceEditor", "Ctrl+Shift+Z"))
+        self.actionCut.setText(_translate("WindowInterfaceEditor", "Cut"))
+        self.actionCut.setShortcut(_translate("WindowInterfaceEditor", "Ctrl+X"))
+        self.actionCopy.setText(_translate("WindowInterfaceEditor", "Copy"))
+        self.actionCopy.setShortcut(_translate("WindowInterfaceEditor", "Ctrl+C"))
+        self.actionPaste.setText(_translate("WindowInterfaceEditor", "Paste"))
+        self.actionPaste.setShortcut(_translate("WindowInterfaceEditor", "Ctrl+V"))
+        self.actionDelete.setText(_translate("WindowInterfaceEditor", "Delete"))
+        self.actionDelete.setShortcut(_translate("WindowInterfaceEditor", "Del"))
+        self.actionSelect_All.setText(_translate("WindowInterfaceEditor", "Select All"))
+        self.actionSelect_All.setShortcut(_translate("WindowInterfaceEditor", "Ctrl+A"))
 

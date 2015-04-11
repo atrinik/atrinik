@@ -366,7 +366,7 @@ sint64 add_exp(object *op, sint64 exp_gain, int skill_nr, int exact)
 
     if (exp_lvl_adj(op, exp_skill) + exp_lvl_adj(op, NULL) != 0) {
         play_sound_player_only(CONTR(op), CMD_SOUND_EFFECT, "event01.ogg", 0, 0, 0, 0);
-        fix_player(op);
+        living_update(op);
 
         /* Show the player some effects. */
         if (op->map && level_up_arch) {

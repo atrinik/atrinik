@@ -4,6 +4,7 @@ face demon_goat.151
 race demon
 randomitems mob_raas
 type 80
+behavior 10
 layer 6
 direction 5
 corpse 1

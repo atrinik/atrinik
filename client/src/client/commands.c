@@ -474,6 +474,11 @@ static void command_item_update(uint8 *data, size_t len, size_t *pos, uint32 fla
         }
     }
 
+    if (tmp->itype == TYPE_REGION_MAP) {
+        region_map_fow_update(MapData.region_map);
+        minimap_redraw_flag = 1;
+    }
+
     if (force_anim) {
         tmp->last_anim = tmp->anim_speed;
         object_animate(tmp);

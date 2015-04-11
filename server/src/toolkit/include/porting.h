@@ -344,4 +344,8 @@ extern int usleep(uint32 usec);
 extern size_t strnlen(const char *s, size_t max);
 #endif
 
+#ifndef HAVE_MKSTEMP
+int mkstemp(char *tmpl);
+#endif
+
 #endif

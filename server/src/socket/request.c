@@ -638,7 +638,8 @@ void draw_client_map2(object *pl)
             has_map = false;
 
             /* TODO: This should be improved once maps have a real basename */
-            if (region != NULL) {
+            if (region != NULL && (pl->map->region->map_first != NULL ||
+                    pl->map->coords[2] >= 0)) {
                 char *basename, *underscore, *basename_region;
 
                 basename = strrchr(pl->map->path, '/') + 1;

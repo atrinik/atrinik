@@ -1529,8 +1529,7 @@ int is_friend_of(object *op, object *obj)
         return 1;
     }
 
-    /* TODO: Add a few other odd types here, such as god and golem */
-    if (!obj->type == PLAYER || !obj->type == MONSTER || !op->type == PLAYER || !op->type == MONSTER) {
+    if (!IS_LIVE(op) || !IS_LIVE(obj)) {
         return 0;
     }
 

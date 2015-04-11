@@ -3,7 +3,7 @@ name pirate captain
 race human
 type 80
 layer 6
-behavior 2
+behavior 10
 direction 5
 is_male 1
 wc_range 20

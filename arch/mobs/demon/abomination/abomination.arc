@@ -4,7 +4,7 @@ face abomination.151
 race demon
 randomitems mob_default
 corpse 1
-behavior 2
+behavior 10
 layer 6
 direction 5
 is_neutral 1

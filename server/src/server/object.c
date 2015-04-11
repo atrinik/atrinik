@@ -1350,6 +1350,8 @@ void object_destroy_inv(object *ob)
 {
     object *tmp, *next;
 
+    SET_FLAG(ob, FLAG_NO_FIX_PLAYER);
+
     for (tmp = ob->inv; tmp; tmp = next) {
         next = tmp->below;
 
@@ -1445,6 +1447,8 @@ void object_destroy(object *ob)
  * @param op Object to destruct. */
 void destruct_ob(object *op)
 {
+    SET_FLAG(op, FLAG_NO_FIX_PLAYER);
+    
     if (op->inv) {
         drop_ob_inv(op);
     }
@@ -1508,7 +1512,7 @@ static void object_check_move_off(object *op)
  *
  * @note If you want to remove a lot of items in player's inventory,
  * set FLAG_NO_FIX_PLAYER on the player first and then explicitly call
- * fix_player() on the player.
+ * living_update() on the player.
  * @param op Object to remove.
  * @param flags Combination of @ref REMOVAL_xxx. */
 void object_remove(object *op, int flags)
@@ -1529,20 +1533,13 @@ void object_remove(object *op, int flags)
     /* In this case, the object to be removed is in someone's
      * inventory. */
     if (op->env) {
-        object *pl;
+        object *env;
 
         if (!QUERY_FLAG(op, FLAG_SYS_OBJECT) && !(flags & REMOVE_NO_WEIGHT)) {
             sub_weight(op->env, WEIGHT_NROF(op, op->nrof));
         }
 
-        pl = is_player_inv(op->env);
-
-        /* NO_FIX_PLAYER is set when a great many changes are being made
-         * to player's inventory. If set, avoid the call to save CPU
-         * time. */
-        if (pl && !QUERY_FLAG(pl, FLAG_NO_FIX_PLAYER)) {
-            fix_player(pl);
-        }
+        env = get_env_recursive(op);
 
         if (op->above) {
             op->above->below = op->below;
@@ -1565,6 +1562,10 @@ void object_remove(object *op, int flags)
 
         op->above = NULL, op->below = NULL;
         op->env = NULL;
+
+        if (env != op && IS_LIVE(env) && env->map != NULL) {
+            living_update(env);
+        }
     } else if (op->map) {
         /* The object is on map. */
         MapSpace *msp;
@@ -1977,7 +1978,7 @@ object *decrease_ob_nr(object *op, uint32 i)
 
 object *object_insert_into(object *op, object *where, int flag)
 {
-    object *otmp;
+    object *env;
 
     HARD_ASSERT(op != NULL);
     SOFT_ASSERT_RC(where != NULL, op, "Attempting to insert %s into nothing.",
@@ -2054,12 +2055,10 @@ object *object_insert_into(object *op, object *where, int flag)
     }
 
     /* If player, fix player if not marked as no fix. */
-    otmp = is_player_inv(where);
+    env = get_env_recursive(op);
 
-    if (otmp && CONTR(otmp) != NULL) {
-        if (!QUERY_FLAG(otmp, FLAG_NO_FIX_PLAYER)) {
-            fix_player(otmp);
-        }
+    if (env != op && IS_LIVE(env) && env->map != NULL) {
+        living_update(env);
     }
 
     if (where->type == PLAYER || where->type == CONTAINER) {
@@ -3242,4 +3241,62 @@ char *object_get_str_r(object *op, char *buf, size_t bufsize)
     }
 
     return buf;
+}
+
+/**
+ * Checks if the specified coordinates are blocked for the specified object.
+ *
+ * Takes multi-part objects into account.
+ * @param op Object to check.
+ * @param m Map.
+ * @param x X coordinate.
+ * @param y Y coordinate.
+ * @return 0 if the tile is not blocked, a combination of @ref map_look_flags
+ * otherwise.
+ */
+int object_blocked(object *op, mapstruct *m, int x, int y)
+{
+    object *tmp, *tmp2;
+    int xt, yt, flags;
+    mapstruct *map;
+
+    HARD_ASSERT(op != NULL);
+    HARD_ASSERT(m != NULL);
+    HARD_ASSERT(!OUT_OF_MAP(m, x, y));
+
+    op = HEAD(op);
+
+    if (op->more == NULL) {
+        return blocked(op, m, x, y, op->terrain_flag);
+    }
+
+    for (tmp = op; tmp != NULL; tmp = tmp->more) {
+        xt = x + tmp->arch->clone.x;
+        yt = y + tmp->arch->clone.y;
+        map = get_map_from_coord(m, &xt, &yt);
+
+        if (map == NULL) {
+            return P_OUT_OF_MAP;
+        }
+
+        /* If this part is a different part of the head, then skip checking
+         * this tile. */
+        for (tmp2 = op; tmp2 != NULL; tmp2 = tmp2->more) {
+            if (tmp2->map == map && tmp2->x == xt && tmp2->y == yt) {
+                break;
+            }
+        }
+
+        if (tmp2 != NULL) {
+            continue;
+        }
+
+        flags = blocked(op, map, xt, yt, op->terrain_flag);
+
+        if (flags != 0) {
+            return flags;
+        }
+    }
+
+    return 0;
 }

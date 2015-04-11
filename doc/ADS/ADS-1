@@ -566,6 +566,8 @@ return self._activator.FindObject(archname = "goldcoin") != None
   - trigger (string) (optional):
      If set, will locate a beacon with the specified name and apply the
      object the beacon is in.
+  - cast (string) (optional):
+     If set, NPC will cast the specified spell on the player.
 
   <dialog name="hello">
    <message>Greetings adventurer!</message>

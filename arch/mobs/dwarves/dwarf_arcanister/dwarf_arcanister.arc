@@ -4,7 +4,7 @@ face dwarf_arcanister.131
 race dwarf
 is_male 1
 wc_range 20
-behavior 2
+behavior 10
 corpse 1
 layer 6
 direction 5

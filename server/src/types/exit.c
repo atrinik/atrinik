@@ -162,7 +162,7 @@ mapstruct *exit_get_destination(object *op, int *x, int *y, int do_load)
         }
 
         return m;
-    } else {
+    } else if (op->sub_type != 0) {
         object *other_exit;
 
         other_exit = exit_find(op, do_load);

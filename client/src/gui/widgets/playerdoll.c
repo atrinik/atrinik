@@ -52,7 +52,8 @@ static int player_doll_positions[PLAYER_EQUIP_MAX][2] = {
     {102, 44},
     {22, 82},
     {22, 120},
-    {102, 158}
+    {102, 158},
+    {-1, -1}
 };
 
 /**
@@ -111,6 +112,11 @@ object *playerdoll_get_equipment(int i, int *xpos, int *ypos)
     object *obj;
 
     if (cpl.equipment[i] == 0) {
+        return NULL;
+    }
+
+    if (player_doll_positions[i][0] == -1 &&
+            player_doll_positions[i][1] == -1) {
         return NULL;
     }
 
@@ -184,6 +190,11 @@ static void widget_draw(widgetdata *widget)
     texture_slot_border = TEXTURE_CLIENT("player_doll_slot_border");
 
     for (i = 0; i < PLAYER_EQUIP_MAX; i++) {
+        if (player_doll_positions[i][0] == -1 &&
+                player_doll_positions[i][1] == -1) {
+            continue;
+        }
+
         rectangle_create(widget->surface, player_doll_positions[i][0] + xoff,
                 player_doll_positions[i][1] + yoff, texture_slot_border->w,
                 texture_slot_border->h, PLAYER_DOLL_SLOT_COLOR);
@@ -192,6 +203,11 @@ static void widget_draw(widgetdata *widget)
     surface_show(widget->surface, xoff, yoff, NULL, texture);
 
     for (i = 0; i < PLAYER_EQUIP_MAX; i++) {
+        if (player_doll_positions[i][0] == -1 &&
+                player_doll_positions[i][1] == -1) {
+            continue;
+        }
+
         surface_show(widget->surface, player_doll_positions[i][0] + xoff,
                 player_doll_positions[i][1] + yoff, NULL, texture_slot_border);
 

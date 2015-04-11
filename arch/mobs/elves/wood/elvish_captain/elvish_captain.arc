@@ -3,7 +3,7 @@ name elvish captain
 face elvish_captain.151
 race elf
 is_male 1
-behavior 2
+behavior 10
 wc_range 20
 corpse 1
 layer 6
