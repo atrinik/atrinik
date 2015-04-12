@@ -32,6 +32,7 @@
 
 enum {
     BUTTON_ADD,
+    BUTTON_REMOVE,
     BUTTON_CLOSE,
     BUTTON_HELP,
 
@@ -87,9 +88,11 @@ void widget_buddy_add(widgetdata *widget, const char *name, uint8 sort)
 
     tmp = WIDGET_BUDDY(widget);
 
-    if (name) {
-        utarray_push_back(tmp->names, &name);
-        list_add(tmp->list, tmp->list->rows, 0, name);
+    if (name != NULL) {
+        if (widget_buddy_check(widget, name) == -1) {
+            utarray_push_back(tmp->names, &name);
+            list_add(tmp->list, tmp->list->rows, 0, name);
+        }
     }
 
     if (sort) {
@@ -259,12 +262,20 @@ static void widget_draw(widgetdata *widget)
         tmp->buttons[BUTTON_HELP].y = 4;
         button_show(&tmp->buttons[BUTTON_HELP], "?");
 
-        tmp->buttons[BUTTON_ADD].x = 160;
-        tmp->buttons[BUTTON_ADD].y = 130;
+        tmp->buttons[BUTTON_REMOVE].x = 10;
+        tmp->buttons[BUTTON_REMOVE].y = 2 + LIST_HEIGHT_FULL(tmp->list) + 3;
+        button_show(&tmp->buttons[BUTTON_REMOVE], "Remove");
+
+        tmp->buttons[BUTTON_ADD].x = tmp->buttons[BUTTON_REMOVE].x +
+                texture_surface(tmp->buttons[BUTTON_REMOVE].texture)->w + 5;
+        tmp->buttons[BUTTON_ADD].y = tmp->buttons[BUTTON_REMOVE].y;
         button_show(&tmp->buttons[BUTTON_ADD], "Add");
 
         text_input_set_parent(&tmp->text_input, widget->x, widget->y);
-        text_input_show(&tmp->text_input, widget->surface, 160, 100);
+        text_input_show(&tmp->text_input, widget->surface,
+                tmp->buttons[BUTTON_ADD].x +
+                texture_surface(tmp->buttons[BUTTON_REMOVE].texture)->w + 5,
+                tmp->buttons[BUTTON_ADD].y);
     }
 }
 
@@ -297,6 +308,24 @@ static void widget_background(widgetdata *widget, int draw)
     }
 }
 
+/**
+ * Handles event for adding of a buddy to the specified buddy widget.
+ * @param widget The buddy widget.
+ */
+static void widget_event_buddy_add(widgetdata *widget)
+{
+    buddy_struct *tmp;
+
+    tmp = WIDGET_BUDDY(widget);
+
+    if (*tmp->text_input.str != '\0') {
+        widget_buddy_add(widget, tmp->text_input.str, 1);
+        text_input_set(&tmp->text_input, NULL);
+    }
+
+    tmp->text_input.focus = 0;
+}
+
 /** @copydoc widgetdata::event_func */
 static int widget_event(widgetdata *widget, SDL_Event *event)
 {
@@ -314,19 +343,26 @@ static int widget_event(widgetdata *widget, SDL_Event *event)
         if (button_event(&tmp->buttons[i], event)) {
             switch (i) {
             case BUTTON_ADD:
-
                 if (tmp->text_input.focus) {
-                    if (*tmp->text_input.str != '\0') {
-                        widget_buddy_add(widget, tmp->text_input.str, 1);
-                        text_input_set(&tmp->text_input, NULL);
-                    }
-
-                    tmp->text_input.focus = 0;
+                    widget_event_buddy_add(widget);
                 } else {
                     tmp->text_input.focus = 1;
                 }
 
                 break;
+
+            case BUTTON_REMOVE:
+            {
+                const char *selected;
+
+                selected = list_get_selected(tmp->list, 0);
+
+                if (selected != NULL) {
+                    widget_buddy_remove(widget, selected);
+                }
+
+                break;
+            }
 
             case BUTTON_CLOSE:
                 widget->show = 0;
@@ -351,6 +387,18 @@ static int widget_event(widgetdata *widget, SDL_Event *event)
         }
     }
 
+    if (event->type == SDL_KEYDOWN && tmp->text_input.focus) {
+        if (event->key.keysym.sym == SDLK_ESCAPE) {
+            tmp->text_input.focus = 0;
+            widget->redraw = 1;
+            return 1;
+        } else if (IS_ENTER(event->key.keysym.sym)) {
+            widget_event_buddy_add(widget);
+            widget->redraw = 1;
+            return 1;
+        }
+    }
+
     if (text_input_event(&tmp->text_input, event)) {
         widget->redraw = 1;
         return 1;
@@ -367,12 +415,6 @@ static int widget_event(widgetdata *widget, SDL_Event *event)
             tmp->text_input.focus = 0;
             widget->redraw = 1;
         }
-    }
-
-    if (event->type == SDL_KEYDOWN && event->key.keysym.sym == SDLK_ESCAPE && tmp->text_input.focus) {
-        tmp->text_input.focus = 0;
-        widget->redraw = 1;
-        return 1;
     }
 
     return 0;
@@ -409,7 +451,8 @@ void widget_buddy_init(widgetdata *widget)
     tmp->list = list_create(12, 1, 8);
     tmp->list->handle_enter_func = list_handle_enter;
     list_scrollbar_enable(tmp->list);
-    list_set_column(tmp->list, 0, 130, 7, NULL, -1);
+    list_set_column(tmp->list, 0, widget->w - 10 * 2 -
+            LIST_WIDTH_FULL(tmp->list) - tmp->list->frame_offset, 0, NULL, -1);
     list_set_font(tmp->list, FONT_ARIAL10);
 
     for (i = 0; i < BUTTON_NUM; i++) {
@@ -424,5 +467,6 @@ void widget_buddy_init(widgetdata *widget)
 
     text_input_create(&tmp->text_input);
     tmp->text_input.focus = 0;
-    tmp->text_input.coords.w = 60;
+    tmp->text_input.coords.w = LIST_WIDTH_FULL(tmp->list) -
+            texture_surface(tmp->buttons[BUTTON_ADD].texture)->w * 2 - 5 * 2;
 }
