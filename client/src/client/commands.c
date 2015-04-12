@@ -361,6 +361,10 @@ void socket_command_player(uint8 *data, size_t len, size_t pos)
 
     cur_widget[INPUT_ID]->show = 0;
 
+    if (cur_widget[PARTY_ID]->show) {
+        send_command("/party list");
+    }
+
     cpl.state = ST_PLAY;
 }
 

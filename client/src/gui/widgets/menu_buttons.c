@@ -184,6 +184,10 @@ static int widget_event(widgetdata *widget, SDL_Event *event)
             WIDGET_SHOW_TOGGLE(tmp);
             SetPriorityWidget(tmp);
 
+            if (tmp->show) {
+                send_command("/party list");
+            }
+
             return 1;
         }
 
