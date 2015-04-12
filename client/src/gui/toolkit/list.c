@@ -188,6 +188,8 @@ void list_remove_row(list_struct *list, uint32 row)
 
     list->rows--;
     list->text = erealloc(list->text, sizeof(*list->text) * list->rows);
+
+    list_offsets_ensure(list);
 }
 
 /**
@@ -442,7 +444,9 @@ void list_clear(list_struct *list)
  * @param list List to ensure for. */
 void list_offsets_ensure(list_struct *list)
 {
-    if (list->row_selected >= list->rows) {
+    if (list->row_selected <= 1) {
+        list->row_selected = 1;
+    } else if (list->row_selected >= list->rows) {
         list->row_selected = list->rows;
     }
 
