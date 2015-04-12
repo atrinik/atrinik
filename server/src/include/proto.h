@@ -1197,7 +1197,6 @@ extern void *memory_ecalloc(size_t nmemb, size_t size);
 extern void *memory_erealloc(void *ptr, size_t size);
 extern void *memory_reallocz(void *ptr, size_t old_size, size_t new_size);
 /* src/toolkit/mempool.c */
-extern size_t pools_num;
 extern void toolkit_mempool_init(void);
 extern void toolkit_mempool_deinit(void);
 extern mempool_struct *mempool_create(const char *description, size_t expand, size_t size, uint32 flags, chunk_initialisator initialisator, chunk_deinitialisator deinitialisator, chunk_constructor constructor, chunk_destructor destructor);

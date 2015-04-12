@@ -60,7 +60,7 @@ static mempool_struct *pool_puddle;
  */
 static mempool_struct **pools;
 
-size_t pools_num; ///< Number of ::pools.
+static size_t pools_num; ///< Number of ::pools.
 
 /**
  * Initialize the mempool API.
