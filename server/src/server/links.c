@@ -32,12 +32,24 @@
  * Objectlink memory pool. */
 mempool_struct *pool_objectlink;
 
+/** @copydoc chunk_debugger */
+static void objectlink_debugger(objectlink *ol, char *buf, size_t size)
+{
+    snprintf(buf, size, "ID: %d", ol->id);
+    snprintfcat(buf, size, " value: %ld", ol->value);
+
+    if (OBJECT_VALID(ol->objlink.ob, ol->id)) {
+        snprintfcat(buf, size, " object: %s", object_get_str(ol->objlink.ob));
+    }
+}
+
 /**
  * Initialize the objectlink API. */
 void objectlink_init(void)
 {
     pool_objectlink = mempool_create("object links", 500, sizeof(objectlink),
             MEMPOOL_ALLOW_FREEING, NULL, NULL, NULL, NULL);
+    mempool_set_debugger(pool_objectlink, (chunk_debugger) objectlink_debugger);
 }
 
 /**
