@@ -948,6 +948,12 @@ static void object_debugger(object *op, char *buf, size_t size)
     snprintfcat(buf, size, " coords: %d, %d", op->x, op->y);
 }
 
+/** @copydoc chunk_validator */
+static bool object_validator(object *op)
+{
+    return op->count != 0 && !QUERY_FLAG(op, FLAG_REMOVED);
+}
+
 /**
  * Initialize the object API. */
 void object_init(void)
@@ -955,6 +961,7 @@ void object_init(void)
     pool_object = mempool_create("objects", OBJECT_EXPAND, sizeof(object),
             MEMPOOL_ALLOW_FREEING, NULL, NULL, NULL, NULL);
     mempool_set_debugger(pool_object, (chunk_debugger) object_debugger);
+    mempool_set_validator(pool_object, (chunk_validator) object_validator);
 }
 
 /**
@@ -1448,7 +1455,7 @@ void object_destroy(object *ob)
 void destruct_ob(object *op)
 {
     SET_FLAG(op, FLAG_NO_FIX_PLAYER);
-    
+
     if (op->inv) {
         drop_ob_inv(op);
     }
