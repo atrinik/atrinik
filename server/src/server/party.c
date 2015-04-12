@@ -104,9 +104,13 @@ void remove_party_member(party_struct *party, object *op)
     for (ol = party->members; ol; ol = ol->next) {
         if (ol->objlink.ob == op) {
             objectlink_unlink(&party->members, NULL, ol);
+            free_objectlink_simple(ol);
             break;
         }
     }
+
+    SOFT_ASSERT(ol != NULL, "Could not find player %s in party members!",
+            object_get_str(op));
 
     if (party->members) {
         packet = packet_new(CLIENT_CMD_PARTY, 64, 64);
@@ -430,13 +434,12 @@ void send_party_message(party_struct *party, const char *msg, int flag, object *
  * @param party The party to remove. */
 void remove_party(party_struct *party)
 {
-    objectlink *ol;
     party_struct *tmp, *prev = NULL;
 
-    for (ol = party->members; ol; ol = ol->next) {
-        CONTR(ol->objlink.ob)->party = NULL;
-        objectlink_unlink(&party->members, NULL, ol);
-        mempool_return(pool_objectlink, ol);
+    while (party->members != NULL) {
+        CONTR(party->members->objlink.ob)->party = NULL;
+        objectlink_unlink(&party->members, NULL, party->members);
+        free_objectlink_simple(party->members);
     }
 
     for (tmp = first_party; tmp; prev = tmp, tmp = tmp->next) {
