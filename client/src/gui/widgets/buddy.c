@@ -37,7 +37,7 @@ enum {
     BUTTON_HELP,
 
     BUTTON_NUM
-} ;
+};
 
 /**
  * Buddy data structure. */
@@ -73,7 +73,8 @@ static void list_handle_enter(list_struct *list, SDL_Event *event)
     widget = widget_find(NULL, -1, NULL, list->surface);
 
     if (strcmp(widget->id, "buddy") == 0) {
-        textwin_tab_open(widget_find(NULL, CHATWIN_ID, NULL, NULL), list->text[list->row_selected - 1][0]);
+        textwin_tab_open(widget_find(NULL, CHATWIN_ID, NULL, NULL),
+                list->text[list->row_selected - 1][0]);
     }
 }
 
@@ -81,7 +82,8 @@ static void list_handle_enter(list_struct *list, SDL_Event *event)
  * Add a buddy.
  * @param widget Widget to add to.
  * @param name Buddy's name. Can be NULL, in which case nothing is added.
- * @param sort If 1, sort the buddy list. */
+ * @param sort If 1, sort the buddy list.
+ */
 void widget_buddy_add(widgetdata *widget, const char *name, uint8 sort)
 {
     buddy_struct *tmp;
@@ -105,7 +107,8 @@ void widget_buddy_add(widgetdata *widget, const char *name, uint8 sort)
 /**
  * Remove a buddy.
  * @param widget Widget to remove from.
- * @param name Buddy's name. */
+ * @param name Buddy's name.
+ */
 void widget_buddy_remove(widgetdata *widget, const char *name)
 {
     ssize_t idx;
@@ -135,7 +138,8 @@ void widget_buddy_remove(widgetdata *widget, const char *name)
  * @param widget Widget to check. Can be NULL, in which case -1 is returned.
  * @param name Character name to check.
  * @return -1 if the character name is not a buddy, index in the character
- * names array otherwise. */
+ * names array otherwise.
+ */
 ssize_t widget_buddy_check(widgetdata *widget, const char *name)
 {
     char **p;
@@ -157,7 +161,8 @@ ssize_t widget_buddy_check(widgetdata *widget, const char *name)
 
 /**
  * Load the buddy data file.
- * @param widget The buddy widget. */
+ * @param widget The buddy widget.
+ */
 static void widget_buddy_load(widgetdata *widget)
 {
     char buf[MAX_BUF], *end;
@@ -195,7 +200,8 @@ static void widget_buddy_load(widgetdata *widget)
 
 /**
  * Save the buddy data file.
- * @param widget The buddy widget. */
+ * @param widget The buddy widget.
+ */
 static void widget_buddy_save(widgetdata *widget)
 {
     buddy_struct *tmp;
@@ -210,7 +216,8 @@ static void widget_buddy_save(widgetdata *widget)
     fp = fopen_wrapper(tmp->path, "w");
 
     if (!fp) {
-        logger_print(LOG(BUG), "Could not open file for writing: %s", tmp->path);
+        logger_print(LOG(BUG), "Could not open file for writing: %s",
+                tmp->path);
     } else {
         char **p;
 
@@ -243,7 +250,8 @@ static void widget_draw(widgetdata *widget)
         box.h = 0;
         snprintf(buf, sizeof(buf), "%s list", widget->id);
         string_title(buf);
-        text_show(widget->surface, FONT_SERIF12, buf, 0, 3, COLOR_HGOLD, TEXT_ALIGN_CENTER, &box);
+        text_show(widget->surface, FONT_SERIF12, buf, 0, 3, COLOR_HGOLD,
+                TEXT_ALIGN_CENTER, &box);
 
         tmp->list->surface = widget->surface;
         list_set_parent(tmp->list, widget->x, widget->y);
@@ -254,11 +262,14 @@ static void widget_draw(widgetdata *widget)
             button_set_parent(&tmp->buttons[i], widget->x, widget->y);
         }
 
-        tmp->buttons[BUTTON_CLOSE].x = widget->w - texture_surface(tmp->buttons[BUTTON_CLOSE].texture)->w - 4;
+        tmp->buttons[BUTTON_CLOSE].x = widget->w -
+                texture_surface(tmp->buttons[BUTTON_CLOSE].texture)->w - 4;
         tmp->buttons[BUTTON_CLOSE].y = 4;
         button_show(&tmp->buttons[BUTTON_CLOSE], "X");
 
-        tmp->buttons[BUTTON_HELP].x = widget->w - texture_surface(tmp->buttons[BUTTON_HELP].texture)->w - texture_surface(tmp->buttons[BUTTON_CLOSE].texture)->w - 4;
+        tmp->buttons[BUTTON_HELP].x = widget->w -
+                texture_surface(tmp->buttons[BUTTON_HELP].texture)->w -
+                texture_surface(tmp->buttons[BUTTON_CLOSE].texture)->w - 4;
         tmp->buttons[BUTTON_HELP].y = 4;
         button_show(&tmp->buttons[BUTTON_HELP], "?");
 
@@ -405,7 +416,9 @@ static int widget_event(widgetdata *widget, SDL_Event *event)
     }
 
     if (event->type == SDL_MOUSEBUTTONDOWN) {
-        if (event->button.button == SDL_BUTTON_LEFT && text_input_mouse_over(&tmp->text_input, event->motion.x, event->motion.y)) {
+        if (event->button.button == SDL_BUTTON_LEFT &&
+                text_input_mouse_over(&tmp->text_input, event->motion.x,
+                event->motion.y)) {
             tmp->text_input.focus = 1;
             widget->redraw = 1;
             return 1;
@@ -459,9 +472,12 @@ void widget_buddy_init(widgetdata *widget)
         button_create(&tmp->buttons[i]);
 
         if (i == BUTTON_CLOSE || i == BUTTON_HELP) {
-            tmp->buttons[i].texture = texture_get(TEXTURE_TYPE_CLIENT, "button_round");
-            tmp->buttons[i].texture_pressed = texture_get(TEXTURE_TYPE_CLIENT, "button_round_down");
-            tmp->buttons[i].texture_over = texture_get(TEXTURE_TYPE_CLIENT, "button_round_over");
+            tmp->buttons[i].texture = texture_get(TEXTURE_TYPE_CLIENT,
+                    "button_round");
+            tmp->buttons[i].texture_pressed = texture_get(TEXTURE_TYPE_CLIENT,
+                    "button_round_down");
+            tmp->buttons[i].texture_over = texture_get(TEXTURE_TYPE_CLIENT,
+                    "button_round_over");
         }
     }
 
