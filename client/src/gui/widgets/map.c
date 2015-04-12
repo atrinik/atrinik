@@ -1447,6 +1447,20 @@ void map_draw_map(SDL_Surface *surface)
         for (y = 0; y < h; y++) {
             cell = MAP_CELL_GET_MIDDLE_IF(x, y, w, h);
 
+            for (sub_layer = NUM_SUB_LAYERS - 1; sub_layer >= 1;
+                    sub_layer--) {
+                if (cell->height[GET_MAP_LAYER(LAYER_EFFECT, sub_layer)] != 0 &&
+                        cell->faces[GET_MAP_LAYER(LAYER_EFFECT,
+                        sub_layer)] != 0) {
+                    cell = NULL;
+                    break;
+                }
+            }
+
+            if (cell == NULL) {
+                continue;
+            }
+
             for (sub_layer = 0; sub_layer < NUM_SUB_LAYERS; sub_layer++) {
                 draw_map_object(surface, cell, x, y, LAYER_LIVING, sub_layer,
                         player_height_offset, &target_cell, &target_layer,
