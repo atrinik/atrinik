@@ -60,7 +60,12 @@ static mempool_struct *pool_puddle;
  */
 static mempool_struct **pools;
 
-size_t pools_num; ///< Number of ::pools.
+static size_t pools_num; ///< Number of ::pools.
+
+/**
+ * If true, the API is being deinitialized.
+ */
+static bool deiniting;
 
 /**
  * Initialize the mempool API.
@@ -74,9 +79,11 @@ void toolkit_mempool_init(void)
         toolkit_import(memory);
         toolkit_import(logger);
         toolkit_import(string);
+        toolkit_import(stringbuffer);
 
         pools = NULL;
         pools_num = 0;
+        deiniting = false;
 
         pool_puddle = mempool_create("puddles", 10,
                 sizeof(mempool_puddle_struct), MEMPOOL_ALLOW_FREEING,
@@ -94,6 +101,8 @@ void toolkit_mempool_deinit(void)
     TOOLKIT_DEINIT_FUNC_START(mempool)
     {
         size_t i;
+
+        deiniting = true;
 
         /* The first memory pool ever created is the puddles pool, so
          * avoid freeing it until all the other ones are feed. */
@@ -266,10 +275,11 @@ mempool_struct *mempool_create(const char *description, size_t expand,
 }
 
 /**
- * Free a mempool.
- * @param pool The mempool to free.
+ * Construct debug information about leaked chunks in the specified pool.
+ * @param pool Memory pool.
+ * @param sb StringBuffer instance to store the information in.
  */
-static void mempool_free(mempool_struct *pool)
+static void mempool_leak_info(mempool_struct *pool, StringBuffer *sb)
 {
     size_t chunksize_real, nrof_arrays, i, j;
     char buf[HUGE_BUF];
@@ -277,9 +287,8 @@ static void mempool_free(mempool_struct *pool)
     mempool_chunk_struct *chunk;
     void *data;
 
-    TOOLKIT_FUNC_PROTECTOR(API_NAME);
-
-    assert(pool != NULL);
+    HARD_ASSERT(pool != NULL);
+    HARD_ASSERT(sb != NULL);
 
 #ifndef NDEBUG
     if (pool->debugger == NULL) {
@@ -305,17 +314,55 @@ static void mempool_free(mempool_struct *pool)
                     continue;
                 }
 
+                if (!deiniting) {
+#ifndef NDEBUG
+                    if (pool->validator == NULL || pool->validator(data)) {
+                        continue;
+                    }
+#else
+                    continue;
+#endif
+                }
+
 #ifndef NDEBUG
                 if (pool->debugger != NULL) {
                     pool->debugger(data, VS(buf));
                 }
 #endif
 
-                log(LOG(ERROR), "Chunk %p (%p) in pool %s has not been freed: "
-                        "%s", chunk, data, pool->chunk_description, buf);
+                stringbuffer_append_printf(sb, "Chunk %p (%p) in pool %s has "
+                        "not been freed: %s\n", chunk, data,
+                        pool->chunk_description, buf);
             }
         }
     }
+}
+
+/**
+ * Free a mempool.
+ * @param pool The mempool to free.
+ */
+static void mempool_free(mempool_struct *pool)
+{
+    StringBuffer *sb;
+    char *info, *cp;
+
+    TOOLKIT_FUNC_PROTECTOR(API_NAME);
+
+    assert(pool != NULL);
+
+    sb = stringbuffer_new();
+    mempool_leak_info(pool, sb);
+    info = stringbuffer_finish(sb);
+
+    cp = strtok(info, "\n");
+
+    while (cp != NULL) {
+        log(LOG(ERROR), "%s", cp);
+        cp = strtok(NULL, "\n");
+    }
+
+    efree(info);
 
     mempool_free_puddles(pool);
 
@@ -331,6 +378,18 @@ void mempool_set_debugger(mempool_struct *pool, chunk_debugger debugger)
 {
 #ifndef NDEBUG
     pool->debugger = debugger;
+#endif
+}
+
+/**
+ * Set the mempool's validator function.
+ * @param pool Memory pool.
+ * @param validator Validator function to use.
+ */
+void mempool_set_validator(mempool_struct *pool, chunk_validator validator)
+{
+#ifndef NDEBUG
+    pool->validator = validator;
 #endif
 }
 
@@ -592,4 +651,18 @@ size_t mempool_reclaim(mempool_struct *pool)
     }
 
     return mempool_free_puddles(pool);
+}
+
+/**
+ * Gather leak information from all the registered pools into the specified
+ * StringBuffer instance.
+ * @param sb StringBuffer instance to use.
+ */
+void mempool_leak_info_all(StringBuffer *sb)
+{
+    size_t i;
+
+    for (i = 1; i < pools_num; i++) {
+        mempool_leak_info(pools[i], sb);
+    }
 }

@@ -836,16 +836,17 @@ extern void *memory_ecalloc(size_t nmemb, size_t size);
 extern void *memory_erealloc(void *ptr, size_t size);
 extern void *memory_reallocz(void *ptr, size_t old_size, size_t new_size);
 /* src/toolkit/mempool.c */
-extern size_t pools_num;
 extern void toolkit_mempool_init(void);
 extern void toolkit_mempool_deinit(void);
 extern mempool_struct *mempool_create(const char *description, size_t expand, size_t size, uint32 flags, chunk_initialisator initialisator, chunk_deinitialisator deinitialisator, chunk_constructor constructor, chunk_destructor destructor);
 extern void mempool_set_debugger(mempool_struct *pool, chunk_debugger debugger);
+extern void mempool_set_validator(mempool_struct *pool, chunk_validator validator);
 extern void mempool_stats(const char *name, char *buf, size_t size);
 extern mempool_struct *mempool_find(const char *name);
 extern void *mempool_get_chunk(mempool_struct *pool, size_t arraysize_exp);
 extern void mempool_return_chunk(mempool_struct *pool, size_t arraysize_exp, void *data);
 extern size_t mempool_reclaim(mempool_struct *pool);
+extern void mempool_leak_info_all(StringBuffer *sb);
 /* src/toolkit/packet.c */
 extern void toolkit_packet_init(void);
 extern void toolkit_packet_deinit(void);

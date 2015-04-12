@@ -82,6 +82,10 @@ typedef void (*chunk_destructor)(void *ptr);
  * Optional debugger to be called when debugging chunks.
  */
 typedef void (*chunk_debugger)(void *ptr, char *buf, size_t size);
+/**
+ * Validator to be used when detecting leaks.
+ */
+typedef bool (*chunk_validator)(void *ptr);
 
 /* Definitions used for array handling */
 #define MEMPOOL_NROF_FREELISTS 8
@@ -138,7 +142,8 @@ typedef struct mempool_struct {
     chunk_destructor destructor; ///< @copydoc chunk_destructor
 
 #ifndef NDEBUG
-    chunk_debugger debugger; ///< @copydoc chunk_debugger;
+    chunk_debugger debugger; ///< @copydoc chunk_debugger
+    chunk_validator validator; ///< @copydoc chunk_validator
 #endif
 } mempool_struct;
 

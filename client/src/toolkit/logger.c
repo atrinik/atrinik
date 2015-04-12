@@ -72,6 +72,34 @@ static const char *const logger_names[LOG_MAX] = {
 };
 
 /**
+ * Escape sequence IDs.
+ */
+enum {
+    LOGGER_ESC_SEQ_BOLD,
+    LOGGER_ESC_SEQ_BLACK,
+    LOGGER_ESC_SEQ_RED,
+    LOGGER_ESC_SEQ_GREEN,
+    LOGGER_ESC_SEQ_YELLOW,
+    LOGGER_ESC_SEQ_BLUE,
+    LOGGER_ESC_SEQ_MAGENTA,
+    LOGGER_ESC_SEQ_CYAN,
+    LOGGER_ESC_SEQ_WHITE,
+    LOGGER_ESC_SEQ_END,
+
+    LOGGER_ESC_SEQ_MAX
+};
+
+/**
+ * Acquire the specified escape sequence from ::logger_escape_seqs.
+ */
+#define LOGGER_ESC_SEQ(_x) (logger_escape_seqs[LOGGER_ESC_SEQ_ ## _x])
+
+/**
+ * Escape sequence strings.
+ */
+static char logger_escape_seqs[LOGGER_ESC_SEQ_MAX][10] = {};
+
+/**
  * Which messages to print out.
  */
 static uint64 logger_filter_stdout;
@@ -90,6 +118,11 @@ void toolkit_logger_init(void)
 
     TOOLKIT_INIT_FUNC_START(logger)
     {
+#ifdef WIN32
+        CONSOLE_SCREEN_BUFFER_INFO sbi;
+        DWORD mode;
+#endif
+
         toolkit_import(string);
 
         log_fp = NULL;
@@ -97,6 +130,24 @@ void toolkit_logger_init(void)
 
         logger_filter_stdout = UINT64_MAX;
         logger_filter_logfile = UINT64_MAX;
+
+#ifdef WIN32
+        if (GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE),
+                &sbi)) {
+#else
+        if (isatty(fileno(stdout))) {
+#endif
+            snprintf(VS(LOGGER_ESC_SEQ(BOLD)), "%s", "\033[1m");
+            snprintf(VS(LOGGER_ESC_SEQ(BLACK)), "%s", "\033[30m");
+            snprintf(VS(LOGGER_ESC_SEQ(RED)), "%s", "\033[31m");
+            snprintf(VS(LOGGER_ESC_SEQ(GREEN)), "%s", "\033[32m");
+            snprintf(VS(LOGGER_ESC_SEQ(YELLOW)), "%s", "\033[33m");
+            snprintf(VS(LOGGER_ESC_SEQ(BLUE)), "%s", "\033[34m");
+            snprintf(VS(LOGGER_ESC_SEQ(MAGENTA)), "%s", "\033[35m");
+            snprintf(VS(LOGGER_ESC_SEQ(CYAN)), "%s", "\033[36m");
+            snprintf(VS(LOGGER_ESC_SEQ(WHITE)), "%s", "\033[37m");
+            snprintf(VS(LOGGER_ESC_SEQ(END)), "%s", "\033[0m");
+        }
     }
     TOOLKIT_INIT_FUNC_END()
 }
@@ -302,14 +353,11 @@ void logger_print(logger_level level, const char *function, uint64 line,
     }
 
     if ((1U << level) & logger_filter_stdout) {
-        snprintf(
-                VS(buf),
-                LOGGER_ESC_SEQ_BOLD "%s" LOGGER_ESC_SEQ_END
-                LOGGER_ESC_SEQ_RED "%-6s" LOGGER_ESC_SEQ_END " "
-                LOGGER_ESC_SEQ_CYAN "[%s:%"FMT64U "]" LOGGER_ESC_SEQ_END " "
-                LOGGER_ESC_SEQ_YELLOW "%s" LOGGER_ESC_SEQ_END "\n",
-                timebuf, logger_names[level], function, line, formatted
-                );
+        snprintf(VS(buf), "%s%s%s""%s%-6s%s ""%s[%s:%" FMT64U "]%s ""%s%s%s\n",
+                LOGGER_ESC_SEQ(BOLD), timebuf, LOGGER_ESC_SEQ(END),
+                LOGGER_ESC_SEQ(RED), logger_names[level], LOGGER_ESC_SEQ(END),
+                LOGGER_ESC_SEQ(CYAN), function, line, LOGGER_ESC_SEQ(END),
+                LOGGER_ESC_SEQ(YELLOW), formatted, LOGGER_ESC_SEQ(END));
         print_func(buf);
     }
 
