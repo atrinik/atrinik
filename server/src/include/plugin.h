@@ -373,7 +373,7 @@ typedef void *(*f_plug_pinit)(void);
 #define LIBPTRTYPE HMODULE
 #define plugins_dlopen(fname) LoadLibrary(fname)
 #define plugins_dlclose(lib) FreeLibrary(lib)
-#define plugins_dlsym(lib, name) GetProcAddress(lib, name)
+#define plugins_dlsym(lib, name) (void *) GetProcAddress(lib, name)
 #endif
 
 /** Check if the specified filename is a plugin file. */
