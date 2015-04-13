@@ -121,10 +121,10 @@
 #endif
 
 #ifdef WIN32
+#include <winsock2.h>
 #include <windows.h>
 #include <windowsx.h>
 #include <mmsystem.h>
-#include <winsock2.h>
 #include <shellapi.h>
 #include <imagehlp.h>
 
