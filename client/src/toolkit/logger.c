@@ -68,7 +68,9 @@ static const char *const logger_names[LOG_MAX] = {
     "BUG",
     "DEBUG",
     "DEVEL",
-    "PACKET"
+    "PACKET",
+    "DUMPRX",
+    "DUMPTX"
 };
 
 /**
@@ -125,8 +127,10 @@ void toolkit_logger_init(void)
         log_fp = NULL;
         logger_set_print_func(logger_do_print);
 
-        logger_filter_stdout = UINT64_MAX;
-        logger_filter_logfile = UINT64_MAX;
+        logger_filter_stdout = logger_filter_logfile = 0;
+
+        logger_set_filter_stdout("all,-dumptx,-dumprx");
+        logger_set_filter_logfile("all,-dumptx,-dumprx");
 
         if (logger_term_has_ansi_colors()) {
             snprintf(VS(LOGGER_ESC_SEQ(BOLD)), "%s", "\033[1m");
