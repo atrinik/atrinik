@@ -121,7 +121,6 @@ packet_struct *packet_new(uint8 type, size_t size, size_t expand)
 
 #ifndef NDEBUG
     packet->sb = stringbuffer_new();
-    packet_debug(packet, 0, "Packet type: %d\n", type);
 #endif
 
     return packet;

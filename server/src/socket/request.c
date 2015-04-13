@@ -48,12 +48,12 @@ void socket_command_setup(socket_struct *ns, player *pl, uint8 *data, size_t len
     while (pos < len) {
         type = packet_to_uint8(data, len, &pos);
         packet_append_uint8(packet, type);
-        packet_debug(packet, 1, "Setup type: %d\n", type);
+        packet_debug(packet, 0, "Setup type: %d\n", type);
 
         if (type == CMD_SETUP_SOUND) {
             ns->sound = packet_to_uint8(data, len, &pos);
             packet_append_uint8(packet, ns->sound);
-            packet_debug(packet, 2, "Sound: %d\n", ns->sound);
+            packet_debug(packet, 1, "Sound: %d\n", ns->sound);
         } else if (type == CMD_SETUP_MAPSIZE) {
             int x, y;
 
@@ -73,7 +73,7 @@ void socket_command_setup(socket_struct *ns, player *pl, uint8 *data, size_t len
 
             packet_append_uint8(packet, x);
             packet_append_uint8(packet, y);
-            packet_debug(packet, 2, "Map size: %dx%d\n", x, y);
+            packet_debug(packet, 1, "Map size: %dx%d\n", x, y);
         } else if (type == CMD_SETUP_BOT) {
             ns->is_bot = packet_to_uint8(data, len, &pos);
 
@@ -82,7 +82,7 @@ void socket_command_setup(socket_struct *ns, player *pl, uint8 *data, size_t len
             }
 
             packet_append_uint8(packet, ns->is_bot);
-            packet_debug(packet, 2, "Bot: %d\n", ns->is_bot);
+            packet_debug(packet, 1, "Bot: %d\n", ns->is_bot);
         } else if (type == CMD_SETUP_DATA_URL) {
             char url[MAX_BUF], *url_send;
 
@@ -95,7 +95,7 @@ void socket_command_setup(socket_struct *ns, player *pl, uint8 *data, size_t len
             }
 
             packet_append_string_terminated(packet, url_send);
-            packet_debug(packet, 2, "Data URL: %s\n", url_send);
+            packet_debug(packet, 1, "Data URL: %s\n", url_send);
         } else {
             log(LOG(PACKET), "Unknown type: %d", type);
         }
