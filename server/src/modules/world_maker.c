@@ -110,13 +110,13 @@ static void wm_images_init(void)
 {
     int i, x, y;
     gdImagePtr im, im2;
-    uint8 *data;
-    uint16 len;
+    uint8_t *data;
+    uint16_t len;
 
     wm_face_colors = emalloc(sizeof(*wm_face_colors) * nrofpixmaps);
 
     for (i = 0; i < nrofpixmaps; i++) {
-        uint64 total = 0, r = 0, g = 0, b = 0;
+        uint64_t total = 0, r = 0, g = 0, b = 0;
 
         /* Get the face's data. */
         face_get_data(i, &data, &len);
@@ -595,7 +595,7 @@ void world_maker(void)
 
         /* Custom background to use? */
         if (r->map_bg) {
-            uint32 im_r, im_g, im_b;
+            uint32_t im_r, im_g, im_b;
 
             /* Parse HTML color and fill the image with it. */
             if (sscanf(r->map_bg, "#%2X%2X%2X", &im_r, &im_g, &im_b) == 3) {
@@ -738,9 +738,9 @@ void world_maker(void)
                 gdImageFilledRectangle(
                         im, xpos, ypos,
                         MIN(xpos + ((tmp->path_attuned + 1) * MAX_PIXELS),
-                        (uint32) wm_r->w),
+                        (uint32_t) wm_r->w),
                         MIN(ypos + ((tmp->path_repelled + 1) * MAX_PIXELS),
-                        (uint32) wm_r->h),
+                        (uint32_t) wm_r->h),
                         gdImageColorAllocate(im, 0, 0, 0)
                         );
             }
@@ -793,11 +793,11 @@ void world_maker(void)
                         MAX(0, ypos - ((tmp->item_level) * MAX_PIXELS)),
                         MIN(xpos + ((tmp->item_level * 2) * MAX_PIXELS +
                         MAX_PIXELS) + (tmp->path_attuned * MAX_PIXELS),
-                        (uint32) wm_r->w
+                        (uint32_t) wm_r->w
                         ) - xpos,
                         MIN(ypos + ((tmp->item_level * 2) * MAX_PIXELS +
                         MAX_PIXELS) + (tmp->path_repelled * MAX_PIXELS),
-                        (uint32) wm_r->h
+                        (uint32_t) wm_r->h
                         ) - ypos,
                         tmp->name, tmp->msg);
 

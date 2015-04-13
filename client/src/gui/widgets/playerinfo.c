@@ -53,7 +53,7 @@ static void widget_draw(widgetdata *widget)
 /** @copydoc widgetdata::background_func */
 static void widget_background(widgetdata *widget, int draw)
 {
-    static uint32 action_tick = 0;
+    static uint32_t action_tick = 0;
 
     /* Pre-emptively tick down the skill delay timer */
     if (cpl.action_timer > 0) {

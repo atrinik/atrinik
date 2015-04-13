@@ -38,7 +38,7 @@
 /**
  * If 1, the API has been initialized.
  */
-static uint8 did_init = 0;
+static uint8_t did_init = 0;
 
 /**
  * Initialize the string API.
@@ -258,9 +258,9 @@ void string_replace_unprintable_chars(char *buf)
  * @param num Number.
  * @return Thousands-separated string.
  */
-char *string_format_number_comma(uint64 num)
+char *string_format_number_comma(uint64_t num)
 {
-    static char retbuf[4 * (sizeof(uint64) * CHAR_BIT + 2) / 3 / 3 + 1];
+    static char retbuf[4 * (sizeof(uint64_t) * CHAR_BIT + 2) / 3 / 3 + 1];
     char *buf;
     int i = 0;
 
@@ -404,7 +404,7 @@ const char *string_get_word(const char *str, size_t *pos, char delim,
         char *word, size_t wordsize, int surround)
 {
     size_t i;
-    uint8 in_surround;
+    uint8_t in_surround;
 
     TOOLKIT_FUNC_PROTECTOR(API_NAME);
 
@@ -441,7 +441,7 @@ const char *string_get_word(const char *str, size_t *pos, char delim,
  */
 void string_skip_word(const char *str, size_t *i, int dir)
 {
-    uint8 whitespace;
+    uint8_t whitespace;
 
     TOOLKIT_FUNC_PROTECTOR(API_NAME);
 
@@ -513,7 +513,7 @@ void string_capitalize(char *str)
  */
 void string_title(char *str)
 {
-    uint8 previous_cased;
+    uint8_t previous_cased;
 
     TOOLKIT_FUNC_PROTECTOR(API_NAME);
 

@@ -258,9 +258,9 @@ int server_files_listing_processed(void)
             }
 
             log(LOG(DEVEL),
-                    "%-10s CRC32: %lu (local: %lu) Size: %"FMT64U" ("
-                    "local: %"FMT64U") Update: %d", tmp->name, crc, tmp->crc32,
-                    (uint64) fsize, (uint64) tmp->size, tmp->update);
+                    "%-10s CRC32: %lu (local: %lu) Size: %"PRIu64" ("
+                    "local: %"PRIu64") Update: %d", tmp->name, crc, tmp->crc32,
+                    (uint64_t) fsize, (uint64_t) tmp->size, tmp->update);
 
             tmp->crc32 = crc;
             tmp->size = fsize;
@@ -311,9 +311,9 @@ static int server_file_process(server_files_struct *tmp)
     }
 
     log(LOG(DEVEL),
-            "Download finished: %s, ret: %d, http_code: %d, size: %"FMT64U,
+            "Download finished: %s, ret: %d, http_code: %d, size: %"PRIu64,
             tmp->name, ret, tmp->dl_data->http_code,
-            (uint64) tmp->dl_data->size);
+            (uint64_t) tmp->dl_data->size);
 
     /* Done. */
     if (ret == 1) {

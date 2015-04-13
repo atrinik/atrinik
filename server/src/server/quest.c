@@ -66,7 +66,7 @@ static object *quest_find(object *quest, shstr *quest_name)
  * @return 1 if the player has the quest item, 0 otherwise.
  */
 static int quest_item_check(object *op, object *quest_item, int flag,
-        sint64 *num)
+        int64_t *num)
 {
     object *tmp;
 
@@ -222,7 +222,7 @@ static void quest_check_item(object *op, object *quest, object *quest_pl,
         object *item)
 {
     object *clone;
-    sint64 num;
+    int64_t num;
     char buf[MAX_BUF];
 
     if (item == NULL) {
@@ -260,7 +260,7 @@ static void quest_check_item(object *op, object *quest, object *quest_pl,
             QUEST_NAME(quest_pl), query_base_name(clone, NULL));
 
     if (quest_pl->last_grace > 1) {
-        snprintfcat(VS(buf), " (%"FMT64"/%d)", num + MAX(1, clone->nrof),
+        snprintfcat(VS(buf), " (%"PRId64"/%d)", num + MAX(1, clone->nrof),
                 quest_pl->last_grace);
     }
 

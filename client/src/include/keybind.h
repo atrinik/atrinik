@@ -45,7 +45,7 @@ typedef struct keybind_struct {
     SDLMod mod;
 
     /** Whether to trigger repeat. */
-    uint8 repeat;
+    uint8_t repeat;
 } keybind_struct;
 
 /** How quickly the key repeats. */

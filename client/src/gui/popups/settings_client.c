@@ -69,14 +69,14 @@ static text_input_struct *text_input_selected;
  * @param cat Category.
  * @param set Setting.
  * @param val Modifier. */
-static void setting_change_value(int cat, int set, sint64 val)
+static void setting_change_value(int cat, int set, int64_t val)
 {
     setting_struct *setting = setting_categories[cat]->settings[set];
 
     if (setting->type == OPT_TYPE_BOOL) {
         setting_set_int(cat, set, !setting_get_int(cat, set));
     } else if (setting->type == OPT_TYPE_SELECT || setting->type == OPT_TYPE_RANGE) {
-        sint64 old_val, new_val, advance;
+        int64_t old_val, new_val, advance;
 
         if (!val) {
             return;
@@ -94,7 +94,7 @@ static void setting_change_value(int cat, int set, sint64 val)
         if (setting->type == OPT_TYPE_SELECT) {
             setting_select *s_select = SETTING_SELECT(setting);
 
-            if (new_val >= (sint64) s_select->options_len) {
+            if (new_val >= (int64_t) s_select->options_len) {
                 new_val = 0;
             } else if (new_val < 0) {
                 new_val = s_select->options_len - 1;
@@ -117,7 +117,7 @@ static void setting_change_value(int cat, int set, sint64 val)
  * @return The setting ID if found, -1 otherwise. */
 static int setting_find_by_text_input(text_input_struct *text_input)
 {
-    uint32 row;
+    uint32_t row;
     setting_struct *setting;
 
     for (row = 0; row < list_settings->rows; row++) {
@@ -136,7 +136,7 @@ static int setting_find_by_text_input(text_input_struct *text_input)
 /** @copydoc button_struct::repeat_func */
 static void settings_list_button_repeat(button_struct *button)
 {
-    uint32 row;
+    uint32_t row;
     setting_struct *setting;
 
     for (row = 0; row < list_settings->rows; row++) {
@@ -241,7 +241,7 @@ static void settings_list_reload(void)
 }
 
 /** @copydoc list_struct::post_column_func */
-static void list_post_column(list_struct *list, uint32 row, uint32 col)
+static void list_post_column(list_struct *list, uint32_t row, uint32_t col)
 {
     setting_struct *setting;
     int x, y, mx, my;
@@ -286,7 +286,7 @@ static void list_post_column(list_struct *list, uint32 row, uint32 col)
         }
     } else if (setting->type == OPT_TYPE_SELECT || setting->type == OPT_TYPE_RANGE) {
         button_struct *button_left, *button_right;
-        sint64 val;
+        int64_t val;
         SDL_Rect dst;
 
         button_left = &((list_settings_graphic_union *) list_settings->data)[row].button[0];
@@ -303,7 +303,7 @@ static void list_post_column(list_struct *list, uint32 row, uint32 col)
         if (setting->type == OPT_TYPE_SELECT) {
             text_show(list->surface, FONT_ARIAL10, SETTING_SELECT(setting)->options[val], dst.x, dst.y, COLOR_WHITE, TEXT_ALIGN_CENTER, &dst);
         } else if (setting->type == OPT_TYPE_RANGE) {
-            text_show_format(list->surface, FONT_ARIAL10, dst.x, dst.y, COLOR_WHITE, TEXT_ALIGN_CENTER, &dst, "%"FMT64, val);
+            text_show_format(list->surface, FONT_ARIAL10, dst.x, dst.y, COLOR_WHITE, TEXT_ALIGN_CENTER, &dst, "%"PRId64, val);
         }
 
         button_left->surface = list->surface;
@@ -365,7 +365,7 @@ static void list_post_column(list_struct *list, uint32 row, uint32 col)
 /** @copydoc list_struct::handle_enter_func */
 static void list_handle_enter(list_struct *list, SDL_Event *event)
 {
-    uint32 row;
+    uint32_t row;
     setting_struct *setting;
 
     if (list->row_selected == 0) {
@@ -387,7 +387,7 @@ static void list_handle_enter(list_struct *list, SDL_Event *event)
 }
 
 /** @copydoc list_struct::handle_mouse_row_func */
-static void list_handle_mouse_row(list_struct *list, uint32 row, SDL_Event *event)
+static void list_handle_mouse_row(list_struct *list, uint32_t row, SDL_Event *event)
 {
     if (event->type == SDL_MOUSEMOTION) {
         list->row_selected = row + 1;
@@ -491,7 +491,7 @@ static int popup_draw(popup_struct *popup)
 /** @copydoc popup_struct::event_func */
 static int popup_event(popup_struct *popup, SDL_Event *event)
 {
-    uint32 row;
+    uint32_t row;
     setting_struct *setting;
 
     if (event->type == SDL_KEYDOWN) {

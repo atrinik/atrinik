@@ -42,7 +42,7 @@ ClientSocket csocket;
 server_struct *selected_server = NULL;
 
 /** System time counter in ms since program start. */
-uint32 LastTick;
+uint32_t LastTick;
 
 texture_struct *cursor_texture;
 int cursor_x = -1;
@@ -67,7 +67,7 @@ _face_struct FaceList[MAX_FACE_TILES];
 /** The message animation structure. */
 struct msg_anim_struct msg_anim;
 /** Last time we sent keepalive command. */
-static uint32 last_keepalive;
+static uint32_t last_keepalive;
 
 /**
  * Command line option settings. */
@@ -79,8 +79,8 @@ clioption_settings_struct clioption_settings;
 typedef struct keepalive_data_struct {
     struct keepalive_data_struct *next; ///< Next keepalive data.
 
-    uint32 ticks; ///< When the keepalive command was sent.
-    uint32 id; ///< ID of the keepalive command.
+    uint32_t ticks; ///< When the keepalive command was sent.
+    uint32_t id; ///< ID of the keepalive command.
 } keepalive_data_struct;
 
 static keepalive_data_struct *keepalive_data; ///< Keepalive data.
@@ -143,9 +143,9 @@ void keepalive_ping_stats(void)
 }
 
 /** @copydoc socket_command_struct::handle_func */
-void socket_command_keepalive(uint8 *data, size_t len, size_t pos)
+void socket_command_keepalive(uint8_t *data, size_t len, size_t pos)
 {
-    uint32 id, ticks;
+    uint32_t id, ticks;
     keepalive_data_struct *keepalive, *tmp;
 
     id = packet_to_uint32(data, len, &pos);
@@ -206,7 +206,7 @@ static int game_status_chain(void)
     } else if (cpl.state == ST_META) {
         size_t i, pos;
         char host[MAX_BUF], port[MAX_BUF];
-        uint16 port_num;
+        uint16_t port_num;
 
         metaserver_clear_data();
 
@@ -436,7 +436,7 @@ int main(int argc, char *argv[])
 {
     char *path;
     int done = 0, update, frames;
-    uint32 anim_tick, frame_start_time, elapsed_time, fps_limit,
+    uint32_t anim_tick, frame_start_time, elapsed_time, fps_limit,
             last_frame_ticks;
     int fps_limits[] = {30, 60, 120, 0};
     char version[MAX_BUF], buf[HUGE_BUF];

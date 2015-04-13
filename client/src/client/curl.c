@@ -315,7 +315,7 @@ int curl_connect(void *c_data)
     CURLcode res;
     long http_code;
     struct curl_slist *chunk;
-    sint8 status;
+    int8_t status;
 
     HARD_ASSERT(c_data != NULL);
 
@@ -549,9 +549,9 @@ curl_data *curl_download_start(const char *url, const char *path)
  * @param data cURL data structure that was returned by a previous
  * curl_download_start() call.
  * @return @copydoc curl_data::status */
-sint8 curl_download_finished(curl_data *data)
+int8_t curl_download_finished(curl_data *data)
 {
-    sint8 status;
+    int8_t status;
 
     HARD_ASSERT(data != NULL);
 

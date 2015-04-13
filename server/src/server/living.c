@@ -82,7 +82,7 @@ float speed_bonus[MAX_STAT + 1] = {
  *
  * These limits are probably overly generous, but being there were no
  * values before, you need to start someplace. */
-uint32 weight_limit[MAX_STAT + 1] = {
+uint32_t weight_limit[MAX_STAT + 1] = {
     20000,
     25000,  30000,  35000,  40000,  50000,
     60000,  70000,  80000,  90000,  100000,
@@ -184,7 +184,7 @@ const char *const short_stat_name[NUM_STATS] = {
  * @param stats Item to modify. Must not be NULL.
  * @param attr Attribute to change.
  * @param value New value. */
-void set_attr_value(living *stats, int attr, sint8 value)
+void set_attr_value(living *stats, int attr, int8_t value)
 {
     switch (attr) {
     case STR:
@@ -226,9 +226,9 @@ void set_attr_value(living *stats, int attr, sint8 value)
  * @param stats Item to modify. Must not be NULL.
  * @param attr Attribute to change.
  * @param value Delta (can be positive). */
-void change_attr_value(living *stats, int attr, sint8 value)
+void change_attr_value(living *stats, int attr, int8_t value)
 {
-    sint16 result;
+    int16_t result;
 
     if (value == 0) {
         return;
@@ -237,7 +237,7 @@ void change_attr_value(living *stats, int attr, sint8 value)
     result = get_attr_value(stats, attr) + value;
 
     /* Prevent possible overflow of the stat. */
-    if (result > SINT8_MAX || result < SINT8_MIN) {
+    if (result > INT8_MAX || result < INT8_MIN) {
         return;
     }
 
@@ -250,7 +250,7 @@ void change_attr_value(living *stats, int attr, sint8 value)
  * @param attr Attribute to get.
  * @return Specified attribute, 0 if not found.
  * @see set_attr_value(). */
-sint8 get_attr_value(living *stats, int attr)
+int8_t get_attr_value(living *stats, int attr)
 {
     switch (attr) {
     case STR:
@@ -834,8 +834,8 @@ void living_update_player(object *op)
         double f = ((double) weight_limit[op->stats.Str] / 100.0f) *
         ENCUMBRANCE_LIMIT;
 
-        if (((sint32) f) <= op->carrying) {
-            if (op->carrying >= (sint32) weight_limit[op->stats.Str]) {
+        if (((int32_t) f) <= op->carrying) {
+            if (op->carrying >= (int32_t) weight_limit[op->stats.Str]) {
                 op->speed = 0.01f;
             } else {
                 /* Total encumbrance weight part */
@@ -1067,7 +1067,7 @@ void living_update_monster(object *op)
         SET_MULTI_FLAG(op, FLAG_FRIENDLY);
     }
 
-    op->stats.dam = (sint16) (((float) op->stats.dam *
+    op->stats.dam = (int16_t) (((float) op->stats.dam *
             ((LEVEL_DAMAGE(op->level < 0 ? 0 : op->level) + tmp_add) *
             (0.925f + 0.05 * (op->level / 10)))) / 10.0f);
 
@@ -1340,7 +1340,7 @@ static int living_update_display(object *op, object *refop, player *refpl)
     if (op->path_attuned != refop->path_attuned ||
             op->path_repelled != refop->path_repelled ||
             op->path_denied != refop->path_denied) {
-        uint32 path;
+        uint32_t path;
 
         for (i = 0; i < PATH_NUM; i++) {
             path = 1U << i;

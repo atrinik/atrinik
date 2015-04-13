@@ -366,9 +366,9 @@ static const char *popup_clipboard_copy_func(popup_struct *popup)
 }
 
 /** @copydoc socket_command_struct::handle_func */
-void socket_command_interface(uint8 *data, size_t len, size_t pos)
+void socket_command_interface(uint8_t *data, size_t len, size_t pos)
 {
-    uint8 scroll_bottom = 0, type;
+    uint8_t scroll_bottom = 0, type;
     StringBuffer *sb_message;
     SDL_Rect box;
     interface_struct *old_interface_data;

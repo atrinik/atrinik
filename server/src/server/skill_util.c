@@ -83,9 +83,9 @@ static int do_skill_attack(object *tmp, object *op, char *string);
  * @param dir The direction in which the skill is used.
  * @param params String option for the skill.
  * @return 0 on failure of using the skill, non-zero otherwise. */
-sint64 do_skill(object *op, int dir, const char *params)
+int64_t do_skill(object *op, int dir, const char *params)
 {
-    sint64 success = 0;
+    int64_t success = 0;
     int skill = op->chosen_skill->stats.sp;
 
     /* Trigger the map-wide skill event. */
@@ -138,10 +138,10 @@ sint64 do_skill(object *op, int dir, const char *params)
  * @param level Level of the skill. If -1, will get level of who's chosen
  * skill.
  * @return Experience for the skill use. */
-sint64 calc_skill_exp(object *who, object *op, int level)
+int64_t calc_skill_exp(object *who, object *op, int level)
 {
     int who_lvl = level;
-    sint64 op_exp = 0;
+    int64_t op_exp = 0;
     int op_lvl = 0;
     float exp_mul, max_mul, tmp;
 
@@ -289,7 +289,7 @@ void link_player_skills(object *pl)
         if (!QUERY_FLAG(CONTR(pl)->skill_ptr[i], FLAG_STAND_STILL)) {
             pl->stats.exp += CONTR(pl)->skill_ptr[i]->stats.exp;
 
-            if (pl->stats.exp >= (sint64) MAX_EXPERIENCE) {
+            if (pl->stats.exp >= (int64_t) MAX_EXPERIENCE) {
                 pl->stats.exp = MAX_EXPERIENCE;
             }
         }

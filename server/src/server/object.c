@@ -358,7 +358,7 @@ int CAN_MERGE(object *ob1, object *ob2)
 
     /* Do not merge objects if nrof would overflow. We use SINT32_MAX
      * because sint32 is often used to store nrof instead of uint32. */
-    if (ob1->nrof + ob2->nrof > SINT32_MAX) {
+    if (ob1->nrof + ob2->nrof > INT32_MAX) {
         return 0;
     }
 
@@ -550,7 +550,7 @@ object *object_merge(object *op)
  * @return The calculated weight */
 signed long sum_weight(object *op)
 {
-    sint32 sum;
+    int32_t sum;
     object *inv;
 
     if (QUERY_FLAG(op, FLAG_SYS_OBJECT)) {
@@ -575,7 +575,7 @@ signed long sum_weight(object *op)
          * This allows us to reliably calculate the weight again in
          * add_weight() and sub_weight() without rounding errors. */
         op->damage_round_tag = sum;
-        sum = (sint32) ((float) sum * op->weapon_speed);
+        sum = (int32_t) ((float) sum * op->weapon_speed);
     }
 
     op->carrying = sum;
@@ -587,14 +587,14 @@ signed long sum_weight(object *op)
  * environment(s) is/are carrying.
  * @param op The object
  * @param weight The weight to add */
-void add_weight(object *op, sint32 weight)
+void add_weight(object *op, int32_t weight)
 {
     while (op) {
         if (op->type == CONTAINER && op->weapon_speed != 1.0f) {
-            sint32 old_carrying = op->carrying;
+            int32_t old_carrying = op->carrying;
 
             op->damage_round_tag += weight;
-            op->carrying = (sint32) ((float) op->damage_round_tag * op->weapon_speed);
+            op->carrying = (int32_t) ((float) op->damage_round_tag * op->weapon_speed);
             weight = op->carrying - old_carrying;
         } else {
             op->carrying += weight;
@@ -613,14 +613,14 @@ void add_weight(object *op, sint32 weight)
  * (and what is carried by its environment(s)).
  * @param op The object
  * @param weight The weight to subtract */
-void sub_weight(object *op, sint32 weight)
+void sub_weight(object *op, int32_t weight)
 {
     while (op) {
         if (op->type == CONTAINER && op->weapon_speed != 1.0f) {
-            sint32 old_carrying = op->carrying;
+            int32_t old_carrying = op->carrying;
 
             op->damage_round_tag -= weight;
-            op->carrying = (sint32) ((float) op->damage_round_tag * op->weapon_speed);
+            op->carrying = (int32_t) ((float) op->damage_round_tag * op->weapon_speed);
             weight = old_carrying - op->carrying;
         } else {
             op->carrying -= weight;
@@ -1881,7 +1881,7 @@ void replace_insert_ob_in_map(char *arch_string, object *op)
     insert_ob_in_map(tmp1, op->map, op, 0);
 }
 
-object *object_stack_get(object *op, uint32 nrof)
+object *object_stack_get(object *op, uint32_t nrof)
 {
     object *split;
 
@@ -1907,7 +1907,7 @@ object *object_stack_get(object *op, uint32 nrof)
     return split;
 }
 
-object *object_stack_get_reinsert(object *op, uint32 nrof)
+object *object_stack_get_reinsert(object *op, uint32_t nrof)
 {
     object *split;
 
@@ -1924,7 +1924,7 @@ object *object_stack_get_reinsert(object *op, uint32 nrof)
     return split;
 }
 
-object *object_stack_get_removed(object *op, uint32 nrof)
+object *object_stack_get_removed(object *op, uint32_t nrof)
 {
     object *split;
 
@@ -1946,7 +1946,7 @@ object *object_stack_get_removed(object *op, uint32 nrof)
  * @param op Object to decrease.
  * @param i Number to remove.
  * @return 'op' if something is left, NULL if the amount reached 0. */
-object *decrease_ob_nr(object *op, uint32 i)
+object *decrease_ob_nr(object *op, uint32_t i)
 {
     /* Objects with op->nrof require this check */
     if (i == 0) {
@@ -2123,7 +2123,7 @@ object *present_arch(archetype *at, mapstruct *m, int x, int y)
  * @param x X coordinate on map.
  * @param y Y coordinate on map.
  * @return First matching object, or NULL if none matches. */
-object *present(uint8 type, mapstruct *m, int x, int y)
+object *present(uint8_t type, mapstruct *m, int x, int y)
 {
     object *tmp;
 
@@ -2146,7 +2146,7 @@ object *present(uint8 type, mapstruct *m, int x, int y)
  * @param type Type to search for.
  * @param op Object to search into.
  * @return First matching object, or NULL if none matches. */
-object *present_in_ob(uint8 type, object *op)
+object *present_in_ob(uint8_t type, object *op)
 {
     object *tmp;
 
@@ -3027,7 +3027,7 @@ void object_reverse_inventory(object *op)
     }
 }
 
-int object_enter_map(object *op, object *exit_ob, mapstruct *m, int x, int y, uint8 fixed_pos)
+int object_enter_map(object *op, object *exit_ob, mapstruct *m, int x, int y, uint8_t fixed_pos)
 {
     mapstruct *oldmap;
 
@@ -3045,7 +3045,7 @@ int object_enter_map(object *op, object *exit_ob, mapstruct *m, int x, int y, ui
 
         if (strcmp(EXIT_PATH(exit_ob), "/random/") == 0) {
             char newmap_name[HUGE_BUF];
-            static uint64 reference_number = 0;
+            static uint64_t reference_number = 0;
             RMParms rp;
 
             memset(&rp, 0, sizeof(RMParms));
@@ -3063,7 +3063,7 @@ int object_enter_map(object *op, object *exit_ob, mapstruct *m, int x, int y, ui
 
             /* Pick a new pathname for the new map. Currently, we just use a
              * static variable and increment the counter by one each time. */
-            snprintf(newmap_name, sizeof(newmap_name), "/random/%"FMT64U, reference_number++);
+            snprintf(newmap_name, sizeof(newmap_name), "/random/%"PRIu64, reference_number++);
 
             /* Now to generate the actual map. */
             m = generate_random_map(newmap_name, &rp);

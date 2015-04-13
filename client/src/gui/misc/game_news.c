@@ -61,11 +61,11 @@ typedef struct game_news_struct {
 
     /**
      * Scroll offset. */
-    uint32 scroll_offset;
+    uint32_t scroll_offset;
 
     /**
      * Number of lines. */
-    uint32 num_lines;
+    uint32_t num_lines;
 } game_news_struct;
 
 /** @copydoc popup_struct::draw_func */

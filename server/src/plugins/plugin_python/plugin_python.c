@@ -1161,7 +1161,7 @@ static PyObject *Atrinik_RegisterCommand(PyObject *self, PyObject *args)
 {
     const char *name;
     double speed;
-    uint64 flags = 0;
+    uint64_t flags = 0;
 
     (void) self;
 
@@ -1331,7 +1331,7 @@ static PyObject *Atrinik_GetRangeVectorFromMapCoords(PyObject *self, PyObject *a
  * @return The built string. */
 static PyObject *Atrinik_CostString(PyObject *self, PyObject *args)
 {
-    sint64 value;
+    int64_t value;
 
     (void) self;
 
@@ -1805,7 +1805,7 @@ static int handle_global_event(int event_type, va_list args)
     case GEVENT_CACHE_REMOVED:
     {
         void *ptr = va_arg(args, void *);
-        uint32 flags = *(uint32 *) va_arg(args, void *);
+        uint32_t flags = *(uint32_t *) va_arg(args, void *);
 
         if (flags & CACHE_FLAG_PYOBJ) {
             PyObject *retval;
@@ -2069,8 +2069,8 @@ static void module_add_array(PyObject *module, const char *name, void *array, si
 
     /* Add entries to the list. */
     for (i = 0; i < array_size; i++) {
-        if (type == FIELDTYPE_SINT32) {
-            PyList_Append(list, Py_BuildValue("i", ((sint32 *) array)[i]));
+        if (type == FIELDTYPE_INT32) {
+            PyList_Append(list, Py_BuildValue("i", ((int32_t *) array)[i]));
         } else if (type == FIELDTYPE_CSTR) {
             PyList_Append(list, Py_BuildValue("s", ((char **) array)[i]));
         }
@@ -2114,8 +2114,8 @@ MODULEAPI void initPlugin(struct plugin_hooklist *hooklist)
     }
 
     module_add_constants(m, "Type", constants_types);
-    module_add_array(m, "freearr_x", hooks->freearr_x, SIZEOFFREE, FIELDTYPE_SINT32);
-    module_add_array(m, "freearr_y", hooks->freearr_y, SIZEOFFREE, FIELDTYPE_SINT32);
+    module_add_array(m, "freearr_x", hooks->freearr_x, SIZEOFFREE, FIELDTYPE_INT32);
+    module_add_array(m, "freearr_y", hooks->freearr_y, SIZEOFFREE, FIELDTYPE_INT32);
 
     /* Initialize integer constants */
     for (i = 0; constants[i].name; i++) {
@@ -2187,7 +2187,7 @@ static int set_animation_field(void *ptr, long anim_id)
         return -1;
     }
 
-    *(uint16 *) ptr = (uint16) anim_id;
+    *(uint16_t *) ptr = (uint16_t) anim_id;
     return 0;
 }
 
@@ -2262,24 +2262,24 @@ int generic_field_setter(fields_struct *field, void *ptr, PyObject *value)
                 return -1;
             }
 
-            *(uint8 *) field_ptr = (uint8) val;
+            *(uint8_t *) field_ptr = (uint8_t) val;
         } else {
             INTRAISE("Illegal value for uint8 field.");
         }
 
         break;
 
-    case FIELDTYPE_SINT8:
+    case FIELDTYPE_INT8:
 
         if (PyInt_Check(value)) {
             long val = PyLong_AsLong(value);
 
-            if (val < SINT8_MIN || val > SINT8_MAX) {
+            if (val < INT8_MIN || val > INT8_MAX) {
                 PyErr_SetString(PyExc_OverflowError, "Invalid integer value for sint8 field.");
                 return -1;
             }
 
-            *(sint8 *) field_ptr = (sint8) val;
+            *(int8_t *) field_ptr = (int8_t) val;
         } else {
             INTRAISE("Illegal value for sint8 field.");
         }
@@ -2296,24 +2296,24 @@ int generic_field_setter(fields_struct *field, void *ptr, PyObject *value)
                 return -1;
             }
 
-            *(uint16 *) field_ptr = (uint16) val;
+            *(uint16_t *) field_ptr = (uint16_t) val;
         } else {
             INTRAISE("Illegal value for uint16 field.");
         }
 
         break;
 
-    case FIELDTYPE_SINT16:
+    case FIELDTYPE_INT16:
 
         if (PyInt_Check(value)) {
             long val = PyLong_AsLong(value);
 
-            if (val < SINT16_MIN || val > SINT16_MAX) {
+            if (val < INT16_MIN || val > INT16_MAX) {
                 PyErr_SetString(PyExc_OverflowError, "Invalid integer value for sint16 field.");
                 return -1;
             }
 
-            *(sint16 *) field_ptr = (sint16) val;
+            *(int16_t *) field_ptr = (int16_t) val;
         } else {
             INTRAISE("Illegal value for sint16 field.");
         }
@@ -2330,24 +2330,24 @@ int generic_field_setter(fields_struct *field, void *ptr, PyObject *value)
                 return -1;
             }
 
-            *(uint32 *) field_ptr = (uint32) val;
+            *(uint32_t *) field_ptr = (uint32_t) val;
         } else {
             INTRAISE("Illegal value for uint32 field.");
         }
 
         break;
 
-    case FIELDTYPE_SINT32:
+    case FIELDTYPE_INT32:
 
         if (PyInt_Check(value)) {
             long val = PyLong_AsLong(value);
 
-            if (val < SINT32_MIN || val > SINT32_MAX) {
+            if (val < INT32_MIN || val > INT32_MAX) {
                 PyErr_SetString(PyExc_OverflowError, "Invalid integer value for sint32 field.");
                 return -1;
             }
 
-            *(sint32 *) field_ptr = (sint32) val;
+            *(int32_t *) field_ptr = (int32_t) val;
         } else {
             INTRAISE("Illegal value for sint32 field.");
         }
@@ -2364,14 +2364,14 @@ int generic_field_setter(fields_struct *field, void *ptr, PyObject *value)
                 return -1;
             }
 
-            *(uint64 *) field_ptr = (uint64) val;
+            *(uint64_t *) field_ptr = (uint64_t) val;
         } else {
             INTRAISE("Illegal value for uint64 field.");
         }
 
         break;
 
-    case FIELDTYPE_SINT64:
+    case FIELDTYPE_INT64:
 
         if (PyInt_Check(value)) {
             PY_LONG_LONG val = PyLong_AsLongLong(value);
@@ -2381,7 +2381,7 @@ int generic_field_setter(fields_struct *field, void *ptr, PyObject *value)
                 return -1;
             }
 
-            *(sint64 *) field_ptr = (sint64) val;
+            *(int64_t *) field_ptr = (int64_t) val;
         } else {
             INTRAISE("Illegal value for sint64 field.");
         }
@@ -2559,9 +2559,9 @@ int generic_field_setter(fields_struct *field, void *ptr, PyObject *value)
     case FIELDTYPE_BOOLEAN:
 
         if (value == Py_True) {
-            *(uint8 *) field_ptr = 1;
+            *(uint8_t *) field_ptr = 1;
         } else if (value == Py_False) {
-            *(uint8 *) field_ptr = 0;
+            *(uint8_t *) field_ptr = 0;
         } else {
             INTRAISE("Illegal value for boolean field.");
         }
@@ -2626,28 +2626,28 @@ PyObject *generic_field_getter(fields_struct *field, void *ptr)
         return Py_BuildValue("s", (char *) field_ptr);
 
     case FIELDTYPE_UINT8:
-        return Py_BuildValue("b", *(uint8 *) field_ptr);
+        return Py_BuildValue("b", *(uint8_t *) field_ptr);
 
-    case FIELDTYPE_SINT8:
-        return Py_BuildValue("B", *(sint8 *) field_ptr);
+    case FIELDTYPE_INT8:
+        return Py_BuildValue("B", *(int8_t *) field_ptr);
 
     case FIELDTYPE_UINT16:
-        return Py_BuildValue("H", *(uint16 *) field_ptr);
+        return Py_BuildValue("H", *(uint16_t *) field_ptr);
 
-    case FIELDTYPE_SINT16:
-        return Py_BuildValue("h", *(sint16 *) field_ptr);
+    case FIELDTYPE_INT16:
+        return Py_BuildValue("h", *(int16_t *) field_ptr);
 
     case FIELDTYPE_UINT32:
-        return Py_BuildValue("I", *(uint32 *) field_ptr);
+        return Py_BuildValue("I", *(uint32_t *) field_ptr);
 
-    case FIELDTYPE_SINT32:
-        return Py_BuildValue("i", *(sint32 *) field_ptr);
+    case FIELDTYPE_INT32:
+        return Py_BuildValue("i", *(int32_t *) field_ptr);
 
     case FIELDTYPE_UINT64:
-        return Py_BuildValue("K", *(uint64 *) field_ptr);
+        return Py_BuildValue("K", *(uint64_t *) field_ptr);
 
-    case FIELDTYPE_SINT64:
-        return Py_BuildValue("L", *(sint64 *) field_ptr);
+    case FIELDTYPE_INT64:
+        return Py_BuildValue("L", *(int64_t *) field_ptr);
 
     case FIELDTYPE_FLOAT:
         return Py_BuildValue("f", *(float *) field_ptr);
@@ -2685,10 +2685,10 @@ PyObject *generic_field_getter(fields_struct *field, void *ptr)
         return Py_BuildValue("(sH)", (*(New_Face **) field_ptr)->name, (*(New_Face **) field_ptr)->number);
 
     case FIELDTYPE_ANIMATION:
-        return Py_BuildValue("(sH)", (&(*hooks->animations)[*(uint16 *) field_ptr])->name, *(uint16 *) field_ptr);
+        return Py_BuildValue("(sH)", (&(*hooks->animations)[*(uint16_t *) field_ptr])->name, *(uint16_t *) field_ptr);
 
     case FIELDTYPE_BOOLEAN:
-        Py_ReturnBoolean(*(uint8 *) field_ptr);
+        Py_ReturnBoolean(*(uint8_t *) field_ptr);
 
     case FIELDTYPE_LIST:
         return wrap_attr_list(ptr, field->offset, field->extra_data);

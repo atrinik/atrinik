@@ -39,7 +39,7 @@
 
 /**
  * If 1, the API has been initialized. */
-static uint8 did_init = 0;
+static uint8_t did_init = 0;
 
 /**
  * Initialize the x11 API.
@@ -180,7 +180,7 @@ static char *x11_get_property(Display *display, Window win, Atom xa_prop_type, c
  * @param switch_desktop If 1, will also switch the desktop to that of
  * the window's desktop.
  * @author Tomas Styblo (wmctrl - GPLv2) */
-void x11_window_activate(x11_display_type display, x11_window_type win, uint8 switch_desktop)
+void x11_window_activate(x11_display_type display, x11_window_type win, uint8_t switch_desktop)
 {
     TOOLKIT_FUNC_PROTECTOR(API_NAME);
 

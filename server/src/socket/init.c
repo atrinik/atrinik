@@ -319,8 +319,8 @@ static void load_srv_file(char *fname, FILE *listing)
     sb = stringbuffer_new();
     cp = path_basename(fname);
     stringbuffer_append_printf(sb, "%s/http/data/%s.zz", settings.datapath, cp);
-    fprintf(listing, "%s:%"FMT64HEX":%"FMT64HEX"\n", cp, (uint64) crc,
-            (uint64) fsize);
+    fprintf(listing, "%s:%"PRIx64":%"PRIx64"\n", cp, (uint64_t) crc,
+            (uint64_t) fsize);
 
     efree(cp);
     cp = stringbuffer_finish(sb);
@@ -369,14 +369,14 @@ static void create_server_settings(void)
 
     for (i = 0; i < ALLOWED_CHARS_NUM; i++) {
         fprintf(fp, "text %s\n", settings.allowed_chars[i]);
-        fprintf(fp, "text %"FMT64U "-%"FMT64U "\n", (uint64) settings.limits[i][0], (uint64) settings.limits[i][1]);
+        fprintf(fp, "text %"PRIu64 "-%"PRIu64 "\n", (uint64_t) settings.limits[i][0], (uint64_t) settings.limits[i][1]);
     }
 
     /* Add the level information. */
     fprintf(fp, "level %d\n", MAXLEVEL);
 
     for (i = 0; i <= MAXLEVEL; i++) {
-        fprintf(fp, "%"FMT64HEX "\n", new_levels[i]);
+        fprintf(fp, "%"PRIx64 "\n", new_levels[i]);
     }
 
     fclose(fp);

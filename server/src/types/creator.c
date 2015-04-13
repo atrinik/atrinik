@@ -56,7 +56,7 @@ static int trigger_func(object *op, object *cause, int state)
 {
     int idx, roll;
     object *tmp, *clone_ob;
-    uint8 created;
+    uint8_t created;
 
     (void) cause;
     (void) state;

@@ -46,7 +46,7 @@
 
 /**
  * If 1, the API has been initialized. */
-static uint8 did_init = 0;
+static uint8_t did_init = 0;
 
 #ifdef HAVE_READLINE
 #include <readline/readline.h>

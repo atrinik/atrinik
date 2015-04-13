@@ -92,7 +92,7 @@ typedef struct text_input_struct {
 
     /**
      * If 1, the text input has focus. */
-    uint8 focus;
+    uint8_t focus;
 
     int (*character_check_func)(struct text_input_struct *text_input, char c);
 

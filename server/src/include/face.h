@@ -40,7 +40,7 @@ typedef struct new_face_struct {
     /**
      * This is the image ID. It should be the same value as its position
      * in the array. */
-    uint16 number;
+    uint16_t number;
 } New_Face;
 
 /** Map look structure. */
@@ -49,7 +49,7 @@ typedef struct map_look_struct {
     New_Face *face;
 
     /** Flags. */
-    uint8 flags;
+    uint8_t flags;
 } MapLook;
 
 /** Animations structure */
@@ -61,14 +61,14 @@ typedef struct {
     Fontindex *faces;
 
     /** Where we are in the array. */
-    uint16 num;
+    uint16_t num;
 
     /** How many different faces to animate. */
-    uint8 num_animations;
+    uint8_t num_animations;
 
     /** How many facings (9 and 25 are allowed only with the new ext anim
      * system). */
-    uint8 facings;
+    uint8_t facings;
 } Animations;
 
 #endif

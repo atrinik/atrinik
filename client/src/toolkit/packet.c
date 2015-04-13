@@ -40,7 +40,7 @@
 
 /**
  * If 1, the API has been initialized. */
-static uint8 did_init = 0;
+static uint8_t did_init = 0;
 
 /**
  * The packets memory pool. */
@@ -49,8 +49,8 @@ static mempool_struct *pool_packet;
 /** @copydoc chunk_debugger */
 static void packet_debugger(packet_struct *packet, char *buf, size_t size)
 {
-    snprintf(buf, size, "type: %d length: %"FMT64U" size: %"FMT64U,
-            packet->type, (uint64) packet->len, (uint64) packet->size);
+    snprintf(buf, size, "type: %d length: %"PRIu64" size: %"PRIu64,
+            packet->type, (uint64_t) packet->len, (uint64_t) packet->size);
 
     if (packet->data != NULL && packet->len != 0) {
 #define MAXHEXLEN 256
@@ -60,8 +60,8 @@ static void packet_debugger(packet_struct *packet, char *buf, size_t size)
         snprintfcat(buf, size, " data: %s", hexbuf);
 
         if (packet->len > MAXHEXLEN) {
-            snprintfcat(buf, size, " (%"FMT64" bytes follow)",
-                    (uint64) (packet->len - MAXHEXLEN));
+            snprintfcat(buf, size, " (%"PRId64" bytes follow)",
+                    (uint64_t) (packet->len - MAXHEXLEN));
         }
 #undef MAXHEXLEN
     }
@@ -102,7 +102,7 @@ void toolkit_packet_deinit(void)
  * @param expand The minimum size to expand by when there is not enough
  * bytes allocated.
  * @return The allocated packet. */
-packet_struct *packet_new(uint8 type, size_t size, size_t expand)
+packet_struct *packet_new(uint8_t type, size_t size, size_t expand)
 {
     packet_struct *packet;
 
@@ -157,7 +157,7 @@ void packet_compress(packet_struct *packet)
 
     if (packet->len > COMPRESS_DATA_PACKETS_SIZE && packet->type != CLIENT_CMD_DATA) {
         size_t new_size = compressBound(packet->len);
-        uint8 *dest;
+        uint8_t *dest;
 
         dest = emalloc(new_size + 5);
         dest[0] = packet->type;
@@ -266,7 +266,7 @@ char *packet_get_debug(packet_struct *packet)
     return cp;
 }
 
-void packet_append_uint8(packet_struct *packet, uint8 data)
+void packet_append_uint8(packet_struct *packet, uint8_t data)
 {
     TOOLKIT_FUNC_PROTECTOR(API_NAME);
     packet_ensure(packet, 1);
@@ -274,7 +274,7 @@ void packet_append_uint8(packet_struct *packet, uint8 data)
     packet->data[packet->len++] = data;
 }
 
-void packet_append_sint8(packet_struct *packet, sint8 data)
+void packet_append_int8(packet_struct *packet, int8_t data)
 {
     TOOLKIT_FUNC_PROTECTOR(API_NAME);
     packet_ensure(packet, 1);
@@ -282,7 +282,7 @@ void packet_append_sint8(packet_struct *packet, sint8 data)
     packet->data[packet->len++] = data;
 }
 
-void packet_append_uint16(packet_struct *packet, uint16 data)
+void packet_append_uint16(packet_struct *packet, uint16_t data)
 {
     TOOLKIT_FUNC_PROTECTOR(API_NAME);
     packet_ensure(packet, 2);
@@ -291,7 +291,7 @@ void packet_append_uint16(packet_struct *packet, uint16 data)
     packet->data[packet->len++] = data & 0xff;
 }
 
-void packet_append_sint16(packet_struct *packet, sint16 data)
+void packet_append_int16(packet_struct *packet, int16_t data)
 {
     TOOLKIT_FUNC_PROTECTOR(API_NAME);
     packet_ensure(packet, 2);
@@ -300,7 +300,7 @@ void packet_append_sint16(packet_struct *packet, sint16 data)
     packet->data[packet->len++] = data & 0xff;
 }
 
-void packet_append_uint32(packet_struct *packet, uint32 data)
+void packet_append_uint32(packet_struct *packet, uint32_t data)
 {
     TOOLKIT_FUNC_PROTECTOR(API_NAME);
     packet_ensure(packet, 4);
@@ -311,7 +311,7 @@ void packet_append_uint32(packet_struct *packet, uint32 data)
     packet->data[packet->len++] = data & 0xff;
 }
 
-void packet_append_sint32(packet_struct *packet, sint32 data)
+void packet_append_int32(packet_struct *packet, int32_t data)
 {
     TOOLKIT_FUNC_PROTECTOR(API_NAME);
     packet_ensure(packet, 4);
@@ -322,7 +322,7 @@ void packet_append_sint32(packet_struct *packet, sint32 data)
     packet->data[packet->len++] = data & 0xff;
 }
 
-void packet_append_uint64(packet_struct *packet, uint64 data)
+void packet_append_uint64(packet_struct *packet, uint64_t data)
 {
     TOOLKIT_FUNC_PROTECTOR(API_NAME);
     packet_ensure(packet, 8);
@@ -337,7 +337,7 @@ void packet_append_uint64(packet_struct *packet, uint64 data)
     packet->data[packet->len++] = data & 0xff;
 }
 
-void packet_append_sint64(packet_struct *packet, sint64 data)
+void packet_append_int64(packet_struct *packet, int64_t data)
 {
     TOOLKIT_FUNC_PROTECTOR(API_NAME);
     packet_ensure(packet, 8);
@@ -354,7 +354,7 @@ void packet_append_sint64(packet_struct *packet, sint64 data)
 
 void packet_append_float(packet_struct *packet, float data)
 {
-    uint32 val;
+    uint32_t val;
 
     TOOLKIT_FUNC_PROTECTOR(API_NAME);
 
@@ -364,7 +364,7 @@ void packet_append_float(packet_struct *packet, float data)
 
 void packet_append_double(packet_struct *packet, double data)
 {
-    uint64 val;
+    uint64_t val;
 
     TOOLKIT_FUNC_PROTECTOR(API_NAME);
 
@@ -372,7 +372,7 @@ void packet_append_double(packet_struct *packet, double data)
     packet_append_uint64(packet, val);
 }
 
-void packet_append_data_len(packet_struct *packet, const uint8 *data,
+void packet_append_data_len(packet_struct *packet, const uint8_t *data,
         size_t len)
 {
     TOOLKIT_FUNC_PROTECTOR(API_NAME);
@@ -389,7 +389,7 @@ void packet_append_data_len(packet_struct *packet, const uint8 *data,
 void packet_append_string(packet_struct *packet, const char *data)
 {
     TOOLKIT_FUNC_PROTECTOR(API_NAME);
-    packet_append_data_len(packet, (const uint8 *) data, strlen(data));
+    packet_append_data_len(packet, (const uint8_t *) data, strlen(data));
 }
 
 void packet_append_string_terminated(packet_struct *packet, const char *data)
@@ -399,9 +399,9 @@ void packet_append_string_terminated(packet_struct *packet, const char *data)
     packet_append_uint8(packet, '\0');
 }
 
-uint8 packet_to_uint8(uint8 *data, size_t len, size_t *pos)
+uint8_t packet_to_uint8(uint8_t *data, size_t len, size_t *pos)
 {
-    uint8 ret;
+    uint8_t ret;
 
     TOOLKIT_FUNC_PROTECTOR(API_NAME);
 
@@ -416,9 +416,9 @@ uint8 packet_to_uint8(uint8 *data, size_t len, size_t *pos)
     return ret;
 }
 
-sint8 packet_to_sint8(uint8 *data, size_t len, size_t *pos)
+int8_t packet_to_int8(uint8_t *data, size_t len, size_t *pos)
 {
-    sint8 ret;
+    int8_t ret;
 
     TOOLKIT_FUNC_PROTECTOR(API_NAME);
 
@@ -433,9 +433,9 @@ sint8 packet_to_sint8(uint8 *data, size_t len, size_t *pos)
     return ret;
 }
 
-uint16 packet_to_uint16(uint8 *data, size_t len, size_t *pos)
+uint16_t packet_to_uint16(uint8_t *data, size_t len, size_t *pos)
 {
-    uint16 ret;
+    uint16_t ret;
 
     TOOLKIT_FUNC_PROTECTOR(API_NAME);
 
@@ -450,9 +450,9 @@ uint16 packet_to_uint16(uint8 *data, size_t len, size_t *pos)
     return ret;
 }
 
-sint16 packet_to_sint16(uint8 *data, size_t len, size_t *pos)
+int16_t packet_to_int16(uint8_t *data, size_t len, size_t *pos)
 {
-    sint16 ret;
+    int16_t ret;
 
     TOOLKIT_FUNC_PROTECTOR(API_NAME);
 
@@ -467,9 +467,9 @@ sint16 packet_to_sint16(uint8 *data, size_t len, size_t *pos)
     return ret;
 }
 
-uint32 packet_to_uint32(uint8 *data, size_t len, size_t *pos)
+uint32_t packet_to_uint32(uint8_t *data, size_t len, size_t *pos)
 {
-    uint32 ret;
+    uint32_t ret;
 
     TOOLKIT_FUNC_PROTECTOR(API_NAME);
 
@@ -484,9 +484,9 @@ uint32 packet_to_uint32(uint8 *data, size_t len, size_t *pos)
     return ret;
 }
 
-sint32 packet_to_sint32(uint8 *data, size_t len, size_t *pos)
+int32_t packet_to_int32(uint8_t *data, size_t len, size_t *pos)
 {
-    sint32 ret;
+    int32_t ret;
 
     TOOLKIT_FUNC_PROTECTOR(API_NAME);
 
@@ -501,9 +501,9 @@ sint32 packet_to_sint32(uint8 *data, size_t len, size_t *pos)
     return ret;
 }
 
-uint64 packet_to_uint64(uint8 *data, size_t len, size_t *pos)
+uint64_t packet_to_uint64(uint8_t *data, size_t len, size_t *pos)
 {
-    uint64 ret;
+    uint64_t ret;
 
     TOOLKIT_FUNC_PROTECTOR(API_NAME);
 
@@ -512,15 +512,15 @@ uint64 packet_to_uint64(uint8 *data, size_t len, size_t *pos)
         return 0;
     }
 
-    ret = ((uint64) data[*pos] << 56) + ((uint64) data[*pos + 1] << 48) + ((uint64) data[*pos + 2] << 40) + ((uint64) data[*pos + 3] << 32) + ((uint64) data[*pos + 4] << 24) + ((uint64) data[*pos + 5] << 16) + ((uint64) data[*pos + 6] << 8) + (uint64) data[*pos + 7];
+    ret = ((uint64_t) data[*pos] << 56) + ((uint64_t) data[*pos + 1] << 48) + ((uint64_t) data[*pos + 2] << 40) + ((uint64_t) data[*pos + 3] << 32) + ((uint64_t) data[*pos + 4] << 24) + ((uint64_t) data[*pos + 5] << 16) + ((uint64_t) data[*pos + 6] << 8) + (uint64_t) data[*pos + 7];
     *pos += 8;
 
     return ret;
 }
 
-sint64 packet_to_sint64(uint8 *data, size_t len, size_t *pos)
+int64_t packet_to_int64(uint8_t *data, size_t len, size_t *pos)
 {
-    sint64 ret;
+    int64_t ret;
 
     TOOLKIT_FUNC_PROTECTOR(API_NAME);
 
@@ -529,15 +529,15 @@ sint64 packet_to_sint64(uint8 *data, size_t len, size_t *pos)
         return 0;
     }
 
-    ret = ((sint64) data[*pos] << 56) + ((sint64) data[*pos + 1] << 48) + ((sint64) data[*pos + 2] << 40) + ((sint64) data[*pos + 3] << 32) + ((sint64) data[*pos + 4] << 24) + ((sint64) data[*pos + 5] << 16) + ((sint64) data[*pos + 6] << 8) + (sint64) data[*pos + 7];
+    ret = ((int64_t) data[*pos] << 56) + ((int64_t) data[*pos + 1] << 48) + ((int64_t) data[*pos + 2] << 40) + ((int64_t) data[*pos + 3] << 32) + ((int64_t) data[*pos + 4] << 24) + ((int64_t) data[*pos + 5] << 16) + ((int64_t) data[*pos + 6] << 8) + (int64_t) data[*pos + 7];
     *pos += 8;
 
     return ret;
 }
 
-float packet_to_float(uint8 *data, size_t len, size_t *pos)
+float packet_to_float(uint8_t *data, size_t len, size_t *pos)
 {
-    uint32 val;
+    uint32_t val;
     float ret;
 
     TOOLKIT_FUNC_PROTECTOR(API_NAME);
@@ -548,9 +548,9 @@ float packet_to_float(uint8 *data, size_t len, size_t *pos)
     return ret;
 }
 
-double packet_to_double(uint8 *data, size_t len, size_t *pos)
+double packet_to_double(uint8_t *data, size_t len, size_t *pos)
 {
-    uint64 val;
+    uint64_t val;
     double ret;
 
     TOOLKIT_FUNC_PROTECTOR(API_NAME);
@@ -561,7 +561,7 @@ double packet_to_double(uint8 *data, size_t len, size_t *pos)
     return ret;
 }
 
-char *packet_to_string(uint8 *data, size_t len, size_t *pos, char *dest, size_t dest_size)
+char *packet_to_string(uint8_t *data, size_t len, size_t *pos, char *dest, size_t dest_size)
 {
     size_t i = 0;
     char c;
@@ -578,7 +578,7 @@ char *packet_to_string(uint8 *data, size_t len, size_t *pos, char *dest, size_t 
     return dest;
 }
 
-void packet_to_stringbuffer(uint8 *data, size_t len, size_t *pos, StringBuffer *sb)
+void packet_to_stringbuffer(uint8_t *data, size_t len, size_t *pos, StringBuffer *sb)
 {
     char *str;
 

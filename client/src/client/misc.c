@@ -130,7 +130,7 @@ void screenshot_create(SDL_Surface *surface)
         char timebuf2[MAX_BUF];
 
         strftime(timebuf2, sizeof(timebuf2), "%Y-%m-%d-%H-%M-%S", tm);
-        snprintf(timebuf, sizeof(timebuf), "%s-%06"FMT64U, timebuf2, (uint64) tv.tv_usec);
+        snprintf(timebuf, sizeof(timebuf), "%s-%06"PRIu64, timebuf2, (uint64_t) tv.tv_usec);
     } else {
         draw_info(COLOR_RED, "Could not get time information.");
         return;

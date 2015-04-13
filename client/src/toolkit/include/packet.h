@@ -46,7 +46,7 @@ typedef struct packet_struct {
 
     /**
      * The data. */
-    uint8 *data;
+    uint8_t *data;
 
     /**
      * Length of 'data'. */
@@ -66,11 +66,11 @@ typedef struct packet_struct {
 
     /**
      * Whether to enable NDELAY on this packet. */
-    uint8 ndelay;
+    uint8_t ndelay;
 
     /**
      * The packet's command type. */
-    uint8 type;
+    uint8_t type;
 
 #ifndef NDEBUG
     /**
@@ -99,7 +99,7 @@ typedef struct packet_struct {
 
 void toolkit_packet_init(void);
 void toolkit_packet_deinit(void);
-packet_struct *packet_new(uint8 type, size_t size, size_t expand);
+packet_struct *packet_new(uint8_t type, size_t size, size_t expand);
 void packet_free(packet_struct *packet);
 void packet_compress(packet_struct *packet);
 void packet_enable_ndelay(packet_struct *packet);
@@ -109,33 +109,33 @@ packet_struct *packet_dup(packet_struct *packet);
 void packet_delete(packet_struct *packet, size_t pos, size_t len);
 void packet_merge(packet_struct *src, packet_struct *dst);
 char *packet_get_debug(packet_struct *packet);
-void packet_append_uint8(packet_struct *packet, uint8 data);
-void packet_append_sint8(packet_struct *packet, sint8 data);
-void packet_append_uint16(packet_struct *packet, uint16 data);
-void packet_append_sint16(packet_struct *packet, sint16 data);
-void packet_append_uint32(packet_struct *packet, uint32 data);
-void packet_append_sint32(packet_struct *packet, sint32 data);
-void packet_append_uint64(packet_struct *packet, uint64 data);
-void packet_append_sint64(packet_struct *packet, sint64 data);
+void packet_append_uint8(packet_struct *packet, uint8_t data);
+void packet_append_int8(packet_struct *packet, int8_t data);
+void packet_append_uint16(packet_struct *packet, uint16_t data);
+void packet_append_int16(packet_struct *packet, int16_t data);
+void packet_append_uint32(packet_struct *packet, uint32_t data);
+void packet_append_int32(packet_struct *packet, int32_t data);
+void packet_append_uint64(packet_struct *packet, uint64_t data);
+void packet_append_int64(packet_struct *packet, int64_t data);
 void packet_append_float(packet_struct *packet, float data);
 void packet_append_double(packet_struct *packet, double data);
-void packet_append_data_len(packet_struct *packet, const uint8 *data,
+void packet_append_data_len(packet_struct *packet, const uint8_t *data,
         size_t len);
 void packet_append_string(packet_struct *packet, const char *data);
 void packet_append_string_terminated(packet_struct *packet, const char *data);
-uint8 packet_to_uint8(uint8 *data, size_t len, size_t *pos);
-sint8 packet_to_sint8(uint8 *data, size_t len, size_t *pos);
-uint16 packet_to_uint16(uint8 *data, size_t len, size_t *pos);
-sint16 packet_to_sint16(uint8 *data, size_t len, size_t *pos);
-uint32 packet_to_uint32(uint8 *data, size_t len, size_t *pos);
-sint32 packet_to_sint32(uint8 *data, size_t len, size_t *pos);
-uint64 packet_to_uint64(uint8 *data, size_t len, size_t *pos);
-sint64 packet_to_sint64(uint8 *data, size_t len, size_t *pos);
-float packet_to_float(uint8 *data, size_t len, size_t *pos);
-double packet_to_double(uint8 *data, size_t len, size_t *pos);
-char *packet_to_string(uint8 *data, size_t len, size_t *pos, char *dest,
+uint8_t packet_to_uint8(uint8_t *data, size_t len, size_t *pos);
+int8_t packet_to_int8(uint8_t *data, size_t len, size_t *pos);
+uint16_t packet_to_uint16(uint8_t *data, size_t len, size_t *pos);
+int16_t packet_to_int16(uint8_t *data, size_t len, size_t *pos);
+uint32_t packet_to_uint32(uint8_t *data, size_t len, size_t *pos);
+int32_t packet_to_int32(uint8_t *data, size_t len, size_t *pos);
+uint64_t packet_to_uint64(uint8_t *data, size_t len, size_t *pos);
+int64_t packet_to_int64(uint8_t *data, size_t len, size_t *pos);
+float packet_to_float(uint8_t *data, size_t len, size_t *pos);
+double packet_to_double(uint8_t *data, size_t len, size_t *pos);
+char *packet_to_string(uint8_t *data, size_t len, size_t *pos, char *dest,
         size_t dest_size);
-void packet_to_stringbuffer(uint8 *data, size_t len, size_t *pos,
+void packet_to_stringbuffer(uint8_t *data, size_t len, size_t *pos,
         StringBuffer *sb);
 
 #endif

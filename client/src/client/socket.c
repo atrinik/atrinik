@@ -56,7 +56,7 @@ static command_buffer *output_queue_start = NULL, *output_queue_end = NULL;
  * @param len Requested buffer size in bytes.
  * @param data Buffer data to copy (len bytes), or NULL.
  * @return A new command buffer or NULL in case of an error. */
-command_buffer *command_buffer_new(size_t len, uint8 *data)
+command_buffer *command_buffer_new(size_t len, uint8_t *data)
 {
     command_buffer *buf = emalloc(sizeof(command_buffer) + len + 1);
 
@@ -183,7 +183,7 @@ void add_input_command(command_buffer *buf)
 
 static int reader_thread_loop(void *dummy)
 {
-    static uint8 *readbuf = NULL;
+    static uint8_t *readbuf = NULL;
     static int readbuf_size = 256;
     int readbuf_len = 0;
     int header_len = 0;
@@ -210,7 +210,7 @@ static int reader_thread_loop(void *dummy)
         } else {
             /* If we have a finished header, get the packet size from it. */
             if (readbuf_len <= 3) {
-                uint8 *p = readbuf;
+                uint8_t *p = readbuf;
 
                 header_len = (*p & 0x80) ? 3 : 2;
                 cmd_len = 0;
@@ -226,7 +226,7 @@ static int reader_thread_loop(void *dummy)
             toread = cmd_len + header_len - readbuf_len;
 
             if (readbuf_len + toread > readbuf_size) {
-                uint8 *tmp = readbuf;
+                uint8_t *tmp = readbuf;
 
                 readbuf_size = readbuf_len + toread;
                 readbuf = emalloc(readbuf_size);
@@ -507,7 +507,7 @@ void socket_deinitialize(void)
  * @return 1 on success, 0 on failure. */
 static int client_socket_create(int *fd, char *host, int port)
 {
-    uint32 start_timer;
+    uint32_t start_timer;
 
     /* Use new (getaddrinfo()) or old (gethostbyname()) socket API */
 #if !defined(HAVE_GETADDRINFO) || defined(WIN32)

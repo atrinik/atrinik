@@ -192,7 +192,7 @@ int gender_to_id(const char *gender)
     return -1;
 }
 
-void player_draw_exp_progress(SDL_Surface *surface, int x, int y, sint64 xp, uint8 level)
+void player_draw_exp_progress(SDL_Surface *surface, int x, int y, int64_t xp, uint8_t level)
 {
     SDL_Surface *texture_bubble_on, *texture_bubble_off;
     int line_width, offset, i;

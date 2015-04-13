@@ -176,13 +176,13 @@ void updates_init(void)
     for (i = 0; i < update_files_num; i++) {
         update_file_struct *tmp = &update_files[i];
 
-        fprintf(fp, "%s %"FMT64U " %lx\n", tmp->filename, (uint64) tmp->ucomp_len, tmp->checksum);
+        fprintf(fp, "%s %"PRIu64 " %lx\n", tmp->filename, (uint64_t) tmp->ucomp_len, tmp->checksum);
     }
 
     fclose(fp);
 }
 
-void socket_command_request_update(socket_struct *ns, player *pl, uint8 *data, size_t len, size_t pos)
+void socket_command_request_update(socket_struct *ns, player *pl, uint8_t *data, size_t len, size_t pos)
 {
     char buf[MAX_BUF];
     update_file_struct *tmp;

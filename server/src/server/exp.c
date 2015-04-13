@@ -30,7 +30,7 @@
 
 /**
  * Experience needed for each level. */
-uint64 new_levels[MAXLEVEL + 2] = {
+uint64_t new_levels[MAXLEVEL + 2] = {
     0, 0, 2000, 4000, 8000, 16000, 32000, 64000, 125000, 250000, 500000,
     900000, 1400000, 2000000, 2600000,
     3300000, 4100000, 4900000, 5700000, 6600000, 7500000,
@@ -270,9 +270,9 @@ _level_color level_color[201] = {
  * @return The experience needed.
  * @todo Remove, since the param expmul seems to always be passed as
  * '1.0'? */
-uint64 level_exp(int level, double expmul)
+uint64_t level_exp(int level, double expmul)
 {
-    return (uint64) (expmul * (double) new_levels[level]);
+    return (uint64_t) (expmul * (double) new_levels[level]);
 }
 
 /**
@@ -283,7 +283,7 @@ uint64 level_exp(int level, double expmul)
  * @param skill_nr Skill ID.
  * @param exact If 1, experience gained will not be capped.
  * @return 0 on failure, experience gained on success. */
-sint64 add_exp(object *op, sint64 exp_gain, int skill_nr, int exact)
+int64_t add_exp(object *op, int64_t exp_gain, int skill_nr, int exact)
 {
     object *exp_skill;
 
@@ -323,7 +323,7 @@ sint64 add_exp(object *op, sint64 exp_gain, int skill_nr, int exact)
 
     /* General adjustments for playbalance */
     if (!exact) {
-        sint64 limit;
+        int64_t limit;
 
         limit = (new_levels[exp_skill->level + 1] - new_levels[exp_skill->level]) / 4;
 
@@ -334,7 +334,7 @@ sint64 add_exp(object *op, sint64 exp_gain, int skill_nr, int exact)
 
     exp_skill->stats.exp += exp_gain;
 
-    if (exp_skill->stats.exp > (sint64) MAX_EXPERIENCE) {
+    if (exp_skill->stats.exp > (int64_t) MAX_EXPERIENCE) {
         exp_gain = exp_gain - (exp_skill->stats.exp - MAX_EXPERIENCE);
         exp_skill->stats.exp = MAX_EXPERIENCE;
     } else if (exp_skill->stats.exp < 0) {
@@ -346,7 +346,7 @@ sint64 add_exp(object *op, sint64 exp_gain, int skill_nr, int exact)
         if (!QUERY_FLAG(exp_skill, FLAG_STAND_STILL)) {
             op->stats.exp += exp_gain;
 
-            if (op->stats.exp >= (sint64) MAX_EXPERIENCE) {
+            if (op->stats.exp >= (int64_t) MAX_EXPERIENCE) {
                 op->stats.exp = MAX_EXPERIENCE;
             }
         }
@@ -359,9 +359,9 @@ sint64 add_exp(object *op, sint64 exp_gain, int skill_nr, int exact)
 
     /* Notify the player of the exp gain/loss. */
     if (exp_gain > 0) {
-        draw_info_format(COLOR_WHITE, op, "You got %"FMT64 " exp in skill %s.", exp_gain, skills[skill_nr].name);
+        draw_info_format(COLOR_WHITE, op, "You got %"PRId64 " exp in skill %s.", exp_gain, skills[skill_nr].name);
     } else {
-        draw_info_format(COLOR_WHITE, op, "You lost %"FMT64 " exp in skill %s.", -exp_gain, skills[skill_nr].name);
+        draw_info_format(COLOR_WHITE, op, "You lost %"PRId64 " exp in skill %s.", -exp_gain, skills[skill_nr].name);
     }
 
     if (exp_lvl_adj(op, exp_skill) + exp_lvl_adj(op, NULL) != 0) {
@@ -406,7 +406,7 @@ int exp_lvl_adj(object *who, object *op)
         op = who;
     }
 
-    if (op->level < MAXLEVEL && op->stats.exp >= (sint64) level_exp(op->level + 1, 1.0)) {
+    if (op->level < MAXLEVEL && op->stats.exp >= (int64_t) level_exp(op->level + 1, 1.0)) {
         op->level++;
 
         if (op->level > 1 && op->type == SKILL) {
@@ -417,7 +417,7 @@ int exp_lvl_adj(object *who, object *op)
 
         /* To increase more levels. */
         return exp_lvl_adj(who, op) + 1;
-    } else if (op->level > 1 && op->stats.exp < (sint64) level_exp(op->level, 1.0)) {
+    } else if (op->level > 1 && op->stats.exp < (int64_t) level_exp(op->level, 1.0)) {
         op->level--;
 
         if (op->type == SKILL) {

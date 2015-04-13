@@ -90,7 +90,7 @@ void objects_free(object *op)
  * @param op Object to search in.
  * @param tag ID of the object we're looking for.
  * @return Matching object if found, NULL otherwise. */
-object *object_find_object_inv(object *op, sint32 tag)
+object *object_find_object_inv(object *op, int32_t tag)
 {
     object *tmp;
 
@@ -108,7 +108,7 @@ object *object_find_object_inv(object *op, sint32 tag)
  * @param op Object to search in.
  * @param tag ID of the object we're looking for.
  * @return Matching object if found, NULL otherwise. */
-object *object_find_object(object *op, sint32 tag)
+object *object_find_object(object *op, int32_t tag)
 {
     for (; op; op = op->next) {
         if (op->tag == tag) {
@@ -129,7 +129,7 @@ object *object_find_object(object *op, sint32 tag)
  * Attempts to find an object by its tag, wherever it may be.
  * @param tag Tag to look for.
  * @return Matching object if found, NULL otherwise. */
-object *object_find(sint32 tag)
+object *object_find(int32_t tag)
 {
     object *op;
 
@@ -283,7 +283,7 @@ static void object_add(object *env, object *op, int bflag)
  * @param bflag If 1, the object will be added to the end of the
  * inventory instead of the start.
  * @return The created object. */
-object *object_create(object *env, sint32 tag, int bflag)
+object *object_create(object *env, int32_t tag, int bflag)
 {
     object *op;
 
@@ -480,7 +480,7 @@ void object_show_centered(SDL_Surface *surface, object *tmp, int x, int y,
         int w, int h)
 {
     int temp, xstart, xlen, ystart, ylen;
-    uint16 face;
+    uint16_t face;
     SDL_Rect box;
 
     if (!FaceList[tmp->face].sprite) {
@@ -496,7 +496,7 @@ void object_show_centered(SDL_Surface *surface, object *tmp, int x, int y,
         check_animation_status(tmp->animation_id);
 
         if (animations[tmp->animation_id].num_animations) {
-            uint16 face_id;
+            uint16_t face_id;
 
             face_id = animations[tmp->animation_id].frame * tmp->direction;
 

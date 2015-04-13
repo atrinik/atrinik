@@ -100,7 +100,7 @@ static inline mapstruct *load_and_link_tiled_map(mapstruct *orig_map, int tile_n
  * @param level Recursion level.
  * @return
  * @todo A bidirectional breadth-first search would be more efficient. */
-static int relative_tile_position_rec(mapstruct *map1, mapstruct *map2, int *x, int *y, int *z, uint32 id, int level, int flags)
+static int relative_tile_position_rec(mapstruct *map1, mapstruct *map2, int *x, int *y, int *z, uint32_t id, int level, int flags)
 {
     int i;
     map_exit_t *exit;
@@ -224,7 +224,7 @@ static int relative_tile_position_rec(mapstruct *map1, mapstruct *map2, int *x, 
  * @return 1 if the two tiles are part of the same map, 0 otherwise. */
 static int relative_tile_position(mapstruct *map1, mapstruct *map2, int *x, int *y, int *z, int flags)
 {
-    static uint32 traversal_id = 0;
+    static uint32_t traversal_id = 0;
 
     /* Save some time in the simplest cases ( very similar to on_same_map() )*/
     if (map1 == NULL || map2 == NULL) {
@@ -630,7 +630,7 @@ static void save_objects(mapstruct *m, FILE *fp, FILE *fp2)
 {
     int x, y;
     object *ob, *next, *head, *tmp, *owner;
-    uint8 unique;
+    uint8_t unique;
 
     for (x = 0; x < MAP_WIDTH(m); x++) {
         for (y = 0; y < MAP_HEIGHT(m); y++) {
@@ -711,8 +711,8 @@ void set_map_darkness(mapstruct *m, int value)
         value = MAX_DARKNESS;
     }
 
-    MAP_DARKNESS(m) = (sint32) value;
-    m->light_value = (sint32) global_darkness_table[value];
+    MAP_DARKNESS(m) = (int32_t) value;
+    m->light_value = (int32_t) global_darkness_table[value];
 }
 
 /**
@@ -841,7 +841,7 @@ mapstruct *load_original_map(const char *filename, int flags)
     char pathname[HUGE_BUF], split[MAX_BUF];
     const char *basename;
     size_t pos, coords_idx, coords_len;
-    sint16 old_style_z;
+    int16_t old_style_z;
 
     /* No sense in doing this all for random maps, it will all fail anyways. */
     if (!strncmp(filename, "/random/", 8)) {
@@ -947,7 +947,7 @@ mapstruct *load_original_map(const char *filename, int flags)
     }
 
     if (m->level_max == 0 && m->coords[2] >= 0) {
-        m->level_max = SINT8_MAX;
+        m->level_max = INT8_MAX;
     } else if (m->level_max == 0 && m->level_min == 0) {
         m->level_min = m->level_max = m->coords[2];
     }
@@ -1549,7 +1549,7 @@ void update_position(mapstruct *m, int x, int y)
  * @param map Map to update. */
 void set_map_reset_time(mapstruct *map)
 {
-    uint32 timeout = MAP_RESET_TIMEOUT(map);
+    uint32_t timeout = MAP_RESET_TIMEOUT(map);
 
     if (timeout == 0) {
         timeout = MAP_DEFAULTRESET;
@@ -2180,7 +2180,7 @@ int wall_blocked(mapstruct *m, int x, int y)
 int map_get_darkness(mapstruct *m, int x, int y, object **mirror)
 {
     MapSpace *msp;
-    uint8 outdoor;
+    uint8_t outdoor;
     int darkness;
 
     if (mirror) {
@@ -2255,7 +2255,7 @@ int map_path_isabs(const char *path)
     return 0;
 }
 
-char *map_get_path(mapstruct *m, const char *path, uint8 unique, const char *name)
+char *map_get_path(mapstruct *m, const char *path, uint8_t unique, const char *name)
 {
     char *path_tmp, *ret;
 

@@ -456,7 +456,7 @@ void update_map_weather(const char *weather)
 /**
  * Update map's height difference rendering flag.
  */
-void update_map_height_diff(uint8 height_diff)
+void update_map_height_diff(uint8_t height_diff)
 {
     MapData.height_diff = height_diff;
 }
@@ -500,7 +500,7 @@ void update_map_path(const char *map_path)
  * sub-layer.
  * @param in_building New in_building state.
  */
-void map_update_in_building(uint8 in_building)
+void map_update_in_building(uint8_t in_building)
 {
     if (in_building && !MapData.in_building) {
         int x, y;
@@ -623,8 +623,8 @@ static int calc_map_cell_height(int x, int y, int w, int h, int sub_layer)
  */
 static void align_tile_stretch(int x, int y, int w, int h, int sub_layer)
 {
-    sint8 top, bottom, right, left, min_ht;
-    uint32 stretch;
+    int8_t top, bottom, right, left, min_ht;
+    uint32_t stretch;
     int nw_height, n_height, ne_height, sw_height, s_height, se_height,
             w_height, e_height, my_height;
 
@@ -750,13 +750,13 @@ void adjust_tile_stretch(void)
  * @param rotate Rotation in degrees.
  * @param infravision Whether to show the object in red.
  */
-void map_set_data(int x, int y, int layer, sint16 face,
-        uint8 quick_pos, uint8 obj_flags, const char *name,
-        const char *name_color, sint16 height, uint8 probe, sint16 zoom_x,
-        sint16 zoom_y, sint16 align, uint8 draw_double, uint8 alpha,
-        sint16 rotate, uint8 infravision, uint32 target_object_count,
-        uint8 target_is_friend, uint8 anim_speed, uint8 anim_facing,
-        uint8 anim_flags, uint8 anim_state, uint8 priority)
+void map_set_data(int x, int y, int layer, int16_t face,
+        uint8_t quick_pos, uint8_t obj_flags, const char *name,
+        const char *name_color, int16_t height, uint8_t probe, int16_t zoom_x,
+        int16_t zoom_y, int16_t align, uint8_t draw_double, uint8_t alpha,
+        int16_t rotate, uint8_t infravision, uint32_t target_object_count,
+        uint8_t target_is_friend, uint8_t anim_speed, uint8_t anim_facing,
+        uint8_t anim_flags, uint8_t anim_state, uint8_t priority)
 {
     struct MapCell *cell;
     int sub_layer;
@@ -878,7 +878,7 @@ void map_clear_cell(int x, int y)
  * @param sub_layer Sub-layer.
  * @param darkness Darkness to set.
  */
-void map_set_darkness(int x, int y, int sub_layer, uint8 darkness)
+void map_set_darkness(int x, int y, int sub_layer, uint8_t darkness)
 {
     struct MapCell *cell;
 
@@ -894,7 +894,7 @@ void map_set_darkness(int x, int y, int sub_layer, uint8 darkness)
  */
 static int get_top_floor_height(struct MapCell *cell, int sub_layer)
 {
-    sint16 height;
+    int16_t height;
 
     height = cell->height[GET_MAP_LAYER(LAYER_FLOOR, sub_layer)];
 
@@ -958,7 +958,7 @@ void map_animate(void)
     }
 }
 
-static uint16 map_object_get_face(struct MapCell *cell, int layer)
+static uint16_t map_object_get_face(struct MapCell *cell, int layer)
 {
     int sub_layer, dir, state;
     Animations *animation;
@@ -1007,19 +1007,19 @@ static uint16 map_object_get_face(struct MapCell *cell, int layer)
 static void draw_map_object(SDL_Surface *surface, struct MapCell *cell,
         int x, int y, int layer, int sub_layer, int player_height_offset,
         struct MapCell **target_cell, int *target_layer, SDL_Rect *target_rect,
-        SDL_Rect **tiles, size_t *tiles_num, uint8 alpha_forced)
+        SDL_Rect **tiles, size_t *tiles_num, uint8_t alpha_forced)
 {
 
     sprite_struct *face_sprite;
     int ypos, xpos;
     int xl, yl, temp;
     int xml, xmpos, xtemp = 0;
-    uint16 face;
+    uint16_t face;
     int mid, mnr;
-    uint32 stretch, flags;
+    uint32_t stretch, flags;
     int bitmap_h, bitmap_w;
     int zoom_x, zoom_y;
-    uint8 dark_level, alpha;
+    uint8_t dark_level, alpha;
 
     xpos = MAP_START_XOFF + x * MAP_TILE_YOFF - y * MAP_TILE_YOFF;
     ypos = MAP_START_YOFF + x * MAP_TILE_XOFF + y * MAP_TILE_XOFF;
@@ -1191,7 +1191,7 @@ static void draw_map_object(SDL_Surface *surface, struct MapCell *cell,
     /* Do we have a playername? Then print it! */
     if (cell->pname[GET_MAP_LAYER(layer, sub_layer)][0] != '\0' &&
             setting_get_int(OPT_CAT_MAP, OPT_PLAYER_NAMES)) {
-        uint8 draw_name;
+        uint8_t draw_name;
         char *name;
 
         draw_name = 0;
@@ -1594,7 +1594,7 @@ static void send_move_path(int tx, int ty)
  * @param ty NPC's Y position.
  * @param count NPC's UID.
  */
-static void send_target(int x, int y, uint32 count)
+static void send_target(int x, int y, uint32_t count)
 {
     packet_struct *packet;
 
@@ -1645,14 +1645,14 @@ static int map_target_cmp(const void *a, const void *b)
  * Target something on the map.
  * @param is_friend 1 if targeting friendlies only.
  */
-void map_target_handle(uint8 is_friend)
+void map_target_handle(uint8_t is_friend)
 {
     int x, y, layer;
     struct MapCell *cell;
     UT_array *targets;
     UT_icd icd = {sizeof(map_target_struct), NULL, NULL, NULL};
     map_target_struct *p;
-    uint32 curr_target;
+    uint32_t curr_target;
 
     if (cpl.target_is_friend != is_friend) {
         cpl.target_object_index = 0;
@@ -1731,10 +1731,10 @@ void map_target_handle(uint8 is_friend)
 int mouse_to_tile_coords(int mx, int my, int *tx, int *ty)
 {
     int x, y, xpos, ypos, player_height_offset, sub_layer;
-    sint16 height, max_height;
+    int16_t height, max_height;
     double zoom;
     struct MapCell *cell;
-    uint32 stretch;
+    uint32_t stretch;
 
     /* Adjust mouse x/y, making it look as if the map was drawn from
      * top left corner, in order to simplify comparisons below. */

@@ -656,8 +656,8 @@ static void region_map_fow_create(region_map_t *region_map)
 
             if (fread(region_map->fow->bitmap, 1, statbuf.st_size, fp) !=
                     (size_t) statbuf.st_size) {
-                log(LOG(ERROR), "Could not read %"FMT64U" bytes from %s: %d "
-                        "(%s)", (uint64) statbuf.st_size, region_map->fow->path,
+                log(LOG(ERROR), "Could not read %"PRIu64" bytes from %s: %d "
+                        "(%s)", (uint64_t) statbuf.st_size, region_map->fow->path,
                         errno, strerror(errno));
                 efree(region_map->fow->bitmap);
                 region_map->fow->bitmap = NULL;
@@ -736,7 +736,7 @@ void region_map_fow_update(region_map_t *region_map)
     region_map_def_map_t *def_map, *def_map_regions;
     SDL_Rect box;
     int rowsize, x, y;
-    uint32 color;
+    uint32_t color;
     SDL_Surface *surface;
     object *op;
     size_t i, j;
@@ -900,7 +900,7 @@ bool region_map_fow_set_visited(region_map_t *region_map,
 
     SOFT_ASSERT_RC(idx >= 0 && (size_t) idx < RM_MAP_FOW_BITMAP_SIZE(
             region_map) / sizeof(*region_map->fow->bitmap), false,
-            "Attempt to write at an invalid position: %"FMT64U" max: %"FMT64U,
+            "Attempt to write at an invalid position: %"PRIu64" max: %"PRIu64,
             (uint64_t) idx, (uint64_t) RM_MAP_FOW_BITMAP_SIZE(region_map) /
             sizeof(*region_map->fow->bitmap));
 
@@ -921,7 +921,7 @@ bool region_map_fow_is_visited(region_map_t *region_map, int x, int y)
 
     SOFT_ASSERT_RC(idx >= 0 && (size_t) idx < RM_MAP_FOW_BITMAP_SIZE(
             region_map) / sizeof(*region_map->fow->bitmap), false,
-            "Attempt to read at an invalid position: %"FMT64U" max: %"FMT64U,
+            "Attempt to read at an invalid position: %"PRIu64" max: %"PRIu64,
             (uint64_t) idx, (uint64_t) RM_MAP_FOW_BITMAP_SIZE(region_map) /
             sizeof(*region_map->fow->bitmap));
 

@@ -95,7 +95,7 @@ typedef void (*toolkit_func)(void);
     { \
         if (!did_init) \
         { \
-            static uint8 did_warn = 0; \
+            static uint8_t did_warn = 0; \
             if (!did_warn) \
             { \
                 toolkit_import(logger); \

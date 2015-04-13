@@ -44,7 +44,7 @@
     vsnprintf(buf, sizeof(buf), format, ap); \
     va_end(ap);
 
-void draw_info_send(uint8 type, const char *name, const char *color, socket_struct *ns, const char *buf)
+void draw_info_send(uint8_t type, const char *name, const char *color, socket_struct *ns, const char *buf)
 {
     packet_struct *packet;
 
@@ -70,7 +70,7 @@ void draw_info_send(uint8 type, const char *name, const char *color, socket_stru
  * @param pl The player object to write the information to - if flags has
  * @ref NDI_ALL, this is unused and can be NULL.
  * @param buf The message to draw. */
-void draw_info_full(uint8 type, const char *name, const char *color, StringBuffer *sb_capture, object *pl, const char *buf)
+void draw_info_full(uint8_t type, const char *name, const char *color, StringBuffer *sb_capture, object *pl, const char *buf)
 {
     /* Handle global messages. */
     if (!pl) {
@@ -106,18 +106,18 @@ void draw_info_full(uint8 type, const char *name, const char *color, StringBuffe
  * @param pl Player.
  * @param format Format.
  * @see draw_info_full */
-void draw_info_full_format(uint8 type, const char *name, const char *color, StringBuffer *sb_capture, object *pl, const char *format, ...)
+void draw_info_full_format(uint8_t type, const char *name, const char *color, StringBuffer *sb_capture, object *pl, const char *format, ...)
 {
     DRAW_INFO_FORMAT_CONSTRUCT();
     draw_info_full(type, name, color, sb_capture, pl, buf);
 }
 
-void draw_info_type(uint8 type, const char *name, const char *color, object *pl, const char *buf)
+void draw_info_type(uint8_t type, const char *name, const char *color, object *pl, const char *buf)
 {
     draw_info_full(type, name, color, NULL, pl, buf);
 }
 
-void draw_info_type_format(uint8 type, const char *name, const char *color, object *pl, const char *format, ...)
+void draw_info_type_format(uint8_t type, const char *name, const char *color, object *pl, const char *format, ...)
 {
     DRAW_INFO_FORMAT_CONSTRUCT();
     draw_info_full(type, name, color, NULL, pl, buf);
@@ -134,7 +134,7 @@ void draw_info_format(const char *color, object *pl, const char *format, ...)
     draw_info_full(CHAT_TYPE_GAME, NULL, color, NULL, pl, buf);
 }
 
-static int draw_info_map_internal(mapstruct *tiled, mapstruct *map, uint8 type,
+static int draw_info_map_internal(mapstruct *tiled, mapstruct *map, uint8_t type,
         const char *name, const char *color, object *op, object *op2,
         const char *buf, int dist, int x, int y)
 {
@@ -166,7 +166,7 @@ static int draw_info_map_internal(mapstruct *tiled, mapstruct *map, uint8 type,
  * @param op Will not write to this player.
  * @param op2 Will not write to this player either.
  * @param buf What to write. */
-void draw_info_map(uint8 type, const char *name, const char *color, mapstruct *map, int x, int y, int dist, object *op, object *op2, const char *buf)
+void draw_info_map(uint8_t type, const char *name, const char *color, mapstruct *map, int x, int y, int dist, object *op, object *op2, const char *buf)
 {
     int distance;
 

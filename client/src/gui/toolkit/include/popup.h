@@ -65,7 +65,7 @@ typedef struct popup_struct {
 
     /**
      * Disable automatically drawing the texture on the popup surface? */
-    uint8 disable_texture_drawing;
+    uint8_t disable_texture_drawing;
 
     /** Custom data. */
     void *custom_data;
@@ -74,7 +74,7 @@ typedef struct popup_struct {
     char *buf;
 
     /** Optional integers. */
-    sint64 i[3];
+    int64_t i[3];
 
     /** X position of the popup. */
     int x;
@@ -95,20 +95,20 @@ typedef struct popup_struct {
     struct popup_struct *prev;
 
     /** Start of selection. */
-    sint64 selection_start;
+    int64_t selection_start;
 
     /** End of selection. */
-    sint64 selection_end;
+    int64_t selection_end;
 
     /** Whether the selection has started. */
-    uint8 selection_started;
+    uint8_t selection_started;
 
     /** Whether redrawing is in order. */
-    uint8 redraw;
+    uint8_t redraw;
 
-    uint8 modal;
+    uint8_t modal;
 
-    uint8 destroy_on_switch;
+    uint8_t destroy_on_switch;
 
     /**
      * Function used for drawing on the popup's surface.

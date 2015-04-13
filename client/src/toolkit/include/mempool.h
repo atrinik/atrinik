@@ -59,7 +59,7 @@ typedef struct mempool_puddle_struct {
 
     mempool_chunk_struct *first_free; ///< Used for freeing memory.
     mempool_chunk_struct *last_free; ///< Used for freeing memory.
-    uint32 nrof_free; ///< Number of free chunks in this puddle.
+    uint32_t nrof_free; ///< Number of free chunks in this puddle.
 } mempool_puddle_struct;
 
 /**
@@ -110,7 +110,7 @@ typedef struct mempool_struct {
     /**
      * Special handling flags. See @ref mempool_flags
      */
-    uint32 flags;
+    uint32_t flags;
 
     /**
      * First free chunk.
@@ -132,9 +132,9 @@ typedef struct mempool_struct {
      */
     mempool_puddle_struct *puddlelist[MEMPOOL_NROF_FREELISTS];
 
-    uint64 calls_expand; ///< Number of calls to expand the pool.
-    uint64 calls_get; ///< Number of calls to getting a chunk from the pool.
-    uint64 calls_return; ///< Number of calls to returning a chunk to the pool.
+    uint64_t calls_expand; ///< Number of calls to expand the pool.
+    uint64_t calls_get; ///< Number of calls to getting a chunk from the pool.
+    uint64_t calls_return; ///< Number of calls to returning a chunk to the pool.
 
     chunk_initialisator initialisator; ///< @copydoc chunk_initialisator
     chunk_deinitialisator deinitialisator; ///< @copydoc chunk_deinitialisator

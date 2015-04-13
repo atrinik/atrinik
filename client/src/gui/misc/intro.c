@@ -45,9 +45,9 @@ static size_t last_server_count = 0;
 static curl_data *news_data = NULL;
 
 /** Last time the eyes blinked. */
-static uint32 eyes_blink_ticks = 0;
+static uint32_t eyes_blink_ticks = 0;
 /** Whether to draw the eyes. */
-static uint8 eyes_draw = 1;
+static uint8_t eyes_draw = 1;
 /** Button buffer. */
 static button_struct button_play, button_refresh, button_server, button_settings, button_update, button_help, button_credits, button_quit, button_crash;
 
@@ -64,7 +64,7 @@ static void list_handle_enter(list_struct *list, SDL_Event *event)
     /* Servers list? */
     if (list == list_servers) {
         char number[16];
-        uint32 version, i;
+        uint32_t version, i;
         size_t pos;
 
         /* Get selected server. */

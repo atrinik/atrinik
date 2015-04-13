@@ -236,7 +236,7 @@ int popup_handle_event(SDL_Event *event)
     if (popup_head->clipboard_copy_func) {
         if (event->type == SDL_KEYDOWN && keybind_command_matches_event("?COPY", &event->key)) {
             const char *contents;
-            sint64 start, end;
+            int64_t start, end;
             char *str;
 
             contents = popup_head->clipboard_copy_func(popup_head);

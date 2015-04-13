@@ -39,7 +39,7 @@
 /**
  * If 1, the API has been initialized.
  */
-static uint8 did_init = 0;
+static uint8_t did_init = 0;
 
 /**
  * All of the available command line options.
@@ -232,7 +232,7 @@ void toolkit_clioptions_deinit(void)
  * @param desc More detailed description of the option.
  */
 void clioptions_add(const char *longname, const char *shortname,
-        clioptions_handler_func handle_func, uint8 argument,
+        clioptions_handler_func handle_func, uint8_t argument,
         const char *desc_brief, const char *desc)
 {
     size_t i;

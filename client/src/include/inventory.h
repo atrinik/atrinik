@@ -72,7 +72,7 @@
  * The inventory data. */
 typedef struct inventory_struct {
     /** Index of the selected object. */
-    uint32 selected;
+    uint32_t selected;
 
     /** X position of the inventory area. */
     int x;

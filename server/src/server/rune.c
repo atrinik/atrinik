@@ -135,7 +135,7 @@ void trap_adjust(object *trap, int difficulty)
     level = rndm(difficulty - off, difficulty + off);
     level = MAX(1, MIN(level, MAXLEVEL));
     hide = rndm(0, 19) + rndm(difficulty - off, difficulty + off);
-    hide = MAX(1, MIN(hide, SINT8_MAX));
+    hide = MAX(1, MIN(hide, INT8_MAX));
 
     trap->level = level;
     trap->stats.Cha = hide;

@@ -63,7 +63,7 @@ static int trigger_func(object *op, object *cause, int state)
 static int trigger_button_func(object *op, object *cause, int state)
 {
     object *tmp, *head;
-    sint32 total;
+    int32_t total;
 
     (void) cause;
     (void) state;
@@ -74,7 +74,7 @@ static int trigger_button_func(object *op, object *cause, int state)
         head = HEAD(tmp);
 
         if (head != op && (QUERY_FLAG(head, FLAG_FLYING) ? QUERY_FLAG(op, FLAG_FLY_ON) : QUERY_FLAG(op, FLAG_WALK_ON))) {
-            total += head->weight * MAX(1, (sint32) head->nrof) + head->carrying;
+            total += head->weight * MAX(1, (int32_t) head->nrof) + head->carrying;
         }
     }
 

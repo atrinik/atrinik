@@ -52,7 +52,7 @@ typedef struct active_effect_struct {
     /**
      * Seconds remaining before the effect expires. -1 does not expire.
      */
-    sint32 sec;
+    int32_t sec;
 
     /**
      * Explanation of the active effect.
@@ -65,7 +65,7 @@ typedef struct active_effect_struct {
 typedef struct widget_active_effects_struct {
     active_effect_struct *active_effects;
 
-    uint32 update_ticks;
+    uint32_t update_ticks;
 } widget_active_effects_struct;
 
 /** @copydoc widgetdata::draw_func */
@@ -78,7 +78,7 @@ static void widget_draw(widgetdata *widget)
     tmp = widget->subwidget;
 
     if (SDL_GetTicks() - tmp->update_ticks > 1000) {
-        uint8 redraw;
+        uint8_t redraw;
         int sec;
 
         redraw = 0;
@@ -205,7 +205,7 @@ static int widget_event(widgetdata *widget, SDL_Event *event)
     return 0;
 }
 
-void widget_active_effects_update(widgetdata *widget, object *op, sint32 sec, const char *msg)
+void widget_active_effects_update(widgetdata *widget, object *op, int32_t sec, const char *msg)
 {
     widget_active_effects_struct *tmp;
     active_effect_struct *effect;

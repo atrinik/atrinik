@@ -49,11 +49,11 @@ artifactlist *first_artifactlist;
 /** Last player. */
 player *last_player;
 
-uint32 global_round_tag;
+uint32_t global_round_tag;
 int process_delay;
 
 static long shutdown_time;
-static uint8 shutdown_active = 0;
+static uint8_t shutdown_active = 0;
 
 static void process_players1(void);
 static void process_players2(void);
@@ -103,7 +103,7 @@ void leave_map(object *op)
 void set_map_timeout(mapstruct *map)
 {
 #if MAP_DEFAULTTIMEOUT
-    uint32 swap_time = MAP_SWAP_TIME(map);
+    uint32_t swap_time = MAP_SWAP_TIME(map);
 
     if (swap_time == 0) {
         swap_time = MAP_DEFAULTTIMEOUT;
@@ -614,7 +614,7 @@ static int shutdown_timer_check(void)
     }
 
     if (!((shutdown_time - pticks) % (60 * MAX_TICKS)) || pticks == shutdown_time - 5 * MAX_TICKS) {
-        draw_info_type_format(CHAT_TYPE_CHAT, NULL, COLOR_GREEN, NULL, "[Server]: Server will shut down in %02"FMT64U ":%02"FMT64U " minutes.", (uint64) ((shutdown_time - pticks) / MAX_TICKS / 60), (uint64) ((shutdown_time - pticks) / MAX_TICKS % 60));
+        draw_info_type_format(CHAT_TYPE_CHAT, NULL, COLOR_GREEN, NULL, "[Server]: Server will shut down in %02"PRIu64 ":%02"PRIu64 " minutes.", (uint64_t) ((shutdown_time - pticks) / MAX_TICKS / 60), (uint64_t) ((shutdown_time - pticks) / MAX_TICKS % 60));
     }
 
     return 0;

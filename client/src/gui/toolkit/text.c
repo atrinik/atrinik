@@ -33,7 +33,7 @@
 /**
  * If 1, all text shown using 'box' parameter of text_show() for max
  * width/height will have a frame around it. */
-static uint8 text_debug = 0;
+static uint8_t text_debug = 0;
 
 /**
  * If not 0, ::text_anchor_help is used to open the help GUI after
@@ -41,7 +41,7 @@ static uint8 text_debug = 0;
  *
  * This is used so the text being drawn is not changed in the middle of
  * the drawing by clicking on a link. */
-static uint8 text_anchor_help_clicked = 0;
+static uint8_t text_anchor_help_clicked = 0;
 
 /** Help GUI to open if ::text_anchor_help_clicked is 1. */
 static char text_anchor_help[HUGE_BUF];
@@ -52,11 +52,11 @@ static int text_offset_mx = -1;
 static int text_offset_my = -1;
 
 /** Pointer to integer holding the selection start. */
-static sint64 *selection_start = NULL;
+static int64_t *selection_start = NULL;
 /** Pointer to integer holding the selection end. */
-static sint64 *selection_end = NULL;
+static int64_t *selection_end = NULL;
 /** If 1, selection start has been set, and the end should be updated next. */
-static uint8 *selection_started = NULL;
+static uint8_t *selection_started = NULL;
 
 /** Default link color. */
 static SDL_Color text_link_color_default = {96, 160, 255, 0};
@@ -85,7 +85,7 @@ static font_struct *fonts;
  * @param buf_size Size of 'buf'.
  * @return 'buf'.
  */
-static char *font_get_hash_key(const char *name, uint8 size, char *buf,
+static char *font_get_hash_key(const char *name, uint8_t size, char *buf,
         size_t buf_size)
 {
     snprintf(buf, buf_size, "%s@%d", name, size);
@@ -99,7 +99,7 @@ static char *font_get_hash_key(const char *name, uint8 size, char *buf,
  * @param size Size of the font.
  * @return Opened font on success, NULL on failure.
  */
-static TTF_Font *font_open(const char *name, uint8 size)
+static TTF_Font *font_open(const char *name, uint8_t size)
 {
     char path[MAX_BUF];
     TTF_Font *ttf_font;
@@ -125,7 +125,7 @@ static TTF_Font *font_open(const char *name, uint8 size)
  * @param name Name of the font.
  * @param size Size of the font.
  * @return The allocated font; NULL on failure. */
-static font_struct *font_new(const char *name, uint8 size)
+static font_struct *font_new(const char *name, uint8_t size)
 {
     TTF_Font *ttf_font;
     font_struct *font;
@@ -163,7 +163,7 @@ static font_struct *font_new(const char *name, uint8 size)
  * @param size Size of the font to get.
  * @return Font; can be NULL in case of failure.
  */
-font_struct *font_get_weak(const char *name, uint8 size)
+font_struct *font_get_weak(const char *name, uint8_t size)
 {
     char key[MAX_BUF];
     font_struct *font;
@@ -190,7 +190,7 @@ font_struct *font_get_weak(const char *name, uint8 size)
  * @param size Size of the font to get.
  * @return Font; can be NULL in case of failure.
  */
-font_struct *font_get(const char *name, uint8 size)
+font_struct *font_get(const char *name, uint8_t size)
 {
     font_struct *font;
 
@@ -213,7 +213,7 @@ font_struct *font_get(const char *name, uint8 size)
  * @return The font. NULL if the size is not in an acceptable range or some
  * other failure occurs.
  */
-font_struct *font_get_size(font_struct *font, sint8 size)
+font_struct *font_get_size(font_struct *font, int8_t size)
 {
     int size_desired;
 
@@ -373,7 +373,7 @@ void text_color_set(int r, int g, int b)
  * selection data in start or end.
  * @note You must call this with all arguments set to NULL after your
  * call to string drawing routines. */
-void text_set_selection(sint64 *start, sint64 *end, uint8 *started)
+void text_set_selection(int64_t *start, int64_t *end, uint8_t *started)
 {
     selection_start = start;
     selection_end = end;
@@ -408,11 +408,11 @@ void text_set_anchor_info(void *ptr)
  * @param do_free If 1, will automatically free 'buf'.
  * @return Newly allocated string with markup removed, and entities
  * replaced. */
-char *text_strip_markup(char *buf, size_t *buf_len, uint8 do_free)
+char *text_strip_markup(char *buf, size_t *buf_len, uint8_t do_free)
 {
     char *cp;
     size_t pos = 0, cp_pos = 0, len;
-    uint8 in_tag = 0;
+    uint8_t in_tag = 0;
 
     if (buf_len) {
         len = *buf_len;
@@ -535,7 +535,7 @@ static int text_adjust_coords(SDL_Surface *surface, int *mx, int *my)
  * @return 1 if the notation was parsed successfully, 0 otherwise. */
 int text_color_parse(const char *color_notation, SDL_Color *color)
 {
-    uint32 r, g, b;
+    uint32_t r, g, b;
 
     if (*color_notation == '#') {
         color_notation++;
@@ -666,12 +666,12 @@ void text_show_character_init(text_info_struct *info)
  * @return How many characters to jump. Usually 1, but can be more in
  * case of markup tags that need to be jumped over, since they are not
  * actually drawn. */
-int text_show_character(font_struct **font, font_struct *orig_font, SDL_Surface *surface, SDL_Rect *dest, const char *cp, SDL_Color *color, SDL_Color *orig_color, uint64 flags, SDL_Rect *box, int *x_adjust, text_info_struct *info)
+int text_show_character(font_struct **font, font_struct *orig_font, SDL_Surface *surface, SDL_Rect *dest, const char *cp, SDL_Color *color, SDL_Color *orig_color, uint64_t flags, SDL_Rect *box, int *x_adjust, text_info_struct *info)
 {
     int width, minx, ret = 1, new_style;
     font_struct *restore_font = NULL;
     char c = *cp;
-    uint8 remove_bold = 0;
+    uint8_t remove_bold = 0;
 
     /* Doing markup? */
     if (flags & TEXT_MARKUP && c == '[') {
@@ -694,7 +694,7 @@ int text_show_character(font_struct **font, font_struct *orig_font, SDL_Surface 
             /* Color tag: [c=#RRGGBB] */
 
             if (color && (surface || info->obscured) && !(flags & TEXT_NO_COLOR_CHANGE)) {
-                uint32 r, g, b;
+                uint32_t r, g, b;
                 int change_orig = 0;
 
                 /* Parse the r,g,b colors. */
@@ -937,7 +937,7 @@ int text_show_character(font_struct **font, font_struct *orig_font, SDL_Surface 
             if (surface) {
                 char face[MAX_BUF];
                 int x = 0, y = 0, alpha = 0, align = 0, zoom_x = 0, zoom_y = 0, rotate = 0, wd = 0, ht = 0, sprite_flags = 0, dark_level = 0, quick_pos = 0;
-                uint32 stretch = 0;
+                uint32_t stretch = 0;
 
                 if (sscanf(tag + 4, "%128[^] >] %d %d %d %d %d %d %d %d %d %d %u %d %d", face, &x, &y, &align, &sprite_flags, &dark_level, &quick_pos, &alpha, &zoom_x, &zoom_y, &rotate, &stretch, &wd, &ht) >= 1) {
                     int id;
@@ -999,7 +999,7 @@ int text_show_character(font_struct **font, font_struct *orig_font, SDL_Surface 
                 }
             }
         } else if (tag_len >= 3 && strncmp(tag, "o=#", 3) == 0) {
-            uint32 r, g, b;
+            uint32_t r, g, b;
 
             /* Parse the r,g,b colors. */
             if (sscanf(tag + 3, "%2X%2X%2X", &r, &g, &b) == 3) {
@@ -1191,7 +1191,7 @@ int text_show_character(font_struct **font, font_struct *orig_font, SDL_Surface 
                     }
 
                     if (!icon_sprite) {
-                        uint8 is_software;
+                        uint8_t is_software;
 
                         is_software = strncmp(face, "soft:", 5) == 0;
                         icon_surface = texture_surface(texture_get(is_software ? TEXTURE_TYPE_SOFTWARE : TEXTURE_TYPE_CLIENT, is_software ? face + 5 : face));
@@ -1475,7 +1475,7 @@ int text_show_character(font_struct **font, font_struct *orig_font, SDL_Surface 
             TTF_SetFontStyle((*font)->font, new_style);
         }
     } else {
-        uint8 is_bold;
+        uint8_t is_bold;
 
         /* Deals with the case when calculating width. */
 
@@ -1552,7 +1552,7 @@ int text_show_character(font_struct **font, font_struct *orig_font, SDL_Surface 
 
             if (text_adjust_coords(surface, &mx, &my)) {
                 if (mx >= dest->x && mx < dest->x + width && my >= dest->y && my < dest->y + FONT_HEIGHT(*font)) {
-                    static uint32 ticks = 0;
+                    static uint32_t ticks = 0;
 
                     if (info->anchor_tag) {
                         if (state == SDL_BUTTON_LEFT && (!selection_start || !selection_end || *selection_start == -1 || *selection_end == -1) && (!ticks || SDL_GetTicks() - ticks > 125)) {
@@ -1791,19 +1791,19 @@ int glyph_get_height(font_struct *font, char c)
  * one of the 'flags', this is used to get the max width from. Also even
  * if word wrap is disabled, this is used to get the max height from, if
  * set (both box->w and box->h can be 0 to indicate unlimited). */
-void text_show(SDL_Surface *surface, font_struct *font, const char *text, int x, int y, const char *color_notation, uint64 flags, SDL_Rect *box)
+void text_show(SDL_Surface *surface, font_struct *font, const char *text, int x, int y, const char *color_notation, uint64_t flags, SDL_Rect *box)
 {
     const char *cp = text;
     SDL_Rect dest;
     int pos = 0, last_space = 0, is_lf, ret, skip, max_height, max_width, height = 0;
     SDL_Color color, orig_color, select_color_orig;
     int lines = 1, width = 0;
-    uint16 *heights = NULL;
+    uint16_t *heights = NULL;
     size_t num_heights = 0;
     int x_adjust = 0;
     int mx, my, mstate = 0, old_x;
-    sint64 select_start = 0, select_end = 0;
-    uint8 select_color_changed = 0;
+    int64_t select_start = 0, select_end = 0;
+    uint8_t select_color_changed = 0;
     text_info_struct info;
     font_struct *orig_font = font;
 
@@ -1824,7 +1824,7 @@ void text_show(SDL_Surface *surface, font_struct *font, const char *text, int x,
 
     /* Align to the center. */
     if (box && flags & (TEXT_ALIGN_CENTER | TEXT_VALIGN_CENTER)) {
-        uint16 w, h;
+        uint16_t w, h;
 
         text_get_width_height(font, text, flags & ~(TEXT_ALIGN_CENTER | TEXT_VALIGN_CENTER), box, flags & TEXT_ALIGN_CENTER ? &w : NULL, flags & TEXT_VALIGN_CENTER ? &h : NULL);
 
@@ -2076,7 +2076,7 @@ void text_show(SDL_Surface *surface, font_struct *font, const char *text, int x,
  * one of the 'flags', this is used to get the max width from. Also even
  * if word wrap is disabled, this is used to get the max height from, if
  * set (both box->w and box->h can be 0 to indicate unlimited). */
-void text_show_shadow(SDL_Surface *surface, font_struct *font, const char *text, int x, int y, const char *color_notation, const char *color_shadow_notation, uint64 flags, SDL_Rect *box)
+void text_show_shadow(SDL_Surface *surface, font_struct *font, const char *text, int x, int y, const char *color_notation, const char *color_shadow_notation, uint64_t flags, SDL_Rect *box)
 {
     text_show(surface, font, text, x + 1, y + 1, color_shadow_notation, flags | TEXT_NO_COLOR_CHANGE, box);
     text_show(surface, font, text, x, y, color_notation, flags, box);
@@ -2086,7 +2086,7 @@ void text_show_shadow(SDL_Surface *surface, font_struct *font, const char *text,
  * Like text_show(), but allows using printf-like format specifiers.
  *
  * @copydoc text_show() */
-void text_show_format(SDL_Surface *surface, font_struct *font, int x, int y, const char *color_notation, uint64 flags, SDL_Rect *box, const char *format, ...)
+void text_show_format(SDL_Surface *surface, font_struct *font, int x, int y, const char *color_notation, uint64_t flags, SDL_Rect *box, const char *format, ...)
 {
     char buf[HUGE_BUF * 4];
     va_list ap;
@@ -2101,7 +2101,7 @@ void text_show_format(SDL_Surface *surface, font_struct *font, int x, int y, con
  * Like text_show_shadow(), but allows using printf-like format specifiers.
  *
  * @copydoc text_show_shadow() */
-void text_show_shadow_format(SDL_Surface *surface, font_struct *font, int x, int y, const char *color_notation, const char *color_shadow_notation, uint64 flags, SDL_Rect *box, const char *format, ...)
+void text_show_shadow_format(SDL_Surface *surface, font_struct *font, int x, int y, const char *color_notation, const char *color_shadow_notation, uint64_t flags, SDL_Rect *box, const char *format, ...)
 {
     char buf[HUGE_BUF * 4];
     va_list ap;
@@ -2119,7 +2119,7 @@ void text_show_shadow_format(SDL_Surface *surface, font_struct *font, int x, int
  * @param text String to get width of.
  * @param flags One or a combination of @ref TEXT_xxx.
  * @return The string's width. */
-int text_get_width(font_struct *font, const char *text, uint64 flags)
+int text_get_width(font_struct *font, const char *text, uint64_t flags)
 {
     SDL_Rect dest;
     const char *cp = text;
@@ -2148,7 +2148,7 @@ int text_get_width(font_struct *font, const char *text, uint64 flags)
  * @param text String to get height of.
  * @param flags One or a combination of @ref TEXT_xxx.
  * @return The string's height. */
-int text_get_height(font_struct *font, const char *text, uint64 flags)
+int text_get_height(font_struct *font, const char *text, uint64_t flags)
 {
     SDL_Rect dest;
     const char *cp;
@@ -2187,7 +2187,7 @@ int text_get_height(font_struct *font, const char *text, uint64 flags)
  * for example).
  * @param[out] w Will contain the calculated width.
  * @param[out] h Will contain the calculated height. */
-void text_get_width_height(font_struct *font, const char *text, uint64 flags, SDL_Rect *box, uint16 *w, uint16 *h)
+void text_get_width_height(font_struct *font, const char *text, uint64_t flags, SDL_Rect *box, uint16_t *w, uint16_t *h)
 {
     SDL_Rect box2;
 

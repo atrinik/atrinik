@@ -111,7 +111,7 @@ int widget_id_from_name(const char *name)
     return -1;
 }
 
-static int widget_load(const char *path, uint8 defaults, widgetdata *widgets[])
+static int widget_load(const char *path, uint8_t defaults, widgetdata *widgets[])
 {
     FILE *fp;
     char buf[HUGE_BUF], *end, *line, *cp;
@@ -1471,7 +1471,7 @@ int widgets_need_redraw(void)
  * This makes it as fast as a linear linked list if there are no child nodes. */
 static void process_widgets_rec(int draw, widgetdata *widget)
 {
-    uint8 redraw;
+    uint8_t redraw;
 
     for (; widget; widget = widget->prev) {
         if (widget->background_func) {

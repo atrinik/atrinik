@@ -33,11 +33,11 @@
 void read_anims(void)
 {
     size_t anim_len = 0;
-    uint8 new_anim = 1;
-    uint8 faces = 0;
+    uint8_t new_anim = 1;
+    uint8_t faces = 0;
     FILE *fp;
     char buf[HUGE_BUF];
-    uint8 anim_cmd[2048];
+    uint8_t anim_cmd[2048];
     size_t count = 0;
 
     if (animations_num) {
@@ -64,8 +64,8 @@ void read_anims(void)
     anim_table = emalloc(sizeof(_anim_table));
 
     /* Animation #0 is like face id #0. */
-    anim_cmd[0] = (uint8) ((count >> 8) & 0xff);
-    anim_cmd[1] = (uint8) (count & 0xff);
+    anim_cmd[0] = (uint8_t) ((count >> 8) & 0xff);
+    anim_cmd[1] = (uint8_t) (count & 0xff);
     anim_cmd[2] = 0;
     anim_cmd[3] = 1;
     anim_cmd[4] = 0;
@@ -88,8 +88,8 @@ void read_anims(void)
             if (!strncmp(buf, "anim ", 5)) {
                 new_anim = 0;
                 faces = 0;
-                anim_cmd[0] = (uint8) ((count >> 8) & 0xff);
-                anim_cmd[1] = (uint8) (count & 0xff);
+                anim_cmd[0] = (uint8_t) ((count >> 8) & 0xff);
+                anim_cmd[1] = (uint8_t) (count & 0xff);
                 faces = 1;
                 anim_len = 4;
             } else {
@@ -109,10 +109,10 @@ void read_anims(void)
                 count++;
                 new_anim = 1;
             } else {
-                uint16 face_id = atoi(buf);
+                uint16_t face_id = atoi(buf);
 
-                anim_cmd[anim_len++] = (uint8) ((face_id >> 8) & 0xff);
-                anim_cmd[anim_len++] = (uint8) (face_id & 0xff);
+                anim_cmd[anim_len++] = (uint8_t) ((face_id >> 8) & 0xff);
+                anim_cmd[anim_len++] = (uint8_t) (face_id & 0xff);
             }
         }
     }

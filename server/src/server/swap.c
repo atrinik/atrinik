@@ -138,7 +138,7 @@ void swap_map(mapstruct *map, int force_flag)
 
     /* If it is immediate reset time, don't bother saving it - just get
      * rid of it right away. */
-    if (map->reset_time <= (uint32) seconds()) {
+    if (map->reset_time <= (uint32_t) seconds()) {
         if (map->events) {
             /* Trigger the map reset event */
             trigger_map_event(MEVENT_RESET, map, NULL, NULL, NULL, map->path, 0);
@@ -212,7 +212,7 @@ void flush_old_maps(void)
         }
 
         if (m->in_memory != MAP_SWAPPED || m->tmpname == NULL ||
-                (uint32) sec < m->reset_time) {
+                (uint32_t) sec < m->reset_time) {
             /* No need to flush them if there are no resets */
             continue;
         }

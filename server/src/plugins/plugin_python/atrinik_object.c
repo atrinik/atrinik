@@ -49,39 +49,39 @@ static fields_struct fields[] = {
     {"slaying", FIELDTYPE_SHSTR, offsetof(object, slaying), 0, 0},
     {"msg", FIELDTYPE_SHSTR, offsetof(object, msg), 0, 0},
     {"artifact", FIELDTYPE_SHSTR, offsetof(object, artifact), 0, 0},
-    {"weight", FIELDTYPE_SINT32, offsetof(object, weight), 0, 0},
+    {"weight", FIELDTYPE_INT32, offsetof(object, weight), 0, 0},
     {"count", FIELDTYPE_UINT32, offsetof(object, count), FIELDFLAG_READONLY, 0},
 
     {"weight_limit", FIELDTYPE_UINT32, offsetof(object, weight_limit), 0, 0},
-    {"carrying", FIELDTYPE_SINT32, offsetof(object, carrying), 0, 0},
+    {"carrying", FIELDTYPE_INT32, offsetof(object, carrying), 0, 0},
     {"path_attuned", FIELDTYPE_UINT32, offsetof(object, path_attuned), 0, 0},
     {"path_repelled", FIELDTYPE_UINT32, offsetof(object, path_repelled), 0, 0},
     {"path_denied", FIELDTYPE_UINT32, offsetof(object, path_denied), 0, 0},
-    {"value", FIELDTYPE_SINT64, offsetof(object, value), 0, 0},
+    {"value", FIELDTYPE_INT64, offsetof(object, value), 0, 0},
     {"nrof", FIELDTYPE_UINT32, offsetof(object, nrof), 0, 0},
 
     {"enemy", FIELDTYPE_OBJECTREF, offsetof(object, enemy), FIELDFLAG_PLAYER_READONLY, offsetof(object, enemy_count)},
     {"attacked_by", FIELDTYPE_OBJECTREF, offsetof(object, attacked_by), FIELDFLAG_READONLY, offsetof(object, attacked_by_count)},
     {"owner", FIELDTYPE_OBJECTREF, offsetof(object, owner), FIELDFLAG_READONLY, offsetof(object, ownercount)},
 
-    {"x", FIELDTYPE_SINT16, offsetof(object, x), FIELDFLAG_READONLY, 0},
-    {"y", FIELDTYPE_SINT16, offsetof(object, y), FIELDFLAG_READONLY, 0},
-    {"attacked_by_distance", FIELDTYPE_SINT16, offsetof(object, attacked_by_distance), 0, 0},
+    {"x", FIELDTYPE_INT16, offsetof(object, x), FIELDFLAG_READONLY, 0},
+    {"y", FIELDTYPE_INT16, offsetof(object, y), FIELDFLAG_READONLY, 0},
+    {"attacked_by_distance", FIELDTYPE_INT16, offsetof(object, attacked_by_distance), 0, 0},
     {"last_damage", FIELDTYPE_UINT16, offsetof(object, last_damage), 0, 0},
     {"terrain_type", FIELDTYPE_UINT16, offsetof(object, terrain_type), 0, 0},
     {"terrain_flag", FIELDTYPE_UINT16, offsetof(object, terrain_flag), 0, 0},
     {"material", FIELDTYPE_UINT16, offsetof(object, material), 0, 0},
-    {"material_real", FIELDTYPE_SINT16, offsetof(object, material_real), 0, 0},
+    {"material_real", FIELDTYPE_INT16, offsetof(object, material_real), 0, 0},
 
-    {"last_heal", FIELDTYPE_SINT16, offsetof(object, last_heal), 0, 0},
-    {"last_sp", FIELDTYPE_SINT16, offsetof(object, last_sp), 0, 0},
-    {"last_grace", FIELDTYPE_SINT16, offsetof(object, last_grace), 0, 0},
-    {"last_eat", FIELDTYPE_SINT16, offsetof(object, last_eat), 0, 0},
+    {"last_heal", FIELDTYPE_INT16, offsetof(object, last_heal), 0, 0},
+    {"last_sp", FIELDTYPE_INT16, offsetof(object, last_sp), 0, 0},
+    {"last_grace", FIELDTYPE_INT16, offsetof(object, last_grace), 0, 0},
+    {"last_eat", FIELDTYPE_INT16, offsetof(object, last_eat), 0, 0},
 
-    {"magic", FIELDTYPE_SINT8, offsetof(object, magic), 0, 0},
+    {"magic", FIELDTYPE_INT8, offsetof(object, magic), 0, 0},
     {"state", FIELDTYPE_UINT8, offsetof(object, state), 0, 0},
-    {"level", FIELDTYPE_SINT8, offsetof(object, level), FIELDFLAG_PLAYER_READONLY, 0},
-    {"direction", FIELDTYPE_SINT8, offsetof(object, direction), 0, 0},
+    {"level", FIELDTYPE_INT8, offsetof(object, level), FIELDFLAG_PLAYER_READONLY, 0},
+    {"direction", FIELDTYPE_INT8, offsetof(object, direction), 0, 0},
     {"quick_pos", FIELDTYPE_UINT8, offsetof(object, quick_pos), 0, 0},
     {"quickslot", FIELDTYPE_UINT8, offsetof(object, quickslot), FIELDFLAG_READONLY, 0},
 
@@ -92,8 +92,8 @@ static fields_struct fields[] = {
     {"item_race", FIELDTYPE_UINT8, offsetof(object, item_race), 0, 0},
     {"item_level", FIELDTYPE_UINT8, offsetof(object, item_level), 0, 0},
     {"item_skill", FIELDTYPE_UINT8, offsetof(object, item_skill), 0, 0},
-    {"glow_radius", FIELDTYPE_SINT8, offsetof(object, glow_radius), 0, 0},
-    {"move_status", FIELDTYPE_SINT8, offsetof(object, move_status), 0, 0},
+    {"glow_radius", FIELDTYPE_INT8, offsetof(object, glow_radius), 0, 0},
+    {"move_status", FIELDTYPE_INT8, offsetof(object, move_status), 0, 0},
     {"move_type", FIELDTYPE_UINT8, offsetof(object, move_type), 0, 0},
 
     {"anim_speed", FIELDTYPE_UINT8, offsetof(object, anim_speed), 0, 0},
@@ -106,33 +106,33 @@ static fields_struct fields[] = {
     {"speed_left", FIELDTYPE_FLOAT, offsetof(object, speed_left), 0, 0},
     {"weapon_speed", FIELDTYPE_FLOAT, offsetof(object, weapon_speed), 0, 0},
     {"weapon_speed_left", FIELDTYPE_FLOAT, offsetof(object, weapon_speed_left), 0, 0},
-    {"exp", FIELDTYPE_SINT64, offsetof(object, stats.exp), 0, 0},
+    {"exp", FIELDTYPE_INT64, offsetof(object, stats.exp), 0, 0},
 
-    {"hp", FIELDTYPE_SINT32, offsetof(object, stats.hp), 0, 0},
-    {"maxhp", FIELDTYPE_SINT32, offsetof(object, stats.maxhp), FIELDFLAG_PLAYER_READONLY, 0},
-    {"sp", FIELDTYPE_SINT16, offsetof(object, stats.sp), 0, 0},
-    {"maxsp", FIELDTYPE_SINT16, offsetof(object, stats.maxsp), FIELDFLAG_PLAYER_READONLY, 0},
+    {"hp", FIELDTYPE_INT32, offsetof(object, stats.hp), 0, 0},
+    {"maxhp", FIELDTYPE_INT32, offsetof(object, stats.maxhp), FIELDFLAG_PLAYER_READONLY, 0},
+    {"sp", FIELDTYPE_INT16, offsetof(object, stats.sp), 0, 0},
+    {"maxsp", FIELDTYPE_INT16, offsetof(object, stats.maxsp), FIELDFLAG_PLAYER_READONLY, 0},
 
-    {"food", FIELDTYPE_SINT16, offsetof(object, stats.food), 0, 0},
-    {"dam", FIELDTYPE_SINT16, offsetof(object, stats.dam), FIELDFLAG_PLAYER_READONLY, 0},
-    {"wc", FIELDTYPE_SINT16, offsetof(object, stats.wc), FIELDFLAG_PLAYER_READONLY, 0},
-    {"ac", FIELDTYPE_SINT16, offsetof(object, stats.ac), FIELDFLAG_PLAYER_READONLY, 0},
+    {"food", FIELDTYPE_INT16, offsetof(object, stats.food), 0, 0},
+    {"dam", FIELDTYPE_INT16, offsetof(object, stats.dam), FIELDFLAG_PLAYER_READONLY, 0},
+    {"wc", FIELDTYPE_INT16, offsetof(object, stats.wc), FIELDFLAG_PLAYER_READONLY, 0},
+    {"ac", FIELDTYPE_INT16, offsetof(object, stats.ac), FIELDFLAG_PLAYER_READONLY, 0},
     {"wc_range", FIELDTYPE_UINT8, offsetof(object, stats.wc_range), 0, 0},
 
-    {"Str", FIELDTYPE_SINT8, offsetof(object, stats.Str), FIELDFLAG_PLAYER_FIX, 0},
-    {"Dex", FIELDTYPE_SINT8, offsetof(object, stats.Dex), FIELDFLAG_PLAYER_FIX, 0},
-    {"Con", FIELDTYPE_SINT8, offsetof(object, stats.Con), FIELDFLAG_PLAYER_FIX, 0},
-    {"Wis", FIELDTYPE_SINT8, offsetof(object, stats.Wis), FIELDFLAG_PLAYER_FIX, 0},
-    {"Cha", FIELDTYPE_SINT8, offsetof(object, stats.Cha), FIELDFLAG_PLAYER_FIX, 0},
-    {"Int", FIELDTYPE_SINT8, offsetof(object, stats.Int), FIELDFLAG_PLAYER_FIX, 0},
-    {"Pow", FIELDTYPE_SINT8, offsetof(object, stats.Pow), FIELDFLAG_PLAYER_FIX, 0},
+    {"Str", FIELDTYPE_INT8, offsetof(object, stats.Str), FIELDFLAG_PLAYER_FIX, 0},
+    {"Dex", FIELDTYPE_INT8, offsetof(object, stats.Dex), FIELDFLAG_PLAYER_FIX, 0},
+    {"Con", FIELDTYPE_INT8, offsetof(object, stats.Con), FIELDFLAG_PLAYER_FIX, 0},
+    {"Wis", FIELDTYPE_INT8, offsetof(object, stats.Wis), FIELDFLAG_PLAYER_FIX, 0},
+    {"Cha", FIELDTYPE_INT8, offsetof(object, stats.Cha), FIELDFLAG_PLAYER_FIX, 0},
+    {"Int", FIELDTYPE_INT8, offsetof(object, stats.Int), FIELDFLAG_PLAYER_FIX, 0},
+    {"Pow", FIELDTYPE_INT8, offsetof(object, stats.Pow), FIELDFLAG_PLAYER_FIX, 0},
 
     {"arch", FIELDTYPE_ARCH, offsetof(object, arch), 0, 0},
-    {"z", FIELDTYPE_SINT16, offsetof(object, z), 0, 0},
-    {"zoom_x", FIELDTYPE_SINT16, offsetof(object, zoom_x), 0, 0},
-    {"zoom_y", FIELDTYPE_SINT16, offsetof(object, zoom_y), 0, 0},
-    {"rotate", FIELDTYPE_SINT16, offsetof(object, rotate), 0, 0},
-    {"align", FIELDTYPE_SINT16, offsetof(object, align), 0, 0},
+    {"z", FIELDTYPE_INT16, offsetof(object, z), 0, 0},
+    {"zoom_x", FIELDTYPE_INT16, offsetof(object, zoom_x), 0, 0},
+    {"zoom_y", FIELDTYPE_INT16, offsetof(object, zoom_y), 0, 0},
+    {"rotate", FIELDTYPE_INT16, offsetof(object, rotate), 0, 0},
+    {"align", FIELDTYPE_INT16, offsetof(object, align), 0, 0},
     {"alpha", FIELDTYPE_UINT8, offsetof(object, alpha), 0, 0},
     /* Returns the object's face in a tuple containing the face name as
      * string, and the face ID as integer.\n
@@ -541,8 +541,8 @@ static PyObject *Atrinik_Object_CreateObject(Atrinik_Object *obj, PyObject *args
 {
     static char *kwlist[] = {"archname", "nrof", "value", "identified", NULL};
     const char *archname;
-    uint32 nrof = 1;
-    sint64 value = -1;
+    uint32_t nrof = 1;
+    int64_t value = -1;
     int identified = 1;
     archetype *at;
     object *tmp;
@@ -630,7 +630,7 @@ static object *object_find_object(object *tmp, int mode, shstr *archname, shstr 
 static PyObject *Atrinik_Object_FindObject(Atrinik_Object *obj, PyObject *args, PyObject *keywds)
 {
     static char *kwlist[] = {"mode", "archname", "name", "title", "type", "multiple", "unpaid", NULL};
-    uint8 mode = INVENTORY_ONLY;
+    uint8_t mode = INVENTORY_ONLY;
     int type = -1, multiple = 0, unpaid = 0;
     shstr *archname = NULL, *name = NULL, *title = NULL;
     object *match;
@@ -859,7 +859,7 @@ static PyObject *Atrinik_Object_GetMoney(Atrinik_Object *obj, PyObject *args)
  * in inventory), False otherwise. */
 static PyObject *Atrinik_Object_PayAmount(Atrinik_Object *obj, PyObject *args)
 {
-    sint64 value;
+    int64_t value;
 
     if (!PyArg_ParseTuple(args, "L", &value)) {
         return NULL;
@@ -1024,7 +1024,7 @@ static PyObject *Atrinik_Object_Protection(Atrinik_Object *what, PyObject *args)
 static PyObject *Atrinik_Object_SetProtection(Atrinik_Object *what, PyObject *args)
 {
     int nr;
-    sint8 val;
+    int8_t val;
 
     if (!PyArg_ParseTuple(args, "iB", &nr, &val)) {
         return NULL;
@@ -1077,7 +1077,7 @@ static PyObject *Atrinik_Object_Attack(Atrinik_Object *what, PyObject *args)
 static PyObject *Atrinik_Object_SetAttack(Atrinik_Object *what, PyObject *args)
 {
     int nr;
-    uint8 val;
+    uint8_t val;
 
     if (!PyArg_ParseTuple(args, "ib", &nr, &val)) {
         return NULL;
@@ -1103,7 +1103,7 @@ static PyObject *Atrinik_Object_SetAttack(Atrinik_Object *what, PyObject *args)
  * @return 'object' if something is left, None if the amount reached 0. */
 static PyObject *Atrinik_Object_Decrease(Atrinik_Object *what, PyObject *args)
 {
-    uint32 num = 1;
+    uint32_t num = 1;
 
     if (!PyArg_ParseTuple(args, "|I", &num)) {
         return NULL;
@@ -1157,7 +1157,7 @@ static PyObject *Atrinik_Object_Decrease(Atrinik_Object *what, PyObject *args)
  * @return A list containing tuples of the squares. */
 static PyObject *Atrinik_Object_SquaresAround(Atrinik_Object *what, PyObject *args, PyObject *keywds)
 {
-    uint8 range, type = AROUND_ALL;
+    uint8_t range, type = AROUND_ALL;
     static char *kwlist[] = {"range", "type", "beyond", "callable", NULL};
     int i, j, xt, yt, beyond = 0;
     mapstruct *m;

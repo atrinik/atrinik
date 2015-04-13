@@ -67,7 +67,7 @@ void rune_spring(object *op, object *victim)
         OBJ_DESTROYED_BEGIN(op);
         OBJ_DESTROYED_BEGIN(victim);
 
-        hit_player(victim, (sint16) ((float) op->stats.dam * (LEVEL_DAMAGE(op->level) * 0.925f)), op, AT_INTERNAL);
+        hit_player(victim, (int16_t) ((float) op->stats.dam * (LEVEL_DAMAGE(op->level) * 0.925f)), op, AT_INTERNAL);
 
         if (!OBJ_DESTROYED(victim)) {
             object *tmp, *next;

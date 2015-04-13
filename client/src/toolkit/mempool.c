@@ -39,7 +39,7 @@
 #include <global.h>
 
 #define API_NAME mempool ///< Name of the API.
-static uint8 did_init = 0; ///< Whether the API has been initialized.
+static uint8_t did_init = 0; ///< Whether the API has been initialized.
 
 static void mempool_free(mempool_struct *pool);
 
@@ -241,7 +241,7 @@ static size_t mempool_free_puddles(mempool_struct *pool)
  * @return The created memory pool.
  */
 mempool_struct *mempool_create(const char *description, size_t expand,
-        size_t size, uint32 flags, chunk_initialisator initialisator,
+        size_t size, uint32_t flags, chunk_initialisator initialisator,
         chunk_deinitialisator deinitialisator, chunk_constructor constructor,
         chunk_destructor destructor)
 {
@@ -409,8 +409,8 @@ void mempool_stats(const char *name, char *buf, size_t size)
     snprintfcat(buf, size, "\n=== MEMPOOL ===");
 
     if (string_isempty(name)) {
-        snprintfcat(buf, size, "\nRegistered pools: %"FMT64U,
-                (uint64) pools_num);
+        snprintfcat(buf, size, "\nRegistered pools: %"PRIu64,
+                (uint64_t) pools_num);
     }
 
     for (i = 0; i < pools_num; i++) {
@@ -421,10 +421,10 @@ void mempool_stats(const char *name, char *buf, size_t size)
 
         snprintfcat(buf, size,
                 "\n\nMemory pool: %s"
-                "\n - Expand size: %"FMT64U
-                "\n - Chunk size: %"FMT64U,
-                pools[i]->chunk_description, (uint64) pools[i]->expand_size,
-                (uint64) pools[i]->chunksize);
+                "\n - Expand size: %"PRIu64
+                "\n - Chunk size: %"PRIu64,
+                pools[i]->chunk_description, (uint64_t) pools[i]->expand_size,
+                (uint64_t) pools[i]->chunksize);
 
         allocated = 0;
 
@@ -433,7 +433,7 @@ void mempool_stats(const char *name, char *buf, size_t size)
                 continue;
             }
 
-            snprintfcat(buf, size, "\nFreelist #%"FMT64U":", (uint64) j);
+            snprintfcat(buf, size, "\nFreelist #%"PRIu64":", (uint64_t) j);
             snprintfcat(buf, size, " allocated: %s",
                     string_format_number_comma(pools[i]->nrof_allocated[j]));
             snprintfcat(buf, size, " free: %s",
@@ -507,8 +507,8 @@ static void mempool_expand(mempool_struct *pool, size_t arraysize_exp)
     nrof_arrays = pool->expand_size >> arraysize_exp;
 
     if (nrof_arrays == 0) {
-        log(LOG(ERROR), "Called with too large array size exponent: %"FMT64U,
-                (uint64) arraysize_exp);
+        log(LOG(ERROR), "Called with too large array size exponent: %"PRIu64,
+                (uint64_t) arraysize_exp);
         nrof_arrays = 1;
     }
 

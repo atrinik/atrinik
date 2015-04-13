@@ -41,9 +41,9 @@ START_TEST(test_CAN_MERGE)
     fail_if(CAN_MERGE(ob1, ob2) == 1, "Should not be able to merge 2 objects with different types.");
     object_destroy(ob2);
     ob2 = get_archetype("bolt");
-    ob1->nrof = SINT32_MAX;
+    ob1->nrof = INT32_MAX;
     ob2->nrof = 1;
-    fail_if(CAN_MERGE(ob1, ob2) == 1, "Should not be able to merge 2 objects if result nrof goes to higher than SINT32_MAX");
+    fail_if(CAN_MERGE(ob1, ob2) == 1, "Should not be able to merge 2 objects if result nrof goes to higher than INT32_MAX");
     object_destroy(ob1);
     object_destroy(ob2);
 }

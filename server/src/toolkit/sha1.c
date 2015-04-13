@@ -36,7 +36,7 @@
 
 /**
  * If 1, the API has been initialized. */
-static uint8 did_init = 0;
+static uint8_t did_init = 0;
 
 /**
  * Initialize the sha1 API.

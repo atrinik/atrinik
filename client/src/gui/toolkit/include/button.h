@@ -71,11 +71,11 @@ typedef struct button_struct {
     font_struct *font;
 
     /** Text flags. */
-    uint64 flags;
+    uint64_t flags;
 
     /**
      * Whether to center the text vertically and horizontally. */
-    uint8 center;
+    uint8_t center;
 
     /** Color of the text. */
     const char *color;
@@ -104,13 +104,13 @@ typedef struct button_struct {
     int disabled;
 
     /** When the button was pressed. */
-    uint32 pressed_ticks;
+    uint32_t pressed_ticks;
 
     /** When the mouse started hovering over the button. */
-    uint32 hover_ticks;
+    uint32_t hover_ticks;
 
     /** Ticks needed to trigger a repeat. */
-    uint32 pressed_repeat_ticks;
+    uint32_t pressed_repeat_ticks;
 
     /**
      * Function called on button repeat
@@ -119,7 +119,7 @@ typedef struct button_struct {
 
     /**
      * Whether the button needs redrawing. */
-    uint8 redraw;
+    uint8_t redraw;
 } button_struct;
 
 #endif

@@ -124,7 +124,7 @@ static int apply_func(object *op, object *applier, int aflags)
 
             /* Now set the stat value of the force to the one calculcated
              * above, but make sure it doesn't overflow sint8. */
-            change_attr_value(&force->stats, i, MIN(SINT8_MAX, MAX(SINT8_MIN, val)));
+            change_attr_value(&force->stats, i, MIN(INT8_MAX, MAX(INT8_MIN, val)));
         }
 
         /* Insert the force into the player and apply it. */

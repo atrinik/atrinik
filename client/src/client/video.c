@@ -99,7 +99,7 @@ int video_set_size(void)
  * Calculate the video flags from the settings.
  * When settings are changed at runtime, this MUST be called again.
  * @return The flags */
-uint32 get_video_flags(void)
+uint32_t get_video_flags(void)
 {
     if (setting_get_int(OPT_CAT_CLIENT, OPT_FULLSCREEN)) {
         return SDL_FULLSCREEN | SDL_SWSURFACE | SDL_HWACCEL | SDL_HWPALETTE | SDL_DOUBLEBUF | SDL_ANYFORMAT;
@@ -122,12 +122,12 @@ uint32 get_video_flags(void)
  * will be filled into pointer. Contents are undefined on failure. Can
  * be NULL, in which case the surface's current flags are used.
  *  @return Non-zero on success, zero on failure. */
-int video_fullscreen_toggle(SDL_Surface **surface, uint32 *flags)
+int video_fullscreen_toggle(SDL_Surface **surface, uint32_t *flags)
 {
     long framesize = 0;
     void *pixels = NULL;
     SDL_Rect clip;
-    uint32 tmpflags = 0;
+    uint32_t tmpflags = 0;
     int w = 0;
     int h = 0;
     int bpp = 0;

@@ -277,8 +277,8 @@ static void party_loot_split(object *pl, object *corpse)
 {
     party_struct *party;
     objectlink *ol, *ol_loot, *ol_next;
-    uint32 count;
-    sint64 value;
+    uint32_t count;
+    int64_t value;
     object *tmp, *next;
 
     party = CONTR(pl)->party;
@@ -349,8 +349,8 @@ static void party_loot_split(object *pl, object *corpse)
     }
 
     if (value > 0) {
-        sint64 value_split;
-        uint32 num;
+        int64_t value_split;
+        uint32_t num;
 
         for (num = 0, ol = party->members; ol; ol = ol->next) {
             if (on_same_map(ol->objlink.ob, pl)) {
@@ -465,7 +465,7 @@ void remove_party(party_struct *party)
  * @param pl Player. */
 void party_update_who(player *pl)
 {
-    uint8 hp, sp;
+    uint8_t hp, sp;
 
     if (!pl->party) {
         return;

@@ -108,12 +108,6 @@ check_function_exists(usleep HAVE_USLEEP)
 check_function_exists(strnlen HAVE_STRNLEN)
 check_function_exists(mkstemp HAVE_MKSTEMP)
 
-# Check sizes of 'long' and 'long long' to determine architecture (32-bit
-# or 64-bit)
-include(CheckTypeSize)
-check_type_size("long" SIZEOF_LONG)
-check_type_size("long long" SIZEOF_LONG_LONG)
-
 configure_file(src/toolkit/include/toolkit_cmake.h.def src/toolkit/include/toolkit_cmake.h)
 
 include_directories(src/toolkit/include)

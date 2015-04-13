@@ -699,7 +699,7 @@ typedef struct socket_t {
     /**
      * Port that the socket connection will use.
      */
-    uint16 port;
+    uint16_t port;
 
     /**
      * SSL socket handle.

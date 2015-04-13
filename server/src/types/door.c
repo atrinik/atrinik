@@ -37,7 +37,7 @@
  * @param opener Who is opening the door.
  * @param nearby Whether this door was opened by opening a nearby door.
  */
-static void door_open(object *op, object *opener, uint8 nearby)
+static void door_open(object *op, object *opener, uint8_t nearby)
 {
     object *tmp;
 

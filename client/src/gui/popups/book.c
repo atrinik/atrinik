@@ -35,15 +35,15 @@ static char *book_content = NULL;
 /** Name of the book. */
 static char book_name[HUGE_BUF];
 /** Number of lines in the book. */
-static uint32 book_lines = 0;
+static uint32_t book_lines = 0;
 /** Number of lines at the end. */
-static uint32 book_scroll_lines = 0;
+static uint32_t book_scroll_lines = 0;
 /** Lines scrolled. */
-static uint32 book_scroll = 0;
+static uint32_t book_scroll = 0;
 /** Help history - used for the 'Back' button. */
 UT_array *book_help_history = NULL;
 /** Whether the help history is enabled for this book GUI. */
-static uint8 book_help_history_enabled = 0;
+static uint8_t book_help_history_enabled = 0;
 /** Scrollbar in the book GUI. */
 static scrollbar_struct scrollbar;
 

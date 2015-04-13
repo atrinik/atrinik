@@ -84,7 +84,7 @@ static void list_handle_enter(list_struct *list, SDL_Event *event)
  * @param name Buddy's name. Can be NULL, in which case nothing is added.
  * @param sort If 1, sort the buddy list.
  */
-void widget_buddy_add(widgetdata *widget, const char *name, uint8 sort)
+void widget_buddy_add(widgetdata *widget, const char *name, uint8_t sort)
 {
     buddy_struct *tmp;
 
@@ -117,7 +117,7 @@ void widget_buddy_remove(widgetdata *widget, const char *name)
 
     if (idx != -1) {
         buddy_struct *tmp;
-        uint32 row;
+        uint32_t row;
 
         tmp = WIDGET_BUDDY(widget);
         utarray_erase(tmp->names, (size_t) idx, 1);

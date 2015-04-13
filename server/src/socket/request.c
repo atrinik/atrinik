@@ -38,10 +38,10 @@
 #define GET_CLIENT_FLAGS(_O_)   ((_O_)->flags[0] & 0x7f)
 #define NO_FACE_SEND (-1)
 
-void socket_command_setup(socket_struct *ns, player *pl, uint8 *data, size_t len, size_t pos)
+void socket_command_setup(socket_struct *ns, player *pl, uint8_t *data, size_t len, size_t pos)
 {
     packet_struct *packet;
-    uint8 type;
+    uint8_t type;
 
     packet = packet_new(CLIENT_CMD_SETUP, 256, 256);
 
@@ -104,7 +104,7 @@ void socket_command_setup(socket_struct *ns, player *pl, uint8 *data, size_t len
     socket_send_packet(ns, packet);
 }
 
-void socket_command_player_cmd(socket_struct *ns, player *pl, uint8 *data, size_t len, size_t pos)
+void socket_command_player_cmd(socket_struct *ns, player *pl, uint8_t *data, size_t len, size_t pos)
 {
     char command[MAX_BUF];
 
@@ -117,9 +117,9 @@ void socket_command_player_cmd(socket_struct *ns, player *pl, uint8 *data, size_
     commands_handle(pl->ob, command);
 }
 
-void socket_command_version(socket_struct *ns, player *pl, uint8 *data, size_t len, size_t pos)
+void socket_command_version(socket_struct *ns, player *pl, uint8_t *data, size_t len, size_t pos)
 {
-    uint32 ver;
+    uint32_t ver;
     packet_struct *packet;
 
     /* Ignore multiple version commands. */
@@ -145,10 +145,10 @@ void socket_command_version(socket_struct *ns, player *pl, uint8 *data, size_t l
     socket_send_packet(ns, packet);
 }
 
-void socket_command_item_move(socket_struct *ns, player *pl, uint8 *data, size_t len, size_t pos)
+void socket_command_item_move(socket_struct *ns, player *pl, uint8_t *data, size_t len, size_t pos)
 {
     tag_t to, tag;
-    uint32 nrof;
+    uint32_t nrof;
 
     to = packet_to_uint32(data, len, &pos);
     tag = packet_to_uint32(data, len, &pos);
@@ -172,7 +172,7 @@ void esrv_update_stats(player *pl)
 {
     packet_struct *packet;
     int i;
-    uint16 flags;
+    uint16_t flags;
 
 #define AddIf(_old, _new, _type, _bitsize) \
     if ((_old) != (_new)) \
@@ -206,10 +206,10 @@ void esrv_update_stats(player *pl)
         AddIf(pl->last_speed, pl->ob->speed, CS_STAT_SPEED, float);
         AddIf(pl->last_weapon_speed, pl->ob->weapon_speed / MAX_TICKS, CS_STAT_WEAPON_SPEED, float);
         AddIf(pl->last_weight_limit, weight_limit[pl->ob->stats.Str], CS_STAT_WEIGHT_LIM, uint32);
-        AddIf(pl->last_stats.hp, pl->ob->stats.hp, CS_STAT_HP, sint32);
-        AddIf(pl->last_stats.maxhp, pl->ob->stats.maxhp, CS_STAT_MAXHP, sint32);
-        AddIf(pl->last_stats.sp, pl->ob->stats.sp, CS_STAT_SP, sint16);
-        AddIf(pl->last_stats.maxsp, pl->ob->stats.maxsp, CS_STAT_MAXSP, sint16);
+        AddIf(pl->last_stats.hp, pl->ob->stats.hp, CS_STAT_HP, int32);
+        AddIf(pl->last_stats.maxhp, pl->ob->stats.maxhp, CS_STAT_MAXHP, int32);
+        AddIf(pl->last_stats.sp, pl->ob->stats.sp, CS_STAT_SP, int16);
+        AddIf(pl->last_stats.maxsp, pl->ob->stats.maxsp, CS_STAT_MAXSP, int16);
         AddIf(pl->last_stats.Str, pl->ob->stats.Str, CS_STAT_STR, uint8);
         AddIf(pl->last_stats.Dex, pl->ob->stats.Dex, CS_STAT_DEX, uint8);
         AddIf(pl->last_stats.Con, pl->ob->stats.Con, CS_STAT_CON, uint8);
@@ -271,7 +271,7 @@ void esrv_update_stats(player *pl)
         }
 
         AddIf(pl->last_protection[i], pl->ob->protection[i],
-                CS_STAT_PROT_START + i, sint8);
+                CS_STAT_PROT_START + i, int8);
     }
 
     for (i = 0; i < PLAYER_EQUIP_MAX; i++) {
@@ -289,7 +289,7 @@ void esrv_update_stats(player *pl)
 
 /**
  * Tells the client that here is a player it should start using. */
-void esrv_new_player(player *pl, uint32 weight)
+void esrv_new_player(player *pl, uint32_t weight)
 {
     packet_struct *packet;
 
@@ -579,22 +579,22 @@ void packet_append_map_weather(packet_struct *packet, object *op, object *map_in
 /** Draw the client map. */
 void draw_client_map2(object *pl)
 {
-    static uint32 map2_count = 0;
+    static uint32_t map2_count = 0;
     MapCell *mp;
     MapSpace *msp, *msp_pl, *msp_tmp;
     mapstruct *m, *tiled;
     int x, y, ax, ay, d, nx, ny;
     int have_down, draw_up, blocksview;
     int special_vision, is_building_wall;
-    uint16 mask;
+    uint16_t mask;
     int layer, dark[NUM_SUB_LAYERS], dark_set[NUM_SUB_LAYERS];
     int anim_value, anim_type, ext_flags;
     int num_layers;
     object *mirror = NULL, *tmp, *tmp2;
-    uint8 have_sound_ambient;
+    uint8_t have_sound_ambient;
     packet_struct *packet, *packet_layer, *packet_sound;
     size_t oldpos;
-    uint8 floor_z_down, floor_z_up;
+    uint8_t floor_z_down, floor_z_up;
     int sub_layer, sub_layer2, socket_layer, tiled_dir, tiled_depth, zadj;
     int force_draw_double, priority, tiled_z, is_in_building;
 
@@ -671,8 +671,8 @@ void draw_client_map2(object *pl)
 
         if (CONTR(pl)->map_update_cmd == MAP_UPDATE_CMD_CONNECTED) {
             packet_append_uint8(packet, CONTR(pl)->map_update_tile);
-            packet_append_sint8(packet, CONTR(pl)->map_off_x);
-            packet_append_sint8(packet, CONTR(pl)->map_off_y);
+            packet_append_int8(packet, CONTR(pl)->map_off_x);
+            packet_append_int8(packet, CONTR(pl)->map_off_y);
         } else {
             packet_append_uint8(packet, pl->map->width);
             packet_append_uint8(packet, pl->map->height);
@@ -1203,13 +1203,13 @@ void draw_client_map2(object *pl)
 
                     /* Found something. */
                     if (tmp) {
-                        sint16 face;
-                        uint8 quick_pos = tmp->quick_pos;
-                        uint8 flags = 0, probe_val = 0;
-                        uint32 flags2 = 0;
+                        int16_t face;
+                        uint8_t quick_pos = tmp->quick_pos;
+                        uint8_t flags = 0, probe_val = 0;
+                        uint32_t flags2 = 0;
                         object *head = tmp->head ? tmp->head : tmp, *face_obj;
                         tag_t target_object_count = 0;
-                        uint8 anim_speed, anim_facing, anim_flags;
+                        uint8_t anim_speed, anim_facing, anim_flags;
 
                         face_obj = NULL;
                         anim_speed = anim_facing = anim_flags = 0;
@@ -1395,7 +1395,7 @@ void draw_client_map2(object *pl)
 
                         /* Z position. */
                         if (flags & MAP2_FLAG_HEIGHT) {
-                            sint16 z;
+                            int16_t z;
 
                             z = head->z;
 
@@ -1420,14 +1420,14 @@ void draw_client_map2(object *pl)
                                 }
                             }
 
-                            packet_append_sint16(packet_layer, z);
+                            packet_append_int16(packet_layer, z);
                         }
 
                         if (flags & MAP2_FLAG_ALIGN) {
                             if (mirror && mirror->align) {
-                                packet_append_sint16(packet_layer, head->align + mirror->align);
+                                packet_append_int16(packet_layer, head->align + mirror->align);
                             } else {
-                                packet_append_sint16(packet_layer, head->align);
+                                packet_append_int16(packet_layer, head->align);
                             }
                         }
 
@@ -1439,7 +1439,7 @@ void draw_client_map2(object *pl)
                             }
 
                             if (flags2 & MAP2_FLAG2_ROTATE) {
-                                packet_append_sint16(packet_layer, head->rotate);
+                                packet_append_int16(packet_layer, head->rotate);
                             }
 
                             if (flags2 & MAP2_FLAG2_ZOOM) {
@@ -1571,7 +1571,7 @@ void draw_client_map2(object *pl)
     }
 }
 
-void socket_command_quest_list(socket_struct *ns, player *pl, uint8 *data, size_t len, size_t pos)
+void socket_command_quest_list(socket_struct *ns, player *pl, uint8_t *data, size_t len, size_t pos)
 {
     object *quest_container, *tmp, *tmp2, *last;
     StringBuffer *sb;
@@ -1640,19 +1640,19 @@ void socket_command_quest_list(socket_struct *ns, player *pl, uint8 *data, size_
     cp = stringbuffer_finish(sb);
 
     packet = packet_new(CLIENT_CMD_BOOK, 0, 0);
-    packet_append_data_len(packet, (uint8 *) cp, cp_len);
+    packet_append_data_len(packet, (uint8_t *) cp, cp_len);
     socket_send_packet(&pl->socket, packet);
     efree(cp);
 }
 
-void socket_command_clear(socket_struct *ns, player *pl, uint8 *data, size_t len, size_t pos)
+void socket_command_clear(socket_struct *ns, player *pl, uint8_t *data, size_t len, size_t pos)
 {
     ns->packet_recv_cmd->len = 0;
 }
 
-void socket_command_move_path(socket_struct *ns, player *pl, uint8 *data, size_t len, size_t pos)
+void socket_command_move_path(socket_struct *ns, player *pl, uint8_t *data, size_t len, size_t pos)
 {
-    uint8 x, y;
+    uint8_t x, y;
     mapstruct *m;
     int xt, yt;
     path_node_t *node, *tmp;
@@ -1709,7 +1709,7 @@ void socket_command_move_path(socket_struct *ns, player *pl, uint8 *data, size_t
     player_path_add(pl, m, xt, yt);
 }
 
-void socket_command_fire(socket_struct *ns, player *pl, uint8 *data, size_t len, size_t pos)
+void socket_command_fire(socket_struct *ns, player *pl, uint8_t *data, size_t len, size_t pos)
 {
     int dir;
     tag_t tag;
@@ -1769,9 +1769,9 @@ void socket_command_fire(socket_struct *ns, player *pl, uint8 *data, size_t len,
     pl->last_action_timer = 0;
 }
 
-void socket_command_keepalive(socket_struct *ns, player *pl, uint8 *data, size_t len, size_t pos)
+void socket_command_keepalive(socket_struct *ns, player *pl, uint8_t *data, size_t len, size_t pos)
 {
-    uint32 id;
+    uint32_t id;
     packet_struct *packet;
 
     ns->keepalive = 0;
@@ -1784,9 +1784,9 @@ void socket_command_keepalive(socket_struct *ns, player *pl, uint8 *data, size_t
     socket_send_packet(ns, packet);
 }
 
-void socket_command_move(socket_struct *ns, player *pl, uint8 *data, size_t len, size_t pos)
+void socket_command_move(socket_struct *ns, player *pl, uint8_t *data, size_t len, size_t pos)
 {
-    uint8 dir, run_on;
+    uint8_t dir, run_on;
 
     dir = packet_to_uint8(data, len, &pos);
     run_on = packet_to_uint8(data, len, &pos);
@@ -1885,9 +1885,9 @@ void send_target_command(player *pl)
     socket_send_packet(&pl->socket, packet);
 }
 
-void socket_command_account(socket_struct *ns, player *pl, uint8 *data, size_t len, size_t pos)
+void socket_command_account(socket_struct *ns, player *pl, uint8_t *data, size_t len, size_t pos)
 {
-    uint8 type;
+    uint8_t type;
 
     type = packet_to_uint8(data, len, &pos);
 
@@ -1958,15 +1958,15 @@ void generate_quick_name(player *pl)
     }
 }
 
-void socket_command_target(socket_struct *ns, player *pl, uint8 *data, size_t len, size_t pos)
+void socket_command_target(socket_struct *ns, player *pl, uint8_t *data, size_t len, size_t pos)
 {
-    uint8 type;
+    uint8_t type;
 
     type = packet_to_uint8(data, len, &pos);
 
     if (type == CMD_TARGET_MAPXY) {
-        uint8 x, y;
-        uint32 count, target_object_count;
+        uint8_t x, y;
+        uint32_t count, target_object_count;
         int i, xt, yt;
         mapstruct *m;
         object *tmp;
@@ -2037,9 +2037,9 @@ void socket_command_target(socket_struct *ns, player *pl, uint8 *data, size_t le
     }
 }
 
-void socket_command_talk(socket_struct *ns, player *pl, uint8 *data, size_t len, size_t pos)
+void socket_command_talk(socket_struct *ns, player *pl, uint8_t *data, size_t len, size_t pos)
 {
-    uint8 type;
+    uint8_t type;
     char msg[HUGE_BUF];
 
     pl->ob->speed_left -= 1.0;
@@ -2157,11 +2157,11 @@ void socket_command_talk(socket_struct *ns, player *pl, uint8 *data, size_t len,
     }
 }
 
-void socket_command_control(socket_struct *ns, player *pl, uint8 *data, size_t len, size_t pos)
+void socket_command_control(socket_struct *ns, player *pl, uint8_t *data, size_t len, size_t pos)
 {
     size_t pos2;
     char word[MAX_BUF], app_name[MAX_BUF];
-    uint8 ip_match, type, sub_type;
+    uint8_t ip_match, type, sub_type;
     packet_struct *packet;
 
     if (strcasecmp(settings.control_allowed_ips, "none") == 0) {
@@ -2253,12 +2253,12 @@ void socket_command_control(socket_struct *ns, player *pl, uint8 *data, size_t l
         case CMD_CONTROL_PLAYER_TELEPORT:
         {
             char mappath[HUGE_BUF];
-            sint16 x, y;
+            int16_t x, y;
             mapstruct *m;
 
             packet_to_string(data, len, &pos, mappath, sizeof(mappath));
-            x = packet_to_sint16(data, len, &pos);
-            y = packet_to_sint16(data, len, &pos);
+            x = packet_to_int16(data, len, &pos);
+            y = packet_to_int16(data, len, &pos);
 
             m = ready_map_name(mappath, 0);
 

@@ -36,7 +36,7 @@
 
 /**
  * If 1, the API has been initialized. */
-static uint8 did_init = 0;
+static uint8_t did_init = 0;
 
 static command_struct *commands;
 
@@ -242,7 +242,7 @@ void toolkit_commands_deinit(void)
     TOOLKIT_DEINIT_FUNC_END()
 }
 
-void commands_add(const char *name, command_func handle_func, double delay, uint64 flags)
+void commands_add(const char *name, command_func handle_func, double delay, uint64_t flags)
 {
     command_struct *command;
 

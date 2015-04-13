@@ -151,13 +151,13 @@ struct plugin_hooklist hooklist = {
     packet_get_pos,
     packet_merge,
     packet_append_uint8,
-    packet_append_sint8,
+    packet_append_int8,
     packet_append_uint16,
-    packet_append_sint16,
+    packet_append_int16,
     packet_append_uint32,
-    packet_append_sint32,
+    packet_append_int32,
     packet_append_uint64,
-    packet_append_sint64,
+    packet_append_int64,
     packet_append_data_len,
     packet_append_string,
     packet_append_string_terminated,
@@ -635,7 +635,7 @@ int trigger_event(int event_type, object * const activator, object * const me, o
         int returnvalue;
 #ifdef TIME_SCRIPTS
         struct timeval start, stop;
-        uint64 start_u, stop_u;
+        uint64_t start_u, stop_u;
 
         gettimeofday(&start, NULL);
 #endif

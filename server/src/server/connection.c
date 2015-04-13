@@ -176,8 +176,8 @@ void connection_trigger_button(object *op, int state)
 {
     objectlink *ol;
     object *tmp;
-    sint64 old_state;
-    uint8 down;
+    int64_t old_state;
+    uint8_t down;
 
     old_state = op->value;
     down = 0;

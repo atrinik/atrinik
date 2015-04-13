@@ -182,10 +182,10 @@ typedef struct spell_struct {
     int spell_use;
 
     /** A combination of @ref SPELL_DESC_xxx. */
-    uint32 flags;
+    uint32_t flags;
 
     /** Path this spell belongs to. */
-    uint32 path;
+    uint32_t path;
 
     /** Pointer to archetype used by spell. */
     char *archname;

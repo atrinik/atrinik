@@ -36,7 +36,7 @@
 
 /**
  * If 1, the API has been initialized. */
-static uint8 did_init = 0;
+static uint8_t did_init = 0;
 
 /**
  * Used by nearest_pow_two_exp() for a fast lookup.
@@ -130,7 +130,7 @@ int rndm(int min, int max)
  * Calculates a chance of 1 in 'n'.
  * @param n Number.
  * @return 1 if the chance of 1/n was successful, 0 otherwise. */
-int rndm_chance(uint32 n)
+int rndm_chance(uint32_t n)
 {
     TOOLKIT_FUNC_PROTECTOR(API_NAME);
 
@@ -139,7 +139,7 @@ int rndm_chance(uint32 n)
         return 0;
     }
 
-    return (uint32) RANDOM() < (RAND_MAX + 1U) / n;
+    return (uint32_t) RANDOM() < (RAND_MAX + 1U) / n;
 }
 
 /**

@@ -50,6 +50,6 @@ void command_memfree(object *op, const char *command, char *params)
     }
 
     freed = mempool_reclaim(pool);
-    draw_info_format(COLOR_WHITE, op, "Freed %"FMT64" puddles.",
-            (uint64) freed);
+    draw_info_format(COLOR_WHITE, op, "Freed %"PRId64" puddles.",
+            (uint64_t) freed);
 }

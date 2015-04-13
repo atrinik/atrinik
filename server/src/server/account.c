@@ -53,7 +53,7 @@ typedef struct account_struct {
 
         char *region_name;
 
-        uint8 level;
+        uint8_t level;
     } *characters;
 
     size_t characters_num;
@@ -151,7 +151,7 @@ static int account_save(account_struct *account, const char *path)
     }
 
     fprintf(fp, "host %s\n", account->last_host);
-    fprintf(fp, "time %"FMT64U "\n", (uint64) account->last_time);
+    fprintf(fp, "time %"PRIu64 "\n", (uint64_t) account->last_time);
 
     for (i = 0; i < account->characters_num; i++) {
         fprintf(fp, "char %s:%s:%s:%d\n", account->characters[i].at->name, account->characters[i].name, account->characters[i].region_name, account->characters[i].level);
@@ -241,11 +241,11 @@ static void account_send_characters(socket_struct *ns, account_struct *account)
         packet_append_string_terminated(packet, account->last_host);
         packet_debug(packet, 0, "Last hostname: %s\n", account->last_host);
         packet_append_uint64(packet, account->last_time);
-        packet_debug(packet, 0, "Last time: %" FMT64U "\n",
-                (uint64) account->last_time);
+        packet_debug(packet, 0, "Last time: %" PRIu64 "\n",
+                (uint64_t) account->last_time);
 
         for (i = 0; i < account->characters_num; i++) {
-            packet_debug(packet, 0, "Character #%" FMT64U ":\n", (uint64) i);
+            packet_debug(packet, 0, "Character #%" PRIu64 ":\n", (uint64_t) i);
             packet_append_string_terminated(packet,
                     account->characters[i].at->name);
             packet_debug(packet, 1, "Archname: %s\n",

@@ -391,7 +391,7 @@ static void remove_unpaid_objects(object *op, object *env)
  * @param regen_remainder Pointer to regen remainder (for example,
  * player::gen_hp_remainder).
  * @return How much to regenerate. */
-static int get_regen_amount(uint16 regen, uint16 *regen_remainder)
+static int get_regen_amount(uint16_t regen, uint16_t *regen_remainder)
 {
     int ret = 0;
     float division;
@@ -768,9 +768,9 @@ object *find_skill(object *op, int skillnr)
  * @param pl Player.
  * @param weight Weight to check.
  * @return 1 if the player can carry that weight, 0 otherwise. */
-int player_can_carry(object *pl, uint32 weight)
+int player_can_carry(object *pl, uint32_t weight)
 {
-    uint32 effective_weight_limit;
+    uint32_t effective_weight_limit;
 
     if (pl->stats.Str <= MAX_STAT) {
         effective_weight_limit = weight_limit[pl->stats.Str];
@@ -812,7 +812,7 @@ char *player_get_race_class(object *op, char *buf, size_t size)
  * @param map Map we want to reach.
  * @param x X we want to reach.
  * @param y Y we want to reach. */
-void player_path_add(player *pl, mapstruct *map, sint16 x, sint16 y)
+void player_path_add(player *pl, mapstruct *map, int16_t x, int16_t y)
 {
     player_path *path = emalloc(sizeof(player_path));
 
@@ -941,7 +941,7 @@ void player_path_handle(player *pl)
  * @param pl The player.
  * @param faction The faction name.
  * @return The faction reputation. */
-sint64 player_faction_reputation(player *pl, shstr *faction)
+int64_t player_faction_reputation(player *pl, shstr *faction)
 {
     int i;
 
@@ -960,7 +960,7 @@ sint64 player_faction_reputation(player *pl, shstr *faction)
  * @param faction Name of the faction.
  * @param add How much to modify the player's faction reputation (if
  * any). */
-void player_faction_reputation_update(player *pl, shstr *faction, sint64 add)
+void player_faction_reputation_update(player *pl, shstr *faction, int64_t add)
 {
     int i;
 
@@ -1013,7 +1013,7 @@ void player_cleanup_name(char *str)
  * @param marked Marked object.
  * @param marked_count Marked count.
  * @return The object if found, NULL otherwise. */
-static object *find_marked_object_rec(object *op, object **marked, uint32 *marked_count)
+static object *find_marked_object_rec(object *op, object **marked, uint32_t *marked_count)
 {
     object *tmp, *tmp2;
 
@@ -1501,7 +1501,7 @@ int sack_can_hold(object *pl, object *sack, object *op, int nrof)
         snprintf(buf, sizeof(buf), "You can put only %s into the %s.", sack->race, query_name(sack, NULL));
     }
 
-    if (sack->weight_limit && sack->carrying + (sint32) ((float) (((nrof ? nrof : 1) * op->weight) + op->carrying) * sack->weapon_speed) > (sint32) sack->weight_limit) {
+    if (sack->weight_limit && sack->carrying + (int32_t) ((float) (((nrof ? nrof : 1) * op->weight) + op->carrying) * sack->weapon_speed) > (int32_t) sack->weight_limit) {
         snprintf(buf, sizeof(buf), "That won't fit in the %s!", query_name(sack, NULL));
     }
 
@@ -1969,11 +1969,11 @@ void player_save(object *op)
 
     for (i = 0; i < pl->num_faction_ids; i++) {
         if (pl->faction_ids[i]) {
-            fprintf(fp, "faction %s %"FMT64 "\n", pl->faction_ids[i], pl->faction_reputation[i]);
+            fprintf(fp, "faction %s %"PRId64 "\n", pl->faction_ids[i], pl->faction_reputation[i]);
         }
     }
 
-    fprintf(fp, "fame %"FMT64 "\n", pl->fame);
+    fprintf(fp, "fame %"PRId64 "\n", pl->fame);
     fprintf(fp, "endplst\n");
 
     SET_FLAG(op, FLAG_NO_FIX_PLAYER);
@@ -2046,7 +2046,7 @@ static int player_load(player *pl, const char *path)
         } else if (strncmp(buf, "faction ", 8) == 0) {
             size_t pos;
             char faction_id[MAX_BUF];
-            sint64 rep;
+            int64_t rep;
 
             pos = 8;
 

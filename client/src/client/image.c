@@ -199,7 +199,7 @@ void read_bmaps(void)
 {
     FILE *fp;
     char buf[HUGE_BUF], name[MAX_BUF];
-    uint32 len, crc;
+    uint32_t len, crc;
     bmap_struct *bmap;
     size_t i;
 
@@ -265,12 +265,12 @@ void read_bmaps(void)
  * @param pnum ID of the face.
  * @param checksum Face checksum.
  * @param face Face name. */
-void finish_face_cmd(int facenum, uint32 checksum, char *face)
+void finish_face_cmd(int facenum, uint32_t checksum, char *face)
 {
     FILE *fp;
     struct stat statbuf;
     size_t len;
-    static uint32 newsum = 0;
+    static uint32_t newsum = 0;
     char buf[HUGE_BUF];
     unsigned char *data;
     packet_struct *packet;
@@ -369,7 +369,7 @@ static int load_picture_from_pack(int num)
  * Load face from user's graphics directory.
  * @param num ID of the face to load.
  * @return 1 on success, 0 on failure. */
-static int load_gfx_user_face(uint16 num)
+static int load_gfx_user_face(uint16_t num)
 {
     char buf[MAX_BUF];
     FILE *stream;
@@ -424,7 +424,7 @@ static int load_gfx_user_face(uint16 num)
 int request_face(int pnum)
 {
     char buf[MAX_BUF];
-    uint16 num = (uint16) (pnum &~0x8000);
+    uint16_t num = (uint16_t) (pnum &~0x8000);
 
     if (setting_get_int(OPT_CAT_DEVEL, OPT_RELOAD_GFX) && load_gfx_user_face(num)) {
         return 1;
@@ -436,7 +436,7 @@ int request_face(int pnum)
     }
 
     if (num >= bmaps_size) {
-        logger_print(LOG(BUG), "Server sent picture ID too big (%d, max: %"FMT64U ")", num, (uint64) bmaps_size);
+        logger_print(LOG(BUG), "Server sent picture ID too big (%d, max: %"PRIu64 ")", num, (uint64_t) bmaps_size);
         return 0;
     }
 

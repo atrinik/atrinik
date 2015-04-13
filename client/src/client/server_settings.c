@@ -89,7 +89,7 @@ void server_settings_init(void)
         } else if (!strcmp(buf, "end")) {
             s_settings->num_characters++;
         } else if (!strncmp(buf, "level ", 6)) {
-            uint32 lev;
+            uint32_t lev;
 
             s_settings->max_level = atoi(buf + 6);
             s_settings->level_exp = emalloc(sizeof(*s_settings->level_exp) * (s_settings->max_level + 2));

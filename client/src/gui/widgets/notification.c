@@ -95,7 +95,7 @@ int notification_keybind_check(const char *cmd)
 }
 
 /** @copydoc socket_command_struct::handle_func */
-void socket_command_notification(uint8 *data, size_t len, size_t pos)
+void socket_command_notification(uint8_t *data, size_t len, size_t pos)
 {
     int wd, ht;
     char type, *cp;

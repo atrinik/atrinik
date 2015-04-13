@@ -104,7 +104,7 @@ static void list_handle_enter(list_struct *list, SDL_Event *event)
 static void spell_list_reload(void)
 {
     size_t i, j;
-    uint32 offset, rows, selected;
+    uint32_t offset, rows, selected;
 
     if (list_spells == NULL) {
         return;
@@ -267,7 +267,7 @@ spell_entry_struct *spell_get(size_t spell_path, size_t spell_id)
     return spell_list[spell_path][spell_id];
 }
 
-void spells_update(object *op, uint16 cost, uint32 path, uint32 flags,
+void spells_update(object *op, uint16_t cost, uint32_t path, uint32_t flags,
         const char *msg)
 {
     size_t spell_path, spell_id, path_real;

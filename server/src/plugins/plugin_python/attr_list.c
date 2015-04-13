@@ -121,11 +121,11 @@ static PyObject *attr_list_get(Atrinik_AttrList *al, PyObject *key, unsigned PY_
         }
 
         len = attr_list_len(al);
-        field.type = FIELDTYPE_SINT64;
+        field.type = FIELDTYPE_INT64;
 
         for (i = 0; i < len; i++) {
             if (!strcmp(str, *(const char **) (&(*(shstr ***) ptr)[i]))) {
-                ptr = &(*(sint64 **) ((void *) ((char *) al->ptr + offsetof(player, faction_reputation))))[i];
+                ptr = &(*(int64_t **) ((void *) ((char *) al->ptr + offsetof(player, faction_reputation))))[i];
                 return generic_field_getter(&field, ptr);
             }
         }
@@ -215,7 +215,7 @@ static int attr_list_set(Atrinik_AttrList *al, PyObject *key, unsigned PY_LONG_L
         /* Factions. */
 
         str = PyString_AsString(key);
-        field.type = FIELDTYPE_SINT64;
+        field.type = FIELDTYPE_INT64;
 
         /* Try to find an existing entry. */
         for (i = 0; i < len; i++) {
@@ -229,14 +229,14 @@ static int attr_list_set(Atrinik_AttrList *al, PyObject *key, unsigned PY_LONG_L
             (*(int *) attr_list_len_ptr(al))++;
             *(shstr ***) ((void *) ((char *) al->ptr + al->offset)) = realloc(*(shstr ***) ((void *) ((char *) al->ptr + al->offset)), sizeof(shstr *) * attr_list_len(al));
             *(shstr **) (&(*(shstr ***) ptr)[i]) = hooks->add_string(str);
-            *(sint64 **) ((void *) ((char *) al->ptr + offsetof(player, faction_reputation))) = realloc(*(sint64 **) ((void *) ((char *) al->ptr + offsetof(player, faction_reputation))), sizeof(sint64) * attr_list_len(al));
+            *(int64_t **) ((void *) ((char *) al->ptr + offsetof(player, faction_reputation))) = realloc(*(int64_t **) ((void *) ((char *) al->ptr + offsetof(player, faction_reputation))), sizeof(int64_t) * attr_list_len(al));
             /* Make sure ptr points to the right memory... */
             ptr = (char *) al->ptr + offsetof(player, faction_reputation);
             /* NULL the new member. */
-            (*(sint64 **) ptr)[i] = 0;
+            (*(int64_t **) ptr)[i] = 0;
         }
 
-        ptr = &(*(sint64 **) ((void *) ((char *) al->ptr + offsetof(player, faction_reputation))))[i];
+        ptr = &(*(int64_t **) ((void *) ((char *) al->ptr + offsetof(player, faction_reputation))))[i];
     } else {
         PyErr_SetString(PyExc_NotImplementedError, "The attribute list does not implement support for write operations.");
         return -1;
@@ -263,7 +263,7 @@ static int attr_list_set(Atrinik_AttrList *al, PyObject *key, unsigned PY_LONG_L
             } else if (al->field == FIELDTYPE_FACTIONS) {
                 (*(int *) attr_list_len_ptr(al))--;
                 *(shstr ***) ((void *) ((char *) al->ptr + al->offset)) = realloc(*(shstr ***) ((void *) ((char *) al->ptr + al->offset)), sizeof(shstr *) * attr_list_len(al));
-                *(sint64 **) ((void *) ((char *) al->ptr + offsetof(player, faction_reputation))) = realloc(*(sint64 **) ((void *) ((char *) al->ptr + offsetof(player, faction_reputation))), sizeof(sint64) * attr_list_len(al));
+                *(int64_t **) ((void *) ((char *) al->ptr + offsetof(player, faction_reputation))) = realloc(*(int64_t **) ((void *) ((char *) al->ptr + offsetof(player, faction_reputation))), sizeof(int64_t) * attr_list_len(al));
             }
         }
     }
@@ -302,7 +302,7 @@ static PyObject *__getsetitem__(Atrinik_AttrList *al, PyObject *key)
         len = attr_list_len(al);
 
         if (i > len) {
-            PyErr_Format(PyExc_ValueError, "__getitem__() failed; requested index (%"FMT64U ") too big (len: %"FMT64U ").", (uint64) i, (uint64) len);
+            PyErr_Format(PyExc_ValueError, "__getitem__() failed; requested index (%"PRIu64 ") too big (len: %"PRIu64 ").", (uint64_t) i, (uint64_t) len);
             return NULL;
         }
     }

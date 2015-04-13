@@ -245,7 +245,7 @@ object *path_get_next_request(void)
  * @param parent Parent node.
  * @return New node.
  */
-static path_node_t *path_node_new(mapstruct *map, sint16 x, sint16 y,
+static path_node_t *path_node_new(mapstruct *map, int16_t x, int16_t y,
         double cost, path_node_t *start, path_node_t *goal, path_node_t *parent)
 {
     path_node_t *node;
@@ -490,8 +490,8 @@ shstr *path_encode(path_node_t *path)
  * (off will be set to the index to use for the next call to this function).
  * Otherwise 0 will be returned and the values of map, x and y will be undefined
  * and off will not be touched. */
-int path_get_next(shstr *buf, sint16 *off, shstr **mappath, mapstruct **map,
-        int *x, int *y, uint32 *flags)
+int path_get_next(shstr *buf, int16_t *off, shstr **mappath, mapstruct **map,
+        int *x, int *y, uint32_t *flags)
 {
     const char *coord_start, *coord_end, *map_def;
 
@@ -690,12 +690,12 @@ path_node_t *path_find(object *op, mapstruct *map1, int x, int y,
 {
     path_node_t *open_list, *found_path, *visited, *node, *new_node, *best;
     path_node_t start, goal;
-    static uint32 traversal_id = 0;
+    static uint32_t traversal_id = 0;
     int i, nx, ny, is_diagonal, node_x, node_y;
     mapstruct *m, *node_map;
     double cost;
     rv_vector rv;
-    uint32 node_id;
+    uint32_t node_id;
 #if VISUALIZE_PATHFINDING
     path_visualizer_t *visualizer_tmp;
 #endif

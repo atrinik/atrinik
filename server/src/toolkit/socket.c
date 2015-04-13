@@ -39,7 +39,7 @@
 /**
  * If 1, the API has been initialized.
  */
-static uint8 did_init = 0;
+static uint8_t did_init = 0;
 
 /**
  * The OpenSSL context.
@@ -90,7 +90,7 @@ void toolkit_socket_deinit(void)
     TOOLKIT_DEINIT_FUNC_END()
 }
 
-socket_t *socket_create(const char *host, uint16 port)
+socket_t *socket_create(const char *host, uint16_t port)
 {
     int handle;
     socket_t *sc;

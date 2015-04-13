@@ -202,19 +202,19 @@ typedef enum {
     /** Unsigned int8. */
     FIELDTYPE_UINT8,
     /** Signed int8. */
-    FIELDTYPE_SINT8,
+    FIELDTYPE_INT8,
     /** Unsigned int16. */
     FIELDTYPE_UINT16,
     /** Signed int16. */
-    FIELDTYPE_SINT16,
+    FIELDTYPE_INT16,
     /** Unsigned int32. */
     FIELDTYPE_UINT32,
     /** Signed int32. */
-    FIELDTYPE_SINT32,
+    FIELDTYPE_INT32,
     /** Unsigned int64. */
     FIELDTYPE_UINT64,
     /** Signed int64. */
-    FIELDTYPE_SINT64,
+    FIELDTYPE_INT64,
     /** Float. */
     FIELDTYPE_FLOAT,
     /** Pointer to object. */
@@ -294,7 +294,7 @@ typedef struct Atrinik_Object {
     struct Atrinik_Object *iter;
 
     /** @ref OBJ_ITER_TYPE_xxx "Iteration type". */
-    uint8 iter_type;
+    uint8_t iter_type;
 
     /** ID of the object. */
     tag_t count;
@@ -410,11 +410,11 @@ typedef struct {
 
     /**
      * Flags for special handling. */
-    uint32 flags;
+    uint32_t flags;
 
     /**
      * Extra data for some special fields. */
-    uint32 extra_data;
+    uint32_t extra_data;
 } fields_struct;
 
 /**

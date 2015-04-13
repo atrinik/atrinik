@@ -45,7 +45,7 @@
 /**
  * If 1, the API has been initialized.
  */
-static uint8 did_init = 0;
+static uint8_t did_init = 0;
 
 /**
  * Pointer to open log file, if any.
@@ -104,12 +104,12 @@ static char logger_escape_seqs[LOGGER_ESC_SEQ_MAX][10] = {};
 /**
  * Which messages to print out.
  */
-static uint64 logger_filter_stdout;
+static uint64_t logger_filter_stdout;
 
 /**
  * Which messages to log to the log file.
  */
-static uint64 logger_filter_logfile;
+static uint64_t logger_filter_logfile;
 
 /* Prototypes */
 static bool logger_term_has_ansi_colors(void);
@@ -216,12 +216,12 @@ logger_level logger_get_level(const char *name)
  * @param[out] filter Which filter to update.
  * @param str String with the log filter levels.
  */
-static void logger_set_filter(uint64 *filter, const char *str)
+static void logger_set_filter(uint64_t *filter, const char *str)
 {
     char word[MAX_BUF];
     const char *cp;
     size_t pos;
-    sint8 oper;
+    int8_t oper;
     logger_level level;
 
     pos = 0;
@@ -314,7 +314,7 @@ void logger_do_print(const char *str)
  * @param format Format string.
  * @param ... Format arguments.
  */
-void logger_print(logger_level level, const char *function, uint64 line,
+void logger_print(logger_level level, const char *function, uint64_t line,
         const char *format, ...)
 {
     char formatted[HUGE_BUF], timebuf[HUGE_BUF], buf[sizeof(formatted) * 2];
@@ -346,14 +346,14 @@ void logger_print(logger_level level, const char *function, uint64 line,
         char timebuf2[MAX_BUF];
 
         strftime(VS(timebuf2), "%H:%M:%S", tm);
-        snprintf(VS(timebuf), "[%s.%06"FMT64U "] ", timebuf2,
-                (uint64) tv.tv_usec);
+        snprintf(VS(timebuf), "[%s.%06"PRIu64 "] ", timebuf2,
+                (uint64_t) tv.tv_usec);
     } else {
         timebuf[0] = '\0';
     }
 
     if ((1U << level) & logger_filter_stdout) {
-        snprintf(VS(buf), "%s%s%s""%s%-6s%s ""%s[%s:%" FMT64U "]%s ""%s%s%s\n",
+        snprintf(VS(buf), "%s%s%s""%s%-6s%s ""%s[%s:%" PRIu64 "]%s ""%s%s%s\n",
                 LOGGER_ESC_SEQ(BOLD), timebuf, LOGGER_ESC_SEQ(END),
                 LOGGER_ESC_SEQ(RED), logger_names[level], LOGGER_ESC_SEQ(END),
                 LOGGER_ESC_SEQ(CYAN), function, line, LOGGER_ESC_SEQ(END),
@@ -362,7 +362,7 @@ void logger_print(logger_level level, const char *function, uint64 line,
     }
 
     if (log_fp != NULL && (1U << level) & logger_filter_logfile) {
-        fprintf(log_fp, "%s%-6s [%s:%"FMT64U "] %s\n", timebuf,
+        fprintf(log_fp, "%s%-6s [%s:%"PRIu64 "] %s\n", timebuf,
                 logger_names[level], function, line, formatted);
         fflush(log_fp);
     }

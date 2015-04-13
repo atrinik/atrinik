@@ -32,16 +32,16 @@
 #include <packet.h>
 
 /** @copydoc socket_command_struct::handle_func */
-void socket_command_book(uint8 *data, size_t len, size_t pos)
+void socket_command_book(uint8_t *data, size_t len, size_t pos)
 {
     sound_play_effect("book.ogg", 100);
     book_load((char *) data, len);
 }
 
 /** @copydoc socket_command_struct::handle_func */
-void socket_command_setup(uint8 *data, size_t len, size_t pos)
+void socket_command_setup(uint8_t *data, size_t len, size_t pos)
 {
-    uint8 type;
+    uint8_t type;
 
     while (pos < len) {
         type = packet_to_uint8(data, len, &pos);
@@ -68,9 +68,9 @@ void socket_command_setup(uint8 *data, size_t len, size_t pos)
 }
 
 /** @copydoc socket_command_struct::handle_func */
-void socket_command_anim(uint8 *data, size_t len, size_t pos)
+void socket_command_anim(uint8_t *data, size_t len, size_t pos)
 {
-    uint16 anim_id;
+    uint16_t anim_id;
     int i;
 
     anim_id = packet_to_uint16(data, len, &pos);
@@ -84,7 +84,7 @@ void socket_command_anim(uint8 *data, size_t len, size_t pos)
         animations[anim_id].frame = animations[anim_id].num_animations;
     }
 
-    animations[anim_id].faces = emalloc(sizeof(uint16) * animations[anim_id].num_animations);
+    animations[anim_id].faces = emalloc(sizeof(uint16_t) * animations[anim_id].num_animations);
 
     for (i = 0; pos < len; i++) {
         animations[anim_id].faces[i] = packet_to_uint16(data, len, &pos);
@@ -93,9 +93,9 @@ void socket_command_anim(uint8 *data, size_t len, size_t pos)
 }
 
 /** @copydoc socket_command_struct::handle_func */
-void socket_command_image(uint8 *data, size_t len, size_t pos)
+void socket_command_image(uint8_t *data, size_t len, size_t pos)
 {
-    uint32 facenum, filesize;
+    uint32_t facenum, filesize;
     char buf[HUGE_BUF];
     FILE *fp;
 
@@ -127,9 +127,9 @@ void socket_command_image(uint8 *data, size_t len, size_t pos)
 }
 
 /** @copydoc socket_command_struct::handle_func */
-void socket_command_drawinfo(uint8 *data, size_t len, size_t pos)
+void socket_command_drawinfo(uint8_t *data, size_t len, size_t pos)
 {
-    uint8 type;
+    uint8_t type;
     char color[COLOR_BUF], *str;
     StringBuffer *sb;
 
@@ -146,7 +146,7 @@ void socket_command_drawinfo(uint8 *data, size_t len, size_t pos)
 }
 
 /** @copydoc socket_command_struct::handle_func */
-void socket_command_target(uint8 *data, size_t len, size_t pos)
+void socket_command_target(uint8_t *data, size_t len, size_t pos)
 {
     cpl.target_code = packet_to_uint8(data, len, &pos);
     packet_to_string(data, len, &pos, cpl.target_color, sizeof(cpl.target_color));
@@ -156,9 +156,9 @@ void socket_command_target(uint8 *data, size_t len, size_t pos)
 }
 
 /** @copydoc socket_command_struct::handle_func */
-void socket_command_stats(uint8 *data, size_t len, size_t pos)
+void socket_command_stats(uint8_t *data, size_t len, size_t pos)
 {
-    uint8 type;
+    uint8_t type;
     int temp;
 
     while (pos < len) {
@@ -169,7 +169,7 @@ void socket_command_stats(uint8 *data, size_t len, size_t pos)
             WIDGET_REDRAW_ALL(PDOLL_ID);
         } else if (type >= CS_STAT_PROT_START && type <= CS_STAT_PROT_END) {
             cpl.stats.protection[type - CS_STAT_PROT_START] =
-                    packet_to_sint8(data, len, &pos);
+                    packet_to_int8(data, len, &pos);
             WIDGET_REDRAW_ALL(PROTECTIONS_ID);
         } else {
             switch (type) {
@@ -188,7 +188,7 @@ void socket_command_stats(uint8 *data, size_t len, size_t pos)
                 break;
 
             case CS_STAT_HP:
-                temp = packet_to_sint32(data, len, &pos);
+                temp = packet_to_int32(data, len, &pos);
 
                 if (temp < cpl.stats.hp && cpl.stats.food) {
                     cpl.warn_hp = 1;
@@ -203,17 +203,17 @@ void socket_command_stats(uint8 *data, size_t len, size_t pos)
                 break;
 
             case CS_STAT_MAXHP:
-                cpl.stats.maxhp = packet_to_sint32(data, len, &pos);
+                cpl.stats.maxhp = packet_to_int32(data, len, &pos);
                 widget_redraw_type_id(STAT_ID, "health");
                 break;
 
             case CS_STAT_SP:
-                cpl.stats.sp = packet_to_sint16(data, len, &pos);
+                cpl.stats.sp = packet_to_int16(data, len, &pos);
                 widget_redraw_type_id(STAT_ID, "mana");
                 break;
 
             case CS_STAT_MAXSP:
-                cpl.stats.maxsp = packet_to_sint16(data, len, &pos);
+                cpl.stats.maxsp = packet_to_int16(data, len, &pos);
                 widget_redraw_type_id(STAT_ID, "mana");
                 break;
 
@@ -223,8 +223,8 @@ void socket_command_stats(uint8 *data, size_t len, size_t pos)
             case CS_STAT_DEX:
             case CS_STAT_CON:
             {
-                sint8 *stat_curr;
-                uint8 stat_new;
+                int8_t *stat_curr;
+                uint8_t stat_new;
 
                 stat_curr = &(cpl.stats.Str) + (sizeof(cpl.stats.Str) * (type - CS_STAT_STR));
                 stat_new = packet_to_uint8(data, len, &pos);
@@ -347,7 +347,7 @@ void send_reply(char *text)
 }
 
 /** @copydoc socket_command_struct::handle_func */
-void socket_command_player(uint8 *data, size_t len, size_t pos)
+void socket_command_player(uint8_t *data, size_t len, size_t pos)
 {
     int tag, weight, face;
 
@@ -369,7 +369,7 @@ void socket_command_player(uint8 *data, size_t len, size_t pos)
     cpl.state = ST_PLAY;
 }
 
-static void command_item_update(uint8 *data, size_t len, size_t *pos, uint32 flags, object *tmp)
+static void command_item_update(uint8_t *data, size_t len, size_t *pos, uint32_t flags, object *tmp)
 {
     bool force_anim;
 
@@ -414,7 +414,7 @@ static void command_item_update(uint8 *data, size_t len, size_t *pos, uint32 fla
     }
 
     if (flags & UPD_ANIM) {
-        uint16 animation_id;
+        uint16_t animation_id;
 
         animation_id = packet_to_uint16(data, len, pos);
 
@@ -428,7 +428,7 @@ static void command_item_update(uint8 *data, size_t len, size_t *pos, uint32 fla
     }
 
     if (flags & UPD_ANIMSPEED) {
-        uint8 anim_speed;
+        uint8_t anim_speed;
 
         anim_speed = packet_to_uint8(data, len, pos);
 
@@ -450,8 +450,8 @@ static void command_item_update(uint8 *data, size_t len, size_t *pos, uint32 fla
 
     if (flags & UPD_EXTRA) {
         if (tmp->itype == TYPE_SPELL) {
-            uint16 spell_cost;
-            uint32 spell_path, spell_flags;
+            uint16_t spell_cost;
+            uint32_t spell_path, spell_flags;
             char spell_msg[MAX_BUF];
 
             spell_cost = packet_to_uint16(data, len, pos);
@@ -461,18 +461,18 @@ static void command_item_update(uint8 *data, size_t len, size_t *pos, uint32 fla
 
             spells_update(tmp, spell_cost, spell_path, spell_flags, spell_msg);
         } else if (tmp->itype == TYPE_SKILL) {
-            uint8 skill_level;
-            sint64 skill_exp;
+            uint8_t skill_level;
+            int64_t skill_exp;
 
             skill_level = packet_to_uint8(data, len, pos);
-            skill_exp = packet_to_sint64(data, len, pos);
+            skill_exp = packet_to_int64(data, len, pos);
 
             skills_update(tmp, skill_level, skill_exp);
         } else if (tmp->itype == TYPE_FORCE || tmp->itype == TYPE_POISONING) {
-            sint32 sec;
+            int32_t sec;
             char msg[HUGE_BUF];
 
-            sec = packet_to_sint32(data, len, pos);
+            sec = packet_to_int32(data, len, pos);
             packet_to_string(data, len, pos, msg, sizeof(msg));
 
             widget_active_effects_update(cur_widget[ACTIVE_EFFECTS_ID], tmp, sec, msg);
@@ -493,15 +493,15 @@ static void command_item_update(uint8 *data, size_t len, size_t *pos, uint32 fla
 }
 
 /** @copydoc socket_command_struct::handle_func */
-void socket_command_item(uint8 *data, size_t len, size_t pos)
+void socket_command_item(uint8_t *data, size_t len, size_t pos)
 {
-    sint32 dmode, loc;
-    uint32 tag, flags;
+    int32_t dmode, loc;
+    uint32_t tag, flags;
     object *env, *tmp;
-    uint8 bflag;
+    uint8_t bflag;
 
-    dmode = packet_to_sint32(data, len, &pos);
-    loc = packet_to_sint32(data, len, &pos);
+    dmode = packet_to_int32(data, len, &pos);
+    loc = packet_to_int32(data, len, &pos);
 
     if (dmode >= 0) {
         object_remove_inventory(object_find(loc));
@@ -555,9 +555,9 @@ void socket_command_item(uint8 *data, size_t len, size_t pos)
 }
 
 /** @copydoc socket_command_struct::handle_func */
-void socket_command_item_update(uint8 *data, size_t len, size_t pos)
+void socket_command_item_update(uint8_t *data, size_t len, size_t pos)
 {
-    uint32 flags, tag;
+    uint32_t flags, tag;
     object *tmp;
 
     flags = packet_to_uint16(data, len, &pos);
@@ -573,7 +573,7 @@ void socket_command_item_update(uint8 *data, size_t len, size_t pos)
 }
 
 /** @copydoc socket_command_struct::handle_func */
-void socket_command_item_delete(uint8 *data, size_t len, size_t pos)
+void socket_command_item_delete(uint8_t *data, size_t len, size_t pos)
 {
     tag_t tag;
 
@@ -588,7 +588,7 @@ void socket_command_item_delete(uint8 *data, size_t len, size_t pos)
 static void map_play_footstep(void)
 {
     static int step = 0;
-    static uint32 tick = 0;
+    static uint32_t tick = 0;
 
     if (LastTick - tick > 125) {
         step++;
@@ -605,9 +605,9 @@ static void map_play_footstep(void)
 }
 
 /** @copydoc socket_command_struct::handle_func */
-void socket_command_mapstats(uint8 *data, size_t len, size_t pos)
+void socket_command_mapstats(uint8_t *data, size_t len, size_t pos)
 {
-    uint8 type;
+    uint8_t type;
     char buf[HUGE_BUF];
 
     while (pos < len) {
@@ -635,14 +635,14 @@ void socket_command_mapstats(uint8 *data, size_t len, size_t pos)
 }
 
 /** @copydoc socket_command_struct::handle_func */
-void socket_command_map(uint8 *data, size_t len, size_t pos)
+void socket_command_map(uint8_t *data, size_t len, size_t pos)
 {
     static int mx = 0, my = 0;
     int mask, x, y, rx, ry;
     int mapstat;
     int xpos, ypos;
     int layer, ext_flags;
-    uint8 num_layers, in_building;
+    uint8_t num_layers, in_building;
     region_map_def_map_t *def_map;
     bool region_map_fow_need_update;
 
@@ -652,7 +652,7 @@ void socket_command_map(uint8 *data, size_t len, size_t pos)
         char mapname[HUGE_BUF], bg_music[HUGE_BUF], weather[MAX_BUF],
                 region_name[MAX_BUF], region_longname[MAX_BUF],
                 mappath[HUGE_BUF];
-        uint8 height_diff;
+        uint8_t height_diff;
 
         packet_to_string(data, len, &pos, mapname, sizeof(mapname));
         packet_to_string(data, len, &pos, bg_music, sizeof(bg_music));
@@ -677,8 +677,8 @@ void socket_command_map(uint8 *data, size_t len, size_t pos)
             int xoff, yoff;
 
             mapstat = packet_to_uint8(data, len, &pos);
-            xoff = packet_to_sint8(data, len, &pos);
-            yoff = packet_to_sint8(data, len, &pos);
+            xoff = packet_to_int8(data, len, &pos);
+            yoff = packet_to_int8(data, len, &pos);
             xpos = packet_to_uint8(data, len, &pos);
             ypos = packet_to_uint8(data, len, &pos);
             mx = xpos;
@@ -755,7 +755,7 @@ void socket_command_map(uint8 *data, size_t len, size_t pos)
 
         /* Go through all the layers on this tile. */
         for (layer = 0; layer < num_layers; layer++) {
-            uint8 type;
+            uint8_t type;
 
             type = packet_to_uint8(data, len, &pos);
 
@@ -763,11 +763,11 @@ void socket_command_map(uint8 *data, size_t len, size_t pos)
             if (type == MAP2_LAYER_CLEAR) {
                 map_set_data(x, y, packet_to_uint8(data, len, &pos), 0, 0, 0, "", "", 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
             } else { /* We have some data. */
-                sint16 face, height = 0, zoom_x = 0, zoom_y = 0, align = 0, rotate = 0;
-                uint8 flags, obj_flags, quick_pos = 0, probe = 0, draw_double = 0, alpha = 0, infravision = 0, target_is_friend = 0;
-                uint8 anim_speed, anim_facing, anim_flags, anim_state, priority;
+                int16_t face, height = 0, zoom_x = 0, zoom_y = 0, align = 0, rotate = 0;
+                uint8_t flags, obj_flags, quick_pos = 0, probe = 0, draw_double = 0, alpha = 0, infravision = 0, target_is_friend = 0;
+                uint8_t anim_speed, anim_facing, anim_flags, anim_state, priority;
                 char player_name[64], player_color[COLOR_BUF];
-                uint32 target_object_count = 0;
+                uint32_t target_object_count = 0;
 
                 anim_speed = anim_facing = anim_flags = anim_state = 0;
                 priority = 0;
@@ -805,12 +805,12 @@ void socket_command_map(uint8 *data, size_t len, size_t pos)
 
                 /* Z position? */
                 if (flags & MAP2_FLAG_HEIGHT) {
-                    height = packet_to_sint16(data, len, &pos);
+                    height = packet_to_int16(data, len, &pos);
                 }
 
                 /* Align? */
                 if (flags & MAP2_FLAG_ALIGN) {
-                    align = packet_to_sint16(data, len, &pos);
+                    align = packet_to_int16(data, len, &pos);
                 }
 
                 if (flags & MAP2_FLAG_INFRAVISION) {
@@ -823,7 +823,7 @@ void socket_command_map(uint8 *data, size_t len, size_t pos)
                 }
 
                 if (flags & MAP2_FLAG_MORE) {
-                    uint32 flags2;
+                    uint32_t flags2;
 
                     flags2 = packet_to_uint32(data, len, &pos);
 
@@ -832,7 +832,7 @@ void socket_command_map(uint8 *data, size_t len, size_t pos)
                     }
 
                     if (flags2 & MAP2_FLAG2_ROTATE) {
-                        rotate = packet_to_sint16(data, len, &pos);
+                        rotate = packet_to_int16(data, len, &pos);
                     }
 
                     /* Zoom? */
@@ -866,8 +866,8 @@ void socket_command_map(uint8 *data, size_t len, size_t pos)
 
         /* Animation? */
         if (ext_flags & MAP2_FLAG_EXT_ANIM) {
-            uint8 anim_type;
-            sint16 anim_value;
+            uint8_t anim_type;
+            int16_t anim_value;
 
             anim_type = packet_to_uint8(data, len, &pos);
             anim_value = packet_to_uint16(data, len, &pos);
@@ -886,7 +886,7 @@ void socket_command_map(uint8 *data, size_t len, size_t pos)
 }
 
 /** @copydoc socket_command_struct::handle_func */
-void socket_command_version(uint8 *data, size_t len, size_t pos)
+void socket_command_version(uint8_t *data, size_t len, size_t pos)
 {
     if (cpl.state != ST_WAITVERSION) {
         logger_print(LOG(BUG), "Received version command when not in proper "
@@ -899,10 +899,10 @@ void socket_command_version(uint8 *data, size_t len, size_t pos)
 }
 
 /** @copydoc socket_command_struct::handle_func */
-void socket_command_compressed(uint8 *data, size_t len, size_t pos)
+void socket_command_compressed(uint8_t *data, size_t len, size_t pos)
 {
     unsigned long ucomp_len;
-    uint8 type, *dest;
+    uint8_t type, *dest;
     size_t dest_size;
 
     type = packet_to_uint8(data, len, &pos);
@@ -924,10 +924,10 @@ void socket_command_compressed(uint8 *data, size_t len, size_t pos)
 }
 
 /** @copydoc socket_command_struct::handle_func */
-void socket_command_control(uint8 *data, size_t len, size_t pos)
+void socket_command_control(uint8_t *data, size_t len, size_t pos)
 {
     char app_name[MAX_BUF];
-    uint8 type, sub_type;
+    uint8_t type, sub_type;
 
     packet_to_string(data, len, &pos, app_name, sizeof(app_name));
     type = packet_to_uint8(data, len, &pos);

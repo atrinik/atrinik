@@ -70,7 +70,7 @@ void logger_set_filter_stdout(const char *str);
 void logger_set_filter_logfile(const char *str);
 void logger_set_print_func(logger_print_func func);
 void logger_do_print(const char *str);
-void logger_print(logger_level level, const char *function, uint64 line,
+void logger_print(logger_level level, const char *function, uint64_t line,
         const char *format, ...) __attribute__((format(printf, 4, 5)));
 void logger_traceback(void);
 

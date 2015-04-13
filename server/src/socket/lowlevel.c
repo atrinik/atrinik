@@ -109,8 +109,8 @@ static void socket_packet_enqueue(socket_struct *ns, packet_struct *packet)
     {
         char *cp;
 
-        log(LOG(DUMPTX), "Enqueuing packet with command type %d (%" FMT64U
-                " bytes):", packet->type, (uint64) packet->len);
+        log(LOG(DUMPTX), "Enqueuing packet with command type %d (%" PRIu64
+                " bytes):", packet->type, (uint64_t) packet->len);
 
         cp = packet_get_debug(packet);
 
@@ -236,8 +236,8 @@ void socket_send_packet(socket_struct *ns, packet_struct *packet)
     toread = packet->len + 1;
 
     if (toread > 32 * 1024 - 1) {
-        log(LOG(PACKET), "Sending packet with size > 32KB: %"FMT64U", type: %d",
-                (uint64) toread, packet->type);
+        log(LOG(PACKET), "Sending packet with size > 32KB: %"PRIu64", type: %d",
+                (uint64_t) toread, packet->type);
         tmp->data[0] = ((toread >> 16) & 0xff) | 0x80;
         tmp->data[1] = (toread >> 8) & 0xff;
         tmp->data[2] = (toread) & 0xff;

@@ -34,7 +34,7 @@
 
 /**
  * If 1, the API has been initialized. */
-static uint8 did_init = 0;
+static uint8_t did_init = 0;
 
 /**
  * Initialize the memory API.
@@ -73,7 +73,7 @@ void *memory_emalloc(size_t size)
     ptr = malloc(size);
 
     if (ptr == NULL) {
-        logger_print(LOG(ERROR), "OOM (size: %"FMT64U").", (uint64) size);
+        logger_print(LOG(ERROR), "OOM (size: %"PRIu64").", (uint64_t) size);
         abort();
     }
 
@@ -109,8 +109,8 @@ void *memory_ecalloc(size_t nmemb, size_t size)
     ptr = calloc(nmemb, size);
 
     if (ptr == NULL) {
-        logger_print(LOG(ERROR), "OOM (nmemb: %"FMT64U", size: %"FMT64U").",
-                (uint64) nmemb, (uint64) size);
+        logger_print(LOG(ERROR), "OOM (nmemb: %"PRIu64", size: %"PRIu64").",
+                (uint64_t) nmemb, (uint64_t) size);
         abort();
     }
 
@@ -131,8 +131,8 @@ void *memory_erealloc(void *ptr, size_t size)
     newptr = realloc(ptr, size);
 
     if (newptr == NULL && size != 0) {
-        logger_print(LOG(ERROR), "OOM (ptr: %p, size: %"FMT64U".", ptr,
-                (uint64) size);
+        logger_print(LOG(ERROR), "OOM (ptr: %p, size: %"PRIu64".", ptr,
+                (uint64_t) size);
         abort();
     }
 

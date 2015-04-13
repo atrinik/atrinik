@@ -65,7 +65,7 @@ static list_struct *list_party = NULL;
 /**
  * What type of data is currently in the list; -1 means no data,
  * otherwise one of @ref CMD_PARTY_xxx. */
-static sint8 list_contents = -1;
+static int8_t list_contents = -1;
 
 /**
  * Handle enter/double click for the party list.
@@ -99,9 +99,9 @@ static void list_row_selected(list_struct *list, SDL_Rect box)
 }
 
 /** @copydoc socket_command_struct::handle_func */
-void socket_command_party(uint8 *data, size_t len, size_t pos)
+void socket_command_party(uint8_t *data, size_t len, size_t pos)
 {
-    uint8 type;
+    uint8_t type;
 
     type = packet_to_uint8(data, len, &pos);
 
@@ -119,7 +119,7 @@ void socket_command_party(uint8 *data, size_t len, size_t pos)
                 list_add(list_party, list_party->rows - 1, 1, party_leader);
             } else if (type == CMD_PARTY_WHO) {
                 char name[MAX_BUF], bars[MAX_BUF];
-                uint8 hp, sp;
+                uint8_t hp, sp;
 
                 packet_to_string(data, len, &pos, name, sizeof(name));
                 hp = packet_to_uint8(data, len, &pos);
@@ -171,8 +171,8 @@ void socket_command_party(uint8 *data, size_t len, size_t pos)
         keybind_process_command(buf);
     } else if (type == CMD_PARTY_UPDATE) {
         char name[MAX_BUF], bars[MAX_BUF];
-        uint8 hp, sp;
-        uint32 row;
+        uint8_t hp, sp;
+        uint32_t row;
 
         /* Update list of party members. */
 
@@ -200,7 +200,7 @@ void socket_command_party(uint8 *data, size_t len, size_t pos)
         list_sort(list_party, LIST_SORT_ALPHA);
     } else if (type == CMD_PARTY_REMOVE_MEMBER) {
         char name[MAX_BUF];
-        uint32 row;
+        uint32_t row;
 
         /* Remove member from the list of party members. */
 

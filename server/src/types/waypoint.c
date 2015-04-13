@@ -212,8 +212,8 @@ void waypoint_move(object *op, object *waypoint)
     mapstruct *destmap;
     rv_vector local_rv, global_rv, *dest_rv;
     int dir, destx, desty;
-    sint16 new_offset = 0;
-    uint32 destflags;
+    int16_t new_offset = 0;
+    uint32_t destflags;
 
     if (!waypoint || !op || !op->map) {
         return;

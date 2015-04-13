@@ -239,7 +239,7 @@ static void clioptions_option_magic_devices_level(const char *arg)
 
     val = atoi(arg);
 
-    if (val < SINT8_MIN || val > SINT8_MAX) {
+    if (val < INT8_MIN || val > INT8_MAX) {
         logger_print(LOG(ERROR), "Invalid value for argument of --magic_devices_level (%d).", val);
         exit(1);
     }

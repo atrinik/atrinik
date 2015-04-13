@@ -174,7 +174,7 @@ static int popup_event(popup_struct *popup, SDL_Event *event)
         if (IS_NEXT(event->key.keysym.sym)) {
             if (text_input_current == LOGIN_TEXT_INPUT_MAX - 1 && IS_ENTER(event->key.keysym.sym)) {
                 packet_struct *packet;
-                uint32 lower, upper;
+                uint32_t lower, upper;
 
                 if (button_tab_register.pressed_forced && strcmp(text_inputs[LOGIN_TEXT_INPUT_PASSWORD].str, text_inputs[LOGIN_TEXT_INPUT_PASSWORD2].str) != 0) {
                     draw_info(COLOR_RED, "The passwords do not match.");

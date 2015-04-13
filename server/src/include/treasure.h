@@ -144,14 +144,14 @@ typedef struct treasurestruct {
     int difficulty;
 
     /** Random 1 to nrof items are generated */
-    uint16 nrof;
+    uint16_t nrof;
 
     /** Will overrule chance: if set (not -1) it will create 1 / chance_single
      * */
-    sint16 chance_fix;
+    int16_t chance_fix;
 
     /** Percent chance for this item */
-    uint8 chance;
+    uint8_t chance;
 
     /** Override default arch values if set in treasure list */
     struct _change_arch change_arch;
@@ -171,13 +171,13 @@ typedef struct treasureliststruct {
     int artifact_chance;
 
     /** If set, this will overrule total_chance. */
-    sint16 chance_fix;
+    int16_t chance_fix;
 
     /**
      * If non zero, only 1 item on this list should be generated.
      *
      * The total_chance contains the sum of the chance for this list. */
-    sint16 total_chance;
+    int16_t total_chance;
 
     /** Next treasure-item in linked list */
     struct treasureliststruct *next;

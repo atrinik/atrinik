@@ -40,9 +40,9 @@ static int tooltip_x = -1;
 static int tooltip_y = -1;
 static int tooltip_h = -1;
 static int tooltip_w = -1;
-static uint32 tooltip_created = 0;
-static uint32 tooltip_delay = 0;
-static uint8 tooltip_opacity = 0;
+static uint32_t tooltip_created = 0;
+static uint32_t tooltip_delay = 0;
+static uint8_t tooltip_opacity = 0;
 
 /**
  * Creates a new tooltip. This must be called every frame in order for
@@ -65,7 +65,7 @@ void tooltip_create(int mx, int my, font_struct *font, const char *text)
 /**
  * Adds a delay before the tooltip is shown.
  * @param delay Delay in milliseconds. */
-void tooltip_enable_delay(uint32 delay)
+void tooltip_enable_delay(uint32_t delay)
 {
     tooltip_delay = delay;
 

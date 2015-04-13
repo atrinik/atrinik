@@ -210,12 +210,12 @@
     ((_M_)->spaces[(_X_) + (_M_)->width * (_Y_)].layer[NUM_LAYERS * (_SL_) + (_Z_) -1])
 
 #define SET_MAP_DAMAGE(M, X, Y, tmp) \
-    ((M)->spaces[(X) + (M)->width * (Y)].last_damage = (uint16) (tmp))
+    ((M)->spaces[(X) + (M)->width * (Y)].last_damage = (uint16_t) (tmp))
 #define GET_MAP_DAMAGE(M, X, Y) \
     ((M)->spaces[(X) + (M)->width * (Y)].last_damage)
 
 #define SET_MAP_RTAG(M, X, Y, tmp) \
-    ((M)->spaces[(X) + (M)->width * (Y)].round_tag = (uint32) (tmp))
+    ((M)->spaces[(X) + (M)->width * (Y)].round_tag = (uint32_t) (tmp))
 #define GET_MAP_RTAG(M, X, Y) \
     ((M)->spaces[(X) + (M)->width * (Y)].round_tag)
 
@@ -343,7 +343,7 @@ typedef struct MapSpace_s {
     struct MapSpace_s *next_light;
 
     /** Tag for last_damage */
-    uint32 round_tag;
+    uint32_t round_tag;
 
     /** ID of ::map_info. */
     tag_t map_info_count;
@@ -352,15 +352,15 @@ typedef struct MapSpace_s {
     tag_t sound_ambient_count;
 
     /** Counter for update tile */
-    uint32 update_tile;
+    uint32_t update_tile;
 
     /** Light source counter - the higher the brighter light source here */
-    sint32 light_source;
+    int32_t light_source;
 
     /**
      * How much light is on this tile. 0 = total dark
      * 255+ = full daylight. */
-    sint32 light_value;
+    int32_t light_value;
 
     /**
      * Flags about this space
@@ -368,13 +368,13 @@ typedef struct MapSpace_s {
     int flags;
 
     /** last_damage tmp backbuffer */
-    uint16 last_damage;
+    uint16_t last_damage;
 
     /** Terrain type flags (water, underwater,...) */
-    uint16 move_flags;
+    uint16_t move_flags;
 
     /** Extra flags from @ref MSP_EXTRA_xxx. */
-    uint8 extra_flags;
+    uint8_t extra_flags;
 } MapSpace;
 
 /**
@@ -472,13 +472,13 @@ typedef struct region_struct {
     /**
      * If 1, the map will not be available unless the player has done
      * the quest to obtain it. */
-    uint8 map_quest;
+    uint8_t map_quest;
 
     /** X coodinate in jailmap to which the player should be sent. */
-    sint16 jailx;
+    int16_t jailx;
 
     /** Y coodinate in jailmap to which the player should be sent. */
-    sint16 jaily;
+    int16_t jaily;
 } region_struct;
 
 /**
@@ -574,38 +574,38 @@ typedef struct mapdef {
     object *player_first;
 
     /** Bitmap used for marking visited tiles in pathfinding */
-    uint32 *bitmap;
+    uint32_t *bitmap;
 
     /** For which traversal is @ref mapstruct::bitmap valid. */
-    uint32 pathfinding_id;
+    uint32_t pathfinding_id;
 
     path_node_t **path_nodes;
 
     /** Map flags for various map settings */
-    uint32 map_flags;
+    uint32_t map_flags;
 
     /** When this map should reset */
-    uint32 reset_time;
+    uint32_t reset_time;
 
     /**
      * How many seconds must elapse before this map
      * should be reset */
-    uint32 reset_timeout;
+    uint32_t reset_timeout;
 
     /** When this reaches 0, the map will be swapped out. */
-    sint32 timeout;
+    int32_t timeout;
 
     /** How long to wait before a map is swapped out. */
-    uint32 swap_time;
+    uint32_t swap_time;
 
     /**
      * If not true, the map has been freed and must
      * be loaded before used. The map, omap and map_ob
      * arrays will be allocated when the map is loaded */
-    uint32 in_memory;
+    uint32_t in_memory;
 
     /** Used by relative_tile_position() to mark visited maps */
-    uint32 traversed;
+    uint32_t traversed;
 
     /**
      * Indicates the base light value on this map.
@@ -648,11 +648,11 @@ typedef struct mapdef {
      * @see MAP_FLAG_FIXED_LOGIN */
     int enter_y;
 
-    sint16 coords[3]; ///< X, Y and Z coordinates.
+    int16_t coords[3]; ///< X, Y and Z coordinates.
 
-    sint8 level_min; ///< Minimum level offset that is part of this map.
+    int8_t level_min; ///< Minimum level offset that is part of this map.
 
-    sint8 level_max; ///< Maximum level offset that is part of this map.
+    int8_t level_max; ///< Maximum level offset that is part of this map.
 
     bool global_removed; ///< If true, the map was removed from the global list.
 } mapstruct;

@@ -38,7 +38,7 @@
  * @param mirror The magic mirror to initialize. */
 void magic_mirror_init(object *mirror)
 {
-    sint16 mirror_x, mirror_y;
+    int16_t mirror_x, mirror_y;
 
     if (!mirror->map) {
         logger_print(LOG(BUG), "Magic mirror not on map.");

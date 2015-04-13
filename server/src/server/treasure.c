@@ -257,14 +257,14 @@ static treasure *load_treasure(FILE *fp, int *t_style, int *a_chance)
         } else if (sscanf(cp, "material_range %d", &value)) {
             t->change_arch.material_range = value;
         } else if (sscanf(cp, "chance_fix %d", &value)) {
-            t->chance_fix = (sint16) value;
+            t->chance_fix = (int16_t) value;
             /* Important or the chance will stay 100% when not set to 0
              * in treasure list! */
             t->chance = 0;
         } else if (sscanf(cp, "chance %d", &value)) {
-            t->chance = (uint8) value;
+            t->chance = (uint8_t) value;
         } else if (sscanf(cp, "nrof %d", &value)) {
-            t->nrof = (uint16) value;
+            t->nrof = (uint16_t) value;
         } else if (sscanf(cp, "magic %d", &value)) {
             t->magic = value;
         } else if (sscanf(cp, "magic_fix %d", &value)) {
@@ -404,9 +404,9 @@ void init_artifacts(void)
         } else if (sscanf(cp, "t_style %d", &value)) {
             art->t_style = value;
         } else if (sscanf(cp, "chance %d", &value)) {
-            art->chance = (uint16) value;
+            art->chance = (uint16_t) value;
         } else if (sscanf(cp, "difficulty %d", &value)) {
-            art->difficulty = (uint8) value;
+            art->difficulty = (uint8_t) value;
         } else if (!strncmp(cp, "artifact", 8)) {
             FREE_AND_COPY_HASH(art->name, cp + 9);
         } else if (strncmp(cp, "copy_artifact ", 14) == 0) {
@@ -1216,7 +1216,7 @@ set_ring_bonus_jump1:
     case 4:
     case 5:
     case 6:
-        set_attr_value(&op->stats, r, (sint8) (bonus + get_attr_value(&op->stats, r)));
+        set_attr_value(&op->stats, r, (int8_t) (bonus + get_attr_value(&op->stats, r)));
         break;
 
     case 7:
@@ -1949,7 +1949,7 @@ int fix_generated_item(object **op_ptr, object *creator, int difficulty, int a_c
 
                 /* Change any positive stat bonuses to negative bonuses. */
                 for (i = 0; i < NUM_STATS; i++) {
-                    sint8 val = get_attr_value(&op->stats, i);
+                    int8_t val = get_attr_value(&op->stats, i);
 
                     if (val > 0) {
                         set_attr_value(&op->stats, i, -val);
@@ -2381,7 +2381,7 @@ void free_all_treasures(void)
 static void set_material_real(object *op, struct _change_arch *change_arch)
 {
     if (change_arch->item_race != -1) {
-        op->item_race = (uint8) change_arch->item_race;
+        op->item_race = (uint8_t) change_arch->item_race;
     }
 
     /* This must be tested - perhaps we want that change_arch->material

@@ -60,15 +60,15 @@ typedef struct sound_ambient_match {
         struct sound_ambient_match *group;
 
         struct {
-            uint8 type;
+            uint8_t type;
 
-            uint8 operation;
+            uint8_t operation;
 
-            uint16 num;
+            uint16_t num;
 
-            uint8 operation2;
+            uint8_t operation2;
 
-            uint16 num2;
+            uint16_t num2;
         } operation;
     } data;
 

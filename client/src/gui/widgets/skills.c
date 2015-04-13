@@ -63,7 +63,7 @@ void skills_init(void)
 }
 
 /** @copydoc list_struct::post_column_func */
-static void list_post_column(list_struct *list, uint32 row, uint32 col)
+static void list_post_column(list_struct *list, uint32_t row, uint32_t col)
 {
     size_t skill_id;
     SDL_Rect box;
@@ -115,7 +115,7 @@ static void list_row_color(list_struct *list, int row, SDL_Rect box)
 static void skill_list_reload(void)
 {
     size_t i;
-    uint32 offset, rows, selected;
+    uint32_t offset, rows, selected;
 
     if (!list_skills) {
         return;
@@ -176,7 +176,7 @@ skill_entry_struct *skill_get(size_t id)
     return skill_list[id];
 }
 
-void skills_update(object *op, uint8 level, sint64 xp)
+void skills_update(object *op, uint8_t level, int64_t xp)
 {
     size_t skill_id;
     skill_entry_struct *skill;
@@ -294,7 +294,7 @@ static void widget_background(widgetdata *widget, int draw)
 /** @copydoc widgetdata::event_func */
 static int widget_event(widgetdata *widget, SDL_Event *event)
 {
-    uint32 row, col;
+    uint32_t row, col;
     size_t i;
 
     if (EVENT_IS_MOUSE(event) && event->button.button == SDL_BUTTON_LEFT && list_mouse_get_pos(list_skills, event->motion.x, event->motion.y, &row, &col)) {

@@ -124,7 +124,7 @@ static int apply_func(object *op, object *applier, int aflags)
 
     /* Gain xp from reading but only if not read before. */
     if (!QUERY_FLAG(op, FLAG_NO_SKILL_IDENT)) {
-        sint64 exp_gain, old_exp;
+        int64_t exp_gain, old_exp;
 
         CONTR(applier)->stat_unique_books_read++;
 
@@ -133,7 +133,7 @@ static int apply_func(object *op, object *applier, int aflags)
          * of the book, instead of adjusting the return value. */
         old_exp = op->stats.exp;
         /* Adjust the experience based on player's wisdom. */
-        op->stats.exp = (sint64) ((double) op->stats.exp * book_exp_mod[applier->stats.Wis]);
+        op->stats.exp = (int64_t) ((double) op->stats.exp * book_exp_mod[applier->stats.Wis]);
 
         if (!QUERY_FLAG(op, FLAG_IDENTIFIED)) {
             /* Because they just identified it too. */

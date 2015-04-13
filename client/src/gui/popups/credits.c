@@ -45,7 +45,7 @@ static int credits_scroll;
 static int credits_height;
 /**
  * Last scrolled ticks. */
-static uint32 credits_ticks;
+static uint32_t credits_ticks;
 
 /** @copydoc popup_struct::draw_func */
 static int popup_draw_func(popup_struct *popup)

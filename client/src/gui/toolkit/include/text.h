@@ -38,7 +38,7 @@ typedef struct font_struct {
     char *name;
 
     /** Size of the font. */
-    uint8 size;
+    uint8_t size;
 
     /** The actual font used by SDL_ttf. */
     TTF_Font *font;
@@ -151,33 +151,33 @@ typedef struct text_info_struct {
     SDL_Color outline_color;
 
     /** Whether to show an outline. */
-    uint8 outline_show;
+    uint8_t outline_show;
 
     /** Whether we are in old-style book title. */
-    uint8 in_book_title;
+    uint8_t in_book_title;
 
     /** Alpha. */
-    uint8 used_alpha;
+    uint8_t used_alpha;
 
     /** Whether we are in bold tag. */
-    uint8 in_bold;
+    uint8_t in_bold;
 
     /** Whether we are in italic tag. */
-    uint8 in_italic;
+    uint8_t in_italic;
 
     /** Whether we are in underline tag. */
-    uint8 in_underline;
+    uint8_t in_underline;
 
     /** Whether we are in strikethrough tag. */
-    uint8 in_strikethrough;
+    uint8_t in_strikethrough;
 
     /**
      *  If 1, the character is not being drawn due to line skip (due to
      * scroll value for example). */
-    uint8 obscured;
+    uint8_t obscured;
 
     /** Whether bold width is being calculated. */
-    uint8 calc_bold;
+    uint8_t calc_bold;
 
     /**
      * Whether font width (font changed using a tag) is being
@@ -194,9 +194,9 @@ typedef struct text_info_struct {
 
     int start_y;
 
-    uint8 highlight;
+    uint8_t highlight;
 
-    uint8 flip;
+    uint8_t flip;
 
     SDL_Rect highlight_rect;
 

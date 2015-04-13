@@ -35,17 +35,17 @@
 
 /**
  * If 1, the API has been initialized. */
-static uint8 did_init = 0;
+static uint8_t did_init = 0;
 
 /** Hash table to store our strings. */
 static shared_string *hash_table[TABLESIZE];
 
 static struct statistics {
-    uint32 calls;
-    uint32 hashed;
-    uint32 strcmps;
-    uint32 search;
-    uint32 linked;
+    uint32_t calls;
+    uint32_t hashed;
+    uint32_t strcmps;
+    uint32_t search;
+    uint32_t linked;
 } add_stats, add_ref_stats, free_stats, find_stats, hash_stats;
 
 /**

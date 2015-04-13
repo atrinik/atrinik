@@ -65,10 +65,10 @@ typedef struct char_struct {
  * file. */
 typedef struct server_settings {
     /** Maximum reachable level. */
-    uint8 max_level;
+    uint8_t max_level;
 
     /** Experience needed for each level. */
-    sint64 *level_exp;
+    int64_t *level_exp;
 
     /** Races that can be selected to be played. */
     char_struct *characters;

@@ -34,7 +34,7 @@
 
 /**
  * If 1, the API has been initialized. */
-static uint8 did_init = 0;
+static uint8_t did_init = 0;
 
 /**
  * Initialize the porting API.
@@ -101,7 +101,7 @@ char *strtok_r(char *s, const char *delim, char **save_ptr)
 #endif
 
 #ifndef HAVE_TEMPNAM
-static uint32 curtmp = 0;
+static uint32_t curtmp = 0;
 
 char *tempnam(const char *dir, const char *pfx)
 {
@@ -306,7 +306,7 @@ ssize_t getline(char **lineptr, size_t *n, FILE *stream)
 
 #ifndef HAVE_USLEEP
 
-int usleep(uint32 usec)
+int usleep(uint32_t usec)
 {
     struct timeval tv1, tv2;
 

@@ -168,13 +168,13 @@ enum {
 /** Range setting data. */
 typedef struct setting_range {
     /** Min value for the setting. */
-    sint64 min;
+    int64_t min;
 
     /** Max value for the setting. */
-    sint64 max;
+    int64_t max;
 
     /** How much to advance by each time. */
-    sint64 advance;
+    int64_t advance;
 } setting_range;
 
 /**
@@ -198,10 +198,10 @@ typedef struct setting_struct {
     char *desc;
 
     /** Type of the setting - one of @ref SETTING_TYPE_xxx. */
-    uint8 type;
+    uint8_t type;
 
     /** Whether the setting is internal, and should not be shown to the user. */
-    uint8 internal;
+    uint8_t internal;
 
     /** Custom data; for settings like select, range, etc. */
     void *custom_attrset;
@@ -212,7 +212,7 @@ typedef struct setting_struct {
         char *str;
 
         /** Integer value. */
-        sint64 i;
+        int64_t i;
     } val;
 } setting_struct;
 

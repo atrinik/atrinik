@@ -78,15 +78,15 @@ typedef struct effect_struct {
 
     /** Direction this sprite is getting blown into, one of @ref WIND_BLOW_xxx.
      * */
-    uint8 wind_blow_dir;
+    uint8_t wind_blow_dir;
 
     /**
      * Delay in ticks that must pass until another sprite can be created
      * (regardless of the actual chance to create one). Default is 0. */
-    uint32 delay;
+    uint32_t delay;
 
     /** When a sprite was last created, in ticks. */
-    uint32 delay_ticks;
+    uint32_t delay_ticks;
 
     /** Maximum number of visible sprites, -1 for infinite (default). */
     int max_sprites;
@@ -128,10 +128,10 @@ typedef struct effect_sprite {
     int y;
 
     /** Last time the sprite was moved, in ticks. */
-    uint32 delay_ticks;
+    uint32_t delay_ticks;
 
     /** When the sprite was created. */
-    uint32 created_tick;
+    uint32_t created_tick;
 
     /** Settings of this sprite. */
     struct effect_sprite_def *def;
@@ -163,10 +163,10 @@ typedef struct effect_sprite_def {
     int chance;
 
     /** How long to delay until another movement, in ticks. Default is 0. */
-    uint32 delay;
+    uint32_t delay;
 
     /** Non-zero value to enable wind simulation. Default is 1. */
-    uint8 wind;
+    uint8_t wind;
 
     /**
      * How much to wiggle when falling down, 0.0 to fall straight down.
@@ -192,7 +192,7 @@ typedef struct effect_sprite_def {
 
     /** Whether to go from bottom to top, instead of top to bottom, 0 by
      * default. */
-    uint8 reverse;
+    uint8_t reverse;
 
     /**
      * Initial Y starting position; will be randomized between 0-value.
@@ -208,34 +208,34 @@ typedef struct effect_sprite_def {
     /**
      * Whether to affect side-checking of sprites with the sprite's
      * width, 1 by default. */
-    uint8 x_check_mod;
+    uint8_t x_check_mod;
 
     /**
      * Whether to affect side-checking of sprites with the sprite's
      * height, 1 by default. */
-    uint8 y_check_mod;
+    uint8_t y_check_mod;
 
     /**
      * Whether to kill sprites that go too far to the left (off
      * screen), 1 by default. */
-    uint8 kill_side_left;
+    uint8_t kill_side_left;
 
     /**
      * Whether to kill sprites that go too far to the right (off
      * screen), 0 by default. */
-    uint8 kill_side_right;
+    uint8_t kill_side_right;
 
     /**
      * How much to zoom this sprite, 0 by default (no zoom), 100 = same
      * as current sprite, 200 = twice as big. */
-    uint16 zoom;
+    uint16_t zoom;
 
     /**
      * Warp sprites going too far to the sides (off screen), 1 by default. */
-    uint8 warp_sides;
+    uint8_t warp_sides;
 
     /** Time to live (in ticks). */
-    uint32 ttl;
+    uint32_t ttl;
 
     /**
      * Sound effect to play each time this sprite is created. By default,
@@ -243,22 +243,22 @@ typedef struct effect_sprite_def {
     char sound_file[MAX_BUF];
 
     /** Volume of the sound effect to play. Default is 100. */
-    uint8 sound_volume;
+    uint8_t sound_volume;
 } effect_sprite_def;
 
 /** One single color in the overlay configuration. */
 typedef struct effect_overlay_col {
     /** Initial value; if -1, will use the original color value. */
-    sint16 val;
+    int16_t val;
 
     /** Modification of the color. */
     double mod[5];
 
     /** Min random range. */
-    uint8 rndm_min;
+    uint8_t rndm_min;
 
     /** Max random range. */
-    uint8 rndm_max;
+    uint8_t rndm_max;
 } effect_overlay_col;
 
 /**

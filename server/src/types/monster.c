@@ -35,8 +35,8 @@ static int can_detect_enemy(object *op, object *enemy, rv_vector *rv);
 static object *find_nearest_enemy(object *ob);
 static int move_randomly(object *op);
 static int can_hit(object *ob1, rv_vector *rv);
-static object *monster_choose_random_spell(object *monster, uint32 flags);
-static int monster_cast_spell(object *head, object *part, int dir, rv_vector *rv, uint32 flags);
+static object *monster_choose_random_spell(object *monster, uint32_t flags);
+static int monster_cast_spell(object *head, object *part, int dir, rv_vector *rv, uint32_t flags);
 static int monster_use_bow(object *head, object *part, int dir);
 static int dist_att(int dir, object *part, rv_vector *rv);
 static int run_att(int dir, object *ob, object *part, rv_vector *rv);
@@ -435,7 +435,7 @@ static void process_func(object *op)
             enemy->attacked_by = op;
             enemy->attacked_by_count = op->count;
             /* Now the attacked foe knows how near we are */
-            enemy->attacked_by_distance = (sint16) rv.distance;
+            enemy->attacked_by_distance = (int16_t) rv.distance;
         }
     }
 
@@ -902,7 +902,7 @@ static int can_hit(object *ob1, rv_vector *rv)
  * @param monster The monster object.
  * @param flags Flags the spell must have.
  * @return Random spell object, NULL if no spell found. */
-static object *monster_choose_random_spell(object *monster, uint32 flags)
+static object *monster_choose_random_spell(object *monster, uint32_t flags)
 {
     object * altern[MAX_KNOWN_SPELLS], *tmp;
     spell_struct *spell;
@@ -960,7 +960,7 @@ static int monster_spell_useful(object *target, int spell_id)
  * to find a friendly object to cast the spell on.
  * @param flags Flags the spell must have.
  * @return 1 if monster casted a spell, 0 otherwise. */
-static int monster_cast_spell(object *head, object *part, int dir, rv_vector *rv, uint32 flags)
+static int monster_cast_spell(object *head, object *part, int dir, rv_vector *rv, uint32_t flags)
 {
     object *spell_item, *target = NULL;
     spell_struct *sp;
@@ -1450,7 +1450,7 @@ int talk_to_npc(object *op, object *npc, char *txt)
             packet = packet_new(CLIENT_CMD_INTERFACE, 256, 256);
 
             packet_append_uint8(packet, CMD_INTERFACE_TEXT);
-            packet_append_data_len(packet, (uint8 *) cp, cp_len);
+            packet_append_data_len(packet, (uint8_t *) cp, cp_len);
             packet_append_uint8(packet, '\0');
 
             packet_append_uint8(packet, CMD_INTERFACE_ANIM);
@@ -1485,7 +1485,7 @@ int talk_to_npc(object *op, object *npc, char *txt)
 int faction_is_friend_of(object *mon, object *pl)
 {
     shstr *faction, *faction_rep;
-    sint64 pl_rep, rep;
+    int64_t pl_rep, rep;
 
     faction = object_get_value(mon, "faction");
 
@@ -1518,8 +1518,8 @@ int faction_is_friend_of(object *mon, object *pl)
  * @return 1 if both objects are friends, 0 otherwise */
 int is_friend_of(object *op, object *obj)
 {
-    uint8 is_friend = 0;
-    sint8 faction_friend = -1;
+    uint8_t is_friend = 0;
+    int8_t faction_friend = -1;
 
     if (op == NULL || obj == NULL) {
         return 0;

@@ -50,10 +50,10 @@ enum {
 
 /**
  * Is shuffle enabled? */
-static uint8 shuffle = 0;
+static uint8_t shuffle = 0;
 /**
  * Blacklisted music files. */
-static uint8 *shuffle_blacklist = NULL;
+static uint8_t *shuffle_blacklist = NULL;
 /**
  * Button buffer. */
 static button_struct buttons[BUTTON_NUM];
@@ -78,7 +78,7 @@ static void list_handle_enter(list_struct *list, SDL_Event *event)
 }
 
 /** @copydoc list_struct::text_color_hook */
-static void list_text_color_hook(list_struct *list, uint32 row, uint32 col, const char **color, const char **color_shadow)
+static void list_text_color_hook(list_struct *list, uint32_t row, uint32_t col, const char **color, const char **color_shadow)
 {
     if (shuffle_blacklist[row]) {
         *color = COLOR_RED;
@@ -92,8 +92,8 @@ static void list_text_color_hook(list_struct *list, uint32 row, uint32 col, cons
 static void mplayer_do_shuffle(list_struct *list)
 {
     size_t i;
-    uint8 found_num = 0;
-    uint32 *row_ids, row_num, selected;
+    uint8_t found_num = 0;
+    uint32_t *row_ids, row_num, selected;
 
     /* Calculate whether there are enough non-blacklisted songs to
      * shuffle through. */
@@ -180,7 +180,7 @@ static void mplayer_blacklist_toggle(list_struct *list)
  * Change blacklist status of all the music files at once.
  * @param list The music list.
  * @param state 1 to blacklist all, 0 to clear blacklist status. */
-static void mplayer_blacklist_mass_toggle(list_struct *list, uint8 state)
+static void mplayer_blacklist_mass_toggle(list_struct *list, uint8_t state)
 {
     if (list && shuffle_blacklist) {
         size_t row;
@@ -229,7 +229,7 @@ static void mplayer_blacklist_save(list_struct *list)
  * @param path The directory to read.
  * @param duplicates Whether to check for and ignore duplicates in the
  * directory (entries already in the list). */
-static void mplayer_list_init(list_struct *list, const char *path, uint8 duplicates)
+static void mplayer_list_init(list_struct *list, const char *path, uint8_t duplicates)
 {
     DIR *dir;
     struct dirent *currentfile;
@@ -250,8 +250,8 @@ static void mplayer_list_init(list_struct *list, const char *path, uint8 duplica
 
         /* Check for duplicates. */
         if (duplicates) {
-            uint8 found = 0;
-            uint32 row;
+            uint8_t found = 0;
+            uint32_t row;
 
             for (row = 0; row < list->rows; row++) {
                 if (!strcmp(list->text[row][0], currentfile->d_name)) {
@@ -422,7 +422,7 @@ static void widget_draw(widgetdata *widget)
 /** @copydoc widgetdata::background_func */
 static void widget_background(widgetdata *widget, int draw)
 {
-    uint32 duration, num_lines;
+    uint32_t duration, num_lines;
 
     /* If shuffle is enabled, check whether we need to start playing
      * another song. */
@@ -445,7 +445,7 @@ static void widget_background(widgetdata *widget, int draw)
             scrollbar_progress_info.redraw = 0;
             widget->redraw = 1;
         } else {
-            uint32 offset;
+            uint32_t offset;
 
             offset = scrollbar_progress_info.scroll_offset;
             scrollbar_progress.redraw = NULL;

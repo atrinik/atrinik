@@ -63,8 +63,8 @@ void play_sound_player_only(player *pl, int type, const char *filename, int x, i
     packet = packet_new(CLIENT_CMD_SOUND, 64, 64);
     packet_append_uint8(packet, type);
     packet_append_string_terminated(packet, filename);
-    packet_append_sint8(packet, loop);
-    packet_append_sint8(packet, volume);
+    packet_append_int8(packet, loop);
+    packet_append_int8(packet, volume);
 
     /* Add X/Y offset for sound effects. */
     if (type == CMD_SOUND_EFFECT) {

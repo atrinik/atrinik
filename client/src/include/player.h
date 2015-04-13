@@ -50,37 +50,37 @@
 #define EXP_PROGRESS_BUBBLES 10
 
 typedef struct Stat_struct {
-    sint8 Str, Dex, Con, Int, Pow;
+    int8_t Str, Dex, Con, Int, Pow;
 
     /** Weapon class. */
-    sint16 wc;
+    int16_t wc;
 
     /** Armour class. */
-    sint16 ac;
+    int16_t ac;
 
     /** Level. */
-    uint32 level;
+    uint32_t level;
 
     /** Hit points. */
-    sint32 hp;
+    int32_t hp;
 
     /** Max hit points */
-    sint32 maxhp;
+    int32_t maxhp;
 
     /** Spell points. */
-    sint32 sp;
+    int32_t sp;
 
     /** Max spell points. */
-    sint32 maxsp;
+    int32_t maxsp;
 
     /** Total experience. */
-    sint64 exp;
+    int64_t exp;
 
     /** How much food in stomach. */
-    sint16 food;
+    int16_t food;
 
     /** How much damage the player does when hitting. */
-    sint16 dam;
+    int16_t dam;
 
     /** Player's speed. */
     float speed;
@@ -89,16 +89,16 @@ typedef struct Stat_struct {
     float weapon_speed;
 
     /** Contains fire on/run on flags. */
-    uint16 flags;
+    uint16_t flags;
 
     /** Protections. */
-    sint8 protection[CS_STAT_PROT_END - CS_STAT_PROT_START + 1];
+    int8_t protection[CS_STAT_PROT_END - CS_STAT_PROT_START + 1];
 
     /** Ranged weapon damage. */
-    sint16 ranged_dam;
+    int16_t ranged_dam;
 
     /** Ranged weapon wc. */
-    sint16 ranged_wc;
+    int16_t ranged_wc;
 
     /** Ranged weapon speed. */
     float ranged_ws;
@@ -116,7 +116,7 @@ typedef struct Player_Struct {
     object *sack;
 
     /** Tag of the open container. */
-    sint32 container_tag;
+    int32_t container_tag;
 
     /** Player's weight limit. */
     float weight_limit;
@@ -148,10 +148,10 @@ typedef struct Player_Struct {
     float action_timer;
 
     /** 1 if fire key is pressed. */
-    uint8 fire_on;
+    uint8_t fire_on;
 
     /** 1 if run key is on. */
-    uint8 run_on;
+    uint8_t run_on;
 
     /** Player's carrying weight. */
     float real_weight;
@@ -196,19 +196,19 @@ typedef struct Player_Struct {
 
     size_t target_object_index;
 
-    uint8 target_is_friend;
+    uint8_t target_is_friend;
 
     /**
      * Player's gender. */
-    uint8 gender;
+    uint8_t gender;
 
     tag_t equipment[PLAYER_EQUIP_MAX];
 
-    uint32 path_attuned;
+    uint32_t path_attuned;
 
-    uint32 path_repelled;
+    uint32_t path_repelled;
 
-    uint32 path_denied;
+    uint32_t path_denied;
 
     player_state_t state;
 

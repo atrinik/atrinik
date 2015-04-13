@@ -56,7 +56,7 @@ static int get_attack_mode(object **target, object **hitter, int *simple_attack)
 static int abort_attack(object *target, object *hitter, int simple_attack);
 static int attack_ob_simple(object *op, object *hitter, int base_dam, int base_wc);
 static void send_attack_msg(object *op, object *hitter, int attacknum, int dam, int damage);
-static int hit_player_attacktype(object *op, object *hitter, int damage, uint32 attacknum);
+static int hit_player_attacktype(object *op, object *hitter, int damage, uint32_t attacknum);
 static void poison_player(object *op, object *hitter, float dam);
 static void slow_living(object *op);
 static void blind_living(object *op, object *hitter, int dam);
@@ -339,7 +339,7 @@ void hit_map(object *op, int dir, int reduce)
     object *tmp, *owner;
     mapstruct *m;
     int x, y;
-    sint16 dam;
+    int16_t dam;
 
     if (OBJECT_FREE(op)) {
         return;
@@ -402,7 +402,7 @@ void hit_map(object *op, int dir, int reduce)
  * @param damage Maximum dealt damage.
  * @param attacknum Number of the attacktype of the attack.
  * @return Damage to actually do. */
-static int hit_player_attacktype(object *op, object *hitter, int damage, uint32 attacknum)
+static int hit_player_attacktype(object *op, object *hitter, int damage, uint32_t attacknum)
 {
     double dam = (double) damage;
 
@@ -591,7 +591,7 @@ static void send_attack_msg(object *op, object *hitter, int attacknum, int dam, 
  * @param op Player. This should be the killer.
  * @param exp_gain Experience to gain.
  * @param skill Skill that was used to kill the monster. */
-static void share_kill_exp_one(object *op, sint64 exp_gain, object *skill)
+static void share_kill_exp_one(object *op, int64_t exp_gain, object *skill)
 {
     if (exp_gain) {
         add_exp(op, exp_gain, skill->stats.sp, 0);
@@ -607,7 +607,7 @@ static void share_kill_exp_one(object *op, sint64 exp_gain, object *skill)
  * @param op Player that killed the monster.
  * @param exp_gain Experience to share.
  * @param skill Skill that was used to kill the monster. */
-static void share_kill_exp(object *op, sint64 exp_gain, object *skill)
+static void share_kill_exp(object *op, int64_t exp_gain, object *skill)
 {
     int shares = 0, count = 0;
     party_struct *party;
@@ -630,7 +630,7 @@ static void share_kill_exp(object *op, sint64 exp_gain, object *skill)
     if (count <= 1 || shares > exp_gain) {
         share_kill_exp_one(op, exp_gain, skill);
     } else {
-        sint64 share = exp_gain / shares, given = 0, nexp;
+        int64_t share = exp_gain / shares, given = 0, nexp;
 
         for (ol = party->members; ol; ol = ol->next) {
             if (ol->objlink.ob != op && on_same_map(ol->objlink.ob, op)) {
@@ -655,7 +655,7 @@ static void share_kill_exp(object *op, sint64 exp_gain, object *skill)
 int kill_object(object *op, int dam, object *hitter, int type)
 {
     int maxdam, battleg;
-    sint64 exp_gain = 0;
+    int64_t exp_gain = 0;
     object *owner;
 
     /* Still got some HP left? */
