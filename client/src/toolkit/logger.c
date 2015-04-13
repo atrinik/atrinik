@@ -241,7 +241,7 @@ static void logger_set_filter(uint64 *filter, const char *str)
             }
 
             if (oper == 1) {
-                *filter = UINT64_MAX;
+                *filter = ~0;
             } else {
                 *filter = 0;
             }
