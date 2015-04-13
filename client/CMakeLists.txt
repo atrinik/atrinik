@@ -69,7 +69,7 @@ include(src/cmake.txt)
 
 if (MINGW)
     ADD_CUSTOM_COMMAND(OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/atrinikrc.o
-            COMMAND windres.exe -I${CMAKE_CURRENT_SOURCE_DIR}
+            COMMAND ${CMAKE_RC_COMPILER} -I${CMAKE_CURRENT_SOURCE_DIR}
             -i${CMAKE_CURRENT_SOURCE_DIR}/atrinik.rc
             -o ${CMAKE_CURRENT_BINARY_DIR}/atrinikrc.o)
     SET(SOURCES ${SOURCES} ${CMAKE_CURRENT_BINARY_DIR}/atrinikrc.o)
