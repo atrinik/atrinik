@@ -101,6 +101,28 @@ void socket_disable_no_delay(int fd)
 
 static void socket_packet_enqueue(socket_struct *ns, packet_struct *packet)
 {
+#ifndef DEBUG
+    {
+        char *cp;
+
+        log(LOG(DUMPTX), "Enqueuing packet with command type %d (%" FMT64U
+                " bytes):", packet->type, (uint64) packet->len);
+
+        cp = packet_get_debug(packet);
+
+        if (cp[0] != '\0') {
+            log(LOG(DUMPTX), "  Debug info:\n%s", cp);
+        }
+
+        efree(cp);
+
+        cp = emalloc(sizeof(*cp) * (packet->len * 3 + 1));
+        string_tohex(packet->data, packet->len, cp, packet->len * 3 + 1, true);
+        log(LOG(DUMPTX), "  Hexadecimal: %s", cp);
+        efree(cp);
+    }
+#endif
+
     if (!ns->packet_head) {
         ns->packet_head = packet;
         packet->prev = NULL;
