@@ -31,6 +31,8 @@
 #ifndef PACKET_H
 #define PACKET_H
 
+typedef struct StringBuffer_struct StringBuffer;
+
 /**
  * A single data packet. */
 typedef struct packet_struct {
@@ -69,11 +71,28 @@ typedef struct packet_struct {
     /**
      * The packet's command type. */
     uint8 type;
+
+#ifndef NDEBUG
+    /**
+     * StringBuffer instance used to describe the packet contents.
+     */
+    StringBuffer *sb;
+#endif
 } packet_struct;
 
 /**
  * How many packet structures to allocate when expanding the packets
  * memory pool. */
 #define PACKET_EXPAND 10
+
+#ifndef NDEBUG
+#define packet_debug(_packet, _indent, _fmt, ...) \
+    do { \
+        stringbuffer_append_printf((_packet)->sb, "%*s" _fmt, (_indent), "", \
+                                   ## __VA_ARGS__); \
+    } while (0)
+#else
+#define packet_debug(_packet, _indent, _fmt, ...)
+#endif
 
 #endif

@@ -118,6 +118,11 @@ packet_struct *packet_new(uint8 type, size_t size, size_t expand)
 
     packet->type = type;
 
+#ifndef NDEBUG
+    packet->sb = stringbuffer_new();
+    packet_debug(packet, 0, "Packet type: %d\n", type);
+#endif
+
     return packet;
 }
 
@@ -131,6 +136,12 @@ void packet_free(packet_struct *packet)
     if (packet->data) {
         efree(packet->data);
     }
+
+#ifndef NDEBUG
+    if (packet->sb != NULL) {
+        efree(stringbuffer_finish(packet->sb));
+    }
+#endif
 
     mempool_return(pool_packet, packet);
 }
@@ -234,6 +245,25 @@ void packet_merge(packet_struct *src, packet_struct *dst)
 {
     TOOLKIT_FUNC_PROTECTOR(API_NAME);
     packet_append_data_len(dst, src->data, src->len);
+}
+
+char *packet_get_debug(packet_struct *packet)
+{
+    char *cp;
+
+    TOOLKIT_FUNC_PROTECTOR(API_NAME);
+
+    HARD_ASSERT(packet != NULL);
+
+#ifndef NDEBUG
+    HARD_ASSERT(packet->sb != NULL);
+    cp = stringbuffer_finish(packet->sb);
+    packet->sb = NULL;
+#else
+    cp = estrdup("");
+#endif
+
+    return cp;
 }
 
 void packet_append_uint8(packet_struct *packet, uint8 data)
