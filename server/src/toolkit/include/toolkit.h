@@ -220,6 +220,14 @@ typedef void (*toolkit_func)(void);
         } \
     } while (0)
 
+#define SOFT_ASSERT_LABEL(cond, label, msg, ...) \
+    do { \
+        if (!(cond)) { \
+            SOFT_ASSERT_MSG(msg, ##__VA_ARGS__); \
+            goto label; \
+        } \
+    } while (0)
+
 #endif
 
 #define HARD_ASSERT(cond) assert(cond)
