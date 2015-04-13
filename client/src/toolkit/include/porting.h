@@ -161,11 +161,11 @@
 #endif
 
 #ifdef HAVE_STRICMP
-#define strcasecmp(_s1_, _s2_) stricmp(_s1_, _s2_)
+#define strcasecmp _stricmp
 #endif
 
 #ifdef HAVE_STRNICMP
-#define strncasecmp(_s1_, _s2_, _nrof_) strnicmp(_s1_, _s2_, _nrof_)
+#define strncasecmp _strnicmp
 #endif
 
 #ifndef MIN
