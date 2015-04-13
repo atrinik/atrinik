@@ -75,6 +75,20 @@ static int socket_command_check(socket_struct *ns, player *pl, uint8 *data, size
     pos = 2;
     type = packet_to_uint8(data, len, &pos);
 
+#ifndef DEBUG
+    {
+        char *cp;
+
+        log(LOG(DUMPRX), "Received packet with command type %d (%" FMT64U
+                " bytes):", type, (uint64) len);
+
+        cp = emalloc(sizeof(*cp) * (len * 3 + 1));
+        string_tohex(data, len, cp, len * 3 + 1, true);
+        log(LOG(DUMPRX), "  Hexadecimal: %s", cp);
+        efree(cp);
+    }
+#endif
+
     if (type >= SERVER_CMD_NROF || !socket_commands[type].handle_func) {
         return -1;
     }
