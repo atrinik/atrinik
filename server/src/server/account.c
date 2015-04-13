@@ -240,7 +240,7 @@ static void account_send_characters(socket_struct *ns, account_struct *account)
                 (uint64) account->last_time);
 
         for (i = 0; i < account->characters_num; i++) {
-            packet_debug(packet, 0, "Character #%d:\n", i);
+            packet_debug(packet, 0, "Character #%" FMT64U ":\n", (uint64) i);
             packet_append_string_terminated(packet,
                     account->characters[i].at->name);
             packet_debug(packet, 1, "Archname: %s\n",
