@@ -935,7 +935,7 @@ size_t string_tohex(const unsigned char *str, size_t len, char *result,
 
         need = sep ? 3 : 2;
 
-        if (written + need + 1 >= resultsize) {
+        if (written + need > resultsize - 1) {
             break;
         }
 
