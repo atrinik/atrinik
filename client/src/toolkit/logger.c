@@ -109,20 +109,17 @@ static uint64 logger_filter_stdout;
  */
 static uint64 logger_filter_logfile;
 
+/* Prototypes */
+static bool logger_term_has_ansi_colors(void);
+
 /**
  * Initialize the logger API.
  * @internal
  */
 void toolkit_logger_init(void)
 {
-
     TOOLKIT_INIT_FUNC_START(logger)
     {
-#ifdef WIN32
-        CONSOLE_SCREEN_BUFFER_INFO sbi;
-        DWORD mode;
-#endif
-
         toolkit_import(string);
 
         log_fp = NULL;
@@ -131,12 +128,7 @@ void toolkit_logger_init(void)
         logger_filter_stdout = UINT64_MAX;
         logger_filter_logfile = UINT64_MAX;
 
-#ifdef WIN32
-        if (GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE),
-                &sbi)) {
-#else
-        if (isatty(fileno(stdout))) {
-#endif
+        if (logger_term_has_ansi_colors()) {
             snprintf(VS(LOGGER_ESC_SEQ(BOLD)), "%s", "\033[1m");
             snprintf(VS(LOGGER_ESC_SEQ(BLACK)), "%s", "\033[30m");
             snprintf(VS(LOGGER_ESC_SEQ(RED)), "%s", "\033[31m");
@@ -158,7 +150,6 @@ void toolkit_logger_init(void)
  */
 void toolkit_logger_deinit(void)
 {
-
     TOOLKIT_DEINIT_FUNC_START(logger)
     {
         if (log_fp != NULL) {
@@ -303,7 +294,12 @@ void logger_set_print_func(logger_print_func func)
 void logger_do_print(const char *str)
 {
     TOOLKIT_FUNC_PROTECTOR(API_NAME);
+
     fputs(str, stdout);
+
+#ifdef WIN32
+    fflush(stdout);
+#endif
 }
 
 /**
@@ -390,6 +386,49 @@ void logger_traceback(void)
     log(LOG(ERROR), "-----------------------------------");
     efree(bt_syms);
 #endif
+}
+
+/**
+ * Determine whether stdout is a TTY.
+ * @return Whether stdout is a TTY.
+ */
+static bool logger_isatty(void)
+{
+#ifdef WIN32
+    CONSOLE_SCREEN_BUFFER_INFO sbi;
+
+    if (!GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE),
+            &sbi)) {
+#else
+    if (!isatty(fileno(stdout))) {
+#endif
+        return false;
+    }
+
+    return true;
+}
+
+/**
+ * Determine whether the currently used terminal supports ANSI colors.
+ * @return Whether the terminal supports ANSI colors.
+ */
+static bool logger_term_has_ansi_colors(void)
+{
+    /* If stdout is not a TTY, it cannot support ANSI colors. */
+    if (!logger_isatty()) {
+        return false;
+    }
+
+#ifdef WIN32
+    /* Windows CLI does not support ANSI color sequences unless ANSICON is set.
+     * It also does not specify the TERM environment variable, so we can
+     * identify it by that. */
+    if (getenv("TERM") == NULL && getenv("ANSICON") == NULL) {
+        return false;
+    }
+#endif
+
+    return true;
 }
 
 #endif
