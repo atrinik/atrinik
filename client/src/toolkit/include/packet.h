@@ -108,6 +108,7 @@ size_t packet_get_pos(packet_struct *packet);
 packet_struct *packet_dup(packet_struct *packet);
 void packet_delete(packet_struct *packet, size_t pos, size_t len);
 void packet_merge(packet_struct *src, packet_struct *dst);
+char *packet_get_debug(packet_struct *packet);
 void packet_append_uint8(packet_struct *packet, uint8 data);
 void packet_append_sint8(packet_struct *packet, sint8 data);
 void packet_append_uint16(packet_struct *packet, uint16 data);
