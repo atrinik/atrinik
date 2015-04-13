@@ -28,6 +28,8 @@
  *
  * @author Alex Tokar */
 
+#ifndef __CPROTO__
+
 #include <global.h>
 #include <zlib.h>
 
@@ -69,7 +71,6 @@ static void packet_debugger(packet_struct *packet, char *buf, size_t size)
  * @internal */
 void toolkit_packet_init(void)
 {
-
     TOOLKIT_INIT_FUNC_START(packet)
     {
         toolkit_import(mempool);
@@ -86,7 +87,6 @@ void toolkit_packet_init(void)
  * @internal */
 void toolkit_packet_deinit(void)
 {
-
     TOOLKIT_DEINIT_FUNC_START(packet)
     {
     }
@@ -587,3 +587,5 @@ void packet_to_stringbuffer(uint8 *data, size_t len, size_t *pos, StringBuffer *
     stringbuffer_append_string(sb, str);
     *pos += strlen(str) + 1;
 }
+
+#endif
