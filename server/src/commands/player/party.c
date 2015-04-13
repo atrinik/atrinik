@@ -29,6 +29,7 @@
  * @author Alex Tokar */
 
 #include <global.h>
+#include <packet.h>
 
 /** @copydoc command_func */
 void command_party(object *op, const char *command, char *params)

@@ -42,7 +42,6 @@
 #include <logger.h>
 #include <memory.h>
 #include <mempool.h>
-#include <packet.h>
 #include <sha1.h>
 #include <shstr.h>
 #include <socket.h>

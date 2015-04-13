@@ -28,6 +28,7 @@
 
 #include <global.h>
 #include <loader.h>
+#include <packet.h>
 
 static void register_global_event(const char *plugin_name, int event_nr);
 static void unregister_global_event(const char *plugin_name, int event_nr);

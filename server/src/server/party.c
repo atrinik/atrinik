@@ -27,6 +27,7 @@
  * This file handles party related code. */
 
 #include <global.h>
+#include <packet.h>
 
 /**
  * String representations of the party looting modes. */

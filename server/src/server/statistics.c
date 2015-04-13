@@ -34,6 +34,7 @@
  * called when the player logs out. */
 
 #include <global.h>
+#include <packet.h>
 
 /** File descriptor used for sending datagrams. */
 static int fd = -1;

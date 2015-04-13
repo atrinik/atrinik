@@ -35,6 +35,7 @@
 
 #include <global.h>
 #include <stdarg.h>
+#include <packet.h>
 
 #define DRAW_INFO_FORMAT_CONSTRUCT() \
     char buf[HUGE_BUF]; \

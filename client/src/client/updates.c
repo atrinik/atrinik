@@ -29,6 +29,7 @@
  * @author Alex Tokar */
 
 #include <global.h>
+#include <packet.h>
 
 /**
  * How many file updates have been requested. This is used to block the

@@ -29,6 +29,7 @@
  * @author Alex Tokar */
 
 #include <global.h>
+#include <packet.h>
 
 enum {
     LOGIN_TEXT_INPUT_NAME,

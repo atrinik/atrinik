@@ -29,6 +29,7 @@
 
 #include <global.h>
 #include <region_map.h>
+#include <packet.h>
 
 /** @copydoc socket_command_struct::handle_func */
 void socket_command_book(uint8 *data, size_t len, size_t pos)

@@ -28,6 +28,7 @@
 
 #include <global.h>
 #include <region_map.h>
+#include <packet.h>
 
 /** The list of free (unused) objects */
 static object *free_objects = NULL;

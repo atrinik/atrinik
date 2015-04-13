@@ -29,6 +29,7 @@
  * @author Alex Tokar */
 
 #include <global.h>
+#include <packet.h>
 
 typedef struct widget_quickslots_struct {
     list_struct *list;

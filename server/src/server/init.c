@@ -27,6 +27,7 @@
  * Server initialization. */
 
 #include <global.h>
+#include <packet.h>
 
 /**
  * The server's settings. */

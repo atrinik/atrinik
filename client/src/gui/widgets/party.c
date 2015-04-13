@@ -29,6 +29,7 @@
  * @author Alex Tokar */
 
 #include <global.h>
+#include <packet.h>
 
 /** Width of the hp/sp stat bar. */
 #define STAT_BAR_WIDTH 65

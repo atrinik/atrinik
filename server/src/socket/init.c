@@ -27,6 +27,7 @@
  * Socket initialization related code. */
 
 #include <global.h>
+#include <packet.h>
 #include "zlib.h"
 
 /** Socket information. */

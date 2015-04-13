@@ -44,6 +44,7 @@
  * @author Alex Tokar */
 
 #include <global.h>
+#include <packet.h>
 
 /** The keybindings. */
 keybind_struct **keybindings = NULL;

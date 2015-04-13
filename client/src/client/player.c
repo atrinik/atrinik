@@ -34,6 +34,7 @@
  * Does most of the work for sending messages to the server */
 
 #include <global.h>
+#include <packet.h>
 
 /**
  * Gender nouns. */

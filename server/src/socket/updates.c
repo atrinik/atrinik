@@ -27,6 +27,7 @@
  * Handles file updates that the client may request. */
 
 #include <global.h>
+#include <packet.h>
 #include "zlib.h"
 
 /**

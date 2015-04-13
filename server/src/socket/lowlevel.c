@@ -27,6 +27,7 @@
  * Low level socket related functions. */
 
 #include <global.h>
+#include <packet.h>
 
 /**
  * Receives data from socket.

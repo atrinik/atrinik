@@ -29,6 +29,7 @@
  * what items should be sent. */
 
 #include <global.h>
+#include <packet.h>
 
 static int check_container(object *pl, object *con);
 

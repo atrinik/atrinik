@@ -28,6 +28,7 @@
  * (checking for lost connections and if data has arrived). */
 
 #include <global.h>
+#include <packet.h>
 
 static fd_set tmp_read, tmp_exceptions, tmp_write;
 

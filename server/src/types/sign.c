@@ -29,6 +29,7 @@
  * @author Alex Tokar */
 
 #include <global.h>
+#include <packet.h>
 
 /** @copydoc object_methods::apply_func */
 static int apply_func(object *op, object *applier, int aflags)

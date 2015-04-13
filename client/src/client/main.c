@@ -29,6 +29,7 @@
 #include <global.h>
 #include <gitversion.h>
 #include <region_map.h>
+#include <packet.h>
 
 /** The main screen surface. */
 SDL_Surface *ScreenSurface;

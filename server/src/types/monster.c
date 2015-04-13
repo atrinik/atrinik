@@ -29,6 +29,7 @@
  * objects. */
 
 #include <global.h>
+#include <packet.h>
 
 static int can_detect_enemy(object *op, object *enemy, rv_vector *rv);
 static object *find_nearest_enemy(object *ob);

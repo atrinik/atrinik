@@ -27,6 +27,7 @@
  * Handles image related code. */
 
 #include <global.h>
+#include <packet.h>
 
 /** Default bmaps loaded from atrinik.p0. */
 static bmap_struct *bmaps_default[BMAPS_MAX];

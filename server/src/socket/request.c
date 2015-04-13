@@ -33,6 +33,7 @@
  * way, we can use one dispatch table. */
 
 #include <global.h>
+#include <packet.h>
 
 #define GET_CLIENT_FLAGS(_O_)   ((_O_)->flags[0] & 0x7f)
 #define NO_FACE_SEND (-1)

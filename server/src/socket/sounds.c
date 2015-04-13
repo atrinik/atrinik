@@ -27,6 +27,7 @@
  * Sound related functions. */
 
 #include <global.h>
+#include <packet.h>
 
 /**
  * Maximum distance a player may hear a sound from.

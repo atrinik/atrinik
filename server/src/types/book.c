@@ -27,6 +27,7 @@
  * Handles code related to @ref BOOK "books". */
 
 #include <global.h>
+#include <packet.h>
 
 /**
  * Maximum amount of difference in levels between the book's level and

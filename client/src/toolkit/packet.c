@@ -32,6 +32,7 @@
 
 #include <global.h>
 #include <zlib.h>
+#include <packet.h>
 
 /**
  * Name of the API. */

@@ -36,6 +36,7 @@
 
 #include <global.h>
 #include <notification.h>
+#include <packet.h>
 
 /**
  * The notification data. */

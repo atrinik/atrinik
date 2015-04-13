@@ -27,6 +27,7 @@
  * Menu related functions. */
 
 #include <global.h>
+#include <packet.h>
 
 /**
  * Analyze /cmd type commands the player has typed in the console or bound to a
