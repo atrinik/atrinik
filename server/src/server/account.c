@@ -228,16 +228,36 @@ static void account_send_characters(socket_struct *ns, account_struct *account)
         size_t i;
 
         packet_append_string_terminated(packet, ns->account);
+        packet_debug(packet, 1, "Account name: %s\n", ns->account);
         packet_append_string_terminated(packet, ns->host);
+        packet_debug(packet, 1, "Hostname: %s\n", ns->host);
         packet_append_string_terminated(packet, account->last_host);
+        packet_debug(packet, 1, "Last hostname: %s\n", account->last_host);
         packet_append_uint64(packet, account->last_time);
+        packet_debug(packet, 1, "Last time: %" FMT64U "\n",
+                (uint64) account->last_time);
 
         for (i = 0; i < account->characters_num; i++) {
-            packet_append_string_terminated(packet, account->characters[i].at->name);
-            packet_append_string_terminated(packet, account->characters[i].name);
-            packet_append_string_terminated(packet, account->characters[i].region_name);
-            packet_append_uint16(packet, account->characters[i].at->clone.animation_id);
+            packet_debug(packet, 1, "Character #%d:\n", i);
+            packet_append_string_terminated(packet,
+                    account->characters[i].at->name);
+            packet_debug(packet, 2, "Archname: %s\n",
+                    account->characters[i].at->name);
+            packet_append_string_terminated(packet,
+                    account->characters[i].name);
+            packet_debug(packet, 2, "Name: %s\n",
+                    account->characters[i].name);
+            packet_append_string_terminated(packet,
+                    account->characters[i].region_name);
+            packet_debug(packet, 2, "Region name: %s\n",
+                    account->characters[i].region_name);
+            packet_append_uint16(packet,
+                    account->characters[i].at->clone.animation_id);
+            packet_debug(packet, 2, "Animation ID: %d\n",
+                    account->characters[i].at->clone.animation_id);
             packet_append_uint8(packet, account->characters[i].level);
+            packet_debug(packet, 2, "Level: %d\n",
+                    account->characters[i].level);
         }
     }
 
