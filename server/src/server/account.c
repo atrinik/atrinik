@@ -135,11 +135,13 @@ static int account_save(account_struct *account, const char *path)
         return 0;
     }
 
-    if (string_tohex(account->password, ACCOUNT_PASSWORD_SIZE, hex, sizeof(hex)) == sizeof(hex) - 1) {
+    if (string_tohex(account->password, ACCOUNT_PASSWORD_SIZE, hex, sizeof(hex),
+            false) == sizeof(hex) - 1) {
         fprintf(fp, "pswd %s\n", hex);
     }
 
-    if (string_tohex(account->salt, ACCOUNT_PASSWORD_SIZE, hex, sizeof(hex)) == sizeof(hex) - 1) {
+    if (string_tohex(account->salt, ACCOUNT_PASSWORD_SIZE, hex, sizeof(hex),
+            false) == sizeof(hex) - 1) {
         fprintf(fp, "salt %s\n", hex);
     }
 

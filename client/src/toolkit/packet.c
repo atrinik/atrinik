@@ -54,9 +54,9 @@ static void packet_debugger(packet_struct *packet, char *buf, size_t size)
 
     if (packet->data != NULL && packet->len != 0) {
 #define MAXHEXLEN 256
-        char hexbuf[MAXHEXLEN * 2 + 1];
+        char hexbuf[MAXHEXLEN * 3 + 1];
 
-        string_tohex(packet->data, packet->len, hexbuf, sizeof(hexbuf));
+        string_tohex(packet->data, packet->len, hexbuf, sizeof(hexbuf), true);
         snprintfcat(buf, size, " data: %s", hexbuf);
 
         if (packet->len > MAXHEXLEN) {

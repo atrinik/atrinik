@@ -918,24 +918,34 @@ size_t snprintfcat(char *buf, size_t size, const char *fmt, ...)
  * @param len Number of elements in 'str'.
  * @param result Where to store the result.
  * @param resultsize Size of 'result'.
+ * @param sep If true, separate each hex with a colon.
  * @return Number of characters written into 'result'.
  */
 size_t string_tohex(const unsigned char *str, size_t len, char *result,
-        size_t resultsize)
+        size_t resultsize, bool sep)
 {
-    size_t i;
+    size_t i, written, need;
+
+    written = 0;
 
     for (i = 0; i < len; i++) {
-        if (i * 2 + 1 >= resultsize - 1) {
+        if (i == len - 1) {
+            sep = false;
+        }
+
+        need = sep ? 3 : 2;
+
+        if (written + need > resultsize - 1) {
             break;
         }
 
-        sprintf(result + (i * 2), "%02X", str[i]);
+        sprintf(result + written, "%02X%s", str[i], sep ? ":" : "");
+        written += need;
     }
 
-    result[i * 2] = '\0';
+    result[written] = '\0';
 
-    return i * 2;
+    return written;
 }
 
 /**

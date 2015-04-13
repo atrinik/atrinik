@@ -761,22 +761,34 @@ END_TEST
 START_TEST(test_string_tohex)
 {
     char buf[MAX_BUF], buf2[5], buf3[6], buf4[7];
-    unsigned char cp[] = {0xff, 0x00, 0x03};
+    unsigned char cp[] = {0xff, 0x00, 0x03}, cp2[] = {}, cp3[] = {0x03};
 
-    fail_unless(string_tohex((unsigned char *) "hello world", strlen("hello world"), buf, sizeof(buf)) == strlen("68656C6C6F20776F726C64"), "string_tohex() didn't return correct value.");
+    fail_unless(string_tohex((unsigned char *) "hello world", strlen("hello world"), buf, sizeof(buf), false) == strlen("68656C6C6F20776F726C64"), "string_tohex() didn't return correct value.");
     fail_unless(strcmp(buf, "68656C6C6F20776F726C64") == 0, "string_tohex() didn't return correct result.");
 
-    fail_unless(string_tohex(cp, arraysize(cp), buf, sizeof(buf)) == 6, "string_tohex() didn't return correct value.");
+    fail_unless(string_tohex(cp, arraysize(cp), buf, sizeof(buf), false) == 6, "string_tohex() didn't return correct value.");
     fail_unless(strcmp(buf, "FF0003") == 0, "string_tohex() didn't return correct result.");
 
+    fail_unless(string_tohex(cp, arraysize(cp), buf, sizeof(buf), true) == 8, "string_tohex() didn't return correct value.");
+    fail_unless(strcmp(buf, "FF:00:03") == 0, "string_tohex() didn't return correct result.");
+
+    fail_unless(string_tohex(cp2, arraysize(cp2), buf, sizeof(buf), false) == 0, "string_tohex() didn't return correct value.");
+    fail_unless(strcmp(buf, "") == 0, "string_tohex() didn't return correct result.");
+
+    fail_unless(string_tohex(cp2, arraysize(cp2), buf, sizeof(buf), true) == 0, "string_tohex() didn't return correct value.");
+    fail_unless(strcmp(buf, "") == 0, "string_tohex() didn't return correct result.");
+
+    fail_unless(string_tohex(cp3, arraysize(cp3), buf, sizeof(buf), true) == 2, "string_tohex() didn't return correct value.");
+    fail_unless(strcmp(buf, "03") == 0, "string_tohex() didn't return correct result.");
+
     /* Test buffer overflows. */
-    fail_unless(string_tohex(cp, arraysize(cp), buf2, sizeof(buf2)) == 4, "string_tohex() didn't return correct value.");
+    ck_assert_int_eq(string_tohex(cp, arraysize(cp), buf2, sizeof(buf2), false), 4);
     fail_unless(strcmp(buf2, "FF00") == 0, "string_tohex() didn't return correct result.");
 
-    fail_unless(string_tohex(cp, arraysize(cp), buf3, sizeof(buf3)) == 4, "string_tohex() didn't return correct value.");
+    fail_unless(string_tohex(cp, arraysize(cp), buf3, sizeof(buf3), false) == 4, "string_tohex() didn't return correct value.");
     fail_unless(strcmp(buf3, "FF00") == 0, "string_tohex() didn't return correct result.");
 
-    fail_unless(string_tohex(cp, arraysize(cp), buf4, sizeof(buf4)) == 6, "string_tohex() didn't return correct value.");
+    fail_unless(string_tohex(cp, arraysize(cp), buf4, sizeof(buf4), false) == 6, "string_tohex() didn't return correct value.");
     fail_unless(strcmp(buf4, "FF0003") == 0, "string_tohex() didn't return correct result.");
 }
 

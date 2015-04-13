@@ -1295,7 +1295,7 @@ extern char *string_join(const char *delim, ...);
 extern char *string_join_array(const char *delim, char **array, size_t arraysize);
 extern char *string_repeat(const char *str, size_t num);
 extern size_t snprintfcat(char *buf, size_t size, const char *fmt, ...) __attribute__((format(printf, 3, 4)));
-extern size_t string_tohex(const unsigned char *str, size_t len, char *result, size_t resultsize);
+extern size_t string_tohex(const unsigned char *str, size_t len, char *result, size_t resultsize, bool sep);
 extern size_t string_fromhex(char *str, size_t len, unsigned char *result, size_t resultsize);
 extern const char *string_skip_whitespace(const char *str);
 /* src/toolkit/stringbuffer.c */
