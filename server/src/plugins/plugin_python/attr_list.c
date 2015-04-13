@@ -465,7 +465,7 @@ static PyObject *iternext(Atrinik_AttrList *al)
         al->iter++;
 
         if (al->field == FIELDTYPE_FACTIONS) {
-            return attr_list_get(al, NULL, 0, *(char **) (&(*(shstr ***) (void *) ((char *) al->ptr + al->offset))[al->iter - 1]));
+            return attr_list_get(al, NULL, 0, *(const char **) (&(*(shstr ***) (void *) ((char *) al->ptr + al->offset))[al->iter - 1]));
         }
 
         return attr_list_get(al, NULL, al->iter - 1, NULL);

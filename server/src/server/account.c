@@ -106,7 +106,9 @@ static void account_set_password(account_struct *account, const char *password)
         account->salt[i] = rndm(1, 256) - 1;
     }
 
-    PKCS5_PBKDF2_HMAC_SHA2((unsigned char *) password, strlen(password), account->salt, ACCOUNT_PASSWORD_SIZE, ACCOUNT_PASSWORD_ITERATIONS, ACCOUNT_PASSWORD_SIZE, account->password);
+    PKCS5_PBKDF2_HMAC_SHA2((const unsigned char *) password, strlen(password),
+            account->salt, ACCOUNT_PASSWORD_SIZE, ACCOUNT_PASSWORD_ITERATIONS,
+            ACCOUNT_PASSWORD_SIZE, account->password);
 }
 
 static int account_check_password(account_struct *account, char *password)
@@ -114,10 +116,13 @@ static int account_check_password(account_struct *account, char *password)
     unsigned char output[ACCOUNT_PASSWORD_SIZE];
 
     if (account->password_old) {
-        return strcmp(account_old_crypt(password, account->password_old), account->password_old) == 0;
+        return strcmp(account_old_crypt(password, account->password_old),
+                account->password_old) == 0;
     }
 
-    PKCS5_PBKDF2_HMAC_SHA2((unsigned char *) password, strlen(password), account->salt, ACCOUNT_PASSWORD_SIZE, ACCOUNT_PASSWORD_ITERATIONS, ACCOUNT_PASSWORD_SIZE, output);
+    PKCS5_PBKDF2_HMAC_SHA2((const unsigned char *) password, strlen(password),
+            account->salt, ACCOUNT_PASSWORD_SIZE, ACCOUNT_PASSWORD_ITERATIONS,
+            ACCOUNT_PASSWORD_SIZE, output);
 
     return memcmp(account->password, output, sizeof(output)) == 0;
 }

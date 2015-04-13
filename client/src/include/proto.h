@@ -862,7 +862,7 @@ extern int path_touch(const char *path);
 extern size_t path_size(const char *path);
 extern char *path_file_contents(const char *path);
 /* src/toolkit/pbkdf2.c */
-extern void PKCS5_PBKDF2_HMAC_SHA2(unsigned char *password, size_t plen, unsigned char *salt, size_t slen, const unsigned long iteration_count, const unsigned long key_length, unsigned char *output);
+extern void PKCS5_PBKDF2_HMAC_SHA2(const unsigned char *password, size_t plen, unsigned char *salt, size_t slen, const unsigned long iteration_count, const unsigned long key_length, unsigned char *output);
 /* src/toolkit/porting.c */
 extern void toolkit_porting_init(void);
 extern void toolkit_porting_deinit(void);

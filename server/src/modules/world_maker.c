@@ -99,8 +99,8 @@ typedef struct region_map_def {
  */
 static int region_map_def_sort(const void *a, const void *b)
 {
-    return strcmp(((region_map_def_t *) a)->regions,
-            ((region_map_def_t *) b)->regions);
+    return strcmp(((const region_map_def_t *) a)->regions,
+            ((const region_map_def_t *) b)->regions);
 }
 
 /**
