@@ -29,11 +29,14 @@
 #include <check.h>
 #include <check_proto.h>
 
+static int saved_argc; ///< Stored argc.
+static char **saved_argv; ///< Stored argv.
+
 /*
  * Setup function. */
 void check_setup(void)
 {
-    init(0, NULL);
+    init(saved_argc, saved_argv);
 }
 
 /*
@@ -63,9 +66,18 @@ void check_setup_env_pl(mapstruct **map, object **pl)
 
 /* The main unit test function. Calls other functions to do the unit
  * tests. */
-void check_main(void)
+void check_main(int argc, char **argv)
 {
+    int i;
+    
     toolkit_import(path);
+
+    saved_argc = argc;
+    saved_argv = emalloc(sizeof(*argv) * argc);
+
+    for (i = 0; i < argc; i++) {
+        saved_argv[i] = estrdup(argv[i]);
+    }
 
     path_ensure_directories("unit/bugs/");
     path_ensure_directories("unit/commands/");
@@ -92,4 +104,8 @@ void check_main(void)
     /* unit/types */
     check_types_light_apply();
     check_types_sound_ambient();
+
+    for (i = 0; i < argc; i++) {
+        efree(saved_argv[i]);
+    }
 }

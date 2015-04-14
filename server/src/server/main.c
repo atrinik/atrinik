@@ -638,7 +638,7 @@ int main(int argc, char **argv)
 #ifdef HAVE_CHECK
         logger_print(LOG(INFO), "Running unit tests...");
         cleanup();
-        check_main();
+        check_main(argc, argv);
         exit(0);
 #else
         logger_print(LOG(ERROR), "Unit tests have not been compiled, aborting.");
