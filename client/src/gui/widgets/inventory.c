@@ -946,7 +946,7 @@ void menu_inventory_get(widgetdata *widget, widgetdata *menuitem,
                 loc = container->tag;
             }
         }
-    } else if (widget->type == BELOW_INV_ID) { /* 'G' in below inventory. */
+    } else { /* 'G' in below inventory. */
         if (container != NULL && container->env == cpl.below &&
                 container->tag != ob->tag && ob->env != cpl.sack) {
             /* If there is an open container on the ground and the item to
