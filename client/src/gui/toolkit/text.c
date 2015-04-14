@@ -2129,6 +2129,8 @@ int text_get_width(font_struct *font, const char *text, uint64_t flags)
     TTF_SetFontStyle(font->font, TTF_STYLE_NORMAL);
 
     dest.w = 0;
+    dest.x = 0;
+    dest.y = 0;
 
     while (*cp != '\0') {
         cp += text_show_character(&font, font, NULL, &dest, cp, NULL, NULL, flags, NULL, NULL, &info);
@@ -2166,6 +2168,8 @@ int text_get_height(font_struct *font, const char *text, uint64_t flags)
 
     cp = text;
     dest.w = 0;
+    dest.x = 0;
+    dest.y = 0;
 
     while (*cp != '\0') {
         cp += text_show_character(&font, font, NULL, &dest, cp, NULL, NULL, flags, NULL, NULL, &info);
