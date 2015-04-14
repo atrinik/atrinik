@@ -134,7 +134,7 @@
 #include <ws2tcpip.h>
 #endif
 
-#define mkdir(__a, __b) _mkdir(__a)
+#define mkdir(__a, __b) mkdir(__a)
 #define sleep(_x) Sleep((_x) * 1000)
 
 #ifdef __MINGW32__
