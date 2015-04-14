@@ -3269,7 +3269,9 @@ int object_blocked(object *op, mapstruct *m, int x, int y)
 
     HARD_ASSERT(op != NULL);
     HARD_ASSERT(m != NULL);
-    HARD_ASSERT(!OUT_OF_MAP(m, x, y));
+
+    SOFT_ASSERT_RC(!OUT_OF_MAP(m, x, y), P_OUT_OF_MAP, "Out of map: %s %d,%d",
+            m->path, x, y);
 
     op = HEAD(op);
 

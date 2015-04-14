@@ -144,7 +144,7 @@ static int quickslots_trigger(widgetdata *widget, uint32_t row, uint32_t col)
     size_t spell_path, spell_id;
     spell_entry_struct *spell;
 
-    assert(widget != NULL);
+    HARD_ASSERT(widget != NULL);
 
     tmp = widget->subwidget;
     tag = tmp->list->text[row][col] ? atoi(tmp->list->text[row][col]) : 0;
@@ -184,7 +184,7 @@ static int quickslots_change(widgetdata *widget, uint32_t row, uint32_t col)
     widget_quickslots_struct *tmp;
     tag_t tag;
 
-    assert(widget != NULL);
+    HARD_ASSERT(widget != NULL);
 
     if (!cur_widget[MAIN_INV_ID]->show) {
         return 0;

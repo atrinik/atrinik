@@ -48,8 +48,8 @@ void check_teardown(void)
  */
 void check_setup_env_pl(mapstruct **map, object **pl)
 {
-    assert(map != NULL);
-    assert(pl != NULL);
+    HARD_ASSERT(map != NULL);
+    HARD_ASSERT(pl != NULL);
 
     *map = get_empty_map(24, 24);
     fail_if(*map == NULL, "Could not allocate a map.");

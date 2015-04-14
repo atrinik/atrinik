@@ -109,7 +109,8 @@ static void widget_draw(widgetdata *widget)
                 tmp = cur_widget[button_widgets[i]];
             }
 
-            assert(tmp != NULL);
+            SOFT_ASSERT(tmp != NULL, "Could not find widget type: %d",
+                    button_widgets[i]);
             buttons[i].pressed_forced = tmp->show;
         } else if (i == BUTTON_HELP) {
             text = "[y=2]?";
@@ -180,7 +181,8 @@ static int widget_event(widgetdata *widget, SDL_Event *event)
                 tmp = cur_widget[button_widgets[i]];
             }
 
-            assert(tmp != NULL);
+            SOFT_ASSERT_RC(tmp != NULL, 1, "Could not find widget type: %d",
+                    button_widgets[i]);
             WIDGET_SHOW_TOGGLE(tmp);
             SetPriorityWidget(tmp);
 

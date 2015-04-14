@@ -147,7 +147,7 @@ struct map_anim *map_anims_add(int type, int mapx, int mapy, int value)
  */
 void maps_anims_remove(map_anim_t *anim)
 {
-    assert(anim != NULL);
+    HARD_ASSERT(anim != NULL);
 
     DL_DELETE(first_anim, anim);
 

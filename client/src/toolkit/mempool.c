@@ -144,7 +144,7 @@ static size_t mempool_free_puddles(mempool_struct *pool)
     mempool_chunk_struct *last_free, *chunk;
     mempool_puddle_struct *puddle, *next_puddle;
 
-    assert(pool != NULL);
+    HARD_ASSERT(pool != NULL);
 
     if (pool->flags & MEMPOOL_BYPASS_POOLS) {
         return 0;
@@ -349,7 +349,7 @@ static void mempool_free(mempool_struct *pool)
 
     TOOLKIT_FUNC_PROTECTOR(API_NAME);
 
-    assert(pool != NULL);
+    HARD_ASSERT(pool != NULL);
 
     sb = stringbuffer_new();
     mempool_leak_info(pool, sb);
@@ -403,8 +403,8 @@ void mempool_stats(const char *name, char *buf, size_t size)
 {
     size_t i, j, allocated;
 
-    assert(buf != NULL);
-    assert(size != 0);
+    HARD_ASSERT(buf != NULL);
+    HARD_ASSERT(size != 0);
 
     snprintfcat(buf, size, "\n=== MEMPOOL ===");
 
@@ -474,7 +474,7 @@ mempool_struct *mempool_find(const char *name)
 {
     size_t i;
 
-    assert(name != NULL);
+    HARD_ASSERT(name != NULL);
 
     for (i = 0; i < pools_num; i++) {
         if (strcasecmp(pools[i]->chunk_description, name) == 0) {
@@ -498,9 +498,9 @@ static void mempool_expand(mempool_struct *pool, size_t arraysize_exp)
     size_t chunksize_real, nrof_arrays, i;
     mempool_puddle_struct *p;
 
-    assert(pool != NULL);
-    assert(arraysize_exp < MEMPOOL_NROF_FREELISTS);
-    assert(pool->nrof_free[arraysize_exp] == 0);
+    HARD_ASSERT(pool != NULL);
+    HARD_ASSERT(arraysize_exp < MEMPOOL_NROF_FREELISTS);
+    HARD_ASSERT(pool->nrof_free[arraysize_exp] == 0);
 
     pool->calls_expand++;
 
@@ -558,8 +558,8 @@ void *mempool_get_chunk(mempool_struct *pool, size_t arraysize_exp)
 
     TOOLKIT_FUNC_PROTECTOR(API_NAME);
 
-    assert(pool != NULL);
-    assert(arraysize_exp < MEMPOOL_NROF_FREELISTS);
+    HARD_ASSERT(pool != NULL);
+    HARD_ASSERT(arraysize_exp < MEMPOOL_NROF_FREELISTS);
 
     pool->calls_get++;
 
@@ -605,9 +605,9 @@ void mempool_return_chunk(mempool_struct *pool, size_t arraysize_exp,
 
     TOOLKIT_FUNC_PROTECTOR(API_NAME);
 
-    assert(pool != NULL);
-    assert(arraysize_exp < MEMPOOL_NROF_FREELISTS);
-    assert(data != NULL);
+    HARD_ASSERT(pool != NULL);
+    HARD_ASSERT(arraysize_exp < MEMPOOL_NROF_FREELISTS);
+    HARD_ASSERT(data != NULL);
 
     pool->calls_return++;
 
@@ -644,7 +644,7 @@ void mempool_return_chunk(mempool_struct *pool, size_t arraysize_exp,
  */
 size_t mempool_reclaim(mempool_struct *pool)
 {
-    assert(pool != NULL);
+    HARD_ASSERT(pool != NULL);
 
     if (!(pool->flags & MEMPOOL_ALLOW_FREEING)) {
         return 0;
@@ -661,6 +661,8 @@ size_t mempool_reclaim(mempool_struct *pool)
 void mempool_leak_info_all(StringBuffer *sb)
 {
     size_t i;
+
+    HARD_ASSERT(sb != NULL);
 
     for (i = 1; i < pools_num; i++) {
         mempool_leak_info(pools[i], sb);

@@ -356,7 +356,7 @@ void object_redraw(object *op)
 {
     object *env;
 
-    assert(op != NULL);
+    HARD_ASSERT(op != NULL);
 
     if (op->env == NULL) {
         return;

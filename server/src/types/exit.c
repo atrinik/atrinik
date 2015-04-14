@@ -44,7 +44,7 @@ static object *exit_find(object *op, int do_load)
     object *tmp;
     mapstruct *m;
 
-    assert(op != NULL);
+    HARD_ASSERT(op != NULL);
 
     /* Find all other teleporters within range. This range should really
      * be settable by some object attribute instead of using hard coded
@@ -140,7 +140,7 @@ mapstruct *exit_get_destination(object *op, int *x, int *y, int do_load)
 {
     mapstruct *m;
 
-    assert(op != NULL);
+    HARD_ASSERT(op != NULL);
 
     if (EXIT_PATH(op) != NULL && EXIT_X(op) != -1 && EXIT_Y(op) != -1) {
         if (do_load) {

@@ -619,9 +619,9 @@ void account_password_force(object *op, char *name, const char *password)
     char *path;
     account_struct account;
 
-    assert(op != NULL);
-    assert(name != NULL);
-    assert(password != NULL);
+    HARD_ASSERT(op != NULL);
+    HARD_ASSERT(name != NULL);
+    HARD_ASSERT(password != NULL);
 
     if (*password == '\0' || string_contains_other(password,
             settings.allowed_chars[ALLOWED_CHARS_PASSWORD])) {

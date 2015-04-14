@@ -787,9 +787,10 @@ void map_set_tile(mapstruct *m, int tile, const char *pathname)
     shstr *path_sh;
     mapstruct *neighbor;
 
-    assert(m != NULL);
-    assert(tile >= 0 && tile < TILED_NUM);
-    assert(pathname != NULL);
+    HARD_ASSERT(m != NULL);
+    HARD_ASSERT(pathname != NULL);
+
+    SOFT_ASSERT(tile >= 0 && tile < TILED_NUM, "Invalid tile: %d", tile);
 
     if (m->tile_path[tile] != NULL) {
         log(LOG(BUG), "Tile location %d duplicated (%s <-> %s)", tile, m->path,
@@ -1570,8 +1571,10 @@ void set_map_reset_time(mapstruct *map)
  */
 mapstruct *get_map_from_tiled(mapstruct *m, int tiled)
 {
-    assert(m != NULL);
-    assert(tiled >= 0 && tiled < TILED_NUM);
+    HARD_ASSERT(m != NULL);
+
+    SOFT_ASSERT_RC(tiled >= 0 && tiled < TILED_NUM, NULL, "Invalid tile: %d",
+            tiled);
 
     if (m->tile_path[tiled] == NULL) {
         return NULL;
@@ -2493,11 +2496,13 @@ static int map_redraw_internal(mapstruct *tiled, mapstruct *map, int x, int y,
  */
 void map_redraw(mapstruct *m, int x, int y, int layer, int sub_layer)
 {
-    assert(m != NULL);
-    assert(x >= 0 && x < m->width);
-    assert(y >= 0 && y < m->height);
-    assert(layer >= -1 && layer <= NUM_LAYERS);
-    assert(sub_layer >= -1 && sub_layer < NUM_SUB_LAYERS);
+    HARD_ASSERT(m != NULL);
+
+    SOFT_ASSERT(x >= 0 && x < m->width, "Invalid X coordinate: %d", x);
+    SOFT_ASSERT(y >= 0 && y < m->height, "Invalid Y coordinate: %d", y);
+    SOFT_ASSERT(layer >= -1 && layer <= NUM_LAYERS, "Invalid layer: %d", layer);
+    SOFT_ASSERT(sub_layer >= -1 && sub_layer < NUM_SUB_LAYERS,
+            "Invalid sub-layer: %d", sub_layer);
 
     MAP_TILES_WALK_START(m, map_redraw_internal, x, y, layer, sub_layer)
     {

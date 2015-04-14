@@ -168,8 +168,8 @@ font_struct *font_get_weak(const char *name, uint8_t size)
     char key[MAX_BUF];
     font_struct *font;
 
-    assert(name != NULL);
-    assert(size != 0);
+    HARD_ASSERT(name != NULL);
+    SOFT_ASSERT_RC(size != 0, NULL, "Size is 0.");
 
     font_get_hash_key(name, size, key, sizeof(key));
     HASH_FIND_STR(fonts, key, font);
@@ -194,8 +194,8 @@ font_struct *font_get(const char *name, uint8_t size)
 {
     font_struct *font;
 
-    assert(name != NULL);
-    assert(size != 0);
+    HARD_ASSERT(name != NULL);
+    SOFT_ASSERT_RC(size != 0, NULL, "Size is 0.");
 
     font = font_get_weak(name, size);
 
@@ -217,7 +217,7 @@ font_struct *font_get_size(font_struct *font, int8_t size)
 {
     int size_desired;
 
-    assert(font != NULL);
+    HARD_ASSERT(font != NULL);
 
     size_desired = font->size + size;
 
@@ -233,7 +233,7 @@ font_struct *font_get_size(font_struct *font, int8_t size)
  * @param font Font to free. */
 void font_free(font_struct *font)
 {
-    assert(font != NULL);
+    HARD_ASSERT(font != NULL);
 
     if (font->ref > 1) {
         font->ref--;

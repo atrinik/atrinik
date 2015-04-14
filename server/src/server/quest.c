@@ -70,8 +70,8 @@ static int quest_item_check(object *op, object *quest_item, int flag,
 {
     object *tmp;
 
-    assert(op != NULL);
-    assert(quest_item != NULL);
+    HARD_ASSERT(op != NULL);
+    HARD_ASSERT(quest_item != NULL);
 
     /* Go through the objects in the object's inventory. */
     for (tmp = op->inv; tmp != NULL; tmp = tmp->below) {
@@ -285,13 +285,15 @@ static void quest_object_handle(object *op, object *quest, object *quest_pl)
 {
     object *item;
 
-    assert(op != NULL);
-    assert(op->type == PLAYER);
+    HARD_ASSERT(op != NULL);
+    HARD_ASSERT(quest != NULL);
 
-    assert(quest != NULL);
-    assert(quest->type == QUEST_CONTAINER);
-
-    assert(quest_pl == NULL || quest_pl->type == QUEST_CONTAINER);
+    SOFT_ASSERT(op->type == PLAYER, "Object is not a player: %s",
+            object_get_str(op));
+    SOFT_ASSERT(quest->type == QUEST_CONTAINER, "Quest is not a quest "
+            "container: %s", object_get_str(quest));
+    SOFT_ASSERT(quest_pl == NULL || quest_pl->type == QUEST_CONTAINER,
+            "Invalid quest_pl supplied: %p", quest_pl);
 
     /* Trigger the TRIGGER event */
     if (trigger_event(EVENT_TRIGGER, op, quest, quest_pl, NULL, 0, 0, 0,
@@ -337,11 +339,13 @@ void quest_handle(object *op, object *quest)
 {
     object *quest_pl;
 
-    assert(op != NULL);
-    assert(op->type == PLAYER);
+    HARD_ASSERT(op != NULL);
+    HARD_ASSERT(quest != NULL);
 
-    assert(quest != NULL);
-    assert(quest->type == QUEST_CONTAINER);
+    SOFT_ASSERT(op->type == PLAYER, "Object is not a player: %s",
+            object_get_str(op));
+    SOFT_ASSERT(quest->type == QUEST_CONTAINER, "Quest is not a quest "
+            "container: %s", object_get_str(quest));
 
     quest_pl = quest_find(CONTR(op)->quest_container, quest->name);
 

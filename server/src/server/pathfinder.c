@@ -127,7 +127,7 @@ static int pathfinder_nodebuf_next = 0;
  */
 static int pathfinder_queue_enqueue(object *waypoint)
 {
-    assert(waypoint != NULL);
+    HARD_ASSERT(waypoint != NULL);
 
     /* Queue full? */
     if (pathfinder_queue_last == pathfinder_queue_first - 1 ||
@@ -155,7 +155,7 @@ static object *pathfinder_queue_dequeue(tag_t *count)
 {
     object *waypoint;
 
-    assert(count != NULL);
+    HARD_ASSERT(count != NULL);
 
     /* Queue empty? */
     if (pathfinder_queue_last == pathfinder_queue_first) {
@@ -178,7 +178,7 @@ static object *pathfinder_queue_dequeue(tag_t *count)
  */
 void path_request(object *waypoint)
 {
-    assert(waypoint != NULL);
+    HARD_ASSERT(waypoint != NULL);
 
     if (QUERY_FLAG(waypoint, FLAG_WP_PATH_REQUESTED)) {
         return;
@@ -252,10 +252,12 @@ static path_node_t *path_node_new(mapstruct *map, int16_t x, int16_t y,
     rv_vector rv, rv2;
     int cross, straight, diagonal;
 
-    assert(map != NULL);
-    assert(!OUT_OF_MAP(map, x, y));
-    assert(start != NULL);
-    assert(goal != NULL);
+    HARD_ASSERT(map != NULL);
+    HARD_ASSERT(start != NULL);
+    HARD_ASSERT(goal != NULL);
+
+    SOFT_ASSERT_RC(!OUT_OF_MAP(map, x, y), NULL, "Out of map: %s %d,%d",
+            map->path, x, y);
 
     /* Out of memory? */
     if (pathfinder_nodebuf_next == PATHFINDER_NODEBUF) {
@@ -308,8 +310,8 @@ static path_node_t *path_node_new(mapstruct *map, int16_t x, int16_t y,
  */
 static void path_node_remove(path_node_t *node, path_node_t **list)
 {
-    assert(node != NULL);
-    assert(list != NULL);
+    HARD_ASSERT(node != NULL);
+    HARD_ASSERT(list != NULL);
 
     if (*list == NULL) {
         log(LOG(ERROR), "Removing node from an empty list: %s, %d, %d",
@@ -337,8 +339,8 @@ static void path_node_remove(path_node_t *node, path_node_t **list)
  */
 static void path_node_insert(path_node_t *node, path_node_t **list)
 {
-    assert(node != NULL);
-    assert(list != NULL);
+    HARD_ASSERT(node != NULL);
+    HARD_ASSERT(list != NULL);
 
     if (*list != NULL) {
         (*list)->prev = node;
@@ -360,8 +362,8 @@ static void path_node_insert_priority(path_node_t *node, path_node_t **list)
 {
     path_node_t *tmp, *last, *insert_before;
 
-    assert(node != NULL);
-    assert(list != NULL);
+    HARD_ASSERT(node != NULL);
+    HARD_ASSERT(list != NULL);
 
     insert_before = NULL;
 
@@ -444,7 +446,7 @@ shstr *path_encode(path_node_t *path)
     char *cp;
     shstr *ret;
 
-    assert(path != NULL);
+    HARD_ASSERT(path != NULL);
 
     last_map = NULL;
     sb = stringbuffer_new();
@@ -495,13 +497,13 @@ int path_get_next(shstr *buf, int16_t *off, shstr **mappath, mapstruct **map,
 {
     const char *coord_start, *coord_end, *map_def;
 
-    assert(buf != NULL);
-    assert(off != NULL);
-    assert(mappath != NULL);
-    assert(map != NULL && *map != NULL);
-    assert(x != NULL);
-    assert(y != NULL);
-    assert(flags != NULL);
+    HARD_ASSERT(buf != NULL);
+    HARD_ASSERT(off != NULL);
+    HARD_ASSERT(mappath != NULL);
+    HARD_ASSERT(map != NULL && *map != NULL);
+    HARD_ASSERT(x != NULL);
+    HARD_ASSERT(y != NULL);
+    HARD_ASSERT(flags != NULL);
 
     map_def = coord_start = buf + *off;
 
@@ -652,8 +654,8 @@ void path_visualize(path_visualization_t **visualization,
     path_visualizer_t *node, *tmp;
     path_visualization_t *visualization_node;
 
-    assert(visualization != NULL);
-    assert(visualizer != NULL);
+    HARD_ASSERT(visualization != NULL);
+    HARD_ASSERT(visualizer != NULL);
 
     DL_FOREACH_SAFE(*visualizer, node, tmp)
     {

@@ -288,8 +288,8 @@ void sound_ambient_match_parse(object *ob, const char *str)
     size_t pos, stack_id, word_num;
     int is_group_end, is_in_group;
 
-    assert(ob != NULL);
-    assert(str != NULL);
+    HARD_ASSERT(ob != NULL);
+    HARD_ASSERT(str != NULL);
 
     if (ob->type != SOUND_AMBIENT) {
         log(LOG(BUG), "Called on incorrect object type: %d", ob->type);
@@ -431,8 +431,8 @@ void sound_ambient_init(object *ob)
 {
     MapSpace *msp;
 
-    assert(ob != NULL);
-    assert(ob->type == SOUND_AMBIENT);
+    HARD_ASSERT(ob != NULL);
+    HARD_ASSERT(ob->type == SOUND_AMBIENT);
 
     /* Must be on map... */
     if (ob->map == NULL) {
@@ -457,8 +457,8 @@ void sound_ambient_init(object *ob)
  */
 void sound_ambient_deinit(object *ob)
 {
-    assert(ob != NULL);
-    assert(ob->type == SOUND_AMBIENT);
+    HARD_ASSERT(ob != NULL);
+    HARD_ASSERT(ob->type == SOUND_AMBIENT);
 
     sound_ambient_match_free(ob->custom_attrset);
     ob->custom_attrset = NULL;

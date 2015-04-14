@@ -367,7 +367,7 @@ static void event_drag_cb(void)
 
     dragging = object_find(cpl.dragging_tag);
     sack = object_find(cpl.container_tag);
-    assert(dragging != NULL);
+    SOFT_ASSERT(dragging != NULL, "Not dragging anything!");
 
     if (dragging->env == cpl.ob || (sack != NULL && sack->env == cpl.ob)) {
         menu_inventory_drop(cur_widget[MAIN_INV_ID], NULL, NULL);
@@ -924,7 +924,8 @@ void menu_inventory_get(widgetdata *widget, widgetdata *menuitem,
         return;
     }
 
-    assert(widget->type == MAIN_INV_ID || widget->type == BELOW_INV_ID);
+    SOFT_ASSERT(widget->type == MAIN_INV_ID || widget->type == BELOW_INV_ID,
+            "Called for wrong widget type: %d", widget->type);
 
     if (widget->type == MAIN_INV_ID) { /* 'G' in main inventory. */
         /* Need to have an open container to do 'get' in main inventory... */

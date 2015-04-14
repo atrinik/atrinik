@@ -2342,7 +2342,7 @@ void widget_show(widgetdata *widget, int show)
 
             type = widget->type == MAIN_INV_ID ? BELOW_INV_ID : MAIN_INV_ID;
             widget = widget_find(NULL, type, NULL, NULL);
-            assert(widget != NULL);
+            SOFT_ASSERT(widget != NULL, "Could not find widget type: %d", type);
         }
 
         SetPriorityWidget(widget);
