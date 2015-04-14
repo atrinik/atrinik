@@ -32,41 +32,41 @@ START_TEST(test_string_replace)
 
     /* Check simple replacement */
     string_replace("hello world", "world", "Earth", buf, sizeof(buf));
-    fail_unless(strcmp(buf, "hello Earth") == 0, "Failed to replace 'world' with 'Earth' in string.");
+    ck_assert_str_eq(buf, "hello Earth");
 
     /* Try to replace spaces with nothing */
     string_replace("hello           world", " ", "", buf, sizeof(buf));
-    fail_unless(strcmp(buf, "helloworld") == 0, "Failed to replace spaces with nothing.");
+    ck_assert_str_eq(buf, "helloworld");
 
     /* Make sure nothing is replaced when replacing "hello" with "world" in an
      * empty string. */
     string_replace("", "hello", "world", buf, sizeof(buf));
-    fail_unless(strcmp(buf, "") == 0, "Empty string changed after replacing 'hello' with 'world'.");
+    ck_assert_str_eq(buf, "");
 
     /* Make sure nothing is replaced when replacing "hello" with "world" in a
      * string that doesn't contain "hello". */
     string_replace("hi world", "hello", "world", buf, sizeof(buf));
-    fail_unless(strcmp(buf, "hi world") == 0, "String changed after replacing 'hello' with 'world' but 'hello' was not in string.");
+    ck_assert_str_eq(buf, "hi world");
 
     /* Make sure that when both key and replacement are the same, the string
      * remains the same. */
     string_replace("hello world", "hello", "hello", buf, sizeof(buf));
-    fail_unless(strcmp(buf, "hello world") == 0, "String changed after replacing 'hello' with 'hello'.");
+    ck_assert_str_eq(buf, "hello world");
 
     /* Make sure that nothing changes when both key and replacement are an
      * empty string. */
     string_replace("hello world", "", "", buf, sizeof(buf));
-    fail_unless(strcmp(buf, "hello world") == 0, "String changed when both key and replacement were an empty string.");
+    ck_assert_str_eq(buf, "hello world");
 
     /* Make sure buffer overflow doesn't happen when the buffer is not large
      * enough. */
     string_replace("hello world", "world", "Earth", buf2, sizeof(buf2));
-    fail_unless(strcmp(buf2, "hello") == 0, "Replaced string does not match expected output.");
+    ck_assert_str_eq(buf2, "hello");
 
     /* Make sure buffer overflow doesn't happen when the buffer is not large
      * enough, and a replacement occurs prior to reaching the buffer limit. */
     string_replace("hello world", "hello", "", buf2, sizeof(buf2));
-    fail_unless(strcmp(buf2, " worl") == 0, "Replaced string does not match expected output.");
+    ck_assert_str_eq(buf2, " worl");
 }
 
 END_TEST
@@ -78,25 +78,25 @@ START_TEST(test_string_replace_char)
     /* Attempt to replace "a", "e" and "o" characters with spaces. */
     cp = strdup("hello world hello");
     string_replace_char(cp, "aeo", ' ');
-    fail_unless(strcmp(cp, "h ll  w rld h ll ") == 0, "Replaced string does not match expected output.");
+    ck_assert_str_eq(cp, "h ll  w rld h ll ");
     free(cp);
 
     /* Attempt to replace any character with space. */
     cp = strdup("hello world");
     string_replace_char(cp, NULL, ' ');
-    fail_unless(strcmp(cp, "           ") == 0, "Replaced string does not match expected output.");
+    ck_assert_str_eq(cp, "           ");
     free(cp);
 
     /* Replace newlines and tabs with spaces. */
     cp = strdup("\thello\n\t\tworld\n");
     string_replace_char(cp, "\n\t", ' ');
-    fail_unless(strcmp(cp, " hello   world ") == 0, "Replaced string does not match expected output.");
+    ck_assert_str_eq(cp, " hello   world ");
     free(cp);
 
     /* Replace forward-slashes with a dollar sign. */
     cp = strdup("/shattered_islands/world_0112");
     string_replace_char(cp, "/", '$');
-    fail_unless(strcmp(cp, "$shattered_islands$world_0112") == 0, "Replaced string does not match expected output.");
+    ck_assert_str_eq(cp, "$shattered_islands$world_0112");
     free(cp);
 }
 
@@ -108,36 +108,37 @@ START_TEST(test_string_split)
 
     /* Attempt to split two words separated by spaces. */
     cp = strdup("hello world");
-    fail_unless(string_split(cp, cps, sizeof(cps) / sizeof(*cps), ' ') == 2, "Splitting the string didn't return correct number of results.");
-    fail_unless(strcmp(cps[0], "hello") == 0, "Split string doesn't have the correct output.");
-    fail_unless(strcmp(cps[1], "world") == 0, "Split string doesn't have the correct output.");
-    fail_unless(cps[2] == NULL, "Split string doesn't have the correct output.");
+    ck_assert_int_eq(string_split(cp, cps, sizeof(cps) / sizeof(*cps), ' '), 2);
+    ck_assert_str_eq(cps[0], "hello");
+    ck_assert_str_eq(cps[1], "world");
+    ck_assert_ptr_eq(cps[2], NULL);
     free(cp);
 
     /* Attempt to split several one-character words. */
     cp = strdup("q w e r t y");
-    fail_unless(string_split(cp, cps, sizeof(cps) / sizeof(*cps), ' ') == 6, "Splitting the string didn't return correct number of results.");
-    fail_unless(strcmp(cps[0], "q") == 0, "Split string doesn't have the correct output.");
-    fail_unless(strcmp(cps[1], "w") == 0, "Split string doesn't have the correct output.");
-    fail_unless(strcmp(cps[2], "e") == 0, "Split string doesn't have the correct output.");
-    fail_unless(strcmp(cps[3], "r") == 0, "Split string doesn't have the correct output.");
-    fail_unless(strcmp(cps[4], "t") == 0, "Split string doesn't have the correct output.");
-    fail_unless(strcmp(cps[5], "y") == 0, "Split string doesn't have the correct output.");
+    ck_assert_int_eq(string_split(cp, cps, sizeof(cps) / sizeof(*cps), ' '), 6);
+    ck_assert_str_eq(cps[0], "q");
+    ck_assert_str_eq(cps[1], "w");
+    ck_assert_str_eq(cps[2], "e");
+    ck_assert_str_eq(cps[3], "r");
+    ck_assert_str_eq(cps[4], "t");
+    ck_assert_str_eq(cps[5], "y");
     free(cp);
 
     /* Attempt to split empty string. */
     cp = strdup("");
-    fail_unless(string_split(cp, cps, sizeof(cps) / sizeof(*cps), ' ') == 0, "Splitting the string didn't return correct number of results.");
-    fail_unless(cps[0] == NULL, "Split string doesn't have the correct output.");
-    fail_unless(cps[1] == NULL, "Split string doesn't have the correct output.");
+    ck_assert_int_eq(string_split(cp, cps, sizeof(cps) / sizeof(*cps), ' '), 0);
+    ck_assert_ptr_eq(cps[0], NULL);
+    ck_assert_ptr_eq(cps[1], NULL);
     free(cp);
 
     /* Attempt to split several one-character words, and the result would not
      * fit into the array. */
     cp = strdup("q w e r t y");
-    fail_unless(string_split(cp, cps2, sizeof(cps2) / sizeof(*cps2), ' ') == 2, "Splitting the string didn't return correct number of results.");
-    fail_unless(strcmp(cps2[0], "q") == 0, "Split string doesn't have the correct output.");
-    fail_unless(strcmp(cps2[1], "w e r t y") == 0, "Split string doesn't have the correct output.");
+    ck_assert_int_eq(string_split(cp, cps2, sizeof(cps2) / sizeof(*cps2), ' '),
+            2);
+    ck_assert_str_eq(cps2[0], "q");
+    ck_assert_str_eq(cps2[1], "w e r t y");
     free(cp);
 }
 
@@ -150,19 +151,19 @@ START_TEST(test_string_replace_unprintable_char)
     /* Replace tabs with spaces. */
     cp = strdup("\thello\tworld");
     string_replace_unprintable_chars(cp);
-    fail_unless(strcmp(cp, " hello world") == 0, "String doesn't match expected result after replacing unprintable characters.");
+    ck_assert_str_eq(cp, " hello world");
     free(cp);
 
     /* Replace empty string. */
     cp = strdup("");
     string_replace_unprintable_chars(cp);
-    fail_unless(strcmp(cp, "") == 0, "String doesn't match expected result after replacing unprintable characters.");
+    ck_assert_str_eq(cp, "");
     free(cp);
 
     /* Replace string that consists of only unprintable characters. */
     cp = strdup("\t\n\n\t\t\t\b\b");
     string_replace_unprintable_chars(cp);
-    fail_unless(strcmp(cp, "        ") == 0, "String doesn't match expected result after replacing unprintable characters.");
+    ck_assert_str_eq(cp, "        ");
     free(cp);
 }
 
@@ -170,11 +171,13 @@ END_TEST
 
 START_TEST(test_string_format_number_comma)
 {
-    fail_unless(strcmp(string_format_number_comma(100), "100") == 0, "Formatted string doesn't have correct output.");
-    fail_unless(strcmp(string_format_number_comma(1000), "1,000") == 0, "Formatted string doesn't have correct output.");
-    fail_unless(strcmp(string_format_number_comma(123456789), "123,456,789") == 0, "Formatted string doesn't have correct output.");
-    fail_unless(strcmp(string_format_number_comma(99999999999999999), "99,999,999,999,999,999") == 0, "Formatted string doesn't have correct output.");
-    fail_unless(strcmp(string_format_number_comma(UINT64_MAX), "18,446,744,073,709,551,615") == 0, "Formatted string doesn't have correct output.");
+    ck_assert_str_eq(string_format_number_comma(100), "100");
+    ck_assert_str_eq(string_format_number_comma(1000), "1,000");
+    ck_assert_str_eq(string_format_number_comma(123456789), "123,456,789");
+    ck_assert_str_eq(string_format_number_comma(99999999999999999),
+            "99,999,999,999,999,999");
+    ck_assert_str_eq(string_format_number_comma(UINT64_MAX),
+            "18,446,744,073,709,551,615");
 }
 
 END_TEST
@@ -185,17 +188,17 @@ START_TEST(test_string_toupper)
 
     cp = strdup("hello world");
     string_toupper(cp);
-    fail_unless(strcmp(cp, "HELLO WORLD") == 0, "Transformed string doesn't match expected output.");
+    ck_assert_str_eq(cp, "HELLO WORLD");
     free(cp);
 
     cp = strdup("Hello");
     string_toupper(cp);
-    fail_unless(strcmp(cp, "HELLO") == 0, "Transformed string doesn't match expected output.");
+    ck_assert_str_eq(cp, "HELLO");
     free(cp);
 
     cp = strdup("");
     string_toupper(cp);
-    fail_unless(strcmp(cp, "") == 0, "Transformed string doesn't match expected output.");
+    ck_assert_str_eq(cp, "");
     free(cp);
 }
 
@@ -207,17 +210,17 @@ START_TEST(test_string_tolower)
 
     cp = strdup("HELLO WORLD");
     string_tolower(cp);
-    fail_unless(strcmp(cp, "hello world") == 0, "Transformed string doesn't match expected output.");
+    ck_assert_str_eq(cp, "hello world");
     free(cp);
 
     cp = strdup("hELLO");
     string_tolower(cp);
-    fail_unless(strcmp(cp, "hello") == 0, "Transformed string doesn't match expected output.");
+    ck_assert_str_eq(cp, "hello");
     free(cp);
 
     cp = strdup("");
     string_tolower(cp);
-    fail_unless(strcmp(cp, "") == 0, "Transformed string doesn't match expected output.");
+    ck_assert_str_eq(cp, "");
     free(cp);
 }
 
@@ -229,27 +232,27 @@ START_TEST(test_string_whitespace_trim)
 
     cp = strdup("            ");
     string_whitespace_trim(cp);
-    fail_unless(strcmp(cp, "") == 0, "Trimmed string doesn't match expected output.");
+    ck_assert_str_eq(cp, "");
     free(cp);
 
     cp = strdup("hello world        \t\t");
     string_whitespace_trim(cp);
-    fail_unless(strcmp(cp, "hello world") == 0, "Trimmed string doesn't match expected output.");
+    ck_assert_str_eq(cp, "hello world");
     free(cp);
 
     cp = strdup("           hello world");
     string_whitespace_trim(cp);
-    fail_unless(strcmp(cp, "hello world") == 0, "Trimmed string doesn't match expected output.");
+    ck_assert_str_eq(cp, "hello world");
     free(cp);
 
     cp = strdup("\t              hello world   \t   ");
     string_whitespace_trim(cp);
-    fail_unless(strcmp(cp, "hello world") == 0, "Trimmed string doesn't match expected output.");
+    ck_assert_str_eq(cp, "hello world");
     free(cp);
 
     cp = strdup("   hello world   ");
     string_whitespace_trim(cp);
-    fail_unless(strcmp(cp, "hello world") == 0, "Trimmed string doesn't match expected output.");
+    ck_assert_str_eq(cp, "hello world");
     free(cp);
 }
 
@@ -261,22 +264,22 @@ START_TEST(test_string_whitespace_squeeze)
 
     cp = strdup(" hello world ");
     string_whitespace_squeeze(cp);
-    fail_unless(strcmp(cp, " hello world ") == 0, "Squeezed string doesn't match expected output.");
+    ck_assert_str_eq(cp, " hello world ");
     free(cp);
 
     cp = strdup(" hello         world ");
     string_whitespace_squeeze(cp);
-    fail_unless(strcmp(cp, " hello world ") == 0, "Squeezed string doesn't match expected output.");
+    ck_assert_str_eq(cp, " hello world ");
     free(cp);
 
     cp = strdup("      hello    world ");
     string_whitespace_squeeze(cp);
-    fail_unless(strcmp(cp, " hello world ") == 0, "Squeezed string doesn't match expected output.");
+    ck_assert_str_eq(cp, " hello world ");
     free(cp);
 
     cp = strdup("hello  world     ");
     string_whitespace_squeeze(cp);
-    fail_unless(strcmp(cp, "hello world ") == 0, "Squeezed string doesn't match expected output.");
+    ck_assert_str_eq(cp, "hello world ");
     free(cp);
 }
 
@@ -288,17 +291,17 @@ START_TEST(test_string_newline_to_literal)
 
     cp = strdup("hello\\nworld");
     string_newline_to_literal(cp);
-    fail_unless(strcmp(cp, "hello\nworld") == 0, "Didn't correctly replace \\n by literal newline character.");
+    ck_assert_str_eq(cp, "hello\nworld");
     free(cp);
 
     cp = strdup("\\n\\n\\n");
     string_newline_to_literal(cp);
-    fail_unless(strcmp(cp, "\n\n\n") == 0, "Didn't correctly replace \\n by literal newline character.");
+    ck_assert_str_eq(cp, "\n\n\n");
     free(cp);
 
     cp = strdup("");
     string_newline_to_literal(cp);
-    fail_unless(strcmp(cp, "") == 0, "Didn't correctly replace \\n by literal newline character.");
+    ck_assert_str_eq(cp, "");
     free(cp);
 }
 
@@ -311,21 +314,28 @@ START_TEST(test_string_get_word)
 
     cp = strdup("hello world");
     pos = 0;
-    fail_unless(strcmp(string_get_word(cp, &pos, ' ', word, sizeof(word), 0), "hello") == 0, "Didn't get correct word.");
-    fail_unless(strcmp(string_get_word(cp, &pos, ' ', word, sizeof(word), 0), "world") == 0, "Didn't get correct word.");
-    fail_unless(string_get_word(cp, &pos, ' ', word, sizeof(word), 0) == NULL, "Didn't get correct word.");
+    ck_assert_str_eq(string_get_word(cp, &pos, ' ', word, sizeof(word), 0),
+            "hello");
+    ck_assert_str_eq(string_get_word(cp, &pos, ' ', word, sizeof(word), 0),
+            "world");
+    ck_assert_ptr_eq(string_get_word(cp, &pos, ' ', word, sizeof(word), 0),
+            NULL);
     free(cp);
 
     cp = strdup("/teleport 'Player Name'");
     pos = 0;
-    fail_unless(strcmp(string_get_word(cp, &pos, ' ', word, sizeof(word), 0), "/teleport") == 0, "Didn't get correct word.");
-    fail_unless(strcmp(string_get_word(cp, &pos, ' ', word, sizeof(word), '\''), "Player Name") == 0, "Didn't get correct word.");
-    fail_unless(string_get_word(cp, &pos, ' ', word, sizeof(word), 0) == NULL, "Didn't get correct word.");
+    ck_assert_str_eq(string_get_word(cp, &pos, ' ', word, sizeof(word), 0),
+            "/teleport");
+    ck_assert_str_eq(string_get_word(cp, &pos, ' ', word, sizeof(word), '\''),
+            "Player Name");
+    ck_assert_ptr_eq(string_get_word(cp, &pos, ' ', word, sizeof(word), 0),
+            NULL);
     free(cp);
 
     cp = strdup("");
     pos = 0;
-    fail_unless(string_get_word(cp, &pos, ' ', word, sizeof(word), 0) == NULL, "Didn't get correct word.");
+    ck_assert_ptr_eq(string_get_word(cp, &pos, ' ', word, sizeof(word), 0),
+            NULL);
     free(cp);
 }
 
@@ -339,19 +349,19 @@ START_TEST(test_string_skip_word)
     cp = strdup("hello world");
     pos = 0;
     string_skip_word(cp, &pos, 1);
-    fail_unless(strcmp(cp + pos, " world") == 0, "Didn't skip word correctly.");
+    ck_assert_str_eq(cp + pos, " world");
     string_skip_word(cp, &pos, 1);
-    fail_unless(strcmp(cp + pos, "") == 0, "Didn't skip word correctly.");
+    ck_assert_str_eq(cp + pos, "");
     free(cp);
 
     cp = strdup("hello world");
     pos = strlen(cp);
     string_skip_word(cp, &pos, -1);
-    fail_unless(strcmp(cp + pos, "world") == 0, "Didn't skip word correctly.");
+    ck_assert_str_eq(cp + pos, "world");
     string_skip_word(cp, &pos, -1);
-    fail_unless(strcmp(cp + pos, "hello world") == 0, "Didn't skip word correctly.");
+    ck_assert_str_eq(cp + pos, "hello world");
     string_skip_word(cp, &pos, 1);
-    fail_unless(strcmp(cp + pos, " world") == 0, "Didn't skip word correctly.");
+    ck_assert_str_eq(cp + pos, " world");
     free(cp);
 }
 
@@ -359,14 +369,14 @@ END_TEST
 
 START_TEST(test_string_isdigit)
 {
-    fail_unless(string_isdigit("10") == 1, "string_isdigit() didn't return correct value.");
-    fail_unless(string_isdigit("10000000000000") == 1, "string_isdigit() didn't return correct value.");
-    fail_unless(string_isdigit("1234567890") == 1, "string_isdigit() didn't return correct value.");
-    fail_unless(string_isdigit("0") == 1, "string_isdigit() didn't return correct value.");
-    fail_unless(string_isdigit("1") == 1, "string_isdigit() didn't return correct value.");
-    fail_unless(string_isdigit("x") == 0, "string_isdigit() didn't return correct value.");
-    fail_unless(string_isdigit("hello world") == 0, "string_isdigit() didn't return correct value.");
-    fail_unless(string_isdigit("hell0 w0rld") == 0, "string_isdigit() didn't return correct value.");
+    ck_assert(string_isdigit("10"));
+    ck_assert(string_isdigit("10000000000000"));
+    ck_assert(string_isdigit("1234567890"));
+    ck_assert(string_isdigit("0"));
+    ck_assert(string_isdigit("1"));
+    ck_assert(!string_isdigit("x"));
+    ck_assert(!string_isdigit("hello world"));
+    ck_assert(!string_isdigit("hell0 w0rld"));
 }
 
 END_TEST
@@ -377,27 +387,27 @@ START_TEST(test_string_capitalize)
 
     cp = strdup("hello world");
     string_capitalize(cp);
-    fail_unless(strcmp(cp, "Hello world") == 0, "Capitalized string doesn't match expected output.");
+    ck_assert_str_eq(cp, "Hello world");
     free(cp);
 
     cp = strdup("Hello World");
     string_capitalize(cp);
-    fail_unless(strcmp(cp, "Hello world") == 0, "Capitalized string doesn't match expected output.");
+    ck_assert_str_eq(cp, "Hello world");
     free(cp);
 
     cp = strdup("HELLO");
     string_capitalize(cp);
-    fail_unless(strcmp(cp, "Hello") == 0, "Capitalized string doesn't match expected output.");
+    ck_assert_str_eq(cp, "Hello");
     free(cp);
 
     cp = strdup("MiXeD CaSe");
     string_capitalize(cp);
-    fail_unless(strcmp(cp, "Mixed case") == 0, "Capitalized string doesn't match expected output.");
+    ck_assert_str_eq(cp, "Mixed case");
     free(cp);
 
     cp = strdup("");
     string_capitalize(cp);
-    fail_unless(strcmp(cp, "") == 0, "Capitalized string doesn't match expected output.");
+    ck_assert_str_eq(cp, "");
     free(cp);
 }
 
@@ -409,62 +419,62 @@ START_TEST(test_string_title)
 
     cp = strdup("hello world");
     string_title(cp);
-    fail_unless(strcmp(cp, "Hello World") == 0, "Capitalized string doesn't match expected output.");
+    ck_assert_str_eq(cp, "Hello World");
     free(cp);
 
     cp = strdup("Hello World");
     string_title(cp);
-    fail_unless(strcmp(cp, "Hello World") == 0, "Capitalized string doesn't match expected output.");
+    ck_assert_str_eq(cp, "Hello World");
     free(cp);
 
     cp = strdup("HELLO");
     string_title(cp);
-    fail_unless(strcmp(cp, "Hello") == 0, "Capitalized string doesn't match expected output.");
+    ck_assert_str_eq(cp, "Hello");
     free(cp);
 
     cp = strdup(" Hello ");
     string_title(cp);
-    fail_unless(strcmp(cp, " Hello ") == 0, "Capitalized string doesn't match expected output.");
+    ck_assert_str_eq(cp, " Hello ");
     free(cp);
 
     cp = strdup("Hello ");
     string_title(cp);
-    fail_unless(strcmp(cp, "Hello ") == 0, "Capitalized string doesn't match expected output.");
+    ck_assert_str_eq(cp, "Hello ");
     free(cp);
 
     cp = strdup("hello ");
     string_title(cp);
-    fail_unless(strcmp(cp, "Hello ") == 0, "Capitalized string doesn't match expected output.");
+    ck_assert_str_eq(cp, "Hello ");
     free(cp);
 
     cp = strdup("MiXeD CaSe");
     string_title(cp);
-    fail_unless(strcmp(cp, "Mixed Case") == 0, "Capitalized string doesn't match expected output.");
+    ck_assert_str_eq(cp, "Mixed Case");
     free(cp);
 
     cp = strdup("");
     string_title(cp);
-    fail_unless(strcmp(cp, "") == 0, "Capitalized string doesn't match expected output.");
+    ck_assert_str_eq(cp, "");
     free(cp);
 
     cp = strdup(" ");
     string_title(cp);
-    fail_unless(strcmp(cp, " ") == 0, "Capitalized string doesn't match expected output.");
+    ck_assert_str_eq(cp, " ");
     free(cp);
 
     cp = strdup(" a");
     string_title(cp);
-    fail_unless(strcmp(cp, " A") == 0, "Capitalized string doesn't match expected output.");
+    ck_assert_str_eq(cp, " A");
     free(cp);
 
     cp = strdup("fOrMaT thIs aS titLe String");
     string_title(cp);
-    fail_unless(strcmp(cp, "Format This As Title String") == 0, "Capitalized string doesn't match expected output.");
+    ck_assert_str_eq(cp, "Format This As Title String");
     free(cp);
 
     cp = strdup("fOrMaT,thIs-aS*titLe;String");
     string_title(cp);
-    fail_unless(strcmp(cp, "Format,This-As*Title;String") == 0, "Capitalized string doesn't match expected output.");
+    ck_assert_str_eq(cp, "Format,This-As*Title;String");
     free(cp);
 }
 
@@ -472,26 +482,26 @@ END_TEST
 
 START_TEST(test_string_startswith)
 {
-    fail_unless(string_startswith("hello world", "hello") == 1, "string_startswith() didn't return correct value.");
-    fail_unless(string_startswith("", "") == 0, "string_startswith() didn't return correct value.");
-    fail_unless(string_startswith("hello world", "") == 0, "string_startswith() didn't return correct value.");
-    fail_unless(string_startswith("", "hello") == 0, "string_startswith() didn't return correct value.");
-    fail_unless(string_startswith("hello world", "hi") == 0, "string_startswith() didn't return correct value.");
-    fail_unless(string_startswith("hello world", "h") == 1, "string_startswith() didn't return correct value.");
-    fail_unless(string_startswith("hello", "hello world") == 0, "string_startswith() didn't return correct value.");
+    ck_assert(string_startswith("hello world", "hello"));
+    ck_assert(!string_startswith("", ""));
+    ck_assert(!string_startswith("hello world", ""));
+    ck_assert(!string_startswith("", "hello"));
+    ck_assert(!string_startswith("hello world", "hi"));
+    ck_assert(string_startswith("hello world", "h"));
+    ck_assert(!string_startswith("hello", "hello world"));
 }
 
 END_TEST
 
 START_TEST(test_string_endswith)
 {
-    fail_unless(string_endswith("hello world", "world") == 1, "string_endswith() didn't return correct value.");
-    fail_unless(string_endswith("hello world", "d") == 1, "string_endswith() didn't return correct value.");
-    fail_unless(string_endswith("", "") == 0, "string_endswith() didn't return correct value.");
-    fail_unless(string_endswith("", "world") == 0, "string_endswith() didn't return correct value.");
-    fail_unless(string_endswith("hello world", "") == 0, "string_endswith() didn't return correct value.");
-    fail_unless(string_endswith("world", "hello world") == 0, "string_endswith() didn't return correct value.");
-    fail_unless(string_endswith("hello world", "hello world") == 1, "string_endswith() didn't return correct value.");
+    ck_assert(string_endswith("hello world", "world"));
+    ck_assert(string_endswith("hello world", "d"));
+    ck_assert(!string_endswith("", ""));
+    ck_assert(!string_endswith("", "world"));
+    ck_assert(!string_endswith("hello world", ""));
+    ck_assert(!string_endswith("world", "hello world"));
+    ck_assert(string_endswith("hello world", "hello world"));
 }
 
 END_TEST
@@ -501,59 +511,59 @@ START_TEST(test_string_sub)
     char *cp;
 
     cp = string_sub("hello world", 1, -1);
-    fail_unless(strcmp(cp, "ello worl") == 0, "string_sub() didn't return correct result.");
+    ck_assert_str_eq(cp, "ello worl");
     free(cp);
 
     cp = string_sub("hello world", 0, 0);
-    fail_unless(strcmp(cp, "hello world") == 0, "string_sub() didn't return correct result.");
+    ck_assert_str_eq(cp, "hello world");
     free(cp);
 
     cp = string_sub("hello world", 1, 0);
-    fail_unless(strcmp(cp, "ello world") == 0, "string_sub() didn't return correct result.");
+    ck_assert_str_eq(cp, "ello world");
     free(cp);
 
     cp = string_sub("hello world", 0, -1);
-    fail_unless(strcmp(cp, "hello worl") == 0, "string_sub() didn't return correct result.");
+    ck_assert_str_eq(cp, "hello worl");
     free(cp);
 
     cp = string_sub("hello world", -1, -1);
-    fail_unless(strcmp(cp, "l") == 0, "string_sub() didn't return correct result.");
+    ck_assert_str_eq(cp, "l");
     free(cp);
 
     cp = string_sub("hello world", 4, 0);
-    fail_unless(strcmp(cp, "o world") == 0, "string_sub() didn't return correct result.");
+    ck_assert_str_eq(cp, "o world");
     free(cp);
 
     cp = string_sub("hello world", -5, 0);
-    fail_unless(strcmp(cp, "world") == 0, "string_sub() didn't return correct result.");
+    ck_assert_str_eq(cp, "world");
     free(cp);
 
     cp = string_sub("hello world", 20, 0);
-    fail_unless(strcmp(cp, "") == 0, "string_sub() didn't return correct result.");
+    ck_assert_str_eq(cp, "");
     free(cp);
 
     cp = string_sub("hello world", -20, -20);
-    fail_unless(strcmp(cp, "") == 0, "string_sub() didn't return correct result.");
+    ck_assert_str_eq(cp, "");
     free(cp);
 
     cp = string_sub("hello world", 0, -20);
-    fail_unless(strcmp(cp, "") == 0, "string_sub() didn't return correct result.");
+    ck_assert_str_eq(cp, "");
     free(cp);
 
     cp = string_sub("hello world", -20, 0);
-    fail_unless(strcmp(cp, "hello world") == 0, "string_sub() didn't return correct result.");
+    ck_assert_str_eq(cp, "hello world");
     free(cp);
 
     cp = string_sub("hello world", -500, 2);
-    fail_unless(strcmp(cp, "he") == 0, "string_sub() didn't return correct result.");
+    ck_assert_str_eq(cp, "he");
     free(cp);
 
     cp = string_sub("hello world", 0, -500);
-    fail_unless(strcmp(cp, "") == 0, "string_sub() didn't return correct result.");
+    ck_assert_str_eq(cp, "");
     free(cp);
 
     cp = string_sub("hello world", 5, -500);
-    fail_unless(strcmp(cp, "") == 0, "string_sub() didn't return correct result.");
+    ck_assert_str_eq(cp, "");
     free(cp);
 }
 
@@ -561,60 +571,60 @@ END_TEST
 
 START_TEST(test_string_isempty)
 {
-    fail_unless(string_isempty(NULL) == 1, "string_isempty() didn't return correct value.");
-    fail_unless(string_isempty("") == 1, "string_isempty() didn't return correct value.");
-    fail_unless(string_isempty("1") == 0, "string_isempty() didn't return correct value.");
-    fail_unless(string_isempty("hello world") == 0, "string_isempty() didn't return correct value.");
-    fail_unless(string_isempty(" ") == 0, "string_isempty() didn't return correct value.");
-    fail_unless(string_isempty("   ") == 0, "string_isempty() didn't return correct value.");
+    ck_assert(string_isempty(NULL));
+    ck_assert(string_isempty(""));
+    ck_assert(!string_isempty("1"));
+    ck_assert(!string_isempty("hello world"));
+    ck_assert(!string_isempty(" "));
+    ck_assert(!string_isempty("   "));
 }
 
 END_TEST
 
 START_TEST(test_string_iswhite)
 {
-    fail_unless(string_iswhite(NULL) == 1, "string_iswhite() didn't return correct value.");
-    fail_unless(string_iswhite("      ") == 1, "string_iswhite() didn't return correct value.");
-    fail_unless(string_iswhite(" ") == 1, "string_iswhite() didn't return correct value.");
-    fail_unless(string_iswhite("") == 1, "string_iswhite() didn't return correct value.");
-    fail_unless(string_iswhite("\n\n  ") == 1, "string_iswhite() didn't return correct value.");
-    fail_unless(string_iswhite("\n \n") == 1, "string_iswhite() didn't return correct value.");
-    fail_unless(string_iswhite("\t\t\t") == 1, "string_iswhite() didn't return correct value.");
-    fail_unless(string_iswhite("hello world") == 0, "string_iswhite() didn't return correct value.");
-    fail_unless(string_iswhite("h i") == 0, "string_iswhite() didn't return correct value.");
-    fail_unless(string_iswhite("\thi\t") == 0, "string_iswhite() didn't return correct value.");
+    ck_assert(string_iswhite(NULL));
+    ck_assert(string_iswhite("      "));
+    ck_assert(string_iswhite(" "));
+    ck_assert(string_iswhite(""));
+    ck_assert(string_iswhite("\n\n  "));
+    ck_assert(string_iswhite("\n \n"));
+    ck_assert(string_iswhite("\t\t\t"));
+    ck_assert(!string_iswhite("hello world"));
+    ck_assert(!string_iswhite("h i"));
+    ck_assert(!string_iswhite("\thi\t"));
 }
 
 END_TEST
 
 START_TEST(test_char_contains)
 {
-    fail_unless(char_contains('q', "qwerty") == 1, "char_contains() didn't return correct value.");
-    fail_unless(char_contains('\n', "hello\nworld") == 1, "char_contains() didn't return correct value.");
-    fail_unless(char_contains('\n', "\t") == 0, "char_contains() didn't return correct value.");
-    fail_unless(char_contains('Q', "qwerty") == 0, "char_contains() didn't return correct value.");
-    fail_unless(char_contains('a', "qwerty") == 0, "char_contains() didn't return correct value.");
-    fail_unless(char_contains('\t', "qwerty") == 0, "char_contains() didn't return correct value.");
-    fail_unless(char_contains('\n', "qwerty") == 0, "char_contains() didn't return correct value.");
+    ck_assert(char_contains('q', "qwerty"));
+    ck_assert(char_contains('\n', "hello\nworld"));
+    ck_assert(!char_contains('\n', "\t"));
+    ck_assert(!char_contains('Q', "qwerty"));
+    ck_assert(!char_contains('a', "qwerty"));
+    ck_assert(!char_contains('\t', "qwerty"));
+    ck_assert(!char_contains('\n', "qwerty"));
 }
 
 END_TEST
 
 START_TEST(test_string_contains)
 {
-    fail_unless(string_contains("hello world", "qwerty") == 1, "string_contains() didn't return correct value.");
-    fail_unless(string_contains("hello world", " ") == 1, "string_contains() didn't return correct value.");
-    fail_unless(string_contains("hello world", "\t") == 0, "string_contains() didn't return correct value.");
+    ck_assert(string_contains("hello world", "qwerty"));
+    ck_assert(string_contains("hello world", " "));
+    ck_assert(!string_contains("hello world", "\t"));
 }
 
 END_TEST
 
 START_TEST(test_string_contains_other)
 {
-    fail_unless(string_contains_other("Qwerty", "qwerty") == 1, "string_contains_other() didn't return correct value.");
-    fail_unless(string_contains_other("qwerty", "qwerty") == 0, "string_contains_other() didn't return correct value.");
-    fail_unless(string_contains_other("hello world", "qwerty") == 1, "string_contains_other() didn't return correct value.");
-    fail_unless(string_contains_other("     \t\t\n", "\t\n ") == 0, "string_contains_other() didn't return correct value.");
+    ck_assert(string_contains_other("Qwerty", "qwerty"));
+    ck_assert(!string_contains_other("qwerty", "qwerty"));
+    ck_assert(string_contains_other("hello world", "qwerty"));
+    ck_assert(!string_contains_other("     \t\t\n", "\t\n "));
 }
 
 END_TEST
@@ -624,15 +634,15 @@ START_TEST(test_string_create_char_range)
     char *cp;
 
     cp = string_create_char_range('a', 'z');
-    fail_unless(strcmp(cp, "abcdefghijklmnopqrstuvwxyz") == 0, "string_create_char_range() didn't return correct result.");
+    ck_assert_str_eq(cp, "abcdefghijklmnopqrstuvwxyz");
     free(cp);
 
     cp = string_create_char_range('A', 'Z');
-    fail_unless(strcmp(cp, "ABCDEFGHIJKLMNOPQRSTUVWXYZ") == 0, "string_create_char_range() didn't return correct result.");
+    ck_assert_str_eq(cp, "ABCDEFGHIJKLMNOPQRSTUVWXYZ");
     free(cp);
 
     cp = string_create_char_range('0', '9');
-    fail_unless(strcmp(cp, "0123456789") == 0, "string_create_char_range() didn't return correct result.");
+    ck_assert_str_eq(cp, "0123456789");
     free(cp);
 }
 
@@ -643,27 +653,27 @@ START_TEST(test_string_join)
     char *cp;
 
     cp = string_join(NULL, "hello", "world", NULL);
-    fail_unless(strcmp(cp, "helloworld") == 0, "string_join() didn't return correct result.");
+    ck_assert_str_eq(cp, "helloworld");
     free(cp);
 
     cp = string_join(" ", "hello", "world", NULL);
-    fail_unless(strcmp(cp, "hello world") == 0, "string_join() didn't return correct result.");
+    ck_assert_str_eq(cp, "hello world");
     free(cp);
 
     cp = string_join(", ", "hello", "world", NULL);
-    fail_unless(strcmp(cp, "hello, world") == 0, "string_join() didn't return correct result.");
+    ck_assert_str_eq(cp, "hello, world");
     free(cp);
 
     cp = string_join(NULL, "world", NULL);
-    fail_unless(strcmp(cp, "world") == 0, "string_join() didn't return correct result.");
+    ck_assert_str_eq(cp, "world");
     free(cp);
 
     cp = string_join("\n", "hello", NULL);
-    fail_unless(strcmp(cp, "hello") == 0, "string_join() didn't return correct result.");
+    ck_assert_str_eq(cp, "hello");
     free(cp);
 
     cp = string_join("\n", "hello", "world", "hi", NULL);
-    fail_unless(strcmp(cp, "hello\nworld\nhi") == 0, "string_join() didn't return correct result.");
+    ck_assert_str_eq(cp, "hello\nworld\nhi");
     free(cp);
 }
 
@@ -678,31 +688,31 @@ START_TEST(test_string_join_array)
     char *cps4[] = {"hello", NULL, "world"};
 
     cp = string_join_array(NULL, cps, arraysize(cps));
-    fail_unless(strcmp(cp, "helloworld") == 0, "string_join_array() didn't return correct result.");
+    ck_assert_str_eq(cp, "helloworld");
     free(cp);
 
     cp = string_join_array(" ", cps, arraysize(cps));
-    fail_unless(strcmp(cp, "hello world") == 0, "string_join_array() didn't return correct result.");
+    ck_assert_str_eq(cp, "hello world");
     free(cp);
 
     cp = string_join_array(", ", cps, arraysize(cps));
-    fail_unless(strcmp(cp, "hello, world") == 0, "string_join_array() didn't return correct result.");
+    ck_assert_str_eq(cp, "hello, world");
     free(cp);
 
     cp = string_join_array(NULL, cps2, arraysize(cps2));
-    fail_unless(strcmp(cp, "hello") == 0, "string_join_array() didn't return correct result.");
+    ck_assert_str_eq(cp, "hello");
     free(cp);
 
     cp = string_join_array("\n", cps2, arraysize(cps2));
-    fail_unless(strcmp(cp, "hello") == 0, "string_join_array() didn't return correct result.");
+    ck_assert_str_eq(cp, "hello");
     free(cp);
 
     cp = string_join_array("\n", cps3, arraysize(cps3));
-    fail_unless(strcmp(cp, "hello\nworld\nhi") == 0, "string_join_array() didn't return correct result.");
+    ck_assert_str_eq(cp, "hello\nworld\nhi");
     free(cp);
 
     cp = string_join_array("\n", cps4, arraysize(cps4));
-    fail_unless(strcmp(cp, "hello\nworld") == 0, "string_join_array() didn't return correct result.");
+    ck_assert_str_eq(cp, "hello\nworld");
     free(cp);
 }
 
@@ -713,15 +723,15 @@ START_TEST(test_string_repeat)
     char *cp;
 
     cp = string_repeat("hello", 5);
-    fail_unless(strcmp(cp, "hellohellohellohellohello") == 0, "string_repeat() didn't return correct result.");
+    ck_assert_str_eq(cp, "hellohellohellohellohello");
     free(cp);
 
     cp = string_repeat("hello", 1);
-    fail_unless(strcmp(cp, "hello") == 0, "string_repeat() didn't return correct result.");
+    ck_assert_str_eq(cp, "hello");
     free(cp);
 
     cp = string_repeat("hello", 0);
-    fail_unless(strcmp(cp, "") == 0, "string_repeat() didn't return correct result.");
+    ck_assert_str_eq(cp, "");
     free(cp);
 }
 
@@ -732,28 +742,28 @@ START_TEST(test_snprintfcat)
     char buf[MAX_BUF], buf2[8];
 
     snprintf(buf, sizeof(buf), "%s", "hello");
-    fail_unless(snprintfcat(buf, sizeof(buf), " %s", "world") == 11, "snprintfcat() didn't return correct value.");
-    fail_unless(strcmp(buf, "hello world") == 0, "snprintfcat() didn't return correct result.");
+    ck_assert_int_eq(snprintfcat(buf, sizeof(buf), " %s", "world"), 11);
+    ck_assert_str_eq(buf, "hello world");
 
     snprintf(buf, sizeof(buf), "%s %d", "hello", 10);
-    fail_unless(snprintfcat(buf, sizeof(buf), " %s", "world") == 14, "snprintfcat() didn't return correct value.");
-    fail_unless(strcmp(buf, "hello 10 world") == 0, "snprintfcat() didn't return correct result.");
+    ck_assert_int_eq(snprintfcat(buf, sizeof(buf), " %s", "world"), 14);
+    ck_assert_str_eq(buf, "hello 10 world");
 
     snprintf(buf, sizeof(buf), "%s", "hello");
-    fail_unless(snprintfcat(buf, sizeof(buf), "%s", "") == 5, "snprintfcat() didn't return correct value.");
-    fail_unless(strcmp(buf, "hello") == 0, "snprintfcat() didn't return correct result.");
+    ck_assert_int_eq(snprintfcat(buf, sizeof(buf), "%s", ""), 5);
+    ck_assert_str_eq(buf, "hello");
 
     snprintf(buf2, sizeof(buf2), "%s", "hello");
-    fail_unless(snprintfcat(buf2, sizeof(buf2), " %s", "world") == 11, "snprintfcat() didn't return correct value.");
-    fail_unless(strcmp(buf2, "hello w") == 0, "snprintfcat() didn't return correct result.");
+    ck_assert_int_eq(snprintfcat(buf2, sizeof(buf2), " %s", "world"), 11);
+    ck_assert_str_eq(buf2, "hello w");
 
     snprintf(buf2, sizeof(buf2), "%s", "testing");
-    fail_unless(snprintfcat(buf2, sizeof(buf2), "%s", "world") == 12, "snprintfcat() didn't return correct value.");
-    fail_unless(strcmp(buf2, "testing") == 0, "snprintfcat() didn't return correct result.");
+    ck_assert_int_eq(snprintfcat(buf2, sizeof(buf2), "%s", "world"), 12);
+    ck_assert_str_eq(buf2, "testing");
 
     snprintf(buf2, sizeof(buf2), "%s", "testing");
-    fail_unless(snprintfcat(buf2, sizeof(buf2), " %s", "world") == 13, "snprintfcat() didn't return correct value.");
-    fail_unless(strcmp(buf2, "testing") == 0, "snprintfcat() didn't return correct result.");
+    ck_assert_int_eq(snprintfcat(buf2, sizeof(buf2), " %s", "world"), 13);
+    ck_assert_str_eq(buf2, "testing");
 }
 
 END_TEST
@@ -763,33 +773,43 @@ START_TEST(test_string_tohex)
     char buf[MAX_BUF], buf2[5], buf3[6], buf4[7];
     unsigned char cp[] = {0xff, 0x00, 0x03}, cp2[] = {}, cp3[] = {0x03};
 
-    fail_unless(string_tohex((unsigned char *) "hello world", strlen("hello world"), buf, sizeof(buf), false) == strlen("68656C6C6F20776F726C64"), "string_tohex() didn't return correct value.");
-    fail_unless(strcmp(buf, "68656C6C6F20776F726C64") == 0, "string_tohex() didn't return correct result.");
+    ck_assert_uint_eq(string_tohex((const unsigned char *) "hello world",
+            strlen("hello world"), buf, sizeof(buf), false),
+            strlen("68656C6C6F20776F726C64"));
+    ck_assert_str_eq(buf, "68656C6C6F20776F726C64");
 
-    fail_unless(string_tohex(cp, arraysize(cp), buf, sizeof(buf), false) == 6, "string_tohex() didn't return correct value.");
-    fail_unless(strcmp(buf, "FF0003") == 0, "string_tohex() didn't return correct result.");
+    ck_assert_uint_eq(string_tohex(cp, arraysize(cp), buf, sizeof(buf), false),
+            6);
+    ck_assert_str_eq(buf, "FF0003");
 
-    fail_unless(string_tohex(cp, arraysize(cp), buf, sizeof(buf), true) == 8, "string_tohex() didn't return correct value.");
-    fail_unless(strcmp(buf, "FF:00:03") == 0, "string_tohex() didn't return correct result.");
+    ck_assert_uint_eq(string_tohex(cp, arraysize(cp), buf, sizeof(buf), true),
+            8);
+    ck_assert_str_eq(buf, "FF:00:03");
 
-    fail_unless(string_tohex(cp2, arraysize(cp2), buf, sizeof(buf), false) == 0, "string_tohex() didn't return correct value.");
-    fail_unless(strcmp(buf, "") == 0, "string_tohex() didn't return correct result.");
+    ck_assert_uint_eq(string_tohex(cp2, arraysize(cp2), buf, sizeof(buf),
+            false), 0);
+    ck_assert_str_eq(buf, "");
 
-    fail_unless(string_tohex(cp2, arraysize(cp2), buf, sizeof(buf), true) == 0, "string_tohex() didn't return correct value.");
-    fail_unless(strcmp(buf, "") == 0, "string_tohex() didn't return correct result.");
+    ck_assert_uint_eq(string_tohex(cp2, arraysize(cp2), buf, sizeof(buf), true),
+            0);
+    ck_assert_str_eq(buf, "");
 
-    fail_unless(string_tohex(cp3, arraysize(cp3), buf, sizeof(buf), true) == 2, "string_tohex() didn't return correct value.");
-    fail_unless(strcmp(buf, "03") == 0, "string_tohex() didn't return correct result.");
+    ck_assert_uint_eq(string_tohex(cp3, arraysize(cp3), buf, sizeof(buf), true),
+            2);
+    ck_assert_str_eq(buf, "03");
 
     /* Test buffer overflows. */
-    ck_assert_int_eq(string_tohex(cp, arraysize(cp), buf2, sizeof(buf2), false), 4);
-    fail_unless(strcmp(buf2, "FF00") == 0, "string_tohex() didn't return correct result.");
+    ck_assert_int_eq(string_tohex(cp, arraysize(cp), buf2, sizeof(buf2), false),
+            4);
+    ck_assert_str_eq(buf2, "FF00");
 
-    fail_unless(string_tohex(cp, arraysize(cp), buf3, sizeof(buf3), false) == 4, "string_tohex() didn't return correct value.");
-    fail_unless(strcmp(buf3, "FF00") == 0, "string_tohex() didn't return correct result.");
+    ck_assert_uint_eq(string_tohex(cp, arraysize(cp), buf3, sizeof(buf3),
+            false), 4);
+    ck_assert_str_eq(buf3, "FF00");
 
-    fail_unless(string_tohex(cp, arraysize(cp), buf4, sizeof(buf4), false) == 6, "string_tohex() didn't return correct value.");
-    fail_unless(strcmp(buf4, "FF0003") == 0, "string_tohex() didn't return correct result.");
+    ck_assert_uint_eq(string_tohex(cp, arraysize(cp), buf4, sizeof(buf4),
+            false), 6);
+    ck_assert_str_eq(buf4, "FF0003");
 }
 
 END_TEST
@@ -798,17 +818,21 @@ START_TEST(test_string_fromhex)
 {
     unsigned char buf[MAX_BUF], buf2[2];
 
-    fail_unless(string_fromhex("FF03", strlen("FF03"), buf, arraysize(buf)) == 2, "string_fromhex() didn't return correct value.");
-    fail_unless(buf[0] == 0xFF && buf[1] == 0x03, "string_fromhex() didn't return correct result.");
+    ck_assert_uint_eq(string_fromhex("FF03", strlen("FF03"), buf,
+            arraysize(buf)), 2);
+    ck_assert(buf[0] == 0xFF && buf[1] == 0x03);
 
-    fail_unless(string_fromhex("FF       03", strlen("FF       03"), buf, arraysize(buf)) == 2, "string_fromhex() didn't return correct value.");
-    fail_unless(buf[0] == 0xFF && buf[1] == 0x03, "string_fromhex() didn't return correct result.");
+    ck_assert_uint_eq(string_fromhex("FF       03", strlen("FF       03"), buf,
+            arraysize(buf)), 2);
+    ck_assert(buf[0] == 0xFF && buf[1] == 0x03);
 
-    fail_unless(string_fromhex("FF3", strlen("FF3"), buf, arraysize(buf)) == 1, "string_fromhex() didn't return correct value.");
-    fail_unless(buf[0] == 0xFF, "string_fromhex() didn't return correct result.");
+    ck_assert_uint_eq(string_fromhex("FF3", strlen("FF3"), buf,
+            arraysize(buf)), 1);
+    ck_assert(buf[0] == 0xFF);
 
-    fail_unless(string_fromhex("FF0304", strlen("FF0304"), buf2, arraysize(buf2)) == 2, "string_fromhex() didn't return correct value.");
-    fail_unless(buf2[0] == 0xFF && buf2[1] == 0x03, "string_fromhex() didn't return correct result.");
+    ck_assert_uint_eq(string_fromhex("FF0304", strlen("FF0304"), buf2,
+            arraysize(buf2)), 2);
+    ck_assert(buf[0] == 0xFF && buf[1] == 0x03);
 }
 
 END_TEST

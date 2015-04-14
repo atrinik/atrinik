@@ -32,13 +32,13 @@ START_TEST(test_add_string)
     char *temp;
 
     str1 = add_string("Hello world");
-    fail_if(str1 == NULL, "add_string() should not return NULL when receiving content.");
+    ck_assert_ptr_ne(str1, NULL);
     temp = malloc(strlen(str1) + 1);
     strcpy(temp, str1);
     str2 = add_string(temp);
-    fail_if(str2 != str1, "add_string() should return same pointer for 2 same strings but str1 (%p -> '%s') != str2 (%p -> '%s').", str1, str1, str2, str2);
+    ck_assert_ptr_eq(str2, str1);
     str3 = add_string("");
-    fail_if(str3 == NULL, "add_string() should gracefully gandle empty non-NULL strings.");
+    ck_assert_ptr_ne(str3, NULL);
     free(temp);
 
     free_string_shared(str1);
@@ -54,8 +54,8 @@ START_TEST(test_add_refcount)
 
     str1 = add_string("Refcount testing//..");
     str2 = add_refcount(str1);
-    fail_if(str1 != str2, "Result of add_refcount() (%p) should be the same as original pointer (%p).", str2, str1);
-    fail_if(query_refcount(str1) != 2, "add_refcount() (%p) should have made refcount to value 2 but was %d instead.", str1, query_refcount(str1));
+    ck_assert_ptr_eq(str1, str2);
+    ck_assert_int_eq(query_refcount(str1), 2);
 
     free_string_shared(str1);
     free_string_shared(str2);
@@ -68,11 +68,11 @@ START_TEST(test_query_refcount)
     shstr *str1;
 
     str1 = add_string("Hello World");
-    fail_if(query_refcount(str1) != 1, "After add_string(), query_refcount() should return 1 but returned %d(0x%X) for %s.", query_refcount(str1), query_refcount(str1), str1);
+    ck_assert_int_eq(query_refcount(str1), 1);
     add_string("Hello World");
-    fail_if(query_refcount(str1) != 2, "After twice add_string() with same string, query_refcount() should return 2 but returned %d(0x%X) for %s.", query_refcount(str1), query_refcount(str1), str1);
+    ck_assert_int_eq(query_refcount(str1), 2);
     add_refcount(str1);
-    fail_if(query_refcount(str1) != 3, "After call to add_refcount(), query_refcount() should now return 3 but returned %d(0x%X) for %s.", query_refcount(str1), query_refcount(str1), str1);
+    ck_assert_int_eq(query_refcount(str1), 3);
 
     free_string_shared(str1);
     free_string_shared(str1);
@@ -88,17 +88,17 @@ START_TEST(test_find_string)
     str1 = add_string("Hello world");
     str2 = add_string("Bonjour le monde");
     result = find_string("Hello world");
-    fail_if(str1 != result, "find_string() for %s should return %p but returned %p(%s).", str1, str1, result, result);
+    ck_assert_ptr_eq(str1, result);
     result = find_string("Bonjour le monde");
-    fail_if(str2 != result, "find_string() for %s should return %p but returned %p(%s).", str2, str2, result, result);
+    ck_assert_ptr_eq(str2, result);
     result = find_string("Hola mundo");
-    fail_if(result != NULL, "Searching for a nonexistent string should return NULL but returned %p(%s).", result, result);
+    ck_assert_ptr_eq(result, NULL);
     str3 = add_string("");
     result = find_string("");
-    fail_if(result != str3, "Search for empty string should return it(%p), but returned %p.", str3, result);
+    ck_assert_ptr_eq(result, str3);
     free_string_shared(str2);
     result = find_string("Bonjour le monde");
-    fail_if(result != NULL, "After add_string() and free_string_shared(), find_string() should return NULL, but returned %p(%s).", result, result);
+    ck_assert_ptr_eq(result, NULL);
 
     free_string_shared(str1);
     free_string_shared(str3);
@@ -113,15 +113,15 @@ START_TEST(test_free_string_shared)
     str1 = add_string("l33t");
     free_string_shared(str1);
     str2 = find_string("l33t");
-    fail_if(str2 != NULL, "find_string() should return NULL after free_string_shared() but it returned %p (%s).", str2, str2);
+    ck_assert_ptr_eq(str2, NULL);
     str1 = add_string("bleh");
     add_string("bleh");
     free_string_shared(str1);
     str2 = find_string("bleh");
-    fail_if(str2 != str1, "find_string() should return the string(%p) after add_string(), add_string(), free_string_shared() but returned %p.", str1, str2);
+    ck_assert_ptr_eq(str2, str1);
     free_string_shared(str1);
     str2 = find_string("bleh");
-    fail_if(str2 != NULL, "find_string() should return NULL after add_string(), add_string(), free_string_shared(), free_string_shared() but returned %p.", str2);
+    ck_assert_ptr_eq(str2, NULL);
 }
 
 END_TEST

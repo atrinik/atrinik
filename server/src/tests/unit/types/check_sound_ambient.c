@@ -30,7 +30,7 @@
 START_TEST(test_sound_ambient_match_parse)
 {
     object *ob;
-    const char *cp, *match[] = {
+    const char *match[] = {
         "hour == 1",
         "hour > 1",
         "hour < 1",
@@ -76,14 +76,11 @@ START_TEST(test_sound_ambient_match_parse)
     size_t i;
 
     ob = get_archetype("sound_ambient");
-    fail_if(ob == NULL, "Could not create sound_ambient object.");
+    ck_assert_ptr_ne(ob, NULL);
 
     for (i = 0; match[i] != NULL; i++) {
         sound_ambient_match_parse(ob, match[i]);
-        cp = sound_ambient_match_str(ob);
-        fail_if(strcmp(cp, match[i]) != 0,
-                "Match parsed incorrectly, expected:\n'%s', got:\n'%s'",
-                match[i], cp);
+        ck_assert_str_eq(match[i], sound_ambient_match_str(ob));
     }
 
     object_destroy(ob);

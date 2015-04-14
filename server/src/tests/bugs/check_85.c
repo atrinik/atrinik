@@ -39,19 +39,17 @@ START_TEST(test_run)
     object *tmp;
 
     list = find_treasurelist("random_talisman");
-
-    fail_if(list == NULL, "Couldn't find 'random_talisman' treasure list to start the test.");
+    ck_assert_msg(list != NULL, "Couldn't find 'random_talisman' treasure list "
+            "to start the test.");
 
     for (i = 0; i < 2000; i++) {
         tmp = generate_treasure(list, 999, 100);
-
-        if (tmp == NULL) {
-            continue;
-        }
+        ck_assert_msg(tmp != NULL, "Didn't generate anything: %d", i);
 
         if (strcmp(tmp->arch->name, "amulet_shielding") == 0) {
             if (QUERY_FLAG(tmp, FLAG_CURSED) || QUERY_FLAG(tmp, FLAG_DAMNED)) {
-                fail("Managed to create cursed amulet of minor shielding (i: %d).", i);
+                ck_abort_msg("Managed to create cursed amulet of minor "
+                        "shielding (i: %d).", i);
             }
         }
 

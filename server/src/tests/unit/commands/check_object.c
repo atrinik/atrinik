@@ -28,52 +28,46 @@
 
 START_TEST(test_put_object_in_sack)
 {
-    mapstruct *test_map;
-    object *sack, *obj, *dummy;
+    mapstruct *map;
+    object *sack, *obj, *pl;
 
-    dummy = player_get_dummy();
-    SET_FLAG(dummy, FLAG_NO_FIX_PLAYER);
-
-    test_map = get_empty_map(5, 5);
-    fail_if(test_map == NULL, "Can't create test map.");
+    check_setup_env_pl(&map, &pl);
 
     sack = get_archetype("sack");
-    insert_ob_in_map(sack, test_map, NULL, 0);
-    fail_if(GET_MAP_OB(test_map, 0, 0) != sack);
+    insert_ob_in_map(sack, map, NULL, 0);
+    ck_assert_ptr_eq(GET_MAP_OB(map, 0, 0), sack);
 
     obj = get_archetype("letter");
     obj->nrof = 1;
     obj->x = 1;
-    insert_ob_in_map(obj, test_map, NULL, 0);
-    put_object_in_sack(dummy, sack, obj, 1);
-    fail_if(GET_MAP_OB(test_map, 1, 0) != obj, "Object was removed from map?");
-    fail_if(sack->inv != NULL, "Sack's inventory isn't null?");
+    insert_ob_in_map(obj, map, NULL, 0);
+    put_object_in_sack(pl, sack, obj, 1);
+    ck_assert_ptr_eq(GET_MAP_OB(map, 1, 0), obj);
+    ck_assert_ptr_eq(sack->inv, NULL);
     object_remove(sack, 0);
     object_destroy(sack);
 
     /* Basic insertion. */
     sack = get_archetype("sack");
     sack->nrof = 1;
-    fail_if(sack->type != CONTAINER, "Sack isn't a container?");
-    insert_ob_in_map(sack, test_map, NULL, 0);
-    fail_if(GET_MAP_OB(test_map, 0, 0) != sack, "Sack not put on map?");
+    ck_assert_uint_eq(sack->type, CONTAINER);
+    insert_ob_in_map(sack, map, NULL, 0);
+    ck_assert_ptr_eq(GET_MAP_OB(map, 0, 0), sack);
 
     SET_FLAG(sack, FLAG_APPLIED);
-    put_object_in_sack(dummy, sack, obj, 1);
-    fail_if(sack->inv != obj, "Object not inserted into sack?");
-    fail_if(GET_MAP_OB(test_map, 1, 0) != NULL, "Object wasn't removed from map?");
+    put_object_in_sack(pl, sack, obj, 1);
+    ck_assert_ptr_eq(sack->inv, obj);
+    ck_assert_ptr_eq(GET_MAP_OB(map, 1, 0), NULL);
 
     object_remove(obj, 0);
     obj->x = 1;
-    insert_ob_in_map(obj, test_map, NULL, 0);
+    insert_ob_in_map(obj, map, NULL, 0);
     sack->weight_limit = 1;
     obj->weight = 5;
 
-    put_object_in_sack(dummy, sack, obj, 1);
-    fail_if(sack->inv != NULL, "Item was put in sack even if too heavy?");
-    fail_if(GET_MAP_OB(test_map, 1, 0) != obj, "Object was removed from map?");
-
-    delete_map(test_map);
+    put_object_in_sack(pl, sack, obj, 1);
+    ck_assert_ptr_eq(sack->inv, NULL);
+    ck_assert_ptr_eq(GET_MAP_OB(map, 1, 0), obj);
 }
 
 END_TEST

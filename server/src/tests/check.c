@@ -55,13 +55,13 @@ void check_setup_env_pl(mapstruct **map, object **pl)
     HARD_ASSERT(pl != NULL);
 
     *map = get_empty_map(24, 24);
-    fail_if(*map == NULL, "Could not allocate a map.");
+    ck_assert(*map != NULL);
 
     *pl = player_get_dummy();
-    fail_if(*pl == NULL, "Could not create player object.");
+    ck_assert(*pl != NULL);
 
     *pl = insert_ob_in_map(*pl, *map, NULL, 0);
-    fail_if(*pl == NULL, "Could not insert player.");
+    ck_assert(*pl != NULL);
 }
 
 /* The main unit test function. Calls other functions to do the unit
@@ -69,7 +69,7 @@ void check_setup_env_pl(mapstruct **map, object **pl)
 void check_main(int argc, char **argv)
 {
     int i;
-    
+
     toolkit_import(path);
 
     saved_argc = argc;
