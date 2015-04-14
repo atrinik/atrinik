@@ -366,14 +366,14 @@ typedef void *(*f_plug_pinit)(void);
 /** Unload a shared library. */
 #define plugins_dlclose(lib) dlclose(lib)
 /** Get a function from a shared library. */
-#define plugins_dlsym(lib, name) dlsym(lib, name)
+#define plugins_dlsym(lib, name, type) dlsym(lib, name)
 /** Library error. */
 #define plugins_dlerror() dlerror()
 #else
 #define LIBPTRTYPE HMODULE
 #define plugins_dlopen(fname) LoadLibrary(fname)
 #define plugins_dlclose(lib) FreeLibrary(lib)
-#define plugins_dlsym(lib, name) (void *) GetProcAddress(lib, name)
+#define plugins_dlsym(lib, name, type) (type) GetProcAddress(lib, name)
 #endif
 
 /** Check if the specified filename is a plugin file. */
