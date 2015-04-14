@@ -214,7 +214,7 @@ typedef unsigned short Fontindex;
 typedef unsigned int tag_t;
 
 /* Only C99 has lrint. */
-#ifndef _ISOC99_SOURCE
+#if !defined(_ISOC99_SOURCE) && (!defined(_POSIX_C_SOURCE) || _POSIX_C_SOURCE < 200112L)
 #define lrint(x) (floor((x) + ((x) > 0) ? 0.5 : -0.5))
 #endif
 
