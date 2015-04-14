@@ -31,6 +31,7 @@
 #ifndef TOOLKIT_H
 #define TOOLKIT_H
 
+#undef _POSIX_C_SOURCE
 #define _POSIX_C_SOURCE 200112L
 
 /* Porting API header file has extra priority. */
