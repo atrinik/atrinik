@@ -108,4 +108,6 @@ void check_main(int argc, char **argv)
     for (i = 0; i < argc; i++) {
         efree(saved_argv[i]);
     }
+
+    efree(saved_argv);
 }
