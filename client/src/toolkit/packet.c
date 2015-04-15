@@ -382,16 +382,7 @@ static void packet_append_uint64_internal(packet_struct *packet, uint64_t data)
 void packet_append_uint64(packet_struct *packet, uint64_t data)
 {
     TOOLKIT_FUNC_PROTECTOR(API_NAME);
-    packet_ensure(packet, 8);
 
-    packet->data[packet->len++] = (data >> 56) & 0xff;
-    packet->data[packet->len++] = (data >> 48) & 0xff;
-    packet->data[packet->len++] = (data >> 40) & 0xff;
-    packet->data[packet->len++] = (data >> 32) & 0xff;
-    packet->data[packet->len++] = (data >> 24) & 0xff;
-    packet->data[packet->len++] = (data >> 16) & 0xff;
-    packet->data[packet->len++] = (data >> 8) & 0xff;
-    packet->data[packet->len++] = data & 0xff;
     packet_append_uint64_internal(packet, data);
     packet_debug(packet, 0, "%" PRIu64 "\n", data);
 }
