@@ -505,6 +505,7 @@ void draw_client_map(object *pl)
         packet = packet_new(CLIENT_CMD_MAPSTATS, 256, 256);
 
         if ((map_info && map_info->race && strcmp(map_info->race, CONTR(pl)->map_info_name) != 0) || (!map_info && CONTR(pl)->map_info_name[0] != '\0')) {
+            packet_debug_data(packet, 0, "\nMapstats command type");
             packet_append_uint8(packet, CMD_MAPSTATS_NAME);
             packet_append_map_name(packet, pl, map_info);
 
@@ -517,6 +518,7 @@ void draw_client_map(object *pl)
         }
 
         if ((map_info && map_info->slaying && strcmp(map_info->slaying, CONTR(pl)->map_info_music) != 0) || (!map_info && CONTR(pl)->map_info_music[0] != '\0')) {
+            packet_debug_data(packet, 0, "\nMapstats command type");
             packet_append_uint8(packet, CMD_MAPSTATS_MUSIC);
             packet_append_map_music(packet, pl, map_info);
 
@@ -529,6 +531,7 @@ void draw_client_map(object *pl)
         }
 
         if ((map_info && map_info->title && strcmp(map_info->title, CONTR(pl)->map_info_weather) != 0) || (!map_info && CONTR(pl)->map_info_weather[0] != '\0')) {
+            packet_debug_data(packet, 0, "\nMapstats command type");
             packet_append_uint8(packet, CMD_MAPSTATS_WEATHER);
             packet_append_map_weather(packet, pl, map_info);
 
@@ -570,6 +573,7 @@ static const char *get_playername_color(object *pl, object *op)
 
 void packet_append_map_name(packet_struct *packet, object *op, object *map_info)
 {
+    packet_debug_data(packet, 0, "Map name");
     packet_append_string(packet, "[b][o=#000000]");
     packet_append_string(packet, map_info && map_info->race ? map_info->race : op->map->name);
     packet_append_string_terminated(packet, "[/o][/b]");
@@ -577,11 +581,13 @@ void packet_append_map_name(packet_struct *packet, object *op, object *map_info)
 
 void packet_append_map_music(packet_struct *packet, object *op, object *map_info)
 {
+    packet_debug_data(packet, 0, "Map music");
     packet_append_string_terminated(packet, map_info && map_info->slaying ? map_info->slaying : (op->map->bg_music ? op->map->bg_music : "no_music"));
 }
 
 void packet_append_map_weather(packet_struct *packet, object *op, object *map_info)
 {
+    packet_debug_data(packet, 0, "Map weather");
     packet_append_string_terminated(packet, map_info && map_info->title ? map_info->title : (op->map->weather ? op->map->weather : "none"));
 }
 
