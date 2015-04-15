@@ -123,11 +123,13 @@ char *stringbuffer_finish(StringBuffer *sb)
  * FREE_AND_CLEAR_HASH(). */
 const char *stringbuffer_finish_shared(StringBuffer *sb)
 {
-    char *str = stringbuffer_finish(sb);
-    const char *result = add_string(str);
+    char *str;
+    shstr *result;
 
     TOOLKIT_FUNC_PROTECTOR(API_NAME);
 
+    str = stringbuffer_finish(sb);
+    result = add_string(str);
     efree(str);
     return result;
 }
