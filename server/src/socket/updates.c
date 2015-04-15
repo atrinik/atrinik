@@ -80,11 +80,11 @@ static void updates_file_new(const char *filename, struct stat *sb)
     efree(compressed);
 
     update_files[update_files_num].packet = packet_new(CLIENT_CMD_FILE_UPDATE, 0, 0);
-    packet_debug_data(packet, 0, "Filename");
+    packet_debug_data(update_files[update_files_num].packet, 0, "Filename");
     packet_append_string_terminated(update_files[update_files_num].packet, update_files[update_files_num].filename);
-    packet_debug_data(packet, 0, "File size");
+    packet_debug_data(update_files[update_files_num].packet, 0, "File size");
     packet_append_uint32(update_files[update_files_num].packet, update_files[update_files_num].ucomp_len);
-    packet_debug_data(packet, 0, "File data");
+    packet_debug_data(update_files[update_files_num].packet, 0, "File data");
     packet_append_data_len(update_files[update_files_num].packet, update_files[update_files_num].contents, update_files[update_files_num].len);
     update_files_num++;
 }
