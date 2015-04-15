@@ -94,6 +94,7 @@ void check_main(int argc, char **argv)
     check_server_ban();
     check_server_arch();
     check_server_object();
+    check_server_packet();
     check_server_pbkdf2();
     check_server_re_cmp();
     check_server_cache();
