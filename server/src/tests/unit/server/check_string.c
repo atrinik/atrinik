@@ -837,6 +837,20 @@ START_TEST(test_string_fromhex)
 
 END_TEST
 
+START_TEST(test_string_skip_whitespace)
+{
+    ck_assert_ptr_eq(string_skip_whitespace(NULL), NULL);
+    ck_assert_str_eq(string_skip_whitespace("      "), "");
+    ck_assert_str_eq(string_skip_whitespace(""), "");
+    ck_assert_str_eq(string_skip_whitespace("hello world"), "hello world");
+    ck_assert_str_eq(string_skip_whitespace("    hello world"), "hello world");
+    ck_assert_str_eq(string_skip_whitespace(" hello world "), "hello world ");
+    ck_assert_str_eq(string_skip_whitespace("\t\thello world"), "hello world");
+    ck_assert_str_eq(string_skip_whitespace("\t\nhello world"), "hello world");
+}
+
+END_TEST
+
 static Suite *string_suite(void)
 {
     Suite *s = suite_create("string");
@@ -875,6 +889,7 @@ static Suite *string_suite(void)
     tcase_add_test(tc_core, test_snprintfcat);
     tcase_add_test(tc_core, test_string_tohex);
     tcase_add_test(tc_core, test_string_fromhex);
+    tcase_add_test(tc_core, test_string_skip_whitespace);
 
     return s;
 }
