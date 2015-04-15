@@ -234,7 +234,7 @@ void packet_save(packet_struct *packet, packet_save_t *packet_save_buf)
 
     packet_save_buf->pos = packet->len;
 
-#ifndef DEBUG
+#ifndef NDEBUG
     packet_save_buf->sb_pos = packet->sb->pos;
 #endif
 }
@@ -246,7 +246,7 @@ void packet_load(packet_struct *packet, const packet_save_t *packet_save_buf)
 
     packet->len = packet_save_buf->pos;
 
-#ifndef DEBUG
+#ifndef NDEBUG
     packet->sb->pos = packet_save_buf->sb_pos;
 #endif
 }
