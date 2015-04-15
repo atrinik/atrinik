@@ -427,6 +427,33 @@ START_TEST(test_packet_append_string_terminated)
 }
 END_TEST
 
+START_TEST(test_packet_append_packet)
+{
+    packet_struct *packet, *packet2;
+
+    packet = packet_new(0, 0, 0);
+    packet2 = packet_new(0, 0, 0);
+    packet_verify_data(packet, "");
+    packet_verify_data(packet2, "");
+    packet_append_packet(packet, packet2);
+    packet_verify_data(packet, "");
+    packet_verify_data(packet2, "");
+    packet_free(packet);
+    packet_free(packet2);
+
+    packet = packet_new(0, 0, 0);
+    packet2 = packet_new(0, 0, 0);
+    packet_append_string_terminated(packet2, "test");
+    packet_verify_data(packet, "");
+    packet_verify_data(packet2, "7465737400");
+    packet_append_packet(packet, packet2);
+    packet_verify_data(packet, "7465737400");
+    packet_verify_data(packet2, "7465737400");
+    packet_free(packet);
+    packet_free(packet2);
+}
+END_TEST
+
 START_TEST(test_packet_to_uint8)
 {
     size_t pos;
@@ -737,6 +764,7 @@ static Suite *packet_suite(void)
     tcase_add_test(tc_core, test_packet_append_data_len);
     tcase_add_test(tc_core, test_packet_append_string);
     tcase_add_test(tc_core, test_packet_append_string_terminated);
+    tcase_add_test(tc_core, test_packet_append_packet);
     tcase_add_test(tc_core, test_packet_to_uint8);
     tcase_add_test(tc_core, test_packet_to_int8);
     tcase_add_test(tc_core, test_packet_to_uint16);
