@@ -124,7 +124,11 @@ void packet_append_float(packet_struct *packet, float data);
 void packet_append_double(packet_struct *packet, double data);
 void packet_append_data_len(packet_struct *packet, const uint8_t *data,
         size_t len);
+void packet_append_string_len(packet_struct *packet, const char *data,
+        size_t len);
 void packet_append_string(packet_struct *packet, const char *data);
+void packet_append_string_len_terminated(packet_struct *packet,
+        const char *data, size_t len);
 void packet_append_string_terminated(packet_struct *packet, const char *data);
 void packet_append_packet(packet_struct *packet, packet_struct *src);
 uint8_t packet_to_uint8(uint8_t *data, size_t len, size_t *pos);

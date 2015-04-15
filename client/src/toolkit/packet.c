@@ -413,16 +413,13 @@ void packet_append_data_len(packet_struct *packet, const uint8_t *data,
 #endif
 }
 
-void packet_append_string(packet_struct *packet, const char *data)
+void packet_append_string_len(packet_struct *packet, const char *data,
+        size_t len)
 {
-    size_t len;
-
     TOOLKIT_FUNC_PROTECTOR(API_NAME);
 
     HARD_ASSERT(packet != NULL);
     SOFT_ASSERT(data != NULL, "Data is NULL.");
-
-    len = strlen(data);
 
     if (len == 0) {
         return;
@@ -434,15 +431,39 @@ void packet_append_string(packet_struct *packet, const char *data)
     packet_debug(packet, 0, "%s", data);
 }
 
-void packet_append_string_terminated(packet_struct *packet, const char *data)
+void packet_append_string(packet_struct *packet, const char *data)
 {
     TOOLKIT_FUNC_PROTECTOR(API_NAME);
 
-    packet_append_string(packet, data);
+    HARD_ASSERT(packet != NULL);
+    SOFT_ASSERT(data != NULL, "Data is NULL.");
+
+    packet_append_string_len(packet, data, strlen(data));
+}
+
+void packet_append_string_len_terminated(packet_struct *packet,
+        const char *data, size_t len)
+{
+    TOOLKIT_FUNC_PROTECTOR(API_NAME);
+
+    HARD_ASSERT(packet != NULL);
+    SOFT_ASSERT(data != NULL, "Data is NULL.");
+
+    packet_append_string_len(packet, data, len);
 
     packet_ensure(packet, 1);
     packet->data[packet->len++] = '\0';
     packet_debug(packet, 0, "\n");
+}
+
+void packet_append_string_terminated(packet_struct *packet, const char *data)
+{
+    TOOLKIT_FUNC_PROTECTOR(API_NAME);
+
+    HARD_ASSERT(packet != NULL);
+    SOFT_ASSERT(data != NULL, "Data is NULL.");
+
+    packet_append_string_len_terminated(packet, data, strlen(data));
 }
 
 void packet_append_packet(packet_struct *packet, packet_struct *src)
