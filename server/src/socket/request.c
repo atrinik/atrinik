@@ -1519,7 +1519,7 @@ void draw_client_map2(object *pl)
 
             packet_append_uint8(packet, num_layers);
 
-            packet_merge(packet_layer, packet);
+            packet_append_packet(packet, packet_layer);
             packet_free(packet_layer);
 
             /* Kill animation? */

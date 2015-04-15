@@ -288,7 +288,6 @@ struct plugin_hooklist {
     void (*packet_enable_ndelay)(packet_struct *);
     void (*packet_set_pos)(packet_struct *, size_t);
     size_t(*packet_get_pos)(packet_struct *);
-    void (*packet_merge)(packet_struct *, packet_struct *);
     void (*packet_append_uint8)(packet_struct *, uint8_t);
     void (*packet_append_sint8)(packet_struct *, int8_t);
     void (*packet_append_uint16)(packet_struct *, uint16_t);

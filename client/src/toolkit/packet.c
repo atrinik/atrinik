@@ -445,6 +445,18 @@ void packet_append_string_terminated(packet_struct *packet, const char *data)
     packet_debug(packet, 0, "\n");
 }
 
+void packet_append_packet(packet_struct *packet, packet_struct *src)
+{
+    TOOLKIT_FUNC_PROTECTOR(API_NAME);
+
+    HARD_ASSERT(packet != NULL);
+    HARD_ASSERT(src != NULL);
+
+    if (src->data != NULL) {
+        packet_append_data_len(packet, src->data, src->len);
+    }
+}
+
 uint8_t packet_to_uint8(uint8_t *data, size_t len, size_t *pos)
 {
     uint8_t ret;

@@ -149,7 +149,6 @@ struct plugin_hooklist hooklist = {
     packet_enable_ndelay,
     packet_set_pos,
     packet_get_pos,
-    packet_merge,
     packet_append_uint8,
     packet_append_int8,
     packet_append_uint16,
