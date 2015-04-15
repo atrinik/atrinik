@@ -24,6 +24,8 @@ extern void check_server_re_cmp(void);
 extern void check_server_shstr(void);
 /* src/tests/unit/server/check_string.c */
 extern void check_server_string(void);
+/* src/tests/unit/server/check_stringbuffer.c */
+extern void check_server_stringbuffer(void);
 /* src/tests/unit/server/check_utils.c */
 extern void check_server_utils(void);
 /* src/tests/unit/types/check_light_apply.c */
