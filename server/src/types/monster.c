@@ -1449,16 +1449,24 @@ int talk_to_npc(object *op, object *npc, char *txt)
 
             packet = packet_new(CLIENT_CMD_INTERFACE, 256, 256);
 
+            packet_debug_data(packet, 0, "\nInterface data type");
             packet_append_uint8(packet, CMD_INTERFACE_TEXT);
+            packet_debug_data(packet, 0, "Text");
             packet_append_string_len(packet, cp, cp_len);
             packet_append_uint8(packet, '\0');
 
+            packet_debug_data(packet, 0, "\nInterface data type");
             packet_append_uint8(packet, CMD_INTERFACE_ANIM);
+            packet_debug_data(packet, 0, "Animation ID");
             packet_append_uint16(packet, npc->animation_id);
+            packet_debug_data(packet, 0, "Animation speed");
             packet_append_uint8(packet, npc->anim_speed);
+            packet_debug_data(packet, 0, "Direction");
             packet_append_uint8(packet, npc->direction);
 
+            packet_debug_data(packet, 0, "\nInterface data type");
             packet_append_uint8(packet, CMD_INTERFACE_TITLE);
+            packet_debug_data(packet, 0, "Title");
             packet_append_string_terminated(packet, npc->name);
 
             socket_send_packet(&CONTR(op)->socket, packet);
