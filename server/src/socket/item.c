@@ -422,7 +422,9 @@ void esrv_close_container(object *op)
 
     packet = packet_new(CLIENT_CMD_ITEM, 32, 0);
     packet_enable_ndelay(packet);
+    packet_debug_data(packet, 0, "Container mode flag");
     packet_append_int32(packet, -1);
+    packet_debug_data(packet, 0, "Target inventory ID");
     packet_append_int32(packet, -1);
     socket_send_packet(&CONTR(op)->socket, packet);
 }
