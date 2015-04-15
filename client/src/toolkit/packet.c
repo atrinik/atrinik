@@ -631,7 +631,7 @@ void packet_to_stringbuffer(uint8_t *data, size_t len, size_t *pos, StringBuffer
     TOOLKIT_FUNC_PROTECTOR(API_NAME);
 
     str = (char *) (data + *pos);
-    stringbuffer_append_string(sb, str);
+    stringbuffer_append_string_len(sb, str, strnlen(str, len - *pos));
     *pos += strlen(str) + 1;
 }
 
