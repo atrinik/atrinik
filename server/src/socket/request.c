@@ -313,9 +313,13 @@ void esrv_new_player(player *pl, uint32_t weight)
     packet_struct *packet;
 
     packet = packet_new(CLIENT_CMD_PLAYER, 12, 0);
+    packet_debug_data(packet, 0, "Player object ID");
     packet_append_uint32(packet, pl->ob->count);
+    packet_debug_data(packet, 0, "Weight");
     packet_append_uint32(packet, weight);
+    packet_debug_data(packet, 0, "Face number");
     packet_append_uint32(packet, pl->ob->face->number);
+    packet_debug_data(packet, 0, "Name");
     packet_append_string_terminated(packet, pl->ob->name);
     socket_send_packet(&pl->socket, packet);
 }
