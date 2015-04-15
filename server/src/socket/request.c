@@ -1615,6 +1615,7 @@ void socket_command_quest_list(socket_struct *ns, player *pl, uint8_t *data, siz
 
     if (!quest_container || !quest_container->inv) {
         packet = packet_new(CLIENT_CMD_BOOK, 0, 0);
+        packet_debug_data(packet, 0, "Quest list message");
         packet_append_string_terminated(packet, "[title]No quests to speak of.[/title]");
         socket_send_packet(&pl->socket, packet);
         return;
@@ -1672,7 +1673,8 @@ void socket_command_quest_list(socket_struct *ns, player *pl, uint8_t *data, siz
     cp = stringbuffer_finish(sb);
 
     packet = packet_new(CLIENT_CMD_BOOK, 0, 0);
-    packet_append_data_len(packet, (uint8_t *) cp, cp_len);
+    packet_debug_data(packet, 0, "Quest list message");
+    packet_append_string_len(packet, cp, cp_len);
     socket_send_packet(&pl->socket, packet);
     efree(cp);
 }
