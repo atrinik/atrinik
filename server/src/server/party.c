@@ -117,11 +117,14 @@ void remove_party_member(party_struct *party, object *op)
 
     if (party->members) {
         packet = packet_new(CLIENT_CMD_PARTY, 64, 64);
+        packet_debug_data(packet, 0, "Party command type");
         packet_append_uint8(packet, CMD_PARTY_REMOVE_MEMBER);
+        packet_debug_data(packet, 0, "Member name");
         packet_append_string_terminated(packet, op->name);
 
         for (ol = party->members; ol; ol = ol->next) {
-            socket_send_packet(&CONTR(ol->objlink.ob)->socket, packet_dup(packet));
+            socket_send_packet(&CONTR(ol->objlink.ob)->socket,
+                    packet_dup(packet));
         }
 
         packet_free(packet);
@@ -132,12 +135,13 @@ void remove_party_member(party_struct *party, object *op)
         remove_party(CONTR(op)->party);
     } else if (op->name == party->leader) {
         /* Otherwise choose a new leader, if the old one left. */
-
         FREE_AND_ADD_REF_HASH(party->leader, party->members->objlink.ob->name);
-        draw_info_format(COLOR_WHITE, party->members->objlink.ob, "You are the new leader of party %s!", party->name);
+        draw_info_format(COLOR_WHITE, party->members->objlink.ob,
+                "You are the new leader of party %s!", party->name);
     }
 
     packet = packet_new(CLIENT_CMD_PARTY, 4, 0);
+    packet_debug_data(packet, 0, "Party command type");
     packet_append_uint8(packet, CMD_PARTY_LEAVE);
     socket_send_packet(&CONTR(op)->socket, packet);
 
