@@ -1450,7 +1450,7 @@ int talk_to_npc(object *op, object *npc, char *txt)
             packet = packet_new(CLIENT_CMD_INTERFACE, 256, 256);
 
             packet_append_uint8(packet, CMD_INTERFACE_TEXT);
-            packet_append_data_len(packet, (uint8_t *) cp, cp_len);
+            packet_append_string_len(packet, cp, cp_len);
             packet_append_uint8(packet, '\0');
 
             packet_append_uint8(packet, CMD_INTERFACE_ANIM);
