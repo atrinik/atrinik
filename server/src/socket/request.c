@@ -1814,6 +1814,7 @@ void socket_command_keepalive(socket_struct *ns, player *pl, uint8_t *data, size
 
     packet = packet_new(CLIENT_CMD_KEEPALIVE, 20, 0);
     packet_enable_ndelay(packet);
+    packet_debug_data(packet, 0, "Keepalive ID");
     packet_append_uint32(packet, id);
     socket_send_packet(ns, packet);
 }
