@@ -208,7 +208,10 @@ packet_struct *packet_dup(packet_struct *packet)
 
     cp = packet_new(packet->type, packet->size, packet->expand);
     cp->ndelay = packet->ndelay;
-    packet_append_data_len(cp, packet->data, packet->len);
+
+    if (packet->data != NULL) {
+        packet_append_data_len(cp, packet->data, packet->len);
+    }
 
     return cp;
 }
