@@ -341,7 +341,6 @@ static void packet_append_uint32_internal(packet_struct *packet, uint32_t data)
     packet->data[packet->len++] = (data >> 16) & 0xff;
     packet->data[packet->len++] = (data >> 8) & 0xff;
     packet->data[packet->len++] = data & 0xff;
-    packet_debug(packet, 0, "%u\n", data);
 }
 
 void packet_append_uint32(packet_struct *packet, uint32_t data)
