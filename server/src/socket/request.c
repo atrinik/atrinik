@@ -1869,13 +1869,18 @@ void send_target_command(player *pl)
     pl->ob->enemy_count = 0;
 
     if (!pl->target_object || pl->target_object == pl->ob || !OBJECT_VALID(pl->target_object, pl->target_object_count) || IS_INVISIBLE(pl->target_object, pl->ob)) {
+        packet_debug_data(packet, 0, "Target command type");
         packet_append_uint8(packet, CMD_TARGET_SELF);
+        packet_debug_data(packet, 0, "Color");
         packet_append_string_terminated(packet, COLOR_YELLOW);
+        packet_debug_data(packet, 0, "Target name");
         packet_append_string_terminated(packet, pl->ob->name);
 
         pl->target_object = pl->ob;
         pl->target_object_count = 0;
     } else {
+        packet_debug_data(packet, 0, "Target command type");
+
         if (is_friend_of(pl->ob, pl->target_object)) {
             packet_append_uint8(packet, CMD_TARGET_FRIEND);
         } else {
@@ -1884,6 +1889,8 @@ void send_target_command(player *pl)
             pl->ob->enemy = pl->target_object;
             pl->ob->enemy_count = pl->target_object_count;
         }
+
+        packet_debug_data(packet, 0, "Color");
 
         if (pl->target_object->level < level_color[pl->ob->level].yellow) {
             if (pl->target_object->level < level_color[pl->ob->level].green) {
@@ -1906,6 +1913,8 @@ void send_target_command(player *pl)
                 packet_append_string_terminated(packet, COLOR_YELLOW);
             }
         }
+
+        packet_debug_data(packet, 0, "Target name");
 
         if (pl->tgm) {
             char buf[MAX_BUF];
