@@ -722,7 +722,9 @@ void send_quickslots(player *pl)
 
     for (tmp = pl->ob->inv; tmp; tmp = tmp->below) {
         if (tmp->quickslot) {
+            packet_debug_data(packet, 0, "\nQuickslot ID");
             packet_append_uint8(packet, tmp->quickslot - 1);
+            packet_debug_data(packet, 0, "Object ID");
             packet_append_uint32(packet, tmp->count);
         }
     }
