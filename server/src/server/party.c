@@ -83,7 +83,9 @@ void add_party_member(party_struct *party, object *op)
     CONTR(op)->party = party;
 
     packet = packet_new(CLIENT_CMD_PARTY, 64, 64);
+    packet_debug_data(packet, 0, "Party command type");
     packet_append_uint8(packet, CMD_PARTY_JOIN);
+    packet_debug_data(packet, 0, "Party name");
     packet_append_string_terminated(packet, party->name);
     socket_send_packet(&CONTR(op)->socket, packet);
 
