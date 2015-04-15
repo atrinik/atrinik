@@ -603,6 +603,7 @@ void packet_append_map_weather(packet_struct *packet, object *op, object *map_in
     { \
         if (CONTR(pl)->socket.lastmap.cells[ax][ay].cleared != 1) \
         { \
+            packet_debug_data(packet, 0, "Clearing tile %d,%d, mask", ax, ay); \
             packet_append_uint16(packet, mask | MAP2_MASK_CLEAR); \
             map_clearcell(&CONTR(pl)->socket.lastmap.cells[ax][ay]); \
         } \
@@ -625,10 +626,10 @@ void draw_client_map2(object *pl)
     object *mirror = NULL, *tmp, *tmp2;
     uint8_t have_sound_ambient;
     packet_struct *packet, *packet_layer, *packet_sound;
-    size_t oldpos;
     uint8_t floor_z_down, floor_z_up;
     int sub_layer, sub_layer2, socket_layer, tiled_dir, tiled_depth, zadj;
     int force_draw_double, priority, tiled_z, is_in_building;
+    packet_save_t packet_save_buf;
 
     /* Any kind of special vision? */
     special_vision = (QUERY_FLAG(pl, FLAG_XRAYS) ? 1 : 0) | (QUERY_FLAG(pl, FLAG_SEE_IN_DARK) ? 2 : 0);
@@ -638,6 +639,7 @@ void draw_client_map2(object *pl)
     packet_sound = packet_new(CLIENT_CMD_SOUND_AMBIENT, 0, 256);
 
     packet_enable_ndelay(packet);
+    packet_debug_data(packet, 0, "Map update command type");
     packet_append_uint8(packet, CONTR(pl)->map_update_cmd);
 
     if (CONTR(pl)->map_update_cmd != MAP_UPDATE_CMD_SAME) {
@@ -650,6 +652,7 @@ void draw_client_map2(object *pl)
         packet_append_map_name(packet, pl, map_info);
         packet_append_map_music(packet, pl, map_info);
         packet_append_map_weather(packet, pl, map_info);
+        packet_debug_data(packet, 0, "Map height diff");
         packet_append_uint8(packet, MAP_HEIGHT_DIFF(pl->map) ? 1 : 0);
 
         if (map_info) {
@@ -693,20 +696,29 @@ void draw_client_map2(object *pl)
                 }
             }
 
+            packet_debug_data(packet, 0, "Display region map");
             packet_append_uint8(packet, has_map);
+            packet_debug_data(packet, 0, "Region name");
             packet_append_string_terminated(packet,
                     region != NULL ? region->name : "");
+            packet_debug_data(packet, 0, "Region long name");
             packet_append_string_terminated(packet,
                     region != NULL ? region_get_longname(region) : "");
+            packet_debug_data(packet, 0, "Map path");
             packet_append_string_terminated(packet, pl->map->path);
         }
 
         if (CONTR(pl)->map_update_cmd == MAP_UPDATE_CMD_CONNECTED) {
+            packet_debug_data(packet, 0, "Map update tile");
             packet_append_uint8(packet, CONTR(pl)->map_update_tile);
+            packet_debug_data(packet, 0, "Map X offset");
             packet_append_int8(packet, CONTR(pl)->map_off_x);
+            packet_debug_data(packet, 0, "Map Y offset");
             packet_append_int8(packet, CONTR(pl)->map_off_y);
         } else {
+            packet_debug_data(packet, 0, "Map width");
             packet_append_uint8(packet, pl->map->width);
+            packet_debug_data(packet, 0, "Map height");
             packet_append_uint8(packet, pl->map->height);
         }
     }
@@ -716,9 +728,13 @@ void draw_client_map2(object *pl)
     is_in_building = (msp_pl->extra_flags & (MSP_EXTRA_IS_BUILDING |
             MSP_EXTRA_IS_BALCONY)) == MSP_EXTRA_IS_BUILDING;
 
+    packet_debug_data(packet, 0, "Player's X coordinate");
     packet_append_uint8(packet, pl->x);
+    packet_debug_data(packet, 0, "Player's Y coordinate");
     packet_append_uint8(packet, pl->y);
+    packet_debug_data(packet, 0, "Player's sub-layer");
     packet_append_uint8(packet, pl->sub_layer);
+    packet_debug_data(packet, 0, "Player is in building");
     packet_append_uint8(packet, is_in_building);
 
     for (ay = CONTR(pl)->socket.mapy - 1, y = (pl->y + (CONTR(pl)->socket.mapy + 1) / 2) - 1; y >= pl->y - CONTR(pl)->socket.mapy_2; y--, ay--) {
@@ -761,16 +777,30 @@ void draw_client_map2(object *pl)
             /* If there is an ambient sound effect and we haven't sent it
              * before, or there isn't one but it was sent before, send an
              * update. */
-            if ((have_sound_ambient && mp->sound_ambient_count != msp->sound_ambient->count) || (!have_sound_ambient && mp->sound_ambient_count)) {
+            if ((have_sound_ambient && mp->sound_ambient_count !=
+                    msp->sound_ambient->count) || (!have_sound_ambient &&
+                    mp->sound_ambient_count)) {
+                packet_debug(packet_sound, 0, "\nSound tile data:");
+                packet_debug_data(packet_sound, 1, "X coordinate");
                 packet_append_uint8(packet_sound, ax);
+                packet_debug_data(packet_sound, 1, "Y coordinate");
                 packet_append_uint8(packet_sound, ay);
+                packet_debug_data(packet_sound, 1, "Last sound object ID");
                 packet_append_uint32(packet_sound, mp->sound_ambient_count);
+                packet_debug_data(packet_sound, 1, "Sound object ID");
 
                 if (have_sound_ambient) {
-                    packet_append_uint32(packet_sound, msp->sound_ambient->count);
-                    packet_append_string_terminated(packet_sound, msp->sound_ambient->race);
-                    packet_append_uint8(packet_sound, msp->sound_ambient->item_condition);
-                    packet_append_uint8(packet_sound, msp->sound_ambient->item_level);
+                    packet_append_uint32(packet_sound,
+                            msp->sound_ambient->count);
+                    packet_debug_data(packet_sound, 1, "Sound filename");
+                    packet_append_string_terminated(packet_sound,
+                            msp->sound_ambient->race);
+                    packet_debug_data(packet_sound, 1, "Volume");
+                    packet_append_uint8(packet_sound,
+                            msp->sound_ambient->item_condition);
+                    packet_debug_data(packet_sound, 1, "Max range");
+                    packet_append_uint8(packet_sound,
+                            msp->sound_ambient->item_level);
 
                     mp->sound_ambient_count = msp->sound_ambient->count;
                 } else {
@@ -818,7 +848,7 @@ void draw_client_map2(object *pl)
 
             /* Initialize default values for some variables. */
             ext_flags = 0;
-            oldpos = packet_get_pos(packet);
+            packet_save(packet, &packet_save_buf);
             anim_type = 0;
             anim_value = 0;
             have_down = 0;
@@ -1387,8 +1417,14 @@ void draw_client_map2(object *pl)
                             }
 
                             if (mp->faces[socket_layer]) {
-                                packet_append_uint8(packet_layer, MAP2_LAYER_CLEAR);
-                                packet_append_uint8(packet_layer, socket_layer);
+                                packet_debug_data(packet_layer, 1,
+                                        "Socket layer ID (clear)");
+                                packet_append_uint8(packet_layer,
+                                        MAP2_LAYER_CLEAR);
+                                packet_debug_data(packet_layer, 1,
+                                        "Actual socket layer");
+                                packet_append_uint8(packet_layer,
+                                        socket_layer);
                                 num_layers++;
                             }
 
@@ -1397,29 +1433,47 @@ void draw_client_map2(object *pl)
 
                         num_layers++;
 
+                        packet_debug_data(packet_layer, 1,
+                                "Socket layer (layer: %d, sub-layer: %d)",
+                                layer, sub_layer);
                         packet_append_uint8(packet_layer, socket_layer);
+                        packet_debug_data(packet_layer, 2, "Face ID");
                         packet_append_uint16(packet_layer, face);
-                        packet_append_uint8(packet_layer, GET_CLIENT_FLAGS(head));
+                        packet_debug_data(packet_layer, 2, "Client flags");
+                        packet_append_uint8(packet_layer,
+                                GET_CLIENT_FLAGS(head));
+                        packet_debug_data(packet_layer, 2, "Socket flags");
                         packet_append_uint8(packet_layer, flags);
 
                         /* Multi-arch? Add it's quick pos. */
                         if (flags & MAP2_FLAG_MULTI) {
+                            packet_debug_data(packet_layer, 2, "Quick pos");
                             packet_append_uint8(packet_layer, quick_pos);
                         }
 
                         /* Player name? Add the player's name, and their player
                          * name color. */
                         if (flags & MAP2_FLAG_NAME) {
-                            packet_append_string_terminated(packet_layer, CONTR(tmp)->quick_name);
-                            packet_append_string_terminated(packet_layer, get_playername_color(pl, tmp));
+                            packet_debug_data(packet_layer, 2, "Player name");
+                            packet_append_string_terminated(packet_layer,
+                                    CONTR(tmp)->quick_name);
+                            packet_debug_data(packet_layer, 2,
+                                    "Player name color");
+                            packet_append_string_terminated(packet_layer,
+                                    get_playername_color(pl, tmp));
                         }
 
                         if (flags & MAP2_FLAG_ANIMATION) {
+                            packet_debug(packet_layer, 2, "Animation\n");
+                            packet_debug_data(packet_layer, 3, "Speed");
                             packet_append_uint8(packet_layer, anim_speed);
+                            packet_debug_data(packet_layer, 3, "Facing");
                             packet_append_uint8(packet_layer, anim_facing);
+                            packet_debug_data(packet_layer, 3, "Flags");
                             packet_append_uint8(packet_layer, anim_flags);
 
                             if (anim_flags & ANIM_FLAG_MOVING) {
+                                packet_debug_data(packet_layer, 3, "State");
                                 packet_append_uint8(packet_layer,
                                         face_obj->state);
                             }
@@ -1452,10 +1506,13 @@ void draw_client_map2(object *pl)
                                 }
                             }
 
+                            packet_debug_data(packet_layer, 2, "Z");
                             packet_append_int16(packet_layer, z);
                         }
 
                         if (flags & MAP2_FLAG_ALIGN) {
+                            packet_debug_data(packet_layer, 2, "Align");
+
                             if (mirror && mirror->align) {
                                 packet_append_int16(packet_layer, head->align + mirror->align);
                             } else {
@@ -1464,13 +1521,17 @@ void draw_client_map2(object *pl)
                         }
 
                         if (flags & MAP2_FLAG_MORE) {
+                            packet_debug_data(packet_layer, 2, "Extended info");
+                            packet_debug_data(packet_layer, 3, "Flags");
                             packet_append_uint32(packet_layer, flags2);
 
                             if (flags2 & MAP2_FLAG2_ALPHA) {
+                                packet_debug_data(packet_layer, 3, "Alpha");
                                 packet_append_uint8(packet_layer, head->alpha);
                             }
 
                             if (flags2 & MAP2_FLAG2_ROTATE) {
+                                packet_debug_data(packet_layer, 3, "Rotate");
                                 packet_append_int16(packet_layer, head->rotate);
                             }
 
@@ -1478,28 +1539,48 @@ void draw_client_map2(object *pl)
                                 /* First check mirror, even if the object *does*
                                  * have custom zoom. */
                                 if (mirror && mirror->last_heal) {
-                                    packet_append_uint16(packet_layer, mirror->last_heal);
-                                    packet_append_uint16(packet_layer, mirror->last_heal);
+                                    packet_debug_data(packet_layer, 3,
+                                            "X zoom");
+                                    packet_append_uint16(packet_layer,
+                                            mirror->last_heal);
+                                    packet_debug_data(packet_layer, 3,
+                                            "Y zoom");
+                                    packet_append_uint16(packet_layer,
+                                            mirror->last_heal);
                                 } else {
-                                    packet_append_uint16(packet_layer, head->zoom_x);
-                                    packet_append_uint16(packet_layer, head->zoom_y);
+                                    packet_debug_data(packet_layer, 3,
+                                            "X zoom");
+                                    packet_append_uint16(packet_layer,
+                                            head->zoom_x);
+                                    packet_debug_data(packet_layer, 3,
+                                            "Y zoom");
+                                    packet_append_uint16(packet_layer,
+                                            head->zoom_y);
                                 }
                             }
 
                             if (flags2 & MAP2_FLAG2_TARGET) {
-                                packet_append_uint32(packet_layer, target_object_count);
-                                packet_append_uint8(packet_layer, is_friend_of(pl, head));
+                                packet_debug_data(packet_layer, 3,
+                                        "Target object ID");
+                                packet_append_uint32(packet_layer,
+                                        target_object_count);
+                                packet_debug_data(packet_layer, 3,
+                                        "Target is friend");
+                                packet_append_uint8(packet_layer,
+                                        is_friend_of(pl, head));
                             }
 
                             /* Target's HP bar. */
                             if (flags2 & MAP2_FLAG2_PROBE) {
+                                packet_debug_data(packet_layer, 3,
+                                        "HP percentage");
                                 packet_append_uint8(packet_layer, probe_val);
                             }
                         }
                     } else if (mp->faces[socket_layer]) {
-                        /* Didn't find anything. Now, if we have previously seen a
-                         * face
-                         * on this layer, we will want the client to clear it. */
+                        /* Didn't find anything. Now, if we have previously seen
+                         * a face on this layer, we will want the client to
+                         * clear it. */
                         mp->faces[socket_layer] = 0;
                         mp->quick_pos[socket_layer] = 0;
                         mp->anim_speed[socket_layer] = 0;
@@ -1509,7 +1590,11 @@ void draw_client_map2(object *pl)
                             mp->anim_flags[sub_layer] = 0;
                         }
 
+                        packet_debug_data(packet_layer, 1,
+                                "Socket layer ID (clear)");
                         packet_append_uint8(packet_layer, MAP2_LAYER_CLEAR);
+                        packet_debug_data(packet_layer, 1,
+                                "Actual socket layer");
                         packet_append_uint8(packet_layer, socket_layer);
                         num_layers++;
                     }
@@ -1517,6 +1602,7 @@ void draw_client_map2(object *pl)
             }
 
             /* Add the mask. Any mask changes should go above this line. */
+            packet_debug_data(packet, 0, "Tile %d,%d data, mask", ax, ay);
             packet_append_uint16(packet, mask);
 
             for (sub_layer = 0; sub_layer < NUM_SUB_LAYERS; sub_layer++) {
@@ -1547,9 +1633,12 @@ void draw_client_map2(object *pl)
                     d = 30;
                 }
 
+                packet_debug_data(packet, 1, "Darkness (sub-layer: %d)",
+                        sub_layer);
                 packet_append_uint8(packet, d);
             }
 
+            packet_debug_data(packet, 1, "Number of layers");
             packet_append_uint8(packet, num_layers);
 
             packet_append_packet(packet, packet_layer);
@@ -1569,18 +1658,21 @@ void draw_client_map2(object *pl)
             }
 
             /* Add flags for this tile. */
+            packet_debug_data(packet, 1, "Extended tile flags");
             packet_append_uint8(packet, ext_flags);
 
             /* Animation? Add its type and value. */
             if (ext_flags & MAP2_FLAG_EXT_ANIM) {
+                packet_debug_data(packet, 1, "Animation type");
                 packet_append_uint8(packet, anim_type);
+                packet_debug_data(packet, 1, "Animation value");
                 packet_append_uint16(packet, anim_value);
             }
 
             /* If nothing has really changed, go back to the old position
              * in the packet. */
             if (!(mask & 0x3f) && !num_layers && !ext_flags) {
-                packet_set_pos(packet, oldpos);
+                packet_load(packet, &packet_save_buf);
             }
 
             /* Set 'mirror' back to NULL, so we'll try to re-find it on another
