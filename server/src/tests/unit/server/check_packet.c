@@ -103,6 +103,76 @@ START_TEST(test_packet_dup)
 }
 END_TEST
 
+START_TEST(test_packet_save)
+{
+    packet_struct *packet;
+    packet_save_t packet_save_buf;
+
+    packet = packet_new(0, 0, 0);
+    packet_save(packet, &packet_save_buf);
+    ck_assert_uint_eq(packet_save_buf.pos, 0);
+    packet_free(packet);
+
+    packet = packet_new(0, 0, 0);
+    packet_append_uint32(packet, 42);
+    packet_save(packet, &packet_save_buf);
+    ck_assert_uint_eq(packet_save_buf.pos, 4);
+    packet_free(packet);
+
+    packet = packet_new(0, 0, 0);
+    packet_append_uint32(packet, 42);
+    packet_save(packet, &packet_save_buf);
+    ck_assert_uint_eq(packet_save_buf.pos, 4);
+    packet_append_uint32(packet, 42);
+    ck_assert_uint_eq(packet_save_buf.pos, 4);
+    packet_free(packet);
+}
+END_TEST
+
+START_TEST(test_packet_load)
+{
+    packet_struct *packet;
+    packet_save_t packet_save_buf;
+
+    packet = packet_new(0, 0, 0);
+    ck_assert_uint_eq(packet_get_pos(packet), 0);
+    packet_save(packet, &packet_save_buf);
+    packet_load(packet, &packet_save_buf);
+    ck_assert_uint_eq(packet_get_pos(packet), 0);
+    packet_free(packet);
+
+    packet = packet_new(0, 0, 0);
+    ck_assert_uint_eq(packet_get_pos(packet), 0);
+    packet_append_uint32(packet, 42);
+    ck_assert_uint_eq(packet_get_pos(packet), 4);
+    packet_save(packet, &packet_save_buf);
+    packet_load(packet, &packet_save_buf);
+    ck_assert_uint_eq(packet_get_pos(packet), 4);
+    packet_free(packet);
+
+    packet = packet_new(0, 0, 0);
+    ck_assert_uint_eq(packet_get_pos(packet), 0);
+    packet_append_uint32(packet, 42);
+    ck_assert_uint_eq(packet_get_pos(packet), 4);
+    packet_save(packet, &packet_save_buf);
+    packet_load(packet, &packet_save_buf);
+    ck_assert_uint_eq(packet_get_pos(packet), 4);
+    packet_append_uint32(packet, 42);
+    ck_assert_uint_eq(packet_get_pos(packet), 8);
+    packet_free(packet);
+
+    packet = packet_new(0, 0, 0);
+    ck_assert_uint_eq(packet_get_pos(packet), 0);
+    packet_append_uint32(packet, 42);
+    ck_assert_uint_eq(packet_get_pos(packet), 4);
+    packet_save(packet, &packet_save_buf);
+    packet_append_uint32(packet, 42);
+    packet_load(packet, &packet_save_buf);
+    ck_assert_uint_eq(packet_get_pos(packet), 4);
+    packet_free(packet);
+}
+END_TEST
+
 START_TEST(test_packet_append_uint8)
 {
     packet_struct *packet;
@@ -788,6 +858,8 @@ static Suite *packet_suite(void)
     suite_add_tcase(s, tc_core);
     tcase_add_test(tc_core, test_packet_new);
     tcase_add_test(tc_core, test_packet_dup);
+    tcase_add_test(tc_core, test_packet_save);
+    tcase_add_test(tc_core, test_packet_load);
     tcase_add_test(tc_core, test_packet_append_uint8);
     tcase_add_test(tc_core, test_packet_append_int8);
     tcase_add_test(tc_core, test_packet_append_uint16);
