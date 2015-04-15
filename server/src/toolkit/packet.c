@@ -529,6 +529,16 @@ void packet_append_packet(packet_struct *packet, packet_struct *src)
     if (src->data != NULL) {
         packet_append_data_len_internal(packet, src->data, src->len);
     }
+
+#ifndef NDEBUG
+    if (packet->sb != NULL && src->sb != NULL) {
+        char *cp;
+
+        cp = stringbuffer_sub(src->sb, 0, 0);
+        stringbuffer_append_string(packet->sb, cp);
+        efree(cp);
+    }
+#endif
 }
 
 uint8_t packet_to_uint8(uint8_t *data, size_t len, size_t *pos)
