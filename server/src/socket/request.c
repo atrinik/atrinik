@@ -2320,6 +2320,7 @@ void socket_command_control(socket_struct *ns, player *pl, uint8_t *data, size_t
         if (ret == 1) {
             packet = packet_new(CLIENT_CMD_CONTROL, 256, 256);
             packet_enable_ndelay(packet);
+            packet_debug_data(packet, 0, "Forwarded data");
             packet_append_data_len(packet, data, len);
             socket_send_packet(&control_player->socket, packet);
 
