@@ -44,14 +44,19 @@
     vsnprintf(buf, sizeof(buf), format, ap); \
     va_end(ap);
 
-void draw_info_send(uint8_t type, const char *name, const char *color, socket_struct *ns, const char *buf)
+void draw_info_send(uint8_t type, const char *name, const char *color,
+        socket_struct *ns, const char *buf)
 {
     packet_struct *packet;
 
     packet = packet_new(CLIENT_CMD_DRAWINFO, 256, 512);
     packet_enable_ndelay(packet);
+    packet_debug_data(packet, 0, "Type");
     packet_append_uint8(packet, type);
+    packet_debug_data(packet, 0, "Color");
     packet_append_string_terminated(packet, color);
+
+    packet_debug_data(packet, 0, "Message");
 
     if (name) {
         packet_append_string(packet, "[a=#charname]");
