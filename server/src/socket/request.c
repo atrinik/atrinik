@@ -181,7 +181,9 @@ void esrv_update_stats(player *pl)
             packet = packet_new(CLIENT_CMD_STATS, 32, 128); \
         } \
         (_old) = (_new); \
+        packet_debug_data(packet, 0, "Stats command type"); \
         packet_append_uint8(packet, (_type)); \
+        packet_debug_data(packet, 0, "%s", #_new); \
         packet_append_ ## _bitsize(packet, (_new)); \
     }
 
@@ -190,7 +192,8 @@ void esrv_update_stats(player *pl)
     if (pl->target_object && pl->target_object != pl->ob) {
         char hp;
 
-        hp = MAX(1, (((float) pl->target_object->stats.hp / (float) pl->target_object->stats.maxhp) * 100.0f));
+        hp = MAX(1, (((float) pl->target_object->stats.hp /
+                (float) pl->target_object->stats.maxhp) * 100.0f));
 
         AddIf(pl->target_hp, hp, CS_STAT_TARGET_HP, uint8);
     }
@@ -201,11 +204,15 @@ void esrv_update_stats(player *pl)
 
     if (pl->ob) {
         object *arrow;
+        int16_t ranged_dam, ranged_wc;
+        float ranged_ws;
 
         AddIf(pl->last_level, pl->ob->level, CS_STAT_LEVEL, uint8);
         AddIf(pl->last_speed, pl->ob->speed, CS_STAT_SPEED, float);
-        AddIf(pl->last_weapon_speed, pl->ob->weapon_speed / MAX_TICKS, CS_STAT_WEAPON_SPEED, float);
-        AddIf(pl->last_weight_limit, weight_limit[pl->ob->stats.Str], CS_STAT_WEIGHT_LIM, uint32);
+        AddIf(pl->last_weapon_speed, pl->ob->weapon_speed / MAX_TICKS,
+                CS_STAT_WEAPON_SPEED, float);
+        AddIf(pl->last_weight_limit, weight_limit[pl->ob->stats.Str],
+                CS_STAT_WEIGHT_LIM, uint32);
         AddIf(pl->last_stats.hp, pl->ob->stats.hp, CS_STAT_HP, int32);
         AddIf(pl->last_stats.maxhp, pl->ob->stats.maxhp, CS_STAT_MAXHP, int32);
         AddIf(pl->last_stats.sp, pl->ob->stats.sp, CS_STAT_SP, int16);
@@ -220,19 +227,30 @@ void esrv_update_stats(player *pl)
         AddIf(pl->last_stats.ac, pl->ob->stats.ac, CS_STAT_AC, uint16);
         AddIf(pl->last_stats.dam, pl->ob->stats.dam, CS_STAT_DAM, uint16);
         AddIf(pl->last_stats.food, pl->ob->stats.food, CS_STAT_FOOD, uint16);
-        AddIf(pl->last_path_attuned, pl->ob->path_attuned, CS_STAT_PATH_ATTUNED, uint32);
-        AddIf(pl->last_path_repelled, pl->ob->path_repelled, CS_STAT_PATH_REPELLED, uint32);
-        AddIf(pl->last_path_denied, pl->ob->path_denied, CS_STAT_PATH_DENIED, uint32);
+        AddIf(pl->last_path_attuned, pl->ob->path_attuned,
+                CS_STAT_PATH_ATTUNED, uint32);
+        AddIf(pl->last_path_repelled, pl->ob->path_repelled,
+                CS_STAT_PATH_REPELLED, uint32);
+        AddIf(pl->last_path_denied, pl->ob->path_denied,
+                CS_STAT_PATH_DENIED, uint32);
 
-        if (pl->equipment[PLAYER_EQUIP_WEAPON_RANGED] && pl->equipment[PLAYER_EQUIP_WEAPON_RANGED]->type == BOW && (arrow = arrow_find(pl->ob, pl->equipment[PLAYER_EQUIP_WEAPON_RANGED]->race))) {
-            AddIf(pl->last_ranged_dam, arrow_get_damage(pl->ob, pl->equipment[PLAYER_EQUIP_WEAPON_RANGED], arrow), CS_STAT_RANGED_DAM, uint16);
-            AddIf(pl->last_ranged_wc, arrow_get_wc(pl->ob, pl->equipment[PLAYER_EQUIP_WEAPON_RANGED], arrow), CS_STAT_RANGED_WC, uint16);
-            AddIf(pl->last_ranged_ws, bow_get_ws(pl->equipment[PLAYER_EQUIP_WEAPON_RANGED], arrow), CS_STAT_RANGED_WS, float);
+        if (pl->equipment[PLAYER_EQUIP_WEAPON_RANGED] &&
+                pl->equipment[PLAYER_EQUIP_WEAPON_RANGED]->type == BOW &&
+                (arrow = arrow_find(pl->ob,
+                pl->equipment[PLAYER_EQUIP_WEAPON_RANGED]->race))) {
+            ranged_dam = arrow_get_damage(pl->ob,
+                    pl->equipment[PLAYER_EQUIP_WEAPON_RANGED], arrow);
+            ranged_wc = arrow_get_wc(pl->ob,
+                    pl->equipment[PLAYER_EQUIP_WEAPON_RANGED], arrow);
+            ranged_ws = bow_get_ws(pl->equipment[PLAYER_EQUIP_WEAPON_RANGED],
+                    arrow);
         } else {
-            AddIf(pl->last_ranged_dam, 0, CS_STAT_RANGED_DAM, uint16);
-            AddIf(pl->last_ranged_wc, 0, CS_STAT_RANGED_WC, uint16);
-            AddIf(pl->last_ranged_ws, 0.0, CS_STAT_RANGED_WS, float);
+            ranged_dam = ranged_wc = ranged_ws = 0;
         }
+
+        AddIf(pl->last_ranged_dam, ranged_dam, CS_STAT_RANGED_DAM, uint16);
+        AddIf(pl->last_ranged_wc, ranged_wc, CS_STAT_RANGED_WC, uint16);
+        AddIf(pl->last_ranged_ws, ranged_ws, CS_STAT_RANGED_WS, float);
     }
 
     flags = 0;
@@ -275,7 +293,8 @@ void esrv_update_stats(player *pl)
     }
 
     for (i = 0; i < PLAYER_EQUIP_MAX; i++) {
-        AddIf(pl->last_equipment[i], pl->equipment[i] ? pl->equipment[i]->count : 0, CS_STAT_EQUIP_START + i, uint32);
+        AddIf(pl->last_equipment[i], pl->equipment[i] != NULL ?
+                pl->equipment[i]->count : 0, CS_STAT_EQUIP_START + i, uint32);
     }
 
     AddIf(pl->last_gender, object_get_gender(pl->ob), CS_STAT_GENDER, uint8);
