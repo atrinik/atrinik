@@ -229,6 +229,9 @@ void packet_delete(packet_struct *packet, size_t pos, size_t len)
 
 void packet_save(packet_struct *packet, packet_save_t *packet_save_buf)
 {
+    HARD_ASSERT(packet != NULL);
+    HARD_ASSERT(packet_save_buf != NULL);
+
     packet_save_buf->pos = packet->len;
 
 #ifndef DEBUG
@@ -238,6 +241,9 @@ void packet_save(packet_struct *packet, packet_save_t *packet_save_buf)
 
 void packet_load(packet_struct *packet, const packet_save_t *packet_save_buf)
 {
+    HARD_ASSERT(packet != NULL);
+    HARD_ASSERT(packet_save_buf != NULL);
+
     packet->len = packet_save_buf->pos;
 
 #ifndef DEBUG
