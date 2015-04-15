@@ -140,6 +140,7 @@ void socket_command_version(socket_struct *ns, player *pl, uint8_t *data, size_t
     ns->socket_version = ver;
 
     packet = packet_new(CLIENT_CMD_VERSION, 4, 4);
+    packet_debug_data(packet, 0, "Socket version");
     packet_append_uint32(packet, SOCKET_VERSION);
     socket_send_packet(ns, packet);
 }
