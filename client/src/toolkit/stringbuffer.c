@@ -84,10 +84,11 @@ void toolkit_stringbuffer_deinit(void)
  * @return The newly allocated string buffer. */
 StringBuffer *stringbuffer_new(void)
 {
-    StringBuffer *sb = emalloc(sizeof(StringBuffer));
+    StringBuffer *sb;
 
     TOOLKIT_FUNC_PROTECTOR(API_NAME);
 
+    sb = emalloc(sizeof(StringBuffer));
     sb->size = MAX_BUF;
     sb->buf = emalloc(sb->size);
     sb->pos = 0;
