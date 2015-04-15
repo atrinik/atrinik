@@ -586,6 +586,7 @@ static void esrv_del_item_send(object *pl, object *op)
 
     packet = packet_new(CLIENT_CMD_ITEM_DELETE, 16, 0);
     packet_enable_ndelay(packet);
+    packet_debug_data(packet, 0, "Object ID");
     packet_append_uint32(packet, op->count);
     socket_send_packet(&CONTR(pl)->socket, packet);
 }
