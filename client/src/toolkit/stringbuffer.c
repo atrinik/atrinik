@@ -60,7 +60,6 @@ static void stringbuffer_ensure(StringBuffer *sb, size_t len);
  * @internal */
 void toolkit_stringbuffer_init(void)
 {
-
     TOOLKIT_INIT_FUNC_START(stringbuffer)
     {
     }
@@ -72,7 +71,6 @@ void toolkit_stringbuffer_init(void)
  * @internal */
 void toolkit_stringbuffer_deinit(void)
 {
-
     TOOLKIT_DEINIT_FUNC_START(stringbuffer)
     {
     }
