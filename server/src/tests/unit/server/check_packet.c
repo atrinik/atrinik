@@ -395,6 +395,27 @@ START_TEST(test_packet_append_data_len)
 }
 END_TEST
 
+START_TEST(test_packet_append_string_len)
+{
+    packet_struct *packet;
+
+    packet = packet_new(0, 0, 0);
+    packet_append_string_len(packet, "", 0);
+    packet_verify_data(packet, "");
+    packet_free(packet);
+
+    packet = packet_new(0, 0, 0);
+    packet_append_string_len(packet, "test", 4);
+    packet_verify_data(packet, "74657374");
+    packet_free(packet);
+
+    packet = packet_new(0, 0, 0);
+    packet_append_string_len(packet, "test", 2);
+    packet_verify_data(packet, "7465");
+    packet_free(packet);
+}
+END_TEST
+
 START_TEST(test_packet_append_string)
 {
     packet_struct *packet;
@@ -407,6 +428,22 @@ START_TEST(test_packet_append_string)
     packet = packet_new(0, 0, 0);
     packet_append_string(packet, "test");
     packet_verify_data(packet, "74657374");
+    packet_free(packet);
+}
+END_TEST
+
+START_TEST(test_packet_append_string_len_terminated)
+{
+    packet_struct *packet;
+
+    packet = packet_new(0, 0, 0);
+    packet_append_string_len_terminated(packet, "", 0);
+    packet_verify_data(packet, "00");
+    packet_free(packet);
+
+    packet = packet_new(0, 0, 0);
+    packet_append_string_len_terminated(packet, "test", 2);
+    packet_verify_data(packet, "746500");
     packet_free(packet);
 }
 END_TEST
@@ -762,7 +799,9 @@ static Suite *packet_suite(void)
     tcase_add_test(tc_core, test_packet_append_float);
     tcase_add_test(tc_core, test_packet_append_double);
     tcase_add_test(tc_core, test_packet_append_data_len);
+    tcase_add_test(tc_core, test_packet_append_string_len);
     tcase_add_test(tc_core, test_packet_append_string);
+    tcase_add_test(tc_core, test_packet_append_string_len_terminated);
     tcase_add_test(tc_core, test_packet_append_string_terminated);
     tcase_add_test(tc_core, test_packet_append_packet);
     tcase_add_test(tc_core, test_packet_to_uint8);
