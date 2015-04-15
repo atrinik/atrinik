@@ -425,8 +425,8 @@ void packet_append_double(packet_struct *packet, double data)
     packet_debug(packet, 0, "%f\n", data);
 }
 
-void packet_append_data_len(packet_struct *packet, const uint8_t *data,
-        size_t len)
+static void packet_append_data_len_internal(packet_struct *packet,
+        const uint8_t *data, size_t len)
 {
     TOOLKIT_FUNC_PROTECTOR(API_NAME);
 
@@ -440,6 +440,21 @@ void packet_append_data_len(packet_struct *packet, const uint8_t *data,
     packet_ensure(packet, len);
     memcpy(packet->data + packet->len, data, len);
     packet->len += len;
+}
+
+void packet_append_data_len(packet_struct *packet, const uint8_t *data,
+        size_t len)
+{
+    TOOLKIT_FUNC_PROTECTOR(API_NAME);
+
+    HARD_ASSERT(packet != NULL);
+    SOFT_ASSERT(data != NULL, "Data is NULL.");
+
+    if (len == 0) {
+        return;
+    }
+
+    packet_append_data_len_internal(packet, data, len);
 
 #ifndef NDEBUG
     {
@@ -512,7 +527,7 @@ void packet_append_packet(packet_struct *packet, packet_struct *src)
     HARD_ASSERT(src != NULL);
 
     if (src->data != NULL) {
-        packet_append_data_len(packet, src->data, src->len);
+        packet_append_data_len_internal(packet, src->data, src->len);
     }
 }
 
