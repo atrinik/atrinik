@@ -269,12 +269,19 @@ char *packet_get_debug(packet_struct *packet)
     return cp;
 }
 
-void packet_append_uint8(packet_struct *packet, uint8_t data)
+static void packet_append_uint8_internal(packet_struct *packet, uint8_t data)
 {
     TOOLKIT_FUNC_PROTECTOR(API_NAME);
     packet_ensure(packet, 1);
 
     packet->data[packet->len++] = data;
+}
+
+void packet_append_uint8(packet_struct *packet, uint8_t data)
+{
+    TOOLKIT_FUNC_PROTECTOR(API_NAME);
+
+    packet_append_uint8_internal(packet, data);
     packet_debug(packet, 0, "%u\n", data);
 }
 
@@ -307,7 +314,7 @@ void packet_append_int16(packet_struct *packet, int16_t data)
     packet_debug(packet, 0, "%d\n", data);
 }
 
-void packet_append_uint32(packet_struct *packet, uint32_t data)
+static void packet_append_uint32_internal(packet_struct *packet, uint32_t data)
 {
     TOOLKIT_FUNC_PROTECTOR(API_NAME);
     packet_ensure(packet, 4);
@@ -316,6 +323,14 @@ void packet_append_uint32(packet_struct *packet, uint32_t data)
     packet->data[packet->len++] = (data >> 16) & 0xff;
     packet->data[packet->len++] = (data >> 8) & 0xff;
     packet->data[packet->len++] = data & 0xff;
+    packet_debug(packet, 0, "%u\n", data);
+}
+
+void packet_append_uint32(packet_struct *packet, uint32_t data)
+{
+    TOOLKIT_FUNC_PROTECTOR(API_NAME);
+
+    packet_append_uint32_internal(packet, data);
     packet_debug(packet, 0, "%u\n", data);
 }
 
@@ -331,6 +346,21 @@ void packet_append_int32(packet_struct *packet, int32_t data)
     packet_debug(packet, 0, "%d\n", data);
 }
 
+static void packet_append_uint64_internal(packet_struct *packet, uint64_t data)
+{
+    TOOLKIT_FUNC_PROTECTOR(API_NAME);
+    packet_ensure(packet, 8);
+
+    packet->data[packet->len++] = (data >> 56) & 0xff;
+    packet->data[packet->len++] = (data >> 48) & 0xff;
+    packet->data[packet->len++] = (data >> 40) & 0xff;
+    packet->data[packet->len++] = (data >> 32) & 0xff;
+    packet->data[packet->len++] = (data >> 24) & 0xff;
+    packet->data[packet->len++] = (data >> 16) & 0xff;
+    packet->data[packet->len++] = (data >> 8) & 0xff;
+    packet->data[packet->len++] = data & 0xff;
+}
+
 void packet_append_uint64(packet_struct *packet, uint64_t data)
 {
     TOOLKIT_FUNC_PROTECTOR(API_NAME);
@@ -344,6 +374,7 @@ void packet_append_uint64(packet_struct *packet, uint64_t data)
     packet->data[packet->len++] = (data >> 16) & 0xff;
     packet->data[packet->len++] = (data >> 8) & 0xff;
     packet->data[packet->len++] = data & 0xff;
+    packet_append_uint64_internal(packet, data);
     packet_debug(packet, 0, "%" PRIu64 "\n", data);
 }
 
@@ -370,7 +401,7 @@ void packet_append_float(packet_struct *packet, float data)
     TOOLKIT_FUNC_PROTECTOR(API_NAME);
 
     memcpy(&val, &data, sizeof(val));
-    packet_append_uint32(packet, val);
+    packet_append_uint32_internal(packet, val);
     packet_debug(packet, 0, "%f\n", data);
 }
 
@@ -381,7 +412,7 @@ void packet_append_double(packet_struct *packet, double data)
     TOOLKIT_FUNC_PROTECTOR(API_NAME);
 
     memcpy(&val, &data, sizeof(val));
-    packet_append_uint64(packet, val);
+    packet_append_uint64_internal(packet, val);
     packet_debug(packet, 0, "%f\n", data);
 }
 
@@ -450,9 +481,7 @@ void packet_append_string_len_terminated(packet_struct *packet,
     SOFT_ASSERT(data != NULL, "Data is NULL.");
 
     packet_append_string_len(packet, data, len);
-
-    packet_ensure(packet, 1);
-    packet->data[packet->len++] = '\0';
+    packet_append_uint8_internal(packet, '\0');
     packet_debug(packet, 0, "\n");
 }
 
