@@ -105,6 +105,8 @@ char *stringbuffer_finish(StringBuffer *sb)
 
     TOOLKIT_FUNC_PROTECTOR(API_NAME);
 
+    HARD_ASSERT(sb != NULL);
+
     sb->buf[sb->pos] = '\0';
     result = sb->buf;
     efree(sb);
@@ -126,6 +128,8 @@ const char *stringbuffer_finish_shared(StringBuffer *sb)
 
     TOOLKIT_FUNC_PROTECTOR(API_NAME);
 
+    HARD_ASSERT(sb != NULL);
+
     str = stringbuffer_finish(sb);
     result = add_string(str);
     efree(str);
@@ -137,9 +141,13 @@ const char *stringbuffer_finish_shared(StringBuffer *sb)
  * @param sb The string buffer to modify.
  * @param str The string to append.
  * @param len Length of the string. */
-void stringbuffer_append_string_len(StringBuffer *sb, const char *str, size_t len)
+void stringbuffer_append_string_len(StringBuffer *sb, const char *str,
+        size_t len)
 {
     TOOLKIT_FUNC_PROTECTOR(API_NAME);
+
+    HARD_ASSERT(sb != NULL);
+    SOFT_ASSERT(str != NULL, "String to append is NULL.");
 
     stringbuffer_ensure(sb, len + 1);
     memcpy(sb->buf + sb->pos, str, len);
@@ -153,6 +161,9 @@ void stringbuffer_append_string_len(StringBuffer *sb, const char *str, size_t le
 void stringbuffer_append_string(StringBuffer *sb, const char *str)
 {
     TOOLKIT_FUNC_PROTECTOR(API_NAME);
+
+    HARD_ASSERT(sb != NULL);
+    SOFT_ASSERT(str != NULL, "String to append is NULL.");
     stringbuffer_append_string_len(sb, str, strlen(str));
 }
 
@@ -165,6 +176,9 @@ void stringbuffer_append_printf(StringBuffer *sb, const char *format, ...)
     size_t size = MAX_BUF;
 
     TOOLKIT_FUNC_PROTECTOR(API_NAME);
+
+    HARD_ASSERT(sb != NULL);
+    HARD_ASSERT(format != NULL);
 
     for (; ; ) {
         int n;
@@ -200,6 +214,11 @@ void stringbuffer_append_stringbuffer(StringBuffer *sb, const StringBuffer *sb2)
 {
     TOOLKIT_FUNC_PROTECTOR(API_NAME);
 
+    HARD_ASSERT(sb != NULL);
+    HARD_ASSERT(sb2 != NULL);
+
+    SOFT_ASSERT(sb != sb2, "Invalid parameters supplied.");
+
     stringbuffer_ensure(sb, sb2->pos + 1);
     memcpy(sb->buf + sb->pos, sb2->buf, sb2->pos);
     sb->pos += sb2->pos;
@@ -212,6 +231,8 @@ void stringbuffer_append_stringbuffer(StringBuffer *sb, const StringBuffer *sb2)
 void stringbuffer_append_char(StringBuffer *sb, const char c)
 {
     TOOLKIT_FUNC_PROTECTOR(API_NAME);
+
+    HARD_ASSERT(sb != NULL);
 
     stringbuffer_ensure(sb, 1 + 1);
     sb->buf[sb->pos++] = c;
@@ -228,6 +249,8 @@ static void stringbuffer_ensure(StringBuffer *sb, size_t len)
     size_t new_size;
 
     TOOLKIT_FUNC_PROTECTOR(API_NAME);
+
+    HARD_ASSERT(sb != NULL);
 
     if (sb->pos + len <= sb->size) {
         return;
@@ -247,6 +270,7 @@ static void stringbuffer_ensure(StringBuffer *sb, size_t len)
 size_t stringbuffer_length(StringBuffer *sb)
 {
     TOOLKIT_FUNC_PROTECTOR(API_NAME);
+    HARD_ASSERT(sb != NULL);
     return sb->pos;
 }
 
@@ -262,6 +286,7 @@ ssize_t stringbuffer_index(StringBuffer *sb, char c)
     size_t i;
 
     TOOLKIT_FUNC_PROTECTOR(API_NAME);
+    HARD_ASSERT(sb != NULL);
 
     for (i = 0; i < sb->pos; i++) {
         if (sb->buf[i] == c) {
@@ -284,6 +309,7 @@ ssize_t stringbuffer_rindex(StringBuffer *sb, char c)
     size_t i;
 
     TOOLKIT_FUNC_PROTECTOR(API_NAME);
+    HARD_ASSERT(sb != NULL);
 
     for (i = sb->pos; i > 0; i--) {
         if (sb->buf[i - 1] == c) {
