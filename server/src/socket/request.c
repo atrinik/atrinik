@@ -375,8 +375,11 @@ void draw_map_text_anim(object *pl, const char *color, const char *text)
     packet_struct *packet;
 
     packet = packet_new(CLIENT_CMD_MAPSTATS, 64, 64);
+    packet_debug_data(packet, 0, "Mapstats command type");
     packet_append_uint8(packet, CMD_MAPSTATS_TEXT_ANIM);
+    packet_debug_data(packet, 0, "Color");
     packet_append_string_terminated(packet, color);
+    packet_debug_data(packet, 0, "Text");
     packet_append_string_terminated(packet, text);
     socket_send_packet(&CONTR(pl)->socket, packet);
 }
