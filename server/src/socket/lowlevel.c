@@ -107,7 +107,7 @@ static void socket_packet_enqueue(socket_struct *ns, packet_struct *packet)
 {
 #ifndef DEBUG
     {
-        char *cp;
+        char *cp, *cp2;
 
         log(LOG(DUMPTX), "Enqueuing packet with command type %d (%" PRIu64
                 " bytes):", packet->type, (uint64_t) packet->len);
@@ -115,7 +115,13 @@ static void socket_packet_enqueue(socket_struct *ns, packet_struct *packet)
         cp = packet_get_debug(packet);
 
         if (cp[0] != '\0') {
-            log(LOG(DUMPTX), "  Debug info:\n%s", cp);
+            log(LOG(DUMPTX), "  Debug info:\n");
+            cp2 = strtok(cp, "\n");
+
+            while (cp2 != NULL) {
+                log(LOG(DUMPTX), "  %s", cp2);
+                cp2 = strtok(NULL, "\n");
+            }
         }
 
         efree(cp);
