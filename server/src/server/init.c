@@ -405,7 +405,6 @@ static void init_library(int argc, char *argv[])
 {
     toolkit_import(signals);
 
-    toolkit_import(bzr);
     toolkit_import(clioptions);
     toolkit_import(console);
     toolkit_import(datetime);

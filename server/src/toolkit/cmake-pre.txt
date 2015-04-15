@@ -114,7 +114,6 @@ include_directories(src/toolkit/include)
 
 set(SOURCES_TOOLKIT
     src/toolkit/binreloc.c
-    src/toolkit/bzr.c
     src/toolkit/clioptions.c
     src/toolkit/colorspace.c
     src/toolkit/console.c
