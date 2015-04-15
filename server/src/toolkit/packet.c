@@ -244,12 +244,6 @@ static void packet_ensure(packet_struct *packet, size_t size)
     packet->data = erealloc(packet->data, packet->size);
 }
 
-void packet_merge(packet_struct *src, packet_struct *dst)
-{
-    TOOLKIT_FUNC_PROTECTOR(API_NAME);
-    packet_append_data_len(dst, src->data, src->len);
-}
-
 char *packet_get_debug(packet_struct *packet)
 {
     char *cp;
