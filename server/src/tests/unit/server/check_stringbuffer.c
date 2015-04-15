@@ -348,7 +348,7 @@ START_TEST(test_stringbuffer_sub)
     free(cp);
 
     cp = stringbuffer_finish(sb);
-    ck_assert_str_eq(cp, "hello");
+    ck_assert_str_eq(cp, "hello world");
     efree(cp);
 }
 END_TEST
