@@ -93,6 +93,13 @@ START_TEST(test_packet_dup)
     packet_verify_data(packet2, "00000032");
     packet_free(packet);
     packet_free(packet2);
+
+    packet = packet_new(0, 0, 0);
+    packet_verify_data(packet, "");
+    packet2 = packet_dup(packet);
+    packet_verify_data(packet2, "");
+    packet_free(packet);
+    packet_free(packet2);
 }
 END_TEST
 
