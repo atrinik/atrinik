@@ -227,6 +227,24 @@ void packet_delete(packet_struct *packet, size_t pos, size_t len)
     packet->len -= len;
 }
 
+void packet_save(packet_struct *packet, packet_save_t *packet_save_buf)
+{
+    packet_save_buf->pos = packet->len;
+
+#ifndef DEBUG
+    packet_save_buf->sb_pos = packet->sb->pos;
+#endif
+}
+
+void packet_load(packet_struct *packet, const packet_save_t *packet_save_buf)
+{
+    packet->len = packet_save_buf->pos;
+
+#ifndef DEBUG
+    packet->sb->pos = packet_save_buf->sb_pos;
+#endif
+}
+
 /**
  * Ensure 'size' bytes are available for writing in the packet. If not,
  * will allocate more.

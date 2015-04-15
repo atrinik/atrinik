@@ -81,6 +81,23 @@ typedef struct packet_struct {
 } packet_struct;
 
 /**
+ * Structure used to save state of the packet so that one can go back to it.
+ */
+typedef struct packet_save {
+    /**
+     * Position to save.
+     */
+    size_t pos;
+
+#ifndef NDEBUG
+    /**
+     * StringBuffer instance position to save.
+     */
+    size_t sb_pos;
+#endif
+} packet_save_t;
+
+/**
  * How many packet structures to allocate when expanding the packets
  * memory pool. */
 #define PACKET_EXPAND 10
@@ -110,7 +127,8 @@ void packet_set_pos(packet_struct *packet, size_t pos);
 size_t packet_get_pos(packet_struct *packet);
 packet_struct *packet_dup(packet_struct *packet);
 void packet_delete(packet_struct *packet, size_t pos, size_t len);
-void packet_merge(packet_struct *src, packet_struct *dst);
+void packet_save(packet_struct *packet, packet_save_t *packet_save_buf);
+void packet_load(packet_struct *packet, const packet_save_t *packet_save_buf);
 char *packet_get_debug(packet_struct *packet);
 void packet_append_uint8(packet_struct *packet, uint8_t data);
 void packet_append_int8(packet_struct *packet, int8_t data);
