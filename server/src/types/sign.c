@@ -111,21 +111,29 @@ static int apply_func(object *op, object *applier, int aflags)
 
         packet = packet_new(CLIENT_CMD_NOTIFICATION, 256, 512);
 
+        packet_debug_data(packet, 0, "\nNotification command type");
         packet_append_uint8(packet, CMD_NOTIFICATION_TEXT);
+        packet_debug_data(packet, 0, "Text");
         packet_append_string_terminated(packet, notification_msg);
 
         if (notification_action) {
+            packet_debug_data(packet, 0, "\nNotification command type");
             packet_append_uint8(packet, CMD_NOTIFICATION_ACTION);
+            packet_debug_data(packet, 0, "Action");
             packet_append_string_terminated(packet, notification_action);
         }
 
         if (notification_shortcut) {
+            packet_debug_data(packet, 0, "\nNotification command type");
             packet_append_uint8(packet, CMD_NOTIFICATION_SHORTCUT);
+            packet_debug_data(packet, 0, "Shortcut");
             packet_append_string_terminated(packet, notification_shortcut);
         }
 
         if (notification_delay) {
+            packet_debug_data(packet, 0, "\nNotification command type");
             packet_append_uint8(packet, CMD_NOTIFICATION_DELAY);
+            packet_debug_data(packet, 0, "Delay");
             packet_append_uint32(packet, atoi(notification_delay));
         }
 
