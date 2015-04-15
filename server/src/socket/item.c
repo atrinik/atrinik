@@ -441,6 +441,7 @@ void esrv_send_inventory(object *pl, object *op)
 
     packet = packet_new(CLIENT_CMD_ITEM, 128, 256);
     packet_enable_ndelay(packet);
+    packet_debug_data(packet, 0, "Container mode flag");
 
     /* In this case we're sending a container inventory */
     if (pl != op) {
@@ -450,7 +451,9 @@ void esrv_send_inventory(object *pl, object *op)
         packet_append_int32(packet, op->count);
     }
 
+    packet_debug_data(packet, 0, "Target inventory ID");
     packet_append_uint32(packet, op->count);
+    packet_debug_data(packet, 0, "End flag");
     packet_append_uint8(packet, 1);
 
     for (tmp = op->inv; tmp; tmp = tmp->below) {
