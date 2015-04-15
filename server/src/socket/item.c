@@ -487,6 +487,7 @@ static void esrv_update_item_send(int flags, object *pl, object *op)
 
     packet = packet_new(CLIENT_CMD_ITEM_UPDATE, 64, 128);
     packet_enable_ndelay(packet);
+    packet_debug_data(packet, 0, "Flags");
     packet_append_uint16(packet, flags);
     add_object_to_packet(packet, op, pl, flags, 0);
     socket_send_packet(&CONTR(pl)->socket, packet);
