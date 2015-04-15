@@ -534,8 +534,11 @@ static void esrv_send_item_send(object *pl, object *op)
 
     packet = packet_new(CLIENT_CMD_ITEM, 64, 128);
     packet_enable_ndelay(packet);
+    packet_debug_data(packet, 0, "Container mode flag");
     packet_append_int32(packet, -4);
+    packet_debug_data(packet, 0, "Target inventory ID");
     packet_append_uint32(packet, op->env->count);
+    packet_debug_data(packet, 0, "End flag");
     packet_append_uint8(packet, 0);
     add_object_to_packet(packet, HEAD(op), pl, UPD_FLAGS | UPD_WEIGHT | UPD_FACE | UPD_DIRECTION | UPD_TYPE | UPD_NAME | UPD_ANIM | UPD_ANIMSPEED | UPD_NROF | UPD_EXTRA, 0);
     socket_send_packet(&CONTR(pl)->socket, packet);
