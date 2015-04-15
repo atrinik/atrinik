@@ -47,13 +47,13 @@ void socket_command_setup(socket_struct *ns, player *pl, uint8_t *data, size_t l
 
     while (pos < len) {
         type = packet_to_uint8(data, len, &pos);
+        packet_debug_data(packet, 0, "Setup type");
         packet_append_uint8(packet, type);
-        packet_debug(packet, 0, "Setup type: %d\n", type);
 
         if (type == CMD_SETUP_SOUND) {
             ns->sound = packet_to_uint8(data, len, &pos);
+            packet_debug_data(packet, 0, "Sound");
             packet_append_uint8(packet, ns->sound);
-            packet_debug(packet, 1, "Sound: %d\n", ns->sound);
         } else if (type == CMD_SETUP_MAPSIZE) {
             int x, y;
 
@@ -71,9 +71,10 @@ void socket_command_setup(socket_struct *ns, player *pl, uint8_t *data, size_t l
             ns->mapx_2 = x / 2;
             ns->mapy_2 = y / 2;
 
+            packet_debug_data(packet, 0, "Map width");
             packet_append_uint8(packet, x);
+            packet_debug_data(packet, 0, "Map height");
             packet_append_uint8(packet, y);
-            packet_debug(packet, 1, "Map size: %dx%d\n", x, y);
         } else if (type == CMD_SETUP_BOT) {
             ns->is_bot = packet_to_uint8(data, len, &pos);
 
@@ -81,21 +82,19 @@ void socket_command_setup(socket_struct *ns, player *pl, uint8_t *data, size_t l
                 ns->is_bot = 0;
             }
 
+            packet_debug_data(packet, 0, "Bot");
             packet_append_uint8(packet, ns->is_bot);
-            packet_debug(packet, 1, "Bot: %d\n", ns->is_bot);
         } else if (type == CMD_SETUP_DATA_URL) {
-            char url[MAX_BUF], *url_send;
+            char url[MAX_BUF];
 
             packet_to_string(data, len, &pos, url, sizeof(url));
+            packet_debug_data(packet, 0, "Data URL");
 
             if (!string_isempty(url)) {
-                url_send = url;
+                packet_append_string_terminated(packet, url);
             } else {
-                url_send = settings.http_url;
+                packet_append_string_terminated(packet, settings.http_url);
             }
-
-            packet_append_string_terminated(packet, url_send);
-            packet_debug(packet, 1, "Data URL: %s\n", url_send);
         } else {
             log(LOG(PACKET), "Unknown type: %d", type);
         }

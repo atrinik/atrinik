@@ -372,11 +372,6 @@ START_TEST(test_packet_append_data_len)
     const uint8_t data[] = {0xff, 0x03, 0x00};
 
     packet = packet_new(0, 0, 0);
-    packet_append_data_len(packet, NULL, 0);
-    packet_verify_data(packet, "");
-    packet_free(packet);
-
-    packet = packet_new(0, 0, 0);
     packet_append_data_len(packet, data, 0);
     packet_verify_data(packet, "");
     packet_free(packet);

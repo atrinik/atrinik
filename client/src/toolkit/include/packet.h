@@ -91,8 +91,11 @@ typedef struct packet_struct {
         stringbuffer_append_printf((_packet)->sb, "%*s" _fmt, (_indent), "", \
                                    ## __VA_ARGS__); \
     } while (0)
+#define packet_debug_data(_packet, _indent, _fmt, ...) \
+    packet_debug(_packet, _indent, _fmt ": ", ## __VA_ARGS__)
 #else
 #define packet_debug(_packet, _indent, _fmt, ...)
+#define packet_debug_data(_packet, _indent, _fmt, ...)
 #endif
 
 /* Prototypes */

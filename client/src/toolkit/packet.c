@@ -272,6 +272,7 @@ void packet_append_uint8(packet_struct *packet, uint8_t data)
     packet_ensure(packet, 1);
 
     packet->data[packet->len++] = data;
+    packet_debug(packet, 0, "%u\n", data);
 }
 
 void packet_append_int8(packet_struct *packet, int8_t data)
@@ -280,6 +281,7 @@ void packet_append_int8(packet_struct *packet, int8_t data)
     packet_ensure(packet, 1);
 
     packet->data[packet->len++] = data;
+    packet_debug(packet, 0, "%d\n", data);
 }
 
 void packet_append_uint16(packet_struct *packet, uint16_t data)
@@ -289,6 +291,7 @@ void packet_append_uint16(packet_struct *packet, uint16_t data)
 
     packet->data[packet->len++] = (data >> 8) & 0xff;
     packet->data[packet->len++] = data & 0xff;
+    packet_debug(packet, 0, "%u\n", data);
 }
 
 void packet_append_int16(packet_struct *packet, int16_t data)
@@ -298,6 +301,7 @@ void packet_append_int16(packet_struct *packet, int16_t data)
 
     packet->data[packet->len++] = (data >> 8) & 0xff;
     packet->data[packet->len++] = data & 0xff;
+    packet_debug(packet, 0, "%d\n", data);
 }
 
 void packet_append_uint32(packet_struct *packet, uint32_t data)
@@ -309,6 +313,7 @@ void packet_append_uint32(packet_struct *packet, uint32_t data)
     packet->data[packet->len++] = (data >> 16) & 0xff;
     packet->data[packet->len++] = (data >> 8) & 0xff;
     packet->data[packet->len++] = data & 0xff;
+    packet_debug(packet, 0, "%u\n", data);
 }
 
 void packet_append_int32(packet_struct *packet, int32_t data)
@@ -320,6 +325,7 @@ void packet_append_int32(packet_struct *packet, int32_t data)
     packet->data[packet->len++] = (data >> 16) & 0xff;
     packet->data[packet->len++] = (data >> 8) & 0xff;
     packet->data[packet->len++] = data & 0xff;
+    packet_debug(packet, 0, "%d\n", data);
 }
 
 void packet_append_uint64(packet_struct *packet, uint64_t data)
@@ -335,6 +341,7 @@ void packet_append_uint64(packet_struct *packet, uint64_t data)
     packet->data[packet->len++] = (data >> 16) & 0xff;
     packet->data[packet->len++] = (data >> 8) & 0xff;
     packet->data[packet->len++] = data & 0xff;
+    packet_debug(packet, 0, "%" PRIu64 "\n", data);
 }
 
 void packet_append_int64(packet_struct *packet, int64_t data)
@@ -350,6 +357,7 @@ void packet_append_int64(packet_struct *packet, int64_t data)
     packet->data[packet->len++] = (data >> 16) & 0xff;
     packet->data[packet->len++] = (data >> 8) & 0xff;
     packet->data[packet->len++] = data & 0xff;
+    packet_debug(packet, 0, "%" PRId64 "\n", data);
 }
 
 void packet_append_float(packet_struct *packet, float data)
@@ -360,6 +368,7 @@ void packet_append_float(packet_struct *packet, float data)
 
     memcpy(&val, &data, sizeof(val));
     packet_append_uint32(packet, val);
+    packet_debug(packet, 0, "%f\n", data);
 }
 
 void packet_append_double(packet_struct *packet, double data)
@@ -370,6 +379,7 @@ void packet_append_double(packet_struct *packet, double data)
 
     memcpy(&val, &data, sizeof(val));
     packet_append_uint64(packet, val);
+    packet_debug(packet, 0, "%f\n", data);
 }
 
 void packet_append_data_len(packet_struct *packet, const uint8_t *data,
@@ -377,26 +387,59 @@ void packet_append_data_len(packet_struct *packet, const uint8_t *data,
 {
     TOOLKIT_FUNC_PROTECTOR(API_NAME);
 
-    if (!data || len == 0) {
+    HARD_ASSERT(packet != NULL);
+    SOFT_ASSERT(data != NULL, "Data is NULL.");
+
+    if (len == 0) {
         return;
     }
 
     packet_ensure(packet, len);
     memcpy(packet->data + packet->len, data, len);
     packet->len += len;
+
+#ifndef NDEBUG
+    {
+        char *hex;
+
+        hex = emalloc(sizeof(*hex) * (len * 3 + 1));
+        string_tohex(data, len, hex, len * 3 + 1, true);
+        packet_debug(packet, 0, "%s\n", hex);
+        efree(hex);
+    }
+#endif
 }
 
 void packet_append_string(packet_struct *packet, const char *data)
 {
+    size_t len;
+
     TOOLKIT_FUNC_PROTECTOR(API_NAME);
-    packet_append_data_len(packet, (const uint8_t *) data, strlen(data));
+
+    HARD_ASSERT(packet != NULL);
+    SOFT_ASSERT(data != NULL, "Data is NULL.");
+
+    len = strlen(data);
+
+    if (len == 0) {
+        return;
+    }
+
+    packet_ensure(packet, len);
+    memcpy(packet->data + packet->len, data, len);
+    packet->len += len;
+    packet_debug(packet, 0, "%s", data);
 }
 
 void packet_append_string_terminated(packet_struct *packet, const char *data)
 {
     TOOLKIT_FUNC_PROTECTOR(API_NAME);
+
     packet_append_string(packet, data);
-    packet_append_uint8(packet, '\0');
+
+    packet_ensure(packet, 1);
+    packet->data[packet->len++] = '\0';
+    packet_debug(packet, 0, "\n");
 }
 
 uint8_t packet_to_uint8(uint8_t *data, size_t len, size_t *pos)

@@ -234,37 +234,31 @@ static void account_send_characters(socket_struct *ns, account_struct *account)
     if (account) {
         size_t i;
 
+        packet_debug_data(packet, 0, "Account name");
         packet_append_string_terminated(packet, ns->account);
-        packet_debug(packet, 0, "Account name: %s\n", ns->account);
+        packet_debug_data(packet, 0, "Hostname");
         packet_append_string_terminated(packet, ns->host);
-        packet_debug(packet, 0, "Hostname: %s\n", ns->host);
+        packet_debug_data(packet, 0, "Last hostname");
         packet_append_string_terminated(packet, account->last_host);
-        packet_debug(packet, 0, "Last hostname: %s\n", account->last_host);
+        packet_debug_data(packet, 0, "Last time");
         packet_append_uint64(packet, account->last_time);
-        packet_debug(packet, 0, "Last time: %" PRIu64 "\n",
-                (uint64_t) account->last_time);
 
         for (i = 0; i < account->characters_num; i++) {
             packet_debug(packet, 0, "Character #%" PRIu64 ":\n", (uint64_t) i);
+            packet_debug_data(packet, 1, "Archname");
             packet_append_string_terminated(packet,
                     account->characters[i].at->name);
-            packet_debug(packet, 1, "Archname: %s\n",
-                    account->characters[i].at->name);
+            packet_debug_data(packet, 1, "Name");
             packet_append_string_terminated(packet,
                     account->characters[i].name);
-            packet_debug(packet, 1, "Name: %s\n",
-                    account->characters[i].name);
+            packet_debug_data(packet, 1, "Region name");
             packet_append_string_terminated(packet,
                     account->characters[i].region_name);
-            packet_debug(packet, 1, "Region name: %s\n",
-                    account->characters[i].region_name);
+            packet_debug_data(packet, 1, "Animation ID");
             packet_append_uint16(packet,
                     account->characters[i].at->clone.animation_id);
-            packet_debug(packet, 1, "Animation ID: %d\n",
-                    account->characters[i].at->clone.animation_id);
+            packet_debug_data(packet, 1, "Level");
             packet_append_uint8(packet, account->characters[i].level);
-            packet_debug(packet, 1, "Level: %d\n",
-                    account->characters[i].level);
         }
     }
 
