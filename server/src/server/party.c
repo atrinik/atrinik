@@ -477,21 +477,28 @@ void party_update_who(player *pl)
         return;
     }
 
-    hp = MAX(1, MIN((double) pl->ob->stats.hp / pl->ob->stats.maxhp * 100.0f, 100));
-    sp = MAX(1, MIN((double) pl->ob->stats.sp / pl->ob->stats.maxsp * 100.0f, 100));
+    hp = MAX(1, MIN((double) pl->ob->stats.hp / pl->ob->stats.maxhp * 100.0f,
+            100));
+    sp = MAX(1, MIN((double) pl->ob->stats.sp / pl->ob->stats.maxsp * 100.0f,
+            100));
 
     if (hp != pl->last_party_hp || sp != pl->last_party_sp) {
         packet_struct *packet;
         objectlink *ol;
 
         packet = packet_new(CLIENT_CMD_PARTY, 64, 64);
+        packet_debug_data(packet, 0, "Party command type");
         packet_append_uint8(packet, CMD_PARTY_UPDATE);
+        packet_debug_data(packet, 0, "Member name");
         packet_append_string_terminated(packet, pl->ob->name);
+        packet_debug_data(packet, 0, "Health");
         packet_append_uint8(packet, hp);
+        packet_debug_data(packet, 0, "Mana");
         packet_append_uint8(packet, sp);
 
         for (ol = pl->party->members; ol; ol = ol->next) {
-            socket_send_packet(&CONTR(ol->objlink.ob)->socket, packet_dup(packet));
+            socket_send_packet(&CONTR(ol->objlink.ob)->socket,
+                    packet_dup(packet));
         }
 
         packet_free(packet);
