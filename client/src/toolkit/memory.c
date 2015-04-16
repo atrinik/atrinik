@@ -29,6 +29,10 @@
 
 #include <global.h>
 
+#if defined(HAVE_MCHECK_H) && !defined(NDEBUG)
+#include <mcheck.h>
+#endif
+
 /**
  * Name of the API.
  */
@@ -47,6 +51,9 @@ void toolkit_memory_init(void)
 {
     TOOLKIT_INIT_FUNC_START(memory)
     {
+#if defined(HAVE_MCHECK_H) && !defined(NDEBUG)
+        mcheck(NULL);
+#endif
     }
     TOOLKIT_INIT_FUNC_END()
 }
