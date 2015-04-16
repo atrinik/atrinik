@@ -90,10 +90,6 @@
 #cmakedefine HAVE_CRYPT_H
 #endif
 
-#ifndef HAVE_MCHECK_H
-#cmakedefine HAVE_MCHECK_H
-#endif
-
 #ifndef HAVE_ARPA_INET_H
 #cmakedefine HAVE_ARPA_INET_H
 #endif
