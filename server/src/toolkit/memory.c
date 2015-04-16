@@ -24,24 +24,27 @@
 
 /**
  * @file
- * Memory API. */
+ * Memory API.
+ */
 
 #include <global.h>
 
 /**
- * Name of the API. */
+ * Name of the API.
+ */
 #define API_NAME memory
 
 /**
- * If 1, the API has been initialized. */
+ * If 1, the API has been initialized.
+ */
 static uint8_t did_init = 0;
 
 /**
  * Initialize the memory API.
- * @internal */
+ * @internal
+ */
 void toolkit_memory_init(void)
 {
-
     TOOLKIT_INIT_FUNC_START(memory)
     {
     }
@@ -50,10 +53,10 @@ void toolkit_memory_init(void)
 
 /**
  * Deinitialize the memory API.
- * @internal */
+ * @internal
+ */
 void toolkit_memory_deinit(void)
 {
-
     TOOLKIT_DEINIT_FUNC_START(memory)
     {
     }
