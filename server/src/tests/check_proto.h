@@ -14,6 +14,8 @@ extern void check_server_arch(void);
 extern void check_server_ban(void);
 /* src/tests/unit/server/check_cache.c */
 extern void check_server_cache(void);
+/* src/tests/unit/server/check_memory.c */
+extern void check_server_memory(void);
 /* src/tests/unit/server/check_object.c */
 extern void check_server_object(void);
 /* src/tests/unit/server/check_packet.c */

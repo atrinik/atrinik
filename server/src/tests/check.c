@@ -98,6 +98,7 @@ void check_main(int argc, char **argv)
     check_server_pbkdf2();
     check_server_re_cmp();
     check_server_cache();
+    check_server_memory();
     check_server_shstr();
     check_server_string();
     check_server_stringbuffer();
