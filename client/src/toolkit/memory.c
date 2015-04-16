@@ -87,11 +87,7 @@ void *memory_emalloc(size_t size)
  */
 void memory_efree(void *ptr)
 {
-    if (ptr == NULL) {
-        logger_print(LOG(ERROR), "Freeing NULL pointer.");
-        abort();
-    }
-
+    SOFT_ASSERT(ptr != NULL, "Freeing NULL pointer.");
     free(ptr);
 }
 
