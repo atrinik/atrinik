@@ -200,7 +200,7 @@ static int attr_list_set(Atrinik_AttrList *al, PyObject *key, unsigned PY_LONG_L
             /* Increase the number of commands... */
             (*(int *) attr_list_len_ptr(al))++;
             /* And resize it. */
-            *(char ***) ((void *) ((char *) al->ptr + al->offset)) = realloc(*(char ***) ((void *) ((char *) al->ptr + al->offset)), sizeof(char *) * attr_list_len(al));
+            *(char ***) ((void *) ((char *) al->ptr + al->offset)) = erealloc(*(char ***) ((void *) ((char *) al->ptr + al->offset)), sizeof(char *) * attr_list_len(al));
             /* Make sure ptr points to the right memory... */
             ptr = (char *) al->ptr + al->offset;
             /* NULL the new member. */
@@ -227,9 +227,9 @@ static int attr_list_set(Atrinik_AttrList *al, PyObject *key, unsigned PY_LONG_L
         /* Doesn't exist, create it. */
         if (i == len) {
             (*(int *) attr_list_len_ptr(al))++;
-            *(shstr ***) ((void *) ((char *) al->ptr + al->offset)) = realloc(*(shstr ***) ((void *) ((char *) al->ptr + al->offset)), sizeof(shstr *) * attr_list_len(al));
+            *(shstr ***) ((void *) ((char *) al->ptr + al->offset)) = erealloc(*(shstr ***) ((void *) ((char *) al->ptr + al->offset)), sizeof(shstr *) * attr_list_len(al));
             *(shstr **) (&(*(shstr ***) ptr)[i]) = hooks->add_string(str);
-            *(int64_t **) ((void *) ((char *) al->ptr + offsetof(player, faction_reputation))) = realloc(*(int64_t **) ((void *) ((char *) al->ptr + offsetof(player, faction_reputation))), sizeof(int64_t) * attr_list_len(al));
+            *(int64_t **) ((void *) ((char *) al->ptr + offsetof(player, faction_reputation))) = erealloc(*(int64_t **) ((void *) ((char *) al->ptr + offsetof(player, faction_reputation))), sizeof(int64_t) * attr_list_len(al));
             /* Make sure ptr points to the right memory... */
             ptr = (char *) al->ptr + offsetof(player, faction_reputation);
             /* NULL the new member. */
@@ -259,11 +259,11 @@ static int attr_list_set(Atrinik_AttrList *al, PyObject *key, unsigned PY_LONG_L
                 /* Decrease the number of commands... */
                 (*(int *) attr_list_len_ptr(al))--;
                 /* And resize it. */
-                *(char ***) ((void *) ((char *) al->ptr + al->offset)) = realloc(*(char ***) ((void *) ((char *) al->ptr + al->offset)), sizeof(char *) * attr_list_len(al));
+                *(char ***) ((void *) ((char *) al->ptr + al->offset)) = erealloc(*(char ***) ((void *) ((char *) al->ptr + al->offset)), sizeof(char *) * attr_list_len(al));
             } else if (al->field == FIELDTYPE_FACTIONS) {
                 (*(int *) attr_list_len_ptr(al))--;
-                *(shstr ***) ((void *) ((char *) al->ptr + al->offset)) = realloc(*(shstr ***) ((void *) ((char *) al->ptr + al->offset)), sizeof(shstr *) * attr_list_len(al));
-                *(int64_t **) ((void *) ((char *) al->ptr + offsetof(player, faction_reputation))) = realloc(*(int64_t **) ((void *) ((char *) al->ptr + offsetof(player, faction_reputation))), sizeof(int64_t) * attr_list_len(al));
+                *(shstr ***) ((void *) ((char *) al->ptr + al->offset)) = erealloc(*(shstr ***) ((void *) ((char *) al->ptr + al->offset)), sizeof(shstr *) * attr_list_len(al));
+                *(int64_t **) ((void *) ((char *) al->ptr + offsetof(player, faction_reputation))) = erealloc(*(int64_t **) ((void *) ((char *) al->ptr + offsetof(player, faction_reputation))), sizeof(int64_t) * attr_list_len(al));
             }
         }
     }
@@ -398,7 +398,7 @@ static PyObject *attr_list_clear(Atrinik_AttrList *al)
 {
     if (al->field == FIELDTYPE_CMD_PERMISSIONS) {
         if (*(char ***) ((void *) ((char *) al->ptr + al->offset)) != NULL) {
-            free(*(char ***) ((void *) ((char *) al->ptr + al->offset)));
+            efree(*(char ***) ((void *) ((char *) al->ptr + al->offset)));
             *(char ***) ((void *) ((char *) al->ptr + al->offset)) = NULL;
             (*(int *) attr_list_len_ptr(al)) = 0;
 
