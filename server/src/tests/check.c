@@ -28,6 +28,7 @@
 #include <global.h>
 #include <check.h>
 #include <check_proto.h>
+#include <toolkit_string.h>
 
 static int saved_argc; ///< Stored argc.
 static char **saved_argv; ///< Stored argv.

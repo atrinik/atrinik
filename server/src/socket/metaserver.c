@@ -27,6 +27,7 @@
  * Metaserver updating related code. */
 
 #include <global.h>
+#include <toolkit_string.h>
 #include <curl/curl.h>
 
 static void *metaserver_thread(void *junk);

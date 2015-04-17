@@ -37,6 +37,7 @@
  */
 
 #include <global.h>
+#include <toolkit_string.h>
 
 #define API_NAME mempool ///< Name of the API.
 static uint8_t did_init = 0; ///< Whether the API has been initialized.
@@ -187,7 +188,7 @@ static size_t mempool_free_puddles(mempool_struct *pool)
             /* Can we actually free this puddle? */
             if (puddle->nrof_free == nrof_arrays) {
                 /* Yup. Forget about it. */
-                free(puddle->first_chunk);
+                efree(puddle->first_chunk);
                 mempool_return(pool_puddle, puddle);
                 pool->nrof_free[i] -= nrof_arrays;
                 pool->nrof_allocated[i] -= nrof_arrays;

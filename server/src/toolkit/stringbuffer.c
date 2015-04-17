@@ -44,6 +44,7 @@
 
 #include <global.h>
 #include <stdarg.h>
+#include <toolkit_string.h>
 
 /**
  * Name of the API. */
@@ -62,6 +63,7 @@ void toolkit_stringbuffer_init(void)
 {
     TOOLKIT_INIT_FUNC_START(stringbuffer)
     {
+        toolkit_import(string);
     }
     TOOLKIT_INIT_FUNC_END()
 }

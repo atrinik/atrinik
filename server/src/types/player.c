@@ -28,6 +28,7 @@
 
 #include <global.h>
 #include <loader.h>
+#include <toolkit_string.h>
 
 static int save_life(object *op);
 static void remove_unpaid_objects(object *op, object *env);

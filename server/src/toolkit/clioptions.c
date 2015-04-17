@@ -30,6 +30,7 @@
  */
 
 #include <global.h>
+#include <toolkit_string.h>
 
 /**
  * Name of the API.

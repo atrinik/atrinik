@@ -28,6 +28,7 @@
  * @author Kjetil T. Homme, Oslo 1992. */
 
 #include <global.h>
+#include <toolkit_string.h>
 
 /**
  * Name of the API. */

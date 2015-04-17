@@ -30,6 +30,7 @@
  */
 
 #include <global.h>
+#include <toolkit_string.h>
 
 enum {
     SA_OPER_TYPE_HOUR, ///< In-game hours.
@@ -262,7 +263,7 @@ static void sound_ambient_match_free(sound_ambient_match_t *match)
             sound_ambient_match_free(tmp->data.group);
         }
 
-        free(tmp);
+        efree(tmp);
     }
 }
 

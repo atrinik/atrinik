@@ -25,6 +25,7 @@
 #include <global.h>
 #include <check.h>
 #include <check_proto.h>
+#include <toolkit_string.h>
 
 START_TEST(test_string_replace)
 {

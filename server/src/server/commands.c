@@ -29,6 +29,7 @@
  * @author Alex Tokar */
 
 #include <global.h>
+#include <toolkit_string.h>
 
 /**
  * Name of the API. */
@@ -151,6 +152,7 @@ void toolkit_commands_init(void)
     TOOLKIT_INIT_FUNC_START(commands)
     {
         toolkit_import(path);
+        toolkit_import(string);
 
         commands = NULL;
         permission_groups = NULL;

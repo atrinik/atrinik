@@ -29,6 +29,7 @@
 #include <global.h>
 #include <check_proto.h>
 #include <gitversion.h>
+#include <toolkit_string.h>
 
 /** Object used in process_events(). */
 static object marker;

@@ -320,6 +320,23 @@ struct plugin_hooklist {
     char *(*path_join)(const char *, const char *);
     void (*monster_enemy_signal)(object *, object *);
     void (*map_redraw)(mapstruct *, int, int, int, int);
+#ifndef NDEBUG
+    void *(*memory_emalloc)(size_t, const char *, uint32_t);
+    void (*memory_efree)(void *, const char *, uint32_t);
+    void *(*memory_ecalloc)(size_t, size_t, const char *, uint32_t);
+    void *(*memory_erealloc)(void *, size_t, const char *, uint32_t);
+    void *(*memory_reallocz)(void *, size_t, size_t, const char *, uint32_t);
+    char *(*string_estrdup)(const char *, const char *, uint32_t);
+    char *(*string_estrndup)(const char *, size_t , const char *, uint32_t);
+#else
+    void *(*memory_emalloc)(size_t);
+    void (*memory_efree)(void *);
+    void *(*memory_ecalloc)(size_t, size_t);
+    void *(*memory_erealloc)(void *, size_t);
+    void *(*memory_reallocz)(void *, size_t, size_t);
+    char *(*string_estrdup)(const char *);
+    char *(*string_estrndup)(const char *, size_t);
+#endif
 
     const char **season_name;
     const char **weekdays;

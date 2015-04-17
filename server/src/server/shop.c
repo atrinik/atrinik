@@ -27,6 +27,7 @@
  * Functions dealing with shop handling, bargaining, etc. */
 
 #include <global.h>
+#include <toolkit_string.h>
 
 static int64_t pay_from_container(object *op, object *pouch, int64_t to_pay);
 

@@ -506,7 +506,7 @@ static PyObject *Atrinik_Map_GetPath(Atrinik_Map *map, PyObject *args, PyObject 
 
     cp = hooks->map_get_path(map->map, path, unique, name);
     ret = Py_BuildValue("s", cp);
-    free(cp);
+    efree(cp);
 
     return ret;
 }
@@ -535,9 +535,9 @@ static PyObject *Atrinik_Map_LocateBeacon(Atrinik_Map *map, PyObject *args)
 
         FREE_AND_COPY_HASH(beacon_name, joined);
 
-        free(joined);
-        free(pl_name);
-        free(filedir);
+        efree(joined);
+        efree(pl_name);
+        efree(filedir);
     } else {
         FREE_AND_COPY_HASH(beacon_name, name);
     }

@@ -36,6 +36,7 @@
  * possible to use * for both IP and player, which means any match. */
 
 #include <global.h>
+#include <toolkit_string.h>
 
 /** The list of the bans. */
 static objectlink *ban_list = NULL;

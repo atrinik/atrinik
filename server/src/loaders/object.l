@@ -30,6 +30,7 @@
 
 #include <global.h>
 #include <loader.h>
+#include <toolkit_string.h>
 
 #define YY_DECL int lex_load(int *depth, object **items, int maxdepth, int map_flags, int linemode)
 #define MAXDEPTH 10

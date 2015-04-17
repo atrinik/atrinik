@@ -39,6 +39,7 @@
  * @author Alex Tokar */
 
 #include <global.h>
+#include <toolkit_string.h>
 
 /**
  * Name of the API. */
@@ -403,7 +404,7 @@ void console_command_add(const char *command, console_command_func handle_func, 
     }
 
     /* Add it to the commands array. */
-    console_commands = memory_reallocz(console_commands, sizeof(*console_commands) * console_commands_num, sizeof(*console_commands) * (console_commands_num + 1));
+    console_commands = ereallocz(console_commands, sizeof(*console_commands) * console_commands_num, sizeof(*console_commands) * (console_commands_num + 1));
     console_commands[console_commands_num].command = estrdup(command);
     console_commands[console_commands_num].handle_func = handle_func;
     console_commands[console_commands_num].desc_brief = estrdup(desc_brief);

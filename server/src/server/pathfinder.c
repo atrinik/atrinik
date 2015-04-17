@@ -46,6 +46,7 @@
  */
 
 #include <global.h>
+#include <toolkit_string.h>
 
 /**
  * Selects algorithm to use for path-finding.

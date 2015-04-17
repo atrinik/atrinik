@@ -32,6 +32,7 @@
  * @author Alex Tokar */
 
 #include <global.h>
+#include <toolkit_string.h>
 
 /**
  * Name of the API. */
@@ -46,9 +47,9 @@ static uint8_t did_init = 0;
  * @internal */
 void toolkit_x11_init(void)
 {
-
     TOOLKIT_INIT_FUNC_START(x11)
     {
+        toolkit_import(string);
     }
     TOOLKIT_INIT_FUNC_END()
 }
@@ -58,7 +59,6 @@ void toolkit_x11_init(void)
  * @internal */
 void toolkit_x11_deinit(void)
 {
-
     TOOLKIT_DEINIT_FUNC_START(x11)
     {
     }

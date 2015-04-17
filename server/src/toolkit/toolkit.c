@@ -59,8 +59,20 @@ void toolkit_import_register(const char *name, toolkit_func func)
     HARD_ASSERT(func != NULL);
     HARD_ASSERT(!toolkit_check_imported(func));
 
-    apis = erealloc(apis, sizeof(*apis) * (apis_num + 1));
-    apis[apis_num].name = estrdup(name);
+    apis = realloc(apis, sizeof(*apis) * (apis_num + 1));
+
+    if (apis == NULL) {
+        log_error("OOM.");
+        abort();
+    }
+
+    apis[apis_num].name = strdup(name);
+
+    if (apis[apis_num].name == NULL) {
+        log_error("OOM.");
+        abort();
+    }
+
     apis[apis_num].deinit_fnc = func;
     apis_num++;
 }
@@ -89,21 +101,22 @@ bool toolkit_check_imported(toolkit_func func)
  */
 void toolkit_deinit(void)
 {
-    size_t i;
+    size_t i, len;
     char buf[HUGE_BUF];
 
     buf[0] = '\0';
 
     for (i = apis_num; i > 0; i--) {
-        snprintfcat(VS(buf), "%s%s", buf[0] != '\0' ? ", " : "",
-                apis[i - 1].name);
+        len = strnlen(buf, sizeof(buf));
+        snprintf(buf + len, sizeof(buf) - len, "%s%s",
+                buf[0] != '\0' ? ", " : "", apis[i - 1].name);
     }
 
     log(LOG(DEVEL), "Deinitializing APIs in the following order: %s", buf);
 
     for (i = apis_num; i > 0; i--) {
         apis[i - 1].deinit_fnc();
-        efree(apis[i - 1].name);
+        free(apis[i - 1].name);
     }
 
     if (apis != NULL) {

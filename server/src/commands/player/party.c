@@ -30,6 +30,7 @@
 
 #include <global.h>
 #include <packet.h>
+#include <toolkit_string.h>
 
 /** @copydoc command_func */
 void command_party(object *op, const char *command, char *params)

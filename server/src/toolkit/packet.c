@@ -33,6 +33,7 @@
 #include <global.h>
 #include <zlib.h>
 #include <packet.h>
+#include <toolkit_string.h>
 
 /**
  * Name of the API. */

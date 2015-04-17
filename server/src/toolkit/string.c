@@ -29,6 +29,7 @@
 
 #include <global.h>
 #include <stdarg.h>
+#include <toolkit_string.h>
 
 /**
  * Name of the API.
@@ -75,7 +76,11 @@ void toolkit_string_deinit(void)
  * @note abort() is called in case 's' is NULL or strdup() fails to duplicate
  * the string (oom).
  */
+#ifndef NDEBUG
+char *string_estrdup(const char *s, const char *file, uint32_t line)
+#else
 char *string_estrdup(const char *s)
+#endif
 {
     char *cp;
 
@@ -84,12 +89,24 @@ char *string_estrdup(const char *s)
         abort();
     }
 
+#ifndef NDEBUG
+    size_t len;
+
+    len = strlen(s);
+    cp = emalloc(sizeof(*cp) * (len + 1));
+#else
     cp = strdup(s);
+#endif
 
     if (cp == NULL) {
         logger_print(LOG(ERROR), "OOM.");
         abort();
     }
+
+#ifndef NDEBUG
+    memcpy(cp, s, sizeof(*cp) * len);
+    cp[len] = '\0';
+#endif
 
     return cp;
 }
@@ -102,7 +119,11 @@ char *string_estrdup(const char *s)
  * @note abort() is called in case 's' is NULL or strndup() fails to duplicate
  * the string (oom).
  */
+#ifndef NDEBUG
+char *string_estrndup(const char *s, size_t n, const char *file, uint32_t line)
+#else
 char *string_estrndup(const char *s, size_t n)
+#endif
 {
     char *cp;
 
@@ -111,12 +132,24 @@ char *string_estrndup(const char *s, size_t n)
         abort();
     }
 
+#ifndef NDEBUG
+    size_t len;
+
+    len = strnlen(s, n);
+    cp = emalloc(sizeof(*cp) * (len + 1));
+#else
     cp = strndup(s, n);
+#endif
 
     if (cp == NULL) {
         logger_print(LOG(ERROR), "OOM.");
         abort();
     }
+
+#ifndef NDEBUG
+    memcpy(cp, s, sizeof(*cp) * len);
+    cp[len] = '\0';
+#endif
 
     return cp;
 }
