@@ -90,7 +90,7 @@ const char *string_skip_whitespace(const char *str);
 #ifndef NDEBUG
 #define string_sub(_str, _start, _end) \
     string_sub(_str, _start, _end MEMORY_DEBUG_INFO)
-#define string_create_char_range(start, _end) \
+#define string_create_char_range(_start, _end) \
     string_create_char_range(_start, _end MEMORY_DEBUG_INFO)
 #define string_repeat(_str, _num) \
     string_repeat(_str, _num MEMORY_DEBUG_INFO)
