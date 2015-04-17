@@ -33,13 +33,13 @@ START_TEST(test_add_string)
 
     str1 = add_string("Hello world");
     ck_assert_ptr_ne(str1, NULL);
-    temp = malloc(strlen(str1) + 1);
+    temp = emalloc(strlen(str1) + 1);
     strcpy(temp, str1);
     str2 = add_string(temp);
     ck_assert_ptr_eq(str2, str1);
     str3 = add_string("");
     ck_assert_ptr_ne(str3, NULL);
-    free(temp);
+    efree(temp);
 
     free_string_shared(str1);
     free_string_shared(str2);

@@ -25,10 +25,11 @@
 #include <global.h>
 #include <check.h>
 #include <check_proto.h>
+#include <toolkit_string.h>
 
 START_TEST(test_cache)
 {
-    char *str = strdup("hello world");
+    char *str = estrdup("hello world");
     cache_struct *res;
     int i;
     char buf[MAX_BUF];
@@ -45,7 +46,7 @@ START_TEST(test_cache)
 
     for (i = 0; i <= 10; i++) {
         snprintf(buf, sizeof(buf), "hello, hello! %d", i);
-        str = strdup(buf);
+        str = estrdup(buf);
         snprintf(buf, sizeof(buf), "cache_test_%d", i);
         ck_assert(cache_add(buf, str, CACHE_FLAG_AUTOFREE));
         ck_assert_ptr_ne(cache_find(find_string(buf)), NULL);
@@ -78,17 +79,17 @@ START_TEST(test_cache)
     ck_assert(!cache_remove(find_string("cache_test_8")));
     ck_assert(!cache_remove(find_string("cache_test_0")));
 
-    str = strdup("hello hello world!!!");
+    str = estrdup("hello hello world!!!");
     ck_assert(cache_add("cache_rem_test", str, CACHE_FLAG_AUTOFREE));
     ck_assert(!cache_add("cache_rem_test", str, CACHE_FLAG_AUTOFREE));
 
-    str = strdup("leet");
+    str = estrdup("leet");
     ck_assert(cache_add("raas", str, CACHE_FLAG_PYOBJ));
     ck_assert(cache_add("chair", str, CACHE_FLAG_PYOBJ));
     cache_remove_by_flags(CACHE_FLAG_PYOBJ);
     ck_assert_ptr_eq(cache_find(find_string("raas")), NULL);
     ck_assert_ptr_eq(cache_find(find_string("chair")), NULL);
-    free(str);
+    efree(str);
 
     ck_assert(cache_remove(find_string("cache_rem_test")));
 }

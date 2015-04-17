@@ -77,28 +77,28 @@ START_TEST(test_string_replace_char)
     char *cp;
 
     /* Attempt to replace "a", "e" and "o" characters with spaces. */
-    cp = strdup("hello world hello");
+    cp = estrdup("hello world hello");
     string_replace_char(cp, "aeo", ' ');
     ck_assert_str_eq(cp, "h ll  w rld h ll ");
-    free(cp);
+    efree(cp);
 
     /* Attempt to replace any character with space. */
-    cp = strdup("hello world");
+    cp = estrdup("hello world");
     string_replace_char(cp, NULL, ' ');
     ck_assert_str_eq(cp, "           ");
-    free(cp);
+    efree(cp);
 
     /* Replace newlines and tabs with spaces. */
-    cp = strdup("\thello\n\t\tworld\n");
+    cp = estrdup("\thello\n\t\tworld\n");
     string_replace_char(cp, "\n\t", ' ');
     ck_assert_str_eq(cp, " hello   world ");
-    free(cp);
+    efree(cp);
 
     /* Replace forward-slashes with a dollar sign. */
-    cp = strdup("/shattered_islands/world_0112");
+    cp = estrdup("/shattered_islands/world_0112");
     string_replace_char(cp, "/", '$');
     ck_assert_str_eq(cp, "$shattered_islands$world_0112");
-    free(cp);
+    efree(cp);
 }
 
 END_TEST
@@ -108,15 +108,15 @@ START_TEST(test_string_split)
     char *cp, *cps[20], *cps2[2];
 
     /* Attempt to split two words separated by spaces. */
-    cp = strdup("hello world");
+    cp = estrdup("hello world");
     ck_assert_int_eq(string_split(cp, cps, sizeof(cps) / sizeof(*cps), ' '), 2);
     ck_assert_str_eq(cps[0], "hello");
     ck_assert_str_eq(cps[1], "world");
     ck_assert_ptr_eq(cps[2], NULL);
-    free(cp);
+    efree(cp);
 
     /* Attempt to split several one-character words. */
-    cp = strdup("q w e r t y");
+    cp = estrdup("q w e r t y");
     ck_assert_int_eq(string_split(cp, cps, sizeof(cps) / sizeof(*cps), ' '), 6);
     ck_assert_str_eq(cps[0], "q");
     ck_assert_str_eq(cps[1], "w");
@@ -124,23 +124,23 @@ START_TEST(test_string_split)
     ck_assert_str_eq(cps[3], "r");
     ck_assert_str_eq(cps[4], "t");
     ck_assert_str_eq(cps[5], "y");
-    free(cp);
+    efree(cp);
 
     /* Attempt to split empty string. */
-    cp = strdup("");
+    cp = estrdup("");
     ck_assert_int_eq(string_split(cp, cps, sizeof(cps) / sizeof(*cps), ' '), 0);
     ck_assert_ptr_eq(cps[0], NULL);
     ck_assert_ptr_eq(cps[1], NULL);
-    free(cp);
+    efree(cp);
 
     /* Attempt to split several one-character words, and the result would not
      * fit into the array. */
-    cp = strdup("q w e r t y");
+    cp = estrdup("q w e r t y");
     ck_assert_int_eq(string_split(cp, cps2, sizeof(cps2) / sizeof(*cps2), ' '),
             2);
     ck_assert_str_eq(cps2[0], "q");
     ck_assert_str_eq(cps2[1], "w e r t y");
-    free(cp);
+    efree(cp);
 }
 
 END_TEST
@@ -150,22 +150,22 @@ START_TEST(test_string_replace_unprintable_char)
     char *cp;
 
     /* Replace tabs with spaces. */
-    cp = strdup("\thello\tworld");
+    cp = estrdup("\thello\tworld");
     string_replace_unprintable_chars(cp);
     ck_assert_str_eq(cp, " hello world");
-    free(cp);
+    efree(cp);
 
     /* Replace empty string. */
-    cp = strdup("");
+    cp = estrdup("");
     string_replace_unprintable_chars(cp);
     ck_assert_str_eq(cp, "");
-    free(cp);
+    efree(cp);
 
     /* Replace string that consists of only unprintable characters. */
-    cp = strdup("\t\n\n\t\t\t\b\b");
+    cp = estrdup("\t\n\n\t\t\t\b\b");
     string_replace_unprintable_chars(cp);
     ck_assert_str_eq(cp, "        ");
-    free(cp);
+    efree(cp);
 }
 
 END_TEST
@@ -187,20 +187,20 @@ START_TEST(test_string_toupper)
 {
     char *cp;
 
-    cp = strdup("hello world");
+    cp = estrdup("hello world");
     string_toupper(cp);
     ck_assert_str_eq(cp, "HELLO WORLD");
-    free(cp);
+    efree(cp);
 
-    cp = strdup("Hello");
+    cp = estrdup("Hello");
     string_toupper(cp);
     ck_assert_str_eq(cp, "HELLO");
-    free(cp);
+    efree(cp);
 
-    cp = strdup("");
+    cp = estrdup("");
     string_toupper(cp);
     ck_assert_str_eq(cp, "");
-    free(cp);
+    efree(cp);
 }
 
 END_TEST
@@ -209,20 +209,20 @@ START_TEST(test_string_tolower)
 {
     char *cp;
 
-    cp = strdup("HELLO WORLD");
+    cp = estrdup("HELLO WORLD");
     string_tolower(cp);
     ck_assert_str_eq(cp, "hello world");
-    free(cp);
+    efree(cp);
 
-    cp = strdup("hELLO");
+    cp = estrdup("hELLO");
     string_tolower(cp);
     ck_assert_str_eq(cp, "hello");
-    free(cp);
+    efree(cp);
 
-    cp = strdup("");
+    cp = estrdup("");
     string_tolower(cp);
     ck_assert_str_eq(cp, "");
-    free(cp);
+    efree(cp);
 }
 
 END_TEST
@@ -231,30 +231,30 @@ START_TEST(test_string_whitespace_trim)
 {
     char *cp;
 
-    cp = strdup("            ");
+    cp = estrdup("            ");
     string_whitespace_trim(cp);
     ck_assert_str_eq(cp, "");
-    free(cp);
+    efree(cp);
 
-    cp = strdup("hello world        \t\t");
+    cp = estrdup("hello world        \t\t");
     string_whitespace_trim(cp);
     ck_assert_str_eq(cp, "hello world");
-    free(cp);
+    efree(cp);
 
-    cp = strdup("           hello world");
+    cp = estrdup("           hello world");
     string_whitespace_trim(cp);
     ck_assert_str_eq(cp, "hello world");
-    free(cp);
+    efree(cp);
 
-    cp = strdup("\t              hello world   \t   ");
+    cp = estrdup("\t              hello world   \t   ");
     string_whitespace_trim(cp);
     ck_assert_str_eq(cp, "hello world");
-    free(cp);
+    efree(cp);
 
-    cp = strdup("   hello world   ");
+    cp = estrdup("   hello world   ");
     string_whitespace_trim(cp);
     ck_assert_str_eq(cp, "hello world");
-    free(cp);
+    efree(cp);
 }
 
 END_TEST
@@ -263,25 +263,25 @@ START_TEST(test_string_whitespace_squeeze)
 {
     char *cp;
 
-    cp = strdup(" hello world ");
+    cp = estrdup(" hello world ");
     string_whitespace_squeeze(cp);
     ck_assert_str_eq(cp, " hello world ");
-    free(cp);
+    efree(cp);
 
-    cp = strdup(" hello         world ");
+    cp = estrdup(" hello         world ");
     string_whitespace_squeeze(cp);
     ck_assert_str_eq(cp, " hello world ");
-    free(cp);
+    efree(cp);
 
-    cp = strdup("      hello    world ");
+    cp = estrdup("      hello    world ");
     string_whitespace_squeeze(cp);
     ck_assert_str_eq(cp, " hello world ");
-    free(cp);
+    efree(cp);
 
-    cp = strdup("hello  world     ");
+    cp = estrdup("hello  world     ");
     string_whitespace_squeeze(cp);
     ck_assert_str_eq(cp, "hello world ");
-    free(cp);
+    efree(cp);
 }
 
 END_TEST
@@ -290,20 +290,20 @@ START_TEST(test_string_newline_to_literal)
 {
     char *cp;
 
-    cp = strdup("hello\\nworld");
+    cp = estrdup("hello\\nworld");
     string_newline_to_literal(cp);
     ck_assert_str_eq(cp, "hello\nworld");
-    free(cp);
+    efree(cp);
 
-    cp = strdup("\\n\\n\\n");
+    cp = estrdup("\\n\\n\\n");
     string_newline_to_literal(cp);
     ck_assert_str_eq(cp, "\n\n\n");
-    free(cp);
+    efree(cp);
 
-    cp = strdup("");
+    cp = estrdup("");
     string_newline_to_literal(cp);
     ck_assert_str_eq(cp, "");
-    free(cp);
+    efree(cp);
 }
 
 END_TEST
@@ -313,7 +313,7 @@ START_TEST(test_string_get_word)
     char *cp, word[MAX_BUF];
     size_t pos;
 
-    cp = strdup("hello world");
+    cp = estrdup("hello world");
     pos = 0;
     ck_assert_str_eq(string_get_word(cp, &pos, ' ', word, sizeof(word), 0),
             "hello");
@@ -321,9 +321,9 @@ START_TEST(test_string_get_word)
             "world");
     ck_assert_ptr_eq(string_get_word(cp, &pos, ' ', word, sizeof(word), 0),
             NULL);
-    free(cp);
+    efree(cp);
 
-    cp = strdup("/teleport 'Player Name'");
+    cp = estrdup("/teleport 'Player Name'");
     pos = 0;
     ck_assert_str_eq(string_get_word(cp, &pos, ' ', word, sizeof(word), 0),
             "/teleport");
@@ -331,13 +331,13 @@ START_TEST(test_string_get_word)
             "Player Name");
     ck_assert_ptr_eq(string_get_word(cp, &pos, ' ', word, sizeof(word), 0),
             NULL);
-    free(cp);
+    efree(cp);
 
-    cp = strdup("");
+    cp = estrdup("");
     pos = 0;
     ck_assert_ptr_eq(string_get_word(cp, &pos, ' ', word, sizeof(word), 0),
             NULL);
-    free(cp);
+    efree(cp);
 }
 
 END_TEST
@@ -347,15 +347,15 @@ START_TEST(test_string_skip_word)
     char *cp;
     size_t pos;
 
-    cp = strdup("hello world");
+    cp = estrdup("hello world");
     pos = 0;
     string_skip_word(cp, &pos, 1);
     ck_assert_str_eq(cp + pos, " world");
     string_skip_word(cp, &pos, 1);
     ck_assert_str_eq(cp + pos, "");
-    free(cp);
+    efree(cp);
 
-    cp = strdup("hello world");
+    cp = estrdup("hello world");
     pos = strlen(cp);
     string_skip_word(cp, &pos, -1);
     ck_assert_str_eq(cp + pos, "world");
@@ -363,7 +363,7 @@ START_TEST(test_string_skip_word)
     ck_assert_str_eq(cp + pos, "hello world");
     string_skip_word(cp, &pos, 1);
     ck_assert_str_eq(cp + pos, " world");
-    free(cp);
+    efree(cp);
 }
 
 END_TEST
@@ -386,30 +386,30 @@ START_TEST(test_string_capitalize)
 {
     char *cp;
 
-    cp = strdup("hello world");
+    cp = estrdup("hello world");
     string_capitalize(cp);
     ck_assert_str_eq(cp, "Hello world");
-    free(cp);
+    efree(cp);
 
-    cp = strdup("Hello World");
+    cp = estrdup("Hello World");
     string_capitalize(cp);
     ck_assert_str_eq(cp, "Hello world");
-    free(cp);
+    efree(cp);
 
-    cp = strdup("HELLO");
+    cp = estrdup("HELLO");
     string_capitalize(cp);
     ck_assert_str_eq(cp, "Hello");
-    free(cp);
+    efree(cp);
 
-    cp = strdup("MiXeD CaSe");
+    cp = estrdup("MiXeD CaSe");
     string_capitalize(cp);
     ck_assert_str_eq(cp, "Mixed case");
-    free(cp);
+    efree(cp);
 
-    cp = strdup("");
+    cp = estrdup("");
     string_capitalize(cp);
     ck_assert_str_eq(cp, "");
-    free(cp);
+    efree(cp);
 }
 
 END_TEST
@@ -418,65 +418,65 @@ START_TEST(test_string_title)
 {
     char *cp;
 
-    cp = strdup("hello world");
+    cp = estrdup("hello world");
     string_title(cp);
     ck_assert_str_eq(cp, "Hello World");
-    free(cp);
+    efree(cp);
 
-    cp = strdup("Hello World");
+    cp = estrdup("Hello World");
     string_title(cp);
     ck_assert_str_eq(cp, "Hello World");
-    free(cp);
+    efree(cp);
 
-    cp = strdup("HELLO");
+    cp = estrdup("HELLO");
     string_title(cp);
     ck_assert_str_eq(cp, "Hello");
-    free(cp);
+    efree(cp);
 
-    cp = strdup(" Hello ");
+    cp = estrdup(" Hello ");
     string_title(cp);
     ck_assert_str_eq(cp, " Hello ");
-    free(cp);
+    efree(cp);
 
-    cp = strdup("Hello ");
+    cp = estrdup("Hello ");
     string_title(cp);
     ck_assert_str_eq(cp, "Hello ");
-    free(cp);
+    efree(cp);
 
-    cp = strdup("hello ");
+    cp = estrdup("hello ");
     string_title(cp);
     ck_assert_str_eq(cp, "Hello ");
-    free(cp);
+    efree(cp);
 
-    cp = strdup("MiXeD CaSe");
+    cp = estrdup("MiXeD CaSe");
     string_title(cp);
     ck_assert_str_eq(cp, "Mixed Case");
-    free(cp);
+    efree(cp);
 
-    cp = strdup("");
+    cp = estrdup("");
     string_title(cp);
     ck_assert_str_eq(cp, "");
-    free(cp);
+    efree(cp);
 
-    cp = strdup(" ");
+    cp = estrdup(" ");
     string_title(cp);
     ck_assert_str_eq(cp, " ");
-    free(cp);
+    efree(cp);
 
-    cp = strdup(" a");
+    cp = estrdup(" a");
     string_title(cp);
     ck_assert_str_eq(cp, " A");
-    free(cp);
+    efree(cp);
 
-    cp = strdup("fOrMaT thIs aS titLe String");
+    cp = estrdup("fOrMaT thIs aS titLe String");
     string_title(cp);
     ck_assert_str_eq(cp, "Format This As Title String");
-    free(cp);
+    efree(cp);
 
-    cp = strdup("fOrMaT,thIs-aS*titLe;String");
+    cp = estrdup("fOrMaT,thIs-aS*titLe;String");
     string_title(cp);
     ck_assert_str_eq(cp, "Format,This-As*Title;String");
-    free(cp);
+    efree(cp);
 }
 
 END_TEST
@@ -513,59 +513,59 @@ START_TEST(test_string_sub)
 
     cp = string_sub("hello world", 1, -1);
     ck_assert_str_eq(cp, "ello worl");
-    free(cp);
+    efree(cp);
 
     cp = string_sub("hello world", 0, 0);
     ck_assert_str_eq(cp, "hello world");
-    free(cp);
+    efree(cp);
 
     cp = string_sub("hello world", 1, 0);
     ck_assert_str_eq(cp, "ello world");
-    free(cp);
+    efree(cp);
 
     cp = string_sub("hello world", 0, -1);
     ck_assert_str_eq(cp, "hello worl");
-    free(cp);
+    efree(cp);
 
     cp = string_sub("hello world", -1, -1);
     ck_assert_str_eq(cp, "l");
-    free(cp);
+    efree(cp);
 
     cp = string_sub("hello world", 4, 0);
     ck_assert_str_eq(cp, "o world");
-    free(cp);
+    efree(cp);
 
     cp = string_sub("hello world", -5, 0);
     ck_assert_str_eq(cp, "world");
-    free(cp);
+    efree(cp);
 
     cp = string_sub("hello world", 20, 0);
     ck_assert_str_eq(cp, "");
-    free(cp);
+    efree(cp);
 
     cp = string_sub("hello world", -20, -20);
     ck_assert_str_eq(cp, "");
-    free(cp);
+    efree(cp);
 
     cp = string_sub("hello world", 0, -20);
     ck_assert_str_eq(cp, "");
-    free(cp);
+    efree(cp);
 
     cp = string_sub("hello world", -20, 0);
     ck_assert_str_eq(cp, "hello world");
-    free(cp);
+    efree(cp);
 
     cp = string_sub("hello world", -500, 2);
     ck_assert_str_eq(cp, "he");
-    free(cp);
+    efree(cp);
 
     cp = string_sub("hello world", 0, -500);
     ck_assert_str_eq(cp, "");
-    free(cp);
+    efree(cp);
 
     cp = string_sub("hello world", 5, -500);
     ck_assert_str_eq(cp, "");
-    free(cp);
+    efree(cp);
 }
 
 END_TEST
@@ -636,15 +636,15 @@ START_TEST(test_string_create_char_range)
 
     cp = string_create_char_range('a', 'z');
     ck_assert_str_eq(cp, "abcdefghijklmnopqrstuvwxyz");
-    free(cp);
+    efree(cp);
 
     cp = string_create_char_range('A', 'Z');
     ck_assert_str_eq(cp, "ABCDEFGHIJKLMNOPQRSTUVWXYZ");
-    free(cp);
+    efree(cp);
 
     cp = string_create_char_range('0', '9');
     ck_assert_str_eq(cp, "0123456789");
-    free(cp);
+    efree(cp);
 }
 
 END_TEST
@@ -655,27 +655,27 @@ START_TEST(test_string_join)
 
     cp = string_join(NULL, "hello", "world", NULL);
     ck_assert_str_eq(cp, "helloworld");
-    free(cp);
+    efree(cp);
 
     cp = string_join(" ", "hello", "world", NULL);
     ck_assert_str_eq(cp, "hello world");
-    free(cp);
+    efree(cp);
 
     cp = string_join(", ", "hello", "world", NULL);
     ck_assert_str_eq(cp, "hello, world");
-    free(cp);
+    efree(cp);
 
     cp = string_join(NULL, "world", NULL);
     ck_assert_str_eq(cp, "world");
-    free(cp);
+    efree(cp);
 
     cp = string_join("\n", "hello", NULL);
     ck_assert_str_eq(cp, "hello");
-    free(cp);
+    efree(cp);
 
     cp = string_join("\n", "hello", "world", "hi", NULL);
     ck_assert_str_eq(cp, "hello\nworld\nhi");
-    free(cp);
+    efree(cp);
 }
 
 END_TEST
@@ -690,31 +690,31 @@ START_TEST(test_string_join_array)
 
     cp = string_join_array(NULL, cps, arraysize(cps));
     ck_assert_str_eq(cp, "helloworld");
-    free(cp);
+    efree(cp);
 
     cp = string_join_array(" ", cps, arraysize(cps));
     ck_assert_str_eq(cp, "hello world");
-    free(cp);
+    efree(cp);
 
     cp = string_join_array(", ", cps, arraysize(cps));
     ck_assert_str_eq(cp, "hello, world");
-    free(cp);
+    efree(cp);
 
     cp = string_join_array(NULL, cps2, arraysize(cps2));
     ck_assert_str_eq(cp, "hello");
-    free(cp);
+    efree(cp);
 
     cp = string_join_array("\n", cps2, arraysize(cps2));
     ck_assert_str_eq(cp, "hello");
-    free(cp);
+    efree(cp);
 
     cp = string_join_array("\n", cps3, arraysize(cps3));
     ck_assert_str_eq(cp, "hello\nworld\nhi");
-    free(cp);
+    efree(cp);
 
     cp = string_join_array("\n", cps4, arraysize(cps4));
     ck_assert_str_eq(cp, "hello\nworld");
-    free(cp);
+    efree(cp);
 }
 
 END_TEST
@@ -725,15 +725,15 @@ START_TEST(test_string_repeat)
 
     cp = string_repeat("hello", 5);
     ck_assert_str_eq(cp, "hellohellohellohellohello");
-    free(cp);
+    efree(cp);
 
     cp = string_repeat("hello", 1);
     ck_assert_str_eq(cp, "hello");
-    free(cp);
+    efree(cp);
 
     cp = string_repeat("hello", 0);
     ck_assert_str_eq(cp, "");
-    free(cp);
+    efree(cp);
 }
 
 END_TEST

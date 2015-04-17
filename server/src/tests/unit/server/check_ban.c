@@ -25,17 +25,18 @@
 #include <global.h>
 #include <check.h>
 #include <check_proto.h>
+#include <toolkit_string.h>
 
 START_TEST(test_add_ban)
 {
-    ck_assert(!add_ban(strdup("Tester/")));
-    remove_ban(strdup("Tester/"));
-    ck_assert(!add_ban(strdup("Tester/:")));
-    remove_ban(strdup("Tester/:"));
-    ck_assert(add_ban(strdup("Tester/:xxx.x.x.x")));
-    remove_ban(strdup("Tester/:xxx.x.x.x"));
-    ck_assert(!add_ban(strdup("Tester/:xxx.x.x.x:11")));
-    remove_ban(strdup("Tester/:xxx.x.x.x:11"));
+    ck_assert(!add_ban(estrdup("Tester/")));
+    remove_ban(estrdup("Tester/"));
+    ck_assert(!add_ban(estrdup("Tester/:")));
+    remove_ban(estrdup("Tester/:"));
+    ck_assert(add_ban(estrdup("Tester/:xxx.x.x.x")));
+    remove_ban(estrdup("Tester/:xxx.x.x.x"));
+    ck_assert(!add_ban(estrdup("Tester/:xxx.x.x.x:11")));
+    remove_ban(estrdup("Tester/:xxx.x.x.x:11"));
 }
 
 END_TEST
@@ -44,19 +45,19 @@ START_TEST(test_checkbanned)
 {
     shstr *str1, *str2;
 
-    add_ban(strdup("Noob/:127.0.0.1"));
+    add_ban(estrdup("Noob/:127.0.0.1"));
     str1 = add_string("Noob/");
     ck_assert(checkbanned(str1, "127.0.0.1"));
-    remove_ban(strdup("Noob/:127.0.0.1"));
+    remove_ban(estrdup("Noob/:127.0.0.1"));
 
-    add_ban(strdup("Tester/:*"));
+    add_ban(estrdup("Tester/:*"));
     str2 = add_string("Tester/");
     ck_assert(checkbanned(str2, "127.2.0.1"));
-    remove_ban(strdup("Tester/:*"));
+    remove_ban(estrdup("Tester/:*"));
 
-    add_ban(strdup("*:xxx.xxx.xxx"));
+    add_ban(estrdup("*:xxx.xxx.xxx"));
     ck_assert(checkbanned(NULL, "xxx.xxx.xxx"));
-    remove_ban(strdup("*:xxx.xxx.xxx"));
+    remove_ban(estrdup("*:xxx.xxx.xxx"));
 
     ck_assert(!checkbanned(NULL, "10543./4t5vr.3546"));
 
@@ -68,10 +69,10 @@ END_TEST
 
 START_TEST(test_remove_ban)
 {
-    add_ban(strdup("Tester/:xxx.x.x.x"));
-    ck_assert(remove_ban(strdup("Tester/:xxx.x.x.x")));
+    add_ban(estrdup("Tester/:xxx.x.x.x"));
+    ck_assert(remove_ban(estrdup("Tester/:xxx.x.x.x")));
 
-    ck_assert(!remove_ban(strdup("Tester~$#@:127.0.0.1")));
+    ck_assert(!remove_ban(estrdup("Tester~$#@:127.0.0.1")));
 }
 
 END_TEST

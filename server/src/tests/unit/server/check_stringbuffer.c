@@ -294,59 +294,59 @@ START_TEST(test_stringbuffer_sub)
 
     cp = stringbuffer_sub(sb, 1, -1);
     ck_assert_str_eq(cp, "ello worl");
-    free(cp);
+    efree(cp);
 
     cp = stringbuffer_sub(sb, 0, 0);
     ck_assert_str_eq(cp, "hello world");
-    free(cp);
+    efree(cp);
 
     cp = stringbuffer_sub(sb, 1, 0);
     ck_assert_str_eq(cp, "ello world");
-    free(cp);
+    efree(cp);
 
     cp = stringbuffer_sub(sb, 0, -1);
     ck_assert_str_eq(cp, "hello worl");
-    free(cp);
+    efree(cp);
 
     cp = stringbuffer_sub(sb, -1, -1);
     ck_assert_str_eq(cp, "l");
-    free(cp);
+    efree(cp);
 
     cp = stringbuffer_sub(sb, 4, 0);
     ck_assert_str_eq(cp, "o world");
-    free(cp);
+    efree(cp);
 
     cp = stringbuffer_sub(sb, -5, 0);
     ck_assert_str_eq(cp, "world");
-    free(cp);
+    efree(cp);
 
     cp = stringbuffer_sub(sb, 20, 0);
     ck_assert_str_eq(cp, "");
-    free(cp);
+    efree(cp);
 
     cp = stringbuffer_sub(sb, -20, -20);
     ck_assert_str_eq(cp, "");
-    free(cp);
+    efree(cp);
 
     cp = stringbuffer_sub(sb, 0, -20);
     ck_assert_str_eq(cp, "");
-    free(cp);
+    efree(cp);
 
     cp = stringbuffer_sub(sb, -20, 0);
     ck_assert_str_eq(cp, "hello world");
-    free(cp);
+    efree(cp);
 
     cp = stringbuffer_sub(sb, -500, 2);
     ck_assert_str_eq(cp, "he");
-    free(cp);
+    efree(cp);
 
     cp = stringbuffer_sub(sb, 0, -500);
     ck_assert_str_eq(cp, "");
-    free(cp);
+    efree(cp);
 
     cp = stringbuffer_sub(sb, 5, -500);
     ck_assert_str_eq(cp, "");
-    free(cp);
+    efree(cp);
 
     cp = stringbuffer_finish(sb);
     ck_assert_str_eq(cp, "hello world");
@@ -370,7 +370,7 @@ START_TEST(test_stringbuffer_1)
     ck_assert_uint_eq(stringbuffer_length(sb), 18);
     cp = stringbuffer_finish(sb);
     ck_assert_str_eq(cp, "hello world 1 test");
-    ck_assert_uint_eq(stringbuffer_length(sb), 18);
+    ck_assert_uint_eq(stringbuffer_length(sb2), 4);
     efree(cp);
     efree(stringbuffer_finish(sb2));
 }
