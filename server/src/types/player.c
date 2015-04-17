@@ -1991,6 +1991,7 @@ void player_save(object *op)
 
     chmod(path, SAVE_MODE);
     unlink(pathtmp);
+    efree(path);
 }
 
 static int player_load(player *pl, const char *path)
