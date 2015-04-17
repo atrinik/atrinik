@@ -376,6 +376,8 @@ char *file_path(const char *path, const char *mode)
         }
     }
 
+    efree(new_path);
+
     return stringbuffer_finish(sb);
 }
 
