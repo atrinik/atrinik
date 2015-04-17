@@ -69,16 +69,15 @@ typedef void (*toolkit_func)(void);
 #define TOOLKIT_INIT_FUNC_START(__api_name) \
     { \
         toolkit_func __deinit_func = toolkit_ ## __api_name ## _deinit; \
-        if (toolkit_imported(__api_name)) \
-        { \
+        if (toolkit_imported(__api_name)) { \
             return; \
         } \
-        did_init = 1;
+        did_init = 1; \
+        toolkit_import_register(STRINGIFY(API_NAME), __deinit_func); \
 
 /**
  * End toolkit API initialization function. */
 #define TOOLKIT_INIT_FUNC_END() \
-    toolkit_import_register(STRINGIFY(API_NAME), __deinit_func); \
     }
 
 /**
