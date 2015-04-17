@@ -72,6 +72,7 @@ typedef struct memory_chunk {
     ((memory_chunk_t *) ((char *) _ptr - offsetof(memory_chunk_t, data[0])))
 
 static memory_chunk_t *memory_chunks;
+static pthread_mutex_t memory_chunks_mutex;
 static ssize_t memory_chunks_num;
 static ssize_t memory_chunks_allocated;
 static ssize_t memory_chunks_allocated_max;
@@ -94,11 +95,14 @@ void toolkit_memory_init(void)
 {
     TOOLKIT_INIT_FUNC_START(memory)
     {
+#ifndef NDEBUG
+        pthread_mutex_init(&memory_chunks_mutex, NULL);
         memory_chunks = NULL;
         memory_chunks_num = 0;
         memory_chunks_allocated = 0;
         memory_chunks_allocated_max = 0;
         after_data = CHUNK_AFTER_VAL;
+#endif
     }
     TOOLKIT_INIT_FUNC_END()
 }
@@ -113,6 +117,8 @@ void toolkit_memory_deinit(void)
     {
 #ifndef NDEBUG
         memory_chunk_t *chunk;
+
+        pthread_mutex_destroy(&memory_chunks_mutex);
 
         DL_FOREACH(memory_chunks, chunk) {
             log(LOG(ERROR), "Unfreed pointer: %s", chunk_get_str(chunk));
@@ -210,6 +216,8 @@ static void *_malloc(size_t size, const char *file, uint32_t line)
     chunk->prev = NULL;
     *(uint64_t *) (&chunk->data[chunk->size]) = CHUNK_AFTER_VAL;
 
+    pthread_mutex_lock(&memory_chunks_mutex);
+
     DL_APPEND(memory_chunks, chunk);
 
     memory_chunks_num++;
@@ -218,6 +226,8 @@ static void *_malloc(size_t size, const char *file, uint32_t line)
     if (memory_chunks_allocated > memory_chunks_allocated_max) {
         memory_chunks_allocated_max = memory_chunks_allocated;
     }
+
+    pthread_mutex_unlock(&memory_chunks_mutex);
 
     if (!RUNNING_ON_VALGRIND) {
         memset(MEM_DATA(chunk), 0xEE, size);
@@ -233,6 +243,8 @@ static void _free(void *ptr, const char *file, uint32_t line)
     if (ptr == NULL) {
         return;
     }
+
+    pthread_mutex_lock(&memory_chunks_mutex);
 
     if (memory_chunks_num <= 0) {
         log_error("More frees than allocs (%" PRId64 "), free called from: "
@@ -272,6 +284,8 @@ static void _free(void *ptr, const char *file, uint32_t line)
 
     DL_DELETE(memory_chunks, chunk);
     memory_chunks_num--;
+
+    pthread_mutex_unlock(&memory_chunks_mutex);
 
     if (!RUNNING_ON_VALGRIND) {
         memset(chunk, 0x7A, MEM_CHUNK_SIZE(chunk->size));
