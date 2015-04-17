@@ -223,8 +223,6 @@ static void *_malloc(size_t size, const char *file, uint32_t line)
         memset(MEM_DATA(chunk), 0xEE, size);
     }
 
-    printf("Allocated pointer: %p\n", MEM_DATA(chunk));
-
     return MEM_DATA(chunk);
 }
 
@@ -306,7 +304,6 @@ static void *_realloc(void *ptr, size_t size, const char *file, uint32_t line)
             size = chunk->size;
         }
 
-        printf("copying %d bytes\n", size);
         memcpy(new_ptr, ptr, size);
         _free(ptr, file, line);
     }
