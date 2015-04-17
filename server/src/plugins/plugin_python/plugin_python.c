@@ -733,7 +733,7 @@ static int do_script(PythonContext *context, const char *filename)
         } else {
             char *cp;
 
-            cp = hooks->string_sub(filename, 0, -3);
+            cp = hooks->string_sub(filename, 0, -3 MEMORY_DEBUG_INFO);
             path = hooks->string_join("", cp, "py", NULL);
             efree(cp);
         }

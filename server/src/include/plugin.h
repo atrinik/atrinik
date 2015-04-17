@@ -316,7 +316,7 @@ struct plugin_hooklist {
     int (*set_variable)(object *, const char *);
     uint64_t(*level_exp)(int, double);
     int (*string_endswith)(const char *, const char *);
-    char *(*string_sub)(const char *, ssize_t, ssize_t);
+    char *(*string_sub)(const char *, ssize_t, ssize_t MEMORY_DEBUG_PROTO);
     char *(*path_join)(const char *, const char *);
     void (*monster_enemy_signal)(object *, object *);
     void (*map_redraw)(mapstruct *, int, int, int, int);
