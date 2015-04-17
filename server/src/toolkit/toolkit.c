@@ -57,7 +57,10 @@ void toolkit_import_register(const char *name, toolkit_func func)
 {
     HARD_ASSERT(name != NULL);
     HARD_ASSERT(func != NULL);
-    HARD_ASSERT(!toolkit_check_imported(func));
+
+    if (toolkit_check_imported(func)) {
+        return;
+    }
 
     apis = realloc(apis, sizeof(*apis) * (apis_num + 1));
 

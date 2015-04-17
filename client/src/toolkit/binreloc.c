@@ -36,24 +36,35 @@
 #include <global.h>
 
 /**
- * Name of the API. */
-#define API_NAME binreloc
-
-/**
- * If 1, the API has been initialized. */
-static uint8_t did_init = 0;
-
-/**
  * Canonical filename of the executable. May be NULL. */
 static char *exe = NULL;
+
+static char *_binreloc_find_exe(void);
+
+TOOLKIT_API(DEPENDS(path));
+
+TOOLKIT_INIT_FUNC(binreloc)
+{
+    exe = _binreloc_find_exe();
+}
+TOOLKIT_INIT_FUNC_FINISH
+
+TOOLKIT_DEINIT_FUNC(binreloc)
+{
+    if (exe != NULL) {
+        free(exe);
+        exe = NULL;
+    }
+}
+TOOLKIT_DEINIT_FUNC_FINISH
 
 /**
  * Finds the canonical filename of the executable.
  * @return The filename (which must be freed) or NULL on error. */
-static char *_binreloc_find_exe()
+static char *_binreloc_find_exe(void)
 {
 #ifndef ENABLE_BINRELOC
-    TOOLKIT_FUNC_PROTECTOR(API_NAME);
+    TOOLKIT_PROTECT();
     return NULL;
 #else
     char *path, *path2, *line, *result;
@@ -62,7 +73,7 @@ static char *_binreloc_find_exe()
     struct stat stat_buf;
     FILE *f;
 
-    TOOLKIT_FUNC_PROTECTOR(API_NAME);
+    TOOLKIT_PROTECT();
 
     /* Read from /proc/self/exe (symlink) */
     if (sizeof(path) > SSIZE_MAX) {
@@ -179,36 +190,6 @@ static char *_binreloc_find_exe()
 }
 
 /**
- * Initialize the binreloc API.
- * @internal */
-void toolkit_binreloc_init(void)
-{
-
-    TOOLKIT_INIT_FUNC_START(binreloc)
-    {
-        toolkit_import(path);
-        exe = _binreloc_find_exe();
-    }
-    TOOLKIT_INIT_FUNC_END()
-}
-
-/**
- * Deinitialize the binreloc API.
- * @internal */
-void toolkit_binreloc_deinit(void)
-{
-
-    TOOLKIT_DEINIT_FUNC_START(binreloc)
-    {
-        if (exe) {
-            free(exe);
-            exe = NULL;
-        }
-    }
-    TOOLKIT_DEINIT_FUNC_END()
-}
-
-/**
  * Finds the canonical filename of the current application.
  * @param default_exe A default filename which will be used as fallback.
  * @returns A string containing the application's canonical filename,
@@ -217,7 +198,7 @@ void toolkit_binreloc_deinit(void)
  * will be returned. If default_exe is NULL, then NULL will be returned. */
 char *binreloc_find_exe(const char *default_exe)
 {
-    TOOLKIT_FUNC_PROTECTOR(API_NAME);
+    TOOLKIT_PROTECT();
 
     if (exe) {
         return strdup(exe);
@@ -244,7 +225,7 @@ char *binreloc_find_exe(const char *default_exe)
  * default_dir is NULL, then NULL will be returned. */
 char *binreloc_find_exe_dir(const char *default_dir)
 {
-    TOOLKIT_FUNC_PROTECTOR(API_NAME);
+    TOOLKIT_PROTECT();
 
     if (exe) {
         return path_dirname(exe);
@@ -271,7 +252,7 @@ char *binreloc_find_exe_dir(const char *default_dir)
  * If default_prefix is NULL, then NULL will be returned. */
 char *binreloc_find_prefix(const char *default_prefix)
 {
-    TOOLKIT_FUNC_PROTECTOR(API_NAME);
+    TOOLKIT_PROTECT();
 
     if (exe) {
         char *dir1, *dir2;
@@ -305,7 +286,7 @@ char *binreloc_find_bin_dir(const char *default_bin_dir)
 {
     char *prefix, *dir;
 
-    TOOLKIT_FUNC_PROTECTOR(API_NAME);
+    TOOLKIT_PROTECT();
 
     prefix = binreloc_find_prefix(NULL);
 
@@ -338,7 +319,7 @@ char *binreloc_find_sbin_dir (const char *default_sbin_dir)
 {
     char *prefix, *dir;
 
-    TOOLKIT_FUNC_PROTECTOR(API_NAME);
+    TOOLKIT_PROTECT();
 
     prefix = binreloc_find_prefix(NULL);
 
@@ -371,7 +352,7 @@ char *binreloc_find_data_dir(const char *default_data_dir)
 {
     char *prefix, *dir;
 
-    TOOLKIT_FUNC_PROTECTOR(API_NAME);
+    TOOLKIT_PROTECT();
 
     prefix = binreloc_find_prefix(NULL);
 
@@ -405,7 +386,7 @@ char *binreloc_find_locale_dir(const char *default_locale_dir)
 {
     char *data_dir, *dir;
 
-    TOOLKIT_FUNC_PROTECTOR(API_NAME);
+    TOOLKIT_PROTECT();
 
     data_dir = binreloc_find_data_dir(NULL);
 
@@ -438,7 +419,7 @@ char *binreloc_find_lib_dir(const char *default_lib_dir)
 {
     char *prefix, *dir;
 
-    TOOLKIT_FUNC_PROTECTOR(API_NAME);
+    TOOLKIT_PROTECT();
 
     prefix = binreloc_find_prefix(NULL);
 
@@ -472,7 +453,7 @@ char *binreloc_find_libexec_dir(const char *default_libexec_dir)
 {
     char *prefix, *dir;
 
-    TOOLKIT_FUNC_PROTECTOR(API_NAME);
+    TOOLKIT_PROTECT();
 
     prefix = binreloc_find_prefix(NULL);
 
@@ -505,7 +486,7 @@ char *binreloc_find_etc_dir(const char *default_etc_dir)
 {
     char *prefix, *dir;
 
-    TOOLKIT_FUNC_PROTECTOR(API_NAME);
+    TOOLKIT_PROTECT();
 
     prefix = binreloc_find_prefix(NULL);
 

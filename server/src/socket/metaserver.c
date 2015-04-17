@@ -126,6 +126,20 @@ void metaserver_init(void)
 }
 
 /**
+ * Deinitialize the metaserver.
+ */
+void metaserver_deinit(void)
+{
+    pthread_mutex_lock(&ms_info_mutex);
+
+    if (metaserver_info.players != NULL) {
+        efree(metaserver_info.players);
+    }
+
+    pthread_mutex_unlock(&ms_info_mutex);
+}
+
+/**
  * Construct metaserver statistics.
  * @param[out] buf Buffer to use for writing. Must end with a NUL.
  * @param size Size of 'buf'.

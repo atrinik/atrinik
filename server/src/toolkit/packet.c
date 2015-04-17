@@ -36,16 +36,26 @@
 #include <toolkit_string.h>
 
 /**
- * Name of the API. */
-#define API_NAME packet
-
-/**
- * If 1, the API has been initialized. */
-static uint8_t did_init = 0;
-
-/**
  * The packets memory pool. */
 static mempool_struct *pool_packet;
+
+static void packet_debugger(packet_struct *packet, char *buf, size_t size);
+
+TOOLKIT_API(DEPENDS(mempool));
+
+TOOLKIT_INIT_FUNC(packet)
+{
+    pool_packet = mempool_create("packets", PACKET_EXPAND,
+            sizeof(packet_struct), MEMPOOL_ALLOW_FREEING,
+            NULL, NULL, NULL, NULL);
+    mempool_set_debugger(pool_packet, (chunk_debugger) packet_debugger);
+}
+TOOLKIT_INIT_FUNC_FINISH
+
+TOOLKIT_DEINIT_FUNC(packet)
+{
+}
+TOOLKIT_DEINIT_FUNC_FINISH
 
 /** @copydoc chunk_debugger */
 static void packet_debugger(packet_struct *packet, char *buf, size_t size)
@@ -69,33 +79,6 @@ static void packet_debugger(packet_struct *packet, char *buf, size_t size)
 }
 
 /**
- * Initialize the packet API.
- * @internal */
-void toolkit_packet_init(void)
-{
-    TOOLKIT_INIT_FUNC_START(packet)
-    {
-        toolkit_import(mempool);
-        pool_packet = mempool_create("packets", PACKET_EXPAND,
-                sizeof(packet_struct), MEMPOOL_ALLOW_FREEING,
-                NULL, NULL, NULL, NULL);
-        mempool_set_debugger(pool_packet, (chunk_debugger) packet_debugger);
-    }
-    TOOLKIT_INIT_FUNC_END()
-}
-
-/**
- * Deinitialize the packet API.
- * @internal */
-void toolkit_packet_deinit(void)
-{
-    TOOLKIT_DEINIT_FUNC_START(packet)
-    {
-    }
-    TOOLKIT_DEINIT_FUNC_END()
-}
-
-/**
  * Allocates a new packet.
  * @param type The packet's command type.
  * @param size Initial number of bytes to allocate for the packet's
@@ -107,7 +90,7 @@ packet_struct *packet_new(uint8_t type, size_t size, size_t expand)
 {
     packet_struct *packet;
 
-    TOOLKIT_FUNC_PROTECTOR(API_NAME);
+    TOOLKIT_PROTECT();
 
     packet = mempool_get(pool_packet);
     packet->size = size;
@@ -132,7 +115,7 @@ packet_struct *packet_new(uint8_t type, size_t size, size_t expand)
  * @param packet Packet to free. */
 void packet_free(packet_struct *packet)
 {
-    TOOLKIT_FUNC_PROTECTOR(API_NAME);
+    TOOLKIT_PROTECT();
 
     if (packet->data) {
         efree(packet->data);
@@ -152,7 +135,7 @@ void packet_free(packet_struct *packet)
  * @param packet Packet to try to compress. */
 void packet_compress(packet_struct *packet)
 {
-    TOOLKIT_FUNC_PROTECTOR(API_NAME);
+    TOOLKIT_PROTECT();
 
 #if defined(COMPRESS_DATA_PACKETS) && COMPRESS_DATA_PACKETS
 
@@ -185,19 +168,19 @@ void packet_compress(packet_struct *packet)
  * Enables NDELAY on the specified packet. */
 void packet_enable_ndelay(packet_struct *packet)
 {
-    TOOLKIT_FUNC_PROTECTOR(API_NAME);
+    TOOLKIT_PROTECT();
     packet->ndelay = 1;
 }
 
 void packet_set_pos(packet_struct *packet, size_t pos)
 {
-    TOOLKIT_FUNC_PROTECTOR(API_NAME);
+    TOOLKIT_PROTECT();
     packet->len = pos;
 }
 
 size_t packet_get_pos(packet_struct *packet)
 {
-    TOOLKIT_FUNC_PROTECTOR(API_NAME);
+    TOOLKIT_PROTECT();
     return packet->len;
 }
 
@@ -205,7 +188,7 @@ packet_struct *packet_dup(packet_struct *packet)
 {
     packet_struct *cp;
 
-    TOOLKIT_FUNC_PROTECTOR(API_NAME);
+    TOOLKIT_PROTECT();
 
     cp = packet_new(packet->type, packet->size, packet->expand);
     cp->ndelay = packet->ndelay;
@@ -219,7 +202,7 @@ packet_struct *packet_dup(packet_struct *packet)
 
 void packet_delete(packet_struct *packet, size_t pos, size_t len)
 {
-    TOOLKIT_FUNC_PROTECTOR(API_NAME);
+    TOOLKIT_PROTECT();
 
     if (packet->len - len + pos) {
         memmove(packet->data + pos, packet->data + pos + len, packet->len - len + pos);
@@ -259,7 +242,7 @@ void packet_load(packet_struct *packet, const packet_save_t *packet_save_buf)
  * @param size How many bytes we need. */
 static void packet_ensure(packet_struct *packet, size_t size)
 {
-    TOOLKIT_FUNC_PROTECTOR(API_NAME);
+    TOOLKIT_PROTECT();
 
     if (packet->len + size < packet->size) {
         return;
@@ -273,7 +256,7 @@ char *packet_get_debug(packet_struct *packet)
 {
     char *cp;
 
-    TOOLKIT_FUNC_PROTECTOR(API_NAME);
+    TOOLKIT_PROTECT();
 
     HARD_ASSERT(packet != NULL);
 
@@ -290,7 +273,7 @@ char *packet_get_debug(packet_struct *packet)
 
 static void packet_append_uint8_internal(packet_struct *packet, uint8_t data)
 {
-    TOOLKIT_FUNC_PROTECTOR(API_NAME);
+    TOOLKIT_PROTECT();
     packet_ensure(packet, 1);
 
     packet->data[packet->len++] = data;
@@ -298,7 +281,7 @@ static void packet_append_uint8_internal(packet_struct *packet, uint8_t data)
 
 void packet_append_uint8(packet_struct *packet, uint8_t data)
 {
-    TOOLKIT_FUNC_PROTECTOR(API_NAME);
+    TOOLKIT_PROTECT();
 
     packet_append_uint8_internal(packet, data);
     packet_debug(packet, 0, "%u\n", data);
@@ -306,7 +289,7 @@ void packet_append_uint8(packet_struct *packet, uint8_t data)
 
 void packet_append_int8(packet_struct *packet, int8_t data)
 {
-    TOOLKIT_FUNC_PROTECTOR(API_NAME);
+    TOOLKIT_PROTECT();
     packet_ensure(packet, 1);
 
     packet->data[packet->len++] = data;
@@ -315,7 +298,7 @@ void packet_append_int8(packet_struct *packet, int8_t data)
 
 void packet_append_uint16(packet_struct *packet, uint16_t data)
 {
-    TOOLKIT_FUNC_PROTECTOR(API_NAME);
+    TOOLKIT_PROTECT();
     packet_ensure(packet, 2);
 
     packet->data[packet->len++] = (data >> 8) & 0xff;
@@ -325,7 +308,7 @@ void packet_append_uint16(packet_struct *packet, uint16_t data)
 
 void packet_append_int16(packet_struct *packet, int16_t data)
 {
-    TOOLKIT_FUNC_PROTECTOR(API_NAME);
+    TOOLKIT_PROTECT();
     packet_ensure(packet, 2);
 
     packet->data[packet->len++] = (data >> 8) & 0xff;
@@ -335,7 +318,7 @@ void packet_append_int16(packet_struct *packet, int16_t data)
 
 static void packet_append_uint32_internal(packet_struct *packet, uint32_t data)
 {
-    TOOLKIT_FUNC_PROTECTOR(API_NAME);
+    TOOLKIT_PROTECT();
     packet_ensure(packet, 4);
 
     packet->data[packet->len++] = (data >> 24) & 0xff;
@@ -346,7 +329,7 @@ static void packet_append_uint32_internal(packet_struct *packet, uint32_t data)
 
 void packet_append_uint32(packet_struct *packet, uint32_t data)
 {
-    TOOLKIT_FUNC_PROTECTOR(API_NAME);
+    TOOLKIT_PROTECT();
 
     packet_append_uint32_internal(packet, data);
     packet_debug(packet, 0, "%u\n", data);
@@ -354,7 +337,7 @@ void packet_append_uint32(packet_struct *packet, uint32_t data)
 
 void packet_append_int32(packet_struct *packet, int32_t data)
 {
-    TOOLKIT_FUNC_PROTECTOR(API_NAME);
+    TOOLKIT_PROTECT();
     packet_ensure(packet, 4);
 
     packet->data[packet->len++] = (data >> 24) & 0xff;
@@ -366,7 +349,7 @@ void packet_append_int32(packet_struct *packet, int32_t data)
 
 static void packet_append_uint64_internal(packet_struct *packet, uint64_t data)
 {
-    TOOLKIT_FUNC_PROTECTOR(API_NAME);
+    TOOLKIT_PROTECT();
     packet_ensure(packet, 8);
 
     packet->data[packet->len++] = (data >> 56) & 0xff;
@@ -381,7 +364,7 @@ static void packet_append_uint64_internal(packet_struct *packet, uint64_t data)
 
 void packet_append_uint64(packet_struct *packet, uint64_t data)
 {
-    TOOLKIT_FUNC_PROTECTOR(API_NAME);
+    TOOLKIT_PROTECT();
 
     packet_append_uint64_internal(packet, data);
     packet_debug(packet, 0, "%" PRIu64 "\n", data);
@@ -389,7 +372,7 @@ void packet_append_uint64(packet_struct *packet, uint64_t data)
 
 void packet_append_int64(packet_struct *packet, int64_t data)
 {
-    TOOLKIT_FUNC_PROTECTOR(API_NAME);
+    TOOLKIT_PROTECT();
     packet_ensure(packet, 8);
 
     packet->data[packet->len++] = (data >> 56) & 0xff;
@@ -407,7 +390,7 @@ void packet_append_float(packet_struct *packet, float data)
 {
     uint32_t val;
 
-    TOOLKIT_FUNC_PROTECTOR(API_NAME);
+    TOOLKIT_PROTECT();
 
     memcpy(&val, &data, sizeof(val));
     packet_append_uint32_internal(packet, val);
@@ -418,7 +401,7 @@ void packet_append_double(packet_struct *packet, double data)
 {
     uint64_t val;
 
-    TOOLKIT_FUNC_PROTECTOR(API_NAME);
+    TOOLKIT_PROTECT();
 
     memcpy(&val, &data, sizeof(val));
     packet_append_uint64_internal(packet, val);
@@ -428,7 +411,7 @@ void packet_append_double(packet_struct *packet, double data)
 static void packet_append_data_len_internal(packet_struct *packet,
         const uint8_t *data, size_t len)
 {
-    TOOLKIT_FUNC_PROTECTOR(API_NAME);
+    TOOLKIT_PROTECT();
 
     HARD_ASSERT(packet != NULL);
     SOFT_ASSERT(data != NULL, "Data is NULL.");
@@ -445,7 +428,7 @@ static void packet_append_data_len_internal(packet_struct *packet,
 void packet_append_data_len(packet_struct *packet, const uint8_t *data,
         size_t len)
 {
-    TOOLKIT_FUNC_PROTECTOR(API_NAME);
+    TOOLKIT_PROTECT();
 
     HARD_ASSERT(packet != NULL);
     SOFT_ASSERT(data != NULL, "Data is NULL.");
@@ -471,7 +454,7 @@ void packet_append_data_len(packet_struct *packet, const uint8_t *data,
 void packet_append_string_len(packet_struct *packet, const char *data,
         size_t len)
 {
-    TOOLKIT_FUNC_PROTECTOR(API_NAME);
+    TOOLKIT_PROTECT();
 
     HARD_ASSERT(packet != NULL);
     SOFT_ASSERT(data != NULL, "Data is NULL.");
@@ -488,7 +471,7 @@ void packet_append_string_len(packet_struct *packet, const char *data,
 
 void packet_append_string(packet_struct *packet, const char *data)
 {
-    TOOLKIT_FUNC_PROTECTOR(API_NAME);
+    TOOLKIT_PROTECT();
 
     HARD_ASSERT(packet != NULL);
     SOFT_ASSERT(data != NULL, "Data is NULL.");
@@ -499,7 +482,7 @@ void packet_append_string(packet_struct *packet, const char *data)
 void packet_append_string_len_terminated(packet_struct *packet,
         const char *data, size_t len)
 {
-    TOOLKIT_FUNC_PROTECTOR(API_NAME);
+    TOOLKIT_PROTECT();
 
     HARD_ASSERT(packet != NULL);
     SOFT_ASSERT(data != NULL, "Data is NULL.");
@@ -511,7 +494,7 @@ void packet_append_string_len_terminated(packet_struct *packet,
 
 void packet_append_string_terminated(packet_struct *packet, const char *data)
 {
-    TOOLKIT_FUNC_PROTECTOR(API_NAME);
+    TOOLKIT_PROTECT();
 
     HARD_ASSERT(packet != NULL);
     SOFT_ASSERT(data != NULL, "Data is NULL.");
@@ -521,7 +504,7 @@ void packet_append_string_terminated(packet_struct *packet, const char *data)
 
 void packet_append_packet(packet_struct *packet, packet_struct *src)
 {
-    TOOLKIT_FUNC_PROTECTOR(API_NAME);
+    TOOLKIT_PROTECT();
 
     HARD_ASSERT(packet != NULL);
     HARD_ASSERT(src != NULL);
@@ -545,7 +528,7 @@ uint8_t packet_to_uint8(uint8_t *data, size_t len, size_t *pos)
 {
     uint8_t ret;
 
-    TOOLKIT_FUNC_PROTECTOR(API_NAME);
+    TOOLKIT_PROTECT();
 
     if (len - *pos < 1) {
         *pos = len;
@@ -562,7 +545,7 @@ int8_t packet_to_int8(uint8_t *data, size_t len, size_t *pos)
 {
     int8_t ret;
 
-    TOOLKIT_FUNC_PROTECTOR(API_NAME);
+    TOOLKIT_PROTECT();
 
     if (len - *pos < 1) {
         *pos = len;
@@ -579,7 +562,7 @@ uint16_t packet_to_uint16(uint8_t *data, size_t len, size_t *pos)
 {
     uint16_t ret;
 
-    TOOLKIT_FUNC_PROTECTOR(API_NAME);
+    TOOLKIT_PROTECT();
 
     if (len - *pos < 2) {
         *pos = len;
@@ -596,7 +579,7 @@ int16_t packet_to_int16(uint8_t *data, size_t len, size_t *pos)
 {
     int16_t ret;
 
-    TOOLKIT_FUNC_PROTECTOR(API_NAME);
+    TOOLKIT_PROTECT();
 
     if (len - *pos < 2) {
         *pos = len;
@@ -613,7 +596,7 @@ uint32_t packet_to_uint32(uint8_t *data, size_t len, size_t *pos)
 {
     uint32_t ret;
 
-    TOOLKIT_FUNC_PROTECTOR(API_NAME);
+    TOOLKIT_PROTECT();
 
     if (len - *pos < 4) {
         *pos = len;
@@ -630,7 +613,7 @@ int32_t packet_to_int32(uint8_t *data, size_t len, size_t *pos)
 {
     int32_t ret;
 
-    TOOLKIT_FUNC_PROTECTOR(API_NAME);
+    TOOLKIT_PROTECT();
 
     if (len - *pos < 4) {
         *pos = len;
@@ -647,7 +630,7 @@ uint64_t packet_to_uint64(uint8_t *data, size_t len, size_t *pos)
 {
     uint64_t ret;
 
-    TOOLKIT_FUNC_PROTECTOR(API_NAME);
+    TOOLKIT_PROTECT();
 
     if (len - *pos < 8) {
         *pos = len;
@@ -664,7 +647,7 @@ int64_t packet_to_int64(uint8_t *data, size_t len, size_t *pos)
 {
     int64_t ret;
 
-    TOOLKIT_FUNC_PROTECTOR(API_NAME);
+    TOOLKIT_PROTECT();
 
     if (len - *pos < 8) {
         *pos = len;
@@ -682,7 +665,7 @@ float packet_to_float(uint8_t *data, size_t len, size_t *pos)
     uint32_t val;
     float ret;
 
-    TOOLKIT_FUNC_PROTECTOR(API_NAME);
+    TOOLKIT_PROTECT();
 
     val = packet_to_uint32(data, len, pos);
     memcpy(&ret, &val, sizeof(ret));
@@ -695,7 +678,7 @@ double packet_to_double(uint8_t *data, size_t len, size_t *pos)
     uint64_t val;
     double ret;
 
-    TOOLKIT_FUNC_PROTECTOR(API_NAME);
+    TOOLKIT_PROTECT();
 
     val = packet_to_uint64(data, len, pos);
     memcpy(&ret, &val, sizeof(ret));
@@ -708,7 +691,7 @@ char *packet_to_string(uint8_t *data, size_t len, size_t *pos, char *dest, size_
     size_t i = 0;
     char c;
 
-    TOOLKIT_FUNC_PROTECTOR(API_NAME);
+    TOOLKIT_PROTECT();
 
     while (*pos < len && (c = (char) (data[(*pos)++]))) {
         if (i < dest_size - 1) {
@@ -724,7 +707,7 @@ void packet_to_stringbuffer(uint8_t *data, size_t len, size_t *pos, StringBuffer
 {
     char *str;
 
-    TOOLKIT_FUNC_PROTECTOR(API_NAME);
+    TOOLKIT_PROTECT();
 
     str = (char *) (data + *pos);
     stringbuffer_append_string_len(sb, str, strnlen(str, len - *pos));

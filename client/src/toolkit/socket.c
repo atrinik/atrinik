@@ -30,16 +30,7 @@
  */
 
 #include <global.h>
-
-/**
- * Name of the API.
- */
-#define API_NAME socket
-
-/**
- * If 1, the API has been initialized.
- */
-static uint8_t did_init = 0;
+#include <toolkit_string.h>
 
 /**
  * The OpenSSL context.
@@ -60,35 +51,23 @@ static const char *const ciphers_candidate[] = {
 static SSL_CTX *socket_ssl_ctx_create(void);
 static void socket_ssl_ctx_destroy(SSL_CTX *ctx);
 
-/**
- * Initialize the socket API.
- * @internal */
-void toolkit_socket_init(void)
+TOOLKIT_API();
+
+TOOLKIT_INIT_FUNC(socket)
 {
+    OPENSSL_config(NULL);
+    SSL_load_error_strings();
+    SSL_library_init();
 
-    TOOLKIT_INIT_FUNC_START(socket)
-    {
-        OPENSSL_config(NULL);
-        SSL_load_error_strings();
-        SSL_library_init();
-
-        ssl_context = socket_ssl_ctx_create();
-    }
-    TOOLKIT_INIT_FUNC_END()
+    ssl_context = socket_ssl_ctx_create();
 }
+TOOLKIT_INIT_FUNC_FINISH
 
-/**
- * Deinitialize the socket API.
- * @internal */
-void toolkit_socket_deinit(void)
+TOOLKIT_DEINIT_FUNC(socket)
 {
-
-    TOOLKIT_DEINIT_FUNC_START(socket)
-    {
-        socket_ssl_ctx_destroy(ssl_context);
-    }
-    TOOLKIT_DEINIT_FUNC_END()
+    socket_ssl_ctx_destroy(ssl_context);
 }
+TOOLKIT_DEINIT_FUNC_FINISH
 
 socket_t *socket_create(const char *host, uint16_t port)
 {

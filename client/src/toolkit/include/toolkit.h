@@ -57,6 +57,11 @@
  * Toolkit (de)initialization function. */
 typedef void (*toolkit_func)(void);
 
+typedef struct toolkit_dependency {
+    toolkit_func func;
+    bool depends;
+} toolkit_dependency_t;
+
 /**
  * Check if the specified API has been imported yet. */
 #define toolkit_imported(__api_name) toolkit_check_imported(toolkit_ ## __api_name ## _deinit)
@@ -64,58 +69,82 @@ typedef void (*toolkit_func)(void);
  * Import the specified API (if it has not been imported yet). */
 #define toolkit_import(__api_name) toolkit_ ## __api_name ## _init()
 
+#define DEPENDS(__api_name) { toolkit_ ## __api_name ## _init, true}
+#define IMPORTS(__api_name) { toolkit_ ## __api_name ## _init, false}
+
+#define TOOLKIT_API(...) \
+    static bool _did_init_ = false; \
+    static toolkit_dependency_t _dependencies_[] = { \
+        {NULL, true}, ## __VA_ARGS__, {NULL, true} \
+    };
+
 /**
- * Start toolkit API initialization function. */
-#define TOOLKIT_INIT_FUNC_START(__api_name) \
+ * Constructs a toolkit function name, for example, toolkit_string_init if the
+ * two arguments passed to it were string and init.
+ */
+#define TOOLKIT_FUNC(__api_name, _x) CONCAT(toolkit_, CONCAT(__api_name, _x))
+
+/**
+ * Declares an initialization function.
+ */
+#define TOOLKIT_INIT_FUNC(__api_name) \
+    void TOOLKIT_FUNC(__api_name, _init)(void) \
     { \
-        toolkit_func __deinit_func = toolkit_ ## __api_name ## _deinit; \
-        if (toolkit_imported(__api_name)) \
-        { \
+        toolkit_func _deinit_func_ = TOOLKIT_FUNC(__api_name, _deinit); \
+        const char *const _api_name_ = STRINGIFY(__api_name); \
+        if (toolkit_check_imported(_deinit_func_)) { \
             return; \
         } \
-        did_init = 1;
+        _did_init_ = true; \
+        for (size_t _i_ = 1; _dependencies_[_i_].func != NULL; _i_++) { \
+            if (_dependencies_[_i_].depends) { \
+                _dependencies_[_i_].func(); \
+            } \
+        } \
+        toolkit_import_register(_api_name_, _deinit_func_);
 
 /**
- * End toolkit API initialization function. */
-#define TOOLKIT_INIT_FUNC_END() \
-    toolkit_import_register(STRINGIFY(API_NAME), __deinit_func); \
-    }
-
-/**
- * Start toolkit API deinitialization function. */
-#define TOOLKIT_DEINIT_FUNC_START(__api_name) \
-    {
-
-/**
- * End toolkit API deinitialization function. */
-#define TOOLKIT_DEINIT_FUNC_END() \
-    did_init = 0; \
-    }
-
-
-#ifndef NDEBUG
-#define TOOLKIT_FUNC_PROTECTOR(__api_name) \
-    { \
-        if (!did_init) \
-        { \
-            static uint8_t did_warn = 0; \
-            if (!did_warn) \
-            { \
-                toolkit_import(logger); \
-                logger_print(LOG(DEBUG), "Toolkit API function used, but the API was not initialized - this could result in undefined behavior."); \
-                did_warn = 1; \
+ * Finishes a previously declared initialization function.
+ */
+#define TOOLKIT_INIT_FUNC_FINISH \
+        for (size_t _i_ = 1; _dependencies_[_i_].func != NULL; _i_++) { \
+            if (!_dependencies_[_i_].depends) { \
+                _dependencies_[_i_].func(); \
             } \
         } \
     }
-#else
-#define TOOLKIT_FUNC_PROTECTOR(__api_name)
-#endif
 
-/* Map the error-checking string duplicating functions into the toolkit
- * variants. This is done for convenience, and because the functions can't be
- * defined as they could conflict with functions from other libraries. */
-#define estrdup string_estrdup
-#define estrndup string_estrndup
+/**
+ * Declares a deinitialization function.
+ */
+#define TOOLKIT_DEINIT_FUNC(__api_name) \
+    void TOOLKIT_FUNC(__api_name, _deinit)(void) \
+    {
+
+/**
+ * Finishes a previously declared deinitialization function.
+ */
+#define TOOLKIT_DEINIT_FUNC_FINISH \
+        _did_init_ = false; \
+    }
+
+#ifndef NDEBUG
+#define TOOLKIT_PROTECT() \
+    do { \
+        if (!_did_init_) { \
+            static bool did_warn = false; \
+            if (!did_warn) { \
+                toolkit_import(logger); \
+                log_error("Toolkit API function used, but the API was not " \
+                          "initialized - this could result in undefined " \
+                          "behavior."); \
+                did_warn = true; \
+            } \
+        } \
+    } while (0)
+#else
+#define TOOLKIT_PROTECT()
+#endif
 
 /**
  * Takes a variable and returns the variable and its size. */
@@ -173,6 +202,9 @@ typedef void (*toolkit_func)(void);
 
 #define _STRINGIFY(_X_) #_X_
 #define STRINGIFY(_X_) _STRINGIFY(_X_)
+
+#define _CONCAT(_X_, _Y_) _X_ ## _Y_
+#define CONCAT(_X_, _Y_) _CONCAT(_X_, _Y_)
 
 #define SOFT_ASSERT_MSG(msg, ...) log_error((msg), ## __VA_ARGS__)
 

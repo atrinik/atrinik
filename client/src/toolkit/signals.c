@@ -46,14 +46,6 @@
 #endif
 
 /**
- * Name of the API. */
-#define API_NAME signals
-
-/**
- * If 1, the API has been initialized. */
-static uint8_t did_init = 0;
-
-/**
  * The signals to register. */
 static const int register_signals[] = {
 #ifndef WIN32
@@ -65,6 +57,8 @@ static const int register_signals[] = {
     SIGTERM,
     SIGABRT
 };
+
+TOOLKIT_API();
 
 /**
  * The signal interception handler.
@@ -92,7 +86,6 @@ static void simple_signal_handler(int signum)
 #ifdef WIN32
 static LONG WINAPI signal_handler(EXCEPTION_POINTERS *ExceptionInfo)
 #else
-
 static void signal_handler(int sig, siginfo_t *siginfo, void *context)
 #endif
 {
@@ -337,62 +330,54 @@ static void signal_handler(int sig, siginfo_t *siginfo, void *context)
 
 #endif
 
-/**
- * Initialize the signals API.
- * @internal */
-void toolkit_signals_init(void)
+TOOLKIT_INIT_FUNC(signals)
 {
-
-    TOOLKIT_INIT_FUNC_START(signals)
-    {
-        size_t i;
+    size_t i;
 #ifdef HAVE_SIGACTION
-        stack_t ss;
+    stack_t ss;
 
-        ss.ss_sp = emalloc(SIGSTKSZ * 4);
-        ss.ss_size = SIGSTKSZ * 4;
-        ss.ss_flags = 0;
+    ss.ss_sp = malloc(SIGSTKSZ * 4);
 
-        if (sigaltstack(&ss, NULL) != 0) {
-            logger_print(LOG(ERROR), "Could not set up alternate stack.");
+    if (ss.ss_sp == NULL) {
+        log_error("OOM.");
+        abort();
+    }
+
+    ss.ss_size = SIGSTKSZ * 4;
+    ss.ss_flags = 0;
+
+    if (sigaltstack(&ss, NULL) != 0) {
+        logger_print(LOG(ERROR), "Could not set up alternate stack.");
+        exit(1);
+    }
+#endif
+
+    /* Register the signals. */
+    for (i = 0; i < arraysize(register_signals); i++) {
+#ifdef HAVE_SIGACTION
+        struct sigaction sig_action;
+
+        sig_action.sa_sigaction = signal_handler;
+        sigemptyset(&sig_action.sa_mask);
+        sig_action.sa_flags = SA_SIGINFO | SA_ONSTACK;
+
+        if (sigaction(register_signals[i], &sig_action, NULL) != 0) {
+            logger_print(LOG(ERROR), "Could not register signal: %d",
+                    register_signals[i]);
             exit(1);
         }
-#endif
-
-        /* Register the signals. */
-        for (i = 0; i < arraysize(register_signals); i++) {
-#ifdef HAVE_SIGACTION
-            struct sigaction sig_action;
-
-            sig_action.sa_sigaction = signal_handler;
-            sigemptyset(&sig_action.sa_mask);
-            sig_action.sa_flags = SA_SIGINFO | SA_ONSTACK;
-
-            if (sigaction(register_signals[i], &sig_action, NULL) != 0) {
-                logger_print(LOG(ERROR), "Could not register signal: %d",
-                        register_signals[i]);
-                exit(1);
-            }
 #else
-            signal(register_signals[i], simple_signal_handler);
+        signal(register_signals[i], simple_signal_handler);
 #endif
-        }
+    }
 
 #ifdef WIN32
-        AddVectoredExceptionHandler(1, signal_handler);
+    AddVectoredExceptionHandler(1, signal_handler);
 #endif
-    }
-    TOOLKIT_INIT_FUNC_END()
 }
+TOOLKIT_INIT_FUNC_FINISH
 
-/**
- * Deinitialize the signals API.
- * @internal */
-void toolkit_signals_deinit(void)
+TOOLKIT_DEINIT_FUNC(signals)
 {
-
-    TOOLKIT_DEINIT_FUNC_START(signals)
-    {
-    }
-    TOOLKIT_DEINIT_FUNC_END()
 }
+TOOLKIT_DEINIT_FUNC_FINISH

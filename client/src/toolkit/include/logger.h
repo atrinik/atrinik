@@ -61,8 +61,8 @@ typedef enum logger_level {
 
 /* Prototypes */
 
-void toolkit_logger_init(void);
-void toolkit_logger_deinit(void);
+extern void toolkit_logger_init(void);
+extern void toolkit_logger_deinit(void);
 void logger_open_log(const char *path);
 FILE *logger_get_logfile(void);
 logger_level logger_get_level(const char *name);

@@ -30,37 +30,17 @@
 
 #include <global.h>
 
-/**
- * Name of the API. */
-#define API_NAME sha1
+TOOLKIT_API();
 
-/**
- * If 1, the API has been initialized. */
-static uint8_t did_init = 0;
-
-/**
- * Initialize the sha1 API.
- * @internal */
-void toolkit_sha1_init(void)
+TOOLKIT_INIT_FUNC(sha1)
 {
-
-    TOOLKIT_INIT_FUNC_START(sha1)
-    {
-    }
-    TOOLKIT_INIT_FUNC_END()
 }
+TOOLKIT_INIT_FUNC_FINISH
 
-/**
- * Deinitialize the sha1 API.
- * @internal */
-void toolkit_sha1_deinit(void)
+TOOLKIT_DEINIT_FUNC(sha1)
 {
-
-    TOOLKIT_DEINIT_FUNC_START(sha1)
-    {
-    }
-    TOOLKIT_DEINIT_FUNC_END()
 }
+TOOLKIT_DEINIT_FUNC_FINISH
 
 /*
  * 32-bit integer manipulation macros (big endian)

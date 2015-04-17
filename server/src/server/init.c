@@ -143,6 +143,7 @@ void cleanup(void)
     regions_free();
     objectlink_deinit();
     object_deinit();
+    metaserver_deinit();
     ban_deinit();
     party_deinit();
     toolkit_deinit();

@@ -48,6 +48,5 @@ void command_memleak(object *op, const char *command, char *params)
         draw_info(COLOR_WHITE, op, "\nNo memory leaks detected.");
     }
 
-
     efree(info);
 }

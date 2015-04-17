@@ -33,9 +33,51 @@
  * variants. This is done for convenience, and because the functions can't be
  * defined as emalloc as they will conflict with functions from other libraries
  * such as libcheck. */
-#define emalloc memory_emalloc
-#define efree memory_efree
-#define ecalloc memory_ecalloc
-#define erealloc memory_erealloc
+#ifndef NDEBUG
+#define emalloc(_size) memory_emalloc(_size, __FILE__, __LINE__)
+#define efree(_ptr) memory_efree(_ptr, __FILE__, __LINE__)
+#define ecalloc(_nmemb, _size) memory_ecalloc(_nmemb, _size, __FILE__, __LINE__)
+#define erealloc(_ptr, _size) memory_erealloc(_ptr, _size, __FILE__, __LINE__)
+#define ereallocz(_ptr, _old_size, _new_size) \
+    memory_reallocz(_ptr, _old_size, _new_size, __FILE__, __LINE__)
+#else
+#define emalloc(_size) memory_emalloc(_size)
+#define efree(_ptr) memory_efree(_ptr)
+#define ecalloc(_nmemb, _size) memory_ecalloc(_nmemb, _size)
+#define erealloc(_ptr, _size) memory_erealloc(_ptr, _size)
+#define ereallocz(_ptr, _old_size, _new_size) \
+    memory_reallocz(_ptr, _old_size, _new_size)
+#endif
+
+typedef enum memory_status {
+    MEMORY_STATUS_DISABLED = -1,
+    MEMORY_STATUS_OK = 0,
+    MEMORY_STATUS_FREE = 1
+} memory_status_t;
+
+/* Prototypes */
+
+void toolkit_memory_init(void);
+void toolkit_memory_deinit(void);
+void memory_check_all(void);
+bool memory_check(void *ptr);
+bool memory_get_status(void *ptr, memory_status_t *status);
+bool memory_get_size(void *ptr, size_t *size);
+
+#ifndef NDEBUG
+void *memory_emalloc(size_t size, const char *file, uint32_t line);
+void memory_efree(void *ptr, const char *file, uint32_t line);
+void *memory_ecalloc(size_t nmemb, size_t size, const char *file,
+        uint32_t line);
+void *memory_erealloc(void *ptr, size_t size, const char *file, uint32_t line);
+void *memory_reallocz(void *ptr, size_t old_size, size_t new_size,
+        const char *file, uint32_t line);
+#else
+void *memory_emalloc(size_t size);
+void memory_efree(void *ptr);
+void *memory_ecalloc(size_t nmemb, size_t size);
+void *memory_erealloc(void *ptr, size_t size);
+void *memory_reallocz(void *ptr, size_t old_size, size_t new_size);
+#endif
 
 #endif

@@ -30,37 +30,17 @@
 
 #include <global.h>
 
-/**
- * Name of the API. */
-#define API_NAME datetime
+TOOLKIT_API();
 
-/**
- * If 1, the API has been initialized. */
-static uint8_t did_init = 0;
-
-/**
- * Initialize the datetime API.
- * @internal */
-void toolkit_datetime_init(void)
+TOOLKIT_INIT_FUNC(datetime)
 {
-
-    TOOLKIT_INIT_FUNC_START(datetime)
-    {
-    }
-    TOOLKIT_INIT_FUNC_END()
 }
+TOOLKIT_INIT_FUNC_FINISH
 
-/**
- * Deinitialize the datetime API.
- * @internal */
-void toolkit_datetime_deinit(void)
+TOOLKIT_DEINIT_FUNC(datetime)
 {
-
-    TOOLKIT_DEINIT_FUNC_START(datetime)
-    {
-    }
-    TOOLKIT_DEINIT_FUNC_END()
 }
+TOOLKIT_DEINIT_FUNC_FINISH
 
 /**
  * Get the current UTC time as UNIX timestamp.
@@ -70,7 +50,7 @@ time_t datetime_getutc(void)
     time_t t;
     struct tm *tm;
 
-    TOOLKIT_FUNC_PROTECTOR(API_NAME);
+    TOOLKIT_PROTECT();
 
     time(&t);
     tm = gmtime(&t);
@@ -84,6 +64,6 @@ time_t datetime_getutc(void)
  * @return Converted local time. */
 time_t datetime_utctolocal(time_t t)
 {
-    TOOLKIT_FUNC_PROTECTOR(API_NAME);
+    TOOLKIT_PROTECT();
     return t - (datetime_getutc() - time(NULL));
 }

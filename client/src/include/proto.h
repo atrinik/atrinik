@@ -830,11 +830,6 @@ extern size_t nearest_pow_two_exp(size_t n);
 /* src/toolkit/memory.c */
 extern void toolkit_memory_init(void);
 extern void toolkit_memory_deinit(void);
-extern void *memory_emalloc(size_t size);
-extern void memory_efree(void *ptr);
-extern void *memory_ecalloc(size_t nmemb, size_t size);
-extern void *memory_erealloc(void *ptr, size_t size);
-extern void *memory_reallocz(void *ptr, size_t old_size, size_t new_size);
 /* src/toolkit/mempool.c */
 extern void toolkit_mempool_init(void);
 extern void toolkit_mempool_deinit(void);
@@ -902,8 +897,6 @@ extern void socket_ssl_destroy(SSL *ssl);
 /* src/toolkit/string.c */
 extern void toolkit_string_init(void);
 extern void toolkit_string_deinit(void);
-extern char *string_estrdup(const char *s);
-extern char *string_estrndup(const char *s, size_t n);
 extern void string_replace(const char *src, const char *key, const char *replacement, char *result, size_t resultsize);
 extern void string_replace_char(char *str, const char *key, const char replacement);
 extern size_t string_split(char *str, char *array[], size_t array_size, char sep);

@@ -31,23 +31,19 @@
 
 #include <global.h>
 
-/**
- * Name of the API.
- */
-#define API_NAME memory
-
-/**
- * If 1, the API has been initialized.
- */
-static uint8_t did_init = 0;
-
 #ifndef NDEBUG
-
 #ifdef HAVE_VALGRIND_H
 #   include <valgrind/valgrind.h>
 #else
 #define RUNNING_ON_VALGRIND (0)
 #endif
+
+/**
+ * Whether to ensure that pointers passed to memory_efree() have actually
+ * been allocated by this memory API.
+ * @warning This *will* be EXTREMELY taxing.
+ */
+#define CHECK_CHUNKS 0
 
 #define CHUNK_BEFORE_VAL 0x539A4C3F659C5B2EULL
 #define CHUNK_AFTER_VAL  0x659C5B2E539A4C3FULL
@@ -87,67 +83,54 @@ static const char *chunk_get_str(memory_chunk_t *chunk);
 #define _realloc(_ptr, _size, _file, _line) realloc(_ptr, _size)
 #endif
 
-/**
- * Initialize the memory API.
- * @internal
- */
-void toolkit_memory_init(void)
+TOOLKIT_API(DEPENDS(logger));
+
+TOOLKIT_INIT_FUNC(memory)
 {
-    TOOLKIT_INIT_FUNC_START(memory)
-    {
-#ifndef NDEBUG
-        pthread_mutex_init(&memory_chunks_mutex, NULL);
-        memory_chunks = NULL;
-        memory_chunks_num = 0;
-        memory_chunks_allocated = 0;
-        memory_chunks_allocated_max = 0;
-        after_data = CHUNK_AFTER_VAL;
-#endif
-    }
-    TOOLKIT_INIT_FUNC_END()
+    pthread_mutex_init(&memory_chunks_mutex, NULL);
+    memory_chunks = NULL;
+    memory_chunks_num = 0;
+    memory_chunks_allocated = 0;
+    memory_chunks_allocated_max = 0;
+    after_data = CHUNK_AFTER_VAL;
 }
+TOOLKIT_INIT_FUNC_FINISH
 
-/**
- * Deinitialize the memory API.
- * @internal
- */
-void toolkit_memory_deinit(void)
+TOOLKIT_DEINIT_FUNC(memory)
 {
-    TOOLKIT_DEINIT_FUNC_START(memory)
-    {
 #ifndef NDEBUG
-        memory_chunk_t *chunk;
+    memory_chunk_t *chunk;
 
-        pthread_mutex_destroy(&memory_chunks_mutex);
+    pthread_mutex_destroy(&memory_chunks_mutex);
 
-        DL_FOREACH(memory_chunks, chunk) {
-            log(LOG(ERROR), "Unfreed pointer: %s", chunk_get_str(chunk));
-        }
-
-        log(LOG(INFO), "Maximum number of bytes allocated: %" PRIu64,
-                (uint64_t) memory_chunks_allocated_max);
-
-        if (memory_chunks_num != 0) {
-            log(LOG(ERROR), "Number of pointers still allocated: %" PRIu64,
-                    (uint64_t) memory_chunks_num);
-        }
-
-        if (memory_chunks_allocated != 0) {
-            log(LOG(ERROR), "Number of bytes still allocated: %" PRIu64,
-                    (uint64_t) memory_chunks_allocated);
-        }
-#endif
+    DL_FOREACH(memory_chunks, chunk) {
+        log(LOG(ERROR), "Unfreed pointer: %s", chunk_get_str(chunk));
     }
-    TOOLKIT_DEINIT_FUNC_END()
+
+    log(LOG(INFO), "Maximum number of bytes allocated: %" PRIu64,
+            (uint64_t) memory_chunks_allocated_max);
+
+    if (memory_chunks_num != 0) {
+        log(LOG(ERROR), "Number of pointers still allocated: %" PRIu64,
+                (uint64_t) memory_chunks_num);
+    }
+
+    if (memory_chunks_allocated != 0) {
+        log(LOG(ERROR), "Number of bytes still allocated: %" PRIu64,
+                (uint64_t) memory_chunks_allocated);
+    }
+#endif
 }
+TOOLKIT_DEINIT_FUNC_FINISH
 
 #ifndef NDEBUG
 static const char *chunk_get_str(memory_chunk_t *chunk)
 {
     static char buf[MAX_BUF];
 
-    snprintf(VS(buf), "Chunk %p (%" PRId64 " bytes) allocated in %s:%u", chunk,
-             (uint64_t) chunk->size, chunk->file, chunk->line);
+    snprintf(VS(buf), "Chunk %p, pointer %p (%" PRId64 " bytes) allocated in "
+             "%s:%u", chunk, MEM_DATA(chunk), (uint64_t) chunk->size,
+             chunk->file, chunk->line);
 
     return buf;
 }
@@ -252,11 +235,17 @@ static void _free(void *ptr, const char *file, uint32_t line)
         abort();
     }
 
+#if CHECK_CHUNKS
     chunk = chunk_checkptr(ptr);
 
     if (chunk == NULL) {
-        log(LOG(INFO), "Invalid pointer: %p", ptr);
+        log_error("Invalid pointer detected: %p, free called from: %s:%u", ptr,
+                  file, line);
+        abort();
     }
+#else
+    chunk = MEM_CHUNK(ptr);
+#endif
 
     /* Check for underrun */
     if (chunk->before != CHUNK_BEFORE_VAL) {
@@ -328,7 +317,7 @@ static void *_realloc(void *ptr, size_t size, const char *file, uint32_t line)
 
 void memory_check_all(void)
 {
-    TOOLKIT_FUNC_PROTECTOR(API_NAME);
+    TOOLKIT_PROTECT();
 
 #ifndef NDEBUG
     chunk_check_all();
@@ -337,7 +326,7 @@ void memory_check_all(void)
 
 bool memory_check(void *ptr)
 {
-    TOOLKIT_FUNC_PROTECTOR(API_NAME);
+    TOOLKIT_PROTECT();
 
 #ifndef NDEBUG
     memory_chunk_t *chunk;
@@ -356,7 +345,7 @@ bool memory_check(void *ptr)
 
 bool memory_get_status(void *ptr, memory_status_t *status)
 {
-    TOOLKIT_FUNC_PROTECTOR(API_NAME);
+    TOOLKIT_PROTECT();
 
 #ifndef NDEBUG
     memory_chunk_t *chunk;
@@ -377,7 +366,7 @@ bool memory_get_status(void *ptr, memory_status_t *status)
 
 bool memory_get_size(void *ptr, size_t *size)
 {
-    TOOLKIT_FUNC_PROTECTOR(API_NAME);
+    TOOLKIT_PROTECT();
 
 #ifndef NDEBUG
     memory_chunk_t *chunk;
@@ -408,7 +397,7 @@ void *memory_emalloc(size_t size, const char *file, uint32_t line)
 void *memory_emalloc(size_t size)
 #endif
 {
-    TOOLKIT_FUNC_PROTECTOR(API_NAME);
+    TOOLKIT_PROTECT();
 
     void *ptr;
 
@@ -433,7 +422,7 @@ void memory_efree(void *ptr, const char *file, uint32_t line)
 void memory_efree(void *ptr)
 #endif
 {
-    TOOLKIT_FUNC_PROTECTOR(API_NAME);
+    TOOLKIT_PROTECT();
 
     SOFT_ASSERT(ptr != NULL, "Freeing NULL pointer.");
     _free(ptr, file, line);
@@ -452,7 +441,7 @@ void *memory_ecalloc(size_t nmemb, size_t size, const char *file, uint32_t line)
 void *memory_ecalloc(size_t nmemb, size_t size)
 #endif
 {
-    TOOLKIT_FUNC_PROTECTOR(API_NAME);
+    TOOLKIT_PROTECT();
 
     void *ptr;
 
@@ -480,7 +469,7 @@ void *memory_erealloc(void *ptr, size_t size, const char *file, uint32_t line)
 void *memory_erealloc(void *ptr, size_t size)
 #endif
 {
-    TOOLKIT_FUNC_PROTECTOR(API_NAME);
+    TOOLKIT_PROTECT();
 
     void *newptr;
 
@@ -509,7 +498,7 @@ void *memory_reallocz(void *ptr, size_t old_size, size_t new_size,
 void *memory_reallocz(void *ptr, size_t old_size, size_t new_size)
 #endif
 {
-    TOOLKIT_FUNC_PROTECTOR(API_NAME);
+    TOOLKIT_PROTECT();
 
     void *new_ptr;
 

@@ -34,36 +34,17 @@
 #include <global.h>
 #include <toolkit_string.h>
 
-/**
- * Name of the API. */
-#define API_NAME x11
+TOOLKIT_API(DEPENDS(string));
 
-/**
- * If 1, the API has been initialized. */
-static uint8_t did_init = 0;
-
-/**
- * Initialize the x11 API.
- * @internal */
-void toolkit_x11_init(void)
+TOOLKIT_INIT_FUNC(x11)
 {
-    TOOLKIT_INIT_FUNC_START(x11)
-    {
-        toolkit_import(string);
-    }
-    TOOLKIT_INIT_FUNC_END()
 }
+TOOLKIT_INIT_FUNC_FINISH
 
-/**
- * Deinitialize the x11 API.
- * @internal */
-void toolkit_x11_deinit(void)
+TOOLKIT_DEINIT_FUNC(x11)
 {
-    TOOLKIT_DEINIT_FUNC_START(x11)
-    {
-    }
-    TOOLKIT_DEINIT_FUNC_END()
 }
+TOOLKIT_DEINIT_FUNC_FINISH
 
 /**
  * Get the parent window.
@@ -182,7 +163,7 @@ static char *x11_get_property(Display *display, Window win, Atom xa_prop_type, c
  * @author Tomas Styblo (wmctrl - GPLv2) */
 void x11_window_activate(x11_display_type display, x11_window_type win, uint8_t switch_desktop)
 {
-    TOOLKIT_FUNC_PROTECTOR(API_NAME);
+    TOOLKIT_PROTECT();
 
 #if defined(HAVE_X11)
 
@@ -273,7 +254,7 @@ static int x11_clipboard_filter(const SDL_Event *event)
  * @return 1 on success, 0 on failure. */
 int x11_clipboard_register_events(void)
 {
-    TOOLKIT_FUNC_PROTECTOR(API_NAME);
+    TOOLKIT_PROTECT();
 
 #if defined(HAVE_X11) && defined(HAVE_SDL)
 
@@ -297,7 +278,7 @@ int x11_clipboard_register_events(void)
  * @return 1 on success, 0 on failure. */
 int x11_clipboard_set(x11_display_type display, x11_window_type win, const char *str)
 {
-    TOOLKIT_FUNC_PROTECTOR(API_NAME);
+    TOOLKIT_PROTECT();
 
     if (!display) {
         return 0;
@@ -396,7 +377,7 @@ char *x11_clipboard_get(x11_display_type display, x11_window_type win)
     char *src;
 #endif
 
-    TOOLKIT_FUNC_PROTECTOR(API_NAME);
+    TOOLKIT_PROTECT();
 
     if (!display) {
         return 0;
