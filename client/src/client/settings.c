@@ -333,6 +333,8 @@ void settings_deinit(void)
             if (setting_categories[cat]->settings[setting]->custom_attrset) {
                 efree(setting_categories[cat]->settings[setting]->custom_attrset);
             }
+
+            efree(setting_categories[cat]->settings[setting]);
         }
 
         if (setting_categories[cat]->settings) {

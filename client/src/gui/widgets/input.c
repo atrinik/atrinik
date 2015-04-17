@@ -29,6 +29,7 @@
  * @author Alex Tokar */
 
 #include <global.h>
+#include <toolkit_string.h>
 
 static void widget_input_handle_enter(widgetdata *widget)
 {

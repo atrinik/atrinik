@@ -346,12 +346,16 @@ void clioption_settings_deinit(void)
         efree(clioption_settings.servers[i]);
     }
 
+    if (clioption_settings.servers) {
+        efree(clioption_settings.servers);
+    }
+
     for (i = 0; i < clioption_settings.metaservers_num; i++) {
         efree(clioption_settings.metaservers[i]);
     }
 
-    if (clioption_settings.servers) {
-        efree(clioption_settings.servers);
+    if (clioption_settings.metaservers) {
+        efree(clioption_settings.metaservers);
     }
 
     for (i = 0; i < arraysize(clioption_settings.connect); i++) {
