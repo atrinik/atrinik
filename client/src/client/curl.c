@@ -110,6 +110,7 @@
  * @author Alex Tokar */
 
 #include <global.h>
+#include <toolkit_string.h>
 
 /** Shared handle. */
 static CURLSH *handle_share = NULL;

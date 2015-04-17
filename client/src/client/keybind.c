@@ -45,6 +45,7 @@
 
 #include <global.h>
 #include <packet.h>
+#include <toolkit_string.h>
 
 /** The keybindings. */
 keybind_struct **keybindings = NULL;

@@ -30,6 +30,7 @@
 
 #include <global.h>
 #include <packet.h>
+#include <toolkit_string.h>
 
 typedef struct widget_quickslots_struct {
     list_struct *list;

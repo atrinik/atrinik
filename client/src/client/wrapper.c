@@ -27,6 +27,7 @@
  * General convenience functions for the client. */
 
 #include <global.h>
+#include <toolkit_string.h>
 
 /**
  * Start the base system, setting caption name and window icon. */

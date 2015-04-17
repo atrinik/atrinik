@@ -29,6 +29,7 @@
  */
 
 #include <global.h>
+#include <toolkit_string.h>
 
 /** Text input buffers. */
 static text_input_struct text_input_server_host, text_input_server_port;

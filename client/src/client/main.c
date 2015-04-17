@@ -30,6 +30,7 @@
 #include <gitversion.h>
 #include <region_map.h>
 #include <packet.h>
+#include <toolkit_string.h>
 
 /** The main screen surface. */
 SDL_Surface *ScreenSurface;

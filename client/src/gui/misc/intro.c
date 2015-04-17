@@ -29,6 +29,7 @@
  * @author Alex Tokar */
 
 #include <global.h>
+#include <toolkit_string.h>
 
 /** How often to blink the eyes in ticks. */
 #define EYES_BLINK_TIME (15 * 1000)

@@ -41,6 +41,7 @@
  * @author Dantee */
 
 #include <global.h>
+#include <toolkit_string.h>
 
 static widgetdata def_widget[TOTAL_SUBWIDGETS];
 static const char *const widget_names[TOTAL_SUBWIDGETS] = {

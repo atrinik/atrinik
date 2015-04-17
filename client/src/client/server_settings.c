@@ -29,6 +29,7 @@
  * @author Alex Tokar */
 
 #include <global.h>
+#include <toolkit_string.h>
 
 /** Server settings. */
 server_settings *s_settings = NULL;
@@ -72,7 +73,7 @@ void server_settings_init(void)
 
         /* Parse the command. Unknown commands will be silently ignored. */
         if (!strncmp(buf, "char ", 5)) {
-            s_settings->characters = memory_reallocz(s_settings->characters, sizeof(*s_settings->characters) * s_settings->num_characters, sizeof(*s_settings->characters) * (s_settings->num_characters + 1));
+            s_settings->characters = ereallocz(s_settings->characters, sizeof(*s_settings->characters) * s_settings->num_characters, sizeof(*s_settings->characters) * (s_settings->num_characters + 1));
             cur_char = &s_settings->characters[s_settings->num_characters];
             cur_char->name = estrdup(buf + 5);
         } else if (!strncmp(buf, "gender ", 7)) {

@@ -29,6 +29,7 @@
  * @author Alex Tokar */
 
 #include <global.h>
+#include <toolkit_string.h>
 
 /**
  * Names of the text window tabs. */
@@ -287,7 +288,7 @@ void textwin_tab_add(widgetdata *widget, const char *name)
     char buf[MAX_BUF];
 
     textwin = TEXTWIN(widget);
-    textwin->tabs = memory_reallocz(textwin->tabs, sizeof(*textwin->tabs) * textwin->tabs_num, sizeof(*textwin->tabs) * (textwin->tabs_num + 1));
+    textwin->tabs = ereallocz(textwin->tabs, sizeof(*textwin->tabs) * textwin->tabs_num, sizeof(*textwin->tabs) * (textwin->tabs_num + 1));
 
     textwin->tabs[textwin->tabs_num].type = textwin_tab_name_to_id(name);
 

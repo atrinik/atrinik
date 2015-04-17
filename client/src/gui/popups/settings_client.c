@@ -29,6 +29,7 @@
  * @author Alex Tokar */
 
 #include <global.h>
+#include <toolkit_string.h>
 
 typedef union list_settings_graphic_union {
     /**
@@ -178,7 +179,7 @@ static void settings_list_reload(void)
     setting_struct *setting;
 
     text_input_focused = text_input_selected = NULL;
-    list_settings->data = memory_reallocz(list_settings->data, sizeof(list_settings_graphic_union) * list_settings->rows, sizeof(list_settings_graphic_union) * setting_categories[setting_category_selected]->settings_num);
+    list_settings->data = ereallocz(list_settings->data, sizeof(list_settings_graphic_union) * list_settings->rows, sizeof(list_settings_graphic_union) * setting_categories[setting_category_selected]->settings_num);
 
     /* Clear all the rows. */
     list_clear_rows(list_settings);
