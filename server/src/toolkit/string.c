@@ -43,6 +43,12 @@ TOOLKIT_DEINIT_FUNC(string)
 }
 TOOLKIT_DEINIT_FUNC_FINISH
 
+#ifndef __CPROTO__
+
+#undef string_sub
+#undef string_create_char_range
+#undef string_repeat
+
 /**
  * Like strdup(), but performs error checking.
  * @param s String to duplicate.
@@ -50,11 +56,7 @@ TOOLKIT_DEINIT_FUNC_FINISH
  * @note abort() is called in case 's' is NULL or strdup() fails to duplicate
  * the string (oom).
  */
-#ifndef NDEBUG
-char *string_estrdup(const char *s, const char *file, uint32_t line)
-#else
-char *string_estrdup(const char *s)
-#endif
+char *string_estrdup(const char *s MEMORY_DEBUG_PROTO)
 {
     char *cp;
 
@@ -93,11 +95,7 @@ char *string_estrdup(const char *s)
  * @note abort() is called in case 's' is NULL or strndup() fails to duplicate
  * the string (oom).
  */
-#ifndef NDEBUG
-char *string_estrndup(const char *s, size_t n, const char *file, uint32_t line)
-#else
-char *string_estrndup(const char *s, size_t n)
-#endif
+char *string_estrndup(const char *s, size_t n MEMORY_DEBUG_PROTO)
 {
     char *cp;
 
@@ -623,7 +621,7 @@ int string_endswith(const char *str, const char *cmp)
  * @param end Ending index, eg, strlen(end) for the end.
  * @return The created substring; never NULL. Must be freed.
  */
-char *string_sub(const char *str, ssize_t start, ssize_t end)
+char *string_sub(const char *str, ssize_t start, ssize_t end MEMORY_DEBUG_PROTO)
 {
     size_t n, str_len;
 
@@ -648,13 +646,13 @@ char *string_sub(const char *str, ssize_t start, ssize_t end)
     }
 
     if (!(str + start) || end - start < 0) {
-        return estrdup("");
+        return string_estrdup("" MEMORY_DEBUG_PARAM);
     }
 
     str += start;
     n = MIN(str_len, (size_t) (end - start));
 
-    return estrndup(str, n);
+    return string_estrndup(str, n MEMORY_DEBUG_PARAM);
 }
 
 /**
@@ -766,13 +764,13 @@ int string_contains_other(const char *str, const char *key)
  * @param start Character index start.
  * @param end Character index end.
  * @return The generated string; never NULL. Must be freed. */
-char *string_create_char_range(char start, char end)
+char *string_create_char_range(char start, char end MEMORY_DEBUG_PROTO)
 {
     char *str, c;
 
     TOOLKIT_PROTECT();
 
-    str = emalloc((end - start + 1) + 1);
+    str = memory_emalloc((end - start + 1) + 1 MEMORY_DEBUG_PARAM);
 
     for (c = start; c <= end; c++) {
         str[c - start] = c;
@@ -874,7 +872,7 @@ char *string_join_array(const char *delim, char **array, size_t arraysize)
  * @param num How many times to repeat the string.
  * @return Constructed string; never NULL. Must be freed.
  */
-char *string_repeat(const char *str, size_t num)
+char *string_repeat(const char *str, size_t num MEMORY_DEBUG_PROTO)
 {
     size_t len, i;
     char *ret;
@@ -882,7 +880,7 @@ char *string_repeat(const char *str, size_t num)
     TOOLKIT_PROTECT();
 
     len = strlen(str);
-    ret = emalloc(sizeof(char) * (len * num) + 1);
+    ret = memory_emalloc(sizeof(char) * (len * num) + 1 MEMORY_DEBUG_PARAM);
 
     for (i = 0; i < num; i++) {
         /* Cannot overflow; 'ret' has been allocated to hold enough
@@ -1005,3 +1003,5 @@ const char *string_skip_whitespace(const char *str)
 
     return str;
 }
+
+#endif

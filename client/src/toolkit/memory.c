@@ -391,11 +391,7 @@ bool memory_get_size(void *ptr, size_t *size)
  * @return Allocated pointer, never NULL.
  * @note Will abort() in case the pointer can't be allocated.
  */
-#ifndef NDEBUG
-void *memory_emalloc(size_t size, const char *file, uint32_t line)
-#else
-void *memory_emalloc(size_t size)
-#endif
+void *memory_emalloc(size_t size MEMORY_DEBUG_PROTO)
 {
     TOOLKIT_PROTECT();
 
@@ -416,11 +412,7 @@ void *memory_emalloc(size_t size)
  * @param ptr Pointer to free.
  * @note Will abort() in case the pointer is NULL.
  */
-#ifndef NDEBUG
-void memory_efree(void *ptr, const char *file, uint32_t line)
-#else
-void memory_efree(void *ptr)
-#endif
+void memory_efree(void *ptr MEMORY_DEBUG_PROTO)
 {
     TOOLKIT_PROTECT();
 
@@ -435,11 +427,7 @@ void memory_efree(void *ptr)
  * @return Allocated pointer, never NULL.
  * @note Will abort() in case the pointer can't be allocated.
  */
-#ifndef NDEBUG
-void *memory_ecalloc(size_t nmemb, size_t size, const char *file, uint32_t line)
-#else
-void *memory_ecalloc(size_t nmemb, size_t size)
-#endif
+void *memory_ecalloc(size_t nmemb, size_t size MEMORY_DEBUG_PROTO)
 {
     TOOLKIT_PROTECT();
 
@@ -463,11 +451,7 @@ void *memory_ecalloc(size_t nmemb, size_t size)
  * @return Resized pointer, never NULL.
  * @note Will abort() in case the pointer can't be resized.
  */
-#ifndef NDEBUG
-void *memory_erealloc(void *ptr, size_t size, const char *file, uint32_t line)
-#else
-void *memory_erealloc(void *ptr, size_t size)
-#endif
+void *memory_erealloc(void *ptr, size_t size MEMORY_DEBUG_PROTO)
 {
     TOOLKIT_PROTECT();
 
@@ -491,12 +475,8 @@ void *memory_erealloc(void *ptr, size_t size)
  * @param old_size Size of the pointer.
  * @param new_size New size the pointer should have.
  * @return Resized pointer, NULL on failure. */
-#ifndef NDEBUG
-void *memory_reallocz(void *ptr, size_t old_size, size_t new_size,
-        const char *file, uint32_t line)
-#else
-void *memory_reallocz(void *ptr, size_t old_size, size_t new_size)
-#endif
+void *memory_reallocz(void *ptr, size_t old_size, size_t new_size
+        MEMORY_DEBUG_PROTO)
 {
     TOOLKIT_PROTECT();
 
