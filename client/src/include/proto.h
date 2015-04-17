@@ -44,6 +44,7 @@ extern bmap_struct *bmap_find(const char *name);
 extern void bmap_add(bmap_struct *bmap);
 extern void read_bmaps_p0(void);
 extern void read_bmaps(void);
+extern void bmaps_deinit(void);
 extern void finish_face_cmd(int facenum, uint32_t checksum, char *face);
 extern int request_face(int pnum);
 extern int get_bmap_id(char *name);
@@ -790,10 +791,6 @@ extern char *binreloc_find_locale_dir(const char *default_locale_dir);
 extern char *binreloc_find_lib_dir(const char *default_lib_dir);
 extern char *binreloc_find_libexec_dir(const char *default_libexec_dir);
 extern char *binreloc_find_etc_dir(const char *default_etc_dir);
-/* src/toolkit/bzr.c */
-extern void toolkit_bzr_init(void);
-extern void toolkit_bzr_deinit(void);
-extern int bzr_get_revision(void);
 /* src/toolkit/clioptions.c */
 extern void toolkit_clioptions_init(void);
 extern void toolkit_clioptions_deinit(void);
@@ -809,8 +806,8 @@ extern void colorspace_rgb2hsv(const double rgb[3], double hsv[3]);
 extern void colorspace_hsv2rgb(const double hsv[3], double rgb[3]);
 /* src/toolkit/console.c */
 extern void toolkit_console_init(void);
-extern int console_start_thread(void);
 extern void toolkit_console_deinit(void);
+extern int console_start_thread(void);
 extern void console_command_add(const char *command, console_command_func handle_func, const char *desc_brief, const char *desc);
 extern void console_command_handle(void);
 /* src/toolkit/datetime.c */
@@ -828,8 +825,6 @@ extern int rndm_chance(uint32_t n);
 extern void *sort_linked_list(void *p, unsigned index, int (*compare)(void *, void *, void *), void *pointer, unsigned long *pcount, void *end_marker);
 extern size_t nearest_pow_two_exp(size_t n);
 /* src/toolkit/memory.c */
-extern void toolkit_memory_init(void);
-extern void toolkit_memory_deinit(void);
 /* src/toolkit/mempool.c */
 extern void toolkit_mempool_init(void);
 extern void toolkit_mempool_deinit(void);
@@ -897,6 +892,8 @@ extern void socket_ssl_destroy(SSL *ssl);
 /* src/toolkit/string.c */
 extern void toolkit_string_init(void);
 extern void toolkit_string_deinit(void);
+extern char *string_estrdup(const char *s, const char *file, uint32_t line);
+extern char *string_estrndup(const char *s, size_t n, const char *file, uint32_t line);
 extern void string_replace(const char *src, const char *key, const char *replacement, char *result, size_t resultsize);
 extern void string_replace_char(char *str, const char *key, const char replacement);
 extern size_t string_split(char *str, char *array[], size_t array_size, char sep);

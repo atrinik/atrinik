@@ -62,6 +62,7 @@ void system_end(void)
     hfiles_deinit();
     settings_deinit();
     keybind_deinit();
+    bmaps_deinit();
     clioption_settings_deinit();
     server_files_deinit();
     toolkit_deinit();
