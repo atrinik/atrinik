@@ -82,6 +82,7 @@ static void account_free(account_struct *account)
 
     for (i = 0; i < account->characters_num; i++) {
         efree(account->characters[i].name);
+        efree(account->characters[i].region_name);
     }
 
     if (account->characters) {
