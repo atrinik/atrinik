@@ -87,12 +87,14 @@ TOOLKIT_API(DEPENDS(logger));
 
 TOOLKIT_INIT_FUNC(memory)
 {
+#ifndef NDEBUG
     pthread_mutex_init(&memory_chunks_mutex, NULL);
     memory_chunks = NULL;
     memory_chunks_num = 0;
     memory_chunks_allocated = 0;
     memory_chunks_allocated_max = 0;
     after_data = CHUNK_AFTER_VAL;
+#endif
 }
 TOOLKIT_INIT_FUNC_FINISH
 
