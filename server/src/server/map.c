@@ -1271,6 +1271,7 @@ void free_map(mapstruct *m, int flag)
     }
 
     FREE_AND_NULL_PTR(m->bitmap);
+    FREE_AND_NULL_PTR(m->path_nodes);
     m->in_memory = MAP_SWAPPED;
 }
 
