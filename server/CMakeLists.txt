@@ -26,7 +26,10 @@ add_definitions(-Wall -Wextra -Wno-unused-parameter -D_GNU_SOURCE -D__USE_MINGW_
 add_definitions(${CUSTOM_WARNINGS})
 
 if (ENABLE_EXTRA_WARNINGS)
+    add_definitions(-ftree-vrp -Wundef -Wpointer-arith -Wbad-function-cast -Wcast-align -Wlogical-op -Waggregate-return -Wnested-externs -Wunreachable-code -Wstack-protector -fbounds-check -ftrapv -Wformat -Wformat-security -Winit-self -Wshadow -Wbad-function-cast -Wmissing-declarations)
+
     if (NOT MINGW)
+        add_definitions(-fstack-protector-all)
     endif ()
 endif ()
 
