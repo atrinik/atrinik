@@ -74,10 +74,20 @@ void check_main(int argc, char **argv)
     toolkit_import(path);
 
     saved_argc = argc;
-    saved_argv = emalloc(sizeof(*argv) * argc);
+    saved_argv = malloc(sizeof(*argv) * argc);
+
+    if (saved_argv == NULL) {
+        log_error("OOM.");
+        abort();
+    }
 
     for (i = 0; i < argc; i++) {
-        saved_argv[i] = estrdup(argv[i]);
+        saved_argv[i] = strdup(argv[i]);
+
+        if (saved_argv[i] == NULL) {
+            log_error("OOM.");
+            abort();
+        }
     }
 
     path_ensure_directories("unit/bugs/");
@@ -110,8 +120,8 @@ void check_main(int argc, char **argv)
     check_types_sound_ambient();
 
     for (i = 0; i < argc; i++) {
-        efree(saved_argv[i]);
+        free(saved_argv[i]);
     }
 
-    efree(saved_argv);
+    free(saved_argv);
 }
