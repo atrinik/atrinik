@@ -124,7 +124,7 @@ static const char *chunk_get_str(memory_chunk_t *chunk)
 {
     static char buf[MAX_BUF];
 
-    snprintf(VS(buf), "Chunk %p, pointer %p (%" PRId64 " bytes) allocated in "
+    snprintf(VS(buf), "Chunk %p, pointer %p (%" PRIu64 " bytes) allocated in "
              "%s:%u", chunk, MEM_DATA(chunk), (uint64_t) chunk->size,
              chunk->file, chunk->line);
 
