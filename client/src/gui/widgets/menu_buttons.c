@@ -222,6 +222,12 @@ static int widget_event(widgetdata *widget, SDL_Event *event)
     return 0;
 }
 
+/** @copydoc widgetdata::deinit_func */
+static void widget_deinit(widgetdata *widget)
+{
+    button_set_font(&buttons[BUTTON_HELP], NULL);
+}
+
 /**
  * Initialize one menu buttons widget.
  */
@@ -246,4 +252,5 @@ void widget_menu_buttons_init(widgetdata *widget)
     widget->draw_func = widget_draw;
     widget->background_func = widget_background;
     widget->event_func = widget_event;
+    widget->deinit_func = widget_deinit;
 }
