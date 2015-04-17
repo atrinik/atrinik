@@ -323,6 +323,13 @@ void text_deinit(void)
     {
         HASH_DEL(fonts, font);
         FONT_DECREF(font);
+
+        if (font->ref > 0) {
+            log(LOG(DEVEL), "Font %s (size: %u) still has %u references",
+                    font->name, font->size, font->ref);
+            font->ref = 0;
+        }
+
         font_free(font);
     }
 
