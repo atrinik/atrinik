@@ -131,7 +131,7 @@ static size_t curl_callback(void *ptr, size_t size, size_t nmemb, void *data)
     curl_data *mem = data;
 
     SDL_LockMutex(mem->mutex);
-    mem->memory = realloc(mem->memory, mem->size + realsize + 1);
+    mem->memory = erealloc(mem->memory, mem->size + realsize + 1);
 
     if (mem->memory) {
         memcpy(&(mem->memory[mem->size]), ptr, realsize);
@@ -159,7 +159,7 @@ static size_t curl_header_callback(void *ptr, size_t size, size_t nmemb,
     curl_data *mem = data;
 
     SDL_LockMutex(mem->mutex);
-    mem->header = realloc(mem->header, mem->header_size + realsize + 1);
+    mem->header = erealloc(mem->header, mem->header_size + realsize + 1);
 
     if (mem->header) {
         memcpy(&(mem->header[mem->header_size]), ptr, realsize);
