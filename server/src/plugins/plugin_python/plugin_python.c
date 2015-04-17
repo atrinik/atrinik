@@ -2225,7 +2225,7 @@ int generic_field_setter(fields_struct *field, void *ptr, PyObject *value)
 
         if (value == Py_None || PyString_Check(value)) {
             if (*(char **) field_ptr != NULL) {
-                free(*(char **) field_ptr);
+                efree(*(char **) field_ptr);
             }
 
             if (value == Py_None) {
