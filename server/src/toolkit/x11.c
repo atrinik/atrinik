@@ -176,12 +176,12 @@ void x11_window_activate(x11_display_type display, x11_window_type win, uint8_t 
             }
         }
 
-        if (desktop) {
+        if (desktop != NULL) {
             if (!x11_send_event(display, DefaultRootWindow(display), "_NET_CURRENT_DESKTOP", *desktop, 0, 0, 0, 0)) {
                 logger_print(LOG(BUG), "Cannot switch desktop.");
             }
 
-            efree(desktop);
+            free(desktop);
         }
     }
 
