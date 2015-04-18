@@ -225,7 +225,9 @@ static int widget_event(widgetdata *widget, SDL_Event *event)
 /** @copydoc widgetdata::deinit_func */
 static void widget_deinit(widgetdata *widget)
 {
-    button_set_font(&buttons[BUTTON_HELP], NULL);
+    for (int i = 0; i < NUM_BUTTONS; i++) {
+        button_destroy(&buttons[i]);
+    }
 }
 
 /**
