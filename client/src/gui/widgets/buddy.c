@@ -444,6 +444,8 @@ static void widget_deinit(widgetdata *widget)
     tmp = WIDGET_BUDDY(widget);
     utarray_free(tmp->names);
     list_remove(tmp->list);
+
+    text_input_destroy(&tmp->text_input);
 }
 
 /**
