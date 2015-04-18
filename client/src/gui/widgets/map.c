@@ -2028,6 +2028,11 @@ static void widget_background(widgetdata *widget, int draw)
 /** @copydoc widgetdata::deinit_func */
 static void widget_deinit(widgetdata *widget)
 {
+    if (cells != NULL) {
+        efree(cells);
+        cells = NULL;
+    }
+
     region_map_free(MapData.region_map);
     MapData.region_map = NULL;
 }
