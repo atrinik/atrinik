@@ -182,6 +182,7 @@ static int popup_destroy_callback(popup_struct *popup)
 
     if (book_content != NULL) {
         efree(book_content);
+        book_content = NULL;
     }
 
     return 1;
