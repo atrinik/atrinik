@@ -390,12 +390,14 @@ void objects_deinit(void)
     objects_free(cpl.sack);
     objects_free(cpl.below);
     objects_free(cpl.ob);
+    objects_free(free_objects);
 }
 
 /**
  * Initializes the various objects of ::cpl structure. */
 void objects_init(void)
 {
+    free_objects = NULL;
     cpl.ob = object_new();
     cpl.below = object_new();
     cpl.sack = object_new();
