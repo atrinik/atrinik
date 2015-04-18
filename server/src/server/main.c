@@ -591,6 +591,10 @@ static void do_specials(void)
     if (*settings.server_host != '\0' && !(pticks % 2521)) {
         metaserver_info_update();
     }
+
+    if (!(pticks % 40)) {
+        memory_check_all();
+    }
 }
 
 void shutdown_timer_start(long secs)
