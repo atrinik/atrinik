@@ -300,9 +300,13 @@ static void *_realloc(void *ptr, size_t size, const char *file, uint32_t line)
     memory_chunk_t *chunk;
     void *new_ptr;
 
-    new_ptr = _malloc(size, file, line);
+    if (size == 0) {
+        new_ptr = NULL;
+    } else {
+        new_ptr = _malloc(size, file, line);
+    }
 
-    if (ptr != NULL) {
+    if (ptr != NULL && new_ptr != NULL) {
         chunk = MEM_CHUNK(ptr);
 
         if (chunk->size < size) {
