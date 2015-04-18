@@ -81,6 +81,7 @@ void clear_player(void)
     quickslots_init();
     init_player_data();
     skills_init();
+    spells_init();
     WIDGET_REDRAW_ALL(PLAYER_INFO_ID);
 }
 
