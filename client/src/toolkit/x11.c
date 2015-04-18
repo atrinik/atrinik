@@ -140,7 +140,13 @@ static char *x11_get_property(Display *display, Window win, Atom xa_prop_type, c
 
     /* Terminate the result to make string handling easier. */
     tmp_size = (ret_format / 8) * ret_nitems;
-    ret = emalloc(tmp_size + 1);
+    ret = malloc(tmp_size + 1);
+
+    if (ret == NULL) {
+        log_error("OOM.");
+        abort();
+    }
+
     memcpy(ret, ret_prop, tmp_size);
     ret[tmp_size] = '\0';
 
