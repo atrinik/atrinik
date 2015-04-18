@@ -1,6 +1,7 @@
 #ifndef __CPROTO__
 /* src/client/animations.c */
 extern void read_anims(void);
+extern void anims_deinit(void);
 extern void anims_reset(void);
 /* src/client/client.c */
 extern Client_Player cpl;
@@ -741,6 +742,7 @@ extern void widget_quickslots_init(widgetdata *widget);
 extern void socket_command_quickslots(uint8_t *data, size_t len, size_t pos);
 /* src/gui/widgets/skills.c */
 extern void skills_init(void);
+extern void skills_deinit(void);
 extern int skill_find(const char *name, size_t *id);
 extern int skill_find_object(object *op, size_t *id);
 extern skill_entry_struct *skill_get(size_t id);

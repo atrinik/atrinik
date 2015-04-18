@@ -55,12 +55,29 @@ static list_struct *list_skills = NULL;
 static size_t selected_skill;
 
 /**
- * Initialize skills system. */
+ * Initialize skills system.
+ */
 void skills_init(void)
 {
     skill_list = NULL;
     skill_list_num = 0;
     selected_skill = 0;
+}
+
+/**
+ * Deinitialize skills system.
+ */
+void skills_deinit(void)
+{
+    for (size_t i = 0; i < skill_list_num; i++) {
+        efree(skill_list[i]);
+    }
+
+    skill_list_num = 0;
+
+    if (skill_list != NULL) {
+        efree(skill_list);
+    }
 }
 
 /** @copydoc list_struct::post_column_func */
