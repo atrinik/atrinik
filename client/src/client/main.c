@@ -443,7 +443,7 @@ int main(int argc, char *argv[])
     char *path;
     int done = 0, update, frames;
     uint32_t anim_tick, frame_start_time, elapsed_time, fps_limit,
-            last_frame_ticks;
+            last_frame_ticks, last_memory_check;
     int fps_limits[] = {30, 60, 120, 0};
     char version[MAX_BUF], buf[HUGE_BUF];
 
@@ -630,7 +630,8 @@ int main(int argc, char *argv[])
 
     sound_background_hook_register(sound_background_hook);
 
-    LastTick = anim_tick = last_frame_ticks = SDL_GetTicks();
+    LastTick = anim_tick = last_frame_ticks = last_memory_check =
+            SDL_GetTicks();
     frames = 0;
 
     while (!done) {
@@ -646,6 +647,12 @@ int main(int argc, char *argv[])
             }
 
             continue;
+        }
+
+        /* Check the memory every 10 seconds. */
+        if (SDL_GetTicks() - last_memory_check > 10 * 1000) {
+            memory_check_all();
+            last_memory_check = SDL_GetTicks();
         }
 
         if (cpl.state > ST_CONNECT) {
