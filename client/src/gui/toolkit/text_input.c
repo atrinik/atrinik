@@ -82,6 +82,18 @@ void text_input_create(text_input_struct *text_input)
     text_input_set_font(text_input, FONT_ARIAL11);
 }
 
+/**
+ * Destroy data associated with the specified text input. The text input
+ * structure itself is not freed.
+ * @param text_input Text input to destroy.
+ */
+void text_input_destroy(text_input_struct *text_input)
+{
+    if (text_input->font != NULL) {
+        font_free(text_input->font);
+    }
+}
+
 void text_input_set_font(text_input_struct *text_input, font_struct *font)
 {
     if (text_input->font != NULL) {
