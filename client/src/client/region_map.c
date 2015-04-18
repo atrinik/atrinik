@@ -587,6 +587,14 @@ static void region_map_def_free(region_map_def_t *def)
     /* Free all maps. */
     for (i = 0; i < def->num_maps; i++) {
         efree(def->maps[i].path);
+
+        if (def->maps[i].regions != NULL) {
+            for (size_t j = 0; j < def->maps[i].regions_num; j++) {
+                efree(def->maps[i].regions[j]);
+            }
+
+            efree(def->maps[i].regions);
+        }
     }
 
     if (def->maps != NULL) {
