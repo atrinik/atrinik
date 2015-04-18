@@ -704,6 +704,11 @@ static void region_map_fow_free(region_map_t *region_map)
         utarray_free(region_map->fow->tiles);
         region_map->fow->tiles = NULL;
     }
+
+    if (region_map->fow->path != NULL) {
+        efree(region_map->fow->path);
+        region_map->fow->path = NULL;
+    }
 }
 
 static void region_map_fow_reset(region_map_t *region_map)
