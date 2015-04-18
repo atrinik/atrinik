@@ -259,6 +259,11 @@ void sound_deinit(void)
 #endif
 
     enabled = 0;
+
+    if (sound_background != NULL) {
+        efree(sound_background);
+        sound_background = NULL;
+    }
 }
 
 /**
