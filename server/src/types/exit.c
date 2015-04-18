@@ -344,7 +344,7 @@ static void insert_map_func(object *op)
     if (EXIT_PATH(op) != NULL && EXIT_X(op) != -1 && EXIT_Y(op) != -1) {
         map_exit_t *exit;
 
-        exit = calloc(1, sizeof(*exit));
+        exit = ecalloc(1, sizeof(*exit));
         exit->obj = op;
         DL_APPEND(op->map->exits, exit);
     }

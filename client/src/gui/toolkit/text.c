@@ -29,6 +29,7 @@
  * @author Alex Tokar */
 
 #include <global.h>
+#include <toolkit_string.h>
 
 /**
  * If 1, all text shown using 'box' parameter of text_show() for max
@@ -322,6 +323,13 @@ void text_deinit(void)
     {
         HASH_DEL(fonts, font);
         FONT_DECREF(font);
+
+        if (font->ref > 0) {
+            log(LOG(DEVEL), "Font %s (size: %u) still has %u references",
+                    font->name, font->size, font->ref);
+            font->ref = 0;
+        }
+
         font_free(font);
     }
 

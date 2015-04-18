@@ -27,6 +27,7 @@
  * Includes high score related functions. */
 
 #include <global.h>
+#include <toolkit_string.h>
 
 /**
  * The score structure is used when treating new high-scores */

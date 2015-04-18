@@ -29,44 +29,25 @@
 
 #include <global.h>
 #include <stdarg.h>
+#include <toolkit_string.h>
 
-/**
- * Name of the API.
- */
-#define API_NAME string
+TOOLKIT_API(IMPORTS(math), IMPORTS(stringbuffer), IMPORTS(memory));
 
-/**
- * If 1, the API has been initialized.
- */
-static uint8_t did_init = 0;
-
-/**
- * Initialize the string API.
- * @internal
- */
-void toolkit_string_init(void)
+TOOLKIT_INIT_FUNC(string)
 {
-
-    TOOLKIT_INIT_FUNC_START(string)
-    {
-        toolkit_import(math);
-        toolkit_import(stringbuffer);
-    }
-    TOOLKIT_INIT_FUNC_END()
 }
+TOOLKIT_INIT_FUNC_FINISH
 
-/**
- * Deinitialize the string API.
- * @internal
- */
-void toolkit_string_deinit(void)
+TOOLKIT_DEINIT_FUNC(string)
 {
-
-    TOOLKIT_DEINIT_FUNC_START(string)
-    {
-    }
-    TOOLKIT_DEINIT_FUNC_END()
 }
+TOOLKIT_DEINIT_FUNC_FINISH
+
+#ifndef __CPROTO__
+
+#undef string_sub
+#undef string_create_char_range
+#undef string_repeat
 
 /**
  * Like strdup(), but performs error checking.
@@ -75,7 +56,7 @@ void toolkit_string_deinit(void)
  * @note abort() is called in case 's' is NULL or strdup() fails to duplicate
  * the string (oom).
  */
-char *string_estrdup(const char *s)
+char *string_estrdup(const char *s MEMORY_DEBUG_PROTO)
 {
     char *cp;
 
@@ -84,12 +65,24 @@ char *string_estrdup(const char *s)
         abort();
     }
 
+#ifndef NDEBUG
+    size_t len;
+
+    len = strlen(s);
+    cp = memory_emalloc(sizeof(*cp) * (len + 1), file, line);
+#else
     cp = strdup(s);
+#endif
 
     if (cp == NULL) {
         logger_print(LOG(ERROR), "OOM.");
         abort();
     }
+
+#ifndef NDEBUG
+    memcpy(cp, s, sizeof(*cp) * len);
+    cp[len] = '\0';
+#endif
 
     return cp;
 }
@@ -102,7 +95,7 @@ char *string_estrdup(const char *s)
  * @note abort() is called in case 's' is NULL or strndup() fails to duplicate
  * the string (oom).
  */
-char *string_estrndup(const char *s, size_t n)
+char *string_estrndup(const char *s, size_t n MEMORY_DEBUG_PROTO)
 {
     char *cp;
 
@@ -111,12 +104,24 @@ char *string_estrndup(const char *s, size_t n)
         abort();
     }
 
+#ifndef NDEBUG
+    size_t len;
+
+    len = strnlen(s, n);
+    cp = memory_emalloc(sizeof(*cp) * (len + 1), file, line);
+#else
     cp = strndup(s, n);
+#endif
 
     if (cp == NULL) {
         logger_print(LOG(ERROR), "OOM.");
         abort();
     }
+
+#ifndef NDEBUG
+    memcpy(cp, s, sizeof(*cp) * len);
+    cp[len] = '\0';
+#endif
 
     return cp;
 }
@@ -131,7 +136,7 @@ void string_replace(const char *src, const char *key, const char *replacement,
 {
     size_t resultlen, keylen;
 
-    TOOLKIT_FUNC_PROTECTOR(API_NAME);
+    TOOLKIT_PROTECT();
 
     /* Special case to prevent infinite loop if key == replacement == "" */
     if (strcmp(key, replacement) == 0) {
@@ -167,7 +172,7 @@ void string_replace_char(char *str, const char *key, const char replacement)
 {
     size_t i;
 
-    TOOLKIT_FUNC_PROTECTOR(API_NAME);
+    TOOLKIT_PROTECT();
 
     while (*str != '\0') {
         if (key) {
@@ -202,7 +207,7 @@ size_t string_split(char *str, char *array[], size_t array_size, char sep)
     char *p;
     size_t pos;
 
-    TOOLKIT_FUNC_PROTECTOR(API_NAME);
+    TOOLKIT_PROTECT();
 
     for (pos = 0; pos < array_size; pos++) {
         array[pos] = NULL;
@@ -244,7 +249,7 @@ void string_replace_unprintable_chars(char *buf)
 {
     char *p;
 
-    TOOLKIT_FUNC_PROTECTOR(API_NAME);
+    TOOLKIT_PROTECT();
 
     for (p = buf; *p != '\0'; p++) {
         if (*p < ' ' || *p > '~') {
@@ -264,7 +269,7 @@ char *string_format_number_comma(uint64_t num)
     char *buf;
     int i = 0;
 
-    TOOLKIT_FUNC_PROTECTOR(API_NAME);
+    TOOLKIT_PROTECT();
 
     buf = &retbuf[sizeof(retbuf) - 1];
     *buf = '\0';
@@ -288,7 +293,7 @@ char *string_format_number_comma(uint64_t num)
  */
 void string_toupper(char *str)
 {
-    TOOLKIT_FUNC_PROTECTOR(API_NAME);
+    TOOLKIT_PROTECT();
 
     while (*str != '\0') {
         *str = toupper(*str);
@@ -302,7 +307,7 @@ void string_toupper(char *str)
  */
 void string_tolower(char *str)
 {
-    TOOLKIT_FUNC_PROTECTOR(API_NAME);
+    TOOLKIT_PROTECT();
 
     while (*str != '\0') {
         *str = tolower(*str);
@@ -322,7 +327,7 @@ char *string_whitespace_trim(char *str)
     char *cp;
     size_t len;
 
-    TOOLKIT_FUNC_PROTECTOR(API_NAME);
+    TOOLKIT_PROTECT();
 
     cp = str;
     len = strlen(cp);
@@ -352,7 +357,7 @@ char *string_whitespace_squeeze(char *str)
 {
     size_t r, w;
 
-    TOOLKIT_FUNC_PROTECTOR(API_NAME);
+    TOOLKIT_PROTECT();
 
     for (r = 0, w = 0; str[r] != '\0'; r++) {
         if (isspace(str[r])) {
@@ -379,7 +384,7 @@ void string_newline_to_literal(char *str)
 {
     char *next;
 
-    TOOLKIT_FUNC_PROTECTOR(API_NAME);
+    TOOLKIT_PROTECT();
 
     while ((next = strstr(str, "\\n"))) {
         *next = '\n';
@@ -406,7 +411,7 @@ const char *string_get_word(const char *str, size_t *pos, char delim,
     size_t i;
     uint8_t in_surround;
 
-    TOOLKIT_FUNC_PROTECTOR(API_NAME);
+    TOOLKIT_PROTECT();
 
     i = 0;
     in_surround = 0;
@@ -443,7 +448,7 @@ void string_skip_word(const char *str, size_t *i, int dir)
 {
     uint8_t whitespace;
 
-    TOOLKIT_FUNC_PROTECTOR(API_NAME);
+    TOOLKIT_PROTECT();
 
     whitespace = 1;
 
@@ -467,7 +472,7 @@ void string_skip_word(const char *str, size_t *i, int dir)
  */
 int string_isdigit(const char *str)
 {
-    TOOLKIT_FUNC_PROTECTOR(API_NAME);
+    TOOLKIT_PROTECT();
 
     if (*str == '-') {
         str++;
@@ -492,7 +497,7 @@ int string_isdigit(const char *str)
  */
 void string_capitalize(char *str)
 {
-    TOOLKIT_FUNC_PROTECTOR(API_NAME);
+    TOOLKIT_PROTECT();
 
     if (!str || *str == '\0') {
         return;
@@ -515,7 +520,7 @@ void string_title(char *str)
 {
     uint8_t previous_cased;
 
-    TOOLKIT_FUNC_PROTECTOR(API_NAME);
+    TOOLKIT_PROTECT();
 
     if (!str) {
         return;
@@ -552,7 +557,7 @@ void string_title(char *str)
  */
 int string_startswith(const char *str, const char *cmp)
 {
-    TOOLKIT_FUNC_PROTECTOR(API_NAME);
+    TOOLKIT_PROTECT();
 
     if (string_isempty(str) || string_isempty(cmp)) {
         return 0;
@@ -575,7 +580,7 @@ int string_endswith(const char *str, const char *cmp)
 {
     ssize_t len;
 
-    TOOLKIT_FUNC_PROTECTOR(API_NAME);
+    TOOLKIT_PROTECT();
 
     if (string_isempty(str) || string_isempty(cmp)) {
         return 0;
@@ -616,11 +621,11 @@ int string_endswith(const char *str, const char *cmp)
  * @param end Ending index, eg, strlen(end) for the end.
  * @return The created substring; never NULL. Must be freed.
  */
-char *string_sub(const char *str, ssize_t start, ssize_t end)
+char *string_sub(const char *str, ssize_t start, ssize_t end MEMORY_DEBUG_PROTO)
 {
     size_t n, str_len;
 
-    TOOLKIT_FUNC_PROTECTOR(API_NAME);
+    TOOLKIT_PROTECT();
 
     str_len = strlen(str);
 
@@ -641,13 +646,13 @@ char *string_sub(const char *str, ssize_t start, ssize_t end)
     }
 
     if (!(str + start) || end - start < 0) {
-        return estrdup("");
+        return string_estrdup("" MEMORY_DEBUG_PARAM);
     }
 
     str += start;
     n = MIN(str_len, (size_t) (end - start));
 
-    return estrndup(str, n);
+    return string_estrndup(str, n MEMORY_DEBUG_PARAM);
 }
 
 /**
@@ -658,7 +663,7 @@ char *string_sub(const char *str, ssize_t start, ssize_t end)
  */
 int string_isempty(const char *str)
 {
-    TOOLKIT_FUNC_PROTECTOR(API_NAME);
+    TOOLKIT_PROTECT();
 
     return !str || *str == '\0';
 }
@@ -671,7 +676,7 @@ int string_isempty(const char *str)
  */
 int string_iswhite(const char *str)
 {
-    TOOLKIT_FUNC_PROTECTOR(API_NAME);
+    TOOLKIT_PROTECT();
 
     while (str && *str != '\0') {
         if (!isspace(*str)) {
@@ -695,7 +700,7 @@ int char_contains(const char c, const char *key)
 {
     size_t i;
 
-    TOOLKIT_FUNC_PROTECTOR(API_NAME);
+    TOOLKIT_PROTECT();
 
     for (i = 0; key[i] != '\0'; i++) {
         if (c == key[i]) {
@@ -714,7 +719,7 @@ int char_contains(const char c, const char *key)
  */
 int string_contains(const char *str, const char *key)
 {
-    TOOLKIT_FUNC_PROTECTOR(API_NAME);
+    TOOLKIT_PROTECT();
 
     while (*str != '\0') {
         if (char_contains(*str, key)) {
@@ -736,7 +741,7 @@ int string_contains(const char *str, const char *key)
  */
 int string_contains_other(const char *str, const char *key)
 {
-    TOOLKIT_FUNC_PROTECTOR(API_NAME);
+    TOOLKIT_PROTECT();
 
     while (*str != '\0') {
         if (!char_contains(*str, key)) {
@@ -759,13 +764,13 @@ int string_contains_other(const char *str, const char *key)
  * @param start Character index start.
  * @param end Character index end.
  * @return The generated string; never NULL. Must be freed. */
-char *string_create_char_range(char start, char end)
+char *string_create_char_range(char start, char end MEMORY_DEBUG_PROTO)
 {
     char *str, c;
 
-    TOOLKIT_FUNC_PROTECTOR(API_NAME);
+    TOOLKIT_PROTECT();
 
-    str = emalloc((end - start + 1) + 1);
+    str = memory_emalloc((end - start + 1) + 1 MEMORY_DEBUG_PARAM);
 
     for (c = start; c <= end; c++) {
         str[c - start] = c;
@@ -793,7 +798,7 @@ char *string_join(const char *delim, ...)
     va_list args;
     const char *str;
 
-    TOOLKIT_FUNC_PROTECTOR(API_NAME);
+    TOOLKIT_PROTECT();
 
     sb = stringbuffer_new();
 
@@ -837,7 +842,7 @@ char *string_join_array(const char *delim, char **array, size_t arraysize)
     StringBuffer *sb;
     size_t i;
 
-    TOOLKIT_FUNC_PROTECTOR(API_NAME);
+    TOOLKIT_PROTECT();
 
     sb = stringbuffer_new();
 
@@ -867,15 +872,15 @@ char *string_join_array(const char *delim, char **array, size_t arraysize)
  * @param num How many times to repeat the string.
  * @return Constructed string; never NULL. Must be freed.
  */
-char *string_repeat(const char *str, size_t num)
+char *string_repeat(const char *str, size_t num MEMORY_DEBUG_PROTO)
 {
     size_t len, i;
     char *ret;
 
-    TOOLKIT_FUNC_PROTECTOR(API_NAME);
+    TOOLKIT_PROTECT();
 
     len = strlen(str);
-    ret = emalloc(sizeof(char) * (len * num) + 1);
+    ret = memory_emalloc(sizeof(char) * (len * num) + 1 MEMORY_DEBUG_PARAM);
 
     for (i = 0; i < num; i++) {
         /* Cannot overflow; 'ret' has been allocated to hold enough
@@ -998,3 +1003,5 @@ const char *string_skip_whitespace(const char *str)
 
     return str;
 }
+
+#endif

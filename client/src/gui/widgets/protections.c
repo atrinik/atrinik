@@ -30,6 +30,7 @@
  */
 
 #include <global.h>
+#include <toolkit_string.h>
 
 /** @copydoc widgetdata::draw_func */
 static void widget_draw(widgetdata *widget)

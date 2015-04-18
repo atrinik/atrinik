@@ -27,6 +27,7 @@
  * General convenience functions for the client. */
 
 #include <global.h>
+#include <toolkit_string.h>
 
 /**
  * Start the base system, setting caption name and window icon. */
@@ -61,9 +62,10 @@ void system_end(void)
     hfiles_deinit();
     settings_deinit();
     keybind_deinit();
-    toolkit_deinit();
+    bmaps_deinit();
     clioption_settings_deinit();
     server_files_deinit();
+    toolkit_deinit();
     SDL_Quit();
 }
 
@@ -373,6 +375,8 @@ char *file_path(const char *path, const char *mode)
             stringbuffer_append_string(sb, client_path);
         }
     }
+
+    efree(new_path);
 
     return stringbuffer_finish(sb);
 }

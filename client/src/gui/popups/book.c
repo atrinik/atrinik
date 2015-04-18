@@ -29,6 +29,7 @@
  * @author Alex Tokar */
 
 #include <global.h>
+#include <toolkit_string.h>
 
 /** The book's content. */
 static char *book_content = NULL;

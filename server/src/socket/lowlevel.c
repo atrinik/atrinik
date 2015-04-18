@@ -28,6 +28,7 @@
 
 #include <global.h>
 #include <packet.h>
+#include <toolkit_string.h>
 
 /**
  * Receives data from socket.

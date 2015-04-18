@@ -28,6 +28,7 @@
 
 #include <global.h>
 #include <loader.h>
+#include <toolkit_string.h>
 
 int global_darkness_table[MAX_DARKNESS + 1] = {
     0, 20, 40, 80, 160, 320, 640, 1280
@@ -1270,6 +1271,7 @@ void free_map(mapstruct *m, int flag)
     }
 
     FREE_AND_NULL_PTR(m->bitmap);
+    FREE_AND_NULL_PTR(m->path_nodes);
     m->in_memory = MAP_SWAPPED;
 }
 

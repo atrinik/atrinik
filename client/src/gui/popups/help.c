@@ -30,6 +30,7 @@
  */
 
 #include <global.h>
+#include <toolkit_string.h>
 
 /**
  * Hashtable that contains the help files.

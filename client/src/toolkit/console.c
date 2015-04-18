@@ -39,14 +39,7 @@
  * @author Alex Tokar */
 
 #include <global.h>
-
-/**
- * Name of the API. */
-#define API_NAME console
-
-/**
- * If 1, the API has been initialized. */
-static uint8_t did_init = 0;
+#include <toolkit_string.h>
 
 #ifdef HAVE_READLINE
 #include <readline/readline.h>
@@ -80,6 +73,62 @@ static const char *current_prompt;
 
 static pthread_mutex_t rl_mutex; ///< Mutex for readline in general.
 #endif
+
+static void console_command_help(const char *params);
+
+TOOLKIT_API(DEPENDS(logger), DEPENDS(memory), DEPENDS(string));
+
+TOOLKIT_INIT_FUNC(console)
+{
+    console_commands = NULL;
+    console_commands_num = 0;
+
+    utarray_new(command_process_queue, &ut_str_icd);
+
+    /* Add the 'help' command. */
+    console_command_add(
+            "help",
+            console_command_help,
+            "Displays this help.",
+            "Displays the help, listing available console commands, etc.\n\n"
+            "'help <command>' can be used to get more detailed help about the specified command."
+            );
+}
+TOOLKIT_INIT_FUNC_FINISH
+
+TOOLKIT_DEINIT_FUNC(console)
+{
+    size_t i;
+
+    pthread_cancel(thread_id);
+
+    for (i = 0; i < console_commands_num; i++) {
+        efree(console_commands[i].command);
+        efree(console_commands[i].desc_brief);
+        efree(console_commands[i].desc);
+    }
+
+    if (console_commands) {
+        efree(console_commands);
+        console_commands = NULL;
+    }
+
+    console_commands_num = 0;
+    utarray_free(command_process_queue);
+
+    logger_set_print_func(logger_do_print);
+
+#ifdef HAVE_READLINE
+    pthread_mutex_lock(&rl_mutex);
+    rl_unbind_key(RETURN);
+    rl_callback_handler_remove();
+
+    rl_set_prompt("");
+    rl_redisplay();
+    pthread_mutex_unlock(&rl_mutex);
+#endif
+}
+TOOLKIT_DEINIT_FUNC_FINISH
 
 /**
  * The help command of the console.
@@ -157,7 +206,7 @@ static int handle_enter(int cnt, int key)
     utarray_push_back(command_process_queue, &line);
     pthread_mutex_unlock(&command_process_queue_mutex);
 
-    efree(line);
+    free(line);
     rl_redisplay();
     rl_done = 1;
 
@@ -181,7 +230,7 @@ static char *command_generator(const char *text, int state)
         i++;
 
         if (strncmp(command, text, len) == 0) {
-            return estrdup(command);
+            return strdup(command);
         }
     }
 
@@ -226,7 +275,7 @@ static void console_print(const char *str)
     rl_point = saved_point;
     rl_redisplay();
 
-    efree(saved_line);
+    free(saved_line);
 
     pthread_mutex_unlock(&rl_mutex);
 }
@@ -280,33 +329,6 @@ static void *do_thread(void *dummy)
 }
 
 /**
- * Initialize the console API.
- * @internal */
-void toolkit_console_init(void)
-{
-
-    TOOLKIT_INIT_FUNC_START(console)
-    {
-        toolkit_import(logger);
-        toolkit_import(memory);
-        console_commands = NULL;
-        console_commands_num = 0;
-
-        utarray_new(command_process_queue, &ut_str_icd);
-
-        /* Add the 'help' command. */
-        console_command_add(
-                "help",
-                console_command_help,
-                "Displays this help.",
-                "Displays the help, listing available console commands, etc.\n\n"
-                "'help <command>' can be used to get more detailed help about the specified command."
-                );
-    }
-    TOOLKIT_INIT_FUNC_END()
-}
-
-/**
  * Start the console stdin-reading thread.
  * @return 1 on success, 0 on failure. */
 int console_start_thread(void)
@@ -342,47 +364,6 @@ int console_start_thread(void)
 }
 
 /**
- * Deinitialize the console API.
- * @internal */
-void toolkit_console_deinit(void)
-{
-
-    TOOLKIT_DEINIT_FUNC_START(console)
-    {
-        size_t i;
-
-        pthread_cancel(thread_id);
-
-        for (i = 0; i < console_commands_num; i++) {
-            efree(console_commands[i].command);
-            efree(console_commands[i].desc_brief);
-            efree(console_commands[i].desc);
-        }
-
-        if (console_commands) {
-            efree(console_commands);
-            console_commands = NULL;
-        }
-
-        console_commands_num = 0;
-        utarray_free(command_process_queue);
-
-        logger_set_print_func(logger_do_print);
-
-#ifdef HAVE_READLINE
-        pthread_mutex_lock(&rl_mutex);
-        rl_unbind_key(RETURN);
-        rl_callback_handler_remove();
-
-        rl_set_prompt("");
-        rl_redisplay();
-        pthread_mutex_unlock(&rl_mutex);
-#endif
-    }
-    TOOLKIT_DEINIT_FUNC_END()
-}
-
-/**
  * Add a possible command to the console.
  * @param command Command name, must be unique.
  * @param handle_func Function that will handle the command.
@@ -392,7 +373,7 @@ void console_command_add(const char *command, console_command_func handle_func, 
 {
     size_t i;
 
-    TOOLKIT_FUNC_PROTECTOR(API_NAME);
+    TOOLKIT_PROTECT();
 
     /* Make sure the command doesn't exist yet. */
     for (i = 0; i < console_commands_num; i++) {
@@ -403,7 +384,7 @@ void console_command_add(const char *command, console_command_func handle_func, 
     }
 
     /* Add it to the commands array. */
-    console_commands = memory_reallocz(console_commands, sizeof(*console_commands) * console_commands_num, sizeof(*console_commands) * (console_commands_num + 1));
+    console_commands = ereallocz(console_commands, sizeof(*console_commands) * console_commands_num, sizeof(*console_commands) * (console_commands_num + 1));
     console_commands[console_commands_num].command = estrdup(command);
     console_commands[console_commands_num].handle_func = handle_func;
     console_commands[console_commands_num].desc_brief = estrdup(desc_brief);
@@ -419,7 +400,7 @@ void console_command_handle(void)
     char **line, *cp;
     size_t i;
 
-    TOOLKIT_FUNC_PROTECTOR(API_NAME);
+    TOOLKIT_PROTECT();
 
     pthread_mutex_lock(&command_process_queue_mutex);
     line = (char **) utarray_front(command_process_queue);

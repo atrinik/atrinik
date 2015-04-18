@@ -27,6 +27,7 @@
  * Metaserver updating related code. */
 
 #include <global.h>
+#include <toolkit_string.h>
 #include <curl/curl.h>
 
 static void *metaserver_thread(void *junk);
@@ -122,6 +123,20 @@ void metaserver_init(void)
         logger_print(LOG(ERROR), "Failed to create thread: %d.", ret);
         exit(1);
     }
+}
+
+/**
+ * Deinitialize the metaserver.
+ */
+void metaserver_deinit(void)
+{
+    pthread_mutex_lock(&ms_info_mutex);
+
+    if (metaserver_info.players != NULL) {
+        efree(metaserver_info.players);
+    }
+
+    pthread_mutex_unlock(&ms_info_mutex);
 }
 
 /**

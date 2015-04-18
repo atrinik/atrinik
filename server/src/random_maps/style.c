@@ -27,6 +27,7 @@
  * Those functions deal with style for random maps. */
 
 #include <global.h>
+#include <toolkit_string.h>
 
 /**
  * Char comparison for sorting purposes.

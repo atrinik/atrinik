@@ -25,6 +25,7 @@
 #include <global.h>
 #include <check.h>
 #include <check_proto.h>
+#include <toolkit_string.h>
 
 START_TEST(test_CAN_MERGE)
 {
@@ -192,7 +193,7 @@ START_TEST(test_dump_object)
     dump_object(ob1, sb);
     result = stringbuffer_finish(sb);
     ck_assert(string_startswith(result, "arch"));
-    free(result);
+    efree(result);
     object_destroy(ob1);
 }
 
@@ -426,8 +427,8 @@ START_TEST(test_object_reverse_inventory)
     ck_assert_str_eq(cp, cp2);
 
     object_destroy(ob);
-    free(cp);
-    free(cp2);
+    efree(cp);
+    efree(cp2);
 }
 
 END_TEST

@@ -28,6 +28,7 @@
 
 #include <global.h>
 #include <packet.h>
+#include <toolkit_string.h>
 
 /** Default bmaps loaded from atrinik.p0. */
 static bmap_struct *bmaps_default[BMAPS_MAX];
@@ -201,7 +202,6 @@ void read_bmaps(void)
     char buf[HUGE_BUF], name[MAX_BUF];
     uint32_t len, crc;
     bmap_struct *bmap;
-    size_t i;
 
     fp = server_file_open_name(SERVER_FILE_BMAPS);
 
@@ -210,26 +210,7 @@ void read_bmaps(void)
     }
 
     /* Free previously allocated bmaps. */
-    if (bmaps) {
-        for (i = 0; i < bmaps_size; i++) {
-            efree(bmaps[i].name);
-        }
-
-        efree(bmaps);
-        bmaps_size = 0;
-        bmaps = NULL;
-    }
-
-    for (i = 0; i < MAX_FACE_TILES; i++) {
-        if (FaceList[i].name) {
-            efree(FaceList[i].name);
-            FaceList[i].name = NULL;
-            sprite_free_sprite(FaceList[i].sprite);
-            FaceList[i].sprite = NULL;
-            FaceList[i].checksum = 0;
-            FaceList[i].flags = 0;
-        }
-    }
+    bmaps_deinit();
 
     while (fgets(buf, sizeof(buf) - 1, fp)) {
         if (sscanf(buf, "%x %x %s", &len, &crc, name) != 3) {
@@ -258,6 +239,35 @@ void read_bmaps(void)
     }
 
     fclose(fp);
+}
+
+/**
+ * Deinitialize the bmaps.
+ */
+void bmaps_deinit(void)
+{
+    size_t i;
+
+    if (bmaps != NULL) {
+        for (i = 0; i < bmaps_size; i++) {
+            efree(bmaps[i].name);
+        }
+
+        efree(bmaps);
+        bmaps_size = 0;
+        bmaps = NULL;
+    }
+
+    for (i = 0; i < MAX_FACE_TILES; i++) {
+        if (FaceList[i].name) {
+            efree(FaceList[i].name);
+            FaceList[i].name = NULL;
+            sprite_free_sprite(FaceList[i].sprite);
+            FaceList[i].sprite = NULL;
+            FaceList[i].checksum = 0;
+            FaceList[i].flags = 0;
+        }
+    }
 }
 
 /**

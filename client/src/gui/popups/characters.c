@@ -30,6 +30,7 @@
 
 #include <global.h>
 #include <packet.h>
+#include <toolkit_string.h>
 
 enum {
     TEXT_INPUT_CHARNAME,

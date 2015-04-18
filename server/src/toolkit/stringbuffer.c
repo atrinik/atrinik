@@ -44,38 +44,21 @@
 
 #include <global.h>
 #include <stdarg.h>
-
-/**
- * Name of the API. */
-#define API_NAME stringbuffer
-
-/**
- * If 1, the API has been initialized. */
-static uint8_t did_init = 0;
+#include <toolkit_string.h>
 
 static void stringbuffer_ensure(StringBuffer *sb, size_t len);
 
-/**
- * Initialize the stringbuffer API.
- * @internal */
-void toolkit_stringbuffer_init(void)
-{
-    TOOLKIT_INIT_FUNC_START(stringbuffer)
-    {
-    }
-    TOOLKIT_INIT_FUNC_END()
-}
+TOOLKIT_API(IMPORTS(string));
 
-/**
- * Deinitialize the stringbuffer API.
- * @internal */
-void toolkit_stringbuffer_deinit(void)
+TOOLKIT_INIT_FUNC(stringbuffer)
 {
-    TOOLKIT_DEINIT_FUNC_START(stringbuffer)
-    {
-    }
-    TOOLKIT_DEINIT_FUNC_END()
 }
+TOOLKIT_INIT_FUNC_FINISH
+
+TOOLKIT_DEINIT_FUNC(stringbuffer)
+{
+}
+TOOLKIT_DEINIT_FUNC_FINISH
 
 /**
  * Create a new string buffer.
@@ -84,7 +67,7 @@ StringBuffer *stringbuffer_new(void)
 {
     StringBuffer *sb;
 
-    TOOLKIT_FUNC_PROTECTOR(API_NAME);
+    TOOLKIT_PROTECT();
 
     sb = emalloc(sizeof(StringBuffer));
     sb->size = MAX_BUF;
@@ -103,7 +86,7 @@ char *stringbuffer_finish(StringBuffer *sb)
 {
     char *result;
 
-    TOOLKIT_FUNC_PROTECTOR(API_NAME);
+    TOOLKIT_PROTECT();
 
     HARD_ASSERT(sb != NULL);
 
@@ -126,7 +109,7 @@ const char *stringbuffer_finish_shared(StringBuffer *sb)
     char *str;
     shstr *result;
 
-    TOOLKIT_FUNC_PROTECTOR(API_NAME);
+    TOOLKIT_PROTECT();
 
     HARD_ASSERT(sb != NULL);
 
@@ -144,7 +127,7 @@ const char *stringbuffer_finish_shared(StringBuffer *sb)
 void stringbuffer_append_string_len(StringBuffer *sb, const char *str,
         size_t len)
 {
-    TOOLKIT_FUNC_PROTECTOR(API_NAME);
+    TOOLKIT_PROTECT();
 
     HARD_ASSERT(sb != NULL);
     SOFT_ASSERT(str != NULL, "String to append is NULL.");
@@ -160,7 +143,7 @@ void stringbuffer_append_string_len(StringBuffer *sb, const char *str,
  * @param str The string to append. */
 void stringbuffer_append_string(StringBuffer *sb, const char *str)
 {
-    TOOLKIT_FUNC_PROTECTOR(API_NAME);
+    TOOLKIT_PROTECT();
 
     HARD_ASSERT(sb != NULL);
     SOFT_ASSERT(str != NULL, "String to append is NULL.");
@@ -175,7 +158,7 @@ void stringbuffer_append_printf(StringBuffer *sb, const char *format, ...)
 {
     size_t size = MAX_BUF;
 
-    TOOLKIT_FUNC_PROTECTOR(API_NAME);
+    TOOLKIT_PROTECT();
 
     HARD_ASSERT(sb != NULL);
     HARD_ASSERT(format != NULL);
@@ -212,7 +195,7 @@ void stringbuffer_append_printf(StringBuffer *sb, const char *format, ...)
  * @param sb2 The string buffer to append; it must be different from sb. */
 void stringbuffer_append_stringbuffer(StringBuffer *sb, const StringBuffer *sb2)
 {
-    TOOLKIT_FUNC_PROTECTOR(API_NAME);
+    TOOLKIT_PROTECT();
 
     HARD_ASSERT(sb != NULL);
     HARD_ASSERT(sb2 != NULL);
@@ -230,7 +213,7 @@ void stringbuffer_append_stringbuffer(StringBuffer *sb, const StringBuffer *sb2)
  * @param c The character to append. */
 void stringbuffer_append_char(StringBuffer *sb, const char c)
 {
-    TOOLKIT_FUNC_PROTECTOR(API_NAME);
+    TOOLKIT_PROTECT();
 
     HARD_ASSERT(sb != NULL);
 
@@ -248,7 +231,7 @@ static void stringbuffer_ensure(StringBuffer *sb, size_t len)
     char *tmp;
     size_t new_size;
 
-    TOOLKIT_FUNC_PROTECTOR(API_NAME);
+    TOOLKIT_PROTECT();
 
     HARD_ASSERT(sb != NULL);
 
@@ -269,7 +252,7 @@ static void stringbuffer_ensure(StringBuffer *sb, size_t len)
  * @return Current length of 'sb'. */
 size_t stringbuffer_length(StringBuffer *sb)
 {
-    TOOLKIT_FUNC_PROTECTOR(API_NAME);
+    TOOLKIT_PROTECT();
     HARD_ASSERT(sb != NULL);
     return sb->pos;
 }
@@ -285,7 +268,7 @@ ssize_t stringbuffer_index(StringBuffer *sb, char c)
 {
     size_t i;
 
-    TOOLKIT_FUNC_PROTECTOR(API_NAME);
+    TOOLKIT_PROTECT();
     HARD_ASSERT(sb != NULL);
 
     for (i = 0; i < sb->pos; i++) {
@@ -308,7 +291,7 @@ ssize_t stringbuffer_rindex(StringBuffer *sb, char c)
 {
     size_t i;
 
-    TOOLKIT_FUNC_PROTECTOR(API_NAME);
+    TOOLKIT_PROTECT();
     HARD_ASSERT(sb != NULL);
 
     for (i = sb->pos; i > 0; i--) {
@@ -331,7 +314,7 @@ ssize_t stringbuffer_rindex(StringBuffer *sb, char c)
  */
 char *stringbuffer_sub(StringBuffer *sb, ssize_t start, ssize_t end)
 {
-    TOOLKIT_FUNC_PROTECTOR(API_NAME);
+    TOOLKIT_PROTECT();
 
     HARD_ASSERT(sb != NULL);
 

@@ -27,6 +27,7 @@
  * Controls map swap functions. */
 
 #include <global.h>
+#include <toolkit_string.h>
 
 /**
  * Write maps log. */

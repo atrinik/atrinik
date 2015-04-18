@@ -29,6 +29,7 @@
  * @author Alex Tokar */
 
 #include <global.h>
+#include <toolkit_string.h>
 
 /** The server files. */
 static server_files_struct *server_files;

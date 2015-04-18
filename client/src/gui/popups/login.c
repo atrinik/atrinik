@@ -30,6 +30,7 @@
 
 #include <global.h>
 #include <packet.h>
+#include <toolkit_string.h>
 
 enum {
     LOGIN_TEXT_INPUT_NAME,

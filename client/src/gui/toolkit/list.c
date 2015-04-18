@@ -29,6 +29,7 @@
  * @author Alex Tokar */
 
 #include <global.h>
+#include <toolkit_string.h>
 
 /**
  * Draw a frame in which the rows will be drawn.
@@ -485,6 +486,8 @@ void list_remove(list_struct *list)
             efree(list->col_names[col]);
         }
     }
+
+    font_free(list->font);
 
     efree(list->col_names);
     efree(list);

@@ -32,6 +32,7 @@
 #include <global.h>
 #include <region_map.h>
 #include <packet.h>
+#include <toolkit_string.h>
 
 /**
  * Map cells.

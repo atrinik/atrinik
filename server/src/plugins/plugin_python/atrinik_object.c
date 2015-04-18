@@ -811,7 +811,7 @@ static PyObject *Atrinik_Object_Save(Atrinik_Object *obj, PyObject *args)
     hooks->dump_object_rec(obj->obj, sb);
     result = hooks->stringbuffer_finish(sb);
     ret = Py_BuildValue("s", result);
-    free(result);
+    efree(result);
 
     return ret;
 }

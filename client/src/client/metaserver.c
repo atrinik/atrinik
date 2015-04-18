@@ -29,6 +29,7 @@
  * @author Alex Tokar */
 
 #include <global.h>
+#include <toolkit_string.h>
 
 /** Are we connecting to the metaserver? */
 static int metaserver_connecting = 1;

@@ -32,6 +32,7 @@
 
 #include <global.h>
 #include <book.h>
+#include <toolkit_string.h>
 
 /* This flag is useful for debugging archiving action */
 /* #define ARCHIVE_DEBUG */

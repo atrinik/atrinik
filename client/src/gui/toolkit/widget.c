@@ -41,6 +41,7 @@
  * @author Dantee */
 
 #include <global.h>
+#include <toolkit_string.h>
 
 static widgetdata def_widget[TOTAL_SUBWIDGETS];
 static const char *const widget_names[TOTAL_SUBWIDGETS] = {
@@ -2141,10 +2142,11 @@ widgetdata *add_label(const char *text, font_struct *font, const char *color)
     label = LABEL(widget);
 
     label->text = estrdup(text);
+    label->color = color;
 
+    font_free(label->font);
     FONT_INCREF(font);
     label->font = font;
-    label->color = color;
 
     resize_widget(widget, RESIZE_RIGHT, text_get_width(font, text, TEXT_MARKUP));
     resize_widget(widget, RESIZE_BOTTOM, text_get_height(font, text, TEXT_MARKUP) + 3);

@@ -28,6 +28,7 @@
 
 #include <global.h>
 #include <loader.h>
+#include <toolkit_string.h>
 
 static int save_life(object *op);
 static void remove_unpaid_objects(object *op, object *env);
@@ -1990,6 +1991,7 @@ void player_save(object *op)
 
     chmod(path, SAVE_MODE);
     unlink(pathtmp);
+    efree(path);
 }
 
 static int player_load(player *pl, const char *path)

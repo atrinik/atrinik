@@ -33,19 +33,11 @@
 
 #include <global.h>
 #include <stdarg.h>
+#include <toolkit_string.h>
 
 #ifndef WIN32
 #include <execinfo.h>
 #endif
-
-/**
- * Name of the API. */
-#define API_NAME logger
-
-/**
- * If 1, the API has been initialized.
- */
-static uint8_t did_init = 0;
 
 /**
  * Pointer to open log file, if any.
@@ -114,54 +106,40 @@ static uint64_t logger_filter_logfile;
 /* Prototypes */
 static bool logger_term_has_ansi_colors(void);
 
-/**
- * Initialize the logger API.
- * @internal
- */
-void toolkit_logger_init(void)
+TOOLKIT_API(DEPENDS(string));
+
+TOOLKIT_INIT_FUNC(logger)
 {
-    TOOLKIT_INIT_FUNC_START(logger)
-    {
-        toolkit_import(string);
+    log_fp = NULL;
+    logger_set_print_func(logger_do_print);
 
-        log_fp = NULL;
-        logger_set_print_func(logger_do_print);
+    logger_filter_stdout = logger_filter_logfile = 0;
 
-        logger_filter_stdout = logger_filter_logfile = 0;
+    logger_set_filter_stdout("all,-dumptx,-dumprx");
+    logger_set_filter_logfile("all,-dumptx,-dumprx");
 
-        logger_set_filter_stdout("all,-dumptx,-dumprx");
-        logger_set_filter_logfile("all,-dumptx,-dumprx");
-
-        if (logger_term_has_ansi_colors()) {
-            snprintf(VS(LOGGER_ESC_SEQ(BOLD)), "%s", "\033[1m");
-            snprintf(VS(LOGGER_ESC_SEQ(BLACK)), "%s", "\033[30m");
-            snprintf(VS(LOGGER_ESC_SEQ(RED)), "%s", "\033[31m");
-            snprintf(VS(LOGGER_ESC_SEQ(GREEN)), "%s", "\033[32m");
-            snprintf(VS(LOGGER_ESC_SEQ(YELLOW)), "%s", "\033[33m");
-            snprintf(VS(LOGGER_ESC_SEQ(BLUE)), "%s", "\033[34m");
-            snprintf(VS(LOGGER_ESC_SEQ(MAGENTA)), "%s", "\033[35m");
-            snprintf(VS(LOGGER_ESC_SEQ(CYAN)), "%s", "\033[36m");
-            snprintf(VS(LOGGER_ESC_SEQ(WHITE)), "%s", "\033[37m");
-            snprintf(VS(LOGGER_ESC_SEQ(END)), "%s", "\033[0m");
-        }
+    if (logger_term_has_ansi_colors()) {
+        snprintf(VS(LOGGER_ESC_SEQ(BOLD)), "%s", "\033[1m");
+        snprintf(VS(LOGGER_ESC_SEQ(BLACK)), "%s", "\033[30m");
+        snprintf(VS(LOGGER_ESC_SEQ(RED)), "%s", "\033[31m");
+        snprintf(VS(LOGGER_ESC_SEQ(GREEN)), "%s", "\033[32m");
+        snprintf(VS(LOGGER_ESC_SEQ(YELLOW)), "%s", "\033[33m");
+        snprintf(VS(LOGGER_ESC_SEQ(BLUE)), "%s", "\033[34m");
+        snprintf(VS(LOGGER_ESC_SEQ(MAGENTA)), "%s", "\033[35m");
+        snprintf(VS(LOGGER_ESC_SEQ(CYAN)), "%s", "\033[36m");
+        snprintf(VS(LOGGER_ESC_SEQ(WHITE)), "%s", "\033[37m");
+        snprintf(VS(LOGGER_ESC_SEQ(END)), "%s", "\033[0m");
     }
-    TOOLKIT_INIT_FUNC_END()
 }
+TOOLKIT_INIT_FUNC_FINISH
 
-/**
- * Deinitialize the logger API.
- * @internal
- */
-void toolkit_logger_deinit(void)
+TOOLKIT_DEINIT_FUNC(logger)
 {
-    TOOLKIT_DEINIT_FUNC_START(logger)
-    {
-        if (log_fp != NULL) {
-            fclose(log_fp);
-        }
+    if (log_fp != NULL) {
+        fclose(log_fp);
     }
-    TOOLKIT_DEINIT_FUNC_END()
 }
+TOOLKIT_DEINIT_FUNC_FINISH
 
 /**
  * Open the specified path as a log file.
@@ -169,7 +147,7 @@ void toolkit_logger_deinit(void)
  */
 void logger_open_log(const char *path)
 {
-    TOOLKIT_FUNC_PROTECTOR(API_NAME);
+    TOOLKIT_PROTECT();
 
     if (log_fp != NULL) {
         fclose(log_fp);
@@ -185,7 +163,7 @@ void logger_open_log(const char *path)
  */
 FILE *logger_get_logfile(void)
 {
-    TOOLKIT_FUNC_PROTECTOR(API_NAME);
+    TOOLKIT_PROTECT();
     return log_fp != NULL ? log_fp : stdout;
 }
 
@@ -287,7 +265,7 @@ void logger_set_filter_logfile(const char *str)
  */
 void logger_set_print_func(logger_print_func func)
 {
-    TOOLKIT_FUNC_PROTECTOR(API_NAME);
+    TOOLKIT_PROTECT();
     print_func = func;
 }
 
@@ -297,7 +275,7 @@ void logger_set_print_func(logger_print_func func)
  */
 void logger_do_print(const char *str)
 {
-    TOOLKIT_FUNC_PROTECTOR(API_NAME);
+    TOOLKIT_PROTECT();
 
     fputs(str, stdout);
 
@@ -322,7 +300,7 @@ void logger_print(logger_level level, const char *function, uint64_t line,
     struct timeval tv;
     struct tm *tm;
 
-    TOOLKIT_FUNC_PROTECTOR(API_NAME);
+    TOOLKIT_PROTECT();
 
     /* Safety... */
     if (level >= LOG_MAX) {
@@ -388,7 +366,7 @@ void logger_traceback(void)
     }
 
     log(LOG(ERROR), "-----------------------------------");
-    efree(bt_syms);
+    free(bt_syms);
 #endif
 }
 

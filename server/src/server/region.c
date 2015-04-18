@@ -30,6 +30,7 @@
  */
 
 #include <global.h>
+#include <toolkit_string.h>
 
 /** First region. */
 region_struct *first_region = NULL;

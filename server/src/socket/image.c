@@ -29,6 +29,7 @@
 #include <global.h>
 #include <loader.h>
 #include <packet.h>
+#include <toolkit_string.h>
 #include "zlib.h"
 
 /** Maximum different face sets. */

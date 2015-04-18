@@ -29,6 +29,7 @@
  * @author Alex Tokar */
 
 #include <global.h>
+#include <toolkit_string.h>
 
 /** @copydoc command_func */
 void command_statistics(object *op, const char *command, char *params)

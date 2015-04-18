@@ -28,6 +28,7 @@
 
 #include <global.h>
 #include <loader.h>
+#include <toolkit_string.h>
 
 /** List of active objects that need to be processed */
 object *active_objects;

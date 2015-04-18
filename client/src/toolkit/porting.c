@@ -28,37 +28,17 @@
 
 #include <global.h>
 
-/**
- * Name of the API. */
-#define API_NAME porting
+TOOLKIT_API();
 
-/**
- * If 1, the API has been initialized. */
-static uint8_t did_init = 0;
-
-/**
- * Initialize the porting API.
- * @internal */
-void toolkit_porting_init(void)
+TOOLKIT_INIT_FUNC(porting)
 {
-
-    TOOLKIT_INIT_FUNC_START(porting)
-    {
-    }
-    TOOLKIT_INIT_FUNC_END()
 }
+TOOLKIT_INIT_FUNC_FINISH
 
-/**
- * Deinitialize the porting API.
- * @internal */
-void toolkit_porting_deinit(void)
+TOOLKIT_DEINIT_FUNC(porting)
 {
-
-    TOOLKIT_DEINIT_FUNC_START(porting)
-    {
-    }
-    TOOLKIT_DEINIT_FUNC_END()
 }
+TOOLKIT_DEINIT_FUNC_FINISH
 
 #ifndef __CPROTO__
 

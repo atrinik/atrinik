@@ -84,6 +84,7 @@
  * @author Alex Tokar */
 
 #include <global.h>
+#include <toolkit_string.h>
 
 /** Holds data that is currently being downloaded. */
 static curl_data *dl_data = NULL;

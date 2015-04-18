@@ -30,6 +30,7 @@
 
 #include <global.h>
 #include <packet.h>
+#include <toolkit_string.h>
 
 /** Text representations of the setting types. */
 static const char *const opt_types[OPT_TYPE_NUM] = {
@@ -332,6 +333,8 @@ void settings_deinit(void)
             if (setting_categories[cat]->settings[setting]->custom_attrset) {
                 efree(setting_categories[cat]->settings[setting]->custom_attrset);
             }
+
+            efree(setting_categories[cat]->settings[setting]);
         }
 
         if (setting_categories[cat]->settings) {

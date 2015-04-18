@@ -30,6 +30,7 @@
 
 #include <global.h>
 #include <packet.h>
+#include <toolkit_string.h>
 
 #define ACCOUNT_CHARACTERS_LIMIT 16
 #define ACCOUNT_PASSWORD_SIZE 32
@@ -81,6 +82,7 @@ static void account_free(account_struct *account)
 
     for (i = 0; i < account->characters_num; i++) {
         efree(account->characters[i].name);
+        efree(account->characters[i].region_name);
     }
 
     if (account->characters) {

@@ -37,9 +37,7 @@
  */
 
 #include <global.h>
-
-#define API_NAME mempool ///< Name of the API.
-static uint8_t did_init = 0; ///< Whether the API has been initialized.
+#include <toolkit_string.h>
 
 static void mempool_free(mempool_struct *pool);
 
@@ -67,55 +65,38 @@ static size_t pools_num; ///< Number of ::pools.
  */
 static bool deiniting;
 
-/**
- * Initialize the mempool API.
- * @internal */
-void toolkit_mempool_init(void)
+TOOLKIT_API(DEPENDS(math), DEPENDS(memory), DEPENDS(logger), DEPENDS(string),
+            DEPENDS(stringbuffer));
+
+TOOLKIT_INIT_FUNC(mempool)
 {
+    pools = NULL;
+    pools_num = 0;
+    deiniting = false;
 
-    TOOLKIT_INIT_FUNC_START(mempool)
-    {
-        toolkit_import(math);
-        toolkit_import(memory);
-        toolkit_import(logger);
-        toolkit_import(string);
-        toolkit_import(stringbuffer);
-
-        pools = NULL;
-        pools_num = 0;
-        deiniting = false;
-
-        pool_puddle = mempool_create("puddles", 10,
-                sizeof(mempool_puddle_struct), MEMPOOL_ALLOW_FREEING,
-                NULL, NULL, NULL, NULL);
-    }
-    TOOLKIT_INIT_FUNC_END()
+    pool_puddle = mempool_create("puddles", 10,
+            sizeof(mempool_puddle_struct), MEMPOOL_ALLOW_FREEING,
+            NULL, NULL, NULL, NULL);
 }
+TOOLKIT_INIT_FUNC_FINISH
 
-/**
- * Deinitialize the mempool API.
- * @internal */
-void toolkit_mempool_deinit(void)
+TOOLKIT_DEINIT_FUNC(mempool)
 {
+    size_t i;
 
-    TOOLKIT_DEINIT_FUNC_START(mempool)
-    {
-        size_t i;
+    deiniting = true;
 
-        deiniting = true;
-
-        /* The first memory pool ever created is the puddles pool, so
-         * avoid freeing it until all the other ones are feed. */
-        for (i = 1; i < pools_num; i++) {
-            mempool_free(pools[i]);
-        }
-
-        mempool_free(pool_puddle);
-
-        efree(pools);
+    /* The first memory pool ever created is the puddles pool, so
+     * avoid freeing it until all the other ones have been freed. */
+    for (i = 1; i < pools_num; i++) {
+        mempool_free(pools[i]);
     }
-    TOOLKIT_DEINIT_FUNC_END()
+
+    mempool_free(pool_puddle);
+
+    efree(pools);
 }
+TOOLKIT_DEINIT_FUNC_FINISH
 
 /* Comparison function for sort_linked_list() */
 static int sort_puddle_by_nrof_free(void *a, void *b, void *args)
@@ -185,10 +166,15 @@ static size_t mempool_free_puddles(mempool_struct *pool)
             }
 
             /* Can we actually free this puddle? */
-            if (puddle->nrof_free == nrof_arrays) {
+            if (puddle->nrof_free == nrof_arrays ||
+                    (deiniting && pool == pool_puddle)) {
                 /* Yup. Forget about it. */
-                free(puddle->first_chunk);
-                mempool_return(pool_puddle, puddle);
+                efree(puddle->first_chunk);
+
+                if (!deiniting || pool != pool_puddle) {
+                    mempool_return(pool_puddle, puddle);
+                }
+
                 pool->nrof_free[i] -= nrof_arrays;
                 pool->nrof_allocated[i] -= nrof_arrays;
                 freed++;
@@ -248,7 +234,7 @@ mempool_struct *mempool_create(const char *description, size_t expand,
     size_t i;
     mempool_struct *pool;
 
-    TOOLKIT_FUNC_PROTECTOR(API_NAME);
+    TOOLKIT_PROTECT();
 
     pool = ecalloc(1, sizeof(*pool));
 
@@ -322,6 +308,8 @@ static void mempool_leak_info(mempool_struct *pool, StringBuffer *sb)
 #else
                     continue;
 #endif
+                } else if (pool == pool_puddle) {
+                    continue;
                 }
 
 #ifndef NDEBUG
@@ -347,7 +335,7 @@ static void mempool_free(mempool_struct *pool)
     StringBuffer *sb;
     char *info, *cp;
 
-    TOOLKIT_FUNC_PROTECTOR(API_NAME);
+    TOOLKIT_PROTECT();
 
     HARD_ASSERT(pool != NULL);
 
@@ -536,7 +524,7 @@ static void mempool_expand(mempool_struct *pool, size_t arraysize_exp)
         }
     }
 
-    if (pool != pool_puddle) {
+    if (pool != pool_puddle || 1) {
         p = mempool_get(pool_puddle);
         p->first_chunk = first;
         p->next = pool->puddlelist[arraysize_exp];
@@ -556,7 +544,7 @@ void *mempool_get_chunk(mempool_struct *pool, size_t arraysize_exp)
 {
     mempool_chunk_struct *new_obj;
 
-    TOOLKIT_FUNC_PROTECTOR(API_NAME);
+    TOOLKIT_PROTECT();
 
     HARD_ASSERT(pool != NULL);
     HARD_ASSERT(arraysize_exp < MEMPOOL_NROF_FREELISTS);
@@ -603,7 +591,7 @@ void mempool_return_chunk(mempool_struct *pool, size_t arraysize_exp,
 {
     mempool_chunk_struct *chunk;
 
-    TOOLKIT_FUNC_PROTECTOR(API_NAME);
+    TOOLKIT_PROTECT();
 
     HARD_ASSERT(pool != NULL);
     HARD_ASSERT(arraysize_exp < MEMPOOL_NROF_FREELISTS);
