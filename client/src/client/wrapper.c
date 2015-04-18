@@ -64,6 +64,7 @@ void system_end(void)
     keybind_deinit();
     bmaps_deinit();
     anims_deinit();
+    object_deinit();
     skills_deinit();
     spells_deinit();
     clioption_settings_deinit();

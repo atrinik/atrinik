@@ -24,41 +24,36 @@
 
 /**
  * @file
- * Object management. */
+ * Object management.
+ */
 
 #include <global.h>
 #include <region_map.h>
 #include <packet.h>
 
-/** The list of free (unused) objects */
-static object *free_objects = NULL;
+/**
+ * Pool for objects.
+ */
+static mempool_struct *pool_object;
 
 /**
- * Allocates a new object.
- * @return The object. */
-static object *object_new(void)
+ * Initialize the object system.
+ */
+void object_init(void)
 {
-    return ecalloc(1, sizeof(object));
+    toolkit_import(mempool);
+
+    pool_object = mempool_create("objects", NROF_ITEMS, sizeof(object),
+            MEMPOOL_ALLOW_FREEING, NULL, NULL, NULL, NULL);
+    objects_init();
 }
 
 /**
- * Allocates a list of objects.
- * @param nrof How many objects to allocate.
- * @return The allocated objects in a list. */
-static object *objects_alloc(int nrof)
+ * Deinitialize the object system.
+ */
+void object_deinit(void)
 {
-    object *op, *list;
-    int i;
-
-    list = op = object_new();
-
-    for (i = 1; i < nrof; i++) {
-        op->next = object_new();
-        op->next->prev = op;
-        op = op->next;
-    }
-
-    return list;
+    objects_deinit();
 }
 
 /**
@@ -80,7 +75,7 @@ void objects_free(object *op)
         }
 
         next = op->next;
-        efree(op);
+        mempool_return(pool_object, op);
         op = next;
     }
 }
@@ -196,23 +191,12 @@ void object_remove(object *op)
         op->next->prev = op->prev;
     }
 
-    /* Add object to the list of free objects. */
-    op->next = free_objects;
-
-    if (op->next != NULL) {
-        op->next->prev = op;
-    }
-
-    free_objects = op;
-
     if (op->itype == TYPE_REGION_MAP) {
         region_map_fow_update(MapData.region_map);
         minimap_redraw_flag = 1;
     }
 
-    /* Clear the object so it can be reused. */
-    memset((char *) op + offsetof(object, prev), 0,
-            sizeof(object) - offsetof(object, prev));
+    mempool_return(pool_object, op);
 }
 
 /**
@@ -287,17 +271,7 @@ object *object_create(object *env, int32_t tag, int bflag)
 {
     object *op;
 
-    /* Allocate more objects if needed. */
-    if (!free_objects) {
-        free_objects = objects_alloc(NROF_ITEMS);
-    }
-
-    op = free_objects;
-    free_objects = free_objects->next;
-
-    if (free_objects) {
-        free_objects->prev = NULL;
-    }
+    op = mempool_get(pool_object);
 
     op->tag = tag;
 
@@ -384,23 +358,25 @@ void object_redraw(object *op)
 }
 
 /**
- * Deinitialize the various objects of ::cpl structure. */
+ * Deinitialize the various objects of ::cpl structure.
+ */
 void objects_deinit(void)
 {
+    log(LOG(INFO), "%p", cpl.ob);
     objects_free(cpl.sack);
     objects_free(cpl.below);
     objects_free(cpl.ob);
-    objects_free(free_objects);
 }
 
 /**
- * Initializes the various objects of ::cpl structure. */
+ * Initializes the various objects of ::cpl structure.
+ */
 void objects_init(void)
 {
-    free_objects = NULL;
-    cpl.ob = object_new();
-    cpl.below = object_new();
-    cpl.sack = object_new();
+    cpl.ob = mempool_get(pool_object);
+    log(LOG(INFO), "%p", cpl.ob);
+    cpl.below = mempool_get(pool_object);
+    cpl.sack = mempool_get(pool_object);
 
     cpl.below->weight = -111;
     cpl.sack->weight = -111;

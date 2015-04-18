@@ -179,6 +179,7 @@ static void init_game_data(void)
 
     init_keys();
     memset(&cpl, 0, sizeof(cpl));
+    object_init();
     clear_player();
 
     memset(&MapData, 0, sizeof(MapData));

@@ -51,6 +51,8 @@ extern int request_face(int pnum);
 extern int get_bmap_id(char *name);
 extern void face_show(SDL_Surface *surface, int x, int y, int id);
 /* src/client/item.c */
+extern void object_init(void);
+extern void object_deinit(void);
 extern void objects_free(object *op);
 extern object *object_find_object_inv(object *op, int32_t tag);
 extern object *object_find_object(object *op, int32_t tag);
