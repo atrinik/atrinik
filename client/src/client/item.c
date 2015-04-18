@@ -362,7 +362,6 @@ void object_redraw(object *op)
  */
 void objects_deinit(void)
 {
-    log(LOG(INFO), "%p", cpl.ob);
     objects_free(cpl.sack);
     objects_free(cpl.below);
     objects_free(cpl.ob);
@@ -374,7 +373,6 @@ void objects_deinit(void)
 void objects_init(void)
 {
     cpl.ob = mempool_get(pool_object);
-    log(LOG(INFO), "%p", cpl.ob);
     cpl.below = mempool_get(pool_object);
     cpl.sack = mempool_get(pool_object);
 
