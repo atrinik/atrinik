@@ -446,6 +446,10 @@ static void widget_deinit(widgetdata *widget)
     list_remove(tmp->list);
 
     text_input_destroy(&tmp->text_input);
+
+    for (size_t i = 0; i < BUTTON_NUM; i++) {
+        button_destroy(&tmp->buttons[i]);
+    }
 }
 
 /**
