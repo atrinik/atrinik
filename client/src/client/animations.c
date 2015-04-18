@@ -142,6 +142,7 @@ void anims_reset(void)
 
     for (i = 0; i < animations_num; i++) {
         animations[i].loaded = 0;
+        animations[i].num_animations = 0;
 
         if (animations[i].faces != NULL) {
             efree(animations[i].faces);
