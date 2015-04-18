@@ -54,6 +54,7 @@ void system_end(void)
     toolkit_widget_deinit();
     curl_deinit();
     socket_deinitialize();
+    metaserver_clear_data();
     effects_deinit();
     sound_deinit();
     cmd_aliases_deinit();
