@@ -104,6 +104,28 @@ static void list_handle_esc(list_struct *list)
 }
 
 /**
+ * Deinitialize data used by the intro screen.
+ */
+void intro_deinit(void)
+{
+    button_destroy(&button_play);
+    button_destroy(&button_refresh);
+    button_destroy(&button_server);
+    button_destroy(&button_settings);
+    button_destroy(&button_update);
+    button_destroy(&button_help);
+    button_destroy(&button_credits);
+    button_destroy(&button_quit);
+    button_destroy(&button_crash);
+
+    list_remove(list_servers);
+    list_servers = NULL;
+
+    list_remove(list_news);
+    list_news = NULL;
+}
+
+/**
  * Show the main GUI after starting the client -- servers list, chat box,
  * connecting to server, etc. */
 void intro_show(void)

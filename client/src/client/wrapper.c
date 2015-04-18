@@ -57,6 +57,7 @@ void system_end(void)
     metaserver_clear_data();
     effects_deinit();
     sound_deinit();
+    intro_deinit();
     cmd_aliases_deinit();
     texture_deinit();
     text_deinit();
