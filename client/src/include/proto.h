@@ -751,6 +751,7 @@ extern void skills_remove(object *op);
 extern void widget_skills_init(widgetdata *widget);
 /* src/gui/widgets/spells.c */
 extern void spells_init(void);
+extern void spells_deinit(void);
 extern int spell_find(const char *name, size_t *spell_path, size_t *spell_id);
 extern int spell_find_object(object *op, size_t *spell_path, size_t *spell_id);
 extern spell_entry_struct *spell_get(size_t spell_path, size_t spell_id);

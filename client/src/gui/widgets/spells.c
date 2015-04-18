@@ -79,6 +79,23 @@ void spells_init(void)
 }
 
 /**
+ * Deinitialize the spells system.
+ */
+void spells_deinit(void)
+{
+    for (size_t spell_path = 0; spell_path < SPELL_PATH_NUM - 1; spell_path++) {
+        for (size_t spell_id = 0; spell_id < spell_list_num[spell_path];
+                spell_id++) {
+            efree(spell_list[spell_path][spell_id]);
+        }
+
+        if (spell_list[spell_path] != NULL) {
+            efree(spell_list[spell_path]);
+        }
+    }
+}
+
+/**
  * Handle double click inside the spells list.
  * @param list The spells list.
  */

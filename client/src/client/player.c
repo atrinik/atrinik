@@ -73,6 +73,7 @@ void clear_player(void)
 {
     objects_deinit();
     skills_deinit();
+    spells_deinit();
 
     memset(&cpl, 0, sizeof(cpl));
     cpl.stats.Str = cpl.stats.Dex = cpl.stats.Con = cpl.stats.Int = cpl.stats.Pow = -1;
