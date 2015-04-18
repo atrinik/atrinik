@@ -1154,10 +1154,6 @@ extern char *binreloc_find_locale_dir(const char *default_locale_dir);
 extern char *binreloc_find_lib_dir(const char *default_lib_dir);
 extern char *binreloc_find_libexec_dir(const char *default_libexec_dir);
 extern char *binreloc_find_etc_dir(const char *default_etc_dir);
-/* src/toolkit/bzr.c */
-extern void toolkit_bzr_init(void);
-extern void toolkit_bzr_deinit(void);
-extern int bzr_get_revision(void);
 /* src/toolkit/clioptions.c */
 extern void toolkit_clioptions_init(void);
 extern void toolkit_clioptions_deinit(void);
@@ -1173,8 +1169,8 @@ extern void colorspace_rgb2hsv(const double rgb[3], double hsv[3]);
 extern void colorspace_hsv2rgb(const double hsv[3], double rgb[3]);
 /* src/toolkit/console.c */
 extern void toolkit_console_init(void);
-extern int console_start_thread(void);
 extern void toolkit_console_deinit(void);
+extern int console_start_thread(void);
 extern void console_command_add(const char *command, console_command_func handle_func, const char *desc_brief, const char *desc);
 extern void console_command_handle(void);
 /* src/toolkit/datetime.c */
@@ -1257,6 +1253,8 @@ extern void socket_destroy(socket_t *sc);
 extern SSL *socket_ssl_create(socket_t *sc, SSL_CTX *ctx);
 extern void socket_ssl_destroy(SSL *ssl);
 /* src/toolkit/string.c */
+extern void toolkit_string_init(void);
+extern void toolkit_string_deinit(void);
 /* src/toolkit/stringbuffer.c */
 extern void toolkit_stringbuffer_init(void);
 extern void toolkit_stringbuffer_deinit(void);

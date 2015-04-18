@@ -40,26 +40,7 @@ void read_anims(void)
     uint8_t anim_cmd[2048];
     size_t count = 0;
 
-    if (animations_num) {
-        size_t i;
-
-        /* Clear both animation tables. */
-        for (i = 0; i < animations_num; i++) {
-            if (animations[i].faces) {
-                efree(animations[i].faces);
-            }
-
-            if (anim_table[i].anim_cmd) {
-                efree(anim_table[i].anim_cmd);
-            }
-        }
-
-        efree(animations);
-        animations = NULL;
-        efree(anim_table);
-        anim_table = NULL;
-        animations_num = 0;
-    }
+    anims_deinit();
 
     anim_table = emalloc(sizeof(_anim_table));
 
@@ -120,6 +101,35 @@ void read_anims(void)
     animations_num = count;
     animations = ecalloc(animations_num, sizeof(Animations));
     fclose(fp);
+}
+
+/**
+ * Deinitialize the animations.
+ */
+void anims_deinit(void)
+{
+    /* Clear both animation tables. */
+    for (size_t i = 0; i < animations_num; i++) {
+        if (animations[i].faces != NULL) {
+            efree(animations[i].faces);
+        }
+
+        if (anim_table[i].anim_cmd != NULL) {
+            efree(anim_table[i].anim_cmd);
+        }
+    }
+
+    animations_num = 0;
+
+    if (animations != NULL) {
+        efree(animations);
+        animations = NULL;
+    }
+
+    if (anim_table != NULL) {
+        efree(anim_table);
+        anim_table = NULL;
+    }
 }
 
 /**
