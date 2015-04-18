@@ -59,6 +59,7 @@ void system_end(void)
     sound_deinit();
     intro_deinit();
     cmd_aliases_deinit();
+    server_settings_deinit();
     texture_deinit();
     text_deinit();
     hfiles_deinit();
