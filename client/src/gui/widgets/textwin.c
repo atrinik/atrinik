@@ -253,6 +253,10 @@ void textwin_tab_free(textwin_tab_struct *tab)
     if (tab->charnames) {
         efree(tab->charnames);
     }
+
+    text_input_destroy(&tab->text_input);
+    text_input_history_free(tab->text_input_history);
+    button_destroy(&tab->button);
 }
 
 void textwin_tab_remove(widgetdata *widget, const char *name)

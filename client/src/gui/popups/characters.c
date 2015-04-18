@@ -467,7 +467,19 @@ static int popup_destroy_callback(popup_struct *popup)
         cpl.state = ST_START;
     }
 
+    button_destroy(&button_tab_characters);
+    button_destroy(&button_tab_new);
+    button_destroy(&button_tab_password);
+    button_destroy(&button_character_male);
+    button_destroy(&button_character_female);
+    button_destroy(&button_character_left);
+    button_destroy(&button_character_right);
+    button_destroy(&button_done);
     button_destroy(&button_login);
+
+    for (size_t i = 0; i < TEXT_INPUT_NUM; i++) {
+        text_input_destroy(&text_inputs[i]);
+    }
 
     return 1;
 }

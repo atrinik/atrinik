@@ -487,7 +487,9 @@ void list_remove(list_struct *list)
         }
     }
 
-    font_free(list->font);
+    if (list->font != NULL) {
+        font_free(list->font);
+    }
 
     efree(list->col_names);
     efree(list);

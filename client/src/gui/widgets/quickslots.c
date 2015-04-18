@@ -359,6 +359,16 @@ static int widget_event(widgetdata *widget, SDL_Event *event)
     return 0;
 }
 
+/** @copydoc widgetdata::deinit_func */
+static void widget_deinit(widgetdata *widget)
+{
+    widget_quickslots_struct *tmp;
+
+    tmp = widget->subwidget;
+
+    list_remove(tmp->list);
+}
+
 /**
  * Initialize one quickslots widget. */
 void widget_quickslots_init(widgetdata *widget)
@@ -382,7 +392,8 @@ void widget_quickslots_init(widgetdata *widget)
     }
 
     widget->draw_func = widget_draw;
-    widget->event_func = widget_event;
+    widget->event_func = widget_event;;
+    widget->deinit_func = widget_deinit;
     widget->subwidget = tmp;
 }
 
