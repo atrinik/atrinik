@@ -53,6 +53,10 @@ static uint8_t tooltip_opacity = 0;
  * @param text The text to show in the tooltip. */
 void tooltip_create(int mx, int my, font_struct *font, const char *text)
 {
+    if (tooltip_font != NULL) {
+        font_free(tooltip_font);
+    }
+
     tooltip_delay = 0;
     FONT_INCREF(font);
     tooltip_font = font;

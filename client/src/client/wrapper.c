@@ -49,6 +49,7 @@ void system_start(void)
  * End the system. */
 void system_end(void)
 {
+    tooltip_dismiss();
     notification_destroy();
     popup_destroy_all();
     toolkit_widget_deinit();
@@ -56,6 +57,7 @@ void system_end(void)
     socket_deinitialize();
     metaserver_clear_data();
     effects_deinit();
+    interface_deinit();
     sound_deinit();
     intro_deinit();
     cmd_aliases_deinit();

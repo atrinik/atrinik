@@ -172,6 +172,41 @@ static void settings_list_button_repeat(button_struct *button)
 }
 
 /**
+ * Clear the settings list data.
+ */
+static void settings_list_clear(void)
+{
+    for (uint32_t row = 0; row < list_settings->rows; row++) {
+        setting_struct *setting =
+                setting_categories[setting_category_selected]->settings[row];
+
+        if (setting->internal) {
+            break;
+        }
+
+        if (setting->type == OPT_TYPE_BOOL) {
+            button_destroy(&((list_settings_graphic_union *)
+                    list_settings->data)[row].button[0]);
+        } else if (setting->type == OPT_TYPE_SELECT ||
+                setting->type == OPT_TYPE_RANGE) {
+            button_destroy(&((list_settings_graphic_union *)
+                    list_settings->data)[row].button[0]);
+            button_destroy(&((list_settings_graphic_union *)
+                    list_settings->data)[row].button[1]);
+        } else if (setting->type == OPT_TYPE_INPUT_TEXT ||
+                setting->type == OPT_TYPE_COLOR) {
+            text_input_destroy(&((list_settings_graphic_union *)
+                    list_settings->data)[row].text.text_input);
+
+            if (setting->type == OPT_TYPE_COLOR) {
+                button_destroy(&((list_settings_graphic_union *)
+                        list_settings->data)[row].text.button);
+            }
+        }
+    }
+}
+
+/**
  * Reload the client settings list. */
 static void settings_list_reload(void)
 {
@@ -435,6 +470,7 @@ static void button_repeat(button_struct *button)
     }
 
     if (new_cat != setting_category_selected) {
+        settings_list_clear();
         setting_category_selected = new_cat;
         settings_list_reload();
     }
@@ -638,8 +674,15 @@ static int popup_event(popup_struct *popup, SDL_Event *event)
 static int popup_destroy_callback(popup_struct *popup)
 {
     settings_apply_change();
+    settings_list_clear();
     list_remove(list_settings);
     list_settings = NULL;
+
+    button_destroy(&button_category_left);
+    button_destroy(&button_category_right);
+    button_destroy(&button_apply);
+    button_destroy(&button_done);
+
     return 1;
 }
 

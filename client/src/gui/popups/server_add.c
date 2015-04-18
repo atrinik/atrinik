@@ -115,6 +115,17 @@ static int popup_event(popup_struct *popup, SDL_Event *event)
     return -1;
 }
 
+/** @copydoc popup_struct::destroy_callback_func */
+static int popup_destroy_callback(popup_struct *popup)
+{
+    text_input_destroy(&text_input_server_host);
+    text_input_destroy(&text_input_server_port);
+
+    button_destroy(&button_add);
+
+    return 1;
+}
+
 /**
  * Open the server add popup.
  */
@@ -125,6 +136,7 @@ void server_add_open(void)
     popup = popup_create(texture_get(TEXTURE_TYPE_CLIENT, "popup"));
     popup->draw_func = popup_draw;
     popup->event_func = popup_event;
+    popup->destroy_callback_func = popup_destroy_callback;
 
     text_input_create(&text_input_server_host);
     text_input_create(&text_input_server_port);

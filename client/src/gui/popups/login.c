@@ -259,6 +259,14 @@ static int popup_destroy_callback(popup_struct *popup)
         cpl.state = ST_START;
     }
 
+    button_destroy(&button_tab_login);
+    button_destroy(&button_tab_register);
+    button_destroy(&button_done);
+
+    for (size_t i = 0; i < LOGIN_TEXT_INPUT_NUM; i++) {
+        text_input_destroy(&text_inputs[i]);
+    }
+
     return 1;
 }
 

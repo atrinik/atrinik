@@ -83,6 +83,8 @@ static void popup_button_free(popup_button *button)
     if (button->text) {
         efree(button->text);
     }
+
+    button_destroy(&button->button);
 }
 
 /**

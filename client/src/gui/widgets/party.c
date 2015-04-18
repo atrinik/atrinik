@@ -389,6 +389,19 @@ static int widget_event(widgetdata *widget, SDL_Event *event)
     return 0;
 }
 
+/** @copydoc widgetdata::deinit_func */
+static void widget_deinit(widgetdata *widget)
+{
+    if (list_party != NULL) {
+        list_remove(list_party);
+        list_party = NULL;
+    }
+
+    for (size_t i = 0; i < BUTTON_NUM; i++) {
+        button_destroy(&buttons[i]);
+    }
+}
+
 /**
  * Initialize one party widget. */
 void widget_party_init(widgetdata *widget)
@@ -396,4 +409,5 @@ void widget_party_init(widgetdata *widget)
     widget->draw_func = widget_draw;
     widget->background_func = widget_background;
     widget->event_func = widget_event;
+    widget->deinit_func = widget_deinit;
 }

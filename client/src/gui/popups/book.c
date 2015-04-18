@@ -179,6 +179,11 @@ static int popup_destroy_callback(popup_struct *popup)
     }
 
     book_help_history_enabled = 0;
+
+    if (book_content != NULL) {
+        efree(book_content);
+    }
+
     return 1;
 }
 
@@ -204,12 +209,13 @@ void book_load(const char *data, int len)
     }
 
     /* Free old book data and reset the values. */
-    if (book_content) {
+    if (book_content != NULL) {
         efree(book_content);
-        book_lines = 0;
-        book_scroll_lines = 0;
-        book_scroll = 0;
     }
+
+    book_lines = 0;
+    book_scroll_lines = 0;
+    book_scroll = 0;
 
     /* Store the data. */
     book_content = estrdup(data);

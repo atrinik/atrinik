@@ -112,6 +112,7 @@ void anims_deinit(void)
     for (size_t i = 0; i < animations_num; i++) {
         if (animations[i].faces != NULL) {
             efree(animations[i].faces);
+            animations[i].faces = NULL;
         }
 
         if (anim_table[i].anim_cmd != NULL) {
@@ -141,5 +142,10 @@ void anims_reset(void)
 
     for (i = 0; i < animations_num; i++) {
         animations[i].loaded = 0;
+
+        if (animations[i].faces != NULL) {
+            efree(animations[i].faces);
+            animations[i].faces = NULL;
+        }
     }
 }

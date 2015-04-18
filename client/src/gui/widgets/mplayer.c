@@ -340,16 +340,6 @@ static void widget_draw(widgetdata *widget)
             list_add(list_mplayer, list_mplayer->rows, 0, "Disable music");
         }
 
-        for (i = 0; i < BUTTON_NUM; i++) {
-            button_create(&buttons[i]);
-
-            if (i == BUTTON_BLACKLIST || i == BUTTON_HELP || i == BUTTON_CLOSE) {
-                buttons[i].texture = texture_get(TEXTURE_TYPE_CLIENT, "button_round");
-                buttons[i].texture_pressed = texture_get(TEXTURE_TYPE_CLIENT, "button_round_down");
-                buttons[i].texture_over = texture_get(TEXTURE_TYPE_CLIENT, "button_round_over");
-            }
-        }
-
         scrollbar_create(&scrollbar_progress, 130, 11, &scrollbar_progress_info.scroll_offset, &scrollbar_progress_info.num_lines, 1);
         scrollbar_progress.redraw = &scrollbar_progress_info.redraw;
     }
@@ -559,6 +549,15 @@ static void widget_deinit(widgetdata *widget)
         efree(shuffle_blacklist);
         shuffle_blacklist = NULL;
     }
+
+    if (list_mplayer != NULL) {
+        list_remove(list_mplayer);
+        list_mplayer = NULL;
+    }
+
+    for (size_t i = 0; i < BUTTON_NUM; i++) {
+        button_destroy(&buttons[i]);
+    }
 }
 
 /**
@@ -569,4 +568,17 @@ void widget_mplayer_init(widgetdata *widget)
     widget->background_func = widget_background;
     widget->event_func = widget_event;
     widget->deinit_func = widget_deinit;
+
+    for (size_t i = 0; i < BUTTON_NUM; i++) {
+        button_create(&buttons[i]);
+
+        if (i == BUTTON_BLACKLIST || i == BUTTON_HELP || i == BUTTON_CLOSE) {
+            buttons[i].texture = texture_get(TEXTURE_TYPE_CLIENT,
+                    "button_round");
+            buttons[i].texture_pressed = texture_get(TEXTURE_TYPE_CLIENT,
+                    "button_round_down");
+            buttons[i].texture_over = texture_get(TEXTURE_TYPE_CLIENT,
+                    "button_round_over");
+        }
+    }
 }

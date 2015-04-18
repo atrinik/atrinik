@@ -208,6 +208,10 @@ static int popup_destroy_callback(popup_struct *popup)
     interface_destroy(interface_data);
     interface_data = NULL;
     interface_popup = NULL;
+
+    button_destroy(&button_hello);
+    button_destroy(&button_close);
+
     return 1;
 }
 
@@ -604,5 +608,16 @@ void interface_redraw(void)
 {
     if (interface_popup) {
         interface_popup->redraw = 1;
+    }
+}
+
+/**
+ * Deinitialize the interface system.
+ */
+void interface_deinit(void)
+{
+    if (text_input_history != NULL) {
+        text_input_history_free(text_input_history);
+        text_input_destroy(&text_input);
     }
 }

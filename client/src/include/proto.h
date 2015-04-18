@@ -351,6 +351,7 @@ extern void help_handle_tabulator(text_input_struct *text_input);
 /* src/gui/popups/interface.c */
 extern void socket_command_interface(uint8_t *data, size_t len, size_t pos);
 extern void interface_redraw(void);
+extern void interface_deinit(void);
 /* src/gui/popups/login.c */
 extern void login_start(void);
 /* src/gui/popups/region_map.c */

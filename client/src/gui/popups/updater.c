@@ -401,6 +401,11 @@ static int popup_event(popup_struct *popup, SDL_Event *event)
 static int popup_destroy_callback(popup_struct *popup)
 {
     updater_download_clean();
+
+    button_destroy(&button_close);
+    button_destroy(&button_retry);
+    button_destroy(&button_restart);
+
     return 1;
 }
 
