@@ -15,7 +15,7 @@ class House:
             10,
             ("/shattered_islands/strakewood_island/greyton/house/luxury_house", 11, 26, 1),
             ("/shattered_islands/strakewood_island/greyton/house/luxury_house", 45, 26, 1),
-            ("/shattered_islands/world_1111", 14, 15, 0),
+            ("/shattered_islands/world_10_69", 14, 15, 0),
             (11, 23),
             4,
             (11, 24),

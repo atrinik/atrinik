@@ -1,0 +1,857 @@
+arch map
+name Asteria
+msg
+Created:  2009-08-09 emperorbma
+Modified: 2014-03-02 Alex Tokar
+endmsg
+width 24
+height 24
+difficulty 40
+darkness -1
+outdoor 1
+no_harm 1
+bg_music chether.mid
+region asteria
+end
+arch blocked
+y 10
+end
+arch wall_wood3_1
+y 10
+end
+arch floor_wood2
+y 11
+end
+arch bench1b.111
+y 11
+end
+arch floor_wood2
+y 12
+end
+arch floor_wood2
+y 13
+end
+arch floor_wood2
+y 14
+end
+arch floor_wood2
+y 15
+end
+arch floor_wood2
+y 16
+end
+arch wall_wood_1
+y 16
+end
+arch magic_mirror
+slaying world_5_48
+last_heal 80
+path_attuned 124
+y 17
+end
+arch magic_mirror
+slaying world_5_48
+last_heal 80
+path_attuned 124
+y 18
+end
+arch magic_mirror
+slaying world_5_48
+last_heal 80
+path_attuned 124
+y 19
+end
+arch magic_mirror
+slaying world_5_48
+last_heal 80
+path_attuned 124
+y 20
+end
+arch magic_mirror
+slaying world_5_48
+last_heal 80
+path_attuned 124
+y 21
+end
+arch magic_mirror
+slaying world_5_48
+last_heal 80
+path_attuned 124
+y 22
+end
+arch magic_mirror
+slaying world_5_48
+last_heal 80
+path_attuned 124
+y 23
+end
+arch blocked
+x 1
+y 10
+end
+arch wall_wood3_1
+x 1
+y 10
+end
+arch floor_wood2
+x 1
+y 11
+end
+arch bench1a.111
+x 1
+y 11
+end
+arch floor_wood2
+x 1
+y 12
+end
+arch floor_wood2
+x 1
+y 13
+end
+arch floor_wood2
+x 1
+y 14
+end
+arch table_round1
+x 1
+y 14
+end
+arch floor_wood2
+x 1
+y 15
+end
+arch table_lab3.111
+direction 7
+x 1
+y 15
+end
+arch floor_wood2
+x 1
+y 16
+end
+arch wall_wood_4
+x 1
+y 16
+end
+arch blocked
+x 1
+y 17
+end
+arch wall_wood_3
+x 1
+y 17
+end
+arch blocked
+x 1
+y 18
+end
+arch wall_wood_w_3
+x 1
+y 18
+end
+arch blocked
+x 1
+y 19
+end
+arch wall_wood_3
+x 1
+y 19
+end
+arch picture7
+direction 7
+x 1
+y 19
+end
+arch blocked
+x 1
+y 20
+end
+arch wall_wood_3
+x 1
+y 20
+end
+arch magic_mirror
+slaying world_5_48
+last_heal 80
+path_attuned 124
+x 1
+y 21
+end
+arch magic_mirror
+slaying world_5_48
+last_heal 80
+path_attuned 124
+x 1
+y 22
+end
+arch magic_mirror
+slaying world_5_48
+last_heal 80
+path_attuned 124
+x 1
+y 23
+end
+arch blocked
+x 2
+y 10
+end
+arch wall_wood3_1
+x 2
+y 10
+end
+arch floor_wood2
+x 2
+y 11
+end
+arch clock
+x 2
+y 11
+end
+arch floor_wood2
+x 2
+y 12
+end
+arch floor_wood2
+x 2
+y 13
+end
+arch floor_wood2
+x 2
+y 14
+end
+arch table_lab3.111
+x 2
+y 14
+end
+arch floor_wood2
+x 2
+y 15
+end
+arch chair2_111
+direction 5
+x 2
+y 15
+end
+arch spawn_point
+x 2
+y 15
+arch priest_green
+msg
+@match ^hello$
+Papers, papers...  When will my job be done?
+endmsg
+name Nancy Erhart
+level 22
+type 83
+direction 1
+end
+end
+arch floor_wood2
+x 2
+y 16
+end
+arch wall_wood_1
+x 2
+y 16
+end
+arch floor_wood2
+x 2
+y 17
+end
+arch shelf3_wall.111
+direction 7
+x 2
+y 17
+end
+arch floor_wood2
+x 2
+y 18
+end
+arch floor_wood2
+x 2
+y 19
+end
+arch table_wood5
+direction 5
+x 2
+y 19
+end
+arch floor_wood2
+x 2
+y 20
+end
+arch wall_wood_1
+x 2
+y 20
+end
+arch blocked
+x 3
+y 10
+end
+arch wall_wood3_1
+x 3
+y 10
+end
+arch floor_wood2
+x 3
+y 11
+end
+arch torch_wall_1
+x 3
+y 11
+end
+arch floor_wood2
+x 3
+y 12
+end
+arch floor_wood2
+x 3
+y 13
+end
+arch floor_wood2
+x 3
+y 14
+end
+arch floor_wood2
+glow_radius 5
+x 3
+y 15
+end
+arch floor_wood2
+x 3
+y 16
+end
+arch door_wood2
+x 3
+y 16
+end
+arch magic_mouth
+msg
+President
+endmsg
+splitting 1
+direction 1
+x 3
+y 16
+end
+arch floor_wood2
+x 3
+y 17
+end
+arch floor_wood2
+glow_radius 5
+x 3
+y 18
+end
+arch floor_wood2
+x 3
+y 19
+end
+arch chair2_111
+direction 3
+x 3
+y 19
+end
+arch spawn_point
+x 3
+y 19
+arch ranger
+name Geoffrey Charob
+level 26
+type 83
+direction 3
+arch event_obj
+sub_type 6
+race /interfaces/strakewood_island/asteria/geoffrey_charob.xml
+end
+end
+end
+arch floor_wood2
+x 3
+y 20
+end
+arch wall_wood_1
+x 3
+y 20
+end
+arch blocked
+x 4
+y 10
+end
+arch wall_wood3_1
+x 4
+y 10
+end
+arch floor_wood2
+glow_radius 1
+x 4
+y 11
+end
+arch box_big.101
+x 4
+y 11
+end
+arch floor_wood2
+x 4
+y 12
+end
+arch floor_wood2
+x 4
+y 13
+end
+arch floor_wood2
+x 4
+y 14
+end
+arch table_wood1.111
+x 4
+y 14
+end
+arch floor_wood2
+glow_radius 1
+x 4
+y 15
+end
+arch floor_wood2
+x 4
+y 16
+end
+arch wall_wood_1
+x 4
+y 16
+end
+arch floor_wood2
+x 4
+y 17
+end
+arch mirror_big.111
+x 4
+y 17
+end
+arch floor_wood2
+x 4
+y 18
+end
+arch floor_wood2
+glow_radius 1
+x 4
+y 19
+end
+arch floor_wood2
+x 4
+y 20
+end
+arch wall_wood_1
+x 4
+y 20
+end
+arch blocked
+x 5
+y 10
+end
+arch wall_wood_1
+x 5
+y 10
+end
+arch floor_wood2
+x 5
+y 11
+end
+arch wall_wood_3
+x 5
+y 11
+end
+arch floor_wood2
+x 5
+y 12
+end
+arch wall_wood_3
+x 5
+y 12
+end
+arch floor_wood2
+x 5
+y 13
+end
+arch wall_wood_3
+x 5
+y 13
+end
+arch floor_wood2
+x 5
+y 14
+end
+arch wall_wood_3
+x 5
+y 14
+end
+arch floor_wood2
+x 5
+y 15
+end
+arch wall_wood_3
+x 5
+y 15
+end
+arch floor_wood2
+x 5
+y 16
+end
+arch wall_wood_4
+x 5
+y 16
+end
+arch floor_wood2
+x 5
+y 17
+end
+arch wall_wood_3
+x 5
+y 17
+end
+arch floor_wood2
+x 5
+y 18
+end
+arch wall_wood_3
+x 5
+y 18
+end
+arch floor_wood2
+x 5
+y 19
+end
+arch wall_wood_3
+x 5
+y 19
+end
+arch floor_wood2
+x 5
+y 20
+end
+arch wall_wood_4
+x 5
+y 20
+end
+arch blocked
+x 21
+y 11
+end
+arch wall_stone3_8
+x 21
+y 11
+end
+arch blocked
+x 21
+y 12
+end
+arch wall_stone3_3
+x 21
+y 12
+end
+arch blocked
+x 21
+y 13
+end
+arch wall_stone2_3
+x 21
+y 13
+end
+arch blocked
+x 21
+y 14
+end
+arch wall_stone3_3
+x 21
+y 14
+end
+arch picture1.151
+direction 7
+x 21
+y 14
+end
+arch blocked
+x 21
+y 15
+end
+arch wall_stone3_3
+x 21
+y 15
+end
+arch blocked
+x 21
+y 16
+end
+arch wall_stone3_3
+x 21
+y 16
+end
+arch blocked
+x 21
+y 17
+end
+arch wall_stone2_3
+x 21
+y 17
+end
+arch blocked
+x 21
+y 18
+end
+arch wall_stone3_3
+x 21
+y 18
+end
+arch blocked
+x 21
+y 19
+end
+arch wall_stone3_3
+x 21
+y 19
+end
+arch blocked
+x 21
+y 20
+end
+arch wall_stone3_3
+x 21
+y 20
+end
+arch blocked
+x 21
+y 21
+end
+arch wall_stone2_3
+x 21
+y 21
+end
+arch blocked
+x 21
+y 22
+end
+arch wall_stone3_3
+x 21
+y 22
+end
+arch blocked
+x 21
+y 23
+end
+arch wall_stone3_3
+x 21
+y 23
+end
+arch blocked
+x 22
+y 11
+end
+arch wall_stone3_1
+x 22
+y 11
+end
+arch floor_wood2_l1
+x 22
+y 12
+end
+arch bed_2a.111
+name bed to reality
+type 106
+no_magic 1
+damned 1
+x 22
+y 12
+end
+arch floor_wood2_l1
+x 22
+y 13
+end
+arch table_small1
+x 22
+y 13
+end
+arch floor_wood2_l1
+x 22
+y 14
+end
+arch candlelight3.101
+x 22
+y 14
+end
+arch floor_wood2_l1
+x 22
+y 15
+end
+arch potted_plant3
+x 22
+y 15
+end
+arch floor_wood2_l1
+x 22
+y 16
+end
+arch wall_stone3_1
+x 22
+y 16
+end
+arch floor_wood2_l1
+x 22
+y 17
+end
+arch floor_wood2_l1
+x 22
+y 18
+end
+arch potted_plant1
+x 22
+y 18
+end
+arch floor_wood2_l1
+x 22
+y 19
+end
+arch wall_stone3_1
+x 22
+y 19
+end
+arch floor_wood2_l1
+x 22
+y 20
+end
+arch bed_1a.111
+name bed to reality
+type 106
+no_magic 1
+damned 1
+x 22
+y 20
+end
+arch floor_wood2_l1
+x 22
+y 21
+end
+arch table_small1
+x 22
+y 21
+end
+arch floor_wood2_l1
+x 22
+y 22
+end
+arch bed_1a.111
+name bed to reality
+type 106
+no_magic 1
+damned 1
+x 22
+y 22
+end
+arch floor_wood2_l1
+x 22
+y 23
+end
+arch wall_stone3_1
+x 22
+y 23
+end
+arch blocked
+x 23
+y 11
+end
+arch wall_stone2_1
+x 23
+y 11
+end
+arch floor_wood2_l1
+x 23
+y 12
+end
+arch bed_2b.111
+name bed to reality
+type 106
+no_magic 1
+damned 1
+x 23
+y 12
+end
+arch floor_wood2_l1
+x 23
+y 13
+end
+arch floor_wood2_l1
+x 23
+y 14
+end
+arch floor_wood2_l1
+x 23
+y 15
+end
+arch floor_wood2_l1
+x 23
+y 16
+end
+arch door_wood2
+x 23
+y 16
+end
+arch floor_wood2_l1
+x 23
+y 17
+end
+arch floor_wood2_l1
+x 23
+y 18
+end
+arch floor_wood2_l1
+x 23
+y 19
+end
+arch wall_stone3_1
+x 23
+y 19
+end
+arch picture6.151
+x 23
+y 19
+end
+arch floor_wood2_l1
+x 23
+y 20
+end
+arch bed_1b.111
+name bed to reality
+type 106
+no_magic 1
+damned 1
+x 23
+y 20
+end
+arch floor_wood2_l1
+x 23
+y 21
+end
+arch candlelight3.101
+x 23
+y 21
+end
+arch floor_wood2_l1
+x 23
+y 22
+end
+arch bed_1b.111
+name bed to reality
+type 106
+no_magic 1
+damned 1
+x 23
+y 22
+end
+arch floor_wood2_l1
+x 23
+y 23
+end
+arch wall_stone2_1
+x 23
+y 23
+end

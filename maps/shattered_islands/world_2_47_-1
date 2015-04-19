@@ -1,0 +1,2078 @@
+arch map
+name Mushroom Cave
+msg
+Created:  2011-05-08 emperorbma
+Modified: 2015-04-19 Alex Tokar
+endmsg
+width 24
+height 24
+difficulty 30
+darkness 2
+bg_music treasure.mid
+region strakewood_island_underground
+end
+arch fstone1b
+y 1
+end
+arch fwall_grit2b
+y 1
+end
+arch fstone1b
+y 2
+end
+arch fwall_grit2b
+y 2
+end
+arch fstone1b
+y 3
+end
+arch fstone1b
+y 4
+end
+arch plant_mushroom1
+y 4
+end
+arch fstone1b
+y 5
+end
+arch fstone1b
+y 6
+end
+arch fstone1b
+y 7
+end
+arch fwall_grit2a
+y 7
+end
+arch fstone1b
+y 8
+end
+arch fwall_grit2a
+y 8
+end
+arch fstone1b
+y 10
+end
+arch fwall_grit2b
+y 10
+end
+arch fstone1b
+y 11
+end
+arch fwall_grit2a
+y 11
+end
+arch fstone1b
+y 12
+end
+arch fwall_grit2a
+y 12
+end
+arch fstone1b
+y 13
+end
+arch fwall_grit2a
+y 13
+end
+arch fstone1b
+y 14
+end
+arch fwall_grit2a
+y 14
+end
+arch fstone1b
+y 15
+end
+arch stairs_stone_up2
+direction 7
+y 15
+end
+arch light2
+y 15
+end
+arch fstone1b
+y 16
+end
+arch fwall_grit2a
+y 16
+end
+arch fstone1b
+x 1
+y 1
+end
+arch fwall_grit2a
+x 1
+y 1
+end
+arch fstone1b
+x 1
+y 2
+end
+arch fstone1b
+x 1
+y 3
+end
+arch cave_deco_f2.101
+x 1
+y 3
+end
+arch fstone1b
+x 1
+y 4
+end
+arch fstone1b
+x 1
+y 5
+end
+arch fstone1b
+x 1
+y 6
+end
+arch fstone1b
+x 1
+y 7
+end
+arch fwall_grit2a
+x 1
+y 7
+end
+arch fstone1b
+x 1
+y 10
+end
+arch fwall_grit2a
+x 1
+y 10
+end
+arch fstone1b
+x 1
+y 11
+end
+arch fstone1b
+x 1
+y 12
+end
+arch fstone1b
+x 1
+y 13
+end
+arch fwall_grit2a
+x 1
+y 13
+end
+arch fstone1b
+x 1
+y 14
+end
+arch fwall_grit2b
+x 1
+y 14
+end
+arch fstone1b
+x 1
+y 15
+end
+arch fwall_grit2a
+x 1
+y 15
+end
+arch fstone1b
+x 1
+y 16
+end
+arch fwall_grit2b
+x 1
+y 16
+end
+arch fstone1b
+x 2
+y 1
+end
+arch fwall_grit2a
+x 2
+y 1
+end
+arch fstone1b
+x 2
+y 2
+end
+arch fwall_grit2a
+x 2
+y 2
+end
+arch fstone1b
+x 2
+y 3
+end
+arch fstone1b
+x 2
+y 4
+end
+arch fstone1b
+x 2
+y 5
+end
+arch fstone1b
+x 2
+y 6
+end
+arch fstone1b
+x 2
+y 7
+end
+arch fwall_grit2a
+x 2
+y 7
+end
+arch fstone1b
+x 2
+y 8
+end
+arch fwall_grit2a
+x 2
+y 8
+end
+arch fstone1b
+x 2
+y 9
+end
+arch fwall_grit2a
+x 2
+y 9
+end
+arch fstone1b
+x 2
+y 10
+end
+arch fwall_grit2a
+x 2
+y 10
+end
+arch fstone1b
+x 2
+y 11
+end
+arch fstone1b
+x 2
+y 12
+end
+arch fstone1b
+x 2
+y 13
+end
+arch fstone1b
+x 2
+y 14
+end
+arch fstone1b
+x 2
+y 15
+end
+arch fwall_grit2a
+x 2
+y 15
+end
+arch fstone1b
+x 2
+y 16
+end
+arch fwall_grit2b
+x 2
+y 16
+end
+arch fstone1b
+x 2
+y 17
+end
+arch fwall_grit2b
+x 2
+y 17
+end
+arch fstone1b
+x 3
+y 2
+end
+arch fwall_grit2a
+x 3
+y 2
+end
+arch fstone1b
+x 3
+y 3
+end
+arch fstone1b
+x 3
+y 4
+end
+arch mushroom_spot3
+x 3
+y 4
+end
+arch fstone1b
+x 3
+y 5
+end
+arch fstone1b
+x 3
+y 6
+end
+arch fstone1b
+x 3
+y 7
+end
+arch fstone1b
+x 3
+y 8
+end
+arch fwall_grit2a
+x 3
+y 8
+end
+arch fstone1b
+x 3
+y 9
+end
+arch fstone1b
+x 3
+y 10
+end
+arch fstone1b
+x 3
+y 11
+end
+arch cave_deco_f5.101
+x 3
+y 11
+end
+arch fstone1b
+x 3
+y 12
+end
+arch fstone1b
+x 3
+y 13
+end
+arch fstone1b
+x 3
+y 14
+end
+arch plant_mushroom4
+x 3
+y 14
+end
+arch fstone1b
+x 3
+y 15
+end
+arch cave_deco_f1.101
+x 3
+y 15
+end
+arch fstone1b
+x 3
+y 16
+end
+arch fstone1b
+x 3
+y 17
+end
+arch fwall_grit2a
+x 3
+y 17
+end
+arch fstone1b
+x 3
+y 18
+end
+arch fwall_grit2a
+x 3
+y 18
+end
+arch fstone1b
+x 4
+y 2
+end
+arch fwall_grit2a
+x 4
+y 2
+end
+arch fstone1b
+x 4
+y 3
+end
+arch fwall_grit2a
+x 4
+y 3
+end
+arch fstone1b
+x 4
+y 4
+end
+arch fstone1b
+x 4
+y 5
+end
+arch fstone1b
+x 4
+y 6
+end
+arch fstone1b
+x 4
+y 7
+end
+arch fstone1b
+x 4
+y 8
+end
+arch fstone1b
+x 4
+y 9
+end
+arch fstone1b
+x 4
+y 10
+end
+arch fstone1b
+x 4
+y 11
+end
+arch fstone1b
+x 4
+y 12
+end
+arch fstone1b
+x 4
+y 13
+end
+arch mushroom_giant5
+x 4
+y 13
+end
+arch fstone1b
+x 4
+y 14
+end
+arch fstone1b
+x 4
+y 15
+end
+arch fstone1b
+x 4
+y 16
+end
+arch fstone1b
+x 4
+y 17
+end
+arch fstone1b
+x 4
+y 18
+end
+arch fwall_grit2a
+x 4
+y 18
+end
+arch fstone1b
+x 4
+y 19
+end
+arch fwall_grit2a
+x 4
+y 19
+end
+arch fstone1b
+x 4
+y 20
+end
+arch fwall_grit2a
+x 4
+y 20
+end
+arch fstone1b
+x 5
+y 3
+end
+arch fwall_grit2a
+x 5
+y 3
+end
+arch fstone1b
+x 5
+y 4
+end
+arch fstone1b
+x 5
+y 5
+end
+arch fstone1b
+x 5
+y 6
+end
+arch fstone1b
+x 5
+y 7
+end
+arch fstone1b
+x 5
+y 8
+end
+arch fstone1b
+x 5
+y 9
+end
+arch fstone1b
+x 5
+y 10
+end
+arch fstone1b
+x 5
+y 11
+end
+arch fstone1b
+x 5
+y 12
+end
+arch fstone1b
+x 5
+y 13
+end
+arch fstone1b
+x 5
+y 14
+end
+arch fstone1b
+x 5
+y 15
+end
+arch fstone1b
+x 5
+y 16
+end
+arch fstone1b
+x 5
+y 17
+end
+arch fstone1b
+x 5
+y 18
+end
+arch fstone1b
+x 5
+y 19
+end
+arch fstone1b
+x 5
+y 20
+end
+arch fwall_grit2a
+x 5
+y 20
+end
+arch fstone1b
+x 5
+y 21
+end
+arch fwall_grit2a
+x 5
+y 21
+end
+arch fstone1b
+x 6
+y 3
+end
+arch fwall_grit2a
+x 6
+y 3
+end
+arch fstone1b
+x 6
+y 4
+end
+arch fwall_grit2a
+x 6
+y 4
+end
+arch fstone1b
+x 6
+y 5
+end
+arch fstone1b
+x 6
+y 6
+end
+arch mushroom_giant10
+x 6
+y 6
+end
+arch fstone1b
+x 6
+y 7
+end
+arch fstone1b
+x 6
+y 8
+end
+arch fstone1b
+x 6
+y 9
+end
+arch fwall_grit2a
+x 6
+y 9
+end
+arch fstone1b
+x 6
+y 10
+end
+arch fwall_grit2a
+x 6
+y 10
+end
+arch fstone1b
+x 6
+y 11
+end
+arch fstone1b
+x 6
+y 12
+end
+arch fstone1b
+x 6
+y 13
+end
+arch fstone1b
+x 6
+y 14
+end
+arch fstone1b
+x 6
+y 15
+end
+arch fstone1b
+x 6
+y 16
+end
+arch fstone1b
+x 6
+y 17
+end
+arch mushroom_giant8
+x 6
+y 17
+end
+arch fstone1b
+x 6
+y 18
+end
+arch fstone1b
+x 6
+y 19
+end
+arch fstone1b
+x 6
+y 20
+end
+arch fstone1b
+x 6
+y 21
+end
+arch fwall_grit2b
+x 6
+y 21
+end
+arch fstone1b
+x 6
+y 22
+end
+arch fwall_grit2a
+x 6
+y 22
+end
+arch fstone1b
+x 7
+y 4
+end
+arch fwall_grit2a
+x 7
+y 4
+end
+arch fstone1b
+x 7
+y 5
+end
+arch fstone1b
+x 7
+y 6
+end
+arch fstone1b
+x 7
+y 7
+end
+arch fstone1b
+x 7
+y 8
+end
+arch fstone1b
+x 7
+y 9
+end
+arch fstone1b
+x 7
+y 10
+end
+arch fwall_grit2a
+x 7
+y 10
+end
+arch fstone1b
+x 7
+y 11
+end
+arch fwall_grit2a
+x 7
+y 11
+end
+arch fstone1b
+x 7
+y 12
+end
+arch plant_mushroom2
+x 7
+y 12
+end
+arch fstone1b
+x 7
+y 13
+end
+arch fstone1b
+x 7
+y 14
+end
+arch fstone1b
+x 7
+y 15
+end
+arch fstone1b
+x 7
+y 16
+end
+arch fstone1b
+x 7
+y 17
+end
+arch fstone1b
+x 7
+y 18
+end
+arch fstone1b
+x 7
+y 19
+end
+arch cave_deco_f7.101
+x 7
+y 19
+end
+arch fstone1b
+x 7
+y 20
+end
+arch fstone1b
+x 7
+y 21
+end
+arch fstone1b
+x 7
+y 22
+end
+arch fwall_grit2a
+x 7
+y 22
+end
+arch fstone1b
+x 8
+y 3
+end
+arch fwall_grit2a
+x 8
+y 3
+end
+arch fstone1b
+x 8
+y 4
+end
+arch fwall_grit2a
+x 8
+y 4
+end
+arch fstone1b
+x 8
+y 5
+end
+arch mushroom_spot1
+x 8
+y 5
+end
+arch fstone1b
+x 8
+y 6
+end
+arch fstone1b
+x 8
+y 7
+end
+arch fstone1b
+x 8
+y 8
+end
+arch fstone1b
+x 8
+y 9
+end
+arch fstone1b
+x 8
+y 10
+end
+arch fstone1b
+x 8
+y 11
+end
+arch fwall_grit2a
+x 8
+y 11
+end
+arch fstone1b
+x 8
+y 12
+end
+arch fstone1b
+x 8
+y 13
+end
+arch fstone1b
+x 8
+y 14
+end
+arch fstone1b
+x 8
+y 15
+end
+arch fstone1b
+x 8
+y 16
+end
+arch mushroom_spot2
+x 8
+y 16
+end
+arch fstone1b
+x 8
+y 17
+end
+arch fstone1b
+x 8
+y 18
+end
+arch fstone1b
+x 8
+y 19
+end
+arch fstone1b
+x 8
+y 20
+end
+arch fstone1b
+x 8
+y 21
+end
+arch fstone1b
+x 8
+y 22
+end
+arch fwall_grit2a
+x 8
+y 22
+end
+arch fstone1b
+x 9
+y 2
+end
+arch fwall_grit2a
+x 9
+y 2
+end
+arch fstone1b
+x 9
+y 3
+end
+arch fwall_grit2a
+x 9
+y 3
+end
+arch fstone1b
+x 9
+y 4
+end
+arch fstone1b
+x 9
+y 5
+end
+arch fstone1b
+x 9
+y 6
+end
+arch fstone1b
+x 9
+y 7
+end
+arch fstone1b
+x 9
+y 8
+end
+arch fstone1b
+x 9
+y 9
+end
+arch cave_deco_f3.101
+x 9
+y 9
+end
+arch fstone1b
+x 9
+y 10
+end
+arch fstone1b
+x 9
+y 11
+end
+arch fwall_grit2a
+x 9
+y 11
+end
+arch fstone1b
+x 9
+y 12
+end
+arch fwall_grit2a
+x 9
+y 12
+end
+arch fstone1b
+x 9
+y 13
+end
+arch fstone1b
+x 9
+y 14
+end
+arch cave_deco_f6.101
+x 9
+y 14
+end
+arch fstone1b
+x 9
+y 15
+end
+arch fstone1b
+x 9
+y 16
+end
+arch fstone1b
+x 9
+y 17
+end
+arch fstone1b
+x 9
+y 18
+end
+arch fstone1b
+x 9
+y 19
+end
+arch fstone1b
+x 9
+y 20
+end
+arch fstone1b
+x 9
+y 21
+end
+arch fwall_grit2a
+x 9
+y 21
+end
+arch fstone1b
+x 9
+y 22
+end
+arch fwall_grit2a
+x 9
+y 22
+end
+arch fstone1b
+x 10
+y 2
+end
+arch fwall_grit2a
+x 10
+y 2
+end
+arch fstone1b
+x 10
+y 3
+end
+arch fstone1b
+x 10
+y 4
+end
+arch fstone1b
+x 10
+y 5
+end
+arch fstone1b
+x 10
+y 6
+end
+arch fstone1b
+x 10
+y 7
+end
+arch plant_mushroom5
+x 10
+y 7
+end
+arch fstone1b
+x 10
+y 8
+end
+arch fstone1b
+x 10
+y 9
+end
+arch fstone1b
+x 10
+y 10
+end
+arch fstone1b
+x 10
+y 11
+end
+arch fstone1b
+x 10
+y 12
+end
+arch fwall_grit2a
+x 10
+y 12
+end
+arch fstone1b
+x 10
+y 13
+end
+arch fstone1b
+x 10
+y 14
+end
+arch fstone1b
+x 10
+y 15
+end
+arch plant_mushroom4
+x 10
+y 15
+end
+arch fstone1b
+x 10
+y 16
+end
+arch fstone1b
+x 10
+y 17
+end
+arch fstone1b
+x 10
+y 18
+end
+arch fstone1b
+x 10
+y 19
+end
+arch fstone1b
+x 10
+y 20
+end
+arch fwall_grit2a
+x 10
+y 20
+end
+arch fstone1b
+x 10
+y 21
+end
+arch fwall_grit2a
+x 10
+y 21
+end
+arch fstone1b
+x 11
+y 2
+end
+arch fwall_grit2a
+x 11
+y 2
+end
+arch fstone1b
+x 11
+y 3
+end
+arch fstone1b
+x 11
+y 4
+end
+arch cave_deco_f8.101
+x 11
+y 4
+end
+arch fstone1b
+x 11
+y 5
+end
+arch mushroom_giant9
+x 11
+y 5
+end
+arch fstone1b
+x 11
+y 6
+end
+arch fstone1b
+x 11
+y 7
+end
+arch fstone1b
+x 11
+y 8
+end
+arch fstone1b
+x 11
+y 9
+end
+arch fstone1b
+x 11
+y 10
+end
+arch fstone1b
+x 11
+y 11
+end
+arch fstone1b
+x 11
+y 12
+end
+arch fstone1b
+x 11
+y 13
+end
+arch fstone1b
+x 11
+y 14
+end
+arch fstone1b
+x 11
+y 15
+end
+arch fstone1b
+x 11
+y 16
+end
+arch fstone1b
+x 11
+y 17
+end
+arch fstone1b
+x 11
+y 18
+end
+arch fstone1b
+x 11
+y 19
+end
+arch fstone1b
+x 11
+y 20
+end
+arch fwall_grit2a
+x 11
+y 20
+end
+arch fstone1b
+x 12
+y 2
+end
+arch fwall_grit2a
+x 12
+y 2
+end
+arch fstone1b
+x 12
+y 3
+end
+arch fwall_grit2a
+x 12
+y 3
+end
+arch fstone1b
+x 12
+y 4
+end
+arch fstone1b
+x 12
+y 5
+end
+arch fstone1b
+x 12
+y 6
+end
+arch fstone1b
+x 12
+y 7
+end
+arch fstone1b
+x 12
+y 8
+end
+arch fstone1b
+x 12
+y 9
+end
+arch fstone1b
+x 12
+y 10
+end
+arch mushroom_giant1
+x 12
+y 10
+end
+arch fstone1b
+x 12
+y 11
+end
+arch fstone1b
+x 12
+y 12
+end
+arch fstone1b
+x 12
+y 13
+end
+arch fstone1b
+x 12
+y 14
+end
+arch fstone1b
+x 12
+y 15
+end
+arch fstone1b
+x 12
+y 16
+end
+arch fstone1b
+x 12
+y 17
+end
+arch fstone1b
+x 12
+y 18
+end
+arch fwall_grit2a
+x 12
+y 18
+end
+arch fstone1b
+x 12
+y 19
+end
+arch fwall_grit2a
+x 12
+y 19
+end
+arch fstone1b
+x 12
+y 20
+end
+arch fwall_grit2a
+x 12
+y 20
+end
+arch fstone1b
+x 13
+y 3
+end
+arch fwall_grit2a
+x 13
+y 3
+end
+arch fstone1b
+x 13
+y 4
+end
+arch fstone1b
+x 13
+y 5
+end
+arch fstone1b
+x 13
+y 6
+end
+arch fstone1b
+x 13
+y 7
+end
+arch fstone1b
+x 13
+y 8
+end
+arch spawn_point
+x 13
+y 8
+arch demon_red
+name mushroom demon
+level 32
+random_move 1
+item_race 10
+item_level 10
+type 83
+end
+end
+arch fstone1b
+x 13
+y 9
+end
+arch fstone1b
+x 13
+y 10
+end
+arch fstone1b
+x 13
+y 11
+end
+arch fstone1b
+x 13
+y 12
+end
+arch fstone1b
+x 13
+y 13
+end
+arch mushroom_giant2
+x 13
+y 13
+end
+arch fstone1b
+x 13
+y 14
+end
+arch fstone1b
+x 13
+y 15
+end
+arch fstone1b
+x 13
+y 16
+end
+arch fwall_grit2a
+x 13
+y 16
+end
+arch fstone1b
+x 13
+y 17
+end
+arch fwall_grit2a
+x 13
+y 17
+end
+arch fstone1b
+x 13
+y 18
+end
+arch fwall_grit2a
+x 13
+y 18
+end
+arch fstone1b
+x 14
+y 3
+end
+arch fwall_grit2a
+x 14
+y 3
+end
+arch fstone1b
+x 14
+y 4
+end
+arch fwall_grit2a
+x 14
+y 4
+end
+arch fstone1b
+x 14
+y 5
+end
+arch fstone1b
+x 14
+y 6
+end
+arch fstone1b
+x 14
+y 7
+end
+arch cave_deco_f1.101
+x 14
+y 7
+end
+arch fstone1b
+x 14
+y 8
+end
+arch fstone1b
+x 14
+y 9
+end
+arch fstone1b
+x 14
+y 10
+end
+arch fstone1b
+x 14
+y 11
+end
+arch cave_deco_f5.101
+x 14
+y 11
+end
+arch fstone1b
+x 14
+y 12
+end
+arch fstone1b
+x 14
+y 13
+end
+arch fstone1b
+x 14
+y 14
+end
+arch fstone1b
+x 14
+y 15
+end
+arch fwall_grit2a
+x 14
+y 15
+end
+arch fstone1b
+x 14
+y 16
+end
+arch fwall_grit2a
+x 14
+y 16
+end
+arch fstone1b
+x 15
+y 4
+end
+arch fwall_grit2a
+x 15
+y 4
+end
+arch fstone1b
+x 15
+y 5
+end
+arch fstone1b
+x 15
+y 6
+end
+arch fstone1b
+x 15
+y 7
+end
+arch fstone1b
+x 15
+y 8
+end
+arch fstone1b
+x 15
+y 9
+end
+arch mushroom_giant10
+x 15
+y 9
+end
+arch fstone1b
+x 15
+y 10
+end
+arch fstone1b
+x 15
+y 11
+end
+arch fstone1b
+x 15
+y 12
+end
+arch fstone1b
+x 15
+y 13
+end
+arch fstone1b
+x 15
+y 14
+end
+arch fstone1b
+x 15
+y 15
+end
+arch fwall_grit2a
+x 15
+y 15
+end
+arch fstone1b
+x 16
+y 4
+end
+arch fwall_grit2a
+x 16
+y 4
+end
+arch fstone1b
+x 16
+y 5
+end
+arch fwall_grit2a
+x 16
+y 5
+end
+arch fstone1b
+x 16
+y 6
+end
+arch fwall_grit2a
+x 16
+y 6
+end
+arch fstone1b
+x 16
+y 7
+end
+arch fstone1b
+x 16
+y 8
+end
+arch fstone1b
+x 16
+y 9
+end
+arch fstone1b
+x 16
+y 10
+end
+arch fstone1b
+x 16
+y 11
+end
+arch fstone1b
+x 16
+y 12
+end
+arch fstone1b
+x 16
+y 13
+end
+arch fstone1b
+x 16
+y 14
+end
+arch fstone1b
+x 16
+y 15
+end
+arch fwall_grit2a
+x 16
+y 15
+end
+arch fstone1b
+x 16
+y 16
+end
+arch fwall_grit2a
+x 16
+y 16
+end
+arch fstone1b
+x 17
+y 6
+end
+arch fwall_grit2a
+x 17
+y 6
+end
+arch fstone1b
+x 17
+y 7
+end
+arch fwall_grit2a
+x 17
+y 7
+end
+arch fstone1b
+x 17
+y 8
+end
+arch fwall_grit2a
+x 17
+y 8
+end
+arch fstone1b
+x 17
+y 9
+end
+arch fwall_grit2a
+x 17
+y 9
+end
+arch fstone1b
+x 17
+y 10
+end
+arch fstone1b
+x 17
+y 11
+end
+arch fstone1b
+x 17
+y 12
+end
+arch fstone1b
+x 17
+y 13
+end
+arch fstone1b
+x 17
+y 14
+end
+arch fstone1b
+x 17
+y 15
+end
+arch fstone1b
+x 17
+y 16
+end
+arch fwall_grit2a
+x 17
+y 16
+end
+arch fstone1b
+x 17
+y 17
+end
+arch fwall_grit2a
+x 17
+y 17
+end
+arch fstone1b
+x 18
+y 6
+end
+arch fwall_grit2a
+x 18
+y 6
+end
+arch fstone1b
+x 18
+y 7
+end
+arch fstone1b
+x 18
+y 8
+end
+arch fstone1b
+x 18
+y 9
+end
+arch fwall_grit2a
+x 18
+y 9
+end
+arch fstone1b
+x 18
+y 10
+end
+arch fwall_grit2a
+x 18
+y 10
+end
+arch fstone1b
+x 18
+y 11
+end
+arch fwall_grit2a
+x 18
+y 11
+end
+arch fstone1b
+x 18
+y 12
+end
+arch fstone1b
+x 18
+y 13
+end
+arch fstone1b
+x 18
+y 14
+end
+arch mushroom_giant13
+x 18
+y 14
+end
+arch fstone1b
+x 18
+y 15
+end
+arch fstone1b
+x 18
+y 16
+end
+arch fstone1b
+x 18
+y 17
+end
+arch fwall_grit2a
+x 18
+y 17
+end
+arch fstone1b
+x 18
+y 18
+end
+arch fwall_grit2a
+x 18
+y 18
+end
+arch fstone1b
+x 19
+y 5
+end
+arch fwall_grit2a
+x 19
+y 5
+end
+arch fstone1b
+x 19
+y 6
+end
+arch fwall_grit2a
+x 19
+y 6
+end
+arch fstone1b
+x 19
+y 7
+end
+arch cave_deco_f6.101
+x 19
+y 7
+end
+arch fstone1b
+x 19
+y 8
+end
+arch fstone1b
+x 19
+y 9
+end
+arch fstone1b
+x 19
+y 10
+end
+arch fstone1b
+x 19
+y 11
+end
+arch fstone1b
+x 19
+y 12
+end
+arch fstone1b
+x 19
+y 13
+end
+arch fstone1b
+x 19
+y 14
+end
+arch fstone1b
+x 19
+y 15
+end
+arch fstone1b
+x 19
+y 16
+end
+arch fstone1b
+x 19
+y 17
+end
+arch fstone1b
+x 19
+y 18
+end
+arch fwall_grit2a
+x 19
+y 18
+end
+arch fstone1b
+x 20
+y 5
+end
+arch fwall_grit2a
+x 20
+y 5
+end
+arch fstone1b
+x 20
+y 6
+end
+arch fstone1b
+x 20
+y 7
+end
+arch fstone1b
+x 20
+y 8
+end
+arch fstone1b
+x 20
+y 9
+end
+arch mushroom_medium
+x 20
+y 9
+end
+arch fstone1b
+x 20
+y 10
+end
+arch fstone1b
+x 20
+y 11
+end
+arch fstone1b
+x 20
+y 12
+end
+arch fstone1b
+x 20
+y 13
+end
+arch fwall_grit2a
+x 20
+y 13
+end
+arch fstone1b
+x 20
+y 14
+end
+arch fstone1b
+x 20
+y 15
+end
+arch fstone1b
+x 20
+y 16
+end
+arch fstone1b
+x 20
+y 17
+end
+arch fwall_grit2a
+x 20
+y 17
+end
+arch fstone1b
+x 20
+y 18
+end
+arch fwall_grit2a
+x 20
+y 18
+end
+arch fstone1b
+x 21
+y 5
+end
+arch fwall_grit2a
+x 21
+y 5
+end
+arch fstone1b
+x 21
+y 6
+end
+arch fwall_grit2a
+x 21
+y 6
+end
+arch fstone1b
+x 21
+y 7
+end
+arch fstone1b
+x 21
+y 8
+end
+arch fstone1b
+x 21
+y 9
+end
+arch fstone1b
+x 21
+y 10
+end
+arch fstone1b
+x 21
+y 11
+end
+arch fstone1b
+x 21
+y 12
+end
+arch fstone1b
+x 21
+y 13
+end
+arch fwall_grit2a
+x 21
+y 13
+end
+arch fstone1b
+x 21
+y 14
+end
+arch fwall_grit2a
+x 21
+y 14
+end
+arch fstone1b
+x 21
+y 15
+end
+arch fstone1b
+x 21
+y 16
+end
+arch fwall_grit2a
+x 21
+y 16
+end
+arch fstone1b
+x 21
+y 17
+end
+arch fwall_grit2a
+x 21
+y 17
+end
+arch fstone1b
+x 22
+y 6
+end
+arch fwall_grit2a
+x 22
+y 6
+end
+arch fstone1b
+x 22
+y 7
+end
+arch fwall_grit2a
+x 22
+y 7
+end
+arch fstone1b
+x 22
+y 8
+end
+arch fwall_grit2a
+x 22
+y 8
+end
+arch fstone1b
+x 22
+y 9
+end
+arch fwall_grit2a
+x 22
+y 9
+end
+arch fstone1b
+x 22
+y 10
+end
+arch fwall_grit2a
+x 22
+y 10
+end
+arch fstone1b
+x 22
+y 11
+end
+arch fwall_grit2a
+x 22
+y 11
+end
+arch fstone1b
+x 22
+y 12
+end
+arch fwall_grit2a
+x 22
+y 12
+end
+arch fstone1b
+x 22
+y 13
+end
+arch fwall_grit2a
+x 22
+y 13
+end
+arch fstone1b
+x 22
+y 14
+end
+arch fwall_grit2a
+x 22
+y 14
+end
+arch fstone1b
+x 22
+y 15
+end
+arch fwall_grit2a
+x 22
+y 15
+end
+arch fstone1b
+x 22
+y 16
+end
+arch fwall_grit2a
+x 22
+y 16
+end

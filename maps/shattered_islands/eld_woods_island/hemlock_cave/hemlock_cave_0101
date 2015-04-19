@@ -2,7 +2,7 @@ arch map
 name Hemlock Cave
 msg
 Created:  2009-11-19 Alex Tokar
-Modified: 2010-08-06 Edwin Miltenburg
+Modified: 2015-04-19 Alex Tokar
 endmsg
 width 24
 height 24
@@ -292,7 +292,7 @@ x 2
 y 22
 end
 arch stairs_stone_up
-slaying ../../world_1509
+slaying ../../world_14_71
 hp 14
 sp 4
 direction 1
@@ -438,7 +438,7 @@ x 3
 y 22
 end
 arch stairs_stone_up
-slaying ../../world_1509
+slaying ../../world_14_71
 hp 15
 sp 4
 direction 1

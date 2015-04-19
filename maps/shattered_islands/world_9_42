@@ -1,0 +1,3541 @@
+arch map
+name Asteria Docks
+msg
+Created:  2009-08-09 Alex Tokar
+Modified: 2011-09-30 Alex Tokar
+endmsg
+width 24
+height 24
+difficulty 1
+outdoor 1
+no_harm 1
+bg_music ocean.ogg
+region asteria
+end
+arch water_lt4
+end
+arch water_lt
+y 1
+end
+arch water_lt3
+y 2
+end
+arch water_lt
+y 3
+end
+arch water_lt2
+y 4
+end
+arch water_lt3
+y 5
+end
+arch water_lt3
+y 6
+end
+arch water_lt4
+y 7
+end
+arch water_lt4
+y 8
+end
+arch water_lt3
+y 9
+end
+arch floor_ruin1
+y 10
+end
+arch water_lt_m
+direction 2
+y 10
+end
+arch floor_ruin1
+z 4
+y 11
+end
+arch floor_ruin1
+z 8
+y 12
+end
+arch grassd_4
+z 14
+y 13
+end
+arch grassd_2
+z 20
+y 14
+end
+arch grassd_6
+z 26
+y 15
+end
+arch plant10
+y 15
+end
+arch grassd_8
+z 32
+y 16
+end
+arch grassd_7
+z 38
+y 17
+end
+arch grassd_6
+z 44
+y 18
+end
+arch grassd_3
+z 50
+y 19
+end
+arch plant13
+y 19
+end
+arch grassd_1
+z 50
+y 20
+end
+arch grassd_8
+z 50
+y 21
+end
+arch map_info
+hp 2
+sp 2
+race Asteria
+slaying chether.mid
+y 21
+end
+arch floor_fs_grey1b
+z 50
+y 22
+end
+arch grassd_m6
+y 22
+end
+arch floor_fs_grey1b
+z 50
+y 23
+end
+arch water_lt2
+x 1
+end
+arch water_lt4
+x 1
+y 1
+end
+arch water_lt3
+x 1
+y 2
+end
+arch water_lt4
+x 1
+y 3
+end
+arch water_lt3
+x 1
+y 4
+end
+arch water_lt3
+x 1
+y 5
+end
+arch water_lt3
+x 1
+y 6
+end
+arch water_lt2
+x 1
+y 7
+end
+arch water_lt
+x 1
+y 8
+end
+arch water_lt3
+x 1
+y 9
+end
+arch water_lt3
+x 1
+y 10
+end
+arch floor_ruin1
+x 1
+y 11
+end
+arch water_lt_m
+direction 2
+x 1
+y 11
+end
+arch floor_ruin1
+z 4
+x 1
+y 12
+end
+arch floor_ruin1
+z 8
+x 1
+y 13
+end
+arch grassd_7
+z 14
+x 1
+y 14
+end
+arch grassd_8
+z 20
+x 1
+y 15
+end
+arch blocked
+x 1
+y 16
+end
+arch wall_cave1.121
+blocksview 0
+z 26
+layer 2
+x 1
+y 16
+end
+arch blocked
+x 1
+y 17
+end
+arch wall_cave1b.161
+blocksview 0
+layer 2
+z 26
+x 1
+y 17
+end
+arch grassd_6
+z 50
+x 1
+y 18
+end
+arch grassd_6
+z 50
+x 1
+y 19
+end
+arch grassd_2
+z 50
+x 1
+y 20
+end
+arch grassd_4
+z 50
+x 1
+y 21
+end
+arch grassd_4
+z 50
+x 1
+y 22
+end
+arch floor_fs_grey1b
+z 50
+x 1
+y 23
+end
+arch grassd_m6
+x 1
+y 23
+end
+arch water_lt2
+x 2
+end
+arch water_lt
+x 2
+y 1
+end
+arch water_lt
+x 2
+y 2
+end
+arch water_lt
+x 2
+y 3
+end
+arch water_lt3
+x 2
+y 4
+end
+arch water_lt3
+x 2
+y 5
+end
+arch water_lt4
+x 2
+y 6
+end
+arch water_lt2
+x 2
+y 7
+end
+arch water_lt2
+x 2
+y 8
+end
+arch water_lt4
+x 2
+y 9
+end
+arch water_lt4
+x 2
+y 10
+end
+arch water_lt3
+x 2
+y 11
+end
+arch floor_ruin1
+x 2
+y 12
+end
+arch water_lt_m
+direction 2
+x 2
+y 12
+end
+arch floor_ruin1
+z 4
+x 2
+y 13
+end
+arch floor_ruin1
+z 8
+x 2
+y 14
+end
+arch grassd_6
+z 14
+x 2
+y 15
+end
+arch blocked
+x 2
+y 16
+end
+arch wall_cave1.101
+blocksview 0
+z 26
+x 2
+y 16
+end
+arch blocked
+x 2
+y 17
+end
+arch wall_cave1.151
+blocksview 0
+layer 2
+z 26
+x 2
+y 17
+end
+arch grassd_6
+z 50
+x 2
+y 18
+end
+arch grassd_6
+z 50
+x 2
+y 19
+end
+arch grassd_6
+z 50
+x 2
+y 20
+end
+arch grassd_2
+z 50
+x 2
+y 21
+end
+arch grassd_4
+z 50
+x 2
+y 22
+end
+arch grassd_3
+z 50
+x 2
+y 23
+end
+arch water_lt2
+x 3
+end
+arch water_lt
+x 3
+y 1
+end
+arch water_lt
+x 3
+y 2
+end
+arch water_lt2
+x 3
+y 3
+end
+arch water_lt4
+x 3
+y 4
+end
+arch water_lt2
+x 3
+y 5
+end
+arch water_lt
+x 3
+y 6
+end
+arch water_lt4
+x 3
+y 7
+end
+arch water_lt3
+x 3
+y 8
+end
+arch water_lt4
+x 3
+y 9
+end
+arch water_lt3
+x 3
+y 10
+end
+arch water_lt
+x 3
+y 11
+end
+arch water_lt3
+x 3
+y 12
+end
+arch floor_ruin1
+x 3
+y 13
+end
+arch water_lt_m
+direction 2
+x 3
+y 13
+end
+arch floor_ruin1
+z 4
+x 3
+y 14
+end
+arch floor_ruin1
+z 8
+x 3
+y 15
+end
+arch blocked
+x 3
+y 16
+end
+arch wall_cave1.101
+blocksview 0
+z 26
+x 3
+y 16
+end
+arch blocked
+x 3
+y 17
+end
+arch wall_cave1.151
+blocksview 0
+layer 2
+z 26
+x 3
+y 17
+end
+arch grassd_2
+z 50
+x 3
+y 18
+end
+arch grassd_4
+z 50
+x 3
+y 19
+end
+arch grassd_1
+z 50
+x 3
+y 20
+end
+arch grassd_4
+z 50
+x 3
+y 21
+end
+arch grassd_8
+z 50
+x 3
+y 22
+end
+arch tree_branch2
+x 3
+y 22
+end
+arch grassd_3
+z 50
+x 3
+y 23
+end
+arch water_lt3
+x 4
+end
+arch water_lt3
+x 4
+y 1
+end
+arch water_lt2
+x 4
+y 2
+end
+arch water_lt2
+x 4
+y 3
+end
+arch water_lt3
+x 4
+y 4
+end
+arch water_lt
+x 4
+y 5
+end
+arch water_lt3
+x 4
+y 6
+end
+arch water_lt2
+x 4
+y 7
+end
+arch water_lt2
+x 4
+y 8
+end
+arch water_lt2
+x 4
+y 9
+end
+arch water_lt2
+x 4
+y 10
+end
+arch water_lt2
+x 4
+y 11
+end
+arch water_lt2
+x 4
+y 12
+end
+arch water_lt2
+x 4
+y 13
+end
+arch floor_ruin1
+x 4
+y 14
+end
+arch water_lt_m
+direction 1
+x 4
+y 14
+end
+arch starfish
+x 4
+y 14
+end
+arch floor_ruin1
+z 4
+x 4
+y 15
+end
+arch blocked
+x 4
+y 16
+end
+arch wall_cave1.141
+blocksview 0
+z 26
+x 4
+y 16
+end
+arch blocked
+x 4
+y 17
+end
+arch wall_cave1.151
+blocksview 0
+layer 2
+z 26
+x 4
+y 17
+end
+arch grassd_2
+z 50
+x 4
+y 18
+end
+arch grassd_5
+z 50
+x 4
+y 19
+end
+arch grassd_2
+z 50
+x 4
+y 20
+end
+arch rock_big8
+x 4
+y 20
+end
+arch grassd_2
+z 50
+x 4
+y 21
+end
+arch grassd_3
+z 50
+x 4
+y 22
+end
+arch grassd_8
+z 50
+x 4
+y 23
+end
+arch water_lt
+x 5
+end
+arch water_lt
+x 5
+y 1
+end
+arch water_lt4
+x 5
+y 2
+end
+arch water_lt
+x 5
+y 3
+end
+arch water_lt4
+x 5
+y 4
+end
+arch water_lt
+x 5
+y 5
+end
+arch water_lt4
+x 5
+y 6
+end
+arch water_lt4
+x 5
+y 7
+end
+arch water_lt2
+x 5
+y 8
+end
+arch water_lt4
+x 5
+y 9
+end
+arch water_lt3
+x 5
+y 10
+end
+arch water_lt
+x 5
+y 11
+end
+arch water_lt2
+x 5
+y 12
+end
+arch water_lt3
+x 5
+y 13
+end
+arch floor_ruin1
+x 5
+y 14
+end
+arch water_lt_m
+direction 2
+x 5
+y 14
+end
+arch floor_ruin1
+x 5
+y 15
+end
+arch blocked
+x 5
+y 16
+end
+arch wall_cave1.101
+blocksview 0
+z 26
+x 5
+y 16
+end
+arch blocked
+x 5
+y 17
+end
+arch wall_cave1.151
+blocksview 0
+layer 2
+z 26
+x 5
+y 17
+end
+arch grassd_4
+z 50
+x 5
+y 18
+end
+arch grassd_2
+z 50
+x 5
+y 19
+end
+arch grassd_5
+z 50
+x 5
+y 20
+end
+arch grassd_5
+z 50
+x 5
+y 21
+end
+arch grassd_6
+z 50
+x 5
+y 22
+end
+arch grassd_2
+z 50
+x 5
+y 23
+end
+arch water_lt
+x 6
+end
+arch water_lt3
+x 6
+y 1
+end
+arch water_lt
+x 6
+y 2
+end
+arch water_lt3
+x 6
+y 3
+end
+arch water_lt3
+x 6
+y 4
+end
+arch water_lt4
+x 6
+y 5
+end
+arch water_lt3
+x 6
+y 6
+end
+arch water_lt2
+x 6
+y 7
+end
+arch water_lt
+x 6
+y 8
+end
+arch water_lt3
+x 6
+y 9
+end
+arch water_lt4
+x 6
+y 10
+end
+arch water_lt
+x 6
+y 11
+end
+arch water_lt4
+x 6
+y 12
+end
+arch water_lt
+x 6
+y 13
+end
+arch water_lt
+x 6
+y 14
+end
+arch floor_ruin1
+x 6
+y 15
+end
+arch water_lt_m
+direction 2
+x 6
+y 15
+end
+arch blocked
+x 6
+y 16
+end
+arch wall_cave1.101
+blocksview 0
+z 26
+x 6
+y 16
+end
+arch blocked
+x 6
+y 17
+end
+arch wall_cave1.151
+blocksview 0
+layer 2
+z 26
+x 6
+y 17
+end
+arch grassd_1
+z 50
+x 6
+y 18
+end
+arch rock_big7
+x 6
+y 18
+end
+arch grassd_4
+z 50
+x 6
+y 19
+end
+arch grassd_6
+z 50
+x 6
+y 20
+end
+arch grassd_7
+z 50
+x 6
+y 21
+end
+arch grassd_5
+z 50
+x 6
+y 22
+end
+arch grassd_6
+z 50
+x 6
+y 23
+end
+arch tree_big4b
+x 6
+y 23
+end
+arch water_lt2
+x 7
+end
+arch water_lt4
+x 7
+y 1
+end
+arch water_lt
+x 7
+y 2
+end
+arch water_lt
+x 7
+y 3
+end
+arch water_lt2
+x 7
+y 4
+end
+arch water_lt
+x 7
+y 5
+end
+arch water_lt2
+x 7
+y 6
+end
+arch water_lt2
+x 7
+y 7
+end
+arch water_lt2
+x 7
+y 8
+end
+arch water_lt3
+x 7
+y 9
+end
+arch water_lt
+x 7
+y 10
+end
+arch water_lt3
+x 7
+y 11
+end
+arch water_lt
+x 7
+y 12
+end
+arch water_lt
+x 7
+y 13
+end
+arch water_lt3
+x 7
+y 14
+end
+arch water_lt4
+x 7
+y 15
+end
+arch water_lt3
+x 7
+y 16
+end
+arch wall_cave1.161
+blocksview 0
+z 26
+x 7
+y 16
+end
+arch blocked
+x 7
+y 17
+end
+arch wall_cave1.151
+blocksview 0
+layer 2
+z 26
+x 7
+y 17
+end
+arch grassd_2
+z 50
+x 7
+y 18
+end
+arch grassd_3
+z 50
+x 7
+y 19
+end
+arch grassd_4
+z 50
+x 7
+y 20
+end
+arch grassd_3
+z 50
+x 7
+y 21
+end
+arch plant12
+x 7
+y 21
+end
+arch grassd_6
+z 50
+x 7
+y 22
+end
+arch grassd_3
+z 50
+x 7
+y 23
+end
+arch water_lt2
+x 8
+end
+arch client_map_info
+msg
+Ship to Lyondale Archipelago.
+endmsg
+name asteria_ship_la
+sub_type 2
+stand_still 1
+x 8
+end
+arch ship_floor_we_1
+x 8
+y 1
+end
+arch ship_rail_nw
+x 8
+y 1
+end
+arch ship_floor_we_2
+x 8
+y 2
+end
+arch ship_rail_w_hole
+x 8
+y 2
+end
+arch spawn_point
+x 8
+y 2
+arch peasant
+msg
+@match ^hello$
+Hello! I can take you to the Wizards' Tower on Lyondale Archipelago, the homeland of Thelras.
+endmsg
+name Ship Captain
+type 83
+direction 3
+end
+end
+arch ship_floor_we_1
+x 8
+y 3
+end
+arch ship_rail_sw
+x 8
+y 3
+end
+arch water_lt3
+x 8
+y 4
+end
+arch ship_hull_s_high_corner_w
+x 8
+y 4
+end
+arch water_lt
+x 8
+y 5
+end
+arch client_map_info
+name asteria_ship_la
+sub_type 2
+x 8
+y 5
+end
+arch water_lt4
+x 8
+y 6
+end
+arch water_lt3
+x 8
+y 7
+end
+arch water_lt2
+x 8
+y 8
+end
+arch water_lt2
+x 8
+y 9
+end
+arch water_lt
+x 8
+y 10
+end
+arch water_lt2
+x 8
+y 11
+end
+arch water_lt2
+x 8
+y 12
+end
+arch water_lt3
+x 8
+y 13
+end
+arch water_lt3
+x 8
+y 14
+end
+arch water_lt4
+x 8
+y 15
+end
+arch blocked
+x 8
+y 16
+end
+arch wall_cave1.101
+blocksview 0
+layer 2
+z 26
+x 8
+y 16
+end
+arch blocked
+x 8
+y 17
+end
+arch wall_cave1b.141
+blocksview 0
+layer 2
+z 26
+x 8
+y 17
+end
+arch grassd_8
+z 50
+x 8
+y 18
+end
+arch fstone1m12
+x 8
+y 18
+end
+arch grassd_4
+z 50
+x 8
+y 19
+end
+arch grassd_3
+z 50
+x 8
+y 20
+end
+arch grassd_2
+z 50
+x 8
+y 21
+end
+arch grassd_8
+z 50
+x 8
+y 22
+end
+arch grassd_6
+z 50
+x 8
+y 23
+end
+arch ship_floor_we_3
+x 9
+end
+arch ship_rail_nw
+x 9
+end
+arch light3
+x 9
+end
+arch ship_floor_we_1
+x 9
+y 1
+end
+arch ship_rail_n
+x 9
+y 1
+end
+arch light4
+x 9
+y 1
+end
+arch ship_floor_we_2
+x 9
+y 2
+end
+arch ship_w_steering_wheel_double
+x 9
+y 2
+end
+arch ship_rail_e_high
+x 9
+y 2
+end
+arch ship_floor_we_1
+x 9
+y 3
+end
+arch ship_rail_s
+x 9
+y 3
+end
+arch light4
+x 9
+y 3
+end
+arch ship_floor_we_1
+x 9
+y 4
+end
+arch ship_rail_sw
+x 9
+y 4
+end
+arch light3
+x 9
+y 4
+end
+arch water_lt2
+x 9
+y 5
+end
+arch ship_hull_s_high_corner_w
+x 9
+y 5
+end
+arch water_lt
+x 9
+y 6
+end
+arch water_lt3
+x 9
+y 7
+end
+arch water_lt
+x 9
+y 8
+end
+arch water_lt
+x 9
+y 9
+end
+arch water_lt3
+x 9
+y 10
+end
+arch water_lt2
+x 9
+y 11
+end
+arch water_lt2
+x 9
+y 12
+end
+arch water_lt4
+x 9
+y 13
+end
+arch water_lt2
+x 9
+y 14
+end
+arch water_lt4
+x 9
+y 15
+end
+arch blocked
+x 9
+y 16
+end
+arch wall_cave1.151
+blocksview 0
+layer 2
+z 26
+x 9
+y 16
+end
+arch grassd_4
+z 50
+x 9
+y 17
+end
+arch fstone1m3
+x 9
+y 17
+end
+arch grassd_6
+z 50
+x 9
+y 18
+end
+arch fstone1m5
+x 9
+y 18
+end
+arch grassd_8
+z 50
+x 9
+y 19
+end
+arch plant13
+x 9
+y 19
+end
+arch grassd_4
+z 50
+x 9
+y 20
+end
+arch grassd_3
+z 50
+x 9
+y 21
+end
+arch plant_flower6
+x 9
+y 21
+end
+arch grassd_4
+z 50
+x 9
+y 22
+end
+arch grassd_4
+z 50
+x 9
+y 23
+end
+arch ship_floor_we_3
+x 10
+end
+arch tackelage_n_low
+x 10
+end
+arch ship_floor_we_1
+x 10
+y 1
+end
+arch ship_rail_n
+x 10
+y 1
+end
+arch tackelage_n_high
+sub_layer 1
+x 10
+y 1
+end
+arch ship_floor_we_2
+x 10
+y 2
+end
+arch mast_e_long
+x 10
+y 2
+end
+arch ship_floor_we_2
+x 10
+y 3
+end
+arch tackelage_s_high
+x 10
+y 3
+end
+arch ship_rail_s
+x 10
+y 3
+end
+arch ship_floor_we_3
+x 10
+y 4
+end
+arch tackelage_s_low
+x 10
+y 4
+end
+arch water_lt2
+x 10
+y 5
+end
+arch ship_hull_s_high
+x 10
+y 5
+end
+arch water_lt3
+x 10
+y 6
+end
+arch water_lt
+x 10
+y 7
+end
+arch water_lt3
+x 10
+y 8
+end
+arch water_lt
+x 10
+y 9
+end
+arch water_lt3
+x 10
+y 10
+end
+arch water_lt
+x 10
+y 11
+end
+arch water_lt3
+x 10
+y 12
+end
+arch water_lt3
+x 10
+y 13
+end
+arch water_lt4
+x 10
+y 14
+end
+arch blocked
+x 10
+y 15
+end
+arch wall_cave1.101
+blocksview 0
+layer 2
+z 26
+x 10
+y 15
+end
+arch blocked
+x 10
+y 16
+end
+arch wall_cave1b.141
+blocksview 0
+layer 2
+z 26
+x 10
+y 16
+end
+arch grassd_1
+z 50
+x 10
+y 17
+end
+arch fstone1m12
+x 10
+y 17
+end
+arch grassd_5
+z 50
+x 10
+y 18
+end
+arch grassd_1
+z 50
+x 10
+y 19
+end
+arch grassd_6
+z 50
+x 10
+y 20
+end
+arch grassd_8
+z 50
+x 10
+y 21
+end
+arch grassd_7
+z 50
+x 10
+y 22
+end
+arch grassd_1
+z 50
+x 10
+y 23
+end
+arch ship_floor_we_2
+x 11
+end
+arch ship_rail_n
+x 11
+end
+arch ship_floor_we_3
+x 11
+y 1
+end
+arch ship_rail_n_hole
+x 11
+y 1
+end
+arch sail_reffed_e
+sub_layer 1
+x 11
+y 1
+end
+arch ship_floor_we_1
+x 11
+y 2
+end
+arch sail_reffed_e
+x 11
+y 2
+end
+arch light7
+x 11
+y 2
+end
+arch ship_floor_we_1
+x 11
+y 3
+end
+arch sail_reffed_e
+x 11
+y 3
+end
+arch ship_rail_s_hole
+x 11
+y 3
+end
+arch ship_floor_we_3
+x 11
+y 4
+end
+arch sail_reffed_e_over_rail
+x 11
+y 4
+end
+arch water_lt4
+x 11
+y 5
+end
+arch ship_hull_s_high
+x 11
+y 5
+end
+arch sail_reffed_e
+x 11
+y 5
+end
+arch water_lt3
+x 11
+y 6
+end
+arch water_lt
+x 11
+y 7
+end
+arch water_lt3
+x 11
+y 8
+end
+arch water_lt
+x 11
+y 9
+end
+arch water_lt2
+x 11
+y 10
+end
+arch water_lt4
+x 11
+y 11
+end
+arch water_lt
+x 11
+y 12
+end
+arch water_lt
+x 11
+y 13
+end
+arch blocked
+x 11
+y 14
+end
+arch wall_cave1.101
+blocksview 0
+layer 2
+z 26
+x 11
+y 14
+end
+arch blocked
+x 11
+y 15
+end
+arch wall_cave1b.141
+blocksview 0
+layer 2
+z 26
+x 11
+y 15
+end
+arch grassd_4
+z 50
+x 11
+y 16
+end
+arch fstone1m3
+x 11
+y 16
+end
+arch grassd_6
+z 50
+x 11
+y 17
+end
+arch fstone1m5
+x 11
+y 17
+end
+arch grassd_1
+z 50
+x 11
+y 18
+end
+arch grassd_4
+z 50
+x 11
+y 19
+end
+arch grassd_8
+z 50
+x 11
+y 20
+end
+arch grassd_6
+z 50
+x 11
+y 21
+end
+arch tree_big3
+x 11
+y 21
+end
+arch grassd_7
+z 50
+x 11
+y 22
+end
+arch grassd_1
+z 50
+x 11
+y 23
+end
+arch plant9
+x 11
+y 23
+end
+arch ship_floor_we_2
+x 12
+end
+arch ship_rail_n
+x 12
+end
+arch ship_floor_we_2
+x 12
+y 1
+end
+arch ship_rail_s_hole
+x 12
+y 1
+end
+arch ship_floor_we_1
+x 12
+y 2
+end
+arch stairs_wood_down
+slaying ships/ship_1
+hp 12
+sp 2
+x 12
+y 2
+end
+arch ship_floor_we_1
+x 12
+y 3
+end
+arch ship_rail_n_hole
+x 12
+y 3
+end
+arch ship_floor_we_1
+x 12
+y 4
+end
+arch ship_rail_s
+x 12
+y 4
+end
+arch water_lt3
+x 12
+y 5
+end
+arch ship_hull_s_high
+x 12
+y 5
+end
+arch water_lt2
+x 12
+y 6
+end
+arch water_lt4
+x 12
+y 7
+end
+arch water_lt4
+x 12
+y 8
+end
+arch water_lt3
+x 12
+y 9
+end
+arch water_lt
+x 12
+y 10
+end
+arch water_lt3
+x 12
+y 11
+end
+arch water_lt4
+x 12
+y 12
+end
+arch blocked
+x 12
+y 13
+end
+arch wall_cave1.101
+blocksview 0
+layer 2
+z 26
+x 12
+y 13
+end
+arch blocked
+x 12
+y 14
+end
+arch wall_cave1b.141
+blocksview 0
+layer 2
+z 26
+x 12
+y 14
+end
+arch grassd_4
+z 50
+x 12
+y 15
+end
+arch fstone1m3
+x 12
+y 15
+end
+arch grassd_6
+z 50
+x 12
+y 16
+end
+arch fstone1m5
+x 12
+y 16
+end
+arch grassd_6
+z 50
+x 12
+y 17
+end
+arch grassd_8
+z 50
+x 12
+y 18
+end
+arch grassd_5
+z 50
+x 12
+y 19
+end
+arch rock_big10
+x 12
+y 19
+end
+arch grassd_7
+z 50
+x 12
+y 20
+end
+arch grassd_1
+z 50
+x 12
+y 21
+end
+arch grassd_6
+z 50
+x 12
+y 22
+end
+arch grassd_8
+z 50
+x 12
+y 23
+end
+arch ship_floor_we_3
+x 13
+end
+arch bridge_wood_NS.151
+x 13
+end
+arch ship_floor_we_2
+x 13
+y 1
+end
+arch ship_rail_s_hole
+x 13
+y 1
+end
+arch blocked
+x 13
+y 2
+end
+arch ship_floor_we_1
+x 13
+y 3
+end
+arch ship_rail_n_hole
+x 13
+y 3
+end
+arch ship_floor_we_1
+x 13
+y 4
+end
+arch ship_rail_s
+x 13
+y 4
+end
+arch water_lt4
+x 13
+y 5
+end
+arch ship_hull_s_high
+x 13
+y 5
+end
+arch water_lt3
+x 13
+y 6
+end
+arch water_lt3
+x 13
+y 7
+end
+arch water_lt4
+x 13
+y 8
+end
+arch water_lt
+x 13
+y 9
+end
+arch water_lt2
+x 13
+y 10
+end
+arch water_lt
+x 13
+y 11
+end
+arch water_lt2
+x 13
+y 12
+end
+arch blocked
+x 13
+y 13
+end
+arch wall_cave1.151
+blocksview 0
+layer 2
+z 26
+x 13
+y 13
+end
+arch grassd_4
+z 50
+x 13
+y 14
+end
+arch fstone1m3
+x 13
+y 14
+end
+arch grassd_6
+z 50
+x 13
+y 15
+end
+arch fstone1m5
+x 13
+y 15
+end
+arch grassd_6
+z 50
+x 13
+y 16
+end
+arch grassd_5
+z 50
+x 13
+y 17
+end
+arch grassd_4
+z 50
+x 13
+y 18
+end
+arch grassd_1
+z 50
+x 13
+y 19
+end
+arch grassd_6
+z 50
+x 13
+y 20
+end
+arch grassd_8
+z 50
+x 13
+y 21
+end
+arch grassd_4
+z 50
+x 13
+y 22
+end
+arch grassd_6
+z 50
+x 13
+y 23
+end
+arch ship_floor_we_2
+x 14
+end
+arch bollard_tied_n_3
+x 14
+end
+arch light3
+x 14
+end
+arch ship_floor_we_2
+x 14
+y 1
+end
+arch barrel_water.101
+x 14
+y 1
+end
+arch ship_floor_we_1
+x 14
+y 2
+end
+arch ship_rail_w_hole
+x 14
+y 2
+end
+arch barrel_water.101
+layer 5
+sub_layer 1
+x 14
+y 2
+end
+arch ship_floor_we_2
+x 14
+y 3
+end
+arch ship_floor_we_1
+x 14
+y 4
+end
+arch ship_rail_s_hole
+x 14
+y 4
+end
+arch light3
+x 14
+y 4
+end
+arch water_lt4
+x 14
+y 5
+end
+arch ship_hull_s_high
+x 14
+y 5
+end
+arch water_lt
+x 14
+y 6
+end
+arch water_lt
+x 14
+y 7
+end
+arch water_lt4
+x 14
+y 8
+end
+arch water_lt4
+x 14
+y 9
+end
+arch water_lt
+x 14
+y 10
+end
+arch water_lt2
+x 14
+y 11
+end
+arch water_lt3
+x 14
+y 12
+end
+arch blocked
+x 14
+y 13
+end
+arch wall_cave1.151
+blocksview 0
+layer 2
+z 26
+x 14
+y 13
+end
+arch grassd_2
+z 50
+x 14
+y 14
+end
+arch fstone1m12
+x 14
+y 14
+end
+arch grassd_7
+z 50
+x 14
+y 15
+end
+arch rock_big7
+x 14
+y 15
+end
+arch grassd_2
+z 50
+x 14
+y 16
+end
+arch grassd_4
+z 50
+x 14
+y 17
+end
+arch plant_mushroom3
+x 14
+y 17
+end
+arch grassd_1
+z 50
+x 14
+y 18
+end
+arch grassd_8
+z 50
+x 14
+y 19
+end
+arch grassd_3
+z 50
+x 14
+y 20
+end
+arch plant16
+x 14
+y 20
+end
+arch grassd_3
+z 50
+x 14
+y 21
+end
+arch grassd_5
+z 50
+x 14
+y 22
+end
+arch tree_big
+x 14
+y 22
+end
+arch grassd_1
+z 50
+x 14
+y 23
+end
+arch ship_floor_we_3
+x 15
+end
+arch tackelage_n_low
+x 15
+end
+arch ship_floor_we_1
+x 15
+y 1
+end
+arch tackelage_n_high
+x 15
+y 1
+end
+arch ship_floor_we_2
+x 15
+y 2
+end
+arch mast_e_long
+x 15
+y 2
+end
+arch light7
+x 15
+y 2
+end
+arch ship_floor_we_2
+x 15
+y 3
+end
+arch tackelage_s_high
+x 15
+y 3
+end
+arch ship_floor_we_3
+x 15
+y 4
+end
+arch tackelage_s_low
+x 15
+y 4
+end
+arch water_lt4
+x 15
+y 5
+end
+arch ship_hull_s_high
+x 15
+y 5
+end
+arch water_lt
+x 15
+y 6
+end
+arch water_lt3
+x 15
+y 7
+end
+arch water_lt
+x 15
+y 8
+end
+arch water_lt3
+x 15
+y 9
+end
+arch water_lt3
+x 15
+y 10
+end
+arch water_lt2
+x 15
+y 11
+end
+arch water_lt4
+x 15
+y 12
+end
+arch blocked
+x 15
+y 13
+end
+arch wall_cave1.151
+blocksview 0
+layer 2
+z 26
+x 15
+y 13
+end
+arch grassd_2
+z 50
+x 15
+y 14
+end
+arch fstone1m12
+x 15
+y 14
+end
+arch grassd_8
+z 50
+x 15
+y 15
+end
+arch plant_mushroom5
+x 15
+y 15
+end
+arch grassd_7
+z 50
+x 15
+y 16
+end
+arch grassd_2
+z 50
+x 15
+y 17
+end
+arch grassd_8
+z 50
+x 15
+y 18
+end
+arch grassd_5
+z 50
+x 15
+y 19
+end
+arch plant_mushroom1
+x 15
+y 19
+end
+arch grassd_6
+z 50
+x 15
+y 20
+end
+arch grassd_6
+z 50
+x 15
+y 21
+end
+arch grassd_5
+z 50
+x 15
+y 22
+end
+arch grassd_6
+z 50
+x 15
+y 23
+end
+arch ship_floor_we_2
+x 16
+end
+arch ship_rail_n
+x 16
+end
+arch ship_floor_we_3
+x 16
+y 1
+end
+arch sail_reffed_e
+x 16
+y 1
+end
+arch barrel_water.101
+x 16
+y 1
+end
+arch ship_floor_we_1
+x 16
+y 2
+end
+arch sail_reffed_e
+x 16
+y 2
+end
+arch barrel.101
+x 16
+y 2
+end
+arch ship_floor_we_1
+x 16
+y 3
+end
+arch sail_reffed_e
+x 16
+y 3
+end
+arch barrel.101
+x 16
+y 3
+end
+arch ship_floor_we_3
+x 16
+y 4
+end
+arch sail_reffed_e_over_rail
+x 16
+y 4
+end
+arch water_lt3
+x 16
+y 5
+end
+arch ship_hull_s_high
+x 16
+y 5
+end
+arch sail_reffed_e
+x 16
+y 5
+end
+arch water_lt
+x 16
+y 6
+end
+arch water_lt4
+x 16
+y 7
+end
+arch water_lt2
+x 16
+y 8
+end
+arch water_lt2
+x 16
+y 9
+end
+arch water_lt
+x 16
+y 10
+end
+arch water_lt
+x 16
+y 11
+end
+arch water_lt
+x 16
+y 12
+end
+arch blocked
+x 16
+y 13
+end
+arch wall_cave1.151
+blocksview 0
+layer 2
+z 26
+x 16
+y 13
+end
+arch grassd_2
+z 50
+x 16
+y 14
+end
+arch fstone1m12
+x 16
+y 14
+end
+arch grassd_2
+z 50
+x 16
+y 15
+end
+arch grassd_4
+z 50
+x 16
+y 16
+end
+arch grassd_8
+z 50
+x 16
+y 17
+end
+arch tree_big4b
+x 16
+y 17
+end
+arch grassd_6
+z 50
+x 16
+y 18
+end
+arch grassd_7
+z 50
+x 16
+y 19
+end
+arch grass_stone3
+z 50
+x 16
+y 20
+end
+arch grass_stone5
+z 50
+x 16
+y 21
+end
+arch grass_stone1
+z 50
+x 16
+y 22
+end
+arch grass_stone3
+z 50
+x 16
+y 23
+end
+arch ship_floor_we_4
+x 17
+end
+arch bollard_tied_n_3
+x 17
+end
+arch ship_floor_we_3
+x 17
+y 1
+end
+arch barrel_water.101
+x 17
+y 1
+end
+arch ship_floor_we_4
+x 17
+y 2
+end
+arch barrel2.101
+x 17
+y 2
+end
+arch ship_floor_we_3
+x 17
+y 3
+end
+arch ship_floor_we_2
+x 17
+y 4
+end
+arch ship_rail_s_hole
+x 17
+y 4
+end
+arch water_lt4
+x 17
+y 5
+end
+arch ship_hull_s_high
+x 17
+y 5
+end
+arch water_lt2
+x 17
+y 6
+end
+arch water_lt
+x 17
+y 7
+end
+arch water_lt3
+x 17
+y 8
+end
+arch water_lt3
+x 17
+y 9
+end
+arch water_lt4
+x 17
+y 10
+end
+arch water_lt
+x 17
+y 11
+end
+arch blocked
+x 17
+y 12
+end
+arch wall_cave1.101
+blocksview 0
+layer 2
+z 26
+x 17
+y 12
+end
+arch blocked
+x 17
+y 13
+end
+arch wall_cave1b.141
+blocksview 0
+layer 2
+z 26
+x 17
+y 13
+end
+arch grassd_4
+z 50
+x 17
+y 14
+end
+arch fstone1m12
+x 17
+y 14
+end
+arch grassd_7
+z 50
+x 17
+y 15
+end
+arch grassd_6
+z 50
+x 17
+y 16
+end
+arch plant_mushroom5
+x 17
+y 16
+end
+arch grassd_2
+z 50
+x 17
+y 17
+end
+arch grassd_4
+z 50
+x 17
+y 18
+end
+arch grassd_4
+z 50
+x 17
+y 19
+end
+arch grass_stone5
+z 50
+x 17
+y 20
+end
+arch grassd_5
+z 50
+x 17
+y 21
+end
+arch grassd_2
+z 50
+x 17
+y 22
+end
+arch grassd_3
+z 50
+x 17
+y 23
+end
+arch water_lt4
+x 18
+end
+arch ship_prow_e_strokeside_a
+x 18
+end
+arch ship_hull_prow_e_front_strokeside_1
+x 18
+end
+arch light3
+x 18
+end
+arch ship_floor_we_1
+x 18
+y 1
+end
+arch ship_floor_we_1
+x 18
+y 2
+end
+arch sail_short_mast_e_3
+x 18
+y 2
+end
+arch ship_floor_we_2
+x 18
+y 3
+end
+arch ship_floor_we_3
+x 18
+y 4
+end
+arch ship_prow_e_starboard_a
+x 18
+y 4
+end
+arch ship_hull_prow_e_rear_2
+x 18
+y 4
+end
+arch light3
+x 18
+y 4
+end
+arch water_lt3
+x 18
+y 5
+end
+arch ship_hull_prow_e_rear_1
+x 18
+y 5
+end
+arch water_lt3
+x 18
+y 6
+end
+arch water_lt3
+x 18
+y 7
+end
+arch water_lt2
+x 18
+y 8
+end
+arch water_lt4
+x 18
+y 9
+end
+arch water_lt4
+x 18
+y 10
+end
+arch blocked
+x 18
+y 11
+end
+arch wall_cave1.101
+blocksview 0
+layer 2
+z 26
+x 18
+y 11
+end
+arch blocked
+x 18
+y 12
+end
+arch wall_cave1b.141
+blocksview 0
+layer 2
+z 26
+x 18
+y 12
+end
+arch grassd_4
+z 50
+x 18
+y 13
+end
+arch fstone1m3
+x 18
+y 13
+end
+arch grassd_6
+z 50
+x 18
+y 14
+end
+arch fstone1m5
+x 18
+y 14
+end
+arch grassd_2
+z 50
+x 18
+y 15
+end
+arch grassd_7
+z 50
+x 18
+y 16
+end
+arch grassd_4
+z 50
+x 18
+y 17
+end
+arch grassd_2
+z 50
+x 18
+y 18
+end
+arch grassd_4
+z 50
+x 18
+y 19
+end
+arch grass_stone3
+z 50
+x 18
+y 20
+end
+arch grassd_4
+z 50
+x 18
+y 21
+end
+arch grassd_6
+z 50
+x 18
+y 22
+end
+arch grassd_2
+z 50
+x 18
+y 23
+end
+arch water_lt
+x 19
+end
+arch ship_prow_e_strokeside_b
+x 19
+end
+arch ship_hull_prow_e_front_strokeside_2
+x 19
+end
+arch ship_floor_we_2
+x 19
+y 1
+end
+arch ship_prow_e_strokeside_c
+x 19
+y 1
+end
+arch ship_floor_we_1
+x 19
+y 2
+end
+arch sail_short_mast_e_2
+x 19
+y 2
+end
+arch light4
+x 19
+y 2
+end
+arch ship_floor_we_2
+x 19
+y 3
+end
+arch ship_prow_e_starboard_c
+x 19
+y 3
+end
+arch ship_floor_we_2
+x 19
+y 4
+end
+arch ship_prow_e_starboard_b
+x 19
+y 4
+end
+arch ship_hull_prow_e_rear_4
+x 19
+y 4
+end
+arch water_lt
+x 19
+y 5
+end
+arch ship_hull_prow_e_rear_3
+x 19
+y 5
+end
+arch water_lt
+x 19
+y 6
+end
+arch water_lt
+x 19
+y 7
+end
+arch water_lt
+x 19
+y 8
+end
+arch water_lt
+x 19
+y 9
+end
+arch water_lt
+x 19
+y 10
+end
+arch blocked
+x 19
+y 11
+end
+arch wall_cave1.151
+blocksview 0
+layer 2
+z 26
+x 19
+y 11
+end
+arch grassd_4
+z 50
+x 19
+y 12
+end
+arch fstone1m3
+x 19
+y 12
+end
+arch grassd_6
+z 50
+x 19
+y 13
+end
+arch fstone1m5
+x 19
+y 13
+end
+arch grassd_5
+z 50
+x 19
+y 14
+end
+arch grassd_1
+z 50
+x 19
+y 15
+end
+arch grassd_2
+z 50
+x 19
+y 16
+end
+arch grassd_2
+z 50
+x 19
+y 17
+end
+arch grassd_2
+z 50
+x 19
+y 18
+end
+arch grassd_4
+z 50
+x 19
+y 19
+end
+arch grass_stone1
+z 50
+x 19
+y 20
+end
+arch grassd_6
+z 50
+x 19
+y 21
+end
+arch grassd_8
+z 50
+x 19
+y 22
+end
+arch grassd_7
+z 50
+x 19
+y 23
+end
+arch tree_branch2
+x 19
+y 23
+end
+arch water_lt
+x 20
+end
+arch water_lt4
+x 20
+y 1
+end
+arch ship_prow_e_strokeside_a
+x 20
+y 1
+end
+arch ship_hull_prow_e_front_strokeside_1
+x 20
+y 1
+end
+arch ship_floor_we_2
+x 20
+y 2
+end
+arch sail_short_mast_e_1
+x 20
+y 2
+end
+arch ship_floor_we_4
+x 20
+y 3
+end
+arch ship_prow_e_starboard_a
+x 20
+y 3
+end
+arch ship_hull_prow_e_rear_2
+x 20
+y 3
+end
+arch water_lt3
+x 20
+y 4
+end
+arch ship_hull_prow_e_rear_6
+x 20
+y 4
+end
+arch water_lt4
+x 20
+y 5
+end
+arch ship_hull_prow_e_rear_5
+x 20
+y 5
+end
+arch water_lt3
+x 20
+y 6
+end
+arch water_lt
+x 20
+y 7
+end
+arch water_lt2
+x 20
+y 8
+end
+arch water_lt4
+x 20
+y 9
+end
+arch water_lt4
+x 20
+y 10
+end
+arch blocked
+x 20
+y 11
+end
+arch wall_cave1.151
+blocksview 0
+layer 2
+z 26
+x 20
+y 11
+end
+arch grassd_5
+z 50
+x 20
+y 12
+end
+arch fstone1m12
+x 20
+y 12
+end
+arch grassd_3
+z 50
+x 20
+y 13
+end
+arch grassd_7
+z 50
+x 20
+y 14
+end
+arch rock_big4
+x 20
+y 14
+end
+arch grassd_6
+z 50
+x 20
+y 15
+end
+arch grassd_5
+z 50
+x 20
+y 16
+end
+arch grassd_2
+z 50
+x 20
+y 17
+end
+arch wall_white2_8
+x 20
+y 17
+end
+arch grassd_8
+z 50
+x 20
+y 18
+end
+arch wall_white2_3
+x 20
+y 18
+end
+arch grassd_2
+z 50
+x 20
+y 19
+end
+arch wall_white2_w.3
+x 20
+y 19
+end
+arch grass_stone3
+z 50
+x 20
+y 20
+end
+arch door1_locked
+direction 3
+x 20
+y 20
+end
+arch grassd_1
+z 50
+x 20
+y 21
+end
+arch wall_white2_w.3
+x 20
+y 21
+end
+arch grassd_2
+z 50
+x 20
+y 22
+end
+arch wall_white2_3
+x 20
+y 22
+end
+arch grassd_5
+z 50
+x 20
+y 23
+end
+arch water_lt
+x 21
+end
+arch water_lt3
+x 21
+y 1
+end
+arch ship_prow_e_strokeside_b
+x 21
+y 1
+end
+arch ship_hull_prow_e_front_strokeside_2
+x 21
+y 1
+end
+arch ship_floor_we_1
+x 21
+y 2
+end
+arch ship_prow_e_midship
+x 21
+y 2
+end
+arch ship_floor_we_2
+x 21
+y 3
+end
+arch ship_prow_e_starboard_b
+x 21
+y 3
+end
+arch ship_hull_prow_e_rear_4
+x 21
+y 3
+end
+arch water_lt
+x 21
+y 4
+end
+arch ship_hull_prow_e_rear_3
+x 21
+y 4
+end
+arch water_lt
+x 21
+y 5
+end
+arch water_lt4
+x 21
+y 6
+end
+arch water_lt2
+x 21
+y 7
+end
+arch water_lt2
+x 21
+y 8
+end
+arch water_lt2
+x 21
+y 9
+end
+arch water_lt3
+x 21
+y 10
+end
+arch blocked
+x 21
+y 11
+end
+arch wall_cave1.151
+blocksview 0
+layer 2
+z 26
+x 21
+y 11
+end
+arch grassd_5
+z 50
+x 21
+y 12
+end
+arch fstone1m12
+x 21
+y 12
+end
+arch grassd_6
+z 50
+x 21
+y 13
+end
+arch grassd_2
+z 50
+x 21
+y 14
+end
+arch grassd_6
+z 50
+x 21
+y 15
+end
+arch grassd_5
+z 50
+x 21
+y 16
+end
+arch wall_white2_8
+x 21
+y 16
+end
+arch grassd_5
+z 50
+x 21
+y 17
+end
+arch wall_white2_4
+x 21
+y 17
+end
+arch floor_wood3g
+z 50
+x 21
+y 18
+end
+arch clock
+direction 7
+x 21
+y 18
+end
+arch floor_wood3h
+z 50
+x 21
+y 19
+end
+arch carpet2.131
+x 21
+y 19
+end
+arch floor_wood3f
+z 50
+x 21
+y 20
+end
+arch carpet2.131
+x 21
+y 20
+end
+arch floor_wood3g
+z 50
+x 21
+y 21
+end
+arch floor_wood3g
+z 50
+x 21
+y 22
+end
+arch wall_white2_1
+x 21
+y 22
+end
+arch grassd_5
+z 50
+x 21
+y 23
+end
+arch wall_white2_3
+x 21
+y 23
+end
+arch water_lt3
+x 22
+end
+arch water_lt
+x 22
+y 1
+end
+arch water_lt
+x 22
+y 2
+end
+arch ship_hull_prow_e_front_3
+x 22
+y 2
+end
+arch ship_prow_e_long
+x 22
+y 2
+end
+arch light3
+x 22
+y 2
+end
+arch water_lt4
+x 22
+y 3
+end
+arch ship_hull_prow_e_rear_6
+x 22
+y 3
+end
+arch water_lt3
+x 22
+y 4
+end
+arch ship_hull_prow_e_rear_5
+x 22
+y 4
+end
+arch water_lt3
+x 22
+y 5
+end
+arch water_lt
+x 22
+y 6
+end
+arch water_lt3
+x 22
+y 7
+end
+arch water_lt
+x 22
+y 8
+end
+arch water_lt
+x 22
+y 9
+end
+arch water_lt
+x 22
+y 10
+end
+arch blocked
+x 22
+y 11
+end
+arch wall_cave1.151
+blocksview 0
+layer 2
+z 26
+x 22
+y 11
+end
+arch grassd_7
+z 50
+x 22
+y 12
+end
+arch fstone1m12
+x 22
+y 12
+end
+arch grassd_5
+z 50
+x 22
+y 13
+end
+arch grassd_1
+z 50
+x 22
+y 14
+end
+arch plant11
+x 22
+y 14
+end
+arch grassd_3
+z 50
+x 22
+y 15
+end
+arch tree_big
+x 22
+y 15
+end
+arch grassd_7
+z 50
+x 22
+y 16
+end
+arch wall_white2_1
+x 22
+y 16
+end
+arch floor_wood3g
+z 50
+x 22
+y 17
+end
+arch broom.111
+direction 3
+x 22
+y 17
+end
+arch floor_wood3h
+z 50
+x 22
+y 18
+end
+arch floor_wood3h
+z 50
+x 22
+y 19
+end
+arch carpet2d
+x 22
+y 19
+end
+arch floor_wood3g
+z 50
+x 22
+y 20
+end
+arch carpet2d
+x 22
+y 20
+end
+arch floor_wood3g
+z 50
+x 22
+y 21
+end
+arch floor_wood3f
+z 50
+x 22
+y 22
+end
+arch light2
+x 22
+y 22
+end
+arch floor_wood3g
+z 50
+x 22
+y 23
+end
+arch wall_white2_1
+x 22
+y 23
+end
+arch water_lt2
+x 23
+end
+arch client_map_info
+name asteria_ship_la
+sub_type 2
+x 23
+end
+arch water_lt3
+x 23
+y 1
+end
+arch water_lt
+x 23
+y 2
+end
+arch ship_hull_prow_e_front_2
+x 23
+y 2
+end
+arch water_lt3
+x 23
+y 3
+end
+arch ship_hull_prow_e_front_1
+x 23
+y 3
+end
+arch water_lt4
+x 23
+y 4
+end
+arch water_lt2
+x 23
+y 5
+end
+arch water_lt4
+x 23
+y 6
+end
+arch water_lt4
+x 23
+y 7
+end
+arch water_lt3
+x 23
+y 8
+end
+arch water_lt4
+x 23
+y 9
+end
+arch water_lt2
+x 23
+y 10
+end
+arch blocked
+x 23
+y 11
+end
+arch wall_cave1.151
+blocksview 0
+layer 2
+z 26
+x 23
+y 11
+end
+arch grassd_8
+z 50
+x 23
+y 12
+end
+arch fstone1m12
+x 23
+y 12
+end
+arch grassd_3
+z 50
+x 23
+y 13
+end
+arch grassd_4
+z 50
+x 23
+y 14
+end
+arch grassd_1
+z 50
+x 23
+y 15
+end
+arch grassd_6
+z 50
+x 23
+y 16
+end
+arch wall_white2_1
+x 23
+y 16
+end
+arch floor_wood3h
+z 50
+x 23
+y 17
+end
+arch torch_wall_1
+direction 3
+x 23
+y 17
+end
+arch floor_wood3g
+z 50
+x 23
+y 18
+end
+arch floor_wood3g
+z 50
+x 23
+y 19
+end
+arch carpet2d
+x 23
+y 19
+end
+arch floor_wood3g
+z 50
+x 23
+y 20
+end
+arch carpet2d
+x 23
+y 20
+end
+arch floor_wood3f
+z 50
+x 23
+y 21
+end
+arch floor_wood3f
+z 50
+x 23
+y 22
+end
+arch floor_wood3g
+z 50
+x 23
+y 23
+end
+arch wall_white2_1
+x 23
+y 23
+end

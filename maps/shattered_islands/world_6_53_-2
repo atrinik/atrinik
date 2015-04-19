@@ -1,0 +1,12 @@
+arch map
+name Caverns
+msg
+Created:  2011-05-12 Alex Tokar
+endmsg
+width 24
+height 24
+difficulty 3
+region strakewood_island_underground
+darkness 2
+bg_music eranasp.mod
+end

@@ -2,7 +2,7 @@ arch map
 name Rockforge: Palace
 msg
 Created:  2011-06-02 Alex Tokar
-Modified: 2011-09-29 Alex Tokar
+Modified: 2015-04-19 Alex Tokar
 endmsg
 width 24
 height 24
@@ -952,7 +952,7 @@ y 21
 end
 arch stairs_stone_up
 direction 1
-slaying ../../world_aa23
+slaying ../../world_-1_57
 hp 22
 sp 2
 x 11
@@ -969,7 +969,7 @@ x 11
 y 22
 end
 arch invis_exit
-slaying ../../world_aa23
+slaying ../../world_-1_57
 hp 22
 sp 2
 x 11
@@ -1159,7 +1159,7 @@ y 21
 end
 arch stairs_stone_up
 direction 1
-slaying ../../world_aa23
+slaying ../../world_-1_57
 hp 23
 sp 2
 x 12
@@ -1176,7 +1176,7 @@ x 12
 y 22
 end
 arch invis_exit
-slaying ../../world_aa23
+slaying ../../world_-1_57
 hp 23
 sp 2
 x 12

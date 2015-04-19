@@ -1,0 +1,2379 @@
+arch map
+name Asteria Auction House
+msg
+Created:  2011-01-09 Alex Tokar
+Modified: 2015-04-19 Alex Tokar
+endmsg
+width 24
+height 24
+difficulty 1
+darkness 6
+no_harm 1
+bg_music fuego.ogg
+region asteria
+end
+arch map_event_obj
+sub_type 13
+race /python/auction/mevent.py
+end
+arch map_event_obj
+sub_type 12
+race /python/auction/mevent.py
+y 1
+end
+arch map_event_obj
+sub_type 11
+race /python/auction/mevent.py
+y 2
+end
+arch map_event_obj
+sub_type 6
+race /python/auction/mevent.py
+y 3
+end
+arch map_event_obj
+sub_type 7
+race /python/auction/mevent.py
+y 4
+end
+arch map_event_obj
+sub_type 9
+race /python/auction/mevent.py
+y 5
+end
+arch trans
+x 5
+end
+arch wall_stone_8
+x 5
+end
+arch map_info
+name asteria_auction_house
+hp 14
+sp 21
+cursed 1
+x 5
+end
+arch trans
+x 5
+y 1
+end
+arch wall_stone_3
+x 5
+y 1
+end
+arch trans
+x 5
+y 2
+end
+arch wall_stone_3
+x 5
+y 2
+end
+arch trans
+x 5
+y 3
+end
+arch wall_stone_3
+x 5
+y 3
+end
+arch trans
+x 5
+y 4
+end
+arch wall_stone_3
+x 5
+y 4
+end
+arch picture11
+direction 7
+x 5
+y 4
+end
+arch trans
+x 5
+y 5
+end
+arch wall_stone_3
+x 5
+y 5
+end
+arch trans
+x 5
+y 6
+end
+arch wall_stone_3
+x 5
+y 6
+end
+arch trans
+x 5
+y 7
+end
+arch wall_stone_3
+x 5
+y 7
+end
+arch trans
+x 5
+y 8
+end
+arch wall_stone_3
+x 5
+y 8
+end
+arch trans
+x 5
+y 9
+end
+arch wall_stone_3
+x 5
+y 9
+end
+arch trans
+x 5
+y 10
+end
+arch wall_stone_3
+x 5
+y 10
+end
+arch trans
+x 5
+y 11
+end
+arch wall_stone_3
+x 5
+y 11
+end
+arch trans
+x 5
+y 12
+end
+arch wall_stone_3
+x 5
+y 12
+end
+arch picture5.151
+direction 7
+x 5
+y 12
+end
+arch trans
+x 5
+y 13
+end
+arch wall_stone_3
+x 5
+y 13
+end
+arch trans
+x 5
+y 14
+end
+arch wall_stone_3
+x 5
+y 14
+end
+arch trans
+x 5
+y 15
+end
+arch wall_stone_3
+x 5
+y 15
+end
+arch trans
+x 5
+y 16
+end
+arch wall_stone_3
+x 5
+y 16
+end
+arch trans
+x 5
+y 17
+end
+arch wall_stone_3
+x 5
+y 17
+end
+arch trans
+x 5
+y 18
+end
+arch wall_stone_3
+x 5
+y 18
+end
+arch picture6.151
+direction 7
+x 5
+y 18
+end
+arch trans
+x 5
+y 19
+end
+arch wall_stone_3
+x 5
+y 19
+end
+arch trans
+x 5
+y 20
+end
+arch wall_stone_3
+x 5
+y 20
+end
+arch trans
+x 5
+y 21
+end
+arch wall_stone_3
+x 5
+y 21
+end
+arch trans
+x 6
+end
+arch wall_stone_1
+x 6
+end
+arch floor_ostone4
+x 6
+y 1
+end
+arch bed_1a.111
+x 6
+y 1
+end
+arch floor_ostone4
+x 6
+y 2
+end
+arch locker2.111
+direction 7
+x 6
+y 2
+end
+arch floor_ostone4
+x 6
+y 3
+end
+arch locker1.111
+direction 7
+x 6
+y 3
+end
+arch floor_ostone4
+x 6
+y 4
+end
+arch bed_1a.111
+x 6
+y 4
+end
+arch floor_ostone4
+x 6
+y 5
+end
+arch wall_stone_1
+x 6
+y 5
+end
+arch floor_ostone4
+x 6
+y 6
+end
+arch fwall_flagstone1a
+x 6
+y 6
+end
+arch floor_ostone4
+x 6
+y 7
+end
+arch fwall_flagstone1a
+x 6
+y 7
+end
+arch floor_ostone4
+unique 1
+x 6
+y 8
+end
+arch floor_ostone4
+unique 1
+x 6
+y 9
+end
+arch floor_ostone4
+unique 1
+x 6
+y 10
+end
+arch floor_ostone4
+unique 1
+x 6
+y 11
+end
+arch floor_ostone4
+unique 1
+x 6
+y 12
+end
+arch floor_ostone4
+unique 1
+x 6
+y 13
+end
+arch floor_ostone4
+unique 1
+x 6
+y 14
+end
+arch floor_ostone4
+unique 1
+x 6
+y 15
+end
+arch floor_ostone4
+unique 1
+x 6
+y 16
+end
+arch floor_ostone4
+unique 1
+x 6
+y 17
+end
+arch floor_ostone4
+unique 1
+x 6
+y 18
+end
+arch floor_ostone4
+unique 1
+x 6
+y 19
+end
+arch floor_ostone4
+unique 1
+x 6
+y 20
+end
+arch floor_ostone4
+x 6
+y 21
+end
+arch wall_stone_1
+x 6
+y 21
+end
+arch trans
+x 7
+end
+arch wall_stone_1
+x 7
+end
+arch picture4.151
+x 7
+end
+arch floor_ostone4
+x 7
+y 1
+end
+arch bed_1b.111
+x 7
+y 1
+end
+arch floor_ostone4
+x 7
+y 2
+end
+arch floor_ostone4
+x 7
+y 3
+end
+arch floor_ostone4
+x 7
+y 4
+end
+arch bed_1b.111
+x 7
+y 4
+end
+arch floor_ostone4
+x 7
+y 5
+end
+arch wall_stone_1
+x 7
+y 5
+end
+arch floor_ostone4
+x 7
+y 6
+end
+arch fwall_flagstone1a
+x 7
+y 6
+end
+arch floor_ostone4
+x 7
+y 7
+end
+arch fwall_flagstone1a
+x 7
+y 7
+end
+arch picture2.151
+x 7
+y 7
+end
+arch floor_ostone4
+unique 1
+x 7
+y 8
+end
+arch floor_ostone4
+unique 1
+x 7
+y 9
+end
+arch floor_ostone4
+unique 1
+x 7
+y 10
+end
+arch floor_ostone4
+unique 1
+x 7
+y 11
+end
+arch floor_ostone4
+unique 1
+x 7
+y 12
+end
+arch floor_ostone4
+unique 1
+x 7
+y 13
+end
+arch floor_ostone4
+unique 1
+x 7
+y 14
+end
+arch floor_ostone4
+unique 1
+x 7
+y 15
+end
+arch floor_ostone4
+unique 1
+x 7
+y 16
+end
+arch floor_ostone4
+unique 1
+x 7
+y 17
+end
+arch floor_ostone4
+unique 1
+x 7
+y 18
+end
+arch floor_ostone4
+unique 1
+x 7
+y 19
+end
+arch floor_ostone4
+unique 1
+x 7
+y 20
+end
+arch floor_ostone4
+x 7
+y 21
+end
+arch wall_stone_1
+x 7
+y 21
+end
+arch trans
+x 8
+end
+arch wall_stone_1
+x 8
+end
+arch floor_ostone4
+x 8
+y 1
+end
+arch chest_w1
+x 8
+y 1
+end
+arch floor_ostone4
+x 8
+y 2
+end
+arch floor_ostone4
+x 8
+y 3
+end
+arch floor_ostone4
+x 8
+y 4
+end
+arch floor_ostone4
+x 8
+y 5
+end
+arch wall_stone_1
+x 8
+y 5
+end
+arch floor_ostone4
+x 8
+y 6
+end
+arch fwall_flagstone1a
+x 8
+y 6
+end
+arch floor_ostone4
+x 8
+y 7
+end
+arch fwall_flagstone1a
+x 8
+y 7
+end
+arch floor_ostone4
+unique 1
+x 8
+y 8
+end
+arch floor_ostone4
+unique 1
+x 8
+y 9
+end
+arch floor_ostone4
+unique 1
+x 8
+y 10
+end
+arch floor_ostone4
+unique 1
+x 8
+y 11
+end
+arch floor_ostone4
+unique 1
+x 8
+y 12
+end
+arch floor_ostone4
+unique 1
+x 8
+y 13
+end
+arch floor_ostone4
+unique 1
+x 8
+y 14
+end
+arch floor_ostone4
+unique 1
+x 8
+y 15
+end
+arch floor_ostone4
+unique 1
+x 8
+y 16
+end
+arch floor_ostone4
+unique 1
+x 8
+y 17
+end
+arch floor_ostone4
+unique 1
+x 8
+y 18
+end
+arch floor_ostone4
+unique 1
+x 8
+y 19
+end
+arch floor_ostone4
+unique 1
+x 8
+y 20
+end
+arch floor_ostone4
+x 8
+y 21
+end
+arch wall_stone_1
+x 8
+y 21
+end
+arch trans
+x 9
+end
+arch wall_stone_1
+x 9
+end
+arch floor_ostone4
+x 9
+y 1
+end
+arch wall_stone_3
+x 9
+y 1
+end
+arch floor_ostone4
+x 9
+y 2
+end
+arch wall_stone_3
+x 9
+y 2
+end
+arch floor_ostone4
+x 9
+y 3
+end
+arch door1_locked
+direction 3
+x 9
+y 3
+end
+arch floor_ostone4
+x 9
+y 4
+end
+arch wall_stone_3
+x 9
+y 4
+end
+arch floor_ostone4
+x 9
+y 5
+end
+arch wall_stone_4
+x 9
+y 5
+end
+arch floor_ostone4
+x 9
+y 6
+end
+arch fwall_flagstone1a
+x 9
+y 6
+end
+arch floor_ostone4
+x 9
+y 7
+end
+arch fwall_flagstone1a
+x 9
+y 7
+end
+arch floor_ostone4
+unique 1
+x 9
+y 8
+end
+arch floor_ostone4
+unique 1
+x 9
+y 9
+end
+arch floor_ostone4
+unique 1
+x 9
+y 10
+end
+arch floor_ostone4
+unique 1
+x 9
+y 11
+end
+arch floor_ostone4
+unique 1
+x 9
+y 12
+end
+arch floor_ostone4
+unique 1
+x 9
+y 13
+end
+arch floor_ostone4
+unique 1
+x 9
+y 14
+end
+arch floor_ostone4
+unique 1
+x 9
+y 15
+end
+arch floor_ostone4
+unique 1
+x 9
+y 16
+end
+arch floor_ostone4
+unique 1
+x 9
+y 17
+end
+arch floor_ostone4
+unique 1
+x 9
+y 18
+end
+arch floor_ostone4
+unique 1
+x 9
+y 19
+end
+arch floor_ostone4
+unique 1
+x 9
+y 20
+end
+arch floor_ostone4
+x 9
+y 21
+end
+arch wall_stone_1
+x 9
+y 21
+end
+arch trans
+x 10
+end
+arch wall_stone_1
+x 10
+end
+arch floor_ostone4
+x 10
+y 1
+end
+arch floor_ostone4
+x 10
+y 2
+end
+arch carpet1.131
+x 10
+y 2
+end
+arch rack.111
+direction 7
+x 10
+y 2
+end
+arch floor_ostone4
+x 10
+y 3
+end
+arch carpet1.131
+x 10
+y 3
+end
+arch floor_ostone4
+x 10
+y 4
+end
+arch carpet1.131
+x 10
+y 4
+end
+arch rack.111
+direction 7
+x 10
+y 4
+end
+arch floor_ostone4
+x 10
+y 5
+end
+arch carpet1.131
+x 10
+y 5
+end
+arch fireplace_left_off
+x 10
+y 5
+end
+arch floor_ostone4
+x 10
+y 6
+end
+arch floor_ostone4
+x 10
+y 7
+end
+arch grate1_1
+x 10
+y 7
+end
+arch floor_ostone4
+unique 1
+x 10
+y 8
+end
+arch floor_ostone4
+unique 1
+x 10
+y 9
+end
+arch floor_ostone4
+unique 1
+x 10
+y 10
+end
+arch floor_ostone4
+unique 1
+x 10
+y 11
+end
+arch floor_ostone4
+unique 1
+x 10
+y 12
+end
+arch floor_ostone4
+unique 1
+x 10
+y 13
+end
+arch floor_ostone4
+unique 1
+x 10
+y 14
+end
+arch floor_ostone4
+unique 1
+x 10
+y 15
+end
+arch floor_ostone4
+unique 1
+x 10
+y 16
+end
+arch floor_ostone4
+unique 1
+x 10
+y 17
+end
+arch floor_ostone4
+unique 1
+x 10
+y 18
+end
+arch floor_ostone4
+unique 1
+x 10
+y 19
+end
+arch floor_ostone4
+unique 1
+x 10
+y 20
+end
+arch floor_ostone4
+x 10
+y 21
+end
+arch wall_stone_1
+x 10
+y 21
+end
+arch trans
+x 11
+end
+arch wall_stone_1
+x 11
+end
+arch flag_04
+x 11
+end
+arch floor_ostone4
+x 11
+y 1
+end
+arch carpet1.151
+x 11
+y 1
+end
+arch floor_ostone4
+x 11
+y 2
+end
+arch carpet1
+x 11
+y 2
+end
+arch floor_ostone4
+x 11
+y 3
+end
+arch carpet1
+x 11
+y 3
+end
+arch floor_ostone4
+x 11
+y 4
+end
+arch carpet1
+x 11
+y 4
+end
+arch floor_ostone4
+x 11
+y 5
+end
+arch carpet1
+x 11
+y 5
+end
+arch floor_ostone4
+x 11
+y 6
+end
+arch carpet1.111
+x 11
+y 6
+end
+arch floor_ostone4
+x 11
+y 7
+end
+arch grate1_1
+x 11
+y 7
+end
+arch floor_ostone4
+x 11
+y 8
+end
+arch grate1_3
+x 11
+y 8
+end
+arch floor_ostone4
+x 11
+y 9
+end
+arch grate1_3
+x 11
+y 9
+end
+arch floor_ostone4
+x 11
+y 10
+end
+arch grate1_3
+x 11
+y 10
+end
+arch floor_ostone4
+x 11
+y 11
+end
+arch gate1_locked
+direction 3
+x 11
+y 11
+end
+arch floor_ostone4
+x 11
+y 12
+end
+arch grate1_3
+x 11
+y 12
+end
+arch floor_ostone4
+x 11
+y 13
+end
+arch grate1_3
+x 11
+y 13
+end
+arch floor_ostone4
+x 11
+y 14
+end
+arch grate1_3
+x 11
+y 14
+end
+arch floor_ostone4
+x 11
+y 15
+end
+arch grate1_3
+x 11
+y 15
+end
+arch floor_ostone4
+x 11
+y 16
+end
+arch grate1_3
+x 11
+y 16
+end
+arch floor_ostone4
+x 11
+y 17
+end
+arch grate1_3
+x 11
+y 17
+end
+arch floor_ostone4
+x 11
+y 18
+end
+arch gate1_locked
+direction 3
+x 11
+y 18
+end
+arch floor_ostone4
+x 11
+y 19
+end
+arch grate1_3
+x 11
+y 19
+end
+arch floor_ostone4
+x 11
+y 20
+end
+arch grate1_3
+x 11
+y 20
+end
+arch floor_ostone4
+x 11
+y 21
+end
+arch wall_stone_4
+x 11
+y 21
+end
+arch trans
+x 12
+end
+arch wall_stone_1
+x 12
+end
+arch floor_ostone4
+x 12
+y 1
+end
+arch carpet1.151
+x 12
+y 1
+end
+arch cardinal_giant_b
+x 12
+y 1
+end
+arch floor_ostone4
+x 12
+y 2
+end
+arch carpet1
+x 12
+y 2
+end
+arch floor_ostone4
+x 12
+y 3
+end
+arch carpet1
+x 12
+y 3
+end
+arch floor_ostone4
+x 12
+y 4
+end
+arch carpet1
+x 12
+y 4
+end
+arch floor_ostone4
+x 12
+y 5
+end
+arch carpet1
+x 12
+y 5
+end
+arch floor_ostone4
+x 12
+y 6
+end
+arch carpet1.111
+x 12
+y 6
+end
+arch floor_ostone4
+x 12
+y 7
+end
+arch carpet2.151
+x 12
+y 7
+end
+arch gate1_locked
+x 12
+y 7
+end
+arch floor_ostone4
+x 12
+y 8
+end
+arch carpet2b
+x 12
+y 8
+end
+arch floor_ostone4
+x 12
+y 9
+end
+arch carpet2b
+x 12
+y 9
+end
+arch floor_ostone4
+x 12
+y 10
+end
+arch carpet2b
+x 12
+y 10
+end
+arch floor_ostone4
+x 12
+y 11
+end
+arch carpet2b
+x 12
+y 11
+end
+arch floor_ostone4
+x 12
+y 12
+end
+arch carpet2b
+x 12
+y 12
+end
+arch floor_ostone4
+x 12
+y 13
+end
+arch carpet2b
+x 12
+y 13
+end
+arch floor_ostone4
+x 12
+y 14
+end
+arch carpet2b
+x 12
+y 14
+end
+arch floor_ostone4
+x 12
+y 15
+end
+arch carpet2b
+x 12
+y 15
+end
+arch floor_ostone4
+x 12
+y 16
+end
+arch carpet2b
+x 12
+y 16
+end
+arch floor_ostone4
+x 12
+y 17
+end
+arch carpet2b
+x 12
+y 17
+end
+arch floor_ostone4
+x 12
+y 18
+end
+arch carpet2b
+x 12
+y 18
+end
+arch floor_ostone4
+x 12
+y 19
+end
+arch carpet2b
+x 12
+y 19
+end
+arch floor_ostone4
+x 12
+y 20
+end
+arch carpet2.111
+x 12
+y 20
+end
+arch spawn_point
+x 12
+y 20
+arch knight1
+level 80
+type 83
+direction 3
+end
+end
+arch floor_ostone4
+x 12
+y 21
+end
+arch wall_stone_1
+x 12
+y 21
+end
+arch trans
+x 13
+end
+arch wall_stone_1
+x 13
+end
+arch floor_ostone4
+x 13
+y 1
+end
+arch carpet1.151
+x 13
+y 1
+end
+arch spawn_point
+x 13
+y 1
+arch knight1
+level 80
+type 83
+end
+end
+arch floor_ostone4
+x 13
+y 2
+end
+arch carpet1
+x 13
+y 2
+end
+arch floor_ostone4
+x 13
+y 3
+end
+arch carpet1
+x 13
+y 3
+end
+arch floor_ostone4
+x 13
+y 4
+end
+arch carpet1
+x 13
+y 4
+end
+arch floor_ostone4
+x 13
+y 5
+end
+arch carpet1
+x 13
+y 5
+end
+arch floor_ostone4
+x 13
+y 6
+end
+arch carpet1.111
+x 13
+y 6
+end
+arch floor_ostone4
+x 13
+y 7
+end
+arch grate1_1
+x 13
+y 7
+end
+arch floor_ostone4
+x 13
+y 8
+end
+arch grate1_3
+x 13
+y 8
+end
+arch floor_ostone4
+x 13
+y 9
+end
+arch grate1_3
+x 13
+y 9
+end
+arch floor_ostone4
+x 13
+y 10
+end
+arch grate1_3
+x 13
+y 10
+end
+arch floor_ostone4
+x 13
+y 11
+end
+arch gate1_locked
+direction 3
+x 13
+y 11
+end
+arch floor_ostone4
+x 13
+y 12
+end
+arch grate1_3
+x 13
+y 12
+end
+arch floor_ostone4
+x 13
+y 13
+end
+arch grate1_3
+x 13
+y 13
+end
+arch floor_ostone4
+x 13
+y 14
+end
+arch grate1_3
+x 13
+y 14
+end
+arch floor_ostone4
+x 13
+y 15
+end
+arch grate1_3
+x 13
+y 15
+end
+arch floor_ostone4
+x 13
+y 16
+end
+arch grate1_3
+x 13
+y 16
+end
+arch floor_ostone4
+x 13
+y 17
+end
+arch grate1_3
+x 13
+y 17
+end
+arch floor_ostone4
+x 13
+y 18
+end
+arch gate1_locked
+direction 3
+x 13
+y 18
+end
+arch floor_ostone4
+x 13
+y 19
+end
+arch grate1_3
+x 13
+y 19
+end
+arch floor_ostone4
+x 13
+y 20
+end
+arch grate1_3
+x 13
+y 20
+end
+arch floor_ostone4
+x 13
+y 21
+end
+arch wall_stone_4
+x 13
+y 21
+end
+arch trans
+x 14
+end
+arch wall_stone_1
+x 14
+end
+arch floor_ostone4
+x 14
+y 1
+end
+arch carpet1.151
+x 14
+y 1
+end
+arch cardinal_giant_b
+x 14
+y 1
+end
+arch floor_ostone4
+x 14
+y 2
+end
+arch carpet1
+x 14
+y 2
+end
+arch floor_ostone4
+x 14
+y 3
+end
+arch carpet1
+x 14
+y 3
+end
+arch floor_ostone4
+x 14
+y 4
+end
+arch carpet1
+x 14
+y 4
+end
+arch floor_ostone4
+x 14
+y 5
+end
+arch carpet1
+x 14
+y 5
+end
+arch floor_ostone4
+x 14
+y 6
+end
+arch carpet1.111
+x 14
+y 6
+end
+arch floor_ostone4
+x 14
+y 7
+end
+arch grate1_1
+x 14
+y 7
+end
+arch floor_ostone4
+unique 1
+x 14
+y 8
+end
+arch floor_ostone4
+unique 1
+x 14
+y 9
+end
+arch floor_ostone4
+unique 1
+x 14
+y 10
+end
+arch floor_ostone4
+unique 1
+x 14
+y 11
+end
+arch floor_ostone4
+unique 1
+x 14
+y 12
+end
+arch floor_ostone4
+unique 1
+x 14
+y 13
+end
+arch floor_ostone4
+unique 1
+x 14
+y 14
+end
+arch floor_ostone4
+unique 1
+x 14
+y 15
+end
+arch floor_ostone4
+unique 1
+x 14
+y 16
+end
+arch floor_ostone4
+unique 1
+x 14
+y 17
+end
+arch floor_ostone4
+unique 1
+x 14
+y 18
+end
+arch floor_ostone4
+unique 1
+x 14
+y 19
+end
+arch floor_ostone4
+unique 1
+x 14
+y 20
+end
+arch floor_ostone4
+x 14
+y 21
+end
+arch wall_stone_1
+x 14
+y 21
+end
+arch trans
+x 15
+end
+arch wall_stone_1
+x 15
+end
+arch flag_04
+x 15
+end
+arch floor_ostone4
+x 15
+y 1
+end
+arch carpet1.151
+x 15
+y 1
+end
+arch floor_ostone4
+x 15
+y 2
+end
+arch carpet1
+x 15
+y 2
+end
+arch floor_ostone4
+x 15
+y 3
+end
+arch carpet1
+x 15
+y 3
+end
+arch floor_ostone4
+x 15
+y 4
+end
+arch carpet1.181
+x 15
+y 4
+end
+arch sign
+msg
+Floor #4: Miscellaneous Items.
+endmsg
+x 15
+y 4
+end
+arch floor_ostone4
+x 15
+y 5
+end
+arch carpet1.171
+x 15
+y 5
+end
+arch wall_stone_8
+x 15
+y 5
+end
+arch floor_ostone4
+x 15
+y 6
+end
+arch wall_stone_3
+x 15
+y 6
+end
+arch floor_ostone4
+x 15
+y 7
+end
+arch wall_stone_4
+x 15
+y 7
+end
+arch floor_ostone4
+unique 1
+x 15
+y 8
+end
+arch floor_ostone4
+unique 1
+x 15
+y 9
+end
+arch floor_ostone4
+unique 1
+x 15
+y 10
+end
+arch floor_ostone4
+unique 1
+x 15
+y 11
+end
+arch floor_ostone4
+unique 1
+x 15
+y 12
+end
+arch floor_ostone4
+unique 1
+x 15
+y 13
+end
+arch floor_ostone4
+unique 1
+x 15
+y 14
+end
+arch floor_ostone4
+unique 1
+x 15
+y 15
+end
+arch floor_ostone4
+unique 1
+x 15
+y 16
+end
+arch floor_ostone4
+unique 1
+x 15
+y 17
+end
+arch floor_ostone4
+unique 1
+x 15
+y 18
+end
+arch floor_ostone4
+unique 1
+x 15
+y 19
+end
+arch floor_ostone4
+unique 1
+x 15
+y 20
+end
+arch floor_ostone4
+x 15
+y 21
+end
+arch wall_stone_1
+x 15
+y 21
+end
+arch trans
+x 16
+end
+arch wall_stone_1
+x 16
+end
+arch floor_ostone4
+x 16
+y 1
+end
+arch carpet1.151
+x 16
+y 1
+end
+arch box_big.101
+x 16
+y 1
+end
+arch floor_ostone4
+x 16
+y 2
+end
+arch carpet1
+x 16
+y 2
+end
+arch floor_ostone4
+x 16
+y 3
+end
+arch carpet1
+x 16
+y 3
+end
+arch floor_ostone4
+x 16
+y 4
+end
+arch stairs_stone_down
+direction 5
+x 16
+y 4
+end
+arch floor_ostone4
+x 16
+y 5
+end
+arch stairs_down
+x 16
+y 5
+end
+arch wall_stone_1w
+z 5
+no_pass 0
+layer 7
+x 16
+y 5
+end
+arch floor_ostone4
+x 16
+y 6
+end
+arch fwall_flagstone1a
+x 16
+y 6
+end
+arch floor_ostone4
+x 16
+y 7
+end
+arch fwall_flagstone1a
+x 16
+y 7
+end
+arch floor_ostone4
+unique 1
+x 16
+y 8
+end
+arch floor_ostone4
+unique 1
+x 16
+y 9
+end
+arch floor_ostone4
+unique 1
+x 16
+y 10
+end
+arch floor_ostone4
+unique 1
+x 16
+y 11
+end
+arch floor_ostone4
+unique 1
+x 16
+y 12
+end
+arch floor_ostone4
+unique 1
+x 16
+y 13
+end
+arch floor_ostone4
+unique 1
+x 16
+y 14
+end
+arch floor_ostone4
+unique 1
+x 16
+y 15
+end
+arch floor_ostone4
+unique 1
+x 16
+y 16
+end
+arch floor_ostone4
+unique 1
+x 16
+y 17
+end
+arch floor_ostone4
+unique 1
+x 16
+y 18
+end
+arch floor_ostone4
+unique 1
+x 16
+y 19
+end
+arch floor_ostone4
+unique 1
+x 16
+y 20
+end
+arch floor_ostone4
+x 16
+y 21
+end
+arch wall_stone_1
+x 16
+y 21
+end
+arch trans
+x 17
+end
+arch wall_stone_1
+x 17
+end
+arch floor_ostone4
+x 17
+y 1
+end
+arch carpet1.151
+x 17
+y 1
+end
+arch box_big.101
+x 17
+y 1
+end
+arch floor_ostone4
+x 17
+y 2
+end
+arch carpet1
+x 17
+y 2
+end
+arch floor_ostone4
+x 17
+y 3
+end
+arch carpet1
+x 17
+y 3
+end
+arch floor_ostone4
+x 17
+y 4
+end
+arch stairs_stone_down
+direction 5
+x 17
+y 4
+end
+arch floor_ostone4
+x 17
+y 5
+end
+arch stairs_down
+x 17
+y 5
+end
+arch wall_stone_1w
+z 5
+no_pass 0
+layer 7
+x 17
+y 5
+end
+arch floor_ostone4
+x 17
+y 6
+end
+arch fwall_flagstone1a
+x 17
+y 6
+end
+arch floor_ostone4
+x 17
+y 7
+end
+arch fwall_flagstone1a
+x 17
+y 7
+end
+arch picture1.151
+x 17
+y 7
+end
+arch floor_ostone4
+unique 1
+x 17
+y 8
+end
+arch floor_ostone4
+unique 1
+x 17
+y 9
+end
+arch floor_ostone4
+unique 1
+x 17
+y 10
+end
+arch floor_ostone4
+unique 1
+x 17
+y 11
+end
+arch floor_ostone4
+unique 1
+x 17
+y 12
+end
+arch floor_ostone4
+unique 1
+x 17
+y 13
+end
+arch floor_ostone4
+unique 1
+x 17
+y 14
+end
+arch floor_ostone4
+unique 1
+x 17
+y 15
+end
+arch floor_ostone4
+unique 1
+x 17
+y 16
+end
+arch floor_ostone4
+unique 1
+x 17
+y 17
+end
+arch floor_ostone4
+unique 1
+x 17
+y 18
+end
+arch floor_ostone4
+unique 1
+x 17
+y 19
+end
+arch floor_ostone4
+unique 1
+x 17
+y 20
+end
+arch floor_ostone4
+x 17
+y 21
+end
+arch wall_stone_1
+x 17
+y 21
+end
+arch trans
+x 18
+end
+arch wall_stone_1
+x 18
+end
+arch floor_ostone4
+x 18
+y 1
+end
+arch carpet1.151
+x 18
+y 1
+end
+arch box_big.101
+x 18
+y 1
+end
+arch floor_ostone4
+x 18
+y 2
+end
+arch carpet1
+x 18
+y 2
+end
+arch floor_ostone4
+x 18
+y 3
+end
+arch carpet1
+x 18
+y 3
+end
+arch floor_ostone4
+x 18
+y 4
+end
+arch stairs_stone_down
+direction 5
+x 18
+y 4
+end
+arch floor_ostone4
+x 18
+y 5
+end
+arch stairs_down
+x 18
+y 5
+end
+arch wall_stone_1w
+z 5
+no_pass 0
+layer 7
+x 18
+y 5
+end
+arch floor_ostone4
+x 18
+y 6
+end
+arch fwall_flagstone1a
+x 18
+y 6
+end
+arch floor_ostone4
+x 18
+y 7
+end
+arch fwall_flagstone1a
+x 18
+y 7
+end
+arch floor_ostone4
+unique 1
+x 18
+y 8
+end
+arch floor_ostone4
+unique 1
+x 18
+y 9
+end
+arch floor_ostone4
+unique 1
+x 18
+y 10
+end
+arch floor_ostone4
+unique 1
+x 18
+y 11
+end
+arch floor_ostone4
+unique 1
+x 18
+y 12
+end
+arch floor_ostone4
+unique 1
+x 18
+y 13
+end
+arch floor_ostone4
+unique 1
+x 18
+y 14
+end
+arch floor_ostone4
+unique 1
+x 18
+y 15
+end
+arch floor_ostone4
+unique 1
+x 18
+y 16
+end
+arch floor_ostone4
+unique 1
+x 18
+y 17
+end
+arch floor_ostone4
+unique 1
+x 18
+y 18
+end
+arch floor_ostone4
+unique 1
+x 18
+y 19
+end
+arch floor_ostone4
+unique 1
+x 18
+y 20
+end
+arch floor_ostone4
+x 18
+y 21
+end
+arch wall_stone_1
+x 18
+y 21
+end
+arch trans
+x 19
+end
+arch wall_stone_1
+x 19
+end
+arch floor_ostone4
+x 19
+y 1
+end
+arch wall_stone_3
+x 19
+y 1
+end
+arch floor_ostone4
+x 19
+y 2
+end
+arch carpet1.171
+x 19
+y 2
+end
+arch wall_stone_3
+x 19
+y 2
+end
+arch floor_ostone4
+x 19
+y 3
+end
+arch carpet1.171
+x 19
+y 3
+end
+arch wall_stone_3
+x 19
+y 3
+end
+arch floor_ostone4
+x 19
+y 4
+end
+arch wall_stone_3
+x 19
+y 4
+end
+arch floor_ostone4
+x 19
+y 5
+end
+arch wall_stone_4
+x 19
+y 5
+end
+arch floor_ostone4
+x 19
+y 6
+end
+arch fwall_flagstone1a
+x 19
+y 6
+end
+arch floor_ostone4
+x 19
+y 7
+end
+arch fwall_flagstone1a
+x 19
+y 7
+end
+arch floor_ostone4
+x 19
+y 8
+end
+arch wall_stone_3
+x 19
+y 8
+end
+arch floor_ostone4
+x 19
+y 9
+end
+arch wall_stone_3
+x 19
+y 9
+end
+arch floor_ostone4
+x 19
+y 10
+end
+arch wall_stone_3
+x 19
+y 10
+end
+arch floor_ostone4
+x 19
+y 11
+end
+arch wall_stone_3
+x 19
+y 11
+end
+arch floor_ostone4
+x 19
+y 12
+end
+arch wall_stone_3
+x 19
+y 12
+end
+arch floor_ostone4
+x 19
+y 13
+end
+arch wall_stone_3
+x 19
+y 13
+end
+arch floor_ostone4
+x 19
+y 14
+end
+arch wall_stone_3
+x 19
+y 14
+end
+arch floor_ostone4
+x 19
+y 15
+end
+arch wall_stone_3
+x 19
+y 15
+end
+arch floor_ostone4
+x 19
+y 16
+end
+arch wall_stone_3
+x 19
+y 16
+end
+arch floor_ostone4
+x 19
+y 17
+end
+arch wall_stone_3
+x 19
+y 17
+end
+arch floor_ostone4
+x 19
+y 18
+end
+arch wall_stone_3
+x 19
+y 18
+end
+arch floor_ostone4
+x 19
+y 19
+end
+arch wall_stone_3
+x 19
+y 19
+end
+arch floor_ostone4
+x 19
+y 20
+end
+arch wall_stone_3
+x 19
+y 20
+end
+arch floor_ostone4
+x 19
+y 21
+end
+arch wall_stone_4
+x 19
+y 21
+end

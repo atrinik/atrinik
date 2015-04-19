@@ -2,7 +2,7 @@ arch map
 name Incuna - Water Well
 msg
 Created:  2011-05-09 Edwin Miltenburg
-Modified: 2011-09-30 Alex Tokar
+Modified: 2015-04-19 Alex Tokar
 endmsg
 width 24
 height 24
@@ -191,7 +191,7 @@ x 4
 y 3
 end
 arch invis_exit
-slaying ../../world_04ad
+slaying ../../world_3_83
 hp 14
 sp 1
 x 4
@@ -836,7 +836,7 @@ x 8
 y 3
 end
 arch invis_exit
-slaying ../../world_04ad
+slaying ../../world_3_83
 hp 18
 sp 1
 x 8
@@ -985,7 +985,7 @@ x 9
 y 3
 end
 arch invis_exit
-slaying ../../world_04ad
+slaying ../../world_3_83
 hp 19
 sp 1
 x 9
@@ -1520,7 +1520,7 @@ x 20
 y 19
 end
 arch well_bucket
-slaying ../../world_05ad
+slaying ../../world_4_83
 hp 6
 sp 17
 x 20

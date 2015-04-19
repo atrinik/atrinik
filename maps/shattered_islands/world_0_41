@@ -1,0 +1,4036 @@
+arch map
+name Cathedral of Holy Wisdom
+msg
+Created:  2009-08-09 Alex Tokar
+Modified: 2014-12-23 Alex Tokar
+endmsg
+width 24
+height 24
+difficulty 40
+outdoor 1
+no_harm 1
+bg_music courage.mid
+region asteria
+end
+arch floor_marble1c
+sub_layer 1
+z 50
+end
+arch wall_palace_11
+sub_layer 1
+end
+arch floor_marble1h
+sub_layer 1
+z 50
+y 1
+end
+arch floor_marble1d
+sub_layer 1
+z 50
+y 2
+end
+arch floor_marble1e
+z 50
+y 3
+end
+arch bed_1a.111
+direction 5
+y 3
+end
+arch floor_marble1d
+z 50
+y 4
+end
+arch bed_1b.111
+direction 5
+y 4
+end
+arch floor_marble1
+z 50
+y 5
+end
+arch wall_palace_01
+y 5
+end
+arch floor_marble1b
+z 50
+y 6
+end
+arch desk1.111
+y 6
+end
+arch floor_marble1e
+z 50
+y 7
+end
+arch chair_small2
+y 7
+end
+arch floor_marble1
+z 50
+y 8
+end
+arch floor_marble1h
+z 50
+y 9
+end
+arch floor_marble1h
+z 50
+y 10
+end
+arch wall_palace_01
+y 10
+end
+arch floor_marble1
+z 50
+y 11
+end
+arch floor_marble1
+z 50
+y 12
+end
+arch floor_marble1g
+z 50
+y 13
+end
+arch floor_marble1g
+z 50
+y 14
+end
+arch floor_marble1b
+z 50
+y 15
+end
+arch floor_marble1g
+z 50
+y 16
+end
+arch floor_marble1b
+z 50
+y 17
+end
+arch floor_marble1d
+z 50
+y 18
+end
+arch floor_marble1g
+z 50
+y 19
+end
+arch floor_marble1g
+z 50
+y 20
+end
+arch floor_marble1g
+z 50
+y 21
+end
+arch floor_marble1e
+z 50
+y 22
+end
+arch floor_marble1
+z 50
+y 23
+end
+arch statue_fire
+y 23
+end
+arch floor_marble1e
+sub_layer 1
+z 50
+x 1
+end
+arch wall_palace_07
+sub_layer 1
+x 1
+end
+arch floor_marble1g
+sub_layer 1
+z 50
+x 1
+y 1
+end
+arch wall_palace_01
+sub_layer 1
+direction 7
+x 1
+y 1
+end
+arch floor_marble1
+sub_layer 1
+z 50
+x 1
+y 2
+end
+arch wall_palace_02
+sub_layer 1
+direction 7
+x 1
+y 2
+end
+arch floor_marble1e
+z 50
+x 1
+y 3
+end
+arch wall_palace_01
+direction 7
+x 1
+y 3
+end
+arch floor_marble1g
+z 50
+x 1
+y 4
+end
+arch wall_palace_01
+direction 7
+x 1
+y 4
+end
+arch floor_marble1
+z 50
+x 1
+y 5
+end
+arch wall_palace_07
+direction 3
+x 1
+y 5
+end
+arch floor_marble1
+z 50
+x 1
+y 6
+end
+arch wall_palace_01
+direction 7
+x 1
+y 6
+end
+arch floor_marble1d
+z 50
+x 1
+y 7
+end
+arch wall_palace_01
+direction 7
+x 1
+y 7
+end
+arch floor_marble1d
+z 50
+x 1
+y 8
+end
+arch wall_palace_02
+direction 7
+x 1
+y 8
+end
+arch floor_marble1g
+z 50
+x 1
+y 9
+end
+arch wall_palace_01
+direction 7
+x 1
+y 9
+end
+arch floor_marble1g
+z 50
+x 1
+y 10
+end
+arch wall_palace_14
+x 1
+y 10
+end
+arch floor_marble1c
+z 50
+x 1
+y 11
+end
+arch door_wood1
+direction 3
+cursed 1
+x 1
+y 11
+end
+arch floor_marble1g
+z 50
+x 1
+y 12
+end
+arch door_wood1
+direction 5
+cursed 1
+x 1
+y 12
+end
+arch floor_marble1a
+z 50
+x 1
+y 13
+end
+arch wall_palace_04
+direction 5
+x 1
+y 13
+end
+arch floor_marble1g
+z 50
+x 1
+y 14
+end
+arch wall_palace_01
+direction 7
+x 1
+y 14
+end
+arch floor_marble1c
+z 50
+x 1
+y 15
+end
+arch wall_palace_01
+direction 7
+x 1
+y 15
+end
+arch floor_marble1a
+z 50
+x 1
+y 16
+end
+arch wall_palace_02
+direction 7
+x 1
+y 16
+end
+arch floor_marble1d
+z 50
+x 1
+y 17
+end
+arch wall_palace_01
+direction 7
+x 1
+y 17
+end
+arch floor_marble1c
+z 50
+x 1
+y 18
+end
+arch wall_palace_01
+direction 7
+x 1
+y 18
+end
+arch floor_marble1a
+z 50
+x 1
+y 19
+end
+arch wall_palace_01
+direction 7
+x 1
+y 19
+end
+arch floor_marble1g
+z 50
+x 1
+y 20
+end
+arch wall_palace_01
+direction 7
+x 1
+y 20
+end
+arch floor_marble1b
+z 50
+x 1
+y 21
+end
+arch wall_palace_01
+direction 7
+x 1
+y 21
+end
+arch floor_marble1b
+z 50
+x 1
+y 22
+end
+arch wall_palace_02
+direction 7
+x 1
+y 22
+end
+arch floor_marble1
+z 50
+x 1
+y 23
+end
+arch wall_palace_01
+direction 7
+x 1
+y 23
+end
+arch floor_marble1g
+sub_layer 1
+z 50
+x 2
+end
+arch wall_palace_02
+sub_layer 1
+x 2
+end
+arch floor_marble1d
+sub_layer 1
+z 50
+x 2
+y 1
+end
+arch statue_white2
+sub_layer 1
+x 2
+y 1
+end
+arch floor_marble1b
+sub_layer 1
+z 50
+x 2
+y 2
+end
+arch bench2.111
+direction 7
+name pew
+x 2
+y 2
+end
+arch floor_marble1a
+z 50
+x 2
+y 3
+end
+arch bench2.111
+direction 7
+name pew
+x 2
+y 3
+end
+arch light9
+x 2
+y 3
+end
+arch floor_marble1g
+z 50
+x 2
+y 4
+end
+arch bench2.111
+direction 7
+name pew
+x 2
+y 4
+end
+arch floor_marble1
+z 50
+x 2
+y 5
+end
+arch floor_marble1g
+z 50
+x 2
+y 6
+end
+arch light9
+x 2
+y 6
+end
+arch floor_marble1e
+z 50
+x 2
+y 7
+end
+arch bench2.111
+direction 7
+name pew
+x 2
+y 7
+end
+arch floor_marble1d
+z 50
+x 2
+y 8
+end
+arch bench2.111
+direction 7
+name pew
+x 2
+y 8
+end
+arch floor_marble1b
+z 50
+x 2
+y 9
+end
+arch bench2.111
+direction 7
+name pew
+x 2
+y 9
+end
+arch light9
+x 2
+y 9
+end
+arch floor_marble1g
+z 50
+x 2
+y 10
+end
+arch floor_marble1h
+z 50
+x 2
+y 11
+end
+arch floor_marble1g
+z 50
+x 2
+y 12
+end
+arch light9
+x 2
+y 12
+end
+arch floor_marble1d
+z 50
+x 2
+y 13
+end
+arch floor_marble1g
+z 50
+x 2
+y 14
+end
+arch floor_marble1d
+z 50
+x 2
+y 15
+end
+arch bench2.111
+direction 7
+name pew
+x 2
+y 15
+end
+arch light9
+x 2
+y 15
+end
+arch floor_marble1d
+z 50
+x 2
+y 16
+end
+arch bench2.111
+direction 7
+name pew
+x 2
+y 16
+end
+arch floor_marble1c
+z 50
+x 2
+y 17
+end
+arch bench2.111
+direction 7
+name pew
+x 2
+y 17
+end
+arch floor_marble1e
+z 50
+x 2
+y 18
+end
+arch light9
+x 2
+y 18
+end
+arch floor_marble1g
+z 50
+x 2
+y 19
+end
+arch floor_marble1d
+z 50
+x 2
+y 20
+end
+arch bench2.111
+direction 7
+name pew
+x 2
+y 20
+end
+arch floor_marble1e
+z 50
+x 2
+y 21
+end
+arch bench2.111
+direction 7
+name pew
+x 2
+y 21
+end
+arch light9
+x 2
+y 21
+end
+arch floor_marble1d
+z 50
+x 2
+y 22
+end
+arch bench2.111
+direction 7
+name pew
+x 2
+y 22
+end
+arch floor_marble1h
+z 50
+x 2
+y 23
+end
+arch statue_white
+x 2
+y 23
+end
+arch floor_marble1e
+sub_layer 1
+z 50
+x 3
+end
+arch wall_palace_09
+sub_layer 1
+x 3
+end
+arch floor_marble1e
+sub_layer 1
+z 50
+x 3
+y 1
+end
+arch floor_marble1g
+sub_layer 1
+z 50
+x 3
+y 2
+end
+arch floor_marble1d
+z 50
+x 3
+y 3
+end
+arch floor_marble1b
+z 50
+x 3
+y 4
+end
+arch floor_marble1g
+z 50
+x 3
+y 5
+end
+arch floor_marble1d
+z 50
+x 3
+y 6
+end
+arch floor_marble1a
+z 50
+x 3
+y 7
+end
+arch floor_marble1g
+z 50
+x 3
+y 8
+end
+arch floor_marble1g
+z 50
+x 3
+y 9
+end
+arch floor_marble1
+z 50
+x 3
+y 10
+end
+arch floor_marble1h
+z 50
+x 3
+y 11
+end
+arch floor_marble1d
+z 50
+x 3
+y 12
+end
+arch floor_marble1e
+z 50
+x 3
+y 13
+end
+arch floor_marble1d
+z 50
+x 3
+y 14
+end
+arch floor_marble1c
+z 50
+x 3
+y 15
+end
+arch floor_marble1h
+z 50
+x 3
+y 16
+end
+arch floor_marble1g
+z 50
+x 3
+y 17
+end
+arch floor_marble1
+z 50
+x 3
+y 18
+end
+arch floor_marble1g
+z 50
+x 3
+y 19
+end
+arch floor_marble1g
+z 50
+x 3
+y 20
+end
+arch floor_marble1g
+z 50
+x 3
+y 21
+end
+arch floor_marble1
+z 50
+x 3
+y 22
+end
+arch floor_marble1e
+z 50
+x 3
+y 23
+end
+arch floor_marble1g
+sub_layer 1
+z 50
+x 4
+end
+arch wall_palace_01
+sub_layer 1
+x 4
+end
+arch floor_marble1e
+sub_layer 1
+z 50
+x 4
+y 1
+end
+arch ped_black_hw1
+sub_layer 1
+x 4
+y 1
+end
+arch floor_marble1g
+sub_layer 1
+z 50
+x 4
+y 2
+end
+arch floor_marble1
+z 50
+x 4
+y 3
+end
+arch floor_marble1g
+z 50
+x 4
+y 4
+end
+arch floor_marble1b
+z 50
+x 4
+y 5
+end
+arch floor_marble1g
+z 50
+x 4
+y 6
+end
+arch floor_marble1e
+z 50
+x 4
+y 7
+end
+arch floor_marble1a
+z 50
+x 4
+y 8
+end
+arch wall_palace_00
+x 4
+y 8
+end
+arch floor_marble1a
+z 50
+x 4
+y 9
+end
+arch floor_marble1g
+z 50
+x 4
+y 10
+end
+arch floor_marble1g
+z 50
+x 4
+y 11
+end
+arch floor_marble1c
+z 50
+x 4
+y 12
+end
+arch floor_marble1d
+z 50
+x 4
+y 13
+end
+arch floor_marble1c
+z 50
+x 4
+y 14
+end
+arch floor_marble1c
+z 50
+x 4
+y 15
+end
+arch floor_marble1c
+z 50
+x 4
+y 16
+end
+arch wall_palace_00
+x 4
+y 16
+end
+arch floor_marble1e
+z 50
+x 4
+y 17
+end
+arch floor_marble1
+z 50
+x 4
+y 18
+end
+arch floor_marble1a
+z 50
+x 4
+y 19
+end
+arch floor_marble1c
+z 50
+x 4
+y 20
+end
+arch floor_marble1g
+z 50
+x 4
+y 21
+end
+arch floor_marble1
+z 50
+x 4
+y 22
+end
+arch floor_marble1
+z 50
+x 4
+y 23
+end
+arch ped_black_hws1
+x 4
+y 23
+end
+arch floor_marble1h
+sub_layer 1
+z 50
+x 5
+end
+arch wall_palace_02
+sub_layer 1
+x 5
+end
+arch floor_marble1
+sub_layer 1
+z 50
+x 5
+y 1
+end
+arch floor_marble1e
+sub_layer 1
+z 50
+x 5
+y 2
+end
+arch floor_marble1b
+z 50
+x 5
+y 3
+end
+arch floor_marble1g
+z 50
+x 5
+y 4
+end
+arch floor_marble1g
+z 50
+x 5
+y 5
+end
+arch floor_marble1g
+z 50
+x 5
+y 6
+end
+arch floor_marble1g
+z 50
+x 5
+y 7
+end
+arch floor_marble1b
+z 50
+x 5
+y 8
+end
+arch floor_marble1h
+z 50
+x 5
+y 9
+end
+arch floor_marble1
+z 50
+x 5
+y 10
+end
+arch floor_marble1
+z 50
+x 5
+y 11
+end
+arch floor_marble1g
+z 50
+x 5
+y 12
+end
+arch floor_marble1g
+z 50
+x 5
+y 13
+end
+arch floor_marble1b
+z 50
+x 5
+y 14
+end
+arch floor_marble1c
+z 50
+x 5
+y 15
+end
+arch floor_marble1g
+z 50
+x 5
+y 16
+end
+arch floor_marble1g
+z 50
+x 5
+y 17
+end
+arch floor_marble1a
+z 50
+x 5
+y 18
+end
+arch floor_marble1g
+z 50
+x 5
+y 19
+end
+arch floor_marble1c
+z 50
+x 5
+y 20
+end
+arch floor_marble1g
+z 50
+x 5
+y 21
+end
+arch floor_marble1e
+z 50
+x 5
+y 22
+end
+arch floor_marble1
+z 50
+x 5
+y 23
+end
+arch floor_marble1a
+sub_layer 1
+z 50
+x 6
+end
+arch wall_palace_10
+sub_layer 1
+x 6
+end
+arch floor_marble1c
+sub_layer 1
+z 50
+x 6
+y 1
+end
+arch light5
+x 6
+y 1
+end
+arch floor_marble1h
+sub_layer 1
+z 50
+x 6
+y 2
+end
+arch bench2.111
+direction 7
+name pew
+x 6
+y 2
+end
+arch floor_marble1e
+z 50
+x 6
+y 3
+end
+arch bench2.111
+direction 7
+name pew
+x 6
+y 3
+end
+arch light9
+x 6
+y 3
+end
+arch floor_marble1g
+z 50
+x 6
+y 4
+end
+arch bench2.111
+direction 7
+name pew
+x 6
+y 4
+end
+arch floor_marble1h
+z 50
+x 6
+y 5
+end
+arch floor_marble1a
+z 50
+x 6
+y 6
+end
+arch light9
+x 6
+y 6
+end
+arch floor_marble1
+z 50
+x 6
+y 7
+end
+arch bench2.111
+direction 7
+name pew
+x 6
+y 7
+end
+arch floor_marble1b
+z 50
+x 6
+y 8
+end
+arch bench2.111
+direction 7
+name pew
+x 6
+y 8
+end
+arch floor_marble1e
+z 50
+x 6
+y 9
+end
+arch bench2.111
+direction 7
+name pew
+x 6
+y 9
+end
+arch light9
+x 6
+y 9
+end
+arch floor_marble1
+z 50
+x 6
+y 10
+end
+arch floor_marble1e
+z 50
+x 6
+y 11
+end
+arch floor_marble1d
+z 50
+x 6
+y 12
+end
+arch light9
+x 6
+y 12
+end
+arch floor_marble1g
+z 50
+x 6
+y 13
+end
+arch floor_marble1g
+z 50
+x 6
+y 14
+end
+arch floor_marble1g
+z 50
+x 6
+y 15
+end
+arch bench2.111
+direction 7
+name pew
+x 6
+y 15
+end
+arch light9
+x 6
+y 15
+end
+arch floor_marble1a
+z 50
+x 6
+y 16
+end
+arch bench2.111
+direction 7
+name pew
+x 6
+y 16
+end
+arch floor_marble1c
+z 50
+x 6
+y 17
+end
+arch bench2.111
+direction 7
+name pew
+x 6
+y 17
+end
+arch floor_marble1c
+z 50
+x 6
+y 18
+end
+arch light9
+x 6
+y 18
+end
+arch floor_marble1h
+z 50
+x 6
+y 19
+end
+arch floor_marble1g
+z 50
+x 6
+y 20
+end
+arch bench2.111
+direction 7
+name pew
+x 6
+y 20
+end
+arch floor_marble1e
+z 50
+x 6
+y 21
+end
+arch bench2.111
+direction 7
+name pew
+x 6
+y 21
+end
+arch light9
+x 6
+y 21
+end
+arch floor_marble1c
+z 50
+x 6
+y 22
+end
+arch bench2.111
+direction 7
+name pew
+x 6
+y 22
+end
+arch floor_marble1e
+z 50
+x 6
+y 23
+end
+arch light5
+x 6
+y 23
+end
+arch floor_marble1g
+sub_layer 1
+z 50
+x 7
+end
+arch wall_palace_01
+sub_layer 1
+x 7
+end
+arch floor_marble1a
+sub_layer 1
+z 50
+x 7
+y 1
+end
+arch floor_marble1a
+sub_layer 1
+z 50
+x 7
+y 2
+end
+arch floor_marble1b
+z 50
+x 7
+y 3
+end
+arch floor_marble1c
+z 50
+x 7
+y 4
+end
+arch floor_marble1g
+z 50
+x 7
+y 5
+end
+arch floor_marble1e
+z 50
+x 7
+y 6
+end
+arch floor_marble1h
+z 50
+x 7
+y 7
+end
+arch floor_marble1
+z 50
+x 7
+y 8
+end
+arch floor_marble1c
+z 50
+x 7
+y 9
+end
+arch floor_marble1e
+z 50
+x 7
+y 10
+end
+arch floor_marble1a
+z 50
+x 7
+y 11
+end
+arch floor_marble1c
+z 50
+x 7
+y 12
+end
+arch floor_marble1
+z 50
+x 7
+y 13
+end
+arch floor_marble1b
+z 50
+x 7
+y 14
+end
+arch floor_marble1
+z 50
+x 7
+y 15
+end
+arch floor_marble1a
+z 50
+x 7
+y 16
+end
+arch floor_marble1e
+z 50
+x 7
+y 17
+end
+arch floor_marble1c
+z 50
+x 7
+y 18
+end
+arch floor_marble1g
+z 50
+x 7
+y 19
+end
+arch floor_marble1b
+z 50
+x 7
+y 20
+end
+arch floor_marble1g
+z 50
+x 7
+y 21
+end
+arch floor_marble1h
+z 50
+x 7
+y 22
+end
+arch floor_marble1b
+z 50
+x 7
+y 23
+end
+arch floor_marble1e
+z 50
+sub_layer 1
+x 8
+end
+arch wall_palace_02
+sub_layer 1
+x 8
+end
+arch floor_marble1h
+sub_layer 1
+z 50
+x 8
+y 1
+end
+arch floor_marble1h
+sub_layer 1
+z 50
+x 8
+y 2
+end
+arch bench2.111
+direction 7
+name pew
+x 8
+y 2
+end
+arch floor_marble1d
+z 50
+x 8
+y 3
+end
+arch bench2.111
+direction 7
+name pew
+x 8
+y 3
+end
+arch floor_marble1d
+z 50
+x 8
+y 4
+end
+arch bench2.111
+direction 7
+name pew
+x 8
+y 4
+end
+arch floor_marble1g
+z 50
+x 8
+y 5
+end
+arch floor_marble1c
+z 50
+x 8
+y 6
+end
+arch floor_marble1b
+z 50
+x 8
+y 7
+end
+arch bench2.111
+direction 7
+name pew
+x 8
+y 7
+end
+arch floor_marble1c
+z 50
+x 8
+y 8
+end
+arch bench2.111
+direction 7
+name pew
+x 8
+y 8
+end
+arch floor_marble1d
+z 50
+x 8
+y 9
+end
+arch bench2.111
+direction 7
+name pew
+x 8
+y 9
+end
+arch floor_marble1g
+z 50
+x 8
+y 10
+end
+arch floor_marble1b
+z 50
+x 8
+y 11
+end
+arch floor_marble1g
+z 50
+x 8
+y 12
+end
+arch floor_marble1c
+z 50
+x 8
+y 13
+end
+arch floor_marble1
+z 50
+x 8
+y 14
+end
+arch floor_marble1g
+z 50
+x 8
+y 15
+end
+arch bench2.111
+direction 7
+name pew
+x 8
+y 15
+end
+arch floor_marble1h
+z 50
+x 8
+y 16
+end
+arch bench2.111
+direction 7
+name pew
+x 8
+y 16
+end
+arch floor_marble1
+z 50
+x 8
+y 17
+end
+arch bench2.111
+direction 7
+name pew
+x 8
+y 17
+end
+arch floor_marble1a
+z 50
+x 8
+y 18
+end
+arch floor_marble1b
+z 50
+x 8
+y 19
+end
+arch floor_marble1g
+z 50
+x 8
+y 20
+end
+arch bench2.111
+direction 7
+name pew
+x 8
+y 20
+end
+arch floor_marble1h
+z 50
+x 8
+y 21
+end
+arch bench2.111
+direction 7
+name pew
+x 8
+y 21
+end
+arch floor_marble1c
+z 50
+x 8
+y 22
+end
+arch bench2.111
+direction 7
+name pew
+x 8
+y 22
+end
+arch floor_marble1g
+z 50
+x 8
+y 23
+end
+arch floor_marble1d
+z 50
+sub_layer 1
+x 9
+end
+arch wall_palace_11
+sub_layer 1
+x 9
+end
+arch floor_marble1h
+z 50
+sub_layer 1
+x 9
+y 1
+end
+arch floor_marble1d
+z 50
+sub_layer 1
+x 9
+y 2
+end
+arch floor_marble1c
+z 50
+x 9
+y 3
+end
+arch floor_marble1c
+z 50
+x 9
+y 4
+end
+arch floor_marble1h
+z 50
+x 9
+y 5
+end
+arch floor_marble1h
+z 50
+x 9
+y 6
+end
+arch floor_marble1a
+z 50
+x 9
+y 7
+end
+arch floor_marble1d
+z 50
+x 9
+y 8
+end
+arch wall_palace_00
+x 9
+y 8
+end
+arch floor_marble1a
+z 50
+x 9
+y 9
+end
+arch floor_marble1g
+z 50
+x 9
+y 10
+end
+arch floor_marble1h
+z 50
+x 9
+y 11
+end
+arch floor_marble1e
+z 50
+x 9
+y 12
+end
+arch floor_marble1b
+z 50
+x 9
+y 13
+end
+arch floor_marble1e
+z 50
+x 9
+y 14
+end
+arch floor_marble1e
+z 50
+x 9
+y 15
+end
+arch floor_marble1g
+z 50
+x 9
+y 16
+end
+arch wall_palace_00
+x 9
+y 16
+end
+arch floor_marble1d
+z 50
+x 9
+y 17
+end
+arch floor_marble1g
+z 50
+x 9
+y 18
+end
+arch floor_marble1a
+z 50
+x 9
+y 19
+end
+arch floor_marble1c
+z 50
+x 9
+y 20
+end
+arch floor_marble1d
+z 50
+x 9
+y 21
+end
+arch floor_marble1g
+z 50
+x 9
+y 22
+end
+arch floor_marble1g
+z 50
+x 9
+y 23
+end
+arch floor_marble1g
+z 50
+sub_layer 1
+x 10
+end
+arch wall_palace_01
+sub_layer 1
+x 10
+end
+arch floor_marble1a
+z 50
+sub_layer 1
+x 10
+y 1
+end
+arch floor_marble1a
+z 50
+sub_layer 1
+x 10
+y 2
+end
+arch bench2.111
+direction 7
+name pew
+x 10
+y 2
+end
+arch floor_marble1g
+z 50
+x 10
+y 3
+end
+arch bench2.111
+direction 7
+name pew
+x 10
+y 3
+end
+arch floor_marble1
+z 50
+x 10
+y 4
+end
+arch bench2.111
+direction 7
+name pew
+x 10
+y 4
+end
+arch floor_marble1e
+z 50
+x 10
+y 5
+end
+arch floor_marble1b
+z 50
+x 10
+y 6
+end
+arch floor_marble1b
+z 50
+x 10
+y 7
+end
+arch bench2.111
+direction 7
+name pew
+x 10
+y 7
+end
+arch floor_marble1e
+z 50
+x 10
+y 8
+end
+arch bench2.111
+direction 7
+name pew
+x 10
+y 8
+end
+arch floor_marble1e
+z 50
+x 10
+y 9
+end
+arch bench2.111
+direction 7
+name pew
+x 10
+y 9
+end
+arch floor_marble1a
+z 50
+x 10
+y 10
+end
+arch floor_marble1b
+z 50
+x 10
+y 11
+end
+arch floor_marble1d
+z 50
+x 10
+y 12
+end
+arch floor_marble1g
+z 50
+x 10
+y 13
+end
+arch floor_marble1b
+z 50
+x 10
+y 14
+end
+arch floor_marble1c
+z 50
+x 10
+y 15
+end
+arch bench2.111
+direction 7
+name pew
+x 10
+y 15
+end
+arch floor_marble1a
+z 50
+x 10
+y 16
+end
+arch bench2.111
+direction 7
+name pew
+x 10
+y 16
+end
+arch floor_marble1h
+z 50
+x 10
+y 17
+end
+arch bench2.111
+direction 7
+name pew
+x 10
+y 17
+end
+arch floor_marble1
+z 50
+x 10
+y 18
+end
+arch floor_marble1b
+z 50
+x 10
+y 19
+end
+arch floor_marble1a
+z 50
+x 10
+y 20
+end
+arch bench2.111
+direction 7
+name pew
+x 10
+y 20
+end
+arch floor_marble1h
+z 50
+x 10
+y 21
+end
+arch bench2.111
+direction 7
+name pew
+x 10
+y 21
+end
+arch floor_marble1g
+z 50
+x 10
+y 22
+end
+arch bench2.111
+direction 7
+name pew
+x 10
+y 22
+end
+arch floor_marble1e
+z 50
+x 10
+y 23
+end
+arch floor_marble1a
+z 50
+sub_layer 1
+x 11
+end
+arch wall_palace_02
+sub_layer 1
+x 11
+end
+arch floor_marble1d
+z 50
+sub_layer 1
+x 11
+y 1
+end
+arch light5
+x 11
+y 1
+end
+arch floor_marble1g
+z 50
+sub_layer 1
+x 11
+y 2
+end
+arch floor_marble1b
+z 50
+x 11
+y 3
+end
+arch light9
+x 11
+y 3
+end
+arch floor_marble1b
+z 50
+x 11
+y 4
+end
+arch floor_marble1h
+z 50
+x 11
+y 5
+end
+arch floor_marble1e
+z 50
+x 11
+y 6
+end
+arch light9
+x 11
+y 6
+end
+arch floor_marble1c
+z 50
+x 11
+y 7
+end
+arch floor_marble1e
+z 50
+x 11
+y 8
+end
+arch floor_marble1h
+z 50
+x 11
+y 9
+end
+arch light9
+x 11
+y 9
+end
+arch floor_marble1g
+z 50
+x 11
+y 10
+end
+arch floor_marble1h
+z 50
+x 11
+y 11
+end
+arch floor_marble1d
+z 50
+x 11
+y 12
+end
+arch light9
+x 11
+y 12
+end
+arch floor_marble1b
+z 50
+x 11
+y 13
+end
+arch floor_marble1
+z 50
+x 11
+y 14
+end
+arch floor_marble1b
+z 50
+x 11
+y 15
+end
+arch light9
+x 11
+y 15
+end
+arch floor_marble1g
+z 50
+x 11
+y 16
+end
+arch floor_marble1
+z 50
+x 11
+y 17
+end
+arch floor_marble1g
+z 50
+x 11
+y 18
+end
+arch light9
+x 11
+y 18
+end
+arch floor_marble1e
+z 50
+x 11
+y 19
+end
+arch floor_marble1b
+z 50
+x 11
+y 20
+end
+arch floor_marble1a
+z 50
+x 11
+y 21
+end
+arch light9
+x 11
+y 21
+end
+arch floor_marble1g
+z 50
+x 11
+y 22
+end
+arch floor_marble1a
+z 50
+x 11
+y 23
+end
+arch light5
+x 11
+y 23
+end
+arch floor_marble1e
+z 50
+sub_layer 1
+x 12
+end
+arch wall_palace_12
+sub_layer 1
+x 12
+end
+arch floor_marble1d
+z 50
+sub_layer 1
+x 12
+y 1
+end
+arch floor_marble1h
+z 50
+sub_layer 1
+x 12
+y 2
+end
+arch floor_marble1a
+z 50
+x 12
+y 3
+end
+arch floor_marble1g
+z 50
+x 12
+y 4
+end
+arch floor_marble1b
+z 50
+x 12
+y 5
+end
+arch floor_marble1c
+z 50
+x 12
+y 6
+end
+arch floor_marble1g
+z 50
+x 12
+y 7
+end
+arch floor_marble1
+z 50
+x 12
+y 8
+end
+arch floor_marble1a
+z 50
+x 12
+y 9
+end
+arch floor_marble1b
+z 50
+x 12
+y 10
+end
+arch floor_marble1c
+z 50
+x 12
+y 11
+end
+arch floor_marble1g
+z 50
+x 12
+y 12
+end
+arch pool_water
+x 12
+y 12
+end
+arch floor_marble1a
+z 50
+x 12
+y 13
+end
+arch floor_marble1a
+z 50
+x 12
+y 14
+end
+arch floor_marble1g
+z 50
+x 12
+y 15
+end
+arch floor_marble1d
+z 50
+x 12
+y 16
+end
+arch floor_marble1h
+z 50
+x 12
+y 17
+end
+arch floor_marble1e
+z 50
+x 12
+y 18
+end
+arch floor_marble1c
+z 50
+x 12
+y 19
+end
+arch floor_marble1g
+z 50
+x 12
+y 20
+end
+arch floor_marble1b
+z 50
+x 12
+y 21
+end
+arch floor_marble1c
+z 50
+x 12
+y 22
+end
+arch floor_marble1a
+z 50
+x 12
+y 23
+end
+arch floor_marble1b
+z 50
+sub_layer 1
+x 13
+end
+arch wall_palace_01
+sub_layer 1
+x 13
+end
+arch floor_marble1g
+z 50
+sub_layer 1
+x 13
+y 1
+end
+arch ped_white_hw1
+sub_layer 1
+x 13
+y 1
+end
+arch floor_marble1g
+z 50
+sub_layer 1
+x 13
+y 2
+end
+arch floor_marble1e
+z 50
+x 13
+y 3
+end
+arch floor_marble1b
+z 50
+x 13
+y 4
+end
+arch floor_marble1
+z 50
+x 13
+y 5
+end
+arch floor_marble1g
+z 50
+x 13
+y 6
+end
+arch floor_marble1a
+z 50
+x 13
+y 7
+end
+arch floor_marble1c
+z 50
+x 13
+y 8
+end
+arch statue_white3
+x 13
+y 8
+end
+arch floor_marble1d
+z 50
+x 13
+y 9
+end
+arch floor_marble1e
+z 50
+x 13
+y 10
+end
+arch floor_marble1b
+z 50
+x 13
+y 11
+end
+arch floor_marble1d
+z 50
+x 13
+y 12
+end
+arch floor_marble1h
+z 50
+x 13
+y 13
+end
+arch floor_marble1
+z 50
+x 13
+y 14
+end
+arch floor_marble1e
+z 50
+x 13
+y 15
+end
+arch floor_marble1b
+z 50
+x 13
+y 16
+end
+arch statue_white2
+x 13
+y 16
+end
+arch floor_marble1h
+z 50
+x 13
+y 17
+end
+arch floor_marble1g
+z 50
+x 13
+y 18
+end
+arch floor_marble1
+z 50
+x 13
+y 19
+end
+arch floor_marble1g
+z 50
+x 13
+y 20
+end
+arch floor_marble1h
+z 50
+x 13
+y 21
+end
+arch floor_marble1a
+z 50
+x 13
+y 22
+end
+arch floor_marble1
+z 50
+x 13
+y 23
+end
+arch ped_white_hws1
+direction 3
+x 13
+y 23
+end
+arch floor_marble1d
+z 50
+sub_layer 1
+x 14
+end
+arch wall_palace_06
+sub_layer 1
+x 14
+end
+arch client_map_info
+name basilica_holy_wisdom
+sub_type 2
+x 14
+end
+arch floor_marble1c
+sub_layer 1
+z 50
+x 14
+y 1
+end
+arch wall_palace_02
+sub_layer 1
+direction 7
+x 14
+y 1
+end
+arch floor_marble1b
+z 50
+sub_layer 1
+x 14
+y 2
+end
+arch wall_palace_01
+sub_layer 1
+direction 7
+x 14
+y 2
+end
+arch floor_marble1c
+z 50
+x 14
+y 3
+end
+arch wall_palace_11
+direction 7
+x 14
+y 3
+end
+arch floor_marble1h
+z 50
+x 14
+y 4
+end
+arch wall_palace_02
+direction 7
+x 14
+y 4
+end
+arch floor_marble1
+z 50
+x 14
+y 5
+end
+arch wall_palace_01
+direction 7
+x 14
+y 5
+end
+arch floor_marble1g
+z 50
+x 14
+y 6
+end
+arch wall_palace_10
+direction 7
+x 14
+y 6
+end
+arch floor_marble1
+z 50
+x 14
+y 7
+end
+arch wall_palace_02
+direction 7
+x 14
+y 7
+end
+arch floor_marble1d
+z 50
+x 14
+y 8
+end
+arch wall_palace_06
+direction 5
+x 14
+y 8
+end
+arch floor_marble1d
+z 50
+x 14
+y 9
+end
+arch floor_marble1g
+z 50
+x 14
+y 10
+end
+arch floor_marble1b
+z 50
+x 14
+y 11
+end
+arch table_small1
+x 14
+y 11
+end
+arch floor_marble1c
+z 50
+x 14
+y 12
+end
+arch table_small1
+x 14
+y 12
+end
+arch floor_marble1c
+z 50
+x 14
+y 13
+end
+arch table_small1
+x 14
+y 13
+end
+arch floor_marble1a
+z 50
+x 14
+y 14
+end
+arch floor_marble1e
+z 50
+x 14
+y 15
+end
+arch floor_marble1e
+z 50
+x 14
+y 16
+end
+arch wall_palace_06
+direction 7
+x 14
+y 16
+end
+arch floor_marble1h
+z 50
+x 14
+y 17
+end
+arch wall_palace_02
+direction 7
+x 14
+y 17
+end
+arch client_map_info
+name basilica_holy_wisdom
+sub_type 2
+x 14
+y 17
+end
+arch floor_marble1g
+z 50
+x 14
+y 18
+end
+arch wall_palace_10
+direction 7
+x 14
+y 18
+end
+arch floor_marble1b
+z 50
+x 14
+y 19
+end
+arch wall_palace_01
+direction 7
+x 14
+y 19
+end
+arch floor_marble1g
+z 50
+x 14
+y 20
+end
+arch wall_palace_02
+direction 7
+x 14
+y 20
+end
+arch floor_marble1a
+z 50
+x 14
+y 21
+end
+arch wall_palace_11
+direction 7
+x 14
+y 21
+end
+arch floor_marble1
+z 50
+x 14
+y 22
+end
+arch wall_palace_01
+direction 7
+x 14
+y 22
+end
+arch floor_marble1g
+z 50
+x 14
+y 23
+end
+arch wall_palace_02
+direction 7
+x 14
+y 23
+end
+arch grassd_7
+z 50
+sub_layer 1
+x 15
+end
+arch grassd_8
+z 50
+sub_layer 1
+x 15
+y 1
+end
+arch grassd_8
+z 50
+sub_layer 1
+x 15
+y 2
+end
+arch grassd_2
+z 50
+x 15
+y 3
+end
+arch grassd_8
+z 50
+x 15
+y 4
+end
+arch grassd_6
+z 50
+x 15
+y 5
+end
+arch grassd_5
+z 50
+x 15
+y 6
+end
+arch grassd_1
+z 50
+x 15
+y 7
+end
+arch floor_marble1g
+z 50
+x 15
+y 8
+end
+arch wall_palace_01
+x 15
+y 8
+end
+arch floor_marble1d
+z 50
+x 15
+y 9
+end
+arch amphora2_water
+x 15
+y 9
+end
+arch floor_marble1a
+z 50
+x 15
+y 10
+end
+arch floor_marble1h
+z 50
+x 15
+y 11
+end
+arch bank2c
+direction 5
+x 15
+y 11
+end
+arch floor_marble1h
+z 50
+x 15
+y 12
+end
+arch bank2b
+direction 7
+x 15
+y 12
+end
+arch kitchen_plate
+layer 5
+z 25
+align 4
+x 15
+y 12
+end
+arch badge
+name coins
+layer 6
+face coppercoin.101
+z 25
+zoom 40
+align 6
+x 15
+y 12
+end
+arch floor_marble1
+z 50
+x 15
+y 13
+end
+arch bank2a
+direction 7
+x 15
+y 13
+end
+arch floor_marble1e
+z 50
+x 15
+y 14
+end
+arch floor_marble1c
+z 50
+x 15
+y 15
+end
+arch floor_marble1a
+z 50
+x 15
+y 16
+end
+arch wall_palace_01
+x 15
+y 16
+end
+arch grassd_7
+z 50
+x 15
+y 17
+end
+arch grassd_2
+z 50
+x 15
+y 18
+end
+arch grassd_8
+z 50
+x 15
+y 19
+end
+arch grassd_5
+z 50
+x 15
+y 20
+end
+arch grassd_6
+z 50
+x 15
+y 21
+end
+arch grassd_1
+z 50
+x 15
+y 22
+end
+arch grassd_8
+z 50
+x 15
+y 23
+end
+arch grassd_1
+z 50
+sub_layer 1
+x 16
+end
+arch grassd_4
+z 50
+sub_layer 1
+x 16
+y 1
+end
+arch plant_flower11
+sub_layer 1
+x 16
+y 1
+end
+arch grassd_6
+z 50
+sub_layer 1
+x 16
+y 2
+end
+arch grassd_3
+z 50
+x 16
+y 3
+end
+arch plant_flower14
+x 16
+y 3
+end
+arch grassd_8
+z 50
+x 16
+y 4
+end
+arch grassd_2
+z 50
+x 16
+y 5
+end
+arch grassd_5
+z 50
+x 16
+y 6
+end
+arch grassd_4
+z 50
+x 16
+y 7
+end
+arch floor_marble1e
+z 50
+x 16
+y 8
+end
+arch wall_palace_01
+x 16
+y 8
+end
+arch floor_marble1e
+z 50
+x 16
+y 9
+end
+arch light9
+x 16
+y 9
+end
+arch floor_marble1d
+z 50
+x 16
+y 10
+end
+arch floor_marble1h
+z 50
+x 16
+y 11
+end
+arch floor_marble1d
+z 50
+x 16
+y 12
+end
+arch light9
+x 16
+y 12
+end
+arch floor_marble1c
+z 50
+x 16
+y 13
+end
+arch floor_marble1c
+z 50
+x 16
+y 14
+end
+arch floor_marble1e
+z 50
+x 16
+y 15
+end
+arch light9
+x 16
+y 15
+end
+arch floor_marble1
+z 50
+x 16
+y 16
+end
+arch wall_palace_01
+x 16
+y 16
+end
+arch grassd_4
+z 50
+x 16
+y 17
+end
+arch grassd_2
+z 50
+x 16
+y 18
+end
+arch grassd_1
+z 50
+x 16
+y 19
+end
+arch grassd_4
+z 50
+x 16
+y 20
+end
+arch plant_mushroom2
+x 16
+y 20
+end
+arch grassd_3
+z 50
+x 16
+y 21
+end
+arch grassd_8
+z 50
+x 16
+y 22
+end
+arch grassd_1
+z 50
+x 16
+y 23
+end
+arch grassd_6
+z 50
+sub_layer 1
+x 17
+end
+arch grassd_6
+z 50
+sub_layer 1
+x 17
+y 1
+end
+arch grassd_4
+z 50
+sub_layer 1
+x 17
+y 2
+end
+arch grassd_1
+z 50
+x 17
+y 3
+end
+arch grassd_6
+z 50
+x 17
+y 4
+end
+arch grassd_6
+z 50
+x 17
+y 5
+end
+arch plant_flower11
+x 17
+y 5
+end
+arch grassd_4
+z 50
+x 17
+y 6
+end
+arch grassd_7
+z 50
+x 17
+y 7
+end
+arch floor_marble1g
+z 50
+x 17
+y 8
+end
+arch wall_palace_02
+x 17
+y 8
+end
+arch floor_marble1d
+z 50
+x 17
+y 9
+end
+arch ped_white
+name statue
+title of an angel
+animation angel_warrior
+direction 5
+x 17
+y 9
+end
+arch floor_marble1c
+z 50
+x 17
+y 10
+end
+arch floor_marble1d
+z 50
+x 17
+y 11
+end
+arch altar_tabernacle
+direction 7
+x 17
+y 11
+end
+arch floor_marble1a
+z 50
+x 17
+y 12
+end
+arch altar_tabernacle
+direction 7
+x 17
+y 12
+end
+arch floor_marble1g
+z 50
+x 17
+y 13
+end
+arch altar_tabernacle
+direction 7
+x 17
+y 13
+end
+arch floor_marble1h
+z 50
+x 17
+y 14
+end
+arch floor_marble1g
+z 50
+x 17
+y 15
+end
+arch ped_white
+name statue
+title of an angel
+animation angel_warrior
+x 17
+y 15
+end
+arch floor_marble1a
+z 50
+x 17
+y 16
+end
+arch wall_palace_02
+x 17
+y 16
+end
+arch grassd_2
+z 50
+x 17
+y 17
+end
+arch grassd_4
+z 50
+x 17
+y 18
+end
+arch small_stones
+x 17
+y 18
+end
+arch grassd_1
+z 50
+x 17
+y 19
+end
+arch grassd_4
+z 50
+x 17
+y 20
+end
+arch grassd_5
+z 50
+x 17
+y 21
+end
+arch grassd_4
+z 50
+x 17
+y 22
+end
+arch plant_flower7
+x 17
+y 22
+end
+arch grassd_4
+z 50
+x 17
+y 23
+end
+arch grassd_8
+z 50
+sub_layer 1
+x 18
+end
+arch grassd_6
+z 50
+sub_layer 1
+x 18
+y 1
+end
+arch grassd_5
+z 50
+sub_layer 1
+x 18
+y 2
+end
+arch grassd_5
+z 50
+x 18
+y 3
+end
+arch plant_flower14
+x 18
+y 3
+end
+arch grassd_1
+z 50
+x 18
+y 4
+end
+arch grassd_4
+z 50
+x 18
+y 5
+end
+arch grassd_5
+z 50
+x 18
+y 6
+end
+arch grassd_5
+z 50
+x 18
+y 7
+end
+arch floor_marble1g
+z 50
+x 18
+y 8
+end
+arch wall_palace_01
+x 18
+y 8
+end
+arch floor_marble1a
+z 50
+x 18
+y 9
+end
+arch floor_marble1g
+z 50
+x 18
+y 10
+end
+arch floor_marble1d
+z 50
+x 18
+y 11
+end
+arch floor_marble1
+z 50
+x 18
+y 12
+end
+arch spawn_point
+x 18
+y 12
+arch cleric_white_red
+type 83
+level 68
+direction 7
+name Archbishop Theodorus III
+arch event_obj
+sub_type 6
+race /interfaces/temples/tabernacle.xml
+end
+end
+end
+arch floor_marble1a
+z 50
+x 18
+y 13
+end
+arch floor_marble1e
+z 50
+x 18
+y 14
+end
+arch floor_marble1
+z 50
+x 18
+y 15
+end
+arch floor_marble1g
+z 50
+x 18
+y 16
+end
+arch wall_palace_01
+x 18
+y 16
+end
+arch grassd_7
+z 50
+x 18
+y 17
+end
+arch grassd_1
+z 50
+x 18
+y 18
+end
+arch grassd_4
+z 50
+x 18
+y 19
+end
+arch grassd_5
+z 50
+x 18
+y 20
+end
+arch plant_flower2
+x 18
+y 20
+end
+arch grassd_7
+z 50
+x 18
+y 21
+end
+arch grassd_2
+z 50
+x 18
+y 22
+end
+arch grassd_8
+z 50
+x 18
+y 23
+end
+arch grassd_8
+z 50
+sub_layer 1
+x 19
+end
+arch plant_flower14
+sub_layer 1
+x 19
+end
+arch grassd_2
+z 50
+sub_layer 1
+x 19
+y 1
+end
+arch grassd_5
+z 50
+sub_layer 1
+x 19
+y 2
+end
+arch plant_flower5
+sub_layer 1
+x 19
+y 2
+end
+arch grassd_1
+z 50
+x 19
+y 3
+end
+arch grassd_8
+z 50
+x 19
+y 4
+end
+arch grassd_7
+z 50
+x 19
+y 5
+end
+arch grassd_6
+z 50
+x 19
+y 6
+end
+arch grassd_7
+z 50
+x 19
+y 7
+end
+arch floor_marble1e
+z 50
+x 19
+y 8
+end
+arch wall_palace_11
+x 19
+y 8
+end
+arch floor_marble1c
+z 50
+x 19
+y 9
+end
+arch floor_marble1h
+z 50
+x 19
+y 10
+end
+arch floor_marble1h
+z 50
+x 19
+y 11
+end
+arch floor_marble1a
+z 50
+x 19
+y 12
+end
+arch grave_cross2.111
+name icon
+no_pass 0
+direction 7
+x 19
+y 12
+end
+arch floor_marble1c
+z 50
+x 19
+y 13
+end
+arch floor_marble1g
+z 50
+x 19
+y 14
+end
+arch floor_marble1a
+z 50
+x 19
+y 15
+end
+arch floor_marble1g
+z 50
+x 19
+y 16
+end
+arch wall_palace_11
+x 19
+y 16
+end
+arch grassd_2
+z 50
+x 19
+y 17
+end
+arch grassd_2
+z 50
+x 19
+y 18
+end
+arch plant_flower2
+x 19
+y 18
+end
+arch grassd_2
+z 50
+x 19
+y 19
+end
+arch grassd_3
+z 50
+x 19
+y 20
+end
+arch grassd_4
+z 50
+x 19
+y 21
+end
+arch grassd_7
+z 50
+x 19
+y 22
+end
+arch plant_flower5
+x 19
+y 22
+end
+arch grassd_6
+z 50
+x 19
+y 23
+end
+arch grassd_4
+z 50
+sub_layer 1
+x 20
+end
+arch grassd_3
+z 50
+sub_layer 1
+x 20
+y 1
+end
+arch grassd_3
+z 50
+sub_layer 1
+x 20
+y 2
+end
+arch grassd_3
+z 50
+x 20
+y 3
+end
+arch grassd_8
+z 50
+x 20
+y 4
+end
+arch grassd_6
+z 50
+x 20
+y 5
+end
+arch stone1
+x 20
+y 5
+end
+arch grassd_8
+z 50
+x 20
+y 6
+end
+arch grassd_5
+z 50
+x 20
+y 7
+end
+arch floor_marble1g
+z 50
+x 20
+y 8
+end
+arch wall_palace_02
+x 20
+y 8
+end
+arch floor_marble1d
+z 50
+x 20
+y 9
+end
+arch floor_marble1g
+z 50
+x 20
+y 10
+end
+arch shrine1.111
+x 20
+y 10
+end
+arch floor_marble1g
+z 50
+x 20
+y 11
+end
+arch wall_palace_14
+draw_double 0
+x 20
+y 11
+end
+arch badge
+z 22
+align 2
+face scroll.101
+name scroll
+layer 6
+x 20
+y 11
+end
+arch wmask_ruin1a.111
+direction 7
+x 20
+y 11
+end
+arch floor_marble1g
+z 50
+x 20
+y 12
+end
+arch wall_palace_14
+draw_double 0
+x 20
+y 12
+end
+arch badge
+name scroll
+layer 6
+face note.101
+z 22
+align 2
+x 20
+y 12
+end
+arch wmask_ruin1a.111
+direction 7
+x 20
+y 12
+end
+arch floor_marble1g
+z 50
+x 20
+y 13
+end
+arch wall_palace_14
+draw_double 0
+x 20
+y 13
+end
+arch badge
+name amulet
+layer 6
+face amulet_ankh.101
+z 25
+zoom 40
+align 16
+x 20
+y 13
+end
+arch wmask_ruin1a.111
+direction 7
+x 20
+y 13
+end
+arch floor_marble1
+z 50
+x 20
+y 14
+end
+arch shrine1.111
+x 20
+y 14
+end
+arch floor_marble1c
+z 50
+x 20
+y 15
+end
+arch floor_marble1c
+z 50
+x 20
+y 16
+end
+arch wall_palace_02
+x 20
+y 16
+end
+arch grassd_7
+z 50
+x 20
+y 17
+end
+arch grassd_2
+z 50
+x 20
+y 18
+end
+arch grassd_3
+z 50
+x 20
+y 19
+end
+arch grassd_1
+z 50
+x 20
+y 20
+end
+arch grassd_6
+z 50
+x 20
+y 21
+end
+arch plant_flower2
+x 20
+y 21
+end
+arch grassd_1
+z 50
+x 20
+y 22
+end
+arch grassd_6
+z 50
+x 20
+y 23
+end
+arch grassd_4
+z 50
+sub_layer 1
+x 21
+end
+arch grassd_1
+z 50
+sub_layer 1
+x 21
+y 1
+end
+arch plant_flower11
+sub_layer 1
+x 21
+y 1
+end
+arch grassd_3
+z 50
+sub_layer 1
+x 21
+y 2
+end
+arch grassd_8
+z 50
+x 21
+y 3
+end
+arch plant_flower14
+x 21
+y 3
+end
+arch grassd_1
+z 50
+x 21
+y 4
+end
+arch grassd_7
+z 50
+x 21
+y 5
+end
+arch plant_flower11
+x 21
+y 5
+end
+arch grassd_1
+z 50
+x 21
+y 6
+end
+arch grassd_2
+z 50
+x 21
+y 7
+end
+arch floor_marble1g
+z 50
+x 21
+y 8
+end
+arch wall_palace_01
+x 21
+y 8
+end
+arch floor_marble1b
+z 50
+x 21
+y 9
+end
+arch light9
+x 21
+y 9
+end
+arch floor_marble1e
+z 50
+x 21
+y 10
+end
+arch floor_marble1a
+z 50
+x 21
+y 11
+end
+arch floor_marble1a
+z 50
+x 21
+y 12
+end
+arch light9
+x 21
+y 12
+end
+arch floor_marble1
+z 50
+x 21
+y 13
+end
+arch floor_marble1c
+z 50
+x 21
+y 14
+end
+arch floor_marble1h
+z 50
+x 21
+y 15
+end
+arch light9
+x 21
+y 15
+end
+arch floor_marble1g
+z 50
+x 21
+y 16
+end
+arch wall_palace_01
+x 21
+y 16
+end
+arch grassd_4
+z 50
+x 21
+y 17
+end
+arch grassd_6
+z 50
+x 21
+y 18
+end
+arch plant_flower14
+x 21
+y 18
+end
+arch grassd_2
+z 50
+x 21
+y 19
+end
+arch grassd_7
+z 50
+x 21
+y 20
+end
+arch stone1
+x 21
+y 20
+end
+arch grassd_3
+z 50
+x 21
+y 21
+end
+arch grassd_4
+z 50
+x 21
+y 22
+end
+arch grassd_1
+z 50
+x 21
+y 23
+end
+arch grassd_2
+z 50
+sub_layer 1
+x 22
+end
+arch small_stones
+sub_layer 1
+x 22
+end
+arch grassd_3
+z 50
+sub_layer 1
+x 22
+y 1
+end
+arch grassd_6
+z 50
+sub_layer 1
+x 22
+y 2
+end
+arch grassd_2
+z 50
+x 22
+y 3
+end
+arch grassd_7
+z 50
+x 22
+y 4
+end
+arch grassd_3
+z 50
+x 22
+y 5
+end
+arch grassd_2
+z 50
+x 22
+y 6
+end
+arch grassd_4
+z 50
+x 22
+y 7
+end
+arch floor_marble1c
+z 50
+x 22
+y 8
+end
+arch wall_palace_06
+x 22
+y 8
+end
+arch client_map_info
+name basilica_holy_wisdom
+sub_type 2
+x 22
+y 8
+end
+arch floor_marble1b
+z 50
+x 22
+y 9
+end
+arch wall_palace_03
+direction 5
+x 22
+y 9
+end
+arch floor_marble1a
+z 50
+x 22
+y 10
+end
+arch wall_palace_12
+direction 7
+x 22
+y 10
+end
+arch floor_marble1c
+z 50
+x 22
+y 11
+end
+arch wall_palace_02
+direction 7
+x 22
+y 11
+end
+arch floor_marble1c
+z 50
+x 22
+y 12
+end
+arch wall_palace_09
+direction 7
+x 22
+y 12
+end
+arch floor_marble1e
+z 50
+x 22
+y 13
+end
+arch wall_palace_02
+direction 7
+x 22
+y 13
+end
+arch floor_marble1g
+z 50
+x 22
+y 14
+end
+arch wall_palace_12
+direction 7
+x 22
+y 14
+end
+arch floor_marble1c
+z 50
+x 22
+y 15
+end
+arch wall_palace_03
+x 22
+y 15
+end
+arch floor_marble1h
+z 50
+x 22
+y 16
+end
+arch wall_palace_06
+direction 3
+x 22
+y 16
+end
+arch grassd_4
+z 50
+x 22
+y 17
+end
+arch grassd_6
+z 50
+x 22
+y 18
+end
+arch grassd_1
+z 50
+x 22
+y 19
+end
+arch grassd_6
+z 50
+x 22
+y 20
+end
+arch grassd_3
+z 50
+x 22
+y 21
+end
+arch grassd_2
+z 50
+x 22
+y 22
+end
+arch grassd_3
+z 50
+x 22
+y 23
+end
+arch grassd_2
+z 50
+sub_layer 1
+x 23
+end
+arch grassd_4
+z 50
+sub_layer 1
+x 23
+y 1
+end
+arch grassd_8
+z 50
+sub_layer 1
+x 23
+y 2
+end
+arch grassd_5
+z 50
+x 23
+y 3
+end
+arch grassd_5
+z 50
+x 23
+y 4
+end
+arch grassd_8
+z 50
+x 23
+y 5
+end
+arch grassd_5
+z 50
+x 23
+y 6
+end
+arch grassd_2
+z 50
+x 23
+y 7
+end
+arch grassd_4
+z 50
+x 23
+y 8
+end
+arch grassd_2
+z 50
+x 23
+y 9
+end
+arch grassd_5
+z 50
+x 23
+y 10
+end
+arch grassd_4
+z 50
+x 23
+y 11
+end
+arch grassd_7
+z 50
+x 23
+y 12
+end
+arch grassd_8
+z 50
+x 23
+y 13
+end
+arch grassd_7
+z 50
+x 23
+y 14
+end
+arch grassd_6
+z 50
+x 23
+y 15
+end
+arch grassd_6
+z 50
+x 23
+y 16
+end
+arch grassd_2
+z 50
+x 23
+y 17
+end
+arch grassd_2
+z 50
+x 23
+y 18
+end
+arch grassd_7
+z 50
+x 23
+y 19
+end
+arch grassd_3
+z 50
+x 23
+y 20
+end
+arch grassd_6
+z 50
+x 23
+y 21
+end
+arch grassd_1
+z 50
+x 23
+y 22
+end
+arch plant_flower14
+x 23
+y 22
+end
+arch grassd_1
+z 50
+x 23
+y 23
+end
