@@ -37,7 +37,7 @@ class ScannerMap:
                     continue
 
                 files += self.scan(filepath)
-            else:
+            elif os.path.isfile(filepath):
                 if file.find(".") != -1:
                     continue
 
