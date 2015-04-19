@@ -1191,13 +1191,14 @@ void draw_client_map2(object *pl)
                     }
 
                     if (tmp != NULL && layer != LAYER_EFFECT &&
-                            sub_layer != 0 && tmp->type != WALL &&
-                            tmp->type != DOOR && (tmp->type != FLOOR ||
-                            !is_building_wall) && tmp->map != m &&
-                            (GET_MAP_SPACE_PTR(tmp->map, tmp->x,
-                            tmp->y)->extra_flags & (MSP_EXTRA_IS_BUILDING |
-                            MSP_EXTRA_IS_BALCONY)) == MSP_EXTRA_IS_BUILDING &&
-                            !(msp->extra_flags & MSP_EXTRA_IS_OVERLOOK)) {
+                            sub_layer != 0 && (!is_building_wall ||
+                            (tmp->type != WALL && tmp->type != DOOR)) &&
+                            (tmp->type != FLOOR || !is_building_wall) &&
+                            tmp->map != m && (GET_MAP_SPACE_PTR(tmp->map,
+                            tmp->x, tmp->y)->extra_flags &
+                            (MSP_EXTRA_IS_BUILDING | MSP_EXTRA_IS_BALCONY)) ==
+                            MSP_EXTRA_IS_BUILDING && !(msp->extra_flags &
+                            MSP_EXTRA_IS_OVERLOOK)) {
                         tmp = NULL;
                     }
 
