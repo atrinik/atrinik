@@ -2,7 +2,7 @@ arch map
 name Asteria
 msg
 Created:  2009-08-09 Alex Tokar
-Modified: 2011-11-03 Alex Tokar
+Modified: 2015-04-19 Alex Tokar
 endmsg
 width 24
 height 24
@@ -2332,19 +2332,7 @@ x 13
 y 14
 end
 arch grassd_4
-layer 2
-align 48
-x 13
-y 14
-end
-arch grassd_4
 z 42
-x 13
-y 15
-end
-arch grassd_4
-layer 2
-align 48
 x 13
 y 15
 end
@@ -2353,31 +2341,13 @@ z 42
 x 13
 y 16
 end
-arch grassd_5
-layer 2
-align 48
-x 13
-y 16
-end
 arch grassd_7
-z 38
-x 13
-y 17
-end
-arch grassd_7
-layer 2
-align 48
+z 42
 x 13
 y 17
 end
 arch grassd_3
-z 34
-x 13
-y 18
-end
-arch grassd_3
-layer 2
-align 48
+z 36
 x 13
 y 18
 end
@@ -2495,58 +2465,63 @@ x 14
 y 12
 end
 arch grassd_4
-z 26
+z 42
 x 14
 y 13
 end
 arch wall_pattern2.181
+z -16
 x 14
 y 13
 end
 arch grassd_8
-z 26
+z 42
 x 14
 y 14
 end
 arch wall_pattern2.131
+z -16
 x 14
 y 14
 end
 arch picture2.151
 direction 7
-z 8
+z -8
 x 14
 y 14
 end
 arch grassd_8
-z 26
+z 42
 x 14
 y 15
 end
 arch wall_pattern2.131
+z -16
 x 14
 y 15
 end
 arch grassd_7
-z 26
+z 42
 x 14
 y 16
 end
 arch wall_pattern2.131
+z -16
 x 14
 y 16
 end
 arch grassd_1
-z 26
+z 42
 x 14
 y 17
 end
 arch wall_pattern2.131
+z -16
 x 14
 y 17
 end
 arch grassd_8
-z 30
+z 34
 x 14
 y 18
 end
@@ -2681,18 +2656,13 @@ z 46
 x 15
 y 12
 end
-arch grassd_3
-layer 2
-align -48
-x 15
-y 12
-end
 arch grassd_8
-z 26
+z 42
 x 15
 y 13
 end
 arch wall_pattern2.111
+z -16
 x 15
 y 13
 end
@@ -2739,7 +2709,7 @@ x 15
 y 17
 end
 arch grassd_4
-z 26
+z 30
 x 15
 y 18
 end
@@ -2856,18 +2826,13 @@ z 46
 x 16
 y 12
 end
-arch grassd_3
-layer 2
-align -48
-x 16
-y 12
-end
 arch grassd_8
-z 26
+z 42
 x 16
 y 13
 end
 arch wall_pattern2.111
+z -16
 x 16
 y 13
 end
@@ -2917,7 +2882,7 @@ x 16
 y 17
 end
 arch floor_fs_grey1b
-z 22
+z 26
 x 16
 y 18
 end
@@ -3034,18 +2999,13 @@ z 46
 x 17
 y 12
 end
-arch grassd_3
-layer 2
-align -48
-x 17
-y 12
-end
 arch grassd_8
-z 26
+z 42
 x 17
 y 13
 end
 arch wall_pattern2.111
+z -16
 x 17
 y 13
 end
@@ -3210,12 +3170,6 @@ z 46
 x 18
 y 12
 end
-arch grassd_3
-layer 2
-align -48
-x 18
-y 12
-end
 arch grassd_5
 z 40
 x 18
@@ -3359,12 +3313,6 @@ y 11
 end
 arch grassd_2
 z 46
-x 19
-y 12
-end
-arch grassd_3
-layer 2
-align -48
 x 19
 y 12
 end
