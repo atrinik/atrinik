@@ -1,0 +1,187 @@
+arch map
+name Centennial
+msg
+Created:  2015-04-18 emperorbma
+Modified: 2015-04-18 emperorbma
+endmsg
+width 24
+height 24
+difficulty 1
+darkness -1
+tile_path_3 world_2_0128
+tile_path_10 world_1_0129
+bg_music yewtree.mid
+region centennial
+end
+arch roof_wood
+direction 3
+x 9
+y 20
+end
+arch roof_wood
+direction 3
+x 9
+y 21
+end
+arch roof_wood
+direction 3
+x 9
+y 22
+end
+arch roof_wood
+direction 3
+x 9
+y 23
+end
+arch roof_wood
+direction 5
+x 10
+y 19
+end
+arch roof_wood
+x 10
+y 20
+end
+arch roof_wood
+x 10
+y 21
+end
+arch roof_wood
+x 10
+y 22
+end
+arch roof_wood
+x 10
+y 23
+end
+arch roof_wood
+direction 5
+x 11
+y 19
+end
+arch roof_wood
+x 11
+y 20
+end
+arch roof_wood
+x 11
+y 21
+end
+arch roof_wood
+x 11
+y 22
+end
+arch roof_wood
+x 11
+y 23
+end
+arch roof_wood
+direction 5
+x 12
+y 19
+end
+arch roof_wood
+x 12
+y 20
+end
+arch roof_wood
+x 12
+y 21
+end
+arch roof_wood
+x 12
+y 22
+end
+arch roof_wood
+x 12
+y 23
+end
+arch roof_wood
+direction 5
+x 13
+y 19
+end
+arch roof_wood
+direction 7
+x 13
+y 20
+end
+arch roof_wood
+direction 7
+x 13
+y 21
+end
+arch roof_wood
+direction 7
+x 13
+y 22
+end
+arch roof_wood
+direction 8
+x 13
+y 23
+end
+arch roof_wood
+direction 3
+x 17
+y 22
+end
+arch roof_wood
+direction 3
+x 17
+y 23
+end
+arch roof_wood
+direction 5
+x 18
+y 21
+end
+arch roof_wood
+x 18
+y 22
+end
+arch roof_wood
+x 18
+y 23
+end
+arch roof_wood
+direction 5
+x 19
+y 21
+end
+arch roof_wood
+x 19
+y 22
+end
+arch roof_wood
+x 19
+y 23
+end
+arch roof_wood
+direction 5
+x 20
+y 21
+end
+arch roof_wood
+x 20
+y 22
+end
+arch roof_wood
+x 20
+y 23
+end
+arch roof_wood
+direction 5
+x 21
+y 21
+end
+arch roof_wood
+direction 7
+x 21
+y 22
+end
+arch roof_wood
+direction 7
+x 21
+y 23
+end
