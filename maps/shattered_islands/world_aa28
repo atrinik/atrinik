@@ -2,7 +2,7 @@ arch map
 name Centennial
 msg
 Created:  2011-03-20 Alex Tokar
-Modified: 2015-03-21 Alex Tokar
+Modified: 2015-04-18 emperorbma
 endmsg
 width 24
 height 24
@@ -1651,6 +1651,14 @@ x 14
 y 7
 end
 arch wall_wood_8
+x 14
+y 7
+end
+arch map_info
+name centennial_storm_shrine
+hp 8
+sp 7
+cursed 1
 x 14
 y 7
 end
