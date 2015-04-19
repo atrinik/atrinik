@@ -2,7 +2,7 @@ arch map
 name Centennial
 msg
 Created:  2009-08-09 Alex Tokar
-Modified: 2014-03-09 Alex Tokar
+Modified: 2015-04-18 emperorbma
 endmsg
 width 24
 height 24
@@ -17,9 +17,9 @@ tile_path_5 world_0229
 tile_path_6 world_0227
 tile_path_7 world_aa27
 tile_path_8 world_aa29
+tile_path_9 world_1_0128
 bg_music yewtree.mid
 region centennial
-tile_path_9 world_1_0128
 end
 arch water_lt
 end
@@ -134,6 +134,14 @@ arch wall_wood_8
 x 1
 y 2
 end
+arch map_info
+name centennial_magic_school
+hp 11
+sp 11
+cursed 1
+x 1
+y 2
+end
 arch grassd_2
 x 1
 y 3
@@ -241,6 +249,14 @@ x 1
 y 15
 end
 arch wall_wood_8
+x 1
+y 15
+end
+arch map_info
+name centennial_potion_shop
+hp 10
+sp 5
+cursed 1
 x 1
 y 15
 end
@@ -1965,23 +1981,8 @@ arch floor_wood2_l1
 x 11
 y 12
 end
-arch fwall_wood1c
-layer 4
-no_pass 0
-draw_double 0
-x 11
-y 12
-end
-arch stairs_wood_up
-z 22
+arch stairs_wood_up2
 direction 7
-slaying world_1_0128
-hp 11
-sp 11
-x 11
-y 12
-end
-arch invis_exit
 slaying world_1_0128
 hp 11
 sp 11
@@ -2830,6 +2831,13 @@ arch grassd_4
 x 17
 end
 arch wall_wood3_3
+x 17
+end
+arch map_info
+name centennial_dorm_2
+hp 4
+sp 1
+cursed 1
 x 17
 end
 arch grassd_5
