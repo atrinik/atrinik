@@ -2,7 +2,7 @@ arch map
 name Centennial
 msg
 Created:  2009-08-09 Alex Tokar
-Modified: 2014-03-09 Alex Tokar
+Modified: 2015-04-18 emperorbma
 endmsg
 width 24
 height 24
@@ -17,6 +17,7 @@ tile_path_5 world_0228
 tile_path_6 world_0226
 tile_path_7 world_aa26
 tile_path_8 world_aa28
+tile_path_9 world_1_0127
 bg_music yewtree.mid
 region centennial
 end
@@ -50,6 +51,13 @@ arch grassd_3
 y 6
 end
 arch wall_wood_8
+y 6
+end
+arch map_info
+name centennial_earth_shrine
+hp 7
+sp 8
+cursed 1
 y 6
 end
 arch grassd_6
@@ -1228,6 +1236,14 @@ arch wall_wood_w_1
 x 8
 y 7
 end
+arch map_info
+name centennial_earth_shrine
+hp 1
+sp 6
+cursed 1
+x 8
+y 7
+end
 arch floor_wood3a
 x 8
 y 8
@@ -1483,6 +1499,13 @@ x 10
 y 8
 end
 arch wall_wood_1
+x 10
+y 8
+end
+arch map_info
+name centennial_earth_shrine
+sp 4
+cursed 1
 x 10
 y 8
 end
