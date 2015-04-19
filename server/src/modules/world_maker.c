@@ -167,6 +167,18 @@ static void wm_images_init(void)
 }
 
 /**
+ * Deinitialize the face colors.
+ */
+static void wm_images_deinit(void)
+{
+    for (int i = 0; i < nrofpixmaps; i++) {
+        efree(wm_face_colors[i]);
+    }
+
+    efree(wm_face_colors);
+}
+
+/**
  * Render a single object on the image 'im'.
  * @param im Image to render on.
  * @param x X position.
@@ -856,4 +868,6 @@ void world_maker(void)
         efree(wm_r->maps);
         efree(wm_r);
     }
+
+    wm_images_deinit();
 }
