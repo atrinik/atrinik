@@ -2,7 +2,7 @@ arch map
 name Centennial
 msg
 Created:  2009-08-09 Alex Tokar
-Modified: 2011-10-02 Alex Tokar
+Modified: 2015-04-18 emperorbma
 endmsg
 width 24
 height 24
@@ -11,445 +11,12 @@ outdoor 1
 tile_path_3 world_1_0128
 tile_path_4 world_1_aa29
 tile_path_7 world_1_aa28
+tile_path_9 world_2_0129
+tile_path_10 world_0129
 bg_music yewtree.mid
 region centennial
-tile_path_10 world_0129
 end
-arch magic_mirror
-slaying world_0129
-last_eat -50
-last_heal 80
-path_attuned 124
-y 18
-end
-arch magic_mirror
-slaying world_0129
-last_eat -50
-last_heal 80
-path_attuned 124
-y 19
-end
-arch magic_mirror
-slaying world_0129
-last_eat -50
-last_heal 80
-path_attuned 124
-y 20
-end
-arch magic_mirror
-slaying world_0129
-last_eat -50
-last_heal 80
-path_attuned 124
-y 21
-end
-arch magic_mirror
-slaying world_0129
-last_eat -50
-last_heal 80
-path_attuned 124
-y 22
-end
-arch magic_mirror
-slaying world_0129
-last_eat -50
-last_heal 80
-path_attuned 124
-y 23
-end
-arch magic_mirror
-slaying world_0129
-last_eat -50
-last_heal 80
-path_attuned 124
-x 1
-y 18
-end
-arch magic_mirror
-slaying world_0129
-last_eat -50
-last_heal 80
-path_attuned 124
-x 1
-y 19
-end
-arch magic_mirror
-slaying world_0129
-last_eat -50
-last_heal 80
-path_attuned 124
-x 1
-y 20
-end
-arch magic_mirror
-slaying world_0129
-last_eat -50
-last_heal 80
-path_attuned 124
-x 1
-y 21
-end
-arch magic_mirror
-slaying world_0129
-last_eat -50
-last_heal 80
-path_attuned 124
-x 1
-y 22
-end
-arch magic_mirror
-slaying world_0129
-last_eat -50
-last_heal 80
-path_attuned 124
-x 1
-y 23
-end
-arch magic_mirror
-slaying world_0129
-last_eat -50
-last_heal 80
-path_attuned 124
-x 2
-y 18
-end
-arch magic_mirror
-slaying world_0129
-last_eat -50
-last_heal 80
-path_attuned 124
-x 2
-y 19
-end
-arch magic_mirror
-slaying world_0129
-last_eat -50
-last_heal 80
-path_attuned 124
-x 2
-y 20
-end
-arch magic_mirror
-slaying world_0129
-last_eat -50
-last_heal 80
-path_attuned 124
-x 2
-y 21
-end
-arch magic_mirror
-slaying world_0129
-last_eat -50
-last_heal 80
-path_attuned 124
-x 2
-y 22
-end
-arch magic_mirror
-slaying world_0129
-last_eat -50
-last_heal 80
-path_attuned 124
-x 2
-y 23
-end
-arch magic_mirror
-slaying world_0129
-last_eat -50
-last_heal 80
-path_attuned 124
-x 3
-y 18
-end
-arch magic_mirror
-slaying world_0129
-last_eat -50
-last_heal 80
-path_attuned 124
-x 3
-y 19
-end
-arch magic_mirror
-slaying world_0129
-last_eat -50
-last_heal 80
-path_attuned 124
-x 3
-y 20
-end
-arch magic_mirror
-slaying world_0129
-last_eat -50
-last_heal 80
-path_attuned 124
-x 3
-y 21
-end
-arch magic_mirror
-slaying world_0129
-last_eat -50
-last_heal 80
-path_attuned 124
-x 3
-y 22
-end
-arch magic_mirror
-slaying world_0129
-last_eat -50
-last_heal 80
-path_attuned 124
-x 3
-y 23
-end
-arch magic_mirror
-slaying world_0129
-last_eat -50
-last_heal 80
-path_attuned 124
-x 4
-y 18
-end
-arch magic_mirror
-slaying world_0129
-last_eat -50
-last_heal 80
-path_attuned 124
-x 4
-y 19
-end
-arch magic_mirror
-slaying world_0129
-last_eat -50
-last_heal 80
-path_attuned 124
-x 4
-y 20
-end
-arch magic_mirror
-slaying world_0129
-last_eat -50
-last_heal 80
-path_attuned 124
-x 4
-y 21
-end
-arch magic_mirror
-slaying world_0129
-last_eat -50
-last_heal 80
-path_attuned 124
-x 4
-y 22
-end
-arch magic_mirror
-slaying world_0129
-last_eat -50
-last_heal 80
-path_attuned 124
-x 4
-y 23
-end
-arch magic_mirror
-slaying world_0129
-last_eat -50
-last_heal 80
-path_attuned 124
-x 5
-y 18
-end
-arch magic_mirror
-slaying world_0129
-last_eat -50
-last_heal 80
-path_attuned 124
-x 5
-y 19
-end
-arch magic_mirror
-slaying world_0129
-last_eat -50
-last_heal 80
-path_attuned 124
-x 5
-y 20
-end
-arch magic_mirror
-slaying world_0129
-last_eat -50
-last_heal 80
-path_attuned 124
-x 5
-y 21
-end
-arch magic_mirror
-slaying world_0129
-last_eat -50
-last_heal 80
-path_attuned 124
-x 5
-y 22
-end
-arch magic_mirror
-slaying world_0129
-last_eat -50
-last_heal 80
-path_attuned 124
-x 5
-y 23
-end
-arch magic_mirror
-slaying world_0129
-last_eat -50
-last_heal 80
-path_attuned 124
-x 6
-y 18
-end
-arch magic_mirror
-slaying world_0129
-last_eat -50
-last_heal 80
-path_attuned 124
-x 6
-y 19
-end
-arch magic_mirror
-slaying world_0129
-last_eat -50
-last_heal 80
-path_attuned 124
-x 6
-y 20
-end
-arch magic_mirror
-slaying world_0129
-last_eat -50
-last_heal 80
-path_attuned 124
-x 6
-y 21
-end
-arch magic_mirror
-slaying world_0129
-last_eat -50
-last_heal 80
-path_attuned 124
-x 6
-y 22
-end
-arch magic_mirror
-slaying world_0129
-last_eat -50
-last_heal 80
-path_attuned 124
-x 6
-y 23
-end
-arch magic_mirror
-slaying world_0129
-last_eat -50
-last_heal 80
-path_attuned 124
-x 7
-y 18
-end
-arch magic_mirror
-slaying world_0129
-last_eat -50
-last_heal 80
-path_attuned 124
-x 7
-y 19
-end
-arch magic_mirror
-slaying world_0129
-last_eat -50
-last_heal 80
-path_attuned 124
-x 7
-y 20
-end
-arch magic_mirror
-slaying world_0129
-last_eat -50
-last_heal 80
-path_attuned 124
-x 7
-y 21
-end
-arch magic_mirror
-slaying world_0129
-last_eat -50
-last_heal 80
-path_attuned 124
-x 7
-y 22
-end
-arch magic_mirror
-slaying world_0129
-last_eat -50
-last_heal 80
-path_attuned 124
-x 7
-y 23
-end
-arch magic_mirror
-slaying world_0129
-last_eat -50
-last_heal 80
-path_attuned 124
-x 8
-y 18
-end
-arch magic_mirror
-slaying world_0129
-last_eat -50
-last_heal 80
-path_attuned 124
-x 8
-y 19
-end
-arch magic_mirror
-slaying world_0129
-last_eat -50
-last_heal 80
-path_attuned 124
-x 8
-y 20
-end
-arch magic_mirror
-slaying world_0129
-last_eat -50
-last_heal 80
-path_attuned 124
-x 8
-y 21
-end
-arch magic_mirror
-slaying world_0129
-last_eat -50
-last_heal 80
-path_attuned 124
-x 8
-y 22
-end
-arch magic_mirror
-slaying world_0129
-last_eat -50
-last_heal 80
-path_attuned 124
-x 8
-y 23
-end
-arch magic_mirror
-slaying world_0129
-last_eat -50
-last_heal 80
-path_attuned 124
-x 9
-y 18
-end
-arch grassd_1
+arch trans
 x 9
 y 19
 end
@@ -457,7 +24,15 @@ arch wall_wood_8
 x 9
 y 19
 end
-arch grassd_6
+arch map_info
+name centennial_dorm_1
+hp 4
+sp 4
+cursed 1
+x 9
+y 19
+end
+arch trans
 x 9
 y 20
 end
@@ -465,7 +40,7 @@ arch wall_wood_3
 x 9
 y 20
 end
-arch grassd_8
+arch trans
 x 9
 y 21
 end
@@ -473,7 +48,7 @@ arch wall_wood_3
 x 9
 y 21
 end
-arch grassd_1
+arch trans
 x 9
 y 22
 end
@@ -481,7 +56,7 @@ arch wall_wood_3
 x 9
 y 22
 end
-arch grassd_7
+arch trans
 x 9
 y 23
 end
@@ -489,15 +64,7 @@ arch wall_wood3_3
 x 9
 y 23
 end
-arch magic_mirror
-slaying world_0129
-last_eat -50
-last_heal 80
-path_attuned 124
-x 10
-y 18
-end
-arch grassd_7
+arch trans
 x 10
 y 19
 end
@@ -515,9 +82,8 @@ y 21
 end
 arch ladder_down2
 direction 7
-slaying world_0129
-hp 10
-sp 21
+hp 0
+sp 0
 x 10
 y 21
 end
@@ -533,15 +99,7 @@ arch wall_wood_1
 x 10
 y 23
 end
-arch magic_mirror
-slaying world_0129
-last_eat -50
-last_heal 80
-path_attuned 124
-x 11
-y 18
-end
-arch grassd_6
+arch trans
 x 11
 y 19
 end
@@ -586,15 +144,7 @@ arch wall_wood_1
 x 11
 y 23
 end
-arch magic_mirror
-slaying world_0129
-last_eat -50
-last_heal 80
-path_attuned 124
-x 12
-y 18
-end
-arch grassd_2
+arch trans
 x 12
 y 19
 end
@@ -646,15 +196,7 @@ arch wall_wood_1
 x 12
 y 23
 end
-arch magic_mirror
-slaying world_0129
-last_eat -50
-last_heal 80
-path_attuned 124
-x 13
-y 18
-end
-arch grassd_8
+arch trans
 x 13
 y 19
 end
@@ -683,14 +225,6 @@ x 13
 y 22
 end
 arch wall_wood_3
-x 13
-y 22
-end
-arch wmask_ruin1a.111
-name door
-animation door_wood1
-zoom 80
-direction 3
 x 13
 y 22
 end
@@ -702,175 +236,7 @@ arch wall_wood_4
 x 13
 y 23
 end
-arch magic_mirror
-slaying world_0129
-last_eat -50
-last_heal 80
-path_attuned 124
-x 14
-y 18
-end
-arch magic_mirror
-slaying world_0129
-last_eat -50
-last_heal 80
-path_attuned 124
-x 14
-y 19
-end
-arch magic_mirror
-slaying world_0129
-last_eat -50
-last_heal 80
-path_attuned 124
-x 14
-y 20
-end
-arch magic_mirror
-slaying world_0129
-last_eat -50
-last_heal 80
-path_attuned 124
-x 14
-y 21
-end
-arch magic_mirror
-slaying world_0129
-last_eat -50
-last_heal 80
-path_attuned 124
-x 14
-y 22
-end
-arch magic_mirror
-slaying world_0129
-last_eat -50
-last_heal 80
-path_attuned 124
-x 14
-y 23
-end
-arch magic_mirror
-slaying world_0129
-last_eat -50
-last_heal 80
-path_attuned 124
-x 15
-y 18
-end
-arch magic_mirror
-slaying world_0129
-last_eat -50
-last_heal 80
-path_attuned 124
-x 15
-y 19
-end
-arch magic_mirror
-slaying world_0129
-last_eat -50
-last_heal 80
-path_attuned 124
-x 15
-y 20
-end
-arch magic_mirror
-slaying world_0129
-last_eat -50
-last_heal 80
-path_attuned 124
-x 15
-y 21
-end
-arch magic_mirror
-slaying world_0129
-last_eat -50
-last_heal 80
-path_attuned 124
-x 15
-y 22
-end
-arch magic_mirror
-slaying world_0129
-last_eat -50
-last_heal 80
-path_attuned 124
-x 15
-y 23
-end
-arch magic_mirror
-slaying world_0129
-last_eat -50
-last_heal 80
-path_attuned 124
-x 16
-y 18
-end
-arch magic_mirror
-slaying world_0129
-last_eat -50
-last_heal 80
-path_attuned 124
-x 16
-y 19
-end
-arch magic_mirror
-slaying world_0129
-last_eat -50
-last_heal 80
-path_attuned 124
-x 16
-y 20
-end
-arch magic_mirror
-slaying world_0129
-last_eat -50
-last_heal 80
-path_attuned 124
-x 16
-y 21
-end
-arch magic_mirror
-slaying world_0129
-last_eat -50
-last_heal 80
-path_attuned 124
-x 16
-y 22
-end
-arch magic_mirror
-slaying world_0129
-last_eat -50
-last_heal 80
-path_attuned 124
-x 16
-y 23
-end
-arch magic_mirror
-slaying world_0129
-last_eat -50
-last_heal 80
-path_attuned 124
-x 17
-y 18
-end
-arch magic_mirror
-slaying world_0129
-last_eat -50
-last_heal 80
-path_attuned 124
-x 17
-y 19
-end
-arch magic_mirror
-slaying world_0129
-last_eat -50
-last_heal 80
-path_attuned 124
-x 17
-y 20
-end
-arch grassd_1
+arch trans
 x 17
 y 21
 end
@@ -878,7 +244,15 @@ arch wall_wood_8
 x 17
 y 21
 end
-arch grassd_4
+arch map_info
+name centennial_dorm_2
+hp 4
+sp 2
+cursed 1
+x 17
+y 21
+end
+arch trans
 x 17
 y 22
 end
@@ -886,7 +260,7 @@ arch wall_wood_3
 x 17
 y 22
 end
-arch grassd_7
+arch trans
 x 17
 y 23
 end
@@ -894,31 +268,7 @@ arch wall_wood_3
 x 17
 y 23
 end
-arch magic_mirror
-slaying world_0129
-last_eat -50
-last_heal 80
-path_attuned 124
-x 18
-y 18
-end
-arch magic_mirror
-slaying world_0129
-last_eat -50
-last_heal 80
-path_attuned 124
-x 18
-y 19
-end
-arch magic_mirror
-slaying world_0129
-last_eat -50
-last_heal 80
-path_attuned 124
-x 18
-y 20
-end
-arch grassd_4
+arch trans
 x 18
 y 21
 end
@@ -936,37 +286,12 @@ y 23
 end
 arch ladder_down2
 direction 7
-slaying world_0129
-hp 18
-sp 23
+hp 0
+sp 0
 x 18
 y 23
 end
-arch magic_mirror
-slaying world_0129
-last_eat -50
-last_heal 80
-path_attuned 124
-x 19
-y 18
-end
-arch magic_mirror
-slaying world_0129
-last_eat -50
-last_heal 80
-path_attuned 124
-x 19
-y 19
-end
-arch magic_mirror
-slaying world_0129
-last_eat -50
-last_heal 80
-path_attuned 124
-x 19
-y 20
-end
-arch swamp1
+arch trans
 x 19
 y 21
 end
@@ -999,31 +324,7 @@ arch floor_wood1b
 x 19
 y 23
 end
-arch magic_mirror
-slaying world_0129
-last_eat -50
-last_heal 80
-path_attuned 124
-x 20
-y 18
-end
-arch magic_mirror
-slaying world_0129
-last_eat -50
-last_heal 80
-path_attuned 124
-x 20
-y 19
-end
-arch magic_mirror
-slaying world_0129
-last_eat -50
-last_heal 80
-path_attuned 124
-x 20
-y 20
-end
-arch swamp1
+arch trans
 x 20
 y 21
 end
@@ -1063,31 +364,7 @@ arch floor_wood1b
 x 20
 y 23
 end
-arch magic_mirror
-slaying world_0129
-last_eat -50
-last_heal 80
-path_attuned 124
-x 21
-y 18
-end
-arch magic_mirror
-slaying world_0129
-last_eat -50
-last_heal 80
-path_attuned 124
-x 21
-y 19
-end
-arch magic_mirror
-slaying world_0129
-last_eat -50
-last_heal 80
-path_attuned 124
-x 21
-y 20
-end
-arch swamp1
+arch trans
 x 21
 y 21
 end
@@ -1109,53 +386,5 @@ y 23
 end
 arch wall_wood3_3
 x 21
-y 23
-end
-arch magic_mirror
-slaying world_0129
-last_eat -50
-last_heal 80
-path_attuned 124
-x 22
-y 18
-end
-arch magic_mirror
-slaying world_0129
-last_eat -50
-last_heal 80
-path_attuned 124
-x 22
-y 19
-end
-arch magic_mirror
-slaying world_0129
-last_eat -50
-last_heal 80
-path_attuned 124
-x 22
-y 20
-end
-arch magic_mirror
-slaying world_0129
-last_eat -50
-last_heal 80
-path_attuned 124
-x 22
-y 21
-end
-arch magic_mirror
-slaying world_0129
-last_eat -50
-last_heal 80
-path_attuned 124
-x 22
-y 22
-end
-arch magic_mirror
-slaying world_0129
-last_eat -50
-last_heal 80
-path_attuned 124
-x 22
 y 23
 end
