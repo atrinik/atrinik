@@ -119,7 +119,7 @@ mapstruct *load_style_map(char *style_name)
         }
     }
 
-    style_map = load_original_map(style_name, MAP_STYLE);
+    style_map = load_original_map(style_name, NULL, MAP_STYLE);
 
     /* Remove it from global list, put it on our local list */
     if (style_map != NULL) {

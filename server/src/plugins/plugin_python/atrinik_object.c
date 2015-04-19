@@ -207,7 +207,7 @@ static PyObject *Atrinik_Object_TeleportTo(Atrinik_Object *obj, PyObject *args, 
     }
 
     OBJEXISTCHECK(obj);
-    m = hooks->ready_map_name(path, 0);
+    m = hooks->ready_map_name(path, NULL, 0);
 
     if (!m) {
         PyErr_Format(AtrinikError, "Could not load map %s.", path);

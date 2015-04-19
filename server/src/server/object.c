@@ -3082,15 +3082,15 @@ int object_enter_map(object *op, object *exit_ob, mapstruct *m, int x, int y, ui
                 char *path;
 
                 path = map_get_path(exit_ob->map, EXIT_PATH(exit_ob), op->type == PLAYER && (exit_ob->last_eat == MAP_PLAYER_MAP || (MAP_UNIQUE(exit_ob->map) && !map_path_isabs(EXIT_PATH(exit_ob)))), op->name);
-                m = ready_map_name(path, 0);
+                m = ready_map_name(path, NULL, 0);
                 efree(path);
 
                 /* Failed to load a random map? */
                 if (!m && op->type == PLAYER && strncmp(EXIT_PATH(exit_ob), "/random/", 8) == 0) {
-                    return object_enter_map(op, NULL, ready_map_name(CONTR(op)->savebed_map, 0), CONTR(op)->bed_x, CONTR(op)->bed_y, 1);
+                    return object_enter_map(op, NULL, ready_map_name(CONTR(op)->savebed_map, NULL, 0), CONTR(op)->bed_x, CONTR(op)->bed_y, 1);
                 }
             } else {
-                m = ready_map_name(EXIT_PATH(exit_ob), MAP_NAME_SHARED);
+                m = ready_map_name(EXIT_PATH(exit_ob), NULL, MAP_NAME_SHARED);
             }
         }
 
@@ -3109,7 +3109,7 @@ int object_enter_map(object *op, object *exit_ob, mapstruct *m, int x, int y, ui
     }
 
     if (!m) {
-        m = ready_map_name(EMERGENCY_MAPPATH, 0);
+        m = ready_map_name(EMERGENCY_MAPPATH, NULL, 0);
         x = EMERGENCY_X;
         y = EMERGENCY_Y;
         fixed_pos = 1;

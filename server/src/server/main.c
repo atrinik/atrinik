@@ -483,7 +483,7 @@ int swap_apartments(const char *mapold, const char *mapnew, int x, int y, object
     cleanpath = estrdup(mapold);
     string_replace_char(cleanpath, "/", '$');
     path = player_make_path(op->name, cleanpath);
-    oldmap = ready_map_name(path, MAP_PLAYER_UNIQUE);
+    oldmap = ready_map_name(path, NULL, MAP_PLAYER_UNIQUE);
     efree(path);
     efree(cleanpath);
 
@@ -496,7 +496,7 @@ int swap_apartments(const char *mapold, const char *mapnew, int x, int y, object
     cleanpath = estrdup(mapnew);
     string_replace_char(cleanpath, "/", '$');
     path = player_make_path(op->name, cleanpath);
-    newmap = ready_map_name(path, MAP_PLAYER_UNIQUE);
+    newmap = ready_map_name(path, NULL, MAP_PLAYER_UNIQUE);
     efree(path);
     efree(cleanpath);
 

@@ -345,7 +345,7 @@ static int save_life(object *op)
             }
 
             /* Bring him home. */
-            object_enter_map(op, NULL, ready_map_name(CONTR(op)->savebed_map, 0), CONTR(op)->bed_x, CONTR(op)->bed_y, 1);
+            object_enter_map(op, NULL, ready_map_name(CONTR(op)->savebed_map, NULL, 0), CONTR(op)->bed_x, CONTR(op)->bed_y, 1);
             return 1;
         }
     }
@@ -353,7 +353,7 @@ static int save_life(object *op)
     logger_print(LOG(BUG), "LIFESAVE set without applied object.");
     CLEAR_FLAG(op, FLAG_LIFESAVE);
     /* Bring him home. */
-    object_enter_map(op, NULL, ready_map_name(CONTR(op)->savebed_map, 0), CONTR(op)->bed_x, CONTR(op)->bed_y, 1);
+    object_enter_map(op, NULL, ready_map_name(CONTR(op)->savebed_map, NULL, 0), CONTR(op)->bed_x, CONTR(op)->bed_y, 1);
     return 0;
 }
 
@@ -655,7 +655,7 @@ void kill_player(object *op)
     }
 
     /* Move player to his current respawn position (last savebed). */
-    object_enter_map(op, NULL, ready_map_name(CONTR(op)->savebed_map, 0), CONTR(op)->bed_x, CONTR(op)->bed_y, 1);
+    object_enter_map(op, NULL, ready_map_name(CONTR(op)->savebed_map, NULL, 0), CONTR(op)->bed_x, CONTR(op)->bed_y, 1);
 
     /* Show a nasty message */
     draw_info(COLOR_WHITE, op, "YOU HAVE DIED.");
@@ -2181,10 +2181,10 @@ void player_login(socket_struct *ns, const char *name, archetype *at)
     draw_info_format(COLOR_DK_ORANGE, NULL, "%s has entered the game.", pl->ob->name);
     trigger_global_event(GEVENT_LOGIN, pl, pl->socket.host);
 
-    m = ready_map_name(pl->maplevel, 0);
+    m = ready_map_name(pl->maplevel, NULL, 0);
 
     if (!m && strncmp(pl->maplevel, "/random/", 8) == 0) {
-        object_enter_map(pl->ob, NULL, ready_map_name(pl->savebed_map, 0), pl->bed_x, pl->bed_y, 1);
+        object_enter_map(pl->ob, NULL, ready_map_name(pl->savebed_map, NULL, 0), pl->bed_x, pl->bed_y, 1);
     } else {
         object_enter_map(pl->ob, NULL, m, pl->ob->x, pl->ob->y, 1);
     }

@@ -347,7 +347,7 @@ int region_enter_jail(object *op)
             continue;
         }
 
-        m = ready_map_name(region->jailmap, 0);
+        m = ready_map_name(region->jailmap, NULL, 0);
 
         if (m == NULL) {
             logger_print(LOG(BUG), "Could not load map '%s' (%d,%d).",

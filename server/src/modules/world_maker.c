@@ -402,7 +402,8 @@ static void region_add_rec(wm_region *r, mapstruct *m, const char *region_name)
 
         /* Load the map if needed. */
         if (!m->tile_map[i]) {
-            m->tile_map[i] = ready_map_name(m->tile_path[i], MAP_NAME_SHARED);
+            m->tile_map[i] = ready_map_name(m->tile_path[i], NULL,
+                    MAP_NAME_SHARED | MAP_NO_DYNAMIC);
 
             if (!m->tile_map[i]) {
                 continue;
@@ -514,7 +515,7 @@ void world_maker(void)
         }
 
         /* Load the first map. */
-        m = ready_map_name(r->map_first, 0);
+        m = ready_map_name(r->map_first, NULL, MAP_NO_DYNAMIC);
         /* Parse the maps recursively. */
         region_add_rec(wm_r, m, r->name);
 

@@ -144,7 +144,7 @@ mapstruct *exit_get_destination(object *op, int *x, int *y, int do_load)
 
     if (EXIT_PATH(op) != NULL && EXIT_X(op) != -1 && EXIT_Y(op) != -1) {
         if (do_load) {
-            m = ready_map_name(EXIT_PATH(op), 0);
+            m = ready_map_name(EXIT_PATH(op), NULL, 0);
         } else {
             m = has_been_loaded_sh(EXIT_PATH(op));
         }

@@ -148,6 +148,8 @@
 #define MAP_NAME_SHARED   32
 /** Original map. Generate treasures */
 #define MAP_ORIGINAL      64
+/** No dynamic maps. */
+#define MAP_NO_DYNAMIC    128
 /*@}*/
 
 /**

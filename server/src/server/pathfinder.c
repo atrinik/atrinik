@@ -548,7 +548,7 @@ int path_get_next(shstr *buf, int16_t *off, shstr **mappath, mapstruct **map,
     if (*mappath) {
         /* We assume map name is already normalized. */
         if (*map == NULL || (*map)->path != *mappath) {
-            *map = ready_map_name(*mappath, MAP_NAME_SHARED);
+            *map = ready_map_name(*mappath, NULL, MAP_NAME_SHARED);
         }
     }
 

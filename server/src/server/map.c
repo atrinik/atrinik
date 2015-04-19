@@ -79,11 +79,28 @@ static void free_all_objects(mapstruct *m);
  * @return NULL if loading or tiling fails, loaded neighbor map otherwise. */
 static inline mapstruct *load_and_link_tiled_map(mapstruct *orig_map, int tile_num)
 {
-    mapstruct *map = ready_map_name(orig_map->tile_path[tile_num], MAP_NAME_SHARED | (MAP_UNIQUE(orig_map) ? MAP_PLAYER_UNIQUE : 0));
+    mapstruct *map;
 
-    if (!map || map != orig_map->tile_map[tile_num]) {
-        logger_print(LOG(BUG), "Failed to connect map %s with tile #%d (%s).", STRING_SAFE(orig_map->path), tile_num, STRING_SAFE(orig_map->tile_path[tile_num]));
+    if (orig_map->tile_path[tile_num] == NULL) {
+        return NULL;
+    }
+
+    map = ready_map_name(orig_map->tile_path[tile_num], orig_map,
+            MAP_NAME_SHARED | (MAP_UNIQUE(orig_map) ? MAP_PLAYER_UNIQUE : 0));
+
+    if (map == NULL) {
+        log_error("Failed to load map: %s (tile: #%d), for: %s",
+                orig_map->tile_path[tile_num], tile_num, orig_map->path);
+        return NULL;
+    }
+
+    if (orig_map->tile_map[tile_num] == NULL) {
+        orig_map->tile_map[tile_num] = map;
+    } else if (map != orig_map->tile_map[tile_num]) {
+        log_error("Failed to connect map %s with tile #%d (%s).",
+                orig_map->tile_path[tile_num], tile_num, orig_map->path);
         FREE_AND_CLEAR_HASH(orig_map->tile_path[tile_num]);
+        delete_map(map);
         return NULL;
     }
 
@@ -836,7 +853,8 @@ void map_set_tile(mapstruct *m, int tile, const char *pathname)
  * - @ref MAP_STYLE: Style map - don't add active objects, don't add to
  *   server managed map list.
  * @return The loaded map structure, NULL on failure. */
-mapstruct *load_original_map(const char *filename, int flags)
+mapstruct *load_original_map(const char *filename, mapstruct *originator,
+        int flags)
 {
     FILE *fp;
     mapstruct *m;
@@ -865,8 +883,8 @@ mapstruct *load_original_map(const char *filename, int flags)
         fp = fopen(pathname, "rb");
     }
 
-    if (!fp) {
-        logger_print(LOG(BUG), "Can't open map file %s", pathname);
+    if (fp == NULL && originator == NULL) {
+        log_error("Can't open map file %s", pathname);
         return NULL;
     }
 
@@ -878,8 +896,9 @@ mapstruct *load_original_map(const char *filename, int flags)
         m->map_flags |= MAP_FLAG_UNIQUE;
     }
 
-    if (!load_map_header(m, fp)) {
-        logger_print(LOG(BUG), "Failure loading map header for %s, flags=%d", filename, flags);
+    if (fp != NULL && !load_map_header(m, fp)) {
+        log_error("Failure loading map header for %s, flags=%d",
+                filename, flags);
         delete_map(m);
         fclose(fp);
         return NULL;
@@ -936,7 +955,9 @@ mapstruct *load_original_map(const char *filename, int flags)
                         m->coords[2] + map_tiled_coords[i][2]);
             }
 
-            if (path_exists(path)) {
+            if ((!(flags & MAP_NO_DYNAMIC) && ((m->coords[2] >= 0 &&
+                    i != TILED_UP && i != TILED_DOWN) || (m->coords[2] > 0 &&
+                    i != TILED_UP))) || path_exists(path)) {
                 cp2 = path_basename(path);
                 map_set_tile(m, i, cp2);
                 efree(cp2);
@@ -954,11 +975,35 @@ mapstruct *load_original_map(const char *filename, int flags)
         m->level_min = m->level_max = m->coords[2];
     }
 
+    if (fp == NULL && originator != NULL) {
+        m->name = estrdup(originator->name);
+
+        if (originator->bg_music != NULL) {
+            m->bg_music = estrdup(originator->bg_music);
+        }
+
+        if (originator->weather != NULL) {
+            m->weather = estrdup(originator->weather);
+        }
+
+        m->darkness = originator->darkness;
+        m->difficulty = originator->difficulty;
+        m->light_value = originator->light_value;
+        m->width = originator->width;
+        m->height = originator->height;
+        m->map_flags = originator->map_flags | MAP_FLAG_NO_SAVE;
+    }
+
     allocate_map(m);
 
     m->in_memory = MAP_LOADING;
-    load_objects(m, fp, (flags & (MAP_BLOCK | MAP_STYLE)) | MAP_ORIGINAL);
-    fclose(fp);
+
+    if (fp != NULL) {
+        load_objects(m, fp, (flags & (MAP_BLOCK | MAP_STYLE)) | MAP_ORIGINAL);
+        fclose(fp);
+    } else {
+        m->in_memory = MAP_IN_MEMORY;
+    }
 
     if (!MAP_DIFFICULTY(m)) {
         logger_print(LOG(BUG), "Map %s has difficulty 0. Changing to 1.", filename);
@@ -983,7 +1028,7 @@ static mapstruct *load_temporary_map(mapstruct *m)
         logger_print(LOG(BUG), "No temporary filename for map %s! Fallback to original!", m->path);
         snprintf(buf, sizeof(buf), "%s", m->path);
         delete_map(m);
-        m = load_original_map(buf, 0);
+        m = load_original_map(buf, NULL, 0);
         return m;
     }
 
@@ -997,7 +1042,7 @@ static mapstruct *load_temporary_map(mapstruct *m)
         logger_print(LOG(BUG), "Can't open temporary map %s! Fallback to original!", m->tmpname);
         snprintf(buf, sizeof(buf), "%s", m->path);
         delete_map(m);
-        m = load_original_map(buf, 0);
+        m = load_original_map(buf, NULL, 0);
         return m;
     }
 
@@ -1005,7 +1050,7 @@ static mapstruct *load_temporary_map(mapstruct *m)
         logger_print(LOG(BUG), "Error loading map header for %s (%s)! Fallback to original!", m->path, m->tmpname);
         snprintf(buf, sizeof(buf), "%s", m->path);
         delete_map(m);
-        m = load_original_map(buf, 0);
+        m = load_original_map(buf, NULL, 0);
         fclose(fp);
         return m;
     }
@@ -1312,7 +1357,7 @@ void delete_map(mapstruct *m)
  *  - @ref MAP_PLAYER_UNIQUE: This is an unique map for each player.
  *    Don't do any more name translation on it.
  * @return Pointer to the given map. */
-mapstruct *ready_map_name(const char *name, int flags)
+mapstruct *ready_map_name(const char *name, mapstruct *originator, int flags)
 {
     mapstruct *m;
     shstr *name_sh;
@@ -1358,7 +1403,8 @@ mapstruct *ready_map_name(const char *name, int flags)
         }
 
         /* Create and load a map */
-        if (!(m = load_original_map(name, (flags & MAP_PLAYER_UNIQUE)))) {
+        if (!(m = load_original_map(name, originator,
+                (flags & (MAP_PLAYER_UNIQUE | MAP_NO_DYNAMIC))))) {
             return NULL;
         }
 
@@ -1578,10 +1624,6 @@ mapstruct *get_map_from_tiled(mapstruct *m, int tiled)
     SOFT_ASSERT_RC(tiled >= 0 && tiled < TILED_NUM, NULL, "Invalid tile: %d",
             tiled);
 
-    if (m->tile_path[tiled] == NULL) {
-        return NULL;
-    }
-
     if (m->tile_map[tiled] == NULL ||
             m->tile_map[tiled]->in_memory != MAP_IN_MEMORY) {
         if (!load_and_link_tiled_map(m, tiled)) {
@@ -1620,10 +1662,6 @@ mapstruct *get_map_from_coord(mapstruct *m, int *x, int *y)
     if (*x < 0) {
         /* Northwest */
         if (*y < 0) {
-            if (!m->tile_path[7]) {
-                return NULL;
-            }
-
             if (!m->tile_map[7] || m->tile_map[7]->in_memory != MAP_IN_MEMORY) {
                 if (!load_and_link_tiled_map(m, 7)) {
                     return NULL;
@@ -1637,10 +1675,6 @@ mapstruct *get_map_from_coord(mapstruct *m, int *x, int *y)
 
         /* Southwest */
         if (*y >= MAP_HEIGHT(m)) {
-            if (!m->tile_path[6]) {
-                return NULL;
-            }
-
             if (!m->tile_map[6] || m->tile_map[6]->in_memory != MAP_IN_MEMORY) {
                 if (!load_and_link_tiled_map(m, 6)) {
                     return NULL;
@@ -1653,10 +1687,6 @@ mapstruct *get_map_from_coord(mapstruct *m, int *x, int *y)
         }
 
         /* West */
-        if (!m->tile_path[3]) {
-            return NULL;
-        }
-
         if (!m->tile_map[3] || m->tile_map[3]->in_memory != MAP_IN_MEMORY) {
             if (!load_and_link_tiled_map(m, 3)) {
                 return NULL;
@@ -1671,10 +1701,6 @@ mapstruct *get_map_from_coord(mapstruct *m, int *x, int *y)
     if (*x >= MAP_WIDTH(m)) {
         /* Northeast */
         if (*y < 0) {
-            if (!m->tile_path[4]) {
-                return NULL;
-            }
-
             if (!m->tile_map[4] || m->tile_map[4]->in_memory != MAP_IN_MEMORY) {
                 if (!load_and_link_tiled_map(m, 4)) {
                     return NULL;
@@ -1688,10 +1714,6 @@ mapstruct *get_map_from_coord(mapstruct *m, int *x, int *y)
 
         /* Southeast */
         if (*y >= MAP_HEIGHT(m)) {
-            if (!m->tile_path[5]) {
-                return NULL;
-            }
-
             if (!m->tile_map[5] || m->tile_map[5]->in_memory != MAP_IN_MEMORY) {
                 if (!load_and_link_tiled_map(m, 5)) {
                     return NULL;
@@ -1704,10 +1726,6 @@ mapstruct *get_map_from_coord(mapstruct *m, int *x, int *y)
         }
 
         /* East */
-        if (!m->tile_path[1]) {
-            return NULL;
-        }
-
         if (!m->tile_map[1] || m->tile_map[1]->in_memory != MAP_IN_MEMORY) {
             if (!load_and_link_tiled_map(m, 1)) {
                 return NULL;
@@ -1721,10 +1739,6 @@ mapstruct *get_map_from_coord(mapstruct *m, int *x, int *y)
     /* Because we have tested x above, we don't need to check for
      * Northwest, Southwest, Northeast and Northwest here again. */
     if (*y < 0) {
-        if (!m->tile_path[0]) {
-            return NULL;
-        }
-
         if (!m->tile_map[0] || m->tile_map[0]->in_memory != MAP_IN_MEMORY) {
             if (!load_and_link_tiled_map(m, 0)) {
                 return NULL;
@@ -1736,10 +1750,6 @@ mapstruct *get_map_from_coord(mapstruct *m, int *x, int *y)
     }
 
     if (*y >= MAP_HEIGHT(m)) {
-        if (!m->tile_path[2]) {
-            return NULL;
-        }
-
         if (!m->tile_map[2] || m->tile_map[2]->in_memory != MAP_IN_MEMORY) {
             if (!load_and_link_tiled_map(m, 2)) {
                 return NULL;
@@ -2386,7 +2396,7 @@ mapstruct *map_force_reset(mapstruct *m)
     int flags;
 
     /* Cannot reset no-save unique maps or random maps. */
-    if (m == NULL || (MAP_UNIQUE(m) && MAP_NOSAVE(m)) || strncmp(m->path, "/random/", 8) == 0) {
+    if (m == NULL || MAP_NOSAVE(m) || strncmp(m->path, "/random/", 8) == 0) {
         return NULL;
     }
 
@@ -2414,7 +2424,7 @@ mapstruct *map_force_reset(mapstruct *m)
         swap_map(m, 1);
     }
 
-    m = ready_map_name(path, flags);
+    m = ready_map_name(path, NULL, flags);
     free_string_shared(path);
 
     for (i = 0; i < players_num; i++) {

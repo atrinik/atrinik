@@ -2398,7 +2398,7 @@ void socket_command_control(socket_struct *ns, player *pl, uint8_t *data, size_t
             x = packet_to_int16(data, len, &pos);
             y = packet_to_int16(data, len, &pos);
 
-            m = ready_map_name(mappath, 0);
+            m = ready_map_name(mappath, NULL, 0);
 
             if (m == NULL) {
                 log(LOG(ERROR), "Could not teleport player to '%s' (%d,%d): "
