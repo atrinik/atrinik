@@ -624,7 +624,7 @@ static int calc_map_cell_height(int x, int y, int w, int h, int sub_layer)
  */
 static void align_tile_stretch(int x, int y, int w, int h, int sub_layer)
 {
-    int8_t top, bottom, right, left, min_ht;
+    uint8_t top, bottom, right, left, min_ht;
     uint32_t stretch;
     int nw_height, n_height, ne_height, sw_height, s_height, se_height,
             w_height, e_height, my_height;
