@@ -297,7 +297,6 @@ static void *_calloc(size_t nmemb, size_t size, const char *file, uint32_t line)
 
 static void *_realloc(void *ptr, size_t size, const char *file, uint32_t line)
 {
-    memory_chunk_t *chunk;
     void *new_ptr;
 
     if (size == 0) {
@@ -306,14 +305,17 @@ static void *_realloc(void *ptr, size_t size, const char *file, uint32_t line)
         new_ptr = _malloc(size, file, line);
     }
 
-    if (ptr != NULL && new_ptr != NULL) {
-        chunk = MEM_CHUNK(ptr);
+    if (ptr != NULL) {
+        if (new_ptr != NULL) {
+            memory_chunk_t *chunk = MEM_CHUNK(ptr);
 
-        if (chunk->size < size) {
-            size = chunk->size;
+            if (chunk->size < size) {
+                size = chunk->size;
+            }
+
+            memcpy(new_ptr, ptr, size);
         }
 
-        memcpy(new_ptr, ptr, size);
         _free(ptr, file, line);
     }
 
