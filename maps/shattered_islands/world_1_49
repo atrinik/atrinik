@@ -2,7 +2,7 @@ arch map
 name Asteria
 msg
 Created:  2009-08-09 Alex Tokar
-Modified: 2010-09-17 Alex Tokar
+Modified: 2015-04-20 Alex Tokar
 endmsg
 width 24
 height 24
@@ -455,17 +455,14 @@ arch grassd_8
 x 3
 y 23
 end
-arch grassd_1
+arch grassd_8
 x 4
 end
-arch plant1
-x 4
-end
-arch grassd_7
+arch grassd_2
 x 4
 y 1
 end
-arch grassd_5
+arch grassd_7
 x 4
 y 2
 end
@@ -473,7 +470,11 @@ arch grassd_6
 x 4
 y 3
 end
-arch grassd_1
+arch grassd_8
+x 4
+y 4
+end
+arch plant16
 x 4
 y 4
 end
@@ -573,26 +574,22 @@ arch grassd_8
 x 4
 y 23
 end
-arch grassd_1
+arch grassd_8
 x 5
 end
-arch grassd_2
+arch grassd_3
 x 5
 y 1
 end
-arch grassd_6
+arch grassd_3
 x 5
 y 2
 end
-arch plant1
-x 5
-y 2
-end
-arch grassd_4
+arch grassd_1
 x 5
 y 3
 end
-arch grassd_4
+arch grassd_5
 x 5
 y 4
 end
@@ -692,22 +689,38 @@ arch grassd_2
 x 5
 y 23
 end
-arch grassd_5
+arch grassd_7
 x 6
 end
-arch grassd_2
+arch floor_sand_d3
 x 6
 y 1
 end
-arch grassd_8
+arch grassd_m4
+x 6
+y 1
+end
+arch trash_wood2.101
+x 6
+y 1
+end
+arch floor_sand_d2
 x 6
 y 2
 end
-arch grassd_7
+arch grassd_m9
+x 6
+y 2
+end
+arch floor_sand_d3
 x 6
 y 3
 end
-arch grassd_3
+arch grassd_m3
+x 6
+y 3
+end
+arch grassd_2
 x 6
 y 4
 end
@@ -803,29 +816,38 @@ arch tree_big3
 x 6
 y 23
 end
-arch grassd_1
+arch grassd_2
 x 7
 end
-arch plant_flower7
-x 7
-end
-arch grassd_3
+arch floor_sand_d1
 x 7
 y 1
 end
-arch grassd_8
+arch grassd_m10
+x 7
+y 1
+end
+arch floor_sand_d2
 x 7
 y 2
 end
-arch grassd_7
+arch campfire_out
+x 7
+y 2
+end
+arch floor_sand_d4
 x 7
 y 3
 end
-arch plant_mushroom1
+arch grassd_m7
 x 7
 y 3
 end
-arch grassd_8
+arch grassd_3
+x 7
+y 4
+end
+arch trash_wood2.101
 x 7
 y 4
 end
@@ -921,30 +943,44 @@ arch tree_branch2
 x 7
 y 23
 end
-arch grassd_7
+arch grassd_3
 x 8
 end
-arch grassd_8
-x 8
-y 1
-end
-arch tree_big2
+arch floor_sand_d4
 x 8
 y 1
 end
-arch grassd_2
+arch grassd_m10
+x 8
+y 1
+end
+arch floor_sand_d1
 x 8
 y 2
 end
-arch grassd_4
+arch small_stones
+x 8
+y 2
+end
+arch floor_sand_d1
 x 8
 y 3
 end
-arch grassd_2
+arch grassd_m7
+x 8
+y 3
+end
+arch grassd_7
 x 8
 y 4
 end
-arch plant_mushroom2
+arch table_wood1.111
+x 8
+y 4
+end
+arch bowl2.101
+sub_layer 1
+z 25
 x 8
 y 4
 end
@@ -1044,25 +1080,39 @@ arch grassd_8
 x 8
 y 23
 end
-arch grassd_2
-x 9
-end
-arch plant_mushroom3
-x 9
-end
 arch grassd_5
+x 9
+end
+arch floor_sand_d4
 x 9
 y 1
 end
-arch grassd_1
+arch grassd_m10
+x 9
+y 1
+end
+arch floor_sand_d1
 x 9
 y 2
 end
-arch grassd_8
+arch grassd_m11
+x 9
+y 2
+end
+arch chair2_111
+direction 3
+x 9
+y 2
+end
+arch floor_sand_d2
 x 9
 y 3
 end
-arch grassd_6
+arch grassd_m5
+x 9
+y 3
+end
+arch grassd_2
 x 9
 y 4
 end
@@ -1150,26 +1200,33 @@ arch grassd_5
 x 9
 y 23
 end
-arch grassd_2
+arch floor_sand_d3
 x 10
 end
-arch grassd_7
+arch grassd_m4
+x 10
+end
+arch floor_sand_d2
 x 10
 y 1
 end
-arch grassd_1
+arch grassd_m13
+x 10
+y 1
+end
+arch floor_sand_d3
 x 10
 y 2
 end
-arch grassd_2
+arch grassd_m7
+x 10
+y 2
+end
+arch grassd_5
 x 10
 y 3
 end
-arch plant13
-x 10
-y 3
-end
-arch grassd_6
+arch grassd_4
 x 10
 y 4
 end
@@ -1265,29 +1322,33 @@ arch grassd_3
 x 10
 y 23
 end
-arch grassd_5
+arch floor_sand_d3
 x 11
 end
-arch tree_big3
+arch grassd_m10
 x 11
 end
-arch grassd_3
-x 11
-y 1
-end
-arch tree_big2
+arch floor_sand_d3
 x 11
 y 1
 end
-arch grassd_8
+arch grassd_m11
+x 11
+y 1
+end
+arch floor_sand_d3
 x 11
 y 2
 end
-arch grassd_4
+arch grassd_m5
+x 11
+y 2
+end
+arch grassd_1
 x 11
 y 3
 end
-arch grassd_3
+arch grassd_5
 x 11
 y 4
 end
@@ -1379,10 +1440,17 @@ arch grassd_8
 x 11
 y 23
 end
-arch grassd_3
+arch floor_sand_d3
 x 12
 end
-arch grassd_7
+arch grassd_m8
+x 12
+end
+arch floor_sand_d3
+x 12
+y 1
+end
+arch grassd_m5
 x 12
 y 1
 end
@@ -1498,10 +1566,7 @@ arch small_stones
 x 12
 y 23
 end
-arch grassd_8
-x 13
-end
-arch plant_flower11
+arch grassd_5
 x 13
 end
 arch grassd_7
@@ -1608,7 +1673,7 @@ arch grassd_1
 x 13
 y 23
 end
-arch grassd_8
+arch grassd_6
 x 14
 end
 arch grassd_4
@@ -1723,14 +1788,10 @@ arch grassd_7
 x 14
 y 23
 end
-arch grassd_4
+arch grassd_7
 x 15
 end
 arch grassd_3
-x 15
-y 1
-end
-arch plant9
 x 15
 y 1
 end

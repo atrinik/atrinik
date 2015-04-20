@@ -2,7 +2,7 @@ arch map
 name Asteria
 msg
 Created:  2009-08-09 Alex Tokar
-Modified: 2014-02-28 Alex Tokar
+Modified: 2015-04-19 Alex Tokar
 endmsg
 width 24
 height 24
@@ -3188,57 +3188,34 @@ arch fwall_fstone2
 x 18
 y 23
 end
-arch grassd_4
+arch grassd_3
 z 50
 x 19
 end
-arch wall_pattern2.131
+arch plant_flower7
 x 19
 end
-arch grassd_1
+arch grassd_5
 z 50
 x 19
 y 1
-end
-arch wall_pattern2.131
-x 19
-y 1
-end
-arch grassd_1
-z 50
-x 19
-y 2
-end
-arch wall_pattern2.131
-x 19
-y 2
-end
-arch picture14
-direction 7
-x 19
-y 2
 end
 arch grassd_8
 z 50
 x 19
-y 3
+y 2
 end
-arch wall_pattern2.131
+arch grassd_2
+z 50
 x 19
 y 3
 end
-arch client_map_info
-name asteria_post_business
-sub_type 2
-x 19
-y 3
-end
-arch floor_white1e
+arch grassd_6
 z 50
 x 19
 y 4
 end
-arch floor_white2d
+arch grassd_7
 z 50
 x 19
 y 5
@@ -3285,7 +3262,7 @@ arch fwall_fstone2c
 x 19
 y 11
 end
-arch floor_white1e
+arch grassd_7
 z 50
 x 19
 y 12
@@ -3294,77 +3271,47 @@ arch fwall_fstone2d
 x 19
 y 12
 end
-arch floor_white2d
+arch grassd_2
 z 50
 x 19
 y 13
 end
-arch floor_white1e
+arch grassd_2
 z 50
 x 19
 y 14
 end
-arch floor_white2d
+arch grassd_1
 z 50
 x 19
 y 15
 end
-arch wall_stone9_8
+arch grassd_7
+z 50
 x 19
-y 15
+y 16
 end
-arch client_map_info
-msg
-Bank of Asteria - Business Plaza.
-endmsg
-name asteria_bank_business
-sub_type 2
-stand_still 1
+arch grassd_4
+z 50
 x 19
-y 15
+y 17
 end
 arch grassd_5
 z 50
 x 19
-y 16
+y 18
 end
-arch wall_stone9_3
-x 19
-y 16
-end
-arch grassd_3
-z 50
-x 19
-y 17
-end
-arch wall_stone9_3
-x 19
-y 17
-end
-arch grassd_2
-z 50
+arch plant9
 x 19
 y 18
 end
-arch wall_stone9_3
-x 19
-y 18
-end
-arch grassd_6
+arch grassd_7
 z 50
 x 19
 y 19
 end
-arch wall_stone9_3
-x 19
-y 19
-end
-arch grassd_2
+arch grassd_1
 z 50
-x 19
-y 20
-end
-arch wall_stone9_3
 x 19
 y 20
 end
@@ -3373,81 +3320,66 @@ z 50
 x 19
 y 21
 end
-arch wall_stone9_3
+arch grassd_5
+z 50
 x 19
-y 21
+y 22
+end
+arch plant_flower14
+x 19
+y 22
 end
 arch grassd_4
 z 50
 x 19
-y 22
-end
-arch wall_stone9_3
-x 19
-y 22
-end
-arch grassd_8
-z 50
-x 19
 y 23
 end
-arch wall_stone9_3
-x 19
-y 23
-end
-arch client_map_info
-name asteria_bank_business
-sub_type 2
-x 19
-y 23
-end
-arch floor_bw1
+arch grassd_2
 z 50
 x 20
 end
-arch floor_bw1
+arch grassd_1
 z 50
 x 20
 y 1
 end
-arch lamp_wall
-direction 7
+arch tree_big3
 x 20
 y 1
 end
-arch floor_bw1
+arch grassd_1
 z 50
 x 20
 y 2
 end
-arch floor_bw1
+arch grassd_4
 z 50
 x 20
 y 3
 end
-arch wall_pattern2.111
+arch plant_flower2
 x 20
 y 3
 end
-arch floor_white1e
+arch grassd_3
 z 50
 x 20
 y 4
 end
-arch floor_white1d
+arch lantern_black
+x 20
+y 4
+end
+arch light7
+x 20
+y 4
+end
+arch grassd_6
 z 50
 x 20
 y 5
 end
-arch lantern_black
-x 20
-y 5
-end
-arch light7
-x 20
-y 5
-end
-arch floor_white1e
+arch grassd_2
 z 50
 x 20
 y 6
@@ -3492,7 +3424,7 @@ arch fwall_fstone2
 x 20
 y 10
 end
-arch floor_white2d
+arch grassd_4
 z 50
 x 20
 y 11
@@ -3501,594 +3433,546 @@ arch fwall_fstone2d
 x 20
 y 11
 end
-arch floor_white1e
+arch grassd_5
 z 50
 x 20
 y 12
+end
+arch plant_mushroom4
+x 20
+y 12
+end
+arch grassd_1
+z 50
+x 20
+y 13
+end
+arch grassd_4
+z 50
+x 20
+y 14
+end
+arch tree_big3
+x 20
+y 14
+end
+arch grassd_7
+z 50
+x 20
+y 15
+end
+arch plant10
+x 20
+y 15
+end
+arch grassd_3
+z 50
+x 20
+y 16
 end
 arch lantern_black
 x 20
-y 12
+y 16
 end
 arch light7
 x 20
-y 12
-end
-arch floor_white1d
-z 50
-x 20
-y 13
-end
-arch floor_white1e
-z 50
-x 20
-y 14
-end
-arch floor_white1d
-z 50
-x 20
-y 15
-end
-arch wall_stone9_1
-x 20
-y 15
-end
-arch floor_pattern1a
-z 50
-x 20
 y 16
 end
-arch chest_sm_1
-slaying no_open
-x 20
-y 16
-end
-arch torch_wall_1
-direction 7
-x 20
-y 16
-end
-arch floor_pattern1a
+arch grassd_8
 z 50
 x 20
 y 17
 end
-arch floor_pattern1a
+arch grassd_5
 z 50
 x 20
 y 18
 end
-arch spawn_point
-x 20
-y 18
-arch female2
-level 15
-type 83
-direction 3
-name Sara
-arch event_obj
-sub_type 6
-race /python/generic/bank.py
-end
-end
-end
-arch floor_pattern1a
+arch grassd_8
 z 50
 x 20
 y 19
 end
-arch floor_pattern1a
+arch tree_big
+x 20
+y 19
+end
+arch grassd_8
 z 50
 x 20
 y 20
 end
-arch floor_pattern1a
+arch grassd_7
 z 50
 x 20
 y 21
 end
-arch floor_pattern1a
+arch grassd_1
 z 50
 x 20
 y 22
 end
-arch torch_wall_1
-direction 7
+arch lantern_black
 x 20
 y 22
 end
-arch floor_pattern1a
+arch light7
+x 20
+y 22
+end
+arch grassd_1
 z 50
 x 20
 y 23
 end
-arch wall_stone9_1
-x 20
-y 23
-end
-arch floor_bw1
+arch floor_fs_grey1b
 z 50
 x 21
 end
-arch mailbox
-container 0
+arch grassd_m9
 x 21
-arch event_obj
-sub_type 1
-race /python/generic/postoffice_mailbox.py
 end
-end
-arch floor_bw1
+arch floor_fs_grey1b
 z 50
 x 21
 y 1
 end
-arch floor_bw1
+arch grassd_m9
+x 21
+y 1
+end
+arch floor_fs_grey1b
 z 50
 x 21
 y 2
 end
-arch floor_bw1
+arch grassd_m9
+x 21
+y 2
+end
+arch floor_fs_grey1b
 z 50
 x 21
 y 3
 end
-arch door_wood2
+arch grassd_m9
 x 21
 y 3
 end
-arch floor_white1e
+arch floor_fs_grey1b
 z 50
 x 21
 y 4
 end
-arch floor_white2d
+arch grassd_m9
+x 21
+y 4
+end
+arch floor_fs_grey1b
 z 50
 x 21
 y 5
 end
-arch floor_white1e
+arch grassd_m9
+x 21
+y 5
+end
+arch floor_fs_grey1b
 z 50
 x 21
 y 6
 end
-arch floor_white2d
+arch grassd_m9
+x 21
+y 6
+end
+arch floor_fs_grey1b
 z 50
 x 21
 y 7
 end
-arch floor_white1e
+arch grassd_m13
+x 21
+y 7
+end
+arch floor_fs_grey1b
 z 50
 x 21
 y 8
 end
-arch fountain2
-x 21
-y 8
-end
-arch fountain_stream
-x 21
-y 8
-end
-arch floor_white2d
+arch floor_fs_grey1b
 z 50
 x 21
 y 9
 end
-arch floor_white1e
+arch floor_fs_grey1b
 z 50
 x 21
 y 10
 end
-arch floor_white2d
+arch grassd_m14
+x 21
+y 10
+end
+arch floor_fs_grey1b
 z 50
 x 21
 y 11
 end
-arch floor_white1e
+arch grassd_m9
+x 21
+y 11
+end
+arch floor_fs_grey1b
 z 50
 x 21
 y 12
 end
-arch bench3
-direction 7
+arch grassd_m9
 x 21
 y 12
 end
-arch floor_white2d
+arch floor_fs_grey1b
 z 50
 x 21
 y 13
 end
-arch floor_white1e
+arch grassd_m9
+x 21
+y 13
+end
+arch floor_fs_grey1b
 z 50
 x 21
 y 14
 end
-arch sign_generic
-msg
-Bank of Asteria - Business Plaza
-endmsg
+arch grassd_m9
 x 21
 y 14
 end
-arch floor_white2d
+arch floor_fs_grey1b
 z 50
 x 21
 y 15
 end
-arch wall_stone9_1
+arch grassd_m9
 x 21
 y 15
 end
-arch floor_pattern1a
+arch floor_fs_grey1b
 z 50
 x 21
 y 16
 end
-arch bank2c
-direction 5
+arch grassd_m9
 x 21
 y 16
 end
-arch floor_pattern1a
+arch floor_fs_grey1b
 z 50
 x 21
 y 17
 end
-arch bank2b
-direction 5
+arch grassd_m9
 x 21
 y 17
 end
-arch floor_pattern1a
+arch floor_fs_grey1b
 z 50
 x 21
 y 18
 end
-arch bank2b
-direction 5
+arch grassd_m9
 x 21
 y 18
 end
-arch floor_pattern1a
+arch floor_fs_grey1b
 z 50
 x 21
 y 19
 end
-arch bank2b
-direction 5
+arch grassd_m9
 x 21
 y 19
 end
-arch floor_pattern1a
+arch floor_fs_grey1b
 z 50
 x 21
 y 20
 end
-arch bank2a
-direction 5
+arch grassd_m9
 x 21
 y 20
 end
-arch floor_pattern1a
+arch floor_fs_grey1b
 z 50
 x 21
 y 21
 end
-arch wall_stone9_3
+arch grassd_m9
 x 21
 y 21
 end
-arch floor_pattern1a
+arch floor_fs_grey1b
 z 50
 x 21
 y 22
 end
-arch gate1_locked
-direction 3
-slaying no_open
+arch grassd_m9
 x 21
 y 22
 end
-arch floor_pattern1a
+arch floor_fs_grey1b
 z 50
 x 21
 y 23
 end
-arch wall_stone9_4
+arch grassd_m9
 x 21
 y 23
 end
-arch floor_bw1
+arch floor_fs_grey1b
 z 50
 x 22
 end
-arch floor_bw1
+arch floor_fs_grey1b
 z 50
 x 22
 y 1
 end
-arch floor_bw1
+arch floor_fs_grey1b
 z 50
 x 22
 y 2
 end
-arch floor_bw1
+arch floor_fs_grey1b
 z 50
 x 22
 y 3
 end
-arch wall_pattern2.111
-x 22
-y 3
-end
-arch floor_white1e
+arch floor_fs_grey1b
 z 50
 x 22
 y 4
 end
-arch sign_generic
-msg
-Royal Express - Plaza Office
-endmsg
-direction 5
-x 22
-y 4
-end
-arch floor_white1d
+arch floor_fs_grey1b
 z 50
 x 22
 y 5
 end
-arch floor_white1e
+arch floor_fs_grey1b
 z 50
 x 22
 y 6
 end
-arch floor_white1d
+arch floor_fs_grey1b
 z 50
 x 22
 y 7
 end
-arch floor_white1e
+arch floor_fs_grey1b
 z 50
 x 22
 y 8
 end
-arch floor_white1d
+arch floor_fs_grey1b
 z 50
 x 22
 y 9
 end
-arch floor_white1e
+arch floor_fs_grey1b
 z 50
 x 22
 y 10
 end
-arch floor_white1d
+arch floor_fs_grey1b
 z 50
 x 22
 y 11
 end
-arch floor_white1e
+arch floor_fs_grey1b
 z 50
 x 22
 y 12
 end
-arch floor_white1d
+arch floor_fs_grey1b
 z 50
 x 22
 y 13
 end
-arch floor_white1e
+arch floor_fs_grey1b
 z 50
 x 22
 y 14
 end
-arch floor_white1d
+arch floor_fs_grey1b
 z 50
 x 22
 y 15
 end
-arch door_wood2
-x 22
-y 15
-end
-arch floor_pattern1a
+arch floor_fs_grey1b
 z 50
 x 22
 y 16
 end
-arch floor_pattern1a
+arch floor_fs_grey1b
 z 50
 x 22
 y 17
 end
-arch floor_pattern1a
+arch floor_fs_grey1b
 z 50
 x 22
 y 18
 end
-arch floor_pattern1a
+arch floor_fs_grey1b
 z 50
 x 22
 y 19
 end
-arch floor_pattern1a
+arch floor_fs_grey1b
 z 50
 x 22
 y 20
 end
-arch floor_pattern1a
+arch floor_fs_grey1b
 z 50
 x 22
 y 21
 end
-arch spawn_point
-x 22
-y 21
-arch guard
-name Asterian Guard
-type 83
-level 45
-direction 3
-arch event_obj
-sub_type 6
-race /python/generic/guard.py
-end
-end
-end
-arch floor_pattern1a
+arch floor_fs_grey1b
 z 50
 x 22
 y 22
 end
-arch floor_pattern1a
+arch floor_fs_grey1b
 z 50
 x 22
 y 23
 end
-arch wall_stone9_1
-x 22
-y 23
-end
-arch floor_bw1
+arch floor_fs_grey1b
 z 50
 x 23
 end
-arch floor_bw1
+arch grassd_m8
+x 23
+end
+arch floor_fs_grey1b
 z 50
 x 23
 y 1
 end
-arch floor_bw1
+arch grassd_m12
+x 23
+y 1
+end
+arch floor_fs_grey1b
 z 50
 x 23
 y 2
 end
-arch box1.101
-x 23
-y 2
-end
-arch floor_bw1
+arch floor_fs_grey1b
 z 50
 x 23
 y 3
 end
-arch wall_pattern2.111
-x 23
-y 3
-end
-arch floor_white1e
+arch floor_fs_grey1b
 z 50
 x 23
 y 4
 end
-arch bench3
-x 23
-y 4
-end
-arch floor_white2d
+arch floor_fs_grey1b
 z 50
 x 23
 y 5
 end
-arch floor_white1e
+arch floor_fs_grey1b
 z 50
 x 23
 y 6
 end
-arch floor_white2d
+arch floor_fs_grey1b
 z 50
 x 23
 y 7
 end
-arch floor_white1e
+arch floor_fs_grey1b
 z 50
 x 23
 y 8
 end
-arch floor_white2d
+arch floor_fs_grey1b
 z 50
 x 23
 y 9
 end
-arch floor_white1e
+arch floor_fs_grey1b
 z 50
 x 23
 y 10
 end
-arch floor_white2d
+arch floor_fs_grey1b
 z 50
 x 23
 y 11
 end
-arch floor_white1e
+arch floor_fs_grey1b
 z 50
 x 23
 y 12
 end
-arch floor_white2d
+arch floor_fs_grey1b
 z 50
 x 23
 y 13
 end
-arch floor_white1e
+arch floor_fs_grey1b
 z 50
 x 23
 y 14
 end
-arch floor_white2d
+arch floor_fs_grey1b
 z 50
 x 23
 y 15
 end
-arch wall_stone9_1
-x 23
-y 15
-end
-arch floor_pattern1a
+arch floor_fs_grey1b
 z 50
 x 23
 y 16
 end
-arch floor_pattern1a
+arch floor_fs_grey1b
 z 50
 x 23
 y 17
 end
-arch floor_pattern1a
+arch floor_fs_grey1b
 z 50
 x 23
 y 18
 end
-arch floor_pattern1a
+arch floor_fs_grey1b
 z 50
 x 23
 y 19
 end
-arch floor_pattern1a
+arch floor_fs_grey1b
 z 50
 x 23
 y 20
 end
-arch floor_pattern1a
+arch floor_fs_grey1b
 z 50
 x 23
 y 21
 end
-arch floor_pattern1a
+arch floor_fs_grey1b
 z 50
 x 23
 y 22
 end
-arch floor_pattern1a
+arch floor_fs_grey1b
 z 50
-x 23
-y 23
-end
-arch wall_stone9_1
 x 23
 y 23
 end

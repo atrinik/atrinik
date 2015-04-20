@@ -2,7 +2,7 @@ arch map
 name Asteria
 msg
 Created:  2009-08-09 Alex Tokar
-Modified: 2011-10-07 Alex Tokar
+Modified: 2015-04-20 Alex Tokar
 endmsg
 width 24
 height 24
@@ -293,10 +293,7 @@ x 2
 y 2
 end
 arch lantern_black
-x 2
-y 2
-end
-arch light7
+glow_radius 7
 x 2
 y 2
 end
@@ -316,31 +313,71 @@ arch grassd_m7
 x 2
 y 4
 end
-arch grassd_6
+arch grassd_4
 x 2
 y 5
 end
-arch tree_big
+arch lantern_black
+glow_radius 7
 x 2
 y 5
 end
-arch grassd_6
+arch client_map_info
+msg
+Asteria Bazaar.
+endmsg
+name asteria_bazaar
+sub_type 2
+stand_still 1
+x 2
+y 5
+end
+arch map_info
+hp 17
+sp 16
+race Asteria Bazaar
+slaying shop1.mid
+x 2
+y 5
+end
+arch grassd_4
 x 2
 y 6
 end
-arch grassd_1
+arch grain4.101
+x 2
+y 6
+end
+arch grassd_2
 x 2
 y 7
 end
-arch grassd_7
+arch wood_pile.101
+x 2
+y 7
+end
+arch grassd_6
 x 2
 y 8
 end
-arch grassd_6
+arch grain3.101
+x 2
+y 8
+end
+arch grassd_8
 x 2
 y 9
 end
-arch grassd_6
+arch lantern_black
+glow_radius 7
+x 2
+y 9
+end
+arch grassd_2
+x 2
+y 10
+end
+arch grain4.101
 x 2
 y 10
 end
@@ -348,15 +385,27 @@ arch grassd_8
 x 2
 y 11
 end
-arch grassd_8
+arch box1.101
+x 2
+y 11
+end
+arch grassd_4
 x 2
 y 12
 end
-arch grassd_3
+arch box1.101
+x 2
+y 12
+end
+arch grassd_5
 x 2
 y 13
 end
-arch grassd_3
+arch barrel.101
+x 2
+y 13
+end
+arch grassd_1
 x 2
 y 14
 end
@@ -364,27 +413,57 @@ arch grassd_8
 x 2
 y 15
 end
-arch grassd_7
+arch lantern_black
+glow_radius 7
+x 2
+y 15
+end
+arch grassd_8
 x 2
 y 16
 end
-arch grassd_8
+arch pottery1.101
+x 2
+y 16
+end
+arch grassd_1
 x 2
 y 17
 end
-arch grassd_5
+arch pottery4.101
+x 2
+y 17
+end
+arch grassd_1
 x 2
 y 18
 end
-arch grassd_8
+arch pottery4.101
+x 2
+y 18
+end
+arch grassd_2
 x 2
 y 19
 end
-arch grassd_8
+arch basket1.101
+x 2
+y 19
+end
+arch grassd_3
+x 2
+y 20
+end
+arch basket2.101
 x 2
 y 20
 end
 arch grassd_5
+x 2
+y 21
+end
+arch lantern_black
+glow_radius 7
 x 2
 y 21
 end
@@ -435,83 +514,109 @@ arch grassd_m7
 x 3
 y 4
 end
-arch grassd_6
+arch grassd_8
 x 3
 y 5
 end
-arch grassd_2
-x 3
-y 6
-end
-arch tree_big4b
-x 3
-y 6
-end
 arch grassd_7
+x 3
+y 6
+end
+arch chest_sw_1
+slaying no_open
+x 3
+y 6
+end
+arch grassd_2
 x 3
 y 7
 end
-arch grassd_7
+arch plant_flower1
+x 3
+y 7
+end
+arch grassd_3
 x 3
 y 8
 end
-arch small_stones
-x 3
-y 8
-end
-arch grassd_8
+arch grassd_1
 x 3
 y 9
 end
-arch grassd_1
+arch grain5.101
 x 3
-y 10
-end
-arch plant_mushroom3
-x 3
-y 10
-end
-arch grassd_2
-x 3
-y 11
-end
-arch grassd_6
-x 3
-y 12
-end
-arch plant10
-x 3
-y 12
-end
-arch grassd_1
-x 3
-y 13
-end
-arch grassd_4
-x 3
-y 14
-end
-arch plant_flower2
-x 3
-y 14
+y 9
 end
 arch grassd_5
 x 3
-y 15
+y 10
+end
+arch carpet3.151
+x 3
+y 10
 end
 arch grassd_8
 x 3
+y 11
+end
+arch carpet3.111
+x 3
+y 11
+end
+arch grassd_2
+x 3
+y 12
+end
+arch grassd_7
+x 3
+y 13
+end
+arch chest_4.111
+direction 7
+slaying no_open
+x 3
+y 13
+end
+arch grassd_8
+x 3
+y 14
+end
+arch barrel2.101
+x 3
+y 14
+end
+arch grassd_1
+x 3
+y 15
+end
+arch pottery5.101
+x 3
+y 15
+end
+arch grassd_4
+x 3
 y 16
 end
-arch grassd_7
+arch amphora2.101
+x 3
+y 16
+end
+arch grassd_6
 x 3
 y 17
 end
-arch plant5
+arch whitewine
+can_stack 0
+no_pick 1
+type 79
 x 3
 y 17
 end
-arch grassd_7
+arch grassd_6
+x 3
+y 18
+end
+arch beer_barrel.101
 x 3
 y 18
 end
@@ -519,15 +624,30 @@ arch grassd_6
 x 3
 y 19
 end
-arch grassd_6
+arch barrel2.101
+x 3
+y 19
+end
+arch grassd_8
 x 3
 y 20
 end
-arch grassd_3
+arch grassd_4
+x 3
+y 21
+end
+arch wagon_big
 x 3
 y 21
 end
 arch grassd_5
+x 3
+y 22
+end
+arch map_info
+hp 16
+race Asteria Bazaar
+slaying shop1.mid
 x 3
 y 22
 end
@@ -570,59 +690,180 @@ arch grassd_2
 x 4
 y 5
 end
-arch grassd_4
+arch grassd_1
 x 4
 y 6
 end
-arch grassd_1
+arch kettle_table
+x 4
+y 6
+end
+arch grassd_4
 x 4
 y 7
 end
-arch tree_big2
+arch chair2_111
+direction 7
 x 4
 y 7
 end
-arch grassd_6
+arch spawn_point
 x 4
-y 8
+y 7
+arch peasant
+name merchant
+direction 3
+level 21
+type 83
+arch event_obj
+sub_type 6
+race /python/generic/merchant.py
+stock 1
+arch bag_popcorn
+nrof 20
+identified 1
+value 40
 end
-arch grassd_5
-x 4
-y 9
+arch cheeseburger
+nrof 30
+identified 1
+value 75
 end
-arch grassd_3
-x 4
-y 10
+arch chocolate
+nrof 40
+identified 1
+value 20
+end
+arch drumstick
+nrof 20
+identified 1
+end
+arch eggnog
+nrof 10
+identified 1
+end
+arch figpud2
+nrof 10
+identified 1
+end
+arch stick_weasel
+nrof 30
+identified 1
+value 40
+end
+arch cup_coffee
+nrof 25
+value 45
+identified 1
+end
+end
+end
 end
 arch grassd_8
 x 4
-y 11
+y 8
 end
-arch tree_big2
+arch stick_weasel
+can_stack 0
+no_pick 1
+type 79
+x 4
+y 8
+end
+arch grassd_4
+x 4
+y 9
+end
+arch fire_cauld.131
+glow_radius 2
+x 4
+y 9
+end
+arch grassd_1
+x 4
+y 10
+end
+arch bowl1_full.101
+x 4
+y 10
+end
+arch grassd_5
 x 4
 y 11
 end
-arch grassd_3
+arch carpet2.151
+x 4
+y 11
+end
+arch grassd_4
 x 4
 y 12
 end
-arch grassd_5
+arch carpet2.111
+x 4
+y 12
+end
+arch grassd_1
 x 4
 y 13
 end
-arch grassd_5
+arch chair_small
+x 4
+y 13
+end
+arch spawn_point
+x 4
+y 13
+arch priest_sad
+name merchant
+direction 3
+level 24
+type 83
+arch event_obj
+msg
+[["random_potion", 4, -1]]
+endmsg
+sub_type 6
+race /python/generic/merchant.py
+stock 1
+arch potion_cure_illness
+nrof 5
+identified 1
+level 15
+end
+arch potion_cure_sickness
+nrof 5
+identified 1
+level 15
+end
+arch scroll_min_heal
+nrof 10
+identified 1
+level 20
+end
+end
+end
+end
+arch grassd_1
 x 4
 y 14
 end
-arch tree_big4b
+arch table_round1
 x 4
 y 14
 end
-arch grassd_2
+arch potion_generic
+face potion_swirly.101
+z 20
+layer 7
+x 4
+y 14
+end
+arch grassd_7
 x 4
 y 15
 end
-arch tree_big2
+arch pottery6.101
 x 4
 y 15
 end
@@ -630,23 +871,80 @@ arch grassd_4
 x 4
 y 16
 end
-arch grassd_5
+arch chest_sm_1
+slaying no_open
 x 4
-y 17
+y 16
 end
 arch grassd_4
 x 4
+y 17
+end
+arch plant_mushroom3
+x 4
+y 17
+end
+arch grassd_1
+x 4
 y 18
+end
+arch chair1_111
+direction 7
+x 4
+y 18
+end
+arch spawn_point
+x 4
+y 18
+arch traveller_parka
+name merchant
+direction 3
+level 25
+type 83
+arch event_obj
+sub_type 6
+race /python/generic/merchant.py
+stock 1
+arch booze2
+nrof 30
+value 10
+identified 1
+end
+arch booze_generic
+nrof 50
+identified 1
+end
+arch beer
+nrof 50
+identified 1
+end
+arch whitewine
+nrof 15
+value 50
+identified 1
+end
+arch redwine
+nrof 15
+value 40
+identified 1
+end
+arch champagne
+nrof 10
+value 85
+identified 1
+end
+end
+end
 end
 arch grassd_3
 x 4
 y 19
 end
-arch grassd_1
+arch barrel.101
 x 4
-y 20
+y 19
 end
-arch small_stones
+arch grassd_6
 x 4
 y 20
 end
@@ -662,6 +960,13 @@ arch grassd_4
 x 4
 y 23
 end
+arch map_info
+hp 15
+race Asteria Bazaar
+slaying shop1.mid
+x 4
+y 23
+end
 arch grassd_7
 x 5
 end
@@ -674,6 +979,11 @@ x 5
 y 1
 end
 arch grassd_6
+x 5
+y 2
+end
+arch lantern_black
+glow_radius 7
 x 5
 y 2
 end
@@ -693,19 +1003,20 @@ arch grassd_m7
 x 5
 y 4
 end
-arch grassd_2
+arch grassd_3
 x 5
 y 5
 end
-arch grassd_6
+arch lantern_black
+glow_radius 7
+x 5
+y 5
+end
+arch grassd_7
 x 5
 y 6
 end
-arch tree_branch3
-x 5
-y 6
-end
-arch grassd_6
+arch grassd_1
 x 5
 y 7
 end
@@ -713,63 +1024,43 @@ arch grassd_4
 x 5
 y 8
 end
-arch plant_mushroom3
-x 5
-y 8
-end
-arch grassd_4
+arch grassd_6
 x 5
 y 9
 end
-arch grassd_6
+arch grassd_1
 x 5
 y 10
 end
-arch tree_big4b
-x 5
-y 10
-end
-arch grassd_8
+arch grassd_4
 x 5
 y 11
 end
-arch grassd_2
+arch grassd_4
 x 5
 y 12
 end
-arch tree_big4b
-x 5
-y 12
-end
-arch grassd_3
+arch grassd_4
 x 5
 y 13
-end
-arch plant_mushroom2
-x 5
-y 13
-end
-arch grassd_1
-x 5
-y 14
-end
-arch grassd_1
-x 5
-y 15
 end
 arch grassd_5
 x 5
+y 14
+end
+arch grassd_8
+x 5
+y 15
+end
+arch grassd_8
+x 5
 y 16
 end
-arch grassd_2
+arch grassd_3
 x 5
 y 17
 end
-arch plant_mushroom1
-x 5
-y 17
-end
-arch grassd_2
+arch grassd_1
 x 5
 y 18
 end
@@ -777,23 +1068,15 @@ arch grassd_1
 x 5
 y 19
 end
-arch grassd_2
+arch grassd_6
 x 5
 y 20
 end
-arch grassd_4
-x 5
-y 21
-end
-arch tree_big2
+arch grassd_3
 x 5
 y 21
 end
 arch grassd_4
-x 5
-y 22
-end
-arch tree_branch2
 x 5
 y 22
 end
@@ -825,95 +1108,159 @@ arch floor_fs_grey1b
 x 6
 y 4
 end
-arch grassd_m7
+arch grassd_m14
 x 6
 y 4
 end
-arch grassd_4
+arch floor_fs_grey1b
 x 6
 y 5
 end
-arch grassd_4
+arch grassd_m9
+x 6
+y 5
+end
+arch floor_fs_grey1b
 x 6
 y 6
 end
-arch grassd_1
+arch grassd_m9
+x 6
+y 6
+end
+arch floor_fs_grey1b
 x 6
 y 7
 end
-arch grassd_2
+arch grassd_m9
+x 6
+y 7
+end
+arch floor_fs_grey1b
 x 6
 y 8
 end
-arch grassd_2
+arch grassd_m9
+x 6
+y 8
+end
+arch floor_fs_grey1b
 x 6
 y 9
 end
-arch grassd_3
+arch grassd_m9
+x 6
+y 9
+end
+arch floor_fs_grey1b
 x 6
 y 10
 end
-arch grassd_7
+arch grassd_m9
+x 6
+y 10
+end
+arch floor_fs_grey1b
 x 6
 y 11
 end
-arch plant15
+arch grassd_m9
 x 6
 y 11
 end
-arch grassd_5
+arch floor_fs_grey1b
 x 6
 y 12
 end
-arch grassd_3
+arch grassd_m9
+x 6
+y 12
+end
+arch floor_fs_grey1b
 x 6
 y 13
 end
-arch grassd_4
+arch grassd_m9
+x 6
+y 13
+end
+arch floor_fs_grey1b
 x 6
 y 14
 end
-arch grassd_8
+arch grassd_m9
+x 6
+y 14
+end
+arch floor_fs_grey1b
 x 6
 y 15
 end
-arch grassd_1
+arch grassd_m9
+x 6
+y 15
+end
+arch floor_fs_grey1b
 x 6
 y 16
 end
-arch plant_flower7
+arch grassd_m9
 x 6
 y 16
 end
-arch grassd_8
+arch floor_fs_grey1b
 x 6
 y 17
 end
-arch grassd_2
+arch grassd_m9
+x 6
+y 17
+end
+arch floor_fs_grey1b
 x 6
 y 18
 end
-arch grassd_8
+arch grassd_m9
+x 6
+y 18
+end
+arch floor_fs_grey1b
 x 6
 y 19
 end
-arch tree_big4
+arch grassd_m9
 x 6
 y 19
 end
-arch grassd_2
+arch floor_fs_grey1b
 x 6
 y 20
 end
-arch grassd_5
+arch grassd_m9
+x 6
+y 20
+end
+arch floor_fs_grey1b
 x 6
 y 21
 end
-arch grassd_7
+arch grassd_m9
+x 6
+y 21
+end
+arch floor_fs_grey1b
 x 6
 y 22
 end
-arch grassd_3
+arch grassd_m9
+x 6
+y 22
+end
+arch floor_fs_grey1b
+x 6
+y 23
+end
+arch grassd_m9
 x 6
 y 23
 end
@@ -946,111 +1293,79 @@ arch floor_fs_grey1b
 x 7
 y 4
 end
-arch grassd_m7
-x 7
-y 4
-end
-arch grassd_2
+arch floor_fs_grey1b
 x 7
 y 5
 end
-arch grassd_5
+arch floor_fs_grey1b
 x 7
 y 6
 end
-arch tree_big5b
-x 7
-y 6
-end
-arch grassd_1
+arch floor_fs_grey1b
 x 7
 y 7
 end
-arch tree_big
-x 7
-y 7
-end
-arch grassd_4
+arch floor_fs_grey1b
 x 7
 y 8
 end
-arch plant12
-x 7
-y 8
-end
-arch grassd_6
+arch floor_fs_grey1b
 x 7
 y 9
 end
-arch grassd_2
+arch floor_fs_grey1b
 x 7
 y 10
 end
-arch grassd_2
+arch floor_fs_grey1b
 x 7
 y 11
 end
-arch tree_big4
-x 7
-y 11
-end
-arch grassd_6
+arch floor_fs_grey1b
 x 7
 y 12
 end
-arch grassd_8
+arch floor_fs_grey1b
 x 7
 y 13
 end
-arch grassd_6
+arch floor_fs_grey1b
 x 7
 y 14
 end
-arch grassd_3
+arch floor_fs_grey1b
 x 7
 y 15
 end
-arch tree_big5
-x 7
-y 15
-end
-arch grassd_4
+arch floor_fs_grey1b
 x 7
 y 16
 end
-arch plant_mushroom2
-x 7
-y 16
-end
-arch grassd_5
+arch floor_fs_grey1b
 x 7
 y 17
 end
-arch grassd_2
+arch floor_fs_grey1b
 x 7
 y 18
 end
-arch grassd_2
+arch floor_fs_grey1b
 x 7
 y 19
 end
-arch grassd_1
+arch floor_fs_grey1b
 x 7
 y 20
 end
-arch grassd_8
+arch floor_fs_grey1b
 x 7
 y 21
 end
-arch grassd_1
+arch floor_fs_grey1b
 x 7
 y 22
 end
-arch tree_branch2
-x 7
-y 22
-end
-arch grassd_5
+arch floor_fs_grey1b
 x 7
 y 23
 end
@@ -1083,103 +1398,155 @@ arch floor_fs_grey1b
 x 8
 y 4
 end
-arch grassd_m7
+arch grassd_m11
 x 8
 y 4
 end
-arch grassd_1
+arch floor_fs_grey1b
 x 8
 y 5
 end
-arch grassd_4
+arch grassd_m8
+x 8
+y 5
+end
+arch floor_fs_grey1b
 x 8
 y 6
 end
-arch grassd_7
+arch grassd_m8
+x 8
+y 6
+end
+arch floor_fs_grey1b
 x 8
 y 7
 end
-arch tree_big3
+arch grassd_m8
 x 8
 y 7
 end
-arch grassd_2
+arch floor_fs_grey1b
 x 8
 y 8
 end
-arch grassd_7
+arch grassd_m8
+x 8
+y 8
+end
+arch floor_fs_grey1b
 x 8
 y 9
 end
-arch grassd_3
+arch grassd_m8
+x 8
+y 9
+end
+arch floor_fs_grey1b
 x 8
 y 10
 end
-arch plant16
+arch grassd_m8
 x 8
 y 10
 end
-arch grassd_5
+arch floor_fs_grey1b
 x 8
 y 11
 end
-arch grassd_2
+arch grassd_m8
+x 8
+y 11
+end
+arch floor_fs_grey1b
 x 8
 y 12
 end
-arch grassd_2
+arch grassd_m8
+x 8
+y 12
+end
+arch floor_fs_grey1b
 x 8
 y 13
 end
-arch plant_mushroom4
+arch grassd_m8
 x 8
 y 13
 end
-arch grassd_6
+arch floor_fs_grey1b
 x 8
 y 14
 end
-arch grassd_1
+arch grassd_m8
+x 8
+y 14
+end
+arch floor_fs_grey1b
 x 8
 y 15
 end
-arch tree_big5
+arch grassd_m8
 x 8
 y 15
 end
-arch grassd_6
+arch floor_fs_grey1b
 x 8
 y 16
 end
-arch grassd_7
+arch grassd_m8
+x 8
+y 16
+end
+arch floor_fs_grey1b
 x 8
 y 17
 end
-arch tree_big2
+arch grassd_m8
 x 8
 y 17
 end
-arch grassd_3
+arch floor_fs_grey1b
 x 8
 y 18
 end
-arch grassd_8
+arch grassd_m8
+x 8
+y 18
+end
+arch floor_fs_grey1b
 x 8
 y 19
 end
-arch grassd_3
+arch grassd_m12
+x 8
+y 19
+end
+arch floor_fs_grey1b
 x 8
 y 20
 end
-arch grassd_6
+arch floor_fs_grey1b
 x 8
 y 21
 end
-arch grassd_2
+arch grassd_m11
+x 8
+y 21
+end
+arch floor_fs_grey1b
 x 8
 y 22
 end
-arch grassd_6
+arch grassd_m8
+x 8
+y 22
+end
+arch floor_fs_grey1b
+x 8
+y 23
+end
+arch grassd_m8
 x 8
 y 23
 end
@@ -1194,6 +1561,11 @@ y 1
 end
 arch grassd_6
 z 6
+x 9
+y 2
+end
+arch lantern_black
+glow_radius 7
 x 9
 y 2
 end
@@ -1214,43 +1586,40 @@ arch grassd_m7
 x 9
 y 4
 end
-arch grassd_8
+arch grassd_4
 x 9
 y 5
 end
-arch grassd_7
+arch lantern_black
+glow_radius 7
+x 9
+y 5
+end
+arch grassd_6
 x 9
 y 6
-end
-arch plant_mushroom2
-x 9
-y 6
-end
-arch grassd_8
-x 9
-y 7
-end
-arch tree_big4b
-x 9
-y 7
-end
-arch grassd_7
-x 9
-y 8
 end
 arch grassd_4
 x 9
-y 9
+y 7
+end
+arch grassd_6
+x 9
+y 8
 end
 arch grassd_3
 x 9
+y 9
+end
+arch grassd_1
+x 9
 y 10
 end
-arch grassd_8
+arch grassd_7
 x 9
 y 11
 end
-arch grassd_7
+arch grassd_4
 x 9
 y 12
 end
@@ -1258,11 +1627,11 @@ arch grassd_6
 x 9
 y 13
 end
-arch grassd_6
+arch grassd_2
 x 9
 y 14
 end
-arch grassd_5
+arch grassd_3
 x 9
 y 15
 end
@@ -1270,61 +1639,68 @@ arch grassd_1
 x 9
 y 16
 end
-arch tree_big3
-x 9
-y 16
-end
-arch grassd_8
+arch grassd_7
 x 9
 y 17
 end
-arch grassd_4
+arch grassd_5
 x 9
 y 18
 end
-arch grassd_8
+arch lantern_black
+glow_radius 7
+x 9
+y 18
+end
+arch floor_fs_grey1b
 x 9
 y 19
 end
-arch grassd_6
+arch grassd_m10
+x 9
+y 19
+end
+arch floor_fs_grey1b
 x 9
 y 20
 end
-arch spawn_point
-x 9
-y 20
-arch dog_brown
-speed -0.025
-friendly 1
-random_move 1
-item_race 10
-item_level 10
-type 83
-arch event_obj
-sub_type 15
-race /python/generic/random_move_block.py
-slaying grassd_*
-path_attuned 1
-end
-end
-end
-arch grassd_5
+arch floor_fs_grey1b
 x 9
 y 21
 end
-arch tree_big5
+arch grassd_m7
 x 9
 y 21
+end
+arch grassd_7
+x 9
+y 22
+end
+arch table_wood1.111
+direction 7
+x 9
+y 22
+end
+arch tomato
+z 22
+type 79
+layer 7
+x 9
+y 22
 end
 arch grassd_1
 x 9
-y 22
+y 23
 end
-arch plant_flower2
+arch table_wood1.111
+direction 7
 x 9
-y 22
+y 23
 end
-arch grassd_6
+arch pineapple
+z 26
+type 79
+layer 7
 x 9
 y 23
 end
@@ -1363,27 +1739,49 @@ arch grassd_m7
 x 10
 y 4
 end
-arch grassd_6
+arch grassd_7
 x 10
 y 5
 end
-arch grassd_2
+arch grassd_4
 x 10
 y 6
 end
-arch grassd_6
+arch grassd_8
 x 10
 y 7
 end
-arch grassd_5
+arch grassd_2
 x 10
 y 8
 end
-arch grassd_5
+arch candlelight4.101
+glow_radius 7
+x 10
+y 8
+end
+arch grassd_6
 x 10
 y 9
 end
-arch grassd_3
+arch table_wood1.111
+direction 7
+x 10
+y 9
+end
+arch blackroot
+z 24
+type 79
+layer 7
+x 10
+y 9
+end
+arch grassd_4
+x 10
+y 10
+end
+arch table_wood6
+direction 7
 x 10
 y 10
 end
@@ -1391,23 +1789,61 @@ arch grassd_8
 x 10
 y 11
 end
-arch grassd_1
+arch grain1.101
+x 10
+y 11
+end
+arch grassd_3
 x 10
 y 12
 end
-arch tree_big3
+arch table_wood1.111
+direction 7
 x 10
 y 12
 end
-arch grassd_1
+arch book_spell
+z 27
+type 79
+layer 7
+x 10
+y 12
+end
+arch grassd_8
 x 10
 y 13
 end
-arch small_stones
+arch table_wood1.111
+direction 7
 x 10
 y 13
 end
-arch grassd_1
+arch fmask_ruin1a.111
+msg
+This tablet seems to be written in some ancient dialect of Dwarvish.  You can't read it.
+endmsg
+name tablet
+value 15000
+z 22
+material 64
+identified 1
+layer 7
+x 10
+y 13
+end
+arch grassd_8
+x 10
+y 14
+end
+arch table_wood1.111
+direction 7
+x 10
+y 14
+end
+arch note
+z 22
+type 79
+layer 7
 x 10
 y 14
 end
@@ -1415,7 +1851,7 @@ arch grassd_7
 x 10
 y 15
 end
-arch stone1
+arch crystal_rune
 x 10
 y 15
 end
@@ -1423,39 +1859,56 @@ arch grassd_8
 x 10
 y 16
 end
-arch tree_big
+arch fire_cauld.131
 x 10
 y 16
 end
-arch grassd_1
+arch grassd_3
 x 10
 y 17
 end
-arch grassd_8
+arch carpet4.131
+x 10
+y 17
+end
+arch table_poker2
+x 10
+y 17
+end
+arch grassd_6
 x 10
 y 18
 end
-arch grassd_6
+arch floor_fs_grey1b
 x 10
 y 19
 end
-arch plant12
+arch grassd_m10
 x 10
 y 19
 end
-arch grassd_3
+arch floor_fs_grey1b
 x 10
 y 20
 end
-arch grassd_1
+arch floor_fs_grey1b
 x 10
 y 21
 end
-arch grassd_7
+arch grassd_m7
+x 10
+y 21
+end
+arch grassd_2
 x 10
 y 22
 end
-arch grassd_6
+arch grassd_4
+x 10
+y 23
+end
+arch candlelight4.101
+glow_radius 7
 x 10
 y 23
 end
@@ -1495,8 +1948,7 @@ arch grassd_m7
 x 11
 y 4
 end
-arch grassd_6
-z 2
+arch grassd_5
 x 11
 y 5
 end
@@ -1508,101 +1960,303 @@ arch grassd_8
 x 11
 y 7
 end
-arch tree_big4b
-x 11
-y 7
-end
 arch grassd_2
 x 11
 y 8
 end
-arch tree_big3
+arch carpet6.151
 x 11
 y 8
 end
-arch grassd_5
+arch table_wood1.111
 x 11
-y 9
+y 8
 end
-arch grassd_8
+arch seed_a
+z 26
+type 79
+layer 7
 x 11
-y 10
-end
-arch tree_big5b
-x 11
-y 10
-end
-arch grassd_8
-x 11
-y 11
-end
-arch small_stones
-x 11
-y 11
-end
-arch grassd_4
-x 11
-y 12
-end
-arch tree_big2
-x 11
-y 12
-end
-arch grassd_1
-x 11
-y 13
-end
-arch grassd_3
-x 11
-y 14
-end
-arch grassd_4
-x 11
-y 15
-end
-arch grassd_1
-x 11
-y 16
-end
-arch tree_big3
-x 11
-y 16
-end
-arch grassd_4
-x 11
-y 17
-end
-arch tree_big5b
-x 11
-y 17
-end
-arch grassd_1
-x 11
-y 18
-end
-arch grassd_1
-x 11
-y 19
+y 8
 end
 arch grassd_6
 x 11
-y 20
+y 9
 end
-arch grassd_3
+arch carpet6b
 x 11
-y 21
+y 9
 end
-arch plant_mushroom3
+arch spawn_point
 x 11
-y 21
+y 9
+arch priest_green
+name herbalist
+level 28
+type 83
+arch event_obj
+sub_type 6
+race /python/generic/merchant.py
+stock 1
+arch clover
+nrof 75
+identified 1
+arch mint
+nrof 100
+identified 1
 end
-arch grassd_7
-x 11
-y 22
+arch mushroom1
+nrof 50
+identified 1
+name white mushroom
+end
+arch mushroom2
+nrof 50
+identified 1
+name red mushroom
+end
+arch mushroom3
+nrof 50
+identified 1
+name blue mushroom
+end
+end
+arch teabag
+nrof 100
+identified 1
+end
+arch chilli
+nrof 50
+identified 1
+end
+arch olive_oil
+nrof 20
+identified 1
+end
+arch cup_tea
+nrof 20
+identified 1
+value 40
+end
+end
+end
 end
 arch grassd_4
 x 11
+y 10
+end
+arch carpet6.111
+x 11
+y 10
+end
+arch grassd_7
+x 11
+y 11
+end
+arch grain3.101
+x 11
+y 11
+end
+arch grassd_2
+x 11
+y 12
+end
+arch locker3.111
+slaying no_open
+x 11
+y 12
+end
+arch grassd_5
+x 11
+y 13
+end
+arch chair_small2
+x 11
+y 13
+end
+arch spawn_point
+x 11
+y 13
+arch mage_old
+name sage
+direction 7
+level 35
+type 83
+arch event_obj
+msg
+[["random_scroll", 2, -1], ["random_wand", 2, -1]]
+endmsg
+sub_type 6
+race /python/generic/merchant.py
+stock 1
+arch note
+exp 0
+nrof 50
+value 30
+level 0
+end
+arch mana_crystal_25
+nrof 5
+end
+arch mana_crystal_50
+nrof 3
+end
+arch mana_crystal_100
+end
+end
+end
+end
+arch grassd_7
+x 11
+y 14
+end
+arch bowl2.101
+x 11
+y 14
+end
+arch grassd_2
+x 11
+y 15
+end
+arch box1.101
+x 11
+y 15
+end
+arch grassd_5
+x 11
+y 16
+end
+arch plant_flower14
+x 11
+y 16
+end
+arch grassd_7
+x 11
+y 17
+end
+arch carpet4a
+x 11
+y 17
+end
+arch chair_small
+x 11
+y 17
+end
+arch spawn_point
+x 11
+y 17
+arch female2
+name fortune teller
+level 26
+type 83
+direction 7
+arch event_obj
+msg
+[["random_gem", 4, -1]]
+endmsg
+sub_type 6
+race /python/generic/merchant.py
+stock 1
+end
+end
+end
+arch grassd_4
+x 11
+y 18
+end
+arch table_round1
+x 11
+y 18
+end
+arch crystal_ball
+layer 5
+z 23
+x 11
+y 18
+end
+arch floor_fs_grey1b
+x 11
+y 19
+end
+arch grassd_m10
+x 11
+y 19
+end
+arch floor_fs_grey1b
+x 11
+y 20
+end
+arch floor_fs_grey1b
+x 11
+y 21
+end
+arch grassd_m7
+x 11
+y 21
+end
+arch grassd_4
+x 11
+y 22
+end
+arch grassd_7
+x 11
 y 23
+end
+arch chair2_111
+direction 5
+x 11
+y 23
+end
+arch spawn_point
+x 11
+y 23
+arch guard_pole
+name farmer
+level 20
+type 83
+direction 1
+arch event_obj
+sub_type 6
+race /python/generic/merchant.py
+stock 1
+arch apple
+nrof 30
+identified 1
+end
+arch banana
+nrof 30
+identified 1
+end
+arch tomato
+nrof 30
+identified 1
+end
+arch grapes
+nrof 30
+identified 1
+end
+arch carrot
+nrof 30
+identified 1
+end
+arch orange
+nrof 30
+identified 1
+end
+arch strawberry
+nrof 30
+identified 1
+end
+arch snozzcumber
+nrof 30
+identified 1
+end
+arch choko
+nrof 30
+identified 1
+end
+end
+end
 end
 arch grassd_6
 z 26
@@ -1654,43 +2308,68 @@ z 2
 x 12
 y 6
 end
-arch grassd_6
+arch grassd_3
 x 12
 y 7
 end
-arch grassd_4
+arch grassd_2
 x 12
 y 8
 end
-arch grassd_5
+arch table_wood1.111
+x 12
+y 8
+end
+arch root_mandrake
+z 24
+type 79
+layer 7
+x 12
+y 8
+end
+arch grassd_8
 x 12
 y 9
 end
-arch grassd_6
+arch grassd_2
 x 12
 y 10
 end
-arch grassd_2
+arch grassd_6
 x 12
 y 11
 end
-arch grassd_5
+arch bowl1_full.101
+x 12
+y 11
+end
+arch grassd_3
 x 12
 y 12
 end
-arch grassd_5
+arch table_lab1.111
+direction 5
+x 12
+y 12
+end
+arch grassd_1
 x 12
 y 13
 end
-arch grassd_7
+arch grassd_3
 x 12
 y 14
 end
-arch grassd_7
+arch box2.101
+x 12
+y 14
+end
+arch grassd_6
 x 12
 y 15
 end
-arch tree_big4
+arch candlelight3.101
+glow_radius 2
 x 12
 y 15
 end
@@ -1698,35 +2377,54 @@ arch grassd_8
 x 12
 y 16
 end
-arch grassd_7
+arch mirror_big.111
+x 12
+y 16
+end
+arch grassd_3
 x 12
 y 17
 end
-arch grassd_5
+arch grassd_1
 x 12
 y 18
 end
-arch grassd_4
+arch luggage
+slaying no_open
+x 12
+y 18
+end
+arch floor_fs_grey1b
 x 12
 y 19
 end
-arch grassd_5
+arch grassd_m10
+x 12
+y 19
+end
+arch floor_fs_grey1b
 x 12
 y 20
 end
-arch grassd_2
+arch floor_fs_grey1b
 x 12
 y 21
 end
-arch grassd_7
+arch grassd_m7
 x 12
-y 22
+y 21
 end
 arch grassd_1
 x 12
+y 22
+end
+arch grassd_2
+x 12
 y 23
 end
-arch tree_branch2
+arch chest_sw_1
+direction 7
+slaying no_open
 x 12
 y 23
 end
@@ -1781,23 +2479,15 @@ z 2
 x 13
 y 7
 end
-arch plant_mushroom2
-x 13
-y 7
-end
-arch grassd_5
+arch grassd_6
 x 13
 y 8
 end
-arch grassd_4
+arch grassd_3
 x 13
 y 9
 end
-arch tree_big5b
-x 13
-y 9
-end
-arch grassd_7
+arch grassd_1
 x 13
 y 10
 end
@@ -1805,11 +2495,7 @@ arch grassd_7
 x 13
 y 11
 end
-arch plant_mushroom1
-x 13
-y 11
-end
-arch grassd_3
+arch grassd_4
 x 13
 y 12
 end
@@ -1817,11 +2503,11 @@ arch grassd_6
 x 13
 y 13
 end
-arch grassd_7
+arch grassd_2
 x 13
 y 14
 end
-arch grassd_6
+arch grassd_3
 x 13
 y 15
 end
@@ -1829,43 +2515,47 @@ arch grassd_1
 x 13
 y 16
 end
-arch tree_big3
-x 13
-y 16
-end
-arch grassd_5
+arch grassd_7
 x 13
 y 17
 end
-arch grassd_3
+arch grassd_5
 x 13
 y 18
 end
-arch grassd_1
+arch floor_fs_grey1b
 x 13
 y 19
 end
-arch plant_mushroom5
+arch grassd_m10
 x 13
 y 19
 end
-arch grassd_7
+arch floor_fs_grey1b
 x 13
 y 20
 end
-arch grassd_7
+arch floor_fs_grey1b
 x 13
 y 21
 end
-arch tree_big3
+arch grassd_m7
 x 13
 y 21
 end
-arch grassd_5
+arch grassd_6
 x 13
 y 22
 end
-arch grassd_4
+arch straw1.101
+x 13
+y 22
+end
+arch grassd_5
+x 13
+y 23
+end
+arch straw2.111
 x 13
 y 23
 end
@@ -1934,25 +2624,13 @@ z 2
 x 14
 y 9
 end
-arch tree_big2
-x 14
-y 9
-end
 arch grassd_7
 z 2
 x 14
 y 10
 end
-arch tree_big5b
-x 14
-y 10
-end
 arch grassd_5
 z 2
-x 14
-y 11
-end
-arch tree_big3
 x 14
 y 11
 end
@@ -1969,7 +2647,7 @@ arch grassd_4
 x 14
 y 14
 end
-arch plant_flower2
+arch tent_small
 x 14
 y 14
 end
@@ -1981,6 +2659,10 @@ arch grassd_5
 x 14
 y 16
 end
+arch tent_small
+x 14
+y 16
+end
 arch grassd_2
 x 14
 y 17
@@ -1989,19 +2671,28 @@ arch grassd_5
 x 14
 y 18
 end
-arch plant15
+arch lantern_black
+glow_radius 7
 x 14
 y 18
 end
-arch grassd_7
+arch floor_fs_grey1b
 x 14
 y 19
 end
-arch grassd_1
+arch grassd_m10
+x 14
+y 19
+end
+arch floor_fs_grey1b
 x 14
 y 20
 end
-arch grassd_4
+arch floor_fs_grey1b
+x 14
+y 21
+end
+arch grassd_m7
 x 14
 y 21
 end
@@ -2009,11 +2700,12 @@ arch grassd_2
 x 14
 y 22
 end
-arch grassd_8
+arch lantern_black
+glow_radius 7
 x 14
-y 23
+y 22
 end
-arch tree_big4
+arch grassd_8
 x 14
 y 23
 end
@@ -2086,21 +2778,18 @@ z 6
 x 15
 y 9
 end
+arch lantern_black
+glow_radius 7
+x 15
+y 9
+end
 arch grassd_2
 z 6
 x 15
 y 10
 end
-arch tree_big5
-x 15
-y 10
-end
 arch grassd_6
 z 6
-x 15
-y 11
-end
-arch tree_big2
 x 15
 y 11
 end
@@ -2118,19 +2807,11 @@ arch grassd_5
 x 15
 y 14
 end
-arch tree_big2
-x 15
-y 14
-end
 arch grassd_2
 x 15
 y 15
 end
 arch grassd_7
-x 15
-y 16
-end
-arch plant1
 x 15
 y 16
 end
@@ -2142,15 +2823,23 @@ arch grassd_4
 x 15
 y 18
 end
-arch grassd_5
+arch floor_fs_grey1b
 x 15
 y 19
 end
-arch grassd_7
+arch grassd_m10
+x 15
+y 19
+end
+arch floor_fs_grey1b
 x 15
 y 20
 end
-arch grassd_6
+arch floor_fs_grey1b
+x 15
+y 21
+end
+arch grassd_m7
 x 15
 y 21
 end
@@ -2159,10 +2848,6 @@ x 15
 y 22
 end
 arch grassd_4
-x 15
-y 23
-end
-arch tree_big
 x 15
 y 23
 end
@@ -2198,6 +2883,12 @@ z 22
 x 16
 y 5
 end
+arch client_map_info
+name asteria_bazaar
+sub_type 2
+x 16
+y 5
+end
 arch grassd_7
 z 18
 x 16
@@ -2262,20 +2953,17 @@ z 6
 x 16
 y 13
 end
+arch lantern_black
+glow_radius 7
+x 16
+y 13
+end
 arch grassd_4
 z 2
 x 16
 y 14
 end
-arch tree_big5
-x 16
-y 14
-end
 arch grassd_6
-x 16
-y 15
-end
-arch tree_big
 x 16
 y 15
 end
@@ -2287,27 +2975,27 @@ arch grassd_8
 x 16
 y 17
 end
-arch tree_big2
-x 16
-y 17
-end
 arch grassd_5
 x 16
 y 18
 end
-arch grassd_5
+arch floor_fs_grey1b
 x 16
 y 19
 end
-arch grassd_3
+arch grassd_m10
+x 16
+y 19
+end
+arch floor_fs_grey1b
 x 16
 y 20
 end
-arch grassd_4
+arch floor_fs_grey1b
 x 16
 y 21
 end
-arch plant_flower14
+arch grassd_m7
 x 16
 y 21
 end
@@ -2316,10 +3004,6 @@ x 16
 y 22
 end
 arch grassd_6
-x 16
-y 23
-end
-arch plant11
 x 16
 y 23
 end
@@ -2360,6 +3044,24 @@ z 26
 x 17
 y 5
 end
+arch spawn_point
+x 17
+y 5
+arch dog_brown
+speed -0.025
+friendly 1
+random_move 1
+item_race 10
+item_level 10
+type 83
+arch event_obj
+sub_type 15
+race /python/generic/random_move_block.py
+slaying grassd_*
+path_attuned 1
+end
+end
+end
 arch grassd_2
 z 22
 x 17
@@ -2433,24 +3135,12 @@ z 6
 x 17
 y 14
 end
-arch plant17
-x 17
-y 14
-end
 arch grassd_3
 z 2
 x 17
 y 15
 end
-arch tree_big4
-x 17
-y 15
-end
 arch grassd_5
-x 17
-y 16
-end
-arch tree_big
 x 17
 y 16
 end
@@ -2462,23 +3152,23 @@ arch grassd_5
 x 17
 y 18
 end
-arch grassd_7
+arch floor_fs_grey1b
 x 17
 y 19
 end
-arch tree_branch3
+arch grassd_m10
 x 17
 y 19
 end
-arch grassd_8
+arch floor_fs_grey1b
 x 17
 y 20
 end
-arch grassd_8
+arch floor_fs_grey1b
 x 17
 y 21
 end
-arch plant_flower2
+arch grassd_m7
 x 17
 y 21
 end
@@ -2605,27 +3295,27 @@ arch grassd_8
 x 18
 y 18
 end
-arch grassd_2
+arch floor_fs_grey1b
 x 18
 y 19
 end
-arch grassd_1
+arch grassd_m10
+x 18
+y 19
+end
+arch floor_fs_grey1b
 x 18
 y 20
 end
-arch tree_big
+arch floor_fs_grey1b
 x 18
-y 20
+y 21
 end
-arch grassd_4
+arch grassd_m7
 x 18
 y 21
 end
 arch grassd_3
-x 18
-y 22
-end
-arch tree_big2
 x 18
 y 22
 end
@@ -2757,27 +3447,41 @@ z 2
 x 19
 y 17
 end
-arch plant13
-x 19
-y 17
-end
 arch grassd_4
 x 19
 y 18
 end
-arch grassd_8
+arch lantern_black
+glow_radius 7
+x 19
+y 18
+end
+arch floor_fs_grey1b
 x 19
 y 19
 end
-arch grassd_2
+arch grassd_m10
+x 19
+y 19
+end
+arch floor_fs_grey1b
 x 19
 y 20
 end
-arch grassd_3
+arch floor_fs_grey1b
+x 19
+y 21
+end
+arch grassd_m7
 x 19
 y 21
 end
 arch grassd_4
+x 19
+y 22
+end
+arch lantern_black
+glow_radius 7
 x 19
 y 22
 end
@@ -2919,23 +3623,23 @@ arch floor_fs_grey1b
 x 20
 y 19
 end
-arch grassd_m3
+arch grassd_m13
 x 20
 y 19
 end
-arch grassd_8
+arch floor_fs_grey1b
 x 20
 y 20
 end
-arch grassd_2
+arch floor_fs_grey1b
+x 20
+y 21
+end
+arch grassd_m7
 x 20
 y 21
 end
 arch grassd_3
-x 20
-y 22
-end
-arch plant10
 x 20
 y 22
 end
@@ -3078,19 +3782,15 @@ z 2
 x 21
 y 19
 end
-arch grassd_m14
-x 21
-y 19
-end
 arch floor_fs_grey1b
 x 21
 y 20
 end
-arch grassd_m3
+arch floor_fs_grey1b
 x 21
-y 20
+y 21
 end
-arch grassd_2
+arch grassd_m7
 x 21
 y 21
 end
@@ -3099,10 +3799,6 @@ x 21
 y 22
 end
 arch grassd_8
-x 21
-y 23
-end
-arch plant5
 x 21
 y 23
 end
@@ -3242,15 +3938,11 @@ z 2
 x 22
 y 20
 end
-arch grassd_m14
-x 22
-y 20
-end
 arch floor_fs_grey1b
 x 22
 y 21
 end
-arch grassd_m3
+arch grassd_m7
 x 22
 y 21
 end
