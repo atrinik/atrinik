@@ -31,14 +31,6 @@
 #include <global.h>
 
 /**
- * Name of the API. */
-#define API_NAME math
-
-/**
- * If 1, the API has been initialized. */
-static uint8 did_init = 0;
-
-/**
  * Used by nearest_pow_two_exp() for a fast lookup.
  */
 static const size_t exp_lookup[65] = {
@@ -47,30 +39,18 @@ static const size_t exp_lookup[65] = {
     6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6
 };
 
-/**
- * Initialize the math API.
- * @internal */
-void toolkit_math_init(void)
+TOOLKIT_API();
+
+TOOLKIT_INIT_FUNC(math)
 {
-
-    TOOLKIT_INIT_FUNC_START(math)
-    {
-        SRANDOM(time(NULL));
-    }
-    TOOLKIT_INIT_FUNC_END()
+    SRANDOM(time(NULL));
 }
+TOOLKIT_INIT_FUNC_FINISH
 
-/**
- * Deinitialize the math API.
- * @internal */
-void toolkit_math_deinit(void)
+TOOLKIT_DEINIT_FUNC(math)
 {
-
-    TOOLKIT_DEINIT_FUNC_START(math)
-    {
-    }
-    TOOLKIT_DEINIT_FUNC_END()
 }
+TOOLKIT_DEINIT_FUNC_FINISH
 
 /**
  * Computes the integer square root.
@@ -80,7 +60,7 @@ unsigned long isqrt(unsigned long n)
 {
     unsigned long op = n, res = 0, one;
 
-    TOOLKIT_FUNC_PROTECTOR(API_NAME);
+    TOOLKIT_PROTECT();
 
     /* "one" starts at the highest power of four <= than the argument. */
     one = 1 << 30;
@@ -116,7 +96,7 @@ unsigned long isqrt(unsigned long n)
  * @return The random number. */
 int rndm(int min, int max)
 {
-    TOOLKIT_FUNC_PROTECTOR(API_NAME);
+    TOOLKIT_PROTECT();
 
     if (max < 1 || max - min + 1 < 1) {
         logger_print(LOG(BUG), "Calling rndm() with min=%d max=%d", min, max);
@@ -130,16 +110,16 @@ int rndm(int min, int max)
  * Calculates a chance of 1 in 'n'.
  * @param n Number.
  * @return 1 if the chance of 1/n was successful, 0 otherwise. */
-int rndm_chance(uint32 n)
+int rndm_chance(uint32_t n)
 {
-    TOOLKIT_FUNC_PROTECTOR(API_NAME);
+    TOOLKIT_PROTECT();
 
     if (!n) {
         logger_print(LOG(BUG), "Calling rndm_chance() with n=0.");
         return 0;
     }
 
-    return (uint32) RANDOM() < (RAND_MAX + 1U) / n;
+    return (uint32_t) RANDOM() < (RAND_MAX + 1U) / n;
 }
 
 /**
@@ -288,7 +268,7 @@ size_t nearest_pow_two_exp(size_t n)
 {
     size_t i;
 
-    TOOLKIT_FUNC_PROTECTOR(API_NAME);
+    TOOLKIT_PROTECT();
 
     if (n <= 64) {
         return exp_lookup[n];

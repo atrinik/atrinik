@@ -212,6 +212,45 @@ class CheckerObject(AbstractChecker):
                               "and changing it is not recommended.",
                               obj=obj)
 
+    def checker_path(self, obj):
+        env = obj.getParentTop()
+
+        if not env.map:
+            return
+
+        t = obj.getAttributeInt("type")
+
+        if t in (Game.Types.exit, Game.Types.waypoint, Game.Types.magic_mirror):
+            path = obj.getAttribute("slaying")
+        else:
+            return
+
+        if not path:
+            return
+
+        if t == Game.Types.exit and path.startswith("/random/"):
+            return
+
+        maps_path = os.path.realpath(self.map_checker.get_maps_path())
+
+        if not os.path.realpath(env.map.path).startswith(maps_path):
+            return
+
+        if path.startswith("/"):
+            real_path = os.path.join(maps_path, path[1:])
+        else:
+            real_path = os.path.join(os.path.dirname(env.map.path), path)
+
+        real_path = os.path.realpath(real_path)
+
+        if not os.path.exists(real_path) or not os.path.isfile(real_path):
+            self.addError("high",
+                          "Object points to an invalid map path: "
+                          "{} ({})".format(path, real_path),
+                          "Objects should have correct map path configured.",
+                          obj=obj)
+
+
     def checker_types(self, obj):
         t = obj.getAttributeInt("type")
 

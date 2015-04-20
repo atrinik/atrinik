@@ -29,6 +29,7 @@
  * @author Alex Tokar */
 
 #include <global.h>
+#include <toolkit_string.h>
 
 /** How often to blink the eyes in ticks. */
 #define EYES_BLINK_TIME (15 * 1000)
@@ -45,9 +46,9 @@ static size_t last_server_count = 0;
 static curl_data *news_data = NULL;
 
 /** Last time the eyes blinked. */
-static uint32 eyes_blink_ticks = 0;
+static uint32_t eyes_blink_ticks = 0;
 /** Whether to draw the eyes. */
-static uint8 eyes_draw = 1;
+static uint8_t eyes_draw = 1;
 /** Button buffer. */
 static button_struct button_play, button_refresh, button_server, button_settings, button_update, button_help, button_credits, button_quit, button_crash;
 
@@ -64,7 +65,7 @@ static void list_handle_enter(list_struct *list, SDL_Event *event)
     /* Servers list? */
     if (list == list_servers) {
         char number[16];
-        uint32 version, i;
+        uint32_t version, i;
         size_t pos;
 
         /* Get selected server. */
@@ -100,6 +101,28 @@ static void list_handle_esc(list_struct *list)
     (void) list;
 
     exit(0);
+}
+
+/**
+ * Deinitialize data used by the intro screen.
+ */
+void intro_deinit(void)
+{
+    button_destroy(&button_play);
+    button_destroy(&button_refresh);
+    button_destroy(&button_server);
+    button_destroy(&button_settings);
+    button_destroy(&button_update);
+    button_destroy(&button_help);
+    button_destroy(&button_credits);
+    button_destroy(&button_quit);
+    button_destroy(&button_crash);
+
+    list_remove(list_servers);
+    list_servers = NULL;
+
+    list_remove(list_news);
+    list_news = NULL;
 }
 
 /**

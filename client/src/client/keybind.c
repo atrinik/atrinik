@@ -44,6 +44,8 @@
  * @author Alex Tokar */
 
 #include <global.h>
+#include <packet.h>
+#include <toolkit_string.h>
 
 /** The keybindings. */
 keybind_struct **keybindings = NULL;
@@ -414,7 +416,7 @@ int keybind_process_event(SDL_KeyboardEvent *event)
  * Process a keybinding.
  * @param keybind The keybinding to process.
  * @param type Either SDL_KEYDOWN or SDL_KEYUP. */
-void keybind_process(keybind_struct *keybind, uint8 type)
+void keybind_process(keybind_struct *keybind, uint8_t type)
 {
     char command[MAX_BUF], *cp;
 

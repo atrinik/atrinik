@@ -1,0 +1,3254 @@
+arch map
+name Morliana
+msg
+Created:  2009-08-09 Alex Tokar
+Modified: 2011-09-30 Alex Tokar
+endmsg
+width 24
+height 24
+difficulty 20
+outdoor 1
+no_harm 1
+bg_music campfire_tales.mid
+region morliana
+weather snow_light
+end
+arch snow2
+end
+arch snow3
+y 1
+end
+arch snow4
+y 2
+end
+arch snow1
+y 3
+end
+arch rock_big2
+y 3
+end
+arch snow3
+y 4
+end
+arch rock_big2
+y 4
+end
+arch snow1
+y 5
+end
+arch rock_big2
+y 5
+end
+arch snow4
+y 6
+end
+arch rock_big2
+y 6
+end
+arch snow2
+y 7
+end
+arch snow1
+y 8
+end
+arch snow4
+y 9
+end
+arch stone2
+y 9
+end
+arch snow4
+y 10
+end
+arch snow2
+y 11
+end
+arch floor_sand_d3
+y 12
+end
+arch snow_fmask.105
+y 12
+end
+arch floor_sand_d4
+y 13
+end
+arch floor_sand_d3
+y 14
+end
+arch snow_fmask.101
+y 14
+end
+arch snow2
+y 15
+end
+arch snow1
+y 16
+end
+arch tree_branch2_winter
+y 16
+end
+arch snow3
+y 17
+end
+arch snow4
+y 18
+end
+arch rock_big2
+y 18
+end
+arch snow4
+y 19
+end
+arch rock_big2
+y 19
+end
+arch snow3
+y 20
+end
+arch rock_big2
+y 20
+end
+arch snow1
+y 21
+end
+arch snow2
+y 22
+end
+arch snow3
+y 23
+end
+arch snow1
+x 1
+end
+arch stone2
+x 1
+end
+arch snow3
+x 1
+y 1
+end
+arch snow4
+x 1
+y 2
+end
+arch rock_big2
+x 1
+y 2
+end
+arch snow3
+x 1
+y 3
+end
+arch rock_big2
+x 1
+y 3
+end
+arch snow4
+x 1
+y 4
+end
+arch rock_big2
+x 1
+y 4
+end
+arch snow3
+x 1
+y 5
+end
+arch rock_big2
+x 1
+y 5
+end
+arch snow3
+x 1
+y 6
+end
+arch rock_big2
+x 1
+y 6
+end
+arch snow4
+x 1
+y 7
+end
+arch snow1
+x 1
+y 8
+end
+arch snow4
+x 1
+y 9
+end
+arch snow3
+x 1
+y 10
+end
+arch tree_branch2_winter
+x 1
+y 10
+end
+arch snow1
+x 1
+y 11
+end
+arch floor_sand_d1
+x 1
+y 12
+end
+arch snow_fmask.105
+x 1
+y 12
+end
+arch floor_sand_d2
+x 1
+y 13
+end
+arch floor_sand_d1
+x 1
+y 14
+end
+arch snow_fmask.101
+x 1
+y 14
+end
+arch snow2
+x 1
+y 15
+end
+arch snow4
+x 1
+y 16
+end
+arch snow3
+x 1
+y 17
+end
+arch snow3
+x 1
+y 18
+end
+arch rock_big2
+x 1
+y 18
+end
+arch snow3
+x 1
+y 19
+end
+arch rock_big2
+x 1
+y 19
+end
+arch snow3
+x 1
+y 20
+end
+arch rock_big2
+x 1
+y 20
+end
+arch snow1
+x 1
+y 21
+end
+arch rock_big2
+x 1
+y 21
+end
+arch snow2
+x 1
+y 22
+end
+arch snow3
+x 1
+y 23
+end
+arch stone2
+x 1
+y 23
+end
+arch snow2
+x 2
+end
+arch snow2
+x 2
+y 1
+end
+arch snow2
+x 2
+y 2
+end
+arch rock_big2
+x 2
+y 2
+end
+arch snow4
+x 2
+y 3
+end
+arch rock_big2
+x 2
+y 3
+end
+arch snow4
+x 2
+y 4
+end
+arch rock_big2
+x 2
+y 4
+end
+arch snow4
+x 2
+y 5
+end
+arch rock_big2
+x 2
+y 5
+end
+arch snow1
+x 2
+y 6
+end
+arch snow1
+x 2
+y 7
+end
+arch snow3
+x 2
+y 8
+end
+arch snowy_tree_big1
+x 2
+y 8
+end
+arch snow4
+x 2
+y 9
+end
+arch snow1
+x 2
+y 10
+end
+arch floor_sand_d4
+x 2
+y 11
+end
+arch snow_fmask.104
+x 2
+y 11
+end
+arch floor_sand_d2
+x 2
+y 12
+end
+arch snow_fmask.114
+x 2
+y 12
+end
+arch floor_sand_d2
+x 2
+y 13
+end
+arch floor_sand_d3
+x 2
+y 14
+end
+arch snow_fmask.101
+x 2
+y 14
+end
+arch snow4
+x 2
+y 15
+end
+arch snow2
+x 2
+y 16
+end
+arch snow2
+x 2
+y 17
+end
+arch snow2
+x 2
+y 18
+end
+arch rock_big2
+x 2
+y 18
+end
+arch snow1
+x 2
+y 19
+end
+arch rock_big2
+x 2
+y 19
+end
+arch snow4
+x 2
+y 20
+end
+arch rock_big2
+x 2
+y 20
+end
+arch snow3
+x 2
+y 21
+end
+arch rock_big2
+x 2
+y 21
+end
+arch snow2
+x 2
+y 22
+end
+arch snow2
+x 2
+y 23
+end
+arch snowy_treeb1
+x 2
+y 23
+end
+arch snow3
+x 3
+end
+arch snowy_tree_big2
+x 3
+end
+arch snow4
+x 3
+y 1
+end
+arch rock_big2
+x 3
+y 1
+end
+arch snow1
+x 3
+y 2
+end
+arch rock_big2
+x 3
+y 2
+end
+arch snow4
+x 3
+y 3
+end
+arch rock_big2
+x 3
+y 3
+end
+arch snow2
+x 3
+y 4
+end
+arch rock_big2
+x 3
+y 4
+end
+arch snow4
+x 3
+y 5
+end
+arch snow1
+x 3
+y 6
+end
+arch snow2
+x 3
+y 7
+end
+arch snow4
+x 3
+y 8
+end
+arch snow3
+x 3
+y 9
+end
+arch snow3
+x 3
+y 10
+end
+arch floor_sand_d3
+x 3
+y 11
+end
+arch snow_fmask.105
+x 3
+y 11
+end
+arch floor_sand_d2
+x 3
+y 12
+end
+arch floor_sand_d4
+x 3
+y 13
+end
+arch floor_sand_d2
+x 3
+y 14
+end
+arch snow_fmask.101
+x 3
+y 14
+end
+arch light6
+x 3
+y 14
+end
+arch snow3
+x 3
+y 15
+end
+arch lantern_magic.131
+direction 7
+x 3
+y 15
+end
+arch snow4
+x 3
+y 16
+end
+arch snow4
+x 3
+y 17
+end
+arch snowy_treeb1
+x 3
+y 17
+end
+arch snow3
+x 3
+y 18
+end
+arch snow4
+x 3
+y 19
+end
+arch rock_big2
+x 3
+y 19
+end
+arch snow3
+x 3
+y 20
+end
+arch rock_big2
+x 3
+y 20
+end
+arch snow3
+x 3
+y 21
+end
+arch rock_big2
+x 3
+y 21
+end
+arch snow1
+x 3
+y 22
+end
+arch rock_big2
+x 3
+y 22
+end
+arch snow2
+x 3
+y 23
+end
+arch snow2
+x 4
+end
+arch snow1
+x 4
+y 1
+end
+arch rock_big2
+x 4
+y 1
+end
+arch snow2
+x 4
+y 2
+end
+arch rock_big2
+x 4
+y 2
+end
+arch snow2
+x 4
+y 3
+end
+arch rock_big2
+x 4
+y 3
+end
+arch snow2
+x 4
+y 4
+end
+arch rock_big2
+x 4
+y 4
+end
+arch snow3
+x 4
+y 5
+end
+arch snow1
+x 4
+y 6
+end
+arch snow2
+x 4
+y 7
+end
+arch stone4
+x 4
+y 7
+end
+arch snow1
+x 4
+y 8
+end
+arch pillar_blue10
+x 4
+y 8
+end
+arch light5
+x 4
+y 8
+end
+arch snow1
+x 4
+y 9
+end
+arch snow1
+x 4
+y 10
+end
+arch floor_sand_d4
+x 4
+y 11
+end
+arch snow_fmask.105
+x 4
+y 11
+end
+arch floor_sand_d3
+x 4
+y 12
+end
+arch floor_sand_d4
+x 4
+y 13
+end
+arch snow_fmask.118
+x 4
+y 13
+end
+arch floor_sand_d2
+x 4
+y 14
+end
+arch snow_fmask.108
+x 4
+y 14
+end
+arch snow1
+x 4
+y 15
+end
+arch snow1
+x 4
+y 16
+end
+arch snow3
+x 4
+y 17
+end
+arch snow1
+x 4
+y 18
+end
+arch snow4
+x 4
+y 19
+end
+arch rock_big2
+x 4
+y 19
+end
+arch snow3
+x 4
+y 20
+end
+arch rock_big2
+x 4
+y 20
+end
+arch snow4
+x 4
+y 21
+end
+arch rock_big2
+x 4
+y 21
+end
+arch snow1
+x 4
+y 22
+end
+arch rock_big2
+x 4
+y 22
+end
+arch snow4
+x 4
+y 23
+end
+arch snow3
+x 5
+end
+arch rock_big2
+x 5
+end
+arch snow3
+x 5
+y 1
+end
+arch rock_big2
+x 5
+y 1
+end
+arch snow1
+x 5
+y 2
+end
+arch rock_big2
+x 5
+y 2
+end
+arch snow4
+x 5
+y 3
+end
+arch rock_big2
+x 5
+y 3
+end
+arch snow2
+x 5
+y 4
+end
+arch snow4
+x 5
+y 5
+end
+arch snow2
+x 5
+y 6
+end
+arch tree_branch2_winter
+x 5
+y 6
+end
+arch snow4
+x 5
+y 7
+end
+arch snow2
+x 5
+y 8
+end
+arch snow4
+x 5
+y 9
+end
+arch snow4
+x 5
+y 10
+end
+arch lantern_magic.131
+direction 3
+x 5
+y 10
+end
+arch floor_sand_d3
+x 5
+y 11
+end
+arch snow_fmask.105
+x 5
+y 11
+end
+arch light6
+x 5
+y 11
+end
+arch floor_sand_d4
+x 5
+y 12
+end
+arch tree_branch2
+x 5
+y 12
+end
+arch floor_sand_d1
+x 5
+y 13
+end
+arch snow_fmask.101
+x 5
+y 13
+end
+arch snow4
+x 5
+y 14
+end
+arch snow3
+x 5
+y 15
+end
+arch snow4
+x 5
+y 16
+end
+arch snow3
+x 5
+y 17
+end
+arch snow3
+x 5
+y 18
+end
+arch snow1
+x 5
+y 19
+end
+arch snow3
+x 5
+y 20
+end
+arch rock_big2
+x 5
+y 20
+end
+arch snow2
+x 5
+y 21
+end
+arch rock_big2
+x 5
+y 21
+end
+arch snow4
+x 5
+y 22
+end
+arch rock_big2
+x 5
+y 22
+end
+arch snow1
+x 5
+y 23
+end
+arch rock_big2
+x 5
+y 23
+end
+arch snow4
+x 6
+end
+arch rock_big2
+x 6
+end
+arch snow4
+x 6
+y 1
+end
+arch rock_big2
+x 6
+y 1
+end
+arch snow4
+x 6
+y 2
+end
+arch rock_big2
+x 6
+y 2
+end
+arch snow4
+x 6
+y 3
+end
+arch rock_big2
+x 6
+y 3
+end
+arch snow3
+x 6
+y 4
+end
+arch snow3
+x 6
+y 5
+end
+arch snow3
+x 6
+y 6
+end
+arch snow2
+x 6
+y 7
+end
+arch snow1
+x 6
+y 8
+end
+arch snow3
+x 6
+y 9
+end
+arch floor_sand_d2
+x 6
+y 10
+end
+arch snow_fmask.104
+x 6
+y 10
+end
+arch floor_sand_d3
+x 6
+y 11
+end
+arch snow_fmask.114
+x 6
+y 11
+end
+arch floor_sand_d4
+x 6
+y 12
+end
+arch floor_sand_d4
+x 6
+y 13
+end
+arch snow_fmask.101
+x 6
+y 13
+end
+arch snow1
+x 6
+y 14
+end
+arch snow2
+x 6
+y 15
+end
+arch snow2
+x 6
+y 16
+end
+arch rock_big8
+x 6
+y 16
+end
+arch snow3
+x 6
+y 17
+end
+arch snow1
+x 6
+y 18
+end
+arch snow2
+x 6
+y 19
+end
+arch snow4
+x 6
+y 20
+end
+arch rock_big2
+x 6
+y 20
+end
+arch snow1
+x 6
+y 21
+end
+arch rock_big2
+x 6
+y 21
+end
+arch snow1
+x 6
+y 22
+end
+arch rock_big2
+x 6
+y 22
+end
+arch snow1
+x 6
+y 23
+end
+arch rock_big2
+x 6
+y 23
+end
+arch snow3
+x 7
+end
+arch rock_big2
+x 7
+end
+arch snow1
+x 7
+y 1
+end
+arch rock_big2
+x 7
+y 1
+end
+arch snow2
+x 7
+y 2
+end
+arch rock_big2
+x 7
+y 2
+end
+arch snow3
+x 7
+y 3
+end
+arch rock_big6
+x 7
+y 3
+end
+arch snow2
+x 7
+y 4
+end
+arch snow1
+x 7
+y 5
+end
+arch snow2
+x 7
+y 6
+end
+arch snow2
+x 7
+y 7
+end
+arch snow1
+x 7
+y 8
+end
+arch floor_sand_d4
+x 7
+y 9
+end
+arch snow_fmask.104
+x 7
+y 9
+end
+arch sign_generic
+msg
+Welcome to Morliana!
+endmsg
+direction 5
+x 7
+y 9
+end
+arch floor_sand_d4
+x 7
+y 10
+end
+arch snow_fmask.114
+x 7
+y 10
+end
+arch floor_sand_d2
+x 7
+y 11
+end
+arch floor_sand_d4
+x 7
+y 12
+end
+arch floor_sand_d4
+x 7
+y 13
+end
+arch snow_fmask.101
+x 7
+y 13
+end
+arch snow1
+x 7
+y 14
+end
+arch snow2
+x 7
+y 15
+end
+arch tree_branch1_winter
+x 7
+y 15
+end
+arch snow3
+x 7
+y 16
+end
+arch snow4
+x 7
+y 17
+end
+arch snow2
+x 7
+y 18
+end
+arch snow1
+x 7
+y 19
+end
+arch snowy_autree2
+x 7
+y 19
+end
+arch snow3
+x 7
+y 20
+end
+arch snow1
+x 7
+y 21
+end
+arch rock_big2
+x 7
+y 21
+end
+arch snow2
+x 7
+y 22
+end
+arch rock_big2
+x 7
+y 22
+end
+arch snow3
+x 7
+y 23
+end
+arch rock_big2
+x 7
+y 23
+end
+arch snow2
+x 8
+end
+arch rock_big2
+x 8
+end
+arch snow4
+x 8
+y 1
+end
+arch rock_big2
+x 8
+y 1
+end
+arch snow4
+x 8
+y 2
+end
+arch snow1
+x 8
+y 3
+end
+arch snow3
+x 8
+y 4
+end
+arch tree_branch3_winter
+x 8
+y 4
+end
+arch snow2
+x 8
+y 5
+end
+arch snow3
+x 8
+y 6
+end
+arch snow1
+x 8
+y 7
+end
+arch snowy_autree2
+x 8
+y 7
+end
+arch snow2
+x 8
+y 8
+end
+arch floor_sand_d4
+x 8
+y 9
+end
+arch snow_fmask.105
+x 8
+y 9
+end
+arch floor_sand_d2
+x 8
+y 10
+end
+arch small_stones
+x 8
+y 10
+end
+arch floor_sand_d2
+x 8
+y 11
+end
+arch floor_sand_d4
+x 8
+y 12
+end
+arch snow_fmask.118
+x 8
+y 12
+end
+arch floor_sand_d4
+x 8
+y 13
+end
+arch snow_fmask.108
+x 8
+y 13
+end
+arch snow2
+x 8
+y 14
+end
+arch snow4
+x 8
+y 15
+end
+arch snow3
+x 8
+y 16
+end
+arch snow4
+x 8
+y 17
+end
+arch stone2
+x 8
+y 17
+end
+arch snow2
+x 8
+y 18
+end
+arch snow3
+x 8
+y 19
+end
+arch snow1
+x 8
+y 20
+end
+arch rock_big2
+x 8
+y 20
+end
+arch snow3
+x 8
+y 21
+end
+arch rock_big2
+x 8
+y 21
+end
+arch snow3
+x 8
+y 22
+end
+arch rock_big2
+x 8
+y 22
+end
+arch snow1
+x 8
+y 23
+end
+arch rock_big2
+x 8
+y 23
+end
+arch snow1
+x 9
+end
+arch rock_big2
+x 9
+end
+arch snow2
+x 9
+y 1
+end
+arch snow1
+x 9
+y 2
+end
+arch snow3
+x 9
+y 3
+end
+arch tree34
+x 9
+y 3
+end
+arch snow2
+x 9
+y 4
+end
+arch snow4
+x 9
+y 5
+end
+arch small_stones
+x 9
+y 5
+end
+arch snow4
+x 9
+y 6
+end
+arch snow4
+x 9
+y 7
+end
+arch snow4
+x 9
+y 8
+end
+arch floor_sand_d2
+x 9
+y 9
+end
+arch snow_fmask.105
+x 9
+y 9
+end
+arch floor_sand_d2
+x 9
+y 10
+end
+arch floor_sand_d3
+x 9
+y 11
+end
+arch snow_fmask.118
+x 9
+y 11
+end
+arch floor_sand_d3
+x 9
+y 12
+end
+arch snow_fmask.108
+x 9
+y 12
+end
+arch snow4
+x 9
+y 13
+end
+arch snow4
+x 9
+y 14
+end
+arch snow2
+x 9
+y 15
+end
+arch snow1
+x 9
+y 16
+end
+arch snow2
+x 9
+y 17
+end
+arch snow2
+x 9
+y 18
+end
+arch snow3
+x 9
+y 19
+end
+arch snow2
+x 9
+y 20
+end
+arch rock_big2
+x 9
+y 20
+end
+arch snow3
+x 9
+y 21
+end
+arch rock_big2
+x 9
+y 21
+end
+arch snow3
+x 9
+y 22
+end
+arch rock_big2
+x 9
+y 22
+end
+arch snow4
+x 9
+y 23
+end
+arch rock_big2
+x 9
+y 23
+end
+arch water_lt2
+x 10
+end
+arch snow_fmask.103
+x 10
+end
+arch water_lt
+x 10
+y 1
+end
+arch snow_fmask.102
+x 10
+y 1
+end
+arch snow2
+x 10
+y 2
+end
+arch snow2
+x 10
+y 3
+end
+arch snow4
+x 10
+y 4
+end
+arch snow2
+x 10
+y 5
+end
+arch snow2
+x 10
+y 6
+end
+arch snow2
+x 10
+y 7
+end
+arch snow3
+x 10
+y 8
+end
+arch floor_sand_d3
+x 10
+y 9
+end
+arch snow_fmask.105
+x 10
+y 9
+end
+arch floor_sand_d3
+x 10
+y 10
+end
+arch tree_branch1
+x 10
+y 10
+end
+arch floor_sand_d2
+x 10
+y 11
+end
+arch snow_fmask.101
+x 10
+y 11
+end
+arch snow2
+x 10
+y 12
+end
+arch snow3
+x 10
+y 13
+end
+arch snow3
+x 10
+y 14
+end
+arch snow3
+x 10
+y 15
+end
+arch tree_branch1_winter
+x 10
+y 15
+end
+arch snow1
+x 10
+y 16
+end
+arch snow3
+x 10
+y 17
+end
+arch snowy_pinetree1
+x 10
+y 17
+end
+arch snow3
+x 10
+y 18
+end
+arch snow3
+x 10
+y 19
+end
+arch snow2
+x 10
+y 20
+end
+arch rock_big2
+x 10
+y 20
+end
+arch snow2
+x 10
+y 21
+end
+arch rock_big2
+x 10
+y 21
+end
+arch snow1
+x 10
+y 22
+end
+arch rock_big2
+x 10
+y 22
+end
+arch snow3
+x 10
+y 23
+end
+arch rock_big2
+x 10
+y 23
+end
+arch water_lt2
+x 11
+end
+arch water_lt2
+x 11
+y 1
+end
+arch snow_fmask.112
+x 11
+y 1
+end
+arch water_lt3
+x 11
+y 2
+end
+arch snow_fmask.103
+x 11
+y 2
+end
+arch water_lt2
+x 11
+y 3
+end
+arch snow_fmask.103
+x 11
+y 3
+end
+arch water_lt3
+x 11
+y 4
+end
+arch snow_fmask.102
+x 11
+y 4
+end
+arch snow2
+x 11
+y 5
+end
+arch snow2
+x 11
+y 6
+end
+arch snow1
+x 11
+y 7
+end
+arch snow1
+x 11
+y 8
+end
+arch floor_sand_d1
+x 11
+y 9
+end
+arch snow_fmask.105
+x 11
+y 9
+end
+arch floor_sand_d2
+x 11
+y 10
+end
+arch floor_sand_d4
+x 11
+y 11
+end
+arch snow_fmask.101
+x 11
+y 11
+end
+arch light6
+x 11
+y 11
+end
+arch snow4
+x 11
+y 12
+end
+arch lantern_magic.131
+direction 7
+x 11
+y 12
+end
+arch snow3
+x 11
+y 13
+end
+arch snow2
+x 11
+y 14
+end
+arch snow3
+x 11
+y 15
+end
+arch snow3
+x 11
+y 16
+end
+arch snow3
+x 11
+y 17
+end
+arch snow4
+x 11
+y 18
+end
+arch snow4
+x 11
+y 19
+end
+arch snow4
+x 11
+y 20
+end
+arch rock_big2
+x 11
+y 20
+end
+arch snow4
+x 11
+y 21
+end
+arch rock_big2
+x 11
+y 21
+end
+arch snow2
+x 11
+y 22
+end
+arch rock_big2
+x 11
+y 22
+end
+arch snow1
+x 11
+y 23
+end
+arch water_lt3
+x 12
+end
+arch water_lt4
+x 12
+y 1
+end
+arch water_lt2
+x 12
+y 2
+end
+arch water_lt
+x 12
+y 3
+end
+arch water_lt2
+x 12
+y 4
+end
+arch snow_fmask.112
+x 12
+y 4
+end
+arch water_lt
+x 12
+y 5
+end
+arch snow_fmask.103
+x 12
+y 5
+end
+arch water_lt3
+x 12
+y 6
+end
+arch snow_fmask.103
+x 12
+y 6
+end
+arch water_lt4
+x 12
+y 7
+end
+arch snow_fmask.102
+x 12
+y 7
+end
+arch snow3
+x 12
+y 8
+end
+arch spawn_point
+x 12
+y 8
+arch guard
+level 40
+type 83
+end
+end
+arch floor_sand_d3
+x 12
+y 9
+end
+arch snow_fmask.106
+x 12
+y 9
+end
+arch floor_sand_d2
+x 12
+y 10
+end
+arch snow_fmask.107
+x 12
+y 10
+end
+arch bridge_wood_EW.181
+sub_layer 1
+x 12
+y 10
+end
+arch floor_sand_d4
+x 12
+y 11
+end
+arch snow_fmask.108
+x 12
+y 11
+end
+arch bridge_wood_EW.161
+sub_layer 1
+x 12
+y 11
+end
+arch snow1
+x 12
+y 12
+end
+arch snow1
+x 12
+y 13
+end
+arch snow1
+x 12
+y 14
+end
+arch stone2
+x 12
+y 14
+end
+arch snow3
+x 12
+y 15
+end
+arch snow4
+x 12
+y 16
+end
+arch snow3
+x 12
+y 17
+end
+arch snow1
+x 12
+y 18
+end
+arch snow4
+x 12
+y 19
+end
+arch rock_big2
+x 12
+y 19
+end
+arch snow3
+x 12
+y 20
+end
+arch rock_big2
+x 12
+y 20
+end
+arch snow2
+x 12
+y 21
+end
+arch rock_big2
+x 12
+y 21
+end
+arch snow2
+x 12
+y 22
+end
+arch rock_big2
+x 12
+y 22
+end
+arch snow1
+x 12
+y 23
+end
+arch snowy_tree_big2
+x 12
+y 23
+end
+arch water_lt
+x 13
+end
+arch water_lt
+x 13
+y 1
+end
+arch water_lt2
+x 13
+y 2
+end
+arch water_lt3
+x 13
+y 3
+end
+arch water_lt3
+x 13
+y 4
+end
+arch water_lt3
+x 13
+y 5
+end
+arch water_lt2
+x 13
+y 6
+end
+arch water_lt2
+x 13
+y 7
+end
+arch snow_fmask.112
+x 13
+y 7
+end
+arch water_lt4
+x 13
+y 8
+end
+arch snow_fmask.103
+x 13
+y 8
+end
+arch water_lt2
+x 13
+y 9
+end
+arch snow_fmask.103
+x 13
+y 9
+end
+arch bridge_wood_EW.111
+x 13
+y 10
+end
+arch water_lt4
+x 13
+y 11
+end
+arch snow_fmask.102
+x 13
+y 11
+end
+arch bridge_wood_EW.151
+sub_layer 1
+x 13
+y 11
+end
+arch snow3
+x 13
+y 12
+end
+arch snow2
+x 13
+y 13
+end
+arch snow1
+x 13
+y 14
+end
+arch snow2
+x 13
+y 15
+end
+arch snow1
+x 13
+y 16
+end
+arch snow3
+x 13
+y 17
+end
+arch snow4
+x 13
+y 18
+end
+arch rock_big2
+x 13
+y 18
+end
+arch snow4
+x 13
+y 19
+end
+arch rock_big2
+x 13
+y 19
+end
+arch snow1
+x 13
+y 20
+end
+arch rock_big2
+x 13
+y 20
+end
+arch snow1
+x 13
+y 21
+end
+arch rock_big2
+x 13
+y 21
+end
+arch snow1
+x 13
+y 22
+end
+arch rock_big2
+x 13
+y 22
+end
+arch water_lt2
+x 13
+y 23
+end
+arch snow_fmask.104
+x 13
+y 23
+end
+arch water_lt4
+x 14
+end
+arch water_lt2
+x 14
+y 1
+end
+arch water_lt2
+x 14
+y 2
+end
+arch water_lt
+x 14
+y 3
+end
+arch water_lt
+x 14
+y 4
+end
+arch water_lt3
+x 14
+y 5
+end
+arch water_lt4
+x 14
+y 6
+end
+arch ship_rail_s
+x 14
+y 6
+end
+arch ship_floor_ns_dark_1
+x 14
+y 7
+end
+arch ship_rail_w
+no_pass 1
+x 14
+y 7
+end
+arch client_map_info
+msg
+Ship to Wizards' Tower.
+endmsg
+name morliana_ship_wizards
+sub_type 2
+stand_still 1
+x 14
+y 7
+end
+arch ship_floor_ns_dark_1
+x 14
+y 8
+end
+arch ship_rail_w_hole
+x 14
+y 8
+end
+arch ship_floor_ns_dark_1
+x 14
+y 9
+end
+arch ship_rail_w_hole
+x 14
+y 9
+end
+arch ship_floor_ns_dark_1
+x 14
+y 10
+end
+arch ship_floor_ns_dark_1
+x 14
+y 11
+end
+arch ship_rail_w_hole
+x 14
+y 11
+end
+arch water_lt4
+x 14
+y 12
+end
+arch snow_fmask.103
+x 14
+y 12
+end
+arch ship_hull_prow_s_front_starboard_1_dark
+sub_layer 1
+x 14
+y 12
+end
+arch ship_prow_s_starboard_a
+x 14
+y 12
+end
+arch water_lt2
+x 14
+y 13
+end
+arch snow_fmask.103
+x 14
+y 13
+end
+arch ship_hull_prow_s_front_starboard_2_dark
+sub_layer 1
+x 14
+y 13
+end
+arch ship_prow_s_starboard_b
+x 14
+y 13
+end
+arch water_lt
+x 14
+y 14
+end
+arch snow_fmask.103
+x 14
+y 14
+end
+arch water_lt4
+x 14
+y 15
+end
+arch snow_fmask.102
+x 14
+y 15
+end
+arch client_map_info
+name morliana_ship_wizards
+sub_type 2
+x 14
+y 15
+end
+arch snow1
+x 14
+y 16
+end
+arch snow1
+x 14
+y 17
+end
+arch rock_big2
+x 14
+y 17
+end
+arch snow4
+x 14
+y 18
+end
+arch rock_big2
+x 14
+y 18
+end
+arch snow1
+x 14
+y 19
+end
+arch rock_big2
+x 14
+y 19
+end
+arch snow1
+x 14
+y 20
+end
+arch rock_big2
+x 14
+y 20
+end
+arch water_lt3
+x 14
+y 21
+end
+arch snow_fmask.104
+x 14
+y 21
+end
+arch water_lt
+x 14
+y 22
+end
+arch snow_fmask.103
+x 14
+y 22
+end
+arch water_lt2
+x 14
+y 23
+end
+arch snow_fmask.114
+x 14
+y 23
+end
+arch water_lt3
+x 15
+end
+arch water_lt4
+x 15
+y 1
+end
+arch water_lt4
+x 15
+y 2
+end
+arch water_lt3
+x 15
+y 3
+end
+arch water_lt2
+x 15
+y 4
+end
+arch water_lt2
+x 15
+y 5
+end
+arch water_lt3
+x 15
+y 6
+end
+arch ship_rail_s
+x 15
+y 6
+end
+arch ship_floor_ns_dark_1
+x 15
+y 7
+end
+arch ship_n_steering_wheel_double
+x 15
+y 7
+end
+arch ship_floor_ns_dark_1
+x 15
+y 8
+end
+arch spawn_point
+x 15
+y 8
+arch peasant
+msg
+@match ^hello$
+I can take you back to the Wizards' Tower whenever you're ready.
+endmsg
+name Ship Captain
+level 5
+type 83
+end
+end
+arch light5
+x 15
+y 8
+end
+arch ship_floor_ns_dark_1
+x 15
+y 9
+end
+arch sail_short_mast_s_3
+x 15
+y 9
+end
+arch ship_floor_ns_dark_1
+x 15
+y 10
+end
+arch sail_short_mast_s_2
+x 15
+y 10
+end
+arch ship_floor_ns_dark_1
+x 15
+y 11
+end
+arch sail_short_mast_s_1
+x 15
+y 11
+end
+arch light5
+x 15
+y 11
+end
+arch ship_floor_ns_dark_1
+x 15
+y 12
+end
+arch stairs_wood_down
+slaying ships/ship_2
+hp 1
+sp 10
+direction 1
+x 15
+y 12
+end
+arch ship_floor_ns_dark_1
+x 15
+y 13
+end
+arch ship_prow_s_midship
+x 15
+y 13
+end
+arch water_lt3
+x 15
+y 14
+end
+arch ship_hull_prow_s_front_3_dark
+x 15
+y 14
+end
+arch ship_prow_s_long
+x 15
+y 14
+end
+arch water_lt2
+x 15
+y 15
+end
+arch snow_fmask.112
+x 15
+y 15
+end
+arch ship_hull_prow_s_front_2
+sub_layer 1
+x 15
+y 15
+end
+arch water_lt3
+x 15
+y 16
+end
+arch snow_fmask.103
+x 15
+y 16
+end
+arch water_lt
+x 15
+y 17
+end
+arch snow_fmask.103
+x 15
+y 17
+end
+arch water_lt4
+x 15
+y 18
+end
+arch snow_fmask.103
+x 15
+y 18
+end
+arch water_lt4
+x 15
+y 19
+end
+arch snow_fmask.103
+x 15
+y 19
+end
+arch water_lt
+x 15
+y 20
+end
+arch snow_fmask.103
+x 15
+y 20
+end
+arch water_lt4
+x 15
+y 21
+end
+arch snow_fmask.114
+x 15
+y 21
+end
+arch water_lt3
+x 15
+y 22
+end
+arch water_lt4
+x 15
+y 23
+end
+arch water_lt2
+x 16
+end
+arch water_lt
+x 16
+y 1
+end
+arch water_lt2
+x 16
+y 2
+end
+arch water_lt4
+x 16
+y 3
+end
+arch water_lt3
+x 16
+y 4
+end
+arch water_lt3
+x 16
+y 5
+end
+arch water_lt4
+x 16
+y 6
+end
+arch ship_rail_s
+x 16
+y 6
+end
+arch ship_floor_ns_dark_1
+x 16
+y 7
+end
+arch ship_rail_e
+no_pass 1
+x 16
+y 7
+end
+arch ship_floor_ns_dark_1
+x 16
+y 8
+end
+arch ship_rail_e_hole
+x 16
+y 8
+end
+arch ship_floor_ns_dark_1
+x 16
+y 9
+end
+arch ship_rail_e_hole
+x 16
+y 9
+end
+arch ship_floor_ns_dark_1
+x 16
+y 10
+end
+arch ship_rail_e_hole
+x 16
+y 10
+end
+arch ship_floor_ns_dark_1
+x 16
+y 11
+end
+arch ship_rail_e_hole
+x 16
+y 11
+end
+arch ship_floor_ns_dark_1
+x 16
+y 12
+end
+arch ship_hull_prow_s_rear_2
+x 16
+y 12
+end
+arch ship_prow_s_strokeside_a
+x 16
+y 12
+end
+arch ship_floor_ns_dark_1
+x 16
+y 13
+end
+arch ship_hull_prow_s_rear_4
+x 16
+y 13
+end
+arch ship_prow_s_strokeside_b
+x 16
+y 13
+end
+arch water_lt3
+x 16
+y 14
+end
+arch ship_hull_prow_s_rear_6
+x 16
+y 14
+end
+arch water_lt2
+x 16
+y 15
+end
+arch ship_hull_prow_s_front_1
+x 16
+y 15
+end
+arch water_lt
+x 16
+y 16
+end
+arch water_lt2
+x 16
+y 17
+end
+arch water_lt4
+x 16
+y 18
+end
+arch water_lt4
+x 16
+y 19
+end
+arch water_lt3
+x 16
+y 20
+end
+arch water_lt
+x 16
+y 21
+end
+arch water_lt
+x 16
+y 22
+end
+arch water_lt4
+x 16
+y 23
+end
+arch water_lt2
+x 17
+end
+arch water_lt2
+x 17
+y 1
+end
+arch water_lt3
+x 17
+y 2
+end
+arch water_lt3
+x 17
+y 3
+end
+arch water_lt
+x 17
+y 4
+end
+arch water_lt
+x 17
+y 5
+end
+arch water_lt2
+x 17
+y 6
+end
+arch water_lt
+x 17
+y 7
+end
+arch ship_hull_e_high_corner_n
+x 17
+y 7
+end
+arch client_map_info
+name morliana_ship_wizards
+sub_type 2
+x 17
+y 7
+end
+arch water_lt
+x 17
+y 8
+end
+arch ship_hull_e_high
+x 17
+y 8
+end
+arch water_lt3
+x 17
+y 9
+end
+arch ship_hull_e_high
+x 17
+y 9
+end
+arch water_lt
+x 17
+y 10
+end
+arch ship_hull_e_high
+x 17
+y 10
+end
+arch water_lt
+x 17
+y 11
+end
+arch ship_hull_e_high
+x 17
+y 11
+end
+arch water_lt
+x 17
+y 12
+end
+arch ship_hull_prow_s_rear_1
+x 17
+y 12
+end
+arch water_lt4
+x 17
+y 13
+end
+arch ship_hull_prow_s_rear_3
+x 17
+y 13
+end
+arch water_lt3
+x 17
+y 14
+end
+arch ship_hull_prow_s_rear_5
+x 17
+y 14
+end
+arch water_lt4
+x 17
+y 15
+end
+arch water_lt
+x 17
+y 16
+end
+arch water_lt
+x 17
+y 17
+end
+arch water_lt4
+x 17
+y 18
+end
+arch water_lt
+x 17
+y 19
+end
+arch water_lt3
+x 17
+y 20
+end
+arch water_lt3
+x 17
+y 21
+end
+arch water_lt3
+x 17
+y 22
+end
+arch water_lt4
+x 17
+y 23
+end
+arch water_lt3
+x 18
+end
+arch water_lt4
+x 18
+y 1
+end
+arch water_lt2
+x 18
+y 2
+end
+arch water_lt3
+x 18
+y 3
+end
+arch water_lt3
+x 18
+y 4
+end
+arch water_lt3
+x 18
+y 5
+end
+arch water_lt3
+x 18
+y 6
+end
+arch water_lt2
+x 18
+y 7
+end
+arch water_lt3
+x 18
+y 8
+end
+arch water_lt4
+x 18
+y 9
+end
+arch water_lt3
+x 18
+y 10
+end
+arch water_lt4
+x 18
+y 11
+end
+arch water_lt3
+x 18
+y 12
+end
+arch water_lt4
+x 18
+y 13
+end
+arch water_lt
+x 18
+y 14
+end
+arch water_lt3
+x 18
+y 15
+end
+arch water_lt4
+x 18
+y 16
+end
+arch water_lt4
+x 18
+y 17
+end
+arch water_lt3
+x 18
+y 18
+end
+arch water_lt4
+x 18
+y 19
+end
+arch water_lt3
+x 18
+y 20
+end
+arch water_lt
+x 18
+y 21
+end
+arch water_lt3
+x 18
+y 22
+end
+arch water_lt4
+x 18
+y 23
+end
+arch water_lt3
+x 19
+end
+arch water_lt3
+x 19
+y 1
+end
+arch water_lt4
+x 19
+y 2
+end
+arch water_lt2
+x 19
+y 3
+end
+arch water_lt
+x 19
+y 4
+end
+arch water_lt2
+x 19
+y 5
+end
+arch water_lt
+x 19
+y 6
+end
+arch water_lt2
+x 19
+y 7
+end
+arch water_lt2
+x 19
+y 8
+end
+arch water_lt2
+x 19
+y 9
+end
+arch water_lt4
+x 19
+y 10
+end
+arch water_lt3
+x 19
+y 11
+end
+arch water_lt
+x 19
+y 12
+end
+arch water_lt3
+x 19
+y 13
+end
+arch water_lt3
+x 19
+y 14
+end
+arch water_lt4
+x 19
+y 15
+end
+arch water_lt2
+x 19
+y 16
+end
+arch water_lt4
+x 19
+y 17
+end
+arch water_lt
+x 19
+y 18
+end
+arch water_lt2
+x 19
+y 19
+end
+arch water_lt4
+x 19
+y 20
+end
+arch water_lt3
+x 19
+y 21
+end
+arch water_lt4
+x 19
+y 22
+end
+arch water_lt2
+x 19
+y 23
+end
+arch water_lt
+x 20
+end
+arch water_lt2
+x 20
+y 1
+end
+arch water_lt2
+x 20
+y 2
+end
+arch water_lt3
+x 20
+y 3
+end
+arch water_lt3
+x 20
+y 4
+end
+arch water_lt2
+x 20
+y 5
+end
+arch water_lt2
+x 20
+y 6
+end
+arch water_lt
+x 20
+y 7
+end
+arch water_lt3
+x 20
+y 8
+end
+arch water_lt2
+x 20
+y 9
+end
+arch water_lt
+x 20
+y 10
+end
+arch water_lt3
+x 20
+y 11
+end
+arch water_lt3
+x 20
+y 12
+end
+arch water_lt4
+x 20
+y 13
+end
+arch water_lt4
+x 20
+y 14
+end
+arch water_lt4
+x 20
+y 15
+end
+arch water_lt2
+x 20
+y 16
+end
+arch water_lt
+x 20
+y 17
+end
+arch water_lt2
+x 20
+y 18
+end
+arch water_lt4
+x 20
+y 19
+end
+arch water_lt2
+x 20
+y 20
+end
+arch water_lt
+x 20
+y 21
+end
+arch water_lt3
+x 20
+y 22
+end
+arch water_lt4
+x 20
+y 23
+end
+arch water_lt2
+x 21
+end
+arch water_lt3
+x 21
+y 1
+end
+arch water_lt3
+x 21
+y 2
+end
+arch water_lt3
+x 21
+y 3
+end
+arch water_lt3
+x 21
+y 4
+end
+arch water_lt3
+x 21
+y 5
+end
+arch water_lt4
+x 21
+y 6
+end
+arch water_lt3
+x 21
+y 7
+end
+arch water_lt4
+x 21
+y 8
+end
+arch water_lt4
+x 21
+y 9
+end
+arch water_lt2
+x 21
+y 10
+end
+arch water_lt3
+x 21
+y 11
+end
+arch water_lt3
+x 21
+y 12
+end
+arch water_lt
+x 21
+y 13
+end
+arch water_lt4
+x 21
+y 14
+end
+arch water_lt
+x 21
+y 15
+end
+arch water_lt3
+x 21
+y 16
+end
+arch water_lt2
+x 21
+y 17
+end
+arch water_lt
+x 21
+y 18
+end
+arch water_lt3
+x 21
+y 19
+end
+arch water_lt2
+x 21
+y 20
+end
+arch water_lt2
+x 21
+y 21
+end
+arch water_lt
+x 21
+y 22
+end
+arch water_lt3
+x 21
+y 23
+end
+arch water_lt3
+x 22
+end
+arch water_lt2
+x 22
+y 1
+end
+arch water_lt
+x 22
+y 2
+end
+arch water_lt4
+x 22
+y 3
+end
+arch water_lt3
+x 22
+y 4
+end
+arch water_lt2
+x 22
+y 5
+end
+arch water_lt
+x 22
+y 6
+end
+arch water_lt2
+x 22
+y 7
+end
+arch water_lt2
+x 22
+y 8
+end
+arch water_lt4
+x 22
+y 9
+end
+arch water_lt4
+x 22
+y 10
+end
+arch water_lt
+x 22
+y 11
+end
+arch water_lt
+x 22
+y 12
+end
+arch water_lt3
+x 22
+y 13
+end
+arch water_lt3
+x 22
+y 14
+end
+arch water_lt3
+x 22
+y 15
+end
+arch water_lt3
+x 22
+y 16
+end
+arch water_lt4
+x 22
+y 17
+end
+arch water_lt2
+x 22
+y 18
+end
+arch water_lt4
+x 22
+y 19
+end
+arch water_lt
+x 22
+y 20
+end
+arch water_lt
+x 22
+y 21
+end
+arch water_lt2
+x 22
+y 22
+end
+arch water_lt4
+x 22
+y 23
+end
+arch water_lt
+x 23
+end
+arch water_lt2
+x 23
+y 1
+end
+arch water_lt3
+x 23
+y 2
+end
+arch water_lt4
+x 23
+y 3
+end
+arch water_lt4
+x 23
+y 4
+end
+arch water_lt4
+x 23
+y 5
+end
+arch water_lt4
+x 23
+y 6
+end
+arch water_lt3
+x 23
+y 7
+end
+arch water_lt3
+x 23
+y 8
+end
+arch water_lt4
+x 23
+y 9
+end
+arch water_lt3
+x 23
+y 10
+end
+arch water_lt
+x 23
+y 11
+end
+arch water_lt3
+x 23
+y 12
+end
+arch water_lt4
+x 23
+y 13
+end
+arch water_lt2
+x 23
+y 14
+end
+arch water_lt3
+x 23
+y 15
+end
+arch water_lt3
+x 23
+y 16
+end
+arch water_lt
+x 23
+y 17
+end
+arch water_lt2
+x 23
+y 18
+end
+arch water_lt2
+x 23
+y 19
+end
+arch water_lt2
+x 23
+y 20
+end
+arch water_lt2
+x 23
+y 21
+end
+arch water_lt4
+x 23
+y 22
+end
+arch water_lt4
+x 23
+y 23
+end

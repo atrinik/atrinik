@@ -25,20 +25,18 @@
 #include <global.h>
 #include <check.h>
 #include <check_proto.h>
+#include <toolkit_string.h>
 
 START_TEST(test_add_ban)
 {
-    fail_if(add_ban(strdup("Tester/")) == 1, "Successfully added a ban with add_ban() but no IP was entered.");
-    remove_ban(strdup("Tester/"));
-
-    fail_if(add_ban(strdup("Tester/:")) == 1, "Successfully added a ban with add_ban() but no IP was entered except a colon.");
-    remove_ban(strdup("Tester/:"));
-
-    fail_if(add_ban(strdup("Tester/:xxx.x.x.x")) == 0, "Failed to add a new ban with add_ban().");
-    remove_ban(strdup("Tester/:xxx.x.x.x"));
-
-    fail_if(add_ban(strdup("Tester/:xxx.x.x.x:11")) == 1, "Successfully added a new ban with add_ban(), but the IP had colons in it.");
-    remove_ban(strdup("Tester/:xxx.x.x.x:11"));
+    ck_assert(!add_ban(estrdup("Tester/")));
+    remove_ban(estrdup("Tester/"));
+    ck_assert(!add_ban(estrdup("Tester/:")));
+    remove_ban(estrdup("Tester/:"));
+    ck_assert(add_ban(estrdup("Tester/:xxx.x.x.x")));
+    remove_ban(estrdup("Tester/:xxx.x.x.x"));
+    ck_assert(!add_ban(estrdup("Tester/:xxx.x.x.x:11")));
+    remove_ban(estrdup("Tester/:xxx.x.x.x:11"));
 }
 
 END_TEST
@@ -47,21 +45,21 @@ START_TEST(test_checkbanned)
 {
     shstr *str1, *str2;
 
-    add_ban(strdup("Noob/:127.0.0.1"));
+    add_ban(estrdup("Noob/:127.0.0.1"));
     str1 = add_string("Noob/");
-    fail_if(checkbanned(str1, "127.0.0.1") == 0, "checkbanned() failed to match a previously banned name and IP.");
-    remove_ban(strdup("Noob/:127.0.0.1"));
+    ck_assert(checkbanned(str1, "127.0.0.1"));
+    remove_ban(estrdup("Noob/:127.0.0.1"));
 
-    add_ban(strdup("Tester/:*"));
+    add_ban(estrdup("Tester/:*"));
     str2 = add_string("Tester/");
-    fail_if(checkbanned(str2, "127.2.0.1") == 0, "checkbanned() failed to match a previously banned name.");
-    remove_ban(strdup("Tester/:*"));
+    ck_assert(checkbanned(str2, "127.2.0.1"));
+    remove_ban(estrdup("Tester/:*"));
 
-    add_ban(strdup("*:xxx.xxx.xxx"));
-    fail_if(checkbanned(NULL, "xxx.xxx.xxx") == 0, "checkbanned() failed to match a previously banned IP.");
-    remove_ban(strdup("*:xxx.xxx.xxx"));
+    add_ban(estrdup("*:xxx.xxx.xxx"));
+    ck_assert(checkbanned(NULL, "xxx.xxx.xxx"));
+    remove_ban(estrdup("*:xxx.xxx.xxx"));
 
-    fail_if(checkbanned(NULL, "10543./4t5vr.3546") == 1, "checkbanned() returned 1 for an IP that was not previously banned.");
+    ck_assert(!checkbanned(NULL, "10543./4t5vr.3546"));
 
     free_string_shared(str1);
     free_string_shared(str2);
@@ -71,10 +69,10 @@ END_TEST
 
 START_TEST(test_remove_ban)
 {
-    add_ban(strdup("Tester/:xxx.x.x.x"));
-    fail_if(remove_ban(strdup("Tester/:xxx.x.x.x")) == 0, "remove_ban() failed to remove previously added ban.");
+    add_ban(estrdup("Tester/:xxx.x.x.x"));
+    ck_assert(remove_ban(estrdup("Tester/:xxx.x.x.x")));
 
-    fail_if(remove_ban(strdup("Tester~$#@:127.0.0.1")) == 1, "remove_ban() managed to remove nonexistent ban.");
+    ck_assert(!remove_ban(estrdup("Tester~$#@:127.0.0.1")));
 }
 
 END_TEST

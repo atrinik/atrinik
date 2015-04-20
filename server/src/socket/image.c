@@ -28,6 +28,8 @@
 
 #include <global.h>
 #include <loader.h>
+#include <packet.h>
+#include <toolkit_string.h>
 #include "zlib.h"
 
 /** Maximum different face sets. */
@@ -36,13 +38,13 @@
 /** Face info structure. */
 typedef struct FaceInfo {
     /** Image data */
-    uint8 *data;
+    uint8_t *data;
 
     /** Length of the XPM data */
-    uint16 datalen;
+    uint16_t datalen;
 
     /** Checksum of face data */
-    uint32 checksum;
+    uint32_t checksum;
 } FaceInfo;
 
 /** Face sets structure. */
@@ -219,7 +221,7 @@ void read_client_images(void)
                 exit(1);
             }
 
-            facesets[file_num].faces[num].checksum = (uint32) crc32(1L, facesets[file_num].faces[num].data, len);
+            facesets[file_num].faces[num].checksum = (uint32_t) crc32(1L, facesets[file_num].faces[num].data, len);
             snprintf(buf, sizeof(buf), "%x %x %s\n", len, facesets[file_num].faces[num].checksum, new_faces[num].name);
             fputs(buf, fbmap);
         }
@@ -229,21 +231,27 @@ void read_client_images(void)
     }
 }
 
-void socket_command_ask_face(socket_struct *ns, player *pl, uint8 *data, size_t len, size_t pos)
+void socket_command_ask_face(socket_struct *ns, player *pl, uint8_t *data,
+        size_t len, size_t pos)
 {
-    uint16 facenum;
+    uint16_t facenum;
     packet_struct *packet;
 
     facenum = packet_to_uint16(data, len, &pos);
 
-    if (facenum == 0 || facenum >= nrofpixmaps || !facesets[0].faces[facenum].data) {
+    if (facenum == 0 || facenum >= nrofpixmaps ||
+            facesets[0].faces[facenum].data == NULL) {
         return;
     }
 
     packet = packet_new(CLIENT_CMD_IMAGE, 16, 0);
+    packet_debug_data(packet, 0, "Face ID");
     packet_append_uint32(packet, facenum);
+    packet_debug_data(packet, 0, "Face size");
     packet_append_uint32(packet, facesets[0].faces[facenum].datalen);
-    packet_append_data_len(packet, facesets[0].faces[facenum].data, facesets[0].faces[facenum].datalen);
+    packet_debug_data(packet, 0, "Face data");
+    packet_append_data_len(packet, facesets[0].faces[facenum].data,
+            facesets[0].faces[facenum].datalen);
     socket_send_packet(ns, packet);
 }
 
@@ -253,7 +261,7 @@ void socket_command_ask_face(socket_struct *ns, player *pl, uint8 *data, size_t 
  * @param[out] ptr Pointer that will contain the image data, can be NULL.
  * @param[out] len Pointer that will contain the image data length, can
  * be NULL. */
-void face_get_data(int face, uint8 **ptr, uint16 *len)
+void face_get_data(int face, uint8_t **ptr, uint16_t *len)
 {
     if (ptr) {
         *ptr = facesets[0].faces[face].data;

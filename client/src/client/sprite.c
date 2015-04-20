@@ -53,7 +53,7 @@ void sprite_init_system(void)
  * @param fname Sprite filename.
  * @param flags Flags for the sprite.
  * @return NULL if failed, the sprite otherwise. */
-sprite_struct *sprite_load_file(char *fname, uint32 flags)
+sprite_struct *sprite_load_file(char *fname, uint32_t flags)
 {
     sprite_struct *sprite = sprite_tryload_file(fname, flags, NULL);
 
@@ -71,11 +71,11 @@ sprite_struct *sprite_load_file(char *fname, uint32 flags)
  * @param flag Flags
  * @param rwop Pointer to memory for the image
  * @return The sprite if success, NULL otherwise */
-sprite_struct *sprite_tryload_file(char *fname, uint32 flag, SDL_RWops *rwop)
+sprite_struct *sprite_tryload_file(char *fname, uint32_t flag, SDL_RWops *rwop)
 {
     sprite_struct *sprite;
     SDL_Surface *bitmap;
-    uint32 ckflags, tmp = 0;
+    uint32_t ckflags, tmp = 0;
 
     if (fname) {
         if (!(bitmap = IMG_Load_wrapper(fname))) {
@@ -181,7 +181,7 @@ void surface_show_fill(SDL_Surface *surface, int x, int y, SDL_Rect *srcsize, SD
     }
 }
 
-void surface_show_effects(SDL_Surface *surface, int x, int y, SDL_Rect *srcrect, SDL_Surface *src, uint8 alpha, uint32 stretch, sint16 zoom_x, sint16 zoom_y, sint16 rotate)
+void surface_show_effects(SDL_Surface *surface, int x, int y, SDL_Rect *srcrect, SDL_Surface *src, uint8_t alpha, uint32_t stretch, int16_t zoom_x, int16_t zoom_y, int16_t rotate)
 {
     int smooth;
     SDL_Surface *tmp, *src_gfx;
@@ -258,7 +258,7 @@ done:
     }
 }
 
-void map_sprite_show(SDL_Surface *surface, int x, int y, SDL_Rect *srcrect, sprite_struct *sprite, uint32 flags, uint8 dark_level, uint8 alpha, uint32 stretch, sint16 zoom_x, sint16 zoom_y, sint16 rotate)
+void map_sprite_show(SDL_Surface *surface, int x, int y, SDL_Rect *srcrect, sprite_struct *sprite, uint32_t flags, uint8_t dark_level, uint8_t alpha, uint32_t stretch, int16_t zoom_x, int16_t zoom_y, int16_t rotate)
 {
     SDL_Surface *src;
 
@@ -278,7 +278,7 @@ void map_sprite_show(SDL_Surface *surface, int x, int y, SDL_Rect *srcrect, spri
 
         src = sprite->effect;
     } else if (sprite->effect) {
-        uint8 i;
+        uint8_t i;
 
         /* No overlay, but the image was previously overlayed; need to
          * free the dark surfaces so they can be re-rendered, without the
@@ -481,7 +481,7 @@ static void fow_scale(sprite_struct *sprite)
  * @param[out] pos Where to store the position.
  * @param color Color to check for.
  * @return 1 if the border was found, 0 otherwise. */
-static int surface_border_get_left(SDL_Surface *surface, int *pos, uint32 ckey)
+static int surface_border_get_left(SDL_Surface *surface, int *pos, uint32_t ckey)
 {
     int x, y;
 
@@ -504,7 +504,7 @@ static int surface_border_get_left(SDL_Surface *surface, int *pos, uint32 ckey)
  * @param[out] pos Where to store the position.
  * @param color Color to check for.
  * @return 1 if the border was found, 0 otherwise. */
-static int surface_border_get_right(SDL_Surface *surface, int *pos, uint32 ckey)
+static int surface_border_get_right(SDL_Surface *surface, int *pos, uint32_t ckey)
 {
     int x, y;
 
@@ -527,7 +527,7 @@ static int surface_border_get_right(SDL_Surface *surface, int *pos, uint32 ckey)
  * @param[out] pos Where to store the position.
  * @param color Color to check for.
  * @return 1 if the border was found, 0 otherwise. */
-static int surface_border_get_top(SDL_Surface *surface, int *pos, uint32 ckey)
+static int surface_border_get_top(SDL_Surface *surface, int *pos, uint32_t ckey)
 {
     int x, y;
 
@@ -550,7 +550,7 @@ static int surface_border_get_top(SDL_Surface *surface, int *pos, uint32 ckey)
  * @param[out] pos Where to store the position.
  * @param color Color to check for.
  * @return 1 if the border was found, 0 otherwise. */
-static int surface_border_get_bottom(SDL_Surface *surface, int *pos, uint32 color)
+static int surface_border_get_bottom(SDL_Surface *surface, int *pos, uint32_t color)
 {
     int x, y;
 
@@ -577,7 +577,7 @@ static int surface_border_get_bottom(SDL_Surface *surface, int *pos, uint32 colo
  * @param color Color to check for.
  * @return 1 if the borders were found, 0 otherwise (image is all filled
  * with 'color' color). */
-int surface_borders_get(SDL_Surface *surface, int *top, int *bottom, int *left, int *right, uint32 color)
+int surface_borders_get(SDL_Surface *surface, int *top, int *bottom, int *left, int *right, uint32_t color)
 {
     *top = 0;
     *bottom = 0;
@@ -734,7 +734,7 @@ void border_create(SDL_Surface *surface, int x, int y, int w, int h, int color, 
     SDL_FillRect(surface, &box, color);
 }
 
-void border_create_line(SDL_Surface *surface, int x, int y, int w, int h, uint32 color)
+void border_create_line(SDL_Surface *surface, int x, int y, int w, int h, uint32_t color)
 {
     SDL_Rect dst;
 
@@ -747,7 +747,7 @@ void border_create_line(SDL_Surface *surface, int x, int y, int w, int h, uint32
 
 void border_create_sdl_color(SDL_Surface *surface, SDL_Rect *coords, int thickness, SDL_Color *color)
 {
-    uint32 color_mapped;
+    uint32_t color_mapped;
 
     color_mapped = SDL_MapRGB(surface->format, color->r, color->g, color->b);
 
@@ -802,7 +802,7 @@ void rectangle_create(SDL_Surface *surface, int x, int y, int w, int h, const ch
  * @param surface Surface to change alpha value of.
  * @param alpha Alpha value to set.
  */
-void surface_set_alpha(SDL_Surface *surface, uint8 alpha)
+void surface_set_alpha(SDL_Surface *surface, uint8_t alpha)
 {
     SDL_PixelFormat *fmt = surface->format;
 
@@ -810,15 +810,15 @@ void surface_set_alpha(SDL_Surface *surface, uint8 alpha)
         SDL_SetAlpha(surface, SDL_SRCALPHA, alpha);
     } else {
         int x, y;
-        uint8 bpp = fmt->BytesPerPixel;
+        uint8_t bpp = fmt->BytesPerPixel;
         float scale = alpha / 255.0f;
 
         SDL_LockSurface(surface);
 
         for (y = 0; y < surface->h; y++) {
             for (x = 0; x < surface->w; x++) {
-                uint8 r, g, b, a;
-                uint32 *pixel_ptr = (Uint32 *) ((Uint8 *) surface->pixels + y * surface->pitch + x * bpp);
+                uint8_t r, g, b, a;
+                uint32_t *pixel_ptr = (Uint32 *) ((Uint8 *) surface->pixels + y * surface->pitch + x * bpp);
 
                 SDL_GetRGBA(*pixel_ptr, fmt, &r, &g, &b, &a);
 

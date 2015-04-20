@@ -1,0 +1,3019 @@
+arch map
+name Asteria Docks
+msg
+Created:  2009-08-09 Alex Tokar
+Modified: 2014-03-04 Alex Tokar
+endmsg
+width 24
+height 24
+difficulty 40
+outdoor 1
+no_harm 1
+bg_music ocean.ogg
+region asteria
+end
+arch floor_ruin4
+end
+arch floor_ruin4
+y 1
+end
+arch floor_ruin4
+y 2
+end
+arch fmask_ruin1_s2.101
+y 2
+end
+arch floor_ruin4
+y 3
+end
+arch floor_ruin4
+y 4
+end
+arch floor_ruin4
+y 5
+end
+arch floor_ruin4
+y 6
+end
+arch floor_ruin4
+z 6
+y 7
+end
+arch floor_ruin4
+z 6
+y 8
+end
+arch grassd_m3
+y 8
+end
+arch grassd_8
+z 6
+y 9
+end
+arch grassd_7
+z 10
+y 10
+end
+arch plant_flower1
+y 10
+end
+arch grassd_5
+z 12
+y 11
+end
+arch plant16
+y 11
+end
+arch floor_ruin4
+z 18
+y 12
+end
+arch grassd_m4
+y 12
+end
+arch floor_ruin4
+z 24
+y 13
+end
+arch grassd_m9
+y 13
+end
+arch floor_ruin4
+z 24
+y 14
+end
+arch grassd_m9
+y 14
+end
+arch floor_ruin4
+z 30
+y 15
+end
+arch grassd_m9
+y 15
+end
+arch floor_ruin4
+z 30
+y 16
+end
+arch grassd_m9
+y 16
+end
+arch floor_ruin4
+z 30
+y 17
+end
+arch grassd_m9
+y 17
+end
+arch floor_ruin4
+z 36
+y 18
+end
+arch grassd_m9
+y 18
+end
+arch floor_ruin4
+z 40
+y 19
+end
+arch grassd_m9
+y 19
+end
+arch floor_ruin4
+z 46
+y 20
+end
+arch grassd_m3
+y 20
+end
+arch grassd_3
+z 44
+y 21
+end
+arch grassd_3
+z 44
+y 22
+end
+arch grassd_7
+z 44
+y 23
+end
+arch floor_ruin4
+x 1
+end
+arch floor_ruin4
+x 1
+y 1
+end
+arch floor_ruin4
+x 1
+y 2
+end
+arch floor_ruin4
+x 1
+y 3
+end
+arch floor_ruin4
+x 1
+y 4
+end
+arch floor_ruin4
+x 1
+y 5
+end
+arch floor_ruin4
+x 1
+y 6
+end
+arch floor_ruin4
+x 1
+y 7
+end
+arch floor_ruin4
+x 1
+y 8
+end
+arch grassd_m14
+x 1
+y 8
+end
+arch floor_ruin4
+x 1
+y 9
+end
+arch grassd_m9
+x 1
+y 9
+end
+arch floor_ruin4
+z 6
+x 1
+y 10
+end
+arch grassd_m9
+x 1
+y 10
+end
+arch floor_ruin4
+z 8
+x 1
+y 11
+end
+arch grassd_m9
+x 1
+y 11
+end
+arch floor_ruin4
+z 18
+x 1
+y 12
+end
+arch grassd_m13
+x 1
+y 12
+end
+arch floor_ruin4
+z 18
+x 1
+y 13
+end
+arch floor_ruin4
+z 18
+x 1
+y 14
+end
+arch floor_ruin4
+z 24
+x 1
+y 15
+end
+arch floor_ruin4
+z 24
+x 1
+y 16
+end
+arch floor_ruin4
+z 30
+x 1
+y 17
+end
+arch floor_ruin4
+z 30
+x 1
+y 18
+end
+arch floor_ruin4
+z 34
+x 1
+y 19
+end
+arch floor_ruin4
+z 40
+x 1
+y 20
+end
+arch grassd_m14
+x 1
+y 20
+end
+arch floor_ruin4
+z 38
+x 1
+y 21
+end
+arch grassd_m3
+x 1
+y 21
+end
+arch floor_fs_grey1b
+z 38
+x 1
+y 22
+end
+arch grassd_m4
+x 1
+y 22
+end
+arch floor_fs_grey1b
+z 38
+x 1
+y 23
+end
+arch grassd_m9
+x 1
+y 23
+end
+arch floor_ruin4
+x 2
+end
+arch floor_ruin4
+x 2
+y 1
+end
+arch floor_ruin4
+x 2
+y 2
+end
+arch fmask_ruin1_s4.101
+x 2
+y 2
+end
+arch floor_ruin4
+x 2
+y 3
+end
+arch floor_ruin4
+x 2
+y 4
+end
+arch floor_ruin4
+x 2
+y 5
+end
+arch floor_ruin4
+x 2
+y 6
+end
+arch floor_ruin4
+x 2
+y 7
+end
+arch floor_ruin4
+x 2
+y 8
+end
+arch floor_ruin4
+x 2
+y 9
+end
+arch floor_ruin4
+z 6
+x 2
+y 10
+end
+arch floor_ruin4
+z 12
+x 2
+y 11
+end
+arch floor_ruin4
+z 12
+x 2
+y 12
+end
+arch floor_ruin4
+z 12
+x 2
+y 13
+end
+arch fmask_ruin1_s2.101
+x 2
+y 13
+end
+arch floor_ruin4
+z 12
+x 2
+y 14
+end
+arch floor_ruin4
+z 18
+x 2
+y 15
+end
+arch floor_ruin4
+z 18
+x 2
+y 16
+end
+arch floor_ruin4
+z 24
+x 2
+y 17
+end
+arch floor_ruin4
+z 24
+x 2
+y 18
+end
+arch floor_ruin4
+z 30
+x 2
+y 19
+end
+arch floor_ruin4
+z 34
+x 2
+y 20
+end
+arch floor_ruin4
+z 32
+x 2
+y 21
+end
+arch floor_fs_grey1b
+z 32
+x 2
+y 22
+end
+arch floor_fs_grey1b
+z 32
+x 2
+y 23
+end
+arch floor_ruin4
+x 3
+end
+arch floor_ruin4
+x 3
+y 1
+end
+arch fmask_ruin1_s1.101
+x 3
+y 1
+end
+arch floor_ruin4
+x 3
+y 2
+end
+arch floor_ruin4
+x 3
+y 3
+end
+arch floor_ruin4
+x 3
+y 4
+end
+arch floor_ruin4
+x 3
+y 5
+end
+arch floor_ruin4
+x 3
+y 6
+end
+arch floor_ruin4
+x 3
+y 7
+end
+arch floor_ruin4
+x 3
+y 8
+end
+arch floor_ruin4
+x 3
+y 9
+end
+arch floor_ruin4
+z 6
+x 3
+y 10
+end
+arch floor_ruin4
+z 6
+x 3
+y 11
+end
+arch floor_ruin4
+z 6
+x 3
+y 12
+end
+arch floor_ruin4
+z 6
+x 3
+y 13
+end
+arch floor_ruin4
+z 6
+x 3
+y 14
+end
+arch floor_ruin4
+z 12
+x 3
+y 15
+end
+arch floor_ruin4
+z 12
+x 3
+y 16
+end
+arch floor_ruin4
+z 18
+x 3
+y 17
+end
+arch fmask_ruin1_s4.101
+x 3
+y 17
+end
+arch floor_ruin4
+z 18
+x 3
+y 18
+end
+arch floor_ruin4
+z 24
+x 3
+y 19
+end
+arch floor_ruin4
+z 30
+x 3
+y 20
+end
+arch floor_fs_grey1b
+z 26
+x 3
+y 21
+end
+arch lantern_black
+x 3
+y 21
+end
+arch light7
+x 3
+y 21
+end
+arch floor_fs_grey1b
+z 26
+x 3
+y 22
+end
+arch floor_fs_grey1b
+z 26
+x 3
+y 23
+end
+arch floor_ruin4
+x 4
+end
+arch floor_ruin4
+x 4
+y 1
+end
+arch floor_ruin4
+x 4
+y 2
+end
+arch floor_ruin4
+x 4
+y 3
+end
+arch floor_ruin4
+x 4
+y 4
+end
+arch floor_ruin4
+x 4
+y 5
+end
+arch floor_ruin4
+x 4
+y 6
+end
+arch fmask_ruin1_s1.101
+x 4
+y 6
+end
+arch floor_ruin4
+x 4
+y 7
+end
+arch floor_ruin4
+x 4
+y 8
+end
+arch floor_ruin4
+x 4
+y 9
+end
+arch floor_ruin4
+x 4
+y 10
+end
+arch fmask_ruin1_s3.101
+x 4
+y 10
+end
+arch floor_ruin4
+x 4
+y 11
+end
+arch floor_ruin4
+x 4
+y 12
+end
+arch floor_ruin4
+x 4
+y 13
+end
+arch floor_ruin4
+x 4
+y 14
+end
+arch floor_ruin4
+z 6
+x 4
+y 15
+end
+arch floor_ruin4
+z 6
+x 4
+y 16
+end
+arch floor_ruin4
+z 12
+x 4
+y 17
+end
+arch floor_ruin4
+z 18
+x 4
+y 18
+end
+arch floor_ruin4
+z 18
+x 4
+y 19
+end
+arch floor_ruin4
+z 24
+x 4
+y 20
+end
+arch floor_fs_grey1b
+z 20
+x 4
+y 21
+end
+arch floor_fs_grey1b
+z 20
+x 4
+y 22
+end
+arch floor_fs_grey1b
+z 22
+x 4
+y 23
+end
+arch floor_ruin4
+x 5
+end
+arch floor_ruin4
+x 5
+y 1
+end
+arch floor_ruin4
+x 5
+y 2
+end
+arch floor_ruin4
+x 5
+y 3
+end
+arch floor_ruin4
+x 5
+y 4
+end
+arch floor_ruin4
+x 5
+y 5
+end
+arch floor_ruin4
+x 5
+y 6
+end
+arch floor_ruin4
+x 5
+y 7
+end
+arch floor_ruin4
+x 5
+y 8
+end
+arch floor_ruin4
+x 5
+y 9
+end
+arch floor_ruin4
+x 5
+y 10
+end
+arch floor_ruin4
+x 5
+y 11
+end
+arch floor_ruin4
+x 5
+y 12
+end
+arch floor_ruin4
+x 5
+y 13
+end
+arch floor_ruin4
+x 5
+y 14
+end
+arch fmask_ruin1_s2.101
+x 5
+y 14
+end
+arch floor_ruin4
+x 5
+y 15
+end
+arch floor_ruin4
+x 5
+y 16
+end
+arch floor_ruin4
+z 6
+x 5
+y 17
+end
+arch floor_ruin4
+z 12
+x 5
+y 18
+end
+arch floor_ruin4
+z 12
+x 5
+y 19
+end
+arch floor_ruin4
+z 18
+x 5
+y 20
+end
+arch floor_fs_grey1b
+z 14
+x 5
+y 21
+end
+arch floor_fs_grey1b
+z 14
+x 5
+y 22
+end
+arch floor_fs_grey1b
+z 14
+x 5
+y 23
+end
+arch grassd_m7
+x 5
+y 23
+end
+arch floor_ruin4
+x 6
+end
+arch floor_ruin4
+x 6
+y 1
+end
+arch floor_ruin4
+x 6
+y 2
+end
+arch floor_ruin4
+x 6
+y 3
+end
+arch floor_ruin4
+x 6
+y 4
+end
+arch floor_ruin4
+x 6
+y 5
+end
+arch floor_ruin4
+x 6
+y 6
+end
+arch floor_ruin4
+x 6
+y 7
+end
+arch floor_ruin4
+x 6
+y 8
+end
+arch floor_ruin4
+x 6
+y 9
+end
+arch floor_ruin4
+x 6
+y 10
+end
+arch floor_ruin4
+x 6
+y 11
+end
+arch floor_ruin4
+x 6
+y 12
+end
+arch floor_ruin4
+x 6
+y 13
+end
+arch floor_ruin4
+x 6
+y 14
+end
+arch floor_ruin4
+x 6
+y 15
+end
+arch floor_ruin4
+x 6
+y 16
+end
+arch floor_ruin4
+x 6
+y 17
+end
+arch floor_ruin4
+z 6
+x 6
+y 18
+end
+arch floor_ruin4
+z 6
+x 6
+y 19
+end
+arch floor_ruin4
+z 12
+x 6
+y 20
+end
+arch floor_fs_grey1b
+z 8
+x 6
+y 21
+end
+arch floor_fs_grey1b
+z 8
+x 6
+y 22
+end
+arch floor_fs_grey1b
+z 16
+x 6
+y 23
+end
+arch grassd_m7
+x 6
+y 23
+end
+arch bridge_wood_NS.171
+x 7
+end
+arch spawn_point
+x 7
+arch guard
+name Asterian Guard
+type 83
+level 25
+arch event_obj
+sub_type 6
+race /python/generic/guard.py
+end
+end
+end
+arch bridge_wood_NS.171
+x 7
+y 1
+end
+arch bridge_wood_NS.171
+x 7
+y 2
+end
+arch floor_ruin4
+x 7
+y 3
+end
+arch bridge_wood_NS.161
+x 7
+y 3
+end
+arch floor_ruin4
+x 7
+y 4
+end
+arch floor_ruin4
+x 7
+y 5
+end
+arch floor_ruin4
+x 7
+y 6
+end
+arch floor_ruin4
+x 7
+y 7
+end
+arch fmask_ruin1_s1.101
+x 7
+y 7
+end
+arch floor_ruin4
+x 7
+y 8
+end
+arch floor_ruin4
+x 7
+y 9
+end
+arch floor_ruin4
+x 7
+y 10
+end
+arch floor_ruin4
+x 7
+y 11
+end
+arch floor_ruin4
+x 7
+y 12
+end
+arch floor_ruin4
+x 7
+y 13
+end
+arch floor_ruin4
+x 7
+y 14
+end
+arch floor_ruin4
+x 7
+y 15
+end
+arch floor_ruin4
+x 7
+y 16
+end
+arch floor_ruin4
+x 7
+y 17
+end
+arch floor_ruin4
+x 7
+y 18
+end
+arch fmask_ruin1_s4.101
+x 7
+y 18
+end
+arch floor_ruin4
+x 7
+y 19
+end
+arch floor_ruin4
+z 6
+x 7
+y 20
+end
+arch sign
+msg
+Asteria Docks
+endmsg
+x 7
+y 20
+end
+arch floor_fs_grey1b
+z 2
+x 7
+y 21
+end
+arch floor_fs_grey1b
+z 6
+x 7
+y 22
+end
+arch floor_fs_grey1b
+z 14
+x 7
+y 23
+end
+arch grassd_m7
+x 7
+y 23
+end
+arch bridge_wood_NS.101
+x 8
+end
+arch bridge_wood_NS.101
+x 8
+y 1
+end
+arch bridge_wood_NS.101
+x 8
+y 2
+end
+arch floor_ruin4
+x 8
+y 3
+end
+arch bridge_wood_NS.151
+x 8
+y 3
+end
+arch floor_ruin4
+x 8
+y 4
+end
+arch sign
+msg
+Pier C
+endmsg
+x 8
+y 4
+end
+arch floor_ruin4
+x 8
+y 5
+end
+arch floor_ruin4
+x 8
+y 6
+end
+arch lantern_black
+x 8
+y 6
+end
+arch light7
+x 8
+y 6
+end
+arch floor_ruin4
+x 8
+y 7
+end
+arch floor_ruin4
+x 8
+y 8
+end
+arch floor_ruin4
+x 8
+y 9
+end
+arch floor_ruin4
+x 8
+y 10
+end
+arch floor_ruin4
+x 8
+y 11
+end
+arch floor_ruin4
+x 8
+y 12
+end
+arch floor_ruin4
+x 8
+y 13
+end
+arch lantern_black
+x 8
+y 13
+end
+arch light7
+x 8
+y 13
+end
+arch floor_ruin4
+x 8
+y 14
+end
+arch floor_ruin4
+x 8
+y 15
+end
+arch floor_ruin4
+x 8
+y 16
+end
+arch floor_ruin4
+x 8
+y 17
+end
+arch floor_ruin4
+x 8
+y 18
+end
+arch floor_ruin4
+x 8
+y 19
+end
+arch floor_ruin4
+x 8
+y 20
+end
+arch lantern_black
+x 8
+y 20
+end
+arch light7
+x 8
+y 20
+end
+arch floor_fs_grey1b
+x 8
+y 21
+end
+arch floor_fs_grey1b
+z 6
+x 8
+y 22
+end
+arch floor_fs_grey1b
+z 10
+x 8
+y 23
+end
+arch grassd_m7
+x 8
+y 23
+end
+arch bridge_wood_NS.101
+x 9
+end
+arch bridge_wood_NS.101
+x 9
+y 1
+end
+arch bridge_wood_NS.101
+x 9
+y 2
+end
+arch floor_fs_grey1b
+x 9
+y 3
+end
+arch bridge_wood_NS.151
+x 9
+y 3
+end
+arch floor_fs_grey1b
+x 9
+y 4
+end
+arch floor_fs_grey1b
+x 9
+y 5
+end
+arch floor_fs_grey1b
+x 9
+y 6
+end
+arch floor_fs_grey1b
+x 9
+y 7
+end
+arch floor_fs_grey1b
+x 9
+y 8
+end
+arch floor_fs_grey1b
+x 9
+y 9
+end
+arch floor_fs_grey1b
+x 9
+y 10
+end
+arch floor_fs_grey1b
+x 9
+y 11
+end
+arch floor_fs_grey1b
+x 9
+y 12
+end
+arch floor_fs_grey1b
+x 9
+y 13
+end
+arch floor_fs_grey1b
+x 9
+y 14
+end
+arch floor_fs_grey1b
+x 9
+y 15
+end
+arch floor_fs_grey1b
+x 9
+y 16
+end
+arch floor_fs_grey1b
+x 9
+y 17
+end
+arch floor_fs_grey1b
+x 9
+y 18
+end
+arch floor_fs_grey1b
+x 9
+y 19
+end
+arch floor_fs_grey1b
+x 9
+y 20
+end
+arch floor_fs_grey1b
+x 9
+y 21
+end
+arch floor_fs_grey1b
+x 9
+y 22
+end
+arch floor_fs_grey1b
+z 6
+x 9
+y 23
+end
+arch grassd_m7
+x 9
+y 23
+end
+arch bridge_wood_NS.101
+x 10
+end
+arch bridge_wood_NS.101
+x 10
+y 1
+end
+arch bridge_wood_NS.101
+x 10
+y 2
+end
+arch floor_fs_grey1b
+x 10
+y 3
+end
+arch bridge_wood_NS.151
+x 10
+y 3
+end
+arch floor_fs_grey1b
+x 10
+y 4
+end
+arch floor_fs_grey1b
+x 10
+y 5
+end
+arch floor_fs_grey1b
+x 10
+y 6
+end
+arch floor_fs_grey1b
+x 10
+y 7
+end
+arch floor_fs_grey1b
+x 10
+y 8
+end
+arch floor_fs_grey1b
+x 10
+y 9
+end
+arch floor_fs_grey1b
+x 10
+y 10
+end
+arch floor_fs_grey1b
+x 10
+y 11
+end
+arch floor_fs_grey1b
+x 10
+y 12
+end
+arch floor_fs_grey1b
+x 10
+y 13
+end
+arch floor_fs_grey1b
+x 10
+y 14
+end
+arch floor_fs_grey1b
+x 10
+y 15
+end
+arch floor_fs_grey1b
+x 10
+y 16
+end
+arch floor_fs_grey1b
+x 10
+y 17
+end
+arch floor_fs_grey1b
+x 10
+y 18
+end
+arch floor_fs_grey1b
+x 10
+y 19
+end
+arch floor_fs_grey1b
+x 10
+y 20
+end
+arch floor_fs_grey1b
+x 10
+y 21
+end
+arch floor_fs_grey1b
+x 10
+y 22
+end
+arch floor_fs_grey1b
+x 10
+y 23
+end
+arch grassd_m7
+x 10
+y 23
+end
+arch bridge_wood_NS.101
+x 11
+end
+arch bridge_wood_NS.101
+x 11
+y 1
+end
+arch bridge_wood_NS.101
+x 11
+y 2
+end
+arch floor_fs_grey1b
+x 11
+y 3
+end
+arch bridge_wood_NS.151
+x 11
+y 3
+end
+arch floor_fs_grey1b
+x 11
+y 4
+end
+arch floor_fs_grey1b
+x 11
+y 5
+end
+arch floor_fs_grey1b
+x 11
+y 6
+end
+arch floor_fs_grey1b
+x 11
+y 7
+end
+arch floor_fs_grey1b
+x 11
+y 8
+end
+arch floor_fs_grey1b
+x 11
+y 9
+end
+arch floor_fs_grey1b
+x 11
+y 10
+end
+arch floor_fs_grey1b
+x 11
+y 11
+end
+arch floor_fs_grey1b
+x 11
+y 12
+end
+arch floor_fs_grey1b
+x 11
+y 13
+end
+arch floor_fs_grey1b
+x 11
+y 14
+end
+arch floor_fs_grey1b
+x 11
+y 15
+end
+arch floor_fs_grey1b
+x 11
+y 16
+end
+arch floor_fs_grey1b
+x 11
+y 17
+end
+arch floor_fs_grey1b
+x 11
+y 18
+end
+arch floor_fs_grey1b
+x 11
+y 19
+end
+arch floor_fs_grey1b
+x 11
+y 20
+end
+arch floor_fs_grey1b
+x 11
+y 21
+end
+arch floor_fs_grey1b
+x 11
+y 22
+end
+arch floor_fs_grey1b
+x 11
+y 23
+end
+arch grassd_m7
+x 11
+y 23
+end
+arch bridge_wood_NS.101
+x 12
+end
+arch bridge_wood_NS.101
+x 12
+y 1
+end
+arch bridge_wood_NS.101
+x 12
+y 2
+end
+arch floor_ruin4
+x 12
+y 3
+end
+arch bridge_wood_NS.151
+x 12
+y 3
+end
+arch floor_ruin4
+x 12
+y 4
+end
+arch lantern_black
+x 12
+y 4
+end
+arch light7
+x 12
+y 4
+end
+arch floor_ruin4
+x 12
+y 5
+end
+arch floor_ruin4
+x 12
+y 6
+end
+arch floor_ruin4
+x 12
+y 7
+end
+arch floor_fs_grey1b
+x 12
+y 8
+end
+arch floor_fs_grey1b
+x 12
+y 9
+end
+arch floor_fs_grey1b
+x 12
+y 10
+end
+arch floor_ruin4
+x 12
+y 11
+end
+arch lantern_black
+x 12
+y 11
+end
+arch light7
+x 12
+y 11
+end
+arch floor_ruin4
+x 12
+y 12
+end
+arch floor_ruin4
+x 12
+y 13
+end
+arch floor_ruin4
+x 12
+y 14
+end
+arch floor_ruin4
+x 12
+y 15
+end
+arch floor_ruin4
+x 12
+y 16
+end
+arch lantern_black
+x 12
+y 16
+end
+arch light7
+x 12
+y 16
+end
+arch floor_ruin4
+x 12
+y 17
+end
+arch floor_ruin4
+x 12
+y 18
+end
+arch floor_fs_grey1b
+x 12
+y 19
+end
+arch floor_fs_grey1b
+x 12
+y 20
+end
+arch floor_fs_grey1b
+x 12
+y 21
+end
+arch floor_ruin4
+x 12
+y 22
+end
+arch lantern_black
+x 12
+y 22
+end
+arch light7
+x 12
+y 22
+end
+arch floor_ruin4
+x 12
+y 23
+end
+arch water_lt3
+x 13
+end
+arch bridge_wood_NS.131
+x 13
+end
+arch water_lt3
+x 13
+y 1
+end
+arch bridge_wood_NS.131
+x 13
+y 1
+end
+arch water_lt3
+x 13
+y 2
+end
+arch bridge_wood_NS.131
+x 13
+y 2
+end
+arch floor_ruin4
+x 13
+y 3
+end
+arch water_lt_m
+direction 2
+x 13
+y 3
+end
+arch bridge_wood_NS.141
+sub_layer 1
+x 13
+y 3
+end
+arch floor_ruin4
+x 13
+y 4
+end
+arch floor_ruin4
+x 13
+y 5
+end
+arch floor_ruin4
+x 13
+y 6
+end
+arch floor_ruin4
+x 13
+y 7
+end
+arch floor_fs_grey1b
+x 13
+y 8
+end
+arch floor_fs_grey1b
+x 13
+y 9
+end
+arch floor_fs_grey1b
+x 13
+y 10
+end
+arch floor_ruin4
+x 13
+y 11
+end
+arch floor_ruin4
+x 13
+y 12
+end
+arch floor_ruin4
+x 13
+y 13
+end
+arch floor_ruin4
+x 13
+y 14
+end
+arch floor_ruin4
+x 13
+y 15
+end
+arch floor_ruin4
+x 13
+y 16
+end
+arch floor_ruin4
+x 13
+y 17
+end
+arch floor_ruin4
+x 13
+y 18
+end
+arch floor_fs_grey1b
+x 13
+y 19
+end
+arch floor_fs_grey1b
+x 13
+y 20
+end
+arch floor_fs_grey1b
+x 13
+y 21
+end
+arch floor_ruin4
+x 13
+y 22
+end
+arch floor_ruin4
+x 13
+y 23
+end
+arch water_lt3
+x 14
+end
+arch water_lt3
+x 14
+y 1
+end
+arch water_lt3
+x 14
+y 2
+end
+arch water_lt3
+x 14
+y 3
+end
+arch floor_ruin4
+x 14
+y 4
+end
+arch water_lt_m
+direction 2
+x 14
+y 4
+end
+arch floor_ruin4
+x 14
+y 5
+end
+arch seashell
+x 14
+y 5
+end
+arch floor_ruin4
+x 14
+y 6
+end
+arch fmask_ruin1_s4.101
+x 14
+y 6
+end
+arch floor_ruin4
+x 14
+y 7
+end
+arch floor_fs_grey1b
+x 14
+y 8
+end
+arch floor_fs_grey1b
+x 14
+y 9
+end
+arch floor_fs_grey1b
+x 14
+y 10
+end
+arch floor_ruin4
+x 14
+y 11
+end
+arch floor_ruin4
+x 14
+y 12
+end
+arch client_map_info
+msg
+[font=serif 14]Asteria Docks[/font]
+endmsg
+name asteria_docks
+sub_type 1
+x 14
+y 12
+end
+arch floor_ruin4
+x 14
+y 13
+end
+arch floor_ruin4
+x 14
+y 14
+end
+arch fmask_ruin1_s4.101
+x 14
+y 14
+end
+arch floor_ruin4
+x 14
+y 15
+end
+arch floor_ruin4
+x 14
+y 16
+end
+arch floor_ruin4
+x 14
+y 17
+end
+arch floor_ruin4
+x 14
+y 18
+end
+arch floor_fs_grey1b
+x 14
+y 19
+end
+arch floor_fs_grey1b
+x 14
+y 20
+end
+arch floor_fs_grey1b
+x 14
+y 21
+end
+arch floor_ruin4
+x 14
+y 22
+end
+arch sign
+msg
+Pier A
+
+Connections:
+ - Lyondale Archipelago: Wizards' Tower
+endmsg
+x 14
+y 22
+end
+arch floor_ruin4
+x 14
+y 23
+end
+arch water_lt3
+x 15
+end
+arch water_lt3
+x 15
+y 1
+end
+arch water_lt3
+x 15
+y 2
+end
+arch water_lt3
+x 15
+y 3
+end
+arch water_lt3
+x 15
+y 4
+end
+arch floor_ruin4
+x 15
+y 5
+end
+arch water_lt_m
+direction 2
+x 15
+y 5
+end
+arch floor_ruin4
+x 15
+y 6
+end
+arch floor_ruin4
+x 15
+y 7
+end
+arch floor_fs_grey1b
+x 15
+y 8
+end
+arch floor_fs_grey1b
+x 15
+y 9
+end
+arch floor_fs_grey1b
+x 15
+y 10
+end
+arch floor_ruin4
+x 15
+y 11
+end
+arch floor_ruin4
+x 15
+y 12
+end
+arch floor_ruin4
+x 15
+y 13
+end
+arch floor_ruin4
+x 15
+y 14
+end
+arch floor_ruin4
+x 15
+y 15
+end
+arch floor_ruin4
+x 15
+y 16
+end
+arch floor_ruin4
+x 15
+y 17
+end
+arch floor_ruin4
+x 15
+y 18
+end
+arch bridge_wood_EW.181
+x 15
+y 18
+end
+arch floor_fs_grey1b
+x 15
+y 19
+end
+arch bridge_wood_EW.171
+x 15
+y 19
+end
+arch floor_fs_grey1b
+x 15
+y 20
+end
+arch bridge_wood_EW.171
+x 15
+y 20
+end
+arch floor_fs_grey1b
+x 15
+y 21
+end
+arch bridge_wood_EW.171
+x 15
+y 21
+end
+arch floor_ruin4
+x 15
+y 22
+end
+arch bridge_wood_EW.171
+x 15
+y 22
+end
+arch floor_ruin4
+x 15
+y 23
+end
+arch water_lt_m
+direction 4
+x 15
+y 23
+end
+arch bridge_wood_EW.161
+sub_layer 1
+x 15
+y 23
+end
+arch water_lt3
+x 16
+end
+arch water_lt3
+x 16
+y 1
+end
+arch water_lt3
+x 16
+y 2
+end
+arch water_lt3
+x 16
+y 3
+end
+arch water_lt3
+x 16
+y 4
+end
+arch water_lt3
+x 16
+y 5
+end
+arch floor_ruin4
+x 16
+y 6
+end
+arch water_lt_m
+direction 2
+x 16
+y 6
+end
+arch floor_ruin4
+x 16
+y 7
+end
+arch starfish
+x 16
+y 7
+end
+arch floor_fs_grey1b
+x 16
+y 8
+end
+arch floor_fs_grey1b
+x 16
+y 9
+end
+arch floor_fs_grey1b
+x 16
+y 10
+end
+arch floor_ruin4
+x 16
+y 11
+end
+arch floor_ruin4
+x 16
+y 12
+end
+arch floor_ruin4
+x 16
+y 13
+end
+arch floor_ruin4
+x 16
+y 14
+end
+arch floor_ruin4
+x 16
+y 15
+end
+arch floor_ruin4
+x 16
+y 16
+end
+arch floor_ruin4
+x 16
+y 17
+end
+arch bridge_wood_EW.111
+x 16
+y 18
+end
+arch spawn_point
+x 16
+y 18
+arch guard
+name Asterian Guard
+type 83
+level 25
+arch event_obj
+sub_type 6
+race /python/generic/guard.py
+end
+end
+end
+arch bridge_wood_EW.101
+x 16
+y 19
+end
+arch bridge_wood_EW.101
+x 16
+y 20
+end
+arch bridge_wood_EW.101
+x 16
+y 21
+end
+arch bridge_wood_EW.101
+x 16
+y 22
+end
+arch water_lt3
+x 16
+y 23
+end
+arch bridge_wood_EW.151
+x 16
+y 23
+end
+arch water_lt3
+x 17
+end
+arch water_lt3
+x 17
+y 1
+end
+arch water_lt3
+x 17
+y 2
+end
+arch water_lt2
+x 17
+y 3
+end
+arch water_lt3
+x 17
+y 4
+end
+arch water_lt3
+x 17
+y 5
+end
+arch water_lt3
+x 17
+y 6
+end
+arch floor_ruin4
+x 17
+y 7
+end
+arch floor_fs_grey1b
+x 17
+y 8
+end
+arch floor_fs_grey1b
+x 17
+y 9
+end
+arch floor_fs_grey1b
+x 17
+y 10
+end
+arch floor_ruin4
+x 17
+y 11
+end
+arch sign
+msg
+Pier B
+
+Connections:
+ - Strakewood Island: Greyton
+endmsg
+x 17
+y 11
+end
+arch floor_ruin4
+x 17
+y 12
+end
+arch floor_ruin4
+x 17
+y 13
+end
+arch floor_ruin4
+x 17
+y 14
+end
+arch floor_ruin4
+x 17
+y 15
+end
+arch fmask_ruin1_s2.101
+x 17
+y 15
+end
+arch floor_ruin4
+x 17
+y 16
+end
+arch floor_ruin4
+x 17
+y 17
+end
+arch bridge_wood_EW.111
+x 17
+y 18
+end
+arch lantern_black
+x 17
+y 18
+end
+arch light7
+x 17
+y 18
+end
+arch bridge_wood_EW.101
+x 17
+y 19
+end
+arch bridge_wood_EW.101
+x 17
+y 20
+end
+arch bridge_wood_EW.101
+x 17
+y 21
+end
+arch bridge_wood_EW.101
+x 17
+y 22
+end
+arch lantern_black
+x 17
+y 22
+end
+arch light7
+x 17
+y 22
+end
+arch water_lt3
+x 17
+y 23
+end
+arch bridge_wood_EW.151
+x 17
+y 23
+end
+arch water_lt4
+x 18
+end
+arch water_lt3
+x 18
+y 1
+end
+arch water_lt4
+x 18
+y 2
+end
+arch water_lt3
+x 18
+y 3
+end
+arch water_lt3
+x 18
+y 4
+end
+arch water_lt3
+x 18
+y 5
+end
+arch water_lt2
+x 18
+y 6
+end
+arch floor_ruin4
+x 18
+y 7
+end
+arch bridge_wood_EW.181
+x 18
+y 7
+end
+arch lantern_black
+x 18
+y 7
+end
+arch light7
+x 18
+y 7
+end
+arch floor_fs_grey1b
+x 18
+y 8
+end
+arch bridge_wood_EW.171
+x 18
+y 8
+end
+arch floor_fs_grey1b
+x 18
+y 9
+end
+arch bridge_wood_EW.171
+x 18
+y 9
+end
+arch floor_fs_grey1b
+x 18
+y 10
+end
+arch bridge_wood_EW.171
+x 18
+y 10
+end
+arch floor_ruin4
+x 18
+y 11
+end
+arch bridge_wood_EW.171
+x 18
+y 11
+end
+arch lantern_black
+x 18
+y 11
+end
+arch light7
+x 18
+y 11
+end
+arch floor_ruin4
+x 18
+y 12
+end
+arch bridge_wood_EW.161
+x 18
+y 12
+end
+arch floor_ruin4
+x 18
+y 13
+end
+arch floor_ruin4
+x 18
+y 14
+end
+arch cannon
+direction 3
+x 18
+y 14
+end
+arch floor_ruin4
+x 18
+y 15
+end
+arch floor_ruin4
+x 18
+y 16
+end
+arch floor_ruin4
+x 18
+y 17
+end
+arch bridge_wood_EW.111
+x 18
+y 18
+end
+arch bridge_wood_EW.101
+x 18
+y 19
+end
+arch bridge_wood_EW.101
+x 18
+y 20
+end
+arch bridge_wood_EW.101
+x 18
+y 21
+end
+arch bridge_wood_EW.101
+x 18
+y 22
+end
+arch water_lt3
+x 18
+y 23
+end
+arch bridge_wood_EW.151
+x 18
+y 23
+end
+arch water_lt4
+x 19
+end
+arch wall_wood_8
+x 19
+end
+arch water_lt3
+x 19
+y 1
+end
+arch wall_wood2_3
+x 19
+y 1
+end
+arch water_lt3
+x 19
+y 2
+end
+arch wall_wood3_3
+x 19
+y 2
+end
+arch water_lt
+x 19
+y 3
+end
+arch wall_wood2_3
+x 19
+y 3
+end
+arch water_lt3
+x 19
+y 4
+end
+arch wall_wood2_3
+x 19
+y 4
+end
+arch water_lt3
+x 19
+y 5
+end
+arch wall_wood_3
+x 19
+y 5
+end
+arch water_lt2
+x 19
+y 6
+end
+arch bridge_wood_EW.111
+x 19
+y 7
+end
+arch bridge_wood_EW.101
+x 19
+y 8
+end
+arch bridge_wood_EW.101
+x 19
+y 9
+end
+arch bridge_wood_EW.101
+x 19
+y 10
+end
+arch bridge_wood_EW.101
+x 19
+y 11
+end
+arch floor_ruin4
+x 19
+y 12
+end
+arch bridge_wood_EW.151
+x 19
+y 12
+end
+arch floor_ruin4
+x 19
+y 13
+end
+arch floor_ruin4
+x 19
+y 14
+end
+arch floor_ruin4
+x 19
+y 15
+end
+arch floor_ruin4
+x 19
+y 16
+end
+arch starfish
+x 19
+y 16
+end
+arch floor_ruin4
+x 19
+y 17
+end
+arch bridge_wood_EW.111
+x 19
+y 18
+end
+arch bridge_wood_EW.101
+x 19
+y 19
+end
+arch bridge_wood_EW.101
+x 19
+y 20
+end
+arch bridge_wood_EW.101
+x 19
+y 21
+end
+arch bridge_wood_EW.101
+x 19
+y 22
+end
+arch water_lt3
+x 19
+y 23
+end
+arch bridge_wood_EW.151
+x 19
+y 23
+end
+arch water_lt4
+x 20
+end
+arch wall_wood_1
+x 20
+end
+arch bridge_wood_NS.101
+name floor
+x 20
+y 1
+end
+arch bridge_wood_NS.101
+name floor
+x 20
+y 2
+end
+arch bar1
+x 20
+y 2
+end
+arch bridge_wood_NS.101
+name floor
+x 20
+y 3
+end
+arch bridge_wood_NS.101
+name floor
+x 20
+y 4
+end
+arch bridge_wood_NS.101
+name floor
+x 20
+y 5
+end
+arch wall_wood2_1
+x 20
+y 5
+end
+arch water_lt3
+x 20
+y 6
+end
+arch bridge_wood_EW.111
+x 20
+y 7
+end
+arch bridge_wood_EW.101
+x 20
+y 8
+end
+arch bridge_wood_EW.101
+x 20
+y 9
+end
+arch bridge_wood_EW.101
+x 20
+y 10
+end
+arch bridge_wood_EW.101
+x 20
+y 11
+end
+arch floor_ruin4
+x 20
+y 12
+end
+arch water_lt_m
+direction 3
+x 20
+y 12
+end
+arch bridge_wood_EW.151
+sub_layer 1
+x 20
+y 12
+end
+arch floor_ruin4
+x 20
+y 13
+end
+arch water_lt_m
+direction 3
+x 20
+y 13
+end
+arch floor_ruin4
+x 20
+y 14
+end
+arch water_lt_m
+direction 3
+x 20
+y 14
+end
+arch floor_ruin4
+x 20
+y 15
+end
+arch water_lt_m
+direction 3
+x 20
+y 15
+end
+arch floor_ruin4
+x 20
+y 16
+end
+arch water_lt_m
+direction 3
+x 20
+y 16
+end
+arch floor_ruin4
+x 20
+y 17
+end
+arch water_lt_m
+direction 3
+x 20
+y 17
+end
+arch bridge_wood_EW.111
+x 20
+y 18
+end
+arch bridge_wood_EW.101
+x 20
+y 19
+end
+arch bridge_wood_EW.101
+x 20
+y 20
+end
+arch bridge_wood_EW.101
+x 20
+y 21
+end
+arch bridge_wood_EW.101
+x 20
+y 22
+end
+arch water_lt3
+x 20
+y 23
+end
+arch bridge_wood_EW.151
+x 20
+y 23
+end
+arch water_lt3
+x 21
+end
+arch wall_wood3_1
+x 21
+end
+arch bridge_wood_NS.101
+name floor
+x 21
+y 1
+end
+arch bridge_wood_NS.101
+name floor
+x 21
+y 2
+end
+arch bar1
+x 21
+y 2
+end
+arch bridge_wood_NS.101
+name floor
+x 21
+y 3
+end
+arch bridge_wood_NS.101
+name floor
+x 21
+y 4
+end
+arch bridge_wood_NS.101
+name floor
+x 21
+y 5
+end
+arch wall_wood_1
+x 21
+y 5
+end
+arch bridge_wood_NS.171
+x 21
+y 6
+end
+arch wallsign_text
+msg
+Dockhouse
+endmsg
+x 21
+y 6
+end
+arch bridge_wood_EW.101
+x 21
+y 7
+end
+arch bridge_wood_EW.101
+x 21
+y 8
+end
+arch bridge_wood_EW.101
+x 21
+y 9
+end
+arch bridge_wood_EW.101
+x 21
+y 10
+end
+arch bridge_wood_EW.101
+x 21
+y 11
+end
+arch water_lt3
+x 21
+y 12
+end
+arch bridge_wood_EW.151
+x 21
+y 12
+end
+arch water_lt3
+x 21
+y 13
+end
+arch water_lt3
+x 21
+y 14
+end
+arch water_lt3
+x 21
+y 15
+end
+arch water_lt3
+x 21
+y 16
+end
+arch water_lt3
+x 21
+y 17
+end
+arch bridge_wood_EW.111
+x 21
+y 18
+end
+arch bridge_wood_EW.101
+x 21
+y 19
+end
+arch bridge_wood_EW.101
+x 21
+y 20
+end
+arch bridge_wood_EW.101
+x 21
+y 21
+end
+arch bridge_wood_EW.101
+x 21
+y 22
+end
+arch water_lt3
+x 21
+y 23
+end
+arch bridge_wood_EW.151
+x 21
+y 23
+end
+arch water_lt
+x 22
+end
+arch wall_wood3_1
+x 22
+end
+arch bridge_wood_NS.101
+name floor
+x 22
+y 1
+end
+arch spawn_point
+x 22
+y 1
+arch smith
+name Dockmaster
+type 83
+level 20
+end
+end
+arch bridge_wood_NS.101
+name floor
+x 22
+y 2
+end
+arch bar1
+x 22
+y 2
+end
+arch bridge_wood_NS.101
+name floor
+x 22
+y 3
+end
+arch bridge_wood_NS.101
+name floor
+x 22
+y 4
+end
+arch bridge_wood_NS.101
+name floor
+x 22
+y 5
+end
+arch door_wood1
+x 22
+y 5
+end
+arch bridge_wood_NS.101
+x 22
+y 6
+end
+arch bridge_wood_EW.101
+x 22
+y 7
+end
+arch bridge_wood_EW.101
+x 22
+y 8
+end
+arch bridge_wood_EW.101
+x 22
+y 9
+end
+arch bridge_wood_EW.101
+x 22
+y 10
+end
+arch bridge_wood_EW.101
+x 22
+y 11
+end
+arch water_lt3
+x 22
+y 12
+end
+arch bridge_wood_EW.151
+x 22
+y 12
+end
+arch water_lt2
+x 22
+y 13
+end
+arch water_lt3
+x 22
+y 14
+end
+arch water_lt3
+x 22
+y 15
+end
+arch water_lt3
+x 22
+y 16
+end
+arch water_lt3
+x 22
+y 17
+end
+arch bridge_wood_EW.111
+x 22
+y 18
+end
+arch bridge_wood_EW.101
+x 22
+y 19
+end
+arch bridge_wood_EW.101
+x 22
+y 20
+end
+arch bridge_wood_EW.101
+x 22
+y 21
+end
+arch bridge_wood_EW.101
+x 22
+y 22
+end
+arch water_lt3
+x 22
+y 23
+end
+arch bridge_wood_EW.151
+x 22
+y 23
+end
+arch water_lt3
+x 23
+end
+arch wall_wood3_1
+x 23
+end
+arch bridge_wood_NS.101
+name floor
+x 23
+y 1
+end
+arch bridge_wood_NS.101
+name floor
+x 23
+y 2
+end
+arch bar1
+x 23
+y 2
+end
+arch bridge_wood_NS.101
+name floor
+x 23
+y 3
+end
+arch bridge_wood_NS.101
+name floor
+x 23
+y 4
+end
+arch bridge_wood_NS.101
+name floor
+x 23
+y 5
+end
+arch wall_wood3_1
+x 23
+y 5
+end
+arch bridge_wood_NS.101
+x 23
+y 6
+end
+arch spawn_point
+x 23
+y 6
+arch guard
+name Asterian Guard
+type 83
+level 25
+arch event_obj
+sub_type 6
+race /python/generic/guard.py
+end
+end
+end
+arch bridge_wood_EW.101
+x 23
+y 7
+end
+arch bridge_wood_EW.101
+x 23
+y 8
+end
+arch bridge_wood_EW.101
+x 23
+y 9
+end
+arch bridge_wood_EW.101
+x 23
+y 10
+end
+arch bridge_wood_EW.101
+x 23
+y 11
+end
+arch water_lt3
+x 23
+y 12
+end
+arch bridge_wood_EW.151
+x 23
+y 12
+end
+arch water_lt3
+x 23
+y 13
+end
+arch water_lt3
+x 23
+y 14
+end
+arch water_lt3
+x 23
+y 15
+end
+arch water_lt
+x 23
+y 16
+end
+arch water_lt3
+x 23
+y 17
+end
+arch bridge_wood_EW.111
+x 23
+y 18
+end
+arch lantern_black
+x 23
+y 18
+end
+arch light7
+x 23
+y 18
+end
+arch bridge_wood_EW.101
+x 23
+y 19
+end
+arch bridge_wood_EW.101
+x 23
+y 20
+end
+arch bridge_wood_EW.101
+x 23
+y 21
+end
+arch bridge_wood_EW.101
+x 23
+y 22
+end
+arch lantern_black
+x 23
+y 22
+end
+arch light7
+x 23
+y 22
+end
+arch water_lt
+x 23
+y 23
+end
+arch bridge_wood_EW.151
+x 23
+y 23
+end

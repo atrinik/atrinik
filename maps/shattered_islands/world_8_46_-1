@@ -1,0 +1,500 @@
+arch map
+name Thieves Guild
+msg
+Created:  2009-08-09 emperorbma
+Modified: 2011-10-02 Alex Tokar
+endmsg
+width 24
+height 24
+difficulty 1
+darkness 1
+bg_music sacred_moments.ogg
+region asteria_sewers
+end
+arch floor_wood2
+z 50
+end
+arch floor_wood2
+z 50
+y 1
+end
+arch floor_wood2
+z 50
+y 2
+end
+arch floor_wood2
+z 50
+y 3
+end
+arch fwall_marble3b
+y 3
+end
+arch floor_wood2
+z 50
+x 1
+end
+arch floor_wood2
+z 50
+x 1
+y 1
+end
+arch floor_wood2
+z 50
+x 1
+y 2
+end
+arch floor_wood2
+z 50
+x 1
+y 3
+end
+arch fwall_marble3b
+x 1
+y 3
+end
+arch floor_wood2
+z 50
+x 2
+end
+arch fwall_marble3b
+x 2
+end
+arch floor_wood2
+z 50
+x 2
+y 1
+end
+arch door_wood1
+direction 3
+x 2
+y 1
+end
+arch floor_wood2
+z 50
+x 2
+y 2
+end
+arch fwall_marble3b
+x 2
+y 2
+end
+arch floor_wood2
+z 50
+x 2
+y 3
+end
+arch fwall_marble3b
+x 2
+y 3
+end
+arch floor_wood2
+z 50
+x 3
+end
+arch floor_wood2
+z 50
+x 3
+y 1
+end
+arch floor_wood2
+z 50
+x 3
+y 2
+end
+arch torch_wall_1
+direction 7
+x 3
+y 2
+end
+arch floor_wood2
+z 50
+x 3
+y 3
+end
+arch fwall_marble3b
+x 3
+y 3
+end
+arch floor_wood2
+z 50
+x 4
+end
+arch floor_wood2
+z 50
+x 4
+y 1
+end
+arch floor_wood2
+z 50
+x 4
+y 2
+end
+arch floor_wood2
+z 50
+x 4
+y 3
+end
+arch fwall_marble3b
+x 4
+y 3
+end
+arch floor_wood2
+z 50
+x 5
+end
+arch fwall_marble3b
+x 5
+end
+arch floor_wood2
+z 50
+x 5
+y 1
+end
+arch fwall_marble3b
+x 5
+y 1
+end
+arch floor_wood2
+z 50
+x 5
+y 2
+end
+arch fwall_marble3b
+x 5
+y 2
+end
+arch floor_wood2
+z 50
+x 5
+y 3
+end
+arch fwall_marble3b
+x 5
+y 3
+end
+arch floor_wood2
+z 50
+x 6
+end
+arch broom.111
+direction 7
+x 6
+end
+arch floor_wood2
+z 50
+x 6
+y 1
+end
+arch bed_1a.111
+direction 7
+x 6
+y 1
+end
+arch bedpost_a
+sub_layer 1
+z 13
+direction 7
+x 6
+y 1
+end
+arch bed_1a.111
+sub_layer 2
+z 22
+direction 7
+no_pass 1
+x 6
+y 1
+end
+arch floor_wood2
+z 50
+x 6
+y 2
+end
+arch bed_1b.111
+direction 7
+x 6
+y 2
+end
+arch bedpost_b
+sub_layer 1
+z 12
+direction 7
+x 6
+y 2
+end
+arch bed_1b.111
+sub_layer 2
+z 22
+direction 7
+no_pass 1
+x 6
+y 2
+end
+arch ladder_up
+sub_layer 3
+z -6
+align 8
+direction 7
+x 6
+y 2
+end
+arch floor_wood2
+z 50
+x 6
+y 3
+end
+arch fwall_marble3b
+x 6
+y 3
+end
+arch floor_wood2
+z 50
+x 7
+end
+arch floor_wood2
+z 50
+x 7
+y 1
+end
+arch floor_wood2
+z 50
+x 7
+y 2
+end
+arch floor_wood2
+z 50
+x 7
+y 3
+end
+arch fwall_marble3b
+x 7
+y 3
+end
+arch floor_wood2
+z 50
+x 8
+end
+arch floor_wood2
+z 50
+x 8
+y 1
+end
+arch bed_1a.111
+direction 7
+x 8
+y 1
+end
+arch bedpost_a
+sub_layer 1
+z 13
+direction 7
+x 8
+y 1
+end
+arch bed_1a.111
+sub_layer 2
+z 22
+direction 7
+no_pass 1
+x 8
+y 1
+end
+arch floor_wood2
+z 50
+x 8
+y 2
+end
+arch bed_1b.111
+direction 7
+x 8
+y 2
+end
+arch bedpost_b
+sub_layer 1
+z 12
+direction 7
+x 8
+y 2
+end
+arch bed_1b.111
+sub_layer 2
+z 22
+direction 7
+no_pass 1
+x 8
+y 2
+end
+arch ladder_up
+sub_layer 3
+z -6
+align 8
+direction 7
+x 8
+y 2
+end
+arch floor_wood2
+z 50
+x 8
+y 3
+end
+arch fwall_marble3b
+x 8
+y 3
+end
+arch floor_wood2
+z 50
+x 9
+end
+arch floor_wood2
+z 50
+x 9
+y 1
+end
+arch floor_wood2
+z 50
+x 9
+y 2
+end
+arch floor_wood2
+z 50
+x 9
+y 3
+end
+arch fwall_marble3b
+x 9
+y 3
+end
+arch floor_wood2
+z 50
+x 10
+end
+arch floor_wood2
+z 50
+x 10
+y 1
+end
+arch bed_1a.111
+direction 7
+x 10
+y 1
+end
+arch bedpost_a
+sub_layer 1
+z 13
+direction 7
+x 10
+y 1
+end
+arch bed_1a.111
+sub_layer 2
+z 22
+direction 7
+no_pass 1
+x 10
+y 1
+end
+arch floor_wood2
+z 50
+x 10
+y 2
+end
+arch bed_1b.111
+direction 7
+x 10
+y 2
+end
+arch bedpost_b
+sub_layer 1
+z 12
+direction 7
+x 10
+y 2
+end
+arch bed_1b.111
+sub_layer 2
+z 22
+direction 7
+no_pass 1
+x 10
+y 2
+end
+arch ladder_up
+sub_layer 3
+z -6
+align 8
+direction 7
+x 10
+y 2
+end
+arch floor_wood2
+z 50
+x 10
+y 3
+end
+arch fwall_marble3b
+x 10
+y 3
+end
+arch floor_wood2
+z 50
+x 11
+end
+arch candlelight4.101
+x 11
+end
+arch light3
+x 11
+end
+arch floor_wood2
+z 50
+x 11
+y 1
+end
+arch floor_wood2
+z 50
+x 11
+y 2
+end
+arch floor_wood2
+z 50
+x 11
+y 3
+end
+arch fwall_marble3b
+x 11
+y 3
+end
+arch floor_wood2
+z 50
+x 12
+end
+arch fwall_marble3b
+x 12
+end
+arch floor_wood2
+z 50
+x 12
+y 1
+end
+arch fwall_marble3b
+x 12
+y 1
+end
+arch floor_wood2
+z 50
+x 12
+y 2
+end
+arch fwall_marble3b
+x 12
+y 2
+end
+arch floor_wood2
+z 50
+x 12
+y 3
+end
+arch fwall_marble3b
+x 12
+y 3
+end

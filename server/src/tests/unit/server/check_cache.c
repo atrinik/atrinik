@@ -25,75 +25,73 @@
 #include <global.h>
 #include <check.h>
 #include <check_proto.h>
+#include <toolkit_string.h>
 
 START_TEST(test_cache)
 {
-    char *str = strdup("hello world");
+    char *str = estrdup("hello world");
     cache_struct *res;
     int i;
     char buf[MAX_BUF];
 
-    fail_if(cache_add("cache_test", str, CACHE_FLAG_AUTOFREE) == 0, "Could not add cache entry.");
+    ck_assert(cache_add("cache_test", str, CACHE_FLAG_AUTOFREE));
+
     res = cache_find(find_string("cache_test"));
+    ck_assert_ptr_ne(res, NULL);
+    ck_assert_ptr_eq(res->ptr, str);
+    ck_assert_str_eq(res->ptr, "hello world");
 
-    fail_if(res == NULL, "Could not find 'cache_test' cache.");
-
-    if (res) {
-        fail_if(res->ptr == NULL || (char *) res->ptr != str || strcmp(res->ptr, "hello world"), "Did not find correct cache pointer.");
-    }
-
-    fail_if(cache_remove(find_string("cache_test")) == 0, "Could not remove cache entry.");
-    fail_if(cache_find(find_string("cache_test")), "Found cache entry but it should have been removed.");
+    ck_assert(cache_remove(find_string("cache_test")));
+    ck_assert(!cache_find(find_string("cache_test")));
 
     for (i = 0; i <= 10; i++) {
         snprintf(buf, sizeof(buf), "hello, hello! %d", i);
-        str = strdup(buf);
+        str = estrdup(buf);
         snprintf(buf, sizeof(buf), "cache_test_%d", i);
-        fail_if(cache_add(buf, str, CACHE_FLAG_AUTOFREE) == 0, "Could not add cache entry.");
-        fail_if(cache_find(find_string(buf)) == NULL, "Could not find cache entry after it was added.");
+        ck_assert(cache_add(buf, str, CACHE_FLAG_AUTOFREE));
+        ck_assert_ptr_ne(cache_find(find_string(buf)), NULL);
     }
 
     for (i = 0; i <= 10; i++) {
         snprintf(buf, sizeof(buf), "cache_test_%d", i);
-        fail_if(cache_find(find_string(buf)) == NULL, "Could not find cache entry that was previously added.");
+        ck_assert_ptr_ne(cache_find(find_string(buf)), NULL);
     }
 
-    fail_if(cache_remove(find_string("cache_test_0")) == 0, "Could not remove cache entry.");
-    fail_if(cache_remove(find_string("cache_test_10")) == 0, "Could not remove cache entry.");
-    fail_if(cache_remove(find_string("cache_test_4")) == 0, "Could not remove cache entry.");
-    fail_if(cache_remove(find_string("cache_test_7")) == 0, "Could not remove cache entry.");
-    fail_if(cache_remove(find_string("cache_test_2")) == 0, "Could not remove cache entry.");
-    fail_if(cache_remove(find_string("cache_test_9")) == 0, "Could not remove cache entry.");
+    ck_assert(cache_remove(find_string("cache_test_0")));
+    ck_assert(cache_remove(find_string("cache_test_10")));
+    ck_assert(cache_remove(find_string("cache_test_4")));
+    ck_assert(cache_remove(find_string("cache_test_7")));
+    ck_assert(cache_remove(find_string("cache_test_2")));
+    ck_assert(cache_remove(find_string("cache_test_9")));
 
-    fail_if(cache_find(find_string("cache_test_1")) == NULL, "Could not find cache entry.");
-    fail_if(cache_find(find_string("cache_test_3")) == NULL, "Could not find cache entry.");
-    fail_if(cache_find(find_string("cache_test_5")) == NULL, "Could not find cache entry.");
-    fail_if(cache_find(find_string("cache_test_6")) == NULL, "Could not find cache entry.");
-    fail_if(cache_find(find_string("cache_test_8")) == NULL, "Could not find cache entry.");
+    ck_assert_ptr_ne(cache_find(find_string("cache_test_1")), NULL);
+    ck_assert_ptr_ne(cache_find(find_string("cache_test_3")), NULL);
+    ck_assert_ptr_ne(cache_find(find_string("cache_test_5")), NULL);
+    ck_assert_ptr_ne(cache_find(find_string("cache_test_6")), NULL);
+    ck_assert_ptr_ne(cache_find(find_string("cache_test_8")), NULL);
 
     cache_remove_all();
-    fail_if(cache_find(find_string("cache_test_1")) != NULL, "Found cache entry after it should have been mass-removed.");
-    fail_if(cache_find(find_string("cache_test_3")) != NULL, "Found cache entry after it should have been mass-removed.");
-    fail_if(cache_find(find_string("cache_test_5")) != NULL, "Found cache entry after it should have been mass-removed.");
-    fail_if(cache_find(find_string("cache_test_6")) != NULL, "Found cache entry after it should have been mass-removed.");
-    fail_if(cache_find(find_string("cache_test_8")) != NULL, "Found cache entry after it should have been mass-removed.");
+    ck_assert_ptr_eq(cache_find(find_string("cache_test_3")), NULL);
+    ck_assert_ptr_eq(cache_find(find_string("cache_test_5")), NULL);
+    ck_assert_ptr_eq(cache_find(find_string("cache_test_6")), NULL);
+    ck_assert_ptr_eq(cache_find(find_string("cache_test_8")), NULL);
 
-    fail_if(cache_remove(find_string("cache_test_8")) == 1, "Removed cache entry when it should have been removed already.");
-    fail_if(cache_remove(find_string("cache_test_0")) == 1, "Removed cache entry when it should have been removed already.");
+    ck_assert(!cache_remove(find_string("cache_test_8")));
+    ck_assert(!cache_remove(find_string("cache_test_0")));
 
-    str = strdup("hello hello world!!!");
-    fail_if(cache_add("cache_rem_test", str, CACHE_FLAG_AUTOFREE) == 0, "Could not add cache entry.");
-    fail_if(cache_add("cache_rem_test", str, CACHE_FLAG_AUTOFREE) == 1, "Added cache entry with same name.");
+    str = estrdup("hello hello world!!!");
+    ck_assert(cache_add("cache_rem_test", str, CACHE_FLAG_AUTOFREE));
+    ck_assert(!cache_add("cache_rem_test", str, CACHE_FLAG_AUTOFREE));
 
-    str = strdup("leet");
-    fail_if(cache_add("raas", str, CACHE_FLAG_PYOBJ) == 0, "Could not add cache entry.");
-    fail_if(cache_add("chair", str, CACHE_FLAG_PYOBJ) == 0, "Could not add cache entry.");
+    str = estrdup("leet");
+    ck_assert(cache_add("raas", str, CACHE_FLAG_PYOBJ));
+    ck_assert(cache_add("chair", str, CACHE_FLAG_PYOBJ));
     cache_remove_by_flags(CACHE_FLAG_PYOBJ);
-    fail_if(cache_find(find_string("raas")) != NULL, "Found removed cache entry.");
-    fail_if(cache_find(find_string("chair")) != NULL, "Found removed cache entry.");
-    free(str);
+    ck_assert_ptr_eq(cache_find(find_string("raas")), NULL);
+    ck_assert_ptr_eq(cache_find(find_string("chair")), NULL);
+    efree(str);
 
-    fail_if(cache_remove(find_string("cache_rem_test")) == 0, "Failed to remove previously added cache entry.");
+    ck_assert(cache_remove(find_string("cache_rem_test")));
 }
 
 END_TEST

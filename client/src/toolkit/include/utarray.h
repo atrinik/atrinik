@@ -234,7 +234,9 @@ static const UT_icd ut_str_icd _UNUSED_ = {sizeof(char*), NULL, utarray_str_cpy,
 static const UT_icd ut_int_icd _UNUSED_ = {sizeof(int), NULL, NULL, NULL};
 
 static inline int ut_str_sort(const void *a, const void *b) {
-    return strcmp(*(char **) a, *(char **) b);
+    const char *const *_a = a;
+    const char *const *_b = b;
+    return strcmp(*_a, *_b);
 }
 
 

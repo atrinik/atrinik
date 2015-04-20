@@ -27,6 +27,8 @@
  * Menu related functions. */
 
 #include <global.h>
+#include <packet.h>
+#include <toolkit_string.h>
 
 /**
  * Analyze /cmd type commands the player has typed in the console or bound to a
@@ -198,7 +200,7 @@ int client_command_check(const char *cmd)
         return 1;
     } else if (string_startswith(cmd, "/cast ") || string_startswith(cmd, "/use_skill ")) {
         object *tmp;
-        uint8 type;
+        uint8_t type;
 
         type = string_startswith(cmd, "/cast ") ? TYPE_SPELL : TYPE_SKILL;
         cmd = strchr(cmd, ' ') + 1;
@@ -235,7 +237,7 @@ int client_command_check(const char *cmd)
     } else if (string_startswith(cmd, "/droptag ") || string_startswith(cmd, "/gettag ")) {
         char *cps[3];
         tag_t loc, tag;
-        uint32 num;
+        uint32_t num;
 
         if (string_split(strchr(cmd, ' ') + 1, cps, arraysize(cps), ' ') != arraysize(cps)) {
             return 1;
@@ -257,7 +259,7 @@ int client_command_check(const char *cmd)
     } else if (string_startswith(cmd, "/talk")) {
         char type[MAX_BUF], npc_name[MAX_BUF];
         size_t pos;
-        uint8 type_num;
+        uint8_t type_num;
         packet_struct *packet;
 
         pos = 5;

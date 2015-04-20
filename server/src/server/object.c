@@ -28,6 +28,7 @@
 
 #include <global.h>
 #include <loader.h>
+#include <toolkit_string.h>
 
 /** List of active objects that need to be processed */
 object *active_objects;
@@ -358,7 +359,7 @@ int CAN_MERGE(object *ob1, object *ob2)
 
     /* Do not merge objects if nrof would overflow. We use SINT32_MAX
      * because sint32 is often used to store nrof instead of uint32. */
-    if (ob1->nrof + ob2->nrof > SINT32_MAX) {
+    if (ob1->nrof + ob2->nrof > INT32_MAX) {
         return 0;
     }
 
@@ -550,7 +551,7 @@ object *object_merge(object *op)
  * @return The calculated weight */
 signed long sum_weight(object *op)
 {
-    sint32 sum;
+    int32_t sum;
     object *inv;
 
     if (QUERY_FLAG(op, FLAG_SYS_OBJECT)) {
@@ -575,7 +576,7 @@ signed long sum_weight(object *op)
          * This allows us to reliably calculate the weight again in
          * add_weight() and sub_weight() without rounding errors. */
         op->damage_round_tag = sum;
-        sum = (sint32) ((float) sum * op->weapon_speed);
+        sum = (int32_t) ((float) sum * op->weapon_speed);
     }
 
     op->carrying = sum;
@@ -587,14 +588,14 @@ signed long sum_weight(object *op)
  * environment(s) is/are carrying.
  * @param op The object
  * @param weight The weight to add */
-void add_weight(object *op, sint32 weight)
+void add_weight(object *op, int32_t weight)
 {
     while (op) {
         if (op->type == CONTAINER && op->weapon_speed != 1.0f) {
-            sint32 old_carrying = op->carrying;
+            int32_t old_carrying = op->carrying;
 
             op->damage_round_tag += weight;
-            op->carrying = (sint32) ((float) op->damage_round_tag * op->weapon_speed);
+            op->carrying = (int32_t) ((float) op->damage_round_tag * op->weapon_speed);
             weight = op->carrying - old_carrying;
         } else {
             op->carrying += weight;
@@ -613,14 +614,14 @@ void add_weight(object *op, sint32 weight)
  * (and what is carried by its environment(s)).
  * @param op The object
  * @param weight The weight to subtract */
-void sub_weight(object *op, sint32 weight)
+void sub_weight(object *op, int32_t weight)
 {
     while (op) {
         if (op->type == CONTAINER && op->weapon_speed != 1.0f) {
-            sint32 old_carrying = op->carrying;
+            int32_t old_carrying = op->carrying;
 
             op->damage_round_tag -= weight;
-            op->carrying = (sint32) ((float) op->damage_round_tag * op->weapon_speed);
+            op->carrying = (int32_t) ((float) op->damage_round_tag * op->weapon_speed);
             weight = old_carrying - op->carrying;
         } else {
             op->carrying -= weight;
@@ -948,6 +949,12 @@ static void object_debugger(object *op, char *buf, size_t size)
     snprintfcat(buf, size, " coords: %d, %d", op->x, op->y);
 }
 
+/** @copydoc chunk_validator */
+static bool object_validator(object *op)
+{
+    return op->count != 0 && !QUERY_FLAG(op, FLAG_REMOVED);
+}
+
 /**
  * Initialize the object API. */
 void object_init(void)
@@ -955,6 +962,7 @@ void object_init(void)
     pool_object = mempool_create("objects", OBJECT_EXPAND, sizeof(object),
             MEMPOOL_ALLOW_FREEING, NULL, NULL, NULL, NULL);
     mempool_set_debugger(pool_object, (chunk_debugger) object_debugger);
+    mempool_set_validator(pool_object, (chunk_validator) object_validator);
 }
 
 /**
@@ -1448,7 +1456,7 @@ void object_destroy(object *ob)
 void destruct_ob(object *op)
 {
     SET_FLAG(op, FLAG_NO_FIX_PLAYER);
-    
+
     if (op->inv) {
         drop_ob_inv(op);
     }
@@ -1874,7 +1882,7 @@ void replace_insert_ob_in_map(char *arch_string, object *op)
     insert_ob_in_map(tmp1, op->map, op, 0);
 }
 
-object *object_stack_get(object *op, uint32 nrof)
+object *object_stack_get(object *op, uint32_t nrof)
 {
     object *split;
 
@@ -1900,7 +1908,7 @@ object *object_stack_get(object *op, uint32 nrof)
     return split;
 }
 
-object *object_stack_get_reinsert(object *op, uint32 nrof)
+object *object_stack_get_reinsert(object *op, uint32_t nrof)
 {
     object *split;
 
@@ -1917,7 +1925,7 @@ object *object_stack_get_reinsert(object *op, uint32 nrof)
     return split;
 }
 
-object *object_stack_get_removed(object *op, uint32 nrof)
+object *object_stack_get_removed(object *op, uint32_t nrof)
 {
     object *split;
 
@@ -1939,7 +1947,7 @@ object *object_stack_get_removed(object *op, uint32 nrof)
  * @param op Object to decrease.
  * @param i Number to remove.
  * @return 'op' if something is left, NULL if the amount reached 0. */
-object *decrease_ob_nr(object *op, uint32 i)
+object *decrease_ob_nr(object *op, uint32_t i)
 {
     /* Objects with op->nrof require this check */
     if (i == 0) {
@@ -2116,7 +2124,7 @@ object *present_arch(archetype *at, mapstruct *m, int x, int y)
  * @param x X coordinate on map.
  * @param y Y coordinate on map.
  * @return First matching object, or NULL if none matches. */
-object *present(uint8 type, mapstruct *m, int x, int y)
+object *present(uint8_t type, mapstruct *m, int x, int y)
 {
     object *tmp;
 
@@ -2139,7 +2147,7 @@ object *present(uint8 type, mapstruct *m, int x, int y)
  * @param type Type to search for.
  * @param op Object to search into.
  * @return First matching object, or NULL if none matches. */
-object *present_in_ob(uint8 type, object *op)
+object *present_in_ob(uint8_t type, object *op)
 {
     object *tmp;
 
@@ -3020,7 +3028,7 @@ void object_reverse_inventory(object *op)
     }
 }
 
-int object_enter_map(object *op, object *exit_ob, mapstruct *m, int x, int y, uint8 fixed_pos)
+int object_enter_map(object *op, object *exit_ob, mapstruct *m, int x, int y, uint8_t fixed_pos)
 {
     mapstruct *oldmap;
 
@@ -3038,7 +3046,7 @@ int object_enter_map(object *op, object *exit_ob, mapstruct *m, int x, int y, ui
 
         if (strcmp(EXIT_PATH(exit_ob), "/random/") == 0) {
             char newmap_name[HUGE_BUF];
-            static uint64 reference_number = 0;
+            static uint64_t reference_number = 0;
             RMParms rp;
 
             memset(&rp, 0, sizeof(RMParms));
@@ -3056,7 +3064,7 @@ int object_enter_map(object *op, object *exit_ob, mapstruct *m, int x, int y, ui
 
             /* Pick a new pathname for the new map. Currently, we just use a
              * static variable and increment the counter by one each time. */
-            snprintf(newmap_name, sizeof(newmap_name), "/random/%"FMT64U, reference_number++);
+            snprintf(newmap_name, sizeof(newmap_name), "/random/%"PRIu64, reference_number++);
 
             /* Now to generate the actual map. */
             m = generate_random_map(newmap_name, &rp);
@@ -3074,15 +3082,15 @@ int object_enter_map(object *op, object *exit_ob, mapstruct *m, int x, int y, ui
                 char *path;
 
                 path = map_get_path(exit_ob->map, EXIT_PATH(exit_ob), op->type == PLAYER && (exit_ob->last_eat == MAP_PLAYER_MAP || (MAP_UNIQUE(exit_ob->map) && !map_path_isabs(EXIT_PATH(exit_ob)))), op->name);
-                m = ready_map_name(path, 0);
+                m = ready_map_name(path, NULL, 0);
                 efree(path);
 
                 /* Failed to load a random map? */
                 if (!m && op->type == PLAYER && strncmp(EXIT_PATH(exit_ob), "/random/", 8) == 0) {
-                    return object_enter_map(op, NULL, ready_map_name(CONTR(op)->savebed_map, 0), CONTR(op)->bed_x, CONTR(op)->bed_y, 1);
+                    return object_enter_map(op, NULL, ready_map_name(CONTR(op)->savebed_map, NULL, 0), CONTR(op)->bed_x, CONTR(op)->bed_y, 1);
                 }
             } else {
-                m = ready_map_name(EXIT_PATH(exit_ob), MAP_NAME_SHARED);
+                m = ready_map_name(EXIT_PATH(exit_ob), NULL, MAP_NAME_SHARED);
             }
         }
 
@@ -3101,7 +3109,7 @@ int object_enter_map(object *op, object *exit_ob, mapstruct *m, int x, int y, ui
     }
 
     if (!m) {
-        m = ready_map_name(EMERGENCY_MAPPATH, 0);
+        m = ready_map_name(EMERGENCY_MAPPATH, NULL, 0);
         x = EMERGENCY_X;
         y = EMERGENCY_Y;
         fixed_pos = 1;
@@ -3262,7 +3270,9 @@ int object_blocked(object *op, mapstruct *m, int x, int y)
 
     HARD_ASSERT(op != NULL);
     HARD_ASSERT(m != NULL);
-    HARD_ASSERT(!OUT_OF_MAP(m, x, y));
+
+    SOFT_ASSERT_RC(!OUT_OF_MAP(m, x, y), P_OUT_OF_MAP, "Out of map: %s %d,%d",
+            m->path, x, y);
 
     op = HEAD(op);
 

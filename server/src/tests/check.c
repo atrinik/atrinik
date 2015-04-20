@@ -28,12 +28,16 @@
 #include <global.h>
 #include <check.h>
 #include <check_proto.h>
+#include <toolkit_string.h>
+
+static int saved_argc; ///< Stored argc.
+static char **saved_argv; ///< Stored argv.
 
 /*
  * Setup function. */
 void check_setup(void)
 {
-    init(0, NULL);
+    init(saved_argc, saved_argv);
 }
 
 /*
@@ -48,24 +52,43 @@ void check_teardown(void)
  */
 void check_setup_env_pl(mapstruct **map, object **pl)
 {
-    assert(map != NULL);
-    assert(pl != NULL);
+    HARD_ASSERT(map != NULL);
+    HARD_ASSERT(pl != NULL);
 
     *map = get_empty_map(24, 24);
-    fail_if(*map == NULL, "Could not allocate a map.");
+    ck_assert(*map != NULL);
 
     *pl = player_get_dummy();
-    fail_if(*pl == NULL, "Could not create player object.");
+    ck_assert(*pl != NULL);
 
     *pl = insert_ob_in_map(*pl, *map, NULL, 0);
-    fail_if(*pl == NULL, "Could not insert player.");
+    ck_assert(*pl != NULL);
 }
 
 /* The main unit test function. Calls other functions to do the unit
  * tests. */
-void check_main(void)
+void check_main(int argc, char **argv)
 {
+    int i;
+
     toolkit_import(path);
+
+    saved_argc = argc;
+    saved_argv = malloc(sizeof(*argv) * argc);
+
+    if (saved_argv == NULL) {
+        log_error("OOM.");
+        abort();
+    }
+
+    for (i = 0; i < argc; i++) {
+        saved_argv[i] = strdup(argv[i]);
+
+        if (saved_argv[i] == NULL) {
+            log_error("OOM.");
+            abort();
+        }
+    }
 
     path_ensure_directories("unit/bugs/");
     path_ensure_directories("unit/commands/");
@@ -82,14 +105,23 @@ void check_main(void)
     check_server_ban();
     check_server_arch();
     check_server_object();
+    check_server_packet();
     check_server_pbkdf2();
     check_server_re_cmp();
     check_server_cache();
+    check_server_memory();
     check_server_shstr();
     check_server_string();
+    check_server_stringbuffer();
     check_server_utils();
 
     /* unit/types */
     check_types_light_apply();
     check_types_sound_ambient();
+
+    for (i = 0; i < argc; i++) {
+        free(saved_argv[i]);
+    }
+
+    free(saved_argv);
 }

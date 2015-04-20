@@ -66,58 +66,58 @@
  * buttons, waypoints and a number of other objects. */
 typedef struct liv {
     /** Experience. */
-    sint64 exp;
+    int64_t exp;
 
     /** Hit points. */
-    sint32 hp;
+    int32_t hp;
 
     /** Max hit points. */
-    sint32 maxhp;
+    int32_t maxhp;
 
     /** Spell points. Used to cast mage spells. */
-    sint16 sp;
+    int16_t sp;
 
     /** Max spell points. */
-    sint16 maxsp;
+    int16_t maxsp;
 
     /** How much food in stomach. 0 = starved. */
-    sint16 food;
+    int16_t food;
 
     /** How much damage this object does when hitting. */
-    sint16 dam;
+    int16_t dam;
 
     /** Weapon class. */
-    sint16 wc;
+    int16_t wc;
 
     /** Armour class. */
-    sint16 ac;
+    int16_t ac;
 
     /**
      * Random value range we add to wc value of attacker:
      * wc + (random() % wc_range). If it's higher than
      * defender's AC then we can hit our enemy. */
-    uint8 wc_range;
+    uint8_t wc_range;
 
     /** Strength. */
-    sint8 Str;
+    int8_t Str;
 
     /** Dexterity. */
-    sint8 Dex;
+    int8_t Dex;
 
     /** Constitution. */
-    sint8 Con;
+    int8_t Con;
 
     /** Wisdom. */
-    sint8 Wis;
+    int8_t Wis;
 
     /** Charisma. */
-    sint8 Cha;
+    int8_t Cha;
 
     /** Intelligence. */
-    sint8 Int;
+    int8_t Int;
 
     /** Power. */
-    sint8 Pow;
+    int8_t Pow;
 } living;
 
 #endif

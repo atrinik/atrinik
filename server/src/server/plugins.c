@@ -28,9 +28,15 @@
 
 #include <global.h>
 #include <loader.h>
+#include <packet.h>
+#include <toolkit_string.h>
 
 static void register_global_event(const char *plugin_name, int event_nr);
 static void unregister_global_event(const char *plugin_name, int event_nr);
+
+#undef string_sub
+char *string_sub(const char *str, ssize_t start,
+        ssize_t end MEMORY_DEBUG_PROTO);
 
 /** The actual hooklist. */
 struct plugin_hooklist hooklist = {
@@ -148,15 +154,14 @@ struct plugin_hooklist hooklist = {
     packet_enable_ndelay,
     packet_set_pos,
     packet_get_pos,
-    packet_merge,
     packet_append_uint8,
-    packet_append_sint8,
+    packet_append_int8,
     packet_append_uint16,
-    packet_append_sint16,
+    packet_append_int16,
     packet_append_uint32,
-    packet_append_sint32,
+    packet_append_int32,
     packet_append_uint64,
-    packet_append_sint64,
+    packet_append_int64,
     packet_append_data_len,
     packet_append_string,
     packet_append_string_terminated,
@@ -181,6 +186,13 @@ struct plugin_hooklist hooklist = {
     path_join,
     monster_enemy_signal,
     map_redraw,
+    memory_emalloc,
+    memory_efree,
+    memory_ecalloc,
+    memory_erealloc,
+    memory_reallocz,
+    string_estrdup,
+    string_estrndup,
 
     season_name,
     weekdays,
@@ -392,7 +404,7 @@ void init_plugin(const char *pluginfile)
         return;
     }
 
-    initfunc = plugins_dlsym(ptr, "initPlugin");
+    initfunc = plugins_dlsym(ptr, "initPlugin", f_plug_init);
 
     if (!initfunc) {
         logger_print(LOG(BUG), "Error while requesting 'initPlugin' from %s: %s", pluginfile, plugins_dlerror());
@@ -400,7 +412,7 @@ void init_plugin(const char *pluginfile)
         return;
     }
 
-    eventfunc = plugins_dlsym(ptr, "triggerEvent");
+    eventfunc = plugins_dlsym(ptr, "triggerEvent", f_plug_api);
 
     if (!eventfunc) {
         logger_print(LOG(BUG), "Error while requesting 'triggerEvent' from %s: %s", pluginfile, plugins_dlerror());
@@ -408,7 +420,7 @@ void init_plugin(const char *pluginfile)
         return;
     }
 
-    pinitfunc = plugins_dlsym(ptr, "postinitPlugin");
+    pinitfunc = plugins_dlsym(ptr, "postinitPlugin", f_plug_pinit);
 
     if (!pinitfunc) {
         logger_print(LOG(BUG), "Error while requesting 'postinitPlugin' from %s: %s", pluginfile, plugins_dlerror());
@@ -416,7 +428,7 @@ void init_plugin(const char *pluginfile)
         return;
     }
 
-    propfunc = plugins_dlsym(ptr, "getPluginProperty");
+    propfunc = plugins_dlsym(ptr, "getPluginProperty", f_plug_api);
 
     if (!propfunc) {
         logger_print(LOG(BUG), "Error while requesting 'getPluginProperty' from %s: %s", pluginfile, plugins_dlerror());
@@ -424,7 +436,7 @@ void init_plugin(const char *pluginfile)
         return;
     }
 
-    closefunc = plugins_dlsym(ptr, "closePlugin");
+    closefunc = plugins_dlsym(ptr, "closePlugin", f_plug_pinit);
 
     if (!closefunc) {
         logger_print(LOG(BUG), "Error while requesting 'closePlugin' from %s: %s", pluginfile, plugins_dlerror());
@@ -634,7 +646,7 @@ int trigger_event(int event_type, object * const activator, object * const me, o
         int returnvalue;
 #ifdef TIME_SCRIPTS
         struct timeval start, stop;
-        uint64 start_u, stop_u;
+        uint64_t start_u, stop_u;
 
         gettimeofday(&start, NULL);
 #endif

@@ -51,37 +51,37 @@ typedef struct interface_struct {
     UT_array *links;
 
     /** Whether the interface should be destroyed. */
-    uint8 destroy;
+    uint8_t destroy;
 
     /** Scroll offset. */
-    uint32 scroll_offset;
+    uint32_t scroll_offset;
 
     /** Number of lines. */
-    uint32 num_lines;
+    uint32_t num_lines;
 
     /** Scrollbar. */
     scrollbar_struct scrollbar;
 
     /** Whether the user has progressed through the dialog. */
-    uint8 progressed;
+    uint8_t progressed;
 
     /**
      * If progressed, how long until another progression may happen
      * (unless a new dialog has been opened of course, in which case this
      * is reset). */
-    uint32 progressed_ticks;
+    uint32_t progressed_ticks;
 
     /** Whether to allow entering tabs. */
-    uint8 allow_tab;
+    uint8_t allow_tab;
 
     /** If 1, disable cleaning up text input string. */
-    uint8 input_cleanup_disable;
+    uint8_t input_cleanup_disable;
 
     /** If 1, allow sending empty text input string. */
-    uint8 input_allow_empty;
+    uint8_t input_allow_empty;
 
     /** If 1, enable text input. */
-    uint8 text_input;
+    uint8_t text_input;
 
     /**
      * Text to prefix for autocompleting text. If NULL, autocompletion
@@ -96,7 +96,7 @@ typedef struct interface_struct {
     /**
      * Ticks of the last animation.
      */
-    uint32 last_anim;
+    uint32_t last_anim;
 } interface_struct;
 
 /**

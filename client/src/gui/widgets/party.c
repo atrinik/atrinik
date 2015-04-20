@@ -29,13 +29,20 @@
  * @author Alex Tokar */
 
 #include <global.h>
+#include <packet.h>
+#include <toolkit_string.h>
 
 /** Width of the hp/sp stat bar. */
-#define STAT_BAR_WIDTH 60
+#define STAT_BAR_WIDTH 65
 
 /** Macro to create the stat bar markup. */
 #define PARTY_STAT_BAR() \
-    snprintf(bars, sizeof(bars), "[x=5][bar=#000000 %d 6][bar=#cb0202 %d 6][border=#909090 60 6][y=6][bar=#000000 %d 6][bar=#1818a4 %d 6][y=-1][border=#909090 60 7]", STAT_BAR_WIDTH, (int) (STAT_BAR_WIDTH * (hp / 100.0)), STAT_BAR_WIDTH, (int) (STAT_BAR_WIDTH * (sp / 100.0)));
+    snprintf(VS(bars), "[bar=#000000 %d 6][bar=#cb0202 %d 6]" \
+                       "[border=#909090 %d 6][y=6][bar=#000000 %d 6]" \
+                       "[bar=#1818a4 %d 6][y=-1][border=#909090 %d 7]", \
+                       STAT_BAR_WIDTH, (int) (STAT_BAR_WIDTH * (hp / 100.0)), \
+                       STAT_BAR_WIDTH, STAT_BAR_WIDTH, (int) (STAT_BAR_WIDTH * \
+                       (sp / 100.0)), STAT_BAR_WIDTH);
 
 enum {
     BUTTON_PARTIES,
@@ -59,7 +66,7 @@ static list_struct *list_party = NULL;
 /**
  * What type of data is currently in the list; -1 means no data,
  * otherwise one of @ref CMD_PARTY_xxx. */
-static sint8 list_contents = -1;
+static int8_t list_contents = -1;
 
 /**
  * Handle enter/double click for the party list.
@@ -93,9 +100,9 @@ static void list_row_selected(list_struct *list, SDL_Rect box)
 }
 
 /** @copydoc socket_command_struct::handle_func */
-void socket_command_party(uint8 *data, size_t len, size_t pos)
+void socket_command_party(uint8_t *data, size_t len, size_t pos)
 {
-    uint8 type;
+    uint8_t type;
 
     type = packet_to_uint8(data, len, &pos);
 
@@ -113,7 +120,7 @@ void socket_command_party(uint8 *data, size_t len, size_t pos)
                 list_add(list_party, list_party->rows - 1, 1, party_leader);
             } else if (type == CMD_PARTY_WHO) {
                 char name[MAX_BUF], bars[MAX_BUF];
-                uint8 hp, sp;
+                uint8_t hp, sp;
 
                 packet_to_string(data, len, &pos, name, sizeof(name));
                 hp = packet_to_uint8(data, len, &pos);
@@ -165,8 +172,8 @@ void socket_command_party(uint8 *data, size_t len, size_t pos)
         keybind_process_command(buf);
     } else if (type == CMD_PARTY_UPDATE) {
         char name[MAX_BUF], bars[MAX_BUF];
-        uint8 hp, sp;
-        uint32 row;
+        uint8_t hp, sp;
+        uint32_t row;
 
         /* Update list of party members. */
 
@@ -194,7 +201,7 @@ void socket_command_party(uint8 *data, size_t len, size_t pos)
         list_sort(list_party, LIST_SORT_ALPHA);
     } else if (type == CMD_PARTY_REMOVE_MEMBER) {
         char name[MAX_BUF];
-        uint32 row;
+        uint32_t row;
 
         /* Remove member from the list of party members. */
 
@@ -382,6 +389,19 @@ static int widget_event(widgetdata *widget, SDL_Event *event)
     return 0;
 }
 
+/** @copydoc widgetdata::deinit_func */
+static void widget_deinit(widgetdata *widget)
+{
+    if (list_party != NULL) {
+        list_remove(list_party);
+        list_party = NULL;
+    }
+
+    for (size_t i = 0; i < BUTTON_NUM; i++) {
+        button_destroy(&buttons[i]);
+    }
+}
+
 /**
  * Initialize one party widget. */
 void widget_party_init(widgetdata *widget)
@@ -389,4 +409,5 @@ void widget_party_init(widgetdata *widget)
     widget->draw_func = widget_draw;
     widget->background_func = widget_background;
     widget->event_func = widget_event;
+    widget->deinit_func = widget_deinit;
 }

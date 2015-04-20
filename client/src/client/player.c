@@ -34,6 +34,7 @@
  * Does most of the work for sending messages to the server */
 
 #include <global.h>
+#include <packet.h>
 
 /**
  * Gender nouns. */
@@ -71,6 +72,9 @@ const char *gender_reflexive[GENDER_MAX] = {
 void clear_player(void)
 {
     objects_deinit();
+    skills_deinit();
+    spells_deinit();
+
     memset(&cpl, 0, sizeof(cpl));
     cpl.stats.Str = cpl.stats.Dex = cpl.stats.Con = cpl.stats.Int = cpl.stats.Pow = -1;
     cpl.mark_count = -1;
@@ -78,6 +82,7 @@ void clear_player(void)
     quickslots_init();
     init_player_data();
     skills_init();
+    spells_init();
     WIDGET_REDRAW_ALL(PLAYER_INFO_ID);
 }
 
@@ -191,7 +196,7 @@ int gender_to_id(const char *gender)
     return -1;
 }
 
-void player_draw_exp_progress(SDL_Surface *surface, int x, int y, sint64 xp, uint8 level)
+void player_draw_exp_progress(SDL_Surface *surface, int x, int y, int64_t xp, uint8_t level)
 {
     SDL_Surface *texture_bubble_on, *texture_bubble_off;
     int line_width, offset, i;

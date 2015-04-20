@@ -57,7 +57,7 @@ static void widget_background(widgetdata *widget, int draw)
     alpha = widget_mapname->alpha;
 
     if (MapData.name_fadeout_start || MapData.name[0] == '\0') {
-        uint32 time_passed;
+        uint32_t time_passed;
 
         time_passed = SDL_GetTicks() - MapData.name_fadeout_start;
 

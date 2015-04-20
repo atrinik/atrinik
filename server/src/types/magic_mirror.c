@@ -38,7 +38,7 @@
  * @param mirror The magic mirror to initialize. */
 void magic_mirror_init(object *mirror)
 {
-    sint16 mirror_x, mirror_y;
+    int16_t mirror_x, mirror_y;
 
     if (!mirror->map) {
         logger_print(LOG(BUG), "Magic mirror not on map.");
@@ -109,7 +109,7 @@ mapstruct *magic_mirror_get_map(object *mirror)
     }
 
     /* Try to load the map. */
-    data->map = ready_map_name(mirror->slaying, MAP_NAME_SHARED);
+    data->map = ready_map_name(mirror->slaying, NULL, MAP_NAME_SHARED);
 
     if (!data->map) {
         logger_print(LOG(BUG), "Could not load map '%s'.", mirror->slaying);

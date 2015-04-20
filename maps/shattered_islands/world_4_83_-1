@@ -1,0 +1,469 @@
+arch map
+name Incuna Bank
+msg
+Created:  2011-09-03 Alex Tokar
+Modified: 2015-04-19 Alex Tokar
+endmsg
+width 24
+height 24
+difficulty 1
+darkness 3
+no_harm 1
+bg_music tutorialisland.mid
+region incuna
+end
+arch blocked
+y 6
+end
+arch wall_flagstone1.111
+draw_double 0
+y 6
+end
+arch floor_pattern_brown1
+y 7
+end
+arch stairs_stone_up2
+y 7
+end
+arch floor_pattern_brown1
+y 8
+end
+arch floor_pattern_brown2
+y 9
+end
+arch floor_pattern_brown1
+y 10
+end
+arch floor_pattern_brown1
+y 11
+end
+arch floor_pattern_brown2
+y 12
+end
+arch wall_flagstone1.111
+draw_double 0
+y 12
+end
+arch blocked
+x 1
+y 6
+end
+arch wall_flagstone1.111
+draw_double 0
+x 1
+y 6
+end
+arch floor_pattern_brown1
+x 1
+y 7
+end
+arch stairs_stone_up
+x 1
+y 7
+end
+arch floor_pattern_brown1
+x 1
+y 8
+end
+arch floor_pattern_brown2
+x 1
+y 9
+end
+arch wall_flagstone1.111
+draw_double 0
+x 1
+y 9
+end
+arch floor_pattern_brown1
+x 1
+y 10
+end
+arch grate1_3
+x 1
+y 10
+end
+arch floor_pattern_brown2
+x 1
+y 11
+end
+arch gate1_locked
+slaying incuna_bank
+z 1
+align 1
+direction 3
+x 1
+y 11
+end
+arch check_inv
+slaying incuna_bank
+sp 1
+last_grace 1
+x 1
+y 11
+end
+arch floor_pattern_brown2
+x 1
+y 12
+end
+arch grate1_3
+x 1
+y 12
+end
+arch wall_flagstone1.111
+sub_layer 1
+draw_double 0
+x 1
+y 12
+end
+arch blocked
+x 2
+y 6
+end
+arch wall_flagstone1.111
+draw_double 0
+x 2
+y 6
+end
+arch floor_pattern_brown2
+x 2
+y 7
+end
+arch floor_pattern_brown1
+x 2
+y 8
+end
+arch floor_pattern_brown2
+x 2
+y 9
+end
+arch wall_flagstone1.111
+draw_double 0
+x 2
+y 9
+end
+arch floor_pattern_brown2
+x 2
+y 10
+end
+arch random_treasure
+no_pick 1
+randomitems random_talisman
+exp 100
+x 2
+y 10
+end
+arch floor_pattern_brown1
+x 2
+y 11
+end
+arch random_treasure
+no_pick 1
+randomitems random_gem
+exp 100
+x 2
+y 11
+end
+arch floor_pattern_brown2
+x 2
+y 12
+end
+arch wall_flagstone1.111
+draw_double 0
+x 2
+y 12
+end
+arch blocked
+x 3
+y 6
+end
+arch wall_flagstone1.111
+draw_double 0
+x 3
+y 6
+end
+arch floor_pattern_brown2
+x 3
+y 7
+end
+arch torch_wall_1
+x 3
+y 7
+end
+arch grate1_3
+sub_layer 1
+x 3
+y 7
+end
+arch floor_pattern_brown1
+x 3
+y 8
+end
+arch gate1_locked
+slaying incuna_bank
+z 1
+align 1
+direction 3
+x 3
+y 8
+end
+arch check_inv
+slaying incuna_bank
+sp 1
+last_grace 1
+x 3
+y 8
+end
+arch floor_pattern_brown2
+x 3
+y 9
+end
+arch grate1_3
+x 3
+y 9
+end
+arch wall_flagstone1.111
+sub_layer 1
+draw_double 0
+x 3
+y 9
+end
+arch floor_pattern_brown1
+x 3
+y 10
+end
+arch torch_wall_1
+x 3
+y 10
+end
+arch random_treasure
+no_pick 1
+randomitems random_gem
+exp 100
+x 3
+y 10
+end
+arch floor_pattern_brown2
+x 3
+y 11
+end
+arch random_treasure
+no_pick 1
+randomitems random_talisman
+exp 100
+x 3
+y 11
+end
+arch floor_pattern_brown1
+x 3
+y 12
+end
+arch wall_flagstone1.111
+draw_double 0
+x 3
+y 12
+end
+arch blocked
+x 4
+y 6
+end
+arch wall_flagstone1.111
+draw_double 0
+x 4
+y 6
+end
+arch floor_pattern_brown2
+x 4
+y 7
+end
+arch random_treasure
+no_pick 1
+randomitems random_gem
+exp 100
+x 4
+y 7
+end
+arch floor_pattern_brown2
+x 4
+y 8
+end
+arch random_treasure
+no_pick 1
+randomitems random_gem
+exp 100
+x 4
+y 8
+end
+arch floor_pattern_brown1
+x 4
+y 9
+end
+arch wall_flagstone1.111
+draw_double 0
+x 4
+y 9
+end
+arch floor_pattern_brown1
+x 4
+y 10
+end
+arch random_treasure
+no_pick 1
+randomitems random_magics
+exp 100
+x 4
+y 10
+end
+arch floor_pattern_brown2
+x 4
+y 11
+end
+arch random_treasure
+no_pick 1
+randomitems random_talisman
+exp 100
+x 4
+y 11
+end
+arch floor_pattern_brown2
+x 4
+y 12
+end
+arch wall_flagstone1.111
+draw_double 0
+x 4
+y 12
+end
+arch blocked
+x 5
+y 6
+end
+arch wall_flagstone1.111
+draw_double 0
+x 5
+y 6
+end
+arch floor_pattern_brown1
+x 5
+y 7
+end
+arch random_treasure
+no_pick 1
+randomitems random_mtools
+exp 100
+x 5
+y 7
+end
+arch floor_pattern_brown1
+x 5
+y 8
+end
+arch random_treasure
+no_pick 1
+randomitems random_gem
+exp 100
+x 5
+y 8
+end
+arch floor_pattern_brown1
+x 5
+y 9
+end
+arch wall_flagstone1.111
+draw_double 0
+x 5
+y 9
+end
+arch floor_pattern_brown2
+x 5
+y 10
+end
+arch random_treasure
+no_pick 1
+randomitems random_magics
+exp 100
+x 5
+y 10
+end
+arch floor_pattern_brown1
+x 5
+y 11
+end
+arch random_treasure
+no_pick 1
+randomitems random_talisman
+exp 100
+x 5
+y 11
+end
+arch floor_pattern_brown2
+x 5
+y 12
+end
+arch wall_flagstone1.111
+draw_double 0
+x 5
+y 12
+end
+arch blocked
+x 6
+y 6
+end
+arch wall_flagstone1.111
+draw_double 0
+x 6
+y 6
+end
+arch floor_pattern_brown2
+x 6
+y 7
+end
+arch wall_flagstone1.131
+draw_double 0
+x 6
+y 7
+end
+arch floor_pattern_brown2
+x 6
+y 8
+end
+arch wall_flagstone1.131
+draw_double 0
+x 6
+y 8
+end
+arch floor_pattern_brown1
+x 6
+y 9
+end
+arch wall_flagstone1.141
+draw_double 0
+x 6
+y 9
+end
+arch floor_pattern_brown2
+x 6
+y 10
+end
+arch wall_flagstone1.131
+draw_double 0
+x 6
+y 10
+end
+arch floor_pattern_brown2
+x 6
+y 11
+end
+arch wall_flagstone1.131
+draw_double 0
+x 6
+y 11
+end
+arch floor_pattern_brown1
+x 6
+y 12
+end
+arch wall_flagstone1.141
+draw_double 0
+x 6
+y 12
+end

@@ -27,6 +27,7 @@
  * Handles face-related stuff, including the actual face data. */
 
 #include <global.h>
+#include <toolkit_string.h>
 
 New_Face *new_faces;
 

@@ -27,6 +27,7 @@
  * Metaserver updating related code. */
 
 #include <global.h>
+#include <toolkit_string.h>
 #include <curl/curl.h>
 
 static void *metaserver_thread(void *junk);
@@ -59,9 +60,9 @@ static ms_update_info metaserver_info;
  * Used to hold metaserver statistics.
  */
 static struct {
-    uint64 num; ///< Number of successful updates.
+    uint64_t num; ///< Number of successful updates.
 
-    uint64 num_failed; ///< Number of failed updates.
+    uint64_t num_failed; ///< Number of failed updates.
 
     time_t last; ///< Last successful update.
 
@@ -73,7 +74,7 @@ static struct {
 void metaserver_info_update(void)
 {
     player *pl;
-    uint32 num_players = 0;
+    uint32_t num_players = 0;
     StringBuffer *sb = stringbuffer_new();
 
     for (pl = first_player; pl; pl = pl->next) {
@@ -125,6 +126,20 @@ void metaserver_init(void)
 }
 
 /**
+ * Deinitialize the metaserver.
+ */
+void metaserver_deinit(void)
+{
+    pthread_mutex_lock(&ms_info_mutex);
+
+    if (metaserver_info.players != NULL) {
+        efree(metaserver_info.players);
+    }
+
+    pthread_mutex_unlock(&ms_info_mutex);
+}
+
+/**
  * Construct metaserver statistics.
  * @param[out] buf Buffer to use for writing. Must end with a NUL.
  * @param size Size of 'buf'.
@@ -132,8 +147,8 @@ void metaserver_init(void)
 void metaserver_stats(char *buf, size_t size)
 {
     snprintfcat(buf, size, "\n=== METASERVER ===\n");
-    snprintfcat(buf, size, "\nUpdates: %"FMT64U, stats.num);
-    snprintfcat(buf, size, "\nFailed: %"FMT64U, stats.num_failed);
+    snprintfcat(buf, size, "\nUpdates: %"PRIu64, stats.num);
+    snprintfcat(buf, size, "\nFailed: %"PRIu64, stats.num_failed);
 
     if (stats.last != 0) {
         snprintfcat(buf, size, "\nLast update: %.19s", ctime(&stats.last));

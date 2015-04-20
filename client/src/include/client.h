@@ -46,15 +46,15 @@ typedef struct Animations {
 
     /* Length of one a animation frame (num_anim / facings) */
     int frame;
-    uint16 *faces;
+    uint16_t *faces;
 
     /* Number of frames */
-    uint8 facings;
+    uint8_t facings;
 
     /* Number of animations. Value of 2 means
      * only faces[0], [1] have meaningful values. */
-    uint8 num_animations;
-    uint8 flags;
+    uint8_t num_animations;
+    uint8_t flags;
 } Animations;
 
 typedef struct _anim_table {
@@ -62,7 +62,7 @@ typedef struct _anim_table {
     size_t len;
 
     /* Faked animation command */
-    uint8 *anim_cmd;
+    uint8_t *anim_cmd;
 } _anim_table;
 
 /**
@@ -82,7 +82,7 @@ typedef struct command_buffer {
     int len;
 
     /** The data. */
-    uint8 data[1];
+    uint8_t data[1];
 } command_buffer;
 
 /* ClientSocket could probably hold more of the global values - it could
@@ -117,7 +117,7 @@ typedef struct ClientSocket {
     }
 
 typedef struct socket_command_struct {
-    void (*handle_func)(uint8 *data, size_t len, size_t pos);
+    void (*handle_func)(uint8_t *data, size_t len, size_t pos);
 } socket_command_struct;
 
 /**
@@ -150,7 +150,7 @@ typedef struct clioption_settings_struct {
 
     char *game_news_url;
 
-    uint8 reconnect;
+    uint8_t reconnect;
 } clioption_settings_struct;
 
 #endif

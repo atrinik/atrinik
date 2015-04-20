@@ -29,6 +29,7 @@
  * @author Alex Tokar */
 
 #include <global.h>
+#include <toolkit_string.h>
 
 /**
  * Doubly-linked list of the visible popups. */
@@ -82,6 +83,8 @@ static void popup_button_free(popup_button *button)
     if (button->text) {
         efree(button->text);
     }
+
+    button_destroy(&button->button);
 }
 
 /**
@@ -236,7 +239,7 @@ int popup_handle_event(SDL_Event *event)
     if (popup_head->clipboard_copy_func) {
         if (event->type == SDL_KEYDOWN && keybind_command_matches_event("?COPY", &event->key)) {
             const char *contents;
-            sint64 start, end;
+            int64_t start, end;
             char *str;
 
             contents = popup_head->clipboard_copy_func(popup_head);

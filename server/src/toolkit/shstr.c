@@ -28,60 +28,40 @@
  * @author Kjetil T. Homme, Oslo 1992. */
 
 #include <global.h>
-
-/**
- * Name of the API. */
-#define API_NAME shstr
-
-/**
- * If 1, the API has been initialized. */
-static uint8 did_init = 0;
+#include <toolkit_string.h>
 
 /** Hash table to store our strings. */
 static shared_string *hash_table[TABLESIZE];
 
 static struct statistics {
-    uint32 calls;
-    uint32 hashed;
-    uint32 strcmps;
-    uint32 search;
-    uint32 linked;
+    uint32_t calls;
+    uint32_t hashed;
+    uint32_t strcmps;
+    uint32_t search;
+    uint32_t linked;
 } add_stats, add_ref_stats, free_stats, find_stats, hash_stats;
 
-/**
- * Initialize the shstr API.
- * @internal */
-void toolkit_shstr_init(void)
-{
+TOOLKIT_API(DEPENDS(logger));
 
-    TOOLKIT_INIT_FUNC_START(shstr)
-    {
-        toolkit_import(logger);
-        memset(hash_table, 0, TABLESIZE * sizeof(shared_string *));
-    }
-    TOOLKIT_INIT_FUNC_END()
+TOOLKIT_INIT_FUNC(shstr)
+{
+    memset(hash_table, 0, TABLESIZE * sizeof(shared_string *));
 }
+TOOLKIT_INIT_FUNC_FINISH
 
-/**
- * Deinitialize the shstr API.
- * @internal */
-void toolkit_shstr_deinit(void)
+TOOLKIT_DEINIT_FUNC(shstr)
 {
+    size_t i;
+    shared_string *ss;
 
-    TOOLKIT_DEINIT_FUNC_START(shstr)
-    {
-        size_t i;
-        shared_string *ss;
-
-        for (i = 0; i < TABLESIZE; i++) {
-            for (ss = hash_table[i]; ss != NULL; ss = ss->next) {
-                log(LOG(ERROR), "String still has %lu references: '%s'",
-                        ss->refcount & ~TOPBIT, ss->string);
-            }
+    for (i = 0; i < TABLESIZE; i++) {
+        for (ss = hash_table[i]; ss != NULL; ss = ss->next) {
+            log(LOG(ERROR), "String still has %lu references: '%s'",
+                    ss->refcount & ~TOPBIT, ss->string);
         }
     }
-    TOOLKIT_DEINIT_FUNC_END()
 }
+TOOLKIT_DEINIT_FUNC_FINISH
 
 /**
  * Hashing function used by the shared string library.
@@ -94,7 +74,7 @@ static unsigned long hashstr(const char *str)
     unsigned int rot = 0;
     const char *p;
 
-    TOOLKIT_FUNC_PROTECTOR(API_NAME);
+    TOOLKIT_PROTECT();
 
     hash_stats.calls++;
 
@@ -120,7 +100,7 @@ static shared_string *new_shared_string(const char *str)
     shared_string *ss;
     size_t n = strlen(str);
 
-    TOOLKIT_FUNC_PROTECTOR(API_NAME);
+    TOOLKIT_PROTECT();
 
     /* Allocate room for a struct which can hold str. Note
      * that some bytes for the string are already allocated in the
@@ -146,7 +126,7 @@ shstr *add_string(const char *str)
     shared_string *ss;
     unsigned long ind;
 
-    TOOLKIT_FUNC_PROTECTOR(API_NAME);
+    TOOLKIT_PROTECT();
 
     add_stats.calls++;
 
@@ -225,7 +205,7 @@ shstr *add_string(const char *str)
  * @return str. */
 shstr *add_refcount(shstr *str)
 {
-    TOOLKIT_FUNC_PROTECTOR(API_NAME);
+    TOOLKIT_PROTECT();
     add_ref_stats.calls++;
     ++(SS(str)->refcount);
 
@@ -239,7 +219,7 @@ shstr *add_refcount(shstr *str)
  * @return Refcount of the string. */
 int query_refcount(shstr *str)
 {
-    TOOLKIT_FUNC_PROTECTOR(API_NAME);
+    TOOLKIT_PROTECT();
     return SS(str)->refcount & ~TOPBIT;
 }
 
@@ -252,7 +232,7 @@ shstr *find_string(const char *str)
     shared_string *ss;
     unsigned long ind;
 
-    TOOLKIT_FUNC_PROTECTOR(API_NAME);
+    TOOLKIT_PROTECT();
 
     find_stats.calls++;
 
@@ -296,7 +276,7 @@ void free_string_shared(shstr *str)
 {
     shared_string *ss;
 
-    TOOLKIT_FUNC_PROTECTOR(API_NAME);
+    TOOLKIT_PROTECT();
 
     free_stats.calls++;
     ss = SS(str);

@@ -29,6 +29,8 @@
  * @author Alex Tokar */
 
 #include <global.h>
+#include <packet.h>
+#include <toolkit_string.h>
 
 enum {
     LOGIN_TEXT_INPUT_NAME,
@@ -173,7 +175,7 @@ static int popup_event(popup_struct *popup, SDL_Event *event)
         if (IS_NEXT(event->key.keysym.sym)) {
             if (text_input_current == LOGIN_TEXT_INPUT_MAX - 1 && IS_ENTER(event->key.keysym.sym)) {
                 packet_struct *packet;
-                uint32 lower, upper;
+                uint32_t lower, upper;
 
                 if (button_tab_register.pressed_forced && strcmp(text_inputs[LOGIN_TEXT_INPUT_PASSWORD].str, text_inputs[LOGIN_TEXT_INPUT_PASSWORD2].str) != 0) {
                     draw_info(COLOR_RED, "The passwords do not match.");
@@ -255,6 +257,14 @@ static int popup_destroy_callback(popup_struct *popup)
 {
     if (cpl.state != ST_CHARACTERS) {
         cpl.state = ST_START;
+    }
+
+    button_destroy(&button_tab_login);
+    button_destroy(&button_tab_register);
+    button_destroy(&button_done);
+
+    for (size_t i = 0; i < LOGIN_TEXT_INPUT_NUM; i++) {
+        text_input_destroy(&text_inputs[i]);
     }
 
     return 1;

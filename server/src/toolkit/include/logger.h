@@ -46,6 +46,8 @@ typedef enum logger_level {
     LOG_DEBUG,
     LOG_DEVEL,
     LOG_PACKET,
+    LOG_DUMPRX,
+    LOG_DUMPTX,
 
     LOG_MAX
 } logger_level;
@@ -57,34 +59,10 @@ typedef enum logger_level {
         log(LOG(ERROR), ##__VA_ARGS__); \
     } while (0)
 
-#ifdef WIN32
-#define LOGGER_ESC_SEQ_BOLD ""
-#define LOGGER_ESC_SEQ_BLACK ""
-#define LOGGER_ESC_SEQ_RED ""
-#define LOGGER_ESC_SEQ_GREEN ""
-#define LOGGER_ESC_SEQ_YELLOW ""
-#define LOGGER_ESC_SEQ_BLUE ""
-#define LOGGER_ESC_SEQ_MAGENTA ""
-#define LOGGER_ESC_SEQ_CYAN ""
-#define LOGGER_ESC_SEQ_WHITE ""
-#define LOGGER_ESC_SEQ_END ""
-#else
-#define LOGGER_ESC_SEQ_BOLD "\033[1m"
-#define LOGGER_ESC_SEQ_BLACK "\033[30m"
-#define LOGGER_ESC_SEQ_RED "\033[31m"
-#define LOGGER_ESC_SEQ_GREEN "\033[32m"
-#define LOGGER_ESC_SEQ_YELLOW "\033[33m"
-#define LOGGER_ESC_SEQ_BLUE "\033[34m"
-#define LOGGER_ESC_SEQ_MAGENTA "\033[35m"
-#define LOGGER_ESC_SEQ_CYAN "\033[36m"
-#define LOGGER_ESC_SEQ_WHITE "\033[37m"
-#define LOGGER_ESC_SEQ_END "\033[0m"
-#endif
-
 /* Prototypes */
 
-void toolkit_logger_init(void);
-void toolkit_logger_deinit(void);
+extern void toolkit_logger_init(void);
+extern void toolkit_logger_deinit(void);
 void logger_open_log(const char *path);
 FILE *logger_get_logfile(void);
 logger_level logger_get_level(const char *name);
@@ -92,7 +70,7 @@ void logger_set_filter_stdout(const char *str);
 void logger_set_filter_logfile(const char *str);
 void logger_set_print_func(logger_print_func func);
 void logger_do_print(const char *str);
-void logger_print(logger_level level, const char *function, uint64 line,
+void logger_print(logger_level level, const char *function, uint64_t line,
         const char *format, ...) __attribute__((format(printf, 4, 5)));
 void logger_traceback(void);
 

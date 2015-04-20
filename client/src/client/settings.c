@@ -29,6 +29,8 @@
  * @author Alex Tokar */
 
 #include <global.h>
+#include <packet.h>
+#include <toolkit_string.h>
 
 /** Text representations of the setting types. */
 static const char *const opt_types[OPT_TYPE_NUM] = {
@@ -42,7 +44,7 @@ size_t setting_categories_num = 0;
 /**
  * Whether we need to send a setup command to server to request mapsize
  * change. */
-static uint8 setting_update_mapsize = 0;
+static uint8_t setting_update_mapsize = 0;
 
 /**
  * Load a setting value from file.
@@ -170,9 +172,9 @@ void settings_init(void)
                 s_select->options_len++;
             } else if (setting->type == OPT_TYPE_RANGE && !strncmp(cp, "range ", 6)) {
                 setting_range *range = SETTING_RANGE(setting);
-                sint64 min, max;
+                int64_t min, max;
 
-                if (sscanf(cp + 6, "%"FMT64 " - %"FMT64, &min, &max) == 2) {
+                if (sscanf(cp + 6, "%"PRId64 " - %"PRId64, &min, &max) == 2) {
                     range->min = min;
                     range->max = max;
                 } else {
@@ -208,8 +210,8 @@ void settings_load(void)
 {
     FILE *fp;
     char buf[HUGE_BUF], *cp;
-    sint64 cat = 0, setting = 0;
-    uint8 is_setting_name = 1;
+    int64_t cat = 0, setting = 0;
+    uint8_t is_setting_name = 1;
 
     fp = fopen_wrapper(FILE_SETTINGS_DAT, "r");
 
@@ -283,7 +285,7 @@ void settings_save(void)
             if (setting_is_text(setting)) {
                 fprintf(fp, "%s\n", setting->val.str);
             } else {
-                fprintf(fp, "%"FMT64 "\n", setting->val.i);
+                fprintf(fp, "%"PRId64 "\n", setting->val.i);
             }
         }
     }
@@ -331,6 +333,8 @@ void settings_deinit(void)
             if (setting_categories[cat]->settings[setting]->custom_attrset) {
                 efree(setting_categories[cat]->settings[setting]->custom_attrset);
             }
+
+            efree(setting_categories[cat]->settings[setting]);
         }
 
         if (setting_categories[cat]->settings) {
@@ -386,9 +390,9 @@ const char *setting_get_str(int cat, int setting)
  * @param cat ID of the category the setting is in.
  * @param setting Setting ID inside the category.
  * @return The setting's integer value. */
-sint64 setting_get_int(int cat, int setting)
+int64_t setting_get_int(int cat, int setting)
 {
-    return *(sint64 *) setting_get(setting_categories[cat]->settings[setting]);
+    return *(int64_t *) setting_get(setting_categories[cat]->settings[setting]);
 }
 
 /**
@@ -535,11 +539,11 @@ void settings_apply_change(void)
  * @param cat ID of the category the setting is in.
  * @param setting Setting ID inside the category.
  * @param val Value to set. */
-void setting_set_int(int cat, int setting, sint64 val)
+void setting_set_int(int cat, int setting, int64_t val)
 {
     void *dst = setting_get(setting_categories[cat]->settings[setting]);
 
-    (*(sint64 *) dst) = val;
+    (*(int64_t *) dst) = val;
 
     /* Map width/height, mark for update. */
     if (cat == OPT_CAT_MAP && (setting == OPT_MAP_WIDTH || setting == OPT_MAP_HEIGHT)) {
@@ -584,7 +588,7 @@ int setting_is_text(setting_struct *setting)
  * Find a category ID by its name.
  * @param name The name.
  * @return Category ID if found, -1 otherwise. */
-sint64 category_from_name(const char *name)
+int64_t category_from_name(const char *name)
 {
     size_t cat;
 
@@ -603,7 +607,7 @@ sint64 category_from_name(const char *name)
  * @note All categories are checked.
  * @param name The name.
  * @return Setting ID if found, -1 otherwise. */
-sint64 setting_from_name(const char *name)
+int64_t setting_from_name(const char *name)
 {
     size_t cat, setting;
 

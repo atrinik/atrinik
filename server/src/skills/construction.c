@@ -252,7 +252,7 @@ static void fix_walls(mapstruct *map, int x, int y)
     int connect_val;
     object *wall_ob;
     char wall_name[MAX_BUF], orientation[MAX_BUF];
-    uint32 old_flags[NUM_FLAGS_32];
+    uint32_t old_flags[NUM_FLAGS_32];
     archetype *new_arch;
     int flag;
 
@@ -416,7 +416,7 @@ static int builder_window(object *op, int x, int y)
     char wall_name[MAX_BUF], orientation[MAX_BUF];
     archetype *new_arch;
     object *window;
-    uint32 old_flags[NUM_FLAGS_32];
+    uint32_t old_flags[NUM_FLAGS_32];
     int flag;
 
     wall_ob = get_wall(op->map, x, y);

@@ -1,0 +1,609 @@
+arch map
+name Asteria
+msg
+Created:  2015-04-20 Alex Tokar
+Modified: 2015-04-20 Alex Tokar
+endmsg
+width 24
+height 24
+difficulty 1
+darkness -1
+outdoor 1
+end
+arch roof_brick
+direction 5
+y 7
+end
+arch roof_brick
+direction 7
+y 8
+end
+arch roof_brick
+direction 7
+y 9
+end
+arch roof_brick
+direction 7
+y 10
+end
+arch roof_brick
+direction 7
+y 11
+end
+arch roof_brick
+direction 7
+y 12
+end
+arch roof_brick
+direction 7
+y 13
+end
+arch roof_brick
+direction 7
+y 14
+end
+arch roof_brick
+direction 8
+y 15
+end
+arch roof_brick
+direction 3
+x 14
+y 8
+end
+arch roof_brick
+direction 3
+x 14
+y 9
+end
+arch roof_brick
+direction 3
+x 14
+y 10
+end
+arch roof_brick
+direction 3
+x 14
+y 11
+end
+arch roof_brick
+direction 3
+x 14
+y 12
+end
+arch roof_brick
+direction 3
+x 14
+y 13
+end
+arch roof_brick
+direction 3
+x 14
+y 14
+end
+arch roof_brick
+direction 3
+x 14
+y 15
+end
+arch roof_brick
+direction 3
+x 14
+y 16
+end
+arch roof_brick
+direction 3
+x 14
+y 17
+end
+arch roof_brick
+direction 3
+x 14
+y 18
+end
+arch roof_brick
+direction 5
+x 15
+y 7
+end
+arch roof_brick
+direction 7
+x 15
+y 8
+end
+arch roof_brick
+direction 7
+x 15
+y 9
+end
+arch roof_brick
+direction 7
+x 15
+y 10
+end
+arch roof_brick
+direction 7
+x 15
+y 11
+end
+arch roof_brick
+direction 7
+x 15
+y 12
+end
+arch roof_brick
+direction 7
+x 15
+y 13
+end
+arch roof_brick
+direction 8
+x 15
+y 14
+end
+arch roof_brick
+x 15
+y 15
+end
+arch roof_brick
+x 15
+y 16
+end
+arch roof_brick
+x 15
+y 17
+end
+arch roof_brick
+x 15
+y 18
+end
+arch roof_brick
+direction 5
+x 16
+y 7
+end
+arch roof_brick
+direction 7
+x 16
+y 8
+end
+arch roof_brick
+direction 7
+x 16
+y 9
+end
+arch roof_brick
+direction 7
+x 16
+y 10
+end
+arch roof_brick
+direction 7
+x 16
+y 11
+end
+arch roof_brick
+direction 7
+x 16
+y 12
+end
+arch roof_brick
+direction 7
+x 16
+y 13
+end
+arch roof_brick
+direction 7
+x 16
+y 14
+end
+arch roof_brick
+direction 8
+x 16
+y 15
+end
+arch roof_brick
+x 16
+y 16
+end
+arch roof_brick
+x 16
+y 17
+end
+arch roof_brick
+x 16
+y 18
+end
+arch roof_brick
+direction 5
+x 17
+y 7
+end
+arch roof_brick
+direction 7
+x 17
+y 8
+end
+arch roof_brick
+direction 7
+x 17
+y 9
+end
+arch roof_brick
+direction 7
+x 17
+y 10
+end
+arch roof_brick
+direction 7
+x 17
+y 11
+end
+arch roof_brick
+direction 7
+x 17
+y 12
+end
+arch roof_brick
+direction 7
+x 17
+y 13
+end
+arch roof_brick
+direction 7
+x 17
+y 14
+end
+arch roof_brick
+direction 7
+x 17
+y 15
+end
+arch roof_brick
+direction 8
+x 17
+y 16
+end
+arch roof_brick
+x 17
+y 17
+end
+arch roof_brick
+x 17
+y 18
+end
+arch roof_brick
+direction 5
+x 18
+y 7
+end
+arch roof_brick
+direction 7
+x 18
+y 8
+end
+arch roof_brick
+direction 7
+x 18
+y 9
+end
+arch roof_brick
+direction 7
+x 18
+y 10
+end
+arch roof_brick
+direction 7
+x 18
+y 11
+end
+arch roof_brick
+direction 7
+x 18
+y 12
+end
+arch roof_brick
+direction 7
+x 18
+y 13
+end
+arch roof_brick
+direction 7
+x 18
+y 14
+end
+arch roof_brick
+direction 7
+x 18
+y 15
+end
+arch roof_brick
+direction 7
+x 18
+y 16
+end
+arch roof_brick
+direction 8
+x 18
+y 17
+end
+arch roof_brick
+x 18
+y 18
+end
+arch roof_brick
+direction 5
+x 19
+y 7
+end
+arch roof_brick
+direction 7
+x 19
+y 8
+end
+arch roof_brick
+direction 7
+x 19
+y 9
+end
+arch roof_brick
+direction 7
+x 19
+y 10
+end
+arch roof_brick
+direction 7
+x 19
+y 11
+end
+arch roof_brick
+direction 7
+x 19
+y 12
+end
+arch roof_brick
+direction 7
+x 19
+y 13
+end
+arch roof_brick
+direction 7
+x 19
+y 14
+end
+arch roof_brick
+direction 7
+x 19
+y 15
+end
+arch roof_brick
+direction 7
+x 19
+y 16
+end
+arch roof_brick
+direction 7
+x 19
+y 17
+end
+arch roof_brick
+direction 8
+x 19
+y 18
+end
+arch trans
+x 21
+y 7
+end
+arch wall_marble1.181-06
+x 21
+y 7
+end
+arch map_info
+name asteria_casino
+hp 2
+sp 11
+cursed 1
+x 21
+y 7
+end
+arch trans
+x 21
+y 8
+end
+arch wall_marble1.111a-02
+x 21
+y 8
+end
+arch trans
+x 21
+y 9
+end
+arch wall_marble1.111-c-05-06
+x 21
+y 9
+end
+arch trans
+x 21
+y 10
+end
+arch wall_marble1.111-c-04-05
+x 21
+y 10
+end
+arch trans
+x 21
+y 11
+end
+arch wall_marble1.111-04
+x 21
+y 11
+end
+arch trans
+x 21
+y 12
+end
+arch wall_marble1.111-c-07-04
+x 21
+y 12
+end
+arch trans
+x 21
+y 13
+end
+arch wall_marble1.111-07
+x 21
+y 13
+end
+arch trans
+x 21
+y 14
+end
+arch wall_marble1.111-c-01-07
+x 21
+y 14
+end
+arch trans
+x 21
+y 15
+end
+arch wall_marble1.111-01
+x 21
+y 15
+end
+arch trans
+x 21
+y 16
+end
+arch wall_marble1.111-c-03-01
+x 21
+y 16
+end
+arch trans
+x 21
+y 17
+end
+arch wall_marble1.111-03
+x 21
+y 17
+end
+arch trans
+x 21
+y 18
+end
+arch wall_marble1.111-c-06-03
+x 21
+y 18
+end
+arch trans
+x 22
+y 7
+end
+arch wall_marble1.131-c-06-03
+x 22
+y 7
+end
+arch floor_fur2
+x 22
+y 8
+end
+arch floor_fur2
+x 22
+y 9
+end
+arch floor_fur2
+x 22
+y 10
+end
+arch floor_fur2
+x 22
+y 11
+end
+arch floor_fur2
+x 22
+y 12
+end
+arch floor_fur2
+x 22
+y 13
+end
+arch floor_fur2
+x 22
+y 14
+end
+arch floor_fur2
+x 22
+y 15
+end
+arch floor_fur2
+x 22
+y 16
+end
+arch floor_fur2
+x 22
+y 17
+end
+arch floor_fur2
+x 22
+y 18
+end
+arch wall_marble1.131-02
+x 22
+y 18
+end
+arch trans
+x 23
+y 7
+end
+arch wall_marble1.131-03
+x 23
+y 7
+end
+arch floor_fur2
+x 23
+y 8
+end
+arch floor_fur2
+x 23
+y 9
+end
+arch floor_fur2
+x 23
+y 10
+end
+arch floor_fur2
+x 23
+y 11
+end
+arch floor_fur2
+x 23
+y 12
+end
+arch floor_fur2
+x 23
+y 13
+end
+arch floor_fur2
+x 23
+y 14
+end
+arch floor_fur2
+x 23
+y 15
+end
+arch floor_fur2
+x 23
+y 16
+end
+arch floor_fur2
+x 23
+y 17
+end
+arch floor_fur2
+x 23
+y 18
+end
+arch wall_marble1.131-c-02-05
+x 23
+y 18
+end

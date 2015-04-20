@@ -29,6 +29,7 @@
  * @author Alex Tokar */
 
 #include <global.h>
+#include <toolkit_string.h>
 
 static void widget_input_handle_enter(widgetdata *widget)
 {
@@ -107,6 +108,17 @@ static int widget_event(widgetdata *widget, SDL_Event *event)
     return 0;
 }
 
+/** @copydoc widgetdata::deinit_func */
+static void widget_deinit(widgetdata *widget)
+{
+    widget_input_struct *input;
+
+    input = WIDGET_INPUT(widget);
+
+    text_input_destroy(&input->text_input);
+    text_input_history_free(input->text_input_history);
+}
+
 void widget_input_init(widgetdata *widget)
 {
     widget_input_struct *input;
@@ -118,5 +130,6 @@ void widget_input_init(widgetdata *widget)
 
     widget->draw_func = widget_draw;
     widget->event_func = widget_event;
+    widget->deinit_func = widget_deinit;
     widget->subwidget = input;
 }

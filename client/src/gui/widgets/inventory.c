@@ -30,11 +30,12 @@
  */
 
 #include <global.h>
+#include <toolkit_string.h>
 
 /**
  * Active inventory filter, one of @ref INVENTORY_FILTER_xxx.
  */
-uint64 inventory_filter = INVENTORY_FILTER_ALL;
+uint64_t inventory_filter = INVENTORY_FILTER_ALL;
 
 /**
  * String representations of the possible inventory filters.
@@ -114,7 +115,7 @@ static int inventory_matches_filter(object *op)
  * Set an inventory filter to the passed value.
  * @param filter The value to set.
  */
-void inventory_filter_set(uint64 filter)
+void inventory_filter_set(uint64_t filter)
 {
     inventory_filter = filter;
     widget_inventory_handle_arrow_key(cur_widget[MAIN_INV_ID], SDLK_UNKNOWN);
@@ -126,7 +127,7 @@ void inventory_filter_set(uint64 filter)
  * Toggle one inventory filter.
  * @param filter Filter to toggle.
  */
-void inventory_filter_toggle(uint64 filter)
+void inventory_filter_toggle(uint64_t filter)
 {
     if (inventory_filter & filter) {
         inventory_filter &= ~filter;
@@ -179,11 +180,11 @@ void inventory_filter_set_names(const char *filter)
  * @param my Mouse Y. Can be -1.
  * @return 1 if the object was rendered, 0 otherwise.
  */
-static int inventory_render_object(widgetdata *widget, object *ob, uint32 i,
-        uint32 *r, int mx, int my)
+static int inventory_render_object(widgetdata *widget, object *ob, uint32_t i,
+        uint32_t *r, int mx, int my)
 {
     inventory_struct *inventory;
-    uint32 row, r_row, r_col;
+    uint32_t row, r_row, r_col;
     int x, y;
     char buf[HUGE_BUF];
     SDL_Rect box;
@@ -367,7 +368,7 @@ static void event_drag_cb(void)
 
     dragging = object_find(cpl.dragging_tag);
     sack = object_find(cpl.container_tag);
-    assert(dragging != NULL);
+    SOFT_ASSERT(dragging != NULL, "Not dragging anything!");
 
     if (dragging->env == cpl.ob || (sack != NULL && sack->env == cpl.ob)) {
         menu_inventory_drop(cur_widget[MAIN_INV_ID], NULL, NULL);
@@ -382,7 +383,7 @@ static void widget_draw(widgetdata *widget)
     inventory_struct *inventory;
     int w, h;
     object *tmp, *tmp2;
-    uint32 i, r;
+    uint32_t i, r;
 
     if (!widget->redraw) {
         return;
@@ -494,7 +495,7 @@ static int widget_event(widgetdata *widget, SDL_Event *event)
             event->type == SDL_MOUSEBUTTONUP) &&
             (event->button.button == SDL_BUTTON_LEFT ||
             event->button.button == SDL_BUTTON_RIGHT)) {
-        uint32 i, r;
+        uint32_t i, r;
         object *tmp, *tmp2, *found;
 
         if (event_dragging_check()) {
@@ -619,9 +620,9 @@ void widget_inventory_init(widgetdata *widget)
  * @param widget The widget.
  * @return Number of items in the inventory widget.
  */
-uint32 widget_inventory_num_items(widgetdata *widget)
+uint32_t widget_inventory_num_items(widgetdata *widget)
 {
-    uint32 i;
+    uint32_t i;
     object *tmp, *tmp2;
 
     for (i = 0, tmp = INVENTORY_WHERE(widget)->inv; tmp; tmp = tmp->next) {
@@ -653,7 +654,7 @@ uint32 widget_inventory_num_items(widgetdata *widget)
 object *widget_inventory_get_selected(widgetdata *widget)
 {
     inventory_struct *inventory;
-    uint32 i;
+    uint32_t i;
     object *tmp, *tmp2;
 
     inventory = INVENTORY(widget);
@@ -696,7 +697,7 @@ void widget_inventory_handle_arrow_key(widgetdata *widget, SDLKey key)
 {
     inventory_struct *inventory;
     int selected, max;
-    uint32 offset;
+    uint32_t offset;
 
     inventory = INVENTORY(widget);
 
@@ -737,7 +738,7 @@ void widget_inventory_handle_arrow_key(widgetdata *widget, SDLKey key)
         selected = max - 1;
     }
 
-    if (inventory->selected != (uint32) selected) {
+    if (inventory->selected != (uint32_t) selected) {
         inventory->selected = selected;
         widget->redraw = 1;
     }
@@ -839,7 +840,7 @@ void menu_inventory_drop(widgetdata *widget, widgetdata *menuitem,
 {
     object *ob, *container;
     int nrof;
-    sint32 loc;
+    int32_t loc;
 
     if (widget->type != MAIN_INV_ID) {
         return;
@@ -915,7 +916,7 @@ void menu_inventory_get(widgetdata *widget, widgetdata *menuitem,
 {
     object *ob, *container;
     int nrof;
-    sint32 loc;
+    int32_t loc;
 
     ob = widget_inventory_get_selected(widget);
     container = object_find(cpl.container_tag);
@@ -924,7 +925,8 @@ void menu_inventory_get(widgetdata *widget, widgetdata *menuitem,
         return;
     }
 
-    assert(widget->type == MAIN_INV_ID || widget->type == BELOW_INV_ID);
+    SOFT_ASSERT(widget->type == MAIN_INV_ID || widget->type == BELOW_INV_ID,
+            "Called for wrong widget type: %d", widget->type);
 
     if (widget->type == MAIN_INV_ID) { /* 'G' in main inventory. */
         /* Need to have an open container to do 'get' in main inventory... */
@@ -945,7 +947,7 @@ void menu_inventory_get(widgetdata *widget, widgetdata *menuitem,
                 loc = container->tag;
             }
         }
-    } else if (widget->type == BELOW_INV_ID) { /* 'G' in below inventory. */
+    } else { /* 'G' in below inventory. */
         if (container != NULL && container->env == cpl.below &&
                 container->tag != ob->tag && ob->env != cpl.sack) {
             /* If there is an open container on the ground and the item to

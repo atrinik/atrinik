@@ -41,6 +41,7 @@
  * @author Dantee */
 
 #include <global.h>
+#include <toolkit_string.h>
 
 static widgetdata def_widget[TOTAL_SUBWIDGETS];
 static const char *const widget_names[TOTAL_SUBWIDGETS] = {
@@ -111,7 +112,7 @@ int widget_id_from_name(const char *name)
     return -1;
 }
 
-static int widget_load(const char *path, uint8 defaults, widgetdata *widgets[])
+static int widget_load(const char *path, uint8_t defaults, widgetdata *widgets[])
 {
     FILE *fp;
     char buf[HUGE_BUF], *end, *line, *cp;
@@ -616,6 +617,8 @@ void widgets_reset(void)
     if (path_exists(path)) {
         unlink(path);
     }
+
+    efree(path);
 
     toolkit_widget_init();
 }
@@ -1469,7 +1472,7 @@ int widgets_need_redraw(void)
  * This makes it as fast as a linear linked list if there are no child nodes. */
 static void process_widgets_rec(int draw, widgetdata *widget)
 {
-    uint8 redraw;
+    uint8_t redraw;
 
     for (; widget; widget = widget->prev) {
         if (widget->background_func) {
@@ -2139,10 +2142,11 @@ widgetdata *add_label(const char *text, font_struct *font, const char *color)
     label = LABEL(widget);
 
     label->text = estrdup(text);
+    label->color = color;
 
+    font_free(label->font);
     FONT_INCREF(font);
     label->font = font;
-    label->color = color;
 
     resize_widget(widget, RESIZE_RIGHT, text_get_width(font, text, TEXT_MARKUP));
     resize_widget(widget, RESIZE_BOTTOM, text_get_height(font, text, TEXT_MARKUP) + 3);
@@ -2340,7 +2344,7 @@ void widget_show(widgetdata *widget, int show)
 
             type = widget->type == MAIN_INV_ID ? BELOW_INV_ID : MAIN_INV_ID;
             widget = widget_find(NULL, type, NULL, NULL);
-            assert(widget != NULL);
+            SOFT_ASSERT(widget != NULL, "Could not find widget type: %d", type);
         }
 
         SetPriorityWidget(widget);

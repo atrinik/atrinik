@@ -25,6 +25,7 @@
 #include <global.h>
 #include <check.h>
 #include <check_proto.h>
+#include <toolkit_string.h>
 
 START_TEST(test_CAN_MERGE)
 {
@@ -32,18 +33,18 @@ START_TEST(test_CAN_MERGE)
 
     ob1 = get_archetype("bolt");
     ob2 = get_archetype("bolt");
-    fail_if(CAN_MERGE(ob1, ob2) == 0, "Should be able to merge 2 same objects.");
+    ck_assert(CAN_MERGE(ob1, ob2));
     FREE_AND_COPY_HASH(ob2->name, "Not same name");
-    fail_if(CAN_MERGE(ob1, ob2) == 1, "Should not be able to merge 2 objects with different names.");
+    ck_assert(!CAN_MERGE(ob1, ob2));
     object_destroy(ob2);
     ob2 = get_archetype("bolt");
     ob2->type++;
-    fail_if(CAN_MERGE(ob1, ob2) == 1, "Should not be able to merge 2 objects with different types.");
+    ck_assert(!CAN_MERGE(ob1, ob2));
     object_destroy(ob2);
     ob2 = get_archetype("bolt");
-    ob1->nrof = SINT32_MAX;
+    ob1->nrof = INT32_MAX;
     ob2->nrof = 1;
-    fail_if(CAN_MERGE(ob1, ob2) == 1, "Should not be able to merge 2 objects if result nrof goes to higher than SINT32_MAX");
+    ck_assert(!CAN_MERGE(ob1, ob2));
     object_destroy(ob1);
     object_destroy(ob2);
 }
@@ -71,7 +72,7 @@ START_TEST(test_sum_weight)
     insert_ob_in_ob(ob3, ob1);
     insert_ob_in_ob(ob4, ob1);
     sum = sum_weight(ob1);
-    fail_if(sum != 45, "Sum of object's inventory should be 45 ((6 * 10 + 7 + 8) * .6) but was %lu.", sum);
+    ck_assert_uint_eq(sum, 45);
     object_destroy(ob1);
 }
 
@@ -99,9 +100,9 @@ START_TEST(test_add_weight)
     insert_ob_in_ob(ob3, ob2);
     insert_ob_in_ob(ob4, ob3);
     sum = sum_weight(ob1);
-    fail_if(sum != 18, "Sum of object's inventory should be 18 (30 * 0.6 + 10) but was %lu.", sum);
+    ck_assert_uint_eq(sum, 18);
     add_weight(ob4, 10);
-    fail_if(ob1->carrying != 24, "After call to add_weight, carrying of ob1 should be 24 but was %d.", ob1->carrying);
+    ck_assert_int_eq(ob1->carrying, 24);
     object_destroy(ob1);
 }
 
@@ -129,9 +130,9 @@ START_TEST(test_sub_weight)
     insert_ob_in_ob(ob3, ob2);
     insert_ob_in_ob(ob4, ob3);
     sum = sum_weight(ob1);
-    fail_if(sum != 18, "Sum of object's inventory should be 18 (30 * 0.6 + 10) but was %lu.", sum);
+    ck_assert_uint_eq(sum, 18);
     sub_weight(ob4, 10);
-    fail_if(ob1->carrying != 12, "After call to sub_weight, carrying of ob1 should be 12 but was %d.", ob1->carrying);
+    ck_assert_int_eq(ob1->carrying, 12);
     object_destroy(ob1);
 }
 
@@ -149,7 +150,7 @@ START_TEST(test_get_env_recursive)
     insert_ob_in_ob(ob3, ob2);
     insert_ob_in_ob(ob4, ob3);
     result = get_env_recursive(ob4);
-    fail_if(result != ob1, "Getting top level container for ob4(%p) should bring ob1(%p) but brought %p.", ob4, ob1, result);
+    ck_assert_ptr_eq(result, ob1);
     object_destroy(ob1);
 }
 
@@ -167,10 +168,10 @@ START_TEST(test_is_player_inv)
     insert_ob_in_ob(ob3, ob2);
     insert_ob_in_ob(ob4, ob3);
     result = is_player_inv(ob4);
-    fail_if(result != NULL, "Getting containing player for ob4(%p) should bring NULL but brought %p while not contained in a player.", ob4, result);
+    ck_assert_ptr_eq(result, NULL);
     ob1->type = PLAYER;
     result = is_player_inv(ob4);
-    fail_if(result != ob1, "Getting containing player for ob4(%p) should bring ob1(%p) but brought %p while ob1 is player.", ob4, ob1, result);
+    ck_assert_ptr_eq(result, ob1);
     ob1->type = CONTAINER;
     object_destroy(ob1);
 }
@@ -191,8 +192,8 @@ START_TEST(test_dump_object)
     sb = stringbuffer_new();
     dump_object(ob1, sb);
     result = stringbuffer_finish(sb);
-    fail_if(strstr(result, "arch") == 0, "The object dump should contain 'arch' but was %s", result);
-    free(result);
+    ck_assert(string_startswith(result, "arch"));
+    efree(result);
     object_destroy(ob1);
 }
 
@@ -204,33 +205,33 @@ START_TEST(test_insert_ob_in_map)
     object *first, *second, *third, *floor_ob, *got;
 
     map = get_empty_map(5, 5);
-    fail_if(map == NULL, "get_empty_map() returned NULL.");
+    ck_assert_ptr_ne(map, NULL);
 
     /* First, simple tests for insertion. */
     floor_ob = get_archetype("water_still");
     floor_ob->x = 3;
     floor_ob->y = 3;
     got = insert_ob_in_map(floor_ob, map, NULL, 0);
-    fail_if(got != floor_ob, "Water flood shouldn't disappear.");
-    fail_if(floor_ob != GET_MAP_OB(map, 3, 3), "Water floor should be first object.");
+    ck_assert_ptr_eq(floor_ob, got);
+    ck_assert_ptr_eq(floor_ob, GET_MAP_OB(map, 3, 3));
 
     first = get_archetype("letter");
     first->x = 3;
     first->y = 3;
     got = insert_ob_in_map(first, map, NULL, 0);
-    fail_if(got != first, "Letter shouldn't disappear.");
-    fail_if(floor_ob != GET_MAP_OB(map, 3, 3), "Water floor should still be first object.");
-    fail_if(floor_ob->above != first, "Letter should be above floor.");
+    ck_assert_ptr_eq(got, first);
+    ck_assert_ptr_eq(floor_ob, GET_MAP_OB(map, 3, 3));
+    ck_assert_ptr_eq(floor_ob->above, first);
 
     second = get_archetype("bolt");
     second->nrof = 1;
     second->x = 3;
     second->y = 3;
     got = insert_ob_in_map(second, map, NULL, 0);
-    fail_if(got != second, "Bolt shouldn't disappear.");
-    fail_if(floor_ob != GET_MAP_OB(map, 3, 3), "Water floor should still be first object.");
-    fail_if(floor_ob->above != second, "Bolt should be above floor.");
-    fail_if(second->above != first, "Letter should be above bolt.");
+    ck_assert_ptr_eq(got, second);
+    ck_assert_ptr_eq(floor_ob, GET_MAP_OB(map, 3, 3));
+    ck_assert_ptr_eq(floor_ob->above, second);
+    ck_assert_ptr_eq(second->above, first);
 
     /* Merging tests. */
     third = get_archetype("bolt");
@@ -238,9 +239,9 @@ START_TEST(test_insert_ob_in_map)
     third->x = 3;
     third->y = 3;
     got = insert_ob_in_map(third, map, NULL, 0);
-    fail_if(got != third, "Bolt shouldn't disappear.");
-    fail_if(!OBJECT_FREE(second), "First bolt should have been removed.");
-    fail_if(third->nrof != 2, "Second bolt should have nrof 2.");
+    ck_assert_ptr_eq(got, third);
+    ck_assert(OBJECT_FREE(second));
+    ck_assert_uint_eq(third->nrof, 2);
 
     second = get_archetype("bolt");
     second->nrof = 1;
@@ -248,10 +249,9 @@ START_TEST(test_insert_ob_in_map)
     second->y = 3;
     second->value = 1;
     got = insert_ob_in_map(second, map, NULL, 0);
-    fail_if(got != second, "Modified bolt shouldn't disappear.");
-    fail_if(second->nrof != 1, "Modified bolt should have nrof 1.");
-
-    delete_map(map);
+    ck_assert_ptr_eq(got, second);
+    ck_assert_uint_eq(second->nrof, 1);
+    ck_assert_uint_eq(third->nrof, 2);
 }
 
 END_TEST
@@ -264,10 +264,26 @@ START_TEST(test_decrease_ob_nr)
     first->nrof = 5;
 
     second = decrease_ob_nr(first, 3);
-    fail_if(second != first, "Bolt shouldn't be destroyed.");
+    ck_assert_ptr_eq(second, first);
+    ck_assert(!OBJECT_FREE(first));
 
     second = decrease_ob_nr(first, 2);
-    fail_if(second != NULL, "object_decrease_nrof should return NULL");
+    ck_assert_ptr_eq(second, NULL);
+    ck_assert(OBJECT_FREE(first));
+
+    first = get_archetype("bolt");
+    first->nrof = 5;
+
+    second = decrease_ob_nr(first, 5);
+    ck_assert_ptr_eq(second, NULL);
+    ck_assert(OBJECT_FREE(first));
+
+    first = get_archetype("bolt");
+    first->nrof = 5;
+
+    second = decrease_ob_nr(first, 50);
+    ck_assert_ptr_eq(second, NULL);
+    ck_assert(OBJECT_FREE(first));
 }
 
 END_TEST
@@ -281,18 +297,18 @@ START_TEST(test_insert_ob_in_ob)
 
     container = get_archetype("sack");
     insert_ob_in_ob(item, container);
-    fail_if(container->inv != item, "Item not inserted.");
-    fail_if(container->carrying != 50, "Container should carry 50 and not %d.", container->carrying);
+    ck_assert_ptr_eq(container->inv, item);
+    ck_assert_int_eq(container->carrying, 50);
 
     object_remove(item, 0);
-    fail_if(container->carrying != 0, "Container should carry 0 and not %d.", container->carrying);
+    ck_assert_int_eq(container->carrying, 0);
 
     /* 50% weight reduction. */
     container->weapon_speed = 0.5f;
 
     insert_ob_in_ob(item, container);
-    fail_if(container->inv != item, "Item not inserted.");
-    fail_if(container->carrying != 25, "Container should carry 25 and not %d.", container->carrying);
+    ck_assert_ptr_eq(container->inv, item);
+    ck_assert_int_eq(container->carrying, 25);
 
     object_destroy(container);
 }
@@ -301,28 +317,31 @@ END_TEST
 
 START_TEST(test_can_pick)
 {
+    mapstruct *map;
     object *pl, *ob;
 
-    pl = player_get_dummy();
+    check_setup_env_pl(&map, &pl);
 
     ob = get_archetype("sack");
-    fail_if(can_pick(pl, ob) == 0, "Player cannot pick up normal sack.");
+    ck_assert(can_pick(pl, ob));
     ob->weight = 0;
-    fail_if(can_pick(pl, ob) == 1, "Player can pick up sack that weighs 0kg.");
+    ck_assert(!can_pick(pl, ob));
     object_destroy(ob);
+
     ob = get_archetype("sack");
     SET_FLAG(ob, FLAG_NO_PICK);
-    fail_if(can_pick(pl, ob) == 1, "Player can pick up non-pickable sack.");
+    ck_assert(!can_pick(pl, ob));
     SET_FLAG(ob, FLAG_UNPAID);
-    fail_if(can_pick(pl, ob) == 0, "Player cannot pick up clone-shop sack.");
+    ck_assert(can_pick(pl, ob));
     object_destroy(ob);
+
     ob = get_archetype("sack");
     SET_FLAG(ob, FLAG_IS_INVISIBLE);
-    fail_if(can_pick(pl, ob) == 1, "Player cannot see invisible but can pick up invisible sack.");
+    ck_assert(!can_pick(pl, ob));
     object_destroy(ob);
-    ob = get_archetype("raas");
-    fail_if(can_pick(pl, ob) == 1, "Player can pick up a monster object.");
 
+    ob = get_archetype("raas");
+    ck_assert(!can_pick(pl, ob));
     object_destroy(ob);
 }
 
@@ -335,9 +354,9 @@ START_TEST(test_object_create_clone)
     ob = get_archetype("raas");
     insert_ob_in_ob(get_archetype("sack"), ob);
     clone_ob = object_create_clone(ob);
-    fail_if(strcmp(clone_ob->name, ob->name) != 0, "object_create_clone() created an object with name '%s', but it should have been named '%s'.", clone_ob->name, ob->name);
-    fail_if(clone_ob->inv == NULL, "object_create_clone() created a clone object with no inventory.");
-    fail_if(strcmp(clone_ob->inv->name, ob->inv->name) != 0, "Object created using object_create_clone() had object '%s' in inventory, but it should have had '%s' instead.", clone_ob->inv->name, ob->inv->name);
+    ck_assert_str_eq(clone_ob->name, ob->name);
+    ck_assert_ptr_ne(clone_ob->inv, NULL);
+    ck_assert_str_eq(clone_ob->inv->name, ob->inv->name);
 
     object_destroy(ob);
     object_destroy(clone_ob);
@@ -352,20 +371,21 @@ START_TEST(test_was_destroyed)
     mapstruct *m;
 
     m = get_empty_map(1, 1);
+    ck_assert_ptr_ne(m, NULL);
 
     ob = get_archetype("sack");
     ob_tag = ob->count;
     insert_ob_in_map(ob, m, ob, 0);
-    fail_if(was_destroyed(ob, ob_tag) == 1, "was_destroyed() returned 1 but object is still on map.");
+    ck_assert(!was_destroyed(ob, ob_tag));
     ob2 = get_archetype("bolt");
     ob2_tag = ob2->count;
     insert_ob_in_ob(ob2, ob);
-    fail_if(was_destroyed(ob2, ob2_tag) == 1, "was_destroyed() returned 1 but object is in inventory of another object.");
+    ck_assert(!was_destroyed(ob2, ob2_tag));
     object_remove(ob, 0);
-    fail_if(was_destroyed(ob, ob_tag) == 1, "was_destroyed() returned 1 but object was only removed from map.");
+    ck_assert(!was_destroyed(ob, ob_tag));
     object_destroy(ob);
-    fail_if(was_destroyed(ob, ob_tag) == 0, "was_destroyed() returned 0 but object was freed.");
-    fail_if(was_destroyed(ob2, ob2_tag) == 0, "was_destroyed() returned 0 but object was freed.");
+    ck_assert(was_destroyed(ob, ob_tag));
+    ck_assert(was_destroyed(ob2, ob2_tag));
 }
 
 END_TEST
@@ -375,14 +395,14 @@ START_TEST(test_load_object_str)
     object *ob;
 
     ob = load_object_str("arch sack\nend\n");
-    fail_if(ob == NULL, "load_object_str() should not return NULL.");
-    fail_if(strcmp(ob->arch->name, "sack") != 0, "load_object_str() created object with arch name '%s', but it should have been 'sack'.", ob->arch->name);
+    ck_assert_ptr_ne(ob, NULL);
+    ck_assert_str_eq(ob->arch->name, "sack");
 
     object_destroy(ob);
     ob = load_object_str("arch sack\nname magic sack\nweight 129\nend\n");
-    fail_if(ob == NULL, "load_object_str() should not return NULL.");
-    fail_if(strcmp(ob->name, "magic sack") != 0, "load_object_str() created object with name '%s', but name should have been 'magic sack'.", ob->name);
-    fail_if(ob->weight != 129, "load_object_str() created object with weight %d, but it should have had 129 weight.", ob->weight);
+    ck_assert_ptr_ne(ob, NULL);
+    ck_assert_str_eq(ob->name, "magic sack");
+    ck_assert_int_eq(ob->weight, 129);
 
     object_destroy(ob);
 }
@@ -404,11 +424,11 @@ START_TEST(test_object_reverse_inventory)
     dump_object_rec(ob, sb);
     cp2 = stringbuffer_finish(sb);
 
-    fail_unless(strcmp(cp, cp2) == 0, "Did not correctly reverse order of objects");
+    ck_assert_str_eq(cp, cp2);
 
     object_destroy(ob);
-    free(cp);
-    free(cp2);
+    efree(cp);
+    efree(cp2);
 }
 
 END_TEST

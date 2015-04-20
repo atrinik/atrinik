@@ -86,6 +86,9 @@
 #include <progress.h>
 #include <updater.h>
 
+/* TODO: Remove from here eventually */
+typedef struct packet_struct packet_struct;
+
 #ifndef __CPROTO__
 #include <proto.h>
 #endif

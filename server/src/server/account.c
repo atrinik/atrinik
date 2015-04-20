@@ -29,6 +29,8 @@
  * @author Alex Tokar */
 
 #include <global.h>
+#include <packet.h>
+#include <toolkit_string.h>
 
 #define ACCOUNT_CHARACTERS_LIMIT 16
 #define ACCOUNT_PASSWORD_SIZE 32
@@ -52,7 +54,7 @@ typedef struct account_struct {
 
         char *region_name;
 
-        uint8 level;
+        uint8_t level;
     } *characters;
 
     size_t characters_num;
@@ -80,6 +82,7 @@ static void account_free(account_struct *account)
 
     for (i = 0; i < account->characters_num; i++) {
         efree(account->characters[i].name);
+        efree(account->characters[i].region_name);
     }
 
     if (account->characters) {
@@ -105,7 +108,9 @@ static void account_set_password(account_struct *account, const char *password)
         account->salt[i] = rndm(1, 256) - 1;
     }
 
-    PKCS5_PBKDF2_HMAC_SHA2((unsigned char *) password, strlen(password), account->salt, ACCOUNT_PASSWORD_SIZE, ACCOUNT_PASSWORD_ITERATIONS, ACCOUNT_PASSWORD_SIZE, account->password);
+    PKCS5_PBKDF2_HMAC_SHA2((const unsigned char *) password, strlen(password),
+            account->salt, ACCOUNT_PASSWORD_SIZE, ACCOUNT_PASSWORD_ITERATIONS,
+            ACCOUNT_PASSWORD_SIZE, account->password);
 }
 
 static int account_check_password(account_struct *account, char *password)
@@ -113,10 +118,13 @@ static int account_check_password(account_struct *account, char *password)
     unsigned char output[ACCOUNT_PASSWORD_SIZE];
 
     if (account->password_old) {
-        return strcmp(account_old_crypt(password, account->password_old), account->password_old) == 0;
+        return strcmp(account_old_crypt(password, account->password_old),
+                account->password_old) == 0;
     }
 
-    PKCS5_PBKDF2_HMAC_SHA2((unsigned char *) password, strlen(password), account->salt, ACCOUNT_PASSWORD_SIZE, ACCOUNT_PASSWORD_ITERATIONS, ACCOUNT_PASSWORD_SIZE, output);
+    PKCS5_PBKDF2_HMAC_SHA2((const unsigned char *) password, strlen(password),
+            account->salt, ACCOUNT_PASSWORD_SIZE, ACCOUNT_PASSWORD_ITERATIONS,
+            ACCOUNT_PASSWORD_SIZE, output);
 
     return memcmp(account->password, output, sizeof(output)) == 0;
 }
@@ -134,16 +142,18 @@ static int account_save(account_struct *account, const char *path)
         return 0;
     }
 
-    if (string_tohex(account->password, ACCOUNT_PASSWORD_SIZE, hex, sizeof(hex)) == sizeof(hex) - 1) {
+    if (string_tohex(account->password, ACCOUNT_PASSWORD_SIZE, hex, sizeof(hex),
+            false) == sizeof(hex) - 1) {
         fprintf(fp, "pswd %s\n", hex);
     }
 
-    if (string_tohex(account->salt, ACCOUNT_PASSWORD_SIZE, hex, sizeof(hex)) == sizeof(hex) - 1) {
+    if (string_tohex(account->salt, ACCOUNT_PASSWORD_SIZE, hex, sizeof(hex),
+            false) == sizeof(hex) - 1) {
         fprintf(fp, "salt %s\n", hex);
     }
 
     fprintf(fp, "host %s\n", account->last_host);
-    fprintf(fp, "time %"FMT64U "\n", (uint64) account->last_time);
+    fprintf(fp, "time %"PRIu64 "\n", (uint64_t) account->last_time);
 
     for (i = 0; i < account->characters_num; i++) {
         fprintf(fp, "char %s:%s:%s:%d\n", account->characters[i].at->name, account->characters[i].name, account->characters[i].region_name, account->characters[i].level);
@@ -226,16 +236,30 @@ static void account_send_characters(socket_struct *ns, account_struct *account)
     if (account) {
         size_t i;
 
+        packet_debug_data(packet, 0, "Account name");
         packet_append_string_terminated(packet, ns->account);
+        packet_debug_data(packet, 0, "Hostname");
         packet_append_string_terminated(packet, ns->host);
+        packet_debug_data(packet, 0, "Last hostname");
         packet_append_string_terminated(packet, account->last_host);
+        packet_debug_data(packet, 0, "Last time");
         packet_append_uint64(packet, account->last_time);
 
         for (i = 0; i < account->characters_num; i++) {
-            packet_append_string_terminated(packet, account->characters[i].at->name);
-            packet_append_string_terminated(packet, account->characters[i].name);
-            packet_append_string_terminated(packet, account->characters[i].region_name);
-            packet_append_uint16(packet, account->characters[i].at->clone.animation_id);
+            packet_debug(packet, 0, "Character #%" PRIu64 ":\n", (uint64_t) i);
+            packet_debug_data(packet, 1, "Archname");
+            packet_append_string_terminated(packet,
+                    account->characters[i].at->name);
+            packet_debug_data(packet, 1, "Name");
+            packet_append_string_terminated(packet,
+                    account->characters[i].name);
+            packet_debug_data(packet, 1, "Region name");
+            packet_append_string_terminated(packet,
+                    account->characters[i].region_name);
+            packet_debug_data(packet, 1, "Animation ID");
+            packet_append_uint16(packet,
+                    account->characters[i].at->clone.animation_id);
+            packet_debug_data(packet, 1, "Level");
             packet_append_uint8(packet, account->characters[i].level);
         }
     }
@@ -591,9 +615,9 @@ void account_password_force(object *op, char *name, const char *password)
     char *path;
     account_struct account;
 
-    assert(op != NULL);
-    assert(name != NULL);
-    assert(password != NULL);
+    HARD_ASSERT(op != NULL);
+    HARD_ASSERT(name != NULL);
+    HARD_ASSERT(password != NULL);
 
     if (*password == '\0' || string_contains_other(password,
             settings.allowed_chars[ALLOWED_CHARS_PASSWORD])) {

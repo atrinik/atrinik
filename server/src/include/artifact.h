@@ -55,15 +55,15 @@ typedef struct artifactstruct {
     int t_style;
 
     /** Chance. */
-    uint16 chance;
+    uint16_t chance;
 
     /** Difficulty. */
-    uint8 difficulty;
+    uint8_t difficulty;
 
     /**
      * If set, the artifact will be directly copied to the object,
      * instead of just having the extra attributes added. */
-    uint8 copy_artifact;
+    uint8_t copy_artifact;
 } artifact;
 
 /** Artifact list structure. */
@@ -75,12 +75,12 @@ typedef struct artifactliststruct {
     struct artifactstruct *items;
 
     /** Sum of chance for all artifacts on this list. */
-    uint16 total_chance;
+    uint16_t total_chance;
 
     /**
      * Object type that this list represents.
      * -1 are "Allowed none" items. */
-    sint16 type;
+    int16_t type;
 } artifactlist;
 
 #endif

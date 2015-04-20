@@ -52,16 +52,16 @@ typedef struct _money_block {
     int mode;
 
     /** Number of mithril coins. */
-    sint64 mithril;
+    int64_t mithril;
 
     /** Number of gold coins. */
-    sint64 gold;
+    int64_t gold;
 
     /** Number of silver coins. */
-    sint64 silver;
+    int64_t silver;
 
     /** Number of copper coins. */
-    sint64 copper;
+    int64_t copper;
 } _money_block;
 
 /**
@@ -337,7 +337,7 @@ enum {
 typedef struct settings_struct {
     /**
      * Port to use for client/server communication. */
-    uint16 port;
+    uint16_t port;
 
     /**
      * Read only data files, such as the collected archetypes. */
@@ -373,15 +373,15 @@ typedef struct settings_struct {
 
     /**
      * Executing the world maker? */
-    uint8 world_maker;
+    uint8_t world_maker;
 
     /**
      * Running unit tests? */
-    uint8 unit_tests;
+    uint8_t unit_tests;
 
     /**
      * Adjustment to maximum magical device level the player may use. */
-    sint8 magic_devices_level;
+    int8_t magic_devices_level;
 
     /**
      * See note in server.cfg. */
@@ -389,7 +389,7 @@ typedef struct settings_struct {
 
     /**
      * Whether to reload Python modules whenever Python script executes. */
-    uint8 python_reload_modules;
+    uint8_t python_reload_modules;
 
     /**
      * Comma-delimited list of permission groups each player
@@ -414,7 +414,7 @@ typedef struct settings_struct {
 
     /**
      * Whether to recycle tmp maps or not. */
-    uint8 recycle_tmp_maps;
+    uint8_t recycle_tmp_maps;
 
     /**
      * URL to the HTTP server. */
@@ -467,7 +467,7 @@ typedef struct cache_struct {
     void *ptr;
 
     /** Type of the data, one of @ref CACHE_TYPE_xxx. */
-    uint32 flags;
+    uint32_t flags;
 
     /** ID in the array. */
     size_t id;
@@ -499,6 +499,9 @@ void world_maker(void);
 #endif
 
 #include "random_map.h"
+
+/* TODO: Remove from here eventually */
+typedef struct packet_struct packet_struct;
 
 #ifndef GLOBAL_NO_PROTOTYPES
 #include "proto.h"

@@ -65,7 +65,7 @@ typedef struct curl_data {
      *      without mutex locking).
      * - -1: An error occurred trying to get the data.
      * - 1: cURL thread finished and the data is ready to be used. */
-    sint8 status;
+    int8_t status;
 
     /**
      * Will contain HTTP code. */

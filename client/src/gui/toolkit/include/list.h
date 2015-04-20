@@ -51,19 +51,19 @@ typedef struct list_struct {
     int width;
 
     /** Maximum number of visible rows. */
-    uint32 max_rows;
+    uint32_t max_rows;
 
     /** Number of rows. */
-    uint32 rows;
+    uint32_t rows;
 
     /** Number of columns in a row. */
-    uint32 cols;
+    uint32_t cols;
 
     /** Spacing between column names and the actual rows start. */
     int spacing;
 
     /** An array of the column widths. */
-    uint32 *col_widths;
+    uint32_t *col_widths;
 
     /** An array of the column spacings. */
     int *col_spacings;
@@ -72,7 +72,7 @@ typedef struct list_struct {
     char **col_names;
 
     /** An array of which columns are centered. */
-    uint8 *col_centered;
+    uint8_t *col_centered;
 
     /**
      * Array of arrays of pointers to the text. In other words:
@@ -81,43 +81,43 @@ typedef struct list_struct {
     char ***text;
 
     /** How many pixels to adjust the height of a row by. */
-    sint16 row_height_adjust;
+    int16_t row_height_adjust;
 
     /**
      * Frame offset (used when drawing the frame around the rows and when
      * coloring the row entries). */
-    sint16 frame_offset;
+    int16_t frame_offset;
 
     /** Height of the header with column names. */
-    uint16 header_height;
+    uint16_t header_height;
 
     /**
      * Currently highlighted row ID + 1, therefore, 0 means no
      * highlighted row. */
-    uint32 row_highlighted;
+    uint32_t row_highlighted;
 
     /**
      * Currently selected row ID + 1, therefore, 0 means no selected
      * row. */
-    uint32 row_selected;
+    uint32_t row_selected;
 
     /**
      * Row offset used for scrolling.
      *
      * - 0 = Row #0 is shown first in the list.
      * - 10 = Row #10 is shown first in the list. */
-    uint32 row_offset;
+    uint32_t row_offset;
 
     /**
      * Used for figuring out whether a double click occurred (keeps last
      * ticks value). */
-    uint32 click_tick;
+    uint32_t click_tick;
 
     /** If 1, this list has the active focus. */
-    uint8 focus;
+    uint8_t focus;
 
     /** Does the list use scrollbars? */
-    uint8 scrollbar_enabled;
+    uint8_t scrollbar_enabled;
 
     /** The scrollbar. */
     scrollbar_struct scrollbar;
@@ -129,7 +129,7 @@ typedef struct list_struct {
     SDL_Surface *surface;
 
     /** Additional text API @ref TEXT_xxx "flags". */
-    uint64 text_flags;
+    uint64_t text_flags;
 
     /**
      * Pointer to some custom data. If non-NULL, will be freed when list
@@ -191,14 +191,14 @@ typedef struct list_struct {
      * @param[out] color What color to use.
      * @param[out] color_shadow What color to use for the text's shadow,
      * NULL to disable shadow. */
-    void (*text_color_hook)(struct list_struct *list, uint32 row, uint32 col, const char **color, const char **color_shadow);
+    void (*text_color_hook)(struct list_struct *list, uint32_t row, uint32_t col, const char **color, const char **color_shadow);
 
     /**
      * Callback function to call after drawing one column in a list.
      * @param list The list.
      * @param row The row of the column that was drawn.
      * @param col The column. */
-    void (*post_column_func)(struct list_struct *list, uint32 row, uint32 col);
+    void (*post_column_func)(struct list_struct *list, uint32_t row, uint32_t col);
 
     /**
      * Callback function to call when a mouse has been detected to be
@@ -207,7 +207,7 @@ typedef struct list_struct {
      * @param row The row in the list the mouse is over.
      * @param event Event that triggered this - can be used to figure out
      * whether the event was a click, a motion, etc. */
-    void (*handle_mouse_row_func)(struct list_struct *list, uint32 row, SDL_Event *event);
+    void (*handle_mouse_row_func)(struct list_struct *list, uint32_t row, SDL_Event *event);
 } list_struct;
 
 /** Calculate list's row height. */
@@ -215,7 +215,7 @@ typedef struct list_struct {
 /** Figure out Y position where rows should actually start. */
 #define LIST_ROWS_START(list) ((list)->y + (list)->header_height + (list)->spacing + (list)->frame_offset)
 /** Figure out maximum visible rows. */
-#define LIST_ROWS_MAX(list) ((uint32) ((list)->height + (list)->spacing) / LIST_ROW_HEIGHT((list)))
+#define LIST_ROWS_MAX(list) ((uint32_t) ((list)->height + (list)->spacing) / LIST_ROW_HEIGHT((list)))
 /** Calculate the height of the rows. */
 #define LIST_ROWS_HEIGHT(list) (LIST_ROW_HEIGHT((list)) * (list)->max_rows)
 /**

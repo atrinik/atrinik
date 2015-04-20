@@ -28,6 +28,7 @@
 
 #include <global.h>
 #include <spellist.h>
+#include <toolkit_string.h>
 
 /**
  * Array of pointers to archetypes used by the spells for quick
@@ -503,7 +504,7 @@ int fire_bolt(object *op, object *caster, int dir, int type)
         return 0;
     }
 
-    tmp->stats.dam = (sint16) SP_level_dam_adjust(caster, type, tmp->stats.dam, 0);
+    tmp->stats.dam = (int16_t) SP_level_dam_adjust(caster, type, tmp->stats.dam, 0);
     tmp->last_sp = spells[type].bdur + SP_level_strength_adjust(caster, type);
 
     tmp->direction = dir;
@@ -538,7 +539,7 @@ int fire_bolt(object *op, object *caster, int dir, int type)
  * @param at The archetype to fire.
  * @param type Spell ID.
  * @return 0 on failure, 1 on success. */
-int fire_arch_from_position(object *op, object *caster, sint16 x, sint16 y, int dir, archetype *at, int type, object *target)
+int fire_arch_from_position(object *op, object *caster, int16_t x, int16_t y, int dir, archetype *at, int type, object *target)
 {
     object *tmp, *env;
 
@@ -560,7 +561,7 @@ int fire_arch_from_position(object *op, object *caster, sint16 x, sint16 y, int 
     }
 
     tmp->stats.sp = type;
-    tmp->stats.dam = (sint16) SP_level_dam_adjust(caster, type, tmp->stats.dam, 0);
+    tmp->stats.dam = (int16_t) SP_level_dam_adjust(caster, type, tmp->stats.dam, 0);
     tmp->stats.hp = spells[type].bdur + SP_level_strength_adjust(caster, type);
     tmp->x = x, tmp->y = y;
     tmp->direction = dir;
@@ -605,7 +606,7 @@ int cast_cone(object *op, object *caster, int dir, int strength, int spell_type,
 {
     object *tmp;
     int i, success = 0, range_min = -1, range_max = 1;
-    uint32 count_ref;
+    uint32_t count_ref;
 
     if (!dir) {
         range_min = -3, range_max = 4, strength /= 2;
@@ -649,7 +650,7 @@ int cast_cone(object *op, object *caster, int dir, int strength, int spell_type,
         }
 
         tmp->stats.hp = strength;
-        tmp->stats.dam = (sint16) SP_level_dam_adjust(caster, spell_type, tmp->stats.dam, 0);
+        tmp->stats.dam = (int16_t) SP_level_dam_adjust(caster, spell_type, tmp->stats.dam, 0);
         tmp->stats.maxhp = tmp->count;
 
         if (!QUERY_FLAG(tmp, FLAG_FLYING)) {
@@ -798,7 +799,7 @@ void check_fired_arch(object *op)
  * @param flags Spell flags.
  * @return 1 if the object can cast the spell on the target, 0
  * otherwise. */
-int find_target_for_spell(object *op, object **target, uint32 flags)
+int find_target_for_spell(object *op, object **target, uint32_t flags)
 {
     object *tmp;
 
@@ -892,7 +893,7 @@ int find_target_for_spell(object *op, object **target, uint32 flags)
 int SP_level_dam_adjust(object *caster, int spell_type, int base_dam, int exact)
 {
     int level = SK_level(caster);
-    sint16 dam;
+    int16_t dam;
 
     /* Sanity check */
     if (level <= 0 || level > MAXLEVEL) {
@@ -910,7 +911,7 @@ int SP_level_dam_adjust(object *caster, int spell_type, int base_dam, int exact)
         base_dam = spells[spell_type].bdam;
     }
 
-    dam = (sint16) ((float) base_dam * LEVEL_DAMAGE(level) * PATH_DMG_MULT(caster, find_spell(spell_type)));
+    dam = (int16_t) ((float) base_dam * LEVEL_DAMAGE(level) * PATH_DMG_MULT(caster, find_spell(spell_type)));
 
     if (exact || !dam) {
         return dam;

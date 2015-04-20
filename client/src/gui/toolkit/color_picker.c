@@ -95,7 +95,7 @@ void color_picker_set_notation(color_picker_struct *color_picker, const char *co
  * @param[out] r Will contain the red value.
  * @param[out] g Will contain the green value.
  * @param[out] b Will contain the blue value. */
-void color_picker_get_rgb(color_picker_struct *color_picker, uint8 *r, uint8 *g, uint8 *b)
+void color_picker_get_rgb(color_picker_struct *color_picker, uint8_t *r, uint8_t *g, uint8_t *b)
 {
     double rgb[3];
 
@@ -122,7 +122,7 @@ static int color_picker_element_show(SDL_Surface *surface, color_picker_struct *
     int x, y, mx, my;
     double hsv[3], rgb[3];
     SDL_Rect dest;
-    uint8 r, g, b;
+    uint8_t r, g, b;
 
     box.x = color_picker->x + color_picker->elements[type].coords.x;
     box.y = color_picker->y + color_picker->elements[type].coords.y;
@@ -177,7 +177,7 @@ static int color_picker_element_show(SDL_Surface *surface, color_picker_struct *
 
     if (type == COLOR_PICKER_ELEM_COLOR) {
         int selx, sely;
-        uint32 pixel;
+        uint32_t pixel;
 
         selx = 0;
         sely = 0;

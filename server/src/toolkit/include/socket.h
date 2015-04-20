@@ -525,7 +525,7 @@ enum {
 #define CS_STAT_RES_BLIND       117
 
 #define CS_STAT_EQUIP_START 100
-#define CS_STAT_EQUIP_END 115
+#define CS_STAT_EQUIP_END 116
 
 #define CS_STAT_PROT_START 130
 #define CS_STAT_PROT_END 149
@@ -699,7 +699,7 @@ typedef struct socket_t {
     /**
      * Port that the socket connection will use.
      */
-    uint16 port;
+    uint16_t port;
 
     /**
      * SSL socket handle.

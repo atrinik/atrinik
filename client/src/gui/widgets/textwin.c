@@ -29,6 +29,7 @@
  * @author Alex Tokar */
 
 #include <global.h>
+#include <toolkit_string.h>
 
 /**
  * Names of the text window tabs. */
@@ -102,7 +103,7 @@ static int text_anchor_handle(const char *anchor_action, const char *buf, size_t
     return 0;
 }
 
-static void textwin_tab_append(widgetdata *widget, uint8 id, uint8 type, const char *color, const char *str)
+static void textwin_tab_append(widgetdata *widget, uint8_t id, uint8_t type, const char *color, const char *str)
 {
     textwin_struct *textwin;
     SDL_Rect box;
@@ -252,6 +253,10 @@ void textwin_tab_free(textwin_tab_struct *tab)
     if (tab->charnames) {
         efree(tab->charnames);
     }
+
+    text_input_destroy(&tab->text_input);
+    text_input_history_free(tab->text_input_history);
+    button_destroy(&tab->button);
 }
 
 void textwin_tab_remove(widgetdata *widget, const char *name)
@@ -287,7 +292,7 @@ void textwin_tab_add(widgetdata *widget, const char *name)
     char buf[MAX_BUF];
 
     textwin = TEXTWIN(widget);
-    textwin->tabs = memory_reallocz(textwin->tabs, sizeof(*textwin->tabs) * textwin->tabs_num, sizeof(*textwin->tabs) * (textwin->tabs_num + 1));
+    textwin->tabs = ereallocz(textwin->tabs, sizeof(*textwin->tabs) * textwin->tabs_num, sizeof(*textwin->tabs) * (textwin->tabs_num + 1));
 
     textwin->tabs[textwin->tabs_num].type = textwin_tab_name_to_id(name);
 
@@ -314,7 +319,7 @@ void textwin_tab_add(widgetdata *widget, const char *name)
     textwin_readjust(widget);
 }
 
-int textwin_tab_find(widgetdata *widget, uint8 type, const char *name, size_t *id)
+int textwin_tab_find(widgetdata *widget, uint8_t type, const char *name, size_t *id)
 {
     textwin_struct *textwin;
 
@@ -351,8 +356,8 @@ void draw_info_tab(size_t type, const char *color, const char *str)
     char *name;
     widgetdata *widget;
     textwin_struct *textwin;
-    uint32 bottom;
-    uint8 found;
+    uint32_t bottom;
+    uint8_t found;
     size_t i;
 
     sb = stringbuffer_new();
@@ -439,7 +444,7 @@ void draw_info(const char *color, const char *str)
  * in the priority list. */
 void textwin_handle_copy(widgetdata *widget)
 {
-    sint64 start, end;
+    int64_t start, end;
     textwin_struct *textwin;
     char *str, *cp;
     size_t i, pos;
@@ -598,7 +603,7 @@ static void widget_draw(widgetdata *widget)
         SDL_Color bg_color;
 
         if (text_color_parse(setting_get_str(OPT_CAT_CLIENT, OPT_TEXT_WINDOW_BG_COLOR), &bg_color)) {
-            filledRectAlpha(ScreenSurface, widget->x, widget->y, widget->x + widget->w - 1, widget->y + widget->h - 1, ((uint32) bg_color.r << 24) | ((uint32) bg_color.g << 16) | ((uint32) bg_color.b << 8) | (uint32) alpha);
+            filledRectAlpha(ScreenSurface, widget->x, widget->y, widget->x + widget->w - 1, widget->y + widget->h - 1, ((uint32_t) bg_color.r << 24) | ((uint32_t) bg_color.g << 16) | ((uint32_t) bg_color.b << 8) | (uint32_t) alpha);
         }
     }
 
@@ -1016,7 +1021,7 @@ static void menu_textwin_tabs(widgetdata *widget, widgetdata *menuitem, SDL_Even
     widgetdata *tmp, *tmp2, *submenu;
     textwin_struct *textwin;
     size_t i, id;
-    uint8 found;
+    uint8_t found;
     _widget_label *label;
     char *cp;
 
@@ -1137,7 +1142,7 @@ static void menu_textwin_players(widgetdata *widget, widgetdata *menuitem, SDL_E
     textwin_struct *textwin;
     size_t pos;
     char charname[MAX_BUF], buf[HUGE_BUF];
-    uint8 found;
+    uint8_t found;
     widgetdata *tmp, *submenu;
     _widget_label *label;
 

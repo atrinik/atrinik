@@ -30,37 +30,17 @@
 
 #include <global.h>
 
-/**
- * Name of the API. */
-#define API_NAME sha1
+TOOLKIT_API();
 
-/**
- * If 1, the API has been initialized. */
-static uint8 did_init = 0;
-
-/**
- * Initialize the sha1 API.
- * @internal */
-void toolkit_sha1_init(void)
+TOOLKIT_INIT_FUNC(sha1)
 {
-
-    TOOLKIT_INIT_FUNC_START(sha1)
-    {
-    }
-    TOOLKIT_INIT_FUNC_END()
 }
+TOOLKIT_INIT_FUNC_FINISH
 
-/**
- * Deinitialize the sha1 API.
- * @internal */
-void toolkit_sha1_deinit(void)
+TOOLKIT_DEINIT_FUNC(sha1)
 {
-
-    TOOLKIT_DEINIT_FUNC_START(sha1)
-    {
-    }
-    TOOLKIT_DEINIT_FUNC_END()
 }
+TOOLKIT_DEINIT_FUNC_FINISH
 
 /*
  * 32-bit integer manipulation macros (big endian)
@@ -325,7 +305,7 @@ void sha1_finish( sha1_context *ctx, unsigned char output[20] )
     last = ctx->total[0] & 0x3F;
     padn = ( last < 56 ) ? ( 56 - last ) : ( 120 - last );
 
-    sha1_update( ctx, (unsigned char *) sha1_padding, padn );
+    sha1_update( ctx, (const unsigned char *) sha1_padding, padn );
     sha1_update( ctx, msglen, 8 );
 
     PUT_ULONG_BE( ctx->state[0], output,  0 );

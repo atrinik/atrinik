@@ -29,6 +29,7 @@
  * @author Alex Tokar */
 
 #include <global.h>
+#include <toolkit_string.h>
 
 /** Linked list of possible effects. */
 static effect_struct *effects = NULL;
@@ -428,7 +429,7 @@ void effect_sprites_play(void)
     effect_sprite *tmp, *next;
     int num_sprites = 0;
     int x_check, y_check;
-    uint32 ticks;
+    uint32_t ticks;
 
     /* No current effect or not playing, quit. */
     if (!current_effect || cpl.state != ST_PLAY) {
@@ -648,8 +649,8 @@ int effect_start(const char *name)
 void effect_debug(const char *type)
 {
     if (!strcmp(type, "num")) {
-        uint32 num = 0;
-        uint64 bytes;
+        uint32_t num = 0;
+        uint64_t bytes;
         double kbytes;
         effect_sprite *tmp;
 
@@ -662,16 +663,16 @@ void effect_debug(const char *type)
             num++;
         }
 
-        bytes = ((uint64) sizeof(effect_sprite)) * num;
+        bytes = ((uint64_t) sizeof(effect_sprite)) * num;
         kbytes = (double) bytes / 1024;
 
-        draw_info_format(COLOR_WHITE, "Visible sprites: [green]%d[/green] using [green]%"FMT64U "[/green] bytes ([green]%2.2f[/green] KB)", num, bytes, kbytes);
+        draw_info_format(COLOR_WHITE, "Visible sprites: [green]%d[/green] using [green]%"PRIu64 "[/green] bytes ([green]%2.2f[/green] KB)", num, bytes, kbytes);
     } else if (!strcmp(type, "sizeof")) {
         draw_info(COLOR_WHITE, "Information about various data structures used by effects:\n");
-        draw_info_format(COLOR_WHITE, "Size of a single sprite definition: [green]%"FMT64U "[/green]", (uint64) sizeof(effect_sprite_def));
-        draw_info_format(COLOR_WHITE, "Size of a single visible sprite: [green]%"FMT64U "[/green]", (uint64) sizeof(effect_sprite));
-        draw_info_format(COLOR_WHITE, "Size of a single effect structure: [green]%"FMT64U "[/green]", (uint64) sizeof(effect_struct));
-        draw_info_format(COLOR_WHITE, "Size of a single overlay: [green]%"FMT64U "[/green]", (uint64) sizeof(effect_overlay));
+        draw_info_format(COLOR_WHITE, "Size of a single sprite definition: [green]%"PRIu64 "[/green]", (uint64_t) sizeof(effect_sprite_def));
+        draw_info_format(COLOR_WHITE, "Size of a single visible sprite: [green]%"PRIu64 "[/green]", (uint64_t) sizeof(effect_sprite));
+        draw_info_format(COLOR_WHITE, "Size of a single effect structure: [green]%"PRIu64 "[/green]", (uint64_t) sizeof(effect_struct));
+        draw_info_format(COLOR_WHITE, "Size of a single overlay: [green]%"PRIu64 "[/green]", (uint64_t) sizeof(effect_overlay));
     } else {
         draw_info_format(COLOR_RED, "No such debug option '%s'.", type);
     }
@@ -692,7 +693,7 @@ void effect_stop(void)
 /**
  * Check whether there is an overlay on the active effect (if any).
  * @return 1 if there is an overlay, 0 otherwise. */
-uint8 effect_has_overlay(void)
+uint8_t effect_has_overlay(void)
 {
     if (!current_effect) {
         return 0;

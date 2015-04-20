@@ -5,6 +5,7 @@ set(SOURCES
 	src/commands/permission/freeze.c
 	src/commands/permission/kick.c
 	src/commands/permission/memfree.c
+	src/commands/permission/memleak.c
 	src/commands/permission/mod_chat.c
 	src/commands/permission/no_chat.c
 	src/commands/permission/opsay.c

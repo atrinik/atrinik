@@ -28,6 +28,7 @@
  * @todo Explain process, layout signs (# C D < >) and such. */
 
 #include <global.h>
+#include <toolkit_string.h>
 
 /**
  * Dumps specified layout using printf().

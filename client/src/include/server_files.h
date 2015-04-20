@@ -46,7 +46,7 @@ typedef struct server_files_struct {
     char *name;
 
     /** If 0, will be (re-)loaded. */
-    uint8 loaded;
+    uint8_t loaded;
 
     /**
      * Update status of this file:
@@ -55,7 +55,7 @@ typedef struct server_files_struct {
      * - 1: Start updating the file the next time server_files_updating()
      *      is called.
      * - -1: The file is being updated. */
-    sint8 update;
+    int8_t update;
 
     /** Size of the file. */
     size_t size;

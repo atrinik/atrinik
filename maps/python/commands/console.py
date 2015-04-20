@@ -268,9 +268,9 @@ def main():
     if not console:
         console = console_create(activator)
 
+    console.push(msg)
+
     if not msg:
         console.show()
-    else:
-        console.push(msg)
 
 main()

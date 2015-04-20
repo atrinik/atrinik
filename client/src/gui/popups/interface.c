@@ -29,6 +29,8 @@
  * @author Alex Tokar */
 
 #include <global.h>
+#include <packet.h>
+#include <toolkit_string.h>
 
 /**
  * The current interface data. */
@@ -206,6 +208,10 @@ static int popup_destroy_callback(popup_struct *popup)
     interface_destroy(interface_data);
     interface_data = NULL;
     interface_popup = NULL;
+
+    button_destroy(&button_hello);
+    button_destroy(&button_close);
+
     return 1;
 }
 
@@ -365,9 +371,9 @@ static const char *popup_clipboard_copy_func(popup_struct *popup)
 }
 
 /** @copydoc socket_command_struct::handle_func */
-void socket_command_interface(uint8 *data, size_t len, size_t pos)
+void socket_command_interface(uint8_t *data, size_t len, size_t pos)
 {
-    uint8 scroll_bottom = 0, type;
+    uint8_t scroll_bottom = 0, type;
     StringBuffer *sb_message;
     SDL_Rect box;
     interface_struct *old_interface_data;
@@ -602,5 +608,16 @@ void interface_redraw(void)
 {
     if (interface_popup) {
         interface_popup->redraw = 1;
+    }
+}
+
+/**
+ * Deinitialize the interface system.
+ */
+void interface_deinit(void)
+{
+    if (text_input_history != NULL) {
+        text_input_history_free(text_input_history);
+        text_input_destroy(&text_input);
     }
 }

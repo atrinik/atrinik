@@ -22,15 +22,19 @@ if (NOT DL_LIBRARY AND NOT MINGW)
 endif ()
 
 # Add some useful compile flags.
-add_definitions(-Wall -Wextra -Wno-unused-parameter)
+add_definitions(-Wall -Wextra -Wno-unused-parameter -D_GNU_SOURCE -D__USE_MINGW_ANSI_STDIO=0 -std=gnu99)
 add_definitions(${CUSTOM_WARNINGS})
 
 if (ENABLE_EXTRA_WARNINGS)
-    add_definitions(-ftree-vrp -Wdeclaration-after-statement -Wundef -Wpointer-arith -Wbad-function-cast -Wcast-align -Wlogical-op -Waggregate-return -Wnested-externs -Wunreachable-code -Wstack-protector -D_POSIX_C_SOURCE=200112L -D_GNU_SOURCE -fbounds-check -ftrapv -fstack-protector-all -Wformat=2 -Wformat-security -Winit-self -Wshadow -Wunsafe-loop-optimizations -Wbad-function-cast)
+    add_definitions(-ftree-vrp -Wundef -Wpointer-arith -Wbad-function-cast -Wcast-align -Wlogical-op -Waggregate-return -Wnested-externs -Wunreachable-code -Wstack-protector -fbounds-check -ftrapv -Wformat -Wformat-security -Winit-self -Wshadow -Wbad-function-cast -Wmissing-declarations)
+
+    if (NOT MINGW)
+        add_definitions(-fstack-protector-all)
+    endif ()
 endif ()
 
 if (ENABLE_AGGRESSIVE_WARNINGS)
-    add_definitions(-Wcast-qual -Wmissing-declarations)
+    add_definitions(-Wcast-qual -Wunsafe-loop-optimizations)
 endif ()
 
 # Turn warnings into errors?
@@ -93,11 +97,14 @@ if (CHECK_LIBRARY)
         src/tests/unit/server/check_arch.c
         src/tests/unit/server/check_ban.c
         src/tests/unit/server/check_cache.c
+        src/tests/unit/server/check_memory.c
         src/tests/unit/server/check_object.c
+        src/tests/unit/server/check_packet.c
         src/tests/unit/server/check_pbkdf2.c
         src/tests/unit/server/check_re_cmp.c
         src/tests/unit/server/check_shstr.c
         src/tests/unit/server/check_string.c
+        src/tests/unit/server/check_stringbuffer.c
         src/tests/unit/server/check_utils.c
         src/tests/unit/types/check_light_apply.c
         src/tests/unit/types/check_sound_ambient.c)

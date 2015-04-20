@@ -33,7 +33,7 @@
 /**
  * Last clicked ticks to prevent single button click from triggering many
  * actions at once. */
-static uint32 ticks = 0;
+static uint32_t ticks = 0;
 
 /**
  * Show the range buttons.

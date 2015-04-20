@@ -63,12 +63,14 @@ int object_move_to(object *op, int dir, object *originator, mapstruct *m,
     object *tmp, *floor, *floor_tmp;
     int z, z_highest, sub_layer;
 
-    assert(op != NULL);
-    assert(dir > 0 && dir <= NUM_DIRECTION);
-    assert(originator != NULL);
-    assert(m != NULL);
-    assert(x >= 0 && x < m->width);
-    assert(y >= 0 && y < m->height);
+    HARD_ASSERT(op != NULL);
+    HARD_ASSERT(originator != NULL);
+    HARD_ASSERT(m != NULL);
+
+    SOFT_ASSERT_RC(dir > 0 && dir <= NUM_DIRECTION, 0, "Invalid direction: %d",
+            dir);
+    SOFT_ASSERT_RC(x >= 0 && x < m->width, 0, "Invalid X coordinate: %d", x);
+    SOFT_ASSERT_RC(y >= 0 && y < m->height, 0, "Invalid Y coordinate: %d", y);
 
     floor = GET_MAP_OB_LAYER(op->map, op->x, op->y, LAYER_FLOOR, op->sub_layer);
     z = floor != NULL ? floor->z : 0;

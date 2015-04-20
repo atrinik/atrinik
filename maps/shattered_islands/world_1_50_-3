@@ -1,0 +1,271 @@
+arch map
+name Caverns
+msg
+Created:  2011-03-26 emperorbma
+Modified: 2011-05-07 emperorbma
+endmsg
+width 24
+height 24
+difficulty 30
+darkness 2
+bg_music eranasp.mod
+region strakewood_island_underground
+end
+arch floor_cave6
+x 15
+end
+arch fwall_marble3a
+x 15
+end
+arch floor_cave6
+x 15
+y 1
+end
+arch fwall_marble3b
+x 15
+y 1
+end
+arch floor_cave1
+x 16
+end
+arch floor_cave1
+x 16
+y 1
+end
+arch fwall_marble3a
+x 16
+y 1
+end
+arch floor_cave1
+x 16
+y 2
+end
+arch fwall_marble3b
+x 16
+y 2
+end
+arch floor_cave1
+x 17
+end
+arch floor_cave5
+x 17
+y 1
+end
+arch floor_cave6
+x 17
+y 2
+end
+arch fwall_marble3b
+x 17
+y 2
+end
+arch floor_cave6
+x 17
+y 3
+end
+arch fwall_marble3a
+x 17
+y 3
+end
+arch floor_cave5
+x 18
+end
+arch floor_cave6
+x 18
+y 1
+end
+arch floor_cave6
+x 18
+y 2
+end
+arch floor_cave1
+x 18
+y 3
+end
+arch fwall_marble3c
+x 18
+y 3
+end
+arch floor_cave6
+x 18
+y 4
+end
+arch fwall_marble3c
+x 18
+y 4
+end
+arch floor_cave1
+x 19
+end
+arch floor_cave2
+x 19
+y 1
+end
+arch cave_deco_f7.101
+x 19
+y 1
+end
+arch floor_cave6
+x 19
+y 2
+end
+arch floor_cave1
+x 19
+y 3
+end
+arch floor_cave5
+x 19
+y 4
+end
+arch fwall_marble3b
+x 19
+y 4
+end
+arch floor_cave5
+x 19
+y 5
+end
+arch fwall_marble3b
+x 19
+y 5
+end
+arch floor_cave6
+x 20
+end
+arch floor_cave1
+x 20
+y 1
+end
+arch floor_cave1
+x 20
+y 2
+end
+arch floor_cave2
+x 20
+y 3
+end
+arch floor_cave6
+x 20
+y 4
+end
+arch floor_cave2
+x 20
+y 5
+end
+arch fwall_marble3a
+x 20
+y 5
+end
+arch floor_cave5
+x 21
+end
+arch floor_cave6
+x 21
+y 1
+end
+arch floor_cave2
+x 21
+y 2
+end
+arch dirt_floor4
+x 21
+y 2
+end
+arch floor_cave1
+x 21
+y 3
+end
+arch floor_cave1
+x 21
+y 4
+end
+arch floor_cave5
+x 21
+y 5
+end
+arch fwall_marble3b
+x 21
+y 5
+end
+arch floor_cave6
+x 21
+y 6
+end
+arch fwall_marble3c
+x 21
+y 6
+end
+arch floor_cave5
+x 22
+end
+arch floor_cave5
+x 22
+y 1
+end
+arch floor_cave1
+x 22
+y 2
+end
+arch floor_cave5
+x 22
+y 3
+end
+arch floor_cave2
+x 22
+y 4
+end
+arch floor_cave2
+x 22
+y 5
+end
+arch floor_cave1
+x 22
+y 6
+end
+arch fwall_marble3b
+x 22
+y 6
+end
+arch floor_cave2
+x 23
+end
+arch floor_cave6
+x 23
+y 1
+end
+arch cave_deco_f8.101
+x 23
+y 1
+end
+arch floor_cave5
+x 23
+y 2
+end
+arch floor_cave6
+x 23
+y 3
+end
+arch floor_cave1
+x 23
+y 4
+end
+arch floor_cave2
+x 23
+y 5
+end
+arch floor_cave6
+x 23
+y 6
+end
+arch fwall_marble3c
+x 23
+y 6
+end
+arch floor_cave2
+x 23
+y 7
+end
+arch fwall_marble3a
+x 23
+y 7
+end

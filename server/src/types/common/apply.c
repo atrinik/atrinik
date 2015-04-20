@@ -61,7 +61,7 @@ int object_apply_item(object *op, object *applier, int aflags)
 {
     int basic_aflag;
     object *tmp;
-    uint8 ring_left;
+    uint8_t ring_left;
 
     if (!op || !applier) {
         return OBJECT_METHOD_UNHANDLED;

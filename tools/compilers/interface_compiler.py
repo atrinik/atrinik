@@ -550,7 +550,7 @@ class TagCompilerCheck(TagCompilerAnd):
                     quest_name = elem.attrib[attr]
                     part_name = ""
                 else:
-                    quest_name = ""
+                    quest_name = self.npc.quest_uid
                     part_name = elem.attrib[attr]
 
                 if part_name:
@@ -573,7 +573,7 @@ class TagCompilerCheck(TagCompilerAnd):
                             self.npc.imports.append(imp)
                 else:
                     self.precond.write(
-                        "QuestManager(self._activator, self._npc, {quest_name})"
+                        "QuestManager(self._activator, {quest_name})"
                         ".{attr}({part_name})", quest_name=quest_name,
                         attr=attr, part_name=part_name)
 

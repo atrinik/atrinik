@@ -2,14 +2,13 @@ arch map
 name Greyton Jail
 msg
 Created:  2010-06-16 Alex Tokar
-Modified: 2011-11-10 Alex Tokar
+Modified: 2015-04-19 Alex Tokar
 endmsg
 width 15
 height 23
 difficulty 1
 darkness 4
 no_magic 1
-no_priest 1
 no_harm 1
 bg_music escape.mid
 region greyton
@@ -357,7 +356,7 @@ x 1
 y 19
 end
 arch stairs_stone_up
-slaying ../../../world_1213
+slaying ../../../world_11_67
 hp 16
 sp 7
 x 1
@@ -368,7 +367,7 @@ x 1
 y 20
 end
 arch stairs_stone_up
-slaying ../../../world_1213
+slaying ../../../world_11_67
 hp 16
 sp 8
 x 1

@@ -68,7 +68,7 @@ static void process_func(object *op)
 
         if (++op->stats.wc >= (NUM_ANIMATIONS(op) / NUM_FACINGS(op)) / 2) {
             object *tmp, *next;
-            uint8 is_blocked = 0;
+            uint8_t is_blocked = 0;
 
             for (tmp = GET_MAP_OB(op->map, op->x, op->y); tmp; tmp = next) {
                 next = tmp->above;

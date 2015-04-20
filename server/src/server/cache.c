@@ -107,7 +107,7 @@ cache_struct *cache_find(shstr *key)
  * @param flags A combination of @ref CACHE_FLAG_xxx.
  * @return 1 on success, 0 on failure (NULL ptr, or cache entry with name
  * 'key' already exists). */
-int cache_add(const char *key, void *ptr, uint32 flags)
+int cache_add(const char *key, void *ptr, uint32_t flags)
 {
     size_t i, ii;
     shstr *sh_key = add_string(key);
@@ -161,7 +161,7 @@ int cache_remove(shstr *key)
 
     /* The entry wants global events, so send one about it being removed. */
     if (entry->flags & CACHE_FLAG_GEVENT) {
-        trigger_global_event(GEVENT_CACHE_REMOVED, entry->ptr, (uint32 *) & entry->flags);
+        trigger_global_event(GEVENT_CACHE_REMOVED, entry->ptr, (uint32_t *) & entry->flags);
     }
 
     /* Does it want to be freed automatically? */
@@ -202,7 +202,7 @@ void cache_remove_all(void)
 /**
  * Remove all cache entries identified by (a combination of) 'flags'.
  * @param flags One or a combination of @ref CACHE_FLAG_xxx. */
-void cache_remove_by_flags(uint32 flags)
+void cache_remove_by_flags(uint32_t flags)
 {
     size_t i;
 

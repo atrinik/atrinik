@@ -135,7 +135,7 @@ typedef struct _mapdata {
     /** Map path. */
     char map_path[HUGE_BUF];
 
-    uint32 name_fadeout_start;
+    uint32_t name_fadeout_start;
 
     /** X length. */
     int xlen;
@@ -163,7 +163,7 @@ typedef struct _mapdata {
     /**
      * Player's current sub-layer.
      */
-    uint8 player_sub_layer;
+    uint8_t player_sub_layer;
 
     /**
      * Region map.
@@ -182,73 +182,73 @@ typedef struct MapCell {
     char pcolor[NUM_REAL_LAYERS][COLOR_BUF];
 
     /** Position. */
-    uint8 quick_pos[NUM_REAL_LAYERS];
+    uint8_t quick_pos[NUM_REAL_LAYERS];
 
     /** If this is where our enemy is. */
-    uint8 probe[NUM_REAL_LAYERS];
+    uint8_t probe[NUM_REAL_LAYERS];
 
     /** Cell darkness. */
-    uint8 darkness[NUM_SUB_LAYERS];
+    uint8_t darkness[NUM_SUB_LAYERS];
 
     /** Object flags. */
-    uint8 flags[NUM_REAL_LAYERS];
+    uint8_t flags[NUM_REAL_LAYERS];
 
     /** Double drawing. */
-    uint8 draw_double[NUM_REAL_LAYERS];
+    uint8_t draw_double[NUM_REAL_LAYERS];
 
     /** Alpha value. */
-    uint8 alpha[NUM_REAL_LAYERS];
+    uint8_t alpha[NUM_REAL_LAYERS];
 
     /** Faces. */
-    sint16 faces[NUM_REAL_LAYERS];
+    int16_t faces[NUM_REAL_LAYERS];
 
     /** Height of this maptile. */
-    sint16 height[NUM_REAL_LAYERS];
+    int16_t height[NUM_REAL_LAYERS];
 
     /** Zoom X. */
-    sint16 zoom_x[NUM_REAL_LAYERS];
+    int16_t zoom_x[NUM_REAL_LAYERS];
 
     /** Zoom Y. */
-    sint16 zoom_y[NUM_REAL_LAYERS];
+    int16_t zoom_y[NUM_REAL_LAYERS];
 
     /** Align. */
-    sint16 align[NUM_REAL_LAYERS];
+    int16_t align[NUM_REAL_LAYERS];
 
     /** Rotate. */
-    sint16 rotate[NUM_REAL_LAYERS];
+    int16_t rotate[NUM_REAL_LAYERS];
 
     /** Whether to show the object in red. */
-    uint8 infravision[NUM_REAL_LAYERS];
+    uint8_t infravision[NUM_REAL_LAYERS];
 
     /** How we stretch this is really 8 char for N S E W. */
-    uint32 stretch[NUM_SUB_LAYERS];
+    uint32_t stretch[NUM_SUB_LAYERS];
 
     /**
      * Target object.
      */
-    uint32 target_object_count[NUM_REAL_LAYERS];
+    uint32_t target_object_count[NUM_REAL_LAYERS];
 
     /**
      * Whether the target is a friend.
      */
-    uint8 target_is_friend[NUM_REAL_LAYERS];
+    uint8_t target_is_friend[NUM_REAL_LAYERS];
 
-    uint8 anim_last[NUM_REAL_LAYERS];
+    uint8_t anim_last[NUM_REAL_LAYERS];
 
-    uint8 anim_speed[NUM_REAL_LAYERS];
+    uint8_t anim_speed[NUM_REAL_LAYERS];
 
-    uint8 anim_facing[NUM_REAL_LAYERS];
+    uint8_t anim_facing[NUM_REAL_LAYERS];
 
-    uint8 anim_state[NUM_REAL_LAYERS];
+    uint8_t anim_state[NUM_REAL_LAYERS];
 
-    uint8 anim_flags[NUM_SUB_LAYERS];
+    uint8_t anim_flags[NUM_SUB_LAYERS];
 
     /**
      * Whether Fog of War is enabled on this cell.
      */
-    uint8 fow;
+    uint8_t fow;
 
-    uint8 priority[NUM_SUB_LAYERS];
+    uint8_t priority[NUM_SUB_LAYERS];
 } MapCell;
 
 #define MAP_STARTX map_width * (MAP_FOW_SIZE / 2)
@@ -262,7 +262,7 @@ typedef struct MapCell {
     (map_width * MAP_FOW_SIZE) + (_x) + map_width * (MAP_FOW_SIZE / 2)])
 
 typedef struct map_target_struct {
-    uint32 count;
+    uint32_t count;
     int x;
     int y;
 } map_target_struct;
@@ -311,8 +311,8 @@ typedef struct map_anim {
     double xoff; ///< Movement in X per tick.
     double yoff; ///< Movement in Y per tick.
 
-    uint32 start_tick; ///< The time we started this anim.
-    uint32 last_tick; ///< This is the end-tick.
+    uint32_t start_tick; ///< The time we started this anim.
+    uint32_t last_tick; ///< This is the end-tick.
 } map_anim_t;
 
 #endif

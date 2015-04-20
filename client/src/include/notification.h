@@ -42,12 +42,12 @@ typedef struct notification_struct {
     char *shortcut;
 
     /** When the notification was created. */
-    uint32 start_ticks;
+    uint32_t start_ticks;
 
     /**
      * Milliseconds that must pass before the notification is
      * dismissed. */
-    uint32 delay;
+    uint32_t delay;
 } notification_struct;
 
 /**

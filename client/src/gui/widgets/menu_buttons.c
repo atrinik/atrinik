@@ -109,7 +109,8 @@ static void widget_draw(widgetdata *widget)
                 tmp = cur_widget[button_widgets[i]];
             }
 
-            assert(tmp != NULL);
+            SOFT_ASSERT(tmp != NULL, "Could not find widget type: %d",
+                    button_widgets[i]);
             buttons[i].pressed_forced = tmp->show;
         } else if (i == BUTTON_HELP) {
             text = "[y=2]?";
@@ -180,9 +181,14 @@ static int widget_event(widgetdata *widget, SDL_Event *event)
                 tmp = cur_widget[button_widgets[i]];
             }
 
-            assert(tmp != NULL);
+            SOFT_ASSERT_RC(tmp != NULL, 1, "Could not find widget type: %d",
+                    button_widgets[i]);
             WIDGET_SHOW_TOGGLE(tmp);
             SetPriorityWidget(tmp);
+
+            if (button_widgets[i] == PARTY_ID && tmp->show) {
+                send_command("/party list");
+            }
 
             return 1;
         }
@@ -216,6 +222,14 @@ static int widget_event(widgetdata *widget, SDL_Event *event)
     return 0;
 }
 
+/** @copydoc widgetdata::deinit_func */
+static void widget_deinit(widgetdata *widget)
+{
+    for (int i = 0; i < NUM_BUTTONS; i++) {
+        button_destroy(&buttons[i]);
+    }
+}
+
 /**
  * Initialize one menu buttons widget.
  */
@@ -240,4 +254,5 @@ void widget_menu_buttons_init(widgetdata *widget)
     widget->draw_func = widget_draw;
     widget->background_func = widget_background;
     widget->event_func = widget_event;
+    widget->deinit_func = widget_deinit;
 }

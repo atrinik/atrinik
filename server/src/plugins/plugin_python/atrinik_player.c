@@ -46,8 +46,8 @@ static fields_struct fields[] = {
      * a script has finished executing (say events do this, for example). */
     {"class_ob", FIELDTYPE_OBJECT, offsetof(player, class_ob), FIELDFLAG_READONLY, 0},
     {"savebed_map", FIELDTYPE_CARY, offsetof(player, savebed_map), 0, sizeof(((player *) NULL)->savebed_map)},
-    {"bed_x", FIELDTYPE_SINT16, offsetof(player, bed_x), 0, 0},
-    {"bed_y", FIELDTYPE_SINT16, offsetof(player, bed_y), 0, 0},
+    {"bed_x", FIELDTYPE_INT16, offsetof(player, bed_x), 0, 0},
+    {"bed_y", FIELDTYPE_INT16, offsetof(player, bed_y), 0, 0},
     {"ob", FIELDTYPE_OBJECT, offsetof(player, ob), FIELDFLAG_READONLY, 0},
     {"quest_container", FIELDTYPE_OBJECT, offsetof(player, quest_container), FIELDFLAG_READONLY, 0},
     {"target_object", FIELDTYPE_OBJECTREF, offsetof(player, target_object), 0, offsetof(player, target_object_count)},
@@ -59,7 +59,7 @@ static fields_struct fields[] = {
     {"tsi", FIELDTYPE_BOOLEAN, offsetof(player, tsi), 0, 0},
     {"cmd_permissions", FIELDTYPE_LIST, offsetof(player, cmd_permissions), 0, FIELDTYPE_CMD_PERMISSIONS},
     {"factions", FIELDTYPE_LIST, offsetof(player, faction_ids), 0, FIELDTYPE_FACTIONS},
-    {"fame", FIELDTYPE_SINT64, offsetof(player, fame), 0, FIELDTYPE_FACTIONS},
+    {"fame", FIELDTYPE_INT64, offsetof(player, fame), 0, FIELDTYPE_FACTIONS},
     {"container", FIELDTYPE_OBJECT, offsetof(player, container), FIELDFLAG_READONLY, 0},
 
     {"s_ext_title_flag", FIELDTYPE_BOOLEAN, offsetof(player, socket.ext_title_flag), 0, 0},
@@ -124,7 +124,7 @@ static PyObject *Atrinik_Player_GetEquipment(Atrinik_Player *pl, PyObject *args)
  * @return True if the player can carry the object, False otherwise. */
 static PyObject *Atrinik_Player_CanCarry(Atrinik_Player *pl, PyObject *what)
 {
-    uint32 weight;
+    uint32_t weight;
 
     if (PyObject_TypeCheck(what, &Atrinik_ObjectType)) {
         OBJEXISTCHECK((Atrinik_Object *) what);
@@ -151,8 +151,8 @@ static PyObject *Atrinik_Player_CanCarry(Atrinik_Player *pl, PyObject *what)
 static PyObject *Atrinik_Player_AddExp(Atrinik_Player *pl, PyObject *args)
 {
     PyObject *skill;
-    uint32 skill_nr;
-    sint64 exp_gain;
+    uint32_t skill_nr;
+    int64_t exp_gain;
     int exact = 0, level = 0;
 
     if (!PyArg_ParseTuple(args, "OL|ii", &skill, &exp_gain, &exact, &level)) {
@@ -212,7 +212,7 @@ static PyObject *Atrinik_Player_BankDeposit(Atrinik_Player *pl, PyObject *args)
 {
     const char *text;
     int ret;
-    sint64 value;
+    int64_t value;
 
     if (!PyArg_ParseTuple(args, "s", &text)) {
         return NULL;
@@ -233,7 +233,7 @@ static PyObject *Atrinik_Player_BankWithdraw(Atrinik_Player *pl, PyObject *args)
 {
     const char *text;
     int ret;
-    sint64 value;
+    int64_t value;
 
     if (!PyArg_ParseTuple(args, "s", &text)) {
         return NULL;
@@ -370,7 +370,7 @@ static PyObject *Atrinik_Player_Examine(Atrinik_Player *pl, PyObject *args)
 
         cp = hooks->stringbuffer_finish(sb_capture);
         retval = Py_BuildValue("s", cp);
-        free(cp);
+        efree(cp);
 
         return retval;
     }
@@ -431,7 +431,7 @@ static PyObject *Atrinik_Player_SendPacket(Atrinik_Player *pl, PyObject *args)
             if (PyInt_Check(value)) {
                 long val = PyLong_AsLong(value);
 
-                if (val < SINT8_MIN || val > SINT8_MAX) {
+                if (val < INT8_MIN || val > INT8_MAX) {
                     PyErr_Format(PyExc_OverflowError, "Invalid integer value for '%c' format specifier.", format[i]);
                     return NULL;
                 }
@@ -455,7 +455,7 @@ static PyObject *Atrinik_Player_SendPacket(Atrinik_Player *pl, PyObject *args)
             if (PyInt_Check(value)) {
                 long val = PyLong_AsLong(value);
 
-                if (val < SINT16_MIN || val > SINT16_MAX) {
+                if (val < INT16_MIN || val > INT16_MAX) {
                     PyErr_Format(PyExc_OverflowError, "Invalid integer value for '%c' format specifier.", format[i]);
                     return NULL;
                 }
@@ -479,7 +479,7 @@ static PyObject *Atrinik_Player_SendPacket(Atrinik_Player *pl, PyObject *args)
             if (PyInt_Check(value)) {
                 long val = PyLong_AsLong(value);
 
-                if (val < SINT32_MIN || val > SINT32_MAX) {
+                if (val < INT32_MIN || val > INT32_MAX) {
                     PyErr_Format(PyExc_OverflowError, "Invalid integer value for '%c' format specifier.", format[i]);
                     return NULL;
                 }
@@ -530,7 +530,7 @@ static PyObject *Atrinik_Player_SendPacket(Atrinik_Player *pl, PyObject *args)
             }
         } else if (format[i] == 'x') {
             if (PyBytes_Check(value)) {
-                hooks->packet_append_data_len(packet, (uint8 *) PyBytes_AsString(value), PyBytes_Size(value));
+                hooks->packet_append_data_len(packet, (uint8_t *) PyBytes_AsString(value), PyBytes_Size(value));
                 continue;
             }
         } else {
@@ -565,7 +565,7 @@ static PyObject *Atrinik_Player_DrawInfo(Atrinik_Player *pl, PyObject *args, PyO
 {
     static char *kwlist[] = {"message", "color", "type", "global", "name", NULL};
     const char *message, *color, *name;
-    uint8 type, global;
+    uint8_t type, global;
 
     color = COLOR_ORANGE;
     type = CHAT_TYPE_GAME;

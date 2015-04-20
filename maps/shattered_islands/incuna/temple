@@ -2,7 +2,7 @@ arch map
 name Incuna Temple
 msg
 Created:  2010-10-22 Edwin Miltenburg
-Modified: 2011-09-03 Alex Tokar
+Modified: 2015-04-19 Alex Tokar
 endmsg
 width 24
 height 24
@@ -367,7 +367,7 @@ y 1
 end
 arch stairs_stone_up
 direction 5
-slaying ../world_05ae
+slaying ../world_4_84
 hp 6
 sp 6
 x 3
@@ -491,7 +491,7 @@ y 1
 end
 arch stairs_stone_up
 direction 5
-slaying ../world_05ae
+slaying ../world_4_84
 hp 7
 sp 6
 x 4
@@ -611,7 +611,7 @@ y 1
 end
 arch stairs_stone_up
 direction 5
-slaying ../world_05ae
+slaying ../world_4_84
 hp 8
 sp 6
 x 5

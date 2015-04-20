@@ -29,6 +29,7 @@
 #include <global.h>
 #include <check_proto.h>
 #include <gitversion.h>
+#include <toolkit_string.h>
 
 /** Object used in process_events(). */
 static object marker;
@@ -49,11 +50,11 @@ artifactlist *first_artifactlist;
 /** Last player. */
 player *last_player;
 
-uint32 global_round_tag;
+uint32_t global_round_tag;
 int process_delay;
 
 static long shutdown_time;
-static uint8 shutdown_active = 0;
+static uint8_t shutdown_active = 0;
 
 static void process_players1(void);
 static void process_players2(void);
@@ -103,7 +104,7 @@ void leave_map(object *op)
 void set_map_timeout(mapstruct *map)
 {
 #if MAP_DEFAULTTIMEOUT
-    uint32 swap_time = MAP_SWAP_TIME(map);
+    uint32_t swap_time = MAP_SWAP_TIME(map);
 
     if (swap_time == 0) {
         swap_time = MAP_DEFAULTTIMEOUT;
@@ -482,7 +483,7 @@ int swap_apartments(const char *mapold, const char *mapnew, int x, int y, object
     cleanpath = estrdup(mapold);
     string_replace_char(cleanpath, "/", '$');
     path = player_make_path(op->name, cleanpath);
-    oldmap = ready_map_name(path, MAP_PLAYER_UNIQUE);
+    oldmap = ready_map_name(path, NULL, MAP_PLAYER_UNIQUE);
     efree(path);
     efree(cleanpath);
 
@@ -495,7 +496,7 @@ int swap_apartments(const char *mapold, const char *mapnew, int x, int y, object
     cleanpath = estrdup(mapnew);
     string_replace_char(cleanpath, "/", '$');
     path = player_make_path(op->name, cleanpath);
-    newmap = ready_map_name(path, MAP_PLAYER_UNIQUE);
+    newmap = ready_map_name(path, NULL, MAP_PLAYER_UNIQUE);
     efree(path);
     efree(cleanpath);
 
@@ -590,6 +591,10 @@ static void do_specials(void)
     if (*settings.server_host != '\0' && !(pticks % 2521)) {
         metaserver_info_update();
     }
+
+    if (!(pticks % 40)) {
+        memory_check_all();
+    }
 }
 
 void shutdown_timer_start(long secs)
@@ -614,7 +619,7 @@ static int shutdown_timer_check(void)
     }
 
     if (!((shutdown_time - pticks) % (60 * MAX_TICKS)) || pticks == shutdown_time - 5 * MAX_TICKS) {
-        draw_info_type_format(CHAT_TYPE_CHAT, NULL, COLOR_GREEN, NULL, "[Server]: Server will shut down in %02"FMT64U ":%02"FMT64U " minutes.", (uint64) ((shutdown_time - pticks) / MAX_TICKS / 60), (uint64) ((shutdown_time - pticks) / MAX_TICKS % 60));
+        draw_info_type_format(CHAT_TYPE_CHAT, NULL, COLOR_GREEN, NULL, "[Server]: Server will shut down in %02"PRIu64 ":%02"PRIu64 " minutes.", (uint64_t) ((shutdown_time - pticks) / MAX_TICKS / 60), (uint64_t) ((shutdown_time - pticks) / MAX_TICKS % 60));
     }
 
     return 0;
@@ -638,7 +643,7 @@ int main(int argc, char **argv)
 #ifdef HAVE_CHECK
         logger_print(LOG(INFO), "Running unit tests...");
         cleanup();
-        check_main();
+        check_main(argc, argv);
         exit(0);
 #else
         logger_print(LOG(ERROR), "Unit tests have not been compiled, aborting.");

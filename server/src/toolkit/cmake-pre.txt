@@ -84,6 +84,7 @@ check_include_files(sys/socket.h HAVE_SYS_SOCKET_H)
 check_include_files(ndir.h HAVE_NDIR_H)
 check_include_files(crypt.h HAVE_CRYPT_H)
 check_include_files(arpa/inet.h HAVE_ARPA_INET_H)
+check_include_files(valgrind/valgrind.h HAVE_VALGRIND_H)
 
 # Check for various functions.
 check_function_exists(strerror HAVE_STRERROR)
@@ -108,19 +109,12 @@ check_function_exists(usleep HAVE_USLEEP)
 check_function_exists(strnlen HAVE_STRNLEN)
 check_function_exists(mkstemp HAVE_MKSTEMP)
 
-# Check sizes of 'long' and 'long long' to determine architecture (32-bit
-# or 64-bit)
-include(CheckTypeSize)
-check_type_size("long" SIZEOF_LONG)
-check_type_size("long long" SIZEOF_LONG_LONG)
-
 configure_file(src/toolkit/include/toolkit_cmake.h.def src/toolkit/include/toolkit_cmake.h)
 
 include_directories(src/toolkit/include)
 
 set(SOURCES_TOOLKIT
     src/toolkit/binreloc.c
-    src/toolkit/bzr.c
     src/toolkit/clioptions.c
     src/toolkit/colorspace.c
     src/toolkit/console.c

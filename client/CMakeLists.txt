@@ -13,15 +13,19 @@ if (EXISTS build.user)
 endif ()
 
 # Add some useful compile flags.
-add_definitions(-Wall -Wextra -Wno-unused-parameter)
+add_definitions(-Wall -Wextra -Wno-unused-parameter -D_GNU_SOURCE -D__USE_MINGW_ANSI_STDIO=0 -std=gnu99)
 add_definitions(${CUSTOM_WARNINGS})
 
 if (ENABLE_EXTRA_WARNINGS)
-    add_definitions(-ftree-vrp -Wdeclaration-after-statement -Wundef -Wpointer-arith -Wbad-function-cast -Wcast-align -Wlogical-op -Waggregate-return -Wnested-externs -Wunreachable-code -Wstack-protector -D_POSIX_C_SOURCE=200112L -D_GNU_SOURCE -fbounds-check -ftrapv -fstack-protector-all -Wformat -Wformat-security -Winit-self -Wshadow -Wunsafe-loop-optimizations -Wbad-function-cast)
+    add_definitions(-ftree-vrp -Wundef -Wpointer-arith -Wbad-function-cast -Wcast-align -Wlogical-op -Waggregate-return -Wnested-externs -Wunreachable-code -Wstack-protector -fbounds-check -ftrapv -Wformat -Wformat-security -Winit-self -Wshadow -Wbad-function-cast -Wmissing-declarations)
+
+    if (NOT MINGW)
+        add_definitions(-fstack-protector-all)
+    endif ()
 endif ()
 
 if (ENABLE_AGGRESSIVE_WARNINGS)
-    add_definitions(-Wcast-qual -Wmissing-declarations -Wformat=2)
+    add_definitions(-Wcast-qual -Wformat=2 -Wunsafe-loop-optimizations)
 endif ()
 
 # Turn warnings into errors?
@@ -69,7 +73,7 @@ include(src/cmake.txt)
 
 if (MINGW)
     ADD_CUSTOM_COMMAND(OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/atrinikrc.o
-            COMMAND windres.exe -I${CMAKE_CURRENT_SOURCE_DIR}
+            COMMAND ${CMAKE_RC_COMPILER} -I${CMAKE_CURRENT_SOURCE_DIR}
             -i${CMAKE_CURRENT_SOURCE_DIR}/atrinik.rc
             -o ${CMAKE_CURRENT_BINARY_DIR}/atrinikrc.o)
     SET(SOURCES ${SOURCES} ${CMAKE_CURRENT_BINARY_DIR}/atrinikrc.o)

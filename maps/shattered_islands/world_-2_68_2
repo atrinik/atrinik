@@ -1,0 +1,12 @@
+arch map
+name Brynknot
+msg
+Created:  2014-12-23 Alex Tokar
+endmsg
+width 24
+height 24
+difficulty 1
+region brynknot
+outdoor 1
+bg_music lontala.mid
+end

@@ -28,7 +28,8 @@
 
 static void check_re_cmp(const char *str, const char *regex)
 {
-    fail_if(re_cmp(str, regex) == NULL, "Failed to match '%s' with regex '%s'.", str, regex);
+    ck_assert_msg(re_cmp(str, regex) != NULL,
+            "Failed to match '%s' with regex '%s'.", str, regex);
 }
 
 START_TEST(test_re_cmp)

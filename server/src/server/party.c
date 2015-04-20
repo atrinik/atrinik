@@ -27,6 +27,7 @@
  * This file handles party related code. */
 
 #include <global.h>
+#include <packet.h>
 
 /**
  * String representations of the party looting modes. */
@@ -82,7 +83,9 @@ void add_party_member(party_struct *party, object *op)
     CONTR(op)->party = party;
 
     packet = packet_new(CLIENT_CMD_PARTY, 64, 64);
+    packet_debug_data(packet, 0, "Party command type");
     packet_append_uint8(packet, CMD_PARTY_JOIN);
+    packet_debug_data(packet, 0, "Party name");
     packet_append_string_terminated(packet, party->name);
     socket_send_packet(&CONTR(op)->socket, packet);
 
@@ -104,17 +107,24 @@ void remove_party_member(party_struct *party, object *op)
     for (ol = party->members; ol; ol = ol->next) {
         if (ol->objlink.ob == op) {
             objectlink_unlink(&party->members, NULL, ol);
+            free_objectlink_simple(ol);
             break;
         }
     }
 
+    SOFT_ASSERT(ol != NULL, "Could not find player %s in party members!",
+            object_get_str(op));
+
     if (party->members) {
         packet = packet_new(CLIENT_CMD_PARTY, 64, 64);
+        packet_debug_data(packet, 0, "Party command type");
         packet_append_uint8(packet, CMD_PARTY_REMOVE_MEMBER);
+        packet_debug_data(packet, 0, "Member name");
         packet_append_string_terminated(packet, op->name);
 
         for (ol = party->members; ol; ol = ol->next) {
-            socket_send_packet(&CONTR(ol->objlink.ob)->socket, packet_dup(packet));
+            socket_send_packet(&CONTR(ol->objlink.ob)->socket,
+                    packet_dup(packet));
         }
 
         packet_free(packet);
@@ -125,12 +135,13 @@ void remove_party_member(party_struct *party, object *op)
         remove_party(CONTR(op)->party);
     } else if (op->name == party->leader) {
         /* Otherwise choose a new leader, if the old one left. */
-
         FREE_AND_ADD_REF_HASH(party->leader, party->members->objlink.ob->name);
-        draw_info_format(COLOR_WHITE, party->members->objlink.ob, "You are the new leader of party %s!", party->name);
+        draw_info_format(COLOR_WHITE, party->members->objlink.ob,
+                "You are the new leader of party %s!", party->name);
     }
 
     packet = packet_new(CLIENT_CMD_PARTY, 4, 0);
+    packet_debug_data(packet, 0, "Party command type");
     packet_append_uint8(packet, CMD_PARTY_LEAVE);
     socket_send_packet(&CONTR(op)->socket, packet);
 
@@ -272,8 +283,8 @@ static void party_loot_split(object *pl, object *corpse)
 {
     party_struct *party;
     objectlink *ol, *ol_loot, *ol_next;
-    uint32 count;
-    sint64 value;
+    uint32_t count;
+    int64_t value;
     object *tmp, *next;
 
     party = CONTR(pl)->party;
@@ -344,8 +355,8 @@ static void party_loot_split(object *pl, object *corpse)
     }
 
     if (value > 0) {
-        sint64 value_split;
-        uint32 num;
+        int64_t value_split;
+        uint32_t num;
 
         for (num = 0, ol = party->members; ol; ol = ol->next) {
             if (on_same_map(ol->objlink.ob, pl)) {
@@ -430,13 +441,12 @@ void send_party_message(party_struct *party, const char *msg, int flag, object *
  * @param party The party to remove. */
 void remove_party(party_struct *party)
 {
-    objectlink *ol;
     party_struct *tmp, *prev = NULL;
 
-    for (ol = party->members; ol; ol = ol->next) {
-        CONTR(ol->objlink.ob)->party = NULL;
-        objectlink_unlink(&party->members, NULL, ol);
-        mempool_return(pool_objectlink, ol);
+    while (party->members != NULL) {
+        CONTR(party->members->objlink.ob)->party = NULL;
+        objectlink_unlink(&party->members, NULL, party->members);
+        free_objectlink_simple(party->members);
     }
 
     for (tmp = first_party; tmp; prev = tmp, tmp = tmp->next) {
@@ -461,27 +471,34 @@ void remove_party(party_struct *party)
  * @param pl Player. */
 void party_update_who(player *pl)
 {
-    uint8 hp, sp;
+    uint8_t hp, sp;
 
     if (!pl->party) {
         return;
     }
 
-    hp = MAX(1, MIN((double) pl->ob->stats.hp / pl->ob->stats.maxhp * 100.0f, 100));
-    sp = MAX(1, MIN((double) pl->ob->stats.sp / pl->ob->stats.maxsp * 100.0f, 100));
+    hp = MAX(1, MIN((double) pl->ob->stats.hp / pl->ob->stats.maxhp * 100.0f,
+            100));
+    sp = MAX(1, MIN((double) pl->ob->stats.sp / pl->ob->stats.maxsp * 100.0f,
+            100));
 
     if (hp != pl->last_party_hp || sp != pl->last_party_sp) {
         packet_struct *packet;
         objectlink *ol;
 
         packet = packet_new(CLIENT_CMD_PARTY, 64, 64);
+        packet_debug_data(packet, 0, "Party command type");
         packet_append_uint8(packet, CMD_PARTY_UPDATE);
+        packet_debug_data(packet, 0, "Member name");
         packet_append_string_terminated(packet, pl->ob->name);
+        packet_debug_data(packet, 0, "Health");
         packet_append_uint8(packet, hp);
+        packet_debug_data(packet, 0, "Mana");
         packet_append_uint8(packet, sp);
 
         for (ol = pl->party->members; ol; ol = ol->next) {
-            socket_send_packet(&CONTR(ol->objlink.ob)->socket, packet_dup(packet));
+            socket_send_packet(&CONTR(ol->objlink.ob)->socket,
+                    packet_dup(packet));
         }
 
         packet_free(packet);

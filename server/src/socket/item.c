@@ -29,6 +29,7 @@
  * what items should be sent. */
 
 #include <global.h>
+#include <packet.h>
 
 static int check_container(object *pl, object *con);
 
@@ -42,7 +43,7 @@ static int check_container(object *pl, object *con);
  * @return Flags. */
 unsigned int query_flags(object *op)
 {
-    uint32 flags = 0;
+    uint32_t flags = 0;
 
     if (QUERY_FLAG(op, FLAG_APPLIED)) {
         flags |= CS_FLAG_APPLIED;
@@ -88,24 +89,33 @@ unsigned int query_flags(object *op)
  * @param packet Packet to append to.
  * @param op Object to add information about.
  * @param pl Player that will receive the data.
- * @param flags Combination of @ref UPD_XXX. */
-static void add_object_to_packet(packet_struct *packet, object *op, object *pl, uint32 flags)
+ * @param flags Combination of @ref UPD_XXX.
+ * @param level Inventory level.
+ */
+static void add_object_to_packet(packet_struct *packet, object *op, object *pl,
+        uint32_t flags, int level)
 {
+    packet_debug_data(packet, level, "\nTag");
     packet_append_uint32(packet, op->count);
 
     if (flags & UPD_LOCATION) {
+        packet_debug_data(packet, level, "Location");
         packet_append_uint32(packet, op->env ? op->env->count : 0);
     }
 
     if (flags & UPD_FLAGS) {
+        packet_debug_data(packet, level, "Flags");
         packet_append_uint32(packet, query_flags(op));
     }
 
     if (flags & UPD_WEIGHT) {
+        packet_debug_data(packet, level, "Weight");
         packet_append_uint32(packet, WEIGHT(op));
     }
 
     if (flags & UPD_FACE) {
+        packet_debug_data(packet, level, "Face");
+
         if (op->inv_face && QUERY_FLAG(op, FLAG_IDENTIFIED)) {
             packet_append_uint16(packet, op->inv_face->number);
         } else {
@@ -114,20 +124,31 @@ static void add_object_to_packet(packet_struct *packet, object *op, object *pl, 
     }
 
     if (flags & UPD_DIRECTION) {
+        packet_debug_data(packet, level, "Direction");
         packet_append_uint8(packet, op->direction);
     }
 
     if (flags & UPD_TYPE) {
+        packet_debug(packet, level, "Item info");
+        packet_debug_data(packet, level + 1, "Type");
         packet_append_uint8(packet, op->type);
+        packet_debug_data(packet, level + 1, "Sub-type");
         packet_append_uint8(packet, op->sub_type);
+
+        packet_debug_data(packet, level + 1, "Quality");
 
         if (QUERY_FLAG(op, FLAG_IDENTIFIED)) {
             packet_append_uint8(packet, op->item_quality);
+            packet_debug_data(packet, level + 1, "Condition");
             packet_append_uint8(packet, op->item_condition);
+            packet_debug_data(packet, level + 1, "Level");
             packet_append_uint8(packet, op->item_level);
 
+            packet_debug_data(packet, level + 1, "Skill object ID");
+
             if (op->item_skill && CONTR(pl)->skill_ptr[op->item_skill - 1]) {
-                packet_append_uint32(packet, CONTR(pl)->skill_ptr[op->item_skill - 1]->count);
+                packet_append_uint32(packet, CONTR(pl)->skill_ptr[
+                        op->item_skill - 1]->count);
             } else {
                 packet_append_uint32(packet, 0);
             }
@@ -137,10 +158,13 @@ static void add_object_to_packet(packet_struct *packet, object *op, object *pl, 
     }
 
     if (flags & UPD_NAME) {
-        packet_append_string_terminated(packet, op->custom_name ? op->custom_name : query_base_name(op, pl));
+        packet_debug_data(packet, level, "Name");
+        packet_append_string_terminated(packet, op->custom_name ?
+            op->custom_name : query_base_name(op, pl));
     }
 
     if (flags & UPD_ANIM) {
+        packet_debug_data(packet, level, "Animation");
         packet_append_uint16(packet, op->animation_id);
     }
 
@@ -165,34 +189,53 @@ static void add_object_to_packet(packet_struct *packet, object *op, object *pl, 
             }
         }
 
+        packet_debug_data(packet, level, "Animation speed");
         packet_append_uint8(packet, anim_speed);
     }
 
     if (flags & UPD_NROF) {
+        packet_debug_data(packet, level, "Nrof");
         packet_append_uint32(packet, op->nrof);
     }
 
     if (flags & UPD_EXTRA) {
         if (op->type == SPELL) {
-            packet_append_uint16(packet, SP_level_spellpoint_cost(pl, op->stats.sp, CONTR(pl)->skill_ptr[SK_WIZARDRY_SPELLS]->level));
+            packet_debug(packet, level, "Spell info:\n");
+            packet_debug_data(packet, level + 1, "Cost");
+            packet_append_uint16(packet, SP_level_spellpoint_cost(pl,
+                    op->stats.sp,
+                    CONTR(pl)->skill_ptr[SK_WIZARDRY_SPELLS]->level));
+            packet_debug_data(packet, level + 1, "Path");
             packet_append_uint32(packet, spells[op->stats.sp].path);
+            packet_debug_data(packet, level + 1, "Flags");
             packet_append_uint32(packet, spells[op->stats.sp].flags);
+            packet_debug_data(packet, level + 1, "Message");
             packet_append_string_terminated(packet, op->msg ? op->msg : "");
         } else if (op->type == SKILL) {
+            packet_debug(packet, level, "Skill info:\n");
+            packet_debug_data(packet, level + 1, "Level");
             packet_append_uint8(packet, op->level);
-            packet_append_sint64(packet, op->stats.exp);
+            packet_debug_data(packet, level + 1, "Experience");
+            packet_append_int64(packet, op->stats.exp);
         } else if (op->type == FORCE || op->type == POISONING) {
-            sint32 sec;
+            int32_t sec;
+
+            packet_debug(packet, level, "Force info:\n");
 
             sec = -1;
 
             if (QUERY_FLAG(op, FLAG_IS_USED_UP)) {
-                sec = (int) (op->speed_left / op->speed / (float) MAX_TICKS + (1.0 / op->speed / (float) MAX_TICKS * (float) op->stats.food - 1));
+                sec = (int) (op->speed_left / op->speed / (float) MAX_TICKS +
+                        (1.0 / op->speed / (float) MAX_TICKS *
+                        (float) op->stats.food - 1));
                 sec = ABS(sec);
             }
 
-            packet_append_sint32(packet, sec);
-            packet_append_string_terminated(packet, op->msg ? op->msg : "");
+            packet_debug_data(packet, level + 1, "Seconds");
+            packet_append_int32(packet, sec);
+            packet_debug_data(packet, level + 1, "Message");
+            packet_append_string_terminated(packet,
+                    op->msg != NULL ? op->msg : "");
         }
     }
 }
@@ -201,37 +244,62 @@ static void add_object_to_packet(packet_struct *packet, object *op, object *pl, 
  * Recursively draw inventory of an object for DMs.
  * @param pl DM.
  * @param packet Packet to append to.
- * @param op Object of which inventory is going to be sent. */
-static void esrv_draw_look_rec(object *pl, packet_struct *packet, object *op)
+ * @param op Object of which inventory is going to be sent.
+ * @param level Inventory level.
+ */
+static void esrv_draw_look_rec(object *pl, packet_struct *packet, object *op,
+        int level)
 {
     object *tmp;
 
+    packet_debug(packet, level, "Inventory:");
+
+    packet_debug_data(packet, level + 1, "\nTag");
     packet_append_uint32(packet, 0);
+    packet_debug_data(packet, level + 1, "Flags");
     packet_append_uint32(packet, 0);
-    packet_append_sint32(packet, -1);
+    packet_debug_data(packet, level + 1, "Weight");
+    packet_append_int32(packet, -1);
+    packet_debug_data(packet, level + 1, "Face");
     packet_append_uint16(packet, blank_face->number);
+    packet_debug_data(packet, level + 1, "Direction");
     packet_append_uint8(packet, 0);
+    packet_debug_data(packet, level + 1, "Name");
     packet_append_string_terminated(packet, "in inventory");
     packet_append_uint16(packet, 0);
+    packet_debug_data(packet, level + 1, "Animation");
     packet_append_uint8(packet, 0);
+    packet_debug_data(packet, level + 1, "Animation speed");
     packet_append_uint32(packet, 0);
+    packet_debug_data(packet, level + 1, "Nrof");
 
     for (tmp = op->inv; tmp; tmp = tmp->below) {
-        add_object_to_packet(packet, HEAD(tmp), pl, UPD_FLAGS | UPD_WEIGHT | UPD_FACE | UPD_DIRECTION | UPD_NAME | UPD_ANIM | UPD_ANIMSPEED | UPD_NROF);
+        add_object_to_packet(packet, HEAD(tmp), pl, UPD_FLAGS | UPD_WEIGHT |
+                UPD_FACE | UPD_DIRECTION | UPD_NAME | UPD_ANIM | UPD_ANIMSPEED |
+                UPD_NROF, level + 1);
 
         if (tmp->inv && tmp->type != PLAYER) {
-            esrv_draw_look_rec(pl, packet, tmp);
+            esrv_draw_look_rec(pl, packet, tmp, level + 1);
         }
     }
 
+    packet_debug_data(packet, level + 1, "\nTag");
     packet_append_uint32(packet, 0);
+    packet_debug_data(packet, level + 1, "Flags");
     packet_append_uint32(packet, 0);
-    packet_append_sint32(packet, -1);
+    packet_debug_data(packet, level + 1, "Weight");
+    packet_append_int32(packet, -1);
+    packet_debug_data(packet, level + 1, "Face");
     packet_append_uint16(packet, blank_face->number);
+    packet_debug_data(packet, level + 1, "Direction");
     packet_append_uint8(packet, 0);
+    packet_debug_data(packet, level + 1, "Name");
     packet_append_string_terminated(packet, "end inventory");
+    packet_debug_data(packet, level + 1, "Animation");
     packet_append_uint16(packet, 0);
+    packet_debug_data(packet, level + 1, "Animation speed");
     packet_append_uint8(packet, 0);
+    packet_debug_data(packet, level + 1, "Nrof");
     packet_append_uint32(packet, 0);
 }
 
@@ -240,14 +308,19 @@ static void esrv_draw_look_rec(object *pl, packet_struct *packet, object *op)
  *
  * This sends all the faces to the client, not just updates. This is
  * because object ordering would otherwise be inconsistent.
- * @param pl Player to draw the look window for. */
+ * @param pl Player to draw the look window for.
+ * @todo The hacky way of embedding look_position into the virtual next/previous
+ * object tags should be changed.
+ */
 void esrv_draw_look(object *pl)
 {
     packet_struct *packet;
     object *tmp, *last;
     int start_look = 0, end_look = 0;
 
-    if (QUERY_FLAG(pl, FLAG_REMOVED) || pl->map == NULL || pl->map->in_memory != MAP_IN_MEMORY || OUT_OF_MAP(pl->map, pl->x, pl->y)) {
+    if (QUERY_FLAG(pl, FLAG_REMOVED) || pl->map == NULL ||
+            pl->map->in_memory != MAP_IN_MEMORY ||
+            OUT_OF_MAP(pl->map, pl->x, pl->y)) {
         return;
     }
 
@@ -256,19 +329,34 @@ void esrv_draw_look(object *pl)
 
     packet = packet_new(CLIENT_CMD_ITEM, 512, 256);
     packet_enable_ndelay(packet);
+    packet_debug_data(packet, 0, "Container mode flag");
     packet_append_uint32(packet, 0);
+    packet_debug_data(packet, 0, "Target inventory ID");
     packet_append_uint32(packet, 0);
+    packet_debug_data(packet, 0, "End flag");
     packet_append_uint8(packet, 1);
 
+    packet_debug(packet, 0, "Below inventory:\n");
+
     if (CONTR(pl)->socket.look_position) {
-        packet_append_uint32(packet, 0x80000000 | (CONTR(pl)->socket.look_position - NUM_LOOK_OBJECTS));
+        packet_debug_data(packet, 1, "\nTag");
+        packet_append_uint32(packet, 0x80000000 |
+                (CONTR(pl)->socket.look_position - NUM_LOOK_OBJECTS));
+        packet_debug_data(packet, 1, "Flags");
         packet_append_uint32(packet, 0);
-        packet_append_sint32(packet, -1);
+        packet_debug_data(packet, 1, "Weight");
+        packet_append_int32(packet, -1);
+        packet_debug_data(packet, 1, "Face");
         packet_append_uint16(packet, prev_item_face->number);
+        packet_debug_data(packet, 1, "Direction");
         packet_append_uint8(packet, 0);
+        packet_debug_data(packet, 1, "Name");
         packet_append_string_terminated(packet, "Previous group of items");
+        packet_debug_data(packet, 1, "Animation");
         packet_append_uint16(packet, 0);
+        packet_debug_data(packet, 1, "Animation speed");
         packet_append_uint8(packet, 0);
+        packet_debug_data(packet, 1, "Nrof");
         packet_append_uint32(packet, 0);
     }
 
@@ -279,7 +367,8 @@ void esrv_draw_look(object *pl)
 
         /* Skip map mask, sys_objects and invisible objects when we can't
          * see them. */
-        if ((tmp->layer <= LAYER_FMASK || IS_INVISIBLE(tmp, pl)) && !CONTR(pl)->tsi) {
+        if ((tmp->layer <= LAYER_FMASK || IS_INVISIBLE(tmp, pl)) &&
+                !CONTR(pl)->tsi) {
             continue;
         }
 
@@ -290,22 +379,34 @@ void esrv_draw_look(object *pl)
         /* If we have too many items to send, send a 'next group' object
          * and leave here. */
         if (++end_look > NUM_LOOK_OBJECTS) {
-            packet_append_uint32(packet, 0x80000000 | (CONTR(pl)->socket.look_position + NUM_LOOK_OBJECTS));
+            packet_debug_data(packet, 1, "\nTag");
+            packet_append_uint32(packet, 0x80000000 |
+                    (CONTR(pl)->socket.look_position + NUM_LOOK_OBJECTS));
+            packet_debug_data(packet, 1, "Flags");
             packet_append_uint32(packet, 0);
-            packet_append_sint32(packet, -1);
+            packet_debug_data(packet, 1, "Weight");
+            packet_append_int32(packet, -1);
+            packet_debug_data(packet, 1, "Face");
             packet_append_uint16(packet, next_item_face->number);
+            packet_debug_data(packet, 1, "Direction");
             packet_append_uint8(packet, 0);
+            packet_debug_data(packet, 1, "Name");
             packet_append_string_terminated(packet, "Next group of items");
+            packet_debug_data(packet, 1, "Animation");
             packet_append_uint16(packet, 0);
+            packet_debug_data(packet, 1, "Animation speed");
             packet_append_uint8(packet, 0);
+            packet_debug_data(packet, 1, "Nrof");
             packet_append_uint32(packet, 0);
             break;
         }
 
-        add_object_to_packet(packet, HEAD(tmp), pl, UPD_FLAGS | UPD_WEIGHT | UPD_FACE | UPD_DIRECTION | UPD_NAME | UPD_ANIM | UPD_ANIMSPEED | UPD_NROF);
+        add_object_to_packet(packet, HEAD(tmp), pl, UPD_FLAGS | UPD_WEIGHT |
+                UPD_FACE | UPD_DIRECTION | UPD_NAME | UPD_ANIM |
+                UPD_ANIMSPEED | UPD_NROF, 1);
 
         if (CONTR(pl)->tsi && tmp->inv && tmp->type != PLAYER) {
-            esrv_draw_look_rec(pl, packet, tmp);
+            esrv_draw_look_rec(pl, packet, tmp, 1);
         }
     }
 
@@ -321,8 +422,10 @@ void esrv_close_container(object *op)
 
     packet = packet_new(CLIENT_CMD_ITEM, 32, 0);
     packet_enable_ndelay(packet);
-    packet_append_sint32(packet, -1);
-    packet_append_sint32(packet, -1);
+    packet_debug_data(packet, 0, "Container mode flag");
+    packet_append_int32(packet, -1);
+    packet_debug_data(packet, 0, "Target inventory ID");
+    packet_append_int32(packet, -1);
     socket_send_packet(&CONTR(op)->socket, packet);
 }
 
@@ -338,16 +441,19 @@ void esrv_send_inventory(object *pl, object *op)
 
     packet = packet_new(CLIENT_CMD_ITEM, 128, 256);
     packet_enable_ndelay(packet);
+    packet_debug_data(packet, 0, "Container mode flag");
 
     /* In this case we're sending a container inventory */
     if (pl != op) {
         /* Container mode flag */
-        packet_append_sint32(packet, -1);
+        packet_append_int32(packet, -1);
     } else {
-        packet_append_sint32(packet, op->count);
+        packet_append_int32(packet, op->count);
     }
 
+    packet_debug_data(packet, 0, "Target inventory ID");
     packet_append_uint32(packet, op->count);
+    packet_debug_data(packet, 0, "End flag");
     packet_append_uint8(packet, 1);
 
     for (tmp = op->inv; tmp; tmp = tmp->below) {
@@ -355,7 +461,7 @@ void esrv_send_inventory(object *pl, object *op)
             continue;
         }
 
-        add_object_to_packet(packet, tmp, pl, UPD_FLAGS | UPD_WEIGHT | UPD_FACE | UPD_DIRECTION | UPD_TYPE | UPD_NAME | UPD_ANIM | UPD_ANIMSPEED | UPD_NROF | UPD_EXTRA);
+        add_object_to_packet(packet, tmp, pl, UPD_FLAGS | UPD_WEIGHT | UPD_FACE | UPD_DIRECTION | UPD_TYPE | UPD_NAME | UPD_ANIM | UPD_ANIMSPEED | UPD_NROF | UPD_EXTRA, 0);
     }
 
     socket_send_packet(&CONTR(pl)->socket, packet);
@@ -381,8 +487,9 @@ static void esrv_update_item_send(int flags, object *pl, object *op)
 
     packet = packet_new(CLIENT_CMD_ITEM_UPDATE, 64, 128);
     packet_enable_ndelay(packet);
+    packet_debug_data(packet, 0, "Flags");
     packet_append_uint16(packet, flags);
-    add_object_to_packet(packet, op, pl, flags);
+    add_object_to_packet(packet, op, pl, flags, 0);
     socket_send_packet(&CONTR(pl)->socket, packet);
 }
 
@@ -427,10 +534,13 @@ static void esrv_send_item_send(object *pl, object *op)
 
     packet = packet_new(CLIENT_CMD_ITEM, 64, 128);
     packet_enable_ndelay(packet);
-    packet_append_sint32(packet, -4);
+    packet_debug_data(packet, 0, "Container mode flag");
+    packet_append_int32(packet, -4);
+    packet_debug_data(packet, 0, "Target inventory ID");
     packet_append_uint32(packet, op->env->count);
+    packet_debug_data(packet, 0, "End flag");
     packet_append_uint8(packet, 0);
-    add_object_to_packet(packet, HEAD(op), pl, UPD_FLAGS | UPD_WEIGHT | UPD_FACE | UPD_DIRECTION | UPD_TYPE | UPD_NAME | UPD_ANIM | UPD_ANIMSPEED | UPD_NROF | UPD_EXTRA);
+    add_object_to_packet(packet, HEAD(op), pl, UPD_FLAGS | UPD_WEIGHT | UPD_FACE | UPD_DIRECTION | UPD_TYPE | UPD_NAME | UPD_ANIM | UPD_ANIMSPEED | UPD_NROF | UPD_EXTRA, 0);
     socket_send_packet(&CONTR(pl)->socket, packet);
 }
 
@@ -476,6 +586,7 @@ static void esrv_del_item_send(object *pl, object *op)
 
     packet = packet_new(CLIENT_CMD_ITEM_DELETE, 16, 0);
     packet_enable_ndelay(packet);
+    packet_debug_data(packet, 0, "Object ID");
     packet_append_uint32(packet, op->count);
     socket_send_packet(&CONTR(pl)->socket, packet);
 }
@@ -553,7 +664,7 @@ object *esrv_get_ob_from_count(object *pl, tag_t count)
     return NULL;
 }
 
-void socket_command_item_examine(socket_struct *ns, player *pl, uint8 *data, size_t len, size_t pos)
+void socket_command_item_examine(socket_struct *ns, player *pl, uint8_t *data, size_t len, size_t pos)
 {
     tag_t tag;
     object *op;
@@ -588,7 +699,7 @@ void socket_command_item_examine(socket_struct *ns, player *pl, uint8 *data, siz
  * Remove any quickslots of player 'pl' matching slot 'slot'.
  * @param slot ID of the quickslot to look for.
  * @param pl Inside which player to search in. */
-static void remove_quickslot(uint8 slot, player *pl)
+static void remove_quickslot(uint8_t slot, player *pl)
 {
     object *tmp;
 
@@ -611,7 +722,9 @@ void send_quickslots(player *pl)
 
     for (tmp = pl->ob->inv; tmp; tmp = tmp->below) {
         if (tmp->quickslot) {
+            packet_debug_data(packet, 0, "\nQuickslot ID");
             packet_append_uint8(packet, tmp->quickslot - 1);
+            packet_debug_data(packet, 0, "Object ID");
             packet_append_uint32(packet, tmp->count);
         }
     }
@@ -619,10 +732,10 @@ void send_quickslots(player *pl)
     socket_send_packet(&pl->socket, packet);
 }
 
-void socket_command_quickslot(socket_struct *ns, player *pl, uint8 *data, size_t len, size_t pos)
+void socket_command_quickslot(socket_struct *ns, player *pl, uint8_t *data, size_t len, size_t pos)
 {
-    uint8 quickslot;
-    sint32 tag;
+    uint8_t quickslot;
+    int32_t tag;
     object *op;
 
     quickslot = packet_to_uint8(data, len, &pos);
@@ -631,7 +744,7 @@ void socket_command_quickslot(socket_struct *ns, player *pl, uint8 *data, size_t
         return;
     }
 
-    tag = packet_to_sint32(data, len, &pos);
+    tag = packet_to_int32(data, len, &pos);
 
     if (!tag) {
         return;
@@ -650,9 +763,9 @@ void socket_command_quickslot(socket_struct *ns, player *pl, uint8 *data, size_t
     }
 }
 
-void socket_command_item_apply(socket_struct *ns, player *pl, uint8 *data, size_t len, size_t pos)
+void socket_command_item_apply(socket_struct *ns, player *pl, uint8_t *data, size_t len, size_t pos)
 {
-    uint32 tag;
+    uint32_t tag;
     object *op;
 
     tag = packet_to_uint32(data, len, &pos);
@@ -681,7 +794,7 @@ void socket_command_item_apply(socket_struct *ns, player *pl, uint8 *data, size_
     player_apply(pl->ob, op, 0, 0);
 }
 
-void socket_command_item_lock(socket_struct *ns, player *pl, uint8 *data, size_t len, size_t pos)
+void socket_command_item_lock(socket_struct *ns, player *pl, uint8_t *data, size_t len, size_t pos)
 {
     tag_t tag;
     object *op;
@@ -708,7 +821,7 @@ void socket_command_item_lock(socket_struct *ns, player *pl, uint8 *data, size_t
     esrv_update_item(UPD_FLAGS, op);
 }
 
-void socket_command_item_mark(socket_struct *ns, player *pl, uint8 *data, size_t len, size_t pos)
+void socket_command_item_mark(socket_struct *ns, player *pl, uint8_t *data, size_t len, size_t pos)
 {
     tag_t tag;
     object *op;

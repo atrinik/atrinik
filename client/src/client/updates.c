@@ -29,6 +29,7 @@
  * @author Alex Tokar */
 
 #include <global.h>
+#include <packet.h>
 
 /**
  * How many file updates have been requested. This is used to block the
@@ -52,7 +53,7 @@ static void file_updates_request(char *filename)
 }
 
 /** @copydoc socket_command_struct::handle_func */
-void socket_command_file_update(uint8 *data, size_t len, size_t pos)
+void socket_command_file_update(uint8_t *data, size_t len, size_t pos)
 {
     char filename[MAX_BUF];
     unsigned long ucomp_len;
@@ -115,13 +116,13 @@ void file_updates_parse(void)
 
     while (fgets(buf, sizeof(buf) - 1, fp)) {
         char filename[MAX_BUF], crc_buf[MAX_BUF], *contents;
-        uint64 size;
+        uint64_t size;
         size_t st_size, numread;
         FILE *fp2;
         unsigned long crc;
         struct stat sb;
 
-        if (sscanf(buf, "%s %"FMT64U " %s", filename, &size, crc_buf) != 3) {
+        if (sscanf(buf, "%s %"PRIu64 " %s", filename, &size, crc_buf) != 3) {
             continue;
         }
 

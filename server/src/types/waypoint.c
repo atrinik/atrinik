@@ -123,7 +123,7 @@ static mapstruct *waypoint_load_dest(object *op, object *waypoint)
     if (waypoint->slaying == op->map->path) {
         destmap = op->map;
     } else {
-        destmap = ready_map_name(waypoint->slaying, MAP_NAME_SHARED);
+        destmap = ready_map_name(waypoint->slaying, NULL, MAP_NAME_SHARED);
     }
 
     return destmap;
@@ -212,8 +212,8 @@ void waypoint_move(object *op, object *waypoint)
     mapstruct *destmap;
     rv_vector local_rv, global_rv, *dest_rv;
     int dir, destx, desty;
-    sint16 new_offset = 0;
-    uint32 destflags;
+    int16_t new_offset = 0;
+    uint32_t destflags;
 
     if (!waypoint || !op || !op->map) {
         return;

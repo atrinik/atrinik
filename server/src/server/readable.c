@@ -32,6 +32,7 @@
 
 #include <global.h>
 #include <book.h>
+#include <toolkit_string.h>
 
 /* This flag is useful for debugging archiving action */
 /* #define ARCHIVE_DEBUG */
@@ -60,7 +61,7 @@ static char **msgs = NULL;
 static size_t num_msgs = 0;
 
 /** Spellpath information */
-static uint32 spellpathdef[NRSPELLPATHS] = {
+static uint32_t spellpathdef[NRSPELLPATHS] = {
     PATH_PROT,
     PATH_FIRE,
     PATH_FROST,
@@ -696,7 +697,7 @@ static char *spellpath_msg(int level, char *buf, size_t booksize)
 {
     int path = rndm(1, NRSPELLPATHS) - 1;
     int i, did_first_sp = 0;
-    uint32 pnum = spellpathdef[path];
+    uint32_t pnum = spellpathdef[path];
     StringBuffer *desc;
     char *final;
 

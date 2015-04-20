@@ -62,7 +62,7 @@ static void scrollbar_element_init(scrollbar_element *elem, int x, int y, int w,
 }
 
 /** @copydoc scrollbar_element::render_func */
-static void scrollbar_element_render_background(SDL_Surface *surface, SDL_Rect *box, scrollbar_element *elem, uint8 horizontal)
+static void scrollbar_element_render_background(SDL_Surface *surface, SDL_Rect *box, scrollbar_element *elem, uint8_t horizontal)
 {
     (void) elem;
     (void) horizontal;
@@ -71,7 +71,7 @@ static void scrollbar_element_render_background(SDL_Surface *surface, SDL_Rect *
 }
 
 /** @copydoc scrollbar_element::render_func */
-static void scrollbar_element_render_arrow_up(SDL_Surface *surface, SDL_Rect *box, scrollbar_element *elem, uint8 horizontal)
+static void scrollbar_element_render_arrow_up(SDL_Surface *surface, SDL_Rect *box, scrollbar_element *elem, uint8_t horizontal)
 {
     SDL_Color *color = &scrollbar_color_fg;
 
@@ -95,7 +95,7 @@ static void scrollbar_element_render_arrow_up(SDL_Surface *surface, SDL_Rect *bo
 }
 
 /** @copydoc scrollbar_element::render_func */
-static void scrollbar_element_render_arrow_down(SDL_Surface *surface, SDL_Rect *box, scrollbar_element *elem, uint8 horizontal)
+static void scrollbar_element_render_arrow_down(SDL_Surface *surface, SDL_Rect *box, scrollbar_element *elem, uint8_t horizontal)
 {
     SDL_Color *color = &scrollbar_color_fg;
 
@@ -119,7 +119,7 @@ static void scrollbar_element_render_arrow_down(SDL_Surface *surface, SDL_Rect *
 }
 
 /** @copydoc scrollbar_element::render_func */
-static void scrollbar_element_render_slider(SDL_Surface *surface, SDL_Rect *box, scrollbar_element *elem, uint8 horizontal)
+static void scrollbar_element_render_slider(SDL_Surface *surface, SDL_Rect *box, scrollbar_element *elem, uint8_t horizontal)
 {
     (void) horizontal;
 
@@ -304,7 +304,7 @@ static int scrollbar_slider_height(scrollbar_struct *scrollbar)
  * @param w Width of the scrollbar. Should be an odd number, otherwise
  * the arrow calculations will not work correctly.
  * @param h Height of the scrollbar. */
-void scrollbar_create(scrollbar_struct *scrollbar, int w, int h, uint32 *scroll_offset, uint32 *num_lines, uint32 max_lines)
+void scrollbar_create(scrollbar_struct *scrollbar, int w, int h, uint32_t *scroll_offset, uint32_t *num_lines, uint32_t max_lines)
 {
     memset(scrollbar, 0, sizeof(*scrollbar));
 
@@ -351,13 +351,13 @@ void scrollbar_scroll_to(scrollbar_struct *scrollbar, int scroll)
     /* Make sure the scroll offset is in a valid range. */
     if (scroll < SCROLL_TOP(scrollbar)) {
         scroll = SCROLL_TOP(scrollbar);
-    } else if ((uint32) scroll > SCROLL_BOTTOM(scrollbar)) {
+    } else if ((uint32_t) scroll > SCROLL_BOTTOM(scrollbar)) {
         scroll = SCROLL_BOTTOM(scrollbar);
     }
 
     /* If the scroll offset changed, update it and set the redraw flag,
      * if possible. */
-    if ((uint32) scroll != *scrollbar->scroll_offset) {
+    if ((uint32_t) scroll != *scrollbar->scroll_offset) {
         *scrollbar->scroll_offset = scroll;
 
         if (scrollbar->redraw) {
@@ -478,7 +478,7 @@ int scrollbar_event(scrollbar_struct *scrollbar, SDL_Event *event)
         /* Try dragging the scrollbar. */
         if (scrollbar->dragging) {
             int slider_pos;
-            uint32 scroll_offset;
+            uint32_t scroll_offset;
 
             if (scrollbar->background.w > scrollbar->background.h) {
                 slider_pos = event->motion.x - scrollbar->px - scrollbar->old_slider_pos;

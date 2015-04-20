@@ -45,13 +45,13 @@ typedef void (*event_drag_cb_fnc)(void);
  * Key information. */
 typedef struct key_struct {
     /** If 1, the key is pressed. */
-    uint8 pressed;
+    uint8_t pressed;
 
     /** Last repeat time. */
-    uint32 time;
+    uint32_t time;
 
     /** Whether the key is being repeated. */
-    uint8 repeated;
+    uint8_t repeated;
 } key_struct;
 
 #define EVENT_IS_MOUSE(_event) ((_event)->type == SDL_MOUSEBUTTONDOWN || (_event)->type == SDL_MOUSEBUTTONUP || (_event)->type == SDL_MOUSEMOTION)

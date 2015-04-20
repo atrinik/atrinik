@@ -29,20 +29,102 @@
  * @author Alex Tokar */
 
 #include <global.h>
-
-/**
- * Name of the API. */
-#define API_NAME commands
-
-/**
- * If 1, the API has been initialized. */
-static uint8 did_init = 0;
+#include <toolkit_string.h>
 
 static command_struct *commands;
 
 /**
  * Hash table containing all permission groups. */
 static permission_group_struct *permission_groups;
+
+static void commands_permission_group_free(permission_group_struct *tmp);
+static void commands_permissions_read(const char *path);
+
+TOOLKIT_API(DEPENDS(path), DEPENDS(string));
+
+TOOLKIT_INIT_FUNC(commands)
+{
+    commands = NULL;
+    permission_groups = NULL;
+
+    commands_permissions_read("permissions.cfg");
+
+    if (path_exists("permissions-custom.cfg")) {
+        commands_permissions_read("permissions-custom.cfg");
+    }
+
+    /* [operator] */
+    commands_add(COMMAND(arrest), 0.0, COMMAND_PERMISSION);
+    commands_add(COMMAND(ban), 0.0, COMMAND_PERMISSION);
+    commands_add(COMMAND(follow), 0.0, COMMAND_PERMISSION);
+    commands_add(COMMAND(freeze), 0.0, COMMAND_PERMISSION);
+    commands_add(COMMAND(kick), 0.0, COMMAND_PERMISSION);
+    commands_add(COMMAND(memfree), 0.0, COMMAND_PERMISSION);
+    commands_add(COMMAND(memleak), 0.0, COMMAND_PERMISSION);
+    commands_add(COMMAND(mod_chat), 0.0, COMMAND_PERMISSION);
+    commands_add(COMMAND(no_chat), 0.0, COMMAND_PERMISSION);
+    commands_add(COMMAND(opsay), 0.0, COMMAND_PERMISSION);
+    commands_add(COMMAND(password), 0.0, COMMAND_PERMISSION);
+    commands_add(COMMAND(resetmap), 0.0, COMMAND_PERMISSION);
+    commands_add(COMMAND(resetmaps), 0.0, COMMAND_PERMISSION);
+    commands_add(COMMAND(server_chat), 0.0, COMMAND_PERMISSION);
+    commands_add(COMMAND(settime), 0.0, COMMAND_PERMISSION);
+    commands_add(COMMAND(shutdown), 0.0, COMMAND_PERMISSION);
+    commands_add(COMMAND(stats), 0.0, COMMAND_PERMISSION);
+    commands_add(COMMAND(tcl), 0.0, COMMAND_PERMISSION);
+    commands_add(COMMAND(tgm), 0.0, COMMAND_PERMISSION);
+    commands_add(COMMAND(tli), 0.0, COMMAND_PERMISSION);
+    commands_add(COMMAND(tls), 0.0, COMMAND_PERMISSION);
+    commands_add(COMMAND(tp), 0.0, COMMAND_PERMISSION);
+    commands_add(COMMAND(tphere), 0.0, COMMAND_PERMISSION);
+    commands_add(COMMAND(tsi), 0.0, COMMAND_PERMISSION);
+
+    /* [player] */
+    commands_add(COMMAND(afk), 1.0, 0);
+    commands_add(COMMAND(apply), 1.0, 0);
+    commands_add(COMMAND(chat), 1.0, 0);
+    commands_add(COMMAND(drop), 1.0, 0);
+    commands_add(COMMAND(gsay), 1.0, 0);
+    commands_add(COMMAND(hiscore), 2.0, 0);
+    commands_add(COMMAND(left), 1.0, 0);
+    commands_add(COMMAND(me), 1.0, 0);
+    commands_add(COMMAND(motd), 1.0, 0);
+    commands_add(COMMAND(my), 1.0, 0);
+    commands_add(COMMAND(party), 1.0, 0);
+    commands_add(COMMAND(push), 1.0, 0);
+    commands_add(COMMAND(rename), 1.0, 0);
+    commands_add(COMMAND(reply), 1.0, 0);
+    commands_add(COMMAND(right), 1.0, 0);
+    commands_add(COMMAND(say), 1.0, 0);
+    commands_add(COMMAND(statistics), 1.0, 0);
+    commands_add(COMMAND(take), 1.0, 0);
+    commands_add(COMMAND(tell), 1.0, 0);
+    commands_add(COMMAND(time), 1.0, 0);
+    commands_add(COMMAND(version), 1.0, 0);
+    commands_add(COMMAND(whereami), 1.0, 0);
+    commands_add(COMMAND(who), 1.0, 0);
+}
+TOOLKIT_INIT_FUNC_FINISH
+
+TOOLKIT_DEINIT_FUNC(commands)
+{
+    command_struct *curr, *tmp;
+    permission_group_struct *curr2, *tmp2;
+
+    HASH_ITER(hh, commands, curr, tmp)
+    {
+        HASH_DEL(commands, curr);
+        efree(curr->name);
+        efree(curr);
+    }
+
+    HASH_ITER(hh, permission_groups, curr2, tmp2)
+    {
+        HASH_DEL(permission_groups, curr2);
+        commands_permission_group_free(curr2);
+    }
+}
+TOOLKIT_DEINIT_FUNC_FINISH
 
 /**
  * Free a single permission group structure.
@@ -142,110 +224,11 @@ static void commands_permissions_read(const char *path)
     fclose(fp);
 }
 
-/**
- * Initialize the commands API.
- * @internal */
-void toolkit_commands_init(void)
-{
-
-    TOOLKIT_INIT_FUNC_START(commands)
-    {
-        toolkit_import(path);
-
-        commands = NULL;
-        permission_groups = NULL;
-
-        commands_permissions_read("permissions.cfg");
-
-        if (path_exists("permissions-custom.cfg")) {
-            commands_permissions_read("permissions-custom.cfg");
-        }
-
-        /* [operator] */
-        commands_add(COMMAND(arrest), 0.0, COMMAND_PERMISSION);
-        commands_add(COMMAND(ban), 0.0, COMMAND_PERMISSION);
-        commands_add(COMMAND(follow), 0.0, COMMAND_PERMISSION);
-        commands_add(COMMAND(freeze), 0.0, COMMAND_PERMISSION);
-        commands_add(COMMAND(kick), 0.0, COMMAND_PERMISSION);
-        commands_add(COMMAND(memfree), 0.0, COMMAND_PERMISSION);
-        commands_add(COMMAND(mod_chat), 0.0, COMMAND_PERMISSION);
-        commands_add(COMMAND(no_chat), 0.0, COMMAND_PERMISSION);
-        commands_add(COMMAND(opsay), 0.0, COMMAND_PERMISSION);
-        commands_add(COMMAND(password), 0.0, COMMAND_PERMISSION);
-        commands_add(COMMAND(resetmap), 0.0, COMMAND_PERMISSION);
-        commands_add(COMMAND(resetmaps), 0.0, COMMAND_PERMISSION);
-        commands_add(COMMAND(server_chat), 0.0, COMMAND_PERMISSION);
-        commands_add(COMMAND(settime), 0.0, COMMAND_PERMISSION);
-        commands_add(COMMAND(shutdown), 0.0, COMMAND_PERMISSION);
-        commands_add(COMMAND(stats), 0.0, COMMAND_PERMISSION);
-        commands_add(COMMAND(tcl), 0.0, COMMAND_PERMISSION);
-        commands_add(COMMAND(tgm), 0.0, COMMAND_PERMISSION);
-        commands_add(COMMAND(tli), 0.0, COMMAND_PERMISSION);
-        commands_add(COMMAND(tls), 0.0, COMMAND_PERMISSION);
-        commands_add(COMMAND(tp), 0.0, COMMAND_PERMISSION);
-        commands_add(COMMAND(tphere), 0.0, COMMAND_PERMISSION);
-        commands_add(COMMAND(tsi), 0.0, COMMAND_PERMISSION);
-
-        /* [player] */
-        commands_add(COMMAND(afk), 1.0, 0);
-        commands_add(COMMAND(apply), 1.0, 0);
-        commands_add(COMMAND(chat), 1.0, 0);
-        commands_add(COMMAND(drop), 1.0, 0);
-        commands_add(COMMAND(gsay), 1.0, 0);
-        commands_add(COMMAND(hiscore), 2.0, 0);
-        commands_add(COMMAND(left), 1.0, 0);
-        commands_add(COMMAND(me), 1.0, 0);
-        commands_add(COMMAND(motd), 1.0, 0);
-        commands_add(COMMAND(my), 1.0, 0);
-        commands_add(COMMAND(party), 1.0, 0);
-        commands_add(COMMAND(push), 1.0, 0);
-        commands_add(COMMAND(rename), 1.0, 0);
-        commands_add(COMMAND(reply), 1.0, 0);
-        commands_add(COMMAND(right), 1.0, 0);
-        commands_add(COMMAND(say), 1.0, 0);
-        commands_add(COMMAND(statistics), 1.0, 0);
-        commands_add(COMMAND(take), 1.0, 0);
-        commands_add(COMMAND(tell), 1.0, 0);
-        commands_add(COMMAND(time), 1.0, 0);
-        commands_add(COMMAND(version), 1.0, 0);
-        commands_add(COMMAND(whereami), 1.0, 0);
-        commands_add(COMMAND(who), 1.0, 0);
-    }
-    TOOLKIT_INIT_FUNC_END()
-}
-
-/**
- * Deinitialize the commands API.
- * @internal */
-void toolkit_commands_deinit(void)
-{
-
-    TOOLKIT_DEINIT_FUNC_START(commands)
-    {
-        command_struct *curr, *tmp;
-        permission_group_struct *curr2, *tmp2;
-
-        HASH_ITER(hh, commands, curr, tmp)
-        {
-            HASH_DEL(commands, curr);
-            efree(curr->name);
-            efree(curr);
-        }
-
-        HASH_ITER(hh, permission_groups, curr2, tmp2)
-        {
-            HASH_DEL(permission_groups, curr2);
-            commands_permission_group_free(curr2);
-        }
-    }
-    TOOLKIT_DEINIT_FUNC_END()
-}
-
-void commands_add(const char *name, command_func handle_func, double delay, uint64 flags)
+void commands_add(const char *name, command_func handle_func, double delay, uint64_t flags)
 {
     command_struct *command;
 
-    TOOLKIT_FUNC_PROTECTOR(API_NAME);
+    TOOLKIT_PROTECT();
 
     command = emalloc(sizeof(*command));
     command->name = estrdup(name);
@@ -280,7 +263,7 @@ int commands_check_permission(player *pl, const char *command)
 {
     int i;
 
-    TOOLKIT_FUNC_PROTECTOR(API_NAME);
+    TOOLKIT_PROTECT();
 
     if (*settings.default_permission_groups != '\0') {
         char *curr, *next;
@@ -309,7 +292,7 @@ int commands_check_permission(player *pl, const char *command)
 
 void commands_handle(object *op, char *cmd)
 {
-    TOOLKIT_FUNC_PROTECTOR(API_NAME);
+    TOOLKIT_PROTECT();
 
     if (cmd[0] == '/' && cmd[1] != '\0') {
         char *cp, *params;

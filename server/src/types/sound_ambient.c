@@ -30,6 +30,7 @@
  */
 
 #include <global.h>
+#include <toolkit_string.h>
 
 enum {
     SA_OPER_TYPE_HOUR, ///< In-game hours.
@@ -60,15 +61,15 @@ typedef struct sound_ambient_match {
         struct sound_ambient_match *group;
 
         struct {
-            uint8 type;
+            uint8_t type;
 
-            uint8 operation;
+            uint8_t operation;
 
-            uint16 num;
+            uint16_t num;
 
-            uint8 operation2;
+            uint8_t operation2;
 
-            uint16 num2;
+            uint16_t num2;
         } operation;
     } data;
 
@@ -262,7 +263,7 @@ static void sound_ambient_match_free(sound_ambient_match_t *match)
             sound_ambient_match_free(tmp->data.group);
         }
 
-        free(tmp);
+        efree(tmp);
     }
 }
 
@@ -288,8 +289,8 @@ void sound_ambient_match_parse(object *ob, const char *str)
     size_t pos, stack_id, word_num;
     int is_group_end, is_in_group;
 
-    assert(ob != NULL);
-    assert(str != NULL);
+    HARD_ASSERT(ob != NULL);
+    HARD_ASSERT(str != NULL);
 
     if (ob->type != SOUND_AMBIENT) {
         log(LOG(BUG), "Called on incorrect object type: %d", ob->type);
@@ -431,8 +432,8 @@ void sound_ambient_init(object *ob)
 {
     MapSpace *msp;
 
-    assert(ob != NULL);
-    assert(ob->type == SOUND_AMBIENT);
+    HARD_ASSERT(ob != NULL);
+    HARD_ASSERT(ob->type == SOUND_AMBIENT);
 
     /* Must be on map... */
     if (ob->map == NULL) {
@@ -457,8 +458,8 @@ void sound_ambient_init(object *ob)
  */
 void sound_ambient_deinit(object *ob)
 {
-    assert(ob != NULL);
-    assert(ob->type == SOUND_AMBIENT);
+    HARD_ASSERT(ob != NULL);
+    HARD_ASSERT(ob->type == SOUND_AMBIENT);
 
     sound_ambient_match_free(ob->custom_attrset);
     ob->custom_attrset = NULL;

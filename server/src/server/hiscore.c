@@ -27,6 +27,7 @@
  * Includes high score related functions. */
 
 #include <global.h>
+#include <toolkit_string.h>
 
 /**
  * The score structure is used when treating new high-scores */
@@ -44,7 +45,7 @@ typedef struct scr {
     char maplevel[MAX_BUF];
 
     /** Experience. */
-    uint64 exp;
+    uint64_t exp;
 
     /** Max hp, sp when killed. */
     int maxhp, maxsp;
@@ -74,7 +75,7 @@ static score_table hiscore_table;
  * @param size Size of the buffer. */
 static void put_score(const score *sc, char *buf, int size)
 {
-    snprintf(buf, size, "%s:%s:%"FMT64U ":%s:%s:%d:%d", sc->name, sc->title, sc->exp, sc->killer, sc->maplevel, sc->maxhp, sc->maxsp);
+    snprintf(buf, size, "%s:%s:%"PRIu64 ":%s:%s:%d:%d", sc->name, sc->title, sc->exp, sc->killer, sc->maplevel, sc->maxhp, sc->maxsp);
 }
 
 /**
@@ -136,7 +137,7 @@ static int get_score(char *bp, score *sc)
     strncpy(sc->title, tmp[1], sizeof(sc->title));
     sc->title[sizeof(sc->title) - 1] = '\0';
 
-    sscanf(tmp[2], "%"FMT64U, &sc->exp);
+    sscanf(tmp[2], "%"PRIu64, &sc->exp);
 
     strncpy(sc->killer, tmp[3], sizeof(sc->killer));
     sc->killer[sizeof(sc->killer) - 1] = '\0';

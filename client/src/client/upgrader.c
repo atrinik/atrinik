@@ -38,7 +38,7 @@ static const char *const client_versions[] = {
 };
 
 /** ::client_versions entry we are currently migrating. */
-static sint64 version_id_migrating = -1;
+static int64_t version_id_migrating = -1;
 
 /**
  * Upgrade 2.0 settings to 2.5.

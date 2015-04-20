@@ -40,10 +40,9 @@ START_TEST(test_light_apply_apply_1)
 
     torch = insert_ob_in_map(get_archetype("torch"), map, NULL, 0);
     player_apply(pl, torch, 0, 0);
-    fail_if(QUERY_FLAG(torch, FLAG_APPLIED), "Torch is applied.");
-    fail_if(torch->glow_radius == 0, "Torch is not lit.");
-    fail_if(CONTR(pl)->equipment[PLAYER_EQUIP_LIGHT] != NULL,
-            "Light object in player's equipment array is set.");
+    ck_assert(!QUERY_FLAG(torch, FLAG_APPLIED));
+    ck_assert_int_ne(torch->glow_radius, 0);
+    ck_assert_ptr_eq(CONTR(pl)->equipment[PLAYER_EQUIP_LIGHT], NULL);
 }
 END_TEST
 
@@ -61,10 +60,9 @@ START_TEST(test_light_apply_apply_2)
     torch = insert_ob_in_map(get_archetype("torch"), map, NULL, 0);
     manual_apply(torch, torch, 0);
     player_apply(pl, torch, 0, 0);
-    fail_if(QUERY_FLAG(torch, FLAG_APPLIED), "Torch is applied.");
-    fail_if(torch->glow_radius != 0, "Torch is not extinguished.");
-    fail_if(CONTR(pl)->equipment[PLAYER_EQUIP_LIGHT] != NULL,
-            "Light object in player's equipment array is set.");
+    ck_assert(!QUERY_FLAG(torch, FLAG_APPLIED));
+    ck_assert_int_eq(torch->glow_radius, 0);
+    ck_assert_ptr_eq(CONTR(pl)->equipment[PLAYER_EQUIP_LIGHT], NULL);
 }
 END_TEST
 
@@ -80,10 +78,9 @@ START_TEST(test_light_apply_apply_3)
 
     torch = insert_ob_in_ob(get_archetype("torch"), pl);
     player_apply(pl, torch, 0, 0);
-    fail_if(!QUERY_FLAG(torch, FLAG_APPLIED), "Torch is not applied.");
-    fail_if(torch->glow_radius == 0, "Torch is not lit.");
-    fail_if(CONTR(pl)->equipment[PLAYER_EQUIP_LIGHT] != torch,
-            "Torch is not assigned to player's equipment array.");
+    ck_assert(QUERY_FLAG(torch, FLAG_APPLIED));
+    ck_assert_int_ne(torch->glow_radius, 0);
+    ck_assert_ptr_eq(CONTR(pl)->equipment[PLAYER_EQUIP_LIGHT], torch);
 }
 END_TEST
 
@@ -100,21 +97,19 @@ START_TEST(test_light_apply_apply_4)
 
     torch = insert_ob_in_map(get_archetype("torch"), map, NULL, 0);
     manual_apply(torch, torch, 0);
-    fail_if(QUERY_FLAG(torch, FLAG_APPLIED), "Torch is applied.");
-    fail_if(torch->glow_radius == 0, "Torch is not lit.");
+    ck_assert(!QUERY_FLAG(torch, FLAG_APPLIED));
+    ck_assert_int_ne(torch->glow_radius, 0);
     object_remove(torch, 0);
     torch = insert_ob_in_ob(torch, pl);
-    fail_if(QUERY_FLAG(torch, FLAG_APPLIED), "Torch is applied.");
-    fail_if(torch->glow_radius == 0, "Torch is not lit.");
-    fail_if(CONTR(pl)->equipment[PLAYER_EQUIP_LIGHT] != NULL,
-            "Torch is assigned to player's equipment array.");
+    ck_assert(!QUERY_FLAG(torch, FLAG_APPLIED));
+    ck_assert_int_ne(torch->glow_radius, 0);
+    ck_assert_ptr_eq(CONTR(pl)->equipment[PLAYER_EQUIP_LIGHT], NULL);
 
     player_apply(pl, torch, 0, 0);
 
-    fail_if(!QUERY_FLAG(torch, FLAG_APPLIED), "Torch is not applied.");
-    fail_if(torch->glow_radius == 0, "Torch is not lit.");
-    fail_if(CONTR(pl)->equipment[PLAYER_EQUIP_LIGHT] != torch,
-            "Torch is not assigned to player's equipment array.");
+    ck_assert(QUERY_FLAG(torch, FLAG_APPLIED));
+    ck_assert_int_ne(torch->glow_radius, 0);
+    ck_assert_ptr_eq(CONTR(pl)->equipment[PLAYER_EQUIP_LIGHT], torch);
 }
 END_TEST
 
@@ -130,26 +125,23 @@ START_TEST(test_light_apply_apply_5)
     check_setup_env_pl(&map, &pl);
 
     torch = insert_ob_in_ob(get_archetype("torch"), pl);
-    fail_if(torch == NULL, "Could not insert torch in player.");
+    ck_assert_ptr_ne(torch, NULL);
     torch2 = insert_ob_in_map(get_archetype("torch"), map, NULL, 0);
-    fail_if(torch2 == NULL, "Could not insert torch in map.");
+    ck_assert_ptr_ne(torch2, NULL);
 
     player_apply(pl, torch, 0, 0);
-    fail_if(!QUERY_FLAG(torch, FLAG_APPLIED), "Torch is not applied.");
-    fail_if(CONTR(pl)->equipment[PLAYER_EQUIP_LIGHT] != torch,
-            "Torch is not assigned to player's equipment array.");
-    fail_if(torch->glow_radius == 0, "Torch is not lit.");
-    fail_if(QUERY_FLAG(torch2, FLAG_APPLIED), "Torch2 is applied.");
-    fail_if(torch2->glow_radius != 0, "Torch2 is lit.");
+    ck_assert(QUERY_FLAG(torch, FLAG_APPLIED));
+    ck_assert_ptr_eq(CONTR(pl)->equipment[PLAYER_EQUIP_LIGHT], torch);
+    ck_assert_int_ne(torch->glow_radius, 0);
+    ck_assert(!QUERY_FLAG(torch2, FLAG_APPLIED));
+    ck_assert_int_eq(torch2->glow_radius, 0);
 
     player_apply(pl, torch2, 0, 0);
-    fail_if(QUERY_FLAG(torch2, FLAG_APPLIED), "Torch2 is applied.");
-    fail_if(torch2->glow_radius == 0, "Torch2 is not lit.");
-
-    fail_if(!QUERY_FLAG(torch, FLAG_APPLIED), "Torch is not applied.");
-    fail_if(CONTR(pl)->equipment[PLAYER_EQUIP_LIGHT] != torch,
-            "Torch is not assigned to player's equipment array.");
-    fail_if(torch->glow_radius == 0, "Torch is not lit.");
+    ck_assert(QUERY_FLAG(torch, FLAG_APPLIED));
+    ck_assert_ptr_eq(CONTR(pl)->equipment[PLAYER_EQUIP_LIGHT], torch);
+    ck_assert_int_ne(torch->glow_radius, 0);
+    ck_assert(!QUERY_FLAG(torch2, FLAG_APPLIED));
+    ck_assert_int_ne(torch2->glow_radius, 0);
 }
 END_TEST
 
@@ -168,29 +160,26 @@ START_TEST(test_light_apply_apply_6)
     torch = get_archetype("torch");
     torch->nrof = 2;
     torch = insert_ob_in_ob(torch, pl);
-    fail_if(torch == NULL, "Could not insert torch in player.");
+    ck_assert_ptr_ne(torch, NULL);
 
     player_apply(pl, torch, 0, 0);
     torch2 = torch;
     torch = CONTR(pl)->equipment[PLAYER_EQUIP_LIGHT];
 
-    fail_if(torch == torch2, "New torch was not created");
-    fail_if(torch == NULL, "Player has no light object in equipment array.");
-    fail_if(!QUERY_FLAG(torch, FLAG_APPLIED), "Torch is not applied.");
-    fail_if(torch->glow_radius == 0, "Torch is not lit.");
-    fail_if(torch->nrof != 1, "Torch nrof is not 1.");
-
-    fail_if(QUERY_FLAG(torch2, FLAG_APPLIED), "Torch2 is applied.");
-    fail_if(torch2->glow_radius != 0, "Torch2 is lit.");
+    ck_assert_ptr_ne(torch, torch2);
+    ck_assert_ptr_ne(torch, NULL);
+    ck_assert(QUERY_FLAG(torch, FLAG_APPLIED));
+    ck_assert_int_ne(torch->glow_radius, 0);
+    ck_assert_uint_eq(torch->nrof, 1);
+    ck_assert(!QUERY_FLAG(torch2, FLAG_APPLIED));
+    ck_assert_int_eq(torch2->glow_radius, 0);
 
     player_apply(pl, torch2, 0, 0);
-    fail_if(!QUERY_FLAG(torch2, FLAG_APPLIED), "Torch2 is not applied.");
-    fail_if(torch2->glow_radius == 0, "Torch2 is not lit.");
-    fail_if(CONTR(pl)->equipment[PLAYER_EQUIP_LIGHT] != torch2,
-            "Torch2 is not assigned to player's equipment array.");
-
-    fail_if(QUERY_FLAG(torch, FLAG_APPLIED), "Torch is applied.");
-    fail_if(torch->glow_radius != 0, "Torch is lit.");
+    ck_assert(!QUERY_FLAG(torch, FLAG_APPLIED));
+    ck_assert_int_eq(torch->glow_radius, 0);
+    ck_assert(QUERY_FLAG(torch2, FLAG_APPLIED));
+    ck_assert_int_ne(torch2->glow_radius, 0);
+    ck_assert_ptr_eq(CONTR(pl)->equipment[PLAYER_EQUIP_LIGHT], torch2);
 }
 END_TEST
 

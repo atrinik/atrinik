@@ -2,7 +2,7 @@ arch map
 name Rockforge: City
 msg
 Created:  2011-06-02 Alex Tokar
-Modified: 2011-06-06 Alex Tokar
+Modified: 2015-04-19 Alex Tokar
 endmsg
 width 24
 height 24
@@ -575,7 +575,7 @@ y 19
 end
 arch stairs_stone_up
 direction 1
-slaying ../../world_aa23
+slaying ../../world_-1_57
 hp 18
 sp 2
 x 7
@@ -592,7 +592,7 @@ x 7
 y 20
 end
 arch invis_exit
-slaying ../../world_aa23
+slaying ../../world_-1_57
 hp 18
 sp 2
 x 7
@@ -720,7 +720,7 @@ y 19
 end
 arch stairs_stone_up
 direction 1
-slaying ../../world_aa23
+slaying ../../world_-1_57
 hp 19
 sp 2
 x 8
@@ -737,7 +737,7 @@ x 8
 y 20
 end
 arch invis_exit
-slaying ../../world_aa23
+slaying ../../world_-1_57
 hp 19
 sp 2
 x 8
@@ -1421,7 +1421,7 @@ y 19
 end
 arch stairs_stone_up
 direction 1
-slaying ../../world_0123
+slaying ../../world_0_57
 hp 2
 sp 2
 x 15
@@ -1438,7 +1438,7 @@ x 15
 y 20
 end
 arch invis_exit
-slaying ../../world_0123
+slaying ../../world_0_57
 hp 2
 sp 2
 x 15
@@ -1586,7 +1586,7 @@ y 19
 end
 arch stairs_stone_up
 direction 1
-slaying ../../world_0123
+slaying ../../world_0_57
 hp 3
 sp 2
 x 16
@@ -1603,7 +1603,7 @@ x 16
 y 20
 end
 arch invis_exit
-slaying ../../world_0123
+slaying ../../world_0_57
 hp 3
 sp 2
 x 16

@@ -43,6 +43,7 @@
 #include <math.h>
 #include <stdio.h>
 #include <stdbool.h>
+#include <stdint.h>
 #include <string.h>
 #include <ctype.h>
 #include <errno.h>
@@ -53,6 +54,7 @@
 #include <sys/stat.h>
 #include <sys/param.h>
 #include <pthread.h>
+#include <inttypes.h>
 
 #include <openssl/rand.h>
 #include <openssl/ssl.h>
@@ -121,10 +123,10 @@
 #endif
 
 #ifdef WIN32
+#include <winsock2.h>
 #include <windows.h>
 #include <windowsx.h>
 #include <mmsystem.h>
-#include <winsock2.h>
 #include <shellapi.h>
 #include <imagehlp.h>
 
@@ -132,7 +134,7 @@
 #include <ws2tcpip.h>
 #endif
 
-#define mkdir(__a, __b) _mkdir(__a)
+#define mkdir(__a, __b) mkdir(__a)
 #define sleep(_x) Sleep((_x) * 1000)
 
 #ifdef __MINGW32__
@@ -161,11 +163,11 @@
 #endif
 
 #ifdef HAVE_STRICMP
-#define strcasecmp(_s1_, _s2_) stricmp(_s1_, _s2_)
+#define strcasecmp _stricmp
 #endif
 
 #ifdef HAVE_STRNICMP
-#define strncasecmp(_s1_, _s2_, _nrof_) strnicmp(_s1_, _s2_, _nrof_)
+#define strncasecmp _strnicmp
 #endif
 
 #ifndef MIN
@@ -205,83 +207,14 @@
 #define MSG_DONTWAIT 0
 #endif
 
-/** uint32 */
-typedef unsigned int uint32;
-#ifndef UINT32_MAX
-#define UINT32_MAX (4294967295U)
-#endif
-
-/** sint32 */
-typedef signed int sint32;
-#define SINT32_MIN (-2147483647 - 1)
-#define SINT32_MAX 2147483647
-
-/** uint16 */
-typedef unsigned short uint16;
-#ifndef UINT16_MAX
-#define UINT16_MAX (65535U)
-#endif
-
-/** sint16 */
-typedef signed short sint16;
-#define SINT16_MIN (-32767 - 1)
-#define SINT16_MAX (32767)
-
-/** uint8 */
-typedef unsigned char uint8;
-#ifndef UINT8_MAX
-#define UINT8_MAX (255U)
-#endif
-
-/** sint8 */
-typedef signed char sint8;
-#define SINT8_MIN (-128)
-#define SINT8_MAX (127)
-
 /** Used for faces. */
 typedef unsigned short Fontindex;
 
 /** Object unique IDs. */
 typedef unsigned int tag_t;
 
-#ifdef WIN32
-typedef unsigned __int64 uint64;
-typedef signed __int64 sint64;
-#define atoll                        _atoi64
-
-#define FMT64                        "I64d"
-#define FMT64U                       "I64u"
-#define FMT64HEX                     "I64x"
-#else
-#if SIZEOF_LONG == 8
-typedef unsigned long uint64;
-typedef signed long sint64;
-#define FMT64                    "ld"
-#define FMT64U                   "lu"
-#define FMT64HEX                 "lx"
-
-#elif SIZEOF_LONG_LONG == 8
-typedef unsigned long long uint64;
-typedef signed long long sint64;
-#define FMT64                    "lld"
-#define FMT64U                   "llu"
-#define FMT64HEX                 "llx"
-
-#else
-#error Do not know how to get a 64 bit value on this system.
-#error Correct and send email to the Atrinik Team on how to do this.
-#endif
-#endif
-
-#ifndef UINT64_MAX
-#define UINT64_MAX (18446744073709551615LLU)
-#endif
-
-#define SINT64_MIN (-9223372036854775807LL - 1)
-#define SINT64_MAX (9223372036854775807LL)
-
 /* Only C99 has lrint. */
-#ifndef _ISOC99_SOURCE
+#if !defined(_ISOC99_SOURCE) && (!defined(_POSIX_C_SOURCE) || _POSIX_C_SOURCE < 200112L)
 #define lrint(x) (floor((x) + ((x) > 0) ? 0.5 : -0.5))
 #endif
 
@@ -337,7 +270,7 @@ extern ssize_t getline(char **lineptr, size_t *n, FILE *stream);
 #endif
 
 #ifndef HAVE_USLEEP
-extern int usleep(uint32 usec);
+extern int usleep(uint32_t usec);
 #endif
 
 #ifndef HAVE_STRNLEN
