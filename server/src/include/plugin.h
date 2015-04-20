@@ -200,7 +200,7 @@ struct plugin_hooklist {
     int (*kill_object)(object *, int, object *, int);
     void (*esrv_send_inventory)(object *, object *);
     object *(*get_archetype)(const char *);
-    mapstruct *(*ready_map_name)(const char *, int);
+    mapstruct *(*ready_map_name)(const char *, mapstruct *, int);
     int64_t(*add_exp)(object *, int64_t, int, int);
     const char *(*determine_god)(object *);
     object *(*find_god)(const char *);

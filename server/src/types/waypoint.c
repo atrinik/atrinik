@@ -123,7 +123,7 @@ static mapstruct *waypoint_load_dest(object *op, object *waypoint)
     if (waypoint->slaying == op->map->path) {
         destmap = op->map;
     } else {
-        destmap = ready_map_name(waypoint->slaying, MAP_NAME_SHARED);
+        destmap = ready_map_name(waypoint->slaying, NULL, MAP_NAME_SHARED);
     }
 
     return destmap;

@@ -886,7 +886,7 @@ static PyObject *Atrinik_ReadyMap(PyObject *self, PyObject *args)
         flags |= MAP_PLAYER_UNIQUE;
     }
 
-    return wrap_map(hooks->ready_map_name(path, flags));
+    return wrap_map(hooks->ready_map_name(path, NULL, flags));
 }
 
 /**

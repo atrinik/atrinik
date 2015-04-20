@@ -832,7 +832,7 @@ static int move_randomly(object *op)
     if (op->item_race || op->item_level) {
         object *base = find_base_info_object(op);
 
-        if ((basemap = ready_map_name(base->slaying, MAP_NAME_SHARED))) {
+        if ((basemap = ready_map_name(base->slaying, NULL, MAP_NAME_SHARED))) {
             if (!get_rangevector_from_mapcoords(basemap, base->x, base->y, op->map, op->x, op->y, &rv, RV_NO_DISTANCE)) {
                 basemap = NULL;
             }
