@@ -849,12 +849,13 @@ START_TEST(test_packet_to_stringbuffer)
 }
 END_TEST
 
-static Suite *packet_suite(void)
+static Suite *suite(void)
 {
     Suite *s = suite_create("packet");
     TCase *tc_core = tcase_create("Core");
 
     tcase_add_unchecked_fixture(tc_core, check_setup, check_teardown);
+    tcase_add_checked_fixture(tc_core, check_test_setup, check_test_teardown);
 
     suite_add_tcase(s, tc_core);
     tcase_add_test(tc_core, test_packet_new);
@@ -895,12 +896,5 @@ static Suite *packet_suite(void)
 
 void check_server_packet(void)
 {
-    Suite *s = packet_suite();
-    SRunner *sr = srunner_create(s);
-
-    srunner_set_xml(sr, "unit/server/packet.xml");
-    srunner_set_log(sr, "unit/server/packet.out");
-    srunner_run_all(sr, CK_ENV);
-    srunner_ntests_failed(sr);
-    srunner_free(sr);
+    check_run_suite(suite(), __FILE__);
 }

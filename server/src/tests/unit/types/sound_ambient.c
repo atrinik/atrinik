@@ -88,12 +88,13 @@ START_TEST(test_sound_ambient_match_parse)
 
 END_TEST
 
-static Suite *sound_ambient_suite(void)
+static Suite *suite(void)
 {
     Suite *s = suite_create("sound_ambient");
     TCase *tc_core = tcase_create("Core");
 
     tcase_add_unchecked_fixture(tc_core, check_setup, check_teardown);
+    tcase_add_checked_fixture(tc_core, check_test_setup, check_test_teardown);
 
     suite_add_tcase(s, tc_core);
     tcase_add_test(tc_core, test_sound_ambient_match_parse);
@@ -103,12 +104,5 @@ static Suite *sound_ambient_suite(void)
 
 void check_types_sound_ambient(void)
 {
-    Suite *s = sound_ambient_suite();
-    SRunner *sr = srunner_create(s);
-
-    srunner_set_xml(sr, "unit/types/sound_ambient.xml");
-    srunner_set_log(sr, "unit/types/sound_ambient.out");
-    srunner_run_all(sr, CK_ENV);
-    srunner_ntests_failed(sr);
-    srunner_free(sr);
+    check_run_suite(suite(), __FILE__);
 }

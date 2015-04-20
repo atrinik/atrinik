@@ -32,19 +32,59 @@
 
 static int saved_argc; ///< Stored argc.
 static char **saved_argv; ///< Stored argv.
+static enum fork_status fork_st; ///< Current fork status.
 
 /*
- * Setup function. */
+ * Setup function.
+ */
 void check_setup(void)
 {
     init(saved_argc, saved_argv);
 }
 
 /*
- * Cleanup function. */
+ * Cleanup function.
+ */
 void check_teardown(void)
 {
     cleanup();
+
+    if (fork_st != CK_FORK) {
+        size_t num = memory_check_leak(false);
+
+        if (num != 0) {
+            fprintf(stderr, "%" PRIu64 " memory leaks detected!\n",
+                    (uint64_t) num);
+            abort();
+        }
+    } else {
+        size_t num = memory_check_leak(true);
+
+        if (num != 0) {
+            ck_abort_msg("%" PRIu64 " memory leaks detected!", (uint64_t) num);
+        }
+    }
+}
+
+/*
+ * Test setup function.
+ */
+void check_test_setup(void)
+{
+    if (fork_st != CK_FORK) {
+        return;
+    }
+
+}
+
+/*
+ * Test cleanup function.
+ */
+void check_test_teardown(void)
+{
+    if (fork_st != CK_FORK) {
+        return;
+    }
 }
 
 /*
@@ -65,13 +105,46 @@ void check_setup_env_pl(mapstruct **map, object **pl)
     ck_assert(*pl != NULL);
 }
 
+/*
+ * Runs the specified test suite.
+ */
+void check_run_suite(Suite *suite, const char *file)
+{
+    SRunner *srunner;
+    char *sub, buf[HUGE_BUF], buf2[HUGE_BUF];
+
+    toolkit_import(string);
+    toolkit_import(path);
+
+    srunner = srunner_create(suite);
+    fork_st = srunner_fork_status(srunner);
+
+    sub = string_last(file, "tests/");
+
+    if (sub == NULL) {
+        log_error("Bad filename for suite: %s", file);
+        abort();
+    }
+
+    sub = string_sub(sub, 0, -2);
+    snprintf(VS(buf2), "%s.xml", sub);
+    srunner_set_xml(srunner, buf2);
+    snprintf(VS(buf), "%s.out", sub);
+    srunner_set_log(srunner, buf);
+    efree(sub);
+
+    srunner_run_all(srunner, CK_ENV);
+    srunner_ntests_failed(srunner);
+    srunner_free(srunner);
+}
+
 /* The main unit test function. Calls other functions to do the unit
  * tests. */
 void check_main(int argc, char **argv)
 {
     int i;
 
-    toolkit_import(path);
+    toolkit_import(string);
 
     saved_argc = argc;
     saved_argv = malloc(sizeof(*argv) * argc);
@@ -89,11 +162,6 @@ void check_main(int argc, char **argv)
             abort();
         }
     }
-
-    path_ensure_directories("unit/bugs/");
-    path_ensure_directories("unit/commands/");
-    path_ensure_directories("unit/server/");
-    path_ensure_directories("unit/types/");
 
     /* bugs */
     check_bug_85();

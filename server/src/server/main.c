@@ -27,9 +27,13 @@
  * Server main related functions. */
 
 #include <global.h>
-#include <check_proto.h>
 #include <gitversion.h>
 #include <toolkit_string.h>
+
+#ifdef HAVE_CHECK
+#   include <check.h>
+#   include <check_proto.h>
+#endif
 
 /** Object used in process_events(). */
 static object marker;

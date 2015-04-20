@@ -183,12 +183,13 @@ START_TEST(test_light_apply_apply_6)
 }
 END_TEST
 
-static Suite *light_apply_suite(void)
+static Suite *suite(void)
 {
     Suite *s = suite_create("light_apply");
     TCase *tc_core = tcase_create("Core");
 
     tcase_add_unchecked_fixture(tc_core, check_setup, check_teardown);
+    tcase_add_checked_fixture(tc_core, check_test_setup, check_test_teardown);
 
     suite_add_tcase(s, tc_core);
     tcase_add_test(tc_core, test_light_apply_apply_1);
@@ -203,12 +204,5 @@ static Suite *light_apply_suite(void)
 
 void check_types_light_apply(void)
 {
-    Suite *s = light_apply_suite();
-    SRunner *sr = srunner_create(s);
-
-    srunner_set_xml(sr, "unit/types/light_apply.xml");
-    srunner_set_log(sr, "unit/types/light_apply.out");
-    srunner_run_all(sr, CK_ENV);
-    srunner_ntests_failed(sr);
-    srunner_free(sr);
+    check_run_suite(suite(), __FILE__);
 }

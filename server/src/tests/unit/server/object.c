@@ -415,7 +415,7 @@ START_TEST(test_object_reverse_inventory)
     object *ob;
     StringBuffer *sb;
 
-    cp = path_file_contents("unit/test_object_reverse_inventory.arc");
+    cp = path_file_contents("src/tests/data/test_object_reverse_inventory.arc");
     ob = load_object_str(cp);
 
     object_reverse_inventory(ob);
@@ -433,12 +433,13 @@ START_TEST(test_object_reverse_inventory)
 
 END_TEST
 
-static Suite *object_suite(void)
+static Suite *suite(void)
 {
     Suite *s = suite_create("object");
     TCase *tc_core = tcase_create("Core");
 
     tcase_add_unchecked_fixture(tc_core, check_setup, check_teardown);
+    tcase_add_checked_fixture(tc_core, check_test_setup, check_test_teardown);
 
     suite_add_tcase(s, tc_core);
     tcase_add_test(tc_core, test_CAN_MERGE);
@@ -462,12 +463,5 @@ static Suite *object_suite(void)
 
 void check_server_object(void)
 {
-    Suite *s = object_suite();
-    SRunner *sr = srunner_create(s);
-
-    srunner_set_xml(sr, "unit/server/object.xml");
-    srunner_set_log(sr, "unit/server/object.out");
-    srunner_run_all(sr, CK_ENV);
-    srunner_ntests_failed(sr);
-    srunner_free(sr);
+    check_run_suite(suite(), __FILE__);
 }

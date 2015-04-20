@@ -25,81 +25,42 @@
 #include <global.h>
 #include <check.h>
 #include <check_proto.h>
-#include <toolkit_string.h>
 
-START_TEST(test_add_ban)
+static void check_re_cmp(const char *str, const char *regex)
 {
-    ck_assert(!add_ban(strdup("Tester/")));
-    remove_ban(strdup("Tester/"));
-    ck_assert(!add_ban(strdup("Tester/:")));
-    remove_ban(strdup("Tester/:"));
-    ck_assert(add_ban(strdup("Tester/:xxx.x.x.x")));
-    remove_ban(strdup("Tester/:xxx.x.x.x"));
-    ck_assert(!add_ban(strdup("Tester/:xxx.x.x.x:11")));
-    remove_ban(strdup("Tester/:xxx.x.x.x:11"));
+    ck_assert_msg(re_cmp(str, regex) != NULL,
+            "Failed to match '%s' with regex '%s'.", str, regex);
+}
+
+START_TEST(test_re_cmp)
+{
+    check_re_cmp("dragon183", "dragon[1-9]+$");
+    check_re_cmp("dragon18", "dragon[1-9][1-9]");
+    check_re_cmp("dragon18", "dragon[1-2][1-9]$");
+    check_re_cmp("dragon18", "dragon[81]+");
+    check_re_cmp("treasure", "^treas");
+    check_re_cmp("treasure", "^treasure$");
+    check_re_cmp("where is treasure", "treasure$");
+    check_re_cmp("where is treasure?", "treasure[?.]$");
 }
 
 END_TEST
 
-START_TEST(test_checkbanned)
+static Suite *suite(void)
 {
-    shstr *str1, *str2;
-
-    add_ban(strdup("Noob/:127.0.0.1"));
-    str1 = add_string("Noob/");
-    ck_assert(checkbanned(str1, "127.0.0.1"));
-    remove_ban(strdup("Noob/:127.0.0.1"));
-
-    add_ban(strdup("Tester/:*"));
-    str2 = add_string("Tester/");
-    ck_assert(checkbanned(str2, "127.2.0.1"));
-    remove_ban(strdup("Tester/:*"));
-
-    add_ban(strdup("*:xxx.xxx.xxx"));
-    ck_assert(checkbanned(NULL, "xxx.xxx.xxx"));
-    remove_ban(strdup("*:xxx.xxx.xxx"));
-
-    ck_assert(!checkbanned(NULL, "10543./4t5vr.3546"));
-
-    free_string_shared(str1);
-    free_string_shared(str2);
-}
-
-END_TEST
-
-START_TEST(test_remove_ban)
-{
-    add_ban(strdup("Tester/:xxx.x.x.x"));
-    ck_assert(remove_ban(strdup("Tester/:xxx.x.x.x")));
-
-    ck_assert(!remove_ban(strdup("Tester~$#@:127.0.0.1")));
-}
-
-END_TEST
-
-static Suite *ban_suite(void)
-{
-    Suite *s = suite_create("ban");
+    Suite *s = suite_create("re_cmp");
     TCase *tc_core = tcase_create("Core");
 
     tcase_add_unchecked_fixture(tc_core, check_setup, check_teardown);
+    tcase_add_checked_fixture(tc_core, check_test_setup, check_test_teardown);
 
     suite_add_tcase(s, tc_core);
-    tcase_add_test(tc_core, test_add_ban);
-    tcase_add_test(tc_core, test_remove_ban);
-    tcase_add_test(tc_core, test_checkbanned);
+    tcase_add_test(tc_core, test_re_cmp);
 
     return s;
 }
 
-void check_server_ban(void)
+void check_server_re_cmp(void)
 {
-    Suite *s = ban_suite();
-    SRunner *sr = srunner_create(s);
-
-    srunner_set_xml(sr, "unit/server/ban.xml");
-    srunner_set_log(sr, "unit/server/ban.out");
-    srunner_run_all(sr, CK_ENV);
-    srunner_ntests_failed(sr);
-    srunner_free(sr);
+    check_run_suite(suite(), __FILE__);
 }

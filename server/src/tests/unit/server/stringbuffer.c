@@ -376,12 +376,13 @@ START_TEST(test_stringbuffer_1)
 }
 END_TEST
 
-static Suite *stringbuffer_suite(void)
+static Suite *suite(void)
 {
     Suite *s = suite_create("stringbuffer");
     TCase *tc_core = tcase_create("Core");
 
     tcase_add_unchecked_fixture(tc_core, check_setup, check_teardown);
+    tcase_add_checked_fixture(tc_core, check_test_setup, check_test_teardown);
 
     suite_add_tcase(s, tc_core);
     tcase_add_test(tc_core, test_stringbuffer_new);
@@ -403,12 +404,5 @@ static Suite *stringbuffer_suite(void)
 
 void check_server_stringbuffer(void)
 {
-    Suite *s = stringbuffer_suite();
-    SRunner *sr = srunner_create(s);
-
-    srunner_set_xml(sr, "unit/server/stringbuffer.xml");
-    srunner_set_log(sr, "unit/server/stringbuffer.out");
-    srunner_run_all(sr, CK_ENV);
-    srunner_ntests_failed(sr);
-    srunner_free(sr);
+    check_run_suite(suite(), __FILE__);
 }

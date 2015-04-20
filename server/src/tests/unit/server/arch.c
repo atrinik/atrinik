@@ -110,12 +110,13 @@ START_TEST(test_find_archetype)
 
 END_TEST
 
-static Suite *arch_suite(void)
+static Suite *suite(void)
 {
     Suite *s = suite_create("arch");
     TCase *tc_core = tcase_create("Core");
 
     tcase_add_unchecked_fixture(tc_core, check_setup, check_teardown);
+    tcase_add_checked_fixture(tc_core, check_test_setup, check_test_teardown);
 
     suite_add_tcase(s, tc_core);
     tcase_add_test(tc_core, test_item_matched_string);
@@ -129,12 +130,5 @@ static Suite *arch_suite(void)
 
 void check_server_arch(void)
 {
-    Suite *s = arch_suite();
-    SRunner *sr = srunner_create(s);
-
-    srunner_set_xml(sr, "unit/server/arch.xml");
-    srunner_set_log(sr, "unit/server/arch.out");
-    srunner_run_all(sr, CK_ENV);
-    srunner_ntests_failed(sr);
-    srunner_free(sr);
+    check_run_suite(suite(), __FILE__);
 }
