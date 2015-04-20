@@ -745,17 +745,72 @@ static void region_map_fow_reset(region_map_t *region_map)
     }
 }
 
+static bool region_map_fow_update_regions(region_map_t *region_map,
+        const uint32_t *color)
+{
+    bool ret = false;
+    region_map_def_map_t *def_map, *def_map_regions;
+    UT_array *regions;
+
+    utarray_new(regions, &ut_str_icd);
+
+    for (object *op = cpl.ob->inv; op != NULL; op = op->next) {
+        if (op->itype != TYPE_REGION_MAP) {
+            continue;
+        }
+
+        char *cp = op->s_name;
+        utarray_push_back(regions, &cp);
+    }
+
+    utarray_sort(regions, ut_str_sort);
+
+    def_map_regions = NULL;
+
+    for (size_t i = 0; i < region_map->def->num_maps; i++) {
+        def_map = &region_map->def->maps[i];
+
+        if (def_map->regions != NULL) {
+            def_map_regions = def_map;
+        }
+
+        if (def_map_regions == NULL) {
+            continue;
+        }
+
+        for (size_t j = 0; j < def_map_regions->regions_num; j++) {
+            if (utarray_find(regions, &def_map_regions->regions[j],
+                    ut_str_sort) == NULL) {
+                continue;
+            }
+
+            if (color != NULL) {
+                SDL_Rect box;
+
+                box.x = def_map->xpos;
+                box.y = def_map->ypos;
+                box.w = region_map->def->map_size_x *
+                        region_map->def->pixel_size;
+                box.h = region_map->def->map_size_y *
+                        region_map->def->pixel_size;
+                SDL_FillRect(region_map->fow->surface, &box, *color);
+            }
+
+            ret = true;
+        }
+    }
+
+    utarray_free(regions);
+
+    return ret;
+}
+
 void region_map_fow_update(region_map_t *region_map)
 {
-    region_map_def_map_t *def_map, *def_map_regions;
-    SDL_Rect box;
+    region_map_def_map_t *def_map;
     int rowsize, x, y;
     uint32_t color;
     SDL_Surface *surface;
-    object *op;
-    size_t i, j;
-    UT_array *regions;
-    char *cp;
 
     HARD_ASSERT(region_map != NULL);
     HARD_ASSERT(region_map->fow != NULL);
@@ -771,7 +826,7 @@ void region_map_fow_update(region_map_t *region_map)
 
         /* Now that the definitions are loaded, we can go back through the tiles
          * data and actually set the visited tiles. */
-        for (i = 0; i < utarray_len(region_map->fow->tiles); i++) {
+        for (size_t i = 0; i < utarray_len(region_map->fow->tiles); i++) {
             tile = (region_map_fow_tile_t *) utarray_eltptr(
                     region_map->fow->tiles, i);
             def_map = region_map_find_map(region_map, tile->path);
@@ -800,6 +855,8 @@ void region_map_fow_update(region_map_t *region_map)
     for (y = 0; y < region_map->surface->h / region_map->def->pixel_size; y++) {
         for (x = 0; x < region_map->surface->w / region_map->def->pixel_size;
                 x++) {
+            SDL_Rect box;
+            
             if (x % 32 == 0 && (region_map->fow->bitmap[(x / 32) + rowsize *
                     y] == 0xffffffff)) {
                 /* If this entire 32 tiles area is visible, then we just
@@ -822,47 +879,7 @@ void region_map_fow_update(region_map_t *region_map)
         }
     }
 
-    utarray_new(regions, &ut_str_icd);
-
-    for (op = cpl.ob->inv; op != NULL; op = op->next) {
-        if (op->itype != TYPE_REGION_MAP) {
-            continue;
-        }
-
-        cp = op->s_name;
-        utarray_push_back(regions, &cp);
-    }
-
-    utarray_sort(regions, ut_str_sort);
-
-    def_map_regions = NULL;
-
-    for (i = 0; i < region_map->def->num_maps; i++) {
-        def_map = &region_map->def->maps[i];
-
-        if (def_map->regions != NULL) {
-            def_map_regions = def_map;
-        }
-
-        if (def_map_regions == NULL) {
-            continue;
-        }
-
-        for (j = 0; j < def_map_regions->regions_num; j++) {
-            if (utarray_find(regions, &def_map_regions->regions[j],
-                    ut_str_sort) != NULL) {
-                box.x = def_map->xpos;
-                box.y = def_map->ypos;
-                box.w = region_map->def->map_size_x *
-                        region_map->def->pixel_size;
-                box.h = region_map->def->map_size_y *
-                        region_map->def->pixel_size;
-                SDL_FillRect(region_map->fow->surface, &box, color);
-            }
-        }
-    }
-
-    utarray_free(regions);
+    region_map_fow_update_regions(region_map, &color);
 
     SDL_SetColorKey(region_map->fow->surface, SDL_SRCCOLORKEY, color);
     surface = SDL_DisplayFormat(region_map->fow->surface);
@@ -940,6 +957,19 @@ bool region_map_fow_is_visited(region_map_t *region_map, int x, int y)
             sizeof(*region_map->fow->bitmap));
 
     return region_map->fow->bitmap[idx] & (1U << (x % 32));
+}
+
+bool region_map_fow_is_visible(region_map_t *region_map, int x, int y)
+{
+    if (region_map_fow_is_visited(region_map, x, y)) {
+        return true;
+    }
+
+    if (region_map_fow_update_regions(region_map, NULL)) {
+        return true;
+    }
+
+    return false;
 }
 
 /**
