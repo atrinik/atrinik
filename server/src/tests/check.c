@@ -127,6 +127,7 @@ void check_run_suite(Suite *suite, const char *file)
     }
 
     sub = string_sub(sub, 0, -2);
+    path_ensure_directories(sub);
     snprintf(VS(buf2), "%s.xml", sub);
     srunner_set_xml(srunner, buf2);
     snprintf(VS(buf), "%s.out", sub);
