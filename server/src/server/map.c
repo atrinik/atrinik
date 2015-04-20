@@ -96,6 +96,7 @@ static inline mapstruct *load_and_link_tiled_map(mapstruct *orig_map, int tile_n
 
     if (orig_map->tile_map[tile_num] == NULL) {
         orig_map->tile_map[tile_num] = map;
+        map->tile_map[map_tiled_reverse[tile_num]] = orig_map;
     } else if (map != orig_map->tile_map[tile_num]) {
         log_error("Failed to connect map %s with tile #%d (%s).",
                 orig_map->tile_path[tile_num], tile_num, orig_map->path);
