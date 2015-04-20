@@ -70,5 +70,6 @@ void memory_check_all(void);
 bool memory_check(void *ptr);
 bool memory_get_status(void *ptr, memory_status_t *status);
 bool memory_get_size(void *ptr, size_t *size);
+size_t memory_check_leak(bool verbose);
 
 #endif

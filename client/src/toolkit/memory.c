@@ -53,7 +53,6 @@ typedef struct memory_chunk {
     struct memory_chunk *prev; ///< Previous memory chunk.
 
     size_t size; ///< Number of the bytes in 'data'.
-    memory_status_t status; ///< Status of the memory chunk.
     const char *file; ///< File the memory chunk was allocated in.
     uint32_t line; ///< Line number the chunk was allocated in.
 
@@ -168,6 +167,7 @@ static memory_chunk_t *chunk_checkptr(void *ptr)
     }
 
     chunk_check(chunk);
+
     return chunk;
 }
 
@@ -175,9 +175,13 @@ static void chunk_check_all(void)
 {
     memory_chunk_t *chunk;
 
+    pthread_mutex_lock(&memory_chunks_mutex);
+
     DL_FOREACH(memory_chunks, chunk) {
         chunk_check(chunk);
     }
+
+    pthread_mutex_unlock(&memory_chunks_mutex);
 }
 
 static void *_malloc(size_t size, const char *file, uint32_t line)
@@ -195,7 +199,6 @@ static void *_malloc(size_t size, const char *file, uint32_t line)
     chunk->size = size;
     chunk->file = file;
     chunk->line = line;
-    chunk->status = MEMORY_STATUS_OK;
     chunk->before = CHUNK_BEFORE_VAL;
     chunk->next = NULL;
     chunk->prev = NULL;
@@ -339,7 +342,9 @@ bool memory_check(void *ptr)
 #ifndef NDEBUG
     memory_chunk_t *chunk;
 
+    pthread_mutex_lock(&memory_chunks_mutex);
     chunk = chunk_checkptr(ptr);
+    pthread_mutex_unlock(&memory_chunks_mutex);
 
     if (chunk == NULL) {
         return false;
@@ -358,14 +363,22 @@ bool memory_get_status(void *ptr, memory_status_t *status)
 #ifndef NDEBUG
     memory_chunk_t *chunk;
 
+    pthread_mutex_lock(&memory_chunks_mutex);
     chunk = chunk_checkptr(ptr);
 
     if (chunk == NULL) {
-        return false;
+        chunk = MEM_CHUNK(ptr);
+
+        if (chunk->before == 0x7A7A7A7A7A7A7A7AULL) {
+            *status = MEMORY_STATUS_FREE;
+        } else {
+            *status = MEMORY_STATUS_OK;
+        }
+    } else {
+        *status = MEMORY_STATUS_OK;
     }
 
-    *status = chunk->status;
-
+    pthread_mutex_unlock(&memory_chunks_mutex);
     return true;
 #else
     return false;
@@ -379,17 +392,48 @@ bool memory_get_size(void *ptr, size_t *size)
 #ifndef NDEBUG
     memory_chunk_t *chunk;
 
+    pthread_mutex_lock(&memory_chunks_mutex);
     chunk = chunk_checkptr(ptr);
 
     if (chunk == NULL) {
+        pthread_mutex_unlock(&memory_chunks_mutex);
         return false;
     }
 
     *size = chunk->size;
+    pthread_mutex_unlock(&memory_chunks_mutex);
 
     return true;
 #else
     return false;
+#endif
+}
+
+size_t memory_check_leak(bool verbose)
+{
+#ifndef NDEBUG
+    memory_chunk_t *chunk;
+    size_t num = 0;
+
+    if (_did_init_) {
+        pthread_mutex_lock(&memory_chunks_mutex);
+    }
+
+    DL_FOREACH(memory_chunks, chunk) {
+        if (verbose) {
+            log(LOG(ERROR), "Unfreed pointer: %s", chunk_get_str(chunk));
+        }
+
+        num++;
+    }
+
+    if (_did_init_) {
+        pthread_mutex_unlock(&memory_chunks_mutex);
+    }
+
+    return num;
+#else
+    return 0;
 #endif
 }
 
