@@ -1004,4 +1004,45 @@ const char *string_skip_whitespace(const char *str)
     return str;
 }
 
+/**
+ * Find the last occurrence of 'needle' in 'haystack'.
+ * @param haystack Where to search in.
+ * @param needle What to search.
+ * @return Substring or NULL if not found.
+ */
+char *string_last(const char *haystack, const char *needle)
+{
+    size_t len_haystack, len_needle;
+
+    TOOLKIT_PROTECT();
+
+    HARD_ASSERT(haystack != NULL);
+    HARD_ASSERT(needle != NULL);
+
+    if (*needle == '\0') {
+        return NULL;
+    }
+
+    len_haystack = strlen(haystack);
+    len_needle = strlen(needle);
+
+    if (len_haystack - len_needle <= 0) {
+        return NULL;
+    }
+
+    char *cp = (char *) haystack + len_haystack - len_needle;
+
+    while (cp != haystack) {
+        if (*cp == *needle) {
+            if (strncmp(cp, needle, len_needle) == 0) {
+                return cp;
+            }
+        }
+
+        cp--;
+    }
+
+    return NULL;
+}
+
 #endif
