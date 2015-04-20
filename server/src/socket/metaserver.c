@@ -130,6 +130,10 @@ void metaserver_init(void)
  */
 void metaserver_deinit(void)
 {
+    if (*settings.server_host == '\0') {
+        return;
+    }
+
     pthread_mutex_lock(&ms_info_mutex);
 
     if (metaserver_info.players != NULL) {
