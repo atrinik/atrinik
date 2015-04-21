@@ -72,10 +72,11 @@ endif ()
 include(src/cmake.txt)
 
 if (MINGW)
-    ADD_CUSTOM_COMMAND(OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/atrinikrc.o"
-            COMMAND ${CMAKE_RC_COMPILER} -I"${CMAKE_CURRENT_SOURCE_DIR}"
-            -i"${CMAKE_CURRENT_SOURCE_DIR}/atrinik.rc"
-            -o "${CMAKE_CURRENT_BINARY_DIR}/atrinikrc.o")
+    ADD_CUSTOM_COMMAND(OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/atrinikrc.o
+            COMMAND ${CMAKE_RC_COMPILER} -I${CMAKE_CURRENT_SOURCE_DIR}
+            -i${CMAKE_CURRENT_SOURCE_DIR}/atrinik.rc
+            -o ${CMAKE_CURRENT_BINARY_DIR}/atrinikrc.o
+            VERBATIM)
     SET(SOURCES ${SOURCES} "${CMAKE_CURRENT_BINARY_DIR}/atrinikrc.o")
     add_executable(${EXECUTABLE_UPDATER}
         src/updater/main.c "${CMAKE_CURRENT_BINARY_DIR}/atrinikrc.o")
