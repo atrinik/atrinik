@@ -622,15 +622,30 @@ class TagCompilerAction(BaseTagCompiler):
 
                 self.npc.body.write("self._npc.enemy = {enemy}", enemy=enemy)
             elif attr == "teleport":
-                match = re.match(r"([^ ]+)\s*(\d+)?\s*(\d+)?", val)
+                match = re.match(r"([^ ]+)\s*(\d+)?\s*(\d+)?\s*(savebed)?", val)
 
                 if not match:
                     continue
 
-                args = ", ".join((repr(val) if i == 0 else val) for i, val in
-                                 enumerate(match.groups()))
+                args = []
+
+                for i, val in enumerate(match.groups()):
+                    if val:
+                        args.append((repr(val) if i == 0 else val))
+
+                    if i == 2:
+                        break
+
                 self.npc.body.write("self._activator.TeleportTo({args})",
-                                    args=args)
+                                    args=", ".join(args))
+
+                if match.group(4):
+                    attrs = ["savebed_map", "bed_x", "bed_y"]
+
+                    for i, val in enumerate(args):
+                        self.npc.body.write(
+                            "self._activator.Controller().{attr} = "
+                            "{val}".format(attr=attrs[i], val=val))
             elif attr == "trigger":
                 self.npc.body.write(
                     "beacon = self._npc.map.LocateBeacon({name})\n"
