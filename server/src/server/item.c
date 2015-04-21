@@ -395,6 +395,7 @@ char *query_short_name(object *op, object *caller)
     case WAND:
     case ROD:
     case POTION:
+    case BOOK_SPELL:
 
         if (QUERY_FLAG(op, FLAG_IDENTIFIED) || QUERY_FLAG(op, FLAG_BEEN_APPLIED)) {
             if (!op->title) {
@@ -409,8 +410,10 @@ char *query_short_name(object *op, object *caller)
                 safe_strcat(buf, op->title, &len, sizeof(buf));
             }
 
-            sprintf(buf2, " (lvl %d)", op->level);
-            safe_strcat(buf, buf2, &len, sizeof(buf));
+            if (op->type != BOOK_SPELL) {
+                sprintf(buf2, " (lvl %d)", op->level);
+                safe_strcat(buf, buf2, &len, sizeof(buf));
+            }
         }
 
         break;
@@ -703,6 +706,7 @@ char *query_base_name(object *op, object *caller)
     case WAND:
     case ROD:
     case POTION:
+    case BOOK_SPELL:
 
         if (QUERY_FLAG(op, FLAG_IDENTIFIED)) {
             if (!op->title) {
@@ -717,8 +721,10 @@ char *query_base_name(object *op, object *caller)
                 safe_strcat(buf, op->title, &len, sizeof(buf));
             }
 
-            sprintf(buf2, " (lvl %d)", op->level);
-            safe_strcat(buf, buf2, &len, sizeof(buf));
+            if (op->type != BOOK_SPELL) {
+                sprintf(buf2, " (lvl %d)", op->level);
+                safe_strcat(buf, buf2, &len, sizeof(buf));
+            }
         }
 
         break;
@@ -1242,6 +1248,7 @@ int need_identify(object *op)
     case BOOK:
     case LIGHT_APPLY:
     case LIGHT_REFILL:
+    case BOOK_SPELL:
         return 1;
     }
 

@@ -317,6 +317,10 @@
  * Used to find spawn point where monster came from. */
 #define SPAWN_POINT_INFO 84
 /**
+ * Spell book.
+ */
+#define BOOK_SPELL 85
+/**
  * Body parts which can't be eaten - dragon scales for example */
 #define ORGANIC 86
 /**

@@ -275,6 +275,7 @@ extern int hit_player(object *op, int dam, object *hitter, int type);
 extern void hit_map(object *op, int dir, int reduce);
 extern int kill_object(object *op, int dam, object *hitter, int type);
 extern void confuse_living(object *op);
+extern void blind_living(object *op, object *hitter, int dam);
 extern void paralyze_living(object *op, int dam);
 extern int is_melee_range(object *hitter, object *enemy);
 /* src/server/ban.c */
@@ -692,6 +693,8 @@ extern int SP_level_dam_adjust(object *caster, int spell_type, int base_dam, int
 extern int SP_level_strength_adjust(object *caster, int spell_type);
 extern int SP_level_spellpoint_cost(object *caster, int spell_type, int caster_level);
 extern void fire_swarm(object *op, object *caster, int dir, archetype *swarm_type, int spell_type, int n, int magic);
+extern void spell_failure_raw_mana(object *caster, int level);
+extern void spell_failure(object *caster, int level);
 /* src/server/statistics.c */
 extern void statistics_init(void);
 extern void statistic_update(const char *type, object *op, int64_t i, const char *buf);
@@ -856,6 +859,8 @@ extern void object_type_init_beacon(void);
 extern void object_type_init_blindness(void);
 /* src/types/book.c */
 extern void object_type_init_book(void);
+/* src/types/book_spell.c */
+extern void object_type_init_book_spell(void);
 /* src/types/boots.c */
 extern void object_type_init_boots(void);
 /* src/types/bow.c */
@@ -1063,6 +1068,7 @@ extern char *player_make_path(const char *name, const char *ext);
 extern int player_exists(const char *name);
 extern void player_save(object *op);
 extern object *player_get_dummy(void);
+extern object *player_find_spell(object *op, spell_struct *spell);
 extern void player_login(socket_struct *ns, const char *name, archetype *at);
 extern void object_type_init_player(void);
 /* src/types/player_mover.c */

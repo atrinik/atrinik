@@ -127,6 +127,7 @@ set(SOURCES
 	src/types/beacon.c
 	src/types/blindness.c
 	src/types/book.c
+	src/types/book_spell.c
 	src/types/boots.c
 	src/types/bow.c
 	src/types/bracers.c

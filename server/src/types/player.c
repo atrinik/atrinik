@@ -2113,6 +2113,17 @@ object *player_get_dummy(void)
     return pl->ob;
 }
 
+object *player_find_spell(object *op, spell_struct *spell)
+{
+    for (object *tmp = op->inv; tmp != NULL; tmp = tmp->below) {
+        if (tmp->type == SPELL && tmp->name == spell->at->clone.name) {
+            return tmp;
+        }
+    }
+
+    return NULL;
+}
+
 void player_login(socket_struct *ns, const char *name, archetype *at)
 {
     player *pl;

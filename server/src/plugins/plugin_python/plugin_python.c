@@ -376,6 +376,7 @@ static const Atrinik_Constant constants_types[] = {
     {"LIGHT_REFILL", LIGHT_REFILL},
     {"SPAWN_POINT_MOB", SPAWN_POINT_MOB},
     {"SPAWN_POINT_INFO", SPAWN_POINT_INFO},
+    {"BOOK_SPELL", BOOK_SPELL},
     {"ORGANIC", ORGANIC},
     {"CLOAK", CLOAK},
     {"CONE", CONE},
