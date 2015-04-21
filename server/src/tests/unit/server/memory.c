@@ -27,28 +27,24 @@
 #include <check_proto.h>
 #include <malloc.h>
 
-#if defined(HAVE_MCHECK_H) && !defined(NDEBUG)
-#include <mcheck.h>
-static void no_op(enum mcheck_status status) {}
-#endif
-
 START_TEST(test_memory_emalloc)
 {
     char *ptr;
-
-#if defined(HAVE_MCHECK_H) && !defined(NDEBUG)
-    mcheck(&no_op);
-#endif
+    memory_status_t memory_status;
+    size_t size;
 
     ptr = emalloc(8);
     ck_assert_ptr_ne(ptr, NULL);
     snprintf(ptr, 8, "%s", "testing");
     ck_assert_str_eq(ptr, "testing");
 
-#if defined(HAVE_MCHECK_H) && !defined(NDEBUG)
-    ck_assert_int_eq(mprobe(ptr), MCHECK_OK);
-    mcheck(NULL);
-#endif
+    if (memory_get_status(ptr, &memory_status)) {
+        ck_assert_uint_eq(memory_status, MEMORY_STATUS_OK);
+    }
+
+    if (memory_get_size(ptr, &size)) {
+        ck_assert_uint_eq(size, 8);
+    }
 
     efree(ptr);
 }
@@ -57,79 +53,86 @@ END_TEST
 START_TEST(test_memory_efree)
 {
     void *ptr;
-
-#if defined(HAVE_MCHECK_H) && !defined(NDEBUG)
-    mcheck(&no_op);
-#endif
+    memory_status_t memory_status;
+    size_t size;
 
     ptr = emalloc(42);
     ck_assert_ptr_ne(ptr, NULL);
 
-#if defined(HAVE_MCHECK_H) && !defined(NDEBUG)
-    ck_assert_int_eq(mprobe(ptr), MCHECK_OK);
-#endif
+    if (memory_get_status(ptr, &memory_status)) {
+        ck_assert_uint_eq(memory_status, MEMORY_STATUS_OK);
+    }
+
+    if (memory_get_size(ptr, &size)) {
+        ck_assert_uint_eq(size, 42);
+    }
 
     efree(ptr);
 
-#if defined(HAVE_MCHECK_H) && !defined(NDEBUG)
-    ck_assert_int_eq(mprobe(ptr), MCHECK_FREE);
-    mcheck(NULL);
-#endif
+    if (memory_get_status(ptr, &memory_status)) {
+        ck_assert_uint_eq(memory_status, MEMORY_STATUS_FREE);
+    }
 }
 END_TEST
 
 START_TEST(test_memory_ecalloc)
 {
     int32_t *ptr;
-    size_t i;
-
-#if defined(HAVE_MCHECK_H) && !defined(NDEBUG)
-    mcheck(&no_op);
-#endif
+    size_t size;
+    memory_status_t memory_status;
 
     ptr = ecalloc(42, sizeof(*ptr));
     ck_assert_ptr_ne(ptr, NULL);
 
-#if defined(HAVE_MCHECK_H) && !defined(NDEBUG)
-    ck_assert_int_eq(mprobe(ptr), MCHECK_OK);
-#endif
+    if (memory_get_status(ptr, &memory_status)) {
+        ck_assert_uint_eq(memory_status, MEMORY_STATUS_OK);
+    }
 
-    for (i = 0; i < 42; i++) {
+    if (memory_get_size(ptr, &size)) {
+        ck_assert_uint_eq(size, 42 * sizeof(*ptr));
+    }
+
+    for (size_t i = 0; i < 42; i++) {
         ck_assert_uint_eq(ptr[i], 0);
     }
 
     efree(ptr);
 
-#if defined(HAVE_MCHECK_H) && !defined(NDEBUG)
-    ck_assert_int_eq(mprobe(ptr), MCHECK_FREE);
-    mcheck(NULL);
-#endif
+    if (memory_get_status(ptr, &memory_status)) {
+        ck_assert_uint_eq(memory_status, MEMORY_STATUS_FREE);
+    }
 }
 END_TEST
 
 START_TEST(test_memory_erealloc)
 {
     char *ptr;
-
-#if defined(HAVE_MCHECK_H) && !defined(NDEBUG)
-    mcheck(&no_op);
-#endif
+    memory_status_t memory_status;
+    size_t size;
 
     ptr = emalloc(4);
     ck_assert_ptr_ne(ptr, NULL);
 
-#if defined(HAVE_MCHECK_H) && !defined(NDEBUG)
-    ck_assert_int_eq(mprobe(ptr), MCHECK_OK);
-#endif
+    if (memory_get_status(ptr, &memory_status)) {
+        ck_assert_uint_eq(memory_status, MEMORY_STATUS_OK);
+    }
+
+    if (memory_get_size(ptr, &size)) {
+        ck_assert_uint_eq(size, 4);
+    }
 
     snprintf(ptr, 4, "%s", "testing");
     ck_assert_str_eq(ptr, "tes");
 
     ptr = erealloc(ptr, 8);
 
-#if defined(HAVE_MCHECK_H) && !defined(NDEBUG)
-    ck_assert_int_eq(mprobe(ptr), MCHECK_OK);
-#endif
+    if (memory_get_status(ptr, &memory_status)) {
+        ck_assert_uint_eq(memory_status, MEMORY_STATUS_OK);
+    }
+
+    if (memory_get_size(ptr, &size)) {
+        ck_assert_uint_eq(size, 8);
+    }
 
     ck_assert_str_eq(ptr, "tes");
     snprintf(ptr, 8, "%s", "testing");
@@ -137,48 +140,56 @@ START_TEST(test_memory_erealloc)
 
     ptr = erealloc(ptr, 20);
 
-#if defined(HAVE_MCHECK_H) && !defined(NDEBUG)
-    ck_assert_int_eq(mprobe(ptr), MCHECK_OK);
-#endif
+    if (memory_get_status(ptr, &memory_status)) {
+        ck_assert_uint_eq(memory_status, MEMORY_STATUS_OK);
+    }
+
+    if (memory_get_size(ptr, &size)) {
+        ck_assert_uint_eq(size, 20);
+    }
 
     ck_assert_str_eq(ptr, "testing");
 
     ptr = erealloc(ptr, 8);
 
-#if defined(HAVE_MCHECK_H) && !defined(NDEBUG)
-    ck_assert_int_eq(mprobe(ptr), MCHECK_OK);
-#endif
+    if (memory_get_status(ptr, &memory_status)) {
+        ck_assert_uint_eq(memory_status, MEMORY_STATUS_OK);
+    }
+
+    if (memory_get_size(ptr, &size)) {
+        ck_assert_uint_eq(size, 8);
+    }
 
     ck_assert_str_eq(ptr, "testing");
 
     efree(ptr);
 
-#if defined(HAVE_MCHECK_H) && !defined(NDEBUG)
-    ck_assert_int_eq(mprobe(ptr), MCHECK_FREE);
-    mcheck(NULL);
-#endif
+    if (memory_get_status(ptr, &memory_status)) {
+        ck_assert_uint_eq(memory_status, MEMORY_STATUS_FREE);
+    }
 }
 END_TEST
 
 START_TEST(test_memory_reallocz)
 {
     int32_t *ptr;
-    size_t i;
-
-#if defined(HAVE_MCHECK_H) && !defined(NDEBUG)
-    mcheck(&no_op);
-#endif
+    memory_status_t memory_status;
+    size_t size, i;
 
     ptr = emalloc(sizeof(*ptr) * 42);
     ck_assert_ptr_ne(ptr, NULL);
 
+    if (memory_get_status(ptr, &memory_status)) {
+        ck_assert_uint_eq(memory_status, MEMORY_STATUS_OK);
+    }
+
+    if (memory_get_size(ptr, &size)) {
+        ck_assert_uint_eq(size, sizeof(*ptr) * 42);
+    }
+
     for (i = 0; i < 42; i++) {
         ptr[i] = 1337;
     }
-
-#if defined(HAVE_MCHECK_H) && !defined(NDEBUG)
-    ck_assert_int_eq(mprobe(ptr), MCHECK_OK);
-#endif
 
     for (i = 0; i < 42; i++) {
         ck_assert_uint_eq(ptr[i], 1337);
@@ -186,9 +197,13 @@ START_TEST(test_memory_reallocz)
 
     ptr = ereallocz(ptr, sizeof(*ptr) * 42, sizeof(*ptr) * 42 * 2);
 
-#if defined(HAVE_MCHECK_H) && !defined(NDEBUG)
-    ck_assert_int_eq(mprobe(ptr), MCHECK_OK);
-#endif
+    if (memory_get_status(ptr, &memory_status)) {
+        ck_assert_uint_eq(memory_status, MEMORY_STATUS_OK);
+    }
+
+    if (memory_get_size(ptr, &size)) {
+        ck_assert_uint_eq(size, sizeof(*ptr) * 42 * 2);
+    }
 
     for (i = 0; i < 42; i++) {
         ck_assert_uint_eq(ptr[i], 1337);
@@ -200,9 +215,13 @@ START_TEST(test_memory_reallocz)
 
     ptr = ereallocz(ptr, sizeof(*ptr) * 42 * 2, sizeof(*ptr) * 42);
 
-#if defined(HAVE_MCHECK_H) && !defined(NDEBUG)
-    ck_assert_int_eq(mprobe(ptr), MCHECK_OK);
-#endif
+    if (memory_get_status(ptr, &memory_status)) {
+        ck_assert_uint_eq(memory_status, MEMORY_STATUS_OK);
+    }
+
+    if (memory_get_size(ptr, &size)) {
+        ck_assert_uint_eq(size, sizeof(*ptr) * 42);
+    }
 
     for (i = 0; i < 42; i++) {
         ck_assert_uint_eq(ptr[i], 1337);
@@ -210,10 +229,9 @@ START_TEST(test_memory_reallocz)
 
     efree(ptr);
 
-#if defined(HAVE_MCHECK_H) && !defined(NDEBUG)
-    ck_assert_int_eq(mprobe(ptr), MCHECK_FREE);
-    mcheck(NULL);
-#endif
+    if (memory_get_status(ptr, &memory_status)) {
+        ck_assert_uint_eq(memory_status, MEMORY_STATUS_FREE);
+    }
 }
 END_TEST
 
