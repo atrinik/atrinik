@@ -2,7 +2,7 @@ arch map
 name Ocean
 msg
 Created:  2011-03-20 Alex Tokar
-Modified: 2014-03-15 Alex Tokar
+Modified: 2015-04-21 Alex Tokar
 endmsg
 width 24
 height 24
@@ -1119,6 +1119,7 @@ arch stairs_wood_down
 slaying incuna/ship_lower_deck
 hp 2
 sp 2
+damned 1
 x 7
 y 7
 end
