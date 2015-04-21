@@ -1,0 +1,101 @@
+arch map
+name Asteria
+msg
+Created:  2015-04-21 Alex Tokar
+Modified: 2015-04-21 Alex Tokar
+endmsg
+width 24
+height 24
+difficulty 1
+darkness -1
+outdoor 1
+end
+arch roof_wood
+direction 3
+x 8
+y 4
+end
+arch roof_wood
+direction 3
+x 8
+y 5
+end
+arch roof_wood
+direction 3
+x 8
+y 6
+end
+arch roof_wood
+direction 5
+x 9
+y 3
+end
+arch roof_wood
+x 9
+y 4
+end
+arch roof_wood
+x 9
+y 5
+end
+arch roof_wood
+x 9
+y 6
+end
+arch roof_wood
+direction 5
+x 10
+y 3
+end
+arch roof_wood
+direction 8
+x 10
+y 4
+end
+arch roof_wood
+x 10
+y 5
+end
+arch roof_wood
+x 10
+y 6
+end
+arch roof_wood
+direction 5
+x 11
+y 3
+end
+arch roof_wood
+direction 7
+x 11
+y 4
+end
+arch roof_wood
+direction 8
+x 11
+y 5
+end
+arch roof_wood
+x 11
+y 6
+end
+arch roof_wood
+direction 5
+x 12
+y 3
+end
+arch roof_wood
+direction 7
+x 12
+y 4
+end
+arch roof_wood
+direction 7
+x 12
+y 5
+end
+arch roof_wood
+direction 8
+x 12
+y 6
+end
