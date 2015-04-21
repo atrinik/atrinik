@@ -522,6 +522,14 @@ void living_update_player(object *op)
         CLEAR_FLAG(op, FLAG_SEE_INVISIBLE);
     }
 
+    if (!QUERY_FLAG(&op->arch->clone, FLAG_CONFUSED)) {
+        CLEAR_FLAG(op, FLAG_CONFUSED);
+    }
+
+    if (!QUERY_FLAG(&op->arch->clone, FLAG_BLIND)) {
+        CLEAR_FLAG(op, FLAG_BLIND);
+    }
+
     memset(&protect_boni, 0, sizeof(protect_boni));
     memset(&protect_mali, 0, sizeof(protect_mali));
     memset(&protect_exact_boni, 0, sizeof(protect_exact_boni));
@@ -1231,6 +1239,19 @@ static int living_update_display(object *op, object *refop, player *refpl)
             draw_info(COLOR_GRAY, op, "You are blinded.");
         } else {
             draw_info(COLOR_WHITE, op, "Your vision returns.");
+        }
+
+        pl->update_los = 1;
+    }
+
+    if (QUERY_FLAG(op, FLAG_CONFUSED) !=
+            QUERY_FLAG(refop, FLAG_CONFUSED)) {
+        ret++;
+
+        if (QUERY_FLAG(op, FLAG_CONFUSED)) {
+            draw_info(COLOR_GRAY, op, "You suddenly feel very confused!");
+        } else {
+            draw_info(COLOR_WHITE, op, "You regain your senses.");
         }
     }
 

@@ -59,7 +59,6 @@ static void send_attack_msg(object *op, object *hitter, int attacknum, int dam, 
 static int hit_player_attacktype(object *op, object *hitter, int damage, uint32_t attacknum);
 static void poison_player(object *op, object *hitter, float dam);
 static void slow_living(object *op);
-static void blind_living(object *op, object *hitter, int dam);
 static int adj_attackroll(object *hitter, object *target);
 static int is_aimed_missile(object *op);
 
@@ -936,14 +935,15 @@ static void slow_living(object *op)
 
     if ((tmp = present_arch_in_ob(at, op)) == NULL) {
         tmp = arch_to_object(at);
+        SET_FLAG(tmp, FLAG_APPLIED);
         tmp = insert_ob_in_ob(tmp, op);
         draw_info(COLOR_WHITE, op, "The world suddenly moves very fast!");
     } else {
         tmp->stats.food++;
     }
 
-    SET_FLAG(tmp, FLAG_APPLIED);
     tmp->speed_left = 0;
+    esrv_update_item(UPD_EXTRA, tmp);
 }
 
 /**
@@ -951,13 +951,16 @@ static void slow_living(object *op)
  * @param op Victim. */
 void confuse_living(object *op)
 {
+    archetype *at;
     object *tmp;
     int maxduration;
 
-    tmp = present_in_ob(CONFUSION, op);
+    at = find_archetype("confusion");
+    tmp = present_arch_in_ob(at, op);
 
     if (!tmp) {
-        tmp = get_archetype("confusion");
+        tmp = arch_to_object(at);
+        SET_FLAG(tmp, FLAG_APPLIED);
         tmp = insert_ob_in_ob(tmp, op);
     }
 
@@ -970,11 +973,8 @@ void confuse_living(object *op)
         tmp->stats.food = maxduration;
     }
 
-    if (op->type == PLAYER && !QUERY_FLAG(op, FLAG_CONFUSED)) {
-        draw_info(COLOR_WHITE, op, "You suddenly feel very confused!");
-    }
-
-    SET_FLAG(op, FLAG_CONFUSED);
+    tmp->speed_left = 0;
+    esrv_update_item(UPD_EXTRA, tmp);
 }
 
 /**
@@ -982,8 +982,9 @@ void confuse_living(object *op)
  * @param op Victim.
  * @param hitter Who is attacking.
  * @param dam Damage to deal. */
-static void blind_living(object *op, object *hitter, int dam)
+void blind_living(object *op, object *hitter, int dam)
 {
+    archetype *at;
     object *tmp, *owner;
 
     /* Save some work if we know it isn't going to affect the player */
@@ -991,11 +992,11 @@ static void blind_living(object *op, object *hitter, int dam)
         return;
     }
 
-    tmp = present_in_ob(BLINDNESS, op);
+    at = find_archetype("blindness");
+    tmp = present_arch_in_ob(at, op);
 
     if (!tmp) {
-        tmp = get_archetype("blindness");
-        SET_FLAG(tmp, FLAG_BLIND);
+        tmp = arch_to_object(at);
         SET_FLAG(tmp, FLAG_APPLIED);
         /* Use floats so we don't lose too much precision due to rounding
          * errors.
@@ -1004,13 +1005,15 @@ static void blind_living(object *op, object *hitter, int dam)
 
         tmp = insert_ob_in_ob(tmp, op);
 
-        if (hitter->owner) {
-            owner = get_owner(hitter);
-        } else {
-            owner = hitter;
-        }
+        if (hitter != op) {
+            if (hitter->owner) {
+                owner = get_owner(hitter);
+            } else {
+                owner = hitter;
+            }
 
-        draw_info_format(COLOR_WHITE, owner, "Your attack blinds %s!", query_name(op, NULL));
+            draw_info_format(COLOR_WHITE, owner, "Your attack blinds %s!", query_name(op, NULL));
+        }
     }
 
     tmp->stats.food += dam;
@@ -1018,6 +1021,9 @@ static void blind_living(object *op, object *hitter, int dam)
     if (tmp->stats.food > 10) {
         tmp->stats.food = 10;
     }
+
+    tmp->speed_left = 0;
+    esrv_update_item(UPD_EXTRA, tmp);
 }
 
 /**
