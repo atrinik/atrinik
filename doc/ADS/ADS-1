@@ -562,7 +562,8 @@ return self._activator.FindObject(archname = "goldcoin") != None
      If set to "clear", will will clear the NPC's enemy.
   - teleport (string) (optional):
      If set, the player will be teleported to the specified location. Must
-     be in the format of "<map-path> <x> <y>".
+     be in the format of "<map-path> [x] [y] [savebed]". If 'savebed' is
+     specified in the string, the player's savebed will also be updated.
   - trigger (string) (optional):
      If set, will locate a beacon with the specified name and apply the
      object the beacon is in.
