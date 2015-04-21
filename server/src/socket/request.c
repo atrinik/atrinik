@@ -1274,6 +1274,7 @@ void draw_client_map2(object *pl)
                         object *head = tmp->head ? tmp->head : tmp, *face_obj;
                         tag_t target_object_count = 0;
                         uint8_t anim_speed, anim_facing, anim_flags;
+                        uint8_t client_flags;
 
                         face_obj = NULL;
                         anim_speed = anim_facing = anim_flags = 0;
@@ -1319,6 +1320,8 @@ void draw_client_map2(object *pl)
                                 face = face_obj->face->number;
                             }
                         }
+
+                        client_flags = GET_CLIENT_FLAGS(head);
 
                         /* Player? So we want to send their name. */
                         if (tmp->type == PLAYER) {
@@ -1390,7 +1393,7 @@ void draw_client_map2(object *pl)
                         }
 
                         /* Now, check if we have cached this. */
-                        if (mp->faces[socket_layer] == face && mp->quick_pos[socket_layer] == quick_pos && mp->flags[socket_layer] == flags && (layer != LAYER_LIVING || !IS_LIVE(head) || (mp->probe == probe_val && mp->target_object_count == target_object_count)) && mp->anim_speed[socket_layer] == anim_speed && mp->anim_facing[socket_layer] == anim_facing && (layer != LAYER_LIVING || mp->anim_flags[sub_layer] == anim_flags) && (!(flags & MAP2_FLAG_NAME) || !CONTR(tmp)->socket.ext_title_flag)) {
+                        if (mp->faces[socket_layer] == face && mp->quick_pos[socket_layer] == quick_pos && mp->flags[socket_layer] == flags && (layer != LAYER_LIVING || !IS_LIVE(head) || (mp->probe == probe_val && mp->target_object_count == target_object_count)) && mp->anim_speed[socket_layer] == anim_speed && mp->anim_facing[socket_layer] == anim_facing && (layer != LAYER_LIVING || (mp->anim_flags[sub_layer] == anim_flags && mp->client_flags[sub_layer] == client_flags)) && (!(flags & MAP2_FLAG_NAME) || !CONTR(tmp)->socket.ext_title_flag)) {
                             continue;
                         }
 
@@ -1403,6 +1406,7 @@ void draw_client_map2(object *pl)
 
                         if (layer == LAYER_LIVING) {
                             mp->anim_flags[sub_layer] = anim_flags;
+                            mp->client_flags[sub_layer] = client_flags;
                         }
 
                         if (layer == LAYER_LIVING) {
@@ -1442,8 +1446,7 @@ void draw_client_map2(object *pl)
                         packet_debug_data(packet_layer, 2, "Face ID");
                         packet_append_uint16(packet_layer, face);
                         packet_debug_data(packet_layer, 2, "Client flags");
-                        packet_append_uint8(packet_layer,
-                                GET_CLIENT_FLAGS(head));
+                        packet_append_uint8(packet_layer, client_flags);
                         packet_debug_data(packet_layer, 2, "Socket flags");
                         packet_append_uint8(packet_layer, flags);
 
