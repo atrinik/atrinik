@@ -140,12 +140,11 @@ static void add_object_to_packet(packet_struct *packet, object *op, object *pl,
         if (QUERY_FLAG(op, FLAG_IDENTIFIED)) {
             uint8_t item_level, item_skill;
 
-            if (op->type == BOOK_SPELL) {
-                if (op->stats.sp >= 0 && op->stats.sp < NROFREALSPELLS) {
-                    spell_struct *spell = &spells[op->stats.sp];
-                    item_level = spell->at->clone.level;
-                    item_skill = SK_WIZARDRY_SPELLS + 1;
-                }
+            if (op->type == BOOK_SPELL && op->stats.sp >= 0 &&
+                    op->stats.sp < NROFREALSPELLS) {
+                spell_struct *spell = &spells[op->stats.sp];
+                item_level = spell->at->clone.level;
+                item_skill = SK_WIZARDRY_SPELLS + 1;
             } else {
                 item_level = op->item_level;
                 item_skill = op->item_skill;
