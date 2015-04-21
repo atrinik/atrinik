@@ -1,0 +1,12 @@
+arch map
+name Morliana
+msg
+Created:  2015-01-04 Alex Tokar
+endmsg
+width 24
+height 24
+difficulty 1
+region morliana
+outdoor 1
+bg_music campfire_tales.mid
+end

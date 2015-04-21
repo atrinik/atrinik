@@ -46,36 +46,36 @@ typedef struct MapCell_struct {
     /* Everything below will be cleared by memset() in when the map
      * cell is no longer visible. */
 
-    uint8 cleared;
+    uint8_t cleared;
 
     /** Darkness cache. */
-    uint16 darkness[NUM_SUB_LAYERS];
+    uint16_t darkness[NUM_SUB_LAYERS];
 
     /** Faces we sent. */
-    sint16 faces[NUM_REAL_LAYERS];
+    int16_t faces[NUM_REAL_LAYERS];
 
     /** Multi-arch cache. */
-    uint8 quick_pos[NUM_REAL_LAYERS];
+    uint8_t quick_pos[NUM_REAL_LAYERS];
 
     /** Flags cache. */
-    uint8 flags[NUM_REAL_LAYERS];
+    uint8_t flags[NUM_REAL_LAYERS];
 
-    uint8 anim_speed[NUM_REAL_LAYERS];
+    uint8_t anim_speed[NUM_REAL_LAYERS];
 
-    uint8 anim_facing[NUM_REAL_LAYERS];
+    uint8_t anim_facing[NUM_REAL_LAYERS];
 
-    uint8 anim_flags[NUM_SUB_LAYERS];
+    uint8_t anim_flags[NUM_SUB_LAYERS];
 
     /**
      * Probe cache. No need for an array, since this only appears
      * for players or monsters, both on layer 6. */
-    uint8 probe;
+    uint8_t probe;
 
     /**
      * Possible target object UID cache. */
     tag_t target_object_count;
 
-    uint8 ext_flags; ///< Last ext flags.
+    uint8_t ext_flags; ///< Last ext flags.
 } MapCell;
 
 /** One map for a player. */
@@ -120,37 +120,37 @@ typedef struct socket_struct {
     char *host;
 
     /** Version of the client. */
-    uint32 socket_version;
+    uint32_t socket_version;
 
     /** Marker to see we must update the below windows of the tile the player
      * is. */
-    uint32 update_tile;
+    uint32_t update_tile;
 
     /** Marker to map draw/draw below. */
-    uint32 below_clear : 1;
+    uint32_t below_clear : 1;
 
     /** When set, a "connect" was initialized as "player". */
-    uint32 addme : 1;
+    uint32_t addme : 1;
 
     /** Does the client want sound? */
-    uint32 sound : 1;
+    uint32_t sound : 1;
 
     /** Is the client a bot? */
-    uint8 is_bot;
+    uint8_t is_bot;
 
     /** Start of drawing of look window. */
-    sint16 look_position;
+    int16_t look_position;
 
     /** Faceset the client is using, default 0. */
-    uint8 faceset;
+    uint8_t faceset;
 
     /**
      * How many times the player has failed to provide the right
      * password. */
-    uint8 password_fails;
+    uint8_t password_fails;
 
     /** Send ext title to client. */
-    uint8 ext_title_flag;
+    uint8_t ext_title_flag;
 
     /** Current state of the socket. */
     int state;
@@ -165,7 +165,7 @@ typedef struct socket_struct {
      * Buffer for how many ticks have passed since the last keep alive
      * command. When this reaches @ref SOCKET_KEEPALIVE_TIMEOUT, the
      * socket is disconnected. */
-    uint32 keepalive;
+    uint32_t keepalive;
 
     char *account;
 
@@ -210,7 +210,7 @@ typedef struct update_file_struct {
     char *filename;
 
     /** Compressed contents of the file. */
-    uint8 *contents;
+    uint8_t *contents;
 
     /** Packet to use for sending the file. */
     struct packet_struct *packet;

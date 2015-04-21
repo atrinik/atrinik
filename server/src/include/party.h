@@ -84,11 +84,11 @@ typedef struct party_struct {
 
     /**
      * Looting mode. One of @ref PARTY_LOOT_xxx. */
-    uint8 loot;
+    uint8_t loot;
 
     /**
      * Index for some looting modes. */
-    uint32 loot_idx;
+    uint32_t loot_idx;
 
     /**
      * Party members. */

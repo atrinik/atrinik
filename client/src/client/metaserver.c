@@ -29,6 +29,7 @@
  * @author Alex Tokar */
 
 #include <global.h>
+#include <toolkit_string.h>
 
 /** Are we connecting to the metaserver? */
 static int metaserver_connecting = 1;
@@ -41,7 +42,7 @@ static size_t server_count;
 /** Mutex to protect ::server_head and ::server_count. */
 static SDL_mutex *server_head_mutex;
 /** Is metaserver enabled? */
-static uint8 enabled = 1;
+static uint8_t enabled = 1;
 
 /**
  * Initialize the metaserver data. */

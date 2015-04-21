@@ -29,6 +29,7 @@
  * @author Alex Tokar */
 
 #include <global.h>
+#include <toolkit_string.h>
 
 /**
  * Draw a frame in which the rows will be drawn.
@@ -87,7 +88,7 @@ void list_set_parent(list_struct *list, int px, int py)
  * @param cols How many columns per row.
  * @param spacing Spacing between column names and the actual rows start.
  * @return The created list. */
-list_struct *list_create(uint32 max_rows, uint32 cols, int spacing)
+list_struct *list_create(uint32_t max_rows, uint32_t cols, int spacing)
 {
     list_struct *list = ecalloc(1, sizeof(list_struct));
 
@@ -132,7 +133,7 @@ list_struct *list_create(uint32 max_rows, uint32 cols, int spacing)
  * allocated.
  * @param col Column ID.
  * @param str Text to add. */
-void list_add(list_struct *list, uint32 row, uint32 col, const char *str)
+void list_add(list_struct *list, uint32_t row, uint32_t col, const char *str)
 {
     if (!list) {
         return;
@@ -145,7 +146,7 @@ void list_add(list_struct *list, uint32 row, uint32 col, const char *str)
 
     /* Add new rows. */
     if (row + 1 > list->rows) {
-        uint32 i;
+        uint32_t i;
 
         /* Update rows count and resize the array of rows. */
         list->rows = row + 1;
@@ -164,9 +165,9 @@ void list_add(list_struct *list, uint32 row, uint32 col, const char *str)
  * Remove row from a list.
  * @param list List.
  * @param row Row ID to remove. */
-void list_remove_row(list_struct *list, uint32 row)
+void list_remove_row(list_struct *list, uint32_t row)
 {
-    uint32 col, row2;
+    uint32_t col, row2;
 
     /* Sanity checks. */
     if (!list || !list->text || row >= list->rows) {
@@ -188,6 +189,8 @@ void list_remove_row(list_struct *list, uint32 row)
 
     list->rows--;
     list->text = erealloc(list->text, sizeof(*list->text) * list->rows);
+
+    list_offsets_ensure(list);
 }
 
 /**
@@ -199,7 +202,7 @@ void list_remove_row(list_struct *list, uint32 row)
  * @param name Name of the column. NULL to leave default (no name shown).
  * @param centered Whether to center the drawn name/text in the column.
  * -1 to leave default (not centered). */
-void list_set_column(list_struct *list, uint32 col, int width, int spacing, const char *name, int centered)
+void list_set_column(list_struct *list, uint32_t col, int width, int spacing, const char *name, int centered)
 {
     if (col > list->cols) {
         logger_print(LOG(BUG), "Attempted to change column #%u, but columns max is %u.", col, list->cols);
@@ -284,7 +287,7 @@ int list_need_redraw(list_struct *list)
  * @param y Y position. */
 void list_show(list_struct *list, int x, int y)
 {
-    uint32 row, col;
+    uint32_t row, col;
     int w = 0, extra_width = 0;
     SDL_Rect box;
 
@@ -402,7 +405,7 @@ void list_show(list_struct *list, int x, int y)
  * @param list The list. */
 void list_clear_rows(list_struct *list)
 {
-    uint32 row, col;
+    uint32_t row, col;
 
     if (!list || !list->text) {
         return;
@@ -442,7 +445,9 @@ void list_clear(list_struct *list)
  * @param list List to ensure for. */
 void list_offsets_ensure(list_struct *list)
 {
-    if (list->row_selected >= list->rows) {
+    if (list->row_selected <= 1) {
+        list->row_selected = 1;
+    } else if (list->row_selected >= list->rows) {
         list->row_selected = list->rows;
     }
 
@@ -459,7 +464,7 @@ void list_offsets_ensure(list_struct *list)
  * @param list List to remove. */
 void list_remove(list_struct *list)
 {
-    uint32 col;
+    uint32_t col;
 
     if (!list) {
         return;
@@ -482,6 +487,10 @@ void list_remove(list_struct *list)
         }
     }
 
+    if (list->font != NULL) {
+        font_free(list->font);
+    }
+
     efree(list->col_names);
     efree(list);
 }
@@ -495,8 +504,8 @@ void list_scroll(list_struct *list, int up, int scroll)
 {
     /* The actual values are unsigned. Changing them to signed here
      * makes it easier to check for overflows below. */
-    sint32 row_selected = list->row_selected, row_offset = list->row_offset;
-    sint32 max_rows, rows;
+    int32_t row_selected = list->row_selected, row_offset = list->row_offset;
+    int32_t max_rows, rows;
 
     /* Number of rows. */
     rows = list->rows;
@@ -619,7 +628,7 @@ int list_handle_keyboard(list_struct *list, SDL_Event *event)
  * @return 1 if the event was handled, 0 otherwise. */
 int list_handle_mouse(list_struct *list, SDL_Event *event)
 {
-    uint32 row, col, old_highlighted, old_selected;
+    uint32_t row, col, old_highlighted, old_selected;
     int mx, my;
 
     if (!list) {
@@ -698,9 +707,9 @@ int list_handle_mouse(list_struct *list, SDL_Event *event)
     return 0;
 }
 
-int list_mouse_get_pos(list_struct *list, int mx, int my, uint32 *row, uint32 *col)
+int list_mouse_get_pos(list_struct *list, int mx, int my, uint32_t *row, uint32_t *col)
 {
-    uint32 w;
+    uint32_t w;
 
     mx -= list->px;
     my -= list->py;
@@ -713,11 +722,11 @@ int list_mouse_get_pos(list_struct *list, int mx, int my, uint32 *row, uint32 *c
         }
 
         /* Is the mouse over this row? */
-        if ((uint32) my >= (LIST_ROWS_START(list) + LIST_ROW_OFFSET(*row, list) * LIST_ROW_HEIGHT(list)) && (uint32) my < LIST_ROWS_START(list) + (LIST_ROW_OFFSET(*row, list) + 1) * LIST_ROW_HEIGHT(list)) {
+        if ((uint32_t) my >= (LIST_ROWS_START(list) + LIST_ROW_OFFSET(*row, list) * LIST_ROW_HEIGHT(list)) && (uint32_t) my < LIST_ROWS_START(list) + (LIST_ROW_OFFSET(*row, list) + 1) * LIST_ROW_HEIGHT(list)) {
             w = 0;
 
             for (*col = 0; *col < list->cols; (*col)++) {
-                if ((uint32) mx >= list->x + list->frame_offset + w && (uint32) mx < list->x + list->frame_offset + w + list->col_widths[*col] + list->col_spacings[*col]) {
+                if ((uint32_t) mx >= list->x + list->frame_offset + w && (uint32_t) mx < list->x + list->frame_offset + w + list->col_widths[*col] + list->col_spacings[*col]) {
                     return 1;
                 }
 
@@ -762,9 +771,9 @@ void list_sort(list_struct *list, int type)
  * @param str Text to search for in all the rows.
  * @param col The column to check value of in each row.
  * @return 1 if new selected row was set, 0 otherwise. */
-int list_set_selected(list_struct *list, const char *str, uint32 col)
+int list_set_selected(list_struct *list, const char *str, uint32_t col)
 {
-    uint32 row;
+    uint32_t row;
 
     for (row = 0; row < list->rows; row++) {
         if (!strcmp(list->text[row][col], str)) {
@@ -783,7 +792,7 @@ int list_set_selected(list_struct *list, const char *str, uint32 col)
  * @param col Column to get text at.
  * @return Pointer to column's text, NULL if there is no row selected.
  */
-const char *list_get_selected(list_struct *list, uint32 col)
+const char *list_get_selected(list_struct *list, uint32_t col)
 {
     if (list->text == NULL) {
         return NULL;

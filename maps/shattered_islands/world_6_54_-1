@@ -1,0 +1,1624 @@
+arch map
+name Abandoned Mine
+msg
+Created:  2011-05-11 Alex Tokar
+Modified: 2015-04-19 Alex Tokar
+endmsg
+width 24
+height 24
+difficulty 3
+darkness 2
+bg_music crystal_cave.ogg
+region strakewood_abandoned_mine
+end
+arch floor_cave2
+x 4
+y 4
+end
+arch wall_cave1.181
+x 4
+y 4
+end
+arch floor_cave6
+x 4
+y 5
+end
+arch wall_cave1.171
+x 4
+y 5
+end
+arch floor_cave5
+x 4
+y 6
+end
+arch wall_cave1.171
+x 4
+y 6
+end
+arch floor_cave6
+x 4
+y 7
+end
+arch wall_cave1.171
+x 4
+y 7
+end
+arch floor_cave5
+x 4
+y 8
+end
+arch wall_cave1.171
+x 4
+y 8
+end
+arch floor_cave1
+x 4
+y 9
+end
+arch wall_cave1.171
+x 4
+y 9
+end
+arch floor_cave6
+x 4
+y 10
+end
+arch wall_cave1.171
+x 4
+y 10
+end
+arch floor_cave2
+x 4
+y 11
+end
+arch wall_cave1b.161
+x 4
+y 11
+end
+arch floor_cave2
+x 5
+y 4
+end
+arch wall_cave1.111
+x 5
+y 4
+end
+arch floor_cave6
+x 5
+y 5
+end
+arch hole2
+last_heal 10
+x 5
+y 5
+end
+arch floor_cave5
+x 5
+y 6
+end
+arch floor_cave6
+x 5
+y 7
+end
+arch floor_cave6
+x 5
+y 8
+end
+arch mushroom_spot1
+x 5
+y 8
+end
+arch floor_cave5
+x 5
+y 9
+end
+arch floor_cave6
+x 5
+y 10
+end
+arch plant7
+x 5
+y 10
+end
+arch floor_cave1
+x 5
+y 11
+end
+arch wall_cave1.121
+x 5
+y 11
+end
+arch floor_cave1
+x 5
+y 12
+end
+arch wall_cave1b.161
+x 5
+y 12
+end
+arch floor_cave2
+x 6
+y 4
+end
+arch wall_cave1b.121
+x 6
+y 4
+end
+arch floor_cave5
+x 6
+y 5
+end
+arch wall_cave1.161
+x 6
+y 5
+end
+arch floor_cave1
+x 6
+y 6
+end
+arch water_lt_m
+direction 3
+x 6
+y 6
+end
+arch small_stones
+x 6
+y 6
+end
+arch floor_cave2
+x 6
+y 7
+end
+arch water_lt_m
+direction 3
+x 6
+y 7
+end
+arch floor_cave5
+x 6
+y 8
+end
+arch water_lt_m
+direction 3
+x 6
+y 8
+end
+arch floor_cave2
+x 6
+y 9
+end
+arch water_lt2_m
+direction 3
+x 6
+y 9
+end
+arch floor_cave5
+x 6
+y 10
+end
+arch water_lt2_m
+direction 3
+x 6
+y 10
+end
+arch floor_cave5
+x 6
+y 11
+end
+arch water_lt2_m
+direction 2
+x 6
+y 11
+end
+arch floor_cave2
+x 6
+y 12
+end
+arch wall_cave1.121
+x 6
+y 12
+end
+arch floor_cave2
+x 6
+y 13
+end
+arch wall_cave1b.161
+x 6
+y 13
+end
+arch floor_cave2
+x 7
+y 5
+end
+arch wall_cave1.111
+x 7
+y 5
+end
+arch water_lt2
+x 7
+y 6
+end
+arch plant7
+x 7
+y 6
+end
+arch water_lt
+x 7
+y 7
+end
+arch water_lt2
+x 7
+y 8
+end
+arch water_lt2
+x 7
+y 9
+end
+arch water_lt4
+x 7
+y 10
+end
+arch floor_cave6
+x 7
+y 11
+end
+arch water_lt_m
+direction 2
+x 7
+y 11
+end
+arch plant7
+x 7
+y 11
+end
+arch floor_cave2
+x 7
+y 12
+end
+arch water_lt2_m
+direction 2
+x 7
+y 12
+end
+arch mushroom_giant8
+x 7
+y 12
+end
+arch floor_cave2
+x 7
+y 13
+end
+arch wall_cave1.121
+x 7
+y 13
+end
+arch floor_cave2
+x 7
+y 14
+end
+arch wall_cave1b.161
+x 7
+y 14
+end
+arch floor_cave5
+x 8
+y 5
+end
+arch wall_cave1.111
+x 8
+y 5
+end
+arch water_lt3
+x 8
+y 6
+end
+arch plant7
+x 8
+y 6
+end
+arch water_lt
+x 8
+y 7
+end
+arch water_lt3
+x 8
+y 8
+end
+arch water_lt3
+x 8
+y 9
+end
+arch water_lt2
+x 8
+y 10
+end
+arch water_lt
+x 8
+y 11
+end
+arch floor_cave6
+x 8
+y 12
+end
+arch water_lt_m
+direction 2
+x 8
+y 12
+end
+arch plant8
+x 8
+y 12
+end
+arch floor_cave2
+x 8
+y 13
+end
+arch water_lt2_m
+direction 2
+x 8
+y 13
+end
+arch plant7
+x 8
+y 13
+end
+arch floor_cave2
+x 8
+y 14
+end
+arch wall_cave1.121
+x 8
+y 14
+end
+arch floor_cave6
+x 8
+y 15
+end
+arch wall_cave1b.161
+x 8
+y 15
+end
+arch floor_cave6
+x 9
+y 4
+end
+arch wall_cave1.181
+x 9
+y 4
+end
+arch floor_cave1
+x 9
+y 5
+end
+arch wall_cave1.141
+x 9
+y 5
+end
+arch water_lt3
+x 9
+y 6
+end
+arch water_lt3
+x 9
+y 7
+end
+arch blocked
+x 9
+y 8
+end
+arch water_lt_m
+direction 8
+layer 3
+x 9
+y 8
+end
+arch campfire
+layer 2
+animation fountain_stream
+anim_speed 2
+z -72
+zoom 65
+align -10
+glow_radius 0
+x 9
+y 8
+end
+arch sound_ambient
+race waterfall.ogg
+x 9
+y 8
+end
+arch blocked
+x 9
+y 9
+end
+arch water_lt_m
+direction 6
+layer 3
+x 9
+y 9
+end
+arch campfire
+layer 2
+animation fountain_stream
+anim_speed 2
+z -36
+zoom 50
+glow_radius 0
+x 9
+y 9
+end
+arch water_lt2
+x 9
+y 10
+end
+arch water_lt2
+x 9
+y 11
+end
+arch water_lt3
+x 9
+y 12
+end
+arch floor_cave6
+x 9
+y 13
+end
+arch water_lt_m
+direction 2
+x 9
+y 13
+end
+arch plant8
+x 9
+y 13
+end
+arch floor_cave1
+x 9
+y 14
+end
+arch water_lt2_m
+direction 2
+x 9
+y 14
+end
+arch floor_cave1
+x 9
+y 15
+end
+arch wall_cave1.121
+x 9
+y 15
+end
+arch floor_cave6
+x 9
+y 16
+end
+arch wall_cave1.171
+x 9
+y 16
+end
+arch floor_cave6
+x 9
+y 17
+end
+arch wall_cave1b.161
+x 9
+y 17
+end
+arch floor_cave1
+x 10
+y 4
+end
+arch wall_cave1.111
+x 10
+y 4
+end
+arch water_lt4
+x 10
+y 5
+end
+arch plant7
+x 10
+y 5
+end
+arch water_lt2
+x 10
+y 6
+end
+arch water_lt
+x 10
+y 7
+end
+arch blocked
+x 10
+y 8
+end
+arch water_lt_m
+direction 2
+layer 3
+x 10
+y 8
+end
+arch campfire
+layer 2
+animation fountain_stream
+anim_speed 2
+z -32
+zoom 50
+align -26
+glow_radius 0
+x 10
+y 8
+end
+arch blocked
+x 10
+y 9
+end
+arch water_lt_m
+direction 4
+x 10
+y 9
+end
+arch water_md2
+x 10
+y 10
+end
+arch water_lt3_m
+direction 7
+x 10
+y 10
+end
+arch water_lt2
+x 10
+y 11
+end
+arch water_lt2
+x 10
+y 12
+end
+arch water_lt3
+x 10
+y 13
+end
+arch floor_cave1
+x 10
+y 14
+end
+arch water_lt_m
+direction 2
+x 10
+y 14
+end
+arch plant7
+x 10
+y 14
+end
+arch floor_cave1
+x 10
+y 15
+end
+arch water_lt_m
+direction 3
+x 10
+y 15
+end
+arch small_stones
+x 10
+y 15
+end
+arch floor_cave1
+x 10
+y 16
+end
+arch water_lt2_m
+direction 2
+x 10
+y 16
+end
+arch plant7
+x 10
+y 16
+end
+arch floor_cave2
+x 10
+y 17
+end
+arch wall_cave1.121
+x 10
+y 17
+end
+arch floor_cave5
+x 10
+y 18
+end
+arch wall_cave1.171
+x 10
+y 18
+end
+arch floor_cave5
+x 10
+y 19
+end
+arch wall_cave1.171
+x 10
+y 19
+end
+arch floor_cave5
+x 10
+y 20
+end
+arch wall_cave1b.161
+x 10
+y 20
+end
+arch floor_cave1
+x 11
+y 4
+end
+arch wall_cave1.111
+x 11
+y 4
+end
+arch water_lt
+x 11
+y 5
+end
+arch water_lt2
+x 11
+y 6
+end
+arch water_lt3
+x 11
+y 7
+end
+arch water_lt
+x 11
+y 8
+end
+arch water_md4
+x 11
+y 9
+end
+arch water_lt_m
+direction 8
+x 11
+y 9
+end
+arch water_md3
+x 11
+y 10
+end
+arch water_md2
+x 11
+y 11
+end
+arch water_lt_m
+direction 6
+x 11
+y 11
+end
+arch water_lt2
+x 11
+y 12
+end
+arch water_lt
+x 11
+y 13
+end
+arch water_lt2
+x 11
+y 14
+end
+arch water_lt2
+x 11
+y 15
+end
+arch plant7
+x 11
+y 15
+end
+arch floor_cave5
+x 11
+y 16
+end
+arch water_lt_m
+direction 2
+x 11
+y 16
+end
+arch floor_cave1
+x 11
+y 17
+end
+arch water_lt2_m
+direction 3
+x 11
+y 17
+end
+arch floor_cave1
+x 11
+y 18
+end
+arch water_lt_m
+direction 3
+x 11
+y 18
+end
+arch mushroom_spot2
+x 11
+y 18
+end
+arch floor_cave6
+x 11
+y 19
+end
+arch water_lt2_m
+direction 2
+x 11
+y 19
+end
+arch plant8
+x 11
+y 19
+end
+arch floor_cave2
+x 11
+y 20
+end
+arch wall_cave1.121
+x 11
+y 20
+end
+arch floor_cave5
+x 11
+y 21
+end
+arch wall_cave1.171
+x 11
+y 21
+end
+arch floor_cave2
+x 11
+y 22
+end
+arch wall_cave1.171
+x 11
+y 22
+end
+arch floor_cave2
+x 11
+y 23
+end
+arch wall_cave1.171
+x 11
+y 23
+end
+arch floor_cave2
+x 12
+y 4
+end
+arch wall_cave1.111
+x 12
+y 4
+end
+arch water_lt
+x 12
+y 5
+end
+arch plant7
+x 12
+y 5
+end
+arch water_lt
+x 12
+y 6
+end
+arch plant7
+x 12
+y 6
+end
+arch water_lt2
+x 12
+y 7
+end
+arch water_lt4
+x 12
+y 8
+end
+arch water_md4
+x 12
+y 9
+end
+arch water_lt_m
+direction 2
+x 12
+y 9
+end
+arch water_md3
+x 12
+y 10
+end
+arch water_md2
+x 12
+y 11
+end
+arch water_md2
+x 12
+y 12
+end
+arch water_lt_m
+direction 6
+x 12
+y 12
+end
+arch water_lt
+x 12
+y 13
+end
+arch water_lt2
+x 12
+y 14
+end
+arch water_lt
+x 12
+y 15
+end
+arch water_lt4
+x 12
+y 16
+end
+arch water_lt4
+x 12
+y 17
+end
+arch water_lt3
+x 12
+y 18
+end
+arch floor_cave2
+x 12
+y 19
+end
+arch water_lt_m
+direction 2
+x 12
+y 19
+end
+arch floor_cave2
+x 12
+y 20
+end
+arch water_lt_m
+direction 3
+x 12
+y 20
+end
+arch floor_cave1
+x 12
+y 21
+end
+arch water_lt_m
+direction 3
+x 12
+y 21
+end
+arch floor_cave1
+x 12
+y 22
+end
+arch water_lt2_m
+direction 3
+x 12
+y 22
+end
+arch small_stones
+x 12
+y 22
+end
+arch floor_cave2
+x 12
+y 23
+end
+arch water_lt2_m
+direction 3
+x 12
+y 23
+end
+arch floor_cave5
+x 13
+y 4
+end
+arch wall_cave1b.121
+x 13
+y 4
+end
+arch floor_cave6
+x 13
+y 5
+end
+arch wall_cave1.161
+x 13
+y 5
+end
+arch water_lt
+x 13
+y 6
+end
+arch plant7
+x 13
+y 6
+end
+arch water_lt2
+x 13
+y 7
+end
+arch water_lt4
+x 13
+y 8
+end
+arch water_lt3
+x 13
+y 9
+end
+arch water_md4
+x 13
+y 10
+end
+arch water_lt_m
+direction 2
+x 13
+y 10
+end
+arch water_md4
+x 13
+y 11
+end
+arch water_md2
+x 13
+y 12
+end
+arch water_md
+x 13
+y 13
+end
+arch water_lt_m
+direction 6
+x 13
+y 13
+end
+arch water_lt4
+x 13
+y 14
+end
+arch water_lt4
+x 13
+y 15
+end
+arch water_lt4
+x 13
+y 16
+end
+arch water_lt3
+x 13
+y 17
+end
+arch water_lt
+x 13
+y 18
+end
+arch water_lt
+x 13
+y 19
+end
+arch water_lt4
+x 13
+y 20
+end
+arch plant8
+x 13
+y 20
+end
+arch water_lt2
+x 13
+y 21
+end
+arch plant7
+x 13
+y 21
+end
+arch water_lt3
+x 13
+y 22
+end
+arch plant8
+x 13
+y 22
+end
+arch water_lt4
+x 13
+y 23
+end
+arch floor_cave5
+x 14
+y 5
+end
+arch wall_cave1b.121
+x 14
+y 5
+end
+arch floor_cave1
+x 14
+y 6
+end
+arch wall_cave1.161
+x 14
+y 6
+end
+arch water_lt2
+x 14
+y 7
+end
+arch plant7
+x 14
+y 7
+end
+arch water_lt2
+x 14
+y 8
+end
+arch water_lt4
+x 14
+y 9
+end
+arch water_lt4
+x 14
+y 10
+end
+arch water_md
+x 14
+y 11
+end
+arch water_lt_m
+direction 2
+x 14
+y 11
+end
+arch water_md
+x 14
+y 12
+end
+arch water_md3
+x 14
+y 13
+end
+arch water_md
+x 14
+y 14
+end
+arch water_lt_m
+direction 7
+x 14
+y 14
+end
+arch water_md3
+x 14
+y 15
+end
+arch water_lt_m
+direction 7
+x 14
+y 15
+end
+arch water_md2
+x 14
+y 16
+end
+arch water_lt2_m
+direction 7
+x 14
+y 16
+end
+arch water_md2
+x 14
+y 17
+end
+arch water_lt2_m
+direction 7
+x 14
+y 17
+end
+arch water_md3
+x 14
+y 18
+end
+arch water_lt2_m
+direction 7
+x 14
+y 18
+end
+arch water_md
+x 14
+y 19
+end
+arch water_lt_m
+direction 7
+x 14
+y 19
+end
+arch water_md
+x 14
+y 20
+end
+arch water_lt2_m
+direction 7
+x 14
+y 20
+end
+arch water_md4
+x 14
+y 21
+end
+arch water_lt_m
+direction 7
+x 14
+y 21
+end
+arch water_md
+x 14
+y 22
+end
+arch water_lt_m
+direction 6
+x 14
+y 22
+end
+arch water_lt2
+x 14
+y 23
+end
+arch floor_cave1
+x 15
+y 6
+end
+arch wall_cave1b.121
+x 15
+y 6
+end
+arch floor_cave5
+x 15
+y 7
+end
+arch wall_cave1.161
+x 15
+y 7
+end
+arch water_lt3
+x 15
+y 8
+end
+arch plant7
+x 15
+y 8
+end
+arch water_lt3
+x 15
+y 9
+end
+arch water_lt
+x 15
+y 10
+end
+arch water_lt
+x 15
+y 11
+end
+arch water_md3
+x 15
+y 12
+end
+arch water_lt_m
+direction 2
+x 15
+y 12
+end
+arch water_md
+x 15
+y 13
+end
+arch water_md3
+x 15
+y 14
+end
+arch water_md3
+x 15
+y 15
+end
+arch water_md3
+x 15
+y 16
+end
+arch water_md4
+x 15
+y 17
+end
+arch water_md4
+x 15
+y 18
+end
+arch water_md3
+x 15
+y 19
+end
+arch water_md3
+x 15
+y 20
+end
+arch water_md
+x 15
+y 21
+end
+arch water_md2
+x 15
+y 22
+end
+arch water_md2
+x 15
+y 23
+end
+arch water_lt_m
+direction 7
+x 15
+y 23
+end
+arch floor_cave2
+x 16
+y 7
+end
+arch wall_cave1b.121
+x 16
+y 7
+end
+arch floor_cave6
+x 16
+y 8
+end
+arch wall_cave1.131
+x 16
+y 8
+end
+arch floor_cave6
+x 16
+y 9
+end
+arch wall_cave1.131
+x 16
+y 9
+end
+arch floor_cave1
+x 16
+y 10
+end
+arch wall_cave1.161
+x 16
+y 10
+end
+arch water_lt2
+x 16
+y 11
+end
+arch plant7
+x 16
+y 11
+end
+arch water_lt3
+x 16
+y 12
+end
+arch water_md3
+x 16
+y 13
+end
+arch water_lt_m
+direction 2
+x 16
+y 13
+end
+arch water_md4
+x 16
+y 14
+end
+arch water_lt_m
+direction 3
+x 16
+y 14
+end
+arch water_md4
+x 16
+y 15
+end
+arch water_lt_m
+direction 3
+x 16
+y 15
+end
+arch water_md3
+x 16
+y 16
+end
+arch water_lt_m
+direction 3
+x 16
+y 16
+end
+arch water_md4
+x 16
+y 17
+end
+arch water_lt2_m
+direction 3
+x 16
+y 17
+end
+arch water_md3
+x 16
+y 18
+end
+arch water_lt2_m
+direction 3
+x 16
+y 18
+end
+arch water_md3
+x 16
+y 19
+end
+arch water_lt2_m
+direction 3
+x 16
+y 19
+end
+arch water_md2
+x 16
+y 20
+end
+arch water_md2
+x 16
+y 21
+end
+arch water_md4
+x 16
+y 22
+end
+arch water_md4
+x 16
+y 23
+end
+arch floor_cave5
+x 17
+y 10
+end
+arch wall_cave1b.121
+x 17
+y 10
+end
+arch floor_cave1
+x 17
+y 11
+end
+arch floor_cave2
+x 17
+y 12
+end
+arch wall_cave1.161
+x 17
+y 12
+end
+arch water_lt4
+x 17
+y 13
+end
+arch plant8
+x 17
+y 13
+end
+arch water_lt4
+x 17
+y 14
+end
+arch water_lt4
+x 17
+y 15
+end
+arch water_lt2
+x 17
+y 16
+end
+arch plant8
+x 17
+y 16
+end
+arch water_lt2
+x 17
+y 17
+end
+arch water_lt2
+x 17
+y 18
+end
+arch plant7
+x 17
+y 18
+end
+arch water_lt
+x 17
+y 19
+end
+arch plant8
+x 17
+y 19
+end
+arch water_md
+x 17
+y 20
+end
+arch water_lt_m
+direction 2
+x 17
+y 20
+end
+arch water_md4
+x 17
+y 21
+end
+arch water_lt2_m
+direction 3
+x 17
+y 21
+end
+arch water_md
+x 17
+y 22
+end
+arch water_lt_m
+direction 3
+x 17
+y 22
+end
+arch water_md
+x 17
+y 23
+end
+arch water_lt_m
+direction 3
+x 17
+y 23
+end
+arch floor_cave1
+x 18
+y 12
+end
+arch wall_cave1b.121
+x 18
+y 12
+end
+arch floor_cave2
+x 18
+y 13
+end
+arch wall_cave1.131
+x 18
+y 13
+end
+arch floor_cave1
+x 18
+y 14
+end
+arch wall_cave1.131
+x 18
+y 14
+end
+arch floor_cave1
+x 18
+y 15
+end
+arch wall_cave1.131
+x 18
+y 15
+end
+arch floor_cave5
+x 18
+y 16
+end
+arch wall_cave1.131
+x 18
+y 16
+end
+arch floor_cave6
+x 18
+y 17
+end
+arch wall_cave1.131
+x 18
+y 17
+end
+arch floor_cave5
+x 18
+y 18
+end
+arch wall_cave1.131
+x 18
+y 18
+end
+arch floor_cave6
+x 18
+y 19
+end
+arch wall_cave1.161
+x 18
+y 19
+end
+arch water_lt2
+x 18
+y 20
+end
+arch plant8
+x 18
+y 20
+end
+arch water_lt4
+x 18
+y 21
+end
+arch water_lt2
+x 18
+y 22
+end
+arch plant7
+x 18
+y 22
+end
+arch water_lt2
+x 18
+y 23
+end
+arch floor_cave2
+x 19
+y 19
+end
+arch wall_cave1b.121
+x 19
+y 19
+end
+arch floor_cave6
+x 19
+y 20
+end
+arch wall_cave1.131
+x 19
+y 20
+end
+arch floor_cave2
+x 19
+y 21
+end
+arch wall_cave1.131
+x 19
+y 21
+end
+arch floor_cave2
+x 19
+y 22
+end
+arch wall_cave1.131
+x 19
+y 22
+end
+arch floor_cave2
+x 19
+y 23
+end
+arch wall_cave1.131
+x 19
+y 23
+end

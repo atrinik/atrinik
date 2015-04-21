@@ -102,6 +102,8 @@ static void common_object_process_changing(object *op)
         tmp->y = op->y;
         insert_ob_in_map(tmp, op->map, op, 0);
     }
+
+    object_destroy(op);
 }
 
 /**

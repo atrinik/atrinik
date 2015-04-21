@@ -28,37 +28,17 @@
 
 #include <global.h>
 
-/**
- * Name of the API. */
-#define API_NAME porting
+TOOLKIT_API();
 
-/**
- * If 1, the API has been initialized. */
-static uint8 did_init = 0;
-
-/**
- * Initialize the porting API.
- * @internal */
-void toolkit_porting_init(void)
+TOOLKIT_INIT_FUNC(porting)
 {
-
-    TOOLKIT_INIT_FUNC_START(porting)
-    {
-    }
-    TOOLKIT_INIT_FUNC_END()
 }
+TOOLKIT_INIT_FUNC_FINISH
 
-/**
- * Deinitialize the porting API.
- * @internal */
-void toolkit_porting_deinit(void)
+TOOLKIT_DEINIT_FUNC(porting)
 {
-
-    TOOLKIT_DEINIT_FUNC_START(porting)
-    {
-    }
-    TOOLKIT_DEINIT_FUNC_END()
 }
+TOOLKIT_DEINIT_FUNC_FINISH
 
 #ifndef __CPROTO__
 
@@ -101,7 +81,7 @@ char *strtok_r(char *s, const char *delim, char **save_ptr)
 #endif
 
 #ifndef HAVE_TEMPNAM
-static uint32 curtmp = 0;
+static uint32_t curtmp = 0;
 
 char *tempnam(const char *dir, const char *pfx)
 {
@@ -306,7 +286,7 @@ ssize_t getline(char **lineptr, size_t *n, FILE *stream)
 
 #ifndef HAVE_USLEEP
 
-int usleep(uint32 usec)
+int usleep(uint32_t usec)
 {
     struct timeval tv1, tv2;
 

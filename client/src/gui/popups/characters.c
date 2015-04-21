@@ -29,6 +29,8 @@
  * @author Alex Tokar */
 
 #include <global.h>
+#include <packet.h>
+#include <toolkit_string.h>
 
 enum {
     TEXT_INPUT_CHARNAME,
@@ -106,7 +108,7 @@ static int text_input_character_check(text_input_struct *text_input, char c)
 }
 
 /** @copydoc list_struct::text_color_hook */
-static void list_text_color(list_struct *list, uint32 row, uint32 col, const char **color, const char **color_shadow)
+static void list_text_color(list_struct *list, uint32_t row, uint32_t col, const char **color, const char **color_shadow)
 {
     if (col == 0) {
         *color_shadow = NULL;
@@ -115,12 +117,12 @@ static void list_text_color(list_struct *list, uint32 row, uint32 col, const cha
 }
 
 /** @copydoc list_struct::post_column_func */
-static void list_post_column(list_struct *list, uint32 row, uint32 col)
+static void list_post_column(list_struct *list, uint32_t row, uint32_t col)
 {
     if (col == 0) {
-        static uint32 ticks[2] = {0, 0};
-        static uint8 state[2] = {0, 0};
-        uint16 anim_id, face;
+        static uint32_t ticks[2] = {0, 0};
+        static uint8_t state[2] = {0, 0};
+        uint16_t anim_id, face;
         size_t idx;
 
         anim_id = atoi(list->text[row][col]);
@@ -338,7 +340,7 @@ static int popup_event(popup_struct *popup, SDL_Event *event)
     } else if (button_tab_new.pressed_forced) {
         if (event->type == SDL_KEYDOWN) {
             if (IS_ENTER(event->key.keysym.sym)) {
-                uint32 lower, upper;
+                uint32_t lower, upper;
                 packet_struct *packet;
 
                 if (*text_inputs[TEXT_INPUT_CHARNAME].str == '\0') {
@@ -387,7 +389,7 @@ static int popup_event(popup_struct *popup, SDL_Event *event)
             if (IS_NEXT(event->key.keysym.sym)) {
                 if (IS_ENTER(event->key.keysym.sym) && text_input_current == TEXT_INPUT_PASSWORD_NEW2) {
                     packet_struct *packet;
-                    uint32 lower, upper;
+                    uint32_t lower, upper;
 
                     if (strcmp(text_inputs[TEXT_INPUT_PASSWORD_NEW].str, text_inputs[TEXT_INPUT_PASSWORD_NEW2].str) != 0) {
                         draw_info(COLOR_RED, "The new passwords do not match.");
@@ -465,7 +467,19 @@ static int popup_destroy_callback(popup_struct *popup)
         cpl.state = ST_START;
     }
 
+    button_destroy(&button_tab_characters);
+    button_destroy(&button_tab_new);
+    button_destroy(&button_tab_password);
+    button_destroy(&button_character_male);
+    button_destroy(&button_character_female);
+    button_destroy(&button_character_left);
+    button_destroy(&button_character_right);
+    button_destroy(&button_done);
     button_destroy(&button_login);
+
+    for (size_t i = 0; i < TEXT_INPUT_NUM; i++) {
+        text_input_destroy(&text_inputs[i]);
+    }
 
     return 1;
 }
@@ -551,11 +565,11 @@ static int archname_to_character(const char *archname, size_t *race, size_t *gen
 }
 
 /** @copydoc socket_command_struct::handle_func */
-void socket_command_characters(uint8 *data, size_t len, size_t pos)
+void socket_command_characters(uint8_t *data, size_t len, size_t pos)
 {
     char archname[MAX_BUF], name[MAX_BUF], region_name[MAX_BUF], buf[MAX_BUF], race_gender[MAX_BUF];
-    uint16 anim_id;
-    uint8 level;
+    uint16_t anim_id;
+    uint8_t level;
     size_t race, gender;
 
     if (len == 0) {
@@ -594,7 +608,7 @@ void socket_command_characters(uint8 *data, size_t len, size_t pos)
          * option, update the selected row and create an enter event. */
         if ((string_isempty(clioption_settings.connect[0]) || strcasecmp(selected_server->name, clioption_settings.connect[0]) == 0) &&
                 clioption_settings.connect[3] && (strcasecmp(clioption_settings.connect[3], name) == 0 ||
-                (string_isdigit(clioption_settings.connect[3]) && (uint32) atoi(clioption_settings.connect[3]) == list_characters->rows + 1))) {
+                (string_isdigit(clioption_settings.connect[3]) && (uint32_t) atoi(clioption_settings.connect[3]) == list_characters->rows + 1))) {
             list_characters->row_selected = list_characters->rows + 1;
 
             if (!clioption_settings.reconnect) {

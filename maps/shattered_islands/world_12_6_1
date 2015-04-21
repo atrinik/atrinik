@@ -1,0 +1,179 @@
+arch map
+name Morliana
+msg
+Created:  2015-01-04 Alex Tokar
+Modified: 2015-01-04 Alex Tokar
+endmsg
+width 24
+height 24
+difficulty 1
+outdoor 1
+bg_music campfire_tales.mid
+region morliana
+end
+arch roof_brick
+direction 3
+x 20
+end
+arch roof_brick
+direction 3
+x 20
+y 1
+end
+arch roof_brick
+direction 3
+x 20
+y 2
+end
+arch roof_brick
+direction 3
+x 20
+y 3
+end
+arch roof_brick
+direction 3
+x 20
+y 4
+end
+arch roof_brick
+direction 3
+x 20
+y 5
+end
+arch roof_brick
+direction 3
+x 20
+y 6
+end
+arch roof_brick
+direction 3
+x 20
+y 7
+end
+arch roof_brick
+direction 3
+x 20
+y 8
+end
+arch roof_brick
+direction 3
+x 20
+y 9
+end
+arch roof_brick
+x 21
+end
+arch roof_brick
+x 21
+y 1
+end
+arch roof_brick
+x 21
+y 2
+end
+arch roof_brick
+x 21
+y 3
+end
+arch roof_brick
+x 21
+y 4
+end
+arch roof_brick
+x 21
+y 5
+end
+arch roof_brick
+x 21
+y 6
+end
+arch roof_brick
+x 21
+y 7
+end
+arch roof_brick
+x 21
+y 8
+end
+arch roof_brick
+x 21
+y 9
+end
+arch roof_brick
+x 22
+end
+arch roof_brick
+x 22
+y 1
+end
+arch roof_brick
+x 22
+y 2
+end
+arch roof_brick
+x 22
+y 3
+end
+arch roof_brick
+x 22
+y 4
+end
+arch roof_brick
+x 22
+y 5
+end
+arch roof_brick
+x 22
+y 6
+end
+arch roof_brick
+x 22
+y 7
+end
+arch roof_brick
+x 22
+y 8
+end
+arch roof_brick
+x 22
+y 9
+end
+arch roof_brick
+x 23
+end
+arch roof_brick
+x 23
+y 1
+end
+arch roof_brick
+x 23
+y 2
+end
+arch roof_brick
+x 23
+y 3
+end
+arch roof_brick
+x 23
+y 4
+end
+arch roof_brick
+x 23
+y 5
+end
+arch roof_brick
+x 23
+y 6
+end
+arch roof_brick
+x 23
+y 7
+end
+arch roof_brick
+x 23
+y 8
+end
+arch roof_brick
+x 23
+y 9
+end

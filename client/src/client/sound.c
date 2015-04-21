@@ -29,16 +29,18 @@
  * @author Alex Tokar */
 
 #include <global.h>
+#include <packet.h>
+#include <toolkit_string.h>
 
 /**
  * Path to the background music file being played. */
 static char *sound_background;
 /**
  * If 1, will not allow music change based on map. */
-static uint8 sound_map_background_disabled = 0;
+static uint8_t sound_map_background_disabled = 0;
 /**
  * Whether the sound system is active. */
-static uint8 enabled = 0;
+static uint8_t enabled = 0;
 /**
  * Doubly-linked list of all playing ambient sound effects. */
 static sound_ambient_struct *sound_ambient_head = NULL;
@@ -47,13 +49,13 @@ static sound_ambient_struct *sound_ambient_head = NULL;
 
 /**
  * When the background music started playing. */
-static uint32 sound_background_started;
+static uint32_t sound_background_started;
 /**
  * Duration of this background music. */
-static uint32 sound_background_duration;
+static uint32_t sound_background_duration;
 /**
  * Whether to try to update the background music's duration in database. */
-static uint8 sound_background_update_duration;
+static uint8_t sound_background_update_duration;
 /**
  * How many times to loop the currently playing background music, -1
  * to loopy infinitely. */
@@ -123,14 +125,15 @@ static void sound_free(sound_data_struct *tmp)
  * Get duration of a music file.
  * @param filename The music file.
  * @return The duration. */
-static uint32 sound_music_file_get_duration(const char *filename)
+static uint32_t sound_music_file_get_duration(const char *filename)
 {
-    char path[HUGE_BUF];
-    char *contents;
-    uint32 duration;
+    char path[HUGE_BUF], *contents, *cp;
+    uint32_t duration;
 
     snprintf(path, sizeof(path), DIRECTORY_MEDIA "/durations/%s", filename);
-    contents = path_file_contents(file_path(path, "r"));
+    cp = file_path(path, "r");
+    contents = path_file_contents(cp);
+    efree(cp);
 
     if (!contents) {
         return 0;
@@ -146,7 +149,7 @@ static uint32 sound_music_file_get_duration(const char *filename)
  * Update duration of a music file.
  * @param filename The music file.
  * @param duration Duration to set. */
-static void sound_music_file_set_duration(const char *filename, uint32 duration)
+static void sound_music_file_set_duration(const char *filename, uint32_t duration)
 {
     char path[HUGE_BUF];
     FILE *fp;
@@ -167,7 +170,7 @@ static void sound_music_file_set_duration(const char *filename, uint32 duration)
  * Hook called when music has finished playing. */
 static void sound_music_finished(void)
 {
-    uint32 duration;
+    uint32_t duration;
     char *tmp;
     const char *bg_music;
 
@@ -256,6 +259,11 @@ void sound_deinit(void)
 #endif
 
     enabled = 0;
+
+    if (sound_background != NULL) {
+        efree(sound_background);
+        sound_background = NULL;
+    }
 }
 
 /**
@@ -316,10 +324,12 @@ static int sound_add_effect(const char *filename, int volume, int loop)
  * @param volume Volume to play at. */
 void sound_play_effect(const char *filename, int volume)
 {
-    char path[HUGE_BUF];
+    char path[HUGE_BUF], *cp;
 
     snprintf(path, sizeof(path), DIRECTORY_SFX "/%s", filename);
-    sound_add_effect(file_path(path, "r"), volume, 0);
+    cp = file_path(path, "r");
+    sound_add_effect(cp, volume, 0);
+    efree(cp);
 }
 
 /**
@@ -332,10 +342,15 @@ void sound_play_effect(const char *filename, int volume)
  * @return Channel the sound effect will be playing on, -1 on failure. */
 int sound_play_effect_loop(const char *filename, int volume, int loop)
 {
-    char path[HUGE_BUF];
+    char path[HUGE_BUF], *cp;
+    int ret;
 
     snprintf(path, sizeof(path), DIRECTORY_SFX "/%s", filename);
-    return sound_add_effect(file_path(path, "r"), volume, loop);
+    cp = file_path(path, "r");
+    ret = sound_add_effect(cp, volume, loop);
+    efree(cp);
+
+    return ret;
 }
 
 /**
@@ -369,9 +384,14 @@ void sound_start_bg_music(const char *filename, int volume, int loop)
     HASH_FIND_STR(sound_data, path, tmp);
 
     if (!tmp) {
-        Mix_Music *music = Mix_LoadMUS(file_path(path, "r"));
+        char *cp;
+        Mix_Music *music;
 
-        if (!music) {
+        cp = file_path(path, "r");
+        music = Mix_LoadMUS(cp);
+        efree(cp);
+
+        if (music == NULL) {
             logger_print(LOG(BUG), "Could not load '%s'. Reason: %s.", path, Mix_GetError());
             return;
         }
@@ -521,7 +541,7 @@ const char *sound_get_bg_music_basename(void)
  * ::sound_map_background_disabled;
  * any other value will set ::sound_map_background_disabled to that value.
  * @return Value of ::sound_map_background_disabled. */
-uint8 sound_map_background(int val)
+uint8_t sound_map_background(int val)
 {
     if (val == -1) {
         return sound_map_background_disabled;
@@ -534,7 +554,7 @@ uint8 sound_map_background(int val)
 /**
  * Get the offset of the background music that is being played.
  * @return The offset. */
-uint32 sound_music_get_offset(void)
+uint32_t sound_music_get_offset(void)
 {
     if (!sound_background) {
         return 0;
@@ -576,7 +596,7 @@ int sound_music_can_seek(void)
  * Seek the currently playing background music to the specified offset
  * (in seconds).
  * @param offset Offset to seek to. */
-void sound_music_seek(uint32 offset)
+void sound_music_seek(uint32_t offset)
 {
     if (!sound_music_can_seek()) {
         return;
@@ -596,7 +616,7 @@ void sound_music_seek(uint32 offset)
 /**
  * Get duration of the currently playing background music.
  * @return The duration. */
-uint32 sound_music_get_duration()
+uint32_t sound_music_get_duration()
 {
 #ifdef HAVE_SDL_MIXER
     return sound_background_duration;
@@ -606,19 +626,19 @@ uint32 sound_music_get_duration()
 }
 
 /** @copydoc socket_command_struct::handle_func */
-void socket_command_sound(uint8 *data, size_t len, size_t pos)
+void socket_command_sound(uint8_t *data, size_t len, size_t pos)
 {
-    uint8 type;
+    uint8_t type;
     int loop, volume;
     char filename[MAX_BUF];
 
     type = packet_to_uint8(data, len, &pos);
     packet_to_string(data, len, &pos, filename, sizeof(filename));
-    loop = packet_to_sint8(data, len, &pos);
-    volume = packet_to_sint8(data, len, &pos);
+    loop = packet_to_int8(data, len, &pos);
+    volume = packet_to_int8(data, len, &pos);
 
     if (type == CMD_SOUND_EFFECT) {
-        sint8 x, y;
+        int8_t x, y;
         int channel;
 
         x = packet_to_uint8(data, len, &pos);
@@ -646,7 +666,7 @@ void socket_command_sound(uint8 *data, size_t len, size_t pos)
             sound_start_bg_music(filename, setting_get_int(OPT_CAT_SOUND, OPT_VOLUME_MUSIC) + volume, loop);
         }
     } else if (type == CMD_SOUND_ABSOLUTE) {
-        sound_add_effect(filename, (uint8) volume, loop);
+        sound_add_effect(filename, (uint8_t) volume, loop);
     } else {
         logger_print(LOG(BUG), "Invalid sound type: %d", type);
         return;
@@ -741,10 +761,10 @@ void sound_ambient_clear(void)
 }
 
 /** @copydoc socket_command_struct::handle_func */
-void socket_command_sound_ambient(uint8 *data, size_t len, size_t pos)
+void socket_command_sound_ambient(uint8_t *data, size_t len, size_t pos)
 {
     int tag, tag_old;
-    uint8 x, y;
+    uint8_t x, y;
     sound_ambient_struct *sound_ambient;
 
     /* Loop through the data, as there may be multiple sound effects. */
@@ -770,7 +790,7 @@ void socket_command_sound_ambient(uint8 *data, size_t len, size_t pos)
         /* Is there a new sound effect to start playing? */
         if (tag) {
             char filename[MAX_BUF];
-            uint8 volume, max_range;
+            uint8_t volume, max_range;
             int channel;
 
             /* Get the sound effect filename, volume, etc. */

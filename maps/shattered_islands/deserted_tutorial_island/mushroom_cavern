@@ -2,7 +2,7 @@ arch map
 name Mushroom Cavern
 msg
 Created:  2011-08-20 Alex Tokar
-Modified: 2014-01-24 Alex Tokar
+Modified: 2015-04-19 Alex Tokar
 endmsg
 width 12
 height 9
@@ -604,7 +604,7 @@ x 11
 y 3
 end
 arch invis_exit
-slaying /shattered_islands/world_ae04
+slaying /shattered_islands/world_-5_76
 hp 13
 sp 21
 x 11

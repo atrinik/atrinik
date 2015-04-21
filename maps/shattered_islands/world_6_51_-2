@@ -1,0 +1,1795 @@
+arch map
+name Caverns
+msg
+Created:  2011-05-12 Alex Tokar
+Modified: 2015-04-19 Alex Tokar
+endmsg
+width 24
+height 24
+difficulty 3
+darkness 2
+bg_music eranasp.mod
+region strakewood_island_underground
+end
+arch water_lt2
+end
+arch water_lt
+y 1
+end
+arch water_md_m
+direction 5
+y 1
+end
+arch water_md4
+y 2
+end
+arch water_dk3
+y 3
+end
+arch water_md3_m
+direction 8
+y 3
+end
+arch water_md
+y 4
+end
+arch water_lt
+y 5
+end
+arch water_md_m
+direction 1
+y 5
+end
+arch floor_sand_d1
+y 6
+end
+arch fwall_rock3
+y 6
+end
+arch floor_sand_d2
+y 7
+end
+arch fwall_rock2
+y 7
+end
+arch water_lt4
+x 1
+end
+arch water_lt3
+x 1
+y 1
+end
+arch water_md_m
+direction 5
+x 1
+y 1
+end
+arch water_md2
+x 1
+y 2
+end
+arch water_dk4
+x 1
+y 3
+end
+arch water_md3_m
+direction 8
+x 1
+y 3
+end
+arch water_md
+x 1
+y 4
+end
+arch water_lt2
+x 1
+y 5
+end
+arch water_md_m
+direction 1
+x 1
+y 5
+end
+arch water_lt2
+x 1
+y 6
+end
+arch plant8
+x 1
+y 6
+end
+arch floor_sand_d2
+x 1
+y 7
+end
+arch fwall_rock3
+x 1
+y 7
+end
+arch water_lt3
+x 2
+end
+arch water_lt3
+x 2
+y 1
+end
+arch water_md_m
+direction 4
+x 2
+y 1
+end
+arch water_md
+x 2
+y 2
+end
+arch water_dk3
+x 2
+y 3
+end
+arch water_md3_m
+direction 8
+x 2
+y 3
+end
+arch water_md
+x 2
+y 4
+end
+arch water_lt3
+x 2
+y 5
+end
+arch water_md_m
+direction 1
+x 2
+y 5
+end
+arch water_lt3
+x 2
+y 6
+end
+arch plant7
+x 2
+y 6
+end
+arch floor_sand_d3
+x 2
+y 7
+end
+arch fwall_rock3
+x 2
+y 7
+end
+arch water_lt2
+x 3
+end
+arch water_md_m
+direction 4
+x 3
+end
+arch water_md2
+x 3
+y 1
+end
+arch water_md3
+x 3
+y 2
+end
+arch water_dk
+x 3
+y 3
+end
+arch water_md3_m
+direction 8
+x 3
+y 3
+end
+arch water_md4
+x 3
+y 4
+end
+arch water_lt4
+x 3
+y 5
+end
+arch water_md_m
+direction 1
+x 3
+y 5
+end
+arch water_lt2
+x 3
+y 6
+end
+arch floor_sand_d2
+x 3
+y 7
+end
+arch fwall_rock3
+x 3
+y 7
+end
+arch water_md3
+x 4
+end
+arch water_md2
+x 4
+y 1
+end
+arch water_dk2
+x 4
+y 2
+end
+arch water_md4_m
+direction 8
+x 4
+y 2
+end
+arch water_dk3
+x 4
+y 3
+end
+arch water_md4_m
+direction 4
+x 4
+y 3
+end
+arch water_md2
+x 4
+y 4
+end
+arch water_lt3
+x 4
+y 5
+end
+arch water_md_m
+direction 1
+x 4
+y 5
+end
+arch water_lt4
+x 4
+y 6
+end
+arch plant8
+x 4
+y 6
+end
+arch floor_sand_d3
+x 4
+y 7
+end
+arch fwall_rock2
+x 4
+y 7
+end
+arch water_md4
+x 5
+end
+arch water_dk
+x 5
+y 1
+end
+arch water_md4_m
+direction 8
+x 5
+y 1
+end
+arch water_dk4
+x 5
+y 2
+end
+arch water_md4_m
+direction 4
+x 5
+y 2
+end
+arch water_md2
+x 5
+y 3
+end
+arch water_md3
+x 5
+y 4
+end
+arch water_lt3
+x 5
+y 5
+end
+arch water_md_m
+direction 1
+x 5
+y 5
+end
+arch water_lt
+x 5
+y 6
+end
+arch floor_sand_d3
+x 5
+y 7
+end
+arch fwall_rock1
+x 5
+y 7
+end
+arch water_dk4
+x 6
+end
+arch water_md3_m
+direction 2
+x 6
+end
+arch water_dk
+x 6
+y 1
+end
+arch water_md4_m
+direction 4
+x 6
+y 1
+end
+arch water_md
+x 6
+y 2
+end
+arch water_md4
+x 6
+y 3
+end
+arch water_lt3
+x 6
+y 4
+end
+arch water_md_m
+direction 8
+x 6
+y 4
+end
+arch water_lt
+x 6
+y 5
+end
+arch floor_sand_d4
+x 6
+y 6
+end
+arch water_lt5_m
+direction 8
+x 6
+y 6
+end
+arch floor_sand_d2
+x 6
+y 7
+end
+arch fwall_rock3
+x 6
+y 7
+end
+arch floor_sand_d4
+x 6
+y 8
+end
+arch fwall_rock1
+x 6
+y 8
+end
+arch floor_sand_d1
+x 6
+y 9
+end
+arch fwall_rock3
+x 6
+y 9
+end
+arch floor_sand_d4
+x 6
+y 10
+end
+arch fwall_rock3
+x 6
+y 10
+end
+arch floor_sand_d4
+x 6
+y 11
+end
+arch fwall_rock3
+x 6
+y 11
+end
+arch floor_sand_d1
+x 6
+y 12
+end
+arch fwall_rock1
+x 6
+y 12
+end
+arch floor_sand_d1
+x 6
+y 13
+end
+arch fwall_rock2
+x 6
+y 13
+end
+arch water_md
+x 7
+end
+arch water_md4
+x 7
+y 1
+end
+arch water_md2
+x 7
+y 2
+end
+arch water_lt4
+x 7
+y 3
+end
+arch water_md_m
+direction 8
+x 7
+y 3
+end
+arch water_lt2
+x 7
+y 4
+end
+arch water_lt2
+x 7
+y 5
+end
+arch floor_sand_d4
+x 7
+y 6
+end
+arch water_lt5_m
+direction 2
+x 7
+y 6
+end
+arch floor_sand_d4
+x 7
+y 7
+end
+arch water_lt2_m
+direction 3
+x 7
+y 7
+end
+arch plant8
+x 7
+y 7
+end
+arch floor_sand_d2
+x 7
+y 8
+end
+arch water_lt_m
+direction 3
+x 7
+y 8
+end
+arch floor_sand_d1
+x 7
+y 9
+end
+arch water_lt_m
+direction 3
+x 7
+y 9
+end
+arch mushroom_spot2
+x 7
+y 9
+end
+arch light3
+x 7
+y 9
+end
+arch floor_sand_d4
+x 7
+y 10
+end
+arch water_lt2_m
+direction 3
+x 7
+y 10
+end
+arch floor_sand_d2
+x 7
+y 11
+end
+arch water_lt2_m
+direction 3
+x 7
+y 11
+end
+arch mushroom_giant4
+x 7
+y 11
+end
+arch floor_sand_d4
+x 7
+y 12
+end
+arch water_lt2_m
+direction 2
+x 7
+y 12
+end
+arch plant8
+x 7
+y 12
+end
+arch floor_sand_d2
+x 7
+y 13
+end
+arch fwall_rock3
+x 7
+y 13
+end
+arch floor_sand_d1
+x 7
+y 14
+end
+arch fwall_rock2
+x 7
+y 14
+end
+arch water_lt2
+x 8
+end
+arch water_md_m
+direction 7
+x 8
+end
+arch water_lt
+x 8
+y 1
+end
+arch water_md_m
+direction 7
+x 8
+y 1
+end
+arch water_lt
+x 8
+y 2
+end
+arch water_md_m
+direction 7
+x 8
+y 2
+end
+arch water_lt
+x 8
+y 3
+end
+arch water_lt4
+x 8
+y 4
+end
+arch water_lt2
+x 8
+y 5
+end
+arch water_lt
+x 8
+y 6
+end
+arch water_lt4
+x 8
+y 7
+end
+arch water_lt4
+x 8
+y 8
+end
+arch water_lt4
+x 8
+y 9
+end
+arch water_lt
+x 8
+y 10
+end
+arch water_lt
+x 8
+y 11
+end
+arch floor_sand_d4
+x 8
+y 12
+end
+arch water_lt5_m
+direction 2
+x 8
+y 12
+end
+arch floor_sand_d1
+x 8
+y 13
+end
+arch water_lt2_m
+direction 2
+x 8
+y 13
+end
+arch floor_sand_d4
+x 8
+y 14
+end
+arch fwall_rock2
+x 8
+y 14
+end
+arch floor_sand_d2
+x 8
+y 15
+end
+arch fwall_rock2
+x 8
+y 15
+end
+arch water_lt
+x 9
+end
+arch plant8
+x 9
+end
+arch water_lt3
+x 9
+y 1
+end
+arch water_lt3
+x 9
+y 2
+end
+arch water_lt
+x 9
+y 3
+end
+arch water_lt2
+x 9
+y 4
+end
+arch plant7
+x 9
+y 4
+end
+arch water_lt3
+x 9
+y 5
+end
+arch floor_sand_d4
+x 9
+y 6
+end
+arch water_lt5_m
+direction 8
+x 9
+y 6
+end
+arch floor_sand_d3
+x 9
+y 7
+end
+arch water_lt_m
+direction 7
+x 9
+y 7
+end
+arch floor_sand_d2
+x 9
+y 8
+end
+arch water_lt_m
+direction 7
+x 9
+y 8
+end
+arch floor_sand_d4
+x 9
+y 9
+end
+arch water_lt2_m
+direction 7
+x 9
+y 9
+end
+arch floor_sand_d2
+x 9
+y 10
+end
+arch water_lt5_m
+direction 6
+x 9
+y 10
+end
+arch water_lt4
+x 9
+y 11
+end
+arch water_lt4
+x 9
+y 12
+end
+arch floor_sand_d4
+x 9
+y 13
+end
+arch water_lt5_m
+direction 2
+x 9
+y 13
+end
+arch floor_sand_d3
+x 9
+y 14
+end
+arch water_lt2_m
+direction 2
+x 9
+y 14
+end
+arch floor_sand_d4
+x 9
+y 15
+end
+arch fwall_rock1
+x 9
+y 15
+end
+arch floor_sand_d3
+x 9
+y 16
+end
+arch fwall_rock1
+x 9
+y 16
+end
+arch floor_sand_d3
+x 10
+end
+arch fwall_rock1
+x 10
+end
+arch floor_sand_d1
+x 10
+y 1
+end
+arch fwall_rock2
+x 10
+y 1
+end
+arch floor_sand_d2
+x 10
+y 2
+end
+arch fwall_rock2
+x 10
+y 2
+end
+arch floor_sand_d4
+x 10
+y 3
+end
+arch fwall_rock3
+x 10
+y 3
+end
+arch floor_sand_d2
+x 10
+y 4
+end
+arch fwall_rock1
+x 10
+y 4
+end
+arch floor_sand_d1
+x 10
+y 5
+end
+arch fwall_rock2
+x 10
+y 5
+end
+arch floor_sand_d2
+x 10
+y 6
+end
+arch fwall_rock1
+x 10
+y 6
+end
+arch floor_sand_d3
+x 10
+y 7
+end
+arch fwall_rock3
+x 10
+y 7
+end
+arch floor_sand_d3
+x 10
+y 8
+end
+arch fwall_rock3
+x 10
+y 8
+end
+arch floor_sand_d2
+x 10
+y 9
+end
+arch fwall_rock3
+x 10
+y 9
+end
+arch floor_sand_d2
+x 10
+y 10
+end
+arch water_lt2_m
+direction 6
+x 10
+y 10
+end
+arch plant6
+x 10
+y 10
+end
+arch floor_sand_d4
+x 10
+y 11
+end
+arch water_lt5_m
+direction 6
+x 10
+y 11
+end
+arch water_lt2
+x 10
+y 12
+end
+arch water_lt2
+x 10
+y 13
+end
+arch floor_sand_d4
+x 10
+y 14
+end
+arch water_lt5_m
+direction 2
+x 10
+y 14
+end
+arch floor_sand_d2
+x 10
+y 15
+end
+arch water_lt2_m
+direction 2
+x 10
+y 15
+end
+arch mushroom_spot2
+x 10
+y 15
+end
+arch light3
+x 10
+y 15
+end
+arch floor_sand_d2
+x 10
+y 16
+end
+arch fwall_rock2
+x 10
+y 16
+end
+arch floor_sand_d3
+x 10
+y 17
+end
+arch fwall_rock1
+x 10
+y 17
+end
+arch floor_sand_d2
+x 11
+y 9
+end
+arch fwall_rock3
+x 11
+y 9
+end
+arch floor_sand_d3
+x 11
+y 10
+end
+arch fwall_rock3
+x 11
+y 10
+end
+arch floor_sand_d1
+x 11
+y 11
+end
+arch water_lt2_m
+direction 6
+x 11
+y 11
+end
+arch floor_sand_d1
+x 11
+y 12
+end
+arch water_lt5_m
+direction 6
+x 11
+y 12
+end
+arch water_lt3
+x 11
+y 13
+end
+arch water_lt
+x 11
+y 14
+end
+arch floor_sand_d2
+x 11
+y 15
+end
+arch water_lt5_m
+direction 2
+x 11
+y 15
+end
+arch floor_sand_d1
+x 11
+y 16
+end
+arch water_lt2_m
+direction 2
+x 11
+y 16
+end
+arch floor_sand_d3
+x 11
+y 17
+end
+arch fwall_rock3
+x 11
+y 17
+end
+arch floor_sand_d4
+x 11
+y 18
+end
+arch fwall_rock3
+x 11
+y 18
+end
+arch floor_sand_d1
+x 12
+y 10
+end
+arch fwall_rock3
+x 12
+y 10
+end
+arch floor_sand_d4
+x 12
+y 11
+end
+arch fwall_rock2
+x 12
+y 11
+end
+arch floor_sand_d3
+x 12
+y 12
+end
+arch water_lt2_m
+direction 6
+x 12
+y 12
+end
+arch floor_sand_d1
+x 12
+y 13
+end
+arch water_lt5_m
+direction 6
+x 12
+y 13
+end
+arch water_lt
+x 12
+y 14
+end
+arch water_lt4
+x 12
+y 15
+end
+arch floor_sand_d2
+x 12
+y 16
+end
+arch water_lt5_m
+direction 2
+x 12
+y 16
+end
+arch floor_sand_d2
+x 12
+y 17
+end
+arch water_lt2_m
+direction 2
+x 12
+y 17
+end
+arch floor_sand_d2
+x 12
+y 18
+end
+arch fwall_rock1
+x 12
+y 18
+end
+arch floor_sand_d4
+x 12
+y 19
+end
+arch fwall_rock2
+x 12
+y 19
+end
+arch floor_sand_d4
+x 13
+y 11
+end
+arch fwall_rock1
+x 13
+y 11
+end
+arch floor_sand_d4
+x 13
+y 12
+end
+arch fwall_rock2
+x 13
+y 12
+end
+arch floor_sand_d1
+x 13
+y 13
+end
+arch water_lt2_m
+direction 6
+x 13
+y 13
+end
+arch mushroom_giant2
+x 13
+y 13
+end
+arch floor_sand_d1
+x 13
+y 14
+end
+arch water_lt5_m
+direction 6
+x 13
+y 14
+end
+arch water_lt2
+x 13
+y 15
+end
+arch water_lt4
+x 13
+y 16
+end
+arch floor_sand_d1
+x 13
+y 17
+end
+arch water_lt5_m
+direction 2
+x 13
+y 17
+end
+arch floor_sand_d4
+x 13
+y 18
+end
+arch water_lt2_m
+direction 2
+x 13
+y 18
+end
+arch mushroom_medium
+x 13
+y 18
+end
+arch light3
+x 13
+y 18
+end
+arch floor_sand_d1
+x 13
+y 19
+end
+arch fwall_rock2
+x 13
+y 19
+end
+arch floor_sand_d2
+x 13
+y 20
+end
+arch fwall_rock1
+x 13
+y 20
+end
+arch floor_sand_d3
+x 14
+y 12
+end
+arch fwall_rock3
+x 14
+y 12
+end
+arch floor_sand_d1
+x 14
+y 13
+end
+arch fwall_rock1
+x 14
+y 13
+end
+arch floor_sand_d4
+x 14
+y 14
+end
+arch water_lt2_m
+direction 6
+x 14
+y 14
+end
+arch floor_sand_d1
+x 14
+y 15
+end
+arch water_lt5_m
+direction 6
+x 14
+y 15
+end
+arch water_lt2
+x 14
+y 16
+end
+arch water_lt3
+x 14
+y 17
+end
+arch floor_sand_d1
+x 14
+y 18
+end
+arch water_lt5_m
+direction 2
+x 14
+y 18
+end
+arch floor_sand_d4
+x 14
+y 19
+end
+arch water_lt2_m
+direction 2
+x 14
+y 19
+end
+arch floor_sand_d3
+x 14
+y 20
+end
+arch fwall_rock3
+x 14
+y 20
+end
+arch floor_sand_d3
+x 15
+y 13
+end
+arch fwall_rock1
+x 15
+y 13
+end
+arch floor_sand_d2
+x 15
+y 14
+end
+arch fwall_rock2
+x 15
+y 14
+end
+arch floor_sand_d4
+x 15
+y 15
+end
+arch water_lt2_m
+direction 6
+x 15
+y 15
+end
+arch mushroom_spot1
+x 15
+y 15
+end
+arch light3
+x 15
+y 15
+end
+arch floor_sand_d4
+x 15
+y 16
+end
+arch water_lt5_m
+direction 6
+x 15
+y 16
+end
+arch water_lt3
+x 15
+y 17
+end
+arch water_lt3
+x 15
+y 18
+end
+arch floor_sand_d4
+x 15
+y 19
+end
+arch water_lt2_m
+direction 1
+x 15
+y 19
+end
+arch floor_sand_d1
+x 15
+y 20
+end
+arch fwall_rock3
+x 15
+y 20
+end
+arch floor_sand_d2
+x 15
+y 21
+end
+arch fwall_rock2
+x 15
+y 21
+end
+arch floor_sand_d4
+x 16
+y 14
+end
+arch fwall_rock3
+x 16
+y 14
+end
+arch floor_sand_d1
+x 16
+y 15
+end
+arch fwall_rock1
+x 16
+y 15
+end
+arch floor_sand_d4
+x 16
+y 16
+end
+arch water_lt2_m
+direction 6
+x 16
+y 16
+end
+arch floor_sand_d1
+x 16
+y 17
+end
+arch water_lt5_m
+direction 6
+x 16
+y 17
+end
+arch water_lt
+x 16
+y 18
+end
+arch floor_sand_d1
+x 16
+y 19
+end
+arch water_lt5_m
+direction 2
+x 16
+y 19
+end
+arch floor_sand_d4
+x 16
+y 20
+end
+arch water_lt2_m
+direction 2
+x 16
+y 20
+end
+arch plant8
+x 16
+y 20
+end
+arch floor_sand_d2
+x 16
+y 21
+end
+arch fwall_rock2
+x 16
+y 21
+end
+arch floor_sand_d4
+x 17
+y 15
+end
+arch fwall_rock2
+x 17
+y 15
+end
+arch floor_sand_d4
+x 17
+y 16
+end
+arch fwall_rock1
+x 17
+y 16
+end
+arch floor_sand_d4
+x 17
+y 17
+end
+arch water_lt_m
+direction 5
+x 17
+y 17
+end
+arch water_lt2
+x 17
+y 18
+end
+arch water_lt2
+x 17
+y 19
+end
+arch floor_sand_d4
+x 17
+y 20
+end
+arch water_lt2_m
+direction 1
+x 17
+y 20
+end
+arch floor_sand_d3
+x 17
+y 21
+end
+arch fwall_rock2
+x 17
+y 21
+end
+arch floor_sand_d4
+x 18
+y 15
+end
+arch fwall_rock3
+x 18
+y 15
+end
+arch floor_sand_d1
+x 18
+y 16
+end
+arch fwall_rock3
+x 18
+y 16
+end
+arch floor_sand_d1
+x 18
+y 17
+end
+arch water_lt2_m
+direction 6
+x 18
+y 17
+end
+arch plant7
+x 18
+y 17
+end
+arch floor_sand_d1
+x 18
+y 18
+end
+arch water_lt5_m
+direction 6
+x 18
+y 18
+end
+arch well_bucket
+slaying world_6_51
+hp 18
+sp 18
+x 18
+y 18
+end
+arch water_lt
+x 18
+y 19
+end
+arch floor_sand_d4
+x 18
+y 20
+end
+arch water_lt_m
+direction 1
+x 18
+y 20
+end
+arch mushroom_spot1
+x 18
+y 20
+end
+arch light3
+x 18
+y 20
+end
+arch floor_sand_d2
+x 18
+y 21
+end
+arch fwall_rock2
+x 18
+y 21
+end
+arch floor_sand_d3
+x 19
+y 15
+end
+arch fwall_rock1
+x 19
+y 15
+end
+arch floor_sand_d4
+x 19
+y 16
+end
+arch fwall_rock1
+player_only 1
+no_pass 0
+x 19
+y 16
+end
+arch light1
+x 19
+y 16
+end
+arch invis_exit
+hp 18
+sp 17
+x 19
+y 16
+end
+arch floor_sand_d1
+x 19
+y 17
+end
+arch fwall_rock1
+x 19
+y 17
+end
+arch floor_sand_d3
+x 19
+y 18
+end
+arch water_lt2_m
+direction 6
+x 19
+y 18
+end
+arch floor_sand_d1
+x 19
+y 19
+end
+arch water_lt2_m
+direction 7
+x 19
+y 19
+end
+arch floor_sand_d4
+x 19
+y 20
+end
+arch water_lt2_m
+direction 8
+x 19
+y 20
+end
+arch floor_sand_d1
+x 19
+y 21
+end
+arch fwall_rock3
+x 19
+y 21
+end
+arch floor_sand_d2
+x 20
+y 14
+end
+arch fwall_rock2
+x 20
+y 14
+end
+arch floor_sand_d2
+x 20
+y 15
+end
+arch fwall_rock2
+x 20
+y 15
+end
+arch plant1_wall.151
+x 20
+y 15
+end
+arch floor_sand_d1
+x 20
+y 16
+end
+arch magic_mouth
+msg
+You can see a narrow passage near the bottom of the west wall. You crouch, and you can see light coming from the other side.
+endmsg
+direction 3
+splitting 1
+x 20
+y 16
+end
+arch floor_sand_d1
+x 20
+y 17
+end
+arch fwall_rock1
+x 20
+y 17
+end
+arch floor_sand_d3
+x 20
+y 18
+end
+arch fwall_rock1
+x 20
+y 18
+end
+arch floor_sand_d3
+x 20
+y 19
+end
+arch fwall_rock1
+x 20
+y 19
+end
+arch floor_sand_d3
+x 20
+y 20
+end
+arch fwall_rock2
+x 20
+y 20
+end
+arch floor_sand_d4
+x 20
+y 21
+end
+arch fwall_rock1
+x 20
+y 21
+end
+arch floor_sand_d4
+x 21
+y 10
+end
+arch fwall_rock2
+x 21
+y 10
+end
+arch floor_sand_d4
+x 21
+y 11
+end
+arch fwall_rock1
+x 21
+y 11
+end
+arch plant1_wall.151
+direction 7
+x 21
+y 11
+end
+arch floor_sand_d2
+x 21
+y 12
+end
+arch fwall_rock3
+x 21
+y 12
+end
+arch floor_sand_d4
+x 21
+y 13
+end
+arch fwall_rock1
+x 21
+y 13
+end
+arch floor_sand_d4
+x 21
+y 14
+end
+arch fwall_rock2
+x 21
+y 14
+end
+arch plant1_wall.151
+direction 7
+x 21
+y 14
+end
+arch floor_sand_d4
+x 21
+y 15
+end
+arch floor_sand_d4
+x 21
+y 16
+end
+arch floor_sand_d1
+x 21
+y 17
+end
+arch fwall_rock2
+x 21
+y 17
+end
+arch floor_sand_d3
+x 22
+y 10
+end
+arch fwall_rock3
+x 22
+y 10
+end
+arch floor_sand_d3
+x 22
+y 11
+end
+arch light2
+x 22
+y 11
+end
+arch floor_sand_d1
+x 22
+y 12
+end
+arch floor_sand_d4
+x 22
+y 13
+end
+arch floor_sand_d2
+x 22
+y 14
+end
+arch floor_sand_d2
+x 22
+y 15
+end
+arch floor_sand_d4
+x 22
+y 16
+end
+arch fwall_rock1
+x 22
+y 16
+end
+arch floor_sand_d2
+x 22
+y 17
+end
+arch fwall_rock3
+x 22
+y 17
+end
+arch floor_sand_d1
+x 23
+y 10
+end
+arch fwall_rock1
+x 23
+y 10
+end
+arch floor_sand_d2
+x 23
+y 11
+end
+arch fwall_rock3
+x 23
+y 11
+end
+arch floor_sand_d3
+x 23
+y 12
+end
+arch fwall_rock1
+x 23
+y 12
+end
+arch floor_sand_d4
+x 23
+y 13
+end
+arch fwall_rock2
+x 23
+y 13
+end
+arch floor_sand_d4
+x 23
+y 14
+end
+arch fwall_rock1
+x 23
+y 14
+end
+arch floor_sand_d4
+x 23
+y 15
+end
+arch fwall_rock1
+x 23
+y 15
+end
+arch floor_sand_d3
+x 23
+y 16
+end
+arch fwall_rock1
+x 23
+y 16
+end

@@ -1,0 +1,736 @@
+arch map
+name Asteria
+msg
+Created:  2015-04-20 Alex Tokar
+Modified: 2015-04-20 Alex Tokar
+endmsg
+width 24
+height 24
+difficulty 1
+darkness -1
+outdoor 1
+end
+arch trans
+y 7
+end
+arch wall_marble1.131-c-03-01
+y 7
+end
+arch map_info
+name asteria_casino
+hp 10
+sp 11
+cursed 1
+y 7
+end
+arch floor_fur2
+y 8
+end
+arch floor_fur2
+y 9
+end
+arch floor_fur2
+y 10
+end
+arch floor_fur2
+y 11
+end
+arch floor_fur2
+y 12
+end
+arch floor_fur2
+y 13
+end
+arch floor_fur2
+y 14
+end
+arch floor_fur2
+y 15
+end
+arch floor_fur2
+y 16
+end
+arch floor_fur2
+y 17
+end
+arch floor_fur2
+y 18
+end
+arch wall_marble1.131-05
+y 18
+end
+arch trans
+x 1
+y 7
+end
+arch wall_marble1.131-01
+x 1
+y 7
+end
+arch floor_fur2
+x 1
+y 8
+end
+arch floor_fur2
+x 1
+y 9
+end
+arch floor_fur2
+x 1
+y 10
+end
+arch floor_fur2
+x 1
+y 11
+end
+arch floor_fur2
+x 1
+y 12
+end
+arch floor_fur2
+x 1
+y 13
+end
+arch floor_fur2
+x 1
+y 14
+end
+arch floor_fur2
+x 1
+y 15
+end
+arch floor_fur2
+x 1
+y 16
+end
+arch floor_fur2
+x 1
+y 17
+end
+arch floor_fur2
+x 1
+y 18
+end
+arch wall_marble1.131-c-05-04
+x 1
+y 18
+end
+arch roof_brick_brown
+direction 3
+x 2
+end
+arch roof_brick_brown
+direction 3
+x 2
+y 1
+end
+arch roof_brick_brown
+direction 3
+x 2
+y 2
+end
+arch trans
+x 2
+y 7
+end
+arch wall_marble1.131-c-01-07
+x 2
+y 7
+end
+arch floor_fur2
+x 2
+y 8
+end
+arch floor_fur2
+x 2
+y 9
+end
+arch floor_fur2
+x 2
+y 10
+end
+arch floor_fur2
+x 2
+y 11
+end
+arch floor_fur2
+x 2
+y 12
+end
+arch floor_fur2
+x 2
+y 13
+end
+arch floor_fur2
+x 2
+y 14
+end
+arch floor_fur2
+x 2
+y 15
+end
+arch floor_fur2
+x 2
+y 16
+end
+arch floor_fur2
+x 2
+y 17
+end
+arch floor_fur2
+x 2
+y 18
+end
+arch wall_marble1.131-04
+x 2
+y 18
+end
+arch roof_brick_brown
+x 3
+end
+arch roof_brick_brown
+x 3
+y 1
+end
+arch roof_brick_brown
+x 3
+y 2
+end
+arch trans
+x 3
+y 7
+end
+arch wall_marble1.131-c-07-01
+x 3
+y 7
+end
+arch floor_fur2
+x 3
+y 8
+end
+arch floor_fur2
+x 3
+y 9
+end
+arch floor_fur2
+x 3
+y 10
+end
+arch floor_fur2
+x 3
+y 11
+end
+arch floor_fur2
+x 3
+y 12
+end
+arch floor_fur2
+x 3
+y 13
+end
+arch floor_fur2
+x 3
+y 14
+end
+arch floor_fur2
+x 3
+y 15
+end
+arch floor_fur2
+x 3
+y 16
+end
+arch floor_fur2
+x 3
+y 17
+end
+arch floor_fur2
+x 3
+y 18
+end
+arch wall_marble1.131-c-04-07
+x 3
+y 18
+end
+arch roof_brick_brown
+x 4
+end
+arch roof_brick_brown
+x 4
+y 1
+end
+arch roof_brick_brown
+x 4
+y 2
+end
+arch trans
+x 4
+y 7
+end
+arch wall_marble1.131-c-07-04
+x 4
+y 7
+end
+arch floor_fur2
+x 4
+y 8
+end
+arch floor_fur2
+x 4
+y 9
+end
+arch floor_fur2
+x 4
+y 10
+end
+arch floor_fur2
+x 4
+y 11
+end
+arch floor_fur2
+x 4
+y 12
+end
+arch floor_fur2
+x 4
+y 13
+end
+arch floor_fur2
+x 4
+y 14
+end
+arch floor_fur2
+x 4
+y 15
+end
+arch floor_fur2
+x 4
+y 16
+end
+arch floor_fur2
+x 4
+y 17
+end
+arch floor_fur2
+x 4
+y 18
+end
+arch wall_marble1.131-07
+x 4
+y 18
+end
+arch roof_brick_brown
+direction 8
+x 5
+end
+arch roof_brick_brown
+x 5
+y 1
+end
+arch roof_brick_brown
+x 5
+y 2
+end
+arch trans
+x 5
+y 7
+end
+arch wall_marble1.131-04
+x 5
+y 7
+end
+arch floor_fur2
+x 5
+y 8
+end
+arch floor_fur2
+x 5
+y 9
+end
+arch floor_fur2
+x 5
+y 10
+end
+arch floor_fur2
+x 5
+y 11
+end
+arch floor_fur2
+x 5
+y 12
+end
+arch floor_fur2
+x 5
+y 13
+end
+arch floor_fur2
+x 5
+y 14
+end
+arch floor_fur2
+x 5
+y 15
+end
+arch floor_fur2
+x 5
+y 16
+end
+arch floor_fur2
+x 5
+y 17
+end
+arch floor_fur2
+x 5
+y 18
+end
+arch wall_marble1.131-c-07-01
+x 5
+y 18
+end
+arch roof_brick_brown
+direction 7
+x 6
+end
+arch roof_brick_brown
+direction 8
+x 6
+y 1
+end
+arch roof_brick_brown
+x 6
+y 2
+end
+arch trans
+x 6
+y 7
+end
+arch wall_marble1.131-c-04-05
+x 6
+y 7
+end
+arch floor_fur2
+x 6
+y 8
+end
+arch floor_fur2
+x 6
+y 9
+end
+arch floor_fur2
+x 6
+y 10
+end
+arch floor_fur2
+x 6
+y 11
+end
+arch floor_fur2
+x 6
+y 12
+end
+arch floor_fur2
+x 6
+y 13
+end
+arch floor_fur2
+x 6
+y 14
+end
+arch floor_fur2
+x 6
+y 15
+end
+arch floor_fur2
+x 6
+y 16
+end
+arch floor_fur2
+x 6
+y 17
+end
+arch floor_fur2
+x 6
+y 18
+end
+arch wall_marble1.131-01
+x 6
+y 18
+end
+arch roof_brick_brown
+direction 7
+x 7
+end
+arch roof_brick_brown
+direction 7
+x 7
+y 1
+end
+arch roof_brick_brown
+direction 8
+x 7
+y 2
+end
+arch trans
+x 7
+y 7
+end
+arch wall_marble1.131-05
+x 7
+y 7
+end
+arch floor_fur2
+x 7
+y 8
+end
+arch floor_fur2
+x 7
+y 9
+end
+arch floor_fur2
+x 7
+y 10
+end
+arch floor_fur2
+x 7
+y 11
+end
+arch floor_fur2
+x 7
+y 12
+end
+arch floor_fur2
+x 7
+y 13
+end
+arch floor_fur2
+x 7
+y 14
+end
+arch floor_fur2
+x 7
+y 15
+end
+arch floor_fur2
+x 7
+y 16
+end
+arch floor_fur2
+x 7
+y 17
+end
+arch floor_fur2
+x 7
+y 18
+end
+arch wall_marble1.131-c-01-03
+x 7
+y 18
+end
+arch trans
+x 8
+y 7
+end
+arch wall_marble1.131-c-05-02
+x 8
+y 7
+end
+arch floor_fur2
+x 8
+y 8
+end
+arch floor_fur2
+x 8
+y 9
+end
+arch floor_fur2
+x 8
+y 10
+end
+arch floor_fur2
+x 8
+y 11
+end
+arch floor_fur2
+x 8
+y 12
+end
+arch floor_fur2
+x 8
+y 13
+end
+arch floor_fur2
+x 8
+y 14
+end
+arch floor_fur2
+x 8
+y 15
+end
+arch floor_fur2
+x 8
+y 16
+end
+arch floor_fur2
+x 8
+y 17
+end
+arch floor_fur2
+x 8
+y 18
+end
+arch wall_marble1.131-03
+x 8
+y 18
+end
+arch trans
+x 9
+y 7
+end
+arch wall_marble1.131-c-02-06
+x 9
+y 7
+end
+arch floor_fur2
+x 9
+y 8
+end
+arch floor_fur2
+x 9
+y 9
+end
+arch floor_fur2
+x 9
+y 10
+end
+arch floor_fur2
+x 9
+y 11
+end
+arch floor_fur2
+x 9
+y 12
+end
+arch floor_fur2
+x 9
+y 13
+end
+arch floor_fur2
+x 9
+y 14
+end
+arch floor_fur2
+x 9
+y 15
+end
+arch floor_fur2
+x 9
+y 16
+end
+arch floor_fur2
+x 9
+y 17
+end
+arch floor_fur2
+x 9
+y 18
+end
+arch wall_marble1.131-c-03-06
+x 9
+y 18
+end
+arch trans
+x 10
+y 7
+end
+arch wall_marble1.131-c-02-03
+x 10
+y 7
+end
+arch floor_fur2
+x 10
+y 8
+end
+arch wall_marble1.111a-03
+x 10
+y 8
+end
+arch floor_fur2
+x 10
+y 9
+end
+arch wall_marble1.111-c-01-03
+x 10
+y 9
+end
+arch floor_fur2
+x 10
+y 10
+end
+arch wall_marble1.111-01
+x 10
+y 10
+end
+arch floor_fur2
+x 10
+y 11
+end
+arch wall_marble1.111-c-07-01
+x 10
+y 11
+end
+arch floor_fur2
+x 10
+y 12
+end
+arch wall_marble1.111-07
+x 10
+y 12
+end
+arch floor_fur2
+x 10
+y 13
+end
+arch wall_marble1.111-c-04-07
+x 10
+y 13
+end
+arch floor_fur2
+x 10
+y 14
+end
+arch wall_marble1.111-04
+x 10
+y 14
+end
+arch floor_fur2
+x 10
+y 15
+end
+arch wall_marble1.111-c-05-04
+x 10
+y 15
+end
+arch floor_fur2
+x 10
+y 16
+end
+arch wall_marble1.111a-05
+x 10
+y 16
+end
+arch floor_fur2
+x 10
+y 17
+end
+arch wall_marble1.111-c-02-05
+x 10
+y 17
+end
+arch floor_fur2
+x 10
+y 18
+end
+arch wall_marble1.141-06
+x 10
+y 18
+end

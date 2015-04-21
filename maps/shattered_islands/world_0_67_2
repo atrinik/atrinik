@@ -1,0 +1,1049 @@
+arch map
+name Brynknot
+msg
+Created:  2010-09-08 Alex Tokar
+Modified: 2015-01-04 Alex Tokar
+endmsg
+width 24
+height 24
+difficulty 80
+darkness -1
+outdoor 1
+no_harm 1
+bg_music lontala.mid
+region brynknot
+end
+arch roof_brick
+direction 3
+x 7
+y 15
+end
+arch roof_brick
+direction 3
+x 7
+y 16
+end
+arch roof_brick
+direction 3
+x 7
+y 17
+end
+arch roof_brick
+direction 3
+x 7
+y 18
+end
+arch roof_brick
+direction 5
+x 8
+y 14
+end
+arch roof_brick
+direction 7
+x 8
+y 15
+end
+arch roof_brick
+direction 8
+x 8
+y 16
+end
+arch roof_brick
+x 8
+y 17
+end
+arch roof_brick
+x 8
+y 18
+end
+arch roof_brick
+direction 5
+x 9
+y 14
+end
+arch roof_brick
+direction 7
+x 9
+y 15
+end
+arch roof_brick
+direction 7
+x 9
+y 16
+end
+arch roof_brick
+direction 8
+x 9
+y 17
+end
+arch roof_brick
+x 9
+y 18
+end
+arch roof_brick
+direction 5
+x 10
+y 14
+end
+arch roof_brick
+direction 7
+x 10
+y 15
+end
+arch roof_brick
+direction 7
+x 10
+y 16
+end
+arch roof_brick
+direction 7
+x 10
+y 17
+end
+arch roof_brick
+direction 8
+x 10
+y 18
+end
+arch roof_brick
+direction 3
+x 10
+y 19
+end
+arch roof_brick
+direction 3
+x 10
+y 20
+end
+arch roof_brick
+direction 5
+x 11
+y 18
+end
+arch roof_brick
+x 11
+y 19
+end
+arch roof_brick
+x 11
+y 20
+end
+arch trans
+x 12
+y 13
+end
+arch wall_stone_8
+x 12
+y 13
+end
+arch map_info
+hp 10
+sp 7
+name brynknot_bank
+cursed 1
+x 12
+y 13
+end
+arch trans
+x 12
+y 14
+end
+arch wall_stone_3
+x 12
+y 14
+end
+arch trans
+x 12
+y 15
+end
+arch wall_stone_3
+x 12
+y 15
+end
+arch picture5.151
+direction 7
+x 12
+y 15
+end
+arch trans
+x 12
+y 16
+end
+arch wall_stone_w.131
+x 12
+y 16
+end
+arch trans
+x 12
+y 17
+end
+arch wall_stone_3
+x 12
+y 17
+end
+arch trans
+x 12
+y 18
+end
+arch wall_stone_3
+x 12
+y 18
+end
+arch trans
+x 12
+y 19
+end
+arch wall_stone_3
+x 12
+y 19
+end
+arch trans
+x 12
+y 20
+end
+arch roof_brick
+x 12
+y 20
+end
+arch wall_stone_3
+sub_layer 1
+x 12
+y 20
+end
+arch trans
+x 13
+y 13
+end
+arch wall_stone_1
+x 13
+y 13
+end
+arch floor_ostone13
+x 13
+y 14
+end
+arch table_round1
+x 13
+y 14
+end
+arch floor_ostone13
+x 13
+y 15
+end
+arch table_lab3.111
+direction 7
+x 13
+y 15
+end
+arch light5
+x 13
+y 15
+end
+arch floor_ostone13
+x 13
+y 16
+end
+arch desk2
+direction 7
+x 13
+y 16
+end
+arch floor_ostone13
+x 13
+y 17
+end
+arch shelf3a.111
+direction 7
+x 13
+y 17
+arch random_treasure
+no_pick 1
+randomitems random_read
+end
+end
+arch floor_ostone13
+x 13
+y 18
+end
+arch shelf3c.111
+direction 7
+x 13
+y 18
+arch random_treasure
+no_pick 1
+randomitems random_read
+end
+arch random_treasure
+no_pick 1
+randomitems random_read
+end
+end
+arch floor_ostone13
+x 13
+y 19
+end
+arch shelf3b.111
+direction 7
+x 13
+y 19
+end
+arch floor_ostone13
+x 13
+y 20
+end
+arch candlelight3.101
+x 13
+y 20
+end
+arch wall_stone_1
+x 13
+y 20
+end
+arch light5
+x 13
+y 20
+end
+arch trans
+x 14
+y 13
+end
+arch wall_stone_1
+x 14
+y 13
+end
+arch picture6.151
+x 14
+y 13
+end
+arch floor_ostone13
+x 14
+y 14
+end
+arch table_lab3.111
+x 14
+y 14
+end
+arch light5
+x 14
+y 14
+end
+arch floor_ostone13
+x 14
+y 15
+end
+arch spawn_point
+x 14
+y 15
+arch priest_green
+name Orlney Silvertongue
+level 47
+type 83
+arch event_obj
+sub_type 6
+race /interfaces/strakewood_island/brynknot/orlney_silvertongue.xml
+end
+end
+end
+arch floor_ostone13
+x 14
+y 16
+end
+arch floor_ostone13
+x 14
+y 17
+end
+arch wall_stone_8
+x 14
+y 17
+end
+arch floor_ostone13
+x 14
+y 18
+end
+arch candlelight3.101
+x 14
+y 18
+end
+arch wall_stone_3
+x 14
+y 18
+end
+arch light5
+x 14
+y 18
+end
+arch floor_ostone13
+x 14
+y 19
+end
+arch wall_stone_3
+x 14
+y 19
+end
+arch floor_ostone13
+x 14
+y 20
+end
+arch wall_stone_4
+x 14
+y 20
+end
+arch trans
+x 15
+y 13
+end
+arch wall_stone_1
+x 15
+y 13
+end
+arch floor_ostone13
+x 15
+y 14
+end
+arch desk2
+x 15
+y 14
+end
+arch floor_ostone13
+x 15
+y 15
+end
+arch floor_ostone13
+x 15
+y 16
+end
+arch floor_ostone13
+x 15
+y 17
+end
+arch floor_ostone13
+x 15
+y 18
+end
+arch shelf3b.111
+direction 7
+x 15
+y 18
+arch random_treasure
+no_pick 1
+randomitems random_read
+end
+end
+arch floor_ostone13
+x 15
+y 19
+end
+arch shelf3c.111
+direction 7
+x 15
+y 19
+arch random_treasure
+no_pick 1
+randomitems random_read
+end
+arch random_treasure
+no_pick 1
+randomitems random_read
+end
+arch random_treasure
+no_pick 1
+randomitems random_read
+end
+end
+arch floor_ostone13
+x 15
+y 20
+end
+arch wall_stone_w.111
+x 15
+y 20
+end
+arch trans
+x 16
+y 13
+end
+arch wall_stone_1
+x 16
+y 13
+end
+arch floor_ostone13
+x 16
+y 14
+end
+arch shelf6_wall.111
+x 16
+y 14
+end
+arch floor_ostone13
+x 16
+y 15
+end
+arch floor_ostone13
+x 16
+y 16
+end
+arch floor_ostone13
+x 16
+y 17
+end
+arch wall_stone_8
+x 16
+y 17
+end
+arch floor_ostone13
+x 16
+y 18
+end
+arch candlelight3.101
+x 16
+y 18
+end
+arch wall_stone_3
+x 16
+y 18
+end
+arch light5
+x 16
+y 18
+end
+arch floor_ostone13
+x 16
+y 19
+end
+arch wall_stone_3
+x 16
+y 19
+end
+arch floor_ostone13
+x 16
+y 20
+end
+arch wall_stone_4
+x 16
+y 20
+end
+arch trans
+x 16
+y 21
+end
+arch wall_stone_3w
+x 16
+y 21
+end
+arch map_info
+is_magical 1
+hp 3
+sp 2
+name brynknot_bank
+x 16
+y 21
+end
+arch trans
+x 16
+y 22
+end
+arch wall_stone_3w
+x 16
+y 22
+end
+arch trans
+x 17
+y 13
+end
+arch wall_stone_1
+x 17
+y 13
+end
+arch floor_ostone13
+x 17
+y 14
+end
+arch shelf3c.111
+x 17
+y 14
+arch random_treasure
+no_pick 1
+randomitems random_read
+end
+arch random_treasure
+no_pick 1
+randomitems random_read
+end
+end
+arch floor_ostone13
+x 17
+y 15
+end
+arch floor_ostone13
+x 17
+y 16
+end
+arch floor_ostone13
+x 17
+y 17
+end
+arch floor_ostone13
+x 17
+y 18
+end
+arch shelf3a.111
+direction 7
+x 17
+y 18
+arch random_treasure
+no_pick 1
+randomitems random_read
+end
+arch random_treasure
+no_pick 1
+randomitems random_read
+end
+arch random_treasure
+no_pick 1
+randomitems random_read
+end
+end
+arch floor_ostone13
+x 17
+y 19
+end
+arch shelf3c.111
+direction 7
+x 17
+y 19
+arch random_treasure
+no_pick 1
+randomitems random_read
+end
+arch random_treasure
+no_pick 1
+randomitems random_read
+end
+end
+arch floor_ostone13
+x 17
+y 20
+end
+arch wall_stone_1
+x 17
+y 20
+end
+arch floor_stone_b3
+x 17
+y 21
+end
+arch floor_stone_b2
+x 17
+y 22
+end
+arch wall_stone_1w
+x 17
+y 22
+end
+arch trans
+x 18
+y 13
+end
+arch wall_stone_1
+x 18
+y 13
+end
+arch floor_ostone13
+x 18
+y 14
+end
+arch shelf3b.111
+x 18
+y 14
+arch random_treasure
+no_pick 1
+randomitems random_read
+end
+arch random_treasure
+no_pick 1
+randomitems random_read
+end
+end
+arch light5
+x 18
+y 14
+end
+arch floor_ostone13
+x 18
+y 15
+end
+arch floor_ostone13
+x 18
+y 16
+end
+arch floor_ostone13
+x 18
+y 17
+end
+arch floor_ostone13
+x 18
+y 18
+end
+arch floor_ostone13
+x 18
+y 19
+end
+arch floor_ostone13
+x 18
+y 20
+end
+arch door_wood2
+x 18
+y 20
+end
+arch floor_stone_b2
+x 18
+y 21
+end
+arch floor_stone_b3
+x 18
+y 22
+end
+arch wall_stone_1w
+x 18
+y 22
+end
+arch trans
+x 19
+y 13
+end
+arch wall_stone_1
+x 19
+y 13
+end
+arch floor_ostone13
+x 19
+y 14
+end
+arch shelf3a.111
+x 19
+y 14
+arch random_treasure
+no_pick 1
+randomitems random_read
+end
+arch random_treasure
+no_pick 1
+randomitems random_read
+end
+arch random_treasure
+no_pick 1
+randomitems random_read
+end
+arch random_treasure
+no_pick 1
+randomitems random_read
+end
+end
+arch floor_ostone13
+x 19
+y 15
+end
+arch floor_ostone13
+x 19
+y 16
+end
+arch floor_ostone13
+x 19
+y 17
+end
+arch wall_stone_1
+x 19
+y 17
+end
+arch floor_ostone13
+x 19
+y 18
+end
+arch floor_ostone13
+x 19
+y 19
+end
+arch floor_ostone13
+x 19
+y 20
+end
+arch wall_stone_1
+x 19
+y 20
+end
+arch floor_stone_b3
+x 19
+y 21
+end
+arch wall_stone_3w
+x 19
+y 21
+end
+arch floor_stone_b3
+x 19
+y 22
+end
+arch wall_stone_3w
+x 19
+y 22
+end
+arch wall_stone_1w
+sub_layer 1
+x 19
+y 22
+end
+arch trans
+x 20
+y 13
+end
+arch wall_stone_1
+x 20
+y 13
+end
+arch floor_ostone13
+x 20
+y 14
+end
+arch shelf3c.111
+x 20
+y 14
+arch random_treasure
+no_pick 1
+randomitems random_read
+end
+arch random_treasure
+no_pick 1
+randomitems random_read
+end
+end
+arch floor_ostone13
+x 20
+y 15
+end
+arch floor_ostone13
+x 20
+y 16
+end
+arch ladder_down2
+x 20
+y 16
+end
+arch floor_ostone13
+x 20
+y 17
+end
+arch candlelight3.101
+x 20
+y 17
+end
+arch wall_stone_1
+x 20
+y 17
+end
+arch light5
+x 20
+y 17
+end
+arch floor_ostone13
+x 20
+y 18
+end
+arch shelf2_wall.111
+x 20
+y 18
+arch random_treasure
+no_pick 1
+randomitems random_read
+end
+end
+arch floor_ostone13
+x 20
+y 19
+end
+arch floor_ostone13
+x 20
+y 20
+end
+arch candlelight3.101
+x 20
+y 20
+end
+arch wall_stone_1
+x 20
+y 20
+end
+arch light5
+x 20
+y 20
+end
+arch trans
+x 21
+y 13
+end
+arch wall_stone_1
+x 21
+y 13
+end
+arch floor_ostone13
+x 21
+y 14
+end
+arch shelf3a.111
+x 21
+y 14
+arch random_treasure
+no_pick 1
+randomitems random_read
+end
+end
+arch floor_ostone13
+x 21
+y 15
+end
+arch floor_ostone13
+x 21
+y 16
+end
+arch floor_ostone13
+x 21
+y 17
+end
+arch wall_stone_1
+x 21
+y 17
+end
+arch floor_ostone13
+x 21
+y 18
+end
+arch chest_m
+x 21
+y 18
+arch random_treasure
+identified 1
+randomitems random_coin
+end
+end
+arch floor_ostone13
+x 21
+y 19
+end
+arch floor_ostone13
+x 21
+y 20
+end
+arch wall_stone_w.111
+x 21
+y 20
+end
+arch trans
+x 22
+y 13
+end
+arch wall_stone_1
+x 22
+y 13
+end
+arch floor_ostone13
+x 22
+y 14
+end
+arch wall_stone_3
+x 22
+y 14
+end
+arch floor_ostone13
+x 22
+y 15
+end
+arch wall_stone_w.131
+x 22
+y 15
+end
+arch floor_ostone13
+x 22
+y 16
+end
+arch candlelight3.101
+x 22
+y 16
+end
+arch wall_stone_3
+x 22
+y 16
+end
+arch light5
+x 22
+y 16
+end
+arch floor_ostone13
+x 22
+y 17
+end
+arch wall_stone_4
+x 22
+y 17
+end
+arch picture4.151
+x 22
+y 17
+end
+arch floor_ostone13
+x 22
+y 18
+end
+arch wall_stone_w.131
+x 22
+y 18
+end
+arch floor_ostone13
+x 22
+y 19
+end
+arch wall_stone_3
+x 22
+y 19
+end
+arch floor_ostone13
+x 22
+y 20
+end
+arch wall_stone_4
+x 22
+y 20
+end
+arch spawn_point
+x 23
+y 19
+arch ant_red
+msg
+@match ^hello$
+Hello! I'm Clippy, the Cheerful Paperclip, and it seems you are trying to steal from Orlney Silvertongue. Do you need help?
+@match ^[a]+[h]+$|^n[o]+$|^[a]+$
+You can't escape me! I know you have affection for me, in that heart of yours somewhere!
+@match ^gates$
+Mmmmmmmmhhh!
+@match ^yes$
+Ops, gotta go!
+endmsg
+name Clippy
+face eyes.101
+is_animated 0
+direction 0
+randomitems none
+level 95
+invulnerable 1
+no_attack 1
+friendly 1
+stand_still 1
+type 83
+hidden 1
+end
+end
+arch map_info
+name brynknot_bank
+cursed 1
+x 23
+y 19
+end

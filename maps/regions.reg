@@ -29,7 +29,7 @@ It has been found in the ancient records that the Strakewood Island was the firs
 
 The rumor is that in the ancient times the Strakewood Island was home to two opposing deities, Tabernacle and Moroch, both fighting an endless battle against each other.
 endmsg
-map_first /shattered_islands/world_0540
+map_first /shattered_islands/world_4_40
 map_bg #009ffb
 end
 
@@ -278,7 +278,7 @@ longname Lyondale Archipelago
 msg
 Lyondale Archipelago is a set of small islands grouped close together.
 endmsg
-map_first /shattered_islands/world_1878
+map_first /shattered_islands/world_17_2
 map_bg #009ffb
 end
 
@@ -315,7 +315,7 @@ This is an ancient place, filled with mysteries and power.
 
 Things are still and quiet in here.
 endmsg
-map_first /shattered_islands/world_1202
+map_first /shattered_islands/world_11_78
 map_bg #009ffb
 end
 region clearhaven
@@ -335,7 +335,7 @@ end
 region promethia_island
 parent world
 longname The Promethia Island
-map_first /shattered_islands/world_0306
+map_first /shattered_islands/world_2_74
 map_bg #009ffb
 msg
 
@@ -349,13 +349,13 @@ The Dragons Island is home to many fierce dragons, including the fire dragons, t
 
 It is also the home of the legendary black dragon Scursaur, and their leader.
 endmsg
-map_first /shattered_islands/world_0608
+map_first /shattered_islands/world_5_72
 map_bg #009ffb
 end
 region berri_lur
 parent world
 longname Berri Lur
-map_first /shattered_islands/world_1416
+map_first /shattered_islands/world_13_64
 map_bg #009ffb
 msg
 
@@ -378,7 +378,7 @@ longname Incuna
 msg
 A port town, somewhere south of Strakewood Island.
 endmsg
-map_first /shattered_islands/world_05af
+map_first /shattered_islands/world_4_85
 map_bg #009ffb
 map_quest true
 end

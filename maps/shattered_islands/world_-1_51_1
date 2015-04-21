@@ -1,0 +1,13 @@
+arch map
+name Centennial
+msg
+Created:  2011-03-20 Alex Tokar
+Modified: 2015-04-18 emperorbma
+endmsg
+width 24
+height 24
+difficulty 1
+outdoor 1
+bg_music yewtree.mid
+region centennial
+end

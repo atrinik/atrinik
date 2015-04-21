@@ -27,6 +27,7 @@
  * Handles movement events. */
 
 #include <global.h>
+#include <packet.h>
 
 /**
  * Number of the possible directions. */

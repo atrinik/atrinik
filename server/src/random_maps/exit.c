@@ -320,7 +320,7 @@ void place_exits(mapstruct *map, char **maze, char *exitstyle, int orientation, 
             object *the_exit_back = arch_to_object(the_exit_up->arch), *tmp;
 
             /* load it */
-            if ((new_map = ready_map_name(RP->final_map, 0)) == NULL) {
+            if ((new_map = ready_map_name(RP->final_map, NULL, 0)) == NULL) {
                 return;
             }
 

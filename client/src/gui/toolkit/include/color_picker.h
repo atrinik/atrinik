@@ -53,7 +53,7 @@ typedef struct color_picker_element_struct {
 
     /**
      * If 1, this element is being dragged. */
-    uint8 dragging;
+    uint8_t dragging;
 } color_picker_element_struct;
 
 /**
@@ -81,7 +81,7 @@ typedef struct color_picker_struct {
 
     /**
      * Thickness of the border; 0 for none. */
-    uint8 border_thickness;
+    uint8_t border_thickness;
 
     /**
      * Which color is currently selected, in HSV (hue,saturation,value)

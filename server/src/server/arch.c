@@ -96,6 +96,7 @@ void init_archetypes(void)
     arch_init = 1;
     load_archetypes();
     arch_init = 0;
+    object_destroy(clone_op);
     empty_archetype = find_archetype("empty_archetype");
     base_info_archetype = find_archetype("base_info");
     wp_archetype = find_archetype("waypoint");
@@ -143,8 +144,6 @@ void free_all_archs(void)
         efree(at);
         i++;
     }
-
-    object_destroy(clone_op);
 }
 
 /**

@@ -27,6 +27,8 @@
  * Handles file updates that the client may request. */
 
 #include <global.h>
+#include <packet.h>
+#include <toolkit_string.h>
 #include "zlib.h"
 
 /**
@@ -79,8 +81,11 @@ static void updates_file_new(const char *filename, struct stat *sb)
     efree(compressed);
 
     update_files[update_files_num].packet = packet_new(CLIENT_CMD_FILE_UPDATE, 0, 0);
+    packet_debug_data(update_files[update_files_num].packet, 0, "Filename");
     packet_append_string_terminated(update_files[update_files_num].packet, update_files[update_files_num].filename);
+    packet_debug_data(update_files[update_files_num].packet, 0, "File size");
     packet_append_uint32(update_files[update_files_num].packet, update_files[update_files_num].ucomp_len);
+    packet_debug_data(update_files[update_files_num].packet, 0, "File data");
     packet_append_data_len(update_files[update_files_num].packet, update_files[update_files_num].contents, update_files[update_files_num].len);
     update_files_num++;
 }
@@ -175,13 +180,13 @@ void updates_init(void)
     for (i = 0; i < update_files_num; i++) {
         update_file_struct *tmp = &update_files[i];
 
-        fprintf(fp, "%s %"FMT64U " %lx\n", tmp->filename, (uint64) tmp->ucomp_len, tmp->checksum);
+        fprintf(fp, "%s %"PRIu64 " %lx\n", tmp->filename, (uint64_t) tmp->ucomp_len, tmp->checksum);
     }
 
     fclose(fp);
 }
 
-void socket_command_request_update(socket_struct *ns, player *pl, uint8 *data, size_t len, size_t pos)
+void socket_command_request_update(socket_struct *ns, player *pl, uint8_t *data, size_t len, size_t pos)
 {
     char buf[MAX_BUF];
     update_file_struct *tmp;

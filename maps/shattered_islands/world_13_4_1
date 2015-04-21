@@ -1,0 +1,545 @@
+arch map
+name Morliana
+msg
+Created:  2015-01-04 Alex Tokar
+Modified: 2015-01-04 Alex Tokar
+endmsg
+width 24
+height 24
+difficulty 1
+outdoor 1
+bg_music campfire_tales.mid
+region morliana
+end
+arch roof_brick_gray
+direction 3
+x 3
+y 14
+end
+arch roof_brick_gray
+direction 3
+x 3
+y 15
+end
+arch roof_brick_gray
+direction 3
+x 3
+y 16
+end
+arch roof_brick_gray
+direction 3
+x 3
+y 17
+end
+arch roof_brick_gray
+direction 3
+x 3
+y 18
+end
+arch roof_brick_gray
+direction 3
+x 3
+y 19
+end
+arch roof_brick_gray
+direction 3
+x 3
+y 20
+end
+arch roof_brick_gray
+direction 5
+x 4
+y 13
+end
+arch roof_brick_gray
+x 4
+y 14
+end
+arch roof_brick_gray
+x 4
+y 15
+end
+arch roof_brick_gray
+x 4
+y 16
+end
+arch roof_brick_gray
+x 4
+y 17
+end
+arch roof_brick_gray
+x 4
+y 18
+end
+arch roof_brick_gray
+x 4
+y 19
+end
+arch roof_brick_gray
+x 4
+y 20
+end
+arch roof_brick_gray
+direction 5
+x 5
+y 13
+end
+arch roof_brick_gray
+x 5
+y 14
+end
+arch roof_brick_gray
+x 5
+y 15
+end
+arch roof_brick_gray
+x 5
+y 16
+end
+arch roof_brick_gray
+x 5
+y 17
+end
+arch roof_brick_gray
+x 5
+y 18
+end
+arch roof_brick_gray
+x 5
+y 19
+end
+arch roof_brick_gray
+x 5
+y 20
+end
+arch roof_brick_gray
+direction 5
+x 6
+y 13
+end
+arch roof_brick_gray
+x 6
+y 14
+end
+arch roof_brick_gray
+x 6
+y 15
+end
+arch roof_brick_gray
+x 6
+y 16
+end
+arch roof_brick_gray
+x 6
+y 17
+end
+arch roof_brick_gray
+x 6
+y 18
+end
+arch roof_brick_gray
+x 6
+y 19
+end
+arch roof_brick_gray
+x 6
+y 20
+end
+arch roof_brick_gray
+direction 5
+x 7
+y 13
+end
+arch roof_brick_gray
+x 7
+y 14
+end
+arch roof_brick_gray
+x 7
+y 15
+end
+arch roof_brick_gray
+x 7
+y 16
+end
+arch roof_brick_gray
+x 7
+y 17
+end
+arch roof_brick_gray
+x 7
+y 18
+end
+arch roof_brick_gray
+x 7
+y 19
+end
+arch roof_brick_gray
+x 7
+y 20
+end
+arch roof_wood
+direction 5
+x 7
+y 23
+end
+arch roof_brick_gray
+direction 5
+x 8
+y 13
+end
+arch roof_brick_gray
+x 8
+y 14
+end
+arch roof_brick_gray
+x 8
+y 15
+end
+arch roof_brick_gray
+x 8
+y 16
+end
+arch roof_brick_gray
+x 8
+y 17
+end
+arch roof_brick_gray
+x 8
+y 18
+end
+arch roof_brick_gray
+x 8
+y 19
+end
+arch roof_brick_gray
+x 8
+y 20
+end
+arch roof_wood
+direction 5
+x 8
+y 23
+end
+arch roof_brick_gray
+direction 5
+x 9
+y 13
+end
+arch roof_brick_gray
+x 9
+y 14
+end
+arch roof_brick_gray
+x 9
+y 15
+end
+arch roof_brick_gray
+x 9
+y 16
+end
+arch roof_brick_gray
+x 9
+y 17
+end
+arch roof_brick_gray
+x 9
+y 18
+end
+arch roof_brick_gray
+x 9
+y 19
+end
+arch roof_brick_gray
+x 9
+y 20
+end
+arch roof_wood
+direction 5
+x 9
+y 23
+end
+arch roof_brick_gray
+direction 5
+x 10
+y 13
+end
+arch roof_brick_gray
+direction 8
+x 10
+y 14
+end
+arch roof_brick_gray
+x 10
+y 15
+end
+arch roof_brick_gray
+x 10
+y 16
+end
+arch roof_brick_gray
+x 10
+y 17
+end
+arch roof_brick_gray
+x 10
+y 18
+end
+arch roof_brick_gray
+x 10
+y 19
+end
+arch roof_brick_gray
+x 10
+y 20
+end
+arch roof_wood
+direction 5
+x 10
+y 23
+end
+arch roof_brick_gray
+direction 5
+x 11
+y 13
+end
+arch roof_brick_gray
+direction 7
+x 11
+y 14
+end
+arch roof_brick_gray
+direction 8
+x 11
+y 15
+end
+arch roof_brick_gray
+x 11
+y 16
+end
+arch roof_brick_gray
+x 11
+y 17
+end
+arch roof_brick_gray
+x 11
+y 18
+end
+arch roof_brick_gray
+x 11
+y 19
+end
+arch roof_brick_gray
+x 11
+y 20
+end
+arch roof_wood
+direction 5
+x 11
+y 23
+end
+arch roof_brick_gray
+direction 5
+x 12
+y 13
+end
+arch roof_brick_gray
+direction 7
+x 12
+y 14
+end
+arch roof_brick_gray
+direction 7
+x 12
+y 15
+end
+arch roof_brick_gray
+direction 8
+x 12
+y 16
+end
+arch roof_brick_gray
+x 12
+y 17
+end
+arch roof_brick_gray
+x 12
+y 18
+end
+arch roof_brick_gray
+x 12
+y 19
+end
+arch roof_brick_gray
+x 12
+y 20
+end
+arch roof_wood
+direction 5
+x 12
+y 23
+end
+arch roof_brick_gray
+direction 5
+x 13
+y 13
+end
+arch roof_brick_gray
+direction 7
+x 13
+y 14
+end
+arch roof_brick_gray
+direction 7
+x 13
+y 15
+end
+arch roof_brick_gray
+direction 7
+x 13
+y 16
+end
+arch roof_brick_gray
+direction 8
+x 13
+y 17
+end
+arch roof_brick_gray
+x 13
+y 18
+end
+arch roof_brick_gray
+x 13
+y 19
+end
+arch roof_brick_gray
+x 13
+y 20
+end
+arch roof_wood
+direction 5
+x 13
+y 23
+end
+arch roof_brick_gray
+direction 5
+x 14
+y 13
+end
+arch roof_brick_gray
+direction 7
+x 14
+y 14
+end
+arch roof_brick_gray
+direction 7
+x 14
+y 15
+end
+arch roof_brick_gray
+direction 7
+x 14
+y 16
+end
+arch roof_brick_gray
+direction 7
+x 14
+y 17
+end
+arch roof_brick_gray
+direction 8
+x 14
+y 18
+end
+arch roof_brick_gray
+x 14
+y 19
+end
+arch roof_brick_gray
+x 14
+y 20
+end
+arch roof_wood
+direction 5
+x 14
+y 23
+end
+arch roof_brick_gray
+direction 5
+x 15
+y 13
+end
+arch roof_brick_gray
+direction 7
+x 15
+y 14
+end
+arch roof_brick_gray
+direction 7
+x 15
+y 15
+end
+arch roof_brick_gray
+direction 7
+x 15
+y 16
+end
+arch roof_brick_gray
+direction 7
+x 15
+y 17
+end
+arch roof_brick_gray
+direction 7
+x 15
+y 18
+end
+arch roof_brick_gray
+direction 8
+x 15
+y 19
+end
+arch roof_brick_gray
+x 15
+y 20
+end
+arch roof_brick_gray
+direction 5
+x 16
+y 13
+end
+arch roof_brick_gray
+direction 7
+x 16
+y 14
+end
+arch roof_brick_gray
+direction 7
+x 16
+y 15
+end
+arch roof_brick_gray
+direction 7
+x 16
+y 16
+end
+arch roof_brick_gray
+direction 7
+x 16
+y 17
+end
+arch roof_brick_gray
+direction 7
+x 16
+y 18
+end
+arch roof_brick_gray
+direction 7
+x 16
+y 19
+end
+arch roof_brick_gray
+direction 8
+x 16
+y 20
+end

@@ -53,6 +53,8 @@ static void widget_deinit(widgetdata *widget)
     if (label->text) {
         efree(label->text);
     }
+
+    font_free(label->font);
 }
 
 /**

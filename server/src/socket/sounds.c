@@ -27,6 +27,7 @@
  * Sound related functions. */
 
 #include <global.h>
+#include <packet.h>
 
 /**
  * Maximum distance a player may hear a sound from.
@@ -60,14 +61,20 @@ void play_sound_player_only(player *pl, int type, const char *filename, int x, i
     }
 
     packet = packet_new(CLIENT_CMD_SOUND, 64, 64);
+    packet_debug_data(packet, 0, "Sound command type");
     packet_append_uint8(packet, type);
+    packet_debug_data(packet, 0, "Filename");
     packet_append_string_terminated(packet, filename);
-    packet_append_sint8(packet, loop);
-    packet_append_sint8(packet, volume);
+    packet_debug_data(packet, 0, "Loop");
+    packet_append_int8(packet, loop);
+    packet_debug_data(packet, 0, "Volume");
+    packet_append_int8(packet, volume);
 
     /* Add X/Y offset for sound effects. */
     if (type == CMD_SOUND_EFFECT) {
+        packet_debug_data(packet, 0, "X coordinate");
         packet_append_uint8(packet, x);
+        packet_debug_data(packet, 0, "Y coordinate");
         packet_append_uint8(packet, y);
     }
 

@@ -27,41 +27,19 @@
  * OS path API. */
 
 #include <global.h>
+#include <toolkit_string.h>
 
-/**
- * Name of the API. */
-#define API_NAME path
+TOOLKIT_API(DEPENDS(logger), DEPENDS(string), DEPENDS(stringbuffer));
 
-/**
- * If 1, the API has been initialized. */
-static uint8 did_init = 0;
-
-/**
- * Initialize the path API.
- * @internal */
-void toolkit_path_init(void)
+TOOLKIT_INIT_FUNC(path)
 {
-
-    TOOLKIT_INIT_FUNC_START(path)
-    {
-        toolkit_import(logger);
-        toolkit_import(string);
-        toolkit_import(stringbuffer);
-    }
-    TOOLKIT_INIT_FUNC_END()
 }
+TOOLKIT_INIT_FUNC_FINISH
 
-/**
- * Deinitialize the path API.
- * @internal */
-void toolkit_path_deinit(void)
+TOOLKIT_DEINIT_FUNC(path)
 {
-
-    TOOLKIT_DEINIT_FUNC_START(path)
-    {
-    }
-    TOOLKIT_DEINIT_FUNC_END()
 }
+TOOLKIT_DEINIT_FUNC_FINISH
 
 /**
  * Joins two path components, eg, '/usr' and 'bin' -> '/usr/bin'.
@@ -74,7 +52,7 @@ char *path_join(const char *path, const char *path2)
     size_t len;
     char *cp;
 
-    TOOLKIT_FUNC_PROTECTOR(API_NAME);
+    TOOLKIT_PROTECT();
 
     sb = stringbuffer_new();
     stringbuffer_append_string(sb, path);
@@ -107,7 +85,7 @@ char *path_dirname(const char *path)
     const char *end;
     char *result;
 
-    TOOLKIT_FUNC_PROTECTOR(API_NAME);
+    TOOLKIT_PROTECT();
 
     if (!path) {
         return NULL;
@@ -147,7 +125,7 @@ char *path_basename(const char *path)
 {
     const char *slash;
 
-    TOOLKIT_FUNC_PROTECTOR(API_NAME);
+    TOOLKIT_PROTECT();
 
     if (!path) {
         return NULL;
@@ -177,7 +155,7 @@ char *path_normalize(const char *path)
     char component[MAX_BUF];
     ssize_t last_slash;
 
-    TOOLKIT_FUNC_PROTECTOR(API_NAME);
+    TOOLKIT_PROTECT();
 
     if (string_isempty(path)) {
         return estrdup(".");
@@ -235,7 +213,7 @@ void path_ensure_directories(const char *path)
     char buf[MAXPATHLEN], *cp;
     struct stat statbuf;
 
-    TOOLKIT_FUNC_PROTECTOR(API_NAME);
+    TOOLKIT_PROTECT();
 
     if (path == NULL || *path == '\0') {
         return;
@@ -279,7 +257,7 @@ int path_copy_file(const char *src, FILE *dst, const char *mode)
     FILE *fp;
     char buf[HUGE_BUF];
 
-    TOOLKIT_FUNC_PROTECTOR(API_NAME);
+    TOOLKIT_PROTECT();
 
     if (!src || !dst || !mode) {
         return 0;
@@ -308,7 +286,7 @@ int path_exists(const char *path)
 {
     struct stat statbuf;
 
-    TOOLKIT_FUNC_PROTECTOR(API_NAME);
+    TOOLKIT_PROTECT();
 
     if (stat(path, &statbuf) != 0) {
         return 0;
@@ -325,7 +303,7 @@ int path_touch(const char *path)
 {
     FILE *fp;
 
-    TOOLKIT_FUNC_PROTECTOR(API_NAME);
+    TOOLKIT_PROTECT();
 
     path_ensure_directories(path);
     fp = fopen(path, "w");
@@ -349,7 +327,7 @@ size_t path_size(const char *path)
 {
     struct stat statbuf;
 
-    TOOLKIT_FUNC_PROTECTOR(API_NAME);
+    TOOLKIT_PROTECT();
 
     if (stat(path, &statbuf) != 0) {
         return 0;
@@ -369,7 +347,7 @@ char *path_file_contents(const char *path)
     StringBuffer *sb;
     char buf[MAX_BUF];
 
-    TOOLKIT_FUNC_PROTECTOR(API_NAME);
+    TOOLKIT_PROTECT();
 
     fp = fopen(path, "rb");
 

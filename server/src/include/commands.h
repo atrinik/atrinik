@@ -55,7 +55,7 @@ typedef struct command_struct {
 
     /**
      * A combination of @ref COMMAND_xxx. */
-    uint64 flags;
+    uint64_t flags;
 
     /**
      * Hash handle. */

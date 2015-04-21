@@ -29,6 +29,8 @@
 #include <global.h>
 #include <gitversion.h>
 #include <region_map.h>
+#include <packet.h>
+#include <toolkit_string.h>
 
 /** The main screen surface. */
 SDL_Surface *ScreenSurface;
@@ -41,7 +43,7 @@ ClientSocket csocket;
 server_struct *selected_server = NULL;
 
 /** System time counter in ms since program start. */
-uint32 LastTick;
+uint32_t LastTick;
 
 texture_struct *cursor_texture;
 int cursor_x = -1;
@@ -66,7 +68,7 @@ _face_struct FaceList[MAX_FACE_TILES];
 /** The message animation structure. */
 struct msg_anim_struct msg_anim;
 /** Last time we sent keepalive command. */
-static uint32 last_keepalive;
+static uint32_t last_keepalive;
 
 /**
  * Command line option settings. */
@@ -78,8 +80,8 @@ clioption_settings_struct clioption_settings;
 typedef struct keepalive_data_struct {
     struct keepalive_data_struct *next; ///< Next keepalive data.
 
-    uint32 ticks; ///< When the keepalive command was sent.
-    uint32 id; ///< ID of the keepalive command.
+    uint32_t ticks; ///< When the keepalive command was sent.
+    uint32_t id; ///< ID of the keepalive command.
 } keepalive_data_struct;
 
 static keepalive_data_struct *keepalive_data; ///< Keepalive data.
@@ -142,9 +144,9 @@ void keepalive_ping_stats(void)
 }
 
 /** @copydoc socket_command_struct::handle_func */
-void socket_command_keepalive(uint8 *data, size_t len, size_t pos)
+void socket_command_keepalive(uint8_t *data, size_t len, size_t pos)
 {
-    uint32 id, ticks;
+    uint32_t id, ticks;
     keepalive_data_struct *keepalive, *tmp;
 
     id = packet_to_uint32(data, len, &pos);
@@ -177,6 +179,7 @@ static void init_game_data(void)
 
     init_keys();
     memset(&cpl, 0, sizeof(cpl));
+    object_init();
     clear_player();
 
     memset(&MapData, 0, sizeof(MapData));
@@ -205,7 +208,7 @@ static int game_status_chain(void)
     } else if (cpl.state == ST_META) {
         size_t i, pos;
         char host[MAX_BUF], port[MAX_BUF];
-        uint16 port_num;
+        uint16_t port_num;
 
         metaserver_clear_data();
 
@@ -344,12 +347,16 @@ void clioption_settings_deinit(void)
         efree(clioption_settings.servers[i]);
     }
 
+    if (clioption_settings.servers) {
+        efree(clioption_settings.servers);
+    }
+
     for (i = 0; i < clioption_settings.metaservers_num; i++) {
         efree(clioption_settings.metaservers[i]);
     }
 
-    if (clioption_settings.servers) {
-        efree(clioption_settings.servers);
+    if (clioption_settings.metaservers) {
+        efree(clioption_settings.metaservers);
     }
 
     for (i = 0; i < arraysize(clioption_settings.connect); i++) {
@@ -435,8 +442,8 @@ int main(int argc, char *argv[])
 {
     char *path;
     int done = 0, update, frames;
-    uint32 anim_tick, frame_start_time, elapsed_time, fps_limit,
-            last_frame_ticks;
+    uint32_t anim_tick, frame_start_time, elapsed_time, fps_limit,
+            last_frame_ticks, last_memory_check;
     int fps_limits[] = {30, 60, 120, 0};
     char version[MAX_BUF], buf[HUGE_BUF];
 
@@ -556,12 +563,16 @@ int main(int argc, char *argv[])
             );
 
     memset(&clioption_settings, 0, sizeof(clioption_settings));
-    clioptions_load_config(file_path("client.cfg", "r"), "[General]");
+    path = file_path("client.cfg", "r");
+    clioptions_load_config(path, "[General]");
+    efree(path);
     path = file_path("client-custom.cfg", "r");
 
     if (path_exists(path)) {
         clioptions_load_config(path, "[General]");
     }
+
+    efree(path);
 
     clioptions_parse(argc, argv);
 
@@ -619,7 +630,8 @@ int main(int argc, char *argv[])
 
     sound_background_hook_register(sound_background_hook);
 
-    LastTick = anim_tick = last_frame_ticks = SDL_GetTicks();
+    LastTick = anim_tick = last_frame_ticks = last_memory_check =
+            SDL_GetTicks();
     frames = 0;
 
     while (!done) {
@@ -635,6 +647,12 @@ int main(int argc, char *argv[])
             }
 
             continue;
+        }
+
+        /* Check the memory every 10 seconds. */
+        if (SDL_GetTicks() - last_memory_check > 10 * 1000) {
+            memory_check_all();
+            last_memory_check = SDL_GetTicks();
         }
 
         if (cpl.state > ST_CONNECT) {

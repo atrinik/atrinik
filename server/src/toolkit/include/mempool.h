@@ -59,7 +59,7 @@ typedef struct mempool_puddle_struct {
 
     mempool_chunk_struct *first_free; ///< Used for freeing memory.
     mempool_chunk_struct *last_free; ///< Used for freeing memory.
-    uint32 nrof_free; ///< Number of free chunks in this puddle.
+    uint32_t nrof_free; ///< Number of free chunks in this puddle.
 } mempool_puddle_struct;
 
 /**
@@ -82,6 +82,10 @@ typedef void (*chunk_destructor)(void *ptr);
  * Optional debugger to be called when debugging chunks.
  */
 typedef void (*chunk_debugger)(void *ptr, char *buf, size_t size);
+/**
+ * Validator to be used when detecting leaks.
+ */
+typedef bool (*chunk_validator)(void *ptr);
 
 /* Definitions used for array handling */
 #define MEMPOOL_NROF_FREELISTS 8
@@ -106,7 +110,7 @@ typedef struct mempool_struct {
     /**
      * Special handling flags. See @ref mempool_flags
      */
-    uint32 flags;
+    uint32_t flags;
 
     /**
      * First free chunk.
@@ -128,9 +132,9 @@ typedef struct mempool_struct {
      */
     mempool_puddle_struct *puddlelist[MEMPOOL_NROF_FREELISTS];
 
-    uint64 calls_expand; ///< Number of calls to expand the pool.
-    uint64 calls_get; ///< Number of calls to getting a chunk from the pool.
-    uint64 calls_return; ///< Number of calls to returning a chunk to the pool.
+    uint64_t calls_expand; ///< Number of calls to expand the pool.
+    uint64_t calls_get; ///< Number of calls to getting a chunk from the pool.
+    uint64_t calls_return; ///< Number of calls to returning a chunk to the pool.
 
     chunk_initialisator initialisator; ///< @copydoc chunk_initialisator
     chunk_deinitialisator deinitialisator; ///< @copydoc chunk_deinitialisator
@@ -138,7 +142,8 @@ typedef struct mempool_struct {
     chunk_destructor destructor; ///< @copydoc chunk_destructor
 
 #ifndef NDEBUG
-    chunk_debugger debugger; ///< @copydoc chunk_debugger;
+    chunk_debugger debugger; ///< @copydoc chunk_debugger
+    chunk_validator validator; ///< @copydoc chunk_validator
 #endif
 } mempool_struct;
 

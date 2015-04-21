@@ -34,7 +34,7 @@
  * @param bow Bow used.
  * @param arrow Arrow.
  * @return The arrow's wc. */
-sint16 arrow_get_wc(object *op, object *bow, object *arrow)
+int16_t arrow_get_wc(object *op, object *bow, object *arrow)
 {
     int level;
 
@@ -63,9 +63,9 @@ sint16 arrow_get_wc(object *op, object *bow, object *arrow)
  * @param bow Bow used.
  * @param arrow Arrow.
  * @return The arrow's damage. */
-sint16 arrow_get_damage(object *op, object *bow, object *arrow)
+int16_t arrow_get_damage(object *op, object *bow, object *arrow)
 {
-    sint16 dam;
+    int16_t dam;
     int level;
 
     op = HEAD(op);
@@ -89,9 +89,9 @@ sint16 arrow_get_damage(object *op, object *bow, object *arrow)
     dam += dam * (dam_bonus[op->stats.Str] / 2 + bow->stats.dam + bow->magic) / 10;
 
     if (bow->item_condition > arrow->item_condition) {
-        dam = (sint16) (((float) dam / 100.0f) * (float) bow->item_condition);
+        dam = (int16_t) (((float) dam / 100.0f) * (float) bow->item_condition);
     } else {
-        dam = (sint16) (((float) dam / 100.0f) * (float) arrow->item_condition);
+        dam = (int16_t) (((float) dam / 100.0f) * (float) arrow->item_condition);
     }
 
     return dam;
@@ -207,10 +207,10 @@ static int ranged_fire_func(object *op, object *shooter, int dir, double *delay)
         op->stats.wc += 5;
     }
 
-    op->stats.dam = (sint16) ((double) op->stats.dam * LEVEL_DAMAGE(SK_level(shooter)));
+    op->stats.dam = (int16_t) ((double) op->stats.dam * LEVEL_DAMAGE(SK_level(shooter)));
 
     if (op->item_quality) {
-        op->stats.dam = MAX(0, (sint16) (((double) op->stats.dam / 100.0f) * (double) op->item_condition));
+        op->stats.dam = MAX(0, (int16_t) (((double) op->stats.dam / 100.0f) * (double) op->item_condition));
     }
 
     if (delay) {

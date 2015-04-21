@@ -148,7 +148,7 @@
                     <message color="yellow">After patching up the boat and setting everything in order, you set sail.</message>
                     <message color="yellow">You feel tired after all that hard work, perhaps you should speak to {npc.name}...</message>
                     <action complete="get_branches"/>
-                    <action teleport="/shattered_islands/world_af01 4 6"/>
+                    <action teleport="/shattered_islands/world_-6_79 4 6"/>
                 </dialog>
             </interface>
         </part>

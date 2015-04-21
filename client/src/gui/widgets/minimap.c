@@ -364,7 +364,7 @@ void widget_minimap_init(widgetdata *widget)
 {
     minimap_widget_t *minimap;
 
-    minimap = calloc(1, sizeof(*minimap));
+    minimap = ecalloc(1, sizeof(*minimap));
     minimap->type = MINIMAP_TYPE_PREFER_REGION_MAP;
     MapData.region_map->zoom = 50;
 

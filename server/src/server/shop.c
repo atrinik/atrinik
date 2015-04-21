@@ -27,8 +27,9 @@
  * Functions dealing with shop handling, bargaining, etc. */
 
 #include <global.h>
+#include <toolkit_string.h>
 
-static sint64 pay_from_container(object *op, object *pouch, sint64 to_pay);
+static int64_t pay_from_container(object *op, object *pouch, int64_t to_pay);
 
 /**
  * Return the price of an item for a character.
@@ -36,9 +37,9 @@ static sint64 pay_from_container(object *op, object *pouch, sint64 to_pay);
  * @param who Who is inquiring. Can be NULL, only meaningful if player.
  * @param flag Combination of @ref F_xxx "F_xxx" flags.
  * @return The price for the item. */
-sint64 query_cost(object *tmp, object *who, int flag)
+int64_t query_cost(object *tmp, object *who, int flag)
 {
-    sint64 val;
+    int64_t val;
     double diff;
     int number;
 
@@ -128,7 +129,7 @@ sint64 query_cost(object *tmp, object *who, int flag)
  * @param c Value we're searching.
  * @param cointype First coin type to search.
  * @return Coin archetype, NULL if none found. */
-static archetype *find_next_coin(sint64 c, int *cointype)
+static archetype *find_next_coin(int64_t c, int *cointype)
 {
     archetype *coin;
 
@@ -153,12 +154,12 @@ static archetype *find_next_coin(sint64 c, int *cointype)
  * Converts a price to number of coins.
  * @param cost Value to transform to currency.
  * @return Buffer containing the price. */
-char *cost_string_from_value(sint64 cost)
+char *cost_string_from_value(int64_t cost)
 {
     static char buf[MAX_BUF];
     archetype *coin, *next_coin;
     char *endbuf;
-    sint64 num;
+    int64_t num;
     int cointype = 0;
 
     coin = find_next_coin(cost, &cointype);
@@ -173,7 +174,7 @@ char *cost_string_from_value(sint64 cost)
     if (num == 1) {
         snprintf(buf, sizeof(buf), "1 %s%s", material_real[coin->clone.material_real].name, coin->clone.name);
     } else {
-        snprintf(buf, sizeof(buf), "%"FMT64 " %s%ss", num, material_real[coin->clone.material_real].name, coin->clone.name);
+        snprintf(buf, sizeof(buf), "%"PRId64 " %s%ss", num, material_real[coin->clone.material_real].name, coin->clone.name);
     }
 
     next_coin = find_next_coin(cost, &cointype);
@@ -208,7 +209,7 @@ char *cost_string_from_value(sint64 cost)
         if (num == 1) {
             sprintf(endbuf, "1 %s%s", material_real[coin->clone.material_real].name, coin->clone.name);
         } else {
-            sprintf(endbuf, "%"FMT64 " %s%ss", num, material_real[coin->clone.material_real].name, coin->clone.name);
+            sprintf(endbuf, "%"PRId64 " %s%ss", num, material_real[coin->clone.material_real].name, coin->clone.name);
         }
 
     }    while (next_coin);
@@ -235,10 +236,10 @@ char *query_cost_string(object *tmp, object *who, int flag)
  * containers and in bank.
  * @param op Item to get money for. Must be a player or a container.
  * @return Total money the player is carrying. */
-sint64 query_money(object *op)
+int64_t query_money(object *op)
 {
     object *tmp;
-    sint64 total = 0;
+    int64_t total = 0;
 
     if (op->type != PLAYER && op->type != CONTAINER) {
         logger_print(LOG(BUG), "Called with non player/container.");
@@ -265,7 +266,7 @@ sint64 query_money(object *op)
  * @param pl Player paying.
  * @return 0 if not enough money, in which case nothing is removed, 1 if
  * money was removed. */
-int pay_for_amount(sint64 to_pay, object *pl)
+int pay_for_amount(int64_t to_pay, object *pl)
 {
     object *pouch;
 
@@ -298,7 +299,7 @@ int pay_for_amount(sint64 to_pay, object *pl)
  * @return 1 if object was bought, 0 otherwise. */
 int pay_for_item(object *op, object *pl)
 {
-    sint64 to_pay = query_cost(op, pl, COST_BUY);
+    int64_t to_pay = query_cost(op, pl, COST_BUY);
     object *pouch;
 
     if (to_pay == 0.0) {
@@ -329,9 +330,9 @@ int pay_for_item(object *op, object *pl)
  * @return Amount still not paid after using "pouch".
  * @todo Should be able to avoid the extra object allocations...
  */
-static sint64 pay_from_container(object *op, object *pouch, sint64 to_pay)
+static int64_t pay_from_container(object *op, object *pouch, int64_t to_pay)
 {
-    sint64 remain;
+    int64_t remain;
     int count, i;
     object *tmp, *coin_objs[NUM_COINS], *next, *bank_object = NULL;
 
@@ -388,9 +389,9 @@ static sint64 pay_from_container(object *op, object *pouch, sint64 to_pay)
     }
 
     for (i = 0; i < NUM_COINS; i++) {
-        sint64 num_coins;
+        int64_t num_coins;
 
-        if ((sint64) (coin_objs[i]->nrof * coin_objs[i]->value) > remain) {
+        if ((int64_t) (coin_objs[i]->nrof * coin_objs[i]->value) > remain) {
             num_coins = remain / coin_objs[i]->value;
 
             if ((num_coins * coin_objs[i]->value) < remain) {
@@ -400,13 +401,13 @@ static sint64 pay_from_container(object *op, object *pouch, sint64 to_pay)
             num_coins = coin_objs[i]->nrof;
         }
 
-        if (num_coins > SINT32_MAX) {
-            logger_print(LOG(DEBUG), "Money overflow value->nrof: number of coins > SINT32_MAX (type coin %d)", i);
-            num_coins = SINT32_MAX;
+        if (num_coins > INT32_MAX) {
+            logger_print(LOG(DEBUG), "Money overflow value->nrof: number of coins > INT32_MAX (type coin %d)", i);
+            num_coins = INT32_MAX;
         }
 
         remain -= num_coins * coin_objs[i]->value;
-        coin_objs[i]->nrof -= (uint32) num_coins;
+        coin_objs[i]->nrof -= (uint32_t) num_coins;
         /* Now start making change.  Start at the coin value
          * below the one we just did, and work down to
          * the lowest value. */
@@ -414,7 +415,7 @@ static sint64 pay_from_container(object *op, object *pouch, sint64 to_pay)
 
         while (remain < 0 && count >= 0) {
             num_coins = -remain / coin_objs[count]->value;
-            coin_objs[count]->nrof += (uint32) num_coins;
+            coin_objs[count]->nrof += (uint32_t) num_coins;
             remain += num_coins * coin_objs[count]->value;
             count--;
         }
@@ -495,9 +496,9 @@ int get_payment(object *pl, object *op)
  * @param pl Player. Shouldn't be NULL or non player.
  * @param value If op is NULL, this value is used instead of using
  * query_cost(). */
-void sell_item(object *op, object *pl, sint64 value)
+void sell_item(object *op, object *pl, int64_t value)
 {
-    sint64 i;
+    int64_t i;
 
     if (pl == NULL || pl->type != PLAYER) {
         logger_print(LOG(DEBUG), "Object other than player tried to sell something.");
@@ -527,7 +528,7 @@ void sell_item(object *op, object *pl, sint64 value)
     }
 
     if (i != 0) {
-        logger_print(LOG(BUG), "Warning - payment not zero: %"FMT64, i);
+        logger_print(LOG(BUG), "Warning - payment not zero: %"PRId64, i);
     }
 
     draw_info_format(COLOR_WHITE, pl, "You receive %s for %s.", query_cost_string(op, pl, 1), query_name(op, NULL));
@@ -605,7 +606,7 @@ int get_money_from_string(const char *text, struct _money_block *money)
 int query_money_type(object *op, int value)
 {
     object *tmp;
-    sint64 total = 0;
+    int64_t total = 0;
 
     for (tmp = op->inv; tmp; tmp = tmp->below) {
         if (tmp->type == MONEY && tmp->value == value) {
@@ -614,7 +615,7 @@ int query_money_type(object *op, int value)
             total += query_money_type(tmp, value);
         }
 
-        if (total >= (sint64) value) {
+        if (total >= (int64_t) value) {
             break;
         }
     }
@@ -629,7 +630,7 @@ int query_money_type(object *op, int value)
  * @param value Value of the coin type to remove.
  * @param amount Amount of money to remove.
  * @return Removed amount. */
-sint64 remove_money_type(object *who, object *op, sint64 value, sint64 amount)
+int64_t remove_money_type(object *who, object *op, int64_t value, int64_t amount)
 {
     object *tmp, *tmp2;
 
@@ -641,7 +642,7 @@ sint64 remove_money_type(object *who, object *op, sint64 value, sint64 amount)
         }
 
         if (tmp->type == MONEY && (tmp->value == value || value == -1)) {
-            if ((sint64) tmp->nrof <= amount || value == -1) {
+            if ((int64_t) tmp->nrof <= amount || value == -1) {
                 if (value == -1) {
                     amount += (tmp->nrof * tmp->value);
                 } else {
@@ -650,7 +651,7 @@ sint64 remove_money_type(object *who, object *op, sint64 value, sint64 amount)
 
                 object_remove(tmp, 0);
             } else {
-                tmp->nrof -= (uint32) amount;
+                tmp->nrof -= (uint32_t) amount;
                 amount = 0;
             }
         } else if (tmp->type == CONTAINER && !tmp->slaying && ((!tmp->race || strstr(tmp->race, "gold")))) {
@@ -666,7 +667,7 @@ sint64 remove_money_type(object *who, object *op, sint64 value, sint64 amount)
  * @param pl Player.
  * @param money Money object to insert.
  * @param nrof How many money objects to insert to player. */
-void insert_money_in_player(object *pl, object *money, uint32 nrof)
+void insert_money_in_player(object *pl, object *money, uint32_t nrof)
 {
     object *tmp = get_object();
     copy_object(money, tmp, 0);
@@ -725,7 +726,7 @@ object *bank_get_create_info(object *op)
  * Query how much money player has stored in bank.
  * @param op Player to query for.
  * @return The money stored. */
-sint64 bank_get_balance(object *op)
+int64_t bank_get_balance(object *op)
 {
     object *bank = bank_get_info(op);
 
@@ -742,7 +743,7 @@ sint64 bank_get_balance(object *op)
  * @param text What was said to trigger this.
  * @param[out] value Will contain the deposited amount.
  * @return One of @ref BANK_xxx. */
-int bank_deposit(object *op, const char *text, sint64 *value)
+int bank_deposit(object *op, const char *text, int64_t *value)
 {
     _money_block money;
     object *bank;
@@ -812,9 +813,9 @@ int bank_deposit(object *op, const char *text, sint64 *value)
  * @param text What was said to trigger this.
  * @param[out] value Will contain the withdrawn amount.
  * @return One of @ref BANK_xxx. */
-int bank_withdraw(object *op, const char *text, sint64 *value)
+int bank_withdraw(object *op, const char *text, int64_t *value)
 {
-    sint64 big_value;
+    int64_t big_value;
     _money_block money;
     object *bank;
 
@@ -878,12 +879,12 @@ int bank_withdraw(object *op, const char *text, sint64 *value)
  * @param value Value of coins to insert (for example, 120 for 1 silver and 20
  * copper).
  * @return value. */
-sint64 insert_coins(object *pl, sint64 value)
+int64_t insert_coins(object *pl, int64_t value)
 {
     int count;
     object *tmp, *pouch;
     archetype *at;
-    uint32 n;
+    uint32_t n;
 
     for (count = 0; coins[count]; count++) {
         at = find_archetype(coins[count]);
@@ -896,10 +897,10 @@ sint64 insert_coins(object *pl, sint64 value)
                     double w;
 
                     w = (float) at->clone.weight * pouch->weapon_speed;
-                    n = (uint32) (value / at->clone.value);
+                    n = (uint32_t) (value / at->clone.value);
 
-                    if (n > 0 && (!pouch->weight_limit || pouch->carrying + w <= (sint32) pouch->weight_limit)) {
-                        if (w > 0.0 && pouch->weight_limit && ((sint32) pouch->weight_limit - pouch->carrying) / w < (sint32) n) {
+                    if (n > 0 && (!pouch->weight_limit || pouch->carrying + w <= (int32_t) pouch->weight_limit)) {
+                        if (w > 0.0 && pouch->weight_limit && ((int32_t) pouch->weight_limit - pouch->carrying) / w < (int32_t) n) {
                             n = (pouch->weight_limit - pouch->carrying) / w;
                         }
 
@@ -913,11 +914,11 @@ sint64 insert_coins(object *pl, sint64 value)
             }
 
             if (value / at->clone.value > 0) {
-                n = (uint32) (value / at->clone.value);
+                n = (uint32_t) (value / at->clone.value);
 
-                if (n > 0 && pl->carrying + at->clone.weight <= (sint32) weight_limit[MIN(pl->stats.Str, MAX_STAT)]) {
-                    if (((sint32) weight_limit[MIN(pl->stats.Str, MAX_STAT)] - pl->carrying) / at->clone.weight < (sint32) n) {
-                        n = ((sint32) weight_limit[MIN(pl->stats.Str, MAX_STAT)] - pl->carrying) / at->clone.weight;
+                if (n > 0 && pl->carrying + at->clone.weight <= (int32_t) weight_limit[MIN(pl->stats.Str, MAX_STAT)]) {
+                    if (((int32_t) weight_limit[MIN(pl->stats.Str, MAX_STAT)] - pl->carrying) / at->clone.weight < (int32_t) n) {
+                        n = ((int32_t) weight_limit[MIN(pl->stats.Str, MAX_STAT)] - pl->carrying) / at->clone.weight;
                     }
 
                     tmp = get_object();
@@ -931,7 +932,7 @@ sint64 insert_coins(object *pl, sint64 value)
             if (value / at->clone.value > 0) {
                 tmp = get_object();
                 copy_object(&at->clone, tmp, 0);
-                tmp->nrof = (uint32) (value / at->clone.value);
+                tmp->nrof = (uint32_t) (value / at->clone.value);
                 value -= tmp->nrof * tmp->value;
                 tmp->x = pl->x;
                 tmp->y = pl->y;

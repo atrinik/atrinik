@@ -1,0 +1,1371 @@
+arch map
+name Centennial
+msg
+Created:  2009-08-09 Alex Tokar
+Modified: 2015-04-19 Alex Tokar
+endmsg
+width 24
+height 24
+difficulty 30
+darkness 2
+no_harm 1
+bg_music yewtree.mid
+region centennial
+end
+arch blocked
+x 1
+y 2
+end
+arch wall_flagstone1.181
+x 1
+y 2
+end
+arch blocked
+x 1
+y 3
+end
+arch wall_flagstone1.131
+x 1
+y 3
+end
+arch blocked
+x 1
+y 4
+end
+arch wall_flagstone1.131
+x 1
+y 4
+end
+arch blocked
+x 1
+y 5
+end
+arch wall_flagstone1.131
+x 1
+y 5
+end
+arch blocked
+x 1
+y 6
+end
+arch wall_flagstone1.131
+x 1
+y 6
+end
+arch blocked
+x 1
+y 7
+end
+arch wall_flagstone1.131
+x 1
+y 7
+end
+arch blocked
+x 1
+y 8
+end
+arch wall_flagstone1.131
+x 1
+y 8
+end
+arch blocked
+x 1
+y 9
+end
+arch wall_flagstone1.131
+x 1
+y 9
+end
+arch blocked
+x 1
+y 10
+end
+arch wall_flagstone1.131
+x 1
+y 10
+end
+arch blocked
+x 1
+y 11
+end
+arch wall_flagstone1.131
+x 1
+y 11
+end
+arch blocked
+x 1
+y 12
+end
+arch wall_flagstone1.131
+x 1
+y 12
+end
+arch blocked
+x 1
+y 13
+end
+arch wall_flagstone1.131
+x 1
+y 13
+end
+arch blocked
+x 2
+y 2
+end
+arch wall_flagstone1b.111
+x 2
+y 2
+end
+arch floor_wood2_l1
+x 2
+y 3
+end
+arch shelf1_wall.111
+x 2
+y 3
+end
+arch light5
+x 2
+y 3
+end
+arch floor_wood2_l1
+x 2
+y 4
+end
+arch door_bar1
+msg
+Librarian only.
+endmsg
+direction 5
+slaying cent_school_librarian
+x 2
+y 4
+end
+arch floor_wood2_l1
+x 2
+y 5
+end
+arch shelf3a.111
+direction 7
+x 2
+y 5
+arch random_treasure
+no_pick 1
+randomitems random_read
+end
+end
+arch floor_wood2_l1
+x 2
+y 6
+end
+arch shelf3b.111
+direction 7
+x 2
+y 6
+arch random_treasure
+no_pick 1
+randomitems random_read
+end
+end
+arch floor_wood2_l1
+x 2
+y 7
+end
+arch shelf3c.111
+direction 7
+x 2
+y 7
+arch random_treasure
+no_pick 1
+randomitems random_read
+end
+end
+arch floor_wood2_l1
+x 2
+y 8
+end
+arch shelf3a.111
+direction 7
+x 2
+y 8
+arch random_treasure
+no_pick 1
+randomitems random_read
+end
+end
+arch floor_wood2_l1
+x 2
+y 9
+end
+arch shelf3b.111
+direction 7
+x 2
+y 9
+arch random_treasure
+no_pick 1
+randomitems random_read
+end
+end
+arch floor_wood2_l1
+x 2
+y 10
+end
+arch shelf3c.111
+direction 7
+x 2
+y 10
+arch random_treasure
+no_pick 1
+randomitems random_read
+end
+end
+arch floor_wood2_l1
+x 2
+y 11
+end
+arch shelf3b.111
+direction 7
+x 2
+y 11
+arch random_treasure
+no_pick 1
+randomitems random_read
+end
+end
+arch floor_wood2_l1
+x 2
+y 12
+end
+arch shelf3a.111
+direction 7
+x 2
+y 12
+arch random_treasure
+no_pick 1
+randomitems random_read
+end
+end
+arch floor_wood2_l1
+x 2
+y 13
+end
+arch wall_flagstone1.111
+x 2
+y 13
+end
+arch blocked
+x 3
+y 2
+end
+arch wall_flagstone1b.111
+x 3
+y 2
+end
+arch floor_wood2_l1
+x 3
+y 3
+end
+arch shelf2_wall.111
+x 3
+y 3
+end
+arch spawn_point
+x 3
+y 3
+arch witch3
+name Lindy
+level 38
+can_cast_spell 1
+sp -1
+maxsp 15
+dex 2
+type 83
+arch ability_cause_lig_wound
+name ability meteor
+sp 34
+hp 34
+maxsp 1
+end
+arch ability_cause_lig_wound
+name ability lightning
+sp 48
+hp 48
+maxsp 10
+end
+arch key_skull
+name key
+slaying cent_school_librarian
+end
+arch event_obj
+sub_type 6
+race /interfaces/strakewood_island/centennial/lindy.xml
+end
+end
+end
+arch floor_wood2_l1
+x 3
+y 4
+end
+arch bar1
+x 3
+y 4
+end
+arch floor_wood2_l1
+x 3
+y 5
+end
+arch chair1_111
+x 3
+y 5
+end
+arch floor_wood2_l1
+x 3
+y 6
+end
+arch table_round2
+x 3
+y 6
+end
+arch floor_wood2_l1
+x 3
+y 7
+end
+arch chair1_111
+direction 5
+x 3
+y 7
+end
+arch spawn_point
+speed 0.05
+last_grace 0
+x 3
+y 7
+arch witch3
+name bookish student witch
+direction 1
+level 25
+spawn_time 14:00-16:00
+can_cast_spell 1
+sp -1
+maxsp 12
+dex 3
+type 83
+arch ability_cause_lig_wound
+end
+arch event_obj
+sub_type 6
+race /interfaces/strakewood_island/centennial/bookish_student_witch.xml
+slaying clubTime
+end
+end
+end
+arch floor_wood2_l1
+x 3
+y 8
+end
+arch floor_wood2_l1
+x 3
+y 9
+end
+arch light5
+x 3
+y 9
+end
+arch floor_wood2_l1
+x 3
+y 10
+end
+arch wall_flagstone1.131
+x 3
+y 10
+end
+arch floor_wood2_l1
+x 3
+y 11
+end
+arch wall_flagstone1.131
+x 3
+y 11
+end
+arch floor_wood2_l1
+x 3
+y 12
+end
+arch wall_flagstone1.131
+x 3
+y 12
+end
+arch floor_wood2_l1
+x 3
+y 13
+end
+arch wall_flagstone1.141
+x 3
+y 13
+end
+arch blocked
+x 4
+y 2
+end
+arch wall_flagstone1b.111
+x 4
+y 2
+end
+arch floor_wood2_l1
+x 4
+y 3
+end
+arch bar1
+direction 3
+x 4
+y 3
+end
+arch floor_wood2_l1
+x 4
+y 4
+end
+arch bar1
+direction 4
+x 4
+y 4
+end
+arch floor_wood2_l1
+x 4
+y 5
+end
+arch floor_wood2_l1
+x 4
+y 6
+end
+arch chair1_111
+direction 3
+x 4
+y 6
+end
+arch floor_wood2_l1
+x 4
+y 7
+end
+arch floor_wood2_l1
+x 4
+y 8
+end
+arch chair1_111
+direction 7
+x 4
+y 8
+end
+arch floor_wood2_l1
+x 4
+y 9
+end
+arch floor_wood2_l1
+x 4
+y 10
+end
+arch shelf3c.111
+direction 7
+x 4
+y 10
+arch random_treasure
+no_pick 1
+randomitems random_read
+end
+end
+arch floor_wood2_l1
+x 4
+y 11
+end
+arch shelf3c.111
+direction 7
+x 4
+y 11
+arch random_treasure
+no_pick 1
+randomitems random_read
+end
+end
+arch floor_wood2_l1
+x 4
+y 12
+end
+arch shelf3a.111
+direction 7
+x 4
+y 12
+arch random_treasure
+no_pick 1
+randomitems random_read
+end
+end
+arch floor_wood2_l1
+x 4
+y 13
+end
+arch wall_flagstone1.111
+x 4
+y 13
+end
+arch blocked
+x 5
+y 2
+end
+arch wall_flagstone1b.111
+x 5
+y 2
+end
+arch floor_wood2_l1
+x 5
+y 3
+end
+arch carpet3.151
+x 5
+y 3
+end
+arch shelf3_wall.111
+x 5
+y 3
+arch random_treasure
+no_pick 1
+randomitems random_read
+end
+end
+arch floor_wood2_l1
+x 5
+y 4
+end
+arch carpet3b
+x 5
+y 4
+end
+arch floor_wood2_l1
+x 5
+y 5
+end
+arch carpet3b
+x 5
+y 5
+end
+arch floor_wood2_l1
+x 5
+y 6
+end
+arch carpet3.111
+x 5
+y 6
+end
+arch floor_wood2_l1
+x 5
+y 7
+end
+arch chair1_111
+x 5
+y 7
+end
+arch spawn_point
+speed 0.05
+last_grace 0
+x 5
+y 7
+arch witch1
+name trigger-happy student witch
+level 25
+spawn_time 14:00-16:00
+can_cast_spell 1
+sp -1
+maxsp 12
+dex 3
+type 83
+arch ability_cause_lig_wound
+end
+arch event_obj
+sub_type 6
+race /interfaces/strakewood_island/centennial/triggerhappy_student_witch.xml
+slaying clubTime
+end
+end
+end
+arch floor_wood2_l1
+x 5
+y 8
+end
+arch table_round2
+x 5
+y 8
+end
+arch floor_wood2_l1
+x 5
+y 9
+end
+arch floor_wood2_l1
+x 5
+y 10
+end
+arch wall_flagstone1.131
+x 5
+y 10
+end
+arch floor_wood2_l1
+x 5
+y 11
+end
+arch wall_flagstone1.131
+x 5
+y 11
+end
+arch floor_wood2_l1
+x 5
+y 12
+end
+arch wall_flagstone1.131
+x 5
+y 12
+end
+arch floor_wood2_l1
+x 5
+y 13
+end
+arch wall_flagstone1.141
+x 5
+y 13
+end
+arch blocked
+x 6
+y 2
+end
+arch wall_flagstone1b.111
+x 6
+y 2
+end
+arch floor_wood2_l1
+x 6
+y 3
+end
+arch shelf_wall.111
+x 6
+y 3
+end
+arch floor_wood2_l1
+x 6
+y 4
+end
+arch floor_wood2_l1
+x 6
+y 5
+end
+arch floor_wood2_l1
+x 6
+y 6
+end
+arch floor_wood2_l1
+x 6
+y 7
+end
+arch spawn_point
+x 6
+y 7
+arch fairy
+name Ruri
+level 15
+can_cast_spell 1
+sp -1
+maxsp 12
+pow 3
+dex 2
+unaggressive 1
+friendly 1
+random_move 1
+item_race 8
+item_level 8
+type 83
+arch ability_mbullet
+name ability magic missile
+sp 43
+hp 43
+maxsp 5
+end
+arch ability_cause_lig_wound
+name ability minor healing
+sp 2
+hp 2
+maxsp 1
+end
+arch event_obj
+sub_type 6
+race /interfaces/strakewood_island/centennial/ruri.xml
+end
+end
+end
+arch floor_wood2_l1
+x 6
+y 8
+end
+arch chair1_111
+direction 3
+x 6
+y 8
+end
+arch floor_wood2_l1
+x 6
+y 9
+end
+arch floor_wood2_l1
+x 6
+y 10
+end
+arch shelf3b.111
+direction 7
+x 6
+y 10
+arch random_treasure
+no_pick 1
+randomitems random_read
+end
+end
+arch floor_wood2_l1
+x 6
+y 11
+end
+arch shelf3a.111
+direction 7
+x 6
+y 11
+arch random_treasure
+no_pick 1
+randomitems random_read
+end
+end
+arch floor_wood2_l1
+x 6
+y 12
+end
+arch shelf3c.111
+direction 7
+x 6
+y 12
+arch random_treasure
+no_pick 1
+randomitems random_read
+end
+end
+arch floor_wood2_l1
+x 6
+y 13
+end
+arch wall_flagstone1.111
+x 6
+y 13
+end
+arch blocked
+x 7
+y 2
+end
+arch wall_flagstone1b.111
+x 7
+y 2
+end
+arch floor_wood2_l1
+x 7
+y 3
+end
+arch wall_flagstone1.131
+x 7
+y 3
+end
+arch floor_wood2_l1
+x 7
+y 4
+end
+arch door_wood1
+direction 3
+cursed 1
+x 7
+y 4
+end
+arch floor_wood2_l1
+x 7
+y 5
+end
+arch door_wood1
+direction 5
+cursed 1
+x 7
+y 5
+end
+arch floor_wood2_l1
+x 7
+y 6
+end
+arch wall_flagstone1.131
+x 7
+y 6
+end
+arch floor_wood2_l1
+x 7
+y 7
+end
+arch wall_flagstone1.131
+x 7
+y 7
+end
+arch floor_wood2_l1
+x 7
+y 8
+end
+arch floor_wood2_l1
+x 7
+y 9
+end
+arch floor_wood2_l1
+x 7
+y 10
+end
+arch wall_flagstone1.131
+x 7
+y 10
+end
+arch floor_wood2_l1
+x 7
+y 11
+end
+arch wall_flagstone1.131
+x 7
+y 11
+end
+arch floor_wood2_l1
+x 7
+y 12
+end
+arch wall_flagstone1.131
+x 7
+y 12
+end
+arch floor_wood2_l1
+x 7
+y 13
+end
+arch wall_flagstone1.141
+x 7
+y 13
+end
+arch blocked
+x 8
+y 2
+end
+arch wall_flagstone1b.111
+x 8
+y 2
+end
+arch floor_wood2_l1
+x 8
+y 3
+end
+arch torch_wall_1
+direction 7
+x 8
+y 3
+end
+arch floor_wood2_l1
+x 8
+y 4
+end
+arch floor_wood2_l1
+x 8
+y 5
+end
+arch floor_wood2_l1
+x 8
+y 6
+end
+arch torch_wall_1
+direction 7
+x 8
+y 6
+end
+arch floor_wood2_l1
+x 8
+y 7
+end
+arch wall_flagstone1.111
+x 8
+y 7
+end
+arch floor_wood2_l1
+x 8
+y 8
+end
+arch shelf3a.111
+x 8
+y 8
+arch random_treasure
+no_pick 1
+randomitems random_read
+end
+end
+arch floor_wood2_l1
+x 8
+y 9
+end
+arch floor_wood2_l1
+x 8
+y 10
+end
+arch shelf3c.111
+direction 7
+x 8
+y 10
+arch random_treasure
+no_pick 1
+randomitems random_read
+end
+end
+arch floor_wood2_l1
+x 8
+y 11
+end
+arch shelf3c.111
+direction 7
+x 8
+y 11
+arch random_treasure
+no_pick 1
+randomitems random_read
+end
+end
+arch floor_wood2_l1
+x 8
+y 12
+end
+arch shelf3c.111
+direction 7
+x 8
+y 12
+arch random_treasure
+no_pick 1
+randomitems random_read
+end
+end
+arch floor_wood2_l1
+x 8
+y 13
+end
+arch wall_flagstone1.111
+x 8
+y 13
+end
+arch blocked
+x 9
+y 2
+end
+arch wall_flagstone1b.111
+x 9
+y 2
+end
+arch floor_wood2_l1
+x 9
+y 3
+end
+arch floor_wood2_l1
+x 9
+y 4
+end
+arch floor_wood2_l1
+x 9
+y 5
+end
+arch floor_wood2_l1
+x 9
+y 6
+end
+arch floor_wood2_l1
+x 9
+y 7
+end
+arch wall_flagstone1.111
+x 9
+y 7
+end
+arch floor_wood2_l1
+x 9
+y 8
+end
+arch shelf1.111
+name Library Catalog
+x 9
+y 8
+arch catalog_touhou
+end
+end
+arch floor_wood2_l1
+x 9
+y 9
+end
+arch floor_wood2_l1
+x 9
+y 10
+end
+arch wall_flagstone1.131
+x 9
+y 10
+end
+arch floor_wood2_l1
+x 9
+y 11
+end
+arch wall_flagstone1.131
+x 9
+y 11
+end
+arch floor_wood2_l1
+x 9
+y 12
+end
+arch wall_flagstone1.131
+x 9
+y 12
+end
+arch floor_wood2_l1
+x 9
+y 13
+end
+arch wall_flagstone1.141
+x 9
+y 13
+end
+arch blocked
+x 10
+y 2
+end
+arch wall_flagstone1b.111
+x 10
+y 2
+end
+arch floor_wood2_l1
+x 10
+y 3
+end
+arch fwall_fstone2
+x 10
+y 3
+end
+arch floor_wood2_l1
+x 10
+y 4
+end
+arch fwall_fstone2
+x 10
+y 4
+end
+arch floor_wood2_l1
+x 10
+y 5
+end
+arch announcement
+msg
+Please return all books by the New Moon.
+endmsg
+x 10
+y 5
+end
+arch floor_wood2_l1
+x 10
+y 6
+end
+arch floor_wood2_l1
+x 10
+y 7
+end
+arch wall_flagstone1.111
+x 10
+y 7
+end
+arch floor_wood2_l1
+x 10
+y 8
+end
+arch shelf1_wall.111
+x 10
+y 8
+arch random_treasure
+no_pick 1
+randomitems random_read
+end
+end
+arch floor_wood2_l1
+x 10
+y 9
+end
+arch floor_wood2_l1
+x 10
+y 10
+end
+arch shelf3c.111
+direction 7
+x 10
+y 10
+arch book_touhou_12_8
+end
+arch book_touhou_12_5
+end
+arch book_touhou_12_3
+end
+arch book_touhou_12
+end
+arch book_touhou_11
+end
+arch book_touhou_10_5
+end
+arch book_touhou_10
+end
+arch book_touhou_09_5
+end
+arch book_touhou_09
+end
+arch book_touhou_08
+end
+arch book_touhou_07_5
+end
+arch book_touhou_07
+end
+arch book_touhou_06
+end
+arch book_touhou_05
+end
+arch book_touhou_04
+end
+arch book_touhou_03
+end
+arch book_touhou_02
+end
+arch book_touhou_01
+end
+end
+arch floor_wood2_l1
+x 10
+y 11
+end
+arch shelf3c.111
+direction 7
+x 10
+y 11
+arch book_yukkuri
+end
+end
+arch floor_wood2_l1
+x 10
+y 12
+end
+arch shelf3b.111
+direction 7
+x 10
+y 12
+arch book
+name Eastern Project Music Book
+face tome_glitter.101
+no_pick 1
+arch event_obj
+sub_type 6
+race scripts/strakewood_island/centennial/th_music_book.py
+end
+arch event_obj
+sub_type 1
+race scripts/strakewood_island/centennial/th_music_book.py
+end
+end
+end
+arch floor_wood2_l1
+x 10
+y 13
+end
+arch wall_flagstone1.111
+x 10
+y 13
+end
+arch blocked
+x 11
+y 2
+end
+arch wall_flagstone1b.111
+x 11
+y 2
+end
+arch floor_wood2_l1
+x 11
+y 3
+end
+arch stairs_wood_up2
+direction 5
+slaying world_0_52
+hp 10
+sp 3
+x 11
+y 3
+end
+arch light2
+x 11
+y 3
+end
+arch floor_wood2_l1
+x 11
+y 4
+end
+arch stairs_wood_up
+direction 5
+slaying world_0_52
+hp 10
+sp 3
+x 11
+y 4
+end
+arch floor_wood2_l1
+x 11
+y 5
+end
+arch floor_wood2_l1
+x 11
+y 6
+end
+arch floor_wood2_l1
+x 11
+y 7
+end
+arch wall_flagstone1.111
+x 11
+y 7
+end
+arch floor_wood2_l1
+x 11
+y 8
+end
+arch shelf5_wall.111
+x 11
+y 8
+arch random_treasure
+no_pick 1
+randomitems random_read
+end
+end
+arch floor_wood2_l1
+x 11
+y 9
+end
+arch floor_wood2_l1
+x 11
+y 10
+end
+arch floor_wood2_l1
+x 11
+y 11
+end
+arch light5
+x 11
+y 11
+end
+arch floor_wood2_l1
+x 11
+y 12
+end
+arch floor_wood2_l1
+x 11
+y 13
+end
+arch wall_flagstone1.111
+x 11
+y 13
+end
+arch blocked
+x 12
+y 2
+end
+arch wall_flagstone1b.111
+x 12
+y 2
+end
+arch floor_wood2_l1
+x 12
+y 3
+end
+arch wall_flagstone1.131
+x 12
+y 3
+end
+arch floor_wood2_l1
+x 12
+y 4
+end
+arch wall_flagstone1.131
+x 12
+y 4
+end
+arch floor_wood2_l1
+x 12
+y 5
+end
+arch wall_flagstone1.131
+x 12
+y 5
+end
+arch floor_wood2_l1
+x 12
+y 6
+end
+arch wall_flagstone1.131
+x 12
+y 6
+end
+arch floor_wood2_l1
+x 12
+y 7
+end
+arch wall_flagstone1.141
+x 12
+y 7
+end
+arch floor_wood2_l1
+x 12
+y 8
+end
+arch wall_flagstone1.131
+x 12
+y 8
+end
+arch floor_wood2_l1
+x 12
+y 9
+end
+arch wall_flagstone1.131
+x 12
+y 9
+end
+arch floor_wood2_l1
+x 12
+y 10
+end
+arch wall_flagstone1.131
+x 12
+y 10
+end
+arch floor_wood2_l1
+x 12
+y 11
+end
+arch wall_flagstone1.131
+x 12
+y 11
+end
+arch floor_wood2_l1
+x 12
+y 12
+end
+arch wall_flagstone1.131
+x 12
+y 12
+end
+arch floor_wood2_l1
+x 12
+y 13
+end
+arch wall_flagstone1.141
+x 12
+y 13
+end

@@ -1,0 +1,1136 @@
+arch map
+name Morliana
+msg
+Created:  2010-12-08 Alex Tokar
+Modified: 2015-04-19 Alex Tokar
+endmsg
+width 24
+height 24
+difficulty 20
+darkness -1
+no_harm 1
+bg_music campfire_tales.mid
+region morliana
+end
+arch roof_brick
+direction 3
+end
+arch roof_brick
+direction 3
+y 1
+end
+arch roof_wood
+direction 3
+y 6
+end
+arch roof_wood
+direction 3
+y 7
+end
+arch roof_wood
+direction 3
+y 8
+end
+arch roof_wood
+direction 3
+y 9
+end
+arch roof_wood
+direction 3
+y 10
+end
+arch roof_wood
+direction 3
+y 11
+end
+arch roof_wood
+direction 3
+y 12
+end
+arch roof_wood
+direction 3
+y 13
+end
+arch roof_wood
+direction 3
+y 14
+end
+arch roof_wood
+direction 3
+y 15
+end
+arch roof_wood
+direction 3
+y 16
+end
+arch roof_brick
+direction 5
+y 23
+end
+arch roof_brick
+x 1
+end
+arch roof_brick
+x 1
+y 1
+end
+arch roof_wood
+direction 5
+x 1
+y 5
+end
+arch roof_wood
+direction 7
+x 1
+y 6
+end
+arch roof_wood
+direction 7
+x 1
+y 7
+end
+arch roof_wood
+direction 7
+x 1
+y 8
+end
+arch roof_wood
+direction 7
+x 1
+y 9
+end
+arch roof_wood
+direction 7
+x 1
+y 10
+end
+arch roof_wood
+direction 8
+x 1
+y 11
+end
+arch roof_wood
+x 1
+y 12
+end
+arch roof_wood
+x 1
+y 13
+end
+arch roof_wood
+x 1
+y 14
+end
+arch roof_wood
+x 1
+y 15
+end
+arch roof_wood
+x 1
+y 16
+end
+arch roof_brick
+direction 5
+x 1
+y 23
+end
+arch roof_brick
+x 2
+end
+arch roof_brick
+x 2
+y 1
+end
+arch roof_wood
+direction 5
+x 2
+y 5
+end
+arch roof_wood
+direction 7
+x 2
+y 6
+end
+arch roof_wood
+direction 7
+x 2
+y 7
+end
+arch roof_wood
+direction 7
+x 2
+y 8
+end
+arch roof_wood
+direction 7
+x 2
+y 9
+end
+arch roof_wood
+direction 7
+x 2
+y 10
+end
+arch roof_wood
+direction 7
+x 2
+y 11
+end
+arch roof_wood
+direction 8
+x 2
+y 12
+end
+arch roof_wood
+x 2
+y 13
+end
+arch roof_wood
+x 2
+y 14
+end
+arch roof_wood
+x 2
+y 15
+end
+arch roof_wood
+x 2
+y 16
+end
+arch roof_brick
+direction 5
+x 2
+y 23
+end
+arch roof_brick
+x 3
+end
+arch roof_brick
+x 3
+y 1
+end
+arch roof_wood
+direction 5
+x 3
+y 5
+end
+arch roof_wood
+direction 7
+x 3
+y 6
+end
+arch roof_wood
+direction 7
+x 3
+y 7
+end
+arch roof_wood
+direction 7
+x 3
+y 8
+end
+arch roof_wood
+direction 7
+x 3
+y 9
+end
+arch roof_wood
+direction 7
+x 3
+y 10
+end
+arch roof_wood
+direction 7
+x 3
+y 11
+end
+arch roof_wood
+direction 7
+x 3
+y 12
+end
+arch roof_wood
+direction 8
+x 3
+y 13
+end
+arch roof_wood
+x 3
+y 14
+end
+arch roof_wood
+x 3
+y 15
+end
+arch roof_wood
+x 3
+y 16
+end
+arch roof_brick
+direction 5
+x 3
+y 23
+end
+arch roof_brick
+x 4
+end
+arch roof_brick
+x 4
+y 1
+end
+arch roof_wood
+direction 5
+x 4
+y 5
+end
+arch roof_wood
+direction 7
+x 4
+y 6
+end
+arch roof_wood
+direction 7
+x 4
+y 7
+end
+arch roof_wood
+direction 7
+x 4
+y 8
+end
+arch roof_wood
+direction 7
+x 4
+y 9
+end
+arch roof_wood
+direction 7
+x 4
+y 10
+end
+arch roof_wood
+direction 7
+x 4
+y 11
+end
+arch roof_wood
+direction 7
+x 4
+y 12
+end
+arch roof_wood
+direction 7
+x 4
+y 13
+end
+arch roof_wood
+direction 8
+x 4
+y 14
+end
+arch roof_wood
+x 4
+y 15
+end
+arch roof_wood
+x 4
+y 16
+end
+arch roof_brick
+direction 5
+x 4
+y 23
+end
+arch roof_brick
+direction 8
+x 5
+end
+arch roof_brick
+x 5
+y 1
+end
+arch roof_wood
+direction 5
+x 5
+y 5
+end
+arch roof_wood
+direction 7
+x 5
+y 6
+end
+arch roof_wood
+direction 7
+x 5
+y 7
+end
+arch roof_wood
+direction 7
+x 5
+y 8
+end
+arch roof_wood
+direction 7
+x 5
+y 9
+end
+arch roof_wood
+direction 7
+x 5
+y 10
+end
+arch roof_wood
+direction 7
+x 5
+y 11
+end
+arch roof_wood
+direction 7
+x 5
+y 12
+end
+arch roof_wood
+direction 7
+x 5
+y 13
+end
+arch roof_wood
+direction 7
+x 5
+y 14
+end
+arch roof_wood
+direction 8
+x 5
+y 15
+end
+arch roof_wood
+x 5
+y 16
+end
+arch roof_brick
+direction 5
+x 5
+y 23
+end
+arch roof_brick
+direction 7
+x 6
+end
+arch roof_brick
+direction 8
+x 6
+y 1
+end
+arch roof_wood
+direction 5
+x 6
+y 5
+end
+arch roof_wood
+direction 7
+x 6
+y 6
+end
+arch roof_wood
+direction 7
+x 6
+y 7
+end
+arch roof_wood
+direction 7
+x 6
+y 8
+end
+arch roof_wood
+direction 7
+x 6
+y 9
+end
+arch roof_wood
+direction 7
+x 6
+y 10
+end
+arch roof_wood
+direction 7
+x 6
+y 11
+end
+arch roof_wood
+direction 7
+x 6
+y 12
+end
+arch roof_wood
+direction 7
+x 6
+y 13
+end
+arch roof_wood
+direction 7
+x 6
+y 14
+end
+arch roof_wood
+direction 7
+x 6
+y 15
+end
+arch roof_wood
+direction 8
+x 6
+y 16
+end
+arch trans
+x 13
+y 9
+end
+arch wall_stone11_8
+x 13
+y 9
+end
+arch map_info
+name morliana_smith
+hp 6
+sp 6
+cursed 1
+x 13
+y 9
+end
+arch trans
+x 13
+y 10
+end
+arch wall_stone11_3
+x 13
+y 10
+end
+arch trans
+x 13
+y 11
+end
+arch wall_stone11_w.131
+x 13
+y 11
+end
+arch trans
+x 13
+y 12
+end
+arch wall_stone11_3
+x 13
+y 12
+end
+arch flag_03
+direction 7
+x 13
+y 12
+end
+arch trans
+x 13
+y 13
+end
+arch wall_stone11_3
+x 13
+y 13
+end
+arch trans
+x 13
+y 14
+end
+arch wall_stone11_3
+x 13
+y 14
+end
+arch trans
+x 13
+y 15
+end
+arch wall_stone11_3
+x 13
+y 15
+end
+arch roof_brick_brown
+direction 3
+x 13
+y 16
+end
+arch roof_brick_brown
+direction 3
+x 13
+y 17
+end
+arch roof_brick_brown
+direction 3
+x 13
+y 18
+end
+arch trans
+x 14
+y 9
+end
+arch wall_stone11_1
+x 14
+y 9
+end
+arch floor_ostone10
+x 14
+y 10
+end
+arch shop_mat
+x 14
+y 10
+end
+arch floor_ostone10
+x 14
+y 11
+end
+arch floor_ostone10
+x 14
+y 12
+end
+arch floor_ostone10
+x 14
+y 13
+end
+arch stairs_wood_down
+direction 5
+x 14
+y 13
+end
+arch floor_ostone10
+x 14
+y 14
+end
+arch stairs_down
+x 14
+y 14
+end
+arch floor_ostone10
+x 14
+y 15
+end
+arch wall_stone11_1
+x 14
+y 15
+end
+arch trans
+x 14
+y 16
+end
+arch wall_stone11_w.131
+x 14
+y 16
+end
+arch map_info
+name morliana_smith
+hp 5
+sp 2
+cursed 1
+x 14
+y 16
+end
+arch trans
+x 14
+y 17
+end
+arch wall_stone11_3
+x 14
+y 17
+end
+arch picture7
+direction 7
+x 14
+y 17
+end
+arch trans
+x 14
+y 18
+end
+arch roof_brick_brown
+x 14
+y 18
+end
+arch wall_stone11_3
+sub_layer 1
+x 14
+y 18
+end
+arch trans
+x 15
+y 9
+end
+arch wall_stone11_1
+x 15
+y 9
+end
+arch floor_ostone10
+x 15
+y 10
+end
+arch grate1_3
+x 15
+y 10
+end
+arch floor_ostone10
+x 15
+y 11
+end
+arch grate1_3
+x 15
+y 11
+end
+arch floor_ostone10
+x 15
+y 12
+end
+arch grate1_3
+x 15
+y 12
+end
+arch floor_ostone10
+x 15
+y 13
+end
+arch grate1_3
+x 15
+y 13
+end
+arch floor_ostone10
+x 15
+y 14
+end
+arch grate1_3
+x 15
+y 14
+end
+arch floor_ostone10
+x 15
+y 15
+end
+arch grate1_3
+x 15
+y 15
+end
+arch grate1_1
+sub_layer 1
+x 15
+y 15
+end
+arch floor_ostone10
+auto_apply 1
+cursed 1
+randomitems random_potion
+exp 75
+no_magic 1
+type 68
+x 15
+y 16
+end
+arch floor_ostone10
+auto_apply 1
+cursed 1
+damned 1
+randomitems random_talisman
+exp 20
+no_magic 1
+type 68
+x 15
+y 17
+end
+arch floor_ostone10
+x 15
+y 18
+end
+arch wall_stone11_1
+x 15
+y 18
+end
+arch trans
+x 16
+y 9
+end
+arch wall_stone11_1
+x 16
+y 9
+end
+arch floor_ostone10
+no_magic 1
+type 68
+x 16
+y 10
+end
+arch shop_mat
+x 16
+y 10
+end
+arch floor_ostone10
+auto_apply 1
+cursed 1
+randomitems random_container
+exp 5
+no_magic 1
+type 68
+x 16
+y 11
+end
+arch floor_ostone10
+auto_apply 1
+cursed 1
+damned 1
+randomitems random_equipment
+exp 20
+no_magic 1
+type 68
+x 16
+y 12
+end
+arch floor_ostone10
+auto_apply 1
+cursed 1
+damned 1
+randomitems random_equipment
+exp 20
+no_magic 1
+type 68
+x 16
+y 13
+end
+arch floor_ostone10
+auto_apply 1
+cursed 1
+damned 1
+randomitems random_equipment
+exp 20
+no_magic 1
+type 68
+x 16
+y 14
+end
+arch floor_ostone10
+auto_apply 1
+cursed 1
+damned 1
+randomitems random_equipment
+exp 20
+no_magic 1
+type 68
+x 16
+y 15
+end
+arch floor_ostone10
+auto_apply 1
+cursed 1
+damned 1
+randomitems random_equipment
+exp 20
+no_magic 1
+type 68
+x 16
+y 16
+end
+arch floor_ostone10
+auto_apply 1
+cursed 1
+randomitems random_gem
+exp 40
+no_magic 1
+type 68
+x 16
+y 17
+end
+arch floor_ostone10
+x 16
+y 18
+end
+arch wall_stone11_w.111
+x 16
+y 18
+end
+arch trans
+x 17
+y 9
+end
+arch wall_stone11_1
+x 17
+y 9
+end
+arch flag_02
+x 17
+y 9
+end
+arch floor_ostone10
+auto_apply 1
+cursed 1
+randomitems random_container
+exp 5
+no_magic 1
+type 68
+x 17
+y 10
+end
+arch floor_ostone10
+auto_apply 1
+cursed 1
+randomitems random_container
+exp 5
+no_magic 1
+type 68
+x 17
+y 11
+end
+arch floor_ostone10
+auto_apply 1
+cursed 1
+damned 1
+randomitems random_equipment
+exp 20
+no_magic 1
+type 68
+x 17
+y 12
+end
+arch floor_ostone10
+auto_apply 1
+cursed 1
+damned 1
+randomitems random_equipment
+exp 20
+no_magic 1
+type 68
+x 17
+y 13
+end
+arch floor_ostone10
+auto_apply 1
+cursed 1
+damned 1
+randomitems random_equipment
+exp 20
+no_magic 1
+type 68
+x 17
+y 14
+end
+arch floor_ostone10
+auto_apply 1
+cursed 1
+damned 1
+randomitems random_equipment
+exp 20
+no_magic 1
+type 68
+x 17
+y 15
+end
+arch floor_ostone10
+auto_apply 1
+cursed 1
+damned 1
+randomitems random_equipment
+exp 20
+no_magic 1
+type 68
+x 17
+y 16
+end
+arch floor_ostone10
+auto_apply 1
+cursed 1
+randomitems random_gem
+exp 30
+no_magic 1
+type 68
+x 17
+y 17
+end
+arch floor_ostone10
+x 17
+y 18
+end
+arch wall_stone11_w.111
+x 17
+y 18
+end
+arch trans
+x 18
+y 9
+end
+arch wall_stone11_1
+x 18
+y 9
+end
+arch floor_ostone10
+auto_apply 1
+cursed 1
+randomitems random_container
+exp 5
+no_magic 1
+type 68
+x 18
+y 10
+end
+arch floor_ostone10
+auto_apply 1
+cursed 1
+randomitems random_container
+exp 5
+no_magic 1
+type 68
+x 18
+y 11
+end
+arch floor_ostone10
+auto_apply 1
+cursed 1
+damned 1
+randomitems random_equipment
+exp 20
+no_magic 1
+type 68
+x 18
+y 12
+end
+arch floor_ostone10
+auto_apply 1
+cursed 1
+damned 1
+randomitems random_equipment
+exp 20
+no_magic 1
+type 68
+x 18
+y 13
+end
+arch floor_ostone10
+auto_apply 1
+cursed 1
+damned 1
+randomitems random_equipment
+exp 20
+no_magic 1
+type 68
+x 18
+y 14
+end
+arch floor_ostone10
+auto_apply 1
+cursed 1
+damned 1
+randomitems random_equipment
+exp 20
+no_magic 1
+type 68
+x 18
+y 15
+end
+arch floor_ostone10
+auto_apply 1
+cursed 1
+damned 1
+randomitems random_equipment
+exp 20
+no_magic 1
+type 68
+x 18
+y 16
+end
+arch floor_ostone10
+auto_apply 1
+cursed 1
+randomitems random_gem
+exp 30
+no_magic 1
+type 68
+x 18
+y 17
+end
+arch floor_ostone10
+x 18
+y 18
+end
+arch wall_stone11_1
+x 18
+y 18
+end
+arch trans
+x 19
+y 9
+end
+arch wall_stone11_1
+x 19
+y 9
+end
+arch floor_ostone10
+x 19
+y 10
+end
+arch wall_stone11_3
+x 19
+y 10
+end
+arch floor_ostone10
+x 19
+y 11
+end
+arch wall_stone11_w.131
+x 19
+y 11
+end
+arch floor_ostone10
+x 19
+y 12
+end
+arch wall_stone11_3
+x 19
+y 12
+end
+arch floor_ostone10
+x 19
+y 13
+end
+arch wall_stone11_3
+x 19
+y 13
+end
+arch floor_ostone10
+x 19
+y 14
+end
+arch wall_stone11_3
+x 19
+y 14
+end
+arch floor_ostone10
+x 19
+y 15
+end
+arch wall_stone11_3
+x 19
+y 15
+end
+arch floor_ostone10
+x 19
+y 16
+end
+arch wall_stone11_w.131
+x 19
+y 16
+end
+arch floor_ostone10
+x 19
+y 17
+end
+arch wall_stone11_3
+x 19
+y 17
+end
+arch floor_ostone10
+x 19
+y 18
+end
+arch wall_stone11_4
+x 19
+y 18
+end

@@ -1,0 +1,1091 @@
+arch map
+name Brynknot
+msg
+Created:  2011-02-06 Alex Tokar
+Modified: 2014-12-28 Alex Tokar
+endmsg
+width 24
+height 24
+difficulty 20
+darkness -1
+outdoor 1
+no_harm 1
+fixed_resettime 1
+bg_music town_music.ogg
+region brynknot
+end
+arch trans
+y 4
+end
+arch wall_marble1w2.131
+y 4
+end
+arch map_info
+hp 8
+sp 6
+name brynknot_church
+cursed 1
+y 4
+end
+arch map_info
+hp 3
+sp 4
+name brynknot_church
+damned 1
+y 5
+end
+arch trans
+y 10
+end
+arch wall_marble1w2.131
+y 10
+end
+arch trans
+y 13
+end
+arch wall_wood_8
+y 13
+end
+arch map_info
+hp 8
+sp 9
+name brynknot_library
+cursed 1
+y 13
+end
+arch trans
+y 14
+end
+arch wall_wood3_3
+y 14
+end
+arch trans
+y 15
+end
+arch wall_wood3_3
+y 15
+end
+arch flag_03
+direction 7
+y 15
+end
+arch trans
+y 16
+end
+arch wall_wood3_3
+y 16
+end
+arch trans
+y 17
+end
+arch wall_wood_3
+y 17
+end
+arch trans
+y 18
+end
+arch wall_wood_3
+y 18
+end
+arch trans
+y 19
+end
+arch wall_wood3_3
+y 19
+end
+arch trans
+y 20
+end
+arch wall_wood_3
+y 20
+end
+arch trans
+y 21
+end
+arch wall_wood_3
+y 21
+end
+arch trans
+y 22
+end
+arch wall_wood2_3
+y 22
+end
+arch trans
+x 1
+y 4
+end
+arch wall_marble1.131
+x 1
+y 4
+end
+arch trans
+x 1
+y 10
+end
+arch wall_marble1.131a
+x 1
+y 10
+end
+arch trans
+x 1
+y 13
+end
+arch wall_wood_1
+x 1
+y 13
+end
+arch picture2.151
+x 1
+y 13
+end
+arch floor_wood2_l2
+x 1
+y 14
+end
+arch broom.111
+direction 6
+x 1
+y 14
+end
+arch floor_wood2_l2
+x 1
+y 15
+end
+arch stairs_wood_down
+direction 5
+x 1
+y 15
+end
+arch floor_wood2_l2
+x 1
+y 16
+end
+arch stairs_down
+x 1
+y 16
+end
+arch floor_wood2_l1
+x 1
+y 17
+end
+arch fwall_wood1a
+x 1
+y 17
+end
+arch floor_wood2_l1
+x 1
+y 18
+end
+arch shelf3a.111
+direction 7
+x 1
+y 18
+arch random_treasure
+no_pick 1
+randomitems random_read
+end
+end
+arch lamp_wall
+align 4
+x 1
+y 18
+end
+arch floor_wood2_l2
+x 1
+y 19
+end
+arch shelf3c.111
+direction 7
+x 1
+y 19
+arch random_treasure
+no_pick 1
+randomitems random_read
+end
+end
+arch floor_wood2_l2
+x 1
+y 20
+end
+arch shelf3b.111
+direction 7
+x 1
+y 20
+arch random_treasure
+no_pick 1
+randomitems random_read
+end
+end
+arch floor_wood2_l1
+x 1
+y 21
+end
+arch shelf3a.111
+direction 7
+x 1
+y 21
+arch random_treasure
+no_pick 1
+randomitems random_read
+end
+arch random_treasure
+no_pick 1
+randomitems random_read
+end
+end
+arch floor_wood2_l1
+x 1
+y 22
+end
+arch wall_wood3_1
+x 1
+y 22
+end
+arch trans
+x 2
+y 4
+end
+arch wall_marble1.131
+x 2
+y 4
+end
+arch trans
+x 2
+y 10
+end
+arch wall_marble1.131a
+x 2
+y 10
+end
+arch trans
+x 2
+y 13
+end
+arch wall_wood2_1
+x 2
+y 13
+end
+arch floor_wood2_l2
+x 2
+y 14
+end
+arch doorway_wood1_1
+direction 7
+x 2
+y 14
+end
+arch floor_wood2_l2
+x 2
+y 15
+end
+arch wall_wood2_3
+x 2
+y 15
+end
+arch wmask_bflag_fire1_1
+direction 7
+x 2
+y 15
+end
+arch floor_wood2_l1
+x 2
+y 16
+end
+arch wall_wood3_3
+x 2
+y 16
+end
+arch floor_wood2_l2
+x 2
+y 17
+end
+arch fwall_wood1b
+x 2
+y 17
+end
+arch floor_wood2_l1
+x 2
+y 18
+end
+arch shelf3a.111
+x 2
+y 18
+arch random_treasure
+no_pick 1
+randomitems random_read
+end
+arch random_treasure
+no_pick 1
+randomitems random_read
+end
+end
+arch floor_wood2_l1
+x 2
+y 19
+end
+arch floor_wood2_l2
+x 2
+y 20
+end
+arch floor_wood2_l1
+x 2
+y 21
+end
+arch floor_wood2_l2
+x 2
+y 22
+end
+arch wall_wood2_1
+x 2
+y 22
+end
+arch trans
+x 3
+y 4
+end
+arch wall_marble1w2.131
+x 3
+y 4
+end
+arch trans
+x 3
+y 10
+end
+arch wall_marble1w2.131
+x 3
+y 10
+end
+arch trans
+x 3
+y 13
+end
+arch wall_wood3_1
+x 3
+y 13
+end
+arch picture1.151
+x 3
+y 13
+end
+arch floor_wood2_l1
+x 3
+y 14
+end
+arch floor_wood2_l2
+x 3
+y 15
+end
+arch floor_wood2_l2
+x 3
+y 16
+end
+arch desk2
+direction 7
+x 3
+y 16
+arch event_obj
+msg
+[yellow]You rummage through the notes in the desk's drawers, but find nothing of interest.[/yellow]
+endmsg
+sub_type 1
+race /python/events/trigger/message.py
+end
+arch note
+no_pick 1
+end
+arch note
+no_pick 1
+end
+arch note
+no_pick 1
+end
+arch note
+no_pick 1
+end
+arch note
+no_pick 1
+end
+arch note
+no_pick 1
+end
+arch note
+no_pick 1
+end
+end
+arch floor_wood2_l1
+x 3
+y 17
+end
+arch wall_wood2_1
+x 3
+y 17
+end
+arch floor_wood2_l1
+x 3
+y 18
+end
+arch shelf3c.111
+x 3
+y 18
+arch random_treasure
+no_pick 1
+randomitems random_read
+end
+end
+arch floor_wood2_l1
+x 3
+y 19
+end
+arch floor_wood2_l2
+x 3
+y 20
+end
+arch floor_wood2_l2
+x 3
+y 21
+end
+arch floor_wood2_l2
+x 3
+y 22
+end
+arch wall_wood_w_1
+x 3
+y 22
+end
+arch trans
+x 4
+y 4
+end
+arch wall_marble1.131a
+x 4
+y 4
+end
+arch trans
+x 4
+y 5
+end
+arch fence_metal.131
+x 4
+y 5
+end
+arch trans
+x 4
+y 6
+end
+arch fence_metal.131
+x 4
+y 6
+end
+arch trans
+x 4
+y 7
+end
+arch fence_metal.131
+x 4
+y 7
+end
+arch trans
+x 4
+y 8
+end
+arch fence_metal.131
+x 4
+y 8
+end
+arch trans
+x 4
+y 9
+end
+arch fence_metal.131
+x 4
+y 9
+end
+arch fence_metal.131
+sub_layer 1
+align -24
+z -12
+x 4
+y 9
+end
+arch trans
+x 4
+y 10
+end
+arch wall_marble1.131
+x 4
+y 10
+end
+arch trans
+x 4
+y 13
+end
+arch wall_wood_1
+x 4
+y 13
+end
+arch floor_wood2_l1
+x 4
+y 14
+end
+arch lamp_wall
+x 4
+y 14
+end
+arch floor_wood2_l2
+x 4
+y 15
+end
+arch floor_wood2_l1
+x 4
+y 16
+end
+arch floor_wood2_l2
+x 4
+y 17
+end
+arch wall_wood_1
+x 4
+y 17
+end
+arch floor_wood2_l1
+x 4
+y 18
+end
+arch shelf3a.111
+x 4
+y 18
+arch random_treasure
+no_pick 1
+randomitems random_read
+end
+end
+arch floor_wood2_l2
+x 4
+y 19
+end
+arch floor_wood2_l2
+x 4
+y 20
+end
+arch wall_wood2_1
+x 4
+y 20
+end
+arch floor_wood2_l1
+x 4
+y 21
+end
+arch fwall_wood1b
+x 4
+y 21
+end
+arch floor_wood2_l2
+x 4
+y 22
+end
+arch fwall_wood1c
+x 4
+y 22
+end
+arch trans
+x 5
+y 4
+end
+arch wall_marble1.131
+x 5
+y 4
+end
+arch floor_marble1a
+x 5
+y 5
+end
+arch ladder_up
+x 5
+y 5
+end
+arch floor_marble1
+x 5
+y 6
+end
+arch floor_marble1b
+x 5
+y 7
+end
+arch floor_marble1
+x 5
+y 8
+end
+arch floor_marble1
+x 5
+y 9
+end
+arch stairs_down
+x 5
+y 9
+end
+arch floor_marble1
+x 5
+y 10
+end
+arch wall_marble1.131a
+x 5
+y 10
+end
+arch trans
+x 5
+y 13
+end
+arch wall_wood_1
+x 5
+y 13
+end
+arch floor_wood2_l2
+x 5
+y 14
+end
+arch shelf3a.111
+x 5
+y 14
+arch random_treasure
+no_pick 1
+randomitems random_read
+end
+arch random_treasure
+no_pick 1
+randomitems random_read
+end
+arch random_treasure
+no_pick 1
+randomitems random_read
+end
+end
+arch floor_wood2_l2
+x 5
+y 15
+end
+arch floor_wood2_l1
+x 5
+y 16
+end
+arch floor_wood2_l1
+x 5
+y 17
+end
+arch wall_wood2_1
+x 5
+y 17
+end
+arch floor_wood2_l1
+x 5
+y 18
+end
+arch shelf3b.111
+x 5
+y 18
+arch random_treasure
+no_pick 1
+randomitems random_read
+end
+end
+arch floor_wood2_l2
+x 5
+y 19
+end
+arch floor_wood2_l1
+x 5
+y 20
+end
+arch wall_wood_1
+blocksview 0
+draw_double 0
+x 5
+y 20
+end
+arch floor_wood2_l2
+x 5
+y 21
+end
+arch stairs_wood_up2
+x 5
+y 21
+end
+arch floor_wood2_l1
+x 5
+y 22
+end
+arch fwall_wood1b
+x 5
+y 22
+end
+arch trans
+x 6
+y 4
+end
+arch wall_marble1w2.131
+x 6
+y 4
+end
+arch floor_marble1
+x 6
+y 5
+end
+arch floor_marble1a
+x 6
+y 6
+end
+arch light3
+x 6
+y 6
+end
+arch floor_marble1
+x 6
+y 7
+end
+arch floor_marble1a
+x 6
+y 8
+end
+arch light3
+x 6
+y 8
+end
+arch floor_marble1
+x 6
+y 9
+end
+arch stairs_stone_down
+direction 7
+x 6
+y 9
+end
+arch floor_marble1b
+x 6
+y 10
+end
+arch wall_marble1w2.131
+x 6
+y 10
+end
+arch trans
+x 6
+y 13
+end
+arch wall_wood_1
+x 6
+y 13
+end
+arch floor_wood2_l2
+x 6
+y 14
+end
+arch shelf3b.111
+x 6
+y 14
+arch random_treasure
+no_pick 1
+randomitems random_read
+end
+end
+arch floor_wood2_l2
+x 6
+y 15
+end
+arch floor_wood2_l2
+x 6
+y 16
+end
+arch floor_wood2_l1
+x 6
+y 17
+end
+arch doorway_wood1_1
+x 6
+y 17
+end
+arch floor_wood2_l2
+x 6
+y 18
+end
+arch floor_wood2_l1
+x 6
+y 19
+end
+arch floor_wood2_l1
+x 6
+y 20
+end
+arch floor_wood2_l1
+x 6
+y 21
+end
+arch stairs_wood_up
+x 6
+y 21
+end
+arch floor_wood2_l2
+x 6
+y 22
+end
+arch lamp_wall
+direction 7
+x 6
+y 22
+end
+arch wall_wood_w_1
+sub_layer 1
+x 6
+y 22
+end
+arch trans
+x 7
+y 4
+end
+arch wall_marble1.131a
+x 7
+y 4
+end
+arch floor_marble1
+x 7
+y 5
+end
+arch floor_marble1
+x 7
+y 6
+end
+arch floor_marble1b
+x 7
+y 7
+end
+arch floor_marble1
+x 7
+y 8
+end
+arch floor_marble1b
+x 7
+y 9
+end
+arch floor_marble1a
+x 7
+y 10
+end
+arch wall_marble1.131
+x 7
+y 10
+end
+arch trans
+x 7
+y 13
+end
+arch wall_wood_1
+x 7
+y 13
+end
+arch floor_wood2_l2
+x 7
+y 14
+end
+arch shelf3c.111
+x 7
+y 14
+arch random_treasure
+no_pick 1
+randomitems random_read
+end
+end
+arch floor_wood2_l2
+x 7
+y 15
+end
+arch floor_wood2_l1
+x 7
+y 16
+end
+arch floor_wood2_l1
+x 7
+y 17
+end
+arch wall_wood_1
+x 7
+y 17
+end
+arch floor_wood2_l1
+x 7
+y 18
+end
+arch shelf5_wall.111
+x 7
+y 18
+arch random_treasure
+no_pick 1
+randomitems random_read
+end
+arch random_treasure
+no_pick 1
+randomitems random_read
+end
+end
+arch floor_wood2_l1
+x 7
+y 19
+end
+arch floor_wood2_l1
+x 7
+y 20
+end
+arch floor_wood2_l2
+x 7
+y 21
+end
+arch floor_wood2_l2
+x 7
+y 22
+end
+arch wall_wood3_1
+x 7
+y 22
+end
+arch trans
+x 8
+y 4
+end
+arch wall_marble1.131a
+x 8
+y 4
+end
+arch floor_marble1
+x 8
+y 5
+end
+arch wall_marble1.111a
+x 8
+y 5
+end
+arch floor_marble1a
+x 8
+y 6
+end
+arch wall_marble1w2.111
+x 8
+y 6
+end
+arch floor_marble1a
+x 8
+y 7
+end
+arch wall_marble1.111a
+x 8
+y 7
+end
+arch floor_marble1a
+x 8
+y 8
+end
+arch wall_marble1.111a
+x 8
+y 8
+end
+arch floor_marble1a
+x 8
+y 9
+end
+arch wall_marble1w2.111
+x 8
+y 9
+end
+arch floor_marble1
+x 8
+y 10
+end
+arch wall_marble1.141
+x 8
+y 10
+end
+arch trans
+x 8
+y 13
+end
+arch wall_wood3_1
+x 8
+y 13
+end
+arch floor_wood2_l2
+x 8
+y 14
+end
+arch wall_wood3_3
+x 8
+y 14
+end
+arch floor_wood2_l1
+x 8
+y 15
+end
+arch wall_wood_3
+x 8
+y 15
+end
+arch floor_wood2_l2
+x 8
+y 16
+end
+arch wall_wood_w_3
+x 8
+y 16
+end
+arch floor_wood2_l2
+x 8
+y 17
+end
+arch wall_wood_4
+x 8
+y 17
+end
+arch floor_wood2_l2
+x 8
+y 18
+end
+arch wall_wood2_3
+x 8
+y 18
+end
+arch floor_wood2_l2
+x 8
+y 19
+end
+arch wall_wood2_3
+x 8
+y 19
+end
+arch floor_wood2_l1
+x 8
+y 20
+end
+arch wall_wood_w_3
+x 8
+y 20
+end
+arch floor_wood2_l2
+x 8
+y 21
+end
+arch wall_wood_3
+x 8
+y 21
+end
+arch floor_wood2_l2
+x 8
+y 22
+end
+arch wall_wood_4
+x 8
+y 22
+end
+arch light1
+x 9
+y 15
+end
+arch light1
+x 9
+y 20
+end

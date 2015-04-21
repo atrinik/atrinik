@@ -82,7 +82,7 @@ typedef struct sound_ambient_struct {
     int y;
 
     /** Maximum range. */
-    uint8 max_range;
+    uint8_t max_range;
 } sound_ambient_struct;
 
 #endif

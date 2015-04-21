@@ -29,6 +29,7 @@
 #include <global.h>
 #include <loader.h>
 #include <gd.h>
+#include <toolkit_string.h>
 
 /**
  * Array of colors used by the different faces.
@@ -99,8 +100,8 @@ typedef struct region_map_def {
  */
 static int region_map_def_sort(const void *a, const void *b)
 {
-    return strcmp(((region_map_def_t *) a)->regions,
-            ((region_map_def_t *) b)->regions);
+    return strcmp(((const region_map_def_t *) a)->regions,
+            ((const region_map_def_t *) b)->regions);
 }
 
 /**
@@ -110,13 +111,13 @@ static void wm_images_init(void)
 {
     int i, x, y;
     gdImagePtr im, im2;
-    uint8 *data;
-    uint16 len;
+    uint8_t *data;
+    uint16_t len;
 
     wm_face_colors = emalloc(sizeof(*wm_face_colors) * nrofpixmaps);
 
     for (i = 0; i < nrofpixmaps; i++) {
-        uint64 total = 0, r = 0, g = 0, b = 0;
+        uint64_t total = 0, r = 0, g = 0, b = 0;
 
         /* Get the face's data. */
         face_get_data(i, &data, &len);
@@ -163,6 +164,18 @@ static void wm_images_init(void)
         gdImageDestroy(im);
         gdImageDestroy(im2);
     }
+}
+
+/**
+ * Deinitialize the face colors.
+ */
+static void wm_images_deinit(void)
+{
+    for (int i = 0; i < nrofpixmaps; i++) {
+        efree(wm_face_colors[i]);
+    }
+
+    efree(wm_face_colors);
 }
 
 /**
@@ -389,7 +402,8 @@ static void region_add_rec(wm_region *r, mapstruct *m, const char *region_name)
 
         /* Load the map if needed. */
         if (!m->tile_map[i]) {
-            m->tile_map[i] = ready_map_name(m->tile_path[i], MAP_NAME_SHARED);
+            m->tile_map[i] = ready_map_name(m->tile_path[i], NULL,
+                    MAP_NAME_SHARED | MAP_NO_DYNAMIC);
 
             if (!m->tile_map[i]) {
                 continue;
@@ -501,7 +515,7 @@ void world_maker(void)
         }
 
         /* Load the first map. */
-        m = ready_map_name(r->map_first, 0);
+        m = ready_map_name(r->map_first, NULL, MAP_NO_DYNAMIC);
         /* Parse the maps recursively. */
         region_add_rec(wm_r, m, r->name);
 
@@ -595,7 +609,7 @@ void world_maker(void)
 
         /* Custom background to use? */
         if (r->map_bg) {
-            uint32 im_r, im_g, im_b;
+            uint32_t im_r, im_g, im_b;
 
             /* Parse HTML color and fill the image with it. */
             if (sscanf(r->map_bg, "#%2X%2X%2X", &im_r, &im_g, &im_b) == 3) {
@@ -738,9 +752,9 @@ void world_maker(void)
                 gdImageFilledRectangle(
                         im, xpos, ypos,
                         MIN(xpos + ((tmp->path_attuned + 1) * MAX_PIXELS),
-                        (uint32) wm_r->w),
+                        (uint32_t) wm_r->w),
                         MIN(ypos + ((tmp->path_repelled + 1) * MAX_PIXELS),
-                        (uint32) wm_r->h),
+                        (uint32_t) wm_r->h),
                         gdImageColorAllocate(im, 0, 0, 0)
                         );
             }
@@ -793,11 +807,11 @@ void world_maker(void)
                         MAX(0, ypos - ((tmp->item_level) * MAX_PIXELS)),
                         MIN(xpos + ((tmp->item_level * 2) * MAX_PIXELS +
                         MAX_PIXELS) + (tmp->path_attuned * MAX_PIXELS),
-                        (uint32) wm_r->w
+                        (uint32_t) wm_r->w
                         ) - xpos,
                         MIN(ypos + ((tmp->item_level * 2) * MAX_PIXELS +
                         MAX_PIXELS) + (tmp->path_repelled * MAX_PIXELS),
-                        (uint32) wm_r->h
+                        (uint32_t) wm_r->h
                         ) - ypos,
                         tmp->name, tmp->msg);
 
@@ -855,4 +869,6 @@ void world_maker(void)
         efree(wm_r->maps);
         efree(wm_r);
     }
+
+    wm_images_deinit();
 }

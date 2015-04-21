@@ -56,23 +56,23 @@ typedef struct widgetdata {
     int h;
 
     /** Is the widget moveable? */
-    uint8 moveable;
+    uint8_t moveable;
 
     /** Is the widget visible? */
-    uint8 show;
+    uint8_t show;
 
     /** Widget must be redrawn. */
-    uint8 redraw;
+    uint8_t redraw;
 
     /** Should this widget be the only one of its type? */
-    uint8 unique;
+    uint8_t unique;
 
     /** Must there be at least one of this widget type alive? */
-    uint8 required;
+    uint8_t required;
 
     /**
      * If 0, will not save this widget. */
-    uint8 save;
+    uint8_t save;
 
     /** Next widget. */
     struct widgetdata *next;
@@ -113,7 +113,7 @@ typedef struct widgetdata {
      * widgets. */
     int sub_type;
 
-    uint8 resizeable;
+    uint8_t resizeable;
 
     int min_w;
 
@@ -123,7 +123,7 @@ typedef struct widgetdata {
 
     int disable_snapping;
 
-    uint32 showed_ticks;
+    uint32_t showed_ticks;
 
     /**
      * If 1, this widget will not be rendered, but any items it contains

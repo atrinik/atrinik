@@ -74,7 +74,7 @@ typedef struct msg_anim_struct {
     char message[MAX_BUF];
 
     /** Tick when it started. */
-    uint32 tick;
+    uint32_t tick;
 
     /** Color of the message animation. */
     char color[COLOR_BUF];
@@ -93,7 +93,7 @@ typedef struct _face_struct {
     char *name;
 
     /* Checksum of face */
-    uint32 checksum;
+    uint32_t checksum;
 
     int flags;
 } _face_struct;
@@ -107,15 +107,15 @@ typedef struct spell_entry_struct {
 
     /**
      * Cost of spell. */
-    uint16 cost;
+    uint16_t cost;
 
     /**
      * Spell's flags. */
-    uint32 flags;
+    uint32_t flags;
 
     /**
      * Spell's path. */
-    uint32 path;
+    uint32_t path;
 
     /**
      * Description of the spell. */
@@ -130,9 +130,9 @@ typedef struct spell_entry_struct {
 typedef struct skill_entry_struct {
     object *skill;
 
-    uint8 level;
+    uint8_t level;
 
-    sint64 exp;
+    int64_t exp;
 } skill_entry_struct;
 
 /** Fire mode structure */
@@ -161,9 +161,9 @@ typedef struct hfile_struct {
 
     size_t msg_len;
 
-    uint8 autocomplete;
+    uint8_t autocomplete;
 
-    uint8 autocomplete_wiz;
+    uint8_t autocomplete_wiz;
 
     UT_hash_handle hh;
 } hfile_struct;

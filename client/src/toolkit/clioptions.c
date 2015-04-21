@@ -30,16 +30,7 @@
  */
 
 #include <global.h>
-
-/**
- * Name of the API.
- */
-#define API_NAME clioptions
-
-/**
- * If 1, the API has been initialized.
- */
-static uint8 did_init = 0;
+#include <toolkit_string.h>
 
 /**
  * All of the available command line options.
@@ -50,6 +41,71 @@ static clioptions_struct *clioptions;
  * Number of ::clioptions.
  */
 static size_t clioptions_num;
+
+static void clioptions_option_config(const char *arg);
+static void clioptions_option_help(const char *arg);
+
+TOOLKIT_API(DEPENDS(logger), DEPENDS(string), DEPENDS(stringbuffer));
+
+TOOLKIT_INIT_FUNC(clioptions)
+{
+    clioptions = NULL;
+    clioptions_num = 0;
+
+    clioptions_add(
+            "config",
+            NULL,
+            clioptions_option_config,
+            1,
+            "Reads configuration from a text file.",
+            "Instead of specifying your options on the command line each time"
+            " you run the server, you can create a text file containing the "
+            "options, in the format of:\n\n"
+            "option = argument\n"
+            "help = True\n\n"
+            "Each option must be on its own line. Empty lines and lines "
+            "beginning with '#' are ignored. '\\n' strings in the argument "
+            "will be converted into literal newline characters."
+            );
+
+    clioptions_add(
+            "help",
+            "h",
+            clioptions_option_help,
+            0,
+            "Displays this help.",
+            "Displays the help, listing available options, etc.\n\n"
+            "'--help=argument' can be used to get more detailed help about "
+            "specified option."
+            );
+}
+TOOLKIT_INIT_FUNC_FINISH
+
+TOOLKIT_DEINIT_FUNC(clioptions)
+{
+    size_t i;
+
+    for (i = 0; i < clioptions_num; i++) {
+        if (clioptions[i].longname) {
+            efree(clioptions[i].longname);
+        }
+
+        if (clioptions[i].shortname) {
+            efree(clioptions[i].shortname);
+        }
+
+        efree(clioptions[i].desc_brief);
+        efree(clioptions[i].desc);
+    }
+
+    if (clioptions) {
+        efree(clioptions);
+        clioptions = NULL;
+    }
+
+    clioptions_num = 0;
+}
+TOOLKIT_DEINIT_FUNC_FINISH
 
 /**
  * The --config command-line option.
@@ -143,86 +199,6 @@ static void clioptions_option_help(const char *arg)
 }
 
 /**
- * Initialize the command-line options API.
- * @internal
- */
-void toolkit_clioptions_init(void)
-{
-
-    TOOLKIT_INIT_FUNC_START(clioptions)
-    {
-        toolkit_import(logger);
-        toolkit_import(string);
-        toolkit_import(stringbuffer);
-
-        clioptions = NULL;
-        clioptions_num = 0;
-
-        clioptions_add(
-                "config",
-                NULL,
-                clioptions_option_config,
-                1,
-                "Reads configuration from a text file.",
-                "Instead of specifying your options on the command line each time"
-                " you run the server, you can create a text file containing the "
-                "options, in the format of:\n\n"
-                "option = argument\n"
-                "help = True\n\n"
-                "Each option must be on its own line. Empty lines and lines "
-                "beginning with '#' are ignored. '\\n' strings in the argument "
-                "will be converted into literal newline characters."
-                );
-
-        clioptions_add(
-                "help",
-                "h",
-                clioptions_option_help,
-                0,
-                "Displays this help.",
-                "Displays the help, listing available options, etc.\n\n"
-                "'--help=argument' can be used to get more detailed help about "
-                "specified option."
-                );
-    }
-    TOOLKIT_INIT_FUNC_END()
-}
-
-/**
- * Deinitialize the command-line options API.
- * @internal
- */
-void toolkit_clioptions_deinit(void)
-{
-
-    TOOLKIT_DEINIT_FUNC_START(clioptions)
-    {
-        size_t i;
-
-        for (i = 0; i < clioptions_num; i++) {
-            if (clioptions[i].longname) {
-                efree(clioptions[i].longname);
-            }
-
-            if (clioptions[i].shortname) {
-                efree(clioptions[i].shortname);
-            }
-
-            efree(clioptions[i].desc_brief);
-            efree(clioptions[i].desc);
-        }
-
-        if (clioptions) {
-            efree(clioptions);
-            clioptions = NULL;
-        }
-
-        clioptions_num = 0;
-    }
-    TOOLKIT_DEINIT_FUNC_END()
-}
-
-/**
  * Add a command line option.
  * @param longname Long name of the option, can be NULL.
  * @param shortname Short name of the option, can be NULL.
@@ -232,12 +208,12 @@ void toolkit_clioptions_deinit(void)
  * @param desc More detailed description of the option.
  */
 void clioptions_add(const char *longname, const char *shortname,
-        clioptions_handler_func handle_func, uint8 argument,
+        clioptions_handler_func handle_func, uint8_t argument,
         const char *desc_brief, const char *desc)
 {
     size_t i;
 
-    TOOLKIT_FUNC_PROTECTOR(API_NAME);
+    TOOLKIT_PROTECT();
 
     if (longname == NULL && shortname == NULL) {
         logger_print(LOG(BUG), "Tried adding an option with neither longname "
@@ -294,7 +270,7 @@ void clioptions_parse(int argc, char *argv[])
     size_t opt;
     char *arg;
 
-    TOOLKIT_FUNC_PROTECTOR(API_NAME);
+    TOOLKIT_PROTECT();
 
     /* Start at 1, as 0 is the program's name. */
     for (i = 1; i < argc; i++) {
@@ -377,7 +353,7 @@ int clioptions_load_config(const char *path, const char *category)
     char buf[HUGE_BUF], *end, category_cur[MAX_BUF], **argv;
     int argc, i;
 
-    TOOLKIT_FUNC_PROTECTOR(API_NAME);
+    TOOLKIT_PROTECT();
 
     fp = fopen(path, "r");
 

@@ -28,11 +28,13 @@
  * (checking for lost connections and if data has arrived). */
 
 #include <global.h>
+#include <packet.h>
+#include <toolkit_string.h>
 
 static fd_set tmp_read, tmp_exceptions, tmp_write;
 
 typedef struct socket_command_struct {
-    void (*handle_func)(socket_struct *, player *, uint8 *, size_t, size_t);
+    void (*handle_func)(socket_struct *, player *, uint8_t *, size_t, size_t);
 
     int flags;
 } socket_command_struct;
@@ -66,13 +68,27 @@ static const socket_command_struct socket_commands[SERVER_CMD_NROF] = {
     {socket_command_target, SOCKET_CMD_PLAYER_ONLY}
 };
 
-static int socket_command_check(socket_struct *ns, player *pl, uint8 *data, size_t len)
+static int socket_command_check(socket_struct *ns, player *pl, uint8_t *data, size_t len)
 {
     size_t pos;
-    uint8 type;
+    uint8_t type;
 
     pos = 2;
     type = packet_to_uint8(data, len, &pos);
+
+#ifndef DEBUG
+    {
+        char *cp;
+
+        log(LOG(DUMPRX), "Received packet with command type %d (%" PRIu64
+                " bytes):", type, (uint64_t) len);
+
+        cp = emalloc(sizeof(*cp) * (len * 3 + 1));
+        string_tohex(data, len, cp, len * 3 + 1, true);
+        log(LOG(DUMPRX), "  Hexadecimal: %s", cp);
+        efree(cp);
+    }
+#endif
 
     if (type >= SERVER_CMD_NROF || !socket_commands[type].handle_func) {
         return -1;
@@ -247,16 +263,16 @@ void doeric_server(void)
             }
         } else if (init_sockets[i].state != ST_AVAILABLE) {
             if (init_sockets[i].state > ST_WAITING) {
-                if (init_sockets[i].keepalive++ >= (uint32) SOCKET_KEEPALIVE_TIMEOUT * MAX_TICKS_MULTIPLIER) {
+                if (init_sockets[i].keepalive++ >= (uint32_t) SOCKET_KEEPALIVE_TIMEOUT * MAX_TICKS_MULTIPLIER) {
                     logger_print(LOG(INFO), "Keepalive: disconnecting %s: %d", init_sockets[i].host ? init_sockets[i].host : "(unknown ip?)", init_sockets[i].fd);
                     FREE_SOCKET(i);
                     continue;
                 }
             }
 
-            FD_SET((uint32) init_sockets[i].fd, &tmp_read);
-            FD_SET((uint32) init_sockets[i].fd, &tmp_write);
-            FD_SET((uint32) init_sockets[i].fd, &tmp_exceptions);
+            FD_SET((uint32_t) init_sockets[i].fd, &tmp_read);
+            FD_SET((uint32_t) init_sockets[i].fd, &tmp_write);
+            FD_SET((uint32_t) init_sockets[i].fd, &tmp_exceptions);
         }
     }
 
@@ -270,7 +286,7 @@ void doeric_server(void)
             pl->socket.state = ST_DEAD;
         }
 
-        if (pl->socket.state != ST_DEAD && pl->socket.keepalive++ >= (uint32) SOCKET_KEEPALIVE_TIMEOUT * MAX_TICKS_MULTIPLIER) {
+        if (pl->socket.state != ST_DEAD && pl->socket.keepalive++ >= (uint32_t) SOCKET_KEEPALIVE_TIMEOUT * MAX_TICKS_MULTIPLIER) {
             logger_print(LOG(INFO), "Keepalive: disconnecting %s [%s]: %d", (pl->ob && pl->ob->name) ? pl->ob->name : "(unnamed player?)", (pl->socket.host) ? pl->socket.host : "(unknown ip?)", pl->socket.fd);
             pl->socket.state = ST_DEAD;
         }
@@ -282,9 +298,9 @@ void doeric_server(void)
                 pl->socket.state = ST_DEAD;
             }
         } else {
-            FD_SET((uint32) pl->socket.fd, &tmp_read);
-            FD_SET((uint32) pl->socket.fd, &tmp_write);
-            FD_SET((uint32) pl->socket.fd, &tmp_exceptions);
+            FD_SET((uint32_t) pl->socket.fd, &tmp_read);
+            FD_SET((uint32_t) pl->socket.fd, &tmp_write);
+            FD_SET((uint32_t) pl->socket.fd, &tmp_exceptions);
         }
     }
 
@@ -426,7 +442,7 @@ void doeric_server(void)
 void doeric_server_write(void)
 {
     player *pl, *next;
-    uint32 update_below;
+    uint32_t update_below;
 
     /* This does roughly the same thing, but for the players now */
     for (pl = first_player; pl; pl = next) {

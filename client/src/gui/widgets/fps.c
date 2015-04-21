@@ -35,25 +35,25 @@
 typedef struct widget_fps_struct {
     /**
      * Last time the FPS was calculated. */
-    uint32 lasttime;
+    uint32_t lasttime;
 
     /**
      * Current FPS. */
-    uint32 current;
+    uint32_t current;
 
     /**
      * Real number of frames rendered in the last second.
      */
-    uint32 current_real;
+    uint32_t current_real;
 
     /**
      * Number of main loop iterations since last calculation. */
-    uint32 frames;
+    uint32_t frames;
 
     /**
      * Real number of frames drawn since last calculation.
      */
-    uint32 frames_real;
+    uint32_t frames_real;
 } widget_fps_struct;
 
 /** @copydoc widgetdata::draw_func */
@@ -75,7 +75,7 @@ static void widget_draw(widgetdata *widget)
 static void widget_background(widgetdata *widget, int draw)
 {
     widget_fps_struct *tmp;
-    uint32 ticks;
+    uint32_t ticks;
 
     tmp = widget->subwidget;
     tmp->frames++;

@@ -41,7 +41,7 @@ static fields_struct fields[] = {
     {"name", FIELDTYPE_CSTR, offsetof(mapstruct, name), 0, 0},
     {"msg", FIELDTYPE_CSTR, offsetof(mapstruct, msg), 0, 0},
     {"reset_timeout", FIELDTYPE_UINT32, offsetof(mapstruct, reset_timeout), 0, 0},
-    {"timeout", FIELDTYPE_SINT32, offsetof(mapstruct, timeout), 0, 0},
+    {"timeout", FIELDTYPE_INT32, offsetof(mapstruct, timeout), 0, 0},
     {"difficulty", FIELDTYPE_UINT16, offsetof(mapstruct, difficulty), 0, 0},
     {"height", FIELDTYPE_UINT16, offsetof(mapstruct, height), FIELDFLAG_READONLY, 0},
     {"width", FIELDTYPE_UINT16, offsetof(mapstruct, width), FIELDFLAG_READONLY, 0},
@@ -152,8 +152,8 @@ static PyObject *Atrinik_Map_GetLastObject(Atrinik_Map *map, PyObject *args)
 static PyObject *Atrinik_Map_GetLayer(Atrinik_Map *map, PyObject *args)
 {
     int x, y;
-    uint8 layer;
-    sint8 sub_layer = -1;
+    uint8_t layer;
+    int8_t sub_layer = -1;
     mapstruct *m;
     PyObject *list;
     object *tmp;
@@ -255,7 +255,7 @@ static PyObject *Atrinik_Map_DrawInfo(Atrinik_Map *map, PyObject *args, PyObject
     static char *kwlist[] = {"x", "y", "message", "color", "type", "name", "distance", NULL};
     int x, y, distance;
     const char *message, *color, *name;
-    uint8 type;
+    uint8_t type;
 
     color = COLOR_BLUE;
     type = CHAT_TYPE_GAME;
@@ -341,7 +341,7 @@ static PyObject *Atrinik_Map_GetPlayers(Atrinik_Map *map, PyObject *args)
 static PyObject *Atrinik_Map_Insert(Atrinik_Map *map, PyObject *args)
 {
     Atrinik_Object *obj;
-    sint16 x, y;
+    int16_t x, y;
 
     if (!PyArg_ParseTuple(args, "O!hh", &Atrinik_ObjectType, &obj, &x, &y)) {
         return NULL;
@@ -369,7 +369,7 @@ static PyObject *Atrinik_Map_Insert(Atrinik_Map *map, PyObject *args)
  * @return A combination of @ref map_look_flags. */
 static PyObject *Atrinik_Map_Wall(Atrinik_Map *map, PyObject *args)
 {
-    sint16 x, y;
+    int16_t x, y;
 
     if (!PyArg_ParseTuple(args, "hh", &x, &y)) {
         return NULL;
@@ -506,7 +506,7 @@ static PyObject *Atrinik_Map_GetPath(Atrinik_Map *map, PyObject *args, PyObject 
 
     cp = hooks->map_get_path(map->map, path, unique, name);
     ret = Py_BuildValue("s", cp);
-    free(cp);
+    efree(cp);
 
     return ret;
 }
@@ -535,9 +535,9 @@ static PyObject *Atrinik_Map_LocateBeacon(Atrinik_Map *map, PyObject *args)
 
         FREE_AND_COPY_HASH(beacon_name, joined);
 
-        free(joined);
-        free(pl_name);
-        free(filedir);
+        efree(joined);
+        efree(pl_name);
+        efree(filedir);
     } else {
         FREE_AND_COPY_HASH(beacon_name, name);
     }

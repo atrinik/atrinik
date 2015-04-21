@@ -29,6 +29,8 @@
  * @author Alex Tokar */
 
 #include <global.h>
+#include <packet.h>
+#include <toolkit_string.h>
 
 typedef struct widget_quickslots_struct {
     list_struct *list;
@@ -38,14 +40,14 @@ void quickslots_init(void)
 {
     widgetdata *widget;
     widget_quickslots_struct *tmp;
-    uint32 i;
+    uint32_t i;
 
     for (widget = cur_widget[QUICKSLOT_ID]; widget; widget = widget->type_next) {
         tmp = widget->subwidget;
         list_clear(tmp->list);
 
         for (i = 0; i < MAX_QUICK_SLOTS * MAX_QUICKSLOT_GROUPS; i++) {
-            list_add(tmp->list, (uint32) ((double) i / (double) MAX_QUICK_SLOTS - 0.5), i % tmp->list->cols, NULL);
+            list_add(tmp->list, (uint32_t) ((double) i / (double) MAX_QUICK_SLOTS - 0.5), i % tmp->list->cols, NULL);
         }
     }
 }
@@ -55,10 +57,10 @@ void quickslots_init(void)
  * 'tag'.
  * @param slot Quickslot ID.
  * @param tag ID of the item to set. */
-static void quickslots_set(widgetdata *widget, uint32 row, uint32 col, sint32 tag)
+static void quickslots_set(widgetdata *widget, uint32_t row, uint32_t col, int32_t tag)
 {
     widget_quickslots_struct *tmp;
-    uint32 slot;
+    uint32_t slot;
     packet_struct *packet;
     char buf[MAX_BUF];
 
@@ -67,7 +69,7 @@ static void quickslots_set(widgetdata *widget, uint32 row, uint32 col, sint32 ta
 
     packet = packet_new(SERVER_CMD_QUICKSLOT, 32, 0);
     packet_append_uint8(packet, slot);
-    packet_append_sint32(packet, tag);
+    packet_append_int32(packet, tag);
     socket_send_packet(packet);
 
     snprintf(buf, sizeof(buf), "%d", tag);
@@ -113,7 +115,7 @@ void quickslots_cycle(widgetdata *widget)
 static void quickslots_remove(widgetdata *widget, tag_t tag)
 {
     widget_quickslots_struct *tmp;
-    uint32 row, col;
+    uint32_t row, col;
 
     tmp = widget->subwidget;
 
@@ -135,7 +137,7 @@ static void quickslots_remove(widgetdata *widget, tag_t tag)
  * @param col Column.
  * @return 1 if the trigger was handled, 0 otherwise.
  */
-static int quickslots_trigger(widgetdata *widget, uint32 row, uint32 col)
+static int quickslots_trigger(widgetdata *widget, uint32_t row, uint32_t col)
 {
     widget_quickslots_struct *tmp;
     tag_t tag;
@@ -143,7 +145,7 @@ static int quickslots_trigger(widgetdata *widget, uint32 row, uint32 col)
     size_t spell_path, spell_id;
     spell_entry_struct *spell;
 
-    assert(widget != NULL);
+    HARD_ASSERT(widget != NULL);
 
     tmp = widget->subwidget;
     tag = tmp->list->text[row][col] ? atoi(tmp->list->text[row][col]) : 0;
@@ -177,13 +179,13 @@ static int quickslots_trigger(widgetdata *widget, uint32 row, uint32 col)
  * @param tag Tag to change to.
  * @return 1 if the change was handled, 0 otherwise.
  */
-static int quickslots_change(widgetdata *widget, uint32 row, uint32 col)
+static int quickslots_change(widgetdata *widget, uint32_t row, uint32_t col)
 {
     object *ob;
     widget_quickslots_struct *tmp;
     tag_t tag;
 
-    assert(widget != NULL);
+    HARD_ASSERT(widget != NULL);
 
     if (!cur_widget[MAIN_INV_ID]->show) {
         return 0;
@@ -238,7 +240,7 @@ void quickslots_handle_key(int slot)
 }
 
 /** @copydoc list_struct::post_column_func */
-static void list_post_column(list_struct *list, uint32 row, uint32 col)
+static void list_post_column(list_struct *list, uint32_t row, uint32_t col)
 {
     object *tmp;
     int x, y;
@@ -310,7 +312,7 @@ static void widget_draw(widgetdata *widget)
 static int widget_event(widgetdata *widget, SDL_Event *event)
 {
     widget_quickslots_struct *tmp;
-    uint32 row, col;
+    uint32_t row, col;
 
     tmp = widget->subwidget;
 
@@ -357,12 +359,22 @@ static int widget_event(widgetdata *widget, SDL_Event *event)
     return 0;
 }
 
+/** @copydoc widgetdata::deinit_func */
+static void widget_deinit(widgetdata *widget)
+{
+    widget_quickslots_struct *tmp;
+
+    tmp = widget->subwidget;
+
+    list_remove(tmp->list);
+}
+
 /**
  * Initialize one quickslots widget. */
 void widget_quickslots_init(widgetdata *widget)
 {
     widget_quickslots_struct *tmp;
-    uint32 i;
+    uint32_t i;
 
     tmp = ecalloc(1, sizeof(*tmp));
     tmp->list = list_create(1, MAX_QUICK_SLOTS, 0);
@@ -380,16 +392,17 @@ void widget_quickslots_init(widgetdata *widget)
     }
 
     widget->draw_func = widget_draw;
-    widget->event_func = widget_event;
+    widget->event_func = widget_event;;
+    widget->deinit_func = widget_deinit;
     widget->subwidget = tmp;
 }
 
 /** @copydoc socket_command_struct::handle_func */
-void socket_command_quickslots(uint8 *data, size_t len, size_t pos)
+void socket_command_quickslots(uint8_t *data, size_t len, size_t pos)
 {
     widgetdata *widget;
     widget_quickslots_struct *tmp;
-    uint8 slot;
+    uint8_t slot;
     tag_t tag;
     char buf[MAX_BUF];
 
@@ -402,7 +415,7 @@ void socket_command_quickslots(uint8 *data, size_t len, size_t pos)
 
         for (widget = cur_widget[QUICKSLOT_ID]; widget; widget = widget->type_next) {
             tmp = widget->subwidget;
-            list_add(tmp->list, (uint32) ((double) slot / (double) MAX_QUICK_SLOTS - 0.5), slot % tmp->list->cols, buf);
+            list_add(tmp->list, (uint32_t) ((double) slot / (double) MAX_QUICK_SLOTS - 0.5), slot % tmp->list->cols, buf);
         }
     }
 }

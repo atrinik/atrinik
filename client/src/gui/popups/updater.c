@@ -84,6 +84,7 @@
  * @author Alex Tokar */
 
 #include <global.h>
+#include <toolkit_string.h>
 
 /** Holds data that is currently being downloaded. */
 static curl_data *dl_data = NULL;
@@ -96,7 +97,7 @@ static size_t download_package_next = 0;
 /** Number of packages downloaded so far. */
 static size_t download_packages_downloaded = 0;
 /** Whether we are downloading packages. */
-static uint8 download_package_process = 0;
+static uint8_t download_package_process = 0;
 /** Progress dots in the popup. */
 static progress_dots progress;
 /**
@@ -200,13 +201,13 @@ static int popup_draw_post(popup_struct *popup)
         if (!strncmp(dl_data->url, UPDATER_CHECK_URL, strlen(UPDATER_CHECK_URL))) {
             text_show_shadow(ScreenSurface, FONT_ARIAL11, "Downloading list of updates...", box.x, box.y, COLOR_WHITE, COLOR_BLACK, TEXT_ALIGN_CENTER, &box);
         } else {
-            text_show_shadow_format(ScreenSurface, FONT_ARIAL11, box.x, box.y, COLOR_WHITE, COLOR_BLACK, TEXT_ALIGN_CENTER, &box, "Downloading update #%"FMT64 " out of %"FMT64 "...", (uint64) download_package_next, (uint64) download_packages_num);
+            text_show_shadow_format(ScreenSurface, FONT_ARIAL11, box.x, box.y, COLOR_WHITE, COLOR_BLACK, TEXT_ALIGN_CENTER, &box, "Downloading update #%"PRId64 " out of %"PRId64 "...", (uint64_t) download_package_next, (uint64_t) download_packages_num);
         }
     }
 
     /* There is something being downloaded. */
     if (dl_data) {
-        sint8 ret = curl_download_finished(dl_data);
+        int8_t ret = curl_download_finished(dl_data);
 
         /* We are not done yet... */
         progress.done = 0;
@@ -296,7 +297,7 @@ static int popup_draw_post(popup_struct *popup)
                         }
 
                         /* Construct the path. */
-                        snprintf(filename, sizeof(filename), "%s/client_patch_%09"FMT64 ".tar.gz", dir_path, (uint64) download_package_next - 1);
+                        snprintf(filename, sizeof(filename), "%s/client_patch_%09"PRId64 ".tar.gz", dir_path, (uint64_t) download_package_next - 1);
                         fp = fopen(filename, "wb");
 
                         if (fp) {
@@ -340,12 +341,12 @@ static int popup_draw_post(popup_struct *popup)
             button_show(&button_close, "Close");
         } else {
 #ifdef WIN32
-            text_show_shadow_format(ScreenSurface, FONT_ARIAL11, box.x, box.y, COLOR_WHITE, COLOR_BLACK, TEXT_ALIGN_CENTER, &box, "%"FMT64 " update(s) downloaded successfully.", (uint64) download_packages_downloaded);
+            text_show_shadow_format(ScreenSurface, FONT_ARIAL11, box.x, box.y, COLOR_WHITE, COLOR_BLACK, TEXT_ALIGN_CENTER, &box, "%"PRId64 " update(s) downloaded successfully.", (uint64_t) download_packages_downloaded);
             box.y += 20;
             text_show_shadow(ScreenSurface, FONT_ARIAL11, "Restart the client to complete the update.", box.x, box.y, COLOR_WHITE, COLOR_BLACK, TEXT_ALIGN_CENTER, &box);
 
             if (download_packages_downloaded < download_packages_num) {
-                text_show_shadow_format(ScreenSurface, FONT_ARIAL11, box.x, box.y + 20, COLOR_WHITE, COLOR_BLACK, TEXT_ALIGN_CENTER, &box, "%"FMT64 " update(s) failed to download (possibly due to a connection failure).", (uint64) (download_packages_num - download_packages_downloaded));
+                text_show_shadow_format(ScreenSurface, FONT_ARIAL11, box.x, box.y + 20, COLOR_WHITE, COLOR_BLACK, TEXT_ALIGN_CENTER, &box, "%"PRId64 " update(s) failed to download (possibly due to a connection failure).", (uint64_t) (download_packages_num - download_packages_downloaded));
                 text_show_shadow(ScreenSurface, FONT_ARIAL11, "You may need to retry updating after restarting the client.", box.x, box.y + 40, COLOR_WHITE, COLOR_BLACK, TEXT_ALIGN_CENTER, &box);
             }
 
@@ -400,6 +401,11 @@ static int popup_event(popup_struct *popup, SDL_Event *event)
 static int popup_destroy_callback(popup_struct *popup)
 {
     updater_download_clean();
+
+    button_destroy(&button_close);
+    button_destroy(&button_retry);
+    button_destroy(&button_restart);
+
     return 1;
 }
 

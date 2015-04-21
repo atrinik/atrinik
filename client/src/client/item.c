@@ -24,40 +24,36 @@
 
 /**
  * @file
- * Object management. */
+ * Object management.
+ */
 
 #include <global.h>
 #include <region_map.h>
-
-/** The list of free (unused) objects */
-static object *free_objects = NULL;
+#include <packet.h>
 
 /**
- * Allocates a new object.
- * @return The object. */
-static object *object_new(void)
+ * Pool for objects.
+ */
+static mempool_struct *pool_object;
+
+/**
+ * Initialize the object system.
+ */
+void object_init(void)
 {
-    return ecalloc(1, sizeof(object));
+    toolkit_import(mempool);
+
+    pool_object = mempool_create("objects", NROF_ITEMS, sizeof(object),
+            MEMPOOL_ALLOW_FREEING, NULL, NULL, NULL, NULL);
+    objects_init();
 }
 
 /**
- * Allocates a list of objects.
- * @param nrof How many objects to allocate.
- * @return The allocated objects in a list. */
-static object *objects_alloc(int nrof)
+ * Deinitialize the object system.
+ */
+void object_deinit(void)
 {
-    object *op, *list;
-    int i;
-
-    list = op = object_new();
-
-    for (i = 1; i < nrof; i++) {
-        op->next = object_new();
-        op->next->prev = op;
-        op = op->next;
-    }
-
-    return list;
+    objects_deinit();
 }
 
 /**
@@ -79,7 +75,7 @@ void objects_free(object *op)
         }
 
         next = op->next;
-        efree(op);
+        mempool_return(pool_object, op);
         op = next;
     }
 }
@@ -89,7 +85,7 @@ void objects_free(object *op)
  * @param op Object to search in.
  * @param tag ID of the object we're looking for.
  * @return Matching object if found, NULL otherwise. */
-object *object_find_object_inv(object *op, sint32 tag)
+object *object_find_object_inv(object *op, int32_t tag)
 {
     object *tmp;
 
@@ -107,7 +103,7 @@ object *object_find_object_inv(object *op, sint32 tag)
  * @param op Object to search in.
  * @param tag ID of the object we're looking for.
  * @return Matching object if found, NULL otherwise. */
-object *object_find_object(object *op, sint32 tag)
+object *object_find_object(object *op, int32_t tag)
 {
     for (; op; op = op->next) {
         if (op->tag == tag) {
@@ -128,7 +124,7 @@ object *object_find_object(object *op, sint32 tag)
  * Attempts to find an object by its tag, wherever it may be.
  * @param tag Tag to look for.
  * @return Matching object if found, NULL otherwise. */
-object *object_find(sint32 tag)
+object *object_find(int32_t tag)
 {
     object *op;
 
@@ -195,23 +191,12 @@ void object_remove(object *op)
         op->next->prev = op->prev;
     }
 
-    /* Add object to the list of free objects. */
-    op->next = free_objects;
-
-    if (op->next != NULL) {
-        op->next->prev = op;
-    }
-
-    free_objects = op;
-
     if (op->itype == TYPE_REGION_MAP) {
         region_map_fow_update(MapData.region_map);
         minimap_redraw_flag = 1;
     }
 
-    /* Clear the object so it can be reused. */
-    memset((char *) op + offsetof(object, prev), 0,
-            sizeof(object) - offsetof(object, prev));
+    mempool_return(pool_object, op);
 }
 
 /**
@@ -282,21 +267,11 @@ static void object_add(object *env, object *op, int bflag)
  * @param bflag If 1, the object will be added to the end of the
  * inventory instead of the start.
  * @return The created object. */
-object *object_create(object *env, sint32 tag, int bflag)
+object *object_create(object *env, int32_t tag, int bflag)
 {
     object *op;
 
-    /* Allocate more objects if needed. */
-    if (!free_objects) {
-        free_objects = objects_alloc(NROF_ITEMS);
-    }
-
-    op = free_objects;
-    free_objects = free_objects->next;
-
-    if (free_objects) {
-        free_objects->prev = NULL;
-    }
+    op = mempool_get(pool_object);
 
     op->tag = tag;
 
@@ -355,7 +330,7 @@ void object_redraw(object *op)
 {
     object *env;
 
-    assert(op != NULL);
+    HARD_ASSERT(op != NULL);
 
     if (op->env == NULL) {
         return;
@@ -383,7 +358,8 @@ void object_redraw(object *op)
 }
 
 /**
- * Deinitialize the various objects of ::cpl structure. */
+ * Deinitialize the various objects of ::cpl structure.
+ */
 void objects_deinit(void)
 {
     objects_free(cpl.sack);
@@ -392,12 +368,13 @@ void objects_deinit(void)
 }
 
 /**
- * Initializes the various objects of ::cpl structure. */
+ * Initializes the various objects of ::cpl structure.
+ */
 void objects_init(void)
 {
-    cpl.ob = object_new();
-    cpl.below = object_new();
-    cpl.sack = object_new();
+    cpl.ob = mempool_get(pool_object);
+    cpl.below = mempool_get(pool_object);
+    cpl.sack = mempool_get(pool_object);
 
     cpl.below->weight = -111;
     cpl.sack->weight = -111;
@@ -479,7 +456,7 @@ void object_show_centered(SDL_Surface *surface, object *tmp, int x, int y,
         int w, int h)
 {
     int temp, xstart, xlen, ystart, ylen;
-    uint16 face;
+    uint16_t face;
     SDL_Rect box;
 
     if (!FaceList[tmp->face].sprite) {
@@ -495,7 +472,7 @@ void object_show_centered(SDL_Surface *surface, object *tmp, int x, int y,
         check_animation_status(tmp->animation_id);
 
         if (animations[tmp->animation_id].num_animations) {
-            uint16 face_id;
+            uint16_t face_id;
 
             face_id = animations[tmp->animation_id].frame * tmp->direction;
 

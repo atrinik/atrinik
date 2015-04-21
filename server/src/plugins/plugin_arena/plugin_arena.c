@@ -122,7 +122,7 @@ typedef struct arena_maps_struct {
     int max_parties;
 
     /** Option flags */
-    uint32 flags;
+    uint32_t flags;
 
     /** Message when the arena is full */
     char message_arena_full[MAX_BUF];

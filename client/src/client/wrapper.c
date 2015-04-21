@@ -27,6 +27,7 @@
  * General convenience functions for the client. */
 
 #include <global.h>
+#include <toolkit_string.h>
 
 /**
  * Start the base system, setting caption name and window icon. */
@@ -48,22 +49,32 @@ void system_start(void)
  * End the system. */
 void system_end(void)
 {
+    tooltip_dismiss();
     notification_destroy();
     popup_destroy_all();
     toolkit_widget_deinit();
     curl_deinit();
     socket_deinitialize();
+    metaserver_clear_data();
     effects_deinit();
+    interface_deinit();
     sound_deinit();
+    intro_deinit();
     cmd_aliases_deinit();
+    server_settings_deinit();
     texture_deinit();
     text_deinit();
     hfiles_deinit();
     settings_deinit();
     keybind_deinit();
-    toolkit_deinit();
+    bmaps_deinit();
+    anims_deinit();
+    object_deinit();
+    skills_deinit();
+    spells_deinit();
     clioption_settings_deinit();
     server_files_deinit();
+    toolkit_deinit();
     SDL_Quit();
 }
 
@@ -312,47 +323,71 @@ void get_data_dir_file(char *buf, size_t len, const char *fname)
 }
 
 /**
- * Get path to file, to implement saving settings related data to user's
- * home directory.
+ * Get absolute path to the specified relative path. This path will typically
+ * point to the to client data directory (which is usually located in the user's
+ * home/appdata directory), but depending on the specified mode, extra actions
+ * may be performed. These ensure that if you're trying to access a file that
+ * does not yet exist in the client data directory, it will be read from the
+ * client installation directory instead (unless it's being appended to, in
+ * which case it will be copied to the client data directory first).
+ *
+ * Generally, you should almost always use this when you need to construct a
+ * path, or use one of the many @ref file_wrapper_functions.
  * @param fname The file path.
  * @param mode File mode.
- * @return The path to the file. */
-char *file_path(const char *fname, const char *mode)
+ * @return The absolute path. Must be freed.
+ */
+char *file_path(const char *path, const char *mode)
 {
-    static char tmp[HUGE_BUF];
-    char *stmp, ctmp, version[MAX_BUF];
+    bool is_write, is_append;
+    StringBuffer *sb;
+    char version[MAX_BUF], client_path[HUGE_BUF], *new_path;
 
-    snprintf(tmp, sizeof(tmp), "%s/.atrinik/%s/%s", get_config_dir(), package_get_version_partial(version, sizeof(version)), fname);
+    HARD_ASSERT(path != NULL);
+    HARD_ASSERT(mode != NULL);
 
-    if (strchr(mode, 'w')) {
-        if ((stmp = strrchr(tmp, '/'))) {
-            ctmp = stmp[0];
-            stmp[0] = '\0';
-            mkdir_recurse(tmp);
-            stmp[0] = ctmp;
-        }
-    } else if (strchr(mode, '+') || strchr(mode, 'a')) {
-        if (access(tmp, W_OK)) {
-            char otmp[HUGE_BUF];
+    SOFT_ASSERT_RC(path[0] != '/', estrdup(path),
+            "Path is already absolute: %s", path);
 
-            get_data_dir_file(otmp, sizeof(otmp), fname);
+    sb = stringbuffer_new();
+    stringbuffer_append_printf(sb, "%s/.atrinik/%s/%s", get_config_dir(),
+            package_get_version_partial(VS(version)), path);
+    new_path = stringbuffer_sub(sb, 0, 0);
 
-            if ((stmp = strrchr(tmp, '/'))) {
-                ctmp = stmp[0];
-                stmp[0] = '\0';
-                mkdir_recurse(tmp);
-                stmp[0] = ctmp;
+    is_write = is_append = false;
+
+    if (strchr(mode, 'w') != NULL) {
+        is_write = true;
+    } else if (strchr(mode, '+') != NULL || strchr(mode, 'a') != NULL) {
+        is_append = true;
+    }
+
+    if (is_write || is_append) {
+        if (access(new_path, W_OK) != 0) {
+            char *dirname;
+
+            /* Ensure directories exist if we're going to use this path for
+             * writing/appending. */
+            dirname = path_dirname(new_path);
+            mkdir_recurse(dirname);
+            efree(dirname);
+
+            if (is_append) {
+                get_data_dir_file(VS(client_path), path);
+                copy_file(client_path, new_path);
             }
-
-            copy_file(otmp, tmp);
         }
     } else {
-        if (access(tmp, R_OK)) {
-            get_data_dir_file(tmp, sizeof(tmp), fname);
+        if (access(new_path, R_OK) != 0) {
+            get_data_dir_file(VS(client_path), path);
+            sb->pos = 0;
+            stringbuffer_append_string(sb, client_path);
         }
     }
 
-    return tmp;
+    efree(new_path);
+
+    return stringbuffer_finish(sb);
 }
 
 /**
@@ -433,7 +468,14 @@ char *file_path_server(const char *path)
  * @return Return value of fopen().  */
 FILE *fopen_wrapper(const char *fname, const char *mode)
 {
-    return fopen(file_path(fname, mode), mode);
+    char *path;
+    FILE *fp;
+
+    path = file_path(fname, mode);
+    fp = fopen(path, mode);
+    efree(path);
+
+    return fp;
 }
 
 /**
@@ -442,7 +484,14 @@ FILE *fopen_wrapper(const char *fname, const char *mode)
  * @return Return value of IMG_Load().  */
 SDL_Surface *IMG_Load_wrapper(const char *file)
 {
-    return IMG_Load(file_path(file, "r"));
+    char *path;
+    SDL_Surface *surface;
+
+    path = file_path(file, "r");
+    surface = IMG_Load(path);
+    efree(path);
+
+    return surface;
 }
 
 /**
@@ -452,6 +501,13 @@ SDL_Surface *IMG_Load_wrapper(const char *file)
  * @return Return value of TTF_OpenFont(). */
 TTF_Font *TTF_OpenFont_wrapper(const char *file, int ptsize)
 {
-    return TTF_OpenFont(file_path(file, "r"), ptsize);
+    char *path;
+    TTF_Font *font;
+
+    path = file_path(file, "r");
+    font = TTF_OpenFont(path, ptsize);
+    efree(path);
+
+    return font;
 }
 /*@}*/

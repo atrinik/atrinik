@@ -1,0 +1,2904 @@
+arch map
+name Caverns
+msg
+Created:  2011-03-17 emperorbma
+Modified: 2015-04-19 Alex Tokar
+endmsg
+width 24
+height 24
+difficulty 30
+darkness 2
+bg_music eranasp.mod
+region strakewood_island_underground
+end
+arch floor_sand_d1
+y 7
+end
+arch fwall_rock1
+y 7
+end
+arch floor_sand_d1
+y 8
+end
+arch fwall_rock1
+y 8
+end
+arch floor_sand_d3
+y 9
+end
+arch floor_sand_d2
+y 10
+end
+arch floor_sand_d1
+y 11
+end
+arch fwall_rock1
+y 11
+end
+arch floor_sand_d1
+y 12
+end
+arch fwall_rock1
+y 12
+end
+arch floor_sand_d1
+y 13
+end
+arch fwall_rock1
+y 13
+end
+arch floor_sand_d2
+y 14
+end
+arch floor_sand_d3
+y 15
+end
+arch floor_sand_d1
+y 16
+end
+arch floor_sand_d1
+y 17
+end
+arch fwall_rock1
+y 17
+end
+arch floor_sand_d1
+y 18
+end
+arch fwall_rock1
+y 18
+end
+arch floor_sand_d1
+y 19
+end
+arch fwall_rock1
+y 19
+end
+arch floor_sand_d4
+y 20
+end
+arch floor_sand_d4
+y 21
+end
+arch floor_sand_d1
+y 22
+end
+arch fwall_rock1
+y 22
+end
+arch floor_sand_d1
+x 1
+y 7
+end
+arch fwall_rock1
+x 1
+y 7
+end
+arch floor_sand_d3
+x 1
+y 8
+end
+arch trash_wood2.101
+x 1
+y 8
+end
+arch floor_sand_d1
+x 1
+y 9
+end
+arch floor_sand_d1
+x 1
+y 10
+end
+arch fwall_rock1
+x 1
+y 10
+end
+arch floor_sand_d1
+x 1
+y 11
+end
+arch fwall_rock1
+x 1
+y 11
+end
+arch floor_sand_d1
+x 1
+y 13
+end
+arch fwall_rock1
+x 1
+y 13
+end
+arch floor_sand_d1
+x 1
+y 14
+end
+arch fwall_rock1
+x 1
+y 14
+end
+arch floor_sand_d3
+x 1
+y 15
+end
+arch floor_sand_d1
+x 1
+y 16
+end
+arch floor_sand_d1
+x 1
+y 17
+end
+arch mushroom_giant5
+x 1
+y 17
+end
+arch floor_sand_d4
+x 1
+y 18
+end
+arch torch_wall_1
+direction 7
+x 1
+y 18
+end
+arch floor_sand_d2
+x 1
+y 19
+end
+arch floor_sand_d1
+x 1
+y 20
+end
+arch floor_sand_d4
+x 1
+y 21
+end
+arch floor_sand_d1
+x 1
+y 22
+end
+arch fwall_rock1
+x 1
+y 22
+end
+arch floor_sand_d1
+x 2
+y 7
+end
+arch fwall_rock1
+x 2
+y 7
+end
+arch floor_sand_d1
+x 2
+y 8
+end
+arch earth_m10
+x 2
+y 8
+end
+arch floor_sand_d4
+x 2
+y 9
+end
+arch floor_sand_d1
+x 2
+y 10
+end
+arch floor_sand_d1
+x 2
+y 11
+end
+arch fwall_rock1
+x 2
+y 11
+end
+arch floor_sand_d1
+x 2
+y 14
+end
+arch fwall_rock1
+x 2
+y 14
+end
+arch floor_sand_d1
+x 2
+y 15
+end
+arch fwall_rock1
+x 2
+y 15
+end
+arch floor_sand_d3
+x 2
+y 16
+end
+arch floor_sand_d2
+x 2
+y 17
+end
+arch floor_sand_d3
+x 2
+y 18
+end
+arch spawn_point
+x 2
+y 18
+arch pudding_black
+level 20
+type 83
+end
+end
+arch floor_sand_d1
+x 2
+y 19
+end
+arch floor_sand_d1
+x 2
+y 20
+end
+arch floor_sand_d1
+x 2
+y 21
+end
+arch fwall_rock1
+x 2
+y 21
+end
+arch floor_sand_d1
+x 2
+y 22
+end
+arch fwall_rock1
+x 2
+y 22
+end
+arch floor_sand_d1
+x 3
+y 6
+end
+arch fwall_rock1
+x 3
+y 6
+end
+arch floor_sand_d1
+x 3
+y 7
+end
+arch fwall_rock1
+x 3
+y 7
+end
+arch floor_sand_d4
+x 3
+y 8
+end
+arch earth_m10
+x 3
+y 8
+end
+arch floor_sand_d1
+x 3
+y 9
+end
+arch floor_sand_d1
+x 3
+y 10
+end
+arch floor_sand_d1
+x 3
+y 11
+end
+arch fwall_rock1
+x 3
+y 11
+end
+arch floor_sand_d1
+x 3
+y 12
+end
+arch fwall_rock1
+x 3
+y 12
+end
+arch floor_sand_d1
+x 3
+y 13
+end
+arch fwall_rock1
+x 3
+y 13
+end
+arch floor_sand_d1
+x 3
+y 15
+end
+arch fwall_rock1
+x 3
+y 15
+end
+arch floor_sand_d1
+x 3
+y 16
+end
+arch fwall_rock1
+x 3
+y 16
+end
+arch floor_sand_d1
+x 3
+y 17
+end
+arch fwall_rock1
+x 3
+y 17
+end
+arch floor_sand_d2
+x 3
+y 18
+end
+arch floor_sand_d3
+x 3
+y 19
+end
+arch floor_sand_d1
+x 3
+y 20
+end
+arch fwall_rock1
+x 3
+y 20
+end
+arch floor_sand_d1
+x 3
+y 21
+end
+arch fwall_rock1
+x 3
+y 21
+end
+arch floor_sand_d1
+x 4
+y 5
+end
+arch fwall_rock1
+x 4
+y 5
+end
+arch floor_sand_d1
+x 4
+y 6
+end
+arch fwall_rock1
+x 4
+y 6
+end
+arch floor_sand_d2
+x 4
+y 7
+end
+arch earth_m18
+x 4
+y 7
+end
+arch floor_sand_d4
+x 4
+y 8
+end
+arch earth_m7
+x 4
+y 8
+end
+arch floor_sand_d4
+x 4
+y 9
+end
+arch plant_mushroom2
+x 4
+y 9
+end
+arch floor_sand_d3
+x 4
+y 10
+end
+arch floor_sand_d3
+x 4
+y 11
+end
+arch floor_sand_d4
+x 4
+y 12
+end
+arch floor_sand_d1
+x 4
+y 13
+end
+arch fwall_rock1
+x 4
+y 13
+end
+arch floor_sand_d1
+x 4
+y 14
+end
+arch fwall_rock1
+x 4
+y 14
+end
+arch floor_sand_d1
+x 4
+y 17
+end
+arch fwall_rock1
+x 4
+y 17
+end
+arch floor_sand_d1
+x 4
+y 18
+end
+arch water_floor
+x 4
+y 18
+end
+arch floor_sand_d2
+x 4
+y 19
+end
+arch floor_sand_d1
+x 4
+y 20
+end
+arch fwall_rock1
+x 4
+y 20
+end
+arch floor_sand_d1
+x 4
+y 21
+end
+arch fwall_rock1
+x 4
+y 21
+end
+arch floor_sand_d1
+x 5
+y 5
+end
+arch fwall_rock1
+x 5
+y 5
+end
+arch floor_sand_d1
+x 5
+y 6
+end
+arch water_floor
+x 5
+y 6
+end
+arch floor_sand_d2
+x 5
+y 7
+end
+arch floor_sand_d3
+x 5
+y 8
+end
+arch floor_sand_d4
+x 5
+y 9
+end
+arch floor_sand_d2
+x 5
+y 10
+end
+arch floor_sand_d4
+x 5
+y 11
+end
+arch floor_sand_d3
+x 5
+y 12
+end
+arch floor_sand_d3
+x 5
+y 13
+end
+arch floor_sand_d1
+x 5
+y 14
+end
+arch fwall_rock1
+x 5
+y 14
+end
+arch floor_sand_d1
+x 5
+y 15
+end
+arch fwall_rock1
+x 5
+y 15
+end
+arch floor_sand_d1
+x 5
+y 16
+end
+arch fwall_rock1
+x 5
+y 16
+end
+arch floor_sand_d1
+x 5
+y 17
+end
+arch fwall_rock1
+x 5
+y 17
+end
+arch floor_sand_d4
+x 5
+y 18
+end
+arch cave_deco_f7.101
+x 5
+y 18
+end
+arch floor_sand_d1
+x 5
+y 19
+end
+arch floor_sand_d1
+x 5
+y 20
+end
+arch floor_sand_d1
+x 5
+y 21
+end
+arch fwall_rock1
+x 5
+y 21
+end
+arch floor_sand_d1
+x 5
+y 22
+end
+arch fwall_rock1
+x 5
+y 22
+end
+arch floor_sand_d1
+x 6
+y 4
+end
+arch fwall_rock1
+x 6
+y 4
+end
+arch floor_sand_d1
+x 6
+y 5
+end
+arch fwall_rock1
+x 6
+y 5
+end
+arch floor_sand_d3
+x 6
+y 6
+end
+arch floor_sand_d2
+x 6
+y 7
+end
+arch floor_sand_d1
+x 6
+y 8
+end
+arch floor_sand_d1
+x 6
+y 9
+end
+arch floor_sand_d2
+x 6
+y 10
+end
+arch floor_sand_d1
+x 6
+y 11
+end
+arch floor_sand_d3
+x 6
+y 12
+end
+arch floor_sand_d3
+x 6
+y 13
+end
+arch floor_sand_d2
+x 6
+y 14
+end
+arch pile_floor2
+x 6
+y 14
+end
+arch floor_sand_d3
+x 6
+y 15
+end
+arch earth_m17
+x 6
+y 15
+end
+arch floor_sand_d1
+x 6
+y 16
+end
+arch fwall_rock1
+x 6
+y 16
+end
+arch floor_sand_d1
+x 6
+y 17
+end
+arch fwall_rock1
+x 6
+y 17
+end
+arch floor_sand_d1
+x 6
+y 18
+end
+arch fwall_rock1
+x 6
+y 18
+end
+arch floor_sand_d2
+x 6
+y 19
+end
+arch floor_sand_d1
+x 6
+y 20
+end
+arch floor_sand_d3
+x 6
+y 21
+end
+arch floor_sand_d1
+x 6
+y 22
+end
+arch fwall_rock1
+x 6
+y 22
+end
+arch floor_sand_d1
+x 7
+y 3
+end
+arch fwall_rock1
+x 7
+y 3
+end
+arch floor_sand_d1
+x 7
+y 4
+end
+arch fwall_rock1
+x 7
+y 4
+end
+arch floor_sand_d3
+x 7
+y 5
+end
+arch fstone1m3
+x 7
+y 5
+end
+arch floor_sand_d2
+x 7
+y 6
+end
+arch floor_sand_d4
+x 7
+y 7
+end
+arch floor_sand_d4
+x 7
+y 8
+end
+arch floor_sand_d2
+x 7
+y 9
+end
+arch floor_sand_d1
+x 7
+y 10
+end
+arch fwall_rock1
+x 7
+y 10
+end
+arch floor_sand_d2
+x 7
+y 11
+end
+arch swamp1m2
+x 7
+y 11
+end
+arch floor_sand_d2
+x 7
+y 12
+end
+arch swamp1m3
+x 7
+y 12
+end
+arch floor_sand_d4
+x 7
+y 13
+end
+arch floor_sand_d1
+x 7
+y 14
+end
+arch floor_sand_d2
+x 7
+y 15
+end
+arch floor_sand_d2
+x 7
+y 16
+end
+arch floor_sand_d1
+x 7
+y 17
+end
+arch fwall_rock1
+x 7
+y 17
+end
+arch floor_sand_d1
+x 7
+y 18
+end
+arch fwall_rock1
+x 7
+y 18
+end
+arch floor_sand_d1
+x 7
+y 19
+end
+arch fwall_rock1
+x 7
+y 19
+end
+arch floor_sand_d1
+x 7
+y 20
+end
+arch fwall_rock1
+x 7
+y 20
+end
+arch floor_sand_d4
+x 7
+y 21
+end
+arch floor_sand_d1
+x 7
+y 22
+end
+arch fwall_rock1
+x 7
+y 22
+end
+arch floor_sand_d1
+x 8
+y 2
+end
+arch fwall_rock1
+x 8
+y 2
+end
+arch floor_sand_d1
+x 8
+y 3
+end
+arch fwall_rock1
+x 8
+y 3
+end
+arch plant1_wall.151
+x 8
+y 3
+end
+arch floor_sand_d2
+x 8
+y 4
+end
+arch floor_sand_d1
+x 8
+y 5
+end
+arch floor_sand_d3
+x 8
+y 6
+end
+arch floor_sand_d1
+x 8
+y 7
+end
+arch floor_sand_d4
+x 8
+y 8
+end
+arch floor_sand_d3
+x 8
+y 9
+end
+arch floor_sand_d1
+x 8
+y 10
+end
+arch fwall_rock1
+x 8
+y 10
+end
+arch swamp1
+x 8
+y 11
+end
+arch mushroom_giant13
+x 8
+y 11
+end
+arch floor_sand_d3
+x 8
+y 12
+end
+arch swamp1m5
+x 8
+y 12
+end
+arch floor_sand_d4
+x 8
+y 13
+end
+arch floor_sand_d2
+x 8
+y 14
+end
+arch floor_sand_d4
+x 8
+y 15
+end
+arch floor_sand_d4
+x 8
+y 16
+end
+arch floor_sand_d1
+x 8
+y 17
+end
+arch cave_deco_f6.101
+x 8
+y 17
+end
+arch floor_sand_d1
+x 8
+y 18
+end
+arch fwall_rock1
+x 8
+y 18
+end
+arch floor_sand_d1
+x 8
+y 19
+end
+arch fwall_rock1
+x 8
+y 19
+end
+arch floor_sand_d1
+x 8
+y 20
+end
+arch fwall_rock1
+x 8
+y 20
+end
+arch floor_sand_d1
+x 8
+y 21
+end
+arch fwall_rock1
+x 8
+y 21
+end
+arch floor_sand_d1
+x 8
+y 22
+end
+arch fwall_rock1
+x 8
+y 22
+end
+arch floor_sand_d2
+x 9
+y 1
+end
+arch fwall_rock1
+x 9
+y 1
+end
+arch floor_sand_d1
+x 9
+y 2
+end
+arch fwall_rock1
+x 9
+y 2
+end
+arch plant2_wall.151
+x 9
+y 2
+end
+arch floor_sand_d3
+x 9
+y 3
+end
+arch floor_sand_d3
+x 9
+y 4
+end
+arch floor_sand_d3
+x 9
+y 5
+end
+arch floor_sand_d2
+x 9
+y 6
+end
+arch floor_sand_d1
+x 9
+y 7
+end
+arch floor_sand_d3
+x 9
+y 8
+end
+arch floor_sand_d1
+x 9
+y 9
+end
+arch fwall_rock1
+x 9
+y 9
+end
+arch floor_sand_d1
+x 9
+y 10
+end
+arch fwall_rock1
+x 9
+y 10
+end
+arch floor_sand_d1
+x 9
+y 11
+end
+arch fwall_rock1
+x 9
+y 11
+end
+arch floor_sand_d3
+x 9
+y 12
+end
+arch swamp1m5
+x 9
+y 12
+end
+arch floor_sand_d4
+x 9
+y 13
+end
+arch floor_sand_d3
+x 9
+y 14
+end
+arch floor_sand_d1
+x 9
+y 15
+end
+arch floor_sand_d4
+x 9
+y 16
+end
+arch floor_sand_d1
+x 9
+y 17
+end
+arch floor_sand_d1
+x 9
+y 18
+end
+arch floor_sand_d3
+x 9
+y 19
+end
+arch trash_wood1.101
+x 9
+y 19
+end
+arch floor_sand_d4
+x 9
+y 20
+end
+arch floor_sand_d1
+x 9
+y 21
+end
+arch fwall_rock1
+x 9
+y 21
+end
+arch floor_sand_d1
+x 9
+y 22
+end
+arch fwall_rock1
+x 9
+y 22
+end
+arch floor_sand_d1
+x 10
+end
+arch fwall_rock1
+x 10
+end
+arch floor_sand_d1
+x 10
+y 1
+end
+arch fwall_rock1
+x 10
+y 1
+end
+arch floor_sand_d1
+x 10
+y 2
+end
+arch cave_deco_f7.101
+x 10
+y 2
+end
+arch floor_sand_d3
+x 10
+y 3
+end
+arch spider_web
+x 10
+y 3
+end
+arch floor_sand_d4
+x 10
+y 4
+end
+arch floor_sand_d3
+x 10
+y 5
+end
+arch mushroom_spot1
+x 10
+y 5
+end
+arch floor_sand_d4
+x 10
+y 6
+end
+arch floor_sand_d2
+x 10
+y 7
+end
+arch floor_sand_d2
+x 10
+y 8
+end
+arch floor_sand_d1
+x 10
+y 9
+end
+arch fwall_rock1
+x 10
+y 9
+end
+arch floor_sand_d1
+x 10
+y 10
+end
+arch fwall_rock1
+x 10
+y 10
+end
+arch floor_sand_d1
+x 10
+y 11
+end
+arch fwall_rock1
+x 10
+y 11
+end
+arch floor_sand_d2
+x 10
+y 12
+end
+arch floor_sand_d4
+x 10
+y 13
+end
+arch floor_sand_d4
+x 10
+y 14
+end
+arch floor_sand_d4
+x 10
+y 15
+end
+arch mushroom_giant10
+x 10
+y 15
+end
+arch floor_sand_d3
+x 10
+y 16
+end
+arch floor_sand_d3
+x 10
+y 17
+end
+arch floor_sand_d3
+x 10
+y 18
+end
+arch floor_sand_d3
+x 10
+y 19
+end
+arch floor_sand_d3
+x 10
+y 20
+end
+arch floor_sand_d2
+x 10
+y 21
+end
+arch floor_sand_d1
+x 10
+y 22
+end
+arch fwall_rock1
+x 10
+y 22
+end
+arch floor_sand_d1
+x 11
+end
+arch torch_wall_1
+direction 7
+x 11
+end
+arch floor_sand_d1
+x 11
+y 1
+end
+arch floor_sand_d1
+x 11
+y 2
+end
+arch floor_sand_d2
+x 11
+y 3
+end
+arch floor_sand_d4
+x 11
+y 4
+end
+arch floor_sand_d4
+x 11
+y 5
+end
+arch floor_sand_d4
+x 11
+y 6
+end
+arch floor_sand_d3
+x 11
+y 7
+end
+arch floor_sand_d1
+x 11
+y 8
+end
+arch fwall_rock1
+x 11
+y 8
+end
+arch floor_sand_d1
+x 11
+y 9
+end
+arch fwall_rock1
+x 11
+y 9
+end
+arch floor_sand_d1
+x 11
+y 10
+end
+arch fwall_rock1
+x 11
+y 10
+end
+arch floor_sand_d1
+x 11
+y 11
+end
+arch fwall_rock1
+x 11
+y 11
+end
+arch floor_sand_d1
+x 11
+y 12
+end
+arch fwall_rock1
+x 11
+y 12
+end
+arch floor_sand_d4
+x 11
+y 13
+end
+arch torch_wall_1
+x 11
+y 13
+end
+arch floor_sand_d2
+x 11
+y 14
+end
+arch floor_sand_d3
+x 11
+y 15
+end
+arch floor_sand_d4
+x 11
+y 16
+end
+arch floor_sand_d1
+x 11
+y 17
+end
+arch floor_sand_d2
+x 11
+y 18
+end
+arch floor_sand_d4
+x 11
+y 19
+end
+arch floor_sand_d2
+x 11
+y 20
+end
+arch floor_sand_d3
+x 11
+y 21
+end
+arch pile_floor3
+x 11
+y 21
+end
+arch floor_sand_d1
+x 11
+y 22
+end
+arch fwall_rock1
+x 11
+y 22
+end
+arch floor_sand_d1
+x 11
+y 23
+end
+arch fwall_rock1
+x 11
+y 23
+end
+arch floor_sand_d1
+x 12
+end
+arch floor_sand_d4
+x 12
+y 1
+end
+arch floor_sand_d1
+x 12
+y 2
+end
+arch spawn_point
+x 12
+y 2
+arch spider
+level 14
+type 83
+end
+end
+arch floor_sand_d3
+x 12
+y 3
+end
+arch pile_floor3
+x 12
+y 3
+end
+arch floor_sand_d2
+x 12
+y 4
+end
+arch floor_sand_d1
+x 12
+y 5
+end
+arch floor_sand_d2
+x 12
+y 6
+end
+arch floor_sand_d1
+x 12
+y 7
+end
+arch floor_sand_d1
+x 12
+y 8
+end
+arch fwall_rock1
+x 12
+y 8
+end
+arch floor_sand_d1
+x 12
+y 9
+end
+arch fwall_rock1
+x 12
+y 9
+end
+arch water_lt
+x 12
+y 10
+end
+arch cave_deco_full
+direction 7
+x 12
+y 10
+end
+arch floor_sand_d1
+x 12
+y 11
+end
+arch fwall_rock1
+x 12
+y 11
+end
+arch floor_sand_d1
+x 12
+y 12
+end
+arch fwall_rock1
+x 12
+y 12
+end
+arch floor_sand_d3
+x 12
+y 13
+end
+arch trash_wood1.101
+x 12
+y 13
+end
+arch floor_sand_d1
+x 12
+y 14
+end
+arch floor_sand_d2
+x 12
+y 15
+end
+arch floor_sand_d3
+x 12
+y 16
+end
+arch cave_pillar2
+x 12
+y 16
+end
+arch floor_sand_d2
+x 12
+y 17
+end
+arch floor_sand_d4
+x 12
+y 18
+end
+arch floor_sand_d2
+x 12
+y 19
+end
+arch floor_sand_d1
+x 12
+y 20
+end
+arch mushroom_giant11
+x 12
+y 20
+end
+arch floor_sand_d1
+x 12
+y 21
+end
+arch floor_sand_d1
+x 12
+y 22
+end
+arch floor_sand_d1
+x 12
+y 23
+end
+arch fwall_rock1
+x 12
+y 23
+end
+arch floor_sand_d3
+x 13
+end
+arch floor_sand_d3
+x 13
+y 1
+end
+arch floor_sand_d2
+x 13
+y 2
+end
+arch floor_sand_d4
+x 13
+y 3
+end
+arch floor_sand_d2
+x 13
+y 4
+end
+arch floor_sand_d1
+x 13
+y 5
+end
+arch floor_sand_d3
+x 13
+y 6
+end
+arch floor_sand_d1
+x 13
+y 7
+end
+arch fwall_rock1
+x 13
+y 7
+end
+arch floor_sand_d1
+x 13
+y 8
+end
+arch fwall_rock1
+x 13
+y 8
+end
+arch floor_sand_d1
+x 13
+y 9
+end
+arch water_lt2_m
+direction 7
+x 13
+y 9
+end
+arch floor_sand_d1
+x 13
+y 10
+end
+arch water_lt2_m
+direction 7
+x 13
+y 10
+end
+arch floor_sand_d2
+x 13
+y 11
+end
+arch water_lt2_m
+direction 7
+x 13
+y 11
+end
+arch floor_sand_d1
+x 13
+y 12
+end
+arch fwall_rock1
+x 13
+y 12
+end
+arch floor_sand_d4
+x 13
+y 13
+end
+arch water_floor
+x 13
+y 13
+end
+arch floor_sand_d4
+x 13
+y 14
+end
+arch floor_sand_d2
+x 13
+y 15
+end
+arch floor_sand_d1
+x 13
+y 16
+end
+arch floor_sand_d3
+x 13
+y 17
+end
+arch plant_mushroom5
+x 13
+y 17
+end
+arch floor_sand_d1
+x 13
+y 18
+end
+arch floor_sand_d2
+x 13
+y 19
+end
+arch spawn_point
+x 13
+y 19
+arch cube_gel
+level 16
+type 83
+end
+end
+arch floor_sand_d3
+x 13
+y 20
+end
+arch floor_sand_d4
+x 13
+y 21
+end
+arch floor_sand_d2
+x 13
+y 22
+end
+arch floor_sand_d1
+x 13
+y 23
+end
+arch fwall_rock1
+x 13
+y 23
+end
+arch floor_sand_d1
+x 14
+end
+arch fwall_rock1
+x 14
+end
+arch plant2_wall.151
+x 14
+end
+arch floor_sand_d1
+x 14
+y 1
+end
+arch floor_sand_d2
+x 14
+y 2
+end
+arch floor_sand_d3
+x 14
+y 3
+end
+arch floor_sand_d4
+x 14
+y 4
+end
+arch floor_sand_d3
+x 14
+y 5
+end
+arch floor_sand_d3
+x 14
+y 6
+end
+arch fwall_rock1
+x 14
+y 6
+end
+arch floor_sand_d1
+x 14
+y 7
+end
+arch fwall_rock1
+x 14
+y 7
+end
+arch floor_sand_d1
+x 14
+y 8
+end
+arch earth_m18
+x 14
+y 8
+end
+arch floor_sand_d2
+x 14
+y 9
+end
+arch spawn_point
+x 14
+y 9
+arch slug_giant
+level 18
+type 83
+end
+end
+arch floor_sand_d2
+x 14
+y 10
+end
+arch floor_sand_d4
+x 14
+y 11
+end
+arch floor_sand_d1
+x 14
+y 12
+end
+arch fwall_rock1
+x 14
+y 12
+end
+arch floor_sand_d1
+x 14
+y 13
+end
+arch fwall_rock1
+x 14
+y 13
+end
+arch floor_sand_d3
+x 14
+y 14
+end
+arch fstone1m4
+x 14
+y 14
+end
+arch floor_sand_d2
+x 14
+y 15
+end
+arch fstone1m10
+x 14
+y 15
+end
+arch floor_sand_d2
+x 14
+y 16
+end
+arch floor_sand_d2
+x 14
+y 17
+end
+arch floor_sand_d4
+x 14
+y 18
+end
+arch floor_sand_d2
+x 14
+y 19
+end
+arch floor_sand_d3
+x 14
+y 20
+end
+arch floor_sand_d4
+x 14
+y 21
+end
+arch floor_sand_d1
+x 14
+y 22
+end
+arch floor_sand_d1
+x 14
+y 23
+end
+arch fwall_rock1
+x 14
+y 23
+end
+arch floor_sand_d4
+x 15
+end
+arch fwall_rock1
+x 15
+end
+arch floor_sand_d2
+x 15
+y 1
+end
+arch floor_sand_d3
+x 15
+y 2
+end
+arch floor_sand_d3
+x 15
+y 3
+end
+arch floor_sand_d4
+x 15
+y 4
+end
+arch floor_sand_d1
+x 15
+y 5
+end
+arch floor_sand_d3
+x 15
+y 6
+end
+arch floor_sand_d1
+x 15
+y 7
+end
+arch fwall_rock1
+x 15
+y 7
+end
+arch floor_sand_d1
+x 15
+y 8
+end
+arch pile_floor1
+x 15
+y 8
+end
+arch floor_sand_d2
+x 15
+y 9
+end
+arch floor_sand_d2
+x 15
+y 10
+end
+arch floor_sand_d4
+x 15
+y 11
+end
+arch floor_sand_d3
+x 15
+y 12
+end
+arch floor_sand_d1
+x 15
+y 13
+end
+arch fwall_rock1
+x 15
+y 13
+end
+arch floor_sand_d1
+x 15
+y 14
+end
+arch fwall_rock1
+x 15
+y 14
+end
+arch floor_sand_d2
+x 15
+y 15
+end
+arch fstone1m4
+x 15
+y 15
+end
+arch floor_sand_d1
+x 15
+y 16
+end
+arch floor_sand_d4
+x 15
+y 17
+end
+arch floor_sand_d1
+x 15
+y 18
+end
+arch floor_sand_d2
+x 15
+y 19
+end
+arch floor_sand_d2
+x 15
+y 20
+end
+arch floor_sand_d2
+x 15
+y 21
+end
+arch floor_sand_d2
+x 15
+y 22
+end
+arch floor_sand_d1
+x 15
+y 23
+end
+arch fwall_rock1
+x 15
+y 23
+end
+arch floor_sand_d4
+x 16
+end
+arch fwall_rock1
+x 16
+end
+arch floor_sand_d4
+x 16
+y 1
+end
+arch floor_sand_d1
+x 16
+y 2
+end
+arch fwall_rock1
+x 16
+y 2
+end
+arch floor_sand_d2
+x 16
+y 3
+end
+arch fwall_rock1
+x 16
+y 3
+end
+arch floor_sand_d2
+x 16
+y 4
+end
+arch trash_wood1.101
+x 16
+y 4
+end
+arch floor_sand_d1
+x 16
+y 5
+end
+arch floor_sand_d3
+x 16
+y 6
+end
+arch floor_sand_d2
+x 16
+y 7
+end
+arch fwall_rock1
+x 16
+y 7
+end
+arch plant1_wall.151
+x 16
+y 7
+end
+arch floor_sand_d3
+x 16
+y 8
+end
+arch floor_sand_d4
+x 16
+y 9
+end
+arch floor_sand_d1
+x 16
+y 10
+end
+arch plant_mushroom3
+x 16
+y 10
+end
+arch floor_sand_d1
+x 16
+y 11
+end
+arch floor_sand_d4
+x 16
+y 12
+end
+arch dirt_floor2
+x 16
+y 12
+end
+arch floor_sand_d1
+x 16
+y 13
+end
+arch floor_sand_d1
+x 16
+y 14
+end
+arch fwall_rock1
+x 16
+y 14
+end
+arch floor_sand_d1
+x 16
+y 15
+end
+arch fwall_rock1
+x 16
+y 15
+end
+arch floor_sand_d1
+x 16
+y 16
+end
+arch torch_wall_1
+x 16
+y 16
+end
+arch floor_sand_d4
+x 16
+y 17
+end
+arch floor_sand_d3
+x 16
+y 18
+end
+arch floor_sand_d1
+x 16
+y 19
+end
+arch floor_sand_d1
+x 16
+y 20
+end
+arch floor_sand_d1
+x 16
+y 21
+end
+arch fwall_rock1
+x 16
+y 21
+end
+arch floor_sand_d2
+x 16
+y 22
+end
+arch floor_sand_d1
+x 16
+y 23
+end
+arch fwall_rock1
+x 16
+y 23
+end
+arch floor_sand_d1
+x 17
+end
+arch fwall_rock1
+x 17
+end
+arch floor_nstone2
+x 17
+y 1
+end
+arch earth_m16
+x 17
+y 1
+end
+arch floor_nstone3
+x 17
+y 2
+end
+arch earth_m12
+x 17
+y 2
+end
+arch torch_wall_1
+direction 7
+x 17
+y 2
+end
+arch floor_nstone1
+x 17
+y 3
+end
+arch earth_m16
+x 17
+y 3
+end
+arch floor_nstone3
+x 17
+y 4
+end
+arch earth_m12
+x 17
+y 4
+end
+arch floor_sand_d4
+x 17
+y 5
+end
+arch floor_sand_d1
+x 17
+y 6
+end
+arch floor_sand_d1
+x 17
+y 7
+end
+arch fwall_rock1
+x 17
+y 7
+end
+arch floor_sand_d2
+x 17
+y 8
+end
+arch torch_wall_1
+x 17
+y 8
+end
+arch floor_sand_d3
+x 17
+y 9
+end
+arch floor_sand_d4
+x 17
+y 10
+end
+arch floor_sand_d1
+x 17
+y 11
+end
+arch floor_sand_d3
+x 17
+y 12
+end
+arch floor_sand_d2
+x 17
+y 13
+end
+arch floor_sand_d1
+x 17
+y 14
+end
+arch floor_sand_d1
+x 17
+y 15
+end
+arch fwall_rock1
+x 17
+y 15
+end
+arch floor_sand_d3
+x 17
+y 16
+end
+arch small_stones
+x 17
+y 16
+end
+arch floor_sand_d4
+x 17
+y 17
+end
+arch floor_sand_d3
+x 17
+y 18
+end
+arch mushroom_giant9
+x 17
+y 18
+end
+arch floor_sand_d3
+x 17
+y 19
+end
+arch floor_sand_d3
+x 17
+y 20
+end
+arch floor_sand_d1
+x 17
+y 21
+end
+arch fwall_rock1
+x 17
+y 21
+end
+arch floor_sand_d1
+x 17
+y 22
+end
+arch fwall_rock1
+x 17
+y 22
+end
+arch floor_sand_d1
+x 17
+y 23
+end
+arch fwall_rock1
+x 17
+y 23
+end
+arch floor_sand_d3
+x 18
+end
+arch fwall_rock1
+x 18
+end
+arch floor_nstone3
+x 18
+y 1
+end
+arch floor_nstone1
+x 18
+y 2
+end
+arch floor_nstone2
+x 18
+y 3
+end
+arch floor_nstone1
+x 18
+y 4
+end
+arch floor_nstone2
+x 18
+y 5
+end
+arch floor_sand_d3
+x 18
+y 6
+end
+arch floor_sand_d1
+x 18
+y 7
+end
+arch fwall_rock1
+x 18
+y 7
+end
+arch floor_sand_d1
+x 18
+y 8
+end
+arch cave_deco_f8.101
+x 18
+y 8
+end
+arch floor_sand_d2
+x 18
+y 9
+end
+arch floor_sand_d1
+x 18
+y 10
+end
+arch floor_sand_d2
+x 18
+y 11
+end
+arch floor_sand_d2
+x 18
+y 12
+end
+arch floor_sand_d2
+x 18
+y 13
+end
+arch floor_sand_d1
+x 18
+y 14
+end
+arch floor_sand_d3
+x 18
+y 15
+end
+arch earth_m12
+x 18
+y 15
+end
+arch floor_sand_d1
+x 18
+y 16
+end
+arch floor_sand_d4
+x 18
+y 17
+end
+arch floor_sand_d1
+x 18
+y 18
+end
+arch floor_sand_d3
+x 18
+y 19
+end
+arch floor_sand_d2
+x 18
+y 20
+end
+arch floor_sand_d1
+x 18
+y 21
+end
+arch fwall_rock1
+x 18
+y 21
+end
+arch floor_nstone3
+x 19
+end
+arch stairs_stone_up
+direction 5
+x 19
+end
+arch light9
+x 19
+end
+arch floor_nstone3
+x 19
+y 1
+end
+arch floor_nstone3
+x 19
+y 2
+end
+arch light9
+x 19
+y 2
+end
+arch floor_nstone3
+x 19
+y 3
+end
+arch floor_nstone3
+x 19
+y 4
+end
+arch floor_nstone3
+x 19
+y 5
+end
+arch floor_sand_d2
+x 19
+y 6
+end
+arch floor_sand_d1
+x 19
+y 7
+end
+arch fwall_rock1
+x 19
+y 7
+end
+arch floor_sand_d4
+x 19
+y 8
+end
+arch floor_sand_d3
+x 19
+y 9
+end
+arch floor_sand_d1
+x 19
+y 10
+end
+arch fwall_rock1
+x 19
+y 10
+end
+arch floor_sand_d1
+x 19
+y 11
+end
+arch fwall_rock1
+x 19
+y 11
+end
+arch floor_sand_d3
+x 19
+y 12
+end
+arch floor_sand_d3
+x 19
+y 13
+end
+arch floor_sand_d4
+x 19
+y 14
+end
+arch floor_sand_d4
+x 19
+y 15
+end
+arch floor_sand_d4
+x 19
+y 16
+end
+arch floor_sand_d2
+x 19
+y 17
+end
+arch floor_sand_d1
+x 19
+y 18
+end
+arch floor_sand_d4
+x 19
+y 19
+end
+arch floor_sand_d4
+x 19
+y 20
+end
+arch floor_sand_d1
+x 19
+y 21
+end
+arch fwall_rock1
+x 19
+y 21
+end
+arch floor_sand_d3
+x 20
+end
+arch fwall_rock1
+draw_double 0
+x 20
+end
+arch floor_sand_d1
+x 20
+y 1
+end
+arch fwall_rock1
+draw_double 0
+x 20
+y 1
+end
+arch floor_nstone3
+x 20
+y 2
+end
+arch floor_nstone3
+x 20
+y 3
+end
+arch floor_nstone3
+x 20
+y 4
+end
+arch floor_sand_d1
+x 20
+y 5
+end
+arch floor_sand_d3
+x 20
+y 6
+end
+arch fwall_rock1
+x 20
+y 6
+end
+arch floor_sand_d3
+x 20
+y 7
+end
+arch fwall_rock1
+x 20
+y 7
+end
+arch floor_sand_d1
+x 20
+y 8
+end
+arch fwall_rock1
+x 20
+y 8
+end
+arch floor_sand_d1
+x 20
+y 9
+end
+arch fwall_rock1
+x 20
+y 9
+end
+arch floor_sand_d1
+x 20
+y 10
+end
+arch fwall_rock1
+x 20
+y 10
+end
+arch floor_sand_d1
+x 20
+y 11
+end
+arch fwall_rock1
+x 20
+y 11
+end
+arch floor_sand_d1
+x 20
+y 12
+end
+arch fwall_rock1
+x 20
+y 12
+end
+arch floor_sand_d1
+x 20
+y 13
+end
+arch fwall_rock1
+x 20
+y 13
+end
+arch floor_sand_d1
+x 20
+y 14
+end
+arch fwall_rock1
+x 20
+y 14
+end
+arch floor_sand_d3
+x 20
+y 15
+end
+arch floor_sand_d3
+x 20
+y 16
+end
+arch floor_sand_d3
+x 20
+y 17
+end
+arch floor_sand_d1
+x 20
+y 18
+end
+arch floor_sand_d1
+x 20
+y 19
+end
+arch floor_sand_d1
+x 20
+y 20
+end
+arch fwall_rock1
+x 20
+y 20
+end
+arch floor_sand_d1
+x 20
+y 21
+end
+arch fwall_rock1
+x 20
+y 21
+end
+arch floor_sand_d1
+x 21
+end
+arch fwall_rock1
+x 21
+end
+arch floor_sand_d2
+x 21
+y 1
+end
+arch fwall_rock1
+x 21
+y 1
+end
+arch floor_sand_d2
+x 21
+y 2
+end
+arch fwall_rock1
+x 21
+y 2
+end
+arch floor_sand_d3
+x 21
+y 3
+end
+arch floor_sand_d3
+x 21
+y 4
+end
+arch floor_sand_d1
+x 21
+y 5
+end
+arch fwall_rock1
+x 21
+y 5
+end
+arch floor_sand_d2
+x 21
+y 6
+end
+arch fwall_rock1
+x 21
+y 6
+end
+arch floor_sand_d2
+x 21
+y 7
+end
+arch fwall_rock1
+x 21
+y 7
+end
+arch floor_sand_d1
+x 21
+y 14
+end
+arch fwall_rock1
+x 21
+y 14
+end
+arch plant2_wall.151
+x 21
+y 14
+end
+arch floor_sand_d1
+x 21
+y 15
+end
+arch floor_sand_d1
+x 21
+y 16
+end
+arch floor_sand_d1
+x 21
+y 17
+end
+arch floor_sand_d1
+x 21
+y 18
+end
+arch floor_sand_d1
+x 21
+y 19
+end
+arch floor_sand_d1
+x 21
+y 20
+end
+arch fwall_rock1
+x 21
+y 20
+end
+arch floor_sand_d1
+x 22
+end
+arch fwall_rock1
+x 22
+end
+arch floor_sand_d1
+x 22
+y 1
+end
+arch fwall_rock1
+x 22
+y 1
+end
+arch floor_sand_d2
+x 22
+y 2
+end
+arch fwall_rock1
+x 22
+y 2
+end
+arch floor_sand_d1
+x 22
+y 3
+end
+arch fwall_rock1
+x 22
+y 3
+end
+arch floor_sand_d4
+x 22
+y 4
+end
+arch fwall_rock1
+x 22
+y 4
+end
+arch plant2_wall.151
+direction 7
+x 22
+y 4
+end
+arch floor_sand_d2
+x 22
+y 5
+end
+arch fwall_rock1
+x 22
+y 5
+end
+arch plant2_wall.151
+direction 7
+x 22
+y 5
+end
+arch floor_sand_d2
+x 22
+y 6
+end
+arch fwall_rock1
+x 22
+y 6
+end
+arch floor_sand_d2
+x 22
+y 7
+end
+arch fwall_rock1
+x 22
+y 7
+end
+arch floor_sand_d2
+x 22
+y 12
+end
+arch fwall_rock1
+x 22
+y 12
+end
+arch floor_sand_d2
+x 22
+y 13
+end
+arch fwall_rock1
+x 22
+y 13
+end
+arch floor_sand_d2
+x 22
+y 14
+end
+arch fwall_rock1
+x 22
+y 14
+end
+arch floor_sand_d4
+x 22
+y 15
+end
+arch dirt_floor2
+x 22
+y 15
+end
+arch floor_sand_d3
+x 22
+y 16
+end
+arch floor_sand_d3
+x 22
+y 17
+end
+arch floor_sand_d4
+x 22
+y 18
+end
+arch floor_sand_d3
+x 22
+y 19
+end
+arch floor_sand_d2
+x 22
+y 20
+end
+arch fwall_rock1
+x 22
+y 20
+end
+arch floor_sand_d1
+x 23
+end
+arch fwall_rock1
+x 23
+end
+arch floor_sand_d1
+x 23
+y 1
+end
+arch fwall_rock1
+x 23
+y 1
+end
+arch water_md2
+x 23
+y 2
+end
+arch water_lt_m
+direction 8
+x 23
+y 2
+end
+arch water_md4
+x 23
+y 3
+end
+arch water_lt_m
+direction 7
+x 23
+y 3
+end
+arch water_md3
+x 23
+y 4
+end
+arch water_lt_m
+direction 6
+x 23
+y 4
+end
+arch floor_sand_d3
+x 23
+y 5
+end
+arch water_lt2_m
+direction 1
+x 23
+y 5
+end
+arch floor_sand_d2
+x 23
+y 6
+end
+arch floor_sand_d2
+x 23
+y 7
+end
+arch fwall_rock1
+x 23
+y 7
+end
+arch floor_sand_d2
+x 23
+y 8
+end
+arch fwall_rock1
+x 23
+y 8
+end
+arch floor_sand_d2
+x 23
+y 11
+end
+arch fwall_rock1
+x 23
+y 11
+end
+arch floor_sand_d2
+x 23
+y 12
+end
+arch fwall_rock1
+x 23
+y 12
+end
+arch floor_sand_d3
+x 23
+y 13
+end
+arch floor_sand_d3
+x 23
+y 14
+end
+arch floor_sand_d4
+x 23
+y 15
+end
+arch floor_sand_d1
+x 23
+y 16
+end
+arch floor_sand_d3
+x 23
+y 17
+end
+arch floor_sand_d1
+x 23
+y 18
+end
+arch floor_sand_d2
+x 23
+y 19
+end
+arch fwall_rock1
+x 23
+y 19
+end
+arch floor_sand_d2
+x 23
+y 20
+end
+arch fwall_rock1
+x 23
+y 20
+end

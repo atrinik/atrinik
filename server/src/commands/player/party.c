@@ -29,6 +29,8 @@
  * @author Alex Tokar */
 
 #include <global.h>
+#include <packet.h>
+#include <toolkit_string.h>
 
 /** @copydoc command_func */
 void command_party(object *op, const char *command, char *params)
@@ -223,10 +225,13 @@ void command_party(object *op, const char *command, char *params)
 
         if (!strcmp(params, "list")) {
             packet = packet_new(CLIENT_CMD_PARTY, 128, 256);
+            packet_debug_data(packet, 0, "Party command type");
             packet_append_uint8(packet, CMD_PARTY_LIST);
 
             for (party = first_party; party; party = party->next) {
+                packet_debug_data(packet, 0, "\nParty name");
                 packet_append_string_terminated(packet, party->name);
+                packet_debug_data(packet, 0, "Leader");
                 packet_append_string_terminated(packet, party->leader);
             }
 
@@ -240,12 +245,20 @@ void command_party(object *op, const char *command, char *params)
             }
 
             packet = packet_new(CLIENT_CMD_PARTY, 128, 256);
+            packet_debug_data(packet, 0, "Party command type");
             packet_append_uint8(packet, CMD_PARTY_WHO);
 
             for (ol = CONTR(op)->party->members; ol; ol = ol->next) {
+                packet_debug_data(packet, 0, "\nMember name");
                 packet_append_string_terminated(packet, ol->objlink.ob->name);
-                packet_append_uint8(packet, MAX(1, MIN((double) ol->objlink.ob->stats.hp / ol->objlink.ob->stats.maxhp * 100.0f, 100)));
-                packet_append_uint8(packet, MAX(1, MIN((double) ol->objlink.ob->stats.sp / ol->objlink.ob->stats.maxsp * 100.0f, 100)));
+                packet_debug_data(packet, 0, "Health");
+                packet_append_uint8(packet, MAX(1, MIN(
+                        (double) ol->objlink.ob->stats.hp /
+                        ol->objlink.ob->stats.maxhp * 100.0f, 100)));
+                packet_debug_data(packet, 0, "Mana");
+                packet_append_uint8(packet, MAX(1, MIN(
+                        (double) ol->objlink.ob->stats.sp /
+                        ol->objlink.ob->stats.maxsp * 100.0f, 100)));
             }
 
             socket_send_packet(&CONTR(op)->socket, packet);
@@ -281,7 +294,9 @@ void command_party(object *op, const char *command, char *params)
                 /* Otherwise ask them to type the password */
                 draw_info(COLOR_YELLOW, op, "That party requires a password. Type it now, or press ESC to cancel joining.");
                 packet = packet_new(CLIENT_CMD_PARTY, 64, 64);
+                packet_debug_data(packet, 0, "Party command type");
                 packet_append_uint8(packet, CMD_PARTY_PASSWORD);
+                packet_debug_data(packet, 0, "Party name");
                 packet_append_string_terminated(packet, party->name);
                 socket_send_packet(&CONTR(op)->socket, packet);
             }

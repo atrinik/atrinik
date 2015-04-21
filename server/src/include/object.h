@@ -34,7 +34,7 @@
  * have nrof, include the weight it is carrying. */
 #define WEIGHT(op) (!op->nrof || op->type == CONTAINER ? op->weight + op->carrying : op->weight)
 
-#define WEIGHT_NROF(op, nrof) ((nrof ? op->weight * (sint32) nrof : op->weight) + op->carrying)
+#define WEIGHT_NROF(op, nrof) ((nrof ? op->weight * (int32_t) nrof : op->weight) + op->carrying)
 
 /**
  * @defgroup MOVE_APPLY_xxx move_apply() function call flags */
@@ -131,14 +131,14 @@ typedef struct obj {
      * Needed for the damage info for client in map2. Also used for
      * unmodified carrying weight of magical containers to prevent rounding
      * errors. */
-    uint32 damage_round_tag;
+    uint32_t damage_round_tag;
 
     /**
      * How much weight this object contains (of objects in inv). This
      * is not copied by memcpy(), since the memcpy() doesn't actually
      * copy over the inventory either, so it would create bogus carrying
      * weight in some cases. */
-    sint32 carrying;
+    int32_t carrying;
 
     /* These get an extra add_refcount(), after having been copied by memcpy().
      * All fields below this point are automatically copied by memcpy. If
@@ -213,42 +213,42 @@ typedef struct obj {
     New_Face *inv_face;
 
     /** How much money it is worth (or contains) */
-    sint64 value;
+    int64_t value;
 
     /** flags matching events of event objects inside object ->inv */
-    uint32 event_flags;
+    uint32_t event_flags;
 
     /** Attributes of the object - the weight */
-    sint32 weight;
+    int32_t weight;
 
     /**
      * Weight-limit of object - player and container should have this...
      * perhaps we can substitute it? */
-    uint32 weight_limit;
+    uint32_t weight_limit;
 
     /** Paths the object is attuned to */
-    uint32 path_attuned;
+    uint32_t path_attuned;
 
     /** Paths the object is repelled from */
-    uint32 path_repelled;
+    uint32_t path_repelled;
 
     /** Paths the object is denied access to */
-    uint32 path_denied;
+    uint32_t path_denied;
 
     /** How many of the objects */
-    uint32 nrof;
+    uint32_t nrof;
 
     /** This is used from map2 update! */
-    uint32 update_tag;
+    uint32_t update_tag;
 
     /** Various flags */
-    uint32 flags[NUM_FLAGS_32];
+    uint32_t flags[NUM_FLAGS_32];
 
     /** X position in the map for this object */
-    sint16 x;
+    int16_t x;
 
     /** Y position in the map for this object */
-    sint16 y;
+    int16_t y;
 
     /**
      * Z-Position in the map (in pixels) for this object.
@@ -257,129 +257,129 @@ typedef struct obj {
      * other objects get Y position (height) adjustment on the map (100 = the
      * object moves 100 pixels further to the top, -50 = the object moves
      * 50 pixels to the bottom). */
-    sint16 z;
+    int16_t z;
 
     /** Needed to target the nearest enemy */
-    sint16 attacked_by_distance;
+    int16_t attacked_by_distance;
 
     /** The damage sent with map2 */
-    uint16 last_damage;
+    uint16_t last_damage;
 
     /**
      * type flags for different environment (tile is under water, firewalk,...)
      * A object which can be applied GIVES this terrain flags to his owner */
-    uint16 terrain_type;
+    uint16_t terrain_type;
 
     /** The object can move over/is unaffected from this terrain type */
-    uint16 terrain_flag;
+    uint16_t terrain_flag;
 
     /** What materials this object consists of */
-    uint16 material;
+    uint16_t material;
 
     /** This holds the real material value like what kind of steel */
-    sint16 material_real;
+    int16_t material_real;
 
     /** Last healed. Depends on constitution */
-    sint16 last_heal;
+    int16_t last_heal;
 
     /** As last_heal, but for spell points */
-    sint16 last_sp;
+    int16_t last_sp;
 
     /** as last_sp, except for grace */
-    sint16 last_grace;
+    int16_t last_grace;
 
     /** How long since we last ate */
-    sint16 last_eat;
+    int16_t last_eat;
 
     /** An index into the animation array */
-    uint16 animation_id;
+    uint16_t animation_id;
 
     /** An index into the animation array for the client inv */
-    uint16 inv_animation_id;
+    uint16_t inv_animation_id;
 
     /**
      * X align of the object on the actual map. Similar to object::z,
      * a value of 100 = object is moved 100 pixels to the right, -50 and
      * the object is moved 50 pixels to the left. */
-    sint16 align;
+    int16_t align;
 
     /** Object's rotation value in degrees. */
-    sint16 rotate;
+    int16_t rotate;
 
     /** Object is a light source */
-    sint8 glow_radius;
+    int8_t glow_radius;
 
     /** Any magical bonuses to this item */
-    sint8 magic;
+    int8_t magic;
 
     /** How the object was last drawn (animation) */
-    uint8 state;
+    uint8_t state;
 
     /** the level of this object (most used for mobs & player) */
-    sint8 level;
+    int8_t level;
 
     /** Means the object is moving that way. */
-    sint8 direction;
+    int8_t direction;
 
     /**
      * quick pos is 0 for single arch, xxxx0000 for a head
      * or x/y offset packed to 4 bits for a tail
      * warning: change this when include > 15x15 monster */
-    uint8 quick_pos;
+    uint8_t quick_pos;
 
     /** PLAYER, BULLET, etc. See define.h */
-    uint8 type;
+    uint8_t type;
 
     /** Sub type definition - this will be sent to client too */
-    uint8 sub_type;
+    uint8_t sub_type;
 
     /** Quality of an item in range from 0-100 */
-    uint8 item_quality;
+    uint8_t item_quality;
 
     /** Condition of repair of an item - from 0 to 100% item_quality */
-    uint8 item_condition;
+    uint8_t item_condition;
 
     /** Item crafted from race x. "orcish xxx", "dwarven xxxx" */
-    uint8 item_race;
+    uint8_t item_race;
 
     /** Level needed to use or apply this item */
-    uint8 item_level;
+    uint8_t item_level;
 
     /** if set and item_level, item_level in this skill is needed */
-    uint8 item_skill;
+    uint8_t item_skill;
 
     /** What stage in attack mode */
-    sint8 move_status;
+    int8_t move_status;
 
     /** What kind of movement */
-    uint8 move_type;
+    uint8_t move_type;
 
     /** What kind of attack movement */
-    uint8 attack_move_type;
+    uint8_t attack_move_type;
 
     /** Combination of @ref anim_flags "animation flags". */
-    uint8 anim_flags;
+    uint8_t anim_flags;
 
     /** Animation speed in ticks */
-    uint8 anim_speed;
+    uint8_t anim_speed;
 
     /** Last animated tick. */
-    uint8 last_anim;
+    uint8_t last_anim;
 
     /** Various @ref BEHAVIOR_xxx "behavior flags". */
-    uint8 behavior;
+    uint8_t behavior;
 
     /** Monster runs away if its hp goes below this percentage. */
-    uint8 run_away;
+    uint8_t run_away;
 
     /** the layer in a map, this object will be sorted in */
-    uint8 layer;
+    uint8_t layer;
 
     /** Sub layer. */
-    uint8 sub_layer;
+    uint8_t sub_layer;
 
     /** Quickslot ID this object goes in */
-    uint8 quickslot;
+    uint8_t quickslot;
 
     /**
      * our attack values - range from 0%-125%. (negative values makes no sense).
@@ -393,13 +393,13 @@ typedef struct obj {
      * The "125% max border" should work nice and the 25% over 100%
      * should give a little boost. I think about to give player crafters
      * the power to boost items to 100%+. */
-    uint8 attack[NROFATTACKS];
+    uint8_t attack[NROFATTACKS];
 
     /** Resistance against attacks in % - range from -125 to 125 */
-    sint8 protection[NROFATTACKS];
+    int8_t protection[NROFATTACKS];
 
     /** Power rating of the object. */
-    sint8 item_power;
+    int8_t item_power;
 
     /**
      * How much to zoom the object horizontally.
@@ -407,7 +407,7 @@ typedef struct obj {
      * 0 = 100 = 100% zoom of the object, which means the original (no
      * actual zooming is done). 50 = 50% of the original object's size,
      * 200 = 200% of the original object's size. */
-    sint16 zoom_x;
+    int16_t zoom_x;
 
     /**
      * How much to zoom the object vertically.
@@ -415,10 +415,10 @@ typedef struct obj {
      * 0 = 100 = 100% zoom of the object, which means the original (no
      * actual zooming is done). 50 = 50% of the original object's size,
      * 200 = 200% of the original object's size. */
-    sint16 zoom_y;
+    int16_t zoom_y;
 
     /** Object's alpha value. */
-    uint8 alpha;
+    uint8_t alpha;
 
     /** The overall speed of this object */
     float speed;
@@ -608,10 +608,10 @@ typedef struct magic_mirror_struct {
     struct mapdef *map;
 
     /** X position on magic_mirror_struct::map that should be mirrored. */
-    sint16 x;
+    int16_t x;
 
     /** Y position on magic_mirror_struct::map that should be mirrored. */
-    sint16 y;
+    int16_t y;
 } magic_mirror_struct;
 
 /**

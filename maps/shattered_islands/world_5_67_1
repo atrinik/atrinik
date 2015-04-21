@@ -1,0 +1,393 @@
+arch map
+name Fort Ghzal
+msg
+Created:  2011-10-03 Alex Tokar
+Modified: 2015-04-19 Alex Tokar
+endmsg
+width 24
+height 24
+difficulty 1
+darkness 3
+no_harm 1
+bg_music enfero.xm
+region fort_ghzal
+end
+arch blocked
+x 2
+y 5
+end
+arch wall_wood_8
+x 2
+y 5
+end
+arch blocked
+x 2
+y 6
+end
+arch wall_wood3_3
+x 2
+y 6
+end
+arch blocked
+x 2
+y 7
+end
+arch wall_wood3_3
+x 2
+y 7
+end
+arch blocked
+x 2
+y 8
+end
+arch wall_wood3_3
+x 2
+y 8
+end
+arch blocked
+x 2
+y 9
+end
+arch wall_wood3_3
+x 2
+y 9
+end
+arch blocked
+x 2
+y 10
+end
+arch wall_wood3_3
+x 2
+y 10
+end
+arch blocked
+x 3
+y 5
+end
+arch wall_wood2_1
+x 3
+y 5
+end
+arch floor_wood2_l1
+no_pass 1
+x 3
+y 6
+end
+arch bed_double
+x 3
+y 6
+end
+arch floor_wood2_l2
+no_pass 1
+x 3
+y 7
+end
+arch torch_wall_1
+glow_radius 0
+animation torch_wall_1_unlit
+direction 7
+x 3
+y 7
+end
+arch floor_wood2_l2
+x 3
+y 8
+end
+arch fireplace_left_off
+x 3
+y 8
+end
+arch light1
+x 3
+y 8
+end
+arch floor_wood2_l2
+x 3
+y 9
+end
+arch light1
+x 3
+y 9
+end
+arch floor_wood2_l1
+x 3
+y 10
+end
+arch wall_wood1_1
+x 3
+y 10
+end
+arch blocked
+x 4
+y 5
+end
+arch wall_wood3_1
+x 4
+y 5
+end
+arch floor_wood2_l2
+no_pass 1
+x 4
+y 6
+end
+arch floor_wood2_l2
+no_pass 1
+x 4
+y 7
+end
+arch floor_wood2_l2
+x 4
+y 8
+end
+arch floor_wood2_l1
+x 4
+y 9
+end
+arch floor_wood2_l1
+x 4
+y 10
+end
+arch wall_wood3_1
+x 4
+y 10
+end
+arch blocked
+x 5
+y 5
+end
+arch wall_wood1_1
+x 5
+y 5
+end
+arch floor_wood2_l2
+x 5
+y 6
+end
+arch locker4
+x 5
+y 6
+end
+arch floor_wood2_l1
+x 5
+y 7
+end
+arch floor_wood2_l2
+x 5
+y 8
+end
+arch floor_wood2_l2
+x 5
+y 9
+end
+arch floor_wood2_l2
+x 5
+y 10
+end
+arch wall_wood3_1
+x 5
+y 10
+end
+arch blocked
+x 6
+y 5
+end
+arch wall_wood1_1
+x 6
+y 5
+end
+arch floor_wood2_l2
+x 6
+y 6
+end
+arch locker1.111
+x 6
+y 6
+end
+arch floor_wood2_l1
+x 6
+y 7
+end
+arch floor_wood2_l2
+x 6
+y 8
+end
+arch candlelight4.101
+x 6
+y 8
+end
+arch wall_wood2_1
+x 6
+y 8
+end
+arch light5
+x 6
+y 8
+end
+arch floor_wood2_l2
+x 6
+y 9
+end
+arch stairs_wood_down
+x 6
+y 9
+end
+arch floor_wood2_l2
+x 6
+y 10
+end
+arch wall_wood3_1
+x 6
+y 10
+end
+arch blocked
+x 7
+y 5
+end
+arch wall_wood3_1
+x 7
+y 5
+end
+arch floor_wood2_l1
+x 7
+y 6
+end
+arch locker2.111
+x 7
+y 6
+end
+arch floor_wood2_l2
+x 7
+y 7
+end
+arch floor_wood2_l2
+x 7
+y 8
+end
+arch wall_wood_1
+x 7
+y 8
+end
+arch floor_wood2_l2
+x 7
+y 9
+end
+arch stairs_down
+x 7
+y 9
+end
+arch floor_wood2_l2
+x 7
+y 10
+end
+arch wall_wood3_1
+x 7
+y 10
+end
+arch blocked
+x 8
+y 5
+end
+arch wall_wood3_1
+x 8
+y 5
+end
+arch picture10
+x 8
+y 5
+end
+arch floor_wood2_l1
+x 8
+y 6
+end
+arch chest_4.111
+x 8
+y 6
+end
+arch floor_wood2_l2
+x 8
+y 7
+end
+arch floor_wood2_l2
+x 8
+y 8
+end
+arch wall_wood_1
+x 8
+y 8
+end
+arch floor_wood2_l1
+x 8
+y 9
+end
+arch wall_wood2_3
+x 8
+y 9
+end
+arch floor_wood2_l2
+x 8
+y 10
+end
+arch wall_wood_4
+x 8
+y 10
+end
+arch blocked
+x 9
+y 5
+end
+arch wall_wood3_1
+x 9
+y 5
+end
+arch floor_wood2_l2
+x 9
+y 6
+end
+arch chest_4.111
+x 9
+y 6
+end
+arch floor_wood2_l1
+x 9
+y 7
+end
+arch floor_wood2_l2
+x 9
+y 8
+end
+arch wall_wood2_1
+x 9
+y 8
+end
+arch blocked
+x 10
+y 5
+end
+arch wall_wood1_1
+x 10
+y 5
+end
+arch floor_wood2_l2
+x 10
+y 6
+end
+arch wall_wood2_3
+x 10
+y 6
+end
+arch floor_wood2_l2
+x 10
+y 7
+end
+arch wall_wood3_3
+x 10
+y 7
+end
+arch floor_wood2_l2
+x 10
+y 8
+end
+arch wall_wood_4
+x 10
+y 8
+end

@@ -2,16 +2,16 @@ arch map
 name Dark Cave
 msg
 Created:  2009-09-17 Alex Tokar
-Modified: 2011-11-03 Alex Tokar
+Modified: 2015-04-19 Alex Tokar
 endmsg
 width 24
 height 24
 difficulty 10
 darkness 2
 tile_path_3 dark_cave_0101
+tile_path_7 dark_cave_aa01
 bg_music desert_town.mid
 region dark_cave
-tile_path_7 dark_cave_aa01
 end
 arch floor_ruin4
 end
@@ -159,7 +159,7 @@ arch floor_ruin4
 x 1
 end
 arch invis_exit
-slaying ../../world_0410
+slaying ../../world_3_70
 hp 6
 sp 0
 x 1

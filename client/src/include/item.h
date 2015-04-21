@@ -58,50 +58,50 @@ typedef struct obj {
     char s_name[NAME_LEN];
 
     /** Item identifier (0 = free). */
-    sint32 tag;
+    int32_t tag;
 
     /** Number of items. */
-    sint32 nrof;
+    int32_t nrof;
 
     /** How much item weights. */
     double weight;
 
     /** Index for face array. */
-    sint16 face;
+    int16_t face;
 
     /** Index into animation array. */
-    uint16 animation_id;
+    uint16_t animation_id;
 
     /** How often to animate. */
-    uint16 anim_speed;
+    uint16_t anim_speed;
 
     /** Last face in sequence drawn. */
-    uint16 anim_state;
+    uint16_t anim_state;
 
     /** How many ticks have passed since we last animated. */
-    uint16 last_anim;
+    uint16_t last_anim;
 
     /** Unmodified flags value as sent from the server. */
-    uint32 flags;
+    uint32_t flags;
 
     /** Item type. */
-    uint8 itype;
-    uint8 stype;
+    uint8_t itype;
+    uint8_t stype;
 
     /** Item's quality. */
-    uint8 item_qua;
+    uint8_t item_qua;
 
     /** Item's condition. */
-    uint8 item_con;
+    uint8_t item_con;
 
     /** UID of the required skill. */
-    uint32 item_skill_tag;
+    uint32_t item_skill_tag;
 
     /** Requires level. */
-    uint8 item_level;
+    uint8_t item_level;
 
     /** The item's direction. */
-    uint8 direction;
+    uint8_t direction;
 } object;
 
 #define TYPE_PLAYER                 1

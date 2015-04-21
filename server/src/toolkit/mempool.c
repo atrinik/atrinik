@@ -37,9 +37,7 @@
  */
 
 #include <global.h>
-
-#define API_NAME mempool ///< Name of the API.
-static uint8 did_init = 0; ///< Whether the API has been initialized.
+#include <toolkit_string.h>
 
 static void mempool_free(mempool_struct *pool);
 
@@ -60,53 +58,45 @@ static mempool_struct *pool_puddle;
  */
 static mempool_struct **pools;
 
-size_t pools_num; ///< Number of ::pools.
+static size_t pools_num; ///< Number of ::pools.
 
 /**
- * Initialize the mempool API.
- * @internal */
-void toolkit_mempool_init(void)
+ * If true, the API is being deinitialized.
+ */
+static bool deiniting;
+
+TOOLKIT_API(DEPENDS(math), DEPENDS(memory), DEPENDS(logger), DEPENDS(string),
+            DEPENDS(stringbuffer));
+
+TOOLKIT_INIT_FUNC(mempool)
 {
+    pools = NULL;
+    pools_num = 0;
+    deiniting = false;
 
-    TOOLKIT_INIT_FUNC_START(mempool)
-    {
-        toolkit_import(math);
-        toolkit_import(memory);
-        toolkit_import(logger);
-        toolkit_import(string);
-
-        pools = NULL;
-        pools_num = 0;
-
-        pool_puddle = mempool_create("puddles", 10,
-                sizeof(mempool_puddle_struct), MEMPOOL_ALLOW_FREEING,
-                NULL, NULL, NULL, NULL);
-    }
-    TOOLKIT_INIT_FUNC_END()
+    pool_puddle = mempool_create("puddles", 10,
+            sizeof(mempool_puddle_struct), MEMPOOL_ALLOW_FREEING,
+            NULL, NULL, NULL, NULL);
 }
+TOOLKIT_INIT_FUNC_FINISH
 
-/**
- * Deinitialize the mempool API.
- * @internal */
-void toolkit_mempool_deinit(void)
+TOOLKIT_DEINIT_FUNC(mempool)
 {
+    size_t i;
 
-    TOOLKIT_DEINIT_FUNC_START(mempool)
-    {
-        size_t i;
+    deiniting = true;
 
-        /* The first memory pool ever created is the puddles pool, so
-         * avoid freeing it until all the other ones are feed. */
-        for (i = 1; i < pools_num; i++) {
-            mempool_free(pools[i]);
-        }
-
-        mempool_free(pool_puddle);
-
-        efree(pools);
+    /* The first memory pool ever created is the puddles pool, so
+     * avoid freeing it until all the other ones have been freed. */
+    for (i = 1; i < pools_num; i++) {
+        mempool_free(pools[i]);
     }
-    TOOLKIT_DEINIT_FUNC_END()
+
+    mempool_free(pool_puddle);
+
+    efree(pools);
 }
+TOOLKIT_DEINIT_FUNC_FINISH
 
 /* Comparison function for sort_linked_list() */
 static int sort_puddle_by_nrof_free(void *a, void *b, void *args)
@@ -135,7 +125,7 @@ static size_t mempool_free_puddles(mempool_struct *pool)
     mempool_chunk_struct *last_free, *chunk;
     mempool_puddle_struct *puddle, *next_puddle;
 
-    assert(pool != NULL);
+    HARD_ASSERT(pool != NULL);
 
     if (pool->flags & MEMPOOL_BYPASS_POOLS) {
         return 0;
@@ -176,10 +166,15 @@ static size_t mempool_free_puddles(mempool_struct *pool)
             }
 
             /* Can we actually free this puddle? */
-            if (puddle->nrof_free == nrof_arrays) {
+            if (puddle->nrof_free == nrof_arrays ||
+                    (deiniting && pool == pool_puddle)) {
                 /* Yup. Forget about it. */
-                free(puddle->first_chunk);
-                mempool_return(pool_puddle, puddle);
+                efree(puddle->first_chunk);
+
+                if (!deiniting || pool != pool_puddle) {
+                    mempool_return(pool_puddle, puddle);
+                }
+
                 pool->nrof_free[i] -= nrof_arrays;
                 pool->nrof_allocated[i] -= nrof_arrays;
                 freed++;
@@ -232,14 +227,14 @@ static size_t mempool_free_puddles(mempool_struct *pool)
  * @return The created memory pool.
  */
 mempool_struct *mempool_create(const char *description, size_t expand,
-        size_t size, uint32 flags, chunk_initialisator initialisator,
+        size_t size, uint32_t flags, chunk_initialisator initialisator,
         chunk_deinitialisator deinitialisator, chunk_constructor constructor,
         chunk_destructor destructor)
 {
     size_t i;
     mempool_struct *pool;
 
-    TOOLKIT_FUNC_PROTECTOR(API_NAME);
+    TOOLKIT_PROTECT();
 
     pool = ecalloc(1, sizeof(*pool));
 
@@ -266,10 +261,11 @@ mempool_struct *mempool_create(const char *description, size_t expand,
 }
 
 /**
- * Free a mempool.
- * @param pool The mempool to free.
+ * Construct debug information about leaked chunks in the specified pool.
+ * @param pool Memory pool.
+ * @param sb StringBuffer instance to store the information in.
  */
-static void mempool_free(mempool_struct *pool)
+static void mempool_leak_info(mempool_struct *pool, StringBuffer *sb)
 {
     size_t chunksize_real, nrof_arrays, i, j;
     char buf[HUGE_BUF];
@@ -277,9 +273,8 @@ static void mempool_free(mempool_struct *pool)
     mempool_chunk_struct *chunk;
     void *data;
 
-    TOOLKIT_FUNC_PROTECTOR(API_NAME);
-
-    assert(pool != NULL);
+    HARD_ASSERT(pool != NULL);
+    HARD_ASSERT(sb != NULL);
 
 #ifndef NDEBUG
     if (pool->debugger == NULL) {
@@ -305,17 +300,57 @@ static void mempool_free(mempool_struct *pool)
                     continue;
                 }
 
+                if (!deiniting) {
+#ifndef NDEBUG
+                    if (pool->validator == NULL || pool->validator(data)) {
+                        continue;
+                    }
+#else
+                    continue;
+#endif
+                } else if (pool == pool_puddle) {
+                    continue;
+                }
+
 #ifndef NDEBUG
                 if (pool->debugger != NULL) {
                     pool->debugger(data, VS(buf));
                 }
 #endif
 
-                log(LOG(ERROR), "Chunk %p (%p) in pool %s has not been freed: "
-                        "%s", chunk, data, pool->chunk_description, buf);
+                stringbuffer_append_printf(sb, "Chunk %p (%p) in pool %s has "
+                        "not been freed: %s\n", chunk, data,
+                        pool->chunk_description, buf);
             }
         }
     }
+}
+
+/**
+ * Free a mempool.
+ * @param pool The mempool to free.
+ */
+static void mempool_free(mempool_struct *pool)
+{
+    StringBuffer *sb;
+    char *info, *cp;
+
+    TOOLKIT_PROTECT();
+
+    HARD_ASSERT(pool != NULL);
+
+    sb = stringbuffer_new();
+    mempool_leak_info(pool, sb);
+    info = stringbuffer_finish(sb);
+
+    cp = strtok(info, "\n");
+
+    while (cp != NULL) {
+        log(LOG(ERROR), "%s", cp);
+        cp = strtok(NULL, "\n");
+    }
+
+    efree(info);
 
     mempool_free_puddles(pool);
 
@@ -335,6 +370,18 @@ void mempool_set_debugger(mempool_struct *pool, chunk_debugger debugger)
 }
 
 /**
+ * Set the mempool's validator function.
+ * @param pool Memory pool.
+ * @param validator Validator function to use.
+ */
+void mempool_set_validator(mempool_struct *pool, chunk_validator validator)
+{
+#ifndef NDEBUG
+    pool->validator = validator;
+#endif
+}
+
+/**
  * Acquire detailed statistics about the specified memory pool.
  * @param name Name of the memory pool, empty or NULL for all.
  * @param[out] buf Buffer to use for writing. Must end with a NUL.
@@ -344,14 +391,14 @@ void mempool_stats(const char *name, char *buf, size_t size)
 {
     size_t i, j, allocated;
 
-    assert(buf != NULL);
-    assert(size != 0);
+    HARD_ASSERT(buf != NULL);
+    HARD_ASSERT(size != 0);
 
     snprintfcat(buf, size, "\n=== MEMPOOL ===");
 
     if (string_isempty(name)) {
-        snprintfcat(buf, size, "\nRegistered pools: %"FMT64U,
-                (uint64) pools_num);
+        snprintfcat(buf, size, "\nRegistered pools: %"PRIu64,
+                (uint64_t) pools_num);
     }
 
     for (i = 0; i < pools_num; i++) {
@@ -362,10 +409,10 @@ void mempool_stats(const char *name, char *buf, size_t size)
 
         snprintfcat(buf, size,
                 "\n\nMemory pool: %s"
-                "\n - Expand size: %"FMT64U
-                "\n - Chunk size: %"FMT64U,
-                pools[i]->chunk_description, (uint64) pools[i]->expand_size,
-                (uint64) pools[i]->chunksize);
+                "\n - Expand size: %"PRIu64
+                "\n - Chunk size: %"PRIu64,
+                pools[i]->chunk_description, (uint64_t) pools[i]->expand_size,
+                (uint64_t) pools[i]->chunksize);
 
         allocated = 0;
 
@@ -374,7 +421,7 @@ void mempool_stats(const char *name, char *buf, size_t size)
                 continue;
             }
 
-            snprintfcat(buf, size, "\nFreelist #%"FMT64U":", (uint64) j);
+            snprintfcat(buf, size, "\nFreelist #%"PRIu64":", (uint64_t) j);
             snprintfcat(buf, size, " allocated: %s",
                     string_format_number_comma(pools[i]->nrof_allocated[j]));
             snprintfcat(buf, size, " free: %s",
@@ -415,7 +462,7 @@ mempool_struct *mempool_find(const char *name)
 {
     size_t i;
 
-    assert(name != NULL);
+    HARD_ASSERT(name != NULL);
 
     for (i = 0; i < pools_num; i++) {
         if (strcasecmp(pools[i]->chunk_description, name) == 0) {
@@ -439,17 +486,17 @@ static void mempool_expand(mempool_struct *pool, size_t arraysize_exp)
     size_t chunksize_real, nrof_arrays, i;
     mempool_puddle_struct *p;
 
-    assert(pool != NULL);
-    assert(arraysize_exp < MEMPOOL_NROF_FREELISTS);
-    assert(pool->nrof_free[arraysize_exp] == 0);
+    HARD_ASSERT(pool != NULL);
+    HARD_ASSERT(arraysize_exp < MEMPOOL_NROF_FREELISTS);
+    HARD_ASSERT(pool->nrof_free[arraysize_exp] == 0);
 
     pool->calls_expand++;
 
     nrof_arrays = pool->expand_size >> arraysize_exp;
 
     if (nrof_arrays == 0) {
-        log(LOG(ERROR), "Called with too large array size exponent: %"FMT64U,
-                (uint64) arraysize_exp);
+        log(LOG(ERROR), "Called with too large array size exponent: %"PRIu64,
+                (uint64_t) arraysize_exp);
         nrof_arrays = 1;
     }
 
@@ -477,7 +524,7 @@ static void mempool_expand(mempool_struct *pool, size_t arraysize_exp)
         }
     }
 
-    if (pool != pool_puddle) {
+    if (pool != pool_puddle || 1) {
         p = mempool_get(pool_puddle);
         p->first_chunk = first;
         p->next = pool->puddlelist[arraysize_exp];
@@ -497,10 +544,10 @@ void *mempool_get_chunk(mempool_struct *pool, size_t arraysize_exp)
 {
     mempool_chunk_struct *new_obj;
 
-    TOOLKIT_FUNC_PROTECTOR(API_NAME);
+    TOOLKIT_PROTECT();
 
-    assert(pool != NULL);
-    assert(arraysize_exp < MEMPOOL_NROF_FREELISTS);
+    HARD_ASSERT(pool != NULL);
+    HARD_ASSERT(arraysize_exp < MEMPOOL_NROF_FREELISTS);
 
     pool->calls_get++;
 
@@ -544,11 +591,11 @@ void mempool_return_chunk(mempool_struct *pool, size_t arraysize_exp,
 {
     mempool_chunk_struct *chunk;
 
-    TOOLKIT_FUNC_PROTECTOR(API_NAME);
+    TOOLKIT_PROTECT();
 
-    assert(pool != NULL);
-    assert(arraysize_exp < MEMPOOL_NROF_FREELISTS);
-    assert(data != NULL);
+    HARD_ASSERT(pool != NULL);
+    HARD_ASSERT(arraysize_exp < MEMPOOL_NROF_FREELISTS);
+    HARD_ASSERT(data != NULL);
 
     pool->calls_return++;
 
@@ -585,11 +632,27 @@ void mempool_return_chunk(mempool_struct *pool, size_t arraysize_exp,
  */
 size_t mempool_reclaim(mempool_struct *pool)
 {
-    assert(pool != NULL);
+    HARD_ASSERT(pool != NULL);
 
     if (!(pool->flags & MEMPOOL_ALLOW_FREEING)) {
         return 0;
     }
 
     return mempool_free_puddles(pool);
+}
+
+/**
+ * Gather leak information from all the registered pools into the specified
+ * StringBuffer instance.
+ * @param sb StringBuffer instance to use.
+ */
+void mempool_leak_info_all(StringBuffer *sb)
+{
+    size_t i;
+
+    HARD_ASSERT(sb != NULL);
+
+    for (i = 1; i < pools_num; i++) {
+        mempool_leak_info(pools[i], sb);
+    }
 }

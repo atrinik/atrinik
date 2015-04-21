@@ -49,9 +49,9 @@ typedef struct path_node {
     struct path_node *parent; ///< Node this was reached from.
 
     struct mapdef *map; ///< Pointer to the map.
-    sint16 x; ///< X position on the map for this node.
-    sint16 y; ///< Y position on the map for this node.
-    uint8 flags; ///< A combination of @ref PATH_NODE_xxx.
+    int16_t x; ///< X position on the map for this node.
+    int16_t y; ///< Y position on the map for this node.
+    uint8_t flags; ///< A combination of @ref PATH_NODE_xxx.
     int distance_z; ///< Z distance from this node to the goal.
 
     double cost; ///< Cost of reaching this node (distance from origin).
@@ -67,12 +67,12 @@ typedef struct path_visualizer {
     struct path_visualizer *prev; ///< Previous 'node'.
 
     mapstruct *map; ///< Map.
-    sint16 x; ///< X position.
-    sint16 y; ///< Y position.
+    int16_t x; ///< X position.
+    int16_t y; ///< Y position.
 
     path_node_t *node; ///< The actual node. Can be NULL.
 
-    uint32 id; ///< UID of the node; can be used for insertion order sorting.
+    uint32_t id; ///< UID of the node; can be used for insertion order sorting.
     bool closed; ///< Whether the node is closed or just visited.
 } path_visualizer_t;
 

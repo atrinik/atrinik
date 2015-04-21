@@ -33,39 +33,20 @@
 void read_anims(void)
 {
     size_t anim_len = 0;
-    uint8 new_anim = 1;
-    uint8 faces = 0;
+    uint8_t new_anim = 1;
+    uint8_t faces = 0;
     FILE *fp;
     char buf[HUGE_BUF];
-    uint8 anim_cmd[2048];
+    uint8_t anim_cmd[2048];
     size_t count = 0;
 
-    if (animations_num) {
-        size_t i;
-
-        /* Clear both animation tables. */
-        for (i = 0; i < animations_num; i++) {
-            if (animations[i].faces) {
-                efree(animations[i].faces);
-            }
-
-            if (anim_table[i].anim_cmd) {
-                efree(anim_table[i].anim_cmd);
-            }
-        }
-
-        efree(animations);
-        animations = NULL;
-        efree(anim_table);
-        anim_table = NULL;
-        animations_num = 0;
-    }
+    anims_deinit();
 
     anim_table = emalloc(sizeof(_anim_table));
 
     /* Animation #0 is like face id #0. */
-    anim_cmd[0] = (uint8) ((count >> 8) & 0xff);
-    anim_cmd[1] = (uint8) (count & 0xff);
+    anim_cmd[0] = (uint8_t) ((count >> 8) & 0xff);
+    anim_cmd[1] = (uint8_t) (count & 0xff);
     anim_cmd[2] = 0;
     anim_cmd[3] = 1;
     anim_cmd[4] = 0;
@@ -88,8 +69,8 @@ void read_anims(void)
             if (!strncmp(buf, "anim ", 5)) {
                 new_anim = 0;
                 faces = 0;
-                anim_cmd[0] = (uint8) ((count >> 8) & 0xff);
-                anim_cmd[1] = (uint8) (count & 0xff);
+                anim_cmd[0] = (uint8_t) ((count >> 8) & 0xff);
+                anim_cmd[1] = (uint8_t) (count & 0xff);
                 faces = 1;
                 anim_len = 4;
             } else {
@@ -109,10 +90,10 @@ void read_anims(void)
                 count++;
                 new_anim = 1;
             } else {
-                uint16 face_id = atoi(buf);
+                uint16_t face_id = atoi(buf);
 
-                anim_cmd[anim_len++] = (uint8) ((face_id >> 8) & 0xff);
-                anim_cmd[anim_len++] = (uint8) (face_id & 0xff);
+                anim_cmd[anim_len++] = (uint8_t) ((face_id >> 8) & 0xff);
+                anim_cmd[anim_len++] = (uint8_t) (face_id & 0xff);
             }
         }
     }
@@ -120,6 +101,36 @@ void read_anims(void)
     animations_num = count;
     animations = ecalloc(animations_num, sizeof(Animations));
     fclose(fp);
+}
+
+/**
+ * Deinitialize the animations.
+ */
+void anims_deinit(void)
+{
+    /* Clear both animation tables. */
+    for (size_t i = 0; i < animations_num; i++) {
+        if (animations[i].faces != NULL) {
+            efree(animations[i].faces);
+            animations[i].faces = NULL;
+        }
+
+        if (anim_table[i].anim_cmd != NULL) {
+            efree(anim_table[i].anim_cmd);
+        }
+    }
+
+    animations_num = 0;
+
+    if (animations != NULL) {
+        efree(animations);
+        animations = NULL;
+    }
+
+    if (anim_table != NULL) {
+        efree(anim_table);
+        anim_table = NULL;
+    }
 }
 
 /**
@@ -131,5 +142,11 @@ void anims_reset(void)
 
     for (i = 0; i < animations_num; i++) {
         animations[i].loaded = 0;
+        animations[i].num_animations = 0;
+
+        if (animations[i].faces != NULL) {
+            efree(animations[i].faces);
+            animations[i].faces = NULL;
+        }
     }
 }

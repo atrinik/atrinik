@@ -1116,7 +1116,7 @@ char *describe_item(object *op)
         }
 
         if (op->stats.exp) {
-            sprintf(buf, "(speed %+"FMT64 ")", op->stats.exp);
+            sprintf(buf, "(speed %+"PRId64 ")", op->stats.exp);
             strcat(retbuf, buf);
         }
     }
@@ -1275,7 +1275,7 @@ void identify(object *op)
 void set_trapped_flag(object *op)
 {
     object *tmp;
-    uint32 flag;
+    uint32_t flag;
 
     if (!op) {
         return;

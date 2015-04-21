@@ -1,0 +1,3509 @@
+arch map
+name Deserted Island
+msg
+Created:  2011-03-20 Alex Tokar
+Modified: 2014-03-15 Alex Tokar
+endmsg
+width 24
+height 24
+difficulty 1
+outdoor 1
+bg_music fireside.mid
+region deserted_tutorial_island
+end
+arch water_dk4
+end
+arch water_dk4
+y 1
+end
+arch water_dk
+y 2
+end
+arch water_dk3
+y 3
+end
+arch water_dk2
+y 4
+end
+arch water_dk2
+y 5
+end
+arch water_dk4
+y 6
+end
+arch water_dk
+y 7
+end
+arch water_dk
+y 8
+end
+arch water_dk4
+y 9
+end
+arch water_dk2
+y 10
+end
+arch water_dk3
+y 11
+end
+arch rock6
+y 11
+end
+arch water_dk4
+y 12
+end
+arch water_md2_m
+direction 3
+y 12
+end
+arch water_dk
+y 13
+end
+arch water_md2_m
+direction 3
+y 13
+end
+arch water_dk
+y 14
+end
+arch water_md2_m
+direction 3
+y 14
+end
+arch water_dk2
+y 15
+end
+arch water_md2_m
+direction 3
+y 15
+end
+arch water_dk4
+y 16
+end
+arch water_md2_m
+direction 3
+y 16
+end
+arch water_dk
+y 17
+end
+arch water_md_m
+direction 3
+y 17
+end
+arch water_dk
+y 18
+end
+arch water_dk3
+y 19
+end
+arch water_dk
+y 20
+end
+arch water_dk4
+y 21
+end
+arch water_dk2
+y 22
+end
+arch water_dk2
+y 23
+end
+arch water_dk3
+x 1
+end
+arch water_dk
+x 1
+y 1
+end
+arch water_dk3
+x 1
+y 2
+end
+arch water_dk3
+x 1
+y 3
+end
+arch water_dk3
+x 1
+y 4
+end
+arch water_dk2
+x 1
+y 5
+end
+arch water_dk
+x 1
+y 6
+end
+arch water_md_m
+direction 3
+x 1
+y 6
+end
+arch rock5
+x 1
+y 6
+end
+arch water_dk2
+x 1
+y 7
+end
+arch water_md2_m
+direction 3
+x 1
+y 7
+end
+arch water_dk2
+x 1
+y 8
+end
+arch water_md2_m
+direction 3
+x 1
+y 8
+end
+arch water_dk3
+x 1
+y 9
+end
+arch water_md_m
+direction 3
+x 1
+y 9
+end
+arch water_dk3
+x 1
+y 10
+end
+arch water_md_m
+direction 3
+x 1
+y 10
+end
+arch water_dk4
+x 1
+y 11
+end
+arch water_md_m
+direction 4
+x 1
+y 11
+end
+arch water_md2
+x 1
+y 12
+end
+arch water_md4
+x 1
+y 13
+end
+arch water_md2
+x 1
+y 14
+end
+arch water_md4
+x 1
+y 15
+end
+arch water_md
+x 1
+y 16
+end
+arch water_md3
+x 1
+y 17
+end
+arch water_dk2
+x 1
+y 18
+end
+arch water_md_m
+direction 2
+x 1
+y 18
+end
+arch water_dk3
+x 1
+y 19
+end
+arch water_dk2
+x 1
+y 20
+end
+arch water_dk
+x 1
+y 21
+end
+arch water_dk
+x 1
+y 22
+end
+arch water_dk4
+x 1
+y 23
+end
+arch water_dk
+x 2
+end
+arch water_dk2
+x 2
+y 1
+end
+arch water_dk
+x 2
+y 2
+end
+arch water_dk
+x 2
+y 3
+end
+arch water_dk2
+x 2
+y 4
+end
+arch water_dk2
+x 2
+y 5
+end
+arch water_md_m
+direction 4
+x 2
+y 5
+end
+arch water_md
+x 2
+y 6
+end
+arch water_md
+x 2
+y 7
+end
+arch water_md3
+x 2
+y 8
+end
+arch water_md
+x 2
+y 9
+end
+arch water_md3
+x 2
+y 10
+end
+arch water_md3
+x 2
+y 11
+end
+arch water_md
+x 2
+y 12
+end
+arch water_md
+x 2
+y 13
+end
+arch sound_ambient
+race ocean_waves.ogg
+x 2
+y 13
+end
+arch water_md
+x 2
+y 14
+end
+arch water_md2
+x 2
+y 15
+end
+arch water_md3
+x 2
+y 16
+end
+arch water_md2
+x 2
+y 17
+end
+arch water_md
+x 2
+y 18
+end
+arch water_md3
+x 2
+y 19
+end
+arch water_dk3
+x 2
+y 20
+end
+arch water_md_m
+direction 2
+x 2
+y 20
+end
+arch rock6
+x 2
+y 20
+end
+arch water_dk3
+x 2
+y 21
+end
+arch water_dk2
+x 2
+y 22
+end
+arch water_dk
+x 2
+y 23
+end
+arch water_dk
+x 3
+end
+arch water_dk3
+x 3
+y 1
+end
+arch water_dk4
+x 3
+y 2
+end
+arch water_dk2
+x 3
+y 3
+end
+arch water_dk2
+x 3
+y 4
+end
+arch water_md_m
+direction 4
+x 3
+y 4
+end
+arch water_md2
+x 3
+y 5
+end
+arch water_md3
+x 3
+y 6
+end
+arch water_md2
+x 3
+y 7
+end
+arch water_md4
+x 3
+y 8
+end
+arch water_md3
+x 3
+y 9
+end
+arch water_md
+x 3
+y 10
+end
+arch rock6
+x 3
+y 10
+end
+arch water_md3
+x 3
+y 11
+end
+arch water_md4
+x 3
+y 12
+end
+arch water_md
+x 3
+y 13
+end
+arch water_md2
+x 3
+y 14
+end
+arch water_md2
+x 3
+y 15
+end
+arch water_md2
+x 3
+y 16
+end
+arch water_md3
+x 3
+y 17
+end
+arch water_md2
+x 3
+y 18
+end
+arch water_md2
+x 3
+y 19
+end
+arch water_md
+x 3
+y 20
+end
+arch water_dk3
+x 3
+y 21
+end
+arch water_md_m
+direction 2
+x 3
+y 21
+end
+arch water_dk2
+x 3
+y 22
+end
+arch water_md_m
+direction 3
+x 3
+y 22
+end
+arch water_dk3
+x 3
+y 23
+end
+arch water_dk4
+x 4
+end
+arch water_dk2
+x 4
+y 1
+end
+arch water_dk2
+x 4
+y 2
+end
+arch water_dk4
+x 4
+y 3
+end
+arch water_md_m
+direction 4
+x 4
+y 3
+end
+arch water_md2
+x 4
+y 4
+end
+arch water_md2
+x 4
+y 5
+end
+arch water_md2
+x 4
+y 6
+end
+arch water_md4
+x 4
+y 7
+end
+arch water_md4
+x 4
+y 8
+end
+arch water_md4
+x 4
+y 9
+end
+arch water_md
+x 4
+y 10
+end
+arch water_md2
+x 4
+y 11
+end
+arch water_md
+x 4
+y 12
+end
+arch water_lt2_m
+direction 3
+x 4
+y 12
+end
+arch water_md
+x 4
+y 13
+end
+arch water_lt2_m
+direction 3
+x 4
+y 13
+end
+arch water_md4
+x 4
+y 14
+end
+arch water_lt2_m
+direction 3
+x 4
+y 14
+end
+arch water_md2
+x 4
+y 15
+end
+arch water_lt2_m
+direction 3
+x 4
+y 15
+end
+arch water_md
+x 4
+y 16
+end
+arch water_lt_m
+direction 3
+x 4
+y 16
+end
+arch water_md
+x 4
+y 17
+end
+arch water_lt_m
+direction 3
+x 4
+y 17
+end
+arch water_md2
+x 4
+y 18
+end
+arch water_lt2_m
+direction 3
+x 4
+y 18
+end
+arch water_md4
+x 4
+y 19
+end
+arch water_md4
+x 4
+y 20
+end
+arch water_md3
+x 4
+y 21
+end
+arch water_md2
+x 4
+y 22
+end
+arch water_dk4
+x 4
+y 23
+end
+arch water_md_m
+direction 2
+x 4
+y 23
+end
+arch water_dk2
+x 5
+end
+arch water_dk2
+x 5
+y 1
+end
+arch water_dk4
+x 5
+y 2
+end
+arch water_md_m
+direction 4
+x 5
+y 2
+end
+arch water_md
+x 5
+y 3
+end
+arch water_md3
+x 5
+y 4
+end
+arch water_md2
+x 5
+y 5
+end
+arch rock6
+x 5
+y 5
+end
+arch water_md4
+x 5
+y 6
+end
+arch water_md4
+x 5
+y 7
+end
+arch water_md4
+x 5
+y 8
+end
+arch water_lt2_m
+direction 3
+x 5
+y 8
+end
+arch water_md3
+x 5
+y 9
+end
+arch water_lt2_m
+direction 3
+x 5
+y 9
+end
+arch water_md4
+x 5
+y 10
+end
+arch water_lt2_m
+direction 3
+x 5
+y 10
+end
+arch water_md
+x 5
+y 11
+end
+arch water_lt_m
+direction 4
+x 5
+y 11
+end
+arch water_lt4
+x 5
+y 12
+end
+arch water_lt4
+x 5
+y 13
+end
+arch water_lt
+x 5
+y 14
+end
+arch water_lt2
+x 5
+y 15
+end
+arch water_lt3
+x 5
+y 16
+end
+arch water_lt2
+x 5
+y 17
+end
+arch water_lt4
+x 5
+y 18
+end
+arch water_md
+x 5
+y 19
+end
+arch water_lt_m
+direction 2
+x 5
+y 19
+end
+arch water_md2
+x 5
+y 20
+end
+arch water_md3
+x 5
+y 21
+end
+arch water_md4
+x 5
+y 22
+end
+arch water_md
+x 5
+y 23
+end
+arch water_dk
+x 6
+end
+arch water_md_m
+direction 4
+x 6
+end
+arch water_md4
+x 6
+y 1
+end
+arch water_md
+x 6
+y 2
+end
+arch water_md3
+x 6
+y 3
+end
+arch water_md2
+x 6
+y 4
+end
+arch water_md3
+x 6
+y 5
+end
+arch water_md4
+x 6
+y 6
+end
+arch water_md2
+x 6
+y 7
+end
+arch water_lt_m
+direction 5
+x 6
+y 7
+end
+arch water_lt
+x 6
+y 8
+end
+arch water_lt3
+x 6
+y 9
+end
+arch water_lt
+x 6
+y 10
+end
+arch water_lt
+x 6
+y 11
+end
+arch water_lt2
+x 6
+y 12
+end
+arch water_lt3
+x 6
+y 13
+end
+arch water_lt3
+x 6
+y 14
+end
+arch water_lt3
+x 6
+y 15
+end
+arch water_lt
+x 6
+y 16
+end
+arch water_lt2
+x 6
+y 17
+end
+arch water_lt2
+x 6
+y 18
+end
+arch water_lt
+x 6
+y 19
+end
+arch water_md4
+x 6
+y 20
+end
+arch water_lt3_m
+direction 3
+x 6
+y 20
+end
+arch water_md2
+x 6
+y 21
+end
+arch water_lt3_m
+direction 3
+x 6
+y 21
+end
+arch rock6
+x 6
+y 21
+end
+arch water_md4
+x 6
+y 22
+end
+arch water_lt_m
+direction 2
+x 6
+y 22
+end
+arch water_md4
+x 6
+y 23
+end
+arch water_md2
+x 7
+end
+arch water_md
+x 7
+y 1
+end
+arch water_md3
+x 7
+y 2
+end
+arch water_md3
+x 7
+y 3
+end
+arch water_md
+x 7
+y 4
+end
+arch water_md4
+x 7
+y 5
+end
+arch sound_ambient
+race ocean_waves.ogg
+x 7
+y 5
+end
+arch water_md
+x 7
+y 6
+end
+arch water_md3
+x 7
+y 7
+end
+arch water_lt_m
+direction 4
+x 7
+y 7
+end
+arch water_lt3
+x 7
+y 8
+end
+arch water_lt4
+x 7
+y 9
+end
+arch ship_rail_s
+x 7
+y 9
+end
+arch ship_floor_ns_dark_1
+x 7
+y 10
+end
+arch ship_rail_w
+x 7
+y 10
+end
+arch ship_floor_ns_dark_1
+x 7
+y 11
+end
+arch knot-0a
+face hole2.101
+name hole
+z -3
+align -3
+x 7
+y 11
+end
+arch ship_rail_w_hole
+x 7
+y 11
+end
+arch ship_floor_ns_dark_1
+x 7
+y 12
+end
+arch ship_rail_w_hole
+x 7
+y 12
+end
+arch ship_floor_ns_dark_1
+x 7
+y 13
+end
+arch knot-0a
+face hole1.101
+name hole
+align 8
+z 8
+x 7
+y 13
+end
+arch ship_rail_w_hole
+x 7
+y 13
+end
+arch ship_floor_ns_dark_1
+x 7
+y 14
+end
+arch ship_rail_w_hole
+x 7
+y 14
+end
+arch ship_floor_ns_dark_1
+x 7
+y 15
+end
+arch tackelage_w_low
+x 7
+y 15
+end
+arch barrel2.101
+sub_layer 1
+layer 5
+x 7
+y 15
+end
+arch water_lt4
+x 7
+y 16
+end
+arch ship_hull_prow_s_front_starboard_1_dark
+x 7
+y 16
+end
+arch ship_prow_s_starboard_a
+x 7
+y 16
+end
+arch kitchen_bottle3
+rotate -45
+z 5
+align 21
+x 7
+y 16
+end
+arch water_lt2
+x 7
+y 17
+end
+arch ship_hull_prow_s_front_starboard_2_dark
+x 7
+y 17
+end
+arch ship_prow_s_starboard_b
+x 7
+y 17
+end
+arch water_lt
+x 7
+y 18
+end
+arch water_lt4
+x 7
+y 19
+end
+arch water_lt3
+x 7
+y 20
+end
+arch water_lt
+x 7
+y 21
+end
+arch water_md2
+x 7
+y 22
+end
+arch water_lt3_m
+direction 1
+x 7
+y 22
+end
+arch water_md3
+x 7
+y 23
+end
+arch water_md4
+x 8
+end
+arch water_md
+x 8
+y 1
+end
+arch water_md3
+x 8
+y 2
+end
+arch water_md2
+x 8
+y 3
+end
+arch water_md
+x 8
+y 4
+end
+arch water_md
+x 8
+y 5
+end
+arch water_lt_m
+direction 3
+x 8
+y 5
+end
+arch water_md2
+x 8
+y 6
+end
+arch water_lt_m
+direction 4
+x 8
+y 6
+end
+arch water_lt4
+x 8
+y 7
+end
+arch water_lt3
+x 8
+y 8
+end
+arch sail_short_mast_s_3
+x 8
+y 8
+end
+arch water_lt3
+x 8
+y 9
+end
+arch ship_rail_s
+x 8
+y 9
+end
+arch ship_floor_ns_dark_1
+x 8
+y 10
+end
+arch sail_short_mast_s_1
+x 8
+y 10
+end
+arch ship_floor_ns_dark_1
+x 8
+y 11
+end
+arch spawn_point
+x 8
+y 11
+arch ranger
+type 83
+name Sam Goodberry
+level 3
+arch event_obj
+sub_type 6
+race /interfaces/quests/escaping_deserted_island/quest.xml
+end
+arch compass
+end
+arch deserted_island_empty_barrel
+arch event_obj
+sub_type 1
+race /python/items/sam_goodberry_empty_barrel.py
+end
+end
+arch torch
+identified 1
+nrof 5
+end
+arch mushroom1
+nrof 10
+identified 1
+end
+arch sam_goodberry_saw
+arch event_obj
+sub_type 1
+race /python/items/sam_goodberry_saw.py
+end
+end
+end
+end
+arch ship_floor_ns_dark_1
+x 8
+y 12
+end
+arch ship_n_steering_wheel
+z 5
+x 8
+y 12
+end
+arch ship_rail_s_high
+x 8
+y 12
+end
+arch ship_floor_ns_dark_1
+x 8
+y 13
+end
+arch lamp_wall
+z -16
+x 8
+y 13
+end
+arch ship_floor_ns_dark_1
+x 8
+y 14
+end
+arch stairs_wood_down
+msg
+Sam Goodberry shouts at you:
+Hey, I need you over here, not back on the lower deck!
+endmsg
+direction 5
+hp 8
+sp 14
+x 8
+y 14
+end
+arch magic_mouth
+notification_message Tutorial Available: Talking
+notification_action /help basics_talking
+notification_shortcut ?HELP
+notification_delay 90000
+x 8
+y 14
+end
+arch ship_floor_ns_dark_1
+x 8
+y 15
+end
+arch mast_s_short
+x 8
+y 15
+end
+arch ship_floor_ns_dark_1
+x 8
+y 16
+end
+arch box_big.101
+layer 3
+x 8
+y 16
+end
+arch knot-0a
+face hole1.101
+name hole
+layer 4
+zoom 70
+z 23
+align 6
+x 8
+y 16
+end
+arch lamp_wall
+z 12
+align 8
+x 8
+y 16
+end
+arch sail_reffed_s
+z -40
+layer 7
+x 8
+y 16
+end
+arch ship_floor_ns_dark_1
+x 8
+y 17
+end
+arch basket1.101
+x 8
+y 17
+end
+arch ship_prow_s_midship
+x 8
+y 17
+end
+arch water_lt3
+x 8
+y 18
+end
+arch ship_hull_prow_s_front_3_dark
+x 8
+y 18
+end
+arch ship_prow_s_long
+x 8
+y 18
+end
+arch water_lt2
+x 8
+y 19
+end
+arch ship_hull_prow_s_front_2
+x 8
+y 19
+end
+arch water_lt
+x 8
+y 20
+end
+arch water_lt2
+x 8
+y 21
+end
+arch water_lt4
+x 8
+y 22
+end
+arch sound_ambient
+race ocean_waves.ogg
+x 8
+y 22
+end
+arch water_md3
+x 8
+y 23
+end
+arch water_lt_m
+direction 2
+x 8
+y 23
+end
+arch water_md4
+x 9
+end
+arch water_md2
+x 9
+y 1
+end
+arch water_md
+x 9
+y 2
+end
+arch water_md2
+x 9
+y 3
+end
+arch water_md
+x 9
+y 4
+end
+arch water_lt_m
+direction 4
+x 9
+y 4
+end
+arch water_lt
+x 9
+y 5
+end
+arch water_lt3
+x 9
+y 6
+end
+arch water_lt3
+x 9
+y 7
+end
+arch water_lt3
+x 9
+y 8
+end
+arch water_lt4
+x 9
+y 9
+end
+arch ship_rail_s
+x 9
+y 9
+end
+arch ship_floor_ns_dark_1
+x 9
+y 10
+end
+arch ship_rail_e
+x 9
+y 10
+end
+arch lamp_wall
+z 12
+align -8
+direction 7
+x 9
+y 10
+end
+arch ship_floor_ns_dark_1
+x 9
+y 11
+end
+arch ship_rail_e_hole
+x 9
+y 11
+end
+arch ship_floor_ns_dark_1
+x 9
+y 12
+end
+arch ship_rail_e_hole
+x 9
+y 12
+end
+arch ship_floor_ns_dark_1
+x 9
+y 13
+end
+arch ship_floor_ns_dark_1
+x 9
+y 14
+end
+arch ship_rail_e_hole
+x 9
+y 14
+end
+arch ship_floor_ns_dark_1
+x 9
+y 15
+end
+arch box_big.101
+layer 3
+x 9
+y 15
+end
+arch ship_rail_e
+x 9
+y 15
+end
+arch kitchen_bottle4
+z 23
+align 16
+rotate 135
+x 9
+y 15
+end
+arch ship_floor_ns_dark_1
+x 9
+y 16
+end
+arch ship_hull_prow_s_rear_2
+x 9
+y 16
+end
+arch ship_prow_s_strokeside_a
+x 9
+y 16
+end
+arch sail_reffed_s
+z -40
+x 9
+y 16
+end
+arch ship_floor_ns_dark_1
+x 9
+y 17
+end
+arch ship_hull_prow_s_rear_4
+x 9
+y 17
+end
+arch ship_prow_s_strokeside_b
+x 9
+y 17
+end
+arch water_lt3
+x 9
+y 18
+end
+arch ship_hull_prow_s_rear_6
+x 9
+y 18
+end
+arch hole2
+layer 7
+align 8
+z -1
+x 9
+y 18
+end
+arch water_lt2
+x 9
+y 19
+end
+arch ship_hull_prow_s_front_1
+x 9
+y 19
+end
+arch water_lt4
+x 9
+y 20
+end
+arch water_lt4
+x 9
+y 21
+end
+arch water_lt
+x 9
+y 22
+end
+arch water_lt4
+x 9
+y 23
+end
+arch water_md4
+x 10
+end
+arch water_md4
+x 10
+y 1
+end
+arch water_md2
+x 10
+y 2
+end
+arch rock6
+x 10
+y 2
+end
+arch water_md4
+x 10
+y 3
+end
+arch water_lt2_m
+direction 5
+x 10
+y 3
+end
+arch water_lt4
+x 10
+y 4
+end
+arch water_lt2
+x 10
+y 5
+end
+arch water_lt3
+x 10
+y 6
+end
+arch rock5
+x 10
+y 6
+end
+arch water_lt2
+x 10
+y 7
+end
+arch water_lt4
+x 10
+y 8
+end
+arch water_lt2
+x 10
+y 9
+end
+arch floor_ruin6
+no_pass 1
+x 10
+y 10
+end
+arch water_lt_m
+direction 8
+x 10
+y 10
+end
+arch ship_hull_e_high_corner_n
+layer 3
+x 10
+y 10
+end
+arch floor_ruin2
+no_pass 1
+x 10
+y 11
+end
+arch ship_hull_e_high
+x 10
+y 11
+end
+arch hole2
+layer 7
+align 8
+z 2
+x 10
+y 11
+end
+arch floor_ruin6
+no_pass 1
+x 10
+y 12
+end
+arch ship_hull_e_high
+x 10
+y 12
+end
+arch bridge_wood_EW.101
+x 10
+y 13
+end
+arch floor_ruin2
+no_pass 1
+x 10
+y 14
+end
+arch ship_hull_e_high
+x 10
+y 14
+end
+arch floor_ruin2
+no_pass 1
+x 10
+y 15
+end
+arch ship_hull_e_high
+x 10
+y 15
+end
+arch knot-0a
+face hole1.101
+name hole
+layer 4
+x 10
+y 15
+end
+arch water_lt3
+x 10
+y 16
+end
+arch ship_hull_prow_s_rear_1
+no_pass 1
+x 10
+y 16
+end
+arch floor_ruin3
+no_pass 1
+x 10
+y 17
+end
+arch ship_hull_prow_s_rear_3
+x 10
+y 17
+end
+arch floor_ruin3
+no_pass 1
+x 10
+y 18
+end
+arch water_lt2_m
+direction 7
+x 10
+y 18
+end
+arch ship_hull_prow_s_rear_5
+sub_layer 1
+x 10
+y 18
+end
+arch floor_ruin2
+x 10
+y 19
+end
+arch water_lt2_m
+direction 7
+x 10
+y 19
+end
+arch floor_ruin3
+x 10
+y 20
+end
+arch water_lt_m
+direction 6
+x 10
+y 20
+end
+arch rock6
+x 10
+y 20
+end
+arch water_lt4
+x 10
+y 21
+end
+arch water_lt3
+x 10
+y 22
+end
+arch water_lt2
+x 10
+y 23
+end
+arch water_md4
+x 11
+end
+arch water_md4
+x 11
+y 1
+end
+arch water_md4
+x 11
+y 2
+end
+arch water_md3
+x 11
+y 3
+end
+arch water_lt_m
+direction 5
+x 11
+y 3
+end
+arch water_lt4
+x 11
+y 4
+end
+arch water_lt4
+x 11
+y 5
+end
+arch water_lt
+x 11
+y 6
+end
+arch water_lt
+x 11
+y 7
+end
+arch water_lt3
+x 11
+y 8
+end
+arch floor_ruin2
+x 11
+y 9
+end
+arch water_lt_m
+direction 8
+x 11
+y 9
+end
+arch floor_ruin3
+x 11
+y 10
+end
+arch floor_ruin5
+no_pass 1
+x 11
+y 11
+end
+arch dwarf_wheel_2
+zoom 60
+z 10
+align 10
+is_animated 0
+face dwarf_wheel_stopped_2.101
+x 11
+y 11
+end
+arch floor_ruin3
+no_pass 1
+x 11
+y 12
+end
+arch hole2
+layer 7
+zoom 60
+align 22
+z 18
+x 11
+y 12
+end
+arch bridge_wood_EW.101
+x 11
+y 13
+end
+arch floor_ruin3
+x 11
+y 14
+end
+arch floor_ruin5
+x 11
+y 15
+end
+arch floor_ruin6
+x 11
+y 16
+end
+arch trash_wood1.101
+name broken wood
+x 11
+y 16
+end
+arch floor_ruin6
+x 11
+y 17
+end
+arch floor_ruin2
+x 11
+y 18
+end
+arch seashell3
+x 11
+y 18
+end
+arch floor_ruin2
+x 11
+y 19
+end
+arch floor_ruin5
+x 11
+y 20
+end
+arch floor_ruin3
+x 11
+y 21
+end
+arch water_lt_m
+direction 6
+x 11
+y 21
+end
+arch trash_wood2.101
+name broken wood
+x 11
+y 21
+end
+arch water_lt4
+x 11
+y 22
+end
+arch water_lt
+x 11
+y 23
+end
+arch water_md
+x 12
+end
+arch water_md3
+x 12
+y 1
+end
+arch water_md3
+x 12
+y 2
+end
+arch water_md2
+x 12
+y 3
+end
+arch water_lt_m
+direction 5
+x 12
+y 3
+end
+arch water_lt
+x 12
+y 4
+end
+arch water_lt
+x 12
+y 5
+end
+arch water_lt2
+x 12
+y 6
+end
+arch water_lt2
+x 12
+y 7
+end
+arch floor_ruin3
+x 12
+y 8
+end
+arch water_lt_m
+direction 8
+x 12
+y 8
+end
+arch floor_ruin6
+x 12
+y 9
+end
+arch floor_ruin5
+x 12
+y 10
+end
+arch seashell
+x 12
+y 10
+end
+arch floor_ruin2
+x 12
+y 11
+end
+arch box_big.101
+layer 3
+x 12
+y 11
+end
+arch box_tinder
+z 22
+align 3
+layer 4
+zoom 85
+x 12
+y 11
+end
+arch floor_ruin2
+x 12
+y 12
+end
+arch floor_ruin2
+x 12
+y 13
+end
+arch bridge_wood_EW.131
+x 12
+y 13
+end
+arch floor_ruin3
+x 12
+y 14
+end
+arch floor_ruin3
+x 12
+y 15
+end
+arch floor_ruin5
+x 12
+y 16
+end
+arch floor_ruin5
+x 12
+y 17
+end
+arch small_stones
+x 12
+y 17
+end
+arch floor_ruin5
+x 12
+y 18
+end
+arch box1.101
+x 12
+y 18
+end
+arch floor_ruin3
+x 12
+y 19
+end
+arch floor_ruin3
+x 12
+y 20
+end
+arch floor_ruin2
+x 12
+y 21
+end
+arch floor_ruin3
+x 12
+y 22
+end
+arch water_lt_m
+direction 6
+x 12
+y 22
+end
+arch water_lt3
+x 12
+y 23
+end
+arch water_md2
+x 13
+end
+arch water_md4
+x 13
+y 1
+end
+arch water_md
+x 13
+y 2
+end
+arch water_md2
+x 13
+y 3
+end
+arch water_lt2_m
+direction 5
+x 13
+y 3
+end
+arch water_lt
+x 13
+y 4
+end
+arch water_lt3
+x 13
+y 5
+end
+arch water_lt4
+x 13
+y 6
+end
+arch water_lt
+x 13
+y 7
+end
+arch floor_ruin2
+x 13
+y 8
+end
+arch water_lt_m
+direction 1
+x 13
+y 8
+end
+arch floor_ruin6
+x 13
+y 9
+end
+arch plant22
+x 13
+y 9
+end
+arch floor_ruin5
+x 13
+y 10
+end
+arch floor_ruin2
+x 13
+y 11
+end
+arch trash_wood1.101
+name broken wood
+x 13
+y 11
+end
+arch floor_ruin3
+x 13
+y 12
+end
+arch floor_ruin5
+x 13
+y 13
+end
+arch floor_ruin2
+x 13
+y 14
+end
+arch floor_ruin6
+x 13
+y 15
+end
+arch floor_ruin2
+x 13
+y 16
+end
+arch grassd_m11
+x 13
+y 16
+end
+arch floor_ruin3
+x 13
+y 17
+end
+arch grassd_m8
+x 13
+y 17
+end
+arch floor_ruin5
+x 13
+y 18
+end
+arch grassd_m12
+x 13
+y 18
+end
+arch floor_ruin5
+x 13
+y 19
+end
+arch floor_ruin5
+x 13
+y 20
+end
+arch tree50
+x 13
+y 20
+end
+arch floor_ruin5
+x 13
+y 21
+end
+arch pile_floor1
+x 13
+y 21
+end
+arch floor_ruin3
+x 13
+y 22
+end
+arch water_lt_m
+direction 4
+x 13
+y 22
+end
+arch water_lt2
+x 13
+y 23
+end
+arch rock5
+x 13
+y 23
+end
+arch water_md3
+x 14
+end
+arch water_md3
+x 14
+y 1
+end
+arch water_md4
+x 14
+y 2
+end
+arch water_md3
+x 14
+y 3
+end
+arch water_lt_m
+direction 5
+x 14
+y 3
+end
+arch water_lt4
+x 14
+y 4
+end
+arch rock5
+x 14
+y 4
+end
+arch water_lt2
+x 14
+y 5
+end
+arch water_lt4
+x 14
+y 6
+end
+arch floor_ruin5
+x 14
+y 7
+end
+arch water_lt3_m
+direction 1
+x 14
+y 7
+end
+arch floor_ruin3
+x 14
+y 8
+end
+arch floor_ruin5
+x 14
+y 9
+end
+arch tree51
+x 14
+y 9
+end
+arch floor_ruin5
+x 14
+y 10
+end
+arch campfire
+glow_radius 3
+x 14
+y 10
+end
+arch sound_ambient
+race campfire.ogg
+item_condition 80
+item_level 2
+x 14
+y 10
+end
+arch floor_ruin6
+x 14
+y 11
+end
+arch floor_ruin6
+x 14
+y 12
+end
+arch small_stones
+x 14
+y 12
+end
+arch floor_ruin5
+x 14
+y 13
+end
+arch floor_ruin3
+x 14
+y 14
+end
+arch grassd_m11
+x 14
+y 14
+end
+arch floor_ruin5
+x 14
+y 15
+end
+arch grassd_m8
+x 14
+y 15
+end
+arch floor_ruin2
+x 14
+y 16
+end
+arch grassd_m5
+x 14
+y 16
+end
+arch grassd_5
+x 14
+y 17
+end
+arch plant_flower14
+x 14
+y 17
+end
+arch floor_ruin3
+x 14
+y 18
+end
+arch grassd_m10
+x 14
+y 18
+end
+arch floor_ruin5
+x 14
+y 19
+end
+arch trash_wood2.101
+name broken wood
+x 14
+y 19
+end
+arch floor_ruin5
+x 14
+y 20
+end
+arch floor_ruin2
+x 14
+y 21
+end
+arch water_lt_m
+direction 4
+x 14
+y 21
+end
+arch water_lt4
+x 14
+y 22
+end
+arch water_lt2
+x 14
+y 23
+end
+arch water_dk4
+x 15
+end
+arch water_md_m
+direction 6
+x 15
+end
+arch water_md3
+x 15
+y 1
+end
+arch water_md2
+x 15
+y 2
+end
+arch water_md2
+x 15
+y 3
+end
+arch water_lt_m
+direction 5
+x 15
+y 3
+end
+arch water_lt4
+x 15
+y 4
+end
+arch water_lt
+x 15
+y 5
+end
+arch water_lt
+x 15
+y 6
+end
+arch floor_ruin2
+x 15
+y 7
+end
+arch water_lt_m
+direction 8
+x 15
+y 7
+end
+arch floor_ruin5
+x 15
+y 8
+end
+arch small_stones
+x 15
+y 8
+end
+arch floor_ruin5
+x 15
+y 9
+end
+arch dirt_floor4
+x 15
+y 9
+end
+arch floor_ruin2
+x 15
+y 10
+end
+arch grassd_m11
+x 15
+y 10
+end
+arch floor_ruin2
+x 15
+y 11
+end
+arch grassd_m8
+x 15
+y 11
+end
+arch floor_ruin2
+x 15
+y 12
+end
+arch grassd_m8
+x 15
+y 12
+end
+arch floor_ruin2
+x 15
+y 13
+end
+arch grassd_m8
+x 15
+y 13
+end
+arch floor_ruin5
+x 15
+y 14
+end
+arch grassd_m5
+x 15
+y 14
+end
+arch grass_flowers2
+x 15
+y 15
+end
+arch grassd_3
+x 15
+y 16
+end
+arch plant_flower8
+x 15
+y 16
+end
+arch grassd_3
+x 15
+y 17
+end
+arch plant1
+x 15
+y 17
+end
+arch floor_ruin6
+x 15
+y 18
+end
+arch grassd_m10
+x 15
+y 18
+end
+arch floor_ruin5
+x 15
+y 19
+end
+arch floor_ruin2
+x 15
+y 20
+end
+arch plant21
+x 15
+y 20
+end
+arch floor_ruin3
+x 15
+y 21
+end
+arch water_lt3_m
+direction 5
+x 15
+y 21
+end
+arch water_lt3
+x 15
+y 22
+end
+arch water_lt3
+x 15
+y 23
+end
+arch sound_ambient
+race ocean_waves.ogg
+x 15
+y 23
+end
+arch water_dk4
+x 16
+end
+arch water_md_m
+direction 5
+x 16
+end
+arch water_md3
+x 16
+y 1
+end
+arch water_md4
+x 16
+y 2
+end
+arch water_md4
+x 16
+y 3
+end
+arch water_md2
+x 16
+y 4
+end
+arch water_lt_m
+direction 6
+x 16
+y 4
+end
+arch sound_ambient
+race ocean_waves.ogg
+x 16
+y 4
+end
+arch water_lt4
+x 16
+y 5
+end
+arch water_lt2
+x 16
+y 6
+end
+arch floor_ruin6
+x 16
+y 7
+end
+arch water_lt_m
+direction 2
+x 16
+y 7
+end
+arch floor_ruin5
+x 16
+y 8
+end
+arch floor_ruin3
+x 16
+y 9
+end
+arch trash_wood2.101
+name broken wood
+x 16
+y 9
+end
+arch floor_ruin2
+x 16
+y 10
+end
+arch grassd_m7
+x 16
+y 10
+end
+arch grassd_3
+x 16
+y 11
+end
+arch plant1
+x 16
+y 11
+end
+arch grassd_4
+x 16
+y 12
+end
+arch plant_flower14
+x 16
+y 12
+end
+arch grassd_3
+x 16
+y 13
+end
+arch plant16
+x 16
+y 13
+end
+arch grass_flowers1
+x 16
+y 14
+end
+arch grass_flowers1
+x 16
+y 15
+end
+arch grass_flowers3
+x 16
+y 16
+end
+arch floor_ruin5
+x 16
+y 17
+end
+arch grassd_m4
+x 16
+y 17
+end
+arch floor_ruin6
+x 16
+y 18
+end
+arch grassd_m13
+x 16
+y 18
+end
+arch floor_ruin6
+x 16
+y 19
+end
+arch seashell3
+x 16
+y 19
+end
+arch floor_ruin6
+x 16
+y 20
+end
+arch water_lt_m
+direction 4
+x 16
+y 20
+end
+arch water_lt
+x 16
+y 21
+end
+arch water_lt
+x 16
+y 22
+end
+arch water_lt
+x 16
+y 23
+end
+arch water_dk4
+x 17
+end
+arch water_md2_m
+direction 5
+x 17
+end
+arch water_md3
+x 17
+y 1
+end
+arch water_md
+x 17
+y 2
+end
+arch water_md3
+x 17
+y 3
+end
+arch water_md
+x 17
+y 4
+end
+arch water_lt_m
+direction 5
+x 17
+y 4
+end
+arch water_lt2
+x 17
+y 5
+end
+arch water_lt4
+x 17
+y 6
+end
+arch water_lt
+x 17
+y 7
+end
+arch floor_ruin2
+x 17
+y 8
+end
+arch water_lt_m
+direction 2
+x 17
+y 8
+end
+arch floor_ruin2
+x 17
+y 9
+end
+arch starfish
+x 17
+y 9
+end
+arch floor_ruin3
+x 17
+y 10
+end
+arch grassd_m14
+x 17
+y 10
+end
+arch floor_ruin6
+x 17
+y 11
+end
+arch grassd_m3
+x 17
+y 11
+end
+arch grassd_2
+x 17
+y 12
+end
+arch plant3
+x 17
+y 12
+end
+arch grassd_7
+x 17
+y 13
+end
+arch plant_mushroom3
+x 17
+y 13
+end
+arch grass_flowers1
+x 17
+y 14
+end
+arch grass_flowers1
+x 17
+y 15
+end
+arch floor_ruin3
+x 17
+y 16
+end
+arch grassd_m4
+x 17
+y 16
+end
+arch floor_ruin2
+x 17
+y 17
+end
+arch grassd_m13
+x 17
+y 17
+end
+arch floor_ruin6
+x 17
+y 18
+end
+arch small_stones
+x 17
+y 18
+end
+arch floor_ruin6
+x 17
+y 19
+end
+arch water_lt2_m
+direction 5
+x 17
+y 19
+end
+arch trash_wood2.101
+name broken wood
+x 17
+y 19
+end
+arch water_lt3
+x 17
+y 20
+end
+arch water_lt
+x 17
+y 21
+end
+arch water_lt4
+x 17
+y 22
+end
+arch water_lt
+x 17
+y 23
+end
+arch water_dk3
+x 18
+end
+arch water_dk
+x 18
+y 1
+end
+arch water_md_m
+direction 6
+x 18
+y 1
+end
+arch water_md3
+x 18
+y 2
+end
+arch water_md4
+x 18
+y 3
+end
+arch water_md4
+x 18
+y 4
+end
+arch water_lt_m
+direction 5
+x 18
+y 4
+end
+arch water_lt4
+x 18
+y 5
+end
+arch water_lt4
+x 18
+y 6
+end
+arch rock6
+x 18
+y 6
+end
+arch water_lt2
+x 18
+y 7
+end
+arch water_lt4
+x 18
+y 8
+end
+arch floor_ruin2
+x 18
+y 9
+end
+arch water_lt_m
+direction 2
+x 18
+y 9
+end
+arch floor_ruin3
+x 18
+y 10
+end
+arch small_stones
+x 18
+y 10
+end
+arch floor_ruin6
+x 18
+y 11
+end
+arch grassd_m14
+x 18
+y 11
+end
+arch floor_ruin3
+x 18
+y 12
+end
+arch grassd_m9
+x 18
+y 12
+end
+arch floor_ruin2
+x 18
+y 13
+end
+arch grassd_m3
+x 18
+y 13
+end
+arch grassd_6
+x 18
+y 14
+end
+arch plant_flower14
+x 18
+y 14
+end
+arch floor_ruin5
+x 18
+y 15
+end
+arch grassd_m4
+x 18
+y 15
+end
+arch floor_ruin2
+x 18
+y 16
+end
+arch grassd_m13
+x 18
+y 16
+end
+arch floor_ruin5
+x 18
+y 17
+end
+arch seashell2
+x 18
+y 17
+end
+arch floor_ruin2
+x 18
+y 18
+end
+arch floor_ruin6
+x 18
+y 19
+end
+arch water_lt_m
+direction 4
+x 18
+y 19
+end
+arch water_lt
+x 18
+y 20
+end
+arch water_lt4
+x 18
+y 21
+end
+arch water_lt4
+x 18
+y 22
+end
+arch water_lt4
+x 18
+y 23
+end
+arch water_dk2
+x 19
+end
+arch water_dk
+x 19
+y 1
+end
+arch water_md_m
+direction 5
+x 19
+y 1
+end
+arch water_md4
+x 19
+y 2
+end
+arch water_md2
+x 19
+y 3
+end
+arch water_md2
+x 19
+y 4
+end
+arch water_md3
+x 19
+y 5
+end
+arch water_lt_m
+direction 6
+x 19
+y 5
+end
+arch water_lt2
+x 19
+y 6
+end
+arch water_lt3
+x 19
+y 7
+end
+arch water_lt2
+x 19
+y 8
+end
+arch water_lt4
+x 19
+y 9
+end
+arch floor_ruin2
+x 19
+y 10
+end
+arch water_lt_m
+direction 2
+x 19
+y 10
+end
+arch floor_ruin3
+x 19
+y 11
+end
+arch floor_ruin3
+x 19
+y 12
+end
+arch floor_ruin5
+x 19
+y 13
+end
+arch grassd_m7
+x 19
+y 13
+end
+arch grassd_4
+x 19
+y 14
+end
+arch floor_ruin3
+x 19
+y 15
+end
+arch grassd_m10
+x 19
+y 15
+end
+arch floor_ruin3
+x 19
+y 16
+end
+arch floor_ruin6
+x 19
+y 17
+end
+arch floor_ruin3
+x 19
+y 18
+end
+arch water_lt2_m
+direction 5
+x 19
+y 18
+end
+arch water_lt4
+x 19
+y 19
+end
+arch water_lt2
+x 19
+y 20
+end
+arch water_lt3
+x 19
+y 21
+end
+arch water_lt2
+x 19
+y 22
+end
+arch water_lt
+x 19
+y 23
+end
+arch water_dk2
+x 20
+end
+arch water_dk2
+x 20
+y 1
+end
+arch water_dk4
+x 20
+y 2
+end
+arch water_md_m
+direction 6
+x 20
+y 2
+end
+arch water_md4
+x 20
+y 3
+end
+arch water_md4
+x 20
+y 4
+end
+arch water_md2
+x 20
+y 5
+end
+arch water_md3
+x 20
+y 6
+end
+arch water_lt_m
+direction 6
+x 20
+y 6
+end
+arch water_lt4
+x 20
+y 7
+end
+arch water_lt2
+x 20
+y 8
+end
+arch rock6
+x 20
+y 8
+end
+arch water_lt2
+x 20
+y 9
+end
+arch water_lt
+x 20
+y 10
+end
+arch floor_ruin5
+x 20
+y 11
+end
+arch water_lt_m
+direction 2
+x 20
+y 11
+end
+arch trash_wood1.101
+name broken wood
+x 20
+y 11
+end
+arch floor_ruin5
+x 20
+y 12
+end
+arch plant18
+x 20
+y 12
+end
+arch floor_ruin2
+x 20
+y 13
+end
+arch grassd_m14
+x 20
+y 13
+end
+arch floor_ruin2
+x 20
+y 14
+end
+arch grassd_m9
+x 20
+y 14
+end
+arch floor_ruin5
+x 20
+y 15
+end
+arch grassd_m13
+x 20
+y 15
+end
+arch floor_ruin6
+x 20
+y 16
+end
+arch floor_ruin2
+x 20
+y 17
+end
+arch floor_ruin6
+x 20
+y 18
+end
+arch water_lt_m
+direction 4
+x 20
+y 18
+end
+arch water_lt
+x 20
+y 19
+end
+arch water_lt3
+x 20
+y 20
+end
+arch water_lt3
+x 20
+y 21
+end
+arch water_lt4
+x 20
+y 22
+end
+arch rock6
+x 20
+y 22
+end
+arch water_lt2
+x 20
+y 23
+end
+arch water_dk4
+x 21
+end
+arch water_dk2
+x 21
+y 1
+end
+arch water_dk3
+x 21
+y 2
+end
+arch water_md
+x 21
+y 3
+end
+arch rock5
+x 21
+y 3
+end
+arch water_md4
+x 21
+y 4
+end
+arch water_md3
+x 21
+y 5
+end
+arch water_md4
+x 21
+y 6
+end
+arch water_md2
+x 21
+y 7
+end
+arch water_lt_m
+direction 6
+x 21
+y 7
+end
+arch water_lt4
+x 21
+y 8
+end
+arch water_lt
+x 21
+y 9
+end
+arch water_lt4
+x 21
+y 10
+end
+arch water_lt4
+x 21
+y 11
+end
+arch floor_ruin6
+x 21
+y 12
+end
+arch water_lt_m
+direction 2
+x 21
+y 12
+end
+arch floor_ruin5
+x 21
+y 13
+end
+arch floor_ruin3
+x 21
+y 14
+end
+arch floor_ruin3
+x 21
+y 15
+end
+arch floor_ruin6
+x 21
+y 16
+end
+arch floor_ruin5
+x 21
+y 17
+end
+arch water_lt_m
+direction 5
+x 21
+y 17
+end
+arch water_lt
+x 21
+y 18
+end
+arch water_lt4
+x 21
+y 19
+end
+arch water_lt3
+x 21
+y 20
+end
+arch water_lt2
+x 21
+y 21
+end
+arch sound_ambient
+race ocean_waves.ogg
+x 21
+y 21
+end
+arch water_lt
+x 21
+y 22
+end
+arch water_lt2
+x 21
+y 23
+end
+arch water_dk2
+x 22
+end
+arch water_dk
+x 22
+y 1
+end
+arch water_dk3
+x 22
+y 2
+end
+arch water_md_m
+direction 4
+x 22
+y 2
+end
+arch water_md2
+x 22
+y 3
+end
+arch water_md3
+x 22
+y 4
+end
+arch water_md
+x 22
+y 5
+end
+arch water_md3
+x 22
+y 6
+end
+arch water_md
+x 22
+y 7
+end
+arch water_md3
+x 22
+y 8
+end
+arch water_lt_m
+direction 6
+x 22
+y 8
+end
+arch water_lt3
+x 22
+y 9
+end
+arch water_lt4
+x 22
+y 10
+end
+arch water_lt4
+x 22
+y 11
+end
+arch water_lt4
+x 22
+y 12
+end
+arch floor_ruin5
+x 22
+y 13
+end
+arch water_lt2_m
+direction 1
+x 22
+y 13
+end
+arch floor_ruin5
+x 22
+y 14
+end
+arch small_stones
+x 22
+y 14
+end
+arch floor_ruin2
+x 22
+y 15
+end
+arch floor_ruin6
+x 22
+y 16
+end
+arch floor_ruin3
+x 22
+y 17
+end
+arch starfish
+x 22
+y 17
+end
+arch floor_ruin3
+x 22
+y 18
+end
+arch water_lt_m
+direction 6
+x 22
+y 18
+end
+arch water_lt4
+x 22
+y 19
+end
+arch water_lt3
+x 22
+y 20
+end
+arch water_lt2
+x 22
+y 21
+end
+arch water_lt
+x 22
+y 22
+end
+arch water_lt4
+x 22
+y 23
+end
+arch water_dk4
+x 23
+end
+arch water_dk3
+x 23
+y 1
+end
+arch water_md_m
+direction 4
+x 23
+y 1
+end
+arch water_md
+x 23
+y 2
+end
+arch water_md3
+x 23
+y 3
+end
+arch water_md3
+x 23
+y 4
+end
+arch water_md4
+x 23
+y 5
+end
+arch water_md3
+x 23
+y 6
+end
+arch water_md
+x 23
+y 7
+end
+arch water_lt2_m
+direction 3
+x 23
+y 7
+end
+arch water_md3
+x 23
+y 8
+end
+arch water_lt_m
+direction 4
+x 23
+y 8
+end
+arch sound_ambient
+race ocean_waves.ogg
+x 23
+y 8
+end
+arch water_lt2
+x 23
+y 9
+end
+arch water_lt3
+x 23
+y 10
+end
+arch water_lt2
+x 23
+y 11
+end
+arch floor_ruin2
+x 23
+y 12
+end
+arch water_lt_m
+direction 8
+x 23
+y 12
+end
+arch floor_ruin2
+x 23
+y 13
+end
+arch seashell
+x 23
+y 13
+end
+arch floor_ruin2
+x 23
+y 14
+end
+arch floor_ruin5
+x 23
+y 15
+end
+arch floor_ruin2
+x 23
+y 16
+end
+arch floor_ruin5
+x 23
+y 17
+end
+arch floor_ruin3
+x 23
+y 18
+end
+arch tree51
+x 23
+y 18
+end
+arch floor_ruin3
+x 23
+y 19
+end
+arch water_lt2_m
+direction 7
+x 23
+y 19
+end
+arch floor_ruin6
+x 23
+y 20
+end
+arch water_lt_m
+direction 6
+x 23
+y 20
+end
+arch water_lt
+x 23
+y 21
+end
+arch water_lt3
+x 23
+y 22
+end
+arch water_lt3
+x 23
+y 23
+end

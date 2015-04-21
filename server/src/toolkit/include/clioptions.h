@@ -53,7 +53,7 @@ typedef struct clioptions_struct {
 
     /**
      * Whether this option accepts an argument. */
-    uint8 argument;
+    uint8_t argument;
 
     /**
      * Brief description. */

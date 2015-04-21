@@ -95,16 +95,16 @@ typedef struct player_path {
     mapstruct *map;
 
     /** Destination X. */
-    sint16 x;
+    int16_t x;
 
     /** Destination Y. */
-    sint16 y;
+    int16_t y;
 
     /**
      * How many times we failed trying to reach this destination. If more
      * than @ref PLAYER_PATH_MAX_FAILS, will abort trying to reach the
      * destination. */
-    uint8 fails;
+    uint8_t fails;
 } player_path;
 
 #define SKILL_LEVEL(_pl, _skill) ((_pl)->skill_ptr[(_skill)] ? (_pl)->skill_ptr[(_skill)]->level : 1)
@@ -241,12 +241,12 @@ typedef struct pl_player {
     int num_faction_ids;
 
     /** Reputations with the various factions. */
-    sint64 *faction_reputation;
+    int64_t *faction_reputation;
 
     /** Fame rating in the world. */
-    sint64 fame;
+    int64_t fame;
 
-    uint32 action_attack;
+    uint32_t action_attack;
 
     /** weapon_speed_left * 1000 and cast from float to int for client. */
     float action_timer;
@@ -295,226 +295,226 @@ typedef struct pl_player {
 #endif
 
     /** The count of the container. */
-    uint32 container_count;
+    uint32_t container_count;
 
     /** Count of marked object. */
-    uint32 mark_count;
+    uint32_t mark_count;
 
     /** Skill experience for all skills. */
-    sint64 skill_exp[NROFSKILLS];
+    int64_t skill_exp[NROFSKILLS];
 
     /** Number of deaths. */
-    uint64 stat_deaths;
+    uint64_t stat_deaths;
 
     /** Number of monsters killed. */
-    uint64 stat_kills_mob;
+    uint64_t stat_kills_mob;
 
     /** Number of players killed in PvP. */
-    uint64 stat_kills_pvp;
+    uint64_t stat_kills_pvp;
 
     /** Total damage taken. */
-    uint64 stat_damage_taken;
+    uint64_t stat_damage_taken;
 
     /** Total damage dealt. */
-    uint64 stat_damage_dealt;
+    uint64_t stat_damage_dealt;
 
     /** HP regenerated. */
-    uint64 stat_hp_regen;
+    uint64_t stat_hp_regen;
 
     /** Mana regenerated. */
-    uint64 stat_sp_regen;
+    uint64_t stat_sp_regen;
 
     /** How many food points have been consumed. */
-    uint64 stat_food_consumed;
+    uint64_t stat_food_consumed;
 
     /** Number of food items consumed. */
-    uint64 stat_food_num_consumed;
+    uint64_t stat_food_num_consumed;
 
     /** Amount of HP healed using heal spells. */
-    uint64 stat_damage_healed;
+    uint64_t stat_damage_healed;
 
     /** Amount of HP healed using heal spells on friendly targets. */
-    uint64 stat_damage_healed_other;
+    uint64_t stat_damage_healed_other;
 
     /** Amount of HP healed by receiving healing from friendly creatures. */
-    uint64 stat_damage_heal_received;
+    uint64_t stat_damage_heal_received;
 
     /** Number of steps taken. */
-    uint64 stat_steps_taken;
+    uint64_t stat_steps_taken;
 
     /** Number of spells cast. */
-    uint64 stat_spells_cast;
+    uint64_t stat_spells_cast;
 
     /** Number of seconds played. */
-    uint64 stat_time_played;
+    uint64_t stat_time_played;
 
     /** Number of seconds spent AFK. */
-    uint64 stat_time_afk;
+    uint64_t stat_time_afk;
 
     /** Cache for value of ::stat_time_played. */
     time_t last_stat_time_played;
 
     /** Number of arrows/bolts/etc fired. */
-    uint64 stat_arrows_fired;
+    uint64_t stat_arrows_fired;
 
     /** Number of missiles thrown. */
-    uint64 stat_missiles_thrown;
+    uint64_t stat_missiles_thrown;
 
     /** Number of books read. */
-    uint64 stat_books_read;
+    uint64_t stat_books_read;
 
     /** Number of unique books read (the ones that give exp). */
-    uint64 stat_unique_books_read;
+    uint64_t stat_unique_books_read;
 
     /** Number of potions used. */
-    uint64 stat_potions_used;
+    uint64_t stat_potions_used;
 
     /** Number of scrolls used. */
-    uint64 stat_scrolls_used;
+    uint64_t stat_scrolls_used;
 
     /** Total experience gained. */
-    uint64 stat_exp_gained;
+    uint64_t stat_exp_gained;
 
     /** Total experience lost. */
-    uint64 stat_exp_lost;
+    uint64_t stat_exp_lost;
 
     /** Total number of items dropped. */
-    uint64 stat_items_dropped;
+    uint64_t stat_items_dropped;
 
     /** Total number of items picked up. */
-    uint64 stat_items_picked;
+    uint64_t stat_items_picked;
 
     /** Total number of unique corpses searched. */
-    uint64 stat_corpses_searched;
+    uint64_t stat_corpses_searched;
 
     /** Number of traps found using the find traps skill. */
-    uint64 stat_traps_found;
+    uint64_t stat_traps_found;
 
     /** Number of traps successfully disarmed. */
-    uint64 stat_traps_disarmed;
+    uint64_t stat_traps_disarmed;
 
     /** Number of traps sprung. */
-    uint64 stat_traps_sprung;
+    uint64_t stat_traps_sprung;
 
     /** Number of times the player has enabled AFK mode. */
-    uint64 stat_afk_used;
+    uint64_t stat_afk_used;
 
     /** Number of times the player has formed a party. */
-    uint64 stat_formed_party;
+    uint64_t stat_formed_party;
 
     /** Number of times the player has joined a party. */
-    uint64 stat_joined_party;
+    uint64_t stat_joined_party;
 
     /** Number of items the player has renamed an item. */
-    uint64 stat_renamed_items;
+    uint64_t stat_renamed_items;
 
     /** Number of times the player has used an emote command. */
-    uint64 stat_emotes_used;
+    uint64_t stat_emotes_used;
 
     /**
      * Number of times the player used inscription skill to write in a
      * book. */
-    uint64 stat_books_inscribed;
+    uint64_t stat_books_inscribed;
 
     /** Count of target. */
-    uint32 target_object_count;
+    uint32_t target_object_count;
 
     /** Last weight limit sent to client. */
-    uint32 last_weight_limit;
+    uint32_t last_weight_limit;
 
     /** If true, update line of sight with update_los(). */
-    uint32 update_los : 1;
+    uint32_t update_los : 1;
 
     /** Is the player AFK? */
-    uint32 afk : 1;
+    uint32_t afk : 1;
 
     /** Any numbers typed before a command. */
-    uint32 count;
+    uint32_t count;
 
     /** Last ranged weapon speed sent. */
-    sint32 last_ranged_ws;
+    int32_t last_ranged_ws;
 
     /**
      * Last attuned spell path sent to client. */
-    uint32 last_path_attuned;
+    uint32_t last_path_attuned;
 
     /**
      * Last repelled spell path sent to client. */
-    uint32 last_path_repelled;
+    uint32_t last_path_repelled;
 
     /**
      * Last denied spell path sent to client. */
-    uint32 last_path_denied;
+    uint32_t last_path_denied;
 
     /**
      * Last sent UIDs of player's equipment. */
-    uint32 last_equipment[PLAYER_EQUIP_MAX];
+    uint32_t last_equipment[PLAYER_EQUIP_MAX];
 
     /** Last fire/run on flags sent to client. */
-    uint16 last_flags;
+    uint16_t last_flags;
 
     /** Remainder for HP regen. */
-    uint16 gen_hp_remainder;
+    uint16_t gen_hp_remainder;
 
     /** Remainder for mana regen. */
-    uint16 gen_sp_remainder;
+    uint16_t gen_sp_remainder;
 
     /** Regeneration speed of HP. */
-    uint16 gen_client_hp;
+    uint16_t gen_client_hp;
 
     /** Regeneration speed of mana. */
-    uint16 gen_client_sp;
+    uint16_t gen_client_sp;
 
     /** Last regeneration of HP sent to client. */
-    uint16 last_gen_hp;
+    uint16_t last_gen_hp;
 
     /** Last regeneration of mana sent to client. */
-    uint16 last_gen_sp;
+    uint16_t last_gen_sp;
 
     /** Table of last skill levels sent to client. */
-    sint16 skill_level[NROFSKILLS];
+    int16_t skill_level[NROFSKILLS];
 
     /** Some anim flags for special player animation handling. */
-    uint16 anim_flags;
+    uint16_t anim_flags;
 
     /** Total item power of objects equipped. */
-    sint16 item_power;
+    int16_t item_power;
 
     /** Last ranged damage sent. */
-    sint16 last_ranged_dam;
+    int16_t last_ranged_dam;
 
     /** Last ranged wc sent. */
-    sint16 last_ranged_wc;
+    int16_t last_ranged_wc;
 
     /** Table of protections last sent to the client. */
-    sint8 last_protection[NROFATTACKS];
+    int8_t last_protection[NROFATTACKS];
 
     /** Last gender sent to the client. */
-    uint8 last_gender;
+    uint8_t last_gender;
 
     /** If 1, the player is not able to chat. */
-    uint8 no_chat;
+    uint8_t no_chat;
 
     /** Last HP sent to party members. */
-    uint8 last_party_hp;
+    uint8_t last_party_hp;
 
     /** Last SP sent to party members. */
-    uint8 last_party_sp;
+    uint8_t last_party_sp;
 
     /** If 1, collision is disabled for this player. */
-    uint8 tcl;
+    uint8_t tcl;
 
     /** Whether god mode is on or off. */
-    uint8 tgm;
+    uint8_t tgm;
 
     /** If 1, disable lighting. */
-    uint8 tli;
+    uint8_t tli;
 
     /** If 1, LoS is disabled and player can see through walls. */
-    uint8 tls;
+    uint8_t tls;
 
     /** If 1, normally invisible items can be seen. */
-    uint8 tsi;
+    uint8_t tsi;
 
     /** Last stats sent to the client. */
     living last_stats;

@@ -32,38 +32,19 @@
  * @author Alex Tokar */
 
 #include <global.h>
+#include <toolkit_string.h>
 
-/**
- * Name of the API. */
-#define API_NAME x11
+TOOLKIT_API(DEPENDS(string));
 
-/**
- * If 1, the API has been initialized. */
-static uint8 did_init = 0;
-
-/**
- * Initialize the x11 API.
- * @internal */
-void toolkit_x11_init(void)
+TOOLKIT_INIT_FUNC(x11)
 {
-
-    TOOLKIT_INIT_FUNC_START(x11)
-    {
-    }
-    TOOLKIT_INIT_FUNC_END()
 }
+TOOLKIT_INIT_FUNC_FINISH
 
-/**
- * Deinitialize the x11 API.
- * @internal */
-void toolkit_x11_deinit(void)
+TOOLKIT_DEINIT_FUNC(x11)
 {
-
-    TOOLKIT_DEINIT_FUNC_START(x11)
-    {
-    }
-    TOOLKIT_DEINIT_FUNC_END()
 }
+TOOLKIT_DEINIT_FUNC_FINISH
 
 /**
  * Get the parent window.
@@ -159,7 +140,13 @@ static char *x11_get_property(Display *display, Window win, Atom xa_prop_type, c
 
     /* Terminate the result to make string handling easier. */
     tmp_size = (ret_format / 8) * ret_nitems;
-    ret = emalloc(tmp_size + 1);
+    ret = malloc(tmp_size + 1);
+
+    if (ret == NULL) {
+        log_error("OOM.");
+        abort();
+    }
+
     memcpy(ret, ret_prop, tmp_size);
     ret[tmp_size] = '\0';
 
@@ -180,9 +167,9 @@ static char *x11_get_property(Display *display, Window win, Atom xa_prop_type, c
  * @param switch_desktop If 1, will also switch the desktop to that of
  * the window's desktop.
  * @author Tomas Styblo (wmctrl - GPLv2) */
-void x11_window_activate(x11_display_type display, x11_window_type win, uint8 switch_desktop)
+void x11_window_activate(x11_display_type display, x11_window_type win, uint8_t switch_desktop)
 {
-    TOOLKIT_FUNC_PROTECTOR(API_NAME);
+    TOOLKIT_PROTECT();
 
 #if defined(HAVE_X11)
 
@@ -195,12 +182,12 @@ void x11_window_activate(x11_display_type display, x11_window_type win, uint8 sw
             }
         }
 
-        if (desktop) {
+        if (desktop != NULL) {
             if (!x11_send_event(display, DefaultRootWindow(display), "_NET_CURRENT_DESKTOP", *desktop, 0, 0, 0, 0)) {
                 logger_print(LOG(BUG), "Cannot switch desktop.");
             }
 
-            efree(desktop);
+            free(desktop);
         }
     }
 
@@ -273,7 +260,7 @@ static int x11_clipboard_filter(const SDL_Event *event)
  * @return 1 on success, 0 on failure. */
 int x11_clipboard_register_events(void)
 {
-    TOOLKIT_FUNC_PROTECTOR(API_NAME);
+    TOOLKIT_PROTECT();
 
 #if defined(HAVE_X11) && defined(HAVE_SDL)
 
@@ -297,7 +284,7 @@ int x11_clipboard_register_events(void)
  * @return 1 on success, 0 on failure. */
 int x11_clipboard_set(x11_display_type display, x11_window_type win, const char *str)
 {
-    TOOLKIT_FUNC_PROTECTOR(API_NAME);
+    TOOLKIT_PROTECT();
 
     if (!display) {
         return 0;
@@ -396,7 +383,7 @@ char *x11_clipboard_get(x11_display_type display, x11_window_type win)
     char *src;
 #endif
 
-    TOOLKIT_FUNC_PROTECTOR(API_NAME);
+    TOOLKIT_PROTECT();
 
     if (!display) {
         return 0;

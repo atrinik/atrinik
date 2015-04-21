@@ -29,6 +29,7 @@
  * @author Alex Tokar */
 
 #include <global.h>
+#include <toolkit_string.h>
 
 enum {
     BUTTON_CLOSE,
@@ -54,7 +55,8 @@ static list_struct *list_skills = NULL;
 static size_t selected_skill;
 
 /**
- * Initialize skills system. */
+ * Initialize skills system.
+ */
 void skills_init(void)
 {
     skill_list = NULL;
@@ -62,8 +64,24 @@ void skills_init(void)
     selected_skill = 0;
 }
 
+/**
+ * Deinitialize skills system.
+ */
+void skills_deinit(void)
+{
+    for (size_t i = 0; i < skill_list_num; i++) {
+        efree(skill_list[i]);
+    }
+
+    skill_list_num = 0;
+
+    if (skill_list != NULL) {
+        efree(skill_list);
+    }
+}
+
 /** @copydoc list_struct::post_column_func */
-static void list_post_column(list_struct *list, uint32 row, uint32 col)
+static void list_post_column(list_struct *list, uint32_t row, uint32_t col)
 {
     size_t skill_id;
     SDL_Rect box;
@@ -115,7 +133,7 @@ static void list_row_color(list_struct *list, int row, SDL_Rect box)
 static void skill_list_reload(void)
 {
     size_t i;
-    uint32 offset, rows, selected;
+    uint32_t offset, rows, selected;
 
     if (!list_skills) {
         return;
@@ -176,7 +194,7 @@ skill_entry_struct *skill_get(size_t id)
     return skill_list[id];
 }
 
-void skills_update(object *op, uint8 level, sint64 xp)
+void skills_update(object *op, uint8_t level, int64_t xp)
 {
     size_t skill_id;
     skill_entry_struct *skill;
@@ -294,7 +312,7 @@ static void widget_background(widgetdata *widget, int draw)
 /** @copydoc widgetdata::event_func */
 static int widget_event(widgetdata *widget, SDL_Event *event)
 {
-    uint32 row, col;
+    uint32_t row, col;
     size_t i;
 
     if (EVENT_IS_MOUSE(event) && event->button.button == SDL_BUTTON_LEFT && list_mouse_get_pos(list_skills, event->motion.x, event->motion.y, &row, &col)) {
@@ -348,6 +366,19 @@ static int widget_event(widgetdata *widget, SDL_Event *event)
     return 0;
 }
 
+/** @copydoc widgetdata::deinit_func */
+static void widget_deinit(widgetdata *widget)
+{
+    if (list_skills != NULL) {
+        list_remove(list_skills);
+        list_skills = NULL;
+    }
+
+    for (size_t i = 0; i < BUTTON_NUM; i++) {
+        button_destroy(&buttons[i]);
+    }
+}
+
 /**
  * Initialize one skills widget. */
 void widget_skills_init(widgetdata *widget)
@@ -355,4 +386,5 @@ void widget_skills_init(widgetdata *widget)
     widget->draw_func = widget_draw;
     widget->background_func = widget_background;
     widget->event_func = widget_event;
+    widget->deinit_func = widget_deinit;
 }

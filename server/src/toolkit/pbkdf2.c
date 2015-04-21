@@ -65,6 +65,11 @@ typedef struct {
 }
 #endif
 
+void PKCS5_PBKDF2_HMAC_SHA2(const unsigned char *password, size_t plen,
+        unsigned char *salt, size_t slen,
+        const unsigned long iteration_count, const unsigned long key_length,
+        unsigned char *output);
+
 /*
  * SHA-256 context setup
  */
@@ -298,7 +303,7 @@ static void sha2_finish( sha2_context *ctx, unsigned char output[32] )
     last = ctx->total[0] & 0x3F;
     padn = ( last < 56 ) ? ( 56 - last ) : ( 120 - last );
 
-    sha2_update( ctx, (unsigned char *) sha2_padding, padn );
+    sha2_update( ctx, (const unsigned char *) sha2_padding, padn );
     sha2_update( ctx, msglen, 8 );
 
     PUT_ULONG_BE( ctx->state[0], output,  0 );
@@ -417,7 +422,7 @@ static void sha2_hmac( const unsigned char *key, size_t keylen,
 #define min( a, b ) ( ((a) < (b)) ? (a) : (b) )
 #endif
 
-void PKCS5_PBKDF2_HMAC_SHA2(unsigned char *password, size_t plen,
+void PKCS5_PBKDF2_HMAC_SHA2(const unsigned char *password, size_t plen,
         unsigned char *salt, size_t slen,
         const unsigned long iteration_count, const unsigned long key_length,
         unsigned char *output)

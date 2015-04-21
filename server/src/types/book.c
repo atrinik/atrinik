@@ -27,6 +27,7 @@
  * Handles code related to @ref BOOK "books". */
 
 #include <global.h>
+#include <packet.h>
 
 /**
  * Maximum amount of difference in levels between the book's level and
@@ -115,15 +116,17 @@ static int apply_func(object *op, object *applier, int aflags)
     CONTR(applier)->stat_books_read++;
 
     packet = packet_new(CLIENT_CMD_BOOK, 512, 512);
+    packet_debug_data(packet, 0, "Book interface header");
     packet_append_string(packet, "[book]");
     packet_append_string(packet, query_base_name(op, applier));
     packet_append_string(packet, "[/book]");
+    packet_debug_data(packet, 0, "Book message");
     packet_append_string_terminated(packet, op->msg);
     socket_send_packet(&CONTR(applier)->socket, packet);
 
     /* Gain xp from reading but only if not read before. */
     if (!QUERY_FLAG(op, FLAG_NO_SKILL_IDENT)) {
-        sint64 exp_gain, old_exp;
+        int64_t exp_gain, old_exp;
 
         CONTR(applier)->stat_unique_books_read++;
 
@@ -132,7 +135,7 @@ static int apply_func(object *op, object *applier, int aflags)
          * of the book, instead of adjusting the return value. */
         old_exp = op->stats.exp;
         /* Adjust the experience based on player's wisdom. */
-        op->stats.exp = (sint64) ((double) op->stats.exp * book_exp_mod[applier->stats.Wis]);
+        op->stats.exp = (int64_t) ((double) op->stats.exp * book_exp_mod[applier->stats.Wis]);
 
         if (!QUERY_FLAG(op, FLAG_IDENTIFIED)) {
             /* Because they just identified it too. */

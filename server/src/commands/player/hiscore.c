@@ -29,6 +29,7 @@
  * @author Alex Tokar */
 
 #include <global.h>
+#include <toolkit_string.h>
 
 /** @copydoc command_func */
 void command_hiscore(object *op, const char *command, char *params)
@@ -42,7 +43,7 @@ void command_hiscore(object *op, const char *command, char *params)
             results = atoi(params);
         } else {
             if (strlen(params) < settings.limits[ALLOWED_CHARS_CHARNAME][0]) {
-                draw_info_format(COLOR_WHITE, op, "Your search term must be at least %"FMT64U " characters long.", (uint64) settings.limits[ALLOWED_CHARS_CHARNAME][0]);
+                draw_info_format(COLOR_WHITE, op, "Your search term must be at least %"PRIu64 " characters long.", (uint64_t) settings.limits[ALLOWED_CHARS_CHARNAME][0]);
                 return;
             }
         }

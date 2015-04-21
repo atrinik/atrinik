@@ -48,7 +48,7 @@ void progress_dots_create(progress_dots *progress)
  * @param y Y position. */
 void progress_dots_show(progress_dots *progress, SDL_Surface *surface, int x, int y)
 {
-    uint8 i;
+    uint8_t i;
     SDL_Surface *texture;
 
     for (i = 0; i < PROGRESS_DOTS_NUM; i++) {

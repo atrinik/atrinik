@@ -2,7 +2,7 @@ arch map
 name Lower Deck
 msg
 Created:  2011-08-18 Alex Tokar
-Modified: 2015-04-07 Alex Tokar
+Modified: 2015-04-19 Alex Tokar
 endmsg
 width 5
 height 14
@@ -211,7 +211,7 @@ msg
 
 You climb up to the main deck, and notice a man who looks like the captain. You vaguely remember boarding the boat with him...
 endmsg
-slaying ../world_ag04
+slaying ../world_-7_76
 hp 8
 sp 14
 x 1
@@ -352,7 +352,7 @@ msg
 
 You climb up to the main deck, and notice a man who looks like the captain. You vaguely remember boarding the boat with him...
 endmsg
-slaying ../world_ag04
+slaying ../world_-7_76
 hp 8
 sp 14
 x 2

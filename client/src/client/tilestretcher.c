@@ -178,9 +178,9 @@ static void determine_lines(line_and_slope *dest, int n, int e, int s, int w)
  * @return 1 if the supplied coordinates are within the isometric map tile
  * shape, 0 otherwise.
  */
-int tilestretcher_coords_in_tile(uint32 stretch, int x, int y)
+int tilestretcher_coords_in_tile(uint32_t stretch, int x, int y)
 {
-    uint8 n, e, s, w;
+    uint8_t n, e, s, w;
     double corners_x[8], corners_y[8];
     line_and_slope lines[4];
 

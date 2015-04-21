@@ -110,6 +110,7 @@
  * @author Alex Tokar */
 
 #include <global.h>
+#include <toolkit_string.h>
 
 /** Shared handle. */
 static CURLSH *handle_share = NULL;
@@ -130,7 +131,7 @@ static size_t curl_callback(void *ptr, size_t size, size_t nmemb, void *data)
     curl_data *mem = data;
 
     SDL_LockMutex(mem->mutex);
-    mem->memory = realloc(mem->memory, mem->size + realsize + 1);
+    mem->memory = erealloc(mem->memory, mem->size + realsize + 1);
 
     if (mem->memory) {
         memcpy(&(mem->memory[mem->size]), ptr, realsize);
@@ -158,7 +159,7 @@ static size_t curl_header_callback(void *ptr, size_t size, size_t nmemb,
     curl_data *mem = data;
 
     SDL_LockMutex(mem->mutex);
-    mem->header = realloc(mem->header, mem->header_size + realsize + 1);
+    mem->header = erealloc(mem->header, mem->header_size + realsize + 1);
 
     if (mem->header) {
         memcpy(&(mem->header[mem->header_size]), ptr, realsize);
@@ -174,13 +175,13 @@ static size_t curl_header_callback(void *ptr, size_t size, size_t nmemb,
 /**
  * Attempts to load an ETag for the requested file.
  * @param data cURL data structure.
- * @return ETag on success, NULL on failure.
+ * @return ETag on success, NULL on failure. Must be freed.
  */
-static const char *curl_load_etag(curl_data *data)
+static char *curl_load_etag(curl_data *data)
 {
-    char path[HUGE_BUF];
-    static char etag[MAX_BUF];
+    char path[HUGE_BUF], *etag;
     FILE *fp;
+    struct stat statbuf;
 
     HARD_ASSERT(data != NULL);
 
@@ -191,20 +192,42 @@ static const char *curl_load_etag(curl_data *data)
 
     snprintf(VS(path), "%s.etag", data->path);
     fp = fopen_wrapper(path, "r");
+    etag = NULL;
 
     if (fp == NULL) {
         /* File doesn't exist. */
-        return NULL;
+        goto fail;
     }
+
+    if (fstat(fileno(fp), &statbuf) == -1) {
+        log(LOG(BUG), "Could not stat %s: %d (%s)", path, errno,
+                strerror(errno));
+        goto fail;
+    }
+
+    etag = emalloc(sizeof(*etag) * (statbuf.st_size + 1));
 
     if (!fgets(etag, sizeof(etag), fp)) {
         log(LOG(BUG), "Could not read %s: %d (%s)", path, errno,
                 strerror(errno));
-        fclose(fp);
-        return NULL;
+        goto fail;
     }
 
-    fclose(fp);
+    etag[statbuf.st_size] = '\0';
+
+    goto done;
+
+fail:
+    /* Free the etag on failure, if any. */
+    if (etag != NULL) {
+        efree(etag);
+        etag = NULL;
+    }
+
+done:
+    if (fp != NULL) {
+        fclose(fp);
+    }
 
     return etag;
 }
@@ -289,12 +312,11 @@ done:
 int curl_connect(void *c_data)
 {
     curl_data *data = c_data;
-    char user_agent[MAX_BUF], version[MAX_BUF];
-    const char *etag;
+    char user_agent[MAX_BUF], version[MAX_BUF], *etag;
     CURLcode res;
     long http_code;
     struct curl_slist *chunk;
-    sint8 status;
+    int8_t status;
 
     HARD_ASSERT(c_data != NULL);
 
@@ -329,6 +351,7 @@ int curl_connect(void *c_data)
         char header[MAX_BUF];
 
         snprintf(VS(header), "If-None-Match: %s", etag);
+        efree(etag);
         chunk = curl_slist_append(chunk, header);
         curl_easy_setopt(data->handle, CURLOPT_HTTPHEADER, chunk);
     }
@@ -527,9 +550,9 @@ curl_data *curl_download_start(const char *url, const char *path)
  * @param data cURL data structure that was returned by a previous
  * curl_download_start() call.
  * @return @copydoc curl_data::status */
-sint8 curl_download_finished(curl_data *data)
+int8_t curl_download_finished(curl_data *data)
 {
-    sint8 status;
+    int8_t status;
 
     HARD_ASSERT(data != NULL);
 

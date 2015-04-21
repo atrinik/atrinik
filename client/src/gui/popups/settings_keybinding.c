@@ -255,7 +255,7 @@ static int popup_event(popup_struct *popup, SDL_Event *event)
         }
     } else if (event->type == SDL_MOUSEBUTTONDOWN) {
         if (event->button.button == SDL_BUTTON_LEFT) {
-            uint32 row, col;
+            uint32_t row, col;
 
             if (text_input_mouse_over(&text_input_command, event->motion.x, event->motion.y)) {
                 text_input_command.focus = 1;
@@ -309,6 +309,14 @@ static int popup_destroy_callback(popup_struct *popup)
     list_remove(list_keybindings);
     list_keybindings = NULL;
     keybind_save();
+
+    button_destroy(&button_new);
+    button_destroy(&button_remove);
+    button_destroy(&button_apply);
+
+    text_input_destroy(&text_input_command);
+    text_input_destroy(&text_input_key);
+    
     return 1;
 }
 

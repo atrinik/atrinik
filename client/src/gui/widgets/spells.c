@@ -79,6 +79,23 @@ void spells_init(void)
 }
 
 /**
+ * Deinitialize the spells system.
+ */
+void spells_deinit(void)
+{
+    for (size_t spell_path = 0; spell_path < SPELL_PATH_NUM - 1; spell_path++) {
+        for (size_t spell_id = 0; spell_id < spell_list_num[spell_path];
+                spell_id++) {
+            efree(spell_list[spell_path][spell_id]);
+        }
+
+        if (spell_list[spell_path] != NULL) {
+            efree(spell_list[spell_path]);
+        }
+    }
+}
+
+/**
  * Handle double click inside the spells list.
  * @param list The spells list.
  */
@@ -104,7 +121,7 @@ static void list_handle_enter(list_struct *list, SDL_Event *event)
 static void spell_list_reload(void)
 {
     size_t i, j;
-    uint32 offset, rows, selected;
+    uint32_t offset, rows, selected;
 
     if (list_spells == NULL) {
         return;
@@ -267,7 +284,7 @@ spell_entry_struct *spell_get(size_t spell_path, size_t spell_id)
     return spell_list[spell_path][spell_id];
 }
 
-void spells_update(object *op, uint16 cost, uint32 path, uint32 flags,
+void spells_update(object *op, uint16_t cost, uint32_t path, uint32_t flags,
         const char *msg)
 {
     size_t spell_path, spell_id, path_real;
@@ -540,6 +557,19 @@ static int widget_event(widgetdata *widget, SDL_Event *event)
     return 0;
 }
 
+/** @copydoc widgetdata::deinit_func */
+static void widget_deinit(widgetdata *widget)
+{
+    if (list_spells != NULL) {
+        list_remove(list_spells);
+        list_spells = NULL;
+    }
+
+    for (size_t i = 0; i < BUTTON_NUM; i++) {
+        button_destroy(&buttons[i]);
+    }
+}
+
 /**
  * Initialize one spells widget.
  */
@@ -548,4 +578,5 @@ void widget_spells_init(widgetdata *widget)
     widget->draw_func = widget_draw;
     widget->background_func = widget_background;
     widget->event_func = widget_event;
+    widget->deinit_func = widget_deinit;
 }

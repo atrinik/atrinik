@@ -94,6 +94,10 @@
 #cmakedefine HAVE_ARPA_INET_H
 #endif
 
+#ifndef HAVE_VALGRIND_H
+#cmakedefine HAVE_VALGRIND_H
+#endif
+
 #ifndef HAVE_STRERROR
 #cmakedefine HAVE_STRERROR
 #endif
@@ -173,12 +177,6 @@
 #ifndef HAVE_MKSTEMP
 #cmakedefine HAVE_MKSTEMP
 #endif
-
-/* The size of 'long'. */
-#define SIZEOF_LONG @SIZEOF_LONG@
-
-/* The size of 'long long'. */
-#define SIZEOF_LONG_LONG @SIZEOF_LONG_LONG@
 
 /* Name of the generated executable. */
 #define EXECUTABLE "@EXECUTABLE@"

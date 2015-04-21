@@ -34,7 +34,7 @@
 #define TEXTWIN_TAB_NAME(_tab) ((_tab)->name ? (_tab)->name : textwin_tab_names[(_tab)->type - 1])
 
 typedef struct textwin_tab_struct {
-    uint8 type;
+    uint8_t type;
 
     char *name;
 
@@ -43,10 +43,10 @@ typedef struct textwin_tab_struct {
     size_t entries_size;
 
     /** Scroll offset. */
-    uint32 scroll_offset;
+    uint32_t scroll_offset;
 
     /** Number of lines. */
-    uint32 num_lines;
+    uint32_t num_lines;
 
     button_struct button;
 
@@ -68,13 +68,13 @@ typedef struct textwin_struct {
     scrollbar_struct scrollbar;
 
     /** Whether there is anything in selection_start yet. */
-    uint8 selection_started;
+    uint8_t selection_started;
 
     /** Start of selection. */
-    sint64 selection_start;
+    int64_t selection_start;
 
     /** End of selection. */
-    sint64 selection_end;
+    int64_t selection_end;
 
     struct textwin_tab_struct *tabs;
 
@@ -82,7 +82,7 @@ typedef struct textwin_struct {
 
     size_t tab_selected;
 
-    uint8 timestamps;
+    uint8_t timestamps;
 } textwin_struct;
 
 #define TEXTWIN_TAB_HEIGHT 20

@@ -27,6 +27,8 @@
  * Low level socket related functions. */
 
 #include <global.h>
+#include <packet.h>
+#include <toolkit_string.h>
 
 /**
  * Receives data from socket.
@@ -37,10 +39,14 @@ int socket_recv(socket_struct *ns)
     int stat_ret;
 
 #ifdef WIN32
-    stat_ret = recv(ns->fd, ns->packet_recv->data + ns->packet_recv->len, ns->packet_recv->size - ns->packet_recv->len, 0);
+    stat_ret = recv(ns->fd, (char *) ns->packet_recv->data +
+            ns->packet_recv->len, ns->packet_recv->size - ns->packet_recv->len,
+            0);
 #else
     do {
-        stat_ret = read(ns->fd, ns->packet_recv->data + ns->packet_recv->len, ns->packet_recv->size - ns->packet_recv->len);
+        stat_ret = read(ns->fd, (void *) (ns->packet_recv->data +
+                ns->packet_recv->len), ns->packet_recv->size -
+                ns->packet_recv->len);
     }    while (stat_ret == -1 && errno == EINTR);
 #endif
 
@@ -100,6 +106,34 @@ void socket_disable_no_delay(int fd)
 
 static void socket_packet_enqueue(socket_struct *ns, packet_struct *packet)
 {
+#ifndef DEBUG
+    {
+        char *cp, *cp2;
+
+        log(LOG(DUMPTX), "Enqueuing packet with command type %d (%" PRIu64
+                " bytes):", packet->type, (uint64_t) packet->len);
+
+        cp = packet_get_debug(packet);
+
+        if (cp[0] != '\0') {
+            log(LOG(DUMPTX), "  Debug info:\n");
+            cp2 = strtok(cp, "\n");
+
+            while (cp2 != NULL) {
+                log(LOG(DUMPTX), "  %s", cp2);
+                cp2 = strtok(NULL, "\n");
+            }
+        }
+
+        efree(cp);
+
+        cp = emalloc(sizeof(*cp) * (packet->len * 3 + 1));
+        string_tohex(packet->data, packet->len, cp, packet->len * 3 + 1, true);
+        log(LOG(DUMPTX), "  Hexadecimal: %s", cp);
+        efree(cp);
+    }
+#endif
+
     if (!ns->packet_head) {
         ns->packet_head = packet;
         packet->prev = NULL;
@@ -152,7 +186,8 @@ void socket_buffer_write(socket_struct *ns)
         }
 
         max = ns->packet_head->len - ns->packet_head->pos;
-        amt = send(ns->fd, ns->packet_head->data + ns->packet_head->pos, max, MSG_DONTWAIT);
+        amt = send(ns->fd, (const void *) (ns->packet_head->data +
+                ns->packet_head->pos), max, MSG_DONTWAIT);
 
         if (ns->packet_head->ndelay) {
             socket_disable_no_delay(ns->fd);
@@ -208,8 +243,8 @@ void socket_send_packet(socket_struct *ns, packet_struct *packet)
     toread = packet->len + 1;
 
     if (toread > 32 * 1024 - 1) {
-        log(LOG(PACKET), "Sending packet with size > 32KB: %"FMT64U", type: %d",
-                (uint64) toread, packet->type);
+        log(LOG(PACKET), "Sending packet with size > 32KB: %"PRIu64", type: %d",
+                (uint64_t) toread, packet->type);
         tmp->data[0] = ((toread >> 16) & 0xff) | 0x80;
         tmp->data[1] = (toread >> 8) & 0xff;
         tmp->data[2] = (toread) & 0xff;

@@ -27,6 +27,8 @@
  * Server initialization. */
 
 #include <global.h>
+#include <packet.h>
+#include <toolkit_string.h>
 
 /**
  * The server's settings. */
@@ -141,6 +143,7 @@ void cleanup(void)
     regions_free();
     objectlink_deinit();
     object_deinit();
+    metaserver_deinit();
     ban_deinit();
     party_deinit();
     toolkit_deinit();
@@ -238,7 +241,7 @@ static void clioptions_option_magic_devices_level(const char *arg)
 
     val = atoi(arg);
 
-    if (val < SINT8_MIN || val > SINT8_MAX) {
+    if (val < INT8_MIN || val > INT8_MAX) {
         logger_print(LOG(ERROR), "Invalid value for argument of --magic_devices_level (%d).", val);
         exit(1);
     }
@@ -402,15 +405,14 @@ static void clioptions_option_speed_multiplier(const char *arg)
  * init_hash_table() if you are doing any object loading. */
 static void init_library(int argc, char *argv[])
 {
+    toolkit_import(memory);
     toolkit_import(signals);
 
-    toolkit_import(bzr);
     toolkit_import(clioptions);
     toolkit_import(console);
     toolkit_import(datetime);
     toolkit_import(logger);
     toolkit_import(math);
-    toolkit_import(memory);
     toolkit_import(mempool);
     toolkit_import(packet);
     toolkit_import(path);

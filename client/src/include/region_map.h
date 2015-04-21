@@ -98,13 +98,13 @@ typedef struct region_map_def_tooltip {
     char *text;
 
     /** Show an outline? */
-    uint8 outline;
+    uint8_t outline;
 
     /** Outline's color. */
     SDL_Color outline_color;
 
     /** Size of the outline. */
-    uint8 outline_size;
+    uint8_t outline_size;
 } region_map_def_tooltip_t;
 
 /*
@@ -163,7 +163,7 @@ typedef struct region_map_fow {
 
     SDL_Surface *surface;
 
-    uint32 *bitmap;
+    uint32_t *bitmap;
 
     UT_array *tiles;
 } region_map_fow_t;
@@ -259,5 +259,6 @@ bool region_map_fow_set_visited(region_map_t *region_map,
         region_map_def_map_t *map, const char *map_path, int x, int y);
 SDL_Surface *region_map_fow_surface(region_map_t *region_map);
 bool region_map_fow_is_visited(region_map_t *region_map, int x, int y);
+bool region_map_fow_is_visible(region_map_t *region_map, int x, int y);
 
 #endif

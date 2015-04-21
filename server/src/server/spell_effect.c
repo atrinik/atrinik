@@ -269,7 +269,7 @@ int cast_destruction(object *op, object *caster, int dam, int attacktype)
                 }
 
                 if (!is_friend_of(op, tmp)) {
-                    sint16 damage = dam;
+                    int16_t damage = dam;
 
                     if (tmp->quick_pos) {
                         damage /= (tmp->quick_pos >> 4) + 1;
@@ -1062,7 +1062,7 @@ int cast_cause_disease(object *op, object *caster, int dir, archetype *disease_a
 int cast_transform_wealth(object *op)
 {
     object *marked;
-    sint64 val;
+    int64_t val;
 
     if (op->type != PLAYER) {
         return 0;

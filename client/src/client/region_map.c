@@ -31,6 +31,7 @@
 
 #include <global.h>
 #include <region_map.h>
+#include <toolkit_string.h>
 
 #ifndef __CPROTO__
 
@@ -586,6 +587,14 @@ static void region_map_def_free(region_map_def_t *def)
     /* Free all maps. */
     for (i = 0; i < def->num_maps; i++) {
         efree(def->maps[i].path);
+
+        if (def->maps[i].regions != NULL) {
+            for (size_t j = 0; j < def->maps[i].regions_num; j++) {
+                efree(def->maps[i].regions[j]);
+            }
+
+            efree(def->maps[i].regions);
+        }
     }
 
     if (def->maps != NULL) {
@@ -656,8 +665,8 @@ static void region_map_fow_create(region_map_t *region_map)
 
             if (fread(region_map->fow->bitmap, 1, statbuf.st_size, fp) !=
                     (size_t) statbuf.st_size) {
-                log(LOG(ERROR), "Could not read %"FMT64U" bytes from %s: %d "
-                        "(%s)", (uint64) statbuf.st_size, region_map->fow->path,
+                log(LOG(ERROR), "Could not read %"PRIu64" bytes from %s: %d "
+                        "(%s)", (uint64_t) statbuf.st_size, region_map->fow->path,
                         errno, strerror(errno));
                 efree(region_map->fow->bitmap);
                 region_map->fow->bitmap = NULL;
@@ -695,6 +704,11 @@ static void region_map_fow_free(region_map_t *region_map)
         utarray_free(region_map->fow->tiles);
         region_map->fow->tiles = NULL;
     }
+
+    if (region_map->fow->path != NULL) {
+        efree(region_map->fow->path);
+        region_map->fow->path = NULL;
+    }
 }
 
 static void region_map_fow_reset(region_map_t *region_map)
@@ -731,17 +745,72 @@ static void region_map_fow_reset(region_map_t *region_map)
     }
 }
 
+static bool region_map_fow_update_regions(region_map_t *region_map,
+        const uint32_t *color)
+{
+    bool ret = false;
+    region_map_def_map_t *def_map, *def_map_regions;
+    UT_array *regions;
+
+    utarray_new(regions, &ut_str_icd);
+
+    for (object *op = cpl.ob->inv; op != NULL; op = op->next) {
+        if (op->itype != TYPE_REGION_MAP) {
+            continue;
+        }
+
+        char *cp = op->s_name;
+        utarray_push_back(regions, &cp);
+    }
+
+    utarray_sort(regions, ut_str_sort);
+
+    def_map_regions = NULL;
+
+    for (size_t i = 0; i < region_map->def->num_maps; i++) {
+        def_map = &region_map->def->maps[i];
+
+        if (def_map->regions != NULL) {
+            def_map_regions = def_map;
+        }
+
+        if (def_map_regions == NULL) {
+            continue;
+        }
+
+        for (size_t j = 0; j < def_map_regions->regions_num; j++) {
+            if (utarray_find(regions, &def_map_regions->regions[j],
+                    ut_str_sort) == NULL) {
+                continue;
+            }
+
+            if (color != NULL) {
+                SDL_Rect box;
+
+                box.x = def_map->xpos;
+                box.y = def_map->ypos;
+                box.w = region_map->def->map_size_x *
+                        region_map->def->pixel_size;
+                box.h = region_map->def->map_size_y *
+                        region_map->def->pixel_size;
+                SDL_FillRect(region_map->fow->surface, &box, *color);
+            }
+
+            ret = true;
+        }
+    }
+
+    utarray_free(regions);
+
+    return ret;
+}
+
 void region_map_fow_update(region_map_t *region_map)
 {
-    region_map_def_map_t *def_map, *def_map_regions;
-    SDL_Rect box;
+    region_map_def_map_t *def_map;
     int rowsize, x, y;
-    uint32 color;
+    uint32_t color;
     SDL_Surface *surface;
-    object *op;
-    size_t i, j;
-    UT_array *regions;
-    char *cp;
 
     HARD_ASSERT(region_map != NULL);
     HARD_ASSERT(region_map->fow != NULL);
@@ -757,7 +826,7 @@ void region_map_fow_update(region_map_t *region_map)
 
         /* Now that the definitions are loaded, we can go back through the tiles
          * data and actually set the visited tiles. */
-        for (i = 0; i < utarray_len(region_map->fow->tiles); i++) {
+        for (size_t i = 0; i < utarray_len(region_map->fow->tiles); i++) {
             tile = (region_map_fow_tile_t *) utarray_eltptr(
                     region_map->fow->tiles, i);
             def_map = region_map_find_map(region_map, tile->path);
@@ -786,6 +855,8 @@ void region_map_fow_update(region_map_t *region_map)
     for (y = 0; y < region_map->surface->h / region_map->def->pixel_size; y++) {
         for (x = 0; x < region_map->surface->w / region_map->def->pixel_size;
                 x++) {
+            SDL_Rect box;
+            
             if (x % 32 == 0 && (region_map->fow->bitmap[(x / 32) + rowsize *
                     y] == 0xffffffff)) {
                 /* If this entire 32 tiles area is visible, then we just
@@ -808,47 +879,7 @@ void region_map_fow_update(region_map_t *region_map)
         }
     }
 
-    utarray_new(regions, &ut_str_icd);
-
-    for (op = cpl.ob->inv; op != NULL; op = op->next) {
-        if (op->itype != TYPE_REGION_MAP) {
-            continue;
-        }
-
-        cp = op->s_name;
-        utarray_push_back(regions, &cp);
-    }
-
-    utarray_sort(regions, ut_str_sort);
-
-    def_map_regions = NULL;
-
-    for (i = 0; i < region_map->def->num_maps; i++) {
-        def_map = &region_map->def->maps[i];
-
-        if (def_map->regions != NULL) {
-            def_map_regions = def_map;
-        }
-
-        if (def_map_regions == NULL) {
-            continue;
-        }
-
-        for (j = 0; j < def_map_regions->regions_num; j++) {
-            if (utarray_find(regions, &def_map_regions->regions[j],
-                    ut_str_sort) != NULL) {
-                box.x = def_map->xpos;
-                box.y = def_map->ypos;
-                box.w = region_map->def->map_size_x *
-                        region_map->def->pixel_size;
-                box.h = region_map->def->map_size_y *
-                        region_map->def->pixel_size;
-                SDL_FillRect(region_map->fow->surface, &box, color);
-            }
-        }
-    }
-
-    utarray_free(regions);
+    region_map_fow_update_regions(region_map, &color);
 
     SDL_SetColorKey(region_map->fow->surface, SDL_SRCCOLORKEY, color);
     surface = SDL_DisplayFormat(region_map->fow->surface);
@@ -900,7 +931,7 @@ bool region_map_fow_set_visited(region_map_t *region_map,
 
     SOFT_ASSERT_RC(idx >= 0 && (size_t) idx < RM_MAP_FOW_BITMAP_SIZE(
             region_map) / sizeof(*region_map->fow->bitmap), false,
-            "Attempt to write at an invalid position: %"FMT64U" max: %"FMT64U,
+            "Attempt to write at an invalid position: %"PRIu64" max: %"PRIu64,
             (uint64_t) idx, (uint64_t) RM_MAP_FOW_BITMAP_SIZE(region_map) /
             sizeof(*region_map->fow->bitmap));
 
@@ -921,11 +952,24 @@ bool region_map_fow_is_visited(region_map_t *region_map, int x, int y)
 
     SOFT_ASSERT_RC(idx >= 0 && (size_t) idx < RM_MAP_FOW_BITMAP_SIZE(
             region_map) / sizeof(*region_map->fow->bitmap), false,
-            "Attempt to read at an invalid position: %"FMT64U" max: %"FMT64U,
+            "Attempt to read at an invalid position: %"PRIu64" max: %"PRIu64,
             (uint64_t) idx, (uint64_t) RM_MAP_FOW_BITMAP_SIZE(region_map) /
             sizeof(*region_map->fow->bitmap));
 
     return region_map->fow->bitmap[idx] & (1U << (x % 32));
+}
+
+bool region_map_fow_is_visible(region_map_t *region_map, int x, int y)
+{
+    if (region_map_fow_is_visited(region_map, x, y)) {
+        return true;
+    }
+
+    if (region_map_fow_update_regions(region_map, NULL)) {
+        return true;
+    }
+
+    return false;
 }
 
 /**

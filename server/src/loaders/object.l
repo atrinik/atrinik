@@ -30,6 +30,7 @@
 
 #include <global.h>
 #include <loader.h>
+#include <toolkit_string.h>
 
 #define YY_DECL int lex_load(int *depth, object **items, int maxdepth, int map_flags, int linemode)
 #define MAXDEPTH 10
@@ -1236,7 +1237,7 @@ void get_ob_diff(StringBuffer *sb, object *op, object *op2)
     }
 
     if (op->stats.exp != op2->stats.exp) {
-        stringbuffer_append_printf(sb, "exp %"FMT64 "\n", op->stats.exp);
+        stringbuffer_append_printf(sb, "exp %"PRId64 "\n", op->stats.exp);
     }
 
     if (op->stats.food != op2->stats.food) {
@@ -1413,7 +1414,7 @@ void get_ob_diff(StringBuffer *sb, object *op, object *op2)
     }
 
     if (op->value != op2->value) {
-        stringbuffer_append_printf(sb, "value %"FMT64 "\n", op->value);
+        stringbuffer_append_printf(sb, "value %"PRId64 "\n", op->value);
     }
 
     if (op->carrying != op2->carrying) {
