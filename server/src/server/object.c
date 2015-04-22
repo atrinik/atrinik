@@ -2817,6 +2817,10 @@ int item_matched_string(object *pl, object *op, const char *name)
     /* strtok is destructive to name */
     snprintf(VS(local_name), "%s", name);
 
+    if (pl->type == PLAYER) {
+        CONTR(pl)->count = op->nrof;
+    }
+
     for (cp = strtok(local_name, ","); cp; cp = strtok(NULL, ",")) {
         /* Get rid of spaces */
         while (cp[0] == ' ') {
