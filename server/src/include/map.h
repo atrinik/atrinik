@@ -657,6 +657,8 @@ typedef struct mapdef {
     int8_t level_max; ///< Maximum level offset that is part of this map.
 
     bool global_removed; ///< If true, the map was removed from the global list.
+
+    tag_t count; ///< Unique identifier for the map.
 } mapstruct;
 
 /**

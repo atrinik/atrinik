@@ -719,6 +719,7 @@ static void init_library(int argc, char *argv[])
 
     toolkit_import(commands);
 
+    map_init();
     init_globals();
     objectlink_init();
     object_init();

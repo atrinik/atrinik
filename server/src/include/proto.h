@@ -416,6 +416,7 @@ extern int main(int argc, char **argv);
 /* src/server/map.c */
 extern int global_darkness_table[7 + 1];
 extern int map_tiled_reverse[10];
+extern void map_init(void);
 extern mapstruct *has_been_loaded_sh(shstr *name);
 extern char *create_pathname(const char *name);
 extern int wall(mapstruct *m, int x, int y);
