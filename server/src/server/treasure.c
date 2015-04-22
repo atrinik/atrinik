@@ -1918,6 +1918,15 @@ int fix_generated_item(object **op_ptr, object *creator, int difficulty, int a_c
             }
 
             op->value = (int) (185.0f * spells[op->stats.sp].value_mul);
+
+            if (!(flags & GT_ONLY_GOOD) && rndm_chance(10)) {
+                if (rndm_chance(2)) {
+                    SET_FLAG(op, FLAG_CURSED);
+                } else {
+                    SET_FLAG(op, FLAG_DAMNED);
+                }
+            }
+
             break;
 
         case RUNE:
