@@ -60,8 +60,7 @@ int process_delay;
 static long shutdown_time;
 static uint8_t shutdown_active = 0;
 
-static void process_players1(void);
-static void process_players2(void);
+static void process_players(void);
 static void dequeue_path_requests(void);
 static void do_specials(void);
 
@@ -126,9 +125,9 @@ void set_map_timeout(mapstruct *map)
 }
 
 /**
- * Do all player-related stuff before objects have been updated.
- * @sa process_players2(). */
-static void process_players1(void)
+ * Do all player-related stuff after objects have been updated.
+ */
+static void process_players(void)
 {
     player *pl, *plnext;
     int retval;
@@ -142,11 +141,6 @@ static void process_players1(void)
         if (retval == -1) {
             continue;
         }
-
-        /* Update the next pointer, in case the above handle_newcs_player()
-         * call(s) caused the previous next pointer to be freed (double
-         * login kicked the playing character, for example). */
-        plnext = pl->next;
 
         if (pl->followed_player[0]) {
             player *followed = find_player(pl->followed_player);
@@ -227,20 +221,14 @@ static void process_players1(void)
                 pl->stat_time_played++;
             }
         }
-    }
-}
 
-/**
- * Do all player-related stuff after objects have been updated.
- * @sa process_players1(). */
-static void process_players2(void)
-{
-    player *pl;
-
-    for (pl = first_player; pl; pl = pl->next) {
         /* Check if our target is still valid - if not, update client. */
         if (pl->ob->map && (!pl->target_object || (pl->target_object != pl->ob && pl->target_object_count != pl->target_object->count) || QUERY_FLAG(pl->target_object, FLAG_SYS_OBJECT) || (QUERY_FLAG(pl->target_object, FLAG_IS_INVISIBLE) && !QUERY_FLAG(pl->ob, FLAG_SEE_INVISIBLE)))) {
             send_target_command(pl);
+        }
+
+        if (pl->ob->speed_left <= 0) {
+            pl->ob->speed_left += FABS(pl->ob->speed);
         }
 
         if (pl->ob->speed_left > pl->ob->speed) {
@@ -256,8 +244,6 @@ void process_events(mapstruct *map)
 {
     object *op;
     tag_t tag;
-
-    process_players1();
 
     /* Put marker object at beginning of active list */
     marker.active_next = active_objects;
@@ -373,7 +359,7 @@ void process_events(mapstruct *map)
             }
         }
 
-        if (op->speed_left <= 0) {
+        if (op->type != PLAYER && op->speed_left <= 0) {
             op->speed_left += FABS(op->speed);
         }
     }
@@ -385,7 +371,7 @@ void process_events(mapstruct *map)
         active_objects = NULL;
     }
 
-    process_players2();
+    process_players();
 }
 
 /**
