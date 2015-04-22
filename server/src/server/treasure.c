@@ -1905,19 +1905,7 @@ int fix_generated_item(object **op_ptr, object *creator, int difficulty, int a_c
             /* Marks as magical */
             SET_FLAG(op, FLAG_IS_MAGICAL);
 
-            temp = (((difficulty * 100) - (difficulty * 20)) + (difficulty * rndm(0, 34))) / 100;
-
-            if (temp < 1) {
-                temp = 1;
-            } else if (temp > MAXLEVEL) {
-                temp = MAXLEVEL;
-            }
-
-            if (temp < spells[op->stats.sp].at->clone.level) {
-                temp = spells[op->stats.sp].at->clone.level;
-            }
-
-            op->value = (int) (185.0f * spells[op->stats.sp].value_mul);
+            op->value = (int) (1150.0f * spells[op->stats.sp].value_mul);
 
             if (!(flags & GT_ONLY_GOOD) && rndm_chance(10)) {
                 if (rndm_chance(2)) {
