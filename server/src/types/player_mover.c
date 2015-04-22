@@ -30,13 +30,97 @@
 
 #include <global.h>
 
+/**
+ * Handle an object triggering a player mover.
+ * @param op Player mover.
+ * @param victim Victim.
+ */
+static void player_mover_handle(object *op, object *victim)
+{
+    if (!IS_LIVE(victim)) {
+        return;
+    }
+
+    if (QUERY_FLAG(victim, FLAG_FLYING) && op->stats.maxhp == 0) {
+        return;
+    }
+
+    if (QUERY_FLAG(op, FLAG_LIFESAVE) && op->stats.hp-- < 0) {
+        destruct_ob(op);
+        return;
+    }
+
+    int dir;
+
+    /* No direction, this means 'xrays 1' was set; so use the
+     * victim's direction instead. */
+    if (op->direction == 0 && QUERY_FLAG(op, FLAG_XRAYS)) {
+        dir = victim->direction;
+    } else {
+        dir = op->direction;
+
+        if (dir == 0) {
+            dir = get_random_dir();
+        }
+    }
+
+    int x, y;
+    mapstruct *map;
+
+    x = op->x + freearr_x[dir];
+    y = op->y + freearr_y[dir];
+    map = get_map_from_coord(op->map, &x, &y);
+
+    if (map == NULL) {
+        return;
+    }
+
+    /* Flag to stop moving if there's a wall. */
+    if (QUERY_FLAG(op, FLAG_STAND_STILL) &&
+            blocked(victim, map, x, y, victim->terrain_flag)) {
+        return;
+    }
+
+    if (op->speed) {
+        object *nextmover;
+
+        FOR_MAP_LAYER_BEGIN(map, x, y, LAYER_SYS, -1, nextmover) {
+            if (nextmover->type == op->type && nextmover->value != pticks) {
+                nextmover->speed_left--;
+            }
+        } FOR_MAP_LAYER_END;
+    }
+
+    if (victim->type == PLAYER) {
+        /* only level >=1 movers move people */
+        if (op->level != 0) {
+            victim->speed_left = -FABS(victim->speed);
+            move_object(victim, dir);
+            /* Clear player's path; they probably can't move there
+             * any more after being pushed, or might not want to. */
+            player_path_clear(CONTR(victim));
+        } else {
+            return;
+        }
+    } else if (op->stats.hp) {
+        move_object(victim, dir);
+    } else {
+        return;
+    }
+
+    if (op->stats.maxsp == 0 && op->stats.sp) {
+        op->stats.maxsp = 2;
+    }
+
+    /* Flag to paralyze the player. */
+    if (op->stats.sp != 0) {
+        victim->speed_left = -(op->stats.maxsp * FABS(victim->speed));
+    }
+}
+
 /** @copydoc object_methods::process_func */
 static void process_func(object *op)
 {
-    object *victim, *victim_next;
-    mapstruct *mt;
-    int xt, yt, dir = op->direction;
-
     op->value = pticks;
 
     if (!(GET_MAP_FLAGS(op->map, op->x, op->y) & (P_IS_MONSTER |
@@ -44,82 +128,18 @@ static void process_func(object *op)
         return;
     }
 
-    /* Determine direction now for random movers so we do the right thing. */
-    if (!dir) {
-        dir = get_random_dir();
-    }
+    FOR_MAP_PREPARE(op->map, op->x, op->y, victim) {
+        player_mover_handle(op, victim);
+    } FOR_MAP_FINISH();
+}
 
-    for (victim = GET_BOTTOM_MAP_OB(op); victim; victim = victim_next) {
-        victim_next = victim->above;
+/** @copydoc object_methods::move_on_func */
+static int move_on_func(object *op, object *victim, object *originator,
+        int state)
+{
+    player_mover_handle(op, victim);
 
-        if (IS_LIVE(victim) && (!(QUERY_FLAG(victim, FLAG_FLYING)) || op->stats.maxhp)) {
-            if (QUERY_FLAG(op, FLAG_LIFESAVE) && op->stats.hp-- < 0) {
-                destruct_ob(op);
-                return;
-            }
-
-            /* No direction, this means 'xrays 1' was set; so use the
-             * victim's direction instead. */
-            if (!op->direction && QUERY_FLAG(op, FLAG_XRAYS)) {
-                dir = victim->direction;
-            }
-
-            xt = op->x + freearr_x[dir];
-            yt = op->y + freearr_y[dir];
-
-            if (!(mt = get_map_from_coord(op->map, &xt, &yt))) {
-                return;
-            }
-
-            /* Flag to stop moving if there's a wall. */
-            if (QUERY_FLAG(op, FLAG_STAND_STILL) && blocked(victim, mt, xt, yt, victim->terrain_flag)) {
-                continue;
-            }
-
-            /* Unless there is an alive object or a player on the square
-             * this object is being moved onto, disable the mover on that
-             * square, if any. This is done so the object doesn't rocket
-             * across a bunch of movers. */
-            if (!(GET_MAP_FLAGS(mt, xt, yt) & (P_IS_MONSTER | P_IS_PLAYER))) {
-                object *nextmover;
-
-                for (nextmover = GET_MAP_OB(mt, xt, yt); nextmover; nextmover = nextmover->above) {
-                    /* Only disable movers that didn't go this tick yet;
-                     * otherwise they wouldn't trigger on the next tick to
-                     * move objects they may have on top of them. */
-                    if (nextmover->type == PLAYER_MOVER && nextmover->value != op->value) {
-                        nextmover->speed_left--;
-                    }
-                }
-            }
-
-            if (victim->type == PLAYER) {
-                /* only level >=1 movers move people */
-                if (op->level) {
-                    victim->speed_left = -FABS(victim->speed);
-                    move_object(victim, dir);
-                    /* Clear player's path; they probably can't move there
-                     * any more after being pushed, or might not want to. */
-                    player_path_clear(CONTR(victim));
-                } else {
-                    continue;
-                }
-            } else if (op->stats.hp) {
-                move_object(victim, dir);
-            } else {
-                continue;
-            }
-
-            if (!op->stats.maxsp && op->stats.sp) {
-                op->stats.maxsp = 2;
-            }
-
-            /* flag to paralyze the player */
-            if (op->stats.sp) {
-                victim->speed_left = -(op->stats.maxsp * FABS(victim->speed));
-            }
-        }
-    }
+    return OBJECT_METHOD_OK;
 }
 
 /**
@@ -127,4 +147,5 @@ static void process_func(object *op)
 void object_type_init_player_mover(void)
 {
     object_type_methods[PLAYER_MOVER].process_func = process_func;
+    object_type_methods[PLAYER_MOVER].move_on_func = move_on_func;
 }
