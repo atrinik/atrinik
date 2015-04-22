@@ -3352,6 +3352,18 @@
 	<attribute arch="stand_still" editor="stop before walls" type="bool">
 		Will not attempt to move victims into walls.
 	</attribute>
+	<attribute arch="walk_on" editor="walk on" type="bool">
+	    Whether to trigger the mover when an object walks on top of it.
+	</attribute>
+	<attribute arch="walk_off" editor="walk off" type="bool">
+	    Whether to trigger the mover when an object walks on off of it.
+	</attribute>
+	<attribute arch="fly_on" editor="fly on" type="bool">
+	    Whether to trigger the mover when an object flies on top of it.
+	</attribute>
+	<attribute arch="fly_off" editor="fly off" type="bool">
+	    Whether to trigger the mover when an object flies off top of it.
+	</attribute>
 	<section name="targets">
 		<attribute arch="level" editor="move players" type="bool">
 			Move players.
