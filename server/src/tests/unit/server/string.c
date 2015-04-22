@@ -852,6 +852,22 @@ START_TEST(test_string_skip_whitespace)
 
 END_TEST
 
+START_TEST(test_string_last)
+{
+    ck_assert_ptr_eq(string_last("hello", ""), NULL);
+    ck_assert_ptr_eq(string_last("a", "hello"), NULL);
+    ck_assert_str_eq(string_last("hello", "hello"), "hello");
+    ck_assert_str_eq(string_last("hello world", "o"), "orld");
+    ck_assert_str_eq(string_last("hello world", "e"), "ello world");
+
+    const char *str = "aaaaa";
+    ck_assert_str_eq(string_last(str, "aaa"), "aaa");
+    ck_assert_ptr_eq(string_last(str, "aaa"), str + 2);
+    ck_assert_str_eq(string_last(str, "a"), "a");
+    ck_assert_ptr_eq(string_last(str, "a"), str + 4);
+}
+END_TEST
+
 static Suite *suite(void)
 {
     Suite *s = suite_create("string");
@@ -892,6 +908,7 @@ static Suite *suite(void)
     tcase_add_test(tc_core, test_string_tohex);
     tcase_add_test(tc_core, test_string_fromhex);
     tcase_add_test(tc_core, test_string_skip_whitespace);
+    tcase_add_test(tc_core, test_string_last);
 
     return s;
 }
