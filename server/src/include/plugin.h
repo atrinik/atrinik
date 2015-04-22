@@ -230,7 +230,7 @@ struct plugin_hooklist {
     void (*get_tod)(timeofday_t *);
     const char *(*object_get_value)(const object *, const char *const);
     int (*object_set_value)(object *, const char *, const char *, int);
-    void (*drop)(object *, object *, int);
+    void (*drop)(object *, object *, long, int);
     char *(*query_short_name)(object *, object *);
     object *(*beacon_locate)(shstr *);
     void (*player_cleanup_name)(char *);

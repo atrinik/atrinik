@@ -1853,8 +1853,9 @@ void drop_object(object *op, object *tmp, long nrof, int no_mevent)
  * Drop an item, either on the floor or in a container.
  * @param op Who is dropping an item.
  * @param tmp What object to drop.
+ * @param nrof How many objects to drop.
  * @param no_mevent If 1, no drop map-wide event will be triggered. */
-void drop(object *op, object *tmp, int no_mevent)
+void drop(object *op, object *tmp, long nrof, int no_mevent)
 {
     if (tmp == NULL) {
         draw_info(COLOR_WHITE, op, "You don't have anything to drop.");
@@ -1873,14 +1874,12 @@ void drop(object *op, object *tmp, int no_mevent)
 
     if (op->type == PLAYER) {
         if (CONTR(op)->container) {
-            put_object_in_sack(op, CONTR(op)->container, tmp, CONTR(op)->count);
+            put_object_in_sack(op, CONTR(op)->container, tmp, nrof);
         } else {
-            drop_object(op, tmp, CONTR(op)->count, no_mevent);
+            drop_object(op, tmp, nrof, no_mevent);
         }
-
-        CONTR(op)->count = 0;
     } else {
-        drop_object(op, tmp, 0, no_mevent);
+        drop_object(op, tmp, nrof, no_mevent);
     }
 }
 

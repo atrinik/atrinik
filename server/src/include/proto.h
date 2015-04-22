@@ -1064,7 +1064,7 @@ extern int sack_can_hold(object *pl, object *sack, object *op, int nrof);
 extern void pick_up(object *op, object *alt, int no_mevent);
 extern void put_object_in_sack(object *op, object *sack, object *tmp, long nrof);
 extern void drop_object(object *op, object *tmp, long nrof, int no_mevent);
-extern void drop(object *op, object *tmp, int no_mevent);
+extern void drop(object *op, object *tmp, long nrof, int no_mevent);
 extern char *player_make_path(const char *name, const char *ext);
 extern int player_exists(const char *name);
 extern void player_save(object *op);

@@ -306,8 +306,9 @@ static PyObject *Atrinik_Object_Drop(Atrinik_Object *obj, PyObject *what)
     OBJEXISTCHECK(obj);
 
     if (PyObject_TypeCheck(what, &Atrinik_ObjectType)) {
+        object *tmp = ((Atrinik_Object *) what)->obj;
         OBJEXISTCHECK((Atrinik_Object *) what);
-        hooks->drop(obj->obj, ((Atrinik_Object *) what)->obj, 0);
+        hooks->drop(obj->obj, tmp, tmp->nrof, 0);
     } else if (PyString_Check(what)) {
         hooks->command_drop(obj->obj, "drop", PyString_AsString(what));
     } else {

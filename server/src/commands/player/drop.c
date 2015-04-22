@@ -60,7 +60,7 @@ void command_drop(object *op, const char *command, char *params)
             if (ival <= 2 && QUERY_FLAG(tmp, FLAG_INV_LOCKED)) {
                 missed++;
             } else {
-                drop(op, tmp, 1);
+                drop(op, tmp, tmp->nrof, 1);
                 did_one = 1;
             }
         }
@@ -79,6 +79,4 @@ void command_drop(object *op, const char *command, char *params)
     } else if (missed > 1) {
         draw_info_format(COLOR_WHITE, op, "%d items couldn't be dropped because they were locked.", missed);
     }
-
-    CONTR(op)->count = 0;
 }
