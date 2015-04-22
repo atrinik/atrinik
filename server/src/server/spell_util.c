@@ -66,6 +66,10 @@ void init_spells(void)
 
         at->clone.stats.sp = i;
 
+        if (at->clone.value != 0) {
+            spells[i].spell_use |= SPELL_USE_BOOK;
+        }
+
         if (spells[i].archname) {
             if ((spellarch[i] = find_archetype(spells[i].archname)) == NULL) {
                 logger_print(LOG(ERROR), "Spell %s needs arch %s, your archetypes file is out of date.", spells[i].name, spells[i].archname);
