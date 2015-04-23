@@ -663,7 +663,7 @@ extern void cast_magic_storm(object *op, object *tmp, int lvl);
 extern int recharge(object *op);
 extern int cast_create_food(object *op, object *caster, int dir, const char *stringarg);
 extern int cast_wor(object *op, object *caster);
-extern int cast_destruction(object *op, object *caster, int dam, int attacktype);
+extern int cast_destruction(object *op, object *caster, int dam);
 extern int cast_heal_around(object *op, int level, int type);
 extern int cast_heal(object *op, int level, object *target, int spell_type);
 extern int cast_change_attr(object *op, object *caster, object *target, int spell_type);

@@ -227,7 +227,7 @@ int cast_wor(object *op, object *caster)
  * @param dam Base damage to do.
  * @param attacktype Attacktype.
  * @return 1. */
-int cast_destruction(object *op, object *caster, int dam, int attacktype)
+int cast_destruction(object *op, object *caster, int dam)
 {
     int i, j, range, xt, yt;
     object *tmp, *hitter;
