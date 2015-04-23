@@ -79,7 +79,7 @@ static void process_func(object *op)
                     int i;
 
                     if (IS_LIVE(tmp)) {
-                        hit_player(tmp, op->stats.dam, op, AT_PHYSICAL);
+                        hit_player(tmp, op->stats.dam, op);
                         draw_info_format(COLOR_WHITE, tmp, "You are crushed by the %s!", op->name);
                     }
 

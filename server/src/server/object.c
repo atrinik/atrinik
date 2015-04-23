@@ -3199,7 +3199,7 @@ int object_enter_map(object *op, object *exit_ob, mapstruct *m, int x, int y, ui
     }
 
     if (exit_ob != NULL && exit_ob->stats.dam && op->type == PLAYER) {
-        hit_player(op, exit_ob->stats.dam, exit_ob, AT_INTERNAL);
+        hit_player(op, exit_ob->stats.dam, exit_ob);
     }
 
     return 1;

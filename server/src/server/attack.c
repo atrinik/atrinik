@@ -158,14 +158,14 @@ static int attack_ob_simple(object *op, object *hitter, int base_dam, int base_w
 
         /* Handle monsters that hit back */
         if (!simple_attack && QUERY_FLAG(op, FLAG_HITBACK) && IS_LIVE(hitter)) {
-            hit_player(hitter, rndm(0, op->stats.dam), op, AT_PHYSICAL);
+            hit_player(hitter, rndm(0, op->stats.dam), op);
 
             if (was_destroyed(op, op_tag) || was_destroyed(hitter, hitter_tag) || abort_attack(op, hitter, simple_attack)) {
                 return dam;
             }
         }
 
-        dam = hit_player(op, rndm(hitdam / 2 + 1, hitdam), hitter, AT_PHYSICAL);
+        dam = hit_player(op, rndm(hitdam / 2 + 1, hitdam), hitter);
 
         if (was_destroyed(op, op_tag) || was_destroyed(hitter, hitter_tag) || abort_attack(op, hitter, simple_attack)) {
             return dam;
@@ -199,9 +199,8 @@ static int attack_ob_simple(object *op, object *hitter, int base_dam, int base_w
  * @param dam Base damage - protections/vulnerabilities/slaying matches
  * can modify it.
  * @param hitter What is hitting the object.
- * @param type Attacktype.
  * @return Dealt damage. */
-int hit_player(object *op, int dam, object *hitter, int type)
+int hit_player(object *op, int dam, object *hitter)
 {
     object *hit_obj, *hitter_owner, *target_obj;
     int maxdam = 0;
@@ -393,7 +392,7 @@ void hit_map(object *op, int dir, int reduce)
             dam /= (tmp->quick_pos >> 4) + 1;
         }
 
-        hit_player(tmp, dam, op, AT_INTERNAL);
+        hit_player(tmp, dam, op);
     }
     FOR_MAP_LAYER_END
 }

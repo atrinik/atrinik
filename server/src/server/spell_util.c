@@ -784,7 +784,7 @@ void check_fired_arch(object *op)
 
         tmp_tag = tmp->count;
 
-        dam = hit_player(tmp, op->stats.dam, op, AT_INTERNAL);
+        dam = hit_player(tmp, op->stats.dam, op);
 
         if (was_destroyed(op, op_tag) || !was_destroyed(tmp, tmp_tag) || (op->stats.dam -= dam) < 0) {
             if (!QUERY_FLAG(op, FLAG_REMOVED)) {

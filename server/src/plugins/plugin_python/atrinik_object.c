@@ -437,7 +437,7 @@ static PyObject *Atrinik_Object_Hit(Atrinik_Object *obj, PyObject *args)
         hooks->kill_object(target->obj, obj->obj);
     } else {
         /* Do damage. */
-        hooks->hit_player(target->obj, damage, obj->obj, 0);
+        hooks->hit_player(target->obj, damage, obj->obj);
     }
 
     Py_INCREF(Py_None);

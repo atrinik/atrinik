@@ -271,7 +271,7 @@ extern object *get_archetype(const char *name);
 extern char *attack_save[NROFATTACKS];
 extern char *attack_name[NROFATTACKS];
 extern int attack_ob(object *op, object *hitter);
-extern int hit_player(object *op, int dam, object *hitter, int type);
+extern int hit_player(object *op, int dam, object *hitter);
 extern void hit_map(object *op, int dir, int reduce);
 extern bool kill_object(object *op, object *hitter);
 extern void confuse_living(object *op);

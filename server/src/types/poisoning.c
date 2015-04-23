@@ -41,7 +41,7 @@ static void process_func(object *op)
 
     /* If we successfully do damage to the player, the poison effects
      * worsen... */
-    if (hit_player(op->env, op->stats.dam, op, AT_INTERNAL) && op->env->type == PLAYER) {
+    if (hit_player(op->env, op->stats.dam, op) && op->env->type == PLAYER) {
         int i;
 
         /* Pick some stats to 'deplete'. */

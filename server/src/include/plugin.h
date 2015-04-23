@@ -265,7 +265,7 @@ struct plugin_hooklist {
     treasurelist *(*find_treasurelist)(const char *);
     void (*create_treasure)(treasurelist *, object *, int, int, int, int, int, struct _change_arch *);
     void (*dump_object_rec)(object *, StringBuffer *);
-    int (*hit_player)(object *, int, object *, int);
+    int (*hit_player)(object *, int, object *);
     int (*move_ob)(object *, int, object *);
     mapstruct *(*get_empty_map)(int, int);
     void (*set_map_darkness)(mapstruct *, int);
