@@ -75,9 +75,9 @@ WS  [ \t]*
 lex_error = 0;
 %}
 
-^name{S}             m->name = estrdup(yval());
-^bg_music{S}         m->bg_music = estrdup(yval());
-^weather{S}          m->weather = estrdup(yval());
+^name{S}             FREE_AND_COPY_HASH(m->name, yval());
+^bg_music{S}         FREE_AND_COPY_HASH(m->bg_music, yval());
+^weather{S}          FREE_AND_COPY_HASH(m->weather, yval());
 ^region{S}           m->region = region_find_by_name(yval());
 ^enter_x{S}          m->enter_x = IVAL;
 ^enter_y{S}          m->enter_y = IVAL;

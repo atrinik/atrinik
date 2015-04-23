@@ -1031,14 +1031,14 @@ mapstruct *load_original_map(const char *filename, mapstruct *originator,
     }
 
     if (fp == NULL && originator != NULL) {
-        m->name = estrdup(originator->name);
+        FREE_AND_COPY_HASH(m->name, originator->name);
 
         if (originator->bg_music != NULL) {
-            m->bg_music = estrdup(originator->bg_music);
+            FREE_AND_COPY_HASH(m->bg_music, originator->bg_music);
         }
 
         if (originator->weather != NULL) {
-            m->weather = estrdup(originator->weather);
+            FREE_AND_COPY_HASH(m->weather, originator->weather);
         }
 
         m->darkness = originator->darkness;
@@ -1337,9 +1337,9 @@ void free_map(mapstruct *m, int flag)
         free_all_objects(m);
     }
 
-    FREE_AND_NULL_PTR(m->name);
-    FREE_AND_NULL_PTR(m->bg_music);
-    FREE_AND_NULL_PTR(m->weather);
+    FREE_AND_CLEAR_HASH(m->name);
+    FREE_AND_CLEAR_HASH(m->bg_music);
+    FREE_AND_CLEAR_HASH(m->weather);
     FREE_AND_NULL_PTR(m->spaces);
     FREE_AND_NULL_PTR(m->msg);
     m->buttons = NULL;

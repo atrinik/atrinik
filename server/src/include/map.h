@@ -532,13 +532,13 @@ typedef struct mapdef {
     struct mapdef *tile_map[TILED_NUM];
 
     /** Name of map as given by its creator */
-    char *name;
+    shstr *name;
 
     /** Background music of the map */
-    char *bg_music;
+    shstr *bg_music;
 
     /** Weather effect active on this map. */
-    char *weather;
+    shstr *weather;
 
     /** Name of temporary file */
     char *tmpname;

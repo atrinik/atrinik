@@ -38,7 +38,7 @@ static fields_struct fields[] = {
     {"next", FIELDTYPE_MAP, offsetof(mapstruct, next), FIELDFLAG_READONLY, 0},
     {"previous", FIELDTYPE_MAP, offsetof(mapstruct, prev), FIELDFLAG_READONLY, 0},
 
-    {"name", FIELDTYPE_CSTR, offsetof(mapstruct, name), 0, 0},
+    {"name", FIELDTYPE_SHSTR, offsetof(mapstruct, name), 0, 0},
     {"msg", FIELDTYPE_CSTR, offsetof(mapstruct, msg), 0, 0},
     {"reset_timeout", FIELDTYPE_UINT32, offsetof(mapstruct, reset_timeout), 0, 0},
     {"timeout", FIELDTYPE_INT32, offsetof(mapstruct, timeout), 0, 0},
@@ -50,8 +50,8 @@ static fields_struct fields[] = {
     {"enter_x", FIELDTYPE_UINT8, offsetof(mapstruct, enter_x), 0, 0},
     {"enter_y", FIELDTYPE_UINT8, offsetof(mapstruct, enter_y), 0, 0},
     {"region", FIELDTYPE_REGION, offsetof(mapstruct, region), FIELDFLAG_READONLY, 0},
-    {"bg_music", FIELDTYPE_CSTR, offsetof(mapstruct, bg_music), 0, 0},
-    {"weather", FIELDTYPE_CSTR, offsetof(mapstruct, weather), 0, 0}
+    {"bg_music", FIELDTYPE_SHSTR, offsetof(mapstruct, bg_music), 0, 0},
+    {"weather", FIELDTYPE_SHSTR, offsetof(mapstruct, weather), 0, 0}
 };
 /* @endcparser */
 
