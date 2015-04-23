@@ -822,19 +822,16 @@ mapstruct *get_linked_map(void)
  * @param m Map to allocate spaces for. */
 static void allocate_map(mapstruct *m)
 {
+    SOFT_ASSERT(m->spaces == NULL, "Map spaces are not NULL: %s", m->path);
+    SOFT_ASSERT(m->buttons == NULL, "Buttons are not NULL: %s", m->path);
+    SOFT_ASSERT(m->bitmap == NULL, "Bitmap is not NULL: %s", m->path);
+    SOFT_ASSERT(m->path_nodes == NULL, "Path nodes are not NULL: %s", m->path);
+
     m->in_memory = MAP_LOADING;
 
-    if (m->spaces || m->bitmap) {
-        logger_print(LOG(ERROR), "Callled with already allocated map (%s)", m->path);
-        exit(1);
-    }
-
-    if (m->buttons) {
-        logger_print(LOG(BUG), "Callled with already set buttons (%s)", m->path);
-    }
-
     m->spaces = ecalloc(1, MAP_WIDTH(m) * MAP_HEIGHT(m) * sizeof(MapSpace));
-    m->bitmap = emalloc(((MAP_WIDTH(m) + 31) / 32) * MAP_HEIGHT(m) * sizeof(*m->bitmap));
+    m->bitmap = emalloc(((MAP_WIDTH(m) + 31) / 32) * MAP_HEIGHT(m) *
+            sizeof(*m->bitmap));
     m->path_nodes = emalloc(MAP_WIDTH(m) * MAP_HEIGHT(m) * sizeof(*m->path_nodes));
 }
 
