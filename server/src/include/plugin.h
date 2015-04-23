@@ -197,7 +197,7 @@ struct plugin_hooklist {
     int (*manual_apply)(object *, object *, int);
     void (*command_drop)(object *, const char *, char *);
     int (*transfer_ob)(object *, int, int, int, object *, object *);
-    int (*kill_object)(object *, object *);
+    bool (*kill_object)(object *, object *);
     void (*esrv_send_inventory)(object *, object *);
     object *(*get_archetype)(const char *);
     mapstruct *(*ready_map_name)(const char *, mapstruct *, int);

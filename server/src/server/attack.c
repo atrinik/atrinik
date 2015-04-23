@@ -207,7 +207,6 @@ int hit_player(object *op, int dam, object *hitter, int type)
     int maxdam = 0;
     int attacknum, hit_level;
     int simple_attack;
-    int rtn_kill = 0;
 
     /* If our target has no_damage 1 set, we can't hurt him. */
     if ((op->type == PLAYER && CONTR(op)->tgm) || QUERY_FLAG(op, FLAG_INVULNERABLE)) {
@@ -310,6 +309,14 @@ int hit_player(object *op, int dam, object *hitter, int type)
 
     op->last_damage += maxdam;
 
+    /* For the purposes of statistics and damage visible on-screen, we want to
+     * show the full damage. However, to the function's callers, we only want
+     * to return the total damage dealt to the object, capping it at the
+     * object's hp. */
+    if (maxdam > op->stats.hp) {
+        maxdam = op->stats.hp;
+    }
+
     /* Damage the target got */
     op->stats.hp -= maxdam;
 
@@ -318,9 +325,9 @@ int hit_player(object *op, int dam, object *hitter, int type)
         SET_FLAG(op, FLAG_RUN_AWAY);
     }
 
-    /* rtn_kill is here negative! */
-    if ((rtn_kill = kill_object(op, hitter))) {
-        return (maxdam + rtn_kill + 1);
+    /* Reached 0 or less HP, kill the object. */
+    if (op->stats.hp <= 0) {
+        kill_object(op, hitter);
     }
 
     return maxdam;
@@ -648,29 +655,23 @@ static void share_kill_exp(object *op, int64_t exp_gain, object *skill)
  * An object was killed, handle various things (logging, messages, ...).
  * @param op What is being killed.
  * @param hitter What is hitting it.
- * @return Dealt damage.
+ * @retval true Object was killed.
+ * @retval false Object was not killed.
  */
-int kill_object(object *op, object *hitter)
+bool kill_object(object *op, object *hitter)
 {
-    int maxdam, battleg;
+    int battleg;
     int64_t exp_gain = 0;
     object *owner;
 
-    /* Still got some HP left? */
-    if (op->stats.hp > 0) {
-        return -1;
-    }
-
     if (op->type == PLAYER && CONTR(op)->tgm) {
-        return 0;
+        return false;
     }
 
     /* Trigger the DEATH event */
     if (trigger_event(EVENT_DEATH, hitter, op, NULL, NULL, 0, 0, 0, SCRIPT_FIX_ALL)) {
-        return 0;
+        return false;
     }
-
-    maxdam = op->stats.hp - 1;
 
     /* Only when some damage is stored, and we're on a map. */
     if (op->damage_round_tag == global_round_tag && op->map) {
@@ -794,7 +795,7 @@ int kill_object(object *op, object *hitter)
         destruct_ob(op);
     }
 
-    return maxdam;
+    return true;
 }
 
 /**

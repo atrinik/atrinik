@@ -273,7 +273,7 @@ extern char *attack_name[NROFATTACKS];
 extern int attack_ob(object *op, object *hitter);
 extern int hit_player(object *op, int dam, object *hitter, int type);
 extern void hit_map(object *op, int dir, int reduce);
-extern int kill_object(object *op, object *hitter);
+extern bool kill_object(object *op, object *hitter);
 extern void confuse_living(object *op);
 extern void blind_living(object *op, object *hitter, int dam);
 extern void paralyze_living(object *op, int dam);
