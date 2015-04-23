@@ -319,7 +319,7 @@ int hit_player(object *op, int dam, object *hitter, int type)
     }
 
     /* rtn_kill is here negative! */
-    if ((rtn_kill = kill_object(op, dam, hitter, type))) {
+    if ((rtn_kill = kill_object(op, hitter))) {
         return (maxdam + rtn_kill + 1);
     }
 
@@ -647,11 +647,10 @@ static void share_kill_exp(object *op, int64_t exp_gain, object *skill)
 /**
  * An object was killed, handle various things (logging, messages, ...).
  * @param op What is being killed.
- * @param dam Damage done to it.
  * @param hitter What is hitting it.
- * @param type The attacktype.
- * @return Dealt damage. */
-int kill_object(object *op, int dam, object *hitter, int type)
+ * @return Dealt damage.
+ */
+int kill_object(object *op, object *hitter)
 {
     int maxdam, battleg;
     int64_t exp_gain = 0;
@@ -667,7 +666,7 @@ int kill_object(object *op, int dam, object *hitter, int type)
     }
 
     /* Trigger the DEATH event */
-    if (trigger_event(EVENT_DEATH, hitter, op, NULL, NULL, type, 0, 0, SCRIPT_FIX_ALL)) {
+    if (trigger_event(EVENT_DEATH, hitter, op, NULL, NULL, 0, 0, 0, SCRIPT_FIX_ALL)) {
         return 0;
     }
 
