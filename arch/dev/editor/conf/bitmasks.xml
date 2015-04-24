@@ -82,4 +82,17 @@
 <bitmask name="event_ai">
 	<bmentry bit="0" name="Random movement" />
 </bitmask>
+
+<bitmask name="tile_dir">
+    <bmentry bit="0" name="North" />
+    <bmentry bit="1" name="East" />
+    <bmentry bit="2" name="South" />
+    <bmentry bit="3" name="West" />
+    <bmentry bit="4" name="Northeast" />
+    <bmentry bit="5" name="Southeast" />
+    <bmentry bit="6" name="Southwest" />
+    <bmentry bit="7" name="Northwest" />
+    <bmentry bit="8" name="Up" />
+    <bmentry bit="9" name="Down" />
+</bitmask>
 </bitmasks>

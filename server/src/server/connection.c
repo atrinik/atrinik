@@ -24,7 +24,8 @@
 
 /**
  * @file
- * Connection system handling. */
+ * Connection system handling.
+ */
 
 #include <global.h>
 
@@ -32,7 +33,8 @@
  * Creates a new connection.
  * @param op Object to connect.
  * @param map Map to create the connection on.
- * @param connected Connection ID of the object. */
+ * @param connected Connection ID of the object.
+ */
 void connection_object_add(object *op, mapstruct *map, int connected)
 {
     objectlink *ol2, *ol;
@@ -77,7 +79,8 @@ void connection_object_add(object *op, mapstruct *map, int connected)
 
 /**
  * Remove a connection.
- * @param op Object to remove. Must be on a map, and connected. */
+ * @param op Object to remove. Must be on a map, and connected.
+ */
 void connection_object_remove(object *op)
 {
     objectlink *ol, **ol2, *tmp;
@@ -106,7 +109,8 @@ void connection_object_remove(object *op)
 /**
  * Acquire the connection ID of the specified object.
  * @param op Object to get the connection ID of.
- * @return Connection ID, or 0 if not connected. */
+ * @return Connection ID, or 0 if not connected.
+ */
 int connection_object_get_value(object *op)
 {
     if (!op || !op->map || !QUERY_FLAG(op, FLAG_IS_LINKED)) {
@@ -119,18 +123,20 @@ int connection_object_get_value(object *op)
 /**
  * Return the first objectlink in the objects linked to this one.
  * @param op Object to get the link for.
- * @return ::objectlink for this object, or NULL. */
-static objectlink *connection_object_links(object *op)
+ * @param map Map to look at.
+ * @return ::objectlink for this object, or NULL.
+ */
+static objectlink *connection_object_links(object *op, mapstruct *map)
 {
     objectlink *ol, *ol2;
 
-    if (!op || !op->map) {
-        return NULL;
-    }
+    HARD_ASSERT(op != NULL);
+    HARD_ASSERT(map != NULL);
 
-    for (ol = op->map->buttons; ol; ol = ol->next) {
-        for (ol2 = ol->objlink.link; ol2; ol2 = ol2->next) {
-            if (ol2->objlink.ob == op && ol2->id == op->count) {
+    for (ol = map->buttons; ol != NULL; ol = ol->next) {
+        for (ol2 = ol->objlink.link; ol2 != NULL; ol2 = ol2->next) {
+            if (OBJECT_VALID(ol2->objlink.ob, ol2->id) &&
+                    ol2->objlink.ob->path_attuned == op->path_attuned) {
                 return ol->objlink.link;
             }
         }
@@ -140,61 +146,103 @@ static objectlink *connection_object_links(object *op)
 }
 
 /**
+ * Actually does the logic behind triggering a connection.
+ * @param op The object.
+ * @param state Trigger state.
+ * @param button If true, we're triggering a button (called from
+ * connection_trigger_button())
+ * @return If @p button is true, returns new state of the button, otherwise 0
+ * is returned.
+ */
+static int64_t connection_trigger_do(object *op, int state, bool button)
+{
+    if (op->map == NULL) {
+        return 0;
+    }
+
+    int64_t down = 0;
+
+    for (int i = -1; i < TILED_NUM; i++) {
+        if (i != -1 && (op->map->tile_path[i] == NULL ||
+                !(op->path_repelled & (1 << i)))) {
+            continue;
+        }
+
+        mapstruct *map = op->map;
+
+        if (i != -1) {
+            map = ready_map_name(map->tile_path[i], NULL, MAP_NAME_SHARED);
+
+            if (map == NULL) {
+                log(LOG(ERROR), "Could not load map: %s",
+                        op->map->tile_path[i]);
+                continue;
+            }
+        }
+
+        for (objectlink *ol = connection_object_links(op, map); ol != NULL;
+                ol = ol->next) {
+            object *tmp = ol->objlink.ob;
+
+            if (button) {
+                if (object_trigger_button(tmp, op, state) == OBJECT_METHOD_OK) {
+                    if (tmp->value) {
+                        down = 1;
+
+                        if (QUERY_FLAG(tmp, FLAG_CONNECT_RESET)) {
+                            tmp->value = 0;
+                        }
+                    }
+                }
+            } else {
+                /* If the criteria isn't appropriate, don't do anything. */
+                if (state && QUERY_FLAG(tmp, FLAG_CONNECT_NO_PUSH)) {
+                    continue;
+                }
+
+                if (!state && QUERY_FLAG(tmp, FLAG_CONNECT_NO_RELEASE)) {
+                    continue;
+                }
+
+                if (HAS_EVENT(tmp, EVENT_TRIGGER) && trigger_event(
+                        EVENT_TRIGGER, tmp, op, NULL, NULL, 0, 0, 0,
+                        SCRIPT_FIX_NOTHING)) {
+                    continue;
+                }
+
+                object_trigger(tmp, op, state);
+            }
+        }
+    }
+
+    return down;
+}
+
+/**
  * Trigger an object.
  * @param op The object.
- * @param state The trigger state. */
+ * @param state The trigger state.
+ */
 void connection_trigger(object *op, int state)
 {
-    objectlink *ol;
-    object *tmp;
+    HARD_ASSERT(op != NULL);
 
-    for (ol = connection_object_links(op); ol; ol = ol->next) {
-        tmp = ol->objlink.ob;
-
-        /* If the criteria isn't appropriate, don't do anything. */
-        if (state && QUERY_FLAG(tmp, FLAG_CONNECT_NO_PUSH)) {
-            continue;
-        }
-
-        if (!state && QUERY_FLAG(tmp, FLAG_CONNECT_NO_RELEASE)) {
-            continue;
-        }
-
-        if (HAS_EVENT(tmp, EVENT_TRIGGER) && trigger_event(EVENT_TRIGGER, tmp, op, NULL, NULL, 0, 0, 0, SCRIPT_FIX_NOTHING)) {
-            continue;
-        }
-
-        object_trigger(tmp, op, state);
-    }
+    connection_trigger_do(op, state, false);
 }
 
 /**
  * Trigger a button-like object.
  * @param op The button-like object.
- * @param state The trigger state. */
+ * @param state The trigger state.
+ */
 void connection_trigger_button(object *op, int state)
 {
-    objectlink *ol;
-    object *tmp;
-    int64_t old_state;
-    uint8_t down;
+    int64_t old_state, down;
+
+    HARD_ASSERT(op != NULL);
 
     old_state = op->value;
-    down = 0;
-
-    for (ol = connection_object_links(op); ol; ol = ol->next) {
-        tmp = ol->objlink.ob;
-
-        if (object_trigger_button(tmp, op, state) == OBJECT_METHOD_OK) {
-            if (tmp->value) {
-                down = 1;
-
-                if (QUERY_FLAG(tmp, FLAG_CONNECT_RESET)) {
-                    tmp->value = 0;
-                }
-            }
-        }
-    }
+    down = connection_trigger_do(op, state, true);
 
     if (down) {
         op->value = down;

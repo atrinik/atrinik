@@ -1244,6 +1244,9 @@
 		help file for the object you are connecting this to for details
 		what this setting will affect.
 	</attribute>
+	<attribute arch="path_repelled" editor="tiled maps" type="bitmask_tile_dir">
+	    Tiled maps to load and look for connected objects on.
+	</attribute>
 	<attribute arch="connect_no_release" editor="ignore connection release" type="bool">
 		If set, connection triggers that were done because something (such
 		as a button being unpressed) was released will be ignored.
@@ -1262,7 +1265,6 @@
 
 		Part 3 can be avoided if this option is combined with "walk off" unset.
 	</attribute>
-
 </type>
 
 <type number="122" name="Container">
@@ -2066,6 +2068,9 @@
 		help file for the object you are connecting this to for details
 		what this setting will affect.
 	</attribute>
+	<attribute arch="path_repelled" editor="tiled maps" type="bitmask_tile_dir">
+	    Tiled maps to load and look for connected objects on.
+	</attribute>
 	<attribute arch="connect_no_release" editor="ignore connection release" type="bool">
 		If set, connection triggers that were done because something (such
 		as a button being unpressed) was released will be ignored.
@@ -2389,6 +2394,9 @@
 	</attribute>
 	<attribute arch="last_eat" editor="connection flag" type="bool">
 		Signals the connected object(s) to do a different action.
+	</attribute>
+	<attribute arch="path_repelled" editor="tiled maps" type="bitmask_tile_dir">
+	    Tiled maps to load and look for connected objects on.
 	</attribute>
 	<attribute arch="slaying" editor="match key string" type="string">
 		This string specifies the object we are looking for: We have a
@@ -3427,6 +3435,9 @@
 		If set, connection triggers that were done because something (such
 		as a button being pressed) was pushed will be ignored.
 	</attribute>
+	<attribute arch="path_repelled" editor="tiled maps" type="bitmask_tile_dir">
+	    Tiled maps to load and look for connected objects on.
+	</attribute>
 	<attribute arch="exp" editor="reset time" type="int">
 		Being activated, the pedestal will reset after "reset time"
 		ticks. After reset, the pedestal is ready to be activated once
@@ -3495,6 +3506,9 @@
 		Signals the connected objects to do a different action. See the
 		help file for the object you are connecting this to for details
 		what this setting will affect.
+	</attribute>
+	<attribute arch="path_repelled" editor="tiled maps" type="bitmask_tile_dir">
+	    Tiled maps to load and look for connected objects on.
 	</attribute>
 	<attribute arch="walk_on" editor="walk on" type="bool">
 		Whether to trigger the connection when an object walks on the
