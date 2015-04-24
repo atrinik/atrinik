@@ -24,6 +24,7 @@
 
 #include <global.h>
 #include <check.h>
+#include <checkstd.h>
 #include <check_proto.h>
 
 START_TEST(test_item_matched_string)
