@@ -505,7 +505,7 @@ typedef struct map_exit {
     object *obj;
 } map_exit_t;
 
-typedef struct path_node path_node_t;
+struct path_node;
 
 /**
  * In general, code should always use the macros above (or functions in
@@ -581,7 +581,7 @@ typedef struct mapdef {
     /** For which traversal is @ref mapstruct::bitmap valid. */
     uint32_t pathfinding_id;
 
-    path_node_t **path_nodes;
+    struct path_node **path_nodes;
 
     /** Map flags for various map settings */
     uint32_t map_flags;
