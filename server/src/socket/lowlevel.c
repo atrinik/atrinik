@@ -226,7 +226,7 @@ void socket_buffer_write(socket_struct *ns)
     }
 }
 
-void socket_send_packet(socket_struct *ns, packet_struct *packet)
+void socket_send_packet(socket_struct *ns, struct packet_struct *packet)
 {
     packet_struct *tmp;
     size_t toread;

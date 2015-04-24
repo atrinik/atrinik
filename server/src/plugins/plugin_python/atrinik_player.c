@@ -27,6 +27,7 @@
  * Atrinik Python plugin player related code. */
 
 #include <plugin_python.h>
+#include <packet.h>
 
 /**
  * Player fields. */

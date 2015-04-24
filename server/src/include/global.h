@@ -501,7 +501,7 @@ void world_maker(void);
 #include "random_map.h"
 
 /* TODO: Remove from here eventually */
-typedef struct packet_struct packet_struct;
+struct packet_struct;
 
 #ifndef GLOBAL_NO_PROTOTYPES
 #include "proto.h"

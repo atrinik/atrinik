@@ -572,7 +572,7 @@ static const char *get_playername_color(object *pl, object *op)
     return COLOR_WHITE;
 }
 
-void packet_append_map_name(packet_struct *packet, object *op, object *map_info)
+void packet_append_map_name(struct packet_struct *packet, object *op, object *map_info)
 {
     packet_debug_data(packet, 0, "Map name");
     packet_append_string(packet, "[b][o=#000000]");
@@ -580,13 +580,13 @@ void packet_append_map_name(packet_struct *packet, object *op, object *map_info)
     packet_append_string_terminated(packet, "[/o][/b]");
 }
 
-void packet_append_map_music(packet_struct *packet, object *op, object *map_info)
+void packet_append_map_music(struct packet_struct *packet, object *op, object *map_info)
 {
     packet_debug_data(packet, 0, "Map music");
     packet_append_string_terminated(packet, map_info && map_info->slaying ? map_info->slaying : (op->map->bg_music ? op->map->bg_music : "no_music"));
 }
 
-void packet_append_map_weather(packet_struct *packet, object *op, object *map_info)
+void packet_append_map_weather(struct packet_struct *packet, object *op, object *map_info)
 {
     packet_debug_data(packet, 0, "Map weather");
     packet_append_string_terminated(packet, map_info && map_info->title ? map_info->title : (op->map->weather ? op->map->weather : "none"));
