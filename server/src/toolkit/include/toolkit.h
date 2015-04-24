@@ -76,7 +76,7 @@ typedef struct toolkit_dependency {
     static bool _did_init_ = false; \
     static toolkit_dependency_t _dependencies_[] = { \
         {NULL, true}, ## __VA_ARGS__, {NULL, true} \
-    };
+    }
 
 /**
  * Constructs a toolkit function name, for example, toolkit_string_init if the
