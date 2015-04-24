@@ -1,0 +1,732 @@
+arch map
+name Incuna - Water Well
+msg
+Created:  2011-05-09 Edwin Miltenburg
+Modified: 2015-04-24 Alex Tokar
+endmsg
+width 24
+height 24
+difficulty 1
+darkness 2
+region incuna
+end
+arch floor_sand_d3
+x 1
+y 6
+end
+arch fwall_grit2b
+x 1
+y 6
+end
+arch floor_sand_d4
+x 1
+y 7
+end
+arch fwall_grit2a
+x 1
+y 7
+end
+arch floor_sand_d4
+x 1
+y 8
+end
+arch fwall_grit2a
+x 1
+y 8
+end
+arch floor_sand_d4
+x 1
+y 9
+end
+arch fwall_grit2b
+draw_double 0
+x 1
+y 9
+end
+arch floor_sand_d4
+x 1
+y 10
+end
+arch fwall_grit2b
+draw_double 0
+x 1
+y 10
+end
+arch floor_sand_d1
+x 1
+y 11
+end
+arch fwall_grit2a
+draw_double 0
+x 1
+y 11
+end
+arch floor_sand_d3
+x 1
+y 12
+end
+arch fwall_grit2b
+draw_double 0
+x 1
+y 12
+end
+arch floor_sand_d4
+x 1
+y 13
+end
+arch fwall_grit2a
+x 1
+y 13
+end
+arch floor_sand_d4
+x 1
+y 14
+end
+arch fwall_grit2a
+x 1
+y 14
+end
+arch floor_sand_d2
+x 1
+y 15
+end
+arch fwall_grit2b
+x 1
+y 15
+end
+arch floor_sand_d3
+x 2
+y 6
+end
+arch fwall_grit2b
+x 2
+y 6
+end
+arch floor_cave2
+x 2
+y 7
+end
+arch stairs_wood_up2
+direction 5
+x 2
+y 7
+end
+arch duplicator
+slaying damager
+connected 113
+x 2
+y 7
+end
+arch creator
+connected 133
+lifesave 1
+one_drop 1
+x 2
+y 7
+arch damager
+terrain_type 1
+is_floor 1
+layer 1
+animation water_still
+anim_speed 10
+is_animated 1
+sys_object 0
+no_teleport 1
+name drowning
+speed 0.4
+attack_internal 80
+end
+end
+arch floor_cave2
+x 2
+y 8
+end
+arch stairs_wood_up
+direction 5
+x 2
+y 8
+end
+arch duplicator
+slaying damager
+connected 113
+x 2
+y 8
+end
+arch creator
+connected 133
+lifesave 1
+one_drop 1
+x 2
+y 8
+arch damager
+terrain_type 1
+is_floor 1
+layer 1
+animation water_still
+anim_speed 10
+is_animated 1
+sys_object 0
+no_teleport 1
+name drowning
+speed 0.4
+attack_internal 80
+end
+end
+arch floor_cave5
+x 2
+y 9
+end
+arch duplicator
+slaying damager
+connected 113
+x 2
+y 9
+end
+arch creator
+connected 133
+lifesave 1
+one_drop 1
+x 2
+y 9
+arch damager
+terrain_type 1
+is_floor 1
+layer 1
+animation water_still
+anim_speed 10
+is_animated 1
+sys_object 0
+no_teleport 1
+name drowning
+speed 0.4
+attack_internal 80
+end
+end
+arch floor_cave5
+x 2
+y 10
+end
+arch duplicator
+slaying damager
+connected 113
+x 2
+y 10
+end
+arch creator
+connected 132
+lifesave 1
+one_drop 1
+x 2
+y 10
+arch damager
+terrain_type 1
+is_floor 1
+layer 1
+animation water_still
+anim_speed 10
+is_animated 1
+sys_object 0
+no_teleport 1
+name drowning
+speed 0.4
+attack_internal 80
+end
+end
+arch floor_cave1
+x 2
+y 11
+end
+arch duplicator
+slaying damager
+connected 113
+x 2
+y 11
+end
+arch creator
+connected 131
+lifesave 1
+one_drop 1
+x 2
+y 11
+arch damager
+terrain_type 1
+is_floor 1
+layer 1
+animation water_still
+anim_speed 10
+is_animated 1
+sys_object 0
+no_teleport 1
+name drowning
+speed 0.4
+attack_internal 80
+end
+end
+arch floor_cave2
+x 2
+y 12
+end
+arch duplicator
+slaying damager
+connected 113
+x 2
+y 12
+end
+arch creator
+connected 130
+lifesave 1
+one_drop 1
+x 2
+y 12
+arch damager
+terrain_type 1
+is_floor 1
+layer 1
+animation water_still
+anim_speed 10
+is_animated 1
+sys_object 0
+no_teleport 1
+name drowning
+speed 0.4
+attack_internal 80
+end
+end
+arch floor_cave2
+x 2
+y 13
+end
+arch stairs_wood_up
+direction 1
+x 2
+y 13
+end
+arch duplicator
+slaying damager
+connected 113
+x 2
+y 13
+end
+arch creator
+connected 130
+lifesave 1
+one_drop 1
+x 2
+y 13
+arch damager
+terrain_type 1
+is_floor 1
+layer 1
+animation water_still
+anim_speed 10
+is_animated 1
+sys_object 0
+no_teleport 1
+name drowning
+speed 0.4
+attack_internal 80
+end
+end
+arch floor_cave2
+x 2
+y 14
+end
+arch stairs_wood_up2
+direction 1
+x 2
+y 14
+end
+arch duplicator
+slaying damager
+connected 113
+x 2
+y 14
+end
+arch creator
+connected 130
+lifesave 1
+one_drop 1
+x 2
+y 14
+arch damager
+terrain_type 1
+is_floor 1
+layer 1
+animation water_still
+anim_speed 10
+is_animated 1
+sys_object 0
+no_teleport 1
+name drowning
+speed 0.4
+attack_internal 80
+end
+end
+arch floor_sand_d2
+x 2
+y 15
+end
+arch fwall_grit2a
+x 2
+y 15
+end
+arch floor_sand_d1
+x 3
+y 6
+end
+arch fwall_grit2a
+x 3
+y 6
+end
+arch floor_cave2
+x 3
+y 7
+end
+arch stairs_wood_up2
+direction 5
+x 3
+y 7
+end
+arch duplicator
+slaying damager
+connected 113
+x 3
+y 7
+end
+arch creator
+connected 133
+lifesave 1
+one_drop 1
+x 3
+y 7
+arch damager
+terrain_type 1
+is_floor 1
+layer 1
+animation water_still
+anim_speed 10
+is_animated 1
+sys_object 0
+no_teleport 1
+name drowning
+speed 0.4
+attack_internal 80
+end
+end
+arch floor_cave2
+x 3
+y 8
+end
+arch stairs_wood_up
+direction 5
+x 3
+y 8
+end
+arch duplicator
+slaying damager
+connected 113
+x 3
+y 8
+end
+arch creator
+connected 133
+lifesave 1
+one_drop 1
+x 3
+y 8
+arch damager
+terrain_type 1
+is_floor 1
+layer 1
+animation water_still
+anim_speed 10
+is_animated 1
+sys_object 0
+no_teleport 1
+name drowning
+speed 0.4
+attack_internal 80
+end
+end
+arch floor_cave6
+x 3
+y 9
+end
+arch duplicator
+slaying damager
+connected 113
+x 3
+y 9
+end
+arch creator
+connected 133
+lifesave 1
+one_drop 1
+x 3
+y 9
+arch damager
+terrain_type 1
+is_floor 1
+layer 1
+animation water_still
+anim_speed 10
+is_animated 1
+sys_object 0
+no_teleport 1
+name drowning
+speed 0.4
+attack_internal 80
+end
+end
+arch floor_cave6
+x 3
+y 10
+end
+arch duplicator
+slaying damager
+connected 113
+x 3
+y 10
+end
+arch creator
+connected 132
+lifesave 1
+one_drop 1
+x 3
+y 10
+arch damager
+terrain_type 1
+is_floor 1
+layer 1
+animation water_still
+anim_speed 10
+is_animated 1
+sys_object 0
+no_teleport 1
+name drowning
+speed 0.4
+attack_internal 80
+end
+end
+arch floor_cave2
+x 3
+y 11
+end
+arch duplicator
+slaying damager
+connected 113
+x 3
+y 11
+end
+arch creator
+connected 131
+lifesave 1
+one_drop 1
+x 3
+y 11
+arch damager
+terrain_type 1
+is_floor 1
+layer 1
+animation water_still
+anim_speed 10
+is_animated 1
+sys_object 0
+no_teleport 1
+name drowning
+speed 0.4
+attack_internal 80
+end
+end
+arch floor_cave2
+x 3
+y 12
+end
+arch duplicator
+slaying damager
+connected 113
+x 3
+y 12
+end
+arch creator
+connected 130
+lifesave 1
+one_drop 1
+x 3
+y 12
+arch damager
+terrain_type 1
+is_floor 1
+layer 1
+animation water_still
+anim_speed 10
+is_animated 1
+sys_object 0
+no_teleport 1
+name drowning
+speed 0.4
+attack_internal 80
+end
+end
+arch floor_cave6
+x 3
+y 13
+end
+arch stairs_wood_up
+direction 1
+x 3
+y 13
+end
+arch duplicator
+slaying damager
+connected 113
+x 3
+y 13
+end
+arch creator
+connected 130
+lifesave 1
+one_drop 1
+x 3
+y 13
+arch damager
+terrain_type 1
+is_floor 1
+layer 1
+animation water_still
+anim_speed 10
+is_animated 1
+sys_object 0
+no_teleport 1
+name drowning
+speed 0.4
+attack_internal 80
+end
+end
+arch floor_cave6
+x 3
+y 14
+end
+arch stairs_wood_up2
+direction 1
+x 3
+y 14
+end
+arch duplicator
+slaying damager
+connected 113
+x 3
+y 14
+end
+arch creator
+connected 130
+lifesave 1
+one_drop 1
+x 3
+y 14
+arch damager
+terrain_type 1
+is_floor 1
+layer 1
+animation water_still
+anim_speed 10
+is_animated 1
+sys_object 0
+no_teleport 1
+name drowning
+speed 0.4
+attack_internal 80
+end
+end
+arch floor_sand_d3
+x 3
+y 15
+end
+arch fwall_grit2b
+x 3
+y 15
+end
+arch floor_sand_d2
+x 4
+y 6
+end
+arch fwall_grit2a
+x 4
+y 6
+end
+arch floor_sand_d4
+x 4
+y 7
+end
+arch fwall_grit2b
+x 4
+y 7
+end
+arch floor_sand_d4
+x 4
+y 8
+end
+arch fwall_grit2b
+x 4
+y 8
+end
+arch floor_sand_d1
+x 4
+y 9
+end
+arch fwall_grit2b
+draw_double 0
+x 4
+y 9
+end
+arch floor_sand_d1
+x 4
+y 10
+end
+arch fwall_grit2b
+draw_double 0
+x 4
+y 10
+end
+arch floor_sand_d4
+x 4
+y 11
+end
+arch fwall_grit2a
+draw_double 0
+x 4
+y 11
+end
+arch floor_sand_d2
+x 4
+y 12
+end
+arch fwall_grit2a
+draw_double 0
+x 4
+y 12
+end
+arch floor_sand_d4
+x 4
+y 13
+end
+arch fwall_grit2a
+x 4
+y 13
+end
+arch floor_sand_d4
+x 4
+y 14
+end
+arch fwall_grit2a
+x 4
+y 14
+end
+arch floor_sand_d4
+x 4
+y 15
+end
+arch fwall_grit2b
+x 4
+y 15
+end

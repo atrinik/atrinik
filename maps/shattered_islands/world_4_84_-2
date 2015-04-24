@@ -1,0 +1,1707 @@
+arch map
+name Incuna - Water Well
+msg
+Created:  2011-05-09 Edwin Miltenburg
+Modified: 2015-04-24 Alex Tokar
+endmsg
+width 24
+height 24
+difficulty 1
+darkness 2
+region incuna
+end
+arch floor_sand_d1
+z 24
+x 9
+y 4
+end
+arch wall_cave1.131
+x 9
+y 4
+end
+arch floor_sand_d3
+x 10
+end
+arch wall_cave1b.161
+x 10
+end
+arch floor_sand_d4
+z 24
+x 10
+y 3
+end
+arch wall_cave1.181
+x 10
+y 3
+end
+arch floor_sand_d1
+z 24
+x 10
+y 4
+end
+arch wall_cave1.171
+x 10
+y 4
+end
+arch floor_sand_d1
+z 24
+x 10
+y 5
+end
+arch wall_cave1.171
+x 10
+y 5
+end
+arch floor_sand_d4
+z 24
+x 10
+y 6
+end
+arch wall_cave1.171
+x 10
+y 6
+end
+arch floor_sand_d4
+z 24
+x 10
+y 7
+end
+arch wall_cave1.171
+x 10
+y 7
+end
+arch floor_sand_d3
+z 24
+x 10
+y 8
+end
+arch wall_cave1.171
+x 10
+y 8
+end
+arch floor_sand_d4
+z 24
+x 10
+y 9
+end
+arch wall_cave1b.161
+x 10
+y 9
+end
+arch floor_sand_d1
+x 11
+end
+arch wall_cave1.151
+x 11
+end
+arch floor_sand_d4
+z 24
+x 11
+y 2
+end
+arch wall_cave1.181
+x 11
+y 2
+end
+arch floor_sand_d1
+z 24
+x 11
+y 3
+end
+arch wall_cave1.141
+x 11
+y 3
+end
+arch floor_sand_d2
+z 24
+x 11
+y 4
+end
+arch floor_sand_d3
+z 24
+x 11
+y 5
+end
+arch floor_sand_d1
+z 24
+x 11
+y 6
+end
+arch floor_sand_d3
+z 24
+x 11
+y 7
+end
+arch floor_sand_d4
+z 24
+x 11
+y 8
+end
+arch floor_sand_d1
+z 24
+x 11
+y 9
+end
+arch wall_cave1.121
+x 11
+y 9
+end
+arch floor_sand_d4
+z 24
+x 11
+y 10
+end
+arch wall_cave1b.161
+x 11
+y 10
+end
+arch floor_sand_d4
+x 12
+end
+arch wall_cave1.151
+x 12
+end
+arch floor_sand_d4
+z 24
+x 12
+y 1
+end
+arch wall_cave1.181
+x 12
+y 1
+end
+arch floor_sand_d1
+z 24
+x 12
+y 2
+end
+arch wall_cave1.141
+x 12
+y 2
+end
+arch floor_sand_d4
+z 24
+x 12
+y 3
+end
+arch floor_sand_d2
+z 24
+x 12
+y 4
+end
+arch floor_sand_d1
+z 24
+x 12
+y 5
+end
+arch floor_sand_d4
+z 24
+x 12
+y 6
+end
+arch floor_sand_d2
+z 24
+x 12
+y 7
+end
+arch floor_sand_d2
+z 24
+x 12
+y 8
+end
+arch floor_sand_d2
+z 24
+x 12
+y 9
+end
+arch floor_sand_d1
+z 24
+x 12
+y 10
+end
+arch wall_cave1.121
+x 12
+y 10
+end
+arch floor_sand_d4
+z 24
+x 12
+y 11
+end
+arch wall_cave1b.161
+x 12
+y 11
+end
+arch floor_sand_d3
+x 13
+end
+arch wall_cave1.151
+x 13
+end
+arch floor_sand_d2
+z 24
+x 13
+y 1
+end
+arch wall_cave1.111
+x 13
+y 1
+end
+arch floor_sand_d1
+z 24
+x 13
+y 2
+end
+arch floor_sand_d4
+z 24
+x 13
+y 3
+end
+arch floor_sand_d1
+z 24
+x 13
+y 4
+end
+arch floor_sand_d4
+z 24
+x 13
+y 5
+end
+arch wall_cave1.101
+x 13
+y 5
+end
+arch floor_sand_d2
+z 24
+x 13
+y 6
+end
+arch wall_cave1.131
+x 13
+y 6
+end
+arch floor_sand_d2
+z 24
+x 13
+y 7
+end
+arch wall_cave1.161
+x 13
+y 7
+end
+arch floor_sand_d4
+z 24
+x 13
+y 8
+end
+arch floor_sand_d4
+z 24
+x 13
+y 9
+end
+arch floor_sand_d2
+z 24
+x 13
+y 10
+end
+arch floor_sand_d1
+z 24
+x 13
+y 11
+end
+arch wall_cave1.151
+x 13
+y 11
+end
+arch floor_sand_d3
+x 14
+end
+arch wall_cave1.121
+x 14
+end
+arch floor_sand_d3
+z 24
+x 14
+y 1
+end
+arch wall_cave1.111
+x 14
+y 1
+end
+arch floor_sand_d3
+z 24
+x 14
+y 2
+end
+arch floor_sand_d4
+z 24
+x 14
+y 3
+end
+arch floor_sand_d4
+z 24
+x 14
+y 4
+end
+arch wall_cave1.101
+x 14
+y 4
+end
+arch floor_sand_d2
+z 24
+x 14
+y 5
+end
+arch wall_cave1b.141
+x 14
+y 5
+end
+arch floor_sand_d4
+z 24
+x 14
+y 7
+end
+arch wall_cave1b.121
+x 14
+y 7
+end
+arch floor_sand_d2
+z 24
+x 14
+y 8
+end
+arch wall_cave1.161
+x 14
+y 8
+end
+arch floor_sand_d2
+z 24
+x 14
+y 9
+end
+arch floor_sand_d1
+z 24
+x 14
+y 10
+end
+arch floor_sand_d1
+z 24
+x 14
+y 11
+end
+arch wall_cave1.121
+x 14
+y 11
+end
+arch floor_sand_d3
+z 24
+x 14
+y 12
+end
+arch wall_cave1.171
+x 14
+y 12
+end
+arch floor_sand_d1
+z 24
+x 14
+y 13
+end
+arch wall_cave1.171
+x 14
+y 13
+end
+arch floor_sand_d1
+z 24
+x 14
+y 14
+end
+arch wall_cave1.171
+x 14
+y 14
+end
+arch floor_sand_d4
+z 24
+x 14
+y 15
+end
+arch wall_cave1b.161
+x 14
+y 15
+end
+arch floor_sand_d3
+z 24
+x 15
+end
+arch wall_cave1.171
+x 15
+end
+arch floor_sand_d1
+z 24
+x 15
+y 1
+end
+arch wall_cave1.141
+x 15
+y 1
+end
+arch floor_sand_d1
+z 24
+x 15
+y 2
+end
+arch floor_sand_d3
+z 24
+x 15
+y 3
+end
+arch floor_sand_d3
+z 24
+x 15
+y 4
+end
+arch wall_cave1.151
+x 15
+y 4
+end
+arch floor_sand_d1
+z 24
+x 15
+y 5
+end
+arch wall_cave1.181
+x 15
+y 5
+end
+arch floor_sand_d3
+z 24
+x 15
+y 6
+end
+arch wall_cave1.171
+x 15
+y 6
+end
+arch floor_sand_d4
+z 24
+x 15
+y 7
+end
+arch wall_cave1b.161
+x 15
+y 7
+end
+arch floor_sand_d4
+z 24
+x 15
+y 8
+end
+arch wall_cave1.111
+x 15
+y 8
+end
+arch floor_sand_d4
+z 24
+x 15
+y 9
+end
+arch floor_sand_d3
+z 24
+x 15
+y 10
+end
+arch floor_sand_d2
+z 24
+x 15
+y 11
+end
+arch floor_sand_d3
+z 24
+x 15
+y 12
+end
+arch floor_sand_d1
+z 24
+x 15
+y 13
+end
+arch floor_sand_d2
+z 24
+x 15
+y 14
+end
+arch floor_sand_d1
+z 24
+x 15
+y 15
+end
+arch wall_cave1.121
+x 15
+y 15
+end
+arch floor_sand_d1
+z 24
+x 15
+y 16
+end
+arch wall_cave1.171
+x 15
+y 16
+end
+arch floor_sand_d4
+z 24
+x 15
+y 17
+end
+arch wall_cave1.171
+x 15
+y 17
+end
+arch floor_sand_d4
+z 24
+x 15
+y 18
+end
+arch wall_cave1b.161
+x 15
+y 18
+end
+arch floor_sand_d3
+z 24
+x 16
+end
+arch floor_sand_d3
+z 24
+x 16
+y 1
+end
+arch sign
+msg
+Caution: some slopes can be slippery!
+endmsg
+x 16
+y 1
+end
+arch floor_sand_d1
+z 24
+x 16
+y 2
+end
+arch floor_sand_d1
+z 24
+x 16
+y 3
+end
+arch floor_sand_d1
+z 24
+x 16
+y 4
+end
+arch wall_cave1.151
+x 16
+y 4
+end
+arch floor_sand_d2
+z 24
+x 16
+y 5
+end
+arch wall_cave1.111
+x 16
+y 5
+end
+arch floor_sand_d3
+z 24
+x 16
+y 6
+end
+arch exit_green
+glow_radius 3
+x 16
+y 6
+end
+arch floor_sand_d3
+z 24
+x 16
+y 7
+end
+arch wall_cave1.151
+x 16
+y 7
+end
+arch floor_sand_d1
+z 24
+x 16
+y 8
+end
+arch wall_cave1b.121
+x 16
+y 8
+end
+arch floor_sand_d4
+z 24
+x 16
+y 9
+end
+arch wall_cave1.161
+x 16
+y 9
+end
+arch floor_sand_d1
+z 24
+x 16
+y 10
+end
+arch floor_sand_d3
+z 24
+x 16
+y 11
+end
+arch floor_sand_d4
+z 24
+x 16
+y 12
+end
+arch wall_cave1.101
+x 16
+y 12
+end
+arch floor_sand_d1
+z 24
+x 16
+y 13
+end
+arch wall_cave1.161
+x 16
+y 13
+end
+arch floor_sand_d4
+z 24
+x 16
+y 14
+end
+arch floor_sand_d1
+z 24
+x 16
+y 15
+end
+arch floor_sand_d1
+z 24
+x 16
+y 16
+end
+arch floor_sand_d1
+z 24
+x 16
+y 17
+end
+arch floor_sand_d1
+z 24
+x 16
+y 18
+end
+arch wall_cave1.151
+x 16
+y 18
+end
+arch floor_sand_d2
+z 24
+x 17
+end
+arch floor_sand_d2
+z 24
+x 17
+y 1
+end
+arch floor_sand_d2
+z 24
+x 17
+y 2
+end
+arch floor_sand_d3
+z 24
+x 17
+y 3
+end
+arch floor_sand_d4
+z 24
+x 17
+y 4
+end
+arch wall_cave1.121
+x 17
+y 4
+end
+arch floor_sand_d4
+z 24
+x 17
+y 5
+end
+arch wall_cave1.141
+x 17
+y 5
+end
+arch floor_sand_d1
+z 24
+x 17
+y 6
+end
+arch bridge_wood_EW.171
+x 17
+y 6
+end
+arch floor_sand_d3
+z 24
+x 17
+y 7
+end
+arch wall_cave1.121
+x 17
+y 7
+end
+arch floor_sand_d3
+z 24
+x 17
+y 8
+end
+arch wall_cave1.171
+x 17
+y 8
+end
+arch floor_sand_d3
+z 24
+x 17
+y 9
+end
+arch wall_cave1.141
+x 17
+y 9
+end
+arch floor_sand_d2
+z 24
+terrain_type 2
+x 17
+y 10
+end
+arch water_lt5_m
+direction 3
+x 17
+y 10
+end
+arch flagwall_short_brick1.131
+z 7
+align -20
+x 17
+y 10
+end
+arch floor_sand_d4
+z 24
+terrain_type 2
+x 17
+y 11
+end
+arch water_lt5_m
+direction 3
+x 17
+y 11
+end
+arch flagwall_short_brick1.131
+z 7
+align -20
+x 17
+y 11
+end
+arch floor_sand_d1
+z 24
+x 17
+y 12
+end
+arch wall_cave1.121
+x 17
+y 12
+end
+arch floor_sand_d2
+z 24
+x 17
+y 13
+end
+arch wall_cave1.111
+x 17
+y 13
+end
+arch floor_sand_d1
+z 24
+x 17
+y 14
+end
+arch floor_sand_d1
+z 24
+x 17
+y 15
+end
+arch floor_sand_d3
+z 24
+x 17
+y 16
+end
+arch floor_sand_d1
+z 24
+x 17
+y 17
+end
+arch sign
+msg
+Proceed at your own risk! There's a slight chance of drowning down there.
+endmsg
+x 17
+y 17
+end
+arch floor_sand_d4
+z 24
+x 17
+y 18
+end
+arch wall_cave1.151
+x 17
+y 18
+end
+arch water_lt4
+z 24
+x 18
+end
+arch flagwall_short_brick1.131
+z 7
+align -20
+x 18
+end
+arch water_lt
+z 24
+x 18
+y 1
+end
+arch flagwall_short_brick1.131
+z 7
+align -20
+x 18
+y 1
+end
+arch water_lt2
+z 24
+x 18
+y 2
+end
+arch flagwall_short_brick1.131
+z 7
+align -20
+x 18
+y 2
+end
+arch water_lt
+z 24
+x 18
+y 3
+end
+arch flagwall_short_brick1.131
+z 7
+align -20
+x 18
+y 3
+end
+arch water_lt
+z 24
+x 18
+y 4
+end
+arch flagwall_short_brick1.131
+z 7
+align -20
+x 18
+y 4
+end
+arch water_lt2
+z 24
+x 18
+y 5
+end
+arch bridge_wood_EW.101
+z 24
+x 18
+y 6
+end
+arch water_lt2
+z 24
+x 18
+y 7
+end
+arch water_lt
+z 24
+x 18
+y 8
+end
+arch water_lt
+z 24
+x 18
+y 9
+end
+arch water_lt
+z 24
+x 18
+y 10
+end
+arch water_lt
+z 24
+x 18
+y 11
+end
+arch floor_sand_d3
+z 24
+x 18
+y 12
+end
+arch wall_cave1.151
+x 18
+y 12
+end
+arch floor_sand_d4
+z 24
+x 18
+y 13
+end
+arch wall_cave1b.121
+x 18
+y 13
+end
+arch floor_sand_d1
+z 24
+x 18
+y 14
+end
+arch wall_cave1.131
+x 18
+y 14
+end
+arch floor_sand_d2
+z 24
+x 18
+y 15
+end
+arch wall_cave1.161
+x 18
+y 15
+end
+arch floor_sand_d2
+z 19
+x 18
+y 16
+end
+arch floor_sand_d2
+z 19
+x 18
+y 17
+end
+arch floor_sand_d2
+z 24
+x 18
+y 18
+end
+arch wall_cave1.151
+x 18
+y 18
+end
+arch water_lt2
+z 24
+x 19
+end
+arch water_lt2
+z 24
+x 19
+y 1
+end
+arch water_lt2
+z 24
+x 19
+y 2
+end
+arch water_lt2
+z 24
+x 19
+y 3
+end
+arch water_lt
+z 24
+x 19
+y 4
+end
+arch water_lt4
+z 24
+x 19
+y 5
+end
+arch bridge_wood_EW.101
+z 24
+x 19
+y 6
+end
+arch water_lt2
+z 24
+x 19
+y 7
+end
+arch water_lt
+z 24
+x 19
+y 8
+end
+arch water_lt4
+z 24
+x 19
+y 9
+end
+arch water_lt
+z 24
+x 19
+y 10
+end
+arch water_lt3
+z 24
+x 19
+y 11
+end
+arch floor_sand_d1
+z 24
+x 19
+y 12
+end
+arch wall_cave1.151
+x 19
+y 12
+end
+arch floor_sand_d3
+z 20
+x 19
+y 15
+end
+arch wall_cave1.111
+align -5
+z 2
+x 19
+y 15
+end
+arch wall_cave1.111
+sub_layer 1
+z 20
+x 19
+y 15
+end
+arch floor_sand_d3
+z 18
+x 19
+y 16
+end
+arch floor_sand_d2
+z 18
+x 19
+y 17
+end
+arch floor_sand_d3
+z 20
+x 19
+y 18
+end
+arch wall_cave1.151
+x 19
+y 18
+end
+arch floor_sand_d3
+z 24
+x 20
+end
+arch wall_cave1.131
+x 20
+end
+arch floor_sand_d4
+z 24
+x 20
+y 1
+end
+arch wall_cave1.131
+x 20
+y 1
+end
+arch floor_sand_d2
+z 24
+x 20
+y 2
+end
+arch wall_cave1.131
+x 20
+y 2
+end
+arch floor_sand_d1
+z 24
+x 20
+y 3
+end
+arch wall_cave1.131
+x 20
+y 3
+end
+arch floor_sand_d2
+z 24
+x 20
+y 4
+end
+arch wall_cave1.131
+x 20
+y 4
+end
+arch floor_sand_d2
+z 24
+x 20
+y 5
+end
+arch wall_cave1.161
+x 20
+y 5
+end
+arch floor_sand_d2
+z 24
+x 20
+y 6
+end
+arch bridge_wood_EW.131
+x 20
+y 6
+end
+arch floor_sand_d2
+z 24
+x 20
+y 7
+end
+arch wall_cave1.101
+x 20
+y 7
+end
+arch floor_sand_d2
+z 24
+x 20
+y 8
+end
+arch wall_cave1.131
+x 20
+y 8
+end
+arch floor_sand_d1
+z 24
+x 20
+y 9
+end
+arch wall_cave1.161
+x 20
+y 9
+end
+arch water_lt3
+z 24
+x 20
+y 10
+end
+arch water_lt3
+z 24
+x 20
+y 11
+end
+arch floor_sand_d3
+z 24
+x 20
+y 12
+end
+arch wall_cave1.151
+x 20
+y 12
+end
+arch floor_sand_d3
+z 14
+x 20
+y 15
+end
+arch wall_cave1.111
+align -5
+z 2
+x 20
+y 15
+end
+arch wall_cave1.111
+sub_layer 1
+z 14
+x 20
+y 15
+end
+arch floor_sand_d3
+z 12
+x 20
+y 16
+end
+arch floor_sand_d2
+z 12
+x 20
+y 17
+end
+arch floor_sand_d3
+z 14
+x 20
+y 18
+end
+arch wall_cave1.151
+x 20
+y 18
+end
+arch floor_sand_d4
+z 2
+x 21
+y 2
+end
+arch wall_cave1.181
+x 21
+y 2
+end
+arch floor_sand_d4
+z 2
+x 21
+y 3
+end
+arch wall_cave1.171
+blocksview 0
+x 21
+y 3
+end
+arch floor_sand_d1
+z 10
+x 21
+y 4
+end
+arch wall_cave1.171
+blocksview 0
+x 21
+y 4
+end
+arch floor_sand_d1
+z 18
+x 21
+y 5
+end
+arch wall_cave1.171
+blocksview 0
+x 21
+y 5
+end
+arch floor_sand_d1
+z 24
+x 21
+y 6
+end
+arch mover_freezing
+direction 3
+sp 1
+maxsp 5
+speed 1.0
+x 21
+y 6
+end
+arch floor_sand_d2
+z 24
+x 21
+y 7
+end
+arch wall_cave1.151
+x 21
+y 7
+end
+arch floor_sand_d4
+z 24
+x 21
+y 9
+end
+arch wall_cave1.111
+x 21
+y 9
+end
+arch water_still
+z 24
+x 21
+y 10
+end
+arch water_still
+z 24
+x 21
+y 11
+end
+arch floor_sand_d4
+z 24
+x 21
+y 12
+end
+arch wall_cave1.151
+x 21
+y 12
+end
+arch floor_sand_d2
+z 8
+x 21
+y 15
+end
+arch wall_cave1.111
+align -5
+z 2
+x 21
+y 15
+end
+arch wall_cave1.111
+sub_layer 1
+z 8
+x 21
+y 15
+end
+arch floor_sand_d2
+z 6
+x 21
+y 16
+end
+arch floor_sand_d3
+z 6
+x 21
+y 17
+end
+arch floor_sand_d2
+z 6
+x 21
+y 18
+end
+arch wall_cave1.151
+x 21
+y 18
+end
+arch floor_sand_d3
+z 2
+x 22
+y 2
+end
+arch wall_cave1.111
+x 22
+y 2
+end
+arch floor_sand_d3
+z 2
+x 22
+y 3
+end
+arch slower
+x 22
+y 3
+end
+arch floor_sand_d2
+z 10
+x 22
+y 4
+end
+arch slower
+exp 4
+x 22
+y 4
+end
+arch floor_sand_d1
+z 18
+x 22
+y 5
+end
+arch slower
+exp 5
+x 22
+y 5
+end
+arch floor_sand_d1
+z 24
+x 22
+y 6
+end
+arch mover_freezing
+direction 2
+sp 1
+maxsp 5
+speed 1.0
+x 22
+y 6
+end
+arch floor_sand_d3
+z 24
+x 22
+y 7
+end
+arch wall_cave1.151
+x 22
+y 7
+end
+arch floor_sand_d2
+z 24
+x 22
+y 9
+end
+arch wall_cave1.111
+x 22
+y 9
+end
+arch water_still
+z 24
+x 22
+y 10
+end
+arch water_still
+z 24
+x 22
+y 11
+end
+arch floor_sand_d4
+z 24
+x 22
+y 12
+end
+arch wall_cave1.151
+x 22
+y 12
+end
+arch floor_sand_d1
+x 22
+y 15
+end
+arch wall_cave1.111
+align -6
+z 2
+x 22
+y 15
+end
+arch wall_cave1.111
+sub_layer 1
+x 22
+y 15
+end
+arch gate_open
+sub_layer 2
+direction 7
+connected 111
+x 22
+y 15
+end
+arch floor_sand_d1
+x 22
+y 16
+end
+arch gate_open
+direction 7
+connected 111
+name flood protection gate
+x 22
+y 16
+end
+arch floor_sand_d4
+x 22
+y 17
+end
+arch gate_open
+direction 7
+connected 111
+name flood protection gate
+x 22
+y 17
+end
+arch floor_sand_d1
+x 22
+y 18
+end
+arch wall_cave1.151
+z 3
+x 22
+y 18
+end
+arch gate_open
+sub_layer 1
+direction 7
+connected 111
+x 22
+y 18
+end
+arch floor_sand_d4
+z 2
+x 23
+y 2
+end
+arch wall_cave1.111
+x 23
+y 2
+end
+arch floor_sand_d1
+z 2
+x 23
+y 3
+end
+arch slower
+x 23
+y 3
+end
+arch floor_sand_d3
+z 10
+x 23
+y 4
+end
+arch wall_cave1.101
+blocksview 0
+no_pass 0
+x 23
+y 4
+end
+arch mover_freezing
+speed 1.0
+sp 1
+maxsp 5
+x 23
+y 4
+end
+arch floor_sand_d1
+z 18
+x 23
+y 5
+end
+arch wall_cave1.131
+blocksview 0
+no_pass 0
+x 23
+y 5
+end
+arch mover_freezing
+speed 1.0
+sp 1
+maxsp 5
+x 23
+y 5
+end
+arch magic_mouth
+msg
+This slope is too steep for you!
+endmsg
+x 23
+y 5
+end
+arch floor_sand_d2
+z 24
+x 23
+y 6
+end
+arch wall_cave1.131
+x 23
+y 6
+end
+arch floor_sand_d3
+z 24
+x 23
+y 7
+end
+arch wall_cave1b.141
+x 23
+y 7
+end
+arch water_lt3
+z 18
+sub_layer 1
+x 23
+y 10
+end
+arch rock_big2_waterfall
+z 10
+x 23
+y 10
+end
+arch water_lt2
+z 18
+sub_layer 1
+x 23
+y 11
+end
+arch rock_big2_waterfall
+z 10
+x 23
+y 11
+end
+arch floor_sand_d4
+x 23
+y 15
+end
+arch wall_cave1.111
+x 23
+y 15
+end
+arch floor_sand_d1
+x 23
+y 16
+end
+arch duplicator
+slaying damager
+connected 138
+x 23
+y 16
+end
+arch creator
+connected 131
+lifesave 1
+one_drop 1
+x 23
+y 16
+arch damager
+terrain_type 1
+is_floor 1
+layer 1
+animation water_still
+anim_speed 10
+is_animated 1
+sys_object 0
+no_teleport 1
+name drowning
+speed 0.4
+attack_internal 80
+end
+end
+arch floor_sand_d3
+x 23
+y 17
+end
+arch duplicator
+slaying damager
+connected 138
+x 23
+y 17
+end
+arch creator
+connected 130
+lifesave 1
+one_drop 1
+x 23
+y 17
+arch damager
+terrain_type 1
+is_floor 1
+layer 1
+animation water_still
+anim_speed 10
+is_animated 1
+sys_object 0
+no_teleport 1
+name drowning
+speed 0.4
+attack_internal 80
+end
+end
+arch floor_sand_d3
+x 23
+y 18
+end
+arch wall_cave1.151
+x 23
+y 18
+end
