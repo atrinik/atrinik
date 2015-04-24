@@ -60,7 +60,6 @@ int process_delay;
 static long shutdown_time;
 static uint8_t shutdown_active = 0;
 
-static void process_players(void);
 static void dequeue_path_requests(void);
 static void do_specials(void);
 
@@ -122,119 +121,6 @@ void set_map_timeout(mapstruct *map)
     /* Save out the map. */
     swap_map(map, 0);
 #endif
-}
-
-/**
- * Do all player-related stuff after objects have been updated.
- */
-static void process_players(void)
-{
-    player *pl, *plnext;
-    int retval;
-
-    for (pl = first_player; pl; pl = plnext) {
-        plnext = pl->next;
-
-        while ((retval = handle_newcs_player(pl)) == 1) {
-        }
-
-        if (retval == -1) {
-            continue;
-        }
-
-        if (pl->followed_player[0]) {
-            player *followed = find_player(pl->followed_player);
-
-            if (followed && followed->ob && followed->ob->map) {
-                rv_vector rv;
-
-                if (!on_same_map(pl->ob, followed->ob) || (get_rangevector(pl->ob, followed->ob, &rv, 0) && (rv.distance > 4 || rv.distance_z != 0))) {
-                    int space = find_free_spot(pl->ob->arch, pl->ob, followed->ob->map, followed->ob->x, followed->ob->y, 1, SIZEOFFREE2 + 1);
-
-                    if (space != -1 && followed->ob->x + freearr_x[space] >= 0 && followed->ob->y + freearr_y[space] >= 0 && followed->ob->x + freearr_x[space] < MAP_WIDTH(followed->ob->map) && followed->ob->y + freearr_y[space] < MAP_HEIGHT(followed->ob->map)) {
-                        object_remove(pl->ob, 0);
-                        pl->ob->x = followed->ob->x + freearr_x[space];
-                        pl->ob->y = followed->ob->y + freearr_y[space];
-                        insert_ob_in_map(pl->ob, followed->ob->map, NULL, 0);
-                    }
-                }
-            } else {
-                draw_info_format(COLOR_RED, pl->ob, "Player %s left.", pl->followed_player);
-                pl->followed_player[0] = '\0';
-            }
-        }
-
-        /* Use the target system to hit our target - don't hit friendly
-         * objects, ourselves or when we are not in combat mode. */
-        if (pl->target_object && OBJECT_ACTIVE(pl->target_object) && pl->target_object_count != pl->ob->count && !is_friend_of(pl->ob, pl->target_object)) {
-            if (global_round_tag >= pl->action_attack) {
-                /* Now we force target as enemy */
-                pl->ob->enemy = pl->target_object;
-                pl->ob->enemy_count = pl->target_object_count;
-
-                if (!OBJECT_VALID(pl->ob->enemy, pl->ob->enemy_count) || pl->ob->enemy->owner == pl->ob) {
-                    pl->ob->enemy = NULL;
-                } else if (is_melee_range(pl->ob, pl->ob->enemy)) {
-                    if (!OBJECT_VALID(pl->ob->enemy->enemy, pl->ob->enemy->enemy_count)) {
-                        set_npc_enemy(pl->ob->enemy, pl->ob, NULL);
-                    } else {
-                        /* Our target already has an enemy - then note we had
-                         * attacked */
-                        pl->ob->enemy->attacked_by = pl->ob;
-                        pl->ob->enemy->attacked_by_distance = 1;
-                    }
-
-                    skill_attack(pl->ob->enemy, pl->ob, 0, NULL);
-
-                    pl->action_attack = global_round_tag + pl->ob->weapon_speed;
-
-                    pl->action_timer = (float) (pl->action_attack - global_round_tag) / MAX_TICKS;
-                    pl->last_action_timer = 0;
-                }
-            }
-        }
-
-        if (pl->move_path) {
-            player_path_handle(pl);
-        }
-
-        do_some_living(pl->ob);
-
-#ifdef AUTOSAVE
-
-        /* Check for ST_PLAYING state so that we don't try to save off when
-         * the player is logging in. */
-        if ((pl->last_save_tick + AUTOSAVE) < pticks && pl->socket.state == ST_PLAYING) {
-            player_save(pl->ob);
-            pl->last_save_tick = pticks;
-            hiscore_check(pl->ob, 1);
-        }
-#endif
-
-        /* Update total playing time. */
-        if (pl->socket.state == ST_PLAYING && time(NULL) > pl->last_stat_time_played) {
-            pl->last_stat_time_played = time(NULL);
-
-            if (pl->afk) {
-                pl->stat_time_afk++;
-            } else {
-                pl->stat_time_played++;
-            }
-        }
-
-        /* Check if our target is still valid - if not, update client. */
-        if (pl->ob->map && (!pl->target_object || (pl->target_object != pl->ob && pl->target_object_count != pl->target_object->count) || QUERY_FLAG(pl->target_object, FLAG_SYS_OBJECT) || (QUERY_FLAG(pl->target_object, FLAG_IS_INVISIBLE) && !QUERY_FLAG(pl->ob, FLAG_SEE_INVISIBLE)))) {
-            send_target_command(pl);
-        }
-
-        if (pl->ob->speed_left <= 0) {
-            pl->ob->speed_left += FABS(pl->ob->speed);
-        }
-
-        if (pl->ob->speed_left > pl->ob->speed) {
-            pl->ob->speed_left = pl->ob->speed;
-        }
-    }
 }
 
 /**
@@ -313,8 +199,11 @@ void process_events(mapstruct *map)
             op->weapon_speed_left -= op->weapon_speed;
         }
 
-        if (op->speed_left > 0) {
-            --op->speed_left;
+        if (op->speed_left > 0 || op->type == PLAYER) {
+            if (op->type != PLAYER) {
+                --op->speed_left;
+            }
+
             object_process(op);
 
             if (was_destroyed(op, tag)) {
@@ -359,8 +248,12 @@ void process_events(mapstruct *map)
             }
         }
 
-        if (op->type != PLAYER && op->speed_left <= 0) {
+        if (op->speed_left <= 0) {
             op->speed_left += FABS(op->speed);
+        }
+
+        if (op->type == PLAYER && op->speed_left > op->speed) {
+            op->speed_left = op->speed;
         }
     }
 
@@ -370,8 +263,6 @@ void process_events(mapstruct *map)
     } else {
         active_objects = NULL;
     }
-
-    process_players();
 }
 
 /**
