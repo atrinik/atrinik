@@ -34,8 +34,10 @@
  * Handle an object triggering a player mover.
  * @param op Player mover.
  * @param victim Victim.
+ * @param process If true, this is called as part of periodic processing (from
+ * process_func()).
  */
-static void player_mover_handle(object *op, object *victim)
+static void player_mover_handle(object *op, object *victim, bool process)
 {
     if (!IS_LIVE(victim)) {
         return;
@@ -92,20 +94,22 @@ static void player_mover_handle(object *op, object *victim)
     }
 
     if (victim->type == PLAYER) {
-        /* only level >=1 movers move people */
-        if (op->level != 0) {
+        if (op->level == 0) {
+            return;
+        }
+    } else if (op->stats.hp == 0) {
+        return;
+    }
+
+    if (process || !QUERY_FLAG(op, FLAG_IS_MAGICAL)) {
+        if (victim->type == PLAYER) {
             victim->speed_left = -FABS(victim->speed);
-            move_object(victim, dir);
             /* Clear player's path; they probably can't move there
              * any more after being pushed, or might not want to. */
             player_path_clear(CONTR(victim));
-        } else {
-            return;
         }
-    } else if (op->stats.hp) {
+
         move_object(victim, dir);
-    } else {
-        return;
     }
 
     if (op->stats.maxsp == 0 && op->stats.sp) {
@@ -129,7 +133,7 @@ static void process_func(object *op)
     }
 
     FOR_MAP_PREPARE(op->map, op->x, op->y, victim) {
-        player_mover_handle(op, victim);
+        player_mover_handle(op, victim, true);
     } FOR_MAP_FINISH();
 }
 
@@ -137,7 +141,7 @@ static void process_func(object *op)
 static int move_on_func(object *op, object *victim, object *originator,
         int state)
 {
-    player_mover_handle(op, victim);
+    player_mover_handle(op, victim, false);
 
     return OBJECT_METHOD_OK;
 }
