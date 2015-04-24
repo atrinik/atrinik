@@ -31,7 +31,7 @@
 #ifndef PACKET_H
 #define PACKET_H
 
-typedef struct StringBuffer_struct StringBuffer;
+struct StringBuffer_struct;
 
 /**
  * A single data packet. */
@@ -76,7 +76,7 @@ typedef struct packet_struct {
     /**
      * StringBuffer instance used to describe the packet contents.
      */
-    StringBuffer *sb;
+    struct StringBuffer_struct *sb;
 #endif
 } packet_struct;
 
