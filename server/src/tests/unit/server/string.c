@@ -772,7 +772,7 @@ END_TEST
 START_TEST(test_string_tohex)
 {
     char buf[MAX_BUF], buf2[5], buf3[6], buf4[7];
-    unsigned char cp[] = {0xff, 0x00, 0x03}, cp2[] = {}, cp3[] = {0x03};
+    unsigned char cp[] = {0xff, 0x00, 0x03}, cp2[1] = {0x00}, cp3[] = {0x03};
 
     ck_assert_uint_eq(string_tohex((const unsigned char *) "hello world",
             strlen("hello world"), buf, sizeof(buf), false),
@@ -787,12 +787,10 @@ START_TEST(test_string_tohex)
             8);
     ck_assert_str_eq(buf, "FF:00:03");
 
-    ck_assert_uint_eq(string_tohex(cp2, arraysize(cp2), buf, sizeof(buf),
-            false), 0);
+    ck_assert_uint_eq(string_tohex(cp2, 0, buf, sizeof(buf), false), 0);
     ck_assert_str_eq(buf, "");
 
-    ck_assert_uint_eq(string_tohex(cp2, arraysize(cp2), buf, sizeof(buf), true),
-            0);
+    ck_assert_uint_eq(string_tohex(cp2, 0, buf, sizeof(buf), true), 0);
     ck_assert_str_eq(buf, "");
 
     ck_assert_uint_eq(string_tohex(cp3, arraysize(cp3), buf, sizeof(buf), true),
