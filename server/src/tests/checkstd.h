@@ -25,14 +25,14 @@
 #define ck_assert(C) ck_assert_msg(C, NULL)
 #undef ck_assert_msg
 #define ck_assert_msg(expr, ...) \
-  _ck_assert_msg(expr, __FILE__, __LINE__,\
+  _fail_unless(expr, __FILE__, __LINE__,\
     "Assertion '"#expr"' failed" , ## __VA_ARGS__, NULL)
 
 /* Always fail */
 #undef ck_abort
 #define ck_abort() ck_abort_msg(NULL)
 #undef ck_abort_msg
-#define ck_abort_msg(...) _ck_assert_msg(0, __FILE__, __LINE__, "Failed" , ## __VA_ARGS__, NULL)
+#define ck_abort_msg(...) _fail_unless(0, __FILE__, __LINE__, "Failed" , ## __VA_ARGS__, NULL)
 
 /* Signed and unsigned integer comparsion macros with improved output compared to ck_assert(). */
 /* OP may be any comparion operator. */
