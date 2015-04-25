@@ -91,7 +91,7 @@ enum {
 /**
  * Escape sequence strings.
  */
-static char logger_escape_seqs[LOGGER_ESC_SEQ_MAX][10] = {};
+static char logger_escape_seqs[LOGGER_ESC_SEQ_MAX][10] = {{0}};
 
 /**
  * Which messages to print out.
