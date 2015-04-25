@@ -546,7 +546,7 @@ static void region_map_def_load(region_map_def_t *def, const char *str)
             def->tooltips[def->num_tooltips].h = strtoul(cps[3], NULL, 16);
             def->tooltips[def->num_tooltips].name = estrdup(cps[4]);
             def->tooltips[def->num_tooltips].text = estrdup(cps[5]);
-            string_newline_to_literal(def->tooltips[def->num_tooltips].name);
+            string_newline_to_literal(def->tooltips[def->num_tooltips].text);
             def->num_tooltips++;
         } else if (strcmp(cps[0], "t_outline") == 0) {
             if (string_split(cps[1], cps, 2, ' ') != 2) {
@@ -856,7 +856,7 @@ void region_map_fow_update(region_map_t *region_map)
         for (x = 0; x < region_map->surface->w / region_map->def->pixel_size;
                 x++) {
             SDL_Rect box;
-            
+
             if (x % 32 == 0 && (region_map->fow->bitmap[(x / 32) + rowsize *
                     y] == 0xffffffff)) {
                 /* If this entire 32 tiles area is visible, then we just
