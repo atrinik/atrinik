@@ -2,17 +2,18 @@ arch map
 name Fort Ghzal
 msg
 Created:  2011-10-03 Alex Tokar
-Modified: 2015-04-19 Alex Tokar
+Modified: 2015-04-25 Alex Tokar
 endmsg
 width 24
 height 24
 difficulty 1
-darkness 3
+darkness -1
+outdoor 1
 no_harm 1
 bg_music enfero.xm
 region fort_ghzal
 end
-arch blocked
+arch trans
 x 2
 y 5
 end
@@ -20,7 +21,15 @@ arch wall_wood_8
 x 2
 y 5
 end
-arch blocked
+arch map_info
+name fort_ghzal_rienn
+hp 6
+sp 5
+cursed 1
+x 2
+y 5
+end
+arch trans
 x 2
 y 6
 end
@@ -28,7 +37,7 @@ arch wall_wood3_3
 x 2
 y 6
 end
-arch blocked
+arch trans
 x 2
 y 7
 end
@@ -36,7 +45,7 @@ arch wall_wood3_3
 x 2
 y 7
 end
-arch blocked
+arch trans
 x 2
 y 8
 end
@@ -44,7 +53,7 @@ arch wall_wood3_3
 x 2
 y 8
 end
-arch blocked
+arch trans
 x 2
 y 9
 end
@@ -52,7 +61,7 @@ arch wall_wood3_3
 x 2
 y 9
 end
-arch blocked
+arch trans
 x 2
 y 10
 end
@@ -60,7 +69,7 @@ arch wall_wood3_3
 x 2
 y 10
 end
-arch blocked
+arch trans
 x 3
 y 5
 end
@@ -117,7 +126,7 @@ arch wall_wood1_1
 x 3
 y 10
 end
-arch blocked
+arch trans
 x 4
 y 5
 end
@@ -151,7 +160,7 @@ arch wall_wood3_1
 x 4
 y 10
 end
-arch blocked
+arch trans
 x 5
 y 5
 end
@@ -187,7 +196,17 @@ arch wall_wood3_1
 x 5
 y 10
 end
-arch blocked
+arch roof_brick
+direction 3
+x 5
+y 22
+end
+arch roof_brick
+direction 3
+x 5
+y 23
+end
+arch trans
 x 6
 y 5
 end
@@ -239,7 +258,22 @@ arch wall_wood3_1
 x 6
 y 10
 end
-arch blocked
+arch roof_brick
+direction 5
+x 6
+y 21
+end
+arch roof_brick
+direction 7
+x 6
+y 22
+end
+arch roof_brick
+direction 7
+x 6
+y 23
+end
+arch trans
 x 7
 y 5
 end
@@ -283,7 +317,22 @@ arch wall_wood3_1
 x 7
 y 10
 end
-arch blocked
+arch roof_brick
+direction 5
+x 7
+y 21
+end
+arch roof_brick
+direction 7
+x 7
+y 22
+end
+arch roof_brick
+direction 7
+x 7
+y 23
+end
+arch trans
 x 8
 y 5
 end
@@ -331,11 +380,34 @@ arch wall_wood_4
 x 8
 y 10
 end
-arch blocked
+arch roof_brick
+direction 5
+x 8
+y 21
+end
+arch roof_brick
+direction 7
+x 8
+y 22
+end
+arch roof_brick
+direction 7
+x 8
+y 23
+end
+arch trans
 x 9
 y 5
 end
 arch wall_wood3_1
+x 9
+y 5
+end
+arch map_info
+name fort_ghzal_rienn
+hp 1
+sp 3
+cursed 1
 x 9
 y 5
 end
@@ -359,7 +431,32 @@ arch wall_wood2_1
 x 9
 y 8
 end
-arch blocked
+arch roof_wood
+direction 8
+z 10
+x 9
+y 9
+end
+arch roof_wood
+x 9
+y 10
+end
+arch roof_brick
+direction 5
+x 9
+y 21
+end
+arch roof_brick
+direction 7
+x 9
+y 22
+end
+arch roof_brick
+direction 7
+x 9
+y 23
+end
+arch trans
 x 10
 y 5
 end
@@ -390,4 +487,269 @@ end
 arch wall_wood_4
 x 10
 y 8
+end
+arch roof_wood
+direction 7
+x 10
+y 9
+end
+arch roof_wood
+direction 8
+x 10
+y 10
+end
+arch roof_brick
+direction 5
+x 10
+y 21
+end
+arch roof_brick
+direction 7
+x 10
+y 22
+end
+arch roof_brick
+direction 7
+x 10
+y 23
+end
+arch roof_brick
+direction 5
+x 11
+y 21
+end
+arch roof_brick
+direction 7
+x 11
+y 22
+end
+arch roof_brick
+direction 7
+x 11
+y 23
+end
+arch roof_wood
+direction 3
+x 16
+y 5
+end
+arch roof_wood
+direction 3
+x 16
+y 6
+end
+arch roof_wood
+direction 3
+x 16
+y 7
+end
+arch roof_wood
+direction 3
+x 16
+y 8
+end
+arch roof_wood
+direction 3
+x 16
+y 9
+end
+arch roof_wood
+direction 3
+x 16
+y 10
+end
+arch roof_wood
+direction 5
+x 17
+y 4
+end
+arch roof_wood
+direction 8
+x 17
+y 5
+end
+arch roof_wood
+x 17
+y 6
+end
+arch roof_wood
+x 17
+y 7
+end
+arch roof_wood
+x 17
+y 8
+end
+arch roof_wood
+x 17
+y 9
+end
+arch roof_wood
+x 17
+y 10
+end
+arch roof_wood
+direction 5
+x 18
+y 4
+end
+arch roof_wood
+direction 7
+x 18
+y 5
+end
+arch roof_wood
+direction 8
+x 18
+y 6
+end
+arch roof_wood
+x 18
+y 7
+end
+arch roof_wood
+x 18
+y 8
+end
+arch roof_wood
+x 18
+y 9
+end
+arch roof_wood
+x 18
+y 10
+end
+arch roof_wood
+direction 5
+x 19
+y 4
+end
+arch roof_wood
+direction 7
+x 19
+y 5
+end
+arch roof_wood
+direction 7
+x 19
+y 6
+end
+arch roof_wood
+direction 8
+x 19
+y 7
+end
+arch roof_wood
+x 19
+y 8
+end
+arch roof_wood
+x 19
+y 9
+end
+arch roof_wood
+x 19
+y 10
+end
+arch roof_wood
+direction 5
+x 20
+y 4
+end
+arch roof_wood
+direction 7
+x 20
+y 5
+end
+arch roof_wood
+direction 7
+x 20
+y 6
+end
+arch roof_wood
+direction 7
+x 20
+y 7
+end
+arch roof_wood
+direction 8
+x 20
+y 8
+end
+arch roof_wood
+x 20
+y 9
+end
+arch roof_wood
+x 20
+y 10
+end
+arch roof_wood
+direction 5
+x 21
+y 4
+end
+arch roof_wood
+direction 7
+x 21
+y 5
+end
+arch roof_wood
+direction 7
+x 21
+y 6
+end
+arch roof_wood
+direction 7
+x 21
+y 7
+end
+arch roof_wood
+direction 7
+x 21
+y 8
+end
+arch roof_wood
+direction 8
+x 21
+y 9
+end
+arch roof_wood
+x 21
+y 10
+end
+arch roof_wood
+direction 5
+x 22
+y 4
+end
+arch roof_wood
+direction 7
+x 22
+y 5
+end
+arch roof_wood
+direction 7
+x 22
+y 6
+end
+arch roof_wood
+direction 7
+x 22
+y 7
+end
+arch roof_wood
+direction 7
+x 22
+y 8
+end
+arch roof_wood
+direction 7
+x 22
+y 9
+end
+arch roof_wood
+direction 8
+x 22
+y 10
 end

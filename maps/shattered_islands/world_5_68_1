@@ -1,0 +1,337 @@
+arch map
+name Fort Ghzal
+msg
+Created:  2015-04-25 Alex Tokar
+Modified: 2015-04-25 Alex Tokar
+endmsg
+width 24
+height 24
+difficulty 1
+darkness -1
+end
+arch roof_brick
+direction 3
+x 5
+end
+arch roof_brick
+direction 3
+x 5
+y 1
+end
+arch roof_brick
+direction 3
+x 5
+y 2
+end
+arch roof_brick
+direction 3
+x 5
+y 3
+end
+arch roof_brick
+direction 3
+x 5
+y 4
+end
+arch roof_brick
+direction 3
+x 5
+y 5
+end
+arch roof_brick
+direction 3
+x 5
+y 6
+end
+arch roof_brick
+direction 3
+x 5
+y 7
+end
+arch roof_brick
+direction 3
+x 5
+y 8
+end
+arch roof_brick
+direction 3
+x 5
+y 9
+end
+arch roof_brick
+direction 7
+x 6
+end
+arch roof_brick
+direction 7
+x 6
+y 1
+end
+arch chimney2
+x 6
+y 2
+end
+arch chimney2
+x 6
+y 3
+end
+arch roof_brick
+direction 8
+x 6
+y 4
+end
+arch roof_brick
+x 6
+y 5
+end
+arch roof_brick
+x 6
+y 6
+end
+arch roof_brick
+x 6
+y 7
+end
+arch roof_brick
+x 6
+y 8
+end
+arch roof_brick
+x 6
+y 9
+end
+arch roof_brick
+direction 7
+x 7
+end
+arch roof_brick
+direction 7
+x 7
+y 1
+end
+arch roof_brick
+direction 7
+x 7
+y 2
+end
+arch roof_brick
+direction 7
+x 7
+y 3
+end
+arch roof_brick
+direction 7
+x 7
+y 4
+end
+arch roof_brick
+direction 8
+x 7
+y 5
+end
+arch roof_brick
+x 7
+y 6
+end
+arch roof_brick
+x 7
+y 7
+end
+arch roof_brick
+x 7
+y 8
+end
+arch roof_brick
+x 7
+y 9
+end
+arch roof_brick
+direction 7
+x 8
+end
+arch roof_brick
+direction 7
+x 8
+y 1
+end
+arch roof_brick
+direction 7
+x 8
+y 2
+end
+arch roof_brick
+direction 7
+x 8
+y 3
+end
+arch roof_brick
+direction 7
+x 8
+y 4
+end
+arch roof_brick
+direction 7
+x 8
+y 5
+end
+arch roof_brick
+direction 8
+x 8
+y 6
+end
+arch roof_brick
+x 8
+y 7
+end
+arch roof_brick
+x 8
+y 8
+end
+arch roof_brick
+x 8
+y 9
+end
+arch roof_brick
+direction 7
+x 9
+end
+arch roof_brick
+direction 7
+x 9
+y 1
+end
+arch roof_brick
+direction 7
+x 9
+y 2
+end
+arch roof_brick
+direction 7
+x 9
+y 3
+end
+arch roof_brick
+direction 7
+x 9
+y 4
+end
+arch roof_brick
+direction 7
+x 9
+y 5
+end
+arch roof_brick
+direction 7
+x 9
+y 6
+end
+arch roof_brick
+direction 8
+x 9
+y 7
+end
+arch roof_brick
+x 9
+y 8
+end
+arch roof_brick
+x 9
+y 9
+end
+arch roof_brick
+direction 7
+x 10
+end
+arch roof_brick
+direction 7
+x 10
+y 1
+end
+arch roof_brick
+direction 7
+x 10
+y 2
+end
+arch roof_brick
+direction 7
+x 10
+y 3
+end
+arch roof_brick
+direction 7
+x 10
+y 4
+end
+arch roof_brick
+direction 7
+x 10
+y 5
+end
+arch roof_brick
+direction 7
+x 10
+y 6
+end
+arch roof_brick
+direction 7
+x 10
+y 7
+end
+arch roof_brick
+direction 8
+x 10
+y 8
+end
+arch roof_brick
+x 10
+y 9
+end
+arch roof_brick
+direction 7
+x 11
+end
+arch roof_brick
+direction 7
+x 11
+y 1
+end
+arch roof_brick
+direction 7
+x 11
+y 2
+end
+arch roof_brick
+direction 7
+x 11
+y 3
+end
+arch roof_brick
+direction 7
+x 11
+y 4
+end
+arch roof_brick
+direction 7
+x 11
+y 5
+end
+arch roof_brick
+direction 7
+x 11
+y 6
+end
+arch roof_brick
+direction 7
+x 11
+y 7
+end
+arch roof_brick
+direction 7
+x 11
+y 8
+end
+arch roof_brick
+direction 8
+x 11
+y 9
+end

@@ -2,7 +2,7 @@ arch map
 name Strakewood Island
 msg
 Created:  2009-09-10 Alex Tokar
-Modified: 2015-04-19 Alex Tokar
+Modified: 2015-04-25 Alex Tokar
 endmsg
 width 24
 height 24
@@ -696,6 +696,13 @@ arch grassd_5
 x 5
 end
 arch wall_flagstone1b.131
+x 5
+end
+arch map_info
+name fort_ghzal_barracks
+hp 6
+sp 9
+cursed 1
 x 5
 end
 arch grassd_1
@@ -2869,15 +2876,11 @@ arch floor_sand_d4
 x 19
 y 4
 end
-arch grassd_m14
+arch grassd_m7
 x 19
 y 4
 end
-arch floor_sand_d4
-x 19
-y 5
-end
-arch grassd_m3
+arch grassd_2
 x 19
 y 5
 end
@@ -2991,15 +2994,16 @@ arch floor_sand_d1
 x 20
 y 4
 end
-arch grassd_m12
+arch grassd_m7
 x 20
 y 4
 end
-arch floor_sand_d1
+arch grassd_m12
+sub_layer 1
 x 20
-y 5
+y 4
 end
-arch grassd_m7
+arch grassd_2
 x 20
 y 5
 end
@@ -3117,15 +3121,16 @@ arch floor_sand_d3
 x 21
 y 4
 end
-arch grassd_m10
+arch grassd_m7
 x 21
 y 4
 end
-arch floor_sand_d3
+arch grassd_m10
+sub_layer 1
 x 21
-y 5
+y 4
 end
-arch grassd_m7
+arch grassd_1
 x 21
 y 5
 end
@@ -3248,15 +3253,12 @@ arch floor_sand_d4
 x 22
 y 4
 end
-arch grassd_m10
+arch grassd_m7
+sub_layer 1
 x 22
 y 4
 end
-arch floor_sand_d2
-x 22
-y 5
-end
-arch grassd_m7
+arch grassd_5
 x 22
 y 5
 end
@@ -3379,15 +3381,16 @@ arch floor_sand_d4
 x 23
 y 4
 end
-arch grassd_m6
+arch grassd_m5
 x 23
 y 4
 end
-arch floor_sand_d2
+arch grassd_m6
+sub_layer 1
 x 23
-y 5
+y 4
 end
-arch grassd_m5
+arch grassd_6
 x 23
 y 5
 end
