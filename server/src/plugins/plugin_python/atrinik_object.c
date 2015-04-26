@@ -27,6 +27,7 @@
  * Atrinik Python plugin object related code. */
 
 #include <plugin_python.h>
+#include <bresenham.h>
 
 /**
  * All the possible fields of an object. */
