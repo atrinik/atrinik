@@ -33,6 +33,7 @@
 #include <region_map.h>
 #include <packet.h>
 #include <toolkit_string.h>
+#include <bresenham.h>
 
 /**
  * Map cells.
@@ -816,7 +817,8 @@ void map_set_data(int x, int y, int layer, int16_t face,
         int16_t zoom_y, int16_t align, uint8_t draw_double, uint8_t alpha,
         int16_t rotate, uint8_t infravision, uint32_t target_object_count,
         uint8_t target_is_friend, uint8_t anim_speed, uint8_t anim_facing,
-        uint8_t anim_flags, uint8_t anim_state, uint8_t priority)
+        uint8_t anim_flags, uint8_t anim_state, uint8_t priority,
+        uint8_t secondpass)
 {
     struct MapCell *cell;
     int sub_layer;
@@ -848,6 +850,7 @@ void map_set_data(int x, int y, int layer, int16_t face,
         for (i = 0; i < NUM_SUB_LAYERS; i++) {
             cell->anim_flags[i] = 0;
             cell->priority[i] = 0;
+            cell->secondpass[i] = 0;
         }
     }
 
@@ -856,6 +859,8 @@ void map_set_data(int x, int y, int layer, int16_t face,
     }
 
     cell->priority[sub_layer] |= priority << (((layer % NUM_LAYERS) + 1) - 1);
+    cell->secondpass[sub_layer] |= secondpass << (((layer % NUM_LAYERS) + 1) -
+            1);
 
     cell->faces[layer] = face;
     cell->flags[layer] = obj_flags;
@@ -1342,6 +1347,44 @@ static void draw_map_object(SDL_Surface *surface, struct MapCell *cell,
 }
 
 /**
+ * Calculates whether the specified coordinates are behind a wall.
+ * @param dx Start X.
+ * @param dy Start Y.
+ * @param sx End X.
+ * @param sy End Y.
+ * @return Whether the coordinates @p dx and @p dy are behind a wall or not.
+ */
+static bool obj_is_behind_wall(int dx, int dy, int sx, int sy)
+{
+    int fraction, dx2, dy2, stepx, stepy;
+    int x = sx, y = sy;
+    int distance_x = dx - sx;
+    int distance_y = dy - sy;
+
+    BRESENHAM_INIT(distance_x, distance_y, fraction, stepx, stepy, dx2, dy2);
+
+    while (1) {
+        if (x == dx && y == dy) {
+            return false;
+        }
+
+        if (x < 0 || x >= map_width || y < 0 || y >= map_height) {
+            return false;
+        }
+
+        for (int sub_layer = 0; sub_layer < NUM_SUB_LAYERS; sub_layer++) {
+            MapCell *cell = MAP_CELL_GET_MIDDLE(x, y);
+
+            if (cell->faces[GET_MAP_LAYER(LAYER_WALL, sub_layer)] != 0) {
+                return true;
+            }
+        }
+
+        BRESENHAM_STEP(x, y, fraction, stepx, stepy, dx2, dy2);
+    }
+}
+
+/**
  * Draw the map. */
 void map_draw_map(SDL_Surface *surface)
 {
@@ -1465,6 +1508,39 @@ void map_draw_map(SDL_Surface *surface)
                         cell->height[GET_MAP_LAYER(LAYER_FLOOR,
                         MapData.player_sub_layer)]) {
                     continue;
+                }
+
+                int distance_x = x - map_width / 2;
+                int distance_y = y - map_height / 2;
+                int distance = isqrt(distance_x * distance_x +
+                                     distance_y * distance_y);
+
+                if (w == map_width && h == map_height && distance <= 3 &&
+                        (x >= map_width / 2 && y >= map_height / 2)) {
+                    bool cull = false;
+
+                    for (int nx = x - 2; nx <= x && !cull; nx++) {
+                        for (int ny = y - 2; ny <= y && !cull; ny++) {
+                            MapCell *cell2 = MAP_CELL_GET_MIDDLE_IF(nx, ny,
+                                    w, h);
+
+                            for (int sub_layer2 = 0;
+                                    sub_layer2 < NUM_SUB_LAYERS;
+                                    sub_layer2++) {
+                                if (cell2->secondpass[sub_layer2] &
+                                        (1 << (LAYER_WALL - 1)) &&
+                                        !obj_is_behind_wall(nx, ny,
+                                        map_width / 2, map_height / 2)) {
+                                    cull = true;
+                                    break;
+                                }
+                            }
+                        }
+                    }
+
+                    if (cull) {
+                        continue;
+                    }
                 }
 
                 draw_map_object(surface, cell, x, y, LAYER_EFFECT, sub_layer,

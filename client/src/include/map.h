@@ -249,6 +249,8 @@ typedef struct MapCell {
     uint8_t fow;
 
     uint8_t priority[NUM_SUB_LAYERS];
+
+    uint8_t secondpass[NUM_SUB_LAYERS];
 } MapCell;
 
 #define MAP_STARTX map_width * (MAP_FOW_SIZE / 2)

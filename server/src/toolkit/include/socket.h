@@ -242,6 +242,8 @@ enum {
 #define MAP2_FLAG2_PROBE 16
 /** Priority rendering. */
 #define MAP2_FLAG2_PRIORITY 32
+/** Second alpha pass rendering. */
+#define MAP2_FLAG2_SECONDPASS 64
 /*@}*/
 
 /**

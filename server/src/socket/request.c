@@ -1432,6 +1432,13 @@ void draw_client_map2(object *pl)
                             flags2 |= MAP2_FLAG2_PRIORITY;
                         }
 
+                        if (head->type == DOOR || (layer == LAYER_LIVING &&
+                                !(GET_MAP_SPACE_PTR(head->map, head->x,
+                                head->y)->extra_flags &
+                                MSP_EXTRA_IS_BUILDING))) {
+                            flags2 |= MAP2_FLAG2_SECONDPASS;
+                        }
+
                         if (flags2) {
                             flags |= MAP2_FLAG_MORE;
                         }
