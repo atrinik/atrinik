@@ -1301,9 +1301,7 @@ y 6
 end
 arch mover_freezing
 direction 3
-sp 1
 maxsp 5
-speed 1.0
 x 21
 y 6
 end
@@ -1425,9 +1423,7 @@ y 6
 end
 arch mover_freezing
 direction 2
-sp 1
 maxsp 5
-speed 1.0
 x 22
 y 6
 end
@@ -1558,8 +1554,6 @@ x 23
 y 4
 end
 arch mover_freezing
-speed 1.0
-sp 1
 maxsp 5
 x 23
 y 4
@@ -1576,8 +1570,6 @@ x 23
 y 5
 end
 arch mover_freezing
-speed 1.0
-sp 1
 maxsp 5
 x 23
 y 5
