@@ -1842,23 +1842,6 @@ object *insert_ob_in_map(object *op, mapstruct *m, object *originator, int flag)
     /* Update flags for this tile. */
     update_object(op, UP_OBJ_INSERT);
 
-    if (fall_floors != 0 && IS_LIVE(op)) {
-        object *damager;
-        tag_t op_tag;
-
-        damager = get_archetype("falling");
-        damager->stats.dam += (op->weight + op->carrying) / 5000 * fall_floors;
-        damager->level = op->level;
-
-        op_tag = op->count;
-        hit_player(op, damager->stats.dam, damager);
-        object_destroy(damager);
-
-        if (was_destroyed(op, op_tag)) {
-            return NULL;
-        }
-    }
-
     /* Attempt to open doors. */
     door_try_open(op, op->map, op->x, op->y, 0);
 
@@ -1867,6 +1850,33 @@ object *insert_ob_in_map(object *op, mapstruct *m, object *originator, int flag)
             if (object_check_move_on(tmp, originator)) {
                 return NULL;
             }
+        }
+    }
+
+    if (fall_floors != 0 && IS_LIVE(op) && ((MAX_STAT - op->stats.Dex +
+            MAX_STAT - rndm(1, op->stats.Dex))) * MAX(1, fall_floors - 1) >=
+            MAX_STAT / 4) {
+        object *damager;
+        tag_t op_tag;
+
+        damager = get_archetype("falling");
+        damager->level = op->level;
+        damager->stats.dam = ((op->weight + op->carrying) / 2500 *
+                MIN(10, fall_floors)) * falling_mitigation[op->stats.Dex];
+
+        if (damager->stats.dam <= 0) {
+            damager->stats.dam = 1;
+        }
+
+        damager->stats.dam = rndm(damager->stats.dam / 2 + 1,
+                damager->stats.dam + 1) - 1;
+
+        op_tag = op->count;
+        hit_player(op, damager->stats.dam, damager);
+        object_destroy(damager);
+
+        if (was_destroyed(op, op_tag)) {
+            return NULL;
         }
     }
 

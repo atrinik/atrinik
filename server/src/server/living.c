@@ -75,6 +75,19 @@ float speed_bonus[MAX_STAT + 1] = {
 };
 
 /**
+ * Falling damage mitigation. Uses dexterity.
+ */
+double falling_mitigation[MAX_STAT + 1] = {
+    2.0f, // 0
+    1.9f, 1.8f, 1.7f, 1.6f, 1.5f, // 1-5
+    1.4f, 1.3f, 1.2f, 1.1f, 1.0f, // 6-10
+    1.05f, 1.0f, 1.0f, 1.0f, 1.0f, // 11-15
+    0.98f, 0.96f, 0.94f, 0.92f, 0.9f, // 16-20
+    0.88f, 0.84f, 0.80f, 0.77f, 0.73f, // 21-25
+    0.7f, 0.65f, 0.6f, 0.55f, 0.5f // 26-30
+};
+
+/**
  * The absolute most a character can carry - a character can't pick stuff
  * up if it would put him above this limit.
  *

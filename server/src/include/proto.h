@@ -370,6 +370,7 @@ extern objectlink *objectlink_unlink(objectlink **startptr, objectlink **endptr,
 extern int dam_bonus[30 + 1];
 extern int thaco_bonus[30 + 1];
 extern float speed_bonus[30 + 1];
+extern double falling_mitigation[30 + 1];
 extern uint32_t weight_limit[30 + 1];
 extern int learn_spell[30 + 1];
 extern int savethrow[115 + 1];
