@@ -861,6 +861,62 @@ void draw_client_map2(object *pl)
                 have_down = 1;
             }
 
+            bool override_rendering = true;
+            mapstruct *bottom_map = NULL;
+            int bottom_map_depth = 0;
+
+            for (tiled_dir = TILED_DOWN; tiled_dir >= TILED_UP; tiled_dir--) {
+                tiled = m;
+                tiled_depth = 0;
+
+                do {
+                    if (m != tiled) {
+                        tiled_depth += tiled_dir == TILED_UP ? 1 : -1;
+
+                        if (!MAP_TILE_IS_SAME_LEVEL(m, tiled_depth)) {
+                            break;
+                        }
+                    }
+
+                    msp_tmp = GET_MAP_SPACE_PTR(tiled, nx, ny);
+
+                    if (OBJECT_VALID(msp_tmp->map_info,
+                            msp_tmp->map_info_count) && msp_tmp->extra_flags &
+                            (MSP_EXTRA_IS_BUILDING | MSP_EXTRA_IS_BALCONY |
+                            MSP_EXTRA_IS_OVERLOOK)) {
+                        override_rendering = false;
+                    }
+
+                    if (tiled_dir == TILED_DOWN) {
+                        if (m != tiled) {
+                            bottom_map = tiled;
+                            bottom_map_depth--;
+                        }
+
+                        for (sub_layer = 0; sub_layer < NUM_SUB_LAYERS;
+                                sub_layer++) {
+                            tmp = GET_MAP_OB_LAYER(tiled, nx, ny, LAYER_FLOOR,
+                                    sub_layer);
+
+                            if (tmp == NULL) {
+                                continue;
+                            }
+
+                            if (tmp->z > zadj) {
+                                zadj = tmp->z;
+                            }
+                        }
+                    }
+
+                    tiled = get_map_from_tiled(tiled, tiled_dir);
+                } while (tiled != NULL);
+            }
+
+            if (override_rendering) {
+                tiled_dir = TILED_DOWN;
+                tiled_depth = bottom_map_depth;
+            }
+
             draw_up = m->tile_map[TILED_UP] != NULL;
 
             /* If the player is inside a building, and we're currently on the
@@ -882,33 +938,26 @@ void draw_client_map2(object *pl)
                 draw_up = 0;
             }
 
-            for (tiled = m; tiled != NULL; tiled = get_map_from_tiled(tiled,
-                    TILED_DOWN)) {
-                for (sub_layer = 0; sub_layer < NUM_SUB_LAYERS; sub_layer++) {
-                    tmp = GET_MAP_OB_LAYER(tiled, nx, ny, LAYER_FLOOR,
-                            sub_layer);
-
-                    if (tmp == NULL) {
-                        continue;
-                    }
-
-                    if (tmp->z > zadj) {
-                        zadj = tmp->z;
-                    }
-                }
-            }
-
             packet_layer = packet_new(0, 0, 128);
             num_layers = 0;
 
             /* Go through the visible layers. */
             for (layer = LAYER_FLOOR; layer <= NUM_LAYERS; layer++) {
-                tiled_depth = 0;
-                tiled_dir = TILED_UP;
+                if (!override_rendering) {
+                    tiled_depth = 0;
+                    tiled_dir = TILED_UP;
+                }
+
                 tiled = m;
 
-                for (sub_layer = NUM_SUB_LAYERS - 1; sub_layer >= 0;
-                        sub_layer--) {
+                for (int sub_layer_tmp = 0; sub_layer_tmp < NUM_SUB_LAYERS;
+                        sub_layer_tmp++) {
+                    if (override_rendering) {
+                        sub_layer = sub_layer_tmp;
+                    } else {
+                        sub_layer = NUM_SUB_LAYERS - 1 - sub_layer_tmp;
+                    }
+
                     tmp = NULL;
                     priority = 0;
                     is_building_wall = 0;
@@ -917,7 +966,8 @@ void draw_client_map2(object *pl)
                      * sending the upper floors of a building. */
                     force_draw_double = draw_up;
 
-                    if (sub_layer != 0 && tiled != NULL) {
+                    if (sub_layer != 0 && tiled != NULL &&
+                            !override_rendering) {
                         tiled = get_map_from_tiled(tiled, tiled_dir);
 
                         if (tiled == NULL && tiled_dir == TILED_UP) {
@@ -997,38 +1047,43 @@ void draw_client_map2(object *pl)
                                 tmp = NULL;
                             }
 
-                            if (tmp != NULL && layer == LAYER_FLOOR) {
-                                if (tiled_dir == TILED_DOWN) {
-                                    floor_z_down |= 1 << sub_layer;
-                                } else {
-                                    floor_z_up |= 1 << sub_layer;
-                                }
-                            }
-
-                            if (tmp != NULL && (layer != LAYER_WALL ||
-                                    tmp->sub_layer != 0)) {
-                                tiled_z = 1;
-
-                                if (layer != LAYER_FLOOR) {
-                                    if (tiled_dir == TILED_UP &&
-                                            (floor_z_up & (1 << sub_layer))) {
-                                        tiled_z = 0;
-                                    } else if (layer != LAYER_EFFECT &&
-                                            layer != LAYER_LIVING &&
-                                            layer != LAYER_ITEM &&
-                                            layer != LAYER_ITEM2 &&
-                                            tiled_dir == TILED_DOWN &&
-                                            (floor_z_down & (1 << sub_layer))) {
-                                        tiled_z = 0;
-                                    }
-                                }
-                            }
-
                             if (tmp != NULL && (msp_tmp->extra_flags &
                                     (MSP_EXTRA_IS_BUILDING |
                                     MSP_EXTRA_IS_BALCONY)) ==
                                     MSP_EXTRA_IS_BALCONY) {
                                 priority = 1;
+                            }
+                        }
+                    }
+
+                    if (bottom_map != NULL && override_rendering) {
+                        tmp = GET_MAP_SPACE_LAYER(GET_MAP_SPACE_PTR(bottom_map,
+                                nx, ny), layer, sub_layer);
+                    }
+
+                    if (tmp != NULL && layer == LAYER_FLOOR) {
+                        if (tiled_dir == TILED_DOWN) {
+                            floor_z_down |= 1 << sub_layer;
+                        } else {
+                            floor_z_up |= 1 << sub_layer;
+                        }
+                    }
+
+                    if (tmp != NULL && (layer != LAYER_WALL ||
+                            tmp->sub_layer != 0 || override_rendering)) {
+                        tiled_z = 1;
+
+                        if (layer != LAYER_FLOOR) {
+                            if (tiled_dir == TILED_UP &&
+                                    (floor_z_up & (1 << sub_layer))) {
+                                tiled_z = 0;
+                            } else if (layer != LAYER_EFFECT &&
+                                    layer != LAYER_LIVING &&
+                                    layer != LAYER_ITEM &&
+                                    layer != LAYER_ITEM2 &&
+                                    tiled_dir == TILED_DOWN &&
+                                    (floor_z_down & (1 << sub_layer))) {
+                                tiled_z = 0;
                             }
                         }
                     }
@@ -1041,12 +1096,6 @@ void draw_client_map2(object *pl)
                                 priority = 1;
                             }
                         }
-                    }
-
-                    /* Double check that we can actually see this object. */
-                    if (tmp != NULL && QUERY_FLAG(tmp, FLAG_HIDDEN) &&
-                            (tmp->layer != LAYER_WALL || tmp->sub_layer != 0)) {
-                        tmp = NULL;
                     }
 
                     /* This is done so that the player image is always shown
@@ -1339,7 +1388,9 @@ void draw_client_map2(object *pl)
                         /* Z position set? */
                         if (head->z != 0 || tiled_z || (zadj != 0 &&
                                 tmp->map->coords[2] != m->level_min &&
-                                layer == LAYER_FLOOR)) {
+                                (layer == LAYER_FLOOR || (QUERY_FLAG(head,
+                                FLAG_HIDDEN) && sub_layer == 0)) &&
+                                !override_rendering)) {
                             flags |= MAP2_FLAG_HEIGHT;
                         }
 
@@ -1491,7 +1542,9 @@ void draw_client_map2(object *pl)
                             z = head->z;
 
                             if (tmp->map->coords[2] != m->level_min &&
-                                    layer == LAYER_FLOOR) {
+                                    (layer == LAYER_FLOOR || (QUERY_FLAG(head,
+                                    FLAG_HIDDEN) && sub_layer == 0)) &&
+                                    !override_rendering) {
                                 z += zadj;
                             }
 
@@ -1502,7 +1555,9 @@ void draw_client_map2(object *pl)
                             if (tiled_z) {
                                 z += 46 * tiled_depth;
 
-                                if (layer != LAYER_FLOOR) {
+                                if (layer != LAYER_FLOOR &&
+                                        (layer != LAYER_WALL ||
+                                        !override_rendering)) {
                                     if (tiled_depth < 0) {
                                         z += MIN(zadj, 46 * -tiled_depth);
                                     } else {
@@ -1526,7 +1581,7 @@ void draw_client_map2(object *pl)
                         }
 
                         if (flags & MAP2_FLAG_MORE) {
-                            packet_debug_data(packet_layer, 2, "Extended info");
+                            packet_debug(packet_layer, 2, "Extended info:\n");
                             packet_debug_data(packet_layer, 3, "Flags");
                             packet_append_uint32(packet_layer, flags2);
 
