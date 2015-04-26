@@ -2,7 +2,7 @@ arch map
 name The City of Greyton
 msg
 Created:  2009-09-10 Alex Tokar
-Modified: 2015-04-19 Alex Tokar
+Modified: 2015-04-26 Alex Tokar
 endmsg
 width 24
 height 24
@@ -14,9 +14,18 @@ region greyton
 end
 arch floor_flagm1
 end
-arch fwall_fstone2
+arch wall_fstone_round.106
+end
+arch map_info
+name greyton_wall
+hp 21
+sp 4
+cursed 1
 end
 arch floor_flagm3
+y 1
+end
+arch torch_wall_1
 y 1
 end
 arch floor_flagm2
@@ -38,6 +47,13 @@ arch grassd_4
 y 6
 end
 arch wall_flagstone1.181
+y 6
+end
+arch map_info
+name greyton_jail_arena
+hp 17
+sp 7
+cursed 1
 y 6
 end
 arch grassd_8
@@ -104,6 +120,11 @@ arch grassd_m7
 y 18
 end
 arch grassd_2
+y 19
+end
+arch lantern_magic.131
+direction 7
+glow_radius 5
 y 19
 end
 arch grassd_6
@@ -437,10 +458,14 @@ end
 arch floor_flagm1
 x 3
 end
-arch fwall_fstone2
+arch wall_fstone_round.104
 x 3
 end
 arch floor_flagm4
+x 3
+y 1
+end
+arch torch_wall_1
 x 3
 y 1
 end
@@ -465,6 +490,13 @@ x 3
 y 5
 end
 arch wall_flagstone1.131
+x 3
+y 5
+end
+arch map_info
+name greyton_jail_arena
+hp 3
+cursed 1
 x 3
 y 5
 end
@@ -595,7 +627,9 @@ end
 arch floor_flagm1
 x 4
 end
-arch fwall_fstone2
+arch wall_flagstone1_w.111
+z 9
+align 18
 x 4
 end
 arch floor_flagm2
@@ -732,15 +766,6 @@ arch grassd_1
 x 4
 y 19
 end
-arch lantern_magic.131
-direction 7
-x 4
-y 19
-end
-arch light5
-x 4
-y 19
-end
 arch grassd_8
 x 4
 y 20
@@ -753,26 +778,27 @@ arch grassd_2
 x 4
 y 22
 end
+arch grassd_3
+x 4
+y 23
+end
 arch lantern_magic.131
 direction 5
-x 4
-y 22
-end
-arch light5
-x 4
-y 22
-end
-arch grassd_3
+glow_radius 5
 x 4
 y 23
 end
 arch floor_flagm2
 x 5
 end
-arch fwall_fstone2
+arch wall_fstone_round.106
 x 5
 end
 arch floor_flagm2
+x 5
+y 1
+end
+arch torch_wall_1
 x 5
 y 1
 end
@@ -879,6 +905,10 @@ x 5
 y 18
 end
 arch grassd_m14
+x 5
+y 18
+end
+arch light3
 x 5
 y 18
 end
@@ -1185,10 +1215,14 @@ end
 arch floor_flagm2
 x 8
 end
-arch fwall_fstone2
+arch wall_fstone_round.104
 x 8
 end
 arch floor_flagm3
+x 8
+y 1
+end
+arch torch_wall_1
 x 8
 y 1
 end
@@ -1338,7 +1372,9 @@ end
 arch floor_flagm2
 x 9
 end
-arch fwall_fstone2
+arch wall_flagstone1_w.111
+z 9
+align 18
 x 9
 end
 arch floor_flagm4
@@ -1465,6 +1501,10 @@ arch guard
 name jail guard
 level 80
 type 83
+arch event_obj
+sub_type 6
+race /python/generic/guard.py
+end
 end
 end
 arch floor_flagm2
@@ -1495,25 +1535,26 @@ arch grassd_2
 x 9
 y 22
 end
-arch lantern_magic.131
-x 9
-y 22
-end
-arch light5
-x 9
-y 22
-end
 arch grassd_3
+x 9
+y 23
+end
+arch lantern_magic.131
+glow_radius 5
 x 9
 y 23
 end
 arch floor_flagm1
 x 10
 end
-arch fwall_fstone2
+arch wall_fstone_round.106
 x 10
 end
 arch floor_flagm2
+x 10
+y 1
+end
+arch torch_wall_1
 x 10
 y 1
 end
@@ -1762,6 +1803,14 @@ arch wall_flagstone1.131
 x 11
 y 14
 end
+arch map_info
+name greyton_jail_arena
+hp 6
+sp 8
+cursed 1
+x 11
+y 14
+end
 arch grassd_7
 x 11
 y 15
@@ -1912,6 +1961,10 @@ arch guard
 name jail guard
 level 80
 type 83
+arch event_obj
+sub_type 6
+race /python/generic/guard.py
+end
 end
 end
 arch floor_marble_grey
@@ -2001,6 +2054,11 @@ arch guard
 name jail guard
 level 80
 type 83
+direction 1
+arch event_obj
+sub_type 6
+race /python/generic/guard.py
+end
 end
 end
 arch floor_marble_grey
@@ -2018,10 +2076,14 @@ end
 arch floor_flagm2
 x 13
 end
-arch fwall_fstone2
+arch wall_fstone_round.104
 x 13
 end
 arch floor_flagm2
+x 13
+y 1
+end
+arch torch_wall_1
 x 13
 y 1
 end
@@ -2141,7 +2203,9 @@ end
 arch floor_flagm2
 x 14
 end
-arch fwall_fstone2
+arch wall_flagstone1_w.111
+z 9
+align 18
 x 14
 end
 arch floor_flagm3
@@ -2307,10 +2371,14 @@ end
 arch floor_flagm1
 x 15
 end
-arch fwall_fstone2
+arch wall_fstone_round.106
 x 15
 end
 arch floor_flagm1
+x 15
+y 1
+end
+arch torch_wall_1
 x 15
 y 1
 end
@@ -2852,17 +2920,21 @@ arch grassd_8
 x 17
 y 23
 end
-arch floor_flagm4
+arch floor_flagm1
 x 18
 end
-arch fwall_fstone2
+arch wall_fstone_round.104
 x 18
 end
-arch floor_flagm4
+arch floor_flagm1
 x 18
 y 1
 end
-arch floor_flagm2
+arch torch_wall_1
+x 18
+y 1
+end
+arch floor_flagm4
 x 18
 y 2
 end
@@ -2872,742 +2944,813 @@ y 3
 end
 arch floor_flagm1
 x 18
+y 4
+end
+arch fwall_fstone2
+x 18
+y 4
+end
+arch grassd_2
+x 18
+y 5
+end
+arch grassd_7
+x 18
+y 6
+end
+arch grassd_6
+x 18
+y 7
+end
+arch grassd_6
+x 18
+y 8
+end
+arch grassd_2
+x 18
+y 9
+end
+arch grassd_4
+x 18
+y 10
+end
+arch grassd_4
+x 18
+y 11
+end
+arch grassd_8
+x 18
+y 12
+end
+arch grassd_5
+x 18
+y 13
+end
+arch grassd_4
+x 18
+y 14
+end
+arch grassd_3
+x 18
+y 15
+end
+arch grassd_7
+x 18
+y 16
+end
+arch grassd_3
+x 18
+y 17
+end
+arch grassd_5
+x 18
+y 18
+end
+arch grassd_2
+x 18
+y 19
+end
+arch grassd_1
+x 18
+y 20
+end
+arch grassd_7
+x 18
+y 21
+end
+arch grassd_7
+x 18
+y 22
+end
+arch grassd_4
+x 18
+y 23
+end
+arch floor_flagm4
+x 19
+end
+arch wall_flagstone1_w.111
+z 9
+align 18
+x 19
+end
+arch floor_flagm4
+x 19
+y 1
+end
+arch floor_flagm2
+x 19
+y 2
+end
+arch floor_flagm2
+x 19
+y 3
+end
+arch floor_flagm1
+x 19
 y 4
 end
 arch fwall_fstone2a
-x 18
+x 19
 y 4
 end
 arch floor_flagm4
-x 18
+x 19
 y 5
 end
 arch fwall_fstone2
-x 18
+x 19
+y 5
+end
+arch map_info
+name greyton_wall
+hp 4
+sp 18
+cursed 1
+x 19
 y 5
 end
 arch floor_flagm1
-x 18
+x 19
 y 6
 end
 arch fwall_fstone2
-x 18
+x 19
 y 6
 end
 arch floor_flagm1
-x 18
+x 19
 y 7
 end
 arch fwall_fstone2
-x 18
+x 19
 y 7
 end
 arch floor_flagm1
-x 18
+x 19
 y 8
 end
 arch fwall_fstone2
-x 18
+x 19
 y 8
 end
 arch floor_flagm3
-x 18
+x 19
 y 9
 end
 arch fwall_fstone2
-x 18
+x 19
 y 9
 end
 arch floor_flagm2
-x 18
+x 19
 y 10
 end
 arch fwall_fstone2
-x 18
+x 19
 y 10
 end
 arch floor_flagm3
-x 18
+x 19
 y 11
 end
 arch fwall_fstone2
-x 18
+x 19
 y 11
 end
 arch floor_flagm2
-x 18
+x 19
 y 12
 end
 arch fwall_fstone2
-x 18
+x 19
 y 12
 end
 arch floor_flagm3
-x 18
+x 19
 y 13
 end
 arch fwall_fstone2
-x 18
+x 19
 y 13
 end
 arch floor_flagm1
-x 18
+x 19
 y 14
 end
 arch fwall_fstone2
-x 18
+x 19
 y 14
 end
 arch floor_flagm3
-x 18
+x 19
 y 15
 end
 arch fwall_fstone2
-x 18
+x 19
 y 15
 end
 arch floor_flagm4
-x 18
+x 19
 y 16
 end
 arch fwall_fstone2
-x 18
+x 19
 y 16
 end
 arch floor_flagm1
-x 18
+x 19
 y 17
 end
 arch fwall_fstone2
-x 18
+x 19
 y 17
 end
 arch floor_flagm2
-x 18
+x 19
 y 18
 end
 arch fwall_fstone2
-x 18
+x 19
 y 18
 end
 arch floor_flagm2
-x 18
+x 19
 y 19
 end
 arch fwall_fstone2
-x 18
+x 19
 y 19
 end
 arch floor_flagm2
-x 18
+x 19
 y 20
 end
 arch fwall_fstone2
-x 18
+x 19
 y 20
 end
 arch floor_flagm1
-x 18
+x 19
 y 21
 end
 arch fwall_fstone2
-x 18
+x 19
 y 21
 end
 arch floor_flagm2
-x 18
+x 19
 y 22
 end
 arch fwall_fstone2
-x 18
+x 19
 y 22
 end
 arch floor_flagm4
-x 18
+x 19
 y 23
 end
 arch fwall_fstone2
-x 18
+x 19
 y 23
 end
 arch floor_flagm3
-x 19
+x 20
 end
-arch fwall_fstone2
-x 19
+arch wall_fstone_round.106
+x 20
 end
 arch floor_flagm1
-x 19
+x 20
 y 1
 end
 arch floor_flagm3
-x 19
+x 20
 y 2
 end
 arch floor_flagm4
-x 19
+x 20
 y 3
 end
 arch floor_flagm2
-x 19
+x 20
 y 4
 end
 arch floor_flagm4
-x 19
+x 20
+y 5
+end
+arch torch_wall_1
+direction 7
+x 20
 y 5
 end
 arch floor_flagm1
-x 19
+x 20
 y 6
 end
 arch floor_flagm4
-x 19
+x 20
 y 7
 end
 arch floor_flagm4
-x 19
+x 20
+y 8
+end
+arch torch_wall_1
+direction 7
+x 20
 y 8
 end
 arch floor_flagm2
-x 19
+x 20
 y 9
 end
 arch floor_flagm4
-x 19
+x 20
+y 10
+end
+arch torch_wall_1
+direction 7
+x 20
 y 10
 end
 arch floor_flagm2
-x 19
+x 20
 y 11
 end
 arch floor_flagm4
-x 19
+x 20
 y 12
 end
 arch floor_flagm1
-x 19
+x 20
+y 13
+end
+arch torch_wall_1
+direction 7
+x 20
 y 13
 end
 arch floor_flagm4
-x 19
+x 20
 y 14
 end
 arch floor_flagm1
-x 19
+x 20
+y 15
+end
+arch torch_wall_1
+direction 7
+x 20
 y 15
 end
 arch floor_flagm4
-x 19
+x 20
 y 16
 end
 arch floor_flagm4
-x 19
+x 20
 y 17
 end
 arch floor_flagm3
-x 19
+x 20
+y 18
+end
+arch torch_wall_1
+direction 7
+x 20
 y 18
 end
 arch floor_flagm2
-x 19
+x 20
 y 19
 end
 arch floor_flagm3
-x 19
+x 20
+y 20
+end
+arch torch_wall_1
+direction 7
+x 20
 y 20
 end
 arch floor_flagm1
-x 19
+x 20
 y 21
 end
 arch floor_flagm2
-x 19
+x 20
 y 22
 end
 arch floor_flagm4
-x 19
+x 20
+y 23
+end
+arch torch_wall_1
+direction 7
+x 20
 y 23
 end
 arch water_lt2
-x 20
+x 21
 end
 arch fwall_fstone2a
-x 20
+x 21
 end
 arch floor_flagm2
-x 20
+x 21
 y 1
 end
 arch fwall_fstone2b
-x 20
+x 21
 y 1
 end
 arch floor_flagm4
-x 20
+x 21
 y 2
 end
 arch floor_flagm1
-x 20
+x 21
 y 3
 end
 arch floor_flagm3
-x 20
+x 21
 y 4
 end
 arch floor_flagm2
-x 20
+x 21
 y 5
 end
 arch floor_flagm1
-x 20
+x 21
 y 6
 end
 arch floor_flagm2
-x 20
+x 21
 y 7
 end
 arch floor_flagm2
-x 20
+x 21
 y 8
 end
 arch floor_flagm3
-x 20
+x 21
 y 9
 end
 arch floor_flagm4
-x 20
+x 21
 y 10
 end
 arch floor_flagm3
-x 20
+x 21
 y 11
 end
 arch floor_flagm2
-x 20
+x 21
 y 12
 end
 arch floor_flagm1
-x 20
+x 21
 y 13
 end
 arch floor_flagm1
-x 20
+x 21
 y 14
 end
 arch floor_flagm2
-x 20
+x 21
 y 15
 end
 arch floor_flagm3
-x 20
+x 21
 y 16
 end
 arch floor_flagm1
-x 20
+x 21
 y 17
 end
 arch floor_flagm4
-x 20
+x 21
 y 18
 end
 arch floor_flagm1
-x 20
+x 21
 y 19
 end
 arch floor_flagm4
-x 20
+x 21
 y 20
 end
 arch floor_flagm2
-x 20
+x 21
 y 21
 end
 arch floor_flagm1
-x 20
+x 21
 y 22
 end
 arch floor_flagm1
-x 20
+x 21
 y 23
 end
 arch water_lt
-x 21
+x 22
 end
 arch water_lt
-x 21
+x 22
 y 1
 end
 arch fwall_fstone2a
-x 21
+x 22
+y 1
+end
+arch map_info
+name greyton_wall
+sp 3
+cursed 1
+x 22
 y 1
 end
 arch floor_flagm3
-x 21
+x 22
 y 2
 end
 arch fwall_fstone2b
-x 21
+x 22
 y 2
 end
 arch floor_flagm1
-x 21
+x 22
 y 3
 end
 arch floor_flagm2
-x 21
+x 22
 y 4
 end
 arch floor_flagm2
-x 21
+x 22
 y 5
 end
 arch floor_flagm1
-x 21
+x 22
 y 6
 end
 arch floor_flagm4
-x 21
+x 22
 y 7
 end
 arch floor_flagm2
-x 21
+x 22
 y 8
 end
 arch floor_flagm1
-x 21
+x 22
 y 9
 end
 arch floor_flagm4
-x 21
+x 22
 y 10
 end
 arch floor_flagm4
-x 21
+x 22
 y 11
 end
 arch floor_flagm1
-x 21
+x 22
 y 12
 end
 arch floor_flagm2
-x 21
+x 22
 y 13
 end
 arch floor_flagm4
-x 21
+x 22
 y 14
 end
 arch floor_flagm1
-x 21
+x 22
 y 15
 end
 arch floor_flagm2
-x 21
+x 22
 y 16
 end
 arch floor_flagm3
-x 21
+x 22
 y 17
 end
 arch floor_flagm4
-x 21
+x 22
 y 18
 end
 arch floor_flagm2
-x 21
+x 22
 y 19
 end
 arch floor_flagm1
-x 21
+x 22
 y 20
 end
 arch floor_flagm4
-x 21
+x 22
 y 21
 end
 arch floor_flagm4
-x 21
+x 22
 y 22
 end
 arch floor_flagm1
-x 21
+x 22
 y 23
 end
 arch water_lt2
-x 22
+x 23
 end
 arch water_lt3
-x 22
+x 23
 y 1
 end
 arch water_lt4
-x 22
+x 23
 y 2
 end
 arch fwall_fstone2a
-x 22
-y 2
-end
-arch floor_flagm1
-x 22
-y 3
-end
-arch fwall_fstone2
-x 22
-y 3
-end
-arch floor_flagm4
-x 22
-y 4
-end
-arch fwall_fstone2
-x 22
-y 4
-end
-arch floor_flagm1
-x 22
-y 5
-end
-arch fwall_fstone2
-x 22
-y 5
-end
-arch floor_flagm2
-x 22
-y 6
-end
-arch fwall_fstone2
-x 22
-y 6
-end
-arch floor_flagm1
-x 22
-y 7
-end
-arch fwall_fstone2
-x 22
-y 7
-end
-arch floor_flagm4
-x 22
-y 8
-end
-arch fwall_fstone2
-x 22
-y 8
-end
-arch floor_flagm4
-x 22
-y 9
-end
-arch fwall_fstone2
-x 22
-y 9
-end
-arch floor_flagm1
-x 22
-y 10
-end
-arch fwall_fstone2
-x 22
-y 10
-end
-arch floor_flagm2
-x 22
-y 11
-end
-arch fwall_fstone2
-x 22
-y 11
-end
-arch floor_flagm1
-x 22
-y 12
-end
-arch fwall_fstone2
-x 22
-y 12
-end
-arch floor_flagm1
-x 22
-y 13
-end
-arch fwall_fstone2
-x 22
-y 13
-end
-arch floor_flagm2
-x 22
-y 14
-end
-arch fwall_fstone2
-x 22
-y 14
-end
-arch floor_flagm2
-x 22
-y 15
-end
-arch fwall_fstone2
-x 22
-y 15
-end
-arch floor_flagm4
-x 22
-y 16
-end
-arch fwall_fstone2
-x 22
-y 16
-end
-arch floor_flagm1
-x 22
-y 17
-end
-arch fwall_fstone2
-x 22
-y 17
-end
-arch floor_flagm2
-x 22
-y 18
-end
-arch fwall_fstone2
-x 22
-y 18
-end
-arch floor_flagm4
-x 22
-y 19
-end
-arch fwall_fstone2
-x 22
-y 19
-end
-arch floor_flagm4
-x 22
-y 20
-end
-arch fwall_fstone2
-x 22
-y 20
-end
-arch floor_flagm2
-x 22
-y 21
-end
-arch fwall_fstone2
-x 22
-y 21
-end
-arch floor_flagm2
-x 22
-y 22
-end
-arch fwall_fstone2
-x 22
-y 22
-end
-arch floor_flagm1
-x 22
-y 23
-end
-arch fwall_fstone2
-x 22
-y 23
-end
-arch water_lt4
-x 23
-end
-arch water_lt4
-x 23
-y 1
-end
-arch water_lt
 x 23
 y 2
 end
-arch water_lt3
+arch map_info
+name greyton_wall
+sp 2
+cursed 1
+x 23
+y 2
+end
+arch floor_flagm1
 x 23
 y 3
 end
-arch water_lt
+arch wall_fstone_round.106
+x 23
+y 3
+end
+arch floor_flagm4
 x 23
 y 4
 end
-arch water_lt2
+arch wall_flagstone1_w.131
+x 23
+y 4
+end
+arch floor_flagm1
 x 23
 y 5
 end
-arch water_lt2
+arch wall_fstone_round.108
+x 23
+y 5
+end
+arch floor_flagm2
 x 23
 y 6
 end
-arch water_lt2
+arch fwall_fstone2
+x 23
+y 6
+end
+arch floor_flagm1
 x 23
 y 7
 end
-arch water_lt
+arch fwall_fstone2
+x 23
+y 7
+end
+arch floor_flagm4
 x 23
 y 8
 end
-arch water_lt3
+arch wall_fstone_round.106
+x 23
+y 8
+end
+arch floor_flagm4
 x 23
 y 9
 end
-arch water_lt2
+arch wall_flagstone1_w.131
+x 23
+y 9
+end
+arch floor_flagm1
 x 23
 y 10
 end
-arch water_lt2
+arch wall_fstone_round.108
+x 23
+y 10
+end
+arch floor_flagm2
 x 23
 y 11
 end
-arch water_lt4
+arch fwall_fstone2
+x 23
+y 11
+end
+arch floor_flagm1
 x 23
 y 12
 end
-arch water_lt2
+arch fwall_fstone2
+x 23
+y 12
+end
+arch floor_flagm1
 x 23
 y 13
 end
-arch water_lt2
+arch wall_fstone_round.106
+x 23
+y 13
+end
+arch floor_flagm2
 x 23
 y 14
 end
-arch water_lt4
+arch wall_flagstone1_w.131
+x 23
+y 14
+end
+arch floor_flagm2
 x 23
 y 15
 end
-arch water_lt2
+arch wall_fstone_round.108
+x 23
+y 15
+end
+arch floor_flagm4
 x 23
 y 16
 end
-arch water_lt2
+arch fwall_fstone2
+x 23
+y 16
+end
+arch floor_flagm1
 x 23
 y 17
 end
-arch water_lt
+arch fwall_fstone2
+x 23
+y 17
+end
+arch floor_flagm2
 x 23
 y 18
 end
-arch water_lt
+arch wall_fstone_round.106
+x 23
+y 18
+end
+arch floor_flagm4
 x 23
 y 19
 end
-arch water_lt2
+arch wall_flagstone1_w.131
+x 23
+y 19
+end
+arch floor_flagm4
 x 23
 y 20
 end
-arch water_lt3
+arch wall_fstone_round.108
+x 23
+y 20
+end
+arch floor_flagm2
 x 23
 y 21
 end
-arch water_lt3
+arch fwall_fstone2
+x 23
+y 21
+end
+arch floor_flagm2
 x 23
 y 22
 end
-arch water_lt3
+arch fwall_fstone2
+x 23
+y 22
+end
+arch floor_flagm1
+x 23
+y 23
+end
+arch wall_fstone_round.106
 x 23
 y 23
 end

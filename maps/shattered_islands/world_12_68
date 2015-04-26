@@ -2,7 +2,7 @@ arch map
 name Greyton Docks
 msg
 Created:  2009-09-10 Alex Tokar
-Modified: 2011-09-30 Alex Tokar
+Modified: 2015-04-26 Alex Tokar
 endmsg
 width 24
 height 24
@@ -50,13 +50,13 @@ end
 arch bridge_wood_EW.101
 y 12
 end
-arch water_lt3
+arch bridge_wood_EW.101
 y 13
+end
+arch water_lt3
+y 14
 end
 arch bridge_wood_EW.151
-y 13
-end
-arch water_lt4
 y 14
 end
 arch water_lt4
@@ -137,15 +137,15 @@ arch bridge_wood_EW.101
 x 1
 y 12
 end
+arch bridge_wood_EW.101
+x 1
+y 13
+end
 arch water_lt3
 x 1
-y 13
+y 14
 end
 arch bridge_wood_EW.151
-x 1
-y 13
-end
-arch water_lt4
 x 1
 y 14
 end
@@ -244,15 +244,15 @@ arch light5
 x 2
 y 12
 end
-arch water_lt4
+arch bridge_wood_EW.101
 x 2
 y 13
+end
+arch water_lt4
+x 2
+y 14
 end
 arch bridge_wood_EW.151
-x 2
-y 13
-end
-arch water_lt4
 x 2
 y 14
 end
@@ -343,15 +343,15 @@ arch bridge_wood_EW.101
 x 3
 y 12
 end
+arch bridge_wood_EW.101
+x 3
+y 13
+end
 arch water_lt2
 x 3
-y 13
+y 14
 end
 arch bridge_wood_EW.151
-x 3
-y 13
-end
-arch water_lt3
 x 3
 y 14
 end
@@ -442,7 +442,7 @@ arch bridge_wood_EW.101
 x 4
 y 12
 end
-arch bridge_wood_NS.171
+arch bridge_wood_corner.161
 x 4
 y 13
 end

@@ -1,0 +1,293 @@
+arch map
+name The City of Greyton
+msg
+Created:  2015-04-26 Alex Tokar
+Modified: 2015-04-26 Alex Tokar
+endmsg
+width 24
+height 24
+difficulty 1
+darkness -1
+outdoor 1
+no_harm 1
+bg_music town_music.ogg
+region greyton
+end
+arch fwall_fstone2c
+hidden 1
+draw_double 0
+y 2
+end
+arch map_info
+name greyton_gate
+is_magical 1
+y 2
+end
+arch fwall_fstone2
+hidden 1
+draw_double 0
+y 3
+end
+arch map_info
+name greyton_gate
+is_magical 1
+y 3
+end
+arch fwall_fstone2
+hidden 1
+draw_double 0
+y 4
+end
+arch map_info
+name greyton_gate
+is_magical 1
+y 4
+end
+arch fwall_fstone2b
+hidden 1
+draw_double 0
+y 5
+end
+arch map_info
+name greyton_gate
+is_magical 1
+y 5
+end
+arch fwall_fstone2c
+hidden 1
+draw_double 0
+x 1
+y 1
+end
+arch map_info
+name greyton_gate
+is_magical 1
+x 1
+y 1
+end
+arch fwall_fstone2
+hidden 1
+draw_double 0
+x 1
+y 2
+end
+arch fwall_fstone2
+hidden 1
+draw_double 0
+x 1
+y 3
+end
+arch fwall_fstone2
+hidden 1
+draw_double 0
+x 1
+y 4
+end
+arch fwall_fstone2
+hidden 1
+draw_double 0
+x 1
+y 5
+end
+arch map_info
+name greyton_gate
+is_magical 1
+x 1
+y 5
+end
+arch fwall_fstone2c
+hidden 1
+draw_double 0
+x 2
+end
+arch map_info
+name greyton_gate
+is_magical 1
+x 2
+end
+arch fwall_fstone2
+hidden 1
+draw_double 0
+x 2
+y 1
+end
+arch fwall_fstone2
+hidden 1
+draw_double 0
+x 2
+y 2
+end
+arch fwall_fstone2
+hidden 1
+draw_double 0
+x 2
+y 3
+end
+arch fwall_fstone2
+hidden 1
+draw_double 0
+x 2
+y 4
+end
+arch fwall_fstone2
+hidden 1
+draw_double 0
+x 2
+y 5
+end
+arch map_info
+name greyton_gate
+is_magical 1
+x 2
+y 5
+end
+arch fwall_fstone2
+hidden 1
+draw_double 0
+x 3
+end
+arch map_info
+name greyton_gate
+is_magical 1
+x 3
+end
+arch fwall_fstone2
+hidden 1
+draw_double 0
+x 3
+y 1
+end
+arch fwall_fstone2
+hidden 1
+draw_double 0
+x 3
+y 2
+end
+arch fwall_fstone2
+hidden 1
+draw_double 0
+x 3
+y 3
+end
+arch fwall_fstone2
+hidden 1
+draw_double 0
+x 3
+y 4
+end
+arch fwall_fstone2
+hidden 1
+draw_double 0
+x 3
+y 5
+end
+arch map_info
+name greyton_gate
+is_magical 1
+x 3
+y 5
+end
+arch fwall_fstone2
+hidden 1
+draw_double 0
+x 4
+end
+arch map_info
+name greyton_gate
+is_magical 1
+x 4
+end
+arch fwall_fstone2
+hidden 1
+draw_double 0
+x 4
+y 1
+end
+arch fwall_fstone2
+hidden 1
+draw_double 0
+x 4
+y 2
+end
+arch fwall_fstone2
+hidden 1
+draw_double 0
+x 4
+y 3
+end
+arch fwall_fstone2
+hidden 1
+draw_double 0
+x 4
+y 4
+end
+arch fwall_fstone2d
+hidden 1
+draw_double 0
+x 4
+y 5
+end
+arch map_info
+name greyton_gate
+is_magical 1
+x 4
+y 5
+end
+arch fwall_fstone2a
+hidden 1
+draw_double 0
+x 5
+end
+arch map_info
+name greyton_gate
+is_magical 1
+x 5
+end
+arch fwall_fstone2
+hidden 1
+draw_double 0
+x 5
+y 1
+end
+arch map_info
+name greyton_gate
+is_magical 1
+x 5
+y 1
+end
+arch fwall_fstone2
+hidden 1
+draw_double 0
+x 5
+y 2
+end
+arch map_info
+name greyton_gate
+is_magical 1
+x 5
+y 2
+end
+arch fwall_fstone2
+hidden 1
+draw_double 0
+x 5
+y 3
+end
+arch map_info
+name greyton_gate
+is_magical 1
+x 5
+y 3
+end
+arch fwall_fstone2d
+hidden 1
+draw_double 0
+x 5
+y 4
+end
+arch map_info
+name greyton_gate
+is_magical 1
+x 5
+y 4
+end

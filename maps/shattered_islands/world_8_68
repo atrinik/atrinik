@@ -754,15 +754,11 @@ arch floor_sand_d4
 x 5
 y 12
 end
-arch grassd_m14
+arch grassd_m7
 x 5
 y 12
 end
-arch floor_sand_d4
-x 5
-y 13
-end
-arch grassd_m3
+arch grassd_5
 x 5
 y 13
 end
@@ -885,7 +881,7 @@ arch floor_sand_d2
 x 6
 y 10
 end
-arch grassd_m6
+arch grassd_m10
 x 6
 y 10
 end
@@ -893,19 +889,15 @@ arch floor_sand_d4
 x 6
 y 11
 end
-arch grassd_m12
-x 6
-y 11
-end
 arch floor_sand_d1
 x 6
 y 12
 end
-arch floor_sand_d1
-x 6
-y 13
-end
 arch grassd_m7
+x 6
+y 12
+end
+arch grassd_1
 x 6
 y 13
 end
@@ -1012,7 +1004,11 @@ arch grassd_6
 x 7
 y 9
 end
-arch grassd_8
+arch floor_sand_d1
+x 7
+y 10
+end
+arch grassd_m10
 x 7
 y 10
 end
@@ -1020,19 +1016,15 @@ arch floor_sand_d4
 x 7
 y 11
 end
-arch grassd_m10
-x 7
-y 11
-end
 arch floor_sand_d4
 x 7
 y 12
 end
-arch floor_sand_d2
-x 7
-y 13
-end
 arch grassd_m7
+x 7
+y 12
+end
+arch grassd_1
 x 7
 y 13
 end
@@ -1143,11 +1135,11 @@ arch plant8
 x 8
 y 9
 end
-arch grassd_2
+arch floor_sand_d4
 x 8
 y 10
 end
-arch plant8
+arch grassd_m10
 x 8
 y 10
 end
@@ -1155,19 +1147,15 @@ arch floor_sand_d4
 x 8
 y 11
 end
-arch grassd_m10
-x 8
-y 11
-end
 arch floor_sand_d2
 x 8
 y 12
 end
-arch floor_sand_d2
-x 8
-y 13
-end
 arch grassd_m7
+x 8
+y 12
+end
+arch grassd_4
 x 8
 y 13
 end
@@ -1302,35 +1290,41 @@ arch reed_sm1
 x 9
 y 9
 end
-arch grassd_1
+arch brazier_lit
+glow_radius 5
+x 9
+y 9
+end
+arch floor_sand_d1
 x 9
 y 10
-end
-arch reed_sm1
-x 9
-y 10
-end
-arch floor_sand_d4
-x 9
-y 11
 end
 arch grassd_m6
 x 9
+y 10
+end
+arch floor_sand_d4
+x 9
+y 11
+end
+arch grassd_m8
+x 9
 y 11
 end
 arch floor_sand_d4
 x 9
 y 12
 end
-arch grassd_m8
+arch grassd_m5
 x 9
 y 12
 end
-arch floor_sand_d4
+arch grassd_3
 x 9
 y 13
 end
-arch grassd_m5
+arch brazier_lit
+glow_radius 5
 x 9
 y 13
 end
@@ -1425,7 +1419,7 @@ arch water_lt4
 x 10
 y 2
 end
-arch water_lt2
+arch water_lt4
 x 10
 y 3
 end
@@ -1433,124 +1427,116 @@ arch water_lt4
 x 10
 y 4
 end
-arch water_lt4
+arch water_lt2
 x 10
 y 5
 end
-arch water_lt2
+arch water_lt4
 x 10
 y 6
 end
-arch water_lt4
+arch water_lt3
 x 10
 y 7
 end
-arch water_lt3
-x 10
-y 8
-end
 arch grassd_m14
 x 10
-y 8
+y 7
 end
 arch water_lt2
 x 10
-y 9
+y 8
 end
 arch grassd_m9
 x 10
-y 9
+y 8
 end
 arch water_lt
 x 10
-y 10
+y 9
 end
 arch grassd_m9
 x 10
+y 9
+end
+arch grassd_3
+x 10
+y 10
+end
+arch bridge_wood_EW.181
+x 10
 y 10
 end
 arch grassd_3
 x 10
 y 11
 end
-arch bridge_wood_EW.181
-x 10
-y 11
-end
-arch light5
-x 10
-y 11
-end
-arch grassd_3
-x 10
-y 12
-end
 arch bridge_wood_EW.171
 x 10
-y 12
+y 11
 end
 arch grassd_2
 x 10
-y 13
+y 12
 end
 arch bridge_wood_EW.171
 x 10
-y 13
+y 12
 end
 arch grassd_4
 x 10
-y 14
+y 13
 end
 arch reed_sm3
 x 10
-y 14
+y 13
 end
 arch bridge_wood_EW.161
 sub_layer 1
 x 10
-y 14
-end
-arch light5
-x 10
-y 14
+y 13
 end
 arch water_lt2
 x 10
-y 15
+y 14
 end
 arch grassd_m4
 x 10
-y 15
+y 14
 end
 arch water_lt2
 x 10
-y 16
+y 15
 end
 arch grassd_m9
 x 10
-y 16
+y 15
 end
 arch water_lt4
 x 10
-y 17
+y 16
 end
 arch grassd_m9
 x 10
-y 17
+y 16
 end
 arch water_lt
 x 10
-y 18
+y 17
 end
 arch grassd_m9
 x 10
-y 18
+y 17
 end
 arch water_lt2
 x 10
-y 19
+y 18
 end
 arch grassd_m9
+x 10
+y 18
+end
+arch water_lt4
 x 10
 y 19
 end
@@ -1597,39 +1583,39 @@ arch water_lt2
 x 11
 y 2
 end
-arch water_lt4
+arch water_lt2
 x 11
 y 3
 end
-arch water_lt2
+arch water_lt
 x 11
 y 4
 end
-arch water_lt
+arch water_lt2
 x 11
 y 5
 end
-arch water_lt2
+arch water_lt
 x 11
 y 6
 end
-arch water_lt
+arch water_lt2
 x 11
 y 7
 end
-arch water_lt2
+arch water_lt
 x 11
 y 8
 end
-arch water_lt
+arch water_lt2
 x 11
 y 9
 end
-arch water_lt2
+arch bridge_wood_EW.111
 x 11
 y 10
 end
-arch bridge_wood_EW.111
+arch bridge_wood_EW.101
 x 11
 y 11
 end
@@ -1637,44 +1623,44 @@ arch bridge_wood_EW.101
 x 11
 y 12
 end
-arch bridge_wood_EW.101
+arch water_lt3
 x 11
 y 13
 end
-arch water_lt3
-x 11
-y 14
-end
 arch grassd_m9
 x 11
-y 14
+y 13
 end
 arch bridge_wood_EW.151
 sub_layer 1
 x 11
-y 14
+y 13
 end
 arch water_lt2
 x 11
-y 15
+y 14
 end
 arch grassd_m13
 x 11
-y 15
+y 14
 end
 arch water_lt3
 x 11
-y 16
+y 15
 end
 arch water_lt4
 x 11
-y 17
+y 16
 end
 arch water_lt
 x 11
-y 18
+y 17
 end
 arch water_lt3
+x 11
+y 18
+end
+arch water_lt2
 x 11
 y 19
 end
@@ -1705,11 +1691,11 @@ arch water_lt2
 x 12
 y 2
 end
-arch water_lt2
+arch water_lt
 x 12
 y 3
 end
-arch water_lt
+arch water_lt4
 x 12
 y 4
 end
@@ -1717,11 +1703,11 @@ arch water_lt4
 x 12
 y 5
 end
-arch water_lt4
+arch water_lt3
 x 12
 y 6
 end
-arch water_lt3
+arch water_lt
 x 12
 y 7
 end
@@ -1733,11 +1719,11 @@ arch water_lt
 x 12
 y 9
 end
-arch water_lt
+arch bridge_wood_EW.111
 x 12
 y 10
 end
-arch bridge_wood_EW.111
+arch bridge_wood_EW.101
 x 12
 y 11
 end
@@ -1745,7 +1731,11 @@ arch bridge_wood_EW.101
 x 12
 y 12
 end
-arch bridge_wood_EW.101
+arch water_lt
+x 12
+y 13
+end
+arch bridge_wood_EW.151
 x 12
 y 13
 end
@@ -1753,15 +1743,11 @@ arch water_lt
 x 12
 y 14
 end
-arch bridge_wood_EW.151
-x 12
-y 14
-end
-arch water_lt
+arch water_lt4
 x 12
 y 15
 end
-arch water_lt4
+arch water_lt3
 x 12
 y 16
 end
@@ -1769,11 +1755,11 @@ arch water_lt3
 x 12
 y 17
 end
-arch water_lt3
+arch water_lt4
 x 12
 y 18
 end
-arch water_lt4
+arch water_lt2
 x 12
 y 19
 end
@@ -1804,15 +1790,15 @@ arch water_lt3
 x 13
 y 2
 end
-arch water_lt3
+arch water_lt
 x 13
 y 3
 end
-arch water_lt
+arch water_lt4
 x 13
 y 4
 end
-arch water_lt4
+arch water_lt3
 x 13
 y 5
 end
@@ -1820,7 +1806,7 @@ arch water_lt3
 x 13
 y 6
 end
-arch water_lt3
+arch water_lt2
 x 13
 y 7
 end
@@ -1828,15 +1814,15 @@ arch water_lt2
 x 13
 y 8
 end
-arch water_lt2
+arch water_lt4
 x 13
 y 9
 end
-arch water_lt4
+arch bridge_wood_EW.111
 x 13
 y 10
 end
-arch bridge_wood_EW.111
+arch bridge_wood_EW.101
 x 13
 y 11
 end
@@ -1844,15 +1830,15 @@ arch bridge_wood_EW.101
 x 13
 y 12
 end
-arch bridge_wood_EW.101
+arch water_lt3
 x 13
 y 13
 end
-arch water_lt3
-x 13
-y 14
-end
 arch bridge_wood_EW.151
+x 13
+y 13
+end
+arch water_lt
 x 13
 y 14
 end
@@ -1860,11 +1846,11 @@ arch water_lt
 x 13
 y 15
 end
-arch water_lt
+arch water_lt3
 x 13
 y 16
 end
-arch water_lt3
+arch water_lt2
 x 13
 y 17
 end
@@ -1872,7 +1858,7 @@ arch water_lt2
 x 13
 y 18
 end
-arch water_lt2
+arch water_lt3
 x 13
 y 19
 end
@@ -1903,51 +1889,59 @@ arch water_lt2
 x 14
 y 2
 end
-arch water_lt2
+arch water_lt3
 x 14
 y 3
 end
-arch water_lt3
+arch water_lt4
 x 14
 y 4
 end
-arch water_lt4
+arch water_lt3
 x 14
 y 5
 end
-arch water_lt3
+arch water_lt
 x 14
 y 6
 end
-arch water_lt
+arch water_lt2
 x 14
 y 7
 end
-arch water_lt2
+arch water_lt3
 x 14
 y 8
 end
-arch water_lt3
+arch water_lt4
 x 14
 y 9
 end
-arch water_lt4
-x 14
-y 10
-end
 arch bridge_wood_EW.111
 x 14
-y 11
+y 10
 end
 arch light5
 x 14
+y 10
+end
+arch bridge_wood_EW.101
+x 14
 y 11
 end
 arch bridge_wood_EW.101
 x 14
 y 12
 end
-arch bridge_wood_EW.101
+arch water_lt
+x 14
+y 13
+end
+arch bridge_wood_EW.151
+x 14
+y 13
+end
+arch light5
 x 14
 y 13
 end
@@ -1955,31 +1949,23 @@ arch water_lt
 x 14
 y 14
 end
-arch bridge_wood_EW.151
-x 14
-y 14
-end
-arch light5
-x 14
-y 14
-end
-arch water_lt
+arch water_lt3
 x 14
 y 15
 end
-arch water_lt3
+arch water_lt2
 x 14
 y 16
 end
-arch water_lt2
+arch water_lt3
 x 14
 y 17
 end
-arch water_lt3
+arch water_lt
 x 14
 y 18
 end
-arch water_lt
+arch water_lt2
 x 14
 y 19
 end
@@ -2010,15 +1996,15 @@ arch water_lt4
 x 15
 y 2
 end
-arch water_lt4
+arch water_lt3
 x 15
 y 3
 end
-arch water_lt3
+arch water_lt2
 x 15
 y 4
 end
-arch water_lt2
+arch water_lt4
 x 15
 y 5
 end
@@ -2026,11 +2012,11 @@ arch water_lt4
 x 15
 y 6
 end
-arch water_lt4
+arch water_lt2
 x 15
 y 7
 end
-arch water_lt2
+arch water_lt
 x 15
 y 8
 end
@@ -2038,11 +2024,11 @@ arch water_lt
 x 15
 y 9
 end
-arch water_lt
+arch bridge_wood_EW.111
 x 15
 y 10
 end
-arch bridge_wood_EW.111
+arch bridge_wood_EW.101
 x 15
 y 11
 end
@@ -2050,7 +2036,11 @@ arch bridge_wood_EW.101
 x 15
 y 12
 end
-arch bridge_wood_EW.101
+arch water_lt4
+x 15
+y 13
+end
+arch bridge_wood_EW.151
 x 15
 y 13
 end
@@ -2058,27 +2048,23 @@ arch water_lt4
 x 15
 y 14
 end
-arch bridge_wood_EW.151
-x 15
-y 14
-end
-arch water_lt4
+arch water_lt3
 x 15
 y 15
 end
-arch water_lt3
+arch water_lt2
 x 15
 y 16
 end
-arch water_lt2
+arch water_lt3
 x 15
 y 17
 end
-arch water_lt3
+arch water_lt
 x 15
 y 18
 end
-arch water_lt
+arch water_lt4
 x 15
 y 19
 end
@@ -2109,26 +2095,32 @@ arch water_lt
 x 16
 y 2
 end
-arch water_lt
+arch water_lt4
 x 16
 y 3
 end
-arch water_lt4
+arch water_lt2
 x 16
 y 4
 end
-arch water_lt2
-x 16
-y 5
-end
 arch water_lt
 x 16
-y 6
+y 5
 end
 arch wall_fortified_high.181
 blocksview 0
 no_pass 0
 x 16
+y 5
+end
+arch water_lt
+x 16
+y 6
+end
+arch wall_fortified_high.111
+blocksview 0
+no_pass 0
+x 16
 y 6
 end
 arch water_lt
@@ -2155,17 +2147,11 @@ arch water_lt
 x 16
 y 9
 end
-arch wall_fortified_high.111
-blocksview 0
-no_pass 0
-x 16
-y 9
-end
-arch water_lt
+arch bridge_wood_EW.111
 x 16
 y 10
 end
-arch bridge_wood_EW.111
+arch bridge_wood_EW.101
 x 16
 y 11
 end
@@ -2173,15 +2159,15 @@ arch bridge_wood_EW.101
 x 16
 y 12
 end
-arch bridge_wood_EW.101
+arch water_lt2
 x 16
 y 13
 end
-arch water_lt2
-x 16
-y 14
-end
 arch bridge_wood_EW.151
+x 16
+y 13
+end
+arch water_lt
 x 16
 y 14
 end
@@ -2189,14 +2175,20 @@ arch water_lt
 x 16
 y 15
 end
-arch water_lt
-x 16
-y 16
-end
 arch wall_fortified_high.181
 blocksview 0
 no_pass 0
 x 16
+y 15
+end
+arch water_lt
+x 16
+y 16
+end
+arch wall_fortified_high.111
+blocksview 0
+no_pass 0
+x 16
 y 16
 end
 arch water_lt
@@ -2220,12 +2212,6 @@ x 16
 y 18
 end
 arch water_lt
-x 16
-y 19
-end
-arch wall_fortified_high.111
-blocksview 0
-no_pass 0
 x 16
 y 19
 end
@@ -2256,26 +2242,38 @@ arch water_lt
 x 17
 y 2
 end
-arch water_lt
+arch water_lt4
 x 17
 y 3
 end
-arch water_lt4
+arch water_lt2
 x 17
 y 4
 end
 arch water_lt2
 x 17
 y 5
-end
-arch water_lt2
-x 17
-y 6
 end
 arch wall_fortified_high.131
 blocksview 0
 no_pass 0
 x 17
+y 5
+end
+arch floor_flagm4
+z 50
+sub_layer 1
+x 17
+y 6
+end
+arch ladder_down2
+sub_layer 1
+direction 7
+x 17
+y 6
+end
+arch light6
+x 17
 y 6
 end
 arch floor_flagm4
@@ -2284,19 +2282,9 @@ sub_layer 1
 x 17
 y 7
 end
-arch light6
-x 17
-y 7
-end
-arch floor_flagm4
-z 50
-sub_layer 1
-x 17
-y 8
-end
 arch spawn_point
 x 17
-y 8
+y 7
 arch archer
 sub_layer 1
 z -5
@@ -2328,25 +2316,35 @@ attack_electricity 100
 attack_cold 100
 attack_poison 100
 end
+arch event_obj
+sub_type 6
+race python/generic/guard.py
+end
 end
 end
 arch floor_flagm4
 z 50
 sub_layer 1
 x 17
-y 9
+y 8
 end
 arch wall_fortified_high.131
 blocksview 0
 no_pass 0
+sub_layer 1
+z -50
 x 17
-y 9
+y 8
 end
 arch water_lt4
 x 17
-y 10
+y 9
 end
 arch bridge_wood_EW.111
+x 17
+y 10
+end
+arch bridge_wood_EW.101
 x 17
 y 11
 end
@@ -2354,41 +2352,37 @@ arch bridge_wood_EW.101
 x 17
 y 12
 end
-arch bridge_wood_EW.101
+arch water_lt4
 x 17
 y 13
 end
-arch water_lt4
-x 17
-y 14
-end
 arch bridge_wood_EW.151
 x 17
-y 14
+y 13
 end
 arch water_lt3
 x 17
-y 15
+y 14
 end
 arch water_lt2
 x 17
-y 16
+y 15
 end
 arch wall_fortified_high.131
 blocksview 0
 no_pass 0
 x 17
-y 16
+y 15
 end
 arch floor_flagm4
 z 50
 sub_layer 1
 x 17
-y 17
+y 16
 end
 arch spawn_point
 x 17
-y 17
+y 16
 arch archer
 sub_layer 1
 align 5
@@ -2421,27 +2415,43 @@ attack_electricity 100
 attack_cold 100
 attack_poison 100
 end
+arch event_obj
+sub_type 6
+race python/generic/guard.py
+end
 end
 end
 arch floor_flagm4
 z 50
 sub_layer 1
 x 17
-y 18
+y 17
+end
+arch ladder_down2
+sub_layer 1
+direction 7
+x 17
+y 17
 end
 arch light6
 x 17
-y 18
+y 17
 end
 arch floor_flagm4
 z 50
 sub_layer 1
 x 17
-y 19
+y 18
 end
 arch wall_fortified_high.131
 blocksview 0
 no_pass 0
+sub_layer 1
+z -50
+x 17
+y 18
+end
+arch water_lt
 x 17
 y 19
 end
@@ -2472,48 +2482,39 @@ arch water_lt4
 x 18
 y 2
 end
-arch water_lt2
+arch water_lt
 x 18
 y 3
 end
-arch water_lt
+arch water_lt3
 x 18
 y 4
 end
-arch water_lt3
-x 18
-y 5
-end
 arch water_lt2
 x 18
-y 6
+y 5
 end
 arch wall_fortified_high.131
 blocksview 0
 no_pass 0
 x 18
-y 6
+y 5
 end
 arch floor_flagm3
 z 50
 sub_layer 1
 x 18
-y 7
-end
-arch ladder_down2
-sub_layer 1
-x 18
-y 7
+y 6
 end
 arch floor_flagm4
 z 50
 sub_layer 1
 x 18
-y 8
+y 7
 end
 arch spawn_point
 x 18
-y 8
+y 7
 arch archer
 sub_layer 1
 z -5
@@ -2545,29 +2546,39 @@ attack_electricity 100
 attack_cold 100
 attack_poison 100
 end
+arch event_obj
+sub_type 6
+race python/generic/guard.py
+end
 end
 end
 arch floor_flagm1
 z 50
 sub_layer 1
 x 18
-y 9
+y 8
 end
 arch wall_fortified_high.131
 blocksview 0
 no_pass 0
+sub_layer 1
+z -50
 x 18
-y 9
+y 8
 end
 arch water_lt
 x 18
-y 10
+y 9
 end
 arch bridge_wood_EW.111
 x 18
-y 11
+y 10
 end
 arch light5
+x 18
+y 10
+end
+arch bridge_wood_EW.101
 x 18
 y 11
 end
@@ -2575,45 +2586,41 @@ arch bridge_wood_EW.101
 x 18
 y 12
 end
-arch bridge_wood_EW.101
+arch water_lt
 x 18
 y 13
 end
-arch water_lt
-x 18
-y 14
-end
 arch bridge_wood_EW.151
 x 18
-y 14
+y 13
 end
 arch light5
 x 18
-y 14
+y 13
 end
 arch water_lt3
 x 18
-y 15
+y 14
 end
 arch water_lt2
 x 18
-y 16
+y 15
 end
 arch wall_fortified_high.131
 blocksview 0
 no_pass 0
 x 18
-y 16
+y 15
 end
 arch floor_flagm4
 z 50
 sub_layer 1
 x 18
-y 17
+y 16
 end
 arch spawn_point
 x 18
-y 17
+y 16
 arch archer
 sub_layer 1
 align 5
@@ -2646,29 +2653,33 @@ attack_electricity 100
 attack_cold 100
 attack_poison 100
 end
+arch event_obj
+sub_type 6
+race python/generic/guard.py
+end
 end
 end
 arch floor_flagm3
 z 50
 sub_layer 1
 x 18
-y 18
-end
-arch ladder_down2
-sub_layer 1
-direction 5
-x 18
-y 18
+y 17
 end
 arch floor_flagm1
 z 50
 sub_layer 1
 x 18
-y 19
+y 18
 end
 arch wall_fortified_high.131
 blocksview 0
 no_pass 0
+sub_layer 1
+z -50
+x 18
+y 18
+end
+arch water_lt4
 x 18
 y 19
 end
@@ -2703,22 +2714,32 @@ arch water_lt2
 x 19
 y 3
 end
-arch water_lt2
+arch water_lt
 x 19
 y 4
 end
-arch water_lt
-x 19
-y 5
-end
 arch water_lt2
 x 19
-y 6
+y 5
 end
 arch wall_fortified_high.131
 blocksview 0
 no_pass 0
 x 19
+y 5
+end
+arch floor_flagm3
+z 50
+sub_layer 1
+x 19
+y 6
+end
+arch wall_fortified_high.111
+blocksview 0
+no_pass 0
+sub_layer 1
+z -50
+x 19
 y 6
 end
 arch floor_flagm3
@@ -2730,38 +2751,34 @@ end
 arch wall_fortified_high.111
 blocksview 0
 no_pass 0
+sub_layer 1
+z -50
 x 19
 y 7
-end
-arch floor_flagm3
-z 50
-sub_layer 1
-x 19
-y 8
-end
-arch wall_fortified_high.111
-blocksview 0
-no_pass 0
-x 19
-y 8
 end
 arch floor_flagm2
 z 50
 sub_layer 1
 x 19
-y 9
+y 8
 end
 arch wall_fortified_high.141
 blocksview 0
 no_pass 0
+sub_layer 1
+z -50
 x 19
-y 9
+y 8
 end
 arch water_lt3
 x 19
-y 10
+y 9
 end
 arch bridge_wood_EW.111
+x 19
+y 10
+end
+arch bridge_wood_EW.101
 x 19
 y 11
 end
@@ -2769,30 +2786,40 @@ arch bridge_wood_EW.101
 x 19
 y 12
 end
-arch bridge_wood_EW.101
+arch water_lt2
 x 19
 y 13
 end
-arch water_lt2
-x 19
-y 14
-end
 arch bridge_wood_EW.151
 x 19
-y 14
+y 13
 end
 arch water_lt
 x 19
-y 15
+y 14
 end
 arch water_lt2
 x 19
-y 16
+y 15
 end
 arch wall_fortified_high.131
 blocksview 0
 no_pass 0
 x 19
+y 15
+end
+arch floor_flagm3
+z 50
+sub_layer 1
+x 19
+y 16
+end
+arch wall_fortified_high.111
+blocksview 0
+no_pass 0
+sub_layer 1
+z -50
+x 19
 y 16
 end
 arch floor_flagm3
@@ -2804,30 +2831,26 @@ end
 arch wall_fortified_high.111
 blocksview 0
 no_pass 0
+sub_layer 1
+z -50
 x 19
 y 17
-end
-arch floor_flagm3
-z 50
-sub_layer 1
-x 19
-y 18
-end
-arch wall_fortified_high.111
-blocksview 0
-no_pass 0
-x 19
-y 18
 end
 arch floor_flagm2
 z 50
 sub_layer 1
 x 19
-y 19
+y 18
 end
 arch wall_fortified_high.141
 blocksview 0
 no_pass 0
+sub_layer 1
+z -50
+x 19
+y 18
+end
+arch water_lt3
 x 19
 y 19
 end
@@ -2858,47 +2881,47 @@ arch water_lt4
 x 20
 y 2
 end
-arch water_lt2
+arch water_lt3
 x 20
 y 3
 end
-arch water_lt3
+arch water_lt4
 x 20
 y 4
 end
-arch water_lt4
+arch water_lt
 x 20
 y 5
 end
-arch water_lt
+arch water_lt3
 x 20
 y 6
 end
-arch water_lt3
+arch water_lt4
 x 20
 y 7
 end
 arch water_lt4
 x 20
 y 8
-end
-arch water_lt4
-x 20
-y 9
 end
 arch grassd_m11
 x 20
-y 9
+y 8
 end
 arch water_lt
 x 20
-y 10
+y 9
 end
 arch grassd_m8
 x 20
-y 10
+y 9
 end
 arch bridge_wood_EW.111
+x 20
+y 10
+end
+arch bridge_wood_EW.101
 x 20
 y 11
 end
@@ -2906,44 +2929,44 @@ arch bridge_wood_EW.101
 x 20
 y 12
 end
-arch bridge_wood_EW.101
+arch water_lt4
 x 20
 y 13
 end
-arch water_lt4
-x 20
-y 14
-end
 arch grassd_m8
 x 20
-y 14
+y 13
 end
 arch bridge_wood_EW.151
 sub_layer 1
 x 20
-y 14
+y 13
 end
 arch water_lt3
 x 20
-y 15
+y 14
 end
 arch grassd_m8
 x 20
+y 14
+end
+arch water_lt2
+x 20
+y 15
+end
+arch grassd_m12
+x 20
 y 15
 end
 arch water_lt2
 x 20
 y 16
 end
-arch grassd_m12
-x 20
-y 16
-end
-arch water_lt2
+arch water_lt
 x 20
 y 17
 end
-arch water_lt
+arch water_lt4
 x 20
 y 18
 end
@@ -2982,15 +3005,15 @@ arch water_lt
 x 21
 y 3
 end
-arch water_lt
+arch water_lt4
 x 21
 y 4
 end
-arch water_lt4
+arch water_lt
 x 21
 y 5
 end
-arch water_lt
+arch water_lt2
 x 21
 y 6
 end
@@ -2998,28 +3021,37 @@ arch water_lt2
 x 21
 y 7
 end
-arch water_lt2
+arch water_lt3
 x 21
 y 8
 end
-arch water_lt3
-x 21
-y 9
-end
 arch grassd_m7
 x 21
-y 9
+y 8
 end
 arch grassd_8
 x 21
-y 10
+y 9
+end
+arch brazier_lit
+glow_radius 5
+x 21
+y 9
 end
 arch grassd_1
 x 21
-y 11
+y 10
 end
 arch bridge_wood_EW.121
 x 21
+y 10
+end
+arch grassd_7
+x 21
+y 11
+end
+arch bridge_wood_EW.131
+x 21
 y 11
 end
 arch grassd_7
@@ -3029,40 +3061,41 @@ end
 arch bridge_wood_EW.131
 x 21
 y 12
-end
-arch grassd_7
-x 21
-y 13
-end
-arch bridge_wood_EW.131
-x 21
-y 13
 end
 arch grassd_1
 x 21
-y 14
+y 13
 end
 arch bridge_wood_EW.141
 x 21
-y 14
+y 13
 end
 arch grassd_4
 x 21
-y 15
+y 14
 end
 arch plant1
 x 21
+y 14
+end
+arch brazier_lit
+glow_radius 5
+x 21
+y 14
+end
+arch water_lt4
+x 21
+y 15
+end
+arch grassd_m10
+x 21
 y 15
 end
 arch water_lt4
 x 21
 y 16
 end
-arch grassd_m10
-x 21
-y 16
-end
-arch water_lt4
+arch water_lt2
 x 21
 y 17
 end
@@ -3070,7 +3103,7 @@ arch water_lt2
 x 21
 y 18
 end
-arch water_lt2
+arch water_lt3
 x 21
 y 19
 end
@@ -3101,11 +3134,11 @@ arch water_lt4
 x 22
 y 2
 end
-arch water_lt3
+arch water_lt4
 x 22
 y 3
 end
-arch water_lt4
+arch water_lt2
 x 22
 y 4
 end
@@ -3121,35 +3154,31 @@ arch water_lt2
 x 22
 y 7
 end
-arch water_lt2
-x 22
-y 8
-end
 arch grassd_m11
 x 22
-y 8
+y 7
 end
 arch water_lt
 x 22
-y 9
+y 8
 end
 arch grassd_m5
 x 22
-y 9
+y 8
 end
 arch grassd_7
 x 22
-y 10
+y 9
 end
 arch plant_flower1
 x 22
-y 10
+y 9
 end
 arch grassd_4
 x 22
-y 11
+y 10
 end
-arch light6
+arch grassd_6
 x 22
 y 11
 end
@@ -3161,39 +3190,35 @@ arch grassd_6
 x 22
 y 13
 end
-arch grassd_6
-x 22
-y 14
-end
-arch light6
-x 22
-y 14
-end
 arch grassd_4
 x 22
-y 15
+y 14
 end
 arch water_lt4
 x 22
-y 16
+y 15
 end
 arch grassd_m6
 x 22
-y 16
+y 15
 end
 arch water_lt3
 x 22
-y 17
+y 16
 end
 arch grassd_m12
 x 22
-y 17
+y 16
 end
 arch water_lt
 x 22
-y 18
+y 17
 end
 arch water_lt2
+x 22
+y 18
+end
+arch water_lt4
 x 22
 y 19
 end
@@ -3224,94 +3249,102 @@ arch water_lt3
 x 23
 y 2
 end
-arch water_lt3
+arch water_lt4
 x 23
 y 3
 end
-arch water_lt4
+arch water_lt2
 x 23
 y 4
 end
-arch water_lt2
+arch water_lt
 x 23
 y 5
 end
-arch water_lt
+arch water_lt4
 x 23
 y 6
 end
-arch water_lt4
+arch water_lt
 x 23
 y 7
 end
-arch water_lt
-x 23
-y 8
-end
 arch grassd_m7
 x 23
-y 8
+y 7
 end
 arch grassd_7
 x 23
-y 9
+y 8
 end
 arch spawn_point
 x 23
-y 9
+y 8
 arch guard_royal
 level 70
 unaggressive 0
 type 83
+arch event_obj
+sub_type 6
+race python/generic/guard.py
+end
 end
 end
 arch grassd_3
 x 23
-y 10
+y 9
 end
 arch grassd_5
 x 23
-y 11
+y 10
 end
 arch grassd_2
 x 23
-y 12
+y 11
 end
 arch grassd_1
 x 23
-y 13
+y 12
 end
 arch grassd_3
 x 23
-y 14
+y 13
 end
 arch grassd_7
 x 23
-y 15
+y 14
 end
 arch grassd_2
 x 23
-y 16
+y 15
 end
 arch spawn_point
 x 23
-y 16
+y 15
 arch guard_royal
 direction 1
 level 70
 unaggressive 0
 type 83
+arch event_obj
+sub_type 6
+race python/generic/guard.py
+end
 end
 end
 arch water_lt4
 x 23
-y 17
+y 16
 end
 arch grassd_m10
 x 23
-y 17
+y 16
 end
 arch water_lt
+x 23
+y 17
+end
+arch water_lt3
 x 23
 y 18
 end

@@ -2,7 +2,7 @@ arch map
 name The City of Greyton
 msg
 Created:  2009-09-10 Alex Tokar
-Modified: 2011-11-03 Alex Tokar
+Modified: 2015-04-26 Alex Tokar
 endmsg
 width 24
 height 24
@@ -14,12 +14,20 @@ region greyton
 end
 arch floor_flagm2
 end
-arch fwall_fstone2
+arch wall_flagstone1_w.131
+z 9
+align -18
+end
+arch map_info
+name greyton_wall
+hp 4
+sp 8
+cursed 1
 end
 arch floor_flagm1
 y 1
 end
-arch fwall_fstone2
+arch wall_fstone_round.102
 y 1
 end
 arch floor_flagm2
@@ -37,19 +45,21 @@ end
 arch floor_flagm2
 y 4
 end
-arch fwall_fstone2
+arch wall_fstone_round.104
 y 4
 end
 arch floor_flagm3
 y 5
 end
-arch fwall_fstone2
+arch wall_flagstone1_w.131
+z 9
+align -18
 y 5
 end
 arch floor_flagm1
 y 6
 end
-arch fwall_fstone2
+arch wall_fstone_round.102
 y 6
 end
 arch floor_flagm4
@@ -79,46 +89,52 @@ end
 arch grassd_2
 y 12
 end
-arch grassd_6
+arch grassd_4
 y 13
+end
+arch grassd_6
+y 14
 end
 arch light6
-y 13
+y 14
 end
 arch grassd_5
-y 14
+y 15
 end
 arch fwall_fstone2c
-y 14
+y 15
+end
+arch map_info
+name greyton_wall
+hp 4
+sp 8
+cursed 1
+y 15
 end
 arch floor_flagm1
-y 15
+y 16
 end
 arch fwall_fstone2
-y 15
+y 16
 end
 arch floor_flagm2
-y 16
+y 17
 end
-arch fwall_fstone2
-y 16
+arch wall_fstone_round.104
+y 17
 end
 arch floor_flagm4
-y 17
-end
-arch fwall_fstone2
-y 17
-end
-arch floor_flagm1
 y 18
 end
-arch fwall_fstone2
+arch wall_flagstone1_w.131
+z 9
+align -18
 y 18
 end
 arch floor_flagm1
 y 19
 end
-arch fwall_fstone2
+arch wall_fstone_round.102
 y 19
 end
 arch floor_flagm1
@@ -136,13 +152,15 @@ end
 arch floor_flagm1
 y 22
 end
-arch fwall_fstone2
+arch wall_fstone_round.104
 y 22
 end
 arch floor_flagm1
 y 23
 end
-arch fwall_fstone2
+arch wall_flagstone1_w.131
+z 9
+align -18
 y 23
 end
 arch floor_flagm3
@@ -152,7 +170,17 @@ arch floor_flagm2
 x 1
 y 1
 end
+arch torch_wall_1
+direction 7
+x 1
+y 1
+end
 arch floor_flagm4
+x 1
+y 2
+end
+arch ladder_down2
+direction 7
 x 1
 y 2
 end
@@ -160,7 +188,17 @@ arch floor_flagm4
 x 1
 y 3
 end
+arch ladder_up
+direction 7
+x 1
+y 3
+end
 arch floor_flagm2
+x 1
+y 4
+end
+arch torch_wall_1
+direction 7
 x 1
 y 4
 end
@@ -169,6 +207,11 @@ x 1
 y 5
 end
 arch floor_flagm1
+x 1
+y 6
+end
+arch torch_wall_1
+direction 7
 x 1
 y 6
 end
@@ -224,7 +267,7 @@ connected 101
 x 1
 y 12
 end
-arch grassd_2
+arch grassd_6
 x 1
 y 13
 end
@@ -234,15 +277,21 @@ connected 101
 x 1
 y 13
 end
+arch grassd_2
+x 1
+y 14
+end
+arch pedestal
+hp 1
+connected 101
+x 1
+y 14
+end
 arch floor_flagm1
 x 1
-y 14
+y 15
 end
 arch fwall_fstone2
-x 1
-y 14
-end
-arch floor_flagm4
 x 1
 y 15
 end
@@ -250,7 +299,12 @@ arch floor_flagm4
 x 1
 y 16
 end
-arch floor_flagm1
+arch floor_flagm4
+x 1
+y 17
+end
+arch torch_wall_1
+direction 7
 x 1
 y 17
 end
@@ -262,7 +316,17 @@ arch floor_flagm1
 x 1
 y 19
 end
+arch torch_wall_1
+direction 7
+x 1
+y 19
+end
 arch floor_flagm1
+x 1
+y 20
+end
+arch ladder_up
+direction 7
 x 1
 y 20
 end
@@ -270,7 +334,17 @@ arch floor_flagm1
 x 1
 y 21
 end
+arch ladder_down2
+direction 7
+x 1
+y 21
+end
 arch floor_flagm1
+x 1
+y 22
+end
+arch torch_wall_1
+direction 7
 x 1
 y 22
 end
@@ -381,7 +455,7 @@ connected 101
 x 2
 y 12
 end
-arch grassd_5
+arch grassd_1
 x 2
 y 13
 end
@@ -397,11 +471,19 @@ connected 101
 x 2
 y 13
 end
-arch floor_flagm2
+arch grassd_5
 x 2
 y 14
 end
-arch fwall_fstone2
+arch portcullis_closed
+direction 3
+connected 101
+x 2
+y 14
+end
+arch pedestal
+hp 1
+connected 101
 x 2
 y 14
 end
@@ -409,7 +491,11 @@ arch floor_flagm2
 x 2
 y 15
 end
-arch floor_flagm4
+arch fwall_fstone2
+x 2
+y 15
+end
+arch floor_flagm2
 x 2
 y 16
 end
@@ -417,7 +503,7 @@ arch floor_flagm4
 x 2
 y 17
 end
-arch floor_flagm1
+arch floor_flagm4
 x 2
 y 18
 end
@@ -524,7 +610,11 @@ connected 101
 x 3
 y 12
 end
-arch grassd_4
+arch light6
+x 3
+y 12
+end
+arch grassd_5
 x 3
 y 13
 end
@@ -534,27 +624,33 @@ connected 101
 x 3
 y 13
 end
+arch grassd_4
+x 3
+y 14
+end
+arch pedestal
+hp 1
+connected 101
+x 3
+y 14
+end
 arch floor_flagm1
-x 3
-y 14
-end
-arch fwall_fstone2
-x 3
-y 14
-end
-arch floor_flagm4
 x 3
 y 15
 end
-arch floor_flagm3
+arch fwall_fstone2
+x 3
+y 15
+end
+arch floor_flagm4
 x 3
 y 16
 end
-arch floor_flagm2
+arch floor_flagm3
 x 3
 y 17
 end
-arch floor_flagm1
+arch floor_flagm2
 x 3
 y 18
 end
@@ -621,7 +717,6 @@ x 4
 y 5
 end
 arch door1_locked
-slaying no_key_available_yet
 direction 3
 x 4
 y 5
@@ -650,11 +745,7 @@ arch fwall_fstone2d
 x 4
 y 8
 end
-arch floor_flagm3
-x 4
-y 9
-end
-arch grassd_m4
+arch grassd_6
 x 4
 y 9
 end
@@ -662,21 +753,21 @@ arch spawn_point
 x 4
 y 9
 arch guard_royal
-msg
-@match ^hello$
-Welcome to Greyton!
-endmsg
 name Alvaro Stormcrow
 level 70
 unaggressive 0
 type 83
+arch event_obj
+sub_type 6
+race /python/generic/guard.py
+end
 end
 end
 arch floor_flagm2
 x 4
 y 10
 end
-arch grassd_m9
+arch grassd_m4
 x 4
 y 10
 end
@@ -704,23 +795,19 @@ arch grassd_m3
 x 4
 y 13
 end
-arch grassd_2
+arch grassd_8
 x 4
 y 14
+end
+arch grassd_2
+x 4
+y 15
 end
 arch fwall_fstone2a
 x 4
-y 14
+y 15
 end
 arch floor_flagm1
-x 4
-y 15
-end
-arch fwall_fstone2
-x 4
-y 15
-end
-arch floor_flagm4
 x 4
 y 16
 end
@@ -732,9 +819,7 @@ arch floor_flagm4
 x 4
 y 17
 end
-arch door1_locked
-slaying no_key_available_yet
-direction 3
+arch fwall_fstone2
 x 4
 y 17
 end
@@ -742,7 +827,8 @@ arch floor_flagm4
 x 4
 y 18
 end
-arch fwall_fstone2
+arch door1_locked
+direction 3
 x 4
 y 18
 end
@@ -830,15 +916,15 @@ arch grassd_7
 x 5
 y 8
 end
-arch floor_flagm4
-x 5
-y 9
-end
-arch grassd_m10
+arch grassd_3
 x 5
 y 9
 end
 arch floor_flagm2
+x 5
+y 10
+end
+arch grassd_m10
 x 5
 y 10
 end
@@ -858,38 +944,38 @@ arch grassd_m7
 x 5
 y 13
 end
-arch grassd_4
+arch grassd_8
 x 5
 y 14
 end
+arch grassd_4
+x 5
+y 15
+end
 arch spawn_point
 x 5
-y 14
+y 15
 arch guard_royal
 direction 1
 level 70
 unaggressive 0
 type 83
+arch event_obj
+sub_type 6
+race /python/generic/guard.py
 end
 end
-arch grassd_2
-x 5
-y 15
-end
-arch lantern2_magic.131
-direction 7
-x 5
-y 15
-end
-arch light6
-x 5
-y 15
 end
 arch grassd_8
 x 5
 y 16
 end
-arch plant_mushroom1
+arch lantern2_magic.131
+direction 7
+x 5
+y 16
+end
+arch light6
 x 5
 y 16
 end
@@ -932,6 +1018,12 @@ name greyton_bank
 sub_type 2
 x 6
 end
+arch map_info
+name greyton_bank
+hp 7
+cursed 1
+x 6
+end
 arch grassd_4
 x 6
 y 1
@@ -968,15 +1060,15 @@ arch grassd_7
 x 6
 y 8
 end
-arch floor_flagm4
-x 6
-y 9
-end
-arch grassd_m10
+arch grassd_4
 x 6
 y 9
 end
 arch floor_flagm1
+x 6
+y 10
+end
+arch grassd_m10
 x 6
 y 10
 end
@@ -1042,6 +1134,14 @@ stand_still 1
 x 6
 y 21
 end
+arch map_info
+name greyton_temple
+hp 7
+sp 2
+cursed 1
+x 6
+y 21
+end
 arch grassd_4
 x 6
 y 22
@@ -1100,15 +1200,15 @@ arch grassd_7
 x 7
 y 8
 end
-arch floor_flagm2
-x 7
-y 9
-end
-arch grassd_m10
+arch grassd_3
 x 7
 y 9
 end
 arch floor_flagm3
+x 7
+y 10
+end
+arch grassd_m10
 x 7
 y 10
 end
@@ -1141,10 +1241,6 @@ x 7
 y 16
 end
 arch grassd_5
-x 7
-y 17
-end
-arch tree_big
 x 7
 y 17
 end
@@ -1222,24 +1318,15 @@ arch grassd_7
 x 8
 y 8
 end
-arch lantern_magic.131
-direction 3
-x 8
-y 8
-end
-arch light5
-x 8
-y 8
-end
-arch floor_flagm2
-x 8
-y 9
-end
-arch grassd_m10
+arch grassd_2
 x 8
 y 9
 end
 arch floor_flagm3
+x 8
+y 10
+end
+arch grassd_m10
 x 8
 y 10
 end
@@ -1260,15 +1347,6 @@ x 8
 y 13
 end
 arch grassd_4
-x 8
-y 14
-end
-arch lantern_magic.131
-direction 7
-x 8
-y 14
-end
-arch light5
 x 8
 y 14
 end
@@ -1366,15 +1444,21 @@ arch grassd_2
 x 9
 y 8
 end
-arch floor_flagm1
+arch grassd_7
 x 9
 y 9
+end
+arch lantern_magic.131
+glow_radius 5
+direction 3
+x 9
+y 9
+end
+arch floor_flagm1
+x 9
+y 10
 end
 arch grassd_m10
-x 9
-y 9
-end
-arch floor_flagm1
 x 9
 y 10
 end
@@ -1395,6 +1479,12 @@ x 9
 y 13
 end
 arch grassd_2
+x 9
+y 14
+end
+arch lantern_magic.131
+direction 7
+glow_radius 5
 x 9
 y 14
 end
@@ -1493,15 +1583,15 @@ arch grassd_4
 x 10
 y 8
 end
-arch floor_flagm2
+arch grassd_6
 x 10
 y 9
+end
+arch floor_flagm2
+x 10
+y 10
 end
 arch grassd_m10
-x 10
-y 9
-end
-arch floor_flagm2
 x 10
 y 10
 end
@@ -1616,15 +1706,15 @@ arch grassd_5
 x 11
 y 8
 end
-arch floor_flagm3
-x 11
-y 9
-end
-arch grassd_m10
+arch grassd_1
 x 11
 y 9
 end
 arch floor_flagm2
+x 11
+y 10
+end
+arch grassd_m10
 x 11
 y 10
 end
@@ -1653,6 +1743,10 @@ x 11
 y 15
 end
 arch grassd_2
+x 11
+y 16
+end
+arch tree_big
 x 11
 y 16
 end
@@ -1738,15 +1832,15 @@ arch grassd_4
 x 12
 y 8
 end
-arch floor_flagm2
-x 12
-y 9
-end
-arch grassd_m10
+arch grassd_4
 x 12
 y 9
 end
 arch floor_flagm3
+x 12
+y 10
+end
+arch grassd_m10
 x 12
 y 10
 end
@@ -1864,15 +1958,15 @@ arch grassd_5
 x 13
 y 8
 end
-arch floor_flagm4
+arch grassd_6
 x 13
 y 9
+end
+arch floor_flagm4
+x 13
+y 10
 end
 arch grassd_m10
-x 13
-y 9
-end
-arch floor_flagm4
 x 13
 y 10
 end
@@ -1969,6 +2063,12 @@ arch grassd_7
 x 14
 y 4
 end
+arch lantern_magic.131
+direction 5
+glow_radius 5
+x 14
+y 4
+end
 arch grassd_8
 x 14
 y 5
@@ -1981,28 +2081,25 @@ arch grassd_7
 x 14
 y 7
 end
-arch lantern_magic.131
-direction 5
-x 14
-y 7
-end
-arch light5
-x 14
-y 7
-end
 arch grassd_2
 x 14
 y 8
 end
-arch floor_flagm1
+arch grassd_5
 x 14
 y 9
 end
-arch grassd_m10
+arch lantern_magic.131
+glow_radius 5
+direction 3
 x 14
 y 9
 end
 arch floor_flagm3
+x 14
+y 10
+end
+arch grassd_m10
 x 14
 y 10
 end
@@ -2027,11 +2124,8 @@ x 14
 y 14
 end
 arch lantern_magic.131
-direction 5
-x 14
-y 14
-end
-arch light5
+direction 7
+glow_radius 5
 x 14
 y 14
 end
@@ -2055,16 +2149,13 @@ arch grassd_1
 x 14
 y 19
 end
-arch grassd_3
-x 14
-y 20
-end
 arch lantern_magic.131
 direction 5
+glow_radius 5
 x 14
-y 20
+y 19
 end
-arch light5
+arch grassd_3
 x 14
 y 20
 end
@@ -2158,7 +2249,15 @@ arch grassd_m13
 x 15
 y 9
 end
+arch grassd_m9
+x 15
+y 9
+end
 arch floor_flagm4
+x 15
+y 10
+end
+arch grassd_m13
 x 15
 y 10
 end
@@ -2645,14 +2744,6 @@ arch grassd_5
 x 19
 y 1
 end
-arch lantern_magic.131
-x 19
-y 1
-end
-arch light5
-x 19
-y 1
-end
 arch grassd_5
 x 19
 y 2
@@ -2662,6 +2753,11 @@ x 19
 y 3
 end
 arch grassd_3
+x 19
+y 4
+end
+arch lantern_magic.131
+glow_radius 5
 x 19
 y 4
 end
@@ -2677,19 +2773,16 @@ arch grassd_1
 x 19
 y 7
 end
-arch lantern_magic.131
-x 19
-y 7
-end
-arch light5
-x 19
-y 7
-end
 arch grassd_8
 x 19
 y 8
 end
 arch grassd_2
+x 19
+y 9
+end
+arch lantern_magic.131
+glow_radius 5
 x 19
 y 9
 end
@@ -2718,10 +2811,7 @@ x 19
 y 14
 end
 arch lantern_magic.131
-x 19
-y 14
-end
-arch light5
+glow_radius 5
 x 19
 y 14
 end
@@ -2749,15 +2839,12 @@ arch grassd_8
 x 19
 y 19
 end
-arch grassd_8
-x 19
-y 20
-end
 arch lantern_magic.131
+glow_radius 5
 x 19
-y 20
+y 19
 end
-arch light5
+arch grassd_8
 x 19
 y 20
 end

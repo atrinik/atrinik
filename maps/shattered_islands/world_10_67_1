@@ -1,0 +1,1390 @@
+arch map
+name The City of Greyton
+msg
+Created:  2015-04-26 Alex Tokar
+Modified: 2015-04-26 Alex Tokar
+endmsg
+width 24
+height 24
+difficulty 1
+darkness -1
+outdoor 1
+no_harm 1
+bg_music town_music.ogg
+region greyton
+end
+arch floor_flagm4
+end
+arch wall_flagstone1_w.111
+z 9
+align 18
+end
+arch map_info
+name greyton_wall
+hp 23
+sp 4
+cursed 1
+end
+arch floor_flagm3
+y 1
+end
+arch floor_flagm4
+y 2
+end
+arch floor_flagm4
+y 3
+end
+arch floor_flagm1
+y 4
+end
+arch wall_flagstone1_w.111
+y 4
+end
+arch roof_wood
+direction 5
+y 6
+end
+arch roof_wood
+direction 7
+y 7
+end
+arch roof_wood
+direction 7
+y 8
+end
+arch roof_wood
+direction 7
+y 9
+end
+arch roof_wood
+direction 7
+y 10
+end
+arch roof_wood
+direction 8
+y 11
+end
+arch roof_wood
+y 12
+end
+arch roof_wood
+y 13
+end
+arch floor_flagm2
+x 1
+end
+arch wall_fstone_round.106
+x 1
+end
+arch floor_flagm1
+x 1
+y 1
+end
+arch torch_wall_1
+x 1
+y 1
+end
+arch floor_flagm3
+x 1
+y 2
+end
+arch floor_flagm3
+x 1
+y 3
+end
+arch floor_flagm1
+x 1
+y 4
+end
+arch wall_fstone_round.108
+x 1
+y 4
+end
+arch roof_wood
+direction 5
+x 1
+y 6
+end
+arch roof_wood
+direction 7
+x 1
+y 7
+end
+arch roof_wood
+direction 7
+x 1
+y 8
+end
+arch roof_wood
+direction 7
+x 1
+y 9
+end
+arch roof_wood
+direction 7
+x 1
+y 10
+end
+arch roof_wood
+direction 7
+x 1
+y 11
+end
+arch roof_wood
+direction 8
+x 1
+y 12
+end
+arch roof_wood
+x 1
+y 13
+end
+arch floor_flagm3
+x 2
+end
+arch fwall_fstone2
+x 2
+end
+arch floor_flagm3
+x 2
+y 1
+end
+arch floor_flagm2
+x 2
+y 2
+end
+arch floor_flagm2
+x 2
+y 3
+end
+arch floor_flagm2
+x 2
+y 4
+end
+arch fwall_fstone2
+x 2
+y 4
+end
+arch roof_wood
+direction 5
+x 2
+y 6
+end
+arch roof_wood
+direction 7
+x 2
+y 7
+end
+arch roof_wood
+direction 7
+x 2
+y 8
+end
+arch roof_wood
+direction 7
+x 2
+y 9
+end
+arch roof_wood
+direction 7
+x 2
+y 10
+end
+arch roof_wood
+direction 7
+x 2
+y 11
+end
+arch roof_wood
+direction 7
+x 2
+y 12
+end
+arch roof_wood
+direction 8
+x 2
+y 13
+end
+arch floor_flagm1
+x 3
+end
+arch fwall_fstone2
+x 3
+end
+arch floor_flagm1
+x 3
+y 1
+end
+arch floor_flagm1
+x 3
+y 2
+end
+arch floor_flagm1
+x 3
+y 3
+end
+arch floor_flagm1
+x 3
+y 4
+end
+arch fwall_fstone2
+x 3
+y 4
+end
+arch floor_flagm1
+x 4
+end
+arch wall_fstone_round.104
+x 4
+end
+arch floor_flagm2
+x 4
+y 1
+end
+arch torch_wall_1
+x 4
+y 1
+end
+arch floor_flagm1
+x 4
+y 2
+end
+arch floor_flagm3
+x 4
+y 3
+end
+arch floor_flagm3
+x 4
+y 4
+end
+arch wall_fstone_round.102
+x 4
+y 4
+end
+arch floor_flagm2
+x 5
+end
+arch wall_flagstone1_w.111
+z 9
+align 18
+x 5
+end
+arch floor_flagm3
+x 5
+y 1
+end
+arch floor_flagm2
+x 5
+y 2
+end
+arch floor_flagm4
+x 5
+y 3
+end
+arch floor_flagm1
+x 5
+y 4
+end
+arch wall_flagstone1_w.111
+x 5
+y 4
+end
+arch roof_brick_gray
+direction 3
+x 5
+y 7
+end
+arch roof_brick_gray
+direction 3
+x 5
+y 8
+end
+arch roof_brick_gray
+direction 3
+x 5
+y 9
+end
+arch roof_brick_gray
+direction 3
+x 5
+y 10
+end
+arch roof_brick_gray
+direction 3
+x 5
+y 11
+end
+arch roof_brick_gray
+direction 3
+x 5
+y 12
+end
+arch roof_brick_gray
+direction 3
+x 5
+y 13
+end
+arch floor_flagm2
+x 6
+end
+arch wall_fstone_round.106
+x 6
+end
+arch floor_flagm4
+x 6
+y 1
+end
+arch torch_wall_1
+x 6
+y 1
+end
+arch floor_flagm4
+x 6
+y 2
+end
+arch floor_flagm1
+x 6
+y 3
+end
+arch floor_flagm1
+x 6
+y 4
+end
+arch wall_fstone_round.108
+x 6
+y 4
+end
+arch roof_brick_gray
+direction 5
+x 6
+y 6
+end
+arch roof_brick_gray
+x 6
+y 7
+end
+arch roof_brick_gray
+x 6
+y 8
+end
+arch roof_brick_gray
+x 6
+y 9
+end
+arch roof_brick_gray
+x 6
+y 10
+end
+arch roof_brick_gray
+x 6
+y 11
+end
+arch roof_brick_gray
+x 6
+y 12
+end
+arch roof_brick_gray
+x 6
+y 13
+end
+arch floor_flagm3
+x 7
+end
+arch fwall_fstone2
+x 7
+end
+arch floor_flagm3
+x 7
+y 1
+end
+arch floor_flagm1
+x 7
+y 2
+end
+arch floor_flagm1
+x 7
+y 3
+end
+arch floor_flagm2
+x 7
+y 4
+end
+arch fwall_fstone2
+x 7
+y 4
+end
+arch roof_brick_gray
+direction 5
+x 7
+y 6
+end
+arch roof_brick_gray
+x 7
+y 7
+end
+arch roof_brick_gray
+x 7
+y 8
+end
+arch roof_brick_gray
+x 7
+y 9
+end
+arch roof_brick_gray
+x 7
+y 10
+end
+arch roof_brick_gray
+x 7
+y 11
+end
+arch roof_brick_gray
+x 7
+y 12
+end
+arch roof_brick_gray
+x 7
+y 13
+end
+arch floor_flagm3
+x 8
+end
+arch fwall_fstone2
+x 8
+end
+arch floor_flagm4
+x 8
+y 1
+end
+arch floor_flagm1
+x 8
+y 2
+end
+arch floor_flagm2
+x 8
+y 3
+end
+arch floor_flagm1
+x 8
+y 4
+end
+arch fwall_fstone2
+x 8
+y 4
+end
+arch roof_brick_gray
+direction 5
+x 8
+y 6
+end
+arch roof_brick_gray
+x 8
+y 7
+end
+arch roof_brick_gray
+x 8
+y 8
+end
+arch roof_brick_gray
+x 8
+y 9
+end
+arch roof_brick_gray
+x 8
+y 10
+end
+arch roof_brick_gray
+x 8
+y 11
+end
+arch roof_brick_gray
+x 8
+y 12
+end
+arch roof_brick_gray
+x 8
+y 13
+end
+arch floor_flagm4
+x 9
+end
+arch wall_fstone_round.104
+x 9
+end
+arch floor_flagm4
+x 9
+y 1
+end
+arch torch_wall_1
+x 9
+y 1
+end
+arch floor_flagm1
+x 9
+y 2
+end
+arch floor_flagm4
+x 9
+y 3
+end
+arch floor_flagm4
+x 9
+y 4
+end
+arch wall_fstone_round.102
+x 9
+y 4
+end
+arch roof_brick_gray
+direction 5
+x 9
+y 6
+end
+arch roof_brick_gray
+x 9
+y 7
+end
+arch roof_brick_gray
+x 9
+y 8
+end
+arch roof_brick_gray
+x 9
+y 9
+end
+arch roof_brick_gray
+x 9
+y 10
+end
+arch roof_brick_gray
+x 9
+y 11
+end
+arch roof_brick_gray
+x 9
+y 12
+end
+arch roof_brick_gray
+x 9
+y 13
+end
+arch floor_flagm2
+x 10
+end
+arch wall_flagstone1_w.111
+z 9
+align 18
+x 10
+end
+arch floor_flagm1
+x 10
+y 1
+end
+arch floor_flagm1
+x 10
+y 2
+end
+arch floor_flagm2
+x 10
+y 3
+end
+arch floor_flagm1
+x 10
+y 4
+end
+arch wall_flagstone1_w.111
+x 10
+y 4
+end
+arch roof_brick_gray
+direction 5
+x 10
+y 6
+end
+arch roof_brick_gray
+x 10
+y 7
+end
+arch roof_brick_gray
+x 10
+y 8
+end
+arch roof_brick_gray
+x 10
+y 9
+end
+arch roof_brick_gray
+x 10
+y 10
+end
+arch roof_brick_gray
+x 10
+y 11
+end
+arch roof_brick_gray
+x 10
+y 12
+end
+arch roof_brick_gray
+x 10
+y 13
+end
+arch floor_flagm4
+x 11
+end
+arch wall_fstone_round.106
+x 11
+end
+arch floor_flagm2
+x 11
+y 1
+end
+arch torch_wall_1
+x 11
+y 1
+end
+arch floor_flagm4
+x 11
+y 2
+end
+arch floor_flagm3
+x 11
+y 3
+end
+arch floor_flagm3
+x 11
+y 4
+end
+arch wall_fstone_round.108
+x 11
+y 4
+end
+arch roof_brick_gray
+direction 5
+x 11
+y 6
+end
+arch roof_brick_gray
+x 11
+y 7
+end
+arch roof_brick_gray
+x 11
+y 8
+end
+arch roof_brick_gray
+x 11
+y 9
+end
+arch roof_brick_gray
+x 11
+y 10
+end
+arch roof_brick_gray
+x 11
+y 11
+end
+arch roof_brick_gray
+x 11
+y 12
+end
+arch roof_brick_gray
+x 11
+y 13
+end
+arch floor_flagm2
+x 12
+end
+arch wall_fstone_round.104
+x 12
+end
+arch floor_flagm2
+x 12
+y 1
+end
+arch torch_wall_1
+x 12
+y 1
+end
+arch floor_flagm1
+x 12
+y 2
+end
+arch floor_flagm2
+x 12
+y 3
+end
+arch floor_flagm4
+x 12
+y 4
+end
+arch wall_fstone_round.102
+x 12
+y 4
+end
+arch roof_brick_gray
+direction 5
+x 12
+y 6
+end
+arch roof_brick_gray
+x 12
+y 7
+end
+arch roof_brick_gray
+x 12
+y 8
+end
+arch roof_brick_gray
+x 12
+y 9
+end
+arch roof_brick_gray
+x 12
+y 10
+end
+arch roof_brick_gray
+x 12
+y 11
+end
+arch roof_brick_gray
+x 12
+y 12
+end
+arch roof_brick_gray
+x 12
+y 13
+end
+arch floor_flagm4
+x 13
+end
+arch wall_flagstone1_w.111
+z 9
+align 18
+x 13
+end
+arch floor_flagm3
+x 13
+y 1
+end
+arch floor_flagm3
+x 13
+y 2
+end
+arch floor_flagm2
+x 13
+y 3
+end
+arch floor_flagm3
+x 13
+y 4
+end
+arch wall_flagstone1_w.111
+x 13
+y 4
+end
+arch roof_brick_gray
+direction 5
+x 13
+y 6
+end
+arch roof_brick_gray
+x 13
+y 7
+end
+arch roof_brick_gray
+x 13
+y 8
+end
+arch roof_brick_gray
+x 13
+y 9
+end
+arch roof_brick_gray
+x 13
+y 10
+end
+arch roof_brick_gray
+x 13
+y 11
+end
+arch roof_brick_gray
+x 13
+y 12
+end
+arch roof_brick_gray
+x 13
+y 13
+end
+arch floor_flagm4
+x 14
+end
+arch wall_fstone_round.106
+x 14
+end
+arch floor_flagm2
+x 14
+y 1
+end
+arch torch_wall_1
+x 14
+y 1
+end
+arch floor_flagm4
+x 14
+y 2
+end
+arch floor_flagm1
+x 14
+y 3
+end
+arch floor_flagm1
+x 14
+y 4
+end
+arch wall_fstone_round.108
+x 14
+y 4
+end
+arch roof_brick_gray
+direction 5
+x 14
+y 6
+end
+arch roof_brick_gray
+x 14
+y 7
+end
+arch roof_brick_gray
+x 14
+y 8
+end
+arch roof_brick_gray
+x 14
+y 9
+end
+arch roof_brick_gray
+x 14
+y 10
+end
+arch roof_brick_gray
+x 14
+y 11
+end
+arch roof_brick_gray
+x 14
+y 12
+end
+arch roof_brick_gray
+x 14
+y 13
+end
+arch floor_flagm2
+x 15
+end
+arch fwall_fstone2
+x 15
+end
+arch floor_flagm1
+x 15
+y 1
+end
+arch floor_flagm1
+x 15
+y 2
+end
+arch floor_flagm1
+x 15
+y 3
+end
+arch floor_flagm1
+x 15
+y 4
+end
+arch fwall_fstone2
+x 15
+y 4
+end
+arch roof_brick_gray
+direction 5
+x 15
+y 6
+end
+arch roof_brick_gray
+direction 8
+x 15
+y 7
+end
+arch roof_brick_gray
+x 15
+y 8
+end
+arch roof_brick_gray
+x 15
+y 9
+end
+arch roof_brick_gray
+x 15
+y 10
+end
+arch roof_brick_gray
+x 15
+y 11
+end
+arch roof_brick_gray
+x 15
+y 12
+end
+arch roof_brick_gray
+x 15
+y 13
+end
+arch floor_flagm1
+x 16
+end
+arch fwall_fstone2
+x 16
+end
+arch floor_flagm1
+x 16
+y 1
+end
+arch floor_flagm4
+x 16
+y 2
+end
+arch floor_flagm1
+x 16
+y 3
+end
+arch floor_flagm4
+x 16
+y 4
+end
+arch fwall_fstone2
+x 16
+y 4
+end
+arch roof_brick_gray
+direction 5
+x 16
+y 6
+end
+arch roof_brick_gray
+direction 7
+x 16
+y 7
+end
+arch roof_brick_gray
+direction 8
+x 16
+y 8
+end
+arch roof_brick_gray
+x 16
+y 9
+end
+arch roof_brick_gray
+x 16
+y 10
+end
+arch roof_brick_gray
+x 16
+y 11
+end
+arch roof_brick_gray
+x 16
+y 12
+end
+arch roof_brick_gray
+x 16
+y 13
+end
+arch floor_flagm1
+x 17
+end
+arch wall_fstone_round.104
+x 17
+end
+arch floor_flagm4
+x 17
+y 1
+end
+arch torch_wall_1
+x 17
+y 1
+end
+arch floor_flagm1
+x 17
+y 2
+end
+arch floor_flagm2
+x 17
+y 3
+end
+arch floor_flagm1
+x 17
+y 4
+end
+arch wall_fstone_round.102
+x 17
+y 4
+end
+arch roof_brick_gray
+direction 5
+x 17
+y 6
+end
+arch roof_brick_gray
+direction 7
+x 17
+y 7
+end
+arch roof_brick_gray
+direction 7
+x 17
+y 8
+end
+arch roof_brick_gray
+direction 8
+x 17
+y 9
+end
+arch roof_brick_gray
+x 17
+y 10
+end
+arch roof_brick_gray
+x 17
+y 11
+end
+arch roof_brick_gray
+x 17
+y 12
+end
+arch roof_brick_gray
+x 17
+y 13
+end
+arch floor_flagm1
+x 18
+end
+arch wall_flagstone1_w.111
+z 9
+align 18
+x 18
+end
+arch floor_flagm3
+x 18
+y 1
+end
+arch floor_flagm3
+x 18
+y 2
+end
+arch floor_flagm2
+x 18
+y 3
+end
+arch floor_flagm2
+x 18
+y 4
+end
+arch wall_flagstone1_w.111
+x 18
+y 4
+end
+arch roof_brick_gray
+direction 5
+x 18
+y 6
+end
+arch roof_brick_gray
+direction 7
+x 18
+y 7
+end
+arch roof_brick_gray
+direction 7
+x 18
+y 8
+end
+arch roof_brick_gray
+direction 7
+x 18
+y 9
+end
+arch roof_brick_gray
+direction 8
+x 18
+y 10
+end
+arch roof_brick_gray
+x 18
+y 11
+end
+arch roof_brick_gray
+x 18
+y 12
+end
+arch roof_brick_gray
+x 18
+y 13
+end
+arch floor_flagm3
+x 19
+end
+arch wall_fstone_round.106
+x 19
+end
+arch floor_flagm1
+x 19
+y 1
+end
+arch torch_wall_1
+x 19
+y 1
+end
+arch floor_flagm1
+x 19
+y 2
+end
+arch floor_flagm1
+x 19
+y 3
+end
+arch floor_flagm3
+x 19
+y 4
+end
+arch wall_fstone_round.108
+x 19
+y 4
+end
+arch roof_brick_gray
+direction 5
+x 19
+y 6
+end
+arch roof_brick_gray
+direction 7
+x 19
+y 7
+end
+arch roof_brick_gray
+direction 7
+x 19
+y 8
+end
+arch roof_brick_gray
+direction 7
+x 19
+y 9
+end
+arch roof_brick_gray
+direction 7
+x 19
+y 10
+end
+arch roof_brick_gray
+direction 8
+x 19
+y 11
+end
+arch roof_brick_gray
+x 19
+y 12
+end
+arch roof_brick_gray
+x 19
+y 13
+end
+arch floor_flagm4
+x 20
+end
+arch fwall_fstone2
+x 20
+end
+arch floor_flagm1
+x 20
+y 1
+end
+arch floor_flagm4
+x 20
+y 2
+end
+arch floor_flagm2
+x 20
+y 3
+end
+arch floor_flagm2
+x 20
+y 4
+end
+arch fwall_fstone2
+x 20
+y 4
+end
+arch roof_brick_gray
+direction 5
+x 20
+y 6
+end
+arch roof_brick_gray
+direction 7
+x 20
+y 7
+end
+arch roof_brick_gray
+direction 7
+x 20
+y 8
+end
+arch roof_brick_gray
+direction 7
+x 20
+y 9
+end
+arch roof_brick_gray
+direction 7
+x 20
+y 10
+end
+arch roof_brick_gray
+direction 7
+x 20
+y 11
+end
+arch roof_brick_gray
+direction 8
+x 20
+y 12
+end
+arch roof_brick_gray
+x 20
+y 13
+end
+arch floor_flagm1
+x 21
+end
+arch fwall_fstone2
+x 21
+end
+arch floor_flagm2
+x 21
+y 1
+end
+arch floor_flagm3
+x 21
+y 2
+end
+arch floor_flagm3
+x 21
+y 3
+end
+arch floor_flagm1
+x 21
+y 4
+end
+arch fwall_fstone2
+x 21
+y 4
+end
+arch roof_brick_gray
+direction 5
+x 21
+y 6
+end
+arch roof_brick_gray
+direction 7
+x 21
+y 7
+end
+arch roof_brick_gray
+direction 7
+x 21
+y 8
+end
+arch roof_brick_gray
+direction 7
+x 21
+y 9
+end
+arch roof_brick_gray
+direction 7
+x 21
+y 10
+end
+arch roof_brick_gray
+direction 7
+x 21
+y 11
+end
+arch roof_brick_gray
+direction 7
+x 21
+y 12
+end
+arch roof_brick_gray
+direction 8
+x 21
+y 13
+end
+arch floor_flagm2
+x 22
+end
+arch wall_fstone_round.104
+x 22
+end
+arch floor_flagm3
+x 22
+y 1
+end
+arch torch_wall_1
+x 22
+y 1
+end
+arch floor_flagm4
+x 22
+y 2
+end
+arch floor_flagm4
+x 22
+y 3
+end
+arch floor_flagm1
+x 22
+y 4
+end
+arch wall_fstone_round.102
+x 22
+y 4
+end
+arch floor_flagm2
+x 23
+end
+arch wall_flagstone1_w.111
+z 9
+align 18
+x 23
+end
+arch floor_flagm4
+x 23
+y 1
+end
+arch floor_flagm3
+x 23
+y 2
+end
+arch floor_flagm2
+x 23
+y 3
+end
+arch floor_flagm1
+x 23
+y 4
+end
+arch wall_flagstone1_w.111
+x 23
+y 4
+end
