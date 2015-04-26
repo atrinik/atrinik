@@ -1518,9 +1518,22 @@ void map_draw_map(SDL_Surface *surface)
                 if (w == map_width && h == map_height && distance <= 3 &&
                         (x >= map_width / 2 && y >= map_height / 2)) {
                     bool cull = false;
+                    int range = 2;
 
-                    for (int nx = x - 2; nx <= x && !cull; nx++) {
-                        for (int ny = y - 2; ny <= y && !cull; ny++) {
+                    for (int sub_layer2 = NUM_SUB_LAYERS - 1; sub_layer2 > 0;
+                            sub_layer2--) {
+                        if (cell->height[GET_MAP_LAYER(LAYER_EFFECT,
+                                sub_layer2)] - player_height_offset > 50) {
+                            range = 0;
+                        }
+                    }
+
+                    if (range == 0) {
+                        cull = true;
+                    }
+
+                    for (int nx = x - range; nx <= x && !cull; nx++) {
+                        for (int ny = y - range; ny <= y && !cull; ny++) {
                             MapCell *cell2 = MAP_CELL_GET_MIDDLE_IF(nx, ny,
                                     w, h);
 
@@ -1538,7 +1551,7 @@ void map_draw_map(SDL_Surface *surface)
                         }
                     }
 
-                    if (cull) {
+                    if (cull && range != 0) {
                         continue;
                     }
                 }
