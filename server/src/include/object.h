@@ -529,6 +529,11 @@ typedef struct oblnk {
  * time if you know the inserted object is not meaningful in
  * terms of having an effect. */
 #define INS_NO_WALK_ON 2
+/**
+ * Fall through to the bottommost map. Will also take care of updating the
+ * object's sub-layer to be that of the floor tile with the highest Z.
+ */
+#define INS_FALL_THROUGH 4
 /*@}*/
 
 /**

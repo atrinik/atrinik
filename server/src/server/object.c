@@ -1680,9 +1680,58 @@ object *insert_ob_in_map(object *op, mapstruct *m, object *originator, int flag)
         SET_OR_CLEAR_MULTI_FLAG_IF_CLONE(op, FLAG_BLOCKSVIEW);
     }
 
+    int fall_floors = 0;
+
+    if (flag & INS_FALL_THROUGH) {
+        mapstruct *tiled;
+        object *floor, *floor_tmp;
+        int z_highest, sub_layer, z;
+        bool found_floor;
+
+        for (tiled = m; tiled != NULL; tiled =
+                get_map_from_tiled(tiled, TILED_DOWN)) {
+            floor = GET_MAP_OB_LAYER(tiled, op->x, op->y, LAYER_FLOOR,
+                                     op->sub_layer);
+            z = floor != NULL ? floor->z : 0;
+            z_highest = 0;
+            sub_layer = 0;
+            found_floor = false;
+
+            if (tiled != m) {
+                fall_floors++;
+            }
+
+            FOR_MAP_LAYER_BEGIN(tiled, op->x, op->y, LAYER_FLOOR, -1,
+                                floor_tmp) {
+                found_floor = true;
+
+                if (floor_tmp->z - z > MOVE_MAX_HEIGHT_DIFF) {
+                    continue;
+                }
+
+                if (floor_tmp->z > z_highest) {
+                    z_highest = floor_tmp->z;
+                    sub_layer = floor_tmp->sub_layer;
+                }
+            } FOR_MAP_LAYER_END
+
+            if (found_floor || QUERY_FLAG(op, FLAG_FLYING)) {
+                break;
+            }
+        }
+
+        if (found_floor) {
+            op->sub_layer = sub_layer;
+            m = tiled;
+        }
+
+        flag &= ~INS_FALL_THROUGH;
+    }
+
     if (op->more) {
         op->more->x = HEAD(op)->x + op->more->arch->clone.x;
         op->more->y = HEAD(op)->y + op->more->arch->clone.y;
+        op->more->sub_layer = HEAD(op)->sub_layer;
 
         if (insert_ob_in_map(op->more, m, originator, flag) == NULL) {
             return NULL;
@@ -1792,6 +1841,23 @@ object *insert_ob_in_map(object *op, mapstruct *m, object *originator, int flag)
     mc->update_tile++;
     /* Update flags for this tile. */
     update_object(op, UP_OBJ_INSERT);
+
+    if (fall_floors != 0 && IS_LIVE(op)) {
+        object *damager;
+        tag_t op_tag;
+
+        damager = get_archetype("falling");
+        damager->stats.dam += (op->weight + op->carrying) / 5000 * fall_floors;
+        damager->level = op->level;
+
+        op_tag = op->count;
+        hit_player(op, damager->stats.dam, damager);
+        object_destroy(damager);
+
+        if (was_destroyed(op, op_tag)) {
+            return NULL;
+        }
+    }
 
     /* Attempt to open doors. */
     door_try_open(op, op->map, op->x, op->y, 0);

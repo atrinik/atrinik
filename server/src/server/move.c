@@ -60,9 +60,6 @@ int get_randomized_dir(int dir)
 int object_move_to(object *op, int dir, object *originator, mapstruct *m,
         int x, int y)
 {
-    object *tmp, *floor, *floor_tmp;
-    int z, z_highest, sub_layer;
-
     HARD_ASSERT(op != NULL);
     HARD_ASSERT(originator != NULL);
     HARD_ASSERT(m != NULL);
@@ -72,33 +69,11 @@ int object_move_to(object *op, int dir, object *originator, mapstruct *m,
     SOFT_ASSERT_RC(x >= 0 && x < m->width, 0, "Invalid X coordinate: %d", x);
     SOFT_ASSERT_RC(y >= 0 && y < m->height, 0, "Invalid Y coordinate: %d", y);
 
-    floor = GET_MAP_OB_LAYER(op->map, op->x, op->y, LAYER_FLOOR, op->sub_layer);
-    z = floor != NULL ? floor->z : 0;
-    z_highest = 0;
-    sub_layer = 0;
-
-    FOR_MAP_LAYER_BEGIN(m, x, y, LAYER_FLOOR, -1, floor_tmp)
-    {
-        if (floor_tmp->z - z > MOVE_MAX_HEIGHT_DIFF) {
-            continue;
-        }
-
-        if (floor_tmp->z > z_highest) {
-            z_highest = floor_tmp->z;
-            sub_layer = floor_tmp->sub_layer;
-        }
-    }
-    FOR_MAP_LAYER_END
-
     object_remove(op, 0);
 
-    for (tmp = op; tmp != NULL; tmp = tmp->more) {
-        tmp->x += freearr_x[dir];
-        tmp->y += freearr_y[dir];
-        tmp->sub_layer = sub_layer;
-    }
-
-    insert_ob_in_map(op, op->map, originator, 0);
+    op->x = x;
+    op->y = y;
+    insert_ob_in_map(op, m, originator, INS_FALL_THROUGH);
 
     return 1;
 }
