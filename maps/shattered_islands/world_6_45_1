@@ -2,1038 +2,809 @@ arch map
 name Asteria
 msg
 Created:  2010-08-26 Alex Tokar
-Modified: 2011-05-13 Alex Tokar
+Modified: 2015-04-26 emperorbma
 endmsg
 width 24
 height 24
 difficulty 20
 darkness 4
+outdoor 1
 no_harm 1
 bg_music chether.mid
 region asteria
 end
-arch magic_mirror
-slaying world_6_45
-last_eat -50
-last_heal 80
-path_attuned 124
+arch trans
+y 8
 end
-arch magic_mirror
-slaying world_6_45
-last_eat -50
-last_heal 80
-path_attuned 124
-y 1
+arch wall_flagstone2.111
+y 8
 end
-arch magic_mirror
-slaying world_6_45
-last_eat -50
-last_heal 80
-path_attuned 124
-y 2
+arch map_info
+name asteria_court
+hp 4
+sp 10
+cursed 1
+y 8
 end
-arch magic_mirror
-slaying world_6_45
-last_eat -50
-last_heal 80
-path_attuned 124
-y 3
+arch floor_grey7
+y 9
 end
-arch magic_mirror
-slaying world_6_45
-last_eat -50
-last_heal 80
-path_attuned 124
-y 4
+arch floor_grey7
+y 10
 end
-arch magic_mirror
-slaying world_6_45
-last_eat -50
-y 5
+arch floor_grey7
+y 11
 end
-arch magic_mirror
-slaying world_6_45
-last_eat -50
-last_heal 80
-path_attuned 124
+arch wall_flagstone2.111
+y 11
+end
+arch floor_wood2
+y 12
+end
+arch locker4
+y 12
+end
+arch floor_wood2
+y 13
+end
+arch floor_wood2
+y 14
+end
+arch floor_wood2
+y 15
+end
+arch wall_flagstone2.111
+y 15
+end
+arch floor_wood2_l2
+y 16
+end
+arch floor_wood2_l2
+y 17
+end
+arch floor_wood2_l2
+y 18
+end
+arch wall_flagstone2.111
+y 18
+end
+arch trans
 x 1
+y 8
 end
-arch magic_mirror
-slaying world_6_45
-last_eat -50
-last_heal 80
-path_attuned 124
+arch wall_flagstone2.111
 x 1
-y 1
+y 8
 end
-arch magic_mirror
-slaying world_6_45
-last_eat -50
-last_heal 80
-path_attuned 124
+arch floor_grey7
 x 1
-y 2
+y 9
 end
-arch magic_mirror
-slaying world_6_45
-last_eat -50
-last_heal 80
-path_attuned 124
+arch wall_flagstone2.131
 x 1
-y 3
+y 9
 end
-arch magic_mirror
-slaying world_6_45
-last_eat -50
-last_heal 80
-path_attuned 124
+arch floor_grey7
 x 1
-y 4
+y 10
 end
-arch magic_mirror
-slaying world_6_45
-last_eat -50
+arch door1_locked
+direction 3
 x 1
-y 5
+y 10
 end
-arch magic_mirror
-slaying world_6_45
-last_eat -50
-last_heal 80
-path_attuned 124
+arch floor_grey7
+x 1
+y 11
+end
+arch wall_flagstone2.141
+x 1
+y 11
+end
+arch floor_wood2
+x 1
+y 12
+end
+arch wall_flagstone2.131
+x 1
+y 12
+end
+arch floor_wood2
+x 1
+y 13
+end
+arch wall_flagstone2.131
+x 1
+y 13
+end
+arch floor_wood2
+x 1
+y 14
+end
+arch wall_flagstone2.131
+x 1
+y 14
+end
+arch floor_wood2
+x 1
+y 15
+end
+arch wall_flagstone2.141
+x 1
+y 15
+end
+arch floor_wood2_l2
+x 1
+y 16
+end
+arch floor_wood2_l2
+x 1
+y 17
+end
+arch floor_wood2_l2
+x 1
+y 18
+end
+arch wall_flagstone2.111
+x 1
+y 18
+end
+arch trans
 x 2
+y 8
 end
-arch magic_mirror
-slaying world_6_45
-last_eat -50
-last_heal 80
-path_attuned 124
+arch wall_flagstone2.111
 x 2
-y 1
+y 8
 end
-arch magic_mirror
-slaying world_6_45
-last_eat -50
-last_heal 80
-path_attuned 124
+arch floor_wood2_l2
 x 2
-y 2
+y 9
 end
-arch magic_mirror
-slaying world_6_45
-last_eat -50
-last_heal 80
-path_attuned 124
+arch stairs_stone_down
 x 2
-y 3
+y 9
 end
-arch magic_mirror
-slaying world_6_45
-last_eat -50
-last_heal 80
-path_attuned 124
+arch floor_wood2_l2
 x 2
-y 4
+y 10
 end
-arch magic_mirror
-slaying world_6_45
-last_eat -50
+arch floor_wood2_l2
 x 2
-y 5
+y 11
 end
-arch magic_mirror
-slaying world_6_45
-last_eat -50
-last_heal 80
-path_attuned 124
+arch floor_wood2_l2
+x 2
+y 12
+end
+arch floor_wood2_l2
+x 2
+y 13
+end
+arch torch_wall_1
+direction 7
+x 2
+y 13
+end
+arch floor_wood2_l2
+x 2
+y 14
+end
+arch floor_wood2_l2
+x 2
+y 15
+end
+arch floor_wood2_l2
+x 2
+y 16
+end
+arch floor_wood2_l2
+x 2
+y 17
+end
+arch floor_wood2_l2
+x 2
+y 18
+end
+arch wall_flagstone2.111
+x 2
+y 18
+end
+arch trans
 x 3
+y 8
 end
-arch magic_mirror
-slaying world_6_45
-last_eat -50
-last_heal 80
-path_attuned 124
+arch wall_flagstone2.111
 x 3
-y 1
+y 8
 end
-arch magic_mirror
-slaying world_6_45
-last_eat -50
-last_heal 80
-path_attuned 124
+arch floor_wood2_l2
 x 3
-y 2
+y 9
 end
-arch magic_mirror
-slaying world_6_45
-last_eat -50
-last_heal 80
-path_attuned 124
+arch stairs_down
 x 3
-y 3
+y 9
 end
-arch magic_mirror
-slaying world_6_45
-last_eat -50
-last_heal 80
-path_attuned 124
+arch floor_wood2_l2
 x 3
-y 4
+y 10
 end
-arch magic_mirror
-slaying world_6_45
-last_eat -50
+arch floor_wood2_l2
 x 3
-y 5
+y 11
 end
-arch magic_mirror
-slaying world_6_45
-last_eat -50
-last_heal 80
-path_attuned 124
+arch floor_wood2_l2
+x 3
+y 12
+end
+arch spawn_point
+x 3
+y 12
+arch guard
+name Asterian Guard
+type 83
+level 35
+direction 3
+arch event_obj
+sub_type 6
+race /python/generic/guard.py
+end
+end
+end
+arch floor_wood2_l2
+x 3
+y 13
+end
+arch floor_wood2_l2
+x 3
+y 14
+end
+arch floor_wood2_l2
+x 3
+y 15
+end
+arch floor_wood2_l2
+x 3
+y 16
+end
+arch spawn_point
+x 3
+y 16
+arch guard
+name Asterian Guard
+type 83
+level 35
+direction 3
+arch event_obj
+sub_type 6
+race /python/generic/guard.py
+end
+end
+end
+arch floor_wood2_l2
+x 3
+y 17
+end
+arch floor_wood2_l2
+x 3
+y 18
+end
+arch wall_flagstone2.111
+x 3
+y 18
+end
+arch trans
 x 4
+y 8
 end
-arch magic_mirror
-slaying world_6_45
-last_eat -50
-last_heal 80
-path_attuned 124
+arch wall_flagstone2.111
 x 4
-y 1
+y 8
 end
-arch magic_mirror
-slaying world_6_45
-last_eat -50
-last_heal 80
-path_attuned 124
+arch floor_wood2_l2
 x 4
-y 2
+y 9
 end
-arch magic_mirror
-slaying world_6_45
-last_eat -50
-last_heal 80
-path_attuned 124
+arch wall_flagstone2.131
 x 4
-y 3
+y 9
 end
-arch magic_mirror
-slaying world_6_45
-last_eat -50
-last_heal 80
-path_attuned 124
+arch floor_wood2_l2
 x 4
-y 4
+y 10
 end
-arch magic_mirror
-slaying world_6_45
-last_eat -50
+arch wall_flagstone2.131
 x 4
-y 5
+y 10
 end
-arch magic_mirror
-slaying world_6_45
-last_eat -50
-last_heal 80
-path_attuned 124
+arch floor_wood2_l2
+x 4
+y 11
+end
+arch gate1_locked
+direction 3
+slaying no_entry
+x 4
+y 11
+end
+arch floor_wood2_l2
+x 4
+y 12
+end
+arch wall_flagstone2.131
+x 4
+y 12
+end
+arch floor_wood2_l2
+x 4
+y 13
+end
+arch wall_flagstone2.131
+x 4
+y 13
+end
+arch floor_wood2_l2
+x 4
+y 14
+end
+arch wall_flagstone2.131
+x 4
+y 14
+end
+arch floor_wood2_l2
+x 4
+y 15
+end
+arch gate1_locked
+direction 3
+slaying no_entry
+x 4
+y 15
+end
+arch floor_wood2_l2
+x 4
+y 16
+end
+arch wall_flagstone2.131
+x 4
+y 16
+end
+arch floor_wood2_l2
+x 4
+y 17
+end
+arch wall_flagstone2.131
+x 4
+y 17
+end
+arch floor_wood2_l2
+x 4
+y 18
+end
+arch wall_flagstone2.141
+x 4
+y 18
+end
+arch trans
 x 5
+y 8
 end
-arch magic_mirror
-slaying world_6_45
-last_eat -50
-last_heal 80
-path_attuned 124
+arch wall_flagstone2.111
 x 5
-y 1
+y 8
 end
-arch magic_mirror
-slaying world_6_45
-last_eat -50
-last_heal 80
-path_attuned 124
+arch map_info
+name asteria_court
+hp 1
+sp 8
+cursed 1
 x 5
-y 2
+y 8
 end
-arch magic_mirror
-slaying world_6_45
-last_eat -50
-last_heal 80
-path_attuned 124
+arch floor_marble_grey
 x 5
-y 3
+y 9
 end
-arch magic_mirror
-slaying world_6_45
-last_eat -50
-last_heal 80
-path_attuned 124
+arch bucket_water
 x 5
-y 4
+y 9
 end
-arch magic_mirror
-slaying world_6_45
-last_eat -50
+arch floor_marble_grey
 x 5
-y 5
+y 10
 end
-arch magic_mirror
-slaying world_6_45
-last_eat -50
-last_heal 80
-path_attuned 124
+arch prison_deco2.131
+x 5
+y 10
+end
+arch floor_marble_grey
+x 5
+y 11
+end
+arch floor_marble_grey
+x 5
+y 12
+end
+arch wall_flagstone2.111
+x 5
+y 12
+end
+arch floor_marble_grey
+x 5
+y 13
+end
+arch bucket_water
+x 5
+y 13
+end
+arch floor_marble_grey
+x 5
+y 14
+end
+arch prison_deco2.131
+x 5
+y 14
+end
+arch floor_marble_grey
+x 5
+y 15
+end
+arch floor_marble_grey
+x 5
+y 16
+end
+arch wall_flagstone2.111
+x 5
+y 16
+end
+arch trans
 x 6
+y 8
 end
-arch magic_mirror
-slaying world_6_45
-last_eat -50
-last_heal 80
-path_attuned 124
+arch wall_flagstone2.111
 x 6
-y 1
+y 8
 end
-arch magic_mirror
-slaying world_6_45
-last_eat -50
-last_heal 80
-path_attuned 124
+arch floor_marble_grey
 x 6
-y 2
+y 9
 end
-arch magic_mirror
-slaying world_6_45
-last_eat -50
-last_heal 80
-path_attuned 124
+arch wall_flagstone2.131
 x 6
-y 3
+y 9
 end
-arch magic_mirror
-slaying world_6_45
-last_eat -50
-last_heal 80
-path_attuned 124
+arch floor_marble_grey
 x 6
-y 4
+y 10
 end
-arch magic_mirror
-slaying world_6_45
-last_eat -50
+arch wall_flagstone2.131
 x 6
-y 5
+y 10
 end
-arch magic_mirror
-slaying world_6_45
-last_eat -50
-last_heal 80
-path_attuned 124
+arch floor_marble_grey
+x 6
+y 11
+end
+arch wall_flagstone2.131
+x 6
+y 11
+end
+arch floor_marble_grey
+x 6
+y 12
+end
+arch wall_flagstone2.141
+x 6
+y 12
+end
+arch floor_marble_grey
+x 6
+y 13
+end
+arch wall_flagstone2.131
+x 6
+y 13
+end
+arch floor_marble_grey
+x 6
+y 14
+end
+arch wall_flagstone2.131
+x 6
+y 14
+end
+arch floor_marble_grey
+x 6
+y 15
+end
+arch wall_flagstone2.131
+x 6
+y 15
+end
+arch floor_marble_grey
+x 6
+y 16
+end
+arch wall_flagstone2.141
+x 6
+y 16
+end
+arch floor_sblack1
 x 7
+y 9
 end
-arch magic_mirror
-slaying world_6_45
-last_eat -50
-last_heal 80
-path_attuned 124
+arch map_info
+name asteria_court
+hp 1
+sp 7
+is_magical 1
 x 7
-y 1
+y 9
 end
-arch magic_mirror
-slaying world_6_45
-last_eat -50
-last_heal 80
-path_attuned 124
+arch floor_sblack1
 x 7
-y 2
+y 10
 end
-arch magic_mirror
-slaying world_6_45
-last_eat -50
-last_heal 80
-path_attuned 124
+arch floor_sblack1
 x 7
-y 3
+y 11
 end
-arch magic_mirror
-slaying world_6_45
-last_eat -50
+arch floor_sblack1
 x 7
-y 4
+y 12
 end
-arch magic_mirror
-slaying world_6_45
-last_eat -50
+arch floor_sblack1
 x 7
-y 5
+y 13
 end
-arch magic_mirror
-slaying world_6_45
-last_eat -50
-last_heal 80
-path_attuned 124
+arch floor_sblack1
+x 7
+y 14
+end
+arch floor_sblack1
+x 7
+y 15
+end
+arch floor_sblack1
+x 7
+y 16
+end
+arch floor_sblack1
 x 8
+y 9
 end
-arch magic_mirror
-slaying world_6_45
-last_eat -50
-last_heal 80
-path_attuned 124
+arch floor_sblack1
 x 8
-y 1
+y 10
 end
-arch magic_mirror
-slaying world_6_45
-last_eat -50
-last_heal 80
-path_attuned 124
+arch floor_sblack1
 x 8
-y 2
+y 11
 end
-arch magic_mirror
-slaying world_6_45
-last_eat -50
-last_heal 80
-path_attuned 124
+arch floor_sblack1
 x 8
-y 3
+y 12
 end
-arch magic_mirror
-slaying world_6_45
-last_eat -50
+arch floor_sblack1
 x 8
-y 4
+y 13
 end
-arch magic_mirror
-slaying world_6_45
-last_eat -50
+arch floor_sblack1
 x 8
-y 5
+y 14
 end
-arch magic_mirror
-slaying world_6_45
-last_eat -50
-last_heal 80
-path_attuned 124
-x 9
+arch floor_sblack1
+x 8
+y 15
 end
-arch magic_mirror
-slaying world_6_45
-last_eat -50
-last_heal 80
-path_attuned 124
-x 9
-y 1
+arch floor_sblack1
+x 8
+y 16
 end
-arch magic_mirror
-slaying world_6_45
-last_eat -50
-last_heal 80
-path_attuned 124
-x 9
-y 2
-end
-arch magic_mirror
-slaying world_6_45
-last_eat -50
-last_heal 80
-path_attuned 124
-x 9
-y 3
-end
-arch magic_mirror
-slaying world_6_45
-last_eat -50
-x 9
-y 4
-end
-arch magic_mirror
-slaying world_6_45
-last_eat -50
-x 9
-y 5
-end
-arch magic_mirror
-slaying world_6_45
-last_eat -50
-last_heal 80
-path_attuned 124
-x 10
-end
-arch magic_mirror
-slaying world_6_45
-last_eat -50
-last_heal 80
-path_attuned 124
-x 10
-y 1
-end
-arch magic_mirror
-slaying world_6_45
-last_eat -50
-last_heal 80
-path_attuned 124
-x 10
-y 2
-end
-arch magic_mirror
-slaying world_6_45
-last_eat -50
-last_heal 80
-path_attuned 124
-x 10
-y 3
-end
-arch magic_mirror
-slaying world_6_45
-last_eat -50
-last_heal 80
-path_attuned 124
-x 10
-y 4
-end
-arch magic_mirror
-slaying world_6_45
-last_eat -50
-last_heal 80
-path_attuned 124
-x 10
-y 5
-end
-arch magic_mirror
-slaying world_6_45
-last_eat -50
-last_heal 80
-path_attuned 124
-x 11
-end
-arch magic_mirror
-slaying world_6_45
-last_eat -50
-last_heal 80
-path_attuned 124
-x 11
-y 1
-end
-arch magic_mirror
-slaying world_6_45
-last_eat -50
-last_heal 80
-path_attuned 124
-x 11
-y 2
-end
-arch magic_mirror
-slaying world_6_45
-last_eat -50
-last_heal 80
-path_attuned 124
-x 11
-y 3
-end
-arch magic_mirror
-slaying world_6_45
-last_eat -50
-last_heal 80
-path_attuned 124
-x 11
-y 4
-end
-arch magic_mirror
-slaying world_6_45
-last_eat -50
-last_heal 80
-path_attuned 124
-x 11
-y 5
-end
-arch magic_mirror
-slaying world_6_45
-last_eat -50
-last_heal 80
-path_attuned 124
-x 12
-end
-arch magic_mirror
-slaying world_6_45
-last_eat -50
-last_heal 80
-path_attuned 124
-x 12
-y 1
-end
-arch magic_mirror
-slaying world_6_45
-last_eat -50
-last_heal 80
-path_attuned 124
-x 12
-y 2
-end
-arch magic_mirror
-slaying world_6_45
-last_eat -50
-last_heal 80
-path_attuned 124
-x 12
-y 3
-end
-arch magic_mirror
-slaying world_6_45
-last_eat -50
-last_heal 80
-path_attuned 124
-x 12
-y 4
-end
-arch magic_mirror
-slaying world_6_45
-last_eat -50
-last_heal 80
-path_attuned 124
-x 12
-y 5
-end
-arch magic_mirror
-slaying world_6_45
-last_eat -50
-last_heal 80
-path_attuned 124
-x 13
-end
-arch magic_mirror
-slaying world_6_45
-last_eat -50
-last_heal 80
-path_attuned 124
-x 13
-y 1
-end
-arch magic_mirror
-slaying world_6_45
-last_eat -50
-last_heal 80
-path_attuned 124
-x 13
-y 2
-end
-arch magic_mirror
-slaying world_6_45
-last_eat -50
-last_heal 80
-path_attuned 124
-x 13
-y 3
-end
-arch magic_mirror
-slaying world_6_45
-last_eat -50
-x 13
-y 4
-end
-arch magic_mirror
-slaying world_6_45
-last_eat -50
-x 13
-y 5
-end
-arch magic_mirror
-slaying world_6_45
-last_eat -50
-last_heal 80
-path_attuned 124
-x 14
-end
-arch magic_mirror
-slaying world_6_45
-last_eat -50
-last_heal 80
-path_attuned 124
-x 14
-y 1
-end
-arch magic_mirror
-slaying world_6_45
-last_eat -50
-last_heal 80
-path_attuned 124
-x 14
-y 2
-end
-arch magic_mirror
-slaying world_6_45
-last_eat -50
-last_heal 80
-path_attuned 124
-x 14
-y 3
-end
-arch magic_mirror
-slaying world_6_45
-last_eat -50
-x 14
-y 4
-end
-arch magic_mirror
-slaying world_6_45
-last_eat -50
-x 14
-y 5
-end
-arch magic_mirror
-slaying world_6_45
-last_eat -50
-last_heal 80
-path_attuned 124
+arch floor_marble_grey
 x 15
+y 9
 end
-arch magic_mirror
-slaying world_6_45
-last_eat -50
-last_heal 80
-path_attuned 124
+arch map_info
+name asteria_library
+hp 6
+sp 6
+is_magical 1
 x 15
-y 1
+y 9
 end
-arch magic_mirror
-slaying world_6_45
-last_eat -50
-last_heal 80
-path_attuned 124
+arch floor_marble_grey
 x 15
-y 2
+y 10
 end
-arch magic_mirror
-slaying world_6_45
-last_eat -50
-last_heal 80
-path_attuned 124
+arch floor_marble_grey
 x 15
-y 3
+y 11
 end
-arch magic_mirror
-slaying world_6_45
-last_eat -50
+arch floor_marble_grey
 x 15
-y 4
+y 12
 end
-arch magic_mirror
-slaying world_6_45
-last_eat -50
+arch floor_marble_grey
 x 15
-y 5
+y 13
 end
-arch magic_mirror
-slaying world_6_45
-last_eat -50
-last_heal 80
-path_attuned 124
+arch floor_marble_grey
+x 15
+y 14
+end
+arch floor_marble_grey
+x 15
+y 15
+end
+arch floor_marble_grey
 x 16
+y 9
 end
-arch magic_mirror
-slaying world_6_45
-last_eat -50
-last_heal 80
-path_attuned 124
+arch floor_marble_grey
 x 16
-y 1
+y 10
 end
-arch magic_mirror
-slaying world_6_45
-last_eat -50
-last_heal 80
-path_attuned 124
+arch floor_marble_grey
 x 16
-y 2
+y 11
 end
-arch magic_mirror
-slaying world_6_45
-last_eat -50
-last_heal 80
-path_attuned 124
+arch floor_marble_grey
 x 16
-y 3
+y 12
 end
-arch magic_mirror
-slaying world_6_45
-last_eat -50
-last_heal 80
-path_attuned 124
+arch floor_marble_grey
 x 16
-y 4
+y 13
 end
-arch magic_mirror
-slaying world_6_45
-last_eat -50
+arch floor_marble_grey
 x 16
-y 5
+y 14
 end
-arch magic_mirror
-slaying world_6_45
-last_eat -50
-last_heal 80
-path_attuned 124
+arch floor_marble_grey
+x 16
+y 15
+end
+arch floor_marble_grey
 x 17
+y 9
 end
-arch magic_mirror
-slaying world_6_45
-last_eat -50
-last_heal 80
-path_attuned 124
+arch floor_marble_grey
 x 17
-y 1
+y 10
 end
-arch magic_mirror
-slaying world_6_45
-last_eat -50
-last_heal 80
-path_attuned 124
+arch floor_marble_grey
 x 17
-y 2
+y 11
 end
-arch magic_mirror
-slaying world_6_45
-last_eat -50
-last_heal 80
-path_attuned 124
+arch floor_marble_grey
 x 17
-y 3
+y 12
 end
-arch magic_mirror
-slaying world_6_45
-last_eat -50
-last_heal 80
-path_attuned 124
+arch floor_marble_grey
 x 17
-y 4
+y 13
 end
-arch magic_mirror
-slaying world_6_45
-last_eat -50
+arch floor_marble_grey
 x 17
-y 5
+y 14
 end
-arch magic_mirror
-slaying world_6_45
-last_eat -50
-last_heal 80
-path_attuned 124
+arch floor_marble_grey
+x 17
+y 15
+end
+arch floor_marble_grey
 x 18
+y 9
 end
-arch magic_mirror
-slaying world_6_45
-last_eat -50
-last_heal 80
-path_attuned 124
+arch floor_marble_grey
 x 18
-y 1
+y 10
 end
-arch magic_mirror
-slaying world_6_45
-last_eat -50
-last_heal 80
-path_attuned 124
+arch floor_marble_grey
 x 18
-y 2
+y 11
 end
-arch magic_mirror
-slaying world_6_45
-last_eat -50
-last_heal 80
-path_attuned 124
+arch floor_marble_grey
 x 18
-y 3
+y 12
 end
-arch magic_mirror
-slaying world_6_45
-last_eat -50
-last_heal 80
-path_attuned 124
+arch floor_marble_grey
 x 18
-y 4
+y 13
 end
-arch magic_mirror
-slaying world_6_45
-last_eat -50
+arch floor_marble_grey
 x 18
-y 5
+y 14
 end
-arch magic_mirror
-slaying world_6_45
-last_eat -50
-last_heal 80
-path_attuned 124
+arch floor_marble_grey
+x 18
+y 15
+end
+arch floor_marble_grey
 x 19
+y 9
 end
-arch magic_mirror
-slaying world_6_45
-last_eat -50
-last_heal 80
-path_attuned 124
+arch floor_marble_grey
 x 19
-y 1
+y 10
 end
-arch magic_mirror
-slaying world_6_45
-last_eat -50
-last_heal 80
-path_attuned 124
+arch floor_marble_grey
 x 19
-y 2
+y 11
 end
-arch magic_mirror
-slaying world_6_45
-last_eat -50
-last_heal 80
-path_attuned 124
+arch floor_marble_grey
 x 19
-y 3
+y 12
 end
-arch magic_mirror
-slaying world_6_45
-last_eat -50
-last_heal 80
-path_attuned 124
+arch floor_marble_grey
 x 19
-y 4
+y 13
 end
-arch magic_mirror
-slaying world_6_45
-last_eat -50
+arch floor_marble_grey
 x 19
-y 5
+y 14
 end
-arch magic_mirror
-slaying world_6_45
-last_eat -50
-last_heal 80
-path_attuned 124
+arch floor_marble_grey
+x 19
+y 15
+end
+arch floor_marble_grey
 x 20
+y 9
 end
-arch magic_mirror
-slaying world_6_45
-last_eat -50
-last_heal 80
-path_attuned 124
+arch floor_marble_grey
 x 20
-y 1
+y 10
 end
-arch magic_mirror
-slaying world_6_45
-last_eat -50
-last_heal 80
-path_attuned 124
+arch floor_marble_grey
 x 20
-y 2
+y 11
 end
-arch magic_mirror
-slaying world_6_45
-last_eat -50
-last_heal 80
-path_attuned 124
+arch floor_marble_grey
 x 20
-y 3
+y 12
 end
-arch magic_mirror
-slaying world_6_45
-last_eat -50
-last_heal 80
-path_attuned 124
+arch floor_marble_grey
 x 20
-y 4
+y 13
 end
-arch magic_mirror
-slaying world_6_45
-last_eat -50
+arch floor_marble_grey
 x 20
-y 5
+y 14
 end
-arch magic_mirror
-slaying world_6_45
-last_eat -50
-last_heal 80
-path_attuned 124
+arch floor_marble_grey
+x 20
+y 15
+end
+arch floor_marble_grey
 x 21
+y 9
 end
-arch magic_mirror
-slaying world_6_45
-last_eat -50
-last_heal 80
-path_attuned 124
+arch floor_marble_grey
 x 21
-y 1
+y 10
 end
-arch magic_mirror
-slaying world_6_45
-last_eat -50
-last_heal 80
-path_attuned 124
+arch floor_marble_grey
 x 21
-y 2
+y 11
 end
-arch magic_mirror
-slaying world_6_45
-last_eat -50
-last_heal 80
-path_attuned 124
+arch floor_marble_grey
 x 21
-y 3
+y 12
 end
-arch magic_mirror
-slaying world_6_45
-last_eat -50
-last_heal 80
-path_attuned 124
+arch floor_marble_grey
 x 21
-y 4
+y 13
 end
-arch magic_mirror
-slaying world_6_45
-last_eat -50
+arch floor_marble_grey
 x 21
-y 5
+y 14
 end
-arch magic_mirror
-slaying world_6_45
-last_eat -50
-last_heal 80
-path_attuned 124
-x 22
-end
-arch magic_mirror
-slaying world_6_45
-last_eat -50
-last_heal 80
-path_attuned 124
-x 22
-y 1
-end
-arch magic_mirror
-slaying world_6_45
-last_eat -50
-last_heal 80
-path_attuned 124
-x 22
-y 2
-end
-arch magic_mirror
-slaying world_6_45
-last_eat -50
-last_heal 80
-path_attuned 124
-x 22
-y 3
-end
-arch magic_mirror
-slaying world_6_45
-last_eat -50
-last_heal 80
-path_attuned 124
-x 22
-y 4
-end
-arch magic_mirror
-slaying world_6_45
-last_eat -50
-x 22
-y 5
+arch floor_marble_grey
+x 21
+y 15
 end
 arch blocked
 x 22
@@ -1043,6 +814,14 @@ arch wall_pattern1.181
 x 22
 y 8
 end
+arch map_info
+name asteria_library
+hp 1
+sp 9
+cursed 1
+x 22
+y 8
+end
 arch blocked
 x 22
 y 9
@@ -1051,7 +830,7 @@ arch wall_pattern1.131
 x 22
 y 9
 end
-arch blocked
+arch floor_marble_grey
 x 22
 y 10
 end
@@ -1059,7 +838,7 @@ arch wall_pattern1.131
 x 22
 y 10
 end
-arch blocked
+arch floor_marble_grey
 x 22
 y 11
 end
@@ -1067,7 +846,7 @@ arch wall_pattern1.131
 x 22
 y 11
 end
-arch blocked
+arch floor_marble_grey
 x 22
 y 12
 end
@@ -1075,7 +854,7 @@ arch wall_pattern1.131
 x 22
 y 12
 end
-arch blocked
+arch floor_marble_grey
 x 22
 y 13
 end
@@ -1114,51 +893,6 @@ end
 arch wall_pattern1.131
 x 22
 y 17
-end
-arch magic_mirror
-slaying world_6_45
-last_eat -50
-last_heal 80
-path_attuned 124
-x 23
-end
-arch magic_mirror
-slaying world_6_45
-last_eat -50
-last_heal 80
-path_attuned 124
-x 23
-y 1
-end
-arch magic_mirror
-slaying world_6_45
-last_eat -50
-last_heal 80
-path_attuned 124
-x 23
-y 2
-end
-arch magic_mirror
-slaying world_6_45
-last_eat -50
-last_heal 80
-path_attuned 124
-x 23
-y 3
-end
-arch magic_mirror
-slaying world_6_45
-last_eat -50
-last_heal 80
-path_attuned 124
-x 23
-y 4
-end
-arch magic_mirror
-slaying world_6_45
-last_eat -50
-x 23
-y 5
 end
 arch blocked
 x 23
