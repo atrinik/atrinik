@@ -2,7 +2,7 @@ arch map
 name Strakewood Island
 msg
 Created:  2009-09-10 Alex Tokar
-Modified: 2014-03-02 Alex Tokar
+Modified: 2015-04-26 Alex Tokar
 endmsg
 width 24
 height 24
@@ -139,6 +139,14 @@ x 1
 y 4
 end
 arch wall_stone4_8
+x 1
+y 4
+end
+arch map_info
+name lothost_house
+hp 8
+sp 14
+cursed 1
 x 1
 y 4
 end
