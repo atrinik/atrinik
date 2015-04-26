@@ -592,6 +592,9 @@ void init_map_data(int xl, int yl, int px, int py)
     }
 }
 
+#define MAX_STRETCH 8
+#define MAX_STRETCH_DIAG 12
+
 /**
  * Calculate height of X/Y coordinate on the specified cell.
  *
@@ -602,17 +605,39 @@ void init_map_data(int xl, int yl, int px, int py)
  * @param h Max height.
  * @return The height.
  */
-static int calc_map_cell_height(int x, int y, int w, int h, int sub_layer)
+static int calc_map_cell_height(int x, int y, int w, int h, int sub_layer,
+        int my_height)
 {
     if (x >= 0 && x < w && y >= 0 && y < h) {
+        bool is_building_wall = false;
+
+        for (int i = 1; i < NUM_SUB_LAYERS; i++) {
+            if (cells[y * w + x].faces[GET_MAP_LAYER(LAYER_EFFECT, i)] != 0 &&
+                    cells[y * w + x].height[GET_MAP_LAYER(LAYER_FLOOR, i)]
+                    != 0) {
+                is_building_wall = true;
+                break;
+            }
+        }
+
+        if (my_height < 0 && (sub_layer != 0 || is_building_wall)) {
+            for (sub_layer = NUM_SUB_LAYERS - 1; sub_layer >= 0; sub_layer--) {
+                int height = cells[y * w + x].height[GET_MAP_LAYER(LAYER_FLOOR,
+                        sub_layer)];
+
+                if (height != 0) {
+                    return height;
+                }
+            }
+
+            return 0;
+        }
+
         return cells[y * w + x].height[GET_MAP_LAYER(LAYER_FLOOR, sub_layer)];
     }
 
     return 0;
 }
-
-#define MAX_STRETCH 8
-#define MAX_STRETCH_DIAG 12
 
 /**
  * Align tile stretch based on X/Y.
@@ -624,8 +649,8 @@ static int calc_map_cell_height(int x, int y, int w, int h, int sub_layer)
  */
 static void align_tile_stretch(int x, int y, int w, int h, int sub_layer)
 {
-    uint8_t top, bottom, right, left, min_ht;
-    uint32_t stretch;
+    int top, bottom, right, left, min_ht;
+    int32_t stretch;
     int nw_height, n_height, ne_height, sw_height, s_height, se_height,
             w_height, e_height, my_height;
 
@@ -633,15 +658,15 @@ static void align_tile_stretch(int x, int y, int w, int h, int sub_layer)
         return;
     }
 
-    nw_height = calc_map_cell_height(x - 1, y - 1, w, h, sub_layer);
-    n_height = calc_map_cell_height(x, y - 1, w, h, sub_layer);
-    ne_height = calc_map_cell_height(x + 1, y - 1, w, h, sub_layer);
-    sw_height = calc_map_cell_height(x - 1, y + 1, w, h, sub_layer);
-    s_height = calc_map_cell_height(x, y + 1, w, h, sub_layer);
-    se_height = calc_map_cell_height(x + 1, y + 1, w, h, sub_layer);
-    w_height = calc_map_cell_height(x - 1, y, w, h, sub_layer);
-    e_height = calc_map_cell_height(x + 1, y, w, h, sub_layer);
-    my_height = calc_map_cell_height(x, y, w, h, sub_layer);
+    my_height = calc_map_cell_height(x, y, w, h, sub_layer, 0);
+    nw_height = calc_map_cell_height(x - 1, y - 1, w, h, sub_layer, my_height);
+    n_height = calc_map_cell_height(x, y - 1, w, h, sub_layer, my_height);
+    ne_height = calc_map_cell_height(x + 1, y - 1, w, h, sub_layer, my_height);
+    sw_height = calc_map_cell_height(x - 1, y + 1, w, h, sub_layer, my_height);
+    s_height = calc_map_cell_height(x, y + 1, w, h, sub_layer, my_height);
+    se_height = calc_map_cell_height(x + 1, y + 1, w, h, sub_layer, my_height);
+    w_height = calc_map_cell_height(x - 1, y, w, h, sub_layer, my_height);
+    e_height = calc_map_cell_height(x + 1, y, w, h, sub_layer, my_height);
 
     if (abs(my_height - e_height) > MAX_STRETCH) {
         e_height = my_height;
@@ -691,18 +716,52 @@ static void align_tile_stretch(int x, int y, int w, int h, int sub_layer)
     left = MAX(left, s_height);
     left = MAX(left, my_height);
 
-    /* Normalize these... */
     min_ht = MIN(top, bottom);
     min_ht = MIN(min_ht, left);
     min_ht = MIN(min_ht, right);
     min_ht = MIN(min_ht, my_height);
 
+    if (my_height < 0 && left == 0 && right == 0 && top == 0 && bottom == 0) {
+        int top2 = MIN(w_height, nw_height);
+        top2 = MIN(top2, n_height);
+        top2 = MIN(top2, my_height);
+
+        int bottom2 = MIN(s_height, se_height);
+        bottom2 = MIN(bottom2, e_height);
+        bottom2 = MIN(bottom2, my_height);
+
+        int right2 = MIN(n_height, ne_height);
+        right2 = MIN(right2, e_height);
+        right2 = MIN(right2, my_height);
+
+        int left2 = MIN(w_height, sw_height);
+        left2 = MIN(left2, s_height);
+        left2 = MIN(left2, my_height);
+
+        top = top2 - top;
+        bottom = bottom2 - bottom;
+        right = right2 - right;
+        left = left2 - left;
+
+        min_ht = MIN(top, bottom);
+        min_ht = MIN(min_ht, left);
+        min_ht = MIN(min_ht, right);
+        min_ht = MIN(min_ht, my_height);
+
+        min_ht = abs(min_ht);
+        top = abs(top);
+        bottom = abs(bottom);
+        left = abs(left);
+        right = abs(right);
+    }
+
+    /* Normalize these... */
     top -= min_ht;
     bottom -= min_ht;
     left -= min_ht;
     right -= min_ht;
 
-    stretch = bottom + (left << 8) + (right << 16) + (top << 24);
+    stretch = abs(bottom) + (abs(left) << 8) + (abs(right) << 16) + (abs(top) << 24);
     cells[y * w + x].stretch[sub_layer] = stretch;
 }
 
@@ -1017,7 +1076,8 @@ static void draw_map_object(SDL_Surface *surface, struct MapCell *cell,
     int xml, xmpos, xtemp = 0;
     uint16_t face;
     int mid, mnr;
-    uint32_t stretch, flags;
+    int32_t stretch;
+    uint32_t flags;
     int bitmap_h, bitmap_w;
     int zoom_x, zoom_y;
     uint8_t dark_level, alpha;
@@ -1437,6 +1497,13 @@ void map_draw_map(SDL_Surface *surface)
                             player_height_offset, &target_cell, &target_layer,
                             &target_rect, &tiles, &tiles_num, 0);
                 }
+            }
+
+            if (cell->priority[0] & (1 << (LAYER_WALL - 1)) &&
+                    cell->height[GET_MAP_LAYER(LAYER_WALL, 0)] > 0) {
+                draw_map_object(surface, cell, x, y, LAYER_WALL, 0,
+                        player_height_offset, &target_cell, &target_layer,
+                        &target_rect, &tiles, &tiles_num, 0);
             }
         }
     }

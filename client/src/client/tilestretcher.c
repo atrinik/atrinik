@@ -34,8 +34,6 @@
  * align_tile_stretch() calculates how much to stretch each tile in all
  * 4 directions based on the surrounding tiles.
  *
- * @todo Support for negative z (so surrounding tiles can have "z 0", and
- * the middle one "z 4" to make it look like a hole, for example).
  * @todo Most fmasks (grass, for example) are not properly stretched.
  *
  * @author James "JLittle" Little
@@ -180,7 +178,7 @@ static void determine_lines(line_and_slope *dest, int n, int e, int s, int w)
  */
 int tilestretcher_coords_in_tile(uint32_t stretch, int x, int y)
 {
-    uint8_t n, e, s, w;
+    int8_t n, e, s, w;
     double corners_x[8], corners_y[8];
     line_and_slope lines[4];
 

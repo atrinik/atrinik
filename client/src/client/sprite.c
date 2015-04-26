@@ -181,7 +181,7 @@ void surface_show_fill(SDL_Surface *surface, int x, int y, SDL_Rect *srcsize, SD
     }
 }
 
-void surface_show_effects(SDL_Surface *surface, int x, int y, SDL_Rect *srcrect, SDL_Surface *src, uint8_t alpha, uint32_t stretch, int16_t zoom_x, int16_t zoom_y, int16_t rotate)
+void surface_show_effects(SDL_Surface *surface, int x, int y, SDL_Rect *srcrect, SDL_Surface *src, uint8_t alpha, int32_t stretch, int16_t zoom_x, int16_t zoom_y, int16_t rotate)
 {
     int smooth;
     SDL_Surface *tmp, *src_gfx;
@@ -189,10 +189,10 @@ void surface_show_effects(SDL_Surface *surface, int x, int y, SDL_Rect *srcrect,
     tmp = src_gfx = NULL;
 
     if (stretch) {
-        Uint8 n = (stretch >> 24) & 0xFF;
-        Uint8 e = (stretch >> 16) & 0xFF;
-        Uint8 w = (stretch >> 8) & 0xFF;
-        Uint8 s = stretch & 0xFF;
+        Sint8 n = (stretch >> 24) & 0xFF;
+        Sint8 e = (stretch >> 16) & 0xFF;
+        Sint8 w = (stretch >> 8) & 0xFF;
+        Sint8 s = stretch & 0xFF;
 
         src_gfx = tile_stretch(src, n, e, s, w);
 

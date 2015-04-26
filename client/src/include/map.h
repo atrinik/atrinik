@@ -221,7 +221,7 @@ typedef struct MapCell {
     uint8_t infravision[NUM_REAL_LAYERS];
 
     /** How we stretch this is really 8 char for N S E W. */
-    uint32_t stretch[NUM_SUB_LAYERS];
+    int32_t stretch[NUM_SUB_LAYERS];
 
     /**
      * Target object.
