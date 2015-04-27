@@ -140,6 +140,9 @@ typedef struct obj {
      * weight in some cases. */
     int32_t carrying;
 
+    /** Type-dependant extra data. */
+    void *custom_attrset;
+
     /* These get an extra add_refcount(), after having been copied by memcpy().
      * All fields below this point are automatically copied by memcpy. If
      * adding something that needs a refcount updated, make sure you modify
@@ -434,9 +437,6 @@ typedef struct obj {
 
     /** Str, Con, Dex, etc */
     living stats;
-
-    /** Type-dependant extra data. */
-    void *custom_attrset;
 
     /** Fields not explicitly known by the loader. */
     key_value *key_values;
