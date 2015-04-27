@@ -225,9 +225,8 @@ int cast_wor(object *op, object *caster)
  * @param op Who is casting.
  * @param caster What object is casting.
  * @param dam Base damage to do.
- * @param attacktype Attacktype.
- * @return 1. */
-int cast_destruction(object *op, object *caster, int dam)
+ * @param attacktype Attacktype. */
+void cast_destruction(object *op, object *caster, int dam)
 {
     int i, j, range, xt, yt;
     object *tmp, *hitter;
@@ -281,8 +280,6 @@ int cast_destruction(object *op, object *caster, int dam)
             }
         }
     }
-
-    return 1;
 }
 
 /**

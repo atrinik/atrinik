@@ -392,7 +392,8 @@ void init_plugin(const char *pluginfile)
 {
     int i;
     LIBPTRTYPE ptr;
-    f_plug_api eventfunc, propfunc;
+    f_plug_event eventfunc;
+    f_plug_prop propfunc;
     f_plug_init initfunc;
     f_plug_pinit pinitfunc, closefunc;
     atrinik_plugin *plugin;
@@ -412,7 +413,7 @@ void init_plugin(const char *pluginfile)
         return;
     }
 
-    eventfunc = plugins_dlsym(ptr, "triggerEvent", f_plug_api);
+    eventfunc = plugins_dlsym(ptr, "triggerEvent", f_plug_event);
 
     if (!eventfunc) {
         logger_print(LOG(BUG), "Error while requesting 'triggerEvent' from %s: %s", pluginfile, plugins_dlerror());
@@ -428,7 +429,7 @@ void init_plugin(const char *pluginfile)
         return;
     }
 
-    propfunc = plugins_dlsym(ptr, "getPluginProperty", f_plug_api);
+    propfunc = plugins_dlsym(ptr, "getPluginProperty", f_plug_prop);
 
     if (!propfunc) {
         logger_print(LOG(BUG), "Error while requesting 'getPluginProperty' from %s: %s", pluginfile, plugins_dlerror());
@@ -451,7 +452,6 @@ void init_plugin(const char *pluginfile)
     }
 
     plugin->eventfunc = eventfunc;
-    plugin->propfunc = propfunc;
     plugin->libptr = ptr;
     plugin->next = NULL;
     plugin->closefunc = closefunc;

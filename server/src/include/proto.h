@@ -657,14 +657,14 @@ extern int SK_level(object *op);
 extern object *SK_skill(object *op);
 /* src/server/skills.c */
 extern skill_struct skills[NROFSKILLS];
-extern int64_t find_traps(object *pl, int level);
-extern int64_t remove_trap(object *op);
+extern void find_traps(object *pl, int level);
+extern void remove_trap(object *op);
 /* src/server/spell_effect.c */
 extern void cast_magic_storm(object *op, object *tmp, int lvl);
 extern int recharge(object *op);
 extern int cast_create_food(object *op, object *caster, int dir, const char *stringarg);
 extern int cast_wor(object *op, object *caster);
-extern int cast_destruction(object *op, object *caster, int dam);
+extern void cast_destruction(object *op, object *caster, int dam);
 extern int cast_heal_around(object *op, int level, int type);
 extern int cast_heal(object *op, int level, object *target, int spell_type);
 extern int cast_change_attr(object *op, object *caster, object *target, int spell_type);
@@ -743,7 +743,7 @@ extern void give_artifact_abilities(object *op, artifact *art);
 extern int generate_artifact(object *op, int difficulty, int t_style, int a_chance);
 extern void free_all_treasures(void);
 extern int get_environment_level(object *op);
-extern object *create_artifact(object *op, char *artifactname);
+extern void create_artifact(object *op, char *artifactname);
 /* src/server/weather.c */
 extern const int season_timechange[4][24];
 extern void init_world_darkness(void);

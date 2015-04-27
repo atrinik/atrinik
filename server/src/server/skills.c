@@ -35,8 +35,8 @@
  * objects.
  * @param pl Player searching.
  * @param level Level of the find traps skill.
- * @return Experience gained for finding traps. */
-int64_t find_traps(object *pl, int level)
+ */
+void find_traps(object *pl, int level)
 {
     object *tmp, *tmp2;
     mapstruct *m;
@@ -101,15 +101,13 @@ int64_t find_traps(object *pl, int level)
     } else if (suc == 2) {
         draw_info(COLOR_WHITE, pl, "You detect trap signs!");
     }
-
-    return 0;
 }
 
 /**
  * This skill will disarm any previously discovered trap.
  * @param op Player disarming.
- * @return 0. */
-int64_t remove_trap(object *op)
+ */
+void remove_trap(object *op)
 {
     object *tmp, *tmp2;
     mapstruct *m;
@@ -134,7 +132,7 @@ int64_t remove_trap(object *op)
                     }
 
                     trap_disarm(op, tmp2);
-                    return 0;
+                    return;
                 }
             }
 
@@ -144,11 +142,10 @@ int64_t remove_trap(object *op)
                 }
 
                 trap_disarm(op, tmp);
-                return 0;
+                return;
             }
         }
     }
 
     draw_info(COLOR_WHITE, op, "There is no trap to remove nearby.");
-    return 0;
 }

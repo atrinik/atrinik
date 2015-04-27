@@ -161,7 +161,7 @@ MODULEAPI void closePlugin(void)
 {
 }
 
-MODULEAPI void *getPluginProperty(int *type, ...)
+MODULEAPI void getPluginProperty(int *type, ...)
 {
     va_list args;
     const char *propname;
@@ -176,17 +176,14 @@ MODULEAPI void *getPluginProperty(int *type, ...)
         size = va_arg(args, int);
         va_end(args);
         snprintf(buf, size, PLUGIN_NAME);
-        return NULL;
     } else if (!strcmp(propname, "FullName")) {
         buf = va_arg(args, char *);
         size = va_arg(args, int);
         va_end(args);
         snprintf(buf, size, PLUGIN_VERSION);
-        return NULL;
     }
 
     va_end(args);
-    return NULL;
 }
 
 MODULEAPI void postinitPlugin(void)

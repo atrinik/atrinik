@@ -2579,14 +2579,14 @@ int get_environment_level(object *op)
  * Create an artifact.
  * @param op Object to turn into an artifact.
  * @param artifactname Artifact to create.
- * @return Always returns NULL. */
-object *create_artifact(object *op, char *artifactname)
+ */
+void create_artifact(object *op, char *artifactname)
 {
     artifactlist *al = find_artifactlist(op->type);
     artifact *art;
 
     if (al == NULL) {
-        return NULL;
+        return;
     }
 
     for (art = al->items; art != NULL; art = art->next) {
@@ -2594,8 +2594,6 @@ object *create_artifact(object *op, char *artifactname)
             give_artifact_abilities(op, art);
         }
     }
-
-    return NULL;
 }
 
 #ifdef TREASURE_DEBUG

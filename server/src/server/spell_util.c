@@ -404,7 +404,8 @@ int cast_spell(object *op, object *caster, int dir, int type, int ability, int i
         break;
 
     case SP_DESTRUCTION:
-        success = cast_destruction(op, caster, 5 + op->stats.Int);
+        success = 1;
+        cast_destruction(op, caster, 5 + op->stats.Int);
         break;
 
     case SP_TRANSFORM_WEALTH:

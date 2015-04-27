@@ -367,12 +367,14 @@ struct plugin_hooklist {
     skill_struct *skills;
 };
 
-/** General API function. */
-typedef void *(*f_plug_api)(int *type, ...);
+/** Event function. */
+typedef void *(*f_plug_event)(int *type, ...);
+/** Property function. */
+typedef void (*f_plug_prop)(int *type, ...);
 /** First function called in a plugin. */
-typedef void *(*f_plug_init)(struct plugin_hooklist *hooklist);
+typedef void (*f_plug_init)(struct plugin_hooklist *hooklist);
 /** Function called after the plugin was initialized. */
-typedef void *(*f_plug_pinit)(void);
+typedef void (*f_plug_pinit)(void);
 
 #ifndef WIN32
 /** Library handle. */
@@ -398,10 +400,7 @@ typedef void *(*f_plug_pinit)(void);
 /** One loaded plugin. */
 typedef struct atrinik_plugin {
     /** Event handler function. */
-    f_plug_api eventfunc;
-
-    /** Plugin getProperty function. */
-    f_plug_api propfunc;
+    f_plug_event eventfunc;
 
     /** Plugin closePlugin function. */
     f_plug_pinit closefunc;
@@ -436,7 +435,7 @@ extern MODULEAPI void initPlugin(struct plugin_hooklist *hooklist);
  * @param type Integer pointer for va_start().
  * @return Return value depends on the type of information requested.
  * Can be NULL. */
-extern MODULEAPI void *getPluginProperty(int *type, ...);
+extern MODULEAPI void getPluginProperty(int *type, ...);
 
 /**
  * Called whenever an event occurs.
