@@ -35,6 +35,7 @@
 #include <global.h>
 #include <packet.h>
 #include <toolkit_string.h>
+#include <monster_data.h>
 
 #define GET_CLIENT_FLAGS(_O_)   ((_O_)->flags[0] & 0x7f)
 #define NO_FACE_SEND (-1)
@@ -2315,6 +2316,14 @@ void socket_command_talk(socket_struct *ns, player *pl, uint8_t *data, size_t le
             logger_print(LOG(CHAT), "[TALKTO] [%s] [%s] %s", pl->ob->name, npc->name, msg);
 
             if (talk_to_npc(pl->ob, npc, msg)) {
+                if (OBJECT_VALID(pl->talking_to, pl->talking_to_count) &&
+                        pl->talking_to != npc) {
+                    monster_data_interfaces_remove(pl->talking_to, pl->ob);
+                }
+
+                pl->talking_to = npc;
+                pl->talking_to_count = npc->count;
+
                 if (pl->target_object != npc || pl->target_object_count != npc->count) {
                     pl->target_object = npc;
                     pl->target_object_count = npc->count;
@@ -2354,6 +2363,12 @@ void socket_command_talk(socket_struct *ns, player *pl, uint8_t *data, size_t le
                 trigger_event(EVENT_SAY, pl->ob, tmp, NULL, msg, 0, 0, 0, 0);
                 break;
             }
+        }
+    } else if (type == CMD_TALK_CLOSE) {
+        if (OBJECT_VALID(pl->talking_to, pl->talking_to_count)) {
+            monster_data_interfaces_remove(pl->talking_to, pl->ob);
+            pl->talking_to = NULL;
+            pl->talking_to_count = 0;
         }
     } else {
         log(LOG(PACKET), "Invalid type: %d", type);

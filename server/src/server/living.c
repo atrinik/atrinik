@@ -28,6 +28,7 @@
  * only living things. */
 
 #include <global.h>
+#include <monster_data.h>
 
 /** When we carry more than this of our weight_limit, we get encumbered. */
 #define ENCUMBRANCE_LIMIT 65.0f
@@ -1005,6 +1006,10 @@ void living_update_monster(object *op)
 
     if (QUERY_FLAG(op, FLAG_NO_FIX_PLAYER)) {
         return;
+    }
+
+    if (op->custom_attrset == NULL) {
+        monster_data_init(op);
     }
 
     /* Will insert or/and return base info */

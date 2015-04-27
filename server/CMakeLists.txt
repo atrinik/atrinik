@@ -46,6 +46,7 @@ endif ()
 include_directories(src/include)
 include_directories(src/random_maps)
 include_directories(src/tests)
+include_directories(src/types/monster/include)
 
 # Scan for lexers.
 set(LEXERS

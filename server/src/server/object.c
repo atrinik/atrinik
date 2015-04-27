@@ -29,6 +29,7 @@
 #include <global.h>
 #include <loader.h>
 #include <toolkit_string.h>
+#include <monster_data.h>
 
 /** List of active objects that need to be processed */
 object *active_objects;
@@ -1420,6 +1421,10 @@ void object_destroy(object *ob)
 
         case SOUND_AMBIENT:
             sound_ambient_deinit(ob);
+            break;
+
+        case MONSTER:
+            monster_data_deinit(ob);
             break;
 
         default:

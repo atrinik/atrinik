@@ -27,6 +27,7 @@
  * This handles all attacks, magical or not. */
 
 #include <global.h>
+#include <monster_data.h>
 
 /**
  * Names of attack types to use when saving them to file.
@@ -117,17 +118,31 @@ static int attack_ob_simple(object *op, object *hitter, int base_dam, int base_w
 
     roll = rndm(0, hitter->stats.wc_range);
 
+    if (get_rangevector(hitter, op, &dir, RV_NO_DISTANCE)) {
+        HEAD(hitter)->direction = dir.direction;
+    }
+
     /* Adjust roll for various situations. */
     if (!simple_attack) {
+        mapstruct *enemy_map;
+        uint16_t enemy_x, enemy_y;
+
         roll += adj_attackroll(hitter, op);
+
+        if (hitter->type == MONSTER && monster_data_enemy_get_coords(hitter,
+                &enemy_map, &enemy_x, &enemy_y)) {
+            rv_vector rv;
+
+            if (!get_rangevector_from_mapcoords(hitter->map, hitter->x,
+                    hitter->y, enemy_map, enemy_x, enemy_y, &rv, 0) ||
+                    rv.direction != dir.direction) {
+                roll -= 10;
+            }
+        }
     }
 
     hitter->anim_flags |= ANIM_FLAG_ATTACKING;
     hitter->anim_flags &= ~ANIM_FLAG_STOP_ATTACKING;
-
-    if (get_rangevector(hitter, op, &dir, RV_NO_DISTANCE)) {
-        HEAD(hitter)->direction = dir.direction;
-    }
 
     /* See if we hit the creature */
     if (roll >= hitter->stats.wc_range || op->stats.ac <= base_wc + roll) {

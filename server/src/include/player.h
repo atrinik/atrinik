@@ -535,6 +535,8 @@ typedef struct pl_player {
     /** Auto-reply message when AFK */
     char afk_auto_reply[MAX_BUF];
 
+    object *talking_to; ///< Object the player is talking to.
+    tag_t talking_to_count; ///< ID of ::talking_to.
 } player;
 
 #endif

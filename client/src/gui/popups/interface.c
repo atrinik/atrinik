@@ -212,6 +212,10 @@ static int popup_destroy_callback(popup_struct *popup)
     button_destroy(&button_hello);
     button_destroy(&button_close);
 
+    packet_struct *packet = packet_new(SERVER_CMD_TALK, 32, 0);
+    packet_append_uint8(packet, CMD_TALK_CLOSE);
+    socket_send_packet(packet);
+
     return 1;
 }
 

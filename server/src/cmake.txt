@@ -119,6 +119,7 @@ set(SOURCES
 	src/socket/request.c
 	src/socket/sounds.c
 	src/socket/updates.c
+	src/types/monster/monster_data.c
 	src/types/ability.c
 	src/types/amulet.c
 	src/types/armour.c
