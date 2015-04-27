@@ -33,18 +33,18 @@
 #define MONSTER_DATA_H
 
 /**
- * How often to clean up stale interface entries in the monster's database,
+ * How often to clean up stale dialog entries in the monster's database,
  * in seconds (every X seconds).
  */
 #define MONSTER_DATA_INTERFACE_CLEANUP 10
 /**
- * Base number of seconds before an interface is considered as stale. This is
+ * Base number of seconds before a dialog is considered as stale. This is
  * mostly a protection against malicious clients.
  */
 #define MONSTER_DATA_INTERFACE_TIMEOUT 60 * 15
 /**
  * Maximum distance the activator can be (from the monster) before their
- * interface dialog is considered stale.
+ * dialog is considered stale.
  *
  * @todo This should really be a define somewhere else; we need a constant here
  * only because socket_command_talk() does not define one and simply uses
@@ -53,21 +53,20 @@
 #define MONSTER_DATA_INTERFACE_DISTANCE 2
 
 /**
- * Structure that holds information about
+ * Structure that holds information about dialogs the monster has open.
  */
-typedef struct monster_data_interface {
-    struct monster_data_interface *next; ///< Next interface.
-    struct monster_data_interface *prev; ///< Previous interface.
+typedef struct monster_data_dialog {
+    struct monster_data_dialog *next; ///< Next dialog.
+    struct monster_data_dialog *prev; ///< Previous dialog.
 
     object *ob; ///< Object that is talking to the monster.
     tag_t count; ///< ID of the object.
 
     /**
-     * When the interface expires and is considered stale (in ticks). If -1, the
-     * interface doesn't expire.
+     * When the dialog expires and is considered stale (in ticks).
      */
     long expire;
-} monster_data_interface_t;
+} monster_data_dialog_t;
 
 /**
  * Structure that holds monster data, ie, the monster's brain.
@@ -85,7 +84,7 @@ typedef struct monster_data {
     /**
      * All the conversations the NPC is having.
      */
-    monster_data_interface_t *interfaces;
+    monster_data_dialog_t *dialogs;
 
     /**
      * Last time a cleanup was performed.
@@ -105,11 +104,11 @@ void monster_data_deinit(object *op);
 void monster_data_enemy_update(object *op, object *enemy);
 bool monster_data_enemy_get_coords(object *op, mapstruct **map, uint16_t *x,
         uint16_t *y);
-void monster_data_interfaces_add(object *op, object *activator,
+void monster_data_dialogs_add(object *op, object *activator,
         uint32_t secs);
-void monster_data_interfaces_remove(object *op, object *activator);
-bool monster_data_interfaces_check(object *op, object *activator);
-size_t monster_data_interfaces_num(object *op);
-void monster_data_interfaces_cleanup(object *op);
+void monster_data_dialogs_remove(object *op, object *activator);
+bool monster_data_dialogs_check(object *op, object *activator);
+size_t monster_data_dialogs_num(object *op);
+void monster_data_dialogs_cleanup(object *op);
 
 #endif

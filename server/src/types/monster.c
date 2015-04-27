@@ -351,7 +351,7 @@ static int can_detect_enemy(object *op, object *enemy, rv_vector *rv)
  */
 static bool monster_can_move(object *op)
 {
-    if (monster_data_interfaces_num(op) != 0) {
+    if (monster_data_dialogs_num(op) != 0) {
         return false;
     }
 
@@ -379,7 +379,7 @@ static void process_func(object *op)
     CLEAR_FLAG(op, FLAG_PARALYZED);
 
     /* Cleanup stale interfaces. */
-    monster_data_interfaces_cleanup(op);
+    monster_data_dialogs_cleanup(op);
 
     /* Here is the heart of the mob attack and target area.
      * find_enemy() checks the old enemy or gets us a new one. */
@@ -1437,7 +1437,7 @@ int talk_to_npc(object *op, object *npc, char *txt)
     uint32_t secs = (long) (((double) MAX(INTERFACE_TIMEOUT_CHARS, ret) /
             INTERFACE_TIMEOUT_CHARS) * INTERFACE_TIMEOUT_SECONDS) -
             INTERFACE_TIMEOUT_SECONDS + INTERFACE_TIMEOUT_INITIAL;
-    monster_data_interfaces_add(npc, op, MIN(secs, INTERFACE_TIMEOUT_MAX));
+    monster_data_dialogs_add(npc, op, MIN(secs, INTERFACE_TIMEOUT_MAX));
 
     return ret != 0;
 }

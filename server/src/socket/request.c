@@ -2318,7 +2318,7 @@ void socket_command_talk(socket_struct *ns, player *pl, uint8_t *data, size_t le
             if (talk_to_npc(pl->ob, npc, msg)) {
                 if (OBJECT_VALID(pl->talking_to, pl->talking_to_count) &&
                         pl->talking_to != npc) {
-                    monster_data_interfaces_remove(pl->talking_to, pl->ob);
+                    monster_data_dialogs_remove(pl->talking_to, pl->ob);
                 }
 
                 pl->talking_to = npc;
@@ -2366,7 +2366,7 @@ void socket_command_talk(socket_struct *ns, player *pl, uint8_t *data, size_t le
         }
     } else if (type == CMD_TALK_CLOSE) {
         if (OBJECT_VALID(pl->talking_to, pl->talking_to_count)) {
-            monster_data_interfaces_remove(pl->talking_to, pl->ob);
+            monster_data_dialogs_remove(pl->talking_to, pl->ob);
             pl->talking_to = NULL;
             pl->talking_to_count = 0;
         }

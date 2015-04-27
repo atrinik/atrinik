@@ -35,7 +35,7 @@
 
 #ifndef __CPROTO__
 
-static void monster_data_interfaces_free(monster_data_interface_t *interface);
+static void monster_data_dialogs_free(monster_data_dialog_t *dialog);
 
 /**
  * Initialize monster data for the specified object.
@@ -64,10 +64,10 @@ void monster_data_deinit(object *op)
     SOFT_ASSERT(monster_data != NULL, "Missing monster data for: %s",
                 object_get_str(op));
 
-    monster_data_interface_t *interface, *tmp;
+    monster_data_dialog_t *dialog, *tmp;
 
-    DL_FOREACH_SAFE(monster_data->interfaces, interface, tmp) {
-        monster_data_interfaces_free(interface);
+    DL_FOREACH_SAFE(monster_data->dialogs, dialog, tmp) {
+        monster_data_dialogs_free(dialog);
     }
 
     efree(monster_data);
@@ -131,37 +131,37 @@ bool monster_data_enemy_get_coords(object *op, mapstruct **map, uint16_t *x,
 }
 
 /**
- * Frees the data associated with the specified ::monster_data_interface_t.
- * @param interface The interface.
+ * Frees the data associated with the specified ::monster_data_dialog_t.
+ * @param dialog The dialog.
  */
-static void monster_data_interfaces_free(monster_data_interface_t *interface)
+static void monster_data_dialogs_free(monster_data_dialog_t *dialog)
 {
-    HARD_ASSERT(interface != NULL);
-    efree(interface);
+    HARD_ASSERT(dialog != NULL);
+    efree(dialog);
 }
 
 /**
- * Verify that the specified interface is still valid (the activator wasn't
- * destroyed, the interface hasn't expired, etc).
+ * Verify that the specified dialog is still valid (the activator wasn't
+ * destroyed, the dialog hasn't expired, etc).
  * @param monster_data Monster's data.
- * @param interface Interface to verify.
- * @return True if the interface is still OK, false otherwise.
+ * @param dialog Interface to verify.
+ * @return True if the dialog is still OK, false otherwise.
  */
-static bool monster_data_interfaces_verify(monster_data_t *monster_data,
-        monster_data_interface_t *interface)
+static bool monster_data_dialogs_verify(monster_data_t *monster_data,
+        monster_data_dialog_t *dialog)
 {
     HARD_ASSERT(monster_data != NULL);
-    HARD_ASSERT(interface != NULL);
+    HARD_ASSERT(dialog != NULL);
 
-    if (!OBJECT_VALID(interface->ob, interface->count)) {
+    if (!OBJECT_VALID(dialog->ob, dialog->count)) {
         goto invalid;
     }
 
-    if (pticks > interface->expire) {
-        /* Close the interface for players. */
-        if (interface->ob->type == PLAYER) {
+    if (pticks > dialog->expire) {
+        /* Close the dialog for players. */
+        if (dialog->ob->type == PLAYER) {
             packet_struct *packet = packet_new(CLIENT_CMD_INTERFACE, 32, 0);
-            socket_send_packet(&CONTR(interface->ob)->socket, packet);
+            socket_send_packet(&CONTR(dialog->ob)->socket, packet);
         }
 
         goto invalid;
@@ -170,19 +170,19 @@ static bool monster_data_interfaces_verify(monster_data_t *monster_data,
     return true;
 
 invalid:
-    DL_DELETE(monster_data->interfaces, interface);
-    monster_data_interfaces_free(interface);
+    DL_DELETE(monster_data->dialogs, dialog);
+    monster_data_dialogs_free(dialog);
     return false;
 }
 
 /**
- * Add an interface to the monster's database of open interfaces.
+ * Add a dialog to the monster's database of open dialogs.
  * @param op Monster.
- * @param activator Who opened the interface with the monster.
- * @param secs Seconds the interface should remain open for.
+ * @param activator Who opened the dialog with the monster.
+ * @param secs Seconds the dialog should remain open for.
  * @ref MONSTER_DATA_INTERFACE_TIMEOUT is added to this value automatically.
  */
-void monster_data_interfaces_add(object *op, object *activator, uint32_t secs)
+void monster_data_dialogs_add(object *op, object *activator, uint32_t secs)
 {
     HARD_ASSERT(op != NULL);
     HARD_ASSERT(activator != NULL);
@@ -191,37 +191,36 @@ void monster_data_interfaces_add(object *op, object *activator, uint32_t secs)
     SOFT_ASSERT(monster_data != NULL, "Missing monster data for: %s",
                 object_get_str(op));
 
-    monster_data_interface_t *interface, *tmp;
+    monster_data_dialog_t *dialog, *tmp;
     long expire = pticks + (secs + MONSTER_DATA_INTERFACE_TIMEOUT) * MAX_TICKS;
 
-    DL_FOREACH_SAFE(monster_data->interfaces, interface, tmp) {
-        if (!monster_data_interfaces_verify(monster_data, interface)) {
+    DL_FOREACH_SAFE(monster_data->dialogs, dialog, tmp) {
+        if (!monster_data_dialogs_verify(monster_data, dialog)) {
             continue;
         }
 
-        if (interface->ob == activator &&
-                interface->count == activator->count) {
-            interface->expire = expire;
+        if (dialog->ob == activator && dialog->count == activator->count) {
+            dialog->expire = expire;
             return;
         }
     }
 
-    interface = ecalloc(1, sizeof(*interface));
-    interface->ob = activator;
-    interface->count = activator->count;
-    interface->expire = expire;
-    DL_APPEND(monster_data->interfaces, interface);
+    dialog = ecalloc(1, sizeof(*dialog));
+    dialog->ob = activator;
+    dialog->count = activator->count;
+    dialog->expire = expire;
+    DL_APPEND(monster_data->dialogs, dialog);
 }
 
 /**
- * Search through the monster's database of interfaces and remove the interface
+ * Search through the monster's database of dialogs and remove the dialog
  * that was opened by the @p activator.
  *
- * It's NOT an error if there is no interface for the specified object.
+ * It's NOT an error if there is no dialog for the specified object.
  * @param op Monster.
  * @param activator Interface activator to try and remove.
  */
-void monster_data_interfaces_remove(object *op, object *activator)
+void monster_data_dialogs_remove(object *op, object *activator)
 {
     HARD_ASSERT(op != NULL);
     HARD_ASSERT(activator != NULL);
@@ -230,31 +229,30 @@ void monster_data_interfaces_remove(object *op, object *activator)
     SOFT_ASSERT(monster_data != NULL, "Missing monster data for: %s",
                 object_get_str(op));
 
-    monster_data_interface_t *interface, *tmp;
+    monster_data_dialog_t *dialog, *tmp;
 
-    DL_FOREACH_SAFE(monster_data->interfaces, interface, tmp) {
-        if (!monster_data_interfaces_verify(monster_data, interface)) {
+    DL_FOREACH_SAFE(monster_data->dialogs, dialog, tmp) {
+        if (!monster_data_dialogs_verify(monster_data, dialog)) {
             continue;
         }
 
-        if (interface->ob == activator &&
-                interface->count == activator->count) {
-            DL_DELETE(monster_data->interfaces, interface);
-            monster_data_interfaces_free(interface);
+        if (dialog->ob == activator && dialog->count == activator->count) {
+            DL_DELETE(monster_data->dialogs, dialog);
+            monster_data_dialogs_free(dialog);
             break;
         }
     }
 }
 
 /**
- * Determine whether the monster has an interface open with the specified @p
+ * Determine whether the monster has a dialog open with the specified @p
  * activator.
  * @param op Monster.
  * @param activator Interface activator to attempt to find.
- * @return True if there is an interface open with the specified object,
+ * @return True if there is a dialog open with the specified object,
  * false otherwise.
  */
-bool monster_data_interfaces_check(object *op, object *activator)
+bool monster_data_dialogs_check(object *op, object *activator)
 {
     HARD_ASSERT(op != NULL);
     HARD_ASSERT(activator != NULL);
@@ -263,15 +261,14 @@ bool monster_data_interfaces_check(object *op, object *activator)
     SOFT_ASSERT_RC(monster_data != NULL, false, "Missing monster data for: %s",
                    object_get_str(op));
 
-    monster_data_interface_t *interface, *tmp;
+    monster_data_dialog_t *dialog, *tmp;
 
-    DL_FOREACH_SAFE(monster_data->interfaces, interface, tmp) {
-        if (!monster_data_interfaces_verify(monster_data, interface)) {
+    DL_FOREACH_SAFE(monster_data->dialogs, dialog, tmp) {
+        if (!monster_data_dialogs_verify(monster_data, dialog)) {
             continue;
         }
 
-        if (interface->ob == activator &&
-                interface->count == activator->count) {
+        if (dialog->ob == activator && dialog->count == activator->count) {
             return true;
         }
     }
@@ -280,11 +277,11 @@ bool monster_data_interfaces_check(object *op, object *activator)
 }
 
 /**
- * Determine the number of interfaces that the specified monster has open.
+ * Determine the number of dialogs that the specified monster has open.
  * @param op Monster.
- * @return Number of open interfaces.
+ * @return Number of open dialogs.
  */
-size_t monster_data_interfaces_num(object *op)
+size_t monster_data_dialogs_num(object *op)
 {
     HARD_ASSERT(op != NULL);
 
@@ -292,11 +289,11 @@ size_t monster_data_interfaces_num(object *op)
     SOFT_ASSERT_RC(monster_data != NULL, 0, "Missing monster data for: %s",
                    object_get_str(op));
 
-    monster_data_interface_t *interface, *tmp;
+    monster_data_dialog_t *dialog, *tmp;
     size_t num = 0;
 
-    DL_FOREACH_SAFE(monster_data->interfaces, interface, tmp) {
-        if (!monster_data_interfaces_verify(monster_data, interface)) {
+    DL_FOREACH_SAFE(monster_data->dialogs, dialog, tmp) {
+        if (!monster_data_dialogs_verify(monster_data, dialog)) {
             continue;
         }
 
@@ -307,11 +304,11 @@ size_t monster_data_interfaces_num(object *op)
 }
 
 /**
- * Cleanup stale and invalid interfaces for the specified monster. Only executes
+ * Cleanup stale and invalid dialogs for the specified monster. Only executes
  * if @ref MONSTER_DATA_INTERFACE_CLEANUP number of seconds have passed.
  * @param op Monster.
  */
-void monster_data_interfaces_cleanup(object *op)
+void monster_data_dialogs_cleanup(object *op)
 {
     HARD_ASSERT(op != NULL);
 
@@ -326,19 +323,19 @@ void monster_data_interfaces_cleanup(object *op)
 
     monster_data->last_cleanup = pticks;
 
-    monster_data_interface_t *interface, *tmp;
+    monster_data_dialog_t *dialog, *tmp;
 
-    DL_FOREACH_SAFE(monster_data->interfaces, interface, tmp) {
-        if (!monster_data_interfaces_verify(monster_data, interface)) {
+    DL_FOREACH_SAFE(monster_data->dialogs, dialog, tmp) {
+        if (!monster_data_dialogs_verify(monster_data, dialog)) {
             continue;
         }
 
         rv_vector rv;
 
-        if (!get_rangevector(op, interface->ob, &rv, RV_MANHATTAN_DISTANCE) ||
+        if (!get_rangevector(op, dialog->ob, &rv, RV_MANHATTAN_DISTANCE) ||
                 rv.distance > MONSTER_DATA_INTERFACE_DISTANCE) {
-            DL_DELETE(monster_data->interfaces, interface);
-            monster_data_interfaces_free(interface);
+            DL_DELETE(monster_data->dialogs, dialog);
+            monster_data_dialogs_free(dialog);
             break;
         }
     }
