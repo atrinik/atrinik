@@ -1,14 +1,16 @@
 arch map
-name Asteria
+name Strakewood Island
 msg
 Created:  2015-04-21 Alex Tokar
-Modified: 2015-04-21 Alex Tokar
+Modified: 2015-04-28 Alex Tokar
 endmsg
 width 24
 height 24
 difficulty 1
 darkness -1
 outdoor 1
+bg_music jungle1.ogg
+region strakewood_island
 end
 arch roof_wood
 direction 3

@@ -2,13 +2,16 @@ arch map
 name Asteria
 msg
 Created:  2015-04-21 Alex Tokar
-Modified: 2015-04-21 Alex Tokar
+Modified: 2015-04-28 Alex Tokar
 endmsg
 width 24
 height 24
 difficulty 1
 darkness -1
 outdoor 1
+no_harm 1
+bg_music jungle1.ogg
+region asteria
 end
 arch roof_wood
 direction 3
