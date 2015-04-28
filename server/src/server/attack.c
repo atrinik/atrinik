@@ -90,7 +90,7 @@ int attack_ob(object *op, object *hitter)
  * @return Dealt damage. */
 static int attack_ob_simple(object *op, object *hitter, int base_dam, int base_wc)
 {
-    int simple_attack, roll, dam = 0;
+    int simple_attack, roll, adjust, dam = 0;
     tag_t op_tag, hitter_tag;
     rv_vector dir;
 
@@ -122,12 +122,14 @@ static int attack_ob_simple(object *op, object *hitter, int base_dam, int base_w
         HEAD(hitter)->direction = dir.direction;
     }
 
+    adjust = 0;
+
     /* Adjust roll for various situations. */
     if (!simple_attack) {
         mapstruct *enemy_map;
         uint16_t enemy_x, enemy_y;
 
-        roll += adj_attackroll(hitter, op);
+        adjust += adj_attackroll(hitter, op);
 
         if (hitter->type == MONSTER && monster_data_enemy_get_coords(hitter,
                 &enemy_map, &enemy_x, &enemy_y)) {
@@ -136,7 +138,7 @@ static int attack_ob_simple(object *op, object *hitter, int base_dam, int base_w
             if (!get_rangevector_from_mapcoords(hitter->map, hitter->x,
                     hitter->y, enemy_map, enemy_x, enemy_y, &rv, 0) ||
                     rv.direction != dir.direction) {
-                roll -= 10;
+                adjust -= 10;
             }
         }
     }
@@ -145,7 +147,8 @@ static int attack_ob_simple(object *op, object *hitter, int base_dam, int base_w
     hitter->anim_flags &= ~ANIM_FLAG_STOP_ATTACKING;
 
     /* See if we hit the creature */
-    if (roll >= hitter->stats.wc_range || op->stats.ac <= base_wc + roll) {
+    if (roll >= hitter->stats.wc_range ||
+            op->stats.ac <= base_wc + roll + adjust) {
         int hitdam = base_dam;
 
         /* At this point NO ONE will still sleep */
