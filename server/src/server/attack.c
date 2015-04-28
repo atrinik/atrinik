@@ -1119,6 +1119,15 @@ static int adj_attackroll(object *hitter, object *target)
         adjust -= 2;
     }
 
+    if (hitter->direction == target->direction) {
+        /* Backstab */
+        adjust += 5;
+    } else if (hitter->direction == absdir(target->direction - 1) ||
+            hitter->direction == absdir(target->direction + 1)) {
+        /* Sidestab */
+        adjust += 2;
+    }
+
     return adjust;
 }
 
