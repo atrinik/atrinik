@@ -149,7 +149,7 @@ class MapChecker:
         for checker in self.checkers:
             checker.fix = fix
 
-    def _scan(self, path, files, rec, fix):
+    def _scan(self, path, files, rec, fix, real_map_path):
         """
         Internal function for actually performing the scan. Used by scan,
         in both threading and non-threading mode. Changes things such as
@@ -226,6 +226,10 @@ class MapChecker:
             with open(file) as f:
                 m = self.parser_map.parse(f)
 
+                if real_map_path:
+                    m.name = os.path.join(self.get_maps_path(),
+                                          real_map_path[1:])
+
             self._scan_status = "Checking {}...".format(file)
 
             self.checker_map.check(m)
@@ -241,7 +245,7 @@ class MapChecker:
                 self.queue.put(error)
 
     def scan(self, path=None, files=None, rec=True, fix=False,
-             threading=True):
+             real_map_path=None, threading=True):
         """Perform a new scan for errors."""
         if self._thread and self._thread.is_alive():
             return
@@ -250,10 +254,10 @@ class MapChecker:
 
         if threading:
             self._thread = Thread(target=self._scan,
-                                  args=(path, files, rec, fix))
+                                  args=(path, files, rec, fix, real_map_path))
             self._thread.start()
         else:
-            self._scan(path, files, rec, fix)
+            self._scan(path, files, rec, fix, real_map_path)
 
     def scan_stop(self):
         """Stop current scan, if any."""
@@ -317,7 +321,8 @@ def main():
     try:
         opts, args = getopt.getopt(sys.argv[1:], "hcfd:m:a:r:",
                                    ["help", "cli", "fix", "directory=",
-                                    "map=", "arch=", "regions=", "text-only"])
+                                    "map=", "arch=", "regions=", "text-only",
+                                    "real-map-path="])
     except getopt.GetoptError as err:
         # Invalid option, show the error and exit.
         print(err)
@@ -327,6 +332,7 @@ def main():
     fix = False
     files = []
     path = None
+    real_map_path = None
 
     # Parse options.
     for o, a in opts:
@@ -341,6 +347,8 @@ def main():
             path = a
         elif o in ("-m", "--map"):
             files.append(a)
+        elif o == "--real-map-path":
+            real_map_path = a
         elif o in ("-a", "--arch"):
             # TODO: make this more robust?
             map_checker.definitionFilesData["archetype"]["path"] = a
@@ -362,7 +370,7 @@ def main():
         ret = app.exec_()
     else:
         map_checker.scan(path=path, files=files, fix=fix,
-                         threading=False)
+                         threading=False, real_map_path=real_map_path)
         ret = 0
 
         while map_checker.queue.qsize():
