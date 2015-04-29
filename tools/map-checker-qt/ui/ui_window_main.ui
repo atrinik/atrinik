@@ -187,6 +187,7 @@
     </property>
     <addaction name="actionScan"/>
     <addaction name="actionScan_directory"/>
+    <addaction name="actionPurge_cache"/>
     <addaction name="separator"/>
     <addaction name="actionExit"/>
    </widget>
@@ -290,6 +291,11 @@
   <action name="actionInterface_Editor">
    <property name="text">
     <string>Interface Editor</string>
+   </property>
+  </action>
+  <action name="actionPurge_cache">
+   <property name="text">
+    <string>Purge cache</string>
    </property>
   </action>
  </widget>

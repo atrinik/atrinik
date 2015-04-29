@@ -16,6 +16,7 @@ from system.checker import CheckerMap, CheckerObject, CheckerArchetype, \
     AbstractChecker
 from system.config import Config
 import system.constants
+from system.database import Database
 from system.game_object import AbstractObjectCollection, ArchObjectCollection, \
     ArtifactObjectCollection, RegionObjectCollection
 from system.parser import ParserMap, ParserArchetype, ParserArtifact, \
@@ -58,6 +59,8 @@ class MapChecker:
     def __init__(self, config):
         self.config = config
 
+        self.path = os.path.dirname(os.path.realpath(__file__))
+
         # Create scanners, datasets, parsers, etc.
         self.scanner = ScannerMap(config)
         self.archetypes = ArchObjectCollection("archetype")
@@ -72,9 +75,7 @@ class MapChecker:
         self.parser_archetype = ParserArchetype(config)
         self.parser_artifact = ParserArtifact(config)
         self.parser_region = ParserRegion(config)
-        self.global_objects = {
-            system.constants.Game.Types.beacon: [],
-        }
+        self.db = Database(config, self.get_db_path())
 
         for collection in self.collections:
             self.collection_parser(collection).setCollection(collection)
@@ -91,12 +92,11 @@ class MapChecker:
         self._thread = None
 
         self.queue = queue.Queue()
+        self.files_queue = queue.Queue()
 
         self._thread_running = False
         self._scan_status = ""
         self._scan_progress = 0
-
-        self.path = os.path.dirname(os.path.realpath(__file__))
 
     @property
     def collections(self):
@@ -144,6 +144,10 @@ class MapChecker:
         """Returns absolute path to the server directory."""
         return self.config.get("General", "path_dir_server")
 
+    def get_db_path(self):
+        """Returns absolute path to the map checker's DB."""
+        return os.path.join(self.path, "map-checker.db")
+
     def checkers_set_fix(self, fix):
         """Set the fix attribute for all checkers."""
         for checker in self.checkers:
@@ -162,9 +166,6 @@ class MapChecker:
         if not path:
             path = self.get_maps_path()
 
-        for key in self.global_objects:
-            self.global_objects[key] = []
-
         self._scan_progress = 0
 
         if not files:
@@ -172,10 +173,17 @@ class MapChecker:
             self._scan_status = "Gathering files..."
             files = self.scanner.scan(path, rec)
 
+        if not real_map_path:
+            self._scan_status = "Gathering modified files..."
+            files = self.scanner.filter_modified_files(files, self.db)
+
         # Now filter out non-map files by reading the header of all
         # found files.
         self._scan_status = "Gathering map files..."
         maps = self.scanner.filter_map_files(files)
+
+        for file in maps:
+            self.files_queue.put(file)
 
         # Parse file definitions.
         for collection in self.collections:
@@ -215,7 +223,7 @@ class MapChecker:
         # Now loop through the maps.
         for i, file in enumerate(maps):
             if not self._thread_running:
-                return
+                break
 
             # Update scan progress.
             self._scan_progress = (i + 1) / len(maps)
@@ -243,6 +251,10 @@ class MapChecker:
 
             for error in self.checker_map.errors:
                 self.queue.put(error)
+
+            self.db.file_set_modified(file)
+
+        self.db.save()
 
     def scan(self, path=None, files=None, rec=True, fix=False,
              real_map_path=None, threading=True):
@@ -322,7 +334,7 @@ def main():
         opts, args = getopt.getopt(sys.argv[1:], "hcfd:m:a:r:",
                                    ["help", "cli", "fix", "directory=",
                                     "map=", "arch=", "regions=", "text-only",
-                                    "real-map-path="])
+                                    "real-map-path=", "preserve-database"])
     except getopt.GetoptError as err:
         # Invalid option, show the error and exit.
         print(err)
@@ -333,6 +345,7 @@ def main():
     files = []
     path = None
     real_map_path = None
+    preserve_database = False
 
     # Parse options.
     for o, a in opts:
@@ -349,6 +362,8 @@ def main():
             files.append(a)
         elif o == "--real-map-path":
             real_map_path = a
+        elif o == "--preserve-database":
+            preserve_database = True
         elif o in ("-a", "--arch"):
             # TODO: make this more robust?
             map_checker.definitionFilesData["archetype"]["path"] = a
@@ -357,6 +372,9 @@ def main():
             # TODO: maps directory option instead?
             a = os.path.dirname(a)
             map_checker.definitionFilesData["region"]["path"] = a
+
+    if not preserve_database:
+        map_checker.db.purge()
 
     if not cli:
         # Create a GUI window using Qt.

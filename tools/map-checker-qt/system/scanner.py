@@ -45,6 +45,17 @@ class ScannerMap:
 
         return files
 
+    def filter_modified_files(self, files, db):
+        ret = []
+
+        for file in files:
+            if not db.file_is_modified(file):
+                continue
+
+            ret.append(file)
+
+        return ret
+
     @staticmethod
     def filter_map_files(files):
         """

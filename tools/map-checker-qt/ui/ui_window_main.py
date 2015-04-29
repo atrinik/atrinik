@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file '../ui/ui_window_main.ui'
+# Form implementation generated from reading ui file '..\ui\ui_window_main.ui'
 #
-# Created: Sat Mar 14 15:35:37 2015
+# Created: Wed Apr 29 14:10:07 2015
 #      by: PyQt5 UI code generator 5.3.2
 #
 # WARNING! All changes made in this file will be lost!
@@ -127,8 +127,11 @@ class Ui_WindowMain(object):
         self.actionPathfinding_Visualizer.setObjectName("actionPathfinding_Visualizer")
         self.actionInterface_Editor = QtWidgets.QAction(WindowMain)
         self.actionInterface_Editor.setObjectName("actionInterface_Editor")
+        self.actionPurge_cache = QtWidgets.QAction(WindowMain)
+        self.actionPurge_cache.setObjectName("actionPurge_cache")
         self.menuFile.addAction(self.actionScan)
         self.menuFile.addAction(self.actionScan_directory)
+        self.menuFile.addAction(self.actionPurge_cache)
         self.menuFile.addSeparator()
         self.menuFile.addAction(self.actionExit)
         self.menuHelp.addAction(self.actionReport_a_problem)
@@ -192,4 +195,5 @@ class Ui_WindowMain(object):
         self.actionScan_directory.setText(_translate("WindowMain", "Scan directory..."))
         self.actionPathfinding_Visualizer.setText(_translate("WindowMain", "Pathfinding Visualizer"))
         self.actionInterface_Editor.setText(_translate("WindowMain", "Interface Editor"))
+        self.actionPurge_cache.setText(_translate("WindowMain", "Purge cache"))
 

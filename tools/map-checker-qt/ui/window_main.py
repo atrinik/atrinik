@@ -53,6 +53,8 @@ class WindowMain(Model, QMainWindow, Ui_WindowMain):
         self.actionScan.triggered.connect(self.actionScanTrigger)
         self.actionScan_directory.triggered.connect(
             self.actionScan_directoryTrigger)
+        self.actionPurge_cache.triggered.connect(
+            self.actionPurge_cacheTrigger)
         self.actionExit.triggered.connect(self.actionExitTrigger)
 
         self.actionSelect_all.triggered.connect(self.actionSelect_allTrigger)
@@ -195,6 +197,19 @@ class WindowMain(Model, QMainWindow, Ui_WindowMain):
 
                 widget.setEnabled(True)
 
+        while self.map_checker.files_queue.qsize():
+            try:
+                file = self.map_checker.files_queue.get(0)
+                table = self.widgetTables["maps"]
+
+                for i in reversed(range(table.rowCount())):
+                    path = os.path.realpath(table.item(i, 0).data["file"]["path"])
+
+                    if path == os.path.realpath(file):
+                        table.removeRow(i)
+            except queue.Empty:
+                pass
+
         while self.map_checker.queue.qsize():
             try:
                 error = self.map_checker.queue.get(0)
@@ -227,8 +242,7 @@ class WindowMain(Model, QMainWindow, Ui_WindowMain):
         if self.map_checker.scan_is_running():
             self.map_checker.scan_stop()
         else:
-            for table in self.widgetTables:
-                self.widgetTables[table].setRowCount(0)
+            self.widgetTables["resources"].setRowCount(0)
 
             for i in range(self.widgetTabs.count()):
                 self.widgetTabs.setTabText(i, self.getTabName(i))
@@ -257,6 +271,12 @@ class WindowMain(Model, QMainWindow, Ui_WindowMain):
 
         self.last_scan_directory = path
         self.actionScanTrigger(path)
+
+    def actionPurge_cacheTrigger(self):
+        path = self.map_checker.get_db_path()
+
+        if os.path.exists(path) and os.path.isfile(path):
+            os.unlink(path)
 
     def actionReport_a_problemTrigger(self):
         webbrowser.open(system.constants.URLs.report_bug)
