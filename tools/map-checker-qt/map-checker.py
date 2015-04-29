@@ -331,7 +331,8 @@ def main():
         opts, args = getopt.getopt(sys.argv[1:], "hcfd:m:a:r:",
                                    ["help", "cli", "fix", "directory=",
                                     "map=", "arch=", "regions=", "text-only",
-                                    "real-map-path=", "preserve-database"])
+                                    "real-map-path=", "preserve-database",
+                                    "show-filenames"])
     except getopt.GetoptError as err:
         # Invalid option, show the error and exit.
         print(err)
@@ -343,6 +344,7 @@ def main():
     path = None
     real_map_path = None
     preserve_database = False
+    show_filenames = False
 
     # Parse options.
     for o, a in opts:
@@ -361,6 +363,8 @@ def main():
             real_map_path = a
         elif o == "--preserve-database":
             preserve_database = True
+        elif o == "--show-filenames":
+            show_filenames = True
         elif o in ("-a", "--arch"):
             # TODO: make this more robust?
             map_checker.definitionFilesData["archetype"]["path"] = a
@@ -405,6 +409,9 @@ def main():
 
                 if error["loc"]:
                     l.insert(0, " ".join(str(i) for i in error["loc"]))
+
+                if show_filenames:
+                    l.insert(0, error["file"]["path"])
 
                 print(" ".join(l))
             except queue.Empty:
