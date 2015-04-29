@@ -2,7 +2,7 @@ arch map
 name Nyhelobo's Lab
 msg
 Created:  2010-07-06 Edwin Miltenburg
-Modified: 2014-02-28 alex
+Modified: 2015-04-29 Alex Tokar
 endmsg
 width 24
 height 24
@@ -2883,7 +2883,7 @@ x 19
 y 12
 end
 arch exit
-slaying /shattered_islands/strakewood_island/brynknot/sewers/sewers_a_0404
+slaying /shattered_islands/world_4_66_-2
 hp 14
 sp 21
 animation portal_green

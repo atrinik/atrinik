@@ -1,0 +1,2224 @@
+arch map
+name Brynknot Sewers
+msg
+Created:  2010-06-06 Edwin Miltenburg
+Modified: 2015-04-29 Alex Tokar
+endmsg
+width 24
+height 24
+difficulty 3
+darkness 3
+bg_music sewers.ogg
+region brynknot
+end
+arch floor_earth1d
+end
+arch blood_floor1
+end
+arch floor_earth1e
+y 1
+end
+arch floor_earth1b
+y 2
+end
+arch floor_earth1a
+y 3
+end
+arch wall_flagstone1b.111
+y 3
+end
+arch blocked
+y 4
+end
+arch wall_flagstone1b.111
+y 4
+end
+arch floor_earth1b
+y 5
+end
+arch water_lt5_m
+direction 5
+y 5
+end
+arch floor_earth1a
+y 6
+end
+arch water_lt5_m
+direction 1
+y 6
+end
+arch floor_earth1d
+y 7
+end
+arch wall_flagstone1b.111
+y 7
+end
+arch plant2_wall.151
+y 7
+end
+arch blocked
+y 8
+end
+arch wall_flagstone1b.111
+y 8
+end
+arch floor_earth1c
+y 9
+end
+arch floor_earth1d
+y 10
+end
+arch pile_floor1
+y 10
+end
+arch floor_earth1e
+y 11
+end
+arch dirt_floor3
+y 11
+end
+arch spawn_point
+y 11
+arch snake
+item_condition 4
+attack_slash 100
+attack_poison 0
+type 83
+end
+end
+arch floor_earth1b
+y 12
+end
+arch floor_earth1a
+y 13
+end
+arch wall_flagstone1b.111
+y 13
+end
+arch plant2_wall.151
+y 13
+end
+arch blocked
+y 14
+end
+arch wall_flagstone1b.111
+y 14
+end
+arch plant1_wall.151
+y 14
+end
+arch floor_earth1a
+y 15
+end
+arch spawn_point
+y 15
+arch snake
+item_condition 2
+attack_slash 100
+attack_poison 0
+type 83
+end
+end
+arch floor_earth1e
+y 16
+end
+arch wall_flagstone1b.111
+y 16
+end
+arch floor_earth1d
+x 1
+end
+arch wall_flagstone1b.131
+x 1
+end
+arch floor_earth1c
+x 1
+y 1
+end
+arch wall_flagstone1b.131
+x 1
+y 1
+end
+arch plant1_wall.151
+direction 7
+x 1
+y 1
+end
+arch floor_earth1d
+x 1
+y 2
+end
+arch wall_flagstone1b.131
+x 1
+y 2
+end
+arch floor_earth1c
+x 1
+y 3
+end
+arch wall_flagstone1b.141
+x 1
+y 3
+end
+arch blocked
+x 1
+y 4
+end
+arch wall_flagstone1b.111
+x 1
+y 4
+end
+arch plant1_wall.151
+x 1
+y 4
+end
+arch floor_earth1e
+x 1
+y 5
+end
+arch water_lt5_m
+direction 5
+x 1
+y 5
+end
+arch spawn_point
+x 1
+y 5
+arch frog
+item_condition 3
+type 83
+end
+end
+arch floor_earth1c
+x 1
+y 6
+end
+arch water_lt3_m
+direction 1
+x 1
+y 6
+end
+arch floor_earth1e
+x 1
+y 7
+end
+arch wall_flagstone1b.111
+x 1
+y 7
+end
+arch blocked
+x 1
+y 8
+end
+arch wall_flagstone1b.111
+x 1
+y 8
+end
+arch floor_earth1a
+x 1
+y 9
+end
+arch wall_flagstone1b.131
+x 1
+y 9
+end
+arch floor_earth1d
+x 1
+y 10
+end
+arch wall_flagstone1b.131
+x 1
+y 10
+end
+arch plant1_wall.151
+direction 7
+x 1
+y 10
+end
+arch floor_earth1c
+x 1
+y 11
+end
+arch wall_flagstone1b.131
+x 1
+y 11
+end
+arch floor_earth1d
+x 1
+y 12
+end
+arch wall_flagstone1b.131
+x 1
+y 12
+end
+arch floor_earth1c
+x 1
+y 13
+end
+arch wall_flagstone1b.141
+x 1
+y 13
+end
+arch blocked
+x 1
+y 14
+end
+arch wall_flagstone1b.111
+x 1
+y 14
+end
+arch floor_earth1b
+x 1
+y 15
+end
+arch dirt_floor3
+x 1
+y 15
+end
+arch light3
+x 1
+y 15
+end
+arch floor_earth1b
+x 1
+y 16
+end
+arch wall_flagstone1b.111
+x 1
+y 16
+end
+arch plant2_wall.151
+x 1
+y 16
+end
+arch blocked
+x 2
+end
+arch wall_flagstone1b.131
+x 2
+end
+arch plant1_wall.151
+direction 7
+x 2
+end
+arch blocked
+x 2
+y 1
+end
+arch wall_flagstone1b.131
+x 2
+y 1
+end
+arch wall_drain1
+direction 7
+x 2
+y 1
+end
+arch blocked
+x 2
+y 2
+end
+arch wall_flagstone1b.131
+x 2
+y 2
+end
+arch blocked
+x 2
+y 3
+end
+arch wall_flagstone1b.131
+x 2
+y 3
+end
+arch plant1_wall.151
+direction 7
+x 2
+y 3
+end
+arch blocked
+x 2
+y 4
+end
+arch wall_flagstone1b.141
+x 2
+y 4
+end
+arch floor_earth1b
+x 2
+y 5
+end
+arch water_lt_m
+direction 6
+x 2
+y 5
+end
+arch floor_earth1c
+x 2
+y 6
+end
+arch water_lt5_m
+x 2
+y 6
+end
+arch light3
+x 2
+y 6
+end
+arch floor_earth1b
+x 2
+y 7
+end
+arch water_lt2_m
+direction 1
+x 2
+y 7
+end
+arch wall_flagstone1b.111
+x 2
+y 7
+end
+arch blocked
+x 2
+y 8
+end
+arch wall_flagstone1b.131
+x 2
+y 8
+end
+arch plant1_wall.151
+direction 7
+x 2
+y 8
+end
+arch blocked
+x 2
+y 9
+end
+arch wall_flagstone1b.131
+x 2
+y 9
+end
+arch plant2_wall.151
+direction 7
+x 2
+y 9
+end
+arch blocked
+x 2
+y 10
+end
+arch wall_flagstone1b.131
+x 2
+y 10
+end
+arch blocked
+x 2
+y 11
+end
+arch wall_flagstone1b.131
+x 2
+y 11
+end
+arch wall_drain2
+direction 7
+x 2
+y 11
+end
+arch blocked
+x 2
+y 12
+end
+arch wall_flagstone1b.131
+x 2
+y 12
+end
+arch plant2_wall.151
+direction 7
+x 2
+y 12
+end
+arch blocked
+x 2
+y 13
+end
+arch wall_flagstone1b.131
+x 2
+y 13
+end
+arch blocked
+x 2
+y 14
+end
+arch wall_flagstone1b.141
+x 2
+y 14
+end
+arch floor_earth1e
+x 2
+y 15
+end
+arch floor_earth1e
+x 2
+y 16
+end
+arch wall_flagstone1b.111
+x 2
+y 16
+end
+arch floor_earth1c
+x 3
+end
+arch floor_earth1a
+x 3
+y 1
+end
+arch floor_earth1b
+x 3
+y 2
+end
+arch pile_floor3
+x 3
+y 2
+end
+arch floor_earth1d
+x 3
+y 3
+end
+arch dirt_floor4
+x 3
+y 3
+end
+arch floor_earth1c
+x 3
+y 4
+end
+arch floor_earth1a
+x 3
+y 5
+end
+arch water_lt_m
+direction 4
+x 3
+y 5
+end
+arch floor_earth1c
+x 3
+y 6
+end
+arch water_lt5_m
+x 3
+y 6
+end
+arch floor_earth1b
+x 3
+y 7
+end
+arch water_lt_m
+direction 2
+x 3
+y 7
+end
+arch floor_earth1b
+x 3
+y 8
+end
+arch blood_floor1
+x 3
+y 8
+end
+arch floor_earth1a
+x 3
+y 9
+end
+arch pile_floor2
+x 3
+y 9
+end
+arch floor_earth1a
+x 3
+y 10
+end
+arch floor_earth1d
+x 3
+y 11
+end
+arch water_lt_m
+direction 4
+x 3
+y 11
+end
+arch floor_earth1c
+x 3
+y 12
+end
+arch water_lt_m
+direction 2
+x 3
+y 12
+end
+arch floor_earth1b
+x 3
+y 13
+end
+arch floor_earth1c
+x 3
+y 14
+end
+arch dirt_floor2
+x 3
+y 14
+end
+arch floor_earth1c
+x 3
+y 15
+end
+arch pile_floor1
+x 3
+y 15
+end
+arch floor_earth1b
+x 3
+y 16
+end
+arch wall_flagstone1b.111
+x 3
+y 16
+end
+arch blocked
+x 3
+y 17
+end
+arch wall_flagstone1b.131
+x 3
+y 17
+end
+arch blocked
+x 3
+y 18
+end
+arch wall_flagstone1b.131
+x 3
+y 18
+end
+arch floor_earth1e
+x 4
+end
+arch water_lt_m
+direction 4
+x 4
+end
+arch floor_earth1a
+x 4
+y 1
+end
+arch water_lt3_m
+direction 3
+x 4
+y 1
+end
+arch floor_earth1b
+x 4
+y 2
+end
+arch water_lt_m
+direction 2
+x 4
+y 2
+end
+arch floor_earth1a
+x 4
+y 3
+end
+arch water_lt_m
+direction 3
+x 4
+y 3
+end
+arch floor_earth1d
+x 4
+y 4
+end
+arch water_lt_m
+direction 4
+x 4
+y 4
+end
+arch light3
+x 4
+y 4
+end
+arch floor_earth1b
+x 4
+y 5
+end
+arch water_lt5_m
+x 4
+y 5
+end
+arch floor_earth1b
+x 4
+y 6
+end
+arch water_lt5_m
+x 4
+y 6
+end
+arch floor_earth1d
+x 4
+y 7
+end
+arch water_lt5_m
+x 4
+y 7
+end
+arch floor_earth1c
+x 4
+y 8
+end
+arch water_lt5_m
+direction 3
+x 4
+y 8
+end
+arch floor_earth1a
+x 4
+y 9
+end
+arch water_lt3_m
+direction 3
+x 4
+y 9
+end
+arch spawn_point
+x 4
+y 9
+arch frog
+item_condition 2
+type 83
+end
+end
+arch floor_earth1a
+x 4
+y 10
+end
+arch water_lt5_m
+direction 3
+x 4
+y 10
+end
+arch floor_earth1c
+x 4
+y 11
+end
+arch water_lt5_m
+x 4
+y 11
+end
+arch floor_earth1a
+x 4
+y 12
+end
+arch water_lt5_m
+x 4
+y 12
+end
+arch floor_earth1d
+x 4
+y 13
+end
+arch water_lt3_m
+direction 3
+x 4
+y 13
+end
+arch floor_earth1b
+x 4
+y 14
+end
+arch water_lt5_m
+direction 3
+x 4
+y 14
+end
+arch floor_earth1a
+x 4
+y 15
+end
+arch water_lt_m
+direction 2
+x 4
+y 15
+end
+arch floor_earth1a
+x 4
+y 16
+end
+arch floor_earth1b
+x 4
+y 17
+end
+arch blood_floor2
+x 4
+y 17
+end
+arch floor_earth1b
+x 4
+y 18
+end
+arch wall_flagstone1b.111
+x 4
+y 18
+end
+arch blocked
+x 4
+y 19
+end
+arch wall_flagstone1b.131
+x 4
+y 19
+end
+arch floor_earth1d
+x 5
+end
+arch water_lt3_m
+direction 7
+x 5
+end
+arch light3
+x 5
+end
+arch floor_earth1c
+x 5
+y 1
+end
+arch water_lt_m
+direction 8
+x 5
+y 1
+end
+arch floor_earth1b
+x 5
+y 2
+end
+arch water_lt_m
+direction 6
+x 5
+y 2
+end
+arch floor_earth1b
+x 5
+y 3
+end
+arch water_lt5_m
+direction 7
+x 5
+y 3
+end
+arch spawn_point
+x 5
+y 3
+arch snake
+item_condition 3
+attack_slash 100
+attack_poison 0
+type 83
+end
+end
+arch floor_earth1d
+x 5
+y 4
+end
+arch water_lt5_m
+direction 7
+x 5
+y 4
+end
+arch floor_earth1a
+x 5
+y 5
+end
+arch water_lt5_m
+direction 7
+x 5
+y 5
+end
+arch floor_earth1b
+x 5
+y 6
+end
+arch water_lt3_m
+direction 7
+x 5
+y 6
+end
+arch floor_earth1e
+x 5
+y 7
+end
+arch water_lt5_m
+direction 7
+x 5
+y 7
+end
+arch floor_earth1c
+x 5
+y 8
+end
+arch water_lt5_m
+direction 7
+x 5
+y 8
+end
+arch floor_earth1e
+x 5
+y 9
+end
+arch water_lt5_m
+direction 7
+x 5
+y 9
+end
+arch light3
+x 5
+y 9
+end
+arch floor_earth1a
+x 5
+y 10
+end
+arch water_lt5_m
+direction 7
+x 5
+y 10
+end
+arch floor_earth1a
+x 5
+y 11
+end
+arch water_lt3_m
+direction 7
+x 5
+y 11
+end
+arch floor_earth1c
+x 5
+y 12
+end
+arch water_lt5_m
+direction 7
+x 5
+y 12
+end
+arch floor_earth1e
+x 5
+y 13
+end
+arch water_lt3_m
+direction 7
+x 5
+y 13
+end
+arch light3
+x 5
+y 13
+end
+arch floor_earth1c
+x 5
+y 14
+end
+arch water_lt5_m
+direction 7
+x 5
+y 14
+end
+arch floor_earth1b
+x 5
+y 15
+end
+arch water_lt5_m
+x 5
+y 15
+end
+arch floor_earth1d
+x 5
+y 16
+end
+arch water_lt_m
+direction 2
+x 5
+y 16
+end
+arch floor_earth1e
+x 5
+y 17
+end
+arch blood_floor2
+x 5
+y 17
+end
+arch ladder_up
+ayer 4
+x 5
+y 17
+end
+arch floor_earth1d
+x 5
+y 18
+end
+arch blood_floor2
+x 5
+y 18
+end
+arch floor_earth1e
+x 5
+y 19
+end
+arch wall_flagstone1b.111
+x 5
+y 19
+end
+arch plant1_wall.151
+x 5
+y 19
+end
+arch floor_earth1d
+x 6
+end
+arch floor_earth1c
+x 6
+y 1
+end
+arch floor_earth1c
+x 6
+y 2
+end
+arch floor_earth1e
+x 6
+y 3
+end
+arch pile_floor1
+x 6
+y 3
+end
+arch floor_earth1e
+x 6
+y 4
+end
+arch floor_earth1b
+x 6
+y 5
+end
+arch floor_earth1a
+x 6
+y 6
+end
+arch floor_earth1b
+x 6
+y 7
+end
+arch floor_earth1e
+x 6
+y 8
+end
+arch dirt_floor2
+x 6
+y 8
+end
+arch floor_earth1b
+x 6
+y 9
+end
+arch dirt_floor1
+x 6
+y 9
+end
+arch floor_earth1c
+x 6
+y 10
+end
+arch floor_earth1a
+x 6
+y 11
+end
+arch floor_earth1e
+x 6
+y 12
+end
+arch floor_earth1c
+x 6
+y 13
+end
+arch dirt_floor2
+x 6
+y 13
+end
+arch floor_earth1c
+x 6
+y 14
+end
+arch floor_earth1d
+x 6
+y 15
+end
+arch water_lt_m
+direction 6
+x 6
+y 15
+end
+arch floor_earth1b
+x 6
+y 16
+end
+arch water_lt5_m
+x 6
+y 16
+end
+arch light3
+x 6
+y 16
+end
+arch floor_earth1d
+x 6
+y 17
+end
+arch water_lt_m
+direction 2
+x 6
+y 17
+end
+arch floor_earth1d
+x 6
+y 18
+end
+arch water_lt2_m
+direction 2
+x 6
+y 18
+end
+arch floor_earth1c
+x 6
+y 19
+end
+arch wall_flagstone1b.111
+x 6
+y 19
+end
+arch floor_earth1e
+x 7
+end
+arch wall_flagstone1b.131
+x 7
+end
+arch floor_earth1c
+x 7
+y 1
+end
+arch wall_flagstone1b.131
+x 7
+y 1
+end
+arch plant1_wall.151
+direction 7
+x 7
+y 1
+end
+arch floor_earth1e
+x 7
+y 2
+end
+arch wall_flagstone1b.131
+x 7
+y 2
+end
+arch floor_earth1c
+x 7
+y 3
+end
+arch wall_flagstone1b.131
+x 7
+y 3
+end
+arch floor_earth1d
+x 7
+y 4
+end
+arch wall_flagstone1b.131
+x 7
+y 4
+end
+arch floor_earth1d
+x 7
+y 5
+end
+arch wall_flagstone1b.131
+x 7
+y 5
+end
+arch plant2_wall.151
+direction 7
+x 7
+y 5
+end
+arch floor_earth1d
+x 7
+y 6
+end
+arch wall_flagstone1b.131
+x 7
+y 6
+end
+arch floor_earth1d
+x 7
+y 7
+end
+arch wall_flagstone1b.131
+x 7
+y 7
+end
+arch floor_earth1c
+x 7
+y 8
+end
+arch wall_flagstone1b.131
+x 7
+y 8
+end
+arch plant2_wall.151
+direction 7
+x 7
+y 8
+end
+arch floor_earth1d
+x 7
+y 9
+end
+arch wall_flagstone1b.131
+x 7
+y 9
+end
+arch floor_earth1a
+x 7
+y 10
+end
+arch wall_flagstone1b.131
+x 7
+y 10
+end
+arch plant1_wall.151
+direction 7
+x 7
+y 10
+end
+arch floor_earth1c
+x 7
+y 11
+end
+arch wall_flagstone1b.131
+x 7
+y 11
+end
+arch floor_earth1b
+x 7
+y 12
+end
+arch wall_flagstone1b.131
+x 7
+y 12
+end
+arch plant1_wall.151
+direction 7
+x 7
+y 12
+end
+arch floor_earth1a
+x 7
+y 13
+end
+arch wall_flagstone1b.131
+x 7
+y 13
+end
+arch floor_earth1a
+x 7
+y 14
+end
+arch wall_flagstone1b.131
+x 7
+y 14
+end
+arch floor_earth1a
+x 7
+y 15
+end
+arch pile_floor1
+x 7
+y 15
+end
+arch floor_earth1a
+x 7
+y 16
+end
+arch water_lt3_m
+direction 5
+x 7
+y 16
+end
+arch floor_earth1a
+x 7
+y 17
+end
+arch water_lt5_m
+x 7
+y 17
+end
+arch floor_earth1a
+x 7
+y 18
+end
+arch water_lt_m
+direction 2
+x 7
+y 18
+end
+arch floor_earth1e
+x 7
+y 19
+end
+arch wall_flagstone1b.111
+x 7
+y 19
+end
+arch blocked
+x 8
+y 14
+end
+arch wall_flagstone1b.111
+x 8
+y 14
+end
+arch plant2_wall.151
+x 8
+y 14
+end
+arch floor_earth1a
+x 8
+y 15
+end
+arch floor_earth1d
+x 8
+y 16
+end
+arch water_lt3_m
+direction 5
+x 8
+y 16
+end
+arch floor_earth1c
+x 8
+y 17
+end
+arch water_lt5_m
+x 8
+y 17
+end
+arch floor_earth1a
+x 8
+y 18
+end
+arch water_lt3_m
+direction 1
+x 8
+y 18
+end
+arch floor_earth1e
+x 8
+y 19
+end
+arch wall_flagstone1b.111
+x 8
+y 19
+end
+arch blocked
+x 9
+y 14
+end
+arch wall_flagstone1b.111
+x 9
+y 14
+end
+arch floor_earth1b
+x 9
+y 15
+end
+arch pile_floor1
+x 9
+y 15
+end
+arch floor_earth1e
+x 9
+y 16
+end
+arch water_lt5_m
+direction 5
+x 9
+y 16
+end
+arch floor_earth1c
+x 9
+y 17
+end
+arch water_lt5_m
+x 9
+y 17
+end
+arch light3
+x 9
+y 17
+end
+arch floor_earth1d
+x 9
+y 18
+end
+arch water_lt_m
+direction 8
+x 9
+y 18
+end
+arch floor_earth1b
+x 9
+y 19
+end
+arch wall_flagstone1b.111
+x 9
+y 19
+end
+arch plant2_wall.151
+x 9
+y 19
+end
+arch blocked
+x 10
+y 14
+end
+arch wall_flagstone1b.111
+x 10
+y 14
+end
+arch floor_earth1d
+x 10
+y 15
+end
+arch water_lt5_m
+direction 3
+x 10
+y 15
+end
+arch magic_mouth
+msg
+The water is too deep to pass.
+endmsg
+splitting 1
+direction 7
+x 10
+y 15
+end
+arch floor_earth1d
+x 10
+y 16
+end
+arch water_lt5_m
+direction 4
+x 10
+y 16
+end
+arch magic_mouth
+msg
+The water is too deep to pass.
+endmsg
+splitting 1
+direction 7
+x 10
+y 16
+end
+arch floor_earth1a
+x 10
+y 17
+end
+arch water_lt5_m
+x 10
+y 17
+end
+arch magic_mouth
+msg
+The water is too deep to pass.
+endmsg
+splitting 1
+direction 7
+x 10
+y 17
+end
+arch floor_earth1d
+x 10
+y 18
+end
+arch water_lt_m
+direction 2
+x 10
+y 18
+end
+arch magic_mouth
+msg
+The water is too deep to pass.
+endmsg
+splitting 1
+direction 7
+x 10
+y 18
+end
+arch floor_earth1a
+x 10
+y 19
+end
+arch wall_flagstone1b.111
+x 10
+y 19
+end
+arch blocked
+x 11
+y 14
+end
+arch wall_flagstone1b.111
+x 11
+y 14
+end
+arch water_lt4
+x 11
+y 15
+end
+arch water_lt3
+x 11
+y 16
+end
+arch water_lt3
+x 11
+y 17
+end
+arch water_lt3
+x 11
+y 18
+end
+arch water_lt4
+x 11
+y 19
+end
+arch wall_flagstone1b.111
+x 11
+y 19
+end
+arch plant2_wall.151
+x 11
+y 19
+end
+arch blocked
+x 12
+y 14
+end
+arch wall_flagstone1b.111
+x 12
+y 14
+end
+arch plant1_wall.151
+x 12
+y 14
+end
+arch water_lt4
+x 12
+y 15
+end
+arch water_lt
+x 12
+y 16
+end
+arch water_lt2
+x 12
+y 17
+end
+arch light3
+x 12
+y 17
+end
+arch water_lt3
+x 12
+y 18
+end
+arch water_lt3
+x 12
+y 19
+end
+arch wall_flagstone1b.111
+x 12
+y 19
+end
+arch blocked
+x 13
+y 14
+end
+arch wall_flagstone1b.111
+x 13
+y 14
+end
+arch water_lt4
+x 13
+y 15
+end
+arch water_lt4
+x 13
+y 16
+end
+arch water_lt4
+x 13
+y 17
+end
+arch water_lt4
+x 13
+y 18
+end
+arch water_lt3
+x 13
+y 19
+end
+arch wall_flagstone1b.111
+x 13
+y 19
+end
+arch blocked
+x 14
+y 14
+end
+arch wall_flagstone1b.141
+x 14
+y 14
+end
+arch floor_earth1b
+x 14
+y 15
+end
+arch water_lt_m
+direction 8
+x 14
+y 15
+end
+arch floor_earth1e
+z 2
+x 14
+y 16
+end
+arch water_lt_m
+direction 7
+x 14
+y 16
+end
+arch floor_earth1e
+z 2
+x 14
+y 17
+end
+arch water_lt2_m
+direction 7
+x 14
+y 17
+end
+arch floor_earth1e
+x 14
+y 18
+end
+arch water_lt_m
+direction 6
+x 14
+y 18
+end
+arch water_lt4
+x 14
+y 19
+end
+arch wall_flagstone1b.111
+x 14
+y 19
+end
+arch plant1_wall.151
+x 14
+y 19
+end
+arch water_lt3
+x 15
+y 13
+end
+arch rock_wall8
+x 15
+y 13
+end
+arch water_lt4
+x 15
+y 14
+end
+arch floor_earth1d
+x 15
+y 15
+end
+arch water_lt2_m
+direction 1
+x 15
+y 15
+end
+arch floor_earth1e
+z 3
+x 15
+y 16
+end
+arch sewer_hole2
+x 15
+y 16
+end
+arch floor_earth1a
+z 2
+x 15
+y 17
+end
+arch floor_earth1a
+x 15
+y 18
+end
+arch spawn_point
+x 15
+y 18
+arch rat_b
+item_condition 4
+type 83
+end
+end
+arch floor_earth1e
+x 15
+y 19
+end
+arch wall_flagstone1b.111
+x 15
+y 19
+end
+arch plant2_wall.151
+x 15
+y 19
+end
+arch water_lt3
+x 16
+y 13
+end
+arch water_lt
+x 16
+y 14
+end
+arch floor_earth1e
+x 16
+y 15
+end
+arch water_lt_m
+direction 2
+x 16
+y 15
+end
+arch floor_earth1e
+z 2
+x 16
+y 16
+end
+arch floor_earth1e
+z 2
+x 16
+y 17
+end
+arch light3
+x 16
+y 17
+end
+arch floor_earth1d
+x 16
+y 18
+end
+arch floor_earth1d
+x 16
+y 19
+end
+arch wall_flagstone1b.111
+x 16
+y 19
+end
+arch plant1_wall.151
+x 16
+y 19
+end
+arch water_lt3
+x 17
+y 13
+end
+arch waterfall_huge
+x 17
+y 13
+end
+arch water_lt
+x 17
+y 14
+end
+arch water_lt4
+x 17
+y 15
+end
+arch floor_earth1d
+x 17
+y 16
+end
+arch water_lt3_m
+direction 3
+x 17
+y 16
+end
+arch floor_earth1e
+x 17
+y 17
+end
+arch water_lt_m
+direction 2
+x 17
+y 17
+end
+arch floor_earth1a
+x 17
+y 18
+end
+arch floor_earth1e
+x 17
+y 19
+end
+arch wall_flagstone1b.111
+x 17
+y 19
+end
+arch water_lt3
+x 18
+y 13
+end
+arch water_lt4
+x 18
+y 14
+end
+arch water_lt2
+x 18
+y 15
+end
+arch water_lt2
+x 18
+y 16
+end
+arch floor_earth1a
+x 18
+y 17
+end
+arch water_lt5_m
+direction 8
+x 18
+y 17
+end
+arch floor_earth1b
+x 18
+y 18
+end
+arch floor_earth1b
+x 18
+y 19
+end
+arch wall_flagstone1b.111
+x 18
+y 19
+end
+arch water_lt4
+x 19
+y 13
+end
+arch water_lt
+x 19
+y 14
+end
+arch water_lt
+x 19
+y 15
+end
+arch water_lt
+x 19
+y 16
+end
+arch floor_earth1e
+x 19
+y 17
+end
+arch water_lt2_m
+direction 8
+x 19
+y 17
+end
+arch floor_earth1b
+x 19
+y 18
+end
+arch floor_earth1a
+x 19
+y 19
+end
+arch wall_flagstone1b.111
+x 19
+y 19
+end
+arch water_lt3
+x 20
+y 12
+end
+arch rock_wall6
+x 20
+y 12
+end
+arch water_lt2
+x 20
+y 13
+end
+arch water_lt3
+x 20
+y 14
+end
+arch water_lt3
+x 20
+y 15
+end
+arch floor_earth1c
+x 20
+y 16
+end
+arch water_lt_m
+direction 8
+x 20
+y 16
+end
+arch light3
+x 20
+y 16
+end
+arch floor_earth1e
+x 20
+y 17
+end
+arch floor_earth1c
+x 20
+y 18
+end
+arch floor_earth1c
+x 20
+y 19
+end
+arch wall_flagstone1b.111
+x 20
+y 19
+end
+arch water_lt4
+x 21
+y 12
+end
+arch water_lt3
+x 21
+y 13
+end
+arch water_lt
+x 21
+y 14
+end
+arch floor_earth1b
+x 21
+y 15
+end
+arch water_lt5_m
+direction 8
+x 21
+y 15
+end
+arch floor_earth1d
+x 21
+y 16
+end
+arch water_lt2_m
+direction 8
+x 21
+y 16
+end
+arch floor_earth1a
+x 21
+y 17
+end
+arch floor_earth1a
+x 21
+y 18
+end
+arch spawn_point
+x 21
+y 18
+arch rat_c
+item_condition 5
+type 83
+end
+end
+arch floor_earth1e
+x 21
+y 19
+end
+arch wall_flagstone1b.111
+x 21
+y 19
+end
+arch plant1_wall.151
+x 21
+y 19
+end
+arch blocked
+x 22
+end
+arch wall_flagstone1b.131
+x 22
+end
+arch blocked
+x 22
+y 1
+end
+arch wall_flagstone1b.131
+x 22
+y 1
+end
+arch blocked
+x 22
+y 2
+end
+arch wall_flagstone1b.131
+x 22
+y 2
+end
+arch plant1_wall.151
+direction 7
+x 22
+y 2
+end
+arch blocked
+x 22
+y 3
+end
+arch wall_flagstone1b.131
+x 22
+y 3
+end
+arch blocked
+x 22
+y 4
+end
+arch wall_flagstone1b.131
+x 22
+y 4
+end
+arch blocked
+x 22
+y 5
+end
+arch wall_flagstone1b.131
+x 22
+y 5
+end
+arch plant1_wall.151
+direction 7
+x 22
+y 5
+end
+arch blocked
+x 22
+y 6
+end
+arch wall_flagstone1b.131
+x 22
+y 6
+end
+arch blocked
+x 22
+y 7
+end
+arch wall_flagstone1b.131
+x 22
+y 7
+end
+arch plant2_wall.151
+direction 7
+x 22
+y 7
+end
+arch blocked
+x 22
+y 8
+end
+arch wall_flagstone1b.131
+x 22
+y 8
+end
+arch water_lt3
+x 22
+y 13
+end
+arch wall_flagstone1b.131
+x 22
+y 13
+end
+arch water_lt4
+x 22
+y 14
+end
+arch wall_flagstone1b.131
+x 22
+y 14
+end
+arch floor_earth1d
+x 22
+y 15
+end
+arch water_lt2_m
+direction 8
+x 22
+y 15
+end
+arch floor_earth1b
+x 22
+y 16
+end
+arch floor_earth1b
+x 22
+y 17
+end
+arch floor_earth1a
+x 22
+y 18
+end
+arch floor_earth1c
+x 22
+y 19
+end
+arch wall_flagstone1b.111
+x 22
+y 19
+end
+arch floor_earth1a
+x 23
+end
+arch plant6
+x 23
+end
+arch floor_earth1a
+x 23
+y 1
+end
+arch plant8
+x 23
+y 1
+end
+arch floor_earth1e
+x 23
+y 2
+end
+arch water_lt2_m
+direction 4
+x 23
+y 2
+end
+arch pile_floor3
+sub_layer 1
+x 23
+y 2
+end
+arch light3
+x 23
+y 2
+end
+arch floor_earth1c
+x 23
+y 3
+end
+arch water_lt_m
+direction 3
+x 23
+y 3
+end
+arch floor_earth1c
+x 23
+y 4
+end
+arch water_lt_m
+direction 4
+x 23
+y 4
+end
+arch water_lt3
+x 23
+y 5
+end
+arch water_lt2
+x 23
+y 6
+end
+arch water_lt
+x 23
+y 7
+end
+arch water_lt2
+x 23
+y 8
+end
+arch wall_flagstone1b.111
+x 23
+y 8
+end
+arch plant2_wall.151
+x 23
+y 8
+end
+arch blocked
+x 23
+y 14
+end
+arch wall_flagstone1b.111
+x 23
+y 14
+end
+arch floor_earth1d
+x 23
+y 15
+end
+arch floor_earth1a
+x 23
+y 16
+end
+arch floor_earth1d
+x 23
+y 17
+end
+arch dirt_floor1
+x 23
+y 17
+end
+arch floor_earth1b
+x 23
+y 18
+end
+arch floor_earth1e
+x 23
+y 19
+end
+arch wall_flagstone1b.111
+x 23
+y 19
+end

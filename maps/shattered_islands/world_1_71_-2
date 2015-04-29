@@ -1,8 +1,8 @@
 arch map
 name Sewers
 msg
-Created:  2010-06-18 Edwin Miltenburg
-Modified: 2011-11-03 Alex Tokar
+Created:  2010-06-06 Edwin Miltenburg
+Modified: 2015-04-29 Alex Tokar
 endmsg
 width 24
 height 24
@@ -11,11 +11,6 @@ enter_y 12
 difficulty 7
 darkness 2
 fixed_login 1
-tile_path_1 sewers_a_01aa
-tile_path_2 sewers_a_02ab
-tile_path_4 sewers_a_aaab
-tile_path_5 sewers_a_02aa
-tile_path_8 sewers_a_aaaa
 bg_music sewers.ogg
 region brynknot
 end
@@ -1076,7 +1071,7 @@ slaying brynknot_sewers1
 end
 arch event_obj
 sub_type 10
-race scripts/rocks_puzzle.py
+race strakewood_island/brynknot/sewers/scripts/rocks_puzzle.py
 end
 end
 arch floor_cave1

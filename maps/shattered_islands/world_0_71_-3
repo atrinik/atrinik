@@ -1,0 +1,249 @@
+arch map
+name Sewers
+msg
+Created:  2010-06-06 Edwin Miltenburg
+Modified: 2015-04-29 Alex Tokar
+endmsg
+width 24
+height 24
+difficulty 7
+darkness 1
+bg_music sewers.ogg
+region brynknot
+end
+arch blocked
+y 20
+end
+arch wall_dungeon_8
+y 20
+end
+arch blocked
+y 21
+end
+arch wall_dungeon_3
+y 21
+end
+arch blocked
+y 22
+end
+arch wall_dungeon_3
+y 22
+end
+arch plant2_wall.151
+direction 7
+y 22
+end
+arch blocked
+y 23
+end
+arch wall_dungeon_3
+y 23
+end
+arch blocked
+x 1
+y 20
+end
+arch wall_dungeon_1
+x 1
+y 20
+end
+arch floor_cave6
+x 1
+y 21
+end
+arch stairs_stone_up2
+direction 5
+x 1
+y 21
+end
+arch plant7
+sub_layer 1
+layer 5
+x 1
+y 21
+end
+arch floor_cave6
+x 1
+y 22
+end
+arch stairs_stone_up
+direction 5
+x 1
+y 22
+end
+arch plant7
+sub_layer 5
+layer 5
+x 1
+y 22
+end
+arch floor_cave5
+x 1
+y 23
+end
+arch plant8
+x 1
+y 23
+end
+arch blocked
+x 2
+y 20
+end
+arch wall_dungeon_1
+x 2
+y 20
+end
+arch floor_cave2
+x 2
+y 21
+end
+arch wall_dungeon_3
+x 2
+y 21
+end
+arch plant2_wall.151
+direction 7
+x 2
+y 21
+end
+arch floor_cave2
+x 2
+y 22
+end
+arch wall_dungeon_3
+x 2
+y 22
+end
+arch plant2_wall.151
+direction 7
+x 2
+y 22
+end
+arch floor_cave2
+x 2
+y 23
+end
+arch wall_dungeon_3
+x 2
+y 23
+end
+arch blocked
+x 3
+y 22
+end
+arch wall_dungeon_8
+x 3
+y 22
+end
+arch blocked
+x 3
+y 23
+end
+arch wall_dungeon_3
+x 3
+y 23
+end
+arch plant2_wall.151
+direction 7
+x 3
+y 23
+end
+arch blocked
+x 4
+y 22
+end
+arch wall_dungeon_1
+x 4
+y 22
+end
+arch floor_cave2
+x 4
+y 23
+end
+arch mushroom_spot1
+glow_radius 4
+x 4
+y 23
+end
+arch blocked
+x 5
+y 22
+end
+arch wall_dungeon_1
+x 5
+y 22
+end
+arch plant2_wall.151
+x 5
+y 22
+end
+arch floor_cave1
+x 5
+y 23
+end
+arch plant6
+x 5
+y 23
+end
+arch blocked
+x 6
+y 22
+end
+arch wall_dungeon_1
+x 6
+y 22
+end
+arch plant2_wall.151
+x 6
+y 22
+end
+arch floor_cave1
+x 6
+y 23
+end
+arch plant8
+x 6
+y 23
+end
+arch blocked
+x 7
+y 22
+end
+arch wall_dungeon_1
+x 7
+y 22
+end
+arch plant2_wall.151
+x 7
+y 22
+end
+arch floor_cave1
+x 7
+y 23
+end
+arch mushroom_spot2
+glow_radius 4
+x 7
+y 23
+end
+arch blocked
+x 8
+y 22
+end
+arch wall_dungeon_1
+x 8
+y 22
+end
+arch floor_cave6
+x 8
+y 23
+end
+arch wall_dungeon_3
+x 8
+y 23
+end
+arch plant2_wall.151
+direction 7
+x 8
+y 23
+end

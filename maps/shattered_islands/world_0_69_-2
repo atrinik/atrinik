@@ -1,8 +1,8 @@
 arch map
 name Sewers
 msg
-Created:  2010-06-18 Edwin Miltenburg
-Modified: 2011-11-03 Alex Tokar
+Created:  2010-06-06 Edwin Miltenburg
+Modified: 2015-04-29 Alex Tokar
 endmsg
 width 24
 height 24
@@ -10,10 +10,7 @@ enter_x 15
 enter_y 12
 difficulty 7
 darkness 2
-fixed_resettime 1
-tile_path_2 sewers_a_0101
-tile_path_3 sewers_a_aaaa
-tile_path_6 sewers_a_01aa
+fixed_login 1
 bg_music sewers.ogg
 region brynknot
 end
@@ -1641,9 +1638,6 @@ x 15
 y 11
 end
 arch ladder_up
-slaying sewers_0101
-hp 9
-sp 15
 x 15
 y 11
 end

@@ -1,16 +1,13 @@
 arch map
 name Brynknot Sewers
 msg
-Created:  2010-07-06 Edwin Miltenburg
-Modified: 2011-10-02 Alex Tokar
+Created:  2010-06-06 Edwin Miltenburg
+Modified: 2015-04-29 Alex Tokar
 endmsg
 width 24
 height 24
 difficulty 60
 darkness 1
-tile_path_3 sewers_a_0403
-tile_path_4 sewers_a_0304
-tile_path_7 sewers_a_0303
 bg_music escape.mid
 region brynknot
 end
@@ -2137,7 +2134,7 @@ arch exit
 msg
 It appears that Nyhelobo's lab has been claimed by the creatures living around in the area...
 endmsg
-slaying lab_nyhelobo/lab
+slaying strakewood_island/brynknot/sewers/lab
 hp 19
 sp 13
 animation portal_green
@@ -2146,7 +2143,7 @@ x 12
 y 21
 arch event_obj
 sub_type 10
-race scripts/beholder_portal.py
+race strakewood_island/brynknot/sewers/scripts/beholder_portal.py
 end
 end
 arch floor_earth1d
