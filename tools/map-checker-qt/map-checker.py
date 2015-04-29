@@ -23,7 +23,6 @@ from system.parser import ParserMap, ParserArchetype, ParserArtifact, \
     ParserRegion
 from system.saver import SaverMap
 from system.scanner import ScannerMap
-from ui.window_main import WindowMain
 
 
 class MapChecker:
@@ -305,8 +304,6 @@ def excepthook(exc_type, exc_value, exc_tback):
 
 
 def main():
-    from PyQt5.QtWidgets import QApplication
-
     sys.excepthook = excepthook
 
     logger = logging.getLogger('interface-editor')
@@ -377,6 +374,9 @@ def main():
         map_checker.db.purge()
 
     if not cli:
+        from PyQt5.QtWidgets import QApplication
+        from ui.window_main import WindowMain
+
         # Create a GUI window using Qt.
         app = QApplication(sys.argv)
         window = WindowMain()
