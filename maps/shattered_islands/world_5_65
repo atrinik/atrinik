@@ -2,7 +2,7 @@ arch map
 name Strakewood Island
 msg
 Created:  2009-09-10 Alex Tokar
-Modified: 2014-12-22 Alex Tokar
+Modified: 2015-04-29 Alex Tokar
 endmsg
 width 24
 height 24
@@ -13,90 +13,61 @@ region strakewood_island
 end
 arch grassd_6
 end
-arch tree_big2
-end
 arch grassd_5
 y 1
 end
-arch tree_big3
+arch plant10
 y 1
 end
 arch grassd_4
 y 2
 end
-arch tree_big4b
-y 2
-end
 arch grassd_1
-y 3
-end
-arch tree_big2
 y 3
 end
 arch grassd_5
 y 4
 end
-arch tree_big2
+arch small_stones
 y 4
 end
 arch grassd_1
-y 5
-end
-arch tree_big3
 y 5
 end
 arch grassd_5
 y 6
 end
-arch tree_big2
+arch plant13
 y 6
 end
 arch grassd_3
 y 7
 end
-arch tree_big2
-y 7
-end
 arch grassd_6
-y 8
-end
-arch tree_big2
 y 8
 end
 arch grassd_7
 y 9
 end
-arch tree_big2
+arch plant3
 y 9
 end
 arch grassd_4
 y 10
 end
-arch tree_big2
-y 10
-end
 arch grassd_2
-y 11
-end
-arch tree_big3
 y 11
 end
 arch grassd_6
 y 12
 end
-arch tree_big2
+arch plant_flower11
 y 12
 end
 arch grassd_1
 y 13
 end
-arch tree_big4b
-y 13
-end
 arch grassd_7
-y 14
-end
-arch tree_big3
 y 14
 end
 arch grassd_1
@@ -156,14 +127,19 @@ end
 arch grassd_7
 x 1
 end
-arch tree_big4b
-x 1
-end
 arch grassd_2
 x 1
 y 1
 end
 arch wall_ruin1a_181
+x 1
+y 1
+end
+arch map_info
+name underground_city_entrance
+hp 4
+sp 4
+cursed 1
 x 1
 y 1
 end
@@ -207,11 +183,11 @@ arch grassd_5
 x 1
 y 7
 end
-arch tree_big4b
-x 1
-y 7
-end
 arch grassd_4
+x 1
+y 8
+end
+arch plant_flower6
 x 1
 y 8
 end
@@ -223,15 +199,19 @@ arch grassd_6
 x 1
 y 10
 end
-arch tree_big2
-x 1
-y 10
-end
 arch grassd_1
 x 1
 y 11
 end
 arch wall_ruin1a_181
+x 1
+y 11
+end
+arch map_info
+name underground_city_entrance
+hp 14
+sp 2
+cursed 1
 x 1
 y 11
 end
@@ -252,10 +232,6 @@ x 1
 y 13
 end
 arch grassd_4
-x 1
-y 14
-end
-arch tree_big4b
 x 1
 y 14
 end
@@ -312,9 +288,6 @@ x 1
 y 23
 end
 arch grassd_1
-x 2
-end
-arch tree_big3
 x 2
 end
 arch grassd_5
@@ -369,6 +342,13 @@ arch wall_ruin1b_131
 x 2
 y 6
 end
+arch map_info
+name underground_city_entrance
+hp 13
+cursed 1
+x 2
+y 6
+end
 arch grassd_8
 x 2
 y 7
@@ -386,6 +366,14 @@ x 2
 y 9
 end
 arch wall_ruin1a_181
+x 2
+y 9
+end
+arch map_info
+name underground_city_entrance
+hp 13
+sp 1
+cursed 1
 x 2
 y 9
 end
@@ -496,7 +484,7 @@ end
 arch grassd_2
 x 3
 end
-arch tree_big4b
+arch plant3
 x 3
 end
 arch grassd_7
@@ -515,7 +503,7 @@ arch floor_ruin1
 x 3
 y 2
 end
-arch floor_ruin3
+arch floor_ruin4
 x 3
 y 3
 end
@@ -523,7 +511,7 @@ arch fmask_ruin1_s3.101
 x 3
 y 3
 end
-arch floor_ruin1
+arch floor_ruin4
 x 3
 y 4
 end
@@ -553,6 +541,14 @@ x 3
 y 7
 end
 arch wall_ruin1b_131
+x 3
+y 7
+end
+arch map_info
+name underground_city_entrance
+hp 12
+sp 1
+cursed 1
 x 3
 y 7
 end
@@ -618,6 +614,13 @@ arch wall_ruin1a_131
 x 3
 y 14
 end
+arch map_info
+name underground_city_entrance
+hp 12
+cursed 1
+x 3
+y 14
+end
 arch grassd_7
 x 3
 y 15
@@ -634,11 +637,11 @@ arch grassd_8
 x 3
 y 17
 end
-arch tree_big3
-x 3
-y 17
-end
 arch grassd_7
+x 3
+y 18
+end
+arch stone1
 x 3
 y 18
 end
@@ -677,9 +680,6 @@ end
 arch grassd_5
 x 4
 end
-arch tree_big2
-x 4
-end
 arch grassd_7
 x 4
 y 1
@@ -692,15 +692,15 @@ arch floor_ruin1
 x 4
 y 2
 end
-arch floor_ruin1
+arch floor_ruin4
 x 4
 y 3
 end
-arch floor_ruin1
+arch floor_ruin4
 x 4
 y 4
 end
-arch floor_ruin1
+arch floor_ruin4
 x 4
 y 5
 end
@@ -712,7 +712,7 @@ arch fmask_ruin1a.111
 x 4
 y 6
 end
-arch floor_ruin1
+arch floor_ruin4
 x 4
 y 7
 end
@@ -733,7 +733,7 @@ arch floor_ruin1
 x 4
 y 10
 end
-arch floor_ruin1
+arch floor_ruin4
 x 4
 y 11
 end
@@ -812,7 +812,7 @@ end
 arch grassd_3
 x 5
 end
-arch tree_big2
+arch plant17
 x 5
 end
 arch grassd_1
@@ -831,11 +831,11 @@ arch wall_ruin1a_131
 x 5
 y 2
 end
-arch floor_ruin1
+arch floor_ruin4
 x 5
 y 3
 end
-arch floor_ruin1
+arch floor_ruin4
 x 5
 y 4
 end
@@ -859,7 +859,7 @@ arch floor_ruin1
 x 5
 y 7
 end
-arch floor_ruin1
+arch floor_ruin4
 x 5
 y 8
 end
@@ -907,6 +907,10 @@ arch grassd_7
 x 5
 y 17
 end
+arch plant3
+x 5
+y 17
+end
 arch grassd_2
 x 5
 y 18
@@ -938,14 +942,7 @@ end
 arch grassd_6
 x 6
 end
-arch tree_big4b
-x 6
-end
 arch grassd_6
-x 6
-y 1
-end
-arch tree_big4b
 x 6
 y 1
 end
@@ -954,6 +951,14 @@ x 6
 y 2
 end
 arch wall_ruin1e_111
+x 6
+y 2
+end
+arch map_info
+name underground_city_entrance
+hp 8
+sp 3
+cursed 1
 x 6
 y 2
 end
@@ -969,7 +974,7 @@ arch floor_ruin1
 x 6
 y 4
 end
-arch floor_ruin1
+arch floor_ruin4
 x 6
 y 5
 end
@@ -981,15 +986,15 @@ arch fmask_ruin1a.111
 x 6
 y 6
 end
-arch floor_ruin1
+arch floor_ruin4
 x 6
 y 7
 end
-arch floor_ruin1
+arch floor_ruin4
 x 6
 y 8
 end
-arch floor_ruin1
+arch floor_ruin4
 x 6
 y 9
 end
@@ -1005,7 +1010,7 @@ arch floor_ruin1
 x 6
 y 11
 end
-arch floor_ruin1
+arch floor_ruin4
 x 6
 y 12
 end
@@ -1026,6 +1031,14 @@ x 6
 y 15
 end
 arch grass_thickm4
+x 6
+y 15
+end
+arch map_info
+name underground_city_entrance
+hp 13
+sp 4
+cursed 1
 x 6
 y 15
 end
@@ -1072,14 +1085,7 @@ end
 arch grassd_3
 x 7
 end
-arch tree_big2
-x 7
-end
 arch grassd_7
-x 7
-y 1
-end
-arch tree_big3
 x 7
 y 1
 end
@@ -1123,15 +1129,15 @@ arch floor_ruin1
 x 7
 y 7
 end
-arch floor_ruin1
+arch floor_ruin4
 x 7
 y 8
 end
-arch floor_ruin1
+arch floor_ruin4
 x 7
 y 9
 end
-arch floor_ruin1
+arch floor_ruin4
 x 7
 y 10
 end
@@ -1163,7 +1169,7 @@ arch floor_ruin1
 x 7
 y 14
 end
-arch pillar_ruin1a_a1
+arch wall_ruin_c2a
 x 7
 y 14
 end
@@ -1226,14 +1232,14 @@ end
 arch grassd_8
 x 8
 end
-arch tree_big2
+arch plant13
 x 8
 end
 arch grassd_8
 x 8
 y 1
 end
-arch tree_big2
+arch plant11
 x 8
 y 1
 end
@@ -1290,7 +1296,7 @@ sub_layer 1
 x 8
 y 6
 end
-arch floor_ruin1
+arch floor_ruin4
 x 8
 y 7
 end
@@ -1303,12 +1309,20 @@ arch trash_wood1.101
 x 8
 y 7
 end
-arch floor_ruin1
+arch light5
+x 8
+y 7
+end
+arch floor_ruin4
 x 8
 y 8
 end
 arch fmask_ruin1a.111
 direction 5
+x 8
+y 8
+end
+arch light5
 x 8
 y 8
 end
@@ -1321,7 +1335,7 @@ direction 5
 x 8
 y 9
 end
-arch floor_ruin1
+arch floor_ruin4
 x 8
 y 10
 end
@@ -1423,14 +1437,7 @@ end
 arch grassd_1
 x 9
 end
-arch tree_big2
-x 9
-end
 arch grassd_1
-x 9
-y 1
-end
-arch tree_big3
 x 9
 y 1
 end
@@ -1454,7 +1461,7 @@ arch floor_ruin1
 x 9
 y 4
 end
-arch floor_ruin1
+arch floor_ruin4
 x 9
 y 5
 end
@@ -1470,7 +1477,15 @@ arch floor_ruin1
 x 9
 y 7
 end
+arch light5
+x 9
+y 7
+end
 arch floor_ruin1
+x 9
+y 8
+end
+arch light5
 x 9
 y 8
 end
@@ -1478,11 +1493,11 @@ arch floor_ruin1
 x 9
 y 9
 end
-arch floor_ruin1
+arch floor_ruin4
 x 9
 y 10
 end
-arch floor_ruin1
+arch floor_ruin4
 x 9
 y 11
 end
@@ -1498,7 +1513,11 @@ arch floor_ruin1
 x 9
 y 14
 end
-arch floor_ruin1
+arch wall_ruin_c3a
+x 9
+y 14
+end
+arch floor_ruin4
 x 9
 y 15
 end
@@ -1566,22 +1585,26 @@ end
 arch grassd_7
 x 10
 end
-arch tree_big
-x 10
-end
-arch grassd_6
+arch grassd_3
 x 10
 y 1
 end
-arch tree_big3
+arch wall_ruin1a_181
 x 10
 y 1
 end
-arch grassd_7
+arch map_info
+name underground_city_entrance
+hp 4
+cursed 1
+x 10
+y 1
+end
+arch grassd_5
 x 10
 y 2
 end
-arch wall_ruin1e_111
+arch wall_ruin1a_141
 x 10
 y 2
 end
@@ -1589,11 +1612,15 @@ arch floor_ruin1
 x 10
 y 3
 end
+arch torch_wall_1
+x 10
+y 3
+end
 arch floor_ruin1
 x 10
 y 4
 end
-arch floor_ruin1
+arch floor_ruin4
 x 10
 y 5
 end
@@ -1605,7 +1632,7 @@ arch fmask_ruin1a.111
 x 10
 y 6
 end
-arch floor_ruin1
+arch floor_ruin4
 x 10
 y 7
 end
@@ -1625,7 +1652,7 @@ arch floor_ruin1
 x 10
 y 11
 end
-arch floor_ruin1
+arch floor_ruin4
 x 10
 y 12
 end
@@ -1700,22 +1727,19 @@ end
 arch grassd_1
 x 11
 end
-arch tree_big2
-x 11
-end
-arch grassd_3
+arch grassd_1
 x 11
 y 1
 end
-arch wall_ruin1a_181
+arch wall_ruin1e_111
 x 11
 y 1
 end
-arch grassd_5
+arch floor_ruin1
 x 11
 y 2
 end
-arch wall_ruin1a_141
+arch ladder_up
 x 11
 y 2
 end
@@ -1723,15 +1747,11 @@ arch floor_ruin1
 x 11
 y 3
 end
-arch torch_wall_1
-x 11
-y 3
-end
-arch floor_ruin1
+arch floor_ruin4
 x 11
 y 4
 end
-arch floor_ruin1
+arch floor_ruin4
 x 11
 y 5
 end
@@ -1755,7 +1775,7 @@ arch floor_ruin1
 x 11
 y 7
 end
-arch floor_ruin1
+arch floor_ruin4
 x 11
 y 8
 end
@@ -1763,7 +1783,7 @@ arch floor_ruin1
 x 11
 y 9
 end
-arch floor_ruin1
+arch floor_ruin4
 x 11
 y 10
 end
@@ -1775,7 +1795,7 @@ arch floor_ruin1
 x 11
 y 11
 end
-arch floor_ruin1
+arch floor_ruin4
 x 11
 y 12
 end
@@ -1851,7 +1871,7 @@ end
 arch grassd_5
 x 12
 end
-arch tree_big2
+arch plant_mushroom4
 x 12
 end
 arch grassd_1
@@ -1874,7 +1894,7 @@ arch floor_ruin1
 x 12
 y 4
 end
-arch floor_ruin1
+arch floor_ruin4
 x 12
 y 5
 end
@@ -1890,7 +1910,7 @@ arch floor_ruin1
 x 12
 y 7
 end
-arch floor_ruin1
+arch floor_ruin4
 x 12
 y 8
 end
@@ -1902,11 +1922,11 @@ arch floor_ruin1
 x 12
 y 10
 end
-arch floor_ruin1
+arch floor_ruin4
 x 12
 y 11
 end
-arch floor_ruin1
+arch floor_ruin4
 x 12
 y 12
 end
@@ -1985,9 +2005,6 @@ end
 arch grassd_2
 x 13
 end
-arch tree_big2
-x 13
-end
 arch grassd_1
 x 13
 y 1
@@ -2008,7 +2025,7 @@ arch floor_ruin1
 x 13
 y 4
 end
-arch floor_ruin1
+arch floor_ruin4
 x 13
 y 5
 end
@@ -2024,7 +2041,7 @@ arch floor_ruin1
 x 13
 y 7
 end
-arch floor_ruin1
+arch floor_ruin4
 x 13
 y 8
 end
@@ -2064,7 +2081,7 @@ arch floor_ruin1
 x 13
 y 15
 end
-arch floor_ruin1
+arch floor_ruin4
 x 13
 y 16
 end
@@ -2072,7 +2089,7 @@ arch floor_ruin1
 x 13
 y 17
 end
-arch floor_ruin1
+arch floor_ruin4
 x 13
 y 18
 end
@@ -2103,7 +2120,7 @@ end
 arch grassd_8
 x 14
 end
-arch tree_big2
+arch stone1
 x 14
 end
 arch grassd_6
@@ -2146,7 +2163,7 @@ arch fmask_ruin1a.111
 x 14
 y 6
 end
-arch floor_ruin1
+arch floor_ruin4
 x 14
 y 7
 end
@@ -2241,14 +2258,7 @@ end
 arch grassd_1
 x 15
 end
-arch tree_big3
-x 15
-end
 arch grassd_6
-x 15
-y 1
-end
-arch grass_thickm8
 x 15
 y 1
 end
@@ -2272,6 +2282,13 @@ arch wall_ruin1e_111
 x 15
 y 3
 end
+arch map_info
+name underground_city_entrance
+sp 2
+cursed 1
+x 15
+y 3
+end
 arch floor_ruin1
 x 15
 y 4
@@ -2284,7 +2301,7 @@ arch floor_ruin1
 x 15
 y 5
 end
-arch pillar_ruin1a_a
+arch wall_ruin_c1b
 x 15
 y 5
 end
@@ -2297,6 +2314,10 @@ x 15
 y 6
 end
 arch floor_ruin1
+x 15
+y 7
+end
+arch wall_ruin_c3b
 x 15
 y 7
 end
@@ -2364,6 +2385,10 @@ arch grass_thickm4
 x 15
 y 15
 end
+arch torch_wall_1
+x 15
+y 15
+end
 arch grassd_8
 x 15
 y 16
@@ -2442,7 +2467,15 @@ arch grass_thickm8
 x 16
 y 5
 end
-arch floor_ruin1
+arch map_info
+name underground_city_entrance
+hp 3
+sp 9
+cursed 1
+x 16
+y 5
+end
+arch floor_ruin4
 x 16
 y 6
 end
@@ -2450,7 +2483,7 @@ arch fmask_ruin1a.111
 x 16
 y 6
 end
-arch floor_ruin1
+arch floor_ruin4
 x 16
 y 7
 end
@@ -2496,6 +2529,11 @@ x 16
 y 14
 end
 arch grass_thickm8
+x 16
+y 14
+end
+arch torch_wall_1
+direction 7
 x 16
 y 14
 end
@@ -2760,7 +2798,7 @@ arch grass_thickm6
 x 18
 y 9
 end
-arch floor_ruin1
+arch floor_ruin4
 x 18
 y 10
 end
