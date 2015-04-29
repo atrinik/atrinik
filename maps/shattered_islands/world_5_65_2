@@ -11,6 +11,42 @@ outdoor 1
 bg_music jungle1.ogg
 region strakewood_island
 end
+arch trans
+x 1
+y 1
+end
+arch trans
+x 1
+y 2
+end
+arch trans
+x 1
+y 3
+end
+arch trans
+x 1
+y 4
+end
+arch trans
+x 1
+y 5
+end
+arch trans
+x 1
+y 11
+end
+arch trans
+x 1
+y 12
+end
+arch trans
+x 1
+y 13
+end
+arch trans
+x 2
+y 1
+end
 arch floor_ruin1
 x 2
 y 2
@@ -39,6 +75,22 @@ arch floor_ruin1
 x 2
 y 5
 end
+arch trans
+x 2
+y 6
+end
+arch trans
+x 2
+y 9
+end
+arch trans
+x 2
+y 10
+end
+arch trans
+x 2
+y 11
+end
 arch floor_ruin1
 x 2
 y 12
@@ -53,6 +105,10 @@ end
 arch floor_ruin1
 x 2
 y 13
+end
+arch trans
+x 3
+y 1
 end
 arch floor_ruin1
 x 3
@@ -87,6 +143,10 @@ arch floor_ruin5
 x 3
 y 5
 end
+arch light2
+x 3
+y 5
+end
 arch floor_ruin4
 x 3
 y 6
@@ -96,6 +156,18 @@ name underground_city_entrance
 is_magical 1
 x 3
 y 6
+end
+arch trans
+x 3
+y 7
+end
+arch trans
+x 3
+y 8
+end
+arch trans
+x 3
+y 9
 end
 arch floor_ruin1
 x 3
@@ -120,6 +192,18 @@ arch floor_ruin1
 x 3
 y 13
 end
+arch light2
+x 3
+y 13
+end
+arch trans
+x 3
+y 14
+end
+arch trans
+x 4
+y 1
+end
 arch floor_ruin1
 x 4
 y 2
@@ -129,6 +213,10 @@ x 4
 y 2
 end
 arch floor_ruin4
+x 4
+y 3
+end
+arch light2
 x 4
 y 3
 end
@@ -176,6 +264,10 @@ arch fmask_ruin1_s1.101
 x 4
 y 9
 end
+arch light2
+x 4
+y 9
+end
 arch floor_ruin1
 x 4
 y 10
@@ -199,6 +291,10 @@ end
 arch floor_ruin1
 x 4
 y 14
+end
+arch trans
+x 5
+y 1
 end
 arch floor_ruin1
 x 5
@@ -259,6 +355,10 @@ end
 arch wall_ruin_c3a
 x 5
 y 14
+end
+arch trans
+x 6
+y 2
 end
 arch floor_ruin1
 x 6
@@ -324,6 +424,10 @@ arch floor_ruin1
 x 6
 y 13
 end
+arch light2
+x 6
+y 13
+end
 arch floor_ruin1
 x 6
 y 14
@@ -332,7 +436,15 @@ arch wall_ruin_c2a
 x 6
 y 14
 end
+arch trans
+x 7
+y 2
+end
 arch floor_ruin1
+x 7
+y 3
+end
+arch light2
 x 7
 y 3
 end
@@ -392,6 +504,10 @@ arch floor_ruin1
 x 7
 y 14
 end
+arch trans
+x 8
+y 2
+end
 arch floor_ruin1
 x 8
 y 3
@@ -447,6 +563,10 @@ end
 arch floor_ruin1
 x 8
 y 14
+end
+arch trans
+x 9
+y 2
 end
 arch floor_ruin1
 x 9
@@ -504,7 +624,15 @@ arch fmask_ruin1_s1.101
 x 9
 y 14
 end
+arch trans
+x 10
+y 2
+end
 arch floor_ruin1
+x 10
+y 3
+end
+arch light2
 x 10
 y 3
 end
@@ -569,9 +697,17 @@ arch floor_ruin1
 x 10
 y 13
 end
+arch light2
+x 10
+y 13
+end
 arch floor_ruin1
 x 10
 y 14
+end
+arch trans
+x 11
+y 1
 end
 arch floor_ruin1
 x 11
@@ -640,6 +776,10 @@ end
 arch floor_ruin1
 x 11
 y 14
+end
+arch trans
+x 12
+y 1
 end
 arch floor_ruin1
 x 12
@@ -715,6 +855,10 @@ arch floor_ruin1
 x 12
 y 14
 end
+arch trans
+x 13
+y 1
+end
 arch floor_ruin1
 x 13
 y 2
@@ -724,6 +868,10 @@ x 13
 y 2
 end
 arch floor_ruin1
+x 13
+y 3
+end
+arch light2
 x 13
 y 3
 end
@@ -779,6 +927,10 @@ arch floor_ruin1
 x 13
 y 12
 end
+arch light2
+x 13
+y 12
+end
 arch floor_ruin1
 x 13
 y 13
@@ -786,6 +938,10 @@ end
 arch floor_ruin1
 x 13
 y 14
+end
+arch trans
+x 14
+y 1
 end
 arch floor_ruin1
 x 14
@@ -819,6 +975,10 @@ arch floor_ruin1
 x 14
 y 9
 end
+arch light2
+x 14
+y 9
+end
 arch floor_ruin1
 x 14
 y 10
@@ -843,6 +1003,10 @@ arch wall_ruin_c3a
 x 14
 y 14
 end
+arch trans
+x 15
+y 3
+end
 arch floor_ruin1
 x 15
 y 4
@@ -854,6 +1018,10 @@ x 15
 y 4
 end
 arch floor_ruin1
+x 15
+y 5
+end
+arch light2
 x 15
 y 5
 end
