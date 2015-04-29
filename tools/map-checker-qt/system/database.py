@@ -9,6 +9,7 @@ class Database(object):
         self.path = path
         self.db = None
         self.init_database()
+        self.load()
 
     def init_database(self):
         self.db = {
