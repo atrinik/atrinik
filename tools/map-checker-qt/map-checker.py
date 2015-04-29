@@ -189,7 +189,7 @@ class MapChecker:
                 self._scan_status = "Parsing {} definitions...".format(
                     collection.name)
 
-                with open(path, "r") as f:
+                with open(path) as f:
                     self.collection_parser(collection).parse(f)
                     collection.setLastRead(path)
 
@@ -223,7 +223,7 @@ class MapChecker:
             self._scan_status = "Parsing {}...".format(file)
 
             # Parse the map file.
-            with open(file, "r") as f:
+            with open(file) as f:
                 m = self.parser_map.parse(f)
 
             self._scan_status = "Checking {}...".format(file)

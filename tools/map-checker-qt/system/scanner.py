@@ -54,7 +54,7 @@ class ScannerMap:
         maps = []
 
         for file in files:
-            with open(file, "r") as f:
+            with open(file) as f:
                 # Attempt to read the map file identifier header.
                 # If it's there, this is a map file.
                 s = f.read(len(parser.mapFileIdentifier))
