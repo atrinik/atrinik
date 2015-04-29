@@ -1726,6 +1726,15 @@ object *insert_ob_in_map(object *op, mapstruct *m, object *originator, int flag)
         }
 
         if (found_floor) {
+            if (fall_floors != 0 && object_blocked(op, tiled, op->x, op->y)) {
+                int i = find_first_free_spot(op->arch, op, tiled, op->x, op->y);
+
+                if (i != -1) {
+                    op->x += freearr_x[i];
+                    op->y += freearr_y[i];
+                }
+            }
+
             op->sub_layer = sub_layer;
             m = tiled;
         }
