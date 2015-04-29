@@ -233,13 +233,13 @@ class CheckerObject(AbstractChecker):
 
         maps_path = os.path.realpath(self.map_checker.get_maps_path())
 
-        if not os.path.realpath(env.map.path).startswith(maps_path):
+        if not os.path.realpath(env.map.name).startswith(maps_path):
             return
 
         if path.startswith("/"):
             real_path = os.path.join(maps_path, path[1:])
         else:
-            real_path = os.path.join(os.path.dirname(env.map.path), path)
+            real_path = os.path.join(os.path.dirname(env.map.name), path)
 
         real_path = os.path.realpath(real_path)
 
