@@ -2,7 +2,7 @@ arch map
 name Nyhelobo's Lab
 msg
 Created:  2010-07-06 Edwin Miltenburg
-Modified: 2015-04-29 Alex Tokar
+Modified: 2015-04-30 Alex Tokar
 endmsg
 width 24
 height 24
@@ -3589,8 +3589,8 @@ y 12
 end
 arch exit
 slaying /shattered_islands/world_4_66_-2
-hp 14
-sp 21
+hp 0
+sp 12
 animation portal_green
 anim_speed 2
 x 19
