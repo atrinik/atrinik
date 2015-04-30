@@ -94,14 +94,12 @@ TOOLKIT_INIT_FUNC(faction)
         }
 
         char *cps[2];
-        const char *error_str;
+        const char *error_str, *key = cps[0], *value = cps[1];
 
         if (string_split(cp, cps, arraysize(cps), ' ') < 1) {
             error_str = "empty line";
             goto error;
         }
-
-        const char *key = cps[0], *value = cps[1];
 
         if (strcmp(key, "faction") == 0) {
             if (depth == arraysize(faction)) {
