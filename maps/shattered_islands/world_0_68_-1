@@ -2,7 +2,7 @@ arch map
 name Brynknot Sewers
 msg
 Created:  2010-06-06 Edwin Miltenburg
-Modified: 2015-04-29 Alex Tokar
+Modified: 2015-04-30 Alex Tokar
 endmsg
 width 24
 height 24
@@ -670,7 +670,6 @@ x 10
 y 21
 end
 arch ladder_up
-ayer 4
 x 10
 y 21
 end
