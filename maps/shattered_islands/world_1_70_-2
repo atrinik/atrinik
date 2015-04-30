@@ -2,7 +2,7 @@ arch map
 name Sewers
 msg
 Created:  2010-06-06 Edwin Miltenburg
-Modified: 2015-04-29 Alex Tokar
+Modified: 2015-04-30 Alex Tokar
 endmsg
 width 24
 height 24
@@ -1671,9 +1671,7 @@ arch hole
 msg
 You fall down the hole.
 endmsg
-slaying sewers_b_01aa
-hp 13
-sp 6
+last_heal 10
 walk_on 1
 x 13
 y 6
