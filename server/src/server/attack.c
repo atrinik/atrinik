@@ -222,7 +222,7 @@ int hit_player(object *op, int dam, object *hitter)
 {
     object *hit_obj, *hitter_owner, *target_obj;
     int maxdam = 0;
-    int attacknum, hit_level;
+    int attacknum;
     int simple_attack;
 
     /* If our target has no_damage 1 set, we can't hurt him. */
@@ -264,20 +264,9 @@ int hit_player(object *op, int dam, object *hitter)
         target_obj = op;
     }
 
-    /* Get from hitter object the right skill level. */
-    if (hit_obj->type == PLAYER) {
-        hit_level = SK_level(hit_obj);
-    } else {
-        hit_level = hitter->level;
-    }
-
     /* Do not let friendly objects attack each other. */
     if (is_friend_of(hit_obj, op)) {
         return 0;
-    }
-
-    if (hit_level > target_obj->level && hit_obj->type == MONSTER) {
-        dam += (int) ((float) (dam / 2) * ((float) (hit_level - target_obj->level) / (target_obj->level > 25 ? 25.0f : (float) target_obj->level)));
     }
 
     /* Check for PVP areas. */
