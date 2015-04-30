@@ -47,7 +47,7 @@ static int inscribe_book(object *op, const char *msg, object *marked)
     /* Prevent cheating. */
     if (strcasestr(msg, "endmsg")) {
         draw_info(COLOR_WHITE, op, "Trying to cheat now are we?");
-        logger_print(LOG(INFO), "%s tried to write a bogus message using inscription skill.", op->name);
+        LOG(INFO, "%s tried to write a bogus message using inscription skill.", op->name);
         return 0;
     }
 

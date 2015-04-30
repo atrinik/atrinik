@@ -369,7 +369,7 @@ static void init_msgfile(void)
             if (in_msg) {
                 if (!strcmp(buf, "ENDMSG")) {
                     if (strlen(msgbuf) > BOOK_BUF) {
-                        logger_print(LOG(BUG), "This string exceeded max book buf size: %s", msgbuf);
+                        LOG(BUG, "This string exceeded max book buf size: %s", msgbuf);
                     }
 
                     num_msgs++;
@@ -380,7 +380,7 @@ static void init_msgfile(void)
                     strcat(msgbuf, buf);
                     strcat(msgbuf, "\n");
                 } else if (error_lineno != 0) {
-                    logger_print(LOG(BUG), "Truncating book at %s, line %d", fname, error_lineno);
+                    LOG(BUG, "Truncating book at %s, line %d", fname, error_lineno);
                     error_lineno = 0;
                 }
             } else if (!strcmp(buf, "MSG")) {
@@ -388,7 +388,7 @@ static void init_msgfile(void)
                 msgbuf[0] = '\0';
                 in_msg = 1;
             } else {
-                logger_print(LOG(BUG), "Syntax error at %s, line %d", fname, lineno);
+                LOG(BUG, "Syntax error at %s, line %d", fname, lineno);
             }
         }
 

@@ -163,7 +163,7 @@ static int widget_load(const char *path, uint8_t defaults, widgetdata *widgets[]
                 /* Reset to NULL in case there was a valid widget previously,
                  * so that we don't load into it from this invalid one. */
                 widget = NULL;
-                logger_print(LOG(DEBUG), "Invalid widget: %s", line);
+                LOG(DEBUG, "Invalid widget: %s", line);
                 continue;
             }
 
@@ -178,7 +178,7 @@ static int widget_load(const char *path, uint8_t defaults, widgetdata *widgets[]
             char *cps[2];
 
             if (string_split(line, cps, arraysize(cps), '=') != arraysize(cps)) {
-                logger_print(LOG(BUG), "Invalid line: %s", line);
+                LOG(BUG, "Invalid line: %s", line);
                 continue;
             }
 
@@ -216,7 +216,7 @@ static int widget_load(const char *path, uint8_t defaults, widgetdata *widgets[]
                 widget->min_h = atoi(cps[1]);
             } else if (widget->load_func && widget->load_func(widget, cps[0], cps[1])) {
             } else {
-                logger_print(LOG(BUG), "Invalid line: %s = %s", cps[0], cps[1]);
+                LOG(BUG, "Invalid line: %s = %s", cps[0], cps[1]);
             }
         }
     }
@@ -263,7 +263,7 @@ void toolkit_widget_init(void)
     widget_initializers[CHATWIN_ID] = widget_textwin_init;
 
     if (!widget_load("data/interface.cfg", 1, widgets)) {
-        logger_print(LOG(ERROR), "Could not load widget defaults from data/interface.cfg.");
+        LOG(ERROR, "Could not load widget defaults from data/interface.cfg.");
         exit(1);
     }
 
@@ -354,7 +354,7 @@ void menu_container_background_change(widgetdata *widget, widgetdata *menuitem, 
     for (tmp = menuitem->inv; tmp; tmp = tmp->next) {
         if (tmp->type == LABEL_ID) {
             label = LABEL(tmp);
-            logger_print(LOG(INFO), "%s, %s", label->text, container->texture ? container->texture->name : "NONE");
+            LOG(INFO, "%s, %s", label->text, container->texture ? container->texture->name : "NONE");
 
             SDL_FreeSurface(container->surface);
             container->surface = NULL;
@@ -708,7 +708,7 @@ widgetdata *create_widget(int widget_id)
     widgetdata *node;
 
 #ifdef DEBUG_WIDGET
-    logger_print(LOG(INFO), "Entering create_widget()..");
+    LOG(INFO, "Entering create_widget()..");
 #endif
 
     /* allocate it */
@@ -745,10 +745,10 @@ widgetdata *create_widget(int widget_id)
     }
 
 #ifdef DEBUG_WIDGET
-    logger_print(LOG(DEBUG), "..ALLOCATED: %s", node->name);
+    LOG(DEBUG, "..ALLOCATED: %s", node->name);
     debug_count_nodes(1);
 
-    logger_print(LOG(INFO), "..create_widget(): Done.");
+    LOG(INFO, "..create_widget(): Done.");
 #endif
 
     return node;
@@ -761,7 +761,7 @@ void remove_widget(widgetdata *widget)
     widgetdata *tmp = NULL;
 
 #ifdef DEBUG_WIDGET
-    logger_print(LOG(INFO), "Entering remove_widget()..");
+    LOG(INFO, "Entering remove_widget()..");
 #endif
 
     /* node to delete is the only node in the tree, bye-bye binary tree :) */
@@ -833,7 +833,7 @@ void remove_widget(widgetdata *widget)
     }
 
 #ifdef DEBUG_WIDGET
-    logger_print(LOG(DEBUG), "..REMOVED: %s", widget->name);
+    LOG(DEBUG, "..REMOVED: %s", widget->name);
 #endif
 
     /* free the surface */
@@ -846,7 +846,7 @@ void remove_widget(widgetdata *widget)
 
 #ifdef DEBUG_WIDGET
     debug_count_nodes(1);
-    logger_print(LOG(INFO), "..remove_widget(): Done.");
+    LOG(INFO, "..remove_widget(): Done.");
 #endif
 }
 
@@ -916,7 +916,7 @@ int debug_count_nodes_rec(widgetdata *widget, int i, int j, int output)
                 printf("..");
             }
 
-            logger_print(LOG(INFO), "..%s", widget->name);
+            LOG(INFO, "..%s", widget->name);
         }
 
         i++;
@@ -938,15 +938,15 @@ void debug_count_nodes(int output)
 {
     int i = 0;
 
-    logger_print(LOG(INFO), "Output of widget nodes:");
-    logger_print(LOG(INFO), "========================================");
+    LOG(INFO, "Output of widget nodes:");
+    LOG(INFO, "========================================");
 
     if (widget_list_head) {
         i = debug_count_nodes_rec(widget_list_head, 0, 0, output);
     }
 
-    logger_print(LOG(INFO), "========================================");
-    logger_print(LOG(INFO), "..Total widget nodes: %d", i);
+    LOG(INFO, "========================================");
+    LOG(INFO, "..Total widget nodes: %d", i);
 }
 #endif
 
@@ -1387,7 +1387,7 @@ widgetdata *get_widget_owner(int x, int y, widgetdata *start, widgetdata *end)
      * back. if not, we get a big fat NULL */
     success = get_widget_owner_rec(x, y, start, end);
 
-    /*logger_print(LOG(DEBUG), "WIDGET OWNER: %s", success? success->name:
+    /*LOG(DEBUG, "WIDGET OWNER: %s", success? success->name:
      * "NULL");*/
 
     return success;
@@ -1585,14 +1585,14 @@ void process_widgets(int draw)
 void SetPriorityWidget(widgetdata *node)
 {
 #ifdef DEBUG_WIDGET
-    logger_print(LOG(DEBUG), "Entering SetPriorityWidget..");
+    LOG(DEBUG, "Entering SetPriorityWidget..");
 #endif
 
     /* widget doesn't exist, means parent node has no children, so nothing to do
      * here */
     if (!node) {
 #ifdef DEBUG_WIDGET
-        logger_print(LOG(DEBUG), "..SetPriorityWidget(): Done (Node does not exist).");
+        LOG(DEBUG, "..SetPriorityWidget(): Done (Node does not exist).");
 #endif
         return;
     }
@@ -1608,11 +1608,11 @@ void SetPriorityWidget(widgetdata *node)
     }
 
 #ifdef DEBUG_WIDGET
-    logger_print(LOG(DEBUG), "..BEFORE:");
-    logger_print(LOG(DEBUG), "....node: %p - %s", node, node->name);
-    logger_print(LOG(DEBUG), "....node->env: %p - %s", node->env, node->env ? node->env->name : "NULL");
-    logger_print(LOG(DEBUG), "....node->prev: %p - %s, node->next: %p - %s", node->prev, node->prev ? node->prev->name : "NULL", node->next, node->next ? node->next->name : "NULL");
-    logger_print(LOG(DEBUG), "....node->inv: %p - %s, node->inv_rev: %p - %s", node->inv, node->inv ? node->inv->name : "NULL", node->inv_rev, node->inv_rev ? node->inv_rev->name : "NULL");
+    LOG(DEBUG, "..BEFORE:");
+    LOG(DEBUG, "....node: %p - %s", node, node->name);
+    LOG(DEBUG, "....node->env: %p - %s", node->env, node->env ? node->env->name : "NULL");
+    LOG(DEBUG, "....node->prev: %p - %s, node->next: %p - %s", node->prev, node->prev ? node->prev->name : "NULL", node->next, node->next ? node->next->name : "NULL");
+    LOG(DEBUG, "....node->inv: %p - %s, node->inv_rev: %p - %s", node->inv, node->inv ? node->inv->name : "NULL", node->inv_rev, node->inv_rev ? node->inv_rev->name : "NULL");
 #endif
 
     /* see if the node has a parent before continuing */
@@ -1634,7 +1634,7 @@ void SetPriorityWidget(widgetdata *node)
     /* now we need to move our other node in front of the first sibling */
     if (!node->prev) {
 #ifdef DEBUG_WIDGET
-        logger_print(LOG(DEBUG), "..SetPriorityWidget(): Done (Node already at front).");
+        LOG(DEBUG, "..SetPriorityWidget(): Done (Node already at front).");
 #endif
         /* no point continuing, node is already at the front */
         return;
@@ -1681,13 +1681,13 @@ void SetPriorityWidget(widgetdata *node)
     node->prev = NULL;
 
 #ifdef DEBUG_WIDGET
-    logger_print(LOG(DEBUG), "..AFTER:");
-    logger_print(LOG(DEBUG), "....node: %p - %s", node, node->name);
-    logger_print(LOG(DEBUG), "....node->env: %p - %s", node->env, node->env ? node->env->name : "NULL");
-    logger_print(LOG(DEBUG), "....node->prev: %p - %s, node->next: %p - %s", node->prev, node->prev ? node->prev->name : "NULL", node->next, node->next ? node->next->name : "NULL");
-    logger_print(LOG(DEBUG), "....node->inv: %p - %s, node->inv_rev: %p - %s", node->inv, node->inv ? node->inv->name : "NULL", node->inv_rev, node->inv_rev ? node->inv_rev->name : "NULL");
+    LOG(DEBUG, "..AFTER:");
+    LOG(DEBUG, "....node: %p - %s", node, node->name);
+    LOG(DEBUG, "....node->env: %p - %s", node->env, node->env ? node->env->name : "NULL");
+    LOG(DEBUG, "....node->prev: %p - %s, node->next: %p - %s", node->prev, node->prev ? node->prev->name : "NULL", node->next, node->next ? node->next->name : "NULL");
+    LOG(DEBUG, "....node->inv: %p - %s, node->inv_rev: %p - %s", node->inv, node->inv ? node->inv->name : "NULL", node->inv_rev, node->inv_rev ? node->inv_rev->name : "NULL");
 
-    logger_print(LOG(DEBUG), "..SetPriorityWidget(): Done.");
+    LOG(DEBUG, "..SetPriorityWidget(): Done.");
 #endif
 }
 

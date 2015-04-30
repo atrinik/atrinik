@@ -259,7 +259,7 @@ SSL *socket_ssl_create(socket_t *sc, SSL_CTX *ctx)
     peercert = SSL_get_peer_certificate(ssl);
 
     if (peercert == NULL) {
-        log(LOG(SYSTEM), "Server's peer certificate is missing.");
+        LOG(SYSTEM, "Server's peer certificate is missing.");
         return NULL;
     }
 
@@ -267,7 +267,7 @@ SSL *socket_ssl_create(socket_t *sc, SSL_CTX *ctx)
 
     /* Check the certificate verification result. */
     if (ret != X509_V_OK) {
-        log(LOG(SYSTEM), "Verify result: %s",
+        LOG(SYSTEM, "Verify result: %s",
                 X509_verify_cert_error_string(ret));
         X509_free(peercert);
         return NULL;
@@ -279,7 +279,7 @@ SSL *socket_ssl_create(socket_t *sc, SSL_CTX *ctx)
             peer_CN, sizeof(peer_CN));
 
     if (strcasecmp(peer_CN, sc->host) != 0) {
-        log(LOG(SYSTEM), "Peer name %s doesn't match host name %s\n", peer_CN,
+        LOG(SYSTEM, "Peer name %s doesn't match host name %s\n", peer_CN,
                 sc->host);
         X509_free(peercert);
         return NULL;
@@ -308,19 +308,19 @@ void socket_ssl_destroy(SSL *ssl)
 
         switch (ret) {
         case 0:
-            log(LOG(SYSTEM),  "second SSL_shutdown returned zero");
+            LOG(SYSTEM,  "second SSL_shutdown returned zero");
             break;
 
         case 1:
             break;
 
         default:
-            log(LOG(SYSTEM),  "SSL_shutdown 2 %d", ret);
+            LOG(SYSTEM,  "SSL_shutdown 2 %d", ret);
         }
         break;
 
     default:
-        log(LOG(SYSTEM),  "SSL_shutdown 1 %d", ret);
+        LOG(SYSTEM,  "SSL_shutdown 1 %d", ret);
     }
 
     SSL_free(ssl);

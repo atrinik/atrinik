@@ -97,7 +97,7 @@ static int x11_send_event(Display *display, Window win, char *msg, unsigned long
     event.xclient.data.l[4] = data4;
 
     if (!XSendEvent(display, DefaultRootWindow(display), False, mask, &event)) {
-        logger_print(LOG(BUG), "Cannot send event: %s", msg);
+        LOG(BUG, "Cannot send event: %s", msg);
         return 0;
     }
 
@@ -128,12 +128,12 @@ static char *x11_get_property(Display *display, Window win, Atom xa_prop_type, c
     xa_prop_name = XInternAtom(display, prop_name, False);
 
     if (XGetWindowProperty(display, win, xa_prop_name, 0, 1024, False, xa_prop_type, &xa_ret_type, &ret_format, &ret_nitems, &ret_bytes_after, &ret_prop) != Success) {
-        logger_print(LOG(BUG), "Cannot get property: %s", prop_name);
+        LOG(BUG, "Cannot get property: %s", prop_name);
         return NULL;
     }
 
     if (xa_ret_type != xa_prop_type) {
-        logger_print(LOG(BUG), "Invalid type of property: %s", prop_name);
+        LOG(BUG, "Invalid type of property: %s", prop_name);
         XFree(ret_prop);
         return NULL;
     }
@@ -178,13 +178,13 @@ void x11_window_activate(x11_display_type display, x11_window_type win, uint8_t 
 
         if (!(desktop = x11_get_property(display, win, XA_CARDINAL, "_NET_WM_DESKTOP", NULL))) {
             if (!(desktop = x11_get_property(display, win, XA_CARDINAL, "_WIN_WORKSPACE", NULL))) {
-                logger_print(LOG(BUG), "Cannot find desktop ID of the window.");
+                LOG(BUG, "Cannot find desktop ID of the window.");
             }
         }
 
         if (desktop != NULL) {
             if (!x11_send_event(display, DefaultRootWindow(display), "_NET_CURRENT_DESKTOP", *desktop, 0, 0, 0, 0)) {
-                logger_print(LOG(BUG), "Cannot switch desktop.");
+                LOG(BUG, "Cannot switch desktop.");
             }
 
             free(desktop);

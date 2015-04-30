@@ -192,7 +192,7 @@ void race_init(void)
     tmp = find_archetype(RACE_CORPSE_DEFAULT);
 
     if (!tmp) {
-        logger_print(LOG(ERROR), "Can't find required archetype: '%s'.", RACE_CORPSE_DEFAULT);
+        LOG(ERROR, "Can't find required archetype: '%s'.", RACE_CORPSE_DEFAULT);
         exit(1);
     }
 

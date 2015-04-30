@@ -93,7 +93,7 @@ list_struct *list_create(uint32_t max_rows, uint32_t cols, int spacing)
     list_struct *list = ecalloc(1, sizeof(list_struct));
 
     if (max_rows == 0) {
-        logger_print(LOG(BUG), "Attempted to create a list with 0 max rows, changing to 1.");
+        LOG(BUG, "Attempted to create a list with 0 max rows, changing to 1.");
         max_rows = 1;
     }
 
@@ -140,7 +140,7 @@ void list_add(list_struct *list, uint32_t row, uint32_t col, const char *str)
     }
 
     if (col > list->cols) {
-        logger_print(LOG(BUG), "Attempted to add column #%u, but columns max is %u.", col, list->cols);
+        LOG(BUG, "Attempted to add column #%u, but columns max is %u.", col, list->cols);
         return;
     }
 
@@ -205,7 +205,7 @@ void list_remove_row(list_struct *list, uint32_t row)
 void list_set_column(list_struct *list, uint32_t col, int width, int spacing, const char *name, int centered)
 {
     if (col > list->cols) {
-        logger_print(LOG(BUG), "Attempted to change column #%u, but columns max is %u.", col, list->cols);
+        LOG(BUG, "Attempted to change column #%u, but columns max is %u.", col, list->cols);
         return;
     }
 

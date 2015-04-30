@@ -1241,7 +1241,7 @@ void widget_textwin_handle_console(const char *text)
     }
 
     if (widget == NULL) {
-        logger_print(LOG(BUG), "Failed to find a text window.");
+        LOG(BUG, "Failed to find a text window.");
         return;
     }
 

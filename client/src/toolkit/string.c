@@ -61,7 +61,7 @@ char *string_estrdup(const char *s MEMORY_DEBUG_PROTO)
     char *cp;
 
     if (s == NULL) {
-        logger_print(LOG(ERROR), "'s' is NULL.");
+        LOG(ERROR, "'s' is NULL.");
         abort();
     }
 
@@ -75,7 +75,7 @@ char *string_estrdup(const char *s MEMORY_DEBUG_PROTO)
 #endif
 
     if (cp == NULL) {
-        logger_print(LOG(ERROR), "OOM.");
+        LOG(ERROR, "OOM.");
         abort();
     }
 
@@ -100,7 +100,7 @@ char *string_estrndup(const char *s, size_t n MEMORY_DEBUG_PROTO)
     char *cp;
 
     if (s == NULL) {
-        logger_print(LOG(ERROR), "'s' is NULL.");
+        LOG(ERROR, "'s' is NULL.");
         abort();
     }
 
@@ -114,7 +114,7 @@ char *string_estrndup(const char *s, size_t n MEMORY_DEBUG_PROTO)
 #endif
 
     if (cp == NULL) {
-        logger_print(LOG(ERROR), "OOM.");
+        LOG(ERROR, "OOM.");
         abort();
     }
 

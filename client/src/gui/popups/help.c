@@ -96,7 +96,7 @@ void hfiles_init(void)
     fp = server_file_open_name(SERVER_FILE_HFILES);
 
     if (fp == NULL) {
-        log(LOG(BUG), "Could not open help files: %s", strerror(errno));
+        LOG(BUG, "Could not open help files: %s", strerror(errno));
         return;
     }
 
@@ -137,7 +137,7 @@ void hfiles_init(void)
                 hfile = ecalloc(1, sizeof(*hfile));
                 hfile->key = estrdup(value);
             } else {
-                log(LOG(DEVEL), "Unrecognised line: %s %s", buf,
+                LOG(DEVEL, "Unrecognised line: %s %s", buf,
                         value ? value : "");
             }
         } else if (value == NULL) {
@@ -167,7 +167,7 @@ void hfiles_init(void)
                         hfile);
                 hfile = NULL;
             } else {
-                log(LOG(DEVEL), "Unrecognised line: %s %s", buf,
+                LOG(DEVEL, "Unrecognised line: %s %s", buf,
                         value ? value : "");
             }
         } else if (strcmp(key, "autocomplete") == 0) {
@@ -179,7 +179,7 @@ void hfiles_init(void)
             stringbuffer_append_printf(sb, "[book]%s[/book]", value);
             hfile->msg = stringbuffer_finish(sb);
         } else {
-            log(LOG(DEVEL), "Unrecognised line: %s %s", buf,
+            LOG(DEVEL, "Unrecognised line: %s %s", buf,
                     value ? value : "");
         }
     }
@@ -187,7 +187,7 @@ void hfiles_init(void)
     fclose(fp);
 
     if (hfile != NULL) {
-        log(LOG(BUG), "Help block without end: %s", hfile->key);
+        LOG(BUG, "Help block without end: %s", hfile->key);
         hfile_free(hfile);
     }
 

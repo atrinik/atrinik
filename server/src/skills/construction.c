@@ -495,7 +495,7 @@ static void construction_builder(object *op, int x, int y)
     new_arch = find_archetype(material->slaying);
 
     if (!new_arch) {
-        logger_print(LOG(BUG), "Unable to find archetype %s.", material->slaying);
+        LOG(BUG, "Unable to find archetype %s.", material->slaying);
         draw_info(COLOR_WHITE, op, "You can't use this strange material.");
         return;
     }
@@ -527,7 +527,7 @@ static void construction_builder(object *op, int x, int y)
         break;
 
     default:
-        logger_print(LOG(BUG), "Invalid material subtype %d.", material->sub_type);
+        LOG(BUG, "Invalid material subtype %d.", material->sub_type);
         draw_info(COLOR_WHITE, op, "Don't know how to apply this material, sorry.");
         break;
     }
@@ -631,7 +631,7 @@ void construction_do(object *op, int dir)
     floor_ob = GET_MAP_OB(op->map, x, y);
 
     if (!floor_ob) {
-        logger_print(LOG(BUG), "Undefined square on map %s (%d, %d)", op->map->path, x, y);
+        LOG(BUG, "Undefined square on map %s (%d, %d)", op->map->path, x, y);
         draw_info(COLOR_WHITE, op, "You'd better not build here, it looks weird.");
         return;
     }
@@ -676,7 +676,7 @@ void construction_do(object *op, int dir)
         break;
 
     default:
-        logger_print(LOG(BUG), "Skill item %s has invalid subtype.", query_name(skill_item, NULL));
+        LOG(BUG, "Skill item %s has invalid subtype.", query_name(skill_item, NULL));
         draw_info(COLOR_WHITE, op, "Don't know how to apply this tool, sorry.");
         break;
     }

@@ -165,7 +165,7 @@ void init_materials(void)
     snprintf(filename, sizeof(filename), "%s/materials", settings.libpath);
 
     if (!(fp = fopen(filename, "r"))) {
-        logger_print(LOG(ERROR), "Could not open materials file: %s", filename);
+        LOG(ERROR, "Could not open materials file: %s", filename);
         exit(1);
     }
 
@@ -179,7 +179,7 @@ void init_materials(void)
             char name[MAX_BUF];
 
             if (i < 0 || i >= NUM_MATERIALS_REAL) {
-                logger_print(LOG(ERROR), "Materials file contains declaration for material #%d but it doesn't exist.", i);
+                LOG(ERROR, "Materials file contains declaration for material #%d but it doesn't exist.", i);
                 exit(1);
             }
 
@@ -191,7 +191,7 @@ void init_materials(void)
                 }
 
                 if (!sscanf(buf, "quality %d\n", &quality) && !sscanf(buf, "type %d\n", &type) && !sscanf(buf, "def_race %d\n", &def_race) && !sscanf(buf, "name %[^\n]", name)) {
-                    logger_print(LOG(ERROR), "Bogus line in materials file: %s", buf);
+                    LOG(ERROR, "Bogus line in materials file: %s", buf);
                     exit(1);
                 }
             }
@@ -204,7 +204,7 @@ void init_materials(void)
             material_real[i].type = type;
             material_real[i].def_race = def_race;
         } else {
-            logger_print(LOG(ERROR), "Bogus line in materials file: %s", buf);
+            LOG(ERROR, "Bogus line in materials file: %s", buf);
             exit(1);
         }
     }
@@ -1016,7 +1016,7 @@ void update_ob_speed(object *op)
     /* No reason putting the archetypes objects on the speed list,
      * since they never really need to be updated. */
     if (OBJECT_FREE(op) && op->speed) {
-        logger_print(LOG(BUG), "Object %s is freed but has speed.", op->name);
+        LOG(BUG, "Object %s is freed but has speed.", op->name);
         op->speed = 0;
     }
 
@@ -1385,7 +1385,7 @@ void object_destroy(object *ob)
         char buf[HUGE_BUF];
 
         object_debugger(ob, VS(buf));
-        log(LOG(ERROR), "Freeing an object that was not removed: %s", buf);
+        LOG(ERROR, "Freeing an object that was not removed: %s", buf);
         return;
     }
 
@@ -1428,7 +1428,7 @@ void object_destroy(object *ob)
             break;
 
         default:
-            logger_print(LOG(BUG), "custom attrset found in unsupported object %s (type %d)", STRING_OBJ_NAME(ob), ob->type);
+            LOG(BUG, "custom attrset found in unsupported object %s (type %d)", STRING_OBJ_NAME(ob), ob->type);
         }
 
         ob->custom_attrset = NULL;
@@ -1531,7 +1531,7 @@ static void object_check_move_off(object *op)
 void object_remove(object *op, int flags)
 {
     if (QUERY_FLAG(op, FLAG_REMOVED)) {
-        logger_print(LOG(BUG), "Tried to remove an already removed object %s.", query_name(op, NULL));
+        LOG(BUG, "Tried to remove an already removed object %s.", query_name(op, NULL));
         return;
     }
 
@@ -2584,7 +2584,7 @@ object *load_object_str(char *obstr)
     object *ob = get_object();
 
     if (!load_object(obstr, ob, NULL, LO_MEMORYMODE, 0)) {
-        logger_print(LOG(BUG), "load_object() failed.");
+        LOG(BUG, "load_object() failed.");
         return NULL;
     }
 
@@ -2610,7 +2610,7 @@ int auto_apply(object *op)
     CLEAR_FLAG(op, FLAG_AUTO_APPLY);
 
     if (op->env && op->env->type == PLAYER) {
-        logger_print(LOG(DEBUG), "Object with auto_apply (%s, %s) found in %s.", op->name, op->arch->name, op->env->name);
+        LOG(DEBUG, "Object with auto_apply (%s, %s) found in %s.", op->name, op->arch->name, op->env->name);
         return 0;
     }
 
@@ -3216,7 +3216,7 @@ int object_enter_map(object *op, object *exit_ob, mapstruct *m, int x, int y, ui
     }
 
     if (OUT_OF_MAP(m, x, y)) {
-        logger_print(LOG(BUG), "Supplied coordinates are not within the map %s (%d,%d)", m->path, x, y);
+        LOG(BUG, "Supplied coordinates are not within the map %s (%d,%d)", m->path, x, y);
         x = MAP_ENTER_X(m);
         y = MAP_ENTER_Y(m);
     }

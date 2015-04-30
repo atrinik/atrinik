@@ -79,7 +79,7 @@ void color_picker_set_notation(color_picker_struct *color_picker, const char *co
     double rgb[3];
 
     if (!text_color_parse(color_notation, &color)) {
-        logger_print(LOG(BUG), "Invalid color: %s", color_notation);
+        LOG(BUG, "Invalid color: %s", color_notation);
         return;
     }
 

@@ -114,7 +114,7 @@ TOOLKIT_DEINIT_FUNC_FINISH
 static void clioptions_option_config(const char *arg)
 {
     if (!clioptions_load_config(arg, "[General]")) {
-        logger_print(LOG(ERROR), "Could not open file for reading: %s", arg);
+        LOG(ERROR, "Could not open file for reading: %s", arg);
         exit(1);
     }
 }
@@ -135,15 +135,15 @@ static void clioptions_option_help(const char *arg)
                 continue;
             }
 
-            logger_print(LOG(INFO), "##### Option: --%s #####",
+            LOG(INFO, "##### Option: --%s #####",
                     clioptions[i].longname);
-            logger_print(LOG(INFO), " ");
+            LOG(INFO, " ");
 
             for (curr = clioptions[i].desc;
                     (curr && (next = strchr(curr, '\n'))) || curr;
                     curr = next ? next + 1 : NULL) {
                 cp = estrndup(curr, next - curr);
-                logger_print(LOG(INFO), "%s", cp);
+                LOG(INFO, "%s", cp);
                 efree(cp);
             }
 
@@ -152,7 +152,7 @@ static void clioptions_option_help(const char *arg)
 
         /* Didn't find the option. */
         if (i == clioptions_num) {
-            logger_print(LOG(INFO), "No such option '--%s'.", arg);
+            LOG(INFO, "No such option '--%s'.", arg);
         }
     } else {
         StringBuffer *sb;
@@ -160,8 +160,8 @@ static void clioptions_option_help(const char *arg)
 
         /* Otherwise brief information about all available options. */
 
-        logger_print(LOG(INFO), "List of available options:");
-        logger_print(LOG(INFO), " ");
+        LOG(INFO, "List of available options:");
+        LOG(INFO, " ");
 
         for (i = 0; i < clioptions_num; i++) {
             sb = stringbuffer_new();
@@ -185,13 +185,13 @@ static void clioptions_option_help(const char *arg)
             }
 
             desc = stringbuffer_finish(sb);
-            logger_print(LOG(INFO), "    %s: %s",
+            LOG(INFO, "    %s: %s",
                     desc, clioptions[i].desc_brief);
             efree(desc);
         }
 
-        logger_print(LOG(INFO), " ");
-        logger_print(LOG(INFO), "Use '--help=option' to learn more about the "
+        LOG(INFO, " ");
+        LOG(INFO, "Use '--help=option' to learn more about the "
                 "specified option.");
     }
 
@@ -216,18 +216,18 @@ void clioptions_add(const char *longname, const char *shortname,
     TOOLKIT_PROTECT();
 
     if (longname == NULL && shortname == NULL) {
-        logger_print(LOG(BUG), "Tried adding an option with neither longname "
+        LOG(BUG, "Tried adding an option with neither longname "
                 "nor shortname.");
         return;
     }
 
     if (desc_brief == NULL) {
-        logger_print(LOG(BUG), "Brief description must be set.");
+        LOG(BUG, "Brief description must be set.");
         return;
     }
 
     if (desc == NULL) {
-        logger_print(LOG(BUG), "Description must be set.");
+        LOG(BUG, "Description must be set.");
         return;
     }
 
@@ -237,7 +237,7 @@ void clioptions_add(const char *longname, const char *shortname,
                 strcmp(clioptions[i].longname, longname) == 0) ||
                 (clioptions[i].shortname != NULL && shortname != NULL &&
                 strcmp(clioptions[i].shortname, shortname) == 0)) {
-            logger_print(LOG(BUG), "Option already exists (longname: %s, "
+            LOG(BUG, "Option already exists (longname: %s, "
                     "shortname: %s).",
                     longname  != NULL ? longname  : "none",
                     shortname != NULL ? shortname : "none");
@@ -295,9 +295,8 @@ void clioptions_parse(int argc, char *argv[])
                     arg = equals_loc ? equals_loc + 1 : NULL;
 
                     if (clioptions[opt].argument && (!arg || *arg == '\0')) {
-                        logger_print(
-                                LOG(ERROR), "Option --%s requires an argument.",
-                                clioptions[opt].longname);
+                        LOG(ERROR, "Option --%s requires an argument.",
+                            clioptions[opt].longname);
                         exit(1);
                     }
 
@@ -319,9 +318,8 @@ void clioptions_parse(int argc, char *argv[])
                             i + 1 < argc ? argv[++i] : NULL;
 
                     if (clioptions[opt].argument && (!arg || *arg == '\0')) {
-                        logger_print(
-                                LOG(ERROR), "Option -%s requires an argument.",
-                                clioptions[opt].shortname);
+                        LOG(ERROR, "Option -%s requires an argument.",
+                            clioptions[opt].shortname);
                         exit(1);
                     }
 
@@ -335,7 +333,7 @@ void clioptions_parse(int argc, char *argv[])
         }
 
         if (opt == clioptions_num) {
-            logger_print(LOG(ERROR), "Unknown option %s.", argv[i]);
+            LOG(ERROR, "Unknown option %s.", argv[i]);
             exit(1);
         }
     }
@@ -390,7 +388,7 @@ int clioptions_load_config(const char *path, const char *category)
 
             if (string_split(buf, cps, arraysize(cps), '=') !=
                     arraysize(cps)) {
-                logger_print(LOG(BUG), "Invalid line: %s", buf);
+                LOG(BUG, "Invalid line: %s", buf);
                 continue;
             }
 

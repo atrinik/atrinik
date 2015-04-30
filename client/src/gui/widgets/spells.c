@@ -300,7 +300,7 @@ void spells_update(object *op, uint16_t cost, uint32_t path, uint32_t flags,
     }
 
     if (spell_path == arraysize(spell_list)) {
-        logger_print(LOG(BUG), "Invalid spell path for spell '%s'.",
+        LOG(BUG, "Invalid spell path for spell '%s'.",
                 op->s_name);
         return;
     }
@@ -337,9 +337,8 @@ void spells_remove(object *op)
     size_t spell_path, spell_id, i;
 
     if (!spell_find_object(op, &spell_path, &spell_id)) {
-        logger_print(LOG(BUG),
-                "Tried to remove spell '%s', but it was not in "
-                "spell list.", op->s_name);
+        LOG(BUG, "Tried to remove spell '%s', but it was not in spell list.",
+            op->s_name);
         return;
     }
 

@@ -618,7 +618,7 @@ static PyCodeObject *compilePython(char *filename)
     python_cache_entry *cache;
 
     if (stat(filename, &stat_buf)) {
-        hooks->logger_print(LOG(DEBUG), "Python: The script file %s can't be stat()ed.", filename);
+        LOG(DEBUG, "Python: The script file %s can't be stat()ed.", filename);
         return NULL;
     }
 
@@ -639,7 +639,7 @@ static PyCodeObject *compilePython(char *filename)
         fp = fopen(filename, "r");
 
         if (!fp) {
-            hooks->logger_print(LOG(BUG), "Python: The script file %s can't be opened.", filename);
+            LOG(BUG, "Python: The script file %s can't be opened.", filename);
             return NULL;
         }
 
@@ -1272,8 +1272,8 @@ static PyObject *Atrinik_Logger(PyObject *self, PyObject *args)
         return NULL;
     }
 
-    hooks->logger_print(hooks->logger_get_level(mode), __FUNCTION__, __LINE__,
-            string);
+    logger_print(hooks->logger_get_level(mode), __FUNCTION__, __LINE__,
+                 string);
 
     Py_INCREF(Py_None);
     return Py_None;
@@ -1949,7 +1949,7 @@ MODULEAPI void *triggerEvent(int *type, ...)
         break;
 
     default:
-        hooks->logger_print(LOG(BUG), "Python: Requested unknown event type %d.", event_type);
+        LOG(BUG, "Python: Requested unknown event type %d.", event_type);
         break;
     }
 

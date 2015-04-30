@@ -63,7 +63,7 @@ void keybind_load(void)
     fp = fopen_wrapper(FILE_KEYBIND, "r");
 
     if (fp == NULL) {
-        logger_print(LOG(ERROR), "Failed to open file: %s", FILE_KEYBIND);
+        LOG(ERROR, "Failed to open file: %s", FILE_KEYBIND);
         return;
     }
 

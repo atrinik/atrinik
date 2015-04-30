@@ -86,7 +86,7 @@ void beacon_remove(object *ob)
         HASH_DEL(beacons, beacon);
         efree(beacon);
     } else {
-        logger_print(LOG(BUG), "Could not remove beacon %s from hashtable.", ob->name);
+        LOG(BUG, "Could not remove beacon %s from hashtable.", ob->name);
     }
 }
 

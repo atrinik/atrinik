@@ -91,7 +91,7 @@ void DoClient(void)
     /* Handle all enqueued commands */
     while ((cmd = get_next_input_command())) {
         if (cmd->data[0] >= CLIENT_CMD_NROF || !commands[cmd->data[0]].handle_func) {
-            logger_print(LOG(BUG), "Bad command from server (%d)", cmd->data[0]);
+            LOG(BUG, "Bad command from server (%d)", cmd->data[0]);
         } else {
             commands[cmd->data[0]].handle_func(cmd->data + 1, cmd->len - 1, 0);
         }

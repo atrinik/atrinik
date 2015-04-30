@@ -33,8 +33,6 @@
 
 typedef void (*logger_print_func)(const char *str);
 
-#define LOG(_level) LOG_## _level, __FUNCTION__, __LINE__
-
 /**
  * Possible log levels. */
 typedef enum logger_level {
@@ -52,12 +50,15 @@ typedef enum logger_level {
     LOG_MAX
 } logger_level;
 
-#define log logger_print
 #define log_error(...) \
     do { \
         logger_traceback(); \
-        log(LOG(ERROR), ##__VA_ARGS__); \
+        LOG(ERROR, ##__VA_ARGS__); \
     } while (0)
+#define LOG(_level, ...) \
+    do { \
+        logger_print(LOG_ ## _level, __FUNCTION__, __LINE__, ## __VA_ARGS__); \
+    } while(0)
 
 /* Prototypes */
 

@@ -262,7 +262,7 @@ void map_anims_play(void)
             break;
 
         default:
-            log(LOG(BUG), "Unknown animation type");
+            LOG(BUG, "Unknown animation type");
             break;
         }
     }
@@ -289,7 +289,7 @@ void load_mapdef_dat(void)
     stream = fopen_wrapper(ARCHDEF_FILE, "r");
 
     if (stream == NULL) {
-        logger_print(LOG(BUG), "Can't open file %s", ARCHDEF_FILE);
+        LOG(BUG, "Can't open file %s", ARCHDEF_FILE);
         return;
     }
 

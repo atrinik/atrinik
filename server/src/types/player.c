@@ -350,7 +350,7 @@ static int save_life(object *op)
         }
     }
 
-    logger_print(LOG(BUG), "LIFESAVE set without applied object.");
+    LOG(BUG, "LIFESAVE set without applied object.");
     CLEAR_FLAG(op, FLAG_LIFESAVE);
     /* Bring him home. */
     object_enter_map(op, NULL, ready_map_name(CONTR(op)->savebed_map, NULL, 0), CONTR(op)->bed_x, CONTR(op)->bed_y, 1);
@@ -674,7 +674,7 @@ void cast_dust(object *op, object *throw_ob, int dir)
     archetype *arch = NULL;
 
     if (!(spells[throw_ob->stats.sp].flags & SPELL_DESC_DIRECTION)) {
-        logger_print(LOG(BUG), "Warning, dust %s is not AoE spell!!", query_name(throw_ob, NULL));
+        LOG(BUG, "Warning, dust %s is not AoE spell!!", query_name(throw_ob, NULL));
         return;
     }
 
@@ -694,7 +694,7 @@ void cast_dust(object *op, object *throw_ob, int dir)
         cast_cone(op, throw_ob, dir, 1, 0, arch);
     } else {
         /* Problem occurred! */
-        logger_print(LOG(BUG), "can't find an archetype to use!");
+        LOG(BUG, "can't find an archetype to use!");
     }
 
     if (op->type == PLAYER && arch) {
@@ -1943,7 +1943,7 @@ void player_save(object *op)
 
     if (!fp) {
         draw_info(COLOR_WHITE, op, "Can't open file for saving.");
-        logger_print(LOG(BUG), "Can't open file for saving: %s.", path);
+        LOG(BUG, "Can't open file for saving: %s.", path);
         rename(pathtmp, path);
         efree(path);
         return;
@@ -2143,13 +2143,13 @@ void player_login(socket_struct *ns, const char *name, archetype *at)
     }
 
     if (checkbanned(name, ns->host)) {
-        logger_print(LOG(SYSTEM), "Ban: Banned player tried to login. [%s@%s]", name, ns->host);
+        LOG(SYSTEM, "Ban: Banned player tried to login. [%s@%s]", name, ns->host);
         draw_info_send(CHAT_TYPE_GAME, NULL, COLOR_RED, ns, "Connection refused due to a ban.");
         ns->state = ST_ZOMBIE;
         return;
     }
 
-    logger_print(LOG(INFO), "Login %s from IP %s", name, ns->host);
+    LOG(INFO, "Login %s from IP %s", name, ns->host);
 
     pl = get_player(NULL);
     memcpy(&pl->socket, ns, sizeof(socket_struct));

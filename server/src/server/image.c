@@ -88,7 +88,7 @@ int read_bmap_names(void)
     snprintf(buf, sizeof(buf), "%s/bmaps", settings.libpath);
 
     if ((fp = fopen(buf, "r")) == NULL) {
-        logger_print(LOG(ERROR), "Can't open bmaps file: %s", buf);
+        LOG(ERROR, "Can't open bmaps file: %s", buf);
         exit(1);
     }
 

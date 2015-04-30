@@ -44,7 +44,7 @@ void video_init(void)
     list_vid_modes();
 
     if (!video_set_size()) {
-        logger_print(LOG(ERROR), "Couldn't set video size: %s", SDL_GetError());
+        LOG(ERROR, "Couldn't set video size: %s", SDL_GetError());
         exit(1);
     }
 
@@ -60,7 +60,7 @@ void video_init(void)
             SDL_display = info.info.x11.display;
             SDL_window = info.info.x11.window;
         } else {
-            logger_print(LOG(BUG), "SDL is not running on X11 display.");
+            LOG(BUG, "SDL is not running on X11 display.");
         }
 
 #elif defined(WIN32)

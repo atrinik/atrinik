@@ -200,7 +200,7 @@ static char *curl_load_etag(curl_data *data)
     }
 
     if (fstat(fileno(fp), &statbuf) == -1) {
-        log(LOG(BUG), "Could not stat %s: %d (%s)", path, errno,
+        LOG(BUG, "Could not stat %s: %d (%s)", path, errno,
                 strerror(errno));
         goto fail;
     }
@@ -208,7 +208,7 @@ static char *curl_load_etag(curl_data *data)
     etag = emalloc(sizeof(*etag) * (statbuf.st_size + 1));
 
     if (!fgets(etag, sizeof(etag), fp)) {
-        log(LOG(BUG), "Could not read %s: %d (%s)", path, errno,
+        LOG(BUG, "Could not read %s: %d (%s)", path, errno,
                 strerror(errno));
         goto fail;
     }
@@ -252,20 +252,20 @@ static bool curl_load_cache(curl_data *data)
     memory = NULL;
 
     if (data->path == NULL) {
-        log(LOG(BUG), "No cache location specified for %s", data->url);
+        LOG(BUG, "No cache location specified for %s", data->url);
         goto fail;
     }
 
     fp = fopen_wrapper(data->path, "rb");
 
     if (fp == NULL) {
-        log(LOG(BUG), "Could not open %s: %d (%s)", data->path, errno,
+        LOG(BUG, "Could not open %s: %d (%s)", data->path, errno,
                 strerror(errno));
         goto fail;
     }
 
     if (fstat(fileno(fp), &statbuf) == -1) {
-        log(LOG(BUG), "Could not stat %s: %d (%s)", data->path, errno,
+        LOG(BUG, "Could not stat %s: %d (%s)", data->path, errno,
                 strerror(errno));
         goto fail;
     }
@@ -274,7 +274,7 @@ static bool curl_load_cache(curl_data *data)
     memory = emalloc(size + 1);
 
     if (fread(memory, 1, size, fp) != size) {
-        log(LOG(BUG), "Could not read %s: %d (%s)", data->path, errno,
+        LOG(BUG, "Could not read %s: %d (%s)", data->path, errno,
                 strerror(errno));
         goto fail;
     }
@@ -389,7 +389,7 @@ int curl_connect(void *c_data)
     res = curl_easy_perform(data->handle);
 
     if (res) {
-        logger_print(LOG(BUG), "curl_easy_perform() got error %d (%s).", res,
+        LOG(BUG, "curl_easy_perform() got error %d (%s).", res,
                 curl_easy_strerror(res));
         status = -1;
         goto done;
@@ -437,13 +437,13 @@ int curl_connect(void *c_data)
 
             if (fp != NULL) {
                 if (!fwrite(data->memory, 1, data->size, fp)) {
-                    log(LOG(BUG), "Failed to save %s: %d (%s)", data->path,
+                    LOG(BUG, "Failed to save %s: %d (%s)", data->path,
                             errno, strerror(errno));
                 }
 
                 fclose(fp);
             } else {
-                log(LOG(BUG), "Failed to open %s: %d (%s)", data->path, errno,
+                LOG(BUG, "Failed to open %s: %d (%s)", data->path, errno,
                         strerror(errno));
             }
 
@@ -455,13 +455,13 @@ int curl_connect(void *c_data)
 
                 if (fp != NULL) {
                     if (!fputs(etag, fp)) {
-                        log(LOG(BUG), "Failed to save %s: %d (%s)", path, errno,
+                        LOG(BUG, "Failed to save %s: %d (%s)", path, errno,
                                 strerror(errno));
                     }
 
                     fclose(fp);
                 } else {
-                    log(LOG(BUG), "Failed to open %s: %d (%s)", path, errno,
+                    LOG(BUG, "Failed to open %s: %d (%s)", path, errno,
                             strerror(errno));
                 }
             }
@@ -538,7 +538,7 @@ curl_data *curl_download_start(const char *url, const char *path)
     data->thread = SDL_CreateThread(curl_connect, data);
 
     if (!data->thread) {
-        logger_print(LOG(ERROR), "Thread creation failed.");
+        LOG(ERROR, "Thread creation failed.");
         exit(1);
     }
 

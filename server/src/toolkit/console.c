@@ -143,12 +143,12 @@ static void console_command_help(const char *params)
             if (strcmp(console_commands[i].command, params) == 0) {
                 char *curr, *next, *cp;
 
-                logger_print(LOG(INFO), "##### Command: %s #####", console_commands[i].command);
-                logger_print(LOG(INFO), " ");
+                LOG(INFO, "##### Command: %s #####", console_commands[i].command);
+                LOG(INFO, " ");
 
                 for (curr = console_commands[i].desc; (curr && (next = strchr(curr, '\n'))) || curr; curr = next ? next + 1 : NULL) {
                     cp = estrndup(curr, next ? (size_t) (next - curr) : strlen(curr));
-                    logger_print(LOG(INFO), "%s", cp);
+                    LOG(INFO, "%s", cp);
                     efree(cp);
                 }
 
@@ -156,18 +156,18 @@ static void console_command_help(const char *params)
             }
         }
 
-        logger_print(LOG(INFO), "No such command '%s'.", params);
+        LOG(INFO, "No such command '%s'.", params);
     } else {
         /* Otherwise brief information about all available commands. */
-        logger_print(LOG(INFO), "List of available commands:");
-        logger_print(LOG(INFO), " ");
+        LOG(INFO, "List of available commands:");
+        LOG(INFO, " ");
 
         for (i = 0; i < console_commands_num; i++) {
-            logger_print(LOG(INFO), "    - %s: %s", console_commands[i].command, console_commands[i].desc_brief);
+            LOG(INFO, "    - %s: %s", console_commands[i].command, console_commands[i].desc_brief);
         }
 
-        logger_print(LOG(INFO), " ");
-        logger_print(LOG(INFO), "Use 'help <command>' to learn more about the specified command.");
+        LOG(INFO, " ");
+        LOG(INFO, "Use 'help <command>' to learn more about the specified command.");
     }
 }
 
@@ -344,7 +344,7 @@ int console_start_thread(void)
     rl_set_prompt(current_prompt);
 
     if (rl_bind_key(RETURN, handle_enter)) {
-        logger_print(LOG(ERROR), "Could not bind enter.");
+        LOG(ERROR, "Could not bind enter.");
         exit(1);
     }
 
@@ -378,7 +378,7 @@ void console_command_add(const char *command, console_command_func handle_func, 
     /* Make sure the command doesn't exist yet. */
     for (i = 0; i < console_commands_num; i++) {
         if (strcmp(console_commands[i].command, command) == 0) {
-            logger_print(LOG(BUG), "Tried to add duplicate entry for command '%s'.", command);
+            LOG(BUG, "Tried to add duplicate entry for command '%s'.", command);
             return;
         }
     }

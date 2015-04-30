@@ -100,7 +100,7 @@ void command_resetmaps(object *op, const char *command, char *params)
     }
 
     if (maps == NULL) {
-        log(LOG(BUG), "Failed to find any maps to reset: %s", m->path);
+        LOG(BUG, "Failed to find any maps to reset: %s", m->path);
         draw_info_format(COLOR_RED, op, "Failed to find any maps to reset: %s",
                 m->path);
         return;

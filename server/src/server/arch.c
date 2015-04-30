@@ -248,12 +248,12 @@ static void second_arch_pass(FILE *fp_start)
 
         if (!strcmp("Object", variable)) {
             if ((at = find_archetype(argument)) == NULL) {
-                logger_print(LOG(BUG), "Failed to find arch %s", STRING_SAFE(argument));
+                LOG(BUG, "Failed to find arch %s", STRING_SAFE(argument));
             }
         } else if (!strcmp("other_arch", variable)) {
             if (at != NULL && at->clone.other_arch == NULL) {
                 if ((other = find_archetype(argument)) == NULL) {
-                    logger_print(LOG(BUG), "Failed to find other_arch %s", STRING_SAFE(argument));
+                    LOG(BUG, "Failed to find other_arch %s", STRING_SAFE(argument));
                 } else if (at != NULL) {
                     at->clone.other_arch = other;
                 }
@@ -263,7 +263,7 @@ static void second_arch_pass(FILE *fp_start)
                 treasurelist *tl = find_treasurelist(argument);
 
                 if (tl == NULL) {
-                    logger_print(LOG(BUG), "Failed to link treasure to arch. (arch: %s ->%s", STRING_OBJ_NAME(&at->clone), STRING_SAFE(argument));
+                    LOG(BUG, "Failed to link treasure to arch. (arch: %s ->%s", STRING_OBJ_NAME(&at->clone), STRING_SAFE(argument));
                 } else {
                     at->clone.randomitems = tl;
                 }
@@ -275,7 +275,7 @@ static void second_arch_pass(FILE *fp_start)
             if (at) {
                 insert_ob_in_ob(inv, &at->clone);
             } else {
-                logger_print(LOG(ERROR), "Got an arch %s not inside an Object.", argument);
+                LOG(ERROR, "Got an arch %s not inside an Object.", argument);
                 exit(1);
             }
         }
@@ -287,7 +287,7 @@ static void second_arch_pass(FILE *fp_start)
     fp = fopen(filename, "rb");
 
     if (!fp) {
-        logger_print(LOG(ERROR), "Can't open %s.", filename);
+        LOG(ERROR, "Can't open %s.", filename);
         exit(1);
     }
 
@@ -312,18 +312,18 @@ static void second_arch_pass(FILE *fp_start)
          * override them here. */
         if (!strcmp("artifact", variable)) {
             if ((at = find_archetype(argument)) == NULL) {
-                logger_print(LOG(BUG), "Second artifacts pass: Failed to find artifact %s", STRING_SAFE(argument));
+                LOG(BUG, "Second artifacts pass: Failed to find artifact %s", STRING_SAFE(argument));
             }
         } else if (!strcmp("def_arch", variable)) {
             if ((other = find_archetype(argument)) == NULL) {
-                logger_print(LOG(BUG), "Second artifacts pass: Failed to find def_arch %s from artifact %s", STRING_SAFE(argument), STRING_ARCH_NAME(at));
+                LOG(BUG, "Second artifacts pass: Failed to find def_arch %s from artifact %s", STRING_SAFE(argument), STRING_ARCH_NAME(at));
             } else if (at != NULL) {
                 at->clone.other_arch = other->clone.other_arch;
                 at->clone.randomitems = other->clone.randomitems;
             }
         } else if (!strcmp("other_arch", variable)) {
             if ((other = find_archetype(argument)) == NULL) {
-                logger_print(LOG(BUG), "Second artifacts pass: Failed to find other_arch %s", STRING_SAFE(argument));
+                LOG(BUG, "Second artifacts pass: Failed to find other_arch %s", STRING_SAFE(argument));
             } else if (at != NULL) {
                 at->clone.other_arch = other;
             }
@@ -331,7 +331,7 @@ static void second_arch_pass(FILE *fp_start)
             treasurelist *tl = find_treasurelist(argument);
 
             if (tl == NULL) {
-                logger_print(LOG(BUG), "Second artifacts pass: Failed to link treasure to arch. (arch: %s ->%s)", STRING_OBJ_NAME(&at->clone), STRING_SAFE(argument));
+                LOG(BUG, "Second artifacts pass: Failed to link treasure to arch. (arch: %s ->%s)", STRING_OBJ_NAME(&at->clone), STRING_SAFE(argument));
             } else if (at != NULL) {
                 at->clone.randomitems = tl;
             }
@@ -361,7 +361,7 @@ static void load_archetypes(void)
     fp = fopen(filename, "rb");
 
     if (!fp) {
-        logger_print(LOG(ERROR), "Can't open archetype file.");
+        LOG(ERROR, "Can't open archetype file.");
         exit(1);
     }
 
@@ -382,7 +382,7 @@ static void load_archetypes(void)
         sec--;
     }
 
-    logger_print(LOG(DEBUG), "Load took %d.%06d seconds", sec, usec);
+    LOG(DEBUG, "Load took %d.%06d seconds", sec, usec);
 #endif
 
     init_archetable();

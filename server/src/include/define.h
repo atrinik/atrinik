@@ -1481,13 +1481,13 @@ enum apply_flag {
  * Constructs a loop iterating over the inventory of an object. Example:
  * <pre>
  * FOR_INV_PREPARE(op, inv)
- *     logger_print(LOG(INFO), "%s\n", inv->name);
+ *     LOG(INFO, "%s\n", inv->name);
  * FOR_INV_FINISH();
  * </pre>
  * or
  * <pre>
  * FOR_INV_PREPARE(op, inv) {
- *     logger_print(LOG(INFO), "%s\n", inv->name);
+ *     LOG(INFO, "%s\n", inv->name);
  * } FOR_INV_FINISH();
  * </pre>
  * @param op_ the object to iterate over

@@ -105,19 +105,19 @@ TOOLKIT_DEINIT_FUNC(memory)
     pthread_mutex_destroy(&memory_chunks_mutex);
 
     DL_FOREACH(memory_chunks, chunk) {
-        log(LOG(ERROR), "Unfreed pointer: %s", chunk_get_str(chunk));
+        LOG(ERROR, "Unfreed pointer: %s", chunk_get_str(chunk));
     }
 
-    log(LOG(INFO), "Maximum number of bytes allocated: %" PRIu64,
+    LOG(INFO, "Maximum number of bytes allocated: %" PRIu64,
             (uint64_t) memory_chunks_allocated_max);
 
     if (memory_chunks_num != 0) {
-        log(LOG(ERROR), "Number of pointers still allocated: %" PRIu64,
+        LOG(ERROR, "Number of pointers still allocated: %" PRIu64,
                 (uint64_t) memory_chunks_num);
     }
 
     if (memory_chunks_allocated != 0) {
-        log(LOG(ERROR), "Number of bytes still allocated: %" PRIu64,
+        LOG(ERROR, "Number of bytes still allocated: %" PRIu64,
                 (uint64_t) memory_chunks_allocated);
     }
 #endif
@@ -191,7 +191,7 @@ static void *_malloc(size_t size, const char *file, uint32_t line)
     chunk = malloc(MEM_CHUNK_SIZE(size));
 
     if (chunk == NULL) {
-        logger_print(LOG(ERROR), "OOM (size: %" PRIu64 ").",
+        LOG(ERROR, "OOM (size: %" PRIu64 ").",
                 (uint64_t) MEM_CHUNK_SIZE(size));
         abort();
     }
@@ -421,7 +421,7 @@ size_t memory_check_leak(bool verbose)
 
     DL_FOREACH(memory_chunks, chunk) {
         if (verbose) {
-            log(LOG(ERROR), "Unfreed pointer: %s", chunk_get_str(chunk));
+            LOG(ERROR, "Unfreed pointer: %s", chunk_get_str(chunk));
         }
 
         num++;
@@ -452,7 +452,7 @@ void *memory_emalloc(size_t size MEMORY_DEBUG_PROTO)
     ptr = _malloc(size, file, line);
 
     if (ptr == NULL) {
-        logger_print(LOG(ERROR), "OOM (size: %"PRIu64").", (uint64_t) size);
+        LOG(ERROR, "OOM (size: %"PRIu64").", (uint64_t) size);
         abort();
     }
 
@@ -488,7 +488,7 @@ void *memory_ecalloc(size_t nmemb, size_t size MEMORY_DEBUG_PROTO)
     ptr = _calloc(nmemb, size, file, line);
 
     if (ptr == NULL) {
-        logger_print(LOG(ERROR), "OOM (nmemb: %"PRIu64", size: %"PRIu64").",
+        LOG(ERROR, "OOM (nmemb: %"PRIu64", size: %"PRIu64").",
                 (uint64_t) nmemb, (uint64_t) size);
         abort();
     }
@@ -512,7 +512,7 @@ void *memory_erealloc(void *ptr, size_t size MEMORY_DEBUG_PROTO)
     newptr = _realloc(ptr, size, file, line);
 
     if (newptr == NULL && size != 0) {
-        logger_print(LOG(ERROR), "OOM (ptr: %p, size: %"PRIu64".", ptr,
+        LOG(ERROR, "OOM (ptr: %p, size: %"PRIu64".", ptr,
                 (uint64_t) size);
         abort();
     }

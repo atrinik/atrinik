@@ -80,7 +80,7 @@ void version(object *op)
     if (op != NULL) {
         draw_info(COLOR_WHITE, op, buf);
     } else {
-        logger_print(LOG(INFO), "%s", buf);
+        LOG(INFO, "%s", buf);
     }
 }
 
@@ -165,7 +165,7 @@ void process_events(mapstruct *map)
 
         /* Now process op */
         if (OBJECT_FREE(op)) {
-            logger_print(LOG(BUG), "Free object on active list");
+            LOG(BUG, "Free object on active list");
             op->speed = 0;
             update_ob_speed(op);
             continue;
@@ -178,13 +178,13 @@ void process_events(mapstruct *map)
         }
 
         if (!op->speed) {
-            logger_print(LOG(BUG), "Object %s (%s, type:%d count:%d) has no speed, but is on active list", op->arch->name, query_name(op, NULL), op->type, op->count);
+            LOG(BUG, "Object %s (%s, type:%d count:%d) has no speed, but is on active list", op->arch->name, query_name(op, NULL), op->type, op->count);
             update_ob_speed(op);
             continue;
         }
 
         if (op->map == NULL && op->env == NULL && op->name && op->type != MAP && map == NULL) {
-            logger_print(LOG(BUG), "Object without map or inventory is on active list: %s (%d)", query_name(op, NULL), op->count);
+            LOG(BUG, "Object without map or inventory is on active list: %s (%d)", query_name(op, NULL), op->count);
             op->speed = 0;
             update_ob_speed(op);
             continue;
@@ -369,7 +369,7 @@ int swap_apartments(const char *mapold, const char *mapnew, int x, int y, object
     efree(cleanpath);
 
     if (!oldmap) {
-        logger_print(LOG(BUG), "Could not get oldmap using ready_map_name().");
+        LOG(BUG, "Could not get oldmap using ready_map_name().");
         return 0;
     }
 
@@ -382,7 +382,7 @@ int swap_apartments(const char *mapold, const char *mapnew, int x, int y, object
     efree(cleanpath);
 
     if (!newmap) {
-        logger_print(LOG(BUG), "Could not get newmap using ready_map_name().");
+        LOG(BUG, "Could not get newmap using ready_map_name().");
         return 0;
     }
 
@@ -522,12 +522,12 @@ int main(int argc, char **argv)
 
     if (settings.unit_tests) {
 #ifdef HAVE_CHECK
-        logger_print(LOG(INFO), "Running unit tests...");
+        LOG(INFO, "Running unit tests...");
         cleanup();
         check_main(argc, argv);
         exit(0);
 #else
-        logger_print(LOG(ERROR), "Unit tests have not been compiled, aborting.");
+        LOG(ERROR, "Unit tests have not been compiled, aborting.");
         exit(1);
 #endif
     }
@@ -536,11 +536,11 @@ int main(int argc, char **argv)
 
     if (settings.world_maker) {
 #ifdef HAVE_WORLD_MAKER
-        logger_print(LOG(INFO), "Running the world maker...");
+        LOG(INFO, "Running the world maker...");
         world_maker();
         exit(0);
 #else
-        logger_print(LOG(ERROR), "Cannot run world maker; server was not compiled with libgd, exiting...");
+        LOG(ERROR, "Cannot run world maker; server was not compiled with libgd, exiting...");
         exit(1);
 #endif
     }
@@ -549,7 +549,7 @@ int main(int argc, char **argv)
     memset(&marker, 0, sizeof(struct obj));
     process_delay = 0;
 
-    logger_print(LOG(INFO), "Server ready. Waiting for connections...");
+    LOG(INFO, "Server ready. Waiting for connections...");
 
     for (; ; ) {
         if (shutdown_timer_check()) {

@@ -148,7 +148,7 @@ int64_t calc_skill_exp(object *who, object *op, int level)
 
     /* No exp for non players. */
     if (!who || who->type != PLAYER) {
-        logger_print(LOG(DEBUG), "called with who != PLAYER or NULL (%s (%s)- %s)", query_name(who, NULL), !who ? "NULL" : "", query_name(op, NULL));
+        LOG(DEBUG, "called with who != PLAYER or NULL (%s (%s)- %s)", query_name(who, NULL), !who ? "NULL" : "", query_name(op, NULL));
         return 0;
     }
 

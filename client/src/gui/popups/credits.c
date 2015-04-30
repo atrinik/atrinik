@@ -80,7 +80,7 @@ void credits_show(void)
     hfile_contributors = help_find("contributors");
 
     if (!hfile_contributors) {
-        logger_print(LOG(BUG), "Could not find 'contributors' help file.");
+        LOG(BUG, "Could not find 'contributors' help file.");
         return;
     }
 

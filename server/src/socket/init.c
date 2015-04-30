@@ -55,12 +55,12 @@ void init_connection(socket_struct *ns, const char *from_ip)
     u_long temp = 1;
 
     if (ioctlsocket(ns->fd, FIONBIO, &temp) == -1) {
-        logger_print(LOG(DEBUG), "Error on ioctlsocket.");
+        LOG(DEBUG, "Error on ioctlsocket.");
     }
 #else
 
     if (fcntl(ns->fd, F_SETFL, O_NDELAY | O_NONBLOCK) == -1) {
-        logger_print(LOG(DEBUG), "Error on fcntl.");
+        LOG(DEBUG, "Error on fcntl.");
     }
 #endif
 
@@ -70,7 +70,7 @@ void init_connection(socket_struct *ns, const char *from_ip)
 
     if (oldbufsize < bufsize) {
         if (setsockopt(ns->fd, SOL_SOCKET, SO_SNDBUF, (char *) &bufsize, sizeof(bufsize))) {
-            logger_print(LOG(DEBUG), "setsockopt unable to set output buf size to %d", bufsize);
+            LOG(DEBUG, "setsockopt unable to set output buf size to %d", bufsize);
         }
     }
 
@@ -140,7 +140,7 @@ void init_ericserver(void)
     protox = getprotobyname("tcp");
 
     if (protox == NULL) {
-        logger_print(LOG(BUG), "Error getting protox");
+        LOG(BUG, "Error getting protox");
         return;
     }
 
@@ -151,7 +151,7 @@ void init_ericserver(void)
 #endif
 
     if (init_sockets[0].fd == -1) {
-        logger_print(LOG(ERROR), "Cannot create socket: %s", strerror(errno));
+        LOG(ERROR, "Cannot create socket: %s", strerror(errno));
         exit(1);
     }
 
@@ -163,7 +163,7 @@ void init_ericserver(void)
     linger_opt.l_linger = 0;
 
     if (setsockopt(init_sockets[0].fd, SOL_SOCKET, SO_LINGER, (char *) &linger_opt, sizeof(struct linger))) {
-        logger_print(LOG(ERROR), "Cannot setsockopt(SO_LINGER): %s", strerror(errno));
+        LOG(ERROR, "Cannot setsockopt(SO_LINGER): %s", strerror(errno));
         exit(1);
     }
 
@@ -175,13 +175,13 @@ void init_ericserver(void)
         int tmp = 1;
 
         if (setsockopt(init_sockets[0].fd, SOL_SOCKET, SO_REUSEADDR, (char *) &tmp, sizeof(tmp))) {
-            logger_print(LOG(DEBUG), "Cannot setsockopt(SO_REUSEADDR): %s", strerror(errno));
+            LOG(DEBUG, "Cannot setsockopt(SO_REUSEADDR): %s", strerror(errno));
         }
     }
 #else
 
     if (setsockopt(init_sockets[0].fd, SOL_SOCKET, SO_REUSEADDR, (char *) NULL, 0)) {
-        logger_print(LOG(DEBUG), "Cannot setsockopt(SO_REUSEADDR): %s", strerror(errno));
+        LOG(DEBUG, "Cannot setsockopt(SO_REUSEADDR): %s", strerror(errno));
     }
 #endif
 
@@ -192,7 +192,7 @@ void init_ericserver(void)
         shutdown(init_sockets[0].fd, SD_BOTH);
         closesocket(init_sockets[0].fd);
 #endif
-        logger_print(LOG(ERROR), "Cannot bind socket to port %d: %s", ntohs(insock.sin_port), strerror(errno));
+        LOG(ERROR, "Cannot bind socket to port %d: %s", ntohs(insock.sin_port), strerror(errno));
         exit(1);
     }
 
@@ -203,7 +203,7 @@ void init_ericserver(void)
         shutdown(init_sockets[0].fd, SD_BOTH);
         closesocket(init_sockets[0].fd);
 #endif
-        logger_print(LOG(ERROR), "Cannot listen on socket: %s", strerror(errno));
+        LOG(ERROR, "Cannot listen on socket: %s", strerror(errno));
         exit(1);
     }
 
@@ -255,7 +255,7 @@ void free_newsocket(socket_struct *ns)
 #endif
     {
 #ifdef ESRV_DEBUG
-        logger_print(LOG(DEBUG), "Error closing socket %d", ns->fd);
+        LOG(DEBUG, "Error closing socket %d", ns->fd);
 #endif
     }
 
@@ -296,7 +296,7 @@ static void load_srv_file(char *fname, FILE *listing)
     unsigned long crc;
 
     if ((fp = fopen(fname, "rb")) == NULL) {
-        logger_print(LOG(ERROR), "Can't open file %s", fname);
+        LOG(ERROR, "Can't open file %s", fname);
         exit(1);
     }
 
@@ -329,7 +329,7 @@ static void load_srv_file(char *fname, FILE *listing)
     fp = fopen(cp, "wb");
 
     if (fp == NULL) {
-        logger_print(LOG(ERROR), "Could not open %s for writing.", cp);
+        LOG(ERROR, "Could not open %s for writing.", cp);
         exit(1);
     }
 
@@ -356,7 +356,7 @@ static void create_server_settings(void)
     fp = fopen(buf, "wb");
 
     if (!fp) {
-        logger_print(LOG(ERROR), "Couldn't create %s.", buf);
+        LOG(ERROR, "Couldn't create %s.", buf);
         exit(1);
     }
 
@@ -364,7 +364,7 @@ static void create_server_settings(void)
     snprintf(buf, sizeof(buf), "%s/server_settings", settings.libpath);
 
     if (!path_copy_file(buf, fp, "r")) {
-        logger_print(LOG(ERROR), "Couldn't copy %s.", buf);
+        LOG(ERROR, "Couldn't copy %s.", buf);
         exit(1);
     }
 
@@ -395,7 +395,7 @@ static void create_server_animations(void)
     fp = fopen(buf, "wb");
 
     if (!fp) {
-        logger_print(LOG(ERROR), "Couldn't create %s.", buf);
+        LOG(ERROR, "Couldn't create %s.", buf);
         exit(1);
     }
 
@@ -403,7 +403,7 @@ static void create_server_animations(void)
     fp2 = fopen(buf, "rb");
 
     if (!fp2) {
-        logger_print(LOG(ERROR), "Couldn't open %s.", buf);
+        LOG(ERROR, "Couldn't open %s.", buf);
         exit(1);
     }
 
@@ -440,7 +440,7 @@ void init_srv_files(void)
     fp = fopen(buf, "w");
 
     if (fp == NULL) {
-        logger_print(LOG(ERROR), "Could not open %s for writing.", buf);
+        LOG(ERROR, "Could not open %s for writing.", buf);
         exit(1);
     }
 

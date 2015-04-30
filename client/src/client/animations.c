@@ -60,7 +60,7 @@ void read_anims(void)
     fp = server_file_open_name(SERVER_FILE_ANIMS);
 
     if (!fp) {
-        logger_print(LOG(ERROR), "Could not open anims server file.");
+        LOG(ERROR, "Could not open anims server file.");
     }
 
     while (fgets(buf, sizeof(buf) - 1, fp)) {
@@ -75,7 +75,7 @@ void read_anims(void)
                 anim_len = 4;
             } else {
                 /* we should never hit this point */
-                logger_print(LOG(BUG), "Error parsing anims.tmp - unknown cmd: >%s<!", buf);
+                LOG(BUG, "Error parsing anims.tmp - unknown cmd: >%s<!", buf);
             }
         } else {
             if (!strncmp(buf, "facings ", 8)) {

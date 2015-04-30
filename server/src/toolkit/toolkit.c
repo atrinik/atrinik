@@ -115,7 +115,7 @@ void toolkit_deinit(void)
                 buf[0] != '\0' ? ", " : "", apis[i - 1].name);
     }
 
-    log(LOG(DEVEL), "Deinitializing APIs in the following order: %s", buf);
+    LOG(DEVEL, "Deinitializing APIs in the following order: %s", buf);
 
     for (i = apis_num; i > 0; i--) {
         apis[i - 1].deinit_fnc();

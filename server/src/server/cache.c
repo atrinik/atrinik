@@ -193,7 +193,7 @@ void cache_remove_all(void)
     while (num_cache) {
         if (!cache_remove(cache[0].key)) {
             /* Shouldn't happen... */
-            logger_print(LOG(BUG), "Failed to remove cache entry.");
+            LOG(BUG, "Failed to remove cache entry.");
             return;
         }
     }
@@ -214,7 +214,7 @@ void cache_remove_by_flags(uint32_t flags)
 
         if (!cache_remove(cache[i].key)) {
             /* Shouldn't happen... */
-            logger_print(LOG(BUG), "Failed to remove cache entry.");
+            LOG(BUG, "Failed to remove cache entry.");
             continue;
         }
 

@@ -165,6 +165,8 @@ extern struct plugin_hooklist *hooks;
 #define estrndup(_s, _n) hooks->string_estrndup(_s, _n)
 #endif
 
+#define logger_print hooks->logger_print
+
 extern PyObject *AtrinikError;
 
 /** Raise an error using AtrinikError, and return NULL. */

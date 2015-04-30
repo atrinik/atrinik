@@ -212,7 +212,7 @@ static int widget_event(widgetdata *widget, SDL_Event *event)
             break;
 
         default:
-            logger_print(LOG(BUG), "Cannot handle button ID: %d", i);
+            LOG(BUG, "Cannot handle button ID: %d", i);
             break;
         }
 

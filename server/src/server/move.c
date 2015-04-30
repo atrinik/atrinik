@@ -99,7 +99,7 @@ int move_ob(object *op, int dir, object *originator)
     }
 
     if (QUERY_FLAG(op, FLAG_REMOVED)) {
-        logger_print(LOG(BUG), "monster %s has been removed - will not process further", query_name(op, NULL));
+        LOG(BUG, "monster %s has been removed - will not process further", query_name(op, NULL));
         return 0;
     }
 

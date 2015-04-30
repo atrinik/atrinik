@@ -174,7 +174,7 @@ static int64_t connection_trigger_do(object *op, int state, bool button)
             map = ready_map_name(map->tile_path[i], NULL, MAP_NAME_SHARED);
 
             if (map == NULL) {
-                log(LOG(ERROR), "Could not load map: %s",
+                LOG(ERROR, "Could not load map: %s",
                         op->map->tile_path[i]);
                 continue;
             }

@@ -250,7 +250,7 @@ int object_move_on(object *op, object *victim, object *originator, int state)
     for (methods = &object_type_methods[op->type]; methods; methods = methods->fallback) {
         if (methods->move_on_func) {
             if (object_move_on_recursion_depth >= 500) {
-                logger_print(LOG(DEBUG), "Aborting recursion [op arch %s, name %s; victim arch %s, name %s]", op->arch->name, op->name, victim->arch->name, victim->name);
+                LOG(DEBUG, "Aborting recursion [op arch %s, name %s; victim arch %s, name %s]", op->arch->name, op->name, victim->arch->name, victim->name);
                 return OBJECT_METHOD_OK;
             }
 

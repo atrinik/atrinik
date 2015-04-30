@@ -63,7 +63,7 @@ void socket_command_setup(socket_struct *ns, player *pl, uint8_t *data, size_t l
             y = packet_to_uint8(data, len, &pos);
 
             if (x < 9 || y < 9 || x > MAP_CLIENT_X || y > MAP_CLIENT_Y) {
-                log(LOG(PACKET), "X/Y not in range: %d, %d", x, y);
+                LOG(PACKET, "X/Y not in range: %d, %d", x, y);
                 x = MAP_CLIENT_X;
                 y = MAP_CLIENT_Y;
             }
@@ -98,7 +98,7 @@ void socket_command_setup(socket_struct *ns, player *pl, uint8_t *data, size_t l
                 packet_append_string_terminated(packet, settings.http_url);
             }
         } else {
-            log(LOG(PACKET), "Unknown type: %d", type);
+            LOG(PACKET, "Unknown type: %d", type);
         }
     }
 
@@ -110,7 +110,7 @@ void socket_command_player_cmd(socket_struct *ns, player *pl, uint8_t *data, siz
     char command[MAX_BUF];
 
     if (pl->socket.state != ST_PLAYING) {
-        log(LOG(PACKET), "Received player command while not playing.");
+        LOG(PACKET, "Received player command while not playing.");
         return;
     }
 
@@ -125,7 +125,7 @@ void socket_command_version(socket_struct *ns, player *pl, uint8_t *data, size_t
 
     /* Ignore multiple version commands. */
     if (ns->socket_version != 0) {
-        log(LOG(PACKET), "Received extraneous version command.");
+        LOG(PACKET, "Received extraneous version command.");
         return;
     }
 
@@ -157,7 +157,7 @@ void socket_command_item_move(socket_struct *ns, player *pl, uint8_t *data, size
     nrof = packet_to_uint32(data, len, &pos);
 
     if (tag == 0) {
-        log(LOG(PACKET), "Tag is zero.");
+        LOG(PACKET, "Tag is zero.");
         return;
     }
 
@@ -394,7 +394,7 @@ void draw_client_map(object *pl)
     int redraw_below = 0;
 
     if (pl->type != PLAYER) {
-        logger_print(LOG(BUG), "Called with non-player: %s", pl->name);
+        LOG(BUG, "Called with non-player: %s", pl->name);
         return;
     }
 
@@ -1856,7 +1856,7 @@ void socket_command_move_path(socket_struct *ns, player *pl, uint8_t *data, size
 
     /* Validate the passed x/y. */
     if (x >= pl->socket.mapx || y >= pl->socket.mapy) {
-        log(LOG(PACKET), "X/Y not in range: %d, %d", x, y);
+        LOG(PACKET, "X/Y not in range: %d, %d", x, y);
         return;
     }
 
@@ -1987,17 +1987,17 @@ void socket_command_move(socket_struct *ns, player *pl, uint8_t *data, size_t le
     run_on = packet_to_uint8(data, len, &pos);
 
     if (dir > 8) {
-        log(LOG(PACKET), "%s: Invalid dir: %d", ns->host, dir);
+        LOG(PACKET, "%s: Invalid dir: %d", ns->host, dir);
         return;
     }
 
     if (run_on > 1) {
-        log(LOG(PACKET), "%s: Invalid run_on: %d", ns->host, run_on);
+        LOG(PACKET, "%s: Invalid run_on: %d", ns->host, run_on);
         return;
     }
 
     if (run_on == 1 && dir == 0) {
-        log(LOG(PACKET), "%s: run_on is 1 but dir is 0", ns->host);
+        LOG(PACKET, "%s: run_on is 1 but dir is 0", ns->host);
         return;
     }
 
@@ -2018,7 +2018,7 @@ void send_target_command(player *pl)
     packet_struct *packet;
 
     if (!pl->ob->map) {
-        log(LOG(PACKET), "Received target command while not playing.");
+        LOG(PACKET, "Received target command while not playing.");
         return;
     }
 
@@ -2102,7 +2102,7 @@ void socket_command_account(socket_struct *ns, player *pl, uint8_t *data, size_t
         packet_to_string(data, len, &pos, password, sizeof(password));
 
         if (*name == '\0' || *password == '\0' || string_contains_other(name, settings.allowed_chars[ALLOWED_CHARS_ACCOUNT]) || string_contains_other(password, settings.allowed_chars[ALLOWED_CHARS_PASSWORD])) {
-            log(LOG(PACKET), "Received invalid data in account login command.");
+            LOG(PACKET, "Received invalid data in account login command.");
             return;
         }
 
@@ -2137,7 +2137,7 @@ void socket_command_account(socket_struct *ns, player *pl, uint8_t *data, size_t
 
         account_password_change(ns, password, password_new, password_new2);
     } else {
-        log(LOG(PACKET), "Invalid type: %d", type);
+        LOG(PACKET, "Invalid type: %d", type);
     }
 }
 
@@ -2181,7 +2181,7 @@ void socket_command_target(socket_struct *ns, player *pl, uint8_t *data, size_t 
 
         /* Validate the passed x/y. */
         if (x >= pl->socket.mapx || y >= pl->socket.mapy) {
-            log(LOG(PACKET), "Invalid X/Y: %d, %d", x, y);
+            LOG(PACKET, "Invalid X/Y: %d, %d", x, y);
             return;
         }
 
@@ -2237,7 +2237,7 @@ void socket_command_target(socket_struct *ns, player *pl, uint8_t *data, size_t 
             send_target_command(pl);
         }
     } else {
-        log(LOG(PACKET), "Invalid type: %d", type);
+        LOG(PACKET, "Invalid type: %d", type);
     }
 }
 
@@ -2260,7 +2260,7 @@ void socket_command_talk(socket_struct *ns, player *pl, uint8_t *data, size_t le
             packet_to_string(data, len, &pos, npc_name, sizeof(npc_name));
 
             if (string_isempty(npc_name)) {
-                log(LOG(PACKET), "Empty NPC name.");
+                LOG(PACKET, "Empty NPC name.");
                 return;
             }
         }
@@ -2269,7 +2269,7 @@ void socket_command_talk(socket_struct *ns, player *pl, uint8_t *data, size_t le
         player_sanitize_input(msg);
 
         if (string_isempty(msg)) {
-            log(LOG(PACKET), "Empty message.");
+            LOG(PACKET, "Empty message.");
             return;
         }
 
@@ -2313,7 +2313,7 @@ void socket_command_talk(socket_struct *ns, player *pl, uint8_t *data, size_t le
         }
 
         if (npc) {
-            logger_print(LOG(CHAT), "[TALKTO] [%s] [%s] %s", pl->ob->name, npc->name, msg);
+            LOG(CHAT, "[TALKTO] [%s] [%s] %s", pl->ob->name, npc->name, msg);
 
             if (talk_to_npc(pl->ob, npc, msg)) {
                 if (OBJECT_VALID(pl->talking_to, pl->talking_to_count) &&
@@ -2344,7 +2344,7 @@ void socket_command_talk(socket_struct *ns, player *pl, uint8_t *data, size_t le
         player_sanitize_input(msg);
 
         if (string_isempty(msg)) {
-            log(LOG(PACKET), "Empty message.");
+            LOG(PACKET, "Empty message.");
             return;
         }
 
@@ -2371,7 +2371,7 @@ void socket_command_talk(socket_struct *ns, player *pl, uint8_t *data, size_t le
             pl->talking_to_count = 0;
         }
     } else {
-        log(LOG(PACKET), "Invalid type: %d", type);
+        LOG(PACKET, "Invalid type: %d", type);
     }
 }
 
@@ -2383,7 +2383,7 @@ void socket_command_control(socket_struct *ns, player *pl, uint8_t *data, size_t
     packet_struct *packet;
 
     if (strcasecmp(settings.control_allowed_ips, "none") == 0) {
-        log(LOG(PACKET), "Control command received but no IPs are allowed.");
+        LOG(PACKET, "Control command received but no IPs are allowed.");
         return;
     }
 
@@ -2398,7 +2398,7 @@ void socket_command_control(socket_struct *ns, player *pl, uint8_t *data, size_t
     }
 
     if (!ip_match) {
-        log(LOG(PACKET), "Received control command from unauthorized IP: %s",
+        LOG(PACKET, "Received control command from unauthorized IP: %s",
                 ns->host);
         return;
     }
@@ -2406,7 +2406,7 @@ void socket_command_control(socket_struct *ns, player *pl, uint8_t *data, size_t
     packet_to_string(data, len, &pos, app_name, sizeof(app_name));
 
     if (string_isempty(app_name)) {
-        log(LOG(PACKET), "Received empty app_name.");
+        LOG(PACKET, "Received empty app_name.");
         return;
     }
 
@@ -2481,7 +2481,7 @@ void socket_command_control(socket_struct *ns, player *pl, uint8_t *data, size_t
             m = ready_map_name(mappath, NULL, 0);
 
             if (m == NULL) {
-                log(LOG(ERROR), "Could not teleport player to '%s' (%d,%d): "
+                LOG(ERROR, "Could not teleport player to '%s' (%d,%d): "
                         "map could not be loaded.", mappath, x, y);
                 return;
             }
@@ -2505,6 +2505,6 @@ void socket_command_control(socket_struct *ns, player *pl, uint8_t *data, size_t
     }
     }
 
-    log(LOG(PACKET), "Unrecognised control command type: %d, sub-type: %d, "
+    LOG(PACKET, "Unrecognised control command type: %d, sub-type: %d, "
             "by application: '%s'", type, sub_type, app_name);
 }

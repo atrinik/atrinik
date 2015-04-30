@@ -80,12 +80,12 @@ static int socket_command_check(socket_struct *ns, player *pl, uint8_t *data, si
     {
         char *cp;
 
-        log(LOG(DUMPRX), "Received packet with command type %d (%" PRIu64
+        LOG(DUMPRX, "Received packet with command type %d (%" PRIu64
                 " bytes):", type, (uint64_t) len);
 
         cp = emalloc(sizeof(*cp) * (len * 3 + 1));
         string_tohex(data, len, cp, len * 3 + 1, true);
-        log(LOG(DUMPRX), "  Hexadecimal: %s", cp);
+        LOG(DUMPRX, "  Hexadecimal: %s", cp);
         efree(cp);
     }
 #endif
@@ -205,7 +205,7 @@ void remove_ns_dead_player(player *pl)
     account_logout_char(&pl->socket, pl);
     leave_map(pl->ob);
 
-    logger_print(LOG(INFO), "Logout %s from IP %s", pl->ob->name, pl->socket.host);
+    LOG(INFO, "Logout %s from IP %s", pl->ob->name, pl->socket.host);
 
     /* To avoid problems with inventory window */
     pl->ob->type = DEAD_OBJECT;
@@ -251,7 +251,7 @@ void doeric_server(void)
 
     for (i = 0; i < socket_info.allocated_sockets; i++) {
         if (init_sockets[i].state == ST_LOGIN && !is_fd_valid(init_sockets[i].fd)) {
-            logger_print(LOG(DEBUG), "Invalid waiting fd %d", i);
+            LOG(DEBUG, "Invalid waiting fd %d", i);
             init_sockets[i].state = ST_DEAD;
         }
 
@@ -264,7 +264,7 @@ void doeric_server(void)
         } else if (init_sockets[i].state != ST_AVAILABLE) {
             if (init_sockets[i].state > ST_WAITING) {
                 if (init_sockets[i].keepalive++ >= (uint32_t) SOCKET_KEEPALIVE_TIMEOUT * MAX_TICKS_MULTIPLIER) {
-                    logger_print(LOG(INFO), "Keepalive: disconnecting %s: %d", init_sockets[i].host ? init_sockets[i].host : "(unknown ip?)", init_sockets[i].fd);
+                    LOG(INFO, "Keepalive: disconnecting %s: %d", init_sockets[i].host ? init_sockets[i].host : "(unknown ip?)", init_sockets[i].fd);
                     FREE_SOCKET(i);
                     continue;
                 }
@@ -282,12 +282,12 @@ void doeric_server(void)
         next = pl->next;
 
         if (pl->socket.state != ST_DEAD && !is_fd_valid(pl->socket.fd)) {
-            logger_print(LOG(DEBUG), "Invalid file descriptor for player %s [%s]: %d", (pl->ob && pl->ob->name) ? pl->ob->name : "(unnamed player?)", (pl->socket.host) ? pl->socket.host : "(unknown ip?)", pl->socket.fd);
+            LOG(DEBUG, "Invalid file descriptor for player %s [%s]: %d", (pl->ob && pl->ob->name) ? pl->ob->name : "(unnamed player?)", (pl->socket.host) ? pl->socket.host : "(unknown ip?)", pl->socket.fd);
             pl->socket.state = ST_DEAD;
         }
 
         if (pl->socket.state != ST_DEAD && pl->socket.keepalive++ >= (uint32_t) SOCKET_KEEPALIVE_TIMEOUT * MAX_TICKS_MULTIPLIER) {
-            logger_print(LOG(INFO), "Keepalive: disconnecting %s [%s]: %d", (pl->ob && pl->ob->name) ? pl->ob->name : "(unnamed player?)", (pl->socket.host) ? pl->socket.host : "(unknown ip?)", pl->socket.fd);
+            LOG(INFO, "Keepalive: disconnecting %s [%s]: %d", (pl->ob && pl->ob->name) ? pl->ob->name : "(unnamed player?)", (pl->socket.host) ? pl->socket.host : "(unknown ip?)", pl->socket.fd);
             pl->socket.state = ST_DEAD;
         }
 
@@ -310,7 +310,7 @@ void doeric_server(void)
     pollret = select(socket_info.max_filedescriptor, &tmp_read, &tmp_write, &tmp_exceptions, &socket_info.timeout);
 
     if (pollret == -1) {
-        logger_print(LOG(DEBUG), "select failed: %s", strerror(errno));
+        LOG(DEBUG, "select failed: %s", strerror(errno));
         return;
     }
 
@@ -338,7 +338,7 @@ void doeric_server(void)
         init_sockets[newsocknum].fd = accept(init_sockets[0].fd, (struct sockaddr *) &addr, &addrlen);
 
         if (init_sockets[newsocknum].fd == -1) {
-            logger_print(LOG(DEBUG), "accept failed: %s", strerror(errno));
+            LOG(DEBUG, "accept failed: %s", strerror(errno));
         } else {
             char buf[MAX_BUF];
             long ip = ntohl(addr.sin_addr.s_addr);
@@ -346,7 +346,7 @@ void doeric_server(void)
             snprintf(buf, sizeof(buf), "%ld.%ld.%ld.%ld", (ip >> 24) & 255, (ip >> 16) & 255, (ip >> 8) & 255, ip & 255);
 
             if (checkbanned(NULL, buf)) {
-                logger_print(LOG(SYSTEM), "Ban: Banned IP tried to connect: %s", buf);
+                LOG(SYSTEM, "Ban: Banned IP tried to connect: %s", buf);
 #ifndef WIN32
                 close(init_sockets[newsocknum].fd);
 #else
@@ -377,7 +377,7 @@ void doeric_server(void)
                 rr = socket_recv(&init_sockets[i]);
 
                 if (rr < 0) {
-                    logger_print(LOG(INFO), "Drop connection: %s", STRING_SAFE(init_sockets[i].host));
+                    LOG(INFO, "Drop connection: %s", STRING_SAFE(init_sockets[i].host));
                     init_sockets[i].state = ST_DEAD;
                 } else {
                     fill_command_buffer(&init_sockets[i]);
@@ -417,7 +417,7 @@ void doeric_server(void)
             rr = socket_recv(&pl->socket);
 
             if (rr < 0) {
-                logger_print(LOG(INFO), "Drop connection: %s (%s)", STRING_OBJ_NAME(pl->ob), STRING_SAFE(pl->socket.host));
+                LOG(INFO, "Drop connection: %s (%s)", STRING_OBJ_NAME(pl->ob), STRING_SAFE(pl->socket.host));
                 pl->socket.state = ST_DEAD;
             } else {
                 fill_command_buffer(&pl->socket);

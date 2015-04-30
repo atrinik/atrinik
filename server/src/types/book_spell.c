@@ -42,7 +42,7 @@ static int apply_func(object *op, object *applier, int aflags)
     }
 
     if (op->stats.sp < 0 || op->stats.sp >= NROFREALSPELLS) {
-        log(LOG(ERROR), "Spell book with an invalid ID (%d): %s", op->stats.sp,
+        LOG(ERROR, "Spell book with an invalid ID (%d): %s", op->stats.sp,
                 object_get_str(op));
         draw_info_format(COLOR_WHITE, applier,
                 "The symbols in the %s make no sense.",
@@ -132,7 +132,7 @@ static int apply_func(object *op, object *applier, int aflags)
         object *tmp = object_insert_into(arch_to_object(spell->at), applier, 0);
 
         if (tmp == NULL) {
-            log(LOG(ERROR), "Failed to insert spell, op: %s, applier: %s",
+            LOG(ERROR, "Failed to insert spell, op: %s, applier: %s",
                     object_get_str(op), object_get_str(applier));
             return OBJECT_METHOD_OK;
         }

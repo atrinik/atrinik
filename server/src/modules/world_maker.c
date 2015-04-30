@@ -509,7 +509,7 @@ void world_maker(void)
         def_fp = fopen(buf, "w");
 
         if (!def_fp) {
-            logger_print(LOG(ERROR), "Could not open '%s': %s", buf,
+            LOG(ERROR, "Could not open '%s': %s", buf,
                     strerror(errno));
             exit(1);
         }
@@ -855,7 +855,7 @@ void world_maker(void)
         out = fopen(buf, "wb");
 
         if (out == NULL) {
-            logger_print(LOG(ERROR), "Could not open '%s': %s", buf,
+            LOG(ERROR, "Could not open '%s': %s", buf,
                     strerror(errno));
             exit(1);
         }

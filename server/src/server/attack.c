@@ -894,7 +894,7 @@ static void poison_player(object *op, object *hitter, float dam)
 
     if (tmp == NULL) {
         if ((tmp = arch_to_object(at)) == NULL) {
-            logger_print(LOG(BUG), "Failed to clone arch poisoning.");
+            LOG(BUG, "Failed to clone arch poisoning.");
             return;
         }
 
@@ -935,7 +935,7 @@ static void slow_living(object *op)
     object *tmp;
 
     if (at == NULL) {
-        logger_print(LOG(BUG), "Can't find slowness archetype.");
+        LOG(BUG, "Can't find slowness archetype.");
         return;
     }
 

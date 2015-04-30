@@ -190,7 +190,7 @@ static int spawn_point_can_generate(object *op, object *monster)
 
             return 1;
         } else {
-            logger_print(LOG(BUG), "Syntax error in spawn_time attribute: %s", spawn_time);
+            LOG(BUG, "Syntax error in spawn_time attribute: %s", spawn_time);
         }
     }
 

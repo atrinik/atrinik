@@ -182,7 +182,7 @@ char *path_normalize(const char *path)
                 last_slash = stringbuffer_rindex(sb, '/');
 
                 if (last_slash == -1) {
-                    logger_print(LOG(BUG), "Should have found a forward slash, but didn't: %s", path);
+                    LOG(BUG, "Should have found a forward slash, but didn't: %s", path);
                     continue;
                 }
 
@@ -226,19 +226,19 @@ void path_ensure_directories(const char *path)
         *cp = '\0';
 
         if (mkdir(buf, 0777) != 0 && errno != EEXIST) {
-            log(LOG(BUG), "Cannot mkdir %s (path: %s): %s", buf, path,
+            LOG(BUG, "Cannot mkdir %s (path: %s): %s", buf, path,
                     strerror(errno));
             return;
         }
 
         if (stat(buf, &statbuf) != 0) {
-            log(LOG(BUG), "Cannot stat %s (path: %s): %s", buf, path,
+            LOG(BUG, "Cannot stat %s (path: %s): %s", buf, path,
                     strerror(errno));
             return;
         }
 
         if (!S_ISDIR(statbuf.st_mode)) {
-            log(LOG(BUG), "Not a directory: %s (path: %s)", buf, path);
+            LOG(BUG, "Not a directory: %s (path: %s)", buf, path);
             return;
         }
 

@@ -117,7 +117,7 @@ static void quest_check_item_drop(object *op, object *quest, object *quest_pl,
     char buf[MAX_BUF];
 
     if (item == NULL) {
-        logger_print(LOG(BUG), "Quest '%s' without an item.", quest->name);
+        LOG(BUG, "Quest '%s' without an item.", quest->name);
         return;
     }
 
@@ -177,7 +177,7 @@ static void quest_check_kill(object *op, object *quest, object *quest_pl,
         object *item)
 {
     if (item != NULL) {
-        logger_print(LOG(BUG), "Quest '%s' with an item.", quest->name);
+        LOG(BUG, "Quest '%s' with an item.", quest->name);
         return;
     }
 
@@ -227,7 +227,7 @@ static void quest_check_item(object *op, object *quest, object *quest_pl,
     char buf[MAX_BUF];
 
     if (item == NULL) {
-        logger_print(LOG(BUG), "Quest '%s' without an item.", quest->name);
+        LOG(BUG, "Quest '%s' without an item.", quest->name);
         return;
     }
 
@@ -322,7 +322,7 @@ static void quest_object_handle(object *op, object *quest, object *quest_pl)
         break;
 
     default:
-        logger_print(LOG(BUG), "Quest '%s' has unknown sub type: %d",
+        LOG(BUG, "Quest '%s' has unknown sub type: %d",
                 quest->name, quest->sub_type);
         break;
     }

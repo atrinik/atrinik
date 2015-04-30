@@ -256,7 +256,7 @@ static void register_global_event(const char *plugin_name, int event_nr)
     atrinik_plugin *plugin = find_plugin(plugin_name);
 
     if (!plugin) {
-        logger_print(LOG(BUG), "Could not find plugin %s.", plugin_name);
+        LOG(BUG, "Could not find plugin %s.", plugin_name);
         return;
     }
 
@@ -272,7 +272,7 @@ static void unregister_global_event(const char *plugin_name, int event_nr)
     atrinik_plugin *plugin = find_plugin(plugin_name);
 
     if (!plugin) {
-        logger_print(LOG(BUG), "Could not find plugin %s.", plugin_name);
+        LOG(BUG, "Could not find plugin %s.", plugin_name);
         return;
     }
 
@@ -401,14 +401,14 @@ void init_plugin(const char *pluginfile)
     ptr = plugins_dlopen(pluginfile);
 
     if (!ptr) {
-        logger_print(LOG(BUG), "Error while trying to load %s, returned: %s", pluginfile, plugins_dlerror());
+        LOG(BUG, "Error while trying to load %s, returned: %s", pluginfile, plugins_dlerror());
         return;
     }
 
     initfunc = plugins_dlsym(ptr, "initPlugin", f_plug_init);
 
     if (!initfunc) {
-        logger_print(LOG(BUG), "Error while requesting 'initPlugin' from %s: %s", pluginfile, plugins_dlerror());
+        LOG(BUG, "Error while requesting 'initPlugin' from %s: %s", pluginfile, plugins_dlerror());
         plugins_dlclose(ptr);
         return;
     }
@@ -416,7 +416,7 @@ void init_plugin(const char *pluginfile)
     eventfunc = plugins_dlsym(ptr, "triggerEvent", f_plug_event);
 
     if (!eventfunc) {
-        logger_print(LOG(BUG), "Error while requesting 'triggerEvent' from %s: %s", pluginfile, plugins_dlerror());
+        LOG(BUG, "Error while requesting 'triggerEvent' from %s: %s", pluginfile, plugins_dlerror());
         plugins_dlclose(ptr);
         return;
     }
@@ -424,7 +424,7 @@ void init_plugin(const char *pluginfile)
     pinitfunc = plugins_dlsym(ptr, "postinitPlugin", f_plug_pinit);
 
     if (!pinitfunc) {
-        logger_print(LOG(BUG), "Error while requesting 'postinitPlugin' from %s: %s", pluginfile, plugins_dlerror());
+        LOG(BUG, "Error while requesting 'postinitPlugin' from %s: %s", pluginfile, plugins_dlerror());
         plugins_dlclose(ptr);
         return;
     }
@@ -432,7 +432,7 @@ void init_plugin(const char *pluginfile)
     propfunc = plugins_dlsym(ptr, "getPluginProperty", f_plug_prop);
 
     if (!propfunc) {
-        logger_print(LOG(BUG), "Error while requesting 'getPluginProperty' from %s: %s", pluginfile, plugins_dlerror());
+        LOG(BUG, "Error while requesting 'getPluginProperty' from %s: %s", pluginfile, plugins_dlerror());
         plugins_dlclose(ptr);
         return;
     }
@@ -440,7 +440,7 @@ void init_plugin(const char *pluginfile)
     closefunc = plugins_dlsym(ptr, "closePlugin", f_plug_pinit);
 
     if (!closefunc) {
-        logger_print(LOG(BUG), "Error while requesting 'closePlugin' from %s: %s", pluginfile, plugins_dlerror());
+        LOG(BUG, "Error while requesting 'closePlugin' from %s: %s", pluginfile, plugins_dlerror());
         plugins_dlclose(ptr);
         return;
     }
@@ -527,7 +527,7 @@ void map_event_obj_init(object *ob)
     map_event *tmp;
 
     if (!ob->map) {
-        logger_print(LOG(BUG), "Map event object not on map.");
+        LOG(BUG, "Map event object not on map.");
         return;
     }
 
@@ -572,7 +572,7 @@ int trigger_map_event(int event_id, mapstruct *m, object *activator, object *oth
                 tmp->plugin = find_plugin(tmp->event->name);
 
                 if (!tmp->plugin) {
-                    logger_print(LOG(BUG), "Tried to trigger map event #%d, but could not find plugin '%s'.", event_id, tmp->event->name);
+                    LOG(BUG, "Tried to trigger map event #%d, but could not find plugin '%s'.", event_id, tmp->event->name);
                     return 0;
                 }
             }
@@ -628,7 +628,7 @@ int trigger_event(int event_type, object * const activator, object * const me, o
     }
 
     if ((event_obj = get_event_object(me, event_type)) == NULL) {
-        logger_print(LOG(BUG), "Object with event flag and no event object: %s", STRING_OBJ_NAME(me));
+        LOG(BUG, "Object with event flag and no event object: %s", STRING_OBJ_NAME(me));
         me->event_flags &= ~(1 << event_type);
         return 0;
     }
@@ -658,11 +658,11 @@ int trigger_event(int event_type, object * const activator, object * const me, o
         start_u = start.tv_sec * 1000000 + start.tv_usec;
         stop_u = stop.tv_sec * 1000000 + stop.tv_usec;
 
-        logger_print(LOG(DEBUG), "Running time: %2.6f seconds", (stop_u - start_u) / 1000000.0);
+        LOG(DEBUG, "Running time: %2.6f seconds", (stop_u - start_u) / 1000000.0);
 #endif
         return returnvalue;
     } else {
-        logger_print(LOG(BUG), "event object with unknown plugin: %s, plugin %s", STRING_OBJ_NAME(me), STRING_OBJ_NAME(event_obj));
+        LOG(BUG, "event object with unknown plugin: %s, plugin %s", STRING_OBJ_NAME(me), STRING_OBJ_NAME(event_obj));
         me->event_flags &= ~(1 << event_type);
     }
 

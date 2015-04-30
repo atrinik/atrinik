@@ -196,7 +196,7 @@ int cast_wor(object *op, object *caster)
     dummy = get_archetype("force");
 
     if (dummy == NULL) {
-        logger_print(LOG(BUG), "get_archetype failed (%s - %s)!", query_name(op, NULL), query_name(caster, NULL));
+        LOG(BUG, "get_archetype failed (%s - %s)!", query_name(op, NULL), query_name(caster, NULL));
         return 0;
     }
 
@@ -364,7 +364,7 @@ int cast_heal(object *op, int level, object *target, int spell_type)
     int heal = 0, success = 0;
 
     if (!op || !target) {
-        logger_print(LOG(BUG), "target or caster NULL (op: %s target: %s)", query_name(op, NULL), query_name(target, NULL));
+        LOG(BUG, "target or caster NULL (op: %s target: %s)", query_name(op, NULL), query_name(target, NULL));
         return 0;
     }
 
@@ -564,7 +564,7 @@ int cast_heal(object *op, int level, object *target, int spell_type)
     }
 
     if (insert_spell_effect(spells[spell_type].archname, target->map, target->x, target->y)) {
-        logger_print(LOG(DEBUG), "failed: spell:%d, obj:%s target:%s", spell_type, query_name(op, NULL), query_name(target, NULL));
+        LOG(DEBUG, "failed: spell:%d, obj:%s target:%s", spell_type, query_name(op, NULL), query_name(target, NULL));
     }
 
     return success;
@@ -630,7 +630,7 @@ int cast_change_attr(object *op, object *caster, object *target, int spell_type)
         }
 
         if (insert_spell_effect(spells[SP_STRENGTH].archname, target->map, target->x, target->y)) {
-            logger_print(LOG(DEBUG), "failed: spell:%d, obj:%s caster:%s target:%s", spell_type, query_name(op, NULL), query_name(caster, NULL), query_name(target, NULL));
+            LOG(DEBUG, "failed: spell:%d, obj:%s caster:%s target:%s", spell_type, query_name(op, NULL), query_name(caster, NULL), query_name(target, NULL));
         }
 
         break;

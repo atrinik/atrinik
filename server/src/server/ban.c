@@ -109,7 +109,7 @@ void load_bans_file(void)
         if (sscanf(buf, "%s %s", name, ip) == 2) {
             add_ban_entry(name, ip);
         } else {
-            logger_print(LOG(BUG), "Malformed line in bans file: %s", buf);
+            LOG(BUG, "Malformed line in bans file: %s", buf);
         }
     }
 
@@ -127,7 +127,7 @@ void save_bans_file(void)
     snprintf(filename, sizeof(filename), "%s/%s", settings.datapath, BANFILE);
 
     if (!(fp = fopen(filename, "w"))) {
-        logger_print(LOG(BUG), "Cannot open %s for writing.", filename);
+        LOG(BUG, "Cannot open %s for writing.", filename);
         return;
     }
 

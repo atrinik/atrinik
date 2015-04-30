@@ -167,7 +167,7 @@ void socket_command_keepalive(uint8_t *data, size_t len, size_t pos)
         }
     }
 
-    log(LOG(BUG), "Received unknown keepalive ID: %d", id);
+    LOG(BUG, "Received unknown keepalive ID: %d", id);
 }
 
 /**
@@ -327,7 +327,7 @@ void list_vid_modes(void)
 
     /* Check if there are any modes available */
     if (modes == (SDL_Rect **) 0) {
-        logger_print(LOG(ERROR), "No video modes available!");
+        LOG(ERROR, "No video modes available!");
         exit(1);
     }
 }
@@ -584,7 +584,7 @@ int main(int argc, char *argv[])
     curl_init();
 
     if (SDL_Init(SDL_INIT_AUDIO | SDL_INIT_VIDEO) < 0) {
-        logger_print(LOG(ERROR), "Couldn't initialize SDL: %s", SDL_GetError());
+        LOG(ERROR, "Couldn't initialize SDL: %s", SDL_GetError());
         exit(1);
     }
 
@@ -668,7 +668,7 @@ int main(int argc, char *argv[])
          * action */
         if (cpl.state != ST_PLAY) {
             if (!game_status_chain()) {
-                logger_print(LOG(BUG), "Error connecting: cpl.state: %d  SocketError: %d", cpl.state, socket_get_error());
+                LOG(BUG, "Error connecting: cpl.state: %d  SocketError: %d", cpl.state, socket_get_error());
             }
         } else if (SDL_GetAppState() & SDL_APPACTIVE) {
             if (LastTick - anim_tick > 125) {

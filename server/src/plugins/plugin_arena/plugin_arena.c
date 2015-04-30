@@ -92,6 +92,8 @@
 /** Plugin version */
 #define PLUGIN_VERSION "Arena plugin 1.0"
 
+#define logger_print hooks->logger_print
+
 /** Players currently in an arena map */
 typedef struct arena_map_players {
     /** The player object. */
@@ -293,7 +295,7 @@ static void arena_map_parse_script(const char *arena_script, object *exit_ob, ar
     fh = fopen(arena_script_path, "r");
 
     if (!fh) {
-        hooks->logger_print(LOG(BUG), "Arena: Could not open arena script: %s", arena_script_path);
+        LOG(BUG, "Arena: Could not open arena script: %s", arena_script_path);
         return;
     }
 

@@ -41,7 +41,7 @@ void command_opsay(object *op, const char *command, char *params)
         return;
     }
 
-    logger_print(LOG(CHAT), "[OPSAY] [%s] %s", op->name, params);
+    LOG(CHAT, "[OPSAY] [%s] %s", op->name, params);
 
     for (pl = first_player; pl; pl = pl->next) {
         if (commands_check_permission(pl, command)) {

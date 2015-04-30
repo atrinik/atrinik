@@ -58,7 +58,7 @@ sprite_struct *sprite_load_file(char *fname, uint32_t flags)
     sprite_struct *sprite = sprite_tryload_file(fname, flags, NULL);
 
     if (sprite == NULL) {
-        logger_print(LOG(BUG), "Can't load sprite %s", fname);
+        LOG(BUG, "Can't load sprite %s", fname);
         return NULL;
     }
 
@@ -762,7 +762,7 @@ void border_create_color(SDL_Surface *surface, SDL_Rect *coords, int thickness, 
     SDL_Color color;
 
     if (!text_color_parse(color_notation, &color)) {
-        logger_print(LOG(BUG), "Invalid color: %s", color_notation);
+        LOG(BUG, "Invalid color: %s", color_notation);
         return;
     }
 
@@ -789,7 +789,7 @@ void rectangle_create(SDL_Surface *surface, int x, int y, int w, int h, const ch
     SDL_Color color;
 
     if (!text_color_parse(color_notation, &color)) {
-        logger_print(LOG(BUG), "Invalid color: %s", color_notation);
+        LOG(BUG, "Invalid color: %s", color_notation);
         return;
     }
 

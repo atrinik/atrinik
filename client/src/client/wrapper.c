@@ -149,7 +149,7 @@ void copy_file(const char *filename, const char *filename_out)
     fp = fopen(filename, "r");
 
     if (!fp) {
-        logger_print(LOG(BUG), "Failed to open '%s' for reading.", filename);
+        LOG(BUG, "Failed to open '%s' for reading.", filename);
         return;
     }
 
@@ -158,7 +158,7 @@ void copy_file(const char *filename, const char *filename_out)
     fp_out = fopen(filename_out, "w");
 
     if (!fp_out) {
-        logger_print(LOG(BUG), "Failed to open '%s' for writing.", filename_out);
+        LOG(BUG, "Failed to open '%s' for writing.", filename_out);
         fclose(fp);
         return;
     }

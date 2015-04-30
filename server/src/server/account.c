@@ -138,7 +138,7 @@ static int account_save(account_struct *account, const char *path)
     fp = fopen(path, "w");
 
     if (!fp) {
-        logger_print(LOG(BUG), "Could not open %s for writing.", path);
+        LOG(BUG, "Could not open %s for writing.", path);
         return 0;
     }
 
@@ -172,7 +172,7 @@ static int account_load(account_struct *account, const char *path)
     fp = fopen(path, "rb");
 
     if (!fp) {
-        logger_print(LOG(BUG), "Could not open %s for reading.", path);
+        LOG(BUG, "Could not open %s for reading.", path);
         return 0;
     }
 
@@ -193,12 +193,12 @@ static int account_load(account_struct *account, const char *path)
             if (len == 13 || len == 40) {
                 account->password_old = estrdup(buf + 5);
             } else if (string_fromhex(buf + 5, len, account->password, ACCOUNT_PASSWORD_SIZE) != ACCOUNT_PASSWORD_SIZE) {
-                logger_print(LOG(BUG), "Invalid password entry in file: %s", path);
+                LOG(BUG, "Invalid password entry in file: %s", path);
                 memset(account->password, 0, sizeof(account->password));
             }
         } else if (strncmp(buf, "salt ", 5) == 0) {
             if (string_fromhex(buf + 5, strlen(buf + 5), account->salt, ACCOUNT_PASSWORD_SIZE) != ACCOUNT_PASSWORD_SIZE) {
-                logger_print(LOG(BUG), "Invalid salt entry in file: %s", path);
+                LOG(BUG, "Invalid salt entry in file: %s", path);
                 memset(account->salt, 0, sizeof(account->salt));
             }
         } else if (strncmp(buf, "host ", 5) == 0) {
@@ -209,7 +209,7 @@ static int account_load(account_struct *account, const char *path)
             char *cps[4];
 
             if (string_split(buf + 5, cps, arraysize(cps), ':') != arraysize(cps)) {
-                logger_print(LOG(BUG), "Invalid character entry in file: %s", path);
+                LOG(BUG, "Invalid character entry in file: %s", path);
                 continue;
             }
 
@@ -327,10 +327,10 @@ void account_login(socket_struct *ns, char *name, char *password)
         efree(path);
 
         ns->password_fails++;
-        logger_print(LOG(SYSTEM), "%s: Failed to provide correct password for account %s.", ns->host, name);
+        LOG(SYSTEM, "%s: Failed to provide correct password for account %s.", ns->host, name);
 
         if (ns->password_fails >= MAX_PASSWORD_FAILURES) {
-            logger_print(LOG(SYSTEM), "%s: Failed to provide a correct password for account %s too many times!", ns->host, name);
+            LOG(SYSTEM, "%s: Failed to provide a correct password for account %s too many times!", ns->host, name);
             draw_info_send(CHAT_TYPE_GAME, NULL, COLOR_RED, ns, "You have failed to provide a correct password too many times.");
             ns->state = ST_ZOMBIE;
         }

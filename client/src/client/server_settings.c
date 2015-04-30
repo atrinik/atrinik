@@ -152,7 +152,7 @@ void server_settings_init(void)
 
                 text_id++;
             } else {
-                logger_print(LOG(BUG), "Error in settings file, more text entries than allowed on line %d.", line);
+                LOG(BUG, "Error in settings file, more text entries than allowed on line %d.", line);
             }
         }
     }

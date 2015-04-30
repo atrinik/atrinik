@@ -359,13 +359,13 @@ void logger_traceback(void)
 
     bt_size = backtrace(bt, 1024);
     bt_syms = backtrace_symbols(bt, bt_size);
-    log(LOG(ERROR), "------------ TRACEBACK ------------");
+    LOG(ERROR, "------------ TRACEBACK ------------");
 
     for (i = 1; i < bt_size; i++) {
-        log(LOG(ERROR), "%s", bt_syms[i]);
+        LOG(ERROR, "%s", bt_syms[i]);
     }
 
-    log(LOG(ERROR), "-----------------------------------");
+    LOG(ERROR, "-----------------------------------");
     free(bt_syms);
 #endif
 }

@@ -293,7 +293,7 @@ void sound_ambient_match_parse(object *ob, const char *str)
     HARD_ASSERT(str != NULL);
 
     if (ob->type != SOUND_AMBIENT) {
-        log(LOG(BUG), "Called on incorrect object type: %d", ob->type);
+        LOG(BUG, "Called on incorrect object type: %d", ob->type);
         return;
     }
 
@@ -437,12 +437,12 @@ void sound_ambient_init(object *ob)
 
     /* Must be on map... */
     if (ob->map == NULL) {
-        logger_print(LOG(BUG), "Ambient sound effect object not on map.");
+        LOG(BUG, "Ambient sound effect object not on map.");
         return;
     }
 
     if (string_isempty(ob->race)) {
-        logger_print(LOG(BUG), "Ambient sound effect object is missing sound "
+        LOG(BUG, "Ambient sound effect object is missing sound "
                 "effect filename.");
         return;
     }

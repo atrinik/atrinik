@@ -64,7 +64,7 @@ int64_t query_cost(object *tmp, object *who, int flag)
 
         if (tmp->arch != NULL) {
             if (flag == COST_BUY) {
-                logger_print(LOG(BUG), "Asking for buy-value of unidentified object %s.", query_name(tmp, NULL));
+                LOG(BUG, "Asking for buy-value of unidentified object %s.", query_name(tmp, NULL));
                 val = tmp->arch->clone.value * number;
             } else {
                 /* Trying to sell something, or get true value */
@@ -82,10 +82,10 @@ int64_t query_cost(object *tmp, object *who, int flag)
         } else {
             /* No archetype with this object - we generate some dummy values to
              * avoid server break */
-            logger_print(LOG(BUG), "Have object with no archetype: %s", query_name(tmp, NULL));
+            LOG(BUG, "Have object with no archetype: %s", query_name(tmp, NULL));
 
             if (flag == COST_BUY) {
-                logger_print(LOG(BUG), "Asking for buy-value of unidentified object without arch.");
+                LOG(BUG, "Asking for buy-value of unidentified object without arch.");
                 val = number * 100;
             } else {
                 val = number * 80;
@@ -247,7 +247,7 @@ int64_t query_money(object *op)
     int64_t total = 0;
 
     if (op->type != PLAYER && op->type != CONTAINER) {
-        logger_print(LOG(BUG), "Called with non player/container.");
+        LOG(BUG, "Called with non player/container.");
         return 0;
     }
 
@@ -364,7 +364,7 @@ static int64_t pay_from_container(object *op, object *pouch, int64_t to_pay)
                     /* This should not happen, but if it does, just merge
                      * the two. */
                     if (coin_objs[i] != NULL) {
-                        logger_print(LOG(BUG), "%s has two money entries of (%s)", query_name(pouch, NULL), coins[NUM_COINS - 1 - i]);
+                        LOG(BUG, "%s has two money entries of (%s)", query_name(pouch, NULL), coins[NUM_COINS - 1 - i]);
                         object_remove(tmp, 0);
                         coin_objs[i]->nrof += tmp->nrof;
                     } else {
@@ -377,7 +377,7 @@ static int64_t pay_from_container(object *op, object *pouch, int64_t to_pay)
             }
 
             if (i == NUM_COINS) {
-                logger_print(LOG(BUG), "Did not find string match for %s", tmp->arch->name);
+                LOG(BUG, "Did not find string match for %s", tmp->arch->name);
             }
         } else if (tmp->arch->name == shstr_cons.player_info && tmp->name == shstr_cons.BANK_GENERAL) {
             bank_object = tmp;
@@ -407,7 +407,7 @@ static int64_t pay_from_container(object *op, object *pouch, int64_t to_pay)
         }
 
         if (num_coins > INT32_MAX) {
-            logger_print(LOG(DEBUG), "Money overflow value->nrof: number of coins > INT32_MAX (type coin %d)", i);
+            LOG(DEBUG, "Money overflow value->nrof: number of coins > INT32_MAX (type coin %d)", i);
             num_coins = INT32_MAX;
         }
 
@@ -506,7 +506,7 @@ void sell_item(object *op, object *pl, int64_t value)
     int64_t i;
 
     if (pl == NULL || pl->type != PLAYER) {
-        logger_print(LOG(DEBUG), "Object other than player tried to sell something.");
+        LOG(DEBUG, "Object other than player tried to sell something.");
         return;
     }
 
@@ -533,7 +533,7 @@ void sell_item(object *op, object *pl, int64_t value)
     }
 
     if (i != 0) {
-        logger_print(LOG(BUG), "Warning - payment not zero: %"PRId64, i);
+        LOG(BUG, "Warning - payment not zero: %"PRId64, i);
     }
 
     draw_info_format(COLOR_WHITE, pl, "You receive %s for %s.", query_cost_string(op, pl, 1), query_name(op, NULL));
@@ -895,7 +895,7 @@ int64_t insert_coins(object *pl, int64_t value)
         at = find_archetype(coins[count]);
 
         if (at == NULL) {
-            logger_print(LOG(BUG), "Could not find %s archetype", coins[count]);
+            LOG(BUG, "Could not find %s archetype", coins[count]);
         } else if ((value / at->clone.value) > 0) {
             for (pouch = pl->inv; pouch; pouch = pouch->below) {
                 if (pouch->type == CONTAINER && QUERY_FLAG(pouch, FLAG_APPLIED) && pouch->race && strstr(pouch->race, "gold")) {

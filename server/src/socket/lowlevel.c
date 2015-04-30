@@ -61,9 +61,9 @@ int socket_recv(socket_struct *ns)
 
         if (WSAGetLastError() != WSAEWOULDBLOCK) {
             if (WSAGetLastError() == WSAECONNRESET) {
-                logger_print(LOG(DEBUG), "Connection closed by client.");
+                LOG(DEBUG, "Connection closed by client.");
             } else {
-                logger_print(LOG(DEBUG), "got error %d, returning %d.", WSAGetLastError(), stat_ret);
+                LOG(DEBUG, "got error %d, returning %d.", WSAGetLastError(), stat_ret);
             }
 
             return stat_ret;
@@ -71,7 +71,7 @@ int socket_recv(socket_struct *ns)
 #else
 
         if (errno != EINTR && errno != EAGAIN && errno != EWOULDBLOCK) {
-            logger_print(LOG(DEBUG), "got error %d: %s, returning %d.", errno, strerror(errno), stat_ret);
+            LOG(DEBUG, "got error %d: %s, returning %d.", errno, strerror(errno), stat_ret);
             return stat_ret;
         }
 #endif
@@ -88,7 +88,7 @@ void socket_enable_no_delay(int fd)
     int tmp = 1;
 
     if (setsockopt(fd, IPPROTO_TCP, TCP_NODELAY, (char *) &tmp, sizeof(tmp))) {
-        logger_print(LOG(DEBUG), "Cannot enable TCP_NODELAY: %s", strerror(errno));
+        LOG(DEBUG, "Cannot enable TCP_NODELAY: %s", strerror(errno));
     }
 }
 
@@ -100,7 +100,7 @@ void socket_disable_no_delay(int fd)
     int tmp = 0;
 
     if (setsockopt(fd, IPPROTO_TCP, TCP_NODELAY, (char *) &tmp, sizeof(tmp))) {
-        logger_print(LOG(DEBUG), "Cannot disable TCP_NODELAY: %s", strerror(errno));
+        LOG(DEBUG, "Cannot disable TCP_NODELAY: %s", strerror(errno));
     }
 }
 
@@ -110,17 +110,17 @@ static void socket_packet_enqueue(socket_struct *ns, packet_struct *packet)
     {
         char *cp, *cp2;
 
-        log(LOG(DUMPTX), "Enqueuing packet with command type %d (%" PRIu64
+        LOG(DUMPTX, "Enqueuing packet with command type %d (%" PRIu64
                 " bytes):", packet->type, (uint64_t) packet->len);
 
         cp = packet_get_debug(packet);
 
         if (cp[0] != '\0') {
-            log(LOG(DUMPTX), "  Debug info:\n");
+            LOG(DUMPTX, "  Debug info:\n");
             cp2 = strtok(cp, "\n");
 
             while (cp2 != NULL) {
-                log(LOG(DUMPTX), "  %s", cp2);
+                LOG(DUMPTX, "  %s", cp2);
                 cp2 = strtok(NULL, "\n");
             }
         }
@@ -129,7 +129,7 @@ static void socket_packet_enqueue(socket_struct *ns, packet_struct *packet)
 
         cp = emalloc(sizeof(*cp) * (packet->len * 3 + 1));
         string_tohex(packet->data, packet->len, cp, packet->len * 3 + 1, true);
-        log(LOG(DUMPTX), "  Hexadecimal: %s", cp);
+        LOG(DUMPTX, "  Hexadecimal: %s", cp);
         efree(cp);
     }
 #endif
@@ -204,11 +204,11 @@ void socket_buffer_write(socket_struct *ns)
 #ifdef WIN32
 
             if (WSAGetLastError() != WSAEWOULDBLOCK) {
-                logger_print(LOG(DEBUG), "New socket write failed (%d).", WSAGetLastError());
+                LOG(DEBUG, "New socket write failed (%d).", WSAGetLastError());
 #else
 
             if (errno != EWOULDBLOCK) {
-                logger_print(LOG(DEBUG), "New socket write failed (%d: %s).", errno, strerror(errno));
+                LOG(DEBUG, "New socket write failed (%d: %s).", errno, strerror(errno));
 #endif
                 ns->state = ST_DEAD;
                 break;
@@ -243,7 +243,7 @@ void socket_send_packet(socket_struct *ns, struct packet_struct *packet)
     toread = packet->len + 1;
 
     if (toread > 32 * 1024 - 1) {
-        log(LOG(PACKET), "Sending packet with size > 32KB: %"PRIu64", type: %d",
+        LOG(PACKET, "Sending packet with size > 32KB: %"PRIu64", type: %d",
                 (uint64_t) toread, packet->type);
         tmp->data[0] = ((toread >> 16) & 0xff) | 0x80;
         tmp->data[1] = (toread >> 8) & 0xff;

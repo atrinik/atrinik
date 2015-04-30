@@ -59,7 +59,7 @@ void regions_init(void)
     fp = fopen(filename, "r");
 
     if (fp == NULL) {
-        logger_print(LOG(ERROR), "Can't open regions file: %s.", filename);
+        LOG(ERROR, "Can't open regions file: %s.", filename);
         exit(1);
     }
 
@@ -100,7 +100,7 @@ void regions_init(void)
                 region = region_get();
                 region->name = estrdup(value);
             } else {
-                logger_print(LOG(ERROR), "Parsing error: %s %s", buf,
+                LOG(ERROR, "Parsing error: %s %s", buf,
                         value ? value : "");
                 exit(1);
             }
@@ -125,7 +125,7 @@ void regions_init(void)
                 region_add(region);
                 region = NULL;
             } else {
-                logger_print(LOG(ERROR), "Parsing error: %s %s", buf,
+                LOG(ERROR, "Parsing error: %s %s", buf,
                         value ? value : "");
                 exit(1);
             }
@@ -147,7 +147,7 @@ void regions_init(void)
 
             /* Jail entries are of the form: /path/to/map x y */
             if (sscanf(value, "%255[^ ] %d %d", path, &x, &y) != 3) {
-                logger_print(LOG(ERROR), "Parsing error: %s %s", buf,
+                LOG(ERROR, "Parsing error: %s %s", buf,
                         value ? value : "");
                 exit(1);
             }
@@ -156,7 +156,7 @@ void regions_init(void)
             region->jailx = x;
             region->jaily = y;
         } else {
-            logger_print(LOG(ERROR), "Parsing error: %s %s", buf,
+            LOG(ERROR, "Parsing error: %s %s", buf,
                     value ? value : "");
             exit(1);
         }
@@ -167,7 +167,7 @@ void regions_init(void)
     fclose(fp);
 
     if (region != NULL) {
-        logger_print(LOG(ERROR), "Region block without end: %s", region->name);
+        LOG(ERROR, "Region block without end: %s", region->name);
         exit(1);
     }
 }
@@ -265,7 +265,7 @@ region_struct *region_find_by_name(const char *region_name)
         }
     }
 
-    logger_print(LOG(BUG), "Got no region for region %s.", region_name);
+    LOG(BUG, "Got no region for region %s.", region_name);
     return NULL;
 }
 
@@ -304,7 +304,7 @@ char *region_get_longname(const region_struct *region)
         return region_get_longname(region->parent);
     }
 
-    logger_print(LOG(BUG), "Region %s has no parent and no longname.",
+    LOG(BUG, "Region %s has no parent and no longname.",
             region->name);
     return "no region name";
 }
@@ -323,7 +323,7 @@ char *region_get_msg(const region_struct *region)
         return region_get_msg(region->parent);
     }
 
-    logger_print(LOG(BUG), "Region %s has no parent and no msg.",
+    LOG(BUG, "Region %s has no parent and no msg.",
             region->name);
     return "no region message";
 }
@@ -350,7 +350,7 @@ int region_enter_jail(object *op)
         m = ready_map_name(region->jailmap, NULL, 0);
 
         if (m == NULL) {
-            logger_print(LOG(BUG), "Could not load map '%s' (%d,%d).",
+            LOG(BUG, "Could not load map '%s' (%d,%d).",
                     region->jailmap, region->jailx, region->jaily);
             return 0;
         }
@@ -358,7 +358,7 @@ int region_enter_jail(object *op)
         return object_enter_map(op, NULL, m, region->jailx, region->jaily, 1);
     }
 
-    logger_print(LOG(BUG), "No suitable jailmap for region %s was found.",
+    LOG(BUG, "No suitable jailmap for region %s was found.",
             op->map->region->name);
     return 0;
 }

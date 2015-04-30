@@ -58,7 +58,7 @@ void init_spells(void)
         at = find_archetype(spellname);
 
         if (!at) {
-            logger_print(LOG(ERROR), "Could not find required archetype %s.", spellname);
+            LOG(ERROR, "Could not find required archetype %s.", spellname);
             exit(1);
         }
 
@@ -72,7 +72,7 @@ void init_spells(void)
 
         if (spells[i].archname) {
             if ((spellarch[i] = find_archetype(spells[i].archname)) == NULL) {
-                logger_print(LOG(ERROR), "Spell %s needs arch %s, your archetypes file is out of date.", spells[i].name, spells[i].archname);
+                LOG(ERROR, "Spell %s needs arch %s, your archetypes file is out of date.", spells[i].name, spells[i].archname);
                 exit(1);
             }
         } else {
@@ -94,12 +94,12 @@ int insert_spell_effect(char *archname, mapstruct *m, int x, int y)
     object *effect_ob;
 
     if (!archname || !m) {
-        logger_print(LOG(BUG), "archname or map NULL.");
+        LOG(BUG, "archname or map NULL.");
         return 1;
     }
 
     if (!(effect_arch = find_archetype(archname))) {
-        logger_print(LOG(BUG), "Couldn't find effect arch (%s).", archname);
+        LOG(BUG, "Couldn't find effect arch (%s).", archname);
         return 1;
     }
 
@@ -110,7 +110,7 @@ int insert_spell_effect(char *archname, mapstruct *m, int x, int y)
     effect_ob->y = y;
 
     if (!insert_ob_in_map(effect_ob, m, NULL, 0)) {
-        logger_print(LOG(BUG), "effect arch (%s) out of map (%s) (%d,%d) or failed insertion.", archname, effect_ob->map->name, x, y);
+        LOG(BUG, "effect arch (%s) out of map (%s) (%d,%d) or failed insertion.", archname, effect_ob->map->name, x, y);
 
         /* Something is wrong - kill object */
         if (!QUERY_FLAG(effect_ob, FLAG_REMOVED)) {
@@ -161,14 +161,14 @@ int cast_spell(object *op, object *caster, int dir, int type, int ability, int i
     } else if (caster == NULL && op != NULL) {
         caster = op;
     } else if (op == NULL && caster == NULL) {
-        logger_print(LOG(BUG), "Both 'op' and 'caster' are NULL.");
+        LOG(BUG, "Both 'op' and 'caster' are NULL.");
         return 0;
     }
 
     s = find_spell(type);
 
     if (s == NULL) {
-        logger_print(LOG(BUG), "Unknown spell: %d", type);
+        LOG(BUG, "Unknown spell: %d", type);
         return 0;
     }
 
@@ -426,7 +426,7 @@ int cast_spell(object *op, object *caster, int dir, int type, int ability, int i
         break;
 
     default:
-        logger_print(LOG(BUG), "Invalid spell: %d", type);
+        LOG(BUG, "Invalid spell: %d", type);
         break;
     }
 
@@ -621,7 +621,7 @@ int cast_cone(object *op, object *caster, int dir, int strength, int spell_type,
     tmp = arch_to_object(spell_arch);
 
     if (!tmp) {
-        logger_print(LOG(BUG), "arch_to_object() failed!? (%s)", spell_arch->name);
+        LOG(BUG, "arch_to_object() failed!? (%s)", spell_arch->name);
         return 0;
     }
 
@@ -659,11 +659,11 @@ int cast_cone(object *op, object *caster, int dir, int strength, int spell_type,
         tmp->stats.maxhp = tmp->count;
 
         if (!QUERY_FLAG(tmp, FLAG_FLYING)) {
-            logger_print(LOG(DEBUG), "arch %s doesn't have flying 1", spell_arch->name);
+            LOG(DEBUG, "arch %s doesn't have flying 1", spell_arch->name);
         }
 
         if ((!QUERY_FLAG(tmp, FLAG_WALK_ON) || !QUERY_FLAG(tmp, FLAG_FLY_ON)) && tmp->stats.dam) {
-            logger_print(LOG(DEBUG), "arch %s doesn't have walk_on 1 and fly_on 1", spell_arch->name);
+            LOG(DEBUG, "arch %s doesn't have walk_on 1 and fly_on 1", spell_arch->name);
         }
 
         if (!insert_ob_in_map(tmp, op->map, op, 0)) {
@@ -720,7 +720,7 @@ void explode_object(object *op)
     play_sound_map(op->map, CMD_SOUND_EFFECT, "explosion.ogg", op->x, op->y, 0, 0);
 
     if (op->other_arch == NULL) {
-        logger_print(LOG(BUG), "op %s without other_arch", query_name(op, NULL));
+        LOG(BUG, "op %s without other_arch", query_name(op, NULL));
         object_remove(op, 0);
         object_destroy(op);
         return;
@@ -902,7 +902,7 @@ int SP_level_dam_adjust(object *caster, int spell_type, int base_dam, int exact)
 
     /* Sanity check */
     if (level <= 0 || level > MAXLEVEL) {
-        logger_print(LOG(BUG), "object %s has invalid level %d", query_name(caster, NULL), level);
+        LOG(BUG, "object %s has invalid level %d", query_name(caster, NULL), level);
 
         if (level <= 0) {
             level = 1;

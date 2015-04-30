@@ -37,14 +37,14 @@ void map_info_init(object *info)
     MapSpace *msp;
 
     if (!info->map) {
-        logger_print(LOG(BUG), "Map info object not on map.");
+        LOG(BUG, "Map info object not on map.");
         return;
     }
 
     for (x = info->x; x <= info->x + info->stats.hp; x++) {
         for (y = info->y; y <= info->y + info->stats.sp; y++) {
             if (OUT_OF_MAP(info->map, x, y)) {
-                log(LOG(ERROR), "Map info object spans invalid area: %s",
+                LOG(ERROR, "Map info object spans invalid area: %s",
                         object_get_str(info));
                 return;
             }

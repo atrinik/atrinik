@@ -209,7 +209,7 @@ static void mplayer_blacklist_save(list_struct *list)
     fp = fopen_wrapper(FILE_MPLAYER_BLACKLIST, "w");
 
     if (fp == NULL) {
-        logger_print(LOG(ERROR), "Failed to open file: %s",
+        LOG(ERROR, "Failed to open file: %s",
                 FILE_MPLAYER_BLACKLIST);
         return;
     }

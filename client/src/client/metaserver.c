@@ -248,7 +248,7 @@ void metaserver_get_servers(void)
     thread = SDL_CreateThread(metaserver_thread, NULL);
 
     if (!thread) {
-        logger_print(LOG(ERROR), "Thread creation failed.");
+        LOG(ERROR, "Thread creation failed.");
         exit(1);
     }
 }

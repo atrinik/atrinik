@@ -217,7 +217,7 @@ static void widget_buddy_save(widgetdata *widget)
     fp = fopen_wrapper(tmp->path, "w");
 
     if (!fp) {
-        logger_print(LOG(BUG), "Could not open file for writing: %s",
+        LOG(BUG, "Could not open file for writing: %s",
                 tmp->path);
     } else {
         char **p;

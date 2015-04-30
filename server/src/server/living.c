@@ -329,7 +329,7 @@ void drain_specific_stat(object *op, int deplete_stats)
     archetype *at = find_archetype("depletion");
 
     if (!at) {
-        logger_print(LOG(BUG), "Couldn't find archetype depletion.");
+        LOG(BUG, "Couldn't find archetype depletion.");
         return;
     } else {
         tmp = present_arch_in_ob(at, op);
@@ -699,7 +699,7 @@ void living_update_player(object *op)
             } else if (tmp->type == SKILL_ITEM) {
                 pl->equipment[PLAYER_EQUIP_SKILL_ITEM] = tmp;
             } else {
-                logger_print(LOG(BUG), "Unexpected applied object: %s",
+                LOG(BUG, "Unexpected applied object: %s",
                         object_get_str(tmp));
                 CLEAR_FLAG(tmp, FLAG_APPLIED);
             }
@@ -981,7 +981,7 @@ void living_update_player(object *op)
     if (pl->quest_container == NULL) {
         object *quest_container = get_archetype(QUEST_CONTAINER_ARCHETYPE);
 
-        logger_print(LOG(BUG), "Player %s had no quest container, fixing.",
+        LOG(BUG, "Player %s had no quest container, fixing.",
                 op->name);
         insert_ob_in_ob(quest_container, op);
         pl->quest_container = quest_container;
@@ -1470,7 +1470,7 @@ int living_update(object *op)
         return 0;
     }
 
-    log(LOG(DEVEL), "Updating unhandled object: %s", object_get_str(op));
+    LOG(DEVEL, "Updating unhandled object: %s", object_get_str(op));
     return 0;
 }
 
@@ -1487,7 +1487,7 @@ object *insert_base_info_object(object *op)
     }
 
     if (op->type == PLAYER) {
-        logger_print(LOG(BUG), "Try to inserting base_info in player %s!", query_name(head, NULL));
+        LOG(BUG, "Try to inserting base_info in player %s!", query_name(head, NULL));
         return NULL;
     }
 

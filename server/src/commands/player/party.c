@@ -71,7 +71,7 @@ void command_party(object *op, const char *command, char *params)
 
         snprintf(buf, sizeof(buf), "[%s] %s says: %s", CONTR(op)->party->name, op->name, params);
         send_party_message(CONTR(op)->party, buf, PARTY_MESSAGE_CHAT, op, NULL);
-        logger_print(LOG(CHAT), "[PARTY] [%s] [%s] %s", op->name, CONTR(op)->party->name, params);
+        LOG(CHAT, "[PARTY] [%s] [%s] %s", op->name, CONTR(op)->party->name, params);
     } else if (!strcmp(params, "leave")) {
         if (!CONTR(op)->party) {
             draw_info(COLOR_WHITE, op, "You are not a member of any party.");

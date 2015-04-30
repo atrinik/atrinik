@@ -531,7 +531,7 @@ void effect_sprites_play(void)
 
             /* Invalid sprite. */
             if (sprite->def->id == -1 || !FaceList[sprite->def->id].sprite) {
-                logger_print(LOG(INFO), "Invalid sprite ID %d", sprite->def->id);
+                LOG(INFO, "Invalid sprite ID %d", sprite->def->id);
                 effect_sprite_remove(sprite);
                 return;
             }

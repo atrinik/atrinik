@@ -113,7 +113,7 @@ static void sound_free(sound_data_struct *tmp)
         break;
 
     default:
-        logger_print(LOG(BUG), "Trying to free sound with unknown type: %d.", tmp->type);
+        LOG(BUG, "Trying to free sound with unknown type: %d.", tmp->type);
         break;
     }
 
@@ -158,7 +158,7 @@ static void sound_music_file_set_duration(const char *filename, uint32_t duratio
     fp = fopen_wrapper(path, "w");
 
     if (!fp) {
-        logger_print(LOG(BUG), "Could not open file for writing: %s", path);
+        LOG(BUG, "Could not open file for writing: %s", path);
         return;
     }
 
@@ -296,7 +296,7 @@ static int sound_add_effect(const char *filename, int volume, int loop)
         Mix_Chunk *chunk = Mix_LoadWAV(filename);
 
         if (!chunk) {
-            logger_print(LOG(BUG), "Could not load '%s'. Reason: %s.", filename, Mix_GetError());
+            LOG(BUG, "Could not load '%s'. Reason: %s.", filename, Mix_GetError());
             return -1;
         }
 
@@ -392,7 +392,7 @@ void sound_start_bg_music(const char *filename, int volume, int loop)
         efree(cp);
 
         if (music == NULL) {
-            logger_print(LOG(BUG), "Could not load '%s'. Reason: %s.", path, Mix_GetError());
+            LOG(BUG, "Could not load '%s'. Reason: %s.", path, Mix_GetError());
             return;
         }
 
@@ -477,7 +477,7 @@ void update_map_bg_music(const char *bg_music)
         char filename[MAX_BUF];
 
         if (sscanf(bg_music, "%s %d %d", filename, &loop, &vol) < 1) {
-            logger_print(LOG(BUG), "Bogus background music: '%s'", bg_music);
+            LOG(BUG, "Bogus background music: '%s'", bg_music);
             return;
         }
 
@@ -606,7 +606,7 @@ void sound_music_seek(uint32_t offset)
     Mix_RewindMusic();
 
     if (Mix_SetMusicPosition(offset) == -1) {
-        logger_print(LOG(BUG), "Mix_SetMusicPosition: %s", Mix_GetError());
+        LOG(BUG, "Mix_SetMusicPosition: %s", Mix_GetError());
     }
 
     sound_background_started = SDL_GetTicks() - offset * 1000;
@@ -668,7 +668,7 @@ void socket_command_sound(uint8_t *data, size_t len, size_t pos)
     } else if (type == CMD_SOUND_ABSOLUTE) {
         sound_add_effect(filename, (uint8_t) volume, loop);
     } else {
-        logger_print(LOG(BUG), "Invalid sound type: %d", type);
+        LOG(BUG, "Invalid sound type: %d", type);
         return;
     }
 }

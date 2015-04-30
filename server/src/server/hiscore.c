@@ -90,7 +90,7 @@ static void hiscore_save(const score_table *table)
     fp = fopen(table->fname, "w");
 
     if (!fp) {
-        logger_print(LOG(BUG), "Cannot create highscore file %s: %s", table->fname, strerror(errno));
+        LOG(BUG, "Cannot create highscore file %s: %s", table->fname, strerror(errno));
         return;
     }
 
@@ -104,10 +104,10 @@ static void hiscore_save(const score_table *table)
     }
 
     if (ferror(fp)) {
-        logger_print(LOG(BUG), "Cannot write to highscore file %s: %s", table->fname, strerror(errno));
+        LOG(BUG, "Cannot write to highscore file %s: %s", table->fname, strerror(errno));
         fclose(fp);
     } else if (fclose(fp) != 0) {
-        logger_print(LOG(BUG), "Cannot write to highscore file %s: %s", table->fname, strerror(errno));
+        LOG(BUG, "Cannot write to highscore file %s: %s", table->fname, strerror(errno));
     }
 }
 
@@ -254,7 +254,7 @@ static void hiscore_load(score_table *table)
 
     if (fp == NULL) {
         if (errno != ENOENT) {
-            logger_print(LOG(ERROR), "Cannot open highscore file %s: %s", table->fname, strerror(errno));
+            LOG(ERROR, "Cannot open highscore file %s: %s", table->fname, strerror(errno));
         }
     } else {
         while (i < HIGHSCORE_LENGTH) {

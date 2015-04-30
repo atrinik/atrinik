@@ -239,14 +239,14 @@ static int reader_thread_loop(void *dummy)
 
         /* End of file */
         if (ret == 0) {
-            logger_print(LOG(INFO), "Reader thread got EOF trying to read %d bytes.", toread);
+            LOG(INFO, "Reader thread got EOF trying to read %d bytes.", toread);
             break;
         } else if (ret == -1) {
             /* IO error */
 #ifdef WIN32
-            logger_print(LOG(INFO), "Reader thread got error %d", WSAGetLastError());
+            LOG(INFO, "Reader thread got error %d", WSAGetLastError());
 #else
-            logger_print(LOG(INFO), "Reader thread got error %d: %s", errno, strerror(errno));
+            LOG(INFO, "Reader thread got error %d: %s", errno, strerror(errno));
 #endif
             break;
         } else {
@@ -308,14 +308,14 @@ static int writer_thread_loop(void *dummy)
             int ret = send(csocket.fd, (const char *) buf->data + written, buf->len - written, 0);
 
             if (ret == 0) {
-                logger_print(LOG(INFO), "Writer thread got EOF.");
+                LOG(INFO, "Writer thread got EOF.");
                 break;
             } else if (ret == -1) {
                 /* IO error */
 #ifdef WIN32
-                logger_print(LOG(INFO), "Writer thread got error %d", WSAGetLastError());
+                LOG(INFO, "Writer thread got error %d", WSAGetLastError());
 #else
-                logger_print(LOG(INFO), "Writer thread got error %d: %s", errno, strerror(errno));
+                LOG(INFO, "Writer thread got error %d: %s", errno, strerror(errno));
 #endif
                 break;
             } else {
@@ -350,14 +350,14 @@ void socket_thread_start(void)
     input_thread = SDL_CreateThread(reader_thread_loop, NULL);
 
     if (input_thread == NULL) {
-        logger_print(LOG(ERROR), "Unable to start socket thread: %s", SDL_GetError());
+        LOG(ERROR, "Unable to start socket thread: %s", SDL_GetError());
         exit(1);
     }
 
     output_thread = SDL_CreateThread(writer_thread_loop, NULL);
 
     if (output_thread == NULL) {
-        logger_print(LOG(ERROR), "Unable to start socket thread: %s", SDL_GetError());
+        LOG(ERROR, "Unable to start socket thread: %s", SDL_GetError());
         exit(1);
     }
 }
@@ -396,7 +396,7 @@ int handle_socket_shutdown(void)
             command_buffer_free(command_buffer_dequeue(&output_queue_start, &output_queue_end));
         }
 
-        logger_print(LOG(INFO), "Connection lost.");
+        LOG(INFO, "Connection lost.");
         return 1;
     }
 
@@ -476,7 +476,7 @@ int socket_initialize(void)
             error = WSAStartup(wVersionRequested, &w);
 
             if (error) {
-                logger_print(LOG(BUG), "Error initializing WinSock: %d.", error);
+                LOG(BUG, "Error initializing WinSock: %d.", error);
                 return 0;
             }
         }
@@ -521,14 +521,14 @@ static int client_socket_create(int *fd, char *host, int port)
     protox = getprotobyname("tcp");
 
     if (!protox) {
-        logger_print(LOG(BUG), "Error getting protobyname (tcp)");
+        LOG(BUG, "Error getting protobyname (tcp)");
         return 0;
     }
 
     *fd = socket(PF_INET, SOCK_STREAM, protox->p_proto);
 
     if (*fd == -1) {
-        logger_print(LOG(BUG), "Could not create socket.");
+        LOG(BUG, "Could not create socket.");
         return 0;
     }
 #else
@@ -559,7 +559,7 @@ static int client_socket_create(int *fd, char *host, int port)
     flags = fcntl(*fd, F_GETFL);
 
     if (fcntl(*fd, F_SETFL, flags | O_NONBLOCK) == -1) {
-        logger_print(LOG(BUG), "Error on switching to non-blocking. fcntl %x.", fcntl(*fd, F_GETFL));
+        LOG(BUG, "Error on switching to non-blocking. fcntl %x.", fcntl(*fd, F_GETFL));
         *fd = -1;
         return 0;
     }
@@ -568,7 +568,7 @@ static int client_socket_create(int *fd, char *host, int port)
 
     /* Set non-blocking. */
     if (ioctlsocket(*fd, FIONBIO, &temp) == -1) {
-        logger_print(LOG(BUG), "Error on switching to non-blocking.");
+        LOG(BUG, "Error on switching to non-blocking.");
         *fd = -1;
         return 0;
     }
@@ -598,7 +598,7 @@ static int client_socket_create(int *fd, char *host, int port)
             continue;
         }
 
-        logger_print(LOG(BUG), "Connect error: %d", SocketStatusErrorNr);
+        LOG(BUG, "Connect error: %d", SocketStatusErrorNr);
         *fd = -1;
         return 0;
 #endif
@@ -608,7 +608,7 @@ static int client_socket_create(int *fd, char *host, int port)
 
     /* Set back to blocking. */
     if (fcntl(*fd, F_SETFL, flags) == -1) {
-        logger_print(LOG(BUG), "Error on switching to blocking. fcntl %x.", fcntl(*fd, F_GETFL));
+        LOG(BUG, "Error on switching to blocking. fcntl %x.", fcntl(*fd, F_GETFL));
         *fd = -1;
         return 0;
     }
@@ -617,7 +617,7 @@ static int client_socket_create(int *fd, char *host, int port)
 
     /* Set back to blocking. */
     if (ioctlsocket(*fd, FIONBIO, &temp) == -1) {
-        logger_print(LOG(BUG), "Error on switching to blocking.");
+        LOG(BUG, "Error on switching to blocking.");
         *fd = -1;
         return 0;
     }
@@ -650,7 +650,7 @@ static int client_socket_create(int *fd, char *host, int port)
         flags = fcntl(*fd, F_GETFL);
 
         if (fcntl(*fd, F_SETFL, flags | O_NONBLOCK) == -1) {
-            logger_print(LOG(BUG), "Error on switching to non-blocking. fcntl %x.", fcntl(*fd, F_GETFL));
+            LOG(BUG, "Error on switching to non-blocking. fcntl %x.", fcntl(*fd, F_GETFL));
             *fd = -1;
             return 0;
         }
@@ -670,7 +670,7 @@ static int client_socket_create(int *fd, char *host, int port)
 
         /* Set back to blocking. */
         if (*fd != -1 && fcntl(*fd, F_SETFL, flags) == -1) {
-            logger_print(LOG(BUG), "Error on switching to blocking. fcntl %x.", fcntl(*fd, F_GETFL));
+            LOG(BUG, "Error on switching to blocking. fcntl %x.", fcntl(*fd, F_GETFL));
             *fd = -1;
             return 0;
         }
@@ -703,7 +703,7 @@ int socket_open(struct ClientSocket *csock, char *host, int port)
     struct linger linger_opt;
 
     if (!client_socket_create(&csock->fd, host, port)) {
-        logger_print(LOG(DEBUG), "Can't connect to server %s:%d.", host, port);
+        LOG(DEBUG, "Can't connect to server %s:%d.", host, port);
         return 0;
     }
 
@@ -711,14 +711,14 @@ int socket_open(struct ClientSocket *csock, char *host, int port)
     linger_opt.l_linger = 5;
 
     if (setsockopt(csock->fd, SOL_SOCKET, SO_LINGER, (char *) &linger_opt, sizeof(struct linger))) {
-        logger_print(LOG(BUG), "Error on setsockopt LINGER");
+        LOG(BUG, "Error on setsockopt LINGER");
     }
 
     if (setting_get_int(OPT_CAT_CLIENT, OPT_MINIMIZE_LATENCY)) {
         int tmp = 1;
 
         if (setsockopt(csock->fd, IPPROTO_TCP, TCP_NODELAY, (char *) &tmp, sizeof(tmp)) == -1) {
-            logger_print(LOG(BUG), "Error setting TCP_NODELAY.");
+            LOG(BUG, "Error setting TCP_NODELAY.");
         }
     }
 
@@ -728,10 +728,10 @@ int socket_open(struct ClientSocket *csock, char *host, int port)
 
     if (oldbufsize < newbufsize) {
         if (setsockopt(csock->fd, SOL_SOCKET, SO_RCVBUF, (char *) &newbufsize, sizeof(newbufsize))) {
-            logger_print(LOG(BUG), "Unable to set output buf size to %d", newbufsize);
+            LOG(BUG, "Unable to set output buf size to %d", newbufsize);
 
             if (setsockopt(csock->fd, SOL_SOCKET, SO_RCVBUF, (char *) &oldbufsize, sizeof(oldbufsize))) {
-                logger_print(LOG(BUG), "Unable to set output buf size back to %d", oldbufsize);
+                LOG(BUG, "Unable to set output buf size back to %d", oldbufsize);
             }
         }
     }

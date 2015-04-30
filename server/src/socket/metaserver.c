@@ -120,7 +120,7 @@ void metaserver_init(void)
     ret = pthread_create(&thread_id, NULL, metaserver_thread, NULL);
 
     if (ret) {
-        logger_print(LOG(ERROR), "Failed to create thread: %d.", ret);
+        LOG(ERROR, "Failed to create thread: %d.", ret);
         exit(1);
     }
 }
@@ -179,7 +179,7 @@ static size_t metaserver_writer(void *ptr, size_t size, size_t nmemb, void *data
 
     (void) data;
 
-    logger_print(LOG(INFO), "Returned data: %s", (const char *) ptr);
+    LOG(INFO, "Returned data: %s", (const char *) ptr);
 
     return realsize;
 }
@@ -230,7 +230,7 @@ static void metaserver_update(void)
         res = curl_easy_perform(curl);
 
         if (res != 0) {
-            logger_print(LOG(ERROR), "easy_perform got error %d (%s).", res, curl_easy_strerror(res));
+            LOG(ERROR, "easy_perform got error %d (%s).", res, curl_easy_strerror(res));
             stats.last_failed = time(NULL);
             stats.num_failed++;
         }
@@ -261,7 +261,7 @@ static void *metaserver_thread(void *junk)
         sleep(300);
     }
 
-    logger_print(LOG(INFO), "Metaserver thread exiting.");
+    LOG(INFO, "Metaserver thread exiting.");
 
     return NULL;
 }

@@ -118,7 +118,7 @@ void set_npc_enemy(object *npc, object *enemy, rv_vector *rv)
             object *return_wp = get_return_waypoint(npc);
 
 #ifdef DEBUG_PATHFINDING
-            logger_print(LOG(DEBUG), "%s lost aggro and is returning home (%s:%d,%d)", STRING_OBJ_NAME(npc), base->slaying, base->x, base->y);
+            LOG(DEBUG, "%s lost aggro and is returning home (%s:%d,%d)", STRING_OBJ_NAME(npc), base->slaying, base->x, base->y);
 #endif
 
             if (!return_wp) {
@@ -158,7 +158,7 @@ void set_npc_enemy(object *npc, object *enemy, rv_vector *rv)
     /* Setup aggro waypoint */
     if (!wp_archetype) {
 #ifdef DEBUG_PATHFINDING
-        logger_print(LOG(DEBUG), "Aggro waypoints disabled");
+        LOG(DEBUG, "Aggro waypoints disabled");
 #endif
         return;
     }
@@ -174,7 +174,7 @@ void set_npc_enemy(object *npc, object *enemy, rv_vector *rv)
         SET_FLAG(aggro_wp, FLAG_DAMNED);
         aggro_wp->owner = npc;
 #ifdef DEBUG_PATHFINDING
-        logger_print(LOG(DEBUG), "created wp for '%s'", STRING_OBJ_NAME(npc));
+        LOG(DEBUG, "created wp for '%s'", STRING_OBJ_NAME(npc));
 #endif
     }
 
@@ -185,12 +185,12 @@ void set_npc_enemy(object *npc, object *enemy, rv_vector *rv)
             aggro_wp->enemy = enemy;
             FREE_AND_ADD_REF_HASH(aggro_wp->name, enemy->name);
 #ifdef DEBUG_PATHFINDING
-            logger_print(LOG(DEBUG), "got wp for '%s' -> '%s'", npc->name, enemy->name);
+            LOG(DEBUG, "got wp for '%s' -> '%s'", npc->name, enemy->name);
 #endif
         } else {
             aggro_wp->enemy = NULL;
 #ifdef DEBUG_PATHFINDING
-            logger_print(LOG(DEBUG), "cleared aggro wp for '%s'", npc->name);
+            LOG(DEBUG, "cleared aggro wp for '%s'", npc->name);
 #endif
         }
     }
@@ -366,7 +366,7 @@ static void process_func(object *op)
     rv_vector rv;
 
     if (op->head) {
-        logger_print(LOG(BUG), "called from tail part. (%s -- %s)", query_name(op, NULL), op->arch->name);
+        LOG(BUG, "called from tail part. (%s -- %s)", query_name(op, NULL), op->arch->name);
         return;
     }
 
@@ -592,7 +592,7 @@ static void process_func(object *op)
                 break;
 
             default:
-                logger_print(LOG(DEBUG), "Illegal low mon-move: %d", op->attack_move_type & LO4);
+                LOG(DEBUG, "Illegal low mon-move: %d", op->attack_move_type & LO4);
             }
 
             if (!special_dir) {
@@ -1057,7 +1057,7 @@ static int monster_use_bow(object *head, object *part, int dir)
     }
 
     if (bow == NULL) {
-        logger_print(LOG(BUG), "Monster %s (%d) HAS_READY_BOW() without bow.", query_name(head, NULL), head->count);
+        LOG(BUG, "Monster %s (%d) HAS_READY_BOW() without bow.", query_name(head, NULL), head->count);
         CLEAR_FLAG(head, FLAG_READY_BOW);
         return 0;
     }
@@ -1311,14 +1311,14 @@ static char *find_matching_message(const char *msg, const char *match)
 
     while (1) {
         if (strncmp(cp, "@match ", 7)) {
-            logger_print(LOG(DEBUG), "Invalid message: %s", msg);
+            LOG(DEBUG, "Invalid message: %s", msg);
             return NULL;
         } else {
             /* Find the end of the line, and copy the regex portion into it */
             cp2 = strchr(cp + 7, '\n');
 
             if (!cp2) {
-                logger_print(LOG(DEBUG), "Found empty match response: %s", msg);
+                LOG(DEBUG, "Found empty match response: %s", msg);
                 return NULL;
             }
 

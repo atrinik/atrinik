@@ -186,7 +186,7 @@ void path_request(object *waypoint)
     }
 
 #ifdef DEBUG_PATHFINDING
-    logger_print(LOG(DEBUG), "enqueuing path request for >%s< -> >%s<",
+    LOG(DEBUG, "enqueuing path request for >%s< -> >%s<",
             waypoint->env->name, waypoint->name);
 #endif
 
@@ -224,7 +224,7 @@ object *path_get_next_request(void)
     } while (waypoint == NULL);
 
 #ifdef DEBUG_PATHFINDING
-    logger_print(LOG(DEBUG), "dequeued '%s' -> '%s'", waypoint->owner->name,
+    LOG(DEBUG, "dequeued '%s' -> '%s'", waypoint->owner->name,
             waypoint->name);
 #endif
 
@@ -263,7 +263,7 @@ static path_node_t *path_node_new(mapstruct *map, int16_t x, int16_t y,
     /* Out of memory? */
     if (pathfinder_nodebuf_next == PATHFINDER_NODEBUF) {
 #ifdef DEBUG_PATHFINDING
-        logger_print(LOG(DEBUG), "Out of static buffer memory");
+        LOG(DEBUG, "Out of static buffer memory");
 #endif
         return NULL;
     }
@@ -315,7 +315,7 @@ static void path_node_remove(path_node_t *node, path_node_t **list)
     HARD_ASSERT(list != NULL);
 
     if (*list == NULL) {
-        log(LOG(ERROR), "Removing node from an empty list: %s, %d, %d",
+        LOG(ERROR, "Removing node from an empty list: %s, %d, %d",
                 node->map->path, node->x, node->y);
         return;
     }
@@ -527,7 +527,7 @@ int path_get_next(shstr *buf, int16_t *off, shstr **mappath, mapstruct **map,
         mapend = strchr(map_def, ' ');
 
         if (mapend == NULL) {
-            log(LOG(BUG), "No delimeter after map name in path description "
+            LOG(BUG, "No delimeter after map name in path description "
                     "'%s' off %d", buf, *off);
             return 0;
         }
@@ -553,7 +553,7 @@ int path_get_next(shstr *buf, int16_t *off, shstr **mappath, mapstruct **map,
     }
 
     if (*map == NULL) {
-        log(LOG(BUG), "Couldn't load map from description '%s' off %d", buf,
+        LOG(BUG, "Couldn't load map from description '%s' off %d", buf,
                 *off);
         return 0;
     }
@@ -563,7 +563,7 @@ int path_get_next(shstr *buf, int16_t *off, shstr **mappath, mapstruct **map,
 
     if (coord_end == coord_start || sscanf(coord_start, "%d,%d,%d", x, y,
             flags) != 3) {
-        log(LOG(BUG), "Illegal coordinate pair in '%s' off %d", buf, *off);
+        LOG(BUG, "Illegal coordinate pair in '%s' off %d", buf, *off);
         return 0;
     }
 
@@ -571,7 +571,7 @@ int path_get_next(shstr *buf, int16_t *off, shstr **mappath, mapstruct **map,
     *map = get_map_from_coord(*map, x, y);
 
     if (*map == NULL) {
-        log(LOG(BUG), "Location (%d, %d) is out of map", *x, *y);
+        LOG(BUG, "Location (%d, %d) is out of map", *x, *y);
         return 0;
     }
 
@@ -637,7 +637,7 @@ path_node_t *path_compress(path_node_t *path)
     }
 
 #ifdef DEBUG_PATHFINDING
-    logger_print(LOG(DEBUG), "removed %d nodes of %d (%.0f%%)", removed_nodes,
+    LOG(DEBUG, "removed %d nodes of %d (%.0f%%)", removed_nodes,
             total_nodes, (float) removed_nodes * 100.0 / (float) total_nodes);
 #endif
 
@@ -897,7 +897,7 @@ path_node_t *path_find(object *op, mapstruct *map1, int x, int y,
 
 #if TIME_PATHFINDING
     PERF_TIMER_STOP(1);
-    log(LOG(DEVEL), "Pathfinding took %f seconds (searched %d nodes)",
+    LOG(DEVEL, "Pathfinding took %f seconds (searched %d nodes)",
             PERF_TIMER_GET(1), searched);
 #endif
 
@@ -913,7 +913,7 @@ path_node_t *path_find(object *op, mapstruct *map1, int x, int y,
         fp = fopen(path, "w");
 
         if (fp == NULL) {
-            log(LOG(BUG), "Could not open %s for writing.", path);
+            LOG(BUG, "Could not open %s for writing.", path);
         } else {
             path_visualization_t *visualization, *curr, *tmp;
             path_visualizer_t *visualizer_node, *visualizer_node_tmp;
@@ -1040,7 +1040,7 @@ path_node_t *path_find(object *op, mapstruct *map1, int x, int y,
 
             fclose(fp);
 
-            log(LOG(DEVEL), "Generated pathfinding visualization for '%s': %s",
+            LOG(DEVEL, "Generated pathfinding visualization for '%s': %s",
                     op->name, path);
         }
     }

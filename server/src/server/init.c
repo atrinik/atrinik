@@ -98,10 +98,10 @@ static void console_command_speed(const char *params)
     if (params && sscanf(params, "%ld", &new_speed) == 1) {
         set_max_time(new_speed);
         reset_sleep();
-        logger_print(LOG(INFO), "The speed has been changed to %ld.", max_time);
+        LOG(INFO, "The speed has been changed to %ld.", max_time);
         draw_info(COLOR_GRAY, NULL, "You feel a sudden and inexplicable change in the fabric of time and space...");
     } else {
-        logger_print(LOG(INFO), "Current speed is: %ld, default speed is: %d.", max_time, MAX_TIME);
+        LOG(INFO, "Current speed is: %ld, default speed is: %d.", max_time, MAX_TIME);
     }
 }
 
@@ -111,12 +111,12 @@ static void console_command_speed_multiplier(const char *params)
 
     if (params != NULL && sscanf(params, "%d", &new_speed_multiplier) == 1) {
         set_max_time_multiplier(new_speed_multiplier);
-        logger_print(LOG(INFO), "The speed multiplier has been changed to %d.",
+        LOG(INFO, "The speed multiplier has been changed to %d.",
                 max_time_multiplier);
         draw_info(COLOR_GRAY, NULL, "You feel a sudden and inexplicable change "
                 "in the fabric of time and space...");
     } else {
-        logger_print(LOG(INFO), "Current speed multiplier is: %d, default "
+        LOG(INFO, "Current speed multiplier is: %d, default "
                 "speed multiplier is: %d.", max_time_multiplier,
                 MAX_TIME_MULTIPLIER);
     }
@@ -175,7 +175,7 @@ static void clioptions_option_port(const char *arg)
     val = atoi(arg);
 
     if (val <= 0 || val > UINT16_MAX) {
-        logger_print(LOG(ERROR), "%d is an invalid port number.", val);
+        LOG(ERROR, "%d is an invalid port number.", val);
         exit(1);
     }
 
@@ -242,7 +242,7 @@ static void clioptions_option_magic_devices_level(const char *arg)
     val = atoi(arg);
 
     if (val < INT8_MIN || val > INT8_MAX) {
-        logger_print(LOG(ERROR), "Invalid value for argument of --magic_devices_level (%d).", val);
+        LOG(ERROR, "Invalid value for argument of --magic_devices_level (%d).", val);
         exit(1);
     }
 
@@ -283,12 +283,12 @@ static void clioptions_option_allowed_chars(const char *arg)
     pos = 0;
 
     if (!string_get_word(arg, &pos, ' ', word, sizeof(word), 0)) {
-        logger_print(LOG(ERROR), "Invalid argument for allowed_chars option: %s", arg);
+        LOG(ERROR, "Invalid argument for allowed_chars option: %s", arg);
         return;
     }
 
     if (string_split(word, cps, arraysize(cps), ':') != arraysize(cps)) {
-        logger_print(LOG(ERROR), "Invalid word in allowed_chars option: %s", word);
+        LOG(ERROR, "Invalid word in allowed_chars option: %s", word);
         return;
     }
 
@@ -299,12 +299,12 @@ static void clioptions_option_allowed_chars(const char *arg)
     }
 
     if (type == ALLOWED_CHARS_NUM) {
-        logger_print(LOG(ERROR), "Invalid allowed_chars option type: %s", cps[0]);
+        LOG(ERROR, "Invalid allowed_chars option type: %s", cps[0]);
         return;
     }
 
     if (sscanf(cps[1], "%d-%d", &lower, &upper) != 2) {
-        logger_print(LOG(ERROR), "Lower/upper bounds for allowed_chars option in invalid format: %s", cps[1]);
+        LOG(ERROR, "Lower/upper bounds for allowed_chars option in invalid format: %s", cps[1]);
         return;
     }
 
@@ -743,7 +743,7 @@ static void init_library(int argc, char *argv[])
     }
 
     if (!level_up_arch) {
-        logger_print(LOG(BUG), "Can't find '%s' arch", ARCHETYPE_LEVEL_UP);
+        LOG(BUG, "Can't find '%s' arch", ARCHETYPE_LEVEL_UP);
     }
 }
 
@@ -785,7 +785,7 @@ static void init_dynamic(void)
         at = at->next;
     }
 
-    logger_print(LOG(ERROR), "You need an archetype called 'map' and it has to contain start map.");
+    LOG(ERROR, "You need an archetype called 'map' and it has to contain start map.");
 }
 
 /**
@@ -799,7 +799,7 @@ void write_todclock(void)
     snprintf(filename, sizeof(filename), "%s/clockdata", settings.datapath);
 
     if ((fp = fopen(filename, "w")) == NULL) {
-        logger_print(LOG(BUG), "Cannot open %s for writing.", filename);
+        LOG(BUG, "Cannot open %s for writing.", filename);
         return;
     }
 
@@ -826,7 +826,7 @@ static void init_clocks(void)
     snprintf(filename, sizeof(filename), "%s/clockdata", settings.datapath);
 
     if ((fp = fopen(filename, "r")) == NULL) {
-        logger_print(LOG(DEBUG), "Can't open %s.", filename);
+        LOG(DEBUG, "Can't open %s.", filename);
         todtick = 0;
         write_todclock();
         return;

@@ -57,7 +57,7 @@ static void updates_file_new(const char *filename, struct stat *sb)
     fp = fopen(filename, "rb");
 
     if (!fp) {
-        logger_print(LOG(ERROR), "Could not open file '%s' for reading.", filename);
+        LOG(ERROR, "Could not open file '%s' for reading.", filename);
         exit(1);
     }
 
@@ -123,7 +123,7 @@ static void updates_traverse(const char *path)
     struct stat sb;
 
     if (!dir) {
-        logger_print(LOG(ERROR), "Could not open directory '%s'.", path);
+        LOG(ERROR, "Could not open directory '%s'.", path);
         exit(1);
     }
 
@@ -173,7 +173,7 @@ void updates_init(void)
     fp = fopen(path, "wb");
 
     if (!fp) {
-        logger_print(LOG(ERROR), "Could not open file '%s' for writing.", path);
+        LOG(ERROR, "Could not open file '%s' for writing.", path);
         exit(1);
     }
 

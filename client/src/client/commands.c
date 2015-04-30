@@ -898,7 +898,7 @@ void socket_command_map(uint8_t *data, size_t len, size_t pos)
 void socket_command_version(uint8_t *data, size_t len, size_t pos)
 {
     if (cpl.state != ST_WAITVERSION) {
-        logger_print(LOG(BUG), "Received version command when not in proper "
+        LOG(BUG, "Received version command when not in proper "
                 "state: %d, should be: %d.", cpl.state, ST_WAITVERSION);
         return;
     }

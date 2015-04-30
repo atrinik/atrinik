@@ -247,7 +247,7 @@ static int apply_func(object *op, object *applier, int aflags)
                     query_name(op, NULL));
         }
 
-        log(LOG(BUG), "Exit '%s' on map %s at %d,%d leads nowhere.", op->name,
+        LOG(BUG, "Exit '%s' on map %s at %d,%d leads nowhere.", op->name,
                 op->map->path, op->x, op->y);
         return OBJECT_METHOD_OK;
     }

@@ -347,7 +347,7 @@ TOOLKIT_INIT_FUNC(signals)
     ss.ss_flags = 0;
 
     if (sigaltstack(&ss, NULL) != 0) {
-        logger_print(LOG(ERROR), "Could not set up alternate stack.");
+        LOG(ERROR, "Could not set up alternate stack.");
         exit(1);
     }
 #endif
@@ -362,7 +362,7 @@ TOOLKIT_INIT_FUNC(signals)
         sig_action.sa_flags = SA_SIGINFO | SA_ONSTACK;
 
         if (sigaction(register_signals[i], &sig_action, NULL) != 0) {
-            logger_print(LOG(ERROR), "Could not register signal: %d",
+            LOG(ERROR, "Could not register signal: %d",
                     register_signals[i]);
             exit(1);
         }

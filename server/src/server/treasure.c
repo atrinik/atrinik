@@ -100,7 +100,7 @@ void load_treasures(void)
     fp = fopen(filename, "rb");
 
     if (!fp) {
-        logger_print(LOG(ERROR), "Can't open treasures file: %s", filename);
+        LOG(ERROR, "Can't open treasures file: %s", filename);
         exit(1);
     }
 
@@ -141,14 +141,14 @@ void load_treasures(void)
 #ifdef TREASURE_DEBUG
 
                     if (t->next_yes || t->next_no) {
-                        logger_print(LOG(BUG), "Treasure %s is one item, but on treasure %s the next_yes or next_no field is set", tl->name, t->item ? t->item->name : t->name);
+                        LOG(BUG, "Treasure %s is one item, but on treasure %s the next_yes or next_no field is set", tl->name, t->item ? t->item->name : t->name);
                     }
 #endif
                     tl->total_chance += t->chance;
                 }
             }
         } else {
-            logger_print(LOG(ERROR), "Treasure list didn't understand: %s", buf);
+            LOG(ERROR, "Treasure list didn't understand: %s", buf);
             exit(1);
         }
     }
@@ -180,7 +180,7 @@ static void create_money_table(void)
         coins_arch[i] = find_archetype(coins[i]);
 
         if (!coins_arch[i]) {
-            logger_print(LOG(ERROR), "Can't find %s.", coins[i] ? coins[i] : "NULL");
+            LOG(ERROR, "Can't find %s.", coins[i] ? coins[i] : "NULL");
             exit(1);
         }
     }
@@ -231,7 +231,7 @@ static treasure *load_treasure(FILE *fp, int *t_style, int *a_chance)
             }
         } else if (sscanf(cp, "arch %s", variable)) {
             if ((t->item = find_archetype(variable)) == NULL) {
-                logger_print(LOG(BUG), "Treasure lacks archetype: %s", variable);
+                LOG(BUG, "Treasure lacks archetype: %s", variable);
             }
 
             start_marker = 1;
@@ -314,11 +314,11 @@ static treasure *load_treasure(FILE *fp, int *t_style, int *a_chance)
 
             return t;
         } else {
-            logger_print(LOG(BUG), "Unknown treasure command: '%s', last entry %s", cp, t->name ? t->name : "null");
+            LOG(BUG, "Unknown treasure command: '%s', last entry %s", cp, t->name ? t->name : "null");
         }
     }
 
-    logger_print(LOG(BUG), "Treasure %s lacks 'end'.>%s<", t->name ? t->name : "NULL", cp ? cp : "NULL");
+    LOG(BUG, "Treasure %s lacks 'end'.>%s<", t->name ? t->name : "NULL", cp ? cp : "NULL");
 
     return t;
 }
@@ -344,7 +344,7 @@ void init_artifacts(void)
     fp = fopen(filename, "rb");
 
     if (!fp) {
-        logger_print(LOG(ERROR), "Can't open %s.", filename);
+        LOG(ERROR, "Can't open %s.", filename);
         exit(1);
     }
 
@@ -415,7 +415,7 @@ void init_artifacts(void)
             /* Chain a default arch to this treasure */
 
             if ((atemp = find_archetype(cp + 9)) == NULL) {
-                logger_print(LOG(ERROR), "Can't find def_arch %s.", cp + 9);
+                LOG(ERROR, "Can't find def_arch %s.", cp + 9);
                 exit(1);
             }
 
@@ -447,17 +447,17 @@ void init_artifacts(void)
             old_pos = ftell(fp);
 
             if (!load_object(fp, &(art->def_at.clone), NULL, LO_LINEMODE, MAP_STYLE)) {
-                logger_print(LOG(ERROR), "Could not load object.");
+                LOG(ERROR, "Could not load object.");
                 exit(1);
             }
 
             if (!art->name) {
-                logger_print(LOG(ERROR), "Object %s has no arch id name", art->def_at.clone.name);
+                LOG(ERROR, "Object %s has no arch id name", art->def_at.clone.name);
                 exit(1);
             }
 
             if (!art->def_at_name) {
-                logger_print(LOG(ERROR), "Artifact %s has no def arch", art->name);
+                LOG(ERROR, "Artifact %s has no def arch", art->name);
                 exit(1);
             }
 
@@ -467,7 +467,7 @@ void init_artifacts(void)
             file_pos = ftell(fp);
 
             if (fseek(fp, old_pos, SEEK_SET)) {
-                logger_print(LOG(ERROR), "Could not fseek(fp, %ld, SEEK_SET).", old_pos);
+                LOG(ERROR, "Could not fseek(fp, %ld, SEEK_SET).", old_pos);
                 exit(1);
             }
 
@@ -487,7 +487,7 @@ void init_artifacts(void)
 
                 /* Should not possible. */
                 if (ftell(fp) > file_pos) {
-                    logger_print(LOG(ERROR), "fgets() read too much data! (%ld - %ld)", file_pos, ftell(fp));
+                    LOG(ERROR, "fgets() read too much data! (%ld - %ld)", file_pos, ftell(fp));
                     exit(1);
                 }
             }
@@ -516,7 +516,7 @@ void init_artifacts(void)
             art->next = al->items;
             al->items = art;
         } else {
-            logger_print(LOG(BUG), "Unknown input in artifact file: %s", buf);
+            LOG(BUG, "Unknown input in artifact file: %s", buf);
         }
     }
 
@@ -530,7 +530,7 @@ void init_artifacts(void)
             }
 
             if (!art->chance) {
-                logger_print(LOG(BUG), "Artifact with no chance: %s", art->name);
+                LOG(BUG, "Artifact with no chance: %s", art->name);
             } else {
                 al->total_chance += art->chance;
             }
@@ -547,7 +547,7 @@ void init_archetype_pointers(void)
     }
 
     if (!ring_arch_normal) {
-        logger_print(LOG(BUG), "Can't find 'ring_normal' arch (from artifacts)");
+        LOG(BUG, "Can't find 'ring_normal' arch (from artifacts)");
     }
 
     if (ring_arch == NULL) {
@@ -555,7 +555,7 @@ void init_archetype_pointers(void)
     }
 
     if (!ring_arch) {
-        logger_print(LOG(BUG), "Can't find 'ring_generic' arch");
+        LOG(BUG, "Can't find 'ring_generic' arch");
     }
 
     if (amulet_arch_normal == NULL) {
@@ -563,7 +563,7 @@ void init_archetype_pointers(void)
     }
 
     if (!amulet_arch_normal) {
-        logger_print(LOG(BUG), "Can't find 'amulet_normal' arch (from artifacts)");
+        LOG(BUG, "Can't find 'amulet_normal' arch (from artifacts)");
     }
 
     if (amulet_arch == NULL) {
@@ -571,7 +571,7 @@ void init_archetype_pointers(void)
     }
 
     if (!amulet_arch) {
-        logger_print(LOG(BUG), "Can't find 'amulet_generic' arch");
+        LOG(BUG, "Can't find 'amulet_generic' arch");
     }
 }
 
@@ -656,7 +656,7 @@ treasurelist *find_treasurelist(const char *name)
         }
     }
 
-    logger_print(LOG(BUG), "Bug: Couldn't find treasurelist %s", name);
+    LOG(BUG, "Bug: Couldn't find treasurelist %s", name);
     return NULL;
 }
 
@@ -684,7 +684,7 @@ object *generate_treasure(treasurelist *t, int difficulty, int a_chance)
     }
 
     if (ob->inv) {
-        logger_print(LOG(BUG), "Created multiple objects.");
+        LOG(BUG, "Created multiple objects.");
     }
 
     object_destroy(ob);
@@ -705,7 +705,7 @@ object *generate_treasure(treasurelist *t, int difficulty, int a_chance)
 void create_treasure(treasurelist *t, object *op, int flag, int difficulty, int t_style, int a_chance, int tries, struct _change_arch *arch_change)
 {
     if (tries++ > 100) {
-        logger_print(LOG(DEBUG), "create_treasure(): tries >100 for t-list %s.", t->name ? t->name : "<noname>");
+        LOG(DEBUG, "create_treasure(): tries >100 for t-list %s.", t->name ? t->name : "<noname>");
         return;
     }
 
@@ -885,7 +885,7 @@ create_one_treasure_again_jmp:
     }
 
     if (!t || value > 0) {
-        logger_print(LOG(BUG), "create_one_treasure: got null object or not able to find treasure - tl:%s op:%s", tl ? tl->name : "(null)", op ? op->name : "(null)");
+        LOG(BUG, "create_one_treasure: got null object or not able to find treasure - tl:%s op:%s", tl ? tl->name : "(null)", op ? op->name : "(null)");
         return;
     }
 
@@ -2144,7 +2144,7 @@ static int legal_artifact_combination(object *op, artifact *art)
 
     for (tmp = art->allowed; tmp; tmp = tmp->next) {
 #ifdef TREASURE_VERBOSE
-        logger_print(LOG(DEBUG), "legal_art: %s", tmp->name);
+        LOG(DEBUG, "legal_art: %s", tmp->name);
 #endif
 
         if (*tmp->name == '!') {
@@ -2179,7 +2179,7 @@ void give_artifact_abilities(object *op, artifact *art)
         op->value = 0;
 
         if (!load_object(art->parse_text, op, NULL, LO_MEMORYMODE, MAP_ARTIFACT)) {
-            logger_print(LOG(ERROR), "load_object() error (ob: %s art: %s).", op->name, art->name);
+            LOG(ERROR, "load_object() error (ob: %s art: %s).", op->name, art->name);
             exit(1);
         }
 
@@ -2221,7 +2221,7 @@ int generate_artifact(object *op, int difficulty, int t_style, int a_chance)
 
     if (al == NULL) {
 #ifdef TREASURE_VERBOSE
-        logger_print(LOG(DEBUG), "Couldn't change %s into artifact - no table.", op->name);
+        LOG(DEBUG, "Couldn't change %s into artifact - no table.", op->name);
 #endif
         return 0;
     }
@@ -2238,7 +2238,7 @@ int generate_artifact(object *op, int difficulty, int t_style, int a_chance)
         }
 
         if (art == NULL || roll >= 0) {
-            logger_print(LOG(BUG), "Got null entry and non zero roll in generate_artifact, type %d", op->type);
+            LOG(BUG, "Got null entry and non zero roll in generate_artifact, type %d", op->type);
             return 0;
         }
 
@@ -2250,7 +2250,7 @@ int generate_artifact(object *op, int difficulty, int t_style, int a_chance)
 
         if (!legal_artifact_combination(op, art)) {
 #ifdef TREASURE_VERBOSE
-            logger_print(LOG(DEBUG), "%s of %s was not a legal combination.", op->name, art->item->name);
+            LOG(DEBUG, "%s of %s was not a legal combination.", op->name, art->item->name);
 #endif
             continue;
         }
@@ -2605,12 +2605,12 @@ void create_artifact(object *op, char *artifactname)
 static void check_treasurelist(treasure *t, treasurelist *tl)
 {
     if (t->item == NULL && t->name == NULL) {
-        logger_print(LOG(ERROR), "Treasurelist %s has element with no name or archetype", tl->name);
+        LOG(ERROR, "Treasurelist %s has element with no name or archetype", tl->name);
         exit(1);
     }
 
     if (t->chance >= 100 && t->next_yes && (t->next || t->next_no)) {
-        logger_print(LOG(BUG), "Treasurelist %s has element that has 100%% generation, next_yes field as well as next or next_no", tl->name);
+        LOG(BUG, "Treasurelist %s has element that has 100%% generation, next_yes field as well as next or next_no", tl->name);
     }
 
     /* find_treasurelist will print out its own error message */

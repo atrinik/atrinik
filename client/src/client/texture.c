@@ -90,11 +90,11 @@ static int texture_data_new(texture_struct *tmp)
                     text_show(surface, FONT_ARIAL11, cp + 1, 0, 0, COLOR_WHITE, TEXT_MARKUP, &box);
                 }
             } else {
-                logger_print(LOG(BUG), "Invalid parameters for rectangle texture: %s", tmp->name);
+                LOG(BUG, "Invalid parameters for rectangle texture: %s", tmp->name);
                 return 0;
             }
         } else {
-            logger_print(LOG(BUG), "Invalid name for software texture: %s", tmp->name);
+            LOG(BUG, "Invalid name for software texture: %s", tmp->name);
             return 0;
         }
 
@@ -109,7 +109,7 @@ static int texture_data_new(texture_struct *tmp)
         surface = IMG_Load_wrapper(path);
 
         if (!surface) {
-            logger_print(LOG(BUG), "Could not load texture %s: %s", path,
+            LOG(BUG, "Could not load texture %s: %s", path,
                     IMG_GetError());
             return 0;
         }

@@ -114,7 +114,7 @@ static TTF_Font *font_open(const char *name, uint8_t size)
     }
 
     if (ttf_font == NULL) {
-        logger_print(LOG(ERROR), "Unable to load font (%s, %d): %s", name, size,
+        LOG(ERROR, "Unable to load font (%s, %d): %s", name, size,
                 TTF_GetError());
     }
 
@@ -250,7 +250,7 @@ void font_free(font_struct *font)
         HASH_FIND_STR(fonts, key, tmp);
 
         if (tmp != NULL) {
-            logger_print(LOG(ERROR), "Attempted to free a font that was still "
+            LOG(ERROR, "Attempted to free a font that was still "
                     "in the hash table! Font name: %s, "
                     "size: %d", font->name, font->size);
             abort();
@@ -325,7 +325,7 @@ void text_deinit(void)
         FONT_DECREF(font);
 
         if (font->ref > 0) {
-            log(LOG(DEVEL), "Font %s (size: %u) still has %u references",
+            LOG(DEVEL, "Font %s (size: %u) still has %u references",
                     font->name, font->size, font->ref);
             font->ref = 0;
         }
@@ -1818,7 +1818,7 @@ void text_show(SDL_Surface *surface, font_struct *font, const char *text, int x,
     if (text_color_parse(color_notation, &color)) {
         orig_color = color;
     } else {
-        logger_print(LOG(BUG), "Invalid color: %s, text: %s", color_notation, text);
+        LOG(BUG, "Invalid color: %s, text: %s", color_notation, text);
         return;
     }
 
