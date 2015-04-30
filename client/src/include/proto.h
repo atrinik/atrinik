@@ -184,7 +184,7 @@ extern int64_t setting_from_name(const char *name);
 /* src/client/socket.c */
 extern command_buffer *command_buffer_new(size_t len, uint8_t *data);
 extern void command_buffer_free(command_buffer *buf);
-extern void socket_send_packet(packet_struct *packet);
+extern void socket_send_packet(struct packet_struct *packet);
 extern command_buffer *get_next_input_command(void);
 extern void add_input_command(command_buffer *buf);
 extern void socket_thread_start(void);

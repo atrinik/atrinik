@@ -134,7 +134,7 @@ static command_buffer *command_buffer_dequeue(command_buffer **queue_start, comm
     return buf;
 }
 
-void socket_send_packet(packet_struct *packet)
+void socket_send_packet(struct packet_struct *packet)
 {
     command_buffer *buf;
     size_t len;
