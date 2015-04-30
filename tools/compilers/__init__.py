@@ -102,3 +102,12 @@ class ArtifactsCompiler(BaseCompiler):
             for path in utils.find_files(self.paths["arch"], ext=".art") + \
                     utils.find_files(self.paths["maps"], ext=".art"):
                 utils.file_copy(path, artifacts_file)
+
+
+class FactionsCompiler(BaseCompiler):
+    def compile(self):
+        factions_path = os.path.join(self.paths["arch"], "factions")
+
+        with open(factions_path, "wb") as factions_file:
+            for path in utils.find_files(self.paths["maps"], ext=".factions"):
+                utils.file_copy(path, factions_file)

@@ -42,6 +42,7 @@ arch/atrinik.0
 arch/bmaps
 arch/facetree
 arch/treasures
+arch/factions
 maps/interfaces/**/*.py
 maps/python/InterfaceQuests.py
 
