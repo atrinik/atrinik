@@ -995,7 +995,6 @@ void living_update_player(object *op)
 void living_update_monster(object *op)
 {
     object *base, *tmp;
-    float tmp_add;
 
     HARD_ASSERT(op != NULL);
 
@@ -1085,17 +1084,13 @@ void living_update_monster(object *op)
         }
     }
 
-    if ((tmp_add = LEVEL_DAMAGE(op->level / 3) - 0.75f) < 0) {
-        tmp_add = 0;
-    }
-
     if (op->more && QUERY_FLAG(op, FLAG_FRIENDLY)) {
         SET_MULTI_FLAG(op, FLAG_FRIENDLY);
     }
 
-    op->stats.dam = (int16_t) (((float) op->stats.dam *
-            ((LEVEL_DAMAGE(op->level < 0 ? 0 : op->level) + tmp_add) *
-            (0.925f + 0.05 * (op->level / 10)))) / 10.0f);
+    op->stats.dam = (int16_t) (((double) op->stats.dam *
+            ((LEVEL_DAMAGE(op->level) + MAX(LEVEL_DAMAGE(op->level / 3.0) -
+            0.75f, 0.0)) * (0.925f + 0.05 * (op->level / 10)))) / 10.0f);
 
     /* Add a special decrease of power for monsters level 1-5 */
     if (op->level <= 5) {
