@@ -90,7 +90,7 @@ lex_error = 0;
     int v = IVAL;
 
     if (v < -1 || v > MAX_DARKNESS) {
-        logger_print(LOG(BUG), "Illegal map darkness %d (must be -1 to %d, defaulting to -1): %s", v, MAX_DARKNESS, m->path);
+        LOG(BUG, "Illegal map darkness %d (must be -1 to %d, defaulting to -1): %s", v, MAX_DARKNESS, m->path);
     } else {
         set_map_darkness(m, v);
     }
@@ -111,7 +111,7 @@ lex_error = 0;
     int tile = atoi(yytext + 10);
 
     if (tile < 1 || tile > TILED_NUM) {
-        logger_print(LOG(BUG), "Tile location %d out of bounds (%s)", tile, m->path);
+        LOG(BUG, "Tile location %d out of bounds (%s)", tile, m->path);
     } else {
         map_set_tile(m, tile - 1, yval());
     }
@@ -142,7 +142,7 @@ lex_error = 0;
 <<EOF>>              return LL_MORE;
 
 .*                   {
-    logger_print(LOG(BUG), "Got unknown value in map header: %s", yytext);
+    LOG(BUG, "Got unknown value in map header: %s", yytext);
     return LL_NORMAL;
 }
 
@@ -230,7 +230,7 @@ int load_map_header(mapstruct *m, FILE *fp)
     int retval;
 
     if (!fgets(inbuf, sizeof(inbuf) - 1, fp) || strcmp(inbuf, "arch map\n")) {
-        logger_print(LOG(BUG), "First line should always be 'arch map', but it is not (%s)", m->path);
+        LOG(BUG, "First line should always be 'arch map', but it is not (%s)", m->path);
         return 0;
     }
 

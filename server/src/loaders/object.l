@@ -212,7 +212,7 @@ lex_error = 0;
             }
             else {
                 if (!arch_init) {
-                    logger_print(LOG(DEBUG), "Discarding object without arch: %s", archname);
+                    LOG(DEBUG, "Discarding object without arch: %s", archname);
                 }
 
                 object_destroy(tmp);
@@ -283,7 +283,7 @@ lex_error = 0;
     char *yv = yval();
 
     if (*yv == '\0') {
-        logger_print(LOG(ERROR), "Object lacks name.");
+        LOG(ERROR, "Object lacks name.");
         exit(1);
     }
 
@@ -316,7 +316,7 @@ lex_error = 0;
     char *yv = yval();
 
     if (*yv == '\0') {
-        logger_print(LOG(ERROR), "Name without val");
+        LOG(ERROR, "Name without val");
         exit(1);
     }
     else {
@@ -327,7 +327,7 @@ lex_error = 0;
     char *yv = yval();
 
     if (*yv == '\0') {
-        logger_print(LOG(BUG), "Custom name without val.");
+        LOG(BUG, "Custom name without val.");
     }
     else {
         FREE_AND_COPY_HASH(op->custom_name, yv);
@@ -350,7 +350,7 @@ lex_error = 0;
     art_amask = find_artifact_type(yval(), op->arch->clone.type);
 
     if (!art_amask) {
-        logger_print(LOG(BUG), "Invalid amask '%s'.", yval());
+        LOG(BUG, "Invalid amask '%s'.", yval());
     }
 }
 ^quickslot{S}        op->quickslot = IVAL;
@@ -415,7 +415,7 @@ lex_error = 0;
     op->face = &new_faces[_face_ ];
 
     if (!_face_) {
-        logger_print(LOG(BUG), "Object %s - can't find face %s.", op->arch ? (op->arch->name ? op->arch->name : "<no arch name>") : "<no ->arch>", yval());
+        LOG(BUG, "Object %s - can't find face %s.", op->arch ? (op->arch->name ? op->arch->name : "<no arch name>") : "<no ->arch>", yval());
     }
 }
 ^inv_face{S}         {
@@ -423,7 +423,7 @@ lex_error = 0;
     op->inv_face = &new_faces[_face_ ];
 
     if (!_face_) {
-        logger_print(LOG(BUG), "Object %s - can't find inv_face %s.", op->arch ? (op->arch->name ? op->arch->name : "<no arch name>") : "<no ->arch>", yval());
+        LOG(BUG, "Object %s - can't find inv_face %s.", op->arch ? (op->arch->name ? op->arch->name : "<no arch name>") : "<no ->arch>", yval());
     }
 }
 ^str{S}              op->stats.Str = IVAL;
@@ -717,7 +717,7 @@ lex_error = 0;
     char *y = yval();
 
     if (*y == '\0') {
-        logger_print(LOG(BUG), "Title without value.");
+        LOG(BUG, "Title without value.");
     }
     else {
         FREE_AND_COPY_HASH(op->title, y);
@@ -818,7 +818,7 @@ lex_error = 0;
  * @return Always returns -1. */
 int yyerror(char *s)
 {
-    logger_print(LOG(BUG), "%s: %s", s, yytext);
+    LOG(BUG, "%s: %s", s, yytext);
     return -1;
 }
 
@@ -998,7 +998,7 @@ int load_object(void *fp, object *op, void *mybuffer, int bufstate, int map_flag
             }
         }
 
-        logger_print(LOG(DEBUG), "Got EOF while scanning strings (%d)", retval);
+        LOG(DEBUG, "Got EOF while scanning strings (%d)", retval);
 
         /* Be sure we work on the right buffer */
         if (cur_buffer) {
