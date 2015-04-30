@@ -1270,14 +1270,14 @@ void draw_client_map2(object *pl)
                             }
                         }
 
+                        msp_tmp = GET_MAP_SPACE_PTR(tmp->map, tmp->x, tmp->y);
+
                         if ((tmp->map->coords[2] != 0 || !is_building_wall) &&
-                                (GET_MAP_SPACE_PTR(tmp->map,
-                                tmp->x, tmp->y)->extra_flags &
-                                (MSP_EXTRA_IS_BUILDING |
+                                msp_tmp->map_info->item_power == -1 &&
+                                (msp->extra_flags & (MSP_EXTRA_IS_BUILDING |
                                 MSP_EXTRA_IS_BALCONY)) ==
                                 MSP_EXTRA_IS_BUILDING) {
-                            if (is_building_wall && GET_MAP_SPACE_PTR(tmp->map,
-                                tmp->x, tmp->y)->map_info->item_power != -2) {
+                            if (is_building_wall) {
                                 d = MAX(world_darkness,
                                         MAP_BUILDING_DARKNESS_WALL);
                             } else {
