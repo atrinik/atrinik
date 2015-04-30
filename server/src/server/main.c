@@ -499,8 +499,8 @@ static int shutdown_timer_check(void)
         return 1;
     }
 
-    if (!((shutdown_time - pticks) % (60 * MAX_TICKS)) || pticks == shutdown_time - 5 * MAX_TICKS) {
-        draw_info_type_format(CHAT_TYPE_CHAT, NULL, COLOR_GREEN, NULL, "[Server]: Server will shut down in %02"PRIu64 ":%02"PRIu64 " minutes.", (uint64_t) ((shutdown_time - pticks) / MAX_TICKS / 60), (uint64_t) ((shutdown_time - pticks) / MAX_TICKS % 60));
+    if (!((shutdown_time - pticks) % (60 * (long) MAX_TICKS)) || pticks == shutdown_time - 5 * MAX_TICKS) {
+        draw_info_type_format(CHAT_TYPE_CHAT, NULL, COLOR_GREEN, NULL, "[Server]: Server will shut down in %02"PRIu64 ":%02"PRIu64 " minutes.", (uint64_t) ((shutdown_time - pticks) / MAX_TICKS / 60), (uint64_t) ((shutdown_time - pticks) / (long) MAX_TICKS % 60));
     }
 
     return 0;
