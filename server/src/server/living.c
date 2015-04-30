@@ -1090,19 +1090,19 @@ void living_update_monster(object *op)
 
     op->stats.dam = (int16_t) (((double) op->stats.dam *
             ((LEVEL_DAMAGE(op->level) + MAX(LEVEL_DAMAGE(op->level / 3.0) -
-            0.75f, 0.0)) * (0.925f + 0.05 * (op->level / 10)))) / 10.0f);
+            0.75f, 0.0)) * (0.925f + 0.05 * (op->level / 10.0)))) / 10.0f);
 
     /* Add a special decrease of power for monsters level 1-5 */
     if (op->level <= 5) {
-        float d = 1.0f - ((0.35f / 5.0f) * (float) (6 - op->level));
+        double d = 1.0f - ((0.35f / 5.0f) * (double) (6 - op->level));
 
-        op->stats.dam = (int) ((float) op->stats.dam * d);
+        op->stats.dam = (int16_t) ((double) op->stats.dam * d);
 
         if (op->stats.dam < 1) {
             op->stats.dam = 1;
         }
 
-        op->stats.maxhp = (int) ((float) op->stats.maxhp * d);
+        op->stats.maxhp = (int16_t) ((double) op->stats.maxhp * d);
 
         if (op->stats.maxhp < 1) {
             op->stats.maxhp = 1;
