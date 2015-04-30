@@ -1497,7 +1497,7 @@ int is_friend_of(object *op, object *obj)
         return 1;
     }
 
-    if (!IS_LIVE(op) || !IS_LIVE(obj)) {
+    if (!IS_LIVE(op) && !IS_LIVE(obj)) {
         return 0;
     }
 
