@@ -991,7 +991,7 @@ size_t string_fromhex(char *str, size_t len, unsigned char *result,
  * @param str String to skip whitespace in.
  * @return String with the whitespace skipped, NULL if 'str' is also NULL.
  */
-const char *string_skip_whitespace(const char *str)
+char *string_skip_whitespace(char *str)
 {
     if (str == NULL) {
         return NULL;
