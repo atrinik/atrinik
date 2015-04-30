@@ -27,6 +27,7 @@
  * This handles all attacks, magical or not. */
 
 #include <global.h>
+#include <monster_data.h>
 
 /**
  * Names of attack types to use when saving them to file.
@@ -59,7 +60,6 @@ static void send_attack_msg(object *op, object *hitter, int attacknum, int dam, 
 static int hit_player_attacktype(object *op, object *hitter, int damage, uint32_t attacknum);
 static void poison_player(object *op, object *hitter, float dam);
 static void slow_living(object *op);
-static void blind_living(object *op, object *hitter, int dam);
 static int adj_attackroll(object *hitter, object *target);
 static int is_aimed_missile(object *op);
 
@@ -90,7 +90,7 @@ int attack_ob(object *op, object *hitter)
  * @return Dealt damage. */
 static int attack_ob_simple(object *op, object *hitter, int base_dam, int base_wc)
 {
-    int simple_attack, roll, dam = 0;
+    int simple_attack, roll, adjust, dam = 0;
     tag_t op_tag, hitter_tag;
     rv_vector dir;
 
@@ -118,20 +118,37 @@ static int attack_ob_simple(object *op, object *hitter, int base_dam, int base_w
 
     roll = rndm(0, hitter->stats.wc_range);
 
+    if (get_rangevector(hitter, op, &dir, RV_NO_DISTANCE)) {
+        HEAD(hitter)->direction = dir.direction;
+    }
+
+    adjust = 0;
+
     /* Adjust roll for various situations. */
     if (!simple_attack) {
-        roll += adj_attackroll(hitter, op);
+        mapstruct *enemy_map;
+        uint16_t enemy_x, enemy_y;
+
+        adjust += adj_attackroll(hitter, op);
+
+        if (hitter->type == MONSTER && monster_data_enemy_get_coords(hitter,
+                &enemy_map, &enemy_x, &enemy_y)) {
+            rv_vector rv;
+
+            if (!get_rangevector_from_mapcoords(hitter->map, hitter->x,
+                    hitter->y, enemy_map, enemy_x, enemy_y, &rv, 0) ||
+                    rv.direction != dir.direction) {
+                adjust -= 10;
+            }
+        }
     }
 
     hitter->anim_flags |= ANIM_FLAG_ATTACKING;
     hitter->anim_flags &= ~ANIM_FLAG_STOP_ATTACKING;
 
-    if (get_rangevector(hitter, op, &dir, RV_NO_DISTANCE)) {
-        HEAD(hitter)->direction = dir.direction;
-    }
-
     /* See if we hit the creature */
-    if (roll >= hitter->stats.wc_range || op->stats.ac <= base_wc + roll) {
+    if (roll >= hitter->stats.wc_range ||
+            op->stats.ac <= base_wc + roll + adjust) {
         int hitdam = base_dam;
 
         /* At this point NO ONE will still sleep */
@@ -159,14 +176,14 @@ static int attack_ob_simple(object *op, object *hitter, int base_dam, int base_w
 
         /* Handle monsters that hit back */
         if (!simple_attack && QUERY_FLAG(op, FLAG_HITBACK) && IS_LIVE(hitter)) {
-            hit_player(hitter, rndm(0, op->stats.dam), op, AT_PHYSICAL);
+            hit_player(hitter, rndm(0, op->stats.dam), op);
 
             if (was_destroyed(op, op_tag) || was_destroyed(hitter, hitter_tag) || abort_attack(op, hitter, simple_attack)) {
                 return dam;
             }
         }
 
-        dam = hit_player(op, rndm(hitdam / 2 + 1, hitdam), hitter, AT_PHYSICAL);
+        dam = hit_player(op, rndm(hitdam / 2 + 1, hitdam), hitter);
 
         if (was_destroyed(op, op_tag) || was_destroyed(hitter, hitter_tag) || abort_attack(op, hitter, simple_attack)) {
             return dam;
@@ -200,15 +217,13 @@ static int attack_ob_simple(object *op, object *hitter, int base_dam, int base_w
  * @param dam Base damage - protections/vulnerabilities/slaying matches
  * can modify it.
  * @param hitter What is hitting the object.
- * @param type Attacktype.
  * @return Dealt damage. */
-int hit_player(object *op, int dam, object *hitter, int type)
+int hit_player(object *op, int dam, object *hitter)
 {
     object *hit_obj, *hitter_owner, *target_obj;
     int maxdam = 0;
-    int attacknum, hit_level;
+    int attacknum;
     int simple_attack;
-    int rtn_kill = 0;
 
     /* If our target has no_damage 1 set, we can't hurt him. */
     if ((op->type == PLAYER && CONTR(op)->tgm) || QUERY_FLAG(op, FLAG_INVULNERABLE)) {
@@ -249,20 +264,9 @@ int hit_player(object *op, int dam, object *hitter, int type)
         target_obj = op;
     }
 
-    /* Get from hitter object the right skill level. */
-    if (hit_obj->type == PLAYER) {
-        hit_level = SK_level(hit_obj);
-    } else {
-        hit_level = hitter->level;
-    }
-
     /* Do not let friendly objects attack each other. */
     if (is_friend_of(hit_obj, op)) {
         return 0;
-    }
-
-    if (hit_level > target_obj->level && hit_obj->type == MONSTER) {
-        dam += (int) ((float) (dam / 2) * ((float) (hit_level - target_obj->level) / (target_obj->level > 25 ? 25.0f : (float) target_obj->level)));
     }
 
     /* Check for PVP areas. */
@@ -311,6 +315,14 @@ int hit_player(object *op, int dam, object *hitter, int type)
 
     op->last_damage += maxdam;
 
+    /* For the purposes of statistics and damage visible on-screen, we want to
+     * show the full damage. However, to the function's callers, we only want
+     * to return the total damage dealt to the object, capping it at the
+     * object's hp. */
+    if (maxdam > op->stats.hp) {
+        maxdam = op->stats.hp;
+    }
+
     /* Damage the target got */
     op->stats.hp -= maxdam;
 
@@ -319,9 +331,9 @@ int hit_player(object *op, int dam, object *hitter, int type)
         SET_FLAG(op, FLAG_RUN_AWAY);
     }
 
-    /* rtn_kill is here negative! */
-    if ((rtn_kill = kill_object(op, dam, hitter, type))) {
-        return (maxdam + rtn_kill + 1);
+    /* Reached 0 or less HP, kill the object. */
+    if (op->stats.hp <= 0) {
+        kill_object(op, hitter);
     }
 
     return maxdam;
@@ -387,7 +399,7 @@ void hit_map(object *op, int dir, int reduce)
             dam /= (tmp->quick_pos >> 4) + 1;
         }
 
-        hit_player(tmp, dam, op, AT_INTERNAL);
+        hit_player(tmp, dam, op);
     }
     FOR_MAP_LAYER_END
 }
@@ -648,31 +660,24 @@ static void share_kill_exp(object *op, int64_t exp_gain, object *skill)
 /**
  * An object was killed, handle various things (logging, messages, ...).
  * @param op What is being killed.
- * @param dam Damage done to it.
  * @param hitter What is hitting it.
- * @param type The attacktype.
- * @return Dealt damage. */
-int kill_object(object *op, int dam, object *hitter, int type)
+ * @retval true Object was killed.
+ * @retval false Object was not killed.
+ */
+bool kill_object(object *op, object *hitter)
 {
-    int maxdam, battleg;
+    int battleg;
     int64_t exp_gain = 0;
     object *owner;
 
-    /* Still got some HP left? */
-    if (op->stats.hp > 0) {
-        return -1;
-    }
-
     if (op->type == PLAYER && CONTR(op)->tgm) {
-        return 0;
+        return false;
     }
 
     /* Trigger the DEATH event */
-    if (trigger_event(EVENT_DEATH, hitter, op, NULL, NULL, type, 0, 0, SCRIPT_FIX_ALL)) {
-        return 0;
+    if (trigger_event(EVENT_DEATH, hitter, op, NULL, NULL, 0, 0, 0, SCRIPT_FIX_ALL)) {
+        return false;
     }
-
-    maxdam = op->stats.hp - 1;
 
     /* Only when some damage is stored, and we're on a map. */
     if (op->damage_round_tag == global_round_tag && op->map) {
@@ -796,7 +801,7 @@ int kill_object(object *op, int dam, object *hitter, int type)
         destruct_ob(op);
     }
 
-    return maxdam;
+    return true;
 }
 
 /**
@@ -936,14 +941,15 @@ static void slow_living(object *op)
 
     if ((tmp = present_arch_in_ob(at, op)) == NULL) {
         tmp = arch_to_object(at);
+        SET_FLAG(tmp, FLAG_APPLIED);
         tmp = insert_ob_in_ob(tmp, op);
         draw_info(COLOR_WHITE, op, "The world suddenly moves very fast!");
     } else {
         tmp->stats.food++;
     }
 
-    SET_FLAG(tmp, FLAG_APPLIED);
     tmp->speed_left = 0;
+    esrv_update_item(UPD_EXTRA, tmp);
 }
 
 /**
@@ -951,13 +957,16 @@ static void slow_living(object *op)
  * @param op Victim. */
 void confuse_living(object *op)
 {
+    archetype *at;
     object *tmp;
     int maxduration;
 
-    tmp = present_in_ob(CONFUSION, op);
+    at = find_archetype("confusion");
+    tmp = present_arch_in_ob(at, op);
 
     if (!tmp) {
-        tmp = get_archetype("confusion");
+        tmp = arch_to_object(at);
+        SET_FLAG(tmp, FLAG_APPLIED);
         tmp = insert_ob_in_ob(tmp, op);
     }
 
@@ -970,11 +979,8 @@ void confuse_living(object *op)
         tmp->stats.food = maxduration;
     }
 
-    if (op->type == PLAYER && !QUERY_FLAG(op, FLAG_CONFUSED)) {
-        draw_info(COLOR_WHITE, op, "You suddenly feel very confused!");
-    }
-
-    SET_FLAG(op, FLAG_CONFUSED);
+    tmp->speed_left = 0;
+    esrv_update_item(UPD_EXTRA, tmp);
 }
 
 /**
@@ -982,8 +988,9 @@ void confuse_living(object *op)
  * @param op Victim.
  * @param hitter Who is attacking.
  * @param dam Damage to deal. */
-static void blind_living(object *op, object *hitter, int dam)
+void blind_living(object *op, object *hitter, int dam)
 {
+    archetype *at;
     object *tmp, *owner;
 
     /* Save some work if we know it isn't going to affect the player */
@@ -991,11 +998,11 @@ static void blind_living(object *op, object *hitter, int dam)
         return;
     }
 
-    tmp = present_in_ob(BLINDNESS, op);
+    at = find_archetype("blindness");
+    tmp = present_arch_in_ob(at, op);
 
     if (!tmp) {
-        tmp = get_archetype("blindness");
-        SET_FLAG(tmp, FLAG_BLIND);
+        tmp = arch_to_object(at);
         SET_FLAG(tmp, FLAG_APPLIED);
         /* Use floats so we don't lose too much precision due to rounding
          * errors.
@@ -1004,13 +1011,15 @@ static void blind_living(object *op, object *hitter, int dam)
 
         tmp = insert_ob_in_ob(tmp, op);
 
-        if (hitter->owner) {
-            owner = get_owner(hitter);
-        } else {
-            owner = hitter;
-        }
+        if (hitter != op) {
+            if (hitter->owner) {
+                owner = get_owner(hitter);
+            } else {
+                owner = hitter;
+            }
 
-        draw_info_format(COLOR_WHITE, owner, "Your attack blinds %s!", query_name(op, NULL));
+            draw_info_format(COLOR_WHITE, owner, "Your attack blinds %s!", query_name(op, NULL));
+        }
     }
 
     tmp->stats.food += dam;
@@ -1018,6 +1027,9 @@ static void blind_living(object *op, object *hitter, int dam)
     if (tmp->stats.food > 10) {
         tmp->stats.food = 10;
     }
+
+    tmp->speed_left = 0;
+    esrv_update_item(UPD_EXTRA, tmp);
 }
 
 /**
@@ -1097,6 +1109,15 @@ static int adj_attackroll(object *hitter, object *target)
     /* If we attack at a different 'altitude' it's harder */
     if (QUERY_FLAG(attacker, FLAG_FLYING) != QUERY_FLAG(target, FLAG_FLYING)) {
         adjust -= 2;
+    }
+
+    if (hitter->direction == target->direction) {
+        /* Backstab */
+        adjust += 5;
+    } else if (hitter->direction == absdir(target->direction - 1) ||
+            hitter->direction == absdir(target->direction + 1)) {
+        /* Sidestab */
+        adjust += 2;
     }
 
     return adjust;

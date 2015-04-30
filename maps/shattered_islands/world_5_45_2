@@ -1,0 +1,398 @@
+arch map
+name Asteria
+msg
+Created:  2015-04-26 emperorbma
+Modified: 2015-04-26 emperorbma
+endmsg
+width 24
+height 24
+difficulty 1
+darkness -1
+outdoor 1
+bg_music chether.mid
+region asteria
+end
+arch floor_sblack1
+x 14
+y 9
+end
+arch map_info
+name asteria_court
+hp 3
+sp 7
+is_magical 1
+x 14
+y 9
+end
+arch floor_sblack1
+x 14
+y 10
+end
+arch floor_sblack1
+x 14
+y 11
+end
+arch floor_sblack1
+x 14
+y 12
+end
+arch floor_sblack1
+x 14
+y 13
+end
+arch floor_sblack1
+x 14
+y 14
+end
+arch floor_sblack1
+x 14
+y 15
+end
+arch floor_sblack1
+x 14
+y 16
+end
+arch floor_sblack1
+x 15
+y 9
+end
+arch floor_sblack1
+x 15
+y 10
+end
+arch floor_sblack1
+x 15
+y 11
+end
+arch floor_sblack1
+x 15
+y 12
+end
+arch floor_sblack1
+x 15
+y 13
+end
+arch floor_sblack1
+x 15
+y 14
+end
+arch floor_sblack1
+x 15
+y 15
+end
+arch floor_sblack1
+x 15
+y 16
+end
+arch floor_sblack1
+x 16
+y 9
+end
+arch floor_sblack1
+x 16
+y 10
+end
+arch floor_sblack1
+x 16
+y 11
+end
+arch floor_sblack1
+x 16
+y 12
+end
+arch floor_sblack1
+x 16
+y 13
+end
+arch floor_sblack1
+x 16
+y 14
+end
+arch floor_sblack1
+x 16
+y 15
+end
+arch floor_sblack1
+x 16
+y 16
+end
+arch floor_sblack1
+x 17
+y 9
+end
+arch floor_sblack1
+x 17
+y 10
+end
+arch floor_sblack1
+x 17
+y 11
+end
+arch floor_sblack1
+x 17
+y 12
+end
+arch floor_sblack1
+x 17
+y 13
+end
+arch floor_sblack1
+x 17
+y 14
+end
+arch floor_sblack1
+x 17
+y 15
+end
+arch floor_sblack1
+x 17
+y 16
+end
+arch floor_sblack1
+x 18
+y 9
+end
+arch map_info
+name asteria_court
+hp 5
+sp 8
+is_magical 1
+x 18
+y 9
+end
+arch floor_sblack1
+x 18
+y 10
+end
+arch floor_sblack1
+x 18
+y 11
+end
+arch floor_sblack1
+x 18
+y 12
+end
+arch floor_sblack1
+x 18
+y 13
+end
+arch floor_sblack1
+x 18
+y 14
+end
+arch floor_sblack1
+x 18
+y 15
+end
+arch floor_sblack1
+x 18
+y 16
+end
+arch floor_sblack1
+x 18
+y 17
+end
+arch floor_sblack1
+x 18
+y 18
+end
+arch floor_sblack1
+x 19
+y 9
+end
+arch floor_sblack1
+x 19
+y 10
+end
+arch floor_sblack1
+x 19
+y 11
+end
+arch floor_sblack1
+x 19
+y 12
+end
+arch floor_sblack1
+x 19
+y 13
+end
+arch floor_sblack1
+x 19
+y 14
+end
+arch floor_sblack1
+x 19
+y 15
+end
+arch floor_sblack1
+x 19
+y 16
+end
+arch floor_sblack1
+x 19
+y 17
+end
+arch floor_sblack1
+x 19
+y 18
+end
+arch floor_sblack1
+x 20
+y 9
+end
+arch floor_sblack1
+x 20
+y 10
+end
+arch floor_sblack1
+x 20
+y 11
+end
+arch floor_sblack1
+x 20
+y 12
+end
+arch floor_sblack1
+x 20
+y 13
+end
+arch floor_sblack1
+x 20
+y 14
+end
+arch floor_sblack1
+x 20
+y 15
+end
+arch floor_sblack1
+x 20
+y 16
+end
+arch floor_sblack1
+x 20
+y 17
+end
+arch floor_sblack1
+x 20
+y 18
+end
+arch floor_sblack1
+x 21
+y 9
+end
+arch floor_sblack1
+x 21
+y 10
+end
+arch floor_sblack1
+x 21
+y 11
+end
+arch floor_sblack1
+x 21
+y 12
+end
+arch floor_sblack1
+x 21
+y 13
+end
+arch floor_sblack1
+x 21
+y 14
+end
+arch floor_sblack1
+x 21
+y 15
+end
+arch floor_sblack1
+x 21
+y 16
+end
+arch floor_sblack1
+x 21
+y 17
+end
+arch floor_sblack1
+x 21
+y 18
+end
+arch floor_sblack1
+x 22
+y 9
+end
+arch floor_sblack1
+x 22
+y 10
+end
+arch floor_sblack1
+x 22
+y 11
+end
+arch floor_sblack1
+x 22
+y 12
+end
+arch floor_sblack1
+x 22
+y 13
+end
+arch floor_sblack1
+x 22
+y 14
+end
+arch floor_sblack1
+x 22
+y 15
+end
+arch floor_sblack1
+x 22
+y 16
+end
+arch floor_sblack1
+x 22
+y 17
+end
+arch floor_sblack1
+x 22
+y 18
+end
+arch floor_sblack1
+x 23
+y 9
+end
+arch floor_sblack1
+x 23
+y 10
+end
+arch floor_sblack1
+x 23
+y 11
+end
+arch floor_sblack1
+x 23
+y 12
+end
+arch floor_sblack1
+x 23
+y 13
+end
+arch floor_sblack1
+x 23
+y 14
+end
+arch floor_sblack1
+x 23
+y 15
+end
+arch floor_sblack1
+x 23
+y 16
+end
+arch floor_sblack1
+x 23
+y 17
+end
+arch floor_sblack1
+x 23
+y 18
+end

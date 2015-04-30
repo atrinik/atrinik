@@ -29,6 +29,7 @@
 #include <global.h>
 #include <loader.h>
 #include <toolkit_string.h>
+#include <monster_data.h>
 
 /** List of active objects that need to be processed */
 object *active_objects;
@@ -1422,6 +1423,10 @@ void object_destroy(object *ob)
             sound_ambient_deinit(ob);
             break;
 
+        case MONSTER:
+            monster_data_deinit(ob);
+            break;
+
         default:
             logger_print(LOG(BUG), "custom attrset found in unsupported object %s (type %d)", STRING_OBJ_NAME(ob), ob->type);
         }
@@ -1680,9 +1685,67 @@ object *insert_ob_in_map(object *op, mapstruct *m, object *originator, int flag)
         SET_OR_CLEAR_MULTI_FLAG_IF_CLONE(op, FLAG_BLOCKSVIEW);
     }
 
+    int fall_floors = 0;
+
+    if (flag & INS_FALL_THROUGH) {
+        mapstruct *tiled;
+        object *floor, *floor_tmp;
+        int z_highest, sub_layer, z;
+        bool found_floor;
+
+        for (tiled = m; tiled != NULL; tiled =
+                get_map_from_tiled(tiled, TILED_DOWN)) {
+            floor = GET_MAP_OB_LAYER(tiled, op->x, op->y, LAYER_FLOOR,
+                                     op->sub_layer);
+            z = floor != NULL ? floor->z : 0;
+            z_highest = 0;
+            sub_layer = 0;
+            found_floor = false;
+
+            if (tiled != m) {
+                fall_floors++;
+            }
+
+            FOR_MAP_LAYER_BEGIN(tiled, op->x, op->y, LAYER_FLOOR, -1,
+                                floor_tmp) {
+                found_floor = true;
+
+                if (floor_tmp->z - z > MOVE_MAX_HEIGHT_DIFF) {
+                    continue;
+                }
+
+                if (floor_tmp->z > z_highest) {
+                    z_highest = floor_tmp->z;
+                    sub_layer = floor_tmp->sub_layer;
+                }
+            } FOR_MAP_LAYER_END
+
+            if (found_floor || QUERY_FLAG(op, FLAG_FLYING)) {
+                break;
+            }
+        }
+
+        if (found_floor) {
+            if (fall_floors != 0 && object_blocked(op, tiled, op->x, op->y)) {
+                int i = find_first_free_spot(op->arch, op, tiled, op->x, op->y);
+
+                if (i != -1) {
+                    op->x += freearr_x[i];
+                    op->y += freearr_y[i];
+                }
+            }
+
+            op->sub_layer = sub_layer;
+            m = tiled;
+        }
+
+        flag &= ~INS_FALL_THROUGH;
+    }
+
     if (op->more) {
         op->more->x = HEAD(op)->x + op->more->arch->clone.x;
         op->more->y = HEAD(op)->y + op->more->arch->clone.y;
+        op->more->sub_layer = HEAD(op)->sub_layer;
 
         if (insert_ob_in_map(op->more, m, originator, flag) == NULL) {
             return NULL;
@@ -1801,6 +1864,33 @@ object *insert_ob_in_map(object *op, mapstruct *m, object *originator, int flag)
             if (object_check_move_on(tmp, originator)) {
                 return NULL;
             }
+        }
+    }
+
+    if (fall_floors != 0 && IS_LIVE(op) && ((MAX_STAT - op->stats.Dex +
+            MAX_STAT - rndm(1, op->stats.Dex))) * MAX(1, fall_floors - 1) >=
+            MAX_STAT / 4) {
+        object *damager;
+        tag_t op_tag;
+
+        damager = get_archetype("falling");
+        damager->level = op->level;
+        damager->stats.dam = ((op->weight + op->carrying) / 2500 *
+                MIN(10, fall_floors)) * falling_mitigation[op->stats.Dex];
+
+        if (damager->stats.dam <= 0) {
+            damager->stats.dam = 1;
+        }
+
+        damager->stats.dam = rndm(damager->stats.dam / 2 + 1,
+                damager->stats.dam + 1) - 1;
+
+        op_tag = op->count;
+        hit_player(op, damager->stats.dam, damager);
+        object_destroy(damager);
+
+        if (was_destroyed(op, op_tag)) {
+            return NULL;
         }
     }
 
@@ -2817,6 +2907,10 @@ int item_matched_string(object *pl, object *op, const char *name)
     /* strtok is destructive to name */
     snprintf(VS(local_name), "%s", name);
 
+    if (pl->type == PLAYER) {
+        CONTR(pl)->count = op->nrof;
+    }
+
     for (cp = strtok(local_name, ","); cp; cp = strtok(NULL, ",")) {
         /* Get rid of spaces */
         while (cp[0] == ' ') {
@@ -3195,7 +3289,7 @@ int object_enter_map(object *op, object *exit_ob, mapstruct *m, int x, int y, ui
     }
 
     if (exit_ob != NULL && exit_ob->stats.dam && op->type == PLAYER) {
-        hit_player(op, exit_ob->stats.dam, exit_ob, AT_INTERNAL);
+        hit_player(op, exit_ob->stats.dam, exit_ob);
     }
 
     return 1;

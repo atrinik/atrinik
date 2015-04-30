@@ -1,0 +1,46 @@
+arch map
+name Sewers
+msg
+Created:  2010-06-06 Edwin Miltenburg
+Modified: 2015-04-29 Alex Tokar
+endmsg
+width 24
+height 24
+difficulty 7
+darkness 2
+bg_music sewers.ogg
+region brynknot
+end
+arch water_lt
+end
+arch water_lt
+y 1
+end
+arch water_lt4
+y 2
+end
+arch water_lt4
+y 3
+end
+arch blocked
+y 4
+end
+arch blocked
+x 1
+end
+arch blocked
+x 1
+y 1
+end
+arch blocked
+x 1
+y 2
+end
+arch blocked
+x 1
+y 3
+end
+arch blocked
+x 1
+y 4
+end

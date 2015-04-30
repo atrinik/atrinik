@@ -1,0 +1,447 @@
+arch map
+name Sewers
+msg
+Created:  2010-06-06 Edwin Miltenburg
+Modified: 2015-04-29 Alex Tokar
+endmsg
+width 24
+height 24
+difficulty 7
+darkness 1
+bg_music sewers.ogg
+region brynknot
+end
+arch blocked
+end
+arch wall_dungeon_3
+end
+arch plant2_wall.151
+direction 7
+end
+arch blocked
+y 1
+end
+arch wall_dungeon_3
+y 1
+end
+arch plant2_wall.151
+direction 7
+y 1
+end
+arch blocked
+y 2
+end
+arch wall_dungeon_3
+y 2
+end
+arch blocked
+y 3
+end
+arch wall_dungeon_3
+y 3
+end
+arch plant2_wall.151
+direction 7
+y 3
+end
+arch blocked
+y 4
+end
+arch wall_dungeon_3
+y 4
+end
+arch floor_cave1
+x 1
+end
+arch plant7
+x 1
+end
+arch floor_cave6
+x 1
+y 1
+end
+arch plant7
+x 1
+y 1
+end
+arch floor_cave2
+x 1
+y 2
+end
+arch plant8
+x 1
+y 2
+end
+arch floor_cave6
+x 1
+y 3
+end
+arch mushroom_spot1
+glow_radius 4
+x 1
+y 3
+end
+arch floor_cave5
+x 1
+y 4
+end
+arch wall_dungeon_1
+x 1
+y 4
+end
+arch plant2_wall.151
+x 1
+y 4
+end
+arch floor_cave2
+x 2
+end
+arch wall_dungeon_3
+x 2
+end
+arch plant2_wall.151
+direction 7
+x 2
+end
+arch floor_cave6
+x 2
+y 1
+end
+arch wall_dungeon_3
+x 2
+y 1
+end
+arch floor_cave1
+x 2
+y 2
+end
+arch plant6
+x 2
+y 2
+end
+arch floor_cave2
+x 2
+y 3
+end
+arch plant6
+x 2
+y 3
+end
+arch floor_cave1
+x 2
+y 4
+end
+arch wall_dungeon_1
+x 2
+y 4
+end
+arch blocked
+x 3
+end
+arch wall_dungeon_3
+x 3
+end
+arch plant2_wall.151
+direction 7
+x 3
+end
+arch blocked
+x 3
+y 1
+end
+arch wall_dungeon_4
+x 3
+y 1
+end
+arch plant2_wall.151
+x 3
+y 1
+end
+arch floor_cave1
+x 3
+y 2
+end
+arch plant7
+x 3
+y 2
+end
+arch floor_cave1
+x 3
+y 3
+end
+arch plant7
+x 3
+y 3
+end
+arch floor_cave5
+x 3
+y 4
+end
+arch wall_dungeon_1
+x 3
+y 4
+end
+arch plant2_wall.151
+x 3
+y 4
+end
+arch floor_cave2
+x 4
+end
+arch plant6
+x 4
+end
+arch floor_cave1
+x 4
+y 1
+end
+arch plant7
+x 4
+y 1
+end
+arch floor_cave2
+x 4
+y 2
+end
+arch plant7
+x 4
+y 2
+end
+arch floor_cave2
+x 4
+y 3
+end
+arch plant7
+x 4
+y 3
+end
+arch floor_cave2
+x 4
+y 4
+end
+arch wall_dungeon_1
+x 4
+y 4
+end
+arch plant2_wall.151
+x 4
+y 4
+end
+arch floor_cave6
+x 5
+end
+arch plant8
+x 5
+end
+arch floor_cave5
+x 5
+y 1
+end
+arch plant7
+x 5
+y 1
+end
+arch floor_cave6
+x 5
+y 2
+end
+arch plant8
+x 5
+y 2
+end
+arch floor_cave5
+x 5
+y 3
+end
+arch plant8
+x 5
+y 3
+end
+arch floor_cave2
+x 5
+y 4
+end
+arch wall_dungeon_1
+x 5
+y 4
+end
+arch floor_cave6
+x 6
+end
+arch spawn_point
+x 6
+arch crocodile
+item_condition 6
+exp 107
+dam 63
+wc 5
+maxhp 75
+ac 13
+can_see_in_dark 1
+wis 5
+protect_impact 10
+protect_slash 7
+protect_cleave 5
+protect_pierce 7
+type 83
+arch quest_container
+name redhelm_lost_pouch
+race Redhelm's Lost Pouch
+sub_type 3
+arch redhelm_quest_pouch
+arch amethyst_small
+end
+arch diamond_poor
+end
+arch ruby_poor
+end
+arch aquamarine_small
+end
+arch opal_small
+end
+arch jade_small
+end
+arch sapphire_poor
+end
+arch zircon_small
+end
+arch jasper_small
+end
+arch emerald_small
+end
+end
+end
+end
+end
+arch floor_cave2
+x 6
+y 1
+end
+arch plant6
+x 6
+y 1
+end
+arch floor_cave2
+x 6
+y 2
+end
+arch plant8
+x 6
+y 2
+end
+arch floor_cave2
+x 6
+y 3
+end
+arch plant7
+x 6
+y 3
+end
+arch floor_cave5
+x 6
+y 4
+end
+arch wall_dungeon_1
+x 6
+y 4
+end
+arch plant2_wall.151
+x 6
+y 4
+end
+arch floor_cave5
+x 7
+end
+arch plant8
+x 7
+end
+arch floor_cave1
+x 7
+y 1
+end
+arch plant6
+x 7
+y 1
+end
+arch floor_cave2
+x 7
+y 2
+end
+arch plant6
+x 7
+y 2
+end
+arch floor_cave5
+x 7
+y 3
+end
+arch mushroom_spot2
+glow_radius 4
+x 7
+y 3
+end
+arch floor_cave2
+x 7
+y 4
+end
+arch wall_dungeon_1
+x 7
+y 4
+end
+arch plant2_wall.151
+x 7
+y 4
+end
+arch floor_cave5
+x 8
+end
+arch wall_dungeon_3
+x 8
+end
+arch floor_cave2
+x 8
+y 1
+end
+arch wall_dungeon_3
+x 8
+y 1
+end
+arch plant2_wall.151
+direction 7
+x 8
+y 1
+end
+arch floor_cave6
+x 8
+y 2
+end
+arch wall_dungeon_3
+x 8
+y 2
+end
+arch plant2_wall.151
+direction 7
+x 8
+y 2
+end
+arch floor_cave6
+x 8
+y 3
+end
+arch wall_dungeon_3
+x 8
+y 3
+end
+arch floor_cave6
+x 8
+y 4
+end
+arch wall_dungeon_4
+x 8
+y 4
+end
+arch plant2_wall.151
+direction 7
+x 8
+y 4
+end

@@ -1,0 +1,821 @@
+arch map
+name The City of Greyton
+msg
+Created:  2015-04-26 Alex Tokar
+Modified: 2015-04-26 Alex Tokar
+endmsg
+width 24
+height 24
+difficulty 1
+darkness -1
+outdoor 1
+no_harm 1
+bg_music town_music.ogg
+region greyton
+end
+arch floor_flagm2
+end
+arch wall_flagstone1_w.131
+z 9
+align -18
+end
+arch map_info
+name greyton_wall
+hp 4
+sp 9
+cursed 1
+end
+arch floor_flagm1
+y 1
+end
+arch wall_fstone_round.102
+y 1
+end
+arch floor_flagm2
+y 2
+end
+arch fwall_fstone2
+y 2
+end
+arch floor_flagm4
+y 3
+end
+arch fwall_fstone2
+y 3
+end
+arch floor_flagm2
+y 4
+end
+arch wall_fstone_round.104
+y 4
+end
+arch floor_flagm3
+y 5
+end
+arch wall_flagstone1_w.131
+z 9
+align -18
+y 5
+end
+arch floor_flagm1
+y 6
+end
+arch wall_fstone_round.102
+y 6
+end
+arch floor_flagm4
+y 7
+end
+arch fwall_fstone2
+y 7
+end
+arch trans
+y 8
+end
+arch fwall_fstone2b
+y 8
+end
+arch trans
+y 15
+end
+arch fwall_fstone2c
+y 15
+end
+arch map_info
+name greyton_wall
+hp 4
+sp 8
+cursed 1
+y 15
+end
+arch floor_flagm1
+y 16
+end
+arch fwall_fstone2
+y 16
+end
+arch floor_flagm2
+y 17
+end
+arch wall_fstone_round.104
+y 17
+end
+arch floor_flagm1
+y 18
+end
+arch wall_flagstone1_w.131
+z 9
+align -18
+y 18
+end
+arch floor_flagm1
+y 19
+end
+arch wall_fstone_round.102
+y 19
+end
+arch floor_flagm1
+y 20
+end
+arch fwall_fstone2
+y 20
+end
+arch floor_flagm1
+y 21
+end
+arch fwall_fstone2
+y 21
+end
+arch floor_flagm1
+y 22
+end
+arch wall_fstone_round.104
+y 22
+end
+arch floor_flagm1
+y 23
+end
+arch wall_flagstone1_w.131
+z 9
+align -18
+y 23
+end
+arch floor_flagm3
+x 1
+end
+arch floor_flagm2
+x 1
+y 1
+end
+arch torch_wall_1
+direction 7
+x 1
+y 1
+end
+arch floor_flagm4
+x 1
+y 2
+end
+arch floor_flagm4
+x 1
+y 3
+end
+arch ladder_down2
+direction 7
+x 1
+y 3
+end
+arch floor_flagm2
+x 1
+y 4
+end
+arch torch_wall_1
+direction 7
+x 1
+y 4
+end
+arch floor_flagm4
+x 1
+y 5
+end
+arch floor_flagm1
+x 1
+y 6
+end
+arch torch_wall_1
+direction 7
+x 1
+y 6
+end
+arch floor_flagm1
+x 1
+y 7
+end
+arch ladder_up
+direction 7
+x 1
+y 7
+end
+arch floor_flagm1
+x 1
+y 8
+end
+arch fwall_fstone2a
+x 1
+y 8
+end
+arch trans
+x 1
+y 9
+end
+arch fwall_fstone2b
+x 1
+y 9
+end
+arch map_info
+name greyton_gate
+is_magical 1
+x 1
+y 9
+end
+arch trans
+x 1
+y 14
+end
+arch fwall_fstone2c
+x 1
+y 14
+end
+arch map_info
+name greyton_gate
+is_magical 1
+x 1
+y 14
+end
+arch floor_flagm1
+x 1
+y 15
+end
+arch fwall_fstone2d
+x 1
+y 15
+end
+arch floor_flagm4
+x 1
+y 16
+end
+arch ladder_up
+direction 7
+x 1
+y 16
+end
+arch floor_flagm4
+x 1
+y 17
+end
+arch torch_wall_1
+direction 7
+x 1
+y 17
+end
+arch floor_flagm1
+x 1
+y 18
+end
+arch floor_flagm1
+x 1
+y 19
+end
+arch torch_wall_1
+direction 7
+x 1
+y 19
+end
+arch floor_flagm1
+x 1
+y 20
+end
+arch ladder_down2
+direction 7
+x 1
+y 20
+end
+arch floor_flagm1
+x 1
+y 21
+end
+arch floor_flagm1
+x 1
+y 22
+end
+arch torch_wall_1
+direction 7
+x 1
+y 22
+end
+arch floor_flagm4
+x 1
+y 23
+end
+arch floor_flagm1
+x 2
+end
+arch floor_flagm4
+x 2
+y 1
+end
+arch floor_flagm2
+x 2
+y 2
+end
+arch floor_flagm1
+x 2
+y 3
+end
+arch floor_flagm1
+x 2
+y 4
+end
+arch floor_flagm1
+x 2
+y 5
+end
+arch floor_flagm1
+x 2
+y 6
+end
+arch floor_flagm1
+x 2
+y 7
+end
+arch floor_flagm1
+x 2
+y 8
+end
+arch floor_fs_grey1d
+x 2
+y 9
+end
+arch fwall_fstone2
+hidden 1
+x 2
+y 9
+end
+arch map_info
+name greyton_gate
+sp 5
+is_magical 1
+x 2
+y 9
+end
+arch floor_fs_grey1a
+x 2
+y 10
+end
+arch fwall_fstone2
+hidden 1
+x 2
+y 10
+end
+arch floor_fs_grey1a
+x 2
+y 11
+end
+arch fwall_fstone2
+hidden 1
+x 2
+y 11
+end
+arch floor_fs_grey1a
+x 2
+y 12
+end
+arch fwall_fstone2
+hidden 1
+x 2
+y 12
+end
+arch floor_fs_grey1a
+x 2
+y 13
+end
+arch fwall_fstone2
+hidden 1
+x 2
+y 13
+end
+arch floor_fs_grey1b
+x 2
+y 14
+end
+arch fwall_fstone2
+hidden 1
+x 2
+y 14
+end
+arch floor_flagm2
+x 2
+y 15
+end
+arch floor_flagm2
+x 2
+y 16
+end
+arch floor_flagm4
+x 2
+y 17
+end
+arch floor_flagm1
+x 2
+y 18
+end
+arch floor_flagm4
+x 2
+y 19
+end
+arch floor_flagm2
+x 2
+y 20
+end
+arch floor_flagm4
+x 2
+y 21
+end
+arch floor_flagm2
+x 2
+y 22
+end
+arch floor_flagm1
+x 2
+y 23
+end
+arch floor_flagm1
+x 3
+end
+arch floor_flagm3
+x 3
+y 1
+end
+arch floor_flagm2
+x 3
+y 2
+end
+arch floor_flagm4
+x 3
+y 3
+end
+arch floor_flagm1
+x 3
+y 4
+end
+arch floor_flagm1
+x 3
+y 5
+end
+arch floor_flagm4
+x 3
+y 6
+end
+arch floor_flagm1
+x 3
+y 7
+end
+arch floor_flagm2
+x 3
+y 8
+end
+arch fwall_fstone2c
+x 3
+y 8
+end
+arch trans
+x 3
+y 9
+end
+arch fwall_fstone2d
+x 3
+y 9
+end
+arch map_info
+name greyton_gate
+is_magical 1
+x 3
+y 9
+end
+arch trans
+x 3
+y 14
+end
+arch fwall_fstone2a
+x 3
+y 14
+end
+arch map_info
+name greyton_gate
+is_magical 1
+x 3
+y 14
+end
+arch floor_flagm1
+x 3
+y 15
+end
+arch fwall_fstone2b
+x 3
+y 15
+end
+arch floor_flagm4
+x 3
+y 16
+end
+arch floor_flagm3
+x 3
+y 17
+end
+arch floor_flagm1
+x 3
+y 18
+end
+arch floor_flagm1
+x 3
+y 19
+end
+arch floor_flagm4
+x 3
+y 20
+end
+arch floor_flagm2
+x 3
+y 21
+end
+arch floor_flagm1
+x 3
+y 22
+end
+arch floor_flagm4
+x 3
+y 23
+end
+arch floor_flagm4
+x 4
+end
+arch wall_flagstone1_w.131
+x 4
+end
+arch floor_flagm4
+x 4
+y 1
+end
+arch wall_fstone_round.108
+x 4
+y 1
+end
+arch floor_flagm4
+x 4
+y 2
+end
+arch fwall_fstone2
+x 4
+y 2
+end
+arch floor_flagm4
+x 4
+y 3
+end
+arch fwall_fstone2
+x 4
+y 3
+end
+arch floor_flagm1
+x 4
+y 4
+end
+arch wall_fstone_round.106
+x 4
+y 4
+end
+arch floor_flagm1
+x 4
+y 5
+end
+arch wall_flagstone1_w.131
+x 4
+y 5
+end
+arch floor_flagm1
+x 4
+y 6
+end
+arch wall_fstone_round.108
+x 4
+y 6
+end
+arch floor_flagm2
+x 4
+y 7
+end
+arch fwall_fstone2
+x 4
+y 7
+end
+arch trans
+x 4
+y 8
+end
+arch fwall_fstone2d
+x 4
+y 8
+end
+arch trans
+x 4
+y 15
+end
+arch fwall_fstone2a
+x 4
+y 15
+end
+arch floor_flagm1
+x 4
+y 16
+end
+arch fwall_fstone2
+x 4
+y 16
+end
+arch floor_flagm4
+x 4
+y 17
+end
+arch wall_fstone_round.106
+x 4
+y 17
+end
+arch floor_flagm4
+x 4
+y 18
+end
+arch wall_flagstone1_w.131
+x 4
+y 18
+end
+arch floor_flagm2
+x 4
+y 19
+end
+arch wall_fstone_round.108
+x 4
+y 19
+end
+arch floor_flagm4
+x 4
+y 20
+end
+arch fwall_fstone2
+x 4
+y 20
+end
+arch floor_flagm4
+x 4
+y 21
+end
+arch fwall_fstone2
+x 4
+y 21
+end
+arch floor_flagm4
+x 4
+y 22
+end
+arch fwall_fstone2
+x 4
+y 22
+end
+arch floor_flagm1
+x 4
+y 23
+end
+arch wall_flagstone1_w.131
+x 4
+y 23
+end
+arch roof_brick
+direction 3
+x 6
+end
+arch roof_brick_gray
+direction 3
+x 6
+y 22
+end
+arch roof_brick_gray
+direction 3
+x 6
+y 23
+end
+arch roof_brick
+x 7
+end
+arch roof_brick_gray
+direction 5
+x 7
+y 21
+end
+arch roof_brick_gray
+direction 7
+x 7
+y 22
+end
+arch roof_brick_gray
+direction 7
+x 7
+y 23
+end
+arch roof_brick
+x 8
+end
+arch roof_brick_gray
+direction 5
+x 8
+y 21
+end
+arch roof_brick_gray
+direction 7
+x 8
+y 22
+end
+arch roof_brick_gray
+direction 7
+x 8
+y 23
+end
+arch roof_brick
+x 9
+end
+arch roof_brick_gray
+direction 5
+x 9
+y 21
+end
+arch roof_brick_gray
+direction 7
+x 9
+y 22
+end
+arch roof_brick_gray
+direction 7
+x 9
+y 23
+end
+arch roof_brick
+x 10
+end
+arch roof_brick_gray
+direction 5
+x 10
+y 21
+end
+arch roof_brick_gray
+direction 7
+x 10
+y 22
+end
+arch roof_brick_gray
+direction 7
+x 10
+y 23
+end
+arch roof_brick
+x 11
+end
+arch roof_brick_gray
+direction 5
+x 11
+y 21
+end
+arch roof_brick_gray
+direction 7
+x 11
+y 22
+end
+arch roof_brick_gray
+direction 7
+x 11
+y 23
+end
+arch roof_brick
+x 12
+end
+arch roof_brick_gray
+direction 5
+x 12
+y 21
+end
+arch roof_brick_gray
+direction 7
+x 12
+y 22
+end
+arch roof_brick_gray
+direction 7
+x 12
+y 23
+end
+arch roof_brick
+direction 8
+x 13
+end
+arch roof_brick_gray
+direction 5
+x 13
+y 21
+end
+arch roof_brick_gray
+direction 7
+x 13
+y 22
+end
+arch roof_brick_gray
+direction 7
+x 13
+y 23
+end

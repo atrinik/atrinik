@@ -1,9 +1,13 @@
-===============================================================================
-= Atrinik Design Specification                                                =
-===============================================================================
+================================================================================
+= Atrinik Design Specification                                                 =
+================================================================================
  Atrinik Design Specification (ADS) refers to Atrinik documents related to
  design specifications. They reside in the ADS directory (full path: doc/ADS).
 
  Each ADS has a number that identifies what the specification is about. The
  following is a table of contents:
   - ADS-1: Atrinik Interface XML Documentation
+  - ADS-2: Atrinik Protocol Specification
+  - ADS-3: Atrinik Master Server Protocol Specification
+  - ADS-4: Atrinik Master Server Specification
+  - ADS-5: Atrinik Map File Naming Specification

@@ -4,10 +4,10 @@
 def main():
     # The rocks.
     rocks = [
-        ["sewers_a_aaab", 13, 13, "brynknot_sewers_a_rock_1"],
-        ["sewers_a_01ab", 0, 4, "brynknot_sewers_a_rock_2"],
-        ["sewers_a_02ab", 1, 19, "brynknot_sewers_a_rock_3"],
-        ["sewers_a_02ab", 0, 9, "brynknot_sewers_a_rock_4"],
+        ["world_0_71_-2", 13, 13, "brynknot_sewers_a_rock_1"],
+        ["world_1_71_-2", 0, 4, "brynknot_sewers_a_rock_2"],
+        ["world_2_71_-2", 1, 19, "brynknot_sewers_a_rock_3"],
+        ["world_2_71_-2", 0, 9, "brynknot_sewers_a_rock_4"],
     ]
 
     for rock in rocks:

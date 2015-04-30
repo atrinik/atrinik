@@ -2,7 +2,7 @@ arch map
 name Strakewood Island
 msg
 Created:  2009-08-09 Alex Tokar
-Modified: 2015-04-20 Alex Tokar
+Modified: 2015-04-21 Alex Tokar
 endmsg
 width 24
 height 24
@@ -1144,6 +1144,14 @@ arch wall_wood_8
 x 8
 y 3
 end
+arch map_info
+name asteria_breldor_hut
+hp 4
+sp 3
+cursed 1
+x 8
+y 3
+end
 arch grassd_4
 x 8
 y 4
@@ -1545,11 +1553,7 @@ arch plant_flower2
 x 11
 y 1
 end
-arch floor_sand_d1
-x 11
-y 2
-end
-arch grassd_m1
+arch grassd_3
 x 11
 y 2
 end
@@ -1557,7 +1561,7 @@ arch grassd_5
 x 11
 y 3
 end
-arch door_wood1
+arch wall_wood_1
 x 11
 y 3
 end
@@ -1653,14 +1657,13 @@ arch grassd_5
 x 11
 y 23
 end
-arch grassd_2
-x 12
-end
 arch floor_sand_d3
 x 12
-y 1
 end
 arch grassd_m1
+x 12
+end
+arch grassd_3
 x 12
 y 1
 end
@@ -1680,7 +1683,8 @@ arch floor_wood1b
 x 12
 y 4
 end
-arch wall_wood_3
+arch door_wood1
+direction 3
 x 12
 y 4
 end
@@ -1784,17 +1788,18 @@ arch plant1
 x 12
 y 23
 end
-arch floor_sand_d4
-x 13
-end
-arch grassd_m1
-x 13
-end
 arch grassd_2
+x 13
+end
+arch floor_sand_d3
 x 13
 y 1
 end
-arch grassd_1
+arch grassd_m1
+x 13
+y 1
+end
+arch grassd_3
 x 13
 y 2
 end
@@ -1802,11 +1807,19 @@ arch plant_flower5
 x 13
 y 2
 end
-arch grassd_1
+arch floor_sand_d1
 x 13
 y 3
 end
-arch grassd_2
+arch grassd_m1
+x 13
+y 3
+end
+arch floor_sand_d1
+x 13
+y 4
+end
+arch grassd_m1
 x 13
 y 4
 end
@@ -1902,10 +1915,10 @@ arch grassd_4
 x 13
 y 23
 end
-arch grassd_7
+arch floor_sand_d3
 x 14
 end
-arch plant16
+arch grassd_m1
 x 14
 end
 arch grassd_2

@@ -11,4 +11,5 @@ item_condition 100
 item_quality 100
 value 150
 weight 950
+can_stack 1
 end

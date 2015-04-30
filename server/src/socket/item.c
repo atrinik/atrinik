@@ -138,17 +138,29 @@ static void add_object_to_packet(packet_struct *packet, object *op, object *pl,
         packet_debug_data(packet, level + 1, "Quality");
 
         if (QUERY_FLAG(op, FLAG_IDENTIFIED)) {
+            uint8_t item_level, item_skill;
+
+            if (op->type == BOOK_SPELL && op->stats.sp >= 0 &&
+                    op->stats.sp < NROFREALSPELLS) {
+                spell_struct *spell = &spells[op->stats.sp];
+                item_level = spell->at->clone.level;
+                item_skill = SK_WIZARDRY_SPELLS + 1;
+            } else {
+                item_level = op->item_level;
+                item_skill = op->item_skill;
+            }
+
             packet_append_uint8(packet, op->item_quality);
             packet_debug_data(packet, level + 1, "Condition");
             packet_append_uint8(packet, op->item_condition);
             packet_debug_data(packet, level + 1, "Level");
-            packet_append_uint8(packet, op->item_level);
+            packet_append_uint8(packet, item_level);
 
             packet_debug_data(packet, level + 1, "Skill object ID");
 
-            if (op->item_skill && CONTR(pl)->skill_ptr[op->item_skill - 1]) {
-                packet_append_uint32(packet, CONTR(pl)->skill_ptr[
-                        op->item_skill - 1]->count);
+            if (item_skill && CONTR(pl)->skill_ptr[item_skill - 1] != NULL) {
+                packet_append_uint32(packet,
+                        CONTR(pl)->skill_ptr[item_skill - 1]->count);
             } else {
                 packet_append_uint32(packet, 0);
             }

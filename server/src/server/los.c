@@ -27,6 +27,7 @@
  * Line of sight related functions. */
 
 #include <global.h>
+#include <bresenham.h>
 
 /**
  * Distance must be less than this for the object to be blocked.

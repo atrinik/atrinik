@@ -35,6 +35,7 @@
 #include <global.h>
 #include <packet.h>
 #include <toolkit_string.h>
+#include <monster_data.h>
 
 #define GET_CLIENT_FLAGS(_O_)   ((_O_)->flags[0] & 0x7f)
 #define NO_FACE_SEND (-1)
@@ -572,7 +573,7 @@ static const char *get_playername_color(object *pl, object *op)
     return COLOR_WHITE;
 }
 
-void packet_append_map_name(packet_struct *packet, object *op, object *map_info)
+void packet_append_map_name(struct packet_struct *packet, object *op, object *map_info)
 {
     packet_debug_data(packet, 0, "Map name");
     packet_append_string(packet, "[b][o=#000000]");
@@ -580,13 +581,13 @@ void packet_append_map_name(packet_struct *packet, object *op, object *map_info)
     packet_append_string_terminated(packet, "[/o][/b]");
 }
 
-void packet_append_map_music(packet_struct *packet, object *op, object *map_info)
+void packet_append_map_music(struct packet_struct *packet, object *op, object *map_info)
 {
     packet_debug_data(packet, 0, "Map music");
     packet_append_string_terminated(packet, map_info && map_info->slaying ? map_info->slaying : (op->map->bg_music ? op->map->bg_music : "no_music"));
 }
 
-void packet_append_map_weather(packet_struct *packet, object *op, object *map_info)
+void packet_append_map_weather(struct packet_struct *packet, object *op, object *map_info)
 {
     packet_debug_data(packet, 0, "Map weather");
     packet_append_string_terminated(packet, map_info && map_info->title ? map_info->title : (op->map->weather ? op->map->weather : "none"));
@@ -861,6 +862,62 @@ void draw_client_map2(object *pl)
                 have_down = 1;
             }
 
+            bool override_rendering = true;
+            mapstruct *bottom_map = NULL;
+            int bottom_map_depth = 0;
+
+            for (tiled_dir = TILED_DOWN; tiled_dir >= TILED_UP; tiled_dir--) {
+                tiled = m;
+                tiled_depth = 0;
+
+                do {
+                    if (m != tiled) {
+                        tiled_depth += tiled_dir == TILED_UP ? 1 : -1;
+
+                        if (!MAP_TILE_IS_SAME_LEVEL(m, tiled_depth)) {
+                            break;
+                        }
+                    }
+
+                    msp_tmp = GET_MAP_SPACE_PTR(tiled, nx, ny);
+
+                    if (OBJECT_VALID(msp_tmp->map_info,
+                            msp_tmp->map_info_count) && msp_tmp->extra_flags &
+                            (MSP_EXTRA_IS_BUILDING | MSP_EXTRA_IS_BALCONY |
+                            MSP_EXTRA_IS_OVERLOOK)) {
+                        override_rendering = false;
+                    }
+
+                    if (tiled_dir == TILED_DOWN) {
+                        if (m != tiled) {
+                            bottom_map = tiled;
+                            bottom_map_depth--;
+                        }
+
+                        for (sub_layer = 0; sub_layer < NUM_SUB_LAYERS;
+                                sub_layer++) {
+                            tmp = GET_MAP_OB_LAYER(tiled, nx, ny, LAYER_FLOOR,
+                                    sub_layer);
+
+                            if (tmp == NULL) {
+                                continue;
+                            }
+
+                            if (tmp->z > zadj) {
+                                zadj = tmp->z;
+                            }
+                        }
+                    }
+
+                    tiled = get_map_from_tiled(tiled, tiled_dir);
+                } while (tiled != NULL);
+            }
+
+            if (override_rendering) {
+                tiled_dir = TILED_DOWN;
+                tiled_depth = bottom_map_depth;
+            }
+
             draw_up = m->tile_map[TILED_UP] != NULL;
 
             /* If the player is inside a building, and we're currently on the
@@ -882,33 +939,26 @@ void draw_client_map2(object *pl)
                 draw_up = 0;
             }
 
-            for (tiled = m; tiled != NULL; tiled = get_map_from_tiled(tiled,
-                    TILED_DOWN)) {
-                for (sub_layer = 0; sub_layer < NUM_SUB_LAYERS; sub_layer++) {
-                    tmp = GET_MAP_OB_LAYER(tiled, nx, ny, LAYER_FLOOR,
-                            sub_layer);
-
-                    if (tmp == NULL) {
-                        continue;
-                    }
-
-                    if (tmp->z > zadj) {
-                        zadj = tmp->z;
-                    }
-                }
-            }
-
             packet_layer = packet_new(0, 0, 128);
             num_layers = 0;
 
             /* Go through the visible layers. */
             for (layer = LAYER_FLOOR; layer <= NUM_LAYERS; layer++) {
-                tiled_depth = 0;
-                tiled_dir = TILED_UP;
+                if (!override_rendering) {
+                    tiled_depth = 0;
+                    tiled_dir = TILED_UP;
+                }
+
                 tiled = m;
 
-                for (sub_layer = NUM_SUB_LAYERS - 1; sub_layer >= 0;
-                        sub_layer--) {
+                for (int sub_layer_tmp = 0; sub_layer_tmp < NUM_SUB_LAYERS;
+                        sub_layer_tmp++) {
+                    if (override_rendering) {
+                        sub_layer = sub_layer_tmp;
+                    } else {
+                        sub_layer = NUM_SUB_LAYERS - 1 - sub_layer_tmp;
+                    }
+
                     tmp = NULL;
                     priority = 0;
                     is_building_wall = 0;
@@ -917,7 +967,8 @@ void draw_client_map2(object *pl)
                      * sending the upper floors of a building. */
                     force_draw_double = draw_up;
 
-                    if (sub_layer != 0 && tiled != NULL) {
+                    if (sub_layer != 0 && tiled != NULL &&
+                            !override_rendering) {
                         tiled = get_map_from_tiled(tiled, tiled_dir);
 
                         if (tiled == NULL && tiled_dir == TILED_UP) {
@@ -997,38 +1048,43 @@ void draw_client_map2(object *pl)
                                 tmp = NULL;
                             }
 
-                            if (tmp != NULL && layer == LAYER_FLOOR) {
-                                if (tiled_dir == TILED_DOWN) {
-                                    floor_z_down |= 1 << sub_layer;
-                                } else {
-                                    floor_z_up |= 1 << sub_layer;
-                                }
-                            }
-
-                            if (tmp != NULL && (layer != LAYER_WALL ||
-                                    tmp->sub_layer != 0)) {
-                                tiled_z = 1;
-
-                                if (layer != LAYER_FLOOR) {
-                                    if (tiled_dir == TILED_UP &&
-                                            (floor_z_up & (1 << sub_layer))) {
-                                        tiled_z = 0;
-                                    } else if (layer != LAYER_EFFECT &&
-                                            layer != LAYER_LIVING &&
-                                            layer != LAYER_ITEM &&
-                                            layer != LAYER_ITEM2 &&
-                                            tiled_dir == TILED_DOWN &&
-                                            (floor_z_down & (1 << sub_layer))) {
-                                        tiled_z = 0;
-                                    }
-                                }
-                            }
-
                             if (tmp != NULL && (msp_tmp->extra_flags &
                                     (MSP_EXTRA_IS_BUILDING |
                                     MSP_EXTRA_IS_BALCONY)) ==
                                     MSP_EXTRA_IS_BALCONY) {
                                 priority = 1;
+                            }
+                        }
+                    }
+
+                    if (bottom_map != NULL && override_rendering) {
+                        tmp = GET_MAP_SPACE_LAYER(GET_MAP_SPACE_PTR(bottom_map,
+                                nx, ny), layer, sub_layer);
+                    }
+
+                    if (tmp != NULL && layer == LAYER_FLOOR) {
+                        if (tiled_dir == TILED_DOWN) {
+                            floor_z_down |= 1 << sub_layer;
+                        } else {
+                            floor_z_up |= 1 << sub_layer;
+                        }
+                    }
+
+                    if (tmp != NULL && (layer != LAYER_WALL ||
+                            tmp->sub_layer != 0 || override_rendering)) {
+                        tiled_z = 1;
+
+                        if (layer != LAYER_FLOOR) {
+                            if (tiled_dir == TILED_UP &&
+                                    (floor_z_up & (1 << sub_layer))) {
+                                tiled_z = 0;
+                            } else if (layer != LAYER_EFFECT &&
+                                    layer != LAYER_LIVING &&
+                                    layer != LAYER_ITEM &&
+                                    layer != LAYER_ITEM2 &&
+                                    tiled_dir == TILED_DOWN &&
+                                    (floor_z_down & (1 << sub_layer))) {
+                                tiled_z = 0;
                             }
                         }
                     }
@@ -1041,12 +1097,6 @@ void draw_client_map2(object *pl)
                                 priority = 1;
                             }
                         }
-                    }
-
-                    /* Double check that we can actually see this object. */
-                    if (tmp != NULL && QUERY_FLAG(tmp, FLAG_HIDDEN) &&
-                            (tmp->layer != LAYER_WALL || tmp->sub_layer != 0)) {
-                        tmp = NULL;
                     }
 
                     /* This is done so that the player image is always shown
@@ -1274,6 +1324,7 @@ void draw_client_map2(object *pl)
                         object *head = tmp->head ? tmp->head : tmp, *face_obj;
                         tag_t target_object_count = 0;
                         uint8_t anim_speed, anim_facing, anim_flags;
+                        uint8_t client_flags;
 
                         face_obj = NULL;
                         anim_speed = anim_facing = anim_flags = 0;
@@ -1320,6 +1371,8 @@ void draw_client_map2(object *pl)
                             }
                         }
 
+                        client_flags = GET_CLIENT_FLAGS(head);
+
                         /* Player? So we want to send their name. */
                         if (tmp->type == PLAYER) {
                             flags |= MAP2_FLAG_NAME;
@@ -1336,7 +1389,9 @@ void draw_client_map2(object *pl)
                         /* Z position set? */
                         if (head->z != 0 || tiled_z || (zadj != 0 &&
                                 tmp->map->coords[2] != m->level_min &&
-                                layer == LAYER_FLOOR)) {
+                                (layer == LAYER_FLOOR || (QUERY_FLAG(head,
+                                FLAG_HIDDEN) && sub_layer == 0)) &&
+                                !override_rendering)) {
                             flags |= MAP2_FLAG_HEIGHT;
                         }
 
@@ -1378,6 +1433,13 @@ void draw_client_map2(object *pl)
                             flags2 |= MAP2_FLAG2_PRIORITY;
                         }
 
+                        if (head->type == DOOR || (layer == LAYER_LIVING &&
+                                !(GET_MAP_SPACE_PTR(head->map, head->x,
+                                head->y)->extra_flags &
+                                MSP_EXTRA_IS_BUILDING))) {
+                            flags2 |= MAP2_FLAG2_SECONDPASS;
+                        }
+
                         if (flags2) {
                             flags |= MAP2_FLAG_MORE;
                         }
@@ -1390,7 +1452,7 @@ void draw_client_map2(object *pl)
                         }
 
                         /* Now, check if we have cached this. */
-                        if (mp->faces[socket_layer] == face && mp->quick_pos[socket_layer] == quick_pos && mp->flags[socket_layer] == flags && (layer != LAYER_LIVING || !IS_LIVE(head) || (mp->probe == probe_val && mp->target_object_count == target_object_count)) && mp->anim_speed[socket_layer] == anim_speed && mp->anim_facing[socket_layer] == anim_facing && (layer != LAYER_LIVING || mp->anim_flags[sub_layer] == anim_flags) && (!(flags & MAP2_FLAG_NAME) || !CONTR(tmp)->socket.ext_title_flag)) {
+                        if (mp->faces[socket_layer] == face && mp->quick_pos[socket_layer] == quick_pos && mp->flags[socket_layer] == flags && (layer != LAYER_LIVING || !IS_LIVE(head) || (mp->probe == probe_val && mp->target_object_count == target_object_count)) && mp->anim_speed[socket_layer] == anim_speed && mp->anim_facing[socket_layer] == anim_facing && (layer != LAYER_LIVING || (mp->anim_flags[sub_layer] == anim_flags && mp->client_flags[sub_layer] == client_flags)) && (!(flags & MAP2_FLAG_NAME) || !CONTR(tmp)->socket.ext_title_flag)) {
                             continue;
                         }
 
@@ -1403,6 +1465,7 @@ void draw_client_map2(object *pl)
 
                         if (layer == LAYER_LIVING) {
                             mp->anim_flags[sub_layer] = anim_flags;
+                            mp->client_flags[sub_layer] = client_flags;
                         }
 
                         if (layer == LAYER_LIVING) {
@@ -1442,8 +1505,7 @@ void draw_client_map2(object *pl)
                         packet_debug_data(packet_layer, 2, "Face ID");
                         packet_append_uint16(packet_layer, face);
                         packet_debug_data(packet_layer, 2, "Client flags");
-                        packet_append_uint8(packet_layer,
-                                GET_CLIENT_FLAGS(head));
+                        packet_append_uint8(packet_layer, client_flags);
                         packet_debug_data(packet_layer, 2, "Socket flags");
                         packet_append_uint8(packet_layer, flags);
 
@@ -1488,7 +1550,9 @@ void draw_client_map2(object *pl)
                             z = head->z;
 
                             if (tmp->map->coords[2] != m->level_min &&
-                                    layer == LAYER_FLOOR) {
+                                    (layer == LAYER_FLOOR || (QUERY_FLAG(head,
+                                    FLAG_HIDDEN) && sub_layer == 0)) &&
+                                    !override_rendering) {
                                 z += zadj;
                             }
 
@@ -1499,7 +1563,9 @@ void draw_client_map2(object *pl)
                             if (tiled_z) {
                                 z += 46 * tiled_depth;
 
-                                if (layer != LAYER_FLOOR) {
+                                if (layer != LAYER_FLOOR &&
+                                        (layer != LAYER_WALL ||
+                                        !override_rendering)) {
                                     if (tiled_depth < 0) {
                                         z += MIN(zadj, 46 * -tiled_depth);
                                     } else {
@@ -1523,7 +1589,7 @@ void draw_client_map2(object *pl)
                         }
 
                         if (flags & MAP2_FLAG_MORE) {
-                            packet_debug_data(packet_layer, 2, "Extended info");
+                            packet_debug(packet_layer, 2, "Extended info:\n");
                             packet_debug_data(packet_layer, 3, "Flags");
                             packet_append_uint32(packet_layer, flags2);
 
@@ -2250,6 +2316,14 @@ void socket_command_talk(socket_struct *ns, player *pl, uint8_t *data, size_t le
             logger_print(LOG(CHAT), "[TALKTO] [%s] [%s] %s", pl->ob->name, npc->name, msg);
 
             if (talk_to_npc(pl->ob, npc, msg)) {
+                if (OBJECT_VALID(pl->talking_to, pl->talking_to_count) &&
+                        pl->talking_to != npc) {
+                    monster_data_dialogs_remove(pl->talking_to, pl->ob);
+                }
+
+                pl->talking_to = npc;
+                pl->talking_to_count = npc->count;
+
                 if (pl->target_object != npc || pl->target_object_count != npc->count) {
                     pl->target_object = npc;
                     pl->target_object_count = npc->count;
@@ -2289,6 +2363,12 @@ void socket_command_talk(socket_struct *ns, player *pl, uint8_t *data, size_t le
                 trigger_event(EVENT_SAY, pl->ob, tmp, NULL, msg, 0, 0, 0, 0);
                 break;
             }
+        }
+    } else if (type == CMD_TALK_CLOSE) {
+        if (OBJECT_VALID(pl->talking_to, pl->talking_to_count)) {
+            monster_data_dialogs_remove(pl->talking_to, pl->ob);
+            pl->talking_to = NULL;
+            pl->talking_to_count = 0;
         }
     } else {
         log(LOG(PACKET), "Invalid type: %d", type);

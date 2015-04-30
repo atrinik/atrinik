@@ -1,0 +1,797 @@
+arch map
+name The City of Greyton
+msg
+Created:  2015-04-26 Alex Tokar
+Modified: 2015-04-26 Alex Tokar
+endmsg
+width 24
+height 24
+difficulty 1
+darkness -1
+outdoor 1
+no_harm 1
+bg_music town_music.ogg
+region greyton
+end
+arch floor_fs_grey1c
+end
+arch wall_fortified_low.131
+z 9
+align 18
+end
+arch map_info
+name greyton_gate
+hp 23
+sp 4
+is_magical 1
+end
+arch floor_fs_grey1c
+y 1
+end
+arch brazier_lit
+glow_radius 5
+y 1
+end
+arch floor_fs_grey1b
+y 2
+end
+arch floor_fs_grey1c
+y 3
+end
+arch floor_fs_grey1d
+y 4
+end
+arch wall_fortified_low.131
+y 4
+end
+arch floor_fs_grey1c
+x 1
+end
+arch wall_fortified_low.131
+z 9
+align 18
+x 1
+end
+arch floor_fs_grey1b
+x 1
+y 1
+end
+arch floor_fs_grey1d
+x 1
+y 2
+end
+arch floor_fs_grey1c
+x 1
+y 3
+end
+arch floor_fs_grey1c
+x 1
+y 4
+end
+arch wall_fortified_low.131
+x 1
+y 4
+end
+arch floor_fs_grey1b
+x 2
+end
+arch wall_fortified_low.131
+z 9
+align 18
+x 2
+end
+arch floor_fs_grey1c
+x 2
+y 1
+end
+arch floor_fs_grey1c
+x 2
+y 2
+end
+arch floor_fs_grey1a
+x 2
+y 3
+end
+arch floor_fs_grey1c
+x 2
+y 4
+end
+arch wall_fortified_low.131
+x 2
+y 4
+end
+arch floor_fs_grey1c
+x 3
+end
+arch wall_fortified_low.131
+z 9
+align 18
+x 3
+end
+arch floor_fs_grey1c
+x 3
+y 1
+end
+arch floor_fs_grey1d
+x 3
+y 2
+end
+arch floor_fs_grey1d
+x 3
+y 3
+end
+arch floor_fs_grey1c
+x 3
+y 4
+end
+arch wall_fortified_low.131
+x 3
+y 4
+end
+arch floor_fs_grey1d
+x 4
+end
+arch wall_fortified_low.131
+z 9
+align 18
+x 4
+end
+arch floor_fs_grey1b
+x 4
+y 1
+end
+arch floor_fs_grey1a
+x 4
+y 2
+end
+arch floor_fs_grey1b
+x 4
+y 3
+end
+arch floor_fs_grey1b
+x 4
+y 4
+end
+arch wall_fortified_low.131
+x 4
+y 4
+end
+arch floor_fs_grey1c
+x 5
+end
+arch wall_fortified_low.131
+z 9
+align 18
+x 5
+end
+arch floor_fs_grey1a
+x 5
+y 1
+end
+arch brazier_lit
+glow_radius 5
+x 5
+y 1
+end
+arch floor_fs_grey1a
+x 5
+y 2
+end
+arch floor_fs_grey1a
+x 5
+y 3
+end
+arch floor_fs_grey1c
+x 5
+y 4
+end
+arch wall_fortified_low.131
+x 5
+y 4
+end
+arch floor_fs_grey1c
+x 6
+end
+arch wall_fortified_low.131
+z 9
+align 18
+x 6
+end
+arch floor_fs_grey1c
+x 6
+y 1
+end
+arch floor_fs_grey1d
+x 6
+y 2
+end
+arch floor_fs_grey1c
+x 6
+y 3
+end
+arch floor_fs_grey1c
+x 6
+y 4
+end
+arch wall_fortified_low.131
+x 6
+y 4
+end
+arch floor_fs_grey1c
+x 7
+end
+arch wall_fortified_low.131
+z 9
+align 18
+x 7
+end
+arch floor_fs_grey1c
+x 7
+y 1
+end
+arch floor_fs_grey1b
+x 7
+y 2
+end
+arch floor_fs_grey1b
+x 7
+y 3
+end
+arch floor_fs_grey1b
+x 7
+y 4
+end
+arch wall_fortified_low.131
+x 7
+y 4
+end
+arch floor_fs_grey1d
+x 8
+end
+arch wall_fortified_low.131
+z 9
+align 18
+x 8
+end
+arch floor_fs_grey1d
+x 8
+y 1
+end
+arch floor_fs_grey1b
+x 8
+y 2
+end
+arch floor_fs_grey1d
+x 8
+y 3
+end
+arch floor_fs_grey1d
+x 8
+y 4
+end
+arch wall_fortified_low.131
+x 8
+y 4
+end
+arch floor_fs_grey1b
+x 9
+end
+arch wall_fortified_low.131
+z 9
+align 18
+x 9
+end
+arch floor_fs_grey1a
+x 9
+y 1
+end
+arch spawn_point
+x 9
+y 1
+arch archer
+sub_layer 1
+align 5
+level 75
+dex 1
+can_use_bow 1
+unaggressive 0
+stand_still 1
+wis 12
+type 83
+direction 1
+arch ability_stone_throw
+race arrows
+sp 1
+wc 300
+wc_range 150
+magic 5
+end
+arch arrow_fey
+name elemental arrow
+no_pick 1
+sys_object 1
+dam 100
+last_grace 1
+last_sp 7
+wc 200
+magic 5
+attack_fire 100
+attack_electricity 100
+attack_cold 100
+attack_poison 100
+end
+arch event_obj
+sub_type 6
+race /python/generic/guard.py
+end
+end
+end
+arch floor_fs_grey1a
+x 9
+y 2
+end
+arch floor_fs_grey1d
+x 9
+y 3
+end
+arch floor_fs_grey1b
+x 9
+y 4
+end
+arch wall_fortified_low.131
+x 9
+y 4
+end
+arch floor_fs_grey1d
+x 10
+end
+arch wall_fortified_low.131
+z 9
+align 18
+x 10
+end
+arch floor_fs_grey1a
+x 10
+y 1
+end
+arch brazier_lit
+glow_radius 5
+x 10
+y 1
+end
+arch floor_fs_grey1c
+x 10
+y 2
+end
+arch floor_fs_grey1d
+x 10
+y 3
+end
+arch floor_fs_grey1c
+x 10
+y 4
+end
+arch wall_fortified_low.131
+x 10
+y 4
+end
+arch floor_fs_grey1b
+x 11
+end
+arch wall_fortified_low.131
+z 9
+align 18
+x 11
+end
+arch floor_fs_grey1d
+x 11
+y 1
+end
+arch floor_fs_grey1a
+x 11
+y 2
+end
+arch floor_fs_grey1b
+x 11
+y 3
+end
+arch floor_fs_grey1d
+x 11
+y 4
+end
+arch wall_fortified_low.131
+x 11
+y 4
+end
+arch floor_fs_grey1b
+x 12
+end
+arch wall_fortified_low.131
+z 9
+align 18
+x 12
+end
+arch floor_fs_grey1b
+x 12
+y 1
+end
+arch floor_fs_grey1b
+x 12
+y 2
+end
+arch floor_fs_grey1d
+x 12
+y 3
+end
+arch floor_fs_grey1b
+x 12
+y 4
+end
+arch wall_fortified_low.131
+x 12
+y 4
+end
+arch floor_fs_grey1d
+x 13
+end
+arch wall_fortified_low.131
+z 9
+align 18
+x 13
+end
+arch floor_fs_grey1b
+x 13
+y 1
+end
+arch brazier_lit
+glow_radius 5
+x 13
+y 1
+end
+arch floor_fs_grey1d
+x 13
+y 2
+end
+arch floor_fs_grey1d
+x 13
+y 3
+end
+arch floor_fs_grey1b
+x 13
+y 4
+end
+arch wall_fortified_low.131
+x 13
+y 4
+end
+arch floor_fs_grey1d
+x 14
+end
+arch wall_fortified_low.131
+z 9
+align 18
+x 14
+end
+arch floor_fs_grey1b
+x 14
+y 1
+end
+arch spawn_point
+x 14
+y 1
+arch archer
+sub_layer 1
+align 5
+level 75
+dex 1
+can_use_bow 1
+unaggressive 0
+stand_still 1
+wis 12
+type 83
+direction 1
+arch ability_stone_throw
+race arrows
+sp 1
+wc 300
+wc_range 150
+magic 5
+end
+arch arrow_fey
+name elemental arrow
+no_pick 1
+sys_object 1
+dam 100
+last_grace 1
+last_sp 7
+wc 200
+magic 5
+attack_fire 100
+attack_electricity 100
+attack_cold 100
+attack_poison 100
+end
+arch event_obj
+sub_type 6
+race /python/generic/guard.py
+end
+end
+end
+arch floor_fs_grey1c
+x 14
+y 2
+end
+arch floor_fs_grey1c
+x 14
+y 3
+end
+arch floor_fs_grey1c
+x 14
+y 4
+end
+arch wall_fortified_low.131
+x 14
+y 4
+end
+arch floor_fs_grey1d
+x 15
+end
+arch wall_fortified_low.131
+z 9
+align 18
+x 15
+end
+arch floor_fs_grey1a
+x 15
+y 1
+end
+arch floor_fs_grey1c
+x 15
+y 2
+end
+arch floor_fs_grey1b
+x 15
+y 3
+end
+arch floor_fs_grey1b
+x 15
+y 4
+end
+arch wall_fortified_low.131
+x 15
+y 4
+end
+arch floor_fs_grey1b
+x 16
+end
+arch wall_fortified_low.131
+z 9
+align 18
+x 16
+end
+arch floor_fs_grey1c
+x 16
+y 1
+end
+arch floor_fs_grey1d
+x 16
+y 2
+end
+arch floor_fs_grey1d
+x 16
+y 3
+end
+arch floor_fs_grey1d
+x 16
+y 4
+end
+arch wall_fortified_low.131
+x 16
+y 4
+end
+arch floor_fs_grey1b
+x 17
+end
+arch wall_fortified_low.131
+z 9
+align 18
+x 17
+end
+arch floor_fs_grey1b
+x 17
+y 1
+end
+arch floor_fs_grey1c
+x 17
+y 2
+end
+arch floor_fs_grey1d
+x 17
+y 3
+end
+arch floor_fs_grey1c
+x 17
+y 4
+end
+arch wall_fortified_low.131
+x 17
+y 4
+end
+arch floor_fs_grey1c
+x 18
+end
+arch wall_fortified_low.131
+z 9
+align 18
+x 18
+end
+arch floor_fs_grey1c
+x 18
+y 1
+end
+arch brazier_lit
+glow_radius 5
+x 18
+y 1
+end
+arch floor_fs_grey1b
+x 18
+y 2
+end
+arch floor_fs_grey1c
+x 18
+y 3
+end
+arch floor_fs_grey1d
+x 18
+y 4
+end
+arch wall_fortified_low.131
+x 18
+y 4
+end
+arch floor_fs_grey1c
+x 19
+end
+arch wall_fortified_low.131
+z 9
+align 18
+x 19
+end
+arch floor_fs_grey1b
+x 19
+y 1
+end
+arch floor_fs_grey1d
+x 19
+y 2
+end
+arch floor_fs_grey1c
+x 19
+y 3
+end
+arch floor_fs_grey1c
+x 19
+y 4
+end
+arch wall_fortified_low.131
+x 19
+y 4
+end
+arch floor_fs_grey1b
+x 20
+end
+arch wall_fortified_low.131
+z 9
+align 18
+x 20
+end
+arch floor_fs_grey1c
+x 20
+y 1
+end
+arch floor_fs_grey1c
+x 20
+y 2
+end
+arch floor_fs_grey1a
+x 20
+y 3
+end
+arch floor_fs_grey1c
+x 20
+y 4
+end
+arch wall_fortified_low.131
+x 20
+y 4
+end
+arch floor_fs_grey1c
+x 21
+end
+arch wall_fortified_low.131
+z 9
+align 18
+x 21
+end
+arch floor_fs_grey1c
+x 21
+y 1
+end
+arch floor_fs_grey1d
+x 21
+y 2
+end
+arch floor_fs_grey1d
+x 21
+y 3
+end
+arch floor_fs_grey1c
+x 21
+y 4
+end
+arch wall_fortified_low.131
+x 21
+y 4
+end
+arch floor_fs_grey1d
+x 22
+end
+arch wall_fortified_low.131
+z 9
+align 18
+x 22
+end
+arch floor_fs_grey1b
+x 22
+y 1
+end
+arch floor_fs_grey1a
+x 22
+y 2
+end
+arch floor_fs_grey1b
+x 22
+y 3
+end
+arch floor_fs_grey1b
+x 22
+y 4
+end
+arch wall_fortified_low.131
+x 22
+y 4
+end
+arch floor_fs_grey1c
+x 23
+end
+arch wall_fortified_low.131
+z 9
+align 18
+x 23
+end
+arch floor_fs_grey1a
+x 23
+y 1
+end
+arch brazier_lit
+glow_radius 5
+x 23
+y 1
+end
+arch floor_fs_grey1a
+x 23
+y 2
+end
+arch floor_fs_grey1a
+x 23
+y 3
+end
+arch floor_fs_grey1c
+x 23
+y 4
+end
+arch wall_fortified_low.131
+x 23
+y 4
+end

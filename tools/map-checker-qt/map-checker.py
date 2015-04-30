@@ -16,13 +16,13 @@ from system.checker import CheckerMap, CheckerObject, CheckerArchetype, \
     AbstractChecker
 from system.config import Config
 import system.constants
+from system.database import Database
 from system.game_object import AbstractObjectCollection, ArchObjectCollection, \
     ArtifactObjectCollection, RegionObjectCollection
 from system.parser import ParserMap, ParserArchetype, ParserArtifact, \
     ParserRegion
 from system.saver import SaverMap
 from system.scanner import ScannerMap
-from ui.window_main import WindowMain
 
 
 class MapChecker:
@@ -58,6 +58,8 @@ class MapChecker:
     def __init__(self, config):
         self.config = config
 
+        self.path = os.path.dirname(os.path.realpath(__file__))
+
         # Create scanners, datasets, parsers, etc.
         self.scanner = ScannerMap(config)
         self.archetypes = ArchObjectCollection("archetype")
@@ -72,9 +74,7 @@ class MapChecker:
         self.parser_archetype = ParserArchetype(config)
         self.parser_artifact = ParserArtifact(config)
         self.parser_region = ParserRegion(config)
-        self.global_objects = {
-            system.constants.Game.Types.beacon: [],
-        }
+        self.db = Database(config, self.get_db_path())
 
         for collection in self.collections:
             self.collection_parser(collection).setCollection(collection)
@@ -95,8 +95,6 @@ class MapChecker:
         self._thread_running = False
         self._scan_status = ""
         self._scan_progress = 0
-
-        self.path = os.path.dirname(os.path.realpath(__file__))
 
     @property
     def collections(self):
@@ -144,12 +142,16 @@ class MapChecker:
         """Returns absolute path to the server directory."""
         return self.config.get("General", "path_dir_server")
 
+    def get_db_path(self):
+        """Returns absolute path to the map checker's DB."""
+        return os.path.join(self.path, "map-checker.db")
+
     def checkers_set_fix(self, fix):
         """Set the fix attribute for all checkers."""
         for checker in self.checkers:
             checker.fix = fix
 
-    def _scan(self, path, files, rec, fix):
+    def _scan(self, path, files, rec, fix, real_map_path):
         """
         Internal function for actually performing the scan. Used by scan,
         in both threading and non-threading mode. Changes things such as
@@ -162,15 +164,16 @@ class MapChecker:
         if not path:
             path = self.get_maps_path()
 
-        for key in self.global_objects:
-            self.global_objects[key] = []
-
         self._scan_progress = 0
 
         if not files:
             # First scan for possible map files.
             self._scan_status = "Gathering files..."
             files = self.scanner.scan(path, rec)
+
+        if not real_map_path:
+            self._scan_status = "Gathering modified files..."
+            files = self.scanner.filter_modified_files(files, self.db)
 
         # Now filter out non-map files by reading the header of all
         # found files.
@@ -189,7 +192,7 @@ class MapChecker:
                 self._scan_status = "Parsing {} definitions...".format(
                     collection.name)
 
-                with open(path, "r") as f:
+                with open(path) as f:
                     self.collection_parser(collection).parse(f)
                     collection.setLastRead(path)
 
@@ -212,19 +215,31 @@ class MapChecker:
                 for error in self.collection_parser(collection).errors:
                     self.queue.put(error)
 
+        for file in maps:
+            self.db.file_set_modified(file)
+
+        for error in self.db.get_errors():
+            self.queue.put(error)
+
+        i = 0
+
         # Now loop through the maps.
-        for i, file in enumerate(maps):
+        for j, file in enumerate(maps):
             if not self._thread_running:
-                return
+                break
 
             # Update scan progress.
-            self._scan_progress = (i + 1) / len(maps)
+            self._scan_progress = (j + 1) / len(maps)
 
             self._scan_status = "Parsing {}...".format(file)
 
             # Parse the map file.
-            with open(file, "r") as f:
+            with open(file) as f:
                 m = self.parser_map.parse(f)
+
+                if real_map_path:
+                    m.name = os.path.join(self.get_maps_path(),
+                                          real_map_path[1:])
 
             self._scan_status = "Checking {}...".format(file)
 
@@ -239,9 +254,20 @@ class MapChecker:
 
             for error in self.checker_map.errors:
                 self.queue.put(error)
+                self.db.add_error(error)
+
+            i += 1
+
+        # If the scan was canceled prematurely, we need to purge the files that
+        # were not actually scanned.
+        while i < len(maps):
+            self.db.purge(maps[i])
+            i += 1
+
+        self.db.save()
 
     def scan(self, path=None, files=None, rec=True, fix=False,
-             threading=True):
+             real_map_path=None, threading=True):
         """Perform a new scan for errors."""
         if self._thread and self._thread.is_alive():
             return
@@ -250,10 +276,10 @@ class MapChecker:
 
         if threading:
             self._thread = Thread(target=self._scan,
-                                  args=(path, files, rec, fix))
+                                  args=(path, files, rec, fix, real_map_path))
             self._thread.start()
         else:
-            self._scan(path, files, rec, fix)
+            self._scan(path, files, rec, fix, real_map_path)
 
     def scan_stop(self):
         """Stop current scan, if any."""
@@ -289,8 +315,6 @@ def excepthook(exc_type, exc_value, exc_tback):
 
 
 def main():
-    from PyQt5.QtWidgets import QApplication
-
     sys.excepthook = excepthook
 
     logger = logging.getLogger('interface-editor')
@@ -317,7 +341,8 @@ def main():
     try:
         opts, args = getopt.getopt(sys.argv[1:], "hcfd:m:a:r:",
                                    ["help", "cli", "fix", "directory=",
-                                    "map=", "arch=", "regions=", "text-only"])
+                                    "map=", "arch=", "regions=", "text-only",
+                                    "real-map-path=", "show-filenames"])
     except getopt.GetoptError as err:
         # Invalid option, show the error and exit.
         print(err)
@@ -327,6 +352,8 @@ def main():
     fix = False
     files = []
     path = None
+    real_map_path = None
+    show_filenames = False
 
     # Parse options.
     for o, a in opts:
@@ -341,6 +368,10 @@ def main():
             path = a
         elif o in ("-m", "--map"):
             files.append(a)
+        elif o == "--real-map-path":
+            real_map_path = a
+        elif o == "--show-filenames":
+            show_filenames = True
         elif o in ("-a", "--arch"):
             # TODO: make this more robust?
             map_checker.definitionFilesData["archetype"]["path"] = a
@@ -351,6 +382,9 @@ def main():
             map_checker.definitionFilesData["region"]["path"] = a
 
     if not cli:
+        from PyQt5.QtWidgets import QApplication
+        from ui.window_main import WindowMain
+
         # Create a GUI window using Qt.
         app = QApplication(sys.argv)
         window = WindowMain()
@@ -362,7 +396,7 @@ def main():
         ret = app.exec_()
     else:
         map_checker.scan(path=path, files=files, fix=fix,
-                         threading=False)
+                         threading=False, real_map_path=real_map_path)
         ret = 0
 
         while map_checker.queue.qsize():
@@ -379,6 +413,9 @@ def main():
 
                 if error["loc"]:
                     l.insert(0, " ".join(str(i) for i in error["loc"]))
+
+                if show_filenames:
+                    l.insert(0, error["file"]["path"])
 
                 print(" ".join(l))
             except queue.Empty:

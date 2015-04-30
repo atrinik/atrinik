@@ -479,7 +479,7 @@ typedef struct cache_struct {
 
 #define GETTIMEOFDAY(last_time) gettimeofday(last_time, (struct timezone *) NULL);
 
-#define MAX_TICKS (1000000 / max_time)
+#define MAX_TICKS (1000000.0 / max_time)
 #define MAX_TICKS_MULTIPLIER (MAX_TICKS * max_time_multiplier)
 
 /**
@@ -501,7 +501,7 @@ void world_maker(void);
 #include "random_map.h"
 
 /* TODO: Remove from here eventually */
-typedef struct packet_struct packet_struct;
+struct packet_struct;
 
 #ifndef GLOBAL_NO_PROTOTYPES
 #include "proto.h"

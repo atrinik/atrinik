@@ -98,6 +98,11 @@ int64_t query_cost(object *tmp, object *who, int flag)
         val += (val * tmp->level) * tmp->stats.food;
     } else if (tmp->type == ROD || tmp->type == POTION || tmp->type == SCROLL) {
         val += val * tmp->level;
+    } else if (tmp->type == BOOK_SPELL) {
+        if (tmp->stats.sp >= 0 && tmp->stats.sp < NROFREALSPELLS) {
+            val += val * spells[tmp->stats.sp].at->clone.level;
+            val += spells[tmp->stats.sp].at->clone.value;
+        }
     }
 
     /* We are done if we only want get the real value */

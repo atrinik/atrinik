@@ -65,12 +65,86 @@ static int map_tiled_coords[TILED_NUM][3] = {
     {0, 0, -1},
 };
 
+static mempool_struct *pool_map; ///< Map structures pool.
+static uint32_t map_count;
+
 #define DEBUG_OLDFLAGS 1
 
 static void load_objects(mapstruct *m, FILE *fp, int mapflags);
 static void save_objects(mapstruct *m, FILE *fp, FILE *fp2);
 static void allocate_map(mapstruct *m);
 static void free_all_objects(mapstruct *m);
+
+/** @copydoc chunk_debugger */
+static void map_debugger(mapstruct *map, char *buf, size_t size)
+{
+    snprintf(buf, size, "count: %d", map->count);
+
+    if (map->name != NULL) {
+        snprintfcat(buf, size, " name: %s", map->name);
+    }
+
+    if (map->path != NULL) {
+        snprintfcat(buf, size, " path: %s", map->path);
+    }
+}
+
+/** @copydoc chunk_validator */
+static bool map_validator(mapstruct *map)
+{
+    return map->count != 0;
+}
+
+/** @copydoc chunk_constructor */
+static void map_constructor(mapstruct *map)
+{
+    DL_APPEND(first_map, map);
+
+    map->in_memory = MAP_SWAPPED;
+
+    /* The maps used to pick up default x and y values from the
+     * map archetype. Mimic that behavior. */
+    MAP_WIDTH(map) = 16;
+    MAP_HEIGHT(map) = 16;
+    MAP_RESET_TIMEOUT(map) = 0;
+    MAP_TIMEOUT(map) = MAP_DEFAULTTIMEOUT;
+    set_map_darkness(map, MAP_DEFAULT_DARKNESS);
+
+    MAP_ENTER_X(map) = 0;
+    MAP_ENTER_Y(map) = 0;
+
+    map->count = ++map_count;
+}
+
+/** @copydoc chunk_constructor */
+static void map_destructor(mapstruct *map)
+{
+    if (!map->global_removed) {
+        DL_DELETE(first_map, map);
+    }
+
+    /* tmpname can still be needed if the map is swapped out, so we don't
+     * do it in free_map(). */
+    FREE_AND_NULL_PTR(map->tmpname);
+    FREE_AND_CLEAR_HASH(map->path);
+
+    /* Invalidate references to the map. */
+    map->count = 0;
+}
+
+/**
+ * Initialize map-related code.
+ */
+void map_init(void)
+{
+    map_count = 0;
+    pool_map = mempool_create("maps", 10, sizeof(mapstruct),
+            MEMPOOL_ALLOW_FREEING, NULL, NULL,
+            (chunk_constructor) map_constructor,
+            (chunk_destructor) map_destructor);
+    mempool_set_debugger(pool_map, (chunk_debugger) map_debugger);
+    mempool_set_validator(pool_map, (chunk_validator) map_validator);
+}
 
 /**
  * Try loading the connected map tile with the given number.
@@ -739,24 +813,7 @@ void set_map_darkness(mapstruct *m, int value)
  * @return The new map structure. */
 mapstruct *get_linked_map(void)
 {
-    mapstruct *map = ecalloc(1, sizeof(mapstruct));
-
-    DL_APPEND(first_map, map);
-
-    map->in_memory = MAP_SWAPPED;
-
-    /* The maps used to pick up default x and y values from the
-     * map archetype. Mimic that behavior. */
-    MAP_WIDTH(map) = 16;
-    MAP_HEIGHT(map) = 16;
-    MAP_RESET_TIMEOUT(map) = 0;
-    MAP_TIMEOUT(map) = MAP_DEFAULTTIMEOUT;
-    set_map_darkness(map, MAP_DEFAULT_DARKNESS);
-
-    MAP_ENTER_X(map) = 0;
-    MAP_ENTER_Y(map) = 0;
-
-    return map;
+    return mempool_get(pool_map);
 }
 
 /**
@@ -765,19 +822,16 @@ mapstruct *get_linked_map(void)
  * @param m Map to allocate spaces for. */
 static void allocate_map(mapstruct *m)
 {
+    SOFT_ASSERT(m->spaces == NULL, "Map spaces are not NULL: %s", m->path);
+    SOFT_ASSERT(m->buttons == NULL, "Buttons are not NULL: %s", m->path);
+    SOFT_ASSERT(m->bitmap == NULL, "Bitmap is not NULL: %s", m->path);
+    SOFT_ASSERT(m->path_nodes == NULL, "Path nodes are not NULL: %s", m->path);
+
     m->in_memory = MAP_LOADING;
 
-    if (m->spaces || m->bitmap) {
-        logger_print(LOG(ERROR), "Callled with already allocated map (%s)", m->path);
-        exit(1);
-    }
-
-    if (m->buttons) {
-        logger_print(LOG(BUG), "Callled with already set buttons (%s)", m->path);
-    }
-
     m->spaces = ecalloc(1, MAP_WIDTH(m) * MAP_HEIGHT(m) * sizeof(MapSpace));
-    m->bitmap = emalloc(((MAP_WIDTH(m) + 31) / 32) * MAP_HEIGHT(m) * sizeof(*m->bitmap));
+    m->bitmap = emalloc(((MAP_WIDTH(m) + 31) / 32) * MAP_HEIGHT(m) *
+            sizeof(*m->bitmap));
     m->path_nodes = emalloc(MAP_WIDTH(m) * MAP_HEIGHT(m) * sizeof(*m->path_nodes));
 }
 
@@ -977,14 +1031,14 @@ mapstruct *load_original_map(const char *filename, mapstruct *originator,
     }
 
     if (fp == NULL && originator != NULL) {
-        m->name = estrdup(originator->name);
+        FREE_AND_COPY_HASH(m->name, originator->name);
 
         if (originator->bg_music != NULL) {
-            m->bg_music = estrdup(originator->bg_music);
+            FREE_AND_COPY_HASH(m->bg_music, originator->bg_music);
         }
 
         if (originator->weather != NULL) {
-            m->weather = estrdup(originator->weather);
+            FREE_AND_COPY_HASH(m->weather, originator->weather);
         }
 
         m->darkness = originator->darkness;
@@ -1283,9 +1337,9 @@ void free_map(mapstruct *m, int flag)
         free_all_objects(m);
     }
 
-    FREE_AND_NULL_PTR(m->name);
-    FREE_AND_NULL_PTR(m->bg_music);
-    FREE_AND_NULL_PTR(m->weather);
+    FREE_AND_CLEAR_HASH(m->name);
+    FREE_AND_CLEAR_HASH(m->bg_music);
+    FREE_AND_CLEAR_HASH(m->weather);
     FREE_AND_NULL_PTR(m->spaces);
     FREE_AND_NULL_PTR(m->msg);
     m->buttons = NULL;
@@ -1338,15 +1392,7 @@ void delete_map(mapstruct *m)
         remove_light_source_list(m);
     }
 
-    if (!m->global_removed) {
-        DL_DELETE(first_map, m);
-    }
-
-    /* tmpname can still be needed if the map is swapped out, so we don't
-     * do it in free_map(). */
-    FREE_AND_NULL_PTR(m->tmpname);
-    FREE_AND_CLEAR_HASH(m->path);
-    efree(m);
+    mempool_return(pool_map, m);
 }
 
 /**

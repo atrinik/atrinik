@@ -90,16 +90,14 @@
 #define SPELL_USE_DUST   0x04
 /** Spell can be found in scrolls. */
 #define SPELL_USE_SCROLL 0x08
+/*** Spell can be found in books. */
+#define SPELL_USE_BOOK   0x10
 /** Spell can be found in wands. */
 #define SPELL_USE_WAND   0x20
 /** Spell can be found in rods. */
 #define SPELL_USE_ROD    0x40
 /** Spell can be found in potions. */
 #define SPELL_USE_POTION 0x80
-/**
- * Spell can be found in books.
- * @todo Remove as this no longer seems to be relevant/used? */
-#define SPELL_USE_BOOK   0x100
 /*@}*/
 
 /**

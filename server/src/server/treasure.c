@@ -1897,6 +1897,26 @@ int fix_generated_item(object **op_ptr, object *creator, int difficulty, int a_c
 
             break;
 
+        case BOOK_SPELL:
+            if ((op->stats.sp = get_random_spell(difficulty, SPELL_USE_BOOK)) == SP_NO_SPELL) {
+                break;
+            }
+
+            /* Marks as magical */
+            SET_FLAG(op, FLAG_IS_MAGICAL);
+
+            op->value = (int) (1150.0f * spells[op->stats.sp].value_mul);
+
+            if (!(flags & GT_ONLY_GOOD) && rndm_chance(10)) {
+                if (rndm_chance(2)) {
+                    SET_FLAG(op, FLAG_CURSED);
+                } else {
+                    SET_FLAG(op, FLAG_DAMNED);
+                }
+            }
+
+            break;
+
         case RUNE:
             /* Artifact AND normal treasure runes! */
             trap_adjust(op, difficulty);
@@ -2559,14 +2579,14 @@ int get_environment_level(object *op)
  * Create an artifact.
  * @param op Object to turn into an artifact.
  * @param artifactname Artifact to create.
- * @return Always returns NULL. */
-object *create_artifact(object *op, char *artifactname)
+ */
+void create_artifact(object *op, char *artifactname)
 {
     artifactlist *al = find_artifactlist(op->type);
     artifact *art;
 
     if (al == NULL) {
-        return NULL;
+        return;
     }
 
     for (art = al->items; art != NULL; art = art->next) {
@@ -2574,8 +2594,6 @@ object *create_artifact(object *op, char *artifactname)
             give_artifact_abilities(op, art);
         }
     }
-
-    return NULL;
 }
 
 #ifdef TREASURE_DEBUG

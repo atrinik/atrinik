@@ -1,0 +1,84 @@
+================================================================================
+= ADS-5, rev: 1.0: Atrinik Map File Naming Specification                       =
+================================================================================
+ This document contains design specification for file names of Atrinik maps.
+
+ The following sections exist:
+
+ 1. Prologue
+ 2. Allowed characters
+ 3. Syntax
+ 4. Tiling
+
+================================================================================
+= 1. Prologue                                                                  =
+================================================================================
+ This document was created to help combat the issue of inconsistent map file
+ naming conventions used across the project, and to make it easier for programs
+ to parse AND construct the file names.
+
+================================================================================
+= 2. Allowed characters                                                        =
+================================================================================
+ Map file names MUST only contain alphabetical and numerical letters,
+ underscores and minus signs in coordinates part of the file name (see
+ section 3.).
+
+ The following are examples of VALID map file names:
+  - world_10_10_-1
+  - underground_city_1_1
+  - moroch_temple_-4_1
+
+ The following are examples of INVALID map file names:
+  - world 10 10
+  - underground_city 1
+  - moroch_temple +10
+
+================================================================================
+= 3. Syntax                                                                    =
+================================================================================
+ The map file name is split into two major parts:
+  <map name>_<coordinates>
+
+ The map name part contains the map's set name, for example, 'world',
+ 'moroch_temple', 'underground_city', etc.
+
+ The coordinates contain X, Y and Z positions of the map in the map set, for
+ example, '10_5', '1_1_1', '3_2_-1', '0_0', etc. If the Z is zero, it MUST not
+ be included in the coordinates (so a surface map would be 0_0, but a map one
+ level underground would be 1_2_-1).
+
+================================================================================
+= 4. Tiling                                                                    =
+================================================================================
+ The map file name contains the coordinates part so that one can identify where
+ in the map set the map is. Thus, maps can only be tiled to other maps that also
+ follow this map file naming convention, and where the X/Y/Z coordinates are
+ according to the below tables.
+
+ Cardinal direction map tile coordinates:
+  - North: y - 1
+  - East: x + 1
+  - South: y + 1
+  - West: x - 1
+
+ Surface level map tile coordinates:
+  - Up: z + 1
+  - Down: z - 1
+
+ Note that ordinal directions need to use both cardinal direction coordinates.
+
+ For example, take the map world_0_0. It would have the following tiled maps:
+  - North: world_0_-1
+  - East: world_1_0
+  - South: world_0_1
+  - West: world_-1_0
+  - Northeast: world_1_-1
+  - Southeast: world_1_1
+  - Southwest: world_-1_1
+  - Northwest: world_-1_-1
+  - Up: world_0_0_1
+  - Down: world_0_0_-1
+
+
+

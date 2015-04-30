@@ -2355,6 +2355,9 @@ treasureone random_scroll
   arch scroll_generic
     chance 5
     nrof 3
+  more
+  arch book_spell
+    chance 2
 end
 
 treasureone random_talisman

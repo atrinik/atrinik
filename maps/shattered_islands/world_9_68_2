@@ -1,0 +1,957 @@
+arch map
+name The City of Greyton
+msg
+Created:  2015-04-26 Alex Tokar
+Modified: 2015-04-28 Alex Tokar
+endmsg
+width 24
+height 24
+difficulty 1
+darkness -1
+outdoor 1
+no_harm 1
+bg_music town_music.ogg
+region greyton
+end
+arch floor_fs_grey1b
+end
+arch wall_fortified_low_b.111
+z 9
+align -18
+end
+arch map_info
+name greyton_gate
+sp 8
+is_magical 1
+end
+arch floor_fs_grey1a
+y 1
+end
+arch wall_fortified_low_b.111
+z 9
+align -18
+y 1
+end
+arch floor_fs_grey1b
+y 2
+end
+arch wall_fortified_low_b.111
+z 9
+align -18
+y 2
+end
+arch floor_fs_grey1d
+y 3
+end
+arch wall_fortified_low_b.111
+z 9
+align -18
+y 3
+end
+arch floor_fs_grey1c
+y 4
+end
+arch wall_fortified_low_b.111
+z 9
+align -18
+y 4
+end
+arch floor_fs_grey1d
+y 5
+end
+arch wall_fortified_low_b.111
+z 9
+align -18
+layer 3
+y 5
+end
+arch fwall_fstone2c
+layer 4
+y 5
+end
+arch floor_fs_grey1c
+y 6
+end
+arch wall_flagstone1_w.131
+z 9
+align -18
+y 6
+end
+arch floor_fs_grey1b
+y 7
+end
+arch wall_flagstone1_w.131
+z 9
+align -18
+y 7
+end
+arch trans
+y 8
+end
+arch fwall_fstone2b
+y 8
+end
+arch trans
+y 15
+end
+arch fwall_fstone2c
+y 15
+end
+arch map_info
+name greyton_gate
+sp 8
+is_magical 1
+y 15
+end
+arch floor_fs_grey1c
+y 16
+end
+arch wall_flagstone1_w.131
+z 9
+align -18
+y 16
+end
+arch floor_fs_grey1b
+y 17
+end
+arch wall_flagstone1_w.131
+z 9
+align -18
+y 17
+end
+arch floor_fs_grey1c
+y 18
+end
+arch wall_fortified_low_b.111
+z 9
+align -18
+layer 3
+y 18
+end
+arch fwall_fstone2b
+layer 4
+y 18
+end
+arch floor_fs_grey1b
+y 19
+end
+arch wall_fortified_low_b.111
+z 9
+align -18
+y 19
+end
+arch floor_fs_grey1c
+y 20
+end
+arch wall_fortified_low_b.111
+z 9
+align -18
+y 20
+end
+arch floor_fs_grey1a
+y 21
+end
+arch wall_fortified_low_b.111
+z 9
+align -18
+y 21
+end
+arch floor_fs_grey1a
+y 22
+end
+arch wall_fortified_low_b.111
+z 9
+align -18
+y 22
+end
+arch floor_fs_grey1d
+y 23
+end
+arch wall_fortified_low_b.111
+z 9
+align -18
+y 23
+end
+arch floor_fs_grey1c
+x 1
+end
+arch brazier_lit
+glow_radius 5
+x 1
+end
+arch map_info
+name greyton_gate
+hp 2
+sp 4
+is_magical 1
+x 1
+end
+arch floor_fs_grey1d
+x 1
+y 1
+end
+arch floor_fs_grey1c
+x 1
+y 2
+end
+arch spawn_point
+x 1
+y 2
+arch archer
+sub_layer 1
+align 5
+direction 7
+level 75
+dex 1
+can_use_bow 1
+unaggressive 0
+stand_still 1
+wis 12
+type 83
+arch ability_stone_throw
+race arrows
+sp 1
+wc 300
+wc_range 150
+magic 5
+end
+arch arrow_fey
+name elemental arrow
+no_pick 1
+sys_object 1
+dam 100
+last_grace 1
+last_sp 7
+wc 200
+magic 5
+attack_fire 100
+attack_electricity 100
+attack_cold 100
+attack_poison 100
+end
+arch event_obj
+sub_type 6
+race /python/generic/guard.py
+end
+end
+end
+arch floor_fs_grey1c
+x 1
+y 3
+end
+arch floor_fs_grey1d
+x 1
+y 4
+end
+arch fwall_fstone2c
+x 1
+y 4
+end
+arch floor_fs_grey1d
+x 1
+y 5
+end
+arch fwall_fstone2d
+x 1
+y 5
+end
+arch map_info
+name greyton_gate_towers
+hp 2
+sp 3
+cursed 1
+x 1
+y 5
+end
+arch floor_fs_grey1b
+x 1
+y 6
+end
+arch floor_fs_grey1d
+x 1
+y 7
+end
+arch ladder_down2
+direction 7
+x 1
+y 7
+end
+arch floor_fs_grey1a
+x 1
+y 8
+end
+arch fwall_fstone2a
+x 1
+y 8
+end
+arch trans
+x 1
+y 9
+end
+arch fwall_fstone2b
+x 1
+y 9
+end
+arch map_info
+name greyton_gate
+is_magical 1
+x 1
+y 9
+end
+arch blocked
+x 1
+y 10
+end
+arch blocked
+x 1
+y 11
+end
+arch blocked
+x 1
+y 12
+end
+arch blocked
+x 1
+y 13
+end
+arch trans
+x 1
+y 14
+end
+arch fwall_fstone2c
+x 1
+y 14
+end
+arch map_info
+name greyton_gate
+is_magical 1
+x 1
+y 14
+end
+arch floor_fs_grey1c
+x 1
+y 15
+end
+arch fwall_fstone2d
+x 1
+y 15
+end
+arch map_info
+name greyton_gate_towers
+hp 2
+sp 3
+cursed 1
+x 1
+y 15
+end
+arch floor_fs_grey1a
+x 1
+y 16
+end
+arch ladder_down2
+direction 7
+x 1
+y 16
+end
+arch floor_fs_grey1b
+x 1
+y 17
+end
+arch floor_fs_grey1d
+x 1
+y 18
+end
+arch fwall_fstone2a
+x 1
+y 18
+end
+arch map_info
+name greyton_gate
+is_magical 1
+x 1
+y 18
+end
+arch floor_fs_grey1d
+x 1
+y 19
+end
+arch fwall_fstone2b
+x 1
+y 19
+end
+arch map_info
+name greyton_gate
+hp 2
+sp 4
+is_magical 1
+x 1
+y 19
+end
+arch floor_fs_grey1b
+x 1
+y 20
+end
+arch floor_fs_grey1b
+x 1
+y 21
+end
+arch spawn_point
+x 1
+y 21
+arch archer
+sub_layer 1
+align 5
+direction 7
+level 75
+dex 1
+can_use_bow 1
+unaggressive 0
+stand_still 1
+wis 12
+type 83
+arch ability_stone_throw
+race arrows
+sp 1
+wc 300
+wc_range 150
+magic 5
+end
+arch arrow_fey
+name elemental arrow
+no_pick 1
+sys_object 1
+dam 100
+last_grace 1
+last_sp 7
+wc 200
+magic 5
+attack_fire 100
+attack_electricity 100
+attack_cold 100
+attack_poison 100
+end
+arch event_obj
+sub_type 6
+race /python/generic/guard.py
+end
+end
+end
+arch floor_fs_grey1d
+x 1
+y 22
+end
+arch floor_fs_grey1a
+x 1
+y 23
+end
+arch brazier_lit
+glow_radius 5
+x 1
+y 23
+end
+arch floor_fs_grey1a
+x 2
+end
+arch floor_fs_grey1d
+x 2
+y 1
+end
+arch floor_fs_grey1d
+x 2
+y 2
+end
+arch floor_fs_grey1a
+x 2
+y 3
+end
+arch floor_fs_grey1a
+x 2
+y 4
+end
+arch floor_fs_grey1d
+x 2
+y 5
+end
+arch floor_fs_grey1c
+x 2
+y 6
+end
+arch floor_fs_grey1b
+x 2
+y 7
+end
+arch light5
+x 2
+y 7
+end
+arch floor_fs_grey1c
+x 2
+y 8
+end
+arch floor_fs_grey1b
+x 2
+y 9
+end
+arch wall_fortified_low.111
+layer 4
+z 9
+align -18
+no_pass 0
+x 2
+y 9
+end
+arch wall_fortified_low_b.111
+no_pass 0
+x 2
+y 9
+end
+arch map_info
+name greyton_gate
+sp 5
+is_magical 1
+x 2
+y 9
+end
+arch floor_fs_grey1b
+x 2
+y 10
+end
+arch wall_fortified_low.111
+layer 4
+z 9
+align -18
+no_pass 0
+x 2
+y 10
+end
+arch wall_fortified_low_b.111
+no_pass 0
+x 2
+y 10
+end
+arch light2
+x 2
+y 10
+end
+arch floor_fs_grey1b
+x 2
+y 11
+end
+arch wall_fortified_low.111
+layer 4
+z 9
+align -18
+no_pass 0
+x 2
+y 11
+end
+arch wall_fortified_low_b.111
+no_pass 0
+x 2
+y 11
+end
+arch floor_fs_grey1b
+x 2
+y 12
+end
+arch wall_fortified_low.111
+layer 4
+z 9
+align -18
+no_pass 0
+x 2
+y 12
+end
+arch wall_fortified_low_b.111
+no_pass 0
+x 2
+y 12
+end
+arch floor_fs_grey1b
+x 2
+y 13
+end
+arch wall_fortified_low.111
+layer 4
+z 9
+align -18
+no_pass 0
+x 2
+y 13
+end
+arch wall_fortified_low_b.111
+no_pass 0
+x 2
+y 13
+end
+arch light2
+x 2
+y 13
+end
+arch floor_fs_grey1b
+x 2
+y 14
+end
+arch wall_fortified_low.111
+layer 4
+z 9
+align -18
+no_pass 0
+x 2
+y 14
+end
+arch wall_fortified_low_b.111
+no_pass 0
+x 2
+y 14
+end
+arch floor_fs_grey1d
+x 2
+y 15
+end
+arch floor_fs_grey1b
+x 2
+y 16
+end
+arch light5
+x 2
+y 16
+end
+arch floor_fs_grey1a
+x 2
+y 17
+end
+arch floor_fs_grey1d
+x 2
+y 18
+end
+arch floor_fs_grey1a
+x 2
+y 19
+end
+arch floor_fs_grey1c
+x 2
+y 20
+end
+arch floor_fs_grey1c
+x 2
+y 21
+end
+arch floor_fs_grey1d
+x 2
+y 22
+end
+arch floor_fs_grey1d
+x 2
+y 23
+end
+arch floor_fs_grey1c
+x 3
+end
+arch floor_fs_grey1d
+x 3
+y 1
+end
+arch floor_fs_grey1c
+x 3
+y 2
+end
+arch floor_fs_grey1a
+x 3
+y 3
+end
+arch floor_fs_grey1d
+x 3
+y 4
+end
+arch fwall_fstone2a
+x 3
+y 4
+end
+arch floor_fs_grey1a
+x 3
+y 5
+end
+arch fwall_fstone2b
+x 3
+y 5
+end
+arch floor_fs_grey1d
+x 3
+y 6
+end
+arch floor_fs_grey1c
+x 3
+y 7
+end
+arch floor_fs_grey1a
+x 3
+y 8
+end
+arch fwall_fstone2c
+x 3
+y 8
+end
+arch trans
+x 3
+y 9
+end
+arch fwall_fstone2d
+x 3
+y 9
+end
+arch map_info
+name greyton_gate
+is_magical 1
+x 3
+y 9
+end
+arch blocked
+x 3
+y 10
+end
+arch blocked
+x 3
+y 11
+end
+arch blocked
+x 3
+y 12
+end
+arch blocked
+x 3
+y 13
+end
+arch trans
+x 3
+y 14
+end
+arch fwall_fstone2a
+x 3
+y 14
+end
+arch map_info
+name greyton_gate
+is_magical 1
+x 3
+y 14
+end
+arch floor_fs_grey1c
+x 3
+y 15
+end
+arch fwall_fstone2b
+x 3
+y 15
+end
+arch floor_fs_grey1c
+x 3
+y 16
+end
+arch floor_fs_grey1a
+x 3
+y 17
+end
+arch floor_fs_grey1a
+x 3
+y 18
+end
+arch fwall_fstone2c
+x 3
+y 18
+end
+arch map_info
+name greyton_gate
+is_magical 1
+x 3
+y 18
+end
+arch floor_fs_grey1c
+x 3
+y 19
+end
+arch fwall_fstone2d
+x 3
+y 19
+end
+arch floor_fs_grey1a
+x 3
+y 20
+end
+arch floor_fs_grey1a
+x 3
+y 21
+end
+arch floor_fs_grey1d
+x 3
+y 22
+end
+arch floor_fs_grey1c
+x 3
+y 23
+end
+arch floor_fs_grey1a
+x 4
+end
+arch wall_fortified_low_b.111
+x 4
+end
+arch map_info
+name greyton_gate
+sp 8
+is_magical 1
+x 4
+end
+arch floor_fs_grey1b
+x 4
+y 1
+end
+arch wall_fortified_low_b.111
+x 4
+y 1
+end
+arch floor_fs_grey1c
+x 4
+y 2
+end
+arch wall_fortified_low_b.111
+x 4
+y 2
+end
+arch floor_fs_grey1c
+x 4
+y 3
+end
+arch wall_fortified_low_b.111
+x 4
+y 3
+end
+arch floor_fs_grey1c
+x 4
+y 4
+end
+arch wall_fortified_low_b.111
+x 4
+y 4
+end
+arch floor_fs_grey1b
+x 4
+y 5
+end
+arch fwall_fstone2a
+layer 4
+x 4
+y 5
+end
+arch wall_fortified_low_b.111
+x 4
+y 5
+end
+arch floor_fs_grey1c
+x 4
+y 6
+end
+arch wall_flagstone1_w.131
+x 4
+y 6
+end
+arch floor_fs_grey1a
+x 4
+y 7
+end
+arch wall_flagstone1_w.131
+x 4
+y 7
+end
+arch trans
+x 4
+y 8
+end
+arch fwall_fstone2d
+x 4
+y 8
+end
+arch trans
+x 4
+y 15
+end
+arch fwall_fstone2a
+x 4
+y 15
+end
+arch map_info
+name greyton_gate
+sp 8
+is_magical 1
+x 4
+y 15
+end
+arch floor_fs_grey1c
+x 4
+y 16
+end
+arch wall_flagstone1_w.131
+x 4
+y 16
+end
+arch floor_fs_grey1a
+x 4
+y 17
+end
+arch wall_flagstone1_w.131
+x 4
+y 17
+end
+arch floor_fs_grey1b
+x 4
+y 18
+end
+arch fwall_fstone2d
+layer 4
+x 4
+y 18
+end
+arch wall_fortified_low_b.111
+x 4
+y 18
+end
+arch floor_fs_grey1a
+x 4
+y 19
+end
+arch wall_fortified_low_b.111
+x 4
+y 19
+end
+arch floor_fs_grey1a
+x 4
+y 20
+end
+arch wall_fortified_low_b.111
+x 4
+y 20
+end
+arch floor_fs_grey1c
+x 4
+y 21
+end
+arch wall_fortified_low_b.111
+x 4
+y 21
+end
+arch floor_fs_grey1b
+x 4
+y 22
+end
+arch wall_fortified_low_b.111
+x 4
+y 22
+end
+arch floor_fs_grey1d
+x 4
+y 23
+end
+arch wall_fortified_low_b.111
+x 4
+y 23
+end

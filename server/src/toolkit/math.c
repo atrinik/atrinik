@@ -99,7 +99,7 @@ int rndm(int min, int max)
     TOOLKIT_PROTECT();
 
     if (max < 1 || max - min + 1 < 1) {
-        logger_print(LOG(BUG), "Calling rndm() with min=%d max=%d", min, max);
+        log_error("Calling rndm() with min=%d max=%d", min, max);
         return min;
     }
 
@@ -115,7 +115,7 @@ int rndm_chance(uint32_t n)
     TOOLKIT_PROTECT();
 
     if (!n) {
-        logger_print(LOG(BUG), "Calling rndm_chance() with n=0.");
+        log_error("Calling rndm_chance() with n=0.");
         return 0;
     }
 

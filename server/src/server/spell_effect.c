@@ -225,9 +225,8 @@ int cast_wor(object *op, object *caster)
  * @param op Who is casting.
  * @param caster What object is casting.
  * @param dam Base damage to do.
- * @param attacktype Attacktype.
- * @return 1. */
-int cast_destruction(object *op, object *caster, int dam, int attacktype)
+ * @param attacktype Attacktype. */
+void cast_destruction(object *op, object *caster, int dam)
 {
     int i, j, range, xt, yt;
     object *tmp, *hitter;
@@ -275,14 +274,12 @@ int cast_destruction(object *op, object *caster, int dam, int attacktype)
                         damage /= (tmp->quick_pos >> 4) + 1;
                     }
 
-                    hit_player(tmp, damage, hitter, attacktype);
+                    hit_player(tmp, damage, hitter);
                     break;
                 }
             }
         }
     }
-
-    return 1;
 }
 
 /**
@@ -931,7 +928,7 @@ int finger_of_death(object *op, object *target)
     insert_ob_in_map(hitter, target->map, op, 0);
 
     dam = SP_level_dam_adjust(op, SP_FINGER_DEATH, spells[SP_FINGER_DEATH].bdam, 0);
-    hit_player(target, dam, hitter, AT_INTERNAL);
+    hit_player(target, dam, hitter);
     object_remove(hitter, 0);
 
     return 1;

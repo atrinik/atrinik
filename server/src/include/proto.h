@@ -271,10 +271,11 @@ extern object *get_archetype(const char *name);
 extern char *attack_save[NROFATTACKS];
 extern char *attack_name[NROFATTACKS];
 extern int attack_ob(object *op, object *hitter);
-extern int hit_player(object *op, int dam, object *hitter, int type);
+extern int hit_player(object *op, int dam, object *hitter);
 extern void hit_map(object *op, int dir, int reduce);
-extern int kill_object(object *op, int dam, object *hitter, int type);
+extern bool kill_object(object *op, object *hitter);
 extern void confuse_living(object *op);
+extern void blind_living(object *op, object *hitter, int dam);
 extern void paralyze_living(object *op, int dam);
 extern int is_melee_range(object *hitter, object *enemy);
 /* src/server/ban.c */
@@ -369,6 +370,7 @@ extern objectlink *objectlink_unlink(objectlink **startptr, objectlink **endptr,
 extern int dam_bonus[30 + 1];
 extern int thaco_bonus[30 + 1];
 extern float speed_bonus[30 + 1];
+extern double falling_mitigation[30 + 1];
 extern uint32_t weight_limit[30 + 1];
 extern int learn_spell[30 + 1];
 extern int savethrow[115 + 1];
@@ -415,6 +417,7 @@ extern int main(int argc, char **argv);
 /* src/server/map.c */
 extern int global_darkness_table[7 + 1];
 extern int map_tiled_reverse[10];
+extern void map_init(void);
 extern mapstruct *has_been_loaded_sh(shstr *name);
 extern char *create_pathname(const char *name);
 extern int wall(mapstruct *m, int x, int y);
@@ -654,14 +657,14 @@ extern int SK_level(object *op);
 extern object *SK_skill(object *op);
 /* src/server/skills.c */
 extern skill_struct skills[NROFSKILLS];
-extern int64_t find_traps(object *pl, int level);
-extern int64_t remove_trap(object *op);
+extern void find_traps(object *pl, int level);
+extern void remove_trap(object *op);
 /* src/server/spell_effect.c */
 extern void cast_magic_storm(object *op, object *tmp, int lvl);
 extern int recharge(object *op);
 extern int cast_create_food(object *op, object *caster, int dir, const char *stringarg);
 extern int cast_wor(object *op, object *caster);
-extern int cast_destruction(object *op, object *caster, int dam, int attacktype);
+extern void cast_destruction(object *op, object *caster, int dam);
 extern int cast_heal_around(object *op, int level, int type);
 extern int cast_heal(object *op, int level, object *target, int spell_type);
 extern int cast_change_attr(object *op, object *caster, object *target, int spell_type);
@@ -692,6 +695,8 @@ extern int SP_level_dam_adjust(object *caster, int spell_type, int base_dam, int
 extern int SP_level_strength_adjust(object *caster, int spell_type);
 extern int SP_level_spellpoint_cost(object *caster, int spell_type, int caster_level);
 extern void fire_swarm(object *op, object *caster, int dir, archetype *swarm_type, int spell_type, int n, int magic);
+extern void spell_failure_raw_mana(object *caster, int level);
+extern void spell_failure(object *caster, int level);
 /* src/server/statistics.c */
 extern void statistics_init(void);
 extern void statistic_update(const char *type, object *op, int64_t i, const char *buf);
@@ -738,7 +743,7 @@ extern void give_artifact_abilities(object *op, artifact *art);
 extern int generate_artifact(object *op, int difficulty, int t_style, int a_chance);
 extern void free_all_treasures(void);
 extern int get_environment_level(object *op);
-extern object *create_artifact(object *op, char *artifactname);
+extern void create_artifact(object *op, char *artifactname);
 /* src/server/weather.c */
 extern const int season_timechange[4][24];
 extern void init_world_darkness(void);
@@ -797,7 +802,7 @@ extern void socket_enable_no_delay(int fd);
 extern void socket_disable_no_delay(int fd);
 extern void socket_buffer_clear(socket_struct *ns);
 extern void socket_buffer_write(socket_struct *ns);
-extern void socket_send_packet(socket_struct *ns, packet_struct *packet);
+extern void socket_send_packet(socket_struct *ns, struct packet_struct *packet);
 /* src/socket/metaserver.c */
 extern void metaserver_info_update(void);
 extern void metaserver_init(void);
@@ -812,9 +817,9 @@ extern void esrv_update_stats(player *pl);
 extern void esrv_new_player(player *pl, uint32_t weight);
 extern void draw_map_text_anim(object *pl, const char *color, const char *text);
 extern void draw_client_map(object *pl);
-extern void packet_append_map_name(packet_struct *packet, object *op, object *map_info);
-extern void packet_append_map_music(packet_struct *packet, object *op, object *map_info);
-extern void packet_append_map_weather(packet_struct *packet, object *op, object *map_info);
+extern void packet_append_map_name(struct packet_struct *packet, object *op, object *map_info);
+extern void packet_append_map_music(struct packet_struct *packet, object *op, object *map_info);
+extern void packet_append_map_weather(struct packet_struct *packet, object *op, object *map_info);
 extern void draw_client_map2(object *pl);
 extern void socket_command_quest_list(socket_struct *ns, player *pl, uint8_t *data, size_t len, size_t pos);
 extern void socket_command_clear(socket_struct *ns, player *pl, uint8_t *data, size_t len, size_t pos);
@@ -856,6 +861,8 @@ extern void object_type_init_beacon(void);
 extern void object_type_init_blindness(void);
 /* src/types/book.c */
 extern void object_type_init_book(void);
+/* src/types/book_spell.c */
+extern void object_type_init_book_spell(void);
 /* src/types/boots.c */
 extern void object_type_init_boots(void);
 /* src/types/bow.c */
@@ -1063,6 +1070,7 @@ extern char *player_make_path(const char *name, const char *ext);
 extern int player_exists(const char *name);
 extern void player_save(object *op);
 extern object *player_get_dummy(void);
+extern object *player_find_spell(object *op, spell_struct *spell);
 extern void player_login(socket_struct *ns, const char *name, archetype *at);
 extern void object_type_init_player(void);
 /* src/types/player_mover.c */

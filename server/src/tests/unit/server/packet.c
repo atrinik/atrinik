@@ -24,6 +24,7 @@
 
 #include <global.h>
 #include <check.h>
+#include <checkstd.h>
 #include <check_proto.h>
 #include <packet.h>
 #include <toolkit_string.h>
@@ -48,37 +49,37 @@ START_TEST(test_packet_new)
 
     packet = packet_new(0, 0, 0);
     packet_append_string_terminated(packet, "hello world");
-    ck_assert_str_eq(packet->data, "hello world");
+    ck_assert_str_eq((const char *) packet->data, "hello world");
     packet_free(packet);
 
     packet = packet_new(0, 5, 0);
     packet_append_string_terminated(packet, "hello world");
-    ck_assert_str_eq(packet->data, "hello world");
+    ck_assert_str_eq((const char *) packet->data, "hello world");
     packet_free(packet);
 
     packet = packet_new(0, 5, 5);
     packet_append_string_terminated(packet, "hello world");
-    ck_assert_str_eq(packet->data, "hello world");
+    ck_assert_str_eq((const char *) packet->data, "hello world");
     packet_free(packet);
 
     packet = packet_new(0, 5, 100);
     packet_append_string_terminated(packet, "hello world");
-    ck_assert_str_eq(packet->data, "hello world");
+    ck_assert_str_eq((const char *) packet->data, "hello world");
     packet_free(packet);
 
     packet = packet_new(0, 100, 0);
     packet_append_string_terminated(packet, "hello world");
-    ck_assert_str_eq(packet->data, "hello world");
+    ck_assert_str_eq((const char *) packet->data, "hello world");
     packet_free(packet);
 
     packet = packet_new(0, 100, 100);
     packet_append_string_terminated(packet, "hello world");
-    ck_assert_str_eq(packet->data, "hello world");
+    ck_assert_str_eq((const char *) packet->data, "hello world");
     packet_free(packet);
 
     packet = packet_new(0, 0, 100);
     packet_append_string_terminated(packet, "hello world");
-    ck_assert_str_eq(packet->data, "hello world");
+    ck_assert_str_eq((const char *) packet->data, "hello world");
     packet_free(packet);
 }
 END_TEST

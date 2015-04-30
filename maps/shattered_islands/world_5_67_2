@@ -1,0 +1,236 @@
+arch map
+name Fort Ghzal
+msg
+Created:  2015-04-25 Alex Tokar
+Modified: 2015-04-26 Alex Tokar
+endmsg
+width 24
+height 24
+difficulty 1
+darkness -1
+outdoor 1
+bg_music enfero.xm
+region fort_ghzal
+end
+arch roof_wood
+direction 3
+x 2
+y 6
+end
+arch roof_wood
+direction 3
+x 2
+y 7
+end
+arch roof_wood
+direction 3
+x 2
+y 8
+end
+arch roof_wood
+direction 3
+x 2
+y 9
+end
+arch roof_wood
+direction 3
+x 2
+y 10
+end
+arch roof_wood
+direction 5
+x 3
+y 5
+end
+arch roof_wood
+x 3
+y 6
+end
+arch roof_wood
+x 3
+y 7
+end
+arch roof_wood
+x 3
+y 8
+end
+arch roof_wood
+x 3
+y 9
+end
+arch roof_wood
+x 3
+y 10
+end
+arch roof_wood
+direction 5
+x 4
+y 5
+end
+arch roof_wood
+x 4
+y 6
+end
+arch roof_wood
+x 4
+y 7
+end
+arch roof_wood
+x 4
+y 8
+end
+arch roof_wood
+x 4
+y 9
+end
+arch roof_wood
+x 4
+y 10
+end
+arch roof_wood
+direction 5
+x 5
+y 5
+end
+arch roof_wood
+x 5
+y 6
+end
+arch roof_wood
+x 5
+y 7
+end
+arch roof_wood
+x 5
+y 8
+end
+arch roof_wood
+x 5
+y 9
+end
+arch roof_wood
+x 5
+y 10
+end
+arch roof_wood
+direction 5
+x 6
+y 5
+end
+arch roof_wood
+direction 8
+x 6
+y 6
+end
+arch roof_wood
+x 6
+y 7
+end
+arch roof_wood
+x 6
+y 8
+end
+arch roof_wood
+x 6
+y 9
+end
+arch roof_wood
+x 6
+y 10
+end
+arch roof_wood
+direction 5
+x 7
+y 5
+end
+arch roof_wood
+direction 7
+x 7
+y 6
+end
+arch roof_wood
+direction 8
+x 7
+y 7
+end
+arch roof_wood
+x 7
+y 8
+end
+arch roof_wood
+x 7
+y 9
+end
+arch roof_wood
+x 7
+y 10
+end
+arch roof_wood
+direction 5
+x 8
+y 5
+end
+arch roof_wood
+direction 7
+x 8
+y 6
+end
+arch roof_wood
+direction 7
+x 8
+y 7
+end
+arch roof_wood
+direction 4
+x 8
+y 8
+end
+arch roof_wood
+direction 7
+x 8
+y 9
+end
+arch roof_wood
+direction 8
+x 8
+y 10
+end
+arch roof_wood
+direction 5
+x 9
+y 5
+end
+arch roof_wood
+direction 7
+x 9
+y 6
+end
+arch roof_wood
+direction 7
+x 9
+y 7
+end
+arch roof_wood
+x 9
+y 8
+end
+arch roof_wood
+direction 5
+x 10
+y 5
+end
+arch roof_wood
+direction 7
+x 10
+y 6
+end
+arch roof_wood
+direction 7
+x 10
+y 7
+end
+arch roof_wood
+direction 8
+x 10
+y 8
+end

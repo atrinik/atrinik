@@ -77,6 +77,7 @@ void object_methods_init(void)
     object_type_init_beacon();
     object_type_init_blindness();
     object_type_init_book();
+    object_type_init_book_spell();
     object_type_init_boots();
     object_type_init_bow();
     object_type_init_bracers();

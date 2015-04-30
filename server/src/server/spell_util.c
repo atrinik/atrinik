@@ -66,6 +66,10 @@ void init_spells(void)
 
         at->clone.stats.sp = i;
 
+        if (at->clone.value != 0) {
+            spells[i].spell_use |= SPELL_USE_BOOK;
+        }
+
         if (spells[i].archname) {
             if ((spellarch[i] = find_archetype(spells[i].archname)) == NULL) {
                 logger_print(LOG(ERROR), "Spell %s needs arch %s, your archetypes file is out of date.", spells[i].name, spells[i].archname);
@@ -400,7 +404,8 @@ int cast_spell(object *op, object *caster, int dir, int type, int ability, int i
         break;
 
     case SP_DESTRUCTION:
-        success = cast_destruction(op, caster, 5 + op->stats.Int, AT_MAGIC);
+        success = 1;
+        cast_destruction(op, caster, 5 + op->stats.Int);
         break;
 
     case SP_TRANSFORM_WEALTH:
@@ -780,7 +785,7 @@ void check_fired_arch(object *op)
 
         tmp_tag = tmp->count;
 
-        dam = hit_player(tmp, op->stats.dam, op, AT_INTERNAL);
+        dam = hit_player(tmp, op->stats.dam, op);
 
         if (was_destroyed(op, op_tag) || !was_destroyed(tmp, tmp_tag) || (op->stats.dam -= dam) < 0) {
             if (!QUERY_FLAG(op, FLAG_REMOVED)) {
@@ -1003,4 +1008,87 @@ void fire_swarm(object *op, object *caster, int dir, archetype *swarm_type, int 
     tmp->direction = dir;
 
     insert_ob_in_map(tmp, op->map, op, 0);
+}
+
+/**
+ * Punish player for failure in casting a spell by summoning a blast of
+ * uncontrollable raw mana.
+ * @param caster The caster.
+ * @param level Level of the spell.
+ */
+void spell_failure_raw_mana(object *caster, int level)
+{
+    object *tmp;
+    tag_t count_ref;
+
+    tmp = get_archetype("raw_mana");
+    count_ref = tmp->count;
+
+    for (int i = 0; i <= SIZEOFFREE1; i++) {
+        if (tmp == NULL) {
+            tmp = get_archetype("raw_mana");
+        }
+
+        tmp->weight_limit = count_ref;
+        tmp->level = caster->level;
+        tmp->stats.sp = i;
+        tmp->stats.hp = MIN(10, 3 + level / 5);
+        tmp->stats.maxhp = tmp->count;
+        tmp->stats.dam = level;
+
+        tmp->x = caster->x + freearr_x[i];
+        tmp->y = caster->y + freearr_y[i];
+
+        if (!insert_ob_in_map(tmp, caster->map, caster, 0)) {
+            continue;
+        }
+
+        tmp = NULL;
+    }
+}
+
+/**
+ * Punish player for failure in casting a spell.
+ * @param caster The caster.
+ * @param level Level of the spell.
+ */
+void spell_failure(object *caster, int level)
+{
+    bool punished = false;
+
+    if (level >= 15) {
+        if (rndm_chance(MAX(1, (MAXLEVEL - level * 1.05) / 2))) {
+            draw_info(COLOR_RED, caster, "The wild magic confuses you!");
+            confuse_living(caster);
+            punished = true;
+        }
+
+        if (rndm_chance(MAX(1, (MAXLEVEL - level * 1.10) / 3))) {
+            draw_info(COLOR_RED, caster, "The wild magic paralyzes you!");
+            paralyze_living(caster, level * 2);
+            punished = true;
+        }
+
+        if (rndm_chance(MAX(1, (MAXLEVEL - level * 1.15) / 4))) {
+            draw_info(COLOR_RED, caster, "The wild magic blinds you!");
+            blind_living(caster, caster, level * 2);
+            punished = true;
+        }
+
+        if (rndm_chance(MAX(1, (MAXLEVEL - level * 1.2) / 5))) {
+            draw_info(COLOR_RED, caster,
+                    "You unleash an uncontrolled blast of raw mana!");
+            spell_failure_raw_mana(caster, level * 2);
+            punished = true;
+        }
+    }
+
+    if (!punished) {
+        draw_info(COLOR_RED, caster, "The wild magic drains your mana!");
+        caster->stats.sp -= rndm(1, level) * 1.75;
+
+        if (caster->stats.sp < 0) {
+            caster->stats.sp = 0;
+        }
+    }
 }

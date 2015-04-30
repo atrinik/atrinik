@@ -242,6 +242,8 @@ enum {
 #define MAP2_FLAG2_PROBE 16
 /** Priority rendering. */
 #define MAP2_FLAG2_PRIORITY 32
+/** Second alpha pass rendering. */
+#define MAP2_FLAG2_SECONDPASS 64
 /*@}*/
 
 /**
@@ -595,6 +597,7 @@ enum {
 #define CMD_TALK_BELOW 3
 #define CMD_TALK_CONTAINER 4
 #define CMD_TALK_NPC_NAME 5
+#define CMD_TALK_CLOSE 6
 
 /**
  * @defgroup CMD_CONTROL_xxx Control command types

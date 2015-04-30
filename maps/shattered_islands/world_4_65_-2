@@ -1,0 +1,86 @@
+arch map
+name Brynknot Sewers
+msg
+Created:  2010-06-06 Edwin Miltenburg
+Modified: 2015-04-30 Alex Tokar
+endmsg
+width 24
+height 24
+difficulty 60
+darkness 1
+bg_music escape.mid
+region brynknot
+end
+arch floor_earth1a
+y 19
+end
+arch fwall_sand1a
+y 19
+end
+arch plant2_wall.151
+direction 7
+y 19
+end
+arch floor_earth1a
+y 20
+end
+arch fwall_sand1b
+y 20
+end
+arch floor_earth1b
+y 21
+end
+arch plant6
+y 21
+end
+arch floor_earth1d
+y 22
+end
+arch plant8
+y 22
+end
+arch floor_earth1c
+y 23
+end
+arch floor_earth1e
+x 1
+y 20
+end
+arch fwall_sand1b
+x 1
+y 20
+end
+arch floor_earth1e
+x 1
+y 21
+end
+arch fwall_sand1b
+x 1
+y 21
+end
+arch plant2_wall.151
+direction 7
+x 1
+y 21
+end
+arch floor_earth1a
+x 1
+y 22
+end
+arch fwall_sand1a
+x 1
+y 22
+end
+arch plant2_wall.151
+direction 7
+x 1
+y 22
+end
+arch floor_earth1b
+x 1
+y 23
+end
+arch fwall_sand1a
+x 1
+y 23
+end

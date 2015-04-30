@@ -2,7 +2,7 @@ arch map
 name Lower Deck
 msg
 Created:  2011-08-18 Alex Tokar
-Modified: 2015-04-19 Alex Tokar
+Modified: 2015-04-21 Alex Tokar
 endmsg
 width 5
 height 14
@@ -214,6 +214,7 @@ endmsg
 slaying ../world_-7_76
 hp 8
 sp 14
+damned 1
 x 1
 y 6
 end
@@ -355,6 +356,7 @@ endmsg
 slaying ../world_-7_76
 hp 8
 sp 14
+damned 1
 x 2
 y 6
 end

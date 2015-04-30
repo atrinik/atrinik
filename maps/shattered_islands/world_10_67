@@ -2,7 +2,7 @@ arch map
 name The City of Greyton
 msg
 Created:  2009-09-10 Alex Tokar
-Modified: 2011-10-01 Alex Tokar
+Modified: 2015-04-26 Alex Tokar
 endmsg
 width 24
 height 24
@@ -14,7 +14,15 @@ region greyton
 end
 arch floor_flagm4
 end
-arch fwall_fstone2
+arch wall_flagstone1_w.111
+z 9
+align 18
+end
+arch map_info
+name greyton_wall
+hp 23
+sp 4
+cursed 1
 end
 arch floor_flagm3
 y 1
@@ -41,6 +49,13 @@ arch grassd_2
 y 6
 end
 arch wall_flagstone1.111
+y 6
+end
+arch map_info
+name greyton_shop
+hp 2
+sp 7
+cursed 1
 y 6
 end
 arch shop_floor
@@ -86,13 +101,6 @@ end
 arch grassd_2
 y 14
 end
-arch lantern_magic.131
-direction 3
-y 14
-end
-arch light5
-y 14
-end
 arch floor_flagm2
 y 15
 end
@@ -112,13 +120,6 @@ arch grassd_m7
 y 18
 end
 arch grassd_8
-y 19
-end
-arch lantern_magic.131
-direction 7
-y 19
-end
-arch light5
 y 19
 end
 arch grassd_6
@@ -147,10 +148,14 @@ end
 arch floor_flagm2
 x 1
 end
-arch fwall_fstone2
+arch wall_fstone_round.106
 x 1
 end
 arch floor_flagm1
+x 1
+y 1
+end
+arch torch_wall_1
 x 1
 y 1
 end
@@ -607,10 +612,14 @@ end
 arch floor_flagm1
 x 4
 end
-arch fwall_fstone2
+arch wall_fstone_round.104
 x 4
 end
 arch floor_flagm2
+x 4
+y 1
+end
+arch torch_wall_1
 x 4
 y 1
 end
@@ -678,6 +687,12 @@ arch grassd_5
 x 4
 y 14
 end
+arch lantern_magic.131
+glow_radius 5
+direction 3
+x 4
+y 14
+end
 arch floor_flagm3
 x 4
 y 15
@@ -703,6 +718,12 @@ x 4
 y 18
 end
 arch grassd_7
+x 4
+y 19
+end
+arch lantern_magic.131
+direction 7
+glow_radius 5
 x 4
 y 19
 end
@@ -735,7 +756,9 @@ end
 arch floor_flagm2
 x 5
 end
-arch fwall_fstone2
+arch wall_flagstone1_w.111
+z 9
+align 18
 x 5
 end
 arch floor_flagm3
@@ -767,6 +790,14 @@ x 5
 y 6
 end
 arch wall_flagstone2.181
+x 5
+y 6
+end
+arch map_info
+name greyton_arena_respawn
+hp 16
+sp 7
+cursed 1
 x 5
 y 6
 end
@@ -858,15 +889,6 @@ arch grassd_1
 x 5
 y 19
 end
-arch lantern_magic.131
-direction 7
-x 5
-y 19
-end
-arch light5
-x 5
-y 19
-end
 arch grassd_7
 x 5
 y 20
@@ -896,7 +918,7 @@ end
 arch floor_flagm2
 x 6
 end
-arch fwall_fstone2
+arch wall_fstone_round.106
 x 6
 end
 arch floor_flagm4
@@ -979,15 +1001,6 @@ arch grassd_3
 x 6
 y 14
 end
-arch lantern_magic.131
-direction 3
-x 6
-y 14
-end
-arch light5
-x 6
-y 14
-end
 arch floor_flagm1
 x 6
 y 15
@@ -1049,6 +1062,10 @@ arch fwall_fstone2
 x 7
 end
 arch floor_flagm3
+x 7
+y 1
+end
+arch torch_wall_1
 x 7
 y 1
 end
@@ -1133,6 +1150,19 @@ end
 arch grassd_7
 x 7
 y 14
+end
+arch spawn_point
+x 7
+y 14
+arch guard_royal
+level 70
+unaggressive 0
+type 83
+arch event_obj
+sub_type 6
+race /python/generic/guard.py
+end
+end
 end
 arch floor_flagm2
 x 7
@@ -1351,10 +1381,14 @@ end
 arch floor_flagm4
 x 9
 end
-arch fwall_fstone2
+arch wall_fstone_round.104
 x 9
 end
 arch floor_flagm4
+x 9
+y 1
+end
+arch torch_wall_1
 x 9
 y 1
 end
@@ -1434,6 +1468,12 @@ arch grassd_8
 x 9
 y 14
 end
+arch lantern_magic.131
+glow_radius 5
+direction 3
+x 9
+y 14
+end
 arch floor_flagm1
 x 9
 y 15
@@ -1459,6 +1499,12 @@ x 9
 y 18
 end
 arch grassd_2
+x 9
+y 19
+end
+arch lantern_magic.131
+direction 7
+glow_radius 5
 x 9
 y 19
 end
@@ -1491,7 +1537,9 @@ end
 arch floor_flagm2
 x 10
 end
-arch fwall_fstone2
+arch wall_flagstone1_w.111
+z 9
+align 18
 x 10
 end
 arch floor_flagm1
@@ -1604,15 +1652,6 @@ arch grassd_1
 x 10
 y 19
 end
-arch lantern_magic.131
-direction 7
-x 10
-y 19
-end
-arch light5
-x 10
-y 19
-end
 arch grassd_7
 x 10
 y 20
@@ -1646,10 +1685,14 @@ end
 arch floor_flagm4
 x 11
 end
-arch fwall_fstone2
+arch wall_fstone_round.106
 x 11
 end
 arch floor_flagm2
+x 11
+y 1
+end
+arch torch_wall_1
 x 11
 y 1
 end
@@ -1794,10 +1837,14 @@ end
 arch floor_flagm2
 x 12
 end
-arch fwall_fstone2
+arch wall_fstone_round.104
 x 12
 end
 arch floor_flagm2
+x 12
+y 1
+end
+arch torch_wall_1
 x 12
 y 1
 end
@@ -1946,7 +1993,9 @@ end
 arch floor_flagm4
 x 13
 end
-arch fwall_fstone2
+arch wall_flagstone1_w.111
+z 9
+align 18
 x 13
 end
 arch floor_flagm3
@@ -2089,10 +2138,14 @@ end
 arch floor_flagm4
 x 14
 end
-arch fwall_fstone2
+arch wall_fstone_round.106
 x 14
 end
 arch floor_flagm2
+x 14
+y 1
+end
+arch torch_wall_1
 x 14
 y 1
 end
@@ -2203,6 +2256,12 @@ x 14
 y 18
 end
 arch grassd_1
+x 14
+y 19
+end
+arch lantern_magic.131
+direction 7
+glow_radius 5
 x 14
 y 19
 end
@@ -2362,15 +2421,6 @@ arch grassd_4
 x 15
 y 19
 end
-arch lantern_magic.131
-direction 7
-x 15
-y 19
-end
-arch light5
-x 15
-y 19
-end
 arch grassd_5
 x 15
 y 20
@@ -2542,10 +2592,14 @@ end
 arch floor_flagm1
 x 17
 end
-arch fwall_fstone2
+arch wall_fstone_round.104
 x 17
 end
 arch floor_flagm4
+x 17
+y 1
+end
+arch torch_wall_1
 x 17
 y 1
 end
@@ -2638,6 +2692,19 @@ arch grassd_8
 x 17
 y 14
 end
+arch spawn_point
+x 17
+y 14
+arch guard_royal
+level 70
+unaggressive 0
+type 83
+arch event_obj
+sub_type 6
+race /python/generic/guard.py
+end
+end
+end
 arch floor_flagm2
 x 17
 y 15
@@ -2699,7 +2766,9 @@ end
 arch floor_flagm1
 x 18
 end
-arch fwall_fstone2
+arch wall_flagstone1_w.111
+z 9
+align 18
 x 18
 end
 arch floor_flagm3
@@ -2856,10 +2925,14 @@ end
 arch floor_flagm3
 x 19
 end
-arch fwall_fstone2
+arch wall_fstone_round.106
 x 19
 end
 arch floor_flagm1
+x 19
+y 1
+end
+arch torch_wall_1
 x 19
 y 1
 end
@@ -2936,6 +3009,12 @@ arch grassd_4
 x 19
 y 14
 end
+arch lantern_magic.131
+glow_radius 5
+direction 3
+x 19
+y 14
+end
 arch floor_flagm2
 x 19
 y 15
@@ -2961,6 +3040,12 @@ x 19
 y 18
 end
 arch grassd_7
+x 19
+y 19
+end
+arch lantern_magic.131
+direction 7
+glow_radius 5
 x 19
 y 19
 end
@@ -3224,15 +3309,6 @@ arch grassd_5
 x 21
 y 14
 end
-arch lantern_magic.131
-direction 3
-x 21
-y 14
-end
-arch light5
-x 21
-y 14
-end
 arch floor_flagm2
 x 21
 y 15
@@ -3258,15 +3334,6 @@ x 21
 y 18
 end
 arch grassd_4
-x 21
-y 19
-end
-arch lantern_magic.131
-direction 7
-x 21
-y 19
-end
-arch light5
 x 21
 y 19
 end
@@ -3303,10 +3370,14 @@ end
 arch floor_flagm2
 x 22
 end
-arch fwall_fstone2
+arch wall_fstone_round.104
 x 22
 end
 arch floor_flagm3
+x 22
+y 1
+end
+arch torch_wall_1
 x 22
 y 1
 end
@@ -3427,7 +3498,9 @@ end
 arch floor_flagm2
 x 23
 end
-arch fwall_fstone2
+arch wall_flagstone1_w.111
+z 9
+align 18
 x 23
 end
 arch floor_flagm4

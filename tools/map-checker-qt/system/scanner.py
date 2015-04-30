@@ -45,6 +45,17 @@ class ScannerMap:
 
         return files
 
+    def filter_modified_files(self, files, db):
+        ret = []
+
+        for file in files:
+            if not db.file_is_modified(file):
+                continue
+
+            ret.append(file)
+
+        return ret
+
     @staticmethod
     def filter_map_files(files):
         """
@@ -54,7 +65,7 @@ class ScannerMap:
         maps = []
 
         for file in files:
-            with open(file, "r") as f:
+            with open(file) as f:
                 # Attempt to read the map file identifier header.
                 # If it's there, this is a map file.
                 s = f.read(len(parser.mapFileIdentifier))

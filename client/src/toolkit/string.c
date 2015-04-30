@@ -1026,21 +1026,19 @@ char *string_last(const char *haystack, const char *needle)
     len_haystack = strlen(haystack);
     len_needle = strlen(needle);
 
-    if (len_haystack - len_needle <= 0) {
+    if (len_needle > len_haystack) {
         return NULL;
     }
 
     char *cp = (char *) haystack + len_haystack - len_needle;
 
-    while (cp != haystack) {
+    do {
         if (*cp == *needle) {
             if (strncmp(cp, needle, len_needle) == 0) {
                 return cp;
             }
         }
-
-        cp--;
-    }
+    } while (cp-- != haystack);
 
     return NULL;
 }

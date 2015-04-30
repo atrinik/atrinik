@@ -28,6 +28,7 @@
  * only living things. */
 
 #include <global.h>
+#include <monster_data.h>
 
 /** When we carry more than this of our weight_limit, we get encumbered. */
 #define ENCUMBRANCE_LIMIT 65.0f
@@ -72,6 +73,19 @@ float speed_bonus[MAX_STAT + 1] = {
     0.075f, 0.1f, 0.125f, 0.15f, 0.175f, 0.2f,
     0.225f, 0.25f, 0.275f, 0.3f,
     0.325f, 0.35f, 0.4f, 0.45f, 0.5f
+};
+
+/**
+ * Falling damage mitigation. Uses dexterity.
+ */
+double falling_mitigation[MAX_STAT + 1] = {
+    2.0f, // 0
+    1.9f, 1.8f, 1.7f, 1.6f, 1.5f, // 1-5
+    1.4f, 1.3f, 1.2f, 1.1f, 1.0f, // 6-10
+    1.05f, 1.0f, 1.0f, 1.0f, 1.0f, // 11-15
+    0.98f, 0.96f, 0.94f, 0.92f, 0.9f, // 16-20
+    0.88f, 0.84f, 0.80f, 0.77f, 0.73f, // 21-25
+    0.7f, 0.65f, 0.6f, 0.55f, 0.5f // 26-30
 };
 
 /**
@@ -520,6 +534,14 @@ void living_update_player(object *op)
 
     if (!QUERY_FLAG(&op->arch->clone, FLAG_SEE_INVISIBLE)) {
         CLEAR_FLAG(op, FLAG_SEE_INVISIBLE);
+    }
+
+    if (!QUERY_FLAG(&op->arch->clone, FLAG_CONFUSED)) {
+        CLEAR_FLAG(op, FLAG_CONFUSED);
+    }
+
+    if (!QUERY_FLAG(&op->arch->clone, FLAG_BLIND)) {
+        CLEAR_FLAG(op, FLAG_BLIND);
     }
 
     memset(&protect_boni, 0, sizeof(protect_boni));
@@ -973,7 +995,6 @@ void living_update_player(object *op)
 void living_update_monster(object *op)
 {
     object *base, *tmp;
-    float tmp_add;
 
     HARD_ASSERT(op != NULL);
 
@@ -984,6 +1005,10 @@ void living_update_monster(object *op)
 
     if (QUERY_FLAG(op, FLAG_NO_FIX_PLAYER)) {
         return;
+    }
+
+    if (op->custom_attrset == NULL) {
+        monster_data_init(op);
     }
 
     /* Will insert or/and return base info */
@@ -1059,29 +1084,25 @@ void living_update_monster(object *op)
         }
     }
 
-    if ((tmp_add = LEVEL_DAMAGE(op->level / 3) - 0.75f) < 0) {
-        tmp_add = 0;
-    }
-
     if (op->more && QUERY_FLAG(op, FLAG_FRIENDLY)) {
         SET_MULTI_FLAG(op, FLAG_FRIENDLY);
     }
 
-    op->stats.dam = (int16_t) (((float) op->stats.dam *
-            ((LEVEL_DAMAGE(op->level < 0 ? 0 : op->level) + tmp_add) *
-            (0.925f + 0.05 * (op->level / 10)))) / 10.0f);
+    op->stats.dam = (int16_t) (((double) op->stats.dam *
+            ((LEVEL_DAMAGE(op->level) + MAX(LEVEL_DAMAGE(op->level / 3.0) -
+            0.75f, 0.0)) * (0.925f + 0.05 * (op->level / 10.0)))) / 10.0f);
 
     /* Add a special decrease of power for monsters level 1-5 */
     if (op->level <= 5) {
-        float d = 1.0f - ((0.35f / 5.0f) * (float) (6 - op->level));
+        double d = 1.0f - ((0.35f / 5.0f) * (double) (6 - op->level));
 
-        op->stats.dam = (int) ((float) op->stats.dam * d);
+        op->stats.dam = (int16_t) ((double) op->stats.dam * d);
 
         if (op->stats.dam < 1) {
             op->stats.dam = 1;
         }
 
-        op->stats.maxhp = (int) ((float) op->stats.maxhp * d);
+        op->stats.maxhp = (int16_t) ((double) op->stats.maxhp * d);
 
         if (op->stats.maxhp < 1) {
             op->stats.maxhp = 1;
@@ -1231,6 +1252,19 @@ static int living_update_display(object *op, object *refop, player *refpl)
             draw_info(COLOR_GRAY, op, "You are blinded.");
         } else {
             draw_info(COLOR_WHITE, op, "Your vision returns.");
+        }
+
+        pl->update_los = 1;
+    }
+
+    if (QUERY_FLAG(op, FLAG_CONFUSED) !=
+            QUERY_FLAG(refop, FLAG_CONFUSED)) {
+        ret++;
+
+        if (QUERY_FLAG(op, FLAG_CONFUSED)) {
+            draw_info(COLOR_GRAY, op, "You suddenly feel very confused!");
+        } else {
+            draw_info(COLOR_WHITE, op, "You regain your senses.");
         }
     }
 

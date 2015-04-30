@@ -969,6 +969,18 @@ class InterfaceElementClose(InterfaceElement):
     priority = 1000
 
 
+class InterfaceElementCode(InterfaceElement):
+    tag = "code"
+    attributes = ("text",)
+    priority = 1000
+
+
+class InterfaceElementPrecond(InterfaceElement):
+    tag = "precond"
+    attributes = ("text",)
+    priority = 1000
+
+
 class InterfaceElementCollection(object):
     def __init__(self):
         self.elements = {}

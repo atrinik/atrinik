@@ -505,7 +505,7 @@ typedef struct map_exit {
     object *obj;
 } map_exit_t;
 
-typedef struct path_node path_node_t;
+struct path_node;
 
 /**
  * In general, code should always use the macros above (or functions in
@@ -532,13 +532,13 @@ typedef struct mapdef {
     struct mapdef *tile_map[TILED_NUM];
 
     /** Name of map as given by its creator */
-    char *name;
+    shstr *name;
 
     /** Background music of the map */
-    char *bg_music;
+    shstr *bg_music;
 
     /** Weather effect active on this map. */
-    char *weather;
+    shstr *weather;
 
     /** Name of temporary file */
     char *tmpname;
@@ -581,7 +581,7 @@ typedef struct mapdef {
     /** For which traversal is @ref mapstruct::bitmap valid. */
     uint32_t pathfinding_id;
 
-    path_node_t **path_nodes;
+    struct path_node **path_nodes;
 
     /** Map flags for various map settings */
     uint32_t map_flags;
@@ -657,6 +657,8 @@ typedef struct mapdef {
     int8_t level_max; ///< Maximum level offset that is part of this map.
 
     bool global_removed; ///< If true, the map was removed from the global list.
+
+    tag_t count; ///< Unique identifier for the map.
 } mapstruct;
 
 /**

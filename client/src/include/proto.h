@@ -184,7 +184,7 @@ extern int64_t setting_from_name(const char *name);
 /* src/client/socket.c */
 extern command_buffer *command_buffer_new(size_t len, uint8_t *data);
 extern void command_buffer_free(command_buffer *buf);
-extern void socket_send_packet(packet_struct *packet);
+extern void socket_send_packet(struct packet_struct *packet);
 extern command_buffer *get_next_input_command(void);
 extern void add_input_command(command_buffer *buf);
 extern void socket_thread_start(void);
@@ -228,7 +228,7 @@ extern sprite_struct *sprite_tryload_file(char *fname, uint32_t flag, SDL_RWops 
 extern void sprite_free_sprite(sprite_struct *sprite);
 extern void surface_show(SDL_Surface *surface, int x, int y, SDL_Rect *srcrect, SDL_Surface *src);
 extern void surface_show_fill(SDL_Surface *surface, int x, int y, SDL_Rect *srcsize, SDL_Surface *src, SDL_Rect *box);
-extern void surface_show_effects(SDL_Surface *surface, int x, int y, SDL_Rect *srcrect, SDL_Surface *src, uint8_t alpha, uint32_t stretch, int16_t zoom_x, int16_t zoom_y, int16_t rotate);
+extern void surface_show_effects(SDL_Surface *surface, int x, int y, SDL_Rect *srcrect, SDL_Surface *src, uint8_t alpha, int32_t stretch, int16_t zoom_x, int16_t zoom_y, int16_t rotate);
 extern void map_sprite_show(SDL_Surface *surface, int x, int y, SDL_Rect *srcrect, sprite_struct *sprite, uint32_t flags, uint8_t dark_level, uint8_t alpha, uint32_t stretch, int16_t zoom_x, int16_t zoom_y, int16_t rotate);
 extern Uint32 getpixel(SDL_Surface *surface, int x, int y);
 extern void putpixel(SDL_Surface *surface, int x, int y, Uint32 pixel);
@@ -704,7 +704,7 @@ extern int map_get_player_direction(void);
 extern void map_get_real_coords(int *x, int *y);
 extern void init_map_data(int xl, int yl, int px, int py);
 extern void adjust_tile_stretch(void);
-extern void map_set_data(int x, int y, int layer, int16_t face, uint8_t quick_pos, uint8_t obj_flags, const char *name, const char *name_color, int16_t height, uint8_t probe, int16_t zoom_x, int16_t zoom_y, int16_t align, uint8_t draw_double, uint8_t alpha, int16_t rotate, uint8_t infravision, uint32_t target_object_count, uint8_t target_is_friend, uint8_t anim_speed, uint8_t anim_facing, uint8_t anim_flags, uint8_t anim_state, uint8_t priority);
+extern void map_set_data(int x, int y, int layer, int16_t face, uint8_t quick_pos, uint8_t obj_flags, const char *name, const char *name_color, int16_t height, uint8_t probe, int16_t zoom_x, int16_t zoom_y, int16_t align, uint8_t draw_double, uint8_t alpha, int16_t rotate, uint8_t infravision, uint32_t target_object_count, uint8_t target_is_friend, uint8_t anim_speed, uint8_t anim_facing, uint8_t anim_flags, uint8_t anim_state, uint8_t priority, uint8_t secondpass);
 extern void map_clear_cell(int x, int y);
 extern void map_set_darkness(int x, int y, int sub_layer, uint8_t darkness);
 extern void map_animate(void);

@@ -5,7 +5,7 @@ layer 3
 face icon_minor_healing.101
 no_drop 1
 level 1
-value 0
+value 5000
 msg
 This spell heals minor wounds on either the caster or the target.
 endmsg

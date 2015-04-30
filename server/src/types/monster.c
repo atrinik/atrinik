@@ -31,6 +31,7 @@
 #include <global.h>
 #include <packet.h>
 #include <toolkit_string.h>
+#include <monster_data.h>
 
 static int can_detect_enemy(object *op, object *enemy, rv_vector *rv);
 static object *find_nearest_enemy(object *ob);
@@ -345,52 +346,16 @@ static int can_detect_enemy(object *op, object *enemy, rv_vector *rv)
  * may disable normal movement, such as player talking to the monster,
  * and the monster responding to the player and setting a period of time
  * to wait for until resuming movement.
- * @param op Monster>
- * @return 1 if the monster can move, 0 otherwise. */
-static int monster_can_move(object *op)
-{
-    shstr *timeout;
-
-    timeout = object_get_value(op, "npc_move_timeout");
-
-    if (!timeout) {
-        return 1;
-    }
-
-    if (pticks >= atol(timeout)) {
-        object_set_value(op, "npc_move_timeout", NULL, 1);
-        return 1;
-    }
-
-    return 0;
-}
-
-/**
- * Update monster's move timeout value due to player talking to the NPC,
- * based on message length 'len'.
  * @param op Monster.
- * @param len The length of the message NPC responds with. */
-static void monster_update_move_timeout(object *op, int len)
+ * @return Whether the monster can move.
+ */
+static bool monster_can_move(object *op)
 {
-    shstr *timeout;
-    int secs;
-    long ticks;
-
-    /* No movement type or random movement set, no need to set timeout. */
-    if (!op->move_type && !QUERY_FLAG(op, FLAG_RANDOM_MOVE)) {
-        return;
+    if (monster_data_dialogs_num(op) != 0) {
+        return false;
     }
 
-    timeout = object_get_value(op, "npc_move_timeout");
-    secs = (long) (((double) MAX(INTERFACE_TIMEOUT_CHARS, len) / INTERFACE_TIMEOUT_CHARS) * INTERFACE_TIMEOUT_SECONDS) - INTERFACE_TIMEOUT_SECONDS + INTERFACE_TIMEOUT_INITIAL;
-    ticks = pticks + MIN(secs, INTERFACE_TIMEOUT_MAX) * MAX_TICKS;
-
-    if (!timeout || ticks > atol(timeout)) {
-        char buf[MAX_BUF];
-
-        snprintf(buf, sizeof(buf), "%ld", ticks);
-        object_set_value(op, "npc_move_timeout", buf, 1);
-    }
+    return true;
 }
 
 /** @copydoc object_methods::process_func */
@@ -412,6 +377,9 @@ static void process_func(object *op)
 
     /* If we are here, we're never paralyzed anymore */
     CLEAR_FLAG(op, FLAG_PARALYZED);
+
+    /* Cleanup stale interfaces. */
+    monster_data_dialogs_cleanup(op);
 
     /* Here is the heart of the mob attack and target area.
      * find_enemy() checks the old enemy or gets us a new one. */
@@ -711,6 +679,8 @@ static void process_func(object *op)
         destruct_ob(op);
         return;
     }
+
+    monster_data_enemy_update(op, enemy);
 }
 
 /**
@@ -1415,73 +1385,61 @@ static char *find_matching_message(const char *msg, const char *match)
  * @return 1 if the NPC replied to the player, 0 otherwise. */
 int talk_to_npc(object *op, object *npc, char *txt)
 {
-    char *cp;
+    size_t ret = 0;
 
     if (HAS_EVENT(npc, EVENT_SAY)) {
-        int ret;
-
         /* Trigger the SAY event */
-        ret = trigger_event(EVENT_SAY, op, npc, NULL, txt, 0, 0, 0, SCRIPT_FIX_ACTIVATOR);
+        ret = trigger_event(EVENT_SAY, op, npc, NULL, txt, 0, 0, 0,
+                            SCRIPT_FIX_ACTIVATOR);
+    } else if (npc->msg != NULL && *npc->msg == '@') {
+        char *cp = find_matching_message(npc->msg, txt);
 
-        if (ret > 0) {
-            monster_update_move_timeout(npc, ret);
+        if (cp) {
+            ret = strlen(cp);
+
+            if (op->type == PLAYER) {
+                packet_struct *packet = packet_new(CLIENT_CMD_INTERFACE, 256,
+                                                   256);
+
+                packet_debug_data(packet, 0, "\nInterface data type");
+                packet_append_uint8(packet, CMD_INTERFACE_TEXT);
+                packet_debug_data(packet, 0, "Text");
+                packet_append_string_len(packet, cp, ret);
+                packet_append_uint8(packet, '\0');
+
+                packet_debug_data(packet, 0, "\nInterface data type");
+                packet_append_uint8(packet, CMD_INTERFACE_ANIM);
+                packet_debug_data(packet, 0, "Animation ID");
+                packet_append_uint16(packet, npc->animation_id);
+                packet_debug_data(packet, 0, "Animation speed");
+                packet_append_uint8(packet, npc->anim_speed);
+                packet_debug_data(packet, 0, "Direction");
+                packet_append_uint8(packet, npc->direction);
+
+                packet_debug_data(packet, 0, "\nInterface data type");
+                packet_append_uint8(packet, CMD_INTERFACE_TITLE);
+                packet_debug_data(packet, 0, "Title");
+                packet_append_string_terminated(packet, npc->name);
+
+                socket_send_packet(&CONTR(op)->socket, packet);
+            } else {
+                char buf[HUGE_BUF];
+                snprintf(buf, sizeof(buf), "\n%s says: %s",
+                         query_name(npc, NULL), cp);
+                draw_info_map(CHAT_TYPE_GAME, NULL, COLOR_WHITE, op->map, op->x,
+                              op->y, MAP_INFO_NORMAL, op, op, buf);
+            }
+
+            efree(cp);
         }
-
-        return ret != 0;
     }
 
-    if (!npc->msg || *npc->msg != '@') {
-        return 0;
-    }
+    uint32_t secs = (long) (((double) MAX(INTERFACE_TIMEOUT_CHARS, ret) /
+            INTERFACE_TIMEOUT_CHARS) * INTERFACE_TIMEOUT_SECONDS) -
+            INTERFACE_TIMEOUT_SECONDS + INTERFACE_TIMEOUT_INITIAL;
+    monster_data_dialogs_add(npc, op, MIN(secs, INTERFACE_TIMEOUT_MAX));
 
-    cp = find_matching_message(npc->msg, txt);
-
-    if (cp) {
-        char buf[MAX_BUF];
-
-        if (op->type == PLAYER) {
-            size_t cp_len;
-            packet_struct *packet;
-
-            cp_len = strlen(cp);
-
-            /* Update the movement timeout if necessary. */
-            monster_update_move_timeout(npc, cp_len);
-
-            packet = packet_new(CLIENT_CMD_INTERFACE, 256, 256);
-
-            packet_debug_data(packet, 0, "\nInterface data type");
-            packet_append_uint8(packet, CMD_INTERFACE_TEXT);
-            packet_debug_data(packet, 0, "Text");
-            packet_append_string_len(packet, cp, cp_len);
-            packet_append_uint8(packet, '\0');
-
-            packet_debug_data(packet, 0, "\nInterface data type");
-            packet_append_uint8(packet, CMD_INTERFACE_ANIM);
-            packet_debug_data(packet, 0, "Animation ID");
-            packet_append_uint16(packet, npc->animation_id);
-            packet_debug_data(packet, 0, "Animation speed");
-            packet_append_uint8(packet, npc->anim_speed);
-            packet_debug_data(packet, 0, "Direction");
-            packet_append_uint8(packet, npc->direction);
-
-            packet_debug_data(packet, 0, "\nInterface data type");
-            packet_append_uint8(packet, CMD_INTERFACE_TITLE);
-            packet_debug_data(packet, 0, "Title");
-            packet_append_string_terminated(packet, npc->name);
-
-            socket_send_packet(&CONTR(op)->socket, packet);
-        } else {
-            snprintf(buf, sizeof(buf), "\n%s says: %s", query_name(npc, NULL), cp);
-            draw_info_map(CHAT_TYPE_GAME, NULL, COLOR_WHITE, op->map, op->x, op->y, MAP_INFO_NORMAL, op, op, buf);
-        }
-
-        efree(cp);
-
-        return 1;
-    }
-
-    return 0;
+    return ret != 0;
 }
 
 /**
@@ -1539,7 +1497,7 @@ int is_friend_of(object *op, object *obj)
         return 1;
     }
 
-    if (!IS_LIVE(op) || !IS_LIVE(obj)) {
+    if (!IS_LIVE(op) && !IS_LIVE(obj)) {
         return 0;
     }
 

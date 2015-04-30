@@ -76,6 +76,8 @@ typedef struct MapCell_struct {
     tag_t target_object_count;
 
     uint8_t ext_flags; ///< Last ext flags.
+
+    uint8_t client_flags[NUM_SUB_LAYERS];
 } MapCell;
 
 /** One map for a player. */

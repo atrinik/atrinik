@@ -140,6 +140,9 @@ typedef struct obj {
      * weight in some cases. */
     int32_t carrying;
 
+    /** Type-dependant extra data. */
+    void *custom_attrset;
+
     /* These get an extra add_refcount(), after having been copied by memcpy().
      * All fields below this point are automatically copied by memcpy. If
      * adding something that needs a refcount updated, make sure you modify
@@ -435,9 +438,6 @@ typedef struct obj {
     /** Str, Con, Dex, etc */
     living stats;
 
-    /** Type-dependant extra data. */
-    void *custom_attrset;
-
     /** Fields not explicitly known by the loader. */
     key_value *key_values;
 } object;
@@ -529,6 +529,11 @@ typedef struct oblnk {
  * time if you know the inserted object is not meaningful in
  * terms of having an effect. */
 #define INS_NO_WALK_ON 2
+/**
+ * Fall through to the bottommost map. Will also take care of updating the
+ * object's sub-layer to be that of the floor tile with the highest Z.
+ */
+#define INS_FALL_THROUGH 4
 /*@}*/
 
 /**

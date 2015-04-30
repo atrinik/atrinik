@@ -197,7 +197,7 @@ struct plugin_hooklist {
     int (*manual_apply)(object *, object *, int);
     void (*command_drop)(object *, const char *, char *);
     int (*transfer_ob)(object *, int, int, int, object *, object *);
-    int (*kill_object)(object *, int, object *, int);
+    bool (*kill_object)(object *, object *);
     void (*esrv_send_inventory)(object *, object *);
     object *(*get_archetype)(const char *);
     mapstruct *(*ready_map_name)(const char *, mapstruct *, int);
@@ -265,7 +265,7 @@ struct plugin_hooklist {
     treasurelist *(*find_treasurelist)(const char *);
     void (*create_treasure)(treasurelist *, object *, int, int, int, int, int, struct _change_arch *);
     void (*dump_object_rec)(object *, StringBuffer *);
-    int (*hit_player)(object *, int, object *, int);
+    int (*hit_player)(object *, int, object *);
     int (*move_ob)(object *, int, object *);
     mapstruct *(*get_empty_map)(int, int);
     void (*set_map_darkness)(mapstruct *, int);
@@ -282,27 +282,27 @@ struct plugin_hooklist {
     void (*connection_object_add)(object *, mapstruct *, int);
     void (*connection_trigger)(object *, int);
     void (*connection_trigger_button)(object *, int);
-    packet_struct *(*packet_new)(uint8_t, size_t, size_t);
-    void (*packet_free)(packet_struct *);
-    void (*packet_compress)(packet_struct *);
-    void (*packet_enable_ndelay)(packet_struct *);
-    void (*packet_set_pos)(packet_struct *, size_t);
-    size_t(*packet_get_pos)(packet_struct *);
-    void (*packet_append_uint8)(packet_struct *, uint8_t);
-    void (*packet_append_sint8)(packet_struct *, int8_t);
-    void (*packet_append_uint16)(packet_struct *, uint16_t);
-    void (*packet_append_sint16)(packet_struct *, int16_t);
-    void (*packet_append_uint32)(packet_struct *, uint32_t);
-    void (*packet_append_sint32)(packet_struct *, int32_t);
-    void (*packet_append_uint64)(packet_struct *, uint64_t);
-    void (*packet_append_sint64)(packet_struct *, int64_t);
-    void (*packet_append_data_len)(packet_struct *, const uint8_t *, size_t);
-    void (*packet_append_string)(packet_struct *, const char *);
-    void (*packet_append_string_terminated)(packet_struct *, const char *);
-    void (*packet_append_map_name)(packet_struct *, object *, object *);
-    void (*packet_append_map_music)(packet_struct *, object *, object *);
-    void (*packet_append_map_weather)(packet_struct *, object *, object *);
-    void (*socket_send_packet)(socket_struct *, packet_struct *);
+    struct packet_struct *(*packet_new)(uint8_t, size_t, size_t);
+    void (*packet_free)(struct packet_struct *);
+    void (*packet_compress)(struct packet_struct *);
+    void (*packet_enable_ndelay)(struct packet_struct *);
+    void (*packet_set_pos)(struct packet_struct *, size_t);
+    size_t(*packet_get_pos)(struct packet_struct *);
+    void (*packet_append_uint8)(struct packet_struct *, uint8_t);
+    void (*packet_append_sint8)(struct packet_struct *, int8_t);
+    void (*packet_append_uint16)(struct packet_struct *, uint16_t);
+    void (*packet_append_sint16)(struct packet_struct *, int16_t);
+    void (*packet_append_uint32)(struct packet_struct *, uint32_t);
+    void (*packet_append_sint32)(struct packet_struct *, int32_t);
+    void (*packet_append_uint64)(struct packet_struct *, uint64_t);
+    void (*packet_append_sint64)(struct packet_struct *, int64_t);
+    void (*packet_append_data_len)(struct packet_struct *, const uint8_t *, size_t);
+    void (*packet_append_string)(struct packet_struct *, const char *);
+    void (*packet_append_string_terminated)(struct packet_struct *, const char *);
+    void (*packet_append_map_name)(struct packet_struct *, object *, object *);
+    void (*packet_append_map_music)(struct packet_struct *, object *, object *);
+    void (*packet_append_map_weather)(struct packet_struct *, object *, object *);
+    void (*socket_send_packet)(socket_struct *, struct packet_struct *);
     void (*logger_print)(logger_level, const char *, uint64_t, const char *, ...);
     logger_level(*logger_get_level)(const char *);
     void (*commands_add)(const char *, command_func, double, uint64_t);
@@ -367,12 +367,14 @@ struct plugin_hooklist {
     skill_struct *skills;
 };
 
-/** General API function. */
-typedef void *(*f_plug_api)(int *type, ...);
+/** Event function. */
+typedef void *(*f_plug_event)(int *type, ...);
+/** Property function. */
+typedef void (*f_plug_prop)(int *type, ...);
 /** First function called in a plugin. */
-typedef void *(*f_plug_init)(struct plugin_hooklist *hooklist);
+typedef void (*f_plug_init)(struct plugin_hooklist *hooklist);
 /** Function called after the plugin was initialized. */
-typedef void *(*f_plug_pinit)(void);
+typedef void (*f_plug_pinit)(void);
 
 #ifndef WIN32
 /** Library handle. */
@@ -398,10 +400,7 @@ typedef void *(*f_plug_pinit)(void);
 /** One loaded plugin. */
 typedef struct atrinik_plugin {
     /** Event handler function. */
-    f_plug_api eventfunc;
-
-    /** Plugin getProperty function. */
-    f_plug_api propfunc;
+    f_plug_event eventfunc;
 
     /** Plugin closePlugin function. */
     f_plug_pinit closefunc;
@@ -436,7 +435,7 @@ extern MODULEAPI void initPlugin(struct plugin_hooklist *hooklist);
  * @param type Integer pointer for va_start().
  * @return Return value depends on the type of information requested.
  * Can be NULL. */
-extern MODULEAPI void *getPluginProperty(int *type, ...);
+extern MODULEAPI void getPluginProperty(int *type, ...);
 
 /**
  * Called whenever an event occurs.

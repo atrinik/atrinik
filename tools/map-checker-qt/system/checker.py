@@ -233,13 +233,13 @@ class CheckerObject(AbstractChecker):
 
         maps_path = os.path.realpath(self.map_checker.get_maps_path())
 
-        if not os.path.realpath(env.map.path).startswith(maps_path):
+        if not os.path.realpath(env.map.name).startswith(maps_path):
             return
 
         if path.startswith("/"):
             real_path = os.path.join(maps_path, path[1:])
         else:
-            real_path = os.path.join(os.path.dirname(env.map.path), path)
+            real_path = os.path.join(os.path.dirname(env.map.name), path)
 
         real_path = os.path.realpath(real_path)
 
@@ -483,19 +483,24 @@ class CheckerObject(AbstractChecker):
 
         # Beacons.
         if t == Game.Types.beacon:
+            global_objects = self.map_checker.db.global_objects
+            beacons = global_objects[str(Game.Types.beacon)]
+
             if obj.getAttribute("name") == obj.name:
                 self.addError("critical", "Beacon with no name set.",
                               "Every beacon must have a unique name set.",
                               obj=obj)
-            elif obj.getAttribute("name") in self.map_checker.global_objects[
-                    Game.Types.beacon]:
+            elif obj.getAttribute("name") in beacons:
                 self.addError("critical", "Beacon with non-unique name.",
                               "Beacon with the name <b>{}</b> already "
                               "exists.".format(obj.getAttribute("name")),
                               obj=obj)
             else:
-                self.map_checker.global_objects[Game.Types.beacon].append(
-                    obj.getAttribute("name"))
+                env = obj.getParentTop()
+
+                if self.map_checker.db.file_is_in_maps(env.map.name):
+                    path = os.path.realpath(env.map.name)
+                    beacons[obj.getAttribute("name")] = path
 
     def checker_inventory_obj(self, obj):
         """Checks attributes of objects that are inside another object."""

@@ -156,7 +156,7 @@ object *common_object_projectile_move(object *op)
         object_projectile_stop(op, OBJECT_PROJECTILE_STOP_WALL);
         return NULL;
     }
-    
+
     if (!object_move_to(op, op->direction, op, m, x, y)) {
         object_projectile_stop(op, OBJECT_PROJECTILE_STOP_WALL);
         return NULL;
@@ -229,7 +229,8 @@ object *common_object_projectile_stop_missile(object *op, int reason)
 
         update_ob_speed(op);
 
-        op = object_merge(op);
+        object_remove(op, 0);
+        op = insert_ob_in_map(op, op->map, op, INS_FALL_THROUGH);
     } else if (op->inv) {
         object *payload;
 
@@ -242,7 +243,7 @@ object *common_object_projectile_stop_missile(object *op, int reason)
         object_destroy(op);
         payload->x = op->x;
         payload->y = op->y;
-        payload = insert_ob_in_map(payload, op->map, op, 0);
+        payload = insert_ob_in_map(payload, op->map, op, INS_FALL_THROUGH);
 
         return payload;
     } else {
@@ -334,7 +335,7 @@ int common_object_projectile_hit(object *op, object *victim)
         op = projectile_stick(op, victim);
 
         OBJ_DESTROYED_BEGIN(op);
-        dam = hit_player(victim, op->stats.dam, op, 0);
+        dam = hit_player(victim, op->stats.dam, op);
 
         if (OBJ_DESTROYED(op)) {
             return OBJECT_METHOD_ERROR;

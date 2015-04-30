@@ -24,6 +24,7 @@
 
 #include <global.h>
 #include <check.h>
+#include <checkstd.h>
 #include <check_proto.h>
 
 static void check_re_cmp(const char *str, const char *regex)
