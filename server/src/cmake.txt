@@ -74,6 +74,7 @@ set(SOURCES
 	src/server/commands.c
 	src/server/connection.c
 	src/server/exp.c
+	src/server/faction.c
 	src/server/gods.c
 	src/server/hiscore.c
 	src/server/image.c

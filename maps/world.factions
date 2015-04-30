@@ -1,0 +1,5 @@
+faction world
+    faction thieves
+        modifier 25%
+    end
+end

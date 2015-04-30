@@ -29,6 +29,7 @@
 #include <global.h>
 #include <packet.h>
 #include <toolkit_string.h>
+#include <faction.h>
 
 /**
  * The server's settings. */
@@ -718,6 +719,7 @@ static void init_library(int argc, char *argv[])
     }
 
     toolkit_import(commands);
+    toolkit_import(faction);
 
     map_init();
     init_globals();
