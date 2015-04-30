@@ -17,6 +17,7 @@ class Database(object):
             "global_objects": {
                 str(system.constants.Game.Types.beacon): {},
             },
+            "errors": {},
         }
 
     def load(self):
@@ -28,9 +29,21 @@ class Database(object):
         with open(self.path, "w") as fp:
             json.dump(self.db, fp)
 
-    def purge(self):
-        self.init_database()
-        self.save()
+    def purge(self, path=None):
+        if path is not None:
+            real_path = os.path.realpath(path)
+
+            for key in ("errors", "files"):
+                if real_path in self.db[key]:
+                    del self.db[key][real_path]
+
+            for key in self.db["global_objects"]:
+                for name in list(self.db["global_objects"][key].keys()):
+                    if self.db["global_objects"][key][name] == real_path:
+                        del self.db["global_objects"][key][name]
+        else:
+            self.init_database()
+            self.save()
 
     @property
     def global_objects(self):
@@ -56,9 +69,22 @@ class Database(object):
             return
 
         real_path = os.path.realpath(path)
+        self.purge(real_path)
         self.db["files"][real_path] = os.stat(path).st_mtime
 
-        for key in self.db["global_objects"]:
-            for name in list(self.db["global_objects"][key].keys()):
-                if self.db["global_objects"][key][name] == real_path:
-                    del self.db["global_objects"][key][name]
+    def add_error(self, error):
+        real_path = os.path.realpath(error["file"]["path"])
+
+        if real_path not in self.db["errors"]:
+            self.db["errors"][real_path] = []
+
+        self.db["errors"][real_path].append(error)
+
+    def get_errors(self):
+        for path in list(self.db["errors"].keys()):
+            if not os.path.exists(path) or not os.path.isfile(path):
+                del self.db["errors"][path]
+                continue
+
+            for error in self.db["errors"][path]:
+                yield error

@@ -91,7 +91,6 @@ class MapChecker:
         self._thread = None
 
         self.queue = queue.Queue()
-        self.files_queue = queue.Queue()
 
         self._thread_running = False
         self._scan_status = ""
@@ -181,9 +180,6 @@ class MapChecker:
         self._scan_status = "Gathering map files..."
         maps = self.scanner.filter_map_files(files)
 
-        for file in maps:
-            self.files_queue.put(file)
-
         # Parse file definitions.
         for collection in self.collections:
             if not self._thread_running:
@@ -219,13 +215,21 @@ class MapChecker:
                 for error in self.collection_parser(collection).errors:
                     self.queue.put(error)
 
+        for file in maps:
+            self.db.file_set_modified(file)
+
+        for error in self.db.get_errors():
+            self.queue.put(error)
+
+        i = 0
+
         # Now loop through the maps.
-        for i, file in enumerate(maps):
+        for j, file in enumerate(maps):
             if not self._thread_running:
                 break
 
             # Update scan progress.
-            self._scan_progress = (i + 1) / len(maps)
+            self._scan_progress = (j + 1) / len(maps)
 
             self._scan_status = "Parsing {}...".format(file)
 
@@ -250,8 +254,15 @@ class MapChecker:
 
             for error in self.checker_map.errors:
                 self.queue.put(error)
+                self.db.add_error(error)
 
-            self.db.file_set_modified(file)
+            i += 1
+
+        # If the scan was canceled prematurely, we need to purge the files that
+        # were not actually scanned.
+        while i < len(maps):
+            self.db.purge(maps[i])
+            i += 1
 
         self.db.save()
 
@@ -331,8 +342,7 @@ def main():
         opts, args = getopt.getopt(sys.argv[1:], "hcfd:m:a:r:",
                                    ["help", "cli", "fix", "directory=",
                                     "map=", "arch=", "regions=", "text-only",
-                                    "real-map-path=", "preserve-database",
-                                    "show-filenames"])
+                                    "real-map-path=", "show-filenames"])
     except getopt.GetoptError as err:
         # Invalid option, show the error and exit.
         print(err)
@@ -343,7 +353,6 @@ def main():
     files = []
     path = None
     real_map_path = None
-    preserve_database = False
     show_filenames = False
 
     # Parse options.
@@ -361,8 +370,6 @@ def main():
             files.append(a)
         elif o == "--real-map-path":
             real_map_path = a
-        elif o == "--preserve-database":
-            preserve_database = True
         elif o == "--show-filenames":
             show_filenames = True
         elif o in ("-a", "--arch"):
@@ -373,9 +380,6 @@ def main():
             # TODO: maps directory option instead?
             a = os.path.dirname(a)
             map_checker.definitionFilesData["region"]["path"] = a
-
-    if not preserve_database:
-        map_checker.db.purge()
 
     if not cli:
         from PyQt5.QtWidgets import QApplication

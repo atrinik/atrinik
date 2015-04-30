@@ -175,7 +175,7 @@ class WindowMain(Model, QMainWindow, Ui_WindowMain):
         self.dialogs["table_info"].show()
         self.dialogs["table_info"].update_data(items)
 
-    def mapCheckerQueueProcess(self):
+    def change_scan_status(self, enable=True):
         if self.map_checker.scan_is_running():
             self.progressBar.setVisible(True)
             self.progressBar.setValue(
@@ -185,30 +185,22 @@ class WindowMain(Model, QMainWindow, Ui_WindowMain):
             self.progressBar.setVisible(False)
             self.statusLabel.setText("")
 
-        text = "Stop" if self.map_checker.scan_is_running() else "Scan"
+        if self.map_checker.scan_is_running():
+            enable = False
+
+        text = "Scan" if enable else "Stop"
 
         if self.actionScan.text() != text:
             for widget in [self.actionScan, self.actionScan_directory,
                            self.buttonScan]:
                 if widget != self.actionScan_directory:
                     widget.setText(text)
-                elif text != "Scan":
                     continue
 
-                widget.setEnabled(True)
+                widget.setEnabled(enable)
 
-        while self.map_checker.files_queue.qsize():
-            try:
-                file = self.map_checker.files_queue.get(0)
-                table = self.widgetTables["maps"]
-
-                for i in reversed(range(table.rowCount())):
-                    path = os.path.realpath(table.item(i, 0).data["file"]["path"])
-
-                    if path == os.path.realpath(file):
-                        table.removeRow(i)
-            except queue.Empty:
-                pass
+    def mapCheckerQueueProcess(self):
+        self.change_scan_status()
 
         while self.map_checker.queue.qsize():
             try:
@@ -242,7 +234,8 @@ class WindowMain(Model, QMainWindow, Ui_WindowMain):
         if self.map_checker.scan_is_running():
             self.map_checker.scan_stop()
         else:
-            self.widgetTables["resources"].setRowCount(0)
+            for key in self.widgetTables:
+                self.widgetTables[key].setRowCount(0)
 
             for i in range(self.widgetTabs.count()):
                 self.widgetTabs.setTabText(i, self.getTabName(i))
@@ -250,9 +243,7 @@ class WindowMain(Model, QMainWindow, Ui_WindowMain):
             self.map_checker.scan(path,
                                   fix=self.config.getboolean("General", "fix"))
 
-        self.actionScan.setEnabled(False)
-        self.actionScan_directory.setEnabled(False)
-        self.buttonScan.setEnabled(False)
+        self.change_scan_status(False)
 
     def actionExitTrigger(self):
         self.close()
@@ -273,10 +264,7 @@ class WindowMain(Model, QMainWindow, Ui_WindowMain):
         self.actionScanTrigger(path)
 
     def actionPurge_cacheTrigger(self):
-        path = self.map_checker.get_db_path()
-
-        if os.path.exists(path) and os.path.isfile(path):
-            os.unlink(path)
+        self.map_checker.db.purge()
 
     def actionReport_a_problemTrigger(self):
         webbrowser.open(system.constants.URLs.report_bug)
