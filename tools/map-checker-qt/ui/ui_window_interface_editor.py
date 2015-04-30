@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file '../ui/ui_window_interface_editor.ui'
+# Form implementation generated from reading ui file '..\ui\ui_window_interface_editor.ui'
 #
-# Created: Thu Apr  9 20:02:24 2015
+# Created: Thu Apr 30 13:56:07 2015
 #      by: PyQt5 UI code generator 5.3.2
 #
 # WARNING! All changes made in this file will be lost!
@@ -61,6 +61,34 @@ class Ui_WindowInterfaceEditor(object):
         self.pageChoice = QtWidgets.QWidget()
         self.pageChoice.setObjectName("pageChoice")
         self.stackedWidget.addWidget(self.pageChoice)
+        self.pageCode = QtWidgets.QWidget()
+        self.pageCode.setObjectName("pageCode")
+        self.verticalLayout_13 = QtWidgets.QVBoxLayout(self.pageCode)
+        self.verticalLayout_13.setObjectName("verticalLayout_13")
+        self.gridLayout_9 = QtWidgets.QGridLayout()
+        self.gridLayout_9.setObjectName("gridLayout_9")
+        self.interface_element_code_text = QtWidgets.QPlainTextEdit(self.pageCode)
+        self.interface_element_code_text.setObjectName("interface_element_code_text")
+        self.gridLayout_9.addWidget(self.interface_element_code_text, 1, 0, 1, 1)
+        self.label_50 = QtWidgets.QLabel(self.pageCode)
+        self.label_50.setObjectName("label_50")
+        self.gridLayout_9.addWidget(self.label_50, 0, 0, 1, 1)
+        self.verticalLayout_13.addLayout(self.gridLayout_9)
+        self.stackedWidget.addWidget(self.pageCode)
+        self.pagePrecond = QtWidgets.QWidget()
+        self.pagePrecond.setObjectName("pagePrecond")
+        self.verticalLayout_17 = QtWidgets.QVBoxLayout(self.pagePrecond)
+        self.verticalLayout_17.setObjectName("verticalLayout_17")
+        self.gridLayout_10 = QtWidgets.QGridLayout()
+        self.gridLayout_10.setObjectName("gridLayout_10")
+        self.interface_element_precond_text = QtWidgets.QPlainTextEdit(self.pagePrecond)
+        self.interface_element_precond_text.setObjectName("interface_element_precond_text")
+        self.gridLayout_10.addWidget(self.interface_element_precond_text, 1, 0, 1, 1)
+        self.label_49 = QtWidgets.QLabel(self.pagePrecond)
+        self.label_49.setObjectName("label_49")
+        self.gridLayout_10.addWidget(self.label_49, 0, 0, 1, 1)
+        self.verticalLayout_17.addLayout(self.gridLayout_10)
+        self.stackedWidget.addWidget(self.pagePrecond)
         self.pageSay = QtWidgets.QWidget()
         self.pageSay.setObjectName("pageSay")
         self.verticalLayout_20 = QtWidgets.QVBoxLayout(self.pageSay)
@@ -590,7 +618,7 @@ class Ui_WindowInterfaceEditor(object):
         self.verticalLayout_2.addWidget(self.splitter)
         WindowInterfaceEditor.setCentralWidget(self.centralwidget)
         self.menubar = QtWidgets.QMenuBar(WindowInterfaceEditor)
-        self.menubar.setGeometry(QtCore.QRect(0, 0, 969, 21))
+        self.menubar.setGeometry(QtCore.QRect(0, 0, 969, 26))
         self.menubar.setObjectName("menubar")
         self.menuTest = QtWidgets.QMenu(self.menubar)
         self.menuTest.setObjectName("menuTest")
@@ -644,6 +672,8 @@ class Ui_WindowInterfaceEditor(object):
     def retranslateUi(self, WindowInterfaceEditor):
         _translate = QtCore.QCoreApplication.translate
         WindowInterfaceEditor.setWindowTitle(_translate("WindowInterfaceEditor", "Interface Editor"))
+        self.label_50.setText(_translate("WindowInterfaceEditor", "Code"))
+        self.label_49.setText(_translate("WindowInterfaceEditor", "Code"))
         self.label_37.setText(_translate("WindowInterfaceEditor", "Message"))
         self.label_35.setText(_translate("WindowInterfaceEditor", "Number to kill"))
         self.label_26.setText(_translate("WindowInterfaceEditor", "UID"))
