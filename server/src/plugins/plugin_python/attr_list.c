@@ -426,12 +426,45 @@ static PyObject *attr_list_clear(Atrinik_AttrList *al)
     return Py_None;
 }
 
+/**
+ * Implements the items() method.
+ * @param al The AttrList object.
+ * @return Tuple of the items in the AttrList.
+ */
+static PyObject *attr_list_items(Atrinik_AttrList *al)
+{
+    if (al->field == FIELDTYPE_FACTIONS) {
+        PyObject *tuple = PyTuple_New(attr_list_len(al));
+        player_faction_t *factions = *(player_faction_t **) ((char *)
+                al->ptr + al->offset), *faction, *tmp;
+        Py_ssize_t i = 0;
+
+        HASH_ITER(hh, factions, faction, tmp) {
+            PyObject *tuple2 = PyTuple_New(2);
+            PyTuple_SetItem(tuple2, 0, Py_BuildValue("s", faction->name));
+            PyTuple_SetItem(tuple2, 1, Py_BuildValue("f", faction->reputation));
+            PyTuple_SetItem(tuple, i, tuple2);
+            i++;
+        }
+
+        return tuple;
+    } else {
+        PyErr_SetString(PyExc_NotImplementedError,
+                        "This attribute list does not implement items method.");
+        return NULL;
+    }
+
+    Py_INCREF(Py_None);
+    return Py_None;
+}
+
 /** Available Python methods for the AtrinikPlayer type. */
 static PyMethodDef methods[] = {
     {"__getitem__", (PyCFunction) __getitem__, METH_O | METH_COEXIST, 0},
     {"append", (PyCFunction) append, METH_O, 0},
     {"remove", (PyCFunction) attr_list_remove, METH_O, 0},
     {"clear", (PyCFunction) attr_list_clear, METH_NOARGS, 0},
+    {"items", (PyCFunction) attr_list_items, METH_NOARGS, 0},
     {NULL, NULL, 0, 0}
 };
 
