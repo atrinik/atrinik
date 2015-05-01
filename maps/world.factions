@@ -1,5 +1,20 @@
 faction world
+    modifier 0%
+
     faction thieves
         modifier 25%
+        spill 0%
     end
+end
+
+faction monsters
+    modifier 0%
+    enemy npcs
+    threshold 1000.0
+    penalty 0.0
+end
+
+faction npcs
+    modifier 0%
+    enemy monsters
 end

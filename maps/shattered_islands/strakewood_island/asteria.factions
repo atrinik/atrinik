@@ -1,0 +1,29 @@
+faction asteria
+    parent asterian_kingdom
+    enemy drkass
+
+    faction asteria_citizens
+        faction asteria_guards
+        end
+
+        faction asteria_nobility
+            modifier 5%
+
+            faction asteria_royalty
+                penalty 1000.0
+            end
+        end
+    end
+
+    faction asteria_thieves
+        spill 0%
+        attention 25%
+
+        parent strakewood_island_thieves
+    end
+end
+
+faction asteria_swamp_cathi
+    parent strakewood_island
+    threshold -100.0
+end
