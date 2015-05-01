@@ -948,30 +948,6 @@ void player_path_handle(player *pl)
 }
 
 /**
- * Update player's faction reputation.
- * @param pl The player.
- * @param faction Name of the faction.
- * @param add How much to modify the player's faction reputation (if
- * any). */
-void player_faction_reputation_update(player *pl, shstr *faction, int64_t add)
-{
-    int i;
-
-    for (i = 0; i < pl->num_faction_ids; i++) {
-        if (pl->faction_ids[i] == faction) {
-            pl->faction_reputation[i] += add;
-            return;
-        }
-    }
-
-    pl->faction_ids = erealloc(pl->faction_ids, sizeof(*pl->faction_ids) * (pl->num_faction_ids + 1));
-    pl->faction_reputation = erealloc(pl->faction_reputation, sizeof(*pl->faction_reputation) * (pl->num_faction_ids + 1));
-    pl->faction_ids[pl->num_faction_ids] = add_string(faction);
-    pl->faction_reputation[pl->num_faction_ids] = add;
-    pl->num_faction_ids++;
-}
-
-/**
  * Creates a new ::player_faction_t structure and adds it to the specified
  * player.
  * @param pl Player.
