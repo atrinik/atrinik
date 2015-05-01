@@ -244,6 +244,8 @@ static int attr_list_set(Atrinik_AttrList *al, PyObject *key, unsigned PY_LONG_L
         if (faction == NULL) {
             i = len;
             faction = hooks->player_faction_create(al->ptr, shared_str);
+        } else {
+            i = 0;
         }
 
         hooks->free_string_shared(shared_str);
