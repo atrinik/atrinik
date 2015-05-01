@@ -70,8 +70,6 @@ static void *attr_list_len_ptr(Atrinik_AttrList *al)
 {
     if (al->field == FIELDTYPE_CMD_PERMISSIONS) {
         return (char *) al->ptr + offsetof(player, num_cmd_permissions);
-    } else if (al->field == FIELDTYPE_FACTIONS) {
-        return (char *) al->ptr + offsetof(player, num_faction_ids);
     }
 
     /* Not reached. */
@@ -84,8 +82,12 @@ static void *attr_list_len_ptr(Atrinik_AttrList *al)
  * @return The length of the provided AttrList. */
 static unsigned PY_LONG_LONG attr_list_len(Atrinik_AttrList *al)
 {
-    if (al->field == FIELDTYPE_CMD_PERMISSIONS || al->field == FIELDTYPE_FACTIONS) {
+    if (al->field == FIELDTYPE_CMD_PERMISSIONS) {
         return *(int *) attr_list_len_ptr(al);
+    } else if (al->field == FIELDTYPE_FACTIONS) {
+        player_faction_t *factions = *(player_faction_t **) ((char *) al->ptr +
+                al->offset);
+        return HASH_CNT(hh, factions);
     }
 
     return 0;
@@ -114,20 +116,38 @@ static PyObject *attr_list_get(Atrinik_AttrList *al, PyObject *key, unsigned PY_
         field.type = FIELDTYPE_CSTR;
         ptr = &(*(char ***) ptr)[idx];
     } else if (al->field == FIELDTYPE_FACTIONS) {
-        unsigned PY_LONG_LONG len, i;
-
         if (key) {
             str = PyString_AsString(key);
         }
 
-        len = attr_list_len(al);
-        field.type = FIELDTYPE_INT64;
+        field.type = FIELDTYPE_DOUBLE;
 
-        for (i = 0; i < len; i++) {
-            if (!strcmp(str, *(const char **) (&(*(shstr ***) ptr)[i]))) {
-                ptr = &(*(int64_t **) ((void *) ((char *) al->ptr + offsetof(player, faction_reputation))))[i];
-                return generic_field_getter(&field, ptr);
+        player_faction_t *faction = NULL;
+
+        if (str != NULL) {
+            shstr *shared_str = hooks->find_string(str);
+
+            if (shared_str != NULL) {
+                faction = hooks->player_faction_find(al->ptr, shared_str);
             }
+        } else {
+            unsigned PY_LONG_LONG i = 0;
+            player_faction_t *factions = *(player_faction_t **) ((char *)
+                    al->ptr + al->offset), *tmp;
+
+            HASH_ITER(hh, factions, faction, tmp) {
+                if (i == idx) {
+                    break;
+                }
+
+                i++;
+            }
+        }
+
+        if (faction != NULL) {
+            ptr = &(*(double **) ((void *) ((char *) faction +
+                    offsetof(player_faction_t, reputation))));
+            return generic_field_getter(&field, ptr);
         }
 
         Py_INCREF(Py_None);
@@ -186,6 +206,7 @@ static int attr_list_set(Atrinik_AttrList *al, PyObject *key, unsigned PY_LONG_L
     fields_struct field = {"xxx", 0, 0, 0, 0};
     int ret;
     unsigned PY_LONG_LONG i;
+    player_faction_t *faction = NULL;
 
     /* Get the current length of the list. */
     len = attr_list_len(al);
@@ -215,28 +236,20 @@ static int attr_list_set(Atrinik_AttrList *al, PyObject *key, unsigned PY_LONG_L
         /* Factions. */
 
         str = PyString_AsString(key);
-        field.type = FIELDTYPE_INT64;
+        field.type = FIELDTYPE_DOUBLE;
+        shstr *shared_str = hooks->add_string(str);
 
-        /* Try to find an existing entry. */
-        for (i = 0; i < len; i++) {
-            if (!strcmp(str, *(const char **) (&(*(shstr ***) ptr)[i]))) {
-                break;
-            }
+        faction = hooks->player_faction_find(al->ptr, shared_str);
+
+        if (faction == NULL) {
+            i = len;
+            faction = hooks->player_faction_create(al->ptr, shared_str);
         }
 
-        /* Doesn't exist, create it. */
-        if (i == len) {
-            (*(int *) attr_list_len_ptr(al))++;
-            *(shstr ***) ((void *) ((char *) al->ptr + al->offset)) = erealloc(*(shstr ***) ((void *) ((char *) al->ptr + al->offset)), sizeof(shstr *) * attr_list_len(al));
-            *(shstr **) (&(*(shstr ***) ptr)[i]) = hooks->add_string(str);
-            *(int64_t **) ((void *) ((char *) al->ptr + offsetof(player, faction_reputation))) = erealloc(*(int64_t **) ((void *) ((char *) al->ptr + offsetof(player, faction_reputation))), sizeof(int64_t) * attr_list_len(al));
-            /* Make sure ptr points to the right memory... */
-            ptr = (char *) al->ptr + offsetof(player, faction_reputation);
-            /* NULL the new member. */
-            (*(int64_t **) ptr)[i] = 0;
-        }
+        hooks->free_string_shared(shared_str);
 
-        ptr = &(*(int64_t **) ((void *) ((char *) al->ptr + offsetof(player, faction_reputation))))[i];
+        ptr = &(*(double **) ((void *) ((char *) faction +
+                offsetof(player_faction_t, reputation))));
     } else {
         PyErr_SetString(PyExc_NotImplementedError, "The attribute list does not implement support for write operations.");
         return -1;
@@ -261,9 +274,7 @@ static int attr_list_set(Atrinik_AttrList *al, PyObject *key, unsigned PY_LONG_L
                 /* And resize it. */
                 *(char ***) ((void *) ((char *) al->ptr + al->offset)) = erealloc(*(char ***) ((void *) ((char *) al->ptr + al->offset)), sizeof(char *) * attr_list_len(al));
             } else if (al->field == FIELDTYPE_FACTIONS) {
-                (*(int *) attr_list_len_ptr(al))--;
-                *(shstr ***) ((void *) ((char *) al->ptr + al->offset)) = erealloc(*(shstr ***) ((void *) ((char *) al->ptr + al->offset)), sizeof(shstr *) * attr_list_len(al));
-                *(int64_t **) ((void *) ((char *) al->ptr + offsetof(player, faction_reputation))) = erealloc(*(int64_t **) ((void *) ((char *) al->ptr + offsetof(player, faction_reputation))), sizeof(int64_t) * attr_list_len(al));
+                hooks->player_faction_free((player *) al->ptr, faction);
             }
         }
     }
@@ -463,10 +474,6 @@ static PyObject *iternext(Atrinik_AttrList *al)
     /* Possible to continue iteration? */
     if (al->iter < attr_list_len(al)) {
         al->iter++;
-
-        if (al->field == FIELDTYPE_FACTIONS) {
-            return attr_list_get(al, NULL, 0, *(const char **) (&(*(shstr ***) (void *) ((char *) al->ptr + al->offset))[al->iter - 1]));
-        }
 
         return attr_list_get(al, NULL, al->iter - 1, NULL);
     }

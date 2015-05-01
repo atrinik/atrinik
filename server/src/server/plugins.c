@@ -193,6 +193,9 @@ struct plugin_hooklist hooklist = {
     memory_reallocz,
     string_estrdup,
     string_estrndup,
+    player_faction_create,
+    player_faction_free,
+    player_faction_find,
 
     season_name,
     weekdays,

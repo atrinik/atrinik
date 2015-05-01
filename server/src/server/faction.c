@@ -29,6 +29,8 @@
  * @author Alex Tokar
  */
 
+#ifndef __CPROTO__
+
 #include <global.h>
 #include <faction.h>
 #include <toolkit_string.h>
@@ -442,3 +444,5 @@ bool faction_is_friend(faction_t faction, object *op)
 
     return _faction_is_friend(faction, op, true, 1.0);
 }
+
+#endif

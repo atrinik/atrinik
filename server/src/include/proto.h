@@ -273,7 +273,7 @@ extern char *attack_name[NROFATTACKS];
 extern int attack_ob(object *op, object *hitter);
 extern int hit_player(object *op, int dam, object *hitter);
 extern void hit_map(object *op, int dir, int reduce);
-extern bool kill_object(object *op, object *hitter);
+extern _Bool kill_object(object *op, object *hitter);
 extern void confuse_living(object *op);
 extern void blind_living(object *op, object *hitter, int dam);
 extern void paralyze_living(object *op, int dam);
@@ -312,6 +312,7 @@ extern uint64_t level_exp(int level, double expmul);
 extern int64_t add_exp(object *op, int64_t exp_gain, int skill_nr, int exact);
 extern int exp_lvl_adj(object *who, object *op);
 extern float calc_level_difference(int who_lvl, int op_lvl);
+/* src/server/faction.c */
 /* src/server/gods.c */
 extern object *find_god(const char *name);
 extern const char *determine_god(object *op);
@@ -839,6 +840,7 @@ extern void play_sound_map(mapstruct *map, int type, const char *filename, int x
 /* src/socket/updates.c */
 extern void updates_init(void);
 extern void socket_command_request_update(socket_struct *ns, player *pl, uint8_t *data, size_t len, size_t pos);
+/* src/types/monster/monster_data.c */
 /* src/types/ability.c */
 extern void object_type_init_ability(void);
 /* src/types/amulet.c */
@@ -1053,6 +1055,9 @@ extern char *player_get_race_class(object *op, char *buf, size_t size);
 extern void player_path_add(player *pl, mapstruct *map, int16_t x, int16_t y);
 extern void player_path_clear(player *pl);
 extern void player_path_handle(player *pl);
+extern player_faction_t *player_faction_create(player *pl, shstr *name);
+extern void player_faction_free(player *pl, player_faction_t *faction);
+extern player_faction_t *player_faction_find(player *pl, shstr *name);
 extern void player_faction_update(player *pl, shstr *name, double reputation);
 extern double player_faction_reputation(player *pl, shstr *name);
 extern char *player_sanitize_input(char *str);

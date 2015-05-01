@@ -32,10 +32,6 @@
 
 static int save_life(object *op);
 static void remove_unpaid_objects(object *op, object *env);
-static player_faction_t *player_faction_create(player *pl,
-                                                          shstr *name);
-static void player_faction_free(player *pl,
-                                           player_faction_t *faction);
 
 /**
  * Player memory pool. */
@@ -954,7 +950,7 @@ void player_path_handle(player *pl)
  * @param name Name of the faction to create a structure for.
  * @return New ::player_faction_t structure.
  */
-static player_faction_t *player_faction_create(player *pl, shstr *name)
+player_faction_t *player_faction_create(player *pl, shstr *name)
 {
     HARD_ASSERT(pl != NULL);
     HARD_ASSERT(name != NULL);
@@ -972,7 +968,7 @@ static player_faction_t *player_faction_create(player *pl, shstr *name)
  * @param pl Player.
  * @param faction ::player_faction_t to free.
  */
-static void player_faction_free(player *pl, player_faction_t *faction)
+void player_faction_free(player *pl, player_faction_t *faction)
 {
     HARD_ASSERT(pl != NULL);
     HARD_ASSERT(faction != NULL);
@@ -988,7 +984,7 @@ static void player_faction_free(player *pl, player_faction_t *faction)
  * @param name Name of the faction to find.
  * @return ::player_faction_t if found, NULL otherwise.
  */
-static player_faction_t *player_faction_find(player *pl, shstr *name)
+player_faction_t *player_faction_find(player *pl, shstr *name)
 {
     HARD_ASSERT(pl != NULL);
     HARD_ASSERT(name != NULL);

@@ -59,7 +59,7 @@ static fields_struct fields[] = {
     {"tls", FIELDTYPE_BOOLEAN, offsetof(player, tls), 0, 0},
     {"tsi", FIELDTYPE_BOOLEAN, offsetof(player, tsi), 0, 0},
     {"cmd_permissions", FIELDTYPE_LIST, offsetof(player, cmd_permissions), 0, FIELDTYPE_CMD_PERMISSIONS},
-    {"factions", FIELDTYPE_LIST, offsetof(player, faction_ids), 0, FIELDTYPE_FACTIONS},
+    {"factions", FIELDTYPE_LIST, offsetof(player, factions), 0, FIELDTYPE_FACTIONS},
     {"fame", FIELDTYPE_INT64, offsetof(player, fame), 0, FIELDTYPE_FACTIONS},
     {"container", FIELDTYPE_OBJECT, offsetof(player, container), FIELDFLAG_READONLY, 0},
 

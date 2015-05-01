@@ -249,6 +249,8 @@ typedef enum {
     FIELDTYPE_INT64,
     /** Float. */
     FIELDTYPE_FLOAT,
+    /** Double. */
+    FIELDTYPE_DOUBLE,
     /** Pointer to object. */
     FIELDTYPE_OBJECT,
     /** Object. */

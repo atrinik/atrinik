@@ -2398,6 +2398,18 @@ int generic_field_setter(fields_struct *field, void *ptr, PyObject *value)
 
         break;
 
+    case FIELDTYPE_DOUBLE:
+
+        if (PyFloat_Check(value)) {
+            *(double *) field_ptr = PyFloat_AsDouble(value) * 1.0;
+        } else if (PyInt_Check(value)) {
+            *(double *) field_ptr = PyLong_AsLong(value) * 1.0;
+        } else {
+            INTRAISE("Illegal value for double field.");
+        }
+
+        break;
+
     case FIELDTYPE_OBJECT:
 
         if (value == Py_None) {
@@ -2649,6 +2661,9 @@ PyObject *generic_field_getter(fields_struct *field, void *ptr)
 
     case FIELDTYPE_FLOAT:
         return Py_BuildValue("f", *(float *) field_ptr);
+
+    case FIELDTYPE_DOUBLE:
+        return Py_BuildValue("f", *(double *) field_ptr);
 
     case FIELDTYPE_MAP:
         return wrap_map(*(mapstruct **) field_ptr);

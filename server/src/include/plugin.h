@@ -337,6 +337,9 @@ struct plugin_hooklist {
     char *(*string_estrdup)(const char *);
     char *(*string_estrndup)(const char *, size_t);
 #endif
+    player_faction_t *(*player_faction_create)(player *, shstr *);
+    void (*player_faction_free)(player *, player_faction_t *);
+    player_faction_t *(*player_faction_find)(player *, shstr *);
 
     const char **season_name;
     const char **weekdays;
