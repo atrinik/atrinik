@@ -1444,42 +1444,6 @@ int talk_to_npc(object *op, object *npc, char *txt)
 }
 
 /**
- * Check if player is a friend or enemy of monster's faction.
- * @param mon Monster.
- * @param pl The player.
- * @retval -1 Neutral.
- * @retval 0 Enemy.
- * @retval 1 Friend. */
-int faction_is_friend_of(object *mon, object *pl)
-{
-    shstr *faction, *faction_rep;
-    int64_t pl_rep, rep;
-
-    faction = object_get_value(mon, "faction");
-
-    if (!faction) {
-        return -1;
-    }
-
-    faction_rep = object_get_value(mon, "faction_rep");
-
-    if (!faction_rep) {
-        return -1;
-    }
-
-    rep = atoll(faction_rep);
-    pl_rep = player_faction_reputation(CONTR(pl), faction);
-
-    if (rep < 0) {
-        return pl_rep <= rep ? 0 : -1;
-    } else if (rep > 0) {
-        return pl_rep >= rep ? 1 : -1;
-    }
-
-    return -1;
-}
-
-/**
  * Check if object op is friend of obj.
  * @param op The first object
  * @param obj The second object to check against the first one

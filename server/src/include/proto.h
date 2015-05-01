@@ -1021,7 +1021,6 @@ extern object *check_enemy(object *npc, rv_vector *rv);
 extern object *find_enemy(object *npc, rv_vector *rv);
 extern void object_type_init_monster(void);
 extern int talk_to_npc(object *op, object *npc, char *txt);
-extern int faction_is_friend_of(object *mon, object *pl);
 extern int is_friend_of(object *op, object *obj);
 extern int check_good_weapon(object *who, object *item);
 extern int check_good_armour(object *who, object *item);
