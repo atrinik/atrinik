@@ -109,6 +109,16 @@ typedef struct player_path {
 
 #define SKILL_LEVEL(_pl, _skill) ((_pl)->skill_ptr[(_skill)] ? (_pl)->skill_ptr[(_skill)]->level : 1)
 
+/**
+ * Player faction structure. Holds information about the player's affiliation
+ * with a particular faction.
+ */
+typedef struct player_faction {
+    shstr *name; ///< Name of the faction.
+    double reputation; ///< Reputation.
+    UT_hash_handle hh; ///< Hash handle.
+} player_faction_t;
+
 /** The player structure. */
 typedef struct pl_player {
     /** Pointer to previous player, NULL if this is first. */
@@ -537,6 +547,8 @@ typedef struct pl_player {
 
     object *talking_to; ///< Object the player is talking to.
     tag_t talking_to_count; ///< ID of ::talking_to.
+
+    player_faction_t *factions;
 } player;
 
 #endif

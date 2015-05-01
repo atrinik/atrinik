@@ -32,6 +32,10 @@
 
 static int save_life(object *op);
 static void remove_unpaid_objects(object *op, object *env);
+static player_faction_t *player_faction_create(player *pl,
+                                                          shstr *name);
+static void player_faction_free(player *pl,
+                                           player_faction_t *faction);
 
 /**
  * Player memory pool. */
@@ -192,6 +196,12 @@ void free_player(player *pl)
 
     if (pl->faction_reputation) {
         efree(pl->faction_reputation);
+    }
+
+    player_faction_t *faction, *tmp;
+
+    HASH_ITER(hh, pl->factions, faction, tmp) {
+        player_faction_free(pl, faction);
     }
 
     player_path_clear(pl);
@@ -938,24 +948,6 @@ void player_path_handle(player *pl)
 }
 
 /**
- * Get player's reputation for the specified faction.
- * @param pl The player.
- * @param faction The faction name.
- * @return The faction reputation. */
-int64_t player_faction_reputation(player *pl, shstr *faction)
-{
-    int i;
-
-    for (i = 0; i < pl->num_faction_ids; i++) {
-        if (pl->faction_ids[i] == faction) {
-            return pl->faction_reputation[i];
-        }
-    }
-
-    return 0;
-}
-
-/**
  * Update player's faction reputation.
  * @param pl The player.
  * @param faction Name of the faction.
@@ -977,6 +969,97 @@ void player_faction_reputation_update(player *pl, shstr *faction, int64_t add)
     pl->faction_ids[pl->num_faction_ids] = add_string(faction);
     pl->faction_reputation[pl->num_faction_ids] = add;
     pl->num_faction_ids++;
+}
+
+/**
+ * Creates a new ::player_faction_t structure and adds it to the specified
+ * player.
+ * @param pl Player.
+ * @param name Name of the faction to create a structure for.
+ * @return New ::player_faction_t structure.
+ */
+static player_faction_t *player_faction_create(player *pl, shstr *name)
+{
+    HARD_ASSERT(pl != NULL);
+    HARD_ASSERT(name != NULL);
+
+    player_faction_t *faction = ecalloc(1, sizeof(*faction));
+    faction->name = add_string(name);
+    HASH_ADD(hh, pl->factions, name, sizeof(shstr *), faction);
+
+    return faction;
+}
+
+/**
+ * Frees the specified ::player_faction_t structure, removing it from the
+ * player's hash table of factions.
+ * @param pl Player.
+ * @param faction ::player_faction_t to free.
+ */
+static void player_faction_free(player *pl, player_faction_t *faction)
+{
+    HARD_ASSERT(pl != NULL);
+    HARD_ASSERT(faction != NULL);
+
+    HASH_DEL(pl->factions, faction);
+    free_string_shared(faction->name);
+    efree(faction);
+}
+
+/**
+ * Find the specified faction name in the player's factions hash table.
+ * @param pl Player.
+ * @param name Name of the faction to find.
+ * @return ::player_faction_t if found, NULL otherwise.
+ */
+static player_faction_t *player_faction_find(player *pl, shstr *name)
+{
+    HARD_ASSERT(pl != NULL);
+    HARD_ASSERT(name != NULL);
+
+    player_faction_t *faction;
+    HASH_FIND(hh, pl->factions, &name, sizeof(shstr *), faction);
+    return faction;
+}
+
+/**
+ * Update the player's reputation with a particular faction.
+ * @param pl Player.
+ * @param name Name of the faction to update.
+ * @param reputation Reputation to add/subtract.
+ */
+void player_faction_update(player *pl, shstr *name, double reputation)
+{
+    HARD_ASSERT(pl != NULL);
+    HARD_ASSERT(name != NULL);
+
+    player_faction_t *faction = player_faction_find(pl, name);
+
+    if (faction == NULL) {
+        faction = player_faction_create(pl, name);
+    }
+
+    faction->reputation += reputation;
+}
+
+/**
+ * Get player's reputation with a particular faction.
+ * @param pl Player.
+ * @param name Name of the faction.
+ * @return Player's reputation with the specified faction.
+ */
+double player_faction_reputation(player *pl, shstr *name)
+{
+    HARD_ASSERT(pl != NULL);
+    HARD_ASSERT(name != NULL);
+
+    player_faction_t *faction = player_faction_find(pl, name);
+
+    if (faction == NULL) {
+        return 0.0;
+    }
+
+    return faction->reputation;
 }
 
 /**
@@ -1968,10 +2051,10 @@ void player_save(object *op)
         }
     }
 
-    for (i = 0; i < pl->num_faction_ids; i++) {
-        if (pl->faction_ids[i]) {
-            fprintf(fp, "faction %s %"PRId64 "\n", pl->faction_ids[i], pl->faction_reputation[i]);
-        }
+    player_faction_t *faction, *tmp;
+
+    HASH_ITER(hh, pl->factions, faction, tmp) {
+        fprintf(fp, "faction %s %e\n", faction->name, faction->reputation);
     }
 
     fprintf(fp, "fame %"PRId64 "\n", pl->fame);
@@ -2047,19 +2130,14 @@ static int player_load(player *pl, const char *path)
             pl->num_cmd_permissions++;
         } else if (strncmp(buf, "faction ", 8) == 0) {
             size_t pos;
-            char faction_id[MAX_BUF];
-            int64_t rep;
+            char faction_name[MAX_BUF];
 
             pos = 8;
 
-            if (string_get_word(buf, &pos, ' ', faction_id, sizeof(faction_id), 0)) {
-                rep = atoll(buf + pos);
-
-                pl->faction_ids = erealloc(pl->faction_ids, sizeof(*pl->faction_ids) * (pl->num_faction_ids + 1));
-                pl->faction_reputation = erealloc(pl->faction_reputation, sizeof(*pl->faction_reputation) * (pl->num_faction_ids + 1));
-                pl->faction_ids[pl->num_faction_ids] = add_string(faction_id);
-                pl->faction_reputation[pl->num_faction_ids] = rep;
-                pl->num_faction_ids++;
+            if (string_get_word(buf, &pos, ' ', VS(faction_name), 0)) {
+                player_faction_t *faction =
+                        player_faction_create(pl, faction_name);
+                faction->reputation = atof(buf + pos);
             }
         } else if (strncmp(buf, "fame ", 5) == 0) {
             pl->fame = atoi(buf + 5);

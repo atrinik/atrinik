@@ -38,5 +38,9 @@ typedef struct faction * faction_t;
 
 void toolkit_faction_init(void);
 void toolkit_faction_deinit(void);
+faction_t faction_find(shstr *name);
+void faction_update(faction_t faction, player *pl, double reputation);
+void faction_update_kill(faction_t faction, player *pl);
+bool faction_is_friend(faction_t faction, object *op);
 
 #endif

@@ -32,6 +32,7 @@
 #include <packet.h>
 #include <toolkit_string.h>
 #include <monster_data.h>
+#include <faction.h>
 
 static int can_detect_enemy(object *op, object *enemy, rv_vector *rv);
 static object *find_nearest_enemy(object *ob);
@@ -1511,6 +1512,10 @@ int is_friend_of(object *op, object *obj)
         return 0;
     }
 
+    if (op->type == PLAYER && obj->type == PLAYER) {
+        return 1;
+    }
+
     if ((op->type == MONSTER && op->enemy && OBJECT_VALID(op->enemy, op->enemy_count) && obj == op->enemy) || (obj->type == MONSTER && obj->enemy && OBJECT_VALID(obj->enemy, obj->enemy_count) && op == obj->enemy)) {
         return 0;
     }
@@ -1519,18 +1524,25 @@ int is_friend_of(object *op, object *obj)
         is_friend = 1;
     }
 
-    /* Check factions. */
-    if (op->type == PLAYER) {
-        faction_friend = faction_is_friend_of(obj, op);
-    } else if (obj->type == PLAYER) {
-        faction_friend = faction_is_friend_of(op, obj);
+    shstr *name = NULL;
+
+    if (obj->type == MONSTER) {
+        name = object_get_value(obj, "faction");
+    } else if (op->type == MONSTER) {
+        name = object_get_value(op, "faction");
     }
 
-    if (faction_friend != -1) {
-        is_friend = faction_friend;
+    if (name == NULL) {
+        return 0;
     }
 
-    return is_friend;
+    faction_t faction = faction_find(name);
+
+    if (faction == NULL) {
+        return 0;
+    }
+
+    return faction_is_friend(faction, obj->type == MONSTER ? op : obj);
 }
 
 /**
