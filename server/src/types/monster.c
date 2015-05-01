@@ -1450,9 +1450,6 @@ int talk_to_npc(object *op, object *npc, char *txt)
  * @return 1 if both objects are friends, 0 otherwise */
 int is_friend_of(object *op, object *obj)
 {
-    uint8_t is_friend = 0;
-    int8_t faction_friend = -1;
-
     if (op == NULL || obj == NULL) {
         return 0;
     }
@@ -1482,10 +1479,6 @@ int is_friend_of(object *op, object *obj)
 
     if ((op->type == MONSTER && op->enemy && OBJECT_VALID(op->enemy, op->enemy_count) && obj == op->enemy) || (obj->type == MONSTER && obj->enemy && OBJECT_VALID(obj->enemy, obj->enemy_count) && op == obj->enemy)) {
         return 0;
-    }
-
-    if (QUERY_FLAG(op, FLAG_FRIENDLY) == QUERY_FLAG(obj, FLAG_FRIENDLY)) {
-        is_friend = 1;
     }
 
     shstr *name = NULL;
