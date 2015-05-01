@@ -180,20 +180,6 @@ void free_player(player *pl)
         efree(pl->cmd_permissions);
     }
 
-    if (pl->faction_ids) {
-        int i;
-
-        for (i = 0; i < pl->num_faction_ids; i++) {
-            FREE_ONLY_HASH(pl->faction_ids[i]);
-        }
-
-        efree(pl->faction_ids);
-    }
-
-    if (pl->faction_reputation) {
-        efree(pl->faction_reputation);
-    }
-
     player_faction_t *faction, *tmp;
 
     HASH_ITER(hh, pl->factions, faction, tmp) {
