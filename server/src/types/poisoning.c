@@ -39,24 +39,32 @@ static void process_func(object *op)
         return;
     }
 
-    /* If we successfully do damage to the player, the poison effects
-     * worsen... */
-    if (hit_player(op->env, op->stats.dam, op) && op->env->type == PLAYER) {
-        int i;
+    object *target = op->env;
+    tag_t target_count = target->count;
 
-        /* Pick some stats to 'deplete'. */
-        for (i = 0; i < NUM_STATS; i++) {
-            if (!(RANDOM() % 2) && get_attr_value(&op->stats, i) > -(MAX_STAT / 2)) {
-                /* Now deplete the stat. Relatively small chance that the
-                 * depletion
-                 * will be worse than usual. */
-                change_attr_value(&op->stats, i, !(RANDOM() % 6) ? -2 : -1);
-                draw_info(COLOR_GRAY, op->env, lose_msg[i]);
-            }
-        }
-
-        living_update(op->env);
+    if (!hit_player(target, op->stats.dam, op)) {
+        return;
     }
+
+    if (was_destroyed(target, target_count)) {
+        return;
+    }
+
+    if (target->type != PLAYER) {
+        return;
+    }
+
+    /* Pick some stats to 'deplete'. */
+    for (int i = 0; i < NUM_STATS; i++) {
+        if (rndm_chance(2) && get_attr_value(&op->stats, i) > -(MAX_STAT / 2)) {
+            /* Now deplete the stat. Relatively small chance that the
+             * depletion will be worse than usual. */
+            change_attr_value(&op->stats, i, rndm_chance(6) ? -2 : -1);
+            draw_info(COLOR_GRAY, target, lose_msg[i]);
+        }
+    }
+
+    living_update(target);
 }
 
 /**

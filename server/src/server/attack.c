@@ -901,7 +901,7 @@ static void poison_player(object *op, object *hitter, float dam)
         tmp->level = hitter->level;
         tmp->stats.dam = dam2;
         /* So we get credit for poisoning kills */
-        copy_owner(tmp, hitter);
+        set_owner(tmp, hitter);
         SET_FLAG(tmp, FLAG_APPLIED);
         insert_ob_in_ob(tmp, op);
 
