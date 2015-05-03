@@ -79,6 +79,7 @@ set(SOURCES
 	src/gui/widgets/skills.c
 	src/gui/widgets/spells.c
 	src/gui/widgets/stat.c
+	src/gui/widgets/target.c
 	src/gui/widgets/texture.c
 	src/gui/widgets/textwin.c
 	${SOURCES_TOOLKIT})

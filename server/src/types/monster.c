@@ -1477,7 +1477,17 @@ int is_friend_of(object *op, object *obj)
         return 1;
     }
 
-    if ((op->type == MONSTER && op->enemy && OBJECT_VALID(op->enemy, op->enemy_count) && obj == op->enemy) || (obj->type == MONSTER && obj->enemy && OBJECT_VALID(obj->enemy, obj->enemy_count) && op == obj->enemy)) {
+    if (op->type == MONSTER && OBJECT_VALID(op->enemy, op->enemy_count) &&
+            obj == op->enemy) {
+        return 0;
+    }
+
+    if (obj->type == MONSTER && OBJECT_VALID(obj->enemy, obj->enemy_count) &&
+            op == obj->enemy) {
+        return 0;
+    }
+
+    if (op->type == PLAYER && CONTR(op)->combat_force) {
         return 0;
     }
 

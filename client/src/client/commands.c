@@ -151,6 +151,9 @@ void socket_command_target(uint8_t *data, size_t len, size_t pos)
     cpl.target_code = packet_to_uint8(data, len, &pos);
     packet_to_string(data, len, &pos, cpl.target_color, sizeof(cpl.target_color));
     packet_to_string(data, len, &pos, cpl.target_name, sizeof(cpl.target_name));
+    cpl.combat = packet_to_uint8(data, len, &pos);
+    cpl.combat_force = packet_to_uint8(data, len, &pos);
+    WIDGET_REDRAW_ALL(TARGET_ID);
 
     map_redraw_flag = 1;
 }

@@ -2336,7 +2336,7 @@ static void process_func(object *op)
 
     /* Use the target system to hit our target - don't hit friendly
      * objects, ourselves or when we are not in combat mode. */
-    if (pl->target_object && OBJECT_ACTIVE(pl->target_object) && pl->target_object_count != pl->ob->count && !is_friend_of(pl->ob, pl->target_object)) {
+    if (pl->target_object && OBJECT_ACTIVE(pl->target_object) && pl->target_object_count != pl->ob->count && pl->combat && !is_friend_of(pl->ob, pl->target_object)) {
         if (global_round_tag >= pl->action_attack) {
             /* Now we force target as enemy */
             pl->ob->enemy = pl->target_object;

@@ -620,6 +620,26 @@ int keybind_process_command(const char *cmd)
             textwin_handle_copy(NULL);
         } else if (!strcmp(cmd, "HELLO")) {
             send_command_check("/talk 1 hello");
+        } else if (strcmp(cmd, "COMBAT") == 0 ||
+                strcmp(cmd, "COMBAT_FORCE") == 0) {
+            uint8_t combat = cpl.combat, combat_force = cpl.combat_force;
+
+            if (strcmp(cmd, "COMBAT") == 0) {
+                combat = !combat;
+            } else {
+                combat_force = !combat_force;
+
+                if (combat_force) {
+                    combat = true;
+                }
+            }
+
+            WIDGET_REDRAW_ALL(TARGET_ID);
+
+            packet_struct *packet = packet_new(SERVER_CMD_COMBAT, 8, 0);
+            packet_append_uint8(packet, combat);
+            packet_append_uint8(packet, combat_force);
+            socket_send_packet(packet);
         }
 
         return 1;

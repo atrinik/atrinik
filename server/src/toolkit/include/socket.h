@@ -54,8 +54,7 @@ enum {
     SERVER_CMD_QUICKSLOT,
     SERVER_CMD_QUESTLIST,
     SERVER_CMD_MOVE_PATH,
-    /** @deprecated */
-    SERVER_CMD_ITEM_READY,
+    SERVER_CMD_COMBAT,
     SERVER_CMD_TALK,
     SERVER_CMD_MOVE,
     SERVER_CMD_TARGET,
@@ -116,8 +115,10 @@ enum {
 #define CMD_TARGET_SELF 0
 /** Enemy. */
 #define CMD_TARGET_ENEMY 1
+/** Neutral. */
+#define CMD_TARGET_NEUTRAL 2
 /** Friend. */
-#define CMD_TARGET_FRIEND 2
+#define CMD_TARGET_FRIEND 3
 /*@}*/
 
 /**

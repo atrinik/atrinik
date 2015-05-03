@@ -62,7 +62,7 @@ static const socket_command_struct socket_commands[SERVER_CMD_NROF] = {
     {socket_command_quickslot, SOCKET_CMD_PLAYER_ONLY},
     {socket_command_quest_list, SOCKET_CMD_PLAYER_ONLY},
     {socket_command_move_path, SOCKET_CMD_PLAYER_ONLY},
-    {NULL, SOCKET_CMD_PLAYER_ONLY},
+    {socket_command_combat, SOCKET_CMD_PLAYER_ONLY},
     {socket_command_talk, SOCKET_CMD_PLAYER_ONLY},
     {socket_command_move, SOCKET_CMD_PLAYER_ONLY},
     {socket_command_target, SOCKET_CMD_PLAYER_ONLY}

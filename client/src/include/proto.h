@@ -765,6 +765,8 @@ extern void spells_remove(object *op);
 extern void widget_spells_init(widgetdata *widget);
 /* src/gui/widgets/stat.c */
 extern void widget_stat_init(widgetdata *widget);
+/* src/gui/widgets/target.c */
+extern void widget_target_init(widgetdata *widget);
 /* src/gui/widgets/texture.c */
 extern void widget_texture_init(widgetdata *widget);
 /* src/gui/widgets/textwin.c */

@@ -236,6 +236,18 @@ typedef struct Player_Struct {
      * HTTP data URL.
      */
     char http_url[MAX_BUF];
+
+    /**
+     * If 1, the player is ready to engage in combat and will swing their
+     * weapon at targeted enemies.
+     */
+    uint8_t combat;
+
+    /**
+     * If 1, the player will swing their weapon at their target, be it friend
+     * or foe.
+     */
+    uint8_t combat_force;
 } Client_Player;
 
 #endif

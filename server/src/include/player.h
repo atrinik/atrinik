@@ -517,6 +517,18 @@ typedef struct pl_player {
     /** If 1, normally invisible items can be seen. */
     uint8_t tsi;
 
+    /**
+     * If 1, the player is ready to engage in combat and will swing their
+     * weapon at targeted enemies.
+     */
+    uint8_t combat;
+
+    /**
+     * If 1, the player will swing their weapon at their target, be it friend
+     * or foe.
+     */
+    uint8_t combat_force;
+
     /** Last stats sent to the client. */
     living last_stats;
 

@@ -299,6 +299,7 @@ typedef enum WidgetID {
     ACTIVE_EFFECTS_ID,
     PROTECTIONS_ID,
     MINIMAP_ID,
+    TARGET_ID,
 
     /** The total number of widgets. */
     TOTAL_WIDGETS

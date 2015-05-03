@@ -332,3 +332,14 @@ bind
 	key 304
 	command ?QUICKSLOT_SET_KEY
 end
+bind
+    # c
+    key 99
+    mod 3
+    command ?COMBAT_FORCE
+end
+bind
+    # c
+    key 99
+    command ?COMBAT
+end
