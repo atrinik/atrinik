@@ -17,4 +17,5 @@ end
 faction npcs
     modifier 0%
     enemy monsters
+    penalty 0.0
 end
