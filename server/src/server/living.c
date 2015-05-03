@@ -115,6 +115,20 @@ int learn_spell[MAX_STAT + 1] = {
 };
 
 /**
+ * Probability for monsters to signal their friends, based on their intelligence
+ * stat.
+ */
+int monster_signal_chance[MAX_STAT + 1] = {
+    0, // 0
+    0, 0, 0, 0, // 1-5
+    20, 18, 16, 14, // 6-10
+    12, 10, 9, 8, // 11-15
+    7, 6, 5, 4, // 16-20
+    3, 2, 1, 1, // 21-25
+    1, 1, 1, 1, // 26-30
+};
+
+/**
  * Probability to avoid something. */
 int savethrow[MAXLEVEL + 1] = {
     18,

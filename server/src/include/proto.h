@@ -374,6 +374,7 @@ extern float speed_bonus[30 + 1];
 extern double falling_mitigation[30 + 1];
 extern uint32_t weight_limit[30 + 1];
 extern int learn_spell[30 + 1];
+extern int monster_signal_chance[30 + 1];
 extern int savethrow[115 + 1];
 extern const char *const restore_msg[7];
 extern const char *const lose_msg[7];
@@ -1027,6 +1028,7 @@ extern int talk_to_npc(object *op, object *npc, char *txt);
 extern int is_friend_of(object *op, object *obj);
 extern int check_good_weapon(object *who, object *item);
 extern int check_good_armour(object *who, object *item);
+extern _Bool monster_is_ally_of(object *op, object *target);
 /* src/types/nugget.c */
 extern void object_type_init_nugget(void);
 /* src/types/organic.c */
@@ -1121,7 +1123,6 @@ extern void sound_ambient_init(object *ob);
 extern void sound_ambient_deinit(object *ob);
 extern void object_type_init_sound_ambient(void);
 /* src/types/spawn_point.c */
-extern void spawn_point_enemy_signal(object *op);
 extern void object_type_init_spawn_point(void);
 /* src/types/spawn_point_info.c */
 extern void object_type_init_spawn_point_info(void);

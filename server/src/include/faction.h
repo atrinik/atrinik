@@ -42,5 +42,6 @@ faction_t faction_find(shstr *name);
 void faction_update(faction_t faction, player *pl, double reputation);
 void faction_update_kill(faction_t faction, player *pl);
 bool faction_is_friend(faction_t faction, object *op);
+bool faction_is_alliance(faction_t faction, faction_t faction2);
 
 #endif

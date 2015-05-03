@@ -196,7 +196,51 @@ void set_npc_enemy(object *npc, object *enemy, rv_vector *rv)
         }
     }
 
-    monster_enemy_signal(npc, enemy);
+    if (enemy != NULL) {
+        monster_enemy_signal(npc, enemy);
+    }
+}
+
+/**
+ * Signal all linked monsters on the specified map about a possible enemy.
+ * @param npc Monster that is signaling.
+ * @param map Map to signal on.
+ * @param spawn_point NPC's spawn point.
+ * @param dist Maximum distance for non-linked spawn points.
+ */
+static void monster_enemy_signal_map(object *npc, mapstruct *map,
+        object *spawn_point, uint32_t dist)
+{
+    objectlink *ol;
+
+    for (ol = map->linked_spawn_points; ol != NULL; ol = ol->next) {
+        if (ol->objlink.ob == spawn_point) {
+            continue;
+        }
+
+        /* Ensure the spawn point has a spawned monster. */
+        if (!OBJECT_VALID(ol->objlink.ob->enemy, ol->objlink.ob->enemy_count)) {
+            continue;
+        }
+
+        /* Ensure the spawned monster doesn't yet have an enemy. */
+        if (OBJECT_VALID(ol->objlink.ob->enemy->enemy,
+                         ol->objlink.ob->enemy->enemy_count)) {
+            continue;
+        }
+
+        rv_vector rv;
+
+        if ((spawn_point->title == NULL ||
+                ol->objlink.ob->title != spawn_point->title) &&
+                (!get_rangevector(npc, ol->objlink.ob->enemy, &rv,
+                RV_DIAGONAL_DISTANCE) || rv.distance > dist ||
+                !monster_is_ally_of(npc, ol->objlink.ob->enemy))) {
+            continue;
+        }
+
+        set_npc_enemy(ol->objlink.ob->enemy, npc->enemy, NULL);
+    }
 }
 
 /**
@@ -208,14 +252,46 @@ void monster_enemy_signal(object *npc, object *enemy)
 {
     object *spawn_point_info;
 
-    if (enemy == NULL) {
+    HARD_ASSERT(npc != NULL);
+    HARD_ASSERT(enemy != NULL);
+
+    SOFT_ASSERT(npc->map != NULL, "NPC has no map: %s", object_get_str(npc));
+    SOFT_ASSERT(enemy->map != NULL, "Enemy has no map: %s",
+                object_get_str(enemy));
+
+    if (monster_signal_chance[npc->stats.Int] == 0 ||
+            !rndm_chance(monster_signal_chance[npc->stats.Int])) {
         return;
     }
 
     spawn_point_info = present_in_ob(SPAWN_POINT_INFO, npc);
 
-    if (spawn_point_info != NULL && OBJECT_VALID(spawn_point_info->owner, spawn_point_info->ownercount)) {
-        spawn_point_enemy_signal(spawn_point_info->owner);
+    if (spawn_point_info == NULL || !OBJECT_VALID(spawn_point_info->owner,
+            spawn_point_info->ownercount)) {
+        return;
+    }
+
+    int32_t dist = 0;
+    rv_vector rv;
+
+    if (get_rangevector(npc, enemy, &rv, 0)) {
+        dist = (int32_t) ((double) npc->stats.Wis * 1.5) - rv.distance;
+
+        if (dist < 0) {
+            dist = 0;
+        }
+    }
+
+    /* Signal the map the spawn point is on. */
+    monster_enemy_signal_map(npc, npc->map, spawn_point_info->owner, dist);
+
+    /* Signal all the tiled maps that are in memory. */
+    for (size_t i = 0; i < TILED_NUM_DIR; i++) {
+        if (npc->map->tile_map[i] != NULL &&
+                npc->map->tile_map[i]->in_memory == MAP_IN_MEMORY) {
+            monster_enemy_signal_map(npc, npc->map->tile_map[i],
+                                     spawn_point_info->owner, dist);
+        }
     }
 }
 
@@ -296,6 +372,10 @@ object *find_enemy(object *npc, rv_vector *rv)
             /* Make sure to clear the enemy, even if FLAG_UNAGRESSIVE is true */
             set_npc_enemy(npc, NULL, NULL);
         }
+    }
+
+    if (tmp != NULL) {
+        monster_enemy_signal(npc, tmp);
     }
 
     /* Always clear the attacker entry */
@@ -1599,4 +1679,33 @@ int check_good_armour(object *who, object *item)
     }
 
     return 0;
+}
+
+bool monster_is_ally_of(object *op, object *target)
+{
+    shstr *op_faction_name = object_get_value(op, "faction");
+
+    if (op_faction_name == NULL) {
+        return false;
+    }
+
+    shstr *target_faction_name = object_get_value(target, "faction");
+
+    if (target_faction_name == NULL) {
+        return false;
+    }
+
+    faction_t op_faction = faction_find(op_faction_name);
+
+    if (op_faction == NULL) {
+        return false;
+    }
+
+    faction_t target_faction = faction_find(target_faction_name);
+
+    if (target_faction == NULL) {
+        return false;
+    }
+
+    return faction_is_alliance(op_faction, target_faction);
 }

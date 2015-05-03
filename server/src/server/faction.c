@@ -73,6 +73,8 @@ struct faction {
 
     double threshold;
 
+    bool alliance:1;
+
     UT_hash_handle hh;
 };
 
@@ -205,6 +207,13 @@ TOOLKIT_INIT_FUNC(faction)
             faction->enemies[faction->enemies_num].faction.name =
                     add_string(value);
             faction->enemies_num++;
+        } else if (strcmp(key, "alliance") == 0) {
+            if (KEYWORD_IS_TRUE(value)) {
+                faction->alliance = true;
+            } else {
+                error_str = "unknown value";
+                goto error;
+            }
         } else {
             error_str = "unknown attribute";
             goto error;
@@ -443,6 +452,36 @@ bool faction_is_friend(faction_t faction, object *op)
     HARD_ASSERT(op != NULL);
 
     return _faction_is_friend(faction, op, true, 1.0);
+}
+
+static faction_t faction_get_topmost_alliance(faction_t faction)
+{
+    if (faction->alliance) {
+        return faction;
+    }
+
+    if (faction->parents_num == 0) {
+        return NULL;
+    }
+
+    return faction_get_topmost_alliance(faction->parents[0].faction.ptr);
+}
+
+bool faction_is_alliance(faction_t faction, faction_t faction2)
+{
+    TOOLKIT_PROTECT();
+
+    HARD_ASSERT(faction != NULL);
+    HARD_ASSERT(faction2 != NULL);
+
+    if (faction == faction2) {
+        return true;
+    }
+
+    faction_t faction_alliance = faction_get_topmost_alliance(faction);
+    faction_t faction_alliance2 = faction_get_topmost_alliance(faction2);
+
+    return faction_alliance == faction_alliance2;
 }
 
 #endif
