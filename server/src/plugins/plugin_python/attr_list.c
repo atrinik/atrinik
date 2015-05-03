@@ -417,6 +417,13 @@ static PyObject *attr_list_clear(Atrinik_AttrList *al)
 
             ((socket_struct *) (&(*(socket_struct **) ((void *) ((char *) al->ptr + offsetof(player, socket))))))->ext_title_flag = 1;
         }
+    } else if (al->field == FIELDTYPE_FACTIONS) {
+        player_faction_t *factions = *(player_faction_t **) ((char *)
+                al->ptr + al->offset), *faction, *tmp;
+
+        HASH_ITER(hh, factions, faction, tmp) {
+            hooks->player_faction_free(al->ptr, faction);
+        }
     } else {
         PyErr_SetString(PyExc_NotImplementedError, "This attribute list does not implement clear method.");
         return NULL;
