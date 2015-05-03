@@ -1,0 +1,416 @@
+arch map
+name Asteria Palace
+msg
+Created:  2011-01-23 emperorbma
+Modified: 2015-05-03 emperorbma
+endmsg
+width 24
+height 24
+difficulty 40
+darkness 4
+no_harm 1
+bg_music kaitindam.mid
+region asteria
+end
+arch floor_rhomb
+x 19
+end
+arch map_info
+name asteria_palace
+hp 4
+sp 19
+is_magical 1
+x 19
+end
+arch floor_rhomb
+x 19
+y 1
+end
+arch floor_rhomb
+x 19
+y 2
+end
+arch floor_rhomb
+x 19
+y 3
+end
+arch floor_rhomb
+x 19
+y 4
+end
+arch floor_rhomb
+x 19
+y 5
+end
+arch floor_rhomb
+x 19
+y 6
+end
+arch floor_rhomb
+x 19
+y 7
+end
+arch floor_rhomb
+x 19
+y 8
+end
+arch floor_rhomb
+x 19
+y 9
+end
+arch floor_rhomb
+x 19
+y 10
+end
+arch floor_rhomb
+x 19
+y 11
+end
+arch floor_rhomb
+x 19
+y 12
+end
+arch floor_rhomb
+x 19
+y 13
+end
+arch floor_rhomb
+x 19
+y 14
+end
+arch floor_rhomb
+x 19
+y 15
+end
+arch floor_rhomb
+x 19
+y 16
+end
+arch floor_rhomb
+x 19
+y 17
+end
+arch floor_rhomb
+x 19
+y 18
+end
+arch floor_rhomb
+x 19
+y 19
+end
+arch floor_rhomb
+x 20
+end
+arch floor_rhomb
+x 20
+y 1
+end
+arch floor_rhomb
+x 20
+y 2
+end
+arch floor_rhomb
+x 20
+y 3
+end
+arch floor_rhomb
+x 20
+y 4
+end
+arch floor_rhomb
+x 20
+y 5
+end
+arch floor_rhomb
+x 20
+y 6
+end
+arch floor_rhomb
+x 20
+y 7
+end
+arch floor_rhomb
+x 20
+y 8
+end
+arch floor_rhomb
+x 20
+y 9
+end
+arch floor_rhomb
+x 20
+y 10
+end
+arch floor_rhomb
+x 20
+y 11
+end
+arch floor_rhomb
+x 20
+y 12
+end
+arch floor_rhomb
+x 20
+y 13
+end
+arch floor_rhomb
+x 20
+y 14
+end
+arch floor_rhomb
+x 20
+y 15
+end
+arch floor_rhomb
+x 20
+y 16
+end
+arch floor_rhomb
+x 20
+y 17
+end
+arch floor_rhomb
+x 20
+y 18
+end
+arch floor_rhomb
+x 20
+y 19
+end
+arch floor_rhomb
+x 21
+end
+arch floor_rhomb
+x 21
+y 1
+end
+arch floor_rhomb
+x 21
+y 2
+end
+arch floor_rhomb
+x 21
+y 3
+end
+arch floor_rhomb
+x 21
+y 4
+end
+arch floor_rhomb
+x 21
+y 5
+end
+arch floor_rhomb
+x 21
+y 6
+end
+arch floor_rhomb
+x 21
+y 7
+end
+arch floor_rhomb
+x 21
+y 8
+end
+arch floor_rhomb
+x 21
+y 9
+end
+arch floor_rhomb
+x 21
+y 10
+end
+arch floor_rhomb
+x 21
+y 11
+end
+arch floor_rhomb
+x 21
+y 12
+end
+arch floor_rhomb
+x 21
+y 13
+end
+arch floor_rhomb
+x 21
+y 14
+end
+arch floor_rhomb
+x 21
+y 15
+end
+arch floor_rhomb
+x 21
+y 16
+end
+arch floor_rhomb
+x 21
+y 17
+end
+arch floor_rhomb
+x 21
+y 18
+end
+arch floor_rhomb
+x 21
+y 19
+end
+arch floor_rhomb
+x 22
+end
+arch floor_rhomb
+x 22
+y 1
+end
+arch floor_rhomb
+x 22
+y 2
+end
+arch floor_rhomb
+x 22
+y 3
+end
+arch floor_rhomb
+x 22
+y 4
+end
+arch floor_rhomb
+x 22
+y 5
+end
+arch floor_rhomb
+x 22
+y 6
+end
+arch floor_rhomb
+x 22
+y 7
+end
+arch floor_rhomb
+x 22
+y 8
+end
+arch floor_rhomb
+x 22
+y 9
+end
+arch floor_rhomb
+x 22
+y 10
+end
+arch floor_rhomb
+x 22
+y 11
+end
+arch floor_rhomb
+x 22
+y 12
+end
+arch floor_rhomb
+x 22
+y 13
+end
+arch floor_rhomb
+x 22
+y 14
+end
+arch floor_rhomb
+x 22
+y 15
+end
+arch floor_rhomb
+x 22
+y 16
+end
+arch floor_rhomb
+x 22
+y 17
+end
+arch floor_rhomb
+x 22
+y 18
+end
+arch floor_rhomb
+x 22
+y 19
+end
+arch floor_rhomb
+x 23
+end
+arch floor_rhomb
+x 23
+y 1
+end
+arch floor_rhomb
+x 23
+y 2
+end
+arch floor_rhomb
+x 23
+y 3
+end
+arch floor_rhomb
+x 23
+y 4
+end
+arch floor_rhomb
+x 23
+y 5
+end
+arch floor_rhomb
+x 23
+y 6
+end
+arch floor_rhomb
+x 23
+y 7
+end
+arch floor_rhomb
+x 23
+y 8
+end
+arch floor_rhomb
+x 23
+y 9
+end
+arch floor_rhomb
+x 23
+y 10
+end
+arch floor_rhomb
+x 23
+y 11
+end
+arch floor_rhomb
+x 23
+y 12
+end
+arch floor_rhomb
+x 23
+y 13
+end
+arch floor_rhomb
+x 23
+y 14
+end
+arch floor_rhomb
+x 23
+y 15
+end
+arch floor_rhomb
+x 23
+y 16
+end
+arch floor_rhomb
+x 23
+y 17
+end
+arch floor_rhomb
+x 23
+y 18
+end
+arch floor_rhomb
+x 23
+y 19
+end

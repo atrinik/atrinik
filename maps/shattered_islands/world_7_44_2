@@ -1,0 +1,486 @@
+arch map
+name Asteria Palace
+msg
+Created:  2009-08-09 Alex Tokar
+Modified: 2015-05-03 emperorbma
+endmsg
+width 24
+height 24
+difficulty 40
+darkness 4
+no_harm 1
+bg_music kaitindam.mid
+region asteria
+end
+arch floor_rhomb
+end
+arch map_info
+name asteria_palace
+hp 2
+sp 19
+is_magical 1
+end
+arch floor_rhomb
+y 1
+end
+arch floor_rhomb
+y 2
+end
+arch floor_rhomb
+y 3
+end
+arch floor_rhomb
+y 4
+end
+arch floor_rhomb
+y 5
+end
+arch floor_rhomb
+y 6
+end
+arch floor_rhomb
+y 7
+end
+arch floor_rhomb
+y 8
+end
+arch floor_rhomb
+y 9
+end
+arch floor_rhomb
+y 10
+end
+arch floor_rhomb
+y 11
+end
+arch floor_rhomb
+y 12
+end
+arch floor_rhomb
+y 13
+end
+arch floor_rhomb
+y 14
+end
+arch floor_rhomb
+y 15
+end
+arch floor_rhomb
+y 16
+end
+arch floor_rhomb
+y 17
+end
+arch floor_rhomb
+y 18
+end
+arch floor_rhomb
+y 19
+end
+arch floor_rhomb
+x 1
+end
+arch floor_rhomb
+x 1
+y 1
+end
+arch floor_rhomb
+x 1
+y 2
+end
+arch floor_rhomb
+x 1
+y 3
+end
+arch floor_rhomb
+x 1
+y 4
+end
+arch floor_rhomb
+x 1
+y 5
+end
+arch floor_rhomb
+x 1
+y 6
+end
+arch floor_rhomb
+x 1
+y 7
+end
+arch floor_rhomb
+x 1
+y 8
+end
+arch floor_rhomb
+x 1
+y 9
+end
+arch floor_rhomb
+x 1
+y 10
+end
+arch floor_rhomb
+x 1
+y 11
+end
+arch floor_rhomb
+x 1
+y 12
+end
+arch floor_rhomb
+x 1
+y 13
+end
+arch floor_rhomb
+x 1
+y 14
+end
+arch floor_rhomb
+x 1
+y 15
+end
+arch floor_rhomb
+x 1
+y 16
+end
+arch floor_rhomb
+x 1
+y 17
+end
+arch floor_rhomb
+x 1
+y 18
+end
+arch floor_rhomb
+x 1
+y 19
+end
+arch floor_rhomb
+x 2
+end
+arch floor_rhomb
+x 2
+y 1
+end
+arch floor_rhomb
+x 2
+y 2
+end
+arch floor_rhomb
+x 2
+y 3
+end
+arch floor_rhomb
+x 2
+y 4
+end
+arch floor_rhomb
+x 2
+y 5
+end
+arch floor_rhomb
+x 2
+y 6
+end
+arch floor_rhomb
+x 2
+y 7
+end
+arch floor_rhomb
+x 2
+y 8
+end
+arch floor_rhomb
+x 2
+y 9
+end
+arch floor_rhomb
+x 2
+y 10
+end
+arch floor_rhomb
+x 2
+y 11
+end
+arch floor_rhomb
+x 2
+y 12
+end
+arch floor_rhomb
+x 2
+y 13
+end
+arch floor_rhomb
+x 2
+y 14
+end
+arch floor_rhomb
+x 2
+y 15
+end
+arch floor_rhomb
+x 2
+y 16
+end
+arch floor_rhomb
+x 2
+y 17
+end
+arch floor_rhomb
+x 2
+y 18
+end
+arch floor_rhomb
+x 2
+y 19
+end
+arch roof_wood
+direction 3
+x 12
+y 11
+end
+arch roof_wood
+direction 3
+x 12
+y 12
+end
+arch roof_wood
+direction 3
+x 12
+y 13
+end
+arch roof_wood
+direction 3
+x 12
+y 14
+end
+arch roof_wood
+direction 3
+x 12
+y 15
+end
+arch roof_wood
+direction 3
+x 12
+y 16
+end
+arch roof_wood
+direction 5
+x 13
+y 10
+end
+arch roof_wood
+x 13
+y 11
+end
+arch roof_wood
+x 13
+y 12
+end
+arch roof_wood
+x 13
+y 13
+end
+arch roof_wood
+x 13
+y 14
+end
+arch roof_wood
+x 13
+y 15
+end
+arch roof_wood
+x 13
+y 16
+end
+arch roof_wood
+direction 3
+x 14
+y 9
+end
+arch roof_wood
+direction 3
+x 14
+y 10
+end
+arch roof_wood
+x 14
+y 11
+end
+arch roof_wood
+x 14
+y 12
+end
+arch roof_wood
+x 14
+y 13
+end
+arch roof_wood
+x 14
+y 14
+end
+arch roof_wood
+x 14
+y 15
+end
+arch roof_wood
+x 14
+y 16
+end
+arch roof_wood
+direction 5
+x 15
+y 8
+end
+arch roof_wood
+x 15
+y 9
+end
+arch roof_wood
+x 15
+y 10
+end
+arch roof_wood
+x 15
+y 11
+end
+arch roof_wood
+x 15
+y 12
+end
+arch roof_wood
+x 15
+y 13
+end
+arch roof_wood
+x 15
+y 14
+end
+arch roof_wood
+x 15
+y 15
+end
+arch roof_wood
+x 15
+y 16
+end
+arch roof_wood
+direction 5
+x 16
+y 8
+end
+arch roof_wood
+x 16
+y 9
+end
+arch roof_wood
+x 16
+y 10
+end
+arch roof_wood
+x 16
+y 11
+end
+arch roof_wood
+x 16
+y 12
+end
+arch roof_wood
+x 16
+y 13
+end
+arch roof_wood
+x 16
+y 14
+end
+arch roof_wood
+x 16
+y 15
+end
+arch roof_wood
+x 16
+y 16
+end
+arch roof_wood
+direction 5
+x 17
+y 8
+end
+arch roof_wood
+x 17
+y 9
+end
+arch roof_wood
+x 17
+y 10
+end
+arch roof_wood
+x 17
+y 11
+end
+arch roof_wood
+x 17
+y 12
+end
+arch roof_wood
+x 17
+y 13
+end
+arch roof_wood
+x 17
+y 14
+end
+arch roof_wood
+x 17
+y 15
+end
+arch roof_wood
+x 17
+y 16
+end
+arch roof_wood
+direction 5
+x 18
+y 8
+end
+arch roof_wood
+direction 7
+x 18
+y 9
+end
+arch roof_wood
+direction 7
+x 18
+y 10
+end
+arch roof_wood
+direction 7
+x 18
+y 11
+end
+arch roof_wood
+direction 7
+x 18
+y 12
+end
+arch roof_wood
+direction 7
+x 18
+y 13
+end
+arch roof_wood
+direction 7
+x 18
+y 14
+end
+arch roof_wood
+direction 7
+x 18
+y 15
+end
+arch roof_wood
+direction 8
+x 18
+y 16
+end

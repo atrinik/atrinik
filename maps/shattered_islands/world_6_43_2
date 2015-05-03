@@ -1,0 +1,876 @@
+arch map
+name Asteria Palace
+msg
+Created:  2011-01-23 emperorbma
+Modified: 2015-05-03 emperorbma
+endmsg
+width 24
+height 24
+difficulty 40
+darkness 4
+no_harm 1
+bg_music kaitindam.mid
+region asteria
+end
+arch floor_rhomb
+y 15
+end
+arch map_info
+name asteria_palace
+hp 23
+sp 8
+is_magical 1
+y 15
+end
+arch floor_rhomb
+y 16
+end
+arch floor_rhomb
+y 17
+end
+arch floor_rhomb
+y 18
+end
+arch floor_rhomb
+y 19
+end
+arch floor_rhomb
+y 20
+end
+arch floor_rhomb
+y 21
+end
+arch floor_rhomb
+y 22
+end
+arch floor_rhomb
+y 23
+end
+arch floor_rhomb
+x 1
+y 15
+end
+arch floor_rhomb
+x 1
+y 16
+end
+arch floor_rhomb
+x 1
+y 17
+end
+arch floor_rhomb
+x 1
+y 18
+end
+arch floor_rhomb
+x 1
+y 19
+end
+arch floor_rhomb
+x 1
+y 20
+end
+arch floor_rhomb
+x 1
+y 21
+end
+arch floor_rhomb
+x 1
+y 22
+end
+arch floor_rhomb
+x 1
+y 23
+end
+arch floor_rhomb
+x 2
+y 15
+end
+arch floor_rhomb
+x 2
+y 16
+end
+arch floor_rhomb
+x 2
+y 17
+end
+arch floor_rhomb
+x 2
+y 18
+end
+arch floor_rhomb
+x 2
+y 19
+end
+arch floor_rhomb
+x 2
+y 20
+end
+arch floor_rhomb
+x 2
+y 21
+end
+arch floor_rhomb
+x 2
+y 22
+end
+arch floor_rhomb
+x 2
+y 23
+end
+arch floor_rhomb
+x 3
+y 15
+end
+arch floor_rhomb
+x 3
+y 16
+end
+arch floor_rhomb
+x 3
+y 17
+end
+arch floor_rhomb
+x 3
+y 18
+end
+arch floor_rhomb
+x 3
+y 19
+end
+arch floor_rhomb
+x 3
+y 20
+end
+arch floor_rhomb
+x 3
+y 21
+end
+arch floor_rhomb
+x 3
+y 22
+end
+arch floor_rhomb
+x 3
+y 23
+end
+arch floor_rhomb
+x 4
+y 15
+end
+arch floor_rhomb
+x 4
+y 16
+end
+arch floor_rhomb
+x 4
+y 17
+end
+arch floor_rhomb
+x 4
+y 18
+end
+arch floor_rhomb
+x 4
+y 19
+end
+arch floor_rhomb
+x 4
+y 20
+end
+arch floor_rhomb
+x 4
+y 21
+end
+arch floor_rhomb
+x 4
+y 22
+end
+arch floor_rhomb
+x 4
+y 23
+end
+arch floor_rhomb
+x 5
+y 15
+end
+arch floor_rhomb
+x 5
+y 16
+end
+arch floor_rhomb
+x 5
+y 17
+end
+arch floor_rhomb
+x 5
+y 18
+end
+arch floor_rhomb
+x 5
+y 19
+end
+arch floor_rhomb
+x 5
+y 20
+end
+arch floor_rhomb
+x 5
+y 21
+end
+arch floor_rhomb
+x 5
+y 22
+end
+arch floor_rhomb
+x 5
+y 23
+end
+arch floor_rhomb
+x 6
+y 15
+end
+arch floor_rhomb
+x 6
+y 16
+end
+arch floor_rhomb
+x 6
+y 17
+end
+arch floor_rhomb
+x 6
+y 18
+end
+arch floor_rhomb
+x 6
+y 19
+end
+arch floor_rhomb
+x 6
+y 20
+end
+arch floor_rhomb
+x 6
+y 21
+end
+arch floor_rhomb
+x 6
+y 22
+end
+arch floor_rhomb
+x 6
+y 23
+end
+arch floor_rhomb
+x 7
+y 15
+end
+arch floor_rhomb
+x 7
+y 16
+end
+arch floor_rhomb
+x 7
+y 17
+end
+arch floor_rhomb
+x 7
+y 18
+end
+arch floor_rhomb
+x 7
+y 19
+end
+arch floor_rhomb
+x 7
+y 20
+end
+arch floor_rhomb
+x 7
+y 21
+end
+arch floor_rhomb
+x 7
+y 22
+end
+arch floor_rhomb
+x 7
+y 23
+end
+arch floor_rhomb
+x 8
+y 15
+end
+arch floor_rhomb
+x 8
+y 16
+end
+arch floor_rhomb
+x 8
+y 17
+end
+arch floor_rhomb
+x 8
+y 18
+end
+arch floor_rhomb
+x 8
+y 19
+end
+arch floor_rhomb
+x 8
+y 20
+end
+arch floor_rhomb
+x 8
+y 21
+end
+arch floor_rhomb
+x 8
+y 22
+end
+arch floor_rhomb
+x 8
+y 23
+end
+arch floor_rhomb
+x 9
+y 15
+end
+arch floor_rhomb
+x 9
+y 16
+end
+arch floor_rhomb
+x 9
+y 17
+end
+arch floor_rhomb
+x 9
+y 18
+end
+arch floor_rhomb
+x 9
+y 19
+end
+arch floor_rhomb
+x 9
+y 20
+end
+arch floor_rhomb
+x 9
+y 21
+end
+arch floor_rhomb
+x 9
+y 22
+end
+arch floor_rhomb
+x 9
+y 23
+end
+arch floor_rhomb
+x 10
+y 15
+end
+arch floor_rhomb
+x 10
+y 16
+end
+arch floor_rhomb
+x 10
+y 17
+end
+arch floor_rhomb
+x 10
+y 18
+end
+arch floor_rhomb
+x 10
+y 19
+end
+arch floor_rhomb
+x 10
+y 20
+end
+arch floor_rhomb
+x 10
+y 21
+end
+arch floor_rhomb
+x 10
+y 22
+end
+arch floor_rhomb
+x 10
+y 23
+end
+arch floor_rhomb
+x 11
+y 15
+end
+arch floor_rhomb
+x 11
+y 16
+end
+arch floor_rhomb
+x 11
+y 17
+end
+arch floor_rhomb
+x 11
+y 18
+end
+arch floor_rhomb
+x 11
+y 19
+end
+arch floor_rhomb
+x 11
+y 20
+end
+arch floor_rhomb
+x 11
+y 21
+end
+arch floor_rhomb
+x 11
+y 22
+end
+arch floor_rhomb
+x 11
+y 23
+end
+arch floor_rhomb
+x 12
+y 15
+end
+arch floor_rhomb
+x 12
+y 16
+end
+arch floor_rhomb
+x 12
+y 17
+end
+arch floor_rhomb
+x 12
+y 18
+end
+arch floor_rhomb
+x 12
+y 19
+end
+arch floor_rhomb
+x 12
+y 20
+end
+arch floor_rhomb
+x 12
+y 21
+end
+arch floor_rhomb
+x 12
+y 22
+end
+arch floor_rhomb
+x 12
+y 23
+end
+arch floor_rhomb
+x 13
+y 15
+end
+arch floor_rhomb
+x 13
+y 16
+end
+arch floor_rhomb
+x 13
+y 17
+end
+arch floor_rhomb
+x 13
+y 18
+end
+arch floor_rhomb
+x 13
+y 19
+end
+arch floor_rhomb
+x 13
+y 20
+end
+arch floor_rhomb
+x 13
+y 21
+end
+arch floor_rhomb
+x 13
+y 22
+end
+arch floor_rhomb
+x 13
+y 23
+end
+arch floor_rhomb
+x 14
+y 15
+end
+arch floor_rhomb
+x 14
+y 16
+end
+arch floor_rhomb
+x 14
+y 17
+end
+arch floor_rhomb
+x 14
+y 18
+end
+arch floor_rhomb
+x 14
+y 19
+end
+arch floor_rhomb
+x 14
+y 20
+end
+arch floor_rhomb
+x 14
+y 21
+end
+arch floor_rhomb
+x 14
+y 22
+end
+arch floor_rhomb
+x 14
+y 23
+end
+arch floor_rhomb
+x 15
+y 15
+end
+arch floor_rhomb
+x 15
+y 16
+end
+arch floor_rhomb
+x 15
+y 17
+end
+arch floor_rhomb
+x 15
+y 18
+end
+arch floor_rhomb
+x 15
+y 19
+end
+arch floor_rhomb
+x 15
+y 20
+end
+arch floor_rhomb
+x 15
+y 21
+end
+arch floor_rhomb
+x 15
+y 22
+end
+arch floor_rhomb
+x 15
+y 23
+end
+arch floor_rhomb
+x 16
+y 15
+end
+arch floor_rhomb
+x 16
+y 16
+end
+arch floor_rhomb
+x 16
+y 17
+end
+arch floor_rhomb
+x 16
+y 18
+end
+arch floor_rhomb
+x 16
+y 19
+end
+arch floor_rhomb
+x 16
+y 20
+end
+arch floor_rhomb
+x 16
+y 21
+end
+arch floor_rhomb
+x 16
+y 22
+end
+arch floor_rhomb
+x 16
+y 23
+end
+arch floor_rhomb
+x 17
+y 15
+end
+arch floor_rhomb
+x 17
+y 16
+end
+arch floor_rhomb
+x 17
+y 17
+end
+arch floor_rhomb
+x 17
+y 18
+end
+arch floor_rhomb
+x 17
+y 19
+end
+arch floor_rhomb
+x 17
+y 20
+end
+arch floor_rhomb
+x 17
+y 21
+end
+arch floor_rhomb
+x 17
+y 22
+end
+arch floor_rhomb
+x 17
+y 23
+end
+arch floor_rhomb
+x 18
+y 15
+end
+arch floor_rhomb
+x 18
+y 16
+end
+arch floor_rhomb
+x 18
+y 17
+end
+arch floor_rhomb
+x 18
+y 18
+end
+arch floor_rhomb
+x 18
+y 19
+end
+arch floor_rhomb
+x 18
+y 20
+end
+arch floor_rhomb
+x 18
+y 21
+end
+arch floor_rhomb
+x 18
+y 22
+end
+arch floor_rhomb
+x 18
+y 23
+end
+arch floor_rhomb
+x 19
+y 15
+end
+arch floor_rhomb
+x 19
+y 16
+end
+arch floor_rhomb
+x 19
+y 17
+end
+arch floor_rhomb
+x 19
+y 18
+end
+arch floor_rhomb
+x 19
+y 19
+end
+arch floor_rhomb
+x 19
+y 20
+end
+arch floor_rhomb
+x 19
+y 21
+end
+arch floor_rhomb
+x 19
+y 22
+end
+arch floor_rhomb
+x 19
+y 23
+end
+arch floor_rhomb
+x 20
+y 15
+end
+arch floor_rhomb
+x 20
+y 16
+end
+arch floor_rhomb
+x 20
+y 17
+end
+arch floor_rhomb
+x 20
+y 18
+end
+arch floor_rhomb
+x 20
+y 19
+end
+arch floor_rhomb
+x 20
+y 20
+end
+arch floor_rhomb
+x 20
+y 21
+end
+arch floor_rhomb
+x 20
+y 22
+end
+arch floor_rhomb
+x 20
+y 23
+end
+arch floor_rhomb
+x 21
+y 15
+end
+arch floor_rhomb
+x 21
+y 16
+end
+arch floor_rhomb
+x 21
+y 17
+end
+arch floor_rhomb
+x 21
+y 18
+end
+arch floor_rhomb
+x 21
+y 19
+end
+arch floor_rhomb
+x 21
+y 20
+end
+arch floor_rhomb
+x 21
+y 21
+end
+arch floor_rhomb
+x 21
+y 22
+end
+arch floor_rhomb
+x 21
+y 23
+end
+arch floor_rhomb
+x 22
+y 15
+end
+arch floor_rhomb
+x 22
+y 16
+end
+arch floor_rhomb
+x 22
+y 17
+end
+arch floor_rhomb
+x 22
+y 18
+end
+arch floor_rhomb
+x 22
+y 19
+end
+arch floor_rhomb
+x 22
+y 20
+end
+arch floor_rhomb
+x 22
+y 21
+end
+arch floor_rhomb
+x 22
+y 22
+end
+arch floor_rhomb
+x 22
+y 23
+end
+arch floor_rhomb
+x 23
+y 15
+end
+arch floor_rhomb
+x 23
+y 16
+end
+arch floor_rhomb
+x 23
+y 17
+end
+arch floor_rhomb
+x 23
+y 18
+end
+arch floor_rhomb
+x 23
+y 19
+end
+arch floor_rhomb
+x 23
+y 20
+end
+arch floor_rhomb
+x 23
+y 21
+end
+arch floor_rhomb
+x 23
+y 22
+end
+arch floor_rhomb
+x 23
+y 23
+end

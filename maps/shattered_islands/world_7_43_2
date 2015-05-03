@@ -1,0 +1,120 @@
+arch map
+name Asteria Palace
+msg
+Created:  2011-01-23 emperorbma
+Modified: 2015-05-03 emperorbma
+endmsg
+width 24
+height 24
+difficulty 40
+darkness 4
+no_harm 1
+bg_music kaitindam.mid
+region asteria
+end
+arch floor_rhomb
+y 15
+end
+arch map_info
+name asteria_palace
+hp 2
+sp 8
+is_magical 1
+y 15
+end
+arch floor_rhomb
+y 16
+end
+arch floor_rhomb
+y 17
+end
+arch floor_rhomb
+y 18
+end
+arch floor_rhomb
+y 19
+end
+arch floor_rhomb
+y 20
+end
+arch floor_rhomb
+y 21
+end
+arch floor_rhomb
+y 22
+end
+arch floor_rhomb
+y 23
+end
+arch floor_rhomb
+x 1
+y 15
+end
+arch floor_rhomb
+x 1
+y 16
+end
+arch floor_rhomb
+x 1
+y 17
+end
+arch floor_rhomb
+x 1
+y 18
+end
+arch floor_rhomb
+x 1
+y 19
+end
+arch floor_rhomb
+x 1
+y 20
+end
+arch floor_rhomb
+x 1
+y 21
+end
+arch floor_rhomb
+x 1
+y 22
+end
+arch floor_rhomb
+x 1
+y 23
+end
+arch floor_rhomb
+x 2
+y 15
+end
+arch floor_rhomb
+x 2
+y 16
+end
+arch floor_rhomb
+x 2
+y 17
+end
+arch floor_rhomb
+x 2
+y 18
+end
+arch floor_rhomb
+x 2
+y 19
+end
+arch floor_rhomb
+x 2
+y 20
+end
+arch floor_rhomb
+x 2
+y 21
+end
+arch floor_rhomb
+x 2
+y 22
+end
+arch floor_rhomb
+x 2
+y 23
+end
