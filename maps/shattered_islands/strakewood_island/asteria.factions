@@ -14,13 +14,14 @@ faction asteria
             end
         end
     end
+end
 
-    faction asteria_thieves
+faction asteria_thieves
+    parent strakewood_island_thieves
         spill 0%
         attention 25%
-
-        parent strakewood_island_thieves
-    end
+        
+    parent asteria
 end
 
 faction asteria_swamp_cathi

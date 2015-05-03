@@ -2,6 +2,7 @@ faction world
     modifier 0%
 
     faction thieves
+        alliance yes
         modifier 25%
         spill 0%
     end

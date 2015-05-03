@@ -2,17 +2,12 @@ faction strakewood_island
     parent world
     modifier 0%
 
-    faction strakewood_island_thieves
-        modifier 50%
-
-        parent thieves
-    end
-
     # Alliance of the Strakewood Island between the Northern Asterian Kingdom
     # and the Southern Republic of Greyton, formed in the year 51 of the fifth
     # age.
     faction strakewood_island_alliance
         parent npcs
+        alliance yes
 
         faction asterian_kingdom
         end
@@ -24,4 +19,11 @@ faction strakewood_island
     faction drkass
         enemy asteria
     end
+end
+
+faction strakewood_island_thieves
+    modifier 50%
+
+    parent thieves
+    parent strakewood_island
 end
