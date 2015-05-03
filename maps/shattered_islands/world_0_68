@@ -2,7 +2,7 @@ arch map
 name Brynknot
 msg
 Created:  2009-09-10 Alex Tokar
-Modified: 2015-04-29 Alex Tokar
+Modified: 2015-05-03 Alex Tokar
 endmsg
 width 24
 height 24
@@ -594,6 +594,7 @@ y 5
 arch monk
 name Darlin
 type 83
+faction brynknot_citizens
 level 34
 arch event_obj
 sub_type 6
@@ -1882,6 +1883,7 @@ y 11
 arch guard
 direction 7
 level 60
+faction brynknot_guards
 unaggressive 0
 type 83
 arch event_obj
@@ -2265,6 +2267,7 @@ y 15
 arch guard
 direction 3
 level 60
+faction brynknot_guards
 unaggressive 0
 type 83
 arch event_obj
@@ -2745,6 +2748,7 @@ y 11
 arch guard
 direction 7
 level 60
+faction brynknot_guards
 unaggressive 0
 type 83
 arch event_obj
@@ -3302,6 +3306,7 @@ y 8
 arch guard
 direction 7
 level 60
+faction brynknot_guards
 unaggressive 0
 type 83
 arch event_obj
@@ -3770,6 +3775,7 @@ y 16
 arch guard
 direction 7
 level 60
+faction brynknot_guards
 unaggressive 0
 type 83
 arch event_obj

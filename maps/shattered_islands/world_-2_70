@@ -2,7 +2,7 @@ arch map
 name Brynknot
 msg
 Created:  2009-09-10 Alex Tokar
-Modified: 2011-10-02 Alex Tokar
+Modified: 2015-05-03 Alex Tokar
 endmsg
 width 24
 height 24
@@ -432,6 +432,7 @@ x 4
 y 1
 arch guard
 level 28
+faction brynknot_guards
 type 83
 arch event_obj
 sub_type 6
@@ -662,6 +663,7 @@ y 1
 arch ranger
 direction 3
 level 73
+faction brynknot_guards
 dex 1
 can_use_bow 1
 unaggressive 0

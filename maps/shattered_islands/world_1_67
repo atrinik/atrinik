@@ -2,7 +2,7 @@ arch map
 name Brynknot
 msg
 Created:  2009-09-10 Alex Tokar
-Modified: 2014-12-24 Alex Tokar
+Modified: 2015-05-03 Alex Tokar
 endmsg
 width 24
 height 24
@@ -452,6 +452,7 @@ x 2
 y 18
 arch ranger
 level 61
+faction brynknot_citizens
 type 83
 end
 end
@@ -1101,6 +1102,7 @@ y 19
 arch woman_old
 name Melanye
 level 18
+faction brynknot_citizens
 type 83
 direction 3
 arch event_obj
@@ -1269,6 +1271,7 @@ x 7
 y 18
 arch monk
 level 17
+faction brynknot_citizens
 type 83
 end
 end
@@ -1588,6 +1591,7 @@ y 13
 arch guard
 direction 1
 level 58
+faction brynknot_guards
 type 83
 arch event_obj
 sub_type 6
@@ -1937,6 +1941,7 @@ y 15
 arch bartender
 name Kestrei
 level 12
+faction brynknot_citizens
 type 83
 arch event_obj
 sub_type 6
@@ -2591,6 +2596,7 @@ x 15
 y 14
 arch chef
 level 9
+faction brynknot_citizens
 type 83
 end
 end
@@ -3154,6 +3160,7 @@ x 18
 y 21
 arch guard
 level 60
+faction brynknot_guards
 unaggressive 0
 type 83
 arch event_obj
@@ -3795,6 +3802,7 @@ y 16
 arch smith
 name Galann Strongfist
 level 30
+faction brynknot_citizens
 type 83
 arch event_obj
 sub_type 6

@@ -2,7 +2,7 @@ arch map
 name Brynknot
 msg
 Created:  2009-09-10 Alex Tokar
-Modified: 2015-04-29 Alex Tokar
+Modified: 2015-05-03 Alex Tokar
 endmsg
 width 24
 height 24
@@ -206,6 +206,7 @@ y 6
 arch priest_church
 name Conuld Burch
 level 65
+faction brynknot_citizens
 type 83
 arch event_obj
 sub_type 6
@@ -688,6 +689,7 @@ arch woman_old
 name Lairwenn
 direction 3
 level 14
+faction brynknot_citizens
 movement_type 176
 type 83
 arch waypoint
@@ -1741,6 +1743,7 @@ y 14
 arch guard
 direction 3
 level 60
+faction brynknot_guards
 unaggressive 0
 type 83
 arch event_obj

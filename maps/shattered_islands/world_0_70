@@ -2,7 +2,7 @@ arch map
 name Brynknot
 msg
 Created:  2009-09-10 Alex Tokar
-Modified: 2015-04-19 Alex Tokar
+Modified: 2015-05-03 Alex Tokar
 endmsg
 width 24
 height 24
@@ -580,6 +580,7 @@ endmsg
 name Ship Captain
 type 83
 level 13
+faction brynknot_citizens
 direction 3
 end
 end
@@ -2935,6 +2936,7 @@ endmsg
 name Ship Captain
 type 83
 level 13
+faction brynknot_citizens
 end
 end
 arch ship_floor_ns_dark_1

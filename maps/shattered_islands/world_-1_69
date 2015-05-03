@@ -2,7 +2,7 @@ arch map
 name Brynknot
 msg
 Created:  2009-09-10 Alex Tokar
-Modified: 2014-12-23 Alex Tokar
+Modified: 2015-05-03 Alex Tokar
 endmsg
 width 24
 height 24
@@ -824,6 +824,7 @@ y 13
 arch female1
 type 83
 direction 3
+faction brynknot_citizens
 name Telana Reed
 end
 end
@@ -842,6 +843,7 @@ y 14
 arch peasant
 type 83
 direction 3
+faction brynknot_citizens
 name Deran Reed
 end
 end
@@ -1353,6 +1355,7 @@ x 7
 y 7
 arch guard
 level 30
+faction brynknot_guards
 type 83
 arch event_obj
 sub_type 6
@@ -1421,6 +1424,7 @@ x 7
 y 15
 arch guard
 level 30
+faction brynknot_guards
 type 83
 direction 1
 end
@@ -1968,6 +1972,7 @@ msg
 Wheeeee!
 endmsg
 level 4
+faction brynknot_citizens
 speed -0.228
 movement_type 176
 type 83
@@ -2186,6 +2191,7 @@ x 12
 y 7
 arch woman_old
 type 83
+faction brynknot_citizens
 name Salith Green
 end
 end
@@ -2347,6 +2353,7 @@ x 13
 y 4
 arch childm4
 level 7
+faction brynknot_citizens
 random_move 1
 item_race 2
 item_level 2

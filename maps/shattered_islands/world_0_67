@@ -2,7 +2,7 @@ arch map
 name Brynknot
 msg
 Created:  2009-09-10 Alex Tokar
-Modified: 2015-03-20 Alex Tokar
+Modified: 2015-05-03 Alex Tokar
 endmsg
 width 24
 height 24
@@ -164,6 +164,7 @@ y 5
 arch ranger
 direction 3
 level 73
+faction brynknot_guards
 dex 1
 can_use_bow 1
 unaggressive 0
@@ -197,6 +198,7 @@ y 7
 arch guard
 direction 3
 level 66
+faction brynknot_guards
 unaggressive 0
 type 83
 arch event_obj
@@ -227,6 +229,7 @@ y 10
 arch guard
 direction 3
 level 66
+faction brynknot_guards
 unaggressive 0
 type 83
 arch event_obj
@@ -295,6 +298,7 @@ y 18
 arch guard
 direction 3
 level 66
+faction brynknot_guards
 unaggressive 0
 type 83
 arch event_obj
@@ -851,6 +855,7 @@ y 5
 arch ranger
 direction 3
 level 73
+faction brynknot_guards
 dex 1
 can_use_bow 1
 unaggressive 0
@@ -884,6 +889,7 @@ y 7
 arch guard
 direction 3
 level 66
+faction brynknot_guards
 unaggressive 0
 type 83
 arch event_obj
@@ -914,6 +920,7 @@ y 10
 arch guard
 direction 3
 level 66
+faction brynknot_guards
 unaggressive 0
 type 83
 arch event_obj
@@ -1630,6 +1637,7 @@ x 9
 y 21
 arch guard
 level 60
+faction brynknot_guards
 unaggressive 0
 type 83
 arch event_obj
@@ -2244,6 +2252,7 @@ y 15
 arch priest_green
 name Fallain
 level 42
+faction brynknot_citizens
 type 83
 arch event_obj
 sub_type 6
@@ -2547,6 +2556,7 @@ y 14
 arch guard
 name bank guard
 level 45
+faction brynknot_guards
 type 83
 arch event_obj
 sub_type 6
@@ -2854,6 +2864,7 @@ y 14
 arch guard
 name bank guard
 level 45
+faction brynknot_guards
 type 83
 arch event_obj
 sub_type 6
@@ -3424,6 +3435,7 @@ y 15
 arch monk
 name Tolmir
 level 41
+faction brynknot_citizens
 type 83
 arch event_obj
 sub_type 6

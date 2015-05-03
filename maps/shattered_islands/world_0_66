@@ -2,7 +2,7 @@ arch map
 name Strakewood Island
 msg
 Created:  2009-09-10 Alex Tokar
-Modified: 2014-03-12 Alex Tokar
+Modified: 2015-05-03 Alex Tokar
 endmsg
 width 24
 height 24
@@ -1545,6 +1545,7 @@ y 20
 arch mage_old
 name Achetran
 level 60
+faction brynknot_citizens
 type 83
 arch event_obj
 sub_type 6
@@ -2347,6 +2348,7 @@ msg
 No fear, we have everything under control!
 endmsg
 level 66
+faction brynknot_guards
 unaggressive 0
 type 83
 end
@@ -2759,6 +2761,7 @@ msg
 Careful there! You'll have to walk around this big hole.
 endmsg
 level 66
+faction brynknot_guards
 unaggressive 0
 type 83
 end
@@ -3387,6 +3390,7 @@ y 16
 arch female1
 name Aranarra
 level 30
+faction brynknot_citizens
 random_move 1
 item_race 1
 item_level 1
@@ -3597,6 +3601,7 @@ Careful there! You'll have to walk around this big hole.
 endmsg
 direction 3
 level 66
+faction brynknot_guards
 unaggressive 0
 type 83
 end
@@ -3900,6 +3905,7 @@ No fear, we have everything under control!
 endmsg
 direction 3
 level 66
+faction brynknot_guards
 unaggressive 0
 type 83
 end
