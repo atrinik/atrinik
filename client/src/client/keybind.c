@@ -628,10 +628,6 @@ int keybind_process_command(const char *cmd)
                 combat = !combat;
             } else {
                 combat_force = !combat_force;
-
-                if (combat_force) {
-                    combat = true;
-                }
             }
 
             WIDGET_REDRAW_ALL(TARGET_ID);

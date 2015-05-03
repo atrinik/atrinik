@@ -2042,8 +2042,12 @@ void send_target_command(player *pl)
     } else {
         packet_debug_data(packet, 0, "Target command type");
 
-        if (is_friend_of(pl->ob, pl->target_object)) {
-            packet_append_uint8(packet, CMD_TARGET_NEUTRAL);
+        if (is_friend_of(pl->target_object, pl->ob)) {
+            if (pl->target_object->type == PLAYER) {
+                packet_append_uint8(packet, CMD_TARGET_FRIEND);
+            } else {
+                packet_append_uint8(packet, CMD_TARGET_NEUTRAL);
+            }
         } else {
             packet_append_uint8(packet, CMD_TARGET_ENEMY);
 
@@ -2518,8 +2522,17 @@ void socket_command_control(socket_struct *ns, player *pl, uint8_t *data, size_t
 void socket_command_combat(socket_struct *ns, player *pl, uint8_t *data,
         size_t len, size_t pos)
 {
-    pl->combat = packet_to_uint8(data, len, &pos);
-    pl->combat_force = packet_to_uint8(data, len, &pos);
+    uint8_t combat = packet_to_uint8(data, len, &pos);
+    uint8_t combat_force = packet_to_uint8(data, len, &pos);
+
+    if (combat_force && !pl->combat_force) {
+        combat = true;
+    } else if (!combat && pl->combat) {
+        combat_force = false;
+    }
+
+    pl->combat = combat;
+    pl->combat_force = combat_force;
 
     send_target_command(pl);
 }
