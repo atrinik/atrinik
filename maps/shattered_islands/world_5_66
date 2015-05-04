@@ -573,7 +573,6 @@ dex 3
 see_invisible 0
 can_see_in_dark 1
 can_use_bow 1
-unaggressive 0
 wis 7
 protect_impact 0
 protect_slash 0
@@ -1146,7 +1145,6 @@ dex 3
 see_invisible 0
 can_see_in_dark 1
 can_use_bow 1
-unaggressive 0
 wis 7
 protect_impact 0
 protect_slash 0
@@ -1200,7 +1198,6 @@ dex 3
 see_invisible 0
 can_see_in_dark 1
 can_use_bow 1
-unaggressive 0
 wis 7
 protect_impact 0
 protect_slash 0
@@ -1504,7 +1501,6 @@ magic 5
 dex 2
 see_invisible 0
 can_see_in_dark 1
-unaggressive 0
 stand_still 1
 wis 9
 protect_impact 0
@@ -1929,7 +1925,6 @@ con 5
 attack_slash 75
 attack_weaponmagic 0
 can_see_in_dark 1
-unaggressive 0
 wis 7
 protect_impact 5
 protect_slash 0
@@ -2060,7 +2055,6 @@ con 5
 attack_slash 75
 attack_weaponmagic 0
 can_see_in_dark 1
-unaggressive 0
 wis 7
 protect_impact 5
 protect_slash 0
@@ -2580,7 +2574,6 @@ dex 3
 see_invisible 0
 can_see_in_dark 1
 can_use_bow 1
-unaggressive 0
 wis 7
 protect_impact 0
 protect_slash 0
@@ -2915,7 +2908,6 @@ con 5
 attack_cleave 75
 attack_weaponmagic 0
 can_see_in_dark 1
-unaggressive 0
 wis 7
 protect_impact 5
 protect_slash 0
@@ -3050,7 +3042,6 @@ dex 3
 see_invisible 0
 can_see_in_dark 1
 can_use_bow 1
-unaggressive 0
 wis 7
 protect_impact 0
 protect_slash 0
@@ -3398,7 +3389,6 @@ dex 3
 see_invisible 0
 can_see_in_dark 1
 can_use_bow 1
-unaggressive 0
 wis 7
 protect_impact 0
 protect_slash 0

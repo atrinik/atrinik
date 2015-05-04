@@ -2534,7 +2534,6 @@ name elven ranger
 race half-elf
 dex 3
 can_use_weapon 1
-unaggressive 0
 type 83
 arch arrow
 sys_object 1
@@ -2812,7 +2811,6 @@ name elven ranger
 race half-elf
 dex 3
 can_use_bow 1
-unaggressive 0
 type 83
 arch arrow
 sys_object 1

@@ -2291,7 +2291,6 @@ z -5
 level 75
 dex 1
 can_use_bow 1
-unaggressive 0
 stand_still 1
 wis 12
 type 83
@@ -2390,7 +2389,6 @@ direction 1
 level 75
 dex 1
 can_use_bow 1
-unaggressive 0
 stand_still 1
 wis 12
 type 83
@@ -2521,7 +2519,6 @@ z -5
 level 75
 dex 1
 can_use_bow 1
-unaggressive 0
 stand_still 1
 wis 12
 type 83
@@ -2628,7 +2625,6 @@ direction 1
 level 75
 dex 1
 can_use_bow 1
-unaggressive 0
 stand_still 1
 wis 12
 type 83
@@ -3282,7 +3278,6 @@ x 23
 y 8
 arch guard_royal
 level 70
-unaggressive 0
 type 83
 arch event_obj
 sub_type 6
@@ -3324,7 +3319,6 @@ y 15
 arch guard_royal
 direction 1
 level 70
-unaggressive 0
 type 83
 arch event_obj
 sub_type 6

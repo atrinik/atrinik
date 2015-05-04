@@ -84,7 +84,6 @@ arch spawn_point
 y 11
 arch guard_royal
 level 70
-unaggressive 0
 type 83
 end
 end

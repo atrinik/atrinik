@@ -1435,7 +1435,6 @@ y 21
 arch guard
 level 60
 faction brynknot_guards
-unaggressive 0
 type 83
 arch event_obj
 sub_type 6
@@ -2726,7 +2725,6 @@ arch guard
 direction 3
 level 60
 faction brynknot_guards
-unaggressive 0
 type 83
 arch event_obj
 sub_type 6
@@ -2769,7 +2767,6 @@ arch guard
 direction 3
 level 60
 faction brynknot_guards
-unaggressive 0
 type 83
 arch event_obj
 sub_type 6
@@ -3072,7 +3069,6 @@ level 70
 faction brynknot_guards
 dex 1
 can_use_bow 1
-unaggressive 0
 type 83
 arch ability_stone_throw
 race arrows
@@ -3118,7 +3114,6 @@ level 70
 faction brynknot_guards
 dex 1
 can_use_bow 1
-unaggressive 0
 type 83
 arch ability_stone_throw
 race arrows

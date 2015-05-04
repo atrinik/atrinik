@@ -2609,7 +2609,6 @@ arch guard
 name Asterian Guard
 type 83
 level 100
-unaggressive 0
 arch event_obj
 sub_type 6
 race /python/generic/guard.py
@@ -2642,7 +2641,6 @@ arch guard
 name Asterian Guard
 type 83
 level 100
-unaggressive 0
 arch event_obj
 sub_type 6
 race /python/generic/guard.py
@@ -2939,7 +2937,6 @@ arch guard
 name Asterian Guard
 type 83
 level 100
-unaggressive 0
 arch event_obj
 sub_type 6
 race /python/generic/guard.py
@@ -2972,7 +2969,6 @@ arch guard
 name Asterian Guard
 type 83
 level 100
-unaggressive 0
 arch event_obj
 sub_type 6
 race /python/generic/guard.py
@@ -3593,7 +3589,6 @@ arch archer
 level 100
 dex 1
 can_use_bow 1
-unaggressive 0
 stand_still 1
 wis 12
 type 83

@@ -328,7 +328,6 @@ arch guard
 name Asterian Guard
 level 100
 type 83
-unaggressive 0
 arch key_blue
 name Asteria Dungeon Key 1
 slaying asteria_dungeon_key1
@@ -388,7 +387,6 @@ arch guard
 name Asterian Guard
 level 100
 type 83
-unaggressive 0
 arch key_blue
 name Asteria Dungeon Key 1
 slaying asteria_dungeon_key1

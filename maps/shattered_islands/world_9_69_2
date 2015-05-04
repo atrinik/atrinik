@@ -294,7 +294,6 @@ direction 7
 level 75
 dex 1
 can_use_bow 1
-unaggressive 0
 stand_still 1
 wis 12
 type 83
@@ -904,7 +903,6 @@ align 5
 level 75
 dex 1
 can_use_bow 1
-unaggressive 0
 stand_still 1
 wis 12
 type 83

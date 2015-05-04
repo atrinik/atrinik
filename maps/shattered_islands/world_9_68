@@ -755,7 +755,6 @@ y 9
 arch guard_royal
 name Alvaro Stormcrow
 level 70
-unaggressive 0
 type 83
 arch event_obj
 sub_type 6
@@ -958,7 +957,6 @@ y 15
 arch guard_royal
 direction 1
 level 70
-unaggressive 0
 type 83
 arch event_obj
 sub_type 6

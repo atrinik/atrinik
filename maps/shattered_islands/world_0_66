@@ -2349,7 +2349,6 @@ No fear, we have everything under control!
 endmsg
 level 66
 faction brynknot_guards
-unaggressive 0
 type 83
 end
 end
@@ -2762,7 +2761,6 @@ Careful there! You'll have to walk around this big hole.
 endmsg
 level 66
 faction brynknot_guards
-unaggressive 0
 type 83
 end
 end
@@ -3602,7 +3600,6 @@ endmsg
 direction 3
 level 66
 faction brynknot_guards
-unaggressive 0
 type 83
 end
 end
@@ -3906,7 +3903,6 @@ endmsg
 direction 3
 level 66
 faction brynknot_guards
-unaggressive 0
 type 83
 end
 end

@@ -235,8 +235,6 @@ level 37
 race half-elf
 dex 3
 can_use_bow 1
-unaggressive 0
-wis 6
 type 83
 arch arrow
 sys_object 1
@@ -627,7 +625,6 @@ pow 20
 magic 5
 path_attuned 131104
 dex 2
-unaggressive 0
 wis 5
 type 83
 arch ability_cause_lig_wound
@@ -680,7 +677,6 @@ level 36
 race half-elf
 dex 3
 can_use_bow 1
-unaggressive 0
 wis 7
 type 83
 arch arrow
@@ -976,7 +972,6 @@ level 38
 race half-elf
 dex 3
 can_use_bow 1
-unaggressive 0
 wis 7
 type 83
 arch arrow
@@ -1060,7 +1055,6 @@ maxsp 16
 pow 20
 magic 5
 dex 2
-unaggressive 0
 wis 8
 type 83
 arch ability_mbullet
@@ -1579,8 +1573,6 @@ maxsp 16
 pow 20
 magic 5
 dex 2
-unaggressive 0
-wis 6
 type 83
 arch ability_mbullet
 end
@@ -1752,7 +1744,6 @@ level 36
 race half-elf
 dex 3
 can_use_weapon 1
-unaggressive 0
 wis 7
 type 83
 arch arrow
@@ -2209,7 +2200,6 @@ level 37
 race half-elf
 dex 3
 can_use_bow 1
-unaggressive 0
 wis 8
 type 83
 arch ability_stone_throw
@@ -2425,8 +2415,6 @@ level 37
 race half-elf
 dex 3
 can_use_bow 1
-unaggressive 0
-wis 6
 type 83
 arch arrow
 sys_object 1

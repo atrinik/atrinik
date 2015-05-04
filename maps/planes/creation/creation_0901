@@ -769,7 +769,6 @@ level 30
 dam 50
 maxhp 1000
 con 100
-unaggressive 0
 wis 1
 type 83
 end
@@ -802,7 +801,6 @@ level 30
 dam 50
 maxhp 1000
 con 100
-unaggressive 0
 wis 1
 type 83
 end
@@ -823,7 +821,6 @@ level 30
 dam 50
 maxhp 1000
 con 100
-unaggressive 0
 wis 1
 type 83
 end
@@ -914,7 +911,6 @@ maxsp 16
 pow 20
 magic 5
 dex 2
-unaggressive 0
 stand_still 1
 wis 3
 type 83

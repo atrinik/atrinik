@@ -723,7 +723,6 @@ arch guard
 direction 3
 level 60
 faction brynknot_guards
-unaggressive 0
 type 83
 arch event_obj
 sub_type 6
@@ -1451,7 +1450,6 @@ y 8
 arch guard
 level 60
 faction brynknot_guards
-unaggressive 0
 type 83
 arch event_obj
 sub_type 6
@@ -2795,7 +2793,6 @@ arch guard
 direction 7
 level 60
 faction brynknot_guards
-unaggressive 0
 type 83
 arch event_obj
 sub_type 6

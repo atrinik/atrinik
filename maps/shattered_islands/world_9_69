@@ -2998,7 +2998,6 @@ x 21
 y 4
 arch guard_royal
 level 70
-unaggressive 0
 type 83
 arch event_obj
 sub_type 6

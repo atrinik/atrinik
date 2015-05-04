@@ -923,7 +923,6 @@ level 25
 dam 50
 maxhp 90
 can_see_in_dark 1
-unaggressive 0
 protect_impact 15
 protect_slash 15
 protect_cleave 15
@@ -1899,7 +1898,6 @@ maxhp 90
 dex 3
 can_see_in_dark 1
 can_use_bow 1
-unaggressive 0
 protect_impact 15
 protect_slash 15
 protect_cleave 15
@@ -2579,7 +2577,6 @@ level 25
 dam 50
 maxhp 90
 can_see_in_dark 1
-unaggressive 0
 protect_impact 15
 protect_slash 15
 protect_cleave 15
@@ -2902,7 +2899,6 @@ maxhp 90
 dex 3
 can_see_in_dark 1
 can_use_bow 1
-unaggressive 0
 protect_impact 15
 protect_slash 15
 protect_cleave 15

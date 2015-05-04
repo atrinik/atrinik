@@ -678,7 +678,6 @@ x 4
 y 12
 arch guard_royal
 level 70
-unaggressive 0
 type 83
 direction 3
 arch event_obj
@@ -2327,7 +2326,6 @@ x 17
 y 14
 arch guard_royal
 level 70
-unaggressive 0
 type 83
 direction 3
 arch event_obj
@@ -2412,7 +2410,6 @@ x 18
 y 8
 arch guard_royal
 level 70
-unaggressive 0
 type 83
 arch event_obj
 sub_type 6
@@ -3115,7 +3112,6 @@ x 22
 y 9
 arch guard_royal
 level 70
-unaggressive 0
 type 83
 arch event_obj
 sub_type 6
@@ -3199,7 +3195,6 @@ y 14
 arch guard_royal
 direction 1
 level 70
-unaggressive 0
 type 83
 arch event_obj
 sub_type 6
