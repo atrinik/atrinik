@@ -2,11 +2,11 @@ arch map
 name Centennial
 msg
 Created:  2011-03-20 Alex Tokar
-Modified: 2015-04-18 emperorbma
+Modified: 2015-05-04 Alex Tokar
 endmsg
 width 24
 height 24
-difficulty 1
+difficulty 30
 outdoor 1
 bg_music jungle1.ogg
 region centennial

@@ -2,11 +2,11 @@ arch map
 name Portu Baserrian
 msg
 Created:  2010-05-27 Asa
-Modified: 2011-09-30 Alex Tokar
+Modified: 2015-05-04 Alex Tokar
 endmsg
 width 24
 height 24
-difficulty 1
+difficulty 75
 outdoor 1
 no_harm 1
 bg_music ocean.ogg

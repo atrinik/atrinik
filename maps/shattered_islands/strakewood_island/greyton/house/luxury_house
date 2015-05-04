@@ -2,11 +2,11 @@ arch map
 name Greyton Luxury House
 msg
 Created:  2010-07-13 Alex Tokar
-Modified: 2011-10-14 Alex Tokar
+Modified: 2015-05-04 Alex Tokar
 endmsg
 width 48
 height 34
-difficulty 1
+difficulty 50
 darkness -1
 outdoor 1
 no_summon 1

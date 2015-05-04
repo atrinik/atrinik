@@ -2,11 +2,11 @@ arch map
 name Greyton Jail
 msg
 Created:  2010-06-16 Alex Tokar
-Modified: 2015-04-19 Alex Tokar
+Modified: 2015-05-04 Alex Tokar
 endmsg
 width 15
 height 23
-difficulty 1
+difficulty 100
 darkness 4
 no_magic 1
 no_harm 1

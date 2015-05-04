@@ -2,11 +2,11 @@ arch map
 name The City of Greyton
 msg
 Created:  2015-04-26 Alex Tokar
-Modified: 2015-04-26 Alex Tokar
+Modified: 2015-05-04 Alex Tokar
 endmsg
 width 24
 height 24
-difficulty 1
+difficulty 100
 darkness 3
 bg_music thonkdonk.ogg
 region greyton
