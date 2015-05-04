@@ -2,12 +2,13 @@ arch map
 name Asteria Palace
 msg
 Created:  2010-08-26 Alex Tokar
-Modified: 2015-05-03 emperorbma
+Modified: 2015-05-04 Alex Tokar
 endmsg
 width 24
 height 24
 difficulty 40
-darkness 4
+darkness -1
+outdoor 1
 no_harm 1
 bg_music kaitindam.mid
 region asteria
