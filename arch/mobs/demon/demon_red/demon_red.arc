@@ -13,7 +13,6 @@ is_evil 1
 terrain_flag 65
 can_see_in_dark 1
 can_use_weapon 1
-int 10
 wis 3
 dex 3
 con 15

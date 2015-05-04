@@ -21,7 +21,6 @@ speed -0.060
 monster 1
 wis 4
 dex 3
-int 10
 pow 10
 magic 1
 see_invisible 1
