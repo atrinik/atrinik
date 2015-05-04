@@ -180,7 +180,6 @@ x 2
 y 22
 end
 arch floor_fs_grey1b
-z 30
 x 2
 y 23
 end
@@ -302,6 +301,13 @@ arch wall_dungeon_1
 x 4
 y 17
 end
+arch map_info
+name asteria_palace
+hp 13
+damned 1
+x 4
+y 17
+end
 arch floor_fs_grey1b
 x 4
 y 18
@@ -391,6 +397,7 @@ arch map_info
 name asteria_palace
 hp 12
 sp 5
+cursed 1
 damned 1
 x 5
 y 18
@@ -1189,7 +1196,6 @@ x 21
 y 17
 end
 arch floor_fs_grey1b
-z 30
 x 21
 y 18
 end
@@ -1287,7 +1293,6 @@ x 22
 y 21
 end
 arch floor_fs_grey1b
-z 30
 x 22
 y 22
 end
