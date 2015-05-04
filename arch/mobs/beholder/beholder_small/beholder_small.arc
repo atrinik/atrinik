@@ -37,4 +37,6 @@ run_away 8
 dex 5
 magic 8
 can_cast_spell 1
+faction monsters
+int 18
 end

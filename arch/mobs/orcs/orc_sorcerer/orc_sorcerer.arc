@@ -35,4 +35,6 @@ magic 5
 level 1
 speed -0.047
 weight 52500
+faction monsters
+int 16
 end

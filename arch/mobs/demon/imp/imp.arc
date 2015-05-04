@@ -38,4 +38,6 @@ animation imp
 is_animated 1
 anim_speed 4
 no_pick 1
+faction monsters
+int 15
 end

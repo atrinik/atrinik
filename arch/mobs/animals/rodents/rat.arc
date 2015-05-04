@@ -29,6 +29,8 @@ maxhp 55
 speed -0.053
 level 1
 weight 25500
+faction monsters
+int 1
 end
 
 Object rat_b
@@ -62,6 +64,8 @@ maxhp 55
 speed -0.053
 level 1
 weight 25500
+faction monsters
+int 1
 end
 
 Object rat_c
@@ -95,6 +99,8 @@ maxhp 55
 speed -0.053
 level 1
 weight 25500
+faction monsters
+int 1
 end
 
 Object rat_d
@@ -128,4 +134,6 @@ maxhp 55
 speed -0.053
 level 1
 weight 25500
+faction monsters
+int 1
 end

@@ -39,6 +39,8 @@ attack_impact 90
 no_pick 1
 weight 950000
 run_away 6
+faction monsters
+int 9
 end
 More
 Object troll_b

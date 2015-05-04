@@ -30,4 +30,6 @@ maxhp 69
 level 1
 speed -0.0486
 weight 76500
+faction monsters
+int 13
 end

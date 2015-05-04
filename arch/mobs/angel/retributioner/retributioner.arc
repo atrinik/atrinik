@@ -40,6 +40,8 @@ dam 100
 level 1
 weight 85000
 str 25
+faction monsters
+int 25
 end
 More
 Object retributioner_b

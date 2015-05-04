@@ -30,7 +30,8 @@ dam 57
 hp -1
 maxhp 73
 level 1
-friendly 1
+faction npcs
+int 20
 speed -0.058
 weight 82500
 end

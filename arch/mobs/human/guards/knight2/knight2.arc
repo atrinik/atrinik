@@ -18,7 +18,7 @@ is_animated 1
 anim_speed 4
 speed -0.048
 monster 1
-wis 4
+wis 6
 no_pick 1
 con 15
 exp 100
@@ -29,5 +29,6 @@ wc 6
 dam 80
 level 1
 weight 85000
-friendly 1
+faction npcs
+int 20
 end

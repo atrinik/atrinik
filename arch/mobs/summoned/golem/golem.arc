@@ -27,4 +27,6 @@ level 1
 speed -0.046
 no_pick 1
 weight 120000
+faction monsters
+int 6
 end

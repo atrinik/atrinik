@@ -43,6 +43,8 @@ attack_pierce 80
 no_pick 1
 weight 1350000
 run_away 6
+faction monsters
+int 25
 end
 More
 Object beholder_d_b

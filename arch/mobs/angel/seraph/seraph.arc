@@ -48,6 +48,8 @@ wc 6
 dam 100
 level 1
 weight 125000
+faction monsters
+int 27
 end
 More
 Object seraph_b

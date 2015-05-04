@@ -43,6 +43,8 @@ attack_pierce 85
 no_pick 1
 weight 1158000
 run_away 6
+faction monsters
+int 25
 end
 More
 Object oclunus_d_b

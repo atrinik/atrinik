@@ -36,6 +36,8 @@ maxhp 67
 level 1
 speed -0.061
 weight 200000
+faction monsters
+int 28
 end
 More
 Object dragon_fire_d_b

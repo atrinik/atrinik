@@ -41,6 +41,8 @@ anim_speed 4
 no_pick 1
 mpart_id 3
 run_away 6
+faction monsters
+int 20
 end
 More
 Object demon_red_b

@@ -37,6 +37,8 @@ ac 12
 wc 6
 dam 100
 level 1
+faction monsters
+int 17
 weight 85000
 unaggressive 1
 str 25

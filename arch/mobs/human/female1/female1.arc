@@ -18,7 +18,7 @@ is_animated 1
 anim_speed 4
 speed -0.047
 monster 1
-wis 4
+wis 6
 see_invisible 1
 protect_impact 75
 protect_cleave 75
@@ -38,7 +38,8 @@ wc 6
 dam 100
 level 1
 weight 85000
-friendly 1
+faction npcs
+int 20
 unaggressive 1
 str 25
 end

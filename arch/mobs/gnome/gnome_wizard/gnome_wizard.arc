@@ -14,7 +14,6 @@ corpse 1
 layer 6
 direction 5
 is_good 1
-friendly 1
 terrain_flag 65
 weapon_speed 0.035
 attack_impact 75
@@ -38,6 +37,8 @@ maxhp 70
 level 1
 speed -0.047
 weight 32500
+faction npcs
+int 23
 arch ability_firestorm
 end
 end
