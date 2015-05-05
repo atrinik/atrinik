@@ -433,7 +433,7 @@ typedef struct pl_player {
     uint32_t count;
 
     /** Last ranged weapon speed sent. */
-    int32_t last_ranged_ws;
+    float last_ranged_ws;
 
     /**
      * Last attuned spell path sent to client. */
