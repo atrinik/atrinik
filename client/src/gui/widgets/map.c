@@ -1575,7 +1575,7 @@ void map_draw_map(SDL_Surface *surface)
                     }
 
                     if (layer == LAYER_EFFECT && sub_layer != 0) {
-                        if (cell->height[GET_MAP_LAYER(LAYER_EFFECT,
+                        if (cell->height[GET_MAP_LAYER(LAYER_FLOOR,
                                 sub_layer)] < cell->height[GET_MAP_LAYER(
                                 LAYER_FLOOR, MapData.player_sub_layer)]) {
                             continue;
