@@ -1020,9 +1020,7 @@ void draw_client_map2(object *pl)
                                     ((msp_tmp->extra_flags &
                                     (MSP_EXTRA_IS_BUILDING |
                                     MSP_EXTRA_IS_BALCONY)) ||
-                                    QUERY_FLAG(tmp, FLAG_HIDDEN)) &&
-                                    !(msp->extra_flags &
-                                    MSP_EXTRA_IS_OVERLOOK)) {
+                                    QUERY_FLAG(tmp, FLAG_HIDDEN))) {
                                 tmp = NULL;
                             }
 
@@ -1134,6 +1132,11 @@ void draw_client_map2(object *pl)
                                 break;
                             }
                         }
+                    }
+
+                    if (tmp != NULL && tmp->layer != LAYER_WALL &&
+                            QUERY_FLAG(tmp, FLAG_HIDDEN)) {
+                        tmp = NULL;
                     }
 
                     /* Handle objects that are shown based on their direction
