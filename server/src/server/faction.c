@@ -481,6 +481,10 @@ bool faction_is_alliance(faction_t faction, faction_t faction2)
     faction_t faction_alliance = faction_get_topmost_alliance(faction);
     faction_t faction_alliance2 = faction_get_topmost_alliance(faction2);
 
+    if (faction_alliance == NULL || faction_alliance2 == NULL) {
+        return false;
+    }
+
     return faction_alliance == faction_alliance2;
 }
 
