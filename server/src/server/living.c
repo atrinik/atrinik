@@ -1128,12 +1128,6 @@ void living_update_monster(object *op)
     }
 
     set_mobile_speed(op, 0);
-
-    if (object_get_value(op, "faction") == NULL) {
-        object_set_value(op, "faction",
-                         QUERY_FLAG(op, FLAG_FRIENDLY) ? "npcs" : "monsters",
-                         1);
-    }
 }
 
 /**
