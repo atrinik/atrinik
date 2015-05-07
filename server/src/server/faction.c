@@ -288,6 +288,10 @@ static void faction_free(faction_t faction)
         efree(faction->enemies);
     }
 
+    if (faction->children != NULL) {
+        efree(faction->children);
+    }
+
     efree(faction);
 }
 
