@@ -67,6 +67,9 @@ struct faction {
     faction_enemy_t *enemies;
     size_t enemies_num;
 
+    struct faction **children;
+    size_t children_num;
+
     int16_t modifier;
 
     double penalty;
@@ -327,6 +330,11 @@ static void faction_assign_names(void)
 
             free_string_shared(faction->parents[i].faction.name);
             faction->parents[i].faction.ptr = parent;
+
+            parent->children = erealloc(parent->children,
+                    sizeof(*parent->children) * (parent->children_num + 1));
+            parent->children[parent->children_num] = faction;
+            parent->children_num++;
         }
 
         for (size_t i = 0; i < faction->enemies_num; i++) {
@@ -486,6 +494,73 @@ bool faction_is_alliance(faction_t faction, faction_t faction2)
     }
 
     return faction_alliance == faction_alliance2;
+}
+
+double faction_get_bounty(faction_t faction, object *op)
+{
+    TOOLKIT_PROTECT();
+
+    HARD_ASSERT(faction != NULL);
+    HARD_ASSERT(op != NULL);
+    SOFT_ASSERT_RC(op->type == PLAYER, 0.0, "Object is not a player.");
+
+    double bounty = player_faction_reputation(CONTR(op), faction->name);
+
+    if (bounty > 0.0) {
+        bounty = 0.0;
+    }
+
+    for (size_t i = 0; i < faction->children_num; i++) {
+        SOFT_ASSERT_RC(faction->children[i]->parents_num > 0, 0.0,
+                "Child faction %s has no parents!", faction->children[i]->name);
+
+        /* Skip child factions that do not have this faction as their primary
+         * parent. */
+        if (faction->children[i]->parents[0].faction.ptr != faction) {
+            continue;
+        }
+
+        double rep = faction_get_bounty(faction->children[i], op);
+
+        if (rep < bounty) {
+            bounty = rep;
+        }
+    }
+
+    return bounty;
+}
+
+void faction_clear_bounty(faction_t faction, object *op)
+{
+    TOOLKIT_PROTECT();
+
+    HARD_ASSERT(faction != NULL);
+    HARD_ASSERT(op != NULL);
+    SOFT_ASSERT(op->type == PLAYER, "Object is not a player.");
+
+    double bounty = player_faction_reputation(CONTR(op), faction->name);
+
+    if (bounty < 0.0) {
+        player_faction_update(CONTR(op), faction->name, -bounty);
+    }
+
+    for (size_t i = 0; i < faction->children_num; i++) {
+        SOFT_ASSERT(faction->children[i]->parents_num > 0,
+                "Child faction %s has no parents!", faction->children[i]->name);
+
+        /* Skip child factions that do not have this faction as their primary
+         * parent. */
+        if (faction->children[i]->parents[0].faction.ptr != faction) {
+            continue;
+        }
+
+        bounty = faction_get_bounty(faction->children[i], op);
+
+        if (bounty < 0.0) {
+            player_faction_update(CONTR(op), faction->children[i]->name,
+                    -bounty);
+        }
+    }
 }
 
 #endif
