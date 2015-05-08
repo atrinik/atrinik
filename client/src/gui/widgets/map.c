@@ -1561,8 +1561,7 @@ void map_draw_map(SDL_Surface *surface)
                         &target_rect, &tiles, &tiles_num, 0);
             }
 
-            for (sub_layer = NUM_SUB_LAYERS - 1; sub_layer >= 1;
-                    sub_layer--) {
+            for (sub_layer = 0; sub_layer < NUM_SUB_LAYERS; sub_layer++) {
                 if (cell->height[GET_MAP_LAYER(LAYER_FLOOR, sub_layer)] <
                         cell->height[GET_MAP_LAYER(LAYER_FLOOR,
                         MapData.player_sub_layer)]) {
@@ -1586,6 +1585,30 @@ void map_draw_map(SDL_Surface *surface)
                             player_height_offset, &target_cell, &target_layer,
                             &target_rect, &tiles, &tiles_num, 0);
                 }
+            }
+
+            for (sub_layer = NUM_SUB_LAYERS - 1; sub_layer >= 1; sub_layer--) {
+                if (cell->height[GET_MAP_LAYER(LAYER_EFFECT, sub_layer)] <
+                        cell->height[GET_MAP_LAYER(LAYER_FLOOR,
+                        MapData.player_sub_layer)]) {
+                    continue;
+                }
+
+                if (cell->height[GET_MAP_LAYER(LAYER_EFFECT,
+                        sub_layer)] <= cell->height[GET_MAP_LAYER(
+                        LAYER_FLOOR, sub_layer - 1)]) {
+                    continue;
+                }
+
+                if (cell->height[GET_MAP_LAYER(LAYER_EFFECT,
+                        sub_layer)] <= cell->height[GET_MAP_LAYER(
+                        LAYER_EFFECT, sub_layer - 1)]) {
+                    continue;
+                }
+
+                draw_map_object(surface, cell, x, y, LAYER_EFFECT, sub_layer,
+                        player_height_offset, &target_cell, &target_layer,
+                        &target_rect, &tiles, &tiles_num, 0);
             }
 
             if (cell->priority[0] & (1 << (LAYER_WALL - 1)) &&
