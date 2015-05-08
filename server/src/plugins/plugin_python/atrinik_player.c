@@ -438,7 +438,7 @@ static PyObject *Atrinik_Player_SendPacket(Atrinik_Player *pl, PyObject *args)
                     return NULL;
                 }
 
-                hooks->packet_append_sint8(packet, val);
+                hooks->packet_append_int8(packet, val);
                 continue;
             }
         } else if (format[i] == 'B') {
@@ -462,7 +462,7 @@ static PyObject *Atrinik_Player_SendPacket(Atrinik_Player *pl, PyObject *args)
                     return NULL;
                 }
 
-                hooks->packet_append_sint16(packet, val);
+                hooks->packet_append_int16(packet, val);
                 continue;
             }
         } else if (format[i] == 'H') {
@@ -486,7 +486,7 @@ static PyObject *Atrinik_Player_SendPacket(Atrinik_Player *pl, PyObject *args)
                     return NULL;
                 }
 
-                hooks->packet_append_sint32(packet, val);
+                hooks->packet_append_int32(packet, val);
                 continue;
             }
         } else if (format[i] == 'I') {
@@ -510,7 +510,7 @@ static PyObject *Atrinik_Player_SendPacket(Atrinik_Player *pl, PyObject *args)
                     return NULL;
                 }
 
-                hooks->packet_append_sint64(packet, val);
+                hooks->packet_append_int64(packet, val);
                 continue;
             }
         } else if (format[i] == 'L') {
