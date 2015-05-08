@@ -1868,9 +1868,10 @@ object *insert_ob_in_map(object *op, mapstruct *m, object *originator, int flag)
         }
     }
 
-    if (fall_floors != 0 && IS_LIVE(op) && ((MAX_STAT - op->stats.Dex +
-            MAX_STAT - rndm(1, op->stats.Dex))) * MAX(1, fall_floors - 1) >=
-            MAX_STAT / 4) {
+    int8_t dex = op->type == PLAYER ? op->stats.Dex : MAX_STAT / 2;
+
+    if (fall_floors != 0 && IS_LIVE(op) && ((MAX_STAT - dex + MAX_STAT -
+            rndm(1, dex))) * MAX(1, fall_floors - 1) >= MAX_STAT / 4) {
         object *damager;
         tag_t op_tag;
 
