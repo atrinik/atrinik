@@ -482,6 +482,10 @@ void socket_command_interface(uint8_t *data, size_t len, size_t pos)
 
         case CMD_INTERFACE_INPUT_PREPEND:
         {
+            if (interface_data->text_input_prepend != NULL) {
+                efree(interface_data->text_input_prepend);
+            }
+
             char text_input_prepend[HUGE_BUF];
 
             packet_to_string(data, len, &pos, text_input_prepend, sizeof(text_input_prepend));
@@ -507,6 +511,10 @@ void socket_command_interface(uint8_t *data, size_t len, size_t pos)
 
         case CMD_INTERFACE_AUTOCOMPLETE:
         {
+            if (interface_data->text_autocomplete != NULL) {
+                efree(interface_data->text_autocomplete);
+            }
+
             char text_autocomplete[HUGE_BUF];
 
             packet_to_string(data, len, &pos, text_autocomplete, sizeof(text_autocomplete));
