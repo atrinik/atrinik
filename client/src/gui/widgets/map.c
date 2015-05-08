@@ -1610,13 +1610,6 @@ void map_draw_map(SDL_Surface *surface)
                         player_height_offset, &target_cell, &target_layer,
                         &target_rect, &tiles, &tiles_num, 0);
             }
-
-            if (cell->priority[0] & (1 << (LAYER_WALL - 1)) &&
-                    cell->height[GET_MAP_LAYER(LAYER_WALL, 0)] > 0) {
-                draw_map_object(surface, cell, x, y, LAYER_WALL, 0,
-                        player_height_offset, &target_cell, &target_layer,
-                        &target_rect, &tiles, &tiles_num, 0);
-            }
         }
     }
 
