@@ -556,11 +556,7 @@ void faction_clear_bounty(faction_t faction, player *pl)
             continue;
         }
 
-        bounty = faction_get_bounty(faction->children[i], pl);
-
-        if (bounty < 0.0) {
-            player_faction_update(pl, faction->children[i]->name, -bounty);
-        }
+        faction_clear_bounty(faction->children[i], pl);
     }
 }
 
