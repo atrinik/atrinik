@@ -2663,7 +2663,7 @@ PyObject *generic_field_getter(fields_struct *field, void *ptr)
         return Py_BuildValue("f", *(float *) field_ptr);
 
     case FIELDTYPE_DOUBLE:
-        return Py_BuildValue("f", *(double *) field_ptr);
+        return Py_BuildValue("d", *(double *) field_ptr);
 
     case FIELDTYPE_MAP:
         return wrap_map(*(mapstruct **) field_ptr);
