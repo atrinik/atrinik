@@ -859,7 +859,8 @@ void draw_client_map2(object *pl)
             zadj = 0;
 
             /* Check if we have a map under this tile. */
-            if (get_map_from_tiled(m, TILED_DOWN) != NULL) {
+            if (get_map_from_tiled(m, TILED_DOWN) != NULL &&
+                    MAP_TILE_IS_SAME_LEVEL(m, -1)) {
                 have_down = 1;
             }
 
