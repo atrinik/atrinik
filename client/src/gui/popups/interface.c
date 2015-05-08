@@ -406,6 +406,9 @@ void socket_command_interface(uint8_t *data, size_t len, size_t pos)
 
         interface_popup->button_right.x = 411;
         interface_popup->button_right.y = 4;
+    } else {
+        button_destroy(&button_hello);
+        button_destroy(&button_close);
     }
 
     if (!text_input_history) {
