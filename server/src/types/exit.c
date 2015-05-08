@@ -35,6 +35,7 @@
  * @author Alex Tokar */
 
 #include <global.h>
+#include <plugin.h>
 
 static object *exit_find(object *op, int do_load)
 {

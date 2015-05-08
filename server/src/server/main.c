@@ -29,6 +29,7 @@
 #include <global.h>
 #include <gitversion.h>
 #include <toolkit_string.h>
+#include <plugin.h>
 
 #ifdef HAVE_CHECK
 #   include <check.h>

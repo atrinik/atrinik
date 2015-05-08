@@ -30,6 +30,8 @@
 #include <loader.h>
 #include <packet.h>
 #include <toolkit_string.h>
+#include <plugin.h>
+#include <faction.h>
 
 static void register_global_event(const char *plugin_name, int event_nr);
 static void unregister_global_event(const char *plugin_name, int event_nr);
@@ -192,6 +194,9 @@ struct plugin_hooklist hooklist = {
     player_faction_create,
     player_faction_free,
     player_faction_find,
+    faction_find,
+    faction_get_bounty,
+    faction_clear_bounty,
 
     season_name,
     weekdays,

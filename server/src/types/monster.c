@@ -33,6 +33,7 @@
 #include <toolkit_string.h>
 #include <monster_data.h>
 #include <faction.h>
+#include <plugin.h>
 
 static int can_detect_enemy(object *op, object *enemy, rv_vector *rv);
 static object *find_nearest_enemy(object *ob);

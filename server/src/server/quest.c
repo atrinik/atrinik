@@ -31,6 +31,7 @@
 
 #include <global.h>
 #include <toolkit_string.h>
+#include <plugin.h>
 
 /**
  * Find a quest inside the specified quest object.

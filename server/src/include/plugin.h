@@ -168,6 +168,8 @@
  * @param event Event to check. */
 #define HAS_EVENT(ob, event) (ob->event_flags & EVENT_FLAG(event))
 
+struct faction;
+
 /**
  * The plugin hook list.
  *
@@ -340,6 +342,9 @@ struct plugin_hooklist {
     player_faction_t *(*player_faction_create)(player *, shstr *);
     void (*player_faction_free)(player *, player_faction_t *);
     player_faction_t *(*player_faction_find)(player *, shstr *);
+    struct faction *(*faction_find)(shstr *);
+    double (*faction_get_bounty)(struct faction *, player *);
+    void (*faction_clear_bounty)(struct faction *, player *);
 
     const char **season_name;
     const char **weekdays;

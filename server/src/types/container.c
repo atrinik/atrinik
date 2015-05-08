@@ -30,6 +30,7 @@
  */
 
 #include <global.h>
+#include <plugin.h>
 
 /**
  * Check if both objects are magical containers.

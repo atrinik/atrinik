@@ -59,6 +59,7 @@
  * @author Alex Tokar */
 
 #include <plugin_python.h>
+#include <plugin.h>
 
 /**
  * Get a pointer to integer that holds the maximum length depending on the

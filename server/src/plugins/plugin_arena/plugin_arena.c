@@ -84,6 +84,7 @@
 
 #define GLOBAL_NO_PROTOTYPES
 #include <global.h>
+#include <plugin.h>
 #include <stdarg.h>
 
 /** Plugin name */

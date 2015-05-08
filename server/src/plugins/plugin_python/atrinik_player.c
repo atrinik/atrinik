@@ -28,6 +28,7 @@
 
 #include <plugin_python.h>
 #include <packet.h>
+#include <faction.h>
 
 /**
  * Player fields. */
@@ -561,7 +562,7 @@ static PyObject *Atrinik_Player_SendPacket(Atrinik_Player *pl, PyObject *args)
  * @param global If True, the message will be broadcasted to all players.
  * @param name Player name that is the source of this message, if applicable.
  * If None and 'type' is not @ref CHAT_TYPE_GAME, player.ob.name will be used.
- * */
+ */
 static PyObject *Atrinik_Player_DrawInfo(Atrinik_Player *pl, PyObject *args, PyObject *keywds)
 {
     static char *kwlist[] = {"message", "color", "type", "global", "name", NULL};

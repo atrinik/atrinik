@@ -28,6 +28,7 @@
  */
 
 #include <global.h>
+#include <plugin.h>
 
 /**
  * Creates a new connection.

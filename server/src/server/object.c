@@ -30,6 +30,7 @@
 #include <loader.h>
 #include <toolkit_string.h>
 #include <monster_data.h>
+#include <plugin.h>
 
 /** List of active objects that need to be processed */
 object *active_objects;

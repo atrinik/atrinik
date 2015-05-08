@@ -30,6 +30,7 @@
 #include <global.h>
 #include <packet.h>
 #include <toolkit_string.h>
+#include <plugin.h>
 
 static fd_set tmp_read, tmp_exceptions, tmp_write;
 

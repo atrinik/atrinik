@@ -33,6 +33,7 @@
 
 #define GLOBAL_NO_PROTOTYPES
 #include <global.h>
+#include <plugin.h>
 
 /** This is for allowing both python 3 and python 2. */
 #if PY_MAJOR_VERSION >= 3

@@ -507,6 +507,4 @@ struct packet_struct;
 #include "proto.h"
 #endif
 
-#include "plugin.h"
-
 #endif

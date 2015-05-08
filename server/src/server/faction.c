@@ -500,15 +500,14 @@ bool faction_is_alliance(faction_t faction, faction_t faction2)
     return faction_alliance == faction_alliance2;
 }
 
-double faction_get_bounty(faction_t faction, object *op)
+double faction_get_bounty(faction_t faction, player *pl)
 {
     TOOLKIT_PROTECT();
 
     HARD_ASSERT(faction != NULL);
-    HARD_ASSERT(op != NULL);
-    SOFT_ASSERT_RC(op->type == PLAYER, 0.0, "Object is not a player.");
+    HARD_ASSERT(pl != NULL);
 
-    double bounty = player_faction_reputation(CONTR(op), faction->name);
+    double bounty = player_faction_reputation(pl, faction->name);
 
     if (bounty > 0.0) {
         bounty = 0.0;
@@ -524,7 +523,7 @@ double faction_get_bounty(faction_t faction, object *op)
             continue;
         }
 
-        double rep = faction_get_bounty(faction->children[i], op);
+        double rep = faction_get_bounty(faction->children[i], pl);
 
         if (rep < bounty) {
             bounty = rep;
@@ -534,18 +533,17 @@ double faction_get_bounty(faction_t faction, object *op)
     return bounty;
 }
 
-void faction_clear_bounty(faction_t faction, object *op)
+void faction_clear_bounty(faction_t faction, player *pl)
 {
     TOOLKIT_PROTECT();
 
     HARD_ASSERT(faction != NULL);
-    HARD_ASSERT(op != NULL);
-    SOFT_ASSERT(op->type == PLAYER, "Object is not a player.");
+    HARD_ASSERT(pl != NULL);
 
-    double bounty = player_faction_reputation(CONTR(op), faction->name);
+    double bounty = player_faction_reputation(pl, faction->name);
 
     if (bounty < 0.0) {
-        player_faction_update(CONTR(op), faction->name, -bounty);
+        player_faction_update(pl, faction->name, -bounty);
     }
 
     for (size_t i = 0; i < faction->children_num; i++) {
@@ -558,11 +556,10 @@ void faction_clear_bounty(faction_t faction, object *op)
             continue;
         }
 
-        bounty = faction_get_bounty(faction->children[i], op);
+        bounty = faction_get_bounty(faction->children[i], pl);
 
         if (bounty < 0.0) {
-            player_faction_update(CONTR(op), faction->children[i]->name,
-                    -bounty);
+            player_faction_update(pl, faction->children[i]->name, -bounty);
         }
     }
 }

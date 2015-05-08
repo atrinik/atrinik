@@ -29,6 +29,7 @@
 #include <global.h>
 #include <spellist.h>
 #include <toolkit_string.h>
+#include <plugin.h>
 
 /**
  * Array of pointers to archetypes used by the spells for quick

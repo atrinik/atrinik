@@ -29,6 +29,7 @@
 #include <global.h>
 #include <monster_data.h>
 #include <faction.h>
+#include <plugin.h>
 
 /**
  * Names of attack types to use when saving them to file.

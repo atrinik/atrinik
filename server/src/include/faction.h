@@ -43,7 +43,7 @@ void faction_update(faction_t faction, player *pl, double reputation);
 void faction_update_kill(faction_t faction, player *pl);
 bool faction_is_friend(faction_t faction, object *op);
 bool faction_is_alliance(faction_t faction, faction_t faction2);
-double faction_get_bounty(faction_t faction, object *op);
-void faction_clear_bounty(faction_t faction, object *op);
+double faction_get_bounty(faction_t faction, player *pl);
+void faction_clear_bounty(faction_t faction, player *pl);
 
 #endif

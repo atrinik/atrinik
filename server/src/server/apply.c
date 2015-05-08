@@ -27,6 +27,7 @@
  * Handles objects being applied, and their effect. */
 
 #include <global.h>
+#include <plugin.h>
 
 /**
  * Main apply handler.

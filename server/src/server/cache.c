@@ -54,6 +54,7 @@
  * @endcode */
 
 #include <global.h>
+#include <plugin.h>
 
 /** Array of the cached entries. */
 static cache_struct *cache = NULL;

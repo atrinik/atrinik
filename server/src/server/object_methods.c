@@ -27,6 +27,7 @@
  * Object methods system. */
 
 #include <global.h>
+#include <plugin.h>
 
 /**
  * Registered method handlers. */

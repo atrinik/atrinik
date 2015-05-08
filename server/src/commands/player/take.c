@@ -29,6 +29,7 @@
  * @author Alex Tokar */
 
 #include <global.h>
+#include <plugin.h>
 
 /** @copydoc command_func */
 void command_take(object *op, const char *command, char *params)
