@@ -2,7 +2,7 @@ arch map
 name Wizards' Tower: Commelina
 msg
 Created:  2014-12-27 Alex Tokar
-Modified: 2015-05-04 Alex Tokar
+Modified: 2015-05-08 Alex Tokar
 endmsg
 width 24
 height 24
@@ -68,11 +68,6 @@ y 7
 end
 arch fwall_fstone2b
 layer 4
-y 7
-end
-arch fwall_fstone2b
-hidden 1
-sub_layer 6
 y 7
 end
 arch map_info
@@ -156,11 +151,6 @@ y 16
 end
 arch fwall_fstone2c
 layer 4
-y 16
-end
-arch fwall_fstone2c
-hidden 1
-sub_layer 6
 y 16
 end
 arch floor_bw1
@@ -1598,11 +1588,6 @@ arch fwall_fstone2a
 layer 4
 x 7
 end
-arch fwall_fstone2a
-hidden 1
-sub_layer 6
-x 7
-end
 arch map_info
 name la_wizards_tower
 hp 9
@@ -1858,12 +1843,6 @@ y 23
 end
 arch fwall_fstone2d
 layer 4
-x 7
-y 23
-end
-arch fwall_fstone2d
-sub_layer 6
-hidden 1
 x 7
 y 23
 end
@@ -3098,11 +3077,6 @@ arch fwall_fstone2c
 layer 4
 x 16
 end
-arch fwall_fstone2c
-hidden 1
-sub_layer 6
-x 16
-end
 arch map_info
 name la_wizards_tower
 is_magical 1
@@ -3341,12 +3315,6 @@ y 23
 end
 arch fwall_fstone2b
 layer 4
-x 16
-y 23
-end
-arch fwall_fstone2b
-sub_layer 6
-hidden 1
 x 16
 y 23
 end
@@ -4748,13 +4716,7 @@ layer 4
 x 23
 y 7
 end
-arch fwall_fstone2d
-hidden 1
-sub_layer 6
-x 23
-y 7
-end
-arch wall_fortified_low_b.111
+arch wall_fortified_low.111
 x 23
 y 7
 end
@@ -4835,12 +4797,6 @@ y 16
 end
 arch fwall_fstone2a
 layer 4
-x 23
-y 16
-end
-arch fwall_fstone2a
-hidden 1
-sub_layer 6
 x 23
 y 16
 end
