@@ -588,6 +588,74 @@ static PyObject *Atrinik_Player_DrawInfo(Atrinik_Player *pl, PyObject *args, PyO
     return Py_None;
 }
 
+/**
+ * <h1>player.FactionGetBounty(string faction)</h1>
+ * Acquires player's bounty for the specified faction.
+ * @param faction The faction name.
+ * @return Player's bounty in the specified faction.
+ */
+static PyObject *Atrinik_Player_FactionGetBounty(Atrinik_Player *pl, PyObject *args)
+{
+    const char *name;
+    shstr *sh_name;
+    faction_t faction;
+
+    if (!PyArg_ParseTuple(args, "s", &name)) {
+        return NULL;
+    }
+
+    sh_name = hooks->find_string(name);
+
+    if (sh_name == NULL) {
+        PyErr_Format(AtrinikError, "No such faction: %s", name);
+        return NULL;
+    }
+
+    faction = hooks->faction_find(sh_name);
+
+    if (faction == NULL) {
+        PyErr_Format(AtrinikError, "No such faction: %s", name);
+        return NULL;
+    }
+
+    return Py_BuildValue("d", hooks->faction_get_bounty(faction, pl->pl));
+}
+
+/**
+ * <h1>player.FactionClearBounty(string faction)</h1>
+ * Clear player's bounty for the specified faction.
+ * @param faction The faction name.
+ */
+static PyObject *Atrinik_Player_FactionClearBounty(Atrinik_Player *pl, PyObject *args)
+{
+    const char *name;
+    shstr *sh_name;
+    faction_t faction;
+
+    if (!PyArg_ParseTuple(args, "s", &name)) {
+        return NULL;
+    }
+
+    sh_name = hooks->find_string(name);
+
+    if (sh_name == NULL) {
+        PyErr_Format(AtrinikError, "No such faction: %s", name);
+        return NULL;
+    }
+
+    faction = hooks->faction_find(sh_name);
+
+    if (faction == NULL) {
+        PyErr_Format(AtrinikError, "No such faction: %s", name);
+        return NULL;
+    }
+
+    hooks->faction_clear_bounty(faction, pl->pl);
+
+    Py_INCREF(Py_None);
+    return Py_None;
+}
+
 /*@}*/
 
 /** Available Python methods for the AtrinikPlayer type. */
@@ -605,6 +673,8 @@ static PyMethodDef methods[] = {
     {"Examine", (PyCFunction) Atrinik_Player_Examine, METH_VARARGS, 0},
     {"SendPacket", (PyCFunction) Atrinik_Player_SendPacket, METH_VARARGS, 0},
     {"DrawInfo", (PyCFunction) Atrinik_Player_DrawInfo, METH_VARARGS | METH_KEYWORDS, 0},
+    {"FactionGetBounty", (PyCFunction) Atrinik_Player_FactionGetBounty, METH_VARARGS, 0},
+    {"FactionClearBounty", (PyCFunction) Atrinik_Player_FactionClearBounty, METH_VARARGS, 0},
     {NULL, NULL, 0, 0}
 };
 
