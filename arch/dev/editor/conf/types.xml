@@ -2057,6 +2057,10 @@
 		Every time the handle is applied, all objects with the same
 		&lt;connection&gt; value are activated.
 	</attribute>
+	<attribute arch="slaying" editor="key string" type="string">
+		If &lt;key string&gt; is set, only players with a special key of
+		matching &lt;key string&gt; are able to activate the handle.
+	</attribute>
 	<attribute arch="exp" editor="reset time" type="int">
 		Being activated, the handle will reset after "reset time"
 		ticks. After reset, the handle is ready to be activated once

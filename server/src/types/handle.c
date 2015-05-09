@@ -36,13 +36,21 @@ static int apply_func(object *op, object *applier, int aflags)
     (void) aflags;
 
     if (op->speed || (op->stats.exp == -1 && op->value)) {
-        if (op->msg) {
+        if (op->msg != NULL) {
             draw_info(COLOR_WHITE, applier, op->msg);
         } else {
             draw_info_format(COLOR_WHITE, applier, "The %s won't budge.", op->name);
         }
 
         return OBJECT_METHOD_OK;
+    }
+
+    if (op->slaying != NULL) {
+        if (find_key(applier, op) == NULL) {
+            draw_info_format(COLOR_WHITE, applier, "The %s is locked.",
+                    op->name);
+            return OBJECT_METHOD_OK;
+        }
     }
 
     /* Toggle the state. */
@@ -52,7 +60,7 @@ static int apply_func(object *op, object *applier, int aflags)
     update_object(op, UP_OBJ_FACE);
 
     /* Inform the applier. */
-    if (op->msg) {
+    if (op->msg != NULL) {
         draw_info(COLOR_WHITE, applier, op->msg);
     } else {
         draw_info_format(COLOR_WHITE, applier, "You turn the %s.", op->name);
