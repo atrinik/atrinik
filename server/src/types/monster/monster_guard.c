@@ -32,6 +32,7 @@
 #ifndef __CPROTO__
 
 #include <global.h>
+#include <monster_guard.h>
 
 /**
  * Make the monster activate a gate by applying a lever/switch/etc under
