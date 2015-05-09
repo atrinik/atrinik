@@ -1343,6 +1343,7 @@ void drop_ob_inv(object *ob)
 
         /* Store the original food value. */
         corpse->last_eat = corpse->stats.food;
+        corpse->sub_layer = ob->sub_layer;
 
         if (ob->env) {
             insert_ob_in_ob(corpse, ob->env);
