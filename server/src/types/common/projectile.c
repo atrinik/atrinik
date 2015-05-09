@@ -334,16 +334,15 @@ int common_object_projectile_hit(object *op, object *victim)
 
         op = projectile_stick(op, victim);
 
-        OBJ_DESTROYED_BEGIN(op);
-        dam = hit_player(victim, op->stats.dam, op);
+        OBJ_DESTROYED_BEGIN(op) {
+            dam = hit_player(victim, op->stats.dam, op);
 
-        if (OBJ_DESTROYED(op)) {
-            return OBJECT_METHOD_ERROR;
-        }
+            if (OBJ_DESTROYED(op)) {
+                return OBJECT_METHOD_ERROR;
+            }
 
-        op->stats.dam -= dam;
-
-        OBJ_DESTROYED_END(op);
+            op->stats.dam -= dam;
+        } OBJ_DESTROYED_END();
     }
 
     return OBJECT_METHOD_OK;
