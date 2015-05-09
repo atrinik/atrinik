@@ -2769,6 +2769,31 @@ arch floor_flagm3
 x 20
 y 7
 end
+arch switch_wall
+slaying greyton_dock_gate_key
+connected 102
+exp 1000
+path_repelled 512
+direction 7
+x 20
+y 7
+end
+arch spawn_point
+x 20
+y 7
+arch guard_royal
+direction 1
+level 70
+type 83
+arch event_obj
+sub_type 6
+race /python/generic/guard.py
+end
+arch key2
+slaying greyton_dock_gate_key
+end
+end
+end
 arch floor_flagm1
 x 20
 y 8
@@ -2864,8 +2889,9 @@ x 20
 y 16
 end
 arch switch_wall
-slaying greyton_main_gate_key
+slaying greyton_dock_gate_key
 connected 102
+exp 1000
 path_repelled 512
 direction 7
 x 20
@@ -2883,7 +2909,7 @@ sub_type 6
 race /python/generic/guard.py
 end
 arch key2
-slaying greyton_main_gate_key
+slaying greyton_dock_gate_key
 end
 end
 end
