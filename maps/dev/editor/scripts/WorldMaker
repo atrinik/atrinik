@@ -196,7 +196,7 @@ print("Done!");]]></code>
     <name>NumY</name>
     <description>The number of maps along Y axis to analyze</description>
     <type>java.lang.Integer</type>
-    <value>80</value>
+    <value>90</value>
     <minimum>0</minimum>
     <maximum>50000</maximum>
   </parameter>
@@ -204,16 +204,16 @@ print("Done!");]]></code>
     <name>StartX</name>
     <description>The first coordinate along X axis to analyze</description>
     <type>java.lang.Integer</type>
-    <value>-9</value>
-    <minimum>0</minimum>
+    <value>-10</value>
+    <minimum>-50000</minimum>
     <maximum>50000</maximum>
   </parameter>
   <parameter>
     <name>StartY</name>
     <description>The first coordinate along Y axis to analyze</description>
     <type>java.lang.Integer</type>
-    <value>1</value>
-    <minimum>0</minimum>
+    <value>0</value>
+    <minimum>-50000</minimum>
     <maximum>50000</maximum>
   </parameter>
   <parameter>
