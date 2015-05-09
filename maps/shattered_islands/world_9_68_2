@@ -2,7 +2,7 @@ arch map
 name The City of Greyton
 msg
 Created:  2015-04-26 Alex Tokar
-Modified: 2015-05-04 Alex Tokar
+Modified: 2015-05-08 Alex Tokar
 endmsg
 width 24
 height 24
@@ -296,22 +296,6 @@ name greyton_gate
 is_magical 1
 x 1
 y 9
-end
-arch blocked
-x 1
-y 10
-end
-arch blocked
-x 1
-y 11
-end
-arch blocked
-x 1
-y 12
-end
-arch blocked
-x 1
-y 13
 end
 arch trans
 x 1
@@ -703,22 +687,6 @@ name greyton_gate
 is_magical 1
 x 3
 y 9
-end
-arch blocked
-x 3
-y 10
-end
-arch blocked
-x 3
-y 11
-end
-arch blocked
-x 3
-y 12
-end
-arch blocked
-x 3
-y 13
 end
 arch trans
 x 3
