@@ -47,6 +47,7 @@
     <bmentry bit="2" name="Stealth" />
     <bmentry bit="3" name="Use exits" />
     <bmentry bit="4" name="Use secret passages" />
+    <bmentry bit="5" name="Guard" />
 </bitmask>
 
 <bitmask name="pick_up">
