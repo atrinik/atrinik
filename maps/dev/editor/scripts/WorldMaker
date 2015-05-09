@@ -61,15 +61,6 @@ boolean runCommand(String cmd) {
     return p.exitValue() == 0;
 }
 
-String formatCoordinate(int coordinate) {
-    if (coordinate >= 1) {
-        return String.format("%02d", new Object[] { Integer.valueOf(coordinate), });
-    }
-
-    coordinate = -coordinate;
-    return String.format("%c%c", new Object[] { Integer.valueOf('a' + coordinate / 26), Integer.valueOf('a' + coordinate % 26), });
-}
-
 void checkDaList() {
     DestWidth = TileWidth.intValue() * (NumX.intValue() + NumY.intValue()) / 2;
     DestHeight = TileHeight.intValue() * (NumX.intValue() + NumY.intValue()) / 2;
@@ -119,7 +110,7 @@ void checkDaList() {
         for (int y = 0; y < NumY.intValue(); y++) {
             currentX = StartX.intValue() + x;
             currentY = StartY.intValue() + y;
-            currentMap = new File(locationDir, MapFilename + formatCoordinate(currentX) + formatCoordinate(currentY));
+            currentMap = new File(locationDir, MapFilename + currentX + "_" + currentY);
             currentPicture = getPngImageFilename(currentMap);
             didUpdate = updateMap(currentMap, currentPicture);
             if ((didUpdate || firstRun) && currentPicture.exists()) {
@@ -127,8 +118,8 @@ void checkDaList() {
                 FileInputStream fis = new FileInputStream(tempImageFile);
                 fis.skip(toSkip);
                 fis.read(buf);
-                sx = (x + y) * TileWidth.intValue() / 2;
-                sy = (x + (NumY.intValue() - 1 - y)) * TileHeight.intValue() / 2;
+                sx = (x + NumY.intValue() - 1 - y) * TileWidth.intValue() / 2;
+                sy = (x + y) * TileHeight.intValue() / 2;
                 long index = ((long) sy * (long) DestWidth.intValue() + (long) sx) * bytesPerPixel + headerSize;
                 for (long row = 0; row < TileHeight.intValue(); row++) {
                     MappedByteBuffer mbb = fc.map(FileChannel.MapMode.READ_WRITE, index + row * DestWidth.intValue() * bytesPerPixel, TileWidth.intValue() * bytesPerPixel);
