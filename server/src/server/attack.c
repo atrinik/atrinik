@@ -1071,6 +1071,39 @@ void paralyze_living(object *op, int dam)
 }
 
 /**
+ * Cause damage due to falling.
+ * @param op Object.
+ * @param fall_floors Number of floors the object fell down.
+ */
+void fall_damage_living(object *op, int fall_floors)
+{
+    HARD_ASSERT(op != NULL);
+    SOFT_ASSERT(IS_LIVE(op), "Object is not alive: %s", object_get_str(op));
+
+    int8_t dex = op->type == PLAYER ? op->stats.Dex : MAX_STAT / 2;
+
+    if (((MAX_STAT - dex + MAX_STAT - rndm(1, dex))) * MAX(1, fall_floors - 1) <
+            MAX_STAT / 4) {
+        return;
+    }
+
+    object *damager = get_archetype("falling");
+    damager->level = op->level;
+    damager->stats.dam = ((op->weight + op->carrying) / 2500 *
+            MIN(10, fall_floors)) * falling_mitigation[op->stats.Dex];
+
+    if (damager->stats.dam <= 0) {
+        damager->stats.dam = 1;
+    }
+
+    damager->stats.dam = rndm(damager->stats.dam / 2 + 1,
+            damager->stats.dam + 1) - 1;
+
+    hit_player(op, damager->stats.dam, damager);
+    object_destroy(damager);
+}
+
+/**
  * Adjustments to attack rolls by various conditions.
  * @param hitter Who is hitting.
  * @param target Victim of the attack.

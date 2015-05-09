@@ -69,11 +69,53 @@ int object_move_to(object *op, int dir, object *originator, mapstruct *m,
     SOFT_ASSERT_RC(x >= 0 && x < m->width, 0, "Invalid X coordinate: %d", x);
     SOFT_ASSERT_RC(y >= 0 && y < m->height, 0, "Invalid Y coordinate: %d", y);
 
+    object *floor =
+            GET_MAP_OB_LAYER(op->map, op->x, op->y, LAYER_FLOOR, op->sub_layer);
+    int z = floor != NULL ? floor->z : 0;
+    int z_highest = 0, sub_layer = 0;
+    object *floor_tmp;
+
+    FOR_MAP_LAYER_BEGIN(m, x, y, LAYER_FLOOR, -1, floor_tmp) {
+        if (floor_tmp->z - z > MOVE_MAX_HEIGHT_DIFF) {
+            continue;
+        }
+
+        if (floor_tmp->z > z_highest) {
+            z_highest = floor_tmp->z;
+            sub_layer = floor_tmp->sub_layer;
+        }
+    } FOR_MAP_LAYER_END
+
     object_remove(op, 0);
 
+    op->sub_layer = sub_layer;
     op->x = x;
     op->y = y;
-    insert_ob_in_map(op, m, originator, INS_FALL_THROUGH);
+    op = insert_ob_in_map(op, m, originator, INS_FALL_THROUGH);
+
+    if (op == NULL) {
+        return 1;
+    }
+
+    if (op->map == m && op->x == x && op->y == y) {
+        floor = GET_MAP_OB_LAYER(m, x, y, LAYER_FLOOR, sub_layer);
+        int fall_floors = (int) ((z - (floor != NULL ? floor->z : 0)) / 50.0 +
+                0.5);
+
+        if (fall_floors > 0 && IS_LIVE(op)) {
+            OBJ_DESTROYED_BEGIN(op) {
+                fall_damage_living(op, fall_floors);
+
+                if (OBJ_DESTROYED(op)) {
+                    return 1;
+                }
+            } OBJ_DESTROYED_END();
+        }
+    }
+
+    if (op->type == PLAYER) {
+        CONTR(op)->stat_steps_taken++;
+    }
 
     return 1;
 }
@@ -137,10 +179,8 @@ int move_ob(object *op, int dir, object *originator)
         return -1;
     }
 
-    object_move_to(op, dir, originator, m, xt, yt);
-
-    if (op->type == PLAYER) {
-        CONTR(op)->stat_steps_taken++;
+    if (!object_move_to(op, dir, originator, m, xt, yt)) {
+        return 0;
     }
 
     return dir;

@@ -720,7 +720,8 @@ static void process_func(object *op)
                 /* Try left or right first? */
                 int m = 1 - (RANDOM() & 2);
 
-                if (move_object(op, absdir(dir + diff * m)) || move_object(op, absdir(dir - diff * m))) {
+                if (move_object(op, absdir(dir + diff * m)) ||
+                        move_object(op, absdir(dir - diff * m))) {
                     return;
                 }
             }
@@ -1277,7 +1278,7 @@ static void circ1_move(object *ob)
         ob->move_status = 0;
     }
 
-    if (!(move_object(ob, circle[ob->move_status]))) {
+    if (!move_object(ob, circle[ob->move_status])) {
         move_object(ob, rndm(1, 8));
     }
 }
@@ -1293,7 +1294,7 @@ static void circ2_move(object *ob)
         ob->move_status = 0;
     }
 
-    if (!(move_object(ob, circle[ob->move_status]))) {
+    if (!move_object(ob, circle[ob->move_status])) {
         move_object(ob, rndm(1, 8));
     }
 }
@@ -1373,7 +1374,7 @@ static void rand_move(object *ob)
 {
     int i;
 
-    if (ob->move_status < 1 || ob->move_status > 8 || !(move_object(ob, ob->move_status || rndm_chance(9)))) {
+    if (ob->move_status < 1 || ob->move_status > 8 || !move_object(ob, ob->move_status || rndm_chance(9))) {
         for (i = 0; i < 5; i++) {
             if (move_object(ob, ob->move_status = rndm(1, 8))) {
                 return;

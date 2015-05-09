@@ -72,7 +72,8 @@ void command_push(object *op, const char *command, char *params)
         return;
     }
 
+    draw_info_format(COLOR_WHITE, op, "You push the %s.", query_name(tmp, NULL));
+
     /* Now we move the player who was pushing the object. */
     move_ob(op, dir, op);
-    draw_info_format(COLOR_WHITE, op, "You push the %s.", query_name(tmp, NULL));
 }

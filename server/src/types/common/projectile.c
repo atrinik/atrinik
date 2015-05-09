@@ -157,10 +157,16 @@ object *common_object_projectile_move(object *op)
         return NULL;
     }
 
-    if (!object_move_to(op, op->direction, op, m, x, y)) {
-        object_projectile_stop(op, OBJECT_PROJECTILE_STOP_WALL);
-        return NULL;
-    }
+    OBJ_DESTROYED_BEGIN(op) {
+        if (!object_move_to(op, op->direction, op, m, x, y)) {
+            object_projectile_stop(op, OBJECT_PROJECTILE_STOP_WALL);
+            return NULL;
+        }
+
+        if (OBJ_DESTROYED(op)) {
+            return NULL;
+        }
+    } OBJ_DESTROYED_END();
 
     return op;
 }

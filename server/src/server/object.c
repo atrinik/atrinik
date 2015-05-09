@@ -1700,7 +1700,7 @@ object *insert_ob_in_map(object *op, mapstruct *m, object *originator, int flag)
                                      op->sub_layer);
             z = floor != NULL ? floor->z : 0;
             z_highest = 0;
-            sub_layer = 0;
+            sub_layer = -1;
             found_floor = false;
 
             if (tiled != m) {
@@ -1710,6 +1710,10 @@ object *insert_ob_in_map(object *op, mapstruct *m, object *originator, int flag)
             FOR_MAP_LAYER_BEGIN(tiled, op->x, op->y, LAYER_FLOOR, -1,
                                 floor_tmp) {
                 found_floor = true;
+
+                if (tiled == m) {
+                    continue;
+                }
 
                 if (floor_tmp->z - z > MOVE_MAX_HEIGHT_DIFF) {
                     continue;
@@ -1736,7 +1740,10 @@ object *insert_ob_in_map(object *op, mapstruct *m, object *originator, int flag)
                 }
             }
 
-            op->sub_layer = sub_layer;
+            if (sub_layer != -1) {
+                op->sub_layer = sub_layer;
+            }
+
             m = tiled;
         }
 
@@ -1868,32 +1875,14 @@ object *insert_ob_in_map(object *op, mapstruct *m, object *originator, int flag)
         }
     }
 
-    int8_t dex = op->type == PLAYER ? op->stats.Dex : MAX_STAT / 2;
+    if (fall_floors != 0 && IS_LIVE(op)) {
+        OBJ_DESTROYED_BEGIN(op) {
+            fall_damage_living(op, fall_floors);
 
-    if (fall_floors != 0 && IS_LIVE(op) && ((MAX_STAT - dex + MAX_STAT -
-            rndm(1, dex))) * MAX(1, fall_floors - 1) >= MAX_STAT / 4) {
-        object *damager;
-        tag_t op_tag;
-
-        damager = get_archetype("falling");
-        damager->level = op->level;
-        damager->stats.dam = ((op->weight + op->carrying) / 2500 *
-                MIN(10, fall_floors)) * falling_mitigation[op->stats.Dex];
-
-        if (damager->stats.dam <= 0) {
-            damager->stats.dam = 1;
-        }
-
-        damager->stats.dam = rndm(damager->stats.dam / 2 + 1,
-                damager->stats.dam + 1) - 1;
-
-        op_tag = op->count;
-        hit_player(op, damager->stats.dam, damager);
-        object_destroy(damager);
-
-        if (was_destroyed(op, op_tag)) {
-            return NULL;
-        }
+            if (OBJ_DESTROYED(op)) {
+                return NULL;
+            }
+        } OBJ_DESTROYED_END();
     }
 
     return op;

@@ -277,6 +277,7 @@ extern _Bool kill_object(object *op, object *hitter);
 extern void confuse_living(object *op);
 extern void blind_living(object *op, object *hitter, int dam);
 extern void paralyze_living(object *op, int dam);
+extern void fall_damage_living(object *op, int fall_floors);
 extern int is_melee_range(object *hitter, object *enemy);
 /* src/server/ban.c */
 extern void ban_init(void);
@@ -843,6 +844,7 @@ extern void play_sound_map(mapstruct *map, int type, const char *filename, int x
 extern void updates_init(void);
 extern void socket_command_request_update(socket_struct *ns, player *pl, uint8_t *data, size_t len, size_t pos);
 /* src/types/monster/monster_data.c */
+/* src/types/monster/monster_guard.c */
 /* src/types/ability.c */
 extern void object_type_init_ability(void);
 /* src/types/amulet.c */
