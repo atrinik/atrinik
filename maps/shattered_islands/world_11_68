@@ -2798,7 +2798,7 @@ arch floor_flagm1
 x 20
 y 8
 end
-arch fwall_fstone2
+arch wall_fstone_round.102
 x 20
 y 8
 end
@@ -2880,7 +2880,7 @@ arch floor_flagm1
 x 20
 y 15
 end
-arch fwall_fstone2
+arch wall_fstone_round.104
 x 20
 y 15
 end
@@ -3195,7 +3195,7 @@ arch floor_flagm2
 x 22
 y 8
 end
-arch fwall_fstone2
+arch wall_fstone_round.108
 x 22
 y 8
 end
@@ -3326,7 +3326,7 @@ arch floor_flagm1
 x 22
 y 15
 end
-arch fwall_fstone2
+arch wall_fstone_round.106
 x 22
 y 15
 end

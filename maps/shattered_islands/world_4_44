@@ -2,7 +2,7 @@ arch map
 name Asteria
 msg
 Created:  2009-08-09 Alex Tokar
-Modified: 2014-12-23 Alex Tokar
+Modified: 2015-05-09 Alex Tokar
 endmsg
 width 24
 height 24
@@ -1209,12 +1209,38 @@ z 50
 x 5
 y 5
 end
+arch handle_lever
+slaying asteria_walls_gate
+connected 101
+exp 1000
+x 5
+y 5
+end
+arch spawn_point
+x 5
+y 5
+arch guard
+name Asterian Guard
+type 83
+level 100
+arch event_obj
+sub_type 6
+race /python/generic/guard.py
+end
+arch key2
+slaying asteria_walls_gate
+end
+arch key2
+slaying asteria_dungeon_key1
+end
+end
+end
 arch fstone1c
 z 50
 x 5
 y 6
 end
-arch fwall_fstone2
+arch wall_flagstone1_w.111
 x 5
 y 6
 end
@@ -1284,7 +1310,9 @@ z 50
 x 5
 y 13
 end
-arch fwall_fstone2
+arch wall_flagstone1_w.111
+z 9
+align 18
 x 5
 y 13
 end
@@ -1292,6 +1320,33 @@ arch fstone1c
 z 50
 x 5
 y 14
+end
+arch handle_lever
+slaying asteria_walls_gate
+connected 101
+exp 1000
+x 5
+y 14
+end
+arch spawn_point
+x 5
+y 14
+arch guard
+name Asterian Guard
+type 83
+level 100
+direction 1
+arch event_obj
+sub_type 6
+race /python/generic/guard.py
+end
+arch key2
+slaying asteria_walls_gate
+end
+arch key2
+slaying asteria_dungeon_key1
+end
+end
 end
 arch fstone1b
 z 50
@@ -1372,7 +1427,7 @@ z 50
 x 6
 y 6
 end
-arch fwall_fstone2
+arch wall_fstone_round.108
 x 6
 y 6
 end
@@ -1392,6 +1447,7 @@ y 8
 end
 arch grate_open
 direction 3
+connected 101
 x 6
 y 8
 end
@@ -1402,6 +1458,7 @@ y 9
 end
 arch grate_open
 direction 3
+connected 101
 x 6
 y 9
 end
@@ -1412,6 +1469,7 @@ y 10
 end
 arch grate_open
 direction 3
+connected 101
 x 6
 y 10
 end
@@ -1422,6 +1480,7 @@ y 11
 end
 arch grate_open
 direction 3
+connected 101
 x 6
 y 11
 end
@@ -1439,7 +1498,7 @@ z 50
 x 6
 y 13
 end
-arch fwall_fstone2
+arch wall_fstone_round.106
 x 6
 y 13
 end
