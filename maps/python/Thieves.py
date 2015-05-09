@@ -8,7 +8,8 @@ class ThievesBountyEraser(InterfaceBuilder):
         d = dict()
 
         for faction in GetOptions().split(","):
-            bounty = self._activator.Controller().FactionGetBounty(faction.strip())
+            faction = faction.strip()
+            bounty = self._activator.Controller().FactionGetBounty(faction)
 
             if bounty >= 0.0:
                 continue
@@ -24,17 +25,6 @@ class ThievesBountyEraser(InterfaceBuilder):
     @staticmethod
     def get_faction_name(faction):
         return faction.replace("_", " ").title()
-
-    def subdialog_services(self):
-        """Show the available temple services."""
-
-        for service in temple_services:
-            self.add_link(temple_services[service][1], dest = service)
-
-        self.add_link("Tell me about {}.".format(self.temple_name), dest = self.temple_name)
-
-        if self.enemy_temple_name:
-            self.add_link("Tell me about {}.".format(self.enemy_temple_name), dest = self.enemy_temple_name)
 
     def dialog_hello(self):
         """Default hello dialog handler."""
