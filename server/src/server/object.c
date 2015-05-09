@@ -3328,11 +3328,11 @@ char *object_get_str_r(object *op, char *buf, size_t bufsize)
             op->name != NULL ? op->name : "<no name>",
             op->count);
 
-    if (op->arch != NULL && op->arch->name != NULL) {
+    if (first_archetype != NULL && op->arch != NULL && op->arch->name != NULL) {
         snprintfcat(buf, bufsize, " arch: %s", op->arch->name);
     }
 
-    if (op->map != NULL) {
+    if (first_map != NULL && op->map != NULL) {
         snprintfcat(buf, bufsize, " map: %s [%s] @ %d,%d",
                 op->map->name != NULL ? op->map->name : "<no name>",
                 op->map->path != NULL ? op->map->path : "<no path>",
