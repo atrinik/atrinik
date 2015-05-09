@@ -2,7 +2,7 @@ arch map
 name Asteria Palace
 msg
 Created:  2011-01-23 emperorbma
-Modified: 2015-05-04 Alex Tokar
+Modified: 2015-05-08 emperorbma
 endmsg
 width 24
 height 24
@@ -13,191 +13,493 @@ no_harm 1
 bg_music kaitindam.mid
 region asteria
 end
-arch floor_rhomb
-x 19
-y 15
+arch trans
+x 16
+y 14
+end
+arch wall_dungeon_8
+x 16
+y 14
 end
 arch map_info
 name asteria_palace
-hp 4
-sp 8
-is_magical 1
+hp 1
+sp 3
+cursed 1
+x 16
+y 14
+end
+arch trans
+x 16
+y 15
+end
+arch wall_dungeon_3
+x 16
+y 15
+end
+arch trans
+x 16
+y 16
+end
+arch wall_dungeon_3
+x 16
+y 16
+end
+arch trans
+x 16
+y 17
+end
+arch wall_dungeon_3
+x 16
+y 17
+end
+arch trans
+x 17
+y 13
+end
+arch wall_dungeon_8
+x 17
+y 13
+end
+arch map_info
+name asteria_palace
+cursed 1
+x 17
+y 13
+end
+arch trans
+x 17
+y 14
+end
+arch wall_dungeon_4
+x 17
+y 14
+end
+arch floor_fs_grey1b
+x 17
+y 15
+end
+arch floor_fs_grey1b
+x 17
+y 16
+end
+arch floor_fs_grey1b
+x 17
+y 17
+end
+arch wall_dungeon_1
+x 17
+y 17
+end
+arch trans
+x 17
+y 18
+end
+arch wall_dungeon_3
+x 17
+y 18
+end
+arch map_info
+name asteria_palace
+cursed 1
+x 17
+y 18
+end
+arch trans
+x 18
+y 12
+end
+arch wall_dungeon_8
+x 18
+y 12
+end
+arch map_info
+name asteria_palace
+hp 3
+sp 1
+cursed 1
+x 18
+y 12
+end
+arch trans
+x 18
+y 13
+end
+arch wall_dungeon_4
+x 18
+y 13
+end
+arch floor_fs_grey1b
+x 18
+y 14
+end
+arch map_info
+name asteria_palace
+hp 5
+sp 9
+cursed 1
+x 18
+y 14
+end
+arch floor_fs_grey1b
+x 18
+y 15
+end
+arch floor_fs_grey1b
+x 18
+y 16
+end
+arch floor_fs_grey1b
+x 18
+y 17
+end
+arch floor_fs_grey1b
+x 18
+y 18
+end
+arch wall_dungeon_1
+x 18
+y 18
+end
+arch trans
+x 18
+y 19
+end
+arch wall_dungeon_3
+x 18
+y 19
+end
+arch trans
+x 18
+y 20
+end
+arch wall_dungeon_3
+x 18
+y 20
+end
+arch trans
+x 18
+y 21
+end
+arch wall_dungeon_3
+x 18
+y 21
+end
+arch trans
+x 18
+y 22
+end
+arch wall_dungeon_3
+x 18
+y 22
+end
+arch trans
+x 18
+y 23
+end
+arch wall_dungeon_3
+x 18
+y 23
+end
+arch trans
+x 19
+y 12
+end
+arch wall_dungeon_1
+x 19
+y 12
+end
+arch floor_fs_grey1b
+x 19
+y 13
+end
+arch floor_fs_grey1b
+x 19
+y 14
+end
+arch floor_fs_grey1b
 x 19
 y 15
 end
-arch floor_rhomb
+arch stairs_spiral_stone_down
+x 19
+y 15
+end
+arch floor_fs_grey1b
 x 19
 y 16
 end
-arch floor_rhomb
+arch floor_fs_grey1b
 x 19
 y 17
 end
-arch floor_rhomb
+arch floor_fs_grey1b
 x 19
 y 18
 end
-arch floor_rhomb
+arch floor_fs_grey1b
 x 19
 y 19
 end
-arch floor_rhomb
+arch floor_fs_grey1b
 x 19
 y 20
 end
-arch floor_rhomb
+arch floor_fs_grey1b
 x 19
 y 21
 end
-arch floor_rhomb
+arch floor_fs_grey1b
 x 19
 y 22
 end
-arch floor_rhomb
+arch floor_fs_grey1b
 x 19
 y 23
 end
-arch floor_rhomb
+arch trans
+x 20
+y 12
+end
+arch wall_dungeon_1
+x 20
+y 12
+end
+arch floor_fs_grey1b
+x 20
+y 13
+end
+arch floor_fs_grey1b
+x 20
+y 14
+end
+arch floor_fs_grey1b
 x 20
 y 15
 end
-arch floor_rhomb
+arch floor_fs_grey1b
 x 20
 y 16
 end
-arch floor_rhomb
+arch floor_fs_grey1b
 x 20
 y 17
 end
-arch floor_rhomb
+arch floor_fs_grey1b
 x 20
 y 18
 end
-arch floor_rhomb
+arch floor_fs_grey1b
 x 20
 y 19
 end
-arch floor_rhomb
+arch floor_fs_grey1b
 x 20
 y 20
 end
-arch floor_rhomb
+arch floor_fs_grey1b
 x 20
 y 21
 end
-arch floor_rhomb
+arch floor_fs_grey1b
 x 20
 y 22
 end
-arch floor_rhomb
+arch floor_fs_grey1b
 x 20
 y 23
 end
-arch floor_rhomb
+arch trans
+x 21
+y 12
+end
+arch wall_dungeon_1
+x 21
+y 12
+end
+arch floor_fs_grey1b
+x 21
+y 13
+end
+arch wall_dungeon_3
+x 21
+y 13
+end
+arch floor_fs_grey1b
+x 21
+y 14
+end
+arch floor_fs_grey1b
 x 21
 y 15
 end
-arch floor_rhomb
+arch floor_fs_grey1b
 x 21
 y 16
 end
-arch floor_rhomb
+arch floor_fs_grey1b
 x 21
 y 17
 end
-arch floor_rhomb
+arch wall_dungeon_8
+x 21
+y 17
+end
+arch floor_fs_grey1b
 x 21
 y 18
 end
-arch floor_rhomb
+arch wall_dungeon_3
+x 21
+y 18
+end
+arch floor_fs_grey1b
 x 21
 y 19
 end
-arch floor_rhomb
+arch wall_dungeon_3
+x 21
+y 19
+end
+arch floor_fs_grey1b
 x 21
 y 20
 end
-arch floor_rhomb
+arch wall_dungeon_3
+x 21
+y 20
+end
+arch floor_fs_grey1b
 x 21
 y 21
 end
-arch floor_rhomb
+arch wall_dungeon_3
+x 21
+y 21
+end
+arch floor_fs_grey1b
 x 21
 y 22
 end
-arch floor_rhomb
+arch wall_dungeon_3
+x 21
+y 22
+end
+arch floor_fs_grey1b
 x 21
 y 23
 end
-arch floor_rhomb
+arch wall_dungeon_3
+x 21
+y 23
+end
+arch trans
+x 22
+y 13
+end
+arch wall_dungeon_1
+x 22
+y 13
+end
+arch map_info
+name asteria_palace
+cursed 1
+x 22
+y 13
+end
+arch floor_fs_grey1b
+x 22
+y 14
+end
+arch wall_dungeon_3
+x 22
+y 14
+end
+arch floor_fs_grey1b
 x 22
 y 15
 end
-arch floor_rhomb
+arch floor_fs_grey1b
 x 22
 y 16
 end
-arch floor_rhomb
+arch floor_fs_grey1b
 x 22
 y 17
 end
-arch floor_rhomb
+arch wall_dungeon_1
+x 22
+y 17
+end
+arch floor_fs_grey1b
 x 22
 y 18
 end
-arch floor_rhomb
+arch floor_fs_grey1b
 x 22
 y 19
 end
-arch floor_rhomb
+arch floor_fs_grey1b
 x 22
 y 20
 end
-arch floor_rhomb
+arch floor_fs_grey1b
 x 22
 y 21
 end
-arch floor_rhomb
+arch floor_fs_grey1b
 x 22
 y 22
 end
-arch floor_rhomb
+arch floor_fs_grey1b
 x 22
 y 23
 end
-arch floor_rhomb
+arch trans
+x 23
+y 14
+end
+arch wall_dungeon_1
+x 23
+y 14
+end
+arch floor_fs_grey1b
 x 23
 y 15
 end
-arch floor_rhomb
+arch floor_fs_grey1b
 x 23
 y 16
 end
-arch floor_rhomb
+arch floor_fs_grey1b
 x 23
 y 17
 end
-arch floor_rhomb
+arch wall_dungeon_1
+x 23
+y 17
+end
+arch floor_fs_grey1b
 x 23
 y 18
 end
-arch floor_rhomb
+arch floor_fs_grey1b
 x 23
 y 19
 end
-arch floor_rhomb
+arch floor_fs_grey1b
 x 23
 y 20
 end
-arch floor_rhomb
+arch floor_fs_grey1b
 x 23
 y 21
 end
-arch floor_rhomb
+arch floor_fs_grey1b
 x 23
 y 22
 end
-arch floor_rhomb
+arch floor_fs_grey1b
 x 23
 y 23
 end

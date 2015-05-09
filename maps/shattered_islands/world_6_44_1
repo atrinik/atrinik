@@ -2,7 +2,7 @@ arch map
 name Asteria Palace
 msg
 Created:  2010-08-26 Alex Tokar
-Modified: 2015-05-04 Alex Tokar
+Modified: 2015-05-08 emperorbma
 endmsg
 width 24
 height 24
@@ -1170,14 +1170,6 @@ sp 15
 x 11
 y 15
 end
-arch gate1_locked
-msg
-Authorized Personnel Only.
-endmsg
-slaying no_entry
-x 11
-y 15
-end
 arch floor_fs_grey1b
 x 11
 y 16
@@ -1272,11 +1264,6 @@ x 12
 y 14
 end
 arch floor_fs_grey1b
-x 12
-y 15
-end
-arch grate1_1
-layer 4
 x 12
 y 15
 end
