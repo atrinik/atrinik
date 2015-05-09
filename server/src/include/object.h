@@ -573,6 +573,10 @@ typedef struct oblnk {
  * Use secret passages.
  */
 #define BEHAVIOR_SECRET_PASSAGES 0x10
+/**
+ * Guard behavior.
+ */
+#define BEHAVIOR_GUARD 0x20
 /*@}*/
 
 /** Decrease an object by one. */

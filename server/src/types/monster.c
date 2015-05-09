@@ -34,6 +34,7 @@
 #include <monster_data.h>
 #include <faction.h>
 #include <plugin.h>
+#include <monster_guard.h>
 
 static int can_detect_enemy(object *op, object *enemy, rv_vector *rv);
 static object *find_nearest_enemy(object *ob);
@@ -199,6 +200,7 @@ void set_npc_enemy(object *npc, object *enemy, rv_vector *rv)
 
     if (enemy != NULL) {
         monster_enemy_signal(npc, enemy);
+        monster_guard_activate_gate(npc, 1);
     }
 }
 

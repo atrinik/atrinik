@@ -144,6 +144,8 @@ void free_all_archs(void)
         efree(at);
         i++;
     }
+
+    first_archetype = NULL;
 }
 
 /**

@@ -35,7 +35,13 @@ static int apply_func(object *op, object *applier, int aflags)
 {
     (void) aflags;
 
-    if (op->speed || (op->stats.exp == -1 && op->value)) {
+    if (op->slaying != NULL) {
+        if (find_key(applier, op) == NULL) {
+            draw_info_format(COLOR_WHITE, applier, "The %s is locked.",
+                    op->name);
+            return OBJECT_METHOD_OK;
+        }
+    } else if (op->speed || (op->stats.exp == -1 && op->value)) {
         if (op->msg != NULL) {
             draw_info(COLOR_WHITE, applier, op->msg);
         } else {
@@ -43,14 +49,6 @@ static int apply_func(object *op, object *applier, int aflags)
         }
 
         return OBJECT_METHOD_OK;
-    }
-
-    if (op->slaying != NULL) {
-        if (find_key(applier, op) == NULL) {
-            draw_info_format(COLOR_WHITE, applier, "The %s is locked.",
-                    op->name);
-            return OBJECT_METHOD_OK;
-        }
     }
 
     /* Toggle the state. */
@@ -71,9 +69,12 @@ static int apply_func(object *op, object *applier, int aflags)
 
     if (op->stats.exp) {
         op->speed = 1.0 / op->stats.exp;
-        update_ob_speed(op);
         op->speed_left = -1;
+    } else {
+        op->speed = 0;
     }
+
+    update_ob_speed(op);
 
     return OBJECT_METHOD_OK;
 }

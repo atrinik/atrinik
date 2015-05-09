@@ -29,6 +29,7 @@
  * @author Alex Tokar */
 
 #include <global.h>
+#include <monster_guard.h>
 
 /**
  * Generate a monster from the spawn point.
@@ -262,6 +263,7 @@ static void process_func(object *op)
     /* Insert the generated monster into the map. */
     insert_ob_in_map(monster, op->map, op, 0);
     living_update_monster(monster);
+    monster_guard_activate_gate(monster, 0);
 }
 
 /** @copydoc object_methods::trigger_func */

@@ -28,6 +28,7 @@
 
 #include <global.h>
 #include <plugin.h>
+#include <monster_guard.h>
 
 /**
  * Find a monster's currently active waypoint, if any.
@@ -290,6 +291,7 @@ void waypoint_move(object *op, object *waypoint)
         /* Is it a return-home waypoint? */
         if (QUERY_FLAG(waypoint, FLAG_REFLECTING)) {
             op->move_type = waypoint->move_type;
+            monster_guard_activate_gate(op, 0);
         }
 
         /* Start over with the new waypoint, if any */
