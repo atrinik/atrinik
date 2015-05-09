@@ -404,8 +404,10 @@ void waypoint_move(object *op, object *waypoint)
     }
 
     if (dir && !QUERY_FLAG(op, FLAG_STAND_STILL)) {
+        int ret = 0;
+
         /* Can the monster move directly toward waypoint? */
-        if (dest_rv->distance != 0 && !move_object(op, dir)) {
+        if (dest_rv->distance != 0 && (ret = move_object(op, dir)) == 0) {
             int diff;
 
             /* Try move around corners otherwise */
@@ -413,7 +415,8 @@ void waypoint_move(object *op, object *waypoint)
                 /* Try left or right first? */
                 int m = 1 - (RANDOM() & 2);
 
-                if (move_object(op, absdir(dir + diff * m)) || move_object(op, absdir(dir - diff * m))) {
+                if ((ret = move_object(op, absdir(dir + diff * m))) != 0 ||
+                        (ret = move_object(op, absdir(dir - diff * m))) != 0) {
                     break;
                 }
             }
@@ -421,7 +424,7 @@ void waypoint_move(object *op, object *waypoint)
 
         /* If we had a local destination and we got close enough to it, accept
          * it. */
-        if (dest_rv == &local_rv && dest_rv->distance == 1) {
+        if (dest_rv == &local_rv && dest_rv->distance == 1 && ret != -1) {
             if (destflags & PATH_NODE_EXIT && op->map == destmap &&
                     op->x == destx && op->y == desty) {
                 object *tmp;
