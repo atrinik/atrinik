@@ -201,6 +201,7 @@ void set_npc_enemy(object *npc, object *enemy, rv_vector *rv)
     if (enemy != NULL) {
         monster_enemy_signal(npc, enemy);
         monster_guard_activate_gate(npc, 1);
+        monster_data_dialogs_purge(npc);
     }
 }
 

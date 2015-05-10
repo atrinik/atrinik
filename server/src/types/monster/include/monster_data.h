@@ -110,5 +110,6 @@ void monster_data_dialogs_remove(object *op, object *activator);
 bool monster_data_dialogs_check(object *op, object *activator);
 size_t monster_data_dialogs_num(object *op);
 void monster_data_dialogs_cleanup(object *op);
+void monster_data_dialogs_purge(object *op);
 
 #endif
