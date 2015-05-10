@@ -78,6 +78,8 @@ typedef struct MapCell_struct {
     uint8_t ext_flags; ///< Last ext flags.
 
     uint8_t client_flags[NUM_SUB_LAYERS];
+
+    uint8_t anim_num; ///< Last number of animations sent.
 } MapCell;
 
 /** One map for a player. */

@@ -683,8 +683,8 @@ bool kill_object(object *op, object *hitter)
 
     /* Only when some damage is stored, and we're on a map. */
     if (op->damage_round_tag == global_round_tag && op->map) {
-        SET_MAP_DAMAGE(op->map, op->x, op->y, op->last_damage);
-        SET_MAP_RTAG(op->map, op->x, op->y, global_round_tag);
+        SET_MAP_DAMAGE(op->map, op->x, op->y, op->sub_layer, op->last_damage);
+        SET_MAP_RTAG(op->map, op->x, op->y, op->sub_layer, global_round_tag);
     }
 
     if (op->map) {

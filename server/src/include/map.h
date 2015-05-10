@@ -211,15 +211,15 @@
 #define GET_MAP_OB_LAYER(_M_, _X_, _Y_, _Z_, _SL_) \
     ((_M_)->spaces[(_X_) + (_M_)->width * (_Y_)].layer[NUM_LAYERS * (_SL_) + (_Z_) -1])
 
-#define SET_MAP_DAMAGE(M, X, Y, tmp) \
-    ((M)->spaces[(X) + (M)->width * (Y)].last_damage = (uint16_t) (tmp))
-#define GET_MAP_DAMAGE(M, X, Y) \
-    ((M)->spaces[(X) + (M)->width * (Y)].last_damage)
+#define SET_MAP_DAMAGE(M, X, Y, SUB_LAYER, tmp) \
+    ((M)->spaces[(X) + (M)->width * (Y)].last_damage[(SUB_LAYER)] = (uint16_t) (tmp))
+#define GET_MAP_DAMAGE(M, X, Y, SUB_LAYER) \
+    ((M)->spaces[(X) + (M)->width * (Y)].last_damage[(SUB_LAYER)])
 
-#define SET_MAP_RTAG(M, X, Y, tmp) \
-    ((M)->spaces[(X) + (M)->width * (Y)].round_tag = (uint32_t) (tmp))
-#define GET_MAP_RTAG(M, X, Y) \
-    ((M)->spaces[(X) + (M)->width * (Y)].round_tag)
+#define SET_MAP_RTAG(M, X, Y, SUB_LAYER, tmp) \
+    ((M)->spaces[(X) + (M)->width * (Y)].round_tag[(SUB_LAYER)] = (uint32_t) (tmp))
+#define GET_MAP_RTAG(M, X, Y, SUB_LAYER) \
+    ((M)->spaces[(X) + (M)->width * (Y)].round_tag[(SUB_LAYER)])
 
 #define GET_BOTTOM_MAP_OB(O) ((O)->map ? GET_MAP_OB((O)->map, (O)->x, (O)->y) : NULL)
 
@@ -345,7 +345,7 @@ typedef struct MapSpace_s {
     struct MapSpace_s *next_light;
 
     /** Tag for last_damage */
-    uint32_t round_tag;
+    uint32_t round_tag[NUM_SUB_LAYERS];
 
     /** ID of ::map_info. */
     tag_t map_info_count;
@@ -370,7 +370,7 @@ typedef struct MapSpace_s {
     int flags;
 
     /** last_damage tmp backbuffer */
-    uint16_t last_damage;
+    int16_t last_damage[NUM_SUB_LAYERS];
 
     /** Terrain type flags (water, underwater,...) */
     uint16_t move_flags;

@@ -878,13 +878,15 @@ void socket_command_map(uint8_t *data, size_t len, size_t pos)
 
         /* Animation? */
         if (ext_flags & MAP2_FLAG_EXT_ANIM) {
-            uint8_t anim_type;
-            int16_t anim_value;
+            uint8_t anim_num = packet_to_uint8(data, len, &pos);
 
-            anim_type = packet_to_uint8(data, len, &pos);
-            anim_value = packet_to_uint16(data, len, &pos);
+            for (uint8_t i = 0; i < anim_num; i++) {
+                uint8_t sub_layer = packet_to_uint8(data, len, &pos);
+                uint8_t anim_type = packet_to_uint8(data, len, &pos);
+                int16_t anim_value = packet_to_int16(data, len, &pos);
 
-            map_anims_add(anim_type, x, y, anim_value);
+                map_anims_add(anim_type, x, y, sub_layer, anim_value);
+            }
         }
     }
 

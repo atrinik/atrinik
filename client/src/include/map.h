@@ -304,6 +304,7 @@ typedef struct map_anim {
     struct map_anim *prev; ///< Previous animation.
 
     int type; ///< Type of the animation, one of @ref ANIM_xxx.
+    int sub_layer; ///< Sub-layer the damage is happening on.
     int value; ///< This is the number to display.
     int mapx; ///< Map position X.
     int mapy; ///< Map position Y.

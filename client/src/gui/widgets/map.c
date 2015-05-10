@@ -81,6 +81,8 @@ static int right_click_ticks = -1;
  */
 static int tiles_debug = 0;
 
+static int get_top_floor_height(struct MapCell *cell, int sub_layer);
+
 /**
  * Enable map tiles debug.
  */
@@ -94,10 +96,12 @@ void clioptions_option_tiles_debug(const char *arg)
  * @param type Animation type, one of @ref ANIM_xxx.
  * @param mapx Map X.
  * @param mapy Map Y.
+ * @param sub_layer Sub-layer.
  * @param value Value to display.
  * @return Created animation.
  */
-struct map_anim *map_anims_add(int type, int mapx, int mapy, int value)
+struct map_anim *map_anims_add(int type, int mapx, int mapy, int sub_layer,
+        int value)
 {
     map_anim_t *anim;
     int num_ticks;
@@ -113,6 +117,8 @@ struct map_anim *map_anims_add(int type, int mapx, int mapy, int value)
     anim->mapx = mapx + MAP_STARTX;
     anim->mapy = mapy + MAP_STARTY;
 
+    /* Sub-layer. */
+    anim->sub_layer = sub_layer;
     /* Amount of damage */
     anim->value = value;
 
@@ -196,6 +202,10 @@ void map_anims_play(void)
     char buf[32];
     int tmp_y;
 
+    int player_height_offset = get_top_floor_height(MAP_CELL_GET_MIDDLE(
+            map_width - (map_width / 2) - 1, map_height - (map_height / 2) - 1),
+            MapData.player_sub_layer);
+
     DL_FOREACH_SAFE(first_anim, anim, tmp)
     {
         /* Have we passed the last tick */
@@ -221,6 +231,9 @@ void map_anims_play(void)
                 MAP_STARTX) * MAP_TILE_XOFF + (anim->mapy - MAP_STARTY - 1) *
                 MAP_TILE_XOFF - 34) * (setting_get_int(OPT_CAT_MAP,
                 OPT_MAP_ZOOM) / 100.0));
+        ypos += player_height_offset;
+        ypos -= MAP_CELL_GET(anim->mapx, anim->mapy)->height[
+                GET_MAP_LAYER(LAYER_FLOOR, anim->sub_layer)];
 
         switch (anim->type) {
         case ANIM_DAMAGE:

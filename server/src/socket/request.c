@@ -624,7 +624,7 @@ void draw_client_map2(object *pl)
     int special_vision, is_building_wall;
     uint16_t mask;
     int layer, dark[NUM_SUB_LAYERS], dark_set[NUM_SUB_LAYERS];
-    int anim_value, anim_type, ext_flags;
+    int ext_flags, anim_num;
     int num_layers;
     object *mirror = NULL, *tmp, *tmp2;
     uint8_t have_sound_ambient;
@@ -852,11 +852,13 @@ void draw_client_map2(object *pl)
             /* Initialize default values for some variables. */
             ext_flags = 0;
             packet_save(packet, &packet_save_buf);
-            anim_type = 0;
-            anim_value = 0;
+            anim_num = 0;
             have_down = 0;
             floor_z_down = floor_z_up = 0;
             zadj = 0;
+
+            uint8_t anim_type[NUM_SUB_LAYERS] = {0};
+            int16_t anim_value[NUM_SUB_LAYERS] = {0};
 
             /* Check if we have a map under this tile. */
             if (get_map_from_tiled(m, TILED_DOWN) != NULL &&
@@ -1311,6 +1313,15 @@ void draw_client_map2(object *pl)
                         mp->darkness[sub_layer] = dark[sub_layer];
                     }
 
+                    if (tmp != NULL && tmp->map != m &&
+                            anim_type[sub_layer] == 0 && GET_MAP_RTAG(tmp->map,
+                            tmp->x, tmp->y, sub_layer) == global_round_tag) {
+                        anim_type[sub_layer] = ANIM_KILL;
+                        anim_value[sub_layer] = GET_MAP_DAMAGE(tmp->map, tmp->x,
+                                tmp->y, sub_layer);
+                        anim_num++;
+                    }
+
                     if (tmp == NULL && layer == LAYER_FLOOR && sub_layer != 0) {
                         if (tiled_dir == TILED_DOWN) {
                             floor_z_down &= ~(1 << sub_layer);
@@ -1451,10 +1462,14 @@ void draw_client_map2(object *pl)
                         }
 
                         /* Damage animation? Store it for later. */
-                        if (tmp->last_damage && tmp->damage_round_tag == global_round_tag) {
-                            ext_flags |= MAP2_FLAG_EXT_ANIM;
-                            anim_type = ANIM_DAMAGE;
-                            anim_value = tmp->last_damage;
+                        if (tmp->last_damage && tmp->damage_round_tag ==
+                                global_round_tag) {
+                            if (anim_type[sub_layer] == 0) {
+                                anim_num++;
+                            }
+
+                            anim_type[sub_layer] = ANIM_DAMAGE;
+                            anim_value[sub_layer] = tmp->last_damage;
                         }
 
                         /* Now, check if we have cached this. */
@@ -1718,17 +1733,29 @@ void draw_client_map2(object *pl)
             packet_append_packet(packet, packet_layer);
             packet_free(packet_layer);
 
-            /* Kill animation? */
-            if (GET_MAP_RTAG(m, nx, ny) == global_round_tag) {
-                ext_flags |= MAP2_FLAG_EXT_ANIM;
-                anim_type = ANIM_KILL;
-                anim_value = GET_MAP_DAMAGE(m, nx, ny);
+            /* Kill animations? */
+            for (sub_layer = 0; sub_layer < NUM_SUB_LAYERS; sub_layer++) {
+                if (GET_MAP_RTAG(m, nx, ny, sub_layer) == global_round_tag) {
+                    if (anim_type[sub_layer] == 0) {
+                        anim_num++;
+                    }
+
+                    anim_type[sub_layer] = ANIM_KILL;
+                    anim_value[sub_layer] = GET_MAP_DAMAGE(m, nx, ny,
+                            sub_layer);
+                }
             }
 
-            if (ext_flags == mp->ext_flags && process_delay != 0) {
+            if (anim_num != 0) {
+                ext_flags |= MAP2_FLAG_EXT_ANIM;
+            }
+
+            if (ext_flags == mp->ext_flags && anim_num == mp->anim_num &&
+                    process_delay != 0) {
                 ext_flags = 0;
             } else {
                 mp->ext_flags = ext_flags;
+                mp->anim_num = anim_num;
             }
 
             /* Add flags for this tile. */
@@ -1737,10 +1764,21 @@ void draw_client_map2(object *pl)
 
             /* Animation? Add its type and value. */
             if (ext_flags & MAP2_FLAG_EXT_ANIM) {
-                packet_debug_data(packet, 1, "Animation type");
-                packet_append_uint8(packet, anim_type);
-                packet_debug_data(packet, 1, "Animation value");
-                packet_append_uint16(packet, anim_value);
+                packet_debug_data(packet, 1, "Number of animations");
+                packet_append_uint8(packet, anim_num);
+
+                for (sub_layer = 0; sub_layer < NUM_SUB_LAYERS; sub_layer++) {
+                    if (anim_type[sub_layer] == 0) {
+                        continue;
+                    }
+
+                    packet_debug_data(packet, 1, "Animation sub-layer");
+                    packet_append_uint8(packet, sub_layer);
+                    packet_debug_data(packet, 1, "Animation type");
+                    packet_append_uint8(packet, anim_type[sub_layer]);
+                    packet_debug_data(packet, 1, "Animation value");
+                    packet_append_int16(packet, anim_value[sub_layer]);
+                }
             }
 
             /* If nothing has really changed, go back to the old position

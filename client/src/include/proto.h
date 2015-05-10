@@ -683,7 +683,7 @@ extern void widget_label_init(widgetdata *widget);
 extern _mapdata MapData;
 extern _multi_part_obj MultiArchs[16];
 extern void clioptions_option_tiles_debug(const char *arg);
-extern struct map_anim *map_anims_add(int type, int mapx, int mapy, int value);
+extern struct map_anim *map_anims_add(int type, int mapx, int mapy, int sub_layer, int value);
 extern void maps_anims_remove(map_anim_t *anim);
 extern void map_anims_mapscroll(int xoff, int yoff);
 extern void map_anims_clear(void);

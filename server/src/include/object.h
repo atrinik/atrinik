@@ -266,7 +266,7 @@ typedef struct obj {
     int16_t attacked_by_distance;
 
     /** The damage sent with map2 */
-    uint16_t last_damage;
+    int16_t last_damage;
 
     /**
      * type flags for different environment (tile is under water, firewalk,...)
