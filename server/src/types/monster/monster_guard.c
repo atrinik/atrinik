@@ -63,13 +63,18 @@ void monster_guard_activate_gate(object *op, int state)
 
         object_apply(tmp, op, 0);
 
+        char buf[HUGE_BUF];
+
         if (state == 1) {
-            char buf[HUGE_BUF];
             snprintf(VS(buf), "%s shouts:\nThe gate, get the gate! Let no one "
                     "leave or enter until this matter is resolved!", op->name);
-            draw_info_map(CHAT_TYPE_GAME, NULL, COLOR_NAVY, op->map, op->x,
-                    op->y, MAP_INFO_NORMAL, NULL, NULL, buf);
+        } else {
+            snprintf(VS(buf), "%s shouts:\nAll clear, open the gate!",
+                    op->name);
         }
+
+        draw_info_map(CHAT_TYPE_GAME, NULL, COLOR_NAVY, op->map, op->x, op->y,
+                MAP_INFO_NORMAL, NULL, NULL, buf);
 
         break;
     } FOR_MAP_FINISH();
