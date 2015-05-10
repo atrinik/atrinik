@@ -32,6 +32,7 @@
 #include <global.h>
 #include <monster_data.h>
 #include <packet.h>
+#include <monster_guard.h>
 
 #ifndef __CPROTO__
 
@@ -237,6 +238,7 @@ void monster_data_dialogs_remove(object *op, object *activator)
         }
 
         if (dialog->ob == activator && dialog->count == activator->count) {
+            monster_guard_check_close(op, activator);
             DL_DELETE(monster_data->dialogs, dialog);
             monster_data_dialogs_free(dialog);
             break;
@@ -332,12 +334,14 @@ void monster_data_dialogs_cleanup(object *op)
 
         rv_vector rv;
 
-        if (!get_rangevector(op, dialog->ob, &rv, RV_MANHATTAN_DISTANCE) ||
-                rv.distance > MONSTER_DATA_INTERFACE_DISTANCE) {
-            DL_DELETE(monster_data->dialogs, dialog);
-            monster_data_dialogs_free(dialog);
-            break;
+        if (get_rangevector(op, dialog->ob, &rv, RV_MANHATTAN_DISTANCE) &&
+                rv.distance <= MONSTER_DATA_INTERFACE_DISTANCE) {
+            continue;
         }
+
+        monster_guard_check_close(op, dialog->ob);
+        DL_DELETE(monster_data->dialogs, dialog);
+        monster_data_dialogs_free(dialog);
     }
 }
 

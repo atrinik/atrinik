@@ -631,7 +631,9 @@ typedef struct magic_mirror_struct {
 
 /**
  * Check whether the specified object can talk. */
-#define OBJECT_CAN_TALK(ob) ((ob)->type == MONSTER && ((ob)->msg || HAS_EVENT((ob), EVENT_SAY)))
+#define OBJECT_CAN_TALK(ob) ((ob)->type == MONSTER && ((ob)->msg || \
+        HAS_EVENT((ob), EVENT_SAY)) && !OBJECT_VALID((ob)->enemy, \
+        (ob)->enemy_count))
 
 /**
  * Check whether an object is cursed/damned. */

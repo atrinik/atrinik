@@ -30,6 +30,7 @@
 #include <loader.h>
 #include <toolkit_string.h>
 #include <plugin.h>
+#include <monster_data.h>
 
 static int save_life(object *op);
 static void remove_unpaid_objects(object *op, object *env);
@@ -2159,6 +2160,31 @@ object *player_find_spell(object *op, spell_struct *spell)
     }
 
     return NULL;
+}
+
+/**
+ * Updates who the player is talking to.
+ * @param pl Player.
+ * @param npc NPC the player is now talking to.
+ */
+void player_set_talking_to(player *pl, object *npc)
+{
+    HARD_ASSERT(pl != NULL);
+    HARD_ASSERT(npc != NULL);
+
+    if (OBJECT_VALID(pl->talking_to, pl->talking_to_count) &&
+            pl->talking_to != npc) {
+        monster_data_dialogs_remove(pl->talking_to, pl->ob);
+    }
+
+    pl->talking_to = npc;
+    pl->talking_to_count = npc->count;
+
+    if (pl->target_object != npc || pl->target_object_count != npc->count) {
+        pl->target_object = npc;
+        pl->target_object_count = npc->count;
+        send_target_command(pl);
+    }
 }
 
 void player_login(socket_struct *ns, const char *name, archetype *at)

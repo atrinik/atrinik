@@ -37,6 +37,7 @@
 #include <toolkit_string.h>
 #include <monster_data.h>
 #include <plugin.h>
+#include <monster_guard.h>
 
 #define GET_CLIENT_FLAGS(_O_)   ((_O_)->flags[0] & 0x7f)
 #define NO_FACE_SEND (-1)
@@ -2368,20 +2369,8 @@ void socket_command_talk(socket_struct *ns, player *pl, uint8_t *data, size_t le
         if (npc) {
             LOG(CHAT, "[TALKTO] [%s] [%s] %s", pl->ob->name, npc->name, msg);
 
-            if (talk_to_npc(pl->ob, npc, msg)) {
-                if (OBJECT_VALID(pl->talking_to, pl->talking_to_count) &&
-                        pl->talking_to != npc) {
-                    monster_data_dialogs_remove(pl->talking_to, pl->ob);
-                }
-
-                pl->talking_to = npc;
-                pl->talking_to_count = npc->count;
-
-                if (pl->target_object != npc || pl->target_object_count != npc->count) {
-                    pl->target_object = npc;
-                    pl->target_object_count = npc->count;
-                    send_target_command(pl);
-                }
+            if (!monster_guard_check(npc, pl->ob, msg, 0)) {
+                talk_to_npc(pl->ob, npc, msg);
             }
         } else if (type == CMD_TALK_NPC && OBJECT_VALID(pl->target_object, pl->target_object_count) && OBJECT_CAN_TALK(pl->target_object)) {
             draw_info_format(COLOR_WHITE, pl->ob, "You are too far away from %s.", pl->target_object->name);

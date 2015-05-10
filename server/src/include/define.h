@@ -1390,6 +1390,12 @@ enum apply_flag {
  * Maximum number of seconds the NPC may stop moving for, regardless of
  * message length. */
 #define INTERFACE_TIMEOUT_MAX 60 * 5
+/**
+ * Calculates number of seconds for the interface timeout.
+ */
+#define INTERFACE_TIMEOUT(ret) ((long) (((double) MAX(INTERFACE_TIMEOUT_CHARS, \
+        (ret)) / INTERFACE_TIMEOUT_CHARS) * INTERFACE_TIMEOUT_SECONDS) - \
+        INTERFACE_TIMEOUT_SECONDS + INTERFACE_TIMEOUT_INITIAL)
 /*@}*/
 
 /** Check if the keyword represents a true value. */

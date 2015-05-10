@@ -861,11 +861,22 @@ static object *find_nearest_enemy(object *ob)
                     continue;
                 }
 
+                if (!can_detect_target(ob, tmp, aggro_range, aggro_stealth,
+                        &rv)) {
+                    continue;
+                }
+
+                if (!obj_in_line_of_sight(tmp, &rv)) {
+                    continue;
+                }
+
                 /* Now check the friend status, whether we can reach the enemy,
                  * and LOS. */
-                if (!is_friend_of(ob, tmp) && can_detect_target(ob, tmp, aggro_range, aggro_stealth, &rv) && obj_in_line_of_sight(tmp, &rv)) {
+                if (!is_friend_of(ob, tmp)) {
                     return tmp;
                 }
+
+                monster_guard_check(ob, tmp, NULL, rv.distance);
             }
         }
     }
@@ -1475,16 +1486,16 @@ int talk_to_npc(object *op, object *npc, char *txt)
     if (HAS_EVENT(npc, EVENT_SAY)) {
         /* Trigger the SAY event */
         ret = trigger_event(EVENT_SAY, op, npc, NULL, txt, 0, 0, 0,
-                            SCRIPT_FIX_ACTIVATOR);
+                SCRIPT_FIX_ACTIVATOR);
     } else if (npc->msg != NULL && *npc->msg == '@') {
         char *cp = find_matching_message(npc->msg, txt);
 
-        if (cp) {
+        if (cp != NULL) {
             ret = strlen(cp);
 
             if (op->type == PLAYER) {
                 packet_struct *packet = packet_new(CLIENT_CMD_INTERFACE, 256,
-                                                   256);
+                        256);
 
                 packet_debug_data(packet, 0, "\nInterface data type");
                 packet_append_uint8(packet, CMD_INTERFACE_TEXT);
@@ -1510,18 +1521,20 @@ int talk_to_npc(object *op, object *npc, char *txt)
             } else {
                 char buf[HUGE_BUF];
                 snprintf(buf, sizeof(buf), "\n%s says: %s",
-                         query_name(npc, NULL), cp);
+                        query_name(npc, NULL), cp);
                 draw_info_map(CHAT_TYPE_GAME, NULL, COLOR_WHITE, op->map, op->x,
-                              op->y, MAP_INFO_NORMAL, op, op, buf);
+                        op->y, MAP_INFO_NORMAL, op, op, buf);
             }
 
             efree(cp);
         }
     }
 
-    uint32_t secs = (long) (((double) MAX(INTERFACE_TIMEOUT_CHARS, ret) /
-            INTERFACE_TIMEOUT_CHARS) * INTERFACE_TIMEOUT_SECONDS) -
-            INTERFACE_TIMEOUT_SECONDS + INTERFACE_TIMEOUT_INITIAL;
+    if (op->type == PLAYER) {
+        player_set_talking_to(CONTR(op), npc);
+    }
+
+    uint32_t secs = INTERFACE_TIMEOUT(ret);
     monster_data_dialogs_add(npc, op, MIN(secs, INTERFACE_TIMEOUT_MAX));
 
     return ret != 0;

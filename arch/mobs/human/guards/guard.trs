@@ -1,0 +1,62 @@
+treasure mob_guard
+  list traps
+    chance 8
+  more
+  list default_loot
+    chance 65
+    no
+      list small_things
+        chance_fix 4
+        no
+          arch coppercoin
+            chance_fix 1
+            nrof 5
+        end
+    end
+  more
+  list default_drop
+    chance_fix 14
+    material_quality 80
+    material_range 15
+  more
+  list random_armour
+    material_quality 80
+    material_range 15
+    chance_fix 32
+    no
+      list random_weapon
+        material_quality 80
+        material_range 15
+        chance_fix 38
+        no
+          list random_mtools
+            chance_fix 182
+            no
+              list random_talisman
+                chance_fix 366
+            end
+        end
+    end
+  more
+  list random_scroll
+    chance_fix 45
+    no
+      list random_potion
+        chance_fix 45
+    end
+  more
+  list random_armour_mail
+    chance_fix 1
+  more
+  list random_armour_shield
+    chance_fix 3
+  more
+  list random_weapons_melee
+    chance_fix 1
+  more
+  list random_armour_helm
+    chance_fix 5
+  more
+  arch guard_stop_python
+    chance_fix 1
+end

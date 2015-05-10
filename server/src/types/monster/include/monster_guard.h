@@ -35,5 +35,8 @@
 /* Prototypes */
 
 void monster_guard_activate_gate(object *op, int state);
+bool monster_guard_check(object *op, object *target, const char *msg,
+        uint32_t distance);
+void monster_guard_check_close(object *op, object *target);
 
 #endif

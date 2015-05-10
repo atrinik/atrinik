@@ -4,6 +4,7 @@ race human
 type 80
 layer 6
 behavior 42
+randomitems mob_guard
 direction 5
 is_male 1
 wc_range 20
@@ -31,4 +32,6 @@ level 1
 weight 85000
 faction npcs
 int 20
+can_use_armour 1
+can_use_weapon 1
 end

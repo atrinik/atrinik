@@ -1080,6 +1080,7 @@ extern int player_exists(const char *name);
 extern void player_save(object *op);
 extern object *player_get_dummy(void);
 extern object *player_find_spell(object *op, spell_struct *spell);
+extern void player_set_talking_to(player *pl, object *npc);
 extern void player_login(socket_struct *ns, const char *name, archetype *at);
 extern void object_type_init_player(void);
 /* src/types/player_mover.c */

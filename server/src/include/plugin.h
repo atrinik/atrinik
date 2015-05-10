@@ -103,6 +103,8 @@
  *@{*/
 /** Random movement. */
 #define EVENT_AI_RANDOM_MOVE 1
+/** Guard stops someone with a bounty. */
+#define EVENT_AI_GUARD_STOP 2
 /*@}*/
 
 /**
