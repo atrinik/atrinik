@@ -2,93 +2,60 @@ arch map
 name Under Strakewood Island
 msg
 Created:  2009-08-09 Alex Tokar
-Modified: 2011-11-04 Alex Tokar
+Modified: 2015-05-10 Alex Tokar
 endmsg
 width 24
 height 24
-difficulty 3
+difficulty 10
 darkness 3
 bg_music unexpected.mid
 region strakewood_island_underground
 end
-arch water_lt2
+arch floor_sand_d1
 end
 arch wall_cave1.111
 end
-arch water_lt2
-terrain_type 1
+arch floor_sand_d1
 y 1
 end
-arch mover
-direction 7
-y 1
-end
-arch damager
-name drowning
-dam 2
-attack_paralyze 10
-attack_confusion 10
-attack_internal 100
-slow_move 1
-exp 3
-walk_on 1
+arch water_lt2_m
+direction 5
 y 1
 end
 arch water_lt
-terrain_type 1
 y 2
 end
-arch mover
-direction 7
-y 2
-end
-arch water_lt2
-terrain_type 1
+arch floor_sand_d1
 y 3
 end
-arch mover
-direction 7
+arch water_lt_m
+direction 2
 y 3
 end
-arch water_lt3
-terrain_type 1
+arch floor_sand_d3
 y 4
 end
-arch mover
-direction 7
+arch mushroom_giant2
 y 4
 end
-arch water_lt4
+arch floor_sand_d1
 y 5
 end
 arch wall_cave1.151
 y 5
 end
-arch water_lt3
+arch floor_sand_d1
 x 1
 end
 arch wall_cave1.111
 x 1
 end
-arch water_lt2
-terrain_type 1
+arch floor_sand_d4
 x 1
 y 1
 end
-arch mover
-direction 7
-x 1
-y 1
-end
-arch damager
-name drowning
-dam 1
-attack_paralyze 10
-attack_confusion 10
-attack_internal 100
-slow_move 1
-exp 3
-walk_on 1
+arch water_lt2_m
+direction 5
 x 1
 y 1
 end
@@ -96,54 +63,29 @@ arch spawn_point
 x 1
 y 1
 arch bat_brown
-level 8
+level 12
 wis 4
 type 83
 end
 end
-arch water_lt4
-terrain_type 1
-x 1
-y 2
-end
-arch mover
-direction 7
-x 1
-y 2
-end
-arch damager
-name drowning
-dam 1
-attack_paralyze 10
-attack_confusion 10
-attack_internal 100
-slow_move 1
-exp 3
-walk_on 1
-x 1
-y 2
-end
-arch water_lt
-terrain_type 1
-x 1
-y 3
-end
-arch mover
-direction 7
-x 1
-y 3
-end
 arch water_lt2
-terrain_type 1
 x 1
-y 4
-end
-arch mover
-direction 7
-x 1
-y 4
+y 2
 end
 arch water_lt
+x 1
+y 3
+end
+arch floor_sand_d4
+x 1
+y 4
+end
+arch water_lt_m
+direction 1
+x 1
+y 4
+end
+arch floor_sand_d2
 x 1
 y 5
 end
@@ -151,63 +93,26 @@ arch wall_cave1.151
 x 1
 y 5
 end
-arch water_lt4
+arch floor_sand_d4
 x 2
 end
 arch wall_cave1.111
 x 2
 end
-arch water_lt4
-terrain_type 1
+arch floor_sand_d4
 x 2
 y 1
 end
-arch mover
-direction 7
-x 2
-y 1
-end
-arch damager
-name drowning
-dam 1
-attack_paralyze 10
-attack_confusion 10
-attack_internal 100
-slow_move 1
-exp 3
-walk_on 1
-x 2
-y 1
-end
-arch water_lt2
-terrain_type 1
+arch floor_sand_d2
 x 2
 y 2
 end
-arch mover
-direction 7
+arch water_lt_m
+direction 6
 x 2
 y 2
 end
-arch water_lt
-terrain_type 1
-x 2
-y 3
-end
-arch mover
-direction 7
-x 2
-y 3
-end
-arch damager
-name drowning
-dam 2
-attack_paralyze 10
-attack_confusion 10
-attack_internal 100
-slow_move 1
-exp 3
-walk_on 1
+arch water_lt3
 x 2
 y 3
 end
@@ -216,29 +121,21 @@ race water_stream.ogg
 x 2
 y 3
 end
-arch water_lt2
-terrain_type 1
+arch floor_sand_d1
 x 2
 y 4
 end
-arch mover
-direction 7
+arch water_lt_m
+direction 2
 x 2
 y 4
 end
-arch damager
-name drowning
-dam 2
-attack_paralyze 10
-attack_confusion 10
-attack_internal 100
-slow_move 1
-exp 3
-walk_on 1
+arch floor_sand_d4
 x 2
-y 4
+y 5
 end
-arch water_lt
+arch water_lt2_m
+direction 2
 x 2
 y 5
 end
@@ -246,7 +143,7 @@ arch wall_cave1.121
 x 2
 y 5
 end
-arch water_lt2
+arch floor_sand_d1
 x 2
 y 6
 end
@@ -254,14 +151,13 @@ arch wall_cave1b.161
 x 2
 y 6
 end
-arch water_lt2
+arch floor_sand_d2
 x 3
 end
 arch wall_cave1.111
 x 3
 end
-arch water_lt3
-terrain_type 1
+arch floor_sand_d3
 x 3
 y 1
 end
@@ -269,76 +165,42 @@ arch plant8
 x 3
 y 1
 end
-arch mover
-direction 7
-x 3
-y 1
-end
-arch damager
-name drowning
-dam 2
-attack_paralyze 10
-attack_confusion 10
-attack_internal 100
-slow_move 1
-exp 3
-walk_on 1
-x 3
-y 1
-end
-arch water_lt
-terrain_type 1
+arch floor_sand_d2
 x 3
 y 2
 end
-arch mover
-direction 7
+arch water_lt2_m
+direction 5
 x 3
 y 2
 end
-arch water_lt
-terrain_type 1
+arch mushroom_giant8
+x 3
+y 2
+end
+arch water_lt4
 x 3
 y 3
 end
-arch mover
-direction 7
-x 3
-y 3
-end
-arch water_lt2
-terrain_type 1
+arch water_lt4
 x 3
 y 4
 end
-arch mover
-direction 7
-x 3
-y 4
-end
-arch water_lt3
-terrain_type 1
+arch floor_sand_d1
 x 3
 y 5
 end
-arch mover
-direction 8
+arch water_lt_m
+direction 2
 x 3
 y 5
 end
-arch damager
-name drowning
-dam 2
-attack_paralyze 10
-attack_confusion 10
-attack_internal 100
-slow_move 1
-exp 3
-walk_on 1
+arch floor_sand_d2
 x 3
-y 5
+y 6
 end
-arch water_lt3
+arch water_lt2_m
+direction 2
 x 3
 y 6
 end
@@ -346,7 +208,7 @@ arch wall_cave1.121
 x 3
 y 6
 end
-arch water_lt4
+arch floor_sand_d2
 x 3
 y 7
 end
@@ -354,13 +216,13 @@ arch wall_cave1b.161
 x 3
 y 7
 end
-arch water_lt4
+arch floor_sand_d2
 x 4
 end
 arch wall_cave1b.121
 x 4
 end
-arch water_lt4
+arch floor_sand_d3
 x 4
 y 1
 end
@@ -368,8 +230,7 @@ arch wall_cave1.161
 x 4
 y 1
 end
-arch water_lt4
-terrain_type 1
+arch floor_sand_d3
 x 4
 y 2
 end
@@ -377,88 +238,38 @@ arch plant7
 x 4
 y 2
 end
-arch mover
-direction 8
-x 4
-y 2
-end
-arch water_lt4
-terrain_type 1
+arch floor_sand_d4
 x 4
 y 3
 end
-arch mover
-direction 8
-x 4
-y 3
-end
-arch damager
-name drowning
-dam 2
-attack_paralyze 10
-attack_confusion 10
-attack_internal 100
-slow_move 1
-exp 3
-walk_on 1
+arch water_lt_m
+direction 6
 x 4
 y 3
 end
 arch water_lt2
-terrain_type 1
 x 4
 y 4
 end
-arch mover
-direction 8
-x 4
-y 4
-end
-arch water_lt4
-terrain_type 1
+arch water_lt3
 x 4
 y 5
 end
-arch mover
-direction 8
-x 4
-y 5
-end
-arch damager
-name drowning
-dam 2
-attack_paralyze 10
-attack_confusion 10
-attack_internal 100
-slow_move 1
-exp 3
-walk_on 1
-x 4
-y 5
-end
-arch water_lt2
-terrain_type 1
+arch floor_sand_d1
 x 4
 y 6
 end
-arch mover
-direction 8
+arch water_lt_m
+direction 2
 x 4
 y 6
 end
-arch damager
-name drowning
-dam 1
-attack_paralyze 10
-attack_confusion 10
-attack_internal 100
-slow_move 1
-exp 3
-walk_on 1
+arch floor_sand_d4
 x 4
-y 6
+y 7
 end
-arch water_lt
+arch water_lt2_m
+direction 2
 x 4
 y 7
 end
@@ -466,7 +277,7 @@ arch wall_cave1.121
 x 4
 y 7
 end
-arch water_lt2
+arch floor_sand_d1
 x 4
 y 8
 end
@@ -474,7 +285,7 @@ arch wall_cave1.171
 x 4
 y 8
 end
-arch water_lt
+arch floor_sand_d1
 x 4
 y 9
 end
@@ -482,7 +293,7 @@ arch wall_cave1.171
 x 4
 y 9
 end
-arch water_lt3
+arch floor_sand_d1
 x 4
 y 10
 end
@@ -490,7 +301,7 @@ arch wall_cave1.171
 x 4
 y 10
 end
-arch water_lt
+arch floor_sand_d3
 x 4
 y 11
 end
@@ -498,7 +309,7 @@ arch wall_cave1.171
 x 4
 y 11
 end
-arch water_lt
+arch floor_sand_d1
 x 4
 y 12
 end
@@ -506,7 +317,7 @@ arch wall_cave1.171
 x 4
 y 12
 end
-arch water_lt2
+arch floor_sand_d3
 x 4
 y 13
 end
@@ -514,7 +325,7 @@ arch wall_cave1.171
 x 4
 y 13
 end
-arch water_lt4
+arch floor_sand_d1
 x 4
 y 14
 end
@@ -522,7 +333,7 @@ arch wall_cave1.171
 x 4
 y 14
 end
-arch water_lt3
+arch floor_sand_d1
 x 4
 y 15
 end
@@ -530,7 +341,7 @@ arch wall_cave1b.161
 x 4
 y 15
 end
-arch water_lt3
+arch floor_sand_d2
 x 5
 y 1
 end
@@ -538,7 +349,7 @@ arch wall_cave1b.121
 x 5
 y 1
 end
-arch water_lt2
+arch floor_sand_d1
 x 5
 y 2
 end
@@ -546,8 +357,7 @@ arch wall_cave1.161
 x 5
 y 2
 end
-arch water_lt4
-terrain_type 1
+arch floor_sand_d2
 x 5
 y 3
 end
@@ -555,171 +365,120 @@ arch plant7
 x 5
 y 3
 end
-arch mover
-direction 8
+arch floor_sand_d2
 x 5
-y 3
+y 4
 end
-arch damager
-name drowning
-dam 1
-attack_paralyze 10
-attack_confusion 10
-attack_internal 100
-slow_move 1
-exp 3
-walk_on 1
+arch water_lt_m
+direction 6
 x 5
-y 3
+y 4
 end
 arch water_lt
-terrain_type 1
-x 5
-y 4
-end
-arch mover
-direction 8
-x 5
-y 4
-end
-arch damager
-name drowning
-dam 2
-attack_paralyze 10
-attack_confusion 10
-attack_internal 100
-slow_move 1
-exp 3
-walk_on 1
-x 5
-y 4
-end
-arch water_lt4
-terrain_type 1
 x 5
 y 5
 end
-arch mover
-direction 8
-x 5
-y 5
-end
-arch water_lt3
-terrain_type 1
+arch water_lt
 x 5
 y 6
 end
-arch mover
-direction 8
-x 5
-y 6
-end
-arch water_lt4
-terrain_type 1
+arch floor_sand_d4
 x 5
 y 7
 end
-arch mover
-direction 8
+arch water_lt_m
+direction 2
 x 5
 y 7
 end
-arch water_lt4
-terrain_type 1
+arch floor_sand_d1
 x 5
 y 8
 end
-arch mover
+arch water_lt2_m
+direction 2
 x 5
 y 8
 end
-arch damager
-name drowning
-dam 1
-attack_paralyze 10
-attack_confusion 10
-attack_internal 100
-slow_move 1
-exp 3
-walk_on 1
+arch plant_mushroom5
 x 5
 y 8
 end
-arch water_lt
-terrain_type 1
+arch floor_sand_d1
 x 5
 y 9
 end
-arch mover
+arch water_lt2_m
+direction 4
 x 5
 y 9
 end
-arch water_lt3
-terrain_type 1
+arch plant8
+x 5
+y 9
+end
+arch floor_sand_d1
 x 5
 y 10
 end
-arch mover
+arch water_lt2_m
+direction 3
 x 5
 y 10
 end
-arch water_lt3
-terrain_type 1
+arch mushroom_spot2
+x 5
+y 10
+end
+arch light2
+x 5
+y 10
+end
+arch floor_sand_d3
 x 5
 y 11
 end
-arch mover
+arch water_lt2_m
+direction 3
 x 5
 y 11
 end
-arch water_lt
-terrain_type 1
+arch mushroom_spot2
+x 5
+y 11
+end
+arch light2
+x 5
+y 11
+end
+arch floor_sand_d3
 x 5
 y 12
 end
-arch plant8
+arch water_lt2_m
+direction 3
 x 5
 y 12
 end
-arch mover
-x 5
-y 12
-end
-arch damager
-name drowning
-dam 2
-attack_paralyze 10
-attack_confusion 10
-attack_internal 100
-slow_move 1
-exp 3
-walk_on 1
-x 5
-y 12
-end
-arch water_lt4
-terrain_type 1
+arch floor_sand_d3
 x 5
 y 13
 end
-arch plant8
+arch water_lt_m
+direction 3
 x 5
 y 13
 end
-arch mover
+arch floor_sand_d1
 x 5
-y 13
+y 14
 end
-arch water_lt
-terrain_type 1
+arch water_lt2_m
+direction 2
 x 5
 y 14
 end
 arch plant8
-x 5
-y 14
-end
-arch mover
 x 5
 y 14
 end
@@ -727,12 +486,13 @@ arch spawn_point
 x 5
 y 14
 arch bat_brown
-level 8
+level 12
 wis 4
 type 83
+direction 2
 end
 end
-arch water_lt4
+arch floor_sand_d3
 x 5
 y 15
 end
@@ -740,7 +500,7 @@ arch wall_cave1.121
 x 5
 y 15
 end
-arch water_lt2
+arch floor_sand_d1
 x 5
 y 16
 end
@@ -748,7 +508,7 @@ arch wall_cave1b.161
 x 5
 y 16
 end
-arch water_lt2
+arch floor_sand_d1
 x 6
 y 2
 end
@@ -756,7 +516,7 @@ arch wall_cave1b.121
 x 6
 y 2
 end
-arch water_lt
+arch floor_sand_d2
 x 6
 y 3
 end
@@ -764,183 +524,80 @@ arch wall_cave1.161
 x 6
 y 3
 end
+arch floor_sand_d2
+x 6
+y 4
+end
+arch plant7
+x 6
+y 4
+end
+arch floor_sand_d4
+x 6
+y 5
+end
+arch water_lt_m
+direction 6
+x 6
+y 5
+end
 arch water_lt2
-terrain_type 1
 x 6
-y 4
-end
-arch mover
-direction 8
-x 6
-y 4
-end
-arch damager
-name drowning
-dam 2
-attack_paralyze 10
-attack_confusion 10
-attack_internal 100
-slow_move 1
-exp 3
-walk_on 1
-x 6
-y 4
-end
-arch water_lt
-terrain_type 1
-x 6
-y 5
-end
-arch mover
-direction 8
-x 6
-y 5
-end
-arch damager
-name drowning
-dam 1
-attack_paralyze 10
-attack_confusion 10
-attack_internal 100
-slow_move 1
-exp 3
-walk_on 1
-x 6
-y 5
+y 6
 end
 arch water_lt3
-terrain_type 1
-x 6
-y 6
-end
-arch mover
-direction 8
-x 6
-y 6
-end
-arch damager
-name drowning
-dam 1
-attack_paralyze 10
-attack_confusion 10
-attack_internal 100
-slow_move 1
-exp 3
-walk_on 1
-x 6
-y 6
-end
-arch water_lt2
-terrain_type 1
 x 6
 y 7
 end
-arch mover
-direction 8
-x 6
-y 7
-end
-arch water_lt4
-terrain_type 1
+arch floor_sand_d4
 x 6
 y 8
 end
-arch mover
+arch water_lt_m
+direction 2
 x 6
 y 8
 end
-arch water_lt4
-terrain_type 1
+arch floor_sand_d4
 x 6
 y 9
 end
-arch mover
+arch water_lt_m
+direction 4
 x 6
 y 9
 end
-arch damager
-name drowning
-dam 2
-attack_paralyze 10
-attack_confusion 10
-attack_internal 100
-slow_move 1
-exp 3
-walk_on 1
-x 6
-y 9
-end
-arch water_lt3
-terrain_type 1
+arch water_lt2
 x 6
 y 10
 end
-arch mover
-x 6
-y 10
-end
-arch damager
-name drowning
-dam 2
-attack_paralyze 10
-attack_confusion 10
-attack_internal 100
-slow_move 1
-exp 3
-walk_on 1
-x 6
-y 10
-end
-arch water_lt4
-terrain_type 1
-x 6
-y 11
-end
-arch mover
+arch water_lt2
 x 6
 y 11
 end
 arch water_lt
-terrain_type 1
 x 6
 y 12
 end
-arch mover
-x 6
-y 12
-end
-arch water_lt2
-terrain_type 1
+arch water_lt
 x 6
 y 13
 end
-arch mover
-x 6
-y 13
-end
-arch water_lt3
-terrain_type 1
+arch floor_sand_d1
 x 6
 y 14
 end
-arch mover
+arch water_lt_m
+direction 2
 x 6
 y 14
 end
-arch damager
-name drowning
-dam 2
-attack_paralyze 10
-attack_confusion 10
-attack_internal 100
-slow_move 1
-exp 3
-walk_on 1
+arch floor_sand_d3
 x 6
-y 14
+y 15
 end
-arch water_lt2
-terrain_type 1
+arch water_lt2_m
+direction 2
 x 6
 y 15
 end
@@ -948,12 +605,7 @@ arch plant8
 x 6
 y 15
 end
-arch mover
-direction 8
-x 6
-y 15
-end
-arch water_lt2
+arch floor_sand_d3
 x 6
 y 16
 end
@@ -961,7 +613,7 @@ arch wall_cave1.121
 x 6
 y 16
 end
-arch water_lt
+arch floor_sand_d4
 x 6
 y 17
 end
@@ -969,7 +621,7 @@ arch wall_cave1b.161
 x 6
 y 17
 end
-arch water_lt
+arch floor_sand_d1
 x 7
 y 3
 end
@@ -977,7 +629,7 @@ arch wall_cave1b.121
 x 7
 y 3
 end
-arch water_lt4
+arch floor_sand_d1
 x 7
 y 4
 end
@@ -985,123 +637,58 @@ arch wall_cave1.161
 x 7
 y 4
 end
-arch water_lt3
-terrain_type 1
+arch floor_sand_d2
 x 7
 y 5
 end
-arch mover
-direction 8
+arch dirt_floor1
 x 7
 y 5
 end
-arch water_lt4
-terrain_type 1
+arch floor_sand_d2
 x 7
 y 6
 end
-arch mover
-direction 8
+arch water_lt_m
+direction 6
 x 7
 y 6
-end
-arch damager
-name drowning
-dam 1
-attack_paralyze 10
-attack_confusion 10
-attack_internal 100
-slow_move 1
-exp 3
-walk_on 1
-x 7
-y 6
-end
-arch water_lt2
-terrain_type 1
-x 7
-y 7
-end
-arch mover
-direction 8
-x 7
-y 7
 end
 arch water_lt3
-terrain_type 1
+x 7
+y 7
+end
+arch water_lt2
 x 7
 y 8
 end
-arch mover
-x 7
-y 8
-end
-arch water_lt2
-terrain_type 1
-x 7
-y 9
-end
-arch mover
-x 7
-y 9
-end
-arch damager
-name drowning
-dam 2
-attack_paralyze 10
-attack_confusion 10
-attack_internal 100
-slow_move 1
-exp 3
-walk_on 1
-x 7
-y 9
-end
-arch water_lt2
-terrain_type 1
-x 7
-y 10
-end
-arch mover
-x 7
-y 10
-end
-arch damager
-name drowning
-dam 1
-attack_paralyze 10
-attack_confusion 10
-attack_internal 100
-slow_move 1
-exp 3
-walk_on 1
-x 7
-y 10
-end
 arch water_lt4
-terrain_type 1
+x 7
+y 9
+end
+arch water_lt3
+x 7
+y 10
+end
+arch floor_sand_d1
 x 7
 y 11
 end
-arch mover
+arch water_lt_m
+direction 8
 x 7
 y 11
 end
-arch water_lt4
-terrain_type 1
+arch floor_sand_d4
 x 7
 y 12
 end
-arch mover
+arch water_lt_m
+direction 6
 x 7
 y 12
 end
-arch water_lt
-terrain_type 1
-x 7
-y 13
-end
-arch mover
+arch water_lt3
 x 7
 y 13
 end
@@ -1110,52 +697,29 @@ race water_stream.ogg
 x 7
 y 13
 end
-arch water_lt4
-terrain_type 1
-x 7
-y 14
-end
-arch mover
-x 7
-y 14
-end
-arch damager
-name drowning
-dam 2
-attack_paralyze 10
-attack_confusion 10
-attack_internal 100
-slow_move 1
-exp 3
-walk_on 1
-x 7
-y 14
-end
 arch water_lt
-terrain_type 1
+x 7
+y 14
+end
+arch floor_sand_d3
 x 7
 y 15
 end
-arch mover
-direction 8
+arch water_lt_m
+direction 2
 x 7
 y 15
 end
-arch water_lt2
-terrain_type 1
+arch floor_sand_d4
 x 7
 y 16
 end
-arch plant7
+arch water_lt2_m
+direction 2
 x 7
 y 16
 end
-arch mover
-direction 8
-x 7
-y 16
-end
-arch water_lt2
+arch floor_sand_d4
 x 7
 y 17
 end
@@ -1163,7 +727,7 @@ arch wall_cave1.121
 x 7
 y 17
 end
-arch water_lt
+arch floor_sand_d1
 x 7
 y 18
 end
@@ -1171,7 +735,7 @@ arch wall_cave1b.161
 x 7
 y 18
 end
-arch water_lt
+arch floor_sand_d2
 x 8
 y 4
 end
@@ -1179,7 +743,7 @@ arch wall_cave1b.121
 x 8
 y 4
 end
-arch water_lt
+arch floor_sand_d3
 x 8
 y 5
 end
@@ -1187,8 +751,7 @@ arch wall_cave1.161
 x 8
 y 5
 end
-arch water_lt4
-terrain_type 1
+arch floor_sand_d2
 x 8
 y 6
 end
@@ -1196,143 +759,99 @@ arch plant7
 x 8
 y 6
 end
-arch mover
-direction 8
-x 8
-y 6
-end
-arch damager
-name drowning
-dam 2
-attack_paralyze 10
-attack_confusion 10
-attack_internal 100
-slow_move 1
-exp 3
-walk_on 1
-x 8
-y 6
-end
-arch water_lt2
-terrain_type 1
+arch floor_sand_d3
 x 8
 y 7
 end
-arch plant8
+arch water_lt2_m
+direction 7
 x 8
 y 7
 end
-arch mover
-direction 8
-x 8
-y 7
-end
-arch water_lt
-terrain_type 1
+arch floor_sand_d4
 x 8
 y 8
 end
-arch mover
+arch water_lt2_m
+direction 7
 x 8
 y 8
 end
-arch water_lt
-terrain_type 1
+arch floor_sand_d4
 x 8
 y 9
 end
-arch mover
+arch water_lt2_m
+direction 7
 x 8
 y 9
 end
-arch water_lt
-terrain_type 1
+arch floor_sand_d3
 x 8
 y 10
 end
-arch mover
+arch water_lt_m
+direction 7
 x 8
 y 10
 end
-arch water_lt
-terrain_type 1
+arch floor_sand_d1
 x 8
 y 11
 end
-arch mover
+arch water_lt2_m
+direction 8
 x 8
 y 11
+end
+arch floor_sand_d4
+x 8
+y 12
+end
+arch stone1
+x 8
+y 12
+end
+arch floor_sand_d1
+x 8
+y 13
+end
+arch water_lt_m
+direction 6
+x 8
+y 13
 end
 arch water_lt2
-terrain_type 1
-x 8
-y 12
-end
-arch mover
-x 8
-y 12
-end
-arch water_lt
-terrain_type 1
-x 8
-y 13
-end
-arch mover
-x 8
-y 13
-end
-arch water_lt3
-terrain_type 1
-x 8
-y 14
-end
-arch mover
 x 8
 y 14
 end
 arch water_lt4
-terrain_type 1
 x 8
 y 15
 end
-arch mover
-direction 8
-x 8
-y 15
-end
-arch damager
-name drowning
-dam 1
-attack_paralyze 10
-attack_confusion 10
-attack_internal 100
-slow_move 1
-exp 3
-walk_on 1
-x 8
-y 15
-end
-arch water_lt4
-terrain_type 1
+arch floor_sand_d4
 x 8
 y 16
 end
-arch mover
-direction 8
+arch water_lt_m
+direction 2
 x 8
 y 16
 end
-arch water_lt
-terrain_type 1
+arch floor_sand_d2
 x 8
 y 17
 end
-arch mover
-direction 8
+arch water_lt2_m
+direction 2
 x 8
 y 17
 end
-arch water_lt
+arch plant_mushroom3
+x 8
+y 17
+end
+arch floor_sand_d4
 x 8
 y 18
 end
@@ -1340,7 +859,7 @@ arch wall_cave1.121
 x 8
 y 18
 end
-arch water_lt3
+arch floor_sand_d3
 x 8
 y 19
 end
@@ -1348,7 +867,7 @@ arch wall_cave1b.161
 x 8
 y 19
 end
-arch water_lt4
+arch floor_sand_d3
 x 9
 y 5
 end
@@ -1356,7 +875,7 @@ arch wall_cave1b.121
 x 9
 y 5
 end
-arch water_lt2
+arch floor_sand_d2
 x 9
 y 6
 end
@@ -1364,17 +883,11 @@ arch wall_cave1.161
 x 9
 y 6
 end
-arch water_lt2
-terrain_type 1
+arch floor_sand_d1
 x 9
 y 7
 end
 arch plant7
-x 9
-y 7
-end
-arch mover
-direction 8
 x 9
 y 7
 end
@@ -1382,13 +895,13 @@ arch spawn_point
 x 9
 y 7
 arch bat_brown
-level 8
+level 12
 wis 4
 type 83
+direction 6
 end
 end
-arch water_lt4
-terrain_type 1
+arch floor_sand_d2
 x 9
 y 8
 end
@@ -1396,51 +909,35 @@ arch plant7
 x 9
 y 8
 end
-arch mover
-x 9
-y 8
-end
-arch water_lt4
-terrain_type 1
+arch floor_sand_d2
 x 9
 y 9
 end
-arch mover
+arch rock6
 x 9
 y 9
 end
-arch damager
-name drowning
-dam 1
-attack_paralyze 10
-attack_confusion 10
-attack_internal 100
-slow_move 1
-exp 3
-walk_on 1
-x 9
-y 9
-end
-arch water_lt
-terrain_type 1
+arch floor_sand_d3
 x 9
 y 10
 end
-arch mover
+arch stone1
 x 9
 y 10
 end
-arch water_lt
-terrain_type 1
+arch floor_sand_d3
 x 9
 y 11
 end
-arch mover
+arch mushroom_spot2
 x 9
 y 11
 end
-arch water_lt3
-terrain_type 1
+arch light2
+x 9
+y 11
+end
+arch floor_sand_d3
 x 9
 y 12
 end
@@ -1448,105 +945,54 @@ arch plant8
 x 9
 y 12
 end
-arch mover
-x 9
-y 12
-end
-arch damager
-name drowning
-dam 2
-attack_paralyze 10
-attack_confusion 10
-attack_internal 100
-slow_move 1
-exp 3
-walk_on 1
-x 9
-y 12
-end
-arch water_lt2
-terrain_type 1
+arch floor_sand_d2
 x 9
 y 13
 end
-arch mover
+arch mushroom_giant3
 x 9
 y 13
 end
-arch water_lt4
-terrain_type 1
+arch floor_sand_d4
 x 9
 y 14
 end
-arch mover
+arch water_lt_m
+direction 6
 x 9
 y 14
-end
-arch damager
-name drowning
-dam 2
-attack_paralyze 10
-attack_confusion 10
-attack_internal 100
-slow_move 1
-exp 3
-walk_on 1
-x 9
-y 14
-end
-arch water_lt4
-terrain_type 1
-x 9
-y 15
-end
-arch mover
-direction 8
-x 9
-y 15
 end
 arch water_lt2
-terrain_type 1
 x 9
-y 16
-end
-arch mover
-direction 8
-x 9
-y 16
-end
-arch water_lt2
-terrain_type 1
-x 9
-y 17
-end
-arch mover
-direction 8
-x 9
-y 17
+y 15
 end
 arch water_lt3
-terrain_type 1
+x 9
+y 16
+end
+arch floor_sand_d2
+x 9
+y 17
+end
+arch water_lt_m
+direction 2
+x 9
+y 17
+end
+arch floor_sand_d2
 x 9
 y 18
 end
-arch mover
-direction 8
+arch water_lt2_m
+direction 2
 x 9
 y 18
 end
-arch damager
-name drowning
-dam 1
-attack_paralyze 10
-attack_confusion 10
-attack_internal 100
-slow_move 1
-exp 3
-walk_on 1
+arch plant7
 x 9
 y 18
 end
-arch water_lt
+arch floor_sand_d3
 x 9
 y 19
 end
@@ -1554,7 +1000,7 @@ arch wall_cave1.121
 x 9
 y 19
 end
-arch water_lt3
+arch floor_sand_d2
 x 9
 y 20
 end
@@ -1562,7 +1008,7 @@ arch wall_cave1b.161
 x 9
 y 20
 end
-arch water_lt3
+arch floor_sand_d1
 x 10
 y 6
 end
@@ -1570,7 +1016,7 @@ arch wall_cave1b.121
 x 10
 y 6
 end
-arch water_lt2
+arch floor_sand_d4
 x 10
 y 7
 end
@@ -1578,7 +1024,7 @@ arch wall_cave1.131
 x 10
 y 7
 end
-arch water_lt
+arch floor_sand_d4
 x 10
 y 8
 end
@@ -1586,7 +1032,7 @@ arch wall_cave1.131
 x 10
 y 8
 end
-arch water_lt2
+arch floor_sand_d3
 x 10
 y 9
 end
@@ -1594,7 +1040,7 @@ arch wall_cave1.131
 x 10
 y 9
 end
-arch water_lt2
+arch floor_sand_d4
 x 10
 y 10
 end
@@ -1602,7 +1048,7 @@ arch wall_cave1.131
 x 10
 y 10
 end
-arch water_lt4
+arch floor_sand_d2
 x 10
 y 11
 end
@@ -1610,7 +1056,7 @@ arch wall_cave1.131
 x 10
 y 11
 end
-arch water_lt4
+arch floor_sand_d4
 x 10
 y 12
 end
@@ -1618,7 +1064,7 @@ arch wall_cave1.131
 x 10
 y 12
 end
-arch water_lt3
+arch floor_sand_d3
 x 10
 y 13
 end
@@ -1626,7 +1072,7 @@ arch wall_cave1.131
 x 10
 y 13
 end
-arch water_lt3
+arch floor_sand_d3
 x 10
 y 14
 end
@@ -1634,309 +1080,192 @@ arch wall_cave1.161
 x 10
 y 14
 end
-arch water_lt4
-terrain_type 1
+arch floor_sand_d4
 x 10
 y 15
 end
-arch plant7
+arch water_lt_m
+direction 6
 x 10
 y 15
-end
-arch mover
-direction 8
-x 10
-y 15
-end
-arch water_lt4
-terrain_type 1
-x 10
-y 16
-end
-arch mover
-direction 8
-x 10
-y 16
-end
-arch damager
-name drowning
-dam 1
-attack_paralyze 10
-attack_confusion 10
-attack_internal 100
-slow_move 1
-exp 3
-walk_on 1
-x 10
-y 16
-end
-arch water_lt
-terrain_type 1
-x 10
-y 17
-end
-arch mover
-direction 8
-x 10
-y 17
-end
-arch damager
-name drowning
-dam 2
-attack_paralyze 10
-attack_confusion 10
-attack_internal 100
-slow_move 1
-exp 3
-walk_on 1
-x 10
-y 17
-end
-arch water_lt2
-terrain_type 1
-x 10
-y 18
-end
-arch mover
-direction 8
-x 10
-y 18
-end
-arch water_lt2
-terrain_type 1
-x 10
-y 19
-end
-arch plant7
-x 10
-y 19
-end
-arch mover
-direction 8
-x 10
-y 19
-end
-arch damager
-name drowning
-dam 1
-attack_paralyze 10
-attack_confusion 10
-attack_internal 100
-slow_move 1
-exp 3
-walk_on 1
-x 10
-y 19
-end
-arch water_lt3
-x 10
-y 20
-end
-arch wall_cave1.121
-x 10
-y 20
-end
-arch water_lt3
-x 10
-y 21
-end
-arch wall_cave1b.161
-x 10
-y 21
-end
-arch water_lt3
-x 11
-y 14
-end
-arch wall_cave1b.121
-x 11
-y 14
-end
-arch water_lt3
-x 11
-y 15
-end
-arch wall_cave1.161
-x 11
-y 15
-end
-arch water_lt
-terrain_type 1
-x 11
-y 16
-end
-arch mover
-direction 8
-x 11
-y 16
-end
-arch water_lt
-terrain_type 1
-x 11
-y 17
-end
-arch mover
-direction 8
-x 11
-y 17
-end
-arch water_lt2
-terrain_type 1
-x 11
-y 18
-end
-arch mover
-direction 8
-x 11
-y 18
-end
-arch damager
-name drowning
-dam 1
-attack_paralyze 10
-attack_confusion 10
-attack_internal 100
-slow_move 1
-exp 3
-walk_on 1
-x 11
-y 18
-end
-arch water_lt4
-terrain_type 1
-x 11
-y 19
-end
-arch mover
-direction 8
-x 11
-y 19
-end
-arch water_lt3
-terrain_type 1
-x 11
-y 20
-end
-arch plant7
-x 11
-y 20
-end
-arch mover
-direction 8
-x 11
-y 20
-end
-arch water_lt3
-x 11
-y 21
-end
-arch wall_cave1.121
-x 11
-y 21
-end
-arch water_lt2
-x 11
-y 22
-end
-arch wall_cave1b.161
-x 11
-y 22
-end
-arch water_lt
-x 12
-y 15
-end
-arch wall_cave1b.121
-x 12
-y 15
-end
-arch water_lt4
-x 12
-y 16
-end
-arch wall_cave1.161
-x 12
-y 16
-end
-arch water_lt2
-terrain_type 1
-x 12
-y 17
-end
-arch mover
-direction 8
-x 12
-y 17
-end
-arch damager
-name drowning
-dam 2
-attack_paralyze 10
-attack_confusion 10
-attack_internal 100
-slow_move 1
-exp 3
-walk_on 1
-x 12
-y 17
-end
-arch water_lt4
-terrain_type 1
-x 12
-y 18
-end
-arch mover
-direction 8
-x 12
-y 18
-end
-arch water_lt2
-terrain_type 1
-x 12
-y 19
-end
-arch mover
-direction 8
-x 12
-y 19
-end
-arch water_lt3
-terrain_type 1
-x 12
-y 20
-end
-arch mover
-direction 8
-x 12
-y 20
-end
-arch damager
-name drowning
-dam 2
-attack_paralyze 10
-attack_confusion 10
-attack_internal 100
-slow_move 1
-exp 3
-walk_on 1
-x 12
-y 20
-end
-arch water_lt3
-terrain_type 1
-x 12
-y 21
 end
 arch plant8
+x 10
+y 15
+end
+arch water_lt2
+x 10
+y 16
+end
+arch water_lt3
+x 10
+y 17
+end
+arch floor_sand_d2
+x 10
+y 18
+end
+arch water_lt_m
+direction 2
+x 10
+y 18
+end
+arch floor_sand_d3
+x 10
+y 19
+end
+arch water_lt2_m
+direction 2
+x 10
+y 19
+end
+arch floor_sand_d4
+x 10
+y 20
+end
+arch wall_cave1.121
+x 10
+y 20
+end
+arch floor_sand_d1
+x 10
+y 21
+end
+arch wall_cave1b.161
+x 10
+y 21
+end
+arch floor_sand_d2
+x 11
+y 14
+end
+arch wall_cave1b.121
+x 11
+y 14
+end
+arch floor_sand_d4
+x 11
+y 15
+end
+arch wall_cave1.161
+x 11
+y 15
+end
+arch floor_sand_d2
+x 11
+y 16
+end
+arch water_lt_m
+direction 6
+x 11
+y 16
+end
+arch plant7
+x 11
+y 16
+end
+arch water_lt2
+x 11
+y 17
+end
+arch water_lt2
+x 11
+y 18
+end
+arch floor_sand_d4
+x 11
+y 19
+end
+arch water_lt_m
+direction 2
+x 11
+y 19
+end
+arch floor_sand_d4
+x 11
+y 20
+end
+arch water_lt2_m
+direction 2
+x 11
+y 20
+end
+arch plant_mushroom3
+x 11
+y 20
+end
+arch floor_sand_d3
+x 11
+y 21
+end
+arch wall_cave1.121
+x 11
+y 21
+end
+arch floor_sand_d4
+x 11
+y 22
+end
+arch wall_cave1b.161
+x 11
+y 22
+end
+arch floor_sand_d2
+x 12
+y 15
+end
+arch wall_cave1b.121
+x 12
+y 15
+end
+arch floor_sand_d3
+x 12
+y 16
+end
+arch wall_cave1.161
+x 12
+y 16
+end
+arch floor_sand_d2
+x 12
+y 17
+end
+arch water_lt_m
+direction 6
+x 12
+y 17
+end
+arch water_lt3
+x 12
+y 18
+end
+arch water_lt4
+x 12
+y 19
+end
+arch floor_sand_d3
+x 12
+y 20
+end
+arch water_lt_m
+direction 2
+x 12
+y 20
+end
+arch floor_sand_d4
 x 12
 y 21
 end
-arch mover
-direction 8
+arch water_lt2_m
+direction 2
 x 12
 y 21
 end
-arch water_lt
+arch stone1
+x 12
+y 21
+end
+arch floor_sand_d4
 x 12
 y 22
 end
@@ -1944,7 +1273,7 @@ arch wall_cave1.121
 x 12
 y 22
 end
-arch water_lt2
+arch floor_sand_d4
 x 12
 y 23
 end
@@ -1952,7 +1281,7 @@ arch wall_cave1.171
 x 12
 y 23
 end
-arch water_lt3
+arch floor_sand_d3
 x 13
 y 16
 end
@@ -1960,7 +1289,7 @@ arch wall_cave1b.121
 x 13
 y 16
 end
-arch water_lt3
+arch floor_sand_d4
 x 13
 y 17
 end
@@ -1968,118 +1297,52 @@ arch wall_cave1.161
 x 13
 y 17
 end
-arch water_lt3
-terrain_type 1
+arch floor_sand_d3
 x 13
 y 18
 end
-arch mover
-direction 8
+arch water_lt2_m
+direction 7
 x 13
 y 18
-end
-arch damager
-name drowning
-dam 1
-attack_paralyze 10
-attack_confusion 10
-attack_internal 100
-slow_move 1
-exp 3
-walk_on 1
-x 13
-y 18
-end
-arch water_lt2
-terrain_type 1
-x 13
-y 19
-end
-arch mover
-direction 8
-x 13
-y 19
-end
-arch damager
-name drowning
-dam 1
-attack_paralyze 10
-attack_confusion 10
-attack_internal 100
-slow_move 1
-exp 3
-walk_on 1
-x 13
-y 19
-end
-arch water_lt4
-terrain_type 1
-x 13
-y 20
-end
-arch mover
-direction 8
-x 13
-y 20
-end
-arch damager
-name drowning
-dam 1
-attack_paralyze 10
-attack_confusion 10
-attack_internal 100
-slow_move 1
-exp 3
-walk_on 1
-x 13
-y 20
-end
-arch sound_ambient
-race water_stream.ogg
-x 13
-y 20
-end
-arch water_lt2
-terrain_type 1
-x 13
-y 21
-end
-arch mover
-direction 8
-x 13
-y 21
-end
-arch damager
-name drowning
-dam 2
-attack_paralyze 10
-attack_confusion 10
-attack_internal 100
-slow_move 1
-exp 3
-walk_on 1
-x 13
-y 21
-end
-arch water_lt2
-terrain_type 1
-x 13
-y 22
-end
-arch plant7
-x 13
-y 22
-end
-arch mover
-direction 8
-x 13
-y 22
 end
 arch floor_sand_d1
 x 13
-y 23
+y 19
 end
 arch water_lt_m
+direction 6
+x 13
+y 19
+end
+arch water_lt3
+x 13
+y 20
+end
+arch sound_ambient
+race water_stream.ogg
+x 13
+y 20
+end
+arch floor_sand_d1
+x 13
+y 21
+end
+arch water_lt_m
+direction 2
+x 13
+y 21
+end
+arch floor_sand_d2
+x 13
+y 22
+end
+arch water_lt2_m
+direction 2
+x 13
+y 22
+end
+arch floor_sand_d4
 x 13
 y 23
 end
@@ -2087,7 +1350,7 @@ arch cave_pillar4
 x 13
 y 23
 end
-arch water_lt2
+arch floor_sand_d2
 x 14
 y 17
 end
@@ -2095,7 +1358,7 @@ arch wall_cave1b.121
 x 14
 y 17
 end
-arch water_lt3
+arch floor_sand_d4
 x 14
 y 18
 end
@@ -2103,8 +1366,12 @@ arch wall_cave1.161
 x 14
 y 18
 end
-arch water_lt
-terrain_type 1
+arch floor_sand_d3
+x 14
+y 19
+end
+arch water_lt2_m
+direction 5
 x 14
 y 19
 end
@@ -2112,286 +1379,153 @@ arch plant7
 x 14
 y 19
 end
-arch mover
-direction 8
-x 14
-y 19
-end
-arch water_lt2
-terrain_type 1
-x 14
-y 20
-end
-arch mover
-direction 8
-x 14
-y 20
-end
-arch water_lt2
-terrain_type 1
-x 14
-y 21
-end
-arch mover
-direction 8
-x 14
-y 21
-end
-arch damager
-name drowning
-dam 2
-attack_paralyze 10
-attack_confusion 10
-attack_internal 100
-slow_move 1
-exp 3
-walk_on 1
-x 14
-y 21
-end
-arch water_lt4
-terrain_type 1
-x 14
-y 22
-end
-arch mover
-direction 8
-x 14
-y 22
-end
-arch water_lt4
-terrain_type 1
-x 14
-y 23
-end
-arch mover
-direction 8
-x 14
-y 23
-end
-arch water_lt4
-x 15
-y 18
-end
-arch wall_cave1b.121
-x 15
-y 18
-end
-arch water_lt3
-x 15
-y 19
-end
-arch wall_cave1.161
-x 15
-y 19
-end
 arch water_lt
-terrain_type 1
-x 15
-y 20
-end
-arch mover
-direction 8
-x 15
-y 20
-end
-arch damager
-name drowning
-dam 2
-attack_paralyze 10
-attack_confusion 10
-attack_internal 100
-slow_move 1
-exp 3
-walk_on 1
-x 15
-y 20
-end
-arch water_lt2
-terrain_type 1
-x 15
-y 21
-end
-arch mover
-direction 8
-x 15
-y 21
-end
-arch damager
-name drowning
-dam 1
-attack_paralyze 10
-attack_confusion 10
-attack_internal 100
-slow_move 1
-exp 3
-walk_on 1
-x 15
-y 21
-end
-arch water_lt3
-terrain_type 1
-x 15
-y 22
-end
-arch mover
-direction 8
-x 15
-y 22
-end
-arch damager
-name drowning
-dam 2
-attack_paralyze 10
-attack_confusion 10
-attack_internal 100
-slow_move 1
-exp 3
-walk_on 1
-x 15
-y 22
-end
-arch water_lt
-terrain_type 1
-x 15
-y 23
-end
-arch mover
-direction 8
-x 15
-y 23
-end
-arch damager
-name drowning
-dam 1
-attack_paralyze 10
-attack_confusion 10
-attack_internal 100
-slow_move 1
-exp 3
-walk_on 1
-x 15
-y 23
-end
-arch water_lt3
-x 16
-y 19
-end
-arch wall_cave1b.121
-x 16
-y 19
-end
-arch water_lt
-x 16
-y 20
-end
-arch wall_cave1.161
-x 16
+x 14
 y 20
 end
 arch water_lt3
-terrain_type 1
-x 16
-y 21
-end
-arch mover
-direction 8
-x 16
-y 21
-end
-arch water_lt
-terrain_type 1
-x 16
-y 22
-end
-arch mover
-direction 8
-x 16
-y 22
-end
-arch water_lt
-terrain_type 1
-x 16
-y 23
-end
-arch mover
-direction 8
-x 16
-y 23
-end
-arch water_lt
-x 17
-y 20
-end
-arch wall_cave1b.121
-x 17
-y 20
-end
-arch water_lt3
-x 17
-y 21
-end
-arch wall_cave1.161
-x 17
-y 21
-end
-arch water_lt
-terrain_type 1
-x 17
-y 22
-end
-arch mover
-direction 8
-x 17
-y 22
-end
-arch damager
-name drowning
-dam 1
-attack_paralyze 10
-attack_confusion 10
-attack_internal 100
-slow_move 1
-exp 3
-walk_on 1
-x 17
-y 22
-end
-arch water_lt
-terrain_type 1
-x 17
-y 23
-end
-arch mover
-direction 8
-x 17
-y 23
-end
-arch damager
-name drowning
-dam 2
-attack_paralyze 10
-attack_confusion 10
-attack_internal 100
-slow_move 1
-exp 3
-walk_on 1
-x 17
-y 23
-end
-arch water_lt4
-x 18
-y 21
-end
-arch wall_cave1b.121
-x 18
+x 14
 y 21
 end
 arch floor_sand_d2
-x 18
+x 14
 y 22
 end
 arch water_lt_m
+direction 2
+x 14
+y 22
+end
+arch floor_sand_d2
+x 14
+y 23
+end
+arch water_lt_m
+direction 3
+x 14
+y 23
+end
+arch plant7
+x 14
+y 23
+end
+arch floor_sand_d2
+x 15
+y 18
+end
+arch wall_cave1b.121
+x 15
+y 18
+end
+arch floor_sand_d3
+x 15
+y 19
+end
+arch wall_cave1.161
+x 15
+y 19
+end
+arch floor_sand_d2
+x 15
+y 20
+end
+arch water_lt_m
+direction 6
+x 15
+y 20
+end
+arch water_lt3
+x 15
+y 21
+end
+arch water_lt2
+x 15
+y 22
+end
+arch water_lt4
+x 15
+y 23
+end
+arch floor_sand_d4
+x 16
+y 19
+end
+arch wall_cave1b.121
+x 16
+y 19
+end
+arch floor_sand_d1
+x 16
+y 20
+end
+arch wall_cave1.161
+x 16
+y 20
+end
+arch floor_sand_d2
+x 16
+y 21
+end
+arch water_lt_m
+direction 7
+x 16
+y 21
+end
+arch floor_sand_d3
+x 16
+y 22
+end
+arch water_lt_m
+direction 6
+x 16
+y 22
+end
+arch water_lt3
+x 16
+y 23
+end
+arch floor_sand_d1
+x 17
+y 20
+end
+arch wall_cave1b.121
+x 17
+y 20
+end
+arch floor_sand_d3
+x 17
+y 21
+end
+arch wall_cave1.161
+x 17
+y 21
+end
+arch floor_sand_d4
+x 17
+y 22
+end
+arch plant_mushroom1
+x 17
+y 22
+end
+arch floor_sand_d3
+x 17
+y 23
+end
+arch water_lt2_m
+direction 7
+x 17
+y 23
+end
+arch floor_sand_d2
+x 18
+y 21
+end
+arch wall_cave1b.121
+x 18
+y 21
+end
+arch floor_sand_d4
 x 18
 y 22
 end
@@ -2399,8 +1533,7 @@ arch cave_pillar3
 x 18
 y 22
 end
-arch water_lt4
-terrain_type 1
+arch floor_sand_d2
 x 18
 y 23
 end
@@ -2408,24 +1541,7 @@ arch plant7
 x 18
 y 23
 end
-arch mover
-direction 8
-x 18
-y 23
-end
-arch damager
-name drowning
-dam 2
-attack_paralyze 10
-attack_confusion 10
-attack_internal 100
-slow_move 1
-exp 3
-walk_on 1
-x 18
-y 23
-end
-arch water_lt3
+arch floor_sand_d2
 x 19
 y 22
 end
@@ -2433,7 +1549,7 @@ arch wall_cave1b.121
 x 19
 y 22
 end
-arch water_lt
+arch floor_sand_d4
 x 19
 y 23
 end

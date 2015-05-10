@@ -2,7 +2,7 @@ arch map
 name Strakewood Island
 msg
 Created:  2009-09-10 Alex Tokar
-Modified: 2015-05-04 Alex Tokar
+Modified: 2015-05-10 Alex Tokar
 endmsg
 width 24
 height 24
@@ -3089,6 +3089,16 @@ x 20
 y 6
 end
 arch grassd_1
+x 20
+y 7
+end
+arch marker3
+msg
+North: Abandonded Mine
+East: Aris
+South: The City of Greyton
+endmsg
+direction 3
 x 20
 y 7
 end
