@@ -177,7 +177,12 @@ static void add_object_to_packet(packet_struct *packet, object *op, object *pl,
 
     if (flags & UPD_ANIM) {
         packet_debug_data(packet, level, "Animation");
-        packet_append_uint16(packet, op->animation_id);
+
+        if (QUERY_FLAG(op, FLAG_ANIMATE)) {
+            packet_append_uint16(packet, op->animation_id);
+        } else {
+            packet_append_uint16(packet, 0);
+        }
     }
 
     if (flags & UPD_ANIMSPEED) {
