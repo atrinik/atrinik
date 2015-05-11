@@ -1343,7 +1343,7 @@ void draw_client_map2(object *pl)
                         tag_t target_object_count = 0;
                         uint8_t anim_speed, anim_facing, anim_flags;
                         uint8_t client_flags;
-                        int is_friend;
+                        int is_friend = 0;
 
                         face_obj = NULL;
                         anim_speed = anim_facing = anim_flags = 0;
