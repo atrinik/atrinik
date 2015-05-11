@@ -262,6 +262,12 @@ quality 80
 type 4
 end
 
+material_real 141
+name amber
+quality 80
+type 4
+end
+
 material_real 193
 name soft leather
 quality 80
