@@ -11,7 +11,7 @@ class ThievesBountyEraser(InterfaceBuilder):
             faction = faction.strip()
             bounty = self._activator.Controller().FactionGetBounty(faction)
 
-            if bounty >= 0.0:
+            if bounty < 0.000001:
                 continue
 
             d[faction] = bounty
@@ -20,7 +20,7 @@ class ThievesBountyEraser(InterfaceBuilder):
 
     @staticmethod
     def get_price(bounty):
-        return int(-bounty * 35.0)
+        return int(bounty * 35.0)
 
     @staticmethod
     def get_faction_name(faction):
@@ -37,7 +37,7 @@ class ThievesBountyEraser(InterfaceBuilder):
             self.add_msg("Psst! If you need help with the guards, I can help with you with that:")
 
             for faction in bounties:
-                self.add_link("Remove {bounty:0.2f} bounty from {faction}".format(bounty=-bounties[faction], faction=self.get_faction_name(faction)), dest=faction)
+                self.add_link("Remove {bounty:0.2f} bounty from {faction}".format(bounty=bounties[faction], faction=self.get_faction_name(faction)), dest=faction)
 
     def dialog(self, msg):
         """Handle removing the bounty."""

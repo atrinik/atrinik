@@ -32,6 +32,9 @@
 #ifndef FACTION_H
 #define FACTION_H
 
+/**
+ * Pointer to a faction structure.
+ */
 typedef struct faction * faction_t;
 
 /* Prototypes */
