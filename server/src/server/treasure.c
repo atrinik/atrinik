@@ -2400,6 +2400,10 @@ void free_all_treasures(void)
  * @param change_arch Change arch. */
 static void set_material_real(object *op, struct _change_arch *change_arch)
 {
+    if (op->type == MONEY) {
+        return;
+    }
+
     if (change_arch->item_race != -1) {
         op->item_race = (uint8_t) change_arch->item_race;
     }
