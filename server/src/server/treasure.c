@@ -40,7 +40,7 @@
 
 /** All the coin arches. */
 char *coins[NUM_COINS + 1] = {
-    "mitcoin",
+    "mithrilcoin",
     "goldcoin",
     "silvercoin",
     "coppercoin",

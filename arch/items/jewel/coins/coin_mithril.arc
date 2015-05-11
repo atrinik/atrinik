@@ -1,9 +1,9 @@
-Object mitcoin
+Object mithrilcoin
 name coin
 identified 1
 layer 3
 race gold and jewels
-face mit_coin.101
+face mithrilcoin.101
 nrof 1
 type 36
 item_quality 100
