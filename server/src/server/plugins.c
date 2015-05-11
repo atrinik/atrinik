@@ -39,7 +39,7 @@ static void unregister_global_event(const char *plugin_name, int event_nr);
 
 /** The actual hooklist. */
 struct plugin_hooklist hooklist = {
-#undef PLUGIN_HOOK_DECLARATIONS
+#define PLUGIN_HOOK_DEFINITIONS
 #include <plugin_hooks.h>
 };
 

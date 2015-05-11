@@ -31,16 +31,19 @@
 #undef PLUGIN_HOOK_VARIABLE
 #undef PLUGIN_HOOK_ARRAY
 
-#ifdef PLUGIN_HOOK_DECLARATIONS
+#if defined(PLUGIN_HOOK_DEFINITIONS)
+#   define PLUGIN_HOOK_FUNCTION(ret, id, ...) id,
+#   define PLUGIN_HOOK_VARIABLE(ret, id) &id,
+#   define PLUGIN_HOOK_ARRAY(type, id) id,
+#elif defined(PLUGIN_HOOK_DECLARATIONS)
 #   define PLUGIN_HOOK_FUNCTION(type, id, ...) type(*id)(__VA_ARGS__);
 #   define PLUGIN_HOOK_VARIABLE(type, id) type *id;
 #   define PLUGIN_HOOK_ARRAY(type, id) type *id;
 #else
-#   define PLUGIN_HOOK_FUNCTION(ret, id, ...) id,
-#   define PLUGIN_HOOK_VARIABLE(ret, id) &id,
-#   define PLUGIN_HOOK_ARRAY(type, id) id,
+#   define PLUGIN_HOOK_NONE
 #endif
 
+#ifndef PLUGIN_HOOK_NONE
 PLUGIN_HOOK_FUNCTION(char *, query_name, object *, object *)
 PLUGIN_HOOK_FUNCTION(const char *, re_cmp, const char *, const char *)
 PLUGIN_HOOK_FUNCTION(object *, present_in_ob, unsigned char, object *)
@@ -239,3 +242,5 @@ PLUGIN_HOOK_VARIABLE(party_struct *, first_party)
 PLUGIN_HOOK_VARIABLE(region_struct *, first_region)
 PLUGIN_HOOK_VARIABLE(long, pticks)
 PLUGIN_HOOK_VARIABLE(settings_struct, settings)
+
+#endif
