@@ -729,8 +729,8 @@ extern void print_tod(object *op);
 extern void time_info(object *op);
 extern long seconds(void);
 /* src/server/treasure.c */
-extern char *coins[4 + 1];
-extern archetype *coins_arch[4];
+extern char *coins[6 + 1];
+extern archetype *coins_arch[6];
 extern void load_treasures(void);
 extern void init_artifacts(void);
 extern void init_archetype_pointers(void);

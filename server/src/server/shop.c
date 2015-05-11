@@ -583,9 +583,15 @@ int get_money_from_string(const char *text, struct _money_block *money)
 
                 len = strlen(word);
 
-                if (!strncasecmp("mithril", word, len)) {
+                if (!strncasecmp("amber", word, len)) {
+                    money->mode = MONEYSTRING_AMOUNT;
+                    money->amber += value;
+                } else if (!strncasecmp("mithril", word, len)) {
                     money->mode = MONEYSTRING_AMOUNT;
                     money->mithril += value;
+                } else if (!strncasecmp("jade", word, len)) {
+                    money->mode = MONEYSTRING_AMOUNT;
+                    money->jade += value;
                 } else if (!strncasecmp("gold", word, len)) {
                     money->mode = MONEYSTRING_AMOUNT;
                     money->gold += value;
@@ -655,6 +661,7 @@ int64_t remove_money_type(object *who, object *op, int64_t value, int64_t amount
                 }
 
                 object_remove(tmp, 0);
+                object_destroy(tmp);
             } else {
                 tmp->nrof -= (uint32_t) amount;
                 amount = 0;
@@ -763,48 +770,73 @@ int bank_deposit(object *op, const char *text, int64_t *value)
         *value = remove_money_type(op, op, -1, 0);
         bank->value += *value;
     } else {
+        if (money.amber) {
+            if (query_money_type(op, coins_arch[0]->clone.value) < money.amber) {
+                return BANK_DEPOSIT_AMBER;
+            }
+        }
+
         if (money.mithril) {
-            if (query_money_type(op, coins_arch[0]->clone.value) < money.mithril) {
+            if (query_money_type(op, coins_arch[1]->clone.value) < money.mithril) {
                 return BANK_DEPOSIT_MITHRIL;
             }
         }
 
+        if (money.jade) {
+            if (query_money_type(op, coins_arch[2]->clone.value) < money.jade) {
+                return BANK_DEPOSIT_JADE;
+            }
+        }
+
         if (money.gold) {
-            if (query_money_type(op, coins_arch[1]->clone.value) < money.gold) {
+            if (query_money_type(op, coins_arch[3]->clone.value) < money.gold) {
                 return BANK_DEPOSIT_GOLD;
             }
         }
 
         if (money.silver) {
-            if (query_money_type(op, coins_arch[2]->clone.value) < money.silver) {
+            if (query_money_type(op, coins_arch[4]->clone.value) < money.silver) {
                 return BANK_DEPOSIT_SILVER;
             }
         }
 
         if (money.copper) {
-            if (query_money_type(op, coins_arch[3]->clone.value) < money.copper) {
+            if (query_money_type(op, coins_arch[5]->clone.value) < money.copper) {
                 return BANK_DEPOSIT_COPPER;
             }
         }
 
+        if (money.amber) {
+            remove_money_type(op, op, coins_arch[0]->clone.value, money.amber);
+        }
+
         if (money.mithril) {
-            remove_money_type(op, op, coins_arch[0]->clone.value, money.mithril);
+            remove_money_type(op, op, coins_arch[1]->clone.value, money.mithril);
+        }
+
+        if (money.jade) {
+            remove_money_type(op, op, coins_arch[2]->clone.value, money.jade);
         }
 
         if (money.gold) {
-            remove_money_type(op, op, coins_arch[1]->clone.value, money.gold);
+            remove_money_type(op, op, coins_arch[3]->clone.value, money.gold);
         }
 
         if (money.silver) {
-            remove_money_type(op, op, coins_arch[2]->clone.value, money.silver);
+            remove_money_type(op, op, coins_arch[4]->clone.value, money.silver);
         }
 
         if (money.copper) {
-            remove_money_type(op, op, coins_arch[3]->clone.value, money.copper);
+            remove_money_type(op, op, coins_arch[5]->clone.value, money.copper);
         }
 
         bank = bank_get_create_info(op);
-        *value = money.mithril * coins_arch[0]->clone.value + money.gold * coins_arch[1]->clone.value + money.silver * coins_arch[2]->clone.value + money.copper * coins_arch[3]->clone.value;
+        *value = money.amber * coins_arch[0]->clone.value +
+                money.mithril * coins_arch[1]->clone.value +
+                money.jade * coins_arch[2]->clone.value +
+                money.gold * coins_arch[3]->clone.value +
+                money.silver * coins_arch[4]->clone.value +
+                money.copper * coins_arch[5]->clone.value;
         bank->value += *value;
     }
 
@@ -841,34 +873,54 @@ int bank_withdraw(object *op, const char *text, int64_t *value)
         bank->value = 0;
     } else {
         /* Just to set a border. */
-        if (money.mithril > 100000 || money.gold > 100000 || money.silver > 1000000 || money.copper > 1000000) {
+        if (money.amber > 100000 || money.mithril > 100000 ||
+                money.jade > 100000 || money.gold > 100000 ||
+                money.silver > 1000000 || money.copper > 1000000) {
             return BANK_WITHDRAW_HIGH;
         }
 
-        big_value = money.mithril * coins_arch[0]->clone.value + money.gold * coins_arch[1]->clone.value + money.silver * coins_arch[2]->clone.value + money.copper * coins_arch[3]->clone.value;
+        big_value = money.amber * coins_arch[0]->clone.value +
+                money.mithril * coins_arch[1]->clone.value +
+                money.jade * coins_arch[2]->clone.value +
+                money.gold * coins_arch[3]->clone.value +
+                money.silver * coins_arch[4]->clone.value +
+                money.copper * coins_arch[5]->clone.value;
 
         if (big_value > bank->value) {
             return BANK_WITHDRAW_MISSING;
         }
 
-        if (!player_can_carry(op, money.mithril * coins_arch[0]->clone.weight + money.gold * coins_arch[1]->clone.weight + money.silver * coins_arch[2]->clone.weight + money.copper * coins_arch[3]->clone.weight)) {
+        if (!player_can_carry(op, money.amber * coins_arch[0]->clone.weight +
+                money.mithril * coins_arch[1]->clone.weight +
+                money.jade * coins_arch[2]->clone.weight +
+                money.gold * coins_arch[3]->clone.weight +
+                money.silver * coins_arch[4]->clone.weight +
+                money.copper * coins_arch[5]->clone.weight)) {
             return BANK_WITHDRAW_OVERWEIGHT;
         }
 
+        if (money.amber) {
+            insert_money_in_player(op, &coins_arch[0]->clone, money.amber);
+        }
+
         if (money.mithril) {
-            insert_money_in_player(op, &coins_arch[0]->clone, money.mithril);
+            insert_money_in_player(op, &coins_arch[1]->clone, money.mithril);
+        }
+
+        if (money.jade) {
+            insert_money_in_player(op, &coins_arch[2]->clone, money.jade);
         }
 
         if (money.gold) {
-            insert_money_in_player(op, &coins_arch[1]->clone, money.gold);
+            insert_money_in_player(op, &coins_arch[3]->clone, money.gold);
         }
 
         if (money.silver) {
-            insert_money_in_player(op, &coins_arch[2]->clone, money.silver);
+            insert_money_in_player(op, &coins_arch[4]->clone, money.silver);
         }
 
         if (money.copper) {
-            insert_money_in_player(op, &coins_arch[3]->clone, money.copper);
+            insert_money_in_player(op, &coins_arch[5]->clone, money.copper);
         }
 
         *value = big_value;

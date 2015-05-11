@@ -51,8 +51,14 @@ typedef struct _money_block {
     /** One of @ref MONEYSTRING_xxx. */
     int mode;
 
+    /** Number of amber coins. */
+    int64_t amber;
+
     /** Number of mithril coins. */
     int64_t mithril;
+
+    /** Number of jade coins. */
+    int64_t jade;
 
     /** Number of gold coins. */
     int64_t gold;
@@ -91,8 +97,12 @@ typedef struct _money_block {
 #define BANK_DEPOSIT_SILVER 2
 /** Player doesn't have enough gold coins on hand. */
 #define BANK_DEPOSIT_GOLD 3
+/** Player doesn't have enough jade coins on hand. */
+#define BANK_DEPOSIT_JADE 4
 /** Player doesn't have enough mithril coins on hand. */
 #define BANK_DEPOSIT_MITHRIL 4
+/** Player doesn't have enough amber coins on hand. */
+#define BANK_DEPOSIT_AMBER 4
 /*@}*/
 
 #define POW2(x) ((x) * (x))

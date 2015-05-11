@@ -33,7 +33,7 @@
 #define CHANCE_FOR_ARTIFACT 20
 
 /** Number of coin types */
-#define NUM_COINS 4
+#define NUM_COINS 6
 
 /**
  * @defgroup GT_xxx Treasure generation flags

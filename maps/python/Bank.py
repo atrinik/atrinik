@@ -53,8 +53,12 @@ class Bank:
                 self._inf.add_msg("You don't have that many silver coins.")
             elif ret == BANK_DEPOSIT_GOLD:
                 self._inf.add_msg("You don't have that many gold coins.")
+            elif ret == BANK_DEPOSIT_JADE:
+                self._inf.add_msg("You don't have that many jade coins.")
             elif ret == BANK_DEPOSIT_MITHRIL:
                 self._inf.add_msg("You don't have that many mithril coins.")
+            elif ret == BANK_DEPOSIT_AMBER:
+                self._inf.add_msg("You don't have that many amber coins.")
             elif ret == BANK_SUCCESS:
                 if value:
                     self._inf.add_msg("You deposit {}.".format(CostString(value)))
