@@ -80,6 +80,8 @@ typedef struct MapCell_struct {
     uint8_t client_flags[NUM_SUB_LAYERS];
 
     uint8_t anim_num; ///< Last number of animations sent.
+
+    uint8_t is_friend:NUM_SUB_LAYERS; ///< Friendly state cache.
 } MapCell;
 
 /** One map for a player. */

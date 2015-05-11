@@ -1343,6 +1343,7 @@ void draw_client_map2(object *pl)
                         tag_t target_object_count = 0;
                         uint8_t anim_speed, anim_facing, anim_flags;
                         uint8_t client_flags;
+                        int is_friend;
 
                         face_obj = NULL;
                         anim_speed = anim_facing = anim_flags = 0;
@@ -1445,6 +1446,7 @@ void draw_client_map2(object *pl)
                         if (head != pl && layer == LAYER_LIVING && IS_LIVE(head)) {
                             flags2 |= MAP2_FLAG2_TARGET;
                             target_object_count = head->count;
+                            is_friend = is_friend_of(pl, head);
                         }
 
                         if (priority) {
@@ -1474,7 +1476,22 @@ void draw_client_map2(object *pl)
                         }
 
                         /* Now, check if we have cached this. */
-                        if (mp->faces[socket_layer] == face && mp->quick_pos[socket_layer] == quick_pos && mp->flags[socket_layer] == flags && (layer != LAYER_LIVING || !IS_LIVE(head) || (mp->probe == probe_val && mp->target_object_count == target_object_count)) && mp->anim_speed[socket_layer] == anim_speed && mp->anim_facing[socket_layer] == anim_facing && (layer != LAYER_LIVING || (mp->anim_flags[sub_layer] == anim_flags && mp->client_flags[sub_layer] == client_flags)) && (!(flags & MAP2_FLAG_NAME) || !CONTR(tmp)->socket.ext_title_flag)) {
+                        if (mp->faces[socket_layer] == face &&
+                                mp->quick_pos[socket_layer] == quick_pos &&
+                                mp->flags[socket_layer] == flags && (layer !=
+                                LAYER_LIVING || !IS_LIVE(head) || (mp->probe ==
+                                probe_val && mp->target_object_count ==
+                                target_object_count)) &&
+                                mp->anim_speed[socket_layer] == anim_speed &&
+                                mp->anim_facing[socket_layer] == anim_facing &&
+                                (layer != LAYER_LIVING ||
+                                (mp->anim_flags[sub_layer] == anim_flags &&
+                                mp->client_flags[sub_layer] == client_flags)) &&
+                                (!(flags & MAP2_FLAG_NAME) ||
+                                !CONTR(tmp)->socket.ext_title_flag) &&
+                                (!(flags2 & MAP2_FLAG2_TARGET) ||
+                                ((mp->is_friend & (1 << sub_layer)) != 0) ==
+                                is_friend)) {
                             continue;
                         }
 
@@ -1493,6 +1510,14 @@ void draw_client_map2(object *pl)
                         if (layer == LAYER_LIVING) {
                             mp->probe = probe_val;
                             mp->target_object_count = target_object_count;
+
+                            if (flags2 & MAP2_FLAG2_TARGET) {
+                                if (is_friend) {
+                                    mp->is_friend |= 1 << sub_layer;
+                                } else {
+                                    mp->is_friend &= ~(1 << sub_layer);
+                                }
+                            }
                         }
 
                         if (OBJECT_IS_HIDDEN(pl, head)) {
@@ -1657,7 +1682,7 @@ void draw_client_map2(object *pl)
                                 packet_debug_data(packet_layer, 3,
                                         "Target is friend");
                                 packet_append_uint8(packet_layer,
-                                        is_friend_of(pl, head));
+                                        is_friend);
                             }
 
                             /* Target's HP bar. */
