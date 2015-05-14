@@ -1116,7 +1116,7 @@ void living_update_monster(object *op)
             op->stats.dam = 1;
         }
 
-        op->stats.maxhp = (int16_t) ((double) op->stats.maxhp * d);
+        op->stats.maxhp = (int32_t) ((double) op->stats.maxhp * d);
 
         if (op->stats.maxhp < 1) {
             op->stats.maxhp = 1;

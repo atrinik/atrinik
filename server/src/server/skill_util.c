@@ -190,13 +190,13 @@ int64_t calc_skill_exp(object *who, object *op, int level)
         max_mul = 0.25f;
     }
 
-    /* We first get a global level difference multiplicator */
+    /* We first get a global level difference multiplier */
     exp_mul = calc_level_difference(who_lvl, op_lvl);
-    op_exp = (int) ((float) op_exp * lev_exp[op_lvl] * exp_mul);
+    op_exp = (int64_t) ((float) op_exp * lev_exp[op_lvl] * exp_mul);
     tmp = ((float) (new_levels[who_lvl + 1] - new_levels[who_lvl]) * 0.1f) * max_mul;
 
     if ((float) op_exp > tmp) {
-        op_exp = (int) tmp;
+        op_exp = (int64_t) tmp;
     }
 
     return op_exp;

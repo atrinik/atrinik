@@ -154,7 +154,7 @@ typedef unsigned char uint8_t;
     do {                                                                             \
         unsigned _ha_bkt;                                                               \
         (add)->hh.next = NULL;                                                          \
-        (add)->hh.key = (const char*)keyptr;                                                  \
+        (add)->hh.key = (const void*)keyptr;                                                  \
         (add)->hh.keylen = keylen_in;                                                   \
         if (!(head)) {                                                                  \
             head = (add);                                                                \
