@@ -100,18 +100,6 @@ void init_archetypes(void)
 }
 
 /**
- * An alternative way to init the hashtable which is slower, but
- * _works_... */
-static void init_archetable(void)
-{
-    archetype *at;
-
-    for (at = first_archetype; at != NULL; at = (at->more == NULL) ? at->next : at->more) {
-        arch_add(at);
-    }
-}
-
-/**
  * Frees all memory allocated to archetypes.
  *
  * After calling this, it's possible to call again init_archetypes() to
@@ -210,6 +198,8 @@ static void first_arch_pass(FILE *fp)
 
             break;
         }
+
+        arch_add(at);
 
         at = get_archetype_struct();
         at->clone.arch = at;
@@ -364,8 +354,6 @@ static void load_archetypes(void)
     }
 
     first_arch_pass(fp);
-    init_archetable();
-
     rewind(fp);
 
     /* If not called before, reads all artifacts from file */
