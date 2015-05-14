@@ -884,7 +884,7 @@ void copy_object(object *op2, object *op, int no_speed)
 
     /* Only alter speed_left when we sure we have not done it before */
     if (!no_speed && op->speed < 0 && op->speed_left == op->arch->clone.speed_left) {
-        op->speed_left += (double) rndm(0, 90) / 100.0f;
+        op->speed_left += rndm(0, 90) / 100.0f;
     }
 
     /* Copy over key_values, if any. */

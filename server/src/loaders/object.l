@@ -237,7 +237,7 @@ lex_error = 0;
                 /* If we have now a negative speed - use default arch
                  * speed left for new random set */
                 if (tmp->speed < 0.0f) {
-                    tmp->speed_left = tmp->arch->clone.speed_left + (double) rndm(0, 90) / 100.0f;
+                    tmp->speed_left = tmp->arch->clone.speed_left + rndm(0, 90) / 100.0f;
                 }
             }
 
@@ -779,8 +779,8 @@ lex_error = 0;
         op->item_condition = op->item_quality;
     }
 }
-^mpart_id{S}         op->quick_pos |= (((char) IVAL) << 4);
-^mpart_nr{S}         op->quick_pos |= (char) IVAL;
+^mpart_id{S}         op->quick_pos |= IVAL << 4;
+^mpart_nr{S}         op->quick_pos |= IVAL;
 ^weapon_speed{S}     {
     op->weapon_speed = FVAL;
     op->weapon_speed_left = 0;
@@ -1010,7 +1010,7 @@ int load_object(void *fp, object *op, void *mybuffer, int bufstate, int map_flag
                 /* If we now have a negative speed, use default arch
                  * speed left for new random set */
                 if (op->speed < 0.0f) {
-                    op->speed_left = op->speed_left + (double) rndm(0, 90) / 100.0f;
+                    op->speed_left = op->speed_left + rndm(0, 90) / 100.0f;
                 }
             }
         } else {
@@ -1019,7 +1019,7 @@ int load_object(void *fp, object *op, void *mybuffer, int bufstate, int map_flag
             /* Only do this when we have not loaded a fix speed_left and
              * speed is lower than zero. */
             if (op->speed < 0.0f && op->speed_left == op->arch->clone.speed_left) {
-                op->speed_left = op->speed_left + (double) rndm(0, 90) / 100.0f;
+                op->speed_left = op->speed_left + rndm(0, 90) / 100.0f;
             }
         }
 
