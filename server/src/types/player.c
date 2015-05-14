@@ -884,12 +884,12 @@ void player_path_handle(player *pl)
                     /* Try to move around corners otherwise. */
                     for (diff = 1; diff <= 2; diff++) {
                         /* Try left or right first? */
-                        int m = 1 - (RANDOM() & 2);
+                        int m = 1 - rndm_chance(2) ? 2 : 0;
 
                         dir = move_object(pl->ob, absdir(dir + diff * m));
 
                         if (dir == 0) {
-                            dir = move_object(pl->ob, absdir(dir + diff * m));
+                            dir = move_object(pl->ob, absdir(dir - diff * m));
                         }
 
                         if (dir != 0) {

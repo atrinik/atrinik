@@ -706,7 +706,7 @@ static void process_func(object *op)
             waypoint_move(op, aggro_wp);
             return;
         } else {
-            int maxdiff = (QUERY_FLAG(op, FLAG_ONLY_ATTACK) || RANDOM() & 1) ? 1 : 2;
+            int maxdiff = (QUERY_FLAG(op, FLAG_ONLY_ATTACK) || rndm_chance(2)) ? 1 : 2;
 
             /* Can the monster move directly toward player? */
             if (move_object(op, dir)) {
@@ -911,7 +911,7 @@ static int move_randomly(object *op)
         int t = dirs[i];
 
         /* Perform a single random shuffle of the remaining directions */
-        r = i + (RANDOM() % (8 - i));
+        r = i + rndm(0, 8 - i - 1);
         dirs[i] = dirs[r];
         dirs[r] = t;
 
@@ -955,7 +955,7 @@ static int move_randomly(object *op)
  * @return 1 if can hit, 0 otherwise. */
 static int can_hit(object *ob1, rv_vector *rv)
 {
-    if (QUERY_FLAG(ob1, FLAG_CONFUSED) && !(RANDOM() % 3)) {
+    if (QUERY_FLAG(ob1, FLAG_CONFUSED) && !rndm_chance(3)) {
         return 0;
     }
 

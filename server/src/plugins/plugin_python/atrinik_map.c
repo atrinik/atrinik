@@ -497,7 +497,7 @@ static PyObject *Atrinik_Map_GetPath(Atrinik_Map *map, PyObject *args, PyObject 
     PyObject *ret;
 
     path = NULL;
-    unique = MAP_UNIQUE(map->map) ? 1 : 0;
+    unique = MAP_UNIQUE(map->map) != 0;
     name = NULL;
 
     if (!PyArg_ParseTupleAndKeywords(args, keywds, "|zis", kwlist, &path, &unique, &name)) {

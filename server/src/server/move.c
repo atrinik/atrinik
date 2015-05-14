@@ -42,7 +42,7 @@ int get_random_dir(void)
  * @return The randomized direction. */
 int get_randomized_dir(int dir)
 {
-    return absdir(dir + RANDOM() % 3 + RANDOM() % 3 - 2);
+    return absdir(dir + rndm(0, 2) + rndm(0, 2) - 2);
 }
 
 /**

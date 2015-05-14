@@ -142,12 +142,12 @@ static void add_key_value(object *op)
 
 static void set_random_protection(object *op, int val)
 {
-    op->protection[RANDOM() % NROFATTACKS] = val;
+    op->protection[rndm(0, NROFATTACKS - 1)] = val;
 }
 
 static void set_random_attack(object *op, int val)
 {
-    op->attack[RANDOM() % NROFATTACKS] = val;
+    op->attack[rndm(0, NROFATTACKS - 1)] = val;
 }
 %}
 
@@ -209,8 +209,7 @@ lex_error = 0;
 
             if (tmp->arch) {
                 insert_ob_in_ob(tmp, op);
-            }
-            else {
+            } else {
                 if (!arch_init) {
                     LOG(DEBUG, "Discarding object without arch: %s", archname);
                 }
@@ -237,8 +236,9 @@ lex_error = 0;
             if (old_sleft == tmp->speed_left && tmp->speed < 0.0f) {
                 /* If we have now a negative speed - use default arch
                  * speed left for new random set */
-                if (tmp->speed < 0.0f)
-                    tmp->speed_left = tmp->arch->clone.speed_left + (float) (RANDOM() % 90) / 100.0f;
+                if (tmp->speed < 0.0f) {
+                    tmp->speed_left = tmp->arch->clone.speed_left + (double) rndm(0, 90) / 100.0f;
+                }
             }
 
             if (tmp->speed) {
@@ -318,8 +318,7 @@ lex_error = 0;
     if (*yv == '\0') {
         LOG(ERROR, "Name without val");
         exit(1);
-    }
-    else {
+    } else {
         FREE_AND_COPY_HASH(op->name, yv);
     }
 }
@@ -328,8 +327,7 @@ lex_error = 0;
 
     if (*yv == '\0') {
         LOG(BUG, "Custom name without val.");
-    }
-    else {
+    } else {
         FREE_AND_COPY_HASH(op->custom_name, yv);
 
         if (op->custom_name == shstr_cons.NONE) {
@@ -360,8 +358,7 @@ lex_error = 0;
 
     if (!strcmp(yv, "NONE")) {
         op->animation_id = 0;
-    }
-    else {
+    } else {
         op->animation_id = find_animation(yv);
     }
 }
@@ -370,8 +367,7 @@ lex_error = 0;
 
     if (!strcmp(yv, "NONE")) {
         op->inv_animation_id = 0;
-    }
-    else {
+    } else {
         op->inv_animation_id = find_animation(yv);
     }
 }
@@ -394,8 +390,7 @@ lex_error = 0;
 
     if (ismore) {
         return LL_MORE;
-    }
-    else {
+    } else {
         return LL_NORMAL;
     }
 }
@@ -718,8 +713,7 @@ lex_error = 0;
 
     if (*y == '\0') {
         LOG(BUG, "Title without value.");
-    }
-    else {
+    } else {
         FREE_AND_COPY_HASH(op->title, y);
 
         if (op->title == shstr_cons.NONE) {
@@ -773,8 +767,7 @@ lex_error = 0;
      * This code prevents such things from happening. */
     if (ival_tmp <= 0) {
         op->item_level = -ival_tmp;
-    }
-    else if (ival_tmp > op->item_level) {
+    } else if (ival_tmp > op->item_level) {
         op->item_level = ival_tmp;
     }
 }
@@ -943,8 +936,7 @@ int load_object(void *fp, object *op, void *mybuffer, int bufstate, int map_flag
         }
 
         retval = lex_load(&depth, items, MAXDEPTH, map_flags, 0);
-    }
-    else if (bufstate == LO_MEMORYMODE) {
+    } else if (bufstate == LO_MEMORYMODE) {
         char *strptr = fp;
         YY_BUFFER_STATE yybufstate;
         int lcount = 0;
@@ -974,8 +966,7 @@ int load_object(void *fp, object *op, void *mybuffer, int bufstate, int map_flag
         if (cur_buffer) {
             yy_switch_to_buffer(cur_buffer);
         }
-    }
-    else {
+    } else {
         YY_BUFFER_STATE yybufstate;
 
         while (fgets(inbuf, sizeof(inbuf) - 3, fp)) {
@@ -991,8 +982,7 @@ int load_object(void *fp, object *op, void *mybuffer, int bufstate, int map_flag
 
                 if (depth == 0) {
                     return retval;
-                }
-                else {
+                } else {
                     depth--;
                 }
             }
@@ -1020,7 +1010,7 @@ int load_object(void *fp, object *op, void *mybuffer, int bufstate, int map_flag
                 /* If we now have a negative speed, use default arch
                  * speed left for new random set */
                 if (op->speed < 0.0f) {
-                    op->speed_left = op->speed_left + (float) (RANDOM() % 90) / 100.0f;
+                    op->speed_left = op->speed_left + (double) rndm(0, 90) / 100.0f;
                 }
             }
         } else {
@@ -1029,7 +1019,7 @@ int load_object(void *fp, object *op, void *mybuffer, int bufstate, int map_flag
             /* Only do this when we have not loaded a fix speed_left and
              * speed is lower than zero. */
             if (op->speed < 0.0f && op->speed_left == op->arch->clone.speed_left) {
-                op->speed_left = op->speed_left + (float)(RANDOM() % 90) / 100.0f;
+                op->speed_left = op->speed_left + (double) rndm(0, 90) / 100.0f;
             }
         }
 

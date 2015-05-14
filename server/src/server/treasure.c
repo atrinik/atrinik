@@ -1076,8 +1076,7 @@ void set_abs_magic(object *op, int magic)
             ARMOUR_SPEED(op) = (ARMOUR_SPEED(&op->arch->clone) * (100 + magic * 10)) / 100;
         }
 
-        /* You can't just check the weight always */
-        if (magic < 0 && !rndm(0, 2)) {
+        if (magic < 0 && rndm_chance(3)) {
             magic = (-magic);
         }
 
@@ -1088,7 +1087,7 @@ void set_abs_magic(object *op, int magic)
         }
 
         /* You can't just check the weight always */
-        if (magic < 0 && !rndm(0, 2)) {
+        if (magic < 0 && rndm_chance(3)) {
             magic = (-magic);
         }
 
@@ -1115,103 +1114,103 @@ void set_abs_magic(object *op, int magic)
 static int set_ring_bonus(object *op, int bonus, int level)
 {
     int tmp, r, off;
-    off = (level >= 50 ? 1 : 0) + (level >= 60 ? 1 : 0) + (level >= 70 ? 1 : 0) + (level >= 80 ? 1 : 0);
+    off = (level >= 50) + (level >= 60) + (level >= 70) + (level >= 80);
 
     /* Let's repeat, too lazy for a loop */
 set_ring_bonus_jump1:
-    r = RANDOM() % (bonus > 0 ? 25 : 13);
+    r = rndm(0, bonus > 0 ? 20 : 13);
 
     SET_FLAG(op, FLAG_IS_MAGICAL);
 
     if (op->type == AMULET) {
-        if (!(RANDOM() % 21)) {
-            r = 20 + RANDOM() % 2;
-        } else if (!(RANDOM() % 20)) {
-            tmp = RANDOM() % 3;
+        if (rndm_chance(20)) {
+            r = 20 + rndm(0, 1);
+        } else if (rndm_chance(20)) {
+            tmp = rndm(0, 2);
 
             if (tmp == 2) {
                 r = 0;
-            } else if (!tmp) {
-                r = 11;
-            } else {
+            } else if (tmp == 1) {
                 r = 12;
+            } else {
+                r = 11;
             }
-        } else if (RANDOM() & 2) {
-            if (RANDOM() & 2) {
+        } else if (rndm_chance(2)) {
+            if (rndm_chance(2)) {
                 r = 10;
             } else {
                 r = 8;
             }
         } else {
-            r = 13 + RANDOM() % 7;
+            r = 13 + rndm(0, 6);
         }
     }
 
     switch (r % 25) {
-        /* We are creating hp stuff! */
+    /* Health */
     case 0:
         tmp = 5;
 
         if (level < 5) {
-            tmp += RANDOM() % 10;
+            tmp += rndm(0, 10);
 
             if (bonus > 0) {
-                op->value = (int) ((float) op->value * 1.3f);
+                op->value = (int64_t) ((double) op->value * 1.3f);
             }
         } else if (level < 10) {
-            tmp += 10 + RANDOM() % 10;
+            tmp += 10 + rndm(0, 10);
 
             if (bonus > 0) {
-                op->value = (int) ((float) op->value * 1.32f);
+                op->value = (int64_t) ((double) op->value * 1.32f);
             }
         } else if (level < 15) {
-            tmp += 15 + RANDOM() % 20;
+            tmp += 15 + rndm(0, 20);
 
             if (bonus > 0) {
-                op->value = (int) ((float) op->value * 1.34f);
+                op->value = (int64_t) ((double) op->value * 1.34f);
             }
         } else if (level < 20) {
-            tmp += 20 + RANDOM() % 21;
+            tmp += 20 + rndm(0, 21);
 
             if (bonus > 0) {
-                op->value = (int) ((float) op->value * 1.36f);
+                op->value = (int64_t) ((double) op->value * 1.36f);
             }
         } else if (level < 25) {
-            tmp += 25 + RANDOM() % 23;
+            tmp += 25 + rndm(0, 23);
 
             if (bonus > 0) {
-                op->value = (int) ((float) op->value * 1.38f);
+                op->value = (int64_t) ((double) op->value * 1.38f);
             }
         } else if (level < 30) {
-            tmp += 30 + RANDOM() % 25;
+            tmp += 30 + rndm(0, 25);
 
             if (bonus > 0) {
-                op->value = (int) ((float) op->value * 1.4f);
+                op->value = (int64_t) ((double) op->value * 1.4f);
             }
         } else if (level < 40) {
-            tmp += 40 + RANDOM() % 30;
+            tmp += 40 + rndm(0, 30);
 
             if (bonus > 0) {
-                op->value = (int) ((float) op->value * 1.42f);
+                op->value = (int64_t) ((double) op->value * 1.42f);
             }
         } else {
-            tmp += (int) ((double) level * 0.65) + 50 + RANDOM() % 40;
+            tmp += (int) ((double) level * 0.65) + 50 + rndm(0, 40);
 
             if (bonus > 0) {
-                op->value = (int) ((float) op->value * 1.44f);
+                op->value = (int64_t) ((double) op->value * 1.44f);
             }
         }
 
         if (bonus < 0) {
             tmp = -tmp;
         } else {
-            op->item_level = (int) ((double) level * (0.5 + ((double) (RANDOM() % 40) / 100.0)));
+            op->item_level = (uint8_t) ((double) level * (0.5 + ((double) (rndm(0, 40) / 100.0))));
         }
 
         op->stats.maxhp = tmp;
         break;
 
-        /* Stats */
+    /* Stats */
     case 1:
     case 2:
     case 3:
@@ -1221,117 +1220,121 @@ set_ring_bonus_jump1:
         set_attr_value(&op->stats, r, (int8_t) (bonus + get_attr_value(&op->stats, r)));
         break;
 
+    /* Damage */
     case 7:
         op->stats.dam += bonus;
 
-        if (bonus > 0 && (RANDOM() % 20 > 16 ? 1 : 0)) {
-            op->value = (int) ((float) op->value * 1.3f);
+        if (bonus > 0 && rndm(0, 20) > 16) {
+            op->value = (int64_t) ((double) op->value * 1.3f);
             op->stats.dam++;
         }
 
         break;
 
+    /* WC*/
     case 8:
         op->stats.wc += bonus;
 
-        if (bonus > 0 && (RANDOM() % 20 > 16 ? 1 : 0)) {
-            op->value = (int) ((float) op->value * 1.3f);
+        if (bonus > 0 && rndm(0, 20) > 16) {
+            op->value = (int64_t) ((double) op->value * 1.3f);
             op->stats.wc++;
         }
 
         break;
 
-        /* Hunger/sustenance */
+    /* Hunger/sustenance */
     case 9:
         op->stats.food += bonus;
 
-        if (bonus > 0 && (RANDOM() % 20 > 16 ? 1 : 0)) {
-            op->value = (int) ((float) op->value * 1.2f);
+        if (bonus > 0 && rndm(0, 20) > 16) {
+            op->value = (int64_t) ((double) op->value * 1.2f);
             op->stats.food++;
         }
 
         break;
 
+    /* AC */
     case 10:
         op->stats.ac += bonus;
 
-        if (bonus > 0 && (RANDOM() % 20 > 16 ? 1 : 0)) {
-            op->value = (int) ((float) op->value * 1.3f);
+        if (bonus > 0 && rndm(0, 20) > 16) {
+            op->value = (int64_t) ((double) op->value * 1.3f);
             op->stats.ac++;
         }
 
         break;
 
+    /* Mana */
     case 11:
     case 12:
-
-        if (!RANDOM() % 3) {
+        if (!rndm_chance(3)) {
             goto make_prot_items;
         }
 
         tmp = 3;
 
         if (level < 5) {
-            tmp += RANDOM() % 3;
+            tmp += rndm(0, 3);
 
             if (bonus > 0) {
-                op->value = (int) ((float) op->value * 1.3f);
+                op->value = (int64_t) ((double) op->value * 1.3f);
             }
         } else if (level < 10) {
-            tmp += 3 + RANDOM() % 4;
+            tmp += 3 + rndm(0, 4);
 
             if (bonus > 0) {
-                op->value = (int) ((float) op->value * 1.32f);
+                op->value = (int64_t) ((double) op->value * 1.32f);
             }
         } else if (level < 15) {
-            tmp += 4 + RANDOM() % 6;
+            tmp += 4 + rndm(0, 6);
 
             if (bonus > 0) {
-                op->value = (int) ((float) op->value * 1.34f);
+                op->value = (int64_t) ((double) op->value * 1.34f);
             }
         } else if (level < 20) {
-            tmp += 6 + RANDOM() % 8;
+            tmp += 6 + rndm(0, 8);
 
             if (bonus > 0) {
-                op->value = (int) ((float) op->value * 1.36f);
+                op->value = (int64_t) ((double) op->value * 1.36f);
             }
         } else if (level < 25) {
-            tmp += 8 + RANDOM() % 10;
+            tmp += 8 + rndm(0, 10);
 
             if (bonus > 0) {
-                op->value = (int) ((float) op->value * 1.38f);
+                op->value = (int64_t) ((double) op->value * 1.38f);
             }
         } else if (level < 33) {
-            tmp += 10 + RANDOM() % 12;
+            tmp += 10 + rndm(0, 12);
 
             if (bonus > 0) {
-                op->value = (int) ((float) op->value * 1.4f);
+                op->value = (int64_t) ((double) op->value * 1.4f);
             }
         } else if (level < 44) {
-            tmp += 15 + RANDOM() % 15;
+            tmp += 15 + rndm(0, 15);
 
             if (bonus > 0) {
-                op->value = (int) ((float) op->value * 1.42f);
+                op->value = (int64_t) ((double) op->value * 1.42f);
             }
         } else {
-            tmp += (int) ((double) level * 0.53) + 20 + RANDOM() % 20;
+            tmp += (int) ((double) level * 0.53) + 20 + rndm(0, 20);
 
             if (bonus > 0) {
-                op->value = (int) ((float) op->value * 1.44f);
+                op->value = (int64_t) ((double) op->value * 1.44f);
             }
         }
 
         if (bonus < 0) {
             tmp = -tmp;
         } else {
-            op->item_level = (int) ((double) level * (0.5 + ((double) (RANDOM() % 40) / 100.0)));
+            op->item_level = (uint8_t) ((double) level * (0.5 + ((double) (rndm(0, 40)) / 100.0)));
         }
 
         op->stats.maxsp = tmp;
         break;
 
+    /* Protections */
     case 13:
-        make_prot_items :
+        make_prot_items:
     case 14:
     case 15:
     case 16:
@@ -1339,18 +1342,21 @@ set_ring_bonus_jump1:
     case 18:
     case 19:
     {
-        int b = 5 + FABS(bonus), val, protect = RANDOM() % (LAST_PROTECTION - 4 + off);
+        int b = 5 + FABS(bonus), val;
 
         /* Roughly generate a bonus between 100 and 35 (depending on the
          * bonus) */
-        val = 10 + RANDOM() % b + RANDOM() % b + RANDOM() % b + RANDOM() % b;
+        val = 10;
+        for (int i = 0; i < 4; i++) {
+            val += rndm(0, b);
+        }
 
         /* Cursed items need to have higher negative values to equal
          * out with positive values for how protections work out. Put
          * another little random element in since that they don't
          * always end up with even values. */
         if (bonus < 0) {
-            val = 2 * -val - RANDOM() % b;
+            val = 2 * -val - rndm(0, b);
         }
 
         /* Upper limit */
@@ -1359,6 +1365,7 @@ set_ring_bonus_jump1:
         }
 
         b = 0;
+        int protect = rndm(0, LAST_PROTECTION - 4 + off);
 
         while (op->protection[protect] != 0) {
             /* Not able to find a free protection */
@@ -1366,63 +1373,64 @@ set_ring_bonus_jump1:
                 goto set_ring_bonus_jump1;
             }
 
-            protect = RANDOM() % (LAST_PROTECTION - 4 + off);
+            protect = rndm(0, LAST_PROTECTION - 4 + off);
         }
 
         op->protection[protect] = val;
         break;
     }
 
+    /* Reflect spells for amulets, health regeneration for rings */
     case 20:
-
         if (op->type == AMULET) {
+            /* Reflect spells */
             SET_FLAG(op, FLAG_REFL_SPELL);
             op->value *= 11;
         } else {
             /* Regenerate hit points */
             op->stats.hp += bonus;
-            op->value = (int) ((float) op->value * 1.3f);
+            op->value = (int64_t) ((double) op->value * 1.3f);
 
-            if (bonus > 0 && (RANDOM() % 20 > 16 ? 1 : 0)) {
-                op->value = (int) ((float) op->value * 1.3f);
+            if (bonus > 0 && rndm(0, 20) > 16) {
+                op->value = (int64_t) ((double) op->value * 1.3f);
                 op->stats.hp++;
             }
         }
 
         break;
 
+    /* Reflect missiles for amulets, mana regeneration for rings */
     case 21:
-
         if (op->type == AMULET) {
+            /* Reflect missiles */
             SET_FLAG(op, FLAG_REFL_MISSILE);
             op->value *= 9;
         } else {
             /* Regenerate spell points */
             op->stats.sp += bonus;
-            op->value = (int) ((float) op->value * 1.35f);
+            op->value = (int64_t) ((double) op->value * 1.35f);
 
-            if (bonus > 0 && (RANDOM() % 20 > 16 ? 1 : 0)) {
-                op->value = (int) ((float) op->value * 1.35f);
+            if (bonus > 0 && rndm(0, 20) > 16) {
+                op->value = (int64_t) ((double) op->value * 1.35f);
                 op->stats.sp++;
             }
         }
 
         break;
 
+    /* Speed */
     default:
-
-        if (!bonus) {
+        if (bonus == 0) {
             bonus = 1;
         }
 
-        /* Speed! */
         op->stats.exp += bonus;
-        op->value = (int) ((float) op->value * 1.4f);
+        op->value = (int64_t) ((double) op->value * 1.4f);
         break;
     }
 
     if (bonus > 0) {
-        op->value = (int) ((float) op->value * 2.0f * (float) bonus);
+        op->value = (int64_t) ((double) op->value * 2.0f * (double) bonus);
     } else {
         op->value = -(op->value * 2 * bonus) / 2;
     }
@@ -1549,7 +1557,7 @@ static int get_random_spell(int level, int flags)
 
     /* If we found any spells we can use, select randomly. */
     if (num_spells) {
-        return possible_spells[rndm(1, num_spells) - 1];
+        return possible_spells[rndm(0, num_spells - 1)];
     }
 
     /* If we are here, there is no fitting spell. */
@@ -1659,7 +1667,7 @@ int fix_generated_item(object **op_ptr, object *creator, int difficulty, int a_c
                 }
 
                 SET_FLAG(op, FLAG_IS_MAGICAL);
-                op->value = (int) (150.0f * spells[op->stats.sp].value_mul);
+                op->value = (int64_t) (150.0f * spells[op->stats.sp].value_mul);
             } else if (op->sub_type > 128) {
                 /* Dust */
 
@@ -1668,7 +1676,7 @@ int fix_generated_item(object **op_ptr, object *creator, int difficulty, int a_c
                 }
 
                 SET_FLAG(op, FLAG_IS_MAGICAL);
-                op->value = (int) (125.0f * spells[op->stats.sp].value_mul);
+                op->value = (int64_t) (125.0f * spells[op->stats.sp].value_mul);
             } else {
                 while (!(is_special = special_potion(op)) && op->stats.sp == SP_NO_SPELL) {
                     generate_artifact(op, difficulty, t_style, 100);
@@ -1765,14 +1773,14 @@ int fix_generated_item(object **op_ptr, object *creator, int difficulty, int a_c
                     int d = (!rndm_chance(2) || QUERY_FLAG(op, FLAG_CURSED)) ? -DICE2 : DICE2;
 
                     if (set_ring_bonus(op, d, difficulty)) {
-                        op->value = (int) ((float) op->value * 1.95f);
+                        op->value = (int64_t) ((double) op->value * 1.95f);
                     }
 
                     if (rndm_chance(4)) {
                         d = (!rndm_chance(3) || QUERY_FLAG(op, FLAG_CURSED)) ? -DICE2 : DICE2;
 
                         if (set_ring_bonus(op, d, difficulty)) {
-                            op->value = (int) ((float) op->value * 1.95f);
+                            op->value = (int64_t) ((double) op->value * 1.95f);
                         }
                     }
                 }
@@ -1863,7 +1871,7 @@ int fix_generated_item(object **op_ptr, object *creator, int difficulty, int a_c
             }
 
             op->level = temp;
-            op->value = (int) (16.3f * spells[op->stats.sp].value_mul);
+            op->value = (int64_t) (16.3f * spells[op->stats.sp].value_mul);
 
             break;
 
@@ -1895,7 +1903,7 @@ int fix_generated_item(object **op_ptr, object *creator, int difficulty, int a_c
                 temp = spells[op->stats.sp].at->clone.level;
             }
 
-            op->value = (int) (1850.0f * spells[op->stats.sp].value_mul);
+            op->value = (int64_t) (1850.0f * spells[op->stats.sp].value_mul);
 
             break;
 

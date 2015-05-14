@@ -414,7 +414,7 @@ void waypoint_move(object *op, object *waypoint)
                 /* Try move around corners otherwise */
                 for (diff = 1; diff <= 2; diff++) {
                     /* Try left or right first? */
-                    int m = 1 - (RANDOM() & 2);
+                    int m = 1 - rndm_chance(2) ? 2 : 0;
 
                     if ((ret = move_object(op, absdir(dir + diff * m))) != 0) {
                         break;

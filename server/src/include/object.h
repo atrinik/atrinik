@@ -424,16 +424,16 @@ typedef struct obj {
     uint8_t alpha;
 
     /** The overall speed of this object */
-    float speed;
+    double speed;
 
     /** How much speed is left to spend this round */
-    float speed_left;
+    double speed_left;
 
     /** new weapon speed system. swing of weapon */
-    float weapon_speed;
+    double weapon_speed;
 
     /** Weapon speed left */
-    float weapon_speed_left;
+    double weapon_speed_left;
 
     /** Str, Con, Dex, etc */
     living stats;

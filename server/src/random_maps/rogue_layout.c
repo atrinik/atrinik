@@ -307,7 +307,7 @@ static void roguelike_make_rooms(Room *Rooms, char **maze, int options)
             break;
 
         default:
-            making_circle = ((RANDOM() % 3 == 0) ? 1 : 0);
+            making_circle = rndm_chance(3);
 
             if (walk->sx < walk->sy) {
                 R = walk->sx / 2;
@@ -348,7 +348,7 @@ static void roguelike_link_rooms(Room *Rooms, char **maze)
         int x = walk->x, y = walk->y, x2 = (walk - 1)->x, y2 = (walk - 1)->y, in_wall = 0;
 
         /* Connect in x direction first */
-        if (RANDOM() % 2) {
+        if (rndm_chance(2)) {
             /* horizontal connect */
             /* swap (x1, y1) (x2, y2) if necessary */
             if (x2 < x) {

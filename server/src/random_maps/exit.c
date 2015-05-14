@@ -48,7 +48,7 @@ void find_in_layout(int mode, char target, int *fx, int *fy, char **layout, RMPa
 
     /* if a starting point isn't given, pick one */
     if (mode < 1 || mode > 4) {
-        M = RANDOM() % 4 + 1;
+        M = rndm(1, 4);
     } else {
         M = mode;
     }
@@ -151,7 +151,7 @@ void place_exits(mapstruct *map, char **maze, char *exitstyle, int orientation, 
     int downx = -1, downy = -1, j;
 
     if (orientation == 0) {
-        orientation = RANDOM() % 6 + 1;
+        orientation = rndm(1, 3);
     }
 
     switch (orientation) {

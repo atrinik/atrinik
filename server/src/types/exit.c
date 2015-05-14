@@ -85,7 +85,7 @@ static object *exit_find(object *op, int do_load)
         return NULL;
     }
 
-    return altern[RANDOM() % nrofalt];
+    return altern[rndm(0, nrofalt - 1)];
 }
 
 /**
