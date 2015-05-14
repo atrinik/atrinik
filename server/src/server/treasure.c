@@ -1204,7 +1204,7 @@ set_ring_bonus_jump1:
         if (bonus < 0) {
             tmp = -tmp;
         } else {
-            op->item_level = (uint8_t) ((double) level * (0.5 + ((double) (rndm(0, 40) / 100.0))));
+            op->item_level = (uint8_t) ((double) level * (0.5 + (rndm(0, 40) / 100.0)));
         }
 
         op->stats.maxhp = tmp;
@@ -1326,7 +1326,7 @@ set_ring_bonus_jump1:
         if (bonus < 0) {
             tmp = -tmp;
         } else {
-            op->item_level = (uint8_t) ((double) level * (0.5 + ((double) (rndm(0, 40)) / 100.0)));
+            op->item_level = (uint8_t) ((double) level * (0.5 + (rndm(0, 40) / 100.0)));
         }
 
         op->stats.maxsp = tmp;

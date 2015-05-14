@@ -347,10 +347,8 @@ static void do_symptoms(object *disease)
          * do random, note, this has a weird effect with progressive diseases.
          * */
         if (disease->stats.dam != 0) {
-            int dam = disease->stats.dam;
-
             /* reduce the damage, on average, 50%, and making things random. */
-            dam = rndm(1, FABS(dam));
+            int16_t dam = rndm(1, FABS(disease->stats.dam));
 
             if (disease->stats.dam < 0) {
                 dam = -dam;
@@ -402,26 +400,26 @@ static void do_symptoms(object *disease)
     /* now deal with progressing diseases: we increase the debility
      * caused by the symptoms.  */
     if (disease->stats.ac != 0) {
-        float scale;
+        double scale;
 
         symptom->value += disease->stats.ac;
-        scale = (float) 1.0 + (float) symptom->value / (float) 100.0;
+        scale = 1.0 + (double) symptom->value / 100.0;
 
         /* now rescale all the debilities */
-        symptom->stats.Str = (int) (scale * disease->stats.Str);
-        symptom->stats.Dex = (int) (scale * disease->stats.Dex);
-        symptom->stats.Con = (int) (scale * disease->stats.Con);
-        symptom->stats.Wis = (int) (scale * disease->stats.Wis);
-        symptom->stats.Int = (int) (scale * disease->stats.Int);
-        symptom->stats.Pow = (int) (scale * disease->stats.Pow);
-        symptom->stats.Cha = (int) (scale * disease->stats.Cha);
-        symptom->stats.dam = (int) (scale * disease->stats.dam);
-        symptom->stats.sp = (int) (scale * disease->stats.sp);
-        symptom->stats.food = (int) (scale * disease->last_eat);
-        symptom->stats.maxsp = (int) (scale * disease->stats.maxsp);
-        symptom->last_sp = (int) (scale * disease->last_sp);
+        symptom->stats.Str = (int8_t) (scale * disease->stats.Str);
+        symptom->stats.Dex = (int8_t) (scale * disease->stats.Dex);
+        symptom->stats.Con = (int8_t) (scale * disease->stats.Con);
+        symptom->stats.Wis = (int8_t) (scale * disease->stats.Wis);
+        symptom->stats.Int = (int8_t) (scale * disease->stats.Int);
+        symptom->stats.Pow = (int8_t) (scale * disease->stats.Pow);
+        symptom->stats.Cha = (int8_t) (scale * disease->stats.Cha);
+        symptom->stats.dam = (int16_t) (scale * disease->stats.dam);
+        symptom->stats.sp = (int16_t) (scale * disease->stats.sp);
+        symptom->stats.food = (int16_t) (scale * disease->last_eat);
+        symptom->stats.maxsp = (int16_t) (scale * disease->stats.maxsp);
+        symptom->last_sp = (int16_t) (scale * disease->last_sp);
         symptom->stats.exp = 0;
-        symptom->stats.hp = (int) (scale * disease->stats.hp);
+        symptom->stats.hp = (int32_t) (scale * disease->stats.hp);
         FREE_AND_COPY_HASH(symptom->msg, disease->msg);
         symptom->other_arch = disease->other_arch;
     }
@@ -477,13 +475,13 @@ void move_symptom(object *symptom)
     if (symptom->stats.dam > 0) {
         hit_player(victim, symptom->stats.dam, symptom);
     } else {
-        hit_player(victim, (int) MAX((float) 1, (float) -victim->stats.maxhp * (float) symptom->stats.dam / (float) 100.0), symptom);
+        hit_player(victim, (int) MAX(1.0, (double) -victim->stats.maxhp * (double) symptom->stats.dam / 100.0), symptom);
     }
 
     if (symptom->stats.maxsp > 0) {
         sp_reduce = symptom->stats.maxsp;
     } else {
-        sp_reduce = (int) MAX((float) 1, (float) victim->stats.maxsp * (float) symptom->stats.maxsp / (float) 100.0);
+        sp_reduce = (int) MAX(1.0, (double) victim->stats.maxsp * (double) symptom->stats.maxsp / 100.0);
     }
 
     victim->stats.sp = MAX(0, victim->stats.sp - sp_reduce);

@@ -506,14 +506,17 @@ static void process_func(object *op)
 
         /* So if the monster has gained enough HP that they are no longer afraid
          * */
-        if (QUERY_FLAG(op, FLAG_RUN_AWAY) && op->stats.hp >= (signed short) (((float) op->run_away / (float) 100) * (float) op->stats.maxhp)) {
+        if (QUERY_FLAG(op, FLAG_RUN_AWAY) && op->stats.hp >=
+                (int32_t) (((double) op->run_away / 100.0) *
+                (double) op->stats.maxhp)) {
             CLEAR_FLAG(op, FLAG_RUN_AWAY);
         }
     }
 
     /* Generate sp, if applicable */
     if (op->stats.Pow && op->stats.sp < op->stats.maxsp) {
-        op->last_sp += (int) ((float) (8 * op->stats.Pow) / FABS(op->speed));
+        op->last_sp += (int16_t) (8.0 * (double) op->stats.Pow /
+                FABS(op->speed));
         /* causes Pow/16 sp/tick */
         op->stats.sp += op->last_sp / 128;
         op->last_sp %= 128;
