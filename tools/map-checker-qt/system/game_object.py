@@ -138,6 +138,7 @@ class GameObject(AbstractObjectInventory):
 
         self.map = None
         self.arch = None
+        self.head = None
         self._deleted = False
 
     def setArch(self, arch):
@@ -171,6 +172,9 @@ class GameObject(AbstractObjectInventory):
         return val
 
     def isSameArchAttribute(self, attr):
+        if self.arch is None:
+            return False
+
         val1 = self.getAttribute(attr)
         val2 = self.arch.getAttribute(attr)
 
