@@ -2,7 +2,7 @@ arch map
 name Moroch Temple
 msg
 Created:  2009-09-22 Alex Tokar
-Modified: 2011-11-03 Alex Tokar
+Modified: 2015-05-14 Alex Tokar
 endmsg
 width 24
 height 24
@@ -2838,7 +2838,7 @@ end
 arch chest7_111
 x 19
 y 10
-arch mitcoin
+arch mithrilcoin
 nrof 50
 no_pick 1
 type 79
