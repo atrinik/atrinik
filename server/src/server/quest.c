@@ -32,6 +32,7 @@
 #include <global.h>
 #include <toolkit_string.h>
 #include <plugin.h>
+#include <arch.h>
 
 /**
  * Find a quest inside the specified quest object.
@@ -144,7 +145,7 @@ static void quest_check_item_drop(object *op, object *quest, object *quest_pl,
     if (QUERY_FLAG(item, FLAG_ONE_DROP)) {
         /* Create a quest object in the player's container, so that the item
          * will never drop for them again. */
-        quest_pl = get_archetype(QUEST_CONTAINER_ARCHETYPE);
+        quest_pl = arch_get(QUEST_CONTAINER_ARCHETYPE);
 
         /* Mark this quest as completed. */
         quest_pl->magic = QUEST_STATUS_COMPLETED;

@@ -30,9 +30,11 @@
  * Diseases may be contagious. They are objects which exist in a player's
  * inventory. They themselves do nothing, except modify
  * @ref SYMPTOM "symptoms", or spread to other live objects.
- * @ref SYMPTOM "symptoms" are what actually damage the player. */
+ * @ref SYMPTOM "symptoms" are what actually damage the player.
+ */
 
 #include <global.h>
+#include <arch.h>
 
 static int is_susceptible_to_disease(object *victim, object *disease);
 static void remove_symptoms(object *disease);
@@ -340,7 +342,7 @@ static void do_symptoms(object *disease)
             }
         }
 
-        new_symptom = get_archetype("symptom");
+        new_symptom = arch_get("symptom");
 
         /* Something special done with dam. We want diseases to be more
          * random in what they'll kill, so we'll make the damage they
@@ -449,7 +451,7 @@ static void grant_immunity(object *disease)
         }
     }
 
-    immunity = get_archetype("immunity");
+    immunity = arch_get("immunity");
     FREE_AND_COPY_HASH(immunity->name, disease->name);
     immunity->level = disease->level;
     CLEAR_FLAG(immunity, FLAG_NO_PASS);

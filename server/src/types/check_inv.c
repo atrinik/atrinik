@@ -26,9 +26,11 @@
  * @file
  * Handles code for @ref CHECK_INV "inventory checker" objects.
  *
- * @author Alex Tokar */
+ * @author Alex Tokar
+ */
 
 #include <global.h>
+#include <arch.h>
 
 /**
  * Inventory checker object tries to find a matching object in creature's

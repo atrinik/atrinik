@@ -29,6 +29,7 @@
 
 #include <global.h>
 #include <monster_data.h>
+#include <arch.h>
 
 /** When we carry more than this of our weight_limit, we get encumbered. */
 #define ENCUMBRANCE_LIMIT 65.0f
@@ -340,7 +341,7 @@ void drain_stat(object *op)
 void drain_specific_stat(object *op, int deplete_stats)
 {
     object *tmp;
-    archetype *at = find_archetype("depletion");
+    archetype_t *at = arch_find("depletion");
 
     if (!at) {
         LOG(BUG, "Couldn't find archetype depletion.");
@@ -993,7 +994,7 @@ void living_update_player(object *op)
     op->stats.wc += thaco_bonus[op->stats.Dex];
 
     if (pl->quest_container == NULL) {
-        object *quest_container = get_archetype(QUEST_CONTAINER_ARCHETYPE);
+        object *quest_container = arch_get(QUEST_CONTAINER_ARCHETYPE);
 
         LOG(BUG, "Player %s had no quest container, fixing.",
                 op->name);

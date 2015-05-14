@@ -37,6 +37,8 @@
 
 #include <global.h>
 #include <loader.h>
+#include <arch.h>
+#include <artifact.h>
 
 /** All the coin arches. */
 char *coins[NUM_COINS + 1] = {
@@ -50,7 +52,7 @@ char *coins[NUM_COINS + 1] = {
 };
 
 /** Pointers to coin archetypes. */
-archetype *coins_arch[NUM_COINS];
+struct archetype *coins_arch[NUM_COINS];
 
 /** Give 1 re-roll attempt per artifact */
 #define ARTIFACT_TRIES 2
@@ -59,21 +61,21 @@ archetype *coins_arch[NUM_COINS];
 #define CHANCE_FIX (-1)
 
 /** Pointer to the 'ring_generic' archetype. */
-static archetype *ring_arch = NULL;
+static archetype_t *ring_arch = NULL;
 /** Pointer to the 'ring_normal' archetype. */
-static archetype *ring_arch_normal = NULL;
+static archetype_t *ring_arch_normal = NULL;
 /** Pointer to the 'amulet_generic' archetype. */
-static archetype *amulet_arch = NULL;
+static archetype_t *amulet_arch = NULL;
 /** Pointer to the 'amulet_normal' archetype. */
-static archetype *amulet_arch_normal = NULL;
+static archetype_t *amulet_arch_normal = NULL;
 
 static treasure *load_treasure(FILE *fp, int *t_style, int *a_chance);
 static void change_treasure(struct _change_arch *ca, object *op);
 static treasurelist *get_empty_treasurelist(void);
 static treasure *get_empty_treasure(void);
 static void put_treasure(object *op, object *creator, int flags);
-static artifactlist *get_empty_artifactlist(void);
-static artifact *get_empty_artifact(void);
+static artifact_list_t *get_empty_artifactlist(void);
+static artifact_t *get_empty_artifact(void);
 static void check_treasurelist(treasure *t, treasurelist *tl);
 static void set_material_real(object *op, struct _change_arch *change_arch);
 static void create_money_table(void);
@@ -84,7 +86,7 @@ static int get_magic(int diff);
 static void free_treasurestruct(treasure *t);
 static void free_charlinks(linked_char *lc);
 static void free_artifactlist(void);
-static void free_artifact(artifact *at);
+static void free_artifact(artifact_t *at);
 
 /**
  * Opens LIBDIR/treasure and reads all treasure declarations from it.
@@ -179,7 +181,7 @@ static void create_money_table(void)
     int i;
 
     for (i = 0; coins[i]; i++) {
-        coins_arch[i] = find_archetype(coins[i]);
+        coins_arch[i] = arch_find(coins[i]);
 
         if (!coins_arch[i]) {
             LOG(ERROR, "Can't find %s.", coins[i] ? coins[i] : "NULL");
@@ -232,7 +234,7 @@ static treasure *load_treasure(FILE *fp, int *t_style, int *a_chance)
                 *a_chance = value;
             }
         } else if (sscanf(cp, "arch %s", variable)) {
-            if ((t->item = find_archetype(variable)) == NULL) {
+            if ((t->item = arch_find(variable)) == NULL) {
                 LOG(BUG, "Treasure lacks archetype: %s", variable);
             }
 
@@ -331,15 +333,15 @@ static treasure *load_treasure(FILE *fp, int *t_style, int *a_chance)
  * Can be called multiple times without ill effects. */
 void init_artifacts(void)
 {
-    archetype *atemp;
+    archetype_t *atemp;
     long old_pos, file_pos;
     FILE *fp;
     char filename[MAX_BUF], buf[HUGE_BUF], *cp, *next;
-    artifact *art = NULL;
+    artifact_t *art = NULL;
     linked_char *tmp;
     int value, none_flag = 0;
     size_t lcount;
-    artifactlist *al;
+    artifact_list_t *al;
     char buf_text[10 * 1024];
 
     snprintf(filename, sizeof(filename), "%s/artifacts", settings.libpath);
@@ -416,7 +418,7 @@ void init_artifacts(void)
         } else if (!strncmp(cp, "def_arch", 8)) {
             /* Chain a default arch to this treasure */
 
-            if ((atemp = find_archetype(cp + 9)) == NULL) {
+            if ((atemp = arch_find(cp + 9)) == NULL) {
                 LOG(ERROR, "Can't find def_arch %s.", cp + 9);
                 exit(1);
             }
@@ -426,7 +428,7 @@ void init_artifacts(void)
             /* Store the non fake archetype name */
             FREE_AND_COPY_HASH(art->def_at_name, cp + 9);
             /* Copy the default arch */
-            memcpy(&art->def_at, atemp, sizeof(archetype));
+            memcpy(&art->def_at, atemp, sizeof(archetype_t));
             ADD_REF_NOT_NULL_HASH(art->def_at.clone.name);
             ADD_REF_NOT_NULL_HASH(art->def_at.clone.title);
             ADD_REF_NOT_NULL_HASH(art->def_at.clone.race);
@@ -545,7 +547,7 @@ void init_artifacts(void)
 void init_archetype_pointers(void)
 {
     if (ring_arch_normal == NULL) {
-        ring_arch_normal = find_archetype("ring_normal");
+        ring_arch_normal = arch_find("ring_normal");
     }
 
     if (!ring_arch_normal) {
@@ -553,7 +555,7 @@ void init_archetype_pointers(void)
     }
 
     if (ring_arch == NULL) {
-        ring_arch = find_archetype("ring_generic");
+        ring_arch = arch_find("ring_generic");
     }
 
     if (!ring_arch) {
@@ -561,7 +563,7 @@ void init_archetype_pointers(void)
     }
 
     if (amulet_arch_normal == NULL) {
-        amulet_arch_normal = find_archetype("amulet_normal");
+        amulet_arch_normal = arch_find("amulet_normal");
     }
 
     if (!amulet_arch_normal) {
@@ -569,7 +571,7 @@ void init_archetype_pointers(void)
     }
 
     if (amulet_arch == NULL) {
-        amulet_arch = find_archetype("amulet_generic");
+        amulet_arch = arch_find("amulet_generic");
     }
 
     if (!amulet_arch) {
@@ -2040,9 +2042,9 @@ int fix_generated_item(object **op_ptr, object *creator, int difficulty, int a_c
 /**
  * Allocate and return the pointer to an empty artifactlist structure.
  * @return New structure blanked, never NULL. */
-static artifactlist *get_empty_artifactlist(void)
+static artifact_list_t *get_empty_artifactlist(void)
 {
-    artifactlist *tl = emalloc(sizeof(artifactlist));
+    artifact_list_t *tl = emalloc(sizeof(artifact_list_t));
 
     tl->next = NULL;
     tl->items = NULL;
@@ -2054,9 +2056,9 @@ static artifactlist *get_empty_artifactlist(void)
 /**
  * Allocate and return the pointer to an empty artifact structure.
  * @return New structure blanked, never NULL. */
-static artifact *get_empty_artifact(void)
+static artifact_t *get_empty_artifact(void)
 {
-    artifact *t = emalloc(sizeof(artifact));
+    artifact_t *t = emalloc(sizeof(artifact_t));
 
     t->next = NULL;
     t->name = NULL;
@@ -2075,9 +2077,9 @@ static artifact *get_empty_artifact(void)
  * objects on it.
  * @param type Type to search for.
  * @return NULL if no suitable list found. */
-artifactlist *find_artifactlist(int type)
+struct artifact_list *find_artifactlist(int type)
 {
-    artifactlist *al;
+    artifact_list_t *al;
 
     for (al = first_artifactlist; al != NULL; al = al->next) {
         if (al->type == type) {
@@ -2093,10 +2095,10 @@ artifactlist *find_artifactlist(int type)
  * name.
  * @param name Name.
  * @return The archetype if found, NULL otherwise. */
-archetype *find_artifact_archtype(const char *name)
+struct archetype *find_artifact_archtype(const char *name)
 {
-    artifactlist *al;
-    artifact *art = NULL;
+    artifact_list_t *al;
+    artifact_t *art = NULL;
 
     for (al = first_artifactlist; al != NULL; al = al->next) {
         art = al->items;
@@ -2119,10 +2121,10 @@ archetype *find_artifact_archtype(const char *name)
  * @param name Name of the artifact to find.
  * @param type Type of the artifact to find.
  * @return The artifact if found, NULL otherwise. */
-artifact *find_artifact_type(const char *name, int type)
+struct artifact *find_artifact_type(const char *name, int type)
 {
-    artifactlist *al;
-    artifact *art;
+    artifact_list_t *al;
+    artifact_t *art;
 
     al = find_artifactlist(type);
 
@@ -2141,7 +2143,7 @@ artifact *find_artifact_type(const char *name, int type)
 
 /**
  * Checks if op can be combined with art. */
-static int legal_artifact_combination(object *op, artifact *art)
+static int legal_artifact_combination(object *op, artifact_t *art)
 {
     int neg, success = 0;
     linked_char *tmp;
@@ -2179,7 +2181,7 @@ static int legal_artifact_combination(object *op, artifact *art)
 /**
  * Fixes the given object, giving it the abilities and titles it should
  * have due to the second artifact template. */
-void give_artifact_abilities(object *op, artifact *art)
+void give_artifact_abilities(object *op, struct artifact *art)
 {
     if (art->copy_artifact) {
         copy_object_with_inv(&art->def_at.clone, op);
@@ -2218,8 +2220,8 @@ void give_artifact_abilities(object *op, artifact *art)
  * @return 1 on success, 0 on failure. */
 int generate_artifact(object *op, int difficulty, int t_style, int a_chance)
 {
-    artifactlist *al;
-    artifact *art, *art_tmp = NULL;
+    artifact_list_t *al;
+    artifact_t *art, *art_tmp = NULL;
     int i = 0;
 
     al = find_artifactlist(op->type);
@@ -2341,7 +2343,7 @@ static void free_charlinks(linked_char *lc)
  * Totally frees an artifact, its next items, and such.
  * @param at Artifact to free. Pointer is efree()d too, so becomes
  * invalid. */
-static void free_artifact(artifact *at)
+static void free_artifact(artifact_t *at)
 {
     FREE_AND_CLEAR_HASH2(at->name);
     FREE_AND_CLEAR_HASH2(at->def_at.name);
@@ -2371,7 +2373,7 @@ static void free_artifact(artifact *at)
  * Free the artifact list. */
 static void free_artifactlist(void)
 {
-    artifactlist *al, *nextal;
+    artifact_list_t *al, *nextal;
 
     for (al = first_artifactlist; al; al = nextal) {
         nextal = al->next;
@@ -2596,8 +2598,8 @@ int get_environment_level(object *op)
  */
 void create_artifact(object *op, char *artifactname)
 {
-    artifactlist *al = find_artifactlist(op->type);
-    artifact *art;
+    artifact_list_t *al = find_artifactlist(op->type);
+    artifact_t *art;
 
     if (al == NULL) {
         return;

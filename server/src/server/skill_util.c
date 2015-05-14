@@ -32,6 +32,7 @@
 #include <global.h>
 #include <toolkit_string.h>
 #include <plugin.h>
+#include <arch.h>
 
 /** Table for stat modification of exp */
 float stat_exp_mult[MAX_STAT + 1] = {
@@ -207,14 +208,14 @@ int64_t calc_skill_exp(object *who, object *op, int level)
 void init_new_exp_system(void)
 {
     int i;
-    archetype *at;
+    archetype_t *at;
     char buf[MAX_BUF];
 
     for (i = 0; i < NROFSKILLS; i++) {
         snprintf(buf, sizeof(buf), "skill_%s", skills[i].name);
         string_replace_char(buf, " ", '_');
 
-        at = find_archetype(buf);
+        at = arch_find(buf);
 
         if (!at) {
             continue;

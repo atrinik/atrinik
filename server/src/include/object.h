@@ -201,10 +201,10 @@ typedef struct obj {
     tag_t attacked_by_count;
 
     /** Pointer to archetype */
-    struct archt *arch;
+    struct archetype *arch;
 
     /** Pointer used for various things */
-    struct archt *other_arch;
+    struct archetype *other_arch;
 
     /** Items to be generated */
     struct treasureliststruct *randomitems;

@@ -30,6 +30,7 @@
 #include <gitversion.h>
 #include <toolkit_string.h>
 #include <plugin.h>
+#include <arch.h>
 
 #ifdef HAVE_CHECK
 #   include <check.h>
@@ -49,7 +50,7 @@ mapstruct *first_map;
 /** First treasure. */
 treasurelist *first_treasurelist;
 /** First artifact. */
-artifactlist *first_artifactlist;
+struct artifact_list *first_artifactlist;
 /*@}*/
 
 /** Last player. */

@@ -26,12 +26,14 @@
  * @file
  * This is a unit tests file for bug #85: Cursed minor shielding amulet.
  *
- * Location: http://bugzilla.atrinik.org/show_bug.cgi?id=85 */
+ * Location: http://bugzilla.atrinik.org/show_bug.cgi?id=85
+ */
 
 #include <global.h>
 #include <check.h>
 #include <checkstd.h>
 #include <check_proto.h>
+#include <arch.h>
 
 START_TEST(test_run)
 {

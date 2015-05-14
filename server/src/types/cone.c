@@ -26,9 +26,11 @@
  * @file
  * Handles code for @ref CONE "cones".
  *
- * @author Alex Tokar */
+ * @author Alex Tokar
+ */
 
 #include <global.h>
+#include <arch.h>
 
 /**
  * Check whether a part of the cone already exists on the specified

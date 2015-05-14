@@ -28,6 +28,7 @@
 
 #include <global.h>
 #include <plugin.h>
+#include <arch.h>
 
 /**
  * Registered method handlers. */

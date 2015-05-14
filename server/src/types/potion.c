@@ -26,9 +26,11 @@
  * @file
  * Handles potion related code.
  *
- * @author Alex Tokar */
+ * @author Alex Tokar
+ */
 
 #include <global.h>
+#include <arch.h>
 
 /** @copydoc object_methods::apply_func */
 static int apply_func(object *op, object *applier, int aflags)
@@ -57,7 +59,7 @@ static int apply_func(object *op, object *applier, int aflags)
         int i, val;
 
         /* Create a force and copy the effects in. */
-        force = get_archetype("force");
+        force = arch_get("force");
         force->type = POTION_EFFECT;
         /* Copy the amount of time the effect should last. */
         force->stats.food = op->stats.food;
@@ -151,10 +153,10 @@ static int apply_func(object *op, object *applier, int aflags)
             insert_spell_effect("meffect_purple", applier->map, applier->x, applier->y);
             play_sound_map(applier->map, CMD_SOUND_EFFECT, "poison.ogg", applier->x, applier->y, 0, 0);
         } else {
-            archetype *at;
+            archetype_t *at;
             object *depletion;
 
-            at = find_archetype("depletion");
+            at = arch_find("depletion");
 
             depletion = present_arch_in_ob(at, applier);
 

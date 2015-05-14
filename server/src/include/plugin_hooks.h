@@ -44,6 +44,21 @@
 #endif
 
 #ifndef PLUGIN_HOOK_NONE
+
+#if defined(PLUGIN_HOOK_DEFINITIONS)
+/** The actual hooklist. */
+static struct plugin_hooklist hooklist =
+#else
+/**
+ * The plugin hook list.
+ *
+ * If you need a function or variable from server accessed by a plugin,
+ * add it here.
+ */
+struct plugin_hooklist
+#endif
+{
+
 PLUGIN_HOOK_FUNCTION(char *, query_name, object *, object *)
 PLUGIN_HOOK_FUNCTION(const char *, re_cmp, const char *, const char *)
 PLUGIN_HOOK_FUNCTION(object *, present_in_ob, unsigned char, object *)
@@ -69,7 +84,7 @@ PLUGIN_HOOK_FUNCTION(void , command_drop, object *, const char *, char *)
 PLUGIN_HOOK_FUNCTION(int , transfer_ob, object *, int, int, int, object *, object *)
 PLUGIN_HOOK_FUNCTION(bool , kill_object, object *, object *)
 PLUGIN_HOOK_FUNCTION(void , esrv_send_inventory, object *, object *)
-PLUGIN_HOOK_FUNCTION(object *, get_archetype, const char *)
+PLUGIN_HOOK_FUNCTION(object *, arch_get, const char *)
 PLUGIN_HOOK_FUNCTION(mapstruct *, ready_map_name, const char *, mapstruct *, int)
 PLUGIN_HOOK_FUNCTION(int64_t, add_exp, object *, int64_t, int, int)
 PLUGIN_HOOK_FUNCTION(const char *, determine_god, object *)
@@ -88,8 +103,8 @@ PLUGIN_HOOK_FUNCTION(int , object_enter_map, object *, object *, mapstruct *, in
 PLUGIN_HOOK_FUNCTION(void , play_sound_map, mapstruct *, int, const char *, int, int, int, int)
 PLUGIN_HOOK_FUNCTION(object *, find_marked_object, object *)
 PLUGIN_HOOK_FUNCTION(int , cast_identify, object *, int, object *, int)
-PLUGIN_HOOK_FUNCTION(archetype *, find_archetype, const char *)
-PLUGIN_HOOK_FUNCTION(object *, arch_to_object, archetype *)
+PLUGIN_HOOK_FUNCTION(struct archetype *, arch_find, const char *)
+PLUGIN_HOOK_FUNCTION(object *, arch_to_object, struct archetype *)
 PLUGIN_HOOK_FUNCTION(object *, insert_ob_in_map, object *, mapstruct *, object *, int)
 PLUGIN_HOOK_FUNCTION(char *, cost_string_from_value, int64_t)
 PLUGIN_HOOK_FUNCTION(int , bank_deposit, object *, const char *, int64_t *value)
@@ -139,15 +154,15 @@ PLUGIN_HOOK_FUNCTION(int , hit_player, object *, int, object *)
 PLUGIN_HOOK_FUNCTION(int , move_ob, object *, int, object *)
 PLUGIN_HOOK_FUNCTION(mapstruct *, get_empty_map, int, int)
 PLUGIN_HOOK_FUNCTION(void , set_map_darkness, mapstruct *, int)
-PLUGIN_HOOK_FUNCTION(int , find_free_spot, archetype *, object *, mapstruct *, int, int, int, int)
+PLUGIN_HOOK_FUNCTION(int , find_free_spot, struct archetype *, object *, mapstruct *, int, int, int, int)
 PLUGIN_HOOK_FUNCTION(void , send_target_command, player *)
 PLUGIN_HOOK_FUNCTION(void , examine, object *, object *, StringBuffer *sb_capture)
 PLUGIN_HOOK_FUNCTION(void , draw_info, const char *, object *, const char *)
 PLUGIN_HOOK_FUNCTION(void , draw_info_format, const char *, object *, const char *, ...)
 PLUGIN_HOOK_FUNCTION(void , draw_info_type, uint8_t, const char *, const char *, object *, const char *)
 PLUGIN_HOOK_FUNCTION(void , draw_info_type_format, uint8_t, const char *, const char *, object *, const char *, ...)
-PLUGIN_HOOK_FUNCTION(artifactlist *, find_artifactlist, int)
-PLUGIN_HOOK_FUNCTION(void , give_artifact_abilities, object *, artifact *)
+PLUGIN_HOOK_FUNCTION(struct artifact_list *, find_artifactlist, int)
+PLUGIN_HOOK_FUNCTION(void , give_artifact_abilities, object *, struct artifact *)
 PLUGIN_HOOK_FUNCTION(int , connection_object_get_value, object *)
 PLUGIN_HOOK_FUNCTION(void , connection_object_add, object *, mapstruct *, int)
 PLUGIN_HOOK_FUNCTION(void , connection_trigger, object *, int)
@@ -236,11 +251,13 @@ PLUGIN_HOOK_VARIABLE(New_Face *, new_faces)
 PLUGIN_HOOK_VARIABLE(int, nrofpixmaps)
 PLUGIN_HOOK_VARIABLE(Animations *, animations)
 PLUGIN_HOOK_VARIABLE(int, num_animations)
-PLUGIN_HOOK_VARIABLE(archetype *, first_archetype)
+PLUGIN_HOOK_VARIABLE(struct archetype *, first_archetype)
 PLUGIN_HOOK_VARIABLE(mapstruct *, first_map)
 PLUGIN_HOOK_VARIABLE(party_struct *, first_party)
 PLUGIN_HOOK_VARIABLE(region_struct *, first_region)
 PLUGIN_HOOK_VARIABLE(long, pticks)
 PLUGIN_HOOK_VARIABLE(settings_struct, settings)
+
+};
 
 #endif

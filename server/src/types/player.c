@@ -31,6 +31,7 @@
 #include <toolkit_string.h>
 #include <plugin.h>
 #include <monster_data.h>
+#include <arch.h>
 
 static int save_life(object *op);
 static void remove_unpaid_objects(object *op, object *env);
@@ -570,7 +571,7 @@ void kill_player(object *op)
         }
 
         /* Create a bodypart-trophy to make the winner happy */
-        tmp = arch_to_object(find_archetype("finger"));
+        tmp = arch_to_object(arch_find("finger"));
 
         if (tmp) {
             char race[MAX_BUF];
@@ -610,7 +611,7 @@ void kill_player(object *op)
     play_sound_player_only(CONTR(op), CMD_SOUND_EFFECT, "playerdead.ogg", 0, 0, 0, 0);
 
     /* Put a gravestone up where the character 'almost' died. */
-    tmp = arch_to_object(find_archetype("gravestone"));
+    tmp = arch_to_object(arch_find("gravestone"));
     snprintf(buf, sizeof(buf), "%s's gravestone", op->name);
     FREE_AND_COPY_HASH(tmp->name, buf);
     FREE_AND_COPY_HASH(tmp->msg, gravestone_text(op));
@@ -665,7 +666,7 @@ void kill_player(object *op)
  * @param dir Direction to throw into. */
 void cast_dust(object *op, object *throw_ob, int dir)
 {
-    archetype *arch = NULL;
+    archetype_t *arch = NULL;
 
     if (!(spells[throw_ob->stats.sp].flags & SPELL_DESC_DIRECTION)) {
         LOG(BUG, "Warning, dust %s is not AoE spell!!", query_name(throw_ob, NULL));
@@ -673,7 +674,7 @@ void cast_dust(object *op, object *throw_ob, int dir)
     }
 
     if (spells[throw_ob->stats.sp].archname) {
-        arch = find_archetype(spells[throw_ob->stats.sp].archname);
+        arch = arch_find(spells[throw_ob->stats.sp].archname);
     }
 
     /* Casting POTION 'dusts' is really use_magic_item skill */
@@ -683,7 +684,7 @@ void cast_dust(object *op, object *throw_ob, int dir)
 
     if (throw_ob->type == POTION && arch != NULL) {
         cast_cone(op, throw_ob, dir, 10, throw_ob->stats.sp, arch);
-    } else if ((arch = find_archetype("dust_effect")) != NULL) {
+    } else if ((arch = arch_find("dust_effect")) != NULL) {
         /* dust_effect */
         cast_cone(op, throw_ob, dir, 1, 0, arch);
     } else {
@@ -2118,7 +2119,7 @@ static int player_load(player *pl, const char *path)
     return 1;
 }
 
-static void player_create(player *pl, const char *path, archetype *at, const char *name)
+static void player_create(player *pl, const char *path, archetype_t *at, const char *name)
 {
     copy_object(&at->clone, pl->ob, 0);
     pl->ob->custom_attrset = pl;
@@ -2140,7 +2141,7 @@ object *player_get_dummy(void)
     player *pl;
 
     pl = get_player(NULL);
-    pl->ob = get_archetype("human_male");
+    pl->ob = arch_get("human_male");
     pl->ob->custom_attrset = pl;
 
     SET_FLAG(pl->ob, FLAG_NO_FIX_PLAYER);
@@ -2187,7 +2188,7 @@ void player_set_talking_to(player *pl, object *npc)
     }
 }
 
-void player_login(socket_struct *ns, const char *name, archetype *at)
+void player_login(socket_struct *ns, const char *name, struct archetype *at)
 {
     player *pl;
     char *path;

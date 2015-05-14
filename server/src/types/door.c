@@ -30,6 +30,7 @@
  */
 
 #include <global.h>
+#include <arch.h>
 
 /**
  * Open the specified door.

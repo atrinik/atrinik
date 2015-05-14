@@ -24,9 +24,11 @@
 
 /**
  * @file
- * Handles code for @ref MARKER "marker" type objects. */
+ * Handles code for @ref MARKER "marker" type objects.
+ */
 
 #include <global.h>
+#include <arch.h>
 
 /** @copydoc object_methods::move_on_func */
 static int move_on_func(object *op, object *victim, object *originator, int state)
@@ -59,7 +61,7 @@ static int move_on_func(object *op, object *victim, object *originator, int stat
         if (!tmp) {
             object *force;
 
-            force = get_archetype("force");
+            force = arch_get("force");
             force->speed = 0;
 
             if (op->stats.food) {

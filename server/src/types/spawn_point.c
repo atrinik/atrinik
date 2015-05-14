@@ -26,10 +26,12 @@
  * @file
  * Handles code for @ref SPAWN_POINT "spawn points".
  *
- * @author Alex Tokar */
+ * @author Alex Tokar
+ */
 
 #include <global.h>
 #include <monster_guard.h>
+#include <arch.h>
 
 /**
  * Generate a monster from the spawn point.

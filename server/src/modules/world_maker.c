@@ -30,6 +30,7 @@
 #include <loader.h>
 #include <gd.h>
 #include <toolkit_string.h>
+#include <arch.h>
 
 /**
  * Array of colors used by the different faces.

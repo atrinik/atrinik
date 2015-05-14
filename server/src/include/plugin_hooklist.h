@@ -35,16 +35,11 @@
 
 /* Forward declarations. */
 struct faction;
+struct archetype;
+struct artifact;
+struct artifact_list;
 
-/**
- * The plugin hook list.
- *
- * If you need a function or variable from server accessed by a plugin,
- * add it to plugin_hooks.h.
- */
-struct plugin_hooklist {
 #include <plugin_hooks.h>
-};
 
 #endif
 

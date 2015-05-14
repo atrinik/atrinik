@@ -31,6 +31,7 @@
 #include <toolkit_string.h>
 #include <monster_data.h>
 #include <plugin.h>
+#include <arch.h>
 
 /** List of active objects that need to be processed */
 object *active_objects;
@@ -695,7 +696,7 @@ void dump_object(object *op, StringBuffer *sb)
  * @param sb Buffer that will contain object information. */
 void dump_object_rec(object *op, StringBuffer *sb)
 {
-    archetype *at;
+    archetype_t *at;
     object *tmp;
 
     if (!op) {
@@ -1021,7 +1022,7 @@ void update_ob_speed(object *op)
         op->speed = 0;
     }
 
-    if (arch_init) {
+    if (arch_in_init) {
         return;
     }
 
@@ -1657,7 +1658,7 @@ object *insert_ob_in_map(object *op, mapstruct *m, object *originator, int flag)
     }
 
     if (!op->head && op->arch->more && !op->more) {
-        archetype *at;
+        archetype_t *at;
         object *prev, *tail;
 
         prev = op;
@@ -1958,7 +1959,7 @@ void replace_insert_ob_in_map(char *arch_string, object *op)
         }
     }
 
-    tmp1 = arch_to_object(find_archetype(arch_string));
+    tmp1 = arch_to_object(arch_find(arch_string));
     tmp1->x = op->x;
     tmp1->y = op->y;
     insert_ob_in_map(tmp1, op->map, op, 0);
@@ -2181,7 +2182,7 @@ object *insert_ob_in_ob(object *op, object *where)
  * @param x X coordinate on map.
  * @param y Y coordinate on map.
  * @return First matching object, or NULL if none matches. */
-object *present_arch(archetype *at, mapstruct *m, int x, int y)
+object *present_arch(struct archetype *at, mapstruct *m, int x, int y)
 {
     object *tmp;
 
@@ -2248,7 +2249,7 @@ object *present_in_ob(uint8_t type, object *op)
  * @param at Archetype to search for.
  * @param op Where to search.
  * @return First matching object, or NULL if none matches. */
-object *present_arch_in_ob(archetype *at, object *op)
+object *present_arch_in_ob(struct archetype *at, object *op)
 {
     object *tmp;
 
@@ -2275,7 +2276,7 @@ object *present_arch_in_ob(archetype *at, object *op)
  * object - if it is a multispace object, this should be called for all
  * pieces.
  * @todo Document. */
-int find_free_spot(archetype *at, object *op, mapstruct *m, int x, int y, int start, int stop)
+int find_free_spot(struct archetype *at, object *op, mapstruct *m, int x, int y, int start, int stop)
 {
     int i, inx = 0;
     static int altern[SIZEOFFREE];
@@ -2300,7 +2301,7 @@ int find_free_spot(archetype *at, object *op, mapstruct *m, int x, int y, int st
  *
  * It will return the first available spot, not a random choice.
  * @todo Document. */
-int find_first_free_spot(archetype *at, object *op, mapstruct *m, int x, int y)
+int find_first_free_spot(struct archetype *at, object *op, mapstruct *m, int x, int y)
 {
     int i;
 
@@ -2315,7 +2316,7 @@ int find_first_free_spot(archetype *at, object *op, mapstruct *m, int x, int y)
 
 /**
  * @todo Document. */
-int find_first_free_spot2(archetype *at, mapstruct *m, int x, int y, int start, int range)
+int find_first_free_spot2(struct archetype *at, mapstruct *m, int x, int y, int start, int range)
 {
     int i;
 
@@ -3395,4 +3396,23 @@ int object_blocked(object *op, mapstruct *m, int x, int y)
     }
 
     return 0;
+}
+
+/**
+ * Creates a dummy object.
+ * @param name Name to give the dummy object. Can be NULL.
+ * @return Object of specified name. It fill have the ::FLAG_NO_PICK flag
+ * set. */
+object *object_create_singularity(const char *name)
+{
+    char buf[MAX_BUF];
+    snprintf(VS(buf), "singularity");
+    if (name != NULL) {
+        snprintfcat(VS(buf), " (%s)", name);
+    }
+
+    object *op = get_object();
+    FREE_AND_COPY_HASH(op->name, buf);
+    SET_FLAG(op, FLAG_NO_PICK);
+    return op;
 }

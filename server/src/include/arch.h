@@ -24,7 +24,8 @@
 
 /**
  * @file
- * Arch related structures */
+ * Arch related structures and definitions.
+ */
 
 #ifndef ARCH_H
 #define ARCH_H
@@ -32,26 +33,36 @@
 /**
  * The archetype structure is a set of rules on how to generate and manipulate
  * objects which point to archetypes.
- * This structure should get removed, and just replaced
- * by the object structure */
-typedef struct archt {
-    /** More definite name, like "generate_kobold" */
-    const char *name;
+ */
+typedef struct archetype {
+    struct archetype *next; ///< Next archetype in a linked list.
+    struct archetype *head; ///< The main part of a linked object.
+    struct archetype *more; ///< Next part of a linked object.
 
-    /** Next archetype in a linked list */
-    struct archt *next;
+    UT_hash_handle hh; ///< Hash handle.
 
-    /** The main part of a linked object */
-    struct archt *head;
+    const char *name; ///< More definite name, like "kobold".
+    object clone; ///< An object from which to do copy_object().
+} archetype_t;
 
-    /** Next part of a linked object */
-    struct archt *more;
+/* Prototypes */
 
-    /** An object from which to do copy_object() */
-    object clone;
+#ifndef __CPROTO__
 
-    /** Hash handle. */
-    UT_hash_handle hh;
-} archetype;
+bool arch_in_init;
+archetype_t *first_archetype;
+archetype_t *wp_archetype;
+archetype_t *empty_archetype;
+archetype_t *base_info_archetype;
+archetype_t *level_up_arch;
+
+void arch_init(void);
+void arch_deinit(void);
+void arch_add(archetype_t *at);
+archetype_t *arch_find(const char *name);
+object *arch_get(const char *name);
+object *arch_to_object(archetype_t *at);
+
+#endif
 
 #endif

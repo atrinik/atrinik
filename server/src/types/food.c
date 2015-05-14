@@ -25,9 +25,11 @@
 /**
  * @file
  * Handles code used for @ref FOOD "food", @ref DRINK "drinks" and
- * @ref FLESH "flesh". */
+ * @ref FLESH "flesh".
+ */
 
 #include <global.h>
+#include <arch.h>
 
 /** Maximum allowed food value. */
 #define FOOD_MAX 999
@@ -142,13 +144,13 @@ static void eat_special_food(object *who, object *food)
     /* if there is any stat or protection value - create force for the object!
      * */
     if (food->stats.Pow || food->stats.Str || food->stats.Dex || food->stats.Con || food->stats.Int || food->stats.Wis || food->stats.Cha) {
-        create_food_force(who, food, get_archetype("force"));
+        create_food_force(who, food, arch_get("force"));
     } else {
         int i;
 
         for (i = 0; i < NROFATTACKS; i++) {
             if (food->protection[i] > 0) {
-                create_food_force(who, food, get_archetype("force"));
+                create_food_force(who, food, arch_get("force"));
                 break;
             }
         }

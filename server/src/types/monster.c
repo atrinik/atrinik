@@ -26,7 +26,8 @@
  * @file
  * Monster memory, NPC interaction, AI, and other related functions
  * are in this file, all used by the @ref MONSTER "monster" type
- * objects. */
+ * objects.
+ */
 
 #include <global.h>
 #include <packet.h>
@@ -35,6 +36,7 @@
 #include <faction.h>
 #include <plugin.h>
 #include <monster_guard.h>
+#include <arch.h>
 
 static int can_detect_enemy(object *op, object *enemy, rv_vector *rv);
 static object *find_nearest_enemy(object *ob);

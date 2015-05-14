@@ -27,6 +27,7 @@
  * Handle exit placement in map. */
 
 #include <global.h>
+#include <arch.h>
 
 /**
  * Find a character in the layout.
@@ -175,7 +176,7 @@ void place_exits(mapstruct *map, char **maze, char *exitstyle, int orientation, 
     }
 
     if (style_map_up == NULL) {
-        the_exit_up = arch_to_object(find_archetype("exit"));
+        the_exit_up = arch_to_object(arch_find("exit"));
     } else {
         object *tmp = pick_random_object(style_map_up);
         the_exit_up = arch_to_object(tmp->arch);
@@ -184,7 +185,7 @@ void place_exits(mapstruct *map, char **maze, char *exitstyle, int orientation, 
     /* we need a down exit only if we're recursing. */
     if (RP->dungeon_level < RP->dungeon_depth || RP->final_map[0] != 0) {
         if (style_map_down == NULL) {
-            the_exit_down = arch_to_object(find_archetype("exit"));
+            the_exit_down = arch_to_object(arch_find("exit"));
         } else {
             object *tmp = pick_random_object(style_map_down);
             the_exit_down = arch_to_object(tmp->arch);
@@ -245,7 +246,7 @@ void place_exits(mapstruct *map, char **maze, char *exitstyle, int orientation, 
         if (!wall_blocked(map, the_exit_up->x + freearr_x[j], the_exit_up->y + freearr_y[j])) {
             char buf[MAX_BUF];
 
-            random_sign = get_archetype("sign");
+            random_sign = arch_get("sign");
             random_sign->x = the_exit_up->x + freearr_x[j];
             random_sign->y = the_exit_up->y + freearr_y[j];
 

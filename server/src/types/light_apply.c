@@ -26,9 +26,11 @@
  * @file
  * Handles code related to @ref LIGHT_APPLY "applyable lights".
  *
- * @author Alex Tokar */
+ * @author Alex Tokar
+ */
 
 #include <global.h>
+#include <arch.h>
 
 /** @copydoc object_methods::apply_func */
 static int apply_func(object *op, object *applier, int aflags)

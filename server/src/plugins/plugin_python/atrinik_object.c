@@ -28,6 +28,7 @@
 
 #include <plugin_python.h>
 #include <bresenham.h>
+#include <artifact.h>
 
 /**
  * All the possible fields of an object. */
@@ -511,7 +512,7 @@ static PyObject *Atrinik_Object_CreateForce(Atrinik_Object *obj, PyObject *args)
 
     OBJEXISTCHECK(obj);
 
-    force = hooks->get_archetype("force");
+    force = hooks->arch_get("force");
 
     if (expire_time > 0) {
         SET_FLAG(force, FLAG_IS_USED_UP);
@@ -544,7 +545,7 @@ static PyObject *Atrinik_Object_CreateObject(Atrinik_Object *obj, PyObject *args
     uint32_t nrof = 1;
     int64_t value = -1;
     int identified = 1;
-    archetype *at;
+    archetype_t *at;
     object *tmp;
 
     if (!PyArg_ParseTupleAndKeywords(args, keywds, "s|ILi", kwlist, &archname, &nrof, &value, &identified)) {
@@ -553,7 +554,7 @@ static PyObject *Atrinik_Object_CreateObject(Atrinik_Object *obj, PyObject *args
 
     OBJEXISTCHECK(obj);
 
-    at = hooks->find_archetype(archname);
+    at = hooks->arch_find(archname);
 
     if (!at) {
         PyErr_Format(AtrinikError, "The archetype '%s' doesn't exist.", archname);
@@ -1415,8 +1416,8 @@ static PyObject *Atrinik_Object_ConnectionTrigger(Atrinik_Object *obj, PyObject 
 static PyObject *Atrinik_Object_Artificate(Atrinik_Object *obj, PyObject *args)
 {
     const char *name = NULL;
-    artifactlist *artlist;
-    artifact *art;
+    artifact_list_t *artlist;
+    artifact_t *art;
 
     if (!PyArg_ParseTuple(args, "s", &name)) {
         return NULL;

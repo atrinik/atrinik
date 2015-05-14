@@ -1523,7 +1523,7 @@ static PyObject *Atrinik_CreateMap(PyObject *self, PyObject *args)
 static PyObject *Atrinik_CreateObject(PyObject *self, PyObject *args)
 {
     const char *archname;
-    archetype *at;
+    archetype_t *at;
 
     (void) self;
 
@@ -1531,7 +1531,7 @@ static PyObject *Atrinik_CreateObject(PyObject *self, PyObject *args)
         return NULL;
     }
 
-    at = hooks->find_archetype(archname);
+    at = hooks->arch_find(archname);
 
     if (!at) {
         PyErr_Format(AtrinikError, "The archetype '%s' doesn't exist.", archname);
@@ -1562,7 +1562,7 @@ static PyObject *Atrinik_GetTicks(PyObject *self, PyObject *args)
 static PyObject *Atrinik_GetArchetype(PyObject *self, PyObject *args)
 {
     const char *archname;
-    archetype *at;
+    archetype_t *at;
 
     (void) self;
 
@@ -1570,7 +1570,7 @@ static PyObject *Atrinik_GetArchetype(PyObject *self, PyObject *args)
         return NULL;
     }
 
-    at = hooks->find_archetype(archname);
+    at = hooks->arch_find(archname);
 
     if (!at) {
         PyErr_Format(AtrinikError, "The archetype '%s' doesn't exist.", archname);
@@ -2490,21 +2490,21 @@ int generic_field_setter(fields_struct *field, void *ptr, PyObject *value)
     case FIELDTYPE_ARCH:
 
         if (value == Py_None) {
-            *(archetype **) field_ptr = NULL;
+            *(archetype_t **) field_ptr = NULL;
         } else if (PyObject_TypeCheck(value, &Atrinik_ArchetypeType)) {
-            *(archetype **) field_ptr = (archetype *) ((Atrinik_Archetype *) value)->at;
+            *(archetype_t **) field_ptr = (archetype_t *) ((Atrinik_Archetype *) value)->at;
         } else if (PyString_Check(value)) {
             const char *archname;
-            archetype *arch;
+            archetype_t *arch;
 
             archname = PyString_AsString(value);
-            arch = hooks->find_archetype(archname);
+            arch = hooks->arch_find(archname);
 
             if (!arch) {
                 PyErr_Format(AtrinikError, "Could not find archetype '%s'.", archname);
                 return -1;
             } else {
-                *(archetype **) field_ptr = arch;
+                *(archetype_t **) field_ptr = arch;
             }
         } else {
             INTRAISE("Illegal value for archetype field.");
@@ -2691,7 +2691,7 @@ PyObject *generic_field_getter(fields_struct *field, void *ptr)
         return wrap_party(*(party_struct **) field_ptr);
 
     case FIELDTYPE_ARCH:
-        return wrap_archetype(*(archetype **) field_ptr);
+        return wrap_archetype(*(archetype_t **) field_ptr);
 
     case FIELDTYPE_PLAYER:
         return wrap_player(*(player **) field_ptr);

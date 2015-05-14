@@ -27,6 +27,7 @@
  * Handles code for the construction skill. */
 
 #include <global.h>
+#include <arch.h>
 
 /**
  * Check if objects on a square interfere with building.
@@ -253,7 +254,7 @@ static void fix_walls(mapstruct *map, int x, int y)
     object *wall_ob;
     char wall_name[MAX_BUF], orientation[MAX_BUF];
     uint32_t old_flags[NUM_FLAGS_32];
-    archetype *new_arch;
+    archetype_t *new_arch;
     int flag;
 
     /* First, find the wall on that spot */
@@ -319,7 +320,7 @@ static void fix_walls(mapstruct *map, int x, int y)
     }
 
     /* Before anything, make sure the archetype does in fact exist... */
-    new_arch = find_archetype(wall_name);
+    new_arch = arch_find(wall_name);
 
     if (!new_arch) {
         return;
@@ -414,7 +415,7 @@ static int builder_window(object *op, int x, int y)
 {
     object *wall_ob;
     char wall_name[MAX_BUF], orientation[MAX_BUF];
-    archetype *new_arch;
+    archetype_t *new_arch;
     object *window;
     uint32_t old_flags[NUM_FLAGS_32];
     int flag;
@@ -437,7 +438,7 @@ static int builder_window(object *op, int x, int y)
     strncat(wall_name, "_w", sizeof(wall_name) - strlen(wall_name) - 1);
     strncat(wall_name, orientation, sizeof(wall_name) - strlen(wall_name) - 1);
 
-    new_arch = find_archetype(wall_name);
+    new_arch = arch_find(wall_name);
 
     /* That type of wall doesn't have corresponding window archetype. */
     if (!new_arch) {
@@ -476,7 +477,7 @@ static int builder_window(object *op, int x, int y)
 static void construction_builder(object *op, int x, int y)
 {
     object *material, *new_item;
-    archetype *new_arch;
+    archetype_t *new_arch;
     int built = 0;
 
     material = find_marked_object(op);
@@ -492,7 +493,7 @@ static void construction_builder(object *op, int x, int y)
     }
 
     /* Create a new object from the raw materials. */
-    new_arch = find_archetype(material->slaying);
+    new_arch = arch_find(material->slaying);
 
     if (!new_arch) {
         LOG(BUG, "Unable to find archetype %s.", material->slaying);

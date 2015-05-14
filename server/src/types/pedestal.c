@@ -26,9 +26,11 @@
  * @file
  * Handles code for @ref PEDESTAL "pedestals".
  *
- * @author Alex Tokar */
+ * @author Alex Tokar
+ */
 
 #include <global.h>
+#include <arch.h>
 
 /**
  * Check whether pedestal matches the specified object.

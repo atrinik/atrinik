@@ -31,6 +31,7 @@
 #include <global.h>
 #include <packet.h>
 #include <toolkit_string.h>
+#include <arch.h>
 
 #define ACCOUNT_CHARACTERS_LIMIT 16
 #define ACCOUNT_PASSWORD_SIZE 32
@@ -48,7 +49,7 @@ typedef struct account_struct {
     time_t last_time;
 
     struct {
-        archetype *at;
+        archetype_t *at;
 
         char *name;
 
@@ -214,7 +215,7 @@ static int account_load(account_struct *account, const char *path)
             }
 
             account->characters = erealloc(account->characters, sizeof(*account->characters) * (account->characters_num + 1));
-            account->characters[account->characters_num].at = find_archetype(cps[0]);
+            account->characters[account->characters_num].at = arch_find(cps[0]);
             account->characters[account->characters_num].name = estrdup(cps[1]);
             account->characters[account->characters_num].region_name = estrdup(cps[2]);
             account->characters[account->characters_num].level = atoi(cps[3]);
@@ -415,7 +416,7 @@ void account_register(socket_struct *ns, char *name, char *password, char *passw
 
 void account_new_char(socket_struct *ns, char *name, char *archname)
 {
-    archetype *at;
+    archetype_t *at;
     char *path, *path_player;
     account_struct account;
 
@@ -436,7 +437,7 @@ void account_new_char(socket_struct *ns, char *name, char *archname)
         return;
     }
 
-    at = find_archetype(archname);
+    at = arch_find(archname);
 
     if (!at || at->clone.type != PLAYER) {
         draw_info_send(CHAT_TYPE_GAME, NULL, COLOR_RED, ns, "Invalid archname.");

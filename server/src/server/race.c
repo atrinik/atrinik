@@ -27,6 +27,7 @@
  * Handles code related to races. */
 
 #include <global.h>
+#include <arch.h>
 
 /**
  * This list is used for the item prefixes ('dwarven bolt', 'elven arrow',
@@ -47,7 +48,7 @@ static size_t num_races = 0;
  * Link corpse to a race.
  * @param race_name Race name.
  * @param at Archetype of the corpse. */
-static void race_add_corpse(shstr *race_name, archetype *at)
+static void race_add_corpse(shstr *race_name, archetype_t *at)
 {
     ob_race *race;
 
@@ -169,7 +170,7 @@ ob_race *race_get_random(void)
  * the archetype is a @ref MONSTER or @ref PLAYER. */
 void race_init(void)
 {
-    archetype *at, *tmp;
+    archetype_t *at, *tmp;
     size_t i;
 
     races = NULL;
@@ -189,7 +190,7 @@ void race_init(void)
     }
 
     /* Try to find the default corpse archetype. */
-    tmp = find_archetype(RACE_CORPSE_DEFAULT);
+    tmp = arch_find(RACE_CORPSE_DEFAULT);
 
     if (!tmp) {
         LOG(ERROR, "Can't find required archetype: '%s'.", RACE_CORPSE_DEFAULT);

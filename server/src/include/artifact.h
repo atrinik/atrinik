@@ -29,8 +29,10 @@
 #ifndef ARTIFACT_H
 #define ARTIFACT_H
 
+#include <arch.h>
+
 /** The artifact structure. */
-typedef struct artifactstruct {
+typedef struct artifact {
     /** Memory block with artifacts parse commands for loader.l. */
     char *parse_text;
 
@@ -41,13 +43,13 @@ typedef struct artifactstruct {
     const char *def_at_name;
 
     /** Next artifact in the list. */
-    struct artifactstruct *next;
+    struct artifact *next;
 
     /** List of allowed archetypes. */
     linked_char *allowed;
 
     /** The base archetype object. */
-    archetype def_at;
+    archetype_t def_at;
 
     /**
      * Treasure style.
@@ -64,15 +66,15 @@ typedef struct artifactstruct {
      * If set, the artifact will be directly copied to the object,
      * instead of just having the extra attributes added. */
     uint8_t copy_artifact;
-} artifact;
+} artifact_t;
 
 /** Artifact list structure. */
-typedef struct artifactliststruct {
+typedef struct artifact_list {
     /** Next list. */
-    struct artifactliststruct *next;
+    struct artifact_list *next;
 
     /** Items in this artifact list. */
-    struct artifactstruct *items;
+    struct artifact *items;
 
     /** Sum of chance for all artifacts on this list. */
     uint16_t total_chance;
@@ -81,6 +83,6 @@ typedef struct artifactliststruct {
      * Object type that this list represents.
      * -1 are "Allowed none" items. */
     int16_t type;
-} artifactlist;
+} artifact_list_t;
 
 #endif

@@ -27,6 +27,7 @@
  * Handles god related code. */
 
 #include <global.h>
+#include <arch.h>
 
 /**
  * Returns pointer to specified god's object through pntr_to_god_obj().
@@ -34,9 +35,9 @@
  * @return Pointer to god's object, NULL if doesn't match any god. */
 object *find_god(const char *name)
 {
-    archetype *at;
+    archetype_t *at;
 
-    at = find_archetype(name);
+    at = arch_find(name);
 
     if (!at) {
         return NULL;

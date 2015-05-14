@@ -27,6 +27,7 @@
 #include <checkstd.h>
 #include <check_proto.h>
 #include <stdarg.h>
+#include <arch.h>
 
 /*
  * Player applies a torch on the ground. Ensure the torch is lit and not
@@ -39,7 +40,7 @@ START_TEST(test_light_apply_apply_1)
 
     check_setup_env_pl(&map, &pl);
 
-    torch = insert_ob_in_map(get_archetype("torch"), map, NULL, 0);
+    torch = insert_ob_in_map(arch_get("torch"), map, NULL, 0);
     player_apply(pl, torch, 0, 0);
     ck_assert(!QUERY_FLAG(torch, FLAG_APPLIED));
     ck_assert_int_ne(torch->glow_radius, 0);
@@ -58,7 +59,7 @@ START_TEST(test_light_apply_apply_2)
 
     check_setup_env_pl(&map, &pl);
 
-    torch = insert_ob_in_map(get_archetype("torch"), map, NULL, 0);
+    torch = insert_ob_in_map(arch_get("torch"), map, NULL, 0);
     manual_apply(torch, torch, 0);
     player_apply(pl, torch, 0, 0);
     ck_assert(!QUERY_FLAG(torch, FLAG_APPLIED));
@@ -77,7 +78,7 @@ START_TEST(test_light_apply_apply_3)
 
     check_setup_env_pl(&map, &pl);
 
-    torch = insert_ob_in_ob(get_archetype("torch"), pl);
+    torch = insert_ob_in_ob(arch_get("torch"), pl);
     player_apply(pl, torch, 0, 0);
     ck_assert(QUERY_FLAG(torch, FLAG_APPLIED));
     ck_assert_int_ne(torch->glow_radius, 0);
@@ -96,7 +97,7 @@ START_TEST(test_light_apply_apply_4)
 
     check_setup_env_pl(&map, &pl);
 
-    torch = insert_ob_in_map(get_archetype("torch"), map, NULL, 0);
+    torch = insert_ob_in_map(arch_get("torch"), map, NULL, 0);
     manual_apply(torch, torch, 0);
     ck_assert(!QUERY_FLAG(torch, FLAG_APPLIED));
     ck_assert_int_ne(torch->glow_radius, 0);
@@ -125,9 +126,9 @@ START_TEST(test_light_apply_apply_5)
 
     check_setup_env_pl(&map, &pl);
 
-    torch = insert_ob_in_ob(get_archetype("torch"), pl);
+    torch = insert_ob_in_ob(arch_get("torch"), pl);
     ck_assert_ptr_ne(torch, NULL);
-    torch2 = insert_ob_in_map(get_archetype("torch"), map, NULL, 0);
+    torch2 = insert_ob_in_map(arch_get("torch"), map, NULL, 0);
     ck_assert_ptr_ne(torch2, NULL);
 
     player_apply(pl, torch, 0, 0);
@@ -158,7 +159,7 @@ START_TEST(test_light_apply_apply_6)
 
     check_setup_env_pl(&map, &pl);
 
-    torch = get_archetype("torch");
+    torch = arch_get("torch");
     torch->nrof = 2;
     torch = insert_ob_in_ob(torch, pl);
     ck_assert_ptr_ne(torch, NULL);

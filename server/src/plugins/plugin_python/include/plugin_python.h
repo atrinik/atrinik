@@ -33,6 +33,7 @@
 
 #define GLOBAL_NO_PROTOTYPES
 #include <global.h>
+#include <arch.h>
 #include <plugin.h>
 #include <plugin_hooklist.h>
 
@@ -381,14 +382,14 @@ typedef struct {
 } Atrinik_Player;
 
 PyTypeObject Atrinik_ArchetypeType;
-PyObject *wrap_archetype(archetype *at);
+PyObject *wrap_archetype(archetype_t *at);
 int Atrinik_Archetype_init(PyObject *module);
 
 /** The Atrinik_Archetype structure. */
 typedef struct {
     PyObject_HEAD
     /** Pointer to the Atrinik archetype we wrap. */
-    archetype *at;
+    archetype_t *at;
 } Atrinik_Archetype;
 
 PyTypeObject Atrinik_AttrListType;

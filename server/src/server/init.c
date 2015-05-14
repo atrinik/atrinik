@@ -30,6 +30,7 @@
 #include <packet.h>
 #include <toolkit_string.h>
 #include <faction.h>
+#include <arch.h>
 
 /**
  * The server's settings. */
@@ -45,7 +46,7 @@ int world_darkness;
 unsigned long todtick;
 
 /** Pointer to archetype that is used as effect when player levels up. */
-archetype *level_up_arch = NULL;
+struct archetype *level_up_arch = NULL;
 
 /** The starting map. */
 char first_map_path[MAX_BUF];
@@ -133,7 +134,7 @@ void cleanup(void)
     account_deinit();
     free_all_maps();
     free_style_maps();
-    free_all_archs();
+    arch_deinit();
     free_all_treasures();
     free_all_images();
     free_all_newserver();
@@ -734,14 +735,14 @@ static void init_library(int argc, char *argv[])
     /* Must be after we read in the bitmaps */
     init_anim();
     /* Reads all archetypes from file */
-    init_archetypes();
+    arch_init();
     init_dynamic();
     init_clocks();
     account_init();
 
     /* init some often used default archetypes */
     if (level_up_arch == NULL) {
-        level_up_arch = find_archetype(ARCHETYPE_LEVEL_UP);
+        level_up_arch = arch_find(ARCHETYPE_LEVEL_UP);
     }
 
     if (!level_up_arch) {
@@ -776,7 +777,7 @@ void init_globals(void)
  * Initializes first_map_path from the archetype collection. */
 static void init_dynamic(void)
 {
-    archetype *at = first_archetype;
+    archetype_t *at = first_archetype;
 
     while (at) {
         if (at->clone.type == MAP && EXIT_PATH(&at->clone)) {
@@ -873,7 +874,7 @@ void init(int argc, char **argv)
  * Initialize before playing. */
 static void init_beforeplay(void)
 {
-    init_archetypes();
+    arch_init();
     init_spells();
     race_init();
     init_readable();

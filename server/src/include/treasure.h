@@ -97,7 +97,7 @@ typedef struct _change_arch {
  * treasure when an archetype of that type is generated. */
 typedef struct treasurestruct {
     /** Which item this link can be */
-    struct archt *item;
+    struct archetype *item;
 
     /** If not NULL, name of list to use instead */
     const char *name;

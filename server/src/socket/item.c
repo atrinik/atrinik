@@ -30,6 +30,7 @@
 
 #include <global.h>
 #include <packet.h>
+#include <arch.h>
 
 static int check_container(object *pl, object *con);
 

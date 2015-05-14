@@ -29,6 +29,7 @@
 #include <global.h>
 #include <loader.h>
 #include <toolkit_string.h>
+#include <arch.h>
 
 int global_darkness_table[MAX_DARKNESS + 1] = {
     0, 20, 40, 80, 160, 320, 640, 1280
@@ -608,9 +609,9 @@ int blocked_tile(object *op, mapstruct *m, int x, int y)
  * @param y Y position.
  * @return 0 if the space to check is not blocked, return value of blocked()
  * otherwise. */
-int arch_blocked(archetype *at, object *op, mapstruct *m, int x, int y)
+int arch_blocked(struct archetype *at, object *op, mapstruct *m, int x, int y)
 {
-    archetype *tmp;
+    archetype_t *tmp;
     mapstruct *mt;
     int xt, yt, t;
 

@@ -284,14 +284,14 @@ static PyObject *Atrinik_Map_CreateObject(Atrinik_Map *map, PyObject *args)
 {
     const char *archname;
     int x, y;
-    archetype *arch;
+    archetype_t *arch;
     object *newobj;
 
     if (!PyArg_ParseTuple(args, "sii", &archname, &x, &y)) {
         return NULL;
     }
 
-    if (!(arch = hooks->find_archetype(archname)) || !(newobj = hooks->arch_to_object(arch))) {
+    if (!(arch = hooks->arch_find(archname)) || !(newobj = hooks->arch_to_object(arch))) {
         RAISE("Invalid archetype.");
         return NULL;
     }

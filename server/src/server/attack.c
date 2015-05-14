@@ -30,6 +30,7 @@
 #include <monster_data.h>
 #include <faction.h>
 #include <plugin.h>
+#include <arch.h>
 
 /**
  * Names of attack types to use when saving them to file.
@@ -876,7 +877,7 @@ static int abort_attack(object *target, object *hitter, int simple_attack)
  * @param dam Damage to deal. */
 static void poison_player(object *op, object *hitter, float dam)
 {
-    archetype *at;
+    archetype_t *at;
     object *tmp;
     int dam2;
 
@@ -889,7 +890,7 @@ static void poison_player(object *op, object *hitter, float dam)
         return;
     }
 
-    at = find_archetype("poisoning");
+    at = arch_find("poisoning");
     tmp = present_arch_in_ob(at, op);
 
     dam /= 2.0f;
@@ -940,7 +941,7 @@ static void poison_player(object *op, object *hitter, float dam)
  * @param op Victim. */
 static void slow_living(object *op)
 {
-    archetype *at = find_archetype("slowness");
+    archetype_t *at = arch_find("slowness");
     object *tmp;
 
     if (at == NULL) {
@@ -966,11 +967,11 @@ static void slow_living(object *op)
  * @param op Victim. */
 void confuse_living(object *op)
 {
-    archetype *at;
+    archetype_t *at;
     object *tmp;
     int maxduration;
 
-    at = find_archetype("confusion");
+    at = arch_find("confusion");
     tmp = present_arch_in_ob(at, op);
 
     if (!tmp) {
@@ -999,7 +1000,7 @@ void confuse_living(object *op)
  * @param dam Damage to deal. */
 void blind_living(object *op, object *hitter, int dam)
 {
-    archetype *at;
+    archetype_t *at;
     object *tmp, *owner;
 
     /* Save some work if we know it isn't going to affect the player */
@@ -1007,7 +1008,7 @@ void blind_living(object *op, object *hitter, int dam)
         return;
     }
 
-    at = find_archetype("blindness");
+    at = arch_find("blindness");
     tmp = present_arch_in_ob(at, op);
 
     if (!tmp) {
@@ -1087,7 +1088,7 @@ void fall_damage_living(object *op, int fall_floors)
         return;
     }
 
-    object *damager = get_archetype("falling");
+    object *damager = arch_get("falling");
     damager->level = op->level;
     damager->stats.dam = ((op->weight + op->carrying) / 2500 *
             MIN(10, fall_floors)) * falling_mitigation[op->stats.Dex];

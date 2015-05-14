@@ -27,6 +27,7 @@
  * Experience management. */
 
 #include <global.h>
+#include <arch.h>
 
 /**
  * Experience needed for each level. */

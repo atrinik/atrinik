@@ -30,11 +30,12 @@
 #include <spellist.h>
 #include <toolkit_string.h>
 #include <plugin.h>
+#include <arch.h>
 
 /**
  * Array of pointers to archetypes used by the spells for quick
  * access. */
-archetype *spellarch[NROFREALSPELLS];
+struct archetype *spellarch[NROFREALSPELLS];
 
 /**
  * Initialize spells. */
@@ -51,12 +52,12 @@ void init_spells(void)
 
     for (i = 0; i < NROFREALSPELLS; i++) {
         char spellname[MAX_BUF], tmpresult[MAX_BUF];
-        archetype *at;
+        archetype_t *at;
 
         string_replace(spells[i].name, " ", "_", tmpresult, sizeof(spellname));
         snprintf(spellname, sizeof(spellname), "spell_%s", tmpresult);
 
-        at = find_archetype(spellname);
+        at = arch_find(spellname);
 
         if (!at) {
             LOG(ERROR, "Could not find required archetype %s.", spellname);
@@ -72,7 +73,7 @@ void init_spells(void)
         }
 
         if (spells[i].archname) {
-            if ((spellarch[i] = find_archetype(spells[i].archname)) == NULL) {
+            if ((spellarch[i] = arch_find(spells[i].archname)) == NULL) {
                 LOG(ERROR, "Spell %s needs arch %s, your archetypes file is out of date.", spells[i].name, spells[i].archname);
                 exit(1);
             }
@@ -91,7 +92,7 @@ void init_spells(void)
  * @return 1 on failure, 0 otherwise. */
 int insert_spell_effect(char *archname, mapstruct *m, int x, int y)
 {
-    archetype *effect_arch;
+    archetype_t *effect_arch;
     object *effect_ob;
 
     if (!archname || !m) {
@@ -99,7 +100,7 @@ int insert_spell_effect(char *archname, mapstruct *m, int x, int y)
         return 1;
     }
 
-    if (!(effect_arch = find_archetype(archname))) {
+    if (!(effect_arch = arch_find(archname))) {
         LOG(BUG, "Couldn't find effect arch (%s).", archname);
         return 1;
     }
@@ -545,7 +546,7 @@ int fire_bolt(object *op, object *caster, int dir, int type)
  * @param at The archetype to fire.
  * @param type Spell ID.
  * @return 0 on failure, 1 on success. */
-int fire_arch_from_position(object *op, object *caster, int16_t x, int16_t y, int dir, archetype *at, int type, object *target)
+int fire_arch_from_position(object *op, object *caster, int16_t x, int16_t y, int dir, struct archetype *at, int type, object *target)
 {
     object *tmp, *env;
 
@@ -608,7 +609,7 @@ int fire_arch_from_position(object *op, object *caster, int16_t x, int16_t y, in
  * @param spell_arch Spell's arch.
  * @retval 0 Couldn't cast.
  * @retval 1 Successful cast. */
-int cast_cone(object *op, object *caster, int dir, int strength, int spell_type, archetype *spell_arch)
+int cast_cone(object *op, object *caster, int dir, int strength, int spell_type, struct archetype *spell_arch)
 {
     object *tmp;
     int i, success = 0, range_min = -1, range_max = 1;
@@ -988,9 +989,9 @@ int SP_level_spellpoint_cost(object *caster, int spell_type, int caster_level)
  * @param spell_type ID of the spell.
  * @param n The number to be fired.
  * @param magic Magic. */
-void fire_swarm(object *op, object *caster, int dir, archetype *swarm_type, int spell_type, int n, int magic)
+void fire_swarm(object *op, object *caster, int dir, struct archetype *swarm_type, int spell_type, int n, int magic)
 {
-    object *tmp = get_archetype("swarm_spell");
+    object *tmp = arch_get("swarm_spell");
 
     tmp->x = op->x;
     tmp->y = op->y;
@@ -1022,12 +1023,12 @@ void spell_failure_raw_mana(object *caster, int level)
     object *tmp;
     tag_t count_ref;
 
-    tmp = get_archetype("raw_mana");
+    tmp = arch_get("raw_mana");
     count_ref = tmp->count;
 
     for (int i = 0; i <= SIZEOFFREE1; i++) {
         if (tmp == NULL) {
-            tmp = get_archetype("raw_mana");
+            tmp = arch_get("raw_mana");
         }
 
         tmp->weight_limit = count_ref;

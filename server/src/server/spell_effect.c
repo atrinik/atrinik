@@ -27,6 +27,7 @@
  * Various spell effects. */
 
 #include <global.h>
+#include <arch.h>
 
 /**
  * This is really used mostly for spell fumbles at the like.
@@ -113,13 +114,13 @@ int recharge(object *op)
 int cast_create_food(object *op, object *caster, int dir, const char *stringarg)
 {
     int food_value;
-    archetype *at = NULL;
+    archetype_t *at = NULL;
     object *new_op;
 
     food_value = 50 * SP_level_dam_adjust(caster, SP_CREATE_FOOD, -1, 0);
 
     if (stringarg) {
-        at = find_archetype(stringarg);
+        at = arch_find(stringarg);
 
         if (at == NULL || ((at->clone.type != FOOD && at->clone.type != DRINK) || (at->clone.stats.food > food_value))) {
             stringarg = NULL;
@@ -127,7 +128,7 @@ int cast_create_food(object *op, object *caster, int dir, const char *stringarg)
     }
 
     if (!stringarg) {
-        archetype *at_tmp;
+        archetype_t *at_tmp;
 
         /* We try to find the archetype with the maximum food value.
          * This removes the dependency of hard coded food values in this
@@ -193,7 +194,7 @@ int cast_wor(object *op, object *caster)
         return 0;
     }
 
-    dummy = get_archetype("force");
+    dummy = arch_get("force");
 
     if (dummy == NULL) {
         LOG(BUG, "get_archetype failed (%s - %s)!", query_name(op, NULL), query_name(caster, NULL));
@@ -359,7 +360,7 @@ int cast_heal_around(object *op, int level, int type)
  * @param spell_type ID of the spell. */
 int cast_heal(object *op, int level, object *target, int spell_type)
 {
-    archetype *at;
+    archetype_t *at;
     object *temp;
     int heal = 0, success = 0;
 
@@ -378,7 +379,7 @@ int cast_heal(object *op, int level, object *target, int spell_type)
         break;
 
     case SP_CURE_POISON:
-        at = find_archetype("poisoning");
+        at = arch_find("poisoning");
 
         if (op != target && target->type == PLAYER) {
             draw_info_format(COLOR_WHITE, target, "%s casts cure poison on you!", op->name ? op->name : "Someone");
@@ -416,7 +417,7 @@ int cast_heal(object *op, int level, object *target, int spell_type)
         break;
 
     case SP_CURE_CONFUSION:
-        at = find_archetype("confusion");
+        at = arch_find("confusion");
 
         if (op != target && target->type == PLAYER) {
             draw_info_format(COLOR_WHITE, target, "%s casts cure confusion on you!", op->name ? op->name : "Someone");
@@ -601,7 +602,7 @@ int cast_change_attr(object *op, object *caster, object *target, int spell_type)
     }
 
     if (force == NULL) {
-        force = get_archetype("force_effect");
+        force = arch_get("force_effect");
     }
 
     /* Mark this force with the originating spell */
@@ -869,7 +870,7 @@ int cast_consecrate(object *op)
                     *cp = tolower(*cp);
                 }
 
-                new_altar = get_archetype(buf);
+                new_altar = arch_get(buf);
                 new_altar->level = tmp->level;
                 new_altar->x = tmp->x;
                 new_altar->y = tmp->y;
@@ -943,7 +944,7 @@ int finger_of_death(object *op, object *target)
  * @param type ID of the spell.
  * @retval 0 No one caught anything.
  * @retval 1 At least one living was affected. */
-int cast_cause_disease(object *op, object *caster, int dir, archetype *disease_arch, int type)
+int cast_cause_disease(object *op, object *caster, int dir, struct archetype *disease_arch, int type)
 {
     int x = op->x, y = op->y, i, xt, yt;
     object *walk;

@@ -33,6 +33,8 @@
 #include <global.h>
 #include <book.h>
 #include <toolkit_string.h>
+#include <arch.h>
+#include <artifact.h>
 
 /* This flag is useful for debugging archiving action */
 /* #define ARCHIVE_DEBUG */
@@ -400,7 +402,7 @@ static void init_msgfile(void)
  * Initialize array of ::monsters. */
 static void init_mon_info(void)
 {
-    archetype *at;
+    archetype_t *at;
 
     monsters = NULL;
     num_monsters = 0;
@@ -585,8 +587,8 @@ static char *mon_info_msg(char *buf, size_t booksize)
  * @return 'buf'. */
 static char *artifact_msg(int level, char *buf, size_t booksize)
 {
-    artifactlist *al;
-    artifact *art;
+    artifact_list_t *al;
+    artifact_t *art;
     int chance, i, type, idx;
     int book_entries = level > 5 ? RANDOM () % 3 + RANDOM () % 3 + 2 : RANDOM () % level + 1;
     char *final, *ch;
@@ -641,7 +643,7 @@ static char *artifact_msg(int level, char *buf, size_t booksize)
         }
 
         desc = stringbuffer_new();
-        tmp = get_archetype(art->def_at_name);
+        tmp = arch_get(art->def_at_name);
         give_artifact_abilities(tmp, art);
         SET_FLAG(tmp, FLAG_IDENTIFIED);
 

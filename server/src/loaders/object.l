@@ -30,6 +30,7 @@
 
 #include <global.h>
 #include <loader.h>
+#include <artifact.h>
 #include <toolkit_string.h>
 
 #define YY_DECL int lex_load(int *depth, object **items, int maxdepth, int map_flags, int linemode)
@@ -43,7 +44,7 @@ static int object_load_flag;
 static int lex_error;
 static char msgbuf[HUGE_BUF * 4];
 static size_t msgbuf_len;
-static artifact *art_amask;
+static artifact_t *art_amask;
 
 /**
  * Utility macro to set or clear an object's flag depending whether the
@@ -186,12 +187,12 @@ lex_error = 0;
      * appropriately. */
     if (op->arch) {
         object *tmp;
-        artifact *art_amask_tmp;
+        artifact_t *art_amask_tmp;
         const char *archname;
 
         tmp = get_object();
         archname = yval();
-        tmp->arch = find_archetype(yval());
+        tmp->arch = arch_find(yval());
 
         if (tmp->arch != NULL) {
             copy_object(&tmp->arch->clone, tmp, 1);
@@ -210,7 +211,7 @@ lex_error = 0;
             if (tmp->arch) {
                 insert_ob_in_ob(tmp, op);
             } else {
-                if (!arch_init) {
+                if (!arch_in_init) {
                     LOG(DEBUG, "Discarding object without arch: %s", archname);
                 }
 
@@ -270,7 +271,7 @@ lex_error = 0;
         }
     } else {
         /* This is the actual archetype definition */
-        op->arch = find_archetype(yval());
+        op->arch = arch_find(yval());
 
         if (op->arch != NULL) {
             /* Speed will handled in load_object() for this. */
@@ -352,7 +353,7 @@ lex_error = 0;
     }
 }
 ^quickslot{S}        op->quickslot = IVAL;
-^other_arch{S}       op->other_arch = find_archetype(yval());
+^other_arch{S}       op->other_arch = arch_find(yval());
 ^animation{S}        {
     char *yv = yval();
 
@@ -1482,7 +1483,7 @@ void get_ob_diff(StringBuffer *sb, object *op, object *op2)
  * Dumps all variables in an object to a file. */
 void save_object(FILE *fp, object *op)
 {
-    archetype *at;
+    archetype_t *at;
     object *tmp;
     StringBuffer *sb;
     char *cp;

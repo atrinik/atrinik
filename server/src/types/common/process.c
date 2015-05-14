@@ -26,9 +26,11 @@
  * @file
  * Common object processing functions.
  *
- * @author Alex Tokar */
+ * @author Alex Tokar
+ */
 
 #include <global.h>
+#include <arch.h>
 
 /**
  * Process a changing object.

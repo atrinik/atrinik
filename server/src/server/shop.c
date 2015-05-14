@@ -28,6 +28,7 @@
 
 #include <global.h>
 #include <toolkit_string.h>
+#include <arch.h>
 
 static int64_t pay_from_container(object *op, object *pouch, int64_t to_pay);
 
@@ -134,16 +135,16 @@ int64_t query_cost(object *tmp, object *who, int flag)
  * @param c Value we're searching.
  * @param cointype First coin type to search.
  * @return Coin archetype, NULL if none found. */
-static archetype *find_next_coin(int64_t c, int *cointype)
+static archetype_t *find_next_coin(int64_t c, int *cointype)
 {
-    archetype *coin;
+    archetype_t *coin;
 
     do {
         if (coins[*cointype] == NULL) {
             return NULL;
         }
 
-        coin = find_archetype(coins[*cointype]);
+        coin = arch_find(coins[*cointype]);
 
         if (coin == NULL) {
             return NULL;
@@ -162,7 +163,7 @@ static archetype *find_next_coin(int64_t c, int *cointype)
 char *cost_string_from_value(int64_t cost)
 {
     static char buf[MAX_BUF];
-    archetype *coin, *next_coin;
+    archetype_t *coin, *next_coin;
     char *endbuf;
     int64_t num;
     int cointype = 0;
@@ -388,7 +389,7 @@ static int64_t pay_from_container(object *op, object *pouch, int64_t to_pay)
     /* Note that the coin_objs array goes from least value to greatest value */
     for (i = 0; i < NUM_COINS; i++) {
         if (coin_objs[i] == NULL) {
-            coin_objs[i] = get_archetype(coins[NUM_COINS - 1 - i]);
+            coin_objs[i] = arch_get(coins[NUM_COINS - 1 - i]);
             coin_objs[i]->nrof = 0;
         }
     }
@@ -710,7 +711,7 @@ object *bank_get_info(object *op)
  * @return The created player info object. */
 object *bank_create_info(object *op)
 {
-    object *bank = get_archetype(shstr_cons.player_info);
+    object *bank = arch_get(shstr_cons.player_info);
 
     FREE_AND_COPY_HASH(bank->name, shstr_cons.BANK_GENERAL);
     insert_ob_in_ob(bank, op);
@@ -940,11 +941,11 @@ int64_t insert_coins(object *pl, int64_t value)
 {
     int count;
     object *tmp, *pouch;
-    archetype *at;
+    archetype_t *at;
     uint32_t n;
 
     for (count = 0; coins[count]; count++) {
-        at = find_archetype(coins[count]);
+        at = arch_find(coins[count]);
 
         if (at == NULL) {
             LOG(BUG, "Could not find %s archetype", coins[count]);

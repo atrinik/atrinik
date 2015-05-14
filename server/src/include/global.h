@@ -259,7 +259,6 @@ typedef struct linked_char {
 #include <living.h>
 #include <object.h>
 #include <object_methods.h>
-#include <arch.h>
 #include <map.h>
 #include <tod.h>
 #include <pathfinder.h>
@@ -269,7 +268,6 @@ typedef struct linked_char {
 #include <player.h>
 #include <treasure.h>
 #include <commands.h>
-#include <artifact.h>
 #include <race.h>
 #include <recipe.h>
 #include <spells.h>

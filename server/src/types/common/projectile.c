@@ -25,9 +25,11 @@
 /**
  * @file
  * Common projectile object (arrow, bolt, bullet, etc) related
- * functions. */
+ * functions.
+ */
 
 #include <global.h>
+#include <arch.h>
 
 /**
  * Attempts to stick a projectile such as an arrow into the victim.
