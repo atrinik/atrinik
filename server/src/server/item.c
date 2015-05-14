@@ -977,7 +977,7 @@ char *describe_item(object *op)
                  * item have no penalty, or is it not fully identified for
                  * example. */
                 if (ARMOUR_SPELLS(op)) {
-                    sprintf(buf, "(armour mana reg %d)", -1 * ARMOUR_SPELLS(op));
+                    sprintf(buf, "(armour mana reg %d)", -ARMOUR_SPELLS(op));
                     strcat(retbuf, buf);
                 }
 

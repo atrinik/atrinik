@@ -201,7 +201,7 @@ static int light_mask_adjust(mapstruct *map, int x, int y, int intensity, int mo
     int xt, yt, i, mlen, map_flag = 0;
 
     if (intensity < 0) {
-        mod = mod * -1;
+        mod = -mod;
     }
 
     intensity = abs(intensity);
