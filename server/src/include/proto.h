@@ -585,7 +585,6 @@ extern path_node_t *path_compress(path_node_t *path);
 extern void path_visualize(path_visualization_t **visualization, path_visualizer_t **visualizer);
 extern path_node_t *path_find(object *op, mapstruct *map1, int x, int y, mapstruct *map2, int x2, int y2, path_visualizer_t **visualizer);
 /* src/server/plugins.c */
-extern struct plugin_hooklist hooklist;
 extern object *get_event_object(object *op, int event_nr);
 extern void display_plugins_list(object *op);
 extern void init_plugins(void);
