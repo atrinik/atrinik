@@ -193,9 +193,9 @@ typedef struct toolkit_dependency {
     GETTIMEOFDAY(&PERF_TIMER_VAR(__pt_t2, __id));
 #define PERF_TIMER_GET(__id) \
     (((PERF_TIMER_VAR(__pt_t2, __id).tv_sec - \
-    PERF_TIMER_VAR(__pt_t1, __id).tv_sec) * 1000.0) + \
+    PERF_TIMER_VAR(__pt_t1, __id).tv_sec)) + \
     ((PERF_TIMER_VAR(__pt_t2, __id).tv_usec - \
-    PERF_TIMER_VAR(__pt_t1, __id).tv_usec) / 1000.0))
+    PERF_TIMER_VAR(__pt_t1, __id).tv_usec) / 1000000.0))
 
 #endif
 /*@}*/
