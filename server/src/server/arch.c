@@ -29,9 +29,6 @@
 #include <global.h>
 #include <loader.h>
 
-/** If set, does a little timing on the archetype load. */
-#define TIME_ARCH_LOAD 0
-
 /** The archetype hash table. */
 static archetype *arch_table = NULL;
 
@@ -354,9 +351,8 @@ static void load_archetypes(void)
 {
     FILE *fp;
     char filename[MAX_BUF];
-#if TIME_ARCH_LOAD
-    struct timeval tv1, tv2;
-#endif
+    PERF_TIMER_DECLARE(1);
+    PERF_TIMER_START(1);
 
     snprintf(filename, sizeof(filename), "%s/archetypes", settings.libpath);
 
@@ -367,26 +363,7 @@ static void load_archetypes(void)
         exit(1);
     }
 
-#if TIME_ARCH_LOAD
-    GETTIMEOFDAY(&tv1);
-#endif
-
     first_arch_pass(fp);
-
-#if TIME_ARCH_LOAD
-    int sec, usec;
-    GETTIMEOFDAY(&tv2);
-    sec = tv2.tv_sec - tv1.tv_sec;
-    usec = tv2.tv_usec - tv1.tv_usec;
-
-    if (usec < 0) {
-        usec += 1000000;
-        sec--;
-    }
-
-    LOG(DEBUG, "Load took %d.%06d seconds", sec, usec);
-#endif
-
     init_archetable();
 
     rewind(fp);
@@ -397,6 +374,9 @@ static void load_archetypes(void)
     second_arch_pass(fp);
 
     fclose(fp);
+
+    PERF_TIMER_STOP(1);
+    LOG(DEVEL, "Archetype loading took %f seconds", PERF_TIMER_GET(1));
 }
 
 /**
