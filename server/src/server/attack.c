@@ -1048,13 +1048,12 @@ void blind_living(object *op, object *hitter, int dam)
  * @param dam Damage to deal. */
 void paralyze_living(object *op, int dam)
 {
-    float effect, max;
+    double effect, max;
 
-    /* Do this as a float - otherwise, rounding might very well reduce this to 0
-     * */
-    effect = (float) dam * (float) 3.0 * ((float) 100.0 - (float) op->protection[ATNR_PARALYZE]) / (float) 100;
+    effect = (double) dam * 3.0;
+    effect = effect * (100.0 - (double) op->protection[ATNR_PARALYZE]) / 100.0;
 
-    if (effect == 0) {
+    if (effect < 0.000001) {
         return;
     }
 
@@ -1064,10 +1063,10 @@ void paralyze_living(object *op, int dam)
     op->speed_left -= FABS(op->speed) * effect;
 
     /* Max number of ticks to be affected for. */
-    max = ((float) 100 - (float) op->protection[ATNR_PARALYZE]) / (float) 2;
+    max = (100.0 - (double) op->protection[ATNR_PARALYZE]) / 2.0;
 
     if (op->speed_left < -(FABS(op->speed) * max)) {
-        op->speed_left = (float) -(FABS(op->speed) * max);
+        op->speed_left = -(FABS(op->speed) * max);
     }
 }
 

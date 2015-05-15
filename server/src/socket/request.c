@@ -2019,11 +2019,11 @@ void socket_command_fire(socket_struct *ns, player *pl, uint8_t *data, size_t le
 
     object_ranged_fire(tmp, pl->ob, dir, &delay);
 
-    if (skill_time > 1.0f) {
-        skill_time -= (SK_level(pl->ob) / 10 / 3) * 0.1f;
+    if (skill_time > 1.0) {
+        skill_time -= (SK_level(pl->ob) / 10.0 / 3.0) * 0.1;
 
-        if (skill_time < 1.0f) {
-            skill_time = 1.0f;
+        if (skill_time < 1.0) {
+            skill_time = 1.0;
         }
     }
 

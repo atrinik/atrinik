@@ -212,7 +212,7 @@
     ((_M_)->spaces[(_X_) + (_M_)->width * (_Y_)].layer[NUM_LAYERS * (_SL_) + (_Z_) -1])
 
 #define SET_MAP_DAMAGE(M, X, Y, SUB_LAYER, tmp) \
-    ((M)->spaces[(X) + (M)->width * (Y)].last_damage[(SUB_LAYER)] = (uint16_t) (tmp))
+    ((M)->spaces[(X) + (M)->width * (Y)].last_damage[(SUB_LAYER)] = (int16_t) (tmp))
 #define GET_MAP_DAMAGE(M, X, Y, SUB_LAYER) \
     ((M)->spaces[(X) + (M)->width * (Y)].last_damage[(SUB_LAYER)])
 

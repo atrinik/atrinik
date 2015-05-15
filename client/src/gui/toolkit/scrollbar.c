@@ -352,7 +352,7 @@ void scrollbar_scroll_to(scrollbar_struct *scrollbar, int scroll)
     if (scroll < SCROLL_TOP(scrollbar)) {
         scroll = SCROLL_TOP(scrollbar);
     } else if ((uint32_t) scroll > SCROLL_BOTTOM(scrollbar)) {
-        scroll = SCROLL_BOTTOM(scrollbar);
+        scroll = (int) SCROLL_BOTTOM(scrollbar);
     }
 
     /* If the scroll offset changed, update it and set the redraw flag,

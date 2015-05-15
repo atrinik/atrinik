@@ -739,8 +739,8 @@ void _transformSurfaceRGBA(SDL_Surface * src, SDL_Surface * dst, int cx, int cy,
             sdx = (ax + (isin * dy)) + xd;
             sdy = (ay - (icos * dy)) + yd;
             for (x = 0; x < dst->w; x++) {
-                dx = (short) (sdx >> 16);
-                dy = (short) (sdy >> 16);
+                dx = (int) (short) (sdx >> 16);
+                dy = (int) (short) (sdy >> 16);
 
                 if (flipx) {
                     dx = (src->w - 1) - dx;
@@ -811,8 +811,8 @@ void transformSurfaceY(SDL_Surface * src, SDL_Surface * dst, int cx, int cy, int
         sdx = (ax + (isin * dy)) + xd;
         sdy = (ay - (icos * dy)) + yd;
         for (x = 0; x < dst->w; x++) {
-            dx = (short) (sdx >> 16);
-            dy = (short) (sdy >> 16);
+            dx = (int) (short) (sdx >> 16);
+            dy = (int) (short) (sdy >> 16);
 
             if (flipx) {
                 dx = (src->w - 1) - dx;
@@ -1010,8 +1010,8 @@ void _rotozoomSurfaceSizeTrig(int width, int height, double angle, double zoomx,
     *canglezoom = cos(radangle);
     *sanglezoom *= zoomx;
     *canglezoom *= zoomx;
-    x = width / 2;
-    y = height / 2;
+    x = width / 2.0;
+    y = height / 2.0;
     cx = *canglezoom * x;
     cy = *canglezoom * y;
     sx = *sanglezoom * x;

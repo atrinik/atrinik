@@ -386,9 +386,10 @@ static int popup_event_func(popup_struct *popup, SDL_Event *event)
                     continue;
                 }
 
-                if (region_map_fow_is_visible(MapData.region_map,
-                        xpos / region_map->def->pixel_size / zoomfactor,
-                        ypos / region_map->def->pixel_size / zoomfactor)) {
+                if (region_map_fow_is_visible(MapData.region_map, xpos /
+                        (double) region_map->def->pixel_size / zoomfactor,
+                        ypos / (double) region_map->def->pixel_size /
+                        zoomfactor)) {
                     tooltip_create(event->motion.x, event->motion.y,
                             FONT_ARIAL11, region_map->def->tooltips[i].text);
                     tooltip_multiline(200);

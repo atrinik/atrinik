@@ -421,7 +421,7 @@ static void red_scale(sprite_struct *sprite)
     for (k = 0; k < temp->h; k++) {
         for (j = 0; j < temp->w; j++) {
             SDL_GetRGBA(getpixel(temp, j, k), temp->format, &r, &g, &b, &a);
-            r = (int) (0.212671 * r + 0.715160 * g + 0.072169 * b);
+            r = (Uint8) (0.212671 * r + 0.715160 * g + 0.072169 * b);
             g = b = 0;
             putpixel(temp, j, k, SDL_MapRGBA(temp->format, r, g, b, a));
         }
@@ -443,7 +443,7 @@ static void grey_scale(sprite_struct *sprite)
     for (k = 0; k < temp->h; k++) {
         for (j = 0; j < temp->w; j++) {
             SDL_GetRGBA(getpixel(temp, j, k), temp->format, &r, &g, &b, &a);
-            r = g = b = (int) (0.212671 * r + 0.715160 * g + 0.072169 * b);
+            r = g = b = (Uint8) (0.212671 * r + 0.715160 * g + 0.072169 * b);
             putpixel(temp, j, k, SDL_MapRGBA(temp->format, r, g, b, a));
         }
     }
@@ -464,7 +464,7 @@ static void fow_scale(sprite_struct *sprite)
     for (k = 0; k < temp->h; k++) {
         for (j = 0; j < temp->w; j++) {
             SDL_GetRGBA(getpixel(temp, j, k), temp->format, &r, &g, &b, &a);
-            r = g = b = (int) ((0.212671 * r + 0.715160 * g + 0.072169 * b) * 0.34);
+            r = g = b = (Uint8) ((0.212671 * r + 0.715160 * g + 0.072169 * b) * 0.34);
             b += 16;
             putpixel(temp, j, k, SDL_MapRGBA(temp->format, r, g, b, a));
         }

@@ -327,9 +327,9 @@ static int render_object(gdImagePtr im, int x, int y, object *ob)
         }
 
         if (num_z != 0) {
-            r -= z / num_z / 2.5;
-            g -= z / num_z / 2.5;
-            b -= z / num_z / 2.5;
+            r -= z / (double) num_z / 2.5;
+            g -= z / (double) num_z / 2.5;
+            b -= z / (double) num_z / 2.5;
             color = -1;
         }
 

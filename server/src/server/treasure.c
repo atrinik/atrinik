@@ -1917,7 +1917,7 @@ int fix_generated_item(object **op_ptr, object *creator, int difficulty, int a_c
             /* Marks as magical */
             SET_FLAG(op, FLAG_IS_MAGICAL);
 
-            op->value = (int) (1150.0f * spells[op->stats.sp].value_mul);
+            op->value = (int64_t) (1150.0f * spells[op->stats.sp].value_mul);
 
             if (!(flags & GT_ONLY_GOOD) && rndm_chance(10)) {
                 if (rndm_chance(2)) {

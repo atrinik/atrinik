@@ -308,10 +308,10 @@ void region_map_pan(region_map_t *region_map)
     if (map != NULL) {
         region_map->pos.x = (map->xpos + MapData.posx *
                 region_map->def->pixel_size) * (region_map->zoom / 100.0) -
-                region_map->pos.w / 2;
+                region_map->pos.w / 2.0;
         region_map->pos.y = (map->ypos + MapData.posy *
                 region_map->def->pixel_size) * (region_map->zoom / 100.0) -
-                region_map->pos.h / 2;
+                region_map->pos.h / 2.0;
     } else {
         region_map->pos.x = region_map->surface->w / 2 - region_map->pos.w / 2;
         region_map->pos.y = region_map->surface->h / 2 - region_map->pos.h / 2;
@@ -395,11 +395,11 @@ void region_map_render_marker(region_map_t *region_map, SDL_Surface *surface,
             region_map->zoom / 100.0, 1);
     /* Calculate the player's marker position. */
     box.x = x + (map->xpos + MapData.posx * region_map->def->pixel_size) *
-            (region_map->zoom / 100.0) - marker->w / 2 +
-            region_map->def->pixel_size / 2 - region_map->pos.x;
+            (region_map->zoom / 100.0) - marker->w / 2.0 +
+            region_map->def->pixel_size / 2.0 - region_map->pos.x;
     box.y = y + (map->ypos + MapData.posy * region_map->def->pixel_size) *
-            (region_map->zoom / 100.0) - marker->h / 2 +
-            region_map->def->pixel_size / 2 - region_map->pos.y;
+            (region_map->zoom / 100.0) - marker->h / 2.0 +
+            region_map->def->pixel_size / 2.0 - region_map->pos.y;
 
     srcbox.x = MAX(0, x - box.x);
     srcbox.y = MAX(0, y - box.y);
