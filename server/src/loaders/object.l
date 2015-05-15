@@ -70,7 +70,7 @@ static artifact_t *art_amask;
 /** Next value as integer. */
 #define IVAL atoi(yval())
 /** Next value as float. */
-#define FVAL (float) atof(yval())
+#define FVAL atof(yval())
 
 #define YY_NO_INPUT
 
