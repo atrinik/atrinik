@@ -145,11 +145,11 @@ static void arch_pass_first(FILE *fp)
     at->clone.arch = at;
 
     void *mybuffer = create_loader_buffer(fp);
-    int i, first = 2;
+    int i, first = LO_NEWFILE;
 
     while ((i = load_object(fp, &at->clone, mybuffer, first, MAP_STYLE)) !=
             LL_EOF) {
-        first = 0;
+        first = LO_REPEAT;
 
         /* Now we have the right speed_left value for out object.
          * copy_object() now will track down negative speed values, to
