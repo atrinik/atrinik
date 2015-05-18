@@ -41,6 +41,7 @@
 #include <cmake.h>
 #include <toolkit_cmake.h>
 #include <math.h>
+#include <float.h>
 #include <stdio.h>
 #include <stdbool.h>
 #include <stdint.h>
