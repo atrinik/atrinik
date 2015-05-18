@@ -179,9 +179,9 @@ typedef struct toolkit_dependency {
 #define PERF_TIMER_STOP(__id) \
     QueryPerformanceCounter(&PERF_TIMER_VAR(__pt_t2, __id));
 #define PERF_TIMER_GET(__id) \
-    ((PERF_TIMER_VAR(__pt_t2, __id).QuadPart - \
-    PERF_TIMER_VAR(__pt_t1, __id).QuadPart) * 1000.0 / \
-    PERF_TIMER_VAR(__pt_frequency, __id).QuadPart)
+    (((PERF_TIMER_VAR(__pt_t2, __id).QuadPart - \
+    PERF_TIMER_VAR(__pt_t1, __id).QuadPart)) / \
+    (double) PERF_TIMER_VAR(__pt_frequency, __id).QuadPart)
 
 #else
 
