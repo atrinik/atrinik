@@ -198,15 +198,22 @@ lex_error = 0;
             copy_object(&tmp->arch->clone, tmp, 1);
         }
 
-        (*depth)++;
-        items[*depth] = tmp;
-
         art_amask_tmp = art_amask;
         art_amask = NULL;
 
+        if (linemode == 1) {
+            (*depth)++;
+
+            if (*depth >= MAXDEPTH) {
+                log_error("Exhausted maximum items stack size, exiting...");
+                exit(1);
+            }
+        }
+
+        items[*depth] = tmp;
+
         if (linemode == 0) {
             lex_load(depth, items, maxdepth, map_flags, linemode);
-            (*depth)--;
 
             if (tmp->arch) {
                 insert_ob_in_ob(tmp, op);
