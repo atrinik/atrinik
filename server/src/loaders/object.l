@@ -888,9 +888,21 @@ int load_object(void *fp, object *op, void *mybuffer, int bufstate,
 
         retval = lex_load(&depth, items, MAXDEPTH, map_flags, 0);
     } else if (bufstate == LO_MEMORYMODE) {
-        YY_BUFFER_STATE yybufstate = yy_scan_string((char *) fp);
-        retval = lex_load(&depth, items, MAXDEPTH, map_flags, 0);
-        yy_delete_buffer(yybufstate);
+        char *strptr = fp;
+        YY_BUFFER_STATE yybufstate;
+        size_t lcount = 0;
+
+        for ( ; ; ) {
+            strptr += lcount;
+            lcount = strlen(strptr) + 1;
+            yybufstate = yy_scan_string(strptr);
+            retval = lex_load(&depth, items, MAXDEPTH, map_flags, 0);
+            yy_delete_buffer(yybufstate);
+
+            if (retval == LL_NORMAL) {
+                break;
+            }
+        }
 
         /* Be sure we work on the right buffer */
         if (cur_buffer != NULL) {
