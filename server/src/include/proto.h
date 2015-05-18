@@ -144,7 +144,6 @@ extern void *create_loader_buffer(void *fp);
 extern int load_object(void *fp, object *op, void *mybuffer, int bufstate, int map_flags);
 extern int set_variable(object *op, const char *buf);
 extern void get_ob_diff(StringBuffer *sb, object *op, object *op2);
-extern void save_object(FILE *fp, object *op);
 /* src/loaders/random_map.c */
 extern FILE *yy_random_mapin;
 extern FILE *yy_random_mapout;
@@ -532,6 +531,7 @@ extern const char *object_get_str(object *op);
 extern char *object_get_str_r(object *op, char *buf, size_t bufsize);
 extern int object_blocked(object *op, mapstruct *m, int x, int y);
 extern object *object_create_singularity(const char *name);
+extern void object_save(object *op, FILE *fp);
 /* src/server/object_methods.c */
 extern object_methods object_type_methods[160];
 extern object_methods object_methods_base;
@@ -1337,7 +1337,6 @@ extern void *create_loader_buffer(void *fp);
 extern int load_object(void *fp, object *op, void *mybuffer, int bufstate, int map_flags);
 extern int set_variable(object *op, const char *buf);
 extern void get_ob_diff(StringBuffer *sb, object *op, object *op2);
-extern void save_object(FILE *fp, object *op);
 /* src/loaders/random_map.c */
 extern FILE *yy_random_mapin;
 extern FILE *yy_random_mapout;

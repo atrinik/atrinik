@@ -2022,7 +2022,7 @@ void player_save(object *op)
     fprintf(fp, "endplst\n");
 
     SET_FLAG(op, FLAG_NO_FIX_PLAYER);
-    save_object(fp, op);
+    object_save(op, fp);
     CLEAR_FLAG(op, FLAG_NO_FIX_PLAYER);
 
     /* Make sure the write succeeded */

@@ -784,9 +784,9 @@ static void save_objects(mapstruct *m, FILE *fp, FILE *fp2)
                 }
 
                 if (unique || QUERY_FLAG(head, FLAG_UNIQUE)) {
-                    save_object(fp2, head);
+                    object_save(head, fp2);
                 } else {
-                    save_object(fp, head);
+                    object_save(head, fp);
                 }
             }
         }

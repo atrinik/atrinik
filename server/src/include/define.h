@@ -625,30 +625,34 @@
 /**
  * Set flag of of an object.
  * @param xyz The object
- * @param p The flag to set */
+ * @param p The flag to set
+ */
 #define SET_FLAG(xyz, p) \
     ((xyz)->flags[p / 32] |= FLAG_BITMASK(p))
 
 /**
  * Clear flag of an object.
  * @param xyz The object
- * @param p The flag to clear */
+ * @param p The flag to clear
+ */
 #define CLEAR_FLAG(xyz, p) \
     ((xyz)->flags[p / 32] &= ~FLAG_BITMASK(p))
 
 /**
  * Query flag of an object.
  * @param xyz The object
- * @param p The flag to query */
+ * @param p The flag to query
+ */
 #define QUERY_FLAG(xyz, p) \
     ((xyz)->flags[p / 32] & FLAG_BITMASK(p))
 
 /**
  * Toggle flag of an object.
  * @param xyz The object.
- * @param p The flag to toggle. */
+ * @param p The flag to toggle.
+ */
 #define TOGGLE_FLAG(xyz, p) \
-    { \
+    do { \
         if (QUERY_FLAG((xyz), (p))) \
         { \
             CLEAR_FLAG((xyz), (p)); \
@@ -657,7 +661,23 @@
         { \
             SET_FLAG((xyz), (p)); \
         } \
-    }
+    } while (0)
+
+/**
+ * Utility macro to set or clear an object's flag depending on whether the cond
+ * evaluates to true or false.
+ * @param op Object to set or clear the flag for
+ * @param flag The flag we're setting/clearing
+ * @param cond If true, will set the flag, will clear otherwise. */
+#define SET_CLEAR_FLAG(op, flag, cond) \
+    do { \
+        if (cond) { \
+            SET_FLAG(op, flag); \
+        } else { \
+            CLEAR_FLAG(op, flag); \
+        } \
+    } while (0)
+
 /*@}*/
 
 /**

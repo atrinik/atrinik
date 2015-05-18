@@ -3416,3 +3416,37 @@ object *object_create_singularity(const char *name)
     SET_FLAG(op, FLAG_NO_PICK);
     return op;
 }
+
+/**
+ * Dumps all variables in an object to a file.
+ * @param op Object to save.
+ * @param fp Where to save the object's text representation. Can be NULL.
+ */
+void object_save(object *op, FILE *fp)
+{
+    HARD_ASSERT(op != NULL);
+
+    if (fp == NULL) {
+        return;
+    }
+
+    archetype_t *at = op->arch;
+    if (at == NULL) {
+        at = empty_archetype;
+    }
+
+    fprintf(fp, "arch %s\n", at->name);
+
+    StringBuffer *sb = stringbuffer_new();
+    get_ob_diff(sb, op, &at->clone);
+
+    char *cp = stringbuffer_finish(sb);
+    fputs(cp, fp);
+    efree(cp);
+
+    for (object *tmp = op->inv; tmp != NULL; tmp = tmp->below) {
+        object_save(tmp, fp);
+    }
+
+    fprintf(fp, "end\n");
+}
