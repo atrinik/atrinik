@@ -168,7 +168,7 @@ static void arch_pass_first(FILE *fp)
             prev = last_more = at;
             break;
 
-        /* Another part of the previous archetype, link it correctly/ */
+        /* Another part of the previous archetype, link it correctly. */
         case LL_MORE:
             at->head = prev;
             at->clone.head = &prev->clone;
