@@ -267,7 +267,7 @@ typedef struct toolkit_dependency {
 
 #define HARD_ASSERT(cond) assert(cond)
 
-#define _FLOATING_EQUAL(_a_, _b, _epsilon) (fabs((_a) - (_b)) < (_epsilon))
+#define _FLOATING_EQUAL(_a, _b, _epsilon) (fabs((_a) - (_b)) < (_epsilon))
 #define FLT_EQUAL(_a, _b) _FLOATING_EQUAL(_a, _b, FLT_EPSILON)
 #define DBL_EQUAL(_a, _b) _FLOATING_EQUAL(_a, _b, DBL_EPSILON)
 #define LDBL_EQUAL(_a, _b) _FLOATING_EQUAL(_a, _b, LDBL_EPSILON)
