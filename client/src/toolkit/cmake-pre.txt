@@ -38,8 +38,6 @@ if (ENABLE_EXTRA_WARNINGS)
     add_definitions(-Wuninitialized)
     # Testing floating point values for equality
     add_definitions(-Wfloat-equal)
-    # Redundant (multiple same) declarations
-    add_definitions(-Wredundant-decls)
 endif ()
 
 if (ENABLE_AGGRESSIVE_WARNINGS)
@@ -49,6 +47,8 @@ if (ENABLE_AGGRESSIVE_WARNINGS)
     add_definitions(-Wsign-conversion)
     # Loop indices that could potentially overflow
     add_definitions(-Wunsafe-loop-optimizations)
+    # Redundant (multiple same) declarations
+    add_definitions(-Wredundant-decls)
 endif ()
 
 # Turn warnings into errors?
