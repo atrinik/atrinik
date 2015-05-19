@@ -21,27 +21,6 @@ if (NOT DL_LIBRARY AND NOT MINGW)
     message(FATAL_ERROR "Could not find dl library.")
 endif ()
 
-# Add some useful compile flags.
-add_definitions(-Wall -Wextra -Wno-unused-parameter -D_GNU_SOURCE -D__USE_MINGW_ANSI_STDIO=0 -std=gnu99)
-add_definitions(${CUSTOM_WARNINGS})
-
-if (ENABLE_EXTRA_WARNINGS)
-    add_definitions(-ftree-vrp -Wundef -Wpointer-arith -Wbad-function-cast -Wcast-align -Wlogical-op -Waggregate-return -Wnested-externs -Wunreachable-code -Wstack-protector -fbounds-check -ftrapv -Wformat -Wformat-security -Winit-self -Wshadow -Wbad-function-cast -Wmissing-declarations)
-
-    if (NOT MINGW)
-        add_definitions(-fstack-protector-all)
-    endif ()
-endif ()
-
-if (ENABLE_AGGRESSIVE_WARNINGS)
-    add_definitions(-Wcast-qual -Wunsafe-loop-optimizations)
-endif ()
-
-# Turn warnings into errors?
-if (ENABLE_WARNING_ERRORS)
-    add_definitions(-Werror)
-endif ()
-
 # Add our includes.
 include_directories(src/include)
 include_directories(src/random_maps)
