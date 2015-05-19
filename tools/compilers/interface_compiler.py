@@ -525,7 +525,7 @@ class TagCompilerCheck(TagCompilerAnd):
             if attr == "region_map":
                 self.precond.write(
                     "self._activator.FindObject(type=Type.REGION_MAP, "
-                    "name={name})", name=val
+                    "name={name})", name=repr(val)
                 )
             elif attr == "options":
                 self.precond.write("GetOptions() == {options}",
