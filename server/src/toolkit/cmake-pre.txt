@@ -26,7 +26,7 @@ if (ENABLE_EXTRA_WARNINGS)
     # Dead code (removed in newer versions of GCC, might still be in clang)
     add_definitions(-Wunreachable-code)
     # Additional format checks for printf/scanf/etc not enabled by -Wall
-    add_definitions(-Wformat=2)
+    add_definitions(-Wformat=2 -Wno-format-nonliteral)
     # Declarations like int i = i
     add_definitions(-Winit-self)
     # Local variables or types that shadow another variable, parameter, type,
