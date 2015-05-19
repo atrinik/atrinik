@@ -178,6 +178,10 @@
 #cmakedefine HAVE_MKSTEMP
 #endif
 
+#ifndef HAVE_STRNLEN
+#cmakedefine HAVE_STRNLEN
+#endif
+
 /* Name of the generated executable. */
 #define EXECUTABLE "@EXECUTABLE@"
 
