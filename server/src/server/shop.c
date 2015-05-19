@@ -196,7 +196,7 @@ char *cost_string_from_value(int64_t cost)
         num = cost / coin->clone.value;
         cost -= num * coin->clone.value;
 
-        if (cost == 0.0) {
+        if (cost == 0) {
             next_coin = NULL;
         } else {
             next_coin = find_next_coin(cost, &cointype);
@@ -217,8 +217,7 @@ char *cost_string_from_value(int64_t cost)
         } else {
             sprintf(endbuf, "%"PRId64 " %s%ss", num, material_real[coin->clone.material_real].name, coin->clone.name);
         }
-
-    }    while (next_coin);
+    } while (next_coin);
 
     return buf;
 }
@@ -308,7 +307,7 @@ int pay_for_item(object *op, object *pl)
     int64_t to_pay = query_cost(op, pl, COST_BUY);
     object *pouch;
 
-    if (to_pay == 0.0) {
+    if (to_pay == 0) {
         return 1;
     }
 

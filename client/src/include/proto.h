@@ -5,7 +5,6 @@ extern void anims_deinit(void);
 extern void anims_reset(void);
 /* src/client/client.c */
 extern Client_Player cpl;
-extern ClientSocket csocket;
 extern void DoClient(void);
 extern void check_animation_status(int anum);
 /* src/client/cmd_aliases.c */
@@ -35,7 +34,7 @@ extern int curl_connect(void *c_data);
 extern curl_data *curl_data_new(const char *url, const char *path);
 extern curl_data *curl_download_start(const char *url, const char *path);
 extern int8_t curl_download_finished(curl_data *data);
-extern double curl_download_sizeinfo(curl_data *data, CURLINFO info);
+extern int64_t curl_download_sizeinfo(curl_data *data, CURLINFO info);
 extern char *curl_download_speedinfo(curl_data *data, char *buf, size_t bufsize);
 extern void curl_data_free(curl_data *data);
 extern void curl_init(void);
@@ -110,7 +109,6 @@ extern void keepalive_ping_stats(void);
 extern void socket_command_keepalive(uint8_t *data, size_t len, size_t pos);
 extern void list_vid_modes(void);
 extern void clioption_settings_deinit(void);
-extern int main(int argc, char *argv[]);
 /* src/client/menu.c */
 extern int client_command_check(const char *cmd);
 extern int send_command_check(const char *cmd);
@@ -255,8 +253,8 @@ extern SDL_Surface *texture_surface(texture_struct *texture);
 /* src/client/tilestretcher.c */
 extern int tilestretcher_coords_in_tile(uint32_t stretch, int x, int y);
 extern int add_color_to_surface(SDL_Surface *dest, Uint8 red, Uint8 green, Uint8 blue);
-extern int copy_pixel_to_pixel(SDL_Surface *src, SDL_Surface *dest, int x, int y, int x2, int y2, float brightness);
-extern int copy_vertical_line(SDL_Surface *src, SDL_Surface *dest, int src_x, int src_sy, int src_ey, int dest_x, int dest_sy, int dest_ey, float brightness, int extra);
+extern void copy_pixel_to_pixel(SDL_Surface *src, SDL_Surface *dest, int x, int y, int x2, int y2, double brightness);
+extern void copy_vertical_line(SDL_Surface *src, SDL_Surface *dest, int src_x, int src_sy, int src_ey, int dest_x, int dest_sy, int dest_ey, double brightness, bool extra);
 extern SDL_Surface *tile_stretch(SDL_Surface *src, int n, int e, int s, int w);
 /* src/client/updates.c */
 extern void socket_command_file_update(uint8_t *data, size_t len, size_t pos);
@@ -900,8 +898,6 @@ extern void socket_destroy(socket_t *sc);
 extern SSL *socket_ssl_create(socket_t *sc, SSL_CTX *ctx);
 extern void socket_ssl_destroy(SSL *ssl);
 /* src/toolkit/string.c */
-extern void toolkit_string_init(void);
-extern void toolkit_string_deinit(void);
 /* src/toolkit/stringbuffer.c */
 extern void toolkit_stringbuffer_init(void);
 extern void toolkit_stringbuffer_deinit(void);

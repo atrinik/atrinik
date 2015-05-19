@@ -42,7 +42,8 @@
 int check_magical_container(object *op, object *container)
 {
     if (op->type == CONTAINER && container->type == CONTAINER &&
-            op->weapon_speed != 1.0f && container->weapon_speed != 1.0f) {
+            !DBL_EQUAL(op->weapon_speed, 1.0) &&
+            !DBL_EQUAL(container->weapon_speed, 1.0)) {
         return 1;
     }
 

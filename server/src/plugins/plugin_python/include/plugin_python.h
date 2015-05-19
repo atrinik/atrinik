@@ -29,7 +29,10 @@
 #ifndef PLUGIN_PYTHON_H
 #define PLUGIN_PYTHON_H
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wundef"
 #include <Python.h>
+#pragma GCC diagnostic pop
 
 #define GLOBAL_NO_PROTOTYPES
 #include <global.h>

@@ -1280,7 +1280,7 @@ int text_show_character(font_struct **font, font_struct *orig_font, SDL_Surface 
                             zoom_y *= -1;
                         }
 
-                        if (show_percentage != 1.0) {
+                        if (!FLT_EQUAL(show_percentage, 1.0)) {
                             // Left to right
                             if (show_percentage >= 6.0) {
                                 icon_box.w *= show_percentage - 6.0;

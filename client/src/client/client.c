@@ -45,9 +45,6 @@
 /** Client player structure with things like stats, damage, etc */
 Client_Player cpl;
 
-/** Client socket. */
-ClientSocket csocket;
-
 /** Structure of all the socket commands */
 static socket_command_struct commands[CLIENT_CMD_NROF] = {
     {socket_command_map},

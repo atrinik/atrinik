@@ -503,7 +503,7 @@ static int hit_player_attacktype(object *op, object *hitter, int damage, uint32_
 
         send_attack_msg(op, hitter, attacknum, (int) dam, damage);
 
-        if (dam && IS_LIVE(op)) {
+        if (dam > 0.0 && IS_LIVE(op)) {
             poison_player(op, hitter, (float) dam);
         }
 
@@ -516,7 +516,7 @@ static int hit_player_attacktype(object *op, object *hitter, int damage, uint32_
     {
         int level_diff = MIN(MAXLEVEL, MAX(0, op->level - hitter->level));
 
-        if (op->speed && (QUERY_FLAG(op, FLAG_MONSTER) || op->type == PLAYER) && !(rndm(0, (attacknum == ATNR_SLOW ? 6 : 3) - 1)) && ((rndm(1, 20) + op->protection[attacknum] / 10) < savethrow[level_diff])) {
+        if (!DBL_EQUAL(op->speed, 0.0) && (QUERY_FLAG(op, FLAG_MONSTER) || op->type == PLAYER) && !(rndm(0, (attacknum == ATNR_SLOW ? 6 : 3) - 1)) && ((rndm(1, 20) + op->protection[attacknum] / 10) < savethrow[level_diff])) {
             if (attacknum == ATNR_CONFUSION) {
                 if (hitter->type == PLAYER) {
                     draw_info_format(COLOR_ORANGE, hitter, "You confuse %s!", op->name);

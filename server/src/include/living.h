@@ -59,7 +59,7 @@
 
 /**
  * Calculates damage based on level. */
-#define LEVEL_DAMAGE(level) (float) ((level) ? 0.75f + (level) * 0.25f : 1.0f)
+#define LEVEL_DAMAGE(level) (float) ((level) > 0 ? 0.75 + (level) * 0.25 : 1.0)
 
 /**
  * Mostly used by "alive" objects, but also by other objects like gates,

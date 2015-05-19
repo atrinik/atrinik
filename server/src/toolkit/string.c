@@ -33,6 +33,8 @@
 
 TOOLKIT_API(IMPORTS(math), IMPORTS(stringbuffer), IMPORTS(memory));
 
+#ifndef __CPROTO__
+
 TOOLKIT_INIT_FUNC(string)
 {
 }
@@ -42,8 +44,6 @@ TOOLKIT_DEINIT_FUNC(string)
 {
 }
 TOOLKIT_DEINIT_FUNC_FINISH
-
-#ifndef __CPROTO__
 
 #undef string_sub
 #undef string_create_char_range

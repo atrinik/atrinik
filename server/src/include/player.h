@@ -256,10 +256,10 @@ typedef struct pl_player {
     float last_action_timer;
 
     /** Last speed value sent to client. */
-    float last_speed;
+    double last_speed;
 
     /** Last weapon speed value sent to client. */
-    float last_weapon_speed;
+    double last_weapon_speed;
 
     /** Last overall level sent to the client. */
     unsigned char last_level;

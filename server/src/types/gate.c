@@ -132,7 +132,7 @@ static int trigger_func(object *op, object *cause, int state)
 {
     (void) cause;
 
-    if (op->speed && op->stats.maxhp) {
+    if (!DBL_EQUAL(op->speed, 0.0) && op->stats.maxhp) {
         return OBJECT_METHOD_OK;
     }
 

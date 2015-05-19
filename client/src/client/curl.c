@@ -570,22 +570,23 @@ int8_t curl_download_finished(curl_data *data)
  *   be -1 if the size is not known.
  * - CURLINFO_SPEED_DOWNLOAD; speed in bytes that the file is being
  *   downloaded at.
- * - CURLINFO_SIZE_DOWNLOAD; how many bytes have been downloaded so far. */
-double curl_download_sizeinfo(curl_data *data, CURLINFO info)
+ * - CURLINFO_SIZE_DOWNLOAD; how many bytes have been downloaded so far.
+ */
+int64_t curl_download_sizeinfo(curl_data *data, CURLINFO info)
 {
-    CURLcode res;
-    double val;
-
     HARD_ASSERT(data != NULL);
 
-    if (curl_download_finished(data) != 0 || !data->handle) {
+    if (curl_download_finished(data) != 0 || data->handle == NULL) {
         return 0;
     }
 
-    res = curl_easy_getinfo(data->handle, info, &val);
+    double val;
+    CURLcode res = curl_easy_getinfo(data->handle, info, &val);
 
     if (res == CURLE_OK) {
-        return val;
+        /* cURL uses doubles, but all the info values we use this for are
+         * in bytes, so there's no reason for a double. */
+        return (int64_t) val;
     }
 
     return 0;
@@ -596,25 +597,25 @@ double curl_download_sizeinfo(curl_data *data, CURLINFO info)
  * @param data cURL data structure.
  * @param buf Where to store the information.
  * @param bufsize Size of 'buf'.
- * @return 'buf'. */
+ * @return 'buf'.
+ */
 char *curl_download_speedinfo(curl_data *data, char *buf, size_t bufsize)
 {
-    double speed, received, size;
-
     HARD_ASSERT(data != NULL);
     HARD_ASSERT(buf != NULL);
 
-    speed = curl_download_sizeinfo(data, CURLINFO_SPEED_DOWNLOAD);
-    received = curl_download_sizeinfo(data, CURLINFO_SIZE_DOWNLOAD);
-    size = curl_download_sizeinfo(data, CURLINFO_CONTENT_LENGTH_DOWNLOAD);
+    int64_t speed = curl_download_sizeinfo(data, CURLINFO_SPEED_DOWNLOAD);
+    int64_t received = curl_download_sizeinfo(data, CURLINFO_SIZE_DOWNLOAD);
+    int64_t size = curl_download_sizeinfo(data,
+            CURLINFO_CONTENT_LENGTH_DOWNLOAD);
 
-    if (!speed && !received && !size) {
+    if (speed == 0 && !received && !size) {
         *buf = '\0';
     } else if (size == -1) {
-        snprintf(buf, bufsize, "%0.3f MB/s", speed / 1024.0 / 1024.0);
+        snprintf(buf, bufsize, "%0.3f MB/s", speed / 1000.0 / 1000.0);
     } else {
         snprintf(buf, bufsize, "%.0f%% @ %0.3f MB/s", received * 100.0 / size,
-                speed / 1024.0 / 1024.0);
+                speed / 1000.0 / 1000.0);
     }
 
     return buf;

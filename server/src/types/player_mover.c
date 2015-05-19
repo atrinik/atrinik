@@ -83,7 +83,7 @@ static void player_mover_handle(object *op, object *victim, bool process)
         return;
     }
 
-    if (op->speed) {
+    if (!DBL_EQUAL(op->speed, 0.0)) {
         object *nextmover;
 
         FOR_MAP_LAYER_BEGIN(map, x, y, LAYER_SYS, -1, nextmover) {

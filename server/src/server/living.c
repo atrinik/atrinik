@@ -449,8 +449,8 @@ void living_update_player(object *op)
     int potion_protection_bonus[NROFATTACKS],
             potion_protection_malus[NROFATTACKS], potion_attack[NROFATTACKS];
     object *tmp;
-    float max = 9, added_speed = 0, bonus_speed = 0,
-            speed_reduce_from_disease = 1;
+    double max = 9.0, added_speed = 0.0, bonus_speed = 0.0,
+            speed_reduce_from_disease = 1.0;
     player *pl;
 
     HARD_ASSERT(op != NULL);
@@ -624,9 +624,8 @@ void living_update_player(object *op)
                     pl->class_ob = tmp;
                 }
 
-                if (ARMOUR_SPEED(tmp) &&
-                        (float) ARMOUR_SPEED(tmp) / 10.0f < max) {
-                    max = ARMOUR_SPEED(tmp) / 10.0f;
+                if (ARMOUR_SPEED(tmp) != 0 && ARMOUR_SPEED(tmp) / 10.0 < max) {
+                    max = ARMOUR_SPEED(tmp) / 10.0;
                 }
 
                 for (i = 0; i < NUM_STATS; i++) {
@@ -653,11 +652,7 @@ void living_update_player(object *op)
                 }
 
                 if (tmp->type == DISEASE || tmp->type == SYMPTOM) {
-                    speed_reduce_from_disease = (float) tmp->last_sp / 100.0f;
-
-                    if (speed_reduce_from_disease == 0.0f) {
-                        speed_reduce_from_disease = 1.0f;
-                    }
+                    speed_reduce_from_disease = tmp->last_sp / 100.0;
                 }
 
                 for (i = 0; i < NROFATTACKS; i++) {
@@ -744,9 +739,9 @@ void living_update_player(object *op)
         }
 
         /* Used for ALL armours except rings and amulets */
-        if (IS_ARMOR(pl->equipment[i]) && ARMOUR_SPEED(pl->equipment[i]) &&
-                (float) ARMOUR_SPEED(pl->equipment[i]) / 10.0f < max) {
-            max = ARMOUR_SPEED(pl->equipment[i]) / 10.0f;
+        if (IS_ARMOR(pl->equipment[i]) && ARMOUR_SPEED(pl->equipment[i]) != 0 &&
+                ARMOUR_SPEED(pl->equipment[i]) / 10.0 < max) {
+            max = ARMOUR_SPEED(pl->equipment[i]) / 10.0;
         }
 
         if (pl->equipment[i]->stats.ac) {
@@ -786,11 +781,10 @@ void living_update_player(object *op)
             if (pl->equipment[i]->stats.exp &&
                     pl->equipment[i]->type != SKILL) {
                 if (pl->equipment[i]->stats.exp > 0) {
-                    added_speed += (float) pl->equipment[i]->stats.exp / 3.0f;
-                    bonus_speed += 1.0f + (float) pl->equipment[i]->stats.exp /
-                            3.0f;
+                    added_speed += pl->equipment[i]->stats.exp / 3.0;
+                    bonus_speed += 1.0 + pl->equipment[i]->stats.exp / 3.0;
                 } else {
-                    added_speed += (float) pl->equipment[i]->stats.exp;
+                    added_speed += pl->equipment[i]->stats.exp;
                 }
             }
         }
@@ -846,10 +840,10 @@ void living_update_player(object *op)
     /* Now the speed thing... */
     op->speed += speed_bonus[op->stats.Dex];
 
-    if (added_speed >= 0) {
-        op->speed += added_speed / 10.0f;
+    if (added_speed >= 0.0) {
+        op->speed += added_speed / 10.0;
     } else {
-        op->speed /= 1.0f - added_speed;
+        op->speed /= 1.0 - added_speed;
     }
 
     if (op->speed > max) {
@@ -1567,12 +1561,11 @@ object *find_base_info_object(object *op)
 void set_mobile_speed(object *op, int idx)
 {
     object *base;
-    float speed, tmp;
+    double speed, tmp;
 
     base = insert_base_info_object(op);
 
     speed = base->speed_left;
-
     tmp = op->speed;
 
     if (idx) {
@@ -1594,7 +1587,7 @@ void set_mobile_speed(object *op, int idx)
     }
 
     /* Update speed if needed */
-    if ((tmp && !op->speed) || (!tmp && op->speed)) {
+    if (DBL_EQUAL(tmp, 0.0) != DBL_EQUAL(op->speed, 0.0)) {
         update_ob_speed(op);
     }
 }

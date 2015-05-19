@@ -36,7 +36,7 @@ static int move_on_func(object *op, object *victim, object *originator, int stat
     (void) victim;
     (void) originator;
 
-    if (op->speed || (op->stats.exp == -1 && op->value)) {
+    if (!DBL_EQUAL(op->speed, 0.0) || (op->stats.exp == -1 && op->value)) {
         return OBJECT_METHOD_OK;
     }
 

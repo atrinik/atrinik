@@ -206,7 +206,7 @@ static int inventory_render_object(widgetdata *widget, object *ob, uint32_t i,
 
     /* Calculate the row and column to render on. */
     r_row = *r / INVENTORY_COLS(inventory);
-    r_col = *r % (uint32_t) INVENTORY_COLS(inventory);
+    r_col = *r % INVENTORY_COLS(inventory);
 
     /* Calculate the X/Y positions. */
     x = inventory->x + r_col * INVENTORY_ICON_SIZE;
@@ -743,7 +743,7 @@ void widget_inventory_handle_arrow_key(widgetdata *widget, SDLKey key)
         widget->redraw = 1;
     }
 
-    offset = MAX(0, selected / (int) INVENTORY_COLS(inventory));
+    offset = MAX(0, selected / INVENTORY_COLS(inventory));
 
     if (inventory->scrollbar_info.scroll_offset > offset) {
         inventory->scrollbar_info.scroll_offset = offset;

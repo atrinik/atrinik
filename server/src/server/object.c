@@ -392,7 +392,7 @@ int CAN_MERGE(object *ob1, object *ob2)
     }
 
     /* Check attributes that cannot ever merge if they're different. */
-    if (ob1->arch               != ob2->arch ||
+    if (ob1->arch                   != ob2->arch ||
             ob1->item_condition     != ob2->item_condition ||
             ob1->item_level         != ob2->item_level ||
             ob1->item_power         != ob2->item_power ||
@@ -409,14 +409,17 @@ int CAN_MERGE(object *ob1, object *ob2)
             ob1->path_denied        != ob2->path_denied ||
             ob1->path_repelled      != ob2->path_repelled ||
             ob1->randomitems        != ob2->randomitems ||
-            ob1->speed              != ob2->speed ||
             ob1->sub_type           != ob2->sub_type ||
             ob1->terrain_flag       != ob2->terrain_flag ||
             ob1->terrain_type       != ob2->terrain_type ||
             ob1->type               != ob2->type ||
             ob1->value              != ob2->value ||
-            ob1->weapon_speed       != ob2->weapon_speed ||
             ob1->weight             != ob2->weight) {
+        return 0;
+    }
+
+    if (!DBL_EQUAL(ob1->speed, ob2->speed) ||
+            !DBL_EQUAL(ob1->weapon_speed, ob2->weapon_speed)) {
         return 0;
     }
 
@@ -554,32 +557,31 @@ object *object_merge(object *op)
  * @return The calculated weight */
 signed long sum_weight(object *op)
 {
-    int32_t sum;
-    object *inv;
-
     if (QUERY_FLAG(op, FLAG_SYS_OBJECT)) {
         return 0;
     }
 
-    for (sum = 0, inv = op->inv; inv != NULL; inv = inv->below) {
+    int32_t sum = 0;
+
+    for (object *inv = op->inv; inv != NULL; inv = inv->below) {
         if (QUERY_FLAG(inv, FLAG_SYS_OBJECT)) {
             continue;
         }
 
-        if (inv->inv) {
+        if (inv->inv != NULL) {
             sum_weight(inv);
         }
 
         sum += WEIGHT_NROF(inv, inv->nrof);
     }
 
-    if (op->type == CONTAINER && op->weapon_speed != 1.0f) {
+    if (op->type == CONTAINER && !DBL_EQUAL(op->weapon_speed, 1.0)) {
         /* We'll store the calculated value in damage_round_tag, so
          * we can use that as 'cache' for unmodified carrying weight.
          * This allows us to reliably calculate the weight again in
          * add_weight() and sub_weight() without rounding errors. */
         op->damage_round_tag = sum;
-        sum = (int32_t) ((float) sum * op->weapon_speed);
+        sum = (int32_t) (sum * op->weapon_speed);
     }
 
     op->carrying = sum;
@@ -593,18 +595,17 @@ signed long sum_weight(object *op)
  * @param weight The weight to add */
 void add_weight(object *op, int32_t weight)
 {
-    while (op) {
-        if (op->type == CONTAINER && op->weapon_speed != 1.0f) {
+    while (op != NULL) {
+        if (op->type == CONTAINER && !DBL_EQUAL(op->weapon_speed, 1.0)) {
             int32_t old_carrying = op->carrying;
-
             op->damage_round_tag += weight;
-            op->carrying = (int32_t) ((float) op->damage_round_tag * op->weapon_speed);
+            op->carrying = (int32_t) (op->damage_round_tag * op->weapon_speed);
             weight = op->carrying - old_carrying;
         } else {
             op->carrying += weight;
         }
 
-        if (op->env && op->env->type == PLAYER) {
+        if (op->env != NULL && op->env->type == PLAYER) {
             esrv_update_item(UPD_WEIGHT, op);
         }
 
@@ -619,18 +620,17 @@ void add_weight(object *op, int32_t weight)
  * @param weight The weight to subtract */
 void sub_weight(object *op, int32_t weight)
 {
-    while (op) {
-        if (op->type == CONTAINER && op->weapon_speed != 1.0f) {
+    while (op != NULL) {
+        if (op->type == CONTAINER && !DBL_EQUAL(op->weapon_speed, 1.0)) {
             int32_t old_carrying = op->carrying;
-
             op->damage_round_tag -= weight;
-            op->carrying = (int32_t) ((float) op->damage_round_tag * op->weapon_speed);
+            op->carrying = (int32_t) (op->damage_round_tag * op->weapon_speed);
             weight = old_carrying - op->carrying;
         } else {
             op->carrying -= weight;
         }
 
-        if (op->env && op->env->type == PLAYER) {
+        if (op->env != NULL && op->env->type == PLAYER) {
             esrv_update_item(UPD_WEIGHT, op);
         }
 
@@ -883,8 +883,9 @@ void copy_object(object *op2, object *op, int no_speed)
     ADD_REF_NOT_NULL_HASH(op->artifact);
     ADD_REF_NOT_NULL_HASH(op->custom_name);
 
-    /* Only alter speed_left when we sure we have not done it before */
-    if (!no_speed && op->speed < 0 && op->speed_left == op->arch->clone.speed_left) {
+    /* Only alter speed_left when we are sure that we have not done it before */
+    if (!no_speed && op->speed < 0.0 && DBL_EQUAL(op->speed_left,
+            op->arch->clone.speed_left)) {
         op->speed_left += rndm(0, 90) / 100.0f;
     }
 
@@ -1017,7 +1018,7 @@ void update_ob_speed(object *op)
 {
     /* No reason putting the archetypes objects on the speed list,
      * since they never really need to be updated. */
-    if (OBJECT_FREE(op) && op->speed) {
+    if (OBJECT_FREE(op) && DBL_EQUAL(op->speed, 0.0)) {
         LOG(BUG, "Object %s is freed but has speed.", op->name);
         op->speed = 0;
     }

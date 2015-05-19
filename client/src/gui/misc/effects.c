@@ -507,8 +507,12 @@ void effect_sprites_play(void)
     }
 
     /* Change wind direction... */
-    if (current_effect->wind_blow_dir == WIND_BLOW_RANDOM && current_effect->wind_chance != 1.0 && (current_effect->wind_chance == 0.0 || RANDOM() / (RAND_MAX + 1.0) >= current_effect->wind_chance)) {
-        current_effect->wind += (-2.0 + 4.0 * RANDOM() / (RAND_MAX + 1.0)) * current_effect->wind_mod;
+    if (current_effect->wind_blow_dir == WIND_BLOW_RANDOM &&
+            !DBL_EQUAL(current_effect->wind_chance, 1.0) &&
+            (DBL_EQUAL(current_effect->wind_chance, 0.0) ||
+            RANDOM() / (RAND_MAX + 1.0) >= current_effect->wind_chance)) {
+        current_effect->wind += (-2.0 + 4.0 * RANDOM() / (RAND_MAX + 1.0)) *
+                current_effect->wind_mod;
     }
 
     if (current_effect->wind_blow_dir == WIND_BLOW_LEFT) {

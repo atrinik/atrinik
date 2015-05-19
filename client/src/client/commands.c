@@ -286,7 +286,7 @@ void socket_command_stats(uint8_t *data, size_t len, size_t pos)
                 break;
 
             case CS_STAT_SPEED:
-                cpl.stats.speed = packet_to_float(data, len, &pos);
+                cpl.stats.speed = packet_to_double(data, len, &pos);
                 WIDGET_REDRAW_ALL(PDOLL_ID);
                 break;
 
@@ -296,7 +296,7 @@ void socket_command_stats(uint8_t *data, size_t len, size_t pos)
                 break;
 
             case CS_STAT_WEAPON_SPEED:
-                cpl.stats.weapon_speed = packet_to_float(data, len, &pos);
+                cpl.stats.weapon_speed = packet_to_double(data, len, &pos);
                 WIDGET_REDRAW_ALL(PDOLL_ID);
                 break;
 

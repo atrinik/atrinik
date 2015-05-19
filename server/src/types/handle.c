@@ -41,7 +41,8 @@ static int apply_func(object *op, object *applier, int aflags)
                     op->name);
             return OBJECT_METHOD_OK;
         }
-    } else if (op->speed || (op->stats.exp == -1 && op->value)) {
+    } else if (!DBL_EQUAL(op->speed, 0.0) || (op->stats.exp == -1 &&
+            op->value != 0)) {
         if (op->msg != NULL) {
             draw_info(COLOR_WHITE, applier, op->msg);
         } else {
@@ -84,7 +85,7 @@ static int trigger_func(object *op, object *cause, int state)
 {
     (void) cause;
 
-    if (op->speed || (op->stats.exp == -1 && op->value)) {
+    if (!DBL_EQUAL(op->speed, 0.0) || (op->stats.exp == -1 && op->value)) {
         return OBJECT_METHOD_OK;
     }
 

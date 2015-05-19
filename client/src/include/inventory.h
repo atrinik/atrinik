@@ -59,11 +59,9 @@
 #define INVENTORY_ICON_SIZE 32
 
 /** Calculate number of columns in the inventory. */
-#define INVENTORY_COLS(_inventory) \
-    ((_inventory)->w / (double) INVENTORY_ICON_SIZE)
+#define INVENTORY_COLS(_inventory) ((_inventory)->w / INVENTORY_ICON_SIZE)
 /** Calculate number of rows in the inventory. */
-#define INVENTORY_ROWS(_inventory) \
-    ((_inventory)->h / (double) INVENTORY_ICON_SIZE)
+#define INVENTORY_ROWS(_inventory) ((_inventory)->h / INVENTORY_ICON_SIZE)
 /** Decide where to look for objects, depending on the inventory widget's type.
  * */
 #define INVENTORY_WHERE(_widget) ((_widget)->type == MAIN_INV_ID ? cpl.ob : cpl.below)

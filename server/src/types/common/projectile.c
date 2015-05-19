@@ -183,7 +183,7 @@ object *common_object_projectile_stop_missile(object *op, int reason)
     }
 
     /* Already stopped, nothing to do. */
-    if (!op->speed) {
+    if (DBL_EQUAL(op->speed, 0.0)) {
         return op;
     }
 
@@ -289,8 +289,8 @@ object *common_object_projectile_fire_missile(object *op, object *shooter, int d
     op->direction = dir;
     SET_ANIMATION_STATE(op);
 
-    if (!op->speed) {
-        op->speed = 1;
+    if (DBL_EQUAL(op->speed, 0.0)) {
+        op->speed = 1.0;
     }
 
     /* Save the shooter's level. */

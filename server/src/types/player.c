@@ -390,7 +390,7 @@ static void remove_unpaid_objects(object *op, object *env)
 static int get_regen_amount(uint16_t regen, uint16_t *regen_remainder)
 {
     int ret = 0;
-    float division;
+    double division;
 
     /* Check whether it's time to update the remainder variable (which
      * will distribute the remainder evenly over time). */
@@ -400,16 +400,16 @@ static int get_regen_amount(uint16_t regen, uint16_t *regen_remainder)
 
     /* First check if we can distribute it evenly, if not, try to remove
      * leftovers, if any. */
-    for (division = (float) MAX_TICKS; ; division = 1.0f) {
-        if (*regen_remainder / 10.0f / division >= 1.0f) {
-            int add = (int) *regen_remainder / 10.0f / division;
+    for (division = MAX_TICKS; ; division = 1.0) {
+        if (*regen_remainder / 10.0 / division >= 1.0) {
+            int add = (int) *regen_remainder / 10.0 / division;
 
             ret += add;
             *regen_remainder -= add * 10;
             break;
         }
 
-        if (division == 1.0f) {
+        if (DBL_EQUAL(division, 1.0)) {
             break;
         }
     }
@@ -1346,34 +1346,53 @@ void examine(object *op, object *tmp, StringBuffer *sb_capture)
     {
         if (QUERY_FLAG(tmp, FLAG_IDENTIFIED)) {
             if (tmp->race != NULL) {
-                if (tmp->weight_limit) {
-                    draw_info_full_format(CHAT_TYPE_GAME, NULL, COLOR_WHITE, sb_capture, op, "It can hold only %s and its weight limit is %.1f kg.", tmp->race, (float) tmp->weight_limit / 1000.0f);
+                if (tmp->weight_limit != 0) {
+                    draw_info_full_format(CHAT_TYPE_GAME, NULL, COLOR_WHITE,
+                            sb_capture, op, "It can hold only %s and its "
+                            "weight limit is %.1f kg.", tmp->race,
+                            tmp->weight_limit / 1000.0);
                 } else {
-                    draw_info_full_format(CHAT_TYPE_GAME, NULL, COLOR_WHITE, sb_capture, op, "It can hold only %s.", tmp->race);
+                    draw_info_full_format(CHAT_TYPE_GAME, NULL, COLOR_WHITE,
+                            sb_capture, op, "It can hold only %s.", tmp->race);
                 }
             } else {
-                if (tmp->weight_limit) {
-                    draw_info_full_format(CHAT_TYPE_GAME, NULL, COLOR_WHITE, sb_capture, op, "Its weight limit is %.1f kg.", (float) tmp->weight_limit / 1000.0f);
+                if (tmp->weight_limit != 0) {
+                    draw_info_full_format(CHAT_TYPE_GAME, NULL, COLOR_WHITE,
+                            sb_capture, op, "Its weight limit is %.1f kg.",
+                            tmp->weight_limit / 1000.0);
                 }
             }
 
-            /* Has magic modifier? */
-            if (tmp->weapon_speed != 1.0f) {
-                /* Bad */
-                if (tmp->weapon_speed > 1.0f) {
-                    draw_info_full_format(CHAT_TYPE_GAME, NULL, COLOR_WHITE, sb_capture, op, "It increases the weight of items inside by %.1f%%.", tmp->weapon_speed * 100.0f);
+            /* Has a magic modifier? */
+            if (!DBL_EQUAL(tmp->weapon_speed, 1.0)) {
+                if (tmp->weapon_speed > 1.0) {
+                    /* Increases weight of items (bad) */
+                    draw_info_full_format(CHAT_TYPE_GAME, NULL, COLOR_WHITE,
+                            sb_capture, op, "It increases the weight of items "
+                            "inside by %.1f%%.", tmp->weapon_speed * 100.0);
                 } else {
-                    /* Good */
-                    draw_info_full_format(CHAT_TYPE_GAME, NULL, COLOR_WHITE, sb_capture, op, "It decreases the weight of items inside by %.1f%%.", 100.0f - (tmp->weapon_speed * 100.0f));
+                    /* Decreases weight of items (good) */
+                    draw_info_full_format(CHAT_TYPE_GAME, NULL, COLOR_WHITE,
+                            sb_capture, op, "It decreases the weight of items "
+                            "inside by %.1f%%.", 100.0 -
+                            (tmp->weapon_speed * 100.0));
                 }
             }
 
-            if (tmp->weapon_speed == 1.0f) {
-                draw_info_full_format(CHAT_TYPE_GAME, NULL, COLOR_WHITE, sb_capture, op, "It contains %3.3f kg.", (float) tmp->carrying / 1000.0f);
-            } else if (tmp->weapon_speed > 1.0f) {
-                draw_info_full_format(CHAT_TYPE_GAME, NULL, COLOR_WHITE, sb_capture, op, "It contains %3.3f kg, increased to %3.3f kg.", (float) tmp->damage_round_tag / 1000.0f, (float) tmp->carrying / 1000.0f);
+            if (DBL_EQUAL(tmp->weapon_speed, 1.0)) {
+                draw_info_full_format(CHAT_TYPE_GAME, NULL, COLOR_WHITE,
+                        sb_capture, op, "It contains %3.3f kg.",
+                        tmp->carrying / 1000.0);
+            } else if (tmp->weapon_speed > 1.0) {
+                draw_info_full_format(CHAT_TYPE_GAME, NULL, COLOR_WHITE,
+                        sb_capture, op, "It contains %3.3f kg, increased to "
+                        "%3.3f kg.", tmp->damage_round_tag / 1000.0,
+                        tmp->carrying / 1000.0);
             } else {
-                draw_info_full_format(CHAT_TYPE_GAME, NULL, COLOR_WHITE, sb_capture, op, "It contains %3.3f kg, decreased to %3.3f kg.", (float) tmp->damage_round_tag / 1000.0f, (float) tmp->carrying / 1000.0f);
+                draw_info_full_format(CHAT_TYPE_GAME, NULL, COLOR_WHITE,
+                        sb_capture, op, "It contains %3.3f kg, decreased to "
+                        "%3.3f kg.", tmp->damage_round_tag / 1000.0,
+                        tmp->carrying / 1000.0);
             }
         }
 

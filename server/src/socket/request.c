@@ -178,17 +178,26 @@ void esrv_update_stats(player *pl)
     int i;
     uint16_t flags;
 
+#define _Add(_old, _new, _type, _bitsize) \
+    if (packet == NULL) { \
+        packet = packet_new(CLIENT_CMD_STATS, 32, 128); \
+    } \
+    (_old) = (_new); \
+    packet_debug_data(packet, 0, "Stats command type"); \
+    packet_append_uint8(packet, (_type)); \
+    packet_debug_data(packet, 0, "%s", #_new); \
+    packet_append_ ## _bitsize(packet, (_new));
 #define AddIf(_old, _new, _type, _bitsize) \
-    if ((_old) != (_new)) \
-    { \
-        if (packet == NULL) { \
-            packet = packet_new(CLIENT_CMD_STATS, 32, 128); \
-        } \
-        (_old) = (_new); \
-        packet_debug_data(packet, 0, "Stats command type"); \
-        packet_append_uint8(packet, (_type)); \
-        packet_debug_data(packet, 0, "%s", #_new); \
-        packet_append_ ## _bitsize(packet, (_new)); \
+    if ((_old) != (_new)) { \
+        _Add(_old, _new, _type, _bitsize); \
+    }
+#define AddIfFloat(_old, _new, _type) \
+    if (!FLT_EQUAL(_old, _new)) { \
+        _Add(_old, _new, _type, float); \
+    }
+#define AddIfDouble(_old, _new, _type) \
+    if (!DBL_EQUAL(_old, _new)) { \
+        _Add(_old, _new, _type, double); \
     }
 
     packet = NULL;
@@ -204,7 +213,7 @@ void esrv_update_stats(player *pl)
 
     AddIf(pl->last_gen_hp, pl->gen_client_hp, CS_STAT_REG_HP, uint16);
     AddIf(pl->last_gen_sp, pl->gen_client_sp, CS_STAT_REG_MANA, uint16);
-    AddIf(pl->last_action_timer, pl->action_timer, CS_STAT_ACTION_TIME, float);
+    AddIfFloat(pl->last_action_timer, pl->action_timer, CS_STAT_ACTION_TIME);
 
     if (pl->ob) {
         object *arrow;
@@ -212,9 +221,9 @@ void esrv_update_stats(player *pl)
         float ranged_ws;
 
         AddIf(pl->last_level, pl->ob->level, CS_STAT_LEVEL, uint8);
-        AddIf(pl->last_speed, pl->ob->speed, CS_STAT_SPEED, float);
-        AddIf(pl->last_weapon_speed, pl->ob->weapon_speed / MAX_TICKS,
-                CS_STAT_WEAPON_SPEED, float);
+        AddIfDouble(pl->last_speed, pl->ob->speed, CS_STAT_SPEED);
+        AddIfDouble(pl->last_weapon_speed, pl->ob->weapon_speed / MAX_TICKS,
+                CS_STAT_WEAPON_SPEED);
         AddIf(pl->last_weight_limit, weight_limit[pl->ob->stats.Str],
                 CS_STAT_WEIGHT_LIM, uint32);
         AddIf(pl->last_stats.hp, pl->ob->stats.hp, CS_STAT_HP, int32);
@@ -254,7 +263,7 @@ void esrv_update_stats(player *pl)
 
         AddIf(pl->last_ranged_dam, ranged_dam, CS_STAT_RANGED_DAM, uint16);
         AddIf(pl->last_ranged_wc, ranged_wc, CS_STAT_RANGED_WC, uint16);
-        AddIf(pl->last_ranged_ws, ranged_ws, CS_STAT_RANGED_WS, float);
+        AddIfFloat(pl->last_ranged_ws, ranged_ws, CS_STAT_RANGED_WS);
     }
 
     flags = 0;
@@ -308,6 +317,9 @@ void esrv_update_stats(player *pl)
     }
 
 #undef AddIf
+#undef _Add
+#undef AddIfFloat
+#undef AddIfDouble
 }
 
 /**

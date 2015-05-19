@@ -43,7 +43,8 @@ TOOLKIT_DEINIT_FUNC(colorspace)
 TOOLKIT_DEINIT_FUNC_FINISH
 
 /**
- * @author LIBGIMP (GNU LGPL 3.0) */
+ * @author LIBGIMP (GNU LGPL 3.0)
+ */
 double colorspace_rgb_max(const double rgb[3])
 {
     TOOLKIT_PROTECT();
@@ -56,7 +57,8 @@ double colorspace_rgb_max(const double rgb[3])
 }
 
 /**
- * @author LIBGIMP (GNU LGPL 3.0) */
+ * @author LIBGIMP (GNU LGPL 3.0)
+ */
 double colorspace_rgb_min(const double rgb[3])
 {
     TOOLKIT_PROTECT();
@@ -70,7 +72,8 @@ double colorspace_rgb_min(const double rgb[3])
 
 /**
  * Converts RGB (red,green,blue) colorspace to HSV (hue,saturation,value).
- * @author LIBGIMP (GNU LGPL 3.0) */
+ * @author LIBGIMP (GNU LGPL 3.0)
+ */
 void colorspace_rgb2hsv(const double rgb[3], double hsv[3])
 {
     double max, min, delta;
@@ -86,15 +89,15 @@ void colorspace_rgb2hsv(const double rgb[3], double hsv[3])
     if (delta > 0.0001) {
         hsv[1] = delta / max;
 
-        if (rgb[0] == max) {
+        if (DBL_EQUAL(rgb[0], max)) {
             hsv[0] = (rgb[1] - rgb[2]) / delta;
 
             if (hsv[0] < 0.0) {
                 hsv[0] += 6.0;
             }
-        } else if (rgb[1] == max) {
+        } else if (DBL_EQUAL(rgb[1], max)) {
             hsv[0] = 2.0 + (rgb[2] - rgb[0]) / delta;
-        } else if (rgb[2] == max) {
+        } else if (DBL_EQUAL(rgb[2], max)) {
             hsv[0] = 4.0 + (rgb[0] - rgb[1]) / delta;
         }
 
@@ -115,14 +118,14 @@ void colorspace_hsv2rgb(const double hsv[3], double rgb[3])
 
     TOOLKIT_PROTECT();
 
-    if (hsv[1] == 0.0) {
+    if (DBL_EQUAL(hsv[1], 0.0)) {
         rgb[0] = hsv[2];
         rgb[1] = hsv[2];
         rgb[2] = hsv[2];
     } else {
         hue = hsv[0];
 
-        if (hue == 1.0) {
+        if (DBL_EQUAL(hue, 1.0)) {
             hue = 0.0;
         }
 

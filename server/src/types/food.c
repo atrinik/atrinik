@@ -111,7 +111,7 @@ static void create_food_force(object* who, object *food, object *force)
         }
     }
 
-    if (food->speed_left) {
+    if (!DBL_EQUAL(food->speed_left, 0.0)) {
         force->speed = food->speed_left;
     }
 
