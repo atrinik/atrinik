@@ -31,6 +31,7 @@
 
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wundef"
+#pragma GCC diagnostic ignored "-Wredundant-decls"
 #include <Python.h>
 #pragma GCC diagnostic pop
 

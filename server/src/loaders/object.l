@@ -133,6 +133,9 @@ static void set_random_attack(object *op, int val)
 {
     op->attack[rndm(0, NROFATTACKS - 1)] = val;
 }
+
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wredundant-decls"
 %}
 
 LF  \x0A
@@ -767,6 +770,8 @@ lex_error = 0;
 }
 .*                   add_key_value(op);
 %%
+
+#pragma GCC diagnostic pop
 
 /**
  * Used to report an error when parsing object data.

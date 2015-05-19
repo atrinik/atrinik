@@ -38,18 +38,18 @@
 static archetype_t *arch_table = NULL;
 
 /** True if doing arch initialization. */
-bool arch_in_init;
+bool arch_in_init = false;
 
 /** First archetype in a linked list. */
-archetype_t *first_archetype;
+archetype_t *first_archetype = NULL;
 /** Pointer to waypoint archetype. */
-archetype_t *wp_archetype;
+archetype_t *wp_archetype = NULL;
 /** Pointer to empty_archetype archetype. */
-archetype_t *empty_archetype;
+archetype_t *empty_archetype = NULL;
 /** Pointer to base_info archetype. */
-archetype_t *base_info_archetype;
+archetype_t *base_info_archetype = NULL;
 /** Pointer to level up effect archetype. */
-archetype_t *level_up_arch;
+archetype_t *level_up_arch = NULL;
 /**
  * Used to create archetype's clone object in arch_create(), to avoid
  * a lot of calls to object_get().

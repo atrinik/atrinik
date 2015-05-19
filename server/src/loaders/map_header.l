@@ -49,6 +49,9 @@ static int lex_error, msg_flag;
     }
 
 #define YY_NO_INPUT
+
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wredundant-decls"
 %}
 
 S   [ \t]+.+
@@ -147,6 +150,8 @@ lex_error = 0;
 }
 
 %%
+
+#pragma GCC diagnostic pop
 
 /**
  * Returns the next token for lex.

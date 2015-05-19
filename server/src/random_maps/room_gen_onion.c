@@ -50,12 +50,6 @@
 
 #include <global.h>
 
-void centered_onion(char **maze, int xsize, int ysize, int option, int layers);
-void bottom_centered_onion(char **maze, int xsize, int ysize, int option, int layers);
-void bottom_right_centered_onion(char **maze, int xsize, int ysize, int option, int layers);
-void draw_onion(char **maze, float *xlocations, float *ylocations, int layers);
-void make_doors(char **maze, float *xlocations, float *ylocations, int layers, int options);
-
 /**
  * Generates an onion layout.
  * @param xsize X size of the layout.

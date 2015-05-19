@@ -45,9 +45,6 @@ int world_darkness;
 /** Time of day tick. */
 unsigned long todtick;
 
-/** Pointer to archetype that is used as effect when player levels up. */
-struct archetype *level_up_arch = NULL;
-
 /** The starting map. */
 char first_map_path[MAX_BUF];
 
