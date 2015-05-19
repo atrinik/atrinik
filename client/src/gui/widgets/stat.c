@@ -53,11 +53,11 @@ static void stat_get_data(widgetdata *widget, int64_t *curr, int64_t *max, float
     } else if (strcmp(widget->id, "food") == 0) {
         *curr = cpl.stats.food;
         *max = 999;
-        *regen = 0;
+        *regen = 0.0;
     } else if (strcmp(widget->id, "exp") == 0) {
         *curr = cpl.stats.exp - s_settings->level_exp[cpl.stats.level];
         *max = s_settings->level_exp[cpl.stats.level + 1] - s_settings->level_exp[cpl.stats.level];
-        *regen = 0;
+        *regen = 0.0;
     } else {
         *curr = *max = *regen = 1;
     }
@@ -83,7 +83,7 @@ static void widget_draw(widgetdata *widget)
                     max);
             string_title(buf);
 
-            if (regen) {
+            if (regen > 0.0) {
                 snprintfcat(buf, sizeof(buf), "\nRegen: %2.1f/s", regen);
             }
 
@@ -141,7 +141,7 @@ static int widget_event(widgetdata *widget, SDL_Event *event)
 
         stat_get_data(widget, &curr, &max, &regen);
 
-        if (regen) {
+        if (regen > 0.0) {
             char buf[MAX_BUF];
 
             snprintf(VS(buf), "%s ", widget->id);
