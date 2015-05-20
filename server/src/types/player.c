@@ -1896,6 +1896,7 @@ void drop_object(object *op, object *tmp, long nrof, int no_mevent)
                 draw_info(COLOR_WHITE, op, "The shop magic put it to the storage.");
             }
 
+            object_destroy(tmp);
             return;
         }
     }
