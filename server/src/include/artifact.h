@@ -24,64 +24,69 @@
 
 /**
  * @file
- * Artifact related structures */
+ * Artifact related structures
+ */
 
 #ifndef ARTIFACT_H
 #define ARTIFACT_H
 
 #include <arch.h>
 
-/** The artifact structure. */
+/**
+ * The artifact structure.
+ */
 typedef struct artifact {
-    /** Memory block with artifacts parse commands for loader.l. */
+    struct artifact *next; ///< Next artifact in the list.
+    linked_char *allowed; ///< List of allowed archetypes.
+
+    /**
+     * Memory block with artifacts parse commands for loader.l.
+     */
     char *parse_text;
 
-    /** The fake arch name when chained to arch list. */
+    /**
+     * The fake arch name when linked to arch list.
+     */
     const char *name;
 
-    /** We use this as marker for def_at is valid and quick name access. */
+    /**
+     * We use this as marker for def_at is valid and quick name access.
+     * @todo Remove, use dynamically allocated pointer for def_at
+     */
     const char *def_at_name;
-
-    /** Next artifact in the list. */
-    struct artifact *next;
-
-    /** List of allowed archetypes. */
-    linked_char *allowed;
 
     /** The base archetype object. */
     archetype_t def_at;
 
     /**
      * Treasure style.
-     * @see @ref treasure_style */
+     * @see @ref treasure_style
+     */
     int t_style;
 
-    /** Chance. */
-    uint16_t chance;
-
-    /** Difficulty. */
-    uint8_t difficulty;
+    uint16_t chance; ///< Chance.
+    uint8_t difficulty; ///< Difficulty.
 
     /**
      * If set, the artifact will be directly copied to the object,
-     * instead of just having the extra attributes added. */
+     * instead of just having the extra attributes added.
+     */
     uint8_t copy_artifact;
 } artifact_t;
 
-/** Artifact list structure. */
+/**
+ * Artifact list structure.
+ */
 typedef struct artifact_list {
-    /** Next list. */
-    struct artifact_list *next;
+    struct artifact_list *next; ///< Next list.
 
-    /** Items in this artifact list. */
-    struct artifact *items;
-
-    /** Sum of chance for all artifacts on this list. */
-    uint16_t total_chance;
+    struct artifact *items; ///< Items in this artifact list.
+    uint16_t total_chance; ///< Sum of chance for all artifacts on this list.
 
     /**
      * Object type that this list represents.
-     * -1 are "Allowed none" items. */
+     * -1 are "Allowed none" items.
+     */
     int16_t type;
 } artifact_list_t;
 

@@ -126,7 +126,7 @@ static archetype_t *arch_create(void)
 {
     HARD_ASSERT(arch_in_init == true);
 
-    archetype_t *new = ecalloc(1, sizeof(archetype_t));
+    archetype_t *new = ecalloc(1, sizeof(*new));
     memcpy(&new->clone, clone_op, sizeof(new->clone));
 
     return new;
@@ -406,7 +406,8 @@ archetype_t *arch_find(const char *name)
  * create a singularity. Thus the return value is never NULL.
  * @param name Archetype name. Can be NULL.
  * @return Object of specified archetype, or a singularity. Will never be
- * NULL. */
+ * NULL.
+ */
 object *arch_get(const char *name)
 {
     archetype_t *at = arch_find(name);
@@ -419,7 +420,8 @@ object *arch_get(const char *name)
 /**
  * Creates and returns a new object which is a copy of the given archetype.
  * @param at Archetype from which to get an object.
- * @return New object, never NULL. */
+ * @return New object, never NULL.
+ */
 object *arch_to_object(archetype_t *at)
 {
     HARD_ASSERT(at != NULL);
