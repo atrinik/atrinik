@@ -144,9 +144,10 @@ static int widget_event(widgetdata *widget, SDL_Event *event)
         if (regen > 0.0) {
             char buf[MAX_BUF];
 
-            snprintf(VS(buf), "%s ", widget->id);
+            snprintf(VS(buf), "%s", widget->id);
             string_title(buf);
-            snprintfcat(VS(buf), "regen: %2.1f/s", regen);
+            snprintfcat(VS(buf), " %"PRId64"/%"PRId64"\nRegen: %2.1f/s", curr,
+                    max, regen);
             tooltip_create(event->motion.x, event->motion.y, FONT_ARIAL11, buf);
             tooltip_enable_delay(300);
         }
