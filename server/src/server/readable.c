@@ -402,17 +402,18 @@ static void init_msgfile(void)
  * Initialize array of ::monsters. */
 static void init_mon_info(void)
 {
-    archetype_t *at;
-
     monsters = NULL;
     num_monsters = 0;
 
-    for (at = first_archetype; at; at = at->next) {
-        if (QUERY_FLAG(&at->clone, FLAG_MONSTER)) {
-            num_monsters++;
-            monsters = erealloc(monsters, sizeof(object *) * num_monsters);
-            monsters[num_monsters - 1] = &at->clone;
+    archetype_t *at, *tmp;
+    HASH_ITER(hh, arch_table, at, tmp) {
+        if (!QUERY_FLAG(&at->clone, FLAG_MONSTER)) {
+            continue;
         }
+
+        monsters = erealloc(monsters, sizeof(*monsters) * (num_monsters + 1));
+        monsters[num_monsters] = &at->clone;
+        num_monsters++;
     }
 }
 
@@ -609,7 +610,7 @@ static char *artifact_msg(int level, char *buf, size_t booksize)
     do {
         idx = rndm(1, arraysize(art_name_array)) - 1;
         type = art_name_array[idx].type;
-        al = find_artifactlist(type);
+        al = artifact_list_find(type);
         i++;
     } while (al == NULL && i < 10);
 
@@ -643,8 +644,7 @@ static char *artifact_msg(int level, char *buf, size_t booksize)
         }
 
         desc = stringbuffer_new();
-        tmp = arch_get(art->def_at_name);
-        give_artifact_abilities(tmp, art);
+        tmp = arch_to_object(art->def_at);
         SET_FLAG(tmp, FLAG_IDENTIFIED);
 
         stringbuffer_append_printf(desc, "\n[title]%s[/title]\nIt is ", query_material_name(tmp));

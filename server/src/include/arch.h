@@ -35,13 +35,12 @@
  * objects which point to archetypes.
  */
 typedef struct archetype {
-    struct archetype *next; ///< Next archetype in a linked list.
     struct archetype *head; ///< The main part of a linked object.
     struct archetype *more; ///< Next part of a linked object.
 
     UT_hash_handle hh; ///< Hash handle.
 
-    const char *name; ///< More definite name, like "kobold".
+    shstr *name; ///< More definite name, like "kobold".
     object clone; ///< An object from which to do copy_object().
 } archetype_t;
 
@@ -49,8 +48,8 @@ typedef struct archetype {
 
 #ifndef __CPROTO__
 
+archetype_t *arch_table;
 bool arch_in_init;
-archetype_t *first_archetype;
 archetype_t *wp_archetype;
 archetype_t *empty_archetype;
 archetype_t *base_info_archetype;
@@ -62,6 +61,7 @@ void arch_add(archetype_t *at);
 archetype_t *arch_find(const char *name);
 object *arch_get(const char *name);
 object *arch_to_object(archetype_t *at);
+archetype_t *arch_clone(archetype_t *at);
 
 #endif
 

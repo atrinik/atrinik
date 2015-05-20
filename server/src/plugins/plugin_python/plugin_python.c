@@ -1471,8 +1471,6 @@ static PyObject *Atrinik_GetFirst(PyObject *self, PyObject *args)
         return wrap_player(*hooks->first_player);
     } else if (!strcmp(what, "map")) {
         return wrap_map(*hooks->first_map);
-    } else if (!strcmp(what, "archetype")) {
-        return wrap_archetype(*hooks->first_archetype);
     } else if (!strcmp(what, "party")) {
         return wrap_party(*hooks->first_party);
     } else if (!strcmp(what, "region")) {

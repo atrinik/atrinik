@@ -36,7 +36,6 @@
  * List of the archetype fields and their meaning. */
 static fields_struct fields[] = {
     {"name", FIELDTYPE_SHSTR, offsetof(archetype_t, name), 0, 0},
-    {"next", FIELDTYPE_ARCH, offsetof(archetype_t, next), 0, 0},
     {"head", FIELDTYPE_ARCH, offsetof(archetype_t, head), 0, 0},
     {"more", FIELDTYPE_ARCH, offsetof(archetype_t, more), 0, 0},
     {"clone", FIELDTYPE_OBJECT2, offsetof(archetype_t, clone), 0, 0}

@@ -24,20 +24,21 @@
 
 /**
  * @file
- * Artifact related structures
+ * Artifact related structures.
  */
 
 #ifndef ARTIFACT_H
 #define ARTIFACT_H
 
-#include <arch.h>
+/* Forward declarations */
+struct archetype;
 
 /**
  * The artifact structure.
  */
 typedef struct artifact {
     struct artifact *next; ///< Next artifact in the list.
-    linked_char *allowed; ///< List of allowed archetypes.
+    shstr_list_t *allowed; ///< List of allowed archetypes.
 
     /**
      * Memory block with artifacts parse commands for loader.l.
@@ -45,18 +46,14 @@ typedef struct artifact {
     char *parse_text;
 
     /**
-     * The fake arch name when linked to arch list.
+     * The base archetype object.
      */
-    const char *name;
+    struct archetype *def_at;
 
     /**
-     * We use this as marker for def_at is valid and quick name access.
-     * @todo Remove, use dynamically allocated pointer for def_at
+     * Name from the def_arch attribute.
      */
-    const char *def_at_name;
-
-    /** The base archetype object. */
-    archetype_t def_at;
+    shstr *def_at_name;
 
     /**
      * Treasure style.
@@ -71,7 +68,12 @@ typedef struct artifact {
      * If set, the artifact will be directly copied to the object,
      * instead of just having the extra attributes added.
      */
-    uint8_t copy_artifact;
+    bool copy_artifact:1;
+
+    /**
+     * If true, artifact::allowed is a list of disallowed archetypes.
+     */
+    bool disallowed:1;
 } artifact_t;
 
 /**
@@ -80,14 +82,23 @@ typedef struct artifact {
 typedef struct artifact_list {
     struct artifact_list *next; ///< Next list.
 
-    struct artifact *items; ///< Items in this artifact list.
+    struct artifact *items; ///< Artifacts in this artifact list.
     uint16_t total_chance; ///< Sum of chance for all artifacts on this list.
 
     /**
-     * Object type that this list represents.
-     * -1 are "Allowed none" items.
+     * Object type that this list represents. 0 represents unique artifacts
+     * (defined with 'Allowed none').
      */
-    int16_t type;
+    uint8_t type;
 } artifact_list_t;
+
+/* Prototypes */
+
+void artifact_init(void);
+void artifact_deinit(void);
+artifact_list_t *artifact_list_find(uint8_t type);
+artifact_t *artifact_find_type(const char *name, uint8_t type);
+void artifact_change_object(artifact_t *art, object *op);
+bool artifact_generate(object *op, int difficulty, int t_style, int a_chance);
 
 #endif

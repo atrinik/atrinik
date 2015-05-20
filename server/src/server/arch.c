@@ -31,17 +31,16 @@
 
 #include <global.h>
 #include <arch.h>
+#include <artifact.h>
 #include <loader.h>
 #include <toolkit_string.h>
 
 /** The archetype hash table. */
-static archetype_t *arch_table = NULL;
+archetype_t *arch_table = NULL;
 
 /** True if doing arch initialization. */
 bool arch_in_init = false;
 
-/** First archetype in a linked list. */
-archetype_t *first_archetype = NULL;
 /** Pointer to waypoint archetype. */
 archetype_t *wp_archetype = NULL;
 /** Pointer to empty_archetype archetype. */
@@ -51,7 +50,7 @@ archetype_t *base_info_archetype = NULL;
 /** Pointer to level up effect archetype. */
 archetype_t *level_up_arch = NULL;
 /**
- * Used to create archetype's clone object in arch_create(), to avoid
+ * Used to create archetype's clone object in arch_new(), to avoid
  * a lot of calls to object_get().
  *
  * Is allocated - and gets destroyed - in arch_init().
@@ -59,21 +58,17 @@ archetype_t *level_up_arch = NULL;
 static object *clone_op;
 
 /* Prototypes */
+static void arch_free(archetype_t *at);
 static void arch_load(void);
 
 /**
  * Initializes the internal linked list of archetypes (read from file).
  * Some commonly used archetype pointers like ::empty_archetype,
  * ::base_info_archetype are initialized.
- *
- * Can be called multiple times, will just return.
  */
 void arch_init(void)
 {
-    /* Only do this once. */
-    if (first_archetype != NULL) {
-        return;
-    }
+    HARD_ASSERT(arch_table == NULL);
 
     clone_op = get_object();
     arch_in_init = true;
@@ -94,35 +89,22 @@ void arch_init(void)
  */
 void arch_deinit(void)
 {
-    HASH_CLEAR(hh, arch_table);
+    archetype_t *at, *tmp, *tail, *tail_tmp;
+    HASH_ITER(hh, arch_table, at, tmp) {
+        HASH_DEL(arch_table, at);
 
-    archetype_t *at, *next;
-    for (at = first_archetype; at != NULL; at = next) {
-        if (at->more) {
-            next = at->more;
-        } else {
-            next = at->next;
+        for (tail = at; tail != NULL; tail = tail_tmp) {
+            tail_tmp = tail->more;
+            arch_free(tail);
         }
-
-        FREE_AND_CLEAR_HASH(at->name);
-        object_destroy_inv(&at->clone);
-        FREE_AND_CLEAR_HASH(at->clone.name);
-        FREE_AND_CLEAR_HASH(at->clone.title);
-        FREE_AND_CLEAR_HASH(at->clone.race);
-        FREE_AND_CLEAR_HASH(at->clone.slaying);
-        FREE_AND_CLEAR_HASH(at->clone.msg);
-        free_key_values(&at->clone);
-        efree(at);
     }
-
-    first_archetype = NULL;
 }
 
 /**
  * Allocates, initializes and returns the pointer to an archetype structure.
  * @return New archetype structure, never NULL.
  */
-static archetype_t *arch_create(void)
+static archetype_t *arch_new(void)
 {
     HARD_ASSERT(arch_in_init == true);
 
@@ -130,6 +112,25 @@ static archetype_t *arch_create(void)
     memcpy(&new->clone, clone_op, sizeof(new->clone));
 
     return new;
+}
+
+/**
+ * Frees the specified archetype structure.
+ * @param at Archetype to free.
+ */
+static void arch_free(archetype_t *at)
+{
+    HARD_ASSERT(at != NULL);
+
+    FREE_AND_CLEAR_HASH(at->name);
+    object_destroy_inv(&at->clone);
+    FREE_AND_CLEAR_HASH(at->clone.name);
+    FREE_AND_CLEAR_HASH(at->clone.title);
+    FREE_AND_CLEAR_HASH(at->clone.race);
+    FREE_AND_CLEAR_HASH(at->clone.slaying);
+    FREE_AND_CLEAR_HASH(at->clone.msg);
+    free_key_values(&at->clone);
+    efree(at);
 }
 
 /**
@@ -141,7 +142,7 @@ static archetype_t *arch_create(void)
 static void arch_pass_first(FILE *fp)
 {
     archetype_t *at, *prev = NULL, *last_more = NULL;
-    first_archetype = at = arch_create();
+    at = arch_new();
     at->clone.arch = at;
 
     void *mybuffer = create_loader_buffer(fp);
@@ -151,20 +152,10 @@ static void arch_pass_first(FILE *fp)
             LL_EOF) {
         first = LO_REPEAT;
 
-        /* Now we have the right speed_left value for out object.
-         * copy_object() now will track down negative speed values, to
-         * alter speed_left to guarantee a random & sensible start value. */
         switch (i) {
-        /* A new archetype, just link it with the previous. */
+        /* A new archetype, add it to the arch table. */
         case LL_NORMAL:
-            if (last_more != NULL) {
-                last_more->next = at;
-            }
-
-            if (prev != NULL) {
-                prev->next = at;
-            }
-
+            arch_add(at);
             prev = last_more = at;
             break;
 
@@ -182,9 +173,7 @@ static void arch_pass_first(FILE *fp)
             break;
         }
 
-        arch_add(at);
-
-        at = arch_create();
+        at = arch_new();
         at->clone.arch = at;
     }
 
@@ -204,6 +193,7 @@ static void arch_pass_second(FILE *fp, const char *filename)
     uint64_t linenum = 0;
     const char *key = NULL, *value = NULL, *error_str = NULL;
     archetype_t *at = NULL;
+    bool is_more = false;
 
     while (fgets(VS(buf), fp) != NULL) {
         linenum++;
@@ -221,7 +211,11 @@ static void arch_pass_second(FILE *fp, const char *filename)
         key = cps[0];
         value = cps[1];
 
-        if (strcmp(key, "Object") == 0) {
+        if (is_more) {
+            if (strcmp(key, "end") == 0) {
+                is_more = false;
+            }
+        } else if (strcmp(key, "Object") == 0) {
             at = arch_find(value);
 
             if (at == NULL) {
@@ -229,7 +223,7 @@ static void arch_pass_second(FILE *fp, const char *filename)
                 goto error;
             }
         } else if (strcmp(key, "More") == 0) {
-            // Ignore 'More' lines
+            is_more = true;
         } else if (at == NULL) {
             error_str = "expected Object attribute";
             goto error;
@@ -357,7 +351,7 @@ static void arch_load(void)
     rewind(fp);
 
     /* If not called before, reads all artifacts from file */
-    init_artifacts();
+    artifact_init();
     load_treasures();
 
     arch_pass_second(fp, filename);
@@ -378,6 +372,8 @@ void arch_add(archetype_t *at)
 {
     HARD_ASSERT(at != NULL);
     HARD_ASSERT(arch_in_init == true);
+
+    SOFT_ASSERT(at->name != NULL, "Archetype has no name.");
 
     HASH_ADD_KEYPTR(hh, arch_table, at->name, strlen(at->name), at);
 }
@@ -430,6 +426,28 @@ object *arch_to_object(archetype_t *at)
     copy_object_with_inv(&at->clone, op);
     op->arch = at;
     return op;
+}
+
+/**
+ * Clones the specified archetype.
+ * @param at The archetype to clone.
+ * @return New archetype.
+ * @warning The archetype's name is not cloned.
+ */
+archetype_t *arch_clone(archetype_t *at)
+{
+    HARD_ASSERT(at != NULL);
+    HARD_ASSERT(arch_in_init == true);
+
+    archetype_t *new = ecalloc(1, sizeof(*new));
+    memcpy(&new->clone, &at->clone, sizeof(new->clone));
+    ADD_REF_NOT_NULL_HASH(new->clone.name);
+    ADD_REF_NOT_NULL_HASH(new->clone.title);
+    ADD_REF_NOT_NULL_HASH(new->clone.race);
+    ADD_REF_NOT_NULL_HASH(new->clone.slaying);
+    ADD_REF_NOT_NULL_HASH(new->clone.msg);
+    new->clone.arch = new;
+    return new;
 }
 
 #endif

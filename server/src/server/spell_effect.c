@@ -110,41 +110,43 @@ int recharge(object *op)
  * @param stringarg Optional parameter specifying what kind of items to
  * create.
  * @retval 0 No food created.
- * @retval 1 Food was created. */
+ * @retval 1 Food was created.
+ * @todo Looping the global arch table is not an ideal case in terms of
+ * performance...
+ */
 int cast_create_food(object *op, object *caster, int dir, const char *stringarg)
 {
-    int food_value;
+    int food_value = 50 * SP_level_dam_adjust(caster, SP_CREATE_FOOD, -1, 0);
+
     archetype_t *at = NULL;
-    object *new_op;
-
-    food_value = 50 * SP_level_dam_adjust(caster, SP_CREATE_FOOD, -1, 0);
-
-    if (stringarg) {
+    if (stringarg != NULL) {
         at = arch_find(stringarg);
 
-        if (at == NULL || ((at->clone.type != FOOD && at->clone.type != DRINK) || (at->clone.stats.food > food_value))) {
+        if (at == NULL || ((at->clone.type != FOOD &&
+                at->clone.type != DRINK) || (at->clone.stats.food >
+                food_value))) {
             stringarg = NULL;
+            at = NULL;
         }
     }
 
-    if (!stringarg) {
-        archetype_t *at_tmp;
+    if (stringarg == NULL) {
+        archetype_t *at_tmp, *tmp;
+        HASH_ITER(hh, arch_table, at_tmp, tmp) {
+            /* Not food or a drink */
+            if (at_tmp->clone.type != FOOD && at_tmp->clone.type != DRINK) {
+                continue;
+            }
 
-        /* We try to find the archetype with the maximum food value.
-         * This removes the dependency of hard coded food values in this
-         * function, and addition of new food types is automatically added.
-         * We don't use flesh types because the weight values of those need
-         * to be altered from the donor. */
+            /* Food value is higher than what is creatable, skip. */
+            if (at_tmp->clone.stats.food > food_value) {
+                continue;
+            }
 
-        /* We assume the food items don't have multiple parts */
-        for (at_tmp = first_archetype; at_tmp != NULL; at_tmp = at_tmp->next) {
-            if (at_tmp->clone.type == FOOD || at_tmp->clone.type == DRINK) {
-                /* Basically, if the food value is something that is creatable
-                 * under the limits of the spell and it is higher than
-                 * the item we have now, take it instead. */
-                if (at_tmp->clone.stats.food <= food_value && (!at || at_tmp->clone.stats.food > at->clone.stats.food)) {
-                    at = at_tmp;
-                }
+            /* Don't have a food arch yet, or the current one has a higher food
+             * value, so take it instead. */
+            if (at == NULL || at_tmp->clone.stats.food > at->clone.stats.food) {
+                at = at_tmp;
             }
         }
     }
@@ -157,7 +159,7 @@ int cast_create_food(object *op, object *caster, int dir, const char *stringarg)
     }
 
     food_value /= at->clone.stats.food;
-    new_op = get_object();
+    object *new_op = get_object();
     copy_object(&at->clone, new_op, 0);
     new_op->nrof = food_value;
 

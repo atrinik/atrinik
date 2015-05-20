@@ -68,6 +68,7 @@ set(SOURCES
 	src/server/anim.c
 	src/server/apply.c
 	src/server/arch.c
+	src/server/artifact.c
 	src/server/attack.c
 	src/server/ban.c
 	src/server/cache.c

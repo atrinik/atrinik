@@ -170,21 +170,17 @@ ob_race *race_get_random(void)
  * the archetype is a @ref MONSTER or @ref PLAYER. */
 void race_init(void)
 {
-    archetype_t *at, *tmp;
     size_t i;
 
     races = NULL;
     num_races = 0;
 
-    for (at = first_archetype; at; at = at->next) {
+    archetype_t *at, *tmp;
+    HASH_ITER(hh, arch_table, at, tmp) {
         if (at->clone.type == MONSTER || at->clone.type == PLAYER) {
             race_add(at->clone.race, &at->clone);
-        }
-    }
-
-    /* Now search for corpses. */
-    for (at = first_archetype; at; at = at->next) {
-        if (at->clone.type == CONTAINER && at->clone.sub_type == ST1_CONTAINER_CORPSE) {
+        } else if (at->clone.type == CONTAINER &&
+                at->clone.sub_type == ST1_CONTAINER_CORPSE) {
             race_add_corpse(at->clone.race, at);
         }
     }

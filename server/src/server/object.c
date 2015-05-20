@@ -3320,7 +3320,7 @@ char *object_get_str_r(object *op, char *buf, size_t bufsize)
             op->name != NULL ? op->name : "<no name>",
             op->count);
 
-    if (first_archetype != NULL && op->arch != NULL && op->arch->name != NULL) {
+    if (arch_table != NULL && op->arch != NULL && op->arch->name != NULL) {
         snprintfcat(buf, bufsize, " arch: %s", op->arch->name);
     }
 

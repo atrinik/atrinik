@@ -24,7 +24,7 @@
 
 /**
  * @file
- * Everything concerning treasures and artifacts. */
+ * Everything concerning treasures. */
 
 /* TREASURE_DEBUG does some checking on the treasurelists after loading.
  * It is useful for finding bugs in the treasures file.  Since it only
@@ -54,9 +54,6 @@ char *coins[NUM_COINS + 1] = {
 /** Pointers to coin archetypes. */
 struct archetype *coins_arch[NUM_COINS];
 
-/** Give 1 re-roll attempt per artifact */
-#define ARTIFACT_TRIES 2
-
 /** Chance fix. */
 #define CHANCE_FIX (-1)
 
@@ -74,8 +71,6 @@ static void change_treasure(struct _change_arch *ca, object *op);
 static treasurelist *get_empty_treasurelist(void);
 static treasure *get_empty_treasure(void);
 static void put_treasure(object *op, object *creator, int flags);
-static artifact_list_t *get_empty_artifactlist(void);
-static artifact_t *get_empty_artifact(void);
 static void check_treasurelist(treasure *t, treasurelist *tl);
 static void set_material_real(object *op, struct _change_arch *change_arch);
 static void create_money_table(void);
@@ -84,9 +79,6 @@ static void create_one_treasure(treasurelist *tl, object *op, int flag, int diff
 static int set_ring_bonus(object *op, int bonus, int level);
 static int get_magic(int diff);
 static void free_treasurestruct(treasure *t);
-static void free_charlinks(linked_char *lc);
-static void free_artifactlist(void);
-static void free_artifact(artifact_t *at);
 
 /**
  * Opens LIBDIR/treasure and reads all treasure declarations from it.
@@ -325,221 +317,6 @@ static treasure *load_treasure(FILE *fp, int *t_style, int *a_chance)
     LOG(BUG, "Treasure %s lacks 'end'.>%s<", t->name ? t->name : "NULL", cp ? cp : "NULL");
 
     return t;
-}
-
-/**
- * Builds up the lists of artifacts from the file in the libpath.
- *
- * Can be called multiple times without ill effects. */
-void init_artifacts(void)
-{
-    archetype_t *atemp;
-    long old_pos, file_pos;
-    FILE *fp;
-    char filename[MAX_BUF], buf[HUGE_BUF], *cp, *next;
-    artifact_t *art = NULL;
-    linked_char *tmp;
-    int value, none_flag = 0;
-    size_t lcount;
-    artifact_list_t *al;
-    char buf_text[10 * 1024];
-
-    snprintf(filename, sizeof(filename), "%s/artifacts", settings.libpath);
-    fp = fopen(filename, "rb");
-
-    if (!fp) {
-        LOG(ERROR, "Can't open %s.", filename);
-        exit(1);
-    }
-
-    /* Start read in the artifact list */
-    while (fgets(buf, sizeof(buf), fp) != NULL) {
-        if (*buf == '#') {
-            continue;
-        }
-
-        if ((cp = strchr(buf, '\n')) != NULL) {
-            *cp = '\0';
-        }
-
-        /* Skip blank lines. */
-        if (*buf == '\0') {
-            continue;
-        }
-
-        cp = buf;
-
-        /* Skip blanks */
-        while (*cp == ' ') {
-            cp++;
-        }
-
-        /* We have a single artifact */
-        if (!strncmp(cp, "Allowed", 7)) {
-            art = get_empty_artifact();
-            none_flag = 0;
-            cp = strchr(cp, ' ') + 1;
-
-            if (!strcmp(cp, "all")) {
-                continue;
-            }
-
-            if (!strcmp(cp, "none")) {
-                none_flag = 1;
-                continue;
-            }
-
-            do {
-                /* Trim left whitespace. */
-                while (isspace(*cp)) {
-                    cp++;
-                }
-
-                if ((next = strchr(cp, ',')) != NULL) {
-                    *(next++) = '\0';
-                }
-
-                tmp = emalloc(sizeof(linked_char));
-                tmp->name = NULL;
-                FREE_AND_COPY_HASH(tmp->name, cp);
-                tmp->next = art->allowed;
-                art->allowed = tmp;
-            }            while ((cp = next) != NULL);
-        } else if (sscanf(cp, "t_style %d", &value)) {
-            art->t_style = value;
-        } else if (sscanf(cp, "chance %d", &value)) {
-            art->chance = (uint16_t) value;
-        } else if (sscanf(cp, "difficulty %d", &value)) {
-            art->difficulty = (uint8_t) value;
-        } else if (!strncmp(cp, "artifact", 8)) {
-            FREE_AND_COPY_HASH(art->name, cp + 9);
-        } else if (strncmp(cp, "copy_artifact ", 14) == 0) {
-            art->copy_artifact = KEYWORD_IS_TRUE(cp + 14);
-        } else if (!strncmp(cp, "def_arch", 8)) {
-            /* Chain a default arch to this treasure */
-
-            if ((atemp = arch_find(cp + 9)) == NULL) {
-                LOG(ERROR, "Can't find def_arch %s.", cp + 9);
-                exit(1);
-            }
-
-            /* Ok, we have a name and an archetype */
-
-            /* Store the non fake archetype name */
-            FREE_AND_COPY_HASH(art->def_at_name, cp + 9);
-            /* Copy the default arch */
-            memcpy(&art->def_at, atemp, sizeof(archetype_t));
-            ADD_REF_NOT_NULL_HASH(art->def_at.clone.name);
-            ADD_REF_NOT_NULL_HASH(art->def_at.clone.title);
-            ADD_REF_NOT_NULL_HASH(art->def_at.clone.race);
-            ADD_REF_NOT_NULL_HASH(art->def_at.clone.slaying);
-            ADD_REF_NOT_NULL_HASH(art->def_at.clone.msg);
-            art->def_at.clone.arch = &art->def_at;
-
-            /* we patch this .clone object after Object read with the artifact
-             * data.
-             * in find_artifact, this archetype object will be returned. For the
-             * server,
-             * it will be the same as it comes from the archlist, defined in the
-             * arches.
-             * This will allow us the generate for every artifact a "default
-             * one" and we
-             * will have always a non-magical base for every artifact */
-        } else if (!strncmp(cp, "Object", 6)) {
-            /* All text after Object is now like an arch file until an end comes */
-
-            old_pos = ftell(fp);
-
-            if (!load_object(fp, &(art->def_at.clone), NULL, LO_LINEMODE, MAP_STYLE)) {
-                LOG(ERROR, "Could not load object.");
-                exit(1);
-            }
-
-            if (!art->name) {
-                LOG(ERROR, "Object %s has no arch id name", art->def_at.clone.name);
-                exit(1);
-            }
-
-            if (!art->def_at_name) {
-                LOG(ERROR, "Artifact %s has no def arch", art->name);
-                exit(1);
-            }
-
-            /* Ok, now let's catch and copy the commands to our artifacts
-             * buffer. Let's do some file magic here - that's the easiest way.
-             * */
-            file_pos = ftell(fp);
-
-            if (fseek(fp, old_pos, SEEK_SET)) {
-                LOG(ERROR, "Could not fseek(fp, %ld, SEEK_SET).", old_pos);
-                exit(1);
-            }
-
-            /* The lex reader will bug when it don't get feed with a
-             * <text>+0x0a+0 string. So, we do it here and in the lex
-             * part we simply do a strlen and point to every part without
-             * copying it. */
-            lcount = 0;
-
-            while (fgets(buf, sizeof(buf) - 3, fp)) {
-                strcpy(buf_text + lcount, buf);
-                lcount += strlen(buf) + 1;
-
-                if (ftell(fp) == file_pos) {
-                    break;
-                }
-
-                /* Should not possible. */
-                if (ftell(fp) > file_pos) {
-                    LOG(ERROR, "fgets() read too much data! (%ld - %ld)", file_pos, ftell(fp));
-                    exit(1);
-                }
-            }
-
-            /* Now store the parse text in the artifacts list entry */
-            art->parse_text = emalloc(lcount);
-            memcpy(art->parse_text, buf_text, lcount);
-
-            /* Finally, change the archetype name of our fake arch to the
-             * fake arch name. Without it, treasures will get the
-             * original arch, not this. */
-            FREE_AND_COPY_HASH(art->def_at.name, art->name);
-            /* Now handle the <Allowed none> in the artifact to create
-             * unique items or add them to the given type list. */
-            al = find_artifactlist(none_flag == 0 ? art->def_at.clone.type : -1);
-
-            if (al == NULL) {
-                al = get_empty_artifactlist();
-                al->type = none_flag == 0 ? art->def_at.clone.type : -1;
-                al->next = first_artifactlist;
-                first_artifactlist = al;
-            }
-
-            arch_add(&art->def_at);
-
-            art->next = al->items;
-            al->items = art;
-        } else {
-            LOG(BUG, "Unknown input in artifact file: %s", buf);
-        }
-    }
-
-    fclose(fp);
-
-    for (al = first_artifactlist; al != NULL; al = al->next) {
-        for (art = al->items; art != NULL; art = art->next) {
-            /* We don't use our unique artifacts as pick table */
-            if (al->type == -1) {
-                continue;
-            }
-
-            if (!art->chance) {
-                LOG(BUG, "Artifact with no chance: %s", art->name);
-            } else {
-                al->total_chance += art->chance;
-            }
-        }
-    }
 }
 
 /**
@@ -1617,7 +1394,7 @@ int fix_generated_item(object **op_ptr, object *creator, int difficulty, int a_c
 
         if (a_chance != 0) {
             if ((!was_magic && rndm_chance(CHANCE_FOR_ARTIFACT)) || difficulty >= 999 || rndm(1, 100) <= a_chance) {
-                retval = generate_artifact(op, difficulty, t_style, a_chance);
+                retval = artifact_generate(op, difficulty, t_style, a_chance);
             }
         }
     }
@@ -1628,7 +1405,7 @@ int fix_generated_item(object **op_ptr, object *creator, int difficulty, int a_c
             /* We create scrolls now in artifacts file too */
         case SCROLL:
             while (op->stats.sp == SP_NO_SPELL) {
-                generate_artifact(op, difficulty, t_style, 100);
+                artifact_generate(op, difficulty, t_style, 100);
 
                 if (too_many_tries++ > 3) {
                     break;
@@ -1681,7 +1458,7 @@ int fix_generated_item(object **op_ptr, object *creator, int difficulty, int a_c
                 op->value = (int64_t) (125.0f * spells[op->stats.sp].value_mul);
             } else {
                 while (!(is_special = special_potion(op)) && op->stats.sp == SP_NO_SPELL) {
-                    generate_artifact(op, difficulty, t_style, 100);
+                    artifact_generate(op, difficulty, t_style, 100);
 
                     if (too_many_tries++ > 3) {
                         goto jump_break1;
@@ -1761,7 +1538,7 @@ int fix_generated_item(object **op_ptr, object *creator, int difficulty, int a_c
                 *op_ptr = op = arch_to_object(amulet_arch_normal);
             }
 
-            generate_artifact(op, difficulty, t_style, 99);
+            artifact_generate(op, difficulty, t_style, 99);
 
             /* Now we add the random boni/mali to the item */
             if (!(flags & GT_ONLY_GOOD) && rndm_chance(4)) {
@@ -1826,7 +1603,7 @@ int fix_generated_item(object **op_ptr, object *creator, int difficulty, int a_c
                 op->level = level;
 
                 tailor_readable_ob(op, creator->stats.sp ? creator->stats.sp : -1);
-                generate_artifact(op, 1, T_STYLE_UNSET, 100);
+                artifact_generate(op, 1, T_STYLE_UNSET, 100);
 
                 msg_len = op->msg ? strlen(op->msg) : 0;
 
@@ -1938,7 +1715,7 @@ int fix_generated_item(object **op_ptr, object *creator, int difficulty, int a_c
         case FOOD:
 
             if (rndm_chance(4)) {
-                generate_artifact(op, difficulty, T_STYLE_UNSET, 100);
+                artifact_generate(op, difficulty, T_STYLE_UNSET, 100);
             }
 
             /* Small chance to become cursed food */
@@ -2040,267 +1817,6 @@ int fix_generated_item(object **op_ptr, object *creator, int difficulty, int a_c
 }
 
 /**
- * Allocate and return the pointer to an empty artifactlist structure.
- * @return New structure blanked, never NULL. */
-static artifact_list_t *get_empty_artifactlist(void)
-{
-    artifact_list_t *tl = emalloc(sizeof(artifact_list_t));
-
-    tl->next = NULL;
-    tl->items = NULL;
-    tl->total_chance = 0;
-
-    return tl;
-}
-
-/**
- * Allocate and return the pointer to an empty artifact structure.
- * @return New structure blanked, never NULL. */
-static artifact_t *get_empty_artifact(void)
-{
-    artifact_t *t = emalloc(sizeof(artifact_t));
-
-    t->next = NULL;
-    t->name = NULL;
-    t->def_at_name = NULL;
-    t->t_style = 0;
-    t->chance = 0;
-    t->difficulty = 0;
-    t->allowed = NULL;
-    t->copy_artifact = 0;
-
-    return t;
-}
-
-/**
- * Searches the artifact lists and returns one that has the same type of
- * objects on it.
- * @param type Type to search for.
- * @return NULL if no suitable list found. */
-struct artifact_list *find_artifactlist(int type)
-{
-    artifact_list_t *al;
-
-    for (al = first_artifactlist; al != NULL; al = al->next) {
-        if (al->type == type) {
-            return al;
-        }
-    }
-
-    return NULL;
-}
-
-/**
- * Find the default archetype from artifact by internal artifact list
- * name.
- * @param name Name.
- * @return The archetype if found, NULL otherwise. */
-struct archetype *find_artifact_archtype(const char *name)
-{
-    artifact_list_t *al;
-    artifact_t *art = NULL;
-
-    for (al = first_artifactlist; al != NULL; al = al->next) {
-        art = al->items;
-
-        do {
-            if (art->name && !strcmp(art->name, name)) {
-                return &art->def_at;
-            }
-
-            art = art->next;
-        }        while (art != NULL);
-    }
-
-    return NULL;
-}
-
-/**
- * Find an artifact by its name and type (as there are several lists
- * of artifacts, depending on their types).
- * @param name Name of the artifact to find.
- * @param type Type of the artifact to find.
- * @return The artifact if found, NULL otherwise. */
-struct artifact *find_artifact_type(const char *name, int type)
-{
-    artifact_list_t *al;
-    artifact_t *art;
-
-    al = find_artifactlist(type);
-
-    if (!al) {
-        return NULL;
-    }
-
-    for (art = al->items; art; art = art->next) {
-        if (!strcmp(art->name, name)) {
-            return art;
-        }
-    }
-
-    return NULL;
-}
-
-/**
- * Checks if op can be combined with art. */
-static int legal_artifact_combination(object *op, artifact_t *art)
-{
-    int neg, success = 0;
-    linked_char *tmp;
-    const char *name;
-
-    /* Ie, "all" */
-    if (art->allowed == NULL) {
-        return 1;
-    }
-
-    for (tmp = art->allowed; tmp; tmp = tmp->next) {
-#ifdef TREASURE_VERBOSE
-        LOG(DEBUG, "legal_art: %s", tmp->name);
-#endif
-
-        if (*tmp->name == '!') {
-            name = tmp->name + 1, neg = 1;
-        } else {
-            name = tmp->name, neg = 0;
-        }
-
-        /* If we match name, then return the opposite of 'neg' */
-        if (!strcmp(name, op->name) || (op->arch && !strcmp(name, op->arch->name))) {
-            return !neg;
-        } else if (neg) {
-            /* Set success as true, since if the match was an inverse, it
-             * means everything is allowed except what we match. */
-            success = 1;
-        }
-    }
-
-    return success;
-}
-
-/**
- * Fixes the given object, giving it the abilities and titles it should
- * have due to the second artifact template. */
-void give_artifact_abilities(object *op, struct artifact *art)
-{
-    if (art->copy_artifact) {
-        copy_object_with_inv(&art->def_at.clone, op);
-    } else {
-        int tmp_value = op->value;
-
-        op->value = 0;
-
-        if (!load_object(art->parse_text, op, NULL, LO_MEMORYMODE, MAP_ARTIFACT)) {
-            LOG(ERROR, "load_object() error (ob: %s art: %s).", op->name, art->name);
-            exit(1);
-        }
-
-        FREE_AND_ADD_REF_HASH(op->artifact, art->name);
-
-        /* This will solve the problem to adjust the value for different
-         * items of same artification. Also we can safely use negative
-         * values. */
-        op->value += tmp_value;
-
-        if (op->value < 0) {
-            op->value = 0;
-        }
-    }
-}
-
-/**
- * Decides randomly which artifact the object should be turned into.
- * Makes sure that the item can become that artifact (means magic,
- * difficulty, and Allowed fields properly). Then calls
- * give_artifact_abilities() in order to actually create the artifact.
- * @param op Object.
- * @param difficulty Difficulty.
- * @param t_style Treasure style.
- * @param a_chance Artifact chance.
- * @return 1 on success, 0 on failure. */
-int generate_artifact(object *op, int difficulty, int t_style, int a_chance)
-{
-    artifact_list_t *al;
-    artifact_t *art, *art_tmp = NULL;
-    int i = 0;
-
-    al = find_artifactlist(op->type);
-
-    /* Now we overrule unset to 0 */
-    if (t_style == T_STYLE_UNSET) {
-        t_style = 0;
-    }
-
-    if (al == NULL) {
-#ifdef TREASURE_VERBOSE
-        LOG(DEBUG, "Couldn't change %s into artifact - no table.", op->name);
-#endif
-        return 0;
-    }
-
-    for (i = 0; i < ARTIFACT_TRIES; i++) {
-        int roll = rndm(1, al->total_chance) - 1;
-
-        for (art = al->items; art != NULL; art = art->next) {
-            roll -= art->chance;
-
-            if (roll < 0) {
-                break;
-            }
-        }
-
-        if (art == NULL || roll >= 0) {
-            LOG(BUG, "Got null entry and non zero roll in generate_artifact, type %d", op->type);
-            return 0;
-        }
-
-        /* Map difficulty not high enough OR the t_style is set and don't match
-         * */
-        if (difficulty < art->difficulty || (t_style == -1 && art->t_style && art->t_style != T_STYLE_UNSET) || (t_style && art->t_style && art->t_style != t_style && art->t_style != T_STYLE_UNSET)) {
-            continue;
-        }
-
-        if (!legal_artifact_combination(op, art)) {
-#ifdef TREASURE_VERBOSE
-            LOG(DEBUG, "%s of %s was not a legal combination.", op->name, art->item->name);
-#endif
-            continue;
-        }
-
-        give_artifact_abilities(op, art);
-        return 1;
-    }
-
-    /* If we are here then we failed to generate an artifact by chance. */
-    if (a_chance > 0) {
-        for (art = al->items; art != NULL; art = art->next) {
-            if (art->chance <= 0) {
-                continue;
-            }
-
-            if (difficulty < art->difficulty || (t_style == -1 && art->t_style && art->t_style != T_STYLE_UNSET) || (t_style && art->t_style && art->t_style != t_style && art->t_style != T_STYLE_UNSET)) {
-                continue;
-            }
-
-            if (!legal_artifact_combination(op, art)) {
-                continue;
-            }
-
-            /* There we go! */
-            art_tmp = art;
-        }
-    }
-
-    /* Now we MUST have one - if there was at least one legal possible
-     * artifact. */
-    if (art_tmp) {
-        give_artifact_abilities(op, art_tmp);
-    }
-
-    return 1;
-}
-
-/**
  * Frees a treasure, including its yes, no and next items.
  * @param t Treasure to free. Pointer is efree()d too, so becomes
  * invalid. */
@@ -2326,67 +1842,6 @@ static void free_treasurestruct(treasure *t)
 }
 
 /**
- * Frees a link structure and its next items.
- * @param lc Item to free. Pointer is efree()d too, so becomes invalid. */
-static void free_charlinks(linked_char *lc)
-{
-    linked_char *tmp, *next;
-
-    for (tmp = lc; tmp; tmp = next) {
-        next = tmp->next;
-        FREE_AND_CLEAR_HASH(tmp->name);
-        efree(tmp);
-    }
-}
-
-/**
- * Totally frees an artifact, its next items, and such.
- * @param at Artifact to free. Pointer is efree()d too, so becomes
- * invalid. */
-static void free_artifact(artifact_t *at)
-{
-    FREE_AND_CLEAR_HASH2(at->name);
-    FREE_AND_CLEAR_HASH2(at->def_at.name);
-
-    if (at->next) {
-        free_artifact(at->next);
-    }
-
-    if (at->allowed) {
-        free_charlinks(at->allowed);
-    }
-
-    if (at->parse_text) {
-        efree(at->parse_text);
-    }
-
-    FREE_AND_CLEAR_HASH2(at->def_at.clone.name);
-    FREE_AND_CLEAR_HASH2(at->def_at.clone.race);
-    FREE_AND_CLEAR_HASH2(at->def_at.clone.slaying);
-    FREE_AND_CLEAR_HASH2(at->def_at.clone.msg);
-    FREE_AND_CLEAR_HASH2(at->def_at.clone.title);
-    free_key_values(&at->def_at.clone);
-    efree(at);
-}
-
-/**
- * Free the artifact list. */
-static void free_artifactlist(void)
-{
-    artifact_list_t *al, *nextal;
-
-    for (al = first_artifactlist; al; al = nextal) {
-        nextal = al->next;
-
-        if (al->items) {
-            free_artifact(al->items);
-        }
-
-        efree(al);
-    }
-}
-
-/**
  * Free all treasure related memory. */
 void free_all_treasures(void)
 {
@@ -2402,8 +1857,6 @@ void free_all_treasures(void)
 
         efree(tl);
     }
-
-    free_artifactlist();
 }
 
 /**
@@ -2589,27 +2042,6 @@ int get_environment_level(object *op)
     }
 
     return 1;
-}
-
-/**
- * Create an artifact.
- * @param op Object to turn into an artifact.
- * @param artifactname Artifact to create.
- */
-void create_artifact(object *op, char *artifactname)
-{
-    artifact_list_t *al = find_artifactlist(op->type);
-    artifact_t *art;
-
-    if (al == NULL) {
-        return;
-    }
-
-    for (art = al->items; art != NULL; art = art->next) {
-        if (!strcmp(art->name, artifactname)) {
-            give_artifact_abilities(op, art);
-        }
-    }
 }
 
 #ifdef TREASURE_DEBUG

@@ -31,6 +31,7 @@
 #include <toolkit_string.h>
 #include <faction.h>
 #include <arch.h>
+#include <artifact.h>
 
 /**
  * The server's settings. */
@@ -133,6 +134,7 @@ void cleanup(void)
     free_style_maps();
     arch_deinit();
     free_all_treasures();
+    artifact_deinit();
     free_all_images();
     free_all_newserver();
     free_all_readable();
@@ -760,7 +762,6 @@ void init_globals(void)
     first_map = NULL;
     first_treasurelist = NULL;
     first_artifactlist = NULL;
-    first_archetype = NULL;
     first_region = NULL;
     init_strings();
     init_object_initializers();
@@ -774,18 +775,17 @@ void init_globals(void)
  * Initializes first_map_path from the archetype collection. */
 static void init_dynamic(void)
 {
-    archetype_t *at = first_archetype;
-
-    while (at) {
-        if (at->clone.type == MAP && EXIT_PATH(&at->clone)) {
-            strcpy(first_map_path, EXIT_PATH(&at->clone));
+    archetype_t *at, *tmp;
+    HASH_ITER(hh, arch_table, at, tmp) {
+        if (at->clone.type == MAP && EXIT_PATH(&at->clone) != NULL) {
+            snprintf(VS(first_map_path), "%s", EXIT_PATH(&at->clone));
             return;
         }
-
-        at = at->next;
     }
 
-    LOG(ERROR, "You need an archetype called 'map' and it has to contain start map.");
+    LOG(ERROR, "You need an archetype called 'map' and it has to contain "
+            "start map.");
+    exit(1);
 }
 
 /**
@@ -871,7 +871,6 @@ void init(int argc, char **argv)
  * Initialize before playing. */
 static void init_beforeplay(void)
 {
-    arch_init();
     init_spells();
     race_init();
     init_readable();

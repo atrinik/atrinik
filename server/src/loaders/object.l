@@ -30,6 +30,7 @@
 
 #include <global.h>
 #include <loader.h>
+#include <arch.h>
 #include <artifact.h>
 #include <toolkit_string.h>
 
@@ -210,7 +211,7 @@ lex_error = 0;
         }
 
         if (art_amask) {
-            give_artifact_abilities(tmp, art_amask);
+            artifact_change_object(art_amask, tmp);
         }
 
         art_amask = art_amask_tmp;
@@ -310,7 +311,7 @@ lex_error = 0;
 }
 ^artifact{S}         FREE_AND_COPY_HASH(op->artifact, yval());
 ^amask{S}            {
-    art_amask = find_artifact_type(yval(), op->arch->clone.type);
+    art_amask = artifact_find_type(yval(), op->arch->clone.type);
 
     if (art_amask == NULL) {
         LOG(ERROR, "Invalid amask '%s'.", yval());
@@ -951,7 +952,7 @@ int load_object(void *fp, object *op, void *mybuffer, int bufstate,
         }
 
         if (art_amask != NULL) {
-            give_artifact_abilities(op, art_amask);
+            artifact_change_object(art_amask, op);
         }
 
         update_ob_speed(op);

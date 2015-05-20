@@ -1430,16 +1430,16 @@ static PyObject *Atrinik_Object_Artificate(Atrinik_Object *obj, PyObject *args)
         return NULL;
     }
 
-    artlist = hooks->find_artifactlist(obj->obj->arch->clone.type);
+    artlist = hooks->artifact_list_find(obj->obj->arch->clone.type);
 
     if (!artlist) {
         PyErr_SetString(AtrinikError, "No artifact list matching the object's type.");
         return NULL;
     }
 
-    for (art = artlist->items; art; art = art->next) {
-        if (!strcmp(art->name, name)) {
-            hooks->give_artifact_abilities(obj->obj, art);
+    for (art = artlist->items; art != NULL; art = art->next) {
+        if (strcmp(art->def_at->name, name) == 0) {
+            hooks->artifact_change_object(art, obj->obj);
             break;
         }
     }
