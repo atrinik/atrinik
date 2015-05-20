@@ -904,8 +904,8 @@ void living_update_player(object *op)
     op->stats.ac += op->level;
 
     op->stats.maxhp *= op->level + 3;
-    op->stats.maxsp *= pl->skill_ptr[SK_WIZARDRY_SPELLS] != NULL ?
-        pl->skill_ptr[SK_WIZARDRY_SPELLS]->level : 1 + 3;
+    op->stats.maxsp *= (pl->skill_ptr[SK_WIZARDRY_SPELLS] != NULL ?
+        pl->skill_ptr[SK_WIZARDRY_SPELLS]->level : 1) + 3;
 
     /* Now adjust with the % of the stats mali/boni. */
     op->stats.maxhp += (int) ((float) op->stats.maxhp *
