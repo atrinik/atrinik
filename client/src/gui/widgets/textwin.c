@@ -943,9 +943,18 @@ static void widget_save(widgetdata *widget, FILE *fp, const char *padding)
 
 static void menu_textwin_clear(widgetdata *widget, widgetdata *menuitem, SDL_Event *event)
 {
-    textwin_struct *textwin;
+    textwin_struct *textwin = TEXTWIN(widget);
 
-    textwin = TEXTWIN(widget);
+    /* No tabs. */
+    if (textwin->tabs == NULL) {
+        return;
+    }
+
+    /* The tab has no text. */
+    if (textwin->tabs[textwin->tab_selected].entries == NULL) {
+        return;
+    }
+
     efree(textwin->tabs[textwin->tab_selected].entries);
     textwin->tabs[textwin->tab_selected].entries = NULL;
     textwin->tabs[textwin->tab_selected].num_lines = textwin->tabs[textwin->tab_selected].entries_size = textwin->tabs[textwin->tab_selected].scroll_offset = 0;
