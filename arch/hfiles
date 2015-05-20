@@ -153,7 +153,7 @@ msg
 The tell command is used to send a private message to another player online. Only he will be able to see the message!
 
 [title]Syntax:[/title]
-/tell <name> [your message]
+/tell <name> []your message]
 [p]
 [title]See Also:[/title]
 [a=help]reply[/a]
@@ -169,7 +169,7 @@ msg
 The reply command is used to reply to the last player that sent you a private message. There's no need to specify his name, just the message!
 
 [title]Syntax:[/title]
-/reply [your message]
+/reply []your message]
 [p]
 [title]See Also:[/title]
 [a=help]say[/a]
@@ -302,7 +302,7 @@ The highscore command shows the top players in the game, the ones with most expe
 /hiscore
 
 To search for someone in the highscore list:
-/hiscore [name]
+/hiscore []name]
 endmsg
 end
 
@@ -358,7 +358,7 @@ title Gsay Command
 msg
 The Gsay command is an alias to "/party say". You can use it to send a message to your party.
 [title]Syntax:[/title]
-/gsay [your message]
+/gsay []your message]
 endmsg
 end
 
@@ -534,7 +534,7 @@ msg
 The roll command is used to roll a dice. The results will be displayed to everyone on the map in range.
 
 [title]Syntax:[/title]
-/roll [times to roll the dice]d[number of sides]
+/roll []times to roll the dice]d[]number of sides]
 endmsg
 end
 
@@ -646,7 +646,7 @@ The say command is used to talk with other players on same map, interact with NP
 This command does not require you to type anything before your message; you just write the message, and it gets said on the map you're located at.
 
 [title]Syntax:[/title]
-[your message]
+[]your message]
 
 [title]See Also:[/title]
 [a=help]reply[/a]
@@ -662,7 +662,7 @@ msg
 This command will send a message to all online members of your current guild.
 
 [title]Syntax:[/title]
-/guild [message]
+/guild []message]
 endmsg
 end
 
@@ -715,7 +715,7 @@ msg
 This command allows you to summon a player next to yourself. The summoned player will get a message saying that he was summoned.
 
 [title]Syntax:[/title]
-/summon [player name]
+/summon []player name]
 [p]
 [title]See Also:[/title]
 [a=help]goto[/a]
@@ -730,7 +730,7 @@ msg
 This command allows you to teleport yourself next to another player. The player you are teleporting to will get a message that they see a portal open, unless you have [a=help]dm_stealth[/a] on.
 
 [title]Syntax:[/title]
-/teleport [player name]
+/teleport []player name]
 [p]
 [title]See Also:[/title]
 [a=help]goto[/a]
@@ -745,7 +745,7 @@ msg
 The goto command is used to teleport yourself to a specified map path, with optional X/Y coordinates on the map.
 
 [title]Syntax:[/title]
-/goto [map path] [x] [y]
+/goto []map path] []x] []y]
 [p]
 [title]See Also:[/title]
 [a=help]summon[/a]
@@ -760,7 +760,7 @@ msg
 The kick command is used to kick another player from the game.
 
 [title]Syntax:[/title]
-/kick [player]
+/kick []player]
 [p]
 [title]See Also:[/title]
 [a=help]ban[/a]
@@ -802,7 +802,7 @@ msg
 This command will load a plugin based on its filename.
 
 [title]Syntax:[/title]
-/plugin [filename]
+/plugin []filename]
 [p]
 [title]See Also:[/title]
 [a=help]pluglist[/a]
@@ -817,7 +817,7 @@ msg
 This command will unload a specified plugin.
 
 [title]Syntax:[/title]
-/plugout [plugin]
+/plugout []plugin]
 [p]
 [title]See Also:[/title]
 [a=help]plugin[/a]
@@ -847,7 +847,7 @@ msg
 This command will start a shutdown timer that will shutdown the server in specified number of seconds. Optionally, a reason for the shutdown can be provided.
 
 [title]Syntax:[/title]
-/shutdown [seconds] [reason]
+/shutdown []seconds] []reason]
 [p]
 [title]See Also:[/title]
 [a=help]shutdown_now[/a]
@@ -875,7 +875,7 @@ msg
 This command will reset map the DM is currently on. Optionally, a map path can be given to reset another map and not the one DM is on.
 
 [title]Syntax:[/title]
-/resetmap [map]
+/resetmap []map]
 endmsg
 end
 
@@ -887,7 +887,7 @@ The DM create command used to create almost any item.
 [title]NOTE: VERY DANGEROUS, USE WITH CAUTION![/title]
 
 [title]Syntax:[/title]
-/create [number] [bonus] [archetype] [variable1] [value1] [variable2] [value2] ...
+/create []number] []bonus] []archetype] []variable1] []value1] []variable2] []value2] ...
 endmsg
 end
 
@@ -898,7 +898,7 @@ msg
 The DM add exp command is used to add exp to specified skill to a player.
 
 [title]Syntax:[/title]
-/addexp [player name] [skill ID] [experience to add]
+/addexp []player name] []skill ID] []experience to add]
 
 List skill IDs:
 /addexp
@@ -949,7 +949,7 @@ To revert the original (default) Message of the Day:
 /motd_set original
 
 To set a custom Message of the Day:
-/motd_set [message]
+/motd_set []message]
 endmsg
 end
 
@@ -960,7 +960,7 @@ msg
 This command can be used by DMs to chat among themselves. It is similar to commands like shout, say, etc, but it will appear in red, prefixed with [DM Channel] and only to other logged in DMs.
 
 [title]Syntax:[/title]
-/dmsay [your message]
+/dmsay []your message]
 endmsg
 end
 
@@ -971,7 +971,7 @@ msg
 The arrest command can be used to arrest a player. Note that there will be no way for the player to escape, since even their savebed location will be set to the jail, so when they die or use word of recall, they will appear there again. To release the player, you need to summon them somewhere, and ensure they apply a savebed, so they don't reappear in the jail.
 
 [title]Syntax:[/title]
-/arrest [player]
+/arrest []player]
 endmsg
 end
 
@@ -982,7 +982,7 @@ msg
 This command allows you to insert marked item inside another object.
 
 [title]Syntax:[/title]
-/insert_into [[a=help]object_id[/a]]
+/insert_into [][a=help]object_id[/a]]
 endmsg
 end
 
@@ -993,7 +993,7 @@ msg
 This command is used to remove another object from the game (cannot be used on players).
 
 [title]Syntax:[/title]
-/remove [[a=help]object_id[/a]]
+/remove [][a=help]object_id[/a]]
 endmsg
 end
 
@@ -1004,7 +1004,7 @@ msg
 This command can be used to patch an attribute of an object.
 
 [title]Syntax:[/title]
-/patch [[a=help]object_id[/a]] [attribute] [value]
+/patch [][a=help]object_id[/a]] [attribute] [value]
 
 [title]Examples:[/title]
 /patch guard friendly 0
@@ -1019,7 +1019,7 @@ msg
 This command can allow a DM to follow another player (if the DM is invisible, the player will not know they are being followed).
 
 [title]Syntax:[/title]
-/follow [player]
+/follow []player]
 
 To stop following someone:
 /follow
@@ -1033,7 +1033,7 @@ msg
 This command allows DM to change player's password.
 
 [title]Syntax:[/title]
-/dm_password [player] [new password]
+/dm_password []player] []new password]
 endmsg
 end
 
