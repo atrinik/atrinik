@@ -738,15 +738,6 @@ static void init_library(int argc, char *argv[])
     init_dynamic();
     init_clocks();
     account_init();
-
-    /* init some often used default archetypes */
-    if (level_up_arch == NULL) {
-        level_up_arch = arch_find(ARCHETYPE_LEVEL_UP);
-    }
-
-    if (!level_up_arch) {
-        LOG(BUG, "Can't find '%s' arch", ARCHETYPE_LEVEL_UP);
-    }
 }
 
 /**
@@ -874,6 +865,5 @@ static void init_beforeplay(void)
     init_spells();
     race_init();
     init_readable();
-    init_archetype_pointers();
     init_new_exp_system();
 }

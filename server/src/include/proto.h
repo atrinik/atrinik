@@ -664,7 +664,6 @@ extern long seconds(void);
 extern char *coins[6 + 1];
 extern struct archetype *coins_arch[6];
 extern void load_treasures(void);
-extern void init_archetype_pointers(void);
 extern treasurelist *find_treasurelist(const char *name);
 extern object *generate_treasure(treasurelist *t, int difficulty, int a_chance);
 extern void create_treasure(treasurelist *t, object *op, int flag, int difficulty, int t_style, int a_chance, int tries, struct _change_arch *arch_change);

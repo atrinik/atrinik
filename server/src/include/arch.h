@@ -44,16 +44,31 @@ typedef struct archetype {
     object clone; ///< An object from which to do copy_object().
 } archetype_t;
 
+/**
+ * IDs of archetype pointers cached in #arches.
+ * @anchor ARCH_xxx
+ */
+enum {
+    ARCH_WAYPOINT, ///< The 'waypoint' archetype.
+    ARCH_EMPTY_ARCHETYPE, ///< The 'empty_archetype' archetype.
+    ARCH_BASE_INFO, ///< The 'base_info' archetype.
+    ARCH_LEVEL_UP, ///< The 'level_up' archetype.
+    ARCH_RING_NORMAL, ///< The 'ring_normal' archetype.
+    ARCH_RING_GENERIC, ///< The 'ring_generic' archetype.
+    ARCH_AMULET_NORMAL, ///< The 'amulet_normal' archetype.
+    ARCH_AMULET_GENERIC, ///< The 'amulet_generic' archetype.
+
+    ARCH_MAX ///< Maximum number of cached archetype pointers.
+};
+
 /* Prototypes */
 
 #ifndef __CPROTO__
 
 archetype_t *arch_table;
+archetype_t *arches[ARCH_MAX];
 bool arch_in_init;
 archetype_t *wp_archetype;
-archetype_t *empty_archetype;
-archetype_t *base_info_archetype;
-archetype_t *level_up_arch;
 
 void arch_init(void);
 void arch_deinit(void);

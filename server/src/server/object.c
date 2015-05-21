@@ -681,7 +681,7 @@ void dump_object(object *op, StringBuffer *sb)
 
     if (op->arch != NULL) {
         stringbuffer_append_printf(sb, "arch %s\n", op->arch->name ? op->arch->name : "(null)");
-        get_ob_diff(sb, op, &empty_archetype->clone);
+        get_ob_diff(sb, op, &arches[ARCH_EMPTY_ARCHETYPE]->clone);
         stringbuffer_append_string(sb, "end\n");
     } else {
         stringbuffer_append_string(sb, "Object ");
@@ -707,8 +707,8 @@ void dump_object_rec(object *op, StringBuffer *sb)
     at = op->arch;
 
     /* No archetype, use empty archetype. */
-    if (!at) {
-        at = empty_archetype;
+    if (at == NULL) {
+        at = arches[ARCH_EMPTY_ARCHETYPE];
     }
 
     stringbuffer_append_printf(sb, "arch %s\n", at->name);
@@ -3433,7 +3433,7 @@ void object_save(object *op, FILE *fp)
 
     archetype_t *at = op->arch;
     if (at == NULL) {
-        at = empty_archetype;
+        at = arches[ARCH_EMPTY_ARCHETYPE];
     }
 
     fprintf(fp, "arch %s\n", at->name);

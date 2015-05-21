@@ -119,7 +119,7 @@ void set_npc_enemy(object *npc, object *enemy, rv_vector *rv)
         object *base = insert_base_info_object(npc);
         object *wp = get_active_waypoint(npc);
 
-        if (base && !wp && wp_archetype) {
+        if (base && !wp) {
             object *return_wp = get_return_waypoint(npc);
 
 #ifdef DEBUG_PATHFINDING
@@ -127,7 +127,7 @@ void set_npc_enemy(object *npc, object *enemy, rv_vector *rv)
 #endif
 
             if (!return_wp) {
-                return_wp = arch_to_object(wp_archetype);
+                return_wp = arch_to_object(arches[ARCH_WAYPOINT]);
                 insert_ob_in_ob(return_wp, npc);
                 return_wp->owner = npc;
                 return_wp->ownercount = npc->count;
@@ -160,20 +160,12 @@ void set_npc_enemy(object *npc, object *enemy, rv_vector *rv)
     /* Update speed */
     set_mobile_speed(npc, 0);
 
-    /* Setup aggro waypoint */
-    if (!wp_archetype) {
-#ifdef DEBUG_PATHFINDING
-        LOG(DEBUG, "Aggro waypoints disabled");
-#endif
-        return;
-    }
-
     /* TODO: check intelligence against lower limit to allow pathfind */
     aggro_wp = get_aggro_waypoint(npc);
 
     /* Create a new aggro wp for npc? */
     if (!aggro_wp && enemy) {
-        aggro_wp = arch_to_object(wp_archetype);
+        aggro_wp = arch_to_object(arches[ARCH_WAYPOINT]);
         insert_ob_in_ob(aggro_wp, npc);
         /* Mark as aggro WP */
         SET_FLAG(aggro_wp, FLAG_DAMNED);

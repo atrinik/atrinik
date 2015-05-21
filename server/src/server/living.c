@@ -1512,7 +1512,7 @@ object *insert_base_info_object(object *op)
     tmp->speed_left = tmp->speed;
     /* Ensure this object will not be active in any way */
     tmp->speed = 0.0f;
-    tmp->face = base_info_archetype->clone.face;
+    tmp->face = arches[ARCH_BASE_INFO]->clone.face;
     SET_FLAG(tmp, FLAG_NO_DROP);
     CLEAR_FLAG(tmp, FLAG_ANIMATE);
     CLEAR_FLAG(tmp, FLAG_FRIENDLY);

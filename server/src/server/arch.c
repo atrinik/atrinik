@@ -35,20 +35,20 @@
 #include <loader.h>
 #include <toolkit_string.h>
 
-/** The archetype hash table. */
+/**
+ * The archetype hash table.
+ */
 archetype_t *arch_table = NULL;
+/**
+ * Pointers to cached archetypes. Initialized from #arch_names.
+ */
+archetype_t *arches[ARCH_MAX] = {NULL};
 
-/** True if doing arch initialization. */
+/**
+ * True if doing arch initialization.
+ */
 bool arch_in_init = false;
 
-/** Pointer to waypoint archetype. */
-archetype_t *wp_archetype = NULL;
-/** Pointer to empty_archetype archetype. */
-archetype_t *empty_archetype = NULL;
-/** Pointer to base_info archetype. */
-archetype_t *base_info_archetype = NULL;
-/** Pointer to level up effect archetype. */
-archetype_t *level_up_arch = NULL;
 /**
  * Used to create archetype's clone object in arch_new(), to avoid
  * a lot of calls to object_get().
@@ -57,14 +57,22 @@ archetype_t *level_up_arch = NULL;
  */
 static object *clone_op;
 
+/**
+ * Used to initialize the #arches array.
+ */
+static const char *const arch_names[ARCH_MAX] = {
+    "waypoint", "empty_archetype", "base_info", "level_up", "ring_normal",
+    "ring_generic", "amulet_normal", "amulet_generic"
+};
+
 /* Prototypes */
 static void arch_free(archetype_t *at);
 static void arch_load(void);
 
 /**
- * Initializes the internal linked list of archetypes (read from file).
- * Some commonly used archetype pointers like ::empty_archetype,
- * ::base_info_archetype are initialized.
+ * Initializes the archetypes hash table (read from file).
+ *
+ * #arches are also initialized.
  */
 void arch_init(void)
 {
@@ -76,9 +84,14 @@ void arch_init(void)
     arch_in_init = false;
     object_destroy(clone_op);
 
-    empty_archetype = arch_find("empty_archetype");
-    base_info_archetype = arch_find("base_info");
-    wp_archetype = arch_find("waypoint");
+    for (int i = 0; i < ARCH_MAX; i++) {
+        arches[i] = arch_find(arch_names[i]);
+
+        if (arches[i] == NULL) {
+            LOG(ERROR, "Could not find required archetype %s.", arch_names[i]);
+            exit(1);
+        }
+    }
 }
 
 /**

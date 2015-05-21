@@ -57,15 +57,6 @@ struct archetype *coins_arch[NUM_COINS];
 /** Chance fix. */
 #define CHANCE_FIX (-1)
 
-/** Pointer to the 'ring_generic' archetype. */
-static archetype_t *ring_arch = NULL;
-/** Pointer to the 'ring_normal' archetype. */
-static archetype_t *ring_arch_normal = NULL;
-/** Pointer to the 'amulet_generic' archetype. */
-static archetype_t *amulet_arch = NULL;
-/** Pointer to the 'amulet_normal' archetype. */
-static archetype_t *amulet_arch_normal = NULL;
-
 static treasure *load_treasure(FILE *fp, int *t_style, int *a_chance);
 static void change_treasure(struct _change_arch *ca, object *op);
 static treasurelist *get_empty_treasurelist(void);
@@ -317,43 +308,6 @@ static treasure *load_treasure(FILE *fp, int *t_style, int *a_chance)
     LOG(BUG, "Treasure %s lacks 'end'.>%s<", t->name ? t->name : "NULL", cp ? cp : "NULL");
 
     return t;
-}
-
-/**
- * Initialize global archetype pointers. */
-void init_archetype_pointers(void)
-{
-    if (ring_arch_normal == NULL) {
-        ring_arch_normal = arch_find("ring_normal");
-    }
-
-    if (!ring_arch_normal) {
-        LOG(BUG, "Can't find 'ring_normal' arch (from artifacts)");
-    }
-
-    if (ring_arch == NULL) {
-        ring_arch = arch_find("ring_generic");
-    }
-
-    if (!ring_arch) {
-        LOG(BUG, "Can't find 'ring_generic' arch");
-    }
-
-    if (amulet_arch_normal == NULL) {
-        amulet_arch_normal = arch_find("amulet_normal");
-    }
-
-    if (!amulet_arch_normal) {
-        LOG(BUG, "Can't find 'amulet_normal' arch (from artifacts)");
-    }
-
-    if (amulet_arch == NULL) {
-        amulet_arch = arch_find("amulet_generic");
-    }
-
-    if (!amulet_arch) {
-        LOG(BUG, "Can't find 'amulet_generic' arch");
-    }
 }
 
 /**
@@ -1497,7 +1451,7 @@ int fix_generated_item(object **op_ptr, object *creator, int difficulty, int a_c
         case AMULET:
 
             /* Since it's not just decoration */
-            if (op->arch == amulet_arch) {
+            if (op->arch == arches[ARCH_AMULET_GENERIC]) {
                 op->value *= 5;
             }
 
@@ -1512,7 +1466,8 @@ int fix_generated_item(object **op_ptr, object *creator, int difficulty, int a_c
 
             /* It's a special artifact! For these items, there is no point
              * carrying on, as the next bit is for regular rings only. */
-            if (op->arch != ring_arch && op->arch != amulet_arch) {
+            if (op->arch != arches[ARCH_RING_GENERIC] &&
+                    op->arch != arches[ARCH_AMULET_GENERIC]) {
                 break;
             }
 
@@ -1532,10 +1487,10 @@ int fix_generated_item(object **op_ptr, object *creator, int difficulty, int a_c
             /* Here we give the ring or amulet a random material.
              * First we use a special arch for this. Only this archtype is
              * allowed to be masked with a special material artifact. */
-            if (op->arch == ring_arch) {
-                *op_ptr = op = arch_to_object(ring_arch_normal);
+            if (op->arch == arches[ARCH_RING_GENERIC]) {
+                *op_ptr = op = arch_to_object(arches[ARCH_RING_NORMAL]);
             } else {
-                *op_ptr = op = arch_to_object(amulet_arch_normal);
+                *op_ptr = op = arch_to_object(arches[ARCH_AMULET_NORMAL]);
             }
 
             artifact_generate(op, difficulty, t_style, 99);
