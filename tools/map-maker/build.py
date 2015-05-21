@@ -98,6 +98,7 @@ binaries = [
     ["client/*.dll", True],
     ["editor/AtrinikEditor.jar", True],
     ["*.bat", True],
+    ["*.sh", True],
 ]
 
 # Common debug printing function. Only prints 'txt'
