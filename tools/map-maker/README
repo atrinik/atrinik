@@ -25,7 +25,7 @@ ran on 64-bit systems as well.
 server/atrinik-server:
   GNU/Linux binary of the server.
 
-server/atrinik_server.exe:
+server/atrinik-server.exe:
   Windows binary of the server.
 
 server/*.dll:

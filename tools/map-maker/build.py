@@ -25,7 +25,7 @@
 
 # Script to build Atrinik map maker package.
 
-import sys, os, getopt, shutil, glob, zipfile
+import sys, os, getopt, shutil, glob, zipfile, re
 from distutils import dir_util
 from datetime import datetime
 
@@ -90,7 +90,7 @@ dirs_make = ["server/lib", "server/data", "server/data/players", "server/data/tm
 # to copy, second one is whether they are required or not.
 binaries = [
     ["server/atrinik-server", True],
-    ["server/atrinik_server.exe", True],
+    ["server/atrinik-server.exe", True],
     ["server/*.dll", False],
     ["client/atrinik", True],
     ["client/atrinik.exe", True],
@@ -254,24 +254,24 @@ debug("Attempting to find Atrinik's version...")
 
 version = ""
 
-# Client's configure.ac file.
-client_configure = repo_dir + "/client/make/linux/configure.ac"
+# Client's build.config file.
+client_build_config = repo_dir + "/client/build.config"
 
 # Does it exist?
-if os.path.exists(client_configure):
-    fp = open(client_configure)
+if os.path.exists(client_build_config):
+    fp = open(client_build_config)
 
     for line in fp:
-        # AC_INIT macro has the version.
-        if line[:8] == "AC_INIT(":
-            # Split it into parts.
-            parts = line[8:-2].split(",")
-            # Strip off whitespace and remove leading [ and ending ].
-            version = parts[1].strip()[1:-1] + "_"
-            debug("    Found Atrinik's version: {0}".format(version[:-1]))
-            break
+        match = re.match(".*PACKAGE_VERSION_\w+ (\d+).*", line)
+
+        if match:
+            version += match.group(1) + "."
 
     fp.close()
+
+    if version:
+        version = version[:-1] + "_"
+        debug("    Found Atrinik's version: {0}".format(version[:-1]))
 
 # Zip the entire dir.
 debug("Zipping up the entire directory...")
