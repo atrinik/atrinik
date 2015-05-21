@@ -164,37 +164,6 @@ for f in files:
         # Copy the file.
         shutil.copyfile(src, "atrinik_map_maker/server/data/" + f)
 
-# Copy plugin binaries.
-debug("Copying plugin binaries...")
-
-src_dir = working_dir + "/server/plugins"
-dst_dir = "atrinik_map_maker/server/plugins"
-
-# Find .dll plugins.
-files_dll = glob.glob(src_dir + "/*.dll")
-
-# No plugins? Bail out.
-if len(files_dll) == 0:
-    print("ERROR: No Win32 plugins found: {0}".format(src_dir))
-    sys.exit(2)
-
-# Find .so plugins.
-files_so = glob.glob(src_dir + "/*.so")
-
-# No plugins? Bail out.
-if len(files_so) == 0:
-    print("ERROR: No GNU/Linux plugins found: {0}".format(src_dir))
-    sys.exit(2)
-
-# All the plugins.
-files = files_dll + files_so
-
-for src in files:
-    base = os.path.basename(src)
-    debug("    Copying: {0}".format(src))
-    # Copy each plugin.
-    shutil.copyfile(src, dst_dir + "/" + base)
-
 # Now copy other binaries.
 debug("Copying binaries...")
 
