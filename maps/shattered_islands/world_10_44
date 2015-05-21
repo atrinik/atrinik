@@ -2,7 +2,7 @@ arch map
 name Asteria
 msg
 Created:  2009-08-09 Alex Tokar
-Modified: 2015-04-20 Alex Tokar
+Modified: 2015-05-21 Alex Tokar
 endmsg
 width 24
 height 24
@@ -111,8 +111,7 @@ arch shop_floor
 z 50
 y 20
 end
-arch shop_floor
-z 50
+arch shop_floor_normal
 y 21
 end
 arch wall_white2_1
@@ -273,8 +272,7 @@ arch shop_mat
 x 1
 y 20
 end
-arch shop_floor
-z 50
+arch shop_floor_normal
 x 1
 y 21
 end
@@ -413,8 +411,7 @@ arch wall_white2_4
 x 2
 y 17
 end
-arch shop_floor
-z 50
+arch shop_floor_normal
 x 2
 y 18
 end
@@ -422,8 +419,7 @@ arch grate1_3
 x 2
 y 18
 end
-arch shop_floor
-z 50
+arch shop_floor_normal
 x 2
 y 19
 end
@@ -431,8 +427,7 @@ arch grate1_3
 x 2
 y 19
 end
-arch shop_floor
-z 50
+arch shop_floor_normal
 x 2
 y 20
 end
@@ -440,8 +435,7 @@ arch grate1_3
 x 2
 y 20
 end
-arch shop_floor
-z 50
+arch shop_floor_normal
 x 2
 y 21
 end
