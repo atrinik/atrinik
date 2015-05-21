@@ -250,7 +250,6 @@ class CheckerObject(AbstractChecker):
                           "Objects should have correct map path configured.",
                           obj=obj)
 
-
     def checker_types(self, obj):
         t = obj.getAttributeInt("type")
 
@@ -1186,3 +1185,31 @@ class CheckerMap(AbstractChecker):
                                           "may be picked up from the shop "
                                           "without paying for them.",
                                           loc=[x, y], game_obj=game_obj)
+
+                    for xoff, yoff in Game.freearr[1:]:
+                        xt = x + xoff
+                        yt = y + yoff
+
+                        if xt not in obj.tiles or yt not in obj.tiles[xt]:
+                            continue
+
+                        is_shop2 = False
+                        is_blocking = False
+
+                        for game_obj in obj.tiles[xt][yt]:
+                            t = game_obj.getAttributeInt("type")
+                            if t == Game.Types.shop_floor:
+                                is_shop2 = True
+
+                            if game_obj.getAttributeInt("no_pass"):
+                                is_blocking = True
+
+                        if not is_shop2 and not is_blocking:
+                            self.addError("critical",
+                                          "Missing shop floor.",
+                                          "Tiles adjacent to shop floors "
+                                          "should also be either shop floors, "
+                                          "or have an object with no_pass 1.",
+                                          loc=[xt, yt])
+
+
