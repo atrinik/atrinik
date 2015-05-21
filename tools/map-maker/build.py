@@ -92,6 +92,7 @@ binaries = [
     ["server/atrinik-server", True],
     ["server/atrinik-server.exe", True],
     ["server/*.dll", True],
+    ["server/*.so", True],
     ["client/atrinik", True],
     ["client/atrinik.exe", True],
     ["client/*.dll", True],
