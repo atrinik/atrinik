@@ -91,7 +91,7 @@ dirs_make = ["server/lib", "server/data", "server/data/players", "server/data/tm
 binaries = [
     ["server/atrinik-server", True],
     ["server/atrinik-server.exe", True],
-    ["server/*.dll", False],
+    ["server/*.dll", True],
     ["client/atrinik", True],
     ["client/atrinik.exe", True],
     ["client/*.dll", True],
