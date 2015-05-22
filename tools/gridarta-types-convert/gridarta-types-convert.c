@@ -973,13 +973,13 @@ static const char *in_living[] =
     "ac",
     "wc_range",
 
-    "str",
-    "dex",
-    "con",
-    "wis",
-    "cha",
-    "int",
-    "pow",
+    "Str",
+    "Dex",
+    "Con",
+    "Wis",
+    "Cha",
+    "Int",
+    "Pow",
     NULL
 };
 
@@ -1036,8 +1036,8 @@ void write_attribute_reference(char *attribute, FILE *file)
     }
 
     for (val = 0; in_living[val] != NULL; val++) {
-        if (!strcmp(in_living[val], attribute)) {
-            fprintf(file, "liv::%s", attribute);
+        if (!strcasecmp(in_living[val], attribute)) {
+            fprintf(file, "liv::%s", in_living[val]);
             return;
         }
     }
