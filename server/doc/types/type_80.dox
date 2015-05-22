@@ -335,7 +335,7 @@ Type defined by:
 	</tr>
 	<tr>
 		<td>healing rate</td>
-		<td>@ref liv::con</td>
+		<td>@ref liv::Con</td>
 		<td>			Monster regenerates this many hit points each move. Each time
 			the monster has a move, it gets &lt;healing rate&gt; health
 			points back. Hence, &lt;movement speed&gt; has great effect
@@ -694,7 +694,7 @@ Type defined by:
 	</tr>
 	<tr>
 		<td>sensing range</td>
-		<td>@ref liv::wis</td>
+		<td>@ref liv::Wis</td>
 		<td>			&lt;sensing range&gt; determines how close a player needs to
 			be before the creature notices him. This is done as a square,
 			for reasons of speed. If the player has stealth, the size of
@@ -713,7 +713,7 @@ Type defined by:
 	</tr>
 	<tr>
 		<td>spellpoint regen.</td>
-		<td>@ref liv::pow</td>
+		<td>@ref liv::Pow</td>
 		<td>			Monsters regenerate this many spellpoints each move. Each
 			time the monster has a move, it gets
 			&lt;spellpoint regen.&gt; spellpoints back. Hence,
@@ -870,7 +870,7 @@ Type defined by:
 	</tr>
 	<tr>
 		<td>use ability 1/</td>
-		<td>@ref liv::dex</td>
+		<td>@ref liv::Dex</td>
 		<td>			The &lt;use ability&gt; value is a 1/x chance that the
 			monster *tries* to use per active tick a special ability like
 			spellcasting, throwing, etc.

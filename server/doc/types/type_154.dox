@@ -435,7 +435,7 @@ Type defined by:
 	</tr>
 	<tr>
 		<td>visibility</td>
-		<td>@ref liv::cha</td>
+		<td>@ref liv::Cha</td>
 		<td>		Affects how easily the trap may be found.
 		</td>
 	</tr>

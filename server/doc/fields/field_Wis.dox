@@ -1,10 +1,10 @@
 /**
-@var liv::wis
+@var liv::Wis
 @sa @ref page_field_wis
 */
 
 /**
-@page page_field_wis liv::wis Uses
+@page page_field_wis liv::Wis Uses
 <table>
 	<tr>
 		<th>Type(s)</th>
