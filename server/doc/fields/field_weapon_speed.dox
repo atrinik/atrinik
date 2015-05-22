@@ -1,6 +1,10 @@
 /**
-@fn obj::weapon_speed
-@section Use
+@var obj::weapon_speed
+@sa @ref page_field_weapon_speed
+*/
+
+/**
+@page page_field_weapon_speed obj::weapon_speed Uses
 <table>
 	<tr>
 		<th>Type(s)</th>

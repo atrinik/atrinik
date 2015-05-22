@@ -1,6 +1,10 @@
 /**
-@fn FLAG_INVULNERABLE
-@section Use
+@var FLAG_INVULNERABLE
+@sa @ref page_field_invulnerable
+*/
+
+/**
+@page page_field_invulnerable FLAG_INVULNERABLE Uses
 <table>
 	<tr>
 		<th>Type(s)</th>

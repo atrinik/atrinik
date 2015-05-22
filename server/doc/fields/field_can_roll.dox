@@ -1,6 +1,10 @@
 /**
-@fn FLAG_CAN_ROLL
-@section Use
+@var FLAG_CAN_ROLL
+@sa @ref page_field_can_roll
+*/
+
+/**
+@page page_field_can_roll FLAG_CAN_ROLL Uses
 <table>
 	<tr>
 		<th>Type(s)</th>

@@ -1,6 +1,10 @@
 /**
-@fn FLAG_SPLITTING
-@section Use
+@var FLAG_SPLITTING
+@sa @ref page_field_splitting
+*/
+
+/**
+@page page_field_splitting FLAG_SPLITTING Uses
 <table>
 	<tr>
 		<th>Type(s)</th>
@@ -9,9 +13,7 @@
 		<td>
 @ref page_type_42
 		</td><td>		Setting this will make the creator clone a single, randomly picked,
-		non-system object from its inventory instead of all of them.
-
-		(Only used if "create arch" is unset)</td>
+		object from its inventory instead of all of them.</td>
 	</tr>
 	<tr>
 		<td>

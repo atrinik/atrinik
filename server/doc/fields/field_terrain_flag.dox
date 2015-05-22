@@ -1,6 +1,10 @@
 /**
-@fn obj::terrain_flag
-@section Use
+@var obj::terrain_flag
+@sa @ref page_field_terrain_flag
+*/
+
+/**
+@page page_field_terrain_flag obj::terrain_flag Uses
 <table>
 	<tr>
 		<th>Type(s)</th>
@@ -9,6 +13,12 @@
 		<td>
 @ref page_type_79
 		</td><td>		What terrain can this object move on.</td>
+	</tr>
+	<tr>
+		<td>
+@ref page_type_88
+		</td><td>			Which terrain types the slow movement penalty will affect. If
+			none, all terrains will be affected.</td>
 	</tr>
 	<tr>
 		<td>

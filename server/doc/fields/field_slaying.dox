@@ -1,48 +1,19 @@
 /**
-@fn obj::slaying
-@section Use
+@var obj::slaying
+@sa @ref page_field_slaying
+*/
+
+/**
+@page page_field_slaying obj::slaying Uses
 <table>
 	<tr>
 		<th>Type(s)</th>
 		<th>Description</th>
 	</tr>	<tr>
 		<td>
-@ref page_type_18, @ref page_type_31
-		</td><td>		This string specifies the item that must be put on the altar to
-		activate it. It can either be the name of an archetype, or
-		directly the name of an object. Yet, titles are not recognized by
-		altars. Remember to put a note somewhere, telling the player what
-		he is expected to drop on the altar. Often this is put in the
-		altar's name: E.g. "drop 100 platinums".</td>
-	</tr>
-	<tr>
-		<td>
 @ref page_type_122
 		</td><td>		If &lt;key string&gt; is set, only players with a special key of
 		matching &lt;key string&gt; are able to open the container.</td>
-	</tr>
-	<tr>
-		<td>
-@ref page_type_103
-		</td><td>		&lt;Cost arch&gt; is the name of the archetype the player has to
-		put on the converter, as payment.</td>
-	</tr>
-	<tr>
-		<td>
-@ref page_type_42
-		</td><td>		The created object will bear the name specified in
-		&lt;name creation&gt;. If nothing is set, the standard name of
-		the archetype is used.
-
-		(Only used if "create arch" is set)</td>
-	</tr>
-	<tr>
-		<td>
-@ref page_type_51
-		</td><td>		&lt;Match name&gt; specifies the name of the object we are
-		looking for. Actually it does also check for the
-		&lt;key string&gt; in key-objects, but for this case inventory
-		checkers are often more powerful to use.</td>
 	</tr>
 	<tr>
 		<td>
@@ -53,30 +24,33 @@
 	</tr>
 	<tr>
 		<td>
-@ref page_type_66, @ref page_type_94, @ref page_type_41, @ref page_type_95
+@ref page_type_66
 		</td><td>		The exit path defines the map that the player is transferred to.
 
 		You can enter an absolute path, beginning with '/' (for example
 		"/tutorial"). It can also be a relative path, not beginning with
 		'/' (on the map "/shattered_islands/world_0303" for example I
-		could use the relative path "0304"). Use relative paths whenever
-		possible! Note that upper/lower case must always be set
+		could use the relative path "world_0304"). Use relative paths
+		whenever possible! Note that upper/lower case must always be set
 		correctly. However, please use lower case only.
 
-		It is well possible to have an exit pointing to the same map that
-		the exit is on. If slaying is not set in an exit, the player will
-		see a message like "The exit is closed".</td>
+		If the path is not set, it is automatically assumed to be the same
+		as the map the exit is on.</td>
 	</tr>
 	<tr>
 		<td>
-@ref page_type_64, @ref page_type_98
+@ref page_type_93
+		</td><td>		If &lt;key string&gt; is set, only players with a special key of
+		matching &lt;key string&gt; are able to activate the handle.</td>
+	</tr>
+	<tr>
+		<td>
+@ref page_type_64
 		</td><td>		This string specifies the object we are looking for: We have a
 		match if the player does/don't carry a key object or a mark with
 		identical &lt;key string&gt;. This string is compared to the name
 		of an object. If the "match = slaying field" is set, the text is
-		compared to the slaying field of the object we search for. This
-		can make sense if we really want avoid any problems with user set
-		names of objects.</td>
+		compared to the slaying field of the object we search for.</td>
 	</tr>
 	<tr>
 		<td>
@@ -97,22 +71,13 @@
 	<tr>
 		<td>
 @ref page_type_55
-		</td><td>		The &lt;key string&gt; can be detected by inventory checkers/
-		detectors. If the player already has a force with that
-		&lt;key string&gt;, there won't be inserted a second one.</td>
+		</td><td>		If set, the marker with this key string will be removed when the
+		player passes over the marker.</td>
 	</tr>
 	<tr>
 		<td>
-@ref page_type_17, @ref page_type_32
-		</td><td>		The &lt;match race&gt; defines the object we're looking for. If
-		&lt;match race&gt; matches the monster's or the player's race, we
-		have a match. Yes, pedestals can detect a player's race! E.g. you
-		could create a place where only fireborns can enter, by setting
-		"slaying unnatural".
-
-		If it is set to "player", any player stepping on the pedestal is
-		a match. Very useful if you want to open a gate for players but
-		not for monsters.</td>
+@ref page_type_17, @ref page_type_51
+		</td><td>		Name of the object to match.</td>
 	</tr>
 	<tr>
 		<td>
@@ -125,6 +90,17 @@
 	</tr>
 	<tr>
 		<td>
+@ref page_type_98
+		</td><td>		This string specifies the object we are looking for: We have a
+		match if the player does/don't carry a key object or a mark with
+		identical &lt;key string&gt;. This string is compared to the name
+		of an object. If the "match = slaying field" is set, the text is
+		compared to the slaying field of the object we search for. This
+		can make sense if we really want avoid any problems with user set
+		names of objects.</td>
+	</tr>
+	<tr>
+		<td>
 @ref page_type_21
 		</td><td>		This string must be identical with the &lt;key string&gt; in the
 		locked door, then it can be unlocked. It can also be used to
@@ -132,10 +108,19 @@
 	</tr>
 	<tr>
 		<td>
-@ref page_type_85
-		</td><td>		This string also defines the contained spell (just like field
-		above), but here you write the spell's name directly.
-		Setting both &lt;spell&gt; and &lt;spell name&gt; makes no sense.</td>
+@ref page_type_41
+		</td><td>		The exit path defines the map that the player is transferred to.
+
+		You can enter an absolute path, beginning with '/' (for example
+		"/tutorial"). It can also be a relative path, not beginning with
+		'/' (on the map "/shattered_islands/world_0303" for example I
+		could use the relative path "0304"). Use relative paths whenever
+		possible! Note that upper/lower case must always be set
+		correctly. However, please use lower case only.
+
+		It is well possible to have an exit pointing to the same map that
+		the exit is on. If slaying is not set in an exit, the player will
+		see a message like "The exit is closed".</td>
 	</tr>
 	<tr>
 		<td>
@@ -170,6 +155,12 @@
 		<td>
 @ref page_type_155
 		</td><td>		Color of the outline in HTML notation (default is red, or #ff0000).</td>
+	</tr>
+	<tr>
+		<td>
+@ref page_type_152
+		</td><td>		Override map music -- same format as in map properties. Use 'no_music'
+		to disable any map properties music.</td>
 	</tr>
 
 */

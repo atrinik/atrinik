@@ -40,6 +40,14 @@ Type defined by:
 		</td>
 	</tr>
 	<tr>
+		<td>always switch god</td>
+		<td>@ref FLAG_XRAYS</td>
+		<td>		If not set and player with different deity prays on this altar, they
+		will have 1/&lt;divine prayers level&gt; to become follower of the altar's
+		deity. With this setting on, the chance effectively becomes 1/1, thus always.
+		</td>
+	</tr>
+	<tr>
 		<td>anim speed</td>
 		<td>@ref obj::anim_speed</td>
 		<td>		How fast to play this animation.
@@ -82,7 +90,7 @@ Type defined by:
 	</tr>
 	<tr>
 		<td>direction based drawing</td>
-		<td>@ref obj::draw_direction</td>
+		<td>@ref FLAG_DRAW_DIRECTION</td>
 		<td>		If enabled, the object will be shown depending on its direction
 		and player's position. Usually used by wall decoration so the
 		decoration doesn't appear from both sides of the wall.
@@ -100,17 +108,19 @@ Type defined by:
 	<tr>
 		<td>god name</td>
 		<td>@ref obj::other_arch</td>
-		<td>		The altar belongs to the god of the given name. Possible options
-		for &lt;god name&gt; are: Tabernacle, Moroch.
-
-		If you want to have an unconsecrated altar, set &lt;god name&gt;
-		to empty string and eventually &lt;reconsecrate level&gt; 0.
+		<td>		The altar belongs to the god of the given name.
 		</td>
 	</tr>
 	<tr>
 		<td>height</td>
 		<td>@ref obj::z</td>
 		<td>		Adjusts Y position of the object as it appears on the map.
+		</td>
+	</tr>
+	<tr>
+		<td>horizontal zoom</td>
+		<td>@ref obj::zoom_x</td>
+		<td>		How much to horizontally zoom the object on the map.
 		</td>
 	</tr>
 	<tr>
@@ -165,9 +175,9 @@ Type defined by:
 		<td>layer</td>
 		<td>@ref obj::layer</td>
 		<td>		This is the map layer the object will put in. The selected layer
-		will affect where and how this object is shown on client side.
+		will affect where and how this object is shown on the client side.
 		Layer 0 is reserved for sys_object type objects and will NEVER be
-		shown on client side. Layer 1 is for floor objects and layer 2
+		shown on the client side. Layer 1 is for floor objects and layer 2
 		for floor masks. Layer 3 and 4 are for items on the ground. Layer
 		5 is for walls, layer 6 is reserved for players and layer 7 is
 		for spell effects and high flying/visible objects like arrows.
@@ -205,13 +215,6 @@ Type defined by:
 		<td>name</td>
 		<td>@ref obj::name</td>
 		<td>		This is the name of the object, displayed to the player.
-		</td>
-	</tr>
-	<tr>
-		<td>no prayers</td>
-		<td>@ref FLAG_NO_CLERIC</td>
-		<td>		If enabled, it is impossible for players to use prayers on that
-		spot.
 		</td>
 	</tr>
 	<tr>
@@ -279,13 +282,13 @@ Type defined by:
 	<tr>
 		<td>reconsecrate level</td>
 		<td>@ref obj::level</td>
-		<td>		To re-consecrate an altar, the player's wisdom level must be as
-		high or higher than this value. In that way, some altars can not
-		be re-consecrated, while other altars, like those in dungeons and
+		<td>		To re-consecrate an altar, the player's divine prayers level must
+		be as high or higher than this value. In that way, some altars can
+		not be re-consecrated, while other altars, like those in dungeons and
 		apartments could be.
 
 		Altars located in temples should have at least
-		&lt;reconsecrate level&gt; 200. Some characters might need those
+		&lt;reconsecrate level&gt; 120. Some characters might need those
 		altars, they would be very unhappy to see them re-consecrated to
 		another cult.
 		</td>
@@ -300,6 +303,12 @@ Type defined by:
 		<td>reflect spells</td>
 		<td>@ref FLAG_REFL_SPELL</td>
 		<td>		Object will reflect spells.
+		</td>
+	</tr>
+	<tr>
+		<td>rotate</td>
+		<td>@ref obj::rotate</td>
+		<td>		Rotation value of the object in degrees.
 		</td>
 	</tr>
 	<tr>
@@ -343,8 +352,17 @@ Type defined by:
 		</td>
 	</tr>
 	<tr>
+		<td>sub layer</td>
+		<td>@ref obj::sub_layer</td>
+		<td>		Extension of the layer attribute. If you have an object with "layer 2
+		sub_layer 1" and an object with "layer 2", the former object will be
+		rendered immediately following the latter object, thus allowing double
+		floor masks, convincing bridges and the like to be created.
+		</td>
+	</tr>
+	<tr>
 		<td>sub type</td>
-		<td>@ref obj::sub_type1</td>
+		<td>@ref obj::sub_type</td>
 		<td>		This important value is used to define "sub types" for objects of
 		the same object type. Examples are weapons, which are all from
 		type WEAPON but can be different sub types like slash, cleave,
@@ -376,6 +394,12 @@ Type defined by:
 		<td>value</td>
 		<td>@ref obj::value</td>
 		<td>		Change an object's value.
+		</td>
+	</tr>
+	<tr>
+		<td>vertical zoom</td>
+		<td>@ref obj::zoom_y</td>
+		<td>		How much to vertically zoom the object on the map.
 		</td>
 	</tr>
 	<tr>

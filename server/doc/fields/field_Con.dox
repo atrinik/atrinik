@@ -1,6 +1,10 @@
 /**
-@fn liv::Con
-@section Use
+@var liv::con
+@sa @ref page_field_con
+*/
+
+/**
+@page page_field_con liv::con Uses
 <table>
 	<tr>
 		<th>Type(s)</th>

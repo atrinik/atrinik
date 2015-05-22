@@ -1,6 +1,10 @@
 /**
-@fn obj::item_quality
-@section Use
+@var obj::item_quality
+@sa @ref page_field_item_quality
+*/
+
+/**
+@page page_field_item_quality obj::item_quality Uses
 <table>
 	<tr>
 		<th>Type(s)</th>

@@ -1,5 +1,5 @@
 /**
-@var PLAYERMOVER
+@var PLAYER_MOVER
 See @ref page_type_40
 */
 
@@ -88,10 +88,22 @@ Type defined by:
 	</tr>
 	<tr>
 		<td>direction based drawing</td>
-		<td>@ref obj::draw_direction</td>
+		<td>@ref FLAG_DRAW_DIRECTION</td>
 		<td>		If enabled, the object will be shown depending on its direction
 		and player's position. Usually used by wall decoration so the
 		decoration doesn't appear from both sides of the wall.
+		</td>
+	</tr>
+	<tr>
+		<td>fly off</td>
+		<td>@ref FLAG_FLY_OFF</td>
+		<td>	    Whether to trigger the mover when an object flies off top of it.
+		</td>
+	</tr>
+	<tr>
+		<td>fly on</td>
+		<td>@ref FLAG_FLY_ON</td>
+		<td>	    Whether to trigger the mover when an object flies on top of it.
 		</td>
 	</tr>
 	<tr>
@@ -132,6 +144,12 @@ Type defined by:
 		<td>height</td>
 		<td>@ref obj::z</td>
 		<td>		Adjusts Y position of the object as it appears on the map.
+		</td>
+	</tr>
+	<tr>
+		<td>horizontal zoom</td>
+		<td>@ref obj::zoom_x</td>
+		<td>		How much to horizontally zoom the object on the map.
 		</td>
 	</tr>
 	<tr>
@@ -186,20 +204,12 @@ Type defined by:
 		<td>layer</td>
 		<td>@ref obj::layer</td>
 		<td>		This is the map layer the object will put in. The selected layer
-		will affect where and how this object is shown on client side.
+		will affect where and how this object is shown on the client side.
 		Layer 0 is reserved for sys_object type objects and will NEVER be
-		shown on client side. Layer 1 is for floor objects and layer 2
+		shown on the client side. Layer 1 is for floor objects and layer 2
 		for floor masks. Layer 3 and 4 are for items on the ground. Layer
 		5 is for walls, layer 6 is reserved for players and layer 7 is
 		for spell effects and high flying/visible objects like arrows.
-		</td>
-	</tr>
-	<tr>
-		<td>magical</td>
-		<td>@ref FLAG_IS_MAGICAL</td>
-		<td>		If set, this object counts as "magical". Detect magic or identify
-		will show this flag and the player will see a small blue M in the
-		client's inventory part.
 		</td>
 	</tr>
 	<tr>
@@ -224,7 +234,7 @@ Type defined by:
 	</tr>
 	<tr>
 		<td>move flying creatures</td>
-		<td>@ref FLAG_FLY_ON</td>
+		<td>@ref liv::maxhp</td>
 		<td>			Move flying creatures enabled means all flying (living)
 			objects will get moved too. If disabled, only walking
 			(non-flying) creatures will get moved.
@@ -233,10 +243,13 @@ Type defined by:
 	<tr>
 		<td>move players</td>
 		<td>@ref obj::level</td>
-		<td>			If &lt;move players&gt; is enabled, both players and monsters
-			will be moved. In the arches' default it is disabled - thus
-			ONLY monsters get moved. Remember that "monsters" include
-			NPCs.
+		<td>			Move players.
+		</td>
+	</tr>
+	<tr>
+		<td>move walking creatures</td>
+		<td>@ref liv::hp</td>
+		<td>			Move creatures/monsters/NPCs.
 
 			This feature provides you with the possibility to make NPCs
 			literally "come to life". Example: The player is talking with
@@ -244,12 +257,6 @@ Type defined by:
 			and activates creators, creating (per default: monster-only)
 			movers under the NPC's feet. The NPC starts "walking" on a
 			predefined route!
-		</td>
-	</tr>
-	<tr>
-		<td>move walking creatures</td>
-		<td>@ref FLAG_WALK_ON</td>
-		<td>			This should always be set.
 		</td>
 	</tr>
 	<tr>
@@ -263,13 +270,6 @@ Type defined by:
 		<td>name</td>
 		<td>@ref obj::name</td>
 		<td>		This is the name of the object, displayed to the player.
-		</td>
-	</tr>
-	<tr>
-		<td>no prayers</td>
-		<td>@ref FLAG_NO_CLERIC</td>
-		<td>		If enabled, it is impossible for players to use prayers on that
-		spot.
 		</td>
 	</tr>
 	<tr>
@@ -304,20 +304,20 @@ Type defined by:
 		</td>
 	</tr>
 	<tr>
-		<td>number of uses</td>
-		<td>@ref liv::hp</td>
-		<td>		This value has only a meaning if &lt;gets used up&gt; is set:
-		&lt;number of uses&gt; is the number of times minus one, that it
-		will move a creature before disappearing. It will move someone
-		&lt;number of uses&gt; + 1 times, then vanish.
-		</td>
-	</tr>
-	<tr>
 		<td>one drop</td>
 		<td>@ref FLAG_ONE_DROP</td>
 		<td>		If this flag is set for an item inside monster's quest_container
 		with the quest being quest item type, the player will only be able
 		to get this item once.
+		</td>
+	</tr>
+	<tr>
+		<td>only move periodically</td>
+		<td>@ref FLAG_IS_MAGICAL</td>
+		<td>		The mover will only move objects periodically, never as an event
+		of walk/fly on/off. This is useful if you have a mover that
+		freezes the player and you want to make sure that players with high
+		speed attributes can't just fly past your movers.
 		</td>
 	</tr>
 	<tr>
@@ -353,6 +353,12 @@ Type defined by:
 		<td>reflect spells</td>
 		<td>@ref FLAG_REFL_SPELL</td>
 		<td>		Object will reflect spells.
+		</td>
+	</tr>
+	<tr>
+		<td>rotate</td>
+		<td>@ref obj::rotate</td>
+		<td>		Rotation value of the object in degrees.
 		</td>
 	</tr>
 	<tr>
@@ -396,8 +402,23 @@ Type defined by:
 		</td>
 	</tr>
 	<tr>
+		<td>stop before walls</td>
+		<td>@ref FLAG_STAND_STILL</td>
+		<td>		Will not attempt to move victims into walls.
+		</td>
+	</tr>
+	<tr>
+		<td>sub layer</td>
+		<td>@ref obj::sub_layer</td>
+		<td>		Extension of the layer attribute. If you have an object with "layer 2
+		sub_layer 1" and an object with "layer 2", the former object will be
+		rendered immediately following the latter object, thus allowing double
+		floor masks, convincing bridges and the like to be created.
+		</td>
+	</tr>
+	<tr>
 		<td>sub type</td>
-		<td>@ref obj::sub_type1</td>
+		<td>@ref obj::sub_type</td>
 		<td>		This important value is used to define "sub types" for objects of
 		the same object type. Examples are weapons, which are all from
 		type WEAPON but can be different sub types like slash, cleave,
@@ -426,9 +447,35 @@ Type defined by:
 		</td>
 	</tr>
 	<tr>
+		<td>use victim's direction</td>
+		<td>@ref FLAG_XRAYS</td>
+		<td>		If a mover has no direction, the normal behavior is to choose
+		a random direction. However, with this flag, the direction the
+		mover will move its victims depends on the victim's actual direction.
+		</td>
+	</tr>
+	<tr>
 		<td>value</td>
 		<td>@ref obj::value</td>
 		<td>		Change an object's value.
+		</td>
+	</tr>
+	<tr>
+		<td>vertical zoom</td>
+		<td>@ref obj::zoom_y</td>
+		<td>		How much to vertically zoom the object on the map.
+		</td>
+	</tr>
+	<tr>
+		<td>walk off</td>
+		<td>@ref FLAG_WALK_OFF</td>
+		<td>	    Whether to trigger the mover when an object walks on off of it.
+		</td>
+	</tr>
+	<tr>
+		<td>walk on</td>
+		<td>@ref FLAG_WALK_ON</td>
+		<td>	    Whether to trigger the mover when an object walks on top of it.
 		</td>
 	</tr>
 	<tr>

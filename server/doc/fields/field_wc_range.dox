@@ -1,6 +1,10 @@
 /**
-@fn liv::wc_range
-@section Use
+@var liv::wc_range
+@sa @ref page_field_wc_range
+*/
+
+/**
+@page page_field_wc_range liv::wc_range Uses
 <table>
 	<tr>
 		<th>Type(s)</th>

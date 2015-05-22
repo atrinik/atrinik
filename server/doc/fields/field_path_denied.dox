@@ -1,6 +1,10 @@
 /**
-@fn obj::path_denied
-@section Use
+@var obj::path_denied
+@sa @ref page_field_path_denied
+*/
+
+/**
+@page page_field_path_denied obj::path_denied Uses
 <table>
 	<tr>
 		<th>Type(s)</th>

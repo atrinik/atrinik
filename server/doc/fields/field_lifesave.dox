@@ -1,6 +1,10 @@
 /**
-@fn FLAG_LIFESAVE
-@section Use
+@var FLAG_LIFESAVE
+@sa @ref page_field_lifesave
+*/
+
+/**
+@page page_field_lifesave FLAG_LIFESAVE Uses
 <table>
 	<tr>
 		<th>Type(s)</th>
@@ -39,6 +43,11 @@
 
 		An item with &lt;save life&gt; should not have any decent
 		additional bonuses!</td>
+	</tr>
+	<tr>
+		<td>
+@ref page_type_118
+		</td><td>		If set, this event will only be activated by players.</td>
 	</tr>
 
 */

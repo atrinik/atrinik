@@ -1,6 +1,10 @@
 /**
-@fn liv::wc
-@section Use
+@var liv::wc
+@sa @ref page_field_wc
+*/
+
+/**
+@page page_field_wc liv::wc Uses
 <table>
 	<tr>
 		<th>Type(s)</th>

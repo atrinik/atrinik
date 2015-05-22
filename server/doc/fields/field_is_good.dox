@@ -1,0 +1,18 @@
+/**
+@var FLAG_IS_GOOD
+@sa @ref page_field_is_good
+*/
+
+/**
+@page page_field_is_good FLAG_IS_GOOD Uses
+<table>
+	<tr>
+		<th>Type(s)</th>
+		<th>Description</th>
+	</tr>	<tr>
+		<td>
+@ref page_type_80, @ref page_type_83
+		</td><td>		The monster is good aligned.</td>
+	</tr>
+
+*/

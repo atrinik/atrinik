@@ -1,6 +1,10 @@
 /**
-@fn obj::enemy_count
-@section Use
+@var obj::enemy_count
+@sa @ref page_field_object_int1
+*/
+
+/**
+@page page_field_object_int1 obj::enemy_count Uses
 <table>
 	<tr>
 		<th>Type(s)</th>

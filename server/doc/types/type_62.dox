@@ -56,14 +56,6 @@ Type defined by:
 		</td>
 	</tr>
 	<tr>
-		<td>armour class</td>
-		<td>@ref liv::ac</td>
-		<td>			A magic wall of high &lt;armour class&gt; is less likely to
-			get hit from an opponent. &lt;armour class&gt; can be
-			considered the "counterpiece" to &lt;weapon class&gt;.
-		</td>
-	</tr>
-	<tr>
 		<td>block view</td>
 		<td>@ref FLAG_BLOCKSVIEW</td>
 		<td>		If an item is set to block view, players (and monsters) cannot
@@ -72,32 +64,24 @@ Type defined by:
 		</td>
 	</tr>
 	<tr>
-		<td>blocking passage</td>
-		<td>@ref FLAG_NO_PASS</td>
-		<td>		If set, the object cannot be passed by players nor monsters.
-		</td>
-	</tr>
-	<tr>
 		<td>casting on/off</td>
 		<td>@ref obj::last_eat</td>
-		<td>		If set the wall is "on" and casts spells - if not set the wall is
-		"off" and doesn't cast spells (but can be turned on).
+		<td>		If set, the wall is on and casts spells in regular intervals.
+		This setting can be toggled by a connected object with
+		"connection flag" set.
 		</td>
 	</tr>
 	<tr>
 		<td>casting speed</td>
 		<td>@ref obj::speed</td>
-		<td>		The &lt;casting speed&gt; defines the spellcasting speed of the
-		wall. You can fine-tune how long the duration between two casts
-		shall be.
+		<td>		Defines the spellcasting speed of the wall. You can fine-tune how
+		long the duration between two casts shall be.
 		</td>
 	</tr>
 	<tr>
 		<td>connection</td>
 		<td>@ref page_connected "connection value"</td>
-		<td>		Every time the &lt;connection&gt; value is triggered, the wall
-		will cast it's spell. You should set &lt;casting speed&gt; to
-		zero, or this won't have much visible effect.
+		<td>		Connection ID for the magic wall.
 		</td>
 	</tr>
 	<tr>
@@ -122,18 +106,10 @@ Type defined by:
 	</tr>
 	<tr>
 		<td>direction based drawing</td>
-		<td>@ref obj::draw_direction</td>
+		<td>@ref FLAG_DRAW_DIRECTION</td>
 		<td>		If enabled, the object will be shown depending on its direction
 		and player's position. Usually used by wall decoration so the
 		decoration doesn't appear from both sides of the wall.
-		</td>
-	</tr>
-	<tr>
-		<td>ethereal can pass</td>
-		<td>@ref FLAG_PASS_THRU</td>
-		<td>		If no_pass (blocking passage) is set, no one can pass. If this
-		flag is set too, ethereal objects with the CAN_PASS_THRU flag can
-		pass. This is used for example for ghosts who move through doors.
 		</td>
 	</tr>
 	<tr>
@@ -152,10 +128,9 @@ Type defined by:
 		</td>
 	</tr>
 	<tr>
-		<td>hitpoints</td>
-		<td>@ref liv::hp</td>
-		<td>			The more &lt;hitpoints&gt; the wall has, the longer it takes
-			to be destroyed.
+		<td>horizontal zoom</td>
+		<td>@ref obj::zoom_x</td>
+		<td>		How much to horizontally zoom the object on the map.
 		</td>
 	</tr>
 	<tr>
@@ -166,14 +141,14 @@ Type defined by:
 	</tr>
 	<tr>
 		<td>ignore connection push</td>
-		<td>@ref obj::connect_no_push</td>
+		<td>@ref FLAG_CONNECT_NO_PUSH</td>
 		<td>		If set, connection triggers that were done because something (such
 		as a button being pressed) was pushed will be ignored.
 		</td>
 	</tr>
 	<tr>
 		<td>ignore connection release</td>
-		<td>@ref obj::connect_no_release</td>
+		<td>@ref FLAG_CONNECT_NO_RELEASE</td>
 		<td>		If set, connection triggers that were done because something (such
 		as a button being unpressed) was released will be ignored.
 		</td>
@@ -215,15 +190,6 @@ Type defined by:
 		</td>
 	</tr>
 	<tr>
-		<td>is destroyable</td>
-		<td>@ref FLAG_ALIVE</td>
-		<td>			Walls with &lt;is destroyable&gt; enabled can be attacked and
-			(eventually) destroyed by the player. If disabled, all other
-			attributes on this tab, as well as resistances, are
-			meaningless.
-		</td>
-	</tr>
-	<tr>
 		<td>is turnable</td>
 		<td>@ref FLAG_IS_TURNABLE</td>
 		<td>		System flag. Object can be turned into directions.
@@ -233,9 +199,9 @@ Type defined by:
 		<td>layer</td>
 		<td>@ref obj::layer</td>
 		<td>		This is the map layer the object will put in. The selected layer
-		will affect where and how this object is shown on client side.
+		will affect where and how this object is shown on the client side.
 		Layer 0 is reserved for sys_object type objects and will NEVER be
-		shown on client side. Layer 1 is for floor objects and layer 2
+		shown on the client side. Layer 1 is for floor objects and layer 2
 		for floor masks. Layer 3 and 4 are for items on the ground. Layer
 		5 is for walls, layer 6 is reserved for players and layer 7 is
 		for spell effects and high flying/visible objects like arrows.
@@ -270,24 +236,9 @@ Type defined by:
 		</td>
 	</tr>
 	<tr>
-		<td>max hitpoints</td>
-		<td>@ref liv::maxhp</td>
-		<td>			&lt;Max hitpoints&gt; are the maximum amount of hitpoints the
-			wall can have. This only makes sense if the wall can regain
-			health.
-		</td>
-	</tr>
-	<tr>
 		<td>name</td>
 		<td>@ref obj::name</td>
 		<td>		This is the name of the object, displayed to the player.
-		</td>
-	</tr>
-	<tr>
-		<td>no prayers</td>
-		<td>@ref FLAG_NO_CLERIC</td>
-		<td>		If enabled, it is impossible for players to use prayers on that
-		spot.
 		</td>
 	</tr>
 	<tr>
@@ -365,18 +316,21 @@ Type defined by:
 		</td>
 	</tr>
 	<tr>
+		<td>rotate</td>
+		<td>@ref obj::rotate</td>
+		<td>		Rotation value of the object in degrees.
+		</td>
+	</tr>
+	<tr>
 		<td>spell</td>
 		<td>@ref liv::dam</td>
-		<td>		The magic wall will cast this &lt;spell&gt;.
+		<td>		The magic wall will cast this spell.
 		</td>
 	</tr>
 	<tr>
 		<td>spell level</td>
 		<td>@ref obj::level</td>
-		<td>		The wall will cast it's spells at level &lt;spell level&gt;.
-		"level 1" walls cast spells at minimal strength. "level 115"
-		walls cast deadly spells. Arch default is level 1 - you should
-		always set this value to meet the overall difficulty of your map.
+		<td>		The wall will cast its spell at this level.
 		</td>
 	</tr>
 	<tr>
@@ -420,8 +374,17 @@ Type defined by:
 		</td>
 	</tr>
 	<tr>
+		<td>sub layer</td>
+		<td>@ref obj::sub_layer</td>
+		<td>		Extension of the layer attribute. If you have an object with "layer 2
+		sub_layer 1" and an object with "layer 2", the former object will be
+		rendered immediately following the latter object, thus allowing double
+		floor masks, convincing bridges and the like to be created.
+		</td>
+	</tr>
+	<tr>
 		<td>sub type</td>
-		<td>@ref obj::sub_type1</td>
+		<td>@ref obj::sub_type</td>
 		<td>		This important value is used to define "sub types" for objects of
 		the same object type. Examples are weapons, which are all from
 		type WEAPON but can be different sub types like slash, cleave,
@@ -444,8 +407,8 @@ Type defined by:
 	<tr>
 		<td>turn steps</td>
 		<td>@ref liv::maxsp</td>
-		<td>		If set and a connected object without "last_eat 1" gives signal,
-		the magic wall turns this steps.
+		<td>		If set and the magic wall is triggered by an object without
+		"connection signal" set, the magic wall will turn this many steps.
 		</td>
 	</tr>
 	<tr>
@@ -460,6 +423,12 @@ Type defined by:
 		<td>value</td>
 		<td>@ref obj::value</td>
 		<td>		Change an object's value.
+		</td>
+	</tr>
+	<tr>
+		<td>vertical zoom</td>
+		<td>@ref obj::zoom_y</td>
+		<td>		How much to vertically zoom the object on the map.
 		</td>
 	</tr>
 	<tr>

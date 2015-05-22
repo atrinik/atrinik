@@ -1,6 +1,10 @@
 /**
-@fn liv::Dex
-@section Use
+@var liv::dex
+@sa @ref page_field_dex
+*/
+
+/**
+@page page_field_dex liv::dex Uses
 <table>
 	<tr>
 		<th>Type(s)</th>

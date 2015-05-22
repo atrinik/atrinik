@@ -1,6 +1,10 @@
 /**
-@fn FLAG_CORPSE
-@section Use
+@var FLAG_CORPSE
+@sa @ref page_field_corpse
+*/
+
+/**
+@page page_field_corpse FLAG_CORPSE Uses
 <table>
 	<tr>
 		<th>Type(s)</th>

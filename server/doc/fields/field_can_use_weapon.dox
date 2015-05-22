@@ -1,6 +1,10 @@
 /**
-@fn FLAG_USE_WEAPON
-@section Use
+@var FLAG_USE_WEAPON
+@sa @ref page_field_can_use_weapon
+*/
+
+/**
+@page page_field_can_use_weapon FLAG_USE_WEAPON Uses
 <table>
 	<tr>
 		<th>Type(s)</th>

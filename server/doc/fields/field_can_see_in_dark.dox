@@ -1,6 +1,10 @@
 /**
-@fn FLAG_SEE_IN_DARK
-@section Use
+@var FLAG_SEE_IN_DARK
+@sa @ref page_field_can_see_in_dark
+*/
+
+/**
+@page page_field_can_see_in_dark FLAG_SEE_IN_DARK Uses
 <table>
 	<tr>
 		<th>Type(s)</th>

@@ -1,6 +1,10 @@
 /**
-@fn FLAG_NO_ATTACK
-@section Use
+@var FLAG_NO_ATTACK
+@sa @ref page_field_no_attack
+*/
+
+/**
+@page page_field_no_attack FLAG_NO_ATTACK Uses
 <table>
 	<tr>
 		<th>Type(s)</th>

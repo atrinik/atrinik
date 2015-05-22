@@ -1,33 +1,24 @@
 /**
-@fn FLAG_NO_MAGIC
-@section Use
+@var FLAG_NO_MAGIC
+@sa @ref page_field_no_magic
+*/
+
+/**
+@page page_field_no_magic FLAG_NO_MAGIC Uses
 <table>
 	<tr>
 		<th>Type(s)</th>
 		<th>Description</th>
 	</tr>	<tr>
 		<td>
-@ref page_type_79, @ref page_type_78, @ref page_type_74, @ref page_type_82, @ref page_type_110, @ref page_type_18, @ref page_type_31, @ref page_type_39, @ref page_type_70, @ref page_type_104, @ref page_type_16, @ref page_type_99, @ref page_type_87, @ref page_type_113, @ref page_type_100, @ref page_type_9, @ref page_type_34, @ref page_type_33, @ref page_type_8, @ref page_type_92, @ref page_type_30, @ref page_type_122, @ref page_type_103, @ref page_type_42, @ref page_type_51, @ref page_type_112, @ref page_type_158, @ref page_type_11, @ref page_type_66, @ref page_type_72, @ref page_type_71, @ref page_type_6, @ref page_type_54, @ref page_type_93, @ref page_type_27, @ref page_type_88, @ref page_type_56, @ref page_type_35, @ref page_type_3, @ref page_type_73, @ref page_type_64, @ref page_type_60, @ref page_type_116, @ref page_type_117, @ref page_type_29, @ref page_type_28, @ref page_type_62, @ref page_type_55, @ref page_type_36, @ref page_type_80, @ref page_type_81, @ref page_type_83, @ref page_type_65, @ref page_type_40, @ref page_type_17, @ref page_type_32, @ref page_type_94, @ref page_type_7, @ref page_type_86, @ref page_type_5, @ref page_type_156, @ref page_type_13, @ref page_type_154, @ref page_type_106, @ref page_type_14, @ref page_type_111, @ref page_type_68, @ref page_type_69, @ref page_type_98, @ref page_type_21, @ref page_type_85, @ref page_type_90, @ref page_type_138, @ref page_type_41, @ref page_type_95, @ref page_type_4, @ref page_type_15, @ref page_type_102, @ref page_type_109, @ref page_type_118, @ref page_type_127, @ref page_type_119, @ref page_type_120, @ref page_type_126, @ref page_type_155
+@ref page_type_79, @ref page_type_78, @ref page_type_74, @ref page_type_82, @ref page_type_110, @ref page_type_39, @ref page_type_70, @ref page_type_104, @ref page_type_16, @ref page_type_99, @ref page_type_87, @ref page_type_113, @ref page_type_100, @ref page_type_9, @ref page_type_151, @ref page_type_34, @ref page_type_33, @ref page_type_8, @ref page_type_92, @ref page_type_122, @ref page_type_42, @ref page_type_112, @ref page_type_158, @ref page_type_11, @ref page_type_66, @ref page_type_72, @ref page_type_71, @ref page_type_77, @ref page_type_6, @ref page_type_54, @ref page_type_91, @ref page_type_93, @ref page_type_88, @ref page_type_56, @ref page_type_35, @ref page_type_3, @ref page_type_73, @ref page_type_64, @ref page_type_60, @ref page_type_116, @ref page_type_117, @ref page_type_20, @ref page_type_28, @ref page_type_62, @ref page_type_55, @ref page_type_36, @ref page_type_80, @ref page_type_81, @ref page_type_83, @ref page_type_40, @ref page_type_17, @ref page_type_51, @ref page_type_86, @ref page_type_5, @ref page_type_156, @ref page_type_13, @ref page_type_154, @ref page_type_106, @ref page_type_14, @ref page_type_111, @ref page_type_68, @ref page_type_69, @ref page_type_98, @ref page_type_21, @ref page_type_90, @ref page_type_41, @ref page_type_4, @ref page_type_15, @ref page_type_102, @ref page_type_109, @ref page_type_118, @ref page_type_127, @ref page_type_119, @ref page_type_120, @ref page_type_126, @ref page_type_155, @ref page_type_61
 		</td><td>		If enabled, it is impossible for players to use spells on that
 		spot.</td>
 	</tr>
 	<tr>
 		<td>
-@ref page_type_77
-		</td><td>		Restricts the use of spells to pass this wall.
-		This takes effect only with &lt;blocksview&gt; disabled.</td>
-	</tr>
-	<tr>
-		<td>
-@ref page_type_91
-		</td><td>		Restricting the use of spells to pass this gate. This has
-		an effect only if &lt;block view&gt; is disabled.</td>
-	</tr>
-	<tr>
-		<td>
-@ref page_type_20
-		</td><td>		Restricting the use of spells to pass this door. This should be
-		set in most cases.</td>
+@ref page_type_152
+		</td><td>		Disables magic.</td>
 	</tr>
 
 */

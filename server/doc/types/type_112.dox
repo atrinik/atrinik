@@ -12,8 +12,6 @@ See @ref page_type_112
 		projectiles that fly past. Unlike spinners, directors always move
 		objects in the same direction. It does not make a difference from
 		what angle you shoot into it.
-
-		Directors are visible by default.
 	
 
 
@@ -66,8 +64,7 @@ Type defined by:
 	<tr>
 		<td>connection</td>
 		<td>@ref page_connected "connection value"</td>
-		<td>		If a connection value is set, the director will be turnable when
-		a handle or button is used.
+		<td>		When triggered, the director will turn "turn value" steps.
 		</td>
 	</tr>
 	<tr>
@@ -92,10 +89,16 @@ Type defined by:
 	</tr>
 	<tr>
 		<td>direction based drawing</td>
-		<td>@ref obj::draw_direction</td>
+		<td>@ref FLAG_DRAW_DIRECTION</td>
 		<td>		If enabled, the object will be shown depending on its direction
 		and player's position. Usually used by wall decoration so the
 		decoration doesn't appear from both sides of the wall.
+		</td>
+	</tr>
+	<tr>
+		<td>fly on</td>
+		<td>@ref FLAG_FLY_ON</td>
+		<td>		Affect flying creatures.
 		</td>
 	</tr>
 	<tr>
@@ -114,6 +117,12 @@ Type defined by:
 		</td>
 	</tr>
 	<tr>
+		<td>horizontal zoom</td>
+		<td>@ref obj::zoom_x</td>
+		<td>		How much to horizontally zoom the object on the map.
+		</td>
+	</tr>
+	<tr>
 		<td>identified</td>
 		<td>@ref FLAG_IDENTIFIED</td>
 		<td>		If an item is identified, the player has full knowledge about it.
@@ -121,14 +130,14 @@ Type defined by:
 	</tr>
 	<tr>
 		<td>ignore connection push</td>
-		<td>@ref obj::connect_no_push</td>
+		<td>@ref FLAG_CONNECT_NO_PUSH</td>
 		<td>		If set, connection triggers that were done because something (such
 		as a button being pressed) was pushed will be ignored.
 		</td>
 	</tr>
 	<tr>
 		<td>ignore connection release</td>
-		<td>@ref obj::connect_no_release</td>
+		<td>@ref FLAG_CONNECT_NO_RELEASE</td>
 		<td>		If set, connection triggers that were done because something (such
 		as a button being unpressed) was released will be ignored.
 		</td>
@@ -179,9 +188,9 @@ Type defined by:
 		<td>layer</td>
 		<td>@ref obj::layer</td>
 		<td>		This is the map layer the object will put in. The selected layer
-		will affect where and how this object is shown on client side.
+		will affect where and how this object is shown on the client side.
 		Layer 0 is reserved for sys_object type objects and will NEVER be
-		shown on client side. Layer 1 is for floor objects and layer 2
+		shown on the client side. Layer 1 is for floor objects and layer 2
 		for floor masks. Layer 3 and 4 are for items on the ground. Layer
 		5 is for walls, layer 6 is reserved for players and layer 7 is
 		for spell effects and high flying/visible objects like arrows.
@@ -219,13 +228,6 @@ Type defined by:
 		<td>name</td>
 		<td>@ref obj::name</td>
 		<td>		This is the name of the object, displayed to the player.
-		</td>
-	</tr>
-	<tr>
-		<td>no prayers</td>
-		<td>@ref FLAG_NO_CLERIC</td>
-		<td>		If enabled, it is impossible for players to use prayers on that
-		spot.
 		</td>
 	</tr>
 	<tr>
@@ -303,11 +305,9 @@ Type defined by:
 		</td>
 	</tr>
 	<tr>
-		<td>reflect to direction</td>
-		<td>@ref liv::sp</td>
-		<td>		Projectiles will leave the director flying in the selected
-		&lt;direction&gt;. A director with direction &lt;none&gt; simply
-		stops projectiles.
+		<td>rotate</td>
+		<td>@ref obj::rotate</td>
+		<td>		Rotation value of the object in degrees.
 		</td>
 	</tr>
 	<tr>
@@ -351,8 +351,17 @@ Type defined by:
 		</td>
 	</tr>
 	<tr>
+		<td>sub layer</td>
+		<td>@ref obj::sub_layer</td>
+		<td>		Extension of the layer attribute. If you have an object with "layer 2
+		sub_layer 1" and an object with "layer 2", the former object will be
+		rendered immediately following the latter object, thus allowing double
+		floor masks, convincing bridges and the like to be created.
+		</td>
+	</tr>
+	<tr>
 		<td>sub type</td>
-		<td>@ref obj::sub_type1</td>
+		<td>@ref obj::sub_type</td>
 		<td>		This important value is used to define "sub types" for objects of
 		the same object type. Examples are weapons, which are all from
 		type WEAPON but can be different sub types like slash, cleave,
@@ -375,7 +384,7 @@ Type defined by:
 	<tr>
 		<td>turn value</td>
 		<td>@ref liv::maxsp</td>
-		<td>		If object is turned, turn it "turn value" steps every time.
+		<td>		How many steps to turn when the director's connection is triggered.
 		</td>
 	</tr>
 	<tr>
@@ -390,6 +399,18 @@ Type defined by:
 		<td>value</td>
 		<td>@ref obj::value</td>
 		<td>		Change an object's value.
+		</td>
+	</tr>
+	<tr>
+		<td>vertical zoom</td>
+		<td>@ref obj::zoom_y</td>
+		<td>		How much to vertically zoom the object on the map.
+		</td>
+	</tr>
+	<tr>
+		<td>walk on</td>
+		<td>@ref FLAG_WALK_ON</td>
+		<td>		Affect walking creatures.
 		</td>
 	</tr>
 	<tr>

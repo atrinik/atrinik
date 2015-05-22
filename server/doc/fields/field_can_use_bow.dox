@@ -1,6 +1,10 @@
 /**
-@fn FLAG_USE_BOW
-@section Use
+@var FLAG_USE_BOW
+@sa @ref page_field_can_use_bow
+*/
+
+/**
+@page page_field_can_use_bow FLAG_USE_BOW Uses
 <table>
 	<tr>
 		<th>Type(s)</th>

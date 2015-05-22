@@ -1,6 +1,10 @@
 /**
-@fn obj::last_grace
-@section Use
+@var obj::last_grace
+@sa @ref page_field_last_grace
+*/
+
+/**
+@page page_field_last_grace obj::last_grace Uses
 <table>
 	<tr>
 		<th>Type(s)</th>
@@ -30,8 +34,8 @@
 		<td>
 @ref page_type_64
 		</td><td>		If set, only players meeting the match criteria can pass through
-		that space. If unset (default), the inventory checker acts like a
-		trigger/button.</td>
+		the square the inventory checker is on. If unset (default), the
+		inventory checker acts like a pedestal/detector.</td>
 	</tr>
 	<tr>
 		<td>

@@ -1,6 +1,10 @@
 /**
-@fn obj::no_strength
-@section Use
+@var obj::no_strength
+@sa @ref page_field_no_strength
+*/
+
+/**
+@page page_field_no_strength obj::no_strength Uses
 <table>
 	<tr>
 		<th>Type(s)</th>

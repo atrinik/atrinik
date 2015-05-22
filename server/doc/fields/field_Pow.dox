@@ -1,6 +1,10 @@
 /**
-@fn liv::Pow
-@section Use
+@var liv::pow
+@sa @ref page_field_pow
+*/
+
+/**
+@page page_field_pow liv::pow Uses
 <table>
 	<tr>
 		<th>Type(s)</th>

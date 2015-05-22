@@ -1,10 +1,10 @@
 /**
-@var LOCKED_DOOR
+@var DOOR
 See @ref page_type_20
 */
 
 /**
-@page page_type_20 Locked Door
+@page page_type_20 Door
 
 
 @section Description
@@ -60,11 +60,17 @@ Type defined by:
 		</td>
 	</tr>
 	<tr>
-		<td>change to object</td>
-		<td>@ref obj::other_arch</td>
-		<td>		If set, the door will when opened change permanently to this
-		object. If not set, the door will be used as "auto-closing" door,
-		using the open counter value.
+		<td>cursed</td>
+		<td>@ref FLAG_CURSED</td>
+		<td>		The item is cursed. This object can't be removed when wielded or
+		worn (without uncursing it). Remove curse will remove this flag.
+		</td>
+	</tr>
+	<tr>
+		<td>damned</td>
+		<td>@ref FLAG_DAMNED</td>
+		<td>		Stronger form of curse. Item can't be removed when wielded or
+		worn. Remove damnation will remove this flag.
 		</td>
 	</tr>
 	<tr>
@@ -75,7 +81,7 @@ Type defined by:
 	</tr>
 	<tr>
 		<td>direction based drawing</td>
-		<td>@ref obj::draw_direction</td>
+		<td>@ref FLAG_DRAW_DIRECTION</td>
 		<td>		If enabled, the object will be shown depending on its direction
 		and player's position. Usually used by wall decoration so the
 		decoration doesn't appear from both sides of the wall.
@@ -102,6 +108,12 @@ Type defined by:
 		<td>height</td>
 		<td>@ref obj::z</td>
 		<td>		Adjusts Y position of the object as it appears on the map.
+		</td>
+	</tr>
+	<tr>
+		<td>horizontal zoom</td>
+		<td>@ref obj::zoom_x</td>
+		<td>		How much to horizontally zoom the object on the map.
 		</td>
 	</tr>
 	<tr>
@@ -165,9 +177,9 @@ Type defined by:
 		<td>layer</td>
 		<td>@ref obj::layer</td>
 		<td>		This is the map layer the object will put in. The selected layer
-		will affect where and how this object is shown on client side.
+		will affect where and how this object is shown on the client side.
 		Layer 0 is reserved for sys_object type objects and will NEVER be
-		shown on client side. Layer 1 is for floor objects and layer 2
+		shown on the client side. Layer 1 is for floor objects and layer 2
 		for floor masks. Layer 3 and 4 are for items on the ground. Layer
 		5 is for walls, layer 6 is reserved for players and layer 7 is
 		for spell effects and high flying/visible objects like arrows.
@@ -217,9 +229,9 @@ Type defined by:
 		</td>
 	</tr>
 	<tr>
-		<td>no prayers</td>
-		<td>@ref FLAG_NO_CLERIC</td>
-		<td>		If enabled, it is impossible for players to use prayers on that
+		<td>no spells</td>
+		<td>@ref FLAG_NO_MAGIC</td>
+		<td>		If enabled, it is impossible for players to use spells on that
 		spot.
 		</td>
 	</tr>
@@ -263,13 +275,6 @@ Type defined by:
 		</td>
 	</tr>
 	<tr>
-		<td>open nearby doors</td>
-		<td>@ref FLAG_CURSED</td>
-		<td>		Once this door is opened, all nearby doors with this flag on will
-		open at once as well.
-		</td>
-	</tr>
-	<tr>
 		<td>permanent cursed</td>
 		<td>@ref FLAG_PERM_CURSED</td>
 		<td>		The item is permanently cursed. If this flag is set, applying or
@@ -305,17 +310,9 @@ Type defined by:
 		</td>
 	</tr>
 	<tr>
-		<td>restrict prayers</td>
-		<td>@ref FLAG_DAMNED</td>
-		<td>		Restricting the use of prayers to pass this door. This should be
-		set in most cases.
-		</td>
-	</tr>
-	<tr>
-		<td>restrict spells</td>
-		<td>@ref FLAG_NO_MAGIC</td>
-		<td>		Restricting the use of spells to pass this door. This should be
-		set in most cases.
+		<td>rotate</td>
+		<td>@ref obj::rotate</td>
+		<td>		Rotation value of the object in degrees.
 		</td>
 	</tr>
 	<tr>
@@ -359,8 +356,17 @@ Type defined by:
 		</td>
 	</tr>
 	<tr>
+		<td>sub layer</td>
+		<td>@ref obj::sub_layer</td>
+		<td>		Extension of the layer attribute. If you have an object with "layer 2
+		sub_layer 1" and an object with "layer 2", the former object will be
+		rendered immediately following the latter object, thus allowing double
+		floor masks, convincing bridges and the like to be created.
+		</td>
+	</tr>
+	<tr>
 		<td>sub type</td>
-		<td>@ref obj::sub_type1</td>
+		<td>@ref obj::sub_type</td>
 		<td>		This important value is used to define "sub types" for objects of
 		the same object type. Examples are weapons, which are all from
 		type WEAPON but can be different sub types like slash, cleave,
@@ -392,6 +398,12 @@ Type defined by:
 		<td>value</td>
 		<td>@ref obj::value</td>
 		<td>		Change an object's value.
+		</td>
+	</tr>
+	<tr>
+		<td>vertical zoom</td>
+		<td>@ref obj::zoom_y</td>
+		<td>		How much to vertically zoom the object on the map.
 		</td>
 	</tr>
 	<tr>

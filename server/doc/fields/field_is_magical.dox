@@ -1,13 +1,17 @@
 /**
-@fn FLAG_IS_MAGICAL
-@section Use
+@var FLAG_IS_MAGICAL
+@sa @ref page_field_is_magical
+*/
+
+/**
+@page page_field_is_magical FLAG_IS_MAGICAL Uses
 <table>
 	<tr>
 		<th>Type(s)</th>
 		<th>Description</th>
 	</tr>	<tr>
 		<td>
-@ref page_type_79, @ref page_type_78, @ref page_type_74, @ref page_type_82, @ref page_type_18, @ref page_type_31, @ref page_type_39, @ref page_type_70, @ref page_type_104, @ref page_type_16, @ref page_type_99, @ref page_type_87, @ref page_type_113, @ref page_type_100, @ref page_type_9, @ref page_type_34, @ref page_type_33, @ref page_type_8, @ref page_type_92, @ref page_type_30, @ref page_type_122, @ref page_type_103, @ref page_type_42, @ref page_type_51, @ref page_type_112, @ref page_type_158, @ref page_type_11, @ref page_type_66, @ref page_type_72, @ref page_type_71, @ref page_type_77, @ref page_type_6, @ref page_type_54, @ref page_type_91, @ref page_type_26, @ref page_type_93, @ref page_type_27, @ref page_type_88, @ref page_type_56, @ref page_type_35, @ref page_type_3, @ref page_type_73, @ref page_type_64, @ref page_type_60, @ref page_type_116, @ref page_type_117, @ref page_type_20, @ref page_type_29, @ref page_type_28, @ref page_type_62, @ref page_type_55, @ref page_type_36, @ref page_type_80, @ref page_type_81, @ref page_type_83, @ref page_type_65, @ref page_type_40, @ref page_type_17, @ref page_type_32, @ref page_type_94, @ref page_type_7, @ref page_type_86, @ref page_type_5, @ref page_type_156, @ref page_type_13, @ref page_type_154, @ref page_type_106, @ref page_type_14, @ref page_type_111, @ref page_type_69, @ref page_type_98, @ref page_type_21, @ref page_type_85, @ref page_type_90, @ref page_type_138, @ref page_type_41, @ref page_type_95, @ref page_type_4, @ref page_type_15, @ref page_type_102, @ref page_type_109, @ref page_type_118, @ref page_type_127, @ref page_type_119, @ref page_type_120, @ref page_type_126, @ref page_type_155
+@ref page_type_79, @ref page_type_78, @ref page_type_74, @ref page_type_82, @ref page_type_39, @ref page_type_70, @ref page_type_104, @ref page_type_16, @ref page_type_99, @ref page_type_87, @ref page_type_113, @ref page_type_100, @ref page_type_9, @ref page_type_151, @ref page_type_34, @ref page_type_33, @ref page_type_8, @ref page_type_92, @ref page_type_122, @ref page_type_42, @ref page_type_112, @ref page_type_158, @ref page_type_11, @ref page_type_66, @ref page_type_72, @ref page_type_71, @ref page_type_77, @ref page_type_6, @ref page_type_54, @ref page_type_91, @ref page_type_93, @ref page_type_88, @ref page_type_56, @ref page_type_35, @ref page_type_3, @ref page_type_73, @ref page_type_64, @ref page_type_60, @ref page_type_116, @ref page_type_117, @ref page_type_20, @ref page_type_28, @ref page_type_62, @ref page_type_55, @ref page_type_36, @ref page_type_80, @ref page_type_81, @ref page_type_83, @ref page_type_17, @ref page_type_51, @ref page_type_86, @ref page_type_5, @ref page_type_156, @ref page_type_13, @ref page_type_154, @ref page_type_106, @ref page_type_14, @ref page_type_111, @ref page_type_69, @ref page_type_98, @ref page_type_21, @ref page_type_90, @ref page_type_41, @ref page_type_4, @ref page_type_15, @ref page_type_102, @ref page_type_109, @ref page_type_118, @ref page_type_127, @ref page_type_119, @ref page_type_120, @ref page_type_126, @ref page_type_155, @ref page_type_61
 		</td><td>		If set, this object counts as "magical". Detect magic or identify
 		will show this flag and the player will see a small blue M in the
 		client's inventory part.</td>
@@ -26,10 +30,23 @@
 	</tr>
 	<tr>
 		<td>
+@ref page_type_40
+		</td><td>		The mover will only move objects periodically, never as an event
+		of walk/fly on/off. This is useful if you have a mover that
+		freezes the player and you want to make sure that players with high
+		speed attributes can't just fly past your movers.</td>
+	</tr>
+	<tr>
+		<td>
 @ref page_type_68
 		</td><td>		If enabled, this shop floor will be marked as
 		&lt;unique shop&gt;, which means any item sold on it will remain
 		there until a map reset, or until somebody buys it.</td>
+	</tr>
+	<tr>
+		<td>
+@ref page_type_152
+		</td><td>        Defines a balcony.</td>
 	</tr>
 
 */

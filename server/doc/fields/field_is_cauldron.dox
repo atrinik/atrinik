@@ -1,6 +1,10 @@
 /**
-@fn FLAG_IS_CAULDRON
-@section Use
+@var FLAG_IS_CAULDRON
+@sa @ref page_field_is_cauldron
+*/
+
+/**
+@page page_field_is_cauldron FLAG_IS_CAULDRON Uses
 <table>
 	<tr>
 		<th>Type(s)</th>

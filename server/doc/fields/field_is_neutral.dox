@@ -1,0 +1,18 @@
+/**
+@var FLAG_IS_NEUTRAL
+@sa @ref page_field_is_neutral
+*/
+
+/**
+@page page_field_is_neutral FLAG_IS_NEUTRAL Uses
+<table>
+	<tr>
+		<th>Type(s)</th>
+		<th>Description</th>
+	</tr>	<tr>
+		<td>
+@ref page_type_80, @ref page_type_83
+		</td><td>		The monster is neutrally aligned.</td>
+	</tr>
+
+*/

@@ -1,6 +1,10 @@
 /**
-@fn obj::last_heal
-@section Use
+@var obj::last_heal
+@sa @ref page_field_last_heal
+*/
+
+/**
+@page page_field_last_heal obj::last_heal Uses
 <table>
 	<tr>
 		<th>Type(s)</th>
@@ -25,15 +29,18 @@
 	</tr>
 	<tr>
 		<td>
-@ref page_type_64
-		</td><td>		&lt;Remove match&gt; means remove object if found. Setting this
-		is usually not recommended because inventory checkers are in
-		general invisible. So, unlike for altars/locked doors, the player
-		won't expect to lose an object when walking over that square. And
-		he doesn't even get a message either.
+@ref page_type_66
+		</td><td>        If set to something other than "none", the exit will attempt to
+        automatically calculate its destination, relative to its position
+        on the current map and the specified map tile direction.
 
-		So, *if* you enable &lt;remove match&gt;, make sure to inform the
-		player what's going on!</td>
+        This is used for exits such as stairs, where the destination is
+        usually clear just from the tiled maps.</td>
+	</tr>
+	<tr>
+		<td>
+@ref page_type_64, @ref page_type_51
+		</td><td>		If set, the matching object will be removed.</td>
 	</tr>
 	<tr>
 		<td>
@@ -49,14 +56,6 @@
 		point itself is. Increasing the value will start a search around
 		the spot, starting in the south. value 2 searches spot 0, -1,
 		value 3 spot 1, -1, 4 = 0, -1, etc.</td>
-	</tr>
-	<tr>
-		<td>
-@ref page_type_7
-		</td><td>		When a poison force is created after someone is affected by this
-		poison food this value sets how often the DOT force applies
-		damage before it wears out.
-		(DOT = Damage Over Time)</td>
 	</tr>
 	<tr>
 		<td>

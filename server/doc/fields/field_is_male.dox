@@ -1,6 +1,10 @@
 /**
-@fn FLAG_IS_MALE
-@section Use
+@var FLAG_IS_MALE
+@sa @ref page_field_is_male
+*/
+
+/**
+@page page_field_is_male FLAG_IS_MALE Uses
 <table>
 	<tr>
 		<th>Type(s)</th>
@@ -8,8 +12,11 @@
 	</tr>	<tr>
 		<td>
 @ref page_type_80, @ref page_type_83
-		</td><td>		This monster is male. You can create male, female and neuter
-		monsters.</td>
+		</td><td>		This monster is male.
+
+		If neither male nor female is set, the monster is neuter.
+
+		If both male and female are set, the monster is hermaphrodite.</td>
 	</tr>
 
 */

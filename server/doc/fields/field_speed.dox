@@ -1,6 +1,10 @@
 /**
-@fn obj::speed
-@section Use
+@var obj::speed
+@sa @ref page_field_speed
+*/
+
+/**
+@page page_field_speed obj::speed Uses
 <table>
 	<tr>
 		<th>Type(s)</th>
@@ -12,13 +16,6 @@
 	</tr>
 	<tr>
 		<td>
-@ref page_type_51
-		</td><td>		This value defines the time between two detector checks. If you
-		want the detector to behave almost like pedestals/buttons, set
-		speed rather high, like &lt;detection speed&gt; 1.0.</td>
-	</tr>
-	<tr>
-		<td>
 @ref page_type_158
 		</td><td>			The &lt;speed&gt; of the disease determines how fast the
 			disease will "move", thus how fast the symptoms strike the
@@ -27,24 +24,13 @@
 	<tr>
 		<td>
 @ref page_type_88
-		</td><td>		Controls how often the damager hits creatures standing on top of it.
-
-		If 0, no damage will be done.</td>
+		</td><td>		Controls how often the damager hits creatures standing on top of it.</td>
 	</tr>
 	<tr>
 		<td>
 @ref page_type_62
-		</td><td>		The &lt;casting speed&gt; defines the spellcasting speed of the
-		wall. You can fine-tune how long the duration between two casts
-		shall be.</td>
-	</tr>
-	<tr>
-		<td>
-@ref page_type_55
-		</td><td>		The &lt;marking speed&gt; defines how quickly it will mark
-		something standing on the marker. Set this value rather high to
-		make sure the player really gets his mark. I think
-		&lt;marking speed&gt; 1.0 should do fine.</td>
+		</td><td>		Defines the spellcasting speed of the wall. You can fine-tune how
+		long the duration between two casts shall be.</td>
 	</tr>
 	<tr>
 		<td>
@@ -67,15 +53,6 @@
 @ref page_type_40
 		</td><td>		The movement speed value determines how fast a chain of these
 		movers will push a player along (default is -0.2).</td>
-	</tr>
-	<tr>
-		<td>
-@ref page_type_138
-		</td><td>		The higher this value, the faster will players and items sink
-		into the swamp. Swamp with very high drowning speed can be a
-		nasty and unexpected death-trap.
-
-		Players should get a warning before such areas.</td>
 	</tr>
 	<tr>
 		<td>

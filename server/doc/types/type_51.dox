@@ -8,16 +8,10 @@ See @ref page_type_51
 
 
 @section Description
-		Detectors work quite much like inventory checkers/pedestals: If
-		the detector finds a specific object, it toggles its connected
-		value.
-		<br><br><br>
-		What is "unique" about them, compared to inventory
-		checkers/pedestals?
-		<br><br>
-		First, detectors check their square for a match periodically, not
-		instantly. Second, detectors check directly for object names.
-		Third, detectors do not check the inventory of players/monsters.
+		Detectors are like pedestals, but they always trigger depending
+		on the move/fly on/off settings, and do not require the "release"
+		event that pedestals usually need. They can also remove matching
+		objects.
 	
 
 
@@ -75,10 +69,11 @@ Type defined by:
 		</td>
 	</tr>
 	<tr>
-		<td>connection flag1</td>
+		<td>connection flag</td>
 		<td>@ref obj::last_eat</td>
-		<td>		Depending on the target object, setting this flag or not can have
-		different effects. See the object you are connecting to this.
+		<td>		Signals the connected objects to do a different action. See the
+		help file for the object you are connecting this to for details
+		what this setting will affect.
 		</td>
 	</tr>
 	<tr>
@@ -96,14 +91,6 @@ Type defined by:
 		</td>
 	</tr>
 	<tr>
-		<td>detection speed</td>
-		<td>@ref obj::speed</td>
-		<td>		This value defines the time between two detector checks. If you
-		want the detector to behave almost like pedestals/buttons, set
-		speed rather high, like &lt;detection speed&gt; 1.0.
-		</td>
-	</tr>
-	<tr>
 		<td>direction</td>
 		<td>@ref obj::direction</td>
 		<td>		The object's direction.
@@ -111,10 +98,24 @@ Type defined by:
 	</tr>
 	<tr>
 		<td>direction based drawing</td>
-		<td>@ref obj::draw_direction</td>
+		<td>@ref FLAG_DRAW_DIRECTION</td>
 		<td>		If enabled, the object will be shown depending on its direction
 		and player's position. Usually used by wall decoration so the
 		decoration doesn't appear from both sides of the wall.
+		</td>
+	</tr>
+	<tr>
+		<td>fly off</td>
+		<td>@ref FLAG_FLY_OFF</td>
+		<td>		Whether to trigger the connection when an object flies off the
+		detector.
+		</td>
+	</tr>
+	<tr>
+		<td>fly on</td>
+		<td>@ref FLAG_FLY_ON</td>
+		<td>		Whether to trigger the connection when an object flies on the
+		detector.
 		</td>
 	</tr>
 	<tr>
@@ -130,6 +131,12 @@ Type defined by:
 		<td>height</td>
 		<td>@ref obj::z</td>
 		<td>		Adjusts Y position of the object as it appears on the map.
+		</td>
+	</tr>
+	<tr>
+		<td>horizontal zoom</td>
+		<td>@ref obj::zoom_x</td>
+		<td>		How much to horizontally zoom the object on the map.
 		</td>
 	</tr>
 	<tr>
@@ -184,9 +191,9 @@ Type defined by:
 		<td>layer</td>
 		<td>@ref obj::layer</td>
 		<td>		This is the map layer the object will put in. The selected layer
-		will affect where and how this object is shown on client side.
+		will affect where and how this object is shown on the client side.
 		Layer 0 is reserved for sys_object type objects and will NEVER be
-		shown on client side. Layer 1 is for floor objects and layer 2
+		shown on the client side. Layer 1 is for floor objects and layer 2
 		for floor masks. Layer 3 and 4 are for items on the ground. Layer
 		5 is for walls, layer 6 is reserved for players and layer 7 is
 		for spell effects and high flying/visible objects like arrows.
@@ -201,12 +208,21 @@ Type defined by:
 		</td>
 	</tr>
 	<tr>
+		<td>match archname</td>
+		<td>@ref obj::race</td>
+		<td>		Archname of the object to match.
+		</td>
+	</tr>
+	<tr>
 		<td>match name</td>
 		<td>@ref obj::slaying</td>
-		<td>		&lt;Match name&gt; specifies the name of the object we are
-		looking for. Actually it does also check for the
-		&lt;key string&gt; in key-objects, but for this case inventory
-		checkers are often more powerful to use.
+		<td>		Name of the object to match.
+		</td>
+	</tr>
+	<tr>
+		<td>match type</td>
+		<td>@ref liv::hp</td>
+		<td>		Type of the object to match.
 		</td>
 	</tr>
 	<tr>
@@ -233,13 +249,6 @@ Type defined by:
 		<td>name</td>
 		<td>@ref obj::name</td>
 		<td>		This is the name of the object, displayed to the player.
-		</td>
-	</tr>
-	<tr>
-		<td>no prayers</td>
-		<td>@ref FLAG_NO_CLERIC</td>
-		<td>		If enabled, it is impossible for players to use prayers on that
-		spot.
 		</td>
 	</tr>
 	<tr>
@@ -317,6 +326,18 @@ Type defined by:
 		</td>
 	</tr>
 	<tr>
+		<td>remove match</td>
+		<td>@ref obj::last_heal</td>
+		<td>		If set, the matching object will be removed.
+		</td>
+	</tr>
+	<tr>
+		<td>rotate</td>
+		<td>@ref obj::rotate</td>
+		<td>		Rotation value of the object in degrees.
+		</td>
+	</tr>
+	<tr>
 		<td>stackable</td>
 		<td>@ref FLAG_CAN_STACK</td>
 		<td>		If set, the item can be stacked. Careful, don't use on rings or
@@ -357,8 +378,17 @@ Type defined by:
 		</td>
 	</tr>
 	<tr>
+		<td>sub layer</td>
+		<td>@ref obj::sub_layer</td>
+		<td>		Extension of the layer attribute. If you have an object with "layer 2
+		sub_layer 1" and an object with "layer 2", the former object will be
+		rendered immediately following the latter object, thus allowing double
+		floor masks, convincing bridges and the like to be created.
+		</td>
+	</tr>
+	<tr>
 		<td>sub type</td>
-		<td>@ref obj::sub_type1</td>
+		<td>@ref obj::sub_type</td>
 		<td>		This important value is used to define "sub types" for objects of
 		the same object type. Examples are weapons, which are all from
 		type WEAPON but can be different sub types like slash, cleave,
@@ -368,6 +398,12 @@ Type defined by:
 		Warning: Not all objects have a sub type and changing it without
 		care can corrupt server AND/OR the clients. Normally this is not
 		a subject to change outside arch definition.
+		</td>
+	</tr>
+	<tr>
+		<td>tiled maps</td>
+		<td>@ref obj::path_repelled</td>
+		<td>	    Tiled maps to load and look for connected objects on.
 		</td>
 	</tr>
 	<tr>
@@ -390,6 +426,26 @@ Type defined by:
 		<td>value</td>
 		<td>@ref obj::value</td>
 		<td>		Change an object's value.
+		</td>
+	</tr>
+	<tr>
+		<td>vertical zoom</td>
+		<td>@ref obj::zoom_y</td>
+		<td>		How much to vertically zoom the object on the map.
+		</td>
+	</tr>
+	<tr>
+		<td>walk off</td>
+		<td>@ref FLAG_WALK_OFF</td>
+		<td>		Whether to trigger the connection when an object walks off the
+		detector.
+		</td>
+	</tr>
+	<tr>
+		<td>walk on</td>
+		<td>@ref FLAG_WALK_ON</td>
+		<td>		Whether to trigger the connection when an object walks on the
+		detector.
 		</td>
 	</tr>
 	<tr>

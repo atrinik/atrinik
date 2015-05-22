@@ -1,37 +1,37 @@
 /**
-@fn obj::connect_reset
-@section Use
+@var FLAG_CONNECT_RESET
+@sa @ref page_field_connect_reset
+*/
+
+/**
+@page page_field_connect_reset FLAG_CONNECT_RESET Uses
 <table>
 	<tr>
 		<th>Type(s)</th>
 		<th>Description</th>
 	</tr>	<tr>
 		<td>
-@ref page_type_92, @ref page_type_30
-		</td><td>	<![CDATA[
-		Will reset the connection, so it will be triggered next time something
+@ref page_type_92
+		</td><td>		Will reset the connection, so it will be triggered next time something
 		triggers the object, even if it was not released before. For example, if this is set:
-		<br>
+
 		1.) Player A moves onto a button. The connection of the button is triggered.
 		2.) Player B moves onto the same button, again the connection is triggered.
 		3.) Player A moves off the button, the connection is triggered.
-		<br>
-		Part 3 can be avoided if this option is combined with "walk off" unset.
-	]]></td>
+
+		Part 3 can be avoided if this option is combined with "walk off" unset.</td>
 	</tr>
 	<tr>
 		<td>
-@ref page_type_17, @ref page_type_32
-		</td><td>	<![CDATA[
-		Will reset the connection, so it will be triggered next time something
+@ref page_type_17
+		</td><td>		Will reset the connection, so it will be triggered next time something
 		triggers the object, even if it was not released before. For example, if this is set:
-		<br>
+
 		1.) Player A moves onto a pedestal. The connection of the pedestal is triggered.
 		2.) Player B moves onto the same pedestal, again the connection is triggered.
 		3.) Player A moves off the pedestal, the connection is triggered.
-		<br>
-		Part 3 can be avoided if this option is combined with "walk off" unset.
-	]]></td>
+
+		Part 3 can be avoided if this option is combined with "walk off" unset.</td>
 	</tr>
 
 */

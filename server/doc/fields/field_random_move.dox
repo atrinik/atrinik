@@ -1,6 +1,10 @@
 /**
-@fn FLAG_RANDOM_MOVE
-@section Use
+@var FLAG_RANDOM_MOVE
+@sa @ref page_field_random_move
+*/
+
+/**
+@page page_field_random_move FLAG_RANDOM_MOVE Uses
 <table>
 	<tr>
 		<th>Type(s)</th>

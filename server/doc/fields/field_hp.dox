@@ -1,6 +1,10 @@
 /**
-@fn liv::hp
-@section Use
+@var liv::hp
+@sa @ref page_field_hp
+*/
+
+/**
+@page page_field_hp liv::hp Uses
 <table>
 	<tr>
 		<th>Type(s)</th>
@@ -23,10 +27,7 @@
 	<tr>
 		<td>
 @ref page_type_42
-		</td><td>		The creator can be triggered &lt;number of uses&gt; times, thus
-		creating that many objects, before it dissappears.
-
-		Default is &lt;number of uses&gt; 1 (-&gt; one-time usage).</td>
+		</td><td>		The creator can be triggered this many times before it's disabled.</td>
 	</tr>
 	<tr>
 		<td>
@@ -62,27 +63,14 @@
 	</tr>
 	<tr>
 		<td>
-@ref page_type_64
-		</td><td>		This value specifies the object we are looking for: We have a
-		match if the player does/don't carry an object that is of type
-		&lt;match type&gt;.
-
-		Example: Set &lt;match type&gt; 15 (type 15 =&gt; weapon) and
-		&lt;blocking passage&gt; enabled. Now you have an inventory
-		checker blocking all players that carry any kind of melee weapon.
-		To pass, a player is forced to leave behind all his weaponry.</td>
+@ref page_type_64, @ref page_type_17, @ref page_type_51
+		</td><td>		Type of the object to match.</td>
 	</tr>
 	<tr>
 		<td>
 @ref page_type_28
 		</td><td>		X position this magic mirror reflects objects of. -1 means it will
 		use the mirror's X.</td>
-	</tr>
-	<tr>
-		<td>
-@ref page_type_62
-		</td><td>			The more &lt;hitpoints&gt; the wall has, the longer it takes
-			to be destroyed.</td>
 	</tr>
 	<tr>
 		<td>
@@ -98,18 +86,14 @@
 	<tr>
 		<td>
 @ref page_type_40
-		</td><td>		This value has only a meaning if &lt;gets used up&gt; is set:
-		&lt;number of uses&gt; is the number of times minus one, that it
-		will move a creature before disappearing. It will move someone
-		&lt;number of uses&gt; + 1 times, then vanish.</td>
-	</tr>
-	<tr>
-		<td>
-@ref page_type_94
-		</td><td>		The pit will transport creatures (and items) randomly into a
-		two-square radius of the destination coordinates.
-		If the destination square becomes blocked, the pit will act like
-		being filled up and not work anymore!</td>
+		</td><td>			Move creatures/monsters/NPCs.
+
+			This feature provides you with the possibility to make NPCs
+			literally "come to life". Example: The player is talking with
+			an NPC, speaking a certain keyword. This triggers a magic ear
+			and activates creators, creating (per default: monster-only)
+			movers under the NPC's feet. The NPC starts "walking" on a
+			predefined route!</td>
 	</tr>
 	<tr>
 		<td>
@@ -138,17 +122,14 @@
 	</tr>
 	<tr>
 		<td>
-@ref page_type_95
-		</td><td>		The trapdoor will transport creatures (and items) randomly into
-		a two-square radius of the destination coordinates.
-		If the destination square becomes blocked, the trapdoor will act like
-		being filled up and not work anymore!</td>
-	</tr>
-	<tr>
-		<td>
 @ref page_type_119
 		</td><td>		The destinations define the (x, y)-coordinates where the mob
 		should go.</td>
+	</tr>
+	<tr>
+		<td>
+@ref page_type_152
+		</td><td>		Number of tiles east of the info object that the object spans.</td>
 	</tr>
 
 */

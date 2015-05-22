@@ -1,0 +1,19 @@
+/**
+@var obj::item_power
+@sa @ref page_field_item_power
+*/
+
+/**
+@page page_field_item_power obj::item_power Uses
+<table>
+	<tr>
+		<th>Type(s)</th>
+		<th>Description</th>
+	</tr>	<tr>
+		<td>
+@ref page_type_152
+		</td><td>		Override darkness -- the default is -1, which means no override will happen.
+		Use -2 to enable outdoor darkness.</td>
+	</tr>
+
+*/

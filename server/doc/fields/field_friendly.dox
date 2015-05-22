@@ -1,6 +1,10 @@
 /**
-@fn FLAG_FRIENDLY
-@section Use
+@var FLAG_FRIENDLY
+@sa @ref page_field_friendly
+*/
+
+/**
+@page page_field_friendly FLAG_FRIENDLY Uses
 <table>
 	<tr>
 		<th>Type(s)</th>

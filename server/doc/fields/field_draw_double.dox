@@ -1,6 +1,10 @@
 /**
-@fn obj::draw_double
-@section Use
+@var FLAG_DRAW_DOUBLE
+@sa @ref page_field_draw_double
+*/
+
+/**
+@page page_field_draw_double FLAG_DRAW_DOUBLE Uses
 <table>
 	<tr>
 		<th>Type(s)</th>
@@ -8,7 +12,8 @@
 	</tr>	<tr>
 		<td>
 @ref page_type_77
-		</td><td>		If set, the wall will be drawn twice.</td>
+		</td><td>		If set, the wall will be drawn twice, but only if it's not in
+		the bottom quadrant of the client's map.</td>
 	</tr>
 
 */

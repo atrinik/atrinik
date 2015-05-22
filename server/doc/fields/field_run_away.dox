@@ -1,6 +1,10 @@
 /**
-@fn obj::run_away
-@section Use
+@var FLAG_RUN_AWAY
+@sa @ref page_field_run_away
+*/
+
+/**
+@page page_field_run_away FLAG_RUN_AWAY Uses
 <table>
 	<tr>
 		<th>Type(s)</th>

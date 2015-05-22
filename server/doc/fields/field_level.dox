@@ -1,16 +1,15 @@
 /**
-@fn obj::level
-@section Use
+@var obj::level
+@sa @ref page_field_level
+*/
+
+/**
+@page page_field_level obj::level Uses
 <table>
 	<tr>
 		<th>Type(s)</th>
 		<th>Description</th>
 	</tr>	<tr>
-		<td>
-@ref page_type_18
-		</td><td>		Set the power level of the spell.</td>
-	</tr>
-	<tr>
 		<td>
 @ref page_type_8
 		</td><td>		If this value is set to be greater than zero, the player needs a
@@ -20,14 +19,6 @@
 		it when a player needs more than his fighting skills to solve a
 		quest. However, keep the book's level at least below 15 because
 		it is quite difficult to gain high mental levels.</td>
-	</tr>
-	<tr>
-		<td>
-@ref page_type_42
-		</td><td>		The created object will be of that level. If zero/unset, the
-		standard level of the archetype is used.
-
-		(Only used if "create arch" is set)</td>
 	</tr>
 	<tr>
 		<td>
@@ -42,6 +33,11 @@
 @ref page_type_11
 		</td><td>        The number of items in the target pile will be multiplied by this value.
 		If it is set to zero, all target objects will be destroyed.</td>
+	</tr>
+	<tr>
+		<td>
+@ref page_type_66
+		</td><td>		Level at which to hit the player with 'base damage'.</td>
 	</tr>
 	<tr>
 		<td>
@@ -62,20 +58,20 @@
 	<tr>
 		<td>
 @ref page_type_56
-		</td><td>		To re-consecrate an altar, the player's wisdom level must be as
-		high or higher than this value. In that way, some altars can not
-		be re-consecrated, while other altars, like those in dungeons and
+		</td><td>		To re-consecrate an altar, the player's divine prayers level must
+		be as high or higher than this value. In that way, some altars can
+		not be re-consecrated, while other altars, like those in dungeons and
 		apartments could be.
 
 		Altars located in temples should have at least
-		&lt;reconsecrate level&gt; 200. Some characters might need those
+		&lt;reconsecrate level&gt; 120. Some characters might need those
 		altars, they would be very unhappy to see them re-consecrated to
 		another cult.</td>
 	</tr>
 	<tr>
 		<td>
 @ref page_type_35
-		</td><td>		The casting level of the &lt;spell&gt; determines it's power. For
+		</td><td>		The casting level of the &lt;spell&gt; determines its power. For
 		attack spells, level should not be set too high.</td>
 	</tr>
 	<tr>
@@ -87,10 +83,7 @@
 	<tr>
 		<td>
 @ref page_type_62
-		</td><td>		The wall will cast it's spells at level &lt;spell level&gt;.
-		"level 1" walls cast spells at minimal strength. "level 115"
-		walls cast deadly spells. Arch default is level 1 - you should
-		always set this value to meet the overall difficulty of your map.</td>
+		</td><td>		The wall will cast its spell at this level.</td>
 	</tr>
 	<tr>
 		<td>
@@ -103,22 +96,7 @@
 	<tr>
 		<td>
 @ref page_type_40
-		</td><td>			If &lt;move players&gt; is enabled, both players and monsters
-			will be moved. In the arches' default it is disabled - thus
-			ONLY monsters get moved. Remember that "monsters" include
-			NPCs.
-
-			This feature provides you with the possibility to make NPCs
-			literally "come to life". Example: The player is talking with
-			an NPC, speaking a certain keyword. This triggers a magic ear
-			and activates creators, creating (per default: monster-only)
-			movers under the NPC's feet. The NPC starts "walking" on a
-			predefined route!</td>
-	</tr>
-	<tr>
-		<td>
-@ref page_type_7
-		</td><td>		Set the power level of the poison.</td>
+		</td><td>			Move players.</td>
 	</tr>
 	<tr>
 		<td>

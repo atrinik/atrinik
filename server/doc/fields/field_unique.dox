@@ -1,6 +1,10 @@
 /**
-@fn FLAG_UNIQUE
-@section Use
+@var FLAG_UNIQUE
+@sa @ref page_field_unique
+*/
+
+/**
+@page page_field_unique FLAG_UNIQUE Uses
 <table>
 	<tr>
 		<th>Type(s)</th>

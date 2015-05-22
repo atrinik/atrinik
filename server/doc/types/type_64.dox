@@ -37,6 +37,14 @@ Type defined by:
 		<th>Description</th>
 	</tr>
 	<tr>
+		<td>affect players only</td>
+		<td>@ref FLAG_XRAYS</td>
+		<td>		If enabled, only players will be affected by the "blocking passage"
+		setting, while any other object will be able to pass through (as
+		long as it can move).
+		</td>
+	</tr>
+	<tr>
 		<td>align</td>
 		<td>@ref obj::align</td>
 		<td>		X align of the object on the map.
@@ -73,23 +81,22 @@ Type defined by:
 		<td>blocking passage</td>
 		<td>@ref obj::last_grace</td>
 		<td>		If set, only players meeting the match criteria can pass through
-		that space. If unset (default), the inventory checker acts like a
-		trigger/button.
+		the square the inventory checker is on. If unset (default), the
+		inventory checker acts like a pedestal/detector.
 		</td>
 	</tr>
 	<tr>
 		<td>connection</td>
 		<td>@ref page_connected "connection value"</td>
-		<td>		Whenever the inventory checker is triggered, all objects with
-		identical &lt;connection&gt; value get activated. This only makes
-		sense together with &lt;blocking passage&gt; disabled.
+		<td>		Whenever the inventory checker is triggered, all connected
+		objects get triggered. This only makes sense together with
+		"blocking passage" disabled.
 		</td>
 	</tr>
 	<tr>
-		<td>connection flag1</td>
+		<td>connection flag</td>
 		<td>@ref obj::last_eat</td>
-		<td>		Depending on the target object, setting this flag or not can have
-		different effects. See the object you are connecting to this.
+		<td>		Signals the connected object(s) to do a different action.
 		</td>
 	</tr>
 	<tr>
@@ -114,7 +121,7 @@ Type defined by:
 	</tr>
 	<tr>
 		<td>direction based drawing</td>
-		<td>@ref obj::draw_direction</td>
+		<td>@ref FLAG_DRAW_DIRECTION</td>
 		<td>		If enabled, the object will be shown depending on its direction
 		and player's position. Usually used by wall decoration so the
 		decoration doesn't appear from both sides of the wall.
@@ -133,6 +140,12 @@ Type defined by:
 		<td>height</td>
 		<td>@ref obj::z</td>
 		<td>		Adjusts Y position of the object as it appears on the map.
+		</td>
+	</tr>
+	<tr>
+		<td>horizontal zoom</td>
+		<td>@ref obj::zoom_x</td>
+		<td>		How much to horizontally zoom the object on the map.
 		</td>
 	</tr>
 	<tr>
@@ -187,9 +200,9 @@ Type defined by:
 		<td>layer</td>
 		<td>@ref obj::layer</td>
 		<td>		This is the map layer the object will put in. The selected layer
-		will affect where and how this object is shown on client side.
+		will affect where and how this object is shown on the client side.
 		Layer 0 is reserved for sys_object type objects and will NEVER be
-		shown on client side. Layer 1 is for floor objects and layer 2
+		shown on the client side. Layer 1 is for floor objects and layer 2
 		for floor masks. Layer 3 and 4 are for items on the ground. Layer
 		5 is for walls, layer 6 is reserved for players and layer 7 is
 		for spell effects and high flying/visible objects like arrows.
@@ -214,15 +227,13 @@ Type defined by:
 		<td>match = slaying field</td>
 		<td>@ref liv::sp</td>
 		<td>		Enabled means key text is compared to the slaying field of an
-		object and NOT to the name.
+		object and not the name.
 		</td>
 	</tr>
 	<tr>
 		<td>match arch name</td>
 		<td>@ref obj::race</td>
-		<td>		This string specifies the object we are looking for: We have a
-		match if the player does/don't carry an object of archetype
-		&lt;match arch name&gt;.
+		<td>		Arch name of the object to match.
 		</td>
 	</tr>
 	<tr>
@@ -232,22 +243,13 @@ Type defined by:
 		match if the player does/don't carry a key object or a mark with
 		identical &lt;key string&gt;. This string is compared to the name
 		of an object. If the "match = slaying field" is set, the text is
-		compared to the slaying field of the object we search for. This
-		can make sense if we really want avoid any problems with user set
-		names of objects.
+		compared to the slaying field of the object we search for.
 		</td>
 	</tr>
 	<tr>
 		<td>match type</td>
 		<td>@ref liv::hp</td>
-		<td>		This value specifies the object we are looking for: We have a
-		match if the player does/don't carry an object that is of type
-		&lt;match type&gt;.
-
-		Example: Set &lt;match type&gt; 15 (type 15 =&gt; weapon) and
-		&lt;blocking passage&gt; enabled. Now you have an inventory
-		checker blocking all players that carry any kind of melee weapon.
-		To pass, a player is forced to leave behind all his weaponry.
+		<td>		Type of the object to match.
 		</td>
 	</tr>
 	<tr>
@@ -274,13 +276,6 @@ Type defined by:
 		<td>name</td>
 		<td>@ref obj::name</td>
 		<td>		This is the name of the object, displayed to the player.
-		</td>
-	</tr>
-	<tr>
-		<td>no prayers</td>
-		<td>@ref FLAG_NO_CLERIC</td>
-		<td>		If enabled, it is impossible for players to use prayers on that
-		spot.
 		</td>
 	</tr>
 	<tr>
@@ -360,14 +355,13 @@ Type defined by:
 	<tr>
 		<td>remove match</td>
 		<td>@ref obj::last_heal</td>
-		<td>		&lt;Remove match&gt; means remove object if found. Setting this
-		is usually not recommended because inventory checkers are in
-		general invisible. So, unlike for altars/locked doors, the player
-		won't expect to lose an object when walking over that square. And
-		he doesn't even get a message either.
-
-		So, *if* you enable &lt;remove match&gt;, make sure to inform the
-		player what's going on!
+		<td>		If set, the matching object will be removed.
+		</td>
+	</tr>
+	<tr>
+		<td>rotate</td>
+		<td>@ref obj::rotate</td>
+		<td>		Rotation value of the object in degrees.
 		</td>
 	</tr>
 	<tr>
@@ -411,8 +405,17 @@ Type defined by:
 		</td>
 	</tr>
 	<tr>
+		<td>sub layer</td>
+		<td>@ref obj::sub_layer</td>
+		<td>		Extension of the layer attribute. If you have an object with "layer 2
+		sub_layer 1" and an object with "layer 2", the former object will be
+		rendered immediately following the latter object, thus allowing double
+		floor masks, convincing bridges and the like to be created.
+		</td>
+	</tr>
+	<tr>
 		<td>sub type</td>
-		<td>@ref obj::sub_type1</td>
+		<td>@ref obj::sub_type</td>
 		<td>		This important value is used to define "sub types" for objects of
 		the same object type. Examples are weapons, which are all from
 		type WEAPON but can be different sub types like slash, cleave,
@@ -422,6 +425,12 @@ Type defined by:
 		Warning: Not all objects have a sub type and changing it without
 		care can corrupt server AND/OR the clients. Normally this is not
 		a subject to change outside arch definition.
+		</td>
+	</tr>
+	<tr>
+		<td>tiled maps</td>
+		<td>@ref obj::path_repelled</td>
+		<td>	    Tiled maps to load and look for connected objects on.
 		</td>
 	</tr>
 	<tr>
@@ -444,6 +453,12 @@ Type defined by:
 		<td>value</td>
 		<td>@ref obj::value</td>
 		<td>		Change an object's value.
+		</td>
+	</tr>
+	<tr>
+		<td>vertical zoom</td>
+		<td>@ref obj::zoom_y</td>
+		<td>		How much to vertically zoom the object on the map.
 		</td>
 	</tr>
 	<tr>

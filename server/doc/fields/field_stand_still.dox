@@ -1,6 +1,10 @@
 /**
-@fn FLAG_STAND_STILL
-@section Use
+@var FLAG_STAND_STILL
+@sa @ref page_field_stand_still
+*/
+
+/**
+@page page_field_stand_still FLAG_STAND_STILL Uses
 <table>
 	<tr>
 		<th>Type(s)</th>
@@ -20,9 +24,20 @@
 	</tr>
 	<tr>
 		<td>
+@ref page_type_40
+		</td><td>		Will not attempt to move victims into walls.</td>
+	</tr>
+	<tr>
+		<td>
 @ref page_type_155
 		</td><td>		Automatically detects the width/height for this tooltip from 2 nearby
 		info objects with the same unique names.</td>
+	</tr>
+	<tr>
+		<td>
+@ref page_type_152
+		</td><td>		Disables harmful spells. If the map already has harmful spells disabled,
+		this setting will enable harmful spells on the area the info object spans.</td>
 	</tr>
 
 */

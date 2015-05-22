@@ -1,6 +1,10 @@
 /**
-@fn FLAG_INDESTRUCTIBLE
-@section Use
+@var FLAG_INDESTRUCTIBLE
+@sa @ref page_field_is_indestructible
+*/
+
+/**
+@page page_field_is_indestructible FLAG_INDESTRUCTIBLE Uses
 <table>
 	<tr>
 		<th>Type(s)</th>

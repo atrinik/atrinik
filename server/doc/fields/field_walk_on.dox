@@ -1,11 +1,20 @@
 /**
-@fn FLAG_WALK_ON
-@section Use
+@var FLAG_WALK_ON
+@sa @ref page_field_walk_on
+*/
+
+/**
+@page page_field_walk_on FLAG_WALK_ON Uses
 <table>
 	<tr>
 		<th>Type(s)</th>
 		<th>Description</th>
 	</tr>	<tr>
+		<td>
+@ref page_type_112
+		</td><td>		Affect walking creatures.</td>
+	</tr>
+	<tr>
 		<td>
 @ref page_type_66
 		</td><td>		If set, the player will apply the exit by just walking into it.
@@ -15,14 +24,31 @@
 	</tr>
 	<tr>
 		<td>
-@ref page_type_40
-		</td><td>			This should always be set.</td>
+@ref page_type_88
+		</td><td>		Whether to trigger the damager each time an object walks on top
+		of it.</td>
 	</tr>
 	<tr>
 		<td>
-@ref page_type_94
-		</td><td>		If set, all walking creatures will fall into the pit. This does
-		NOT need to be set for closed pits!</td>
+@ref page_type_55
+		</td><td>		Whether to mark creatures walking onto the marker.</td>
+	</tr>
+	<tr>
+		<td>
+@ref page_type_40
+		</td><td>	    Whether to trigger the mover when an object walks on top of it.</td>
+	</tr>
+	<tr>
+		<td>
+@ref page_type_17
+		</td><td>		Whether to trigger the connection when an object walks on the
+		pedestal.</td>
+	</tr>
+	<tr>
+		<td>
+@ref page_type_51
+		</td><td>		Whether to trigger the connection when an object walks on the
+		detector.</td>
 	</tr>
 	<tr>
 		<td>

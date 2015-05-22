@@ -1,6 +1,10 @@
 /**
-@fn liv::dam
-@section Use
+@var liv::dam
+@sa @ref page_field_dam
+*/
+
+/**
+@page page_field_dam liv::dam Uses
 <table>
 	<tr>
 		<th>Type(s)</th>
@@ -21,6 +25,11 @@
 	</tr>
 	<tr>
 		<td>
+@ref page_type_66
+		</td><td>		How much damage is inflicted to the player using the exit.</td>
+	</tr>
+	<tr>
+		<td>
 @ref page_type_88
 		</td><td>		The &lt;base damage&gt; defines how much damage is inflicted to
 		the victim per hit. The final damage is influenced by several
@@ -29,7 +38,7 @@
 	<tr>
 		<td>
 @ref page_type_62
-		</td><td>		The magic wall will cast this &lt;spell&gt;.</td>
+		</td><td>		The magic wall will cast this spell.</td>
 	</tr>
 	<tr>
 		<td>
@@ -40,12 +49,6 @@
 			as base value for damage per hit. &lt;level&gt;,
 			&lt;speed&gt;, &lt;weapon class&gt; and resistances also take
 			effect on the melee damage of a monster.</td>
-	</tr>
-	<tr>
-		<td>
-@ref page_type_7
-		</td><td>		A poison with a positive &lt;damage&gt; value will hit the player
-		all ticks with it adjusted by level.</td>
 	</tr>
 	<tr>
 		<td>

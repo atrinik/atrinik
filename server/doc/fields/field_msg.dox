@@ -1,6 +1,10 @@
 /**
-@fn obj::msg
-@section Use
+@var obj::msg
+@sa @ref page_field_msg
+*/
+
+/**
+@page page_field_msg obj::msg Uses
 <table>
 	<tr>
 		<th>Type(s)</th>
@@ -12,19 +16,13 @@
 	</tr>
 	<tr>
 		<td>
-@ref page_type_18, @ref page_type_31
-		</td><td>		This text will be displayed to the player in the exact moment
-		when the altar is activated.</td>
-	</tr>
-	<tr>
-		<td>
 @ref page_type_39, @ref page_type_70, @ref page_type_104, @ref page_type_16, @ref page_type_99, @ref page_type_87, @ref page_type_113, @ref page_type_100, @ref page_type_34, @ref page_type_33
 		</td><td>		This text describes the item's "story". Every decent artifact
 		should have such a description.</td>
 	</tr>
 	<tr>
 		<td>
-@ref page_type_9, @ref page_type_92, @ref page_type_30, @ref page_type_72, @ref page_type_93, @ref page_type_27
+@ref page_type_9, @ref page_type_151, @ref page_type_72
 		</td><td>		This text may describe the item.</td>
 	</tr>
 	<tr>
@@ -36,11 +34,6 @@
 		<td>
 @ref page_type_122
 		</td><td>		This text may contain a description of the container.</td>
-	</tr>
-	<tr>
-		<td>
-@ref page_type_103
-		</td><td>		This text may contain a description of the converter.</td>
 	</tr>
 	<tr>
 		<td>
@@ -76,7 +69,13 @@
 	</tr>
 	<tr>
 		<td>
-@ref page_type_29, @ref page_type_80, @ref page_type_83
+@ref page_type_55
+		</td><td>		In the moment when the player gets marked, this text is displayed
+		to him.</td>
+	</tr>
+	<tr>
+		<td>
+@ref page_type_80, @ref page_type_83
 		</td><td>		This textfield contains the keyword-matching-syntax. The text
 		should have the following format:
 
@@ -90,14 +89,6 @@
 		keywords within a two-square radius.
 
 		IMPORTANT: Upper/lower case does not make a difference.</td>
-	</tr>
-	<tr>
-		<td>
-@ref page_type_55
-		</td><td>		In the moment when the player gets marked, this text is displayed
-		to him. You should really set a message in any marker you create,
-		because it's the only way for the player to notice what's going
-		on.</td>
 	</tr>
 	<tr>
 		<td>
@@ -131,12 +122,6 @@
 		message to describe what the key is good for. A player might
 		have 50 different keys on his key-ring. Don't expect players
 		to recall their purpose just by their names.</td>
-	</tr>
-	<tr>
-		<td>
-@ref page_type_85
-		</td><td>		This text may contain a nice description of the spellbook's cover
-		or something.</td>
 	</tr>
 	<tr>
 		<td>

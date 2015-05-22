@@ -56,6 +56,24 @@ Type defined by:
 		</td>
 	</tr>
 	<tr>
+		<td>alignment: evil</td>
+		<td>@ref FLAG_IS_EVIL</td>
+		<td>		The monster is evil aligned.
+		</td>
+	</tr>
+	<tr>
+		<td>alignment: good</td>
+		<td>@ref FLAG_IS_GOOD</td>
+		<td>		The monster is good aligned.
+		</td>
+	</tr>
+	<tr>
+		<td>alignment: neutral</td>
+		<td>@ref FLAG_IS_NEUTRAL</td>
+		<td>		The monster is neutrally aligned.
+		</td>
+	</tr>
+	<tr>
 		<td>alpha</td>
 		<td>@ref obj::alpha</td>
 		<td>		Alpha value of the object.
@@ -240,7 +258,7 @@ Type defined by:
 	</tr>
 	<tr>
 		<td>direction based drawing</td>
-		<td>@ref obj::draw_direction</td>
+		<td>@ref FLAG_DRAW_DIRECTION</td>
 		<td>		If enabled, the object will be shown depending on its direction
 		and player's position. Usually used by wall decoration so the
 		decoration doesn't appear from both sides of the wall.
@@ -256,10 +274,40 @@ Type defined by:
 		</td>
 	</tr>
 	<tr>
+		<td>faction</td>
+		<td>@ref page_custom_attributes "faction"</td>
+		<td>		Faction the monster is member of. Cannot contain spaces.
+		</td>
+	</tr>
+	<tr>
+		<td>faction friendship</td>
+		<td>@ref page_custom_attributes "faction_rep"</td>
+		<td>		Determine faction-based friendship.
+
+		If negative and player's faction reputation is below or equal to
+		the value, the monster will be an enemy of the player.
+
+		If positive and the player's faction reputation is above or equal
+		to the value, the monster will be a friend of the player.
+
+		If neither, the default friendship flag will be used.
+		</td>
+	</tr>
+	<tr>
+		<td>faction kill penalty</td>
+		<td>@ref page_custom_attributes "faction_kill_penalty"</td>
+		<td>		Value to subtract from player's faction reputation if the player
+		kills this monster/NPC.
+		</td>
+	</tr>
+	<tr>
 		<td>female</td>
 		<td>@ref FLAG_IS_FEMALE</td>
-		<td>		This monster is female. You can create male, female and neuter
-		monsters.
+		<td>		This monster is female.
+
+		If neither male nor female is set, the monster is neuter.
+
+		If both male and female are set, the monster is hermaphrodite.
 		</td>
 	</tr>
 	<tr>
@@ -287,7 +335,7 @@ Type defined by:
 	</tr>
 	<tr>
 		<td>healing rate</td>
-		<td>@ref liv::Con</td>
+		<td>@ref liv::con</td>
 		<td>			Monster regenerates this many hit points each move. Each time
 			the monster has a move, it gets &lt;healing rate&gt; health
 			points back. Hence, &lt;movement speed&gt; has great effect
@@ -319,6 +367,12 @@ Type defined by:
 			proportion to the amount of damage the *attacker* inflicted.
 			This damage is additional to the regular melee damage of the
 			monster.
+		</td>
+	</tr>
+	<tr>
+		<td>horizontal zoom</td>
+		<td>@ref obj::zoom_x</td>
+		<td>		How much to horizontally zoom the object on the map.
 		</td>
 	</tr>
 	<tr>
@@ -373,9 +427,9 @@ Type defined by:
 		<td>layer</td>
 		<td>@ref obj::layer</td>
 		<td>		This is the map layer the object will put in. The selected layer
-		will affect where and how this object is shown on client side.
+		will affect where and how this object is shown on the client side.
 		Layer 0 is reserved for sys_object type objects and will NEVER be
-		shown on client side. Layer 1 is for floor objects and layer 2
+		shown on the client side. Layer 1 is for floor objects and layer 2
 		for floor masks. Layer 3 and 4 are for items on the ground. Layer
 		5 is for walls, layer 6 is reserved for players and layer 7 is
 		for spell effects and high flying/visible objects like arrows.
@@ -401,8 +455,11 @@ Type defined by:
 	<tr>
 		<td>male</td>
 		<td>@ref FLAG_IS_MALE</td>
-		<td>		This monster is male. You can create male, female and neuter
-		monsters.
+		<td>		This monster is male.
+
+		If neither male nor female is set, the monster is neuter.
+
+		If both male and female are set, the monster is hermaphrodite.
 		</td>
 	</tr>
 	<tr>
@@ -443,7 +500,7 @@ Type defined by:
 	</tr>
 	<tr>
 		<td>multiply</td>
-		<td>@ref FLAG_GENERATOR</td>
+		<td>@ref obj::generator</td>
 		<td>		Monsters with &lt;multiply&gt; enabled will create a
 		&lt;breed monster&gt; every once in a while. If enabled, you must
 		also set &lt;breed monster&gt;.
@@ -459,13 +516,6 @@ Type defined by:
 		<td>never attack</td>
 		<td>@ref FLAG_NO_ATTACK</td>
 		<td>		This mob will never attack or fight back.
-		</td>
-	</tr>
-	<tr>
-		<td>no prayers</td>
-		<td>@ref FLAG_NO_CLERIC</td>
-		<td>		If enabled, it is impossible for players to use prayers on that
-		spot.
 		</td>
 	</tr>
 	<tr>
@@ -609,8 +659,14 @@ Type defined by:
 		</td>
 	</tr>
 	<tr>
+		<td>rotate</td>
+		<td>@ref obj::rotate</td>
+		<td>		Rotation value of the object in degrees.
+		</td>
+	</tr>
+	<tr>
 		<td>run at % health</td>
-		<td>@ref obj::run_away</td>
+		<td>@ref FLAG_RUN_AWAY</td>
 		<td>			This is a percentage based value in the range 0-100. The
 			creature will attempt to run from the attacker when it's
 			health points drops below this percentage of max health.
@@ -638,7 +694,7 @@ Type defined by:
 	</tr>
 	<tr>
 		<td>sensing range</td>
-		<td>@ref liv::Wis</td>
+		<td>@ref liv::wis</td>
 		<td>			&lt;sensing range&gt; determines how close a player needs to
 			be before the creature notices him. This is done as a square,
 			for reasons of speed. If the player has stealth, the size of
@@ -657,7 +713,7 @@ Type defined by:
 	</tr>
 	<tr>
 		<td>spellpoint regen.</td>
-		<td>@ref liv::Pow</td>
+		<td>@ref liv::pow</td>
 		<td>			Monsters regenerate this many spellpoints each move. Each
 			time the monster has a move, it gets
 			&lt;spellpoint regen.&gt; spellpoints back. Hence,
@@ -756,8 +812,17 @@ Type defined by:
 		</td>
 	</tr>
 	<tr>
+		<td>sub layer</td>
+		<td>@ref obj::sub_layer</td>
+		<td>		Extension of the layer attribute. If you have an object with "layer 2
+		sub_layer 1" and an object with "layer 2", the former object will be
+		rendered immediately following the latter object, thus allowing double
+		floor masks, convincing bridges and the like to be created.
+		</td>
+	</tr>
+	<tr>
 		<td>sub type</td>
-		<td>@ref obj::sub_type1</td>
+		<td>@ref obj::sub_type</td>
 		<td>		This important value is used to define "sub types" for objects of
 		the same object type. Examples are weapons, which are all from
 		type WEAPON but can be different sub types like slash, cleave,
@@ -805,10 +870,16 @@ Type defined by:
 	</tr>
 	<tr>
 		<td>use ability 1/</td>
-		<td>@ref liv::Dex</td>
+		<td>@ref liv::dex</td>
 		<td>			The &lt;use ability&gt; value is a 1/x chance that the
 			monster *tries* to use per active tick a special ability like
 			spellcasting, throwing, etc.
+		</td>
+	</tr>
+	<tr>
+		<td>vertical zoom</td>
+		<td>@ref obj::zoom_y</td>
+		<td>		How much to vertically zoom the object on the map.
 		</td>
 	</tr>
 	<tr>

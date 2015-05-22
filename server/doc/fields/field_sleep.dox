@@ -1,6 +1,10 @@
 /**
-@fn FLAG_SLEEP
-@section Use
+@var FLAG_SLEEP
+@sa @ref page_field_sleep
+*/
+
+/**
+@page page_field_sleep FLAG_SLEEP Uses
 <table>
 	<tr>
 		<th>Type(s)</th>

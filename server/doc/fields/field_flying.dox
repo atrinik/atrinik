@@ -1,6 +1,10 @@
 /**
-@fn FLAG_FLYING
-@section Use
+@var FLAG_FLYING
+@sa @ref page_field_flying
+*/
+
+/**
+@page page_field_flying FLAG_FLYING Uses
 <table>
 	<tr>
 		<th>Type(s)</th>

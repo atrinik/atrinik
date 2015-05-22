@@ -1,6 +1,10 @@
 /**
-@fn obj::attack_move_type
-@section Use
+@var obj::attack_move_type
+@sa @ref page_field_attack_move_type
+*/
+
+/**
+@page page_field_attack_move_type obj::attack_move_type Uses
 <table>
 	<tr>
 		<th>Type(s)</th>
