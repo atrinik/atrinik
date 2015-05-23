@@ -114,7 +114,7 @@ static bool monster_guard_get_bounty(object *op, player *pl, double *bounty)
     *bounty = faction_get_bounty(faction, pl);
 
     /* No bounty, nothing to do. */
-    if (*bounty >= 0.0) {
+    if (*bounty <= 0.0) {
         return false;
     }
 
@@ -206,6 +206,11 @@ void monster_guard_check_close(object *op, object *target)
         return;
     }
 
+    /* Already have an enemy. */
+    if (OBJECT_VALID(op->enemy, op->enemy_count)) {
+        return;
+    }
+
     /* Only care about players breaking the law. */
     if (target->type != PLAYER) {
         return;
@@ -213,10 +218,10 @@ void monster_guard_check_close(object *op, object *target)
 
     player *pl = CONTR(target);
     double bounty;
-
     if (!monster_guard_get_bounty(op, pl, &bounty)) {
         return;
     }
+
 
     set_npc_enemy(op, target, NULL);
     draw_info_format(COLOR_NAVY, target, "%s says:\nThen pay with your blood!",
