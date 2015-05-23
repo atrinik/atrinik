@@ -699,6 +699,8 @@ static void widget_draw(widgetdata *widget)
     box.y = widget->y;
     SDL_BlitSurface(widget->surface, NULL, ScreenSurface, &box);
 
+    box.x = widget->x;
+    box.y = widget->y;
     box.w = widget->w;
     box.h = widget->h;
     border_create_texture(ScreenSurface, &box, 1, TEXTURE_CLIENT("widget_border"));
