@@ -735,10 +735,6 @@ arch guard
 name Asterian Guard
 type 83
 level 35
-arch event_obj
-sub_type 6
-race /python/generic/guard.py
-end
 end
 end
 arch floor_dungeon1b
@@ -1288,10 +1284,6 @@ arch guard
 name Asterian Guard
 type 83
 level 35
-arch event_obj
-sub_type 6
-race /python/generic/guard.py
-end
 end
 end
 arch floor_dungeon1b
@@ -2769,10 +2761,6 @@ name Asterian Guard
 type 83
 level 100
 direction 1
-arch event_obj
-sub_type 6
-race /python/generic/guard.py
-end
 arch key2
 slaying asteria_walls_gate
 end

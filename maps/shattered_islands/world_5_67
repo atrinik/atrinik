@@ -1897,7 +1897,6 @@ dam 40
 maxhp 90
 dex 3
 can_see_in_dark 1
-can_use_bow 1
 protect_impact 15
 protect_slash 15
 protect_cleave 15
@@ -2892,7 +2891,6 @@ dam 40
 maxhp 90
 dex 3
 can_see_in_dark 1
-can_use_bow 1
 protect_impact 15
 protect_slash 15
 protect_cleave 15

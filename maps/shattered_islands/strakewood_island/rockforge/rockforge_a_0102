@@ -981,10 +981,6 @@ arch dwarf_steelclad
 type 83
 level 40
 name dwarf bank guard
-arch event_obj
-sub_type 6
-race /python/generic/guard.py
-end
 end
 end
 arch floor_marble1b
@@ -1047,10 +1043,6 @@ type 83
 level 40
 direction 3
 name dwarf bank guard
-arch event_obj
-sub_type 6
-race /python/generic/guard.py
-end
 end
 end
 arch floor_marble1
@@ -1073,10 +1065,6 @@ type 83
 level 40
 direction 3
 name dwarf bank guard
-arch event_obj
-sub_type 6
-race /python/generic/guard.py
-end
 end
 end
 arch floor_marble1
@@ -1390,10 +1378,6 @@ arch dwarf_steelclad
 type 83
 level 40
 name dwarf bank guard
-arch event_obj
-sub_type 6
-race /python/generic/guard.py
-end
 end
 end
 arch floor_marble1

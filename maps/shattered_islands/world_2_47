@@ -1681,10 +1681,6 @@ arch guard
 name Asterian Guard
 type 83
 level 25
-arch event_obj
-sub_type 6
-race /python/generic/guard.py
-end
 end
 end
 arch floor_sand_d4
@@ -2135,10 +2131,6 @@ arch guard
 name Asterian Guard
 type 83
 level 25
-arch event_obj
-sub_type 6
-race /python/generic/guard.py
-end
 end
 end
 arch floor_sand_d3
@@ -2414,10 +2406,6 @@ arch guard
 name Asterian Guard
 type 83
 level 25
-arch event_obj
-sub_type 6
-race /python/generic/guard.py
-end
 end
 end
 arch floor_ostone10
@@ -2914,10 +2902,6 @@ y 7
 arch ranger
 type 83
 level 28
-arch event_obj
-sub_type 6
-race /python/generic/guard.py
-end
 end
 end
 arch floor_ostone10

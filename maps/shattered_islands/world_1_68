@@ -724,10 +724,6 @@ direction 3
 level 60
 faction brynknot_guards
 type 83
-arch event_obj
-sub_type 6
-race /python/generic/guard.py
-end
 end
 end
 arch grassd_3
@@ -1451,10 +1447,6 @@ arch guard
 level 60
 faction brynknot_guards
 type 83
-arch event_obj
-sub_type 6
-race /python/generic/guard.py
-end
 end
 end
 arch floor_flagm3
@@ -2794,10 +2786,6 @@ direction 7
 level 60
 faction brynknot_guards
 type 83
-arch event_obj
-sub_type 6
-race /python/generic/guard.py
-end
 end
 end
 arch grassd_4

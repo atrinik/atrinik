@@ -322,8 +322,6 @@ sub_layer 1
 align 5
 direction 7
 level 75
-dex 1
-can_use_bow 1
 stand_still 1
 wis 12
 type 83
@@ -519,8 +517,6 @@ sub_layer 1
 align 5
 direction 7
 level 75
-dex 1
-can_use_bow 1
 stand_still 1
 wis 12
 type 83

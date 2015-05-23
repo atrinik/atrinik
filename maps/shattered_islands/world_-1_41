@@ -1210,10 +1210,6 @@ arch guard_pole
 name cathedral guard
 level 35
 type 83
-arch event_obj
-sub_type 6
-race /python/generic/guard.py
-end
 end
 end
 arch floor_marble1b
@@ -1655,10 +1651,6 @@ arch guard_pole
 name cathedral guard
 level 35
 type 83
-arch event_obj
-sub_type 6
-race /python/generic/guard.py
-end
 end
 end
 arch floor_marble1h
@@ -3631,10 +3623,6 @@ arch guard_pole
 name cathedral guard
 level 35
 type 83
-arch event_obj
-sub_type 6
-race /python/generic/guard.py
-end
 end
 end
 arch floor_marble1

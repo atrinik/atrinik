@@ -144,10 +144,6 @@ name Asterian Guard
 type 83
 level 35
 direction 3
-arch event_obj
-sub_type 6
-race /python/generic/guard.py
-end
 end
 end
 arch grassd_5
@@ -2059,10 +2055,6 @@ name Asterian Guard
 type 83
 level 35
 direction 3
-arch event_obj
-sub_type 6
-race /python/generic/guard.py
-end
 end
 end
 arch floor_white1d
@@ -2128,10 +2120,6 @@ name Asterian Guard
 type 83
 level 35
 direction 3
-arch event_obj
-sub_type 6
-race /python/generic/guard.py
-end
 end
 end
 arch floor_white1d
@@ -2991,10 +2979,6 @@ name Asterian Guard
 type 83
 level 35
 direction 3
-arch event_obj
-sub_type 6
-race /python/generic/guard.py
-end
 end
 end
 arch floor_parquet2f
@@ -3023,10 +3007,6 @@ name Bailiff
 type 83
 level 40
 direction 3
-arch event_obj
-sub_type 6
-race /python/generic/guard.py
-end
 end
 end
 arch floor_parquet2f

@@ -791,10 +791,6 @@ arch guard
 name Targomik
 level 25
 type 83
-arch event_obj
-sub_type 6
-race /python/generic/guard.py
-end
 end
 end
 arch floor_dungeon1a

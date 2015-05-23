@@ -246,10 +246,6 @@ name Asterian Guard
 type 83
 level 35
 direction 3
-arch event_obj
-sub_type 6
-race /python/generic/guard.py
-end
 end
 end
 arch floor_wood2_l2
@@ -276,10 +272,6 @@ name Asterian Guard
 type 83
 level 35
 direction 3
-arch event_obj
-sub_type 6
-race /python/generic/guard.py
-end
 end
 end
 arch floor_wood2_l2

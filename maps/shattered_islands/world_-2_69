@@ -876,8 +876,6 @@ arch ranger
 direction 7
 level 73
 faction brynknot_guards
-dex 1
-can_use_bow 1
 type 83
 end
 end
@@ -1261,10 +1259,6 @@ arch guard
 level 28
 faction brynknot_guards
 type 83
-arch event_obj
-sub_type 6
-race /python/generic/guard.py
-end
 end
 end
 arch grassd_3
@@ -2834,10 +2828,6 @@ arch guard
 level 28
 faction brynknot_guards
 type 83
-arch event_obj
-sub_type 6
-race /python/generic/guard.py
-end
 end
 end
 arch floor_flagm4

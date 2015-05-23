@@ -746,10 +746,6 @@ arch guard
 name Asterian Guard
 level 100
 type 83
-arch event_obj
-sub_type 6
-race /python/generic/guard.py
-end
 arch key2
 slaying asteria_palace_gate
 end

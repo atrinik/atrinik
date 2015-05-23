@@ -751,10 +751,6 @@ name Asterian Guard
 type 83
 level 100
 direction 3
-arch event_obj
-sub_type 6
-race /python/generic/guard.py
-end
 end
 end
 arch floor_white1e
@@ -883,10 +879,6 @@ name Asterian Guard
 type 83
 level 100
 direction 3
-arch event_obj
-sub_type 6
-race /python/generic/guard.py
-end
 end
 end
 arch floor_white2d
@@ -1809,10 +1801,6 @@ arch guard
 name Asterian Guard
 type 83
 level 100
-arch event_obj
-sub_type 6
-race /python/generic/guard.py
-end
 end
 end
 arch floor_white1e
@@ -1940,10 +1928,6 @@ arch guard
 name Asterian Guard
 type 83
 level 100
-arch event_obj
-sub_type 6
-race /python/generic/guard.py
-end
 end
 end
 arch floor_white2d
@@ -2804,10 +2788,6 @@ arch guard
 name Asterian Guard
 type 83
 level 45
-arch event_obj
-sub_type 6
-race /python/generic/guard.py
-end
 end
 end
 arch floor_pattern1a
@@ -3016,10 +2996,6 @@ name Asterian Guard
 type 83
 level 45
 direction 7
-arch event_obj
-sub_type 6
-race /python/generic/guard.py
-end
 end
 end
 arch floor_pattern1a
@@ -3496,8 +3472,6 @@ x 19
 y 4
 arch archer
 level 100
-dex 1
-can_use_bow 1
 stand_still 1
 wis 12
 type 83

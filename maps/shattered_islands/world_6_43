@@ -1641,10 +1641,6 @@ y 21
 arch knight_asteria
 type 83
 level 48
-arch event_obj
-sub_type 6
-race /python/generic/guard.py
-end
 end
 end
 arch floor_red1
@@ -2387,10 +2383,6 @@ y 21
 arch knight_asteria
 type 83
 level 48
-arch event_obj
-sub_type 6
-race /python/generic/guard.py
-end
 end
 end
 arch floor_red1

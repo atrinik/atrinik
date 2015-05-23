@@ -940,10 +940,6 @@ arch guard
 name jail guard
 level 80
 type 83
-arch event_obj
-sub_type 6
-race /python/generic/guard.py
-end
 end
 end
 arch floor_marble_b1d
@@ -1397,10 +1393,6 @@ arch guard
 name jail guard
 level 80
 type 83
-arch event_obj
-sub_type 6
-race /python/generic/guard.py
-end
 end
 end
 arch floor_marble_b1b
@@ -2179,10 +2171,6 @@ arch guard
 name jail guard
 level 80
 type 83
-arch event_obj
-sub_type 6
-race /python/generic/guard.py
-end
 end
 end
 arch floor_marble_b1c

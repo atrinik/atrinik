@@ -2354,8 +2354,6 @@ arch archer
 sub_layer 1
 align 5
 level 75
-dex 1
-can_use_bow 1
 stand_still 1
 wis 12
 type 83
@@ -2449,8 +2447,6 @@ sub_layer 1
 align 5
 direction 1
 level 75
-dex 1
-can_use_bow 1
 stand_still 1
 wis 12
 type 83
@@ -2576,8 +2572,6 @@ arch archer
 sub_layer 1
 align 5
 level 75
-dex 1
-can_use_bow 1
 stand_still 1
 wis 12
 type 83
@@ -2679,8 +2673,6 @@ sub_layer 1
 align 5
 direction 1
 level 75
-dex 1
-can_use_bow 1
 stand_still 1
 wis 12
 type 83
@@ -3332,10 +3324,6 @@ y 8
 arch guard_royal
 level 70
 type 83
-arch event_obj
-sub_type 6
-race /python/generic/guard.py
-end
 end
 end
 arch grassd_3
@@ -3373,10 +3361,6 @@ arch guard_royal
 direction 1
 level 70
 type 83
-arch event_obj
-sub_type 6
-race /python/generic/guard.py
-end
 end
 end
 arch water_lt4

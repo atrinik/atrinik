@@ -2,7 +2,7 @@ arch map
 name Rockforge: Palace
 msg
 Created:  2011-06-02 Alex Tokar
-Modified: 2011-09-29 Alex Tokar
+Modified: 2015-05-23 Alex Tokar
 endmsg
 width 24
 height 24
@@ -342,14 +342,11 @@ arch spawn_point
 x 8
 y 19
 arch dwarf_steelclad
-type 83
-direction 3
 name dwarf guard
+direction 3
+randomitems mob_guard
 level 45
-arch event_obj
-sub_type 6
-race /python/generic/guard.py
-end
+type 83
 end
 end
 arch floor_marble1b
@@ -390,11 +387,8 @@ y 23
 arch dwarf_fighter
 type 83
 direction 3
+randomitems mob_guard
 level 45
-arch event_obj
-sub_type 6
-race /python/generic/guard.py
-end
 end
 end
 arch blocked
@@ -968,11 +962,8 @@ y 19
 arch dwarf_steelclad
 type 83
 name dwarf guard
+randomitems mob_guard
 level 45
-arch event_obj
-sub_type 6
-race /python/generic/guard.py
-end
 end
 end
 arch floor_marble1a
@@ -1012,11 +1003,8 @@ x 15
 y 23
 arch dwarf_fighter
 type 83
+randomitems mob_guard
 level 45
-arch event_obj
-sub_type 6
-race /python/generic/guard.py
-end
 end
 end
 arch blocked

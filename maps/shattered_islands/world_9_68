@@ -271,10 +271,6 @@ arch guard_royal
 direction 1
 level 70
 type 83
-arch event_obj
-sub_type 6
-race /python/generic/guard.py
-end
 arch key2
 slaying greyton_main_gate_key
 end
@@ -382,10 +378,6 @@ arch guard_royal
 direction 1
 level 70
 type 83
-arch event_obj
-sub_type 6
-race /python/generic/guard.py
-end
 arch key2
 slaying greyton_main_gate_key
 end
@@ -862,10 +854,6 @@ arch guard_royal
 name Alvaro Stormcrow
 level 70
 type 83
-arch event_obj
-sub_type 6
-race /python/generic/guard.py
-end
 end
 end
 arch pedestal
@@ -1106,10 +1094,6 @@ arch guard_royal
 direction 1
 level 70
 type 83
-arch event_obj
-sub_type 6
-race /python/generic/guard.py
-end
 end
 end
 arch grassd_8

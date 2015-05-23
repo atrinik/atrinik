@@ -3024,10 +3024,6 @@ direction 3
 level 66
 faction brynknot_guards
 type 83
-arch event_obj
-sub_type 6
-race /python/generic/guard.py
-end
 end
 end
 arch grassd_3

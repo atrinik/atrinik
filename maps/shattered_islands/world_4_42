@@ -1038,10 +1038,6 @@ arch guard
 name Asterian Guard
 type 83
 level 100
-arch event_obj
-sub_type 6
-race /python/generic/guard.py
-end
 end
 end
 arch floor_fs_grey1b
@@ -1081,10 +1077,6 @@ name Asterian Guard
 type 83
 level 100
 direction 1
-arch event_obj
-sub_type 6
-race /python/generic/guard.py
-end
 end
 end
 arch fstone1a
@@ -1565,10 +1557,6 @@ arch guard
 name Asterian Guard
 type 83
 level 100
-arch event_obj
-sub_type 6
-race /python/generic/guard.py
-end
 end
 end
 arch floor_fs_grey1b
@@ -1612,10 +1600,6 @@ name Asterian Guard
 type 83
 level 100
 direction 1
-arch event_obj
-sub_type 6
-race /python/generic/guard.py
-end
 end
 end
 arch grassd_2

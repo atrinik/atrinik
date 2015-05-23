@@ -402,10 +402,6 @@ sub_layer 1
 name Asterian Guard
 type 83
 level 30
-arch event_obj
-sub_type 6
-race /python/generic/guard.py
-end
 end
 end
 arch grassd_1

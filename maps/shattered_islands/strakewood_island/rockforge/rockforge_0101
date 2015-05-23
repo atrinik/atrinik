@@ -2,7 +2,7 @@ arch map
 name Rockforge: Palace
 msg
 Created:  2011-06-02 Alex Tokar
-Modified: 2015-04-19 Alex Tokar
+Modified: 2015-05-23 Alex Tokar
 endmsg
 width 24
 height 24
@@ -293,11 +293,8 @@ arch dwarf_steelclad
 type 83
 direction 3
 level 45
+randomitems mob_guard
 name dwarf guard
-arch event_obj
-sub_type 6
-race /python/generic/guard.py
-end
 end
 end
 arch floor_marble1b
@@ -603,12 +600,9 @@ y 8
 arch dwarf_steelclad
 type 83
 direction 3
+randomitems mob_guard
 level 45
 name dwarf guard
-arch event_obj
-sub_type 6
-race /python/generic/guard.py
-end
 end
 end
 arch floor_marble1
@@ -662,12 +656,9 @@ y 13
 arch dwarf_steelclad
 type 83
 direction 3
+randomitems mob_guard
 level 45
 name dwarf guard
-arch event_obj
-sub_type 6
-race /python/generic/guard.py
-end
 end
 end
 arch floor_marble1a
@@ -721,12 +712,9 @@ y 18
 arch dwarf_steelclad
 type 83
 direction 3
+randomitems mob_guard
 level 45
 name dwarf guard
-arch event_obj
-sub_type 6
-race /python/generic/guard.py
-end
 end
 end
 arch floor_marble1
@@ -1265,12 +1253,9 @@ x 13
 y 8
 arch dwarf_steelclad
 type 83
+randomitems mob_guard
 level 45
 name dwarf guard
-arch event_obj
-sub_type 6
-race /python/generic/guard.py
-end
 end
 end
 arch floor_marble1b
@@ -1318,12 +1303,9 @@ x 13
 y 13
 arch dwarf_steelclad
 type 83
+randomitems mob_guard
 level 45
 name dwarf guard
-arch event_obj
-sub_type 6
-race /python/generic/guard.py
-end
 end
 end
 arch floor_marble1a
@@ -1371,12 +1353,9 @@ x 13
 y 18
 arch dwarf_steelclad
 type 83
+randomitems mob_guard
 level 45
 name dwarf guard
-arch event_obj
-sub_type 6
-race /python/generic/guard.py
-end
 end
 end
 arch floor_marble1a
@@ -1638,12 +1617,9 @@ x 15
 y 3
 arch dwarf_steelclad
 type 83
+randomitems mob_guard
 level 45
 name dwarf guard
-arch event_obj
-sub_type 6
-race /python/generic/guard.py
-end
 end
 end
 arch floor_marble1

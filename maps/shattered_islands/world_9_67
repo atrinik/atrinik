@@ -1868,10 +1868,6 @@ arch guard_royal
 name Olren
 level 40
 type 83
-arch event_obj
-sub_type 6
-race /python/generic/guard.py
-end
 end
 end
 arch floor_flagm1
@@ -1934,10 +1930,6 @@ name Galbar
 direction 1
 level 40
 type 83
-arch event_obj
-sub_type 6
-race /python/generic/guard.py
-end
 end
 end
 arch floor_flagm1
@@ -2727,10 +2719,6 @@ y 14
 arch guard_royal
 level 70
 type 83
-arch event_obj
-sub_type 6
-race /python/generic/guard.py
-end
 end
 end
 arch floor_flagm4
@@ -3492,10 +3480,6 @@ y 14
 arch guard_royal
 level 70
 type 83
-arch event_obj
-sub_type 6
-race /python/generic/guard.py
-end
 end
 end
 arch floor_flagm4

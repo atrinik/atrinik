@@ -31,10 +31,6 @@ arch guard_pole
 name cathedral guard
 level 35
 type 83
-arch event_obj
-sub_type 6
-race /python/generic/guard.py
-end
 end
 end
 arch floor_fs_grey1b

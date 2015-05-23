@@ -680,10 +680,6 @@ arch guard_royal
 level 70
 type 83
 direction 3
-arch event_obj
-sub_type 6
-race /python/generic/guard.py
-end
 end
 end
 arch grassd_2
@@ -2328,10 +2324,6 @@ arch guard_royal
 level 70
 type 83
 direction 3
-arch event_obj
-sub_type 6
-race /python/generic/guard.py
-end
 end
 end
 arch grassd_8
@@ -2411,10 +2403,6 @@ y 8
 arch guard_royal
 level 70
 type 83
-arch event_obj
-sub_type 6
-race /python/generic/guard.py
-end
 end
 end
 arch grassd_2
@@ -2785,10 +2773,6 @@ arch guard_royal
 direction 1
 level 70
 type 83
-arch event_obj
-sub_type 6
-race /python/generic/guard.py
-end
 arch key2
 slaying greyton_dock_gate_key
 end
@@ -2904,10 +2888,6 @@ arch guard_royal
 direction 1
 level 70
 type 83
-arch event_obj
-sub_type 6
-race /python/generic/guard.py
-end
 arch key2
 slaying greyton_dock_gate_key
 end
@@ -3215,10 +3195,6 @@ y 9
 arch guard_royal
 level 70
 type 83
-arch event_obj
-sub_type 6
-race /python/generic/guard.py
-end
 end
 end
 arch pedestal
@@ -3309,10 +3285,6 @@ arch guard_royal
 direction 1
 level 70
 type 83
-arch event_obj
-sub_type 6
-race /python/generic/guard.py
-end
 end
 end
 arch pedestal

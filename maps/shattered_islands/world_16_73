@@ -2,7 +2,7 @@ arch map
 name Burnt Forest
 msg
 Created:  2010-08-17 Idicus
-Modified: 2011-10-03 Alex Tokar
+Modified: 2015-05-23 Alex Tokar
 endmsg
 width 24
 height 24
@@ -234,14 +234,7 @@ name elven ranger
 level 37
 race half-elf
 dex 3
-can_use_bow 1
 type 83
-arch arrow
-sys_object 1
-end
-arch ability_stone_throw
-race arrows
-end
 end
 end
 arch grass_flowers3
@@ -676,15 +669,8 @@ name elven ranger
 level 36
 race half-elf
 dex 3
-can_use_bow 1
 wis 7
 type 83
-arch arrow
-sys_object 1
-end
-arch ability_stone_throw
-race arrows
-end
 end
 end
 arch grass_flowers3
@@ -971,15 +957,8 @@ name elven ranger
 level 38
 race half-elf
 dex 3
-can_use_bow 1
 wis 7
 type 83
-arch arrow
-sys_object 1
-end
-arch ability_stone_throw
-race arrows
-end
 end
 end
 arch grass_flowers1
@@ -1746,12 +1725,6 @@ dex 3
 can_use_weapon 1
 wis 7
 type 83
-arch arrow
-sys_object 1
-end
-arch ability_stone_throw
-race arrows
-end
 end
 end
 arch grass_flowers2
@@ -2199,15 +2172,8 @@ name elven ranger
 level 37
 race half-elf
 dex 3
-can_use_bow 1
 wis 8
 type 83
-arch ability_stone_throw
-race arrows
-end
-arch arrow
-sys_object 1
-end
 end
 end
 arch grass_flowers2
@@ -2414,14 +2380,7 @@ name elven ranger
 level 37
 race half-elf
 dex 3
-can_use_bow 1
 type 83
-arch arrow
-sys_object 1
-end
-arch ability_stone_throw
-race arrows
-end
 end
 end
 arch grass_flowers3

@@ -398,10 +398,6 @@ arch guard
 name bank guard
 type 83
 level 18
-arch event_obj
-sub_type 6
-race /python/generic/guard.py
-end
 end
 end
 arch grassd_8

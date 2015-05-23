@@ -1927,10 +1927,6 @@ arch guard
 name Asterian Guard
 type 83
 level 35
-arch event_obj
-sub_type 6
-race /python/generic/guard.py
-end
 end
 end
 arch floor_fs_grey1b
@@ -2866,10 +2862,6 @@ arch guard
 name Asterian Guard
 type 83
 level 33
-arch event_obj
-sub_type 6
-race /python/generic/guard.py
-end
 end
 end
 arch floor_marble_grey

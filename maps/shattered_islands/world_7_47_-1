@@ -342,10 +342,6 @@ arch key_blue
 name Asteria Dungeon Key 1
 slaying asteria_dungeon_key1
 end
-arch event_obj
-sub_type 6
-race /python/generic/guard.py
-end
 end
 end
 arch floor_stone_b1
@@ -410,10 +406,6 @@ end
 arch key_blue
 name Asteria Dungeon Key 1
 slaying asteria_dungeon_key1
-end
-arch event_obj
-sub_type 6
-race /python/generic/guard.py
 end
 end
 end
