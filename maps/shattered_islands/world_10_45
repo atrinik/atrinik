@@ -2,7 +2,7 @@ arch map
 name Asteria
 msg
 Created:  2009-08-09 Alex Tokar
-Modified: 2015-04-20 Alex Tokar
+Modified: 2015-05-24 Alex Tokar
 endmsg
 width 24
 height 24
@@ -1173,7 +1173,7 @@ x 8
 y 4
 end
 arch grassd_2
-z 44
+z 43
 x 8
 y 5
 end
@@ -1280,7 +1280,7 @@ x 8
 y 23
 end
 arch grassd_8
-z 38
+z 37
 x 9
 end
 arch tree_big2
@@ -1306,12 +1306,12 @@ x 9
 y 3
 end
 arch grassd_4
-z 38
+z 37
 x 9
 y 4
 end
 arch grassd_2
-z 38
+z 37
 x 9
 y 5
 end
@@ -1414,16 +1414,16 @@ x 9
 y 23
 end
 arch grassd_5
-z 26
+z 32
 x 10
 end
 arch grassd_4
-z 26
+z 30
 x 10
 y 1
 end
 arch grassd_1
-z 26
+z 29
 x 10
 y 2
 end
@@ -1432,12 +1432,12 @@ x 10
 y 2
 end
 arch grassd_3
-z 26
+z 30
 x 10
 y 3
 end
 arch grassd_4
-z 32
+z 31
 x 10
 y 4
 end
@@ -1600,27 +1600,27 @@ x 11
 y 1
 end
 arch grassd_7
-z 26
+z 27
 x 11
 y 2
 end
 arch grassd_8
-z 26
+z 28
 x 11
 y 3
 end
 arch grassd_5
-z 26
+z 27
 x 11
 y 4
 end
 arch grassd_4
-z 38
+z 37
 x 11
 y 5
 end
 arch grassd_5
-z 44
+z 43
 x 11
 y 6
 end
@@ -1737,17 +1737,17 @@ x 12
 y 3
 end
 arch grassd_2
-z 32
+z 31
 x 12
 y 4
 end
 arch grassd_8
-z 38
+z 36
 x 12
 y 5
 end
 arch grassd_3
-z 38
+z 37
 x 12
 y 6
 end
@@ -1849,17 +1849,17 @@ x 13
 y 1
 end
 arch grassd_7
-z 20
+z 22
 x 13
 y 2
 end
 arch grassd_2
-z 26
+z 24
 x 13
 y 3
 end
 arch grassd_1
-z 32
+z 27
 x 13
 y 4
 end
@@ -1868,7 +1868,7 @@ x 13
 y 4
 end
 arch grassd_4
-z 32
+z 30
 x 13
 y 5
 end
@@ -1985,22 +1985,22 @@ x 14
 y 2
 end
 arch grassd_6
-z 20
+z 19
 x 14
 y 3
 end
 arch grassd_3
-z 26
+z 21
 x 14
 y 4
 end
 arch grassd_2
-z 26
+z 25
 x 14
 y 5
 end
 arch grassd_1
-z 26
+z 25
 x 14
 y 6
 end
@@ -2115,22 +2115,22 @@ x 15
 y 1
 end
 arch grassd_2
-z 8
+z 9
 x 15
 y 2
 end
 arch grassd_2
-z 18
+z 15
 x 15
 y 3
 end
 arch grassd_4
-z 18
+z 17
 x 15
 y 4
 end
 arch grassd_6
-z 18
+z 17
 x 15
 y 5
 end
@@ -2245,12 +2245,12 @@ x 16
 y 1
 end
 arch grassd_7
-z 2
+z 4
 x 16
 y 2
 end
 arch grassd_5
-z 10
+z 8
 x 16
 y 3
 end
@@ -2378,7 +2378,7 @@ x 17
 y 2
 end
 arch grassd_4
-z 4
+z 3
 x 17
 y 3
 end
