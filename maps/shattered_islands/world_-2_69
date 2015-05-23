@@ -2,7 +2,7 @@ arch map
 name Brynknot
 msg
 Created:  2009-09-10 Alex Tokar
-Modified: 2015-05-04 Alex Tokar
+Modified: 2015-05-23 Alex Tokar
 endmsg
 width 24
 height 24
@@ -873,21 +873,12 @@ arch spawn_point
 x 4
 y 21
 arch ranger
-direction 3
+direction 7
 level 73
 faction brynknot_guards
 dex 1
 can_use_bow 1
 type 83
-arch ability_stone_throw
-race arrows
-wc 200
-end
-arch arrow_woodlanders
-sys_object 1
-dam 100
-wc 300
-end
 end
 end
 arch floor_sand_d2

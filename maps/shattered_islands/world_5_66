@@ -2,7 +2,7 @@ arch map
 name Battle of Fort Ghzal
 msg
 Created:  2009-09-10 Alex Tokar
-Modified: 2011-11-03 Alex Tokar
+Modified: 2015-05-23 Alex Tokar
 endmsg
 width 24
 height 24
@@ -580,12 +580,6 @@ protect_cleave 0
 protect_pierce 5
 protect_magic 10
 type 83
-arch ability_stone_throw
-race arrows
-end
-arch arrow
-sys_object 1
-end
 end
 end
 arch grassd_6
@@ -1152,12 +1146,6 @@ protect_cleave 0
 protect_pierce 5
 protect_magic 10
 type 83
-arch ability_stone_throw
-race arrows
-end
-arch arrow
-sys_object 1
-end
 end
 end
 arch grassd_8
@@ -1205,12 +1193,6 @@ protect_cleave 0
 protect_pierce 5
 protect_magic 10
 type 83
-arch ability_stone_throw
-race arrows
-end
-arch arrow
-sys_object 1
-end
 end
 end
 arch grassd_3
@@ -2581,12 +2563,6 @@ protect_cleave 0
 protect_pierce 5
 protect_magic 10
 type 83
-arch ability_stone_throw
-race arrows
-end
-arch arrow
-sys_object 1
-end
 end
 end
 arch grassd_2
@@ -3049,12 +3025,6 @@ protect_cleave 0
 protect_pierce 5
 protect_magic 10
 type 83
-arch ability_stone_throw
-race arrows
-end
-arch arrow
-sys_object 1
-end
 end
 end
 arch grassd_2
@@ -3396,12 +3366,6 @@ protect_cleave 0
 protect_pierce 5
 protect_magic 10
 type 83
-arch ability_stone_throw
-race arrows
-end
-arch arrow
-sys_object 1
-end
 end
 end
 arch floor_sand_d2

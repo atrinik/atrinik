@@ -2,7 +2,7 @@ arch map
 name The City of Greyton
 msg
 Created:  2015-04-26 Alex Tokar
-Modified: 2015-05-04 Alex Tokar
+Modified: 2015-05-23 Alex Tokar
 endmsg
 width 24
 height 24
@@ -320,6 +320,7 @@ y 22
 arch archer
 sub_layer 1
 align 5
+direction 7
 level 75
 dex 1
 can_use_bow 1
@@ -327,7 +328,7 @@ stand_still 1
 wis 12
 type 83
 arch ability_stone_throw
-race arrows
+race haxarrows
 sp 1
 wc 300
 wc_range 150
@@ -346,10 +347,7 @@ attack_fire 100
 attack_electricity 100
 attack_cold 100
 attack_poison 100
-end
-arch event_obj
-sub_type 6
-race /python/generic/guard.py
+race haxarrows
 end
 end
 end
@@ -519,6 +517,7 @@ y 22
 arch archer
 sub_layer 1
 align 5
+direction 7
 level 75
 dex 1
 can_use_bow 1
@@ -526,7 +525,7 @@ stand_still 1
 wis 12
 type 83
 arch ability_stone_throw
-race arrows
+race haxarrows
 sp 1
 wc 300
 wc_range 150
@@ -545,10 +544,7 @@ attack_fire 100
 attack_electricity 100
 attack_cold 100
 attack_poison 100
-end
-arch event_obj
-sub_type 6
-race /python/generic/guard.py
+race haxarrows
 end
 end
 end
