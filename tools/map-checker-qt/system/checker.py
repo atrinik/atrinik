@@ -812,39 +812,43 @@ class CheckerObject(AbstractChecker):
                           "average level of monsters it contains.",
                           obj=obj)
 
-        if obj.getAttributeInt("friendly") == 1 and not obj.getAttribute(
-                "name") in ("guard", "knight"):
-            if obj.isSameArchAttribute("name") and obj.map.getAttribute(
-                    "region") != "creation":
-                has_say_event = False
-                has_generic_guard_script = False
+        has_say_event = False
 
-                for tmp in obj.inv:
-                    if tmp.getAttributeInt(
-                            "type") == Game.Types.event_object and \
-                            tmp.getAttributeInt("sub_type") == 6:
-                        if tmp.getAttribute(
-                                "race") == "/python/generic/guard.py":
-                            has_generic_guard_script = True
+        for tmp in obj.inv:
+            t = tmp.getAttributeInt("type")
+            st = tmp.getAttributeInt("sub_type")
+            if t == Game.Types.event_object and st == 6:
+                event_path = tmp.getAttribute("race")
+                if event_path == "/python/generic/guard.py":
+                    if self.fix:
+                        tmp.delete()
 
-                        has_say_event = True
-                        break
+                    self.addError("warning",
+                                  "Obsolete guard dialog.",
+                                  "Guard dialogs are now automatically "
+                                  "generated from treasure files.",
+                                  obj=obj, fixed=self.fix)
+                    continue
 
-                if not has_generic_guard_script:
-                    if obj.getAttribute("msg") or has_say_event:
-                        self.addError("warning", "NPC has a dialog, but no "
-                                                 "custom name.",
-                                      "NPCs with dialogs should always have a "
-                                      "custom name set.",
-                                      obj=obj)
-            elif obj.getAttribute("name").istitle() and not re.match(
-                    r"^([A-Z][a-z\']*)( [A-Z][a-z\']*)?"
-                    r"( (XC|XL|L?X{0,3})(IX|IV|V?I{0,3}))?$",
-                    obj.getAttribute("name")):
-                self.addError("low", "NPC has name in incorrect format.",
-                              "NPCs should have their name in format such as"
-                              "<b>Ronald<b>, <b>Ronald Greyhammer</b>, etc.",
-                              obj=obj)
+                has_say_event = True
+
+        if obj.isSameArchAttribute("name") and obj.map.getAttribute(
+                "region") != "creation":
+            if obj.getAttribute("name") not in ("guard", "knight"):
+                if obj.getAttribute("msg") or has_say_event:
+                    self.addError("warning",
+                                  "NPC has a dialog, but no custom name.",
+                                  "NPCs with dialogs should always have a "
+                                  "custom name set.",
+                                  obj=obj)
+        elif obj.getAttribute("name").istitle() and not re.match(
+                r"^([A-Z][a-z\']*)( [A-Z][a-z\']*)?"
+                r"( (XC|XL|L?X{0,3})(IX|IV|V?I{0,3}))?$",
+                obj.getAttribute("name")):
+            self.addError("low", "NPC has name in incorrect format.",
+                          "NPCs should have their name in format such as"
+                          "<b>Ronald<b>, <b>Ronald Greyhammer</b>, etc.",
+                          obj=obj)
 
         if not obj.env or obj.env.getAttributeInt(
                 "type") != Game.Types.spawn_point:
