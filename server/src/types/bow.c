@@ -71,7 +71,7 @@ static int ranged_fire_func(object *op, object *shooter, int dir, double *delay)
         return OBJECT_METHOD_OK;
     }
 
-    if (QUERY_FLAG(arrow, FLAG_SYS_OBJECT)) {
+    if (shooter->type == MONSTER || QUERY_FLAG(arrow, FLAG_SYS_OBJECT)) {
         object *copy;
 
         copy = get_object();
