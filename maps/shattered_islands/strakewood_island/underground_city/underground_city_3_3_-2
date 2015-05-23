@@ -30,6 +30,7 @@ arch exit
 name portal
 animation portal_yellow
 type 79
+speed 0
 y 2
 end
 arch magic_mouth
