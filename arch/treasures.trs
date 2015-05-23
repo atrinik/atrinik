@@ -494,7 +494,7 @@ treasureone random_weapons_throw
     artifact_chance 40
 end
 
-treasureone random_weapons_missile
+treasureone random_weapons_missile_bow
   arch bow_short
     chance 12
     magic 1
@@ -514,7 +514,9 @@ treasureone random_weapons_missile
     magic 1
     material_quality 80
     material_range 15
-  more
+end
+
+treasureone random_weapons_missile_sling
   arch sling_small
     chance 12
     magic 1
@@ -534,7 +536,9 @@ treasureone random_weapons_missile
     magic 1
     material_quality 80
     material_range 15
-  more
+end
+
+treasureone random_weapons_missile_crossbow
   arch crossbow_small
     chance 12
     magic 1
@@ -554,6 +558,17 @@ treasureone random_weapons_missile
     magic 1
     material_quality 80
     material_range 15
+end
+
+treasureone random_weapons_missile
+  list random_weapons_missile_bow
+    chance 25
+  more
+  list random_weapons_missile_sling
+    chance 25
+  more
+  list random_weapons_missile_crossbow
+    chance 25
 end
 
 treasureone random_weapons_melee
