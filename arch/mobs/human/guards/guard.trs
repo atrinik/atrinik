@@ -1,4 +1,4 @@
-treasure mob_guard
+treasure mob_guard_common
   list traps
     chance 8
   more
@@ -45,18 +45,41 @@ treasure mob_guard
         chance_fix 45
     end
   more
+  list random_armour_helm
+    chance_fix 5
+end
+
+treasure mob_guard
+  list mob_guard_common
+  more
+  arch guard_stop_python
+  more
+  arch guard_python
+  more
   list random_armour_mail
-    chance_fix 1
   more
   list random_armour_shield
     chance_fix 3
   more
   list random_weapons_melee
-    chance_fix 1
+end
+
+treasure mob_guard_drunk
+  list mob_guard_common
   more
-  list random_armour_helm
-    chance_fix 5
+  arch guard_drunk_python
+end
+
+treasure mob_guard_archer
+  list mob_guard_common
   more
   arch guard_stop_python
-    chance_fix 1
+  more
+  arch guard_python
+  more
+  list random_armour_cloak
+  more
+  list random_weapons_missile_bow
+  more
+  list random_arrows
 end
