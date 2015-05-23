@@ -4,6 +4,7 @@ race human
 type 80
 layer 6
 behavior 10
+randomitems mob_guard_archer
 wc_range 20
 direction 5
 is_male 1
@@ -41,4 +42,6 @@ weight 85000
 faction npcs
 int 20
 str 25
+can_use_bow 1
+dex 1
 end
