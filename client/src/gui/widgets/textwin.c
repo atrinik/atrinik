@@ -599,11 +599,19 @@ static void widget_draw(widgetdata *widget)
         textwin_readjust(widget);
     }
 
-    if ((alpha = setting_get_int(OPT_CAT_CLIENT, OPT_TEXT_WINDOW_TRANSPARENCY))) {
+    alpha = setting_get_int(OPT_CAT_CLIENT, OPT_TEXT_WINDOW_TRANSPARENCY);
+    if (alpha != 0) {
         SDL_Color bg_color;
 
-        if (text_color_parse(setting_get_str(OPT_CAT_CLIENT, OPT_TEXT_WINDOW_BG_COLOR), &bg_color)) {
-            filledRectAlpha(ScreenSurface, widget->x, widget->y, widget->x + widget->w - 1, widget->y + widget->h - 1, ((uint32_t) bg_color.r << 24) | ((uint32_t) bg_color.g << 16) | ((uint32_t) bg_color.b << 8) | (uint32_t) alpha);
+        if (text_color_parse(setting_get_str(OPT_CAT_CLIENT,
+                OPT_TEXT_WINDOW_BG_COLOR), &bg_color)) {
+            Uint32 color = ((uint32_t) bg_color.r << 24) |
+                    ((uint32_t) bg_color.g << 16) |
+                    ((uint32_t) bg_color.b << 8) |
+                    (uint32_t) alpha;
+            filledRectAlpha(ScreenSurface, widget->x, widget->y,
+                    widget->x + widget->w - 1, widget->y + widget->h - 1,
+                    color);
         }
     }
 
