@@ -250,8 +250,8 @@ void monster_data_dialogs_remove(object *op, object *activator)
         }
 
         if (dialog->ob == activator && dialog->count == activator->count) {
-            monster_guard_check_close(op, activator);
             DL_DELETE(monster_data->dialogs, dialog);
+            monster_guard_check_close(op, activator);
             monster_data_dialogs_free(dialog);
             break;
         }
@@ -351,8 +351,8 @@ void monster_data_dialogs_cleanup(object *op)
             continue;
         }
 
-        monster_guard_check_close(op, dialog->ob);
         DL_DELETE(monster_data->dialogs, dialog);
+        monster_guard_check_close(op, dialog->ob);
         monster_data_dialogs_free(dialog);
     }
 }
@@ -373,8 +373,8 @@ void monster_data_dialogs_purge(object *op)
 
     DL_FOREACH_SAFE(monster_data->dialogs, dialog, tmp) {
         monster_data_dialogs_close(dialog);
-        monster_guard_check_close(op, dialog->ob);
         DL_DELETE(monster_data->dialogs, dialog);
+        monster_guard_check_close(op, dialog->ob);
         monster_data_dialogs_free(dialog);
     }
 }
