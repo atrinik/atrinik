@@ -1060,14 +1060,13 @@ void living_update_monster(object *op)
     }
 
     for (tmp = op->inv; tmp; tmp = tmp->below) {
+        CLEAR_FLAG(tmp, FLAG_APPLIED);
+
         /* Check for bow and use it! */
-        if (tmp->type == BOW) {
-            if (QUERY_FLAG(op, FLAG_USE_BOW)) {
-                SET_FLAG(tmp, FLAG_APPLIED);
-                SET_FLAG(op, FLAG_READY_BOW);
-            } else {
-                CLEAR_FLAG(tmp, FLAG_APPLIED);
-            }
+        if (tmp->type == BOW && QUERY_FLAG(op, FLAG_USE_BOW) &&
+                check_good_weapon(op, tmp)) {
+            SET_FLAG(tmp, FLAG_APPLIED);
+            SET_FLAG(op, FLAG_READY_BOW);
         } else if (QUERY_FLAG(op, FLAG_USE_ARMOUR) && IS_ARMOR(tmp) &&
                 check_good_armour(op, tmp)) {
             SET_FLAG(tmp, FLAG_APPLIED);
