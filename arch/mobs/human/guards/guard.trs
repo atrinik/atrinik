@@ -73,8 +73,6 @@ end
 treasure mob_guard_archer
   list mob_guard_common
   more
-  arch guard_stop_python
-  more
   arch guard_python
   more
   list random_armour_cloak
