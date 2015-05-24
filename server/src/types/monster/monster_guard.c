@@ -36,6 +36,7 @@
 #include <faction.h>
 #include <plugin.h>
 #include <monster_data.h>
+#include <packet.h>
 
 /**
  * Make the monster activate a gate by applying a lever/switch/etc under
@@ -168,7 +169,6 @@ bool monster_guard_check(object *op, object *target, const char *msg,
     }
 
     double bounty;
-
     if (!monster_guard_get_bounty(op, pl, &bounty)) {
         return false;
     }
@@ -177,6 +177,8 @@ bool monster_guard_check(object *op, object *target, const char *msg,
     pl->combat = false;
     pl->combat_force = false;
 
+    player_path_clear(pl);
+    pl->socket.packet_recv_cmd->len = 0;
     player_set_talking_to(pl, op);
 
     int ret = trigger_event(EVENT_AI, target, op, NULL,
@@ -221,7 +223,6 @@ void monster_guard_check_close(object *op, object *target)
     if (!monster_guard_get_bounty(op, pl, &bounty)) {
         return;
     }
-
 
     set_npc_enemy(op, target, NULL);
     draw_info_format(COLOR_NAVY, target, "%s says:\nThen pay with your blood!",
