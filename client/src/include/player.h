@@ -189,7 +189,7 @@ typedef struct Player_Struct {
     int dragging_starty;
 
     /** Which inventory widget has the focus. */
-    int inventory_focus;
+    widgetdata *inventory_focus;
 
     /** Version of the server's socket. */
     int server_socket_version;

@@ -122,8 +122,7 @@ void socket_command_image(uint8_t *data, size_t len, size_t pos)
      * these widgets actually contain an object with the updated face. */
     WIDGET_REDRAW_ALL(PDOLL_ID);
     WIDGET_REDRAW_ALL(QUICKSLOT_ID);
-    WIDGET_REDRAW_ALL(MAIN_INV_ID);
-    WIDGET_REDRAW_ALL(BELOW_INV_ID);
+    WIDGET_REDRAW_ALL(INVENTORY_ID);
 }
 
 /** @copydoc socket_command_struct::handle_func */

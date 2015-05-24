@@ -181,25 +181,16 @@ static int quickslots_trigger(widgetdata *widget, uint32_t row, uint32_t col)
  */
 static int quickslots_change(widgetdata *widget, uint32_t row, uint32_t col)
 {
-    object *ob;
-    widget_quickslots_struct *tmp;
-    tag_t tag;
-
     HARD_ASSERT(widget != NULL);
 
-    if (!cur_widget[MAIN_INV_ID]->show) {
+    object *ob = widget_inventory_get_selected(cpl.inventory_focus);
+    if (ob == NULL || ob->env != cpl.ob) {
         return 0;
     }
 
-    ob = widget_inventory_get_selected(cur_widget[MAIN_INV_ID]);
+    widget_quickslots_struct *tmp = widget->subwidget;
 
-    if (ob == NULL) {
-        return 0;
-    }
-
-    tmp = widget->subwidget;
-    tag = tmp->list->text[row][col] ? atoi(tmp->list->text[row][col]) : 0;
-
+    tag_t tag = tmp->list->text[row][col] ? atoi(tmp->list->text[row][col]) : 0;
     if (tag == (tag_t) ob->tag) {
         efree(tmp->list->text[row][col]);
         tmp->list->text[row][col] = NULL;
@@ -215,7 +206,6 @@ static int quickslots_change(widgetdata *widget, uint32_t row, uint32_t col)
     }
 
     widget->redraw = 1;
-
     return 1;
 }
 

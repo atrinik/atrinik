@@ -199,7 +199,13 @@ end
 bind
 	# tab
 	key 9
-	command /widget_toggle maininv
+	command /widget_toggle inventory:main
+end
+bind
+    # tab
+    key 9
+    mod 3
+    command /widget_focus inventory
 end
 bind
 	# left alt

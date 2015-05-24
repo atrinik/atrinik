@@ -615,6 +615,7 @@ extern widgetdata *get_outermost_container(widgetdata *widget);
 extern widgetdata *get_innermost_container(widgetdata *widget);
 extern widgetdata *widget_find(widgetdata *where, int type, const char *id, SDL_Surface *surface);
 extern widgetdata *widget_find_create_id(int type, const char *id);
+extern void widget_switch_focus(int type, const char *id);
 extern void move_widget(widgetdata *widget, int x, int y);
 extern void move_widget_rec(widgetdata *widget, int x, int y);
 extern void resize_widget(widgetdata *widget, int side, int offset);

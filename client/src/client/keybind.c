@@ -531,17 +531,17 @@ int keybind_process_command(const char *cmd)
         } else if (!strcmp(cmd, "CONSOLE")) {
             widget_textwin_handle_console(NULL);
         } else if (!strcmp(cmd, "APPLY")) {
-            widget_inventory_handle_apply(cur_widget[cpl.inventory_focus]);
+            widget_inventory_handle_apply(cpl.inventory_focus);
         } else if (!strcmp(cmd, "EXAMINE")) {
-            menu_inventory_examine(cur_widget[cpl.inventory_focus], NULL, NULL);
+            menu_inventory_examine(cpl.inventory_focus, NULL, NULL);
         } else if (!strcmp(cmd, "MARK")) {
-            menu_inventory_mark(cur_widget[cpl.inventory_focus], NULL, NULL);
+            menu_inventory_mark(cpl.inventory_focus, NULL, NULL);
         } else if (!strcmp(cmd, "LOCK")) {
-            menu_inventory_lock(cur_widget[cpl.inventory_focus], NULL, NULL);
+            menu_inventory_lock(cpl.inventory_focus, NULL, NULL);
         } else if (!strcmp(cmd, "GET")) {
-            menu_inventory_get(cur_widget[cpl.inventory_focus], NULL, NULL);
+            menu_inventory_get(cpl.inventory_focus, NULL, NULL);
         } else if (!strcmp(cmd, "DROP")) {
-            menu_inventory_drop(cur_widget[cpl.inventory_focus], NULL, NULL);
+            menu_inventory_drop(cpl.inventory_focus, NULL, NULL);
         } else if (!strcmp(cmd, "HELP")) {
             help_show("main");
         } else if (!strcmp(cmd, "QLIST")) {
@@ -574,13 +574,13 @@ int keybind_process_command(const char *cmd)
 
             widget_textwin_handle_console(cmd);
         } else if (!strcmp(cmd, "UP")) {
-            widget_inventory_handle_arrow_key(cur_widget[cpl.inventory_focus], SDLK_UP);
+            widget_inventory_handle_arrow_key(cpl.inventory_focus, SDLK_UP);
         } else if (!strcmp(cmd, "DOWN")) {
-            widget_inventory_handle_arrow_key(cur_widget[cpl.inventory_focus], SDLK_DOWN);
+            widget_inventory_handle_arrow_key(cpl.inventory_focus, SDLK_DOWN);
         } else if (!strcmp(cmd, "LEFT")) {
-            widget_inventory_handle_arrow_key(cur_widget[cpl.inventory_focus], SDLK_LEFT);
+            widget_inventory_handle_arrow_key(cpl.inventory_focus, SDLK_LEFT);
         } else if (!strcmp(cmd, "RIGHT")) {
-            widget_inventory_handle_arrow_key(cur_widget[cpl.inventory_focus], SDLK_RIGHT);
+            widget_inventory_handle_arrow_key(cpl.inventory_focus, SDLK_RIGHT);
         } else if (!strncmp(cmd, "RUNON", 5)) {
             if (!strcmp(cmd + 5, "_TOGGLE")) {
                 if (cpl.run_on) {

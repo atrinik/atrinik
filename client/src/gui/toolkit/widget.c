@@ -46,10 +46,9 @@
 static widgetdata def_widget[TOTAL_SUBWIDGETS];
 static const char *const widget_names[TOTAL_SUBWIDGETS] = {
     "map", "stat", "menu_buttons", "quickslots", "textwin", "playerdoll",
-    "belowinv", "playerinfo", "maininv", "mapname",
-    "input", "fps", "mplayer", "spells", "skills", "party", "notification",
-    "container", "label", "texture", "buddy", "active_effects", "protections",
-    "minimap", "target",
+    "playerinfo", "mapname", "input", "fps", "mplayer", "spells", "skills",
+    "party", "notification", "container", "label", "texture", "buddy",
+    "active_effects", "protections", "minimap", "target", "inventory",
 
     "container_strip", "menu", "menuitem"
 };
@@ -242,8 +241,7 @@ void toolkit_widget_init(void)
     widget_initializers[CONTAINER_ID] = widget_container_init;
     widget_initializers[FPS_ID] = widget_fps_init;
     widget_initializers[INPUT_ID] = widget_input_init;
-    widget_initializers[MAIN_INV_ID] = widget_inventory_init;
-    widget_initializers[BELOW_INV_ID] = widget_inventory_init;
+    widget_initializers[INVENTORY_ID] = widget_inventory_init;
     widget_initializers[LABEL_ID] = widget_label_init;
     widget_initializers[MAP_ID] = widget_map_init;
     widget_initializers[MAPNAME_ID] = widget_mapname_init;
@@ -275,46 +273,9 @@ void toolkit_widget_init(void)
 /** @copydoc widgetdata::menu_handle_func */
 static int widget_menu_handle(widgetdata *widget, SDL_Event *event)
 {
-    widgetdata *menu;
-
-    /* Create a context menu for the widget clicked on. */
-    menu = create_menu(event->motion.x, event->motion.y, widget);
-
-    if ((widget->sub_type == MAIN_INV_ID || widget->sub_type == BELOW_INV_ID) && INVENTORY_MOUSE_INSIDE(widget, event->motion.x, event->motion.y)) {
-        if (widget->sub_type == MAIN_INV_ID) {
-            add_menuitem(menu, "Drop", &menu_inventory_drop, MENU_NORMAL, 0);
-        }
-
-        add_menuitem(menu, "Get", &menu_inventory_get, MENU_NORMAL, 0);
-
-        if (widget->sub_type == BELOW_INV_ID) {
-            add_menuitem(menu, "Get all", &menu_inventory_getall, MENU_NORMAL, 0);
-        }
-
-        add_menuitem(menu, "Examine", &menu_inventory_examine, MENU_NORMAL, 0);
-
-        if (setting_get_int(OPT_CAT_DEVEL, OPT_OPERATOR)) {
-            add_menuitem(menu, "Patch", &menu_inventory_patch, MENU_NORMAL, 0);
-            add_menuitem(menu, "Load to console", &menu_inventory_loadtoconsole, MENU_NORMAL, 0);
-        }
-
-        if (widget->sub_type == MAIN_INV_ID) {
-            add_menuitem(menu, "More  >", &menu_inventory_submenu_more, MENU_SUBMENU, 0);
-        }
-
-        /* Process the right click event so the correct item is
-         * selected. */
-        widget->event_func(widget, event);
-    } else {
-        widget_menu_standard_items(widget, menu);
-
-        if (widget->sub_type == MAIN_INV_ID) {
-            add_menuitem(menu, "Inventory Filters  >", &menu_inv_filter_submenu, MENU_SUBMENU, 0);
-        }
-    }
-
+    widgetdata *menu = create_menu(event->motion.x, event->motion.y, widget);
+    widget_menu_standard_items(widget, menu);
     menu_finalize(menu);
-
     return 1;
 }
 
@@ -1603,9 +1564,9 @@ void SetPriorityWidget(widgetdata *node)
     }
 
     /* TODO: add callback function? could also block the above if with it */
-    if (node->type == MAIN_INV_ID || node->type == BELOW_INV_ID) {
-        cpl.inventory_focus = node->type;
-        node->redraw = 1;
+    if (node->type == INVENTORY_ID) {
+        cpl.inventory_focus = node;
+        WIDGET_REDRAW_ALL(INVENTORY_ID);
     }
 
 #ifdef DEBUG_WIDGET
@@ -1915,6 +1876,41 @@ widgetdata *widget_find_create_id(int type, const char *id)
     }
 
     return tmp;
+}
+
+/**
+ * Actually switches focus to the backmost widget; used by
+ * widget_switch_focus().
+ * @param widget Where to start.
+ * @param type Widget type.
+ * @param id UID. Can be NULL.
+ */
+static void widget_switch_focus_do(widgetdata *widget, int type, const char *id)
+{
+    for (widgetdata *tmp = widget; tmp != NULL; tmp = tmp->prev) {
+        if (!tmp->show) {
+            continue;
+        }
+
+        if (tmp->type == type && (id == NULL || strcmp(tmp->id, id) == 0)) {
+            SetPriorityWidget(tmp);
+            return;
+        }
+
+        if (tmp->inv) {
+            widget_switch_focus_do(tmp->inv_rev, type, id);
+        }
+    }
+}
+
+/**
+ * Switches focus to the backmost widget of the given type and UID.
+ * @param type Widget type.
+ * @param id UID. Can be NULL.
+ */
+void widget_switch_focus(int type, const char *id)
+{
+    widget_switch_focus_do(widget_list_foot, type, id);
 }
 
 /* wrapper function to get the outermost container the widget is inside before
@@ -2339,13 +2335,12 @@ void widget_show(widgetdata *widget, int show)
     resize_widget(widget, 0, 0);
 
     /* TODO: make a callback function for this? seems a bit hacky ATM */
-    if (widget->type == MAIN_INV_ID || widget->type == BELOW_INV_ID) {
+    if (widget->type == INVENTORY_ID) {
         if (!show) {
-            int type;
-
-            type = widget->type == MAIN_INV_ID ? BELOW_INV_ID : MAIN_INV_ID;
-            widget = widget_find(NULL, type, NULL, NULL);
-            SOFT_ASSERT(widget != NULL, "Could not find widget type: %d", type);
+            const char *id = strcmp(widget->id, "main") == 0 ? "below" : "main";
+            widget = widget_find(NULL, widget->type, id, NULL);
+            SOFT_ASSERT(widget != NULL, "Could not find inventory widget: %s",
+                    id);
         }
 
         SetPriorityWidget(widget);

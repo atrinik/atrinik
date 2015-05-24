@@ -349,9 +349,9 @@ void object_redraw(object *op)
     }
 
     if (env == cpl.below) {
-        WIDGET_REDRAW_ALL(BELOW_INV_ID);
+        widget_redraw_type_id(INVENTORY_ID, "below");
     } else {
-        WIDGET_REDRAW_ALL(MAIN_INV_ID);
+        widget_redraw_type_id(INVENTORY_ID, "main");
         /* TODO: This could be more sophisticated... */
         WIDGET_REDRAW_ALL(QUICKSLOT_ID);
     }

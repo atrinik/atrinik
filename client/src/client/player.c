@@ -159,7 +159,8 @@ void init_player_data(void)
 {
     new_player(0, 0, 0);
 
-    cpl.inventory_focus = BELOW_INV_ID;
+    cpl.inventory_focus = widget_find(NULL, INVENTORY_ID, "below", NULL);
+    SetPriorityWidget(cpl.inventory_focus);
 
     cpl.container_tag = -996;
 

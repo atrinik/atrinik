@@ -62,11 +62,22 @@
 #define INVENTORY_COLS(_inventory) ((_inventory)->w / INVENTORY_ICON_SIZE)
 /** Calculate number of rows in the inventory. */
 #define INVENTORY_ROWS(_inventory) ((_inventory)->h / INVENTORY_ICON_SIZE)
-/** Decide where to look for objects, depending on the inventory widget's type.
- * */
-#define INVENTORY_WHERE(_widget) ((_widget)->type == MAIN_INV_ID ? cpl.ob : cpl.below)
+/**
+ * Decide where to look for objects, depending on the inventory's display type.
+ */
+#define INVENTORY_WHERE(_inventory) \
+    ((_inventory)->display == INVENTORY_DISPLAY_MAIN ? cpl.ob : cpl.below)
 /** Check whether the mouse is inside the inventory area. */
 #define INVENTORY_MOUSE_INSIDE(_widget, _mx, _my) ((_mx) >= (_widget)->x + INVENTORY((_widget))->x && (_mx) < (_widget)->x + INVENTORY((_widget))->x + INVENTORY((_widget))->w && (_my) >= (_widget)->y + INVENTORY((_widget))->y && (_my) < (_widget)->y + INVENTORY((_widget))->y + INVENTORY((_widget))->h)
+
+/**
+ * Possible values for inventory_struct::display.
+ */
+typedef enum inventory_display {
+    INVENTORY_DISPLAY_NONE, ///< None.
+    INVENTORY_DISPLAY_MAIN, ///< Display player's inventory.
+    INVENTORY_DISPLAY_BELOW, ///< Display below inventory.
+} inventory_display_t;
 
 /**
  * The inventory data. */
@@ -85,6 +96,9 @@ typedef struct inventory_struct {
 
     /** Height of the inventory area. */
     int h;
+
+    /** Which inventory to display. */
+    inventory_display_t display;
 
     /** The inventory scrollbar. */
     scrollbar_struct scrollbar;

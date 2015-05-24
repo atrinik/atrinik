@@ -281,9 +281,7 @@ typedef enum WidgetID {
     QUICKSLOT_ID,
     CHATWIN_ID,
     PDOLL_ID,
-    BELOW_INV_ID,
     PLAYER_INFO_ID,
-    MAIN_INV_ID,
     MAPNAME_ID,
     INPUT_ID,
     FPS_ID,
@@ -300,6 +298,7 @@ typedef enum WidgetID {
     PROTECTIONS_ID,
     MINIMAP_ID,
     TARGET_ID,
+    INVENTORY_ID,
 
     /** The total number of widgets. */
     TOTAL_WIDGETS

@@ -192,11 +192,10 @@ int client_command_check(const char *cmd)
 
         return 1;
     } else if (strncasecmp(cmd, "/console-obj", 11) == 0) {
-        menu_inventory_loadtoconsole(cur_widget[cpl.inventory_focus], NULL,
-                NULL);
+        menu_inventory_loadtoconsole(cpl.inventory_focus, NULL, NULL);
         return 1;
     } else if (strncasecmp(cmd, "/patch-obj", 11) == 0) {
-        menu_inventory_patch(cur_widget[cpl.inventory_focus], NULL, NULL);
+        menu_inventory_patch(cpl.inventory_focus, NULL, NULL);
         return 1;
     } else if (string_startswith(cmd, "/cast ") || string_startswith(cmd, "/use_skill ")) {
         object *tmp;
@@ -329,6 +328,28 @@ int client_command_check(const char *cmd)
                     WIDGET_SHOW_TOGGLE(widget);
                 }
             }
+        }
+
+        return 1;
+    } else if (string_startswith(cmd, "/widget_focus")) {
+        size_t pos;
+        char word[MAX_BUF], *cps[2];
+        int widget_id;
+
+        pos = 14;
+
+        while (string_get_word(cmd, &pos, ' ', word, sizeof(word), 0)) {
+            if (string_split(word, cps, arraysize(cps), ':') < 1) {
+                continue;
+            }
+
+            widget_id = widget_id_from_name(cps[0]);
+            if (widget_id == -1) {
+                /* Invalid widget ID */
+                continue;
+            }
+
+            widget_switch_focus(widget_id, cps[1]);
         }
 
         return 1;
