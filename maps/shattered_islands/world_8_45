@@ -47,7 +47,7 @@ arch spawn_point
 y 5
 arch dog_brown
 speed -0.025
-friendly 1
+faction asteria_animals
 random_move 1
 item_race 10
 item_level 10
@@ -2603,7 +2603,7 @@ y 19
 arch guard
 name Asterian Guard
 type 83
-level 100
+level 36
 faction asteria_guards
 end
 end
@@ -2748,7 +2748,7 @@ y 17
 arch guard
 name Asterian Guard
 type 83
-level 100
+level 36
 faction asteria_guards
 arch key2
 slaying asteria_walls_gate
@@ -2959,7 +2959,7 @@ y 19
 arch guard
 name Asterian Guard
 type 83
-level 100
+level 36
 faction asteria_guards
 end
 end
@@ -2988,7 +2988,7 @@ y 22
 arch guard
 name Asterian Guard
 type 83
-level 100
+level 36
 faction asteria_guards
 end
 end

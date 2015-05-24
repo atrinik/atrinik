@@ -2764,7 +2764,7 @@ x 16
 arch guard
 name Asterian Guard
 type 83
-level 100
+level 36
 faction asteria_guards
 direction 1
 arch key2
