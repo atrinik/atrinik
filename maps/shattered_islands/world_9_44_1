@@ -2,7 +2,7 @@ arch map
 name Asteria Auction House
 msg
 Created:  2011-01-09 Alex Tokar
-Modified: 2015-05-04 Alex Tokar
+Modified: 2015-05-24 Alex Tokar
 endmsg
 width 24
 height 24
@@ -763,6 +763,7 @@ y 14
 arch knight1
 level 80
 type 83
+faction asteria_guards
 direction 3
 end
 end
@@ -1040,6 +1041,7 @@ y 4
 arch knight1
 level 80
 type 83
+faction asteria_guards
 direction 3
 end
 end

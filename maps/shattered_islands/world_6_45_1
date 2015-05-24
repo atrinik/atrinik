@@ -2,7 +2,7 @@ arch map
 name Asteria
 msg
 Created:  2010-08-26 Alex Tokar
-Modified: 2015-04-26 emperorbma
+Modified: 2015-05-24 Alex Tokar
 endmsg
 width 24
 height 24
@@ -245,6 +245,7 @@ arch guard
 name Asterian Guard
 type 83
 level 35
+faction asteria_guards
 direction 3
 end
 end
@@ -271,6 +272,7 @@ arch guard
 name Asterian Guard
 type 83
 level 35
+faction asteria_guards
 direction 3
 end
 end

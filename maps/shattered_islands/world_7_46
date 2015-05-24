@@ -2,7 +2,7 @@ arch map
 name Asteria
 msg
 Created:  2009-08-09 Alex Tokar
-Modified: 2015-04-19 Alex Tokar
+Modified: 2015-05-24 Alex Tokar
 endmsg
 width 24
 height 24
@@ -1228,6 +1228,7 @@ Excuse me, as the Mayor of Asteria I'm quite busy.
 endmsg
 name Melissa Sardak
 level 25
+faction asteria_citizens
 type 83
 end
 end
@@ -1303,6 +1304,7 @@ endmsg
 name Mergus
 direction 3
 level 15
+faction asteria_citizens
 type 83
 end
 end
@@ -1987,6 +1989,7 @@ arch female1
 name Gemi
 direction 1
 level 12
+faction asteria_citizens
 type 83
 end
 end
@@ -2025,6 +2028,7 @@ arch guard
 name Asterian Guard
 type 83
 level 35
+faction asteria_guards
 end
 end
 arch floor_ostone10
@@ -2156,6 +2160,7 @@ Sorry, as the Treasurer of Asteria I've got lot of work to do right now.
 endmsg
 name Sarokin
 level 16
+faction asteria_citizens
 type 83
 direction 3
 end
@@ -3484,6 +3489,7 @@ arch guard
 name Asterian Guard
 type 83
 level 35
+faction asteria_guards
 end
 end
 arch grassd_1
