@@ -204,6 +204,10 @@ void packet_delete(packet_struct *packet, size_t pos, size_t len)
 {
     TOOLKIT_PROTECT();
 
+    if (len > packet->len - pos) {
+        return;
+    }
+
     if (packet->len - len + pos) {
         memmove(packet->data + pos, packet->data + pos + len, packet->len - len + pos);
     }
