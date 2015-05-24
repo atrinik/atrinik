@@ -2,6 +2,11 @@ faction asteria
     parent asterian_kingdom
     enemy drkass
 
+    faction asteria_animals
+        spill 10%
+        spill_force true
+    end
+
     faction asteria_citizens
         faction asteria_guards
         end
