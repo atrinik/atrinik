@@ -62,6 +62,11 @@ typedef struct faction_parent {
      * checks.
      */
     int16_t attention;
+
+    /**
+     * If true, will force spill value usage.
+     */
+    bool spill_force:1;
 } faction_parent_t;
 
 /**
@@ -258,6 +263,20 @@ TOOLKIT_INIT_FUNC(faction)
                 error_str = "unknown value";
                 goto error;
             }
+        } else if (strcmp(key, "spill_force") == 0) {
+            if (faction->parents_num == 0) {
+                error_str = "faction has no parent";
+                goto error;
+            }
+
+            faction_parent_t *parent =
+                    &faction->parents[faction->parents_num - 1];
+            if (KEYWORD_IS_TRUE(value)) {
+                parent->spill_force = true;
+            } else {
+                error_str = "unknown value";
+                goto error;
+            }
         } else {
             error_str = "unknown attribute";
             goto error;
@@ -383,6 +402,7 @@ static void faction_add_parent(faction_t faction, const char *name)
             (faction->parents_num + 1));
     faction->parents[faction->parents_num].spill = 100;
     faction->parents[faction->parents_num].attention = 100;
+    faction->parents[faction->parents_num].spill_force = false;
     faction->parents[faction->parents_num].faction.name = add_string(name);
     faction->parents_num++;
 }
@@ -453,7 +473,7 @@ static void _faction_update(faction_t faction, player *pl, double reputation,
         faction_t parent = faction->parents[i].faction.ptr;
         double new_reputation = reputation;
 
-        if (!override_spill) {
+        if (!override_spill || faction->parents[i].spill_force) {
             new_reputation *= (double) faction->parents[i].spill / 100.0;
         }
 
