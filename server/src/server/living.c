@@ -30,6 +30,7 @@
 #include <global.h>
 #include <monster_data.h>
 #include <arch.h>
+#include <plugin.h>
 
 /** When we carry more than this of our weight_limit, we get encumbered. */
 #define ENCUMBRANCE_LIMIT 65.0f
@@ -1003,7 +1004,7 @@ void living_update_player(object *op)
  */
 void living_update_monster(object *op)
 {
-    object *base, *tmp;
+    object *base;
 
     HARD_ASSERT(op != NULL);
 
@@ -1059,7 +1060,7 @@ void living_update_monster(object *op)
         op->stats.wc_range = 20;
     }
 
-    for (tmp = op->inv; tmp; tmp = tmp->below) {
+    for (object *tmp = op->inv; tmp != NULL; tmp = tmp->below) {
         CLEAR_FLAG(tmp, FLAG_APPLIED);
 
         /* Check for bow and use it! */
@@ -1073,6 +1074,9 @@ void living_update_monster(object *op)
         } else if (QUERY_FLAG(op, FLAG_USE_WEAPON) && tmp->type == WEAPON &&
                 check_good_weapon(op, tmp)) {
             SET_FLAG(tmp, FLAG_APPLIED);
+        } else if (tmp->type == EVENT_OBJECT && tmp->sub_type == EVENT_AI &&
+                tmp->path_attuned & EVENT_FLAG(EVENT_AI_GUARD_STOP)) {
+            op->behavior |= BEHAVIOR_GUARD;
         }
 
         if (QUERY_FLAG(tmp, FLAG_APPLIED)) {
