@@ -3,7 +3,7 @@ name female guard
 race human
 type 80
 layer 6
-behavior 42
+behavior 10
 randomitems mob_guard
 direction 5
 is_female 1
