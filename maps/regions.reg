@@ -18,6 +18,17 @@ map_first /planes/creation/creation_0101
 map_bg #009ffb
 end
 
+region bone_cairn
+parent world
+longname Bone Cairn
+msg
+Known as the Bone Cairn, this realm has no name that can be rendered in the Common tongue.
+
+Due to its recent discovery, is is still shrouded in mystery.
+endmsg
+map_first /planes/bone_cairn/bone_cairn_0_0
+end
+
 #########################
 ### Strakewood island ###
 #########################

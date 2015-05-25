@@ -2,7 +2,7 @@ arch map
 name The Underground City III
 msg
 Created:  2010-06-05 Alex Tokar
-Modified: 2015-05-23 Alex Tokar
+Modified: 2015-05-25 Alex Tokar
 endmsg
 width 24
 height 24
@@ -29,14 +29,9 @@ end
 arch exit
 name portal
 animation portal_yellow
-type 79
-speed 0
-y 2
-end
-arch magic_mouth
-msg
-The portal appears to be closed...
-endmsg
+slaying /planes/bone_cairn/bone_cairn_0_0
+hp 10
+sp 15
 y 2
 end
 arch floor_sand_d4
