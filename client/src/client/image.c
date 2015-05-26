@@ -297,6 +297,7 @@ void finish_face_cmd(int facenum, uint32_t checksum, char *face)
         efree(FaceList[facenum].name);
         FaceList[facenum].name = NULL;
         sprite_free_sprite(FaceList[facenum].sprite);
+        FaceList[facenum].sprite = NULL;
     }
 
     snprintf(buf, sizeof(buf), "%s.png", face);
