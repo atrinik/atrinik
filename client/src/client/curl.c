@@ -207,13 +207,11 @@ static char *curl_load_etag(curl_data *data)
 
     etag = emalloc(sizeof(*etag) * (statbuf.st_size + 1));
 
-    if (!fgets(etag, sizeof(etag), fp)) {
+    if (fgets(etag, statbuf.st_size + 1, fp) == NULL) {
         LOG(BUG, "Could not read %s: %d (%s)", path, errno,
                 strerror(errno));
         goto fail;
     }
-
-    etag[statbuf.st_size] = '\0';
 
     goto done;
 
@@ -351,6 +349,7 @@ int curl_connect(void *c_data)
         char header[MAX_BUF];
 
         snprintf(VS(header), "If-None-Match: %s", etag);
+        LOG(INFO, "sending etag: %s", etag);
         efree(etag);
         chunk = curl_slist_append(chunk, header);
         curl_easy_setopt(data->handle, CURLOPT_HTTPHEADER, chunk);
@@ -436,7 +435,7 @@ int curl_connect(void *c_data)
             fp = fopen_wrapper(data->path, "wb");
 
             if (fp != NULL) {
-                if (!fwrite(data->memory, 1, data->size, fp)) {
+                if (fwrite(data->memory, 1, data->size, fp) != data->size) {
                     LOG(BUG, "Failed to save %s: %d (%s)", data->path,
                             errno, strerror(errno));
                 }
@@ -454,7 +453,7 @@ int curl_connect(void *c_data)
                 fp = fopen_wrapper(path, "w");
 
                 if (fp != NULL) {
-                    if (!fputs(etag, fp)) {
+                    if (fputs(etag, fp) == EOF) {
                         LOG(BUG, "Failed to save %s: %d (%s)", path, errno,
                                 strerror(errno));
                     }
