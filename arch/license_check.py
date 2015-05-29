@@ -79,7 +79,7 @@ for (dirpath, dirnames, filenames) in os.walk(path):
         f = os.path.join(dirpath, "LICENSE")
         fh = open(f, "r")
 
-        for line in fh:
+        for linenum, line in enumerate(fh, 1):
             # License name.
             if line.endswith(":\n"):
                 license = line.strip()[:-1]
@@ -87,12 +87,12 @@ for (dirpath, dirnames, filenames) in os.walk(path):
                 if not license in licensed:
                     licensed[license] = []
             # Image or directory name that is covered by the license.
-            elif line.startswith("\t"):
+            elif line[:1].isspace() and line[1:]:
                 try:
                     parts = line.strip().split()
                     to_remove = parts[0]
                 except IndexError:
-                    print("Invalid line in file: {0}".format(f))
+                    print("Invalid line in file: {0}, line: {1}".format(f, linenum))
                     continue
 
                 extra = None
@@ -118,10 +118,10 @@ for (dirpath, dirnames, filenames) in os.walk(path):
                     filenames.remove(to_remove)
                 # Invalid entry, drop a warning.
                 else:
-                    print(colors.bold + "ERROR" + colors.end + ": Invalid file/directory definition: {0} ({1})".format(to_remove, f))
+                    print(colors.bold + "ERROR" + colors.end + ": Invalid file/directory definition: {0} ({1}), line: {2}".format(to_remove, f, linenum))
             # Invalid line.
             elif line != "\n":
-                print(colors.bold + "ERROR" + colors.end + ": Invalid line in file: {0}".format(f))
+                print(colors.bold + "ERROR" + colors.end + ": Invalid line in file: {0}, line: {1}".format(f, linenum))
 
         # Close the license file.
         fh.close()
