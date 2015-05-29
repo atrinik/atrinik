@@ -349,7 +349,6 @@ int curl_connect(void *c_data)
         char header[MAX_BUF];
 
         snprintf(VS(header), "If-None-Match: %s", etag);
-        LOG(INFO, "sending etag: %s", etag);
         efree(etag);
         chunk = curl_slist_append(chunk, header);
         curl_easy_setopt(data->handle, CURLOPT_HTTPHEADER, chunk);
