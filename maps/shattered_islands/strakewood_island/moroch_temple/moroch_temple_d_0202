@@ -2,7 +2,7 @@ arch map
 name Moroch Temple
 msg
 Created:  2009-09-22 Alex Tokar
-Modified: 2014-02-28 alex
+Modified: 2015-05-29 Alex Tokar
 endmsg
 width 24
 height 24
@@ -616,7 +616,7 @@ sys_object 1
 slaying moroch_temple_key5
 end
 arch key2
-name dread beholder master key
+name dread gazer master key
 layer 0
 sys_object 1
 slaying moroch_temple_key3
@@ -790,7 +790,7 @@ end
 arch spawn_point
 x 5
 y 7
-arch beholder_dread
+arch gazer_dread
 type 83
 level 106
 random_move 1
@@ -808,7 +808,7 @@ sys_object 1
 slaying moroch_temple_key5
 end
 arch key2
-name dread beholder master key
+name dread gazer master key
 layer 0
 sys_object 1
 slaying moroch_temple_key3
@@ -852,7 +852,7 @@ sys_object 1
 slaying moroch_temple_key4
 end
 arch key2
-name dread beholder master key
+name dread gazer master key
 layer 0
 sys_object 1
 slaying moroch_temple_key3
@@ -1348,7 +1348,7 @@ sys_object 1
 slaying moroch_temple_key5
 end
 arch key2
-name dread beholder master key
+name dread gazer master key
 layer 0
 sys_object 1
 slaying moroch_temple_key3
@@ -1417,7 +1417,7 @@ sys_object 1
 slaying moroch_temple_key5
 end
 arch key2
-name dread beholder master key
+name dread gazer master key
 layer 0
 sys_object 1
 slaying moroch_temple_key3
@@ -1938,7 +1938,7 @@ sys_object 1
 slaying moroch_temple_key5
 end
 arch key2
-name dread beholder master key
+name dread gazer master key
 layer 0
 sys_object 1
 slaying moroch_temple_key3
@@ -1976,7 +1976,7 @@ sys_object 1
 slaying moroch_temple_key4
 end
 arch key2
-name dread beholder master key
+name dread gazer master key
 layer 0
 sys_object 1
 slaying moroch_temple_key3
@@ -2020,7 +2020,7 @@ sys_object 1
 slaying moroch_temple_key5
 end
 arch key2
-name dread beholder master key
+name dread gazer master key
 layer 0
 sys_object 1
 slaying moroch_temple_key3
@@ -2507,7 +2507,7 @@ sys_object 1
 slaying moroch_temple_key4
 end
 arch key2
-name dread beholder master key
+name dread gazer master key
 layer 0
 sys_object 1
 slaying moroch_temple_key3
@@ -2543,7 +2543,7 @@ sys_object 1
 slaying moroch_temple_key5
 end
 arch key2
-name dread beholder master key
+name dread gazer master key
 layer 0
 sys_object 1
 slaying moroch_temple_key3
@@ -2583,7 +2583,7 @@ sys_object 1
 slaying moroch_temple_key4
 end
 arch key2
-name dread beholder master key
+name dread gazer master key
 layer 0
 sys_object 1
 slaying moroch_temple_key3
@@ -2716,7 +2716,7 @@ sys_object 1
 slaying moroch_temple_key5
 end
 arch key2
-name dread beholder master key
+name dread gazer master key
 layer 0
 sys_object 1
 slaying moroch_temple_key3
@@ -2942,10 +2942,10 @@ end
 arch spawn_point
 x 19
 y 21
-arch beholder_dread
+arch gazer_dread
 type 83
 level 105
-name beholder grave guard
+name gazer grave guard
 arch ability_mbullet
 end
 arch ability_firestorm
@@ -3203,7 +3203,7 @@ sys_object 1
 slaying moroch_temple_key4
 end
 arch key2
-name dread beholder master key
+name dread gazer master key
 layer 0
 sys_object 1
 slaying moroch_temple_key3

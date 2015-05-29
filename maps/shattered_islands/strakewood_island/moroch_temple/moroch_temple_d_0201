@@ -2,7 +2,7 @@ arch map
 name Moroch Temple
 msg
 Created:  2009-09-22 Alex Tokar
-Modified: 2014-02-28 alex
+Modified: 2015-05-29 Alex Tokar
 endmsg
 width 24
 height 24
@@ -279,7 +279,7 @@ end
 arch spawn_point
 x 2
 y 12
-arch beholder_dread
+arch gazer_dread
 type 83
 level 100
 arch ability_mbullet
@@ -977,8 +977,8 @@ end
 arch spawn_point
 x 8
 y 13
-arch beholder_dread
-name dread beholder master
+arch gazer_dread
+name dread gazer master
 type 83
 level 101
 arch ability_firestorm
@@ -988,7 +988,7 @@ end
 arch quest_container
 sub_type 3
 arch key2
-name dread beholder master key
+name dread gazer master key
 slaying moroch_temple_key3
 end
 end

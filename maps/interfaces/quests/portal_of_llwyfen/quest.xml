@@ -105,7 +105,7 @@
             <interface npc="Talthor Redeye" state="need_complete">
                 <dialog name="hello">
                     <message>Have you found whoever is responsible for the attack?</message>
-                    <response destination="takencare" message="Yes, the beholder Nyhelobo has been taken care of."/>
+                    <response destination="takencare" message="Yes, the gazer Nyhelobo has been taken care of."/>
                 </dialog>
                 <dialog name="takencare">
                     <message>That's excellent news, {activator.name}.</message>

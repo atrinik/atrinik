@@ -4172,7 +4172,7 @@ x 23
 y 12
 arch event_obj
 sub_type 10
-race strakewood_island/brynknot/sewers/scripts/beholder_portal.py
+race strakewood_island/brynknot/sewers/scripts/nyhelobo_portal.py
 end
 end
 arch floor_earth1d

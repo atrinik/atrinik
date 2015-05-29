@@ -1488,7 +1488,7 @@ end
 arch spawn_point
 x 10
 y 4
-arch beholder_dread
+arch gazer_dread
 name Nyhelobo
 level 72
 exp 200
@@ -1524,7 +1524,7 @@ end
 end
 arch event_obj
 sub_type 3
-race /shattered_islands/strakewood_island/brynknot/sewers/scripts/beholder_dead.py
+race /shattered_islands/strakewood_island/brynknot/sewers/scripts/nyhelobo_dead.py
 end
 end
 end

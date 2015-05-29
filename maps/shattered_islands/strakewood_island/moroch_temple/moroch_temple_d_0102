@@ -2594,7 +2594,7 @@ end
 arch spawn_point
 x 17
 y 20
-arch beholder_dread
+arch gazer_dread
 type 83
 level 99
 arch ability_firestorm
