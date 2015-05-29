@@ -1,7 +1,7 @@
-Object beholder_small
-name small beholder
-face beholder_small.151
-race beholder
+Object gazer_small
+name small gazer
+face gazer_small.151
+race gazer
 randomitems mob_mage_l9
 behavior 10
 wc_range 20
@@ -15,7 +15,7 @@ weapon_speed 0.037
 attack_pierce 85
 type 80
 wis 3
-animation beholder_small
+animation gazer_small
 is_animated 1
 anim_speed 4
 monster 1

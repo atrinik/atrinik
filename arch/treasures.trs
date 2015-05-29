@@ -3561,7 +3561,7 @@ treasure mob_dragon_skeletal
     end
 end
 
-treasure mob_beholder_dread
+treasure mob_gazer_dread
   list traps
     chance 8
   more

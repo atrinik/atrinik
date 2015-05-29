@@ -1,13 +1,13 @@
-Object oclunus
-name oclunus
-race beholder
+Object gazer_dread
+name dread gazer
+race gazer
 layer 6
-randomitems mob_beholder_dread
-face oclunus.151
+randomitems mob_gazer_dread
+face gazer_dread.131
 can_see_in_dark 1
 can_cast_spell 1
 direction 5
-speed -0.055
+speed -0.052
 corpse 1
 wc_range 20
 behavior 10
@@ -18,7 +18,7 @@ wis 4
 dex 13
 terrain_flag 65
 mpart_id 3
-animation oclunus
+animation gazer_dread
 is_animated 1
 anim_speed 5
 monster 1
@@ -39,16 +39,16 @@ protect_pierce 20
 protect_slash 20
 protect_impact 20
 protect_cleave 20
-attack_pierce 85
+attack_pierce 80
 no_pick 1
-weight 1158000
+weight 1350000
 run_away 6
 faction monsters
 int 25
 end
 More
-Object oclunus_d_b
-name oclunus
+Object gazer_d_b
+name dread gazer
 layer 6
 terrain_flag 65
 mpart_id 3
@@ -58,8 +58,8 @@ monster 1
 no_pick 1
 end
 More
-Object oclunus_d_c
-name oclunus
+Object gazer_d_c
+name dread gazer
 layer 6
 terrain_flag 65
 mpart_id 3
@@ -69,8 +69,8 @@ monster 1
 no_pick 1
 end
 More
-Object oclunus_d_d
-name oclunus
+Object gazer_d_d
+name dread gazer
 layer 6
 terrain_flag 65
 mpart_id 3
