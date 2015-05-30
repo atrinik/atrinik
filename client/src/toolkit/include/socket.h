@@ -660,8 +660,8 @@ enum {
      * Belt. */
     PLAYER_EQUIP_BELT,
     /**
-     * Greaves. */
-    PLAYER_EQUIP_GREAVES,
+     * Pants. */
+    PLAYER_EQUIP_PANTS,
     /**
      * Boots. */
     PLAYER_EQUIP_BOOTS,

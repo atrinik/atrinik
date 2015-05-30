@@ -155,7 +155,8 @@ static arttypename art_name_array[] = {
     {"Hand Weapon", WEAPON},
     {"Artifact", SKILL},
     {"Food", FOOD},
-    {"Body Armour", ARMOUR}
+    {"Body Armour", ARMOUR},
+    {"Pants", PANTS}
 };
 
 /** Artifact book information */

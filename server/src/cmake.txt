@@ -174,7 +174,6 @@ set(SOURCES
 	src/types/gloves.c
 	src/types/god.c
 	src/types/gravestone.c
-	src/types/greaves.c
 	src/types/handle.c
 	src/types/helmet.c
 	src/types/holy_altar.c
@@ -196,6 +195,7 @@ set(SOURCES
 	src/types/monster.c
 	src/types/nugget.c
 	src/types/organic.c
+	src/types/pants.c
 	src/types/pearl.c
 	src/types/pedestal.c
 	src/types/player.c

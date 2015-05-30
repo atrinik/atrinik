@@ -120,6 +120,7 @@ int object_apply_item(object *op, object *applier, int aflags)
         case GIRDLE:
         case BRACERS:
         case CLOAK:
+        case PANTS:
             draw_info_format(COLOR_WHITE, applier, "You unwear %s.", query_name(op, applier));
             break;
 
@@ -192,6 +193,7 @@ int object_apply_item(object *op, object *applier, int aflags)
     case GIRDLE:
     case BRACERS:
     case CLOAK:
+    case PANTS:
 
         if (!QUERY_FLAG(applier, FLAG_USE_ARMOUR)) {
             draw_info_format(COLOR_WHITE, applier, "You can't use %s.", query_name(op, applier));

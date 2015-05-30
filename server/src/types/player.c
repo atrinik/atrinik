@@ -241,7 +241,8 @@ void give_initial_items(object *pl, treasurelist *items)
         /* We never give weapons/armour if they cannot be used by this
          * player due to race restrictions */
         if (pl->type == PLAYER) {
-            if ((!QUERY_FLAG(pl, FLAG_USE_ARMOUR) && (op->type == ARMOUR || op->type == BOOTS || op->type == CLOAK || op->type == HELMET || op->type == SHIELD || op->type == GLOVES || op->type == BRACERS || op->type == GIRDLE)) || (!QUERY_FLAG(pl, FLAG_USE_WEAPON) && op->type == WEAPON)) {
+            if ((!QUERY_FLAG(pl, FLAG_USE_ARMOUR) && IS_ARMOR(op)) ||
+                    (!QUERY_FLAG(pl, FLAG_USE_WEAPON) && op->type == WEAPON)) {
                 object_remove(op, 0);
                 object_destroy(op);
                 continue;
@@ -1209,6 +1210,7 @@ char *long_desc(object *tmp, object *caller)
     case ARMOUR:
     case BRACERS:
     case HELMET:
+    case PANTS:
     case SHIELD:
     case BOOTS:
     case GLOVES:

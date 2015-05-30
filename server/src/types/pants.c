@@ -24,15 +24,17 @@
 
 /**
  * @file
- * Handles code for @ref GREAVES "greaves".
+ * Handles code for @ref PANTS "pants".
  *
- * @author Alex Tokar */
+ * @author Alex Tokar
+ */
 
 #include <global.h>
 
 /**
- * Initialize the greaves type object methods. */
-void object_type_init_greaves(void)
+ * Initialize the pants type object methods.
+ */
+void object_type_init_pants(void)
 {
-    object_type_methods[GREAVES].apply_func = object_apply_item;
+    object_type_methods[PANTS].apply_func = object_apply_item;
 }

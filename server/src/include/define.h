@@ -203,8 +203,8 @@
  * Helmet. */
 #define HELMET 34
 /**
- * Greaves. */
-#define GREAVES 35
+ * Pants. */
+#define PANTS 35
 /**
  * Money (copper, silver, etc). */
 #define MONEY 36
@@ -736,7 +736,7 @@
 /** Is this a weapon? */
 #define IS_WEAPON(op) (op->type == ARROW || op->type == BOW || op->type == WEAPON)
 /** Is this some kind of armor (shield, helmet, cloak, etc)? */
-#define IS_ARMOR(op) (op->type == ARMOUR || op->type == SHIELD || op->type == HELMET || op->type == CLOAK || op->type == BOOTS || op->type == GLOVES || op->type == BRACERS || op->type == GIRDLE || op->type == GREAVES)
+#define IS_ARMOR(op) (op->type == ARMOUR || op->type == SHIELD || op->type == HELMET || op->type == CLOAK || op->type == BOOTS || op->type == GLOVES || op->type == BRACERS || op->type == GIRDLE || op->type == PANTS)
 /** Is this object alive? */
 #define IS_LIVE(op) ((op)->type == PLAYER || QUERY_FLAG((op), FLAG_MONSTER))
 /** Is it an arrow? */

@@ -117,7 +117,6 @@ void object_methods_init(void)
     object_type_init_gloves();
     object_type_init_god();
     object_type_init_gravestone();
-    object_type_init_greaves();
     object_type_init_handle();
     object_type_init_helmet();
     object_type_init_holy_altar();
@@ -139,6 +138,7 @@ void object_methods_init(void)
     object_type_init_monster();
     object_type_init_nugget();
     object_type_init_organic();
+    object_type_init_pants();
     object_type_init_pearl();
     object_type_init_pedestal();
     object_type_init_player();

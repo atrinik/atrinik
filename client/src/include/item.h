@@ -138,7 +138,7 @@ typedef struct obj {
 #define TYPE_TRIGGER_PEDESTAL       32
 #define TYPE_SHIELD                 33
 #define TYPE_HELMET                 34
-#define TYPE_GREAVES                35
+#define TYPE_PANTS                  35
 #define TYPE_MONEY                  36
 #define TYPE_CLASS                  37
 #define TYPE_GRAVESTONE             38

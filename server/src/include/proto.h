@@ -902,8 +902,6 @@ extern void object_type_init_god(void);
 /* src/types/gravestone.c */
 extern const char *gravestone_text(object *op);
 extern void object_type_init_gravestone(void);
-/* src/types/greaves.c */
-extern void object_type_init_greaves(void);
 /* src/types/handle.c */
 extern void object_type_init_handle(void);
 /* src/types/helmet.c */
@@ -959,6 +957,8 @@ extern _Bool monster_is_ally_of(object *op, object *target);
 extern void object_type_init_nugget(void);
 /* src/types/organic.c */
 extern void object_type_init_organic(void);
+/* src/types/pants.c */
+extern void object_type_init_pants(void);
 /* src/types/pearl.c */
 extern void object_type_init_pearl(void);
 /* src/types/pedestal.c */

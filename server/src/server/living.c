@@ -692,8 +692,8 @@ void living_update_player(object *op)
                 pl->equipment[PLAYER_EQUIP_ARMOUR] = tmp;
             } else if (tmp->type == GIRDLE) {
                 pl->equipment[PLAYER_EQUIP_BELT] = tmp;
-            } else if (tmp->type == GREAVES) {
-                pl->equipment[PLAYER_EQUIP_GREAVES] = tmp;
+            } else if (tmp->type == PANTS) {
+                pl->equipment[PLAYER_EQUIP_PANTS] = tmp;
             } else if (tmp->type == BOOTS) {
                 pl->equipment[PLAYER_EQUIP_BOOTS] = tmp;
             } else if (tmp->type == CLOAK) {

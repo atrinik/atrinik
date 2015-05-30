@@ -547,6 +547,7 @@ char *query_name(object *op, object *caller)
         case GIRDLE:
         case BRACERS:
         case CLOAK:
+        case PANTS:
             safe_strcat(buf[use_buf], " (worn)", &len, HUGE_BUF);
             break;
 
@@ -966,6 +967,7 @@ char *describe_item(object *op)
             case GIRDLE:
             case BRACERS:
             case CLOAK:
+            case PANTS:
 
                 if (ARMOUR_SPEED(op)) {
                     sprintf(buf, "(speed cap %1.2f)", ARMOUR_SPEED(op) / 10.0);
@@ -1230,6 +1232,7 @@ int need_identify(object *op)
     case ARMOUR:
     case SHIELD:
     case HELMET:
+    case PANTS:
     case AMULET:
     case BOOTS:
     case GLOVES:
