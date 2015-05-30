@@ -3203,16 +3203,19 @@ int object_enter_map(object *op, object *exit_ob, mapstruct *m, int x, int y, ui
         fixed_pos = 1;
     }
 
-    /* -1,-1 marks to use the default ENTER_xx position of the map */
-    if ((x == -1 && y == -1) || (exit_ob == NULL && MAP_FIXEDLOGIN(m))) {
+    if (exit_ob == NULL && MAP_FIXEDLOGIN(m)) {
         x = MAP_ENTER_X(m);
         y = MAP_ENTER_Y(m);
     }
 
-    if (OUT_OF_MAP(m, x, y)) {
-        LOG(BUG, "Supplied coordinates are not within the map %s (%d,%d)", m->path, x, y);
+    mapstruct *m2 = get_map_from_coord(m, &x, &y);
+    if (m2 == NULL) {
+        LOG(ERROR, "Invalid exit coordinates (%d,%d): %s", x, y,
+                exit_ob != NULL ? object_get_str(exit_ob) : "<no exit>");
         x = MAP_ENTER_X(m);
         y = MAP_ENTER_Y(m);
+    } else {
+        m = m2;
     }
 
     if (!fixed_pos && blocked(op, m, x, y, TERRAIN_ALL)) {

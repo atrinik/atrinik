@@ -100,7 +100,7 @@ static bool exit_activate(object *op, object *applier)
     mapstruct *m;
     int x, y, i;
 
-    if (EXIT_PATH(op) != NULL && EXIT_X(op) != -1 && EXIT_Y(op) != -1) {
+    if (EXIT_PATH(op) != NULL) {
         return object_enter_map(applier, op, NULL, 0, 0, 0);
     }
 
@@ -143,7 +143,7 @@ mapstruct *exit_get_destination(object *op, int *x, int *y, int do_load)
 
     HARD_ASSERT(op != NULL);
 
-    if (EXIT_PATH(op) != NULL && EXIT_X(op) != -1 && EXIT_Y(op) != -1) {
+    if (EXIT_PATH(op) != NULL) {
         if (do_load) {
             m = ready_map_name(EXIT_PATH(op), NULL, 0);
         } else {
@@ -154,12 +154,16 @@ mapstruct *exit_get_destination(object *op, int *x, int *y, int do_load)
             return NULL;
         }
 
+        int xt = EXIT_X(op);
+        int yt = EXIT_Y(op);
+        m = get_map_from_coord(m, &xt, &yt);
+
         if (x != NULL) {
-            *x = EXIT_X(op);
+            *x = xt;
         }
 
         if (y != NULL) {
-            *y = EXIT_Y(op);
+            *y = yt;
         }
 
         return m;
@@ -336,13 +340,12 @@ static void insert_map_func(object *op)
 
             EXIT_X(op) += freearr_x[dir];
             EXIT_Y(op) += freearr_y[dir];
-
         }
     } else if (EXIT_X(op) != -1 && EXIT_Y(op) != -1) {
         FREE_AND_ADD_REF_HASH(EXIT_PATH(op), op->map->path);
     }
 
-    if (EXIT_PATH(op) != NULL && EXIT_X(op) != -1 && EXIT_Y(op) != -1) {
+    if (EXIT_PATH(op) != NULL) {
         map_exit_t *exit;
 
         exit = ecalloc(1, sizeof(*exit));
