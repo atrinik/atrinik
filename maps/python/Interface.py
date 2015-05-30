@@ -233,6 +233,14 @@ class InterfaceBuilder(Interface):
     def numtofinish(self):
         return Language.int2english(self.num2finish)
 
+    @property
+    def gender(self):
+        return Language.genders[self._activator.GetGender()]
+
+    @property
+    def gender2(self):
+        return Language.genders2[self._activator.GetGender()]
+
     def finish(self, d, msg):
         self.locals = d
         self.dialog = "InterfaceDialog"
