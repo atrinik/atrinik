@@ -1419,6 +1419,11 @@ treasureone random_armour
     material_quality 80
     material_range 15
   more
+  list random_armour_pants
+    chance 10
+    material_quality 80
+    material_range 15
+  more
   list random_armour_gauntlet
     chance 5
     material_quality 80
@@ -1457,6 +1462,11 @@ treasureone random_armour_l9
     material_range 15
   more
   list random_armour_cloak
+    chance 10
+    material_quality 80
+    material_range 15
+  more
+  list random_armour_pants
     chance 10
     material_quality 80
     material_range 15
@@ -2257,6 +2267,101 @@ treasureone random_armour_helm
     material_range 15
   more
   arch hat_blue
+    magic 1
+    chance 10
+    material_quality 80
+    material_range 15
+end
+
+treasureone random_armour_pants
+  arch chainpants
+    difficulty 15
+    magic 1
+    chance 10
+    material_quality 80
+    material_range 15
+  more
+  arch chaps
+    difficulty 9
+    magic 1
+    chance 10
+    material_quality 80
+    material_range 15
+  more
+  arch chausses
+    difficulty 21
+    magic 1
+    chance 10
+    material_quality 80
+    material_range 15
+  more
+  arch miniskirt_magenta
+    magic 1
+    chance 10
+    material_quality 80
+    material_range 15
+  more
+  arch miniskirt_red
+    magic 1
+    chance 10
+    material_quality 80
+    material_range 15
+  more
+  arch miniskirt_yellow
+    magic 1
+    chance 10
+    material_quality 80
+    material_range 15
+  more
+  arch pants2_brown
+    magic 1
+    chance 10
+    material_quality 80
+    material_range 15
+  more
+  arch pants2_red
+    magic 1
+    chance 10
+    material_quality 80
+    material_range 15
+  more
+  arch pants_black
+    magic 1
+    chance 10
+    material_quality 80
+    material_range 15
+  more
+  arch pants_blue
+    magic 1
+    chance 10
+    material_quality 80
+    material_range 15
+  more
+  arch pants_brown
+    magic 1
+    chance 10
+    material_quality 80
+    material_range 15
+  more
+  arch shorts_brown
+    magic 1
+    chance 10
+    material_quality 80
+    material_range 15
+  more
+  arch skirt_magenta
+    magic 1
+    chance 10
+    material_quality 80
+    material_range 15
+  more
+  arch skirt_red
+    magic 1
+    chance 10
+    material_quality 80
+    material_range 15
+  more
+  arch skirt_yellow
     magic 1
     chance 10
     material_quality 80
