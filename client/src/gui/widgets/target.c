@@ -114,7 +114,7 @@ static void widget_draw(widgetdata *widget)
             hp = (int) (((double) cpl.stats.hp / (double) cpl.stats.maxhp) *
                     100.0);
         } else {
-            hp = MAX(100, MIN(0, hp));
+            hp = MIN(100, MAX(0, hp));
         }
 
         SDL_Surface *target_hp = TEXTURE_CLIENT("target_hp");
