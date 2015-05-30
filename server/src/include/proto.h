@@ -210,7 +210,7 @@ extern void confuse_living(object *op);
 extern void blind_living(object *op, object *hitter, int dam);
 extern void paralyze_living(object *op, int dam);
 extern void fall_damage_living(object *op, int fall_floors);
-extern int is_melee_range(object *hitter, object *enemy);
+extern _Bool is_melee_range(object *hitter, object *enemy);
 /* src/server/ban.c */
 extern void ban_init(void);
 extern void ban_deinit(void);

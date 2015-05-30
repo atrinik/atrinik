@@ -1181,31 +1181,38 @@ static int is_aimed_missile(object *op)
 /**
  * Test if objects are in range for melee attack.
  * @param hitter Attacker.
- * @param enemy Enemy.
- * @retval 0 Enemy target is not in melee range.
- * @retval 1 Target is in range and we're facing it. */
-int is_melee_range(object *hitter, object *enemy)
+ * @param enemy Enemy -- the target.
+ * @return True if the target is in melee range, false otherwise.
+ */
+bool is_melee_range(object *hitter, object *enemy)
 {
-    int xt, yt, s;
-    object *tmp;
-    mapstruct *mt;
+    HARD_ASSERT(hitter != NULL);
+    HARD_ASSERT(enemy != NULL);
 
-    /* Check squares around */
-    for (s = 0; s < 9; s++) {
-        xt = hitter->x + freearr_x[s];
-        yt = hitter->y + freearr_y[s];
+    SOFT_ASSERT_RC(hitter->head == NULL, false, "Called on tail part: %s",
+            object_get_str(hitter));
+    SOFT_ASSERT_RC(enemy->head == NULL, false, "Called on tail part: %s",
+            object_get_str(enemy));
 
-        if (!(mt = get_map_from_coord(hitter->map, &xt, &yt))) {
-            continue;
-        }
+    for (object *hitter_part = hitter; hitter_part != NULL;
+            hitter_part = hitter_part->more) {
+        for (int i = 0; i <= SIZEOFFREE1; i++) {
+            int x = hitter_part->x + freearr_x[i];
+            int y = hitter_part->y + freearr_y[i];
+            mapstruct *m = get_map_from_coord(hitter_part->map, &x, &y);
+            if (m == NULL) {
+                continue;
+            }
 
-        for (tmp = enemy; tmp != NULL; tmp = tmp->more) {
-            /* Strike! */
-            if (tmp->map == mt && tmp->x == xt && tmp->y == yt) {
-                return 1;
+            for (object *enemy_part = enemy; enemy_part != NULL;
+                    enemy_part = enemy_part->more) {
+                if (enemy_part->map == m && enemy_part->x == x &&
+                        enemy_part->y == y) {
+                    return true;
+                }
             }
         }
     }
 
-    return 0;
+    return false;
 }
