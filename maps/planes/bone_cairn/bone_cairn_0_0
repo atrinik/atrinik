@@ -2,7 +2,7 @@ arch map
 name Bone Cairn
 msg
 Created:  2010-12-31 David Hanna
-Modified: 2015-05-25 Alex Tokar
+Modified: 2015-05-30 Alex Tokar
 endmsg
 width 24
 height 24
@@ -1928,8 +1928,6 @@ arch floor_grit3c
 z 12
 x 10
 y 16
-arch blocked
-end
 end
 arch floor_grit4b
 z 12
