@@ -2,7 +2,7 @@ arch map
 name Asteria
 msg
 Created:  2015-04-21 Alex Tokar
-Modified: 2015-04-28 Alex Tokar
+Modified: 2015-05-30 Alex Tokar
 endmsg
 width 24
 height 24
@@ -626,4 +626,24 @@ arch roof_wood
 direction 8
 x 11
 y 23
+end
+arch roof_wood
+direction 3
+x 15
+end
+arch roof_wood
+x 16
+end
+arch roof_wood
+x 17
+end
+arch roof_wood
+x 18
+end
+arch roof_wood
+x 19
+end
+arch roof_wood
+direction 8
+x 20
 end

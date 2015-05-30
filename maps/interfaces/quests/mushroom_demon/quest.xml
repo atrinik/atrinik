@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<interfaces>
+    <quest name="The Mushroom Demon">
+        <interface inherit="Seller.Seller" npc="Farmer Maggot" state="completed">
+            <dialog name="hello">
+                <message>Thank ye for helping us with the demon, kind stranger!</message>
+                <inherit name="::goods"/>
+            </dialog>
+            <dialog name="::stockin">
+                <message>Would you like to buy some mushrooms?</message>
+            </dialog>
+            <dialog name="::stockout">
+                <message>I don't have any mushrooms left for sale right now! Come back later.</message>
+            </dialog>
+            <dialog name="::stockoutitem">
+                <message>I don't have any {self.buy_item.name} left! Please come back later.</message>
+            </dialog>
+        </interface>
+        <part name="The Demon" uid="kill_demon">
+            <info>Farmer Maggot west of Asteria has asked you to investigate the cave he uses to farm mushrooms. According to the farmer, a terribly scary demon has made the cave his home, putting the farmer out of work...</info>
+            <kill nrof="1"/>
+            <interface npc="Farmer Maggot" state="need_start">
+                <dialog name="hello">
+                    <message>Ey, and who might you be?! If it's one o' you people from the city again, coming to beg for my shrooms, then scurry away, I told you a dozen times I can't provide any until the cave problem is resolved!</message>
+                    <response destination="farming" message="Are you farming... mushrooms?"/>
+                    <response destination="problem" message="Cave problem?"/>
+                </dialog>
+                <dialog name="farming">
+                    <message>Well not right now I ain't, am I?! Not with the demon lurking around in the cave...</message>
+                    <response destination="demon" message="A demon?!"/>
+                </dialog>
+                <dialog name="problem">
+                    <message>The demon of course! Haven't you heard? He's mighty frightening!</message>
+                    <response destination="demon" message="A demon?!"/>
+                </dialog>
+                <dialog name="demon">
+                    <message>Huh? You must not be from 'round these parts, then. Sorry lad, I thought you was one of them from the city...</message>
+                    <message>See now, one night, a large, fat, figure has been spotted gliding through the shadows, straight into me mushrooms cave! Yes, gliding, as if it had wings! I reckon it must be a demon or a fiend of some sort!</message>
+                    <message>I had tried sending my dogs into the cave, but none of them returned! And I dare not venture into the cave with such evil things lurking around, and so, I cannot gather the mushrooms that I supply Asteria with!</message>
+                    <response destination="investigate" message="I could investigate the cave for you."/>
+                    <response action="close" message="Farewell."/>
+                </dialog>
+                <dialog name="investigate">
+                    <message>Ah, you would?! Well, thank you, stranger! The cave is right by the house, you can't miss it. It even has a warning sign about the demon!</message>
+                    <message>If you find the demon, please slay the beast, so that I can resume my farming business. I still have some coin saved up, so if you succeed, it's yours.</message>
+                    <action start="kill_demon"/>
+                </dialog>
+            </interface>
+            <interface npc="Farmer Maggot" state="need_finish">
+                <dialog name="hello">
+                    <message>Well? Any luck slaying the demon?</message>
+                    <response action="close" message="Working on it."/>
+                </dialog>
+            </interface>
+            <interface npc="Farmer Maggot" state="need_complete">
+                <dialog name="hello">
+                    <message>Well? Any luck slaying the demon?</message>
+                    <response destination="dead" message="Yes, the demon was real and he's dead now."/>
+                </dialog>
+                <dialog name="dead">
+                    <message>What?! Of course he was real, I saw him with my bare eyes! Well, I think I saw a shadow...</message>
+                    <message>Anyhow, thank you very much for slaying the beast. Now I can resume my mushroom farming business!</message>
+                    <message>As promised, take this coin as your reward. It's most of my savings, but with the cave clear, I will be able to make more in no time!</message>
+                    <object arch="silvercoin"/>
+                    <action complete="kill_demon"/>
+                </dialog>
+            </interface>
+            <interface npc="Naia">
+                <dialog name="hello">
+                    <message>Naia likes mushrooms. Save the mushrooms, {self.gender}.</message>
+                </dialog>
+            </interface>
+        </part>
+        <interface npc="Naia" state="completed">
+            <dialog name="hello">
+                <message>Yay, Naia gets mushrooms.</message>
+            </dialog>
+        </interface>
+    </quest>
+</interfaces>
