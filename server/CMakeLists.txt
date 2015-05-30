@@ -75,6 +75,7 @@ if (CHECK_LIBRARY)
         src/tests/bugs/85.c
         src/tests/unit/commands/object.c
         src/tests/unit/server/arch.c
+        src/tests/unit/server/attack.c
         src/tests/unit/server/ban.c
         src/tests/unit/server/cache.c
         src/tests/unit/server/memory.c
