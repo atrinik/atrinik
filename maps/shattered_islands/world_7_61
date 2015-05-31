@@ -2,7 +2,7 @@ arch map
 name Strakewood Island
 msg
 Created:  2009-09-10 Alex Tokar
-Modified: 2015-01-11 Alex Tokar
+Modified: 2015-05-31 Alex Tokar
 endmsg
 width 24
 height 24
@@ -1248,8 +1248,7 @@ x 8
 y 8
 arch fairy2
 name Tomboyish Fairy
-level 9
-spawn_time 09:09-10:10
+level 35
 attack_cold 15
 can_cast_spell 1
 sp -1
@@ -1265,6 +1264,7 @@ friendly 1
 random_move 1
 item_race 2
 item_level 2
+faction frevia
 type 83
 arch ability_icestorm
 end

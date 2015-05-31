@@ -19,6 +19,10 @@ faction strakewood_island
     faction drkass
         enemy asteria
     end
+
+    faction frevia
+        spill 0%
+    end
 end
 
 faction strakewood_island_thieves

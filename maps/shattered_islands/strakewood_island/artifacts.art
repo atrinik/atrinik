@@ -98,3 +98,18 @@ value 10000
 maxsp 200
 identified 1
 end
+
+Allowed none
+chance 1
+artifact mythical_scarlet_pimpernel_flower
+def_arch plant_flower7
+Object
+name Mythical Scarlet Pimpernel Flower
+value 500
+weight 200
+no_pick 0
+layer 3
+item_quality 100
+item_condition 100
+identified 1
+end
