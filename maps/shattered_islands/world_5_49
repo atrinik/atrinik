@@ -9,7 +9,7 @@ height 24
 difficulty 40
 outdoor 1
 no_harm 1
-bg_music jungle1.ogg
+bg_music jungle.ogg
 region asteria
 end
 arch grassd_6

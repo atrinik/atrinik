@@ -2,13 +2,13 @@ arch map
 name Strakewood Island
 msg
 Created:  2009-09-10 Alex Tokar
-Modified: 2015-05-10 Alex Tokar
+Modified: 2015-05-31 Alex Tokar
 endmsg
 width 24
 height 24
 difficulty 1
 outdoor 1
-bg_music jungle1.ogg
+bg_music jungle.ogg
 region strakewood_island
 end
 arch grassd_3
@@ -327,6 +327,11 @@ x 2
 y 14
 end
 arch water_lt3
+x 2
+y 15
+end
+arch sound_ambient
+race ocean_waves.ogg
 x 2
 y 15
 end
@@ -1029,6 +1034,11 @@ arch water_lt3
 x 8
 y 10
 end
+arch sound_ambient
+race ocean_waves.ogg
+x 8
+y 10
+end
 arch water_lt4
 x 8
 y 11
@@ -1526,6 +1536,11 @@ arch water_lt
 x 13
 y 3
 end
+arch sound_ambient
+race ocean_waves.ogg
+x 13
+y 3
+end
 arch water_lt3
 x 13
 y 4
@@ -2290,6 +2305,11 @@ arch water_lt3
 x 21
 y 4
 end
+arch sound_ambient
+race ocean_waves.ogg
+x 21
+y 4
+end
 arch water_lt4
 x 21
 y 5
@@ -2434,6 +2454,11 @@ x 22
 y 16
 end
 arch water_lt4
+x 22
+y 17
+end
+arch sound_ambient
+race ocean_waves.ogg
 x 22
 y 17
 end

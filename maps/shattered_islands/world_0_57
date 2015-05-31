@@ -9,7 +9,7 @@ height 24
 difficulty 30
 outdoor 1
 no_harm 1
-bg_music jungle1.ogg
+bg_music jungle.ogg
 region strakewood_island
 end
 arch blocked

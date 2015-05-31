@@ -8,7 +8,7 @@ width 24
 height 24
 difficulty 9
 outdoor 1
-bg_music jungle1.ogg
+bg_music jungle.ogg
 region strakewood_island
 end
 arch grassd_6

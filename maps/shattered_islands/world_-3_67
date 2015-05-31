@@ -2,14 +2,14 @@ arch map
 name Brynknot
 msg
 Created:  2009-09-10 Alex Tokar
-Modified: 2011-02-26 Alex Tokar
+Modified: 2015-05-31 Alex Tokar
 endmsg
 width 24
 height 24
 difficulty 1
 outdoor 1
 no_harm 1
-bg_music lontala.mid
+bg_music town_folk.ogg
 region brynknot
 end
 arch water_lt3
@@ -934,6 +934,11 @@ arch water_lt
 x 9
 y 22
 end
+arch sound_ambient
+race ocean_waves.ogg
+x 9
+y 22
+end
 arch water_lt2
 x 9
 y 23
@@ -1532,6 +1537,11 @@ arch water_lt2
 x 15
 y 17
 end
+arch sound_ambient
+race ocean_waves.ogg
+x 15
+y 17
+end
 arch water_lt
 x 15
 y 18
@@ -2092,6 +2102,11 @@ x 20
 y 12
 end
 arch water_lt4
+x 20
+y 13
+end
+arch sound_ambient
+race ocean_waves.ogg
 x 20
 y 13
 end

@@ -10,7 +10,7 @@ difficulty 1
 darkness -1
 outdoor 1
 no_harm 1
-bg_music jungle1.ogg
+bg_music jungle.ogg
 region asteria
 end
 arch roof_wood

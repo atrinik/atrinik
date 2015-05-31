@@ -2,13 +2,13 @@ arch map
 name Asteria Royal Catacombs
 msg
 Created:  2009-08-09 emperorbma
-Modified: 2011-10-01 Alex Tokar
+Modified: 2015-05-31 Alex Tokar
 endmsg
 width 24
 height 24
 difficulty 1
 darkness 1
-bg_music trial.mid
+bg_music th_08.mid
 region asteria_palace_dungeon
 end
 arch blocked

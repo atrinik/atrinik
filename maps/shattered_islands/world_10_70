@@ -2,7 +2,7 @@ arch map
 name World
 msg
 Created:  2009-09-10 Alex Tokar
-Modified: 2010-09-08 Alex Tokar
+Modified: 2015-05-31 Alex Tokar
 endmsg
 width 24
 height 24
@@ -186,6 +186,11 @@ arch water_lt2
 x 2
 y 2
 end
+arch sound_ambient
+race ocean_waves.ogg
+x 2
+y 2
+end
 arch water_lt2
 x 2
 y 3
@@ -1046,6 +1051,11 @@ x 11
 y 3
 end
 arch water_lt4
+x 11
+y 4
+end
+arch sound_ambient
+race ocean_waves.ogg
 x 11
 y 4
 end
@@ -1996,6 +2006,11 @@ x 21
 y 3
 end
 arch water_lt4
+x 21
+y 4
+end
+arch sound_ambient
+race ocean_waves.ogg
 x 21
 y 4
 end

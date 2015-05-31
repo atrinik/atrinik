@@ -2,13 +2,13 @@ arch map
 name Centennial
 msg
 Created:  2011-03-20 Alex Tokar
-Modified: 2015-05-04 Alex Tokar
+Modified: 2015-05-31 Alex Tokar
 endmsg
 width 24
 height 24
 difficulty 30
 outdoor 1
-bg_music jungle1.ogg
+bg_music jungle.ogg
 region centennial
 end
 arch water_lt
@@ -463,6 +463,11 @@ arch water_lt4
 x 4
 y 9
 end
+arch sound_ambient
+race ocean_waves.ogg
+x 4
+y 9
+end
 arch water_lt
 x 4
 y 10
@@ -899,6 +904,11 @@ arch water_lt
 x 8
 y 3
 end
+arch sound_ambient
+race ocean_waves.ogg
+x 8
+y 3
+end
 arch water_lt4
 x 8
 y 4
@@ -1113,7 +1123,7 @@ arch map_info
 hp 13
 sp 23
 race Centennial
-slaying yewtree.mid
+slaying th_25.mid
 stand_still 1
 x 10
 end
@@ -2153,6 +2163,11 @@ arch water_lt3
 x 18
 end
 arch water_lt4
+x 18
+y 1
+end
+arch sound_ambient
+race ocean_waves.ogg
 x 18
 y 1
 end
