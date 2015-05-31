@@ -1,18 +1,15 @@
 arch map
-name Moroch Temple
+name Temple of Zechna
 msg
 Created:  2009-09-22 Alex Tokar
-Modified: 2015-05-14 Alex Tokar
+Modified: 2015-05-31 Alex Tokar
 endmsg
 width 24
 height 24
 difficulty 105
 darkness 3
-tile_path_2 moroch_temple_d_0202
-tile_path_3 moroch_temple_d_0101
-tile_path_6 moroch_temple_d_0201
 bg_music evil_temple.ogg
-region moroch_temple_d
+region zechna_temple_d
 end
 arch floor_sblack1b
 x 2
@@ -433,7 +430,7 @@ x 4
 y 2
 end
 arch exit_green
-slaying moroch_temple_d_0202
+slaying zechna_temple_1_0_-3
 hp 17
 sp 22
 x 4
@@ -567,7 +564,7 @@ arch floor_sblack2b
 x 4
 y 18
 end
-arch floor_sblack1b
+arch floor_sblack3b
 x 4
 y 19
 end
@@ -737,14 +734,6 @@ arch floor_sblack3b
 x 5
 y 21
 end
-arch spawn_point
-x 5
-y 21
-arch raas
-type 83
-level 97
-end
-end
 arch floor_sblack3b
 x 5
 y 22
@@ -837,13 +826,13 @@ x 6
 y 9
 end
 arch door1_locked
-slaying moroch_temple_key3
+slaying zechna_temple_key3
 direction 3
 x 6
 y 9
 end
 arch check_inv
-slaying moroch_temple_key3
+slaying zechna_temple_key3
 sp 1
 last_grace 1
 x 6
@@ -858,13 +847,13 @@ x 6
 y 10
 end
 arch door1_locked
-slaying moroch_temple_key3
+slaying zechna_temple_key3
 direction 5
 x 6
 y 10
 end
 arch check_inv
-slaying moroch_temple_key3
+slaying zechna_temple_key3
 sp 1
 last_grace 1
 x 6
@@ -887,13 +876,13 @@ x 6
 y 12
 end
 arch door1_locked
-slaying moroch_temple_key3
+slaying zechna_temple_key3
 direction 3
 x 6
 y 12
 end
 arch check_inv
-slaying moroch_temple_key3
+slaying zechna_temple_key3
 sp 1
 last_grace 1
 x 6
@@ -908,13 +897,13 @@ x 6
 y 13
 end
 arch door1_locked
-slaying moroch_temple_key3
+slaying zechna_temple_key3
 direction 5
 x 6
 y 13
 end
 arch check_inv
-slaying moroch_temple_key3
+slaying zechna_temple_key3
 sp 1
 last_grace 1
 x 6
@@ -1537,13 +1526,13 @@ x 11
 y 7
 end
 arch door1_locked
-slaying moroch_temple_key4
+slaying zechna_temple_key4
 direction 3
 x 11
 y 7
 end
 arch check_inv
-slaying moroch_temple_key4
+slaying zechna_temple_key4
 sp 1
 last_grace 1
 x 11
@@ -1558,13 +1547,13 @@ x 11
 y 8
 end
 arch door1_locked
-slaying moroch_temple_key4
+slaying zechna_temple_key4
 direction 5
 x 11
 y 8
 end
 arch check_inv
-slaying moroch_temple_key4
+slaying zechna_temple_key4
 sp 1
 last_grace 1
 x 11
@@ -2527,12 +2516,12 @@ arch chest7_111
 x 17
 y 10
 arch rod_heavy
-name Moroch's heavy rod
+name Zechna's heavy rod
 no_pick 1
 identified 1
-sp 2
-level 115
 is_magical 1
+sp 50
+level 115
 end
 end
 arch floor_sblack2b

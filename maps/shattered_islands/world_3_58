@@ -1025,7 +1025,7 @@ y 10
 end
 arch client_map_info
 msg
-Temple of Tabernacle.
+Temple of Elathiel.
 endmsg
 name aris_temple
 sub_type 2
@@ -1995,7 +1995,7 @@ glow_radius 9
 level 35
 arch event_obj
 sub_type 6
-race /interfaces/temples/tabernacle.xml
+race /interfaces/temples/elathiel.xml
 end
 end
 end
@@ -2003,7 +2003,7 @@ arch floor_marble1a
 x 13
 y 13
 end
-arch altar_tabernacle
+arch altar_elathiel
 xrays 1
 x 13
 y 13

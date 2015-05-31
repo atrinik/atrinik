@@ -2854,7 +2854,7 @@ y 4
 end
 arch client_map_info
 msg
-Temple of Tabernacle.
+Temple of Elathiel.
 endmsg
 stand_still 1
 name brynknot_church

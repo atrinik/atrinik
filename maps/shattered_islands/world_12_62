@@ -606,7 +606,7 @@ y 13
 end
 arch client_map_info
 msg
-Temple of Tabernacle.
+Temple of Elathiel.
 endmsg
 name portu_baserrian_temple
 sub_type 2
@@ -801,7 +801,7 @@ arch floor_marble1e
 x 5
 y 18
 end
-arch altar_tabernacle
+arch altar_elathiel
 direction 7
 xrays 1
 x 5
@@ -1221,7 +1221,7 @@ level 115
 type 83
 arch event_obj
 sub_type 6
-race /interfaces/temples/tabernacle.xml
+race /interfaces/temples/elathiel.xml
 end
 end
 end

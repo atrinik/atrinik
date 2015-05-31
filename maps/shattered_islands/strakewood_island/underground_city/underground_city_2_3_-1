@@ -1661,7 +1661,7 @@ arch floor_black1c
 x 10
 y 4
 end
-arch altar_moroch
+arch altar_zechna
 level 65
 x 10
 y 4

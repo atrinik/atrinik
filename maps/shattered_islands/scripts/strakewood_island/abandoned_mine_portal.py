@@ -1,5 +1,5 @@
 ## @file
-## Graphical effect for the portal to Moroch Temple in Abandoned Mine.
+## Graphical effect for the portal to Temple of Zechna in Abandoned Mine.
 ##
 ## Makes the portal shrink, then disappear.
 

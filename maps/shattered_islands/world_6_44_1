@@ -2663,7 +2663,7 @@ faction asteria_citizens
 type 83
 arch event_obj
 sub_type 6
-race /interfaces/temples/tabernacle.xml
+race /interfaces/temples/elathiel.xml
 end
 end
 end
@@ -2679,7 +2679,7 @@ arch carpet4.151
 x 21
 y 12
 end
-arch altar_tabernacle
+arch altar_elathiel
 xrays 1
 x 21
 y 12

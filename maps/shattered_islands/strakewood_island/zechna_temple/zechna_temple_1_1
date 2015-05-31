@@ -1,394 +1,530 @@
 arch map
-name Moroch Temple
+name Temple of Zechna
 msg
 Created:  2009-09-22 Alex Tokar
-Modified: 2011-02-11 Alex Tokar
+Modified: 2015-05-31 Alex Tokar
 endmsg
 width 24
 height 24
-difficulty 60
+difficulty 65
 darkness 2
-tile_path_3 moroch_temple_0201
-tile_path_4 moroch_temple_0102
-tile_path_7 moroch_temple_0101
 bg_music evil_temple.ogg
-region moroch_temple
+region zechna_temple
 end
 arch floor_sblack2b
+y 10
 end
 arch fwall_fstone1a
+y 10
+end
+arch ring_wall.151
+y 10
 end
 arch floor_sblack2b
-y 1
+y 11
 end
-arch floor_sblack2b
-y 2
-end
-arch floor_sblack3b
-y 3
-end
-arch floor_sblack2b
-y 4
-end
-arch fwall_fstone1a
-y 4
+arch table_lab3.111
+y 11
 end
 arch floor_sblack1b
-y 5
+y 12
+end
+arch torch_wall_1
+direction 7
+y 12
 end
 arch floor_sblack2b
-y 6
+y 13
 end
 arch floor_sblack2b
-y 7
+y 14
+end
+arch floor_sblack3b
+y 15
+end
+arch table_lab2.111
+direction 7
+y 15
 end
 arch floor_sblack2b
-y 8
+y 16
+end
+arch floor_sblack1b
+y 17
+end
+arch torch_wall_1
+direction 7
+y 17
 end
 arch floor_sblack2b
-y 9
+y 18
+end
+arch stairs_stone_down
+direction 5
+y 18
+end
+arch floor_sblack2b
+y 19
+end
+arch stairs_down
+y 19
+end
+arch floor_sblack2b
+y 20
+end
+arch pillar_black2a
+y 20
+end
+arch floor_sblack3b
+y 21
+end
+arch table_lab2.111
+direction 7
+y 21
+end
+arch floor_sblack2b
+y 22
+end
+arch table_lab1.111
+direction 7
+y 22
+end
+arch floor_sblack1b
+y 23
 end
 arch fwall_fstone1b
-y 9
+y 23
 end
 arch floor_sblack1b
 x 1
+y 10
 end
-arch fwall_fstone1a
+arch fwall_fstone1c
 x 1
-end
-arch floor_sblack2b
-x 1
-y 1
-end
-arch floor_sblack1b
-x 1
-y 2
-end
-arch floor_sblack2b
-x 1
-y 3
-end
-arch floor_sblack2b
-x 1
-y 4
-end
-arch fwall_fstone1a
-x 1
-y 4
-end
-arch floor_sblack2b
-x 1
-y 5
-end
-arch floor_sblack3b
-x 1
-y 6
-end
-arch floor_sblack2b
-x 1
-y 7
-end
-arch floor_sblack3b
-x 1
-y 8
-end
-arch floor_sblack2b
-x 1
-y 9
-end
-arch fwall_fstone1a
-x 1
-y 9
-end
-arch floor_sblack1b
-x 2
-end
-arch fwall_fstone1a
-x 2
+y 10
 end
 arch plant2_wall.151
-x 2
-end
-arch floor_sblack1b
-x 2
-y 1
-end
-arch torch_wall_1
-x 2
-y 1
-end
-arch floor_sblack3b
-x 2
-y 2
-end
-arch floor_sblack1b
-x 2
-y 3
-end
-arch floor_sblack1b
-x 2
-y 4
-end
-arch fwall_fstone1c
-x 2
-y 4
-end
-arch floor_sblack1b
-x 2
-y 5
-end
-arch torch_wall_1
-x 2
-y 5
-end
-arch floor_sblack1b
-x 2
-y 6
+x 1
+y 10
 end
 arch floor_sblack2b
-x 2
-y 7
+x 1
+y 11
 end
-arch bones1
-x 2
-y 7
-end
-arch floor_sblack1b
-x 2
-y 8
-end
-arch floor_sblack3b
-x 2
-y 9
-end
-arch fwall_fstone1b
-x 2
-y 9
+arch table_lab3.111
+x 1
+y 11
 end
 arch floor_sblack2b
-x 3
+x 1
+y 12
 end
-arch fwall_fstone1c
-x 3
-end
-arch floor_sblack3b
-x 3
-y 1
-end
-arch floor_sblack3b
-x 3
-y 2
-end
-arch dirt_floor3
-x 3
-y 2
-end
-arch floor_sblack3b
-x 3
-y 3
-end
-arch floor_sblack3b
-x 3
-y 4
-end
-arch fwall_fstone1c
-x 3
-y 4
-end
-arch floor_sblack1b
-x 3
-y 5
-end
-arch shelf3c.111
-x 3
-y 5
-arch random_treasure
-no_pick 1
-randomitems random_read
-end
-end
-arch floor_sblack1b
-x 3
-y 6
-end
-arch dirt_floor2
-x 3
-y 6
-end
-arch floor_sblack2b
-x 3
-y 7
-end
-arch floor_sblack2b
-x 3
-y 8
-end
-arch floor_sblack2b
-x 3
-y 9
-end
-arch fwall_fstone1b
-x 3
-y 9
-end
-arch floor_sblack2b
-x 4
-end
-arch fwall_fstone1a
-x 4
-end
-arch floor_sblack2b
-x 4
-y 1
-end
-arch floor_sblack1b
-x 4
-y 2
+arch chair2_111
+direction 5
+x 1
+y 12
 end
 arch spawn_point
-x 4
-y 2
-arch skel_fighter2
-type 83
-level 56
-direction 7
-end
-end
-arch floor_sblack1b
-x 4
-y 3
-end
-arch floor_sblack2b
-x 4
-y 4
-end
-arch fwall_fstone1c
-x 4
-y 4
-end
-arch floor_sblack2b
-x 4
-y 5
-end
-arch shelf3c.111
-x 4
-y 5
-arch random_treasure
-no_pick 1
-randomitems random_read
-end
-arch random_treasure
-no_pick 1
-randomitems random_read
-end
-end
-arch floor_sblack3b
-x 4
-y 6
-end
-arch spawn_point
-x 4
-y 6
+x 1
+y 12
 arch skel_mage
 type 83
-level 54
-direction 1
-name skeleton researcher
+level 64
+direction 3
+name skeleton mage apprentice
 arch ability_icestorm
 end
 end
 end
 arch floor_sblack1b
-x 4
-y 7
-end
-arch floor_sblack1b
-x 4
-y 8
-end
-arch floor_sblack3b
-x 4
-y 9
-end
-arch fwall_fstone1c
-x 4
-y 9
+x 1
+y 13
 end
 arch floor_sblack2b
-x 4
-y 10
-end
-arch fwall_fstone1a
-x 4
-y 10
-end
-arch floor_sblack1b
-x 4
-y 11
-end
-arch fwall_fstone1c
-x 4
-y 11
-end
-arch floor_sblack3b
-x 4
-y 12
-end
-arch fwall_fstone1a
-x 4
-y 12
-end
-arch floor_sblack1b
-x 4
-y 13
-end
-arch fwall_fstone1a
-x 4
-y 13
-end
-arch floor_sblack1b
-x 4
-y 14
-end
-arch fwall_fstone1b
-x 4
+x 1
 y 14
 end
 arch floor_sblack2b
-x 4
+x 1
 y 15
 end
-arch fwall_fstone1a
-x 4
+arch chair2_111
+direction 3
+x 1
 y 15
 end
 arch floor_sblack2b
-x 4
+x 1
 y 16
 end
+arch floor_sblack1b
+x 1
+y 17
+end
+arch floor_sblack1b
+x 1
+y 18
+end
+arch stairs_stone_down
+direction 5
+x 1
+y 18
+end
+arch floor_sblack1b
+x 1
+y 19
+end
+arch stairs_down
+x 1
+y 19
+end
+arch floor_sblack2b
+x 1
+y 20
+end
+arch table_lab3.111
+x 1
+y 20
+end
+arch floor_sblack2b
+x 1
+y 21
+end
+arch chair2_111
+direction 3
+x 1
+y 21
+end
+arch floor_sblack3b
+x 1
+y 22
+end
+arch floor_sblack2b
+x 1
+y 23
+end
 arch fwall_fstone1a
-x 4
+x 1
+y 23
+end
+arch floor_sblack1b
+x 2
+y 10
+end
+arch fwall_fstone1a
+x 2
+y 10
+end
+arch floor_sblack1b
+x 2
+y 11
+end
+arch table_lab2.111
+x 2
+y 11
+end
+arch floor_sblack2b
+x 2
+y 12
+end
+arch floor_sblack2b
+x 2
+y 13
+end
+arch floor_sblack2b
+x 2
+y 14
+end
+arch dirt_floor1
+x 2
+y 14
+end
+arch floor_sblack1b
+x 2
+y 15
+end
+arch pillar_black2c
+x 2
+y 15
+end
+arch floor_sblack2b
+x 2
 y 16
+end
+arch bones1
+x 2
+y 16
+end
+arch floor_sblack1b
+x 2
+y 17
+end
+arch floor_sblack2b
+x 2
+y 18
+end
+arch floor_sblack1b
+x 2
+y 19
+end
+arch spawn_point
+x 2
+y 19
+arch demilich
+type 83
+level 65
+name demilich researcher
+direction 1
+arch ability_firestorm
+end
+end
+end
+arch floor_sblack2b
+x 2
+y 20
+end
+arch pillar_black2c
+x 2
+y 20
+end
+arch floor_sblack1b
+x 2
+y 21
+end
+arch floor_sblack2b
+x 2
+y 22
+end
+arch floor_sblack2b
+x 2
+y 23
+end
+arch fwall_fstone1c
+x 2
+y 23
+end
+arch floor_sblack2b
+x 3
+y 10
+end
+arch fwall_fstone1c
+x 3
+y 10
+end
+arch floor_sblack3b
+x 3
+y 11
+end
+arch table_lab1.111
+x 3
+y 11
+end
+arch floor_sblack3b
+x 3
+y 12
+end
+arch floor_sblack1b
+x 3
+y 13
+end
+arch floor_sblack2b
+x 3
+y 14
+end
+arch floor_sblack3b
+x 3
+y 15
+end
+arch bones2
+x 3
+y 15
+end
+arch floor_sblack2b
+x 3
+y 16
+end
+arch floor_sblack1b
+x 3
+y 17
+end
+arch floor_sblack2b
+x 3
+y 18
+end
+arch floor_sblack2b
+x 3
+y 19
+end
+arch floor_sblack1b
+x 3
+y 20
+end
+arch pile_floor2
+x 3
+y 20
+end
+arch floor_sblack3b
+x 3
+y 21
+end
+arch pool_murky
+x 3
+y 21
+end
+arch light3
+x 3
+y 21
+end
+arch floor_sblack2b
+x 3
+y 22
+end
+arch floor_sblack1b
+x 3
+y 23
+end
+arch fwall_fstone1c
+x 3
+y 23
 end
 arch floor_sblack2b
 x 4
-y 17
 end
-arch fwall_fstone1b
+arch fwall_fstone1a
 x 4
-y 17
 end
 arch plant2_wall.151
 direction 7
 x 4
-y 17
 end
 arch floor_sblack2b
 x 4
-y 18
+y 1
 end
 arch fwall_fstone1c
+x 4
+y 1
+end
+arch floor_sblack1b
+x 4
+y 2
+end
+arch fwall_fstone1b
+x 4
+y 2
+end
+arch sewer_wall
+direction 7
+x 4
+y 2
+end
+arch floor_sblack1b
+x 4
+y 3
+end
+arch fwall_fstone1c
+x 4
+y 3
+end
+arch floor_sblack2b
+x 4
+y 4
+end
+arch fwall_fstone1c
+x 4
+y 4
+end
+arch floor_sblack2b
+x 4
+y 5
+end
+arch fwall_fstone1c
+x 4
+y 5
+end
+arch wmask_fire_off_1
+direction 7
+x 4
+y 5
+end
+arch floor_sblack3b
+x 4
+y 6
+end
+arch fwall_fstone1b
+x 4
+y 6
+end
+arch floor_sblack1b
+x 4
+y 7
+end
+arch fwall_fstone1a
+x 4
+y 7
+end
+arch floor_sblack1b
+x 4
+y 8
+end
+arch fwall_fstone1a
+x 4
+y 8
+end
+arch plant2_wall.151
+direction 7
+x 4
+y 8
+end
+arch floor_sblack3b
+x 4
+y 9
+end
+arch fwall_fstone1a
+x 4
+y 9
+end
+arch floor_sblack2b
+x 4
+y 10
+end
+arch fwall_fstone1b
+x 4
+y 10
+end
+arch floor_sblack1b
+x 4
+y 11
+end
+arch table_lab2.111
+x 4
+y 11
+end
+arch floor_sblack3b
+x 4
+y 12
+end
+arch floor_sblack1b
+x 4
+y 13
+end
+arch floor_sblack1b
+x 4
+y 14
+end
+arch floor_sblack2b
+x 4
+y 15
+end
+arch floor_sblack2b
+x 4
+y 16
+end
+arch floor_sblack2b
+x 4
+y 17
+end
+arch floor_sblack2b
 x 4
 y 18
 end
@@ -396,31 +532,15 @@ arch floor_sblack1b
 x 4
 y 19
 end
-arch fwall_fstone1a
-x 4
-y 19
-end
 arch floor_sblack3b
 x 4
 y 20
 end
-arch fwall_fstone1c
-x 4
-y 20
-end
 arch floor_sblack2b
 x 4
 y 21
 end
-arch fwall_fstone1b
-x 4
-y 21
-end
 arch floor_sblack2b
-x 4
-y 22
-end
-arch fwall_fstone1a
 x 4
 y 22
 end
@@ -435,14 +555,7 @@ end
 arch floor_sblack2b
 x 5
 end
-arch fwall_fstone1b
-x 5
-end
 arch floor_sblack3b
-x 5
-y 1
-end
-arch shelf3_dem2.111
 x 5
 y 1
 end
@@ -458,7 +571,8 @@ arch floor_sblack1b
 x 5
 y 4
 end
-arch fwall_fstone1c
+arch torch_wall_1
+direction 7
 x 5
 y 4
 end
@@ -466,19 +580,21 @@ arch floor_sblack2b
 x 5
 y 5
 end
-arch shelf3b.111
-x 5
-y 5
-arch random_treasure
-no_pick 1
-randomitems random_read
-end
-end
 arch floor_sblack1b
 x 5
 y 6
 end
+arch shelf3_dem1.111
+direction 7
+x 5
+y 6
+end
 arch floor_sblack1b
+x 5
+y 7
+end
+arch shelf3_dem2.111
+direction 7
 x 5
 y 7
 end
@@ -490,7 +606,7 @@ arch floor_sblack3b
 x 5
 y 9
 end
-arch fwall_fstone1a
+arch bones3
 x 5
 y 9
 end
@@ -498,11 +614,7 @@ arch floor_sblack2b
 x 5
 y 10
 end
-arch wood_pile.101
-x 5
-y 10
-end
-arch torch_wall_1
+arch fwall_fstone1a
 x 5
 y 10
 end
@@ -510,24 +622,23 @@ arch floor_sblack1b
 x 5
 y 11
 end
+arch fwall_fstone1a
+x 5
+y 11
+end
 arch floor_sblack2b
 x 5
 y 12
 end
-arch spawn_point
+arch fwall_fstone1a
 x 5
 y 12
-arch wraith
-type 83
-level 53
-direction 1
-end
 end
 arch floor_sblack2b
 x 5
 y 13
 end
-arch trash_wood1.101
+arch fwall_fstone1a
 x 5
 y 13
 end
@@ -535,8 +646,7 @@ arch floor_sblack3b
 x 5
 y 14
 end
-arch shelf3_dem2.111
-direction 7
+arch fwall_fstone1b
 x 5
 y 14
 end
@@ -544,8 +654,7 @@ arch floor_sblack2b
 x 5
 y 15
 end
-arch shelf3_dem3.111
-direction 7
+arch fwall_fstone1a
 x 5
 y 15
 end
@@ -553,8 +662,16 @@ arch floor_sblack2b
 x 5
 y 16
 end
-arch shelf3_dem1.111
-direction 7
+arch door1_locked
+slaying zechna_temple_key1
+direction 3
+x 5
+y 16
+end
+arch check_inv
+slaying zechna_temple_key1
+sp 1
+last_grace 1
 x 5
 y 16
 end
@@ -562,7 +679,24 @@ arch floor_sblack1b
 x 5
 y 17
 end
+arch door1_locked
+slaying zechna_temple_key1
+direction 5
+x 5
+y 17
+end
+arch check_inv
+slaying zechna_temple_key1
+sp 1
+last_grace 1
+x 5
+y 17
+end
 arch floor_sblack2b
+x 5
+y 18
+end
+arch fwall_fstone1c
 x 5
 y 18
 end
@@ -570,8 +704,7 @@ arch floor_sblack2b
 x 5
 y 19
 end
-arch torch_wall_1
-direction 7
+arch fwall_fstone1a
 x 5
 y 19
 end
@@ -579,49 +712,43 @@ arch floor_sblack2b
 x 5
 y 20
 end
-arch floor_sblack3b
+arch fwall_fstone1a
 x 5
-y 21
+y 20
 end
-arch spawn_point
-x 5
-y 21
-arch skel_mage
-type 83
-level 55
-direction 1
-arch ability_mbullet
-end
-end
-end
-arch floor_sblack3b
-x 5
-y 22
-end
-arch shelf_wall_dem1.111
+arch plant1_wall.151
 direction 7
 x 5
+y 20
+end
+arch floor_sblack3b
+x 5
+y 21
+end
+arch fwall_fstone1c
+x 5
+y 21
+end
+arch floor_sblack3b
+x 5
+y 22
+end
+arch fwall_fstone1c
+x 5
 y 22
 end
 arch floor_sblack2b
 x 5
 y 23
 end
-arch pile_floor3
+arch fwall_fstone1a
 x 5
 y 23
 end
-arch floor_sblack2b
-x 6
-end
-arch fwall_fstone1b
+arch floor_sblack1b
 x 6
 end
 arch floor_sblack3b
-x 6
-y 1
-end
-arch shelf3_dem1.111
 x 6
 y 1
 end
@@ -637,19 +764,24 @@ arch floor_sblack1b
 x 6
 y 4
 end
-arch fwall_fstone1c
+arch spawn_point
 x 6
 y 4
+arch skel_fighter3
+type 83
+level 61
+direction 1
+end
 end
 arch floor_sblack2b
 x 6
 y 5
 end
-arch torch_wall_1
-x 6
-y 5
-end
 arch floor_sblack1b
+x 6
+y 6
+end
+arch bones1
 x 6
 y 6
 end
@@ -664,13 +796,13 @@ end
 arch floor_sblack2b
 x 6
 y 9
+end
+arch floor_sblack1b
+x 6
+y 10
 end
 arch door1_locked
 x 6
-y 9
-end
-arch floor_sblack1b
-x 6
 y 10
 end
 arch floor_sblack2b
@@ -680,849 +812,72 @@ end
 arch floor_sblack2b
 x 6
 y 12
+end
+arch shelf_wall_dem3.111
+direction 7
+x 6
+y 12
+end
+arch floor_sblack2b
+x 6
+y 13
+end
+arch shelf_wall_dem2.111
+direction 7
+x 6
+y 13
+end
+arch floor_sblack2b
+x 6
+y 14
+end
+arch floor_sblack2b
+x 6
+y 15
+end
+arch torch_wall_1
+direction 7
+x 6
+y 15
+end
+arch floor_sblack2b
+x 6
+y 16
+end
+arch floor_sblack3b
+x 6
+y 17
+end
+arch floor_sblack1b
+x 6
+y 18
+end
+arch torch_wall_1
+direction 7
+x 6
+y 18
+end
+arch floor_sblack1b
+x 6
+y 19
 end
 arch blood_floor1
 x 6
-y 12
-end
-arch floor_sblack2b
-x 6
-y 13
-end
-arch floor_sblack2b
-x 6
-y 14
-end
-arch floor_sblack2b
-x 6
-y 15
-end
-arch floor_sblack2b
-x 6
-y 16
-end
-arch floor_sblack3b
-x 6
-y 17
-end
-arch floor_sblack1b
-x 6
-y 18
-end
-arch floor_sblack1b
-x 6
 y 19
 end
 arch floor_sblack2b
 x 6
 y 20
-end
-arch floor_sblack2b
-x 6
-y 21
-end
-arch floor_sblack1b
-x 6
-y 22
-end
-arch floor_sblack1b
-x 6
-y 23
-end
-arch floor_sblack2b
-x 7
-end
-arch fwall_fstone1c
-x 7
-end
-arch floor_sblack2b
-x 7
-y 1
-end
-arch shelf3_dem3.111
-x 7
-y 1
-end
-arch floor_sblack2b
-x 7
-y 2
-end
-arch floor_sblack1b
-x 7
-y 3
-end
-arch floor_sblack1b
-x 7
-y 4
-end
-arch fwall_fstone1a
-x 7
-y 4
-end
-arch floor_sblack1b
-x 7
-y 5
-end
-arch shelf5_wall.111
-x 7
-y 5
-arch random_treasure
-no_pick 1
-randomitems random_read
-end
-end
-arch floor_sblack1b
-x 7
-y 6
-end
-arch floor_sblack3b
-x 7
-y 7
-end
-arch floor_sblack2b
-x 7
-y 8
-end
-arch floor_sblack3b
-x 7
-y 9
-end
-arch door1_locked
-direction 7
-x 7
-y 9
-end
-arch floor_sblack2b
-x 7
-y 10
-end
-arch floor_sblack2b
-x 7
-y 11
-end
-arch floor_sblack3b
-x 7
-y 12
-end
-arch floor_sblack2b
-x 7
-y 13
-end
-arch floor_sblack2b
-x 7
-y 14
-end
-arch floor_sblack2b
-x 7
-y 15
-end
-arch bone_broken
-x 7
-y 15
-end
-arch floor_sblack2b
-x 7
-y 16
-end
-arch floor_sblack3b
-x 7
-y 17
 end
 arch spawn_point
-x 7
-y 17
-arch skel_fighter3
-type 83
-level 52
-direction 1
-end
-end
-arch floor_sblack1b
-x 7
-y 18
-end
-arch floor_sblack2b
-x 7
-y 19
-end
-arch dirt_floor2
-x 7
-y 19
-end
-arch floor_sblack1b
-x 7
+x 6
 y 20
-end
-arch floor_sblack2b
-x 7
-y 21
-end
-arch floor_sblack1b
-x 7
-y 22
-end
-arch floor_sblack2b
-x 7
-y 23
-end
-arch floor_sblack2b
-x 8
-end
-arch fwall_fstone1c
-x 8
-end
-arch floor_sblack1b
-x 8
-y 1
-end
-arch bones1
-x 8
-y 1
-end
-arch floor_sblack1b
-x 8
-y 2
-end
-arch floor_sblack1b
-x 8
-y 3
-end
-arch floor_sblack2b
-x 8
-y 4
-end
-arch fwall_fstone1c
-x 8
-y 4
-end
-arch floor_sblack2b
-x 8
-y 5
-end
-arch shelf5_wall.111
-x 8
-y 5
-arch random_treasure
-no_pick 1
-randomitems random_read
-end
-end
-arch floor_sblack2b
-x 8
-y 6
-end
-arch floor_sblack2b
-x 8
-y 7
-end
-arch floor_sblack2b
-x 8
-y 8
-end
-arch floor_sblack3b
-x 8
-y 9
-end
-arch fwall_fstone1a
-x 8
-y 9
-end
-arch floor_sblack3b
-x 8
-y 10
-end
-arch torch_wall_1
-x 8
-y 10
-end
-arch floor_sblack3b
-x 8
-y 11
-end
-arch floor_sblack3b
-x 8
-y 12
-end
-arch floor_sblack2b
-x 8
-y 13
-end
-arch floor_sblack2b
-x 8
-y 14
-end
-arch floor_sblack3b
-x 8
-y 15
-end
-arch floor_sblack2b
-x 8
-y 16
-end
-arch floor_sblack2b
-x 8
-y 17
-end
-arch floor_sblack1b
-x 8
-y 18
-end
-arch floor_sblack2b
-x 8
-y 19
-end
-arch floor_sblack2b
-x 8
-y 20
-end
-arch floor_sblack2b
-x 8
-y 21
-end
-arch floor_sblack2b
-x 8
-y 22
-end
-arch floor_sblack3b
-x 8
-y 23
-end
-arch floor_sblack1b
-x 9
-end
-arch fwall_fstone1a
-x 9
-end
-arch floor_sblack1b
-x 9
-y 1
-end
-arch torch_wall_1
-x 9
-y 1
-end
-arch floor_sblack2b
-x 9
-y 2
-end
-arch floor_sblack3b
-x 9
-y 3
-end
-arch floor_sblack2b
-x 9
-y 4
-end
-arch fwall_fstone1a
-x 9
-y 4
-end
-arch floor_sblack3b
-x 9
-y 5
-end
-arch fwall_fstone1c
-x 9
-y 5
-end
-arch floor_sblack2b
-x 9
-y 6
-end
-arch door1_locked
-direction 3
-x 9
-y 6
-end
-arch floor_sblack1b
-x 9
-y 7
-end
-arch door1_locked
-direction 5
-x 9
-y 7
-end
-arch floor_sblack2b
-x 9
-y 8
-end
-arch fwall_fstone1c
-x 9
-y 8
-end
-arch floor_sblack2b
-x 9
-y 9
-end
-arch fwall_fstone1c
-x 9
-y 9
-end
-arch floor_sblack1b
-x 9
-y 10
-end
-arch fwall_fstone1c
-x 9
-y 10
-end
-arch floor_sblack1b
-x 9
-y 11
-end
-arch fwall_fstone1c
-x 9
-y 11
-end
-arch floor_sblack1b
-x 9
-y 12
-end
-arch fwall_fstone1a
-x 9
-y 12
-end
-arch floor_sblack3b
-x 9
-y 13
-end
-arch fwall_fstone1c
-x 9
-y 13
-end
-arch ring_wall.151
-direction 7
-x 9
-y 13
-end
-arch floor_sblack2b
-x 9
-y 14
-end
-arch fwall_fstone1a
-x 9
-y 14
-end
-arch floor_sblack2b
-x 9
-y 15
-end
-arch fwall_fstone1a
-x 9
-y 15
-end
-arch floor_sblack1b
-x 9
-y 16
-end
-arch fwall_fstone1a
-x 9
-y 16
-end
-arch floor_sblack2b
-x 9
-y 17
-end
-arch fwall_fstone1b
-x 9
-y 17
-end
-arch wall_blood4
-direction 7
-x 9
-y 17
-end
-arch floor_sblack1b
-x 9
-y 18
-end
-arch fwall_fstone1b
-x 9
-y 18
-end
-arch floor_sblack1b
-x 9
-y 19
-end
-arch fwall_fstone1a
-x 9
-y 19
-end
-arch floor_sblack1b
-x 9
-y 20
-end
-arch fwall_fstone1a
-x 9
-y 20
-end
-arch floor_sblack2b
-x 9
-y 21
-end
-arch fwall_fstone1c
-x 9
-y 21
-end
-arch floor_sblack1b
-x 9
-y 22
-end
-arch fwall_fstone1c
-x 9
-y 22
-end
-arch floor_sblack1b
-x 9
-y 23
-end
-arch fwall_fstone1c
-x 9
-y 23
-end
-arch floor_sblack1b
-x 10
-end
-arch fwall_fstone1a
-x 10
-end
-arch floor_sblack3b
-x 10
-y 1
-end
-arch floor_sblack3b
-x 10
-y 2
-end
-arch floor_sblack1b
-x 10
-y 3
-end
-arch floor_sblack1b
-x 10
-y 4
-end
-arch fwall_fstone1c
-x 10
-y 4
-end
-arch floor_sblack1b
-x 10
-y 5
-end
-arch torch_wall_1
-direction 7
-x 10
-y 5
-end
-arch floor_sblack1b
-x 10
-y 6
-end
-arch dirt_floor4
-x 10
-y 6
-end
-arch floor_sblack3b
-x 10
-y 7
-end
-arch floor_sblack2b
-x 10
-y 8
-end
-arch torch_wall_1
-direction 7
-x 10
-y 8
-end
-arch floor_sblack2b
-x 10
-y 9
-end
-arch fwall_fstone1c
-x 10
-y 9
-end
-arch floor_sblack2b
-x 10
-y 10
-end
-arch torch_wall_1
-x 10
-y 10
-end
-arch floor_sblack2b
-x 10
-y 11
-end
-arch floor_sblack1b
-x 10
-y 12
-end
-arch floor_sblack3b
-x 10
-y 13
-end
-arch spawn_point
-x 10
-y 13
-arch demilich
-type 83
-level 56
-direction 3
-arch ability_cause_lig_wound
-end
-end
-end
-arch floor_sblack2b
-x 10
-y 14
-end
-arch floor_sblack1b
-x 10
-y 15
-end
-arch torch_wall_1
-direction 7
-x 10
-y 15
-end
-arch floor_sblack2b
-x 10
-y 16
-end
-arch floor_sblack1b
-x 10
-y 17
-end
-arch water_floor
-x 10
-y 17
-end
-arch floor_sblack2b
-x 10
-y 18
-end
-arch floor_sblack1b
-x 10
-y 19
-end
-arch shelf3.111
-direction 7
-x 10
-y 19
-end
-arch floor_sblack2b
-x 10
-y 20
-end
-arch torch_wall_1
-direction 7
-x 10
-y 20
-end
-arch floor_sblack1b
-x 10
-y 21
-end
-arch floor_sblack2b
-x 10
-y 22
-end
-arch floor_sblack1b
-x 10
-y 23
-end
-arch floor_sblack3b
-x 11
-end
-arch fwall_fstone1b
-x 11
-end
-arch floor_sblack2b
-x 11
-y 1
-end
-arch spawn_point
-x 11
-y 1
-arch lost_soul
-type 83
-level 57
-direction 7
-end
-end
-arch floor_sblack2b
-x 11
-y 2
-end
-arch floor_sblack1b
-x 11
-y 3
-end
-arch floor_sblack3b
-x 11
-y 4
-end
-arch fwall_fstone1c
-x 11
-y 4
-end
-arch floor_sblack1b
-x 11
-y 5
-end
-arch floor_sblack1b
-x 11
-y 6
-end
-arch floor_sblack2b
-x 11
-y 7
-end
-arch floor_sblack1b
-x 11
-y 8
-end
-arch floor_sblack2b
-x 11
-y 9
-end
-arch door1_locked
-x 11
-y 9
-end
-arch floor_sblack2b
-x 11
-y 10
-end
-arch floor_sblack1b
-x 11
-y 11
-end
-arch floor_sblack2b
-x 11
-y 12
-end
-arch floor_sblack3b
-x 11
-y 13
-end
-arch blood_floor2
-x 11
-y 13
-end
-arch floor_sblack2b
-x 11
-y 14
-end
-arch floor_sblack2b
-x 11
-y 15
-end
-arch floor_sblack2b
-x 11
-y 16
-end
-arch bone_skull
-x 11
-y 16
-end
-arch floor_sblack1b
-x 11
-y 17
-end
-arch floor_sblack2b
-x 11
-y 18
-end
-arch pile_floor1
-x 11
-y 18
-end
-arch floor_sblack2b
-x 11
-y 19
-end
-arch floor_sblack2b
-x 11
-y 20
-end
-arch floor_sblack1b
-x 11
-y 21
-end
-arch spawn_point
-x 11
-y 21
 arch skel_fighter1
 type 83
-level 57
-direction 1
-end
-end
-arch floor_sblack1b
-x 11
-y 22
-end
-arch floor_sblack3b
-x 11
-y 23
-end
-arch floor_sblack3b
-x 12
-end
-arch fwall_fstone1b
-x 12
-end
-arch floor_sblack2b
-x 12
-y 1
-end
-arch prison_deco1.131
-x 12
-y 1
-end
-arch floor_sblack1b
-x 12
-y 2
-end
-arch floor_sblack2b
-x 12
-y 3
-end
-arch floor_sblack1b
-x 12
-y 4
-end
-arch fwall_fstone1c
-x 12
-y 4
-end
-arch floor_sblack3b
-x 12
-y 5
-end
-arch target.111
-x 12
-y 5
-end
-arch floor_sblack2b
-x 12
-y 6
-end
-arch spawn_point
-x 12
-y 6
-arch skel_fighter3
-name skeleton novice archer
-type 83
-level 55
+level 62
 dex 2
 can_use_bow 1
-direction 7
+direction 1
 arch ability_stone_throw
 race arrows
 end
@@ -1531,1071 +886,2005 @@ sys_object 1
 end
 end
 end
-arch floor_sblack1b
-x 12
-y 7
-end
 arch floor_sblack2b
-x 12
-y 8
-end
-arch floor_sblack1b
-x 12
-y 9
-end
-arch fwall_fstone1a
-x 12
-y 9
-end
-arch floor_sblack1b
-x 12
-y 10
-end
-arch torch_wall_1
-x 12
-y 10
-end
-arch floor_sblack2b
-x 12
-y 11
-end
-arch floor_sblack2b
-x 12
-y 12
-end
-arch floor_sblack3b
-x 12
-y 13
-end
-arch floor_sblack2b
-x 12
-y 14
-end
-arch floor_sblack2b
-x 12
-y 15
-end
-arch floor_sblack1b
-x 12
-y 16
-end
-arch floor_sblack1b
-x 12
-y 17
-end
-arch floor_sblack3b
-x 12
-y 18
-end
-arch floor_sblack2b
-x 12
-y 19
-end
-arch floor_sblack1b
-x 12
-y 20
-end
-arch floor_sblack2b
-x 12
+x 6
 y 21
 end
 arch floor_sblack1b
-x 12
+x 6
 y 22
 end
-arch floor_sblack3b
-x 12
+arch floor_sblack1b
+x 6
 y 23
 end
-arch floor_sblack1b
-x 13
-end
-arch fwall_fstone1a
-x 13
+arch fwall_fstone1c
+x 6
+y 23
 end
 arch floor_sblack2b
-x 13
-y 1
+x 7
 end
-arch prison_deco2.131
-x 13
+arch floor_sblack2b
+x 7
 y 1
 end
 arch floor_sblack2b
-x 13
+x 7
 y 2
 end
-arch floor_sblack2b
-x 13
+arch floor_sblack1b
+x 7
 y 3
 end
-arch floor_sblack2b
-x 13
+arch floor_sblack1b
+x 7
 y 4
 end
-arch fwall_fstone1a
-x 13
+arch pile_floor3
+x 7
 y 4
 end
-arch wall_blood3
-x 13
-y 4
-end
-arch floor_sblack2b
-x 13
+arch floor_sblack1b
+x 7
 y 5
 end
-arch target.111
-x 13
-y 5
-end
-arch floor_sblack2b
-x 13
+arch floor_sblack1b
+x 7
 y 6
 end
-arch floor_sblack2b
-x 13
+arch floor_sblack3b
+x 7
 y 7
 end
 arch floor_sblack2b
-x 13
+x 7
 y 8
 end
-arch floor_sblack2b
-x 13
-y 9
-end
-arch fwall_fstone1c
-x 13
+arch floor_sblack3b
+x 7
 y 9
 end
 arch floor_sblack2b
-x 13
+x 7
 y 10
 end
-arch fwall_fstone1a
-x 13
-y 10
-end
-arch floor_sblack2b
-x 13
-y 11
-end
-arch fwall_fstone1c
-x 13
-y 11
-end
-arch floor_sblack2b
-x 13
-y 12
-end
-arch fwall_fstone1a
-x 13
-y 12
-end
-arch floor_sblack3b
-x 13
-y 13
-end
-arch fwall_fstone1c
-x 13
-y 13
-end
-arch floor_sblack2b
-x 13
-y 14
-end
-arch fwall_fstone1b
-x 13
-y 14
-end
-arch floor_sblack2b
-x 13
-y 15
-end
-arch fwall_fstone1a
-x 13
-y 15
-end
-arch floor_sblack1b
-x 13
-y 16
-end
-arch fwall_fstone1c
-x 13
-y 16
-end
-arch floor_sblack2b
-x 13
-y 17
-end
-arch fwall_fstone1a
-x 13
-y 17
-end
-arch floor_sblack2b
-x 13
-y 18
-end
-arch fwall_fstone1a
-x 13
-y 18
-end
-arch floor_sblack2b
-x 13
-y 19
-end
-arch fwall_fstone1a
-x 13
-y 19
-end
-arch floor_sblack3b
-x 13
-y 20
-end
-arch fwall_fstone1a
-x 13
-y 20
-end
-arch floor_sblack2b
-x 13
-y 21
-end
-arch fwall_fstone1b
-x 13
-y 21
-end
-arch floor_sblack2b
-x 13
-y 22
-end
-arch fwall_fstone1b
-x 13
-y 22
-end
-arch floor_sblack2b
-x 13
-y 23
-end
-arch fwall_fstone1c
-x 13
-y 23
-end
-arch floor_sblack2b
-x 14
-end
-arch fwall_fstone1a
-x 14
-end
-arch floor_sblack2b
-x 14
-y 1
-end
-arch floor_sblack2b
-x 14
-y 2
-end
-arch floor_sblack2b
-x 14
-y 3
-end
-arch floor_sblack2b
-x 14
-y 4
-end
-arch fwall_fstone1a
-x 14
-y 4
-end
-arch floor_sblack2b
-x 14
-y 5
-end
-arch target.111
-x 14
-y 5
-end
-arch floor_sblack2b
-x 14
-y 6
-end
-arch floor_sblack3b
-x 14
-y 7
-end
-arch floor_sblack1b
-x 14
-y 8
-end
-arch floor_sblack1b
-x 14
-y 9
-end
-arch fwall_fstone1a
-x 14
-y 9
-end
-arch floor_sblack2b
-x 15
-end
-arch fwall_fstone1c
-x 15
-end
-arch floor_sblack2b
-x 15
-y 1
-end
-arch shelf_wall_dem1.111
-x 15
-y 1
-end
-arch floor_sblack1b
-x 15
-y 2
-end
-arch floor_sblack3b
-x 15
-y 3
-end
-arch floor_sblack1b
-x 15
-y 4
-end
-arch fwall_fstone1a
-x 15
-y 4
-end
-arch floor_sblack1b
-x 15
-y 5
-end
-arch target.111
-x 15
-y 5
-end
-arch floor_sblack2b
-x 15
-y 6
-end
-arch dirt_floor2
-x 15
-y 6
-end
-arch floor_sblack2b
-x 15
-y 7
-end
-arch floor_sblack2b
-x 15
-y 8
-end
-arch floor_sblack1b
-x 15
-y 9
-end
-arch fwall_fstone1c
-x 15
-y 9
-end
-arch floor_sblack1b
-x 16
-end
-arch fwall_fstone1a
-x 16
-end
-arch floor_sblack2b
-x 16
-y 1
-end
-arch pile_floor2
-x 16
-y 1
-end
-arch shelf_wall_dem2.111
-x 16
-y 1
-end
-arch floor_sblack1b
-x 16
-y 2
-end
-arch floor_sblack2b
-x 16
-y 3
-end
-arch floor_sblack2b
-x 16
-y 4
-end
-arch fwall_fstone1c
-x 16
-y 4
-end
-arch floor_sblack3b
-x 16
-y 5
-end
-arch torch_wall_1
-x 16
-y 5
-end
-arch floor_sblack1b
-x 16
-y 6
-end
-arch bone_broken
-x 16
-y 6
-end
-arch floor_sblack2b
-x 16
-y 7
-end
-arch floor_sblack2b
-x 16
-y 8
-end
-arch floor_sblack1b
-x 16
-y 9
-end
-arch fwall_fstone1c
-x 16
-y 9
-end
-arch floor_sblack1b
-x 17
-end
-arch fwall_fstone1a
-x 17
-end
-arch floor_sblack1b
-x 17
-y 1
-end
-arch shelf_wall.111
-x 17
-y 1
-end
-arch floor_sblack2b
-x 17
-y 2
-end
-arch floor_sblack3b
-x 17
-y 3
-end
-arch floor_sblack1b
-x 17
-y 4
-end
-arch fwall_fstone1c
-x 17
-y 4
-end
-arch floor_sblack1b
-x 17
-y 5
-end
-arch prison_deco3.131
-x 17
-y 5
-end
-arch floor_sblack2b
-x 17
-y 6
-end
-arch floor_sblack2b
-x 17
-y 7
-end
-arch floor_sblack2b
-x 17
-y 8
-end
-arch floor_sblack3b
-x 17
-y 9
-end
-arch fwall_fstone1b
-x 17
-y 9
-end
-arch floor_sblack1b
-x 18
-end
-arch fwall_fstone1a
-x 18
-end
-arch floor_sblack2b
-x 18
-y 1
-end
-arch shelf_wall_dem3.111
-x 18
-y 1
-end
-arch floor_sblack2b
-x 18
-y 2
-end
-arch floor_sblack2b
-x 18
-y 3
-end
-arch floor_sblack2b
-x 18
-y 4
-end
-arch fwall_fstone1a
-x 18
-y 4
-end
-arch sewer_wall
-x 18
-y 4
-end
-arch floor_sblack1b
-x 18
-y 5
-end
-arch prison_deco2.131
-x 18
-y 5
-end
-arch floor_sblack1b
-x 18
-y 6
-end
-arch floor_sblack1b
-x 18
-y 7
-end
-arch floor_sblack2b
-x 18
-y 8
-end
-arch floor_sblack2b
-x 18
-y 9
-end
-arch fwall_fstone1a
-x 18
-y 9
-end
-arch floor_sblack2b
-x 19
-end
-arch fwall_fstone1a
-x 19
-end
-arch floor_sblack2b
-x 19
-y 1
-end
-arch torch_wall_1
-x 19
-y 1
-end
-arch floor_sblack2b
-x 19
-y 2
-end
-arch spawn_point
-x 19
-y 2
-arch skel_mage
-type 83
-level 58
+arch door1_locked
 direction 7
-arch ability_mbullet
-end
-end
+x 7
+y 10
 end
 arch floor_sblack2b
-x 19
-y 3
+x 7
+y 11
+end
+arch floor_sblack3b
+x 7
+y 12
+end
+arch floor_sblack2b
+x 7
+y 13
+end
+arch floor_sblack2b
+x 7
+y 14
+end
+arch floor_sblack2b
+x 7
+y 15
+end
+arch floor_sblack2b
+x 7
+y 16
+end
+arch floor_sblack3b
+x 7
+y 17
 end
 arch floor_sblack1b
-x 19
-y 4
+x 7
+y 18
+end
+arch floor_sblack2b
+x 7
+y 19
+end
+arch floor_sblack1b
+x 7
+y 20
+end
+arch floor_sblack2b
+x 7
+y 21
+end
+arch floor_sblack1b
+x 7
+y 22
+end
+arch dirt_floor1
+x 7
+y 22
+end
+arch floor_sblack2b
+x 7
+y 23
 end
 arch fwall_fstone1a
-x 19
+x 7
+y 23
+end
+arch floor_sblack2b
+x 8
+end
+arch floor_sblack1b
+x 8
+y 1
+end
+arch floor_sblack1b
+x 8
+y 2
+end
+arch floor_sblack1b
+x 8
+y 3
+end
+arch floor_sblack2b
+x 8
 y 4
+end
+arch floor_sblack2b
+x 8
+y 5
+end
+arch floor_sblack2b
+x 8
+y 6
+end
+arch floor_sblack2b
+x 8
+y 7
+end
+arch floor_sblack2b
+x 8
+y 8
+end
+arch floor_sblack3b
+x 8
+y 9
+end
+arch floor_sblack3b
+x 8
+y 10
+end
+arch fwall_fstone1c
+x 8
+y 10
+end
+arch floor_sblack3b
+x 8
+y 11
+end
+arch fwall_fstone1a
+x 8
+y 11
+end
+arch floor_sblack3b
+x 8
+y 12
+end
+arch fwall_fstone1b
+x 8
+y 12
+end
+arch floor_sblack2b
+x 8
+y 13
+end
+arch fwall_fstone1c
+x 8
+y 13
+end
+arch floor_sblack2b
+x 8
+y 14
+end
+arch fwall_fstone1a
+x 8
+y 14
+end
+arch floor_sblack3b
+x 8
+y 15
+end
+arch fwall_fstone1a
+x 8
+y 15
+end
+arch floor_sblack2b
+x 8
+y 16
+end
+arch fwall_fstone1c
+x 8
+y 16
+end
+arch floor_sblack2b
+x 8
+y 17
+end
+arch fwall_fstone1a
+x 8
+y 17
+end
+arch floor_sblack1b
+x 8
+y 18
+end
+arch fwall_fstone1a
+x 8
+y 18
+end
+arch floor_sblack2b
+x 8
+y 19
+end
+arch fwall_fstone1a
+x 8
+y 19
+end
+arch floor_sblack2b
+x 8
+y 20
+end
+arch fwall_fstone1a
+x 8
+y 20
+end
+arch floor_sblack2b
+x 8
+y 21
+end
+arch fwall_fstone1b
+x 8
+y 21
+end
+arch floor_sblack2b
+x 8
+y 22
+end
+arch floor_sblack3b
+x 8
+y 23
+end
+arch fwall_fstone1a
+x 8
+y 23
+end
+arch floor_sblack2b
+x 9
+end
+arch fwall_fstone1a
+x 9
+end
+arch floor_sblack1b
+x 9
+y 1
+end
+arch fwall_fstone1b
+x 9
+y 1
+end
+arch floor_sblack2b
+x 9
+y 2
+end
+arch fwall_fstone1a
+x 9
+y 2
+end
+arch floor_sblack3b
+x 9
+y 3
+end
+arch fwall_fstone1b
+x 9
+y 3
 end
 arch plant1_wall.151
-x 19
-y 4
-end
-arch floor_sblack1b
-x 19
-y 5
-end
-arch prison_deco2.131
-x 19
-y 5
-end
-arch floor_sblack2b
-x 19
-y 6
-end
-arch floor_sblack3b
-x 19
-y 7
-end
-arch floor_sblack3b
-x 19
-y 8
-end
-arch floor_sblack3b
-x 19
-y 9
-end
-arch fwall_fstone1a
-x 19
-y 9
-end
-arch floor_sblack1b
-x 19
-y 10
-end
-arch fwall_fstone1c
-x 19
-y 10
-end
-arch floor_sblack2b
-x 19
-y 11
-end
-arch fwall_fstone1c
-x 19
-y 11
-end
-arch floor_sblack1b
-x 19
-y 12
-end
-arch fwall_fstone1a
-x 19
-y 12
-end
-arch floor_sblack1b
-x 19
-y 13
-end
-arch fwall_fstone1a
-x 19
-y 13
-end
-arch floor_sblack1b
-x 19
-y 14
-end
-arch fwall_fstone1c
-x 19
-y 14
-end
-arch floor_sblack2b
-x 19
-y 15
-end
-arch fwall_fstone1a
-x 19
-y 15
-end
-arch floor_sblack1b
-x 19
-y 16
-end
-arch fwall_fstone1a
-x 19
-y 16
-end
-arch floor_sblack2b
-x 19
-y 17
-end
-arch fwall_fstone1a
-x 19
-y 17
-end
-arch floor_sblack2b
-x 19
-y 18
-end
-arch fwall_fstone1c
-x 19
-y 18
-end
-arch wall_drain1
 direction 7
-x 19
-y 18
-end
-arch floor_sblack1b
-x 19
-y 19
-end
-arch fwall_fstone1a
-x 19
-y 19
-end
-arch floor_sblack1b
-x 19
-y 20
-end
-arch fwall_fstone1c
-x 19
-y 20
-end
-arch floor_sblack2b
-x 19
-y 21
-end
-arch fwall_fstone1c
-x 19
-y 21
-end
-arch floor_sblack3b
-x 19
-y 22
-end
-arch fwall_fstone1a
-x 19
-y 22
-end
-arch floor_sblack2b
-x 19
-y 23
-end
-arch fwall_fstone1a
-x 19
-y 23
-end
-arch floor_sblack3b
-x 20
-end
-arch fwall_fstone1c
-x 20
-end
-arch floor_sblack3b
-x 20
-y 1
-end
-arch floor_sblack3b
-x 20
-y 2
-end
-arch floor_sblack2b
-x 20
+x 9
 y 3
 end
-arch floor_sblack1b
-x 20
+arch floor_sblack2b
+x 9
 y 4
 end
 arch fwall_fstone1c
-x 20
+x 9
 y 4
 end
-arch floor_sblack1b
-x 20
+arch floor_sblack3b
+x 9
 y 5
 end
-arch torch_wall_1
-x 20
+arch fwall_fstone1a
+x 9
 y 5
 end
 arch floor_sblack2b
-x 20
+x 9
 y 6
-end
-arch floor_sblack1b
-x 20
-y 7
-end
-arch spawn_point
-x 20
-y 7
-arch skel_fighter3
-type 83
-level 56
-direction 7
-end
-end
-arch floor_sblack1b
-x 20
-y 8
-end
-arch floor_sblack2b
-x 20
-y 9
 end
 arch fwall_fstone1b
-x 20
-y 9
-end
-arch floor_sblack2b
-x 20
-y 10
-end
-arch prison_deco3.131
-x 20
-y 10
-end
-arch torch_wall_1
-x 20
-y 10
-end
-arch floor_sblack2b
-x 20
-y 11
-end
-arch floor_sblack2b
-x 20
-y 12
-end
-arch floor_sblack2b
-x 20
-y 13
-end
-arch spawn_point
-x 20
-y 13
-arch lost_soul
-type 83
-level 57
-direction 1
-end
-end
-arch floor_sblack3b
-x 20
-y 14
-end
-arch floor_sblack3b
-x 20
-y 15
-end
-arch torch_wall_1
-direction 7
-x 20
-y 15
-end
-arch floor_sblack1b
-x 20
-y 16
-end
-arch shelf_wall_dem3.111
-direction 7
-x 20
-y 16
-end
-arch floor_sblack3b
-x 20
-y 17
-end
-arch shelf_wall_dem2.111
-direction 7
-x 20
-y 17
-end
-arch floor_sblack1b
-x 20
-y 18
-end
-arch floor_sblack1b
-x 20
-y 19
-end
-arch floor_sblack1b
-x 20
-y 20
-end
-arch shelf_wall_dem1.111
-direction 7
-x 20
-y 20
-end
-arch floor_sblack3b
-x 20
-y 21
-end
-arch torch_wall_1
-direction 7
-x 20
-y 21
-end
-arch floor_sblack1b
-x 20
-y 22
-end
-arch floor_sblack2b
-x 20
-y 23
-end
-arch floor_sblack1b
-x 21
-end
-arch fwall_fstone1c
-x 21
-end
-arch floor_sblack2b
-x 21
-y 1
-end
-arch mushroom_spot1
-x 21
-y 1
-end
-arch floor_sblack2b
-x 21
-y 2
-end
-arch floor_sblack2b
-x 21
-y 3
-end
-arch floor_sblack1b
-x 21
-y 4
-end
-arch door1_locked
-x 21
-y 4
-end
-arch floor_sblack1b
-x 21
-y 5
-end
-arch floor_sblack3b
-x 21
+x 9
 y 6
 end
-arch floor_sblack2b
-x 21
+arch floor_sblack1b
+x 9
+y 7
+end
+arch fwall_fstone1c
+x 9
+y 7
+end
+arch wall_blood2
+direction 7
+x 9
 y 7
 end
 arch floor_sblack2b
-x 21
+x 9
+y 8
+end
+arch door1_locked
+direction 3
+x 9
 y 8
 end
 arch floor_sblack2b
-x 21
+x 9
 y 9
 end
 arch door1_locked
-x 21
+direction 5
+x 9
 y 9
 end
 arch floor_sblack1b
-x 21
+x 9
+y 10
+end
+arch fwall_fstone1a
+x 9
+y 10
+end
+arch floor_sblack3b
+x 9
+y 21
+end
+arch fwall_fstone1b
+x 9
+y 21
+end
+arch floor_sblack3b
+x 9
+y 22
+end
+arch torch_wall_1
+x 9
+y 22
+end
+arch floor_sblack2b
+x 9
+y 23
+end
+arch fwall_fstone1b
+x 9
+y 23
+end
+arch floor_sblack2b
+x 10
+end
+arch floor_sblack3b
+x 10
+y 1
+end
+arch chained_skel.111
+direction 7
+x 10
+y 1
+end
+arch floor_sblack3b
+x 10
+y 2
+end
+arch floor_sblack1b
+x 10
+y 3
+end
+arch shelf3_dem2.111
+direction 7
+x 10
+y 3
+end
+arch floor_sblack1b
+x 10
+y 4
+end
+arch shelf3_dem1.111
+direction 7
+x 10
+y 4
+end
+arch floor_sblack1b
+x 10
+y 5
+end
+arch torch_wall_1
+direction 7
+x 10
+y 5
+end
+arch floor_sblack1b
+x 10
+y 6
+end
+arch floor_sblack3b
+x 10
+y 7
+end
+arch floor_sblack2b
+x 10
+y 8
+end
+arch floor_sblack2b
+x 10
+y 9
+end
+arch floor_sblack2b
+x 10
+y 10
+end
+arch fwall_fstone1c
+x 10
 y 10
 end
 arch floor_sblack2b
-x 21
+x 10
+y 11
+end
+arch fwall_fstone1c
+x 10
 y 11
 end
 arch floor_sblack1b
-x 21
+x 10
+y 12
+end
+arch fwall_fstone1c
+x 10
 y 12
 end
 arch floor_sblack3b
-x 21
+x 10
 y 13
 end
+arch fwall_fstone1a
+x 10
+y 13
+end
+arch floor_sblack2b
+x 10
+y 14
+end
+arch fwall_fstone1c
+x 10
+y 14
+end
 arch floor_sblack1b
-x 21
+x 10
+y 15
+end
+arch fwall_fstone1a
+x 10
+y 15
+end
+arch floor_sblack2b
+x 10
+y 16
+end
+arch fwall_fstone1a
+x 10
+y 16
+end
+arch floor_sblack1b
+x 10
+y 17
+end
+arch fwall_fstone1c
+x 10
+y 17
+end
+arch floor_sblack2b
+x 10
+y 18
+end
+arch fwall_fstone1c
+x 10
+y 18
+end
+arch floor_sblack1b
+x 10
+y 19
+end
+arch fwall_fstone1c
+x 10
+y 19
+end
+arch floor_sblack2b
+x 10
+y 20
+end
+arch fwall_fstone1a
+x 10
+y 20
+end
+arch floor_sblack1b
+x 10
+y 21
+end
+arch fwall_fstone1a
+x 10
+y 21
+end
+arch plant1_wall.151
+x 10
+y 21
+end
+arch floor_sblack2b
+x 10
+y 22
+end
+arch floor_sblack1b
+x 10
+y 23
+end
+arch fwall_fstone1a
+x 10
+y 23
+end
+arch floor_sblack1b
+x 11
+end
+arch floor_sblack2b
+x 11
+y 1
+end
+arch floor_sblack2b
+x 11
+y 2
+end
+arch floor_sblack1b
+x 11
+y 3
+end
+arch floor_sblack3b
+x 11
+y 4
+end
+arch blood_floor1
+x 11
+y 4
+end
+arch floor_sblack1b
+x 11
+y 5
+end
+arch floor_sblack1b
+x 11
+y 6
+end
+arch bone_skull
+x 11
+y 6
+end
+arch floor_sblack2b
+x 11
+y 7
+end
+arch floor_sblack1b
+x 11
+y 8
+end
+arch floor_sblack2b
+x 11
+y 9
+end
+arch floor_sblack2b
+x 11
+y 10
+end
+arch door1_locked
+x 11
+y 10
+end
+arch floor_sblack1b
+x 11
+y 11
+end
+arch floor_sblack2b
+x 11
+y 12
+end
+arch floor_sblack3b
+x 11
+y 13
+end
+arch floor_sblack2b
+x 11
 y 14
 end
 arch floor_sblack2b
-x 21
+x 11
 y 15
 end
-arch floor_sblack3b
-x 21
-y 16
-end
-arch dirt_floor3
-x 21
-y 16
-end
 arch floor_sblack2b
-x 21
-y 17
+x 11
+y 16
 end
-arch bone_skull
-x 21
-y 17
+arch torch_wall_1
+direction 7
+x 11
+y 16
 end
 arch floor_sblack1b
-x 21
+x 11
+y 17
+end
+arch floor_sblack2b
+x 11
 y 18
 end
 arch floor_sblack2b
-x 21
+x 11
 y 19
 end
-arch spawn_point
-x 21
+arch floor_sblack2b
+x 11
+y 20
+end
+arch floor_sblack1b
+x 11
+y 21
+end
+arch blood_floor1
+x 11
+y 21
+end
+arch floor_sblack1b
+x 11
+y 22
+end
+arch floor_sblack3b
+x 11
+y 23
+end
+arch fwall_fstone1a
+x 11
+y 23
+end
+arch floor_sblack2b
+x 12
+end
+arch floor_sblack2b
+x 12
+y 1
+end
+arch floor_sblack1b
+x 12
+y 2
+end
+arch floor_sblack2b
+x 12
+y 3
+end
+arch floor_sblack1b
+x 12
+y 4
+end
+arch floor_sblack3b
+x 12
+y 5
+end
+arch floor_sblack2b
+x 12
+y 6
+end
+arch floor_sblack1b
+x 12
+y 7
+end
+arch floor_sblack2b
+x 12
+y 8
+end
+arch floor_sblack1b
+x 12
+y 9
+end
+arch floor_sblack1b
+x 12
+y 10
+end
+arch fwall_fstone1a
+x 12
+y 10
+end
+arch floor_sblack2b
+x 12
+y 11
+end
+arch door1_locked
+direction 5
+x 12
+y 11
+end
+arch floor_sblack2b
+x 12
+y 12
+end
+arch fwall_fstone1c
+x 12
+y 12
+end
+arch floor_sblack3b
+x 12
+y 13
+end
+arch fwall_fstone1a
+x 12
+y 13
+end
+arch floor_sblack2b
+x 12
+y 14
+end
+arch fwall_fstone1a
+x 12
+y 14
+end
+arch floor_sblack2b
+x 12
+y 15
+end
+arch fwall_fstone1c
+x 12
+y 15
+end
+arch floor_sblack1b
+x 12
+y 16
+end
+arch fwall_fstone1b
+x 12
+y 16
+end
+arch floor_sblack1b
+x 12
+y 17
+end
+arch fwall_fstone1b
+x 12
+y 17
+end
+arch floor_sblack3b
+x 12
+y 18
+end
+arch fwall_fstone1b
+x 12
+y 18
+end
+arch floor_sblack2b
+x 12
 y 19
+end
+arch fwall_fstone1a
+x 12
+y 19
+end
+arch floor_sblack1b
+x 12
+y 20
+end
+arch fwall_fstone1c
+x 12
+y 20
+end
+arch floor_sblack2b
+x 12
+y 21
+end
+arch fwall_fstone1c
+x 12
+y 21
+end
+arch floor_sblack1b
+x 12
+y 22
+end
+arch door1_locked
+direction 3
+x 12
+y 22
+end
+arch floor_sblack3b
+x 12
+y 23
+end
+arch fwall_fstone1a
+x 12
+y 23
+end
+arch floor_sblack1b
+x 13
+end
+arch fwall_fstone1b
+x 13
+end
+arch floor_sblack2b
+x 13
+y 1
+end
+arch fwall_fstone1a
+x 13
+y 1
+end
+arch floor_sblack2b
+x 13
+y 2
+end
+arch fwall_fstone1a
+x 13
+y 2
+end
+arch floor_sblack2b
+x 13
+y 3
+end
+arch fwall_fstone1c
+x 13
+y 3
+end
+arch floor_sblack2b
+x 13
+y 4
+end
+arch floor_sblack2b
+x 13
+y 5
+end
+arch floor_sblack2b
+x 13
+y 6
+end
+arch fwall_fstone1a
+x 13
+y 6
+end
+arch floor_sblack2b
+x 13
+y 7
+end
+arch fwall_fstone1c
+x 13
+y 7
+end
+arch floor_sblack2b
+x 13
+y 8
+end
+arch fwall_fstone1a
+x 13
+y 8
+end
+arch floor_sblack2b
+x 13
+y 9
+end
+arch fwall_fstone1c
+x 13
+y 9
+end
+arch floor_sblack2b
+x 13
+y 10
+end
+arch fwall_fstone1c
+x 13
+y 10
+end
+arch floor_sblack2b
+x 13
+y 11
+end
+arch floor_sblack2b
+x 13
+y 12
+end
+arch torch_wall_1
+direction 7
+x 13
+y 12
+end
+arch floor_sblack3b
+x 13
+y 13
+end
+arch shelf3c.111
+direction 7
+x 13
+y 13
+arch random_treasure
+no_pick 1
+randomitems random_read
+end
+arch random_treasure
+no_pick 1
+randomitems random_read
+end
+end
+arch floor_sblack2b
+x 13
+y 14
+end
+arch shelf3b.111
+direction 7
+x 13
+y 14
+arch random_treasure
+no_pick 1
+randomitems random_read
+end
+end
+arch floor_sblack2b
+x 13
+y 15
+end
+arch shelf3a.111
+direction 7
+x 13
+y 15
+arch random_treasure
+no_pick 1
+randomitems random_read
+end
+end
+arch floor_sblack1b
+x 13
+y 16
+end
+arch shelf3b.111
+direction 7
+x 13
+y 16
+arch random_treasure
+no_pick 1
+randomitems random_read
+end
+arch random_treasure
+no_pick 1
+randomitems random_read
+end
+end
+arch floor_sblack2b
+x 13
+y 17
+end
+arch shelf3a.111
+direction 7
+x 13
+y 17
+arch random_treasure
+no_pick 1
+randomitems random_read
+end
+end
+arch floor_sblack2b
+x 13
+y 18
+end
+arch shelf3b.111
+direction 7
+x 13
+y 18
+arch random_treasure
+no_pick 1
+randomitems random_read
+end
+end
+arch floor_sblack2b
+x 13
+y 19
+end
+arch shelf3c.111
+direction 7
+x 13
+y 19
+arch random_treasure
+no_pick 1
+randomitems random_read
+end
+end
+arch floor_sblack3b
+x 13
+y 20
+end
+arch shelf3a.111
+direction 7
+x 13
+y 20
+arch random_treasure
+no_pick 1
+randomitems random_read
+end
+arch random_treasure
+no_pick 1
+randomitems random_read
+end
+end
+arch floor_sblack2b
+x 13
+y 21
+end
+arch torch_wall_1
+direction 7
+x 13
+y 21
+end
+arch floor_sblack2b
+x 13
+y 22
+end
+arch floor_sblack2b
+x 13
+y 23
+end
+arch fwall_fstone1a
+x 13
+y 23
+end
+arch floor_sblack2b
+x 14
+y 3
+end
+arch fwall_fstone1a
+x 14
+y 3
+end
+arch wall_drain1
+x 14
+y 3
+end
+arch floor_sblack2b
+x 14
+y 4
+end
+arch spawn_point
+x 14
+y 4
+arch wraith
+type 83
+level 62
+direction 3
+end
+end
+arch floor_sblack2b
+x 14
+y 5
+end
+arch floor_sblack2b
+x 14
+y 6
+end
+arch fwall_fstone1a
+x 14
+y 6
+end
+arch floor_sblack3b
+x 14
+y 10
+end
+arch fwall_fstone1c
+x 14
+y 10
+end
+arch floor_sblack2b
+x 14
+y 11
+end
+arch shelf_wall_dem2.111
+x 14
+y 11
+end
+arch floor_sblack1b
+x 14
+y 12
+end
+arch floor_sblack3b
+x 14
+y 13
+end
+arch floor_sblack1b
+x 14
+y 14
+end
+arch floor_sblack2b
+x 14
+y 15
+end
+arch floor_sblack2b
+x 14
+y 16
+end
+arch floor_sblack2b
+x 14
+y 17
+end
+arch floor_sblack1b
+x 14
+y 18
+end
+arch floor_sblack1b
+x 14
+y 19
+end
+arch floor_sblack3b
+x 14
+y 20
+end
+arch floor_sblack1b
+x 14
+y 21
+end
+arch floor_sblack2b
+x 14
+y 22
+end
+arch floor_sblack1b
+x 14
+y 23
+end
+arch fwall_fstone1a
+x 14
+y 23
+end
+arch floor_sblack3b
+x 15
+y 3
+end
+arch fwall_fstone1c
+x 15
+y 3
+end
+arch floor_sblack1b
+x 15
+y 4
+end
+arch floor_sblack1b
+x 15
+y 5
+end
+arch floor_sblack2b
+x 15
+y 6
+end
+arch fwall_fstone1b
+x 15
+y 6
+end
+arch floor_sblack1b
+x 15
+y 10
+end
+arch fwall_fstone1a
+x 15
+y 10
+end
+arch ring_wall.151
+x 15
+y 10
+end
+arch floor_sblack2b
+x 15
+y 11
+end
+arch shelf5_wall.111
+x 15
+y 11
+end
+arch floor_sblack1b
+x 15
+y 12
+end
+arch floor_sblack3b
+x 15
+y 13
+end
+arch floor_sblack2b
+x 15
+y 14
+end
+arch floor_sblack1b
+x 15
+y 15
+end
+arch bone_skull
+x 15
+y 15
+end
+arch floor_sblack2b
+x 15
+y 16
+end
+arch floor_sblack2b
+x 15
+y 17
+end
+arch floor_sblack2b
+x 15
+y 18
+end
+arch floor_sblack3b
+x 15
+y 19
+end
+arch floor_sblack2b
+x 15
+y 20
+end
+arch water_floor
+x 15
+y 20
+end
+arch floor_sblack3b
+x 15
+y 21
+end
+arch floor_sblack1b
+x 15
+y 22
+end
+arch floor_sblack1b
+x 15
+y 23
+end
+arch fwall_fstone1a
+x 15
+y 23
+end
+arch floor_sblack2b
+x 16
+y 3
+end
+arch fwall_fstone1c
+x 16
+y 3
+end
+arch floor_sblack2b
+x 16
+y 4
+end
+arch torch_wall_1
+x 16
+y 4
+end
+arch floor_sblack3b
+x 16
+y 5
+end
+arch floor_sblack1b
+x 16
+y 6
+end
+arch fwall_fstone1a
+x 16
+y 6
+end
+arch floor_sblack2b
+x 16
+y 10
+end
+arch fwall_fstone1b
+x 16
+y 10
+end
+arch floor_sblack1b
+x 16
+y 11
+end
+arch torch_wall_1
+x 16
+y 11
+end
+arch floor_sblack2b
+x 16
+y 12
+end
+arch floor_sblack3b
+x 16
+y 13
+end
+arch dirt_floor1
+x 16
+y 13
+end
+arch floor_sblack3b
+x 16
+y 14
+end
+arch pillar_black2c
+x 16
+y 14
+end
+arch floor_sblack2b
+x 16
+y 15
+end
+arch torch_wall_1
+x 16
+y 15
+end
+arch floor_sblack2b
+x 16
+y 16
+end
+arch floor_sblack3b
+x 16
+y 17
+end
+arch pool_poison
+x 16
+y 17
+end
+arch light3
+x 16
+y 17
+end
+arch floor_sblack1b
+x 16
+y 18
+end
+arch pile_floor3
+x 16
+y 18
+end
+arch floor_sblack3b
+x 16
+y 19
+end
+arch pillar_black2c
+x 16
+y 19
+end
+arch floor_sblack3b
+x 16
+y 20
+end
+arch torch_wall_1
+x 16
+y 20
+end
+arch spawn_point
+x 16
+y 20
+arch wraith
+direction 7
+level 61
+random_move 1
+item_race 1
+item_level 1
+type 83
+name wraith library guard
+end
+end
+arch floor_sblack2b
+x 16
+y 21
+end
+arch floor_sblack2b
+x 16
+y 22
+end
+arch floor_sblack2b
+x 16
+y 23
+end
+arch fwall_fstone1a
+x 16
+y 23
+end
+arch floor_sblack3b
+x 17
+y 3
+end
+arch fwall_fstone1a
+x 17
+y 3
+end
+arch floor_sblack1b
+x 17
+y 4
+end
+arch shelf3_dem3.111
+x 17
+y 4
+end
+arch floor_sblack1b
+x 17
+y 5
+end
+arch floor_sblack2b
+x 17
+y 6
+end
+arch fwall_fstone1c
+x 17
+y 6
+end
+arch floor_sblack1b
+x 17
+y 10
+end
+arch fwall_fstone1c
+x 17
+y 10
+end
+arch plant2_wall.151
+x 17
+y 10
+end
+arch floor_sblack2b
+x 17
+y 11
+end
+arch floor_sblack2b
+x 17
+y 12
+end
+arch floor_sblack1b
+x 17
+y 13
+end
+arch floor_sblack1b
+x 17
+y 14
+end
+arch spawn_point
+x 17
+y 14
 arch ghoul
 type 83
 level 59
+direction 7
+name ghoul library guard
+end
+end
+arch floor_sblack2b
+x 17
+y 15
+end
+arch floor_sblack3b
+x 17
+y 16
+end
+arch floor_sblack3b
+x 17
+y 17
+end
+arch bones4
+x 17
+y 17
+end
+arch floor_sblack2b
+x 17
+y 18
+end
+arch floor_sblack1b
+x 17
+y 19
+end
+arch floor_sblack2b
+x 17
+y 20
+end
+arch floor_sblack2b
+x 17
+y 21
+end
+arch floor_sblack1b
+x 17
+y 22
+end
+arch floor_sblack1b
+x 17
+y 23
+end
+arch fwall_fstone1a
+x 17
+y 23
+end
+arch floor_sblack2b
+x 18
+y 3
+end
+arch fwall_fstone1a
+x 18
+y 3
+end
+arch floor_sblack2b
+x 18
+y 4
+end
+arch shelf3_dem1.111
+x 18
+y 4
+end
+arch floor_sblack1b
+x 18
+y 5
+end
+arch floor_sblack1b
+x 18
+y 6
+end
+arch fwall_fstone1c
+x 18
+y 6
+end
+arch floor_sblack2b
+x 18
+y 10
+end
+arch fwall_fstone1a
+x 18
+y 10
+end
+arch floor_sblack1b
+x 18
+y 11
+end
+arch floor_sblack1b
+x 18
+y 12
+end
+arch floor_sblack3b
+x 18
+y 13
+end
+arch floor_sblack3b
+x 18
+y 14
+end
+arch floor_sblack1b
+x 18
+y 15
+end
+arch floor_sblack3b
+x 18
+y 16
+end
+arch floor_sblack2b
+x 18
+y 17
+end
+arch floor_sblack2b
+x 18
+y 18
+end
+arch floor_sblack1b
+x 18
+y 19
+end
+arch floor_sblack2b
+x 18
+y 20
+end
+arch floor_sblack2b
+x 18
+y 21
+end
+arch floor_sblack2b
+x 18
+y 22
+end
+arch floor_sblack1b
+x 18
+y 23
+end
+arch fwall_fstone1a
+x 18
+y 23
+end
+arch floor_sblack1b
+x 19
+end
+arch fwall_fstone1b
+x 19
+end
+arch floor_sblack2b
+x 19
+y 1
+end
+arch fwall_fstone1a
+x 19
+y 1
+end
+arch plant2_wall.151
+direction 7
+x 19
+y 1
+end
+arch floor_sblack2b
+x 19
+y 2
+end
+arch fwall_fstone1b
+x 19
+y 2
+end
+arch floor_sblack2b
+x 19
+y 3
+end
+arch fwall_fstone1b
+x 19
+y 3
+end
+arch floor_sblack1b
+x 19
+y 4
+end
+arch shelf3_dem2.111
+x 19
+y 4
+end
+arch floor_sblack1b
+x 19
+y 5
+end
+arch floor_sblack2b
+x 19
+y 6
+end
+arch fwall_fstone1a
+x 19
+y 6
+end
+arch floor_sblack3b
+x 19
+y 7
+end
+arch fwall_fstone1c
+x 19
+y 7
+end
+arch floor_sblack3b
+x 19
+y 8
+end
+arch fwall_fstone1a
+x 19
+y 8
+end
+arch floor_sblack3b
+x 19
+y 9
+end
+arch fwall_fstone1a
+x 19
+y 9
+end
+arch floor_sblack1b
+x 19
+y 10
+end
+arch fwall_fstone1a
+x 19
+y 10
+end
+arch floor_sblack2b
+x 19
+y 11
+end
+arch fwall_fstone1b
+x 19
+y 11
+end
+arch floor_sblack1b
+x 19
+y 12
+end
+arch fwall_fstone1a
+x 19
+y 12
+end
+arch floor_sblack1b
+x 19
+y 13
+end
+arch fwall_fstone1b
+x 19
+y 13
+end
+arch floor_sblack1b
+x 19
+y 14
+end
+arch fwall_fstone1b
+x 19
+y 14
+end
+arch floor_sblack2b
+x 19
+y 15
+end
+arch fwall_fstone1a
+x 19
+y 15
+end
+arch floor_sblack1b
+x 19
+y 16
+end
+arch fwall_fstone1b
+x 19
+y 16
+end
+arch floor_sblack2b
+x 19
+y 17
+end
+arch fwall_fstone1a
+x 19
+y 17
+end
+arch floor_sblack2b
+x 19
+y 18
+end
+arch fwall_fstone1a
+x 19
+y 18
+end
+arch floor_sblack1b
+x 19
+y 19
+end
+arch fwall_fstone1a
+x 19
+y 19
+end
+arch floor_sblack1b
+x 19
+y 20
+end
+arch fwall_fstone1c
+x 19
+y 20
+end
+arch floor_sblack2b
+x 19
+y 21
+end
+arch fwall_fstone1b
+x 19
+y 21
+end
+arch floor_sblack3b
+x 19
+y 22
+end
+arch fwall_fstone1c
+x 19
+y 22
+end
+arch floor_sblack2b
+x 19
+y 23
+end
+arch fwall_fstone1b
+x 19
+y 23
+end
+arch floor_sblack1b
+x 20
+end
+arch spawn_point
+x 20
+arch lost_soul
+type 83
+level 61
 direction 1
 end
 end
-arch floor_sblack1b
-x 21
-y 20
-end
-arch floor_sblack1b
-x 21
-y 21
-end
-arch floor_sblack1b
-x 21
-y 22
-end
-arch floor_sblack1b
-x 21
-y 23
-end
-arch floor_sblack2b
-x 22
-end
-arch fwall_fstone1b
-x 22
-end
-arch floor_sblack1b
-x 22
+arch floor_sblack3b
+x 20
 y 1
-end
-arch mushroom_spot1
-x 22
-y 1
-end
-arch floor_sblack2b
-x 22
-y 2
-end
-arch floor_sblack2b
-x 22
-y 3
-end
-arch floor_sblack2b
-x 22
-y 4
-end
-arch fwall_fstone1a
-x 22
-y 4
 end
 arch floor_sblack3b
-x 22
-y 5
+x 20
+y 2
 end
 arch torch_wall_1
+direction 7
+x 20
+y 2
+end
+arch floor_sblack2b
+x 20
+y 3
+end
+arch floor_sblack1b
+x 20
+y 4
+end
+arch floor_sblack1b
+x 20
+y 5
+end
+arch pile_floor2
+x 20
+y 5
+end
+arch floor_sblack2b
+x 20
+y 6
+end
+arch shelf5_wall.111
+direction 7
+x 20
+y 6
+arch random_treasure
+no_pick 1
+randomitems random_read
+end
+end
+arch floor_sblack1b
+x 20
+y 7
+end
+arch table_lab3.111
+direction 7
+x 20
+y 7
+end
+arch floor_sblack1b
+x 20
+y 8
+end
+arch shelf3c.111
+direction 7
+x 20
+y 8
+arch random_treasure
+no_pick 1
+randomitems random_read
+end
+arch random_treasure
+no_pick 1
+randomitems random_read
+end
+end
+arch floor_sblack2b
+x 20
+y 9
+end
+arch shelf3a.111
+direction 7
+x 20
+y 9
+arch random_treasure
+no_pick 1
+randomitems random_read
+end
+end
+arch floor_sblack2b
+x 20
+y 10
+end
+arch fwall_fstone1a
+x 20
+y 10
+end
+arch floor_sblack1b
+x 21
+end
+arch floor_sblack2b
+x 21
+y 1
+end
+arch water_floor
+x 21
+y 1
+end
+arch floor_sblack2b
+x 21
+y 2
+end
+arch bone_broken
+x 21
+y 2
+end
+arch floor_sblack2b
+x 21
+y 3
+end
+arch floor_sblack1b
+x 21
+y 4
+end
+arch floor_sblack1b
+x 21
+y 5
+end
+arch floor_sblack3b
+x 21
+y 6
+end
+arch floor_sblack2b
+x 21
+y 7
+end
+arch spawn_point
+x 21
+y 7
+arch demilich
+type 83
+level 60
+direction 7
+name demilich scribe
+arch ability_cause_lig_wound
+end
+end
+end
+arch floor_sblack2b
+x 21
+y 8
+end
+arch floor_sblack2b
+x 21
+y 9
+end
+arch floor_sblack1b
+x 21
+y 10
+end
+arch fwall_fstone1c
+x 21
+y 10
+end
+arch floor_sblack3b
+x 22
+end
+arch floor_sblack1b
+x 22
+y 1
+end
+arch floor_sblack2b
+x 22
+y 2
+end
+arch floor_sblack2b
+x 22
+y 3
+end
+arch floor_sblack2b
+x 22
+y 4
+end
+arch floor_sblack3b
 x 22
 y 5
 end
@@ -2615,7 +2904,8 @@ arch floor_sblack3b
 x 22
 y 9
 end
-arch fwall_fstone1a
+arch chest7_111
+direction 7
 x 22
 y 9
 end
@@ -2623,63 +2913,11 @@ arch floor_sblack2b
 x 22
 y 10
 end
-arch torch_wall_1
+arch fwall_fstone1a
 x 22
 y 10
 end
-arch floor_sblack2b
-x 22
-y 11
-end
-arch floor_sblack2b
-x 22
-y 12
-end
-arch floor_sblack2b
-x 22
-y 13
-end
-arch floor_sblack2b
-x 22
-y 14
-end
-arch floor_sblack2b
-x 22
-y 15
-end
-arch floor_sblack2b
-x 22
-y 16
-end
 arch floor_sblack1b
-x 22
-y 17
-end
-arch floor_sblack2b
-x 22
-y 18
-end
-arch floor_sblack1b
-x 22
-y 19
-end
-arch floor_sblack1b
-x 22
-y 20
-end
-arch floor_sblack2b
-x 22
-y 21
-end
-arch floor_sblack3b
-x 22
-y 22
-end
-arch floor_sblack1b
-x 22
-y 23
-end
-arch floor_sblack2b
 x 23
 end
 arch fwall_fstone1a
@@ -2689,7 +2927,7 @@ arch floor_sblack2b
 x 23
 y 1
 end
-arch fwall_fstone1c
+arch fwall_fstone1a
 x 23
 y 1
 end
@@ -2697,7 +2935,7 @@ arch floor_sblack1b
 x 23
 y 2
 end
-arch fwall_fstone1a
+arch fwall_fstone1b
 x 23
 y 2
 end
@@ -2713,7 +2951,7 @@ arch floor_sblack1b
 x 23
 y 4
 end
-arch fwall_fstone1a
+arch fwall_fstone1c
 x 23
 y 4
 end
@@ -2721,7 +2959,7 @@ arch floor_sblack2b
 x 23
 y 5
 end
-arch fwall_fstone1a
+arch fwall_fstone1c
 x 23
 y 5
 end
@@ -2729,7 +2967,7 @@ arch floor_sblack2b
 x 23
 y 6
 end
-arch fwall_fstone1a
+arch fwall_fstone1c
 x 23
 y 6
 end
@@ -2737,7 +2975,7 @@ arch floor_sblack3b
 x 23
 y 7
 end
-arch fwall_fstone1a
+arch fwall_fstone1c
 x 23
 y 7
 end
@@ -2753,7 +2991,7 @@ arch floor_sblack2b
 x 23
 y 9
 end
-arch fwall_fstone1c
+arch fwall_fstone1a
 x 23
 y 9
 end
@@ -2764,108 +3002,4 @@ end
 arch fwall_fstone1c
 x 23
 y 10
-end
-arch floor_sblack3b
-x 23
-y 11
-end
-arch fwall_fstone1a
-x 23
-y 11
-end
-arch floor_sblack2b
-x 23
-y 12
-end
-arch fwall_fstone1a
-x 23
-y 12
-end
-arch floor_sblack1b
-x 23
-y 13
-end
-arch fwall_fstone1c
-x 23
-y 13
-end
-arch floor_sblack1b
-x 23
-y 14
-end
-arch fwall_fstone1c
-x 23
-y 14
-end
-arch floor_sblack2b
-x 23
-y 15
-end
-arch fwall_fstone1c
-x 23
-y 15
-end
-arch floor_sblack2b
-x 23
-y 16
-end
-arch fwall_fstone1c
-x 23
-y 16
-end
-arch floor_sblack1b
-x 23
-y 17
-end
-arch fwall_fstone1a
-x 23
-y 17
-end
-arch floor_sblack1b
-x 23
-y 18
-end
-arch fwall_fstone1b
-x 23
-y 18
-end
-arch floor_sblack2b
-x 23
-y 19
-end
-arch fwall_fstone1c
-x 23
-y 19
-end
-arch floor_sblack2b
-x 23
-y 20
-end
-arch fwall_fstone1a
-x 23
-y 20
-end
-arch floor_sblack2b
-x 23
-y 21
-end
-arch fwall_fstone1a
-x 23
-y 21
-end
-arch floor_sblack1b
-x 23
-y 22
-end
-arch fwall_fstone1c
-x 23
-y 22
-end
-arch floor_sblack1b
-x 23
-y 23
-end
-arch fwall_fstone1b
-x 23
-y 23
 end

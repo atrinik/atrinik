@@ -49,7 +49,7 @@ end
 arch floor_marble1
 y 7
 end
-arch altar_tabernacle
+arch altar_elathiel
 direction 3
 xrays 1
 y 7
@@ -210,7 +210,7 @@ faction brynknot_citizens
 type 83
 arch event_obj
 sub_type 6
-race /interfaces/temples/tabernacle.xml
+race /interfaces/temples/elathiel.xml
 end
 end
 end

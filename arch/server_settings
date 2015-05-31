@@ -16,14 +16,14 @@ char Dwarf
 gender male dwarf_male dwarf.151
 gender female dwarf_female dwarf.151
 
-desc Some dwarves have joined the human fight against Moroch and their skills were very valuable. Some have traveled to the human realms but there are also rumors from hidden dwarf cities in the deeps. The dwarves themselves don't talk much about it...
+desc Some dwarves have joined the human fight against Zechna and their skills were very valuable. Some have traveled to the human realms but there are also rumors from hidden dwarf cities in the deeps. The dwarves themselves don't talk much about it...
 end
 
 char Thelra
 gender male thelra_male thelra_m.151
 gender female thelra_female thelra_f.151
 
-desc The race of Thelra is a powerful and fierce race from the cold North. They decided to help fight alongside the chronomancers of Thraal in the war against Moroch. They excel as wizards, but can take on most other skills quite well.
+desc The race of Thelra is a powerful and fierce race from the cold North. They decided to help fight alongside the chronomancers of Thraal in the war against Zechna. They excel as wizards, but can take on most other skills quite well.
 end
 
 text Physical Elemental Magical Spherical

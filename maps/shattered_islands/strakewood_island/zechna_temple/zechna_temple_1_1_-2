@@ -1,5 +1,5 @@
 arch map
-name Moroch Temple
+name Temple of Zechna
 msg
 Created:  2009-09-22 Alex Tokar
 Modified: 2011-02-11 Alex Tokar
@@ -8,11 +8,8 @@ width 24
 height 24
 difficulty 92
 darkness 2
-tile_path_1 moroch_temple_c_0202
-tile_path_4 moroch_temple_c_0101
-tile_path_8 moroch_temple_c_0102
 bg_music evil_temple.ogg
-region moroch_temple_c
+region zechna_temple_c
 end
 arch floor_sblack3b
 end

@@ -546,7 +546,7 @@ y 13
 end
 arch client_map_info
 msg
-Temple of Tabernacle.
+Temple of Elathiel.
 endmsg
 name morliana_temple
 sub_type 2
@@ -760,7 +760,7 @@ arch floor_marble_grey
 x 4
 y 16
 end
-arch altar_tabernacle
+arch altar_elathiel
 direction 7
 xrays 1
 x 4
@@ -770,7 +770,7 @@ arch floor_marble_grey
 x 4
 y 17
 end
-arch altar_tabernacle
+arch altar_elathiel
 direction 7
 xrays 1
 x 4
@@ -1084,7 +1084,7 @@ type 83
 name Manzom
 arch event_obj
 sub_type 6
-race /interfaces/temples/tabernacle.xml
+race /interfaces/temples/elathiel.xml
 end
 end
 end

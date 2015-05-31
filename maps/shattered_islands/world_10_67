@@ -2958,7 +2958,7 @@ arch floor_flagm4
 x 19
 y 7
 end
-arch altar_tabernacle
+arch altar_elathiel
 xrays 1
 x 19
 y 7

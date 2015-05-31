@@ -3350,7 +3350,7 @@ y 7
 end
 arch client_map_info
 msg
-Temple of Tabernacle.
+Temple of Elathiel.
 endmsg
 name clearhaven_temple
 sub_type 2

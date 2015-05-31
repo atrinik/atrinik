@@ -1,295 +1,273 @@
 arch map
-name Moroch Temple
+name Temple of Zechna
 msg
 Created:  2009-09-22 Alex Tokar
-Modified: 2015-05-29 Alex Tokar
+Modified: 2015-05-31 Alex Tokar
 endmsg
 width 24
 height 24
 difficulty 95
 darkness 2
-tile_path_1 moroch_temple_c_0102
-tile_path_2 moroch_temple_c_0201
-tile_path_5 moroch_temple_c_0202
 bg_music evil_temple.ogg
-region moroch_temple_c
+region zechna_temple_c
 end
 arch floor_sblack1b
-x 2
 y 1
 end
 arch fwall_fstone1a
-x 2
 y 1
 end
 arch floor_sblack3b
-x 2
 y 2
 end
 arch fwall_fstone1a
-x 2
 y 2
 end
 arch floor_sblack1b
-x 2
 y 3
 end
 arch fwall_fstone1b
-x 2
 y 3
 end
 arch floor_sblack1b
-x 2
 y 4
 end
 arch fwall_fstone1c
-x 2
 y 4
 end
 arch floor_sblack1b
-x 2
 y 5
 end
 arch fwall_fstone1a
-x 2
 y 5
 end
 arch floor_sblack1b
-x 2
 y 6
 end
 arch fwall_fstone1a
-x 2
-y 6
-end
-arch wall_blood2
-direction 7
-x 2
 y 6
 end
 arch floor_sblack2b
-x 2
 y 7
 end
 arch fwall_fstone1a
-x 2
 y 7
 end
 arch floor_sblack1b
-x 2
 y 8
 end
 arch fwall_fstone1a
-x 2
 y 8
 end
 arch floor_sblack3b
-x 2
 y 9
 end
 arch fwall_fstone1c
-x 2
 y 9
 end
 arch plant2_wall.151
 direction 7
-x 2
 y 9
 end
 arch floor_sblack1b
-x 2
 y 10
 end
 arch fwall_fstone1c
-x 2
 y 10
 end
 arch floor_sblack1b
-x 2
 y 11
 end
 arch fwall_fstone1a
-x 2
 y 11
 end
 arch floor_sblack2b
-x 2
 y 12
 end
 arch fwall_fstone1b
-x 2
 y 12
 end
 arch floor_sblack3b
-x 3
+x 1
 y 1
 end
 arch fwall_fstone1c
-x 3
+x 1
 y 1
 end
 arch chains3.151
-x 3
+x 1
 y 1
 end
 arch floor_sblack3b
-x 3
+x 1
 y 2
 end
 arch prison_deco3.131
 direction 7
-x 3
+x 1
 y 2
 end
 arch floor_sblack3b
-x 3
+x 1
 y 3
 end
 arch prison_deco3.131
 direction 7
-x 3
+x 1
 y 3
 end
 arch floor_sblack3b
-x 3
+x 1
 y 4
+end
+arch table_lab1.111
+direction 7
+x 1
+y 4
+end
+arch floor_sblack2b
+x 1
+y 5
+end
+arch table_lab3.111
+direction 7
+x 1
+y 5
 end
 arch torch_wall_1
+x 1
+y 5
+end
+arch floor_sblack3b
+x 1
+y 6
+end
+arch table_lab2.111
 direction 7
-x 3
-y 4
-end
-arch floor_sblack1b
-x 3
-y 5
-end
-arch stairs_stone_down
-slaying moroch_temple_d_0101
-hp 3
-sp 5
-x 3
-y 5
-end
-arch floor_sblack1b
-x 3
+x 1
 y 6
 end
-arch stairs_stone_down
-slaying moroch_temple_d_0101
-hp 3
-sp 6
-x 3
-y 6
-end
-arch floor_sblack2b
-x 3
-y 7
-end
-arch stairs_stone_down
-slaying moroch_temple_d_0101
-hp 3
-sp 7
-x 3
+arch floor_sblack3b
+x 1
 y 7
 end
 arch floor_sblack2b
-x 3
+x 1
 y 8
 end
 arch torch_wall_1
 direction 7
-x 3
+x 1
 y 8
 end
 arch floor_sblack2b
-x 3
+x 1
 y 9
 end
 arch shelf3_dem3.111
 direction 7
-x 3
+x 1
 y 9
 end
 arch floor_sblack2b
-x 3
+x 1
 y 10
 end
 arch prison_deco2.131
 direction 7
-x 3
+x 1
 y 10
 end
 arch floor_sblack3b
-x 3
+x 1
 y 11
 end
 arch prison_deco2.131
 direction 7
-x 3
+x 1
 y 11
 end
 arch floor_sblack3b
-x 3
+x 1
 y 12
 end
 arch fwall_fstone1a
-x 3
+x 1
 y 12
 end
 arch floor_sblack2b
-x 4
+x 2
+end
+arch fwall_fstone1c
+x 2
+end
+arch floor_sblack2b
+x 2
 y 1
 end
 arch fwall_fstone1c
-x 4
+x 2
 y 1
 end
 arch plant2_wall.151
-x 4
+x 2
 y 1
 end
 arch floor_sblack1b
-x 4
-y 2
-end
-arch table_lab1.111
-x 4
+x 2
 y 2
 end
 arch floor_sblack1b
-x 4
+x 2
 y 3
 end
 arch floor_sblack2b
-x 4
+x 2
 y 4
 end
+arch chair2_111
+direction 3
+x 2
+y 4
+end
+arch spawn_point
+x 2
+y 4
+arch skel_mage
+type 83
+level 93
+direction 7
+exp 116
+name skeleton researcher
+arch ability_mbullet
+end
+arch ability_icestorm
+end
+end
+end
 arch floor_sblack2b
-x 4
+x 2
 y 5
 end
+arch floor_sblack2b
+x 2
+y 6
+end
 arch floor_sblack3b
-x 4
-y 6
-end
-arch dirt_floor3
-x 4
-y 6
-end
-arch floor_sblack1b
-x 4
+x 2
 y 7
 end
 arch floor_sblack1b
-x 4
+x 2
 y 8
 end
 arch floor_sblack3b
-x 4
+x 2
 y 9
 end
 arch spawn_point
-x 4
+x 2
 y 9
 arch gazer_dread
 type 83
@@ -306,10 +284,145 @@ end
 end
 end
 arch floor_sblack2b
-x 4
+x 2
 y 10
 end
 arch floor_sblack1b
+x 2
+y 11
+end
+arch floor_sblack3b
+x 2
+y 12
+end
+arch fwall_fstone1a
+x 2
+y 12
+end
+arch floor_sblack1b
+x 3
+end
+arch stairs_down
+x 3
+end
+arch floor_sblack2b
+x 3
+y 1
+end
+arch stairs_stone_down
+direction 1
+x 3
+y 1
+end
+arch floor_sblack2b
+x 3
+y 2
+end
+arch floor_sblack2b
+x 3
+y 3
+end
+arch floor_sblack3b
+x 3
+y 4
+end
+arch torch_wall_1
+direction 7
+x 3
+y 4
+end
+arch floor_sblack1b
+x 3
+y 5
+end
+arch floor_sblack1b
+x 3
+y 6
+end
+arch floor_sblack2b
+x 3
+y 7
+end
+arch floor_sblack2b
+x 3
+y 8
+end
+arch floor_sblack3b
+x 3
+y 9
+end
+arch floor_sblack2b
+x 3
+y 10
+end
+arch floor_sblack2b
+x 3
+y 11
+end
+arch floor_sblack3b
+x 3
+y 12
+end
+arch fwall_fstone1a
+x 3
+y 12
+end
+arch floor_sblack2b
+x 4
+end
+arch stairs_down
+x 4
+end
+arch floor_sblack3b
+x 4
+y 1
+end
+arch stairs_stone_down
+direction 1
+x 4
+y 1
+end
+arch light3
+x 4
+y 1
+end
+arch floor_sblack1b
+x 4
+y 2
+end
+arch floor_sblack1b
+x 4
+y 3
+end
+arch floor_sblack2b
+x 4
+y 4
+end
+arch floor_sblack2b
+x 4
+y 5
+end
+arch floor_sblack3b
+x 4
+y 6
+end
+arch floor_sblack1b
+x 4
+y 7
+end
+arch floor_sblack2b
+x 4
+y 8
+end
+arch floor_sblack3b
+x 4
+y 9
+end
+arch floor_sblack3b
+x 4
+y 10
+end
+arch floor_sblack3b
 x 4
 y 11
 end
@@ -321,49 +434,28 @@ arch fwall_fstone1a
 x 4
 y 12
 end
-arch floor_sblack3b
+arch floor_sblack2b
+x 5
+end
+arch stairs_down
+x 5
+end
+arch floor_sblack1b
 x 5
 y 1
 end
-arch fwall_fstone1a
+arch stairs_stone_down
+direction 1
 x 5
 y 1
 end
-arch floor_sblack2b
+arch floor_sblack1b
 x 5
 y 2
 end
-arch table_lab3.111
-x 5
-y 2
-end
-arch torch_wall_1
-x 5
-y 2
-end
-arch floor_sblack2b
+arch floor_sblack1b
 x 5
 y 3
-end
-arch chair2_111
-direction 5
-x 5
-y 3
-end
-arch spawn_point
-x 5
-y 3
-arch skel_mage
-type 83
-level 93
-direction 3
-exp 116
-name skeleton researcher
-arch ability_mbullet
-end
-arch ability_icestorm
-end
-end
 end
 arch floor_sblack1b
 x 5
@@ -377,9 +469,13 @@ arch floor_sblack1b
 x 5
 y 6
 end
+arch floor_sblack1b
+x 5
+y 7
+end
 arch spawn_point
 x 5
-y 6
+y 7
 arch demon_fire
 type 83
 level 94
@@ -388,10 +484,6 @@ item_race 1
 item_level 1
 direction 3
 end
-end
-arch floor_sblack1b
-x 5
-y 7
 end
 arch floor_sblack3b
 x 5
@@ -417,6 +509,12 @@ arch fwall_fstone1c
 x 5
 y 12
 end
+arch floor_sblack1b
+x 6
+end
+arch fwall_fstone1b
+x 6
+end
 arch floor_sblack3b
 x 6
 y 1
@@ -429,11 +527,7 @@ arch ring_wall.151
 x 6
 y 1
 end
-arch floor_sblack3b
-x 6
-y 2
-end
-arch table_lab2.111
+arch floor_sblack2b
 x 6
 y 2
 end

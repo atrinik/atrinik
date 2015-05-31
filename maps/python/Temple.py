@@ -120,6 +120,13 @@ class TempleDrolaxi(Temple):
     enemy_temple_name = "Shaligar"
     enemy_temple_desc = "Flames and terror does he seek to spread. Do not be deceived, although the flame be kin to the Lady, he is complerely mad. Avoid the scorching flames or they will consume you. We shall rule the world and all shall be seas!"
 
+class TempleElathiel(Temple):
+    """Elathiel temple."""
+    temple_name = "Elathiel"
+    temple_desc = "I am a servant of the God of Light and King of the Angels, Elathiel."
+    enemy_temple_name = "Rashindel"
+    enemy_temple_desc = "Caution child, for you speak of the Fallen One. In the days before the worlds were created by our Lord Elathiel, the archangel Rashindel stood at his right hand. In that day, however, Rashindel sought to claim the throne of Heaven and unseat the Mighty Elathiel. The Demon King was quickly defeated and banished to Hell with the angels he managed to deceive and they were transformed into the awful demons and devils which threaten the lands to this day."
+
 class TempleGrumthar(Temple):
     """Grumthar temple."""
     temple_name = "Grumthar"
@@ -134,18 +141,11 @@ class TempleJotarl(Temple):
     enemy_temple_name = "Grumthar"
     enemy_temple_desc = "Puny dwarves do not scare Jotarl with their technology and mithril weapons, we shall rule the caves! The Dwarves shall fall and we shall claim their gold for ourselves."
 
-class TempleMoroch(Temple):
-    """Moroch temple."""
-    temple_name = "Moroch"
-    temple_desc = "I am a servant of the Lord of the Grave and King of Undeath, Moroch."
-    enemy_temple_name = "Terria"
-    enemy_temple_desc = "Do you honestly believe the lies of those naturists? The powers of undeath will rule the universe and the servants of Nature will fail. The Dark Lord shall not fail to dominate the land and all be consumed in glorious Death."
-
 class TempleRashindel(Temple):
     """Rashindel temple."""
     temple_name = "Rashindel"
     temple_desc = "I am a servant of the Demonic King and the Overlord of Hell, Rashindel."
-    enemy_temple_name = "Tabernacle"
+    enemy_temple_name = "Elathiel"
     enemy_temple_desc = "Accursed fool, do not mention that name in our presence! In the days before this world, the Tyrant sought to oppress us with the his oppressive ideals of truth and justice. After our master freed us from the simpleton lots who follow him, he was bound into the darkness which is now our glorious kingdom."
 
 class TempleRogroth(Temple):
@@ -160,18 +160,11 @@ class TempleShaligar(Temple):
     enemy_temple_name = "Drolaxi"
     enemy_temple_desc = "Ah, the weak and cowardly sister of the Flame Lord. One day, she shall no longer be able to keep our flames from consuming all things and our flames shall make all subjects to our will."
 
-class TempleTabernacle(Temple):
-    """Tabernacle temple."""
-    temple_name = "Tabernacle"
-    temple_desc = "I am a servant of the God of Light and King of the Angels, Tabernacle."
-    enemy_temple_name = "Rashindel"
-    enemy_temple_desc = "Caution child, for you speak of the Fallen One. In the days before the worlds were created by our Lord Tabernacle, the archangel Rashindel stood at his right hand. In that day, however, Rashindel sought to claim the throne of Heaven and unseat the Mighty Tabernacle. The Demon King was quickly defeated and banished to Hell with the angels he managed to deceive and they were transformed into the awful demons and devils which threaten the lands to this day."
-
 class TempleTerria(Temple):
     """Terria temple."""
     temple_name = "Terria"
     temple_desc = "I am a servant of Mother Earth and the Goddess of Life, Terria."
-    enemy_temple_name = "Moroch"
+    enemy_temple_name = "Zechna"
     enemy_temple_desc = "Speak not of the Dark Lord here! The King of Death with his awful necromantic minions that rise from the sleep of death are not to be trifled with, for they are dangerous. Our Lady has long sought to remove the plague of death from the lands after that foul Lich ascended."
 
 class TempleTylowyn(Temple):
@@ -180,3 +173,10 @@ class TempleTylowyn(Temple):
     temple_desc = "I am a servant of the first Queen of Elven Kind and Elven Goddess of Luck, Tylowyn."
     enemy_temple_name = "Dalosha"
     enemy_temple_desc = "That rebellious heretic! In the days of the First Elven Kings, the first daughter of our gracious Tylowyn sought to overthrow the Elven Kingdoms with her lies and treachery. After she was routed from the Elven lands, she took her band of rebel dark elves and hid in the caves, but unfortunately managed to survive there. Avoid those drow if you know what is best for you."
+
+class TempleZechna(Temple):
+    """Zechna temple."""
+    temple_name = "Zechna"
+    temple_desc = "I am a servant of the Lord of the Grave and King of Undeath, Zechna."
+    enemy_temple_name = "Terria"
+    enemy_temple_desc = "Do you honestly believe the lies of those naturists? The powers of undeath will rule the universe and the servants of Nature will fail. The Dark Lord shall not fail to dominate the land and all be consumed in glorious Death."

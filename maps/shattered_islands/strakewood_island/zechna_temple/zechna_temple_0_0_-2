@@ -1,18 +1,15 @@
 arch map
-name Moroch Temple
+name Temple of Zechna
 msg
 Created:  2011-02-11 Alex Tokar
-Modified: 2011-02-11 Alex Tokar
+Modified: 2015-05-31 Alex Tokar
 endmsg
 width 24
 height 24
 difficulty 100
 darkness 2
-tile_path_2 moroch_temple_c_0202
-tile_path_3 moroch_temple_c_0101
-tile_path_6 moroch_temple_c_0201
 bg_music evil_temple.ogg
-region moroch_temple_c
+region zechna_temple_c
 end
 arch floor_sblack3b
 x 1
@@ -311,6 +308,18 @@ arch fwall_fstone1b
 x 2
 y 17
 end
+arch floor_sblack2b
+x 2
+y 23
+end
+arch fwall_fstone1c
+x 2
+y 23
+end
+arch plant2_wall.151
+x 2
+y 23
+end
 arch floor_sblack1b
 x 3
 end
@@ -429,6 +438,14 @@ arch fwall_fstone1a
 x 3
 y 17
 end
+arch floor_sblack3b
+x 3
+y 23
+end
+arch fwall_fstone1a
+x 3
+y 23
+end
 arch floor_sblack2b
 x 4
 end
@@ -530,6 +547,18 @@ end
 arch fwall_fstone1c
 x 4
 y 17
+end
+arch floor_sblack3b
+x 4
+y 23
+end
+arch fwall_fstone1a
+x 4
+y 23
+end
+arch ring_wall.151
+x 4
+y 23
 end
 arch floor_sblack3b
 x 5
@@ -636,6 +665,14 @@ arch fwall_fstone1b
 x 5
 y 17
 end
+arch floor_sblack3b
+x 5
+y 23
+end
+arch fwall_fstone1a
+x 5
+y 23
+end
 arch floor_sblack1b
 x 6
 end
@@ -721,6 +758,18 @@ end
 arch fwall_fstone1b
 x 6
 y 17
+end
+arch floor_sblack3b
+x 6
+y 23
+end
+arch fwall_fstone1a
+x 6
+y 23
+end
+arch ring_wall.151
+x 6
+y 23
 end
 arch floor_sblack1b
 x 7
@@ -1586,7 +1635,7 @@ arch floor_sblack1b
 x 13
 y 1
 end
-arch altar_moroch
+arch altar_zechna
 level 95
 x 13
 y 1
@@ -1732,7 +1781,7 @@ arch floor_sblack2b
 x 14
 y 1
 end
-arch altar_moroch
+arch altar_zechna
 level 95
 x 14
 y 1

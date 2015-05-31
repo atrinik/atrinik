@@ -2754,7 +2754,7 @@ y 4
 end
 arch client_map_info
 msg
-Temple of Tabernacle.
+Temple of Elathiel.
 endmsg
 name fort_ghzal_temple
 sub_type 2
@@ -2977,7 +2977,7 @@ type 83
 name Celach Dawson
 arch event_obj
 sub_type 6
-race /interfaces/temples/tabernacle.xml
+race /interfaces/temples/elathiel.xml
 end
 end
 end
@@ -3245,7 +3245,7 @@ arch floor_wood2_l1
 x 19
 y 5
 end
-arch altar_tabernacle
+arch altar_elathiel
 xrays 1
 x 19
 y 5

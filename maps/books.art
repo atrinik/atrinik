@@ -103,8 +103,8 @@ Which translates to:
 The riddle, as I figured out, is that you need to say [b]Mellon[/b] for the gate to open.
 
 [p]
-[title]Moroch Temple[/title]
-Not much is known about this temple, which is rumored to be hidden somewhere in the mine. It is said to be an entrance with an altar devoted to Moroch, with several portals leading to the same dimension in which Moroch Temple is, and as the rumor says, Moroch himself.
+[title]Temple of Zechna[/title]
+Not much is known about this temple, which is rumored to be hidden somewhere in the mine. It is said to be an entrance with an altar devoted to Zechna, with several portals leading to the same dimension in which the Temple of Zechnais, and as the rumor says, Zechna himself.
 
 [p]
 [title]One-way exits[/title]
@@ -335,13 +335,13 @@ Object
 face note.101
 name Asterian Royal Edict: Temples and Cults
 msg
-The edict of King Cyrius I, the King of Asteria, regarding the retention of the establishment of the Tabernacle religion and the extension of protections to other non-Tabernacle worshiping citizenry.
+The edict of King Cyrius I, the King of Asteria, regarding the retention of the establishment of the Elathiel religion and the extension of protections to other non-Elathiel worshiping citizenry.
 
-I, King Cyrius of Asteria, hereby ordain that henceforth the freedom of choice of religion for the citizens of Asteria shall not to be infringed except in the case when it is necessary, by law, to restrain practices that are detrimental to the safety of our kingdom.  The state religion is, as before, that of the Tabernacle.  Since this is the King's own religion, it shall remain enshrined as it has been since the Royal Family converted to the teachings of the Tabernacle.  Naturally, this is not intended to imply that the King agrees with any other religion and the King firmly believes that only the Tabernacle is the true god.  Nevertheless, it is a gesture to ensure peace and cooperation amongst the citizenry for the betterment of the Kingdom of Asteria.
+I, King Cyrius of Asteria, hereby ordain that henceforth the freedom of choice of religion for the citizens of Asteria shall not to be infringed except in the case when it is necessary, by law, to restrain practices that are detrimental to the safety of our kingdom.  The state religion is, as before, that of Elathiel.  Since this is the King's own religion, it shall remain enshrined as it has been since the Royal Family converted to the teachings of Elathiel.  Naturally, this is not intended to imply that the King agrees with any other religion and the King firmly believes that only Elathiel is the true god.  Nevertheless, it is a gesture to ensure peace and cooperation amongst the citizenry for the betterment of the Kingdom of Asteria.
 
-The reasoning behind my decision is twofold.  First, as a follower of the Tabernacle, I believe that "insofar as it relies upon himself, to be at peace with others."  (Imperium 12:18, Book of the Tabernacle)  Secondly, since there have been numerous (admittedly, justified) rebellions over these past centuries by cults such as the worshipers of Terria, who demanded protections from the callous assaults of the worshipers of Moroch against their sanctuaries.  As a result, I have deemed it necessary to establish a reasonable legal framework for the maintenance of order in our kingdom.
+The reasoning behind my decision is twofold.  First, as a follower of Elathiel, I believe that "insofar as it relies upon himself, to be at peace with others."  (Imperium 12:18, Book of Elathiel)  Secondly, since there have been numerous (admittedly, justified) rebellions over these past centuries by cults such as the worshipers of Terria, who demanded protections from the callous assaults of the worshipers of Zechna against their sanctuaries.  As a result, I have deemed it necessary to establish a reasonable legal framework for the maintenance of order in our kingdom.
 
-To this end, the King shall set aside the western side of the Royal citadel for the establishment of temples to any religion that requests a temple.  The temple belonging to the Tabernacle, the Church of Holy Wisdom, shall not be moved from its original position but it shall retain the full benefits and requirements that this law enstates.
+To this end, the King shall set aside the western side of the Royal citadel for the establishment of temples to any religion that requests a temple.  The temple belonging to Elathiel, the Church of Holy Wisdom, shall not be moved from its original position but it shall retain the full benefits and requirements that this law enstates.
 
 The following religions have requested temples:
 Grunhilde, Terria, Rogroth, Drolaxi, Shaligar, Grumthar, Tylowyn.
@@ -349,9 +349,9 @@ Grunhilde, Terria, Rogroth, Drolaxi, Shaligar, Grumthar, Tylowyn.
 Since these religions are respectful and do not have practices that endanger others, for the most part, we have been able to convince them to respect this edict.  As an added benefit, we have worked out an arrangement with our particularly religious neighbors to use the temples as an embassy.  This should provide a wonderful opportunity to negotiate and establish a peaceful relationship with them.
 
 We have also received requests from the following cults:
-Dalosha, Jotarl, Moroch, Rashindel.
+Dalosha, Jotarl, Rashindel, Zechna.
 
-As a matter of honor, we will abide these requests but we have deemed it necessary to confine these vile sects to a "circle of darkness" which can be properly monitored.  These sects have a history of being deceitful and fostering infighting and violence and are often at odds with our benevolent allies.  As long as the terms of our pact are abided by, these sects are free to worship their foul daemons as they see fit despite my disdain and revulsion.  In order to ensure this pact remains in force, the Paladins of Grunhilde, Terria and Tabernacle have graciously agreed to set up a manor nearby to oversee these cults and ensure they abide by the pact that they agreed to when requesting a temple within our city walls.  This was, of course, necessary as Grunhilde and Terria would not have agreed to this edict otherwise and the Tabernacle priests were rather upset with me for including Rashindel as well.  Fortunately, I have managed to convince them that this agreement was in our best interests and they have reluctantly agreed.
+As a matter of honor, we will abide these requests but we have deemed it necessary to confine these vile sects to a "circle of darkness" which can be properly monitored.  These sects have a history of being deceitful and fostering infighting and violence and are often at odds with our benevolent allies.  As long as the terms of our pact are abided by, these sects are free to worship their foul daemons as they see fit despite my disdain and revulsion.  In order to ensure this pact remains in force, the Paladins of Grunhilde, Terria and Elathiel have graciously agreed to set up a manor nearby to oversee these cults and ensure they abide by the pact that they agreed to when requesting a temple within our city walls.  This was, of course, necessary as Grunhilde and Terria would not have agreed to this edict otherwise and the Elathiel priests were rather upset with me for including Rashindel as well.  Fortunately, I have managed to convince them that this agreement was in our best interests and they have reluctantly agreed.
 
 Signed:
 [font=pecita 20]King Cyrius I[/font]

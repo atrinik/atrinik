@@ -956,7 +956,7 @@ arch floor_marble1f
 x 5
 y 6
 end
-arch altar_tabernacle
+arch altar_elathiel
 direction 7
 x 5
 y 6

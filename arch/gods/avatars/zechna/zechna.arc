@@ -1,11 +1,11 @@
-Object Moroch
-name Moroch
+Object Zechna
+name Zechna
 type 50
 no_pick 1
 layer 6
 face dummy.111
 race god_lesser
-animation Moroch
+animation Zechna
 is_animated 1
 anim_speed 3
 str 30

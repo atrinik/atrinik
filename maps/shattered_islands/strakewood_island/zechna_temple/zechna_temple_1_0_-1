@@ -1,18 +1,15 @@
 arch map
-name Moroch Temple
+name Temple of Zechna
 msg
 Created:  2009-09-22 Alex Tokar
-Modified: 2014-12-04 atokar
+Modified: 2015-05-31 Alex Tokar
 endmsg
 width 24
 height 24
 difficulty 80
 darkness 2
-tile_path_3 moroch_temple_b_0201
-tile_path_4 moroch_temple_b_0102
-tile_path_7 moroch_temple_b_0101
 bg_music evil_temple.ogg
-region moroch_temple_b
+region zechna_temple_b
 end
 arch floor_sblack2b
 end
@@ -142,10 +139,7 @@ arch floor_sblack2b
 x 1
 y 1
 end
-arch stairs_stone_down
-slaying moroch_temple_c_0202
-hp 1
-sp 1
+arch table_lab2.111
 x 1
 y 1
 end
@@ -153,18 +147,9 @@ arch floor_sblack1b
 x 1
 y 2
 end
-arch torch_wall_1
-direction 7
-x 1
-y 2
-end
-arch floor_sblack2b
-x 1
-y 3
-end
 arch spawn_point
 x 1
-y 3
+y 2
 arch skel_mage
 type 83
 level 84
@@ -172,6 +157,10 @@ direction 3
 arch ability_mbullet
 end
 end
+end
+arch floor_sblack1b
+x 1
+y 3
 end
 arch floor_sblack1b
 x 1
@@ -295,11 +284,20 @@ arch floor_sblack1b
 x 2
 y 1
 end
+arch stairs_down
+x 2
+y 1
+end
 arch torch_wall_1
 x 2
 y 1
 end
 arch floor_sblack3b
+x 2
+y 2
+end
+arch table_lab1.111
+direction 7
 x 2
 y 2
 end
@@ -426,6 +424,11 @@ arch fwall_fstone1c
 x 3
 end
 arch floor_sblack3b
+x 3
+y 1
+end
+arch stairs_stone_down
+direction 7
 x 3
 y 1
 end
@@ -1260,7 +1263,7 @@ x 8
 y 17
 end
 arch check_inv
-slaying moroch_temple_key2
+slaying zechna_temple_key2
 sp 1
 last_grace 1
 x 8
@@ -1951,7 +1954,7 @@ x 15
 y 3
 end
 arch door1_locked
-slaying moroch_temple_key2
+slaying zechna_temple_key2
 direction 3
 x 15
 y 3
@@ -1975,7 +1978,7 @@ x 15
 y 5
 end
 arch door1_locked
-slaying moroch_temple_key2
+slaying zechna_temple_key2
 direction 5
 x 15
 y 5

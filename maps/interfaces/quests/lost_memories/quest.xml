@@ -17,7 +17,7 @@
                 <message>Hmmm... You don't seem ready yet, {activator.name}. I am sorry, but unless you regain at least part of your memory, there's no reason for us to sail to Strakewood...</message>
             </dialog>
         </interface>
-        <interface inherit="Temple.TempleTabernacle" npc="Brelend Lee"/>
+        <interface inherit="Temple.TempleElathiel" npc="Brelend Lee"/>
         <part name="The Priest" uid="speak_priest">
             <info>You have reached Incuna, and have started the attempt to get back your lost memories. Sam Goodberry has suggested that you go speak to the local church priest, who may be able to help you.</info>
             <interface npc="Sam Goodberry" state="need_start">

@@ -1,11 +1,11 @@
-Object Tabernacle
-name Tabernacle
+Object Elathiel
+name Elathiel
 type 50
 no_pick 1
 layer 6
 face dummy.111
 race god_lesser
-animation Tabernacle
+animation Elathiel
 is_animated 1
 anim_speed 3
 str 30
@@ -39,7 +39,7 @@ can_cast_spell 1
 can_use_weapon 1
 can_use_armour 1
 msg
-Tabernacle of Life
+Bringer of Life
 endmsg
 weight 1
 end

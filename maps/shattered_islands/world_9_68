@@ -1256,7 +1256,7 @@ y 21
 end
 arch client_map_info
 msg
-Temple of Tabernacle.
+Temple of Elathiel.
 endmsg
 name greyton_temple
 sub_type 2
@@ -1658,7 +1658,7 @@ arch floor_flagm2
 x 9
 y 22
 end
-arch altar_tabernacle
+arch altar_elathiel
 xrays 1
 x 9
 y 22
@@ -1785,7 +1785,7 @@ arch floor_flagm4
 x 10
 y 22
 end
-arch altar_tabernacle
+arch altar_elathiel
 xrays 1
 x 10
 y 22

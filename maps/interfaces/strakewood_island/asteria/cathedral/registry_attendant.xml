@@ -7,7 +7,7 @@
             <response action="close" message="Never mind. Bye."/>
         </dialog>
         <dialog name="entry">
-            <message>Enter in peace and behold the great and powerful majesty of the Tabernacle.</message>
+            <message>Enter in peace and behold the great and powerful majesty of our lord, Elathiel.</message>
         </dialog>
     </interface>
 </interfaces>
