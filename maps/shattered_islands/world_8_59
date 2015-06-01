@@ -1158,6 +1158,14 @@ sp 21
 end
 arch mythical_scarlet_pimpernel_flower
 end
+arch event_obj
+stock 1
+sub_type 6
+race /interfaces/quests/frevia_tomboyish_fairy/quest.xml
+arch mythical_scarlet_pimpernel_flower
+nrof 10
+end
+end
 end
 end
 arch grassd_6
