@@ -200,7 +200,7 @@ lex_error = 0;
             lex_load(depth, items, maxdepth, map_flags, linemode);
 
             if (tmp->arch) {
-                insert_ob_in_ob(tmp, op);
+                tmp = insert_ob_in_ob(tmp, op);
             } else {
                 if (!arch_in_init) {
                     LOG(DEBUG, "Discarding object without arch: %s", archname);
@@ -210,13 +210,13 @@ lex_error = 0;
             }
         }
 
-        if (art_amask) {
+        if (art_amask && tmp != NULL) {
             artifact_change_object(art_amask, tmp);
         }
 
         art_amask = art_amask_tmp;
 
-        if (!(map_flags & MAP_STYLE)) {
+        if (!(map_flags & MAP_STYLE) && tmp != NULL) {
             if (tmp->speed < 0.0 && DBL_EQUAL(tmp->speed_left,
                     tmp->arch->clone.speed_left)) {
                 tmp->speed_left = tmp->arch->clone.speed_left +
