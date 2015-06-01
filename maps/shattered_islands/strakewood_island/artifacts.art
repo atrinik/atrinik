@@ -106,6 +106,8 @@ def_arch plant_flower7
 Object
 name Mythical Scarlet Pimpernel Flower
 value 500
+can_stack 1
+nrof 1
 weight 200
 no_pick 0
 layer 3
