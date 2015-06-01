@@ -2,7 +2,7 @@ arch map
 name Temple of Zechna
 msg
 Created:  2009-09-22 Alex Tokar
-Modified: 2015-05-31 Alex Tokar
+Modified: 2015-06-01 Alex Tokar
 endmsg
 width 24
 height 24
@@ -289,6 +289,7 @@ x 2
 y 1
 end
 arch torch_wall_1
+sub_layer 1
 x 2
 y 1
 end
