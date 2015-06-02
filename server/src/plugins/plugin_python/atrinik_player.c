@@ -656,6 +656,25 @@ static PyObject *Atrinik_Player_FactionClearBounty(Atrinik_Player *pl, PyObject 
     return Py_None;
 }
 
+/**
+ * <h1>player.InsertCoins(int value)</h1>
+ * Gives coins of the specified value to the player.
+ * @param value The value.
+ */
+static PyObject *Atrinik_Player_InsertCoins(Atrinik_Player *pl, PyObject *args)
+{
+    int64_t value;
+
+    if (!PyArg_ParseTuple(args, "l", &value)) {
+        return NULL;
+    }
+
+    hooks->insert_coins(pl->pl->ob, value);
+
+    Py_INCREF(Py_None);
+    return Py_None;
+}
+
 /*@}*/
 
 /** Available Python methods for the AtrinikPlayer type. */
@@ -675,6 +694,7 @@ static PyMethodDef methods[] = {
     {"DrawInfo", (PyCFunction) Atrinik_Player_DrawInfo, METH_VARARGS | METH_KEYWORDS, 0},
     {"FactionGetBounty", (PyCFunction) Atrinik_Player_FactionGetBounty, METH_VARARGS, 0},
     {"FactionClearBounty", (PyCFunction) Atrinik_Player_FactionClearBounty, METH_VARARGS, 0},
+    {"InsertCoins", (PyCFunction) Atrinik_Player_InsertCoins, METH_VARARGS, 0},
     {NULL, NULL, 0, 0}
 };
 
