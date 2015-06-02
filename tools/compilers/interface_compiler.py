@@ -252,11 +252,28 @@ class TagCompilerInterface(BaseTagCompiler):
                     self.npc.imports.append(imp)
 
         state = elem.get("state")
-        inherit = elem.get("inherit")
+        self.inherit = []
+        self.interface_inherit = []
+        for val in elem.get("inherit", "").split(","):
+            val = val.strip()
+            if val:
+                self.inherit.append(val)
 
-        if inherit and inherit.find(".") != -1 and \
-                inherit not in self.npc.imports:
-            self.npc.imports.append(inherit)
+        for val in self.inherit:
+            if val.find(".") != -1:
+                if val not in self.npc.imports:
+                    self.npc.imports.append(val)
+
+                val = val[val.find(".") + 1:]
+            elif val == "interface":
+                val = "InterfaceDialog"
+            else:
+                val = "InterfaceDialog_" + val
+
+            self.interface_inherit.append(val)
+
+        if not self.interface_inherit:
+            self.interface_inherit.append("InterfaceBuilder")
 
         if not state:
             self.uid = ""
@@ -266,22 +283,10 @@ class TagCompilerInterface(BaseTagCompiler):
             if isinstance(self.parent, TagCompilerPart):
                 self.uid += "_" + self.parent.data["uid"]
 
-        if not inherit:
-            interface_inherit = "InterfaceBuilder"
-        elif inherit == "interface":
-            interface_inherit = "InterfaceDialog"
-        elif inherit.find(".") != -1:
-            interface_inherit = inherit[inherit.find(".") + 1:]
-        else:
-            interface_inherit = "InterfaceDialog_" + inherit
-
         self.npc.body.write(
             "class InterfaceDialog{uid}({inherit}):", uid=self.uid,
-            inherit=interface_inherit
+            inherit=", ".join(self.interface_inherit)
         )
-
-        self.inherit = inherit
-        self.interface_inherit = interface_inherit
 
         self.npc.body.indent()
 
@@ -340,10 +345,8 @@ class TagCompilerDialog(BaseTagCompiler):
 
         if not self.parent.inherit or dialog_name.startswith("_::"):
             self.inherit = "self"
-            self.inherit_args = ""
         else:
-            self.inherit = self.parent.interface_inherit
-            self.inherit_args = "self"
+            self.inherit = "super()"
 
         self.inherit_name = elem.get("inherit")
         self.inherit_name_prefix = ""
@@ -371,7 +374,7 @@ class TagCompilerDialog(BaseTagCompiler):
                 if not self.parent.inherit:
                     dest_inherit = ""
                 else:
-                    dest_inherit = self.parent.interface_inherit + "."
+                    dest_inherit = self.parent.interface_inherit[0] + "."
 
                 dest = "{dest_inherit}dialog{inherit_name}".format(
                     dest_inherit=dest_inherit, inherit_name=self.inherit_name
@@ -421,10 +424,9 @@ class TagCompilerDialog(BaseTagCompiler):
     def do_inherit(self):
         self.was_inherited = True
         self.npc.body.write(
-            "{inherit}.{inherit_name_prefix}dialog{inherit_name}"
-            "({inherit_args})", inherit=self.inherit,
-            inherit_name_prefix=self.inherit_name_prefix,
-            inherit_name=self.inherit_name, inherit_args=self.inherit_args
+            "{inherit}.{inherit_name_prefix}dialog{inherit_name}()",
+            inherit=self.inherit, inherit_name_prefix=self.inherit_name_prefix,
+            inherit_name=self.inherit_name
         )
 
     def finish(self, tag):
