@@ -108,6 +108,7 @@ class Interface:
             if obj.env or obj.map:
                 obj = obj.Clone()
 
+            obj.f_no_drop = obj.arch.clone.f_no_drop
             self.add_msg_icon_object(obj)
             obj.InsertInto(self._activator)
 
