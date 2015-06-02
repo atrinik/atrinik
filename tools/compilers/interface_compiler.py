@@ -509,10 +509,12 @@ class TagCompilerOr(TagCompilerAnd):
 
 class TagCompilerCheck(TagCompilerAnd):
     def register_handlers(self):
-        pass
+        self.handlers["object"] = TagCompilerObject
 
     def compile(self, elem):
         not_str = "not " if isinstance(self, TagCompilerNcheck) else ""
+        self.precond.write("{not_str}(", not_str=not_str)
+        BaseTagCompiler.compile(self, elem)
 
         for attr in elem.attrib:
             val = elem.get(attr)
@@ -520,7 +522,8 @@ class TagCompilerCheck(TagCompilerAnd):
             if not val:
                 continue
 
-            self.precond.write("{not_str}(", not_str=not_str)
+            if not self.precond.getvalue().endswith("("):
+                self.precond.write(" and ")
 
             if attr == "region_map":
                 self.precond.write(
@@ -577,7 +580,7 @@ class TagCompilerCheck(TagCompilerAnd):
                         ".{attr}({part_name})", quest_name=quest_name,
                         attr=attr, part_name=part_name)
 
-            self.precond.write(")")
+        self.precond.write(")")
 
 
 class TagCompilerNcheck(TagCompilerCheck):
@@ -695,8 +698,16 @@ class TagCompilerObject(BaseTagCompiler):
         item_args = ", ".join(item_args)
         remove = elem.get("remove")
         message = elem.get("message")
+        parent = self.parent
 
-        if not remove:
+        if isinstance(parent, (TagCompilerCheck, TagCompilerNcheck)):
+            not_str = "not " if isinstance(parent, TagCompilerNcheck) else ""
+            parent.precond.write("{not_str}(", not_str=not_str)
+            parent.precond.write(
+                "self._npc.FindObject({item_args})",
+                item_args=item_args)
+            parent.precond.write(")")
+        elif not remove:
             if not self.npc.closed and not message:
                 self.npc.body.write(
                     "self.add_objects(self._npc.FindObject({item_args}))",
