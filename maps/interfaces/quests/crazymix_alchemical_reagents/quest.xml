@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<interfaces>
+    <quest name="Crazymix's Alchemical Reagents">
+        <interface inherit="Seller.Buyer" npc="Crimdon Crazymix">
+            <dialog name="hello">
+                <message>Ah, welcome back, {activator.name}! If you have any more of those Mythical Scarlet Pimpernel Flowers left, I'd be delighted to buy some!</message>
+                <inherit name="::goods"/>
+            </dialog>
+        </interface>
+        <part name="Mythical Scarlet Pimpernel flower" uid="the_flower">
+            <info>Crimdon Crazymix, an alchemist living in the northwestern part of Asteria, has asked you to fetch him a Scarlet Pimpernel Flower. Apparently, there is a rumor that an elven shyde - who supposedly has a hidden forest glade east of Aris - has been successful in growing these magically potent flowers.</info>
+            <item arch="mythical_scarlet_pimpernel_flower" name="Mythical Scarlet Pimpernel Flower"/>
+            <interface npc="Crimdon Crazymix" state="need_start">
+                <dialog name="hello">
+                    <message>Hello, I am Asteria's local alchemist. I can make a lot of different potions from a variety of ingredients.</message>
+                    <response destination="ingredients" message="Tell me more about these ingredients."/>
+                </dialog>
+                <dialog name="ingredients">
+                    <message color="yellow">{npc.name} starts to get excited...</message>
+                    <message>I have quite a few recipes I use to make my potions from. You wouldn't maybe be interested in helping me find some of the more elusive ingredients I need for my recipes?</message>
+                    <response destination="tellmore" message="Tell me more..."/>
+                </dialog>
+                <dialog name="tellmore">
+                    <message>I have recently came upon a recipe for a very special healing potion made from the buds of the Scarlet Pimpernel flower. The only problem is that this flower is known to grow under conditions which are only found in the rarest of places. As a matter of fact, it is so scarce that the people commonly refer to it as if it doesn't exist at all.</message>
+                    <message>However, I have heard a rumor that these flowers have been successfully grown by an elven shyde who lives in a forest glade far away, hidden somewhere around the Giant Mountains.</message>
+                    <response destination="lookfor" message="Sure, I'll look for it."/>
+                    <response action="close" message="Maybe later, goodbye."/>
+                </dialog>
+                <dialog name="lookfor">
+                    <message>Splendid!</message>
+                    <message>I have tried to send a friend of mine to look for it, but I haven't heard from him since. Perhaps you can start by looking for him -- last I heard, he was searching somewhere east of Aris.</message>
+                    <message>If you can get hold of one of these flowers, I will reward you handsomely, of course.</message>
+                    <action start="the_flower"/>
+                </dialog>
+            </interface>
+            <interface npc="Crimdon Crazymix" state="need_finish">
+                <dialog name="hello">
+                    <message>Have you found the Scarlet Pimpernel flower yet?</message>
+                    <response destination="working" message="Working on it..."/>
+                </dialog>
+                <dialog name="working">
+                    <message>Like I said, there was a rumor that the flowers have been successfully grown by an elven shyde who lives in a forest glade far away, hidden somewhere around the Giant Mountains.</message>
+                    <message>I have tried to send a friend of mine to look for it, but I haven't heard from him since. Perhaps you can start by looking for him -- last I heard, he was searching somewhere east of Aris.</message>
+                </dialog>
+            </interface>
+            <interface npc="Crimdon Crazymix" state="need_complete">
+                <dialog name="hello">
+                    <message>Have you found the Scarlet Pimpernel flower yet?</message>
+                    <response destination="herego" message="Yes, here you go."/>
+                </dialog>
+                <dialog name="herego">
+                    <message color="yellow">You hand the Mythical Scarlet Pimpernel Flower to {npc.name}.</message>
+                    <message>Amazing! It truly looks quite mythical and is obviously highly magical. Thank you, {activator.name}.</message>
+                    <message>As promised, here's your reward. Also, if you happen to find any more of such flowers, I'd be interested in buying them off of you.</message>
+                    <object arch="silvercoin"/>
+                    <action complete="the_flower"/>
+                </dialog>
+            </interface>
+            <interface inherit="need_start_the_flower, need_complete_the_flower" npc="Crimdon Crazymix" state="have_flower_before_quest">
+                <and>
+                    <check>
+                        <object arch="mythical_scarlet_pimpernel_flower" name="Mythical Scarlet Pimpernel Flower"/>
+                    </check>
+                    <ncheck started="the_flower"/>
+                </and>
+                <dialog name="tellmore">
+                    <response destination="haveone" message="I already have one of those!"/>
+                    <inherit/>
+                </dialog>
+                <dialog name="haveone">
+                    <message>Well, look at you, a proper adventurer! Would you mind parting with it? I will pay you handsomely for it, of course.</message>
+                    <response destination="herego" message="Sure, here you go."/>
+                    <response destination="nosorry" message="No, sorry."/>
+                </dialog>
+                <dialog name="nosorry">
+                    <message>Well... In that case, would you mind looking for another one, like I mentioned?</message>
+                    <response destination="lookfor" message="Sure, I'll look for it."/>
+                    <response action="close" message="Maybe later, goodbye."/>
+                </dialog>
+                <dialog name="herego">
+                    <message>Ah, thank you very much!</message>
+                    <action start="the_flower"/>
+                    <inherit/>
+                </dialog>
+            </interface>
+        </part>
+    </quest>
+</interfaces>
