@@ -706,7 +706,7 @@ class TagCompilerObject(BaseTagCompiler):
             not_str = "not " if isinstance(parent, TagCompilerNcheck) else ""
             parent.precond.write("{not_str}(", not_str=not_str)
             parent.precond.write(
-                "self._npc.FindObject({item_args})",
+                "self._activator.FindObject({item_args})",
                 item_args=item_args)
             parent.precond.write(")")
         elif not remove:
