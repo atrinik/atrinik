@@ -105,7 +105,7 @@ artifact mythical_scarlet_pimpernel_flower
 def_arch plant_flower7
 Object
 name Mythical Scarlet Pimpernel Flower
-value 500
+value 1500
 can_stack 1
 nrof 1
 weight 200
