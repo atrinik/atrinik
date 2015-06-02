@@ -84,6 +84,126 @@
            <number>0</number>
           </property>
           <widget class="QWidget" name="pageNone"/>
+          <widget class="QWidget" name="pageNcheck">
+           <layout class="QVBoxLayout" name="verticalLayout_21">
+            <item>
+             <layout class="QGridLayout" name="gridLayout_20">
+              <item row="0" column="0">
+               <widget class="QLabel" name="label_52">
+                <property name="text">
+                 <string>Region map</string>
+                </property>
+               </widget>
+              </item>
+              <item row="0" column="1">
+               <spacer name="horizontalSpacer_9">
+                <property name="orientation">
+                 <enum>Qt::Horizontal</enum>
+                </property>
+                <property name="sizeHint" stdset="0">
+                 <size>
+                  <width>40</width>
+                  <height>20</height>
+                 </size>
+                </property>
+               </spacer>
+              </item>
+              <item row="0" column="2">
+               <widget class="QLineEdit" name="interface_element_ncheck_region_map"/>
+              </item>
+              <item row="1" column="0">
+               <widget class="QLabel" name="label_55">
+                <property name="text">
+                 <string>Enemy</string>
+                </property>
+               </widget>
+              </item>
+              <item row="1" column="2">
+               <widget class="QComboBox" name="interface_element_ncheck_enemy">
+                <item>
+                 <property name="text">
+                  <string/>
+                 </property>
+                </item>
+                <item>
+                 <property name="text">
+                  <string>any</string>
+                 </property>
+                </item>
+                <item>
+                 <property name="text">
+                  <string>player</string>
+                 </property>
+                </item>
+               </widget>
+              </item>
+              <item row="2" column="0">
+               <widget class="QLabel" name="label_53">
+                <property name="text">
+                 <string>Started</string>
+                </property>
+               </widget>
+              </item>
+              <item row="2" column="2">
+               <widget class="QLineEdit" name="interface_element_ncheck_started"/>
+              </item>
+              <item row="3" column="0">
+               <widget class="QLabel" name="label_51">
+                <property name="text">
+                 <string>Finished</string>
+                </property>
+               </widget>
+              </item>
+              <item row="3" column="2">
+               <widget class="QLineEdit" name="interface_element_ncheck_finished"/>
+              </item>
+              <item row="4" column="0">
+               <widget class="QLabel" name="label_56">
+                <property name="text">
+                 <string>Completed</string>
+                </property>
+               </widget>
+              </item>
+              <item row="4" column="2">
+               <widget class="QLineEdit" name="interface_element_ncheck_completed"/>
+              </item>
+              <item row="5" column="0">
+               <widget class="QLabel" name="label_57">
+                <property name="text">
+                 <string>Number to finish</string>
+                </property>
+               </widget>
+              </item>
+              <item row="5" column="2">
+               <widget class="QLineEdit" name="interface_element_ncheck_num2finish"/>
+              </item>
+              <item row="6" column="0">
+               <widget class="QLabel" name="label_54">
+                <property name="text">
+                 <string>Options</string>
+                </property>
+               </widget>
+              </item>
+              <item row="6" column="2">
+               <widget class="QLineEdit" name="interface_element_ncheck_options"/>
+              </item>
+             </layout>
+            </item>
+            <item>
+             <spacer name="verticalSpacer_10">
+              <property name="orientation">
+               <enum>Qt::Vertical</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>20</width>
+                <height>40</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
+           </layout>
+          </widget>
           <widget class="QWidget" name="pageChoice"/>
           <widget class="QWidget" name="pageCode">
            <layout class="QVBoxLayout" name="verticalLayout_13">

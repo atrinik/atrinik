@@ -868,6 +868,13 @@ class InterfaceElementCheck(InterfaceElement):
     priority = 1000
 
 
+class InterfaceElementNcheck(InterfaceElement):
+    tag = "ncheck"
+    attributes = ("region_map", "enemy", "started", "finished", "completed",
+                  "num2finish", "options")
+    priority = 1000
+
+
 class InterfaceElementResponse(InterfaceElement):
     tag = "response"
     attributes = ("message", "destination", "action")
