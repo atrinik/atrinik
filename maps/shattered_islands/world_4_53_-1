@@ -2,7 +2,7 @@ arch map
 name Below Fort Sether
 msg
 Created:  2010-11-22 Alex Tokar
-Modified: 2015-05-04 Alex Tokar
+Modified: 2015-06-03 Alex Tokar
 endmsg
 width 24
 height 24
@@ -380,6 +380,7 @@ startequip 1
 end
 arch silvercoin
 nrof 150
+no_drop 1
 end
 end
 end
@@ -456,7 +457,9 @@ msg
 You descend below Fort Sether through a tunnel...
 endmsg
 layer 4
-last_heal 10
+slaying world_4_53_-2
+hp 5
+sp 21
 x 4
 y 21
 end

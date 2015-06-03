@@ -2,7 +2,7 @@ arch map
 name Strakewood Island
 msg
 Created:  2009-08-09 Alex Tokar
-Modified: 2015-05-04 Alex Tokar
+Modified: 2015-06-03 Alex Tokar
 endmsg
 width 24
 height 24
@@ -2693,8 +2693,10 @@ race /interfaces/quests/gandyld_mana_crystal/quest.xml
 end
 arch silvercoin
 nrof 90
+no_drop 1
 end
 arch gandyld_crystal_1
+no_drop 1
 end
 end
 end
