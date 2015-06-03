@@ -137,7 +137,7 @@ class QuestManager:
         elif "item" in quest:
             return max(0, nrof - self.get_quest_item_num(quest))
 
-        raise NotImplementedError("called with unhandled quest type")
+        return 0
 
     def need_start(self, *args, **kwargs):
         return not self.started(*args, **kwargs)
