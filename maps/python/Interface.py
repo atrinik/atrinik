@@ -205,7 +205,7 @@ class InterfaceBuilder(Interface):
         for part in parts:
             l = name + [part]
 
-            if self._part_dialog(l, checks = ["need_start", "need_finish"]):
+            if self._part_dialog(l, checks = ["need_complete_before_start", "need_start", "need_finish"]):
                 return True
 
             if self.qm.started(l) and "parts" in parts[part]:

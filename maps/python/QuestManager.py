@@ -102,9 +102,9 @@ class QuestManager:
         if delay:
             self.quest_object.exp = int(time.time()) + delay
 
-    def get_quest_item_num(self, obj, quest):
+    def get_quest_item_num(self, quest):
         # Just one item, easy.
-        if obj.last_grace <= 1:
+        if quest["item"].get("nrof", 1) <= 1:
             quest_item = self.activator.FindObject(INVENTORY_CONTAINERS, quest["item"]["arch"], quest["item"]["name"])
 
             if quest_item:
@@ -122,21 +122,22 @@ class QuestManager:
         return 0
 
     def num2finish(self, part):
-        if not self.quest_object:
-            return -1
-
         part, quest = self.get_part(part)
-        obj = self.quest_object.FindObject(name = part)
+        nrof = quest.get("nrof", 1)
 
-        if not obj:
-            return -1
+        if "kill" in quest:
+            if not self.quest_object:
+                return nrof
 
-        if obj.sub_type == QUEST_TYPE_KILL:
-            return obj.last_grace - obj.last_sp
-        elif obj.sub_type == QUEST_TYPE_ITEM:
-            return obj.last_grace - self.get_quest_item_num(obj, quest)
+            obj = self.quest_object.FindObject(name = part)
+            if not obj:
+                return nrof
 
-        return 0
+            return max(0, nrof - obj.last_sp)
+        elif "item" in quest:
+            return max(0, nrof - self.get_quest_item_num(quest))
+
+        raise NotImplementedError("called with unhandled quest type")
 
     def need_start(self, *args, **kwargs):
         return not self.started(*args, **kwargs)
@@ -146,6 +147,9 @@ class QuestManager:
 
     def need_complete(self, *args, **kwargs):
         return self.started(*args, **kwargs) and self.finished(*args, **kwargs) and not self.completed(*args, **kwargs)
+
+    def need_complete_before_start(self, *args, **kwargs):
+        return not self.started(*args, **kwargs) and not self.completed(*args, **kwargs) and self.finished(*args, **kwargs)
 
     def get_part(self, part):
         if type(part) is str:
@@ -214,24 +218,7 @@ class QuestManager:
         self.use_qp()
 
     def finished(self, part):
-        if not self.started(part):
-            return False
-
-        part, quest = self.get_part(part)
-        obj = self.quest_object.FindObject(name = part)
-
-        if not obj:
-            return False
-
-        # For the kill type quest check if we have killed enough
-        # monsters.
-        if obj.sub_type == QUEST_TYPE_KILL:
-            return obj.last_sp >= obj.last_grace
-        # For the kill item quest type check for the quest item.
-        elif obj.sub_type == QUEST_TYPE_ITEM:
-            return self.get_quest_item_num(obj, quest) >= obj.last_grace
-
-        return True
+        return self.num2finish(part) == 0
 
     def started(self, part = None):
         if self.quest_object == None:
