@@ -725,7 +725,7 @@ class CheckerObject(AbstractChecker):
                                          "no_pick", "level", "nrof", "value",
                                          "can_stack", "layer", "sub_layer", "z",
                                          "zoom", "zoom_x", "zoom_y", "alpha",
-                                         "align"):
+                                         "align", "no_drop"):
                 self.addError("high", "Artifact with modified attribute: "
                                       "<b>{}</b>.".format(attr),
                               "Directly modifying attributes of most artifacts "
