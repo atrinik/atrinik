@@ -37,36 +37,67 @@
  * <h2>Python player fields</h2>
  * List of the player fields and their meaning. */
 static fields_struct fields[] = {
-    {"next", FIELDTYPE_PLAYER, offsetof(player, next), FIELDFLAG_READONLY, 0},
-    {"prev", FIELDTYPE_PLAYER, offsetof(player, prev), FIELDFLAG_READONLY, 0},
+    {"next", FIELDTYPE_PLAYER, offsetof(player, next), FIELDFLAG_READONLY, 0,
+            "Next player in a list.; Atrinik.Player or None (readonly)"},
+    {"prev", FIELDTYPE_PLAYER, offsetof(player, prev), FIELDFLAG_READONLY, 0,
+            "Previous player in a list.; Atrinik.Player or None (readonly)"},
 
-    {"party", FIELDTYPE_PARTY, offsetof(player, party), FIELDFLAG_READONLY, 0},
-    /* Shall not be modified in any way. Instead, one should use @ref
-     * Atrinik_Player_Fix "player.Fix()",
-     * which will set class_ob to the last @ref CLASS object it finds in
-     * player's inventory. In some cases, this is done automatically after
-     * a script has finished executing (say events do this, for example). */
-    {"class_ob", FIELDTYPE_OBJECT, offsetof(player, class_ob), FIELDFLAG_READONLY, 0},
-    {"savebed_map", FIELDTYPE_CARY, offsetof(player, savebed_map), 0, sizeof(((player *) NULL)->savebed_map)},
-    {"bed_x", FIELDTYPE_INT16, offsetof(player, bed_x), 0, 0},
-    {"bed_y", FIELDTYPE_INT16, offsetof(player, bed_y), 0, 0},
-    {"ob", FIELDTYPE_OBJECT, offsetof(player, ob), FIELDFLAG_READONLY, 0},
-    {"quest_container", FIELDTYPE_OBJECT, offsetof(player, quest_container), FIELDFLAG_READONLY, 0},
-    {"target_object", FIELDTYPE_OBJECTREF, offsetof(player, target_object), 0, offsetof(player, target_object_count)},
-    {"no_chat", FIELDTYPE_BOOLEAN, offsetof(player, no_chat), 0, 0},
-    {"tcl", FIELDTYPE_BOOLEAN, offsetof(player, tcl), 0, 0},
-    {"tgm", FIELDTYPE_BOOLEAN, offsetof(player, tgm), 0, 0},
-    {"tli", FIELDTYPE_BOOLEAN, offsetof(player, tli), 0, 0},
-    {"tls", FIELDTYPE_BOOLEAN, offsetof(player, tls), 0, 0},
-    {"tsi", FIELDTYPE_BOOLEAN, offsetof(player, tsi), 0, 0},
-    {"cmd_permissions", FIELDTYPE_LIST, offsetof(player, cmd_permissions), 0, FIELDTYPE_CMD_PERMISSIONS},
-    {"factions", FIELDTYPE_LIST, offsetof(player, factions), 0, FIELDTYPE_FACTIONS},
-    {"fame", FIELDTYPE_INT64, offsetof(player, fame), 0, FIELDTYPE_FACTIONS},
-    {"container", FIELDTYPE_OBJECT, offsetof(player, container), FIELDFLAG_READONLY, 0},
+    {"party", FIELDTYPE_PARTY, offsetof(player, party), FIELDFLAG_READONLY, 0,
+            "Party the player is a member of.; Atrinik.Party or None "
+            "(readonly)"},
+    {"class_ob", FIELDTYPE_OBJECT, offsetof(player, class_ob), 0,
+            FIELDFLAG_READONLY, "Class object of the player. Cannot be set, as "
+            "it's always set to the last CLASS type object that is found in "
+            "the player's inventory after calling :meth:`Atrinik.Player.Fix`.; "
+            "Atrinik.Object or None (readonly)"},
+    {"savebed_map", FIELDTYPE_CARY, offsetof(player, savebed_map), 0,
+            sizeof(((player *) NULL)->savebed_map),
+            "Path to the player's savebed map.; str"},
+    {"bed_x", FIELDTYPE_INT16, offsetof(player, bed_x), 0, 0,
+            "X coordinate of the player's savebed.; int"},
+    {"bed_y", FIELDTYPE_INT16, offsetof(player, bed_y), 0, 0,
+            "Y coordinate of the player's savebed.; int"},
+    {"ob", FIELDTYPE_OBJECT, offsetof(player, ob), FIELDFLAG_READONLY, 0,
+            "The :class:`Atrinik.Object` representing the player.; "
+            "Atrinik.Object (readonly)"},
+    {"quest_container", FIELDTYPE_OBJECT, offsetof(player, quest_container),
+            FIELDFLAG_READONLY, 0, "Player's quest container.; Atrinik.Object "
+            "(readonly)"},
+    {"target_object", FIELDTYPE_OBJECTREF, offsetof(player, target_object), 0,
+            offsetof(player, target_object_count), "Currently targeted "
+            "NPC/monster.;Atrinik.Object or None"},
+    {"no_chat", FIELDTYPE_BOOLEAN, offsetof(player, no_chat), 0, 0,
+            "If true, the player is not allowed to chat.; bool"},
+    {"tcl", FIELDTYPE_BOOLEAN, offsetof(player, tcl), 0, 0,
+            "If true, the player ignores collision with terrain.; bool"},
+    {"tgm", FIELDTYPE_BOOLEAN, offsetof(player, tgm), 0, 0,
+            "If true, the player is in god-mode and cannot die or take damage "
+            "from any source.; bool"},
+    {"tli", FIELDTYPE_BOOLEAN, offsetof(player, tli), 0, 0,
+            "If true, the player has lighting disabled.; bool"},
+    {"tls", FIELDTYPE_BOOLEAN, offsetof(player, tls), 0, 0,
+            "If true, the player ignores line of sight.; bool"},
+    {"tsi", FIELDTYPE_BOOLEAN, offsetof(player, tsi), 0, 0,
+            "If true, the player can see system-invisible objects.; bool"},
+    {"cmd_permissions", FIELDTYPE_LIST, offsetof(player, cmd_permissions), 0,
+            FIELDTYPE_CMD_PERMISSIONS, "Player's command permissions.; "
+            "Atrinik.AttrList"},
+    {"factions", FIELDTYPE_LIST, offsetof(player, factions), 0,
+            FIELDTYPE_FACTIONS, "Player's factions.; Atrinik.AttrList"},
+    {"fame", FIELDTYPE_INT64, offsetof(player, fame), 0, 0,
+            "Fame (or infamy) of the player.; int"},
+    {"container", FIELDTYPE_OBJECT, offsetof(player, container),
+            FIELDFLAG_READONLY, 0, "Container the player has open.; "
+            "Atrinik.Object or None (readonly)"},
 
-    {"s_ext_title_flag", FIELDTYPE_BOOLEAN, offsetof(player, socket.ext_title_flag), 0, 0},
-    {"s_host", FIELDTYPE_CSTR, offsetof(player, socket.host), FIELDFLAG_READONLY, 0},
-    {"s_socket_version", FIELDTYPE_UINT32, offsetof(player, socket.socket_version), FIELDFLAG_READONLY, 0}
+    {"s_ext_title_flag", FIELDTYPE_BOOLEAN,
+            offsetof(player, socket.ext_title_flag), 0, 0,
+            "If True, will force updating the player's map name.; bool"},
+    {"s_host", FIELDTYPE_CSTR, offsetof(player, socket.host),
+            FIELDFLAG_READONLY, 0, "IP address of the player.; str (readonly)"},
+    {"s_socket_version", FIELDTYPE_UINT32,
+            offsetof(player, socket.socket_version), FIELDFLAG_READONLY, 0,
+            "Socket version of the player's client.; int (readonly)"}
 };
 /* @endcparser */
 
@@ -93,13 +124,20 @@ static fields_struct fields[] = {
  * @endcode
  *@{*/
 
+/** Documentation for Atrinik_Player_GetEquipment(). */
+static const char doc_Atrinik_Player_GetEquipment[] =
+".. method:: GetEquipment(slot).\n\n"
+"Get player's current equipment object for a given slot.\n\n"
+":param slot: The slot number; one of PLAYER_EQUIP_xxx.\n"
+":type slot: int\n"
+":returns: The equipment for the given slot, None if there's no object in the "
+"slot.\n"
+":rtype: Atrinik.Object or None";
+
 /**
- * <h1>player.GetEquipment(int slot)</h1>
- * Get a player's current equipment for a given slot.
- * @param slot One of @ref PLAYER_EQUIP_xxx constants.
- * @throws ValueError if 'slot' is lower than 0 or higher than @ref
- * PLAYER_EQUIP_MAX.
- * @return The equipment for the given slot, can be None. */
+ * Implements Atrinik.Player.GetEquipment() Python method.
+ * @copydoc PyMethod_VARARGS
+ */
 static PyObject *Atrinik_Player_GetEquipment(Atrinik_Player *pl, PyObject *args)
 {
     int slot;
@@ -679,7 +717,8 @@ static PyObject *Atrinik_Player_InsertCoins(Atrinik_Player *pl, PyObject *args)
 
 /** Available Python methods for the AtrinikPlayer type. */
 static PyMethodDef methods[] = {
-    {"GetEquipment", (PyCFunction) Atrinik_Player_GetEquipment, METH_VARARGS, 0},
+    {"GetEquipment", (PyCFunction) Atrinik_Player_GetEquipment, METH_VARARGS,
+            doc_Atrinik_Player_GetEquipment},
     {"CanCarry", (PyCFunction) Atrinik_Player_CanCarry, METH_O, 0},
     {"AddExp", (PyCFunction) Atrinik_Player_AddExp, METH_VARARGS, 0},
     {"BankDeposit", (PyCFunction) Atrinik_Player_BankDeposit, METH_VARARGS, 0},
@@ -847,7 +886,7 @@ int Atrinik_Player_init(PyObject *module)
         def->name = fields[i].name;
         def->get = (getter) get_attribute;
         def->set = (setter) set_attribute;
-        def->doc = NULL;
+        def->doc = fields[i].doc;
         def->closure = &fields[i];
     }
 

@@ -849,16 +849,23 @@ static void command_custom_python(object *op, const char *command, char *params)
  * @defgroup plugin_python_functions Python functions
  *@{*/
 
+/** Documentation for Atrinik_LoadObject(). */
+static const char doc_Atrinik_LoadObject[] =
+".. function:: LoadObject(text).\n\n"
+"Load an object from a string dump, for example, one stored using "
+":func:`Atrinik.Object.Save`.\n\n"
+":param text: The object text dump.\n"
+":type text: str\n"
+":returns: New object, loaded from the text or None in case of failure.\n"
+":rtype: Atrinik.Object or None";
+
 /**
- * <h1>LoadObject(string dump)</h1>
- * Load an object from a string dump, for example, one stored using
- * @ref Atrinik_Object_Save "Save()".
- * @param dump The string dump from which to load the actual object. */
+ * Implements Atrinik.LoadObject() Python method.
+ * @copydoc PyMethod_VARARGS
+ */
 static PyObject *Atrinik_LoadObject(PyObject *self, PyObject *args)
 {
     char *dumpob;
-
-    (void) self;
 
     if (!PyArg_ParseTuple(args, "s", &dumpob)) {
         return NULL;
@@ -867,19 +874,27 @@ static PyObject *Atrinik_LoadObject(PyObject *self, PyObject *args)
     return wrap_object(hooks->load_object_str(dumpob));
 }
 
+/** Documentation for Atrinik_ReadyMap(). */
+static const char doc_Atrinik_ReadyMap[] =
+".. function:: ReadyMap(path[, unique=False]).\n\n"
+"Make sure the named map is loaded into memory, loading it if necessary.\n\n"
+":param path: Path to the map.\n"
+":type path: str\n"
+":param unique: Whether the destination should be loaded as a unique map, for "
+"example, apartments.\n"
+":type unique: bool\n"
+":returns: The map associated with the specified path or None in case of "
+"failure.\n"
+":rtype: Atrinik.Map or None";
+
 /**
- * <h1>ReadyMap(string path, int [unique = False])</h1>
- * Make sure the named map is loaded into memory, loading it if necessary.
- * @param path Path to the map.
- * @param unique Whether the destination should be loaded as unique map,
- * for example, apartments.
- * @return The loaded map. */
+ * Implements Atrinik.ReadyMap() Python method.
+ * @copydoc PyMethod_VARARGS
+ */
 static PyObject *Atrinik_ReadyMap(PyObject *self, PyObject *args)
 {
     const char *path;
     int flags = 0, unique = 0;
-
-    (void) self;
 
     if (!PyArg_ParseTuple(args, "s|i", &path, &unique)) {
         return NULL;
@@ -1166,8 +1181,6 @@ static PyObject *Atrinik_RegisterCommand(PyObject *self, PyObject *args)
     double speed;
     uint64_t flags = 0;
 
-    (void) self;
-
     if (!PyArg_ParseTuple(args, "sd|K", &name, &speed, &flags)) {
         return NULL;
     }
@@ -1178,17 +1191,23 @@ static PyObject *Atrinik_RegisterCommand(PyObject *self, PyObject *args)
     return Py_None;
 }
 
+/** Documentation for Atrinik_CreatePathname(). */
+static const char doc_Atrinik_CreatePathname[] =
+".. function:: CreatePathname(path).\n\n"
+"Creates path to a file in the maps directory. For example, '/hall_of_dms' -> "
+"'../maps/hall_of_dms'.\n\n"
+":param path: Path to the map.\n"
+":type path: str\n"
+":returns: Real path of the map on the system.\n"
+":rtype: str";
+
 /**
- * <h1>CreatePathname(string path)</h1>
- * Creates path to file in the maps directory using the create_pathname()
- * function.
- * @param path Path to file to create.
- * @return The path to file in the maps directory. */
+ * Implements Atrinik.CreatePathname() Python method.
+ * @copydoc PyMethod_VARARGS
+ */
 static PyObject *Atrinik_CreatePathname(PyObject *self, PyObject *args)
 {
     const char *path;
-
-    (void) self;
 
     if (!PyArg_ParseTuple(args, "s", &path)) {
         return NULL;
@@ -1670,14 +1689,40 @@ static PyObject *Atrinik_Eval(PyObject *self, PyObject *args)
     return Py_None;
 }
 
+/** Documentation for Atrinik_GetSettings(). */
+static const char doc_Atrinik_GetSettings[] =
+".. function:: GetSettings().\n\n"
+"Acquire a dictionary containing the server's settings.\n\n"
+":returns: Dictionary with the server's settings, such as the maps path.\n"
+":rtype: dict";
+
+/**
+ * Implements Atrinik.GetSettings() Python method.
+ * @copydoc PyMethod_NOARGS
+ */
+static PyObject *Atrinik_GetSettings(PyObject *self)
+{
+    PyObject *dict;
+
+    dict = PyDict_New();
+    PyDict_SetItemString(dict, "mapspath", Py_BuildValue("s",
+            hooks->settings->mapspath));
+    PyDict_SetItemString(dict, "libpath", Py_BuildValue("s",
+            hooks->settings->libpath));
+    PyDict_SetItemString(dict, "httppath", Py_BuildValue("s",
+            hooks->settings->httppath));
+    return dict;
+}
+
 /*@}*/
 
 /**
  * Here is the Python Declaration Table, used by the interpreter to make
- * an interface with the C code. */
+ * an interface with the C code.
+ */
 static PyMethodDef AtrinikMethods[] = {
-    {"LoadObject", Atrinik_LoadObject, METH_VARARGS, 0},
-    {"ReadyMap", Atrinik_ReadyMap, METH_VARARGS, 0},
+    {"LoadObject", Atrinik_LoadObject, METH_VARARGS, doc_Atrinik_LoadObject},
+    {"ReadyMap", Atrinik_ReadyMap, METH_VARARGS, doc_Atrinik_ReadyMap},
     {"FindPlayer", Atrinik_FindPlayer, METH_VARARGS, 0},
     {"PlayerExists", Atrinik_PlayerExists, METH_VARARGS, 0},
     {"WhoAmI", Atrinik_WhoAmI, METH_NOARGS, 0},
@@ -1691,7 +1736,8 @@ static PyMethodDef AtrinikMethods[] = {
     {"SetReturnValue", Atrinik_SetReturnValue, METH_VARARGS, 0},
     {"GetEventParameters", Atrinik_GetEventParameters, METH_NOARGS, 0},
     {"RegisterCommand", Atrinik_RegisterCommand, METH_VARARGS, 0},
-    {"CreatePathname", Atrinik_CreatePathname, METH_VARARGS, 0},
+    {"CreatePathname", Atrinik_CreatePathname, METH_VARARGS,
+            doc_Atrinik_CreatePathname},
     {"GetTime", Atrinik_GetTime, METH_NOARGS, 0},
     {"FindParty", Atrinik_FindParty, METH_VARARGS, 0},
     {"Logger", Atrinik_Logger, METH_VARARGS, 0},
@@ -1707,6 +1753,8 @@ static PyMethodDef AtrinikMethods[] = {
     {"GetArchetype", Atrinik_GetArchetype, METH_VARARGS, 0},
     {"print", Atrinik_print, METH_VARARGS, 0},
     {"Eval", Atrinik_Eval, METH_VARARGS, 0},
+    {"GetSettings", (PyCFunction) Atrinik_GetSettings, METH_NOARGS,
+            doc_Atrinik_GetSettings},
     {NULL, NULL, 0, 0}
 };
 

@@ -636,7 +636,7 @@ int Atrinik_AttrList_init(PyObject *module)
     }
 
     Py_INCREF(&Atrinik_AttrListType);
-    PyModule_AddObject(module, "AtrrList", (PyObject *) & Atrinik_AttrListType);
+    PyModule_AddObject(module, "AttrList", (PyObject *) & Atrinik_AttrListType);
 
     return 1;
 }

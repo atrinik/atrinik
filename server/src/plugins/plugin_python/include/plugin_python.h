@@ -73,6 +73,24 @@ extern PyTypeObject PyIOBase_Type;
 /** Name of the plugin, and its version. */
 #define PLUGIN_VERSION "Atrinik Python Plugin 1.0"
 
+/**
+ * @param self Self object for methods; module object for module functions.
+ */
+typedef PyObject *(*PyMethod_NOARGS)(PyObject *self);
+
+/**
+ * @copydoc PyMethod_NOARGS
+ * @param args Arguments.
+ */
+typedef PyObject *(*PyMethod_VARARGS)(PyObject *self, PyObject *args);
+
+/**
+ * @copydoc PyMethod_VARARGS
+ * @param keywds Keyword arguments.
+ */
+typedef PyObject *(*PyMethod_VARARGS_KEYWORDS)(PyObject *self, PyObject *args,
+        PyObject *keywds);
+
 extern struct plugin_hooklist *hooks;
 
 /**
@@ -456,6 +474,11 @@ typedef struct {
     /**
      * Extra data for some special fields. */
     uint32_t extra_data;
+
+    /**
+     * Documentation for the field.
+     */
+    char *doc;
 } fields_struct;
 
 /**
