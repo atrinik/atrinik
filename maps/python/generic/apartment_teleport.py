@@ -3,6 +3,10 @@
 ##
 ## Used to teleport apartment owners to their apartment.
 
+from Atrinik import *
+from Apartments import apartments_info
+
+
 def main():
     apartment = apartments_info[GetOptions()]
     pinfo = activator.FindObject(archname = "player_info", name = apartment["tag"])
@@ -19,6 +23,5 @@ def main():
         info = apartment["apartments"][pinfo.slaying]
         activator.TeleportTo(activator.map.GetPath(info["path"], True, activator.name), info["x"], info["y"])
 
-exec(open(CreatePathname("/python/generic/apartments.py")).read())
 main()
 SetReturnValue(1)

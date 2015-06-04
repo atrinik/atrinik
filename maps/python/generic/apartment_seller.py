@@ -1,9 +1,12 @@
 ## @file
 ## Script for the apartment seller in Brynknot.
 
+from Atrinik import *
+from Apartments import apartments_info
 from Interface import Interface
 
 inf = Interface(activator, me)
+
 
 def main():
     apartment = apartments_info[GetOptions()]
@@ -64,6 +67,5 @@ def main():
         else:
             inf.add_msg("Sorry, you don't have enough money.")
 
-exec(open(CreatePathname("/python/generic/apartments.py")).read())
 main()
 inf.finish()
