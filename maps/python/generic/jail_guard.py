@@ -1,6 +1,7 @@
 ## @file
 ## Generic script for jail guards.
 
+from Atrinik import *
 from Interface import Interface
 import Jail
 

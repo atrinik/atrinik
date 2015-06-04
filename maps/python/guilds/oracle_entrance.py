@@ -3,6 +3,7 @@
 ##
 ## Only allows entrance to guild administrators, OPs are an exception.
 
+from Atrinik import *
 from Guild import Guild
 
 guild = Guild(GetOptions())

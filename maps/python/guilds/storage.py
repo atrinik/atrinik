@@ -1,6 +1,7 @@
 ## @file
 ## Handles map-wide events in guild storage maps.
 
+from Atrinik import *
 from Guild import Guild
 
 other = WhoIsOther()

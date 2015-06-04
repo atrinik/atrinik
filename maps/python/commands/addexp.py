@@ -1,6 +1,7 @@
 ## @file
 ## Implements the /addexp command.
 
+from Atrinik import *
 import re
 from Markup import markup_escape
 

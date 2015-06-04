@@ -1,3 +1,4 @@
+from Atrinik import *
 from Interface import Interface
 
 activator = WhoIsActivator()

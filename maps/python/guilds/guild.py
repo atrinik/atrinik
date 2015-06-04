@@ -2,6 +2,7 @@
 ## Script for guild manager NPCs to manage applications, allow entering the
 ## guild, etc.
 
+from Atrinik import *
 from Interface import Interface
 from Guild import Guild
 

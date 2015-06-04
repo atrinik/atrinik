@@ -2,11 +2,13 @@
 ## Simple guild greeter, handles showing player's guild rank and telling
 ## about all the ranks available.
 
+from Atrinik import *
 from Interface import Interface
 from Guild import Guild
 
 inf = Interface(activator, me)
 guild = Guild(GetOptions())
+
 
 def main():
     if msg == "hello":

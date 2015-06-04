@@ -1,6 +1,9 @@
 ## @file
 ## Script for Silmedsen's potion bottle.
 
+from Atrinik import *
+
+
 def main():
     SetReturnValue(1)
 

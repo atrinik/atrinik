@@ -1,6 +1,7 @@
 ## @file
 ## Implements the /patch DM command.
 
+from Atrinik import *
 import re
 from Common import obj_assign_attribs, find_obj
 

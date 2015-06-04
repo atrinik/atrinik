@@ -3,6 +3,7 @@
 ## except those that match regex specified in event options (matched
 ## against the floor's arch name).
 
+from Atrinik import *
 import re
 
 options = GetOptions()

@@ -1,6 +1,7 @@
 ## @file
 ## Script for spell sellers.
 
+from Atrinik import *
 from Interface import Interface
 
 inf = Interface(activator, me)

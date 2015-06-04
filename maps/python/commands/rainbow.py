@@ -1,6 +1,7 @@
 ## @file
 ## The /rainbow command.
 
+from Atrinik import *
 import colorsys, random
 
 def main():

@@ -2,6 +2,7 @@
 ## Script used for Guild Storage Manager NPCs, to explain how to use the
 ## storage and the rank limits.
 
+from Atrinik import *
 from Interface import Interface
 from Guild import Guild
 

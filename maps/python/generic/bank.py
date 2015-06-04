@@ -1,6 +1,7 @@
 ## @file
 ## Generic bank script used for bank NPCs.
 
+from Atrinik import *
 from Interface import Interface
 from Bank import Bank
 

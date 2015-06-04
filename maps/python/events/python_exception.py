@@ -9,6 +9,7 @@
 import Atrinik, Markup, traceback
 
 # Construct the exception string.
+# noinspection PyUnresolvedReferences
 exception = "".join(traceback.format_exception(exc_type, exc_value, exc_traceback))
 
 # Log the exception to the server log.

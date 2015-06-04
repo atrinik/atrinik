@@ -1,8 +1,10 @@
+from Atrinik import *
 from QuestManager import QuestManager
 from InterfaceQuests import escaping_deserted_island
 from Packet import Notification
 
 qm = QuestManager(activator, escaping_deserted_island)
+
 
 def main():
     for (m, x, y) in activator.SquaresAround(1):

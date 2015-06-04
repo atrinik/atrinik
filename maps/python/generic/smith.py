@@ -1,6 +1,7 @@
 ## @file
 ## Generic script for smiths in shops.
 
+from Atrinik import *
 from Interface import Interface
 from Smith import Smith
 

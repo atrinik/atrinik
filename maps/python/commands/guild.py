@@ -4,6 +4,7 @@
 ##
 ## The command provides a chat for guild members.
 
+from Atrinik import *
 from Guild import Guild
 from Common import player_sanitize_input
 

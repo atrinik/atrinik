@@ -3,6 +3,7 @@
 ##
 ## Only usable by DMs or those with the "console" command permission.
 
+from Atrinik import *
 import sys
 
 import Common

@@ -1,6 +1,7 @@
 ## @file
 ## The /pirate_shout command.
 
+from Atrinik import *
 from Pirate import english2pirate
 
 if not msg:

@@ -1,6 +1,7 @@
 ## @file
 ## Implements bards that tell stories from books in the bard's inventory.
 
+from Atrinik import *
 from Interface import Interface
 
 inf = Interface(activator, me)

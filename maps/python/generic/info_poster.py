@@ -1,6 +1,7 @@
 ## @file
 ## Script implementing Information Posters.
 
+from Atrinik import *
 from PostOffice import PostOffice
 from Guild import Guild
 

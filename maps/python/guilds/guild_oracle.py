@@ -2,6 +2,7 @@
 ## Guild Oracle provides guild administration features for the guild
 ## administrators.
 
+from Atrinik import *
 from Interface import Interface
 from Guild import Guild
 import re

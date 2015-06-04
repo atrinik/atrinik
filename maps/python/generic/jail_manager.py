@@ -1,6 +1,7 @@
 ## @file
 ## Jail manager NPC.
 
+from Atrinik import *
 from Interface import Interface
 import Jail
 
