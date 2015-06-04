@@ -3,6 +3,7 @@
 ## player has paid their fees, and if not, will try to pay with the money
 ## on them, if that doesn't work, they'll be kicked out of the house.
 
+from Atrinik import *
 from House import House
 
 def main():

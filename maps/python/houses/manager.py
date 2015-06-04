@@ -1,6 +1,7 @@
 ## @file
 ## Implements the House Agency Manager.
 
+from Atrinik import *
 from Interface import Interface
 from House import House
 

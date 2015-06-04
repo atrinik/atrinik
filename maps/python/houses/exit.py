@@ -1,6 +1,7 @@
 ## @file
 ## Script for exits related to the luxury houses.
 
+from Atrinik import *
 from House import House
 
 options = GetOptions().split(",")

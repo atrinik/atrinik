@@ -1,6 +1,7 @@
 ## @file
 ## Handles Auction House clerks.
 
+from Atrinik import *
 from Interface import Interface
 from base64 import b64encode, b64decode
 from math import ceil

@@ -2006,7 +2006,7 @@ x 12
 y 15
 arch event_obj
 sub_type 10
-race /python/house/exit.py
+race /python/houses/exit.py
 slaying greyton,15,7
 end
 end
@@ -3196,7 +3196,7 @@ level 70
 type 83
 arch event_obj
 sub_type 6
-race /python/house/manager.py
+race /python/houses/manager.py
 slaying greyton
 end
 end

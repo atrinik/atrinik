@@ -631,7 +631,7 @@ faction asteria_citizens
 direction 1
 arch event_obj
 sub_type 6
-race /python/auction/clerk.py
+race /python/auctions/clerk.py
 end
 end
 end
@@ -1291,7 +1291,7 @@ faction asteria_citizens
 type 83
 arch event_obj
 sub_type 6
-race /python/auction/clerk.py
+race /python/auctions/clerk.py
 end
 end
 end
@@ -1481,7 +1481,7 @@ name Clerk
 direction 1
 arch event_obj
 sub_type 6
-race /python/auction/clerk.py
+race /python/auctions/clerk.py
 end
 end
 end
@@ -1518,7 +1518,7 @@ type 83
 name Clerk
 arch event_obj
 sub_type 6
-race /python/auction/clerk.py
+race /python/auctions/clerk.py
 end
 end
 end
@@ -1693,7 +1693,7 @@ type 83
 direction 3
 arch event_obj
 sub_type 6
-race /python/auction/clerk.py
+race /python/auctions/clerk.py
 end
 end
 end

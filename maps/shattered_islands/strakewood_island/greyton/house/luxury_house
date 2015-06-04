@@ -1135,7 +1135,7 @@ wc 25
 cursed 1
 arch event_obj
 sub_type 11
-race /python/house/gardener.py
+race /python/houses/gardener.py
 slaying greyton
 end
 end
@@ -1147,7 +1147,7 @@ sp 6
 wc 25
 arch event_obj
 sub_type 11
-race /python/house/gardener.py
+race /python/houses/gardener.py
 slaying greyton
 end
 end
@@ -1159,7 +1159,7 @@ sp 25
 wc 25
 arch event_obj
 sub_type 11
-race /python/house/gardener.py
+race /python/houses/gardener.py
 slaying greyton
 end
 end
@@ -1171,7 +1171,7 @@ sp 25
 wc 80
 arch event_obj
 sub_type 11
-race /python/house/gardener.py
+race /python/houses/gardener.py
 slaying greyton
 end
 end
@@ -1543,7 +1543,7 @@ x 8
 y 12
 arch event_obj
 sub_type 10
-race /python/house/fees_checker.py
+race /python/houses/fees_checker.py
 slaying greyton
 end
 end
@@ -1793,7 +1793,7 @@ x 9
 y 12
 arch event_obj
 sub_type 10
-race /python/house/fees_checker.py
+race /python/houses/fees_checker.py
 slaying greyton
 end
 end
@@ -1831,7 +1831,7 @@ x 9
 y 17
 arch event_obj
 sub_type 10
-race /python/house/fees_checker.py
+race /python/houses/fees_checker.py
 slaying greyton
 end
 end
@@ -1890,7 +1890,7 @@ x 9
 y 22
 arch event_obj
 sub_type 10
-race /python/house/fees_checker.py
+race /python/houses/fees_checker.py
 slaying greyton
 end
 end
@@ -2105,7 +2105,7 @@ x 10
 y 22
 arch event_obj
 sub_type 10
-race /python/house/fees_checker.py
+race /python/houses/fees_checker.py
 slaying greyton
 end
 end
@@ -2273,7 +2273,7 @@ x 11
 y 17
 arch event_obj
 sub_type 10
-race /python/house/fees_checker.py
+race /python/houses/fees_checker.py
 slaying greyton
 end
 end
@@ -2358,7 +2358,7 @@ x 11
 y 27
 arch event_obj
 sub_type 10
-race /python/house/exit.py
+race /python/houses/exit.py
 slaying greyton,out
 end
 end
@@ -2620,7 +2620,7 @@ x 12
 y 22
 arch event_obj
 sub_type 10
-race /python/house/fees_checker.py
+race /python/houses/fees_checker.py
 slaying greyton
 end
 end
@@ -2870,7 +2870,7 @@ x 13
 y 22
 arch event_obj
 sub_type 10
-race /python/house/fees_checker.py
+race /python/houses/fees_checker.py
 slaying greyton
 end
 end
@@ -11678,7 +11678,7 @@ x 46
 y 26
 arch event_obj
 sub_type 10
-race /python/house/exit.py
+race /python/houses/exit.py
 slaying everlink,greyton
 end
 end

@@ -1,6 +1,7 @@
 ## @file
 ## Handles map-wide events in Auction Houses.
 
+from Atrinik import *
 from Auction import item_buy
 
 other = WhoIsOther()
