@@ -59,7 +59,7 @@ class NPC(object):
         self.head = InterfaceIO()
         self.body = InterfaceIO()
         self.tail = InterfaceIO()
-        self.imports = ["Interface.InterfaceBuilder"]
+        self.imports = ["Interface.InterfaceBuilder", "Atrinik.*"]
         self.preconds = OrderedDict()
         self.quest_uid = None
 
