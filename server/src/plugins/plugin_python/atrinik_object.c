@@ -37,125 +37,388 @@
  * <h2>Python object fields</h2>
  * List of the object fields and their meaning. */
 static fields_struct fields[] = {
-    {"below", FIELDTYPE_OBJECT, offsetof(object, below), FIELDFLAG_READONLY, 0},
-    {"above", FIELDTYPE_OBJECT, offsetof(object, above), FIELDFLAG_READONLY, 0},
-    {"inv", FIELDTYPE_OBJECT, offsetof(object, inv), FIELDFLAG_READONLY, 0},
-    {"env", FIELDTYPE_OBJECT, offsetof(object, env), FIELDFLAG_READONLY, 0},
-    {"head", FIELDTYPE_OBJECT, offsetof(object, head), FIELDFLAG_READONLY, 0},
-    {"more", FIELDTYPE_OBJECT, offsetof(object, more), FIELDFLAG_READONLY, 0},
-    {"map", FIELDTYPE_MAP, offsetof(object, map), FIELDFLAG_READONLY, 0},
-    {"name", FIELDTYPE_SHSTR, offsetof(object, name), FIELDFLAG_PLAYER_READONLY, 0},
-    {"custom_name", FIELDTYPE_SHSTR, offsetof(object, custom_name), 0, 0},
-    {"title", FIELDTYPE_SHSTR, offsetof(object, title), 0, 0},
-    {"race", FIELDTYPE_SHSTR, offsetof(object, race), 0, 0},
-    {"slaying", FIELDTYPE_SHSTR, offsetof(object, slaying), 0, 0},
-    {"msg", FIELDTYPE_SHSTR, offsetof(object, msg), 0, 0},
-    {"artifact", FIELDTYPE_SHSTR, offsetof(object, artifact), 0, 0},
-    {"weight", FIELDTYPE_INT32, offsetof(object, weight), 0, 0},
-    {"count", FIELDTYPE_UINT32, offsetof(object, count), FIELDFLAG_READONLY, 0},
+    {"below", FIELDTYPE_OBJECT, offsetof(object, below), FIELDFLAG_READONLY, 0,
+            "Object stacked below this one.; Atrinik.Object or None "
+            "(readonly)"},
+    {"above", FIELDTYPE_OBJECT, offsetof(object, above), FIELDFLAG_READONLY, 0,
+            "Object stacked above this one.; Atrinik.Object or None "
+            "(readonly)"},
+    {"inv", FIELDTYPE_OBJECT, offsetof(object, inv), FIELDFLAG_READONLY, 0,
+            "First object in the inventory.; Atrinik.Object or None "
+            "(readonly)"},
+    {"env", FIELDTYPE_OBJECT, offsetof(object, env), FIELDFLAG_READONLY, 0,
+            "Inventory the object is in.; Atrinik.Object or None (readonly)"},
+    {"head", FIELDTYPE_OBJECT, offsetof(object, head), FIELDFLAG_READONLY, 0,
+            "Head part of a linked object.; Atrinik.Object or None (readonly)"},
+    {"more", FIELDTYPE_OBJECT, offsetof(object, more), FIELDFLAG_READONLY, 0,
+            "Next linked object.; Atrinik.Object or None (readonly)"},
+    {"map", FIELDTYPE_MAP, offsetof(object, map), FIELDFLAG_READONLY, 0,
+            "Map the object is on.; Atrinik.Map or None (readonly)"},
+    {"name", FIELDTYPE_SHSTR, offsetof(object, name), FIELDFLAG_PLAYER_READONLY,
+            0, "Name of the object.; str (player readonly)"},
+    {"custom_name", FIELDTYPE_SHSTR, offsetof(object, custom_name), 0, 0,
+            "Custom name given to the object.; str or None"},
+    {"title", FIELDTYPE_SHSTR, offsetof(object, title), 0, 0,
+            "Title of the object.; str or None"},
+    {"race", FIELDTYPE_SHSTR, offsetof(object, race), 0, 0,
+            "Race associated with the object.; str or None"},
+    {"slaying", FIELDTYPE_SHSTR, offsetof(object, slaying), 0, 0,
+            "The slaying field. Used for different purposes, depending on the "
+            "object's type.; str or None"},
+    {"msg", FIELDTYPE_SHSTR, offsetof(object, msg), 0, 0,
+            "The object's story.; str or None"},
+    {"artifact", FIELDTYPE_SHSTR, offsetof(object, artifact), 0, 0,
+            "Artifact name.; str or None"},
+    {"weight", FIELDTYPE_INT32, offsetof(object, weight), 0, 0,
+            "Weight of the object in grams.; int"},
+    {"count", FIELDTYPE_UINT32, offsetof(object, count), FIELDFLAG_READONLY, 0,
+            "Object's unique identifier.; int (readonly)"},
 
-    {"weight_limit", FIELDTYPE_UINT32, offsetof(object, weight_limit), 0, 0},
-    {"carrying", FIELDTYPE_INT32, offsetof(object, carrying), 0, 0},
-    {"path_attuned", FIELDTYPE_UINT32, offsetof(object, path_attuned), 0, 0},
-    {"path_repelled", FIELDTYPE_UINT32, offsetof(object, path_repelled), 0, 0},
-    {"path_denied", FIELDTYPE_UINT32, offsetof(object, path_denied), 0, 0},
-    {"value", FIELDTYPE_INT64, offsetof(object, value), 0, 0},
-    {"nrof", FIELDTYPE_UINT32, offsetof(object, nrof), 0, 0},
+    {"weight_limit", FIELDTYPE_UINT32, offsetof(object, weight_limit), 0, 0,
+            "Maximum weight the object's inventory can hold, in grams.; int"},
+    {"carrying", FIELDTYPE_INT32, offsetof(object, carrying), 0, 0,
+            "Weight the object is currently carrying in its inventory, in "
+            "grams.; int"},
+    {"path_attuned", FIELDTYPE_UINT32, offsetof(object, path_attuned), 0, 0,
+            "Spell paths the object is attuned to.; int"},
+    {"path_repelled", FIELDTYPE_UINT32, offsetof(object, path_repelled), 0, 0,
+            "Spell paths the object is repelled from.; int"},
+    {"path_denied", FIELDTYPE_UINT32, offsetof(object, path_denied), 0, 0,
+            "Spell paths the object is denied access to.; int"},
+    {"value", FIELDTYPE_INT64, offsetof(object, value), 0, 0,
+            "Value of the object.; int"},
+    {"nrof", FIELDTYPE_UINT32, offsetof(object, nrof), 0, 0,
+            "Amount of objects.; int"},
 
-    {"enemy", FIELDTYPE_OBJECTREF, offsetof(object, enemy), FIELDFLAG_PLAYER_READONLY, offsetof(object, enemy_count)},
-    {"attacked_by", FIELDTYPE_OBJECTREF, offsetof(object, attacked_by), FIELDFLAG_READONLY, offsetof(object, attacked_by_count)},
-    {"owner", FIELDTYPE_OBJECTREF, offsetof(object, owner), FIELDFLAG_READONLY, offsetof(object, ownercount)},
+    {"enemy", FIELDTYPE_OBJECTREF, offsetof(object, enemy),
+            FIELDFLAG_PLAYER_READONLY, offsetof(object, enemy_count),
+            "Enemy of the object.; Atrinik.Object or None (player readonly)"},
+    {"attacked_by", FIELDTYPE_OBJECTREF, offsetof(object, attacked_by),
+            FIELDFLAG_READONLY, offsetof(object, attacked_by_count),
+            "Who is attacking the object.; Atrinik.Object or None (readonly)"},
+    {"owner", FIELDTYPE_OBJECTREF, offsetof(object, owner), FIELDFLAG_READONLY,
+            offsetof(object, ownercount), "Owner of the object.; "
+            "Atrinik.Object or None (readonly)"},
 
-    {"x", FIELDTYPE_INT16, offsetof(object, x), FIELDFLAG_READONLY, 0},
-    {"y", FIELDTYPE_INT16, offsetof(object, y), FIELDFLAG_READONLY, 0},
-    {"attacked_by_distance", FIELDTYPE_INT16, offsetof(object, attacked_by_distance), 0, 0},
-    {"last_damage", FIELDTYPE_UINT16, offsetof(object, last_damage), 0, 0},
-    {"terrain_type", FIELDTYPE_UINT16, offsetof(object, terrain_type), 0, 0},
-    {"terrain_flag", FIELDTYPE_UINT16, offsetof(object, terrain_flag), 0, 0},
-    {"material", FIELDTYPE_UINT16, offsetof(object, material), 0, 0},
-    {"material_real", FIELDTYPE_INT16, offsetof(object, material_real), 0, 0},
+    {"x", FIELDTYPE_INT16, offsetof(object, x), FIELDFLAG_READONLY, 0,
+            "If the object is on a :attr:`~Atrinik.Object.map`, X coordinate "
+            "on the map the object is on.; int (readonly)"},
+    {"y", FIELDTYPE_INT16, offsetof(object, y), FIELDFLAG_READONLY, 0,
+            "If the object is on a :attr:`~Atrinik.Object.map`, Y coordinate "
+            "on the map the object is on.; int (readonly)"},
+    {"attacked_by_distance", FIELDTYPE_INT16,
+            offsetof(object, attacked_by_distance), 0, 0,
+            "Distance the object was attacked from.; int"},
+    {"last_damage", FIELDTYPE_UINT16, offsetof(object, last_damage), 0, 0,
+            "Last damage done to the object.; int"},
+    {"terrain_type", FIELDTYPE_UINT16, offsetof(object, terrain_type), 0, 0,
+            "Terrain type of the object.; int"},
+    {"terrain_flag", FIELDTYPE_UINT16, offsetof(object, terrain_flag), 0, 0,
+            "Terrains that this object allows its wearer to walk on.; int"},
+    {"material", FIELDTYPE_UINT16, offsetof(object, material), 0, 0,
+            "What materials this object consists of.; int"},
+    {"material_real", FIELDTYPE_INT16, offsetof(object, material_real), 0, 0,
+            "Holds the real material value like what kind of steel.; int"},
 
-    {"last_heal", FIELDTYPE_INT16, offsetof(object, last_heal), 0, 0},
-    {"last_sp", FIELDTYPE_INT16, offsetof(object, last_sp), 0, 0},
-    {"last_grace", FIELDTYPE_INT16, offsetof(object, last_grace), 0, 0},
-    {"last_eat", FIELDTYPE_INT16, offsetof(object, last_eat), 0, 0},
+    {"last_heal", FIELDTYPE_INT16, offsetof(object, last_heal), 0, 0,
+            "Last heal value.; int"},
+    {"last_sp", FIELDTYPE_INT16, offsetof(object, last_sp), 0, 0,
+            "Last mana value.; int"},
+    {"last_grace", FIELDTYPE_INT16, offsetof(object, last_grace), 0, 0,
+            "Last grace value.; int"},
+    {"last_eat", FIELDTYPE_INT16, offsetof(object, last_eat), 0, 0,
+            "Last eat value.; int"},
 
-    {"magic", FIELDTYPE_INT8, offsetof(object, magic), 0, 0},
-    {"state", FIELDTYPE_UINT8, offsetof(object, state), 0, 0},
-    {"level", FIELDTYPE_INT8, offsetof(object, level), FIELDFLAG_PLAYER_READONLY, 0},
-    {"direction", FIELDTYPE_INT8, offsetof(object, direction), 0, 0},
-    {"quick_pos", FIELDTYPE_UINT8, offsetof(object, quick_pos), 0, 0},
-    {"quickslot", FIELDTYPE_UINT8, offsetof(object, quickslot), FIELDFLAG_READONLY, 0},
+    {"magic", FIELDTYPE_INT8, offsetof(object, magic), 0, 0,
+            "Magical bonus of this object.; int"},
+    {"state", FIELDTYPE_UINT8, offsetof(object, state), 0, 0,
+            "Object's animation state.; int"},
+    {"level", FIELDTYPE_INT8, offsetof(object, level),
+            FIELDFLAG_PLAYER_READONLY, 0, "Level of the object.; int (player "
+            "readonly)"},
+    {"direction", FIELDTYPE_INT8, offsetof(object, direction), 0, 0,
+            "Direction the object is facing.; int"},
+    {"quick_pos", FIELDTYPE_UINT8, offsetof(object, quick_pos), 0, 0,
+            "For head object, number of tail parts, for tail part, the tail's "
+            "offset.; int"},
+    {"quickslot", FIELDTYPE_UINT8, offsetof(object, quickslot),
+            FIELDFLAG_READONLY, 0, "Quickslot ID of the object.; "
+            "int (readonly)"},
 
-    {"type", FIELDTYPE_UINT8, offsetof(object, type), 0, 0},
-    {"sub_type", FIELDTYPE_UINT8, offsetof(object, sub_type), 0, 0},
-    {"item_quality", FIELDTYPE_UINT8, offsetof(object, item_quality), 0, 0},
-    {"item_condition", FIELDTYPE_UINT8, offsetof(object, item_condition), 0, 0},
-    {"item_race", FIELDTYPE_UINT8, offsetof(object, item_race), 0, 0},
-    {"item_level", FIELDTYPE_UINT8, offsetof(object, item_level), 0, 0},
-    {"item_skill", FIELDTYPE_UINT8, offsetof(object, item_skill), 0, 0},
-    {"glow_radius", FIELDTYPE_INT8, offsetof(object, glow_radius), 0, 0},
-    {"move_status", FIELDTYPE_INT8, offsetof(object, move_status), 0, 0},
-    {"move_type", FIELDTYPE_UINT8, offsetof(object, move_type), 0, 0},
+    {"type", FIELDTYPE_UINT8, offsetof(object, type), 0, 0,
+            "Type of the object.; int"},
+    {"sub_type", FIELDTYPE_UINT8, offsetof(object, sub_type), 0, 0,
+            "Object's sub-type.; int"},
+    {"item_quality", FIELDTYPE_UINT8, offsetof(object, item_quality), 0, 0,
+            "Object's maximum quality.; int"},
+    {"item_condition", FIELDTYPE_UINT8, offsetof(object, item_condition), 0, 0,
+            "Current object condition.; int"},
+    {"item_race", FIELDTYPE_UINT8, offsetof(object, item_race), 0, 0,
+            "Item race, eg, orcish, dwarvish, etc.; int"},
+    {"item_level", FIELDTYPE_UINT8, offsetof(object, item_level), 0, 0,
+            "Level required to use the item.; int"},
+    {"item_skill", FIELDTYPE_UINT8, offsetof(object, item_skill), 0, 0,
+            "ID of the skill required to use the item.; int"},
+    {"glow_radius", FIELDTYPE_INT8, offsetof(object, glow_radius), 0, 0,
+            "How much light the object emits.; int"},
+    {"move_status", FIELDTYPE_INT8, offsetof(object, move_status), 0, 0,
+            "Stage in move move.; int"},
+    {"move_type", FIELDTYPE_UINT8, offsetof(object, move_type), 0, 0,
+            "What kind of movement the object performs.; int"},
 
-    {"anim_speed", FIELDTYPE_UINT8, offsetof(object, anim_speed), 0, 0},
-    {"behavior", FIELDTYPE_UINT8, offsetof(object, behavior), 0, 0},
-    {"run_away", FIELDTYPE_UINT8, offsetof(object, run_away), 0, 0},
+    {"anim_speed", FIELDTYPE_UINT8, offsetof(object, anim_speed), 0, 0,
+            "Object's animation speed.; int"},
+    {"behavior", FIELDTYPE_UINT8, offsetof(object, behavior), 0, 0,
+            "Monster/NPC behavior flags.; int"},
+    {"run_away", FIELDTYPE_UINT8, offsetof(object, run_away), 0, 0,
+            "Monster runs away if its HP goes below this percentage.; int"},
 
-    {"layer", FIELDTYPE_UINT8, offsetof(object, layer), 0, 0},
-    {"sub_layer", FIELDTYPE_UINT8, offsetof(object, sub_layer), 0, 0},
-    {"speed", FIELDTYPE_FLOAT, offsetof(object, speed), FIELDFLAG_PLAYER_READONLY, 0},
-    {"speed_left", FIELDTYPE_FLOAT, offsetof(object, speed_left), 0, 0},
-    {"weapon_speed", FIELDTYPE_FLOAT, offsetof(object, weapon_speed), 0, 0},
-    {"weapon_speed_left", FIELDTYPE_FLOAT, offsetof(object, weapon_speed_left), 0, 0},
-    {"exp", FIELDTYPE_INT64, offsetof(object, stats.exp), 0, 0},
+    {"layer", FIELDTYPE_UINT8, offsetof(object, layer), 0, 0,
+            "Layer the object is on.; int"},
+    {"sub_layer", FIELDTYPE_UINT8, offsetof(object, sub_layer), 0, 0,
+            "Sub-layer the object is on.; int"},
+    {"speed", FIELDTYPE_FLOAT, offsetof(object, speed),
+            FIELDFLAG_PLAYER_READONLY, 0, "Speed of the object.; "
+            "float (player readonly)"},
+    {"speed_left", FIELDTYPE_FLOAT, offsetof(object, speed_left), 0, 0,
+            "How much speed is left to spend this round.; float"},
+    {"weapon_speed", FIELDTYPE_FLOAT, offsetof(object, weapon_speed), 0, 0,
+            "Weapon speed.; float"},
+    {"weapon_speed_left", FIELDTYPE_FLOAT, offsetof(object, weapon_speed_left),
+            0, 0, "Weapon speed left this round.; float"},
+    {"exp", FIELDTYPE_INT64, offsetof(object, stats.exp), 0, 0,
+            "Experience of the object.; int"},
 
-    {"hp", FIELDTYPE_INT32, offsetof(object, stats.hp), 0, 0},
-    {"maxhp", FIELDTYPE_INT32, offsetof(object, stats.maxhp), FIELDFLAG_PLAYER_READONLY, 0},
-    {"sp", FIELDTYPE_INT16, offsetof(object, stats.sp), 0, 0},
-    {"maxsp", FIELDTYPE_INT16, offsetof(object, stats.maxsp), FIELDFLAG_PLAYER_READONLY, 0},
+    {"hp", FIELDTYPE_INT32, offsetof(object, stats.hp), 0, 0,
+            "Object's current HP.; int"},
+    {"maxhp", FIELDTYPE_INT32, offsetof(object, stats.maxhp),
+            FIELDFLAG_PLAYER_READONLY, 0, "Maximum HP of the object.; "
+            "int (player readonly)"},
+    {"sp", FIELDTYPE_INT16, offsetof(object, stats.sp), 0, 0,
+            "Object's current mana points.; int"},
+    {"maxsp", FIELDTYPE_INT16, offsetof(object, stats.maxsp),
+            FIELDFLAG_PLAYER_READONLY, 0, "Maximum mana points of the object.; "
+            "int (player readonly)"},
 
-    {"food", FIELDTYPE_INT16, offsetof(object, stats.food), 0, 0},
-    {"dam", FIELDTYPE_INT16, offsetof(object, stats.dam), FIELDFLAG_PLAYER_READONLY, 0},
-    {"wc", FIELDTYPE_INT16, offsetof(object, stats.wc), FIELDFLAG_PLAYER_READONLY, 0},
-    {"ac", FIELDTYPE_INT16, offsetof(object, stats.ac), FIELDFLAG_PLAYER_READONLY, 0},
-    {"wc_range", FIELDTYPE_UINT8, offsetof(object, stats.wc_range), 0, 0},
+    {"food", FIELDTYPE_INT16, offsetof(object, stats.food), 0, 0,
+            "How much food the object gives when eaten.; int"},
+    {"dam", FIELDTYPE_INT16, offsetof(object, stats.dam),
+            FIELDFLAG_PLAYER_READONLY, 0, "Damage of the object.; "
+            "int (player readonly)"},
+    {"wc", FIELDTYPE_INT16, offsetof(object, stats.wc),
+            FIELDFLAG_PLAYER_READONLY, 0, "WC attribute of the object.; "
+            "int (player readonly)"},
+    {"ac", FIELDTYPE_INT16, offsetof(object, stats.ac),
+            FIELDFLAG_PLAYER_READONLY, 0, "AC attribute of the object.; "
+            "int (player readonly)"},
+    {"wc_range", FIELDTYPE_UINT8, offsetof(object, stats.wc_range), 0, 0,
+            "WC range attribute.; int"},
 
-    {"Str", FIELDTYPE_INT8, offsetof(object, stats.Str), FIELDFLAG_PLAYER_FIX, 0},
-    {"Dex", FIELDTYPE_INT8, offsetof(object, stats.Dex), FIELDFLAG_PLAYER_FIX, 0},
-    {"Con", FIELDTYPE_INT8, offsetof(object, stats.Con), FIELDFLAG_PLAYER_FIX, 0},
-    {"Wis", FIELDTYPE_INT8, offsetof(object, stats.Wis), FIELDFLAG_PLAYER_FIX, 0},
-    {"Cha", FIELDTYPE_INT8, offsetof(object, stats.Cha), FIELDFLAG_PLAYER_FIX, 0},
-    {"Int", FIELDTYPE_INT8, offsetof(object, stats.Int), FIELDFLAG_PLAYER_FIX, 0},
-    {"Pow", FIELDTYPE_INT8, offsetof(object, stats.Pow), FIELDFLAG_PLAYER_FIX, 0},
+    {"Str", FIELDTYPE_INT8, offsetof(object, stats.Str), FIELDFLAG_PLAYER_FIX,
+            0, "Strength of the object (or how much it gives when equipped).; "
+            "int"},
+    {"Dex", FIELDTYPE_INT8, offsetof(object, stats.Dex), FIELDFLAG_PLAYER_FIX,
+            0, "Dexterity of the object (or how much it gives when equipped).; "
+            "int"},
+    {"Con", FIELDTYPE_INT8, offsetof(object, stats.Con), FIELDFLAG_PLAYER_FIX,
+            0, "Constitution of the object (or how much it gives when "
+            "equipped).; int"},
+    {"Wis", FIELDTYPE_INT8, offsetof(object, stats.Wis), FIELDFLAG_PLAYER_FIX,
+            0, "Wisdom of the object (or how much it gives when equipped).; "
+            "int"},
+    {"Cha", FIELDTYPE_INT8, offsetof(object, stats.Cha), FIELDFLAG_PLAYER_FIX,
+            0, "Charisma of the object (or how much it gives when equipped).; "
+            "int"},
+    {"Int", FIELDTYPE_INT8, offsetof(object, stats.Int), FIELDFLAG_PLAYER_FIX,
+            0, "Intelligence of the object (or how much it gives when "
+            "equipped).; int"},
+    {"Pow", FIELDTYPE_INT8, offsetof(object, stats.Pow), FIELDFLAG_PLAYER_FIX,
+            0, "Power of the object (or how much it gives when equipped).; "
+            "int"},
 
-    {"arch", FIELDTYPE_ARCH, offsetof(object, arch), 0, 0},
-    {"z", FIELDTYPE_INT16, offsetof(object, z), 0, 0},
-    {"zoom_x", FIELDTYPE_INT16, offsetof(object, zoom_x), 0, 0},
-    {"zoom_y", FIELDTYPE_INT16, offsetof(object, zoom_y), 0, 0},
-    {"rotate", FIELDTYPE_INT16, offsetof(object, rotate), 0, 0},
-    {"align", FIELDTYPE_INT16, offsetof(object, align), 0, 0},
-    {"alpha", FIELDTYPE_UINT8, offsetof(object, alpha), 0, 0},
-    /* Returns the object's face in a tuple containing the face name as
-     * string, and the face ID as integer.\n
-     * There are a few different ways to set object's face. You can use
-     * the face name (obj.face = "eyes.101"), the ID (obj.face = 1000),
-     * or the tuple returned by a previous call to obj.face. */
-    {"face", FIELDTYPE_FACE, offsetof(object, face), 0, 0},
-    /* Returns the object's animation in a tuple containing the animation
-     * name as string, and the animation ID as integer.\n
-     * There are a few different ways to set object's animation. You can
-     * use the animation name (obj.animation = "raas"), the ID (obj.animation =
-     * 100),
-     * or the tuple returned by a previous call to obj.animation. */
-    {"animation", FIELDTYPE_ANIMATION, offsetof(object, animation_id), 0, 0},
-    /* See notes for object's animation. */
-    {"inv_animation", FIELDTYPE_ANIMATION, offsetof(object, inv_animation_id), 0, 0},
-    {"other_arch", FIELDTYPE_ARCH, offsetof(object, other_arch), 0, 0},
-    {"connected", FIELDTYPE_CONNECTION, 0, 0, 0},
-    {"randomitems", FIELDTYPE_TREASURELIST, offsetof(object, randomitems), 0, 0},
+    {"arch", FIELDTYPE_ARCH, offsetof(object, arch), 0, 0,
+            "Archetype of the object.; Atrinik.Archetype"},
+    {"z", FIELDTYPE_INT16, offsetof(object, z), 0, 0,
+            "Z-position on the map (in pixels) for this object.; int"},
+    {"zoom_x", FIELDTYPE_INT16, offsetof(object, zoom_x), 0, 0,
+            "How much to zoom the object horizontally.; int"},
+    {"zoom_y", FIELDTYPE_INT16, offsetof(object, zoom_y), 0, 0,
+            "How much to zoom the object vertically.; int"},
+    {"rotate", FIELDTYPE_INT16, offsetof(object, rotate), 0, 0,
+            "Object's rotation value in degrees.; int"},
+    {"align", FIELDTYPE_INT16, offsetof(object, align), 0, 0,
+            "X align of the object on the actual rendered map, in "
+            "pixels.; int"},
+    {"alpha", FIELDTYPE_UINT8, offsetof(object, alpha), 0, 0,
+            "Alpha value of the object.; int"},
+    {"face", FIELDTYPE_FACE, offsetof(object, face), 0, 0,
+            "The object's face in a tuple containing the face name as a "
+            "string, and the face ID as integer.\nThere are a few different "
+            "ways to set object's face. You can use the face name (obj.face = "
+            "'eyes.101'), the ID (obj.face = 1000), or the tuple returned by a "
+            "previous call to obj.face.; str or int or tuple"},
+    {"animation", FIELDTYPE_ANIMATION, offsetof(object, animation_id), 0, 0,
+            "Returns the object's animation in a tuple containing the "
+            "animation name as string, and the animation ID as integer.\nThere "
+            "are a few different ways to set object's animation. You can use "
+            "the animation name (obj.animation = 'raas'), the ID"
+            "(obj.animation = 100), or the tuple returned by a previous call "
+            "to obj.animation.; str or int or tuple"},
+    {"inv_animation", FIELDTYPE_ANIMATION, offsetof(object, inv_animation_id),
+            0, 0, "Returns the object's inventory animation in a tuple "
+            "containing the animation name as string, and the animation ID as"
+            "integer.\nThere are a few different ways to set object's inventory"
+            " animation. You can use the animation name (obj.inv_animation ="
+            "'raas'), the ID (obj.inv_animation = 100), or the tuple returned"
+            "by a previous call to obj.inv_animation.; str or int or tuple"},
+    {"other_arch", FIELDTYPE_ARCH, offsetof(object, other_arch), 0, 0,
+            "Archetype used for various things, depending on the object's "
+            "type.; Atrinik.Archetype or None"},
+    {"connected", FIELDTYPE_CONNECTION, 0, 0, 0,
+            "Connection ID. Used to connect together buttons with gates, for "
+            "example.; int"},
+    {"randomitems", FIELDTYPE_TREASURELIST, offsetof(object, randomitems), 0,
+            0, "Treasure list the object generates.; str or None"},
 };
 /* @endcparser */
+
+/** Documentation for object. flag attribute. */
+static char *doc_object_flag_names[NUM_FLAGS + 1] = {
+    "The object is asleep.",
+    "The object is confused.",
+    NULL,
+    "The object is scared.",
+    "The object is blind.",
+    "The object is invisible.",
+    "The object is ethereal.",
+    "The object is good aligned.",
+    "The object cannot be picked up.",
+    "The object generates an event when it's walked upon.",
+    "The object blocks passage.",
+    "The object is animated.",
+    "The object slows movement when moving through it.",
+    "The object is flying.",
+    "The object is a monster.",
+    "The object is friendly.",
+    NULL,
+    "The object has been applied before.",
+    "Automatically does something when loaded onto a map, such as shop floors "
+            " that generate random treasure.",
+    NULL,
+    "The object is neutrally aligned.",
+    "The object can see invisible objects.",
+    "The object can be pushed.",
+    "When the object is triggered, its connection state is immediately reset.",
+    "The object can turn.",
+    "The object generates an event when something walks off of it.",
+    "The object generates an event when it's flown upon.",
+    "The object generates an event when something flies off of it.",
+    "The object disappears when its :attr:`Atrinik.Object.Object.food` "
+            "attribute reaches zero.",
+    "The object is identified.",
+    "The object reflects off of surfaces.",
+    "The object is changing.",
+    "The object can split into parts.",
+    "The object hits back immediately upon being hit.",
+    "The object disappears when it's dropped.",
+    "The object blocks line of sight.",
+    "The object is undead.",
+    "The object can be stacked.",
+    "The object is not aggressive.",
+    "The object reflects missile projectiles.",
+    "The object reflects spell projectiles.",
+    "The object blocks magic use.",
+    "Used to disable object updates.",
+    "The object is evil aligned.",
+    NULL,
+    "The object runs away when its HP gets low enough.",
+    "The object allows passage for objects with "
+            ":attr:`~Atrinik.Object.Object.f_can_pass_thru` set, even if it "
+            "otherwise normally blocks passage.",
+    "The object can pass through blocked objects with "
+            ":attr:`~Atrinik.Object.Object.f_pass_thru` set.",
+    "Outdoor tile.",
+    "The object is unique.",
+    "The object cannot be dropped.",
+    "The object cannot be damaged.",
+    "The object can cast spells.",
+    NULL,
+    "The object requires two hands to wield.",
+    "The object can use bows.",
+    "The object can use armour.",
+    "The object can use weapons.",
+    "The object's connection is not activated when 'pushed'.",
+    "The object's connection is not activated when 'released'.",
+    "The object has a readied bow.",
+    "The object has (and/or gives) x-ray vision.",
+    NULL,
+    "The object is a floor.",
+    "The object saves a player's life once, then destructs itself.",
+    "The object is magical.",
+    NULL,
+    "The object will not move.",
+    "The object will move randomly.",
+    "The object will evaporate if it has no enemy.",
+    NULL,
+    "The object is in stealth and can pass more quietly past monsters, with "
+            "smaller chance of being spotted.",
+    NULL, NULL,
+    "The object is cursed.",
+    "The object is damned (*very* cursed).",
+    "The object can be built upon.",
+    "The object disallows PvP.",
+    NULL, NULL,
+    "The object can be thrown.",
+    NULL, NULL,
+    "The object is a male.",
+    "The object is a female.",
+    "The object is currently applied.",
+    "The object is locked and cannot be dropped.",
+    NULL, NULL, NULL,
+    "The object has a weapon ready.",
+    "The object won't give experience for using skills with it.",
+    NULL,
+    "The object can see even in darkness.",
+    "The object is a cauldron.",
+    "The object is a powder.",
+    NULL,
+    "The object hits once, then evaporates.",
+    "Always draw the object twice.",
+    "The object is in a rage and will attack friends as well.",
+    "The object will never attack.",
+    "The object cannot be killed, and enemies will not consider it for "
+            "attacking.",
+    "The object is a quest item.",
+    "The object is trapped.",
+    NULL, NULL, NULL, NULL, NULL, NULL,
+    "The object is a system object.",
+    "The object always teleports items exactly on the coordinates it leads to.",
+    "The object hasn't been paid for yet.",
+    "The object cannot be seen, ever.",
+    "The object makes its wearer invisible.",
+    "The object makes its wearer ethereal.",
+    "The object is a player.",
+    "The object is named.",
+    NULL,
+    "The object will not be teleported by teleporters.",
+    "The object will drop its corpse when killed.",
+    "The object will *always* drop its corpse when killed.",
+    "Only players can enter a tile that has an object with this flag set.",
+    NULL,
+    "The object is a one-drop item.",
+    "The object is permanently cursed.",
+    "The object is permanently damned.",
+    "The object is a closed door.",
+    "The object is a spell.",
+    "The object is a missile.",
+    "The object is shown based on its direction and the player's position. ",
+    "The object does even more damage to the race specified in the "
+            ":attr:`~Atrinik.Object.Object.slaying` attribute.",
+    NULL,
+    "The object was moved. Used internally.",
+    "The object won't be saved.",
+    NULL,
+};
 
 /**
  * @defgroup plugin_python_object_functions Python object functions
@@ -1950,7 +2213,7 @@ int Atrinik_Object_init(PyObject *module)
         def->name = fields[i].name;
         def->get = (getter) Object_GetAttribute;
         def->set = (setter) Object_SetAttribute;
-        def->doc = NULL;
+        def->doc = fields[i].doc;
         def->closure = &fields[i];
     }
 
@@ -1965,7 +2228,7 @@ int Atrinik_Object_init(PyObject *module)
 
             def->get = (getter) Object_GetFlag;
             def->set = (setter) Object_SetFlag;
-            def->doc = NULL;
+            def->doc = doc_object_flag_names[flagno];
             def->closure = (void *) flagno;
         }
     }

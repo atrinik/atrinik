@@ -48,8 +48,9 @@ static fields_struct fields[] = {
     {"class_ob", FIELDTYPE_OBJECT, offsetof(player, class_ob), 0,
             FIELDFLAG_READONLY, "Class object of the player. Cannot be set, as "
             "it's always set to the last CLASS type object that is found in "
-            "the player's inventory after calling :meth:`Atrinik.Player.Fix`.; "
-            "Atrinik.Object or None (readonly)"},
+            "the player's inventory after calling "
+            ":meth:`Atrinik.Player.Update`.; Atrinik.Object or None "
+            "(readonly)"},
     {"savebed_map", FIELDTYPE_CARY, offsetof(player, savebed_map), 0,
             sizeof(((player *) NULL)->savebed_map),
             "Path to the player's savebed map.; str"},
