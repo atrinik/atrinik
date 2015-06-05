@@ -74,6 +74,20 @@ typedef struct python_eval_struct {
  */
 static python_eval_struct *python_eval;
 
+/** The Atrinik package docstring. */
+static const char package_doc[] =
+"The Atrinik Python package provides an interface to the Atrinik server.\n\n"
+"The server is able to run Python scripts dynamically, usually as a response "
+"to some event.";
+
+/** The Atrinik Type module docstring. */
+static const char module_doc_type[] =
+"Contains all the Atrinik object types as constants.";
+
+/** The Atrinik Gender module docstring. */
+static const char module_doc_gender[] =
+"Contains gender related constants.";
+
 /**
  * Useful constants */
 /* @cparser
@@ -2079,14 +2093,18 @@ static PyObject *module_create(const char *name)
  * specified module.
  * @param module Module to add to.
  * @param name Name of the created module.
- * @param constants Constants to add. */
-static void module_add_constants(PyObject *module, const char *name, const Atrinik_Constant *consts)
+ * @param constants Constants to add.
+ * @param doc Docstring for the created module.
+ */
+static void module_add_constants(PyObject *module, const char *name,
+        const Atrinik_Constant *consts, const char *doc)
 {
     size_t i = 0;
     PyObject *module_tmp;
 
     /* Create the new module. */
     module_tmp = module_create(name);
+    PyModule_AddStringConstant(module_tmp, "__doc__", doc);
 
     /* Append constants. */
     while (consts[i].name) {
@@ -2151,6 +2169,7 @@ MODULEAPI void initPlugin(struct plugin_hooklist *hooklist)
     m = Py_InitModule("Atrinik", AtrinikMethods);
 #endif
 
+    PyModule_AddStringConstant(m, "__doc__", package_doc);
     d = PyModule_GetDict(m);
     AtrinikError = PyErr_NewException("Atrinik.error", NULL, NULL);
     PyDict_SetItemString(d, "AtrinikError", AtrinikError);
@@ -2159,7 +2178,7 @@ MODULEAPI void initPlugin(struct plugin_hooklist *hooklist)
         return;
     }
 
-    module_add_constants(m, "Type", constants_types);
+    module_add_constants(m, "Type", constants_types, module_doc_type);
     module_add_array(m, "freearr_x", hooks->freearr_x, SIZEOFFREE, FIELDTYPE_INT32);
     module_add_array(m, "freearr_y", hooks->freearr_y, SIZEOFFREE, FIELDTYPE_INT32);
 
@@ -2174,6 +2193,7 @@ MODULEAPI void initPlugin(struct plugin_hooklist *hooklist)
     }
 
     module_tmp = module_create("Gender");
+    PyModule_AddStringConstant(module_tmp, "__doc__", module_doc_gender);
     module_add_array(module_tmp, "gender_noun", hooks->gender_noun, GENDER_MAX, FIELDTYPE_CSTR);
     module_add_array(module_tmp, "gender_subjective", hooks->gender_subjective, GENDER_MAX, FIELDTYPE_CSTR);
     module_add_array(module_tmp, "gender_subjective_upper", hooks->gender_subjective_upper, GENDER_MAX, FIELDTYPE_CSTR);

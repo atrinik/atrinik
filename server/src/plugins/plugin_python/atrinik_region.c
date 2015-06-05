@@ -35,15 +35,25 @@
  * <h2>Python region fields</h2>
  * List of the region fields and their meaning. */
 static fields_struct fields[] = {
-    {"next", FIELDTYPE_REGION, offsetof(region_struct, next), 0, 0},
-    {"parent", FIELDTYPE_REGION, offsetof(region_struct, parent), 0, 0},
-    {"name", FIELDTYPE_CSTR, offsetof(region_struct, name), 0, 0},
-    {"longname", FIELDTYPE_CSTR, offsetof(region_struct, longname), 0, 0},
-    {"msg", FIELDTYPE_CSTR, offsetof(region_struct, msg), 0, 0},
-    {"jailmap", FIELDTYPE_CSTR, offsetof(region_struct, jailmap), 0, 0},
-    {"jailx", FIELDTYPE_INT16, offsetof(region_struct, jailx), 0, 0},
-    {"jaily", FIELDTYPE_INT16, offsetof(region_struct, jaily), 0, 0},
-    {"map_first", FIELDTYPE_CSTR, offsetof(region_struct, map_first), 0, 0}
+    {"next", FIELDTYPE_REGION, offsetof(region_struct, next), 0, 0,
+            "Next region in a linked list.; Atrinik.Region or None (readonly)"},
+    {"parent", FIELDTYPE_REGION, offsetof(region_struct, parent), 0, 0,
+            "Region's parent.; Atrinik.Region or None (readonly)"},
+    {"name", FIELDTYPE_CSTR, offsetof(region_struct, name), 0, 0,
+            "Name of the region (eg, 'world').; str (readonly)"},
+    {"longname", FIELDTYPE_CSTR, offsetof(region_struct, longname), 0, 0,
+            "Long name (eg, 'Strakewood Island').; str or None (readonly)"},
+    {"msg", FIELDTYPE_CSTR, offsetof(region_struct, msg), 0, 0,
+            "Description of the region.; str or None (readonly)"},
+    {"jailmap", FIELDTYPE_CSTR, offsetof(region_struct, jailmap), 0, 0,
+            "Path to the region's jail map.; str or None (readonly)"},
+    {"jailx", FIELDTYPE_INT16, offsetof(region_struct, jailx), 0, 0,
+            "X coordinate of the region's jail.; int (readonly)"},
+    {"jaily", FIELDTYPE_INT16, offsetof(region_struct, jaily), 0, 0,
+            "Y coordinate of the region's jail.; int (readonly)"},
+    {"map_first", FIELDTYPE_CSTR, offsetof(region_struct, map_first), 0, 0,
+            "Path to some beginning map in the region. Used for world maker "
+            "generation purposes.; str or None (readonly)"}
 };
 /* @endcparser */
 
@@ -175,7 +185,7 @@ int Atrinik_Region_init(PyObject *module)
         def->name = fields[i].name;
         def->get = (getter) Region_GetAttribute;
         def->set = NULL;
-        def->doc = NULL;
+        def->doc = fields[i].doc;
         def->closure = &fields[i];
     }
 

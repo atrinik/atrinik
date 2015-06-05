@@ -35,23 +35,49 @@
  * <h2>Python map fields</h2>
  * List of the map fields and their meaning. */
 static fields_struct fields[] = {
-    {"next", FIELDTYPE_MAP, offsetof(mapstruct, next), FIELDFLAG_READONLY, 0},
-    {"previous", FIELDTYPE_MAP, offsetof(mapstruct, prev), FIELDFLAG_READONLY, 0},
+    {"next", FIELDTYPE_MAP, offsetof(mapstruct, next), FIELDFLAG_READONLY, 0,
+            "Next map in a doubly-linked list.; Atrinik.Map or None "
+            "(readonly)"},
+    {"previous", FIELDTYPE_MAP, offsetof(mapstruct, prev), FIELDFLAG_READONLY,
+            0, "Previous map in a doubly-linked list.; Atrinik.Map or None "
+            "(readonly)"},
 
-    {"name", FIELDTYPE_SHSTR, offsetof(mapstruct, name), 0, 0},
-    {"msg", FIELDTYPE_CSTR, offsetof(mapstruct, msg), 0, 0},
-    {"reset_timeout", FIELDTYPE_UINT32, offsetof(mapstruct, reset_timeout), 0, 0},
-    {"timeout", FIELDTYPE_INT32, offsetof(mapstruct, timeout), 0, 0},
-    {"difficulty", FIELDTYPE_UINT16, offsetof(mapstruct, difficulty), 0, 0},
-    {"height", FIELDTYPE_UINT16, offsetof(mapstruct, height), FIELDFLAG_READONLY, 0},
-    {"width", FIELDTYPE_UINT16, offsetof(mapstruct, width), FIELDFLAG_READONLY, 0},
-    {"darkness", FIELDTYPE_UINT8, offsetof(mapstruct, darkness), 0, 0},
-    {"path", FIELDTYPE_SHSTR, offsetof(mapstruct, path), FIELDFLAG_READONLY, 0},
-    {"enter_x", FIELDTYPE_UINT8, offsetof(mapstruct, enter_x), 0, 0},
-    {"enter_y", FIELDTYPE_UINT8, offsetof(mapstruct, enter_y), 0, 0},
-    {"region", FIELDTYPE_REGION, offsetof(mapstruct, region), FIELDFLAG_READONLY, 0},
-    {"bg_music", FIELDTYPE_SHSTR, offsetof(mapstruct, bg_music), 0, 0},
-    {"weather", FIELDTYPE_SHSTR, offsetof(mapstruct, weather), 0, 0}
+    {"name", FIELDTYPE_SHSTR, offsetof(mapstruct, name), 0, 0,
+            "Name of the map.; str or None"},
+    {"msg", FIELDTYPE_CSTR, offsetof(mapstruct, msg), 0, 0,
+            "Message map creator may have left.; str or None"},
+    {"reset_timeout", FIELDTYPE_UINT32, offsetof(mapstruct, reset_timeout), 0,
+            0, "How many seconds must elapse before this map should be reset.; "
+            "int"},
+    {"timeout", FIELDTYPE_INT32, offsetof(mapstruct, timeout), 0, 0,
+            "When this reaches 0, the map will be swapped out.; int"},
+    {"difficulty", FIELDTYPE_UINT16, offsetof(mapstruct, difficulty), 0, 0,
+            "What level the player should be to play here. Affects treasures, "
+            "random shops and various other things.; int"},
+    {"height", FIELDTYPE_UINT16, offsetof(mapstruct, height),
+            FIELDFLAG_READONLY, 0, "Height of the map.; int"},
+    {"width", FIELDTYPE_UINT16, offsetof(mapstruct, width),
+            FIELDFLAG_READONLY, 0, "Width of the map.; int"},
+    {"darkness", FIELDTYPE_UINT8, offsetof(mapstruct, darkness), 0, 0,
+            "Indicates the base light value on this map. This value is only "
+            "used when the map is not marked as outdoor.; int"},
+    {"path", FIELDTYPE_SHSTR, offsetof(mapstruct, path), FIELDFLAG_READONLY, 0,
+            "Path to the map file.; str (readonly)"},
+    {"enter_x", FIELDTYPE_UINT8, offsetof(mapstruct, enter_x), 0, 0,
+            "Used to indicate the X position of where to put the player when "
+            "he logs in to the map if the map has :attr:`f_fixed_login` set.;"
+            "int"},
+    {"enter_y", FIELDTYPE_UINT8, offsetof(mapstruct, enter_y), 0, 0,
+            "Used to indicate the Y position of where to put the player when "
+            "he logs in to the map if the map has :attr:`f_fixed_login` set.;"
+            "int"},
+    {"region", FIELDTYPE_REGION, offsetof(mapstruct, region),
+            FIELDFLAG_READONLY, 0, "Region the map is in.; Atrinik.Region or "
+            "None (readonly)"},
+    {"bg_music", FIELDTYPE_SHSTR, offsetof(mapstruct, bg_music), 0, 0,
+            "Background music of the map.; str or None"},
+    {"weather", FIELDTYPE_SHSTR, offsetof(mapstruct, weather), 0, 0,
+            "Weather of the map.; str or None"}
 };
 /* @endcparser */
 
@@ -70,6 +96,24 @@ static char *mapflag_names[] = {
     "f_no_save"
 };
 /* @endcparser */
+
+/** Docstrings for #mapflag_names. */
+static char *mapflag_docs[] = {
+    "Whether the map is an outdoor map.",
+    "Special unique map.",
+    "If true, reset time is not affected by players entering/leaving the map.",
+    "No spells.",
+    "Height difference will be taken into account when rendering the map.",
+    "No harmful spells like fireball, magic bullet, etc.",
+    "Don't allow any summoning spells.",
+    "When set, a player login on this map will force the player to enter the "
+            "specified :attr:`~Atrinik.Map.enter_x` "
+            ":attr:`~Atrinik.Map.enter_y` coordinates",
+    "Players cannot save on this map.",
+    NULL, NULL, NULL,
+    "PvP is possible on this map.",
+    "Don't save the map - only used with unique maps.",
+};
 
 /** Number of map flags */
 #define NUM_MAPFLAGS (sizeof(mapflag_names) / sizeof(mapflag_names[0]))
@@ -810,7 +854,7 @@ int Atrinik_Map_init(PyObject *module)
         def->name = fields[i].name;
         def->get = (getter) get_attribute;
         def->set = (setter) set_attribute;
-        def->doc = NULL;
+        def->doc = fields[i].doc;
         def->closure = &fields[i];
     }
 
@@ -827,7 +871,7 @@ int Atrinik_Map_init(PyObject *module)
         def->name = mapflag_names[flagno];
         def->get = (getter) Map_GetFlag;
         def->set = (setter) Map_SetFlag;
-        def->doc = NULL;
+        def->doc = mapflag_docs[flagno];
         def->closure = (void *) flagno;
     }
 

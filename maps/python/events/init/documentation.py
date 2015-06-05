@@ -38,7 +38,7 @@ def getargspec(obj):
     return ["=".join(x for x in val if x) for val in args]
 
 
-def dump_docstring(obj, f, indent=0, cls_name=None, is_getter=False,
+def dump_docstring(obj, f, indent=0, obj_name=None, is_getter=False,
                    is_setter=False):
     doc = obj.__doc__
     if not doc:
@@ -46,10 +46,10 @@ def dump_docstring(obj, f, indent=0, cls_name=None, is_getter=False,
 
     ret = None
 
-    if cls_name is not None:
-        doc = ".. class:: {}\n\n".format(cls_name) + doc
-    elif is_getter or is_setter:
+    if is_getter or is_setter:
         parts = doc.split(";")
+        if obj_name.startswith("f_"):
+            parts.append("bool")
         types = re.match(r"([^\(]+)\s*(\(.*\))?", parts[1])
         if not types:
             print("No types for {}".format(obj))
@@ -71,11 +71,18 @@ def dump_docstring(obj, f, indent=0, cls_name=None, is_getter=False,
         else:
             doc += "\n\n:param value: The value to set.\n"
             doc += ":type value: {}".format(" or ".join(ret))
+    elif obj_name is not None:
+        doc = ".. class:: {}\n\n".format(obj_name) + doc
 
     f.write(" " * indent * 4)
     f.write('"""\n')
+    iterator = iter(doc.split("\n"))
 
-    for line in doc.split("\n"):
+    for line in iterator:
+        if line.startswith(".. function::"):
+            next(iterator)
+            continue
+
         f.write(" " * indent * 4)
         f.write(line + "\n")
 
@@ -103,17 +110,21 @@ def dump_obj(obj, f, indent=0, defaults=None):
         else:
             tmp = defaults[tmp_name]
 
-        names.append(repr(tmp_name))
-
         if inspect.ismodule(tmp):
+            f.write("import Atrinik.{name} as {name}\n".format(name=tmp_name))
+
             with open(os.path.join(PATH, tmp_name + ".py"), "w") as f2:
+                dump_docstring(tmp, f2, indent)
                 dump_obj(tmp, f2)
         elif inspect.isclass(tmp):
-            f.write("\n\n")
-            f.write(" " * indent * 4)
-            f.write("class {}(object):\n".format(tmp_name))
-            dump_docstring(tmp, f, indent + 1, cls_name=tmp_name)
-            dump_obj(tmp, f, indent=1)
+            f.write("from Atrinik import {name}\n".format(name=tmp_name))
+
+            with open(os.path.join(PATH, tmp_name + ".py"), "w") as f2:
+                f2.write("\n\n")
+                f2.write(" " * indent * 4)
+                f2.write("class {}(object):\n".format(tmp_name))
+                dump_docstring(tmp, f2, indent + 1, obj_name=tmp_name)
+                dump_obj(tmp, f2, indent=1)
         elif hasattr(tmp, "__call__"):
             args = getargspec(tmp)
             if inspect.isclass(obj):
@@ -129,14 +140,17 @@ def dump_obj(obj, f, indent=0, defaults=None):
             f.write("pass\n")
         elif isinstance(tmp, (Object, Map, Archetype, Player)):
             f.write(" " * indent * 4)
-            f.write("{} = {}()\n".format(tmp_name, tmp.__class__.__name__))
+            f.write("{} = {cls_name}.{cls_name}()\n".format(
+                tmp_name, cls_name=tmp.__class__.__name__))
+            continue
         elif inspect.isclass(obj):
             f.write("\n")
             f.write(" " * indent * 4)
             f.write("@property\n")
             f.write(" " * indent * 4)
             f.write("def {}(self):\n".format(tmp_name, tmp))
-            types = dump_docstring(tmp, f, indent + 1, is_getter=True)
+            types = dump_docstring(tmp, f, indent + 1, is_getter=True,
+                                   obj_name=tmp_name)
             f.write(" " * (indent + 1) * 4)
             f.write("value = getattr(self, {})\n".format(repr(tmp_name)))
 
@@ -151,12 +165,15 @@ def dump_obj(obj, f, indent=0, defaults=None):
             f.write("@{}.setter\n".format(tmp_name))
             f.write(" " * indent * 4)
             f.write("def {}(self, value):\n".format(tmp_name, tmp))
-            dump_docstring(tmp, f, indent + 1, is_setter=True)
+            dump_docstring(tmp, f, indent + 1, is_setter=True,
+                           obj_name=tmp_name)
             f.write(" " * (indent + 1) * 4)
             f.write("setattr(self, {}, value)\n".format(repr(tmp_name)))
         else:
             f.write(" " * indent * 4)
             f.write("{} = {}\n".format(tmp_name, repr(tmp)))
+
+        names.append(repr(tmp_name))
 
     return names
 
@@ -173,7 +190,9 @@ def main():
         os.makedirs(PATH)
 
     with open(os.path.join(PATH, "__init__.py"), "w") as f:
-        names = dump_obj(sys.modules["Atrinik"], f, defaults=defaults)
+        obj = sys.modules["Atrinik"]
+        dump_docstring(obj, f)
+        names = dump_obj(obj, f, defaults=defaults)
         f.write("__all__ = [{}]\n".format(", ".join(names)))
 
 main()

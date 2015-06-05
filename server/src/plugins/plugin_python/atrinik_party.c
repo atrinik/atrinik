@@ -35,9 +35,12 @@
  * <h2>Python party fields</h2>
  * List of the party fields and their meaning. */
 static fields_struct fields[] = {
-    {"name", FIELDTYPE_SHSTR, offsetof(party_struct, name), FIELDFLAG_READONLY, 0},
-    {"leader", FIELDTYPE_SHSTR, offsetof(party_struct, leader), 0, 0},
-    {"password", FIELDTYPE_CARY, offsetof(party_struct, passwd), FIELDFLAG_READONLY, 0}
+    {"name", FIELDTYPE_SHSTR, offsetof(party_struct, name), FIELDFLAG_READONLY,
+            0, "Name of the party.; str (readonly)"},
+    {"leader", FIELDTYPE_SHSTR, offsetof(party_struct, leader), 0, 0,
+            "Name of the party's leader (a player name).; str"},
+    {"password", FIELDTYPE_CARY, offsetof(party_struct, passwd),
+            FIELDFLAG_READONLY, 0, "Password required to join the party.; str"}
 };
 /* @endcparser */
 
