@@ -105,7 +105,7 @@ static unsigned PY_LONG_LONG attr_list_len(Atrinik_AttrList *al)
 static PyObject *attr_list_get(Atrinik_AttrList *al, PyObject *key, unsigned PY_LONG_LONG idx, const char *str)
 {
     void *ptr;
-    fields_struct field = {"xxx", 0, 0, 0, 0};
+    fields_struct field = {"xxx", 0, 0, 0, 0, NULL};
 
     ptr = (char *) al->ptr + al->offset;
 
@@ -204,7 +204,7 @@ static int attr_list_set(Atrinik_AttrList *al, PyObject *key, unsigned PY_LONG_L
 {
     unsigned PY_LONG_LONG len;
     void *ptr;
-    fields_struct field = {"xxx", 0, 0, 0, 0};
+    fields_struct field = {"xxx", 0, 0, 0, 0, NULL};
     int ret;
     unsigned PY_LONG_LONG i;
     player_faction_t *faction = NULL;
