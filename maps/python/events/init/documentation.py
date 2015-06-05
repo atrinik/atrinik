@@ -50,6 +50,9 @@ def dump_docstring(obj, f, indent=0, obj_name=None, is_getter=False,
         parts = doc.split(";")
         if obj_name.startswith("f_"):
             parts.append("bool")
+        if len(parts) < 2:
+            print("Invalid object {}".format(obj))
+            return
         types = re.match(r"([^\(]+)\s*(\(.*\))?", parts[1])
         if not types:
             print("No types for {}".format(obj))
