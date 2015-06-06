@@ -2,7 +2,7 @@ arch map
 name Morliana
 msg
 Created:  2009-08-09 Alex Tokar
-Modified: 2015-01-04 Alex Tokar
+Modified: 2015-06-06 Alex Tokar
 endmsg
 width 24
 height 24
@@ -18,15 +18,11 @@ end
 arch table_lab2.111
 end
 arch map_info
-hp 4
-sp 8
-title none
-end
-arch map_info
 name morliana_research_center
 hp 5
 sp 9
 cursed 1
+title none
 end
 arch floor_ostone12
 y 1
@@ -548,6 +544,15 @@ y 7
 end
 arch table_wood1.111
 direction 7
+x 3
+y 7
+end
+arch empty_archetype
+name telescope
+layer 7
+face telescope_large.101
+z 28
+align 14
 x 3
 y 7
 end
