@@ -625,6 +625,7 @@ class TagCompilerAction(BaseTagCompiler):
                 else:
                     raise ParseError("Invalid data in tag", elem)
 
+                self.npc.body.write("self._npc.WriteKey('was_provoked', '1')")
                 self.npc.body.write("self._npc.enemy = {enemy}", enemy=enemy)
             elif attr == "teleport":
                 match = re.match(r"([^ ]+)\s*(\d+)?\s*(\d+)?\s*(savebed)?", val)

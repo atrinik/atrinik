@@ -196,6 +196,8 @@ void set_npc_enemy(object *npc, object *enemy, rv_vector *rv)
         monster_enemy_signal(npc, enemy);
         monster_guard_activate_gate(npc, 1);
         monster_data_dialogs_purge(npc);
+    } else {
+        object_set_value(npc, "was_provoked", NULL, 0);
     }
 }
 
@@ -235,6 +237,10 @@ static void monster_enemy_signal_map(object *npc, mapstruct *map,
                 RV_DIAGONAL_DISTANCE) || rv.distance > dist ||
                 !monster_is_ally_of(npc, ol->objlink.ob->enemy))) {
             continue;
+        }
+
+        if (object_get_value(npc, "was_provoked") != NULL) {
+            object_set_value(ol->objlink.ob->enemy, "was_provoked", "1", 1);
         }
 
         set_npc_enemy(ol->objlink.ob->enemy, npc->enemy, NULL);

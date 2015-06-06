@@ -714,16 +714,16 @@ bool kill_object(object *op, object *hitter)
             CONTR(owner)->stat_kills_mob++;
             statistic_update("kills", owner, 1, op->name);
 
-            shstr *faction_name = object_get_value(op, "faction");
-
-            if (faction_name != NULL) {
-                faction_t faction = faction_find(faction_name);
-
-                if (faction != NULL) {
-                    faction_update_kill(faction, CONTR(owner));
-                } else {
-                    LOG(ERROR, "Invalid faction: %s for %s", faction_name,
-                        object_get_str(op));
+            if (object_get_value(op, "was_provoked") == NULL) {
+                shstr *faction_name = object_get_value(op, "faction");
+                if (faction_name != NULL) {
+                    faction_t faction = faction_find(faction_name);
+                    if (faction != NULL) {
+                        faction_update_kill(faction, CONTR(owner));
+                    } else {
+                        LOG(ERROR, "Invalid faction: %s for %s", faction_name,
+                            object_get_str(op));
+                    }
                 }
             }
         } else if (op->type == PLAYER) {
