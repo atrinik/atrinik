@@ -102,7 +102,7 @@ end
 Allowed none
 chance 1
 artifact mythical_scarlet_pimpernel_flower
-def_arch plant_flower7
+def_arch plant_flower15
 Object
 name Mythical Scarlet Pimpernel Flower
 value 1500
