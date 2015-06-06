@@ -647,20 +647,17 @@ bool faction_is_alliance(faction_t faction, faction_t faction2)
 }
 
 /**
- * Acquire player's bounty for the specified faction.
+ * Helper function for faction_get_bounty().
  * @param faction Faction.
  * @param pl Player.
  * @return Bounty.
  */
-double faction_get_bounty(faction_t faction, player *pl)
+static double _faction_get_bounty(faction_t faction, player *pl)
 {
-    TOOLKIT_PROTECT();
-
     HARD_ASSERT(faction != NULL);
     HARD_ASSERT(pl != NULL);
 
     double bounty = -player_faction_reputation(pl, faction->name);
-
     if (bounty < 0.0) {
         bounty = 0.0;
     }
@@ -675,8 +672,7 @@ double faction_get_bounty(faction_t faction, player *pl)
             continue;
         }
 
-        double bounty_child = faction_get_bounty(faction->children[i], pl);
-
+        double bounty_child = _faction_get_bounty(faction->children[i], pl);
         if (bounty_child > bounty) {
             bounty = bounty_child;
         }
@@ -686,19 +682,40 @@ double faction_get_bounty(faction_t faction, player *pl)
 }
 
 /**
- * Clear player's bounty for the specified faction.
+ * Acquire player's bounty for the specified faction.
+ *
+ * If the faction is part of an alliance, the entire alliance will be checked
+ * instead.
  * @param faction Faction.
  * @param pl Player.
+ * @return Bounty.
  */
-void faction_clear_bounty(faction_t faction, player *pl)
+double faction_get_bounty(faction_t faction, player *pl)
 {
     TOOLKIT_PROTECT();
 
     HARD_ASSERT(faction != NULL);
     HARD_ASSERT(pl != NULL);
 
-    double bounty = player_faction_reputation(pl, faction->name);
+    faction_t alliance = faction_get_alliance(faction);
+    if (alliance != NULL) {
+        faction = alliance;
+    }
 
+    return _faction_get_bounty(faction, pl);
+}
+
+/**
+ * Helper function for faction_clear_bounty().
+ * @param faction Faction.
+ * @param pl Player.
+ */
+static void _faction_clear_bounty(faction_t faction, player *pl)
+{
+    HARD_ASSERT(faction != NULL);
+    HARD_ASSERT(pl != NULL);
+
+    double bounty = player_faction_reputation(pl, faction->name);
     if (bounty < 0.0) {
         player_faction_update(pl, faction->name, -bounty);
     }
@@ -713,8 +730,31 @@ void faction_clear_bounty(faction_t faction, player *pl)
             continue;
         }
 
-        faction_clear_bounty(faction->children[i], pl);
+        _faction_clear_bounty(faction->children[i], pl);
     }
+}
+
+/**
+ * Clear player's bounty for the specified faction.
+ *
+ * If the faction is part of an alliance, the bounty will be cleared in the
+ * entire alliance.
+ * @param faction Faction.
+ * @param pl Player.
+ */
+void faction_clear_bounty(faction_t faction, player *pl)
+{
+    TOOLKIT_PROTECT();
+
+    HARD_ASSERT(faction != NULL);
+    HARD_ASSERT(pl != NULL);
+
+    faction_t alliance = faction_get_alliance(faction);
+    if (alliance != NULL) {
+        faction = alliance;
+    }
+
+    return _faction_clear_bounty(faction, pl);
 }
 
 #endif
