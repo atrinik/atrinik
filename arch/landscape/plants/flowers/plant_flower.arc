@@ -96,3 +96,10 @@ face plant_flower14.101
 no_pick 1
 type 79
 end
+Object plant_flower15
+name flower
+layer 4
+face plant_flower15.101
+no_pick 1
+type 79
+end
