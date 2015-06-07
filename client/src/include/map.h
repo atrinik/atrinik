@@ -251,6 +251,10 @@ typedef struct MapCell {
     uint8_t priority[NUM_SUB_LAYERS];
 
     uint8_t secondpass[NUM_SUB_LAYERS];
+
+    char glow[NUM_REAL_LAYERS][COLOR_BUF];
+    uint8_t glow_speed[NUM_REAL_LAYERS];
+    uint8_t glow_state[NUM_REAL_LAYERS];
 } MapCell;
 
 #define MAP_STARTX map_width * (MAP_FOW_SIZE / 2)

@@ -44,13 +44,17 @@ typedef struct sprite_effects {
     int16_t zoom_x; ///< Horizontal zoom.
     int16_t zoom_y; ///< Vertical zoom.
     int16_t rotate; ///< Rotate value.
+    char glow[COLOR_BUF];
+    uint8_t glow_speed;
+    uint8_t glow_state;
 } sprite_effects_t;
 
 #define SPRITE_EFFECTS_NEED_RENDERING(_effects)                                \
     ((_effects)->flags != 0 || (_effects)->alpha != 0 ||                       \
     (_effects)->stretch != 0 || ((_effects)->zoom_x != 0 &&                    \
     (_effects)->zoom_x != 100) || ((_effects)->zoom_y != 0 &&                  \
-    (_effects)->zoom_y != 00) || (_effects)->rotate != 0)                      \
+    (_effects)->zoom_y != 00) || (_effects)->rotate != 0 ||                    \
+    (_effects)->glow[0] != '\0')
 
 /**
  * @defgroup SPRITE_FLAG_xxx Sprite drawing flags

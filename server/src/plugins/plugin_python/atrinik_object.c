@@ -58,6 +58,8 @@ static fields_struct fields[] = {
             0, "Name of the object.; str (player readonly)"},
     {"custom_name", FIELDTYPE_SHSTR, offsetof(object, custom_name), 0, 0,
             "Custom name given to the object.; str or None"},
+    {"glow", FIELDTYPE_SHSTR, offsetof(object, glow), 0, 0,
+            "Glow color, eg, 'ff0000'; str or None"},
     {"title", FIELDTYPE_SHSTR, offsetof(object, title), 0, 0,
             "Title of the object.; str or None"},
     {"race", FIELDTYPE_SHSTR, offsetof(object, race), 0, 0,
@@ -251,6 +253,8 @@ static fields_struct fields[] = {
             "pixels.; int"},
     {"alpha", FIELDTYPE_UINT8, offsetof(object, alpha), 0, 0,
             "Alpha value of the object.; int"},
+    {"glow_speed", FIELDTYPE_UINT8, offsetof(object, glow_speed), 0, 0,
+            "Glowing animation speed.; int"},
     {"face", FIELDTYPE_FACE, offsetof(object, face), 0, 0,
             "The object's face in a tuple containing the face name as a "
             "string, and the face ID as integer.\nThere are a few different "

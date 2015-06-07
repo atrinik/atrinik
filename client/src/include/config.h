@@ -30,7 +30,7 @@
 #define CONFIG_H
 
 /** Socket version. */
-#define SOCKET_VERSION 1059
+#define SOCKET_VERSION 1060
 
 /** File the the arch definitions. */
 #define ARCHDEF_FILE "data/archdef.dat"

@@ -386,6 +386,18 @@ void objects_init(void)
  * @return 1 if the object changed face, 0 otherwise. */
 int object_animate(object *ob)
 {
+    bool ret = false;
+
+    if (ob->glow_speed > 1) {
+        ob->glow_state++;
+
+        if (ob->glow_state > ob->glow_speed) {
+            ob->glow_state = 0;
+        }
+
+        ret = true;
+    }
+
     if (ob->animation_id > 0) {
         check_animation_status(ob->animation_id);
     }
@@ -406,11 +418,11 @@ int object_animate(object *ob)
 
             ob->last_anim = 0;
 
-            return 1;
+            ret = true;
         }
     }
 
-    return 0;
+    return ret;
 }
 
 /**
@@ -552,5 +564,11 @@ void object_show_centered(SDL_Surface *surface, object *tmp, int x, int y,
         }
     }
 
-    surface_show(surface, x + xstart, y + ystart, &box, FaceList[tmp->face].sprite->bitmap);
+    sprite_effects_t effects;
+    memset(&effects, 0, sizeof(effects));
+    snprintf(VS(effects.glow), "%s", tmp->glow);
+    effects.glow_speed = tmp->glow_speed;
+    effects.glow_state = tmp->glow_state;
+    surface_show_effects(surface, x + xstart, y + ystart, &box,
+            FaceList[tmp->face].sprite->bitmap, &effects);
 }

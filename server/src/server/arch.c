@@ -142,6 +142,8 @@ static void arch_free(archetype_t *at)
     FREE_AND_CLEAR_HASH(at->clone.race);
     FREE_AND_CLEAR_HASH(at->clone.slaying);
     FREE_AND_CLEAR_HASH(at->clone.msg);
+    FREE_AND_CLEAR_HASH(at->clone.custom_name);
+    FREE_AND_CLEAR_HASH(at->clone.glow);
     free_key_values(&at->clone);
     efree(at);
 }

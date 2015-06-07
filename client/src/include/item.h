@@ -102,6 +102,15 @@ typedef struct obj {
 
     /** The item's direction. */
     uint8_t direction;
+
+    /** Glow color. */
+    char glow[7];
+
+    /** Glow speed. */
+    uint8_t glow_speed;
+
+    /** The glow state. */
+    uint8_t glow_state;
 } object;
 
 #define TYPE_PLAYER                 1

@@ -465,7 +465,8 @@ int CAN_MERGE(object *ob1, object *ob2)
             ob1->slaying        != ob2->slaying ||
             ob1->msg            != ob2->msg ||
             ob1->artifact       != ob2->artifact ||
-            ob1->custom_name    != ob2->custom_name) {
+            ob1->custom_name    != ob2->custom_name ||
+            ob1->glow           != ob2->glow) {
         return 0;
     }
 
@@ -866,6 +867,7 @@ void copy_object(object *op2, object *op, int no_speed)
     FREE_ONLY_HASH(op->msg);
     FREE_ONLY_HASH(op->artifact);
     FREE_ONLY_HASH(op->custom_name);
+    FREE_ONLY_HASH(op->glow);
 
     free_key_values(op);
 
@@ -882,6 +884,7 @@ void copy_object(object *op2, object *op, int no_speed)
     ADD_REF_NOT_NULL_HASH(op->msg);
     ADD_REF_NOT_NULL_HASH(op->artifact);
     ADD_REF_NOT_NULL_HASH(op->custom_name);
+    ADD_REF_NOT_NULL_HASH(op->glow);
 
     /* Only alter speed_left when we are sure that we have not done it before */
     if (!no_speed && op->speed < 0.0 && DBL_EQUAL(op->speed_left,
@@ -1449,6 +1452,7 @@ void object_destroy(object *ob)
     FREE_AND_CLEAR_HASH2(ob->msg);
     FREE_AND_CLEAR_HASH2(ob->artifact);
     FREE_AND_CLEAR_HASH2(ob->custom_name);
+    FREE_AND_CLEAR_HASH2(ob->glow);
 
     /* Mark object as freed and invalidate all references to it. */
     ob->count = 0;

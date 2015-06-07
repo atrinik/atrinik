@@ -481,6 +481,11 @@ static void command_item_update(uint8_t *data, size_t len, size_t *pos, uint32_t
         }
     }
 
+    if (flags & UPD_GLOW) {
+        packet_to_string(data, len, pos, VS(tmp->glow));
+        tmp->glow_speed = packet_to_uint8(data, len, pos);
+    }
+
     if (tmp->itype == TYPE_REGION_MAP) {
         region_map_fow_update(MapData.region_map);
         minimap_redraw_flag = 1;
@@ -546,7 +551,8 @@ void socket_command_item(uint8_t *data, size_t len, size_t pos)
             tmp = object_create(env, tag, bflag);
         }
 
-        flags = UPD_FLAGS | UPD_WEIGHT | UPD_FACE | UPD_DIRECTION | UPD_NAME | UPD_ANIM | UPD_ANIMSPEED | UPD_NROF;
+        flags = UPD_FLAGS | UPD_WEIGHT | UPD_FACE | UPD_DIRECTION | UPD_NAME |
+                UPD_ANIM | UPD_ANIMSPEED | UPD_NROF | UPD_GLOW;
 
         if (loc) {
             flags |= UPD_TYPE | UPD_EXTRA;
@@ -763,19 +769,22 @@ void socket_command_map(uint8_t *data, size_t len, size_t pos)
 
             /* Clear this layer. */
             if (type == MAP2_LAYER_CLEAR) {
-                map_set_data(x, y, packet_to_uint8(data, len, &pos), 0, 0, 0, "", "", 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
+                map_set_data(x, y, packet_to_uint8(data, len, &pos), 0, 0, 0,
+                        "", "", 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                        0, "", 0);
             } else { /* We have some data. */
                 int16_t face, height = 0, zoom_x = 0, zoom_y = 0, align = 0, rotate = 0;
                 uint8_t flags, obj_flags, quick_pos = 0, probe = 0, draw_double = 0, alpha = 0, infravision = 0, target_is_friend = 0;
-                uint8_t anim_speed, anim_facing, anim_flags, anim_state, priority, secondpass;
-                char player_name[64], player_color[COLOR_BUF];
+                uint8_t anim_speed, anim_facing, anim_flags, anim_state, priority, secondpass, glow_speed;
+                char player_name[64], player_color[COLOR_BUF], glow[COLOR_BUF];
                 uint32_t target_object_count = 0;
 
                 anim_speed = anim_facing = anim_flags = anim_state = 0;
-                priority = secondpass = 0;
+                priority = secondpass = glow_speed = 0;
 
                 player_name[0] = '\0';
                 player_color[0] = '\0';
+                glow[0] = '\0';
 
                 face = packet_to_uint16(data, len, &pos);
                 /* Object flags. */
@@ -790,8 +799,8 @@ void socket_command_map(uint8_t *data, size_t len, size_t pos)
 
                 /* Player name? */
                 if (flags & MAP2_FLAG_NAME) {
-                    packet_to_string(data, len, &pos, player_name, sizeof(player_name));
-                    packet_to_string(data, len, &pos, player_color, sizeof(player_color));
+                    packet_to_string(data, len, &pos, VS(player_name));
+                    packet_to_string(data, len, &pos, VS(player_color));
                 }
 
                 /* Animation? */
@@ -860,6 +869,11 @@ void socket_command_map(uint8_t *data, size_t len, size_t pos)
                     if (flags2 & MAP2_FLAG2_SECONDPASS) {
                         secondpass = 1;
                     }
+
+                    if (flags2 & MAP2_FLAG2_GLOW) {
+                        packet_to_string(data, len, &pos, VS(glow));
+                        glow_speed = packet_to_uint8(data, len, &pos);
+                    }
                 }
 
                 /* Set the data we figured out. */
@@ -868,7 +882,7 @@ void socket_command_map(uint8_t *data, size_t len, size_t pos)
                         zoom_y, align, draw_double, alpha, rotate, infravision,
                         target_object_count, target_is_friend, anim_speed,
                         anim_facing, anim_flags, anim_state, priority,
-                        secondpass);
+                        secondpass, glow, glow_speed);
             }
         }
 

@@ -245,6 +245,8 @@ enum {
 #define MAP2_FLAG2_PRIORITY 32
 /** Second alpha pass rendering. */
 #define MAP2_FLAG2_SECONDPASS 64
+/** The object glows. */
+#define MAP2_FLAG2_GLOW 128
 /*@}*/
 
 /**
@@ -465,6 +467,8 @@ enum {
 #define UPD_TYPE 512
 /** Extra data, such as spell/skill data. */
 #define UPD_EXTRA 1024
+/** Item glow. */
+#define UPD_GLOW 2048
 /*@}*/
 
 /**

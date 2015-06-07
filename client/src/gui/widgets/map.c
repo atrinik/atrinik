@@ -831,7 +831,7 @@ void map_set_data(int x, int y, int layer, int16_t face,
         int16_t rotate, uint8_t infravision, uint32_t target_object_count,
         uint8_t target_is_friend, uint8_t anim_speed, uint8_t anim_facing,
         uint8_t anim_flags, uint8_t anim_state, uint8_t priority,
-        uint8_t secondpass)
+        uint8_t secondpass, const char *glow, uint8_t glow_speed)
 {
     struct MapCell *cell;
     int sub_layer;
@@ -881,10 +881,9 @@ void map_set_data(int x, int y, int layer, int16_t face,
     cell->probe[layer] = probe;
     cell->quick_pos[layer] = quick_pos;
 
-    snprintf(cell->pcolor[layer], sizeof(cell->pcolor[layer]), "%s",
-            name_color);
-    snprintf(cell->pname[layer], sizeof(cell->pname[layer]), "%s",
-            name);
+    snprintf(VS(cell->pcolor[layer]), "%s", name_color);
+    snprintf(VS(cell->pname[layer]), "%s", name);
+    snprintf(VS(cell->glow[layer]), "%s", glow);
 
     cell->height[layer] = height;
     cell->zoom_x[layer] = zoom_x;
@@ -894,6 +893,7 @@ void map_set_data(int x, int y, int layer, int16_t face,
     cell->alpha[layer] = alpha;
     cell->rotate[layer] = rotate;
     cell->infravision[layer] = infravision;
+    cell->glow_speed[layer] = glow_speed;
 
     if (cell->target_object_count[layer] != target_object_count ||
             cell->target_is_friend[layer] != target_is_friend) {
@@ -1021,6 +1021,15 @@ void map_animate(void)
             }
 
             for (layer = 0; layer < NUM_REAL_LAYERS; layer++) {
+                if (cell->glow_speed[layer] > 1) {
+                    cell->glow_state[layer]++;
+                    map_redraw_flag = 1;
+
+                    if (cell->glow_state[layer] > cell->glow_speed[layer]) {
+                        cell->glow_state[layer] = 0;
+                    }
+                }
+
                 if (cell->anim_speed[layer] == 0) {
                     continue;
                 }
@@ -1180,9 +1189,11 @@ static void draw_map_object(SDL_Surface *surface, struct MapCell *cell,
         xl += cell->align[GET_MAP_LAYER(layer, sub_layer)];
     }
 
-    effects.flags = 0;
-    effects.alpha = 0;
-    effects.stretch = 0;
+    memset(&effects, 0, sizeof(effects));
+    snprintf(VS(effects.glow), "%s",
+            cell->glow[GET_MAP_LAYER(layer, sub_layer)]);
+    effects.glow_speed = cell->glow_speed[GET_MAP_LAYER(layer, sub_layer)];
+    effects.glow_state = cell->glow_state[GET_MAP_LAYER(layer, sub_layer)];
 
     if (effect_has_overlay()) {
         BIT_SET(effects.flags, SPRITE_FLAG_EFFECTS);
@@ -1304,6 +1315,7 @@ static void draw_map_object(SDL_Surface *surface, struct MapCell *cell,
     if (cell->flags[GET_MAP_LAYER(layer, sub_layer)]) {
         sprite_effects_t effects2;
 
+        memset(&effects2, 0, sizeof(effects2));
         effects2.alpha = effects.alpha;
         effects2.stretch = effects.stretch;
         effects2.zoom_x = effects.zoom_x;

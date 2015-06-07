@@ -1472,6 +1472,11 @@ void draw_client_map2(object *pl)
                             flags2 |= MAP2_FLAG2_SECONDPASS;
                         }
 
+                        if (head->glow != NULL &&
+                                CONTR(pl)->socket.socket_version >= 1060) {
+                            flags2 |= MAP2_FLAG2_GLOW;
+                        }
+
                         if (flags2) {
                             flags |= MAP2_FLAG_MORE;
                         }
@@ -1702,6 +1707,18 @@ void draw_client_map2(object *pl)
                                 packet_debug_data(packet_layer, 3,
                                         "HP percentage");
                                 packet_append_uint8(packet_layer, probe_val);
+                            }
+
+                            /* Target's HP bar. */
+                            if (flags2 & MAP2_FLAG2_GLOW) {
+                                packet_debug_data(packet_layer, 3,
+                                        "Glow color");
+                                packet_append_string_terminated(packet_layer,
+                                        head->glow);
+                                packet_debug_data(packet_layer, 3,
+                                        "Glow speed");
+                                packet_append_uint8(packet_layer,
+                                        head->glow_speed);
                             }
                         }
                     } else if (mp->faces[socket_layer]) {

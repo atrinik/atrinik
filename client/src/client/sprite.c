@@ -309,7 +309,128 @@ static SDL_Surface *sprite_effect_fow(SDL_Surface *surface)
         }
     }
 
-    SDL_Surface *ret= SDL_DisplayFormatAlpha(tmp);
+    SDL_Surface *ret = SDL_DisplayFormatAlpha(tmp);
+    SDL_FreeSurface(tmp);
+    return ret;
+}
+
+/**
+ * Creates a glowing effect for the specified sprite surface.
+ * @param surface Surface.
+ * @param color Glow color.
+ * @param speed Animation speed of the glow.
+ * @param state Current animation state of the glow.
+ * @return New surface.
+ */
+static SDL_Surface *sprite_effect_glow(SDL_Surface *surface,
+        const SDL_Color *color, double speed, double state)
+{
+    SDL_Surface *tmp = SDL_CreateRGBSurface(surface->flags, surface->w + 2,
+            surface->h + 2, surface->format->BitsPerPixel,
+            surface->format->Rmask, surface->format->Gmask,
+            surface->format->Bmask, surface->format->Amask);
+    if (tmp == NULL) {
+        return NULL;
+    }
+
+    uint8_t *grid = ecalloc(1, sizeof(*grid) * tmp->w * tmp->h);
+
+    for (int x = 0; x < surface->w; x++) {
+        for (int y = 0; y < surface->h; y++) {
+            Uint32 pixel = getpixel(surface, x, y);
+            if (pixel == surface->format->colorkey) {
+                continue;
+            }
+
+            putpixel(tmp, x + 1, y + 1, pixel);
+
+            Uint8 r, g, b, a;
+            SDL_GetRGBA(pixel, surface->format, &r, &g, &b, &a);
+            if (a < 127) {
+                continue;
+            }
+
+            grid[tmp->w * (y + 1) + (x + 1)] = 1;
+        }
+    }
+
+    speed = MAX(1.0, speed);
+    state = MAX(1.0, state);
+    double mod = (speed - state - speed / 2.0) / (speed / 2.0);
+    Uint8 alpha = 200.0 * fabs(mod);
+
+    Uint32 pixels[10];
+    for (size_t i = 0; i < arraysize(pixels); i++) {
+        double rgb[3], hsv[3];
+        rgb[0] = color->r / 255.0;
+        rgb[1] = color->g / 255.0;
+        rgb[2] = color->b / 255.0;
+
+        colorspace_rgb2hsv(rgb, hsv);
+        hsv[1] += (10 - rndm(1, 20)) * 0.01;
+        hsv[2] += (10 - rndm(1, 20)) * 0.01;
+        hsv[1] = MIN(1.0, MAX(0.0, hsv[1]));
+        hsv[2] = MIN(1.0, MAX(0.0, hsv[2]));
+        colorspace_hsv2rgb(hsv, rgb);
+
+        pixels[i] = SDL_MapRGBA(tmp->format, rgb[0] * 255.0, rgb[1] * 255.0,
+                rgb[2] * 255.0, alpha);
+    }
+
+    for (int x = 0; x < tmp->w; x++) {
+        for (int y = 0; y < tmp->h; y++) {
+            if (grid[tmp->w * y + x] != 1) {
+                continue;
+            }
+
+            bool has_neighbors = false;
+            for (int dx = -1; dx <= 1; dx++) {
+                for (int dy = -1; dy <= 1; dy++) {
+                    if (dx == 0 && dy == 0) {
+                        continue;
+                    }
+
+                    int tx = x + dx;
+                    int ty = y + dy;
+
+                    if (tx < 0 || tx >= tmp->w || ty < 0 || ty >= tmp->h) {
+                        continue;
+                    }
+
+                    if (grid[tmp->w * ty + tx] == 1) {
+                        has_neighbors = true;
+                        dx = 2;
+                        break;
+                    }
+                }
+            }
+
+            if (!has_neighbors) {
+                continue;
+            }
+
+            for (int dx = -1; dx <= 1; dx++) {
+                for (int dy = -1; dy <= 1; dy++) {
+                    int tx = x + dx;
+                    int ty = y + dy;
+
+                    if (tx < 0 || tx >= tmp->w || ty < 0 || ty >= tmp->h) {
+                        continue;
+                    }
+
+                    if (grid[tmp->w * ty + tx] == 0) {
+                        Uint32 pixel = pixels[rndm(0, arraysize(pixels) - 1)];
+                        putpixel(tmp, tx, ty, pixel);
+                        grid[tmp->w * ty + tx] = 2;
+                    }
+                }
+            }
+        }
+    }
+
+    efree(grid);
+
+    SDL_Surface *ret = SDL_DisplayFormatAlpha(tmp);
     SDL_FreeSurface(tmp);
     return ret;
 }
@@ -407,6 +528,19 @@ static SDL_Surface *sprite_effects_create(SDL_Surface *surface,
         FREE_TMP_SURFACE();
     }
 
+    if (effects->glow[0] != '\0') {
+        SDL_Color color;
+        if (text_color_parse(effects->glow, &color)) {
+            surface = sprite_effect_glow(surface, &color, effects->glow_speed,
+                    effects->glow_state);
+            if (surface == NULL) {
+                goto done;
+            }
+
+            FREE_TMP_SURFACE();
+        }
+    }
+
     if (effects->alpha != 0) {
         surface = SDL_DisplayFormatAlpha(surface);
         if (surface == NULL) {
@@ -465,10 +599,11 @@ void surface_show_effects(SDL_Surface *surface, int x, int y, SDL_Rect *srcrect,
         }
 
         char name[HUGE_BUF];
-        snprintf(VS(name), "%p;%u;%u;%s;%u;%u;%d;%d;%d", src, effects->flags,
-                effects->dark_level, effect_overlay_identifier(),
-                effects->alpha, effects->stretch, effects->zoom_x,
-                effects->zoom_y, effects->rotate);
+        snprintf(VS(name), "%p;%u;%u;%s;%u;%u;%d;%d;%d;%s;%u;%u",
+                src, effects->flags, effects->dark_level,
+                effect_overlay_identifier(), effects->alpha, effects->stretch,
+                effects->zoom_x, effects->zoom_y, effects->rotate,
+                effects->glow, effects->glow_speed, effects->glow_state);
 
         SDL_Surface *old_src = src;
         sprite_cache_t *cache = sprite_cache_find(name);
@@ -487,6 +622,11 @@ void surface_show_effects(SDL_Surface *surface, int x, int y, SDL_Rect *srcrect,
 
         if (effects->stretch != 0) {
             y -= src->h - old_src->h;
+        }
+
+        if (effects->glow[0] != '\0') {
+            y -= 1;
+            x -= 1;
         }
     }
 

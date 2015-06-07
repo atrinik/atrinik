@@ -172,6 +172,9 @@ typedef struct obj {
     /** Custom name assigned by player. */
     shstr *custom_name;
 
+    /** Glow color. */
+    shstr *glow;
+
     /** Monster/player to follow even if not closest */
     struct obj *enemy;
 
@@ -422,6 +425,9 @@ typedef struct obj {
 
     /** Object's alpha value. */
     uint8_t alpha;
+
+    /** Object's glowing speed. */
+    uint8_t glow_speed;
 
     /** The overall speed of this object */
     double speed;

@@ -256,6 +256,14 @@ static void add_object_to_packet(packet_struct *packet, object *op, object *pl,
                     op->msg != NULL ? op->msg : "");
         }
     }
+
+    if (flags & UPD_GLOW && CONTR(pl)->socket.socket_version >= 1060) {
+        packet_debug_data(packet, level, "Glow color");
+        packet_append_string_terminated(packet,
+                op->glow != NULL ? op->glow : "");
+        packet_debug_data(packet, level, "Glow speed");
+        packet_append_uint8(packet, op->glow_speed);
+    }
 }
 
 /**
@@ -294,7 +302,7 @@ static void esrv_draw_look_rec(object *pl, packet_struct *packet, object *op,
     for (tmp = op->inv; tmp; tmp = tmp->below) {
         add_object_to_packet(packet, HEAD(tmp), pl, UPD_FLAGS | UPD_WEIGHT |
                 UPD_FACE | UPD_DIRECTION | UPD_NAME | UPD_ANIM | UPD_ANIMSPEED |
-                UPD_NROF, level + 1);
+                UPD_NROF | UPD_GLOW, level + 1);
 
         if (tmp->inv && tmp->type != PLAYER) {
             esrv_draw_look_rec(pl, packet, tmp, level + 1);
@@ -421,7 +429,7 @@ void esrv_draw_look(object *pl)
 
         add_object_to_packet(packet, HEAD(tmp), pl, UPD_FLAGS | UPD_WEIGHT |
                 UPD_FACE | UPD_DIRECTION | UPD_NAME | UPD_ANIM |
-                UPD_ANIMSPEED | UPD_NROF, 1);
+                UPD_ANIMSPEED | UPD_NROF | UPD_GLOW, 1);
 
         if (CONTR(pl)->tsi && tmp->inv && tmp->type != PLAYER) {
             esrv_draw_look_rec(pl, packet, tmp, 1);
@@ -479,7 +487,9 @@ void esrv_send_inventory(object *pl, object *op)
             continue;
         }
 
-        add_object_to_packet(packet, tmp, pl, UPD_FLAGS | UPD_WEIGHT | UPD_FACE | UPD_DIRECTION | UPD_TYPE | UPD_NAME | UPD_ANIM | UPD_ANIMSPEED | UPD_NROF | UPD_EXTRA, 0);
+        add_object_to_packet(packet, tmp, pl, UPD_FLAGS | UPD_WEIGHT |
+                UPD_FACE | UPD_DIRECTION | UPD_TYPE | UPD_NAME | UPD_ANIM |
+                UPD_ANIMSPEED | UPD_NROF | UPD_EXTRA | UPD_GLOW, 0);
     }
 
     socket_send_packet(&CONTR(pl)->socket, packet);
@@ -558,7 +568,9 @@ static void esrv_send_item_send(object *pl, object *op)
     packet_append_uint32(packet, op->env->count);
     packet_debug_data(packet, 0, "End flag");
     packet_append_uint8(packet, 0);
-    add_object_to_packet(packet, HEAD(op), pl, UPD_FLAGS | UPD_WEIGHT | UPD_FACE | UPD_DIRECTION | UPD_TYPE | UPD_NAME | UPD_ANIM | UPD_ANIMSPEED | UPD_NROF | UPD_EXTRA, 0);
+    add_object_to_packet(packet, HEAD(op), pl, UPD_FLAGS | UPD_WEIGHT |
+            UPD_FACE | UPD_DIRECTION | UPD_TYPE | UPD_NAME | UPD_ANIM |
+            UPD_ANIMSPEED | UPD_NROF | UPD_EXTRA | UPD_GLOW, 0);
     socket_send_packet(&CONTR(pl)->socket, packet);
 }
 

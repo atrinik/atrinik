@@ -706,7 +706,7 @@ extern int map_get_player_direction(void);
 extern void map_get_real_coords(int *x, int *y);
 extern void init_map_data(int xl, int yl, int px, int py);
 extern void adjust_tile_stretch(void);
-extern void map_set_data(int x, int y, int layer, int16_t face, uint8_t quick_pos, uint8_t obj_flags, const char *name, const char *name_color, int16_t height, uint8_t probe, int16_t zoom_x, int16_t zoom_y, int16_t align, uint8_t draw_double, uint8_t alpha, int16_t rotate, uint8_t infravision, uint32_t target_object_count, uint8_t target_is_friend, uint8_t anim_speed, uint8_t anim_facing, uint8_t anim_flags, uint8_t anim_state, uint8_t priority, uint8_t secondpass);
+extern void map_set_data(int x, int y, int layer, int16_t face, uint8_t quick_pos, uint8_t obj_flags, const char *name, const char *name_color, int16_t height, uint8_t probe, int16_t zoom_x, int16_t zoom_y, int16_t align, uint8_t draw_double, uint8_t alpha, int16_t rotate, uint8_t infravision, uint32_t target_object_count, uint8_t target_is_friend, uint8_t anim_speed, uint8_t anim_facing, uint8_t anim_flags, uint8_t anim_state, uint8_t priority, uint8_t secondpass, const char *glow, uint8_t glow_speed);
 extern void map_clear_cell(int x, int y);
 extern void map_set_darkness(int x, int y, int sub_layer, uint8_t darkness);
 extern void map_animate(void);

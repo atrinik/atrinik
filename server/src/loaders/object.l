@@ -40,7 +40,7 @@
 
 static char *yval(void);
 
-/* that's needed to track the used buffers for recursive calling */
+/* that's needed to track the used buffers for recursive ccalling */
 static void *cur_buffer;
 static int lex_error;
 static char msgbuf[HUGE_BUF * 4];
@@ -301,6 +301,19 @@ lex_error = 0;
         }
     }
 }
+^glow{S}      {
+    char *yv = yval();
+
+    if (*yv == '\0') {
+        LOG(ERROR, "Glow without val.");
+    } else {
+        FREE_AND_COPY_HASH(op->glow, yv);
+
+        if (op->glow == shstr_cons.NONE) {
+            FREE_AND_CLEAR_HASH(op->glow);
+        }
+    }
+}
 ^race{S}             FREE_AND_COPY_HASH(op->race, yval());
 ^slaying{S}          {
     FREE_AND_COPY_HASH(op->slaying, yval());
@@ -418,6 +431,7 @@ lex_error = 0;
 ^zoom_y{S}           op->zoom_y = IVAL;
 ^align{S}            op->align = IVAL;
 ^alpha{S}            op->alpha = IVAL;
+^glow_speed{S}       op->glow_speed = IVAL;
 ^rotate{S}           op->rotate = IVAL;
 ^nrof{S}             op->nrof = atol(yval());
 ^level{S}            op->level = IVAL;
@@ -1072,6 +1086,10 @@ void get_ob_diff(StringBuffer *sb, object *op, object *op2)
         SAVE_STRING(sb, "custom_name", op->custom_name);
     }
 
+    if (op->glow && op->glow != op2->glow) {
+        SAVE_STRING(sb, "glow", op->glow);
+    }
+
     if (op->title && op->title != op2->title) {
         SAVE_STRING(sb, "title", op->title);
     }
@@ -1223,6 +1241,10 @@ void get_ob_diff(StringBuffer *sb, object *op, object *op2)
 
     if (op->alpha != op2->alpha) {
         SAVE_UINT(sb, "alpha", op->alpha);
+    }
+
+    if (op->glow_speed != op2->glow_speed) {
+        SAVE_UINT(sb, "glow_speed", op->glow_speed);
     }
 
     if (op->rotate != op2->rotate) {
