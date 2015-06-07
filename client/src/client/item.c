@@ -495,9 +495,18 @@ void object_show_centered(SDL_Surface *surface, object *tmp, int x, int y,
     }
 
     xstart = FaceList[face].sprite->border_left;
-    xlen = FaceList[face].sprite->bitmap->w - xstart - FaceList[face].sprite->border_right;
     ystart = FaceList[face].sprite->border_up;
+    if (tmp->glow[0] != '\0') {
+        xstart -= 2;
+        ystart -= 2;
+    }
+
+    xlen = FaceList[face].sprite->bitmap->w - xstart - FaceList[face].sprite->border_right;
     ylen = FaceList[face].sprite->bitmap->h - ystart - FaceList[face].sprite->border_down;
+    if (tmp->glow[0] != '\0') {
+        xlen += 2;
+        ylen += 2;
+    }
 
     if (xlen > w) {
         box.w = w;
@@ -569,6 +578,12 @@ void object_show_centered(SDL_Surface *surface, object *tmp, int x, int y,
     snprintf(VS(effects.glow), "%s", tmp->glow);
     effects.glow_speed = tmp->glow_speed;
     effects.glow_state = tmp->glow_state;
+
+    if (effects.glow[0] != '\0') {
+        BIT_SET(effects.flags, SPRITE_FLAG_DARK);
+        effects.dark_level = 0;
+    }
+
     surface_show_effects(surface, x + xstart, y + ystart, &box,
             FaceList[tmp->face].sprite->bitmap, &effects);
 }
