@@ -27,6 +27,18 @@
  * Sprite related functions. */
 
 #include <global.h>
+#include <toolkit_string.h>
+
+/**
+ * Structure used to cache sprite surfaces that have had special effects
+ * rendered on them.
+ */
+typedef struct sprite_cache {
+    char *name; ///< Name of the sprite. Used for hash table lookups.
+    SDL_Surface *surface; ///< The sprite's surface.
+    time_t last_used; ///< Last time the sprite was used.
+    UT_hash_handle hh; ///< Hash handle.
+} sprite_cache_t;
 
 /** Format holder for red_scale(), fow_scale() and grey_scale() functions. */
 SDL_Surface *FormatHolder;
@@ -36,9 +48,10 @@ static int dark_alpha[DARK_LEVELS] = {
     0, 44, 80, 117, 153, 190, 226
 };
 
-static void red_scale(sprite_struct *sprite);
-static void grey_scale(sprite_struct *sprite);
-static void fow_scale(sprite_struct *sprite);
+/**
+ * The sprite cache hash table.
+ */
+static sprite_cache_t *sprites_cache = NULL;
 
 /**
  * Initialize the sprite system. */
@@ -121,8 +134,6 @@ sprite_struct *sprite_tryload_file(char *fname, uint32_t flag, SDL_RWops *rwop)
  * @param sprite Sprite to free. */
 void sprite_free_sprite(sprite_struct *sprite)
 {
-    int i;
-
     if (!sprite) {
         return;
     }
@@ -131,29 +142,286 @@ void sprite_free_sprite(sprite_struct *sprite)
         SDL_FreeSurface(sprite->bitmap);
     }
 
-    if (sprite->grey) {
-        SDL_FreeSurface(sprite->grey);
+    efree(sprite);
+}
+
+static sprite_cache_t *sprite_cache_find(const char *name)
+{
+    HARD_ASSERT(name != NULL);
+
+    sprite_cache_t *cache;
+    HASH_FIND_STR(sprites_cache, name, cache);
+
+    if (cache != NULL) {
+        cache->last_used = time(NULL);
     }
 
-    if (sprite->red) {
-        SDL_FreeSurface(sprite->red);
+    return cache;
+}
+
+static sprite_cache_t *sprite_cache_new(const char *name)
+{
+    HARD_ASSERT(name != NULL);
+
+    sprite_cache_t *cache = ecalloc(1, sizeof(*cache));
+    cache->name = estrdup(name);
+    cache->last_used = time(NULL);
+    return cache;
+}
+
+static void sprite_cache_add(sprite_cache_t *cache)
+{
+    HARD_ASSERT(cache != NULL);
+
+    HASH_ADD_KEYPTR(hh, sprites_cache, cache->name, strlen(cache->name), cache);
+}
+
+static void sprite_cache_remove(sprite_cache_t *cache)
+{
+    HARD_ASSERT(cache != NULL);
+
+    HASH_DEL(sprites_cache, cache);
+}
+
+static void sprite_cache_free(sprite_cache_t *cache)
+{
+    HARD_ASSERT(cache != NULL);
+
+    efree(cache->name);
+    SDL_FreeSurface(cache->surface);
+    efree(cache);
+}
+
+void sprite_cache_free_all(void)
+{
+    sprite_cache_t *cache, *tmp;
+    HASH_ITER(hh, sprites_cache, cache, tmp) {
+        sprite_cache_remove(cache);
+        sprite_cache_free(cache);
+    }
+}
+
+void sprite_cache_gc(void)
+{
+    if (!rndm_chance(SPRITE_CACHE_GC_CHANCE)) {
+        return;
     }
 
-    if (sprite->fog_of_war) {
-        SDL_FreeSurface(sprite->fog_of_war);
+    time_t now = time(NULL);
+
+    struct timeval tv1;
+    gettimeofday(&tv1, NULL);
+
+    sprite_cache_t *cache, *tmp;
+    HASH_ITER(hh, sprites_cache, cache, tmp) {
+        if (now - cache->last_used >= SPRITE_CACHE_GC_FREE_TIME) {
+            sprite_cache_remove(cache);
+            sprite_cache_free(cache);
+        }
+
+        struct timeval tv2;
+        if (gettimeofday(&tv2, NULL) == 0 && tv2.tv_usec - tv1.tv_usec >=
+                SPRITE_CACHE_GC_MAX_TIME) {
+            break;
+        }
+    }
+}
+
+/**
+ * Creates a red version of the specified sprite surface. Used for the
+ * infravision effect.
+ * @param surface Surface.
+ * @return New surface.
+ */
+static SDL_Surface *sprite_effect_red(SDL_Surface *surface)
+{
+    SDL_Surface *tmp = SDL_ConvertSurface(surface, FormatHolder->format,
+            FormatHolder->flags);
+    if (tmp == NULL) {
+        return NULL;
     }
 
-    if (sprite->effect) {
-        SDL_FreeSurface(sprite->effect);
-    }
-
-    for (i = 0; i < DARK_LEVELS; i++) {
-        if (sprite->dark_level[i]) {
-            SDL_FreeSurface(sprite->dark_level[i]);
+    for (int y = 0; y < tmp->h; y++) {
+        for (int x = 0; x < tmp->w; x++) {
+            Uint8 r, g, b, a;
+            SDL_GetRGBA(getpixel(tmp, x, y), tmp->format, &r, &g, &b, &a);
+            r = (Uint8) (0.212671 * r + 0.715160 * g + 0.072169 * b);
+            g = b = 0;
+            putpixel(tmp, x, y, SDL_MapRGBA(tmp->format, r, g, b, a));
         }
     }
 
-    efree(sprite);
+    SDL_Surface *ret = SDL_DisplayFormatAlpha(tmp);
+    SDL_FreeSurface(tmp);
+    return ret;
+}
+
+/**
+ * Creates a gray version of the specified sprite surface. Used for the
+ * invisible effect.
+ * @param surface Surface.
+ * @return New surface.
+ */
+static SDL_Surface *sprite_effect_gray(SDL_Surface *surface)
+{
+    SDL_Surface *tmp = SDL_ConvertSurface(surface, FormatHolder->format,
+            FormatHolder->flags);
+    if (tmp == NULL) {
+        return NULL;
+    }
+
+    for (int y = 0; y < tmp->h; y++) {
+        for (int x = 0; x < tmp->w; x++) {
+            Uint8 r, g, b, a;
+            SDL_GetRGBA(getpixel(tmp, x, y), tmp->format, &r, &g, &b, &a);
+            r = g = b = (Uint8) (0.212671 * r + 0.715160 * g + 0.072169 * b);
+            putpixel(tmp, x, y, SDL_MapRGBA(tmp->format, r, g, b, a));
+        }
+    }
+
+    SDL_Surface *ret = SDL_DisplayFormatAlpha(tmp);
+    SDL_FreeSurface(tmp);
+    return ret;
+}
+
+/**
+ * Creates somewhat gray version of the specified sprite surface. Used for the
+ * fog of war effect.
+ * @param surface Surface.
+ * @return New surface.
+ */
+static SDL_Surface *sprite_effect_fow(SDL_Surface *surface)
+{
+    SDL_Surface *tmp = SDL_ConvertSurface(surface, FormatHolder->format,
+            FormatHolder->flags);
+    if (tmp == NULL) {
+        return NULL;
+    }
+
+    for (int y = 0; y < tmp->h; y++) {
+        for (int x = 0; x < tmp->w; x++) {
+            Uint8 r, g, b, a;
+            SDL_GetRGBA(getpixel(tmp, x, y), tmp->format, &r, &g, &b, &a);
+            r = g = b = (Uint8) ((0.212671 * r + 0.715160 * g + 0.072169 * b) *
+                    0.34);
+            b += 16;
+            putpixel(tmp, x, y, SDL_MapRGBA(tmp->format, r, g, b, a));
+        }
+    }
+
+    SDL_Surface *ret= SDL_DisplayFormatAlpha(tmp);
+    SDL_FreeSurface(tmp);
+    return ret;
+}
+
+static SDL_Surface *sprite_effects_create(SDL_Surface *surface,
+        const sprite_effects_t *effects)
+{
+#define FREE_TMP_SURFACE()      \
+    do {                        \
+        if (tmp != NULL) {      \
+        SDL_FreeSurface(tmp);   \
+        }                       \
+        tmp = surface;          \
+    } while (0)
+
+    SDL_Surface *tmp = NULL;
+
+    if (BIT_QUERY(effects->flags, SPRITE_FLAG_EFFECTS)) {
+        surface = effect_sprite_overlay(surface);
+        if (surface == NULL) {
+            goto done;
+        }
+
+        FREE_TMP_SURFACE();
+    }
+
+    if (BIT_QUERY(effects->flags, SPRITE_FLAG_DARK)) {
+        surface = SDL_DisplayFormatAlpha(surface);
+        if (surface == NULL) {
+            goto done;
+        }
+
+        char buf[MAX_BUF];
+        snprintf(VS(buf), "rectangle:500,500,%d",
+                dark_alpha[effects->dark_level]);
+        SDL_BlitSurface(texture_surface(texture_get(TEXTURE_TYPE_SOFTWARE,
+                buf)), NULL, surface, NULL);
+        FREE_TMP_SURFACE();
+    } else if (BIT_QUERY(effects->flags, SPRITE_FLAG_FOW)) {
+        surface = sprite_effect_fow(surface);
+        if (surface == NULL) {
+            goto done;
+        }
+
+        FREE_TMP_SURFACE();
+    } else if (BIT_QUERY(effects->flags, SPRITE_FLAG_RED)) {
+        surface = sprite_effect_red(surface);
+        if (surface == NULL) {
+            goto done;
+        }
+
+        FREE_TMP_SURFACE();
+    } else if (BIT_QUERY(effects->flags, SPRITE_FLAG_GRAY)) {
+        surface = sprite_effect_gray(surface);
+        if (surface == NULL) {
+            goto done;
+        }
+
+        FREE_TMP_SURFACE();
+    }
+
+    if (effects->stretch != 0) {
+        Sint8 n = (effects->stretch >> 24) & 0xFF;
+        Sint8 e = (effects->stretch >> 16) & 0xFF;
+        Sint8 w = (effects->stretch >> 8) & 0xFF;
+        Sint8 s = effects->stretch & 0xFF;
+
+        surface = tile_stretch(surface, n, e, s, w);
+        if (surface == NULL) {
+            goto done;
+        }
+
+        FREE_TMP_SURFACE();
+    }
+
+    if ((effects->zoom_x != 0 && effects->zoom_x != 100) ||
+            (effects->zoom_y != 0 && effects->zoom_y != 100) ||
+            effects->rotate != 0) {
+        bool smooth;
+        if (effects->rotate == 0 && (effects->zoom_x == 0 ||
+                abs(effects->zoom_x) == 100) && (effects->zoom_y == 0 ||
+                abs(effects->zoom_y) == 100)) {
+            smooth = false;
+        } else {
+            smooth = setting_get_int(OPT_CAT_CLIENT, OPT_ZOOM_SMOOTH);
+        }
+
+        surface = rotozoomSurfaceXY(surface, effects->rotate,
+                effects->zoom_x != 0 ? effects->zoom_x / 100.0 : 1.0,
+                effects->zoom_y ? effects->zoom_y / 100.0 : 1.0, smooth);
+        if (surface == NULL) {
+            goto done;
+        }
+
+        FREE_TMP_SURFACE();
+    }
+
+    if (effects->alpha != 0) {
+        surface = SDL_DisplayFormatAlpha(surface);
+        if (surface == NULL) {
+            goto done;
+        }
+
+        surface_set_alpha(surface, effects->alpha);
+        FREE_TMP_SURFACE();
+    }
+
+    SOFT_ASSERT_RC(tmp != NULL, NULL, "Generated NULL surface!");
+
+done:
+    return tmp;
+#undef FREE_TMP_SURFACE
 }
 
 void surface_show(SDL_Surface *surface, int x, int y, SDL_Rect *srcrect, SDL_Surface *src)
@@ -181,157 +449,48 @@ void surface_show_fill(SDL_Surface *surface, int x, int y, SDL_Rect *srcsize, SD
     }
 }
 
-void surface_show_effects(SDL_Surface *surface, int x, int y, SDL_Rect *srcrect, SDL_Surface *src, uint8_t alpha, int32_t stretch, int16_t zoom_x, int16_t zoom_y, int16_t rotate)
+void surface_show_effects(SDL_Surface *surface, int x, int y, SDL_Rect *srcrect,
+        SDL_Surface *src, const sprite_effects_t *effects)
 {
-    int smooth;
-    SDL_Surface *tmp, *src_gfx;
+    HARD_ASSERT(surface != NULL);
 
-    tmp = src_gfx = NULL;
-
-    if (stretch) {
-        Sint8 n = (stretch >> 24) & 0xFF;
-        Sint8 e = (stretch >> 16) & 0xFF;
-        Sint8 w = (stretch >> 8) & 0xFF;
-        Sint8 s = stretch & 0xFF;
-
-        src_gfx = tile_stretch(src, n, e, s, w);
-
-        if (src_gfx == NULL) {
-            goto done;
-        }
-
-        y -= src_gfx->h - src->h;
-        src = tmp = src_gfx;
-        src_gfx = NULL;
-    }
-
-    /* If this is just a flip with no rotate, force disabled interpolation. */
-    if (!rotate && (zoom_x == 0 || zoom_x == -100 || zoom_x == 100) &&
-            (zoom_y == 0 || zoom_y == -100 || zoom_y == 100)) {
-        smooth = 0;
-    } else {
-        smooth = setting_get_int(OPT_CAT_CLIENT, OPT_ZOOM_SMOOTH);
-    }
-
-    if (rotate) {
-        src_gfx = rotozoomSurfaceXY(src, rotate, zoom_x ? zoom_x / 100.0 : 1.0,
-                zoom_y ? zoom_y / 100.0 : 1.0, smooth);
-
-        if (src_gfx == NULL) {
-            goto done;
-        }
-    } else if ((zoom_x && zoom_x != 100) || (zoom_y && zoom_y != 100)) {
-        src_gfx = zoomSurface(src, zoom_x ? zoom_x / 100.0 : 1.0,
-                zoom_y ? zoom_y / 100.0 : 1.0, smooth);
-
-        if (src_gfx == NULL) {
-            goto done;
-        }
-    }
-
-    if (src_gfx != NULL) {
-        if (tmp != NULL) {
-            SDL_FreeSurface(tmp);
-        }
-
-        src = tmp = src_gfx;
-        src_gfx = NULL;
-    }
-
-    if (alpha) {
-        src_gfx = SDL_DisplayFormatAlpha(src);
-        surface_set_alpha(src_gfx, alpha);
-
-        if (tmp != NULL) {
-            SDL_FreeSurface(tmp);
-        }
-
-        src = tmp = src_gfx;
-        src_gfx = NULL;
-    }
-
-    surface_show(surface, x, y, srcrect, src);
-
-done:
-    if (tmp != NULL) {
-        SDL_FreeSurface(tmp);
-    }
-}
-
-void map_sprite_show(SDL_Surface *surface, int x, int y, SDL_Rect *srcrect, sprite_struct *sprite, uint32_t flags, uint8_t dark_level, uint8_t alpha, uint32_t stretch, int16_t zoom_x, int16_t zoom_y, int16_t rotate)
-{
-    SDL_Surface *src;
-
-    if (!sprite) {
+    if (src == NULL) {
         return;
     }
 
-    src = sprite->bitmap;
-
-    /* Is there an effect overlay active? */
-    if (effect_has_overlay()) {
-        /* There is one, so add an overlay to the image if there isn't
-         * one yet. */
-        if (!sprite->effect) {
-            effect_scale(sprite);
-        }
-
-        src = sprite->effect;
-    } else if (sprite->effect) {
-        uint8_t i;
-
-        /* No overlay, but the image was previously overlayed; need to
-         * free the dark surfaces so they can be re-rendered, without the
-         * overlay. */
-
-        SDL_FreeSurface(sprite->effect);
-        sprite->effect = NULL;
-
-        for (i = 0; i < DARK_LEVELS; i++) {
-            if (sprite->dark_level[i]) {
-                SDL_FreeSurface(sprite->dark_level[i]);
-                sprite->dark_level[i] = NULL;
-            }
-        }
-    }
-
-    if (flags & SPRITE_FLAG_DARK) {
-        /* Last dark level is "no color" */
-        if (dark_level == DARK_LEVELS) {
+    if (effects != NULL && SPRITE_EFFECTS_NEED_RENDERING(effects)) {
+        if (BIT_QUERY(effects->flags, SPRITE_FLAG_DARK) &&
+                effects->dark_level == DARK_LEVELS) {
             return;
         }
 
-        if (sprite->dark_level[dark_level]) {
-            src = sprite->dark_level[dark_level];
+        char name[HUGE_BUF];
+        snprintf(VS(name), "%p;%u;%u;%s;%u;%u;%d;%d;%d", src, effects->flags,
+                effects->dark_level, effect_overlay_identifier(),
+                effects->alpha, effects->stretch, effects->zoom_x,
+                effects->zoom_y, effects->rotate);
+
+        SDL_Surface *old_src = src;
+        sprite_cache_t *cache = sprite_cache_find(name);
+        if (cache != NULL) {
+            src = cache->surface;
         } else {
-            char buf[MAX_BUF];
+            SDL_Surface *tmp = sprite_effects_create(src, effects);
+            if (tmp != NULL) {
+                src = tmp;
 
-            src = SDL_DisplayFormatAlpha(src);
-            snprintf(buf, sizeof(buf), "rectangle:500,500,%d", dark_alpha[dark_level]);
-            SDL_BlitSurface(texture_surface(texture_get(TEXTURE_TYPE_SOFTWARE, buf)), NULL, src, NULL);
-            sprite->dark_level[dark_level] = src;
-        }
-    } else if (flags & SPRITE_FLAG_FOW) {
-        if (!sprite->fog_of_war) {
-            fow_scale(sprite);
+                cache = sprite_cache_new(name);
+                cache->surface = src;
+                sprite_cache_add(cache);
+            }
         }
 
-        src = sprite->fog_of_war;
-    } else if (flags & SPRITE_FLAG_RED) {
-        if (!sprite->red) {
-            red_scale(sprite);
+        if (effects->stretch != 0) {
+            y -= src->h - old_src->h;
         }
-
-        src = sprite->red;
-    } else if (flags & SPRITE_FLAG_GRAY) {
-        if (!sprite->grey) {
-            grey_scale(sprite);
-        }
-
-        src = sprite->grey;
     }
 
-    surface_show_effects(surface, x, y, srcrect, src, alpha, stretch, zoom_x, zoom_y, rotate);
+    surface_show(surface, x, y, srcrect, src);
 }
 
 /**
@@ -407,71 +566,6 @@ void putpixel(SDL_Surface *surface, int x, int y, Uint32 pixel)
         *(Uint32 *) p = pixel;
         break;
     }
-}
-
-/**
- * Create sprite_struct::red surface for a sprite.
- * @param sprite Sprite. */
-static void red_scale(sprite_struct *sprite)
-{
-    int j, k;
-    Uint8 r, g, b, a;
-    SDL_Surface *temp = SDL_ConvertSurface(sprite->bitmap, FormatHolder->format, FormatHolder->flags);
-
-    for (k = 0; k < temp->h; k++) {
-        for (j = 0; j < temp->w; j++) {
-            SDL_GetRGBA(getpixel(temp, j, k), temp->format, &r, &g, &b, &a);
-            r = (Uint8) (0.212671 * r + 0.715160 * g + 0.072169 * b);
-            g = b = 0;
-            putpixel(temp, j, k, SDL_MapRGBA(temp->format, r, g, b, a));
-        }
-    }
-
-    sprite->red = SDL_DisplayFormatAlpha(temp);
-    SDL_FreeSurface(temp);
-}
-
-/**
- * Create sprite_struct::grey surface for a sprite.
- * @param sprite Sprite. */
-static void grey_scale(sprite_struct *sprite)
-{
-    int j, k;
-    Uint8 r, g, b, a;
-    SDL_Surface *temp = SDL_ConvertSurface(sprite->bitmap, FormatHolder->format, FormatHolder->flags);
-
-    for (k = 0; k < temp->h; k++) {
-        for (j = 0; j < temp->w; j++) {
-            SDL_GetRGBA(getpixel(temp, j, k), temp->format, &r, &g, &b, &a);
-            r = g = b = (Uint8) (0.212671 * r + 0.715160 * g + 0.072169 * b);
-            putpixel(temp, j, k, SDL_MapRGBA(temp->format, r, g, b, a));
-        }
-    }
-
-    sprite->grey = SDL_DisplayFormatAlpha(temp);
-    SDL_FreeSurface(temp);
-}
-
-/**
- * Create sprite_struct::fow surface for a sprite.
- * @param sprite Sprite. */
-static void fow_scale(sprite_struct *sprite)
-{
-    int j, k;
-    Uint8 r, g, b, a;
-    SDL_Surface *temp = SDL_ConvertSurface(sprite->bitmap, FormatHolder->format, FormatHolder->flags);
-
-    for (k = 0; k < temp->h; k++) {
-        for (j = 0; j < temp->w; j++) {
-            SDL_GetRGBA(getpixel(temp, j, k), temp->format, &r, &g, &b, &a);
-            r = g = b = (Uint8) ((0.212671 * r + 0.715160 * g + 0.072169 * b) * 0.34);
-            b += 16;
-            putpixel(temp, j, k, SDL_MapRGBA(temp->format, r, g, b, a));
-        }
-    }
-
-    sprite->fog_of_war = SDL_DisplayFormatAlpha(temp);
-    SDL_FreeSurface(temp);
 }
 
 /**

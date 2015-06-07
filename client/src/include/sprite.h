@@ -29,18 +29,43 @@
 #ifndef SPRITE_H
 #define SPRITE_H
 
+#define SPRITE_CACHE_GC_MAX_TIME 100000
+#define SPRITE_CACHE_GC_CHANCE 500
+#define SPRITE_CACHE_GC_FREE_TIME 60 * 15
+
+/**
+ * Used to pass data to surface_show_effects().
+ */
+typedef struct sprite_effects {
+    uint32_t flags; ///< Bit combination of @ref SPRITE_FLAG_xxx.
+    uint8_t dark_level; ///< Dark level.
+    uint8_t alpha; ///< Alpha value.
+    uint32_t stretch; ///< Tile stretching value.
+    int16_t zoom_x; ///< Horizontal zoom.
+    int16_t zoom_y; ///< Vertical zoom.
+    int16_t rotate; ///< Rotate value.
+} sprite_effects_t;
+
+#define SPRITE_EFFECTS_NEED_RENDERING(_effects)                                \
+    ((_effects)->flags != 0 || (_effects)->alpha != 0 ||                       \
+    (_effects)->stretch != 0 || ((_effects)->zoom_x != 0 &&                    \
+    (_effects)->zoom_x != 100) || ((_effects)->zoom_y != 0 &&                  \
+    (_effects)->zoom_y != 00) || (_effects)->rotate != 0)                      \
+
 /**
  * @defgroup SPRITE_FLAG_xxx Sprite drawing flags
  * Sprite drawing flags.
  *@{*/
 /** Use darkness. */
-#define SPRITE_FLAG_DARK 1
+#define SPRITE_FLAG_DARK 0
 /** Fog of war. */
-#define SPRITE_FLAG_FOW 2
+#define SPRITE_FLAG_FOW 1
 /** Red. */
-#define SPRITE_FLAG_RED 4
+#define SPRITE_FLAG_RED 2
 /** Gray. */
-#define SPRITE_FLAG_GRAY 8
+#define SPRITE_FLAG_GRAY 3
+/** Weather effects overlay. */
+#define SPRITE_FLAG_EFFECTS 4
 /*@}*/
 
 /** Sprite structure. */
@@ -59,21 +84,6 @@ typedef struct sprite_struct {
 
     /** The sprite's bitmap. */
     SDL_Surface *bitmap;
-
-    /** Red (infravision). */
-    SDL_Surface *red;
-
-    /** Gray (xray). */
-    SDL_Surface *grey;
-
-    /** Fog of war. */
-    SDL_Surface *fog_of_war;
-
-    /** Overlay effect. */
-    SDL_Surface *effect;
-
-    /** Dark levels. */
-    SDL_Surface *dark_level[DARK_LEVELS];
 } sprite_struct;
 
 #define BORDER_CREATE_TOP(_surface, _x, _y, _w, _h, _color, _thickness) \

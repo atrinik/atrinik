@@ -268,6 +268,8 @@ void bmaps_deinit(void)
             FaceList[i].flags = 0;
         }
     }
+
+    sprite_cache_free_all();
 }
 
 /**

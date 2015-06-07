@@ -1090,15 +1090,12 @@ static void draw_map_object(SDL_Surface *surface, struct MapCell *cell,
 
     sprite_struct *face_sprite;
     int ypos, xpos;
-    int xl, yl, temp;
+    int xl, yl;
     int xml, xmpos, xtemp = 0;
     uint16_t face;
     int mid, mnr;
-    int32_t stretch;
-    uint32_t flags;
     int bitmap_h, bitmap_w;
-    int zoom_x, zoom_y;
-    uint8_t dark_level, alpha;
+    sprite_effects_t effects;
 
     xpos = MAP_START_XOFF + x * MAP_TILE_YOFF - y * MAP_TILE_YOFF;
     ypos = MAP_START_YOFF + x * MAP_TILE_XOFF + y * MAP_TILE_XOFF;
@@ -1133,17 +1130,21 @@ static void draw_map_object(SDL_Surface *surface, struct MapCell *cell,
     bitmap_h = face_sprite->bitmap->h;
     bitmap_w = face_sprite->bitmap->w;
 
-    zoom_x = cell->zoom_x[GET_MAP_LAYER(layer, sub_layer)];
-    zoom_y = cell->zoom_y[GET_MAP_LAYER(layer, sub_layer)];
+    effects.rotate = cell->rotate[GET_MAP_LAYER(layer, sub_layer)];
+    effects.zoom_x = cell->zoom_x[GET_MAP_LAYER(layer, sub_layer)];
+    effects.zoom_y = cell->zoom_y[GET_MAP_LAYER(layer, sub_layer)];
 
-    if (cell->rotate[GET_MAP_LAYER(layer, sub_layer)]) {
+    if (effects.rotate) {
         rotozoomSurfaceSizeXY(bitmap_w, bitmap_h,
-                cell->rotate[GET_MAP_LAYER(layer, sub_layer)],
-                zoom_x ? zoom_x / 100.0 : 1.0,
-                zoom_y ? zoom_y / 100.0 : 1.0, &bitmap_w, &bitmap_h);
-    } else if ((zoom_x && zoom_x != 100) || (zoom_y && zoom_y != 100)) {
-        zoomSurfaceSize(bitmap_w, bitmap_h, zoom_x ? zoom_x / 100.0 : 1.0,
-                zoom_y ? zoom_y / 100.0 : 1.0, &bitmap_w, &bitmap_h);
+                effects.rotate, effects.zoom_x ? effects.zoom_x / 100.0 : 1.0,
+                effects.zoom_y ? effects.zoom_y / 100.0 : 1.0,
+                &bitmap_w, &bitmap_h);
+    } else if ((effects.zoom_x && effects.zoom_x != 100) ||
+            (effects.zoom_y && effects.zoom_y != 100)) {
+        zoomSurfaceSize(bitmap_w, bitmap_h,
+                effects.zoom_x ? effects.zoom_x / 100.0 : 1.0,
+                effects.zoom_y ? effects.zoom_y / 100.0 : 1.0,
+                &bitmap_w, &bitmap_h);
     }
 
     /* Multi-part object? */
@@ -1179,56 +1180,61 @@ static void draw_map_object(SDL_Surface *surface, struct MapCell *cell,
         xl += cell->align[GET_MAP_LAYER(layer, sub_layer)];
     }
 
-    /* Draw the face in the darkness level the tile has */
-    temp = cell->darkness[sub_layer];
+    effects.flags = 0;
+    effects.alpha = 0;
+    effects.stretch = 0;
 
-    if (temp == 210) {
-        dark_level = 0;
-    } else if (temp == 180) {
-        dark_level = 1;
-    } else if (temp == 150) {
-        dark_level = 2;
-    } else if (temp == 120) {
-        dark_level = 3;
-    } else if (temp == 90) {
-        dark_level = 4;
-    } else if (temp == 60) {
-        dark_level = 5;
-    } else if (temp == 0) {
-        dark_level = 7;
-    } else {
-        dark_level = 6;
+    if (effect_has_overlay()) {
+        BIT_SET(effects.flags, SPRITE_FLAG_EFFECTS);
     }
 
-    flags = 0;
-    alpha = 0;
-    stretch = 0;
-
     if (cell->fow) {
-        flags |= SPRITE_FLAG_FOW;
+        BIT_SET(effects.flags, SPRITE_FLAG_FOW);
     } else if (cell->infravision[GET_MAP_LAYER(layer, sub_layer)]) {
-        flags |= SPRITE_FLAG_RED;
+        BIT_SET(effects.flags, SPRITE_FLAG_RED);
     } else if (cell->flags[GET_MAP_LAYER(layer, sub_layer)] & FFLAG_INVISIBLE) {
-        flags |= SPRITE_FLAG_GRAY;
+        BIT_SET(effects.flags, SPRITE_FLAG_GRAY);
     } else {
-        flags |= SPRITE_FLAG_DARK;
+        BIT_SET(effects.flags, SPRITE_FLAG_DARK);
     }
 
     if (surface != cur_widget[MAP_ID]->surface) {
-        flags &= ~(SPRITE_FLAG_RED | SPRITE_FLAG_FOW);
-        flags |= SPRITE_FLAG_DARK;
+        BITMASK_CLEAR(effects.flags, BIT_MASK(SPRITE_FLAG_RED) |
+                BIT_MASK(SPRITE_FLAG_FOW));
+        BIT_SET(effects.flags, SPRITE_FLAG_DARK);
+    }
+
+    if (BIT_QUERY(effects.flags, SPRITE_FLAG_DARK)) {
+        if (cell->darkness[sub_layer] == 210) {
+            effects.dark_level = 0;
+        } else if (cell->darkness[sub_layer] == 180) {
+            effects.dark_level = 1;
+        } else if (cell->darkness[sub_layer] == 150) {
+            effects.dark_level = 2;
+        } else if (cell->darkness[sub_layer] == 120) {
+            effects.dark_level = 3;
+        } else if (cell->darkness[sub_layer] == 90) {
+            effects.dark_level = 4;
+        } else if (cell->darkness[sub_layer] == 60) {
+            effects.dark_level = 5;
+        } else if (cell->darkness[sub_layer] == 0) {
+            effects.dark_level = 7;
+        } else {
+            effects.dark_level = 6;
+        }
     }
 
     if (cell->alpha[GET_MAP_LAYER(layer, sub_layer)]) {
-        alpha = cell->alpha[GET_MAP_LAYER(layer, sub_layer)];
+        effects.alpha = cell->alpha[GET_MAP_LAYER(layer, sub_layer)];
     }
 
     if (alpha_forced != 0) {
-        alpha = alpha != 0 ? MIN(alpha, alpha_forced) : alpha_forced;
+        effects.alpha = effects.alpha != 0 ? MIN(effects.alpha, alpha_forced) :
+            alpha_forced;
     }
 
     if (layer <= 2 && cell->stretch[sub_layer]) {
-        stretch = cell->stretch[sub_layer];
+        effects.stretch = cell->stretch[sub_layer];
     }
 
     if (layer == LAYER_LIVING || layer == LAYER_EFFECT || layer == LAYER_ITEM ||
@@ -1244,17 +1250,14 @@ static void draw_map_object(SDL_Surface *surface, struct MapCell *cell,
         yl -= cell->height[GET_MAP_LAYER(layer, sub_layer)];
     }
 
-    map_sprite_show(surface, xl, yl, NULL, face_sprite,
-            flags, dark_level, alpha, stretch, zoom_x, zoom_y,
-            cell->rotate[GET_MAP_LAYER(layer, sub_layer)]);
+    surface_show_effects(surface, xl, yl, NULL, face_sprite->bitmap, &effects);
 
     /* Double faces are shown twice, one above the other, when not lower
      * on the screen than the player. This simulates high walls without
      * obscuring the user's view. */
     if (cell->draw_double[GET_MAP_LAYER(layer, sub_layer)]) {
-        map_sprite_show(surface, xl, yl - 22, NULL,
-                face_sprite, flags, dark_level, alpha, stretch, zoom_x, zoom_y,
-                cell->rotate[GET_MAP_LAYER(layer, sub_layer)]);
+        surface_show_effects(surface, xl, yl - 22, NULL, face_sprite->bitmap,
+                &effects);
     }
 
     if (surface != cur_widget[MAP_ID]->surface) {
@@ -1299,44 +1302,38 @@ static void draw_map_object(SDL_Surface *surface, struct MapCell *cell,
 
     /* Perhaps the object has a marked effect, show it. */
     if (cell->flags[GET_MAP_LAYER(layer, sub_layer)]) {
+        sprite_effects_t effects2;
+
+        effects2.alpha = effects.alpha;
+        effects2.stretch = effects.stretch;
+        effects2.zoom_x = effects.zoom_x;
+        effects2.zoom_y = effects.zoom_y;
+        effects2.rotate = effects.rotate;
+
         if (cell->flags[GET_MAP_LAYER(layer, sub_layer)] & FFLAG_SLEEP) {
             surface_show_effects(surface, xl + bitmap_w / 2,
-                    yl - 5, NULL, TEXTURE_CLIENT("sleep"), alpha, stretch,
-                    cell->zoom_x[GET_MAP_LAYER(layer, sub_layer)],
-                    cell->zoom_y[GET_MAP_LAYER(layer, sub_layer)],
-                    cell->rotate[GET_MAP_LAYER(layer, sub_layer)]);
+                    yl - 5, NULL, TEXTURE_CLIENT("sleep"), &effects2);
         }
 
         if (cell->flags[GET_MAP_LAYER(layer, sub_layer)] & FFLAG_CONFUSED) {
             surface_show_effects(surface, xl + bitmap_w /
-                    2 - 1, yl - 4, NULL, TEXTURE_CLIENT("confused"), alpha,
-                    stretch, cell->zoom_x[GET_MAP_LAYER(layer, sub_layer)],
-                    cell->zoom_y[GET_MAP_LAYER(layer, sub_layer)],
-                    cell->rotate[GET_MAP_LAYER(layer, sub_layer)]);
+                    2 - 1, yl - 4, NULL, TEXTURE_CLIENT("confused"), &effects2);
         }
 
         if (cell->flags[GET_MAP_LAYER(layer, sub_layer)] & FFLAG_SCARED) {
             surface_show_effects(surface, xl + bitmap_w /
-                    2 + 10, yl - 4, NULL, TEXTURE_CLIENT("scared"), alpha,
-                    stretch, cell->zoom_x[GET_MAP_LAYER(layer, sub_layer)],
-                    cell->zoom_y[GET_MAP_LAYER(layer, sub_layer)],
-                    cell->rotate[GET_MAP_LAYER(layer, sub_layer)]);
+                    2 + 10, yl - 4, NULL, TEXTURE_CLIENT("scared"), &effects2);
         }
 
         if (cell->flags[GET_MAP_LAYER(layer, sub_layer)] & FFLAG_BLINDED) {
             surface_show_effects(surface, xl + bitmap_w /
-                    2 + 3, yl - 6, NULL, TEXTURE_CLIENT("blind"), alpha,
-                    stretch, cell->zoom_x[GET_MAP_LAYER(layer, sub_layer)],
-                    cell->zoom_y[GET_MAP_LAYER(layer, sub_layer)],
-                    cell->rotate[GET_MAP_LAYER(layer, sub_layer)]);
+                    2 + 3, yl - 6, NULL, TEXTURE_CLIENT("blind"), &effects2);
         }
 
         if (cell->flags[GET_MAP_LAYER(layer, sub_layer)] & FFLAG_PARALYZED) {
             surface_show_effects(surface, xl + bitmap_w /
-                    2 + 3, yl + 3, NULL, TEXTURE_CLIENT("paralyzed"), alpha,
-                    stretch, cell->zoom_x[GET_MAP_LAYER(layer, sub_layer)],
-                    cell->zoom_y[GET_MAP_LAYER(layer, sub_layer)],
-                    cell->rotate[GET_MAP_LAYER(layer, sub_layer)]);
+                    2 + 3, yl + 3, NULL, TEXTURE_CLIENT("paralyzed"),
+                    &effects2);
         }
     }
 
@@ -1760,7 +1757,7 @@ void map_draw_one(int x, int y, SDL_Surface *surface)
     }
 
     surface_show_effects(cur_widget[MAP_ID]->surface, xpos, ypos, NULL, surface,
-            0, 0, 0, 0, 0);
+            NULL);
 }
 
 /**

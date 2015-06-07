@@ -109,6 +109,7 @@ extern void keepalive_ping_stats(void);
 extern void socket_command_keepalive(uint8_t *data, size_t len, size_t pos);
 extern void list_vid_modes(void);
 extern void clioption_settings_deinit(void);
+extern int main(int argc, char *argv[]);
 /* src/client/menu.c */
 extern int client_command_check(const char *cmd);
 extern int send_command_check(const char *cmd);
@@ -224,10 +225,11 @@ extern void sprite_init_system(void);
 extern sprite_struct *sprite_load_file(char *fname, uint32_t flags);
 extern sprite_struct *sprite_tryload_file(char *fname, uint32_t flag, SDL_RWops *rwop);
 extern void sprite_free_sprite(sprite_struct *sprite);
+extern void sprite_cache_free_all(void);
+extern void sprite_cache_gc(void);
 extern void surface_show(SDL_Surface *surface, int x, int y, SDL_Rect *srcrect, SDL_Surface *src);
 extern void surface_show_fill(SDL_Surface *surface, int x, int y, SDL_Rect *srcsize, SDL_Surface *src, SDL_Rect *box);
-extern void surface_show_effects(SDL_Surface *surface, int x, int y, SDL_Rect *srcrect, SDL_Surface *src, uint8_t alpha, int32_t stretch, int16_t zoom_x, int16_t zoom_y, int16_t rotate);
-extern void map_sprite_show(SDL_Surface *surface, int x, int y, SDL_Rect *srcrect, sprite_struct *sprite, uint32_t flags, uint8_t dark_level, uint8_t alpha, uint32_t stretch, int16_t zoom_x, int16_t zoom_y, int16_t rotate);
+extern void surface_show_effects(SDL_Surface *surface, int x, int y, SDL_Rect *srcrect, SDL_Surface *src, const sprite_effects_t *effects);
 extern Uint32 getpixel(SDL_Surface *surface, int x, int y);
 extern void putpixel(SDL_Surface *surface, int x, int y, Uint32 pixel);
 extern int surface_borders_get(SDL_Surface *surface, int *top, int *bottom, int *left, int *right, uint32_t color);
@@ -254,7 +256,7 @@ extern SDL_Surface *texture_surface(texture_struct *texture);
 extern int tilestretcher_coords_in_tile(uint32_t stretch, int x, int y);
 extern int add_color_to_surface(SDL_Surface *dest, Uint8 red, Uint8 green, Uint8 blue);
 extern void copy_pixel_to_pixel(SDL_Surface *src, SDL_Surface *dest, int x, int y, int x2, int y2, double brightness);
-extern void copy_vertical_line(SDL_Surface *src, SDL_Surface *dest, int src_x, int src_sy, int src_ey, int dest_x, int dest_sy, int dest_ey, double brightness, bool extra);
+extern void copy_vertical_line(SDL_Surface *src, SDL_Surface *dest, int src_x, int src_sy, int src_ey, int dest_x, int dest_sy, int dest_ey, double brightness, _Bool extra);
 extern SDL_Surface *tile_stretch(SDL_Surface *src, int n, int e, int s, int w);
 /* src/client/updates.c */
 extern void socket_command_file_update(uint8_t *data, size_t len, size_t pos);
@@ -320,7 +322,8 @@ extern int effect_start(const char *name);
 extern void effect_debug(const char *type);
 extern void effect_stop(void);
 extern uint8_t effect_has_overlay(void);
-extern void effect_scale(sprite_struct *sprite);
+extern const char *effect_overlay_identifier(void);
+extern SDL_Surface *effect_sprite_overlay(SDL_Surface *surface);
 /* src/gui/misc/game_news.c */
 extern void game_news_open(const char *title);
 /* src/gui/misc/intro.c */

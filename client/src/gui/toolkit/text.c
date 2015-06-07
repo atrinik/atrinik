@@ -944,10 +944,19 @@ int text_show_character(font_struct **font, font_struct *orig_font, SDL_Surface 
         } else if (tag_len >= 4 && strncmp(tag, "img=", 4) == 0) {
             if (surface) {
                 char face[MAX_BUF];
-                int x = 0, y = 0, alpha = 0, align = 0, zoom_x = 0, zoom_y = 0, rotate = 0, wd = 0, ht = 0, sprite_flags = 0, dark_level = 0, quick_pos = 0;
-                uint32_t stretch = 0;
+                int x = 0, y = 0, align = 0, wd = 0, ht = 0, quick_pos = 0;
 
-                if (sscanf(tag + 4, "%128[^] >] %d %d %d %d %d %d %d %d %d %d %u %d %d", face, &x, &y, &align, &sprite_flags, &dark_level, &quick_pos, &alpha, &zoom_x, &zoom_y, &rotate, &stretch, &wd, &ht) >= 1) {
+                sprite_effects_t sprite_effects;
+                memset(&sprite_effects, 0, sizeof(sprite_effects));
+
+                if (sscanf(tag + 4, "%128[^] >] %d %d %d %u %" SCNu8 " %d "
+                        "%" SCNu8 " %" SCNd16 " %" SCNd16 " %" SCNd16 " "
+                        "%u %d %d", face, &x, &y, &align,
+                        &sprite_effects.flags, &sprite_effects.dark_level,
+                        &quick_pos, &sprite_effects.alpha,
+                        &sprite_effects.zoom_x, &sprite_effects.zoom_y,
+                        &sprite_effects.rotate, &sprite_effects.stretch,
+                        &wd, &ht) >= 1) {
                     int id;
 
                     id = get_bmap_id(face);
@@ -959,10 +968,23 @@ int text_show_character(font_struct **font, font_struct *orig_font, SDL_Surface 
                         w = FaceList[id].sprite->bitmap->w;
                         h = FaceList[id].sprite->bitmap->h;
 
-                        if (rotate) {
-                            rotozoomSurfaceSizeXY(w, h, rotate, zoom_x ? zoom_x / 100.0 : 1.0, zoom_y ? zoom_y / 100.0 : 1.0, &w, &h);
-                        } else if ((zoom_x && zoom_x != 100) || (zoom_y && zoom_y != 100)) {
-                            zoomSurfaceSize(w, h, zoom_x ? zoom_x / 100.0 : 1.0, zoom_y ? zoom_y / 100.0 : 1.0, &w, &h);
+                        if (sprite_effects.rotate) {
+                            rotozoomSurfaceSizeXY(w, h, sprite_effects.rotate,
+                                    sprite_effects.zoom_x ?
+                                        sprite_effects.zoom_x / 100.0 : 1.0,
+                                    sprite_effects.zoom_y ?
+                                        sprite_effects.zoom_y / 100.0 : 1.0,
+                                    &w, &h);
+                        } else if ((sprite_effects.zoom_x &&
+                                sprite_effects.zoom_x != 100) ||
+                                (sprite_effects.zoom_y &&
+                                sprite_effects.zoom_y != 100)) {
+                            zoomSurfaceSize(w, h,
+                                    sprite_effects.zoom_x ?
+                                        sprite_effects.zoom_x / 100.0 : 1.0,
+                                    sprite_effects.zoom_y ?
+                                        sprite_effects.zoom_y / 100.0 : 1.0,
+                                    &w, &h);
                         }
 
                         if (align & 1) {
@@ -980,7 +1002,8 @@ int text_show_character(font_struct **font, font_struct *orig_font, SDL_Surface 
                                 mnr = quick_pos;
                                 mid = mnr >> 4;
                                 mnr &= 0x0f;
-                                y = y - MultiArchs[mid].part[mnr].yoff + MultiArchs[mid].ylen - h;
+                                y = y - MultiArchs[mid].part[mnr].yoff +
+                                        MultiArchs[mid].ylen - h;
                                 x -= MultiArchs[mid].part[mnr].xoff;
 
                                 if (w > MultiArchs[mid].xlen) {
@@ -1002,7 +1025,9 @@ int text_show_character(font_struct **font, font_struct *orig_font, SDL_Surface 
                             srcrect.h = ht;
                         }
 
-                        map_sprite_show(surface, dest->x + x, dest->y + y, wd || ht ? &srcrect : NULL, FaceList[id].sprite, sprite_flags, dark_level, alpha, stretch, zoom_x, zoom_y, rotate);
+                        surface_show_effects(surface, dest->x + x, dest->y + y,
+                                wd || ht ? &srcrect : NULL,
+                                FaceList[id].sprite->bitmap, &sprite_effects);
                     }
                 }
             }

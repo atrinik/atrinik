@@ -739,6 +739,7 @@ int main(int argc, char *argv[])
 
         texture_gc();
         font_gc();
+        sprite_cache_gc();
 
         if (update) {
             SDL_Flip(ScreenSurface);
