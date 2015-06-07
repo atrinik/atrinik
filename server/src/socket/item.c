@@ -292,12 +292,16 @@ static void esrv_draw_look_rec(object *pl, packet_struct *packet, object *op,
     packet_append_uint8(packet, 0);
     packet_debug_data(packet, level + 1, "Name");
     packet_append_string_terminated(packet, "in inventory");
-    packet_append_uint16(packet, 0);
     packet_debug_data(packet, level + 1, "Animation");
-    packet_append_uint8(packet, 0);
+    packet_append_uint16(packet, 0);
     packet_debug_data(packet, level + 1, "Animation speed");
-    packet_append_uint32(packet, 0);
+    packet_append_uint8(packet, 0);
     packet_debug_data(packet, level + 1, "Nrof");
+    packet_append_uint32(packet, 0);
+    packet_debug_data(packet, level + 1, "Glow color");
+    packet_append_string_terminated(packet, "");
+    packet_debug_data(packet, level + 1, "Glow speed");
+    packet_append_uint8(packet, 0);
 
     for (tmp = op->inv; tmp; tmp = tmp->below) {
         add_object_to_packet(packet, HEAD(tmp), pl, UPD_FLAGS | UPD_WEIGHT |
@@ -327,6 +331,10 @@ static void esrv_draw_look_rec(object *pl, packet_struct *packet, object *op,
     packet_append_uint8(packet, 0);
     packet_debug_data(packet, level + 1, "Nrof");
     packet_append_uint32(packet, 0);
+    packet_debug_data(packet, level + 1, "Glow color");
+    packet_append_string_terminated(packet, "");
+    packet_debug_data(packet, level + 1, "Glow speed");
+    packet_append_uint8(packet, 0);
 }
 
 /**
@@ -384,6 +392,10 @@ void esrv_draw_look(object *pl)
         packet_append_uint8(packet, 0);
         packet_debug_data(packet, 1, "Nrof");
         packet_append_uint32(packet, 0);
+        packet_debug_data(packet, 1, "Glow color");
+        packet_append_string_terminated(packet, "");
+        packet_debug_data(packet, 1, "Glow speed");
+        packet_append_uint8(packet, 0);
     }
 
     for (last = NULL; tmp != last; tmp = tmp->below) {
@@ -424,6 +436,10 @@ void esrv_draw_look(object *pl)
             packet_append_uint8(packet, 0);
             packet_debug_data(packet, 1, "Nrof");
             packet_append_uint32(packet, 0);
+            packet_debug_data(packet, 1, "Glow color");
+            packet_append_string_terminated(packet, "");
+            packet_debug_data(packet, 1, "Glow speed");
+            packet_append_uint8(packet, 0);
             break;
         }
 
