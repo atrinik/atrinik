@@ -272,4 +272,30 @@ typedef struct toolkit_dependency {
 #define DBL_EQUAL(_a, _b) _FLOATING_EQUAL(_a, _b, DBL_EPSILON)
 #define LDBL_EQUAL(_a, _b) _FLOATING_EQUAL(_a, _b, LDBL_EPSILON)
 
+#define BIT_MASK(_bit) ((uintmax_t) 1 << (_bit))
+
+#define BIT_QUERY(_val, _bit) ((_val) & BIT_MASK(_bit))
+#define BIT_SET(_val, _bit) BITMASK_SET(_val, BIT_MASK(_bit))
+#define BIT_CLEAR(_val, _bit) BITMASK_CLEAR(_val, BIT_MASK(_bit))
+#define BIT_FLIP(_val, _bit) BITMASK_FLIP(_val, BIT_MASK(_bit))
+#define BIT_CHANGE(_val, _bit) BITMASK_CHANGE(_val, BIT_MASK(_bit))
+
+#define BITMASK_QUERY(_val, _mask) (((_val) & (_mask)) == (_mask))
+#define BITMASK_SET(_val, _mask)                          \
+    do {                                                  \
+        (_val) |= (_mask);                                \
+    } while (0)
+#define BITMASK_CLEAR(_val, _mask)                        \
+    do {                                                  \
+        (_val) &= ~(_mask);                               \
+    } while (0)
+#define BITMASK_FLIP(_val, _mask)                         \
+    do {                                                  \
+        (_val) ^= (_mask);                                \
+    } while (0)
+#define BITMASK_CHANGE(_val, _mask, _x)                   \
+    do {                                                  \
+        (_val) ^= ((-(_x)) ^ (_val)) & (_mask);           \
+    } while (0)
+
 #endif
