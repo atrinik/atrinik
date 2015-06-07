@@ -452,20 +452,30 @@ static PyObject *Atrinik_Object_ActivateRune(Atrinik_Object *obj, PyObject *args
     return Py_None;
 }
 
+/** Documentation for Atrinik_Object_TeleportTo(). */
+static const char doc_Atrinik_Object_TeleportTo[] =
+".. method:: TeleportTo(path, x=0, y=0).\n\n"
+"Teleports the object to the specified coordinates on a map.\n\n"
+":param path: The map path."
+":type path: str\n"
+":param x: X coordinate on the map."
+":type x: int\n"
+":param y: Y coordinate on the map."
+":type y: int";
+
 /**
- * <h1>object.TeleportTo(string map, int [x = -1], int [y = -1])</h1>
- * Teleport object to the given position of map.
- * @param path Map path to teleport the object to.
- * @param x X position on the map.
- * @param y Y position on the map. */
-static PyObject *Atrinik_Object_TeleportTo(Atrinik_Object *obj, PyObject *args, PyObject *keywds)
+ * Implements Atrinik.Object.TeleportTo() Python method.
+ * @copydoc PyMethod_VARARGS_KEYWORDS
+ */
+static PyObject *Atrinik_Object_TeleportTo(Atrinik_Object *obj, PyObject *args,
+        PyObject *keywds)
 {
     static char *kwlist[] = {"path", "x", "y", NULL};
     const char *path;
     int x, y;
     mapstruct *m;
 
-    x = y = -1;
+    x = y = 0;
 
     if (!PyArg_ParseTupleAndKeywords(args, keywds, "s|ii", kwlist, &path, &x, &y)) {
         return NULL;
@@ -1740,7 +1750,8 @@ static PyObject *Atrinik_Object_Load(Atrinik_Object *obj, PyObject *args)
 /** Available Python methods for the AtrinikObject object */
 static PyMethodDef methods[] = {
     {"ActivateRune", (PyCFunction) Atrinik_Object_ActivateRune, METH_VARARGS, 0},
-    {"TeleportTo", (PyCFunction) Atrinik_Object_TeleportTo, METH_VARARGS | METH_KEYWORDS, 0},
+    {"TeleportTo", (PyCFunction) Atrinik_Object_TeleportTo,
+            METH_VARARGS | METH_KEYWORDS, doc_Atrinik_Object_TeleportTo},
     {"InsertInto", (PyCFunction) Atrinik_Object_InsertInto, METH_VARARGS, 0},
     {"Apply", (PyCFunction) Atrinik_Object_Apply, METH_VARARGS, 0},
     {"Take", (PyCFunction) Atrinik_Object_Take, METH_O, 0},
