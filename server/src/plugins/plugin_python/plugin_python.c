@@ -2054,6 +2054,11 @@ MODULEAPI void postinitPlugin(void)
 
     gilstate = PyGILState_Ensure();
     py_runfile_simple("/python/events/python_init.py", NULL);
+
+    if (PyErr_Occurred()) {
+        PyErr_LOG();
+    }
+
     PyGILState_Release(gilstate);
 }
 
