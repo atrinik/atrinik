@@ -133,7 +133,7 @@ static const char doc_Atrinik_Player_GetEquipment[] =
 ":type slot: int\n"
 ":returns: The equipment for the given slot, None if there's no object in the "
 "slot.\n"
-":rtype: Atrinik.Object or None";
+":rtype: :class:`Atrinik.Object.Object` or None";
 
 /**
  * Implements Atrinik.Player.GetEquipment() Python method.

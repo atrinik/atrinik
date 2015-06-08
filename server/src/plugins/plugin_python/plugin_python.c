@@ -871,7 +871,7 @@ static const char doc_Atrinik_LoadObject[] =
 ":param text: The object text dump.\n"
 ":type text: str\n"
 ":returns: New object, loaded from the text or None in case of failure.\n"
-":rtype: Atrinik.Object or None";
+":rtype: :class:`Atrinik.Object.Object` or None";
 
 /**
  * Implements Atrinik.LoadObject() Python method.
@@ -899,7 +899,7 @@ static const char doc_Atrinik_ReadyMap[] =
 ":type unique: bool\n"
 ":returns: The map associated with the specified path or None in case of "
 "failure.\n"
-":rtype: Atrinik.Map or None";
+":rtype: :class:`Atrinik.Map.Map` or None";
 
 /**
  * Implements Atrinik.ReadyMap() Python method.

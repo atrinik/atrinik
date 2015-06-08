@@ -429,12 +429,21 @@ static char *doc_object_flag_names[NUM_FLAGS + 1] = {
  * Object related functions used in Atrinik Python plugin.
  *@{*/
 
+
+/** Documentation for Atrinik_Object_ActivateRune(). */
+static const char doc_Atrinik_Object_ActivateRune[] =
+".. method:: ActivateRune(who).\n\n"
+"Activate a rune.\n\n"
+":param who: Who should be affected by the effects of the rune.\n"
+":type who: Atrinik.Object.Object\n"
+":raises TypeError: if self is not of type :attr:`Atrinik.Type.RUNE`";
+
 /**
- * <h1>object.ActivateRune(object who)</h1>
- * Activate a rune.
- * @param who Who should be affected by the effects of the rune.
- * @throws TypeError if 'object' is not of type @ref RUNE "TYPE_RUNE". */
-static PyObject *Atrinik_Object_ActivateRune(Atrinik_Object *obj, PyObject *args)
+ * Implements Atrinik.Object.Object.ActivateRune() Python method.
+ * @copydoc PyMethod_VARARGS
+ */
+static PyObject *Atrinik_Object_ActivateRune(Atrinik_Object *obj,
+        PyObject *args)
 {
     Atrinik_Object *who;
 
@@ -446,7 +455,7 @@ static PyObject *Atrinik_Object_ActivateRune(Atrinik_Object *obj, PyObject *args
     OBJEXISTCHECK(who);
 
     if (obj->obj->type != RUNE) {
-        PyErr_SetString(PyExc_TypeError, "'object' is not a rune.");
+        PyErr_SetString(PyExc_TypeError, "self is not a rune.");
         return NULL;
     }
 
@@ -460,15 +469,15 @@ static PyObject *Atrinik_Object_ActivateRune(Atrinik_Object *obj, PyObject *args
 static const char doc_Atrinik_Object_TeleportTo[] =
 ".. method:: TeleportTo(path, x=0, y=0).\n\n"
 "Teleports the object to the specified coordinates on a map.\n\n"
-":param path: The map path."
+":param path: The map path.\n"
 ":type path: str\n"
-":param x: X coordinate on the map."
+":param x: X coordinate on the map.\n"
 ":type x: int\n"
-":param y: Y coordinate on the map."
+":param y: Y coordinate on the map.\n"
 ":type y: int";
 
 /**
- * Implements Atrinik.Object.TeleportTo() Python method.
+ * Implements Atrinik.Object.Object.TeleportTo() Python method.
  * @copydoc PyMethod_VARARGS_KEYWORDS
  */
 static PyObject *Atrinik_Object_TeleportTo(Atrinik_Object *obj, PyObject *args,
@@ -499,10 +508,20 @@ static PyObject *Atrinik_Object_TeleportTo(Atrinik_Object *obj, PyObject *args,
     return Py_None;
 }
 
+/** Documentation for Atrinik_Object_InsertInto(). */
+static const char doc_Atrinik_Object_InsertInto[] =
+".. method:: InsertInto(where).\n\n"
+"Inserts the object into some other object.\n\n"
+":param where: Where to insert the object.\n"
+":type where: Atrinik.Object.Object\n"
+":returns: The inserted object, which may be different from the original (due"
+"to merging, for example). None is returned on failure.\n"
+":rtype: class:`Atrinik.Object.Object` or None";
+
 /**
- * <h1>object.InsertInto(object where)</h1>
- * Insert 'object' into 'where'.
- * @param where Where to insert 'object'. */
+ * Implements Atrinik.Object.Object.InsertInto() Python method.
+ * @copydoc PyMethod_VARARGS
+ */
 static PyObject *Atrinik_Object_InsertInto(Atrinik_Object *obj, PyObject *args)
 {
     Atrinik_Object *where;
@@ -518,23 +537,32 @@ static PyObject *Atrinik_Object_InsertInto(Atrinik_Object *obj, PyObject *args)
         hooks->object_remove(obj->obj, 0);
     }
 
-    hooks->insert_ob_in_ob(obj->obj, where->obj);
+    object *ret = hooks->insert_ob_in_ob(obj->obj, where->obj);
+    if (ret == NULL) {
+        Py_INCREF(Py_None);
+        return Py_None;
+    }
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    return wrap_object(ret);
 }
 
+/** Documentation for Atrinik_Object_Apply(). */
+static const char doc_Atrinik_Object_Apply[] =
+".. method:: Apply(what, flags=Atrinik.APPLY_TOGGLE).\n\n"
+"Makes the object apply the specified object.\n\n"
+":param what: What object to apply.\n"
+":type what: Atrinik.Object.Object\n"
+":param flags: Reasonable combination of :attr:`~Atrinik.APPLY_TOGGLE`, "
+":attr:`~Atrinik.APPLY_ALWAYS`, :attr:`~Atrinik.UNAPPLY_ALWAYS`, "
+":attr:`~Atrinik.UNAPPLY_NO_MERGE`, :attr:`~Atrinik.UNAPPLY_IGNORE_CURSE`, "
+":attr:`~APPLY_NO_EVENT`."
+":returns: One of OBJECT_METHOD_xxx.\n"
+":rtype: int";
+
 /**
- * <h1>object.Apply(object what, int [flags = APPLY_TOGGLE])</h1>
- * Forces 'object' to apply 'what'.
- * @param what What object to apply.
- * @param flags Reasonable combination of the following:
- * - <b>APPLY_TOGGLE</b>: Normal apply (toggle)
- * - <b>APPLY_ALWAYS</b>: Always apply (never unapply)
- * - <b>UNAPPLY_ALWAYS</b>: Always unapply (never apply)
- * - <b>UNAPPLY_NOMERGE</b>: Don't merge unapplied items
- * - <b>UNAPPLY_IGNORE_CURSE</b>: Unapply cursed items
- * @return One of @ref OBJECT_METHOD_xxx. */
+ * Implements Atrinik.Object.Object.Apply() Python method.
+ * @copydoc PyMethod_VARARGS
+ */
 static PyObject *Atrinik_Object_Apply(Atrinik_Object *obj, PyObject *args)
 {
     Atrinik_Object *what;
@@ -1753,11 +1781,14 @@ static PyObject *Atrinik_Object_Load(Atrinik_Object *obj, PyObject *args)
 
 /** Available Python methods for the AtrinikObject object */
 static PyMethodDef methods[] = {
-    {"ActivateRune", (PyCFunction) Atrinik_Object_ActivateRune, METH_VARARGS, 0},
+    {"ActivateRune", (PyCFunction) Atrinik_Object_ActivateRune, METH_VARARGS,
+            doc_Atrinik_Object_ActivateRune},
     {"TeleportTo", (PyCFunction) Atrinik_Object_TeleportTo,
             METH_VARARGS | METH_KEYWORDS, doc_Atrinik_Object_TeleportTo},
-    {"InsertInto", (PyCFunction) Atrinik_Object_InsertInto, METH_VARARGS, 0},
-    {"Apply", (PyCFunction) Atrinik_Object_Apply, METH_VARARGS, 0},
+    {"InsertInto", (PyCFunction) Atrinik_Object_InsertInto, METH_VARARGS,
+            doc_Atrinik_Object_InsertInto},
+    {"Apply", (PyCFunction) Atrinik_Object_Apply, METH_VARARGS,
+            doc_Atrinik_Object_Apply},
     {"Take", (PyCFunction) Atrinik_Object_Take, METH_O, 0},
     {"Drop", (PyCFunction) Atrinik_Object_Drop, METH_O, 0},
     {"Say", (PyCFunction) Atrinik_Object_Say, METH_VARARGS, 0},
