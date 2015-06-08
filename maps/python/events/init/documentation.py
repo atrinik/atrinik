@@ -39,8 +39,12 @@ def getargspec(obj):
 
 
 def dump_docstring(obj, f, indent=0, obj_name=None, is_getter=False,
-                   is_setter=False):
-    doc = obj.__doc__
+                   is_setter=False, doc=None):
+    if doc is None:
+        doc = obj.__doc__
+    else:
+        doc = doc.replace("_", " ").title()
+
     if not doc:
         return
 
@@ -82,7 +86,7 @@ def dump_docstring(obj, f, indent=0, obj_name=None, is_getter=False,
     iterator = iter(doc.split("\n"))
 
     for line in iterator:
-        if line.startswith(".. function::"):
+        if line.startswith(".. function::") or line.startswith(".. method::"):
             next(iterator)
             continue
 
@@ -145,6 +149,7 @@ def dump_obj(obj, f, indent=0, defaults=None):
             f.write(" " * indent * 4)
             f.write("{} = {cls_name}.{cls_name}()\n".format(
                 tmp_name, cls_name=tmp.__class__.__name__))
+            dump_docstring(tmp, f, indent, doc=tmp_name)
             continue
         elif inspect.isclass(obj):
             f.write("\n")
@@ -175,6 +180,7 @@ def dump_obj(obj, f, indent=0, defaults=None):
         else:
             f.write(" " * indent * 4)
             f.write("{} = {}\n".format(tmp_name, repr(tmp)))
+            dump_docstring(tmp, f, indent, doc=tmp_name)
 
         names.append(repr(tmp_name))
 
