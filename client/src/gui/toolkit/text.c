@@ -945,21 +945,23 @@ int text_show_character(font_struct **font, font_struct *orig_font, SDL_Surface 
             if (surface) {
                 char face[MAX_BUF];
                 int x = 0, y = 0, align = 0, wd = 0, ht = 0, quick_pos = 0;
+                uint16_t dark_level = 0, alpha = 0;
 
                 sprite_effects_t sprite_effects;
                 memset(&sprite_effects, 0, sizeof(sprite_effects));
 
-                if (sscanf(tag + 4, "%128[^] >] %d %d %d %u %" SCNu8 " %d "
-                        "%" SCNu8 " %" SCNd16 " %" SCNd16 " %" SCNd16 " "
+                if (sscanf(tag + 4, "%128[^] >] %d %d %d %u %" SCNu16 " %d "
+                        "%" SCNu16 " %" SCNd16 " %" SCNd16 " %" SCNd16 " "
                         "%u %d %d", face, &x, &y, &align,
-                        &sprite_effects.flags, &sprite_effects.dark_level,
-                        &quick_pos, &sprite_effects.alpha,
+                        &sprite_effects.flags, &dark_level, &quick_pos, &alpha,
                         &sprite_effects.zoom_x, &sprite_effects.zoom_y,
                         &sprite_effects.rotate, &sprite_effects.stretch,
                         &wd, &ht) >= 1) {
                     int id;
 
                     id = get_bmap_id(face);
+                    sprite_effects.dark_level = dark_level;
+                    sprite_effects.alpha = alpha;
 
                     if (id != -1 && FaceList[id].sprite) {
                         int w, h;
