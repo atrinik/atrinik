@@ -21,6 +21,7 @@ import re
 from collections import OrderedDict
 
 from Atrinik import *
+from CParser import CParser
 
 PATH = os.path.join(GetSettings()["mapspath"], "python", "Atrinik")
 
@@ -34,7 +35,7 @@ def getargspec(obj):
         print("Failed to get args for {}".format(obj))
         return []
 
-    args = re.findall(r"([\w+_]+)(?:=(\w+))?", match.group(1))
+    args = re.findall(r"([\w+_]+)(?:=([\w_\.]+))?", match.group(1))
     return ["=".join(x for x in val if x) for val in args]
 
 
@@ -42,8 +43,6 @@ def dump_docstring(obj, f, indent=0, obj_name=None, is_getter=False,
                    is_setter=False, doc=None):
     if doc is None:
         doc = obj.__doc__
-    else:
-        doc = doc.replace("_", " ").title()
 
     if not doc:
         return
@@ -114,8 +113,10 @@ def dump_obj(obj, f, indent=0, defaults=None):
 
         if hasattr(obj, tmp_name):
             tmp = getattr(obj, tmp_name)
+            doc = None
         else:
-            tmp = defaults[tmp_name]
+            tmp = defaults[tmp_name][0]
+            doc = defaults[tmp_name][1]
 
         if inspect.ismodule(tmp):
             f.write("import Atrinik.{name} as {name}\n".format(name=tmp_name))
@@ -149,7 +150,8 @@ def dump_obj(obj, f, indent=0, defaults=None):
             f.write(" " * indent * 4)
             f.write("{} = {cls_name}.{cls_name}()\n".format(
                 tmp_name, cls_name=tmp.__class__.__name__))
-            dump_docstring(tmp, f, indent, doc=tmp_name)
+            doc = tmp_name.replace("_", " ").title()
+            dump_docstring(tmp, f, indent, doc=doc)
             continue
         elif inspect.isclass(obj):
             f.write("\n")
@@ -180,7 +182,18 @@ def dump_obj(obj, f, indent=0, defaults=None):
         else:
             f.write(" " * indent * 4)
             f.write("{} = {}\n".format(tmp_name, repr(tmp)))
-            dump_docstring(tmp, f, indent, doc=tmp_name)
+
+            parent_name = obj.__name__.replace("Atrinik_", "").upper()
+            for x in (tmp_name, parent_name + "_" + tmp_name):
+                if x in matches:
+                    doc = matches[x]["comment"]
+                    break
+
+            if not doc:
+                print("Undocumented constant: {}".format(tmp_name))
+                doc = tmp_name.replace("_", " ").title()
+
+            dump_docstring(tmp, f, indent, doc=doc)
 
         names.append(repr(tmp_name))
 
@@ -189,10 +202,15 @@ def dump_obj(obj, f, indent=0, defaults=None):
 
 def main():
     defaults = OrderedDict([
-        ("activator", Object()),
-        ("pl", Player()),
-        ("me", Object()),
-        ("msg", "hello"),
+        ("activator", (Object(), ":class:`~Atrinik.Object.Object` that "
+                                 "activated the event.")),
+        ("pl", (Player(), "If the event activator is a player, this will be a "
+                          ":class:`~Atrinik.Player.Player` instance, otherwise "
+                          "it will be None.")),
+        ("me", (Object(), ":class:`~Atrinik.Object.Object` that has the event "
+                          "object in its inventory that triggered the event.")),
+        ("msg", ("hello", "Message used to activate the event (eg, in case of "
+                         "say events). Can be None.")),
     ])
 
     if not os.path.exists(PATH):
@@ -203,5 +221,13 @@ def main():
         dump_docstring(obj, f)
         names = dump_obj(obj, f, defaults=defaults)
         f.write("__all__ = [{}]\n".format(", ".join(names)))
+
+
+parser = CParser()
+matches = {}
+
+for root, dirs, files in os.walk("src"):
+    for file in files:
+        matches.update(parser.parse(os.path.join(root, file)))
 
 main()
