@@ -549,8 +549,11 @@
  * 2 spaces, and the entire array (<= SIZEOFFREE) is
  * three spaces.
  *@{*/
+/** Up to one space when searching around a spot. */
 #define SIZEOFFREE1     8
+/** Up to two spaces when searching around a spot. */
 #define SIZEOFFREE2     24
+/** Up to three spaces when searching around a spot. */
 #define SIZEOFFREE      49
 /*@}*/
 
