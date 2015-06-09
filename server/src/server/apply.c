@@ -61,12 +61,12 @@ int manual_apply(object *op, object *tmp, int aflag)
     }
 
     /* Trigger the APPLY event */
-    if (!(aflag & AP_NO_EVENT) && trigger_event(EVENT_APPLY, op, tmp, NULL, NULL, aflag, 0, 0, SCRIPT_FIX_ACTIVATOR)) {
+    if (!(aflag & APPLY_NO_EVENT) && trigger_event(EVENT_APPLY, op, tmp, NULL, NULL, aflag, 0, 0, SCRIPT_FIX_ACTIVATOR)) {
         return OBJECT_METHOD_OK;
     }
 
     /* Trigger the map-wide apply event. */
-    if (!(aflag & AP_NO_EVENT) && op->map && op->map->events) {
+    if (!(aflag & APPLY_NO_EVENT) && op->map && op->map->events) {
         int retval = trigger_map_event(MEVENT_APPLY, op->map, op, tmp, NULL, NULL, aflag);
 
         if (retval) {
@@ -74,7 +74,7 @@ int manual_apply(object *op, object *tmp, int aflag)
         }
     }
 
-    aflag &= ~AP_NO_EVENT;
+    aflag &= ~APPLY_NO_EVENT;
 
     if (tmp->item_level) {
         int tmp_lev;

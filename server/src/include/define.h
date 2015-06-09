@@ -1331,14 +1331,14 @@ static inline void safe_strcat(char *dest, const char *orig, size_t *curlen, siz
  * @anchor AP_xxx */
 enum apply_flag {
     /* Basic flags, always use one of these */
-    AP_NULL = 0,
-    AP_APPLY = 1,
-    AP_UNAPPLY = 2,
-    AP_BASIC_FLAGS = 15,
+    APPLY_NORMAL = 0, ///< Regular apply.
+    APPLY_ALWAYS = 1, ///< Always apply, never unapply.
+    APPLY_ALWAYS_UNAPPLY = 2, ///< Always unapply, never apply.
+    APPLY_BASIC_FLAGS = 15, ///< Used internally.
     /* Optional flags, for bitwise or with a basic flag */
-    AP_NO_MERGE = 16,
-    AP_IGNORE_CURSE = 32,
-    AP_NO_EVENT = 64
+    APPLY_NO_MERGE = 16, ///< Do not merge unapplied items.
+    APPLY_IGNORE_CURSE = 32, ///< Allow unapplying cursed items.
+    APPLY_NO_EVENT = 64 ///< Do not trigger an event.
 };
 
 /** Cut off point of when an object is put on the active list or not */

@@ -39,7 +39,7 @@ def main():
             # Change torches back to normal and light them up.
             elif obj.type == Type.LIGHT_APPLY:
                 if obj.f_no_pick:
-                    obj.Apply(obj, APPLY_TOGGLE)
+                    obj.Apply(obj, APPLY_NORMAL)
             # Remove the map event objects.
             elif obj.type == Type.MAP_EVENT_OBJ:
                 obj.Destroy()

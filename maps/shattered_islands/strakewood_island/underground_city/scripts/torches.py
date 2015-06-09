@@ -63,7 +63,7 @@ def main():
     pl.DrawInfo("You hear the sound of old gears turning...", COLOR_YELLOW)
 
     # Apply the switch that opens the gate.
-    me.Apply(ReadyMap(me.map.GetPath("underground_city_5_3_-1")).LocateBeacon("uc_torch_switch").env, APPLY_TOGGLE)
+    me.Apply(ReadyMap(me.map.GetPath("underground_city_5_3_-1")).LocateBeacon("uc_torch_switch").env, APPLY_NORMAL)
 
     Eval("timer(0, torches)", 0.5)
 

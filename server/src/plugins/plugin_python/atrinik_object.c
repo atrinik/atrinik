@@ -552,9 +552,9 @@ static const char doc_Atrinik_Object_Apply[] =
 "Makes the object apply the specified object.\n\n"
 ":param what: What object to apply.\n"
 ":type what: Atrinik.Object.Object\n"
-":param flags: Reasonable combination of :attr:`~Atrinik.APPLY_TOGGLE`, "
-":attr:`~Atrinik.APPLY_ALWAYS`, :attr:`~Atrinik.UNAPPLY_ALWAYS`, "
-":attr:`~Atrinik.UNAPPLY_NO_MERGE`, :attr:`~Atrinik.UNAPPLY_IGNORE_CURSE`, "
+":param flags: Reasonable combination of :attr:`~Atrinik.APPLY_NORMAL`, "
+":attr:`~Atrinik.APPLY_ALWAYS`, :attr:`~Atrinik.APPLY_ALWAYS_UNAPPLY`, "
+":attr:`~Atrinik.APPLY_NO_MERGE`, :attr:`~Atrinik.APPLY_IGNORE_CURSE`, "
 ":attr:`~APPLY_NO_EVENT`."
 ":returns: One of OBJECT_METHOD_xxx.\n"
 ":rtype: int";
@@ -1176,30 +1176,33 @@ static PyObject *Atrinik_Object_PayAmount(Atrinik_Object *obj, PyObject *args)
     Py_ReturnBoolean(hooks->pay_for_amount(value, obj->obj));
 }
 
+/** Documentation for Atrinik_Object_Clone(). */
+static const char doc_Atrinik_Object_Clone[] =
+".. method:: Clone(inventory=True).\n\n"
+"Clone an object.\nGenerally, you should do something with the clone."
+":meth:`~Atrinik.Object.Object.TeleportTo` or "
+":meth:`~Atrinik.Object.Object.InsertInto` are useful methods for that.\n\n"
+":param inventory: Whether to clone the inventory of the object.\n"
+":type inventory: bool\n"
+":returns: Cloned object.\n"
+":rtype: :class:`Atrinik.Object.Object`";
+
 /**
- * <h1>object.Clone(int [mode = CLONE_WITH_INVENTORY])</h1>
- * Clone an object.
- *
- * You should do something with the clone.
- * @ref Atrinik_Object_TeleportTo "TeleportTo()" or
- * @ref Atrinik_Object_InsertInside "InsertInside()" are useful functions
- * for that.
- * @param mode Optional mode, one of:
- * - <b>CLONE_WITH_INVENTORY</b> (default)
- * - <b>CLONE_WITHOUT_INVENTORY</b>
- * @return The cloned object. */
+ * Implements Atrinik.Object.Object.Clone() Python method.
+ * @copydoc PyMethod_VARARGS
+ */
 static PyObject *Atrinik_Object_Clone(Atrinik_Object *obj, PyObject *args)
 {
-    int mode = 0;
-    object *clone_ob;
+    int inventory = 1;
 
-    if (!PyArg_ParseTuple(args, "|i", &mode)) {
+    if (!PyArg_ParseTuple(args, "|i", &inventory)) {
         return NULL;
     }
 
     OBJEXISTCHECK(obj);
 
-    if (!mode) {
+    object *clone_ob;
+    if (inventory) {
         clone_ob = hooks->object_create_clone(obj->obj);
     } else {
         clone_ob = hooks->get_object();
@@ -1808,7 +1811,8 @@ static PyMethodDef methods[] = {
     {"GetCost", (PyCFunction) Atrinik_Object_GetCost, METH_VARARGS, 0},
     {"GetMoney", (PyCFunction) Atrinik_Object_GetMoney, METH_NOARGS, 0},
     {"PayAmount", (PyCFunction) Atrinik_Object_PayAmount, METH_VARARGS, 0},
-    {"Clone", (PyCFunction) Atrinik_Object_Clone, METH_VARARGS, 0},
+    {"Clone", (PyCFunction) Atrinik_Object_Clone, METH_VARARGS,
+            doc_Atrinik_Object_Clone},
     {"ReadKey", (PyCFunction) Atrinik_Object_ReadKey, METH_VARARGS, 0},
     {"WriteKey", (PyCFunction) Atrinik_Object_WriteKey, METH_VARARGS, 0},
     {"GetName", (PyCFunction) Atrinik_Object_GetName, METH_VARARGS, 0},

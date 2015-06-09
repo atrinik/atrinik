@@ -37,7 +37,7 @@ def main():
         raise AtrinikError("Could not find beacon {} or beacon is not inside inventory.".format(options[0]))
 
     # Apply the switch the beacon is in.
-    me.Apply(beacon.env, APPLY_TOGGLE | APPLY_NO_EVENT)
+    me.Apply(beacon.env, APPLY_NORMAL | APPLY_NO_EVENT)
 
     # Send a message, if any.
     if event.msg and pl:

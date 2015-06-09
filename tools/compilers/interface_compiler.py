@@ -655,7 +655,7 @@ class TagCompilerAction(BaseTagCompiler):
             elif attr == "trigger":
                 self.npc.body.write(
                     "beacon = self._npc.map.LocateBeacon({name})\n"
-                    "beacon.env.Apply(beacon.env, APPLY_TOGGLE)",
+                    "beacon.env.Apply(beacon.env, APPLY_NORMAL)",
                     name=repr(val)
                 )
             elif attr == "cast":

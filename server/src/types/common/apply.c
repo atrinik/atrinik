@@ -75,7 +75,7 @@ int object_apply_item(object *op, object *applier, int aflags)
         return OBJECT_METHOD_ERROR;
     }
 
-    basic_aflag = aflags & AP_BASIC_FLAGS;
+    basic_aflag = aflags & APPLY_BASIC_FLAGS;
 
     if (!QUERY_FLAG(op, FLAG_APPLIED)) {
         if (op->item_power != 0 && op->item_power + CONTR(applier)->item_power > settings.item_power_factor * applier->level) {
@@ -84,11 +84,11 @@ int object_apply_item(object *op, object *applier, int aflags)
         }
     } else {
         /* Always apply, so no reason to unapply. */
-        if (basic_aflag == AP_APPLY) {
+        if (basic_aflag == APPLY_ALWAYS) {
             return OBJECT_METHOD_OK;
         }
 
-        if (!(aflags & AP_IGNORE_CURSE) && (QUERY_FLAG(op, FLAG_CURSED) || QUERY_FLAG(op, FLAG_DAMNED))) {
+        if (!(aflags & APPLY_IGNORE_CURSE) && (QUERY_FLAG(op, FLAG_CURSED) || QUERY_FLAG(op, FLAG_DAMNED))) {
             draw_info_format(COLOR_WHITE, applier, "No matter how hard you try, you just can't remove it!");
             return OBJECT_METHOD_ERROR;
         }
@@ -141,14 +141,14 @@ int object_apply_item(object *op, object *applier, int aflags)
 
         living_update(applier);
 
-        if (!(aflags & AP_NO_MERGE)) {
+        if (!(aflags & APPLY_NO_MERGE)) {
             object_merge(op);
         }
 
         return OBJECT_METHOD_OK;
     }
 
-    if (basic_aflag == AP_UNAPPLY) {
+    if (basic_aflag == APPLY_ALWAYS_UNAPPLY) {
         return OBJECT_METHOD_OK;
     }
 
@@ -163,7 +163,7 @@ int object_apply_item(object *op, object *applier, int aflags)
 
         if (tmp->type == RING && !ring_left) {
             ring_left = 1;
-        } else if (object_apply(tmp, applier, AP_UNAPPLY) != OBJECT_METHOD_OK) {
+        } else if (object_apply(tmp, applier, APPLY_ALWAYS_UNAPPLY) != OBJECT_METHOD_OK) {
             return OBJECT_METHOD_ERROR;
         }
     }
