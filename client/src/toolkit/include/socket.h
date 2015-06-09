@@ -588,14 +588,19 @@ enum {
 #define ANIM_FLAG_STOP_ATTACKING 0x08 ///< Stop attacking.
 /*@}*/
 
-#define CHAT_TYPE_ALL 1
-#define CHAT_TYPE_GAME 2
-#define CHAT_TYPE_CHAT 3
-#define CHAT_TYPE_LOCAL 4
-#define CHAT_TYPE_PRIVATE 5
-#define CHAT_TYPE_GUILD 6
-#define CHAT_TYPE_PARTY 7
-#define CHAT_TYPE_OPERATOR 8
+/**
+ * @defgroup CHAT_TYPE_xxx Chat types
+ * Chat types.
+ *@{*/
+#define CHAT_TYPE_ALL 1 ///< Goes to the 'all' tab window.
+#define CHAT_TYPE_GAME 2 ///< Game-related messages (eg, examine output)
+#define CHAT_TYPE_CHAT 3 ///< Player chat.
+#define CHAT_TYPE_LOCAL 4 ///< Local map chat.
+#define CHAT_TYPE_PRIVATE 5 ///< Private chat (/tell)
+#define CHAT_TYPE_GUILD 6 ///< Guild chat.
+#define CHAT_TYPE_PARTY 7 ///< Party chat.
+#define CHAT_TYPE_OPERATOR 8 ///< Operator-only chat.
+/*@}*/
 
 #define CMD_TALK_NPC 1
 #define CMD_TALK_INV 2
