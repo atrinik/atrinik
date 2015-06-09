@@ -302,7 +302,6 @@ static const Atrinik_Constant constants[] = {
     {"INVENTORY_ALL", INVENTORY_ALL},
 
     {"GT_ENVIRONMENT", GT_ENVIRONMENT},
-    {"GT_INVISIBLE", GT_INVISIBLE},
     {"GT_STARTEQUIP", GT_STARTEQUIP},
     {"GT_APPLY", GT_APPLY},
     {"GT_ONLY_GOOD", GT_ONLY_GOOD},

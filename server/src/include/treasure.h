@@ -43,7 +43,6 @@
  * Put generated treasure below the object instead of inside the object's
  * inventory. */
 #define GT_ENVIRONMENT 0x0001
-#define GT_INVISIBLE 0x0002
 /** Generated items have ::FLAG_STARTEQUIP set */
 #define GT_STARTEQUIP 0x0004
 /** Unused. */

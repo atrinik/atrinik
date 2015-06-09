@@ -487,48 +487,46 @@ static void create_all_treasures(treasure *t, object *op, int flag, int difficul
                 create_treasure(find_treasurelist(t->name), op, flag, difficulty, t_style, a_chance, tries, change_arch ? change_arch : &t->change_arch);
             }
         } else if (difficulty >= t->difficulty) {
-            if (IS_SYS_INVISIBLE(&t->item->clone) || !(flag & GT_INVISIBLE)) {
-                if (t->item->clone.type != WEALTH) {
-                    tmp = arch_to_object(t->item);
+            if (t->item->clone.type != WEALTH) {
+                tmp = arch_to_object(t->item);
 
-                    if (t->nrof && tmp->nrof <= 1) {
-                        tmp->nrof = rndm(1, t->nrof);
-                    }
+                if (t->nrof && tmp->nrof <= 1) {
+                    tmp->nrof = rndm(1, t->nrof);
+                }
 
-                    /* Ret 1 = artifact is generated - don't overwrite anything
-                     * here */
-                    set_material_real(tmp, change_arch ? change_arch : &t->change_arch);
+                /* Ret 1 = artifact is generated - don't overwrite anything
+                 * here */
+                set_material_real(tmp, change_arch ? change_arch : &t->change_arch);
 
-                    if (!fix_generated_item(&tmp, op, difficulty, a_chance, t_style, t->magic, t->magic_fix, t->magic_chance, flag)) {
-                        change_treasure(change_arch ? change_arch : &t->change_arch, tmp);
-                    }
+                if (!fix_generated_item(&tmp, op, difficulty, a_chance, t_style, t->magic, t->magic_fix, t->magic_chance, flag)) {
+                    change_treasure(change_arch ? change_arch : &t->change_arch, tmp);
+                }
 
-                    put_treasure(tmp, op, flag);
+                put_treasure(tmp, op, flag);
 
-                    /* If treasure is "identified", created items are too */
-                    if (op->type == TREASURE && QUERY_FLAG(op, FLAG_IDENTIFIED)) {
-                        SET_FLAG(tmp, FLAG_IDENTIFIED);
-                    }
-                } else {
-                    /* We have a wealth object - expand it to real money */
+                /* If treasure is "identified", created items are too */
+                if (op->type == TREASURE && QUERY_FLAG(op, FLAG_IDENTIFIED)) {
+                    SET_FLAG(tmp, FLAG_IDENTIFIED);
+                }
+            } else {
+                /* We have a wealth object - expand it to real money */
 
-                    /* If t->magic is != 0, that's our value - if not use
-                     * default setting */
-                    int i, value = t->magic ? t->magic : t->item->clone.value;
+                /* If t->magic is != 0, that's our value - if not use
+                 * default setting */
+                int i, value = t->magic ? t->magic : t->item->clone.value;
 
-                    value *= (difficulty / 2) + 1;
+                value *= (difficulty / 2) + 1;
 
-                    /* So we have 80% to 120% of the fixed value */
-                    value = (int) ((float) value * 0.8f + (float) value * (rndm(1, 40) / 100.0f));
+                /* So we have 80% to 120% of the fixed value */
+                value = (int) ((float) value * 0.8f + (float) value * (rndm(1, 40) / 100.0f));
 
-                    for (i = 0; i < NUM_COINS; i++) {
-                        if (value / coins_arch[i]->clone.value > 0) {
-                            tmp = get_object();
-                            copy_object(&coins_arch[i]->clone, tmp, 0);
-                            tmp->nrof = value / tmp->value;
-                            value -= tmp->nrof * tmp->value;
-                            put_treasure(tmp, op, flag);
-                        }
+                for (i = 0; i < NUM_COINS; i++) {
+                    if (value / coins_arch[i]->clone.value > 0) {
+                        tmp = get_object();
+                        copy_object(&coins_arch[i]->clone, tmp, 0);
+                        tmp->nrof = value / tmp->value;
+                        value -= tmp->nrof * tmp->value;
+                        put_treasure(tmp, op, flag);
                     }
                 }
             }
@@ -646,47 +644,45 @@ create_one_treasure_again_jmp:
         return;
     }
 
-    if (IS_SYS_INVISIBLE(&t->item->clone) || flag != GT_INVISIBLE) {
-        if (t->item->clone.type != WEALTH) {
-            tmp = arch_to_object(t->item);
+    if (t->item->clone.type != WEALTH) {
+        tmp = arch_to_object(t->item);
 
-            if (t->nrof && tmp->nrof <= 1) {
-                tmp->nrof = rndm(1, t->nrof);
-            }
+        if (t->nrof && tmp->nrof <= 1) {
+            tmp->nrof = rndm(1, t->nrof);
+        }
 
-            set_material_real(tmp, change_arch ? change_arch : &t->change_arch);
+        set_material_real(tmp, change_arch ? change_arch : &t->change_arch);
 
-            if (!fix_generated_item(&tmp, op, difficulty, a_chance, (t->t_style == T_STYLE_UNSET) ? t_style : t->t_style, t->magic, t->magic_fix, t->magic_chance, flag)) {
-                change_treasure(change_arch ? change_arch : &t->change_arch, tmp);
-            }
+        if (!fix_generated_item(&tmp, op, difficulty, a_chance, (t->t_style == T_STYLE_UNSET) ? t_style : t->t_style, t->magic, t->magic_fix, t->magic_chance, flag)) {
+            change_treasure(change_arch ? change_arch : &t->change_arch, tmp);
+        }
 
-            put_treasure(tmp, op, flag);
+        put_treasure(tmp, op, flag);
 
-            /* If treasure is "identified", created items are too */
-            if (op->type == TREASURE && QUERY_FLAG(op, FLAG_IDENTIFIED)) {
-                SET_FLAG(tmp, FLAG_IDENTIFIED);
-            }
-        } else {
-            /* We have a wealth object - expand it to real money */
+        /* If treasure is "identified", created items are too */
+        if (op->type == TREASURE && QUERY_FLAG(op, FLAG_IDENTIFIED)) {
+            SET_FLAG(tmp, FLAG_IDENTIFIED);
+        }
+    } else {
+        /* We have a wealth object - expand it to real money */
 
-            /* If t->magic is != 0, that's our value - if not use default
-             * setting */
-            int i;
+        /* If t->magic is != 0, that's our value - if not use default
+         * setting */
+        int i;
 
-            value = t->magic ? t->magic : t->item->clone.value;
-            value *= difficulty;
+        value = t->magic ? t->magic : t->item->clone.value;
+        value *= difficulty;
 
-            /* So we have 80% to 120% of the fixed value */
-            value = (int) ((float) value * 0.8f + (float) value * (rndm(1, 40) / 100.0f));
+        /* So we have 80% to 120% of the fixed value */
+        value = (int) ((float) value * 0.8f + (float) value * (rndm(1, 40) / 100.0f));
 
-            for (i = 0; i < NUM_COINS; i++) {
-                if (value / coins_arch[i]->clone.value > 0) {
-                    tmp = get_object();
-                    copy_object(&coins_arch[i]->clone, tmp, 0);
-                    tmp->nrof = value / tmp->value;
-                    value -= tmp->nrof * tmp->value;
-                    put_treasure(tmp, op, flag);
-                }
+        for (i = 0; i < NUM_COINS; i++) {
+            if (value / coins_arch[i]->clone.value > 0) {
+                tmp = get_object();
+                copy_object(&coins_arch[i]->clone, tmp, 0);
+                tmp->nrof = value / tmp->value;
+                value -= tmp->nrof * tmp->value;
+                put_treasure(tmp, op, flag);
             }
         }
     }
