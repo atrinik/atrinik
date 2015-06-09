@@ -189,6 +189,9 @@
 /**
  * Key to unlock @ref DOOR "a locked door". */
 #define KEY 21
+/**
+ * Map object. Used internally.
+ */
 #define MAP 22
 /**
  * A magic mirror which allows you to see objects on a different coordinate. */
