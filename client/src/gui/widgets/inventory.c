@@ -772,7 +772,7 @@ object *widget_inventory_get_selected(widgetdata *widget)
 void widget_inventory_handle_arrow_key(widgetdata *widget, SDLKey key)
 {
     inventory_struct *inventory;
-    int selected, max;
+    int selected;
     uint32_t offset;
 
     inventory = INVENTORY(widget);
@@ -805,13 +805,13 @@ void widget_inventory_handle_arrow_key(widgetdata *widget, SDLKey key)
     }
 
     /* Calculate maximum number of inventory items. */
-    max = widget_inventory_num_items(widget);
+    int num = widget_inventory_num_items(widget);
 
     /* Make sure the selected value does not overflow. */
     if (selected < 0) {
         selected = 0;
-    } else if (selected > max - 1) {
-        selected = max - 1;
+    } else if (selected > num - 1) {
+        selected = num - 1;
     }
 
     if (inventory->selected != (uint32_t) selected) {
@@ -829,7 +829,7 @@ void widget_inventory_handle_arrow_key(widgetdata *widget, SDLKey key)
                 inventory->scrollbar.max_lines + 1;
     }
 
-    inventory->scrollbar_info.num_lines = ceil(max /
+    inventory->scrollbar_info.num_lines = ceil(num /
             (double) INVENTORY_COLS(inventory));
     /* Makes sure the scroll offset doesn't overflow. */
     scrollbar_scroll_adjust(&inventory->scrollbar, 0);
