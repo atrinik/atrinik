@@ -824,8 +824,8 @@ void widget_inventory_handle_arrow_key(widgetdata *widget, SDLKey key)
                 inventory->scrollbar.max_lines + 1;
     }
 
-    inventory->scrollbar_info.num_lines = ceil(num /
-            (double) INVENTORY_COLS(inventory));
+    int cols = INVENTORY_COLS(inventory);
+    inventory->scrollbar_info.num_lines = (num + cols - 1) / cols;
     /* Makes sure the scroll offset doesn't overflow. */
     scrollbar_scroll_adjust(&inventory->scrollbar, 0);
     inventory->scrollbar_info.redraw = 0;
