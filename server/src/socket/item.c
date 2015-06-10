@@ -863,7 +863,7 @@ void socket_command_item_lock(socket_struct *ns, player *pl, uint8_t *data, size
         return;
     }
 
-    TOGGLE_FLAG(op, FLAG_INV_LOCKED);
+    FLIP_FLAG(op, FLAG_INV_LOCKED);
     esrv_update_item(UPD_FLAGS, op);
 }
 

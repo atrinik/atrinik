@@ -278,7 +278,7 @@ typedef struct toolkit_dependency {
 #define BIT_SET(_val, _bit) BITMASK_SET(_val, BIT_MASK(_bit))
 #define BIT_CLEAR(_val, _bit) BITMASK_CLEAR(_val, BIT_MASK(_bit))
 #define BIT_FLIP(_val, _bit) BITMASK_FLIP(_val, BIT_MASK(_bit))
-#define BIT_CHANGE(_val, _bit) BITMASK_CHANGE(_val, BIT_MASK(_bit))
+#define BIT_CHANGE(_val, _bit, _x) BITMASK_CHANGE(_val, BIT_MASK(_bit), _x)
 
 #define BITMASK_QUERY(_val, _mask) (((_val) & (_mask)) == (_mask))
 #define BITMASK_SET(_val, _mask)                          \

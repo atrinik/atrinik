@@ -626,7 +626,7 @@
  *@{*/
 
 /** Macro for getting flag's bitmask value. */
-#define FLAG_BITMASK(p) (1U << (p % 32))
+#define FLAG_BITMASK(p) BIT_MASK(p % 32)
 
 /**
  * Set flag of of an object.
@@ -634,7 +634,7 @@
  * @param p The flag to set
  */
 #define SET_FLAG(xyz, p) \
-    ((xyz)->flags[p / 32] |= FLAG_BITMASK(p))
+    BIT_SET((xyz)->flags[p / 32], p % 32)
 
 /**
  * Clear flag of an object.
@@ -642,7 +642,7 @@
  * @param p The flag to clear
  */
 #define CLEAR_FLAG(xyz, p) \
-    ((xyz)->flags[p / 32] &= ~FLAG_BITMASK(p))
+    BIT_CLEAR((xyz)->flags[p / 32], p % 32)
 
 /**
  * Query flag of an object.
@@ -650,39 +650,25 @@
  * @param p The flag to query
  */
 #define QUERY_FLAG(xyz, p) \
-    ((xyz)->flags[p / 32] & FLAG_BITMASK(p))
+    BIT_QUERY((xyz)->flags[p / 32], p % 32)
 
 /**
- * Toggle flag of an object.
+ * Flip flag of an object.
  * @param xyz The object.
- * @param p The flag to toggle.
+ * @param p The flag to flip.
  */
-#define TOGGLE_FLAG(xyz, p) \
-    do { \
-        if (QUERY_FLAG((xyz), (p))) \
-        { \
-            CLEAR_FLAG((xyz), (p)); \
-        } \
-        else \
-        { \
-            SET_FLAG((xyz), (p)); \
-        } \
-    } while (0)
+#define FLIP_FLAG(xyz, p) \
+    BIT_FLIP((xyz)->flags[p / 32], p % 32)
 
 /**
  * Utility macro to set or clear an object's flag depending on whether the cond
  * evaluates to true or false.
  * @param op Object to set or clear the flag for
  * @param flag The flag we're setting/clearing
- * @param cond If true, will set the flag, will clear otherwise. */
-#define SET_CLEAR_FLAG(op, flag, cond) \
-    do { \
-        if (cond) { \
-            SET_FLAG(op, flag); \
-        } else { \
-            CLEAR_FLAG(op, flag); \
-        } \
-    } while (0)
+ * @param cond If true, will set the flag, will clear otherwise.
+ */
+#define CHANGE_FLAG(op, flag, cond) \
+    BIT_CHANGE((op)->flags[flag / 32], flag % 32, cond)
 
 /*@}*/
 
@@ -694,45 +680,39 @@
  * we set this ONE time outside instead of every time in object_remove():
  * we skip the call for the head in this way.
  *@{*/
-#define SET_MULTI_FLAG(xyz, p)                          \
-    {                                                       \
-        object *_tos_;                                      \
-                                                        \
-        for (_tos_ = xyz; _tos_; _tos_ = _tos_->more)       \
-        {                                                   \
-            ((_tos_)->flags[p / 32] |= (1U << (p % 32)));   \
-        }                                                   \
-    }
+#define SET_MULTI_FLAG(xyz, p)                                                 \
+    do {                                                                       \
+        for (object *_tos_ = xyz; _tos_; _tos_ = _tos_->more) {                \
+            SET_FLAG(_tos_, p);                                                \
+        }                                                                      \
+    } while (0)
 
-#define CLEAR_MULTI_FLAG(xyz, p)                        \
-    {                                                       \
-        object *_tos_;                                      \
-                                                        \
-        for (_tos_ = xyz; _tos_; _tos_ = _tos_->more)       \
-        {                                                   \
-            ((_tos_)->flags[p / 32] &= ~(1U << (p % 32)));  \
-        }                                                   \
-    }
+#define CLEAR_MULTI_FLAG(xyz, p)                                               \
+    do {                                                                       \
+        for (object *_tos_ = xyz; _tos_; _tos_ = _tos_->more) {                \
+            CLEAR_FLAG(_tos_, p);                                              \
+        }                                                                      \
+    } while (0)
 
-#define SET_OR_CLEAR_MULTI_FLAG(_head, _flag) \
-    if (QUERY_FLAG((_head), (_flag))) \
-    { \
-        SET_MULTI_FLAG((_head)->more, (_flag)); \
-    } \
-    else \
-    { \
-        CLEAR_MULTI_FLAG((_head)->more, (_flag)); \
-    }
+#define SET_OR_CLEAR_MULTI_FLAG(_head, _flag)                                  \
+    do {                                                                       \
+        if (QUERY_FLAG(_head, _flag)) {                                        \
+            SET_MULTI_FLAG((_head)->more, _flag);                              \
+        } else {                                                               \
+            CLEAR_MULTI_FLAG((_head)->more, _flag);                            \
+        }                                                                      \
+    } while (0)
 
-#define SET_OR_CLEAR_MULTI_FLAG_IF_CLONE(_head, _flag) \
-    if (QUERY_FLAG((_head), (_flag)) && !QUERY_FLAG(&(_head)->arch->clone, (_flag))) \
-    { \
-        SET_MULTI_FLAG((_head)->more, (_flag)); \
-    } \
-    else if (!QUERY_FLAG((_head), (_flag)) && QUERY_FLAG(&(_head)->arch->clone, (_flag))) \
-    { \
-        CLEAR_MULTI_FLAG((_head)->more, (_flag)); \
-    }
+#define SET_OR_CLEAR_MULTI_FLAG_IF_CLONE(_head, _flag)                         \
+    do {                                                                       \
+        bool _has_head_ = QUERY_FLAG(_head, _flag);                            \
+        bool _has_clone_ = QUERY_FLAG(&(_head)->arch->clone, _flag);           \
+        if (_has_head_ && !_has_clone_) {                                      \
+            SET_MULTI_FLAG((_head), _flag);                                    \
+        } else if (!_has_head_ && _has_clone_) {                               \
+            CLEAR_MULTI_FLAG((_head), _flag);                                  \
+        }                                                                      \
+    } while (0)
 /*@}*/
 
 /**

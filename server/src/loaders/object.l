@@ -383,7 +383,7 @@ lex_error = 0;
 ^last_eat{S}         op->last_eat = IVAL;
 ^speed{S}            op->speed = FVAL;
 ^speed_left{S}       op->speed_left = FVAL;
-^slow_move{S}        SET_CLEAR_FLAG(op, FLAG_SLOW_MOVE, IVAL);
+^slow_move{S}        CHANGE_FLAG(op, FLAG_SLOW_MOVE, IVAL);
 ^face{S}             {
     int _face_ = find_face(yval(), 0);
     op->face = &new_faces[_face_];
@@ -454,108 +454,108 @@ lex_error = 0;
     int val = IVAL;
     op->sub_layer = MAX(0, MIN(NUM_SUB_LAYERS - 1, val));
 }
-^door_closed{S}      SET_CLEAR_FLAG(op, FLAG_DOOR_CLOSED, IVAL);
-^cursed_perm{S}      SET_CLEAR_FLAG(op, FLAG_PERM_CURSED, IVAL);
-^damned_perm{S}      SET_CLEAR_FLAG(op, FLAG_PERM_DAMNED, IVAL);
-^one_drop{S}         SET_CLEAR_FLAG(op, FLAG_ONE_DROP, IVAL);
-^is_trapped{S}       SET_CLEAR_FLAG(op, FLAG_IS_TRAPPED, IVAL);
-^quest_item{S}       SET_CLEAR_FLAG(op, FLAG_QUEST_ITEM, IVAL);
-^player_only{S}      SET_CLEAR_FLAG(op, FLAG_PLAYER_ONLY, IVAL);
-^is_named{S}         SET_CLEAR_FLAG(op, FLAG_IS_NAMED, IVAL);
-^is_player{S}        SET_CLEAR_FLAG(op, FLAG_IS_PLAYER, IVAL);
-^sys_object{S}       SET_CLEAR_FLAG(op, FLAG_SYS_OBJECT, IVAL);
+^door_closed{S}      CHANGE_FLAG(op, FLAG_DOOR_CLOSED, IVAL);
+^cursed_perm{S}      CHANGE_FLAG(op, FLAG_PERM_CURSED, IVAL);
+^damned_perm{S}      CHANGE_FLAG(op, FLAG_PERM_DAMNED, IVAL);
+^one_drop{S}         CHANGE_FLAG(op, FLAG_ONE_DROP, IVAL);
+^is_trapped{S}       CHANGE_FLAG(op, FLAG_IS_TRAPPED, IVAL);
+^quest_item{S}       CHANGE_FLAG(op, FLAG_QUEST_ITEM, IVAL);
+^player_only{S}      CHANGE_FLAG(op, FLAG_PLAYER_ONLY, IVAL);
+^is_named{S}         CHANGE_FLAG(op, FLAG_IS_NAMED, IVAL);
+^is_player{S}        CHANGE_FLAG(op, FLAG_IS_PLAYER, IVAL);
+^sys_object{S}       CHANGE_FLAG(op, FLAG_SYS_OBJECT, IVAL);
 ^generator{S}        {}
-^can_stack{S}        SET_CLEAR_FLAG(op, FLAG_CAN_STACK, IVAL);
-^is_thrown{S}        SET_CLEAR_FLAG(op, FLAG_IS_THROWN, IVAL);
-^auto_apply{S}       SET_CLEAR_FLAG(op, FLAG_AUTO_APPLY, IVAL);
+^can_stack{S}        CHANGE_FLAG(op, FLAG_CAN_STACK, IVAL);
+^is_thrown{S}        CHANGE_FLAG(op, FLAG_IS_THROWN, IVAL);
+^auto_apply{S}       CHANGE_FLAG(op, FLAG_AUTO_APPLY, IVAL);
 ^treasure{S}         {}
-^is_assassin{S}      SET_CLEAR_FLAG(op, FLAG_IS_ASSASSINATION, IVAL);
-^is_spell{S}         SET_CLEAR_FLAG(op, FLAG_IS_SPELL, IVAL);
-^is_missile{S}       SET_CLEAR_FLAG(op, FLAG_IS_MISSILE, IVAL);
-^draw_direction{S}   SET_CLEAR_FLAG(op, FLAG_DRAW_DIRECTION, IVAL);
-^draw_double{S}      SET_CLEAR_FLAG(op, FLAG_DRAW_DOUBLE, IVAL);
-^draw_double_always{S} SET_CLEAR_FLAG(op, FLAG_DRAW_DOUBLE_ALWAYS, IVAL);
-^see_invisible{S}    SET_CLEAR_FLAG(op, FLAG_SEE_INVISIBLE, IVAL);
-^make_invisible{S}   SET_CLEAR_FLAG(op, FLAG_MAKE_INVISIBLE, IVAL);
-^make_ethereal{S}    SET_CLEAR_FLAG(op, FLAG_MAKE_ETHEREAL, IVAL);
-^can_roll{S}         SET_CLEAR_FLAG(op, FLAG_CAN_ROLL, IVAL);
-^connect_reset{S}    SET_CLEAR_FLAG(op, FLAG_CONNECT_RESET, IVAL);
-^is_turnable{S}      SET_CLEAR_FLAG(op, FLAG_IS_TURNABLE, IVAL);
-^is_used_up{S}       SET_CLEAR_FLAG(op, FLAG_IS_USED_UP, IVAL);
-^is_invisible{S}     SET_CLEAR_FLAG(op, FLAG_IS_INVISIBLE, IVAL);
+^is_assassin{S}      CHANGE_FLAG(op, FLAG_IS_ASSASSINATION, IVAL);
+^is_spell{S}         CHANGE_FLAG(op, FLAG_IS_SPELL, IVAL);
+^is_missile{S}       CHANGE_FLAG(op, FLAG_IS_MISSILE, IVAL);
+^draw_direction{S}   CHANGE_FLAG(op, FLAG_DRAW_DIRECTION, IVAL);
+^draw_double{S}      CHANGE_FLAG(op, FLAG_DRAW_DOUBLE, IVAL);
+^draw_double_always{S} CHANGE_FLAG(op, FLAG_DRAW_DOUBLE_ALWAYS, IVAL);
+^see_invisible{S}    CHANGE_FLAG(op, FLAG_SEE_INVISIBLE, IVAL);
+^make_invisible{S}   CHANGE_FLAG(op, FLAG_MAKE_INVISIBLE, IVAL);
+^make_ethereal{S}    CHANGE_FLAG(op, FLAG_MAKE_ETHEREAL, IVAL);
+^can_roll{S}         CHANGE_FLAG(op, FLAG_CAN_ROLL, IVAL);
+^connect_reset{S}    CHANGE_FLAG(op, FLAG_CONNECT_RESET, IVAL);
+^is_turnable{S}      CHANGE_FLAG(op, FLAG_IS_TURNABLE, IVAL);
+^is_used_up{S}       CHANGE_FLAG(op, FLAG_IS_USED_UP, IVAL);
+^is_invisible{S}     CHANGE_FLAG(op, FLAG_IS_INVISIBLE, IVAL);
 ^alive{S}            {}
-^applied{S}          SET_CLEAR_FLAG(op, FLAG_APPLIED, IVAL);
-^unpaid{S}           SET_CLEAR_FLAG(op, FLAG_UNPAID, IVAL);
-^hidden{S}           SET_CLEAR_FLAG(op, FLAG_HIDDEN, IVAL);
-^no_pick{S}          SET_CLEAR_FLAG(op, FLAG_NO_PICK, IVAL);
-^no_pass{S}          SET_CLEAR_FLAG(op, FLAG_NO_PASS, IVAL);
-^no_teleport{S}      SET_CLEAR_FLAG(op, FLAG_NO_TELEPORT, IVAL);
-^corpse{S}           SET_CLEAR_FLAG(op, FLAG_CORPSE, IVAL);
-^corpse_forced{S}    SET_CLEAR_FLAG(op, FLAG_CORPSE_FORCED, IVAL);
-^walk_on{S}          SET_CLEAR_FLAG(op, FLAG_WALK_ON, IVAL);
-^walk_off{S}         SET_CLEAR_FLAG(op, FLAG_WALK_OFF, IVAL);
-^fly_on{S}           SET_CLEAR_FLAG(op, FLAG_FLY_ON, IVAL);
-^fly_off{S}          SET_CLEAR_FLAG(op, FLAG_FLY_OFF, IVAL);
-^is_animated{S}      SET_CLEAR_FLAG(op, FLAG_ANIMATE, IVAL);
-^flying{S}           SET_CLEAR_FLAG(op, FLAG_FLYING, IVAL);
-^monster{S}          SET_CLEAR_FLAG(op, FLAG_MONSTER, IVAL);
-^no_attack{S}        SET_CLEAR_FLAG(op, FLAG_NO_ATTACK, IVAL);
-^invulnerable{S}     SET_CLEAR_FLAG(op, FLAG_INVULNERABLE, IVAL);
-^friendly{S}         SET_CLEAR_FLAG(op, FLAG_FRIENDLY, IVAL);
-^identified{S}       SET_CLEAR_FLAG(op, FLAG_IDENTIFIED, IVAL);
-^reflecting{S}       SET_CLEAR_FLAG(op, FLAG_REFLECTING, IVAL);
-^changing{S}         SET_CLEAR_FLAG(op, FLAG_CHANGING, IVAL);
-^splitting{S}        SET_CLEAR_FLAG(op, FLAG_SPLITTING, IVAL);
-^hitback{S}          SET_CLEAR_FLAG(op, FLAG_HITBACK, IVAL);
-^startequip{S}       SET_CLEAR_FLAG(op, FLAG_STARTEQUIP, IVAL);
-^blocksview{S}       SET_CLEAR_FLAG(op, FLAG_BLOCKSVIEW, IVAL);
-^undead{S}           SET_CLEAR_FLAG(op, FLAG_UNDEAD, IVAL);
-^scared{S}           SET_CLEAR_FLAG(op, FLAG_SCARED, IVAL);
-^unaggressive{S}     SET_CLEAR_FLAG(op, FLAG_UNAGGRESSIVE, IVAL);
-^reflect_missile{S}  SET_CLEAR_FLAG(op, FLAG_REFL_MISSILE, IVAL);
-^reflect_spell{S}    SET_CLEAR_FLAG(op, FLAG_REFL_SPELL, IVAL);
-^can_reflect_missile{S} SET_CLEAR_FLAG(op, FLAG_REFL_MISSILE, IVAL);
-^can_reflect_spell{S} SET_CLEAR_FLAG(op, FLAG_REFL_SPELL, IVAL);
-^no_magic{S}         SET_CLEAR_FLAG(op, FLAG_NO_MAGIC, IVAL);
-^no_fix_player{S}    SET_CLEAR_FLAG(op, FLAG_NO_FIX_PLAYER, IVAL);
+^applied{S}          CHANGE_FLAG(op, FLAG_APPLIED, IVAL);
+^unpaid{S}           CHANGE_FLAG(op, FLAG_UNPAID, IVAL);
+^hidden{S}           CHANGE_FLAG(op, FLAG_HIDDEN, IVAL);
+^no_pick{S}          CHANGE_FLAG(op, FLAG_NO_PICK, IVAL);
+^no_pass{S}          CHANGE_FLAG(op, FLAG_NO_PASS, IVAL);
+^no_teleport{S}      CHANGE_FLAG(op, FLAG_NO_TELEPORT, IVAL);
+^corpse{S}           CHANGE_FLAG(op, FLAG_CORPSE, IVAL);
+^corpse_forced{S}    CHANGE_FLAG(op, FLAG_CORPSE_FORCED, IVAL);
+^walk_on{S}          CHANGE_FLAG(op, FLAG_WALK_ON, IVAL);
+^walk_off{S}         CHANGE_FLAG(op, FLAG_WALK_OFF, IVAL);
+^fly_on{S}           CHANGE_FLAG(op, FLAG_FLY_ON, IVAL);
+^fly_off{S}          CHANGE_FLAG(op, FLAG_FLY_OFF, IVAL);
+^is_animated{S}      CHANGE_FLAG(op, FLAG_ANIMATE, IVAL);
+^flying{S}           CHANGE_FLAG(op, FLAG_FLYING, IVAL);
+^monster{S}          CHANGE_FLAG(op, FLAG_MONSTER, IVAL);
+^no_attack{S}        CHANGE_FLAG(op, FLAG_NO_ATTACK, IVAL);
+^invulnerable{S}     CHANGE_FLAG(op, FLAG_INVULNERABLE, IVAL);
+^friendly{S}         CHANGE_FLAG(op, FLAG_FRIENDLY, IVAL);
+^identified{S}       CHANGE_FLAG(op, FLAG_IDENTIFIED, IVAL);
+^reflecting{S}       CHANGE_FLAG(op, FLAG_REFLECTING, IVAL);
+^changing{S}         CHANGE_FLAG(op, FLAG_CHANGING, IVAL);
+^splitting{S}        CHANGE_FLAG(op, FLAG_SPLITTING, IVAL);
+^hitback{S}          CHANGE_FLAG(op, FLAG_HITBACK, IVAL);
+^startequip{S}       CHANGE_FLAG(op, FLAG_STARTEQUIP, IVAL);
+^blocksview{S}       CHANGE_FLAG(op, FLAG_BLOCKSVIEW, IVAL);
+^undead{S}           CHANGE_FLAG(op, FLAG_UNDEAD, IVAL);
+^scared{S}           CHANGE_FLAG(op, FLAG_SCARED, IVAL);
+^unaggressive{S}     CHANGE_FLAG(op, FLAG_UNAGGRESSIVE, IVAL);
+^reflect_missile{S}  CHANGE_FLAG(op, FLAG_REFL_MISSILE, IVAL);
+^reflect_spell{S}    CHANGE_FLAG(op, FLAG_REFL_SPELL, IVAL);
+^can_reflect_missile{S} CHANGE_FLAG(op, FLAG_REFL_MISSILE, IVAL);
+^can_reflect_spell{S} CHANGE_FLAG(op, FLAG_REFL_SPELL, IVAL);
+^no_magic{S}         CHANGE_FLAG(op, FLAG_NO_MAGIC, IVAL);
+^no_fix_player{S}    CHANGE_FLAG(op, FLAG_NO_FIX_PLAYER, IVAL);
 ^tear_down{S}        {}
 ^luck{S}             {}
 ^run_away{S}         op->run_away = IVAL;
-^pass_thru{S}        SET_CLEAR_FLAG(op, FLAG_PASS_THRU, IVAL);
-^can_pass_thru{S}    SET_CLEAR_FLAG(op, FLAG_CAN_PASS_THRU, IVAL);
+^pass_thru{S}        CHANGE_FLAG(op, FLAG_PASS_THRU, IVAL);
+^can_pass_thru{S}    CHANGE_FLAG(op, FLAG_CAN_PASS_THRU, IVAL);
 ^anim_speed{S}       op->anim_speed = IVAL;
 ^container{S}        op->weight_limit = IVAL;
-^no_drop{S}          SET_CLEAR_FLAG(op, FLAG_NO_DROP, IVAL);
+^no_drop{S}          CHANGE_FLAG(op, FLAG_NO_DROP, IVAL);
 ^behavior{S}         op->behavior = IVAL;
-^use_fix_pos{S}      SET_CLEAR_FLAG(op, FLAG_USE_FIX_POS, IVAL);
-^is_ethereal{S}      SET_CLEAR_FLAG(op, FLAG_IS_ETHEREAL, IVAL);
-^two_handed{S}       SET_CLEAR_FLAG(op, FLAG_TWO_HANDED, IVAL);
-^can_cast_spell{S}   SET_CLEAR_FLAG(op, FLAG_CAST_SPELL, IVAL);
+^use_fix_pos{S}      CHANGE_FLAG(op, FLAG_USE_FIX_POS, IVAL);
+^is_ethereal{S}      CHANGE_FLAG(op, FLAG_IS_ETHEREAL, IVAL);
+^two_handed{S}       CHANGE_FLAG(op, FLAG_TWO_HANDED, IVAL);
+^can_cast_spell{S}   CHANGE_FLAG(op, FLAG_CAST_SPELL, IVAL);
 ^can_use_scroll{S}   {}
 ^can_use_range{S}    {}
-^can_use_bow{S}      SET_CLEAR_FLAG(op, FLAG_USE_BOW, IVAL);
-^can_use_armour{S}   SET_CLEAR_FLAG(op, FLAG_USE_ARMOUR, IVAL);
-^can_use_weapon{S}   SET_CLEAR_FLAG(op, FLAG_USE_WEAPON, IVAL);
+^can_use_bow{S}      CHANGE_FLAG(op, FLAG_USE_BOW, IVAL);
+^can_use_armour{S}   CHANGE_FLAG(op, FLAG_USE_ARMOUR, IVAL);
+^can_use_weapon{S}   CHANGE_FLAG(op, FLAG_USE_WEAPON, IVAL);
 ^can_use_ring{S}     {}
 ^has_ready_range{S}  {}
-^has_ready_bow{S}    SET_CLEAR_FLAG(op, FLAG_READY_BOW, IVAL);
-^xrays{S}            SET_CLEAR_FLAG(op, FLAG_XRAYS, IVAL);
-^no_save{S}          SET_CLEAR_FLAG(op, FLAG_NO_SAVE, IVAL);
-^is_floor{S}         SET_CLEAR_FLAG(op, FLAG_IS_FLOOR, IVAL);
-^is_male{S}          SET_CLEAR_FLAG(op, FLAG_IS_MALE, IVAL);
-^is_female{S}        SET_CLEAR_FLAG(op, FLAG_IS_FEMALE, IVAL);
-^is_evil{S}          SET_CLEAR_FLAG(op, FLAG_IS_EVIL, IVAL);
-^is_good{S}          SET_CLEAR_FLAG(op, FLAG_IS_GOOD, IVAL);
-^is_neutral{S}       SET_CLEAR_FLAG(op, FLAG_IS_NEUTRAL, IVAL);
-^lifesave{S}         SET_CLEAR_FLAG(op, FLAG_LIFESAVE, IVAL);
-^sleep{S}            SET_CLEAR_FLAG(op, FLAG_SLEEP, IVAL);
-^stand_still{S}      SET_CLEAR_FLAG(op, FLAG_STAND_STILL, IVAL);
-^random_move{S}      SET_CLEAR_FLAG(op, FLAG_RANDOM_MOVE, IVAL);
-^only_attack{S}      SET_CLEAR_FLAG(op, FLAG_ONLY_ATTACK, IVAL);
-^berserk{S}          SET_CLEAR_FLAG(op, FLAG_BERSERK, IVAL);
-^is_magical{S}       SET_CLEAR_FLAG(op, FLAG_IS_MAGICAL, IVAL);
-^connect_no_push{S}  SET_CLEAR_FLAG(op, FLAG_CONNECT_NO_PUSH, IVAL);
-^connect_no_release{S} SET_CLEAR_FLAG(op, FLAG_CONNECT_NO_RELEASE, IVAL);
+^has_ready_bow{S}    CHANGE_FLAG(op, FLAG_READY_BOW, IVAL);
+^xrays{S}            CHANGE_FLAG(op, FLAG_XRAYS, IVAL);
+^no_save{S}          CHANGE_FLAG(op, FLAG_NO_SAVE, IVAL);
+^is_floor{S}         CHANGE_FLAG(op, FLAG_IS_FLOOR, IVAL);
+^is_male{S}          CHANGE_FLAG(op, FLAG_IS_MALE, IVAL);
+^is_female{S}        CHANGE_FLAG(op, FLAG_IS_FEMALE, IVAL);
+^is_evil{S}          CHANGE_FLAG(op, FLAG_IS_EVIL, IVAL);
+^is_good{S}          CHANGE_FLAG(op, FLAG_IS_GOOD, IVAL);
+^is_neutral{S}       CHANGE_FLAG(op, FLAG_IS_NEUTRAL, IVAL);
+^lifesave{S}         CHANGE_FLAG(op, FLAG_LIFESAVE, IVAL);
+^sleep{S}            CHANGE_FLAG(op, FLAG_SLEEP, IVAL);
+^stand_still{S}      CHANGE_FLAG(op, FLAG_STAND_STILL, IVAL);
+^random_move{S}      CHANGE_FLAG(op, FLAG_RANDOM_MOVE, IVAL);
+^only_attack{S}      CHANGE_FLAG(op, FLAG_ONLY_ATTACK, IVAL);
+^berserk{S}          CHANGE_FLAG(op, FLAG_BERSERK, IVAL);
+^is_magical{S}       CHANGE_FLAG(op, FLAG_IS_MAGICAL, IVAL);
+^connect_no_push{S}  CHANGE_FLAG(op, FLAG_CONNECT_NO_PUSH, IVAL);
+^connect_no_release{S} CHANGE_FLAG(op, FLAG_CONNECT_NO_RELEASE, IVAL);
 
     /* Start of various attacktypes */
 ^attack_impact{S}    SET_ATTACK(op, ATNR_IMPACT, IVAL);
@@ -676,18 +676,18 @@ lex_error = 0;
 ^attack_move_type{S} op->attack_move_type = IVAL;
 
 ^move_state{S}       op->move_status = IVAL;
-^confused{S}         SET_CLEAR_FLAG(op, FLAG_CONFUSED, IVAL);
-^stealth{S}          SET_CLEAR_FLAG(op, FLAG_STEALTH, IVAL);
+^confused{S}         CHANGE_FLAG(op, FLAG_CONFUSED, IVAL);
+^stealth{S}          CHANGE_FLAG(op, FLAG_STEALTH, IVAL);
 ^connected{S}        connection_object_add(op, op->map, IVAL);
-^cursed{S}           SET_CLEAR_FLAG(op, FLAG_CURSED, IVAL);
-^damned{S}           SET_CLEAR_FLAG(op, FLAG_DAMNED, IVAL);
-^is_buildable{S}     SET_CLEAR_FLAG(op, FLAG_IS_BUILDABLE, IVAL);
-^no_pvp{S}           SET_CLEAR_FLAG(op, FLAG_NO_PVP, IVAL);
+^cursed{S}           CHANGE_FLAG(op, FLAG_CURSED, IVAL);
+^damned{S}           CHANGE_FLAG(op, FLAG_DAMNED, IVAL);
+^is_buildable{S}     CHANGE_FLAG(op, FLAG_IS_BUILDABLE, IVAL);
+^no_pvp{S}           CHANGE_FLAG(op, FLAG_NO_PVP, IVAL);
 ^known_magical{S}    {/* DEPRECATED */}
 ^known_cursed{S}     {/* DEPRECATED */}
 ^attacktype{S}       {/* DEPRECATED */}
 ^can_use_skill{S}    {/* DEPRECATED */}
-^been_applied{S}     SET_CLEAR_FLAG(op, FLAG_BEEN_APPLIED, IVAL);
+^been_applied{S}     CHANGE_FLAG(op, FLAG_BEEN_APPLIED, IVAL);
 ^title{S}            {
     char *y = yval();
 
@@ -701,22 +701,22 @@ lex_error = 0;
         }
     }
 }
-^outdoor{S}          SET_CLEAR_FLAG(op, FLAG_OUTDOOR, IVAL);
-^unique{S}           SET_CLEAR_FLAG(op, FLAG_UNIQUE, IVAL);
-^inv_locked{S}       SET_CLEAR_FLAG(op, FLAG_INV_LOCKED, IVAL);
+^outdoor{S}          CHANGE_FLAG(op, FLAG_OUTDOOR, IVAL);
+^unique{S}           CHANGE_FLAG(op, FLAG_UNIQUE, IVAL);
+^inv_locked{S}       CHANGE_FLAG(op, FLAG_INV_LOCKED, IVAL);
 ^is_wooded{S}        {/* DEPRECATED */}
 ^is_hilly{S}         {/* DEPRECATED */}
 ^has_ready_skill{S}  {/* DEPRECATED */}
-^has_ready_weapon{S} SET_CLEAR_FLAG(op, FLAG_READY_WEAPON, IVAL);
-^no_skill_ident{S}   SET_CLEAR_FLAG(op, FLAG_NO_SKILL_IDENT, IVAL);
+^has_ready_weapon{S} CHANGE_FLAG(op, FLAG_READY_WEAPON, IVAL);
+^no_skill_ident{S}   CHANGE_FLAG(op, FLAG_NO_SKILL_IDENT, IVAL);
 ^glow_radius{S}      op->glow_radius = IVAL;
-^is_blind{S}         SET_CLEAR_FLAG(op, FLAG_BLIND, IVAL);
-^can_see_in_dark{S}  SET_CLEAR_FLAG(op, FLAG_SEE_IN_DARK, IVAL);
-^is_cauldron{S}      SET_CLEAR_FLAG(op, FLAG_IS_CAULDRON, IVAL);
+^is_blind{S}         CHANGE_FLAG(op, FLAG_BLIND, IVAL);
+^can_see_in_dark{S}  CHANGE_FLAG(op, FLAG_SEE_IN_DARK, IVAL);
+^is_cauldron{S}      CHANGE_FLAG(op, FLAG_IS_CAULDRON, IVAL);
 ^randomitems{S}      op->randomitems = find_treasurelist(yval());
-^is_dust{S}          SET_CLEAR_FLAG(op, FLAG_DUST, IVAL);
+^is_dust{S}          CHANGE_FLAG(op, FLAG_DUST, IVAL);
 ^no_steal{S}         {/* DEPRECATED */}
-^one_hit{S}          SET_CLEAR_FLAG(op, FLAG_ONE_HIT, IVAL);
+^one_hit{S}          CHANGE_FLAG(op, FLAG_ONE_HIT, IVAL);
 ^is_vul_elemental{S} {/* DEPRECATED */}
 ^is_proof_elemental{S} {/* DEPRECATED */}
 ^is_vul_magic{S}     {/* DEPRECATED */}
@@ -725,7 +725,7 @@ lex_error = 0;
 ^is_proof_physical{S} {/* DEPRECATED */}
 ^is_vul_sphere{S}    {/* DEPRECATED */}
 ^is_proof_sphere{S}  {/* DEPRECATED */}
-^is_indestructible{S} SET_CLEAR_FLAG(op, FLAG_INDESTRUCTIBLE, IVAL);
+^is_indestructible{S} CHANGE_FLAG(op, FLAG_INDESTRUCTIBLE, IVAL);
 
     /* Ignore editor_folder values. */
 ^editor_folder{S}    {}
