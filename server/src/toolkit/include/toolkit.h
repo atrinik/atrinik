@@ -274,7 +274,7 @@ typedef struct toolkit_dependency {
 
 #define BIT_MASK(_bit) ((uintmax_t) 1 << (_bit))
 
-#define BIT_QUERY(_val, _bit) ((_val) & BIT_MASK(_bit))
+#define BIT_QUERY(_val, _bit) (((_val) & BIT_MASK(_bit)) != 0)
 #define BIT_SET(_val, _bit) BITMASK_SET(_val, BIT_MASK(_bit))
 #define BIT_CLEAR(_val, _bit) BITMASK_CLEAR(_val, BIT_MASK(_bit))
 #define BIT_FLIP(_val, _bit) BITMASK_FLIP(_val, BIT_MASK(_bit))
