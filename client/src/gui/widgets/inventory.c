@@ -771,18 +771,13 @@ object *widget_inventory_get_selected(widgetdata *widget)
  */
 void widget_inventory_handle_arrow_key(widgetdata *widget, SDLKey key)
 {
-    inventory_struct *inventory;
-    int selected;
-    uint32_t offset;
-
-    inventory = INVENTORY(widget);
+    inventory_struct *inventory = INVENTORY(widget);
 
     if (INVENTORY_COLS(inventory) == 0) {
         return;
     }
 
-    selected = inventory->selected;
-
+    int selected = inventory->selected;
     switch (key) {
     case SDLK_UP:
         selected -= INVENTORY_COLS(inventory);
@@ -819,7 +814,7 @@ void widget_inventory_handle_arrow_key(widgetdata *widget, SDLKey key)
         widget->redraw = 1;
     }
 
-    offset = MAX(0, selected / INVENTORY_COLS(inventory));
+    uint32_t offset = MAX(0, selected / INVENTORY_COLS(inventory));
 
     if (inventory->scrollbar_info.scroll_offset > offset) {
         inventory->scrollbar_info.scroll_offset = offset;
