@@ -209,10 +209,10 @@
 #endif
 
 /** Used for faces. */
-typedef unsigned short Fontindex;
+typedef uint16_t Fontindex;
 
 /** Object unique IDs. */
-typedef unsigned int tag_t;
+typedef uint32_t tag_t;
 
 /* Only C99 has lrint. */
 #if !defined(_ISOC99_SOURCE) && (!defined(_POSIX_C_SOURCE) || _POSIX_C_SOURCE < 200112L)
