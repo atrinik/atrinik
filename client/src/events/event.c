@@ -71,7 +71,7 @@ int event_dragging_need_redraw(void)
     return 0;
 }
 
-void event_dragging_start(int tag, int mx, int my)
+void event_dragging_start(tag_t tag, int mx, int my)
 {
     dragging_old_mx = -1;
     dragging_old_my = -1;

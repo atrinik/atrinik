@@ -742,32 +742,16 @@ void socket_command_item_examine(socket_struct *ns, player *pl, uint8_t *data, s
 }
 
 /**
- * Remove any quickslots of player 'pl' matching slot 'slot'.
- * @param slot ID of the quickslot to look for.
- * @param pl Inside which player to search in. */
-static void remove_quickslot(uint8_t slot, player *pl)
-{
-    object *tmp;
-
-    for (tmp = pl->ob->inv; tmp; tmp = tmp->below) {
-        if (tmp->quickslot && tmp->quickslot == slot) {
-            tmp->quickslot = 0;
-        }
-    }
-}
-
-/**
  * Send quickslots to player.
  * @param pl Player to send the quickslots to. */
 void send_quickslots(player *pl)
 {
-    packet_struct *packet;
-    object *tmp;
+    HARD_ASSERT(pl != NULL);
 
-    packet = packet_new(CLIENT_CMD_QUICKSLOT, 256, 256);
+    packet_struct *packet = packet_new(CLIENT_CMD_QUICKSLOT, 256, 256);
 
-    for (tmp = pl->ob->inv; tmp; tmp = tmp->below) {
-        if (tmp->quickslot) {
+    for (object *tmp = pl->ob->inv; tmp != NULL; tmp = tmp->below) {
+        if (tmp->quickslot != 0) {
             packet_debug_data(packet, 0, "\nQuickslot ID");
             packet_append_uint8(packet, tmp->quickslot - 1);
             packet_debug_data(packet, 0, "Object ID");
@@ -778,34 +762,36 @@ void send_quickslots(player *pl)
     socket_send_packet(&pl->socket, packet);
 }
 
-void socket_command_quickslot(socket_struct *ns, player *pl, uint8_t *data, size_t len, size_t pos)
+void socket_command_quickslot(socket_struct *ns, player *pl, uint8_t *data,
+        size_t len, size_t pos)
 {
-    uint8_t quickslot;
-    int32_t tag;
-    object *op;
-
-    quickslot = packet_to_uint8(data, len, &pos);
-
+    uint8_t quickslot = packet_to_uint8(data, len, &pos);
     if (quickslot < 1 || quickslot > MAX_QUICKSLOT) {
         return;
     }
 
-    tag = packet_to_int32(data, len, &pos);
-
-    if (!tag) {
-        return;
+    // TODO: replace with tag_t once the compatibility code is removed.
+    int64_t tag;
+    if (ns->socket_version >= 1061) {
+        tag = packet_to_uint32(data, len, &pos);
+    } else {
+        tag = packet_to_int32(data, len, &pos);
     }
 
-    remove_quickslot(quickslot, pl);
-
-    if (tag != -1) {
-        op = esrv_get_ob_from_count(pl->ob, tag);
-
-        if (!op) {
-            return;
+    bool removed_quickslot = false;
+    // TODO: replace with "tag == 0" once the compatibility code is removed.
+    bool set_quickslot = tag <= 0;
+    for (object *tmp = pl->ob->inv; tmp != NULL && (!removed_quickslot ||
+            !set_quickslot); tmp = tmp->below) {
+        if (!removed_quickslot && tmp->quickslot == quickslot) {
+            tmp->quickslot = 0;
+            removed_quickslot = true;
         }
 
-        op->quickslot = quickslot;
+        if (!set_quickslot && tmp->count == tag) {
+            tmp->quickslot = quickslot;
+            set_quickslot = true;
+        }
     }
 }
 
