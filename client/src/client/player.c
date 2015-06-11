@@ -77,7 +77,6 @@ void clear_player(void)
 
     memset(&cpl, 0, sizeof(cpl));
     cpl.stats.Str = cpl.stats.Dex = cpl.stats.Con = cpl.stats.Int = cpl.stats.Pow = -1;
-    cpl.mark_count = -1;
     objects_init();
     quickslots_init();
     init_player_data();
@@ -127,8 +126,9 @@ void client_send_examine(tag_t tag)
  * Request nrof of objects of tag get moved to loc.
  * @param loc Location where to move the object.
  * @param tag Item tag.
- * @param nrof Number of objects from tag. */
-void client_send_move(int loc, int tag, int nrof)
+ * @param nrof Number of objects from tag.
+ */
+void client_send_move(tag_t loc, tag_t tag, uint32_t nrof)
 {
     packet_struct *packet;
 
@@ -162,8 +162,6 @@ void init_player_data(void)
     cpl.inventory_focus = widget_find(NULL, INVENTORY_ID, "below", NULL);
     SetPriorityWidget(cpl.inventory_focus);
 
-    cpl.container_tag = -996;
-
     cpl.stats.maxsp = 1;
     cpl.stats.maxhp = 1;
 
@@ -175,8 +173,6 @@ void init_player_data(void)
     /* Avoid division by 0 errors */
     cpl.stats.maxsp = 1;
     cpl.stats.maxhp = 1;
-
-    cpl.container_tag = -997;
 }
 
 /**

@@ -58,10 +58,10 @@ typedef struct obj {
     char s_name[NAME_LEN];
 
     /** Item identifier (0 = free). */
-    int32_t tag;
+    uint32_t tag;
 
     /** Number of items. */
-    int32_t nrof;
+    uint32_t nrof;
 
     /** How much item weights. */
     double weight;

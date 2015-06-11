@@ -85,11 +85,9 @@ void objects_free(object *op)
  * @param op Object to search in.
  * @param tag ID of the object we're looking for.
  * @return Matching object if found, NULL otherwise. */
-object *object_find_object_inv(object *op, int32_t tag)
+object *object_find_object_inv(object *op, tag_t tag)
 {
-    object *tmp;
-
-    for (tmp = op->inv; tmp; tmp = tmp->next) {
+    for (object *tmp = op->inv; tmp != NULL; tmp = tmp->next) {
         if (tmp->tag == tag) {
             return op;
         }
@@ -103,15 +101,14 @@ object *object_find_object_inv(object *op, int32_t tag)
  * @param op Object to search in.
  * @param tag ID of the object we're looking for.
  * @return Matching object if found, NULL otherwise. */
-object *object_find_object(object *op, int32_t tag)
+object *object_find_object(object *op, tag_t tag)
 {
-    for (; op; op = op->next) {
+    for ( ; op != NULL; op = op->next) {
         if (op->tag == tag) {
             return op;
-        } else if (op->inv) {
+        } else if (op->inv != NULL) {
             object *tmp = object_find_object(op->inv, tag);
-
-            if (tmp) {
+            if (tmp != NULL) {
                 return tmp;
             }
         }
@@ -123,33 +120,22 @@ object *object_find_object(object *op, int32_t tag)
 /**
  * Attempts to find an object by its tag, wherever it may be.
  * @param tag Tag to look for.
- * @return Matching object if found, NULL otherwise. */
-object *object_find(int32_t tag)
+ * @return Matching object if found, NULL otherwise.
+ */
+object *object_find(tag_t tag)
 {
-    object *op;
-
-    if (tag == 0) {
-        return cpl.below;
-    }
-
-    if (tag == -1) {
-        return cpl.sack;
-    }
-
     /* Below the player. */
-    if (cpl.below) {
-        op = object_find_object(cpl.below->inv, tag);
-
-        if (op) {
+    if (cpl.below != NULL) {
+        object *op = object_find_object(cpl.below, tag);
+        if (op != NULL) {
             return op;
         }
     }
 
     /* Open container. */
-    if (cpl.sack) {
-        op = object_find_object(cpl.sack->inv, tag);
-
-        if (op) {
+    if (cpl.sack != NULL) {
+        object *op = object_find_object(cpl.sack, tag);
+        if (op != NULL) {
             return op;
         }
     }
@@ -206,6 +192,10 @@ void object_remove_inventory(object *op)
 {
     if (!op) {
         return;
+    }
+
+    if (op == cpl.sack) {
+        cpl.sack = NULL;
     }
 
     object_redraw(op);
@@ -267,15 +257,13 @@ static void object_add(object *env, object *op, int bflag)
  * @param bflag If 1, the object will be added to the end of the
  * inventory instead of the start.
  * @return The created object. */
-object *object_create(object *env, int32_t tag, int bflag)
+object *object_create(object *env, tag_t tag, int bflag)
 {
-    object *op;
-
-    op = mempool_get(pool_object);
+    object *op = mempool_get(pool_object);
 
     op->tag = tag;
 
-    if (env) {
+    if (env != NULL) {
         object_add(env, op, bflag);
     }
 
@@ -314,7 +302,7 @@ void object_send_mark(object *op)
     }
 
     if (cpl.mark_count == op->tag) {
-        cpl.mark_count = -1;
+        cpl.mark_count = 0;
     } else {
         cpl.mark_count = op->tag;
     }
@@ -339,13 +327,7 @@ void object_redraw(object *op)
     env = op->env;
 
     if (env == cpl.sack) {
-        object *sack;
-
-        sack = object_find(cpl.container_tag);
-
-        if (sack != NULL) {
-            env = sack->env;
-        }
+        env = cpl.sack->env;
     }
 
     if (env == cpl.below) {
@@ -374,10 +356,8 @@ void objects_init(void)
 {
     cpl.ob = mempool_get(pool_object);
     cpl.below = mempool_get(pool_object);
-    cpl.sack = mempool_get(pool_object);
 
     cpl.below->weight = -111;
-    cpl.sack->weight = -111;
 }
 
 /**
@@ -454,7 +434,10 @@ void animate_objects(void)
 {
     animate_inventory(cpl.ob);
     animate_inventory(cpl.below);
-    animate_inventory(cpl.sack);
+
+    if (cpl.sack != NULL) {
+        animate_inventory(cpl.sack);
+    }
 }
 
 /**

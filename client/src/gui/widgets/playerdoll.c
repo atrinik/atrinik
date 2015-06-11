@@ -254,7 +254,7 @@ static int widget_event(widgetdata *widget, SDL_Event *event)
                 }
 
                 if (obj->nrof > 1) {
-                    snprintfcat(buf, sizeof(buf), "%d %s", obj->nrof,
+                    snprintfcat(buf, sizeof(buf), "%" PRIu32 " %s", obj->nrof,
                             obj->s_name);
                 } else {
                     strncat(buf, obj->s_name, sizeof(buf) - strlen(buf) - 1);

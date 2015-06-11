@@ -116,7 +116,7 @@ typedef struct Player_Struct {
     object *sack;
 
     /** Tag of the open container. */
-    int32_t container_tag;
+    tag_t container_tag;
 
     /** Player's weight limit. */
     float weight_limit;
@@ -136,7 +136,7 @@ typedef struct Player_Struct {
     int warn_hp;
 
     /** Currently marked item. */
-    int mark_count;
+    tag_t mark_count;
 
     /** HP regeneration. */
     float gen_hp;

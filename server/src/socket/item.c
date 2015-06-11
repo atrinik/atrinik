@@ -363,7 +363,9 @@ void esrv_draw_look(object *pl)
 
     packet = packet_new(CLIENT_CMD_ITEM, 512, 256);
     packet_enable_ndelay(packet);
-    packet_debug_data(packet, 0, "Container mode flag");
+    packet_debug_data(packet, 0, "Delete inventory flag");
+    packet_append_uint8(packet, 1);
+    packet_debug_data(packet, 0, "Inventory to delete ID");
     packet_append_uint32(packet, 0);
     packet_debug_data(packet, 0, "Target inventory ID");
     packet_append_uint32(packet, 0);
@@ -457,18 +459,29 @@ void esrv_draw_look(object *pl)
 
 /**
  * Close a container.
- * @param op Player to close container of. */
-void esrv_close_container(object *op)
+ * @param pl Player to close container of.
+ * @param op The container.
+ */
+void esrv_close_container(object *pl, object *op)
 {
     packet_struct *packet;
 
     packet = packet_new(CLIENT_CMD_ITEM, 32, 0);
     packet_enable_ndelay(packet);
-    packet_debug_data(packet, 0, "Container mode flag");
-    packet_append_int32(packet, -1);
-    packet_debug_data(packet, 0, "Target inventory ID");
-    packet_append_int32(packet, -1);
-    socket_send_packet(&CONTR(op)->socket, packet);
+
+    if (CONTR(pl)->socket.socket_version >= 1061) {
+        packet_debug_data(packet, 0, "Delete inventory flag");
+        packet_append_uint8(packet, 1);
+        packet_debug_data(packet, 0, "Inventory to delete ID");
+        packet_append_uint32(packet, op->count);
+    } else {
+        packet_debug_data(packet, 0, "Container mode flag");
+        packet_append_int32(packet, -1);
+        packet_debug_data(packet, 0, "Target inventory ID");
+        packet_append_int32(packet, -1);
+    }
+
+    socket_send_packet(&CONTR(pl)->socket, packet);
 }
 
 /**
@@ -483,14 +496,22 @@ void esrv_send_inventory(object *pl, object *op)
 
     packet = packet_new(CLIENT_CMD_ITEM, 128, 256);
     packet_enable_ndelay(packet);
-    packet_debug_data(packet, 0, "Container mode flag");
 
-    /* In this case we're sending a container inventory */
-    if (pl != op) {
-        /* Container mode flag */
-        packet_append_int32(packet, -1);
+    if (CONTR(pl)->socket.socket_version >= 1061) {
+        packet_debug_data(packet, 0, "Delete inventory flag");
+        packet_append_uint8(packet, 1);
+        packet_debug_data(packet, 0, "Inventory to delete ID");
+        packet_append_uint32(packet, op->count);
     } else {
-        packet_append_int32(packet, op->count);
+        packet_debug_data(packet, 0, "Container mode flag");
+
+        /* In this case we're sending a container inventory */
+        if (pl != op) {
+            /* Container mode flag */
+            packet_append_int32(packet, -1);
+        } else {
+            packet_append_int32(packet, op->count);
+        }
     }
 
     packet_debug_data(packet, 0, "Target inventory ID");
@@ -578,8 +599,15 @@ static void esrv_send_item_send(object *pl, object *op)
 
     packet = packet_new(CLIENT_CMD_ITEM, 64, 128);
     packet_enable_ndelay(packet);
-    packet_debug_data(packet, 0, "Container mode flag");
-    packet_append_int32(packet, -4);
+
+    if (CONTR(pl)->socket.socket_version >= 1061) {
+        packet_debug_data(packet, 0, "Delete inventory flag");
+        packet_append_uint8(packet, 0);
+    } else {
+        packet_debug_data(packet, 0, "Container mode flag");
+        packet_append_int32(packet, -4);
+    }
+
     packet_debug_data(packet, 0, "Target inventory ID");
     packet_append_uint32(packet, op->env->count);
     packet_debug_data(packet, 0, "End flag");

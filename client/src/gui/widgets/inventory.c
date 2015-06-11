@@ -52,8 +52,8 @@ const char *inventory_filter_names[INVENTORY_FILTER_MAX] = {
  */
 static int inventory_matches_filter(object *op)
 {
-    /* No filtering of objects in the below inventory. */
-    if (op->env == cpl.below) {
+    /* No filtering of objects in the below inventory or in a sack. */
+    if (op->env == cpl.below || op->env == cpl.sack) {
         return 1;
     }
 
@@ -62,11 +62,6 @@ static int inventory_matches_filter(object *op)
             op->itype == TYPE_FORCE || op->itype == TYPE_POISONING ||
             op->itype == TYPE_REGION_MAP) {
         return 0;
-    }
-
-    /* Always show open container, and the items inside. */
-    if (cpl.container_tag == op->tag || (op->env && op->env->env)) {
-        return 1;
     }
 
     if (inventory_filter == INVENTORY_FILTER_ALL) {
@@ -242,14 +237,14 @@ static int inventory_render_object(widgetdata *widget, object *ob, uint32_t i,
     }
 
     /* If the object is marked, show that. */
-    if (ob->tag == cpl.mark_count) {
+    if (ob->tag != 0 && ob->tag == cpl.mark_count) {
         surface_show(widget->surface, x, y, NULL,
                 TEXTURE_CLIENT("invslot_marked"));
     }
 
     /* If it's the currently open container, add the 'container
      * start' graphic. */
-    if (ob->tag == cpl.container_tag) {
+    if (ob == cpl.sack) {
         surface_show(widget->surface, x, y, NULL,
                 TEXTURE_CLIENT("cmark_start"));
     } else if (ob->env == cpl.sack) {
@@ -280,7 +275,7 @@ static int inventory_render_object(widgetdata *widget, object *ob, uint32_t i,
 
     /* Construct the name */
     if (ob->nrof > 1) {
-        snprintfcat(VS(buf), "%d %s", ob->nrof, ob->s_name);
+        snprintfcat(VS(buf), "%" PRIu32 " %s", ob->nrof, ob->s_name);
     } else {
         snprintfcat(VS(buf), "%s", ob->s_name);
     }
@@ -374,13 +369,13 @@ static int inventory_render_object(widgetdata *widget, object *ob, uint32_t i,
 /** @copydoc event_drag_cb_fnc */
 static void event_drag_cb(void)
 {
-    object *dragging, *sack;
+    object *dragging;
 
     dragging = object_find(cpl.dragging_tag);
-    sack = object_find(cpl.container_tag);
     SOFT_ASSERT(dragging != NULL, "Not dragging anything!");
 
-    if (dragging->env == cpl.ob || (sack != NULL && sack->env == cpl.ob)) {
+    if (dragging->env == cpl.ob || (cpl.sack != NULL &&
+            cpl.sack->env == cpl.ob)) {
         widgetdata *widget = widget_find(NULL, INVENTORY_ID, "main", NULL);
         SOFT_ASSERT(widget != NULL, "Could not find widget");
         menu_inventory_drop(widget, NULL, NULL);
@@ -470,8 +465,8 @@ static void widget_draw(widgetdata *widget)
         inventory_render_object(widget, tmp, i, &r, -1, -1);
         i++;
 
-        if (cpl.container_tag == tmp->tag) {
-            for (tmp2 = cpl.sack->inv; tmp2; tmp2 = tmp2->next) {
+        if (cpl.sack == tmp) {
+            for (tmp2 = tmp->inv; tmp2; tmp2 = tmp2->next) {
                 if (!inventory_matches_filter(tmp2)) {
                     continue;
                 }
@@ -525,10 +520,9 @@ static int widget_event(widgetdata *widget, SDL_Event *event)
         object *tmp, *tmp2, *found;
 
         if (event_dragging_check()) {
-            object *dragging, *target_env, *sack;
+            object *dragging, *target_env;
 
             dragging = object_find(cpl.dragging_tag);
-            sack = object_find(cpl.container_tag);
 
             if (inventory->display == INVENTORY_DISPLAY_BELOW) {
                 target_env = cpl.below;
@@ -536,15 +530,17 @@ static int widget_event(widgetdata *widget, SDL_Event *event)
                 target_env = cpl.ob;
             }
 
-            if (sack != NULL && dragging != sack &&
-                    (dragging->env == cpl.sack || dragging->env == sack->env)) {
-                if (sack->env == cpl.ob && target_env == cpl.below) {
+            if (cpl.sack != NULL && dragging != cpl.sack &&
+                    (dragging->env == cpl.sack ||
+                    dragging->env == cpl.sack->env)) {
+                if (cpl.sack->env == cpl.ob && target_env == cpl.below) {
                     widgetdata *inv = widget_find(NULL, INVENTORY_ID, "main",
                             NULL);
                     SOFT_ASSERT_RC(inv != NULL, 0, "Could not find widget");
                     menu_inventory_drop(inv, NULL, NULL);
                 } else {
-                    const char *id = sack->env == cpl.below ? "below" : "main";
+                    const char *id = cpl.sack->env == cpl.below ? "below" :
+                        "main";
                     widgetdata *inv = widget_find(NULL, INVENTORY_ID, id, NULL);
                     SOFT_ASSERT_RC(inv != NULL, 0, "Could not find widget");
                     menu_inventory_get(inv, NULL, NULL);
@@ -586,8 +582,8 @@ static int widget_event(widgetdata *widget, SDL_Event *event)
 
             i++;
 
-            if (cpl.container_tag == tmp->tag) {
-                for (tmp2 = cpl.sack->inv; tmp2; tmp2 = tmp2->next) {
+            if (cpl.sack == tmp) {
+                for (tmp2 = tmp->inv; tmp2; tmp2 = tmp2->next) {
                     if (!inventory_matches_filter(tmp2)) {
                         continue;
                     }
@@ -706,8 +702,8 @@ uint32_t widget_inventory_num_items(widgetdata *widget)
 
         i++;
 
-        if (cpl.container_tag == tmp->tag) {
-            for (object *tmp2 = cpl.sack->inv; tmp2 != NULL;
+        if (cpl.sack == tmp) {
+            for (object *tmp2 = tmp->inv; tmp2 != NULL;
                     tmp2 = tmp2->next) {
                 if (!inventory_matches_filter(tmp2)) {
                     continue;
@@ -745,8 +741,8 @@ object *widget_inventory_get_selected(widgetdata *widget)
 
         i++;
 
-        if (cpl.container_tag == tmp->tag) {
-            for (object *tmp2 = cpl.sack->inv; tmp2 != NULL;
+        if (cpl.sack == tmp) {
+            for (object *tmp2 = tmp->inv; tmp2 != NULL;
                     tmp2 = tmp2->next) {
                 if (!inventory_matches_filter(tmp2)) {
                     continue;
@@ -855,7 +851,7 @@ void object_show_inventory(SDL_Surface *surface, object *tmp, int x, int y)
         if (tmp->nrof > 9999) {
             snprintf(buf, sizeof(buf), "many");
         } else {
-            snprintf(buf, sizeof(buf), "%d", tmp->nrof);
+            snprintf(buf, sizeof(buf), "%" PRIu32, tmp->nrof);
         }
 
         box.w = INVENTORY_ICON_SIZE;
@@ -926,16 +922,15 @@ void menu_inventory_drop(widgetdata *widget, widgetdata *menuitem,
         return;
     }
 
-    object *container = object_find(cpl.container_tag);
-    int32_t loc;
+    uint32_t loc;
 
-    if (container != NULL && container->env == cpl.below) {
-        loc = container->tag;
+    if (cpl.sack != NULL && cpl.sack->env == cpl.below) {
+        loc = cpl.sack->tag;
     } else {
         loc = cpl.below->tag;
     }
 
-    int32_t nrof = ob->nrof;
+    uint32_t nrof = ob->nrof;
 
     if (nrof == 1) {
         nrof = 0;
@@ -948,10 +943,10 @@ void menu_inventory_drop(widgetdata *widget, widgetdata *menuitem,
         input = cur_widget[INPUT_ID]->subwidget;
 
         snprintf(input->title_text, sizeof(input->title_text),
-                "Drop how many from %d %s?", nrof, ob->s_name);
+                "Drop how many from %" PRIu32 " %s?", nrof, ob->s_name);
         snprintf(input->prepend_text, sizeof(input->prepend_text),
-                "/droptag %d %d ", loc, ob->tag);
-        snprintf(buf, sizeof(buf), "%d", nrof);
+                "/droptag %" PRIu32 " %" PRIu32 " ", loc, ob->tag);
+        snprintf(VS(buf), "%" PRIu32, nrof);
         text_input_set(&input->text_input, buf);
         input->text_input.character_check_func =
                 text_input_number_character_check;
@@ -994,17 +989,16 @@ void menu_inventory_get(widgetdata *widget, widgetdata *menuitem,
         return;
     }
 
-    object *container = object_find(cpl.container_tag);
     inventory_struct *inventory = INVENTORY(widget);
-    int32_t loc;
+    tag_t loc;
 
     if (inventory->display == INVENTORY_DISPLAY_MAIN) {
         /* Need to have an open container to do 'get' in main inventory... */
-        if (container == NULL) {
+        if (cpl.sack == NULL) {
             draw_info(COLOR_DGOLD, "You have no open container to put it in.");
             return;
         } else {
-            if (container->env != cpl.ob) {
+            if (cpl.sack->env != cpl.ob) {
                 /* Open container not in main inventory... */
                 draw_info(COLOR_DGOLD, "You already have it.");
                 return;
@@ -1014,23 +1008,23 @@ void menu_inventory_get(widgetdata *widget, widgetdata *menuitem,
                 loc = cpl.ob->tag;
             } else {
                 /* Put the object into the open container. */
-                loc = container->tag;
+                loc = cpl.sack->tag;
             }
         }
     } else {
-        if (container != NULL && container->env == cpl.below &&
-                container->tag != ob->tag && ob->env != cpl.sack) {
+        if (cpl.sack != NULL && cpl.sack->env == cpl.below &&
+                cpl.sack->tag != ob->tag && ob->env != cpl.sack) {
             /* If there is an open container on the ground and the item to
              * 'get' is not the container and it's not inside the container,
              * put it into the container. */
-            loc = container->tag;
+            loc = cpl.sack->tag;
         } else {
             /* Otherwise pick it up into the player's inventory. */
             loc = cpl.ob->tag;
         }
     }
 
-    int32_t nrof = ob->nrof;
+    uint32_t nrof = ob->nrof;
 
     if (nrof == 1) {
         nrof = 0;
@@ -1043,10 +1037,10 @@ void menu_inventory_get(widgetdata *widget, widgetdata *menuitem,
         input = cur_widget[INPUT_ID]->subwidget;
 
         snprintf(input->title_text, sizeof(input->title_text),
-                "Take how many from %d %s?", nrof, ob->s_name);
+                "Take how many from %" PRIu32 " %s?", nrof, ob->s_name);
         snprintf(input->prepend_text, sizeof(input->prepend_text),
-                "/gettag %d %d ", loc, ob->tag);
-        snprintf(buf, sizeof(buf), "%d", nrof);
+                "/gettag %" PRIu32 " %" PRIu32 " ", loc, ob->tag);
+        snprintf(VS(buf), "%" PRIu32, nrof);
         text_input_set(&input->text_input, buf);
         input->text_input.character_check_func =
                 text_input_number_character_check;

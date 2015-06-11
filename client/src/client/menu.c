@@ -233,19 +233,19 @@ int client_command_check(const char *cmd)
         }
 
         return 1;
-    } else if (string_startswith(cmd, "/droptag ") || string_startswith(cmd, "/gettag ")) {
+    } else if (string_startswith(cmd, "/droptag ") ||
+            string_startswith(cmd, "/gettag ")) {
         char *cps[3];
-        tag_t loc, tag;
-        uint32_t num;
+        unsigned long int loc, tag, num;
 
-        if (string_split(strchr(cmd, ' ') + 1, cps, arraysize(cps), ' ') != arraysize(cps)) {
+        if (string_split(strchr(cmd, ' ') + 1, cps, arraysize(cps), ' ') !=
+                arraysize(cps)) {
             return 1;
         }
 
-        loc = atoi(cps[0]);
-        tag = atoi(cps[1]);
-        num = atoi(cps[2]);
-
+        loc = strtoul(cps[0], NULL, 10);
+        tag = strtoul(cps[1], NULL, 10);
+        num = strtoul(cps[2], NULL, 10);
         client_send_move(loc, tag, num);
 
         if (string_startswith(cmd, "/gettag ")) {

@@ -502,59 +502,52 @@ static void command_item_update(uint8_t *data, size_t len, size_t *pos, uint32_t
 /** @copydoc socket_command_struct::handle_func */
 void socket_command_item(uint8_t *data, size_t len, size_t pos)
 {
-    int32_t dmode, loc;
-    uint32_t tag, flags;
-    object *env, *tmp;
-    uint8_t bflag;
-
-    dmode = packet_to_int32(data, len, &pos);
-    loc = packet_to_int32(data, len, &pos);
-
-    if (dmode >= 0) {
-        object_remove_inventory(object_find(loc));
-    }
-
-    if (dmode == -4) { /* send item flag */
-        /* and redirect it to our invisible sack */
-        if (loc == cpl.container_tag) {
-            loc = -1;
-        }
-    } else if (dmode == -1) { /* container flag! */
-        /* we catch the REAL container tag */
-        cpl.container_tag = loc;
-        object_remove_inventory(object_find(-1));
-
-        /* if this happens, we want to close the container */
-        if (loc == -1) {
-            cpl.container_tag = -998;
+    if (packet_to_uint8(data, len, &pos) == 1) {
+        tag_t loc_delete = packet_to_uint32(data, len, &pos);
+        object *env = object_find(loc_delete);
+        if (env == NULL) {
+            LOG(ERROR, "Server sent invalid location to delete: %" PRIu32,
+                    loc_delete);
             return;
         }
 
-        /* and redirect it to our invisible sack */
-        loc = -1;
+        object_remove_inventory(env);
+
+        if (pos == len) {
+            return;
+        }
     }
 
-    bflag = packet_to_uint8(data, len, &pos);
+    tag_t loc = packet_to_uint32(data, len, &pos);
+    object *env = object_find(loc);
+    if (env == NULL) {
+        LOG(ERROR, "Server sent invalid location: %" PRIu32, loc);
+        return;
+    }
 
-    env = object_find(loc);
+    if (env != cpl.below && env != cpl.ob) {
+        cpl.sack = env;
+    }
+
+    uint8_t bflag = packet_to_uint8(data, len, &pos);
 
     while (pos < len) {
-        tag = packet_to_uint32(data, len, &pos);
-        tmp = object_find(tag);
+        tag_t tag = packet_to_uint32(data, len, &pos);
+        object *tmp = object_find(tag);
 
-        if (tmp && tmp->env != env) {
+        if (tmp != NULL && tmp->env != env) {
             object_remove(tmp);
             tmp = NULL;
         }
 
-        if (!tmp) {
+        if (tmp == NULL) {
             tmp = object_create(env, tag, bflag);
         }
 
-        flags = UPD_FLAGS | UPD_WEIGHT | UPD_FACE | UPD_DIRECTION | UPD_NAME |
-                UPD_ANIM | UPD_ANIMSPEED | UPD_NROF | UPD_GLOW;
+        uint32_t flags = UPD_FLAGS | UPD_WEIGHT | UPD_FACE | UPD_DIRECTION |
+                UPD_NAME | UPD_ANIM | UPD_ANIMSPEED | UPD_NROF | UPD_GLOW;
 
-        if (loc) {
+        if (loc > 0) {
             flags |= UPD_TYPE | UPD_EXTRA;
         }
 

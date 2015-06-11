@@ -204,7 +204,7 @@ int container_close(object *applier, object *op)
         pl->container_below = NULL;
         pl->container = NULL;
         pl->container_count = 0;
-        esrv_close_container(applier);
+        esrv_close_container(applier, op);
     } else if (op) {
         object *tmp, *next;
 
@@ -232,7 +232,7 @@ int container_close(object *applier, object *op)
             CONTR(tmp)->container_count = 0;
             CONTR(tmp)->container_below = NULL;
             CONTR(tmp)->container_above = NULL;
-            esrv_close_container(tmp);
+            esrv_close_container(tmp, op);
         }
 
         op->attacked_by = NULL;
