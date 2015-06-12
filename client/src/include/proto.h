@@ -138,7 +138,7 @@ extern const char *gender_possessive[4];
 extern const char *gender_reflexive[4];
 extern void clear_player(void);
 extern void new_player(tag_t tag, long weight, short face);
-extern void client_send_apply(tag_t tag);
+extern void client_send_apply(object *op);
 extern void client_send_examine(tag_t tag);
 extern void client_send_move(tag_t loc, tag_t tag, uint32_t nrof);
 extern void send_command(const char *command);

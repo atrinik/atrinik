@@ -170,7 +170,7 @@ static int quickslots_trigger(widgetdata *widget, uint32_t row, uint32_t col)
         }
     }
 
-    client_send_apply(tag);
+    client_send_apply(ob);
     return 1;
 }
 

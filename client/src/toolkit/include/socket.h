@@ -638,6 +638,16 @@ enum {
 /*@}*/
 
 /**
+ * @defgroup CMD_APPLY_ACTION_xxx Apply action types
+ * Used for special handling of the apply command.
+ *@{*/
+#define CMD_APPLY_ACTION_NORMAL 0 ///< Normal apply. Not transmitted.
+#define CMD_APPLY_ACTION_NONE 1 ///< No action.
+#define CMD_APPLY_ACTION_BELOW_NEXT 2 ///< Next group of items.
+#define CMD_APPLY_ACTION_BELOW_PREV 3 ///< Previous group of items.
+/*@}*/
+
+/**
  * Player equipment.
  * @anchor PLAYER_EQUIP_xxx */
 enum {

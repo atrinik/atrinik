@@ -53,7 +53,7 @@ int client_command_check(const char *cmd)
             for (tmp = cpl.ob->inv; tmp; tmp = tmp->next) {
                 if (tmp->itype == TYPE_SPELL && strncasecmp(tmp->s_name, cmd, strlen(cmd)) == 0) {
                     if (!(tmp->flags & CS_FLAG_APPLIED)) {
-                        client_send_apply(tmp->tag);
+                        client_send_apply(tmp);
                     }
 
                     return 1;
@@ -75,7 +75,7 @@ int client_command_check(const char *cmd)
             for (tmp = cpl.ob->inv; tmp; tmp = tmp->next) {
                 if (tmp->itype == TYPE_SKILL && strncasecmp(tmp->s_name, cmd, strlen(cmd)) == 0) {
                     if (!(tmp->flags & CS_FLAG_APPLIED)) {
-                        client_send_apply(tmp->tag);
+                        client_send_apply(tmp);
                     }
 
                     return 1;

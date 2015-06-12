@@ -1220,7 +1220,7 @@ void widget_inventory_handle_apply(widgetdata *widget)
     }
 
     draw_info_format(COLOR_DGOLD, "apply %s", ob->s_name);
-    client_send_apply(ob->tag);
+    client_send_apply(ob);
 }
 
 /**

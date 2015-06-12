@@ -100,13 +100,19 @@ void new_player(tag_t tag, long weight, short face)
 
 /**
  * Send apply command to server.
- * @param tag Item tag. */
-void client_send_apply(tag_t tag)
+ * @param op Object to apply.
+ */
+void client_send_apply(object *op)
 {
     packet_struct *packet;
 
     packet = packet_new(SERVER_CMD_ITEM_APPLY, 8, 0);
-    packet_append_uint32(packet, tag);
+    packet_append_uint32(packet, op->tag);
+
+    if (op->tag == 0) {
+        packet_append_uint8(packet, op->apply_action);
+    }
+
     socket_send_packet(packet);
 }
 

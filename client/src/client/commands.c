@@ -533,7 +533,14 @@ void socket_command_item(uint8_t *data, size_t len, size_t pos)
 
     while (pos < len) {
         tag_t tag = packet_to_uint32(data, len, &pos);
-        object *tmp = object_find(tag);
+        uint8_t apply_action = CMD_APPLY_ACTION_NORMAL;
+
+        object *tmp = NULL;
+        if (tag != 0) {
+            tmp = object_find(tag);
+        } else {
+            apply_action = packet_to_uint8(data, len, &pos);
+        }
 
         if (tmp != NULL && tmp->env != env) {
             object_remove(tmp);
@@ -542,6 +549,7 @@ void socket_command_item(uint8_t *data, size_t len, size_t pos)
 
         if (tmp == NULL) {
             tmp = object_create(env, tag, bflag);
+            tmp->apply_action = apply_action;
         }
 
         uint32_t flags = UPD_FLAGS | UPD_WEIGHT | UPD_FACE | UPD_DIRECTION |

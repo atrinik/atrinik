@@ -1238,9 +1238,8 @@
 #define HI4    240
 /*@}*/
 
+/** Name of the blank face. */
 #define BLANK_FACE_NAME "blank.111"
-#define NEXT_ITEM_FACE_NAME "next_item.101"
-#define PREVIOUS_ITEM_FACE_NAME "prev_item.101"
 
 /**
  * Simple function we use below to keep adding to the same string

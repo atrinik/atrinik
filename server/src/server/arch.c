@@ -62,7 +62,8 @@ static object *clone_op;
  */
 static const char *const arch_names[ARCH_MAX] = {
     "waypoint", "empty_archetype", "base_info", "level_up", "ring_normal",
-    "ring_generic", "amulet_normal", "amulet_generic"
+    "ring_generic", "amulet_normal", "amulet_generic", "inv_group_next",
+    "inv_group_prev", "inv_start", "inv_end"
 };
 
 /* Prototypes */

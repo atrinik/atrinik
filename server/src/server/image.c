@@ -54,11 +54,6 @@ struct bmappair {
  * sorted) contains ::nroffiles entries. */
 static struct bmappair *xbm = NULL;
 
-/**
- * Following can just as easily be pointers, but
- * it is easier to keep them like this. */
-New_Face *blank_face, *next_item_face, *prev_item_face;
-
 /** The actual number of bitmaps defined. */
 int nroffiles = 0;
 
@@ -154,10 +149,6 @@ int read_bmap_names(void)
     nrofpixmaps++;
 
     qsort(xbm, nrofbmaps, sizeof(struct bmappair), compar);
-
-    blank_face = &new_faces[find_face(BLANK_FACE_NAME, 0)];
-    next_item_face = &new_faces[find_face(NEXT_ITEM_FACE_NAME, 0)];
-    prev_item_face = &new_faces[find_face(PREVIOUS_ITEM_FACE_NAME, 0)];
 
     return nrofpixmaps;
 }

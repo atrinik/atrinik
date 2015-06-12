@@ -255,9 +255,6 @@ extern void hiscore_check(object *op, int quiet);
 extern void hiscore_display(object *op, int max, const char *match);
 /* src/server/image.c */
 extern New_Face *new_faces;
-extern New_Face *blank_face;
-extern New_Face *next_item_face;
-extern New_Face *prev_item_face;
 extern int nroffiles;
 extern int nrofpixmaps;
 extern int read_bmap_names(void);

@@ -986,6 +986,11 @@ void object_deinit(void)
  * @return The new object. */
 object *get_object(void)
 {
+    static New_Face *blank_face = NULL;
+    if (blank_face == NULL) {
+        blank_face = &new_faces[find_face(BLANK_FACE_NAME, 0)];
+    }
+
     object *new_obj = mempool_get(pool_object);
 
     SET_FLAG(new_obj, FLAG_REMOVED);

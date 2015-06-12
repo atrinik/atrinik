@@ -57,6 +57,10 @@ enum {
     ARCH_RING_GENERIC, ///< The 'ring_generic' archetype.
     ARCH_AMULET_NORMAL, ///< The 'amulet_normal' archetype.
     ARCH_AMULET_GENERIC, ///< The 'amulet_generic' archetype.
+    ARCH_INV_GROUP_NEXT, ///< The 'inv_group_next' archetype.
+    ARCH_INV_GROUP_PREV, ///< The 'inv_group_prev' archetype.
+    ARCH_INV_START, ///< The 'inv_start' archetype.
+    ARCH_INV_END, ///< The 'inv_end' archetype.
 
     ARCH_MAX ///< Maximum number of cached archetype pointers.
 };

@@ -111,6 +111,9 @@ typedef struct obj {
 
     /** The glow state. */
     uint8_t glow_state;
+
+    /** Action to execute on applying. */
+    uint8_t apply_action;
 } object;
 
 #define TYPE_PLAYER                 1
