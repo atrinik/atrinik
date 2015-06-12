@@ -35,7 +35,8 @@
 void command_take(object *op, const char *command, char *params)
 {
     object *tmp, *next;
-    int did_one = 0, missed = 0, ground_total = 0, ival;
+    int did_one = 0, missed = 0, ival;
+    uint32_t ground_total = 0;
 
     if (!params) {
         draw_info(COLOR_WHITE, op, "Take what?");

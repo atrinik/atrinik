@@ -145,7 +145,7 @@ typedef struct socket_struct {
     uint8_t is_bot;
 
     /** Start of drawing of look window. */
-    int16_t look_position;
+    uint32_t look_position;
 
     /** Faceset the client is using, default 0. */
     uint8_t faceset;
