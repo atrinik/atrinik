@@ -90,15 +90,15 @@ void command_take(object *op, const char *command, char *params)
     if (did_one) {
         living_update(op);
 
-        /* Update below inventory positions for all players on this tile. */
-        for (tmp = GET_MAP_OB_LAYER(op->map, op->x, op->y, LAYER_LIVING, 0); tmp && tmp->layer == LAYER_LIVING; tmp = tmp->above) {
-            /* Ensures the below inventory position is not higher than
-             * the actual number of visible items on the tile. */
-            if (tmp->type == PLAYER && CONTR(tmp) && CONTR(tmp)->socket.look_position > ground_total) {
-                /* Update the visible row of objects. */
-                CONTR(tmp)->socket.look_position = ((int) (((float) ground_total / NUM_LOOK_OBJECTS) - 0.5f)) * NUM_LOOK_OBJECTS;
+        FOR_MAP_LAYER_BEGIN(op->map, op->x, op->y, LAYER_LIVING, -1, tmp) {
+            if (tmp->type != PLAYER) {
+                continue;
             }
-        }
+
+            if (CONTR(tmp)->socket.look_position > ground_total) {
+                CONTR(tmp)->socket.look_position = ground_total;
+            }
+        } FOR_MAP_LAYER_END
     } else if (!missed) {
         draw_info(COLOR_WHITE, op, "Nothing to take.");
     }
