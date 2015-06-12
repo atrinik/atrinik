@@ -578,12 +578,18 @@ static PyObject *Atrinik_Object_Apply(Atrinik_Object *obj, PyObject *args)
     return Py_BuildValue("i", hooks->manual_apply(obj->obj, what->obj, flags));
 }
 
+/** Documentation for Atrinik_Object_Take(). */
+static const char doc_Atrinik_Object_Take[] =
+".. method:: Take(what).\n\n"
+"Forces the object to pick up the specified object.\n\n"
+":param what: What object to pick up. Can be a string instead, in which case "
+"it's equivalent of the /take command.\n"
+":type what: Atrinik.Object.Object or str";
+
 /**
- * <h1>object.Take(object what)</h1>
- * Force 'object' to pick up 'what'.
- * @param what The object to pick up. If a string, this is equivalent of
- * /take command.
- * @throws TypeError if 'what' is neither an Atrinik object nor a string. */
+ * Implements Atrinik.Object.Object.Take() Python method.
+ * @copydoc PyMethod_OBJECT
+ */
 static PyObject *Atrinik_Object_Take(Atrinik_Object *obj, PyObject *what)
 {
     OBJEXISTCHECK(obj);
@@ -594,7 +600,8 @@ static PyObject *Atrinik_Object_Take(Atrinik_Object *obj, PyObject *what)
     } else if (PyString_Check(what)) {
         hooks->command_take(obj->obj, "take", PyString_AsString(what));
     } else {
-        PyErr_SetString(PyExc_TypeError, "Argument 'what' must be either Atrinik object or string.");
+        PyErr_SetString(PyExc_TypeError,
+                "Argument 'what' must be either Atrinik object or string.");
         return NULL;
     }
 
@@ -602,12 +609,18 @@ static PyObject *Atrinik_Object_Take(Atrinik_Object *obj, PyObject *what)
     return Py_None;
 }
 
+/** Documentation for Atrinik_Object_Drop(). */
+static const char doc_Atrinik_Object_Drop[] =
+".. method:: Drop(what).\n\n"
+"Forces the object to drop the specified object.\n\n"
+":param what: What object to drop. Can be a string instead, in which case "
+"it's equivalent of the /drop command.\n"
+":type what: Atrinik.Object.Object or str";
+
 /**
- * <h1>object.Drop(object what)</h1>
- * Make 'object' drop 'what'.
- * @param what Object to drop. If a string, this is equivalent of /drop
- * command.
- * @throws TypeError if 'what' is neither an Atrinik object nor a string. */
+ * Implements Atrinik.Object.Object.Drop() Python method.
+ * @copydoc PyMethod_OBJECT
+ */
 static PyObject *Atrinik_Object_Drop(Atrinik_Object *obj, PyObject *what)
 {
     OBJEXISTCHECK(obj);
@@ -618,7 +631,8 @@ static PyObject *Atrinik_Object_Drop(Atrinik_Object *obj, PyObject *what)
     } else if (PyString_Check(what)) {
         hooks->command_drop(obj->obj, "drop", PyString_AsString(what));
     } else {
-        PyErr_SetString(PyExc_TypeError, "Argument 'what' must be either Atrinik object or string.");
+        PyErr_SetString(PyExc_TypeError,
+                "Argument 'what' must be either Atrinik object or string.");
         return NULL;
     }
 
@@ -626,47 +640,67 @@ static PyObject *Atrinik_Object_Drop(Atrinik_Object *obj, PyObject *what)
     return Py_None;
 }
 
+/** Documentation for Atrinik_Object_Say(). */
+static const char doc_Atrinik_Object_Say[] =
+".. method:: Say(message).\n\n"
+"Makes the object object say a message to everybody in range.\n\n"
+":param message: The message to say.\n"
+":type message: str";
+
 /**
- * <h1>object.Say(string message)</h1>
- * Object says message to everybody on its map.
- * @param message The message to say. */
+ * Implements Atrinik.Object.Object.Say() Python method.
+ * @copydoc PyMethod_VARARGS
+ */
 static PyObject *Atrinik_Object_Say(Atrinik_Object *obj, PyObject *args)
 {
     const char *message;
     char buf[HUGE_BUF];
-    int mode = 0;
 
-    if (!PyArg_ParseTuple(args, "s|i", &message, &mode)) {
+    if (!PyArg_ParseTuple(args, "s", &message)) {
         return NULL;
     }
 
     OBJEXISTCHECK(obj);
 
-    snprintf(buf, sizeof(buf), "%s says: %s", hooks->query_name(obj->obj, NULL), message);
-    hooks->draw_info_map(CHAT_TYPE_GAME, NULL, COLOR_NAVY, obj->obj->map, obj->obj->x, obj->obj->y, MAP_INFO_NORMAL, NULL, NULL, buf);
+    snprintf(VS(buf), "%s says: %s", hooks->query_name(obj->obj, NULL),
+            message);
+    hooks->draw_info_map(CHAT_TYPE_GAME, NULL, COLOR_NAVY, obj->obj->map,
+            obj->obj->x, obj->obj->y, MAP_INFO_NORMAL, NULL, NULL, buf);
 
     Py_INCREF(Py_None);
     return Py_None;
 }
 
+/** Documentation for Atrinik_Object_GetGender(). */
+static const char doc_Atrinik_Object_GetGender[] =
+".. method:: GetGender().\n\n"
+"Acquire object's gender.\n\n"
+":returns: One of the gender constants defined in :mod:`Atrinik.Gender`.\n"
+":rtype: int";
+
 /**
- * <h1>object.GetGender()</h1>
- * Get an object's gender.
- * @return One of the constants from Gender module @ref
- * plugin_python_constants_gender "constants". */
-static PyObject *Atrinik_Object_GetGender(Atrinik_Object *obj, PyObject *args)
+ * Implements Atrinik.Object.Object.GetGender() Python method.
+ * @copydoc PyMethod_NOARGS
+ */
+static PyObject *Atrinik_Object_GetGender(Atrinik_Object *obj)
 {
-    (void) args;
     OBJEXISTCHECK(obj);
 
     return Py_BuildValue("i", hooks->object_get_gender(obj->obj));
 }
 
+/** Documentation for Atrinik_Object_SetGender(). */
+static const char doc_Atrinik_Object_SetGender[] =
+".. method:: SetGender(gender).\n\n"
+"Set object's gender.\n\n"
+":param gender: The gender to set. One of the gender constants defined in "
+":mod:`Atrinik.Gender`.\n"
+":type gender: int";
+
 /**
- * <h1>object.SetGender(int gender)</h1>
- * Changes the gender of object.
- * @param gender The new gender to set. One of the constants from Gender module
- * @ref plugin_python_constants_gender "constants". */
+ * Implements Atrinik.Object.Object.SetGender() Python method.
+ * @copydoc PyMethod_VARARGS
+ */
 static PyObject *Atrinik_Object_SetGender(Atrinik_Object *obj, PyObject *args)
 {
     int gender;
@@ -698,13 +732,18 @@ static PyObject *Atrinik_Object_SetGender(Atrinik_Object *obj, PyObject *args)
     return Py_None;
 }
 
+/** Documentation for Atrinik_Object_Update(). */
+static const char doc_Atrinik_Object_Update[] =
+".. method:: Update().\n\n"
+"Recalculate player's or monster's stats depending on equipment, forces, "
+"skills, etc.";
+
 /**
- * <h1>object.Update()</h1>
- * Recalculate player's or monster's stats depending on equipment, forces,
- * skills, etc. */
-static PyObject *Atrinik_Object_Update(Atrinik_Object *obj, PyObject *args)
+ * Implements Atrinik.Object.Object.Update() Python method.
+ * @copydoc PyMethod_NOARGS
+ */
+static PyObject *Atrinik_Object_Update(Atrinik_Object *obj)
 {
-    (void) args;
     OBJEXISTCHECK(obj);
 
     hooks->living_update(obj->obj);
@@ -713,14 +752,22 @@ static PyObject *Atrinik_Object_Update(Atrinik_Object *obj, PyObject *args)
     return Py_None;
 }
 
+/** Documentation for Atrinik_Object_Hit(). */
+static const char doc_Atrinik_Object_Hit[] =
+".. method:: Hit(target, damage).\n\n"
+"Makes the object hit the target object for the specified amount of damage.\n\n"
+":param target: The target object to hit.\n"
+":type target: Atrinik.Object.Object\n"
+":param damage: How much damage to deal. If -1, the target object will be "
+"killed, otherwise the actual damage done is calculated depending on the "
+"object's attack types, the target's protections, etc.\n"
+":type damage: int\n"
+":throws ValueError: If the target is not on a map or is not alive.";
+
 /**
- * <h1>object.Hit(object target, int damage)</h1>
- * Make 'object' hit 'target' for the specified amount of damage.
- * @param target The object to hit.
- * @param damage How much damage to do. If -1, the target object will be
- * killed, otherwise the actual damage done is calculated depending on
- * the hitter's attack types, the target's protections, etc.
- * @throws ValueError if 'target' is not on map or is not alive. */
+ * Implements Atrinik.Object.Object.Hit() Python method.
+ * @copydoc PyMethod_VARARGS
+ */
 static PyObject *Atrinik_Object_Hit(Atrinik_Object *obj, PyObject *args)
 {
     Atrinik_Object *target;
@@ -751,32 +798,45 @@ static PyObject *Atrinik_Object_Hit(Atrinik_Object *obj, PyObject *args)
     return Py_None;
 }
 
+/** Documentation for Atrinik_Object_Cast(). */
+static const char doc_Atrinik_Object_Cast[] =
+".. method:: Hit(spell, target=None, mode=-1, direction=0, option=None).\n\n"
+"Cast the specified spell.\n\n"
+":param spell: ID of the spell to cast.\n"
+":type spell: int\n"
+":param target: Target object for spells that require a valid target.\n"
+":type target: Atrinik.Object.Object or None\n"
+":param mode: One of the CAST_xxx constants defined in :mod:`Atrinik`, eg, "
+":attr:`~Atrinik.CAST_NORMAL`. If -1, will try to figure out the appropriate "
+"mode automatically.\n"
+":type mode: int\n"
+":param direction: The direction to cast the spell in.\n"
+":type direction: int\n"
+":param option: Additional string option, required by some spells (create food "
+"for example).\n"
+":type option: str or None";
+
 /**
- * <h1>object.Cast(int spell, object [target = None], int [mode = -1], int
- * [direction = 0], string [option = None])</h1>
- * Object casts the spell ID 'spell'.
- * @param spell ID of the spell to cast. You can lookup spell IDs by name
- * using @ref Atrinik_GetSpellNr "GetSpellNr()".
- * @param target Target object for spells that require a valid target.
- * @param mode One of @ref CAST_xxx. If -1 (default), will try to figure
- * out the appropriate mode automatically.
- * @param direction The direction to cast the spell in.
- * @param option Additional string option, required by some spells (create
- * food for example). */
-static PyObject *Atrinik_Object_Cast(Atrinik_Object *obj, PyObject *args, PyObject *keywds)
+ * Implements Atrinik.Object.Object.Cast() Python method.
+ * @copydoc PyMethod_VARARGS_KEYWORDS
+ */
+static PyObject *Atrinik_Object_Cast(Atrinik_Object *obj, PyObject *args,
+        PyObject *keywds)
 {
-    static char *kwlist[] = {"target", "spell", "mode", "direction", "option", NULL};
+    static char *kwlist[] = {"target", "spell", "mode", "direction", "option",
+            NULL};
     Atrinik_Object *target = NULL;
     int spell, direction = 0, mode = -1;
     const char *option = NULL;
 
-    if (!PyArg_ParseTupleAndKeywords(args, keywds, "i|O!iis", kwlist, &spell, &Atrinik_ObjectType, &target, &mode, &direction, &option)) {
+    if (!PyArg_ParseTupleAndKeywords(args, keywds, "i|O!iis", kwlist, &spell,
+            &Atrinik_ObjectType, &target, &mode, &direction, &option)) {
         return NULL;
     }
 
     OBJEXISTCHECK(obj);
 
-    if (target) {
+    if (target != NULL) {
         OBJEXISTCHECK(target);
     }
 
@@ -787,24 +847,35 @@ static PyObject *Atrinik_Object_Cast(Atrinik_Object *obj, PyObject *args, PyObje
         } else {
             mode = CAST_NORMAL;
         }
-    } else if (mode == CAST_NORMAL && target && target != obj && obj->obj->type != PLAYER) {
+    } else if (mode == CAST_NORMAL && target != NULL && target != obj &&
+            obj->obj->type != PLAYER) {
         /* Ensure the mode is valid. */
         mode = CAST_NPC;
     }
 
-    hooks->cast_spell(target ? target->obj : obj->obj, obj->obj, direction, spell, 1, mode, option);
+    hooks->cast_spell(target != NULL ? target->obj : obj->obj, obj->obj,
+            direction, spell, 1, mode, option);
 
     Py_INCREF(Py_None);
     return Py_None;
 }
 
+/** Documentation for Atrinik_Object_CreateForce(). */
+static const char doc_Atrinik_Object_CreateForce[] =
+".. method:: CreateForce(name, time=0).\n\n"
+"Create a force object in object's inventory.\n\n"
+":param name: ID of the force object.\n"
+":type name: str\n"
+":param time: If non-zero, the force will be removed again after time / 0.02 "
+"ticks.\n"
+":type time: int\n"
+":returns: The created force object.\n"
+":rtype: :class:`Atrinik.Object.Object`";
+
 /**
- * <h1>object.CreateForce(string name, int time)</h1>
- * Create a force object in object's inventory.
- * @param name String ID of the force object.
- * @param time If non-zero, the force will be removed again after
- * time / 0.02 ticks. Optional, defaults to 0.
- * @return The created force object. */
+ * Implements Atrinik.Object.Object.CreateForce() Python method.
+ * @copydoc PyMethod_VARARGS
+ */
 static PyObject *Atrinik_Object_CreateForce(Atrinik_Object *obj, PyObject *args)
 {
     const char *name;
@@ -833,17 +904,28 @@ static PyObject *Atrinik_Object_CreateForce(Atrinik_Object *obj, PyObject *args)
     return wrap_object(hooks->insert_ob_in_ob(force, obj->obj));
 }
 
+/** Documentation for Atrinik_Object_CreateObject(). */
+static const char doc_Atrinik_Object_CreateObject[] =
+".. method:: CreateObject(archname, nrof=1, value=-1, identified=True).\n\n"
+"Creates a new object from archname and inserts it into the object.\n\n"
+":param archname: Name of the arch to create.\n"
+":type archname: str\n"
+":param nrof: Number of objects to create.\n"
+":type nrof: int\n"
+":param value: If not -1, will be used as value for the new object.\n"
+":type value: int\n"
+":param identified: If False, the object will not be identified.\n"
+":type identified: bool\n"
+":returns: The created (and inserted) object, None on failure.\n"
+":rtype: :class:`Atrinik.Object.Object` or None\n"
+":throws Atrinik.AtrinikError: If archname references an invalid archetype.";
+
 /**
- * <h1>object.CreateObject(string archname, int [nrof = 1], int [value = -1],
- * bool [identified = True])</h1>
- * Creates an object from archname and inserts it into 'object'.
- * @param archname Name of the arch to create.
- * @param nrof Number of objects to create.
- * @param value If not -1, will be used as value for the new object.
- * @param identified If False the object will not be identified.
- * @throws AtrinikError if 'archname' references an invalid archetype.
- * @return The created object. */
-static PyObject *Atrinik_Object_CreateObject(Atrinik_Object *obj, PyObject *args, PyObject *keywds)
+ * Implements Atrinik.Object.Object.CreateObject() Python method.
+ * @copydoc PyMethod_VARARGS_KEYWORDS
+ */
+static PyObject *Atrinik_Object_CreateObject(Atrinik_Object *obj,
+        PyObject *args, PyObject *keywds)
 {
     static char *kwlist[] = {"archname", "nrof", "value", "identified", NULL};
     const char *archname;
@@ -853,7 +935,8 @@ static PyObject *Atrinik_Object_CreateObject(Atrinik_Object *obj, PyObject *args
     archetype_t *at;
     object *tmp;
 
-    if (!PyArg_ParseTupleAndKeywords(args, keywds, "s|ILi", kwlist, &archname, &nrof, &value, &identified)) {
+    if (!PyArg_ParseTupleAndKeywords(args, keywds, "s|ILi", kwlist, &archname,
+            &nrof, &value, &identified)) {
         return NULL;
     }
 
@@ -861,8 +944,9 @@ static PyObject *Atrinik_Object_CreateObject(Atrinik_Object *obj, PyObject *args
 
     at = hooks->arch_find(archname);
 
-    if (!at) {
-        PyErr_Format(AtrinikError, "The archetype '%s' doesn't exist.", archname);
+    if (at == NULL) {
+        PyErr_Format(AtrinikError, "The archetype '%s' doesn't exist.",
+                archname);
         return NULL;
     }
 
@@ -890,111 +974,125 @@ static PyObject *Atrinik_Object_CreateObject(Atrinik_Object *obj, PyObject *args
 /**
  * Helper function for Atrinik_Object_FindObject() to recursively
  * check inventories. */
-static object *object_find_object(object *tmp, int mode, shstr *archname, shstr *name, shstr *title, int type, PyObject *list, int unpaid)
+static object *object_find_object(object *tmp, int mode, shstr *archname,
+        shstr *name, shstr *title, int type, PyObject *list, bool unpaid)
 {
-    object *tmp2;
-
-    while (tmp) {
-        if ((!archname || tmp->arch->name == archname) && (!name || tmp->name == name) && (!title || tmp->title == title) && (type == -1 || tmp->type == type) && (!unpaid || QUERY_FLAG(tmp, FLAG_UNPAID))) {
-            if (list) {
+    for ( ; tmp != NULL; tmp = tmp->below) {
+        if ((archname == NULL || tmp->arch->name == archname) &&
+                (name == NULL || tmp->name == name) &&
+                (title == NULL || tmp->title == title) &&
+                (type == -1 || tmp->type == type) &&
+                (!unpaid || QUERY_FLAG(tmp, FLAG_UNPAID))) {
+            if (list != NULL) {
                 PyList_Append(list, wrap_object(tmp));
             } else {
                 return tmp;
             }
         }
 
-        if (tmp->inv && (mode == INVENTORY_ALL || (mode == INVENTORY_CONTAINERS && tmp->type == CONTAINER))) {
-            tmp2 = object_find_object(tmp->inv, mode, archname, name, title, type, list, unpaid);
-
-            if (tmp2 && !list) {
+        if (tmp->inv != NULL && (mode == INVENTORY_ALL ||
+                (mode == INVENTORY_CONTAINERS && tmp->type == CONTAINER))) {
+            object *tmp2 = object_find_object(tmp->inv, mode, archname, name,
+                    title, type, list, unpaid);
+            if (tmp2 != NULL) {
                 return tmp2;
             }
         }
-
-        tmp = tmp->below;
     }
 
     return NULL;
 }
 /** @endcond */
 
+/** Documentation for Atrinik_Object_FindObject(). */
+static const char doc_Atrinik_Object_FindObject[] =
+".. method:: FindObject(mode=Atrinik.INVENTORY_ONLY, archname=None, name=None, "
+"title=None, type=-1, multiple=False, unpaid=False).\n\n"
+"Looks for a certain object in object's inventory.\n\n"
+":param mode: How to search the inventory. One of the INVENTORY_xxx constants "
+"defined in the :mod:`Atrinik` module, eg, :attr:`~Atrinik.INVENTORY_ALL`."
+":param archname: Arch name of the object to search for. If None, can be any.\n"
+":type archname: str or None\n"
+":param name: Name of the object. If None, can be any.\n"
+":type name: str or None\n"
+":param title: Title of the object. If None, can be any.\n"
+":type title: str or None\n"
+":param type: Type of the object. If -1, can be any.\n"
+":type type: int\n"
+":param multiple: If True, the return value will be a list of all matching "
+"objects, instead of just the first one found.\n"
+":type multiple: bool\n"
+":param unpaid: Only match unpaid objects.\n"
+":type unpaid: bool\n"
+":returns: The object we wanted if found, None (or an empty list) otherwise\n"
+":rtype: :class:`Atrinik.Object.Object` or None or list\n"
+":throws ValueError: If there were no conditions to search for.";
+
 /**
- * <h1>object.FindObject(int [mode = INVENTORY_ONLY], string [archname = None],
- * string [name = None], string [title = None], int [type = -1], bool [multiple
- * = False], bool [unpaid = False])</h1>
- * Looks for a certain object in object's inventory.
- * @param mode How to search the inventory. One of @ref INVENTORY_xxx.
- * @param archname Arch name of the object to search for. If None, can be any.
- * @param name Name of the object. If None, can be any.
- * @param title Title of the object. If None, can be any.
- * @param type Type of the object. If -1, can be any.
- * @param multiple If True, the return value will be a list of all
- * matching objects, instead of just the first one found.
- * @param unpaid Only match unpaid objects.
- * @throws ValueError if there were no conditions to search for.
- * @return The object we wanted if found, None otherwise. */
-static PyObject *Atrinik_Object_FindObject(Atrinik_Object *obj, PyObject *args, PyObject *keywds)
+ * Implements Atrinik.Object.Object.CreateObject() Python method.
+ * @copydoc PyMethod_VARARGS_KEYWORDS
+ */
+static PyObject *Atrinik_Object_FindObject(Atrinik_Object *obj, PyObject *args,
+        PyObject *keywds)
 {
-    static char *kwlist[] = {"mode", "archname", "name", "title", "type", "multiple", "unpaid", NULL};
+    static char *kwlist[] = {"mode", "archname", "name", "title", "type",
+            "multiple", "unpaid", NULL};
     uint8_t mode = INVENTORY_ONLY;
     int type = -1, multiple = 0, unpaid = 0;
-    shstr *archname = NULL, *name = NULL, *title = NULL;
-    object *match;
-    PyObject *list = NULL;
+    const char *archname = NULL, *name = NULL, *title = NULL;
 
-    if (!PyArg_ParseTupleAndKeywords(args, keywds, "|bzzziii", kwlist, &mode, &archname, &name, &title, &type, &multiple, &unpaid)) {
+    if (!PyArg_ParseTupleAndKeywords(args, keywds, "|bzzziii", kwlist, &mode,
+            &archname, &name, &title, &type, &multiple, &unpaid)) {
         return NULL;
     }
 
     OBJEXISTCHECK(obj);
 
-    if (!archname && !name && !title && type == -1 && !unpaid) {
+    if (archname == NULL && name == NULL && title == NULL && type == -1 &&
+            !unpaid) {
         PyErr_SetString(PyExc_ValueError, "No conditions to search for given.");
         return NULL;
     }
 
-    if (multiple) {
-        list = PyList_New(0);
-    }
+    PyObject *list = multiple ? PyList_New(0) : NULL;
 
     /* Try to find the strings we got from Python in the shared strings
      * library. If they are not found, it is impossible that the inventory
      * lookups succeed. */
-    if (archname) {
+
+    shstr *archname_sh = NULL;
+    if (archname != NULL) {
         archname = hooks->find_string(archname);
-
-        if (!archname) {
-            Py_INCREF(Py_None);
-            return Py_None;
+        if (archname == NULL) {
+            goto done;
         }
     }
 
-    if (name) {
+    shstr *name_sh = NULL;
+    if (name != NULL) {
         name = hooks->find_string(name);
-
-        if (!name) {
-            Py_INCREF(Py_None);
-            return Py_None;
+        if (name == NULL) {
+            goto done;
         }
     }
 
-    if (title) {
+    shstr *title_sh = NULL;
+    if (title != NULL) {
         title = hooks->find_string(title);
-
-        if (!title) {
-            Py_INCREF(Py_None);
-            return Py_None;
+        if (title == NULL) {
+            goto done;
         }
     }
 
-    match = object_find_object(obj->obj->inv, mode, archname, name, title, type, list, unpaid);
+    object *match = object_find_object(obj->obj->inv, mode, archname_sh,
+            name_sh, title_sh, type, list, unpaid);
+    if (match != NULL) {
+        return wrap_object(match);
+    }
 
+done:
     if (multiple) {
         return list;
-    }
-
-    if (match) {
-        return wrap_object(match);
     }
 
     Py_INCREF(Py_None);
@@ -1792,17 +1890,27 @@ static PyMethodDef methods[] = {
             doc_Atrinik_Object_InsertInto},
     {"Apply", (PyCFunction) Atrinik_Object_Apply, METH_VARARGS,
             doc_Atrinik_Object_Apply},
-    {"Take", (PyCFunction) Atrinik_Object_Take, METH_O, 0},
-    {"Drop", (PyCFunction) Atrinik_Object_Drop, METH_O, 0},
-    {"Say", (PyCFunction) Atrinik_Object_Say, METH_VARARGS, 0},
-    {"GetGender", (PyCFunction) Atrinik_Object_GetGender, METH_NOARGS, 0},
-    {"SetGender", (PyCFunction) Atrinik_Object_SetGender, METH_VARARGS, 0},
+    {"Take", (PyCFunction) Atrinik_Object_Take, METH_O,
+            doc_Atrinik_Object_Take},
+    {"Drop", (PyCFunction) Atrinik_Object_Drop, METH_O,
+            doc_Atrinik_Object_Drop},
+    {"Say", (PyCFunction) Atrinik_Object_Say, METH_VARARGS,
+            doc_Atrinik_Object_Say},
+    {"GetGender", (PyCFunction) Atrinik_Object_GetGender, METH_NOARGS,
+            doc_Atrinik_Object_GetGender},
+    {"SetGender", (PyCFunction) Atrinik_Object_SetGender, METH_VARARGS,
+            doc_Atrinik_Object_SetGender},
     {"Update", (PyCFunction) Atrinik_Object_Update, METH_NOARGS, 0},
-    {"Hit", (PyCFunction) Atrinik_Object_Hit, METH_VARARGS, 0},
-    {"Cast", (PyCFunction) Atrinik_Object_Cast, METH_VARARGS | METH_KEYWORDS, 0},
-    {"CreateForce", (PyCFunction) Atrinik_Object_CreateForce, METH_VARARGS, 0},
-    {"CreateObject", (PyCFunction) Atrinik_Object_CreateObject, METH_VARARGS | METH_KEYWORDS, 0},
-    {"FindObject", (PyCFunction) Atrinik_Object_FindObject, METH_VARARGS | METH_KEYWORDS, 0},
+    {"Hit", (PyCFunction) Atrinik_Object_Hit, METH_VARARGS,
+            doc_Atrinik_Object_Hit},
+    {"Cast", (PyCFunction) Atrinik_Object_Cast, METH_VARARGS | METH_KEYWORDS,
+            doc_Atrinik_Object_Cast},
+    {"CreateForce", (PyCFunction) Atrinik_Object_CreateForce, METH_VARARGS,
+            doc_Atrinik_Object_CreateForce},
+    {"CreateObject", (PyCFunction) Atrinik_Object_CreateObject,
+            METH_VARARGS | METH_KEYWORDS, doc_Atrinik_Object_CreateObject},
+    {"FindObject", (PyCFunction) Atrinik_Object_FindObject,
+            METH_VARARGS | METH_KEYWORDS, doc_Atrinik_Object_FindObject},
     {"Remove", (PyCFunction) Atrinik_Object_Remove, METH_NOARGS, 0},
     {"Destroy", (PyCFunction) Atrinik_Object_Destroy, METH_NOARGS, 0},
     {"SetPosition", (PyCFunction) Atrinik_Object_SetPosition, METH_VARARGS, 0},

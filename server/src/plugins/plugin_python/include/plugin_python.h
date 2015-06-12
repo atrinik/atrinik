@@ -85,6 +85,12 @@ typedef PyObject *(*PyMethod_NOARGS)(PyObject *self);
 typedef PyObject *(*PyMethod_VARARGS)(PyObject *self, PyObject *args);
 
 /**
+ * @copydoc PyMethod_NOARGS
+ * @param what The object.
+ */
+typedef PyObject *(*PyMethod_OBJECT)(PyObject *self, PyObject *what);
+
+/**
  * @copydoc PyMethod_VARARGS
  * @param keywds Keyword arguments.
  */
