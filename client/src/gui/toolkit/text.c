@@ -1756,7 +1756,7 @@ int glyph_get_height(font_struct *font, char c)
  * Begin handling text mouse-based selection. */
 #define TEXT_SHOW_SELECT_BEGIN() \
     { \
-        if (!skip && selection_start && selection_end) \
+        if (!skip && selection_start && selection_end && surface != NULL) \
         { \
             select_start = *selection_start; \
             select_end = *selection_end; \
