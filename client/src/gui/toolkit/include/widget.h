@@ -388,6 +388,14 @@ typedef struct widgetresize {
 #define WIDGET_SHOW(_widget) widget_show(_widget, 1);
 #define WIDGET_SHOW_TOGGLE(_widget) widget_show(_widget, !(_widget)->show);
 #define WIDGET_SHOW_TOGGLE_ALL(__id) widget_show_toggle_all(__id);
+#define WIDGET_SHOW_CHANGE(_id, _state)                                        \
+    do {                                                                       \
+        bool _state_ = _state != 0;                                            \
+        for (widgetdata *_widget_ = cur_widget[_id]; _widget_ != NULL;         \
+                _widget_ = _widget_->type_next) {                              \
+            widget_show(_widget_, _state_);                                    \
+        }                                                                      \
+    } while (0)
 
 /* Macro to redraw all widgets of a particular type. Don't use this often. */
 #define WIDGET_REDRAW_ALL(__id) widget_redraw_all(__id);
