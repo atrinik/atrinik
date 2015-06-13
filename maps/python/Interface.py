@@ -1,4 +1,4 @@
-from Atrinik import SetReturnValue, Type
+import Atrinik
 import Language
 import re
 
@@ -13,6 +13,7 @@ class Interface:
         self._append_text = None
         self._icon = None
         self._anim = None
+        self._objects = []
 
         if npc:
             self.set_anim(npc.animation[1], npc.anim_speed, npc.direction)
@@ -44,8 +45,23 @@ class Interface:
         self._msg += desc
         self._msg += "[/hcenter][/padding]"
 
-    def add_msg_icon_object(self, obj):
-        self.add_msg_icon(obj.face[0], obj.GetName())
+    def add_msg_icon_object(self, obj, desc=None):
+        pl = self._activator.Controller()
+        if pl.s_socket_version < 1063:
+            self.add_msg_icon(obj.face[0], obj.GetName())
+            return
+
+        packet = obj.GetPacket(pl, Atrinik.UPD_ANIM | Atrinik.UPD_ANIMSPEED |
+                               Atrinik.UPD_FACE | Atrinik.UPD_NROF |
+                               Atrinik.UPD_GLOW)
+        self._objects.append(packet)
+        self._msg += "\n\n"
+        self._msg += "[bar=#000000 52 52][border=#606060 52 52][x=1][y=1]"
+        self._msg += "[obj={} 50 50]".format(obj.count)
+        self._msg += "[x=-1][y=-1]"
+        self._msg += "[padding=60][hcenter=50]"
+        self._msg += desc or obj.GetName()
+        self._msg += "[/hcenter][/padding]"
 
     def _get_dest(self, dest, npc = None):
         prepend = ""
@@ -58,7 +74,8 @@ class Interface:
                     prepend = "/talk 2 {} ".format(self._npc.count)
                 elif self._npc.env == self._activator.Controller().container:
                     prepend = "/talk 4 {} ".format(self._npc.count)
-            elif not self._npc.type in (Type.PLAYER, Type.MONSTER):
+            elif not self._npc.type in (Atrinik.Type.PLAYER,
+                                        Atrinik.Type.MONSTER):
                 prepend = "/talk 3 {} ".format(self._npc.count)
 
         return prepend + dest
@@ -122,7 +139,7 @@ class Interface:
         pl = self._activator.Controller()
 
         if self._npc:
-            SetReturnValue(-1 if disable_timeout or self._restore else len(self._msg))
+            Atrinik.SetReturnValue(-1 if disable_timeout or self._restore else len(self._msg))
 
         if not self._restore:
             # Construct the base data packet; contains the interface message,
@@ -177,6 +194,11 @@ class Interface:
             if self._autocomplete:
                 fmt += "Bs"
                 data += [10, self._autocomplete]
+
+        for obj in self._objects:
+            obj_fmt, obj_data = obj
+            fmt += "B" + obj_fmt
+            data += [14] + obj_data
 
         # Send the data.
         pl.SendPacket(26, fmt, *data)
