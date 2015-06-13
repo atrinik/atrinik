@@ -111,6 +111,7 @@
 
 #include <global.h>
 #include <toolkit_string.h>
+#include <network_graph.h>
 
 /** Shared handle. */
 static CURLSH *handle_share = NULL;
@@ -141,6 +142,9 @@ static size_t curl_callback(void *ptr, size_t size, size_t nmemb, void *data)
 
     SDL_UnlockMutex(mem->mutex);
 
+    network_graph_update(NETWORK_GRAPH_TYPE_HTTP, NETWORK_GRAPH_TRAFFIC_RX,
+            realsize);
+
     return realsize;
 }
 
@@ -168,6 +172,9 @@ static size_t curl_header_callback(void *ptr, size_t size, size_t nmemb,
     }
 
     SDL_UnlockMutex(mem->mutex);
+
+    network_graph_update(NETWORK_GRAPH_TYPE_HTTP, NETWORK_GRAPH_TRAFFIC_RX,
+            realsize);
 
     return realsize;
 }
@@ -385,6 +392,13 @@ int curl_connect(void *c_data)
 
     /* Get the data. */
     res = curl_easy_perform(data->handle);
+
+    long request_size;
+    if (curl_easy_getinfo(data->handle, CURLINFO_REQUEST_SIZE, &request_size) ==
+            CURLE_OK) {
+        network_graph_update(NETWORK_GRAPH_TYPE_HTTP, NETWORK_GRAPH_TRAFFIC_TX,
+                request_size);
+    }
 
     if (res) {
         LOG(BUG, "curl_easy_perform() got error %d (%s).", res,

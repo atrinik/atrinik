@@ -28,6 +28,7 @@
 
 #include <global.h>
 #include <packet.h>
+#include <network_graph.h>
 
 static SDL_Thread *input_thread;
 static SDL_mutex *input_buffer_mutex;
@@ -253,6 +254,9 @@ static int reader_thread_loop(void *dummy)
             readbuf_len += ret;
         }
 
+        network_graph_update(NETWORK_GRAPH_TYPE_GAME, NETWORK_GRAPH_TRAFFIC_RX,
+                ret);
+
         /* Finished with a command? */
         if (readbuf_len == cmd_len + header_len && !abort_thread) {
             command_buffer *buf = command_buffer_new(readbuf_len - header_len, readbuf + header_len);
@@ -321,6 +325,9 @@ static int writer_thread_loop(void *dummy)
             } else {
                 written += ret;
             }
+
+            network_graph_update(NETWORK_GRAPH_TYPE_GAME,
+                    NETWORK_GRAPH_TRAFFIC_TX, ret);
         }
 
         if (buf) {

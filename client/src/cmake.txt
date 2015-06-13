@@ -70,6 +70,7 @@ set(SOURCES
 	src/gui/widgets/menu_buttons.c
 	src/gui/widgets/minimap.c
 	src/gui/widgets/mplayer.c
+	src/gui/widgets/network_graph.c
 	src/gui/widgets/notification.c
 	src/gui/widgets/party.c
 	src/gui/widgets/playerdoll.c

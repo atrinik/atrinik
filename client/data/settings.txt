@@ -116,6 +116,11 @@ category Client
 		default on
 		desc Disables Nagle's Algorithm in order to minimize latency, at the expense of more outgoing bandwidth.\nRequires server re-connection.
 	end
+	setting Show network graph
+		type bool
+		default off
+		desc Show the network graph widget.
+	end
 	setting Allow off-screen widgets
 		type bool
 		default off

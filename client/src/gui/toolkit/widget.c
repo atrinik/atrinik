@@ -42,6 +42,7 @@
 
 #include <global.h>
 #include <toolkit_string.h>
+#include <network_graph.h>
 
 static widgetdata def_widget[TOTAL_SUBWIDGETS];
 static const char *const widget_names[TOTAL_SUBWIDGETS] = {
@@ -49,6 +50,7 @@ static const char *const widget_names[TOTAL_SUBWIDGETS] = {
     "playerinfo", "mapname", "input", "fps", "mplayer", "spells", "skills",
     "party", "notification", "container", "label", "texture", "buddy",
     "active_effects", "protections", "minimap", "target", "inventory",
+    "network_graph",
 
     "container_strip", "menu", "menuitem"
 };
@@ -248,6 +250,7 @@ void toolkit_widget_init(void)
     widget_initializers[MENU_B_ID] = widget_menu_buttons_init;
     widget_initializers[MINIMAP_ID] = widget_minimap_init;
     widget_initializers[MPLAYER_ID] = widget_mplayer_init;
+    widget_initializers[NETWORK_GRAPH_ID] = widget_network_graph_init;
     widget_initializers[NOTIFICATION_ID] = widget_notification_init;
     widget_initializers[PARTY_ID] = widget_party_init;
     widget_initializers[PDOLL_ID] = widget_playerdoll_init;

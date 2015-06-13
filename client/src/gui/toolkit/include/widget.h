@@ -299,6 +299,7 @@ typedef enum WidgetID {
     MINIMAP_ID,
     TARGET_ID,
     INVENTORY_ID,
+    NETWORK_GRAPH_ID,
 
     /** The total number of widgets. */
     TOTAL_WIDGETS

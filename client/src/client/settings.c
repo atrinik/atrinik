@@ -404,11 +404,18 @@ int64_t setting_get_int(int cat, int setting)
 static int setting_apply_always(int cat, int setting)
 {
     switch (cat) {
+    case OPT_CAT_CLIENT:
+        switch (setting) {
+        /* Need to hide/show the network graph widget. */
+        case OPT_SHOW_NETWORK_GRAPH:
+            WIDGET_SHOW_CHANGE(NETWORK_GRAPH_ID, setting_get_int(cat, setting));
+            return 1;
+        }
     case OPT_CAT_DEVEL:
         switch (setting) {
-            /* Need to hide/show the fps widget. */
+        /* Need to hide/show the fps widget. */
         case OPT_SHOW_FPS:
-            cur_widget[FPS_ID]->show = setting_get_int(cat, setting);
+            WIDGET_SHOW_CHANGE(FPS_ID, setting_get_int(cat, setting));
             return 1;
         }
     }
