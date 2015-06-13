@@ -325,8 +325,10 @@ static SDL_Surface *sprite_effect_fow(SDL_Surface *surface)
 static SDL_Surface *sprite_effect_glow(SDL_Surface *surface,
         const SDL_Color *color, double speed, double state)
 {
-    SDL_Surface *tmp = SDL_CreateRGBSurface(surface->flags, surface->w + 2,
-            surface->h + 2, surface->format->BitsPerPixel,
+    SDL_Surface *tmp = SDL_CreateRGBSurface(surface->flags,
+            surface->w + SPRITE_GLOW_SIZE * 2,
+            surface->h + SPRITE_GLOW_SIZE * 2,
+            surface->format->BitsPerPixel,
             surface->format->Rmask, surface->format->Gmask,
             surface->format->Bmask, surface->format->Amask);
     if (tmp == NULL) {
@@ -342,7 +344,7 @@ static SDL_Surface *sprite_effect_glow(SDL_Surface *surface,
                 continue;
             }
 
-            putpixel(tmp, x + 1, y + 1, pixel);
+            putpixel(tmp, x + SPRITE_GLOW_SIZE, y + SPRITE_GLOW_SIZE, pixel);
 
             Uint8 r, g, b, a;
             SDL_GetRGBA(pixel, surface->format, &r, &g, &b, &a);
@@ -350,7 +352,7 @@ static SDL_Surface *sprite_effect_glow(SDL_Surface *surface,
                 continue;
             }
 
-            grid[tmp->w * (y + 1) + (x + 1)] = 1;
+            grid[tmp->w * (y + SPRITE_GLOW_SIZE) + (x + SPRITE_GLOW_SIZE)] = 1;
         }
     }
 
@@ -645,8 +647,8 @@ void surface_show_effects(SDL_Surface *surface, int x, int y, SDL_Rect *srcrect,
         }
 
         if (effects->glow[0] != '\0') {
-            y -= 1;
-            x -= 1;
+            y -= SPRITE_GLOW_SIZE;
+            x -= SPRITE_GLOW_SIZE;
         }
     }
 

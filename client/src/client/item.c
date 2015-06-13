@@ -493,15 +493,15 @@ void object_show_centered(SDL_Surface *surface, object *tmp, int x, int y,
     xstart = FaceList[face].sprite->border_left;
     ystart = FaceList[face].sprite->border_up;
     if (tmp->glow[0] != '\0') {
-        xstart -= 2;
-        ystart -= 2;
+        xstart -= SPRITE_GLOW_SIZE * 2;
+        ystart -= SPRITE_GLOW_SIZE * 2;
     }
 
     xlen = FaceList[face].sprite->bitmap->w - xstart - FaceList[face].sprite->border_right;
     ylen = FaceList[face].sprite->bitmap->h - ystart - FaceList[face].sprite->border_down;
     if (tmp->glow[0] != '\0') {
-        xlen += 2;
-        ylen += 2;
+        xlen += SPRITE_GLOW_SIZE * 2;
+        ylen += SPRITE_GLOW_SIZE * 2;
     }
 
     if (xlen > w) {

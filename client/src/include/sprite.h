@@ -34,6 +34,11 @@
 #define SPRITE_CACHE_GC_FREE_TIME 60 * 15
 
 /**
+ * Size of the glow effect in pixels.
+ */
+#define SPRITE_GLOW_SIZE 2
+
+/**
  * Used to pass data to surface_show_effects().
  */
 typedef struct sprite_effects {
