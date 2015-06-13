@@ -565,11 +565,11 @@ void socket_command_interface(uint8_t *data, size_t len, size_t pos)
         {
             uint16_t flags = packet_to_uint16(data, len, &pos);
             tag_t tag = packet_to_uint32(data, len, &pos);
-            bool exists = object_find(tag) != NULL;
+            object *old_obj = object_find(tag);
             object *obj = object_create(interface_data->objects, tag, 0);
             command_item_update(data, len, &pos, flags, obj);
 
-            if (exists) {
+            if (old_obj != NULL && old_obj->env != cpl.interface) {
                 object_remove(obj);
             }
 
