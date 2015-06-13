@@ -1067,24 +1067,24 @@ static PyObject *Atrinik_Object_FindObject(Atrinik_Object *obj, PyObject *args,
 
     shstr *archname_sh = NULL;
     if (archname != NULL) {
-        archname = hooks->find_string(archname);
-        if (archname == NULL) {
+        archname_sh = hooks->find_string(archname);
+        if (archname_sh == NULL) {
             goto done;
         }
     }
 
     shstr *name_sh = NULL;
     if (name != NULL) {
-        name = hooks->find_string(name);
-        if (name == NULL) {
+        name_sh = hooks->find_string(name);
+        if (name_sh == NULL) {
             goto done;
         }
     }
 
     shstr *title_sh = NULL;
     if (title != NULL) {
-        title = hooks->find_string(title);
-        if (title == NULL) {
+        title_sh = hooks->find_string(title);
+        if (title_sh == NULL) {
             goto done;
         }
     }
