@@ -35,7 +35,7 @@ def getargspec(obj):
         print("Failed to get args for {}".format(obj))
         return []
 
-    args = re.findall(r"([\w+_]+)(?:=([\w_\.]+))?", match.group(1))
+    args = re.findall(r"([\w+_]+)(?:=([\w_\-\.]+))?", match.group(1))
     return ["=".join(x for x in val if x) for val in args]
 
 
@@ -69,7 +69,7 @@ def dump_docstring(obj, f, indent=0, obj_name=None, is_getter=False,
         types = []
         for val in tmp_type.split(" "):
             if val != "or":
-                ret.append(val.replace("Atrinik.", ""))
+                ret.append(val)
                 types.append(":class:`{}`".format(val))
 
         if is_getter:
@@ -123,11 +123,13 @@ def dump_obj(obj, f, indent=0, defaults=None):
 
             with open(os.path.join(PATH, tmp_name + ".py"), "w") as f2:
                 dump_docstring(tmp, f2, indent)
+                f2.write("import Atrinik\n")
                 dump_obj(tmp, f2)
         elif inspect.isclass(tmp):
             f.write("from Atrinik import {name}\n".format(name=tmp_name))
 
             with open(os.path.join(PATH, tmp_name + ".py"), "w") as f2:
+                f2.write("import Atrinik\n")
                 f2.write("\n\n")
                 f2.write(" " * indent * 4)
                 f2.write("class {}(object):\n".format(tmp_name))
