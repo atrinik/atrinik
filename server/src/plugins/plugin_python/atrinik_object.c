@@ -39,22 +39,24 @@
  * List of the object fields and their meaning. */
 static fields_struct fields[] = {
     {"below", FIELDTYPE_OBJECT, offsetof(object, below), FIELDFLAG_READONLY, 0,
-            "Object stacked below this one.; Atrinik.Object or None "
+            "Object stacked below this one.; Atrinik.Object.Object or None "
             "(readonly)"},
     {"above", FIELDTYPE_OBJECT, offsetof(object, above), FIELDFLAG_READONLY, 0,
-            "Object stacked above this one.; Atrinik.Object or None "
+            "Object stacked above this one.; Atrinik.Object.Object or None "
             "(readonly)"},
     {"inv", FIELDTYPE_OBJECT, offsetof(object, inv), FIELDFLAG_READONLY, 0,
-            "First object in the inventory.; Atrinik.Object or None "
+            "First object in the inventory.; Atrinik.Object.Object or None "
             "(readonly)"},
     {"env", FIELDTYPE_OBJECT, offsetof(object, env), FIELDFLAG_READONLY, 0,
-            "Inventory the object is in.; Atrinik.Object or None (readonly)"},
+            "Inventory the object is in.; Atrinik.Object.Object or None "
+            "(readonly)"},
     {"head", FIELDTYPE_OBJECT, offsetof(object, head), FIELDFLAG_READONLY, 0,
-            "Head part of a linked object.; Atrinik.Object or None (readonly)"},
+            "Head part of a linked object.; Atrinik.Object.Object or None "
+            "(readonly)"},
     {"more", FIELDTYPE_OBJECT, offsetof(object, more), FIELDFLAG_READONLY, 0,
-            "Next linked object.; Atrinik.Object or None (readonly)"},
+            "Next linked object.; Atrinik.Object.Object or None (readonly)"},
     {"map", FIELDTYPE_MAP, offsetof(object, map), FIELDFLAG_READONLY, 0,
-            "Map the object is on.; Atrinik.Map or None (readonly)"},
+            "Map the object is on.; Atrinik.Map.Map or None (readonly)"},
     {"name", FIELDTYPE_SHSTR, offsetof(object, name), FIELDFLAG_PLAYER_READONLY,
             0, "Name of the object.; str (player readonly)"},
     {"custom_name", FIELDTYPE_SHSTR, offsetof(object, custom_name), 0, 0,
@@ -95,20 +97,22 @@ static fields_struct fields[] = {
 
     {"enemy", FIELDTYPE_OBJECTREF, offsetof(object, enemy),
             FIELDFLAG_PLAYER_READONLY, offsetof(object, enemy_count),
-            "Enemy of the object.; Atrinik.Object or None (player readonly)"},
+            "Enemy of the object.; Atrinik.Object.Object or None (player "
+            "readonly)"},
     {"attacked_by", FIELDTYPE_OBJECTREF, offsetof(object, attacked_by),
             FIELDFLAG_READONLY, offsetof(object, attacked_by_count),
-            "Who is attacking the object.; Atrinik.Object or None (readonly)"},
+            "Who is attacking the object.; Atrinik.Object.Object or None "
+            "(readonly)"},
     {"owner", FIELDTYPE_OBJECTREF, offsetof(object, owner), FIELDFLAG_READONLY,
             offsetof(object, ownercount), "Owner of the object.; "
-            "Atrinik.Object or None (readonly)"},
+            "Atrinik.Object.Object or None (readonly)"},
 
     {"x", FIELDTYPE_INT16, offsetof(object, x), FIELDFLAG_READONLY, 0,
-            "If the object is on a :attr:`~Atrinik.Object.map`, X coordinate "
-            "on the map the object is on.; int (readonly)"},
+            "If the object is on a :attr:`~Atrinik.Object.Object.map`, X "
+            "coordinate on the map the object is on.; int (readonly)"},
     {"y", FIELDTYPE_INT16, offsetof(object, y), FIELDFLAG_READONLY, 0,
-            "If the object is on a :attr:`~Atrinik.Object.map`, Y coordinate "
-            "on the map the object is on.; int (readonly)"},
+            "If the object is on a :attr:`~Atrinik.Object.Object.map`, Y "
+            "coordinate on the map the object is on.; int (readonly)"},
     {"attacked_by_distance", FIELDTYPE_INT16,
             offsetof(object, attacked_by_distance), 0, 0,
             "Distance the object was attacked from.; int"},
@@ -240,7 +244,7 @@ static fields_struct fields[] = {
             "int"},
 
     {"arch", FIELDTYPE_ARCH, offsetof(object, arch), 0, 0,
-            "Archetype of the object.; Atrinik.Archetype"},
+            "Archetype of the object.; Atrinik.Archetype.Archetype"},
     {"z", FIELDTYPE_INT16, offsetof(object, z), 0, 0,
             "Z-position on the map (in pixels) for this object.; int"},
     {"zoom_x", FIELDTYPE_INT16, offsetof(object, zoom_x), 0, 0,
@@ -278,7 +282,7 @@ static fields_struct fields[] = {
             "by a previous call to obj.inv_animation.; str or int or tuple"},
     {"other_arch", FIELDTYPE_ARCH, offsetof(object, other_arch), 0, 0,
             "Archetype used for various things, depending on the object's "
-            "type.; Atrinik.Archetype or None"},
+            "type.; Atrinik.Archetype.Archetype or None"},
     {"connected", FIELDTYPE_CONNECTION, 0, 0, 0,
             "Connection ID. Used to connect together buttons with gates, for "
             "example.; int"},

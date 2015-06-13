@@ -36,9 +36,10 @@
  * List of the region fields and their meaning. */
 static fields_struct fields[] = {
     {"next", FIELDTYPE_REGION, offsetof(region_struct, next), 0, 0,
-            "Next region in a linked list.; Atrinik.Region or None (readonly)"},
+            "Next region in a linked list.; Atrinik.Region.Region or None "
+            "(readonly)"},
     {"parent", FIELDTYPE_REGION, offsetof(region_struct, parent), 0, 0,
-            "Region's parent.; Atrinik.Region or None (readonly)"},
+            "Region's parent.; Atrinik.Region.Region or None (readonly)"},
     {"name", FIELDTYPE_CSTR, offsetof(region_struct, name), 0, 0,
             "Name of the region (eg, 'world').; str (readonly)"},
     {"longname", FIELDTYPE_CSTR, offsetof(region_struct, longname), 0, 0,

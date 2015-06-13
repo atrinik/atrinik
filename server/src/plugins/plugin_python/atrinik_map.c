@@ -36,10 +36,10 @@
  * List of the map fields and their meaning. */
 static fields_struct fields[] = {
     {"next", FIELDTYPE_MAP, offsetof(mapstruct, next), FIELDFLAG_READONLY, 0,
-            "Next map in a doubly-linked list.; Atrinik.Map or None "
+            "Next map in a doubly-linked list.; Atrinik.Map.Map or None "
             "(readonly)"},
     {"previous", FIELDTYPE_MAP, offsetof(mapstruct, prev), FIELDFLAG_READONLY,
-            0, "Previous map in a doubly-linked list.; Atrinik.Map or None "
+            0, "Previous map in a doubly-linked list.; Atrinik.Map.Map or None "
             "(readonly)"},
 
     {"name", FIELDTYPE_SHSTR, offsetof(mapstruct, name), 0, 0,
@@ -72,8 +72,8 @@ static fields_struct fields[] = {
             "he logs in to the map if the map has :attr:`f_fixed_login` set.;"
             "int"},
     {"region", FIELDTYPE_REGION, offsetof(mapstruct, region),
-            FIELDFLAG_READONLY, 0, "Region the map is in.; Atrinik.Region or "
-            "None (readonly)"},
+            FIELDFLAG_READONLY, 0, "Region the map is in.; "
+            "Atrinik.Region.Region or None (readonly)"},
     {"bg_music", FIELDTYPE_SHSTR, offsetof(mapstruct, bg_music), 0, 0,
             "Background music of the map.; str or None"},
     {"weather", FIELDTYPE_SHSTR, offsetof(mapstruct, weather), 0, 0,

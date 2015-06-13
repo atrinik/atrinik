@@ -38,19 +38,20 @@
  * List of the player fields and their meaning. */
 static fields_struct fields[] = {
     {"next", FIELDTYPE_PLAYER, offsetof(player, next), FIELDFLAG_READONLY, 0,
-            "Next player in a list.; Atrinik.Player or None (readonly)"},
+            "Next player in a list.; Atrinik.Player.Player or None (readonly)"},
     {"prev", FIELDTYPE_PLAYER, offsetof(player, prev), FIELDFLAG_READONLY, 0,
-            "Previous player in a list.; Atrinik.Player or None (readonly)"},
+            "Previous player in a list.; Atrinik.Player.Player or None "
+            "(readonly)"},
 
     {"party", FIELDTYPE_PARTY, offsetof(player, party), FIELDFLAG_READONLY, 0,
-            "Party the player is a member of.; Atrinik.Party or None "
+            "Party the player is a member of.; Atrinik.Party.Party or None "
             "(readonly)"},
     {"class_ob", FIELDTYPE_OBJECT, offsetof(player, class_ob), 0,
             FIELDFLAG_READONLY, "Class object of the player. Cannot be set, as "
             "it's always set to the last CLASS type object that is found in "
             "the player's inventory after calling "
-            ":meth:`Atrinik.Player.Update`.; Atrinik.Object or None "
-            "(readonly)"},
+            ":meth:`Atrinik.Object.Object.Update`.; Atrinik.ObjectObject or "
+            "None (readonly)"},
     {"savebed_map", FIELDTYPE_CARY, offsetof(player, savebed_map), 0,
             sizeof(((player *) NULL)->savebed_map),
             "Path to the player's savebed map.; str"},
@@ -59,14 +60,14 @@ static fields_struct fields[] = {
     {"bed_y", FIELDTYPE_INT16, offsetof(player, bed_y), 0, 0,
             "Y coordinate of the player's savebed.; int"},
     {"ob", FIELDTYPE_OBJECT, offsetof(player, ob), FIELDFLAG_READONLY, 0,
-            "The :class:`Atrinik.Object` representing the player.; "
-            "Atrinik.Object (readonly)"},
+            "The :class:`Atrinik.Object.Object` representing the player.; "
+            "Atrinik.Object.Object (readonly)"},
     {"quest_container", FIELDTYPE_OBJECT, offsetof(player, quest_container),
-            FIELDFLAG_READONLY, 0, "Player's quest container.; Atrinik.Object "
-            "(readonly)"},
+            FIELDFLAG_READONLY, 0, "Player's quest container.; "
+            "Atrinik.Object.Object (readonly)"},
     {"target_object", FIELDTYPE_OBJECTREF, offsetof(player, target_object), 0,
             offsetof(player, target_object_count), "Currently targeted "
-            "NPC/monster.;Atrinik.Object or None"},
+            "NPC/monster.;Atrinik.Object.Object or None"},
     {"no_chat", FIELDTYPE_BOOLEAN, offsetof(player, no_chat), 0, 0,
             "If true, the player is not allowed to chat.; bool"},
     {"tcl", FIELDTYPE_BOOLEAN, offsetof(player, tcl), 0, 0,
@@ -82,14 +83,15 @@ static fields_struct fields[] = {
             "If true, the player can see system-invisible objects.; bool"},
     {"cmd_permissions", FIELDTYPE_LIST, offsetof(player, cmd_permissions), 0,
             FIELDTYPE_CMD_PERMISSIONS, "Player's command permissions.; "
-            "Atrinik.AttrList"},
+            "Atrinik.AttrList.AttrList"},
     {"factions", FIELDTYPE_LIST, offsetof(player, factions), 0,
-            FIELDTYPE_FACTIONS, "Player's factions.; Atrinik.AttrList"},
+            FIELDTYPE_FACTIONS, "Player's factions.; "
+            "Atrinik.AttrList.AttrList"},
     {"fame", FIELDTYPE_INT64, offsetof(player, fame), 0, 0,
             "Fame (or infamy) of the player.; int"},
     {"container", FIELDTYPE_OBJECT, offsetof(player, container),
             FIELDFLAG_READONLY, 0, "Container the player has open.; "
-            "Atrinik.Object or None (readonly)"},
+            "Atrinik.Object.Object or None (readonly)"},
 
     {"s_ext_title_flag", FIELDTYPE_BOOLEAN,
             offsetof(player, socket.ext_title_flag), 0, 0,

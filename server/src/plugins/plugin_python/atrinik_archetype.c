@@ -38,14 +38,15 @@ static fields_struct fields[] = {
     {"name", FIELDTYPE_SHSTR, offsetof(archetype_t, name), 0, 0,
             "Name of the archetype.; str (readonly)"},
     {"head", FIELDTYPE_ARCH, offsetof(archetype_t, head), 0, 0,
-            "The main part of a linked object.; Atrinik.Object or None "
+            "The main part of a linked object.; Atrinik.Object.Object or None "
             "(readonly)"},
     {"more", FIELDTYPE_ARCH, offsetof(archetype_t, more), 0, 0,
-            "Next part of a linked object.; Atrinik.Object or None (readonly)"},
+            "Next part of a linked object.; Atrinik.Object.Object or None "
+            "(readonly)"},
     {"clone", FIELDTYPE_OBJECT2, offsetof(archetype_t, clone), 0, 0,
             "Archetype's default object from which new objects are created "
             "using functions such as :func:`Atrinik.CreateObject`.; "
-            "Atrinik.Object (readonly)"}
+            "Atrinik.Object.Object (readonly)"}
 };
 /* @endcparser */
 
