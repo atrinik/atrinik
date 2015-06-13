@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <interfaces>
-    <interface inherit="Seller.Seller">
+    <interface inherit="Merchant.Seller">
         <dialog name="marisa" regex="(marisa|kirisame|marisa kirisame)">
             <message>Yeah, she's pretty awesome.</message>
         </dialog>

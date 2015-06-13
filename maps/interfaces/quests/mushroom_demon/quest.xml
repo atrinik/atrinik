@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <interfaces>
     <quest name="The Mushroom Demon">
-        <interface inherit="Seller.Seller" npc="Farmer Maggot" state="completed">
+        <interface inherit="Merchant.Seller" npc="Farmer Maggot" state="completed">
             <dialog name="hello">
                 <message>Thank ye for helping us with the demon, kind stranger!</message>
                 <inherit name="::goods"/>

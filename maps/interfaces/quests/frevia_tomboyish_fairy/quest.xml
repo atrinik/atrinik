@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <interfaces>
     <quest name="Frevia's Tomboyish Fairy">
-        <interface inherit="Seller.Seller" npc="Frevia">
+        <interface inherit="Merchant.Seller" npc="Frevia">
             <dialog name="hello">
                 <message>Oh, hello there again, {self.gender}!</message>
                 <inherit name="::goods"/>

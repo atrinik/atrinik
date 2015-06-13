@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <interfaces>
     <quest name="Lairwenn's Notes">
-        <interface inherit="Seller.Seller" npc="Lairwenn" state="completed">
+        <interface inherit="Merchant.Seller" npc="Lairwenn" state="completed">
             <dialog name="hello">
                 <message>Thank you for finding my notes earlier. Would you be interested in an extra writing pen?</message>
                 <response destination="buy writing pen" message="Sure, tell me more."/>

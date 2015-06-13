@@ -2,7 +2,7 @@
 ## Generic script to handle merchants.
 
 from Atrinik import *
-from Seller import Seller
+from Merchant import Seller
 
 class InterfaceDialog(Seller):
     """

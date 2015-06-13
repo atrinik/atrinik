@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <interfaces>
     <quest name="Crazymix's Alchemical Reagents">
-        <interface inherit="Seller.Buyer" npc="Crimdon Crazymix">
+        <interface inherit="Merchant.Buyer" npc="Crimdon Crazymix">
             <dialog name="hello">
                 <message>Ah, welcome back, {activator.name}! If you have any more of those Mythical Scarlet Pimpernel Flowers left, I'd be delighted to buy some!</message>
                 <inherit name="::goods"/>
