@@ -21,6 +21,7 @@ extern void socket_command_target(uint8_t *data, size_t len, size_t pos);
 extern void socket_command_stats(uint8_t *data, size_t len, size_t pos);
 extern void send_reply(char *text);
 extern void socket_command_player(uint8_t *data, size_t len, size_t pos);
+extern void command_item_update(uint8_t *data, size_t len, size_t *pos, uint32_t flags, object *tmp);
 extern void socket_command_item(uint8_t *data, size_t len, size_t pos);
 extern void socket_command_item_update(uint8_t *data, size_t len, size_t pos);
 extern void socket_command_item_delete(uint8_t *data, size_t len, size_t pos);

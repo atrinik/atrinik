@@ -124,6 +124,14 @@ object *object_find_object(object *op, tag_t tag)
  */
 object *object_find(tag_t tag)
 {
+    /* In interface GUI. */
+    if (cpl.interface != NULL) {
+        object *op = object_find_object(cpl.interface->inv, tag);
+        if (op != NULL) {
+            return op;
+        }
+    }
+
     /* Below the player. */
     if (cpl.below != NULL) {
         object *op = object_find_object(cpl.below, tag);
@@ -330,7 +338,9 @@ void object_redraw(object *op)
         env = cpl.sack->env;
     }
 
-    if (env == cpl.below) {
+    if (env == cpl.interface) {
+        interface_redraw();
+    } else if (env == cpl.below) {
         widget_redraw_type_id(INVENTORY_ID, "below");
     } else {
         widget_redraw_type_id(INVENTORY_ID, "main");
@@ -344,7 +354,6 @@ void object_redraw(object *op)
  */
 void objects_deinit(void)
 {
-    objects_free(cpl.sack);
     objects_free(cpl.below);
     objects_free(cpl.ob);
 }
@@ -437,6 +446,10 @@ void animate_objects(void)
 
     if (cpl.sack != NULL) {
         animate_inventory(cpl.sack);
+    }
+
+    if (cpl.interface != NULL) {
+        animate_inventory(cpl.interface);
     }
 }
 

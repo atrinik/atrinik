@@ -229,6 +229,7 @@ PLUGIN_HOOK_FUNCTION(struct faction *, faction_find, shstr *)
 PLUGIN_HOOK_FUNCTION(double , faction_get_bounty, struct faction *, player *)
 PLUGIN_HOOK_FUNCTION(void , faction_clear_bounty, struct faction *, player *)
 PLUGIN_HOOK_FUNCTION(int64_t, insert_coins, object *, int64_t)
+PLUGIN_HOOK_FUNCTION(void, add_object_to_packet, struct packet_struct *, object *, object *, uint8_t, uint32_t, int)
 
 PLUGIN_HOOK_ARRAY(const char *, season_name)
 PLUGIN_HOOK_ARRAY(const char *, weekdays)

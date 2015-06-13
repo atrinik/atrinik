@@ -94,7 +94,7 @@ unsigned int query_flags(object *op)
  * @param flags Combination of @ref UPD_XXX.
  * @param level Inventory level.
  */
-static void add_object_to_packet(packet_struct *packet, object *op, object *pl,
+void add_object_to_packet(struct packet_struct *packet, object *op, object *pl,
         uint8_t apply_action, uint32_t flags, int level)
 {
     packet_debug_data(packet, level, "\nTag");

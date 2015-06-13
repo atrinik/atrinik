@@ -371,11 +371,9 @@ void socket_command_player(uint8_t *data, size_t len, size_t pos)
     cpl.state = ST_PLAY;
 }
 
-static void command_item_update(uint8_t *data, size_t len, size_t *pos, uint32_t flags, object *tmp)
+void command_item_update(uint8_t *data, size_t len, size_t *pos, uint32_t flags, object *tmp)
 {
-    bool force_anim;
-
-    force_anim = false;
+    bool force_anim = false;
 
     if (flags & UPD_LOCATION) {
         /* Currently unused. */

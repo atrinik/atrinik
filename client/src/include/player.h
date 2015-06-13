@@ -115,6 +115,9 @@ typedef struct Player_Struct {
     /** Inventory of an open container. */
     object *sack;
 
+    /** Objects in the interface GUI. */
+    object *interface;
+
     /** Tag of the open container. */
     tag_t container_tag;
 

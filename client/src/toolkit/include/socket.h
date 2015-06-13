@@ -159,6 +159,8 @@ enum {
 #define CMD_INTERFACE_APPEND_TEXT 12
 /** Animation; animated image in the upper left corner square. */
 #define CMD_INTERFACE_ANIM 13
+/** Virtual object. */
+#define CMD_INTERFACE_OBJECT 14
 /*@}*/
 
 /**

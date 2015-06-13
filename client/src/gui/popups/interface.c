@@ -84,6 +84,9 @@ static void interface_destroy(interface_struct *data)
         object_remove(data->anim);
     }
 
+    object_remove(data->objects);
+    cpl.interface = NULL;
+
     utarray_free(data->links);
     font_free(data->font);
     efree(data);
@@ -425,6 +428,7 @@ void socket_command_interface(uint8_t *data, size_t len, size_t pos)
     interface_popup->redraw = 1;
     interface_popup->selection_start = interface_popup->selection_end = -1;
     interface_data->font = font_get("arial", 11);
+    interface_data->objects = object_create(NULL, 0, 0);
     utarray_new(interface_data->links, &ut_str_icd);
 
     /* Parse the data. */
@@ -557,6 +561,21 @@ void socket_command_interface(uint8_t *data, size_t len, size_t pos)
             break;
         }
 
+        case CMD_INTERFACE_OBJECT:
+        {
+            uint16_t flags = packet_to_uint16(data, len, &pos);
+            tag_t tag = packet_to_uint32(data, len, &pos);
+            bool exists = object_find(tag) != NULL;
+            object *obj = object_create(interface_data->objects, tag, 0);
+            command_item_update(data, len, &pos, flags, obj);
+
+            if (exists) {
+                object_remove(obj);
+            }
+
+            break;
+        }
+
         default:
             break;
         }
@@ -615,6 +634,8 @@ void socket_command_interface(uint8_t *data, size_t len, size_t pos)
     if (interface_data != old_interface_data) {
         interface_destroy(old_interface_data);
     }
+
+    cpl.interface = interface_data->objects;
 }
 
 /**

@@ -701,6 +701,7 @@ extern void free_newsocket(socket_struct *ns);
 extern void init_srv_files(void);
 /* src/socket/item.c */
 extern unsigned int query_flags(object *op);
+extern void add_object_to_packet(struct packet_struct *packet, object *op, object *pl, uint8_t apply_action, uint32_t flags, int level);
 extern void esrv_draw_look(object *pl);
 extern void esrv_close_container(object *pl, object *op);
 extern void esrv_send_inventory(object *pl, object *op);
