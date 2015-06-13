@@ -385,10 +385,12 @@ void widget_menu_standard_items(widgetdata *widget, widgetdata *menu)
 
 static void widget_texture_create(widgetdata *widget)
 {
-    char buf[MAX_BUF];
+    char buf[HUGE_BUF];
+    snprintf(VS(buf), "rectangle:%d,%d;", widget->w, widget->h);
 
     if (widget->texture_type == WIDGET_TEXTURE_TYPE_NORMAL) {
-        snprintf(buf, sizeof(buf), "rectangle:%d,%d;[bar=%s]", widget->w, widget->h, widget->bg[0] != '\0' ? widget->bg : "widget_bg");
+        snprintfcat(VS(buf), "[bar=%s]",
+                widget->bg[0] != '\0' ? widget->bg : "widget_bg");
     }
 
     texture_delete(widget->texture);
