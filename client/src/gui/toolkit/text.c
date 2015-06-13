@@ -1344,6 +1344,22 @@ int text_show_character(font_struct **font, font_struct *orig_font, SDL_Surface 
                     }
                 }
             }
+        } else if (tag_len >= 4 && strncmp(tag, "obj=", 4) == 0) {
+            if (surface) {
+                tag_t id;
+                int wd, ht;
+
+                wd = ht = INVENTORY_ICON_SIZE;
+
+                if (sscanf(tag + 4, "%" SCNu32 " %d %d", &id, &wd, &ht) >= 1) {
+                    object *tmp = object_find(id);
+
+                    if (tmp != NULL) {
+                        object_show_centered(surface, tmp, dest->x, dest->y,
+                                wd, ht);
+                    }
+                }
+            }
         } else if (tag_len >= 9 && strncmp(tag, "ctooltip=", 9) == 0) {
             if (surface || info->obscured) {
                 int mx, my;
