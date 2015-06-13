@@ -117,10 +117,12 @@ class Seller(Merchant):
             self.subdialog_stock()
 
     def subdialog_buy(self):
-        self.add_msg_icon(self.buy_item.face[0], self.buy_item.GetName() + " for " + CostString(self.buy_item.GetCost(self.buy_item, COST_TRUE)))
+        cost = CostString(self.buy_item.GetCost(self.buy_item, COST_TRUE))
+        desc = "{} for {}".format(self.buy_item.GetName(), cost)
+        self.add_msg_icon_object(self.buy_item, desc=desc)
 
     def subdialog_bought(self):
-        self.add_msg_icon(self.buy_item.face[0], self.buy_item.GetName())
+        self.add_msg_icon_object(self.buy_item)
 
     def subdialog_buyitem(self):
         self.add_msg("Splendid choice!")
@@ -232,7 +234,9 @@ class Buyer(Merchant):
         self.generate_item_links("sell ", self.sell_item, self.sell_item_nrof)
 
     def subdialog_sell(self):
-        self.add_msg_icon(self.sell_item.face[0], self.sell_item.GetName() + " for " + CostString(self.sell_item.GetCost(self.sell_item, COST_TRUE)))
+        cost = CostString(self.sell_item.GetCost(self.sell_item, COST_TRUE))
+        desc = "{} for {}".format(self.sell_item.GetName(), cost)
+        self.add_msg_icon_object(self.sell_item, desc=desc)
 
     def subdialog_sellitem(self):
         self.add_msg("Ah, excellent!")
@@ -241,7 +245,7 @@ class Buyer(Merchant):
         self.subdialog_item()
 
     def subdialog_sold(self):
-        self.add_msg_icon(self.sell_item.face[0], self.sell_item.GetName())
+        self.add_msg_icon_object(self.sell_item)
 
     def subdialog_solditem(self):
         self.subdialog_sold()
