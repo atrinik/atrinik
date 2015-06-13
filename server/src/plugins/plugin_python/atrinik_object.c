@@ -29,6 +29,7 @@
 #include <plugin_python.h>
 #include <bresenham.h>
 #include <artifact.h>
+#include <packet.h>
 
 /**
  * All the possible fields of an object. */
@@ -1878,6 +1879,52 @@ static PyObject *Atrinik_Object_Load(Atrinik_Object *obj, PyObject *args)
     return Py_None;
 }
 
+/** Documentation for Atrinik_Object_GetPacket(). */
+static const char doc_Atrinik_Object_GetPacket[] =
+".. method:: GetPacket(pl, flags=0).\n\n"
+"Constructs packet data about the object, suitable for "
+":meth:`Atrinik.Player.Player.SendPacket`.\n\n"
+":param pl: Player that will receive the item data.\n"
+":type pl: Atrinik.Player.Player\n"
+":param flags: A combination of UPD_xxx flags, eg, :attr:`Atrinik.UPD_FACE`.\n"
+":type flags: int\n"
+":returns: A tuple containing the format specifier and the actual data list.\n"
+":rtype: tuple";
+
+/**
+ * Implements Atrinik.Object.Object.GetPacket() Python method.
+ * @copydoc PyMethod_VARARGS
+ */
+static PyObject *Atrinik_Object_GetPacket(Atrinik_Object *obj, PyObject *args)
+{
+    Atrinik_Player *pl;
+    uint16_t flags = 0;
+
+    if (!PyArg_ParseTuple(args, "O!|H", &Atrinik_PlayerType, &pl, &flags)) {
+        return NULL;
+    }
+
+    OBJEXISTCHECK(obj);
+
+    packet_struct *packet = hooks->packet_new(0, 128, 128);
+    hooks->add_object_to_packet(packet, obj->obj, pl->pl->ob,
+            CMD_APPLY_ACTION_NORMAL, flags, 0);
+    PyObject *data = PyBytes_FromStringAndSize((const char *) packet->data,
+            packet->len);
+    hooks->packet_free(packet);
+
+    PyObject *fmt = Py_BuildValue("s", "Hx");
+    PyObject *list = PyList_New(2);
+    PyList_SetItem(list, 0, Py_BuildValue("H", flags));
+    PyList_SetItem(list, 1, data);
+
+    PyObject *tuple = PyTuple_New(2);
+    PyTuple_SET_ITEM(tuple, 0, fmt);
+    PyTuple_SET_ITEM(tuple, 1, list);
+
+    return tuple;
+}
+
 /*@}*/
 
 /** Available Python methods for the AtrinikObject object */
@@ -1937,6 +1984,8 @@ static PyMethodDef methods[] = {
     {"ConnectionTrigger", (PyCFunction) Atrinik_Object_ConnectionTrigger, METH_VARARGS, 0},
     {"Artificate", (PyCFunction) Atrinik_Object_Artificate, METH_VARARGS, 0},
     {"Load", (PyCFunction) Atrinik_Object_Load, METH_VARARGS, 0},
+    {"GetPacket", (PyCFunction) Atrinik_Object_GetPacket, METH_VARARGS,
+            doc_Atrinik_Object_GetPacket},
     {NULL, NULL, 0, 0}
 };
 
