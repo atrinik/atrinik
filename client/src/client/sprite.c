@@ -359,23 +359,33 @@ static SDL_Surface *sprite_effect_glow(SDL_Surface *surface,
     double mod = (speed - state - speed / 2.0) / (speed / 2.0);
     Uint8 alpha = 200.0 * fabs(mod);
 
+    double rgb[3], hsv[3];
+    rgb[0] = color->r / 255.0;
+    rgb[1] = color->g / 255.0;
+    rgb[2] = color->b / 255.0;
+    colorspace_rgb2hsv(rgb, hsv);
+
     Uint32 pixels[10];
     for (size_t i = 0; i < arraysize(pixels); i++) {
-        double rgb[3], hsv[3];
-        rgb[0] = color->r / 255.0;
-        rgb[1] = color->g / 255.0;
-        rgb[2] = color->b / 255.0;
+        double hsv2[3], rgb2[3];
+        memcpy(&hsv2, hsv, sizeof(hsv2));
+        hsv2[1] += (10 - rndm(1, 20)) * 0.01;
+        hsv2[2] += (10 - rndm(1, 20)) * 0.01;
+        hsv2[1] = MIN(1.0, MAX(0.0, hsv2[1]));
+        hsv2[2] = MIN(1.0, MAX(0.0, hsv2[2]));
+        colorspace_hsv2rgb(hsv2, rgb2);
 
-        colorspace_rgb2hsv(rgb, hsv);
-        hsv[1] += (10 - rndm(1, 20)) * 0.01;
-        hsv[2] += (10 - rndm(1, 20)) * 0.01;
-        hsv[1] = MIN(1.0, MAX(0.0, hsv[1]));
-        hsv[2] = MIN(1.0, MAX(0.0, hsv[2]));
-        colorspace_hsv2rgb(hsv, rgb);
-
-        pixels[i] = SDL_MapRGBA(tmp->format, rgb[0] * 255.0, rgb[1] * 255.0,
-                rgb[2] * 255.0, alpha);
+        pixels[i] = SDL_MapRGBA(tmp->format, rgb2[0] * 255.0, rgb2[1] * 255.0,
+                rgb2[2] * 255.0, alpha);
     }
+
+    hsv[1] += 0.10;
+    hsv[1] = MIN(1.0, hsv[2]);
+    hsv[2] -= 0.25;
+    hsv[2] = MAX(0.0, hsv[2]);
+    colorspace_hsv2rgb(hsv, rgb);
+    Uint32 edge_color = SDL_MapRGBA(tmp->format, rgb[0] * 255.0, rgb[1] * 255.0,
+            rgb[2] * 255.0, MAX(0, alpha - 25));
 
     for (int x = 0; x < tmp->w; x++) {
         for (int y = 0; y < tmp->h; y++) {
@@ -409,19 +419,29 @@ static SDL_Surface *sprite_effect_glow(SDL_Surface *surface,
                 continue;
             }
 
-            for (int dx = -1; dx <= 1; dx++) {
-                for (int dy = -1; dy <= 1; dy++) {
-                    int tx = x + dx;
-                    int ty = y + dy;
+            for (int off = 1; off <= 2; off++) {
+                for (int dx = -1; dx <= 1; dx++) {
+                    for (int dy = -1; dy <= 1; dy++) {
+                        int tx = x + dx * off;
+                        int ty = y + dy * off;
 
-                    if (tx < 0 || tx >= tmp->w || ty < 0 || ty >= tmp->h) {
-                        continue;
-                    }
+                        if (tx < 0 || tx >= tmp->w || ty < 0 || ty >= tmp->h) {
+                            continue;
+                        }
 
-                    if (grid[tmp->w * ty + tx] == 0) {
-                        Uint32 pixel = pixels[rndm(0, arraysize(pixels) - 1)];
-                        putpixel(tmp, tx, ty, pixel);
-                        grid[tmp->w * ty + tx] = 2;
+                        uint8_t *point = &grid[tmp->w * ty + tx];
+                        if (*point == 0 || *point == 3) {
+                            Uint32 pixel;
+                            if (off == 1) {
+                                pixel = pixels[rndm(0, arraysize(pixels) - 1)];
+                                *point = 2;
+                            } else {
+                                pixel = edge_color;
+                                *point = 3;
+                            }
+
+                            putpixel(tmp, tx, ty, pixel);
+                        }
                     }
                 }
             }
