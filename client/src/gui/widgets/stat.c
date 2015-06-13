@@ -135,7 +135,11 @@ static void widget_draw(widgetdata *widget)
 /** @copydoc widgetdata::event_func */
 static int widget_event(widgetdata *widget, SDL_Event *event)
 {
-    if (event->type == SDL_MOUSEMOTION) {
+    if (event->type == SDL_MOUSEMOTION &&
+            event->motion.x - widget->x > WIDGET_BORDER_SIZE &&
+            event->motion.x - widget->x < widget->w - WIDGET_BORDER_SIZE &&
+            event->motion.y - widget->y > WIDGET_BORDER_SIZE &&
+            event->motion.y - widget->y < widget->h - WIDGET_BORDER_SIZE) {
         int64_t curr, max;
         float regen;
 
@@ -150,9 +154,8 @@ static int widget_event(widgetdata *widget, SDL_Event *event)
                     max, regen);
             tooltip_create(event->motion.x, event->motion.y, FONT_ARIAL11, buf);
             tooltip_enable_delay(300);
+            return 1;
         }
-
-        return 1;
     }
 
     return 0;

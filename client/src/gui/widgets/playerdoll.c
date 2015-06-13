@@ -266,9 +266,8 @@ static int widget_event(widgetdata *widget, SDL_Event *event)
             tooltip_create(event->motion.x, event->motion.y, FONT_ARIAL11, buf);
             tooltip_enable_delay(300);
             tooltip_multiline(200);
+            return 1;
         }
-
-        return 1;
     }
 
     return 0;

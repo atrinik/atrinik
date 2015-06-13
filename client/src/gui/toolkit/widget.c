@@ -1168,36 +1168,6 @@ int widgets_event(SDL_Event *event)
         if (event->type == SDL_MOUSEMOTION) {
             if (widget->resizeable) {
                 widget->resize_flags = 0;
-
-#define WIDGET_RESIZE_CHECK(coord, upper_adj, lower_adj) (event->motion.coord >= widget->coord + (upper_adj) && event->motion.coord <= widget->coord + (lower_adj))
-
-                if (WIDGET_RESIZE_CHECK(y, 0, 2)) {
-                    widget->resize_flags = RESIZE_TOP;
-                } else if (WIDGET_RESIZE_CHECK(y, widget->h - 2, widget->h)) {
-                    widget->resize_flags = RESIZE_BOTTOM;
-                } else if (WIDGET_RESIZE_CHECK(x, 0, 2)) {
-                    widget->resize_flags = RESIZE_LEFT;
-                } else if (WIDGET_RESIZE_CHECK(x, widget->w - 2, widget->w)) {
-                    widget->resize_flags = RESIZE_RIGHT;
-                }
-
-                if (widget->resize_flags & (RESIZE_TOP | RESIZE_BOTTOM)) {
-                    if (WIDGET_RESIZE_CHECK(x, 0, widget->w * 0.05)) {
-                        widget->resize_flags |= RESIZE_LEFT;
-                    } else if (WIDGET_RESIZE_CHECK(x, widget->w - widget->w * 0.05, widget->w)) {
-                        widget->resize_flags |= RESIZE_RIGHT;
-                    }
-                } else if (widget->resize_flags & (RESIZE_LEFT | RESIZE_RIGHT)) {
-                    if (WIDGET_RESIZE_CHECK(y, 0, widget->h * 0.05)) {
-                        widget->resize_flags |= RESIZE_TOP;
-                    } else if (WIDGET_RESIZE_CHECK(y, widget->h - widget->h * 0.05, widget->h)) {
-                        widget->resize_flags |= RESIZE_BOTTOM;
-                    }
-                }
-
-                if (widget->resize_flags) {
-                    return 1;
-                }
             }
         } else if (event->type == SDL_MOUSEBUTTONDOWN) {
             /* Set the priority to this widget. */
@@ -1224,6 +1194,42 @@ int widgets_event(SDL_Event *event)
 
         if (widget->event_func) {
             ret = widget->event_func(widget, event);
+        }
+
+        if (ret == 0 && event->type == SDL_MOUSEMOTION && widget->resizeable) {
+#define WIDGET_RESIZE_CHECK(coord, upper_adj, lower_adj)      \
+    (event->motion.coord >= widget->coord + (upper_adj) &&    \
+    event->motion.coord <= widget->coord + (lower_adj))
+            if (WIDGET_RESIZE_CHECK(y, 0, 2)) {
+                widget->resize_flags = RESIZE_TOP;
+            } else if (WIDGET_RESIZE_CHECK(y, widget->h - 2, widget->h)) {
+                widget->resize_flags = RESIZE_BOTTOM;
+            } else if (WIDGET_RESIZE_CHECK(x, 0, 2)) {
+                widget->resize_flags = RESIZE_LEFT;
+            } else if (WIDGET_RESIZE_CHECK(x, widget->w - 2, widget->w)) {
+                widget->resize_flags = RESIZE_RIGHT;
+            }
+
+            if (widget->resize_flags & (RESIZE_TOP | RESIZE_BOTTOM)) {
+                if (WIDGET_RESIZE_CHECK(x, 0, widget->w * 0.05)) {
+                    widget->resize_flags |= RESIZE_LEFT;
+                } else if (WIDGET_RESIZE_CHECK(x, widget->w - widget->w * 0.05,
+                        widget->w)) {
+                    widget->resize_flags |= RESIZE_RIGHT;
+                }
+            } else if (widget->resize_flags & (RESIZE_LEFT | RESIZE_RIGHT)) {
+                if (WIDGET_RESIZE_CHECK(y, 0, widget->h * 0.05)) {
+                    widget->resize_flags |= RESIZE_TOP;
+                } else if (WIDGET_RESIZE_CHECK(y, widget->h - widget->h * 0.05,
+                        widget->h)) {
+                    widget->resize_flags |= RESIZE_BOTTOM;
+                }
+            }
+#undef WIDGET_RESIZE_CHECK
+
+            if (widget->resize_flags) {
+                return 1;
+            }
         }
 
         if (event->type == SDL_MOUSEBUTTONDOWN) {
