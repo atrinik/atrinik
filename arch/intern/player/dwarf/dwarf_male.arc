@@ -1,7 +1,7 @@
 Object dwarf_male
 race dwarf
 face dwarf.151
-randomitems player
+randomitems player_male
 layer 6
 behavior 10
 friendly 1

@@ -1,7 +1,7 @@
 Object dwarf_female
 race dwarf
 face dwarf.151
-randomitems player
+randomitems player_female
 layer 6
 behavior 10
 friendly 1

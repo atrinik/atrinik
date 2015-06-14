@@ -1,7 +1,7 @@
 Object human_male
 race human
 face human_m.isw.111
-randomitems player
+randomitems player_male
 layer 6
 behavior 10
 friendly 1

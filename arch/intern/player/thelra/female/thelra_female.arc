@@ -1,7 +1,7 @@
 Object thelra_female
 race thelra
 face thelra_f.151
-randomitems player
+randomitems player_female
 layer 6
 behavior 10
 friendly 1

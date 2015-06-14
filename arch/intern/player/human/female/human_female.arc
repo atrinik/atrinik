@@ -1,6 +1,6 @@
 Object human_female
 race human
-randomitems player
+randomitems player_female
 layer 6
 behavior 10
 friendly 1

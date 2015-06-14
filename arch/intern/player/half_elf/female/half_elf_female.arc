@@ -1,6 +1,6 @@
 Object half_elf_female
 race half-elf
-randomitems player
+randomitems player_female
 layer 6
 behavior 10
 friendly 1

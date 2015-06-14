@@ -13,6 +13,18 @@ treasure player
   arch quest_container
 end
 
+treasure player_male
+  list player
+  more
+  arch pants_blue
+end
+
+treasure player_female
+  list player
+  more
+  arch skirt_red
+end
+
 ##############################################################
 # BODY PARTS
 #
