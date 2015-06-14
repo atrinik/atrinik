@@ -7,8 +7,10 @@
 #
 treasure player
   arch padded_armour
+    artifact_chance 0
   more
   arch sandals
+    artifact_chance 0
   more
   arch quest_container
 end
@@ -17,12 +19,14 @@ treasure player_male
   list player
   more
   arch pants_blue
+    artifact_chance 0
 end
 
 treasure player_female
   list player
   more
   arch skirt_red
+    artifact_chance 0
 end
 
 ##############################################################
