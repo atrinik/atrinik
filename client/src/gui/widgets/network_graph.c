@@ -123,42 +123,38 @@ static void widget_draw(widgetdata *widget)
 
     SDL_FillRect(widget->surface, NULL, 0);
 
-    if (data->data != NULL) {
-        for (int i = 0; i < NETWORK_GRAPH_TRAFFIC_MAX; i++) {
-            if (!BIT_QUERY(network_graph->filters, i)) {
-                continue;
-            }
-
-            SDL_Color color;
-            if (!text_color_parse(network_graph_colors[i], &color)) {
-                LOG(ERROR, "Could not parse color: %s",
-                        network_graph_colors[i]);
-                continue;
-            }
-
-            int ly = widget->h - 1;
-            for (int x = 0; x < data->pos && x < widget->w; x++) {
-                size_t bytes = data->data[NETWORK_GRAPH_TRAFFIC_MAX * x + i];
-                long double factor;
-                if (data->max == 0) {
-                    factor = 0.0;
-                } else {
-                    factor = bytes / (long double) data->max;
-                }
-                int y = (widget->h - 1) - (widget->h - 1) * factor;
-
-                lineRGBA(widget->surface, MAX(0, x - 1), ly, x, y, color.r,
-                        color.g, color.b, 255);
-                ly = y;
-            }
-        }
+    if (data->data == NULL) {
+        return;
     }
 
-    SDL_Rect box;
-    box.x = widget->x;
-    box.y = widget->y;
+    for (int i = 0; i < NETWORK_GRAPH_TRAFFIC_MAX; i++) {
+        if (!BIT_QUERY(network_graph->filters, i)) {
+            continue;
+        }
 
-    SDL_BlitSurface(widget->surface, NULL, ScreenSurface, &box);
+        SDL_Color color;
+        if (!text_color_parse(network_graph_colors[i], &color)) {
+            LOG(ERROR, "Could not parse color: %s",
+                    network_graph_colors[i]);
+            continue;
+        }
+
+        int ly = widget->h - 1;
+        for (int x = 0; x < data->pos && x < widget->w; x++) {
+            size_t bytes = data->data[NETWORK_GRAPH_TRAFFIC_MAX * x + i];
+            long double factor;
+            if (data->max == 0) {
+                factor = 0.0;
+            } else {
+                factor = bytes / (long double) data->max;
+            }
+            int y = (widget->h - 1) - (widget->h - 1) * factor;
+
+            lineRGBA(widget->surface, MAX(0, x - 1), ly, x, y, color.r,
+                    color.g, color.b, 255);
+            ly = y;
+        }
+    }
 }
 
 /** @copydoc widgetdata::background_func */
