@@ -243,6 +243,19 @@ static void widget_deinit(widgetdata *widget)
             efree(network_graph->data[i].data);
         }
     }
+
+    if (network_graph_mutex != NULL) {
+        SDL_LockMutex(network_graph_mutex);
+        while (work_queue != NULL) {
+            network_graph_work_t *work = work_queue;
+            LL_DELETE(work_queue, work);
+            efree(work);
+        }
+        SDL_UnlockMutex(network_graph_mutex);
+
+        SDL_DestroyMutex(network_graph_mutex);
+        network_graph_mutex = NULL;
+    }
 }
 
 static void menu_network_graph_display_change(widgetdata *widget,
