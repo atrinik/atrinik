@@ -279,7 +279,7 @@ static void menu_network_graph_display(widgetdata *widget, widgetdata *menuitem,
 
     for (int i = 0; i < NETWORK_GRAPH_TYPE_MAX; i++) {
         add_menuitem(submenu, network_graph_types[i],
-                &menu_network_graph_display_change, MENU_CHECKBOX,
+                &menu_network_graph_display_change, MENU_RADIO,
                 network_graph->type == i);
     }
 }
