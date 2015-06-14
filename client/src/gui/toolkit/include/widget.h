@@ -218,10 +218,6 @@ typedef struct widget_input_struct {
     char prepend_text[MAX_BUF];
 } widget_input_struct;
 
-typedef struct widget_stat_struct {
-    char *texture;
-} widget_stat_struct;
-
 /** A more specialized kind of container, where widgets snap into it when
  * inserted, and where widgets are sorted into rows and columns. */
 typedef struct _widget_container_strip {
