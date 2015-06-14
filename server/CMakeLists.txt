@@ -72,7 +72,7 @@ endif ()
 if (CHECK_LIBRARY)
     set(SOURCES_CHECK
         src/tests/check.c
-        src/tests/bugs/85.c
+        src/tests/bugs/cursed_treasures.c
         src/tests/unit/commands/object.c
         src/tests/unit/server/arch.c
         src/tests/unit/server/attack.c

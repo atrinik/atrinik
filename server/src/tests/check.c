@@ -166,7 +166,7 @@ void check_main(int argc, char **argv)
     }
 
     /* bugs */
-    check_bug_85();
+    check_bug_cursed_treasures();
 
     /* unit/commands */
     check_commands_object();

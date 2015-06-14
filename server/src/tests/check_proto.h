@@ -7,8 +7,8 @@ extern void check_test_teardown(void);
 extern void check_setup_env_pl(mapstruct **map, object **pl);
 extern void check_run_suite(Suite *suite, const char *file);
 extern void check_main(int argc, char **argv);
-/* src/tests/bugs/85.c */
-extern void check_bug_85(void);
+/* src/tests/bugs/cursed_treasures.c */
+extern void check_bug_cursed_treasures(void);
 /* src/tests/unit/commands/object.c */
 extern void check_commands_object(void);
 /* src/tests/unit/server/arch.c */
