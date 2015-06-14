@@ -340,8 +340,7 @@ static void menu_minimap_display(widgetdata *widget, widgetdata *menuitem,
 
     for (i = 0; i < MINIMAP_TYPE_NUM; i++) {
         add_menuitem(submenu, minimap_display_modes[i],
-                &menu_minimap_display_change, MENU_CHECKBOX,
-                minimap->type == i);
+                &menu_minimap_display_change, MENU_RADIO, minimap->type == i);
     }
 }
 
