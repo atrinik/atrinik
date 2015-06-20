@@ -542,7 +542,7 @@ static SDL_Surface *sprite_effects_create(SDL_Surface *surface,
 
         surface = rotozoomSurfaceXY(surface, effects->rotate,
                 effects->zoom_x != 0 ? effects->zoom_x / 100.0 : 1.0,
-                effects->zoom_y ? effects->zoom_y / 100.0 : 1.0, smooth);
+                effects->zoom_y != 0 ? effects->zoom_y / 100.0 : 1.0, smooth);
         if (surface == NULL) {
             goto done;
         }

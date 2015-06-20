@@ -1139,6 +1139,7 @@ static void draw_map_object(SDL_Surface *surface, struct MapCell *cell,
     bitmap_h = face_sprite->bitmap->h;
     bitmap_w = face_sprite->bitmap->w;
 
+    memset(&effects, 0, sizeof(effects));
     effects.rotate = cell->rotate[GET_MAP_LAYER(layer, sub_layer)];
     effects.zoom_x = cell->zoom_x[GET_MAP_LAYER(layer, sub_layer)];
     effects.zoom_y = cell->zoom_y[GET_MAP_LAYER(layer, sub_layer)];
@@ -1189,7 +1190,6 @@ static void draw_map_object(SDL_Surface *surface, struct MapCell *cell,
         xl += cell->align[GET_MAP_LAYER(layer, sub_layer)];
     }
 
-    memset(&effects, 0, sizeof(effects));
     snprintf(VS(effects.glow), "%s",
             cell->glow[GET_MAP_LAYER(layer, sub_layer)]);
     effects.glow_speed = cell->glow_speed[GET_MAP_LAYER(layer, sub_layer)];
