@@ -31,3 +31,7 @@ faction strakewood_island_thieves
     parent thieves
     parent strakewood_island
 end
+
+faction guild_quick_wolves
+    parent npcs
+end

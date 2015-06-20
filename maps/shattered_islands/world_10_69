@@ -2,7 +2,7 @@ arch map
 name The City of Greyton
 msg
 Created:  2009-09-10 Alex Tokar
-Modified: 2015-05-04 Alex Tokar
+Modified: 2015-06-20 Alex Tokar
 endmsg
 width 24
 height 24
@@ -866,6 +866,7 @@ arch traveller_wife
 type 83
 name Clerk
 direction 1
+faction greyton_citizens
 arch event_obj
 sub_type 6
 race /python/generic/postoffice_clerk.py
@@ -3194,6 +3195,7 @@ name Derdor Rush
 direction 1
 level 70
 type 83
+faction greyton_citizens
 arch event_obj
 sub_type 6
 race /python/houses/manager.py
@@ -3605,6 +3607,7 @@ y 4
 arch guard_royal
 level 70
 type 83
+faction greyton_guards
 end
 end
 arch floor_flagm3

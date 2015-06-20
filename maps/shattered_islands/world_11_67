@@ -2,7 +2,7 @@ arch map
 name The City of Greyton
 msg
 Created:  2009-09-10 Alex Tokar
-Modified: 2015-06-07 Alex Tokar
+Modified: 2015-06-20 Alex Tokar
 endmsg
 width 24
 height 24
@@ -546,6 +546,7 @@ endmsg
 name Galend
 type 83
 level 20
+faction greyton_citizens
 direction 3
 end
 end
@@ -1503,6 +1504,7 @@ arch guard
 name jail guard
 level 80
 type 83
+faction greyton_guards
 end
 end
 arch floor_flagm2
@@ -1959,6 +1961,7 @@ arch guard
 name jail guard
 level 80
 type 83
+faction greyton_guards
 end
 end
 arch floor_marble_grey
@@ -2049,6 +2052,7 @@ name jail guard
 level 80
 type 83
 direction 1
+faction greyton_guards
 end
 end
 arch floor_marble_grey

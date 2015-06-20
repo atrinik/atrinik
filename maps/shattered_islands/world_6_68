@@ -2,7 +2,7 @@ arch map
 name Strakewood Island
 msg
 Created:  2009-09-10 Alex Tokar
-Modified: 2015-05-10 Alex Tokar
+Modified: 2015-06-20 Alex Tokar
 endmsg
 width 24
 height 24
@@ -362,6 +362,7 @@ direction 7
 level 50
 invulnerable 1
 type 83
+faction fort_ghzal_citizens
 end
 end
 arch floor_ostone11

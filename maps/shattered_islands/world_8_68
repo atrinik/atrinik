@@ -2,7 +2,7 @@ arch map
 name Strakewood Island
 msg
 Created:  2009-09-10 Alex Tokar
-Modified: 2015-05-31 Alex Tokar
+Modified: 2015-06-20 Alex Tokar
 endmsg
 width 24
 height 24
@@ -62,16 +62,16 @@ end
 arch grassd_4
 y 11
 end
-arch grassd_6
+arch floor_sand_d3
 y 12
 end
-arch plant_mushroom3
+arch grassd_m10
 y 12
 end
-arch grassd_8
+arch floor_sand_d1
 y 13
 end
-arch tree_branch2
+arch grassd_m7
 y 13
 end
 arch grassd_3
@@ -119,7 +119,7 @@ end
 arch grassd_5
 y 22
 end
-arch grassd_8
+arch grassd_1
 y 23
 end
 arch grassd_5
@@ -214,7 +214,7 @@ arch floor_sand_d2
 x 1
 y 12
 end
-arch grassd_m4
+arch grassd_m10
 x 1
 y 12
 end
@@ -222,7 +222,7 @@ arch floor_sand_d2
 x 1
 y 13
 end
-arch grassd_m9
+arch grassd_m14
 x 1
 y 13
 end
@@ -2367,6 +2367,7 @@ level 75
 stand_still 1
 wis 12
 type 83
+faction greyton_guards
 arch ability_stone_throw
 race haxarrows
 sp 1
@@ -2460,6 +2461,7 @@ level 75
 stand_still 1
 wis 12
 type 83
+faction greyton_guards
 arch ability_stone_throw
 race haxarrows
 sp 1
@@ -2590,6 +2592,7 @@ level 75
 stand_still 1
 wis 12
 type 83
+faction greyton_guards
 arch ability_stone_throw
 race haxarrows
 sp 1
@@ -2691,6 +2694,7 @@ level 75
 stand_still 1
 wis 12
 type 83
+faction greyton_guards
 arch ability_stone_throw
 race haxarrows
 sp 1
@@ -3344,6 +3348,7 @@ y 8
 arch guard_royal
 level 70
 type 83
+faction greyton_guards
 end
 end
 arch grassd_3
@@ -3381,6 +3386,7 @@ arch guard_royal
 direction 1
 level 70
 type 83
+faction greyton_guards
 end
 end
 arch water_lt4

@@ -2,7 +2,7 @@ arch map
 name The City of Greyton
 msg
 Created:  2009-09-10 Alex Tokar
-Modified: 2015-05-09 Alex Tokar
+Modified: 2015-06-20 Alex Tokar
 endmsg
 width 24
 height 24
@@ -680,6 +680,7 @@ arch guard_royal
 level 70
 type 83
 direction 3
+faction greyton_guards
 end
 end
 arch grassd_2
@@ -2324,6 +2325,7 @@ arch guard_royal
 level 70
 type 83
 direction 3
+faction greyton_guards
 end
 end
 arch grassd_8
@@ -2403,6 +2405,7 @@ y 8
 arch guard_royal
 level 70
 type 83
+faction greyton_guards
 end
 end
 arch grassd_2
@@ -2773,6 +2776,7 @@ arch guard_royal
 direction 1
 level 70
 type 83
+faction greyton_guards
 arch key2
 slaying greyton_dock_gate_key
 end
@@ -2888,6 +2892,7 @@ arch guard_royal
 direction 1
 level 70
 type 83
+faction greyton_guards
 arch key2
 slaying greyton_dock_gate_key
 end
@@ -3195,6 +3200,7 @@ y 9
 arch guard_royal
 level 70
 type 83
+faction greyton_guards
 end
 end
 arch pedestal
@@ -3285,6 +3291,7 @@ arch guard_royal
 direction 1
 level 70
 type 83
+faction greyton_guards
 end
 end
 arch pedestal

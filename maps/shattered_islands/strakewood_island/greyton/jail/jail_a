@@ -2,7 +2,7 @@ arch map
 name Greyton Jail
 msg
 Created:  2010-06-16 Alex Tokar
-Modified: 2010-06-16 Alex Tokar
+Modified: 2015-06-20 Alex Tokar
 endmsg
 width 12
 height 13
@@ -561,6 +561,7 @@ arch guard_royal
 name jail guard captain
 direction 1
 type 83
+faction greyton_guards
 arch event_obj
 msg
 [

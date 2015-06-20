@@ -2,7 +2,7 @@ arch map
 name Inn In The Mountains
 msg
 Created:  2010-08-26 Alex Tokar
-Modified: 2014-12-25 Alex Tokar
+Modified: 2015-06-20 Alex Tokar
 endmsg
 width 24
 height 24
@@ -406,6 +406,7 @@ y 13
 arch female1
 level 8
 type 83
+faction inn_in_the_mountains
 end
 end
 arch floor_wood2_l1
@@ -490,6 +491,7 @@ y 10
 arch monk
 level 18
 type 83
+faction inn_in_the_mountains
 end
 end
 arch floor_wood2_l1
@@ -1627,6 +1629,7 @@ y 10
 arch mage_old
 level 30
 type 83
+faction inn_in_the_mountains
 end
 end
 arch floor_wood2_l2

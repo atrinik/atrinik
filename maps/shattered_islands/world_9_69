@@ -2,7 +2,7 @@ arch map
 name The City of Greyton
 msg
 Created:  2009-09-10 Alex Tokar
-Modified: 2015-05-04 Alex Tokar
+Modified: 2015-06-20 Alex Tokar
 endmsg
 width 24
 height 24
@@ -1119,6 +1119,7 @@ arch priest_sad
 name Talrain
 level 115
 type 83
+faction greyton_citizens
 arch event_obj
 sub_type 6
 race /interfaces/temples/elathiel.xml
@@ -1172,6 +1173,7 @@ name Maplevale
 direction 1
 level 38
 type 83
+faction brynknot_mayor
 arch event_obj
 sub_type 6
 race /interfaces/quests/portal_of_llwyfen/quest.xml
@@ -1590,6 +1592,7 @@ y 12
 arch peasant
 direction 1
 level 26
+faction greyton_citizens
 type 83
 end
 end
@@ -2999,6 +3002,7 @@ y 4
 arch guard_royal
 level 70
 type 83
+faction greyton_guards
 end
 end
 arch floor_flagm1
@@ -3057,6 +3061,7 @@ arch monk
 name Edwar
 type 83
 level 34
+faction greyton_citizens
 arch event_obj
 sub_type 6
 race /python/generic/apartment_seller.py

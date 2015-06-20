@@ -2,7 +2,7 @@ arch map
 name Strakewood Island
 msg
 Created:  2009-09-10 Alex Tokar
-Modified: 2015-05-23 Alex Tokar
+Modified: 2015-06-20 Alex Tokar
 endmsg
 width 24
 height 24
@@ -1411,6 +1411,7 @@ protect_cleave 15
 protect_pierce 15
 protect_magic 50
 type 83
+faction fort_ghzal_guards
 end
 end
 arch floor_grey1a1
@@ -1908,6 +1909,7 @@ protect_cleave 15
 protect_pierce 15
 protect_magic 10
 type 83
+faction fort_ghzal_guards
 end
 end
 arch light7
@@ -2540,6 +2542,7 @@ protect_cleave 15
 protect_pierce 15
 protect_magic 50
 type 83
+faction fort_ghzal_guards
 end
 end
 arch light7

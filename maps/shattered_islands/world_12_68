@@ -2,7 +2,7 @@ arch map
 name Greyton Docks
 msg
 Created:  2009-09-10 Alex Tokar
-Modified: 2015-05-31 Alex Tokar
+Modified: 2015-06-20 Alex Tokar
 endmsg
 width 24
 height 24
@@ -1268,6 +1268,7 @@ endmsg
 name Ship Captain
 level 15
 type 83
+faction greyton_citizens
 end
 end
 arch ship_floor_we_dark_2
@@ -2607,6 +2608,7 @@ endmsg
 name Arraunak Almirante
 level 13
 type 83
+faction greyton_citizens
 end
 end
 arch ship_floor_ns_light_2

@@ -2,7 +2,7 @@ arch map
 name The City of Greyton
 msg
 Created:  2009-09-10 Alex Tokar
-Modified: 2015-05-04 Alex Tokar
+Modified: 2015-06-20 Alex Tokar
 endmsg
 width 24
 height 24
@@ -1229,6 +1229,7 @@ arch priest_green
 name Grimsor
 direction 3
 level 25
+faction greyton_citizens
 type 83
 arch event_obj
 sub_type 6
@@ -1271,6 +1272,7 @@ arch priest_green
 name Aruld
 direction 3
 level 25
+faction greyton_citizens
 type 83
 arch event_obj
 sub_type 6
@@ -1868,6 +1870,7 @@ arch guard_royal
 name Olren
 level 40
 type 83
+faction greyton_guards
 end
 end
 arch floor_flagm1
@@ -1930,6 +1933,7 @@ name Galbar
 direction 1
 level 40
 type 83
+faction greyton_guards
 end
 end
 arch floor_flagm1
@@ -2396,6 +2400,7 @@ arch smith
 name Falwynn
 level 115
 type 83
+faction greyton_citizens
 arch event_obj
 sub_type 6
 race /python/generic/smith.py
@@ -2719,6 +2724,7 @@ y 14
 arch guard_royal
 level 70
 type 83
+faction greyton_guards
 end
 end
 arch floor_flagm4
@@ -3480,6 +3486,7 @@ y 14
 arch guard_royal
 level 70
 type 83
+faction greyton_guards
 end
 end
 arch floor_flagm4

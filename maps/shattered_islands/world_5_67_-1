@@ -2,7 +2,7 @@ arch map
 name Under Fort Ghzal
 msg
 Created:  2010-08-29 Alex Tokar
-Modified: 2015-05-04 Alex Tokar
+Modified: 2015-06-20 Alex Tokar
 endmsg
 width 24
 height 24
@@ -294,6 +294,7 @@ y 2
 arch guard
 level 30
 type 83
+faction fort_ghzal_guards
 end
 end
 arch floor_grey1a1
@@ -478,6 +479,7 @@ y 14
 arch guard
 level 25
 type 83
+faction fort_ghzal_guards
 end
 end
 arch floor_grey1b1
@@ -1265,6 +1267,7 @@ y 3
 arch guard
 level 28
 type 83
+faction fort_ghzal_guards
 end
 end
 arch floor_grey1b1
@@ -2190,6 +2193,7 @@ y 12
 arch guard
 level 28
 type 83
+faction fort_ghzal_guards
 end
 end
 arch floor_grey1b1
@@ -2210,6 +2214,7 @@ y 14
 arch guard
 level 34
 type 83
+faction fort_ghzal_guards
 end
 end
 arch floor_grey1b1
@@ -2284,6 +2289,7 @@ is_good 0
 is_evil 1
 level 38
 type 83
+faction fort_ghzal_guards
 end
 end
 arch floor_grey1b1
@@ -2678,6 +2684,7 @@ y 16
 arch guard
 level 30
 type 83
+faction fort_ghzal_guards
 end
 end
 arch floor_grey1b2

@@ -2,7 +2,7 @@ arch map
 name The City of Greyton
 msg
 Created:  2015-04-26 Alex Tokar
-Modified: 2015-05-08 Alex Tokar
+Modified: 2015-06-20 Alex Tokar
 endmsg
 width 24
 height 24
@@ -11,6 +11,1244 @@ darkness 3
 no_harm 1
 bg_music thonkdonk.ogg
 region greyton
+end
+arch floor_cave2
+y 5
+end
+arch wall_cave1.111
+y 5
+end
+arch floor_cave2
+y 6
+end
+arch dirt_floor1
+y 6
+end
+arch floor_cave2
+y 7
+end
+arch wall_cave1.151
+y 7
+end
+arch floor_cave1
+y 16
+end
+arch wall_cave1.111
+y 16
+end
+arch floor_cave1
+y 17
+end
+arch dirt_floor2
+y 17
+end
+arch floor_cave6
+y 18
+end
+arch wall_cave1.151
+y 18
+end
+arch trans
+x 1
+y 4
+end
+arch wall_dungeon_8
+x 1
+y 4
+end
+arch floor_cave5
+x 1
+y 5
+end
+arch wall_cave1b.121
+x 1
+y 5
+end
+arch wall_dungeon_3
+sub_layer 1
+x 1
+y 5
+end
+arch floor_cave1
+x 1
+y 6
+end
+arch wall_dungeon_3
+no_pass 0
+x 1
+y 6
+end
+arch sewer_wall
+direction 7
+x 1
+y 6
+end
+arch floor_cave5
+x 1
+y 7
+end
+arch wall_cave1b.141
+x 1
+y 7
+end
+arch wall_dungeon_3
+sub_layer 1
+x 1
+y 7
+end
+arch trans
+x 1
+y 8
+end
+arch wall_dungeon_3
+x 1
+y 8
+end
+arch trans
+x 1
+y 9
+end
+arch wall_dungeon_3
+x 1
+y 9
+end
+arch trans
+x 1
+y 10
+end
+arch wall_dungeon_3
+x 1
+y 10
+end
+arch trans
+x 1
+y 11
+end
+arch wall_dungeon_3
+x 1
+y 11
+end
+arch trans
+x 1
+y 12
+end
+arch wall_dungeon_3
+x 1
+y 12
+end
+arch trans
+x 1
+y 13
+end
+arch wall_dungeon_3
+x 1
+y 13
+end
+arch trans
+x 1
+y 14
+end
+arch wall_dungeon_3
+x 1
+y 14
+end
+arch trans
+x 1
+y 15
+end
+arch wall_dungeon_3
+x 1
+y 15
+end
+arch floor_cave5
+x 1
+y 16
+end
+arch wall_cave1b.121
+direction 4
+draw_direction 1
+x 1
+y 16
+end
+arch wall_dungeon_3
+sub_layer 1
+x 1
+y 16
+end
+arch floor_cave1
+x 1
+y 17
+end
+arch wall_dungeon_3
+no_pass 0
+x 1
+y 17
+end
+arch sewer_wall
+direction 7
+x 1
+y 17
+end
+arch floor_cave5
+x 1
+y 18
+end
+arch wall_cave1b.141
+x 1
+y 18
+end
+arch wall_dungeon_3
+sub_layer 1
+x 1
+y 18
+end
+arch trans
+x 1
+y 19
+end
+arch wall_dungeon_3
+x 1
+y 19
+end
+arch trans
+x 2
+y 4
+end
+arch wall_dungeon_1
+x 2
+y 4
+end
+arch floor_fs_grey1d
+x 2
+y 5
+end
+arch grain1.101
+x 2
+y 5
+end
+arch floor_fs_grey1c
+x 2
+y 6
+end
+arch grain5.101
+x 2
+y 6
+end
+arch floor_fs_grey1b
+x 2
+y 7
+end
+arch grain1.101
+x 2
+y 7
+end
+arch floor_fs_grey1d
+x 2
+y 8
+end
+arch grain5.101
+x 2
+y 8
+end
+arch floor_fs_grey1c
+x 2
+y 9
+end
+arch grain4.101
+x 2
+y 9
+end
+arch floor_fs_grey1c
+x 2
+y 10
+end
+arch grain5.101
+x 2
+y 10
+end
+arch floor_fs_grey1a
+x 2
+y 11
+end
+arch grain4.101
+x 2
+y 11
+end
+arch floor_fs_grey1c
+x 2
+y 12
+end
+arch grain2.101
+x 2
+y 12
+end
+arch floor_fs_grey1c
+x 2
+y 13
+end
+arch grain4.101
+x 2
+y 13
+end
+arch floor_fs_grey1a
+x 2
+y 14
+end
+arch grain1.101
+x 2
+y 14
+end
+arch floor_fs_grey1a
+x 2
+y 15
+end
+arch grain2.101
+x 2
+y 15
+end
+arch floor_fs_grey1a
+x 2
+y 16
+end
+arch grain5.101
+x 2
+y 16
+end
+arch floor_fs_grey1a
+x 2
+y 17
+end
+arch floor_fs_grey1c
+x 2
+y 18
+end
+arch grain4.101
+x 2
+y 18
+end
+arch floor_fs_grey1c
+x 2
+y 19
+end
+arch wall_dungeon_1
+x 2
+y 19
+end
+arch trans
+x 3
+y 4
+end
+arch wall_dungeon_1
+x 3
+y 4
+end
+arch floor_fs_grey1c
+x 3
+y 5
+end
+arch grain5.101
+x 3
+y 5
+end
+arch floor_fs_grey1b
+x 3
+y 6
+end
+arch grain4.101
+x 3
+y 6
+end
+arch floor_fs_grey1a
+x 3
+y 7
+end
+arch trash_wood1.101
+x 3
+y 7
+end
+arch floor_fs_grey1a
+x 3
+y 8
+end
+arch floor_fs_grey1a
+x 3
+y 9
+end
+arch grain5.101
+x 3
+y 9
+end
+arch floor_fs_grey1c
+x 3
+y 10
+end
+arch water_floor
+x 3
+y 10
+end
+arch floor_fs_grey1b
+x 3
+y 11
+end
+arch grain1.101
+x 3
+y 11
+end
+arch floor_fs_grey1c
+x 3
+y 12
+end
+arch pottery5.101
+x 3
+y 12
+end
+arch floor_fs_grey1d
+x 3
+y 13
+end
+arch wood_pile.101
+x 3
+y 13
+end
+arch floor_fs_grey1b
+x 3
+y 14
+end
+arch grain1.101
+x 3
+y 14
+end
+arch floor_fs_grey1b
+x 3
+y 15
+end
+arch wood_pile.101
+x 3
+y 15
+end
+arch floor_fs_grey1c
+x 3
+y 16
+end
+arch pottery5.101
+x 3
+y 16
+end
+arch floor_fs_grey1d
+x 3
+y 17
+end
+arch water_floor
+x 3
+y 17
+end
+arch floor_fs_grey1d
+x 3
+y 18
+end
+arch straw2.111
+x 3
+y 18
+end
+arch floor_fs_grey1d
+x 3
+y 19
+end
+arch wall_dungeon_1
+x 3
+y 19
+end
+arch trans
+x 4
+y 4
+end
+arch wall_dungeon_1
+x 4
+y 4
+end
+arch floor_fs_grey1c
+x 4
+y 5
+end
+arch grain1.101
+x 4
+y 5
+end
+arch floor_fs_grey1d
+x 4
+y 6
+end
+arch wood_pile.101
+x 4
+y 6
+end
+arch floor_fs_grey1a
+x 4
+y 7
+end
+arch grain1.101
+x 4
+y 7
+end
+arch floor_fs_grey1c
+x 4
+y 8
+end
+arch floor_fs_grey1c
+x 4
+y 9
+end
+arch keg_big.101
+x 4
+y 9
+end
+arch floor_fs_grey1a
+x 4
+y 10
+end
+arch floor_fs_grey1c
+x 4
+y 11
+end
+arch dirt_floor1
+x 4
+y 11
+end
+arch floor_fs_grey1c
+x 4
+y 12
+end
+arch water_floor
+x 4
+y 12
+end
+arch floor_fs_grey1a
+x 4
+y 13
+end
+arch grain5.101
+x 4
+y 13
+end
+arch floor_fs_grey1d
+x 4
+y 14
+end
+arch floor_fs_grey1a
+x 4
+y 15
+end
+arch water_floor
+x 4
+y 15
+end
+arch floor_fs_grey1c
+x 4
+y 16
+end
+arch trash_wood2.101
+x 4
+y 16
+end
+arch floor_fs_grey1a
+x 4
+y 17
+end
+arch grain1.101
+x 4
+y 17
+end
+arch floor_fs_grey1d
+x 4
+y 18
+end
+arch dirt_floor3
+x 4
+y 18
+end
+arch floor_fs_grey1b
+x 4
+y 19
+end
+arch wall_dungeon_1
+x 4
+y 19
+end
+arch trans
+x 5
+y 4
+end
+arch wall_dungeon_1
+x 5
+y 4
+end
+arch floor_fs_grey1c
+x 5
+y 5
+end
+arch straw2.111
+x 5
+y 5
+end
+arch floor_fs_grey1c
+x 5
+y 6
+end
+arch water_floor
+x 5
+y 6
+end
+arch floor_fs_grey1c
+x 5
+y 7
+end
+arch pottery3.101
+x 5
+y 7
+end
+arch floor_fs_grey1c
+x 5
+y 8
+end
+arch straw2.111
+x 5
+y 8
+end
+arch floor_fs_grey1a
+x 5
+y 9
+end
+arch straw2.111
+x 5
+y 9
+end
+arch floor_fs_grey1c
+x 5
+y 10
+end
+arch table_small1b
+x 5
+y 10
+end
+arch floor_fs_grey1d
+x 5
+y 11
+end
+arch trash_wood2.101
+x 5
+y 11
+end
+arch floor_fs_grey1d
+x 5
+y 12
+end
+arch floor_fs_grey1a
+x 5
+y 13
+end
+arch floor_fs_grey1a
+x 5
+y 14
+end
+arch pottery1.101
+x 5
+y 14
+end
+arch floor_fs_grey1b
+x 5
+y 15
+end
+arch grain5.101
+x 5
+y 15
+end
+arch floor_fs_grey1b
+x 5
+y 16
+end
+arch grain2.101
+x 5
+y 16
+end
+arch floor_fs_grey1d
+x 5
+y 17
+end
+arch grain5.101
+x 5
+y 17
+end
+arch floor_fs_grey1c
+x 5
+y 18
+end
+arch grain5.101
+x 5
+y 18
+end
+arch floor_fs_grey1b
+x 5
+y 19
+end
+arch wall_dungeon_1
+x 5
+y 19
+end
+arch trans
+x 6
+y 4
+end
+arch wall_dungeon_1
+x 6
+y 4
+end
+arch floor_fs_grey1b
+x 6
+y 5
+end
+arch grain4.101
+x 6
+y 5
+end
+arch floor_fs_grey1c
+x 6
+y 6
+end
+arch grain5.101
+x 6
+y 6
+end
+arch floor_fs_grey1a
+x 6
+y 7
+end
+arch pottery3.101
+x 6
+y 7
+end
+arch floor_fs_grey1d
+x 6
+y 8
+end
+arch straw2.111
+x 6
+y 8
+end
+arch floor_fs_grey1a
+x 6
+y 9
+end
+arch straw2.111
+x 6
+y 9
+end
+arch floor_fs_grey1a
+x 6
+y 10
+end
+arch water_floor
+x 6
+y 10
+end
+arch floor_fs_grey1c
+x 6
+y 11
+end
+arch floor_fs_grey1a
+x 6
+y 12
+end
+arch dirt_floor4
+x 6
+y 12
+end
+arch floor_fs_grey1d
+x 6
+y 13
+end
+arch straw2.111
+direction 7
+x 6
+y 13
+end
+arch floor_fs_grey1a
+x 6
+y 14
+end
+arch straw2.111
+direction 7
+x 6
+y 14
+end
+arch floor_fs_grey1c
+x 6
+y 15
+end
+arch keg_big.101
+x 6
+y 15
+end
+arch floor_fs_grey1d
+x 6
+y 16
+end
+arch grain5.101
+x 6
+y 16
+end
+arch floor_fs_grey1d
+x 6
+y 17
+end
+arch grain1.101
+x 6
+y 17
+end
+arch floor_fs_grey1c
+x 6
+y 18
+end
+arch metal_bucket.101
+x 6
+y 18
+end
+arch floor_fs_grey1b
+x 6
+y 19
+end
+arch wall_dungeon_1
+x 6
+y 19
+end
+arch trans
+x 7
+y 4
+end
+arch wall_dungeon_1
+x 7
+y 4
+end
+arch floor_fs_grey1b
+x 7
+y 5
+end
+arch straw2.111
+x 7
+y 5
+end
+arch floor_fs_grey1a
+x 7
+y 6
+end
+arch trash_wood1.101
+x 7
+y 6
+end
+arch floor_fs_grey1a
+x 7
+y 7
+end
+arch grain1.101
+x 7
+y 7
+end
+arch floor_fs_grey1a
+x 7
+y 8
+end
+arch pottery6.101
+x 7
+y 8
+end
+arch floor_fs_grey1a
+x 7
+y 9
+end
+arch floor_fs_grey1b
+x 7
+y 10
+end
+arch floor_fs_grey1c
+x 7
+y 11
+end
+arch water_floor
+x 7
+y 11
+end
+arch floor_fs_grey1d
+x 7
+y 12
+end
+arch floor_fs_grey1b
+x 7
+y 13
+end
+arch straw2.111
+x 7
+y 13
+end
+arch floor_fs_grey1b
+x 7
+y 14
+end
+arch straw2.111
+x 7
+y 14
+end
+arch floor_fs_grey1c
+x 7
+y 15
+end
+arch water_floor
+x 7
+y 15
+end
+arch floor_fs_grey1a
+x 7
+y 16
+end
+arch pottery1.101
+x 7
+y 16
+end
+arch floor_fs_grey1c
+x 7
+y 17
+end
+arch grain5.101
+x 7
+y 17
+end
+arch floor_fs_grey1a
+x 7
+y 18
+end
+arch wood_pile.101
+x 7
+y 18
+end
+arch floor_fs_grey1a
+x 7
+y 19
+end
+arch wall_dungeon_1
+x 7
+y 19
+end
+arch trans
+x 8
+y 4
+end
+arch wall_dungeon_1
+x 8
+y 4
+end
+arch floor_fs_grey1b
+x 8
+y 5
+end
+arch wall_dungeon_3
+x 8
+y 5
+end
+arch floor_fs_grey1c
+x 8
+y 6
+end
+arch wall_dungeon_3
+x 8
+y 6
+end
+arch floor_fs_grey1d
+x 8
+y 7
+end
+arch wall_dungeon_3
+x 8
+y 7
+end
+arch floor_fs_grey1c
+x 8
+y 8
+end
+arch wall_dungeon_3
+x 8
+y 8
+end
+arch floor_fs_grey1c
+x 8
+y 9
+end
+arch wall_dungeon_3
+x 8
+y 9
+end
+arch floor_fs_grey1a
+x 8
+y 10
+end
+arch wall_dungeon_3
+x 8
+y 10
+end
+arch floor_fs_grey1d
+x 8
+y 11
+end
+arch door1_locked
+direction 3
+x 8
+y 11
+end
+arch floor_fs_grey1d
+x 8
+y 12
+end
+arch door1_locked
+direction 5
+x 8
+y 12
+end
+arch floor_fs_grey1a
+x 8
+y 13
+end
+arch wall_dungeon_3
+x 8
+y 13
+end
+arch floor_fs_grey1d
+x 8
+y 14
+end
+arch wall_dungeon_3
+x 8
+y 14
+end
+arch floor_fs_grey1c
+x 8
+y 15
+end
+arch wall_dungeon_3
+x 8
+y 15
+end
+arch floor_fs_grey1a
+x 8
+y 16
+end
+arch wall_dungeon_3
+x 8
+y 16
+end
+arch floor_fs_grey1d
+x 8
+y 17
+end
+arch wall_dungeon_3
+x 8
+y 17
+end
+arch floor_fs_grey1a
+x 8
+y 18
+end
+arch wall_dungeon_3
+x 8
+y 18
+end
+arch floor_fs_grey1b
+x 8
+y 19
+end
+arch wall_dungeon_4
+x 8
+y 19
+end
+arch trans
+x 9
+y 10
+end
+arch wall_dungeon_1
+x 9
+y 10
+end
+arch floor_fs_grey1c
+x 9
+y 11
+end
+arch floor_fs_grey1c
+x 9
+y 12
+end
+arch floor_fs_grey1a
+x 9
+y 13
+end
+arch wall_dungeon_1
+x 9
+y 13
+end
+arch trans
+x 10
+y 10
+end
+arch wall_dungeon_1
+x 10
+y 10
+end
+arch floor_fs_grey1d
+x 10
+y 11
+end
+arch torch_wall_1
+x 10
+y 11
+end
+arch floor_fs_grey1a
+x 10
+y 12
+end
+arch floor_fs_grey1b
+x 10
+y 13
+end
+arch wall_dungeon_1
+x 10
+y 13
+end
+arch trans
+x 11
+y 10
+end
+arch wall_dungeon_1
+x 11
+y 10
+end
+arch floor_fs_grey1c
+x 11
+y 11
+end
+arch dirt_floor4
+x 11
+y 11
+end
+arch floor_fs_grey1a
+x 11
+y 12
+end
+arch floor_fs_grey1c
+x 11
+y 13
+end
+arch wall_dungeon_1
+x 11
+y 13
+end
+arch trans
+x 12
+y 10
+end
+arch wall_dungeon_1
+x 12
+y 10
+end
+arch floor_fs_grey1a
+x 12
+y 11
+end
+arch floor_fs_grey1a
+x 12
+y 12
+end
+arch floor_fs_grey1b
+x 12
+y 13
+end
+arch wall_dungeon_1
+x 12
+y 13
+end
+arch trans
+x 13
+y 10
+end
+arch wall_dungeon_1
+x 13
+y 10
+end
+arch floor_fs_grey1b
+x 13
+y 11
+end
+arch floor_fs_grey1d
+x 13
+y 12
+end
+arch floor_fs_grey1c
+x 13
+y 13
+end
+arch wall_dungeon_1
+x 13
+y 13
+end
+arch trans
+x 14
+y 10
+end
+arch wall_dungeon_1
+x 14
+y 10
+end
+arch floor_fs_grey1b
+x 14
+y 11
+end
+arch floor_fs_grey1b
+x 14
+y 12
+end
+arch floor_fs_grey1a
+x 14
+y 13
+end
+arch wall_dungeon_1
+x 14
+y 13
+end
+arch trans
+x 15
+y 10
+end
+arch wall_dungeon_1
+x 15
+y 10
+end
+arch floor_fs_grey1b
+x 15
+y 11
+end
+arch torch_wall_1
+x 15
+y 11
+end
+arch floor_fs_grey1b
+x 15
+y 12
+end
+arch dirt_floor2
+x 15
+y 12
+end
+arch floor_fs_grey1d
+x 15
+y 13
+end
+arch wall_dungeon_1
+x 15
+y 13
 end
 arch trans
 x 16
@@ -43,6 +1281,30 @@ end
 arch wall_dungeon_3
 x 16
 y 8
+end
+arch trans
+x 16
+y 10
+end
+arch wall_dungeon_1
+x 16
+y 10
+end
+arch floor_fs_grey1d
+x 16
+y 11
+end
+arch floor_fs_grey1b
+x 16
+y 12
+end
+arch floor_fs_grey1a
+x 16
+y 13
+end
+arch wall_dungeon_1
+x 16
+y 13
 end
 arch trans
 x 16
@@ -122,31 +1384,23 @@ arch trans
 x 17
 y 10
 end
-arch wall_dungeon_3
+arch wall_dungeon_4
 x 17
 y 10
 end
-arch trans
+arch floor_fs_grey1b
 x 17
 y 11
 end
-arch wall_dungeon_3
-x 17
-y 11
-end
-arch trans
+arch floor_fs_grey1c
 x 17
 y 12
 end
-arch wall_dungeon_3
-x 17
-y 12
-end
-arch trans
+arch floor_fs_grey1a
 x 17
 y 13
 end
-arch wall_dungeon_3
+arch wall_dungeon_1
 x 17
 y 13
 end

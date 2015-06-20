@@ -2,7 +2,7 @@ arch map
 name Strakewood Island
 msg
 Created:  2009-09-10 Alex Tokar
-Modified: 2015-05-10 Alex Tokar
+Modified: 2015-06-20 Alex Tokar
 endmsg
 width 24
 height 24
@@ -713,6 +713,7 @@ name Lothost
 direction 1
 level 103
 type 83
+faction greyton_citizens
 arch event_obj
 sub_type 6
 race /interfaces/strakewood_island/lothost.xml

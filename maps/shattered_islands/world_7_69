@@ -2,7 +2,7 @@ arch map
 name Strakewood Island
 msg
 Created:  2009-09-10 Alex Tokar
-Modified: 2015-05-31 Alex Tokar
+Modified: 2015-06-20 Alex Tokar
 endmsg
 width 24
 height 24
@@ -13,51 +13,80 @@ region strakewood_island
 end
 arch grassd_6
 end
-arch plant_flower11
+arch wall_wood_1
 end
-arch grassd_1
+arch map_info
+name greyton_strakes
+hp 8
+sp 7
+cursed 1
+end
+arch ship_floor_we_dark_1
 y 1
 end
-arch grassd_5
+arch bed_double2
+y 1
+end
+arch ship_floor_we_dark_4
 y 2
 end
-arch plant_flower5
-y 2
-end
-arch grassd_8
+arch ship_floor_we_dark_2
 y 3
 end
-arch grassd_4
+arch shelf3c.111
+direction 7
+y 3
+end
+arch ship_floor_we_dark_1
 y 4
 end
-arch grassd_1
+arch wall_wood3_1
+y 4
+end
+arch ship_floor_we_dark_4
 y 5
 end
-arch plant11
+arch locker3.111
 y 5
 end
-arch grassd_2
+arch ship_floor_we_dark_2
 y 6
 end
-arch grassd_5
+arch carpet1.131
+y 6
+end
+arch ship_floor_we_dark_2
 y 7
 end
-arch grassd_5
+arch wall_wood_1
+y 7
+end
+arch floor_sand_d2
 y 8
 end
-arch plant_mushroom2
+arch grassd_m4
 y 8
 end
-arch grassd_6
+arch torch_wall_1
+direction 3
+y 8
+end
+arch floor_sand_d3
 y 9
 end
-arch grassd_3
+arch grassd_m9
+y 9
+end
+arch floor_sand_d3
 y 10
 end
-arch tree_branch2
+arch grassd_m3
 y 10
 end
 arch grassd_7
+y 11
+end
+arch plant_flower9
 y 11
 end
 arch floor_sand_d4
@@ -117,51 +146,74 @@ end
 arch grassd_3
 x 1
 end
-arch grassd_5
+arch wall_wood3_1
+x 1
+end
+arch ship_floor_we_dark_2
 x 1
 y 1
 end
-arch grassd_6
+arch ship_floor_we_dark_2
 x 1
 y 2
 end
-arch grassd_7
+arch ship_floor_we_dark_2
 x 1
 y 3
 end
-arch tree_big2
-x 1
-y 3
-end
-arch grassd_7
+arch ship_floor_we_dark_1
 x 1
 y 4
 end
-arch grassd_5
+arch wall_wood3_1
+x 1
+y 4
+end
+arch ship_floor_we_dark_1
 x 1
 y 5
 end
-arch grassd_4
+arch carpet1.151
+x 1
+y 5
+end
+arch locker2.111
+x 1
+y 5
+end
+arch ship_floor_we_dark_1
 x 1
 y 6
 end
-arch grassd_6
+arch carpet1
+x 1
+y 6
+end
+arch ship_floor_we_dark_2
 x 1
 y 7
 end
-arch tree_big4b
+arch carpet1.111
 x 1
 y 7
 end
-arch grassd_1
+arch door_wood2
+x 1
+y 7
+end
+arch floor_sand_d4
 x 1
 y 8
 end
-arch grassd_2
+arch floor_sand_d2
 x 1
 y 9
 end
-arch grassd_2
+arch floor_sand_d4
+x 1
+y 10
+end
+arch grassd_m14
 x 1
 y 10
 end
@@ -169,7 +221,7 @@ arch floor_sand_d3
 x 1
 y 11
 end
-arch grassd_m4
+arch grassd_m9
 x 1
 y 11
 end
@@ -248,51 +300,91 @@ end
 arch grassd_2
 x 2
 end
-arch grassd_5
+arch wall_wood_1
+x 2
+end
+arch ship_floor_we_dark_4
 x 2
 y 1
 end
-arch tree_burned1
+arch locker4
 x 2
 y 1
 end
-arch grassd_2
+arch ship_floor_we_dark_3
 x 2
 y 2
 end
-arch grassd_3
+arch ship_floor_we_dark_1
 x 2
 y 3
 end
-arch grassd_3
+arch ship_floor_we_dark_3
 x 2
 y 4
 end
-arch grassd_5
+arch wall_wood_1
+x 2
+y 4
+end
+arch ship_floor_we_dark_1
 x 2
 y 5
 end
-arch grassd_6
+arch carpet1.151
+x 2
+y 5
+end
+arch locker5
+x 2
+y 5
+end
+arch ship_floor_we_dark_1
 x 2
 y 6
 end
-arch grassd_2
+arch carpet1
+x 2
+y 6
+end
+arch ship_floor_we_dark_3
 x 2
 y 7
 end
-arch grassd_4
+arch carpet1.111
+x 2
+y 7
+end
+arch wall_wood3_1
+x 2
+y 7
+end
+arch floor_sand_d1
 x 2
 y 8
 end
-arch grassd_3
+arch grassd_m6
+x 2
+y 8
+end
+arch torch_wall_1
+direction 3
+x 2
+y 8
+end
+arch floor_sand_d3
 x 2
 y 9
 end
-arch tree_big
+arch grassd_m8
 x 2
 y 9
 end
-arch grassd_7
+arch floor_sand_d4
+x 2
+y 10
+end
+arch grassd_m8
 x 2
 y 10
 end
@@ -300,7 +392,7 @@ arch floor_sand_d2
 x 2
 y 11
 end
-arch grassd_m10
+arch grassd_m12
 x 2
 y 11
 end
@@ -375,31 +467,68 @@ end
 arch grassd_3
 x 3
 end
-arch grassd_5
+arch wall_wood_1
+x 3
+end
+arch ship_floor_we_dark_2
 x 3
 y 1
 end
-arch grassd_5
+arch wall_wood2_3
+x 3
+y 1
+end
+arch ship_floor_we_dark_2
 x 3
 y 2
 end
-arch grassd_1
+arch curtain1
+direction 3
+x 3
+y 2
+end
+arch ship_floor_we_dark_2
 x 3
 y 3
 end
-arch grassd_7
+arch wall_wood3_3
+x 3
+y 3
+end
+arch ship_floor_we_dark_3
 x 3
 y 4
 end
-arch grassd_6
+arch wall_wood_4
+x 3
+y 4
+end
+arch ship_floor_we_dark_4
 x 3
 y 5
 end
-arch grassd_8
+arch wall_wood2_3
+x 3
+y 5
+end
+arch ship_floor_we_dark_3
 x 3
 y 6
 end
-arch grassd_6
+arch carpet1.171
+x 3
+y 6
+end
+arch doorway_wood1_1
+direction 7
+x 3
+y 6
+end
+arch ship_floor_we_dark_1
+x 3
+y 7
+end
+arch wall_wood_4
 x 3
 y 7
 end
@@ -408,6 +537,10 @@ x 3
 y 8
 end
 arch grassd_5
+x 3
+y 9
+end
+arch small_stones
 x 3
 y 9
 end
@@ -498,45 +631,95 @@ end
 arch grassd_8
 x 4
 end
-arch grassd_1
+arch wall_wood2_1
+x 4
+end
+arch ship_floor_we_dark_4
 x 4
 y 1
 end
-arch grassd_8
+arch ship_floor_we_dark_2
 x 4
 y 2
 end
-arch plant_mushroom1
+arch carpet1.131
 x 4
 y 2
 end
-arch grassd_1
+arch ship_floor_we_dark_1
 x 4
 y 3
 end
-arch grassd_2
+arch carpet1.131
+x 4
+y 3
+end
+arch fireplace_left
+x 4
+y 3
+end
+arch light5
+x 4
+y 3
+end
+arch ship_floor_we_dark_4
 x 4
 y 4
 end
-arch grassd_6
+arch carpet1.131
+x 4
+y 4
+end
+arch light5
+x 4
+y 4
+end
+arch ship_floor_we_dark_1
 x 4
 y 5
 end
-arch plant_flower14
+arch carpet1.131
 x 4
 y 5
 end
-arch grassd_6
+arch wall_well.131
+direction 7
+x 4
+y 5
+end
+arch ship_floor_we_dark_3
 x 4
 y 6
 end
-arch grassd_1
+arch ship_floor_we_dark_3
+x 4
+y 7
+end
+arch wall_wood_1
 x 4
 y 7
 end
 arch grassd_2
 x 4
 y 8
+end
+arch bench3
+x 4
+y 8
+end
+arch spawn_point
+x 4
+y 8
+arch traveller_parka
+msg
+@match ^hello$
+Greetings, traveler! My name is Josh Strake. If you're heading for Greyton, you've just reached its outskirts. Continue the road East to enter the city.
+endmsg
+type 83
+name Josh Strake
+level 10
+faction greyton_citizens
+end
 end
 arch grassd_2
 x 4
@@ -630,47 +813,108 @@ end
 arch grassd_4
 x 5
 end
-arch grassd_3
+arch wall_wood3_1
+x 5
+end
+arch ship_floor_we_dark_4
 x 5
 y 1
 end
-arch tree_big4b
+arch carpet1.151
 x 5
 y 1
 end
-arch grassd_7
+arch table_wood1.111
+x 5
+y 1
+end
+arch kitchen_cleaver
+sub_layer 1
+z 28
+align 18
+x 5
+y 1
+end
+arch kitchen_pan
+sub_layer 2
+z 34
+align 10
+x 5
+y 1
+end
+arch ship_floor_we_dark_1
 x 5
 y 2
 end
-arch grassd_2
+arch carpet1
+x 5
+y 2
+end
+arch chair2_111
+direction 5
+x 5
+y 2
+end
+arch spawn_point
+x 5
+y 2
+arch traveller_wife
+msg
+@match ^hello$
+Excuse me, I need to fix supper for my hubby!
+endmsg
+type 83
+direction 1
+name Angela Strake
+level 10
+faction greyton_citizens
+end
+end
+arch ship_floor_we_dark_4
 x 5
 y 3
 end
-arch plant11
+arch carpet1
 x 5
 y 3
 end
-arch grassd_2
+arch ship_floor_we_dark_4
 x 5
 y 4
 end
-arch grassd_6
+arch carpet1
+x 5
+y 4
+end
+arch ship_floor_we_dark_3
 x 5
 y 5
 end
-arch grassd_2
+arch carpet1
+x 5
+y 5
+end
+arch ship_floor_we_dark_4
 x 5
 y 6
 end
-arch grassd_7
+arch carpet1.111
+x 5
+y 6
+end
+arch ship_floor_we_dark_4
 x 5
 y 7
 end
-arch tree_big2
+arch wall_wood_w_1
 x 5
 y 7
 end
 arch grassd_8
+x 5
+y 8
+end
+arch plant12
 x 5
 y 8
 end
@@ -761,35 +1005,85 @@ end
 arch grassd_1
 x 6
 end
-arch grassd_8
+arch wall_wood3_1
+x 6
+end
+arch ship_floor_we_dark_4
 x 6
 y 1
 end
-arch grassd_3
+arch carpet1.151
+x 6
+y 1
+end
+arch table_wood1.111
+x 6
+y 1
+end
+arch kitchen_bowl
+sub_layer 2
+z 30
+align 22
+x 6
+y 1
+end
+arch kitchen_plate13
+sub_layer 1
+z 36
+align 10
+x 6
+y 1
+end
+arch ship_floor_we_dark_2
 x 6
 y 2
 end
-arch grassd_2
+arch carpet1
+x 6
+y 2
+end
+arch chair2_111
+direction 5
+x 6
+y 2
+end
+arch ship_floor_we_dark_1
 x 6
 y 3
 end
-arch grassd_2
+arch carpet1
+x 6
+y 3
+end
+arch ship_floor_we_dark_2
 x 6
 y 4
 end
-arch plant_mushroom5
+arch carpet1
 x 6
 y 4
 end
-arch grassd_1
+arch ship_floor_we_dark_1
 x 6
 y 5
 end
-arch grassd_8
+arch carpet1
+x 6
+y 5
+end
+arch ship_floor_we_dark_3
 x 6
 y 6
 end
-arch grassd_7
+arch carpet1.111
+x 6
+y 6
+end
+arch ship_floor_we_dark_4
+x 6
+y 7
+end
+arch wall_wood_w_1
 x 6
 y 7
 end
@@ -798,6 +1092,10 @@ x 6
 y 8
 end
 arch grassd_8
+x 6
+y 9
+end
+arch tree_branch2
 x 6
 y 9
 end
@@ -889,35 +1187,59 @@ end
 arch grassd_7
 x 7
 end
-arch grassd_2
+arch wall_wood2_1
+x 7
+end
+arch ship_floor_we_dark_2
 x 7
 y 1
 end
-arch plant_mushroom3
+arch candlelight4.101
+glow_radius 5
 x 7
 y 1
 end
-arch grassd_4
+arch ship_floor_we_dark_2
 x 7
 y 2
 end
-arch grassd_8
+arch carpet1.171
+x 7
+y 2
+end
+arch ship_floor_we_dark_1
 x 7
 y 3
 end
-arch grassd_6
+arch carpet1.171
+x 7
+y 3
+end
+arch ship_floor_we_dark_1
 x 7
 y 4
 end
-arch grassd_8
+arch carpet1.171
+x 7
+y 4
+end
+arch ship_floor_we_dark_4
 x 7
 y 5
 end
-arch grassd_6
+arch carpet1.171
+x 7
+y 5
+end
+arch ship_floor_we_dark_1
 x 7
 y 6
 end
-arch grassd_3
+arch ship_floor_we_dark_4
+x 7
+y 7
+end
+arch wall_wood2_1
 x 7
 y 7
 end
@@ -1020,35 +1342,62 @@ end
 arch grassd_2
 x 8
 end
-arch grassd_5
+arch wall_wood3_1
+x 8
+end
+arch ship_floor_we_dark_2
 x 8
 y 1
 end
-arch grassd_7
+arch wall_wood3_3
+x 8
+y 1
+end
+arch ship_floor_we_dark_4
 x 8
 y 2
 end
-arch grassd_4
+arch wall_wood_w_3
+x 8
+y 2
+end
+arch ship_floor_we_dark_2
 x 8
 y 3
 end
-arch grassd_7
+arch wall_wood3_3
+x 8
+y 3
+end
+arch ship_floor_we_dark_3
 x 8
 y 4
 end
-arch grassd_5
+arch wall_wood3_3
+x 8
+y 4
+end
+arch ship_floor_we_dark_3
 x 8
 y 5
 end
-arch tree_big
+arch wall_wood_w_3
 x 8
 y 5
 end
-arch grassd_7
+arch ship_floor_we_dark_4
 x 8
 y 6
 end
-arch grassd_1
+arch wall_wood2_3
+x 8
+y 6
+end
+arch ship_floor_we_dark_2
+x 8
+y 7
+end
+arch wall_wood_4
 x 8
 y 7
 end
@@ -1061,6 +1410,11 @@ x 8
 y 9
 end
 arch grassd_2
+x 8
+y 10
+end
+arch wagon_big
+direction 3
 x 8
 y 10
 end
@@ -1143,6 +1497,9 @@ end
 arch grassd_2
 x 9
 end
+arch tree_branch3
+x 9
+end
 arch grassd_2
 x 9
 y 1
@@ -1155,6 +1512,10 @@ arch grassd_3
 x 9
 y 3
 end
+arch plant_flower7
+x 9
+y 3
+end
 arch grassd_5
 x 9
 y 4
@@ -1164,6 +1525,10 @@ x 9
 y 5
 end
 arch grassd_3
+x 9
+y 6
+end
+arch plant_flower8
 x 9
 y 6
 end
@@ -1266,7 +1631,21 @@ end
 arch grassd_3
 x 10
 end
+arch wall_wood_8
+x 10
+end
+arch map_info
+name greyton_tom_radson
+hp 7
+sp 6
+cursed 1
+x 10
+end
 arch grassd_5
+x 10
+y 1
+end
+arch wall_wood3_3
 x 10
 y 1
 end
@@ -1274,11 +1653,15 @@ arch grassd_2
 x 10
 y 2
 end
+arch wall_wood_w_3
+x 10
+y 2
+end
 arch grassd_5
 x 10
 y 3
 end
-arch tree_big2
+arch wall_wood_3
 x 10
 y 3
 end
@@ -1286,11 +1669,23 @@ arch grassd_1
 x 10
 y 4
 end
+arch wall_wood_3
+x 10
+y 4
+end
 arch grassd_5
 x 10
 y 5
 end
+arch wall_wood_3
+x 10
+y 5
+end
 arch grassd_3
+x 10
+y 6
+end
+arch wall_wood_3
 x 10
 y 6
 end
@@ -1307,6 +1702,10 @@ x 10
 y 8
 end
 arch grassd_2
+x 10
+y 9
+end
+arch plant_flower14
 x 10
 y 9
 end
@@ -1397,38 +1796,59 @@ end
 arch grassd_5
 x 11
 end
-arch tree_big
+arch wall_wood2_1
 x 11
 end
-arch grassd_3
+arch floor_wood2_l2
 x 11
 y 1
 end
-arch grassd_5
+arch locker2.111
+x 11
+y 1
+end
+arch floor_wood2_l2
 x 11
 y 2
 end
-arch grassd_5
+arch floor_wood2_l2
 x 11
 y 3
 end
-arch plant12
+arch wall_wood_1
 x 11
 y 3
 end
-arch grassd_7
+arch floor_wood2_l1
 x 11
 y 4
 end
-arch grassd_4
+arch locker5
+x 11
+y 4
+end
+arch floor_wood2_l2
 x 11
 y 5
 end
-arch grassd_6
+arch carpet1.131
+x 11
+y 5
+end
+arch floor_wood2_l1
+x 11
+y 6
+end
+arch wall_wood_1
 x 11
 y 6
 end
 arch grassd_8
+x 11
+y 7
+end
+arch torch_wall_1
+direction 3
 x 11
 y 7
 end
@@ -1527,47 +1947,78 @@ end
 arch grassd_6
 x 12
 end
-arch grassd_3
+arch wall_wood_1
+x 12
+end
+arch floor_wood2_l1
 x 12
 y 1
 end
-arch grassd_6
+arch locker1.111
+x 12
+y 1
+end
+arch floor_wood2_l2
 x 12
 y 2
 end
-arch plant16
-x 12
-y 2
-end
-arch grassd_6
+arch floor_wood2_l1
 x 12
 y 3
 end
-arch grassd_5
+arch doorway_wood1_1
+x 12
+y 3
+end
+arch floor_wood2_l1
 x 12
 y 4
 end
-arch grassd_6
+arch carpet1.151
+x 12
+y 4
+end
+arch floor_wood2_l2
 x 12
 y 5
 end
-arch grassd_1
+arch carpet1
+x 12
+y 5
+end
+arch floor_wood2_l1
 x 12
 y 6
 end
-arch grassd_3
+arch carpet1.111
+x 12
+y 6
+end
+arch door_wood2
+x 12
+y 6
+end
+arch floor_sand_d2
 x 12
 y 7
 end
-arch tree_big3
+arch grassd_m4
 x 12
 y 7
 end
-arch grassd_2
+arch floor_sand_d4
 x 12
 y 8
 end
-arch grassd_8
+arch grassd_m9
+x 12
+y 8
+end
+arch floor_sand_d2
+x 12
+y 9
+end
+arch grassd_m9
 x 12
 y 9
 end
@@ -1575,7 +2026,7 @@ arch floor_sand_d1
 x 12
 y 10
 end
-arch grassd_m4
+arch grassd_m9
 x 12
 y 10
 end
@@ -1658,43 +2109,92 @@ end
 arch grassd_2
 x 13
 end
-arch grassd_6
+arch wall_wood2_1
+x 13
+end
+arch floor_wood2_l1
 x 13
 y 1
 end
-arch grassd_3
+arch wall_wood_3
+x 13
+y 1
+end
+arch floor_wood2_l2
 x 13
 y 2
 end
-arch grassd_4
+arch door_wood1
+direction 3
+x 13
+y 2
+end
+arch floor_wood2_l1
 x 13
 y 3
 end
-arch grassd_2
+arch wall_wood_4
+x 13
+y 3
+end
+arch floor_wood2_l1
 x 13
 y 4
 end
-arch grassd_6
+arch carpet1.151
+x 13
+y 4
+end
+arch shelf2_wall.111
+x 13
+y 4
+end
+arch floor_wood2_l1
 x 13
 y 5
 end
-arch grassd_8
+arch carpet1
+x 13
+y 5
+end
+arch floor_wood2_l1
 x 13
 y 6
 end
-arch plant1
+arch carpet1.111
 x 13
 y 6
 end
-arch grassd_2
+arch wall_wood_1
+x 13
+y 6
+end
+arch floor_sand_d3
 x 13
 y 7
 end
-arch grassd_2
+arch grassd_m6
+x 13
+y 7
+end
+arch torch_wall_1
+direction 3
+x 13
+y 7
+end
+arch floor_sand_d2
 x 13
 y 8
 end
-arch grassd_4
+arch grassd_m8
+x 13
+y 8
+end
+arch floor_sand_d1
+x 13
+y 9
+end
+arch grassd_m8
 x 13
 y 9
 end
@@ -1702,7 +2202,7 @@ arch floor_sand_d2
 x 13
 y 10
 end
-arch grassd_m10
+arch grassd_m12
 x 13
 y 10
 end
@@ -1777,31 +2277,59 @@ end
 arch grassd_2
 x 14
 end
-arch grassd_7
+arch wall_wood2_1
+x 14
+end
+arch floor_wood2_l2
 x 14
 y 1
 end
-arch grassd_7
+arch drawers1.111
+x 14
+y 1
+end
+arch floor_wood2_l2
 x 14
 y 2
 end
-arch grassd_5
+arch floor_wood2_l2
 x 14
 y 3
 end
-arch grassd_7
+arch wall_wood3_1
+x 14
+y 3
+end
+arch floor_wood2_l1
 x 14
 y 4
 end
-arch tree_big3
+arch carpet1.151
 x 14
 y 4
 end
-arch grassd_2
+arch candlelight4.101
+glow_radius 5
+x 14
+y 4
+end
+arch floor_wood2_l1
 x 14
 y 5
 end
-arch grassd_1
+arch carpet1
+x 14
+y 5
+end
+arch floor_wood2_l2
+x 14
+y 6
+end
+arch carpet1.111
+x 14
+y 6
+end
+arch wall_wood_w_1
 x 14
 y 6
 end
@@ -1810,6 +2338,10 @@ x 14
 y 7
 end
 arch grassd_4
+x 14
+y 8
+end
+arch plant_mushroom3
 x 14
 y 8
 end
@@ -1912,35 +2444,101 @@ end
 arch grassd_4
 x 15
 end
-arch grassd_8
+arch wall_wood2_1
+x 15
+end
+arch floor_wood2_l1
 x 15
 y 1
 end
-arch plant_flower11
+arch locker3.111
 x 15
 y 1
 end
-arch grassd_2
+arch floor_wood2_l1
 x 15
 y 2
 end
-arch tree_branch2
-x 15
-y 2
-end
-arch grassd_3
+arch floor_wood2_l1
 x 15
 y 3
 end
-arch grassd_4
+arch wall_wood3_1
+x 15
+y 3
+end
+arch floor_wood2_l2
 x 15
 y 4
 end
-arch grassd_2
+arch carpet1.151
+x 15
+y 4
+end
+arch table_wood1.111
+x 15
+y 4
+end
+arch kitchen_plate
+sub_layer 1
+z 34
+align 8
+x 15
+y 4
+end
+arch kitchen_goblet5
+sub_layer 3
+z 31
+align 28
+x 15
+y 4
+end
+arch steak
+sub_layer 2
+zoom 40
+align 10
+z 36
+layer 4
+x 15
+y 4
+end
+arch floor_wood2_l1
 x 15
 y 5
 end
-arch grassd_1
+arch carpet1
+x 15
+y 5
+end
+arch chair1_111
+direction 5
+x 15
+y 5
+end
+arch spawn_point
+x 15
+y 5
+arch ranger
+msg
+@match ^hello$
+Hi there! My name is Tom Radson, a hunter by profession. There's quite a lot of bears around in the area, so I'm able to supply Greyton with fresh meat and hides!
+endmsg
+name Tom Radson
+direction 1
+type 83
+level 14
+faction greyton_citizens
+end
+end
+arch floor_wood2_l1
+x 15
+y 6
+end
+arch carpet1.111
+x 15
+y 6
+end
+arch wall_wood2_1
 x 15
 y 6
 end
@@ -1948,7 +2546,15 @@ arch grassd_6
 x 15
 y 7
 end
+arch bench1b.111
+x 15
+y 7
+end
 arch grassd_1
+x 15
+y 8
+end
+arch plant_flower3
 x 15
 y 8
 end
@@ -2039,45 +2645,60 @@ end
 arch grassd_4
 x 16
 end
-arch plant_flower1
+arch wall_wood_1
 x 16
 end
-arch tree_big2
-x 16
-end
-arch grassd_2
+arch floor_wood2_l2
 x 16
 y 1
 end
-arch grassd_7
+arch bed_8a
+direction 7
+x 16
+y 1
+end
+arch floor_wood2_l2
 x 16
 y 2
 end
-arch grassd_7
+arch bed_8b
+direction 7
+x 16
+y 2
+end
+arch floor_wood2_l2
 x 16
 y 3
 end
-arch grassd_7
+arch wall_wood2_1
+x 16
+y 3
+end
+arch floor_wood2_l1
 x 16
 y 4
 end
-arch plant5
-x 16
-y 4
-end
-arch grassd_1
+arch floor_wood2_l1
 x 16
 y 5
 end
-arch grassd_2
+arch carpet1.171
+x 16
+y 5
+end
+arch floor_wood2_l1
 x 16
 y 6
 end
-arch plant_mushroom1
+arch wall_wood2_1
 x 16
 y 6
 end
 arch grassd_2
+x 16
+y 7
+end
+arch bench1a.111
 x 16
 y 7
 end
@@ -2181,31 +2802,54 @@ end
 arch grassd_2
 x 17
 end
-arch grassd_2
+arch wall_wood2_1
+x 17
+end
+arch floor_wood2_l2
 x 17
 y 1
 end
-arch grassd_5
+arch wall_wood_3
+x 17
+y 1
+end
+arch floor_wood2_l2
 x 17
 y 2
 end
-arch grassd_5
+arch wall_wood_w_3
+x 17
+y 2
+end
+arch floor_wood2_l2
 x 17
 y 3
 end
-arch grassd_4
+arch wall_wood_4
+x 17
+y 3
+end
+arch floor_wood2_l1
 x 17
 y 4
 end
-arch grassd_8
+arch wall_wood2_3
+x 17
+y 4
+end
+arch floor_wood2_l1
 x 17
 y 5
 end
-arch tree_big3
+arch wall_wood_w_3
 x 17
 y 5
 end
-arch grassd_1
+arch floor_wood2_l1
+x 17
+y 6
+end
+arch wall_wood_4
 x 17
 y 6
 end
@@ -2306,6 +2950,9 @@ x 17
 y 23
 end
 arch grassd_5
+x 18
+end
+arch tree_branch3
 x 18
 end
 arch grassd_7
@@ -2456,6 +3103,10 @@ x 19
 y 4
 end
 arch grassd_6
+x 19
+y 5
+end
+arch plant_flower10
 x 19
 y 5
 end
@@ -2566,18 +3217,15 @@ end
 arch grassd_4
 x 20
 end
-arch tree_big3
-x 20
-end
 arch grassd_6
 x 20
 y 1
 end
-arch grassd_3
+arch plant9
 x 20
-y 2
+y 1
 end
-arch tree_burned1
+arch grassd_3
 x 20
 y 2
 end
@@ -2839,7 +3487,7 @@ arch grassd_2
 x 22
 y 2
 end
-arch tree_big2
+arch tree_big
 x 22
 y 2
 end

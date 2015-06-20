@@ -2,7 +2,7 @@ arch map
 name The City of Greyton
 msg
 Created:  2015-04-26 Alex Tokar
-Modified: 2015-05-23 Alex Tokar
+Modified: 2015-06-20 Alex Tokar
 endmsg
 width 24
 height 24
@@ -205,6 +205,7 @@ level 75
 stand_still 1
 wis 12
 type 83
+faction greyton_guards
 arch ability_stone_throw
 race haxarrows
 sp 1
@@ -384,6 +385,7 @@ level 75
 stand_still 1
 wis 12
 type 83
+faction greyton_guards
 arch ability_stone_throw
 race haxarrows
 sp 1

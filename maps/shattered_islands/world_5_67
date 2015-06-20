@@ -2,7 +2,7 @@ arch map
 name Fort Ghzal
 msg
 Created:  2009-09-10 Alex Tokar
-Modified: 2015-05-23 Alex Tokar
+Modified: 2015-06-20 Alex Tokar
 endmsg
 width 24
 height 24
@@ -929,6 +929,7 @@ protect_cleave 15
 protect_pierce 15
 protect_magic 50
 type 83
+faction fort_ghzal_guards
 end
 end
 arch light7
@@ -1573,6 +1574,7 @@ arch female2
 name Rienn Howell
 level 21
 type 83
+faction fort_ghzal_citizens
 arch event_obj
 sub_type 6
 race /interfaces/quests/two_lovers_doomed/quest.xml
@@ -1903,6 +1905,7 @@ protect_cleave 15
 protect_pierce 15
 protect_magic 10
 type 83
+faction fort_ghzal_guards
 end
 end
 arch light7
@@ -2576,6 +2579,7 @@ protect_cleave 15
 protect_pierce 15
 protect_magic 50
 type 83
+faction fort_ghzal_guards
 end
 end
 arch light7
@@ -2975,6 +2979,7 @@ direction 3
 level 35
 type 83
 name Celach Dawson
+faction fort_ghzal_citizens
 arch event_obj
 sub_type 6
 race /interfaces/temples/elathiel.xml
