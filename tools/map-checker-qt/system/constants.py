@@ -160,6 +160,7 @@ class Game:
             "inv_face": STRING,
             "title": STRING,
             "randomitems": STRING,
+            "glow": STRING,
 
             "quickslot": INTEGER,
             "object_int1": INTEGER,
@@ -279,6 +280,7 @@ class Game:
             "mpart_id": INTEGER,
             "mpart_nr": INTEGER,
             "item_power": INTEGER,
+            "glow_speed": INTEGER,
 
             "speed": FLOAT,
             "speed_left": FLOAT,
