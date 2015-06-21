@@ -2,7 +2,7 @@ arch map
 name Incuna
 msg
 Created:  2010-08-22 Edwin Miltenburg
-Modified: 2011-09-13 Alex Tokar
+Modified: 2015-06-21 Alex Tokar
 endmsg
 width 24
 height 24
@@ -842,6 +842,61 @@ arch water_lt
 x 8
 y 23
 end
+arch water_lt3
+x 9
+end
+arch water_lt
+x 9
+y 1
+end
+arch water_lt2
+x 9
+y 2
+end
+arch water_lt4
+x 9
+y 3
+end
+arch water_lt2
+x 9
+y 4
+end
+arch water_lt3
+x 9
+y 5
+end
+arch water_lt
+x 9
+y 6
+end
+arch water_lt2
+x 9
+y 7
+end
+arch water_lt2
+x 9
+y 8
+end
+arch water_lt
+x 9
+y 9
+end
+arch water_lt3
+x 9
+y 10
+end
+arch water_lt4
+x 9
+y 11
+end
+arch water_lt
+x 9
+y 12
+end
+arch water_lt4
+x 9
+y 13
+end
 arch water_lt2
 x 9
 y 14
@@ -882,6 +937,61 @@ arch water_lt3
 x 9
 y 23
 end
+arch water_lt4
+x 10
+end
+arch water_lt3
+x 10
+y 1
+end
+arch water_lt4
+x 10
+y 2
+end
+arch water_lt
+x 10
+y 3
+end
+arch water_lt3
+x 10
+y 4
+end
+arch water_lt4
+x 10
+y 5
+end
+arch water_lt3
+x 10
+y 6
+end
+arch water_lt
+x 10
+y 7
+end
+arch water_lt4
+x 10
+y 8
+end
+arch water_lt
+x 10
+y 9
+end
+arch water_lt
+x 10
+y 10
+end
+arch water_lt2
+x 10
+y 11
+end
+arch water_lt3
+x 10
+y 12
+end
+arch water_lt
+x 10
+y 13
+end
 arch water_lt
 x 10
 y 14
@@ -924,6 +1034,91 @@ y 23
 end
 arch water_lt3
 x 11
+end
+arch water_lt
+x 11
+y 1
+end
+arch water_lt
+x 11
+y 2
+end
+arch water_lt4
+x 11
+y 3
+end
+arch floor_ruin2
+x 11
+y 4
+end
+arch water_lt_m
+direction 8
+x 11
+y 4
+end
+arch floor_ruin2
+x 11
+y 5
+end
+arch water_lt_m
+direction 6
+x 11
+y 5
+end
+arch floor_ruin3
+x 11
+y 6
+end
+arch water_lt3_m
+direction 7
+x 11
+y 6
+end
+arch floor_ruin2
+x 11
+y 7
+end
+arch water_lt_m
+direction 8
+x 11
+y 7
+end
+arch floor_ruin5
+x 11
+y 8
+end
+arch water_lt_m
+direction 7
+x 11
+y 8
+end
+arch floor_ruin2
+x 11
+y 9
+end
+arch water_lt_m
+direction 6
+x 11
+y 9
+end
+arch water_lt2
+x 11
+y 10
+end
+arch water_lt3
+x 11
+y 11
+end
+arch water_lt3
+x 11
+y 12
+end
+arch water_lt2
+x 11
+y 13
+end
+arch water_lt3
+x 11
 y 14
 end
 arch water_lt3
@@ -962,87 +1157,363 @@ arch water_lt3
 x 11
 y 23
 end
-arch water_lt3
+arch floor_ruin2
 x 12
-y 14
 end
-arch water_lt4
+arch water_lt2_m
+direction 7
 x 12
-y 15
 end
-arch water_lt
+arch floor_ruin5
 x 12
-y 16
+y 1
 end
-arch water_lt2
+arch water_lt_m
+direction 7
 x 12
-y 17
+y 1
 end
-arch water_lt4
+arch floor_ruin5
 x 12
-y 18
+y 2
 end
-arch water_lt3
+arch water_lt_m
+direction 7
 x 12
-y 19
+y 2
 end
-arch water_lt2
+arch floor_ruin5
 x 12
-y 20
+y 3
 end
-arch water_lt4
+arch water_lt_m
+direction 7
 x 12
-y 21
+y 3
 end
-arch water_lt2
+arch floor_ruin5
 x 12
-y 22
+y 4
 end
-arch water_lt4
+arch water_lt2_m
+direction 8
 x 12
-y 23
+y 4
 end
-arch water_lt
-x 13
-y 14
-end
-arch water_lt
-x 13
-y 15
-end
-arch water_lt3
-x 13
-y 16
-end
-arch water_lt3
-x 13
-y 17
-end
-arch water_lt2
-x 13
-y 18
-end
-arch water_lt4
-x 13
-y 19
-end
-arch water_lt3
-x 13
-y 20
-end
-arch water_lt2
-x 13
-y 21
-end
-arch water_lt2
-x 13
-y 22
-end
-arch water_lt2
-x 13
-y 23
+arch floor_ruin5
+x 12
+y 5
 end
 arch floor_ruin6
+x 12
+y 6
+end
+arch floor_ruin5
+x 12
+y 7
+end
+arch floor_ruin3
+x 12
+y 8
+end
+arch floor_ruin3
+x 12
+y 9
+end
+arch floor_ruin2
+x 12
+y 10
+end
+arch floor_ruin6
+x 12
+y 11
+end
+arch water_lt_m
+direction 6
+x 12
+y 11
+end
+arch water_lt
+x 12
+y 12
+end
+arch water_lt3
+x 12
+y 13
+end
+arch water_lt3
+x 12
+y 14
+end
+arch water_lt4
+x 12
+y 15
+end
+arch water_lt
+x 12
+y 16
+end
+arch water_lt2
+x 12
+y 17
+end
+arch water_lt4
+x 12
+y 18
+end
+arch water_lt3
+x 12
+y 19
+end
+arch water_lt2
+x 12
+y 20
+end
+arch water_lt4
+x 12
+y 21
+end
+arch water_lt2
+x 12
+y 22
+end
+arch water_lt4
+x 12
+y 23
+end
+arch floor_ruin3
+x 13
+end
+arch floor_ruin5
+x 13
+y 1
+end
+arch grassd_m11
+x 13
+y 1
+end
+arch floor_ruin6
+x 13
+y 2
+end
+arch grassd_m8
+x 13
+y 2
+end
+arch floor_ruin5
+x 13
+y 3
+end
+arch grassd_m8
+x 13
+y 3
+end
+arch floor_ruin2
+x 13
+y 4
+end
+arch grassd_m8
+x 13
+y 4
+end
+arch floor_ruin3
+x 13
+y 5
+end
+arch grassd_m8
+x 13
+y 5
+end
+arch floor_ruin3
+x 13
+y 6
+end
+arch grassd_m8
+x 13
+y 6
+end
+arch floor_ruin3
+x 13
+y 7
+end
+arch grassd_m8
+x 13
+y 7
+end
+arch floor_ruin2
+x 13
+y 8
+end
+arch grassd_m8
+x 13
+y 8
+end
+arch floor_ruin2
+x 13
+y 9
+end
+arch grassd_m8
+x 13
+y 9
+end
+arch floor_ruin5
+x 13
+y 10
+end
+arch grassd_m8
+x 13
+y 10
+end
+arch floor_ruin5
+x 13
+y 11
+end
+arch grassd_m12
+x 13
+y 11
+end
+arch floor_ruin2
+x 13
+y 12
+end
+arch water_lt2_m
+direction 7
+x 13
+y 12
+end
+arch floor_ruin6
+x 13
+y 13
+end
+arch water_lt_m
+direction 6
+x 13
+y 13
+end
+arch floor_ruin6
+x 13
+y 14
+end
+arch water_lt3_m
+direction 7
+x 13
+y 14
+end
+arch water_lt
+x 13
+y 15
+end
+arch water_lt3
+x 13
+y 16
+end
+arch water_lt3
+x 13
+y 17
+end
+arch water_lt2
+x 13
+y 18
+end
+arch water_lt4
+x 13
+y 19
+end
+arch water_lt3
+x 13
+y 20
+end
+arch water_lt2
+x 13
+y 21
+end
+arch water_lt2
+x 13
+y 22
+end
+arch water_lt2
+x 13
+y 23
+end
+arch floor_ruin5
+x 14
+end
+arch grassd_m8
+x 14
+end
+arch floor_ruin6
+x 14
+y 1
+end
+arch grassd_m5
+x 14
+y 1
+end
+arch grassd_2
+x 14
+y 2
+end
+arch grassd_5
+x 14
+y 3
+end
+arch grassd_4
+x 14
+y 4
+end
+arch grassd_4
+x 14
+y 5
+end
+arch grassd_4
+x 14
+y 6
+end
+arch grassd_1
+x 14
+y 7
+end
+arch grassd_6
+x 14
+y 8
+end
+arch grassd_7
+x 14
+y 9
+end
+arch grassd_4
+x 14
+y 10
+end
+arch floor_ruin2
+x 14
+y 11
+end
+arch grassd_m6
+x 14
+y 11
+end
+arch floor_ruin6
+x 14
+y 12
+end
+arch grassd_m8
+x 14
+y 12
+end
+arch floor_ruin5
+x 14
+y 13
+end
+arch grassd_m8
+x 14
+y 13
+end
+arch floor_ruin6
+x 14
+y 14
+end
+arch grassd_m12
 x 14
 y 14
 end
@@ -1156,7 +1627,15 @@ arch floor_ruin3
 x 15
 y 14
 end
+arch grassd_m6
+x 15
+y 14
+end
 arch floor_ruin2
+x 15
+y 15
+end
+arch grassd_m8
 x 15
 y 15
 end

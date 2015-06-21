@@ -2,7 +2,7 @@ arch map
 name Incuna
 msg
 Created:  2010-08-22 Edwin Miltenburg
-Modified: 2011-09-03 Alex Tokar
+Modified: 2015-06-21 Alex Tokar
 endmsg
 width 24
 height 24
@@ -37,22 +37,32 @@ end
 arch water_lt4
 y 8
 end
-arch floor_ruin3
+arch water_lt3
 y 9
 end
-arch floor_ruin5
+arch water_lt4
 y 10
 end
-arch floor_ruin6
+arch water_lt
 y 11
 end
 arch floor_ruin2
 y 12
 end
+arch water_lt2_m
+direction 1
+y 12
+end
 arch floor_ruin5
 y 13
 end
+arch grassd_m11
+y 13
+end
 arch floor_ruin2
+y 14
+end
+arch grassd_m5
 y 14
 end
 arch grassd_3
@@ -126,11 +136,11 @@ arch water_lt4
 x 1
 y 8
 end
-arch floor_ruin6
+arch water_lt2
 x 1
 y 9
 end
-arch floor_ruin5
+arch water_lt3
 x 1
 y 10
 end
@@ -138,7 +148,17 @@ arch floor_ruin6
 x 1
 y 11
 end
+arch water_lt_m
+direction 8
+x 1
+y 11
+end
 arch floor_ruin3
+x 1
+y 12
+end
+arch water_lt2_m
+direction 8
 x 1
 y 12
 end
@@ -146,7 +166,11 @@ arch floor_ruin5
 x 1
 y 13
 end
-arch floor_ruin6
+arch grassd_m7
+x 1
+y 13
+end
+arch grassd_3
 x 1
 y 14
 end
@@ -241,11 +265,11 @@ arch water_lt3
 x 2
 y 8
 end
-arch floor_ruin6
+arch water_lt4
 x 2
 y 9
 end
-arch floor_ruin3
+arch water_lt2
 x 2
 y 10
 end
@@ -253,7 +277,16 @@ arch floor_ruin6
 x 2
 y 11
 end
+arch water_lt_m
+direction 1
+x 2
+y 11
+end
 arch floor_ruin3
+x 2
+y 12
+end
+arch grassd_m11
 x 2
 y 12
 end
@@ -261,7 +294,11 @@ arch floor_ruin5
 x 2
 y 13
 end
-arch floor_ruin3
+arch grassd_m5
+x 2
+y 13
+end
+arch grassd_2
 x 2
 y 14
 end
@@ -356,11 +393,11 @@ arch water_lt3
 x 3
 y 8
 end
-arch floor_ruin3
+arch water_lt4
 x 3
 y 9
 end
-arch floor_ruin2
+arch water_lt4
 x 3
 y 10
 end
@@ -368,15 +405,24 @@ arch floor_ruin6
 x 3
 y 11
 end
+arch water_lt_m
+direction 2
+x 3
+y 11
+end
 arch floor_ruin3
 x 3
 y 12
 end
-arch floor_ruin2
+arch grassd_m7
+x 3
+y 12
+end
+arch grassd_4
 x 3
 y 13
 end
-arch floor_ruin5
+arch grassd_5
 x 3
 y 14
 end
@@ -467,11 +513,11 @@ arch water_lt2
 x 4
 y 8
 end
-arch floor_ruin3
+arch water_lt4
 x 4
 y 9
 end
-arch floor_ruin3
+arch water_lt
 x 4
 y 10
 end
@@ -479,7 +525,16 @@ arch floor_ruin3
 x 4
 y 11
 end
+arch water_lt3_m
+direction 1
+x 4
+y 11
+end
 arch floor_ruin5
+x 4
+y 12
+end
+arch grassd_m14
 x 4
 y 12
 end
@@ -487,7 +542,11 @@ arch floor_ruin6
 x 4
 y 13
 end
-arch floor_ruin3
+arch grassd_m3
+x 4
+y 13
+end
+arch grassd_3
 x 4
 y 14
 end
@@ -570,15 +629,20 @@ arch water_lt
 x 5
 y 8
 end
-arch floor_ruin3
+arch water_lt4
 x 5
 y 9
 end
-arch floor_ruin3
+arch water_lt3
 x 5
 y 10
 end
 arch floor_ruin5
+x 5
+y 11
+end
+arch water_lt_m
+direction 8
 x 5
 y 11
 end
@@ -590,7 +654,11 @@ arch floor_ruin6
 x 5
 y 13
 end
-arch floor_ruin5
+arch grassd_m7
+x 5
+y 13
+end
+arch grassd_6
 x 5
 y 14
 end
@@ -669,15 +737,20 @@ arch water_lt4
 x 6
 y 8
 end
-arch floor_ruin6
+arch water_lt
 x 6
 y 9
 end
-arch floor_ruin5
+arch water_lt3
 x 6
 y 10
 end
 arch floor_ruin5
+x 6
+y 11
+end
+arch water_lt2_m
+direction 1
 x 6
 y 11
 end
@@ -689,7 +762,11 @@ arch floor_ruin5
 x 6
 y 13
 end
-arch floor_ruin5
+arch grassd_m7
+x 6
+y 13
+end
+arch grassd_4
 x 6
 y 14
 end
@@ -776,15 +853,20 @@ arch water_lt3
 x 7
 y 8
 end
-arch floor_ruin5
+arch water_lt3
 x 7
 y 9
 end
-arch floor_ruin3
+arch water_lt3
 x 7
 y 10
 end
 arch floor_ruin5
+x 7
+y 11
+end
+arch water_lt_m
+direction 2
 x 7
 y 11
 end
@@ -796,7 +878,11 @@ arch floor_ruin6
 x 7
 y 13
 end
-arch floor_ruin3
+arch grassd_m7
+x 7
+y 13
+end
+arch grassd_3
 x 7
 y 14
 end
@@ -883,15 +969,15 @@ arch water_lt3
 x 8
 y 8
 end
-arch floor_ruin6
+arch water_lt
 x 8
 y 9
 end
-arch floor_ruin5
+arch water_lt2
 x 8
 y 10
 end
-arch floor_ruin5
+arch water_lt3
 x 8
 y 11
 end
@@ -899,11 +985,24 @@ arch floor_ruin5
 x 8
 y 12
 end
+arch water_lt2_m
+direction 1
+x 8
+y 12
+end
 arch floor_ruin6
 x 8
 y 13
 end
+arch grassd_m14
+x 8
+y 13
+end
 arch floor_ruin5
+x 8
+y 14
+end
+arch grassd_m3
 x 8
 y 14
 end
@@ -986,19 +1085,24 @@ arch water_lt4
 x 9
 y 8
 end
-arch floor_ruin6
+arch water_lt
 x 9
 y 9
 end
-arch floor_ruin6
+arch water_lt2
 x 9
 y 10
 end
-arch floor_ruin6
+arch water_lt
 x 9
 y 11
 end
 arch floor_ruin2
+x 9
+y 12
+end
+arch water_lt_m
+direction 1
 x 9
 y 12
 end
@@ -1007,6 +1111,10 @@ x 9
 y 13
 end
 arch floor_ruin2
+x 9
+y 14
+end
+arch grassd_m7
 x 9
 y 14
 end
@@ -1089,19 +1197,24 @@ arch water_lt3
 x 10
 y 8
 end
-arch floor_ruin3
+arch water_lt3
 x 10
 y 9
 end
-arch floor_ruin3
+arch water_lt
 x 10
 y 10
 end
-arch floor_ruin5
+arch water_lt
 x 10
 y 11
 end
 arch floor_ruin2
+x 10
+y 12
+end
+arch water_lt_m
+direction 2
 x 10
 y 12
 end
@@ -1110,6 +1223,10 @@ x 10
 y 13
 end
 arch floor_ruin6
+x 10
+y 14
+end
+arch grassd_m7
 x 10
 y 14
 end
@@ -1188,15 +1305,15 @@ arch water_lt2
 x 11
 y 8
 end
-arch floor_ruin6
+arch water_lt3
 x 11
 y 9
 end
-arch floor_ruin6
+arch water_lt2
 x 11
 y 10
 end
-arch floor_ruin2
+arch water_lt2
 x 11
 y 11
 end
@@ -1204,11 +1321,24 @@ arch floor_ruin6
 x 11
 y 12
 end
+arch water_lt3_m
+direction 1
+x 11
+y 12
+end
 arch floor_ruin3
 x 11
 y 13
 end
+arch grassd_m11
+x 11
+y 13
+end
 arch floor_ruin3
+x 11
+y 14
+end
+arch grassd_m5
 x 11
 y 14
 end
@@ -1287,15 +1417,15 @@ arch water_lt
 x 12
 y 8
 end
-arch floor_ruin3
+arch water_lt
 x 12
 y 9
 end
-arch floor_ruin6
+arch water_lt4
 x 12
 y 10
 end
-arch floor_ruin2
+arch water_lt2
 x 12
 y 11
 end
@@ -1303,11 +1433,20 @@ arch floor_ruin3
 x 12
 y 12
 end
+arch water_lt_m
+direction 8
+x 12
+y 12
+end
 arch floor_ruin3
 x 12
 y 13
 end
-arch floor_ruin6
+arch grassd_m7
+x 12
+y 13
+end
+arch grassd_1
 x 12
 y 14
 end
@@ -1386,15 +1525,15 @@ arch water_lt2
 x 13
 y 8
 end
-arch floor_ruin6
+arch water_lt2
 x 13
 y 9
 end
-arch floor_ruin2
+arch water_lt3
 x 13
 y 10
 end
-arch floor_ruin5
+arch water_lt2
 x 13
 y 11
 end
@@ -1402,11 +1541,20 @@ arch floor_ruin5
 x 13
 y 12
 end
+arch water_lt_m
+direction 1
+x 13
+y 12
+end
 arch floor_ruin2
 x 13
 y 13
 end
-arch floor_ruin3
+arch grassd_m7
+x 13
+y 13
+end
+arch grassd_6
 x 13
 y 14
 end
@@ -1485,15 +1633,15 @@ arch water_lt2
 x 14
 y 8
 end
-arch floor_ruin6
+arch water_lt
 x 14
 y 9
 end
-arch floor_ruin2
+arch water_lt2
 x 14
 y 10
 end
-arch floor_ruin5
+arch water_lt3
 x 14
 y 11
 end
@@ -1501,11 +1649,20 @@ arch floor_ruin6
 x 14
 y 12
 end
+arch water_lt2_m
+direction 1
+x 14
+y 12
+end
 arch floor_ruin6
 x 14
 y 13
 end
-arch floor_ruin2
+arch grassd_m7
+x 14
+y 13
+end
+arch grassd_3
 x 14
 y 14
 end
@@ -1588,15 +1745,20 @@ arch water_lt2
 x 15
 y 8
 end
-arch floor_ruin5
+arch water_lt2
 x 15
 y 9
 end
-arch floor_ruin3
+arch water_lt2
 x 15
 y 10
 end
 arch floor_ruin5
+x 15
+y 11
+end
+arch water_lt_m
+direction 8
 x 15
 y 11
 end
@@ -1608,7 +1770,11 @@ arch floor_ruin5
 x 15
 y 13
 end
-arch floor_ruin6
+arch grassd_m7
+x 15
+y 13
+end
+arch grassd_7
 x 15
 y 14
 end
@@ -1683,11 +1849,16 @@ arch water_lt4
 x 16
 y 8
 end
-arch floor_ruin2
+arch water_lt
 x 16
 y 9
 end
 arch floor_ruin2
+x 16
+y 10
+end
+arch water_lt_m
+direction 8
 x 16
 y 10
 end
@@ -1703,7 +1874,11 @@ arch floor_ruin5
 x 16
 y 13
 end
-arch floor_ruin6
+arch grassd_m7
+x 16
+y 13
+end
+arch grassd_3
 x 16
 y 14
 end
@@ -1778,11 +1953,16 @@ arch water_lt3
 x 17
 y 8
 end
-arch floor_ruin5
+arch water_lt4
 x 17
 y 9
 end
 arch floor_ruin2
+x 17
+y 10
+end
+arch water_lt_m
+direction 2
 x 17
 y 10
 end
@@ -1798,7 +1978,11 @@ arch floor_ruin2
 x 17
 y 13
 end
-arch floor_ruin2
+arch grassd_m7
+x 17
+y 13
+end
+arch grassd_2
 x 17
 y 14
 end
@@ -1877,15 +2061,20 @@ arch water_lt3
 x 18
 y 8
 end
-arch floor_ruin3
+arch water_lt3
 x 18
 y 9
 end
-arch floor_ruin5
+arch water_lt3
 x 18
 y 10
 end
 arch floor_ruin2
+x 18
+y 11
+end
+arch water_lt2_m
+direction 1
 x 18
 y 11
 end
@@ -1897,7 +2086,15 @@ arch floor_ruin2
 x 18
 y 13
 end
+arch grassd_m14
+x 18
+y 13
+end
 arch floor_ruin5
+x 18
+y 14
+end
+arch grassd_m3
 x 18
 y 14
 end
@@ -1972,15 +2169,20 @@ arch water_lt
 x 19
 y 8
 end
-arch floor_ruin3
+arch water_lt4
 x 19
 y 9
 end
-arch floor_ruin6
+arch water_lt
 x 19
 y 10
 end
 arch floor_ruin2
+x 19
+y 11
+end
+arch water_lt_m
+direction 1
 x 19
 y 11
 end
@@ -1993,6 +2195,10 @@ x 19
 y 13
 end
 arch floor_ruin5
+x 19
+y 14
+end
+arch grassd_m7
 x 19
 y 14
 end
@@ -2075,15 +2281,20 @@ arch water_lt4
 x 20
 y 8
 end
-arch floor_ruin5
+arch water_lt2
 x 20
 y 9
 end
-arch floor_ruin6
+arch water_lt2
 x 20
 y 10
 end
 arch floor_ruin6
+x 20
+y 11
+end
+arch water_lt_m
+direction 2
 x 20
 y 11
 end
@@ -2095,7 +2306,15 @@ arch floor_ruin6
 x 20
 y 13
 end
+arch grassd_m11
+x 20
+y 13
+end
 arch floor_ruin6
+x 20
+y 14
+end
+arch grassd_m5
 x 20
 y 14
 end
@@ -2178,15 +2397,15 @@ arch water_lt4
 x 21
 y 8
 end
-arch floor_ruin3
+arch water_lt4
 x 21
 y 9
 end
-arch floor_ruin3
+arch water_lt
 x 21
 y 10
 end
-arch floor_ruin2
+arch water_lt2
 x 21
 y 11
 end
@@ -2194,11 +2413,20 @@ arch floor_ruin2
 x 21
 y 12
 end
+arch water_lt_m
+direction 1
+x 21
+y 12
+end
 arch floor_ruin5
 x 21
 y 13
 end
-arch floor_ruin3
+arch grassd_m7
+x 21
+y 13
+end
+arch grassd_7
 x 21
 y 14
 end
@@ -2281,15 +2509,15 @@ arch water_lt
 x 22
 y 8
 end
-arch floor_ruin2
+arch water_lt3
 x 22
 y 9
 end
-arch floor_ruin3
+arch water_lt3
 x 22
 y 10
 end
-arch floor_ruin2
+arch water_lt3
 x 22
 y 11
 end
@@ -2297,11 +2525,24 @@ arch floor_ruin5
 x 22
 y 12
 end
+arch water_lt_m
+direction 1
+x 22
+y 12
+end
 arch floor_ruin5
 x 22
 y 13
 end
+arch grassd_m14
+x 22
+y 13
+end
 arch floor_ruin6
+x 22
+y 14
+end
+arch grassd_m3
 x 22
 y 14
 end
@@ -2376,15 +2617,20 @@ arch water_lt3
 x 23
 y 8
 end
-arch floor_ruin5
+arch water_lt2
 x 23
 y 9
 end
-arch floor_ruin6
+arch water_lt2
 x 23
 y 10
 end
 arch floor_ruin2
+x 23
+y 11
+end
+arch water_lt_m
+direction 8
 x 23
 y 11
 end
@@ -2396,7 +2642,15 @@ arch floor_ruin5
 x 23
 y 13
 end
+arch grassd_m11
+x 23
+y 13
+end
 arch floor_ruin5
+x 23
+y 14
+end
+arch grassd_m5
 x 23
 y 14
 end
