@@ -2,7 +2,7 @@ arch map
 name Incuna
 msg
 Created:  2010-08-22 Edwin Miltenburg
-Modified: 2011-09-30 Alex Tokar
+Modified: 2015-06-21 Alex Tokar
 endmsg
 width 24
 height 24
@@ -12,10 +12,12 @@ bg_music tutorialisland.mid
 region incuna
 end
 arch grass_flowers3
+z 2
 end
 arch grassd_m13
 end
 arch grass_flowers2
+z 1
 y 1
 end
 arch grassd_m11
@@ -112,6 +114,7 @@ arch bridge_wood_NS.171
 y 23
 end
 arch grass_flowers3
+z 1
 x 1
 end
 arch grassd_m8
@@ -1524,6 +1527,11 @@ arch floor_cave6
 x 10
 y 7
 end
+arch minecart_track
+direction 7
+x 10
+y 7
+end
 arch floor_cave2
 x 10
 y 8
@@ -1689,6 +1697,11 @@ x 11
 y 6
 end
 arch floor_cave1
+x 11
+y 7
+end
+arch minecart_track
+direction 7
 x 11
 y 7
 end
@@ -1845,7 +1858,16 @@ arch floor_cave2
 x 12
 y 7
 end
+arch minecart_track
+direction 7
+x 12
+y 7
+end
 arch floor_cave5
+x 12
+y 8
+end
+arch crystal_yellow_s
 x 12
 y 8
 end
@@ -1857,7 +1879,7 @@ arch floor_cave2
 x 12
 y 10
 end
-arch stone1
+arch minecart_track
 x 12
 y 10
 end
@@ -1865,11 +1887,15 @@ arch floor_cave2
 x 12
 y 11
 end
+arch minecart_track
+x 12
+y 11
+end
 arch floor_cave1
 x 12
 y 12
 end
-arch small_stones
+arch minecart_track
 x 12
 y 12
 end
@@ -1988,6 +2014,10 @@ arch floor_cave1
 x 13
 y 4
 end
+arch crystal10
+x 13
+y 4
+end
 arch floor_cave6
 x 13
 y 5
@@ -2001,6 +2031,11 @@ x 13
 y 6
 end
 arch floor_cave5
+x 13
+y 7
+end
+arch minecart_track
+direction 7
 x 13
 y 7
 end
@@ -2166,6 +2201,16 @@ arch floor_cave5
 x 14
 y 7
 end
+arch minecart_track
+direction 7
+x 14
+y 7
+end
+arch minecart
+direction 7
+x 14
+y 7
+end
 arch floor_cave5
 x 14
 y 8
@@ -2334,6 +2379,11 @@ arch floor_cave1
 x 15
 y 7
 end
+arch minecart_track
+direction 7
+x 15
+y 7
+end
 arch floor_cave1
 x 15
 y 8
@@ -2481,6 +2531,11 @@ arch floor_cave2
 x 16
 y 7
 end
+arch minecart_track
+direction 7
+x 16
+y 7
+end
 arch floor_cave5
 x 16
 y 8
@@ -2497,11 +2552,11 @@ arch floor_cave1
 x 16
 y 11
 end
-arch floor_cave5
+arch crystal_red
 x 16
-y 12
+y 11
 end
-arch ladder_tall_up
+arch floor_cave5
 x 16
 y 12
 end
@@ -2811,7 +2866,15 @@ arch floor_cave2
 x 18
 y 9
 end
+arch crystal14
+x 18
+y 9
+end
 arch floor_cave5
+x 18
+y 10
+end
+arch minecart_track
 x 18
 y 10
 end
@@ -2819,15 +2882,27 @@ arch floor_cave6
 x 18
 y 11
 end
+arch minecart_track
+x 18
+y 11
+end
 arch floor_cave2
 x 18
 y 12
 end
-arch rock2
+arch minecart_track
+x 18
+y 12
+end
+arch minecart
 x 18
 y 12
 end
 arch floor_cave5
+x 18
+y 13
+end
+arch minecart_track
 x 18
 y 13
 end

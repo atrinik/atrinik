@@ -11,414 +11,473 @@ outdoor 1
 bg_music tutorialisland.mid
 region incuna
 end
-arch water_lt
+arch water_dk3
 end
-arch water_lt2
+arch water_dk
 y 1
 end
-arch water_lt
+arch water_dk2
 y 2
 end
-arch water_lt2
+arch water_dk
 y 3
 end
-arch water_lt3
+arch water_dk3
 y 4
 end
-arch water_lt3
+arch water_md4
 y 5
 end
-arch water_lt
+arch water_dk_m
+direction 8
+y 5
+end
+arch water_md3
 y 6
 end
-arch water_lt4
+arch water_md2
 y 7
 end
-arch water_lt
+arch water_md3
 y 8
 end
-arch water_lt3
+arch water_md4
 y 9
 end
-arch water_lt4
+arch water_md
 y 10
 end
-arch water_lt
+arch water_md3
 y 11
 end
-arch water_lt4
+arch water_md4
 y 12
 end
-arch water_lt3
+arch water_md3
 y 13
 end
-arch water_lt4
+arch water_md
 y 14
 end
-arch water_lt2
+arch water_md2
 y 15
 end
-arch water_lt2
+arch water_md3
 y 16
 end
-arch water_lt4
+arch water_md2
 y 17
 end
-arch water_lt4
+arch water_md4
 y 18
 end
-arch water_lt2
+arch water_md4
 y 19
 end
-arch water_lt4
+arch water_md2
 y 20
 end
-arch water_lt3
+arch water_md4
 y 21
 end
-arch water_lt3
+arch water_md
 y 22
 end
-arch water_lt
+arch water_md2
 y 23
 end
-arch water_lt3
+arch water_dk3
 x 1
 end
-arch water_lt
+arch water_dk
 x 1
 y 1
 end
-arch water_lt4
+arch water_dk2
 x 1
 y 2
 end
-arch water_lt
+arch water_dk3
 x 1
 y 3
 end
-arch water_lt4
+arch water_md3
 x 1
 y 4
 end
-arch water_lt2
+arch water_dk_m
+direction 8
+x 1
+y 4
+end
+arch water_md2
 x 1
 y 5
 end
-arch water_lt2
+arch water_md4
 x 1
 y 6
 end
-arch water_lt
+arch water_md3
 x 1
 y 7
 end
-arch water_lt
+arch water_md3
 x 1
 y 8
 end
-arch water_lt
+arch water_md2
 x 1
 y 9
 end
-arch water_lt4
+arch water_md
 x 1
 y 10
 end
-arch water_lt
+arch water_md
 x 1
 y 11
 end
-arch water_lt4
+arch water_md4
 x 1
 y 12
 end
-arch water_lt3
+arch water_md3
 x 1
 y 13
 end
-arch water_lt
+arch water_md2
 x 1
 y 14
 end
-arch water_lt3
+arch water_md2
 x 1
 y 15
 end
-arch water_lt
+arch water_md
 x 1
 y 16
 end
-arch water_lt
+arch water_md2
 x 1
 y 17
 end
-arch water_lt2
+arch water_md3
 x 1
 y 18
 end
-arch water_lt
+arch water_md2
 x 1
 y 19
 end
-arch water_lt4
+arch water_md4
 x 1
 y 20
 end
-arch water_lt2
+arch water_md
 x 1
 y 21
 end
-arch water_lt3
+arch water_md3
 x 1
 y 22
 end
-arch water_lt3
+arch water_md2
 x 1
 y 23
 end
-arch water_lt2
+arch water_dk2
 x 2
 end
-arch water_lt
+arch water_dk4
 x 2
 y 1
 end
-arch water_lt4
+arch water_dk4
 x 2
 y 2
 end
-arch water_lt
+arch water_md
 x 2
 y 3
 end
-arch water_lt4
+arch water_dk_m
+direction 8
 x 2
-y 4
-end
-arch water_lt
-x 2
-y 5
-end
-arch water_lt4
-x 2
-y 6
-end
-arch water_lt3
-x 2
-y 7
-end
-arch water_lt
-x 2
-y 8
-end
-arch water_lt
-x 2
-y 9
-end
-arch water_lt3
-x 2
-y 10
-end
-arch water_lt
-x 2
-y 11
-end
-arch water_lt
-x 2
-y 12
-end
-arch water_lt4
-x 2
-y 13
-end
-arch water_lt
-x 2
-y 14
-end
-arch water_lt3
-x 2
-y 15
-end
-arch water_lt3
-x 2
-y 16
-end
-arch water_lt
-x 2
-y 17
-end
-arch water_lt4
-x 2
-y 18
-end
-arch water_lt4
-x 2
-y 19
-end
-arch water_lt4
-x 2
-y 20
-end
-arch water_lt3
-x 2
-y 21
-end
-arch water_lt4
-x 2
-y 22
-end
-arch water_lt4
-x 2
-y 23
-end
-arch water_lt4
-x 3
-end
-arch water_lt
-x 3
-y 1
-end
-arch water_lt4
-x 3
-y 2
-end
-arch water_lt
-x 3
 y 3
 end
-arch water_lt4
-x 3
+arch water_md4
+x 2
 y 4
 end
-arch water_lt
-x 3
+arch water_md
+x 2
 y 5
 end
-arch water_lt
-x 3
+arch water_md3
+x 2
 y 6
 end
-arch water_lt4
-x 3
+arch water_md4
+x 2
 y 7
 end
-arch water_lt
-x 3
+arch water_md3
+x 2
 y 8
 end
-arch water_lt3
-x 3
+arch water_md2
+x 2
 y 9
 end
-arch water_lt3
-x 3
+arch water_md4
+x 2
 y 10
 end
-arch water_lt4
-x 3
+arch water_md
+x 2
 y 11
 end
-arch water_lt4
-x 3
+arch water_md3
+x 2
 y 12
 end
-arch water_lt4
-x 3
+arch water_md
+x 2
 y 13
 end
-arch water_lt3
-x 3
+arch water_md2
+x 2
 y 14
 end
-arch water_lt2
-x 3
+arch water_md3
+x 2
 y 15
 end
-arch water_lt3
-x 3
+arch water_md4
+x 2
 y 16
 end
-arch water_lt
-x 3
+arch water_md4
+x 2
 y 17
 end
-arch water_lt4
-x 3
+arch water_md
+x 2
 y 18
 end
-arch water_lt3
-x 3
+arch water_md3
+x 2
 y 19
 end
-arch water_lt3
-x 3
+arch water_md4
+x 2
 y 20
 end
-arch water_lt
-x 3
+arch water_md
+x 2
 y 21
 end
-arch water_lt
-x 3
+arch water_md4
+x 2
 y 22
 end
 arch water_lt4
+x 2
+y 23
+end
+arch water_md_m
+direction 8
+x 2
+y 23
+end
+arch water_dk4
+x 3
+end
+arch water_dk
+x 3
+y 1
+end
+arch water_md3
+x 3
+y 2
+end
+arch water_dk_m
+direction 8
+x 3
+y 2
+end
+arch water_md2
+x 3
+y 3
+end
+arch water_md
+x 3
+y 4
+end
+arch water_md2
+x 3
+y 5
+end
+arch water_md2
+x 3
+y 6
+end
+arch water_md3
+x 3
+y 7
+end
+arch water_md4
+x 3
+y 8
+end
+arch water_md
+x 3
+y 9
+end
+arch water_md3
+x 3
+y 10
+end
+arch water_md
+x 3
+y 11
+end
+arch water_md
+x 3
+y 12
+end
+arch water_md4
+x 3
+y 13
+end
+arch water_md3
+x 3
+y 14
+end
+arch water_md4
+x 3
+y 15
+end
+arch water_md3
+x 3
+y 16
+end
+arch water_lt
+x 3
+y 17
+end
+arch water_md_m
+direction 8
+x 3
+y 17
+end
+arch water_lt4
+x 3
+y 18
+end
+arch water_md2_m
+direction 7
+x 3
+y 18
+end
+arch water_lt3
+x 3
+y 19
+end
+arch water_md2_m
+direction 7
+x 3
+y 19
+end
+arch water_lt3
+x 3
+y 20
+end
+arch water_md_m
+direction 7
+x 3
+y 20
+end
+arch water_lt
+x 3
+y 21
+end
+arch water_md_m
+direction 7
+x 3
+y 21
+end
+arch water_lt
+x 3
+y 22
+end
+arch water_md_m
+direction 7
+x 3
+y 22
+end
+arch water_lt4
 x 3
 y 23
 end
-arch water_lt2
+arch water_dk4
 x 4
 end
-arch water_lt
+arch water_md4
 x 4
 y 1
 end
-arch water_lt2
+arch water_dk_m
+direction 8
+x 4
+y 1
+end
+arch water_md3
 x 4
 y 2
 end
-arch water_lt4
+arch water_md3
 x 4
 y 3
 end
-arch water_lt2
+arch water_md
 x 4
 y 4
 end
-arch water_lt
+arch water_md2
 x 4
 y 5
 end
-arch water_lt3
+arch water_md
 x 4
 y 6
 end
-arch water_lt
+arch water_md
 x 4
 y 7
 end
-arch water_lt3
+arch water_md
 x 4
 y 8
 end
-arch water_lt2
+arch water_md3
 x 4
 y 9
 end
-arch water_lt3
+arch water_md3
 x 4
 y 10
 end
-arch water_lt3
+arch water_md4
 x 4
 y 11
 end
-arch water_lt2
+arch water_md2
 x 4
 y 12
 end
-arch water_lt4
+arch water_md2
 x 4
 y 13
 end
@@ -426,11 +485,26 @@ arch water_lt
 x 4
 y 14
 end
+arch water_md_m
+direction 8
+x 4
+y 14
+end
 arch water_lt3
 x 4
 y 15
 end
+arch water_md2_m
+direction 7
+x 4
+y 15
+end
 arch water_lt3
+x 4
+y 16
+end
+arch water_md2_m
+direction 7
 x 4
 y 16
 end
@@ -462,50 +536,54 @@ arch water_lt2
 x 4
 y 23
 end
-arch water_lt4
+arch water_md
 x 5
 end
-arch water_lt
+arch water_dk_m
+direction 8
+x 5
+end
+arch water_md3
 x 5
 y 1
 end
-arch water_lt2
+arch water_md4
 x 5
 y 2
 end
-arch water_lt2
+arch water_md3
 x 5
 y 3
 end
-arch water_lt3
+arch water_md
 x 5
 y 4
 end
-arch water_lt
+arch water_md4
 x 5
 y 5
 end
-arch water_lt4
+arch water_md3
 x 5
 y 6
 end
-arch water_lt3
+arch water_md
 x 5
 y 7
 end
-arch water_lt3
+arch water_md
 x 5
 y 8
 end
-arch water_lt4
+arch water_md
 x 5
 y 9
 end
-arch water_lt4
+arch water_md4
 x 5
 y 10
 end
-arch water_lt
+arch water_md2
 x 5
 y 11
 end
@@ -513,7 +591,17 @@ arch water_lt
 x 5
 y 12
 end
+arch water_md_m
+direction 8
+x 5
+y 12
+end
 arch water_lt3
+x 5
+y 13
+end
+arch water_md_m
+direction 7
 x 5
 y 13
 end
@@ -557,38 +645,42 @@ arch water_lt3
 x 5
 y 23
 end
-arch water_lt3
+arch water_md3
 x 6
 end
-arch water_lt
+arch water_dk_m
+direction 1
+x 6
+end
+arch water_md
 x 6
 y 1
 end
-arch water_lt4
+arch water_md4
 x 6
 y 2
 end
-arch water_lt2
+arch water_md2
 x 6
 y 3
 end
-arch water_lt4
+arch water_md3
 x 6
 y 4
 end
-arch water_lt3
+arch water_md4
 x 6
 y 5
 end
-arch water_lt2
+arch water_md2
 x 6
 y 6
 end
-arch water_lt3
+arch water_md3
 x 6
 y 7
 end
-arch water_lt3
+arch water_md2
 x 6
 y 8
 end
@@ -596,11 +688,26 @@ arch water_lt3
 x 6
 y 9
 end
+arch water_md_m
+direction 8
+x 6
+y 9
+end
 arch water_lt3
 x 6
 y 10
 end
+arch water_md2_m
+direction 7
+x 6
+y 10
+end
 arch water_lt
+x 6
+y 11
+end
+arch water_md_m
+direction 7
 x 6
 y 11
 end
@@ -652,38 +759,47 @@ arch water_lt2
 x 6
 y 23
 end
-arch water_lt4
+arch water_md2
 x 7
 end
-arch water_lt4
+arch water_dk2_m
+direction 1
+x 7
+end
+arch water_md
 x 7
 y 1
 end
-arch water_lt2
+arch water_md
 x 7
 y 2
 end
-arch water_lt2
+arch water_md2
 x 7
 y 3
 end
-arch water_lt
+arch water_md
 x 7
 y 4
 end
-arch water_lt3
+arch water_md
 x 7
 y 5
 end
-arch water_lt2
+arch water_md
 x 7
 y 6
 end
-arch water_lt
+arch water_md3
 x 7
 y 7
 end
 arch water_lt
+x 7
+y 8
+end
+arch water_md_m
+direction 8
 x 7
 y 8
 end
@@ -747,38 +863,47 @@ arch water_lt2
 x 7
 y 23
 end
-arch water_lt3
+arch water_md2
 x 8
 end
-arch water_lt
+arch water_dk_m
+direction 1
+x 8
+end
+arch water_md4
 x 8
 y 1
 end
-arch water_lt2
+arch water_md
 x 8
 y 2
 end
-arch water_lt4
+arch water_md2
 x 8
 y 3
 end
-arch water_lt
+arch water_md3
 x 8
 y 4
 end
-arch water_lt4
+arch water_md
 x 8
 y 5
 end
-arch water_lt3
+arch water_md3
 x 8
 y 6
 end
-arch water_lt3
+arch water_md2
 x 8
 y 7
 end
 arch water_lt3
+x 8
+y 8
+end
+arch water_md_m
+direction 1
 x 8
 y 8
 end
@@ -842,26 +967,26 @@ arch water_lt3
 x 8
 y 23
 end
-arch water_lt
+arch water_md4
 x 9
 end
-arch water_lt3
+arch water_md3
 x 9
 y 1
 end
-arch water_lt
+arch water_md3
 x 9
 y 2
 end
-arch water_lt
+arch water_md2
 x 9
 y 3
 end
-arch water_lt2
+arch water_md4
 x 9
 y 4
 end
-arch water_lt4
+arch water_md2
 x 9
 y 5
 end
@@ -869,7 +994,17 @@ arch water_lt4
 x 9
 y 6
 end
+arch water_md_m
+direction 8
+x 9
+y 6
+end
 arch water_lt2
+x 9
+y 7
+end
+arch water_md_m
+direction 7
 x 9
 y 7
 end
@@ -937,30 +1072,35 @@ arch water_lt2
 x 9
 y 23
 end
-arch water_lt3
+arch water_md
 x 10
 end
-arch water_lt4
+arch water_md2
 x 10
 y 1
 end
-arch water_lt
+arch water_md3
 x 10
 y 2
 end
-arch water_lt
+arch water_md4
 x 10
 y 3
 end
-arch water_lt3
+arch water_md
 x 10
 y 4
 end
-arch water_lt2
+arch water_md
 x 10
 y 5
 end
 arch water_lt3
+x 10
+y 6
+end
+arch water_md_m
+direction 1
 x 10
 y 6
 end
@@ -1032,26 +1172,31 @@ arch water_lt
 x 10
 y 23
 end
-arch water_lt3
+arch water_md3
 x 11
 end
-arch water_lt3
+arch water_md3
 x 11
 y 1
 end
-arch water_lt4
+arch water_md4
 x 11
 y 2
 end
-arch water_lt3
+arch water_md2
 x 11
 y 3
 end
-arch water_lt2
+arch water_md4
 x 11
 y 4
 end
 arch water_lt4
+x 11
+y 5
+end
+arch water_md_m
+direction 8
 x 11
 y 5
 end
@@ -1152,22 +1297,27 @@ arch water_lt4
 x 11
 y 23
 end
-arch water_lt4
+arch water_md4
 x 12
 end
-arch water_lt3
+arch water_md3
 x 12
 y 1
 end
-arch water_lt3
+arch water_md4
 x 12
 y 2
 end
-arch water_lt
+arch water_md
 x 12
 y 3
 end
 arch water_lt4
+x 12
+y 4
+end
+arch water_md_m
+direction 8
 x 12
 y 4
 end
@@ -1292,18 +1442,23 @@ direction 7
 x 12
 y 23
 end
-arch water_lt4
+arch water_md4
 x 13
 end
-arch water_lt
+arch water_md
 x 13
 y 1
 end
-arch water_lt4
+arch water_md
 x 13
 y 2
 end
 arch water_lt4
+x 13
+y 3
+end
+arch water_md_m
+direction 8
 x 13
 y 3
 end
@@ -1396,18 +1551,23 @@ arch floor_ruin3
 x 13
 y 23
 end
-arch water_lt
+arch water_md4
 x 14
 end
-arch water_lt
+arch water_md
 x 14
 y 1
 end
-arch water_lt3
+arch water_md3
 x 14
 y 2
 end
 arch water_lt4
+x 14
+y 3
+end
+arch water_md_m
+direction 1
 x 14
 y 3
 end
@@ -1532,14 +1692,19 @@ arch grassd_m8
 x 14
 y 23
 end
-arch water_lt
+arch water_md3
 x 15
 end
-arch water_lt
+arch water_md
 x 15
 y 1
 end
 arch water_lt3
+x 15
+y 2
+end
+arch water_md_m
+direction 8
 x 15
 y 2
 end
@@ -1641,14 +1806,19 @@ arch grassd_1
 x 15
 y 23
 end
-arch water_lt4
+arch water_md3
 x 16
 end
-arch water_lt3
+arch water_md4
 x 16
 y 1
 end
 arch water_lt3
+x 16
+y 2
+end
+arch water_md_m
+direction 1
 x 16
 y 2
 end
@@ -1734,29 +1904,38 @@ x 16
 y 19
 end
 arch grassd_6
+z 3
 x 16
 y 20
 end
 arch grassd_3
+z 3
 x 16
 y 21
 end
 arch grassd_8
+z 3
 x 16
 y 22
 end
 arch grassd_8
+z 3
 x 16
 y 23
 end
-arch water_lt3
+arch water_md2
 x 17
 end
-arch water_lt2
+arch water_md4
 x 17
 y 1
 end
 arch water_lt4
+x 17
+y 2
+end
+arch water_md_m
+direction 2
 x 17
 y 2
 end
@@ -1835,45 +2014,57 @@ x 17
 y 16
 end
 arch grassd_2
+z 3
 x 17
 y 17
 end
 arch grassd_4
+z 3
 x 17
 y 18
 end
 arch grassd_6
+z 3
 x 17
 y 19
 end
 arch grassd_3
+z 9
 x 17
 y 20
 end
 arch grassd_4
+z 6
 x 17
 y 21
 end
 arch grassd_3
+z 6
 x 17
 y 22
 end
 arch grassd_5
+z 3
 x 17
 y 23
 end
-arch water_lt4
+arch water_md2
 x 18
 end
-arch water_lt4
+arch water_md
 x 18
 y 1
 end
-arch water_lt4
+arch water_md3
 x 18
 y 2
 end
 arch water_lt2
+x 18
+y 3
+end
+arch water_md_m
+direction 1
 x 18
 y 3
 end
@@ -1944,30 +2135,37 @@ x 18
 y 16
 end
 arch grassd_5
+z 3
 x 18
 y 17
 end
 arch grassd_5
+z 6
 x 18
 y 18
 end
 arch grassd_3
+z 6
 x 18
 y 19
 end
 arch grassd_4
+z 12
 x 18
 y 20
 end
 arch grassd_4
+z 6
 x 18
 y 21
 end
 arch grassd_5
+z 6
 x 18
 y 22
 end
 arch grassd_3
+z 3
 x 18
 y 23
 end
@@ -1975,18 +2173,23 @@ arch plant_flower11
 x 18
 y 23
 end
-arch water_lt4
+arch water_md4
 x 19
 end
-arch water_lt2
+arch water_md2
 x 19
 y 1
 end
-arch water_lt3
+arch water_md
 x 19
 y 2
 end
 arch water_lt2
+x 19
+y 3
+end
+arch water_md2_m
+direction 1
 x 19
 y 3
 end
@@ -2052,22 +2255,27 @@ x 19
 y 16
 end
 arch grassd_3
+z 3
 x 19
 y 17
 end
 arch grassd_2
+z 6
 x 19
 y 18
 end
 arch grassd_7
+z 8
 x 19
 y 19
 end
 arch grassd_8
+z 14
 x 19
 y 20
 end
 arch grassd_1
+z 11
 x 19
 y 21
 end
@@ -2076,25 +2284,32 @@ x 19
 y 21
 end
 arch grassd_5
+z 9
 x 19
 y 22
 end
 arch grassd_1
+z 3
 x 19
 y 23
 end
-arch water_lt
+arch water_md
 x 20
 end
-arch water_lt4
+arch water_md
 x 20
 y 1
 end
-arch water_lt3
+arch water_md2
 x 20
 y 2
 end
 arch water_lt4
+x 20
+y 3
+end
+arch water_md_m
+direction 2
 x 20
 y 3
 end
@@ -2160,49 +2375,61 @@ x 20
 y 16
 end
 arch grassd_3
+z 3
 x 20
 y 17
 end
 arch grassd_3
+z 6
 x 20
 y 18
 end
 arch grassd_5
+z 11
 x 20
 y 19
 end
 arch grassd_8
+z 11
 x 20
 y 20
 end
 arch grassd_1
+z 16
 x 20
 y 21
 end
 arch grassd_3
+z 11
 x 20
 y 22
 end
 arch grassd_2
+z 5
 x 20
 y 23
 end
-arch water_lt3
+arch water_md4
 x 21
 end
-arch water_lt
+arch water_md4
 x 21
 y 1
 end
-arch water_lt
+arch water_md4
 x 21
 y 2
 end
-arch water_lt2
+arch water_md2
 x 21
 y 3
 end
 arch water_lt4
+x 21
+y 4
+end
+arch water_md_m
+direction 1
 x 21
 y 4
 end
@@ -2268,45 +2495,56 @@ x 21
 y 17
 end
 arch grassd_5
+z 6
 x 21
 y 18
 end
 arch grassd_2
+z 9
 x 21
 y 19
 end
 arch grassd_8
+z 9
 x 21
 y 20
 end
 arch grassd_6
+z 14
 x 21
 y 21
 end
 arch grassd_5
+z 11
 x 21
 y 22
 end
 arch grassd_7
+z 5
 x 21
 y 23
 end
-arch water_lt
+arch water_md4
 x 22
 end
-arch water_lt2
+arch water_md3
 x 22
 y 1
 end
-arch water_lt
+arch water_md2
 x 22
 y 2
 end
-arch water_lt
+arch water_md4
 x 22
 y 3
 end
 arch water_lt3
+x 22
+y 4
+end
+arch water_md2_m
+direction 1
 x 22
 y 4
 end
@@ -2377,6 +2615,7 @@ x 22
 y 17
 end
 arch grassd_1
+z 3
 x 22
 y 18
 end
@@ -2385,41 +2624,51 @@ x 22
 y 18
 end
 arch grassd_1
+z 6
 x 22
 y 19
 end
 arch grassd_1
+z 9
 x 22
 y 20
 end
 arch grassd_7
+z 11
 x 22
 y 21
 end
 arch grassd_8
+z 8
 x 22
 y 22
 end
 arch grassd_3
+z 5
 x 22
 y 23
 end
-arch water_lt4
+arch water_md3
 x 23
 end
-arch water_lt4
+arch water_md
 x 23
 y 1
 end
-arch water_lt4
+arch water_md
 x 23
 y 2
 end
-arch water_lt2
+arch water_md3
 x 23
 y 3
 end
 arch water_lt3
+x 23
+y 4
+end
+arch water_md_m
+direction 1
 x 23
 y 4
 end
@@ -2485,22 +2734,27 @@ x 23
 y 17
 end
 arch grassd_1
+z 3
 x 23
 y 18
 end
 arch grassd_1
+z 3
 x 23
 y 19
 end
 arch grassd_2
+z 3
 x 23
 y 20
 end
 arch grassd_4
+z 5
 x 23
 y 21
 end
 arch grassd_3
+z 5
 x 23
 y 22
 end
@@ -2509,6 +2763,7 @@ x 23
 y 22
 end
 arch grassd_2
+z 5
 x 23
 y 23
 end

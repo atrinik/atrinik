@@ -2,7 +2,7 @@ arch map
 name Incuna
 msg
 Created:  2010-08-22 Edwin Miltenburg
-Modified: 2011-09-30 Alex Tokar
+Modified: 2015-06-21 Alex Tokar
 endmsg
 width 24
 height 24
@@ -998,7 +998,16 @@ end
 arch water_lt3
 x 8
 end
+arch water_md2_m
+direction 3
+x 8
+end
 arch water_lt
+x 8
+y 1
+end
+arch water_md_m
+direction 3
 x 8
 y 1
 end
@@ -1116,14 +1125,19 @@ arch fence_01.151
 x 8
 y 23
 end
-arch water_lt
+arch water_md3
 x 9
 end
-arch water_lt
+arch water_md
 x 9
 y 1
 end
 arch water_lt2
+x 9
+y 2
+end
+arch water_md_m
+direction 2
 x 9
 y 2
 end
@@ -1237,14 +1251,14 @@ arch fence_01.151
 x 9
 y 23
 end
-arch water_lt2
+arch water_md4
 x 10
 end
-arch water_lt3
+arch water_md
 x 10
 y 1
 end
-arch water_lt
+arch water_md2
 x 10
 y 2
 end
@@ -1252,11 +1266,26 @@ arch water_lt3
 x 10
 y 3
 end
+arch water_md_m
+direction 2
+x 10
+y 3
+end
 arch water_lt4
 x 10
 y 4
 end
+arch water_md2_m
+direction 3
+x 10
+y 4
+end
 arch water_lt4
+x 10
+y 5
+end
+arch water_md2_m
+direction 3
 x 10
 y 5
 end
@@ -1368,26 +1397,26 @@ arch fence_01.151
 x 10
 y 23
 end
-arch water_lt2
+arch water_md2
 x 11
 end
-arch water_lt2
+arch water_md2
 x 11
 y 1
 end
-arch water_lt
+arch water_md2
 x 11
 y 2
 end
-arch water_lt
+arch water_md4
 x 11
 y 3
 end
-arch water_lt3
+arch water_md4
 x 11
 y 4
 end
-arch water_lt
+arch water_md
 x 11
 y 5
 end
@@ -1480,26 +1509,26 @@ arch fence_01.151
 x 11
 y 23
 end
-arch water_lt
+arch water_md
 x 12
 end
-arch water_lt4
+arch water_md4
 x 12
 y 1
 end
-arch water_lt2
+arch water_md4
 x 12
 y 2
 end
-arch water_lt
+arch water_md2
 x 12
 y 3
 end
-arch water_lt3
+arch water_md2
 x 12
 y 4
 end
-arch water_lt3
+arch water_md
 x 12
 y 5
 end
@@ -1592,26 +1621,26 @@ arch fence_01.151
 x 12
 y 23
 end
-arch water_lt2
+arch water_md3
 x 13
 end
-arch water_lt4
+arch water_md2
 x 13
 y 1
 end
-arch water_lt2
+arch water_md3
 x 13
 y 2
 end
-arch water_lt
+arch water_md2
 x 13
 y 3
 end
-arch water_lt3
+arch water_md4
 x 13
 y 4
 end
-arch water_lt2
+arch water_md4
 x 13
 y 5
 end
@@ -1704,26 +1733,26 @@ arch fence_01.152
 x 13
 y 23
 end
-arch water_lt3
+arch water_md2
 x 14
 end
-arch water_lt
+arch water_md2
 x 14
 y 1
 end
-arch water_lt3
+arch water_md2
 x 14
 y 2
 end
-arch water_lt4
+arch water_md2
 x 14
 y 3
 end
-arch water_lt
+arch water_md2
 x 14
 y 4
 end
-arch water_lt2
+arch water_md4
 x 14
 y 5
 end
@@ -1884,26 +1913,26 @@ sub_layer 1
 x 14
 y 23
 end
-arch water_lt
+arch water_md
 x 15
 end
-arch water_lt
+arch water_md4
 x 15
 y 1
 end
-arch water_lt4
+arch water_md3
 x 15
 y 2
 end
-arch water_lt2
+arch water_md4
 x 15
 y 3
 end
-arch water_lt2
+arch water_md3
 x 15
 y 4
 end
-arch water_lt3
+arch water_md
 x 15
 y 5
 end
@@ -1994,30 +2023,30 @@ direction 2
 x 15
 y 23
 end
-arch water_lt4
+arch water_md2
 x 16
 end
-arch water_lt2
+arch water_md4
 x 16
 y 1
 end
-arch water_lt2
+arch water_md2
 x 16
 y 2
 end
-arch water_lt4
+arch water_md3
 x 16
 y 3
 end
-arch water_lt4
+arch water_md3
 x 16
 y 4
 end
-arch water_lt3
+arch water_md3
 x 16
 y 5
 end
-arch water_md2
+arch water_md4
 x 16
 y 6
 end
@@ -2089,34 +2118,34 @@ arch water_md4
 x 16
 y 23
 end
-arch water_lt4
+arch water_md
 x 17
 end
-arch water_lt2
+arch water_md3
 x 17
 y 1
 end
-arch water_lt
+arch water_md2
 x 17
 y 2
 end
-arch water_lt4
+arch water_md3
 x 17
 y 3
 end
-arch water_lt
+arch water_md3
 x 17
 y 4
 end
-arch water_lt4
+arch water_md3
 x 17
 y 5
 end
-arch water_md2
+arch water_md
 x 17
 y 6
 end
-arch water_md2
+arch water_md3
 x 17
 y 7
 end
@@ -2184,30 +2213,30 @@ arch water_md
 x 17
 y 23
 end
-arch water_lt3
+arch water_md4
 x 18
 end
-arch water_lt
+arch water_md2
 x 18
 y 1
 end
-arch water_lt4
+arch water_md4
 x 18
 y 2
 end
-arch water_lt2
+arch water_md
 x 18
 y 3
 end
-arch water_lt2
+arch water_md4
 x 18
 y 4
 end
-arch water_lt3
+arch water_md
 x 18
 y 5
 end
-arch water_md2
+arch water_md
 x 18
 y 6
 end
@@ -2279,26 +2308,26 @@ arch water_md
 x 18
 y 23
 end
-arch water_lt
+arch water_md3
 x 19
 end
-arch water_lt2
+arch water_md2
 x 19
 y 1
 end
-arch water_lt4
+arch water_md3
 x 19
 y 2
 end
-arch water_lt
+arch water_md4
 x 19
 y 3
 end
-arch water_lt
+arch water_md3
 x 19
 y 4
 end
-arch water_lt3
+arch water_md3
 x 19
 y 5
 end
@@ -2374,30 +2403,30 @@ arch water_md3
 x 19
 y 23
 end
-arch water_lt2
+arch water_md
 x 20
 end
-arch water_lt
+arch water_md2
 x 20
 y 1
 end
-arch water_lt2
+arch water_md2
 x 20
 y 2
 end
-arch water_lt4
+arch water_md3
 x 20
 y 3
 end
-arch water_lt4
+arch water_md
 x 20
 y 4
 end
-arch water_lt4
+arch water_md2
 x 20
 y 5
 end
-arch water_md2
+arch water_md
 x 20
 y 6
 end
@@ -2469,30 +2498,30 @@ arch water_md2
 x 20
 y 23
 end
-arch water_lt
+arch water_md
 x 21
 end
-arch water_lt3
+arch water_md
 x 21
 y 1
 end
-arch water_lt2
+arch water_md2
 x 21
 y 2
 end
-arch water_lt4
+arch water_md
 x 21
 y 3
 end
-arch water_lt
+arch water_md
 x 21
 y 4
 end
-arch water_lt2
+arch water_md4
 x 21
 y 5
 end
-arch water_md
+arch water_md3
 x 21
 y 6
 end
@@ -2564,26 +2593,26 @@ arch water_md
 x 21
 y 23
 end
-arch water_lt3
+arch water_md
 x 22
 end
-arch water_lt3
+arch water_md
 x 22
 y 1
 end
-arch water_lt4
+arch water_md3
 x 22
 y 2
 end
-arch water_lt
+arch water_md3
 x 22
 y 3
 end
-arch water_lt4
+arch water_md
 x 22
 y 4
 end
-arch water_lt
+arch water_md3
 x 22
 y 5
 end
@@ -2659,30 +2688,30 @@ arch water_md3
 x 22
 y 23
 end
-arch water_lt4
+arch water_md2
 x 23
 end
-arch water_lt2
+arch water_md3
 x 23
 y 1
 end
-arch water_lt4
+arch water_md
 x 23
 y 2
 end
-arch water_lt2
+arch water_md
 x 23
 y 3
 end
-arch water_lt2
+arch water_md
 x 23
 y 4
 end
-arch water_lt2
+arch water_md4
 x 23
 y 5
 end
-arch water_md2
+arch water_md
 x 23
 y 6
 end
@@ -2690,7 +2719,7 @@ arch water_md
 x 23
 y 7
 end
-arch water_md2
+arch water_md3
 x 23
 y 8
 end
