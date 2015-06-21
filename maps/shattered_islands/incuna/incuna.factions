@@ -1,0 +1,8 @@
+faction incuna
+    parent world
+
+    faction incuna_citizens
+        faction incuna_guards
+        end
+    end
+end

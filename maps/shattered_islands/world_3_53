@@ -2,7 +2,7 @@ arch map
 name Fort Sether
 msg
 Created:  2009-08-09 Alex Tokar
-Modified: 2015-05-04 Alex Tokar
+Modified: 2015-06-21 Alex Tokar
 endmsg
 width 24
 height 24
@@ -2106,6 +2106,7 @@ arch guard
 name Fortress Guard
 type 83
 level 20
+faction fort_sether_guards
 end
 end
 arch floor_grey5
@@ -2394,6 +2395,7 @@ arch guard
 name Fortress Guard
 type 83
 level 20
+faction fort_sether_guards
 arch event_obj
 sub_type 6
 race /interfaces/quests/fort_sether_illness/quest.xml
@@ -2818,6 +2820,7 @@ arch guard
 name Fortress Guard
 type 83
 level 20
+faction fort_sether_guards
 arch event_obj
 sub_type 6
 race /interfaces/quests/fort_sether_illness/quest.xml
@@ -3172,6 +3175,7 @@ arch guard
 name Fortress Guard
 type 83
 level 20
+faction fort_sether_guards
 end
 end
 arch floor_grey5
@@ -3281,6 +3285,7 @@ arch guard
 name Fortress Guard
 type 83
 level 20
+faction fort_sether_guards
 end
 end
 arch floor_grey5

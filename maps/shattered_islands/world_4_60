@@ -2,7 +2,7 @@ arch map
 name Aris
 msg
 Created:  2009-08-09 Alex Tokar
-Modified: 2015-05-31 Alex Tokar
+Modified: 2015-06-21 Alex Tokar
 endmsg
 width 24
 height 24
@@ -1356,8 +1356,10 @@ x 10
 y 7
 arch guard_pole
 name Boris
-type 83
 level 5
+type 83
+faction aris_citizens
+randomitems mob_default
 end
 end
 arch floor_parquet2d
@@ -1511,6 +1513,7 @@ arch traveller_wife
 name Amelia
 type 83
 level 4
+faction aris_citizens
 end
 end
 arch floor_parquet2c

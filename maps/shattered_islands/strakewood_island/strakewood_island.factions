@@ -23,6 +23,17 @@ faction strakewood_island
     faction frevia
         spill 0%
     end
+
+    faction inn_in_the_mountains
+    end
+
+    faction morgeean
+    end
+
+    faction centennial
+        faction centennial_animals
+        end
+    end
 end
 
 faction strakewood_island_thieves

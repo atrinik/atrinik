@@ -2,7 +2,7 @@ arch map
 name Incuna
 msg
 Created:  2010-08-22 Edwin Miltenburg
-Modified: 2015-05-23 Alex Tokar
+Modified: 2015-06-21 Alex Tokar
 endmsg
 width 24
 height 24
@@ -2241,6 +2241,8 @@ arch guard_pole
 type 83
 direction 3
 name town guard
+faction incuna_guards
+randomitems mob_default
 arch event_obj
 sub_type 6
 race /python/generic/npc_poker.py
@@ -2491,6 +2493,8 @@ y 5
 arch guard_pole
 type 83
 name town guard
+faction incuna_guards
+randomitems mob_default
 arch event_obj
 sub_type 6
 race /python/generic/npc_poker.py
@@ -3547,6 +3551,7 @@ y 17
 arch bartender
 type 83
 direction 3
+faction incuna_citizens
 end
 end
 arch floor_wood3f
@@ -3989,6 +3994,7 @@ arch guard_pole
 type 83
 name town guard
 randomitems mob_guard_drunk
+faction incuna_guards
 end
 end
 arch floor_wood3a
@@ -4767,6 +4773,8 @@ y 20
 arch ranger
 type 83
 direction 7
+randomitems mob_default
+faction incuna_citizens
 end
 end
 arch floor_wood3g

@@ -2,7 +2,7 @@ arch map
 name Incuna
 msg
 Created:  2010-08-22 Edwin Miltenburg
-Modified: 2015-04-24 Alex Tokar
+Modified: 2015-06-21 Alex Tokar
 endmsg
 width 24
 height 24
@@ -398,6 +398,7 @@ arch guard
 name bank guard
 type 83
 level 18
+faction incuna_guards
 end
 end
 arch grassd_8
@@ -699,6 +700,7 @@ name Singhul
 type 83
 level 15
 direction 7
+faction incuna_citizens
 arch event_obj
 sub_type 6
 race /python/generic/bank.py
@@ -2695,6 +2697,7 @@ arch peasant
 stand_still 1
 type 83
 name Ellamin
+faction incuna_citizens
 end
 end
 arch floor_wood2_l2

@@ -2,7 +2,7 @@ arch map
 name Strakewood Island
 msg
 Created:  2009-08-09 Alex Tokar
-Modified: 2015-05-04 Alex Tokar
+Modified: 2015-06-21 Alex Tokar
 endmsg
 width 24
 height 24
@@ -686,6 +686,7 @@ x 5
 arch guard
 level 28
 type 83
+faction aris_guards
 end
 end
 arch grassd_2
@@ -947,6 +948,7 @@ y 17
 arch guard
 level 28
 type 83
+faction aris_guards
 end
 end
 arch grassd_8
@@ -1091,6 +1093,7 @@ dex 1
 stand_still 1
 wis 7
 type 83
+faction aris_guards
 arch ability_firestorm
 sp 35
 hp 35
@@ -1453,6 +1456,7 @@ y 12
 arch guard_pole
 level 26
 type 83
+faction aris_guards
 end
 end
 arch grassd_2
@@ -1490,6 +1494,7 @@ arch guard
 name Galsteen
 level 28
 type 83
+faction aris_guards
 arch event_obj
 sub_type 6
 race /interfaces/strakewood_island/galsteen.xml
@@ -2321,6 +2326,7 @@ dex 1
 stand_still 1
 wis 7
 type 83
+faction aris_guards
 arch ability_firestorm
 sp 8
 hp 8
@@ -2493,6 +2499,7 @@ y 16
 arch guard
 level 28
 type 83
+faction aris_guards
 end
 end
 arch grassd_1
@@ -2768,6 +2775,7 @@ y 13
 arch guard_pole
 level 26
 type 83
+faction aris_guards
 end
 end
 arch grassd_2
@@ -3006,6 +3014,7 @@ x 20
 arch guard
 level 28
 type 83
+faction aris_guards
 end
 end
 arch grassd_8

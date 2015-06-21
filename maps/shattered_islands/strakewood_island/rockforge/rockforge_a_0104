@@ -2,7 +2,7 @@ arch map
 name Rockforge: City
 msg
 Created:  2011-06-03 Alex Tokar
-Modified: 2011-11-03 Alex Tokar
+Modified: 2015-06-21 Alex Tokar
 endmsg
 width 24
 height 24
@@ -322,6 +322,7 @@ x 3
 y 12
 arch chef
 type 83
+faction rockforge_citizens
 end
 end
 arch floor_marble1
@@ -356,6 +357,7 @@ name Aisha Bernard
 movement_type 176
 type 83
 level 13
+faction rockforge_citizens
 arch key2
 slaying rockforge_tavern
 end
@@ -485,6 +487,7 @@ type 83
 direction 3
 name Hayden Sloan
 level 19
+faction rockforge_citizens
 arch event_obj
 sub_type 6
 race /python/generic/bartender.py
@@ -778,6 +781,7 @@ type 83
 direction 1
 name Liz Pugh
 level 18
+faction rockforge_citizens
 end
 end
 arch floor_marble1a
@@ -953,6 +957,7 @@ type 83
 direction 1
 name Vad Ironkiller
 level 37
+faction rockforge_citizens
 end
 end
 arch floor_marble1a
@@ -997,6 +1002,7 @@ type 83
 direction 1
 name Golico Beamload
 level 23
+faction rockforge_citizens
 end
 end
 arch floor_marble1b
@@ -1022,6 +1028,7 @@ endmsg
 type 83
 name Gar Redlock
 level 39
+faction rockforge_citizens
 end
 end
 arch floor_marble1
@@ -1057,6 +1064,7 @@ type 83
 direction 1
 level 38
 name Nehitr Moonvine
+faction rockforge_citizens
 arch ability_stone_throw
 name arrow shooter
 race arrows
@@ -1785,6 +1793,7 @@ type 83
 direction 3
 name Herlad Propsmiter
 level 42
+faction rockforge_citizens
 end
 end
 arch floor_marble1a
@@ -1856,6 +1865,7 @@ type 83
 direction 1
 name Johnny Hurst
 level 62
+faction rockforge_citizens
 end
 end
 arch floor_marble1b
@@ -1912,6 +1922,7 @@ is_male 0
 is_female 1
 name Aena Slatepit
 level 35
+faction rockforge_citizens
 end
 end
 arch floor_marble1b
@@ -1948,6 +1959,7 @@ type 83
 direction 1
 name Hnom Deathslayer
 level 48
+faction rockforge_citizens
 end
 end
 arch floor_marble1a
@@ -2387,6 +2399,7 @@ endmsg
 type 83
 name Nalko Witchslasher
 level 38
+faction rockforge_citizens
 end
 end
 arch floor_marble1

@@ -2,7 +2,7 @@ arch map
 name Rockforge: Palace
 msg
 Created:  2011-06-02 Alex Tokar
-Modified: 2015-05-23 Alex Tokar
+Modified: 2015-06-21 Alex Tokar
 endmsg
 width 24
 height 24
@@ -295,6 +295,7 @@ direction 3
 level 45
 randomitems mob_guard
 name dwarf guard
+faction rockforge_guards
 end
 end
 arch floor_marble1b
@@ -603,6 +604,7 @@ direction 3
 randomitems mob_guard
 level 45
 name dwarf guard
+faction rockforge_guards
 end
 end
 arch floor_marble1
@@ -659,6 +661,7 @@ direction 3
 randomitems mob_guard
 level 45
 name dwarf guard
+faction rockforge_guards
 end
 end
 arch floor_marble1a
@@ -715,6 +718,7 @@ direction 3
 randomitems mob_guard
 level 45
 name dwarf guard
+faction rockforge_guards
 end
 end
 arch floor_marble1
@@ -1256,6 +1260,7 @@ type 83
 randomitems mob_guard
 level 45
 name dwarf guard
+faction rockforge_guards
 end
 end
 arch floor_marble1b
@@ -1306,6 +1311,7 @@ type 83
 randomitems mob_guard
 level 45
 name dwarf guard
+faction rockforge_guards
 end
 end
 arch floor_marble1a
@@ -1356,6 +1362,7 @@ type 83
 randomitems mob_guard
 level 45
 name dwarf guard
+faction rockforge_guards
 end
 end
 arch floor_marble1a
@@ -1620,6 +1627,7 @@ type 83
 randomitems mob_guard
 level 45
 name dwarf guard
+faction rockforge_guards
 end
 end
 arch floor_marble1

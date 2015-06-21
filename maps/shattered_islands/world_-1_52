@@ -2,7 +2,7 @@ arch map
 name Centennial
 msg
 Created:  2011-03-20 Alex Tokar
-Modified: 2015-05-31 Alex Tokar
+Modified: 2015-06-21 Alex Tokar
 endmsg
 width 24
 height 24
@@ -2227,6 +2227,7 @@ maxsp 15
 pow 4
 dex 2
 type 83
+faction centennial
 arch ability_mbullet
 name ability lightning
 sp 48

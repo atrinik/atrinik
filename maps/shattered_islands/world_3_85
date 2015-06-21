@@ -2,7 +2,7 @@ arch map
 name Incuna
 msg
 Created:  2010-08-22 Edwin Miltenburg
-Modified: 2011-11-03 Alex Tokar
+Modified: 2015-06-21 Alex Tokar
 endmsg
 width 24
 height 24
@@ -2279,6 +2279,7 @@ random_move 1
 item_race 1
 item_level 1
 type 83
+faction incuna_citizens
 end
 end
 arch bridge_wood_EW.101
@@ -2750,6 +2751,7 @@ random_move 1
 item_race 1
 item_level 1
 type 83
+faction incuna_citizens
 end
 end
 arch bridge_wood_NS.101

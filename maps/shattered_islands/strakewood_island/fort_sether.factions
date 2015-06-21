@@ -1,0 +1,8 @@
+faction fort_sether
+    parent asterian_kingdom
+
+    faction fort_sether_citizens
+        faction fort_sether_guards
+        end
+    end
+end

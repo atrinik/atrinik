@@ -1529,6 +1529,7 @@ arch guard_pole
 type 83
 direction 3
 name town guard
+faction incuna_guards
 end
 end
 arch grassd_2
@@ -1825,6 +1826,8 @@ y 10
 arch ranger
 type 83
 name Tom
+randomitems mob_default
+faction incuna_citizens
 end
 end
 arch grassd_2
@@ -3818,6 +3821,7 @@ arch guard
 name bank guard
 type 83
 level 18
+faction incuna_guards
 end
 end
 arch grassd_1

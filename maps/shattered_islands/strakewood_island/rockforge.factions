@@ -1,1 +1,16 @@
- 
+faction rockforge
+    parent strakewood_island
+
+    faction rockforge_citizens
+        faction rockforge_guards
+        end
+
+        faction rockforge_nobility
+            modifier 5%
+
+            faction rockforge_royalty
+                penalty 1000.0
+            end
+        end
+    end
+end

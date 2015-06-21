@@ -2,7 +2,7 @@ arch map
 name Rockforge: City
 msg
 Created:  2011-06-03 Alex Tokar
-Modified: 2011-11-03 Alex Tokar
+Modified: 2015-06-21 Alex Tokar
 endmsg
 width 24
 height 24
@@ -865,6 +865,7 @@ arch dwarf_runemaster
 type 83
 name Nodih Blackbreaker
 level 37
+faction rockforge_citizens
 end
 end
 arch floor_marble1b

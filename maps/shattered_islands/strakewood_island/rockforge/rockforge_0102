@@ -2,7 +2,7 @@ arch map
 name Rockforge: Palace
 msg
 Created:  2011-06-02 Alex Tokar
-Modified: 2015-05-23 Alex Tokar
+Modified: 2015-06-21 Alex Tokar
 endmsg
 width 24
 height 24
@@ -347,6 +347,7 @@ direction 3
 randomitems mob_guard
 level 45
 type 83
+faction rockforge_guards
 end
 end
 arch floor_marble1b
@@ -389,6 +390,7 @@ type 83
 direction 3
 randomitems mob_guard
 level 45
+faction rockforge_guards
 end
 end
 arch blocked
@@ -578,6 +580,7 @@ arch dwarf_arcanister
 type 83
 name Ris Goldhand
 level 60
+faction rockforge_royalty
 end
 end
 arch floor_bw4
@@ -964,6 +967,7 @@ type 83
 name dwarf guard
 randomitems mob_guard
 level 45
+faction rockforge_guards
 end
 end
 arch floor_marble1a
@@ -1005,6 +1009,7 @@ arch dwarf_fighter
 type 83
 randomitems mob_guard
 level 45
+faction rockforge_guards
 end
 end
 arch blocked
