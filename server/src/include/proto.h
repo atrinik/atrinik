@@ -557,9 +557,9 @@ extern int trap_show(object *trap, object *where);
 extern int trap_disarm(object *disarmer, object *trap);
 extern void trap_adjust(object *trap, int difficulty);
 /* src/server/shop.c */
-extern int64_t query_cost(object *tmp, object *who, int flag);
+extern int64_t query_cost(object *tmp, int flag);
 extern char *cost_string_from_value(int64_t cost);
-extern char *query_cost_string(object *tmp, object *who, int flag);
+extern char *query_cost_string(object *tmp, int flag);
 extern int64_t query_money(object *op);
 extern int pay_for_amount(int64_t to_pay, object *pl);
 extern int pay_for_item(object *op, object *pl);

@@ -298,7 +298,7 @@ class Guild:
                 self._db[self._guild]["members"][name]["value_used"] = 0
 
         # Get the object's cost.
-        val = obj.GetCost(obj, COST_TRUE)
+        val = obj.GetCost()
 
         # Don't allow the object to be picked up if its value and the used
         # up value would go above the limit.

@@ -24,7 +24,10 @@
 
 /**
  * @file
- * Atrinik Python plugin object related code. */
+ * Atrinik Python plugin object related code.
+ *
+ * @author Alex Tokar
+ */
 
 #include <plugin_python.h>
 #include <bresenham.h>
@@ -32,11 +35,8 @@
 #include <packet.h>
 
 /**
- * All the possible fields of an object. */
-/* @cparser
- * @page plugin_python_object_fields Python object fields
- * <h2>Python object fields</h2>
- * List of the object fields and their meaning. */
+ * All the possible fields of an object.
+ */
 static fields_struct fields[] = {
     {"below", FIELDTYPE_OBJECT, offsetof(object, below), FIELDFLAG_READONLY, 0,
             "Object stacked below this one.; Atrinik.Object.Object or None "
@@ -289,9 +289,8 @@ static fields_struct fields[] = {
     {"randomitems", FIELDTYPE_TREASURELIST, offsetof(object, randomitems), 0,
             0, "Treasure list the object generates.; str or None"},
 };
-/* @endcparser */
 
-/** Documentation for object. flag attribute. */
+/** Documentation for object flag attributes. */
 static char *doc_object_flag_names[NUM_FLAGS + 1] = {
     "The object is asleep.",
     "The object is confused.",
@@ -429,19 +428,13 @@ static char *doc_object_flag_names[NUM_FLAGS + 1] = {
     NULL,
 };
 
-/**
- * @defgroup plugin_python_object_functions Python object functions
- * Object related functions used in Atrinik Python plugin.
- *@{*/
-
-
 /** Documentation for Atrinik_Object_ActivateRune(). */
 static const char doc_Atrinik_Object_ActivateRune[] =
 ".. method:: ActivateRune(who).\n\n"
 "Activate a rune.\n\n"
 ":param who: Who should be affected by the effects of the rune.\n"
 ":type who: Atrinik.Object.Object\n"
-":raises TypeError: if self is not of type :attr:`Atrinik.Type.RUNE`";
+":raises TypeError: If self is not of type :attr:`Atrinik.Type.RUNE`";
 
 /**
  * Implements Atrinik.Object.Object.ActivateRune() Python method.
@@ -495,7 +488,8 @@ static PyObject *Atrinik_Object_TeleportTo(Atrinik_Object *obj, PyObject *args,
 
     x = y = 0;
 
-    if (!PyArg_ParseTupleAndKeywords(args, keywds, "s|ii", kwlist, &path, &x, &y)) {
+    if (!PyArg_ParseTupleAndKeywords(args, keywds, "s|ii", kwlist, &path, &x,
+            &y)) {
         return NULL;
     }
 
@@ -521,7 +515,7 @@ static const char doc_Atrinik_Object_InsertInto[] =
 ":type where: Atrinik.Object.Object\n"
 ":returns: The inserted object, which may be different from the original (due"
 "to merging, for example). None is returned on failure.\n"
-":rtype: class:`Atrinik.Object.Object` or None";
+":rtype: class:`Atrinik.Object.Object` or :attr:`None`";
 
 /**
  * Implements Atrinik.Object.Object.InsertInto() Python method.
@@ -553,16 +547,16 @@ static PyObject *Atrinik_Object_InsertInto(Atrinik_Object *obj, PyObject *args)
 
 /** Documentation for Atrinik_Object_Apply(). */
 static const char doc_Atrinik_Object_Apply[] =
-".. method:: Apply(what, flags=Atrinik.APPLY_TOGGLE).\n\n"
+".. method:: Apply(what, flags=Atrinik.APPLY_NORMAL).\n\n"
 "Makes the object apply the specified object.\n\n"
 ":param what: What object to apply.\n"
 ":type what: Atrinik.Object.Object\n"
 ":param flags: Reasonable combination of :attr:`~Atrinik.APPLY_NORMAL`, "
 ":attr:`~Atrinik.APPLY_ALWAYS`, :attr:`~Atrinik.APPLY_ALWAYS_UNAPPLY`, "
 ":attr:`~Atrinik.APPLY_NO_MERGE`, :attr:`~Atrinik.APPLY_IGNORE_CURSE`, "
-":attr:`~APPLY_NO_EVENT`."
+":attr:`~Atrinik.APPLY_NO_EVENT`.\n"
 ":returns: One of OBJECT_METHOD_xxx.\n"
-":rtype: int";
+":rtype: :attr:`int`";
 
 /**
  * Implements Atrinik.Object.Object.Apply() Python method.
@@ -681,7 +675,7 @@ static const char doc_Atrinik_Object_GetGender[] =
 ".. method:: GetGender().\n\n"
 "Acquire object's gender.\n\n"
 ":returns: One of the gender constants defined in :mod:`Atrinik.Gender`.\n"
-":rtype: int";
+":rtype: :attr:`int`";
 
 /**
  * Implements Atrinik.Object.Object.GetGender() Python method.
@@ -767,7 +761,7 @@ static const char doc_Atrinik_Object_Hit[] =
 "killed, otherwise the actual damage done is calculated depending on the "
 "object's attack types, the target's protections, etc.\n"
 ":type damage: int\n"
-":throws ValueError: If the target is not on a map or is not alive.";
+":raises ValueError: If the target is not on a map or is not alive.";
 
 /**
  * Implements Atrinik.Object.Object.Hit() Python method.
@@ -922,8 +916,9 @@ static const char doc_Atrinik_Object_CreateObject[] =
 ":param identified: If False, the object will not be identified.\n"
 ":type identified: bool\n"
 ":returns: The created (and inserted) object, None on failure.\n"
-":rtype: :class:`Atrinik.Object.Object` or None\n"
-":throws Atrinik.AtrinikError: If archname references an invalid archetype.";
+":rtype: :class:`Atrinik.Object.Object` or :attr:`None`\n"
+":raises Atrinik.AtrinikError.AtrinikError: If archname references an invalid "
+"archetype.";
 
 /**
  * Implements Atrinik.Object.Object.CreateObject() Python method.
@@ -1015,7 +1010,8 @@ static const char doc_Atrinik_Object_FindObject[] =
 "title=None, type=-1, multiple=False, unpaid=False).\n\n"
 "Looks for a certain object in object's inventory.\n\n"
 ":param mode: How to search the inventory. One of the INVENTORY_xxx constants "
-"defined in the :mod:`Atrinik` module, eg, :attr:`~Atrinik.INVENTORY_ALL`."
+"defined in the :mod:`Atrinik` module, eg, :attr:`~Atrinik.INVENTORY_ALL`.\n"
+":type mode: int\n"
 ":param archname: Arch name of the object to search for. If None, can be any.\n"
 ":type archname: str or None\n"
 ":param name: Name of the object. If None, can be any.\n"
@@ -1030,8 +1026,8 @@ static const char doc_Atrinik_Object_FindObject[] =
 ":param unpaid: Only match unpaid objects.\n"
 ":type unpaid: bool\n"
 ":returns: The object we wanted if found, None (or an empty list) otherwise\n"
-":rtype: :class:`Atrinik.Object.Object` or None or list\n"
-":throws ValueError: If there were no conditions to search for.";
+":rtype: :class:`Atrinik.Object.Object` or :attr:`None` or :attr:`list`\n"
+":raises ValueError: If there were no conditions to search for.";
 
 /**
  * Implements Atrinik.Object.Object.CreateObject() Python method.
@@ -1104,17 +1100,21 @@ done:
     return Py_None;
 }
 
+/** Documentation for Atrinik_Object_Remove(). */
+static const char doc_Atrinik_Object_Remove[] =
+".. method:: Remove().\n\n"
+"Takes the object out of whatever map or inventory it is in. The object can "
+"then be inserted or teleported somewhere else.\n\n"
+"Be careful when removing one of the objects involved in the event activation "
+"(such as the activator/event/etc). It is recommended you use :meth:"
+"`Atrinik.SetReturnValue(1)` or similar before the script exits if doing so.";
+
 /**
- * <h1>object.Remove()</h1>
- * Takes the object out of whatever map or inventory it is in. The object
- * can then be inserted or teleported somewhere else.
- * @warning Be careful when removing one of the objects involved in the
- * event activation (such as the activator/event/etc). It is recommended
- * you use "SetReturnValue(1)" or similar before the script exits if
- * doing so. */
-static PyObject *Atrinik_Object_Remove(Atrinik_Object *obj, PyObject *args)
+ * Implements Atrinik.Object.Object.Remove() Python method.
+ * @copydoc PyMethod_NOARGS
+ */
+static PyObject *Atrinik_Object_Remove(Atrinik_Object *obj)
 {
-    (void) args;
     OBJEXISTCHECK(obj);
     hooks->object_remove(obj->obj, 0);
 
@@ -1122,12 +1122,17 @@ static PyObject *Atrinik_Object_Remove(Atrinik_Object *obj, PyObject *args)
     return Py_None;
 }
 
+/** Documentation for Atrinik_Object_Destroy(). */
+static const char doc_Atrinik_Object_Destroy[] =
+".. method:: Destroy().\n\n"
+"Frees all data associated with the object.";
+
 /**
- * <h1>object.Destroy()</h1>
- * Frees all data associated with the object. */
-static PyObject *Atrinik_Object_Destroy(Atrinik_Object *obj, PyObject *args)
+ * Implements Atrinik.Object.Object.Destroy() Python method.
+ * @copydoc PyMethod_NOARGS
+ */
+static PyObject *Atrinik_Object_Destroy(Atrinik_Object *obj)
 {
-    (void) args;
     OBJEXISTCHECK(obj);
 
     if (!QUERY_FLAG(obj->obj, FLAG_REMOVED)) {
@@ -1140,14 +1145,21 @@ static PyObject *Atrinik_Object_Destroy(Atrinik_Object *obj, PyObject *args)
     return Py_None;
 }
 
+/** Documentation for Atrinik_Object_SetPosition(). */
+static const char doc_Atrinik_Object_SetPosition[] =
+".. method:: SetPosition().\n\n"
+"Sets new position coordinates for the object.\n\nCannot be used to move "
+"objects out of containers, use :meth:`~Atrinik.Drop` or :meth:"
+"`~Atrinik.TeleportTo` for that."
+":param x: New X position on the same map.\n"
+":type x: int\n"
+":param Y: New Y position on the same map.\n"
+":type y: int";
+
 /**
- * <h1>object.SetPosition(int x, int y)</h1>
- * Sets new position coordinates for the object.
- *
- * Cannot be used to move objects out of containers, use Drop() or
- * TeleportTo() for that.
- * @param x New X position on the same map
- * @param y New Y position on the same map */
+ * Implements Atrinik.Object.Object.SetPosition() Python method.
+ * @copydoc PyMethod_VARARGS
+ */
 static PyObject *Atrinik_Object_SetPosition(Atrinik_Object *obj, PyObject *args)
 {
     int x, y;
@@ -1164,20 +1176,31 @@ static PyObject *Atrinik_Object_SetPosition(Atrinik_Object *obj, PyObject *args)
     return Py_None;
 }
 
+/** Documentation for Atrinik_Object_CastIdentify(). */
+static const char doc_Atrinik_Object_CastIdentify[] =
+".. method:: CastIdentify(target, mode, marked=None).\n\n"
+"Cast identify on target.\n\n"
+":param target: The target object.\n"
+":type target: Atrinik.Object.Object\n"
+":param mode: One of IDENTIFY_xxx, eg, :attr:`~Atrinik.IDENTIFY_NORMAL`.\n"
+":type mode: int\n"
+":param marked: Marked item.\n"
+":type marked: :class:`Atrinik.Object.Object` or None";
+
 /**
- * <h1>object.CastIdentify(object target, int mode, object [marked = None])</h1>
- * Cast identify on target.
- * @param target The target object.
- * @param mode One of @ref identify_modes.
- * @param marked Marked item. */
-static PyObject *Atrinik_Object_CastIdentify(Atrinik_Object *obj, PyObject *args)
+ * Implements Atrinik.Object.Object.CastIdentify() Python method.
+ * @copydoc PyMethod_VARARGS
+ */
+static PyObject *Atrinik_Object_CastIdentify(Atrinik_Object *obj,
+        PyObject *args)
 {
     Atrinik_Object *target;
     PyObject *marked = NULL;
     object *ob = NULL;
     int mode;
 
-    if (!PyArg_ParseTuple(args, "O!i|O", &Atrinik_ObjectType, &target, &mode, &marked)) {
+    if (!PyArg_ParseTuple(args, "O!i|O", &Atrinik_ObjectType, &target, &mode,
+            &marked)) {
         return NULL;
     }
 
@@ -1195,77 +1218,95 @@ static PyObject *Atrinik_Object_CastIdentify(Atrinik_Object *obj, PyObject *args
     }
 
     hooks->cast_identify(target->obj, obj->obj->level, ob, mode);
-    hooks->play_sound_map(obj->obj->map, CMD_SOUND_EFFECT, hooks->spells[SP_IDENTIFY].sound, obj->obj->x, obj->obj->y, 0, 0);
+    hooks->play_sound_map(obj->obj->map, CMD_SOUND_EFFECT,
+            hooks->spells[SP_IDENTIFY].sound, obj->obj->x, obj->obj->y, 0, 0);
 
     Py_INCREF(Py_None);
     return Py_None;
 }
 
-/**
- * <h1>object.Save()</h1>
- * Dump an object, as if it was being saved to map or player file. Useful
- * for saving the object somewhere for loading later with
- * @ref Atrinik_LoadObject "LoadObject()".
- * @return String containing the saved object. */
-static PyObject *Atrinik_Object_Save(Atrinik_Object *obj, PyObject *args)
-{
-    PyObject *ret;
-    StringBuffer *sb;
-    char *result;
+/** Documentation for Atrinik_Object_Save(). */
+static const char doc_Atrinik_Object_Save[] =
+".. method:: Save().\n\n"
+"Dump an object, as if it was being saved to map or player file. Useful for "
+"saving the object somewhere for loading later with :meth:"
+"`~Atrinik.Object.Object.Save`.";
 
-    (void) args;
+/**
+ * Implements Atrinik.Object.Object.Save() Python method.
+ * @copydoc PyMethod_NOARGS
+ */
+static PyObject *Atrinik_Object_Save(Atrinik_Object *obj)
+{
     OBJEXISTCHECK(obj);
 
-    sb = hooks->stringbuffer_new();
+    StringBuffer *sb = hooks->stringbuffer_new();
     hooks->dump_object_rec(obj->obj, sb);
-    result = hooks->stringbuffer_finish(sb);
-    ret = Py_BuildValue("s", result);
+    char *result = hooks->stringbuffer_finish(sb);
+    PyObject *ret = Py_BuildValue("s", result);
     efree(result);
 
     return ret;
 }
 
+/** Documentation for Atrinik_Object_GetCost(). */
+static const char doc_Atrinik_Object_GetCost[] =
+".. method:: GetCost(flag=Atrinik.COST_TRUE).\n\n"
+"Get cost of an object in integer value.\n\n"
+":param flag: One of the COST_xxx constants, eg, :attr:`~Atrinik.COST_BUY`.\n"
+":type flag: int\n"
+":returns: The cost of the item.\n"
+":rtype: :attr:`int`";
+
 /**
- * <h1>object.GetCost(object what, int type)</h1>
- * Get cost of an object in integer value.
- * @param what The object to query cost for.
- * @param type One of @ref COST_xxx.
- * @return The cost of the item as integer. */
+ * Implements Atrinik.Object.Object.GetCost() Python method.
+ * @copydoc PyMethod_VARARGS
+ */
 static PyObject *Atrinik_Object_GetCost(Atrinik_Object *obj, PyObject *args)
 {
-    Atrinik_Object *what;
-    int flag;
+    int flag = COST_TRUE;
 
-    if (!PyArg_ParseTuple(args, "O!i", &Atrinik_ObjectType, &what, &flag)) {
+    if (!PyArg_ParseTuple(args, "|i", &flag)) {
         return NULL;
     }
 
     OBJEXISTCHECK(obj);
-    OBJEXISTCHECK(what);
 
-    return Py_BuildValue("L", hooks->query_cost(what->obj, obj->obj, flag));
+    return Py_BuildValue("L", hooks->query_cost(obj->obj, flag));
 }
 
+/** Documentation for Atrinik_Object_GetMoney(). */
+static const char doc_Atrinik_Object_GetMoney[] =
+".. method:: GetMoney().\n\n"
+"Get all the money the object is carrying as integer.\n\n"
+"Can only be used on player or container objects.\n\n"
+":returns: The amount of money the object is carrying.\n"
+":rtype: :attr:`int`";
+
 /**
- * <h1>object.GetMoney()</h1>
- * Get all the money the object is carrying as integer.
- * @note Can only be used on player or container objects.
- * @return The amount of money the object is carrying in copper (as
- * integer). */
-static PyObject *Atrinik_Object_GetMoney(Atrinik_Object *obj, PyObject *args)
+ * Implements Atrinik.Object.Object.GetMoney() Python method.
+ * @copydoc PyMethod_NOARGS
+ */
+static PyObject *Atrinik_Object_GetMoney(Atrinik_Object *obj)
 {
-    (void) args;
     OBJEXISTCHECK(obj);
 
     return Py_BuildValue("L", hooks->query_money(obj->obj));
 }
 
+/** Documentation for Atrinik_Object_PayAmount(). */
+static const char doc_Atrinik_Object_PayAmount[] =
+".. method:: PayAmount(value).\n\n"
+"Makes the object pay a specified amount of money.\n\n"
+":param value: The amount of money to pay.\n"
+":type value: int"
+":returns: Whether the value was paid successfully (had enough money).\n"
+":rtype: :attr:`bool`";
+
 /**
- * <h1>object.PayAmount(int value)</h1>
- * Get the object to pay a specified amount of money in copper.
- * @param value The amount of money in copper to pay for.
- * @return True if the object paid the money (the object had enough money
- * in inventory), False otherwise. */
+ * Implements Atrinik.Object.Object.PayAmount() Python method.
+ * @copydoc PyMethod_VARARGS
+ */
 static PyObject *Atrinik_Object_PayAmount(Atrinik_Object *obj, PyObject *args)
 {
     int64_t value;
@@ -1282,7 +1323,7 @@ static PyObject *Atrinik_Object_PayAmount(Atrinik_Object *obj, PyObject *args)
 /** Documentation for Atrinik_Object_Clone(). */
 static const char doc_Atrinik_Object_Clone[] =
 ".. method:: Clone(inventory=True).\n\n"
-"Clone an object.\nGenerally, you should do something with the clone."
+"Clone an object.\nGenerally, you should do something with the clone.\n\n"
 ":meth:`~Atrinik.Object.Object.TeleportTo` or "
 ":meth:`~Atrinik.Object.Object.InsertInto` are useful methods for that.\n\n"
 ":param inventory: Whether to clone the inventory of the object.\n"
@@ -1320,11 +1361,19 @@ static PyObject *Atrinik_Object_Clone(Atrinik_Object *obj, PyObject *args)
     return wrap_object(clone_ob);
 }
 
+/** Documentation for Atrinik_Object_ReadKey(). */
+static const char doc_Atrinik_Object_ReadKey[] =
+".. method:: ReadKey(key).\n\n"
+"Get key value of an object.\n\n"
+":param key: Key to look for.\n"
+":type key: str\n"
+":returns: Value for the key if found, None otherwise.\n"
+":rtype: :attr:`str` or :attr:`None`";
+
 /**
- * <h1>object.ReadKey(string key)</h1>
- * Get key value of an object.
- * @param key Key to look for.
- * @return Value for the key if found, None otherwise. */
+ * Implements Atrinik.Object.Object.ReadKey() Python method.
+ * @copydoc PyMethod_VARARGS
+ */
 static PyObject *Atrinik_Object_ReadKey(Atrinik_Object *obj, PyObject *args)
 {
     const char *key;
@@ -1338,15 +1387,24 @@ static PyObject *Atrinik_Object_ReadKey(Atrinik_Object *obj, PyObject *args)
     return Py_BuildValue("s", hooks->object_get_value(obj->obj, key));
 }
 
+/** Documentation for Atrinik_Object_WriteKey(). */
+static const char doc_Atrinik_Object_WriteKey[] =
+".. method:: WriteKey(key, value=None, add_key=True).\n\n"
+"Set the key value of an object.\n\n"
+":param key: Key to set.\n"
+":type key: str\n"
+":param value: Value to set for the key. If None, will clear the key's value "
+"if the key is found.\n"
+":type value: str or None\n"
+":param add_key: Whether to add the key if it's not found in the object.\n"
+":type add_key: bool\n"
+":returns: Whether the operation was successful.\n"
+":rtype: :attr:`bool`";
+
 /**
- * <h1>object.WriteKey(string key, string [value = None], int [add_key =
- * True])</h1>
- * Set the key value of an object.
- * @param key Key to look for.
- * @param value Value to set for the key. If not passed, will clear the
- * key's value if the key is found.
- * @param add_key Whether to add the key if it's not found in the object.
- * @return 1 on success, 0 on failure. */
+ * Implements Atrinik.Object.Object.WriteKey() Python method.
+ * @copydoc PyMethod_VARARGS
+ */
 static PyObject *Atrinik_Object_WriteKey(Atrinik_Object *obj, PyObject *args)
 {
     const char *key, *value = NULL;
@@ -1358,15 +1416,22 @@ static PyObject *Atrinik_Object_WriteKey(Atrinik_Object *obj, PyObject *args)
 
     OBJEXISTCHECK(obj);
 
-    return Py_BuildValue("i", hooks->object_set_value(obj->obj, key, value, add_key));
+    Py_ReturnBoolean(hooks->object_set_value(obj->obj, key, value, add_key));
 }
 
+/** Documentation for Atrinik_Object_GetName(). */
+static const char doc_Atrinik_Object_GetName[] =
+".. method:: GetName(caller=None).\n\n"
+"Acquire verbose textual representation of the object's name.\n\n"
+":param caller: Who wants to see the name.\n"
+":type caller: Atrinik.Object.Object or None\n"
+":returns: Full name of the object, including material, name, title, etc.\n"
+":rtype: :attr:`str`";
+
 /**
- * <h1>object.GetName(object [caller = None])</h1>
- * An equivalent of query_base_name().
- * @param caller Object calling this.
- * @return Full name of the object, including material, name, title,
- * etc. */
+ * Implements Atrinik.Object.Object.GetName() Python method.
+ * @copydoc PyMethod_VARARGS
+ */
 static PyObject *Atrinik_Object_GetName(Atrinik_Object *what, PyObject *args)
 {
     Atrinik_Object *ob = NULL;
@@ -1377,22 +1442,28 @@ static PyObject *Atrinik_Object_GetName(Atrinik_Object *what, PyObject *args)
 
     OBJEXISTCHECK(what);
 
-    if (ob) {
+    if (ob != NULL) {
         OBJEXISTCHECK(ob);
     }
 
-    return Py_BuildValue("s", hooks->query_short_name(what->obj, ob ? ob->obj : what->obj));
+    return Py_BuildValue("s", hooks->query_short_name(what->obj,
+            ob != NULL ? ob->obj : what->obj));
 }
 
-/**
- * <h1>object.Controller()</h1>
- * Get object's controller (the player).
- * @throws AtrinikError if 'object' is not a player.
- * @return The controller if there is one, None otherwise. */
-static PyObject *Atrinik_Object_Controller(Atrinik_Object *what, PyObject *args)
-{
-    (void) args;
+/** Documentation for Atrinik_Object_Controller(). */
+static const char doc_Atrinik_Object_Controller[] =
+".. method:: Controller().\n\n"
+"Get object's controller (the player).\n\n"
+":returns: The controller if there is one, None otherwise.\n"
+":rtype: :class:`Atrinik.Player.Player` or :attr:`None`\n"
+":raises Atrinik.AtrinikError.AtrinikError: If the object is not a player.";
 
+/**
+ * Implements Atrinik.Object.Object.Controller() Python method.
+ * @copydoc PyMethod_NOARGS
+ */
+static PyObject *Atrinik_Object_Controller(Atrinik_Object *what)
+{
     OBJEXISTCHECK(what);
 
     if (what->obj->type != PLAYER) {
@@ -1402,117 +1473,162 @@ static PyObject *Atrinik_Object_Controller(Atrinik_Object *what, PyObject *args)
     return wrap_player(CONTR(what->obj));
 }
 
+/** Documentation for Atrinik_Object_Protection(). */
+static const char doc_Atrinik_Object_Protection[] =
+".. method:: Protection(protection).\n\n"
+"Get object's protection value for the given protection ID.\n\n"
+":param protection: One of the ATNR_xxx constants, eg, "
+":attr:`~Atrinik.ATNR_SLASH`.\n"
+":type protection: int\n"
+":returns: The protection value.\n"
+":rtype: :attr:`int`\n"
+":raises IndexError: If the protection ID is invalid.";
+
 /**
- * <h1>object.Protection(int nr)</h1>
- * Get object's protection value for the given protection ID.
- * @param nr Protection ID. One of ::_attacks.
- * @throws IndexError if the protection ID is invalid.
- * @return The protection value. */
+ * Implements Atrinik.Object.Object.Protection() Python method.
+ * @copydoc PyMethod_VARARGS
+ */
 static PyObject *Atrinik_Object_Protection(Atrinik_Object *what, PyObject *args)
 {
-    int nr;
+    int protection;
 
-    if (!PyArg_ParseTuple(args, "i", &nr)) {
+    if (!PyArg_ParseTuple(args, "i", &protection)) {
         return NULL;
     }
 
     OBJEXISTCHECK(what);
 
-    if (nr < 0 || nr >= NROFATTACKS) {
+    if (protection < 0 || protection >= NROFATTACKS) {
         PyErr_SetString(PyExc_IndexError, "Protection ID is invalid.");
         return NULL;
     }
 
-    return Py_BuildValue("b", what->obj->protection[nr]);
+    return Py_BuildValue("b", what->obj->protection[protection]);
 }
 
-/**
- * <h1>object.SetProtection(int nr, int val)</h1>
- * Set object's protection value for the given protection ID.
- * @param nr Protection ID. One of ::_attacks.
- * @param val Value to set.
- * @throws IndexError if the protection ID is invalid.
- * @throws OverflowError if the value to set is not in valid range. */
-static PyObject *Atrinik_Object_SetProtection(Atrinik_Object *what, PyObject *args)
-{
-    int nr;
-    int8_t val;
+/** Documentation for Atrinik_Object_SetProtection(). */
+static const char doc_Atrinik_Object_SetProtection[] =
+".. method:: SetProtection(protection, value).\n\n"
+"Set object's protection value for the given protection ID.\n\n"
+":param protection: One of the ATNR_xxx constants, eg, "
+":attr:`~Atrinik.ATNR_SLASH`.\n"
+":type protection: int\n"
+":param value: The value to set.\n"
+":type value: int\n"
+":raises IndexError: If the protection ID is invalid.\n"
+":raises OverflowError: If the value to set is not in valid range.";
 
-    if (!PyArg_ParseTuple(args, "iB", &nr, &val)) {
+/**
+ * Implements Atrinik.Object.Object.SetProtection() Python method.
+ * @copydoc PyMethod_VARARGS
+ */
+static PyObject *Atrinik_Object_SetProtection(Atrinik_Object *what,
+        PyObject *args)
+{
+    int protection;
+    int8_t value;
+
+    if (!PyArg_ParseTuple(args, "iB", &protection, &value)) {
         return NULL;
     }
 
     OBJEXISTCHECK(what);
 
-    if (nr < 0 || nr >= NROFATTACKS) {
+    if (protection < 0 || protection >= NROFATTACKS) {
         PyErr_SetString(PyExc_IndexError, "Protection ID is invalid.");
         return NULL;
     }
 
-    what->obj->protection[nr] = val;
+    what->obj->protection[protection] = value;
 
     Py_INCREF(Py_None);
     return Py_None;
 }
 
+/** Documentation for Atrinik_Object_Attack(). */
+static const char doc_Atrinik_Object_Attack[] =
+".. method:: Attack(attack, value).\n\n"
+"Get object's attack value for the given attack ID.\n\n"
+":param attack: One of the ATNR_xxx constants, eg, "
+":attr:`~Atrinik.ATNR_SLASH`.\n"
+":type attack: int\n"
+":returns: The attack value.\n"
+":rtype: :attr:`int`\n"
+":raises IndexError: If the attack ID is invalid.";
+
 /**
- * <h1>object.Attack(int nr)</h1>
- * Get object's attack value for the given attack ID.
- * @param nr Attack ID. One of ::_attacks.
- * @throws IndexError if the attack ID is invalid.
- * @return The attack value. */
+ * Implements Atrinik.Object.Object.Attack() Python method.
+ * @copydoc PyMethod_VARARGS
+ */
 static PyObject *Atrinik_Object_Attack(Atrinik_Object *what, PyObject *args)
 {
-    int nr;
+    int attack;
 
-    if (!PyArg_ParseTuple(args, "i", &nr)) {
+    if (!PyArg_ParseTuple(args, "i", &attack)) {
         return NULL;
     }
 
     OBJEXISTCHECK(what);
 
-    if (nr < 0 || nr >= NROFATTACKS) {
+    if (attack < 0 || attack >= NROFATTACKS) {
         PyErr_SetString(PyExc_IndexError, "Attack ID is invalid.");
         return NULL;
     }
 
-    return Py_BuildValue("B", what->obj->attack[nr]);
+    return Py_BuildValue("B", what->obj->attack[attack]);
 }
 
+/** Documentation for Atrinik_Object_SetAttack(). */
+static const char doc_Atrinik_Object_SetAttack[] =
+".. method:: SetAttack(attack, value).\n\n"
+"Set object's attack value for the given attack ID.\n\n"
+":param attack: One of the ATNR_xxx constants, eg, "
+":attr:`~Atrinik.ATNR_SLASH`.\n"
+":type attack: int\n"
+":param value: The value to set.\n"
+":type value: int\n"
+":raises IndexError: If the attack ID is invalid.\n"
+":raises OverflowError: If the value to set is not in valid range.";
+
 /**
- * <h1>object.SetAttack(int nr, int val)</h1>
- * Set object's attack value for the given attack ID.
- * @param nr Attack ID. One of ::_attacks.
- * @param val Value to set.
- * @throws IndexError if the attack ID is invalid.
- * @throws OverflowError if the value to set is not in valid range. */
+ * Implements Atrinik.Object.Object.SetAttack() Python method.
+ * @copydoc PyMethod_VARARGS
+ */
 static PyObject *Atrinik_Object_SetAttack(Atrinik_Object *what, PyObject *args)
 {
-    int nr;
-    uint8_t val;
+    int attack;
+    uint8_t value;
 
-    if (!PyArg_ParseTuple(args, "ib", &nr, &val)) {
+    if (!PyArg_ParseTuple(args, "ib", &attack, &value)) {
         return NULL;
     }
 
     OBJEXISTCHECK(what);
 
-    if (nr < 0 || nr >= NROFATTACKS) {
+    if (attack < 0 || attack >= NROFATTACKS) {
         PyErr_SetString(PyExc_IndexError, "Attack ID is invalid.");
         return NULL;
     }
 
-    what->obj->attack[nr] = val;
+    what->obj->attack[attack] = value;
 
     Py_INCREF(Py_None);
     return Py_None;
 }
 
+/** Documentation for Atrinik_Object_Decrease(). */
+static const char doc_Atrinik_Object_Decrease[] =
+".. method:: Decrease(num=1).\n\n"
+"Decreases an object, removing it if there's nothing left to decrease.\n\n"
+":param num: How much to decrease the object by.\n"
+":type num: int\n"
+":returns: The object if something is left, None otherwise.\n"
+":rtype: :class:`Atrinik.Object.Object` or :attr:`None`";
+
 /**
- * <h1>object.Decrease(int [num = 1])</h1>
- * Decreases an object, removing it if there's nothing left to decrease.
- * @param num How much to decrease the object by.
- * @return 'object' if something is left, None if the amount reached 0. */
+ * Implements Atrinik.Object.Object.Decrease() Python method.
+ * @copydoc PyMethod_VARARGS
+ */
 static PyObject *Atrinik_Object_Decrease(Atrinik_Object *what, PyObject *args)
 {
     uint32_t num = 1;
@@ -1526,56 +1642,63 @@ static PyObject *Atrinik_Object_Decrease(Atrinik_Object *what, PyObject *args)
     return wrap_object(hooks->decrease_ob_nr(what->obj, num));
 }
 
+/** Documentation for Atrinik_Object_SquaresAround(). */
+static const char doc_Atrinik_Object_SquaresAround[] =
+".. method:: SquaresAround(range, type=Atrinik.AROUND_ALL, beyond=False, "
+"callable=None).\n\n"
+"Looks around the specified object and returns a list of tuples containing the "
+"squares around it in a specified range. The tuples have a format of "
+"**(map, x, y)**.\n\n"
+"Example that ignores walls and floors with grass::\n\n"
+"    from Atrinik import *\n"
+"    activator = WhoIsActivator()\n"
+"    def cmp_squares(m, x, y, obj):\n"
+"        try:\n"
+"            return m.GetLayer(x, y, LAYER_FLOOR)[0].name == \"grass\"\n"
+"        # Exception was raised; ignore it, as it probably means there is no\n"
+"        # floor.\n"
+"        except:\n"
+"            return False\n\n"
+"    for (m, x, y) in activator.SquaresAround(1, type=AROUND_WALL,\n"
+"                                             callable=cmp_squares):\n"
+"        for ob in m.GetLayer(x, y, LAYER_FLOOR):\n"
+"            print(ob)\n"
+"\n\n"
+":param range: Range around which to look at the squares. Must be higher"
+"than 0.\n"
+":type range: int\n"
+":param type: One of or a combination of the AROUND_xxx constants, eg,"
+":attr:`~Atrinik.AROUND_WALL`.\n"
+":type type: int\n"
+":param beyond: If True and one of checks from *type* parameter matches, all "
+"squares beyond the one being checked will be ignored as well (think line of "
+"sight).\n"
+":type beyond: bool\n"
+":param callable: Defines function to call for comparisons. The function "
+"should have parameters in the order of **map, x, y, obj** where map is the"
+"map, x/y are the coordinates and obj is the object that :meth:"
+"`~Atrinik.Object.Object.SquaresAround()` was called for. The function should"
+"return True if the square should be considered ignored, False otherwise."
+"*type* being :attr:`~Atrinik.AROUND_ALL` takes no effect if this is set, but "
+"it can be combined with the other AROUND_xxx constants.\n"
+":type callable: collections.Callable or None\n"
+":returns: A list containing tuples of the squares.\n"
+":rtype: :attr:`list` of :attr:`tuple`";
+
 /**
- * <h1>object.SquaresAround(int range, int [type = @ref AROUND_ALL], int [beyond
- * = False], function [callable = None])</h1>
- * Looks around the specified object and returns a list of tuples
- * containing the squares around it in a specified range. The tuples
- * have a format of <b>(map, x, y)</b>.
- *
- * Example that ignores walls and floors with grass:
- * @code
- *    from Atrinik import *
- *
- *    activator = WhoIsActivator()
- *
- *    def cmp_squares(m, x, y, obj):
- # 'obj' is now same as 'activator'.
- #     try:
- #         return m.GetLayer(x, y, LAYER_FLOOR)[0].name == "grass"
- # Exception was raised; ignore it, as it probably means there is no
- # floor.
- #     except:
- #         return False
- #
- #    for (m, x, y) in activator.SquaresAround(1, type = AROUND_WALL, callable =
- # cmp_squares):
- #     for ob in m.GetLayer(x, y, LAYER_FLOOR):
- #         print(ob)
- * @endcode
- * @param range Range around which to look at the squares. Must be higher
- * than 0.
- * @param type One or a combination of @ref AROUND_xxx constants.
- * @param beyond If True and one of checks from 'type' parameter matches, all
- * squares beyond the one being checked will be ignored as well.
- * @param callable Defines function to call for comparisons. The function
- * should have parameters in the order of <b>map, x, y, obj</b> where
- * map is the map, x/y are the coordinates and obj is the object that
- * SquaresAround()
- * was called for. The function should return True if the square should be
- * considered ignored, False otherwise. 'type' being @ref AROUND_ALL takes
- * no effect if this is set, but it can be combined with @ref AROUND_xxx "other
- * types".
- * @return A list containing tuples of the squares. */
-static PyObject *Atrinik_Object_SquaresAround(Atrinik_Object *what, PyObject *args, PyObject *keywds)
+ * Implements Atrinik.Object.Object.SquaresAround() Python method.
+ * @copydoc PyMethod_VARARGS_KEYWORDS
+ */
+static PyObject *Atrinik_Object_SquaresAround(Atrinik_Object *what,
+        PyObject *args, PyObject *keywds)
 {
     uint8_t range, type = AROUND_ALL;
     static char *kwlist[] = {"range", "type", "beyond", "callable", NULL};
-    int i, j, xt, yt, beyond = 0;
-    mapstruct *m;
-    PyObject *callable = NULL, *list;
+    int beyond = 0;
+    PyObject *callable = NULL;
 
-    if (!PyArg_ParseTupleAndKeywords(args, keywds, "b|biO", kwlist, &range, &type, &beyond, &callable)) {
+    if (!PyArg_ParseTupleAndKeywords(args, keywds, "b|biO", kwlist, &range,
+            &type, &beyond, &callable)) {
         return NULL;
     }
 
@@ -1586,55 +1709,63 @@ static PyObject *Atrinik_Object_SquaresAround(Atrinik_Object *what, PyObject *ar
         return NULL;
     }
 
-    if (callable && !PyCallable_Check(callable)) {
-        PyErr_SetString(PyExc_TypeError, "Argument 'callable' must be callable.");
+    if (callable != NULL && !PyCallable_Check(callable)) {
+        PyErr_SetString(PyExc_TypeError,
+                "Argument 'callable' must be callable.");
         return NULL;
     }
 
-    list = PyList_New(0);
+#define SQUARES_AROUND_SKIP(m, x, y)                                           \
+    ((type & AROUND_BLOCKSVIEW && GET_MAP_FLAGS(m, x, y) & P_BLOCKSVIEW) ||    \
+    (type & AROUND_PLAYER_ONLY && GET_MAP_FLAGS(m, x, y) & P_PLAYER_ONLY) ||   \
+    (type & AROUND_WALL && hooks->wall(m, x, y)) || (callable != NULL &&       \
+    python_call_int(callable, Py_BuildValue("(OiiO)", wrap_map(m), x, y,       \
+    wrap_object(what->obj)))))
+
+    PyObject *list = PyList_New(0);
 
     /* Go through the squares in the specified range. */
-    for (i = -range; i <= range; i++) {
-        for (j = -range; j <= range; j++) {
-            xt = what->obj->x + i;
-            yt = what->obj->y + j;
+    for (int i = -range; i <= range; i++) {
+        for (int j = -range; j <= range; j++) {
+            int xt = what->obj->x + i;
+            int yt = what->obj->y + j;
 
             /* Skip ourselves. */
             if (xt == what->obj->x && yt == what->obj->y) {
                 continue;
             }
 
-            m = hooks->get_map_from_coord(what->obj->map, &xt, &yt);
-
-            if (!m) {
+            mapstruct *m = hooks->get_map_from_coord(what->obj->map, &xt, &yt);
+            if (m == NULL) {
                 continue;
             }
 
-            /* We want all squares. */
-            if (type == AROUND_ALL && !callable) {
+            if (type == AROUND_ALL && callable == NULL) {
+                /* We want all squares. */
                 SQUARES_AROUND_ADD(m, xt, yt);
             } else if (beyond) {
-                /* Only those that are not blocked by view, or beyond a wall, etc,
-                 * so use the Bresenham algorithm. */
-                int xt2, yt2, fraction, dx2, dy2, stepx, stepy;
-                mapstruct *m2;
+                /* Only those that are not blocked by view, or beyond a wall,
+                 * etc, so use the Bresenham algorithm. */
+
+                mapstruct *m2 = what->obj->map;
+                int xt2 = what->obj->x;
+                int yt2 = what->obj->y;
+
                 rv_vector rv;
-
-                m2 = what->obj->map;
-                xt2 = what->obj->x;
-                yt2 = what->obj->y;
-
-                if (!hooks->get_rangevector_from_mapcoords(m2, xt2, yt2, m, xt, yt, &rv, RV_NO_DISTANCE)) {
+                if (!hooks->get_rangevector_from_mapcoords(m2, xt2, yt2, m, xt,
+                        yt, &rv, RV_NO_DISTANCE)) {
                     continue;
                 }
 
-                BRESENHAM_INIT(rv.distance_x, rv.distance_y, fraction, stepx, stepy, dx2, dy2);
+                int fraction, dx2, dy2, stepx, stepy;
+                BRESENHAM_INIT(rv.distance_x, rv.distance_y, fraction, stepx,
+                        stepy, dx2, dy2);
 
-                while (1) {
+                for ( ; ; ) {
                     BRESENHAM_STEP(xt2, yt2, fraction, stepx, stepy, dx2, dy2);
                     m2 = hooks->get_map_from_coord(m2, &xt2, &yt2);
 
-                    if (m2 == NULL || (type & AROUND_BLOCKSVIEW && GET_MAP_FLAGS(m2, xt2, yt2) & P_BLOCKSVIEW) || (type & AROUND_PLAYER_ONLY && GET_MAP_FLAGS(m2, xt2, yt2) & P_PLAYER_ONLY) || (type & AROUND_WALL && hooks->wall(m2, xt2, yt2)) || (callable && python_call_int(callable, Py_BuildValue("(OiiO)", wrap_map(m2), xt2, yt2, wrap_object(what->obj))))) {
+                    if (m2 == NULL || SQUARES_AROUND_SKIP(m2, xt2, yt2)) {
                         break;
                     }
 
@@ -1646,7 +1777,7 @@ static PyObject *Atrinik_Object_SquaresAround(Atrinik_Object *what, PyObject *ar
             } else {
                 /* We only want to ignore squares that either block view, or have
                  * a wall, etc, but not any squares behind them. */
-                if ((type & AROUND_BLOCKSVIEW && GET_MAP_FLAGS(m, xt, yt) & P_BLOCKSVIEW) || (type & AROUND_PLAYER_ONLY && GET_MAP_FLAGS(m, xt, yt) & P_PLAYER_ONLY) || (type & AROUND_WALL && hooks->wall(m, xt, yt)) || (callable && python_call_int(callable, Py_BuildValue("(OiiO)", wrap_map(m), xt, yt, wrap_object(what->obj))))) {
+                if (SQUARES_AROUND_SKIP(m, xt, yt)) {
                     continue;
                 }
 
@@ -1655,28 +1786,37 @@ static PyObject *Atrinik_Object_SquaresAround(Atrinik_Object *what, PyObject *ar
         }
     }
 
+#undef SQUARES_AROUND_SKIP
+
     return list;
 }
 
+/** Documentation for Atrinik_Object_GetRangeVector(). */
+static const char doc_Atrinik_Object_GetRangeVector[] =
+".. method:: GetRangeVector(to, flags=0).\n\n"
+"Get the distance and direction from one object to another.\n\n"
+":param to: Object to which the distance is calculated.\n"
+":type to: Atrinik.Object.Object\n"
+":param flags: One or a combination of RV_xxx, eg, :attr:"
+"`~Atrinik.RV_MANHATTAN_DISTANCE`\n"
+":type flags: int\n"
+":returns: None if the distance couldn't be calculated, otherwise a tuple "
+"containing:\n\n"
+"  * Direction *object* should head to reach *to*, eg, :attr:`~Atrinik.NORTH`\n"
+"  * Distance between *object* and *to*.\n"
+"  * X distance.\n"
+"  * Y distance.\n"
+"  * Part of the *object* that is closest.\n"
+":rtype: :attr:`tuple`";
+
 /**
- * <h1>object.GetRangeVector(object to, int [flags = 0])</h1>
- * Get the distance and direction from one object to another.
- * @param to Object to which the distance is calculated.
- * @param flags One or a combination of @ref range_vector_flags.
- * @return None if the distance couldn't be calculated, otherwise a tuple
- * containing:
- *  - Direction 'object' should head to reach 'to', one of @ref
- * direction_constants.
- *  - Distance between 'object' and 'to'.
- *  - X distance.
- *  - Y distance.
- *  - Part of the object that is closest. */
+ * Implements Atrinik.Object.Object.GetRangeVector() Python method.
+ * @copydoc PyMethod_VARARGS
+ */
 static PyObject *Atrinik_Object_GetRangeVector(Atrinik_Object *obj, PyObject *args)
 {
     Atrinik_Object *to;
     int flags = 0;
-    rv_vector rv;
-    PyObject *tuple;
 
     if (!PyArg_ParseTuple(args, "O!|i", &Atrinik_ObjectType, &to, &flags)) {
         return NULL;
@@ -1685,12 +1825,13 @@ static PyObject *Atrinik_Object_GetRangeVector(Atrinik_Object *obj, PyObject *ar
     OBJEXISTCHECK(obj);
     OBJEXISTCHECK(to);
 
+    rv_vector rv;
     if (!hooks->get_rangevector(obj->obj, to->obj, &rv, flags)) {
         Py_INCREF(Py_None);
         return Py_None;
     }
 
-    tuple = PyTuple_New(5);
+    PyObject *tuple = PyTuple_New(5);
     PyTuple_SET_ITEM(tuple, 0, Py_BuildValue("i", rv.direction));
     PyTuple_SET_ITEM(tuple, 1, Py_BuildValue("i", rv.distance));
     PyTuple_SET_ITEM(tuple, 2, Py_BuildValue("i", rv.distance_x));
@@ -1700,43 +1841,58 @@ static PyObject *Atrinik_Object_GetRangeVector(Atrinik_Object *obj, PyObject *ar
     return tuple;
 }
 
+/** Documentation for Atrinik_Object_CreateTreasure(). */
+static const char doc_Atrinik_Object_CreateTreasure[] =
+".. method:: CreateTreasure(treasure=None, level=0, flags=0, "
+"a_chance=Atrinik.ART_CHANCE_UNSET).\n\n"
+"Create treasure inside (or below, if :attr:`~Atrinik.GT_ENVIRONMENT` flag was "
+"set) the object.\n\n"
+":param treasure: Treasure list name to generate. If None, will try to "
+"generate treasure based on the object's randomitems.\n"
+":type treasure: str or None\n"
+":param level: Level of the generated items. If 0, will try to guess the level "
+"to use based on the object's level or the difficulty value of the map the "
+"object is on. If neither is applicable, will use :attr:`~Atrinik.MAXLEVEL`.\n"
+":type level: int\n"
+":param flags: One or a combination of GT_xxx, eg, :attr:"
+"`~Atrinik.GT_ENVIRONMENT`\n"
+":type flags: int\n"
+":param a_chance: Chance for the treasure to become artifact, if possible. A "
+"value of 0 will disable any chance for artifacts.\n"
+":type a_chance: int\n"
+":raises ValueError: If treasure is not valid.";
+
 /**
- * <h1>object.CreateTreasure(string [treasure = None], int [level = -1], int
- * [flags = 0], int [a_chance = @ref ART_CHANCE_UNSET])</h1>
- * Create treasure inside (or below, if GT_ENVIRONMENT flag was set) the object.
- * @param treasure Treasure list name to generate. If None, will try to
- * generate treasure based on the object's randomitems.
- * @param level Level of the generated items. If 0, will try to guess the
- * level to use based on the object's level or the difficulty value of
- * the map the object is on. If neither is applicable, will use MAXLEVEL.
- * @param flags A combination of @ref GT_xxx.
- * @param a_chance Chance for the treasure to become artifact, if possible.
- * A value of 0 will disable any chance for artifacts.
- * @throws ValueError if treasure is not valid. */
-static PyObject *Atrinik_Object_CreateTreasure(Atrinik_Object *obj, PyObject *args, PyObject *keywds)
+ * Implements Atrinik.Object.Object.CreateTreasure() Python method.
+ * @copydoc PyMethod_VARARGS_KEYWORDS
+ */
+static PyObject *Atrinik_Object_CreateTreasure(Atrinik_Object *obj,
+        PyObject *args, PyObject *keywds)
 {
     static char *kwlist[] = {"treasure", "level", "flags", "a_chance", NULL};
     const char *treasure_name = NULL;
     int level = 0, flags = 0, a_chance = ART_CHANCE_UNSET;
     treasurelist *t;
 
-    if (!PyArg_ParseTupleAndKeywords(args, keywds, "|ziii", kwlist, &treasure_name, &level, &flags, &a_chance)) {
+    if (!PyArg_ParseTupleAndKeywords(args, keywds, "|ziii", kwlist,
+            &treasure_name, &level, &flags, &a_chance)) {
         return NULL;
     }
 
     OBJEXISTCHECK(obj);
 
     /* Figure out the treasure list. */
-    if (treasure_name) {
+    if (treasure_name != NULL) {
         t = hooks->find_treasurelist(treasure_name);
     } else {
         t = obj->obj->randomitems;
     }
 
     /* Invalid treasure list. */
-    if (!t) {
+    if (t == NULL) {
         if (treasure_name) {
-            PyErr_Format(PyExc_ValueError, "'%s' is not a valid treasure list.", treasure_name);
+            PyErr_Format(PyExc_ValueError, "'%s' is not a valid treasure list.",
+                    treasure_name);
         } else {
             PyErr_SetString(PyExc_ValueError, "Object has no treasure list.");
         }
@@ -1745,11 +1901,11 @@ static PyObject *Atrinik_Object_CreateTreasure(Atrinik_Object *obj, PyObject *ar
     }
 
     /* Figure out the level if none was given. */
-    if (!level) {
+    if (level == 0) {
         /* Try the object's level first. */
-        if (obj->obj->level) {
+        if (obj->obj->level != 0) {
             level = obj->obj->level;
-        } else if (obj->obj->map) {
+        } else if (obj->obj->map != NULL) {
             /* Otherwise the map's difficulty. */
             level = obj->obj->map->difficulty;
         } else {
@@ -1759,20 +1915,31 @@ static PyObject *Atrinik_Object_CreateTreasure(Atrinik_Object *obj, PyObject *ar
     }
 
     /* Create the treasure. */
-    hooks->create_treasure(t, obj->obj, flags, level, T_STYLE_UNSET, a_chance, 0, NULL);
+    hooks->create_treasure(t, obj->obj, flags, level, T_STYLE_UNSET, a_chance,
+            0, NULL);
 
     Py_INCREF(Py_None);
     return Py_None;
 }
 
+/** Documentation for Atrinik_Object_Move(). */
+static const char doc_Atrinik_Object_Move[] =
+".. method:: Move(direction).\n\n"
+"Move the object in the specified direction. The object must have the correct "
+"(combination of) :meth:`~Atrinik.Object.Object.terrain_flag` set in order to "
+"able to move onto the new square.\n\n"
+":param direction: Direction to move into, eg, :attr:`~Atrinik.EAST`.\n"
+":type direction: int\n"
+":returns: 0 if the object is not able to move to the desired space, -1 if the "
+"object was not able to move there yet but some sort of action was performed "
+"that might allow us to move there (door opening for example), direction "
+"number that the object ended up moving in otherwise.\n"
+":rtype: :attr:`int`";
+
 /**
- * <h1>object.Move(int direction)</h1>
- * Move the object in the specified direction. The object must have the
- * correct (combination of) object::terrain_flag set in order to able to
- * move onto the new square.
- * @param direction Direction to move into, one of @ref direction_constants.
- * @throws AtrinikError if object is not on map.
- * @return True if the object was moved successfully, False otherwise. */
+ * Implements Atrinik.Object.Object.Move() Python method.
+ * @copydoc PyMethod_VARARGS
+ */
 static PyObject *Atrinik_Object_Move(Atrinik_Object *obj, PyObject *args)
 {
     int direction;
@@ -1783,21 +1950,29 @@ static PyObject *Atrinik_Object_Move(Atrinik_Object *obj, PyObject *args)
 
     OBJEXISTCHECK(obj);
 
-    if (!obj->obj->map) {
+    if (obj->obj->map == NULL) {
         PyErr_SetString(AtrinikError, "Object not on map.");
         return NULL;
     }
 
-    Py_ReturnBoolean(hooks->move_ob(obj->obj, direction, obj->obj));
+    return Py_BuildValue("i", hooks->move_ob(obj->obj, direction, obj->obj));
 }
 
+/** Documentation for Atrinik_Object_ConnectionTrigger(). */
+static const char doc_Atrinik_Object_ConnectionTrigger[] =
+".. method:: ConnectionTrigger(push=True, button=False).\n\n"
+"Triggers the object's connection, if any.\n\n"
+":param push: If true, send a 'push' signal; 'release' signal otherwise.\n"
+":type push: bool\n"
+":param button: If true, handle the connection like a button.\n"
+":type button: bool";
+
 /**
- * <h1>object.ConnectionTrigger(boolean [push = True], boolean [button =
- * False])</h1>
- * Triggers the object's connection, if any.
- * @param push If true, send a "push" signal; "release" signal otherwise.
- * @param button If true, handle the connection like a button. */
-static PyObject *Atrinik_Object_ConnectionTrigger(Atrinik_Object *obj, PyObject *args)
+ * Implements Atrinik.Object.Object.ConnectionTrigger() Python method.
+ * @copydoc PyMethod_VARARGS
+ */
+static PyObject *Atrinik_Object_ConnectionTrigger(Atrinik_Object *obj,
+        PyObject *args)
 {
     int push = 1, button = 0;
 
@@ -1817,18 +1992,25 @@ static PyObject *Atrinik_Object_ConnectionTrigger(Atrinik_Object *obj, PyObject 
     return Py_None;
 }
 
+/** Documentation for Atrinik_Object_Artificate(). */
+static const char doc_Atrinik_Object_Artificate[] =
+".. method:: Artificate(name).\n\n"
+"Copies artifact abilities to the specified object.\n\n"
+":param name: Name of the artifact to copy abilities from.\n"
+":type name: str\n"
+":raises Atrinik.AtrinikError.AtrinikError: If the object already has artifact "
+"abilities.\n"
+":raises Atrinik.AtrinikError.AtrinikError: If the object's type doesn't match "
+"any artifact list.\n"
+":raises Atrinik.AtrinikError.AtrinikError: If the artifact name is invalid.";
+
 /**
- * <h1>object.Artificate(string name)</h1>
- * Copies artifact abilities to the specified object.
- * @param name Name of the artifact to copy abilities from.
- * @throws AtrinikError if the object already has artifact abilities.
- * @throws AtrinikError if the object's type doesn't match any artifact list.
- * @throws AtrinikError if the artifact name is invalid. */
+ * Implements Atrinik.Object.Object.Artificate() Python method.
+ * @copydoc PyMethod_VARARGS
+ */
 static PyObject *Atrinik_Object_Artificate(Atrinik_Object *obj, PyObject *args)
 {
     const char *name = NULL;
-    artifact_list_t *artlist;
-    artifact_t *art;
 
     if (!PyArg_ParseTuple(args, "s", &name)) {
         return NULL;
@@ -1841,34 +2023,38 @@ static PyObject *Atrinik_Object_Artificate(Atrinik_Object *obj, PyObject *args)
         return NULL;
     }
 
-    artlist = hooks->artifact_list_find(obj->obj->arch->clone.type);
-
-    if (!artlist) {
-        PyErr_SetString(AtrinikError, "No artifact list matching the object's type.");
+    artifact_list_t *artlist = hooks->artifact_list_find(
+            obj->obj->arch->clone.type);
+    if (artlist == NULL) {
+        PyErr_SetString(AtrinikError,
+                "No artifact list matching the object's type.");
         return NULL;
     }
 
-    for (art = artlist->items; art != NULL; art = art->next) {
+    for (artifact_t *art = artlist->items; art != NULL; art = art->next) {
         if (strcmp(art->def_at->name, name) == 0) {
             hooks->artifact_change_object(art, obj->obj);
-            break;
+            Py_INCREF(Py_None);
+            return Py_None;
         }
     }
 
-    if (!art) {
-        PyErr_SetString(AtrinikError, "Invalid artifact name.");
-        return NULL;
-    }
-
-    Py_INCREF(Py_None);
-    return Py_None;
+    PyErr_SetString(AtrinikError, "Invalid artifact name.");
+    return NULL;
 }
 
+/** Documentation for Atrinik_Object_Load(). */
+static const char doc_Atrinik_Object_Load[] =
+".. method:: Load(name).\n\n"
+"Load archetype-like attribute/value pairs into the object. For example, "
+"**attack_protect 20\ndam 10**\n\n"
+":param lines: Lines to load into the object.\n"
+":type lines: str";
+
 /**
- * <h1>object.Load(string lines)</h1>
- * Load archetype-like attribute/value pairs into the object. For example,
- * "attack_protect 20\ndam 10".
- * @param lines Lines to load into the object. */
+ * Implements Atrinik.Object.Object.Load() Python method.
+ * @copydoc PyMethod_VARARGS
+ */
 static PyObject *Atrinik_Object_Load(Atrinik_Object *obj, PyObject *args)
 {
     const char *lines;
@@ -1893,7 +2079,7 @@ static const char doc_Atrinik_Object_GetPacket[] =
 ":param flags: A combination of UPD_xxx flags, eg, :attr:`Atrinik.UPD_FACE`.\n"
 ":type flags: int\n"
 ":returns: A tuple containing the format specifier and the actual data list.\n"
-":rtype: tuple";
+":rtype: :attr:`tuple`";
 
 /**
  * Implements Atrinik.Object.Object.GetPacket() Python method.
@@ -1929,9 +2115,7 @@ static PyObject *Atrinik_Object_GetPacket(Atrinik_Object *obj, PyObject *args)
     return tuple;
 }
 
-/*@}*/
-
-/** Available Python methods for the AtrinikObject object */
+/** Available Python methods for the Atrinik.Object.Object object */
 static PyMethodDef methods[] = {
     {"ActivateRune", (PyCFunction) Atrinik_Object_ActivateRune, METH_VARARGS,
             doc_Atrinik_Object_ActivateRune},
@@ -1962,32 +2146,56 @@ static PyMethodDef methods[] = {
             METH_VARARGS | METH_KEYWORDS, doc_Atrinik_Object_CreateObject},
     {"FindObject", (PyCFunction) Atrinik_Object_FindObject,
             METH_VARARGS | METH_KEYWORDS, doc_Atrinik_Object_FindObject},
-    {"Remove", (PyCFunction) Atrinik_Object_Remove, METH_NOARGS, 0},
-    {"Destroy", (PyCFunction) Atrinik_Object_Destroy, METH_NOARGS, 0},
-    {"SetPosition", (PyCFunction) Atrinik_Object_SetPosition, METH_VARARGS, 0},
-    {"CastIdentify", (PyCFunction) Atrinik_Object_CastIdentify, METH_VARARGS, 0},
-    {"Save", (PyCFunction) Atrinik_Object_Save, METH_NOARGS, 0},
-    {"GetCost", (PyCFunction) Atrinik_Object_GetCost, METH_VARARGS, 0},
-    {"GetMoney", (PyCFunction) Atrinik_Object_GetMoney, METH_NOARGS, 0},
-    {"PayAmount", (PyCFunction) Atrinik_Object_PayAmount, METH_VARARGS, 0},
+    {"Remove", (PyCFunction) Atrinik_Object_Remove, METH_NOARGS,
+            doc_Atrinik_Object_Remove},
+    {"Destroy", (PyCFunction) Atrinik_Object_Destroy, METH_NOARGS,
+            doc_Atrinik_Object_Destroy},
+    {"SetPosition", (PyCFunction) Atrinik_Object_SetPosition, METH_VARARGS,
+            doc_Atrinik_Object_SetPosition},
+    {"CastIdentify", (PyCFunction) Atrinik_Object_CastIdentify, METH_VARARGS,
+            doc_Atrinik_Object_CastIdentify},
+    {"Save", (PyCFunction) Atrinik_Object_Save, METH_NOARGS,
+            doc_Atrinik_Object_Save},
+    {"GetCost", (PyCFunction) Atrinik_Object_GetCost, METH_VARARGS,
+            doc_Atrinik_Object_GetCost},
+    {"GetMoney", (PyCFunction) Atrinik_Object_GetMoney, METH_NOARGS,
+            doc_Atrinik_Object_GetMoney},
+    {"PayAmount", (PyCFunction) Atrinik_Object_PayAmount, METH_VARARGS,
+            doc_Atrinik_Object_PayAmount},
     {"Clone", (PyCFunction) Atrinik_Object_Clone, METH_VARARGS,
             doc_Atrinik_Object_Clone},
-    {"ReadKey", (PyCFunction) Atrinik_Object_ReadKey, METH_VARARGS, 0},
-    {"WriteKey", (PyCFunction) Atrinik_Object_WriteKey, METH_VARARGS, 0},
-    {"GetName", (PyCFunction) Atrinik_Object_GetName, METH_VARARGS, 0},
-    {"Controller", (PyCFunction) Atrinik_Object_Controller, METH_NOARGS, 0},
-    {"Protection", (PyCFunction) Atrinik_Object_Protection, METH_VARARGS, 0},
-    {"SetProtection", (PyCFunction) Atrinik_Object_SetProtection, METH_VARARGS, 0},
-    {"Attack", (PyCFunction) Atrinik_Object_Attack, METH_VARARGS, 0},
-    {"SetAttack", (PyCFunction) Atrinik_Object_SetAttack, METH_VARARGS, 0},
-    {"Decrease", (PyCFunction) Atrinik_Object_Decrease, METH_VARARGS, 0},
-    {"SquaresAround", (PyCFunction) Atrinik_Object_SquaresAround, METH_VARARGS | METH_KEYWORDS, 0},
-    {"GetRangeVector", (PyCFunction) Atrinik_Object_GetRangeVector, METH_VARARGS, 0},
-    {"CreateTreasure", (PyCFunction) Atrinik_Object_CreateTreasure, METH_VARARGS | METH_KEYWORDS, 0},
-    {"Move", (PyCFunction) Atrinik_Object_Move, METH_VARARGS, 0},
-    {"ConnectionTrigger", (PyCFunction) Atrinik_Object_ConnectionTrigger, METH_VARARGS, 0},
-    {"Artificate", (PyCFunction) Atrinik_Object_Artificate, METH_VARARGS, 0},
-    {"Load", (PyCFunction) Atrinik_Object_Load, METH_VARARGS, 0},
+    {"ReadKey", (PyCFunction) Atrinik_Object_ReadKey, METH_VARARGS,
+            doc_Atrinik_Object_ReadKey},
+    {"WriteKey", (PyCFunction) Atrinik_Object_WriteKey, METH_VARARGS,
+            doc_Atrinik_Object_WriteKey},
+    {"GetName", (PyCFunction) Atrinik_Object_GetName, METH_VARARGS,
+            doc_Atrinik_Object_GetName},
+    {"Controller", (PyCFunction) Atrinik_Object_Controller, METH_NOARGS,
+            doc_Atrinik_Object_Controller},
+    {"Protection", (PyCFunction) Atrinik_Object_Protection, METH_VARARGS,
+            doc_Atrinik_Object_Protection},
+    {"SetProtection", (PyCFunction) Atrinik_Object_SetProtection, METH_VARARGS,
+            doc_Atrinik_Object_SetProtection},
+    {"Attack", (PyCFunction) Atrinik_Object_Attack, METH_VARARGS,
+            doc_Atrinik_Object_Attack},
+    {"SetAttack", (PyCFunction) Atrinik_Object_SetAttack, METH_VARARGS,
+            doc_Atrinik_Object_SetAttack},
+    {"Decrease", (PyCFunction) Atrinik_Object_Decrease, METH_VARARGS,
+            doc_Atrinik_Object_Decrease},
+    {"SquaresAround", (PyCFunction) Atrinik_Object_SquaresAround,
+            METH_VARARGS | METH_KEYWORDS, doc_Atrinik_Object_SquaresAround},
+    {"GetRangeVector", (PyCFunction) Atrinik_Object_GetRangeVector,
+            METH_VARARGS, doc_Atrinik_Object_GetRangeVector},
+    {"CreateTreasure", (PyCFunction) Atrinik_Object_CreateTreasure,
+            METH_VARARGS | METH_KEYWORDS, doc_Atrinik_Object_CreateTreasure},
+    {"Move", (PyCFunction) Atrinik_Object_Move, METH_VARARGS,
+            doc_Atrinik_Object_Move},
+    {"ConnectionTrigger", (PyCFunction) Atrinik_Object_ConnectionTrigger,
+            METH_VARARGS, doc_Atrinik_Object_ConnectionTrigger},
+    {"Artificate", (PyCFunction) Atrinik_Object_Artificate, METH_VARARGS,
+            doc_Atrinik_Object_Artificate},
+    {"Load", (PyCFunction) Atrinik_Object_Load, METH_VARARGS,
+            doc_Atrinik_Object_Load},
     {"GetPacket", (PyCFunction) Atrinik_Object_GetPacket, METH_VARARGS,
             doc_Atrinik_Object_GetPacket},
     {NULL, NULL, 0, 0}
@@ -1997,13 +2205,12 @@ static PyMethodDef methods[] = {
  * Get object's attribute.
  * @param obj Python object wrapper.
  * @param context Void pointer to the field.
- * @return Python object with the attribute value, NULL on failure. */
+ * @return Python object with the attribute value, NULL on failure.
+ */
 static PyObject *Object_GetAttribute(Atrinik_Object *obj, void *context)
 {
-    fields_struct *field;
-
     OBJEXISTCHECK(obj);
-    field = context;
+    fields_struct *field = context;
 
     if (field->offset == offsetof(object, head)) {
         return wrap_object(HEAD(obj->obj));
@@ -2017,16 +2224,20 @@ static PyObject *Object_GetAttribute(Atrinik_Object *obj, void *context)
  * @param obj Python object wrapper.
  * @param value Value to set.
  * @param context Void pointer to the field.
- * @return 0 on success, -1 on failure. */
-static int Object_SetAttribute(Atrinik_Object *obj, PyObject *value, void *context)
+ * @return 0 on success, -1 on failure.
+ */
+static int Object_SetAttribute(Atrinik_Object *obj, PyObject *value,
+        void *context)
 {
     fields_struct *field = context;
     int ret;
 
     OBJEXISTCHECK_INT(obj);
 
-    if ((field->flags & FIELDFLAG_PLAYER_READONLY) && obj->obj->type == PLAYER) {
-        INTRAISE("Trying to modify a field that is read-only for player objects.");
+    if ((field->flags & FIELDFLAG_PLAYER_READONLY) &&
+            obj->obj->type == PLAYER) {
+        INTRAISE("Trying to modify a field that is read-only for player "
+                "objects.");
     }
 
     if (field->offset == offsetof(object, type) &&
@@ -2034,13 +2245,15 @@ static int Object_SetAttribute(Atrinik_Object *obj, PyObject *value, void *conte
         INTRAISE("Cannot modify type of object that has custom_attrset.");
     }
 
-    if (obj->obj->map != NULL && (field->offset == offsetof(object, layer) || field->offset == offsetof(object, sub_layer))) {
+    if (obj->obj->map != NULL && (field->offset == offsetof(object, layer) ||
+            field->offset == offsetof(object, sub_layer))) {
         hooks->object_remove(obj->obj, 0);
     }
 
     ret = generic_field_setter(field, obj->obj, value);
 
-    if (field->offset == offsetof(object, layer) || field->offset == offsetof(object, sub_layer)) {
+    if (field->offset == offsetof(object, layer) ||
+            field->offset == offsetof(object, sub_layer)) {
         obj->obj->layer = MIN(NUM_LAYERS, obj->obj->layer);
         obj->obj->sub_layer = MIN(NUM_SUB_LAYERS - 1, obj->obj->sub_layer);
 
@@ -2097,7 +2310,9 @@ static int Object_SetAttribute(Atrinik_Object *obj, PyObject *value, void *conte
 
         /* If the object is animated and turnable, update its face. */
         if (obj->obj->animation_id && QUERY_FLAG(obj->obj, FLAG_IS_TURNABLE)) {
-            SET_ANIMATION(obj->obj, (NUM_ANIMATIONS(obj->obj) / NUM_FACINGS(obj->obj)) * obj->obj->direction + obj->obj->state);
+            SET_ANIMATION(obj->obj, (NUM_ANIMATIONS(obj->obj) /
+                    NUM_FACINGS(obj->obj)) * obj->obj->direction +
+                    obj->obj->state);
         }
     } else if (field->offset == offsetof(object, enemy)) {
         if (QUERY_FLAG(obj->obj, FLAG_MONSTER)) {
@@ -2114,7 +2329,8 @@ static int Object_SetAttribute(Atrinik_Object *obj, PyObject *value, void *conte
  * @param context Void pointer to the flag ID.
  * @retval Py_True The object has the flag set.
  * @retval Py_False The object doesn't have the flag set.
- * @retval NULL An error occurred. */
+ * @retval NULL An error occurred.
+ */
 static PyObject *Object_GetFlag(Atrinik_Object *obj, void *context)
 {
     size_t flagno = (size_t) context;
@@ -2135,7 +2351,8 @@ static PyObject *Object_GetFlag(Atrinik_Object *obj, void *context)
  * @param obj Python object wrapper.
  * @param val Value to set. Should be either Py_True or Py_False.
  * @param context Void pointer to the flag ID.
- * @return 0 on success, -1 on failure. */
+ * @return 0 on success, -1 on failure.
+ */
 static int Object_SetFlag(Atrinik_Object *obj, PyObject *val, void *context)
 {
     size_t flagno = (size_t) context;
@@ -2153,12 +2370,12 @@ static int Object_SetFlag(Atrinik_Object *obj, PyObject *val, void *context)
     } else if (val == Py_False) {
         CLEAR_FLAG(obj->obj, flagno);
     } else {
-        PyErr_SetString(PyExc_TypeError, "Flag value must be either True or False.");
+        PyErr_SetString(PyExc_TypeError, "Flag value must be either True or "
+                "False.");
         return -1;
     }
 
     hooks->esrv_send_item(obj->obj);
-
     return 0;
 }
 
@@ -2167,13 +2384,12 @@ static int Object_SetFlag(Atrinik_Object *obj, PyObject *val, void *context)
  * @param type Type object.
  * @param args Unused.
  * @param kwds Unused.
- * @return The new wrapper. */
-static PyObject *Atrinik_Object_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
+ * @return The new wrapper.
+ */
+static PyObject *Atrinik_Object_new(PyTypeObject *type, PyObject *args,
+        PyObject *kwds)
 {
     Atrinik_Object *self = (Atrinik_Object *) type->tp_alloc(type, 0);
-
-    (void) args;
-    (void) kwds;
 
     if (self) {
         self->obj = NULL;
@@ -2185,7 +2401,8 @@ static PyObject *Atrinik_Object_new(PyTypeObject *type, PyObject *args, PyObject
 
 /**
  * Free an object wrapper.
- * @param self The wrapper to free. */
+ * @param self The wrapper to free.
+ */
 static void Atrinik_Object_dealloc(PyObject *self)
 {
     ((Atrinik_Object *) self)->obj = NULL;
@@ -2200,30 +2417,34 @@ static void Atrinik_Object_dealloc(PyObject *self)
 /**
  * Return a string representation of an object.
  * @param self The object type.
- * @return Python object containing the arch name and name of the object. */
+ * @return Python object containing the arch name and name of the object.
+ */
 static PyObject *Atrinik_Object_str(Atrinik_Object *self)
 {
     OBJEXISTCHECK(self);
-    return PyString_FromFormat("[%s \"%s\"]", STRING_OBJ_ARCH_NAME(self->obj), STRING_OBJ_NAME(self->obj));
+    return PyString_FromFormat("[%s \"%s\"]", STRING_OBJ_ARCH_NAME(self->obj),
+            STRING_OBJ_NAME(self->obj));
 }
 
-static int Atrinik_Object_InternalCompare(Atrinik_Object *left, Atrinik_Object *right)
+static int Atrinik_Object_InternalCompare(Atrinik_Object *left,
+        Atrinik_Object *right)
 {
     OBJEXISTCHECK_INT(left);
     OBJEXISTCHECK_INT(right);
     return (left->obj < right->obj ? -1 : (left->obj == right->obj ? 0 : 1));
 }
 
-static PyObject *Atrinik_Object_RichCompare(Atrinik_Object *left, Atrinik_Object *right, int op)
+static PyObject *Atrinik_Object_RichCompare(Atrinik_Object *left,
+        Atrinik_Object *right, int op)
 {
-    int result;
-
-    if (!left || !right || !PyObject_TypeCheck((PyObject *) left, &Atrinik_ObjectType) || !PyObject_TypeCheck((PyObject *) right, &Atrinik_ObjectType)) {
+    if (left == NULL || right == NULL ||
+            !PyObject_TypeCheck((PyObject *) left, &Atrinik_ObjectType) ||
+            !PyObject_TypeCheck((PyObject *) right, &Atrinik_ObjectType)) {
         Py_INCREF(Py_NotImplemented);
         return Py_NotImplemented;
     }
 
-    result = Atrinik_Object_InternalCompare(left, right);
+    int result = Atrinik_Object_InternalCompare(left, right);
 
     /* Handle removed objects. */
     if (result == -1 && PyErr_Occurred()) {
@@ -2237,8 +2458,8 @@ static PyObject *Atrinik_Object_RichCompare(Atrinik_Object *left, Atrinik_Object
  * Start iterating.
  * @param seq Object to start iterating from.
  * @return A new instance of PyObject, containing Atrinik_Object, with a
- * reference
- * to 'seq'. */
+ * reference to 'seq'.
+ */
 static PyObject *object_iter(PyObject *seq)
 {
     Atrinik_Object *obj, *orig_obj = (Atrinik_Object *) seq;
@@ -2265,15 +2486,14 @@ static PyObject *object_iter(PyObject *seq)
 /**
  * Get next object for iteration.
  * @param obj Previous object.
- * @return Next object, NULL if there is nothing left. */
+ * @return Next object, NULL if there is nothing left.
+ */
 static PyObject *object_iternext(Atrinik_Object *obj)
 {
     /* Do we need to iterate? */
     if (obj->iter_type != OBJ_ITER_TYPE_NONE) {
-        object *tmp;
-
         OBJEXISTCHECK(obj->iter);
-        tmp = obj->iter->obj;
+        object *tmp = obj->iter->obj;
 
         /* Check which way we're iterating. */
         if (obj->iter_type == OBJ_ITER_TYPE_BELOW) {
@@ -2284,10 +2504,10 @@ static PyObject *object_iternext(Atrinik_Object *obj)
             obj->iter->obj = NULL;
         }
 
-        obj->iter->count = obj->iter->obj ? obj->iter->obj->count : 0;
+        obj->iter->count = obj->iter->obj != NULL ? obj->iter->obj->count : 0;
 
         /* Nothing left, so mark iter_type to show that. */
-        if (!obj->iter->obj) {
+        if (obj->iter->obj == NULL) {
             obj->iter_type = OBJ_ITER_TYPE_NONE;
         }
 
@@ -2299,10 +2519,12 @@ static PyObject *object_iternext(Atrinik_Object *obj)
 
 /**
  * Atrinik object bool check.
- * @param obj The object. */
+ * @param obj The object.
+ */
 static int atrinik_object_bool(Atrinik_Object *obj)
 {
-    if (!obj || !obj->obj || obj->obj->count != obj->count || OBJECT_FREE(obj->obj)) {
+    if (obj == NULL || obj->obj == NULL || obj->obj->count != obj->count ||
+            OBJECT_FREE(obj->obj)) {
         return 0;
     }
 
@@ -2364,7 +2586,9 @@ static PyNumberMethods AtrinikObjectNumber = {
     NULL
 };
 
-/** Our actual Python ObjectType. */
+/**
+ * Our actual Python ObjectType.
+ */
 PyTypeObject Atrinik_ObjectType = {
 #ifdef IS_PY3K
     PyVarObject_HEAD_INIT(NULL, 0)
@@ -2411,11 +2635,11 @@ PyTypeObject Atrinik_ObjectType = {
 /**
  * Initialize the object wrapper.
  * @param module The Atrinik Python module.
- * @return 1 on success, 0 on failure. */
+ * @return 1 on success, 0 on failure.
+ */
 int Atrinik_Object_init(PyObject *module)
 {
-    size_t i, flagno;
-    char buf[MAX_BUF];
+    size_t i;
 
     /* Field getseters */
     for (i = 0; i < NUM_FIELDS; i++) {
@@ -2429,19 +2653,20 @@ int Atrinik_Object_init(PyObject *module)
     }
 
     /* Flag getseters */
-    for (flagno = 0; flagno < NUM_FLAGS; flagno++) {
-        if (hooks->object_flag_names[flagno]) {
-            PyGetSetDef *def = &getseters[i++];
-
-            strncpy(buf, "f_", sizeof(buf) - 1);
-            strncat(buf, hooks->object_flag_names[flagno], sizeof(buf) - strlen(buf) - 1);
-            def->name = strdup(buf);
-
-            def->get = (getter) Object_GetFlag;
-            def->set = (setter) Object_SetFlag;
-            def->doc = doc_object_flag_names[flagno];
-            def->closure = (void *) flagno;
+    for (size_t flagno = 0; flagno < NUM_FLAGS; flagno++) {
+        if (hooks->object_flag_names[flagno] == NULL) {
+            continue;
         }
+        PyGetSetDef *def = &getseters[i++];
+
+        char buf[MAX_BUF];
+        snprintf(VS(buf), "f_%s", hooks->object_flag_names[flagno]);
+        def->name = strdup(buf);
+
+        def->get = (getter) Object_GetFlag;
+        def->set = (setter) Object_SetFlag;
+        def->doc = doc_object_flag_names[flagno];
+        def->closure = (void *) flagno;
     }
 
     getseters[i].name = NULL;
@@ -2453,7 +2678,7 @@ int Atrinik_Object_init(PyObject *module)
     }
 
     Py_INCREF(&Atrinik_ObjectType);
-    PyModule_AddObject(module, "Object", (PyObject *) & Atrinik_ObjectType);
+    PyModule_AddObject(module, "Object", (PyObject *) &Atrinik_ObjectType);
 
     return 1;
 }
@@ -2461,20 +2686,20 @@ int Atrinik_Object_init(PyObject *module)
 /**
  * Utility method to wrap an object.
  * @param what Object to wrap.
- * @return Python object wrapping the real object. */
+ * @return Python object wrapping the real object.
+ */
 PyObject *wrap_object(object *what)
 {
     Atrinik_Object *wrapper;
 
     /* Return None if no object was to be wrapped. */
-    if (!what || OBJECT_FREE(what)) {
+    if (what == NULL || OBJECT_FREE(what)) {
         Py_INCREF(Py_None);
         return Py_None;
     }
 
     wrapper = PyObject_NEW(Atrinik_Object, &Atrinik_ObjectType);
-
-    if (wrapper) {
+    if (wrapper != NULL) {
         wrapper->obj = what;
         wrapper->count = wrapper->obj->count;
     }

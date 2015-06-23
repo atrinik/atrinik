@@ -1483,14 +1483,14 @@ void examine(object *op, object *tmp, StringBuffer *sb_capture)
     if (QUERY_FLAG(tmp, FLAG_STARTEQUIP)) {
         /* Unpaid clone shop item */
         if (QUERY_FLAG(tmp, FLAG_UNPAID)) {
-            draw_info_full_format(CHAT_TYPE_GAME, NULL, COLOR_WHITE, sb_capture, op, "%s would cost you %s.", tmp->nrof > 1 ? "They" : "It", query_cost_string(tmp, op, COST_BUY));
+            draw_info_full_format(CHAT_TYPE_GAME, NULL, COLOR_WHITE, sb_capture, op, "%s would cost you %s.", tmp->nrof > 1 ? "They" : "It", query_cost_string(tmp, COST_BUY));
         } else {
             /* God-given item */
             draw_info_full_format(CHAT_TYPE_GAME, NULL, COLOR_WHITE, sb_capture, op, "%s god-given item%s.", tmp->nrof > 1 ? "They are" : "It is a", tmp->nrof > 1 ? "s" : "");
 
             if (QUERY_FLAG(tmp, FLAG_IDENTIFIED)) {
                 if (tmp->value) {
-                    draw_info_full_format(CHAT_TYPE_GAME, NULL, COLOR_WHITE, sb_capture, op, "But %s worth %s.", tmp->nrof > 1 ? "they are" : "it is", query_cost_string(tmp, op, COST_TRUE));
+                    draw_info_full_format(CHAT_TYPE_GAME, NULL, COLOR_WHITE, sb_capture, op, "But %s worth %s.", tmp->nrof > 1 ? "they are" : "it is", query_cost_string(tmp, COST_TRUE));
                 } else {
                     draw_info_full_format(CHAT_TYPE_GAME, NULL, COLOR_WHITE, sb_capture, op, "%s worthless.", tmp->nrof > 1 ? "They are" : "It is");
                 }
@@ -1499,9 +1499,9 @@ void examine(object *op, object *tmp, StringBuffer *sb_capture)
     } else if (tmp->value && !IS_LIVE(tmp)) {
         if (QUERY_FLAG(tmp, FLAG_IDENTIFIED)) {
             if (QUERY_FLAG(tmp, FLAG_UNPAID)) {
-                draw_info_full_format(CHAT_TYPE_GAME, NULL, COLOR_WHITE, sb_capture, op, "%s would cost you %s.", tmp->nrof > 1 ? "They" : "It", query_cost_string(tmp, op, COST_BUY));
+                draw_info_full_format(CHAT_TYPE_GAME, NULL, COLOR_WHITE, sb_capture, op, "%s would cost you %s.", tmp->nrof > 1 ? "They" : "It", query_cost_string(tmp, COST_BUY));
             } else {
-                draw_info_full_format(CHAT_TYPE_GAME, NULL, COLOR_WHITE, sb_capture, op, "%s worth %s.", tmp->nrof > 1 ? "They are" : "It is", query_cost_string(tmp, op, COST_TRUE));
+                draw_info_full_format(CHAT_TYPE_GAME, NULL, COLOR_WHITE, sb_capture, op, "%s worth %s.", tmp->nrof > 1 ? "They are" : "It is", query_cost_string(tmp, COST_TRUE));
             }
         }
 
@@ -1511,7 +1511,7 @@ void examine(object *op, object *tmp, StringBuffer *sb_capture)
             floor_ob = GET_MAP_OB_LAYER(op->map, op->x, op->y, LAYER_FLOOR, 0);
 
             if (floor_ob && floor_ob->type == SHOP_FLOOR) {
-                draw_info_full_format(CHAT_TYPE_GAME, NULL, COLOR_WHITE, sb_capture, op, "This shop will pay you %s.", query_cost_string(tmp, op, COST_SELL));
+                draw_info_full_format(CHAT_TYPE_GAME, NULL, COLOR_WHITE, sb_capture, op, "This shop will pay you %s.", query_cost_string(tmp, COST_SELL));
             }
         }
     } else if (!IS_LIVE(tmp)) {
@@ -1590,12 +1590,12 @@ static object *get_pickup_object(object *pl, object *op, int nrof)
         SET_FLAG(op, FLAG_STARTEQUIP);
         op->nrof = nrof;
 
-        draw_info_format(COLOR_WHITE, pl, "You pick up %s for %s from the storage.", query_name(op, NULL), query_cost_string(op, pl, COST_BUY));
+        draw_info_format(COLOR_WHITE, pl, "You pick up %s for %s from the storage.", query_name(op, NULL), query_cost_string(op, COST_BUY));
     } else {
         op = object_stack_get_removed(op, nrof);
 
         if (QUERY_FLAG(op, FLAG_UNPAID)) {
-            draw_info_format(COLOR_WHITE, pl, "%s will cost you %s.", query_name(op, NULL), query_cost_string(op, pl, COST_BUY));
+            draw_info_format(COLOR_WHITE, pl, "%s will cost you %s.", query_name(op, NULL), query_cost_string(op, COST_BUY));
         } else {
             draw_info_format(COLOR_WHITE, pl, "You pick up the %s.", query_name(op, NULL));
         }

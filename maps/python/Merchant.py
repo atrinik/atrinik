@@ -117,7 +117,7 @@ class Seller(Merchant):
             self.subdialog_stock()
 
     def subdialog_buy(self):
-        cost = CostString(self.buy_item.GetCost(self.buy_item, COST_TRUE))
+        cost = CostString(self.buy_item.GetCost())
         desc = "{} for {}".format(self.buy_item.GetName(), cost)
         self.add_msg_icon_object(self.buy_item, desc=desc)
 
@@ -173,7 +173,7 @@ class Seller(Merchant):
             if obj_stock != None:
                 num = min(num, obj_stock)
 
-            cost = obj.GetCost(obj, COST_TRUE) * num
+            cost = obj.GetCost() * num
 
             if not self._activator.Controller().CanCarry(obj.weight * num + obj.carrying):
                 self.subdialog_fail_weight()
@@ -234,7 +234,7 @@ class Buyer(Merchant):
         self.generate_item_links("sell ", self.sell_item, self.sell_item_nrof)
 
     def subdialog_sell(self):
-        cost = CostString(self.sell_item.GetCost(self.sell_item, COST_TRUE))
+        cost = CostString(self.sell_item.GetCost())
         desc = "{} for {}".format(self.sell_item.GetName(), cost)
         self.add_msg_icon_object(self.sell_item, desc=desc)
 
@@ -274,7 +274,7 @@ class Buyer(Merchant):
 
         if num != None:
             num = max(1, min(int(num), self.max_goods, item.nrof))
-            cost = obj.GetCost(obj, COST_TRUE) * num
+            cost = obj.GetCost() * num
 
             item = item.Decrease(num)
             self._activator.Controller().InsertCoins(cost)

@@ -107,7 +107,7 @@ class PostOffice:
     ## @param object Object we want to send.
     ## @return The calculated price.
     def get_price(self, object):
-        return int(max(object.GetCost(object, COST_TRUE) / 100 * 5, 20))
+        return int(max(object.GetCost() / 100 * 5, 20))
 
     ## Check for common situations where activator cannot send marked item.
     ## @param object The marked object.

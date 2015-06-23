@@ -35,10 +35,9 @@ static int64_t pay_from_container(object *op, object *pouch, int64_t to_pay);
 /**
  * Return the price of an item for a character.
  * @param tmp Object we're querying the price of.
- * @param who Who is inquiring. Can be NULL, only meaningful if player.
- * @param flag Combination of @ref F_xxx "F_xxx" flags.
+ * @param flag One of @ref COST_xxx.
  * @return The price for the item. */
-int64_t query_cost(object *tmp, object *who, int flag)
+int64_t query_cost(object *tmp, int flag)
 {
     int64_t val;
     double diff;
@@ -228,12 +227,11 @@ char *cost_string_from_value(int64_t cost)
  * This is really a wrapper for cost_string_from_value() and
  * query_cost().
  * @param tmp Object we're querying the price of.
- * @param who Who is inquiring. Can be NULL, only meaningful if player.
  * @param flag Combination of @ref F_xxx "F_xxx" flags.
  * @return The cost string. */
-char *query_cost_string(object *tmp, object *who, int flag)
+char *query_cost_string(object *tmp, int flag)
 {
-    return cost_string_from_value(query_cost(tmp, who, flag));
+    return cost_string_from_value(query_cost(tmp, flag));
 }
 
 /**
@@ -304,7 +302,7 @@ int pay_for_amount(int64_t to_pay, object *pl)
  * @return 1 if object was bought, 0 otherwise. */
 int pay_for_item(object *op, object *pl)
 {
-    int64_t to_pay = query_cost(op, pl, COST_BUY);
+    int64_t to_pay = query_cost(op, COST_BUY);
     object *pouch;
 
     if (to_pay == 0) {
@@ -474,7 +472,7 @@ int get_payment(object *pl, object *op)
     if (op != NULL && QUERY_FLAG(op, FLAG_UNPAID)) {
         if (!pay_for_item(op, pl)) {
             CLEAR_FLAG(op, FLAG_UNPAID);
-            draw_info_format(COLOR_WHITE, pl, "You lack %s to buy %s.", cost_string_from_value(query_cost(op, pl, COST_BUY) - query_money(pl)), query_name(op, NULL));
+            draw_info_format(COLOR_WHITE, pl, "You lack %s to buy %s.", cost_string_from_value(query_cost(op, COST_BUY) - query_money(pl)), query_name(op, NULL));
             SET_FLAG(op, FLAG_UNPAID);
             return 0;
         } else {
@@ -482,7 +480,7 @@ int get_payment(object *pl, object *op)
             CLEAR_FLAG(op, FLAG_STARTEQUIP);
 
             if (pl->type == PLAYER) {
-                draw_info_format(COLOR_WHITE, pl, "You paid %s for %s.", query_cost_string(op, pl, COST_BUY), query_name(op, NULL));
+                draw_info_format(COLOR_WHITE, pl, "You paid %s for %s.", query_cost_string(op, COST_BUY), query_name(op, NULL));
             }
 
             /* If the object wasn't merged, send flags update. */
@@ -513,7 +511,7 @@ void sell_item(object *op, object *pl, int64_t value)
     if (op == NULL) {
         i = value;
     } else {
-        i = query_cost(op, pl, COST_SELL);
+        i = query_cost(op, COST_SELL);
     }
 
     if (op && op->custom_name) {
@@ -536,7 +534,7 @@ void sell_item(object *op, object *pl, int64_t value)
         LOG(BUG, "Warning - payment not zero: %"PRId64, i);
     }
 
-    draw_info_format(COLOR_WHITE, pl, "You receive %s for %s.", query_cost_string(op, pl, 1), query_name(op, NULL));
+    draw_info_format(COLOR_WHITE, pl, "You receive %s for %s.", query_cost_string(op, 1), query_name(op, NULL));
     SET_FLAG(op, FLAG_UNPAID);
 
     /* Identify the item. Makes any unidentified item sold to unique shop appear

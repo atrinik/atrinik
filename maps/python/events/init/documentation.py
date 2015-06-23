@@ -126,7 +126,7 @@ def dump_obj(obj, f, indent=0, defaults=None):
                 f2.write("import Atrinik\n")
                 dump_obj(tmp, f2)
         elif inspect.isclass(tmp):
-            f.write("from Atrinik import {name}\n".format(name=tmp_name))
+            f.write("import Atrinik.{name} as {name}\n".format(name=tmp_name))
 
             with open(os.path.join(PATH, tmp_name + ".py"), "w") as f2:
                 f2.write("import Atrinik\n")
