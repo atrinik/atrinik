@@ -764,15 +764,38 @@ typedef struct rv_vector_s {
  * Range vector flags, used by functions like get_rangevector() and
  * get_rangevector_from_mapcoords().
  *@{*/
+/**
+ * Calculate Manhattan distance.
+ */
 #define RV_MANHATTAN_DISTANCE  0x00
+/**
+ * Calculate Euclidian distance.
+ */
 #define RV_EUCLIDIAN_DISTANCE  0x01
+/**
+ * Calculate diagonal distance.
+ */
 #define RV_DIAGONAL_DISTANCE   0x02
+/**
+ * Do not perform distance calculation.
+ */
 #define RV_NO_DISTANCE         (RV_EUCLIDIAN_DISTANCE | RV_DIAGONAL_DISTANCE)
 
+/**
+ * If set, will ignore tail parts of a multi-part object in range vector
+ * calculations.
+ */
 #define RV_IGNORE_MULTIPART    0x04
-#define RV_RECURSIVE_SEARCH    0x08
-#define RV_NO_LOAD             0x10
 
+/**
+ * If not set, only immediately adjacent tiled maps are searched. If set, a
+ * depth-first search is performed on the tiled maps, up to some limit.
+ */
+#define RV_RECURSIVE_SEARCH    0x08
+/**
+ * Do not load any maps when attempting to calculate the range vector.
+ */
+#define RV_NO_LOAD             0x10
 /*@}*/
 
 /**

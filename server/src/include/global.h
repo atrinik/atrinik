@@ -189,8 +189,8 @@ typedef struct _money_block {
 
 #define SPAWN_RANDOM_RANGE 10000
 
-#define T_STYLE_UNSET (-2)
-#define ART_CHANCE_UNSET (-1)
+#define T_STYLE_UNSET -2 ///< Treasure style value is not set.
+#define ART_CHANCE_UNSET -1 ///< Art chance value is not set.
 
 /** Minimum monster detection radius */
 #define MIN_MON_RADIUS 2
