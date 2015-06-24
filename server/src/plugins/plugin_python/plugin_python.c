@@ -995,7 +995,7 @@ static PyObject *Atrinik_PlayerExists(PyObject *self, PyObject *args)
     int ret = hooks->player_exists(cp);
     free(cp);
 
-    Py_ReturnBoolean(ret);
+    return Py_BuildBoolean(ret);
 }
 
 /** Documentation for Atrinik_WhoAmI(). */
@@ -1539,7 +1539,7 @@ static PyObject *Atrinik_CacheAdd(PyObject *self, PyObject *args)
         Py_INCREF(what);
     }
 
-    Py_ReturnBoolean(ret);
+    return Py_BuildBoolean(ret);
 }
 
 /** Documentation for Atrinik_CacheGet(). */
@@ -3091,7 +3091,7 @@ PyObject *generic_field_getter(fields_struct *field, void *ptr)
                 *(uint16_t *) field_ptr);
 
     case FIELDTYPE_BOOLEAN:
-        Py_ReturnBoolean(*(uint8_t *) field_ptr);
+        return Py_BuildBoolean(*(uint8_t *) field_ptr);
 
     case FIELDTYPE_LIST:
         return wrap_attr_list(ptr, field->offset, field->extra_data);

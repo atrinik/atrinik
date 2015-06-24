@@ -703,7 +703,7 @@ static PyObject *Map_GetFlag(Atrinik_Map *map, void *context)
         return NULL;
     }
 
-    Py_ReturnBoolean(map->map->map_flags & (1 << flagno));
+    return Py_BuildBoolean(map->map->map_flags & (1 << flagno));
 }
 
 /**

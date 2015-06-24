@@ -524,21 +524,8 @@ typedef struct {
 
 /**
  * Returns Py_True (increasing its reference) if 'val' is non-NULL, otherwise
- * returns Py_False. */
-#define Py_ReturnBoolean(val) \
-    { \
-        if ((val)) \
-        { \
-            Py_INCREF(Py_True); \
-            return Py_True; \
-        } \
-        else \
-        { \
-            Py_INCREF(Py_False); \
-            return Py_False; \
-        } \
-    }
-
+ * returns Py_False (increasing its reference).
+ */
 #define Py_BuildBoolean(val) \
     ((val) ? (Py_INCREF(Py_True), Py_True) : (Py_INCREF(Py_False), Py_False))
 

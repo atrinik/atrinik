@@ -1318,7 +1318,7 @@ static PyObject *Atrinik_Object_PayAmount(Atrinik_Object *obj, PyObject *args)
 
     OBJEXISTCHECK(obj);
 
-    Py_ReturnBoolean(hooks->pay_for_amount(value, obj->obj));
+    return Py_BuildBoolean(hooks->pay_for_amount(value, obj->obj));
 }
 
 /** Documentation for Atrinik_Object_Clone(). */
@@ -1417,7 +1417,8 @@ static PyObject *Atrinik_Object_WriteKey(Atrinik_Object *obj, PyObject *args)
 
     OBJEXISTCHECK(obj);
 
-    Py_ReturnBoolean(hooks->object_set_value(obj->obj, key, value, add_key));
+    return Py_BuildBoolean(hooks->object_set_value(obj->obj, key, value,
+            add_key));
 }
 
 /** Documentation for Atrinik_Object_GetName(). */
@@ -2344,7 +2345,7 @@ static PyObject *Object_GetFlag(Atrinik_Object *obj, void *context)
 
     OBJEXISTCHECK(obj);
 
-    Py_ReturnBoolean(QUERY_FLAG(obj->obj, flagno));
+    return Py_BuildBoolean(QUERY_FLAG(obj->obj, flagno));
 }
 
 /**

@@ -179,7 +179,7 @@ static PyObject *Atrinik_Player_CanCarry(Atrinik_Player *pl, PyObject *what)
         return NULL;
     }
 
-    Py_ReturnBoolean(hooks->player_can_carry(pl->pl->ob, weight));
+    return Py_BuildBoolean(hooks->player_can_carry(pl->pl->ob, weight));
 }
 
 /**
@@ -317,7 +317,8 @@ static PyObject *Atrinik_Player_SwapApartments(Atrinik_Player *pl, PyObject *arg
         return NULL;
     }
 
-    Py_ReturnBoolean(hooks->swap_apartments(mapold, mapnew, x, y, pl->pl->ob));
+    return Py_BuildBoolean(hooks->swap_apartments(mapold, mapnew, x, y,
+            pl->pl->ob));
 }
 
 /**
