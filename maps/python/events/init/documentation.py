@@ -125,6 +125,10 @@ def dump_obj(obj, f, indent=0, defaults=None):
                 dump_docstring(tmp, f2, indent)
                 f2.write("import Atrinik\n")
                 dump_obj(tmp, f2)
+        elif tmp_name == "AtrinikError":
+            f.write("class {}(Exception):\n".format(tmp_name))
+            dump_docstring(tmp, f, indent + 1, obj_name=tmp_name)
+            dump_obj(tmp, f, indent=1)
         elif inspect.isclass(tmp):
             f.write("import Atrinik.{name} as {name}\n".format(name=tmp_name))
 
@@ -224,12 +228,11 @@ def main():
         names = dump_obj(obj, f, defaults=defaults)
         f.write("__all__ = [{}]\n".format(", ".join(names)))
 
+if not GetSettings()["unit_tests"]:
+    parser = CParser()
+    matches = {}
 
-parser = CParser()
-matches = {}
-
-for root, dirs, files in os.walk("src"):
-    for file in files:
-        matches.update(parser.parse(os.path.join(root, file)))
-
-main()
+    for root, dirs, files in os.walk("src"):
+        for file in files:
+            matches.update(parser.parse(os.path.join(root, file)))
+    main()

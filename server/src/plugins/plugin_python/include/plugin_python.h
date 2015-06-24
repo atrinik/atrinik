@@ -539,6 +539,9 @@ typedef struct {
         } \
     }
 
+#define Py_BuildBoolean(val) \
+    ((val) ? (Py_INCREF(Py_True), Py_True) : (Py_INCREF(Py_False), Py_False))
+
 int generic_field_setter(fields_struct *field, void *ptr, PyObject *value);
 PyObject *generic_field_getter(fields_struct *field, void *ptr);
 PyObject *generic_rich_compare(int op, int result);

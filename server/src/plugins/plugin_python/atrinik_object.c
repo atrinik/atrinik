@@ -433,7 +433,7 @@ static const char doc_Atrinik_Object_ActivateRune[] =
 ".. method:: ActivateRune(who).\n\n"
 "Activate a rune.\n\n"
 ":param who: Who should be affected by the effects of the rune.\n"
-":type who: Atrinik.Object.Object\n"
+":type who: :class:`Atrinik.Object.Object`\n"
 ":raises TypeError: If self is not of type :attr:`Atrinik.Type.RUNE`";
 
 /**
@@ -468,11 +468,11 @@ static const char doc_Atrinik_Object_TeleportTo[] =
 ".. method:: TeleportTo(path, x=0, y=0).\n\n"
 "Teleports the object to the specified coordinates on a map.\n\n"
 ":param path: The map path.\n"
-":type path: str\n"
+":type path: :attr:`str`\n"
 ":param x: X coordinate on the map.\n"
-":type x: int\n"
+":type x: :attr:`int`\n"
 ":param y: Y coordinate on the map.\n"
-":type y: int";
+":type y: :attr:`int`";
 
 /**
  * Implements Atrinik.Object.Object.TeleportTo() Python method.
@@ -512,7 +512,7 @@ static const char doc_Atrinik_Object_InsertInto[] =
 ".. method:: InsertInto(where).\n\n"
 "Inserts the object into some other object.\n\n"
 ":param where: Where to insert the object.\n"
-":type where: Atrinik.Object.Object\n"
+":type where: :class:`Atrinik.Object.Object`\n"
 ":returns: The inserted object, which may be different from the original (due"
 "to merging, for example). None is returned on failure.\n"
 ":rtype: class:`Atrinik.Object.Object` or :attr:`None`";
@@ -550,12 +550,13 @@ static const char doc_Atrinik_Object_Apply[] =
 ".. method:: Apply(what, flags=Atrinik.APPLY_NORMAL).\n\n"
 "Makes the object apply the specified object.\n\n"
 ":param what: What object to apply.\n"
-":type what: Atrinik.Object.Object\n"
+":type what: :class:`Atrinik.Object.Object`\n"
 ":param flags: Reasonable combination of :attr:`~Atrinik.APPLY_NORMAL`, "
 ":attr:`~Atrinik.APPLY_ALWAYS`, :attr:`~Atrinik.APPLY_ALWAYS_UNAPPLY`, "
 ":attr:`~Atrinik.APPLY_NO_MERGE`, :attr:`~Atrinik.APPLY_IGNORE_CURSE`, "
 ":attr:`~Atrinik.APPLY_NO_EVENT`.\n"
-":returns: One of OBJECT_METHOD_xxx.\n"
+":type flags: :attr:`int`\n"
+":returns: One of OBJECT_METHOD_xxx, eg, :attr:`~Atrinik.OBJECT_METHOD_OK`.\n"
 ":rtype: :attr:`int`";
 
 /**
@@ -583,7 +584,7 @@ static const char doc_Atrinik_Object_Take[] =
 "Forces the object to pick up the specified object.\n\n"
 ":param what: What object to pick up. Can be a string instead, in which case "
 "it's equivalent of the /take command.\n"
-":type what: Atrinik.Object.Object or str";
+":type what: :class:`Atrinik.Object.Object` or :attr:`str`";
 
 /**
  * Implements Atrinik.Object.Object.Take() Python method.
@@ -614,7 +615,7 @@ static const char doc_Atrinik_Object_Drop[] =
 "Forces the object to drop the specified object.\n\n"
 ":param what: What object to drop. Can be a string instead, in which case "
 "it's equivalent of the /drop command.\n"
-":type what: Atrinik.Object.Object or str";
+":type what: :class:`Atrinik.Object.Object` or :attr:`str`";
 
 /**
  * Implements Atrinik.Object.Object.Drop() Python method.
@@ -644,7 +645,7 @@ static const char doc_Atrinik_Object_Say[] =
 ".. method:: Say(message).\n\n"
 "Makes the object object say a message to everybody in range.\n\n"
 ":param message: The message to say.\n"
-":type message: str";
+":type message: :attr:`str`";
 
 /**
  * Implements Atrinik.Object.Object.Say() Python method.
@@ -694,7 +695,7 @@ static const char doc_Atrinik_Object_SetGender[] =
 "Set object's gender.\n\n"
 ":param gender: The gender to set. One of the gender constants defined in "
 ":mod:`Atrinik.Gender`.\n"
-":type gender: int";
+":type gender: :attr:`int`";
 
 /**
  * Implements Atrinik.Object.Object.SetGender() Python method.
@@ -756,11 +757,11 @@ static const char doc_Atrinik_Object_Hit[] =
 ".. method:: Hit(target, damage).\n\n"
 "Makes the object hit the target object for the specified amount of damage.\n\n"
 ":param target: The target object to hit.\n"
-":type target: Atrinik.Object.Object\n"
+":type target: :class:`Atrinik.Object.Object`\n"
 ":param damage: How much damage to deal. If -1, the target object will be "
 "killed, otherwise the actual damage done is calculated depending on the "
 "object's attack types, the target's protections, etc.\n"
-":type damage: int\n"
+":type damage: :attr:`int`\n"
 ":raises ValueError: If the target is not on a map or is not alive.";
 
 /**
@@ -802,18 +803,18 @@ static const char doc_Atrinik_Object_Cast[] =
 ".. method:: Hit(spell, target=None, mode=-1, direction=0, option=None).\n\n"
 "Cast the specified spell.\n\n"
 ":param spell: ID of the spell to cast.\n"
-":type spell: int\n"
+":type spell: :attr:`int`\n"
 ":param target: Target object for spells that require a valid target.\n"
-":type target: Atrinik.Object.Object or None\n"
+":type target: :class:`Atrinik.Object.Object` or :attr:`None`\n"
 ":param mode: One of the CAST_xxx constants defined in :mod:`Atrinik`, eg, "
 ":attr:`~Atrinik.CAST_NORMAL`. If -1, will try to figure out the appropriate "
 "mode automatically.\n"
-":type mode: int\n"
+":type mode: :attr:`int`\n"
 ":param direction: The direction to cast the spell in.\n"
-":type direction: int\n"
+":type direction: :attr:`int`\n"
 ":param option: Additional string option, required by some spells (create food "
 "for example).\n"
-":type option: str or None";
+":type option: :attr:`str` or :attr:`None`";
 
 /**
  * Implements Atrinik.Object.Object.Cast() Python method.
@@ -864,10 +865,10 @@ static const char doc_Atrinik_Object_CreateForce[] =
 ".. method:: CreateForce(name, time=0).\n\n"
 "Create a force object in object's inventory.\n\n"
 ":param name: ID of the force object.\n"
-":type name: str\n"
+":type name: :attr:`str`\n"
 ":param time: If non-zero, the force will be removed again after time / 0.02 "
 "ticks.\n"
-":type time: int\n"
+":type time: :attr:`int`\n"
 ":returns: The created force object.\n"
 ":rtype: :class:`Atrinik.Object.Object`";
 
@@ -908,16 +909,16 @@ static const char doc_Atrinik_Object_CreateObject[] =
 ".. method:: CreateObject(archname, nrof=1, value=-1, identified=True).\n\n"
 "Creates a new object from archname and inserts it into the object.\n\n"
 ":param archname: Name of the arch to create.\n"
-":type archname: str\n"
+":type archname: :attr:`str`\n"
 ":param nrof: Number of objects to create.\n"
-":type nrof: int\n"
+":type nrof: :attr:`int`\n"
 ":param value: If not -1, will be used as value for the new object.\n"
-":type value: int\n"
+":type value: :attr:`int`\n"
 ":param identified: If False, the object will not be identified.\n"
-":type identified: bool\n"
+":type identified: :attr:`bool`\n"
 ":returns: The created (and inserted) object, None on failure.\n"
 ":rtype: :class:`Atrinik.Object.Object` or :attr:`None`\n"
-":raises Atrinik.AtrinikError.AtrinikError: If archname references an invalid "
+":raises Atrinik.AtrinikError: If archname references an invalid "
 "archetype.";
 
 /**
@@ -1011,20 +1012,20 @@ static const char doc_Atrinik_Object_FindObject[] =
 "Looks for a certain object in object's inventory.\n\n"
 ":param mode: How to search the inventory. One of the INVENTORY_xxx constants "
 "defined in the :mod:`Atrinik` module, eg, :attr:`~Atrinik.INVENTORY_ALL`.\n"
-":type mode: int\n"
+":type mode: :attr:`int`\n"
 ":param archname: Arch name of the object to search for. If None, can be any.\n"
-":type archname: str or None\n"
+":type archname: :attr:`str` or :attr:`None`\n"
 ":param name: Name of the object. If None, can be any.\n"
-":type name: str or None\n"
+":type name: :attr:`str` or :attr:`None`\n"
 ":param title: Title of the object. If None, can be any.\n"
-":type title: str or None\n"
+":type title: :attr:`str` or :attr:`None`\n"
 ":param type: Type of the object. If -1, can be any.\n"
-":type type: int\n"
+":type type: :attr:`int`\n"
 ":param multiple: If True, the return value will be a list of all matching "
 "objects, instead of just the first one found.\n"
-":type multiple: bool\n"
+":type multiple: :attr:`bool`\n"
 ":param unpaid: Only match unpaid objects.\n"
-":type unpaid: bool\n"
+":type unpaid: :attr:`bool`\n"
 ":returns: The object we wanted if found, None (or an empty list) otherwise\n"
 ":rtype: :class:`Atrinik.Object.Object` or :attr:`None` or :attr:`list`\n"
 ":raises ValueError: If there were no conditions to search for.";
@@ -1152,9 +1153,9 @@ static const char doc_Atrinik_Object_SetPosition[] =
 "objects out of containers, use :meth:`~Atrinik.Drop` or :meth:"
 "`~Atrinik.TeleportTo` for that."
 ":param x: New X position on the same map.\n"
-":type x: int\n"
+":type x: :attr:`int`\n"
 ":param Y: New Y position on the same map.\n"
-":type y: int";
+":type y: :attr:`int`";
 
 /**
  * Implements Atrinik.Object.Object.SetPosition() Python method.
@@ -1181,11 +1182,11 @@ static const char doc_Atrinik_Object_CastIdentify[] =
 ".. method:: CastIdentify(target, mode, marked=None).\n\n"
 "Cast identify on target.\n\n"
 ":param target: The target object.\n"
-":type target: Atrinik.Object.Object\n"
+":type target: :class:`Atrinik.Object.Object`\n"
 ":param mode: One of IDENTIFY_xxx, eg, :attr:`~Atrinik.IDENTIFY_NORMAL`.\n"
-":type mode: int\n"
+":type mode: :attr:`int`\n"
 ":param marked: Marked item.\n"
-":type marked: :class:`Atrinik.Object.Object` or None";
+":type marked: :class:`Atrinik.Object.Object` or :attr:`None`";
 
 /**
  * Implements Atrinik.Object.Object.CastIdentify() Python method.
@@ -1254,7 +1255,7 @@ static const char doc_Atrinik_Object_GetCost[] =
 ".. method:: GetCost(flag=Atrinik.COST_TRUE).\n\n"
 "Get cost of an object in integer value.\n\n"
 ":param flag: One of the COST_xxx constants, eg, :attr:`~Atrinik.COST_BUY`.\n"
-":type flag: int\n"
+":type flag: :attr:`int`\n"
 ":returns: The cost of the item.\n"
 ":rtype: :attr:`int`";
 
@@ -1299,7 +1300,7 @@ static const char doc_Atrinik_Object_PayAmount[] =
 ".. method:: PayAmount(value).\n\n"
 "Makes the object pay a specified amount of money.\n\n"
 ":param value: The amount of money to pay.\n"
-":type value: int"
+":type value: :attr:`int`"
 ":returns: Whether the value was paid successfully (had enough money).\n"
 ":rtype: :attr:`bool`";
 
@@ -1327,7 +1328,7 @@ static const char doc_Atrinik_Object_Clone[] =
 ":meth:`~Atrinik.Object.Object.TeleportTo` or "
 ":meth:`~Atrinik.Object.Object.InsertInto` are useful methods for that.\n\n"
 ":param inventory: Whether to clone the inventory of the object.\n"
-":type inventory: bool\n"
+":type inventory: :attr:`bool`\n"
 ":returns: Cloned object.\n"
 ":rtype: :class:`Atrinik.Object.Object`";
 
@@ -1366,7 +1367,7 @@ static const char doc_Atrinik_Object_ReadKey[] =
 ".. method:: ReadKey(key).\n\n"
 "Get key value of an object.\n\n"
 ":param key: Key to look for.\n"
-":type key: str\n"
+":type key: :attr:`str`\n"
 ":returns: Value for the key if found, None otherwise.\n"
 ":rtype: :attr:`str` or :attr:`None`";
 
@@ -1392,12 +1393,12 @@ static const char doc_Atrinik_Object_WriteKey[] =
 ".. method:: WriteKey(key, value=None, add_key=True).\n\n"
 "Set the key value of an object.\n\n"
 ":param key: Key to set.\n"
-":type key: str\n"
+":type key: :attr:`str`\n"
 ":param value: Value to set for the key. If None, will clear the key's value "
 "if the key is found.\n"
-":type value: str or None\n"
+":type value: :attr:`str` or :attr:`None`\n"
 ":param add_key: Whether to add the key if it's not found in the object.\n"
-":type add_key: bool\n"
+":type add_key: :attr:`bool`\n"
 ":returns: Whether the operation was successful.\n"
 ":rtype: :attr:`bool`";
 
@@ -1424,7 +1425,7 @@ static const char doc_Atrinik_Object_GetName[] =
 ".. method:: GetName(caller=None).\n\n"
 "Acquire verbose textual representation of the object's name.\n\n"
 ":param caller: Who wants to see the name.\n"
-":type caller: Atrinik.Object.Object or None\n"
+":type caller: :class:`Atrinik.Object.Object` or :attr:`None`\n"
 ":returns: Full name of the object, including material, name, title, etc.\n"
 ":rtype: :attr:`str`";
 
@@ -1456,7 +1457,7 @@ static const char doc_Atrinik_Object_Controller[] =
 "Get object's controller (the player).\n\n"
 ":returns: The controller if there is one, None otherwise.\n"
 ":rtype: :class:`Atrinik.Player.Player` or :attr:`None`\n"
-":raises Atrinik.AtrinikError.AtrinikError: If the object is not a player.";
+":raises Atrinik.AtrinikError: If the object is not a player.";
 
 /**
  * Implements Atrinik.Object.Object.Controller() Python method.
@@ -1479,7 +1480,7 @@ static const char doc_Atrinik_Object_Protection[] =
 "Get object's protection value for the given protection ID.\n\n"
 ":param protection: One of the ATNR_xxx constants, eg, "
 ":attr:`~Atrinik.ATNR_SLASH`.\n"
-":type protection: int\n"
+":type protection: :attr:`int`\n"
 ":returns: The protection value.\n"
 ":rtype: :attr:`int`\n"
 ":raises IndexError: If the protection ID is invalid.";
@@ -1512,9 +1513,9 @@ static const char doc_Atrinik_Object_SetProtection[] =
 "Set object's protection value for the given protection ID.\n\n"
 ":param protection: One of the ATNR_xxx constants, eg, "
 ":attr:`~Atrinik.ATNR_SLASH`.\n"
-":type protection: int\n"
+":type protection: :attr:`int`\n"
 ":param value: The value to set.\n"
-":type value: int\n"
+":type value: :attr:`int`\n"
 ":raises IndexError: If the protection ID is invalid.\n"
 ":raises OverflowError: If the value to set is not in valid range.";
 
@@ -1551,7 +1552,7 @@ static const char doc_Atrinik_Object_Attack[] =
 "Get object's attack value for the given attack ID.\n\n"
 ":param attack: One of the ATNR_xxx constants, eg, "
 ":attr:`~Atrinik.ATNR_SLASH`.\n"
-":type attack: int\n"
+":type attack: :attr:`int`\n"
 ":returns: The attack value.\n"
 ":rtype: :attr:`int`\n"
 ":raises IndexError: If the attack ID is invalid.";
@@ -1584,9 +1585,9 @@ static const char doc_Atrinik_Object_SetAttack[] =
 "Set object's attack value for the given attack ID.\n\n"
 ":param attack: One of the ATNR_xxx constants, eg, "
 ":attr:`~Atrinik.ATNR_SLASH`.\n"
-":type attack: int\n"
+":type attack: :attr:`int`\n"
 ":param value: The value to set.\n"
-":type value: int\n"
+":type value: :attr:`int`\n"
 ":raises IndexError: If the attack ID is invalid.\n"
 ":raises OverflowError: If the value to set is not in valid range.";
 
@@ -1621,7 +1622,7 @@ static const char doc_Atrinik_Object_Decrease[] =
 ".. method:: Decrease(num=1).\n\n"
 "Decreases an object, removing it if there's nothing left to decrease.\n\n"
 ":param num: How much to decrease the object by.\n"
-":type num: int\n"
+":type num: :attr:`int`\n"
 ":returns: The object if something is left, None otherwise.\n"
 ":rtype: :class:`Atrinik.Object.Object` or :attr:`None`";
 
@@ -1666,14 +1667,14 @@ static const char doc_Atrinik_Object_SquaresAround[] =
 "\n\n"
 ":param range: Range around which to look at the squares. Must be higher"
 "than 0.\n"
-":type range: int\n"
+":type range: :attr:`int`\n"
 ":param type: One of or a combination of the AROUND_xxx constants, eg,"
 ":attr:`~Atrinik.AROUND_WALL`.\n"
-":type type: int\n"
+":type type: :attr:`int`\n"
 ":param beyond: If True and one of checks from *type* parameter matches, all "
 "squares beyond the one being checked will be ignored as well (think line of "
 "sight).\n"
-":type beyond: bool\n"
+":type beyond: :attr:`bool`\n"
 ":param callable: Defines function to call for comparisons. The function "
 "should have parameters in the order of **map, x, y, obj** where map is the"
 "map, x/y are the coordinates and obj is the object that :meth:"
@@ -1681,7 +1682,7 @@ static const char doc_Atrinik_Object_SquaresAround[] =
 "return True if the square should be considered ignored, False otherwise."
 "*type* being :attr:`~Atrinik.AROUND_ALL` takes no effect if this is set, but "
 "it can be combined with the other AROUND_xxx constants.\n"
-":type callable: collections.Callable or None\n"
+":type callable: :attr:`collections.Callable` or :attr:`None`\n"
 ":returns: A list containing tuples of the squares.\n"
 ":rtype: :attr:`list` of :attr:`tuple`";
 
@@ -1796,10 +1797,10 @@ static const char doc_Atrinik_Object_GetRangeVector[] =
 ".. method:: GetRangeVector(to, flags=0).\n\n"
 "Get the distance and direction from one object to another.\n\n"
 ":param to: Object to which the distance is calculated.\n"
-":type to: Atrinik.Object.Object\n"
+":type to: :class:`Atrinik.Object.Object`\n"
 ":param flags: One or a combination of RV_xxx, eg, :attr:"
 "`~Atrinik.RV_MANHATTAN_DISTANCE`\n"
-":type flags: int\n"
+":type flags: :attr:`int`\n"
 ":returns: None if the distance couldn't be calculated, otherwise a tuple "
 "containing:\n\n"
 "  * Direction *object* should head to reach *to*, eg, :attr:`~Atrinik.NORTH`\n"
@@ -1807,7 +1808,7 @@ static const char doc_Atrinik_Object_GetRangeVector[] =
 "  * X distance.\n"
 "  * Y distance.\n"
 "  * Part of the *object* that is closest.\n"
-":rtype: :attr:`tuple`";
+":rtype: :attr:`tuple` or :attr:`None`";
 
 /**
  * Implements Atrinik.Object.Object.GetRangeVector() Python method.
@@ -1849,17 +1850,17 @@ static const char doc_Atrinik_Object_CreateTreasure[] =
 "set) the object.\n\n"
 ":param treasure: Treasure list name to generate. If None, will try to "
 "generate treasure based on the object's randomitems.\n"
-":type treasure: str or None\n"
+":type treasure: :attr:`str` or :attr:`None`\n"
 ":param level: Level of the generated items. If 0, will try to guess the level "
 "to use based on the object's level or the difficulty value of the map the "
 "object is on. If neither is applicable, will use :attr:`~Atrinik.MAXLEVEL`.\n"
-":type level: int\n"
+":type level: :attr:`int`\n"
 ":param flags: One or a combination of GT_xxx, eg, :attr:"
 "`~Atrinik.GT_ENVIRONMENT`\n"
-":type flags: int\n"
+":type flags: :attr:`int`\n"
 ":param a_chance: Chance for the treasure to become artifact, if possible. A "
 "value of 0 will disable any chance for artifacts.\n"
-":type a_chance: int\n"
+":type a_chance: :attr:`int`\n"
 ":raises ValueError: If treasure is not valid.";
 
 /**
@@ -1929,7 +1930,7 @@ static const char doc_Atrinik_Object_Move[] =
 "(combination of) :meth:`~Atrinik.Object.Object.terrain_flag` set in order to "
 "able to move onto the new square.\n\n"
 ":param direction: Direction to move into, eg, :attr:`~Atrinik.EAST`.\n"
-":type direction: int\n"
+":type direction: :attr:`int`\n"
 ":returns: 0 if the object is not able to move to the desired space, -1 if the "
 "object was not able to move there yet but some sort of action was performed "
 "that might allow us to move there (door opening for example), direction "
@@ -1963,9 +1964,9 @@ static const char doc_Atrinik_Object_ConnectionTrigger[] =
 ".. method:: ConnectionTrigger(push=True, button=False).\n\n"
 "Triggers the object's connection, if any.\n\n"
 ":param push: If true, send a 'push' signal; 'release' signal otherwise.\n"
-":type push: bool\n"
+":type push: :attr:`bool`\n"
 ":param button: If true, handle the connection like a button.\n"
-":type button: bool";
+":type button: :attr:`bool`";
 
 /**
  * Implements Atrinik.Object.Object.ConnectionTrigger() Python method.
@@ -1997,12 +1998,12 @@ static const char doc_Atrinik_Object_Artificate[] =
 ".. method:: Artificate(name).\n\n"
 "Copies artifact abilities to the specified object.\n\n"
 ":param name: Name of the artifact to copy abilities from.\n"
-":type name: str\n"
-":raises Atrinik.AtrinikError.AtrinikError: If the object already has artifact "
+":type name: :attr:`str`\n"
+":raises Atrinik.AtrinikError: If the object already has artifact "
 "abilities.\n"
-":raises Atrinik.AtrinikError.AtrinikError: If the object's type doesn't match "
+":raises Atrinik.AtrinikError: If the object's type doesn't match "
 "any artifact list.\n"
-":raises Atrinik.AtrinikError.AtrinikError: If the artifact name is invalid.";
+":raises Atrinik.AtrinikError: If the artifact name is invalid.";
 
 /**
  * Implements Atrinik.Object.Object.Artificate() Python method.
@@ -2049,7 +2050,7 @@ static const char doc_Atrinik_Object_Load[] =
 "Load archetype-like attribute/value pairs into the object. For example, "
 "**attack_protect 20\ndam 10**\n\n"
 ":param lines: Lines to load into the object.\n"
-":type lines: str";
+":type lines: :attr:`str`";
 
 /**
  * Implements Atrinik.Object.Object.Load() Python method.
@@ -2075,9 +2076,9 @@ static const char doc_Atrinik_Object_GetPacket[] =
 "Constructs packet data about the object, suitable for "
 ":meth:`Atrinik.Player.Player.SendPacket`.\n\n"
 ":param pl: Player that will receive the item data.\n"
-":type pl: Atrinik.Player.Player\n"
+":type pl: :class:`Atrinik.Player.Player`\n"
 ":param flags: A combination of UPD_xxx flags, eg, :attr:`Atrinik.UPD_FACE`.\n"
-":type flags: int\n"
+":type flags: :attr:`int`\n"
 ":returns: A tuple containing the format specifier and the actual data list.\n"
 ":rtype: :attr:`tuple`";
 
