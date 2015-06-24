@@ -89,11 +89,8 @@ static const char module_doc_gender[] =
 "Contains gender related constants.";
 
 /**
- * Useful constants */
-/* @cparser
- * @page plugin_python_constants Python constants
- * <h2>Python constants</h2>
- * List of the Python plugin constants and their meaning. */
+ * Useful constants
+ */
 static const Atrinik_Constant constants[] = {
     {"NORTH", NORTH},
     {"NORTHEAST", NORTHEAST},
@@ -342,13 +339,10 @@ static const Atrinik_Constant constants[] = {
 
     {NULL, 0}
 };
-/* @endcparser */
 
-/** Game object type constants. */
-/* @cparser
- * @page plugin_python_constants_types Python game object type constants
- * <h2>Python game object type constants</h2>
- * List of the Python plugin game object type constants and their meaning. */
+/**
+ * Game object type constants.
+ */
 static const Atrinik_Constant constants_types[] = {
     {"PLAYER", PLAYER},
     {"BULLET", BULLET},
@@ -456,13 +450,10 @@ static const Atrinik_Constant constants_types[] = {
 
     {NULL, 0}
 };
-/* @endcparser */
 
-/** Gender constants. */
-/* @cparser
- * @page plugin_python_constants_gender Python gender constants
- * <h2>Python gender constants</h2>
- * List of the Python plugin gender constants and their meaning. */
+/**
+ * Gender constants.
+ */
 static const Atrinik_Constant constants_gender[] = {
     {"NEUTER", GENDER_NEUTER},
     {"MALE", GENDER_MALE},
@@ -471,14 +462,10 @@ static const Atrinik_Constant constants_gender[] = {
 
     {NULL, 0}
 };
-/* @endcparser */
 
 /**
- * Color constants */
-/* @cparser
- * @page plugin_python_constants_colors Python color constants
- * <h2>Python color constants</h2>
- * List of the Python plugin color constants and their meaning. */
+ * Color constants
+ */
 static const char *const constants_colors[][2] = {
     {"COLOR_WHITE", COLOR_WHITE},
     {"COLOR_ORANGE", COLOR_ORANGE},
@@ -498,13 +485,13 @@ static const char *const constants_colors[][2] = {
     {"COLOR_DGOLD", COLOR_DGOLD},
     {NULL, NULL}
 };
-/* @endcparser */
 
 /** The Python cache. */
 static python_cache_entry *python_cache = NULL;
 
 /**
- * Initialize the context stack. */
+ * Initialize the context stack.
+ */
 static void initContextStack(void)
 {
     current_context = NULL;
@@ -513,7 +500,8 @@ static void initContextStack(void)
 
 /**
  * Push context to the context stack and to current context.
- * @param context The context to push. */
+ * @param context The context to push.
+ */
 static void pushContext(PythonContext *context)
 {
     if (current_context == NULL) {
@@ -530,7 +518,8 @@ static void pushContext(PythonContext *context)
  * Pop the first context from the current context, replacing it by the
  * next one in the list.
  * @return NULL if there is no current context, the previous current
- * context otherwise. */
+ * context otherwise.
+ */
 static PythonContext *popContext(void)
 {
     PythonContext *oldcontext;
@@ -546,7 +535,8 @@ static PythonContext *popContext(void)
 
 /**
  * Free a context.
- * @param context Context to free. */
+ * @param context Context to free.
+ */
 static void freeContext(PythonContext *context)
 {
     free(context);
@@ -558,8 +548,10 @@ static void freeContext(PythonContext *context)
  * @param path The Python file in the maps directory to run (absolute).
  * @param globals Globals dictionary.
  * @param locals Locals dictionary. May be NULL.
- * @return The returned object, if any. */
-static PyObject *py_runfile(const char *path, PyObject *globals, PyObject *locals)
+ * @return The returned object, if any.
+ */
+static PyObject *py_runfile(const char *path, PyObject *globals,
+        PyObject *locals)
 {
     char *fullpath;
     FILE *fp;
@@ -577,7 +569,8 @@ static PyObject *py_runfile(const char *path, PyObject *globals, PyObject *local
         fclose(fp);
 
         sb = hooks->stringbuffer_new();
-        hooks->stringbuffer_append_printf(sb, "exec(open('%s').read())", fullpath);
+        hooks->stringbuffer_append_printf(sb, "exec(open('%s').read())",
+                fullpath);
         cp = hooks->stringbuffer_finish(sb);
         PyRun_String(cp, Py_file_input, globals, locals);
         efree(cp);
@@ -596,7 +589,8 @@ static PyObject *py_runfile(const char *path, PyObject *globals, PyObject *local
  * Simplified interface to py_runfile(); automatically constructs the
  * globals dictionary with the Python builtins.
  * @param path The Python file in the maps directory to run (absolute).
- * @param locals Locals dictionary. May be NULL. */
+ * @param locals Locals dictionary. May be NULL.
+ */
 static void py_runfile_simple(const char *path, PyObject *locals)
 {
     PyObject *globals, *ret;
@@ -614,7 +608,8 @@ static void py_runfile_simple(const char *path, PyObject *locals)
 
 /**
  * Log a Python exception. Will also send the exception to any online
- * DMs or those with /resetmap command permission. */
+ * DMs or those with /resetmap command permission.
+ */
 static void PyErr_LOG(void)
 {
     PyObject *locals;
@@ -629,8 +624,8 @@ static void PyErr_LOG(void)
     PyDict_SetItemString(locals, "exc_type", ptype);
     PyDict_SetItemString(locals, "exc_value", pvalue);
 
-    if (ptraceback) {
-        PyDict_SetItemString(locals, "exc_traceback", ptraceback ? ptraceback : Py_None);
+    if (ptraceback != NULL) {
+        PyDict_SetItemString(locals, "exc_traceback", ptraceback);
     } else {
         Py_INCREF(Py_None);
         PyDict_SetItemString(locals, "exc_traceback", Py_None);
@@ -646,7 +641,8 @@ static void PyErr_LOG(void)
 
 /**
  * Outputs the compiled bytecode for a given python file, using in-memory
- * caching of bytecode. */
+ * caching of bytecode.
+ */
 static PyCodeObject *compilePython(char *filename)
 {
     struct stat stat_buf;
@@ -714,7 +710,8 @@ static PyCodeObject *compilePython(char *filename)
         cache->file = strdup(filename);
         cache->code = code;
         cache->cached_time = stat_buf.st_mtime;
-        HASH_ADD_KEYPTR(hh, python_cache, cache->file, strlen(cache->file), cache);
+        HASH_ADD_KEYPTR(hh, python_cache, cache->file, strlen(cache->file),
+                cache);
     }
 
     return cache->code;
@@ -780,9 +777,9 @@ static int do_script(PythonContext *context, const char *filename)
 
     gilstate = PyGILState_Ensure();
 
-    pycode = compilePython(hooks->create_pathname(context->event ? context->event->race : filename));
-
-    if (pycode) {
+    pycode = compilePython(hooks->create_pathname(
+            context->event != NULL ? context->event->race : filename));
+    if (pycode != NULL) {
         if (hooks->settings->python_reload_modules) {
             PyObject *modules = PyImport_GetModuleDict(), *key, *value;
             Py_ssize_t pos = 0;
@@ -790,7 +787,8 @@ static int do_script(PythonContext *context, const char *filename)
             char m_buf[MAX_BUF];
 
             /* Create path name to the Python scripts directory. */
-            strncpy(m_buf, hooks->create_pathname("/python"), sizeof(m_buf) - 1);
+            strncpy(m_buf, hooks->create_pathname("/python"),
+                    sizeof(m_buf) - 1);
 
             /* Go through the loaded modules. */
             while (PyDict_Next(modules, &pos, &key, &value)) {
@@ -815,12 +813,17 @@ static int do_script(PythonContext *context, const char *filename)
 
         pushContext(context);
         dict = PyDict_Copy(py_globals_dict);
-        PyDict_SetItemString(dict, "activator", wrap_object(context->activator));
-        PyDict_SetItemString(dict, "pl", wrap_player(context->activator && context->activator->type == PLAYER ? CONTR(context->activator) : NULL));
+        PyDict_SetItemString(dict, "activator",
+                wrap_object(context->activator));
+        PyDict_SetItemString(dict, "pl",
+                wrap_player(context->activator != NULL &&
+                context->activator->type == PLAYER ?
+                    CONTR(context->activator) : NULL));
         PyDict_SetItemString(dict, "me", wrap_object(context->who));
 
         if (context->text) {
-            PyDict_SetItemString(dict, "msg", Py_BuildValue("s", context->text));
+            PyDict_SetItemString(dict, "msg",
+                    Py_BuildValue("s", context->text));
         } else if (context->event && context->event->sub_type == EVENT_SAY) {
             PyDict_SetItemString(dict, "msg", Py_BuildValue(""));
         }
@@ -877,10 +880,6 @@ static void command_custom_python(object *op, const char *command, char *params)
     context = popContext();
     freeContext(context);
 }
-
-/**
- * @defgroup plugin_python_functions Python functions
- *@{*/
 
 /** Documentation for Atrinik_LoadObject(). */
 static const char doc_Atrinik_LoadObject[] =
@@ -1437,8 +1436,8 @@ static const char doc_Atrinik_GetRangeVectorFromMapCoords[] =
 ":param flags: One or a combination of RV_xxx, eg, :attr:"
 "`~Atrinik.RV_MANHATTAN_DISTANCE`\n"
 ":type flags: :attr:`int`\n"
-":returns: :attr:`None` if the distance couldn't be calculated, otherwise a tuple "
-"containing:\n\n"
+":returns: :attr:`None` if the distance couldn't be calculated, otherwise a "
+"tuple containing:\n\n"
 "  * Direction from the first coordinate to the second, eg, :attr:"
 "    `~Atrinik.NORTH`\n"
 "  * Distance between the two coordinates.\n"
@@ -1450,7 +1449,8 @@ static const char doc_Atrinik_GetRangeVectorFromMapCoords[] =
  * Implements Atrinik.GetRangeVectorFromMapCoords() Python method.
  * @copydoc PyMethod_VARARGS
  */
-static PyObject *Atrinik_GetRangeVectorFromMapCoords(PyObject *self, PyObject *args)
+static PyObject *Atrinik_GetRangeVectorFromMapCoords(PyObject *self,
+        PyObject *args)
 {
     Atrinik_Map *map, *map2;
     int x, y, x2, y2, flags = 0;
@@ -1961,8 +1961,6 @@ static PyObject *Atrinik_GetSettings(PyObject *self)
     return dict;
 }
 
-/*@}*/
-
 /**
  * Here is the Python Declaration Table, used by the interpreter to make
  * an interface with the C code.
@@ -2039,7 +2037,8 @@ static PyMethodDef AtrinikMethods[] = {
 /**
  * Handles normal events.
  * @param args List of arguments for context.
- * @return 0 on failure, script's return value otherwise. */
+ * @return 0 on failure, script's return value otherwise.
+ */
 static int handle_event(va_list args)
 {
     char *script;
@@ -2078,7 +2077,8 @@ static int handle_event(va_list args)
         if (context->activator && IS_LIVE(context->activator)) {
             hooks->living_update(context->activator);
         }
-    } else if (context->parms[3] == SCRIPT_FIX_ACTIVATOR && IS_LIVE(context->activator)) {
+    } else if (context->parms[3] == SCRIPT_FIX_ACTIVATOR &&
+            IS_LIVE(context->activator)) {
         hooks->living_update(context->activator);
     }
 
@@ -2091,7 +2091,8 @@ static int handle_event(va_list args)
 /**
  * Handles map events.
  * @param args List of arguments for context.
- * @return 0 on failure, script's return value otherwise. */
+ * @return 0 on failure, script's return value otherwise.
+ */
 static int handle_map_event(va_list args)
 {
     PythonContext *context = calloc(1, sizeof(PythonContext));
@@ -2123,7 +2124,8 @@ static int handle_map_event(va_list args)
  * Handles global event.
  * @param event_type The event ID.
  * @param args List of arguments for context.
- * @return 0. */
+ * @return 0.
+ */
 static int handle_global_event(int event_type, va_list args)
 {
     PythonContext *context;
@@ -2144,7 +2146,8 @@ static int handle_global_event(int event_type, va_list args)
             retval = PyObject_CallMethod(ptr, "close", "");
 
             /* No close() method, ignore the exception. */
-            if (PyErr_Occurred() && PyErr_ExceptionMatches(PyExc_AttributeError)) {
+            if (PyErr_Occurred() &&
+                    PyErr_ExceptionMatches(PyExc_AttributeError)) {
                 PyErr_Clear();
             }
 
@@ -2391,8 +2394,10 @@ static void module_add_constants(PyObject *module, const char *name,
  * @param name Name of the list.
  * @param array Pointer to the C array.
  * @param array_size Number of entries in the C array.
- * @param type Type of the entries in the C array. */
-static void module_add_array(PyObject *module, const char *name, void *array, size_t array_size, field_type type)
+ * @param type Type of the entries in the C array.
+ */
+static void module_add_array(PyObject *module, const char *name, void *array,
+        size_t array_size, field_type type)
 {
     size_t i;
     PyObject *list;
@@ -2443,13 +2448,18 @@ MODULEAPI void initPlugin(struct plugin_hooklist *hooklist)
     AtrinikError = PyErr_NewException("Atrinik.error", NULL, NULL);
     PyDict_SetItemString(d, "AtrinikError", AtrinikError);
 
-    if (!Atrinik_Object_init(m) || !Atrinik_Map_init(m) || !Atrinik_Party_init(m) || !Atrinik_Region_init(m) || !Atrinik_Player_init(m) || !Atrinik_Archetype_init(m) || !Atrinik_AttrList_init(m)) {
+    if (!Atrinik_Object_init(m) || !Atrinik_Map_init(m) ||
+            !Atrinik_Party_init(m) || !Atrinik_Region_init(m) ||
+            !Atrinik_Player_init(m) || !Atrinik_Archetype_init(m) ||
+            !Atrinik_AttrList_init(m)) {
         return;
     }
 
     module_add_constants(m, "Type", constants_types, module_doc_type);
-    module_add_array(m, "freearr_x", hooks->freearr_x, SIZEOFFREE, FIELDTYPE_INT32);
-    module_add_array(m, "freearr_y", hooks->freearr_y, SIZEOFFREE, FIELDTYPE_INT32);
+    module_add_array(m, "freearr_x", hooks->freearr_x, SIZEOFFREE,
+            FIELDTYPE_INT32);
+    module_add_array(m, "freearr_y", hooks->freearr_y, SIZEOFFREE,
+            FIELDTYPE_INT32);
 
     /* Initialize integer constants */
     for (i = 0; constants[i].name; i++) {
@@ -2458,20 +2468,28 @@ MODULEAPI void initPlugin(struct plugin_hooklist *hooklist)
 
     /* Initialize integer constants */
     for (i = 0; constants_colors[i][0]; i++) {
-        PyModule_AddStringConstant(m, constants_colors[i][0], constants_colors[i][1]);
+        PyModule_AddStringConstant(m, constants_colors[i][0],
+                constants_colors[i][1]);
     }
 
     module_tmp = module_create("Gender");
     PyModule_AddStringConstant(module_tmp, "__doc__", module_doc_gender);
-    module_add_array(module_tmp, "gender_noun", hooks->gender_noun, GENDER_MAX, FIELDTYPE_CSTR);
-    module_add_array(module_tmp, "gender_subjective", hooks->gender_subjective, GENDER_MAX, FIELDTYPE_CSTR);
-    module_add_array(module_tmp, "gender_subjective_upper", hooks->gender_subjective_upper, GENDER_MAX, FIELDTYPE_CSTR);
-    module_add_array(module_tmp, "gender_objective", hooks->gender_objective, GENDER_MAX, FIELDTYPE_CSTR);
-    module_add_array(module_tmp, "gender_possessive", hooks->gender_possessive, GENDER_MAX, FIELDTYPE_CSTR);
-    module_add_array(module_tmp, "gender_reflexive", hooks->gender_reflexive, GENDER_MAX, FIELDTYPE_CSTR);
+    module_add_array(module_tmp, "gender_noun",
+            hooks->gender_noun, GENDER_MAX, FIELDTYPE_CSTR);
+    module_add_array(module_tmp, "gender_subjective",
+            hooks->gender_subjective, GENDER_MAX, FIELDTYPE_CSTR);
+    module_add_array(module_tmp, "gender_subjective_upper",
+            hooks->gender_subjective_upper, GENDER_MAX, FIELDTYPE_CSTR);
+    module_add_array(module_tmp, "gender_objective",
+            hooks->gender_objective, GENDER_MAX, FIELDTYPE_CSTR);
+    module_add_array(module_tmp, "gender_possessive",
+            hooks->gender_possessive, GENDER_MAX, FIELDTYPE_CSTR);
+    module_add_array(module_tmp, "gender_reflexive",
+            hooks->gender_reflexive, GENDER_MAX, FIELDTYPE_CSTR);
 
     for (i = 0; constants_gender[i].name; i++) {
-        PyModule_AddIntConstant(module_tmp, constants_gender[i].name, constants_gender[i].value);
+        PyModule_AddIntConstant(module_tmp, constants_gender[i].name,
+                constants_gender[i].value);
     }
 
     PyDict_SetItemString(d, "Gender", module_tmp);
@@ -2498,11 +2516,13 @@ MODULEAPI void closePlugin(void)
  * Sets face field.
  * @param ptr Pointer to ::New_Face structure.
  * @param face_id ID of the face to set.
- * @return 0 on success, -1 on failure. */
+ * @return 0 on success, -1 on failure.
+ */
 static int set_face_field(void *ptr, long face_id)
 {
     if (face_id < 0 || face_id >= *hooks->nrofpixmaps) {
-        PyErr_Format(PyExc_ValueError, "Illegal value for face field: %ld", face_id);
+        PyErr_Format(PyExc_ValueError, "Illegal value for face field: %ld",
+                face_id);
         return -1;
     }
 
@@ -2514,11 +2534,13 @@ static int set_face_field(void *ptr, long face_id)
  * Sets animation field.
  * @param ptr Pointer to ::uint16 structure member.
  * @param anim_id ID of the animation to set.
- * @return 0 on success, -1 on failure. */
+ * @return 0 on success, -1 on failure.
+ */
 static int set_animation_field(void *ptr, long anim_id)
 {
     if (anim_id < 0 || anim_id >= *hooks->num_animations) {
-        PyErr_Format(PyExc_ValueError, "Illegal value for animation field: %ld", anim_id);
+        PyErr_Format(PyExc_ValueError, "Illegal value for animation field: %ld",
+                anim_id);
         return -1;
     }
 
@@ -2531,7 +2553,8 @@ static int set_animation_field(void *ptr, long anim_id)
  * @param type Type of the field.
  * @param[out] field_ptr Field pointer.
  * @param value Value to set for the field pointer.
- * @return 0 on success, -1 on failure. */
+ * @return 0 on success, -1 on failure.
+ */
 int generic_field_setter(fields_struct *field, void *ptr, PyObject *value)
 {
     void *field_ptr;
@@ -2593,7 +2616,8 @@ int generic_field_setter(fields_struct *field, void *ptr, PyObject *value)
             long val = PyLong_AsLong(value);
 
             if (val < 0 || (unsigned long) val > UINT8_MAX) {
-                PyErr_SetString(PyExc_OverflowError, "Invalid integer value for uint8 field.");
+                PyErr_SetString(PyExc_OverflowError,
+                        "Invalid integer value for uint8 field.");
                 return -1;
             }
 
@@ -2610,7 +2634,8 @@ int generic_field_setter(fields_struct *field, void *ptr, PyObject *value)
             long val = PyLong_AsLong(value);
 
             if (val < INT8_MIN || val > INT8_MAX) {
-                PyErr_SetString(PyExc_OverflowError, "Invalid integer value for sint8 field.");
+                PyErr_SetString(PyExc_OverflowError,
+                        "Invalid integer value for sint8 field.");
                 return -1;
             }
 
@@ -2627,7 +2652,8 @@ int generic_field_setter(fields_struct *field, void *ptr, PyObject *value)
             long val = PyLong_AsLong(value);
 
             if (val < 0 || (unsigned long) val > UINT16_MAX) {
-                PyErr_SetString(PyExc_OverflowError, "Invalid integer value for uint16 field.");
+                PyErr_SetString(PyExc_OverflowError,
+                        "Invalid integer value for uint16 field.");
                 return -1;
             }
 
@@ -2644,7 +2670,8 @@ int generic_field_setter(fields_struct *field, void *ptr, PyObject *value)
             long val = PyLong_AsLong(value);
 
             if (val < INT16_MIN || val > INT16_MAX) {
-                PyErr_SetString(PyExc_OverflowError, "Invalid integer value for sint16 field.");
+                PyErr_SetString(PyExc_OverflowError,
+                        "Invalid integer value for sint16 field.");
                 return -1;
             }
 
@@ -2661,7 +2688,8 @@ int generic_field_setter(fields_struct *field, void *ptr, PyObject *value)
             long val = PyLong_AsLong(value);
 
             if (val < 0 || (unsigned long) val > UINT32_MAX) {
-                PyErr_SetString(PyExc_OverflowError, "Invalid integer value for uint32 field.");
+                PyErr_SetString(PyExc_OverflowError,
+                        "Invalid integer value for uint32 field.");
                 return -1;
             }
 
@@ -2678,7 +2706,8 @@ int generic_field_setter(fields_struct *field, void *ptr, PyObject *value)
             long val = PyLong_AsLong(value);
 
             if (val < INT32_MIN || val > INT32_MAX) {
-                PyErr_SetString(PyExc_OverflowError, "Invalid integer value for sint32 field.");
+                PyErr_SetString(PyExc_OverflowError,
+                        "Invalid integer value for sint32 field.");
                 return -1;
             }
 
@@ -2695,7 +2724,8 @@ int generic_field_setter(fields_struct *field, void *ptr, PyObject *value)
             unsigned PY_LONG_LONG val = PyLong_AsUnsignedLongLong(value);
 
             if (PyErr_Occurred()) {
-                PyErr_SetString(PyExc_OverflowError, "Invalid integer value for uint64 field.");
+                PyErr_SetString(PyExc_OverflowError,
+                        "Invalid integer value for uint64 field.");
                 return -1;
             }
 
@@ -2712,7 +2742,8 @@ int generic_field_setter(fields_struct *field, void *ptr, PyObject *value)
             PY_LONG_LONG val = PyLong_AsLongLong(value);
 
             if (PyErr_Occurred()) {
-                PyErr_SetString(PyExc_OverflowError, "Invalid integer value for sint64 field.");
+                PyErr_SetString(PyExc_OverflowError,
+                        "Invalid integer value for sint64 field.");
                 return -1;
             }
 
@@ -2769,7 +2800,8 @@ int generic_field_setter(fields_struct *field, void *ptr, PyObject *value)
         if (value == Py_None) {
             *(mapstruct **) field_ptr = NULL;
         } else if (PyObject_TypeCheck(value, &Atrinik_MapType)) {
-            *(mapstruct **) field_ptr = (mapstruct *) ((Atrinik_Map *) value)->map;
+            *(mapstruct **) field_ptr =
+                    (mapstruct *) ((Atrinik_Map *) value)->map;
         } else {
             INTRAISE("Illegal value for map field.");
         }
@@ -2803,7 +2835,8 @@ int generic_field_setter(fields_struct *field, void *ptr, PyObject *value)
         if (value == Py_None) {
             *(region_struct **) field_ptr = NULL;
         } else if (PyObject_TypeCheck(value, &Atrinik_RegionType)) {
-            *(region_struct **) field_ptr = (region_struct *) ((Atrinik_Region *) value)->region;
+            *(region_struct **) field_ptr =
+                    (region_struct *) ((Atrinik_Region *) value)->region;
         } else {
             INTRAISE("Illegal value for region field.");
         }
@@ -2815,7 +2848,8 @@ int generic_field_setter(fields_struct *field, void *ptr, PyObject *value)
         if (value == Py_None) {
             *(party_struct **) field_ptr = NULL;
         } else if (PyObject_TypeCheck(value, &Atrinik_PartyType)) {
-            *(party_struct **) field_ptr = (party_struct *) ((Atrinik_Party *) value)->party;
+            *(party_struct **) field_ptr =
+                    (party_struct *) ((Atrinik_Party *) value)->party;
         } else {
             INTRAISE("Illegal value for party field.");
         }
@@ -2827,7 +2861,8 @@ int generic_field_setter(fields_struct *field, void *ptr, PyObject *value)
         if (value == Py_None) {
             *(archetype_t **) field_ptr = NULL;
         } else if (PyObject_TypeCheck(value, &Atrinik_ArchetypeType)) {
-            *(archetype_t **) field_ptr = (archetype_t *) ((Atrinik_Archetype *) value)->at;
+            *(archetype_t **) field_ptr =
+                    (archetype_t *) ((Atrinik_Archetype *) value)->at;
         } else if (PyString_Check(value)) {
             const char *archname;
             archetype_t *arch;
@@ -2836,7 +2871,8 @@ int generic_field_setter(fields_struct *field, void *ptr, PyObject *value)
             arch = hooks->arch_find(archname);
 
             if (!arch) {
-                PyErr_Format(AtrinikError, "Could not find archetype '%s'.", archname);
+                PyErr_Format(AtrinikError, "Could not find archetype '%s'.",
+                        archname);
                 return -1;
             } else {
                 *(archetype_t **) field_ptr = arch;
@@ -2863,18 +2899,23 @@ int generic_field_setter(fields_struct *field, void *ptr, PyObject *value)
 
         if (PyTuple_Check(value)) {
             if (PyTuple_GET_SIZE(value) != 2) {
-                PyErr_Format(PyExc_ValueError, "Tuple for face field must have exactly two values.");
+                PyErr_Format(PyExc_ValueError,
+                        "Tuple for face field must have exactly two values.");
                 return -1;
             } else if (!PyInt_Check(PyTuple_GET_ITEM(value, 1))) {
-                PyErr_SetString(PyExc_ValueError, "Second value of tuple used for face field is not an integer.");
+                PyErr_SetString(PyExc_ValueError,
+                        "Second value of tuple used for face field is not an "
+                        "integer.");
                 return -1;
             }
 
-            return set_face_field(field_ptr, PyLong_AsLong(PyTuple_GET_ITEM(value, 1)));
+            return set_face_field(field_ptr,
+                    PyLong_AsLong(PyTuple_GET_ITEM(value, 1)));
         } else if (PyInt_Check(value)) {
             return set_face_field(field_ptr, PyLong_AsLong(value));
         } else if (PyString_Check(value)) {
-            return set_face_field(field_ptr, hooks->find_face(PyString_AsString(value), 0));
+            return set_face_field(field_ptr,
+                    hooks->find_face(PyString_AsString(value), 0));
         } else {
             INTRAISE("Illegal value for face field.");
         }
@@ -2885,18 +2926,24 @@ int generic_field_setter(fields_struct *field, void *ptr, PyObject *value)
 
         if (PyTuple_Check(value)) {
             if (PyTuple_GET_SIZE(value) != 2) {
-                PyErr_Format(PyExc_ValueError, "Tuple for animation field must have exactly two values.");
+                PyErr_Format(PyExc_ValueError,
+                        "Tuple for animation field must have exactly two "
+                        "values.");
                 return -1;
             } else if (!PyInt_Check(PyTuple_GET_ITEM(value, 1))) {
-                PyErr_SetString(PyExc_ValueError, "Second value of tuple used for animation field is not an integer.");
+                PyErr_SetString(PyExc_ValueError,
+                        "Second value of tuple used for animation field is not "
+                        "an integer.");
                 return -1;
             }
 
-            return set_animation_field(field_ptr, PyLong_AsLong(PyTuple_GET_ITEM(value, 1)));
+            return set_animation_field(field_ptr,
+                    PyLong_AsLong(PyTuple_GET_ITEM(value, 1)));
         } else if (PyInt_Check(value)) {
-            return set_animation_field(field_ptr, PyLong_AsLong(value));
+            return set_animation_field(field_ptr,  PyLong_AsLong(value));
         } else if (PyString_Check(value)) {
-            return set_animation_field(field_ptr, hooks->find_animation(PyString_AsString(value)));
+            return set_animation_field(field_ptr,
+                    hooks->find_animation(PyString_AsString(value)));
         } else {
             INTRAISE("Illegal value for animation field.");
         }
@@ -2918,7 +2965,8 @@ int generic_field_setter(fields_struct *field, void *ptr, PyObject *value)
     case FIELDTYPE_CONNECTION:
 
         if (PyInt_Check(value)) {
-            hooks->connection_object_add(ptr, ((object *) ptr)->map, PyLong_AsLong(value));
+            hooks->connection_object_add(ptr, ((object *) ptr)->map,
+                    PyLong_AsLong(value));
         } else {
             INTRAISE("Illegal value for connection field.");
         }
@@ -2928,7 +2976,8 @@ int generic_field_setter(fields_struct *field, void *ptr, PyObject *value)
     case FIELDTYPE_TREASURELIST:
 
         if (PyString_Check(value)) {
-            *(treasurelist **) field_ptr = hooks->find_treasurelist(PyString_AsString(value));
+            *(treasurelist **) field_ptr =
+                    hooks->find_treasurelist(PyString_AsString(value));
         } else {
             INTRAISE("Illegal value for treasure list field.");
         }
@@ -2948,7 +2997,8 @@ int generic_field_setter(fields_struct *field, void *ptr, PyObject *value)
  * @param field_ptr Field pointer.
  * @param field_ptr2 Field pointer for extra data.
  * @return Python object containing value of field_ptr (and field_ptr2, if
- * applicable). */
+ * applicable).
+ */
 PyObject *generic_field_getter(fields_struct *field, void *ptr)
 {
     void *field_ptr;
@@ -3032,10 +3082,13 @@ PyObject *generic_field_getter(fields_struct *field, void *ptr)
         return wrap_player(*(player **) field_ptr);
 
     case FIELDTYPE_FACE:
-        return Py_BuildValue("(sH)", (*(New_Face **) field_ptr)->name, (*(New_Face **) field_ptr)->number);
+        return Py_BuildValue("(sH)", (*(New_Face **) field_ptr)->name,
+                (*(New_Face **) field_ptr)->number);
 
     case FIELDTYPE_ANIMATION:
-        return Py_BuildValue("(sH)", (&(*hooks->animations)[*(uint16_t *) field_ptr])->name, *(uint16_t *) field_ptr);
+        return Py_BuildValue("(sH)",
+                (&(*hooks->animations)[*(uint16_t *) field_ptr])->name,
+                *(uint16_t *) field_ptr);
 
     case FIELDTYPE_BOOLEAN:
         Py_ReturnBoolean(*(uint8_t *) field_ptr);
@@ -3071,7 +3124,8 @@ PyObject *generic_field_getter(fields_struct *field, void *ptr)
  * Generic rich comparison function.
  * @param op
  * @param result
- * @return  */
+ * @return
+ */
 PyObject *generic_rich_compare(int op, int result)
 {
     /* Based on how Python 3.0 (GPL compatible) implements it for internal
@@ -3105,7 +3159,8 @@ PyObject *generic_rich_compare(int op, int result)
  * @param callable What to call.
  * @param arglist Arguments to call the function with. Will have reference
  * decreased.
- * @return Integer value the function returned. */
+ * @return Integer value the function returned.
+ */
 int python_call_int(PyObject *callable, PyObject *arglist)
 {
     PyObject *result;
