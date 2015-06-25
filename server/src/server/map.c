@@ -2553,6 +2553,9 @@ static int map_redraw_internal(mapstruct *tiled, mapstruct *map, int x, int y,
  * @param y Y coordinate.
  * @param layer Layer to redraw, -1 for all.
  * @param sub_layer Sub-layer to redraw, -1 for all.
+ * @warning This is a costly function, and should only be called sparingly, and
+ * only if it's really necessary. Do not EVER call it from code that is called
+ * very often (combat code for example).
  */
 void map_redraw(mapstruct *m, int x, int y, int layer, int sub_layer)
 {
