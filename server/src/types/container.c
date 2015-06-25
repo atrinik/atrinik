@@ -118,7 +118,7 @@ static void container_open(object *applier, object *op)
                 inv->x = op->x;
                 inv->y = op->y;
                 i = find_free_spot(inv->arch, inv, applier->map, inv->x,
-                        inv->y, 0, SIZEOFFREE1 + 1);
+                        inv->y, 0, SIZEOFFREE1);
 
                 if (i != -1) {
                     inv->x += freearr_x[i];

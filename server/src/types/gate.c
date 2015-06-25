@@ -83,7 +83,7 @@ static void process_func(object *op)
                         draw_info_format(COLOR_WHITE, tmp, "You are crushed by the %s!", op->name);
                     }
 
-                    i = find_free_spot(tmp->arch, tmp, op->map, op->x, op->y, 1, SIZEOFFREE1 + 1);
+                    i = find_free_spot(tmp->arch, tmp, op->map, op->x, op->y, 1, SIZEOFFREE1);
 
                     /* If there is a free spot, move the object someplace. */
                     if (i != -1) {

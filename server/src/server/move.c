@@ -210,7 +210,7 @@ int transfer_ob(object *op, int x, int y, int randomly, object *originator, obje
         object_enter_map(op, trap, NULL, 0, 0, 0);
         return 1;
     } else if (randomly) {
-        i = find_free_spot(op->arch, NULL, op->map, x, y, 0, SIZEOFFREE);
+        i = find_free_spot(op->arch, NULL, op->map, x, y, 0, SIZEOFFREE3);
     } else {
         i = find_first_free_spot(op->arch, op, op->map, x, y);
     }

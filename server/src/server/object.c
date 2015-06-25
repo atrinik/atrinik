@@ -2291,7 +2291,14 @@ int find_free_spot(struct archetype *at, object *op, mapstruct *m, int x, int y,
     int i, inx = 0;
     static int altern[SIZEOFFREE];
 
-    for (i = start; i < stop; i++) {
+    SOFT_ASSERT_RC(start >= 0 && start < SIZEOFFREE, -1,
+            "Invalid start value: %d", start);
+    SOFT_ASSERT_RC(stop >= 0 && stop < SIZEOFFREE, -1,
+            "Invalid stop value: %d", start);
+    SOFT_ASSERT_RC(stop > start, -1, "Stop (%d) is not higher than start (%d)",
+            stop, start);
+
+    for (i = start; i <= stop; i++) {
         if (!arch_blocked(at, op, m, x + freearr_x[i], y + freearr_y[i])) {
             altern[inx++] = i;
         } else if (wall(m, x + freearr_x[i], y + freearr_y[i]) && maxfree[i] < stop) {
@@ -2315,7 +2322,7 @@ int find_first_free_spot(struct archetype *at, object *op, mapstruct *m, int x, 
 {
     int i;
 
-    for (i = 0; i < SIZEOFFREE; i++) {
+    for (i = 0; i <= SIZEOFFREE3; i++) {
         if (!arch_blocked(at, op, m, x + freearr_x[i], y + freearr_y[i])) {
             return i;
         }
@@ -2330,7 +2337,7 @@ int find_first_free_spot2(struct archetype *at, mapstruct *m, int x, int y, int 
 {
     int i;
 
-    for (i = start; i < range; i++) {
+    for (i = start; i <= range; i++) {
         if (!arch_blocked(at, NULL, m, x + freearr_x[i], y + freearr_y[i])) {
             return i;
         }
@@ -2378,7 +2385,7 @@ void get_search_arr(int *search_arr)
 
     permute(search_arr, 1, SIZEOFFREE1 + 1);
     permute(search_arr, SIZEOFFREE1 + 1, SIZEOFFREE2 + 1);
-    permute(search_arr, SIZEOFFREE2 + 1, SIZEOFFREE);
+    permute(search_arr, SIZEOFFREE2 + 1, SIZEOFFREE3 + 1);
 }
 
 /**
@@ -3230,7 +3237,7 @@ int object_enter_map(object *op, object *exit_ob, mapstruct *m, int x, int y, ui
     if (!fixed_pos && blocked(op, m, x, y, TERRAIN_ALL)) {
         int i;
 
-        i = find_free_spot(op->arch, NULL, m, x, y, 1, SIZEOFFREE1 + 1);
+        i = find_free_spot(op->arch, NULL, m, x, y, 1, SIZEOFFREE1);
 
         if (i != -1) {
             x += freearr_x[i];

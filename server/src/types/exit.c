@@ -110,7 +110,7 @@ static bool exit_activate(object *op, object *applier)
         return false;
     }
 
-    i = find_free_spot(applier->arch, applier, m, x, y, 1, 9);
+    i = find_free_spot(applier->arch, applier, m, x, y, 1, SIZEOFFREE1);
 
     if (i == -1) {
         return false;
@@ -222,7 +222,7 @@ static int apply_func(object *op, object *applier, int aflags)
     if (is_shop && applier->type == PLAYER && !get_payment(applier,
             applier->inv)) {
         i = find_free_spot(applier->arch, NULL, applier->map, applier->x,
-                applier->y, 1, SIZEOFFREE1 + 1);
+                applier->y, 1, SIZEOFFREE1);
 
         if (i != -1) {
             object_remove(applier, 0);
