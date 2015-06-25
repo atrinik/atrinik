@@ -1928,7 +1928,7 @@ static PyObject *Atrinik_Object_CreateTreasure(Atrinik_Object *obj,
 static const char doc_Atrinik_Object_Move[] =
 ".. method:: Move(direction).\n\n"
 "Move the object in the specified direction. The object must have the correct "
-"(combination of) :meth:`~Atrinik.Object.Object.terrain_flag` set in order to "
+"(combination of) :attr:`~Atrinik.Object.Object.terrain_flag` set in order to "
 "able to move onto the new square.\n\n"
 ":param direction: Direction to move into, eg, :attr:`~Atrinik.EAST`.\n"
 ":type direction: :attr:`int`\n"
