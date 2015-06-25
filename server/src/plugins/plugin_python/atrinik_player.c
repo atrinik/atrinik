@@ -131,17 +131,20 @@ static fields_struct fields[] = {
 static const char doc_Atrinik_Player_GetEquipment[] =
 ".. method:: GetEquipment(slot).\n\n"
 "Get player's current equipment object for a given slot.\n\n"
-":param slot: The slot number; one of PLAYER_EQUIP_xxx.\n"
-":type slot: int\n"
-":returns: The equipment for the given slot, None if there's no object in the "
-"slot.\n"
-":rtype: :class:`Atrinik.Object.Object` or None";
+":param slot: The slot number; one of PLAYER_EQUIP_xxx, eg, :attr:"
+"`~Atrinik.PLAYER_EQUIP_LEGGINGS`.\n"
+":type slot: :attr:`int`\n"
+":returns: The equipment object for the given slot, None if there's no object "
+"in the slot.\n"
+":rtype: :class:`Atrinik.Object.Object` or None\n"
+":throws ValueError: If the *slot* number is invalid.";
 
 /**
  * Implements Atrinik.Player.GetEquipment() Python method.
  * @copydoc PyMethod_VARARGS
  */
-static PyObject *Atrinik_Player_GetEquipment(Atrinik_Player *pl, PyObject *args)
+static PyObject *Atrinik_Player_GetEquipment(Atrinik_Player *self,
+        PyObject *args)
 {
     int slot;
 
@@ -154,44 +157,65 @@ static PyObject *Atrinik_Player_GetEquipment(Atrinik_Player *pl, PyObject *args)
         return NULL;
     }
 
-    return wrap_object(pl->pl->equipment[slot]);
+    return wrap_object(self->pl->equipment[slot]);
 }
 
+/** Documentation for Atrinik_Player_CanCarry(). */
+static const char doc_Atrinik_Player_CanCarry[] =
+".. method:: CanCarry(what).\n\n"
+"Check whether the player can carry *what*, taking weight limit into "
+"consideration.\n\n"
+":param what: Object that player wants to get. This can be the exact weight to "
+"check instead of calculating the object's weight.\n"
+":type what: :class:`Atrinik.Object.Object` or :attr:`int`\n"
+":returns: Whether the player can carry the *what*.\n"
+":rtype: :attr:`bool`";
+
 /**
- * <h1>player.CanCarry(object|int what)</h1>
- * Check whether the player can carry the object 'what', taking weight limit
- * into consideration.
- * @param what Object that player wants to get. This can be the exact weight
- * to check instead of calculating the object's weight.
- * @throws ValueError if 'what' is neither an object nor an integer.
- * @return True if the player can carry the object, False otherwise. */
-static PyObject *Atrinik_Player_CanCarry(Atrinik_Player *pl, PyObject *what)
+ * Implements Atrinik.Player.Player.CanCarry() Python method.
+ * @copydoc PyMethod_OBJECT
+ */
+static PyObject *Atrinik_Player_CanCarry(Atrinik_Player *self, PyObject *what)
 {
     uint32_t weight;
 
     if (PyObject_TypeCheck(what, &Atrinik_ObjectType)) {
         OBJEXISTCHECK((Atrinik_Object *) what);
-        weight = WEIGHT_NROF(((Atrinik_Object *) what)->obj, ((Atrinik_Object *) what)->obj->nrof);
+        weight = WEIGHT_NROF(((Atrinik_Object *) what)->obj,
+                ((Atrinik_Object *) what)->obj->nrof);
     } else if (PyInt_Check(what)) {
         weight = PyInt_AsLong(what);
     } else {
-        PyErr_SetString(PyExc_ValueError, "Invalid value for 'what' parameter.");
+        PyErr_SetString(PyExc_TypeError,
+                "Invalid object type for 'what' parameter.");
         return NULL;
     }
 
-    return Py_BuildBoolean(hooks->player_can_carry(pl->pl->ob, weight));
+    return Py_BuildBoolean(hooks->player_can_carry(self->pl->ob, weight));
 }
 
+/** Documentation for Atrinik_Player_AddExp(). */
+static const char doc_Atrinik_Player_AddExp[] =
+".. method:: AddExp(skill, exp, exact=False, level=False).\n\n"
+"Add (or subtract) experience.\n\n"
+":param skill: ID or name of the skill to receive/lose exp in.\n"
+":type skill: :attr:`int` or :attr:`str`\n"
+":param exp: How much exp to gain/lose. If *level* is true, this is the number "
+"of levels to gain/lose in the specified skill.\n"
+":type exp: :attr:`int`\n"
+":param exact: If True, the given exp will not be capped.\n"
+":type exact: :attr:`bool`\n"
+":param level: If True, will calculate exact experience needed for next (or "
+"previous) level.\n"
+":type level: :attr:`bool`\n"
+":raises ValueError: If the skill ID/name is invalid.\n"
+":raises Atrinik.AtrinikError: If the player doesn't have the specified skill.";
+
 /**
- * <h1>player.AddExp(int|string skill, int exp, int [exact = False], int [level = True])</h1>
- * Add (or subtract) experience.
- * @param skill ID or name of the skill to receive/lose exp in.
- * @param exp How much exp to gain/lose. If 'level' is true, this is the number
- * of levels to gain/lose in the specified skill.
- * @param exact If True, the given exp will not be capped.
- * @param level If True, will calculate exact experience needed for next (or
- * previous) level. */
-static PyObject *Atrinik_Player_AddExp(Atrinik_Player *pl, PyObject *args)
+ * Implements Atrinik.Player.Player.AddExp() Python method.
+ * @copydoc PyMethod_VARARGS
+ */
+static PyObject *Atrinik_Player_AddExp(Atrinik_Player *self, PyObject *args)
 {
     PyObject *skill;
     uint32_t skill_nr;
@@ -206,13 +230,13 @@ static PyObject *Atrinik_Player_AddExp(Atrinik_Player *pl, PyObject *args)
         skill_nr = PyInt_AsLong(skill);
 
         if (skill_nr >= NROFSKILLS) {
-            PyErr_Format(PyExc_ValueError, "Skill ID '%d' is invalid; 0-%d should be used.", skill_nr, NROFSKILLS - 1);
+            PyErr_Format(PyExc_ValueError,
+                    "Skill ID '%d' is invalid; 0-%d should be used.", skill_nr,
+                    NROFSKILLS - 1);
             return NULL;
         }
     } else if (PyString_Check(skill)) {
-        const char *skill_name;
-
-        skill_name = PyString_AsString(skill);
+        const char *skill_name = PyString_AsString(skill);
 
         for (skill_nr = 0; skill_nr < NROFSKILLS; skill_nr++) {
             if (strcmp(hooks->skills[skill_nr].name, skill_name) == 0) {
@@ -221,94 +245,133 @@ static PyObject *Atrinik_Player_AddExp(Atrinik_Player *pl, PyObject *args)
         }
 
         if (skill_nr == NROFSKILLS) {
-            PyErr_Format(PyExc_ValueError, "Skill '%s' does not exist.", skill_name);
+            PyErr_Format(PyExc_ValueError, "Skill '%s' does not exist.",
+                    skill_name);
             return NULL;
         }
     } else {
-        PyErr_SetString(PyExc_TypeError, "Invalid object type for 'skill' parameter.");
+        PyErr_SetString(PyExc_TypeError,
+                "Invalid object type for 'skill' parameter.");
         return NULL;
     }
 
-    if (pl->pl->skill_ptr[skill_nr] == NULL) {
-        PyErr_Format(AtrinikError, "Player %s does not have the skill '%s'.", pl->pl->ob->name, hooks->skills[skill_nr].name);
+    if (self->pl->skill_ptr[skill_nr] == NULL) {
+        PyErr_Format(AtrinikError, "Player %s does not have the skill '%s'.",
+                self->pl->ob->name, hooks->skills[skill_nr].name);
         return NULL;
     }
 
-    if (level != 0) {
-        level = MAX(1, MIN(MAXLEVEL, pl->pl->skill_ptr[skill_nr]->level + exp_gain));
-        exp_gain = hooks->level_exp(level, 1.0) - pl->pl->skill_ptr[skill_nr]->stats.exp;
+    if (level) {
+        int level_reach = self->pl->skill_ptr[skill_nr]->level + exp_gain;
+        level_reach = MAX(1, MIN(MAXLEVEL, level_reach));
+        exp_gain = hooks->level_exp(level_reach, 1.0) -
+                self->pl->skill_ptr[skill_nr]->stats.exp;
     }
 
-    hooks->add_exp(pl->pl->ob, exp_gain, skill_nr, exact);
+    hooks->add_exp(self->pl->ob, exp_gain, skill_nr, exact);
 
     Py_INCREF(Py_None);
     return Py_None;
 }
 
+/** Documentation for Atrinik_Player_BankDeposit(). */
+static const char doc_Atrinik_Player_BankDeposit[] =
+".. method:: BankDeposit(text).\n\n"
+"Deposit money to bank.\n\n"
+":param text: How much money to deposit, in string representation.\n"
+":type text: :attr:`str`\n"
+":returns: Tuple containing the status code (one of the BANK_xxx constants, "
+"eg, :attr:`~Atrinik.BANK_SUCCESS`) and amount of money deposited as "
+"integer.\n"
+":rtype: :attr:`tuple`";
+
 /**
- * <h1>player.BankDeposit(string text)</h1>
- * Deposit money to bank.
- * @param text How much money to deposit, in string representation.
- * @return Tuple containing the status code (one of @ref BANK_xxx) and amount
- * of money deposited as integer. */
-static PyObject *Atrinik_Player_BankDeposit(Atrinik_Player *pl, PyObject *args)
+ * Implements Atrinik.Player.Player.BankDeposit() Python method.
+ * @copydoc PyMethod_VARARGS
+ */
+static PyObject *Atrinik_Player_BankDeposit(Atrinik_Player *self,
+        PyObject *args)
 {
     const char *text;
-    int ret;
-    int64_t value;
 
     if (!PyArg_ParseTuple(args, "s", &text)) {
         return NULL;
     }
 
-    ret = hooks->bank_deposit(pl->pl->ob, text, &value);
+    int64_t value;
+    int ret = hooks->bank_deposit(self->pl->ob, text, &value);
 
     return Py_BuildValue("(iL)", ret, value);
 }
 
+/** Documentation for Atrinik_Player_BankWithdraw(). */
+static const char doc_Atrinik_Player_BankWithdraw[] =
+".. method:: BankWithdraw(text).\n\n"
+"Withdraw money from bank.\n\n"
+":param text: How much money to withdraw, in string representation.\n"
+":type text: :attr:`str`\n"
+":returns: Tuple containing the status code (one of the BANK_xxx constants, "
+"eg, :attr:`~Atrinik.BANK_SUCCESS`) and amount of money withdrawn as "
+"integer.\n"
+":rtype: :attr:`tuple`";
+
 /**
- * <h1>player.BankWithdraw(string text)</h1>
- * Withdraw money from bank.
- * @param text How much money to withdraw, in string representation.
- * @return Tuple containing the status code (one of @ref BANK_xxx) and amount
- * of money withdrawn as integer. */
-static PyObject *Atrinik_Player_BankWithdraw(Atrinik_Player *pl, PyObject *args)
+ * Implements Atrinik.Player.Player.BankWithdraw() Python method.
+ * @copydoc PyMethod_VARARGS
+ */
+static PyObject *Atrinik_Player_BankWithdraw(Atrinik_Player *self,
+        PyObject *args)
 {
     const char *text;
-    int ret;
-    int64_t value;
 
     if (!PyArg_ParseTuple(args, "s", &text)) {
         return NULL;
     }
 
-    ret = hooks->bank_withdraw(pl->pl->ob, text, &value);
+    int64_t value;
+    int ret = hooks->bank_withdraw(self->pl->ob, text, &value);
 
     return Py_BuildValue("(iL)", ret, value);
 }
 
-/**
- * <h1>player.BankBalance()</h1>
- * Figure out how much money player has in bank.
- * @return Integer value of the money in bank. */
-static PyObject *Atrinik_Player_BankBalance(Atrinik_Player *pl, PyObject *args)
-{
-    (void) args;
+/** Documentation for Atrinik_Player_BankBalance(). */
+static const char doc_Atrinik_Player_BankBalance[] =
+".. method:: BankBalance().\n\n"
+"Figure out how much money player has in bank.\n\n"
+":returns: Integer value of the money in bank.\n"
+":rtype: :attr:`int`";
 
-    return Py_BuildValue("L", hooks->bank_get_balance(pl->pl->ob));
+/**
+ * Implements Atrinik.Player.Player.BankBalance() Python method.
+ * @copydoc PyMethod_NOARGS
+ */
+static PyObject *Atrinik_Player_BankBalance(Atrinik_Player *self)
+{
+    return Py_BuildValue("L", hooks->bank_get_balance(self->pl->ob));
 }
 
+/** Documentation for Atrinik_Player_SwapApartments(). */
+static const char doc_Atrinik_Player_SwapApartments[] =
+".. method:: SwapApartments(oldmap, newmap, x, y).\n\n"
+"Swaps *oldmap* apartment with *newmap* one.\n\nCopies old items from *oldmap* "
+"to *newmap* at *x*,*y* and saves the map.\n\n"
+":param oldmap: The old apartment map.\n"
+":type oldmap: :attr:`str`\n"
+":param newmap: The new apartment map.\n"
+":type newmap: :attr:`str`\n"
+":param x: X coordinate to copy the items to.\n"
+":type x: :attr:`int`\n"
+":param y: Y coordinate to copy the items to.\n"
+":type y: :attr:`int`\n"
+":returns: Whether the operation was successful or not.\n"
+":rtype: :attr:`bool`";
+
 /**
- * <h1>player.SwapApartments(string oldmap, string newmap, int x, int y)</h1>
- * Swaps oldmap apartment with newmap one.
- *
- * Copies old items from oldmap to newmap at x, y and saves the map.
- * @param oldmap The old apartment map.
- * @param oldmap The new apartment map.
- * @param x X position to copy the items to.
- * @param y Y position to copy the items to.
- * @return True on success, False on failure. */
-static PyObject *Atrinik_Player_SwapApartments(Atrinik_Player *pl, PyObject *args)
+ * Implements Atrinik.Player.Player.SwapApartments() Python method.
+ * @copydoc PyMethod_VARARGS
+ */
+static PyObject *Atrinik_Player_SwapApartments(Atrinik_Player *self,
+        PyObject *args)
 {
     const char *mapold, *mapnew;
     int x, y;
@@ -318,33 +381,43 @@ static PyObject *Atrinik_Player_SwapApartments(Atrinik_Player *pl, PyObject *arg
     }
 
     return Py_BuildBoolean(hooks->swap_apartments(mapold, mapnew, x, y,
-            pl->pl->ob));
+            self->pl->ob));
 }
 
+/** Documentation for Atrinik_Player_ExecuteCommand(). */
+static const char doc_Atrinik_Player_ExecuteCommand[] =
+".. method:: ExecuteCommand(command).\n\n"
+"Make player execute a command.\n\n"
+":param command: Command to execute.\n"
+":type command: :attr:`str`\n"
+":returns: Return value of the command.\n"
+":rtype: :attr:`int`\n"
+":raises Atrinik.AtrinikError: If player is not in a state to execute "
+"commands.";
+
 /**
- * <h1>player.ExecuteCommand(string command)</h1>
- * Make player execute a command.
- * @param command Command to execute.
- * @throws AtrinikError if player is not in a state to execute commands.
- * @return Return value of the command. */
-static PyObject *Atrinik_Player_ExecuteCommand(Atrinik_Player *pl, PyObject *args)
+ * Implements Atrinik.Player.Player.ExecuteCommand() Python method.
+ * @copydoc PyMethod_VARARGS
+ */
+static PyObject *Atrinik_Player_ExecuteCommand(Atrinik_Player *self,
+        PyObject *args)
 {
     const char *command;
-    char *cp;
 
     if (!PyArg_ParseTuple(args, "s", &command)) {
         return NULL;
     }
 
-    if (pl->pl->socket.state != ST_PLAYING) {
-        PyErr_SetString(AtrinikError, "Player is not in a state to execute commands.");
+    if (self->pl->socket.state != ST_PLAYING) {
+        PyErr_SetString(AtrinikError,
+                "Player is not in a state to execute commands.");
         return NULL;
     }
 
-    /* Make a copy of the command, since execute_newserver_command
-     * modifies the string. */
-    cp = strdup(command);
-    hooks->commands_handle(pl->pl->ob, cp);
+    /* Make a copy of the command, since commands_handle() modifies the
+     * string. */
+    char *cp = strdup(command);
+    hooks->commands_handle(self->pl->ob, cp);
     free(cp);
 
     Py_INCREF(Py_None);
@@ -355,65 +428,101 @@ static PyObject *Atrinik_Player_ExecuteCommand(Atrinik_Player *pl, PyObject *arg
  * <h1>player.FindMarkedObject()</h1>
  * Find marked object in player's inventory.
  * @return The marked object, or None if no object is marked. */
-static PyObject *Atrinik_Player_FindMarkedObject(Atrinik_Player *pl, PyObject *args)
-{
-    (void) args;
 
-    return wrap_object(hooks->find_marked_object(pl->pl->ob));
-}
+/** Documentation for Atrinik_Player_FindMarkedObject(). */
+static const char doc_Atrinik_Player_FindMarkedObject[] =
+".. method:: FindMarkedObject().\n\n"
+"Find marked object in player's inventory.\n\n"
+":returns: The marked object, or None if no object is marked\n"
+":rtype: :class:`Atrinik.Object.Object` or :attr:`None`";
 
 /**
- * <h1>player.Sound(string filename, int [type = @ref CMD_SOUND_EFFECT], int [x
- * = 0], int [y = 0], int [loop = 0], int [volume = 0])</h1>
- * Play a sound to the specified player.
- * @param filename Sound file to play.
- * @param type Sound type being played, one of @ref CMD_SOUND_xxx.
- * @param x X position where the sound is playing from. Can be 0.
- * @param y Y position where the sound is playing from. Can be 0.
- * @param loop How many times to loop the sound, -1 for infinite number.
- * @param volume Volume adjustment. */
-static PyObject *Atrinik_Player_Sound(Atrinik_Player *pl, PyObject *args, PyObject *keywds)
+ * Implements Atrinik.Player.Player.FindMarkedObject() Python method.
+ * @copydoc PyMethod_NOARGS
+ */
+static PyObject *Atrinik_Player_FindMarkedObject(Atrinik_Player *self)
 {
-    static char *kwlist[] = {"filename", "type", "x", "y", "loop", "volume", NULL};
+    return wrap_object(hooks->find_marked_object(self->pl->ob));
+}
+
+/** Documentation for Atrinik_Player_Sound(). */
+static const char doc_Atrinik_Player_Sound[] =
+".. method:: Sound(filename, type=Atrinik.CMD_SOUND_EFFECT, x=0, y=0, loop=0, "
+"volume=0).\n\n"
+"Play a sound to the specified player.\n\n"
+":param filename: Sound file to play.\n"
+":type filename: :attr:`str`\n"
+":param type: Sound type to play, one of the CMD_SOUND_xxx constants, eg, "
+":attr:`~Atrinik.CMD_SOUND_BACKGROUND`.\n"
+":type type: :attr:`int`\n"
+":param x: X position where the sound is playing from.\n"
+":type x: :attr:`int`\n"
+":param y: Y position where the sound is playing from.\n"
+":type y: :attr:`int`\n"
+":param loop: How many times to loop the sound, -1 to loop infinitely.\n"
+":type loop: :attr:`int`\n"
+":param volume: Volume adjustment.\n"
+":type volume: :attr:`int`";
+
+/**
+ * Implements Atrinik.Player.Player.Sound() Python method.
+ * @copydoc PyMethod_VARARGS_KEYWORDS
+ */
+static PyObject *Atrinik_Player_Sound(Atrinik_Player *self, PyObject *args,
+        PyObject *keywds)
+{
+    static char *kwlist[] = {
+        "filename", "type", "x", "y", "loop", "volume", NULL
+    };
     const char *filename;
     int type = CMD_SOUND_EFFECT, x = 0, y = 0, loop = 0, volume = 0;
 
-    if (!PyArg_ParseTupleAndKeywords(args, keywds, "s|iiiii", kwlist, &filename, &type, &x, &y, &loop, &volume)) {
+    if (!PyArg_ParseTupleAndKeywords(args, keywds, "s|iiiii", kwlist,
+            &filename, &type, &x, &y, &loop, &volume)) {
         return NULL;
     }
 
-    hooks->play_sound_player_only(pl->pl, type, filename, x, y, loop, volume);
+    hooks->play_sound_player_only(self->pl, type, filename, x, y, loop, volume);
 
     Py_INCREF(Py_None);
     return Py_None;
 }
 
+/** Documentation for Atrinik_Player_Examine(). */
+static const char doc_Atrinik_Player_Examine[] =
+".. method:: Examine(obj, ret=False).\n\n"
+"Makes player examine the specified object.\n\n"
+":param obj: Object to examine.\n"
+":type obj: :class:`Atrinik.Object.Object`\n"
+":param ret: If True, instead of printing out the examine text to the player,"
+"the examine text is returned as a string.\n"
+":type ret: :attr:`bool`\n"
+":returns: None, examine string in case *ret* was True.\n"
+":rtype: :attr:`None` or :attr:`str`";
+
 /**
- * <h1>player.Examine(object obj, bool [ret = False])</h1>
- * Makes player examine the specified object.
- * @param obj Object to examine. */
-static PyObject *Atrinik_Player_Examine(Atrinik_Player *pl, PyObject *args)
+ * Implements Atrinik.Player.Player.Examine() Python method.
+ * @copydoc PyMethod_VARARGS
+ */
+static PyObject *Atrinik_Player_Examine(Atrinik_Player *self, PyObject *args)
 {
     Atrinik_Object *obj;
     int ret = 0;
-    StringBuffer *sb_capture = NULL;
 
     if (!PyArg_ParseTuple(args, "O!|i", &Atrinik_ObjectType, &obj, &ret)) {
         return NULL;
     }
 
+    StringBuffer *sb_capture = NULL;
     if (ret) {
         sb_capture = hooks->stringbuffer_new();
     }
 
-    hooks->examine(pl->pl->ob, obj->obj, sb_capture);
+    hooks->examine(self->pl->ob, obj->obj, sb_capture);
 
     if (ret) {
-        char *cp;
-        PyObject *retval;
-
-        cp = hooks->stringbuffer_finish(sb_capture);
-        retval = Py_BuildValue("s", cp);
+        char *cp = hooks->stringbuffer_finish(sb_capture);
+        PyObject *retval = Py_BuildValue("s", cp);
         efree(cp);
 
         return retval;
@@ -723,16 +832,26 @@ static PyObject *Atrinik_Player_InsertCoins(Atrinik_Player *pl, PyObject *args)
 static PyMethodDef methods[] = {
     {"GetEquipment", (PyCFunction) Atrinik_Player_GetEquipment, METH_VARARGS,
             doc_Atrinik_Player_GetEquipment},
-    {"CanCarry", (PyCFunction) Atrinik_Player_CanCarry, METH_O, 0},
-    {"AddExp", (PyCFunction) Atrinik_Player_AddExp, METH_VARARGS, 0},
-    {"BankDeposit", (PyCFunction) Atrinik_Player_BankDeposit, METH_VARARGS, 0},
-    {"BankWithdraw", (PyCFunction) Atrinik_Player_BankWithdraw, METH_VARARGS, 0},
-    {"BankBalance", (PyCFunction) Atrinik_Player_BankBalance, METH_NOARGS, 0},
-    {"SwapApartments", (PyCFunction) Atrinik_Player_SwapApartments, METH_VARARGS, 0},
-    {"ExecuteCommand", (PyCFunction) Atrinik_Player_ExecuteCommand, METH_VARARGS, 0},
-    {"FindMarkedObject", (PyCFunction) Atrinik_Player_FindMarkedObject, METH_NOARGS, 0},
-    {"Sound", (PyCFunction) Atrinik_Player_Sound, METH_VARARGS | METH_KEYWORDS, 0},
-    {"Examine", (PyCFunction) Atrinik_Player_Examine, METH_VARARGS, 0},
+    {"CanCarry", (PyCFunction) Atrinik_Player_CanCarry, METH_O,
+            doc_Atrinik_Player_CanCarry},
+    {"AddExp", (PyCFunction) Atrinik_Player_AddExp, METH_VARARGS,
+            doc_Atrinik_Player_AddExp},
+    {"BankDeposit", (PyCFunction) Atrinik_Player_BankDeposit, METH_VARARGS,
+            doc_Atrinik_Player_BankDeposit},
+    {"BankWithdraw", (PyCFunction) Atrinik_Player_BankWithdraw, METH_VARARGS,
+            doc_Atrinik_Player_BankWithdraw},
+    {"BankBalance", (PyCFunction) Atrinik_Player_BankBalance, METH_NOARGS,
+            doc_Atrinik_Player_BankBalance},
+    {"SwapApartments", (PyCFunction) Atrinik_Player_SwapApartments,
+            METH_VARARGS, doc_Atrinik_Player_SwapApartments},
+    {"ExecuteCommand", (PyCFunction) Atrinik_Player_ExecuteCommand,
+            METH_VARARGS, doc_Atrinik_Player_ExecuteCommand},
+    {"FindMarkedObject", (PyCFunction) Atrinik_Player_FindMarkedObject,
+            METH_NOARGS, doc_Atrinik_Player_FindMarkedObject},
+    {"Sound", (PyCFunction) Atrinik_Player_Sound, METH_VARARGS | METH_KEYWORDS,
+            doc_Atrinik_Player_Sound},
+    {"Examine", (PyCFunction) Atrinik_Player_Examine, METH_VARARGS,
+            doc_Atrinik_Player_Examine},
     {"SendPacket", (PyCFunction) Atrinik_Player_SendPacket, METH_VARARGS, 0},
     {"DrawInfo", (PyCFunction) Atrinik_Player_DrawInfo, METH_VARARGS | METH_KEYWORDS, 0},
     {"FactionGetBounty", (PyCFunction) Atrinik_Player_FactionGetBounty, METH_VARARGS, 0},
