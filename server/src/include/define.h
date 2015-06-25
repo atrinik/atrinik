@@ -543,17 +543,19 @@
 
 /**
  * @defgroup size_of_free_defines Size of free defines
- * Instead of using arbitrary constants for indexing the
- * freearr, add these values.  <= SIZEOFFREE1 will get you
- * within 1 space.  <= SIZEOFFREE2 will get you within
- * 2 spaces, and the entire array (<= SIZEOFFREE) is
- * three spaces.
+ * Instead of using arbitrary constants for indexing freearr_x/freearr_y, use
+ * these values.
+ *  - <= SIZEOFFREE1 will get you within 1 space.
+ *  - <= SIZEOFFREE2 will get you within 2 spaces.
+ *  - <= SIZEOFFREE3 will get you within 3 spaces.
  *@{*/
 /** Up to one space when searching around a spot. */
 #define SIZEOFFREE1     8
 /** Up to two spaces when searching around a spot. */
 #define SIZEOFFREE2     24
 /** Up to three spaces when searching around a spot. */
+#define SIZEOFFREE3     48
+/** Maximum size of the arrays. */
 #define SIZEOFFREE      49
 /*@}*/
 
