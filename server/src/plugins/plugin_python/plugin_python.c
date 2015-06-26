@@ -24,7 +24,11 @@
 
 /**
  * @file
- * Atrinik python plugin. */
+ * Atrinik python plugin.
+ *
+ * @author Alex Tokar
+ * @author Yann Chachkoff
+ */
 
 #ifdef WIN32
 #include <fcntl.h>
@@ -889,9 +893,9 @@ static const char doc_Atrinik_LoadObject[] =
 "Load an object from a string dump, for example, one stored using "
 ":meth:`Atrinik.Object.Object.Save`.\n\n"
 ":param text: The object text dump.\n"
-":type text: :attr:`str`\n"
+":type text: str\n"
 ":returns: New object, loaded from the text or None in case of failure.\n"
-":rtype: :class:`Atrinik.Object.Object` or :attr:`None`";
+":rtype: :class:`Atrinik.Object.Object` or None";
 
 /**
  * Implements Atrinik.LoadObject() Python method.
@@ -913,13 +917,13 @@ static const char doc_Atrinik_ReadyMap[] =
 ".. function:: ReadyMap(path, unique=False).\n\n"
 "Make sure the named map is loaded into memory, loading it if necessary.\n\n"
 ":param path: Path to the map.\n"
-":type path: :attr:`str`\n"
+":type path: str\n"
 ":param unique: Whether the destination should be loaded as a unique map, for "
 "example, apartments.\n"
-":type unique: :attr:`bool`\n"
+":type unique: bool\n"
 ":returns: The map associated with the specified path or None in case of "
 "failure.\n"
-":rtype: :class:`Atrinik.Map.Map` or :attr:`None`";
+":rtype: :class:`Atrinik.Map.Map` or None";
 
 /**
  * Implements Atrinik.ReadyMap() Python method.
@@ -946,9 +950,9 @@ static const char doc_Atrinik_FindPlayer[] =
 ".. function:: FindPlayer(name).\n\n"
 "Find a player by name.\n\n"
 ":param name: The player name to find.\n"
-":type name: :attr:`str`\n"
+":type name: str\n"
 ":returns: The player's object if found, None otherwise.\n"
-":rtype: :class:`Atrinik.Player.Player` or :attr:`None`";
+":rtype: :class:`Atrinik.Player.Player` or None";
 
 /**
  * Implements Atrinik.FindPlayer() Python method.
@@ -976,9 +980,9 @@ static const char doc_Atrinik_PlayerExists[] =
 ".. function:: PlayerExists(name).\n\n"
 "Check if player exists.\n\n"
 ":param name: The player name to check.\n"
-":type name: :attr:`str`\n"
+":type name: str\n"
 ":returns: True if the player exists, False otherwise.\n"
-":rtype: :attr:`bool`";
+":rtype: bool";
 
 /**
  * Implements Atrinik.PlayerExists() Python method.
@@ -1006,7 +1010,7 @@ static const char doc_Atrinik_WhoAmI[] =
 "Get the owner of the active script (the object that has the event "
 "handler).\n\n"
 ":returns: The script owner.\n"
-":rtype: :class:`Atrinik.Object.Object` or :attr:`None`\n"
+":rtype: :class:`Atrinik.Object.Object` or None\n"
 ":raises Atrinik.AtrinikError: If there's no event context (for example, the "
 "script is running in a thread).";
 
@@ -1029,7 +1033,7 @@ static const char doc_Atrinik_WhoIsActivator[] =
 ".. function:: WhoIsActivator().\n\n"
 "Get the object that activated the current event.\n\n"
 ":returns: The script activator.\n"
-":rtype: :class:`Atrinik.Object.Object` or :attr:`None`\n"
+":rtype: :class:`Atrinik.Object.Object` or None\n"
 ":raises Atrinik.AtrinikError: If there's no event context (for example, the "
 "script is running in a thread).";
 
@@ -1053,7 +1057,7 @@ static const char doc_Atrinik_WhoIsOther[] =
 "Get another object related to the event. What this object is depends on the "
 "event.\n\n"
 ":returns: The other object.\n"
-":rtype: :class:`Atrinik.Object.Object` or :attr:`None`\n"
+":rtype: :class:`Atrinik.Object.Object` or None\n"
 ":raises Atrinik.AtrinikError: If there's no event context (for example, the "
 "script is running in a thread).";
 
@@ -1076,7 +1080,7 @@ static const char doc_Atrinik_WhatIsEvent[] =
 ".. function:: WhatIsEvent().\n\n"
 "Get the event object that caused this event to trigger.\n\n"
 ":returns: The event object.\n"
-":rtype: :class:`Atrinik.Object.Object` or :attr:`None`\n"
+":rtype: :class:`Atrinik.Object.Object` or None\n"
 ":raises Atrinik.AtrinikError: If there's no event context (for example, the "
 "script is running in a thread).";
 
@@ -1099,7 +1103,7 @@ static const char doc_Atrinik_GetEventNumber[] =
 ".. function:: GetEventNumber().\n\n"
 "Get the ID of the event that is being triggered.\n\n"
 ":returns: Event ID.\n"
-":rtype: :attr:`int`\n"
+":rtype: int\n"
 ":raises Atrinik.AtrinikError: If there's no event context (for example, the "
 "script is running in a thread).";
 
@@ -1122,7 +1126,7 @@ static const char doc_Atrinik_WhatIsMessage[] =
 ".. function:: WhatIsMessage().\n\n"
 "Gets the actual message in SAY events.\n\n"
 ":returns: The message.\n"
-":rtype: :attr:`str` or :attr:`None`\n"
+":rtype: str or None\n"
 ":raises Atrinik.AtrinikError: If there's no event context (for example, the "
 "script is running in a thread).";
 
@@ -1145,7 +1149,7 @@ static const char doc_Atrinik_GetOptions[] =
 ".. function:: GetOptions().\n\n"
 "Gets the script options (as passed in the event's slaying field).\n\n"
 ":returns: The script options.\n"
-":rtype: :attr:`str` or :attr:`None`\n"
+":rtype: str or None\n"
 ":raises Atrinik.AtrinikError: If there's no event context (for example, the "
 "script is running in a thread).";
 
@@ -1168,7 +1172,7 @@ static const char doc_Atrinik_GetReturnValue[] =
 ".. function:: GetReturnValue().\n\n"
 "Gets the script's return value.\n\n"
 ":returns: The return value.\n"
-":rtype: :attr:`int`\n"
+":rtype: int\n"
 ":raises Atrinik.AtrinikError: If there's no event context (for example, the "
 "script is running in a thread).";
 
@@ -1191,7 +1195,7 @@ static const char doc_Atrinik_SetReturnValue[] =
 ".. function:: SetReturnValue(value).\n\n"
 "Sets the script's return value.\n\n"
 ":param value: The new return value.\n"
-":type value: :attr:`int`\n"
+":type value: int\n"
 ":raises Atrinik.AtrinikError: If there's no event context (for example, the "
 "script is running in a thread).";
 
@@ -1227,7 +1231,7 @@ static const char doc_Atrinik_GetEventParameters[] =
 ":returns: A list of the event parameters. The last entry is the event flags, "
 "used to determine whom to call :meth:`Atrinik.Object.Object.Update` on after "
 "executing the script.\n"
-":rtype: :attr:`list`\n"
+":rtype: list\n"
 ":raises Atrinik.AtrinikError: If there's no event context (for example, the "
 "script is running in a thread).";
 
@@ -1256,11 +1260,11 @@ static const char doc_Atrinik_RegisterCommand[] =
 "Register a custom command ran using Python script.\n\n"
 ":param name: Name of the command. For example, \"roll\" in order to create "
 "/roll command. Note the lack of forward slash in the name.\n"
-":type name: :attr:`str`\n"
+":type name: str\n"
 ":param speed: How long it takes to execute the command; 1.0 is usually fine.\n"
-":type speed: :attr:`float`\n"
+":type speed: float\n"
 ":param flags: Optional flags.\n"
-":type flags: :attr:`int`";
+":type flags: int";
 
 /**
  * Implements Atrinik.RegisterCommand() Python method.
@@ -1288,9 +1292,9 @@ static const char doc_Atrinik_CreatePathname[] =
 "Creates path to a file in the maps directory. For example, '/hall_of_dms' -> "
 "'../maps/hall_of_dms'.\n\n"
 ":param path: Path to the map.\n"
-":type path: :attr:`str`\n"
+":type path: str\n"
 ":returns: Real path of the map on the system.\n"
-":rtype: :attr:`str`";
+":rtype: str";
 
 /**
  * Implements Atrinik.CreatePathname() Python method.
@@ -1325,7 +1329,7 @@ static const char doc_Atrinik_GetTime[] =
 "  * **season_name**: Name of the season.\n"
 "  * **periodofday**: Period of the day.\n"
 "  * **periodofday_name**: Name of the period of the day.\n"
-":rtype: :attr:`dict`";
+":rtype: dict";
 
 /**
  * Implements Atrinik.GetTime() Python method.
@@ -1370,9 +1374,9 @@ static const char doc_Atrinik_FindParty[] =
 ".. function:: FindParty(name).\n\n"
 "Find a party by name.\n\n"
 ":param name: The party name to find.\n"
-":type name: :attr:`str`\n"
+":type name: str\n"
 ":returns: The party if found, None otherwise.\n"
-":rtype: :class:`Atrinik.Party.Party` or :attr:`None`";
+":rtype: :class:`Atrinik.Party.Party` or None";
 
 /**
  * Implements Atrinik.FindParty() Python method.
@@ -1395,9 +1399,9 @@ static const char doc_Atrinik_Logger[] =
 "Logs a message.\n\n"
 ":param level: Level of the log message, eg, \"BUG\", \"ERROR\", \"CHAT\", "
 "\"INFO\", etc.\n"
-":type level: :attr:`str`\n"
+":type level: str\n"
 ":param message: The message to log. Cannot contain newlines.\n"
-":type message: :attr:`str`";
+":type message: str";
 
 /**
  * Implements Atrinik.Logger() Python method.
@@ -1426,26 +1430,26 @@ static const char doc_Atrinik_GetRangeVectorFromMapCoords[] =
 ":param map1: From which map to get the distance from.\n"
 ":type map1: :class:`Atrinik.Map.Map`\n"
 ":param x1: X coordinate on *map1*.\n"
-":type x1: :attr:`int`\n"
+":type x1: int\n"
 ":param y1: Y coordinate on *map1*.\n"
-":type y1: :attr:`int`\n"
+":type y1: int\n"
 ":param map2: From which map to get the distance to.\n"
 ":type map2: :class:`Atrinik.Map.Map`\n"
 ":param x2: X coordinate on *map2*.\n"
-":type x2: :attr:`int`\n"
+":type x2: int\n"
 ":param y2: Y coordinate on *map2*.\n"
-":type y2: :attr:`int`\n"
+":type y2: int\n"
 ":param flags: One or a combination of RV_xxx, eg, :attr:"
 "`~Atrinik.RV_MANHATTAN_DISTANCE`\n"
-":type flags: :attr:`int`\n"
-":returns: :attr:`None` if the distance couldn't be calculated, otherwise a "
+":type flags: int\n"
+":returns: None if the distance couldn't be calculated, otherwise a "
 "tuple containing:\n\n"
 "  * Direction from the first coordinate to the second, eg, :attr:"
 "    `~Atrinik.NORTH`\n"
 "  * Distance between the two coordinates.\n"
 "  * X distance.\n"
 "  * Y distance.\n"
-":rtype: :attr:`tuple` or :attr:`None`";
+":rtype: tuple or None";
 
 /**
  * Implements Atrinik.GetRangeVectorFromMapCoords() Python method.
@@ -1485,9 +1489,9 @@ static const char doc_Atrinik_CostString[] =
 "example, a value of 134 would become \"1 silver coin and 34 copper "
 "coins\".\n\n"
 ":param value: Value to build the string from.\n"
-":type value: :attr:`int`\n"
+":type value: int\n"
 ":returns: The string.\n"
-":rtype: :attr:`str`";
+":rtype: str";
 
 /**
  * Implements Atrinik.CostString() Python method.
@@ -1514,13 +1518,13 @@ static const char doc_Atrinik_CacheAdd[] =
 "A stored object can be retrieved at any time using :func:"
 "`~Atrinik.CacheGet`.\n\n"
 ":param key: The unique identifier for the cache entry.\n"
-":type key: :attr:`str`\n"
+":type key: str\n"
 ":param what: Any Python object (string, integer, database, etc) to store in "
 "memory.\n"
-":type what: :attr:`object`\n"
+":type what: object\n"
 ":returns: True if the object was cached successfully, False otherwise (cache "
 "entry with same key name already exists).\n"
-":rtype: :attr:`bool`";
+":rtype: bool";
 
 /**
  * Implements Atrinik.CacheAdd() Python method.
@@ -1550,9 +1554,9 @@ static const char doc_Atrinik_CacheGet[] =
 "Attempt to find a cache entry identified by 'key' that was previously added "
 "using :func:`~Atrinik.CacheAdd`.\n\n"
 ":param key: Unique identifier of the cache entry to find.\n"
-":type key: :attr:`str`\n"
+":type key: str\n"
 ":returns: The cache entry.\n"
-":rtype: :attr:`object`\n"
+":rtype: object\n"
 ":raises ValueError: If the cache entry could not be found.";
 
 /**
@@ -1597,7 +1601,7 @@ static const char doc_Atrinik_CacheRemove[] =
 "Remove a cache entry that was added with a previous call to :func:"
 "`~Atrinik.CacheAdd`.\n\n"
 ":param key: Unique identifier of the cache entry to remove.\n"
-":type key: :attr:`str`\n"
+":type key: str\n"
 ":returns: True is always returned.\n"
 ":rtype: bool\n"
 ":raises ValueError: If the cache entry could not be removed (it didn't exist)";
@@ -1641,7 +1645,7 @@ static const char doc_Atrinik_GetFirst[] =
 "  * archetype: First archetype.\n"
 "  * party: First party.\n"
 "  * region: First region.\n"
-":type what: :attr:`str`\n"
+":type what: str\n"
 ":returns: First member of the specified linked list.\n"
 ":rtype: :class:`Atrinik.Player.Player` or :class:`Atrinik.Map.Map` or "
 ":class:`Atrinik.Party.Party` or :class:`Atrinik.Region.Region`\n"
@@ -1678,13 +1682,13 @@ static const char doc_Atrinik_CreateMap[] =
 ".. function:: CreateMap(width, height, path).\n\n"
 "Creates an empty map.\n\n"
 ":param width: The new map's width.\n"
-":type width: :attr:`int`\n"
+":type width: int\n"
 ":param height: The new map's height.\n"
-":type height: :attr:`int`\n"
+":type height: int\n"
 ":param path: Path to the new map. This should be a unique path to avoid "
 "collisions. \"/python-maps/\" is prepended to this to ensure no collision "
 "with regular maps.\n"
-":type path: :attr:`str`\n"
+":type path: str\n"
 ":returns: The new empty map.\n"
 ":rtype: :class:`Atrinik.Map.Map`";
 
@@ -1717,7 +1721,7 @@ static const char doc_Atrinik_CreateObject[] =
 "Use :meth:`Atrinik.Object.Object.Destroy` to free it if you no longer need "
 "it.\n\n"
 ":param archname: Name of the arch to create.\n"
-":type archname: :attr:`str`\n"
+":type archname: str\n"
 ":returns: The newly created object.\n"
 ":rtype: :class:`Atrinik.Object.Object`\n"
 ":raises Atrinik.AtrinikError: If *archname* is not a valid archetype.";
@@ -1749,7 +1753,7 @@ static const char doc_Atrinik_GetTicks[] =
 ".. function:: GetTicks(what).\n\n"
 "Acquires the current server ticks value.\n\n"
 ":returns: The server ticks.\n"
-":rtype: :attr:`int`";
+":rtype: int";
 
 /**
  * Implements Atrinik.GetTicks() Python method.
@@ -1765,7 +1769,7 @@ static const char doc_Atrinik_GetArchetype[] =
 ".. function:: GetArchetype(archetype).\n\n"
 "Finds an archetype.\n\n"
 ":param archname: Name of the archetype to find.\n"
-":type archname: :attr:`str`\n"
+":type archname: str\n"
 ":returns: The archetype.\n"
 ":rtype: :class:`Atrinik.Archetype.Archetype`\n"
 ":raises Atrinik.AtrinikError: If *archname* is not a valid archetype.";
@@ -1835,10 +1839,10 @@ static const char doc_Atrinik_Eval[] =
 "Executes the specified code from the main thread after the specified delay in "
 "seconds.\n\n"
 ":param code: The code to compile and execute.\n"
-":type code: :attr:`str`\n"
+":type code: str\n"
 ":param seconds: How long to wait, eg, 0.5 for half a second, 10.0 for 10 "
 "seconds, etc.\n"
-":type seconds: :attr:`float`";
+":type seconds: float";
 
 /**
  * Implements Atrinik.Eval() Python method.
@@ -1897,7 +1901,7 @@ static const char doc_Atrinik_GetSettings[] =
 ".. function:: GetSettings().\n\n"
 "Acquire a dictionary containing the server's settings.\n\n"
 ":returns: Dictionary with the server's settings, such as the maps path.\n"
-":rtype: :attr:`dict`";
+":rtype: dict";
 
 /**
  * Implements Atrinik.GetSettings() Python method.
@@ -3103,11 +3107,8 @@ PyObject *generic_field_getter(fields_struct *field, void *ptr)
 
     case FIELDTYPE_TREASURELIST:
     {
-        treasurelist *tl;
-
-        tl = *(treasurelist **) field_ptr;
-
-        if (!tl) {
+        treasurelist *tl = *(treasurelist **) field_ptr;
+        if (tl == NULL) {
             Py_INCREF(Py_None);
             return Py_None;
         }
@@ -3165,14 +3166,12 @@ PyObject *generic_rich_compare(int op, int result)
  */
 int python_call_int(PyObject *callable, PyObject *arglist)
 {
-    PyObject *result;
-    int retval = 0;
-
     /* Call the Python function. */
-    result = PyEval_CallObject(callable, arglist);
+    PyObject *result = PyEval_CallObject(callable, arglist);
 
+    int retval = 0;
     /* Check the result. */
-    if (result && PyInt_Check(result)) {
+    if (result != NULL && PyInt_Check(result)) {
         retval = PyInt_AsLong(result);
     }
 

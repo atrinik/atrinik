@@ -24,7 +24,11 @@
 
 /**
  * @file
- * Python plugin related header file. */
+ * Python plugin related header file.
+ * 
+ * @author Alex Tokar
+ * @author Yann Chachkoff
+ */
 
 #ifndef PLUGIN_PYTHON_H
 #define PLUGIN_PYTHON_H

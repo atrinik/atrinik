@@ -66,7 +66,8 @@
  * AttrList's field type.
  * @param al The AttrList pointer.
  * @return Pointer to the integer holding the maximum length. Must be cast
- * to the correct type before usage. */
+ * to the correct type before usage.
+ */
 static void *attr_list_len_ptr(Atrinik_AttrList *al)
 {
     if (al->field == FIELDTYPE_CMD_PERMISSIONS) {
@@ -80,7 +81,8 @@ static void *attr_list_len_ptr(Atrinik_AttrList *al)
 /**
  * Similar to attr_list_len_ptr(), but does not return a pointer.
  * @param al AttrList being used.
- * @return The length of the provided AttrList. */
+ * @return The length of the provided AttrList.
+ */
 static unsigned PY_LONG_LONG attr_list_len(Atrinik_AttrList *al)
 {
     if (al->field == FIELDTYPE_CMD_PERMISSIONS) {
@@ -101,8 +103,10 @@ static unsigned PY_LONG_LONG attr_list_len(Atrinik_AttrList *al)
  * 'str' will be used instead, depending on the type.
  * @param idx Index of the value to get.
  * @param str String index of the value to get.
- * @return 0 on success, -1 on failure. */
-static PyObject *attr_list_get(Atrinik_AttrList *al, PyObject *key, unsigned PY_LONG_LONG idx, const char *str)
+ * @return 0 on success, -1 on failure.
+ */
+static PyObject *attr_list_get(Atrinik_AttrList *al, PyObject *key,
+        unsigned PY_LONG_LONG idx, const char *str)
 {
     void *ptr;
     fields_struct field = {"xxx", 0, 0, 0, 0, NULL};
@@ -162,14 +166,16 @@ static PyObject *attr_list_get(Atrinik_AttrList *al, PyObject *key, unsigned PY_
  * Check if the provided AttrList contains 'value'.
  * @param al The AttrList object.
  * @param value The value to try and find.
- * @return 1 if the value was found, 0 otherwise. */
+ * @return 1 if the value was found, 0 otherwise.
+ */
 static int attr_list_contains(Atrinik_AttrList *al, PyObject *value)
 {
     unsigned PY_LONG_LONG i, len;
     PyObject *check;
 
     if (al->field == FIELDTYPE_FACTIONS) {
-        PyErr_SetString(PyExc_NotImplementedError, "Attribute list does not implement contains method.");
+        PyErr_SetString(PyExc_NotImplementedError,
+                "Attribute list does not implement contains method.");
         return -1;
     }
 
@@ -199,8 +205,10 @@ static int attr_list_contains(Atrinik_AttrList *al, PyObject *value)
  * be used instead.
  * @param idx Index of the value to get.
  * @param value New value to set.
- * @return 0 on success, -1 on failure. */
-static int attr_list_set(Atrinik_AttrList *al, PyObject *key, unsigned PY_LONG_LONG idx, PyObject *value)
+ * @return 0 on success, -1 on failure.
+ */
+static int attr_list_set(Atrinik_AttrList *al, PyObject *key,
+        unsigned PY_LONG_LONG idx, PyObject *value)
 {
     unsigned PY_LONG_LONG len;
     void *ptr;
@@ -222,7 +230,9 @@ static int attr_list_set(Atrinik_AttrList *al, PyObject *key, unsigned PY_LONG_L
             /* Increase the number of commands... */
             (*(int *) attr_list_len_ptr(al))++;
             /* And resize it. */
-            *(char ***) ((void *) ((char *) al->ptr + al->offset)) = erealloc(*(char ***) ((void *) ((char *) al->ptr + al->offset)), sizeof(char *) * attr_list_len(al));
+            *(char ***) ((void *) ((char *) al->ptr + al->offset)) =
+                    erealloc(*(char ***) ((void *) ((char *) al->ptr +
+                    al->offset)), sizeof(char *) * attr_list_len(al));
             /* Make sure ptr points to the right memory... */
             ptr = (char *) al->ptr + al->offset;
             /* NULL the new member. */
@@ -254,7 +264,9 @@ static int attr_list_set(Atrinik_AttrList *al, PyObject *key, unsigned PY_LONG_L
         ptr = &(*(double **) ((void *) ((char *) faction +
                 offsetof(player_faction_t, reputation))));
     } else {
-        PyErr_SetString(PyExc_NotImplementedError, "The attribute list does not implement support for write operations.");
+        PyErr_SetString(PyExc_NotImplementedError,
+                "The attribute list does not implement support for "
+                "write operations.");
         return -1;
     }
 
@@ -263,7 +275,8 @@ static int attr_list_set(Atrinik_AttrList *al, PyObject *key, unsigned PY_LONG_L
     /* Success! */
     if (ret == 0) {
         if (al->field == FIELDTYPE_CMD_PERMISSIONS) {
-            ((socket_struct *) (&(*(socket_struct **) ((void *) ((char *) al->ptr + offsetof(player, socket))))))->ext_title_flag = 1;
+            ((socket_struct *) (&(*(socket_struct **) ((void *) ((char *)
+                    al->ptr + offsetof(player, socket))))))->ext_title_flag = 1;
         }
     } else if (ret == -1) {
         /* Failure; overflow, invalid value or some other kind of error. */
@@ -275,7 +288,9 @@ static int attr_list_set(Atrinik_AttrList *al, PyObject *key, unsigned PY_LONG_L
                 /* Decrease the number of commands... */
                 (*(int *) attr_list_len_ptr(al))--;
                 /* And resize it. */
-                *(char ***) ((void *) ((char *) al->ptr + al->offset)) = erealloc(*(char ***) ((void *) ((char *) al->ptr + al->offset)), sizeof(char *) * attr_list_len(al));
+                *(char ***) ((void *) ((char *) al->ptr + al->offset)) =
+                        erealloc(*(char ***) ((void *) ((char *) al->ptr +
+                        al->offset)), sizeof(char *) * attr_list_len(al));
             } else if (al->field == FIELDTYPE_FACTIONS) {
                 hooks->player_faction_free((player *) al->ptr, faction);
             }
@@ -289,12 +304,14 @@ static int attr_list_set(Atrinik_AttrList *al, PyObject *key, unsigned PY_LONG_L
  * Implements value checking for both getter and setter methods.
  * @param al The AttrList object.
  * @param key Index to try and find.
- * @return 'key' if the value is valid, NULL otherwise. */
+ * @return 'key' if the value is valid, NULL otherwise.
+ */
 static PyObject *__getsetitem__(Atrinik_AttrList *al, PyObject *key)
 {
     if (al->field == FIELDTYPE_FACTIONS) {
         if (!PyString_Check(key)) {
-            PyErr_SetString(PyExc_ValueError, "__getitem__() failed; key must be a string.");
+            PyErr_SetString(PyExc_ValueError,
+                    "__getitem__() failed; key must be a string.");
             return NULL;
         }
     } else {
@@ -302,21 +319,25 @@ static PyObject *__getsetitem__(Atrinik_AttrList *al, PyObject *key)
 
         /* The key must be an integer. */
         if (!PyInt_Check(key)) {
-            PyErr_SetString(PyExc_ValueError, "__getitem__() failed; key must be an integer.");
+            PyErr_SetString(PyExc_ValueError,
+                    "__getitem__() failed; key must be an integer.");
             return NULL;
         }
 
         i = PyLong_AsUnsignedLongLong(key);
 
         if (PyErr_Occurred()) {
-            PyErr_SetString(PyExc_OverflowError, "__getitem__() failed; key's integer value is too large.");
+            PyErr_SetString(PyExc_OverflowError,
+                    "__getitem__() failed; key's integer value is too large.");
             return NULL;
         }
 
         len = attr_list_len(al);
 
         if (i > len) {
-            PyErr_Format(PyExc_ValueError, "__getitem__() failed; requested index (%"PRIu64 ") too big (len: %"PRIu64 ").", (uint64_t) i, (uint64_t) len);
+            PyErr_Format(PyExc_ValueError,
+                    "__getitem__() failed; requested index (%"PRIu64 ") too "
+                    "big (len: %"PRIu64 ").", (uint64_t) i, (uint64_t) len);
             return NULL;
         }
     }
@@ -329,7 +350,8 @@ static PyObject *__getsetitem__(Atrinik_AttrList *al, PyObject *key)
  * @param al The AttrList object.
  * @param key Index to try and find.
  * @return The object from the AttrList at the specified index, NULL on
- * failure. */
+ * failure.
+ */
 static PyObject *__getitem__(Atrinik_AttrList *al, PyObject *key)
 {
     key = __getsetitem__(al, key);
@@ -348,13 +370,15 @@ static PyObject *__getitem__(Atrinik_AttrList *al, PyObject *key)
  * @endcode
  * @param al The AttrList object.
  * @param value Value to append.
- * @return None. */
+ * @return None.
+ */
 static PyObject *append(Atrinik_AttrList *al, PyObject *value)
 {
     unsigned PY_LONG_LONG i;
 
     if (al->field == FIELDTYPE_FACTIONS) {
-        PyErr_SetString(PyExc_NotImplementedError, "This attribute list does not implement append method.");
+        PyErr_SetString(PyExc_NotImplementedError,
+                "This attribute list does not implement append method.");
         return NULL;
     }
 
@@ -369,14 +393,16 @@ static PyObject *append(Atrinik_AttrList *al, PyObject *value)
  * Implements the remove() method.
  * @param al The AttrList object.
  * @param value Value to remove.
- * @return None. */
+ * @return None.
+ */
 static PyObject *attr_list_remove(Atrinik_AttrList *al, PyObject *value)
 {
     unsigned PY_LONG_LONG i, len;
     PyObject *check;
 
     if (al->field == FIELDTYPE_FACTIONS) {
-        PyErr_SetString(PyExc_NotImplementedError, "This attribute list does not implement remove method.");
+        PyErr_SetString(PyExc_NotImplementedError,
+                "This attribute list does not implement remove method.");
         return NULL;
     }
 
@@ -416,7 +442,8 @@ static PyObject *attr_list_clear(Atrinik_AttrList *al)
             *(char ***) ((void *) ((char *) al->ptr + al->offset)) = NULL;
             (*(int *) attr_list_len_ptr(al)) = 0;
 
-            ((socket_struct *) (&(*(socket_struct **) ((void *) ((char *) al->ptr + offsetof(player, socket))))))->ext_title_flag = 1;
+            ((socket_struct *) (&(*(socket_struct **) ((void *) ((char *)
+                    al->ptr + offsetof(player, socket))))))->ext_title_flag = 1;
         }
     } else if (al->field == FIELDTYPE_FACTIONS) {
         player_faction_t *factions = *(player_faction_t **) ((char *)
@@ -426,7 +453,8 @@ static PyObject *attr_list_clear(Atrinik_AttrList *al)
             hooks->player_faction_free(al->ptr, faction);
         }
     } else {
-        PyErr_SetString(PyExc_NotImplementedError, "This attribute list does not implement clear method.");
+        PyErr_SetString(PyExc_NotImplementedError,
+                "This attribute list does not implement clear method.");
         return NULL;
     }
 
@@ -478,12 +506,16 @@ static PyMethodDef methods[] = {
 
 static int InternalCompare(Atrinik_AttrList *left, Atrinik_AttrList *right)
 {
-    return (left->field < right->field ? -1 : (left->field == right->field ? 0 : 1));
+    return (left->field < right->field ? -1 :
+        (left->field == right->field ? 0 : 1));
 }
 
-static PyObject *RichCompare(Atrinik_AttrList *left, Atrinik_AttrList *right, int op)
+static PyObject *RichCompare(Atrinik_AttrList *left, Atrinik_AttrList *right,
+        int op)
 {
-    if (!left || !right || !PyObject_TypeCheck((PyObject *) left, &Atrinik_AttrListType) || !PyObject_TypeCheck((PyObject *) right, &Atrinik_AttrListType)) {
+    if (left == NULL || right == NULL ||
+            !PyObject_TypeCheck((PyObject *) left, &Atrinik_AttrListType) ||
+            !PyObject_TypeCheck((PyObject *) right, &Atrinik_AttrListType)) {
         Py_INCREF(Py_NotImplemented);
         return Py_NotImplemented;
     }
@@ -494,7 +526,8 @@ static PyObject *RichCompare(Atrinik_AttrList *left, Atrinik_AttrList *right, in
 /**
  * Start iterating.
  * @param seq What to iterate through.
- * @return New iteration object. */
+ * @return New iteration object.
+ */
 static PyObject *iter(PyObject *seq)
 {
     Atrinik_AttrList *al, *orig_al = (Atrinik_AttrList *) seq;
@@ -511,7 +544,8 @@ static PyObject *iter(PyObject *seq)
 /**
  * Keep iterating over an iteration object.
  * @param al The iteration object.
- * @return Next object from attribute list, NULL if the end was reached. */
+ * @return Next object from attribute list, NULL if the end was reached.
+ */
 static PyObject *iternext(Atrinik_AttrList *al)
 {
     /* Possible to continue iteration? */
@@ -530,7 +564,8 @@ static PyObject *iternext(Atrinik_AttrList *al)
  *
  * Used by the len() method.
  * @param al AttrList pointer len() is being called on.
- * @return Length of the attribute list. */
+ * @return Length of the attribute list.
+ */
 static Py_ssize_t __len__(Atrinik_AttrList *al)
 {
     return attr_list_len(al);
@@ -539,11 +574,11 @@ static Py_ssize_t __len__(Atrinik_AttrList *al)
 /**
  * Wrapper for attr_list_set(), used by the __setitem__() method.
  * @param al AttrList pointer __setitem__() is being called on.
- * @return Return value of attr_list_set(). */
+ * @return Return value of attr_list_set().
+ */
 static int __setitem__(Atrinik_AttrList *al, PyObject *key, PyObject *value)
 {
     key = __getsetitem__(al, key);
-
     if (key == NULL) {
         return -1;
     }
@@ -554,7 +589,8 @@ static int __setitem__(Atrinik_AttrList *al, PyObject *key, PyObject *value)
 /**
  * Wrapper for attr_list_contains(), used by the __contains__() method.
  * @param al AttrList pointer __contains__() is being called on.
- * @return Return value of attr_list_contains(). */
+ * @return Return value of attr_list_contains().
+ */
 static int __contains__(Atrinik_AttrList *al, PyObject *value)
 {
     return attr_list_contains(al, value);
@@ -570,7 +606,8 @@ static PySequenceMethods SequenceMethods = {
 
 /**
  * Defines what to map some common methods (len(), __setitem__() and
- * __getitem__()) to. */
+ * __getitem__()) to.
+ */
 static PyMappingMethods MappingMethods = {
     (lenfunc) __len__,
     (binaryfunc) __getitem__,
@@ -626,7 +663,8 @@ PyTypeObject Atrinik_AttrListType = {
 /**
  * Initializes the AttrList module.
  * @param module The main Atrinik module.
- * @return 1 on success, 0 on failure. */
+ * @return 1 on success, 0 on failure.
+ */
 int Atrinik_AttrList_init(PyObject *module)
 {
     Atrinik_AttrListType.tp_new = PyType_GenericNew;
@@ -636,7 +674,7 @@ int Atrinik_AttrList_init(PyObject *module)
     }
 
     Py_INCREF(&Atrinik_AttrListType);
-    PyModule_AddObject(module, "AttrList", (PyObject *) & Atrinik_AttrListType);
+    PyModule_AddObject(module, "AttrList", (PyObject *) &Atrinik_AttrListType);
 
     return 1;
 }
@@ -647,14 +685,13 @@ int Atrinik_AttrList_init(PyObject *module)
  * @param offset Where the array is in the structure.
  * @param field Type of the array being handled; for example,
  * @ref FIELDTYPE_FACTIONS.
- * @return The new wrapper object. */
+ * @return The new wrapper object.
+ */
 PyObject *wrap_attr_list(void *ptr, size_t offset, field_type field)
 {
-    Atrinik_AttrList *wrapper;
-
-    wrapper = PyObject_NEW(Atrinik_AttrList, &Atrinik_AttrListType);
-
-    if (wrapper) {
+    Atrinik_AttrList *wrapper = PyObject_NEW(Atrinik_AttrList,
+            &Atrinik_AttrListType);
+    if (wrapper != NULL) {
         wrapper->ptr = ptr;
         wrapper->offset = offset;
         wrapper->field = field;

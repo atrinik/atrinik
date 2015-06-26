@@ -24,18 +24,18 @@
 
 /**
  * @file
- * Atrinik Python plugin player related code. */
+ * Atrinik Python plugin player related code.
+ *
+ * @author Alex Tokar
+ */
 
 #include <plugin_python.h>
 #include <packet.h>
 #include <faction.h>
 
 /**
- * Player fields. */
-/* @cparser
- * @page plugin_python_player_fields Python player fields
- * <h2>Python player fields</h2>
- * List of the player fields and their meaning. */
+ * Player fields.
+ */
 static fields_struct fields[] = {
     {"next", FIELDTYPE_PLAYER, offsetof(player, next), FIELDFLAG_READONLY, 0,
             "Next player in a list.; Atrinik.Player.Player or None (readonly)"},
@@ -102,30 +102,6 @@ static fields_struct fields[] = {
             offsetof(player, socket.socket_version), FIELDFLAG_READONLY, 0,
             "Socket version of the player's client.; int (readonly)"}
 };
-/* @endcparser */
-
-/**
- * @defgroup plugin_python_player_functions Python player functions
- * Functions that can only be used on players (not the objects they are
- * controlling).
- *
- * To access object's player controller, you can use something like:
- *
- * @code
- * activator = WhoIsActivator()
- * player = activator.Controller()
- * @endcode
- *
- * In the above example, player points to the player structure (which Python
- * is wrapping) that is controlling the object 'activator'. In this way, you
- * can,
- * for example, use something like this to get player's save bed, among other
- * things:
- *
- * @code
- * print(WhoIsActivator().Controller().savebed_map)
- * @endcode
- *@{*/
 
 /** Documentation for Atrinik_Player_GetEquipment(). */
 static const char doc_Atrinik_Player_GetEquipment[] =
@@ -133,7 +109,7 @@ static const char doc_Atrinik_Player_GetEquipment[] =
 "Get player's current equipment object for a given slot.\n\n"
 ":param slot: The slot number; one of PLAYER_EQUIP_xxx, eg, :attr:"
 "`~Atrinik.PLAYER_EQUIP_LEGGINGS`.\n"
-":type slot: :attr:`int`\n"
+":type slot: int\n"
 ":returns: The equipment object for the given slot, None if there's no object "
 "in the slot.\n"
 ":rtype: :class:`Atrinik.Object.Object` or None\n"
@@ -167,9 +143,9 @@ static const char doc_Atrinik_Player_CanCarry[] =
 "consideration.\n\n"
 ":param what: Object that player wants to get. This can be the exact weight to "
 "check instead of calculating the object's weight.\n"
-":type what: :class:`Atrinik.Object.Object` or :attr:`int`\n"
+":type what: :class:`Atrinik.Object.Object` or int\n"
 ":returns: Whether the player can carry the *what*.\n"
-":rtype: :attr:`bool`";
+":rtype: bool";
 
 /**
  * Implements Atrinik.Player.Player.CanCarry() Python method.
@@ -199,15 +175,15 @@ static const char doc_Atrinik_Player_AddExp[] =
 ".. method:: AddExp(skill, exp, exact=False, level=False).\n\n"
 "Add (or subtract) experience.\n\n"
 ":param skill: ID or name of the skill to receive/lose exp in.\n"
-":type skill: :attr:`int` or :attr:`str`\n"
+":type skill: int or str\n"
 ":param exp: How much exp to gain/lose. If *level* is true, this is the number "
 "of levels to gain/lose in the specified skill.\n"
-":type exp: :attr:`int`\n"
+":type exp: int\n"
 ":param exact: If True, the given exp will not be capped.\n"
-":type exact: :attr:`bool`\n"
+":type exact: bool\n"
 ":param level: If True, will calculate exact experience needed for next (or "
 "previous) level.\n"
-":type level: :attr:`bool`\n"
+":type level: bool\n"
 ":raises ValueError: If the skill ID/name is invalid.\n"
 ":raises Atrinik.AtrinikError: If the player doesn't have the specified skill.";
 
@@ -279,11 +255,11 @@ static const char doc_Atrinik_Player_BankDeposit[] =
 ".. method:: BankDeposit(text).\n\n"
 "Deposit money to bank.\n\n"
 ":param text: How much money to deposit, in string representation.\n"
-":type text: :attr:`str`\n"
+":type text: str\n"
 ":returns: Tuple containing the status code (one of the BANK_xxx constants, "
 "eg, :attr:`~Atrinik.BANK_SUCCESS`) and amount of money deposited as "
 "integer.\n"
-":rtype: :attr:`tuple`";
+":rtype: tuple";
 
 /**
  * Implements Atrinik.Player.Player.BankDeposit() Python method.
@@ -309,11 +285,11 @@ static const char doc_Atrinik_Player_BankWithdraw[] =
 ".. method:: BankWithdraw(text).\n\n"
 "Withdraw money from bank.\n\n"
 ":param text: How much money to withdraw, in string representation.\n"
-":type text: :attr:`str`\n"
+":type text: str\n"
 ":returns: Tuple containing the status code (one of the BANK_xxx constants, "
 "eg, :attr:`~Atrinik.BANK_SUCCESS`) and amount of money withdrawn as "
 "integer.\n"
-":rtype: :attr:`tuple`";
+":rtype: tuple";
 
 /**
  * Implements Atrinik.Player.Player.BankWithdraw() Python method.
@@ -339,7 +315,7 @@ static const char doc_Atrinik_Player_BankBalance[] =
 ".. method:: BankBalance().\n\n"
 "Figure out how much money player has in bank.\n\n"
 ":returns: Integer value of the money in bank.\n"
-":rtype: :attr:`int`";
+":rtype: int";
 
 /**
  * Implements Atrinik.Player.Player.BankBalance() Python method.
@@ -356,15 +332,15 @@ static const char doc_Atrinik_Player_SwapApartments[] =
 "Swaps *oldmap* apartment with *newmap* one.\n\nCopies old items from *oldmap* "
 "to *newmap* at *x*,*y* and saves the map.\n\n"
 ":param oldmap: The old apartment map.\n"
-":type oldmap: :attr:`str`\n"
+":type oldmap: str\n"
 ":param newmap: The new apartment map.\n"
-":type newmap: :attr:`str`\n"
+":type newmap: str\n"
 ":param x: X coordinate to copy the items to.\n"
-":type x: :attr:`int`\n"
+":type x: int\n"
 ":param y: Y coordinate to copy the items to.\n"
-":type y: :attr:`int`\n"
+":type y: int\n"
 ":returns: Whether the operation was successful or not.\n"
-":rtype: :attr:`bool`";
+":rtype: bool";
 
 /**
  * Implements Atrinik.Player.Player.SwapApartments() Python method.
@@ -389,9 +365,9 @@ static const char doc_Atrinik_Player_ExecuteCommand[] =
 ".. method:: ExecuteCommand(command).\n\n"
 "Make player execute a command.\n\n"
 ":param command: Command to execute.\n"
-":type command: :attr:`str`\n"
+":type command: str\n"
 ":returns: Return value of the command.\n"
-":rtype: :attr:`int`\n"
+":rtype: int\n"
 ":raises Atrinik.AtrinikError: If player is not in a state to execute "
 "commands.";
 
@@ -434,7 +410,7 @@ static const char doc_Atrinik_Player_FindMarkedObject[] =
 ".. method:: FindMarkedObject().\n\n"
 "Find marked object in player's inventory.\n\n"
 ":returns: The marked object, or None if no object is marked\n"
-":rtype: :class:`Atrinik.Object.Object` or :attr:`None`";
+":rtype: :class:`Atrinik.Object.Object` or None";
 
 /**
  * Implements Atrinik.Player.Player.FindMarkedObject() Python method.
@@ -451,18 +427,18 @@ static const char doc_Atrinik_Player_Sound[] =
 "volume=0).\n\n"
 "Play a sound to the specified player.\n\n"
 ":param filename: Sound file to play.\n"
-":type filename: :attr:`str`\n"
+":type filename: str\n"
 ":param type: Sound type to play, one of the CMD_SOUND_xxx constants, eg, "
 ":attr:`~Atrinik.CMD_SOUND_BACKGROUND`.\n"
-":type type: :attr:`int`\n"
+":type type: int\n"
 ":param x: X position where the sound is playing from.\n"
-":type x: :attr:`int`\n"
+":type x: int\n"
 ":param y: Y position where the sound is playing from.\n"
-":type y: :attr:`int`\n"
+":type y: int\n"
 ":param loop: How many times to loop the sound, -1 to loop infinitely.\n"
-":type loop: :attr:`int`\n"
+":type loop: int\n"
 ":param volume: Volume adjustment.\n"
-":type volume: :attr:`int`";
+":type volume: int";
 
 /**
  * Implements Atrinik.Player.Player.Sound() Python method.
@@ -496,9 +472,9 @@ static const char doc_Atrinik_Player_Examine[] =
 ":type obj: :class:`Atrinik.Object.Object`\n"
 ":param ret: If True, instead of printing out the examine text to the player,"
 "the examine text is returned as a string.\n"
-":type ret: :attr:`bool`\n"
+":type ret: bool\n"
 ":returns: None, examine string in case *ret* was True.\n"
-":rtype: :attr:`None` or :attr:`str`";
+":rtype: None or str";
 
 /**
  * Implements Atrinik.Player.Player.Examine() Python method.
@@ -532,73 +508,118 @@ static PyObject *Atrinik_Player_Examine(Atrinik_Player *self, PyObject *args)
     return Py_None;
 }
 
-/**
- * <h1>player.SendPacket(int command, string format, ...)</h1>
- * Constructs and sends a packet to the player's client.
- * @param command The command ID.
- * @param format Format specifier. For example, "Bs" would imply uint8 +
- * string data, and the format specifier would need to be followed by an
- * integer that is within uint8 data range and a string. */
-static PyObject *Atrinik_Player_SendPacket(Atrinik_Player *pl, PyObject *args)
-{
-    long cmd;
-    char *format;
-    packet_struct *packet;
-    size_t i;
-    PyObject *value;
+/** Documentation for Atrinik_Player_SendPacket(). */
+static const char doc_Atrinik_Player_SendPacket[] =
+".. method:: SendPacket(command, format, *args).\n\n"
+"Constructs and sends a packet to the player's client.\n\n"
+":param command: The command ID.\n"
+":type command: int\n"
+":param format: Format specifier. For example, 'Bs' would imply uint8_t + "
+"string data, and the format specifier would need to be followed by an integer "
+"that is within uint8_t data range and a string. Allowed format specifiers "
+"are:\n\n"
+"  * **b**: 8-bit signed int (int8_t)\n"
+"  * **B**: 8-bit unsigned int (uint8_t)\n"
+"  * **h**: 16-bit signed int (int16_t)\n"
+"  * **H**: 16-bit unsigned int (uint16_t)\n"
+"  * **i**: 32-bit signed int (int32_t)\n"
+"  * **I**: 32-bit unsigned int (uint32_t)\n"
+"  * **l**: 64-bit signed int (int64_t)\n"
+"  * **L**: 64-bit unsigned int (uint64_t)\n"
+"  * **s**: String (automatically NUL-terminated)\n"
+"  * **x**: Bytes (NOT NUL-terminated)\n"
+":type format: str\n"
+":param \\*args: Rest of the arguments is converted into the packet data as "
+"specified by the format string.\n"
+":raises OverflowError: If *command* is not within a valid range.\n"
+":raises ValueError: If an unrecognized character is encountered in "
+"*format*.\n"
+":raises TypeError: If an object's type in *args* does not match what was "
+"specified in *format*.\n"
+":raises OverflowError: If an integer specified in *args* is not within a "
+"valid range.";
 
+/**
+ * Implements Atrinik.Player.Player.Examine() Python method.
+ * @copydoc PyMethod_VARARGS
+ */
+static PyObject *Atrinik_Player_SendPacket(Atrinik_Player *self, PyObject *args)
+{
     /* Must have at least 3 arguments. */
     if (PyTuple_Size(args) < 3) {
-        PyErr_SetString(PyExc_ValueError, "Insufficient number of arguments.");
+        PyErr_SetString(PyExc_TypeError, "Insufficient number of arguments.");
         return NULL;
     }
 
     /* The first argument must be an integer. */
     if (!PyInt_Check(PyTuple_GET_ITEM(args, 0))) {
-        PyErr_SetString(PyExc_OverflowError, "Illegal value for 'cmd' function argument.");
+        PyErr_SetString(PyExc_TypeError,
+                "Illegal object type for 'cmd' function argument.");
         return NULL;
     }
 
-    cmd = PyLong_AsLong(PyTuple_GET_ITEM(args, 0));
-
+    long cmd = PyLong_AsLong(PyTuple_GET_ITEM(args, 0));
     /* It also must be uint8. */
-    if (cmd < 0 || (unsigned long) cmd > UINT8_MAX) {
-        PyErr_SetString(PyExc_OverflowError, "Invalid integer value for 'cmd' function argument.");
+    if (cmd < 0 || cmd > UINT8_MAX) {
+        PyErr_SetString(PyExc_OverflowError,
+                "Invalid value for 'cmd' function argument.");
         return NULL;
     }
-
-    packet = hooks->packet_new(cmd, 256, 512);
 
     /* Get the format specifier. */
-    format = PyString_AsString(PyTuple_GET_ITEM(args, 1));
+    char *format = PyString_AsString(PyTuple_GET_ITEM(args, 1));
 
-    for (i = 0; format[i] != '\0'; i++) {
-        value = PyTuple_GetItem(args, 2 + i);
+    packet_struct *packet = hooks->packet_new(cmd, 256, 512);
 
-        if (!value) {
-            PyErr_SetString(PyExc_ValueError, "Insufficient number of arguments.");
-            return NULL;
+#define CHECK_INT_RANGE(min, max) \
+    if (PyErr_Occurred()) { \
+        PyErr_Format(PyExc_OverflowError, \
+                "Invalid integer value for '%c' format specifier.", \
+                format[i]); \
+        goto error; \
+    } else if (val < min || val > max) { \
+        PyErr_Format(PyExc_OverflowError, \
+                "Invalid integer value for '%c' format specifier.", \
+                format[i]); \
+        goto error; \
+    }
+#define CHECK_UINT_RANGE(max) \
+    if (PyErr_Occurred()) { \
+        PyErr_Format(PyExc_OverflowError, \
+                "Invalid integer value for '%c' format specifier.", \
+                format[i]); \
+        goto error; \
+    } else if (val > max) { \
+        PyErr_Format(PyExc_OverflowError, \
+                "Invalid integer value for '%c' format specifier.", \
+                format[i]); \
+        goto error; \
+    }
+
+    for (size_t i = 0; format[i] != '\0'; i++) {
+        PyObject *value = PyTuple_GetItem(args, 2 + i);
+        if (value == NULL) {
+            PyErr_SetString(PyExc_ValueError,
+                    "Insufficient number of arguments.");
+            goto error;
         }
 
         if (format[i] == 'b') {
             if (PyInt_Check(value)) {
                 long val = PyLong_AsLong(value);
-
-                if (val < INT8_MIN || val > INT8_MAX) {
-                    PyErr_Format(PyExc_OverflowError, "Invalid integer value for '%c' format specifier.", format[i]);
-                    return NULL;
-                }
-
+                CHECK_INT_RANGE(INT8_MIN, INT8_MAX);
                 hooks->packet_append_int8(packet, val);
                 continue;
             }
         } else if (format[i] == 'B') {
             if (PyInt_Check(value)) {
                 long val = PyLong_AsLong(value);
-
-                if (val < 0 || (unsigned long) val > UINT8_MAX) {
-                    PyErr_Format(PyExc_OverflowError, "Invalid integer value for '%c' format specifier.", format[i]);
-                    return NULL;
+                CHECK_INT_RANGE(0, UINT8_MAX);
+                if (val < 0 || val > UINT8_MAX) {
+                    PyErr_Format(PyExc_OverflowError,
+                            "Invalid integer value for '%c' format specifier.",
+                            format[i]);
+                    goto error;
                 }
 
                 hooks->packet_append_uint8(packet, val);
@@ -607,58 +628,39 @@ static PyObject *Atrinik_Player_SendPacket(Atrinik_Player *pl, PyObject *args)
         } else if (format[i] == 'h') {
             if (PyInt_Check(value)) {
                 long val = PyLong_AsLong(value);
-
-                if (val < INT16_MIN || val > INT16_MAX) {
-                    PyErr_Format(PyExc_OverflowError, "Invalid integer value for '%c' format specifier.", format[i]);
-                    return NULL;
-                }
-
+                CHECK_INT_RANGE(INT16_MIN, INT16_MAX);
                 hooks->packet_append_int16(packet, val);
                 continue;
             }
         } else if (format[i] == 'H') {
             if (PyInt_Check(value)) {
                 long val = PyLong_AsLong(value);
-
-                if (val < 0 || (unsigned long) val > UINT16_MAX) {
-                    PyErr_Format(PyExc_OverflowError, "Invalid integer value for '%c' format specifier.", format[i]);
-                    return NULL;
-                }
-
+                CHECK_INT_RANGE(0, UINT16_MAX);
                 hooks->packet_append_uint16(packet, val);
                 continue;
             }
         } else if (format[i] == 'i') {
             if (PyInt_Check(value)) {
-                long val = PyLong_AsLong(value);
-
-                if (val < INT32_MIN || val > INT32_MAX) {
-                    PyErr_Format(PyExc_OverflowError, "Invalid integer value for '%c' format specifier.", format[i]);
-                    return NULL;
-                }
-
+                PY_LONG_LONG val = PyLong_AsLongLong(value);
+                CHECK_INT_RANGE(INT32_MIN, INT32_MAX);
                 hooks->packet_append_int32(packet, val);
                 continue;
             }
         } else if (format[i] == 'I') {
             if (PyInt_Check(value)) {
-                long val = PyLong_AsLong(value);
-
-                if (val < 0 || (unsigned long) val > UINT32_MAX) {
-                    PyErr_Format(PyExc_OverflowError, "Invalid integer value for '%c' format specifier.", format[i]);
-                    return NULL;
-                }
-
+                unsigned PY_LONG_LONG val = PyLong_AsUnsignedLongLong(value);
+                CHECK_UINT_RANGE(UINT32_MAX);
                 hooks->packet_append_uint32(packet, val);
                 continue;
             }
         } else if (format[i] == 'l') {
             if (PyInt_Check(value)) {
                 PY_LONG_LONG val = PyLong_AsLongLong(value);
-
                 if (PyErr_Occurred()) {
-                    PyErr_Format(PyExc_OverflowError, "Invalid integer value for '%c' format specifier.", format[i]);
-                    return NULL;
+                    PyErr_Format(PyExc_OverflowError,
+                            "Invalid integer value for '%c' format specifier.",
+                            format[i]);
+                    goto error;
                 }
 
                 hooks->packet_append_int64(packet, val);
@@ -667,10 +669,11 @@ static PyObject *Atrinik_Player_SendPacket(Atrinik_Player *pl, PyObject *args)
         } else if (format[i] == 'L') {
             if (PyInt_Check(value)) {
                 unsigned PY_LONG_LONG val = PyLong_AsUnsignedLongLong(value);
-
                 if (PyErr_Occurred()) {
-                    PyErr_Format(PyExc_OverflowError, "Invalid integer value for '%c' format specifier.", format[i]);
-                    return NULL;
+                    PyErr_Format(PyExc_OverflowError,
+                            "Invalid integer value for '%c' format specifier.",
+                            format[i]);
+                    goto error;
                 }
 
                 hooks->packet_append_uint64(packet, val);
@@ -678,141 +681,187 @@ static PyObject *Atrinik_Player_SendPacket(Atrinik_Player *pl, PyObject *args)
             }
         } else if (format[i] == 's') {
             if (PyString_Check(value)) {
-                hooks->packet_append_string_terminated(packet, PyString_AsString(value));
+                Py_ssize_t size;
+                char *data = PyUnicode_AsUTF8AndSize(value, &size);
+                hooks->packet_append_string_len_terminated(packet, data, size);
                 continue;
             }
         } else if (format[i] == 'x') {
             if (PyBytes_Check(value)) {
-                hooks->packet_append_data_len(packet, (uint8_t *) PyBytes_AsString(value), PyBytes_Size(value));
+                hooks->packet_append_data_len(packet,
+                        (uint8_t *) PyBytes_AsString(value),
+                        PyBytes_Size(value));
                 continue;
             }
         } else {
-            PyErr_Format(PyExc_TypeError, "Illegal format specifier '%c'.", format[i]);
-            return NULL;
+            PyErr_Format(PyExc_ValueError,
+                    "Illegal format specifier '%c'.", format[i]);
+            goto error;
         }
 
-        PyErr_Format(PyExc_TypeError, "Illegal value for '%c' format specifier.", format[i]);
-        return NULL;
+        PyErr_Format(PyExc_TypeError,
+                "Illegal object type for '%c' format specifier.", format[i]);
+        goto error;
     }
 
-    hooks->socket_send_packet(&pl->pl->socket, packet);
+#undef CHECK_INT_RANGE
+#undef CHECK_UINT_RANGE
+
+    hooks->socket_send_packet(&self->pl->socket, packet);
 
     Py_INCREF(Py_None);
     return Py_None;
+
+error:
+    hooks->packet_free(packet);
+    return NULL;
 }
 
+/** Documentation for Atrinik_Player_DrawInfo(). */
+static const char doc_Atrinik_Player_DrawInfo[] =
+".. method:: DrawInfo(message, color=Atrinik.COLOR_ORANGE, "
+"type=Atrinik.CHAT_TYPE_GAME, broadcast=False, name=None).\n\n"
+"Sends a message to the player.\n\n"
+":param message: The message to send.\n"
+":type message: str\n"
+":param color: Color to use for the message. Can be one of the COLOR_xxx "
+"constants (eg, :attr:`~Atrinik.COLOR_RED`) or a regular HTML color notation "
+"(eg, '00ff00')\n"
+":type color: str\n"
+":param type: One of the CHAT_TYPE_xxx constants, eg, :attr:"
+"`~Atrinik.CHAT_TYPE_CHAT`.\n"
+":type type: int\n"
+":param broadcast: If True, the message will be broadcast to all players.\n"
+":type broadcast: bool\n"
+":param name: Player name that is the source of this message, if applicable. "
+"If None and *type* is not :attr:`~Atrinik.CHAT_TYPE_GAME`, :attr:"
+"`Atrinik.Player.Player.ob.name` will be used.\n"
+":type name: str or None";
+
 /**
- * <h1>player.DrawInfo(string message, string [color = @ref COLOR_ORANGE], int
- * [type = @ref CHAT_TYPE_GAME], bool [global = False], string [name =
- * None])</h1>
- * Sends a message to the specified player.
- * @param message The message to send.
- * @param color Color to use for the message. Can be one of @ref COLOR_xxx
- * or an HTML color notation.
- * @param type One of @ref CHAT_TYPE_xxx.
- * @param global If True, the message will be broadcasted to all players.
- * @param name Player name that is the source of this message, if applicable.
- * If None and 'type' is not @ref CHAT_TYPE_GAME, player.ob.name will be used.
+ * Implements Atrinik.Player.Player.DrawInfo() Python method.
+ * @copydoc PyMethod_VARARGS_KEYWORDS
  */
-static PyObject *Atrinik_Player_DrawInfo(Atrinik_Player *pl, PyObject *args, PyObject *keywds)
+static PyObject *Atrinik_Player_DrawInfo(Atrinik_Player *self, PyObject *args,
+        PyObject *keywds)
 {
-    static char *kwlist[] = {"message", "color", "type", "global", "name", NULL};
+    static char *kwlist[] = {
+        "message", "color", "type", "broadcast", "name", NULL
+    };
     const char *message, *color, *name;
-    uint8_t type, global;
+    uint8_t type, broadcast;
 
     color = COLOR_ORANGE;
     type = CHAT_TYPE_GAME;
-    global = 0;
+    broadcast = 0;
     name = NULL;
 
-    if (!PyArg_ParseTupleAndKeywords(args, keywds, "s|sbbz", kwlist, &message, &color, &type, &global, &name)) {
+    if (!PyArg_ParseTupleAndKeywords(args, keywds, "s|sbbz", kwlist,
+            &message, &color, &type, &broadcast, &name)) {
         return NULL;
     }
 
-    if (!name && type != CHAT_TYPE_GAME) {
-        name = pl->pl->ob->name;
+    if (name == NULL && type != CHAT_TYPE_GAME) {
+        name = self->pl->ob->name;
     }
 
-    hooks->draw_info_type(type, name, color, global ? NULL : pl->pl->ob, message);
+    hooks->draw_info_type(type, name, color, broadcast ? NULL : self->pl->ob,
+            message);
 
     Py_INCREF(Py_None);
     return Py_None;
 }
 
+/** Documentation for Atrinik_Player_FactionGetBounty(). */
+static const char doc_Atrinik_Player_FactionGetBounty[] =
+".. method:: FactionGetBounty(faction).\n\n"
+"Acquires player's bounty for the specified faction.\n\n"
+":param faction: The faction name.\n"
+":type faction: str\n"
+":returns: Player's bounty in the specified faction.\n"
+":rtype: float\n"
+":raises Atrinik.AtrinikError: If the specified faction doesn't exist.";
+
 /**
- * <h1>player.FactionGetBounty(string faction)</h1>
- * Acquires player's bounty for the specified faction.
- * @param faction The faction name.
- * @return Player's bounty in the specified faction.
+ * Implements Atrinik.Player.Player.FactionGetBounty() Python method.
+ * @copydoc PyMethod_VARARGS
  */
-static PyObject *Atrinik_Player_FactionGetBounty(Atrinik_Player *pl, PyObject *args)
+static PyObject *Atrinik_Player_FactionGetBounty(Atrinik_Player *self,
+        PyObject *args)
 {
     const char *name;
-    shstr *sh_name;
-    faction_t faction;
 
     if (!PyArg_ParseTuple(args, "s", &name)) {
         return NULL;
     }
 
-    sh_name = hooks->find_string(name);
-
+    shstr *sh_name = hooks->find_string(name);
     if (sh_name == NULL) {
         PyErr_Format(AtrinikError, "No such faction: %s", name);
         return NULL;
     }
 
-    faction = hooks->faction_find(sh_name);
-
+    faction_t faction = hooks->faction_find(sh_name);
     if (faction == NULL) {
         PyErr_Format(AtrinikError, "No such faction: %s", name);
         return NULL;
     }
 
-    return Py_BuildValue("d", hooks->faction_get_bounty(faction, pl->pl));
+    return Py_BuildValue("d", hooks->faction_get_bounty(faction, self->pl));
 }
 
+/** Documentation for Atrinik_Player_FactionClearBounty(). */
+static const char doc_Atrinik_Player_FactionClearBounty[] =
+".. method:: FactionClearBounty(faction).\n\n"
+"Clear player's bounty for the specified faction.\n\n"
+":param faction: The faction name.\n"
+":type faction: str\n"
+":raises Atrinik.AtrinikError: If the specified faction doesn't exist";
+
 /**
- * <h1>player.FactionClearBounty(string faction)</h1>
- * Clear player's bounty for the specified faction.
- * @param faction The faction name.
+ * Implements Atrinik.Player.Player.FactionClearBounty() Python method.
+ * @copydoc PyMethod_VARARGS
  */
-static PyObject *Atrinik_Player_FactionClearBounty(Atrinik_Player *pl, PyObject *args)
+static PyObject *Atrinik_Player_FactionClearBounty(Atrinik_Player *self,
+        PyObject *args)
 {
     const char *name;
-    shstr *sh_name;
-    faction_t faction;
 
     if (!PyArg_ParseTuple(args, "s", &name)) {
         return NULL;
     }
 
-    sh_name = hooks->find_string(name);
-
+    shstr *sh_name = hooks->find_string(name);
     if (sh_name == NULL) {
         PyErr_Format(AtrinikError, "No such faction: %s", name);
         return NULL;
     }
 
-    faction = hooks->faction_find(sh_name);
-
+    faction_t faction = hooks->faction_find(sh_name);
     if (faction == NULL) {
         PyErr_Format(AtrinikError, "No such faction: %s", name);
         return NULL;
     }
 
-    hooks->faction_clear_bounty(faction, pl->pl);
+    hooks->faction_clear_bounty(faction, self->pl);
 
     Py_INCREF(Py_None);
     return Py_None;
 }
 
+/** Documentation for Atrinik_Player_InsertCoins(). */
+static const char doc_Atrinik_Player_InsertCoins[] =
+".. method:: InsertCoins(value).\n\n"
+"Gives coins of the specified value to the player.\n\n"
+":param value: The value.\n"
+":type value: int";
+
 /**
- * <h1>player.InsertCoins(int value)</h1>
- * Gives coins of the specified value to the player.
- * @param value The value.
+ * Implements Atrinik.Player.Player.InsertCoins() Python method.
+ * @copydoc PyMethod_VARARGS
  */
-static PyObject *Atrinik_Player_InsertCoins(Atrinik_Player *pl, PyObject *args)
+static PyObject *Atrinik_Player_InsertCoins(Atrinik_Player *self,
+        PyObject *args)
 {
     int64_t value;
 
@@ -820,13 +869,11 @@ static PyObject *Atrinik_Player_InsertCoins(Atrinik_Player *pl, PyObject *args)
         return NULL;
     }
 
-    hooks->insert_coins(pl->pl->ob, value);
+    hooks->insert_coins(self->pl->ob, value);
 
     Py_INCREF(Py_None);
     return Py_None;
 }
-
-/*@}*/
 
 /** Available Python methods for the AtrinikPlayer type. */
 static PyMethodDef methods[] = {
@@ -852,19 +899,26 @@ static PyMethodDef methods[] = {
             doc_Atrinik_Player_Sound},
     {"Examine", (PyCFunction) Atrinik_Player_Examine, METH_VARARGS,
             doc_Atrinik_Player_Examine},
-    {"SendPacket", (PyCFunction) Atrinik_Player_SendPacket, METH_VARARGS, 0},
-    {"DrawInfo", (PyCFunction) Atrinik_Player_DrawInfo, METH_VARARGS | METH_KEYWORDS, 0},
-    {"FactionGetBounty", (PyCFunction) Atrinik_Player_FactionGetBounty, METH_VARARGS, 0},
-    {"FactionClearBounty", (PyCFunction) Atrinik_Player_FactionClearBounty, METH_VARARGS, 0},
-    {"InsertCoins", (PyCFunction) Atrinik_Player_InsertCoins, METH_VARARGS, 0},
-    {NULL, NULL, 0, 0}
+    {"SendPacket", (PyCFunction) Atrinik_Player_SendPacket, METH_VARARGS,
+            doc_Atrinik_Player_SendPacket},
+    {"DrawInfo", (PyCFunction) Atrinik_Player_DrawInfo,
+            METH_VARARGS | METH_KEYWORDS, doc_Atrinik_Player_DrawInfo},
+    {"FactionGetBounty", (PyCFunction) Atrinik_Player_FactionGetBounty,
+            METH_VARARGS, doc_Atrinik_Player_FactionGetBounty},
+    {"FactionClearBounty", (PyCFunction) Atrinik_Player_FactionClearBounty,
+            METH_VARARGS, doc_Atrinik_Player_FactionClearBounty},
+    {"InsertCoins", (PyCFunction) Atrinik_Player_InsertCoins, METH_VARARGS,
+            doc_Atrinik_Player_InsertCoins},
+
+    {NULL, NULL, 0, NULL}
 };
 
 /**
  * Get player's attribute.
  * @param pl Python player wrapper.
  * @param context Void pointer to the field ID.
- * @return Python object with the attribute value, NULL on failure. */
+ * @return Python object with the attribute value, NULL on failure.
+ */
 static PyObject *get_attribute(Atrinik_Player *pl, void *context)
 {
     return generic_field_getter(context, pl->pl);
@@ -875,7 +929,8 @@ static PyObject *get_attribute(Atrinik_Player *pl, void *context)
  * @param whoptr Python player wrapper.
  * @param value Value to set.
  * @param context Void pointer to the field.
- * @return 0 on success, -1 on failure. */
+ * @return 0 on success, -1 on failure.
+ */
 static int set_attribute(Atrinik_Player *pl, PyObject *value, void *context)
 {
     fields_struct *field = context;
@@ -896,17 +951,13 @@ static int set_attribute(Atrinik_Player *pl, PyObject *value, void *context)
  * @param type Type object.
  * @param args Unused.
  * @param kwds Unused.
- * @return The new wrapper. */
-static PyObject *Atrinik_Player_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
+ * @return The new wrapper.
+ */
+static PyObject *Atrinik_Player_new(PyTypeObject *type, PyObject *args,
+        PyObject *kwds)
 {
-    Atrinik_Player *pl;
-
-    (void) args;
-    (void) kwds;
-
-    pl = (Atrinik_Player *) type->tp_alloc(type, 0);
-
-    if (pl) {
+    Atrinik_Player *pl = (Atrinik_Player *) type->tp_alloc(type, 0);
+    if (pl != NULL) {
         pl->pl = NULL;
     }
 
@@ -915,7 +966,8 @@ static PyObject *Atrinik_Player_new(PyTypeObject *type, PyObject *args, PyObject
 
 /**
  * Free a player wrapper.
- * @param pl The wrapper to free. */
+ * @param pl The wrapper to free.
+ */
 static void Atrinik_Player_dealloc(Atrinik_Player *pl)
 {
     pl->pl = NULL;
@@ -929,32 +981,41 @@ static void Atrinik_Player_dealloc(Atrinik_Player *pl)
 /**
  * Return a string representation of a player.
  * @param pl The player.
- * @return Python object containing the name of the player. */
+ * @return Python object containing the name of the player.
+ */
 static PyObject *Atrinik_Player_str(Atrinik_Player *pl)
 {
     return Py_BuildValue("s", pl->pl->ob->name);
 }
 
-static int Atrinik_Player_InternalCompare(Atrinik_Player *left, Atrinik_Player *right)
+static int Atrinik_Player_InternalCompare(Atrinik_Player *left,
+        Atrinik_Player *right)
 {
     return (left->pl < right->pl ? -1 : (left->pl == right->pl ? 0 : 1));
 }
 
-static PyObject *Atrinik_Player_RichCompare(Atrinik_Player *left, Atrinik_Player *right, int op)
+static PyObject *Atrinik_Player_RichCompare(Atrinik_Player *left,
+        Atrinik_Player *right, int op)
 {
-    if (!left || !right || !PyObject_TypeCheck((PyObject *) left, &Atrinik_PlayerType) || !PyObject_TypeCheck((PyObject *) right, &Atrinik_PlayerType)) {
+    if (left == NULL || right == NULL ||
+            !PyObject_TypeCheck((PyObject *) left, &Atrinik_PlayerType) ||
+            !PyObject_TypeCheck((PyObject *) right, &Atrinik_PlayerType)) {
         Py_INCREF(Py_NotImplemented);
         return Py_NotImplemented;
     }
 
-    return generic_rich_compare(op, Atrinik_Player_InternalCompare(left, right));
+    return generic_rich_compare(op,
+            Atrinik_Player_InternalCompare(left, right));
 }
 
 /**
- * This is filled in when we initialize our player type. */
+ * This is filled in when we initialize our player type.
+ */
 static PyGetSetDef getseters[NUM_FIELDS + 1];
 
-/** Our actual Python PlayerType. */
+/**
+ * Our actual Python PlayerType.
+ */
 PyTypeObject Atrinik_PlayerType = {
 #ifdef IS_PY3K
     PyVarObject_HEAD_INIT(NULL, 0)
@@ -976,7 +1037,15 @@ PyTypeObject Atrinik_PlayerType = {
     (reprfunc) Atrinik_Player_str,
     0, 0, 0,
     Py_TPFLAGS_DEFAULT,
-    "Atrinik players",
+    "Atrinik Player class.\n\n"
+    "To access object's player controller, you can use something like::\n"
+    "    activator = Atrinik.WhoIsActivator()\n"
+    "    player = activator.Controller()\n\n"
+    "In the above example, player points to the player structure (which Python "
+    "is wrapping) that is controlling the object *activator*. In this way, you "
+    "can, for example, use something like this to get player's save bed, among "
+    "other things::\n"
+    "    print(Atrinik.WhoIsActivator().Controller().savebed_map)\n\n",
     NULL, NULL,
     (richcmpfunc) Atrinik_Player_RichCompare,
     0, 0, 0,
@@ -995,9 +1064,10 @@ PyTypeObject Atrinik_PlayerType = {
 };
 
 /**
- * Initialize the player wrapper.
+ * Initialize the Atrinik.Player module.
  * @param module The Atrinik Python module.
- * @return 1 on success, 0 on failure. */
+ * @return 1 on success, 0 on failure.
+ */
 int Atrinik_Player_init(PyObject *module)
 {
     size_t i;
@@ -1022,7 +1092,7 @@ int Atrinik_Player_init(PyObject *module)
     }
 
     Py_INCREF(&Atrinik_PlayerType);
-    PyModule_AddObject(module, "Player", (PyObject *) & Atrinik_PlayerType);
+    PyModule_AddObject(module, "Player", (PyObject *) &Atrinik_PlayerType);
 
     return 1;
 }
@@ -1030,20 +1100,18 @@ int Atrinik_Player_init(PyObject *module)
 /**
  * Utility method to wrap a player.
  * @param what Player to wrap.
- * @return Python object wrapping the real player. */
+ * @return Python object wrapping the real player.
+ */
 PyObject *wrap_player(player *pl)
 {
-    Atrinik_Player *wrapper;
-
     /* Return None if no player was to be wrapped. */
-    if (!pl) {
+    if (pl == NULL) {
         Py_INCREF(Py_None);
         return Py_None;
     }
 
-    wrapper = PyObject_NEW(Atrinik_Player, &Atrinik_PlayerType);
-
-    if (wrapper) {
+    Atrinik_Player *wrapper = PyObject_NEW(Atrinik_Player, &Atrinik_PlayerType);
+    if (wrapper != NULL) {
         wrapper->pl = pl;
     }
 

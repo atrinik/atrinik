@@ -24,16 +24,16 @@
 
 /**
  * @file
- * Atrinik Python plugin party related code. */
+ * Atrinik Python plugin party related code.
+ *
+ * @author Alex Tokar
+ */
 
 #include <plugin_python.h>
 
 /**
- * Party fields. */
-/* @cparser
- * @page plugin_python_party_fields Python party fields
- * <h2>Python party fields</h2>
- * List of the party fields and their meaning. */
+ * Party fields.
+ */
 static fields_struct fields[] = {
     {"name", FIELDTYPE_SHSTR, offsetof(party_struct, name), FIELDFLAG_READONLY,
             0, "Name of the party.; str (readonly)"},
@@ -42,21 +42,21 @@ static fields_struct fields[] = {
     {"password", FIELDTYPE_CARY, offsetof(party_struct, passwd),
             FIELDFLAG_READONLY, 0, "Password required to join the party.; str"}
 };
-/* @endcparser */
+
+/** Documentation for Atrinik_Party_AddMember(). */
+static const char doc_Atrinik_Party_AddMember[] =
+".. method:: AddMember(player).\n\n"
+"Add a player to the party.\n\n"
+":param player: Player object to add to the party.\n"
+":type player: :class:`Atrinik.Object.Object`\n"
+":raises ValueError: If *player* is not a player object.\n"
+":raises Atrinik.AtrinikError: If the player is already in a party.";
 
 /**
- * @defgroup plugin_python_party_functions Python party functions
- * Party related functions used in Atrinik Python plugin.
- *@{*/
-
-/**
- * <h1>party.AddMember(object player)</h1>
- * Add a player to the specified party.
- * @param player Player object to add to the party.
- * @throws ValueError if 'player' is not a player object.
- * @throws AtrinikError if the player is already in the same or another party.
- * */
-static PyObject *Atrinik_Party_AddMember(Atrinik_Party *party, PyObject *args)
+ * Implements Atrinik.Party.Party.AddMember() Python method.
+ * @copydoc PyMethod_VARARGS
+ */
+static PyObject *Atrinik_Party_AddMember(Atrinik_Party *self, PyObject *args)
 {
     Atrinik_Object *ob;
 
@@ -66,30 +66,37 @@ static PyObject *Atrinik_Party_AddMember(Atrinik_Party *party, PyObject *args)
 
     OBJEXISTCHECK(ob);
 
-    if (ob->obj->type != PLAYER || !CONTR(ob->obj)) {
+    if (ob->obj->type != PLAYER || CONTR(ob->obj) == NULL) {
         PyErr_SetString(PyExc_ValueError, "'player' must be a player object.");
         return NULL;
-    } else if (CONTR(ob->obj)->party) {
-        if (CONTR(ob->obj)->party == party->party) {
-            RAISE("The specified player object is already in the specified party.");
+    } else if (CONTR(ob->obj)->party != NULL) {
+        if (CONTR(ob->obj)->party == self->party) {
+            RAISE("The specified player object is already in the party.");
         } else {
             RAISE("The specified player object is already in another party.");
         }
     }
 
-    hooks->add_party_member(party->party, ob->obj);
+    hooks->add_party_member(self->party, ob->obj);
 
     Py_INCREF(Py_None);
     return Py_None;
 }
 
+/** Documentation for Atrinik_Party_RemoveMember(). */
+static const char doc_Atrinik_Party_RemoveMember[] =
+".. method:: RemoveMember(player).\n\n"
+"Remove a player from the party.\n\n"
+":param player: Player object to remove from the party.\n"
+":type player: :class:`Atrinik.Object.Object`\n"
+":raises ValueError: If *player* is not a player object.\n"
+":raises Atrinik.AtrinikError: If the player is not in a party.";
+
 /**
- * <h1>party.RemoveMember(object player)</h1>
- * Remove a player from the specified party.
- * @param player Player object to remove from the party.
- * @throws ValueError if 'player' is not a player object.
- * @throws AtrinikError if the player is not in a party. */
-static PyObject *Atrinik_Party_RemoveMember(Atrinik_Party *party, PyObject *args)
+ * Implements Atrinik.Party.Party.RemoveMember() Python method.
+ * @copydoc PyMethod_VARARGS
+ */
+static PyObject *Atrinik_Party_RemoveMember(Atrinik_Party *self, PyObject *args)
 {
     Atrinik_Object *ob;
 
@@ -99,71 +106,88 @@ static PyObject *Atrinik_Party_RemoveMember(Atrinik_Party *party, PyObject *args
 
     OBJEXISTCHECK(ob);
 
-    if (ob->obj->type != PLAYER || !CONTR(ob->obj)) {
+    if (ob->obj->type != PLAYER || CONTR(ob->obj) == NULL) {
         PyErr_SetString(PyExc_ValueError, "'player' must be a player object.");
         return NULL;
-    } else if (!CONTR(ob->obj)->party) {
-        RAISE("party.RemoveMember(): The specified player is not in a party.");
+    } else if (CONTR(ob->obj)->party == NULL) {
+        RAISE("The specified player is not in a party.");
     }
 
-    hooks->remove_party_member(party->party, ob->obj);
+    hooks->remove_party_member(self->party, ob->obj);
 
     Py_INCREF(Py_None);
     return Py_None;
 }
 
+/** Documentation for Atrinik_Party_GetMembers(). */
+static const char doc_Atrinik_Party_GetMembers[] =
+".. method:: GetMembers().\n\n"
+"Get members of the party.\n\n"
+":returns: List containing the party members as player objects.\n"
+":rtype: list of :class:`Atrinik.Object.Object`";
+
 /**
- * <h1>party.GetMembers()</h1>
- * Get members of a specified party.
- * @return List containing player objects of the party members. */
-static PyObject *Atrinik_Party_GetMembers(Atrinik_Party *party, PyObject *args)
+ * Implements Atrinik.Party.Party.GetMembers() Python method.
+ * @copydoc PyMethod_NOARGS
+ */
+static PyObject *Atrinik_Party_GetMembers(Atrinik_Party *self)
 {
     PyObject *list = PyList_New(0);
-    objectlink *ol;
-
-    (void) args;
-
-    for (ol = party->party->members; ol; ol = ol->next) {
+    for (objectlink *ol = self->party->members; ol != NULL; ol = ol->next) {
         PyList_Append(list, wrap_object(ol->objlink.ob));
     }
 
     return list;
 }
 
+/** Documentation for Atrinik_Party_SendMessage(). */
+static const char doc_Atrinik_Party_SendMessage[] =
+".. method:: SendMessage(message, flags, player=None).\n\n"
+"Send a message to members of the party.\n\n"
+":param message: Message to send.\n"
+":type message: str\n"
+":param flags: One of the PARTY_MESSAGE_xxx constants, eg, :attr:"
+"`~Atrinik.PARTY_MESSAGE_STATUS`\n"
+":type flags: int\n"
+":param player: Player object to exclude from sending the message to.\n"
+":type player: :class:`Atrinik.Object.Object`";
+
 /**
- * <h1>party.SendMessage(string message, int flags, object [player = None])</h1>
- * Send a message to members of a party.
- * @param message Message to send.
- * @param flags Flags. See @ref PARTY_MESSAGE_xxx.
- * @param player Player object to exclude from sending the message. */
-static PyObject *Atrinik_Party_SendMessage(Atrinik_Party *party, PyObject *args)
+ * Implements Atrinik.Party.Party.SendMessage() Python method.
+ * @copydoc PyMethod_VARARGS
+ */
+static PyObject *Atrinik_Party_SendMessage(Atrinik_Party *self, PyObject *args)
 {
     Atrinik_Object *ob = NULL;
     int flags;
     const char *msg;
 
-    if (!PyArg_ParseTuple(args, "si|O!", &msg, &flags, &Atrinik_ObjectType, &ob)) {
+    if (!PyArg_ParseTuple(args, "si|O!", &msg, &flags, &Atrinik_ObjectType,
+            &ob)) {
         return NULL;
     }
 
-    if (ob) {
+    if (ob != NULL) {
         OBJEXISTCHECK(ob);
     }
 
-    hooks->send_party_message(party->party, msg, flags, ob ? ob->obj : NULL, NULL);
+    hooks->send_party_message(self->party, msg, flags,
+            ob != NULL ? ob->obj : NULL,  NULL);
 
     Py_INCREF(Py_None);
     return Py_None;
 }
 
-/*@}*/
-
 /** Available Python methods for the AtrinikParty object */
 static PyMethodDef PartyMethods[] = {
-    {"AddMember", (PyCFunction) Atrinik_Party_AddMember, METH_VARARGS, 0},
-    {"RemoveMember", (PyCFunction) Atrinik_Party_RemoveMember, METH_VARARGS, 0},
-    {"GetMembers", (PyCFunction) Atrinik_Party_GetMembers, METH_NOARGS, 0},
-    {"SendMessage", (PyCFunction) Atrinik_Party_SendMessage, METH_VARARGS, 0},
+    {"AddMember", (PyCFunction) Atrinik_Party_AddMember, METH_VARARGS,
+            doc_Atrinik_Party_AddMember},
+    {"RemoveMember", (PyCFunction) Atrinik_Party_RemoveMember, METH_VARARGS,
+            doc_Atrinik_Party_RemoveMember},
+    {"GetMembers", (PyCFunction) Atrinik_Party_GetMembers, METH_NOARGS,
+            doc_Atrinik_Party_GetMembers},
+    {"SendMessage", (PyCFunction) Atrinik_Party_SendMessage, METH_VARARGS,
+            doc_Atrinik_Party_SendMessage},
     {NULL, NULL, 0, 0}
 };
 
@@ -171,7 +195,8 @@ static PyMethodDef PartyMethods[] = {
  * Get party's attribute.
  * @param party Python party wrapper.
  * @param context Void pointer to the field.
- * @return Python object with the attribute value, NULL on failure. */
+ * @return Python object with the attribute value, NULL on failure.
+ */
 static PyObject *Party_GetAttribute(Atrinik_Party *party, void *context)
 {
     return generic_field_getter(context, party->party);
@@ -182,8 +207,10 @@ static PyObject *Party_GetAttribute(Atrinik_Party *party, void *context)
  * @param party Python party wrapper.
  * @param value Value to set.
  * @param context Void pointer to the field.
- * @return 0 on success, -1 on failure. */
-static int Party_SetAttribute(Atrinik_Party *party, PyObject *value, void *context)
+ * @return 0 on success, -1 on failure.
+ */
+static int Party_SetAttribute(Atrinik_Party *party, PyObject *value,
+        void *context)
 {
     if (generic_field_setter(context, party->party, value) == -1) {
         return -1;
@@ -197,17 +224,13 @@ static int Party_SetAttribute(Atrinik_Party *party, PyObject *value, void *conte
  * @param type Type object.
  * @param args Unused.
  * @param kwds Unused.
- * @return The new wrapper. */
-static PyObject *Atrinik_Party_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
+ * @return The new wrapper.
+ */
+static PyObject *Atrinik_Party_new(PyTypeObject *type, PyObject *args,
+        PyObject *kwds)
 {
-    Atrinik_Party *self;
-
-    (void) args;
-    (void) kwds;
-
-    self = (Atrinik_Party *) type->tp_alloc(type, 0);
-
-    if (self) {
+    Atrinik_Party *self = (Atrinik_Party *) type->tp_alloc(type, 0);
+    if (self != NULL) {
         self->party = NULL;
     }
 
@@ -216,7 +239,8 @@ static PyObject *Atrinik_Party_new(PyTypeObject *type, PyObject *args, PyObject 
 
 /**
  * Free a party wrapper.
- * @param self The wrapper to free. */
+ * @param self The wrapper to free.
+ */
 static void Atrinik_Party_dealloc(Atrinik_Party *self)
 {
     self->party = NULL;
@@ -229,21 +253,27 @@ static void Atrinik_Party_dealloc(Atrinik_Party *self)
 
 /**
  * Return a string representation of a party.
- * @param self The party type.
- * @return Python object containing the name of the party. */
+ * @param self The party object.
+ * @return Python object containing the name of the party.
+ */
 static PyObject *Atrinik_Party_str(Atrinik_Party *self)
 {
     return Py_BuildValue("s", self->party->name);
 }
 
-static int Atrinik_Party_InternalCompare(Atrinik_Party *left, Atrinik_Party *right)
+static int Atrinik_Party_InternalCompare(Atrinik_Party *left,
+        Atrinik_Party *right)
 {
-    return (left->party < right->party ? -1 : (left->party == right->party ? 0 : 1));
+    return (left->party < right->party ? -1 :
+        (left->party == right->party ? 0 : 1));
 }
 
-static PyObject *Atrinik_Party_RichCompare(Atrinik_Party *left, Atrinik_Party *right, int op)
+static PyObject *Atrinik_Party_RichCompare(Atrinik_Party *left,
+        Atrinik_Party *right, int op)
 {
-    if (!left || !right || !PyObject_TypeCheck((PyObject *) left, &Atrinik_PartyType) || !PyObject_TypeCheck((PyObject *) right, &Atrinik_PartyType)) {
+    if (left == NULL || right == NULL ||
+            !PyObject_TypeCheck((PyObject *) left, &Atrinik_PartyType) ||
+            !PyObject_TypeCheck((PyObject *) right, &Atrinik_PartyType)) {
         Py_INCREF(Py_NotImplemented);
         return Py_NotImplemented;
     }
@@ -297,7 +327,8 @@ PyTypeObject Atrinik_PartyType = {
 /**
  * Initialize the party wrapper.
  * @param module The Atrinik Python module.
- * @return 1 on success, 0 on failure. */
+ * @return 1 on success, 0 on failure.
+ */
 int Atrinik_Party_init(PyObject *module)
 {
     size_t i;
@@ -322,7 +353,7 @@ int Atrinik_Party_init(PyObject *module)
     }
 
     Py_INCREF(&Atrinik_PartyType);
-    PyModule_AddObject(module, "Party", (PyObject *) & Atrinik_PartyType);
+    PyModule_AddObject(module, "Party", (PyObject *) &Atrinik_PartyType);
 
     return 1;
 }
@@ -330,20 +361,18 @@ int Atrinik_Party_init(PyObject *module)
 /**
  * Utility method to wrap a party.
  * @param what Party to wrap.
- * @return Python object wrapping the real party. */
+ * @return Python object wrapping the real party.
+ */
 PyObject *wrap_party(party_struct *what)
 {
-    Atrinik_Party *wrapper;
-
     /* Return None if no party was to be wrapped. */
-    if (!what) {
+    if (what == NULL) {
         Py_INCREF(Py_None);
         return Py_None;
     }
 
-    wrapper = PyObject_NEW(Atrinik_Party, &Atrinik_PartyType);
-
-    if (wrapper) {
+    Atrinik_Party *wrapper = PyObject_NEW(Atrinik_Party, &Atrinik_PartyType);
+    if (wrapper != NULL) {
         wrapper->party = what;
     }
 

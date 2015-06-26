@@ -183,6 +183,7 @@ PLUGIN_HOOK_FUNCTION(void , packet_append_uint64, struct packet_struct *, uint64
 PLUGIN_HOOK_FUNCTION(void , packet_append_int64, struct packet_struct *, int64_t)
 PLUGIN_HOOK_FUNCTION(void , packet_append_data_len, struct packet_struct *, const uint8_t *, size_t)
 PLUGIN_HOOK_FUNCTION(void , packet_append_string, struct packet_struct *, const char *)
+PLUGIN_HOOK_FUNCTION(void , packet_append_string_len_terminated, struct packet_struct *, const char *, size_t)
 PLUGIN_HOOK_FUNCTION(void , packet_append_string_terminated, struct packet_struct *, const char *)
 PLUGIN_HOOK_FUNCTION(void , packet_append_map_name, struct packet_struct *, object *, object *)
 PLUGIN_HOOK_FUNCTION(void , packet_append_map_music, struct packet_struct *, object *, object *)

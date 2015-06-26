@@ -24,16 +24,16 @@
 
 /**
  * @file
- * Atrinik Python plugin region related code. */
+ * Atrinik Python plugin region related code.
+ *
+ * @author Alex Tokar
+ */
 
 #include <plugin_python.h>
 
 /**
- * Region fields. */
-/* @cparser
- * @page plugin_python_region_fields Python region fields
- * <h2>Python region fields</h2>
- * List of the region fields and their meaning. */
+ * Region fields.
+ */
 static fields_struct fields[] = {
     {"next", FIELDTYPE_REGION, offsetof(region_struct, next), 0, 0,
             "Next region in a linked list.; Atrinik.Region.Region or None "
@@ -56,13 +56,13 @@ static fields_struct fields[] = {
             "Path to some beginning map in the region. Used for world maker "
             "generation purposes.; str or None (readonly)"}
 };
-/* @endcparser */
 
 /**
  * Get region's attribute.
  * @param r Python region wrapper.
  * @param context Void pointer to the field ID.
- * @return Python object with the attribute value, NULL on failure. */
+ * @return Python object with the attribute value, NULL on failure.
+ */
 static PyObject *Region_GetAttribute(Atrinik_Region *r, void *context)
 {
     return generic_field_getter(context, r->region);
@@ -73,17 +73,13 @@ static PyObject *Region_GetAttribute(Atrinik_Region *r, void *context)
  * @param type Type object.
  * @param args Unused.
  * @param kwds Unused.
- * @return The new wrapper. */
-static PyObject *Atrinik_Region_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
+ * @return The new wrapper.
+ */
+static PyObject *Atrinik_Region_new(PyTypeObject *type, PyObject *args,
+        PyObject *kwds)
 {
-    Atrinik_Region *self;
-
-    (void) args;
-    (void) kwds;
-
-    self = (Atrinik_Region *) type->tp_alloc(type, 0);
-
-    if (self) {
+    Atrinik_Region *self = (Atrinik_Region *) type->tp_alloc(type, 0);
+    if (self != NULL) {
         self->region = NULL;
     }
 
@@ -92,7 +88,8 @@ static PyObject *Atrinik_Region_new(PyTypeObject *type, PyObject *args, PyObject
 
 /**
  * Free a region wrapper.
- * @param self The wrapper to free. */
+ * @param self The wrapper to free.
+ */
 static void Atrinik_Region_dealloc(Atrinik_Region *self)
 {
     self->region = NULL;
@@ -105,30 +102,38 @@ static void Atrinik_Region_dealloc(Atrinik_Region *self)
 
 /**
  * Return a string representation of a region.
- * @param self The region type.
- * @return Python object containing the name of the region. */
+ * @param self The region object.
+ * @return Python object containing the name of the region.
+ */
 static PyObject *Atrinik_Region_str(Atrinik_Region *self)
 {
     return Py_BuildValue("s", self->region->name);
 }
 
-static int Atrinik_Region_InternalCompare(Atrinik_Region *left, Atrinik_Region *right)
+static int Atrinik_Region_InternalCompare(Atrinik_Region *left,
+        Atrinik_Region *right)
 {
-    return (left->region < right->region ? -1 : (left->region == right->region ? 0 : 1));
+    return (left->region < right->region ? -1 :
+        (left->region == right->region ? 0 : 1));
 }
 
-static PyObject *Atrinik_Region_RichCompare(Atrinik_Region *left, Atrinik_Region *right, int op)
+static PyObject *Atrinik_Region_RichCompare(Atrinik_Region *left,
+        Atrinik_Region *right, int op)
 {
-    if (!left || !right || !PyObject_TypeCheck((PyObject *) left, &Atrinik_RegionType) || !PyObject_TypeCheck((PyObject *) right, &Atrinik_RegionType)) {
+    if (left == NULL || right == NULL ||
+            !PyObject_TypeCheck((PyObject *) left, &Atrinik_RegionType) ||
+            !PyObject_TypeCheck((PyObject *) right, &Atrinik_RegionType)) {
         Py_INCREF(Py_NotImplemented);
         return Py_NotImplemented;
     }
 
-    return generic_rich_compare(op, Atrinik_Region_InternalCompare(left, right));
+    return generic_rich_compare(op,
+            Atrinik_Region_InternalCompare(left, right));
 }
 
 /**
- * This is filled in when we initialize our region type. */
+ * This is filled in when we initialize our region type.
+ */
 static PyGetSetDef getseters[NUM_FIELDS + 1];
 
 /** Our actual Python RegionType. */
@@ -174,7 +179,8 @@ PyTypeObject Atrinik_RegionType = {
 /**
  * Initialize the region wrapper.
  * @param module The Atrinik Python module.
- * @return 1 on success, 0 on failure. */
+ * @return 1 on success, 0 on failure.
+ */
 int Atrinik_Region_init(PyObject *module)
 {
     size_t i;
@@ -199,7 +205,7 @@ int Atrinik_Region_init(PyObject *module)
     }
 
     Py_INCREF(&Atrinik_RegionType);
-    PyModule_AddObject(module, "Region", (PyObject *) & Atrinik_RegionType);
+    PyModule_AddObject(module, "Region", (PyObject *) &Atrinik_RegionType);
 
     return 1;
 }
@@ -207,20 +213,18 @@ int Atrinik_Region_init(PyObject *module)
 /**
  * Utility method to wrap a region.
  * @param what Region to wrap.
- * @return Python object wrapping the real region. */
+ * @return Python object wrapping the real region.
+ */
 PyObject *wrap_region(region_struct *what)
 {
-    Atrinik_Region *wrapper;
-
     /* Return None if no region was to be wrapped. */
-    if (!what) {
+    if (what == NULL) {
         Py_INCREF(Py_None);
         return Py_None;
     }
 
-    wrapper = PyObject_NEW(Atrinik_Region, &Atrinik_RegionType);
-
-    if (wrapper) {
+    Atrinik_Region *wrapper = PyObject_NEW(Atrinik_Region, &Atrinik_RegionType);
+    if (wrapper != NULL) {
         wrapper->region = what;
     }
 
