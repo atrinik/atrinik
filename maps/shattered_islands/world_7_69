@@ -2,7 +2,7 @@ arch map
 name Strakewood Island
 msg
 Created:  2009-09-10 Alex Tokar
-Modified: 2015-06-20 Alex Tokar
+Modified: 2015-06-27 Alex Tokar
 endmsg
 width 24
 height 24
@@ -2528,6 +2528,7 @@ direction 1
 type 83
 level 14
 faction greyton_citizens
+randomitems mob_default
 end
 end
 arch floor_wood2_l1
