@@ -169,7 +169,6 @@ def dump_obj(obj, f, indent=0, defaults=None):
                 tmp_name, cls_name=tmp.__class__.__name__))
             doc = tmp_name.replace("_", " ").title()
             dump_docstring(tmp, f, indent, doc=doc)
-            continue
         elif inspect.isclass(obj):
             f.write("\n")
             f.write(" " * indent * 4)
@@ -227,7 +226,7 @@ def main():
         ("me", (Object(), ":class:`~Atrinik.Object.Object` that has the event "
                           "object in its inventory that triggered the event.")),
         ("msg", ("hello", "Message used to activate the event (eg, in case of "
-                         "say events). Can be None.")),
+                          "say events). Can be None.")),
     ])
 
     if not os.path.exists(PATH):
