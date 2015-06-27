@@ -3,6 +3,7 @@ Implementation for the 'Interface Editor' window.
 """
 
 import os
+import subprocess
 import xml.etree.ElementTree as ElementTree
 import xml.dom.minidom
 import logging
@@ -11,6 +12,7 @@ from PyQt5 import QtWidgets, QtGui
 from PyQt5 import QtCore
 from PyQt5.QtCore import Qt, QItemSelectionModel
 from PyQt5.QtWidgets import QMainWindow
+import sys
 
 import system.utils
 from ui.ui_window_interface_editor import Ui_WindowInterfaceEditor
@@ -465,6 +467,12 @@ class WindowInterfaceEditor(Model, QMainWindow, Ui_WindowInterfaceEditor):
             return
 
         self.save_interface_file(self.file_path)
+
+        if self.config.getboolean("Interface Editor", "collect"):
+            path = self.config.get("General", "path_dir_tools")
+            p = subprocess.Popen(["./collect.py", "-c", "interfaces"],
+                                 cwd=path, shell=sys.platform.startswith("win"))
+            p.wait()
 
     def action_save_as_trigger(self):
         # noinspection PyTypeChecker,PyCallByClass
