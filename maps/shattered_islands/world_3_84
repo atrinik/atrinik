@@ -2,7 +2,7 @@ arch map
 name Incuna
 msg
 Created:  2010-08-22 Edwin Miltenburg
-Modified: 2015-06-21 Alex Tokar
+Modified: 2015-06-27 Alex Tokar
 endmsg
 width 24
 height 24
@@ -674,6 +674,11 @@ x 2
 y 21
 end
 arch water_lt3
+x 2
+y 22
+end
+arch sound_ambient
+race ocean_waves.ogg
 x 2
 y 22
 end

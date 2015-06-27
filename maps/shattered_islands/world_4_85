@@ -2,7 +2,7 @@ arch map
 name Incuna
 msg
 Created:  2010-08-22 Edwin Miltenburg
-Modified: 2015-06-21 Alex Tokar
+Modified: 2015-06-27 Alex Tokar
 endmsg
 width 24
 height 24
@@ -356,6 +356,11 @@ x 2
 y 18
 end
 arch water_lt3
+x 2
+y 19
+end
+arch sound_ambient
+race ocean_waves.ogg
 x 2
 y 19
 end
@@ -1672,6 +1677,11 @@ arch water_md2
 x 10
 y 21
 end
+arch sound_ambient
+race ocean_waves.ogg
+x 10
+y 21
+end
 arch water_md2
 x 10
 y 22
@@ -2387,6 +2397,11 @@ arch water_lt2
 x 16
 y 6
 end
+arch sound_ambient
+race ocean_waves.ogg
+x 16
+y 6
+end
 arch water_lt4
 x 16
 y 7
@@ -2542,6 +2557,11 @@ arch water_lt3
 x 17
 y 16
 end
+arch sound_ambient
+race ocean_waves.ogg
+x 17
+y 16
+end
 arch water_lt4
 x 17
 y 17
@@ -2598,6 +2618,10 @@ x 18
 y 2
 end
 arch grassd_m8
+x 18
+y 2
+end
+arch starfish
 x 18
 y 2
 end
@@ -2993,20 +3017,17 @@ x 20
 y 13
 end
 arch small_stones
-layer 3
 x 20
 y 13
 end
 arch hole
-layer 4
-slaying incuna/slimepit/slimepit_0201
-hp 18
-sp 17
+last_heal 10
+sub_layer 1
 x 20
 y 13
 end
 arch plant_flower2
-layer 5
+sub_layer 2
 x 20
 y 13
 end

@@ -1,8 +1,8 @@
 arch map
-name Incuna Bank
+name Incuna
 msg
 Created:  2011-09-03 Alex Tokar
-Modified: 2015-04-19 Alex Tokar
+Modified: 2015-06-27 Alex Tokar
 endmsg
 width 24
 height 24
@@ -12,7 +12,349 @@ no_harm 1
 bg_music tutorialisland.mid
 region incuna
 end
-arch blocked
+arch trans
+x 12
+y 14
+end
+arch wall_marble1.181-03
+x 12
+y 14
+end
+arch trans
+x 12
+y 15
+end
+arch wall_marble1.111-03
+x 12
+y 15
+end
+arch trans
+x 12
+y 16
+end
+arch wall_marble1.111-03
+x 12
+y 16
+end
+arch trans
+x 12
+y 17
+end
+arch wall_marble1.111-03
+x 12
+y 17
+end
+arch trans
+x 12
+y 18
+end
+arch wall_marble1.111-03
+x 12
+y 18
+end
+arch trans
+x 12
+y 19
+end
+arch wall_marble1.111-03
+x 12
+y 19
+end
+arch trans
+x 12
+y 20
+end
+arch wall_marble1.111-03
+x 12
+y 20
+end
+arch trans
+x 12
+y 21
+end
+arch wall_marble1.111-03
+x 12
+y 21
+end
+arch trans
+x 13
+y 13
+end
+arch wall_marble1.181-03
+x 13
+y 13
+end
+arch trans
+x 13
+y 14
+end
+arch wall_marble1.141-03
+x 13
+y 14
+end
+arch floor_white1e
+x 13
+y 15
+end
+arch floor_white1d
+x 13
+y 16
+end
+arch floor_white1a
+x 13
+y 17
+end
+arch floor_white1c
+x 13
+y 18
+end
+arch torch_wall_1
+direction 7
+x 13
+y 18
+end
+arch floor_white1c
+x 13
+y 19
+end
+arch floor_white1a
+x 13
+y 20
+end
+arch floor_white1d
+x 13
+y 21
+end
+arch wall_marble1.131-03
+x 13
+y 21
+end
+arch trans
+x 14
+y 13
+end
+arch wall_marble1.131-03
+x 14
+y 13
+end
+arch floor_white1e
+x 14
+y 14
+end
+arch torch_wall_1
+x 14
+y 14
+end
+arch floor_white1a
+x 14
+y 15
+end
+arch floor_white1d
+x 14
+y 16
+end
+arch floor_white1e
+x 14
+y 17
+end
+arch floor_white1a
+x 14
+y 18
+end
+arch floor_white1b
+x 14
+y 19
+end
+arch floor_white1b
+x 14
+y 20
+end
+arch floor_white1e
+x 14
+y 21
+end
+arch wall_marble1.131-03
+x 14
+y 21
+end
+arch trans
+x 14
+y 22
+end
+arch wall_marble1.111-03
+x 14
+y 22
+end
+arch trans
+x 14
+y 23
+end
+arch wall_marble1.111-03
+x 14
+y 23
+end
+arch trans
+x 15
+y 13
+end
+arch wall_marble1.131-03
+x 15
+y 13
+end
+arch floor_white1a
+x 15
+y 14
+end
+arch floor_white1d
+x 15
+y 15
+end
+arch floor_white1c
+x 15
+y 16
+end
+arch floor_white1a
+x 15
+y 17
+end
+arch floor_white1c
+x 15
+y 18
+end
+arch floor_white1a
+x 15
+y 19
+end
+arch floor_white1a
+x 15
+y 20
+end
+arch floor_white1a
+x 15
+y 21
+end
+arch floor_white1b
+x 15
+y 22
+end
+arch torch_wall_1
+direction 7
+x 15
+y 22
+end
+arch floor_white1c
+x 15
+y 23
+end
+arch trans
+x 16
+y 13
+end
+arch wall_marble1.131-03
+x 16
+y 13
+end
+arch floor_white1b
+x 16
+y 14
+end
+arch floor_white1b
+x 16
+y 15
+end
+arch floor_white1a
+x 16
+y 16
+end
+arch floor_white1e
+x 16
+y 17
+end
+arch floor_white1e
+x 16
+y 18
+end
+arch floor_white1a
+x 16
+y 19
+end
+arch floor_white1e
+x 16
+y 20
+end
+arch floor_white1a
+x 16
+y 21
+end
+arch floor_white1b
+x 16
+y 22
+end
+arch floor_white1c
+x 16
+y 23
+end
+arch trans
+x 17
+y 13
+end
+arch wall_marble1.131-03
+x 17
+y 13
+end
+arch floor_white1c
+x 17
+y 14
+end
+arch floor_white1e
+x 17
+y 15
+end
+arch floor_white1c
+x 17
+y 16
+end
+arch floor_white1e
+x 17
+y 17
+end
+arch floor_white1c
+x 17
+y 18
+end
+arch floor_white1d
+x 17
+y 19
+end
+arch floor_white1e
+x 17
+y 20
+end
+arch floor_white1d
+x 17
+y 21
+end
+arch wall_marble1.181-03
+x 17
+y 21
+end
+arch floor_white1e
+x 17
+y 22
+end
+arch wall_marble1.111-03
+x 17
+y 22
+end
+arch floor_white1e
+x 17
+y 23
+end
+arch wall_marble1.111-03
+x 17
+y 23
+end
+arch trans
 x 18
 y 6
 end
@@ -21,7 +363,14 @@ draw_double 0
 x 18
 y 6
 end
-arch blocked
+arch map_info
+hp 5
+sp 6
+race Incuna Bank
+x 18
+y 6
+end
+arch trans
 x 18
 y 7
 end
@@ -30,7 +379,7 @@ draw_double 0
 x 18
 y 7
 end
-arch blocked
+arch trans
 x 18
 y 8
 end
@@ -39,7 +388,7 @@ draw_double 0
 x 18
 y 8
 end
-arch blocked
+arch trans
 x 18
 y 9
 end
@@ -48,7 +397,7 @@ draw_double 0
 x 18
 y 9
 end
-arch blocked
+arch trans
 x 18
 y 10
 end
@@ -57,7 +406,7 @@ draw_double 0
 x 18
 y 10
 end
-arch blocked
+arch trans
 x 18
 y 11
 end
@@ -66,7 +415,7 @@ draw_double 0
 x 18
 y 11
 end
-arch blocked
+arch trans
 x 18
 y 12
 end
@@ -75,7 +424,71 @@ draw_double 0
 x 18
 y 12
 end
-arch blocked
+arch trans
+x 18
+y 13
+end
+arch wall_marble1.131-03
+x 18
+y 13
+end
+arch floor_white1a
+x 18
+y 14
+end
+arch wall_marble1.111-03
+x 18
+y 14
+end
+arch floor_white1e
+x 18
+y 15
+end
+arch floor_white1d
+x 18
+y 16
+end
+arch floor_white1c
+x 18
+y 17
+end
+arch floor_white1d
+x 18
+y 18
+end
+arch floor_white1c
+x 18
+y 19
+end
+arch floor_white1e
+x 18
+y 20
+end
+arch floor_white1b
+x 18
+y 21
+end
+arch wall_marble1.131-03
+x 18
+y 21
+end
+arch trans
+x 18
+y 22
+end
+arch wall_marble1.181-07
+x 18
+y 22
+end
+arch trans
+x 18
+y 23
+end
+arch wall_marble1.111a-07
+x 18
+y 23
+end
+arch trans
 x 19
 y 6
 end
@@ -146,7 +559,79 @@ draw_double 0
 x 19
 y 12
 end
-arch blocked
+arch trans
+x 19
+y 14
+end
+arch wall_marble1.131-03
+x 19
+y 14
+end
+arch floor_white1a
+x 19
+y 15
+end
+arch wall_marble1.111-03
+x 19
+y 15
+end
+arch floor_white1b
+x 19
+y 16
+end
+arch wall_marble1.111-03
+x 19
+y 16
+end
+arch floor_white1d
+x 19
+y 17
+end
+arch wall_marble1.111-03
+x 19
+y 17
+end
+arch floor_white1b
+x 19
+y 18
+end
+arch wall_marble1.111-03
+x 19
+y 18
+end
+arch floor_white1a
+x 19
+y 19
+end
+arch floor_white1c
+x 19
+y 20
+end
+arch wall_marble1.181-03
+x 19
+y 20
+end
+arch floor_white1a
+x 19
+y 21
+end
+arch wall_marble1.141-03
+x 19
+y 21
+end
+arch trans
+x 19
+y 22
+end
+arch wall_marble1.131-07
+x 19
+y 22
+end
+arch floor_white1e
+x 19
+y 23
+end
+arch trans
 x 20
 y 6
 end
@@ -217,7 +702,47 @@ draw_double 0
 x 20
 y 12
 end
-arch blocked
+arch trans
+x 20
+y 18
+end
+arch wall_marble1.131-c-03-07
+x 20
+y 18
+end
+arch floor_white1d
+x 20
+y 19
+end
+arch torch_wall_1
+x 20
+y 19
+end
+arch floor_white1c
+x 20
+y 20
+end
+arch wall_marble1.131-c-03-07
+x 20
+y 20
+end
+arch trans
+x 20
+y 22
+end
+arch wall_marble1.131-07
+x 20
+y 22
+end
+arch floor_white1a
+x 20
+y 23
+end
+arch torch_wall_1
+x 20
+y 23
+end
+arch trans
 x 21
 y 6
 end
@@ -298,7 +823,46 @@ draw_double 0
 x 21
 y 12
 end
-arch blocked
+arch trans
+x 21
+y 18
+end
+arch wall_marble1.131-07
+x 21
+y 18
+end
+arch floor_white1d
+x 21
+y 19
+end
+arch door1_locked
+direction 5
+slaying incuna_temple
+sp 2
+x 21
+y 19
+end
+arch floor_white1a
+x 21
+y 20
+end
+arch wall_marble1.141-07
+x 21
+y 20
+end
+arch trans
+x 21
+y 22
+end
+arch wall_marble1.131-07
+x 21
+y 22
+end
+arch floor_white1c
+x 21
+y 23
+end
+arch trans
 x 22
 y 6
 end
@@ -359,7 +923,83 @@ draw_double 0
 x 22
 y 12
 end
-arch blocked
+arch trans
+x 22
+y 14
+end
+arch wall_marble1.181-05
+x 22
+y 14
+end
+arch trans
+x 22
+y 15
+end
+arch wall_marble1.111a-05
+x 22
+y 15
+end
+arch trans
+x 22
+y 16
+end
+arch wall_marble1.111a-05
+x 22
+y 16
+end
+arch trans
+x 22
+y 17
+end
+arch wall_marble1.111-c-07-05
+x 22
+y 17
+end
+arch trans
+x 22
+y 18
+end
+arch wall_marble1.141-07
+x 22
+y 18
+end
+arch floor_white1a
+x 22
+y 19
+end
+arch torch_wall_1
+x 22
+y 19
+end
+arch floor_white1a
+x 22
+y 20
+end
+arch wall_marble1.131-07
+x 22
+y 20
+end
+arch trans
+x 22
+y 21
+end
+arch wall_marble1.111a-07
+x 22
+y 21
+end
+arch trans
+x 22
+y 22
+end
+arch wall_marble1.141-07
+x 22
+y 22
+end
+arch floor_white1e
+x 22
+y 23
+end
+arch trans
 x 23
 y 6
 end
@@ -434,4 +1074,62 @@ sub_layer 1
 draw_double 0
 x 23
 y 12
+end
+arch trans
+x 23
+y 14
+end
+arch wall_marble1.131-05
+x 23
+y 14
+end
+arch floor_white1a
+x 23
+y 15
+end
+arch torch_wall_1
+x 23
+y 15
+end
+arch floor_white1a
+x 23
+y 16
+end
+arch floor_white1b
+x 23
+y 17
+end
+arch floor_white1c
+x 23
+y 18
+end
+arch door1_locked
+direction 7
+x 23
+y 18
+end
+arch floor_white1c
+x 23
+y 19
+end
+arch floor_white1d
+x 23
+y 20
+end
+arch floor_white1a
+x 23
+y 21
+end
+arch door1_locked
+direction 7
+x 23
+y 21
+end
+arch floor_white1b
+x 23
+y 22
+end
+arch floor_white1c
+x 23
+y 23
 end

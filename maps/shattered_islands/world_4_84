@@ -2,7 +2,7 @@ arch map
 name Incuna
 msg
 Created:  2010-08-22 Edwin Miltenburg
-Modified: 2015-06-21 Alex Tokar
+Modified: 2015-06-27 Alex Tokar
 endmsg
 width 24
 height 24
@@ -1270,6 +1270,10 @@ arch floor_wood2b
 x 6
 y 14
 end
+arch stairs_wood_down
+x 6
+y 14
+end
 arch floor_wood2b
 x 6
 y 15
@@ -1490,7 +1494,7 @@ arch floor_wood2b
 x 7
 y 14
 end
-arch stairs_wood_down
+arch stairs_down
 x 7
 y 14
 end
@@ -1847,12 +1851,11 @@ direction 5
 x 9
 y 7
 end
-arch blocked
-no_pass 0
+arch floor_marble1f
 x 9
 y 8
 end
-arch invis_exit
+arch stairs_down
 x 9
 y 8
 end
@@ -2035,12 +2038,11 @@ direction 5
 x 10
 y 7
 end
-arch blocked
-no_pass 0
+arch floor_marble1f
 x 10
 y 8
 end
-arch invis_exit
+arch stairs_down
 x 10
 y 8
 end

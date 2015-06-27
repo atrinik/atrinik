@@ -1,0 +1,357 @@
+arch map
+name Incuna - Under the Barn
+msg
+Created:  2011-09-17 Edwin Miltenburg
+Modified: 2015-06-27 Alex Tokar
+endmsg
+width 24
+height 24
+difficulty 1
+darkness 3
+region incuna
+end
+arch floor_earth1b
+y 22
+end
+arch fwall_wood1c
+y 22
+end
+arch floor_earth1a
+y 23
+end
+arch floor_earth1c
+x 1
+y 22
+end
+arch fwall_wood1b
+x 1
+y 22
+end
+arch floor_earth1d
+x 1
+y 23
+end
+arch spawn_point
+x 1
+y 23
+arch ant_soldier
+type 83
+randomitems mob_fighter_l9
+level 2
+wc_range 12
+end
+end
+arch floor_earth1b
+x 2
+y 22
+end
+arch fwall_wood1a
+x 2
+y 22
+end
+arch floor_earth1c
+x 2
+y 23
+end
+arch floor_earth1a
+x 3
+y 22
+end
+arch fwall_wood1a
+x 3
+y 22
+end
+arch floor_earth1c
+x 3
+y 23
+end
+arch floor_earth1d
+x 4
+y 22
+end
+arch fwall_wood1b
+x 4
+y 22
+end
+arch floor_earth1e
+x 4
+y 23
+end
+arch wood_pile.101
+x 4
+y 23
+end
+arch floor_earth1e
+x 5
+y 22
+end
+arch fwall_wood1b
+x 5
+y 22
+end
+arch floor_earth1b
+x 5
+y 23
+end
+arch straw1.101
+x 5
+y 23
+end
+arch floor_earth1a
+x 6
+y 22
+end
+arch fwall_wood1c
+x 6
+y 22
+end
+arch floor_earth1c
+x 6
+y 23
+end
+arch straw2.111
+x 6
+y 23
+end
+arch floor_earth1b
+x 7
+y 22
+end
+arch fwall_wood1b
+x 7
+y 22
+end
+arch floor_earth1c
+x 7
+y 23
+end
+arch floor_earth1c
+x 8
+y 22
+end
+arch fwall_wood1a
+x 8
+y 22
+end
+arch floor_earth1d
+x 8
+y 23
+end
+arch dirt_floor4
+x 8
+y 23
+end
+arch floor_earth1b
+x 9
+y 22
+end
+arch fwall_wood1b
+x 9
+y 22
+end
+arch floor_earth1c
+x 9
+y 23
+end
+arch floor_earth1d
+x 10
+y 22
+end
+arch fwall_wood1b
+x 10
+y 22
+end
+arch floor_earth1b
+x 10
+y 23
+end
+arch spawn_point
+x 10
+y 23
+arch ant_soldier
+randomitems mob_fighter_l9
+level 2
+wc_range 12
+type 83
+end
+end
+arch floor_earth1d
+x 11
+y 22
+end
+arch fwall_wood1a
+x 11
+y 22
+end
+arch floor_earth1b
+x 11
+y 23
+end
+arch dirt_floor3
+x 11
+y 23
+end
+arch floor_earth1a
+x 12
+y 22
+end
+arch fwall_wood1a
+x 12
+y 22
+end
+arch floor_earth1d
+x 12
+y 23
+end
+arch floor_earth1e
+x 13
+y 22
+end
+arch fwall_wood1b
+x 13
+y 22
+end
+arch floor_earth1e
+x 13
+y 23
+end
+arch floor_earth1b
+x 14
+y 22
+end
+arch fwall_wood1b
+x 14
+y 22
+end
+arch floor_earth1e
+x 14
+y 23
+end
+arch floor_earth1a
+x 15
+y 22
+end
+arch fwall_wood1b
+x 15
+y 22
+end
+arch floor_earth1e
+x 15
+y 23
+end
+arch dirt_floor4
+x 15
+y 23
+end
+arch floor_earth1e
+x 16
+y 22
+end
+arch fwall_wood1c
+x 16
+y 22
+end
+arch floor_earth1d
+x 16
+y 23
+end
+arch floor_earth1d
+x 17
+y 22
+end
+arch fwall_wood1c
+x 17
+y 22
+end
+arch floor_earth1d
+x 17
+y 23
+end
+arch floor_earth1c
+x 18
+y 22
+end
+arch fwall_wood1a
+x 18
+y 22
+end
+arch floor_earth1d
+x 18
+y 23
+end
+arch floor_earth1a
+x 19
+y 22
+end
+arch fwall_wood1c
+x 19
+y 22
+end
+arch floor_earth1d
+x 19
+y 23
+end
+arch floor_earth1d
+x 20
+y 22
+end
+arch fwall_wood1a
+x 20
+y 22
+end
+arch floor_earth1c
+x 20
+y 23
+end
+arch straw2.111
+x 20
+y 23
+end
+arch floor_earth1e
+x 21
+y 22
+end
+arch fwall_wood1c
+x 21
+y 22
+end
+arch floor_earth1b
+x 21
+y 23
+end
+arch fwall_wood1b
+x 21
+y 23
+end
+arch floor_earth1e
+x 22
+y 22
+end
+arch fwall_wood1b
+x 22
+y 22
+end
+arch floor_earth1a
+x 22
+y 23
+end
+arch straw1.101
+x 22
+y 23
+end
+arch floor_earth1b
+x 23
+y 22
+end
+arch fwall_wood1c
+x 23
+y 22
+end
+arch floor_earth1d
+x 23
+y 23
+end
+arch box2.101
+x 23
+y 23
+end

@@ -2,7 +2,7 @@ arch map
 name Incuna - Below Ellamin's House
 msg
 Created:  2010-10-22 Edwin Miltenburg
-Modified: 2015-04-19 Alex Tokar
+Modified: 2015-06-27 Alex Tokar
 endmsg
 width 24
 height 24
@@ -554,7 +554,7 @@ arch plant1_wall.151
 x 3
 y 11
 end
-arch blocked
+arch trans
 x 3
 y 12
 end
@@ -562,7 +562,7 @@ arch wall_wood_8
 x 3
 y 12
 end
-arch blocked
+arch trans
 x 3
 y 13
 end
@@ -570,7 +570,7 @@ arch wall_wood2_3
 x 3
 y 13
 end
-arch blocked
+arch trans
 x 3
 y 14
 end
@@ -720,7 +720,7 @@ arch wall_wood2_1
 x 4
 y 10
 end
-arch blocked
+arch trans
 x 4
 y 12
 end
@@ -901,7 +901,7 @@ arch wall_wood3_1
 x 5
 y 10
 end
-arch blocked
+arch trans
 x 5
 y 11
 end
@@ -909,7 +909,7 @@ arch wall_wood_3
 x 5
 y 11
 end
-arch blocked
+arch trans
 x 5
 y 12
 end
@@ -929,7 +929,7 @@ arch wall_wood3_1
 x 5
 y 14
 end
-arch blocked
+arch trans
 x 5
 y 15
 end
@@ -1383,7 +1383,7 @@ arch fwall_rock3
 x 8
 y 6
 end
-arch blocked
+arch trans
 x 8
 y 7
 end
@@ -1548,7 +1548,7 @@ arch fwall_rock3
 x 9
 y 6
 end
-arch blocked
+arch trans
 x 9
 y 7
 end
@@ -1732,7 +1732,7 @@ arch fwall_rock1
 x 10
 y 6
 end
-arch blocked
+arch trans
 x 10
 y 7
 end
@@ -1888,7 +1888,7 @@ arch fwall_rock3
 x 11
 y 6
 end
-arch blocked
+arch trans
 x 11
 y 7
 end
@@ -1937,7 +1937,7 @@ arch wall_wood2_1
 x 11
 y 11
 end
-arch blocked
+arch trans
 x 11
 y 12
 end
@@ -1950,7 +1950,7 @@ direction 7
 x 11
 y 12
 end
-arch blocked
+arch trans
 x 11
 y 13
 end
@@ -2063,7 +2063,7 @@ arch fwall_rock3
 x 12
 y 6
 end
-arch blocked
+arch trans
 x 12
 y 7
 end
@@ -2217,7 +2217,7 @@ arch fwall_rock3
 x 13
 y 5
 end
-arch blocked
+arch trans
 x 13
 y 7
 end
@@ -2388,7 +2388,7 @@ arch fwall_rock3
 x 14
 y 6
 end
-arch blocked
+arch trans
 x 14
 y 7
 end
@@ -2535,7 +2535,7 @@ arch fwall_rock3
 x 15
 y 6
 end
-arch blocked
+arch trans
 x 15
 y 7
 end
@@ -2695,7 +2695,7 @@ arch fwall_rock1
 x 16
 y 6
 end
-arch blocked
+arch trans
 x 16
 y 8
 end
@@ -2854,7 +2854,7 @@ arch fwall_rock1
 x 17
 y 7
 end
-arch blocked
+arch trans
 x 17
 y 9
 end
@@ -3016,7 +3016,7 @@ arch fwall_rock1
 x 18
 y 8
 end
-arch blocked
+arch trans
 x 18
 y 9
 end

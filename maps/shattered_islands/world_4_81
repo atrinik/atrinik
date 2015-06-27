@@ -2,7 +2,7 @@ arch map
 name Incuna
 msg
 Created:  2010-08-22 Edwin Miltenburg
-Modified: 2015-06-21 Alex Tokar
+Modified: 2015-06-27 Alex Tokar
 endmsg
 width 24
 height 24
@@ -69,7 +69,13 @@ end
 arch grassd_1
 y 15
 end
+arch plant16
+y 15
+end
 arch grassd_6
+y 16
+end
+arch tree_branch2
 y 16
 end
 arch grassd_7
@@ -161,6 +167,10 @@ arch floor_ruin5
 x 1
 y 12
 end
+arch seashell
+x 1
+y 12
+end
 arch floor_ruin6
 x 1
 y 13
@@ -189,8 +199,16 @@ arch grassd_6
 x 1
 y 18
 end
+arch tree_big2
+x 1
+y 18
+end
 arch grassd_2
 z 2
+x 1
+y 19
+end
+arch plant9
 x 1
 y 19
 end
@@ -254,6 +272,11 @@ arch water_lt
 x 2
 y 7
 end
+arch sound_ambient
+race ocean_waves.ogg
+x 2
+y 7
+end
 arch water_lt
 x 2
 y 8
@@ -299,6 +322,10 @@ arch grassd_2
 x 2
 y 15
 end
+arch plant15
+x 2
+y 15
+end
 arch grassd_5
 x 2
 y 16
@@ -311,6 +338,10 @@ arch grassd_1
 x 2
 y 18
 end
+arch plant1
+x 2
+y 18
+end
 arch grassd_8
 z 2
 x 2
@@ -318,6 +349,10 @@ y 19
 end
 arch grassd_2
 z 4
+x 2
+y 20
+end
+arch plant7
 x 2
 y 20
 end
@@ -333,6 +368,10 @@ y 22
 end
 arch grassd_5
 z 4
+x 2
+y 23
+end
+arch tree_big
 x 2
 y 23
 end
@@ -430,6 +469,10 @@ z 2
 x 3
 y 19
 end
+arch plant13
+x 3
+y 19
+end
 arch grassd_2
 z 4
 x 3
@@ -438,6 +481,18 @@ end
 arch plant_flower1
 x 3
 y 20
+end
+arch spawn_point
+x 3
+y 20
+arch wolf
+type 83
+level 5
+random_move 1
+item_race 2
+item_level 2
+direction 1
+end
 end
 arch grassd_2
 z 8
@@ -453,8 +508,16 @@ z 8
 x 3
 y 22
 end
+arch plant3
+x 3
+y 22
+end
 arch grassd_8
 z 8
+x 3
+y 23
+end
+arch plant7
 x 3
 y 23
 end
@@ -536,6 +599,10 @@ x 4
 y 14
 end
 arch grassd_6
+x 4
+y 15
+end
+arch plant4
 x 4
 y 15
 end
@@ -560,8 +627,16 @@ z 2
 x 4
 y 19
 end
+arch plant6
+x 4
+y 19
+end
 arch grassd_7
 z 4
+x 4
+y 20
+end
+arch plant7
 x 4
 y 20
 end
@@ -575,8 +650,16 @@ z 12
 x 4
 y 22
 end
+arch plant15
+x 4
+y 22
+end
 arch grassd_8
 z 12
+x 4
+y 23
+end
+arch plant6
 x 4
 y 23
 end
@@ -641,6 +724,10 @@ arch floor_ruin2
 x 5
 y 12
 end
+arch starfish
+x 5
+y 12
+end
 arch floor_ruin3
 x 5
 y 13
@@ -665,11 +752,19 @@ arch grassd_6
 x 5
 y 16
 end
+arch plant_flower6
+x 5
+y 16
+end
 arch grassd_6
 x 5
 y 17
 end
 arch grassd_7
+x 5
+y 18
+end
+arch tree_big
 x 5
 y 18
 end
@@ -695,6 +790,10 @@ y 22
 end
 arch grassd_2
 z 16
+x 5
+y 23
+end
+arch plant9
 x 5
 y 23
 end
@@ -783,6 +882,10 @@ arch grassd_7
 x 6
 y 17
 end
+arch plant_flower11
+x 6
+y 17
+end
 arch grassd_5
 x 6
 y 18
@@ -792,8 +895,16 @@ z 2
 x 6
 y 19
 end
+arch plant2
+x 6
+y 19
+end
 arch grassd_1
 z 4
+x 6
+y 20
+end
+arch plant_big1
 x 6
 y 20
 end
@@ -807,8 +918,16 @@ z 12
 x 6
 y 22
 end
+arch plant11
+x 6
+y 22
+end
 arch grassd_5
 z 16
+x 6
+y 23
+end
+arch tree_big3
 x 6
 y 23
 end
@@ -901,8 +1020,16 @@ arch grassd_2
 x 7
 y 18
 end
+arch plant11
+x 7
+y 18
+end
 arch grassd_3
 z 2
+x 7
+y 19
+end
+arch plant4
 x 7
 y 19
 end
@@ -925,8 +1052,28 @@ z 12
 x 7
 y 22
 end
+arch plant6
+x 7
+y 22
+end
+arch spawn_point
+x 7
+y 22
+arch wolf
+type 83
+level 5
+random_move 1
+item_race 2
+item_level 2
+direction 1
+end
+end
 arch grassd_7
 z 16
+x 7
+y 23
+end
+arch plant9
 x 7
 y 23
 end
@@ -1015,12 +1162,20 @@ arch grassd_6
 x 8
 y 17
 end
+arch plant_flower6
+x 8
+y 17
+end
 arch grassd_2
 x 8
 y 18
 end
 arch grassd_4
 z 2
+x 8
+y 19
+end
+arch plant7
 x 8
 y 19
 end
@@ -1043,8 +1198,16 @@ z 12
 x 8
 y 22
 end
+arch plant3
+x 8
+y 22
+end
 arch grassd_5
 z 16
+x 8
+y 23
+end
+arch plant3
 x 8
 y 23
 end
@@ -1096,6 +1259,11 @@ arch water_lt4
 x 9
 y 10
 end
+arch sound_ambient
+race ocean_waves.ogg
+x 9
+y 10
+end
 arch water_lt4
 x 9
 y 11
@@ -1118,6 +1286,10 @@ x 9
 y 14
 end
 arch grassd_m7
+x 9
+y 14
+end
+arch seashell2
 x 9
 y 14
 end
@@ -1163,6 +1335,10 @@ y 22
 end
 arch grassd_6
 z 16
+x 9
+y 23
+end
+arch plant7
 x 9
 y 23
 end
@@ -1259,6 +1435,10 @@ arch grassd_6
 x 10
 y 18
 end
+arch tree_big4b
+x 10
+y 18
+end
 arch grassd_4
 z 2
 x 10
@@ -1279,8 +1459,16 @@ z 12
 x 10
 y 22
 end
+arch tree_big4b
+x 10
+y 22
+end
 arch grassd_1
 z 12
+x 10
+y 23
+end
+arch plant6
 x 10
 y 23
 end
@@ -1378,6 +1566,10 @@ z 2
 x 11
 y 19
 end
+arch plant14
+x 11
+y 19
+end
 arch grassd_4
 z 4
 x 11
@@ -1388,6 +1580,10 @@ z 8
 x 11
 y 21
 end
+arch plant7
+x 11
+y 21
+end
 arch grassd_2
 z 8
 x 11
@@ -1395,6 +1591,10 @@ y 22
 end
 arch grassd_2
 z 8
+x 11
+y 23
+end
+arch plant8
 x 11
 y 23
 end
@@ -1491,6 +1691,10 @@ arch grassd_5
 x 12
 y 18
 end
+arch tree_branch2
+x 12
+y 18
+end
 arch grassd_2
 z 2
 x 12
@@ -1513,6 +1717,10 @@ y 22
 end
 arch grassd_8
 z 4
+x 12
+y 23
+end
+arch plant14
 x 12
 y 23
 end
@@ -1631,6 +1839,17 @@ z 4
 x 13
 y 23
 end
+arch spawn_point
+x 13
+y 23
+arch wolf
+type 83
+level 5
+random_move 1
+item_race 2
+item_level 2
+end
+end
 arch water_md
 x 14
 end
@@ -1725,6 +1944,10 @@ x 14
 y 19
 end
 arch grassd_8
+x 14
+y 20
+end
+arch plant1
 x 14
 y 20
 end
@@ -1845,7 +2068,15 @@ arch grassd_2
 x 15
 y 22
 end
+arch tree_big2
+x 15
+y 22
+end
 arch grassd_3
+x 15
+y 23
+end
+arch plant17
 x 15
 y 23
 end
@@ -1905,6 +2136,11 @@ arch water_lt4
 x 16
 y 12
 end
+arch sound_ambient
+race ocean_waves.ogg
+x 16
+y 12
+end
 arch water_lt4
 x 16
 y 13
@@ -1946,11 +2182,19 @@ arch grassd_3
 x 16
 y 19
 end
+arch plant_big1
+x 16
+y 19
+end
 arch grassd_3
 x 16
 y 20
 end
 arch grassd_6
+x 16
+y 21
+end
+arch plant_mushroom1
 x 16
 y 21
 end
@@ -2152,6 +2396,10 @@ arch floor_ruin5
 x 18
 y 17
 end
+arch seashell3
+x 18
+y 17
+end
 arch floor_ruin5
 x 18
 y 18
@@ -2165,6 +2413,10 @@ x 18
 y 19
 end
 arch grassd_5
+x 18
+y 20
+end
+arch plant_flower7
 x 18
 y 20
 end
@@ -2278,6 +2530,10 @@ x 19
 y 20
 end
 arch grassd_7
+x 19
+y 21
+end
+arch tree_big4b
 x 19
 y 21
 end
@@ -2507,6 +2763,10 @@ arch grassd_7
 x 21
 y 22
 end
+arch plant11
+x 21
+y 22
+end
 arch grassd_6
 x 21
 y 23
@@ -2609,6 +2869,10 @@ arch grassd_m14
 x 22
 y 19
 end
+arch starfish
+x 22
+y 19
+end
 arch floor_ruin3
 x 22
 y 20
@@ -2694,6 +2958,11 @@ x 23
 y 14
 end
 arch water_lt
+x 23
+y 15
+end
+arch sound_ambient
+race ocean_waves.ogg
 x 23
 y 15
 end

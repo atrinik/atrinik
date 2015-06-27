@@ -2,7 +2,7 @@ arch map
 name Incuna
 msg
 Created:  2010-08-22 Edwin Miltenburg
-Modified: 2015-06-21 Alex Tokar
+Modified: 2015-06-27 Alex Tokar
 endmsg
 width 24
 height 24
@@ -172,6 +172,10 @@ direction 8
 x 1
 y 12
 end
+arch seashell2
+x 1
+y 12
+end
 arch floor_ruin5
 x 1
 y 13
@@ -188,11 +192,19 @@ arch grassd_4
 x 1
 y 15
 end
+arch plant17
+x 1
+y 15
+end
 arch grassd_2
 x 1
 y 16
 end
 arch grassd_3
+x 1
+y 17
+end
+arch tree_big2
 x 1
 y 17
 end
@@ -326,6 +338,10 @@ x 2
 y 16
 end
 arch grassd_5
+x 2
+y 17
+end
+arch plant_flower1
 x 2
 y 17
 end
@@ -579,6 +595,10 @@ arch grassd_3
 x 4
 y 15
 end
+arch plant11
+x 4
+y 15
+end
 arch grassd_1
 x 4
 y 16
@@ -659,6 +679,11 @@ arch water_lt
 x 5
 y 8
 end
+arch sound_ambient
+race ocean_waves.ogg
+x 5
+y 8
+end
 arch water_lt4
 x 5
 y 9
@@ -700,11 +725,19 @@ arch grassd_7
 x 5
 y 16
 end
+arch plant_flower6
+x 5
+y 16
+end
 arch grassd_2
 x 5
 y 17
 end
 arch grassd_4
+x 5
+y 18
+end
+arch plant_flower1
 x 5
 y 18
 end
@@ -801,6 +834,10 @@ arch grassd_m7
 x 6
 y 13
 end
+arch starfish
+x 6
+y 13
+end
 arch grassd_4
 x 6
 y 14
@@ -809,11 +846,19 @@ arch grassd_1
 x 6
 y 15
 end
+arch plant9
+x 6
+y 15
+end
 arch grassd_8
 x 6
 y 16
 end
 arch grassd_7
+x 6
+y 17
+end
+arch tree_big2
 x 6
 y 17
 end
@@ -942,6 +987,10 @@ arch grassd_2
 x 7
 y 18
 end
+arch plant_flower6
+x 7
+y 18
+end
 arch grassd_4
 x 7
 y 19
@@ -1060,6 +1109,10 @@ x 8
 y 16
 end
 arch grassd_5
+x 8
+y 17
+end
+arch plant_mushroom2
 x 8
 y 17
 end
@@ -1188,6 +1241,10 @@ arch grassd_6
 x 9
 y 19
 end
+arch tree_big3
+x 9
+y 19
+end
 arch grassd_6
 x 9
 y 20
@@ -1297,11 +1354,19 @@ arch grassd_1
 x 10
 y 17
 end
+arch plant_mushroom3
+x 10
+y 17
+end
 arch grassd_2
 x 10
 y 18
 end
 arch grassd_6
+x 10
+y 19
+end
+arch plant9
 x 10
 y 19
 end
@@ -1411,6 +1476,10 @@ x 11
 y 16
 end
 arch grassd_5
+x 11
+y 17
+end
+arch tree_big
 x 11
 y 17
 end
@@ -1595,6 +1664,11 @@ arch water_lt2
 x 13
 y 8
 end
+arch sound_ambient
+race ocean_waves.ogg
+x 13
+y 8
+end
 arch water_lt2
 x 13
 y 9
@@ -1633,6 +1707,10 @@ x 13
 y 15
 end
 arch grassd_3
+x 13
+y 16
+end
+arch tree_big3
 x 13
 y 16
 end
@@ -1742,6 +1820,10 @@ x 14
 y 14
 end
 arch grassd_2
+x 14
+y 15
+end
+arch plant17
 x 14
 y 15
 end
@@ -1874,6 +1956,10 @@ arch grassd_2
 x 15
 y 18
 end
+arch plant16
+x 15
+y 18
+end
 arch grassd_6
 x 15
 y 19
@@ -1891,6 +1977,10 @@ x 15
 y 22
 end
 arch grassd_8
+x 15
+y 23
+end
+arch tree_big2
 x 15
 y 23
 end
@@ -1955,6 +2045,10 @@ arch floor_ruin6
 x 16
 y 12
 end
+arch seashell2
+x 16
+y 12
+end
 arch floor_ruin5
 x 16
 y 13
@@ -1992,6 +2086,10 @@ x 16
 y 20
 end
 arch grassd_3
+x 16
+y 21
+end
+arch tree_big3
 x 16
 y 21
 end
@@ -2060,6 +2158,10 @@ arch floor_ruin2
 x 17
 y 11
 end
+arch seashell2
+x 17
+y 11
+end
 arch floor_ruin3
 x 17
 y 12
@@ -2084,6 +2186,10 @@ arch grassd_5
 x 17
 y 16
 end
+arch tree_big
+x 17
+y 16
+end
 arch grassd_2
 x 17
 y 17
@@ -2104,11 +2210,19 @@ arch grassd_3
 x 17
 y 20
 end
+arch tree_big
+x 17
+y 20
+end
 arch grassd_8
 x 17
 y 21
 end
 arch grassd_3
+x 17
+y 22
+end
+arch plant11
 x 17
 y 22
 end
@@ -2342,6 +2456,10 @@ arch grassd_5
 x 19
 y 22
 end
+arch tree_big4b
+x 19
+y 22
+end
 arch grassd_2
 x 19
 y 23
@@ -2503,6 +2621,11 @@ arch water_lt4
 x 21
 y 7
 end
+arch sound_ambient
+race ocean_waves.ogg
+x 21
+y 7
+end
 arch water_lt4
 x 21
 y 8
@@ -2541,6 +2664,10 @@ x 21
 y 14
 end
 arch grassd_5
+x 21
+y 15
+end
+arch tree_branch3
 x 21
 y 15
 end
@@ -2650,6 +2777,10 @@ x 22
 y 13
 end
 arch grassd_m14
+x 22
+y 13
+end
+arch seashell2
 x 22
 y 13
 end
@@ -2786,6 +2917,10 @@ arch grassd_7
 x 23
 y 17
 end
+arch plant_flower1
+x 23
+y 17
+end
 arch grassd_4
 x 23
 y 18
@@ -2795,6 +2930,10 @@ x 23
 y 19
 end
 arch grassd_3
+x 23
+y 20
+end
+arch tree_big2
 x 23
 y 20
 end

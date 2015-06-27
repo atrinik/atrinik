@@ -1,0 +1,1119 @@
+arch map
+name Incuna - Slime Pit
+msg
+Created:  2011-09-17 Edwin Miltenburg
+Modified: 2015-06-27 Alex Tokar
+endmsg
+width 24
+height 24
+difficulty 1
+darkness 2
+region incuna
+end
+arch floor_cave5
+z 14
+end
+arch floor_cave2
+z 14
+y 1
+end
+arch cave_deco_f1.101
+no_pass 1
+y 1
+end
+arch floor_cave5
+z 14
+y 2
+end
+arch floor_cave1
+z 22
+y 3
+end
+arch floor_cave5
+z 22
+y 4
+end
+arch floor_cave1
+z 30
+y 5
+end
+arch floor_cave1
+z 30
+y 6
+end
+arch wall_cave1.121
+y 6
+end
+arch floor_cave6
+z 30
+y 7
+end
+arch wall_cave1b.161
+y 7
+end
+arch floor_cave5
+z 22
+x 1
+end
+arch floor_cave6
+z 14
+x 1
+y 1
+end
+arch floor_cave6
+z 14
+x 1
+y 2
+end
+arch small_stones
+x 1
+y 2
+end
+arch floor_cave1
+z 14
+x 1
+y 3
+end
+arch plant13
+x 1
+y 3
+end
+arch floor_cave2
+z 22
+x 1
+y 4
+end
+arch floor_cave1
+z 30
+x 1
+y 5
+end
+arch cave_deco_f2.101
+no_pass 1
+x 1
+y 5
+end
+arch floor_cave2
+z 30
+x 1
+y 6
+end
+arch floor_cave1
+z 30
+x 1
+y 7
+end
+arch wall_cave1.151
+x 1
+y 7
+end
+arch floor_cave1
+z 22
+x 2
+end
+arch floor_cave5
+z 22
+x 2
+y 1
+end
+arch floor_cave5
+z 22
+x 2
+y 2
+end
+arch floor_cave2
+z 14
+x 2
+y 3
+end
+arch floor_cave2
+z 22
+x 2
+y 4
+end
+arch floor_cave1
+z 25
+x 2
+y 5
+end
+arch floor_cave2
+z 30
+x 2
+y 6
+end
+arch cave_pillar2
+x 2
+y 6
+end
+arch floor_cave2
+z 30
+x 2
+y 7
+end
+arch wall_cave1.151
+x 2
+y 7
+end
+arch floor_cave2
+z 25
+x 3
+end
+arch cave_pillar1
+x 3
+end
+arch floor_cave5
+z 30
+x 3
+y 1
+end
+arch floor_cave2
+z 22
+x 3
+y 2
+end
+arch floor_cave2
+z 14
+x 3
+y 3
+end
+arch floor_cave5
+z 18
+x 3
+y 4
+end
+arch floor_cave6
+z 25
+x 3
+y 5
+end
+arch floor_cave5
+z 30
+x 3
+y 6
+end
+arch floor_cave5
+z 30
+x 3
+y 7
+end
+arch wall_cave1.151
+x 3
+y 7
+end
+arch floor_cave5
+z 30
+x 4
+end
+arch wall_cave1.161
+x 4
+end
+arch floor_cave5
+z 22
+x 4
+y 1
+end
+arch floor_cave1
+z 22
+x 4
+y 2
+end
+arch floor_cave5
+z 14
+x 4
+y 3
+end
+arch floor_cave5
+z 18
+x 4
+y 4
+end
+arch cave_deco_f3.101
+no_pass 1
+x 4
+y 4
+end
+arch floor_cave5
+z 22
+x 4
+y 5
+end
+arch floor_cave2
+z 22
+x 4
+y 6
+end
+arch floor_cave5
+z 30
+x 4
+y 7
+end
+arch wall_cave1.151
+x 4
+y 7
+end
+arch floor_cave5
+z 30
+x 5
+end
+arch wall_cave1.111
+x 5
+end
+arch floor_cave1
+z 22
+x 5
+y 1
+end
+arch floor_cave5
+z 14
+x 5
+y 2
+end
+arch floor_cave1
+z 14
+x 5
+y 3
+end
+arch floor_cave6
+z 18
+x 5
+y 4
+end
+arch small_stones
+x 5
+y 4
+end
+arch floor_cave2
+z 18
+x 5
+y 5
+end
+arch floor_cave6
+z 22
+x 5
+y 6
+end
+arch plant9
+x 5
+y 6
+end
+arch floor_cave1
+z 30
+x 5
+y 7
+end
+arch wall_cave1.151
+x 5
+y 7
+end
+arch floor_cave5
+z 30
+x 6
+end
+arch wall_cave1.111
+x 6
+end
+arch floor_cave6
+z 22
+x 6
+y 1
+end
+arch floor_cave2
+z 14
+x 6
+y 2
+end
+arch cave_deco_f3.101
+no_pass 1
+x 6
+y 2
+end
+arch floor_cave5
+z 14
+x 6
+y 3
+end
+arch floor_cave5
+z 14
+x 6
+y 4
+end
+arch floor_cave1
+z 22
+x 6
+y 5
+end
+arch floor_cave2
+z 22
+x 6
+y 6
+end
+arch floor_cave1
+z 30
+x 6
+y 7
+end
+arch wall_cave1.151
+x 6
+y 7
+end
+arch floor_cave5
+z 30
+x 7
+end
+arch wall_cave1.141
+x 7
+end
+arch floor_cave1
+z 22
+x 7
+y 1
+end
+arch floor_cave1
+z 22
+x 7
+y 2
+end
+arch floor_cave5
+z 14
+x 7
+y 3
+end
+arch floor_cave6
+z 14
+x 7
+y 4
+end
+arch floor_cave2
+z 22
+x 7
+y 5
+end
+arch floor_cave5
+z 30
+x 7
+y 6
+end
+arch floor_cave2
+z 30
+x 7
+y 7
+end
+arch wall_cave1.151
+x 7
+y 7
+end
+arch floor_cave6
+z 30
+x 8
+end
+arch cave_deco_f4.101
+no_pass 1
+x 8
+end
+arch floor_cave2
+z 30
+x 8
+y 1
+end
+arch floor_cave2
+z 22
+x 8
+y 2
+end
+arch floor_cave1
+z 14
+x 8
+y 3
+end
+arch floor_cave6
+z 22
+x 8
+y 4
+end
+arch floor_cave6
+z 22
+x 8
+y 5
+end
+arch floor_cave5
+z 30
+x 8
+y 6
+end
+arch cave_pillar1
+x 8
+y 6
+end
+arch floor_cave5
+z 30
+x 8
+y 7
+end
+arch wall_cave1.151
+x 8
+y 7
+end
+arch floor_cave5
+z 30
+x 9
+end
+arch cave_pillar5
+x 9
+end
+arch floor_cave1
+z 30
+x 9
+y 1
+end
+arch floor_cave6
+z 22
+x 9
+y 2
+end
+arch floor_cave2
+z 22
+x 9
+y 3
+end
+arch floor_cave6
+z 22
+x 9
+y 4
+end
+arch floor_cave5
+z 30
+x 9
+y 5
+end
+arch floor_cave5
+z 30
+x 9
+y 6
+end
+arch floor_cave1
+z 30
+x 9
+y 7
+end
+arch wall_cave1.151
+x 9
+y 7
+end
+arch floor_cave1
+z 30
+x 10
+end
+arch floor_cave6
+z 30
+x 10
+y 1
+end
+arch floor_cave1
+z 30
+x 10
+y 2
+end
+arch floor_cave6
+z 30
+x 10
+y 3
+end
+arch floor_cave5
+z 30
+x 10
+y 4
+end
+arch floor_cave5
+z 30
+x 10
+y 5
+end
+arch cave_deco_f1.101
+no_pass 1
+x 10
+y 5
+end
+arch floor_cave6
+z 30
+x 10
+y 6
+end
+arch floor_cave2
+z 30
+x 10
+y 7
+end
+arch wall_cave1.151
+x 10
+y 7
+end
+arch floor_cave5
+z 30
+x 11
+end
+arch small_stones
+x 11
+end
+arch floor_cave6
+z 30
+x 11
+y 1
+end
+arch floor_cave2
+z 30
+x 11
+y 2
+end
+arch cave_deco_f3.101
+no_pass 1
+x 11
+y 2
+end
+arch floor_cave6
+z 33
+x 11
+y 3
+end
+arch floor_cave5
+z 33
+x 11
+y 4
+end
+arch floor_cave6
+z 30
+x 11
+y 5
+end
+arch floor_cave5
+z 30
+x 11
+y 6
+end
+arch small_stones
+x 11
+y 6
+end
+arch floor_cave6
+z 30
+x 11
+y 7
+end
+arch wall_cave1.151
+x 11
+y 7
+end
+arch floor_cave5
+z 25
+x 12
+end
+arch floor_cave6
+z 30
+x 12
+y 1
+end
+arch floor_cave5
+z 30
+x 12
+y 2
+end
+arch floor_cave5
+z 30
+x 12
+y 3
+end
+arch floor_cave6
+z 35
+x 12
+y 4
+end
+arch plant11
+x 12
+y 4
+end
+arch floor_cave2
+z 30
+x 12
+y 5
+end
+arch floor_cave1
+z 30
+x 12
+y 6
+end
+arch floor_cave1
+z 30
+x 12
+y 7
+end
+arch wall_cave1.151
+x 12
+y 7
+end
+arch floor_cave5
+z 25
+x 13
+end
+arch floor_cave2
+z 25
+x 13
+y 1
+end
+arch floor_cave2
+z 30
+x 13
+y 2
+end
+arch floor_cave6
+z 30
+x 13
+y 3
+end
+arch small_stones
+x 13
+y 3
+end
+arch floor_cave5
+z 30
+x 13
+y 4
+end
+arch floor_cave1
+z 30
+x 13
+y 5
+end
+arch small_stones
+x 13
+y 5
+end
+arch floor_cave6
+z 30
+x 13
+y 6
+end
+arch floor_cave2
+z 30
+x 13
+y 7
+end
+arch wall_cave1.151
+x 13
+y 7
+end
+arch floor_cave6
+z 20
+x 14
+end
+arch floor_cave1
+z 25
+x 14
+y 1
+end
+arch floor_cave6
+z 25
+x 14
+y 2
+end
+arch floor_cave1
+z 33
+x 14
+y 3
+end
+arch cave_deco_f4.101
+no_pass 1
+x 14
+y 3
+end
+arch floor_cave6
+z 35
+x 14
+y 4
+end
+arch floor_cave1
+z 30
+x 14
+y 5
+end
+arch floor_cave2
+z 30
+x 14
+y 6
+end
+arch wall_cave1.101
+x 14
+y 6
+end
+arch floor_cave5
+z 30
+x 14
+y 7
+end
+arch wall_cave1b.141
+x 14
+y 7
+end
+arch floor_cave6
+z 20
+x 15
+end
+arch floor_cave2
+z 23
+x 15
+y 1
+end
+arch cave_deco_f1.101
+no_pass 1
+x 15
+y 1
+end
+arch floor_cave6
+z 25
+x 15
+y 2
+end
+arch floor_cave2
+z 33
+x 15
+y 3
+end
+arch floor_cave5
+z 30
+x 15
+y 4
+end
+arch floor_cave1
+z 30
+x 15
+y 5
+end
+arch wall_cave1.101
+x 15
+y 5
+end
+arch floor_cave5
+z 30
+x 15
+y 6
+end
+arch wall_cave1b.141
+x 15
+y 6
+end
+arch floor_cave2
+z 15
+x 16
+end
+arch small_stones
+x 16
+end
+arch floor_cave5
+z 20
+x 16
+y 1
+end
+arch floor_cave5
+z 25
+x 16
+y 2
+end
+arch floor_cave6
+z 28
+x 16
+y 3
+end
+arch floor_cave6
+z 30
+x 16
+y 4
+end
+arch cave_pillar5
+x 16
+y 4
+end
+arch floor_cave6
+z 30
+x 16
+y 5
+end
+arch wall_cave1.151
+x 16
+y 5
+end
+arch floor_cave5
+z 15
+x 17
+end
+arch plant13
+x 17
+end
+arch floor_cave1
+z 20
+x 17
+y 1
+end
+arch floor_cave1
+z 25
+x 17
+y 2
+end
+arch floor_cave5
+z 30
+x 17
+y 3
+end
+arch floor_cave5
+z 36
+x 17
+y 4
+end
+arch floor_cave1
+z 30
+x 17
+y 5
+end
+arch wall_cave1.151
+x 17
+y 5
+end
+arch floor_cave1
+z 15
+x 18
+end
+arch floor_cave6
+z 20
+x 18
+y 1
+end
+arch floor_cave1
+z 25
+x 18
+y 2
+end
+arch floor_cave1
+z 33
+x 18
+y 3
+end
+arch floor_cave1
+z 36
+x 18
+y 4
+end
+arch small_stones
+x 18
+y 4
+end
+arch floor_cave1
+z 30
+x 18
+y 5
+end
+arch wall_cave1.151
+x 18
+y 5
+end
+arch floor_cave1
+z 15
+x 19
+end
+arch floor_cave5
+z 23
+x 19
+y 1
+end
+arch plant13
+x 19
+y 1
+end
+arch floor_cave1
+z 25
+x 19
+y 2
+end
+arch floor_cave5
+z 30
+x 19
+y 3
+end
+arch cave_deco_f1.101
+no_pass 1
+x 19
+y 3
+end
+arch floor_cave1
+z 33
+x 19
+y 4
+end
+arch floor_cave2
+z 30
+x 19
+y 5
+end
+arch wall_cave1.151
+x 19
+y 5
+end
+arch floor_cave2
+z 15
+x 20
+end
+arch cave_deco_f2.101
+no_pass 1
+x 20
+end
+arch floor_cave1
+z 20
+x 20
+y 1
+end
+arch floor_cave1
+z 25
+x 20
+y 2
+end
+arch floor_cave2
+z 28
+x 20
+y 3
+end
+arch floor_cave5
+z 30
+x 20
+y 4
+end
+arch floor_cave1
+z 30
+x 20
+y 5
+end
+arch wall_cave1.151
+x 20
+y 5
+end
+arch floor_cave5
+z 15
+x 21
+end
+arch floor_cave2
+z 20
+x 21
+y 1
+end
+arch small_stones
+x 21
+y 1
+end
+arch floor_cave5
+z 25
+x 21
+y 2
+end
+arch floor_cave2
+z 28
+x 21
+y 3
+end
+arch floor_cave6
+z 30
+x 21
+y 4
+end
+arch floor_cave6
+z 30
+x 21
+y 5
+end
+arch wall_cave1.151
+x 21
+y 5
+end
+arch floor_cave6
+z 20
+x 22
+end
+arch floor_cave6
+z 20
+x 22
+y 1
+end
+arch floor_cave5
+z 25
+x 22
+y 2
+end
+arch cave_deco_f3.101
+no_pass 1
+x 22
+y 2
+end
+arch floor_cave1
+z 27
+x 22
+y 3
+end
+arch floor_cave2
+z 35
+x 22
+y 4
+end
+arch floor_cave1
+z 30
+x 22
+y 5
+end
+arch wall_cave1.121
+x 22
+y 5
+end
+arch floor_cave1
+z 30
+x 22
+y 6
+end
+arch wall_cave1b.161
+x 22
+y 6
+end
+arch floor_cave2
+z 20
+x 23
+end
+arch floor_cave1
+z 25
+x 23
+y 1
+end
+arch cave_pillar2
+x 23
+y 1
+end
+arch floor_cave1
+z 25
+x 23
+y 2
+end
+arch floor_cave2
+z 30
+x 23
+y 3
+end
+arch floor_cave6
+z 35
+x 23
+y 4
+end
+arch floor_cave5
+z 35
+x 23
+y 5
+end
+arch floor_cave5
+z 30
+x 23
+y 6
+end
+arch wall_cave1.151
+x 23
+y 6
+end

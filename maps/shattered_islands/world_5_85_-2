@@ -1,0 +1,1260 @@
+arch map
+name Incuna - Slime Pit
+msg
+Created:  2011-09-17 Edwin Miltenburg
+Modified: 2015-06-27 Alex Tokar
+endmsg
+width 24
+height 24
+difficulty 1
+darkness 1
+region incuna
+end
+arch swamp1
+x 1
+y 20
+end
+arch wall_cave1.181
+x 1
+y 20
+end
+arch swamp1
+x 1
+y 21
+end
+arch wall_cave1.171
+x 1
+y 21
+end
+arch swamp1
+x 1
+y 22
+end
+arch wall_cave1.171
+x 1
+y 22
+end
+arch swamp1
+x 1
+y 23
+end
+arch wall_cave1.171
+x 1
+y 23
+end
+arch swamp1
+x 2
+y 18
+end
+arch wall_cave1.181
+x 2
+y 18
+end
+arch swamp1
+x 2
+y 19
+end
+arch wall_cave1.171
+x 2
+y 19
+end
+arch swamp1
+x 2
+y 20
+end
+arch wall_cave1.141
+x 2
+y 20
+end
+arch swamp1
+x 2
+y 21
+end
+arch cave_deco_f5.101
+no_pass 1
+x 2
+y 21
+end
+arch swamp1
+x 2
+y 22
+end
+arch cave_pillar2
+x 2
+y 22
+end
+arch swamp1
+x 2
+y 23
+end
+arch cave_deco_f5.101
+no_pass 1
+x 2
+y 23
+end
+arch swamp1
+x 3
+y 17
+end
+arch wall_cave1.181
+x 3
+y 17
+end
+arch swamp1
+x 3
+y 18
+end
+arch wall_cave1.141
+x 3
+y 18
+end
+arch swamp1
+x 3
+y 19
+end
+arch cave_pillar1
+x 3
+y 19
+end
+arch swamp1
+x 3
+y 20
+end
+arch cave_deco_f6.101
+no_pass 1
+x 3
+y 20
+end
+arch swamp1
+x 3
+y 21
+end
+arch swamp1
+x 3
+y 22
+end
+arch plant15
+x 3
+y 22
+end
+arch swamp1
+x 3
+y 23
+end
+arch cave_deco_f6.101
+no_pass 1
+x 3
+y 23
+end
+arch swamp1
+x 4
+y 16
+end
+arch wall_cave1.181
+x 4
+y 16
+end
+arch swamp1
+x 4
+y 17
+end
+arch wall_cave1.141
+x 4
+y 17
+end
+arch swamp1
+x 4
+y 18
+end
+arch cave_deco_f5.101
+no_pass 1
+x 4
+y 18
+end
+arch swamp1
+x 4
+y 19
+end
+arch cave_deco_f8.101
+no_pass 1
+x 4
+y 19
+end
+arch swamp1
+x 4
+y 20
+end
+arch plant1
+x 4
+y 20
+end
+arch swamp1
+x 4
+y 21
+end
+arch cave_deco_f6.101
+no_pass 1
+x 4
+y 21
+end
+arch swamp1
+x 4
+y 22
+end
+arch swamp1
+x 4
+y 23
+end
+arch cave_deco_f5.101
+no_pass 1
+x 4
+y 23
+end
+arch swamp1
+x 5
+y 16
+end
+arch wall_cave1.111
+x 5
+y 16
+end
+arch swamp1
+x 5
+y 17
+end
+arch cave_deco_f7.101
+no_pass 1
+x 5
+y 17
+end
+arch swamp1
+x 5
+y 18
+end
+arch plant11
+x 5
+y 18
+end
+arch swamp1
+x 5
+y 19
+end
+arch swamp1
+x 5
+y 20
+end
+arch cave_deco_f6.101
+no_pass 1
+x 5
+y 20
+end
+arch swamp1
+x 5
+y 21
+end
+arch swamp1
+x 5
+y 22
+end
+arch swamp1
+x 5
+y 23
+end
+arch swamp1
+x 6
+y 16
+end
+arch wall_cave1.111
+x 6
+y 16
+end
+arch swamp1
+x 6
+y 17
+end
+arch cave_deco_f6.101
+no_pass 1
+x 6
+y 17
+end
+arch swamp1
+x 6
+y 18
+end
+arch cave_deco_f7.101
+no_pass 1
+x 6
+y 18
+end
+arch swamp1
+x 6
+y 19
+end
+arch swamp1
+x 6
+y 20
+end
+arch swamp1
+x 6
+y 21
+end
+arch swamp1
+x 6
+y 22
+end
+arch plant15
+x 6
+y 22
+end
+arch swamp1
+x 6
+y 23
+end
+arch swamp1
+x 7
+y 16
+end
+arch wall_cave1b.121
+x 7
+y 16
+end
+arch swamp1
+x 7
+y 17
+end
+arch wall_cave1.161
+x 7
+y 17
+end
+arch swamp1
+x 7
+y 18
+end
+arch cave_pillar1
+x 7
+y 18
+end
+arch swamp1
+x 7
+y 19
+end
+arch plant11
+x 7
+y 19
+end
+arch swamp1
+x 7
+y 20
+end
+arch swamp1
+x 7
+y 21
+end
+arch swamp1
+x 7
+y 22
+end
+arch swamp1
+x 7
+y 23
+end
+arch swamp1
+x 8
+y 17
+end
+arch wall_cave1b.121
+x 8
+y 17
+end
+arch swamp1
+x 8
+y 18
+end
+arch wall_cave1.161
+x 8
+y 18
+end
+arch swamp1
+x 8
+y 19
+end
+arch cave_deco_f6.101
+no_pass 1
+x 8
+y 19
+end
+arch swamp1
+x 8
+y 20
+end
+arch swamp1
+x 8
+y 21
+end
+arch swamp1
+x 8
+y 22
+end
+arch plant15
+x 8
+y 22
+end
+arch swamp1
+x 8
+y 23
+end
+arch plant15
+x 8
+y 23
+end
+arch swamp1
+x 9
+y 18
+end
+arch wall_cave1.111
+x 9
+y 18
+end
+arch swamp1
+x 9
+y 19
+end
+arch cave_deco_f5.101
+no_pass 1
+x 9
+y 19
+end
+arch swamp1
+x 9
+y 20
+end
+arch swamp1
+x 9
+y 21
+end
+arch plant13
+x 9
+y 21
+end
+arch swamp1
+x 9
+y 22
+end
+arch swamp1
+x 9
+y 23
+end
+arch plant11
+x 9
+y 23
+end
+arch swamp1
+x 10
+y 18
+end
+arch wall_cave1.111
+x 10
+y 18
+end
+arch swamp1
+x 10
+y 19
+end
+arch plant11
+x 10
+y 19
+end
+arch swamp1
+x 10
+y 20
+end
+arch cave_pillar5
+x 10
+y 20
+end
+arch swamp1
+x 10
+y 21
+end
+arch swamp1
+x 10
+y 22
+end
+arch plant11
+x 10
+y 22
+end
+arch swamp1
+x 10
+y 23
+end
+arch plant15
+x 10
+y 23
+end
+arch light1
+x 10
+y 23
+end
+arch swamp1
+x 11
+y 17
+end
+arch wall_cave1.181
+x 11
+y 17
+end
+arch swamp1
+x 11
+y 18
+end
+arch wall_cave1.141
+x 11
+y 18
+end
+arch swamp1
+x 11
+y 19
+end
+arch cave_deco_f8.101
+no_pass 1
+x 11
+y 19
+end
+arch swamp1
+x 11
+y 20
+end
+arch swamp1
+x 11
+y 21
+end
+arch swamp1
+x 11
+y 22
+end
+arch plant13
+x 11
+y 22
+end
+arch swamp1
+x 11
+y 23
+end
+arch swamp1
+x 12
+y 17
+end
+arch wall_cave1.111
+x 12
+y 17
+end
+arch swamp1
+x 12
+y 18
+end
+arch cave_pillar5
+x 12
+y 18
+end
+arch swamp1
+x 12
+y 19
+end
+arch plant11
+x 12
+y 19
+end
+arch swamp1
+x 12
+y 20
+end
+arch plant9
+x 12
+y 20
+end
+arch swamp1
+x 12
+y 21
+end
+arch swamp1
+x 12
+y 22
+end
+arch plant15
+x 12
+y 22
+end
+arch swamp1
+x 12
+y 23
+end
+arch plant9
+x 12
+y 23
+end
+arch swamp1
+x 13
+y 17
+end
+arch wall_cave1.111
+x 13
+y 17
+end
+arch swamp1
+x 13
+y 18
+end
+arch cave_deco_f7.101
+no_pass 1
+x 13
+y 18
+end
+arch swamp1
+x 13
+y 19
+end
+arch cave_deco_f6.101
+no_pass 1
+x 13
+y 19
+end
+arch swamp1
+x 13
+y 20
+end
+arch swamp1
+x 13
+y 21
+end
+arch plant1
+x 13
+y 21
+end
+arch swamp1
+x 13
+y 22
+end
+arch plant16
+x 13
+y 22
+end
+arch swamp1
+x 13
+y 23
+end
+arch plant16
+x 13
+y 23
+end
+arch swamp1
+x 14
+y 16
+end
+arch wall_cave1.181
+x 14
+y 16
+end
+arch swamp1
+x 14
+y 17
+end
+arch wall_cave1.141
+x 14
+y 17
+end
+arch swamp1
+x 14
+y 18
+end
+arch cave_deco_f6.101
+no_pass 1
+x 14
+y 18
+end
+arch swamp1
+x 14
+y 19
+end
+arch swamp1
+x 14
+y 20
+end
+arch plant1
+x 14
+y 20
+end
+arch swamp1
+x 14
+y 21
+end
+arch swamp1
+x 14
+y 22
+end
+arch swamp1
+x 14
+y 23
+end
+arch plant16
+x 14
+y 23
+end
+arch swamp1
+x 15
+y 16
+end
+arch wall_cave1.111
+x 15
+y 16
+end
+arch swamp1
+x 15
+y 17
+end
+arch cave_deco_f7.101
+no_pass 1
+x 15
+y 17
+end
+arch swamp1
+x 15
+y 18
+end
+arch cave_deco_f5.101
+no_pass 1
+x 15
+y 18
+end
+arch swamp1
+x 15
+y 19
+end
+arch plant9
+x 15
+y 19
+end
+arch swamp1
+x 15
+y 20
+end
+arch swamp1
+x 15
+y 21
+end
+arch plant11
+x 15
+y 21
+end
+arch swamp1
+x 15
+y 22
+end
+arch plant16
+x 15
+y 22
+end
+arch swamp1
+x 15
+y 23
+end
+arch plant13
+x 15
+y 23
+end
+arch swamp1
+x 16
+y 16
+end
+arch wall_cave1.111
+x 16
+y 16
+end
+arch swamp1
+x 16
+y 17
+end
+arch cave_deco_f5.101
+no_pass 1
+x 16
+y 17
+end
+arch swamp1
+x 16
+y 18
+end
+arch floor_cave2
+z 5
+x 16
+y 19
+end
+arch swamp1m9
+x 16
+y 19
+end
+arch plant9
+x 16
+y 19
+end
+arch floor_cave1
+z 5
+x 16
+y 20
+end
+arch swamp1m8
+x 16
+y 20
+end
+arch floor_cave5
+z 5
+x 16
+y 21
+end
+arch swamp1m3
+x 16
+y 21
+end
+arch plant15
+x 16
+y 21
+end
+arch floor_cave5
+z 5
+x 16
+y 22
+end
+arch swamp1m6
+x 16
+y 22
+end
+arch swamp1
+x 16
+y 23
+end
+arch plant11
+x 16
+y 23
+end
+arch swamp1
+x 17
+y 16
+end
+arch wall_cave1.111
+x 17
+y 16
+end
+arch swamp1
+x 17
+y 17
+end
+arch cave_pillar2
+x 17
+y 17
+end
+arch floor_cave2
+z 5
+x 17
+y 18
+end
+arch swamp1m5
+x 17
+y 18
+end
+arch plant14
+x 17
+y 18
+end
+arch floor_cave6
+z 5
+x 17
+y 19
+end
+arch swamp1m5
+x 17
+y 19
+end
+arch floor_cave6
+z 10
+x 17
+y 20
+end
+arch swamp1m10
+x 17
+y 20
+end
+arch floor_cave1
+z 10
+x 17
+y 21
+end
+arch swamp1m1
+x 17
+y 21
+end
+arch floor_cave5
+z 5
+x 17
+y 22
+end
+arch swamp1m2
+x 17
+y 22
+end
+arch floor_cave6
+z 5
+x 17
+y 23
+end
+arch swamp1m6
+x 17
+y 23
+end
+arch swamp1
+x 18
+y 16
+end
+arch wall_cave1.111
+x 18
+y 16
+end
+arch swamp1
+x 18
+y 17
+end
+arch cave_deco_f5.101
+no_pass 1
+x 18
+y 17
+end
+arch floor_cave5
+z 5
+x 18
+y 18
+end
+arch swamp1m5
+x 18
+y 18
+end
+arch plant4
+x 18
+y 18
+end
+arch floor_cave2
+z 5
+x 18
+y 19
+end
+arch swamp1m6
+x 18
+y 19
+end
+arch cave_deco_f5.101
+no_pass 1
+x 18
+y 19
+end
+arch floor_cave3
+z 13
+x 18
+y 20
+end
+arch rope_up
+last_heal 9
+x 18
+y 20
+end
+arch light2
+x 18
+y 20
+end
+arch floor_cave5
+z 10
+x 18
+y 21
+end
+arch swamp1m8
+x 18
+y 21
+end
+arch cave_deco_f6.101
+no_pass 1
+x 18
+y 21
+end
+arch floor_cave6
+z 10
+x 18
+y 22
+end
+arch swamp1m4
+x 18
+y 22
+end
+arch floor_cave5
+z 5
+x 18
+y 23
+end
+arch swamp1m1
+x 18
+y 23
+end
+arch swamp1
+x 19
+y 16
+end
+arch wall_cave1b.121
+x 19
+y 16
+end
+arch swamp1
+x 19
+y 17
+end
+arch wall_cave1.161
+x 19
+y 17
+end
+arch swamp1
+x 19
+y 18
+end
+arch cave_deco_f8.101
+no_pass 1
+x 19
+y 18
+end
+arch floor_cave2
+z 5
+x 19
+y 19
+end
+arch swamp1m3
+x 19
+y 19
+end
+arch floor_cave6
+z 5
+x 19
+y 20
+end
+arch swamp1m2
+x 19
+y 20
+end
+arch cave_deco_f8.101
+no_pass 1
+x 19
+y 20
+end
+arch floor_cave1
+z 10
+x 19
+y 21
+end
+arch swamp1m2
+x 19
+y 21
+end
+arch floor_cave6
+z 5
+x 19
+y 22
+end
+arch swamp1m4
+x 19
+y 22
+end
+arch floor_cave1
+z 5
+x 19
+y 23
+end
+arch swamp1m2
+x 19
+y 23
+end
+arch plant1
+x 19
+y 23
+end
+arch swamp1
+x 20
+y 17
+end
+arch wall_cave1b.121
+x 20
+y 17
+end
+arch swamp1
+x 20
+y 18
+end
+arch wall_cave1.161
+x 20
+y 18
+end
+arch swamp1
+x 20
+y 19
+end
+arch cave_deco_f7.101
+no_pass 1
+x 20
+y 19
+end
+arch floor_cave1
+z 5
+x 20
+y 20
+end
+arch swamp1m1
+x 20
+y 20
+end
+arch plant4
+x 20
+y 20
+end
+arch floor_cave2
+z 5
+x 20
+y 21
+end
+arch swamp1m5
+x 20
+y 21
+end
+arch floor_cave5
+z 5
+x 20
+y 22
+end
+arch swamp1m1
+x 20
+y 22
+end
+arch swamp1
+x 20
+y 23
+end
+arch cave_deco_f7.101
+no_pass 1
+x 20
+y 23
+end
+arch swamp1
+x 21
+y 18
+end
+arch wall_cave1b.121
+x 21
+y 18
+end
+arch swamp1
+x 21
+y 19
+end
+arch wall_cave1.161
+x 21
+y 19
+end
+arch swamp1
+x 21
+y 20
+end
+arch cave_deco_f6.101
+no_pass 1
+x 21
+y 20
+end
+arch swamp1
+x 21
+y 21
+end
+arch cave_deco_f5.101
+no_pass 1
+x 21
+y 21
+end
+arch swamp1
+x 21
+y 22
+end
+arch plant14
+x 21
+y 22
+end
+arch swamp1
+x 21
+y 23
+end
+arch plant1
+x 21
+y 23
+end
+arch swamp1
+x 22
+y 19
+end
+arch wall_cave1b.121
+x 22
+y 19
+end
+arch swamp1
+x 22
+y 20
+end
+arch wall_cave1.131
+x 22
+y 20
+end
+arch swamp1
+x 22
+y 21
+end
+arch wall_cave1.161
+x 22
+y 21
+end
+arch swamp1
+x 22
+y 22
+end
+arch cave_pillar2
+x 22
+y 22
+end
+arch swamp1
+x 22
+y 23
+end
+arch cave_deco_f7.101
+no_pass 1
+x 22
+y 23
+end
+arch swamp1
+x 23
+y 21
+end
+arch wall_cave1b.121
+x 23
+y 21
+end
+arch swamp1
+x 23
+y 22
+end
+arch wall_cave1.131
+x 23
+y 22
+end
+arch swamp1
+x 23
+y 23
+end
+arch wall_cave1.131
+x 23
+y 23
+end

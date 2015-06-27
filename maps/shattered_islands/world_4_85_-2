@@ -1,0 +1,1528 @@
+arch map
+name Incuna - Under the Barn
+msg
+Created:  2011-09-17 Edwin Miltenburg
+Modified: 2015-06-27 Alex Tokar
+endmsg
+width 24
+height 24
+difficulty 1
+darkness 3
+region incuna
+end
+arch floor_earth1a
+end
+arch pile_floor2
+end
+arch floor_earth1e
+y 1
+end
+arch fwall_wood1b
+y 1
+end
+arch floor_earth1a
+y 2
+end
+arch fwall_wood1b
+y 2
+end
+arch floor_earth1b
+y 3
+end
+arch fwall_wood1c
+y 3
+end
+arch floor_earth1d
+y 4
+end
+arch fwall_wood1b
+y 4
+end
+arch floor_earth1d
+y 5
+end
+arch fwall_wood1a
+y 5
+end
+arch floor_earth1d
+y 6
+end
+arch straw2.111
+y 6
+end
+arch floor_earth1b
+y 7
+end
+arch straw1.101
+y 7
+end
+arch floor_earth1d
+y 8
+end
+arch fwall_wood1a
+y 8
+end
+arch floor_earth1b
+y 9
+end
+arch fwall_wood1b
+y 9
+end
+arch floor_earth1b
+y 10
+end
+arch fwall_wood1a
+y 10
+end
+arch floor_earth1b
+y 11
+end
+arch floor_earth1a
+y 12
+end
+arch spawn_point
+y 12
+arch ant_soldier
+randomitems mob_fighter_l9
+level 2
+wc_range 12
+type 83
+end
+end
+arch floor_earth1b
+y 13
+end
+arch light1
+y 13
+end
+arch floor_earth1a
+y 14
+end
+arch dirt_floor3
+y 14
+end
+arch floor_earth1c
+y 15
+end
+arch fwall_wood1c
+y 15
+end
+arch floor_earth1d
+y 16
+end
+arch floor_earth1e
+y 17
+end
+arch floor_earth1b
+y 18
+end
+arch floor_earth1b
+y 19
+end
+arch dirt_floor3
+y 19
+end
+arch floor_earth1b
+y 20
+end
+arch floor_earth1a
+y 21
+end
+arch fwall_wood1c
+y 21
+end
+arch floor_earth1e
+x 1
+end
+arch floor_earth1a
+x 1
+y 1
+end
+arch fwall_wood1c
+x 1
+y 1
+end
+arch floor_earth1d
+x 1
+y 2
+end
+arch straw1.101
+x 1
+y 2
+end
+arch floor_earth1c
+x 1
+y 3
+end
+arch floor_earth1c
+x 1
+y 4
+end
+arch straw1.101
+x 1
+y 4
+end
+arch floor_earth1e
+x 1
+y 5
+end
+arch fwall_wood1c
+x 1
+y 5
+end
+arch floor_earth1d
+x 1
+y 6
+end
+arch fwall_wood1b
+x 1
+y 6
+end
+arch floor_earth1a
+x 1
+y 7
+end
+arch fwall_wood1c
+x 1
+y 7
+end
+arch floor_earth1d
+x 1
+y 8
+end
+arch fwall_wood1c
+x 1
+y 8
+end
+arch floor_earth1c
+x 1
+y 9
+end
+arch straw2.111
+direction 7
+x 1
+y 9
+end
+arch floor_earth1a
+x 1
+y 10
+end
+arch floor_earth1b
+x 1
+y 11
+end
+arch floor_earth1a
+x 1
+y 12
+end
+arch floor_earth1e
+x 1
+y 13
+end
+arch pile_floor1
+x 1
+y 13
+end
+arch floor_earth1d
+x 1
+y 14
+end
+arch straw1.101
+x 1
+y 14
+end
+arch floor_earth1b
+x 1
+y 15
+end
+arch fwall_wood1a
+x 1
+y 15
+end
+arch floor_earth1b
+x 1
+y 16
+end
+arch pile_floor1
+x 1
+y 16
+end
+arch floor_earth1d
+x 1
+y 17
+end
+arch fwall_wood1c
+x 1
+y 17
+end
+arch floor_earth1d
+x 1
+y 18
+end
+arch fwall_wood1a
+x 1
+y 18
+end
+arch floor_earth1a
+x 1
+y 19
+end
+arch fwall_wood1a
+x 1
+y 19
+end
+arch floor_earth1b
+x 1
+y 20
+end
+arch fwall_wood1a
+x 1
+y 20
+end
+arch floor_earth1d
+x 1
+y 21
+end
+arch fwall_wood1a
+x 1
+y 21
+end
+arch floor_earth1c
+x 2
+end
+arch floor_earth1a
+x 2
+y 1
+end
+arch floor_earth1e
+x 2
+y 2
+end
+arch floor_earth1b
+x 2
+y 3
+end
+arch spawn_point
+x 2
+y 3
+arch pudding_red
+randomitems mob_fighter_l9
+level 2
+type 83
+end
+arch ant_red
+name royal ant guard
+randomitems mob_ant_special
+level 4
+object_int1 7500
+wc_range 15
+unaggressive 0
+random_move 0
+type 83
+end
+end
+arch floor_earth1d
+x 2
+y 4
+end
+arch floor_earth1b
+x 2
+y 5
+end
+arch light1
+x 2
+y 5
+end
+arch floor_earth1e
+x 2
+y 6
+end
+arch floor_earth1b
+x 2
+y 7
+end
+arch floor_earth1b
+x 2
+y 8
+end
+arch floor_earth1e
+x 2
+y 9
+end
+arch floor_earth1b
+x 2
+y 10
+end
+arch spawn_point
+x 2
+y 10
+arch ant_soldier
+randomitems mob_fighter_l9
+level 2
+wc_range 12
+type 83
+end
+end
+arch floor_earth1c
+x 2
+y 11
+end
+arch pile_floor3
+x 2
+y 11
+end
+arch floor_earth1a
+x 2
+y 12
+end
+arch floor_earth1e
+x 2
+y 13
+end
+arch straw2.111
+direction 7
+x 2
+y 13
+end
+arch floor_earth1b
+x 2
+y 14
+end
+arch fwall_wood1a
+x 2
+y 14
+end
+arch floor_earth1a
+x 2
+y 15
+end
+arch fwall_wood1c
+x 2
+y 15
+end
+arch floor_earth1a
+x 2
+y 16
+end
+arch floor_earth1e
+x 2
+y 17
+end
+arch floor_earth1c
+x 2
+y 18
+end
+arch straw2.111
+x 2
+y 18
+end
+arch floor_earth1d
+x 2
+y 19
+end
+arch straw2.111
+direction 7
+x 2
+y 19
+end
+arch floor_earth1d
+x 2
+y 20
+end
+arch box1.101
+x 2
+y 20
+end
+arch floor_earth1c
+x 2
+y 21
+end
+arch fwall_wood1b
+x 2
+y 21
+end
+arch floor_earth1e
+x 3
+end
+arch floor_earth1b
+x 3
+y 1
+end
+arch fwall_wood1c
+x 3
+y 1
+end
+arch floor_earth1d
+x 3
+y 2
+end
+arch floor_earth1b
+x 3
+y 3
+end
+arch floor_earth1a
+x 3
+y 4
+end
+arch pile_floor1
+x 3
+y 4
+end
+arch floor_earth1d
+x 3
+y 5
+end
+arch floor_earth1a
+x 3
+y 6
+end
+arch spawn_point
+x 3
+y 6
+arch ant_red
+randomitems mob_fighter_l9
+level 2
+wc_range 12
+item_race 6
+item_level 7
+type 83
+end
+end
+arch floor_earth1c
+x 3
+y 7
+end
+arch floor_earth1c
+x 3
+y 8
+end
+arch pile_floor2
+x 3
+y 8
+end
+arch floor_earth1c
+x 3
+y 9
+end
+arch floor_earth1a
+x 3
+y 10
+end
+arch floor_earth1d
+x 3
+y 11
+end
+arch floor_earth1b
+x 3
+y 12
+end
+arch floor_earth1e
+x 3
+y 13
+end
+arch fwall_wood1a
+x 3
+y 13
+end
+arch floor_earth1b
+x 3
+y 14
+end
+arch fwall_wood1b
+x 3
+y 14
+end
+arch floor_earth1b
+x 3
+y 15
+end
+arch straw2.111
+direction 7
+x 3
+y 15
+end
+arch floor_earth1e
+x 3
+y 16
+end
+arch dirt_floor3
+x 3
+y 16
+end
+arch floor_earth1a
+x 3
+y 17
+end
+arch pile_floor3
+x 3
+y 17
+end
+arch floor_earth1b
+x 3
+y 18
+end
+arch pile_floor3
+x 3
+y 18
+end
+arch spawn_point
+x 3
+y 18
+arch jelly_red
+randomitems mob_fighter_l9
+level 2
+wc_range 16
+type 83
+end
+end
+arch floor_earth1b
+x 3
+y 19
+end
+arch floor_earth1c
+x 3
+y 20
+end
+arch box2.101
+x 3
+y 20
+end
+arch floor_earth1a
+x 3
+y 21
+end
+arch fwall_wood1c
+x 3
+y 21
+end
+arch floor_earth1b
+x 4
+end
+arch fwall_wood1c
+x 4
+end
+arch floor_earth1e
+x 4
+y 1
+end
+arch fwall_wood1a
+x 4
+y 1
+end
+arch floor_earth1c
+x 4
+y 2
+end
+arch fwall_wood1c
+x 4
+y 2
+end
+arch floor_earth1e
+x 4
+y 3
+end
+arch fwall_wood1c
+x 4
+y 3
+end
+arch floor_earth1e
+x 4
+y 4
+end
+arch fwall_wood1a
+x 4
+y 4
+end
+arch floor_earth1c
+x 4
+y 5
+end
+arch straw2.111
+x 4
+y 5
+end
+arch floor_earth1c
+x 4
+y 6
+end
+arch floor_earth1d
+x 4
+y 7
+end
+arch dirt_floor4
+x 4
+y 7
+end
+arch floor_earth1a
+x 4
+y 8
+end
+arch pile_floor2
+x 4
+y 8
+end
+arch floor_earth1d
+x 4
+y 9
+end
+arch fwall_wood1b
+x 4
+y 9
+end
+arch floor_earth1c
+x 4
+y 10
+end
+arch fwall_wood1b
+x 4
+y 10
+end
+arch floor_earth1c
+x 4
+y 11
+end
+arch fwall_wood1c
+x 4
+y 11
+end
+arch floor_earth1c
+x 4
+y 12
+end
+arch fwall_wood1a
+x 4
+y 12
+end
+arch floor_earth1d
+x 4
+y 13
+end
+arch fwall_wood1c
+x 4
+y 13
+end
+arch floor_earth1d
+x 4
+y 14
+end
+arch fwall_wood1a
+x 4
+y 14
+end
+arch floor_earth1d
+x 4
+y 15
+end
+arch straw2.111
+direction 7
+x 4
+y 15
+end
+arch floor_earth1e
+x 4
+y 16
+end
+arch trash_wood1.101
+x 4
+y 16
+end
+arch floor_earth1c
+x 4
+y 17
+end
+arch light1
+x 4
+y 17
+end
+arch floor_earth1b
+x 4
+y 18
+end
+arch floor_earth1c
+x 4
+y 19
+end
+arch floor_earth1b
+x 4
+y 20
+end
+arch wood_pile.101
+x 4
+y 20
+end
+arch floor_earth1b
+x 4
+y 21
+end
+arch fwall_wood1c
+x 4
+y 21
+end
+arch floor_earth1e
+x 5
+end
+arch fwall_wood1c
+x 5
+end
+arch floor_earth1c
+x 5
+y 1
+end
+arch straw2.111
+direction 7
+x 5
+y 1
+end
+arch floor_earth1d
+x 5
+y 2
+end
+arch wood_pile.101
+x 5
+y 2
+end
+arch floor_earth1b
+x 5
+y 3
+end
+arch straw2.111
+x 5
+y 3
+end
+arch floor_earth1b
+x 5
+y 4
+end
+arch fwall_wood1a
+x 5
+y 4
+end
+arch floor_earth1e
+x 5
+y 5
+end
+arch fwall_wood1c
+x 5
+y 5
+end
+arch floor_earth1c
+x 5
+y 6
+end
+arch fwall_wood1a
+x 5
+y 6
+end
+arch floor_earth1e
+x 5
+y 7
+end
+arch fwall_wood1c
+x 5
+y 7
+end
+arch floor_earth1a
+x 5
+y 8
+end
+arch fwall_wood1b
+x 5
+y 8
+end
+arch floor_earth1a
+x 5
+y 9
+end
+arch fwall_wood1c
+x 5
+y 9
+end
+arch floor_earth1c
+x 5
+y 10
+end
+arch box1.101
+x 5
+y 10
+end
+arch floor_earth1e
+x 5
+y 11
+end
+arch trash_wood2.101
+x 5
+y 11
+end
+arch floor_earth1a
+x 5
+y 12
+end
+arch pile_floor3
+x 5
+y 12
+end
+arch floor_earth1d
+x 5
+y 13
+end
+arch wood_pile.101
+x 5
+y 13
+end
+arch floor_earth1a
+x 5
+y 14
+end
+arch fwall_wood1a
+x 5
+y 14
+end
+arch floor_earth1e
+x 5
+y 15
+end
+arch fwall_wood1a
+x 5
+y 15
+end
+arch floor_earth1d
+x 5
+y 16
+end
+arch box1.101
+x 5
+y 16
+end
+arch floor_earth1a
+x 5
+y 17
+end
+arch straw2.111
+x 5
+y 17
+end
+arch floor_earth1d
+x 5
+y 18
+end
+arch floor_earth1e
+x 5
+y 19
+end
+arch floor_earth1d
+x 5
+y 20
+end
+arch straw2.111
+x 5
+y 20
+end
+arch floor_earth1d
+x 5
+y 21
+end
+arch fwall_wood1c
+x 5
+y 21
+end
+arch floor_earth1e
+x 6
+end
+arch fwall_wood1a
+x 6
+end
+arch floor_earth1c
+x 6
+y 1
+end
+arch trash_wood1.101
+x 6
+y 1
+end
+arch floor_earth1c
+x 6
+y 2
+end
+arch spawn_point
+x 6
+y 2
+arch jelly_red
+randomitems mob_fighter_l9
+level 2
+wc_range 16
+type 83
+end
+end
+arch floor_earth1d
+x 6
+y 3
+end
+arch pile_floor2
+x 6
+y 3
+end
+arch floor_earth1a
+x 6
+y 4
+end
+arch pile_floor2
+x 6
+y 4
+end
+arch floor_earth1c
+x 6
+y 5
+end
+arch floor_earth1b
+x 6
+y 6
+end
+arch floor_earth1a
+x 6
+y 7
+end
+arch floor_earth1d
+x 6
+y 8
+end
+arch dirt_floor3
+x 6
+y 8
+end
+arch floor_earth1c
+x 6
+y 9
+end
+arch floor_earth1b
+x 6
+y 10
+end
+arch pile_floor3
+x 6
+y 10
+end
+arch light1
+x 6
+y 10
+end
+arch floor_earth1d
+x 6
+y 11
+end
+arch floor_earth1c
+x 6
+y 12
+end
+arch trash_wood2.101
+x 6
+y 12
+end
+arch light1
+x 6
+y 12
+end
+arch floor_earth1b
+x 6
+y 13
+end
+arch floor_earth1e
+x 6
+y 14
+end
+arch box2.101
+x 6
+y 14
+end
+arch floor_earth1d
+x 6
+y 15
+end
+arch fwall_wood1b
+x 6
+y 15
+end
+arch floor_earth1a
+x 6
+y 16
+end
+arch fwall_wood1c
+x 6
+y 16
+end
+arch floor_earth1a
+x 6
+y 17
+end
+arch fwall_wood1a
+x 6
+y 17
+end
+arch floor_earth1e
+x 6
+y 18
+end
+arch fwall_wood1b
+x 6
+y 18
+end
+arch floor_earth1a
+x 6
+y 19
+end
+arch floor_earth1b
+x 6
+y 20
+end
+arch floor_earth1b
+x 6
+y 21
+end
+arch fwall_wood1b
+x 6
+y 21
+end
+arch floor_earth1a
+x 7
+end
+arch fwall_wood1c
+x 7
+end
+arch floor_earth1b
+x 7
+y 1
+end
+arch floor_earth1b
+x 7
+y 2
+end
+arch light1
+x 7
+y 2
+end
+arch floor_earth1d
+x 7
+y 3
+end
+arch floor_earth1d
+x 7
+y 4
+end
+arch fwall_wood1c
+x 7
+y 4
+end
+arch floor_earth1a
+x 7
+y 5
+end
+arch fwall_wood1a
+x 7
+y 5
+end
+arch floor_earth1e
+x 7
+y 6
+end
+arch fwall_wood1b
+x 7
+y 6
+end
+arch floor_earth1e
+x 7
+y 7
+end
+arch fwall_wood1b
+x 7
+y 7
+end
+arch floor_earth1e
+x 7
+y 8
+end
+arch fwall_wood1a
+x 7
+y 8
+end
+arch floor_earth1d
+x 7
+y 9
+end
+arch pile_floor2
+x 7
+y 9
+end
+arch floor_earth1e
+x 7
+y 10
+end
+arch dirt_floor3
+x 7
+y 10
+end
+arch floor_earth1e
+x 7
+y 11
+end
+arch floor_earth1d
+x 7
+y 12
+end
+arch spawn_point
+x 7
+y 12
+arch ant_queen
+type 83
+level 2
+arch quest_container
+name incuna_barn
+arch quest_container
+name get_ant_head
+sub_type 2
+arch head_ant_queen
+name incuna barn ant queen head
+end
+end
+end
+end
+end
+arch floor_earth1a
+x 7
+y 13
+end
+arch pile_floor2
+x 7
+y 13
+end
+arch floor_earth1b
+x 7
+y 14
+end
+arch trash_wood1.101
+x 7
+y 14
+end
+arch light1
+x 7
+y 14
+end
+arch floor_earth1c
+x 7
+y 15
+end
+arch dirt_floor4
+x 7
+y 15
+end
+arch floor_earth1e
+x 7
+y 16
+end
+arch trash_wood2.101
+x 7
+y 16
+end
+arch floor_earth1e
+x 7
+y 17
+end
+arch box1.101
+x 7
+y 17
+end
+arch floor_earth1e
+x 7
+y 18
+end
+arch fwall_wood1b
+x 7
+y 18
+end
+arch floor_earth1a
+x 7
+y 19
+end
+arch floor_earth1d
+x 7
+y 20
+end
+arch pile_floor2
+x 7
+y 20
+end
+arch floor_earth1d
+x 7
+y 21
+end
+arch fwall_wood1b
+x 7
+y 21
+end
+arch floor_earth1e
+x 8
+end
+arch pile_floor2
+x 8
+end
+arch floor_earth1e
+x 8
+y 1
+end
+arch floor_earth1d
+x 8
+y 2
+end
+arch floor_earth1e
+x 8
+y 3
+end
+arch floor_earth1a
+x 8
+y 4
+end
+arch fwall_wood1b
+x 8
+y 4
+end
+arch floor_earth1b
+x 8
+y 8
+end
+arch fwall_wood1c
+x 8
+y 8
+end
+arch floor_earth1e
+x 8
+y 9
+end
+arch fwall_wood1a
+x 8
+y 9
+end
+arch floor_earth1b
+x 8
+y 10
+end
+arch box1.101
+x 8
+y 10
+end
+arch floor_earth1c
+x 8
+y 11
+end
+arch pile_floor1
+x 8
+y 11
+end
+arch floor_earth1e
+x 8
+y 12
+end
+arch pile_floor1
+x 8
+y 12
+end
+arch light1
+x 8
+y 12
+end
+arch floor_earth1d
+x 8
+y 13
+end
+arch dirt_floor4
+x 8
+y 13
+end
+arch floor_earth1b
+x 8
+y 14
+end
+arch floor_earth1c
+x 8
+y 15
+end
+arch floor_earth1b
+x 8
+y 16
+end
+arch dirt_floor3
+x 8
+y 16
+end
+arch floor_earth1c
+x 8
+y 17
+end
+arch floor_earth1b
+x 8
+y 18
+end
+arch floor_earth1c
+x 8
+y 19
+end
+arch pile_floor2
+x 8
+y 19
+end
+arch floor_earth1d
+x 8
+y 20
+end
+arch straw2.111
+direction 7
+x 8
+y 20
+end
+arch floor_earth1b
+x 8
+y 21
+end
+arch fwall_wood1b
+x 8
+y 21
+end
+arch floor_earth1b
+x 9
+end
+arch fwall_wood1a
+x 9
+end
+arch floor_earth1b
+x 9
+y 1
+end
+arch fwall_wood1c
+x 9
+y 1
+end
+arch floor_earth1b
+x 9
+y 2
+end
+arch fwall_wood1c
+x 9
+y 2
+end
+arch floor_earth1e
+x 9
+y 3
+end
+arch fwall_wood1c
+x 9
+y 3
+end
+arch floor_earth1e
+x 9
+y 4
+end
+arch fwall_wood1a
+x 9
+y 4
+end
+arch floor_earth1a
+x 9
+y 9
+end
+arch fwall_wood1a
+x 9
+y 9
+end
+arch floor_earth1b
+x 9
+y 10
+end
+arch fwall_wood1b
+x 9
+y 10
+end
+arch floor_earth1b
+x 9
+y 11
+end
+arch fwall_wood1a
+x 9
+y 11
+end
+arch floor_earth1a
+x 9
+y 12
+end
+arch fwall_wood1c
+x 9
+y 12
+end
+arch floor_earth1c
+x 9
+y 13
+end
+arch fwall_wood1b
+x 9
+y 13
+end
+arch floor_earth1e
+x 9
+y 14
+end
+arch fwall_wood1b
+x 9
+y 14
+end
+arch floor_earth1a
+x 9
+y 15
+end
+arch fwall_wood1a
+x 9
+y 15
+end
+arch floor_earth1b
+x 9
+y 16
+end
+arch fwall_wood1a
+x 9
+y 16
+end
+arch floor_earth1e
+x 9
+y 17
+end
+arch fwall_wood1a
+x 9
+y 17
+end
+arch floor_earth1c
+x 9
+y 18
+end
+arch fwall_wood1a
+x 9
+y 18
+end
+arch floor_earth1c
+x 9
+y 19
+end
+arch fwall_wood1c
+x 9
+y 19
+end
+arch floor_earth1b
+x 9
+y 20
+end
+arch fwall_wood1a
+x 9
+y 20
+end
+arch floor_earth1b
+x 9
+y 21
+end
+arch fwall_wood1c
+x 9
+y 21
+end
