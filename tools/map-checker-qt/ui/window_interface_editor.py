@@ -872,14 +872,14 @@ class InterfaceElementAnd(InterfaceElement):
 class InterfaceElementCheck(InterfaceElement):
     tag = "check"
     attributes = ("region_map", "enemy", "started", "finished", "completed",
-                  "num2finish", "options")
+                  "num2finish", "options", "gender")
     priority = 1000
 
 
 class InterfaceElementNcheck(InterfaceElement):
     tag = "ncheck"
     attributes = ("region_map", "enemy", "started", "finished", "completed",
-                  "num2finish", "options")
+                  "num2finish", "options", "gender")
     priority = 1000
 
 

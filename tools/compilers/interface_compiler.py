@@ -581,6 +581,17 @@ class TagCompilerCheck(TagCompilerAnd):
                         "QuestManager(self._activator, {quest_name})"
                         ".{attr}({part_name})", quest_name=quest_name,
                         attr=attr, part_name=part_name)
+            elif attr == "gender":
+                self.precond.write("self._activator.GetGender() == ")
+
+                if val == "male":
+                    self.precond.write("Gender.MALE")
+                elif val == "female":
+                    self.precond.write("Gender.FEMALE")
+                elif val == "hermaphrodite":
+                    self.precond.write("Gender.HERMAPHRODITE")
+                else:
+                    self.precond.write("Gender.NEUTER")
 
         self.precond.write(")")
 

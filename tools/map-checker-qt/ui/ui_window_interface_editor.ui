@@ -187,6 +187,42 @@
               <item row="6" column="2">
                <widget class="QLineEdit" name="interface_element_ncheck_options"/>
               </item>
+              <item row="7" column="0">
+               <widget class="QLabel" name="label_59">
+                <property name="text">
+                 <string>Gender</string>
+                </property>
+               </widget>
+              </item>
+              <item row="7" column="2">
+               <widget class="QComboBox" name="interface_element_ncheck_gender">
+                <item>
+                 <property name="text">
+                  <string/>
+                 </property>
+                </item>
+                <item>
+                 <property name="text">
+                  <string>male</string>
+                 </property>
+                </item>
+                <item>
+                 <property name="text">
+                  <string>female</string>
+                 </property>
+                </item>
+                <item>
+                 <property name="text">
+                  <string>neuter</string>
+                 </property>
+                </item>
+                <item>
+                 <property name="text">
+                  <string>hermaphrodite</string>
+                 </property>
+                </item>
+               </widget>
+              </item>
              </layout>
             </item>
             <item>
@@ -340,6 +376,13 @@
               </item>
               <item row="1" column="2">
                <widget class="QLineEdit" name="interface_element_part_name"/>
+              </item>
+              <item row="2" column="2">
+               <widget class="QCheckBox" name="interface_element_part_optional">
+                <property name="text">
+                 <string>Optional</string>
+                </property>
+               </widget>
               </item>
              </layout>
             </item>
@@ -611,6 +654,42 @@
               </item>
               <item row="5" column="2">
                <widget class="QLineEdit" name="interface_element_check_num2finish"/>
+              </item>
+              <item row="7" column="0">
+               <widget class="QLabel" name="label_58">
+                <property name="text">
+                 <string>Gender</string>
+                </property>
+               </widget>
+              </item>
+              <item row="7" column="2">
+               <widget class="QComboBox" name="interface_element_check_gender">
+                <item>
+                 <property name="text">
+                  <string/>
+                 </property>
+                </item>
+                <item>
+                 <property name="text">
+                  <string>male</string>
+                 </property>
+                </item>
+                <item>
+                 <property name="text">
+                  <string>female</string>
+                 </property>
+                </item>
+                <item>
+                 <property name="text">
+                  <string>neuter</string>
+                 </property>
+                </item>
+                <item>
+                 <property name="text">
+                  <string>hermaphrodite</string>
+                 </property>
+                </item>
+               </widget>
               </item>
              </layout>
             </item>
@@ -1353,7 +1432,7 @@
      <x>0</x>
      <y>0</y>
      <width>969</width>
-     <height>26</height>
+     <height>21</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuTest">
