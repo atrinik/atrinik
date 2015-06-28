@@ -157,7 +157,7 @@ object *object_find(tag_t tag)
  * @param op What to remove. */
 void object_remove(object *op)
 {
-    if (op == NULL || op == cpl.ob || op == cpl.below || op == cpl.sack) {
+    if (op == NULL || op == cpl.ob || op == cpl.below) {
         return;
     }
 
@@ -208,8 +208,14 @@ void object_remove_inventory(object *op)
 
     object_redraw(op);
 
-    while (op->inv) {
-        object_remove(op->inv);
+    for (object *tmp = op->inv, *next; tmp != NULL; tmp = next) {
+        next = tmp->next;
+
+        if (tmp == cpl.sack) {
+            continue;
+        }
+
+        object_remove(tmp);
     }
 }
 
@@ -254,6 +260,30 @@ static void object_add(object *env, object *op, int bflag)
 
             tmp->next = op;
         }
+    }
+}
+
+/**
+ * Transfer the entire inventory of 'op' into 'to'.
+ * @param op Object to transfer the inventory of.
+ * @param to Object to receive the items.
+ */
+void object_transfer_inventory(object *op, object *to)
+{
+    for (object *tmp = op->inv, *next; tmp != NULL; tmp = next) {
+        next = tmp->next;
+
+        if (tmp->prev != NULL) {
+            tmp->prev->next = tmp->next;
+        } else if (tmp->env != NULL) {
+            tmp->env->inv = tmp->next;
+        }
+
+        if (tmp->next != NULL) {
+            tmp->next->prev = tmp->prev;
+        }
+
+        object_add(to, tmp, 1);
     }
 }
 

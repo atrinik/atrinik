@@ -500,12 +500,11 @@ void command_item_update(uint8_t *data, size_t len, size_t *pos, uint32_t flags,
 /** @copydoc socket_command_struct::handle_func */
 void socket_command_item(uint8_t *data, size_t len, size_t pos)
 {
-    if (packet_to_uint8(data, len, &pos) == 1) {
+    bool delete_env = packet_to_uint8(data, len, &pos) == 1;
+    if (delete_env) {
         tag_t loc_delete = packet_to_uint32(data, len, &pos);
         object *env = object_find(loc_delete);
         if (env == NULL) {
-            LOG(ERROR, "Server sent invalid location to delete: %" PRIu32,
-                    loc_delete);
             return;
         }
 
@@ -545,9 +544,19 @@ void socket_command_item(uint8_t *data, size_t len, size_t pos)
             tmp = NULL;
         }
 
-        if (tmp == NULL) {
+        if (tmp == NULL || delete_env) {
+            object *old_tmp = tmp;
             tmp = object_create(env, tag, bflag);
             tmp->apply_action = apply_action;
+
+            if (old_tmp != NULL) {
+                if (old_tmp == cpl.sack) {
+                    cpl.sack = tmp;
+                }
+
+                object_transfer_inventory(old_tmp, tmp);
+                object_remove(old_tmp);
+            }
         }
 
         uint32_t flags = UPD_FLAGS | UPD_WEIGHT | UPD_FACE | UPD_DIRECTION |

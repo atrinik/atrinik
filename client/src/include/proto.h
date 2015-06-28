@@ -59,6 +59,7 @@ extern object *object_find_object(object *op, tag_t tag);
 extern object *object_find(tag_t tag);
 extern void object_remove(object *op);
 extern void object_remove_inventory(object *op);
+extern void object_transfer_inventory(object *op, object *to);
 extern object *object_create(object *env, tag_t tag, int bflag);
 extern void toggle_locked(object *op);
 extern void object_send_mark(object *op);
