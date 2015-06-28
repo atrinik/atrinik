@@ -518,9 +518,10 @@ class InterfaceBuilder(Interface):
 
     def _check_parts(self, parts, name=None):
         for part in parts:
-            l = [part]
             if name is not None:
-                l += name
+                l = name + [part]
+            else:
+                l = [part]
 
             if self._part_dialog(l, checks=IB_CHECKS_STATE1):
                 return True
