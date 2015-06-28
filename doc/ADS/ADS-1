@@ -1,5 +1,5 @@
 ===============================================================================
-= ADS-1, rev: 1.1: Atrinik Interface XML Documentation                        =
+= ADS-1, rev: 1.1.1: Atrinik Interface XML Documentation                      =
 ===============================================================================
  This document contains information about the syntax and rules of the Atrinik
  XML interface files.
@@ -333,6 +333,9 @@ def dialog(self, msg):
      Checks event options.
   - num2finish (int) (optional):
      Precondition based on number of objects necessary to finish a quest part.
+  - gender (string) (optional):
+     Checks activator's gender. Possible values are: "male", "female", "neuter"
+     and "hermaphrodite".
 
  Examples:
   <check region_map="incuna" />
@@ -341,6 +344,7 @@ def dialog(self, msg):
   <check finished="get_hearts" />
   <check started="fort_sether_illness figure" />
   <check completed="fort_sether_illness" />
+  <check gender="male" />
 
 ===============================================================================
 = 3.2.3. Interface precond                                                    =
