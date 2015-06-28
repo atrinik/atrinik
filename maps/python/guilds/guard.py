@@ -30,4 +30,4 @@ def main():
 
 
 main()
-inf.finish()
+inf.send()

@@ -60,4 +60,4 @@ def main():
             inf.add_msg("You have been accepted to the guild. Before you are a fully qualified member however, you must wait for an approval from a guild administrator.")
 
 main()
-inf.finish()
+inf.send()

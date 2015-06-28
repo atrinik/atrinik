@@ -22,4 +22,4 @@ def main():
         inf.add_msg(random.choice(replies))
 
 main()
-inf.finish()
+inf.send()

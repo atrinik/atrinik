@@ -12,4 +12,4 @@ def main():
     bank.handle_chat(msg)
 
 main()
-inf.finish()
+inf.send()

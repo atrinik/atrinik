@@ -69,4 +69,4 @@ if msg == "hello":
     else:
         inf = Interface(activator, me)
         main()
-        inf.finish()
+        inf.send()

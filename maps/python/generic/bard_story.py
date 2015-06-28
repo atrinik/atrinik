@@ -28,4 +28,4 @@ def main():
                 break
 
 main()
-inf.finish()
+inf.send()

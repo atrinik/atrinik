@@ -30,4 +30,4 @@ def main():
         inf.add_msg("Move along. We'll have no trouble here.")
 
 main()
-inf.finish()
+inf.send()

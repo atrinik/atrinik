@@ -269,4 +269,4 @@ def main():
                 inf.add_msg("Could not make {} the guild founder.".format(name))
 
 main()
-inf.finish()
+inf.send()

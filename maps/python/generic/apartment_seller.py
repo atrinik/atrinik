@@ -68,4 +68,4 @@ def main():
             inf.add_msg("Sorry, you don't have enough money.")
 
 main()
-inf.finish()
+inf.send()

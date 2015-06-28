@@ -859,7 +859,7 @@ def auction_uid_increase():
 
 try:
     main()
-    inf.finish()
+    inf.send()
 # Make sure to close the database.
 finally:
     db.close()

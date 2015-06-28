@@ -88,4 +88,4 @@ def main():
             pl.Controller().DrawInfo("You have been released early.", COLOR_GREEN)
 
 main()
-inf.finish()
+inf.send()

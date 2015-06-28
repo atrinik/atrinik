@@ -77,6 +77,6 @@ def main():
 
 try:
     main()
-    inf.finish()
+    inf.send()
 finally:
     post.db.close()

@@ -62,6 +62,6 @@ def main():
             dest = "/cmd_permission {} add".format(pl.name))
     inf.add_link("Remove all permissions",
             dest = "/cmd_permission {} removeall".format(pl.name))
-    inf.finish()
+    inf.send()
 
 main()

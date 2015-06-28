@@ -216,7 +216,7 @@ class PyConsole (code.InteractiveConsole):
         if append:
             inf.set_append_text("[font=mono 12]\n{}[/font]".format(append))
 
-        inf.finish()
+        inf.send()
 
 def console_name(activator):
     return "__console-" + activator.name.lower() + "__"

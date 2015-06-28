@@ -132,7 +132,7 @@ class Interface:
     def dialog_close(self):
         self._activator.Controller().SendPacket(26, "", None)
 
-    def finish(self, disable_timeout = False):
+    def send(self, disable_timeout=False):
         if not self._msg and not self._restore:
             return
 
