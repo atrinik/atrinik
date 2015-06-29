@@ -1192,7 +1192,7 @@ static PyObject *Atrinik_Object_Destroy(Atrinik_Object *self)
 
 /** Documentation for Atrinik_Object_SetPosition(). */
 static const char doc_Atrinik_Object_SetPosition[] =
-".. method:: SetPosition().\n\n"
+".. method:: SetPosition(x, y).\n\n"
 "Sets new position coordinates for the object.\n\nCannot be used to move "
 "objects out of containers, use :meth:`~Atrinik.Drop` or :meth:"
 "`~Atrinik.TeleportTo` for that."
