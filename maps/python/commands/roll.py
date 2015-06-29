@@ -27,7 +27,7 @@ def parse_params():
         return None
 
     # Return how many times to roll the die, and how many sides it should have.
-    return (max(MIN_num, min(MAX_num, int(l[0]))), max(MIN_sides, min(MAX_sides, int(l[1]))))
+    return max(MIN_num, min(MAX_num, int(l[0]))), max(MIN_sides, min(MAX_sides, int(l[1])))
 
 def main():
     parse = parse_params()

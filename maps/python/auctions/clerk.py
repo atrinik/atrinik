@@ -340,7 +340,7 @@ def parse_base64(s):
         y = int(y)
         count = int(count)
         # Create a new tuple with all the parsed data.
-        return (path, x, y, count)
+        return path, x, y, count
     # Failed to extract the data.
     except:
         return None
