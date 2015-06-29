@@ -453,7 +453,7 @@ def main():
                 i = int(val)
 
                 # Is the filter in a valid range?
-                if i >= 0 and i < Filter.MAX and not i in filters:
+                if 0 <= i < Filter.MAX and i not in filters:
                     if i in sorts:
                         sort = i
 
