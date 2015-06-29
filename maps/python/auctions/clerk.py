@@ -370,7 +370,7 @@ def create_list(l, action, back = None, sort = None, start = None):
         l.sort(key = lambda obj: int(obj.ReadKey("auction_house_value")))
 
     # Cut the list for paging if applicable.
-    if start != None:
+    if start is not None:
         l = l[start:start + Auction.PER_PAGE]
 
     for obj in l:

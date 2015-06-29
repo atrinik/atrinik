@@ -43,7 +43,7 @@ for x in range(m.width):
 
                 # Keep generating food until we get food that gives at
                 # least 100 food points.
-                while food == None:
+                while food is None:
                     cont.CreateTreasure("random_food", 1, GT_NO_VALUE | GT_ONLY_GOOD)
                     food = cont.inv
 
