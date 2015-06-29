@@ -225,7 +225,7 @@ class QuestManager:
         :param part: Quest part specifier.
         :type part: str or list
         :return: Number of kills/items/etc still required to complete the quest.
-        If zero, the quest (part) can be completed.
+                 If zero, the quest (part) can be completed.
         :rtype: int
         """
 
@@ -341,7 +341,7 @@ class QuestManager:
         :param part: Quest part specifier.
         :type part: str or list
         :return: Tuple containing the bottommost quest part UID and the quest
-        part dictionary.
+                 part dictionary.
         :rtype: tuple
         """
 
@@ -376,6 +376,7 @@ class QuestManager:
     def complete(self, part, sound="learnspell.ogg"):
         """
         Completes the specified quest part.
+
         :param part: Quest part specifier.
         :type part: str or list
         :param sound: Sound file to play.
@@ -447,7 +448,7 @@ class QuestManager:
         Checks if the specified quest part has been started.
 
         :param part: Quest part specifier. If None, will check whether the quest
-        itself has been started at all.
+                     itself has been started at all.
         :type part: str or list or None
         :return: Whether the quest (part) has been started.
         :rtype: bool
@@ -467,7 +468,7 @@ class QuestManager:
         Checks if the specified quest part has been completed.
 
         :param part: Quest part specifier. If None, will check whether the quest
-        itself has been fully completed.
+                     itself has been fully completed.
         :type part: str or list or None
         :return: Whether the quest (part) has been completed.
         :rtype: bool
