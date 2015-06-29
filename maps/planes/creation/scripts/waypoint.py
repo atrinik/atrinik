@@ -23,7 +23,7 @@ def main():
             me.FindObject(name = "waypoint1").f_cursed = True
             inf.dialog_close()
 
-        inf.finish(disable_timeout = True)
+        inf.send()
     # Trigger event is triggered when the waypoint has reached its destination.
     elif event_nr == EVENT_TRIGGER:
         # Reached waypoint that is used for getting to apples dropped around a tree.

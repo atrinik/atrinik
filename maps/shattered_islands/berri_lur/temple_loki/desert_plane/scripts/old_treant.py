@@ -14,4 +14,4 @@ def main():
         inf.add_msg("Have you tried pushing?")
 
 main()
-inf.finish()
+inf.send()

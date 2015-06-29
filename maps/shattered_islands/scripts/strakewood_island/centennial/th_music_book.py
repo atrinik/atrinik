@@ -50,4 +50,4 @@ def main():
         inf.add_link("Stop Music", dest = "none")
 
 main()
-inf.finish()
+inf.send()

@@ -27,4 +27,4 @@ def main():
         inf.set_text_input()
 
 main()
-inf.finish()
+inf.send()

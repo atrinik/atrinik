@@ -1,6 +1,7 @@
 ## @file
 ## Helpful NPC to change background music of a map.
 
+from Atrinik import *
 from Interface import Interface
 from Packet import MapStats
 import re
@@ -20,8 +21,8 @@ def main():
         map_name = "[b][o=#000000]{}[/o][/b]".format(info.race)
 
         for player in me.map.GetPlayers():
-            if player.x >= info.x and player.x <= info.x + info.hp and player.y >= info.y and player.y <= info.y + info.sp:
+            if info.x <= player.x <= info.x + info.hp and info.y <= player.y <= info.y + info.sp:
                 MapStats(player.Controller(), name = map_name, music = info.slaying)
 
 main()
-inf.finish()
+inf.send()

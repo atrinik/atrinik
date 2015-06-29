@@ -113,4 +113,4 @@ def main():
         pc.set_class(name)
 
 main()
-inf.finish()
+inf.send()

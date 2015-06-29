@@ -14,4 +14,4 @@ def main():
         inf.add_msg("Loki is regarded as a god of chaos, due to his playful, unpredictable nature. He is by nature however, a shapeshifter.")
 
 main()
-inf.finish()
+inf.send()
