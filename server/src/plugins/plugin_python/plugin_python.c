@@ -1715,7 +1715,7 @@ static PyObject *Atrinik_CreateMap(PyObject *self, PyObject *args)
 
 /** Documentation for Atrinik_CreateObject(). */
 static const char doc_Atrinik_CreateObject[] =
-".. function:: CreateObject(width, height, path).\n\n"
+".. function:: CreateObject(archname).\n\n"
 "Creates a new object. Note that if the created object is not put on map or "
 "inside an inventory of another object, it will be considered a leaked object. "
 "Use :meth:`Atrinik.Object.Object.Destroy` to free it if you no longer need "
