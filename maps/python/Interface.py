@@ -16,6 +16,7 @@ class Interface:
     def __init__(self, activator, npc):
         """
         Initialize the class.
+
         :param activator: Player that activated the event.
         :type activator: :class:`Atrinik.Object.Object`
         :param npc: NPC/item that is speaking to the player.
@@ -49,15 +50,16 @@ class Interface:
     def add_msg(self, msg, color=None, newline=True, **keywds):
         """
         Adds a message to the interface dialog.
+
         :param msg: Message to add.
         :type msg: str
         :param color: Color to use for the message, eg, 'ff0000' for red.
         :type color: str
         :param newline: If True, will add a blank line before the message (if
-        any was added previously).
+                        any was added previously).
         :type newline: bool
         :param \**keywds: Rest of the keyword arguments will be formatted into
-        the message using msg.format().
+                          the message using msg.format().
         """
 
         if newline and self._msg:
@@ -75,6 +77,7 @@ class Interface:
     def add_msg_icon(self, icon, desc="", fit=False):
         """
         Adds an icon to the interface dialog.
+
         :param icon: In-game face name, eg, *amulet.101*.
         :type icon: str
         :param desc: Text to add alongside the icon.
@@ -99,10 +102,11 @@ class Interface:
     def add_msg_icon_object(self, obj, desc=None):
         """
         Adds an object to the interface dialog as an icon.
+
         :param obj: Object to add.
         :type obj: :class:`Atrinik.Object.Object`
         :param desc: Text to add alongside the object's icon. If None, will use
-        the object's name.
+                     the object's name.
         :type desc: str or None
         """
 
@@ -128,6 +132,7 @@ class Interface:
         Create a command from a dialog destination. This is necessary, because
         sometimes special commands are necessary for the interface links, for
         instance, when talking to an item and not an actual NPC.
+
         :param dest: Destination, eg, 'hello'. If this starts with a forward
         slash, nothing is done.
         :type dest: str
@@ -165,20 +170,23 @@ class Interface:
         bottom of the interface, in the order that this method was called in.
 
         Essentially, this::
+
             inf = Interface(WhoIsActivator(), WhoAmI())
             inf.add_msg("Hello there!")
             inf.add_msg("Welcome to my inn.")
             inf.add_link("Who are you?", dest="who")
 
         Is the same as::
+
             inf = Interface(WhoIsActivator(), WhoAmI())
             inf.add_msg("Hello there!")
             inf.add_link("Who are you?", dest="who")
             inf.add_msg("Welcome to my inn.")
 
         However, it's still preferred to use the former form.
+
         :param link: Text of the link -- what the player can say to the NPC, eg,
-        'Who are you?'.
+                     'Who are you?'.
         :type link: str
         :param action: Special link action to perform.
         :type action: str
@@ -201,6 +209,7 @@ class Interface:
         """
         Sets icon used for the interface dialog -- the picture in the upper
         left corner of the interface window.
+
         :param icon: In-game face name, eg, *amulet.101*.
         :type icon: str
         """
@@ -211,6 +220,7 @@ class Interface:
         """
         Sets animation used for the interface dialog -- the picture in the upper
         left corner of the interface window.
+
         :param anim: Animation ID, eg, 111.
         :type anim: int
         :param anim_speed: Speed of the animation.
@@ -226,6 +236,7 @@ class Interface:
     def set_title(self, title):
         """
         Set title of the interface dialog.
+
         :param title: Title.
         :type title: str
         """
@@ -238,20 +249,21 @@ class Interface:
         """
         Sets text input parameters. A text input box will be automatically
         opened in the interface.
+
         :param text: Text that will appear in the box.
         :type text: str
         :param prepend: Hidden text to prepend to the text typed into the input
-        box, before sending it as a talk command.
+                        box, before sending it as a talk command.
         :type prepend: str
         :param allow_tab: Whether to allow entering the tabulator key.
         :type allow_tab: bool
         :param allow_empty: Whether to allow sending empty text.
         :type allow_empty: bool
         :param cleanup_text: Whether to clean up the text before sending it, eg,
-        escape markup.
+                             escape markup.
         :type cleanup_text: bool
         :param scroll_bottom: If True, will scroll to the bottom of the
-        interface dialog.
+                              interface dialog.
         :type scroll_bottom: bool
         :param autocomplete: Destination to use for auto-completion purposes.
         :type autocomplete: str or None
@@ -268,6 +280,7 @@ class Interface:
     def set_append_text(self, append_text):
         """
         Specifies text to append to an already visible interface dialog.
+
         :param append_text: Text to append.
         :type append_text: str
         """
@@ -286,10 +299,11 @@ class Interface:
         """
         Add objects to the interface dialog, as well as into the player's
         inventory. This is used to hand out rewards, for example.
+
         :param objs: Objects to add. If any of the objects are on a map or in an
-        inventory, they will be cloned.
+                     inventory, they will be cloned.
         :type objs: :class:`Atrinik.Object.Object` or list of
-        :class:`Atrinik.Object.Object`
+                    :class:`Atrinik.Object.Object`
         """
 
         if type(objs) != list:
@@ -399,6 +413,7 @@ class InterfaceBuilder(Interface):
     response destinations through class methods.
 
     For example::
+
         from Interface import InterfaceBuilder
 
         class InterfaceDialog(InterfaceBuilder):
@@ -415,6 +430,7 @@ class InterfaceBuilder(Interface):
     Using QuestManager automatic preconditions (note that this way is not
     generally used except for Python scripts generated from interface XML
     files)::
+
         from Interface import InterfaceBuilder
         from QuestManager import QuestManager
         from collections import OrderedDict
@@ -459,6 +475,7 @@ class InterfaceBuilder(Interface):
 
     Using a preconditions function and regex dialog matchers (again, generally
     only used in generated Python scripts)::
+
         from Interface import InterfaceBuilder
 
         class InterfaceDialog_1(InterfaceBuilder):
@@ -539,6 +556,7 @@ class InterfaceBuilder(Interface):
         """
         Specifies a :class:`~QuestManager.QuestManager` instance to use for
         quest-based preconditions handling.
+
         :param qm: The quest manager instance.
         :type qm: :class:`QuestManager.QuestManager`
         """
@@ -550,6 +568,7 @@ class InterfaceBuilder(Interface):
         """
         Precondition handler. Must return True, otherwise no dialog_xxx methods
         will be called.
+
         :return: True.
         :rtype: bool
         """
@@ -560,6 +579,7 @@ class InterfaceBuilder(Interface):
         """
         Performs handling of the specified message. Used when there's no
         dialog_xxx method implemented in the class.
+
         :param msg: Message to handle, eg, 'hello'.
         :type msg: str
         """
@@ -571,6 +591,7 @@ class InterfaceBuilder(Interface):
         """
         Acquire the number of items/kills/etc required to finish the quest
         part.
+
         :return: Number to finish.
         :rtype: int
         """
@@ -582,6 +603,7 @@ class InterfaceBuilder(Interface):
         """
         Acquire the number of items/kills/etc required to finish the quest
         part as a word, eg, "twenty five".
+
         :return: Number to finish.
         :rtype: str
         """
@@ -593,6 +615,7 @@ class InterfaceBuilder(Interface):
         """
         Acquire the activator's gender as a string, using
         :attr:`Language.genders`.
+
         :return: The gender.
         :rtype: str
         """
@@ -604,6 +627,7 @@ class InterfaceBuilder(Interface):
         """
         Acquire the activator's gender as a string, using
         :attr:`Language.genders2`.
+
         :return: The gender.
         :rtype: str
         """
@@ -613,6 +637,7 @@ class InterfaceBuilder(Interface):
     def finish(self, locals_dict, msg):
         """
         Decides which interface dialog to use and sends it off.
+
         :param locals_dict: The locals() dictionary.
         :type locals_dict: dict
         :param msg: Message that was spoken to the NPC.
