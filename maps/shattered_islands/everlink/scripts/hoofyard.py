@@ -2,6 +2,7 @@
 ## Script for Hoofyard in Everlink, who explains about the construction
 ## skill.
 
+from Atrinik import *
 from Interface import Interface
 
 inf = Interface(activator, me)

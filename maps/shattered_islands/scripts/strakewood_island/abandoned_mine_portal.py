@@ -3,6 +3,8 @@
 ##
 ## Makes the portal shrink, then disappear.
 
+from Atrinik import *
+
 # Shrink it.
 me.zoom_x -= 5
 me.zoom_y -= 5

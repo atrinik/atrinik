@@ -1,6 +1,7 @@
 ## @file
 ## Implements geysers in Dark Cave on Strakewood Island.
 
+from Atrinik import *
 from random import randint
 from Common import diagonal_distance
 

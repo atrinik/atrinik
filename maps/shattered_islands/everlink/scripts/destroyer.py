@@ -1,6 +1,7 @@
 ## @file
 ## Script for item destroyers in public house areas.
 
+from Atrinik import *
 import random
 
 def main():

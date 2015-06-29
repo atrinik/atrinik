@@ -1,6 +1,7 @@
 ## @file
 ## Script for Derwent the snake priest in Loki's Temple.
 
+from Atrinik import *
 from Interface import Interface
 
 inf = Interface(activator, me)

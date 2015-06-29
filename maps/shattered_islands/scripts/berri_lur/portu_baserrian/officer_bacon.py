@@ -1,6 +1,7 @@
 ## @file
 ## Script for Officer Bacon in Portu Baserrian.
 
+from Atrinik import *
 from Interface import Interface
 
 inf = Interface(activator, me)

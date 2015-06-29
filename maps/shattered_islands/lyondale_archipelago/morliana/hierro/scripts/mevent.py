@@ -1,6 +1,8 @@
 ## @file
 ## Used for map-wide events in Hierro's Lair.
 
+from Atrinik import *
+
 event_num = GetEventNumber()
 
 def main():

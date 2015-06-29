@@ -1,6 +1,8 @@
 ## @file
 ## Script to be executed when Hierro dies.
 
+from Atrinik import *
+
 # X/Y locations of various objects to remove/adjust when Hierro dies.
 locations = [
     # No need for the map event objects now.

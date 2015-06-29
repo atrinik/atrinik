@@ -1,6 +1,7 @@
 ## @file
 ## Script for Betiko Mozkortuta in Portu Baserrian tavern.
 
+from Atrinik import *
 from Interface import Interface
 
 inf = Interface(activator, me)
@@ -14,4 +15,4 @@ def main():
         inf.add_msg("I'm noh dwunk! I jus' lika dwenk. Or two.")
 
 main()
-inf.send()
+inf.finish()

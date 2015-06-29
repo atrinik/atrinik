@@ -1,3 +1,4 @@
+from Atrinik import *
 from QuestManager import QuestManager
 from InterfaceQuests import escaping_deserted_island
 

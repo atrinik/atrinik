@@ -2,6 +2,7 @@
 ## Script to teleport a player that has died to map with "local
 ## medics" randomly to one of the beds.
 
+from Atrinik import *
 from random import choice
 
 # Randomly choose the X/Y.

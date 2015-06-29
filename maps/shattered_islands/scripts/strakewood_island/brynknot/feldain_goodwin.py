@@ -1,6 +1,7 @@
 ## @file
 ## Implements the class chooser NPC.
 
+from Atrinik import *
 from Interface import Interface
 from PlayerClass import PlayerClass
 

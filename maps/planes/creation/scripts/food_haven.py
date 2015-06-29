@@ -1,6 +1,7 @@
 ## @file
 ## Experimental script testing the power of CreateMap().
 
+from Atrinik import *
 import time
 
 # Create 17x17 map with unique name
